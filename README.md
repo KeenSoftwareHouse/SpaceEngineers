@@ -25,6 +25,8 @@ Space Engineers must be installed on your computer, Steam must be running.
 - Open up **SpaceEngineers.sln** in Visual Studio.
 - Start debugging by pressing **F5** or select **Debug** - **Start Debugging** in main menu
 
+Instead of modifying **global.props**, you can create **user.props**.
+
 How to contribute
 -----------------
 
