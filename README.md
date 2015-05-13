@@ -12,7 +12,7 @@ See [Change log](https://github.com/KeenSoftwareHouse/SpaceEngineers/wiki/Change
 
 Prerequisities
 --------------
-- [Visual Studio 2013 Community Edition] (https://www.visualstudio.com/en-us/downloads/download-visual-studio-vs#d-community) or other version
+- [Visual Studio 2013 Community Edition] (https://www.visualstudio.com/en-us/downloads/download-visual-studio-vs#d-community) or different VS2013 version
 - Steam Client + Space Engineers game (to run and test the game)
 
 Note: Visual Studio 2012 is supported (VS2012 Express only with workarounds for T4 template processing)
