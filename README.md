@@ -12,20 +12,20 @@ See [Change log](https://github.com/KeenSoftwareHouse/SpaceEngineers/wiki/Change
 
 Prerequisities
 --------------
-- [Visual Studio 2013 Community Edition] (https://www.visualstudio.com/en-us/downloads/download-visual-studio-vs#d-community) or other version
+- [Visual Studio 2013 Community Edition] (https://www.visualstudio.com/en-us/downloads/download-visual-studio-vs#d-community) or different version of VS2013
 - Steam Client + Space Engineers game (to run and test the game)
-
-Note: Visual Studio 2012 is supported (VS2012 Express only with workarounds for T4 template processing)
 
 Quickstart
 ----------
 Space Engineers must be installed on your computer, Steam must be running.
 
-- Clone or download the repository.
+- [Clone](github-windows://openRepo/https://github.com/KeenSoftwareHouse/SpaceEngineers) or [download](https://github.com/KeenSoftwareHouse/SpaceEngineers/archive/master.zip) the repository.
 - Open file **global.props** in text editor.
 - Make sure **ContentPath** tag contains correct path to SpaceEngineers **Content** directory in Steam folder.
 - Open up **SpaceEngineers.sln** in Visual Studio.
 - Start debugging by pressing **F5** or select **Debug** - **Start Debugging** in main menu
+
+Instead of modifying **global.props**, you can create **user.props**.
 
 How to contribute
 -----------------
