@@ -20,9 +20,9 @@ Quickstart
 Space Engineers must be installed on your computer, Steam must be running.
 
 - [Clone](github-windows://openRepo/https://github.com/KeenSoftwareHouse/SpaceEngineers) or [download](https://github.com/KeenSoftwareHouse/SpaceEngineers/archive/master.zip) the repository.
-- Open file **global.props** in text editor.
-- Make sure **ContentPath** tag contains correct path to SpaceEngineers **Content** directory in Steam folder.
-- Open up **SpaceEngineers.sln** in Visual Studio.
+- Open **SpaceEngineers.sln** in Visual Studio.
+- Open file **global.props** (it's in configuration folder).
+- Make sure **ContentPath** tag contains path to SpaceEngineers **Content** directory in Steam folder.
 - Start debugging by pressing **F5** or select **Debug** - **Start Debugging** in main menu
 
 Instead of modifying **global.props**, you can create **user.props**.
