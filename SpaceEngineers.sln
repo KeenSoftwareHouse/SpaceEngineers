@@ -69,6 +69,11 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VRage.Dedicated", "Sources\
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SpaceEngineers.Dedicated", "Sources\SpaceEngineers.Dedicated\SpaceEngineers.Dedicated.csproj", "{0E3C8169-55FC-4AFA-88AB-F0C0488AFEBA}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Configuration", "Configuration", "{BB2E2FD7-114E-441E-A282-643353F31A64}"
+	ProjectSection(SolutionItems) = preProject
+		global.props = global.props
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x86 = Debug|x86
