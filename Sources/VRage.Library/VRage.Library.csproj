@@ -1,0 +1,384 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>8.0.30703</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{26FE022E-42AB-40BE-BA9D-97CBE34E7D99}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>VRage.Library</RootNamespace>
+    <AssemblyName>VRage.Library</AssemblyName>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <TargetFrameworkProfile />
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x86'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\x86\Debug\</OutputPath>
+    <DefineConstants>TRACE;DEBUG;WINDOWS;FEAT_COMPILER;FEAT_SERVICEMODEL;PLAT_BINARYFORMATTER;PLAT_XMLSERIALIZER</DefineConstants>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <DebugType>full</DebugType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <NoWarn>1591,1572,1571,1573,1587,1570</NoWarn>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x86'">
+    <OutputPath>bin\x86\Release\</OutputPath>
+    <DefineConstants>TRACE;WINDOWS;FEAT_COMPILER;FEAT_SERVICEMODEL;PLAT_BINARYFORMATTER;PLAT_XMLSERIALIZER</DefineConstants>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <Optimize>true</Optimize>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <DocumentationFile>bin\x86\Release\VRage.Library.XML</DocumentationFile>
+    <NoWarn>1591,1572,1571,1573,1587,1570</NoWarn>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\x64\Debug\</OutputPath>
+    <DefineConstants>TRACE;DEBUG;WINDOWS;FEAT_COMPILER;FEAT_SERVICEMODEL;PLAT_BINARYFORMATTER;PLAT_XMLSERIALIZER</DefineConstants>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <DebugType>full</DebugType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <NoWarn>1591,1572,1571,1573,1587,1570</NoWarn>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
+    <OutputPath>bin\x64\Release\</OutputPath>
+    <DefineConstants>TRACE;WINDOWS;FEAT_COMPILER;FEAT_SERVICEMODEL;PLAT_BINARYFORMATTER;PLAT_XMLSERIALIZER</DefineConstants>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <Optimize>true</Optimize>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <DocumentationFile>bin\x64\Release\VRage.Library.XML</DocumentationFile>
+    <NoWarn>1591,1572,1571,1573,1587,1570</NoWarn>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.configuration" />
+    <Reference Include="System.Configuration.Install" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Runtime.Serialization" />
+    <Reference Include="System.ServiceModel" />
+    <Reference Include="System.ServiceProcess" />
+    <Reference Include="System.Xml" />
+    <Reference Include="WindowsBase" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Algorithms\IMyPathEdge.cs" />
+    <Compile Include="Algorithms\IMyPathVertex.cs" />
+    <Compile Include="Algorithms\MyPath.cs" />
+    <Compile Include="Algorithms\MyPathFindingSystem.cs" />
+    <Compile Include="Algorithms\MyPathfindingData.cs" />
+    <Compile Include="Algorithms\MyUnionFind.cs" />
+    <Compile Include="Algorithms\Partition.cs" />
+    <Compile Include="BulletXNA\BulletCollision\BoxCollision.cs" />
+    <Compile Include="BulletXNA\BulletCollision\GImpactBvh.cs" />
+    <Compile Include="BulletXNA\BulletCollision\GImpactQuantization.cs" />
+    <Compile Include="BulletXNA\BulletCollision\GImpactQuantizedBvh.cs" />
+    <Compile Include="BulletXNA\BulletCollision\PrimitiveTriangle.cs" />
+    <Compile Include="BulletXNA\LinearMath\IndexedBasisMatrix.cs" />
+    <Compile Include="BulletXNA\LinearMath\IndexedMatrix.cs" />
+    <Compile Include="BulletXNA\LinearMath\IndexedVector3.cs" />
+    <Compile Include="BulletXNA\LinearMath\ObjectArray.cs" />
+    <Compile Include="BulletXNA\LinearMath\UShortVector3.cs" />
+    <Compile Include="BulletXNA\MathUtil.cs" />
+    <Compile Include="Collections\CachingDictionary.cs" />
+    <Compile Include="Collections\CachingList.cs" />
+    <Compile Include="Collections\MyBinaryStructHeap.cs" />
+    <Compile Include="Collections\MyConcurrentDeque.cs" />
+    <Compile Include="Collections\MyDeque.cs" />
+    <Compile Include="Collections\MyIntervalList.cs" />
+    <Compile Include="Collections\UniqueListReader.cs" />
+    <Compile Include="Collections\MyBinaryHeap.cs" />
+    <Compile Include="Collections\MySinglyLinkedList.cs" />
+    <Compile Include="Collections\MySlidingWindow.cs" />
+    <Compile Include="Collections\MySwapQueue.cs" />
+    <Compile Include="Collections\Comparers\InstanceComparer.cs" />
+    <Compile Include="Collections\DictionaryReader.cs" />
+    <Compile Include="Collections\HashSetReader.cs" />
+    <Compile Include="Collections\ListReader.cs" />
+    <Compile Include="Collections\MyCommitQueue.cs" />
+    <Compile Include="Collections\MyQueue.cs" />
+    <Compile Include="Collections\MyUniqueList.cs" />
+    <Compile Include="Collections\SerializableDictionary.cs" />
+    <Compile Include="Collections\StackReader.cs" />
+    <Compile Include="Compiler\IlCompiler.cs" />
+    <Compile Include="Compiler\IlInjector.cs" />
+    <Compile Include="Compiler\TestScriptHelpers.cs" />
+    <Compile Include="Compression\MyZipArchive.cs" />
+    <Compile Include="Compression\MyZipArchiveReflection.cs" />
+    <Compile Include="Compression\MyZipFileInfo.cs" />
+    <Compile Include="Cryptography\MySHA256.cs" />
+    <Compile Include="DShow\DsControl.cs" />
+    <Compile Include="DShow\DsCore.cs" />
+    <Compile Include="DShow\DsExtend.cs" />
+    <Compile Include="DShow\DsUtils.cs" />
+    <Compile Include="DShow\DsUuids.cs" />
+    <Compile Include="DShow\QEdit.cs" />
+    <Compile Include="DShow\VideoPlayer.cs" />
+    <Compile Include="Extensions\DictionaryExtensions.cs" />
+    <Compile Include="Extensions\DoubleExtensions.cs" />
+    <Compile Include="Extensions\FloatExtensions.cs" />
+    <Compile Include="Extensions\HashSetExtensions.cs" />
+    <Compile Include="Filesystem\IFileVerifier.cs" />
+    <Compile Include="Filesystem\MyChecksumVerifier.cs" />
+    <Compile Include="Filesystem\MyFileChecksumWatcher.cs" />
+    <Compile Include="Filesystem\MyFileHelper.cs" />
+    <Compile Include="Filesystem\MyFindFilesRegex.cs" />
+    <Compile Include="Filesystem\MyNullVerifier.cs" />
+    <Compile Include="Groups\IGroupData.cs" />
+    <Compile Include="Groups\MyGroups.cs" />
+    <Compile Include="Groups\MyGroups.inner.cs" />
+    <Compile Include="Groups\MyGroupsBase.cs" />
+    <Compile Include="IO\MyStreamWrapper.cs" />
+    <Compile Include="Cryptography\MyRSA.cs" />
+    <Compile Include="Extensions\AssemblyExtensions.cs" />
+    <Compile Include="Compiler\CallerAttributes.cs" />
+    <Compile Include="Compiler\IlChecker.cs" />
+    <Compile Include="Compiler\IlReader.cs" />
+    <Compile Include="Compiler\MethodInfoExtensions.cs" />
+    <Compile Include="Compiler\Obfuscator.cs" />
+    <Compile Include="Compiler\TypeNameHelper.cs" />
+    <Compile Include="Compression\MyCompressionStreamLoad.cs" />
+    <Compile Include="Compression\IMyCompressionLoad.cs" />
+    <Compile Include="Compression\IMyCompressionSave.cs" />
+    <Compile Include="Compression\MyCompressionStreamSave.cs" />
+    <Compile Include="Compression\MyCompression.cs" />
+    <Compile Include="Compression\MyCompressionFileLoad.cs" />
+    <Compile Include="Compression\MyCompressionFileSave.cs" />
+    <Compile Include="Debugging\InvalidBranchException.cs" />
+    <Compile Include="Extensions\ArrayEnumerator.cs" />
+    <Compile Include="Extensions\ArrayExtensions.cs" />
+    <Compile Include="Extensions\ArrayOfTypeEnumerator.cs" />
+    <Compile Include="Extensions\DateTimeExtensions.cs" />
+    <Compile Include="Extensions\DirectoryExtensions.cs" />
+    <Compile Include="Extensions\EnabledAttribute.cs" />
+    <Compile Include="Extensions\IOExceptionExtensions.cs" />
+    <Compile Include="Extensions\IPAddressExtensions.cs" />
+    <Compile Include="Extensions\LinqExtensions.cs" />
+    <Compile Include="Extensions\ListExtensions.cs" />
+    <Compile Include="Extensions\ExpressionExtensions.cs" />
+    <Compile Include="Extensions\QueueExtensions.cs" />
+    <Compile Include="Extensions\StreamExtensions.cs" />
+    <Compile Include="Extensions\StringBuilderExtFormat.cs" />
+    <Compile Include="Extensions\StringBuilderExtNumeric.cs" />
+    <Compile Include="Extensions\StringExtensions.cs" />
+    <Compile Include="Filesystem\IFileProvider.cs" />
+    <Compile Include="Filesystem\MyChecksumStream.cs" />
+    <Compile Include="Filesystem\MyClassicFileProvider.cs" />
+    <Compile Include="Filesystem\MyFileProviderAggregator.cs" />
+    <Compile Include="Filesystem\MyZipFileProvider.cs" />
+    <Compile Include="IO\FileLockInfo.cs" />
+    <Compile Include="IO\SteamHelpers.cs" />
+    <Compile Include="IO\ResetableMemoryStream.cs" />
+    <Compile Include="Collections\Comparers\EnumComparer.cs" />
+    <Compile Include="Collections\ObservableCollection.cs" />
+    <Compile Include="Collections\LRUCache.cs" />
+    <Compile Include="Exceptions\Exceptions.cs" />
+    <Compile Include="Extensions\StringBuilderExtensions.cs" />
+    <Compile Include="Extensions\TypeExtensions.cs" />
+    <Compile Include="LitJson\IJsonWrapper.cs" />
+    <Compile Include="LitJson\JsonData.cs" />
+    <Compile Include="LitJson\JsonException.cs" />
+    <Compile Include="LitJson\JsonMapper.cs" />
+    <Compile Include="LitJson\JsonMockWrapper.cs" />
+    <Compile Include="LitJson\JsonReader.cs" />
+    <Compile Include="LitJson\JsonWriter.cs" />
+    <Compile Include="LitJson\Lexer.cs" />
+    <Compile Include="LitJson\ParserToken.cs" />
+    <Compile Include="Memory\BoolBlit.cs" />
+    <Compile Include="Memory\Boxed.cs" />
+    <Compile Include="Memory\MyFixedPoint.cs" />
+    <Compile Include="Memory\PreloadRequired.cs" />
+    <Compile Include="Memory\MyTuple.cs" />
+    <Compile Include="Collections\MyConcurrentPool.cs" />
+    <Compile Include="Collections\MyConcurrentQueue.cs" />
+    <Compile Include="Native\NativeCall.Method.cs" />
+    <Compile Include="Native\NativeCall.TResult.Function.cs" />
+    <Compile Include="Native\NativeCall.Function.cs" />
+    <Compile Include="Native\NativeFunction.cs" />
+    <Compile Include="Parallelization\FastEvent.cs" />
+    <Compile Include="Parallelization\FastResourceLock.cs" />
+    <Compile Include="Parallelization\FastResourceLockExtensions.cs" />
+    <Compile Include="Parallelization\IResourceLock.cs" />
+    <Compile Include="Parallelization\MyPausableJob.cs" />
+    <Compile Include="Parallelization\NativeMethods.cs" />
+    <Compile Include="ParallelTasks\ActionWork.cs" />
+    <Compile Include="ParallelTasks\BackgroundWorker.cs" />
+    <Compile Include="ParallelTasks\DelegateWork.cs" />
+    <Compile Include="ParallelTasks\Deque.cs" />
+    <Compile Include="ParallelTasks\FixedPriorityScheduler.cs" />
+    <Compile Include="ParallelTasks\Future.cs" />
+    <Compile Include="ParallelTasks\Hashtable.cs" />
+    <Compile Include="ParallelTasks\IWork.cs" />
+    <Compile Include="ParallelTasks\IWorkScheduler.cs" />
+    <Compile Include="ParallelTasks\LoopWork.cs" />
+    <Compile Include="ParallelTasks\Parallel.cs" />
+    <Compile Include="ParallelTasks\Pool.cs" />
+    <Compile Include="ParallelTasks\Semaphore.cs" />
+    <Compile Include="ParallelTasks\Singleton.cs" />
+    <Compile Include="ParallelTasks\SpinLock.cs" />
+    <Compile Include="ParallelTasks\SpinLockRef.cs" />
+    <Compile Include="ParallelTasks\Task.cs" />
+    <Compile Include="ParallelTasks\TaskException.cs" />
+    <Compile Include="ParallelTasks\Worker.cs" />
+    <Compile Include="ParallelTasks\WorkItem.cs" />
+    <Compile Include="ParallelTasks\WorkOptions.cs" />
+    <Compile Include="ParallelTasks\WorkStealingScheduler.cs" />
+    <Compile Include="Profiler\MyProfiler.cs" />
+    <Compile Include="Profiler\MyProfilerBlock.cs" />
+    <Compile Include="Profiler\MyProfilerBlockKey.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ProtobufNet\BclHelpers.cs" />
+    <Compile Include="ProtobufNet\BufferExtension.cs" />
+    <Compile Include="ProtobufNet\BufferPool.cs" />
+    <Compile Include="ProtobufNet\CallbackAttributes.cs" />
+    <Compile Include="ProtobufNet\Compiler\CompilerContext.cs" />
+    <Compile Include="ProtobufNet\Compiler\CompilerDelegates.cs" />
+    <Compile Include="ProtobufNet\Compiler\Local.cs" />
+    <Compile Include="ProtobufNet\DataFormat.cs" />
+    <Compile Include="ProtobufNet\Extensible.cs" />
+    <Compile Include="ProtobufNet\ExtensibleUtil.cs" />
+    <Compile Include="ProtobufNet\GlobalSuppressions.cs" />
+    <Compile Include="ProtobufNet\Helpers.cs" />
+    <Compile Include="ProtobufNet\IExtensible.cs" />
+    <Compile Include="ProtobufNet\IExtension.cs" />
+    <Compile Include="ProtobufNet\ImplicitFields.cs" />
+    <Compile Include="ProtobufNet\KeyValuePairProxy.cs" />
+    <Compile Include="ProtobufNet\Meta\AttributeMap.cs" />
+    <Compile Include="ProtobufNet\Meta\BasicList.cs" />
+    <Compile Include="ProtobufNet\Meta\CallbackSet.cs" />
+    <Compile Include="ProtobufNet\Meta\MetaType.cs" />
+    <Compile Include="ProtobufNet\Meta\RuntimeTypeModel.cs" />
+    <Compile Include="ProtobufNet\Meta\SubType.cs" />
+    <Compile Include="ProtobufNet\Meta\TypeFormatEventArgs.cs" />
+    <Compile Include="ProtobufNet\Meta\TypeModel.cs" />
+    <Compile Include="ProtobufNet\Meta\ValueMember.cs" />
+    <Compile Include="ProtobufNet\NetObjectCache.cs" />
+    <Compile Include="ProtobufNet\PrefixStyle.cs" />
+    <Compile Include="ProtobufNet\ProtoContractAttribute.cs" />
+    <Compile Include="ProtobufNet\ProtoEnumAttribute.cs" />
+    <Compile Include="ProtobufNet\ProtoException.cs" />
+    <Compile Include="ProtobufNet\ProtoIgnoreAttribute.cs" />
+    <Compile Include="ProtobufNet\ProtoIncludeAttribute.cs" />
+    <Compile Include="ProtobufNet\ProtoMemberAttribute.cs" />
+    <Compile Include="ProtobufNet\ProtoReader.cs" />
+    <Compile Include="ProtobufNet\ProtoWriter.cs" />
+    <Compile Include="ProtobufNet\SerializationContext.cs" />
+    <Compile Include="ProtobufNet\Serializer.cs" />
+    <Compile Include="ProtobufNet\Serializers\ArrayDecorator.cs" />
+    <Compile Include="ProtobufNet\Serializers\BlobSerializer.cs" />
+    <Compile Include="ProtobufNet\Serializers\BooleanSerializer.cs" />
+    <Compile Include="ProtobufNet\Serializers\ByteSerializer.cs" />
+    <Compile Include="ProtobufNet\Serializers\CharSerializer.cs" />
+    <Compile Include="ProtobufNet\Serializers\CompiledSerializer.cs" />
+    <Compile Include="ProtobufNet\Serializers\DateTimeSerializer.cs" />
+    <Compile Include="ProtobufNet\Serializers\DecimalSerializer.cs" />
+    <Compile Include="ProtobufNet\Serializers\DefaultValueDecorator.cs" />
+    <Compile Include="ProtobufNet\Serializers\DoubleSerializer.cs" />
+    <Compile Include="ProtobufNet\Serializers\EnumSerializer.cs" />
+    <Compile Include="ProtobufNet\Serializers\FieldDecorator.cs" />
+    <Compile Include="ProtobufNet\Serializers\GuidSerializer.cs" />
+    <Compile Include="ProtobufNet\Serializers\Int16Serializer.cs" />
+    <Compile Include="ProtobufNet\Serializers\Int32Serializer.cs" />
+    <Compile Include="ProtobufNet\Serializers\Int64Serializer.cs" />
+    <Compile Include="ProtobufNet\Serializers\IProtoSerializer.cs" />
+    <Compile Include="ProtobufNet\Serializers\IProtoTypeSerializer.cs" />
+    <Compile Include="ProtobufNet\Serializers\ISerializerProxy.cs" />
+    <Compile Include="ProtobufNet\Serializers\KeyValuePairDecorator.cs" />
+    <Compile Include="ProtobufNet\Serializers\ListDecorator.cs" />
+    <Compile Include="ProtobufNet\Serializers\MemberSpecifiedDecorator.cs" />
+    <Compile Include="ProtobufNet\Serializers\NetObjectSerializer.cs" />
+    <Compile Include="ProtobufNet\Serializers\NullDecorator.cs" />
+    <Compile Include="ProtobufNet\Serializers\ParseableSerializer.cs" />
+    <Compile Include="ProtobufNet\Serializers\PropertyDecorator.cs" />
+    <Compile Include="ProtobufNet\Serializers\ProtoDecoratorBase.cs" />
+    <Compile Include="ProtobufNet\Serializers\SByteSerializer.cs" />
+    <Compile Include="ProtobufNet\Serializers\SingleSerializer.cs" />
+    <Compile Include="ProtobufNet\Serializers\StringSerializer.cs" />
+    <Compile Include="ProtobufNet\Serializers\SubItemSerializer.cs" />
+    <Compile Include="ProtobufNet\Serializers\SurrogateSerializer.cs" />
+    <Compile Include="ProtobufNet\Serializers\SystemTypeSerializer.cs" />
+    <Compile Include="ProtobufNet\Serializers\TagDecorator.cs" />
+    <Compile Include="ProtobufNet\Serializers\TimeSpanSerializer.cs" />
+    <Compile Include="ProtobufNet\Serializers\TupleSerializer.cs" />
+    <Compile Include="ProtobufNet\Serializers\TypeSerializer.cs" />
+    <Compile Include="ProtobufNet\Serializers\UInt16Serializer.cs" />
+    <Compile Include="ProtobufNet\Serializers\UInt32Serializer.cs" />
+    <Compile Include="ProtobufNet\Serializers\UInt64Serializer.cs" />
+    <Compile Include="ProtobufNet\Serializers\UriDecorator.cs" />
+    <Compile Include="ProtobufNet\ServiceModel\ProtoBehaviorAttribute.cs" />
+    <Compile Include="ProtobufNet\ServiceModel\ProtoBehaviorExtensionElement.cs" />
+    <Compile Include="ProtobufNet\ServiceModel\ProtoEndpointBehavior.cs" />
+    <Compile Include="ProtobufNet\ServiceModel\ProtoOperationBehavior.cs" />
+    <Compile Include="ProtobufNet\ServiceModel\XmlProtoSerializer.cs" />
+    <Compile Include="ProtobufNet\SubItemToken.cs" />
+    <Compile Include="ProtobufNet\WireType.cs" />
+    <Compile Include="Reflection\ConstructorHelper.cs" />
+    <Compile Include="Reflection\FullyQualifiedNameComparer.cs" />
+    <Compile Include="Security\Crc32.cs" />
+    <Compile Include="Security\FnvHash.cs" />
+    <Compile Include="Security\Md5.cs" />
+    <Compile Include="Serialization\BlitCollectionSerializer.cs" />
+    <Compile Include="Serialization\BlitSerializer.cs" />
+    <Compile Include="Memory\ByteStream.cs" />
+    <Compile Include="Serialization\TupleSerializer.cs" />
+    <Compile Include="Serialization\ISerializer.cs" />
+    <Compile Include="Serialization\ProtoSerializer.cs" />
+    <Compile Include="Service\ExitListenerSTA.cs" />
+    <Compile Include="Service\NativeMethods.cs" />
+    <Compile Include="Service\MyServiceBase.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Stats\MyNameComparer.cs" />
+    <Compile Include="Stats\MyStat.cs" />
+    <Compile Include="Stats\MyStats.cs" />
+    <Compile Include="Stats\MyStatToken.cs" />
+    <Compile Include="Trace\ITrace.cs" />
+    <Compile Include="Trace\MyNullTrace.cs" />
+    <Compile Include="Trace\MyTrace.cs" />
+    <Compile Include="Trace\MyWintraceWrapper.cs" />
+    <Compile Include="Utils\Disposable.cs" />
+    <Compile Include="Utils\DontCheckAttribute.cs" />
+    <Compile Include="Utils\MyBrowserHelper.cs" />
+    <Compile Include="Filesystem\MyCheckSums.cs" />
+    <Compile Include="Utils\MyEnum.cs" />
+    <Compile Include="Filesystem\MyFileSystem.cs" />
+    <Compile Include="Utils\MyGameTimer.cs" />
+    <Compile Include="Utils\MyInterpolationQueue.cs" />
+    <Compile Include="Utils\MyRandom.cs" />
+    <Compile Include="Utils\MyStringId.cs" />
+    <Compile Include="Utils\MyTimer.cs" />
+    <Compile Include="Utils\MyTimeSpan.cs" />
+    <Compile Include="Utils\MyUtils.cs" />
+    <Compile Include="Win32\WinApi-Constants.cs" />
+    <Compile Include="Win32\WinApi-Functions.cs" />
+    <Compile Include="Win32\WinApi-Helpers.cs" />
+    <Compile Include="Win32\WinApi-Structures.cs" />
+  </ItemGroup>
+  <ItemGroup />
+  <ItemGroup>
+    <Compile Include="Native\NativeCallHelper.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Native\NativeCall.TResult.Method.cs" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

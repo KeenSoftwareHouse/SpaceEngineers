@@ -1,0 +1,85 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>SharpDX.Toolkit.Yaml</name>
+    </assembly>
+    <members>
+        <member name="T:SharpDX.Toolkit.Yaml.AssemblyDoc">
+            <summary>
+            The <see cref="A:SharpDX.Toolkit.Yaml"/> assembly provides a support for deserializing YAML files
+            into .NET types through the <see cref="T:SharpDX.Toolkit.Content.IContentManager"/>.
+            </summary>
+        </member>
+        <member name="T:SharpDX.Toolkit.Yaml.AssetObjectSerializerBackend">
+            <summary>
+            Allows the <see cref="T:SharpDX.Toolkit.Yaml.YamlManager"/> to load related assets by name.
+            </summary>
+        </member>
+        <member name="T:SharpDX.Toolkit.Yaml.NamespaceDoc">
+            <summary>
+            The <see cref="N:SharpDX.Toolkit.Yaml"/> assembly provides a support for deserializing YAML files
+            into .NET types through the <see cref="T:SharpDX.Toolkit.Content.IContentManager"/>.
+            </summary>
+        </member>
+        <member name="T:SharpDX.Toolkit.Yaml.YamlManager">
+            <summary>
+            This manager allows to read/deserialize YAML files into .NET objects using
+            the <see cref="T:SharpDX.Toolkit.Content.IContentManager"/>
+            </summary>
+        </member>
+        <member name="M:SharpDX.Toolkit.Yaml.YamlManager.#ctor(SharpDX.IServiceRegistry)">
+            <summary>
+            Initializes a new instance of the <see cref="T:SharpDX.Toolkit.GameSystem"/> class.
+            </summary>
+            <param name="registry">The registry.</param>
+        </member>
+        <member name="M:SharpDX.Toolkit.Yaml.YamlManager.#ctor(SharpDX.Toolkit.Game)">
+            <summary>
+            Initializes a new instance of the <see cref="T:SharpDX.Toolkit.GameSystem"/> class.
+            </summary>
+            <param name="game">The game.</param>
+        </member>
+        <member name="M:SharpDX.Toolkit.Yaml.YamlManager.RegisterTagMapping(System.String,System.Type)">
+            <summary>
+            Registers a tag mapping, an association between a type and a YAML tag, used when
+            deserializing a YAML document, when a specific .NET type is expected.
+            </summary>
+            <param name="tagName">Name of the tag.</param>
+            <param name="type">The type.</param>
+            <exception cref="T:System.ArgumentNullException">
+            tagName
+            or
+            type
+            </exception>
+        </member>
+        <member name="M:SharpDX.Toolkit.Yaml.YamlManager.RegisterAttribute(System.Reflection.MemberInfo,System.Attribute)">
+            <summary>
+            Registers an attribute to the specific member, allowing to customize Yaml serialization
+            for types that can't define Yaml attributes on their types.
+            See <see cref="T:SharpYaml.Serialization.YamlTagAttribute"/>, <see cref="T:SharpYaml.Serialization.YamlMemberAttribute"/> and <see cref="T:SharpYaml.Serialization.YamlIgnoreAttribute"/>
+            for more details.
+            </summary>
+            <param name="memberInfo">The member information.</param>
+            <param name="attribute">The attribute.</param>
+            <exception cref="T:System.ArgumentNullException">
+            memberInfo
+            or
+            attribute
+            </exception>
+        </member>
+        <member name="M:SharpDX.Toolkit.Yaml.YamlManager.NewSerializer">
+            <summary>
+            Creates a new instance of the YAML serializer.
+            </summary>
+            <returns>The default YAML serializer used by the <see cref="T:SharpDX.Toolkit.Yaml.YamlManager"/>.</returns>
+        </member>
+        <member name="M:SharpDX.Toolkit.Yaml.YamlManager.NewSerializer(SharpYaml.Serialization.SerializerSettings)">
+            <summary>
+            Creates a new instance of the YAML serializer.
+            </summary>
+            <param name="settings">The settings.</param>
+            <returns>The default YAML serializer used by the <see cref="T:SharpDX.Toolkit.Yaml.YamlManager"/>.</returns>
+            <exception cref="T:System.ArgumentNullException">settings</exception>
+        </member>
+    </members>
+</doc>

@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>SharpDX.Toolkit.CompilerTask</name>
+    </assembly>
+    <members>
+        <member name="T:SharpDX.Toolkit.CompilerDependencyTask">
+            <summary>
+            TODO: COMMENT THIS CODE
+            </summary>
+        </member>
+    </members>
+</doc>

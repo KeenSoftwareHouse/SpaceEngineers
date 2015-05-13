@@ -1,0 +1,827 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>SharpDX.Toolkit.Audio</name>
+    </assembly>
+    <members>
+        <member name="T:SharpDX.Toolkit.Audio.AssemblyDoc">
+            <summary>
+            The <see cref="A:SharpDX.Toolkit.Audio"/> assembly provides support for loading audio files
+            through the <see cref="T:SharpDX.Toolkit.Content.IContentManager"/> and playing them.
+            </summary>
+        </member>
+        <member name="T:SharpDX.Toolkit.Audio.AudioContentReader`1">
+            <summary>
+            Base class for reading audio content.
+            </summary>
+            <typeparam name="TAsset">The audio asset type.</typeparam>
+        </member>
+        <member name="M:SharpDX.Toolkit.Audio.AudioContentReader`1.ReadContent(SharpDX.Toolkit.Content.IContentManager,SharpDX.Toolkit.Content.ContentReaderParameters@)">
+            <summary>
+            Reads the content and performs any common precondition checks.
+            </summary>
+            <param name="contentManager">The content manager.</param>
+            <param name="parameters">The content reader parameters.</param>
+            <returns>The loaded audio content object.</returns>
+            <exception cref="T:System.ArgumentNullException">Is thrown when <paramref name="contentManager"/> is null.</exception>
+            <exception cref="T:System.ArgumentException">Is thrown when <paramref name="parameters"/> <see cref="F:SharpDX.Toolkit.Content.ContentReaderParameters.AssetType"/> is not <typeparamref name="TAsset"/></exception>
+            <exception cref="T:System.InvalidOperationException">Is thrown when <paramref name="contentManager"/> <see cref="P:SharpDX.Toolkit.Content.IContentManager.ServiceProvider"/> doesn't contain an <see cref="T:SharpDX.Toolkit.Audio.AudioManager"/> service.</exception>
+        </member>
+        <member name="M:SharpDX.Toolkit.Audio.AudioContentReader`1.ReadContentInternal(SharpDX.Toolkit.Audio.AudioManager,SharpDX.Toolkit.Content.ContentReaderParameters@)">
+            <summary>
+            Derived class must implement this method to perform the actual asset reading.
+            </summary>
+            <param name="audioManager">The associated audio manager.</param>
+            <param name="parameters">The content reader parameters containing the asset data stream.</param>
+            <returns>The loaded asset.</returns>
+        </member>
+        <member name="T:SharpDX.Toolkit.Audio.AudioContentReaderFactory">
+            <summary>
+            <see cref="T:SharpDX.Toolkit.Content.IContentReaderFactory"/> implementation for audio content readers.
+            </summary>
+        </member>
+        <member name="M:SharpDX.Toolkit.Audio.AudioContentReaderFactory.TryCreate(System.Type)">
+            <summary>
+            Creates an appropiate content reader for the provided type.
+            </summary>
+            <param name="type">The content type.</param>
+            <returns>The content reader instance that can read <paramref name="type"/> content, or null if content type is not supported.</returns>
+        </member>
+        <member name="T:SharpDX.Toolkit.Audio.AudioException">
+            <summary>
+            An Audio exception.
+            </summary>
+        </member>
+        <member name="M:SharpDX.Toolkit.Audio.AudioException.#ctor(System.String)">
+            <summary>
+            Initializes a new instance of the <see cref="T:SharpDX.Toolkit.Audio.AudioException"/> class.
+            </summary>
+            <param name="message">The message describing the exception.</param>
+        </member>
+        <member name="M:SharpDX.Toolkit.Audio.AudioException.#ctor(System.String,System.Exception,System.Object[])">
+            <summary>
+            Initializes a new instance of the <see cref="T:SharpDX.Toolkit.Audio.AudioException"/> class.
+            </summary>
+            <param name="message">The message describing the exception.</param>
+            <param name="innerException">The exception that caused this exception.</param>
+            <param name="args">formatting arguments</param>
+        </member>
+        <member name="T:SharpDX.Toolkit.Audio.AudioManager">
+            <summary>
+            This manages the XAudio2 audio graph, device, and mastering voice.  This manager also allows loading of <see cref="T:SharpDX.Toolkit.Audio.SoundEffect"/> using
+            the <see cref="T:SharpDX.Toolkit.Content.IContentManager"/>
+            </summary>
+        </member>
+        <member name="F:SharpDX.Toolkit.Audio.AudioManager.NotFound">
+            <summary>
+            Result of a device not found.
+            </summary>
+            <unmanaged>ERROR_NOT_FOUND</unmanaged>
+        </member>
+        <member name="M:SharpDX.Toolkit.Audio.AudioManager.#ctor(SharpDX.Toolkit.Game)">
+            <summary>
+            Initializes a new instance of the <see cref="T:SharpDX.Toolkit.Audio.AudioManager"/> class.
+            </summary>
+            <param name="game">The game.</param>
+        </member>
+        <member name="M:SharpDX.Toolkit.Audio.AudioManager.DisableMasterVolumeLimiter">
+            <summary>
+            Disables the master volume limiter.
+            </summary>
+        </member>
+        <member name="M:SharpDX.Toolkit.Audio.AudioManager.DisableReverbEffect">
+            <summary>
+            Disables the reverb effect.
+            </summary>
+        </member>
+        <member name="M:SharpDX.Toolkit.Audio.AudioManager.EnableMasterVolumeLimiter">
+            <summary>
+            Enables the master volume limiter.
+            </summary>
+        </member>
+        <member name="M:SharpDX.Toolkit.Audio.AudioManager.EnableReverbEffect">
+            <summary>
+            Enables the reverb effect.
+            </summary>
+        </member>
+        <member name="M:SharpDX.Toolkit.Audio.AudioManager.EnableReverbFilter">
+            <summary>
+            Enables the reverb filter.
+            </summary>
+        </member>
+        <member name="M:SharpDX.Toolkit.Audio.AudioManager.EnableSpatialAudio(System.Single)">
+            <summary>
+            Enables the spatial audio effect.
+            </summary>
+            <param name="speedOfSound">The speed of the sound in the medium. Should be greater than or equal to 1.175494351e-38F.</param>
+        </member>
+        <member name="M:SharpDX.Toolkit.Audio.AudioManager.EnableSpatialAudio">
+            <summary>
+            Enables the spatial audio effect with the default speed of sound equal to <see cref="F:SharpDX.X3DAudio.X3DAudio.SpeedOfSound"/>.
+            </summary>
+        </member>
+        <member name="M:SharpDX.Toolkit.Audio.AudioManager.Initialize">
+            <summary>
+            Initializes XAudio2 and MasteringVoice.  And registers itself as an <see cref="T:SharpDX.Toolkit.Content.IContentReaderFactory"/>
+            </summary>
+            <exception cref="T:System.InvalidOperationException">Is thrown when the IContentManager is not an instance of <see cref="T:SharpDX.Toolkit.Content.ContentManager"/>.</exception>
+            <exception cref="T:SharpDX.Toolkit.Audio.AudioException">Is thrown when the <see cref="T:SharpDX.Toolkit.Audio.AudioManager"/> instance could not be initialized (either due to unsupported features or missing audio-device).</exception>
+        </member>
+        <member name="M:SharpDX.Toolkit.Audio.AudioManager.SetMasteringLimit(System.Int32,System.Int32)">
+            <summary>
+            Sets the mastering limiter parameters.
+            </summary>
+            <param name="release">Speed at which the limiter stops affecting audio once it drops below the limiter's threshold.</param>
+            <param name="loudness">Threshold of the limiter.</param>
+            <exception cref="T:System.ObjectDisposedException">Is thrown when this instance was already disposed.</exception>
+            <exception cref="T:System.ArgumentOutOfRangeException">Is thrown when either <paramref name="release"/> or <paramref name="loudness"/> are outside of allowed ranges
+            (<see cref="F:SharpDX.XAPO.Fx.MasteringLimiter.MinimumRelease"/>/<see cref="F:SharpDX.XAPO.Fx.MasteringLimiter.MaximumRelease"/> 
+            and <see cref="F:SharpDX.XAPO.Fx.MasteringLimiter.MinimumLoudness"/>/<see cref="F:SharpDX.XAPO.Fx.MasteringLimiter.MaximumLoudness"/> respectively).</exception>
+        </member>
+        <member name="M:SharpDX.Toolkit.Audio.AudioManager.SetReverbEffectParameters(SharpDX.XAudio2.Fx.ReverbParameters)">
+            <summary>
+            Sets the Reverb effect parameters.
+            </summary>
+            <param name="parameters">The reverb effect parameters.</param>
+            /// <exception cref="T:System.ObjectDisposedException">Is thrown when this instance was already disposed.</exception>
+        </member>
+        <member name="M:SharpDX.Toolkit.Audio.AudioManager.SetReverbEffectParameters(SharpDX.Toolkit.Audio.ReverbPresets)">
+            <summary>
+            Sets the Reverb effect parameters from an existing preset.
+            </summary>
+            <param name="preset">The existing Reverb preset.</param>
+        </member>
+        <member name="M:SharpDX.Toolkit.Audio.AudioManager.Calculate3D(SharpDX.X3DAudio.Listener,SharpDX.X3DAudio.Emitter,SharpDX.X3DAudio.CalculateFlags,SharpDX.X3DAudio.DspSettings)">
+            <summary>
+            Calculate 3D Audio parameters.
+            </summary>
+            <param name="listener">The 3D audio listener definition.</param>
+            <param name="emitter">The 3D audio emitter definition.</param>
+            <param name="flags">The 3D audio calculate flags.</param>
+            <param name="dspSettings">The DSP settings.</param>
+        </member>
+        <member name="M:SharpDX.Toolkit.Audio.AudioManager.ToDisposeAudioAsset``1(``0)">
+            <summary>
+            Adds a disposable audio asset to the list of the objects to dispose.
+            </summary>
+            <param name="audioAsset">To dispose.</param>
+        </member>
+        <member name="P:SharpDX.Toolkit.Audio.AudioManager.IsMasteringLimiterEnabled">
+            <summary>
+            Gets a value indicating whether mastering limiter is enabled.
+            </summary>
+        </member>
+        <member name="P:SharpDX.Toolkit.Audio.AudioManager.IsReverbEffectEnabled">
+            <summary>
+            Gets a value indicating whether reverb effect is enabled.
+            </summary>
+        </member>
+        <member name="P:SharpDX.Toolkit.Audio.AudioManager.IsReverbFilterEnabled">
+            <summary>
+            Gets a value indicating whether reverb filter is enabled.
+            </summary>
+        </member>
+        <member name="P:SharpDX.Toolkit.Audio.AudioManager.IsSpatialAudioEnabled">
+            <summary>
+            Gets a value indicating whether spatial audio is enabled.
+            </summary>
+        </member>
+        <member name="P:SharpDX.Toolkit.Audio.AudioManager.MasterVolume">
+            <summary>
+            Sets and gets the volume of the Mastering voice.
+            </summary>
+        </member>
+        <member name="P:SharpDX.Toolkit.Audio.AudioManager.Device">
+            <summary>
+            Gets the <see cref="T:SharpDX.XAudio2.XAudio2"/> device associated with the current <see cref="T:SharpDX.Toolkit.Audio.AudioManager"/> instance.
+            </summary>
+        </member>
+        <member name="P:SharpDX.Toolkit.Audio.AudioManager.InstancePool">
+            <summary>
+            Gets the pool of <see cref="T:SharpDX.Toolkit.Audio.SoundEffectInstance"/> associated with the current <see cref="T:SharpDX.Toolkit.Audio.AudioManager"/> instance.
+            </summary>
+        </member>
+        <member name="P:SharpDX.Toolkit.Audio.AudioManager.MasteringVoice">
+            <summary>
+            Gets a reference to the <see cref="P:SharpDX.Toolkit.Audio.AudioManager.MasteringVoice"/> associated with the current <see cref="T:SharpDX.Toolkit.Audio.AudioManager"/> instance.
+            </summary>
+        </member>
+        <member name="P:SharpDX.Toolkit.Audio.AudioManager.ReverbVoice">
+            <summary>
+            Gets the <see cref="T:SharpDX.XAudio2.SubmixVoice"/> associated with the current <see cref="T:SharpDX.Toolkit.Audio.AudioManager"/> instance (for reverb effect).
+            </summary>
+        </member>
+        <member name="P:SharpDX.Toolkit.Audio.AudioManager.Speakers">
+            <summary>
+            Gets the speaker configuration.
+            </summary>
+        </member>
+        <member name="T:SharpDX.Toolkit.Audio.BitField">
+            <summary>
+            Helper class that provides methods to manipulate bit fields.
+            </summary>
+        </member>
+        <member name="M:SharpDX.Toolkit.Audio.BitField.Get(System.UInt32,System.Int32,System.Int32)">
+            <summary>
+            Gets the bit values from the provided source at the 
+            </summary>
+            <param name="source">The source from where to read the bits.</param>
+            <param name="length">The lenghts of the range to read.</param>
+            <param name="offset">The offset of the bits to read.</param>
+            <returns>The read bits.</returns>
+        </member>
+        <member name="M:SharpDX.Toolkit.Audio.BitField.Set(System.UInt32,System.Int32,System.Int32,System.UInt32@)">
+            <summary>
+            Fills the provided destination with the bits read from the specified source.
+            </summary>
+            <param name="source">The bits source.</param>
+            <param name="length">The leght of the bit range.</param>
+            <param name="offset">The offset of the bit range.</param>
+            <param name="destination">The destination to write the bits.</param>
+        </member>
+        <!-- Badly formed XML comment ignored for member "T:SharpDX.Toolkit.Audio.NamespaceDoc" -->
+        <member name="T:SharpDX.Toolkit.Audio.Pool`1">
+            <summary>
+            A base class for a pool of items.
+            </summary>
+            <typeparam name="TItem">The item type that will be managed by the pool.</typeparam>
+        </member>
+        <member name="M:SharpDX.Toolkit.Audio.Pool`1.Acquire(System.Boolean)">
+            <summary>
+            Tries to either reuse an existing item or to create a new one.
+            </summary>
+            <param name="trackItem">Indicates whether to track the new item as active or not.</param>
+            <returns>The created or recycled item.</returns>
+            <exception cref="T:System.InvalidOperationException">Is thrown when there is no available item to recycle and new one cannot be created.</exception>
+        </member>
+        <member name="M:SharpDX.Toolkit.Audio.Pool`1.Clear">
+            <summary>
+            Clears this pool from all active and free items.
+            </summary>
+        </member>
+        <member name="M:SharpDX.Toolkit.Audio.Pool`1.Return(`0)">
+            <summary>
+            Returns an used item for recycling.
+            </summary>
+            <param name="item">The item to return for recycling.</param>
+        </member>
+        <member name="M:SharpDX.Toolkit.Audio.Pool`1.TryAcquire(System.Boolean,`0@)">
+            <summary>
+            Tries to acquire a free item or create a new one.
+            </summary>
+            <param name="trackItem">Indicates whether to track the new item as active or not.</param>
+            <param name="item">The acquired item or default(TItem) if the operation did not succeed.</param>
+            <returns>true if the operation succeeded, false - otherwise.</returns>
+        </member>
+        <member name="M:SharpDX.Toolkit.Audio.Pool`1.ClearItem(`0)">
+            <summary>
+            Allows derived classes to execute additional logic when an item is cleared from this pool.
+            </summary>
+            <param name="item"></param>
+        </member>
+        <member name="M:SharpDX.Toolkit.Audio.Pool`1.IsActive(`0)">
+            <summary>
+            Derived classes must implement this method to determine if an item is active or not.
+            </summary>
+            <param name="item">The item to determine if it is active.</param>
+            <returns>true if the item is active, false - otherwise.</returns>
+        </member>
+        <member name="M:SharpDX.Toolkit.Audio.Pool`1.TryCreate(System.Boolean,`0@)">
+            <summary>
+            Derived classes must implement this method to allow creation of a new item.
+            </summary>
+            <param name="trackItem">Indicates whether to track the new item as active or not.</param>
+            <param name="item">The created item.</param>
+            <returns>true if creation succeeded, false - otherwise.</returns>
+        </member>
+        <member name="M:SharpDX.Toolkit.Audio.Pool`1.TryReset(System.Boolean,`0)">
+            <summary>
+            Tries to recycle an item. The default implementation doesn't do anything.
+            </summary>
+            <param name="trackItem">Indicates whether to track the new item as active or not.</param>
+            <param name="item">The item to recycle.</param>
+            <returns>true if recycling succeeded, false - otherwise. The default implementation always returns true.</returns>
+        </member>
+        <member name="M:SharpDX.Toolkit.Audio.Pool`1.AuditItems">
+            <summary>
+            Recomputes the lists of active and free items.
+            </summary>
+        </member>
+        <member name="T:SharpDX.Toolkit.Audio.ReverbPresets">
+            <summary>
+            Default reverb presets.
+            </summary>
+        </member>
+        <member name="T:SharpDX.Toolkit.Audio.SoundEffect">
+            <summary>
+            Represents a loaded sound resource.
+            </summary>
+        </member>
+        <member name="M:SharpDX.Toolkit.Audio.SoundEffect.#ctor(SharpDX.Toolkit.Audio.AudioManager,System.String,SharpDX.Multimedia.WaveFormat,SharpDX.DataStream,System.UInt32[])">
+            <summary>
+            Initializes a new instance of the <see cref="T:SharpDX.Toolkit.Audio.SoundEffect"/> class.
+            </summary>
+            <param name="audioManager">The associated audio manager instance.</param>
+            <param name="name">The name of the current instance.</param>
+            <param name="waveFormat">The format of the current instance.</param>
+            <param name="buffer">The buffer containing audio data.</param>
+            <param name="decodedPacketsInfo">The information regaring decoded packets.</param>
+        </member>
+        <member name="M:SharpDX.Toolkit.Audio.SoundEffect.FromFile(SharpDX.Toolkit.Audio.AudioManager,System.String)">
+            <summary>
+            Creates a new instance of the <see cref="T:SharpDX.Toolkit.Audio.SoundEffect"/> class from the specified file path.
+            </summary>
+            <param name="audioManager">The audio manager associated to the created instance.</param>
+            <param name="filePath">The path to the file from which to create the effect.</param>
+            <returns>The created effect.</returns>
+        </member>
+        <member name="M:SharpDX.Toolkit.Audio.SoundEffect.FromStream(SharpDX.Toolkit.Audio.AudioManager,System.IO.Stream,System.String)">
+            <summary>
+            Creates a new instance of the <see cref="T:SharpDX.Toolkit.Audio.SoundEffect"/> class from the spefified data stream.
+            </summary>
+            <param name="audioManager">The audio manager associated to the created instance.</param>
+            <param name="stream">The stream containing the data from which to create the effect.</param>
+            <param name="name">The name of the effect (optional).</param>
+            <returns>The created effect.</returns>
+        </member>
+        <member name="M:SharpDX.Toolkit.Audio.SoundEffect.Create">
+            <summary>
+            Creates a <see cref="T:SharpDX.Toolkit.Audio.SoundEffectInstance"/> from the current sound effect.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:SharpDX.Toolkit.Audio.SoundEffect.Dispose">
+            <summary>
+            Releases all unmanaged resources used by the current instance.
+            </summary>
+        </member>
+        <member name="M:SharpDX.Toolkit.Audio.SoundEffect.Play(System.Single,System.Single,System.Single)">
+            <summary>
+            Plays the current sound effect instance.
+            </summary>
+            <param name="volume">The volume of the sound.</param>
+            <param name="pitch">The pitch of the sound.</param>
+            <param name="pan">The pan of the sound.</param>
+            <returns>true if the effect was successfuly queued for playback, false - otherwise.</returns>
+            <exception cref="T:System.ObjectDisposedException">Is thrown if the current instance was already disposed.</exception>
+        </member>
+        <member name="M:SharpDX.Toolkit.Audio.SoundEffect.Play">
+            <summary>
+            Plays the current sound effect instance with default volume, pitch and pan parameters.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:SharpDX.Toolkit.Audio.SoundEffect.ChildDisposed(SharpDX.Toolkit.Audio.SoundEffectInstance)">
+            <summary>
+            Handles the disposal event of a child <see cref="T:SharpDX.Toolkit.Audio.SoundEffectInstance"/>.
+            </summary>
+            <param name="child">The child instance that is being disposed.</param>
+        </member>
+        <member name="M:SharpDX.Toolkit.Audio.SoundEffect.AddChild(SharpDX.Toolkit.Audio.SoundEffectInstance)">
+            <summary>
+            Adds the specified instance to the children list.
+            </summary>
+            <param name="instance">The instance to add to children list.</param>
+        </member>
+        <member name="M:SharpDX.Toolkit.Audio.SoundEffect.GetSamplesDuration">
+            <summary>
+            Gets the wave samples duration.
+            </summary>
+            <returns>Wave samples duration or 0 (zero) if the format encoding is not known.</returns>
+        </member>
+        <member name="P:SharpDX.Toolkit.Audio.SoundEffect.DistanceScale">
+            <summary>
+            Gets or sets the distance scaling ratio. Default is 1f.
+            </summary>
+            <exception cref="T:System.ArgumentOutOfRangeException">Is thrown when there is an attempt to set the value less than zero.</exception>
+        </member>
+        <member name="P:SharpDX.Toolkit.Audio.SoundEffect.DopplerScale">
+            <summary>
+            Gets or sets the Doppler effect scale ratio. Default is 1f.
+            </summary>
+            <exception cref="T:System.ArgumentOutOfRangeException">Is thrown when there is an attempt to set the value less than zero.</exception>
+        </member>
+        <member name="P:SharpDX.Toolkit.Audio.SoundEffect.AudioManager">
+            <summary>
+            Gets the <see cref="P:SharpDX.Toolkit.Audio.SoundEffect.AudioManager"/> instance associated to this effect.
+            </summary>
+        </member>
+        <member name="P:SharpDX.Toolkit.Audio.SoundEffect.Duration">
+            <summary>
+            Gets the duration of this effect.
+            </summary>
+        </member>
+        <member name="P:SharpDX.Toolkit.Audio.SoundEffect.IsDisposed">
+            <summary>
+            Gets a value indicating whether the current instance is disposed.
+            </summary>
+        </member>
+        <member name="P:SharpDX.Toolkit.Audio.SoundEffect.Name">
+            <summary>
+            Gets the name of the current instance.
+            </summary>
+        </member>
+        <member name="P:SharpDX.Toolkit.Audio.SoundEffect.AudioBuffer">
+            <summary>
+            Gets the audio buffer of this instance.
+            </summary>
+        </member>
+        <member name="P:SharpDX.Toolkit.Audio.SoundEffect.DecodedPacketsInfo">
+            <summary>
+            Gets the information about decoded packets of this instance.
+            </summary>
+        </member>
+        <member name="P:SharpDX.Toolkit.Audio.SoundEffect.Format">
+            <summary>
+            Gets the wave format of this instance.
+            </summary>
+        </member>
+        <member name="P:SharpDX.Toolkit.Audio.SoundEffect.LoopedAudioBuffer">
+            <summary>
+            Gets the audio buffer of the looped version of this instance.
+            </summary>
+        </member>
+        <member name="P:SharpDX.Toolkit.Audio.SoundEffect.VoicePool">
+            <summary>
+            Gets the voice pool used by this instance.
+            </summary>
+        </member>
+        <member name="T:SharpDX.Toolkit.Audio.SoundEffectContentReader">
+            <summary>
+            An <see cref="T:SharpDX.Toolkit.Audio.AudioContentReader`1"/> implementation for <see cref="T:SharpDX.Toolkit.Audio.SoundEffect"/> content.
+            </summary>
+        </member>
+        <member name="T:SharpDX.Toolkit.Audio.SoundEffectInstance">
+            <summary>
+            Provides a single playing, paused, or stopped instance of a <see cref="T:SharpDX.Toolkit.Audio.SoundEffect"/> sound.
+            </summary>
+        </member>
+        <member name="M:SharpDX.Toolkit.Audio.SoundEffectInstance.#ctor(SharpDX.Toolkit.Audio.SoundEffect,SharpDX.XAudio2.SourceVoice,System.Boolean)">
+            <summary>
+            Creates a new instance of the <see cref="T:SharpDX.Toolkit.Audio.SoundEffectInstance"/> class.
+            </summary>
+            <param name="soundEffect">The source effect whose instance needs to be created.</param>
+            <param name="sourceVoice">The source voice to play the created instance.</param>
+            <param name="isFireAndForget">A value indicating whether this instance is not monitored after it is being send to playback.</param>
+        </member>
+        <member name="M:SharpDX.Toolkit.Audio.SoundEffectInstance.Apply2D(SharpDX.Vector2,SharpDX.Vector2,SharpDX.Vector2,SharpDX.Vector2)">
+            <summary>
+            Applies the 3D effect to the current sound effect instance.
+            </summary>
+            <param name="listener">The listener position.</param>
+            <param name="listenerVelocity">The listener velocity.</param>
+            <param name="emitter">The emitter position.</param>
+            <param name="emitterVelocity">The emitter velocity.</param>
+        </member>
+        <member name="M:SharpDX.Toolkit.Audio.SoundEffectInstance.Apply3D(SharpDX.Matrix,SharpDX.Vector3,SharpDX.Matrix,SharpDX.Vector3)">
+            <summary>
+            Applies the 3D effect to the current sound effect instance.
+            </summary>
+            <param name="listenerWorld">The listener world matrix.</param>
+            <param name="listenerVelocity">The listener velocity.</param>
+            <param name="emitterWorld">The emitter world matrix.</param>
+            <param name="emitterVelocity">The emitter velocity.</param>
+        </member>
+        <member name="M:SharpDX.Toolkit.Audio.SoundEffectInstance.Dispose">
+            <summary>
+            Disposes the current instance and releases all associated unmanaged resources.
+            </summary>
+        </member>
+        <member name="M:SharpDX.Toolkit.Audio.SoundEffectInstance.Pause">
+            <summary>
+            Pauses the playback of the current instance.
+            </summary>
+            <exception cref="T:System.ObjectDisposedException">Is thrown if the current instance was already disposed.</exception>
+        </member>
+        <member name="M:SharpDX.Toolkit.Audio.SoundEffectInstance.Play">
+            <summary>
+            Plays the current instance. If it is already playing - the call is ignored.
+            </summary>
+            <exception cref="T:System.ObjectDisposedException">Is thrown if the current instance was already disposed.</exception>
+        </member>
+        <member name="M:SharpDX.Toolkit.Audio.SoundEffectInstance.Reset">
+            <summary>
+            Resets the current instance.
+            </summary>
+        </member>
+        <member name="M:SharpDX.Toolkit.Audio.SoundEffectInstance.Resume">
+            <summary>
+            Resumes playback of the current instance.
+            </summary>
+            <exception cref="T:System.ObjectDisposedException">Is thrown if the current instance was already disposed.</exception>
+        </member>
+        <member name="M:SharpDX.Toolkit.Audio.SoundEffectInstance.Stop">
+            <summary>
+            Stops the playback of the current instance.
+            </summary>
+            <exception cref="T:System.ObjectDisposedException">Is thrown if the current instance was already disposed.</exception>
+        </member>
+        <member name="M:SharpDX.Toolkit.Audio.SoundEffectInstance.Stop(System.Boolean)">
+            <summary>
+            Stops the playback of the current instance indicating whether the stop should occur immediately of at the end of the sound.
+            </summary>
+            <param name="immediate">A value indicating whether the playback should be stopped immediately or at the end of the sound.</param>
+            <exception cref="T:System.ObjectDisposedException">Is thrown if the current instance was already disposed.</exception>
+        </member>
+        <member name="M:SharpDX.Toolkit.Audio.SoundEffectInstance.ParentDisposed">
+            <summary>
+            Handles the event of disposal of the parent <see cref="T:SharpDX.Toolkit.Audio.SoundEffect"/>.
+            </summary>
+        </member>
+        <member name="M:SharpDX.Toolkit.Audio.SoundEffectInstance.Reset(SharpDX.Toolkit.Audio.SoundEffect,SharpDX.XAudio2.SourceVoice,System.Boolean)">
+            <summary>
+            Resets the current instance to be reused in an instance pool.
+            </summary>
+            <param name="soundEffect">The new parent sound effect.</param>
+            <param name="sourceVoice">The new source voice.</param>
+            <param name="isFireAndForget">The new <see cref="P:SharpDX.Toolkit.Audio.SoundEffectInstance.IsFireAndForget"/> value.</param>
+        </member>
+        <member name="M:SharpDX.Toolkit.Audio.SoundEffectInstance.Return">
+            <summary>
+            Returns this SoundEffectInstance to the SoundEffect InstancePool.
+            You should not continue to call other functions on this object.
+            </summary>
+        </member>
+        <member name="P:SharpDX.Toolkit.Audio.SoundEffectInstance.Effect">
+            <summary>
+            Gets the base sound effect.
+            </summary>
+        </member>
+        <member name="P:SharpDX.Toolkit.Audio.SoundEffectInstance.IsDisposed">
+            <summary>
+            Gets a value indicating whether this instance is diposed.
+            </summary>
+        </member>
+        <member name="P:SharpDX.Toolkit.Audio.SoundEffectInstance.IsLooped">
+            <summary>
+            Gets a value indicating whether this instance is looped.
+            </summary>
+        </member>
+        <member name="P:SharpDX.Toolkit.Audio.SoundEffectInstance.Pan">
+            <summary>
+            Gets or sets the pan value of the sound effect.
+            </summary>
+            <remarks>The value is clamped to (-1f, 1f) range.</remarks>
+            <exception cref="T:System.ObjectDisposedException">Is thrown if the current instance was already disposed.</exception>
+        </member>
+        <member name="P:SharpDX.Toolkit.Audio.SoundEffectInstance.Pitch">
+            <summary>
+            Gets or sets the pitch value of the sound effect.
+            </summary>
+            <remarks>The value is clamped to (-1f, 1f) range.</remarks>
+            <exception cref="T:System.ObjectDisposedException">Is thrown if the current instance was already disposed.</exception>
+        </member>
+        <member name="P:SharpDX.Toolkit.Audio.SoundEffectInstance.State">
+            <summary>
+            Gets the state of the current sound effect instance.
+            </summary>
+        </member>
+        <member name="P:SharpDX.Toolkit.Audio.SoundEffectInstance.Volume">
+            <summary>
+            Gets or sets the volume of the current sound effect instance.
+            </summary>
+            <remarks>The value is clamped to (0f, 1f) range.</remarks>
+            <exception cref="T:System.ObjectDisposedException">Is thrown if the current instance was already disposed.</exception>
+        </member>
+        <member name="P:SharpDX.Toolkit.Audio.SoundEffectInstance.IsFireAndForget">
+            <summary>
+            Gets a value indicating whether this instance is not monitored after submitting it for playback.
+            </summary>
+        </member>
+        <member name="P:SharpDX.Toolkit.Audio.SoundEffectInstance.CurrentAudioBuffer">
+            <summary>
+            Gets the current audio buffer.
+            </summary>
+        </member>
+        <member name="T:SharpDX.Toolkit.Audio.SoundEffectInstancePool">
+            <summary>
+            Pool of <see cref="T:SharpDX.Toolkit.Audio.SoundEffectInstance"/> used to maintain fire and forget instances.
+            </summary>
+        </member>
+        <member name="M:SharpDX.Toolkit.Audio.SoundEffectInstancePool.#ctor(SharpDX.Toolkit.Audio.AudioManager)">
+            <summary>
+            Initializes a new instance of the <see cref="T:SharpDX.Toolkit.Audio.SoundEffectInstancePool"/> class.
+            </summary>
+            <param name="audioManager">The associated audio manager instance.</param>
+        </member>
+        <member name="M:SharpDX.Toolkit.Audio.SoundEffectInstancePool.Dispose">
+            <summary>
+            Disposes the current instance and releases all associated unmanaged resources.
+            </summary>
+        </member>
+        <member name="M:SharpDX.Toolkit.Audio.SoundEffectInstancePool.GetVoicePool(SharpDX.Multimedia.WaveFormat)">
+            <summary>
+            Gets the <see cref="T:SharpDX.Toolkit.Audio.SourceVoicePool"/> for the specified wave format.
+            </summary>
+            <param name="waveFormat">The wave format of the requested source voice pool.</param>
+            <returns>The source voice pool for the provided wave format.</returns>
+        </member>
+        <member name="M:SharpDX.Toolkit.Audio.SoundEffectInstancePool.TryAcquire(SharpDX.Toolkit.Audio.SoundEffect,System.Boolean,SharpDX.Toolkit.Audio.SoundEffectInstance@)">
+            <summary>
+            Tries to acquire an existing or to create a new instance of the <see cref="T:SharpDX.Toolkit.Audio.SoundEffectInstance"/> class.
+            </summary>
+            <param name="soundEffect">The parenet sound effect.</param>
+            <param name="isFireAndForget">A value indicating whether the instance doesn't need to be monitored for playback.</param>
+            <param name="instance">The acquired instance.</param>
+            <returns>true if operation succeeded, false - otherwise.</returns>
+        </member>
+        <member name="M:SharpDX.Toolkit.Audio.SoundEffectInstancePool.RemoveUnshared(SharpDX.Toolkit.Audio.SourceVoicePool)">
+            <summary>
+            Removes the specified pool from "unshared" list.
+            </summary>
+            <param name="pool">The pool to remove.</param>
+        </member>
+        <member name="M:SharpDX.Toolkit.Audio.SoundEffectInstancePool.Return(SharpDX.Toolkit.Audio.SoundEffectInstance)">
+            <summary>
+            Returns the speicfied SoundEffectInstance to the instance pool
+            </summary>
+            <param name="item">SFXInstance to return to instance pool</param>
+        </member>
+        <member name="M:SharpDX.Toolkit.Audio.SoundEffectInstancePool.MakeWaveFormatKey(SharpDX.Multimedia.WaveFormat)">
+            <summary>
+            Creates a key based on wave format.
+            </summary>
+            <param name="waveFormat">The wave format from which the key should be created.</param>
+            <returns>The created key.</returns>
+        </member>
+        <member name="P:SharpDX.Toolkit.Audio.SoundEffectInstancePool.IsDisposed">
+            <summary>
+            Gets a value indicating whether this instance was already disposed.
+            </summary>
+        </member>
+        <member name="P:SharpDX.Toolkit.Audio.SoundEffectInstancePool.AudioManager">
+            <summary>
+            Gets the associated audio manager intance.
+            </summary>
+        </member>
+        <member name="T:SharpDX.Toolkit.Audio.SourceVoicePool">
+            <summary>
+            Pool of <see cref="T:SharpDX.XAudio2.SourceVoice"/>.
+            </summary>
+        </member>
+        <member name="M:SharpDX.Toolkit.Audio.SourceVoicePool.#ctor(SharpDX.Toolkit.Audio.SoundEffectInstancePool,SharpDX.Multimedia.WaveFormat,System.Boolean)">
+            <summary>
+            Initializes a new instance of the <see cref="T:SharpDX.Toolkit.Audio.SourceVoicePool"/> class.
+            </summary>
+            <param name="soundEffectInstancePool">The associated sound effect instance pool.</param>
+            <param name="waveFormat">The wave format of this pool.</param>
+            <param name="isShared">A value indicating whether the initialized instance is shared or not.</param>
+        </member>
+        <member name="M:SharpDX.Toolkit.Audio.SourceVoicePool.Dispose">
+            <summary>
+            Disposes the current instance and releases all associated unmanaged resources.
+            </summary>
+        </member>
+        <member name="M:SharpDX.Toolkit.Audio.SourceVoicePool.Release">
+            <summary>
+            Removes from instance pool and disposes the current instance if it is not shared.
+            </summary>
+        </member>
+        <member name="P:SharpDX.Toolkit.Audio.SourceVoicePool.IsDisposed">
+            <summary>
+            Gets a value indicating whether the current instance was already disposed.
+            </summary>
+        </member>
+        <member name="T:SharpDX.Toolkit.Audio.SoundState">
+            <summary>
+            The state of a sound effect instance.
+            </summary>
+        </member>
+        <member name="F:SharpDX.Toolkit.Audio.SoundState.Playing">
+            <summary>
+            The sound is being played.
+            </summary>
+        </member>
+        <member name="F:SharpDX.Toolkit.Audio.SoundState.Paused">
+            <summary>
+            The sound playback is paused.
+            </summary>
+        </member>
+        <member name="F:SharpDX.Toolkit.Audio.SoundState.Stopped">
+            <summary>
+            The sound playback is stopped.
+            </summary>
+        </member>
+        <member name="T:SharpDX.Toolkit.Audio.WaveBank">
+            <summary>
+            Represents a wave bank that were read from a stream.
+            </summary>
+        </member>
+        <member name="M:SharpDX.Toolkit.Audio.WaveBank.#ctor(SharpDX.Toolkit.Audio.AudioManager,System.IO.Stream)">
+            <summary>
+            Initializes a new instance of the <see cref="T:SharpDX.Toolkit.Audio.WaveBank"/> class and loads the wave data from the provided stream.
+            </summary>
+            <param name="audioManager">The associated audio manager.</param>
+            <param name="stream">The stream from which to read the wave data.</param>
+            <exception cref="T:System.ArgumentNullException">Is thrown when either <paramref name="audioManager"/> or <paramref name="stream"/> are null.</exception>
+        </member>
+        <member name="M:SharpDX.Toolkit.Audio.WaveBank.FromFile(SharpDX.Toolkit.Audio.AudioManager,System.String)">
+            <summary>
+            Initializes a new wave bank from the file located at the provided file path.
+            </summary>
+            <param name="audioManager">The associated audio manager.</param>
+            <param name="filePath">The path to the wave bank file.</param>
+            <returns>The wave bank initialized from provided file.</returns>
+        </member>
+        <member name="M:SharpDX.Toolkit.Audio.WaveBank.FromStream(SharpDX.Toolkit.Audio.AudioManager,System.IO.Stream)">
+            <summary>
+            Initializes a new wave bank from the provided stream.
+            </summary>
+            <param name="audioManager">The associated audio manager.</param>
+            <param name="stream">The stream containing wave bank data.</param>
+            <returns>The wave bank initialized from provided stream.</returns>
+        </member>
+        <member name="M:SharpDX.Toolkit.Audio.WaveBank.Create(System.Int32)">
+            <summary>
+            Creates a new sound effect instance from the sound effect at the specified index in this wave bank instance.
+            </summary>
+            <param name="index">The index of the sound effect in the current instance.</param>
+            <returns>The sound effect instance initialized from the sound effect at specified index.</returns>
+            <exception cref="T:System.ObjectDisposedException">Is thrown if the current instance was already disposed.</exception>
+            <exception cref="T:System.ArgumentOutOfRangeException">Is thrown when <paramref name="index"/> is lesser than zero or greather than or equal to the effects count.</exception>
+        </member>
+        <member name="M:SharpDX.Toolkit.Audio.WaveBank.Create(System.String)">
+            <summary>
+            Creates a new sound effect instance from the sound effect with the specified name in this wave bank instance.
+            </summary>
+            <param name="name">The name of the sound effect in the current instance.</param>
+            <returns>The sound effect instance initialized from sound effect with the specified name.</returns>
+            <exception cref="T:System.ObjectDisposedException">Is thrown if the current instance was already disposed.</exception>
+            <exception cref="T:System.ArgumentNullException">Is thrown when <paramref name="name"/> is null or empty.</exception>
+            <exception cref="T:System.ArgumentOutOfRangeException">Is thrown when the sound effect with the specified <paramref name="name"/> is not found.</exception>
+        </member>
+        <member name="M:SharpDX.Toolkit.Audio.WaveBank.Dispose">
+            <summary>
+            Disposes the current instance and releases all associated unmanaged resources.
+            </summary>
+        </member>
+        <member name="M:SharpDX.Toolkit.Audio.WaveBank.Play(System.Int32,System.Single,System.Single,System.Single)">
+            <summary>
+            Plays the sound effect at specified index with provided parameters.
+            </summary>
+            <param name="index">The sound effect index.</param>
+            <param name="volume">The volume of the sound effect instance.</param>
+            <param name="pitch">The pitch of the sound effect instance.</param>
+            <param name="pan">The pan of the sound effect instance.</param>
+            <returns>true if the sound effect instance was scheduled successfuly for playback, false - otherwise.</returns>
+            <exception cref="T:System.ObjectDisposedException">Is thrown if the current instance was already disposed.</exception>
+            <exception cref="T:System.ArgumentOutOfRangeException">Is thrown when <paramref name="index"/> is lesser than zero or greather than or equal to the effects count.</exception>
+        </member>
+        <member name="M:SharpDX.Toolkit.Audio.WaveBank.Play(System.Int32)">
+            <summary>
+            Plays the sound effect at specified index.
+            </summary>
+            <param name="index">The sound effect index.</param>
+            <returns>true if the sound effect instance was scheduled successfuly for playback, false - otherwise.</returns>
+            <exception cref="T:System.ObjectDisposedException">Is thrown if the current instance was already disposed.</exception>
+            <exception cref="T:System.ArgumentOutOfRangeException">Is thrown when <paramref name="index"/> is lesser than zero or greather than or equal to the effects count.</exception>
+        </member>
+        <member name="M:SharpDX.Toolkit.Audio.WaveBank.Play(System.String,System.Single,System.Single,System.Single)">
+            <summary>
+            Plays the sound effect with the specified name with provided parameters.
+            </summary>
+            <param name="name">The sound effect name.</param>
+            <param name="volume">The volume of the sound effect instance.</param>
+            <param name="pitch">The pitch of the sound effect instance.</param>
+            <param name="pan">The pan of the sound effect instance.</param>
+            <returns>true if the sound effect instance was scheduled successfuly for playback, false - otherwise.</returns>
+            <exception cref="T:System.ObjectDisposedException">Is thrown if the current instance was already disposed.</exception>
+            <exception cref="T:System.ArgumentOutOfRangeException">Is thrown when the sound effect with the specified <paramref name="name"/> is not found.</exception>
+        </member>
+        <member name="M:SharpDX.Toolkit.Audio.WaveBank.Play(System.String)">
+            <summary>
+            Plays the sound effect with the specified name.
+            </summary>
+            <param name="name">The sound effect name.</param>
+            <returns>true if the sound effect instance was scheduled successfuly for playback, false - otherwise.</returns>
+            <exception cref="T:System.ObjectDisposedException">Is thrown if the current instance was already disposed.</exception>
+            <exception cref="T:System.ArgumentOutOfRangeException">Is thrown when the sound effect with the specified <paramref name="name"/> is not found.</exception>
+        </member>
+        <member name="P:SharpDX.Toolkit.Audio.WaveBank.Count">
+            <summary>
+            Gets the number of sound effects stored in the current instance.
+            </summary>
+        </member>
+        <member name="P:SharpDX.Toolkit.Audio.WaveBank.IsDisposed">
+            <summary>
+            Gets a value indicating whether the current instance is disposed.
+            </summary>
+        </member>
+        <member name="T:SharpDX.Toolkit.Audio.WaveBankContentReader">
+            <summary>
+            An <see cref="T:SharpDX.Toolkit.Audio.AudioContentReader`1"/> implementation for <see cref="T:SharpDX.Toolkit.Audio.WaveBank"/> content.
+            </summary>
+        </member>
+        <member name="T:SharpDX.Toolkit.Audio.WaveBankReader">
+            <summary>
+            Helper class that reads <see cref="T:SharpDX.Toolkit.Audio.WaveBank"/> instances from binary data.
+            </summary>
+        </member>
+        <member name="M:SharpDX.Toolkit.Audio.WaveBankReader.#ctor(System.IO.Stream)">
+            <summary>
+            Initializes a new instance of the <see cref="T:SharpDX.Toolkit.Audio.WaveBankReader"/>.
+            </summary>
+            <param name="stream">The stream containing wave bank data.</param>
+        </member>
+    </members>
+</doc>

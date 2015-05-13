@@ -1,0 +1,724 @@
+<?xml version="1.0"?>
+<Definitions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <Animations>
+  
+	<!-- Idle and Standing -->
+	
+    <Animation>
+      <Id>
+        <TypeId>AnimationDefinition</TypeId>
+        <SubtypeId>Idle</SubtypeId>
+      </Id>
+      <DisplayName>Idle</DisplayName>
+      <Description>Idle</Description>
+      <Icon>Textures\GUI\Icons\Fake.dds</Icon>
+      <AnimationModel>Models\Characters\Animations\idle.mwm</AnimationModel>
+      <ClipIndex>0</ClipIndex>
+      <InfluenceArea>Body</InfluenceArea>
+      <Public>false</Public>
+    </Animation>
+	
+	    <Animation>
+      <Id>
+        <TypeId>AnimationDefinition</TypeId>
+        <SubtypeId>StandLeftTurn</SubtypeId>
+      </Id>
+      <DisplayName>StandLeftTurn</DisplayName>
+      <Description>StandLeftTurn</Description>
+      <Icon>Textures\GUI\Icons\Fake.dds</Icon>
+      <AnimationModel>Models\Characters\Animations\stand_leftturn.mwm</AnimationModel>
+      <ClipIndex>0</ClipIndex>
+      <InfluenceArea>Body</InfluenceArea>
+      <Public>false</Public>
+    </Animation>
+	
+    <Animation>
+      <Id>
+        <TypeId>AnimationDefinition</TypeId>
+        <SubtypeId>StandRightTurn</SubtypeId>
+      </Id>
+      <DisplayName>StandRightTurn</DisplayName>
+      <Description>StandRightTurn</Description>
+      <Icon>Textures\GUI\Icons\Fake.dds</Icon>
+      <AnimationModel>Models\Characters\Animations\stand_rightturn.mwm</AnimationModel>
+      <ClipIndex>0</ClipIndex>
+      <InfluenceArea>Body</InfluenceArea>
+      <Public>false</Public>
+    </Animation>
+	
+	<!-- End - Idle and Standing -->
+	
+	<!-- Walk -->
+	
+	 <Animation>
+      <Id>
+        <TypeId>AnimationDefinition</TypeId>
+        <SubtypeId>Walk</SubtypeId>
+      </Id>
+      <DisplayName>Walk</DisplayName>
+      <Description>Walk</Description>
+      <Icon>Textures\GUI\Icons\Fake.dds</Icon>
+      <AnimationModel>Models\Characters\Animations\walk.mwm</AnimationModel>
+      <ClipIndex>0</ClipIndex>
+      <InfluenceArea>Body</InfluenceArea>
+      <Public>false</Public>
+    </Animation>
+	
+	<Animation>
+      <Id>
+        <TypeId>AnimationDefinition</TypeId>
+        <SubtypeId>WalkBack</SubtypeId>
+      </Id>
+      <DisplayName>WalkBack</DisplayName>
+      <Description>WalkBack</Description>
+      <Icon>Textures\GUI\Icons\Fake.dds</Icon>
+      <AnimationModel>Models\Characters\Animations\walkback.mwm</AnimationModel>
+      <ClipIndex>0</ClipIndex>
+      <InfluenceArea>Body</InfluenceArea>
+      <Public>false</Public>
+    </Animation>
+	
+	<Animation>
+      <Id>
+        <TypeId>AnimationDefinition</TypeId>
+        <SubtypeId>WalkRightFront</SubtypeId>
+      </Id>
+      <DisplayName>WalkRightFront</DisplayName>
+      <Description>WalkRightFront</Description>
+      <Icon>Textures\GUI\Icons\Fake.dds</Icon>
+      <AnimationModel>Models\Characters\Animations\walk_rightfront.mwm</AnimationModel>
+      <ClipIndex>0</ClipIndex>
+      <InfluenceArea>Body</InfluenceArea>
+      <Public>false</Public>
+    </Animation>
+	
+    <Animation>
+      <Id>
+        <TypeId>AnimationDefinition</TypeId>
+        <SubtypeId>WalkRightBack</SubtypeId>
+      </Id>
+      <DisplayName>WalkRightBack</DisplayName>
+      <Description>WalkRightBack</Description>
+      <Icon>Textures\GUI\Icons\Fake.dds</Icon>
+      <AnimationModel>Models\Characters\Animations\walk_rightback.mwm</AnimationModel>
+      <ClipIndex>0</ClipIndex>
+      <InfluenceArea>Body</InfluenceArea>
+      <Public>false</Public>
+    </Animation>
+	
+    <Animation>
+      <Id>
+        <TypeId>AnimationDefinition</TypeId>
+        <SubtypeId>WalkLeftFront</SubtypeId>
+      </Id>
+      <DisplayName>WalkLeftFront</DisplayName>
+      <Description>WalkLeftFront</Description>
+      <Icon>Textures\GUI\Icons\Fake.dds</Icon>
+      <AnimationModel>Models\Characters\Animations\walk_leftfront.mwm</AnimationModel>
+      <ClipIndex>0</ClipIndex>
+      <InfluenceArea>Body</InfluenceArea>
+      <Public>false</Public>
+    </Animation>
+	
+    <Animation>
+      <Id>
+        <TypeId>AnimationDefinition</TypeId>
+        <SubtypeId>WalkLeftBack</SubtypeId>
+      </Id>
+      <DisplayName>WalkLeftBack</DisplayName>
+      <Description>WalkLeftBack</Description>
+      <Icon>Textures\GUI\Icons\Fake.dds</Icon>
+      <AnimationModel>Models\Characters\Animations\walk_leftback.mwm</AnimationModel>
+      <ClipIndex>0</ClipIndex>
+      <InfluenceArea>Body</InfluenceArea>
+      <Public>false</Public>
+    </Animation>
+	
+	<Animation>
+      <Id>
+        <TypeId>AnimationDefinition</TypeId>
+        <SubtypeId>StrafeLeft</SubtypeId>
+      </Id>
+      <DisplayName>StrafeLeft</DisplayName>
+      <Description>StrafeLeft</Description>
+      <Icon>Textures\GUI\Icons\Fake.dds</Icon>
+      <AnimationModel>Models\Characters\Animations\strafeleft.mwm</AnimationModel>
+      <ClipIndex>0</ClipIndex>
+      <InfluenceArea>Body</InfluenceArea>
+      <Public>false</Public>
+    </Animation>
+	
+    <Animation>
+      <Id>
+        <TypeId>AnimationDefinition</TypeId>
+        <SubtypeId>StrafeRight</SubtypeId>
+      </Id>
+      <DisplayName>StrafeRight</DisplayName>
+      <Description>StrafeRight</Description>
+      <Icon>Textures\GUI\Icons\Fake.dds</Icon>
+      <AnimationModel>Models\Characters\Animations\straferight.mwm</AnimationModel>
+      <ClipIndex>0</ClipIndex>
+      <InfluenceArea>Body</InfluenceArea>
+      <Public>false</Public>
+    </Animation>
+	
+	<!-- End Walk -->
+	
+	<!-- Run-->
+
+    <Animation>
+      <Id>
+        <TypeId>AnimationDefinition</TypeId>
+        <SubtypeId>Run</SubtypeId>
+      </Id>
+      <DisplayName>Run</DisplayName>
+      <Icon>Textures\GUI\Icons\Fake.dds</Icon>
+      <AnimationModel>Models\Characters\Animations\run.mwm</AnimationModel>
+      <ClipIndex>0</ClipIndex>
+      <InfluenceArea>Body</InfluenceArea>
+      <Public>false</Public>
+    </Animation>
+	
+    <Animation>
+      <Id>
+        <TypeId>AnimationDefinition</TypeId>
+        <SubtypeId>RunBack</SubtypeId>
+      </Id>
+      <DisplayName>RunBack</DisplayName>
+      <Icon>Textures\GUI\Icons\Fake.dds</Icon>
+      <AnimationModel>Models\Characters\Animations\runback.mwm</AnimationModel>
+      <ClipIndex>0</ClipIndex>
+      <InfluenceArea>Body</InfluenceArea>
+      <Public>false</Public>
+    </Animation>
+	
+    <Animation>
+      <Id>
+        <TypeId>AnimationDefinition</TypeId>
+        <SubtypeId>RunLeft</SubtypeId>
+      </Id>
+      <DisplayName>RunLeft</DisplayName>
+      <Icon>Textures\GUI\Icons\Fake.dds</Icon>
+      <AnimationModel>Models\Characters\Animations\runstrafe_left.mwm</AnimationModel>
+      <ClipIndex>0</ClipIndex>
+      <InfluenceArea>Body</InfluenceArea>
+      <Public>false</Public>
+    </Animation>
+	
+    <Animation>
+      <Id>
+        <TypeId>AnimationDefinition</TypeId>
+        <SubtypeId>RunRight</SubtypeId>
+      </Id>
+      <DisplayName>RunRight</DisplayName>
+      <Icon>Textures\GUI\Icons\Fake.dds</Icon>
+      <AnimationModel>Models\Characters\Animations\runstrafe_right.mwm</AnimationModel>
+      <ClipIndex>0</ClipIndex>
+      <InfluenceArea>Body</InfluenceArea>
+      <Public>false</Public>
+    </Animation>
+	
+    <Animation>
+      <Id>
+        <TypeId>AnimationDefinition</TypeId>
+        <SubtypeId>RunRightFront</SubtypeId>
+      </Id>
+      <DisplayName>RunRightFront</DisplayName>
+      <Icon>Textures\GUI\Icons\Fake.dds</Icon>
+      <AnimationModel>Models\Characters\Animations\run_rightfront.mwm</AnimationModel>
+      <ClipIndex>0</ClipIndex>
+      <InfluenceArea>Body</InfluenceArea>
+      <Public>false</Public>
+    </Animation>
+	
+    <Animation>
+      <Id>
+        <TypeId>AnimationDefinition</TypeId>
+        <SubtypeId>RunRightBack</SubtypeId>
+      </Id>
+      <DisplayName>RunRightBack</DisplayName>
+      <Icon>Textures\GUI\Icons\Fake.dds</Icon>
+      <AnimationModel>Models\Characters\Animations\run_rightback.mwm</AnimationModel>
+      <ClipIndex>0</ClipIndex>
+      <InfluenceArea>Body</InfluenceArea>
+      <Public>false</Public>
+    </Animation>
+	
+    <Animation>
+      <Id>
+        <TypeId>AnimationDefinition</TypeId>
+        <SubtypeId>RunLeftFront</SubtypeId>
+      </Id>
+      <DisplayName>RunLeftFront</DisplayName>
+      <Icon>Textures\GUI\Icons\Fake.dds</Icon>
+      <AnimationModel>Models\Characters\Animations\run_leftfront.mwm</AnimationModel>
+      <ClipIndex>0</ClipIndex>
+      <InfluenceArea>Body</InfluenceArea>
+      <Public>false</Public>
+    </Animation>
+	
+    <Animation>
+      <Id>
+        <TypeId>AnimationDefinition</TypeId>
+        <SubtypeId>RunLeftBack</SubtypeId>
+      </Id>
+      <DisplayName>RunLeftBack</DisplayName>
+      <Icon>Textures\GUI\Icons\Fake.dds</Icon>
+      <AnimationModel>Models\Characters\Animations\run_leftback.mwm</AnimationModel>
+      <ClipIndex>0</ClipIndex>
+      <InfluenceArea>Body</InfluenceArea>
+      <Public>false</Public>
+    </Animation>
+
+    <!-- Run_end-->
+	
+	<!-- Sprint -->
+    
+	<Animation>
+      <Id>
+        <TypeId>AnimationDefinition</TypeId>
+        <SubtypeId>Sprint</SubtypeId>
+      </Id>
+      <DisplayName>Sprint</DisplayName>
+      <Description>Sprint</Description>
+      <Icon>Textures\GUI\Icons\Fake.dds</Icon>
+      <AnimationModel>Models\Characters\Animations\sprint.mwm</AnimationModel>
+      <ClipIndex>0</ClipIndex>
+      <InfluenceArea>Body</InfluenceArea>
+      <Public>false</Public>
+    </Animation>
+	
+	<!-- End Sprint -->
+	
+	<!-- Crouch -->
+	
+	<Animation>
+      <Id>
+        <TypeId>AnimationDefinition</TypeId>
+        <SubtypeId>CrouchWalk</SubtypeId>
+      </Id>
+      <DisplayName>CrouchWalk</DisplayName>
+      <Description>CrouchWalk</Description>
+      <Icon>Textures\GUI\Icons\Fake.dds</Icon>
+      <AnimationModel>Models\Characters\Animations\crouchwalk.mwm</AnimationModel>
+      <ClipIndex>0</ClipIndex>
+      <InfluenceArea>Body</InfluenceArea>
+      <Public>false</Public>
+    </Animation>
+	
+    <Animation>
+      <Id>
+        <TypeId>AnimationDefinition</TypeId>
+        <SubtypeId>CrouchWalkBack</SubtypeId>
+      </Id>
+      <DisplayName>CrouchWalkBack</DisplayName>
+      <Description>CrouchWalkBack</Description>
+      <Icon>Textures\GUI\Icons\Fake.dds</Icon>
+      <AnimationModel>Models\Characters\Animations\crouchwalkback.mwm</AnimationModel>
+      <ClipIndex>0</ClipIndex>
+      <InfluenceArea>Body</InfluenceArea>
+      <Public>false</Public>
+    </Animation>
+	
+    <Animation>
+      <Id>
+        <TypeId>AnimationDefinition</TypeId>
+        <SubtypeId>CrouchIdle</SubtypeId>
+      </Id>
+      <DisplayName>Crouchidle</DisplayName>
+      <Description>Crouchidle</Description>
+      <Icon>Textures\GUI\Icons\Fake.dds</Icon>
+      <AnimationModel>Models\Characters\Animations\crouchidle.mwm</AnimationModel>
+      <ClipIndex>0</ClipIndex>
+      <InfluenceArea>Body</InfluenceArea>
+      <Public>false</Public>
+    </Animation>
+	
+	<Animation>
+      <Id>
+        <TypeId>AnimationDefinition</TypeId>
+        <SubtypeId>CrouchStrafeLeft</SubtypeId>
+      </Id>
+      <DisplayName>CrouchStrafeLeft</DisplayName>
+      <Description>CrouchStrafeLeft</Description>
+      <Icon>Textures\GUI\Icons\Fake.dds</Icon>
+      <AnimationModel>Models\Characters\Animations\crouchstrafe_left.mwm</AnimationModel>
+      <ClipIndex>0</ClipIndex>
+      <InfluenceArea>Body</InfluenceArea>
+      <Public>false</Public>
+    </Animation>
+	
+    <Animation>
+      <Id>
+        <TypeId>AnimationDefinition</TypeId>
+        <SubtypeId>CrouchStrafeRight</SubtypeId>
+      </Id>
+      <DisplayName>CrouchStrafeRight</DisplayName>
+      <Description>CrouchStrafeRight</Description>
+      <Icon>Textures\GUI\Icons\Fake.dds</Icon>
+      <AnimationModel>Models\Characters\Animations\crouchstrafe_right.mwm</AnimationModel>
+      <ClipIndex>0</ClipIndex>
+      <InfluenceArea>Body</InfluenceArea>
+      <Public>false</Public>
+    </Animation>
+	
+	<Animation>
+      <Id>
+        <TypeId>AnimationDefinition</TypeId>
+        <SubtypeId>CrouchWalkRightFront</SubtypeId>
+      </Id>
+      <DisplayName>CrouchWalkRightFront</DisplayName>
+      <Description>CrouchWalkRightFront</Description>
+      <Icon>Textures\GUI\Icons\Fake.dds</Icon>
+      <AnimationModel>Models\Characters\Animations\crouchwalk_rightfront.mwm</AnimationModel>
+      <ClipIndex>0</ClipIndex>
+      <InfluenceArea>Body</InfluenceArea>
+      <Public>false</Public>
+    </Animation>
+	
+    <Animation>
+      <Id>
+        <TypeId>AnimationDefinition</TypeId>
+        <SubtypeId>CrouchWalkRightBack</SubtypeId>
+      </Id>
+      <DisplayName>CrouchWalkRightBack</DisplayName>
+      <Description>CrouchWalkRightBack</Description>
+      <Icon>Textures\GUI\Icons\Fake.dds</Icon>
+      <AnimationModel>Models\Characters\Animations\crouchwalk_rightback.mwm</AnimationModel>
+      <ClipIndex>0</ClipIndex>
+      <InfluenceArea>Body</InfluenceArea>
+      <Public>false</Public>
+    </Animation>
+	
+    <Animation>
+      <Id>
+        <TypeId>AnimationDefinition</TypeId>
+        <SubtypeId>CrouchWalkLeftFront</SubtypeId>
+      </Id>
+      <DisplayName>CrouchWalkLeftFront</DisplayName>
+      <Description>CrouchWalkLeftFront</Description>
+      <Icon>Textures\GUI\Icons\Fake.dds</Icon>
+      <AnimationModel>Models\Characters\Animations\crouchwalk_leftfront.mwm</AnimationModel>
+      <ClipIndex>0</ClipIndex>
+      <InfluenceArea>Body</InfluenceArea>
+      <Public>false</Public>
+    </Animation>
+	
+    <Animation>
+      <Id>
+        <TypeId>AnimationDefinition</TypeId>
+        <SubtypeId>CrouchWalkLeftBack</SubtypeId>
+      </Id>
+      <DisplayName>CrouchWalkLeftBack</DisplayName>
+      <Description>CrouchWalkLeftBack</Description>
+      <Icon>Textures\GUI\Icons\Fake.dds</Icon>
+      <AnimationModel>Models\Characters\Animations\crouchwalk_leftback.mwm</AnimationModel>
+      <ClipIndex>0</ClipIndex>
+      <InfluenceArea>Body</InfluenceArea>
+      <Public>false</Public>
+    </Animation>
+
+    <Animation>
+      <Id>
+        <TypeId>AnimationDefinition</TypeId>
+        <SubtypeId>CrouchLeftTurn</SubtypeId>
+      </Id>
+      <DisplayName>CrouchLeftTurn</DisplayName>
+      <Description>CrouchLeftTurn</Description>
+      <Icon>Textures\GUI\Icons\Fake.dds</Icon>
+      <AnimationModel>Models\Characters\Animations\crouch_leftturn.mwm</AnimationModel>
+      <ClipIndex>0</ClipIndex>
+      <InfluenceArea>Body</InfluenceArea>
+      <Public>false</Public>
+    </Animation>
+	
+    <Animation>
+      <Id>
+        <TypeId>AnimationDefinition</TypeId>
+        <SubtypeId>CrouchRightTurn</SubtypeId>
+      </Id>
+      <DisplayName>CrouchRightTurn</DisplayName>
+      <Description>CrouchRightTurn</Description>
+      <Icon>Textures\GUI\Icons\Fake.dds</Icon>
+      <AnimationModel>Models\Characters\Animations\crouch_rightturn.mwm</AnimationModel>
+      <ClipIndex>0</ClipIndex>
+      <InfluenceArea>Body</InfluenceArea>
+      <Public>false</Public>
+    </Animation>
+	
+	<!-- End Crouch -->
+	
+	<!-- Actions -->
+	
+    <Animation>
+      <Id>
+        <TypeId>AnimationDefinition</TypeId>
+        <SubtypeId>Jump</SubtypeId>
+      </Id>
+      <DisplayName>Jump</DisplayName>
+      <Description>Jump</Description>
+      <Icon>Textures\GUI\Icons\Fake.dds</Icon>
+      <AnimationModel>Models\Characters\Animations\jump.mwm</AnimationModel>
+      <ClipIndex>0</ClipIndex>
+      <InfluenceArea>Body</InfluenceArea>
+      <Public>false</Public>
+    </Animation>    
+    
+    <Animation>
+      <Id>
+        <TypeId>AnimationDefinition</TypeId>
+        <SubtypeId>FreeFall</SubtypeId>
+      </Id>
+      <DisplayName>FreeFall</DisplayName>
+      <Description>FreeFall</Description>
+      <Icon>Textures\GUI\Icons\Fake.dds</Icon>
+      <AnimationModel>Models\Characters\Animations\freefall.mwm</AnimationModel>
+      <ClipIndex>0</ClipIndex>
+      <InfluenceArea>Body</InfluenceArea>
+      <Public>false</Public>
+    </Animation>
+	
+	<Animation>
+      <Id>
+        <TypeId>AnimationDefinition</TypeId>
+        <SubtypeId>Jetpack</SubtypeId>
+      </Id>
+      <DisplayName>Jetpack</DisplayName>
+      <Description>Jetpack</Description>
+      <Icon>Textures\GUI\Icons\Fake.dds</Icon>
+      <AnimationModel>Models\Characters\Animations\jetpack.mwm</AnimationModel>
+      <ClipIndex>0</ClipIndex>
+      <InfluenceArea>Body</InfluenceArea>
+      <Public>false</Public>
+    </Animation>
+	
+	<Animation>
+      <Id>
+        <TypeId>AnimationDefinition</TypeId>
+        <SubtypeId>Died</SubtypeId>
+      </Id>
+      <DisplayName>Died</DisplayName>
+      <Description>Died</Description>
+      <Icon>Textures\GUI\Icons\Fake.dds</Icon>
+      <AnimationModel>Models\Characters\Animations\died.mwm</AnimationModel>
+      <ClipIndex>0</ClipIndex>
+      <InfluenceArea>Body</InfluenceArea>
+      <Public>false</Public>
+    </Animation>
+	
+    <Animation>
+      <Id>
+        <TypeId>AnimationDefinition</TypeId>
+        <SubtypeId>DiedFps</SubtypeId>
+      </Id>
+      <DisplayName>DiedFps</DisplayName>
+      <Description>DiedFps</Description>
+      <Icon>Textures\GUI\Icons\Fake.dds</Icon>
+      <AnimationModel>Models\Characters\Animations\died_fps.mwm</AnimationModel>
+      <ClipIndex>0</ClipIndex>
+      <InfluenceArea>Body</InfluenceArea>
+      <Public>false</Public>
+    </Animation>
+	
+	<!-- End - Actions -->
+	
+    <!-- Tools Animations & User Actions -->
+	
+	<Animation>
+      <Id>
+        <TypeId>AnimationDefinition</TypeId>
+        <SubtypeId>Wave</SubtypeId>
+      </Id>
+      <DisplayName>DisplayName_Animation_Wave</DisplayName>
+      <Description>Description_Animation_Wave</Description>
+      <Icon>Textures\GUI\Icons\Animations\Wave.dds</Icon>
+      <AnimationModel>Models\Characters\Animations\wave.mwm</AnimationModel>
+      <ClipIndex>0</ClipIndex>
+      <InfluenceArea>RightHand</InfluenceArea>
+      <Public>true</Public>
+      <AllowInCockpit>true</AllowInCockpit>
+      <AllowWithWeapon>true</AllowWithWeapon>
+    </Animation>
+	
+	<Animation>
+      <Id>
+        <TypeId>AnimationDefinition</TypeId>
+        <SubtypeId>HoldingTool</SubtypeId>
+      </Id>
+      <DisplayName>HoldingTool</DisplayName>
+      <Description>HoldingTool</Description>
+      <Icon>Textures\GUI\Icons\Fake.dds</Icon>
+      <AnimationModel>Models\Characters\Animations\holding_tool.mwm</AnimationModel>
+      <ClipIndex>0</ClipIndex>
+      <InfluenceArea>LeftFingers RightFingers</InfluenceArea>
+      <Public>false</Public>
+    </Animation>
+	
+    <Animation>
+      <Id>
+        <TypeId>AnimationDefinition</TypeId>
+        <SubtypeId>HoldingWeapon</SubtypeId>
+      </Id>
+      <DisplayName>HoldingWeapon</DisplayName>
+      <Description>HoldingWeapon</Description>
+      <Icon>Textures\GUI\Icons\Fake.dds</Icon>
+      <AnimationModel>Models\Characters\Animations\holding_weapon.mwm</AnimationModel>
+      <ClipIndex>0</ClipIndex>
+      <InfluenceArea>LeftFingers RightFingers</InfluenceArea>
+      <Public>false</Public>
+    </Animation>
+	
+    <Animation>
+      <Id>
+        <TypeId>AnimationDefinition</TypeId>
+        <SubtypeId>Victory</SubtypeId>
+      </Id>
+      <DisplayName>DisplayName_Animation_Victory</DisplayName>
+      <Icon>Textures\GUI\Icons\Animations\Victory.dds</Icon>
+      <AnimationModel>Models\Characters\Animations\victory.mwm</AnimationModel>
+      <ClipIndex>0</ClipIndex>
+      <InfluenceArea>RightHand LeftHand</InfluenceArea>
+      <Public>true</Public>
+      <AllowInCockpit>true</AllowInCockpit>
+      <AllowWithWeapon>true</AllowWithWeapon>
+    </Animation>
+	
+    <Animation>
+      <Id>
+        <TypeId>AnimationDefinition</TypeId>
+        <SubtypeId>Thumb-Up</SubtypeId>
+      </Id>
+      <DisplayName>DisplayName_Animation_ThumbUp</DisplayName>
+      <Icon>Textures\GUI\Icons\Animations\Thumbup.dds</Icon>
+      <AnimationModel>Models\Characters\Animations\thumbup.mwm</AnimationModel>
+      <ClipIndex>0</ClipIndex>
+      <InfluenceArea>RightHand</InfluenceArea>
+      <Public>true</Public>
+      <AllowInCockpit>true</AllowInCockpit>
+      <AllowWithWeapon>true</AllowWithWeapon>
+    </Animation>
+	
+    <Animation>
+      <Id>
+        <TypeId>AnimationDefinition</TypeId>
+        <SubtypeId>FacePalm</SubtypeId>
+      </Id>
+      <DisplayName>DisplayName_Animation_Facepalm</DisplayName>
+      <Icon>Textures\GUI\Icons\Animations\Facepalm.dds</Icon>
+      <AnimationModel>Models\Characters\Animations\facepalm.mwm</AnimationModel>
+      <ClipIndex>0</ClipIndex>
+      <InfluenceArea>Spine RightHand</InfluenceArea>
+      <Public>true</Public>
+      <AllowInCockpit>true</AllowInCockpit>
+      <AllowWithWeapon>true</AllowWithWeapon>
+    </Animation>
+	
+	<Animation>
+      <Id>
+        <TypeId>AnimationDefinition</TypeId>
+        <SubtypeId>UseCubePlacerFingers</SubtypeId>
+      </Id>
+      <DisplayName>UseCubePlacerFingers</DisplayName>
+      <Description>UseCubePlacerFingers</Description>
+      <Icon>Textures\GUI\Icons\Fake.dds</Icon>
+      <AnimationModel>Models\Characters\Animations\sprint.mwm</AnimationModel>
+      <ClipIndex>0</ClipIndex>
+      <InfluenceArea>RightFingers</InfluenceArea>
+      <Public>false</Public>
+      <AllowInCockpit>false</AllowInCockpit>
+      <AllowWithWeapon>false</AllowWithWeapon>
+    </Animation>
+	
+	
+    <!-- End - Tools Animations & User Actions -->
+	
+    <!-- SE Specific animations -->
+	
+	<Animation>
+      <Id>
+        <TypeId>AnimationDefinition</TypeId>
+        <SubtypeId>cockpit23</SubtypeId>
+      </Id>
+      <DisplayName>cockpit23</DisplayName>
+      <Description>cockpit23</Description>
+      <Icon>Textures\GUI\Icons\Fake.dds</Icon>
+      <AnimationModel>Models\Characters\Animations\cockpit23.mwm</AnimationModel>
+      <ClipIndex>0</ClipIndex>
+      <InfluenceArea>Body</InfluenceArea>
+      <Public>false</Public>
+    </Animation>
+	
+    <Animation>
+      <Id>
+        <TypeId>AnimationDefinition</TypeId>
+        <SubtypeId>cockpit1_large</SubtypeId>
+      </Id>
+      <DisplayName>cockpit1_large</DisplayName>
+      <Description>cockpit1_large</Description>
+      <Icon>Textures\GUI\Icons\Fake.dds</Icon>
+      <AnimationModel>Models\Characters\Animations\cockpit1_large.mwm</AnimationModel>
+      <ClipIndex>0</ClipIndex>
+      <InfluenceArea>Body</InfluenceArea>
+      <Public>false</Public>
+    </Animation>
+	
+    <Animation>
+      <Id>
+        <TypeId>AnimationDefinition</TypeId>
+        <SubtypeId>cockpit1_small</SubtypeId>
+      </Id>
+      <DisplayName>cockpit1_small</DisplayName>
+      <Description>cockpit1_small</Description>
+      <Icon>Textures\GUI\Icons\Fake.dds</Icon>
+      <AnimationModel>Models\Characters\Animations\cockpit1_small.mwm</AnimationModel>
+      <ClipIndex>0</ClipIndex>
+      <InfluenceArea>Body</InfluenceArea>
+      <Public>false</Public>
+    </Animation>
+	
+    <Animation>
+      <Id>
+        <TypeId>AnimationDefinition</TypeId>
+        <SubtypeId>passengerseat_large</SubtypeId>
+      </Id>
+      <DisplayName>passengerseat_large</DisplayName>
+      <Description>passengerseat_large</Description>
+      <Icon>Textures\GUI\Icons\Fake.dds</Icon>
+      <AnimationModel>Models\Characters\Animations\passengerseat_large.mwm</AnimationModel>
+      <ClipIndex>0</ClipIndex>
+      <InfluenceArea>Body</InfluenceArea>
+      <Public>false</Public>
+    </Animation>
+	
+    <Animation>
+      <Id>
+        <TypeId>AnimationDefinition</TypeId>
+        <SubtypeId>FighterCockpitPosture</SubtypeId>
+      </Id>
+      <DisplayName>FighterCockpitPosture</DisplayName>
+      <Description>FighterCockpitPosture</Description>
+      <Icon>Textures\GUI\Icons\Fake.dds</Icon>
+      <AnimationModel>Models\Characters\Animations\cockpitfighter.mwm</AnimationModel>
+      <ClipIndex>0</ClipIndex>
+      <InfluenceArea>Body</InfluenceArea>
+      <Public>false</Public>
+    </Animation>
+	
+    <Animation>
+      <Id>
+        <TypeId>AnimationDefinition</TypeId>
+        <SubtypeId>passengerseat_small</SubtypeId>
+      </Id>
+      <DisplayName>passengerseat_small</DisplayName>
+      <Description>passengerseat_small</Description>
+      <Icon>Textures\GUI\Icons\Fake.dds</Icon>
+      <AnimationModel>Models\Characters\Animations\passengerseat_small.mwm</AnimationModel>
+      <ClipIndex>0</ClipIndex>
+      <InfluenceArea>Body</InfluenceArea>
+      <Public>false</Public>
+    </Animation>
+	
+	<!-- End - SE Specific animations -->
+    
+  </Animations>
+</Definitions>

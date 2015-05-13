@@ -1,0 +1,844 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>SharpDX.Toolkit.Compiler</name>
+    </assembly>
+    <members>
+        <member name="T:SharpDX.Toolkit.Graphics.Ast">
+            <summary>
+            A simple ast used to store technique/pass parsing result.
+            </summary>
+        </member>
+        <member name="T:SharpDX.Toolkit.Graphics.Ast.Node">
+            <summary>
+            Root node for all ast objects.
+            </summary>
+        </member>
+        <member name="T:SharpDX.Toolkit.Graphics.Ast.Expression">
+            <summary>
+            Root node for all expressions.
+            </summary>
+        </member>
+        <member name="T:SharpDX.Toolkit.Graphics.Ast.Statement">
+            <summary>
+            Root node for all statements.
+            </summary>
+        </member>
+        <member name="T:SharpDX.Toolkit.Graphics.Ast.Identifier">
+            <summary>
+            An identifier.
+            </summary>
+        </member>
+        <member name="M:SharpDX.Toolkit.Graphics.Ast.Identifier.#ctor">
+            <summary>
+            Initializes a new instance of the <see cref="T:SharpDX.Toolkit.Graphics.Ast.Identifier"/> class.
+            </summary>
+        </member>
+        <member name="M:SharpDX.Toolkit.Graphics.Ast.Identifier.#ctor(System.String)">
+            <summary>
+            Initializes a new instance of the <see cref="T:SharpDX.Toolkit.Graphics.Ast.Identifier"/> class.
+            </summary>
+            <param name="text">The name.</param>
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.Ast.Identifier.Text">
+            <summary>
+            The identifier as a string.
+            </summary>
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.Ast.Identifier.IsIndirect">
+            <summary>
+            Is an indirect reference using &lt;...&gt;.
+            </summary>
+        </member>
+        <member name="T:SharpDX.Toolkit.Graphics.Ast.IndexedIdentifier">
+            <summary>
+            An indexed identifier.
+            </summary>
+        </member>
+        <member name="M:SharpDX.Toolkit.Graphics.Ast.IndexedIdentifier.#ctor">
+            <summary>
+            Initializes a new instance of the <see cref="T:SharpDX.Toolkit.Graphics.Ast.IndexedIdentifier"/> class.
+            </summary>
+        </member>
+        <member name="M:SharpDX.Toolkit.Graphics.Ast.IndexedIdentifier.#ctor(System.String,System.Int32)">
+            <summary>
+            Initializes a new instance of the <see cref="T:SharpDX.Toolkit.Graphics.Ast.IndexedIdentifier"/> class.
+            </summary>
+            <param name="text">The name.</param>
+            <param name="index">The index.</param>
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.Ast.IndexedIdentifier.Index">
+            <summary>
+            The index
+            </summary>
+        </member>
+        <member name="T:SharpDX.Toolkit.Graphics.Ast.Literal">
+            <summary>
+            A literal value.
+            </summary>
+        </member>
+        <member name="M:SharpDX.Toolkit.Graphics.Ast.Literal.#ctor">
+            <summary>
+            Initializes a new instance of the <see cref="T:SharpDX.Toolkit.Graphics.Ast.Literal"/> class.
+            </summary>
+        </member>
+        <member name="M:SharpDX.Toolkit.Graphics.Ast.Literal.#ctor(System.Object)">
+            <summary>
+            Initializes a new instance of the <see cref="T:SharpDX.Toolkit.Graphics.Ast.Literal"/> class.
+            </summary>
+            <param name="value">The value.</param>
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.Ast.Literal.Value">
+            <summary>
+            The literal value.
+            </summary>
+        </member>
+        <member name="T:SharpDX.Toolkit.Graphics.Ast.ExpressionStatement">
+            <summary>
+            An expression statement.
+            </summary>
+        </member>
+        <member name="M:SharpDX.Toolkit.Graphics.Ast.ExpressionStatement.#ctor">
+            <summary>
+            Initializes a new instance of the <see cref="T:SharpDX.Toolkit.Graphics.Ast.ExpressionStatement"/> class.
+            </summary>
+        </member>
+        <member name="M:SharpDX.Toolkit.Graphics.Ast.ExpressionStatement.#ctor(SharpDX.Toolkit.Graphics.Ast.Expression)">
+            <summary>
+            Initializes a new instance of the <see cref="T:SharpDX.Toolkit.Graphics.Ast.ExpressionStatement"/> class.
+            </summary>
+            <param name="expression">The expression.</param>
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.Ast.ExpressionStatement.Expression">
+            <summary>
+            The Expression.
+            </summary>
+        </member>
+        <member name="T:SharpDX.Toolkit.Graphics.Ast.ArrayInitializerExpression">
+            <summary>
+            An array initializer {...} expression.
+            </summary>
+        </member>
+        <member name="M:SharpDX.Toolkit.Graphics.Ast.ArrayInitializerExpression.#ctor">
+            <summary>
+            Initializes a new instance of the <see cref="T:SharpDX.Toolkit.Graphics.Ast.ArrayInitializerExpression"/> class.
+            </summary>
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.Ast.ArrayInitializerExpression.Values">
+            <summary>
+            List of values.
+            </summary>
+        </member>
+        <member name="T:SharpDX.Toolkit.Graphics.Ast.IdentifierExpression">
+            <summary>
+            A reference to an identifier.
+            </summary>
+        </member>
+        <member name="M:SharpDX.Toolkit.Graphics.Ast.IdentifierExpression.#ctor">
+            <summary>
+            Initializes a new instance of the <see cref="T:SharpDX.Toolkit.Graphics.Ast.IdentifierExpression"/> class.
+            </summary>
+        </member>
+        <member name="M:SharpDX.Toolkit.Graphics.Ast.IdentifierExpression.#ctor(SharpDX.Toolkit.Graphics.Ast.Identifier)">
+            <summary>
+            Initializes a new instance of the <see cref="T:SharpDX.Toolkit.Graphics.Ast.IdentifierExpression"/> class.
+            </summary>
+            <param name="name">The name.</param>
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.Ast.IdentifierExpression.Name">
+            <summary>
+            The identifier referenced by this expression.
+            </summary>
+        </member>
+        <member name="T:SharpDX.Toolkit.Graphics.Ast.AssignExpression">
+            <summary>
+            An assign expression name = value.
+            </summary>
+        </member>
+        <member name="M:SharpDX.Toolkit.Graphics.Ast.AssignExpression.#ctor">
+            <summary>
+            Initializes a new instance of the <see cref="T:SharpDX.Toolkit.Graphics.Ast.AssignExpression"/> class.
+            </summary>
+        </member>
+        <member name="M:SharpDX.Toolkit.Graphics.Ast.AssignExpression.#ctor(SharpDX.Toolkit.Graphics.Ast.Identifier,SharpDX.Toolkit.Graphics.Ast.Expression)">
+            <summary>
+            Initializes a new instance of the <see cref="T:SharpDX.Toolkit.Graphics.Ast.AssignExpression"/> class.
+            </summary>
+            <param name="name">The name.</param>
+            <param name="value">The value.</param>
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.Ast.AssignExpression.Name">
+            <summary>
+            The identifier receiver. 
+            </summary>
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.Ast.AssignExpression.Value">
+            <summary>
+            The value to assign.
+            </summary>
+        </member>
+        <member name="T:SharpDX.Toolkit.Graphics.Ast.LiteralExpression">
+            <summary>
+            A literal expression.
+            </summary>
+        </member>
+        <member name="M:SharpDX.Toolkit.Graphics.Ast.LiteralExpression.#ctor">
+            <summary>
+            Initializes a new instance of the <see cref="T:SharpDX.Toolkit.Graphics.Ast.LiteralExpression"/> class.
+            </summary>
+        </member>
+        <member name="M:SharpDX.Toolkit.Graphics.Ast.LiteralExpression.#ctor(SharpDX.Toolkit.Graphics.Ast.Literal)">
+            <summary>
+            Initializes a new instance of the <see cref="T:SharpDX.Toolkit.Graphics.Ast.LiteralExpression"/> class.
+            </summary>
+            <param name="value">The value.</param>
+        </member>
+        <member name="T:SharpDX.Toolkit.Graphics.Ast.CompileExpression">
+            <summary>
+            A compile expression (old style d3d9: compile vx_2_0 VS();).
+            </summary>
+        </member>
+        <member name="M:SharpDX.Toolkit.Graphics.Ast.CompileExpression.#ctor">
+            <summary>
+            Initializes a new instance of the <see cref="T:SharpDX.Toolkit.Graphics.Ast.CompileExpression"/> class.
+            </summary>
+        </member>
+        <member name="M:SharpDX.Toolkit.Graphics.Ast.CompileExpression.#ctor(SharpDX.Toolkit.Graphics.Ast.Identifier,SharpDX.Toolkit.Graphics.Ast.Expression)">
+            <summary>
+            Initializes a new instance of the <see cref="T:SharpDX.Toolkit.Graphics.Ast.CompileExpression"/> class.
+            </summary>
+            <param name="profile"></param>
+            <param name="method"></param>
+        </member>
+        <member name="T:SharpDX.Toolkit.Graphics.Ast.MethodExpression">
+            <summary>
+            A method expression.
+            </summary>
+        </member>
+        <member name="M:SharpDX.Toolkit.Graphics.Ast.MethodExpression.#ctor">
+            <summary>
+            Initializes a new instance of the <see cref="T:SharpDX.Toolkit.Graphics.Ast.MethodExpression"/> class.
+            </summary>
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.Ast.MethodExpression.Name">
+            <summary>
+            Name of the method.
+            </summary>
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.Ast.MethodExpression.Arguments">
+            <summary>
+            Arguments.
+            </summary>
+        </member>
+        <member name="T:SharpDX.Toolkit.Graphics.Ast.Pass">
+            <summary>
+            A HLSL 'pass'.
+            </summary>
+        </member>
+        <member name="M:SharpDX.Toolkit.Graphics.Ast.Pass.#ctor">
+            <summary>
+            Initializes a new instance of the <see cref="T:SharpDX.Toolkit.Graphics.Ast.Pass"/> class.
+            </summary>
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.Ast.Pass.Name">
+            <summary>
+            Name of the pass.
+            </summary>
+            <remarks>
+            Can be null.
+            </remarks>
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.Ast.Pass.Statements">
+            <summary>
+            List of statements.
+            </summary>
+        </member>
+        <member name="T:SharpDX.Toolkit.Graphics.Ast.Technique">
+            <summary>
+            A HLSL 'technique'.
+            </summary>
+        </member>
+        <member name="M:SharpDX.Toolkit.Graphics.Ast.Technique.#ctor">
+            <summary>
+            Initializes a new instance of the <see cref="T:SharpDX.Toolkit.Graphics.Ast.Technique"/> class.
+            </summary>
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.Ast.Technique.Name">
+            <summary>
+            Name of the technique.
+            </summary>
+            <remarks>
+            Can be null.
+            </remarks>
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.Ast.Technique.Passes">
+            <summary>
+            List of passes.
+            </summary>
+        </member>
+        <member name="T:SharpDX.Toolkit.Graphics.Ast.Shader">
+            <summary>
+            Root ast for a shader.
+            </summary>
+        </member>
+        <member name="M:SharpDX.Toolkit.Graphics.Ast.Shader.#ctor">
+            <summary>
+            Initializes a new instance of the <see cref="T:SharpDX.Toolkit.Graphics.Ast.Shader"/> class.
+            </summary>
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.Ast.Shader.Techniques">
+            <summary>
+            List of techniques.
+            </summary>
+        </member>
+        <member name="T:SharpDX.Toolkit.Graphics.EffectCompilerInternal">
+            <summary>
+            Main class used to compile a Toolkit FX file.
+            </summary>
+        </member>
+        <member name="M:SharpDX.Toolkit.Graphics.EffectCompilerInternal.CheckForChanges(System.String)">
+            <summary>
+            Checks for changes from a dependency file.
+            </summary>
+            <param name="dependencyFilePath">The dependency file path.</param>
+            <returns><c>true</c> if a file has been updated, <c>false</c> otherwise</returns>
+        </member>
+        <member name="M:SharpDX.Toolkit.Graphics.EffectCompilerInternal.CompileFromFile(System.String,SharpDX.Toolkit.Graphics.EffectCompilerFlags,System.Collections.Generic.List{SharpDX.Toolkit.Graphics.EffectData.ShaderMacro},System.Collections.Generic.List{System.String},System.Boolean,System.String)">
+            <summary>
+            Compiles an effect from file.
+            </summary>
+            <param name="filePath">The file path.</param>
+            <param name="flags">The flags.</param>
+            <param name="macros">The macrosArgs.</param>
+            <param name="includeDirectoryList">The include directory list.</param>
+            <param name="alloDynamicCompiling">if set to <c>true</c> [allo dynamic compiling].</param>
+            <param name="dependencyFilePath">The dependency file path.</param>
+            <returns>The result of compilation.</returns>
+        </member>
+        <member name="M:SharpDX.Toolkit.Graphics.EffectCompilerInternal.Compile(System.String,System.String,SharpDX.Toolkit.Graphics.EffectCompilerFlags,System.Collections.Generic.List{SharpDX.Toolkit.Graphics.EffectData.ShaderMacro},System.Collections.Generic.List{System.String},System.Boolean,System.String)">
+            <summary>
+            Compiles an effect from the specified source code and file path.
+            </summary>
+            <param name="sourceCode">The source code.</param>
+            <param name="filePath">The file path.</param>
+            <param name="flags">The flags.</param>
+            <param name="macrosArgs">The macrosArgs.</param>
+            <param name="includeDirectoryList">The include directory list.</param>
+            <param name="allowDynamicCompiling">if set to <c>true</c> [allow dynamic compiling].</param>
+            <param name="dependencyFilePath">The dependency file path.</param>
+            <returns>The result of compilation.</returns>
+        </member>
+        <member name="M:SharpDX.Toolkit.Graphics.EffectCompilerInternal.DisassembleShader(SharpDX.Toolkit.Graphics.EffectData.Shader)">
+            <summary>
+            Disassembles a shader HLSL bytecode to asm code.
+            </summary>
+            <param name="shader">The shader.</param>
+            <returns>A string containing asm code decoded from HLSL bytecode.</returns>
+        </member>
+        <member name="M:SharpDX.Toolkit.Graphics.EffectCompilerInternal.BuildParameters(SharpDX.Toolkit.Graphics.EffectData.Shader,SharpDX.D3DCompiler.ShaderReflection)">
+            <summary>
+              Builds the parameters for a particular shader.
+            </summary>
+            <param name="shader"> The shader to build parameters. </param>
+        </member>
+        <member name="M:SharpDX.Toolkit.Graphics.EffectCompilerInternal.BuildConstantBufferParameter(SharpDX.D3DCompiler.ShaderReflectionVariable)">
+            <summary>
+              Builds an effect parameter from a reflection variable.
+            </summary>
+            <returns> an EffectParameter, null if not handled </returns>
+        </member>
+        <member name="M:SharpDX.Toolkit.Graphics.EffectCompilerInternal.BuildResourceParameter(System.String,SharpDX.D3DCompiler.InputBindingDescription)">
+            <summary>
+              Builds an effect parameter from a reflection variable.
+            </summary>
+            <returns> an EffectParameter, null if not handled </returns>
+        </member>
+        <member name="T:SharpDX.Toolkit.Graphics.EffectCompiler">
+            <summary>
+            Main class used to compile a Toolkit FX file.
+            </summary>
+        </member>
+        <member name="M:SharpDX.Toolkit.Graphics.EffectCompiler.CheckForChanges(System.String)">
+            <summary>
+            Checks for changes from a dependency file.
+            </summary>
+            <param name="dependencyFilePath">The dependency file path.</param>
+            <returns><c>true</c> if a file has been updated, <c>false</c> otherwise</returns>
+        </member>
+        <member name="M:SharpDX.Toolkit.Graphics.EffectCompiler.CompileFromFile(System.String,SharpDX.Toolkit.Graphics.EffectCompilerFlags,System.Collections.Generic.List{SharpDX.Toolkit.Graphics.EffectData.ShaderMacro},System.Collections.Generic.List{System.String},System.Boolean,System.String)">
+            <summary>
+            Compiles an effect from file.
+            </summary>
+            <param name="filePath">The file path.</param>
+            <param name="flags">The flags.</param>
+            <param name="macros">The macrosArgs.</param>
+            <param name="includeDirectoryList">The include directory list.</param>
+            <param name="alloDynamicCompiling">Whether or not to allow dynamic compilation.</param>
+            <param name="dependencyFilePath">Path to dependency files.</param>
+            <returns>The result of compilation.</returns>
+        </member>
+        <member name="M:SharpDX.Toolkit.Graphics.EffectCompiler.Compile(System.String,System.String,SharpDX.Toolkit.Graphics.EffectCompilerFlags,System.Collections.Generic.List{SharpDX.Toolkit.Graphics.EffectData.ShaderMacro},System.Collections.Generic.List{System.String},System.Boolean,System.String)">
+            <summary>
+            Compiles an effect from the specified source code and file path.
+            </summary>
+            <param name="sourceCode">The source code.</param>
+            <param name="filePath">The file path.</param>
+            <param name="flags">The flags.</param>
+            <param name="macrosArgs">The macrosArgs.</param>
+            <param name="includeDirectoryList">The include directory list.</param>
+            <param name="allowDynamicCompiling">Whether or not to allow dynamic compilation.</param>
+            <param name="dependencyFilePath">Path to dependency files.</param>
+            <returns>The result of compilation.</returns>
+        </member>
+        <member name="M:SharpDX.Toolkit.Graphics.EffectCompiler.DisassembleShader(SharpDX.Toolkit.Graphics.EffectData.Shader)">
+            <summary>
+            Disassembles a shader HLSL bytecode to asm code.
+            </summary>
+            <param name="shader">The shader.</param>
+            <returns>A string containing asm code decoded from HLSL bytecode.</returns>
+        </member>
+        <member name="M:SharpDX.Toolkit.Graphics.EffectCompiler.Compile(SharpDX.D3DCompiler.ShaderBytecode[])">
+            <summary>
+            Builds effect data from the provided bytecode.
+            </summary>
+            <param name="shaderSource">The bytecode list to for the provided effect.</param>
+            <returns>Built effect data.</returns>
+        </member>
+        <member name="T:SharpDX.Toolkit.Graphics.EffectDataCodeWriter">
+            <summary>
+            Use this class to generate a code with embedded effect bytecode.
+            </summary>
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.EffectDataCodeWriter.ClassDeclaration">
+            <summary>
+            Gets or sets the class declaration (Default: "public partial").
+            </summary>
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.EffectDataCodeWriter.Namespace">
+            <summary>
+            Gets or sets the namespace.
+            </summary>
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.EffectDataCodeWriter.ClassName">
+            <summary>
+            Gets or sets the class name.
+            </summary>
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.EffectDataCodeWriter.FieldDeclaration">
+            <summary>
+            Gets or sets the field declaration (default: "private").
+            </summary>
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.EffectDataCodeWriter.FieldName">
+            <summary>
+            Gets or sets the field name (default: "effectByteCode").
+            </summary>
+        </member>
+        <member name="M:SharpDX.Toolkit.Graphics.FileDependencyList.#ctor">
+            <summary>
+            Initializes a new instance of the <see cref="T:SharpDX.Toolkit.Graphics.FileDependencyList"/> class.
+            </summary>
+        </member>
+        <member name="M:SharpDX.Toolkit.Graphics.FileDependencyList.CheckForChanges">
+            <summary>
+            Checks for changes in the dependency file.
+            </summary>
+            <returns><c>true</c> if a file has been updated, <c>false</c> otherwise</returns>
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.EffectParser.EndOfFile">
+            <summary>
+              End of file token.
+            </summary>
+        </member>
+        <member name="M:SharpDX.Toolkit.Graphics.EffectParser.#ctor">
+            <summary>
+            Initializes a new instance of the <see cref="T:SharpDX.Toolkit.Graphics.EffectParser"/> class.
+            </summary>
+        </member>
+        <member name="M:SharpDX.Toolkit.Graphics.EffectParser.PrepareParsing(System.String,System.String)">
+            <summary>
+            Parses the specified input.
+            </summary>
+            <param name="input">The input.</param>
+            <param name="fileName">Name of the file.</param>
+            <returns>Result of parsing</returns>
+        </member>
+        <member name="M:SharpDX.Toolkit.Graphics.EffectParser.ContinueParsing(SharpDX.Toolkit.Graphics.EffectParserResult)">
+            <summary>
+            Continues the parsing.
+            </summary>
+            <param name="previousParsing">The previous parsing.</param>
+            <returns>EffectParserResult.</returns>
+        </member>
+        <member name="M:SharpDX.Toolkit.Graphics.EffectParser.Parse(System.String,System.String)">
+            <summary>
+            Parses the specified input.
+            </summary>
+            <param name="input">The input.</param>
+            <param name="fileName">Name of the file.</param>
+            <returns>Result of parsing</returns>
+        </member>
+        <member name="P:SharpDX.Toolkit.Graphics.EffectParser.IncludeFileCallback">
+            <summary>
+            Gets or sets the include file callback.
+            </summary>
+            <value>The include file callback.</value>
+        </member>
+        <member name="P:SharpDX.Toolkit.Graphics.EffectParser.Macros">
+            <summary>
+            Gets the macros.
+            </summary>
+            <value>The macros.</value>
+        </member>
+        <member name="P:SharpDX.Toolkit.Graphics.EffectParser.IncludeDirectoryList">
+            <summary>
+            Gets the include directory list.
+            </summary>
+            <value>The include directory list.</value>
+        </member>
+        <member name="P:SharpDX.Toolkit.Graphics.EffectParser.Logger">
+            <summary>
+            Gets or sets the logger.
+            </summary>
+            <value>The logger.</value>
+        </member>
+        <member name="T:SharpDX.Toolkit.Graphics.ContentCompilerResult">
+            <summary>
+            Result of a compilation.
+            </summary>
+        </member>
+        <member name="P:SharpDX.Toolkit.Graphics.ContentCompilerResult.HasErrors">
+            <summary>
+            Gets a value indicating whether this instance has errors.
+            </summary>
+            <value><c>true</c> if this instance has errors; otherwise, <c>false</c>.</value>
+        </member>
+        <member name="P:SharpDX.Toolkit.Graphics.ContentCompilerResult.Logger">
+            <summary>
+            Gets the logger containing compilation messages..
+            </summary>
+            <value>The logger.</value>
+        </member>
+        <member name="T:SharpDX.Toolkit.Graphics.FontAntiAliasMode">
+            <summary>
+            Available antialias mode.
+            </summary>
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.FontAntiAliasMode.Default">
+            <summary>
+            The default grayscale anti-aliasing
+            </summary>
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.FontAntiAliasMode.Grayscale">
+            <summary>
+            Use grayscale antialiasing
+            </summary>
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.FontAntiAliasMode.ClearType">
+            <summary>
+            Use cleartype antialiasing.
+            </summary>
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.FontAntiAliasMode.Aliased">
+            <summary>
+            Don't use any antialiasing
+            </summary>
+        </member>
+        <member name="T:SharpDX.Toolkit.Graphics.FontCompiler">
+            <summary>
+            Main class used to compile a Font file XML file.
+            </summary>
+        </member>
+        <member name="M:SharpDX.Toolkit.Graphics.FontCompiler.CompileAndSave(System.String,System.String,System.String)">
+            <summary>
+            Compiles an XML font file description to a file. Optionally output dependency file.
+            </summary>
+            <param name="sourceXmlFile">The source XML file.</param>
+            <param name="outputFile">The output file.</param>
+            <param name="dependencyFile">The dependency file.</param>
+            <returns><c>true</c> if XXXX, <c>false</c> otherwise</returns>
+        </member>
+        <member name="M:SharpDX.Toolkit.Graphics.FontCompiler.Compile(SharpDX.Toolkit.Graphics.FontDescription,System.IO.Stream)">
+            <summary>
+            Compiles the specified font description into a <see cref="T:SharpDX.Toolkit.Graphics.SpriteFontData"/> object.
+            </summary>
+            <param name="fontDescription">The font description.</param>
+            <param name="stream">The stream to output the compiled SpriteFontData.</param>
+            <returns>A SpriteFontData object.</returns>
+        </member>
+        <member name="M:SharpDX.Toolkit.Graphics.FontCompiler.Compile(SharpDX.Toolkit.Graphics.FontDescription)">
+            <summary>
+            Compiles the specified font description into a <see cref="T:SharpDX.Toolkit.Graphics.SpriteFontData"/> object.
+            </summary>
+            <param name="fontDescription">The font description.</param>
+            <returns>A SpriteFontData object.</returns>
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.FontDescription.FontName">
+            <summary>
+            Input can be either a system (TrueType) font or a specially marked bitmap file.
+            </summary>
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.FontDescription.Size">
+            <summary>
+             Size and style for TrueType fonts (ignored when converting a bitmap font).
+            </summary>
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.FontDescription.Spacing">
+            <summary>
+            Character spacing overrides. Zero is default spacing, negative closer together, positive further apart
+            </summary>
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.FontDescription.LineSpacing">
+            <summary>
+            Line spacing overrides. Zero is default spacing, negative closer together, positive further apart
+            </summary>
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.FontDescription.UseKerning">
+            <summary>
+            Specifies whether to use kerning information when rendering the font. Default value is false (NOT SUPPORTED YET).
+            </summary>
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.FontDescription.Format">
+            <summary>
+            Format of the output texture. Values: 'auto', 'rgba32', 'bgra4444', 'compressedmono'. Default is 'auto'
+            </summary>
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.FontDescription.CharacterRegions">
+            <summary>
+            Which characters to include in the font (eg. "/CharacterRegion:0x20-0x7F /CharacterRegion:0x123")
+            </summary>
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.FontDescription.DefaultCharacter">
+            <summary>
+            Fallback character used when asked to render a codepoint that is not
+            included in the font. If zero, missing characters throw exceptions.
+            </summary>
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.FontDescription.Style">
+            <summary>
+            Style for the font. 'regular', 'bold', 'italic', 'underline', 'strikeout'. Default is 'regular
+            </summary>
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.FontDescription.NoPremultiply">
+            <summary>
+            By default, font textures use premultiplied alpha format. Set this if you want interpolative alpha instead.
+            </summary>
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.FontDescription.AntiAlias">
+            <summary>
+            By default, font textures is a grey. To generate ClearType textures, turn this flag to true 
+            </summary>
+        </member>
+        <member name="T:SharpDX.Toolkit.Graphics.FontStyle">
+            <summary>
+            Type of a font.
+            </summary>
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.FontStyle.Regular">
+            <summary>
+            A regular font.
+            </summary>
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.FontStyle.Bold">
+            <summary>
+            A bold font.
+            </summary>
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.FontStyle.Italic">
+            <summary>
+            An italic font.
+            </summary>
+        </member>
+        <member name="T:SharpDX.Toolkit.Graphics.FontTextureFormat">
+            <summary>
+            Available output texture formats.
+            </summary>
+        </member>
+        <member name="T:SharpDX.Toolkit.Graphics.SourceSpan">
+            <summary>
+            Location of a portion of source.
+            </summary>
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.SourceSpan.FilePath">
+            <summary>
+            Path of the file.
+            </summary>
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.SourceSpan.Column">
+            <summary>
+            Column of the span.
+            </summary>
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.SourceSpan.Line">
+            <summary>
+            Line of the span.
+            </summary>
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.SourceSpan.Index">
+            <summary>
+            Absolute index in the input string.
+            </summary>
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.SourceSpan.Length">
+            <summary>
+            Length of the source span in the input string.
+            </summary>
+        </member>
+        <member name="T:SharpDX.Toolkit.Graphics.Token">
+            <summary>
+            Contains information about a token language.
+            </summary>
+        </member>
+        <member name="M:SharpDX.Toolkit.Graphics.Token.#ctor(SharpDX.Toolkit.Graphics.TokenType,System.String,SharpDX.Toolkit.Graphics.SourceSpan)">
+            <summary>
+            Initializes a new instance of the <see cref="T:SharpDX.Toolkit.Graphics.Token"/> struct.
+            </summary>
+            <param name="type">The type.</param>
+            <param name="value">The value.</param>
+            <param name="span">The span.</param>
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.Token.Type">
+            <summary>
+            The type of the token.
+            </summary>
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.Token.Value">
+            <summary>
+            Value of the token.
+            </summary>
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.Token.Span">
+            <summary>
+            The source span.
+            </summary>
+        </member>
+        <member name="T:SharpDX.Toolkit.Graphics.Tokenizer">
+            <summary>
+            A simple tokenizer used to transform a HLSL sourcecode into a collection of tokens.
+            </summary>
+            <remarks>
+            This tokenizer is used to parse tokens inside technique/pass block. 
+            See <see cref="T:SharpDX.Toolkit.Graphics.TokenType"/> for the list of tokens that are supported inside technique/pass.
+            This tokenizer is not really efficient compare to a DFA (Deterministic Finite-state Automaton) 
+            parser but enough suitable in our case (120 files from DirectX SDK parsed in 2s).
+            </remarks>
+        </member>
+        <member name="M:SharpDX.Toolkit.Graphics.Tokenizer.Run(System.String)">
+            <summary>
+            Runs the tokenizer on an input string.
+            </summary>
+            <param name="input">The string to decode to tokens.</param>
+            <returns>An enumeration of tokens.</returns>
+        </member>
+        <member name="T:SharpDX.Toolkit.Graphics.TokenType">
+            <summary>
+            Type of a token language.
+            </summary>
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.TokenType.Newline">
+            <summary>
+            A Newline.
+            </summary>
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.TokenType.Identifier">
+            <summary>
+            An identifier.
+            </summary>
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.TokenType.Hexa">
+            <summary>
+            A number in hexadecimal form.
+            </summary>
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.TokenType.Number">
+            <summary>
+            A number.
+            </summary>
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.TokenType.Equal">
+            <summary>
+            The symbol '='.
+            </summary>
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.TokenType.Comma">
+            <summary>
+            A comma ','.
+            </summary>
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.TokenType.SemiColon">
+            <summary>
+            A Semicolon ';'.
+            </summary>
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.TokenType.LeftCurlyBrace">
+            <summary>
+            A left curly brace '{'.
+            </summary>
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.TokenType.RightCurlyBrace">
+            <summary>
+            A right curly brace '}'.
+            </summary>
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.TokenType.LeftParent">
+            <summary>
+            A left parenthesis '('.
+            </summary>
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.TokenType.RightParent">
+            <summary>
+            A right parenthesis ')'.
+            </summary>
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.TokenType.LeftBracket">
+            <summary>
+            A left bracket '['.
+            </summary>
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.TokenType.RightBracket">
+            <summary>
+            A right bracket ']'.
+            </summary>
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.TokenType.String">
+            <summary>
+            A string.
+            </summary>
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.TokenType.Preprocessor">
+            <summary>
+            A preprocessor token '#'
+            </summary>
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.TokenType.DoubleColon">
+            <summary>
+            A double colon '::'.
+            </summary>
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.TokenType.Dot">
+            <summary>
+            A dot '.'.
+            </summary>
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.TokenType.LessThan">
+            <summary>
+            A '&lt;'.
+            </summary>
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.TokenType.GreaterThan">
+            <summary>
+            A '&gt;'.
+            </summary>
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.TokenType.Unknown">
+            <summary>
+            An unknown symbol.
+            </summary>
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.TokenType.EndOfFile">
+            <summary>
+            A end of file token.
+            </summary>
+        </member>
+    </members>
+</doc>

@@ -1,0 +1,2904 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>SharpDX.XACT3</name>
+    </assembly>
+    <members>
+        <member name="T:SharpDX.XACT3.AssemblyDoc">
+            <summary>
+            The <see cref="A:SharpDX.XACT3"/> assembly provides managed XACT3 API.
+            </summary>
+            <msdn-id>hh405049</msdn-id>
+            <unmanaged>XACT3</unmanaged>	
+            <unmanaged-short>XACT3</unmanaged-short>	
+        </member>
+        <member name="T:SharpDX.XACT3.AudioEngineSettings">
+            <summary>
+            Settings for the <see cref="T:SharpDX.XACT3.AudioEngine"/>.
+            </summary>
+            <summary>	
+            No documentation.	
+            </summary>	
+            <!-- Failed to insert some or all of included XML --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='XACT_RUNTIME_PARAMETERS']/*"/>	
+            <unmanaged>XACT_RUNTIME_PARAMETERS</unmanaged>	
+            <unmanaged-short>XACT_RUNTIME_PARAMETERS</unmanaged-short>	
+        </member>
+        <member name="F:SharpDX.XACT3.AudioEngineSettings.DefaultLookAhead">
+            <summary>
+            Default value for <see cref="F:SharpDX.XACT3.AudioEngineSettings.LookAheadTime"/> property (250ms).
+            </summary>
+        </member>
+        <member name="M:SharpDX.XACT3.AudioEngineSettings.#ctor">
+            <summary>
+            Initializes a new instance of the <see cref="T:SharpDX.XACT3.AudioEngineSettings"/> class.
+            </summary>
+        </member>
+        <member name="M:SharpDX.XACT3.AudioEngineSettings.#ctor(System.IO.Stream)">
+            <summary>
+            Initializes a new instance of the <see cref="T:SharpDX.XACT3.AudioEngineSettings"/> struct.
+            </summary>
+            <param name="settings">The settings.</param>
+        </member>
+        <member name="F:SharpDX.XACT3.AudioEngineSettings.LookAheadTime">
+            <summary>	
+            No documentation.	
+            </summary>	
+            <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='XACT_RUNTIME_PARAMETERS::lookAheadTime']/*"/>	
+            <unmanaged>unsigned int lookAheadTime</unmanaged>	
+            <unmanaged-short>unsigned int lookAheadTime</unmanaged-short>	
+        </member>
+        <member name="F:SharpDX.XACT3.AudioEngineSettings.GlobalSettingsBufferPointer">
+            <summary>	
+            No documentation.	
+            </summary>	
+            <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='XACT_RUNTIME_PARAMETERS::pGlobalSettingsBuffer']/*"/>	
+            <unmanaged>void* pGlobalSettingsBuffer</unmanaged>	
+            <unmanaged-short>void pGlobalSettingsBuffer</unmanaged-short>	
+        </member>
+        <member name="F:SharpDX.XACT3.AudioEngineSettings.GlobalSettingsBufferSize">
+            <summary>	
+            No documentation.	
+            </summary>	
+            <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='XACT_RUNTIME_PARAMETERS::globalSettingsBufferSize']/*"/>	
+            <unmanaged>unsigned int globalSettingsBufferSize</unmanaged>	
+            <unmanaged-short>unsigned int globalSettingsBufferSize</unmanaged-short>	
+        </member>
+        <member name="F:SharpDX.XACT3.AudioEngineSettings.GlobalSettingsFlags">
+            <summary>	
+            No documentation.	
+            </summary>	
+            <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='XACT_RUNTIME_PARAMETERS::globalSettingsFlags']/*"/>	
+            <unmanaged>unsigned int globalSettingsFlags</unmanaged>	
+            <unmanaged-short>unsigned int globalSettingsFlags</unmanaged-short>	
+        </member>
+        <member name="F:SharpDX.XACT3.AudioEngineSettings.GlobalSettingsAllocAttributes">
+            <summary>	
+            No documentation.	
+            </summary>	
+            <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='XACT_RUNTIME_PARAMETERS::globalSettingsAllocAttributes']/*"/>	
+            <unmanaged>unsigned int globalSettingsAllocAttributes</unmanaged>	
+            <unmanaged-short>unsigned int globalSettingsAllocAttributes</unmanaged-short>	
+        </member>
+        <member name="F:SharpDX.XACT3.AudioEngineSettings.FileIOCallbacks">
+            <summary>	
+            No documentation.	
+            </summary>	
+            <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='XACT_RUNTIME_PARAMETERS::fileIOCallbacks']/*"/>	
+            <unmanaged>XACT_FILEIO_CALLBACKS fileIOCallbacks</unmanaged>	
+            <unmanaged-short>XACT_FILEIO_CALLBACKS fileIOCallbacks</unmanaged-short>	
+        </member>
+        <member name="F:SharpDX.XACT3.AudioEngineSettings.FnNotificationCallback">
+            <summary>	
+            No documentation.	
+            </summary>	
+            <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='XACT_RUNTIME_PARAMETERS::fnNotificationCallback']/*"/>	
+            <unmanaged>__function__stdcall* fnNotificationCallback</unmanaged>	
+            <unmanaged-short>__function__stdcall fnNotificationCallback</unmanaged-short>	
+        </member>
+        <member name="F:SharpDX.XACT3.AudioEngineSettings.RendererId">
+            <summary>	
+            No documentation.	
+            </summary>	
+            <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='XACT_RUNTIME_PARAMETERS::pRendererID']/*"/>	
+            <unmanaged>wchar_t* pRendererID</unmanaged>	
+            <unmanaged-short>wchar_t pRendererID</unmanaged-short>	
+        </member>
+        <member name="F:SharpDX.XACT3.AudioEngineSettings.XAudio2Pointer">
+            <summary>	
+            No documentation.	
+            </summary>	
+            <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='XACT_RUNTIME_PARAMETERS::pXAudio2']/*"/>	
+            <unmanaged>IXAudio2* pXAudio2</unmanaged>	
+            <unmanaged-short>IXAudio2 pXAudio2</unmanaged-short>	
+        </member>
+        <member name="F:SharpDX.XACT3.AudioEngineSettings.MasteringVoicePointer">
+            <summary>	
+            No documentation.	
+            </summary>	
+            <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='XACT_RUNTIME_PARAMETERS::pMasteringVoice']/*"/>	
+            <unmanaged>IXAudio2MasteringVoice* pMasteringVoice</unmanaged>	
+            <unmanaged-short>IXAudio2MasteringVoice pMasteringVoice</unmanaged-short>	
+        </member>
+        <member name="P:SharpDX.XACT3.AudioEngineSettings.Settings">
+            <summary>
+            Gets or sets the settings file.
+            </summary>
+            <value>
+            The settings file.
+            </value>
+        </member>
+        <member name="P:SharpDX.XACT3.AudioEngineSettings.XAudio2">
+            <summary>
+            Gets or sets the XAudio2 engine to use with XACT3 engine.
+            </summary>
+            <value>
+            The XAudio2 engine.
+            </value>
+        </member>
+        <member name="P:SharpDX.XACT3.AudioEngineSettings.MasteringVoice">
+            <summary>
+            Gets or sets the MasteringVoice to use with XACT3 engine.
+            </summary>
+            <value>
+            The MasteringVoice.
+            </value>
+            <remarks>
+            <see cref="P:SharpDX.XACT3.AudioEngineSettings.XAudio2"/> field must also be set to a valid XAudio2 instance.
+            </remarks>
+        </member>
+        <member name="T:SharpDX.XACT3.Cue">
+            <summary>	
+            No documentation.	
+            </summary>	
+            <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='IXACT3Cue']/*"/>	
+            <unmanaged>IXACT3Cue</unmanaged>	
+            <unmanaged-short>IXACT3Cue</unmanaged-short>	
+        </member>
+        <member name="M:SharpDX.XACT3.Cue.OnNotificationDelegate(SharpDX.XACT3.Notification)">
+            <summary>
+            Called when an internal notification occurred.
+            </summary>
+            <param name="notification">The notification.</param>
+        </member>
+        <member name="M:SharpDX.XACT3.Cue.RegisterNotification(SharpDX.XACT3.NotificationType)">
+            <summary>
+            Registers this instance to notify for a type of notification.
+            </summary>
+            <param name="notificationType">Type of the notification.</param>
+        </member>
+        <member name="M:SharpDX.XACT3.Cue.UnregisterNotification(SharpDX.XACT3.NotificationType)">
+            <summary>
+            Unregisters this instance to notify for a type of notification.
+            </summary>
+            <param name="notificationType">Type of the notification.</param>
+        </member>
+        <member name="M:SharpDX.XACT3.Cue.#ctor(System.IntPtr)">
+            <summary>
+            Initializes a new instance of the <see cref="T:SharpDX.XACT3.Cue"/> class.
+            </summary>
+            <param name="nativePtr">The native pointer.</param>	
+        </member>
+        <member name="M:SharpDX.XACT3.Cue.op_Explicit(System.IntPtr)~SharpDX.XACT3.Cue">
+            <summary>
+            Performs an explicit conversion from <see cref="T:System.IntPtr"/> to <see cref="T:SharpDX.XACT3.Cue"/>. (This method is a shortcut to <see cref="P:SharpDX.CppObject.NativePointer"/>) 
+            </summary>
+            <param name="nativePointer">The native pointer.</param>
+            <returns>
+            The result of the conversion.
+            </returns>
+        </member>
+        <member name="M:SharpDX.XACT3.Cue.Play">
+            <summary>	
+            No documentation.	
+            </summary>	
+            <returns>No documentation.</returns>	
+            <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='IXACT3Cue::Play']/*"/>	
+            <unmanaged>HRESULT IXACT3Cue::Play()</unmanaged>	
+            <unmanaged-short>IXACT3Cue::Play</unmanaged-short>	
+        </member>
+        <member name="M:SharpDX.XACT3.Cue.Stop(SharpDX.XACT3.StopFlags)">
+            <summary>	
+            No documentation.	
+            </summary>	
+            <param name="flags">No documentation.</param>	
+            <returns>No documentation.</returns>	
+            <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='IXACT3Cue::Stop']/*"/>	
+            <unmanaged>HRESULT IXACT3Cue::Stop([In] XACT_STOP_FLAGS dwFlags)</unmanaged>	
+            <unmanaged-short>IXACT3Cue::Stop</unmanaged-short>	
+        </member>
+        <member name="M:SharpDX.XACT3.Cue.GetState(SharpDX.XACT3.CueState@)">
+            <summary>	
+            No documentation.	
+            </summary>	
+            <param name="stateRef">No documentation.</param>	
+            <returns>No documentation.</returns>	
+            <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='IXACT3Cue::GetState']/*"/>	
+            <unmanaged>HRESULT IXACT3Cue::GetState([Out] XACT_CUE_STATE* pdwState)</unmanaged>	
+            <unmanaged-short>IXACT3Cue::GetState</unmanaged-short>	
+        </member>
+        <member name="M:SharpDX.XACT3.Cue.Destroy">
+            <summary>	
+            No documentation.	
+            </summary>	
+            <returns>No documentation.</returns>	
+            <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='IXACT3Cue::Destroy']/*"/>	
+            <unmanaged>HRESULT IXACT3Cue::Destroy()</unmanaged>	
+            <unmanaged-short>IXACT3Cue::Destroy</unmanaged-short>	
+        </member>
+        <member name="M:SharpDX.XACT3.Cue.SetMatrixCoefficients(System.Int32,System.Int32,System.Single[])">
+            <summary>	
+            No documentation.	
+            </summary>	
+            <param name="srcChannelCount">No documentation.</param>	
+            <param name="dstChannelCount">No documentation.</param>	
+            <param name="matrixCoefficientsRef">No documentation.</param>	
+            <returns>No documentation.</returns>	
+            <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='IXACT3Cue::SetMatrixCoefficients']/*"/>	
+            <unmanaged>HRESULT IXACT3Cue::SetMatrixCoefficients([In] unsigned int uSrcChannelCount,[In] unsigned int uDstChannelCount,[In, Buffer] float* pMatrixCoefficients)</unmanaged>	
+            <unmanaged-short>IXACT3Cue::SetMatrixCoefficients</unmanaged-short>	
+        </member>
+        <member name="M:SharpDX.XACT3.Cue.GetVariableIndex(System.String)">
+            <summary>	
+            No documentation.	
+            </summary>	
+            <param name="friendlyName">No documentation.</param>	
+            <returns>No documentation.</returns>	
+            <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='IXACT3Cue::GetVariableIndex']/*"/>	
+            <unmanaged>unsigned short IXACT3Cue::GetVariableIndex([In] const char* szFriendlyName)</unmanaged>	
+            <unmanaged-short>IXACT3Cue::GetVariableIndex</unmanaged-short>	
+        </member>
+        <member name="M:SharpDX.XACT3.Cue.SetVariable(System.Int16,System.Single)">
+            <summary>	
+            No documentation.	
+            </summary>	
+            <param name="index">No documentation.</param>	
+            <param name="value">No documentation.</param>	
+            <returns>No documentation.</returns>	
+            <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='IXACT3Cue::SetVariable']/*"/>	
+            <unmanaged>HRESULT IXACT3Cue::SetVariable([In] unsigned short nIndex,[In] float nValue)</unmanaged>	
+            <unmanaged-short>IXACT3Cue::SetVariable</unmanaged-short>	
+        </member>
+        <member name="M:SharpDX.XACT3.Cue.GetVariable(System.Int16)">
+            <summary>	
+            No documentation.	
+            </summary>	
+            <param name="index">No documentation.</param>	
+            <returns>No documentation.</returns>	
+            <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='IXACT3Cue::GetVariable']/*"/>	
+            <unmanaged>HRESULT IXACT3Cue::GetVariable([In] unsigned short nIndex,[Out] float* nValue)</unmanaged>	
+            <unmanaged-short>IXACT3Cue::GetVariable</unmanaged-short>	
+        </member>
+        <member name="M:SharpDX.XACT3.Cue.Pause(SharpDX.Bool)">
+            <summary>	
+            No documentation.	
+            </summary>	
+            <param name="pause">No documentation.</param>	
+            <returns>No documentation.</returns>	
+            <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='IXACT3Cue::Pause']/*"/>	
+            <unmanaged>HRESULT IXACT3Cue::Pause([In] BOOL fPause)</unmanaged>	
+            <unmanaged-short>IXACT3Cue::Pause</unmanaged-short>	
+        </member>
+        <member name="M:SharpDX.XACT3.Cue.GetProperties(SharpDX.XACT3.CueInstanceProperties@)">
+            <summary>	
+            No documentation.	
+            </summary>	
+            <param name="propertiesOut">No documentation.</param>	
+            <returns>No documentation.</returns>	
+            <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='IXACT3Cue::GetProperties']/*"/>	
+            <unmanaged>HRESULT IXACT3Cue::GetProperties([Out] XACT_CUE_INSTANCE_PROPERTIES** ppProperties)</unmanaged>	
+            <unmanaged-short>IXACT3Cue::GetProperties</unmanaged-short>	
+        </member>
+        <member name="M:SharpDX.XACT3.Cue.SetOutputVoiceMatrix(SharpDX.XAudio2.Voice,System.Int32,System.Int32,System.Single[])">
+            <summary>	
+            No documentation.	
+            </summary>	
+            <param name="destinationVoiceRef">No documentation.</param>	
+            <param name="sourceChannels">No documentation.</param>	
+            <param name="destinationChannels">No documentation.</param>	
+            <param name="levelMatrixRef">No documentation.</param>	
+            <returns>No documentation.</returns>	
+            <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='IXACT3Cue::SetOutputVoiceMatrix']/*"/>	
+            <unmanaged>HRESULT IXACT3Cue::SetOutputVoiceMatrix([In, Optional] IXAudio2Voice* pDestinationVoice,[In] unsigned int SourceChannels,[In] unsigned int DestinationChannels,[In, Buffer] const float* pLevelMatrix)</unmanaged>	
+            <unmanaged-short>IXACT3Cue::SetOutputVoiceMatrix</unmanaged-short>	
+        </member>
+        <member name="P:SharpDX.XACT3.Cue.AudioEngine">
+            <summary>
+            Gets or sets the audio engine.
+            </summary>
+            <value>
+            The audio engine.
+            </value>
+        </member>
+        <member name="E:SharpDX.XACT3.Cue.OnNotification">
+            <summary>
+            Occurs when a cue event occurs.
+            </summary>
+            <remarks>
+            Use <see cref="M:SharpDX.XACT3.Cue.RegisterNotification(SharpDX.XACT3.NotificationType)"/> to register types.
+            </remarks>
+        </member>
+        <member name="P:SharpDX.XACT3.Cue.State">
+            <summary>	
+            No documentation.	
+            </summary>	
+            <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='IXACT3Cue::GetState']/*"/>	
+            <unmanaged>GetState</unmanaged>	
+            <unmanaged-short>GetState</unmanaged-short>	
+            <unmanaged>HRESULT IXACT3Cue::GetState([Out] XACT_CUE_STATE* pdwState)</unmanaged>
+        </member>
+        <member name="P:SharpDX.XACT3.Cue.Properties">
+            <summary>	
+            No documentation.	
+            </summary>	
+            <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='IXACT3Cue::GetProperties']/*"/>	
+            <unmanaged>GetProperties</unmanaged>	
+            <unmanaged-short>GetProperties</unmanaged-short>	
+            <unmanaged>HRESULT IXACT3Cue::GetProperties([Out] XACT_CUE_INSTANCE_PROPERTIES** ppProperties)</unmanaged>
+        </member>
+        <member name="T:SharpDX.XACT3.GuiNotification">
+            <summary>
+            GUI notification parameters.
+            </summary>
+            <unmanaged>XACT_NOTIFICATION_GUI</unmanaged>
+        </member>
+        <member name="T:SharpDX.XACT3.Notification">
+            <summary>
+            Generic notification event.
+            </summary>
+        </member>
+        <member name="P:SharpDX.XACT3.Notification.Type">
+            <summary>
+            Gets or sets the type.
+            </summary>
+            <value>
+            The type.
+            </value>
+        </member>
+        <member name="P:SharpDX.XACT3.Notification.TimeStamp">
+            <summary>	
+            Timestamp of notification, in milliseconds.
+            </summary>	
+            <unmanaged>int timeStamp</unmanaged>	
+        </member>
+        <member name="T:SharpDX.XACT3.CueNotification">
+            <summary>
+            Cue notification parameters.
+            </summary>
+            <unmanaged>XACT_NOTIFICATION_CUE</unmanaged>	
+        </member>
+        <member name="T:SharpDX.XACT3.AudioEngine">
+            <summary>	
+            No documentation.	
+            </summary>	
+            <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='IXACT3Engine']/*"/>	
+            <unmanaged>IXACT3Engine</unmanaged>	
+            <unmanaged-short>IXACT3Engine</unmanaged-short>	
+        </member>
+        <member name="M:SharpDX.XACT3.AudioEngine.#ctor">
+            <summary>
+            Initializes a new instance of the <see cref="T:SharpDX.XACT3.AudioEngine"/> class.
+            </summary>
+        </member>
+        <member name="M:SharpDX.XACT3.AudioEngine.#ctor(System.IO.Stream)">
+            <summary>
+            Initializes a new instance of the <see cref="T:SharpDX.XACT3.AudioEngine"/> class.
+            </summary>
+            <param name="settingsFile">The settings file.</param>
+        </member>
+        <member name="M:SharpDX.XACT3.AudioEngine.#ctor(SharpDX.XACT3.CreationFlags,System.IO.Stream)">
+            <summary>
+            Initializes a new instance of the <see cref="T:SharpDX.XACT3.AudioEngine"/> class.
+            </summary>
+            <param name="creationFlags">The creation flags.</param>
+            <param name="settingsFile"></param>
+        </member>
+        <member name="M:SharpDX.XACT3.AudioEngine.#ctor(SharpDX.XACT3.CreationFlags,SharpDX.XACT3.AudioEngineSettings)">
+            <summary>
+            Initializes a new instance of the <see cref="T:SharpDX.XACT3.AudioEngine"/> class.
+            </summary>
+            <param name="creationFlags">The creation flags.</param>
+            <param name="settings">Settings for this audio engine</param>
+        </member>
+        <member name="M:SharpDX.XACT3.AudioEngine.PreInitialize(SharpDX.XACT3.AudioEngineSettings)">
+            <summary>
+            Initializes this instance from a settings file and a renderer index.
+            </summary>
+            <unmanaged>IXACT3Engine::Initialize</unmanaged>
+        </member>
+        <member name="M:SharpDX.XACT3.AudioEngine.OnNotificationDelegate(SharpDX.XACT3.Notification)">
+            <summary>
+            Called when an internal notification occurred.
+            </summary>
+            <param name="notification">The notification.</param>
+        </member>
+        <member name="M:SharpDX.XACT3.AudioEngine.RegisterNotification(SharpDX.XACT3.NotificationType)">
+            <summary>
+            Registers this instance to notify for a type of notification.
+            </summary>
+            <param name="notificationType">Type of the notification.</param>
+        </member>
+        <member name="M:SharpDX.XACT3.AudioEngine.UnregisterNotification(SharpDX.XACT3.NotificationType)">
+            <summary>
+            Unregisters this instance to notify for a type of notification.
+            </summary>
+            <param name="notificationType">Type of the notification.</param>
+        </member>
+        <member name="F:SharpDX.XACT3.AudioEngine.AllowedNotifications">
+            <summary>
+            Internal dictionary to verify allowed notifications.
+            </summary>
+        </member>
+        <member name="M:SharpDX.XACT3.AudioEngine.VerifyRegister(SharpDX.XACT3.NotificationType,System.Type,SharpDX.XACT3.ManagedNotificationCallback)">
+            <summary>
+            Verifies a notification registration for a particular type.
+            </summary>
+            <param name="notificationType">Type of the notification.</param>
+            <param name="type">The type.</param>
+            <param name="notificationCallback">The notification callback.</param>
+            <exception cref="T:System.InvalidOperationException">If this registration is invalid</exception>
+            <returns></returns>
+        </member>
+        <member name="M:SharpDX.XACT3.AudioEngine.#ctor(System.IntPtr)">
+            <summary>
+            Initializes a new instance of the <see cref="T:SharpDX.XACT3.AudioEngine"/> class.
+            </summary>
+            <param name="nativePtr">The native pointer.</param>	
+        </member>
+        <member name="M:SharpDX.XACT3.AudioEngine.op_Explicit(System.IntPtr)~SharpDX.XACT3.AudioEngine">
+            <summary>
+            Performs an explicit conversion from <see cref="T:System.IntPtr"/> to <see cref="T:SharpDX.XACT3.AudioEngine"/>. (This method is a shortcut to <see cref="P:SharpDX.CppObject.NativePointer"/>) 
+            </summary>
+            <param name="nativePointer">The native pointer.</param>
+            <returns>
+            The result of the conversion.
+            </returns>
+        </member>
+        <member name="F:SharpDX.XACT3.AudioEngine.AuditionEngineGuid">
+            <summary>Constant AuditionEngineGuid.</summary>
+            <unmanaged>CLSID_XACTAuditionEngine</unmanaged>
+        </member>
+        <member name="F:SharpDX.XACT3.AudioEngine.EngineGuid">
+            <summary>Constant EngineGuid.</summary>
+            <unmanaged>CLSID_XACTEngine</unmanaged>
+        </member>
+        <member name="F:SharpDX.XACT3.AudioEngine.DebugEngineGuid">
+            <summary>Constant DebugEngineGuid.</summary>
+            <unmanaged>CLSID_XACTDebugEngine</unmanaged>
+        </member>
+        <member name="M:SharpDX.XACT3.AudioEngine.GetRendererCount(System.Int16@)">
+            <summary>	
+            No documentation.	
+            </summary>	
+            <param name="rendererCountRef">No documentation.</param>	
+            <returns>No documentation.</returns>	
+            <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='IXACT3Engine::GetRendererCount']/*"/>	
+            <unmanaged>HRESULT IXACT3Engine::GetRendererCount([Out] unsigned short* pnRendererCount)</unmanaged>	
+            <unmanaged-short>IXACT3Engine::GetRendererCount</unmanaged-short>	
+        </member>
+        <member name="M:SharpDX.XACT3.AudioEngine.GetRendererDetails(System.Int16)">
+            <summary>	
+            No documentation.	
+            </summary>	
+            <param name="rendererIndex">No documentation.</param>	
+            <returns>No documentation.</returns>	
+            <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='IXACT3Engine::GetRendererDetails']/*"/>	
+            <unmanaged>HRESULT IXACT3Engine::GetRendererDetails([In] unsigned short nRendererIndex,[Out] XACT_RENDERER_DETAILS* pRendererDetails)</unmanaged>	
+            <unmanaged-short>IXACT3Engine::GetRendererDetails</unmanaged-short>	
+        </member>
+        <member name="M:SharpDX.XACT3.AudioEngine.GetFinalMixFormat(SharpDX.Multimedia.WaveFormatExtensible@)">
+            <summary>	
+            No documentation.	
+            </summary>	
+            <param name="finalMixFormatRef">No documentation.</param>	
+            <returns>No documentation.</returns>	
+            <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='IXACT3Engine::GetFinalMixFormat']/*"/>	
+            <unmanaged>HRESULT IXACT3Engine::GetFinalMixFormat([Out] WAVEFORMATEXTENSIBLE* pFinalMixFormat)</unmanaged>	
+            <unmanaged-short>IXACT3Engine::GetFinalMixFormat</unmanaged-short>	
+        </member>
+        <member name="M:SharpDX.XACT3.AudioEngine.Initialize(SharpDX.XACT3.AudioEngineSettings)">
+            <summary>	
+            No documentation.	
+            </summary>	
+            <param name="paramsRef">No documentation.</param>	
+            <returns>No documentation.</returns>	
+            <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='IXACT3Engine::Initialize']/*"/>	
+            <unmanaged>HRESULT IXACT3Engine::Initialize([In] const XACT_RUNTIME_PARAMETERS* pParams)</unmanaged>	
+            <unmanaged-short>IXACT3Engine::Initialize</unmanaged-short>	
+        </member>
+        <member name="M:SharpDX.XACT3.AudioEngine.ShutDown">
+            <summary>	
+            No documentation.	
+            </summary>	
+            <returns>No documentation.</returns>	
+            <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='IXACT3Engine::ShutDown']/*"/>	
+            <unmanaged>HRESULT IXACT3Engine::ShutDown()</unmanaged>	
+            <unmanaged-short>IXACT3Engine::ShutDown</unmanaged-short>	
+        </member>
+        <member name="M:SharpDX.XACT3.AudioEngine.DoWork">
+            <summary>	
+            No documentation.	
+            </summary>	
+            <returns>No documentation.</returns>	
+            <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='IXACT3Engine::DoWork']/*"/>	
+            <unmanaged>HRESULT IXACT3Engine::DoWork()</unmanaged>	
+            <unmanaged-short>IXACT3Engine::DoWork</unmanaged-short>	
+        </member>
+        <member name="M:SharpDX.XACT3.AudioEngine.CreateSoundBank(System.IntPtr,System.Int32,System.Int32,System.Int32,SharpDX.XACT3.SoundBank)">
+            <summary>	
+            No documentation.	
+            </summary>	
+            <param name="vBufferRef">No documentation.</param>	
+            <param name="size">No documentation.</param>	
+            <param name="flags">No documentation.</param>	
+            <param name="allocAttributes">No documentation.</param>	
+            <param name="soundBankOut">No documentation.</param>	
+            <returns>No documentation.</returns>	
+            <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='IXACT3Engine::CreateSoundBank']/*"/>	
+            <unmanaged>HRESULT IXACT3Engine::CreateSoundBank([In] const void* pvBuffer,[In] unsigned int dwSize,[In] unsigned int dwFlags,[In] unsigned int dwAllocAttributes,[Out, Fast] IXACT3SoundBank** ppSoundBank)</unmanaged>	
+            <unmanaged-short>IXACT3Engine::CreateSoundBank</unmanaged-short>	
+        </member>
+        <member name="M:SharpDX.XACT3.AudioEngine.CreateInMemoryWaveBank(System.IntPtr,System.Int32,System.Int32,System.Int32,SharpDX.XACT3.WaveBank)">
+            <summary>	
+            No documentation.	
+            </summary>	
+            <param name="vBufferRef">No documentation.</param>	
+            <param name="size">No documentation.</param>	
+            <param name="flags">No documentation.</param>	
+            <param name="allocAttributes">No documentation.</param>	
+            <param name="waveBankOut">No documentation.</param>	
+            <returns>No documentation.</returns>	
+            <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='IXACT3Engine::CreateInMemoryWaveBank']/*"/>	
+            <unmanaged>HRESULT IXACT3Engine::CreateInMemoryWaveBank([In] const void* pvBuffer,[In] unsigned int dwSize,[In] unsigned int dwFlags,[In] unsigned int dwAllocAttributes,[Out, Fast] IXACT3WaveBank** ppWaveBank)</unmanaged>	
+            <unmanaged-short>IXACT3Engine::CreateInMemoryWaveBank</unmanaged-short>	
+        </member>
+        <member name="M:SharpDX.XACT3.AudioEngine.CreateStreamingWaveBank(SharpDX.XACT3.StreamingParameters,SharpDX.XACT3.WaveBank)">
+            <summary>	
+            No documentation.	
+            </summary>	
+            <param name="parmsRef">No documentation.</param>	
+            <param name="waveBankOut">No documentation.</param>	
+            <returns>No documentation.</returns>	
+            <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='IXACT3Engine::CreateStreamingWaveBank']/*"/>	
+            <unmanaged>HRESULT IXACT3Engine::CreateStreamingWaveBank([In] const XACT_STREAMING_PARAMETERS* pParms,[Out, Fast] IXACT3WaveBank** ppWaveBank)</unmanaged>	
+            <unmanaged-short>IXACT3Engine::CreateStreamingWaveBank</unmanaged-short>	
+        </member>
+        <member name="M:SharpDX.XACT3.AudioEngine.PrepareWave(System.Int32,System.String,System.Int16,System.Int32,System.Int32,System.Byte,SharpDX.XACT3.Wave)">
+            <summary>	
+            No documentation.	
+            </summary>	
+            <param name="flags">No documentation.</param>	
+            <param name="wavePath">No documentation.</param>	
+            <param name="streamingPacketSize">No documentation.</param>	
+            <param name="alignment">No documentation.</param>	
+            <param name="playOffset">No documentation.</param>	
+            <param name="loopCount">No documentation.</param>	
+            <param name="waveOut">No documentation.</param>	
+            <returns>No documentation.</returns>	
+            <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='IXACT3Engine::PrepareWave']/*"/>	
+            <unmanaged>HRESULT IXACT3Engine::PrepareWave([In] unsigned int dwFlags,[In] const char* szWavePath,[In] unsigned short wStreamingPacketSize,[In] unsigned int dwAlignment,[In] unsigned int dwPlayOffset,[In] unsigned char nLoopCount,[Out, Fast] IXACT3Wave** ppWave)</unmanaged>	
+            <unmanaged-short>IXACT3Engine::PrepareWave</unmanaged-short>	
+        </member>
+        <member name="M:SharpDX.XACT3.AudioEngine.PrepareInMemoryWave(System.Int32,SharpDX.XACT3.WaveBankEntry,System.Nullable{System.Int32},System.Nullable{System.Byte},System.Int32,System.Byte,SharpDX.XACT3.Wave)">
+            <summary>	
+            No documentation.	
+            </summary>	
+            <param name="flags">No documentation.</param>	
+            <param name="entry">No documentation.</param>	
+            <param name="seekTableRef">No documentation.</param>	
+            <param name="bWaveDataRef">No documentation.</param>	
+            <param name="playOffset">No documentation.</param>	
+            <param name="loopCount">No documentation.</param>	
+            <param name="waveOut">No documentation.</param>	
+            <returns>No documentation.</returns>	
+            <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='IXACT3Engine::PrepareInMemoryWave']/*"/>	
+            <unmanaged>HRESULT IXACT3Engine::PrepareInMemoryWave([In] unsigned int dwFlags,[In] WAVEBANKENTRY entry,[In, Optional] unsigned int* pdwSeekTable,[In, Optional] unsigned char* pbWaveData,[In] unsigned int dwPlayOffset,[In] unsigned char nLoopCount,[Out, Fast] IXACT3Wave** ppWave)</unmanaged>	
+            <unmanaged-short>IXACT3Engine::PrepareInMemoryWave</unmanaged-short>	
+        </member>
+        <member name="M:SharpDX.XACT3.AudioEngine.PrepareStreamingWave(System.Int32,SharpDX.XACT3.WaveBankEntry,SharpDX.XACT3.StreamingParameters,System.Int32,System.Nullable{System.Int32},System.Int32,System.Byte,SharpDX.XACT3.Wave)">
+            <summary>	
+            No documentation.	
+            </summary>	
+            <param name="flags">No documentation.</param>	
+            <param name="entry">No documentation.</param>	
+            <param name="streamingParams">No documentation.</param>	
+            <param name="alignment">No documentation.</param>	
+            <param name="seekTableRef">No documentation.</param>	
+            <param name="playOffset">No documentation.</param>	
+            <param name="loopCount">No documentation.</param>	
+            <param name="waveOut">No documentation.</param>	
+            <returns>No documentation.</returns>	
+            <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='IXACT3Engine::PrepareStreamingWave']/*"/>	
+            <unmanaged>HRESULT IXACT3Engine::PrepareStreamingWave([In] unsigned int dwFlags,[In] WAVEBANKENTRY entry,[In] XACT_STREAMING_PARAMETERS streamingParams,[In] unsigned int dwAlignment,[In, Optional] unsigned int* pdwSeekTable,[In] unsigned int dwPlayOffset,[In] unsigned char nLoopCount,[Out, Fast] IXACT3Wave** ppWave)</unmanaged>	
+            <unmanaged-short>IXACT3Engine::PrepareStreamingWave</unmanaged-short>	
+        </member>
+        <member name="M:SharpDX.XACT3.AudioEngine.RegisterNotification(SharpDX.XACT3.RawNotificationDescription@)">
+            <summary>	
+            No documentation.	
+            </summary>	
+            <param name="notificationDescRef">No documentation.</param>	
+            <returns>No documentation.</returns>	
+            <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='IXACT3Engine::RegisterNotification']/*"/>	
+            <unmanaged>HRESULT IXACT3Engine::RegisterNotification([In] const XACT_NOTIFICATION_DESCRIPTION* pNotificationDesc)</unmanaged>	
+            <unmanaged-short>IXACT3Engine::RegisterNotification</unmanaged-short>	
+        </member>
+        <member name="M:SharpDX.XACT3.AudioEngine.UnRegisterNotification(SharpDX.XACT3.RawNotificationDescription@)">
+            <summary>	
+            No documentation.	
+            </summary>	
+            <param name="notificationDescRef">No documentation.</param>	
+            <returns>No documentation.</returns>	
+            <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='IXACT3Engine::UnRegisterNotification']/*"/>	
+            <unmanaged>HRESULT IXACT3Engine::UnRegisterNotification([In] const XACT_NOTIFICATION_DESCRIPTION* pNotificationDesc)</unmanaged>	
+            <unmanaged-short>IXACT3Engine::UnRegisterNotification</unmanaged-short>	
+        </member>
+        <member name="M:SharpDX.XACT3.AudioEngine.GetCategory(System.String)">
+            <summary>	
+            No documentation.	
+            </summary>	
+            <param name="friendlyName">No documentation.</param>	
+            <returns>No documentation.</returns>	
+            <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='IXACT3Engine::GetCategory']/*"/>	
+            <unmanaged>unsigned short IXACT3Engine::GetCategory([In] const char* szFriendlyName)</unmanaged>	
+            <unmanaged-short>IXACT3Engine::GetCategory</unmanaged-short>	
+        </member>
+        <member name="M:SharpDX.XACT3.AudioEngine.Stop(System.Int16,SharpDX.XACT3.StopFlags)">
+            <summary>	
+            No documentation.	
+            </summary>	
+            <param name="category">No documentation.</param>	
+            <param name="flags">No documentation.</param>	
+            <returns>No documentation.</returns>	
+            <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='IXACT3Engine::Stop']/*"/>	
+            <unmanaged>HRESULT IXACT3Engine::Stop([In] unsigned short nCategory,[In] XACT_STOP_FLAGS dwFlags)</unmanaged>	
+            <unmanaged-short>IXACT3Engine::Stop</unmanaged-short>	
+        </member>
+        <member name="M:SharpDX.XACT3.AudioEngine.SetVolume(System.Int16,System.Single)">
+            <summary>	
+            No documentation.	
+            </summary>	
+            <param name="category">No documentation.</param>	
+            <param name="volume">No documentation.</param>	
+            <returns>No documentation.</returns>	
+            <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='IXACT3Engine::SetVolume']/*"/>	
+            <unmanaged>HRESULT IXACT3Engine::SetVolume([In] unsigned short nCategory,[In] float nVolume)</unmanaged>	
+            <unmanaged-short>IXACT3Engine::SetVolume</unmanaged-short>	
+        </member>
+        <member name="M:SharpDX.XACT3.AudioEngine.Pause(System.Int16,SharpDX.Bool)">
+            <summary>	
+            No documentation.	
+            </summary>	
+            <param name="category">No documentation.</param>	
+            <param name="pause">No documentation.</param>	
+            <returns>No documentation.</returns>	
+            <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='IXACT3Engine::Pause']/*"/>	
+            <unmanaged>HRESULT IXACT3Engine::Pause([In] unsigned short nCategory,[In] BOOL fPause)</unmanaged>	
+            <unmanaged-short>IXACT3Engine::Pause</unmanaged-short>	
+        </member>
+        <member name="M:SharpDX.XACT3.AudioEngine.GetGlobalVariableIndex(System.String)">
+            <summary>	
+            No documentation.	
+            </summary>	
+            <param name="friendlyName">No documentation.</param>	
+            <returns>No documentation.</returns>	
+            <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='IXACT3Engine::GetGlobalVariableIndex']/*"/>	
+            <unmanaged>unsigned short IXACT3Engine::GetGlobalVariableIndex([In] const char* szFriendlyName)</unmanaged>	
+            <unmanaged-short>IXACT3Engine::GetGlobalVariableIndex</unmanaged-short>	
+        </member>
+        <member name="M:SharpDX.XACT3.AudioEngine.SetGlobalVariable(System.Int16,System.Single)">
+            <summary>	
+            No documentation.	
+            </summary>	
+            <param name="index">No documentation.</param>	
+            <param name="value">No documentation.</param>	
+            <returns>No documentation.</returns>	
+            <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='IXACT3Engine::SetGlobalVariable']/*"/>	
+            <unmanaged>HRESULT IXACT3Engine::SetGlobalVariable([In] unsigned short nIndex,[In] float nValue)</unmanaged>	
+            <unmanaged-short>IXACT3Engine::SetGlobalVariable</unmanaged-short>	
+        </member>
+        <member name="M:SharpDX.XACT3.AudioEngine.GetGlobalVariable(System.Int16)">
+            <summary>	
+            No documentation.	
+            </summary>	
+            <param name="index">No documentation.</param>	
+            <returns>No documentation.</returns>	
+            <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='IXACT3Engine::GetGlobalVariable']/*"/>	
+            <unmanaged>HRESULT IXACT3Engine::GetGlobalVariable([In] unsigned short nIndex,[Out] float* nValue)</unmanaged>	
+            <unmanaged-short>IXACT3Engine::GetGlobalVariable</unmanaged-short>	
+        </member>
+        <member name="E:SharpDX.XACT3.AudioEngine.OnNotification">
+            <summary>
+            Occurs when a AudioEngine event occurs.
+            </summary>
+            <remarks>
+            Use <see cref="M:SharpDX.XACT3.AudioEngine.RegisterNotification(SharpDX.XACT3.NotificationType)"/> to register types.
+            </remarks>
+        </member>
+        <member name="P:SharpDX.XACT3.AudioEngine.RendererCount">
+            <summary>	
+            No documentation.	
+            </summary>	
+            <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='IXACT3Engine::GetRendererCount']/*"/>	
+            <unmanaged>GetRendererCount</unmanaged>	
+            <unmanaged-short>GetRendererCount</unmanaged-short>	
+            <unmanaged>HRESULT IXACT3Engine::GetRendererCount([Out] unsigned short* pnRendererCount)</unmanaged>
+        </member>
+        <member name="P:SharpDX.XACT3.AudioEngine.FinalMixFormat">
+            <summary>	
+            No documentation.	
+            </summary>	
+            <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='IXACT3Engine::GetFinalMixFormat']/*"/>	
+            <unmanaged>GetFinalMixFormat</unmanaged>	
+            <unmanaged-short>GetFinalMixFormat</unmanaged-short>	
+            <unmanaged>HRESULT IXACT3Engine::GetFinalMixFormat([Out] WAVEFORMATEXTENSIBLE* pFinalMixFormat)</unmanaged>
+        </member>
+        <member name="T:SharpDX.XACT3.AudioEngine.NotificationCallbackDelegate">
+            <summary>
+            Internal unmanaged delegate
+            </summary>
+            <param name="notification">The notification.</param>
+        </member>
+        <member name="T:SharpDX.XACT3.ContentPreparationFlags">
+            <summary>	
+            No documentation.	
+            </summary>	
+            <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='XACT_CONTENT_PREPARATION_FLAGS']/*"/>	
+            <unmanaged>XACT_CONTENT_PREPARATION_FLAGS</unmanaged>	
+            <unmanaged-short>XACT_CONTENT_PREPARATION_FLAGS</unmanaged-short>	
+        </member>
+        <member name="F:SharpDX.XACT3.ContentPreparationFlags.UnitsMultisampled">
+            <summary>	
+            No documentation.	
+            </summary>	
+            <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='MACRO_XACT_FLAG_UNITS_MS']/*"/>	
+            <unmanaged>MACRO_XACT_FLAG_UNITS_MS</unmanaged>	
+            <unmanaged-short>MACRO_XACT_FLAG_UNITS_MS</unmanaged-short>	
+        </member>
+        <member name="F:SharpDX.XACT3.ContentPreparationFlags.UnitsSamples">
+            <summary>	
+            No documentation.	
+            </summary>	
+            <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='MACRO_XACT_FLAG_UNITS_SAMPLES']/*"/>	
+            <unmanaged>MACRO_XACT_FLAG_UNITS_SAMPLES</unmanaged>	
+            <unmanaged-short>MACRO_XACT_FLAG_UNITS_SAMPLES</unmanaged-short>	
+        </member>
+        <member name="T:SharpDX.XACT3.CreationFlags">
+            <summary>	
+            No documentation.	
+            </summary>	
+            <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='XACT_CREATION_FLAGS']/*"/>	
+            <unmanaged>XACT_CREATION_FLAGS</unmanaged>	
+            <unmanaged-short>XACT_CREATION_FLAGS</unmanaged-short>	
+        </member>
+        <member name="F:SharpDX.XACT3.CreationFlags.AuditionMode">
+            <summary>	
+            No documentation.	
+            </summary>	
+            <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='MACRO_XACT_FLAG_API_AUDITION_MODE']/*"/>	
+            <unmanaged>MACRO_XACT_FLAG_API_AUDITION_MODE</unmanaged>	
+            <unmanaged-short>MACRO_XACT_FLAG_API_AUDITION_MODE</unmanaged-short>	
+        </member>
+        <member name="F:SharpDX.XACT3.CreationFlags.DebugMode">
+            <summary>	
+            No documentation.	
+            </summary>	
+            <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='MACRO_XACT_FLAG_API_DEBUG_MODE']/*"/>	
+            <unmanaged>MACRO_XACT_FLAG_API_DEBUG_MODE</unmanaged>	
+            <unmanaged-short>MACRO_XACT_FLAG_API_DEBUG_MODE</unmanaged-short>	
+        </member>
+        <member name="F:SharpDX.XACT3.CreationFlags.None">
+            <summary>	
+            None.	
+            </summary>	
+            <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='']/*"/>	
+            <unmanaged>None</unmanaged>	
+            <unmanaged-short>None</unmanaged-short>	
+        </member>
+        <member name="T:SharpDX.XACT3.CueState">
+            <summary>	
+            No documentation.	
+            </summary>	
+            <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='XACT_CUE_STATE']/*"/>	
+            <unmanaged>XACT_CUE_STATE</unmanaged>	
+            <unmanaged-short>XACT_CUE_STATE</unmanaged-short>	
+        </member>
+        <member name="F:SharpDX.XACT3.CueState.CreateD">
+            <summary>	
+            No documentation.	
+            </summary>	
+            <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='XACT_CUESTATE_CREATED']/*"/>	
+            <unmanaged>XACT_CUESTATE_CREATED</unmanaged>	
+            <unmanaged-short>XACT_CUESTATE_CREATED</unmanaged-short>	
+        </member>
+        <member name="F:SharpDX.XACT3.CueState.Preparing">
+            <summary>	
+            No documentation.	
+            </summary>	
+            <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='XACT_CUESTATE_PREPARING']/*"/>	
+            <unmanaged>XACT_CUESTATE_PREPARING</unmanaged>	
+            <unmanaged-short>XACT_CUESTATE_PREPARING</unmanaged-short>	
+        </member>
+        <member name="F:SharpDX.XACT3.CueState.Prepared">
+            <summary>	
+            No documentation.	
+            </summary>	
+            <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='XACT_CUESTATE_PREPARED']/*"/>	
+            <unmanaged>XACT_CUESTATE_PREPARED</unmanaged>	
+            <unmanaged-short>XACT_CUESTATE_PREPARED</unmanaged-short>	
+        </member>
+        <member name="F:SharpDX.XACT3.CueState.Playing">
+            <summary>	
+            No documentation.	
+            </summary>	
+            <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='XACT_CUESTATE_PLAYING']/*"/>	
+            <unmanaged>XACT_CUESTATE_PLAYING</unmanaged>	
+            <unmanaged-short>XACT_CUESTATE_PLAYING</unmanaged-short>	
+        </member>
+        <member name="F:SharpDX.XACT3.CueState.Stopping">
+            <summary>	
+            No documentation.	
+            </summary>	
+            <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='XACT_CUESTATE_STOPPING']/*"/>	
+            <unmanaged>XACT_CUESTATE_STOPPING</unmanaged>	
+            <unmanaged-short>XACT_CUESTATE_STOPPING</unmanaged-short>	
+        </member>
+        <member name="F:SharpDX.XACT3.CueState.Stopped">
+            <summary>	
+            No documentation.	
+            </summary>	
+            <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='XACT_CUESTATE_STOPPED']/*"/>	
+            <unmanaged>XACT_CUESTATE_STOPPED</unmanaged>	
+            <unmanaged-short>XACT_CUESTATE_STOPPED</unmanaged-short>	
+        </member>
+        <member name="F:SharpDX.XACT3.CueState.Paused">
+            <summary>	
+            No documentation.	
+            </summary>	
+            <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='XACT_CUESTATE_PAUSED']/*"/>	
+            <unmanaged>XACT_CUESTATE_PAUSED</unmanaged>	
+            <unmanaged-short>XACT_CUESTATE_PAUSED</unmanaged-short>	
+        </member>
+        <member name="T:SharpDX.XACT3.NotificationType">
+            <summary>	
+            No documentation.	
+            </summary>	
+            <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='XACT_NOTIFICATION_TYPE']/*"/>	
+            <unmanaged>XACT_NOTIFICATION_TYPE</unmanaged>	
+            <unmanaged-short>XACT_NOTIFICATION_TYPE</unmanaged-short>	
+        </member>
+        <member name="F:SharpDX.XACT3.NotificationType.CuePrepared">
+            <summary>	
+            No documentation.	
+            </summary>	
+            <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='MACRO_XACT_NOTIFICATIONTYPE_CUEPREPARED']/*"/>	
+            <unmanaged>MACRO_XACT_NOTIFICATIONTYPE_CUEPREPARED</unmanaged>	
+            <unmanaged-short>MACRO_XACT_NOTIFICATIONTYPE_CUEPREPARED</unmanaged-short>	
+        </member>
+        <member name="F:SharpDX.XACT3.NotificationType.CuePlay">
+            <summary>	
+            No documentation.	
+            </summary>	
+            <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='MACRO_XACT_NOTIFICATIONTYPE_CUEPLAY']/*"/>	
+            <unmanaged>MACRO_XACT_NOTIFICATIONTYPE_CUEPLAY</unmanaged>	
+            <unmanaged-short>MACRO_XACT_NOTIFICATIONTYPE_CUEPLAY</unmanaged-short>	
+        </member>
+        <member name="F:SharpDX.XACT3.NotificationType.CueStop">
+            <summary>	
+            No documentation.	
+            </summary>	
+            <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='MACRO_XACT_NOTIFICATIONTYPE_CUESTOP']/*"/>	
+            <unmanaged>MACRO_XACT_NOTIFICATIONTYPE_CUESTOP</unmanaged>	
+            <unmanaged-short>MACRO_XACT_NOTIFICATIONTYPE_CUESTOP</unmanaged-short>	
+        </member>
+        <member name="F:SharpDX.XACT3.NotificationType.CueDestroyed">
+            <summary>	
+            No documentation.	
+            </summary>	
+            <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='MACRO_XACT_NOTIFICATIONTYPE_CUEDESTROYED']/*"/>	
+            <unmanaged>MACRO_XACT_NOTIFICATIONTYPE_CUEDESTROYED</unmanaged>	
+            <unmanaged-short>MACRO_XACT_NOTIFICATIONTYPE_CUEDESTROYED</unmanaged-short>	
+        </member>
+        <member name="F:SharpDX.XACT3.NotificationType.Marker">
+            <summary>	
+            No documentation.	
+            </summary>	
+            <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='MACRO_XACT_NOTIFICATIONTYPE_MARKER']/*"/>	
+            <unmanaged>MACRO_XACT_NOTIFICATIONTYPE_MARKER</unmanaged>	
+            <unmanaged-short>MACRO_XACT_NOTIFICATIONTYPE_MARKER</unmanaged-short>	
+        </member>
+        <member name="F:SharpDX.XACT3.NotificationType.SoundBankDestroyed">
+            <summary>	
+            No documentation.	
+            </summary>	
+            <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='MACRO_XACT_NOTIFICATIONTYPE_SOUNDBANKDESTROYED']/*"/>	
+            <unmanaged>MACRO_XACT_NOTIFICATIONTYPE_SOUNDBANKDESTROYED</unmanaged>	
+            <unmanaged-short>MACRO_XACT_NOTIFICATIONTYPE_SOUNDBANKDESTROYED</unmanaged-short>	
+        </member>
+        <member name="F:SharpDX.XACT3.NotificationType.WaveBankDestroyed">
+            <summary>	
+            No documentation.	
+            </summary>	
+            <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='MACRO_XACT_NOTIFICATIONTYPE_WAVEBANKDESTROYED']/*"/>	
+            <unmanaged>MACRO_XACT_NOTIFICATIONTYPE_WAVEBANKDESTROYED</unmanaged>	
+            <unmanaged-short>MACRO_XACT_NOTIFICATIONTYPE_WAVEBANKDESTROYED</unmanaged-short>	
+        </member>
+        <member name="F:SharpDX.XACT3.NotificationType.LocalVariableChanged">
+            <summary>	
+            No documentation.	
+            </summary>	
+            <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='MACRO_XACT_NOTIFICATIONTYPE_LOCALVARIABLECHANGED']/*"/>	
+            <unmanaged>MACRO_XACT_NOTIFICATIONTYPE_LOCALVARIABLECHANGED</unmanaged>	
+            <unmanaged-short>MACRO_XACT_NOTIFICATIONTYPE_LOCALVARIABLECHANGED</unmanaged-short>	
+        </member>
+        <member name="F:SharpDX.XACT3.NotificationType.GlobalVariableChanged">
+            <summary>	
+            No documentation.	
+            </summary>	
+            <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='MACRO_XACT_NOTIFICATIONTYPE_GLOBALVARIABLECHANGED']/*"/>	
+            <unmanaged>MACRO_XACT_NOTIFICATIONTYPE_GLOBALVARIABLECHANGED</unmanaged>	
+            <unmanaged-short>MACRO_XACT_NOTIFICATIONTYPE_GLOBALVARIABLECHANGED</unmanaged-short>	
+        </member>
+        <member name="F:SharpDX.XACT3.NotificationType.GuiConnected">
+            <summary>	
+            No documentation.	
+            </summary>	
+            <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='MACRO_XACT_NOTIFICATIONTYPE_GUICONNECTED']/*"/>	
+            <unmanaged>MACRO_XACT_NOTIFICATIONTYPE_GUICONNECTED</unmanaged>	
+            <unmanaged-short>MACRO_XACT_NOTIFICATIONTYPE_GUICONNECTED</unmanaged-short>	
+        </member>
+        <member name="F:SharpDX.XACT3.NotificationType.GuiDisconnected">
+            <summary>	
+            No documentation.	
+            </summary>	
+            <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='MACRO_XACT_NOTIFICATIONTYPE_GUIDISCONNECTED']/*"/>	
+            <unmanaged>MACRO_XACT_NOTIFICATIONTYPE_GUIDISCONNECTED</unmanaged>	
+            <unmanaged-short>MACRO_XACT_NOTIFICATIONTYPE_GUIDISCONNECTED</unmanaged-short>	
+        </member>
+        <member name="F:SharpDX.XACT3.NotificationType.WavePrepared">
+            <summary>	
+            No documentation.	
+            </summary>	
+            <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='MACRO_XACT_NOTIFICATIONTYPE_WAVEPREPARED']/*"/>	
+            <unmanaged>MACRO_XACT_NOTIFICATIONTYPE_WAVEPREPARED</unmanaged>	
+            <unmanaged-short>MACRO_XACT_NOTIFICATIONTYPE_WAVEPREPARED</unmanaged-short>	
+        </member>
+        <member name="F:SharpDX.XACT3.NotificationType.WavePlay">
+            <summary>	
+            No documentation.	
+            </summary>	
+            <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='MACRO_XACT_NOTIFICATIONTYPE_WAVEPLAY']/*"/>	
+            <unmanaged>MACRO_XACT_NOTIFICATIONTYPE_WAVEPLAY</unmanaged>	
+            <unmanaged-short>MACRO_XACT_NOTIFICATIONTYPE_WAVEPLAY</unmanaged-short>	
+        </member>
+        <member name="F:SharpDX.XACT3.NotificationType.WaveStop">
+            <summary>	
+            No documentation.	
+            </summary>	
+            <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='MACRO_XACT_NOTIFICATIONTYPE_WAVESTOP']/*"/>	
+            <unmanaged>MACRO_XACT_NOTIFICATIONTYPE_WAVESTOP</unmanaged>	
+            <unmanaged-short>MACRO_XACT_NOTIFICATIONTYPE_WAVESTOP</unmanaged-short>	
+        </member>
+        <member name="F:SharpDX.XACT3.NotificationType.WaveLooped">
+            <summary>	
+            No documentation.	
+            </summary>	
+            <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='MACRO_XACT_NOTIFICATIONTYPE_WAVELOOPED']/*"/>	
+            <unmanaged>MACRO_XACT_NOTIFICATIONTYPE_WAVELOOPED</unmanaged>	
+            <unmanaged-short>MACRO_XACT_NOTIFICATIONTYPE_WAVELOOPED</unmanaged-short>	
+        </member>
+        <member name="F:SharpDX.XACT3.NotificationType.WaveDestroyed">
+            <summary>	
+            No documentation.	
+            </summary>	
+            <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='MACRO_XACT_NOTIFICATIONTYPE_WAVEDESTROYED']/*"/>	
+            <unmanaged>MACRO_XACT_NOTIFICATIONTYPE_WAVEDESTROYED</unmanaged>	
+            <unmanaged-short>MACRO_XACT_NOTIFICATIONTYPE_WAVEDESTROYED</unmanaged-short>	
+        </member>
+        <member name="F:SharpDX.XACT3.NotificationType.WaveBankPrepared">
+            <summary>	
+            No documentation.	
+            </summary>	
+            <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='MACRO_XACT_NOTIFICATIONTYPE_WAVEBANKPREPARED']/*"/>	
+            <unmanaged>MACRO_XACT_NOTIFICATIONTYPE_WAVEBANKPREPARED</unmanaged>	
+            <unmanaged-short>MACRO_XACT_NOTIFICATIONTYPE_WAVEBANKPREPARED</unmanaged-short>	
+        </member>
+        <member name="F:SharpDX.XACT3.NotificationType.WaveBankStreamingInvalidContent">
+            <summary>	
+            No documentation.	
+            </summary>	
+            <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='MACRO_XACT_NOTIFICATIONTYPE_WAVEBANKSTREAMING_INVALIDCONTENT']/*"/>	
+            <unmanaged>MACRO_XACT_NOTIFICATIONTYPE_WAVEBANKSTREAMING_INVALIDCONTENT</unmanaged>	
+            <unmanaged-short>MACRO_XACT_NOTIFICATIONTYPE_WAVEBANKSTREAMING_INVALIDCONTENT</unmanaged-short>	
+        </member>
+        <member name="T:SharpDX.XACT3.StopFlags">
+            <summary>	
+            No documentation.	
+            </summary>	
+            <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='XACT_STOP_FLAGS']/*"/>	
+            <unmanaged>XACT_STOP_FLAGS</unmanaged>	
+            <unmanaged-short>XACT_STOP_FLAGS</unmanaged-short>	
+        </member>
+        <member name="F:SharpDX.XACT3.StopFlags.Release">
+            <summary>	
+            No documentation.	
+            </summary>	
+            <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='XACT_FLAG_CUE_STOP_RELEASE']/*"/>	
+            <unmanaged>XACT_FLAG_CUE_STOP_RELEASE</unmanaged>	
+            <unmanaged-short>XACT_FLAG_CUE_STOP_RELEASE</unmanaged-short>	
+        </member>
+        <member name="F:SharpDX.XACT3.StopFlags.Immediate">
+            <summary>	
+            No documentation.	
+            </summary>	
+            <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='XACT_FLAG_CUE_STOP_IMMEDIATE']/*"/>	
+            <unmanaged>XACT_FLAG_CUE_STOP_IMMEDIATE</unmanaged>	
+            <unmanaged-short>XACT_FLAG_CUE_STOP_IMMEDIATE</unmanaged-short>	
+        </member>
+        <member name="T:SharpDX.XACT3.WaveBankMiniFormatTag">
+            <summary>	
+            No documentation.	
+            </summary>	
+            <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='WAVEBANKMINIFORMAT_TAG']/*"/>	
+            <unmanaged>WAVEBANKMINIFORMAT_TAG</unmanaged>	
+            <unmanaged-short>WAVEBANKMINIFORMAT_TAG</unmanaged-short>	
+        </member>
+        <member name="F:SharpDX.XACT3.WaveBankMiniFormatTag.Pcm">
+            <summary>	
+            No documentation.	
+            </summary>	
+            <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='WAVEBANKMINIFORMAT_TAG_PCM']/*"/>	
+            <unmanaged>WAVEBANKMINIFORMAT_TAG_PCM</unmanaged>	
+            <unmanaged-short>WAVEBANKMINIFORMAT_TAG_PCM</unmanaged-short>	
+        </member>
+        <member name="F:SharpDX.XACT3.WaveBankMiniFormatTag.Xma">
+            <summary>	
+            No documentation.	
+            </summary>	
+            <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='WAVEBANKMINIFORMAT_TAG_XMA']/*"/>	
+            <unmanaged>WAVEBANKMINIFORMAT_TAG_XMA</unmanaged>	
+            <unmanaged-short>WAVEBANKMINIFORMAT_TAG_XMA</unmanaged-short>	
+        </member>
+        <member name="F:SharpDX.XACT3.WaveBankMiniFormatTag.Adpcm">
+            <summary>	
+            No documentation.	
+            </summary>	
+            <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='WAVEBANKMINIFORMAT_TAG_ADPCM']/*"/>	
+            <unmanaged>WAVEBANKMINIFORMAT_TAG_ADPCM</unmanaged>	
+            <unmanaged-short>WAVEBANKMINIFORMAT_TAG_ADPCM</unmanaged-short>	
+        </member>
+        <member name="F:SharpDX.XACT3.WaveBankMiniFormatTag.Wma">
+            <summary>	
+            No documentation.	
+            </summary>	
+            <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='WAVEBANKMINIFORMAT_TAG_WMA']/*"/>	
+            <unmanaged>WAVEBANKMINIFORMAT_TAG_WMA</unmanaged>	
+            <unmanaged-short>WAVEBANKMINIFORMAT_TAG_WMA</unmanaged-short>	
+        </member>
+        <member name="T:SharpDX.XACT3.Wavebanksegidx">
+            <summary>	
+            No documentation.	
+            </summary>	
+            <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='WAVEBANKSEGIDX']/*"/>	
+            <unmanaged>WAVEBANKSEGIDX</unmanaged>	
+            <unmanaged-short>WAVEBANKSEGIDX</unmanaged-short>	
+        </member>
+        <member name="F:SharpDX.XACT3.Wavebanksegidx.SegidxBankdata">
+            <summary>	
+            No documentation.	
+            </summary>	
+            <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='WAVEBANK_SEGIDX_BANKDATA']/*"/>	
+            <unmanaged>WAVEBANK_SEGIDX_BANKDATA</unmanaged>	
+            <unmanaged-short>WAVEBANK_SEGIDX_BANKDATA</unmanaged-short>	
+        </member>
+        <member name="F:SharpDX.XACT3.Wavebanksegidx.SegidxEntrymetadata">
+            <summary>	
+            No documentation.	
+            </summary>	
+            <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='WAVEBANK_SEGIDX_ENTRYMETADATA']/*"/>	
+            <unmanaged>WAVEBANK_SEGIDX_ENTRYMETADATA</unmanaged>	
+            <unmanaged-short>WAVEBANK_SEGIDX_ENTRYMETADATA</unmanaged-short>	
+        </member>
+        <member name="F:SharpDX.XACT3.Wavebanksegidx.SegidxSeektables">
+            <summary>	
+            No documentation.	
+            </summary>	
+            <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='WAVEBANK_SEGIDX_SEEKTABLES']/*"/>	
+            <unmanaged>WAVEBANK_SEGIDX_SEEKTABLES</unmanaged>	
+            <unmanaged-short>WAVEBANK_SEGIDX_SEEKTABLES</unmanaged-short>	
+        </member>
+        <member name="F:SharpDX.XACT3.Wavebanksegidx.SegidxEntrynames">
+            <summary>	
+            No documentation.	
+            </summary>	
+            <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='WAVEBANK_SEGIDX_ENTRYNAMES']/*"/>	
+            <unmanaged>WAVEBANK_SEGIDX_ENTRYNAMES</unmanaged>	
+            <unmanaged-short>WAVEBANK_SEGIDX_ENTRYNAMES</unmanaged-short>	
+        </member>
+        <member name="F:SharpDX.XACT3.Wavebanksegidx.SegidxEntrywavedata">
+            <summary>	
+            No documentation.	
+            </summary>	
+            <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='WAVEBANK_SEGIDX_ENTRYWAVEDATA']/*"/>	
+            <unmanaged>WAVEBANK_SEGIDX_ENTRYWAVEDATA</unmanaged>	
+            <unmanaged-short>WAVEBANK_SEGIDX_ENTRYWAVEDATA</unmanaged-short>	
+        </member>
+        <member name="F:SharpDX.XACT3.Wavebanksegidx.SegidxCount">
+            <summary>	
+            No documentation.	
+            </summary>	
+            <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='WAVEBANK_SEGIDX_COUNT']/*"/>	
+            <unmanaged>WAVEBANK_SEGIDX_COUNT</unmanaged>	
+            <unmanaged-short>WAVEBANK_SEGIDX_COUNT</unmanaged-short>	
+        </member>
+        <member name="T:SharpDX.XACT3.WaveState">
+            <summary>	
+            No documentation.	
+            </summary>	
+            <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='XACT_WAVE_STATE']/*"/>	
+            <unmanaged>XACT_WAVE_STATE</unmanaged>	
+            <unmanaged-short>XACT_WAVE_STATE</unmanaged-short>	
+        </member>
+        <member name="F:SharpDX.XACT3.WaveState.CreateD">
+            <summary>	
+            No documentation.	
+            </summary>	
+            <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='MACRO_XACT_STATE_CREATED']/*"/>	
+            <unmanaged>MACRO_XACT_STATE_CREATED</unmanaged>	
+            <unmanaged-short>MACRO_XACT_STATE_CREATED</unmanaged-short>	
+        </member>
+        <member name="F:SharpDX.XACT3.WaveState.Preparing">
+            <summary>	
+            No documentation.	
+            </summary>	
+            <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='MACRO_XACT_STATE_PREPARING']/*"/>	
+            <unmanaged>MACRO_XACT_STATE_PREPARING</unmanaged>	
+            <unmanaged-short>MACRO_XACT_STATE_PREPARING</unmanaged-short>	
+        </member>
+        <member name="F:SharpDX.XACT3.WaveState.Prepared">
+            <summary>	
+            No documentation.	
+            </summary>	
+            <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='MACRO_XACT_STATE_PREPARED']/*"/>	
+            <unmanaged>MACRO_XACT_STATE_PREPARED</unmanaged>	
+            <unmanaged-short>MACRO_XACT_STATE_PREPARED</unmanaged-short>	
+        </member>
+        <member name="F:SharpDX.XACT3.WaveState.Playing">
+            <summary>	
+            No documentation.	
+            </summary>	
+            <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='MACRO_XACT_STATE_PLAYING']/*"/>	
+            <unmanaged>MACRO_XACT_STATE_PLAYING</unmanaged>	
+            <unmanaged-short>MACRO_XACT_STATE_PLAYING</unmanaged-short>	
+        </member>
+        <member name="F:SharpDX.XACT3.WaveState.Stopping">
+            <summary>	
+            No documentation.	
+            </summary>	
+            <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='MACRO_XACT_STATE_STOPPING']/*"/>	
+            <unmanaged>MACRO_XACT_STATE_STOPPING</unmanaged>	
+            <unmanaged-short>MACRO_XACT_STATE_STOPPING</unmanaged-short>	
+        </member>
+        <member name="F:SharpDX.XACT3.WaveState.Stopped">
+            <summary>	
+            No documentation.	
+            </summary>	
+            <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='MACRO_XACT_STATE_STOPPED']/*"/>	
+            <unmanaged>MACRO_XACT_STATE_STOPPED</unmanaged>	
+            <unmanaged-short>MACRO_XACT_STATE_STOPPED</unmanaged-short>	
+        </member>
+        <member name="F:SharpDX.XACT3.WaveState.Paused">
+            <summary>	
+            No documentation.	
+            </summary>	
+            <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='MACRO_XACT_STATE_PAUSED']/*"/>	
+            <unmanaged>MACRO_XACT_STATE_PAUSED</unmanaged>	
+            <unmanaged-short>MACRO_XACT_STATE_PAUSED</unmanaged-short>	
+        </member>
+        <member name="F:SharpDX.XACT3.WaveState.InUse">
+            <summary>	
+            No documentation.	
+            </summary>	
+            <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='MACRO_XACT_STATE_INUSE']/*"/>	
+            <unmanaged>MACRO_XACT_STATE_INUSE</unmanaged>	
+            <unmanaged-short>MACRO_XACT_STATE_INUSE</unmanaged-short>	
+        </member>
+        <member name="F:SharpDX.XACT3.WaveState.PrepareFailed">
+            <summary>	
+            No documentation.	
+            </summary>	
+            <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='MACRO_XACT_STATE_PREPAREFAILED']/*"/>	
+            <unmanaged>MACRO_XACT_STATE_PREPAREFAILED</unmanaged>	
+            <unmanaged-short>MACRO_XACT_STATE_PREPAREFAILED</unmanaged-short>	
+        </member>
+        <member name="T:SharpDX.XACT3.XACT3">
+            <summary>	
+            Functions	
+            </summary>	
+            <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='SharpDX.XACT3.XACT3']/*"/>	
+        </member>
+        <member name="T:SharpDX.XACT3.SoundBank">
+            <summary>	
+            No documentation.	
+            </summary>	
+            <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='IXACT3SoundBank']/*"/>	
+            <unmanaged>IXACT3SoundBank</unmanaged>	
+            <unmanaged-short>IXACT3SoundBank</unmanaged-short>	
+        </member>
+        <member name="M:SharpDX.XACT3.SoundBank.#ctor(System.IntPtr)">
+            <summary>
+            Initializes a new instance of the <see cref="T:SharpDX.XACT3.SoundBank"/> class.
+            </summary>
+            <param name="nativePtr">The native pointer.</param>	
+        </member>
+        <member name="M:SharpDX.XACT3.SoundBank.op_Explicit(System.IntPtr)~SharpDX.XACT3.SoundBank">
+            <summary>
+            Performs an explicit conversion from <see cref="T:System.IntPtr"/> to <see cref="T:SharpDX.XACT3.SoundBank"/>. (This method is a shortcut to <see cref="P:SharpDX.CppObject.NativePointer"/>) 
+            </summary>
+            <param name="nativePointer">The native pointer.</param>
+            <returns>
+            The result of the conversion.
+            </returns>
+        </member>
+        <member name="M:SharpDX.XACT3.SoundBank.GetCueIndex(System.String)">
+            <summary>	
+            No documentation.	
+            </summary>	
+            <param name="friendlyName">No documentation.</param>	
+            <returns>No documentation.</returns>	
+            <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='IXACT3SoundBank::GetCueIndex']/*"/>	
+            <unmanaged>unsigned short IXACT3SoundBank::GetCueIndex([In] const char* szFriendlyName)</unmanaged>	
+            <unmanaged-short>IXACT3SoundBank::GetCueIndex</unmanaged-short>	
+        </member>
+        <member name="M:SharpDX.XACT3.SoundBank.GetCueCount(System.Int16@)">
+            <summary>	
+            No documentation.	
+            </summary>	
+            <param name="numCuesRef">No documentation.</param>	
+            <returns>No documentation.</returns>	
+            <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='IXACT3SoundBank::GetNumCues']/*"/>	
+            <unmanaged>HRESULT IXACT3SoundBank::GetNumCues([Out] unsigned short* pnNumCues)</unmanaged>	
+            <unmanaged-short>IXACT3SoundBank::GetNumCues</unmanaged-short>	
+        </member>
+        <member name="M:SharpDX.XACT3.SoundBank.GetCueProperties(System.Int16)">
+            <summary>	
+            No documentation.	
+            </summary>	
+            <param name="cueIndex">No documentation.</param>	
+            <returns>No documentation.</returns>	
+            <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='IXACT3SoundBank::GetCueProperties']/*"/>	
+            <unmanaged>HRESULT IXACT3SoundBank::GetCueProperties([In] unsigned short nCueIndex,[Out] XACT_CUE_PROPERTIES* pProperties)</unmanaged>	
+            <unmanaged-short>IXACT3SoundBank::GetCueProperties</unmanaged-short>	
+        </member>
+        <member name="M:SharpDX.XACT3.SoundBank.Prepare(System.Int16,System.Int32,System.Int32)">
+            <summary>	
+            No documentation.	
+            </summary>	
+            <param name="cueIndex">No documentation.</param>	
+            <param name="flags">No documentation.</param>	
+            <param name="timeOffset">No documentation.</param>	
+            <returns>No documentation.</returns>	
+            <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='IXACT3SoundBank::Prepare']/*"/>	
+            <unmanaged>HRESULT IXACT3SoundBank::Prepare([In] unsigned short nCueIndex,[In] unsigned int dwFlags,[In] int timeOffset,[Out] IXACT3Cue** ppCue)</unmanaged>	
+            <unmanaged-short>IXACT3SoundBank::Prepare</unmanaged-short>	
+        </member>
+        <member name="M:SharpDX.XACT3.SoundBank.Play(System.Int16,System.Int32,System.Int32)">
+            <summary>	
+            No documentation.	
+            </summary>	
+            <param name="cueIndex">No documentation.</param>	
+            <param name="flags">No documentation.</param>	
+            <param name="timeOffset">No documentation.</param>	
+            <returns>No documentation.</returns>	
+            <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='IXACT3SoundBank::Play']/*"/>	
+            <unmanaged>HRESULT IXACT3SoundBank::Play([In] unsigned short nCueIndex,[In] unsigned int dwFlags,[In] int timeOffset,[Out, Optional] IXACT3Cue** ppCue)</unmanaged>	
+            <unmanaged-short>IXACT3SoundBank::Play</unmanaged-short>	
+        </member>
+        <member name="M:SharpDX.XACT3.SoundBank.Stop(System.Int16,SharpDX.XACT3.StopFlags)">
+            <summary>	
+            No documentation.	
+            </summary>	
+            <param name="cueIndex">No documentation.</param>	
+            <param name="flags">No documentation.</param>	
+            <returns>No documentation.</returns>	
+            <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='IXACT3SoundBank::Stop']/*"/>	
+            <unmanaged>HRESULT IXACT3SoundBank::Stop([In] unsigned short nCueIndex,[In] XACT_STOP_FLAGS dwFlags)</unmanaged>	
+            <unmanaged-short>IXACT3SoundBank::Stop</unmanaged-short>	
+        </member>
+        <member name="M:SharpDX.XACT3.SoundBank.Destroy">
+            <summary>	
+            No documentation.	
+            </summary>	
+            <returns>No documentation.</returns>	
+            <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='IXACT3SoundBank::Destroy']/*"/>	
+            <unmanaged>HRESULT IXACT3SoundBank::Destroy()</unmanaged>	
+            <unmanaged-short>IXACT3SoundBank::Destroy</unmanaged-short>	
+        </member>
+        <member name="M:SharpDX.XACT3.SoundBank.GetState(System.Int32@)">
+            <summary>	
+            No documentation.	
+            </summary>	
+            <param name="stateRef">No documentation.</param>	
+            <returns>No documentation.</returns>	
+            <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='IXACT3SoundBank::GetState']/*"/>	
+            <unmanaged>HRESULT IXACT3SoundBank::GetState([Out] unsigned int* pdwState)</unmanaged>	
+            <unmanaged-short>IXACT3SoundBank::GetState</unmanaged-short>	
+        </member>
+        <member name="M:SharpDX.XACT3.SoundBank.#ctor(SharpDX.XACT3.AudioEngine,System.IO.Stream)">
+            <summary>
+            Initializes a new instance of the <see cref="T:SharpDX.XACT3.SoundBank"/> class from a soundbank stream.
+            </summary>
+            <param name="audioEngine">The engine.</param>
+            <param name="stream">The soundbank stream stream.</param>
+            <unmanaged>HRESULT IXACT3Engine::CreateSoundBank([In] const void* pvBuffer,[In] unsigned int dwSize,[In] unsigned int dwFlags,[In] unsigned int dwAllocAttributes,[Out, Fast] IXACT3SoundBank** ppSoundBank)</unmanaged>
+        </member>
+        <member name="M:SharpDX.XACT3.SoundBank.OnNotificationDelegate(SharpDX.XACT3.Notification)">
+            <summary>
+            Called when an internal notification occurred.
+            </summary>
+            <param name="notification">The notification.</param>
+        </member>
+        <member name="M:SharpDX.XACT3.SoundBank.RegisterNotification(SharpDX.XACT3.NotificationType)">
+            <summary>
+            Registers this instance to notify for a type of notification.
+            </summary>
+            <param name="notificationType">Type of the notification.</param>
+        </member>
+        <member name="M:SharpDX.XACT3.SoundBank.UnregisterNotification(SharpDX.XACT3.NotificationType)">
+            <summary>
+            Unregisters this instance to notify for a type of notification.
+            </summary>
+            <param name="notificationType">Type of the notification.</param>
+        </member>
+        <member name="P:SharpDX.XACT3.SoundBank.CueCount">
+            <summary>	
+            No documentation.	
+            </summary>	
+            <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='IXACT3SoundBank::GetNumCues']/*"/>	
+            <unmanaged>GetNumCues</unmanaged>	
+            <unmanaged-short>GetNumCues</unmanaged-short>	
+            <unmanaged>HRESULT IXACT3SoundBank::GetNumCues([Out] unsigned short* pnNumCues)</unmanaged>
+        </member>
+        <member name="P:SharpDX.XACT3.SoundBank.AudioEngine">
+            <summary>
+            Gets or sets the audio engine.
+            </summary>
+            <value>
+            The audio engine.
+            </value>
+        </member>
+        <member name="E:SharpDX.XACT3.SoundBank.OnNotification">
+            <summary>
+            Occurs when a Soundbank event occurs.
+            </summary>
+            <remarks>
+            Use <see cref="M:SharpDX.XACT3.SoundBank.RegisterNotification(SharpDX.XACT3.NotificationType)"/> to register types.
+            </remarks>
+        </member>
+        <member name="P:SharpDX.XACT3.SoundBank.IsInUse">
+            <summary>
+            Gets a value indicating whether this instance is referenced by at least one valid cue instance or other client. For example, the game itself might reference the sound bank. 
+            </summary>
+            <value>
+              <c>true</c> if this instance is in use; otherwise, <c>false</c>.
+            </value>
+        </member>
+        <member name="T:SharpDX.XACT3.Wave">
+            <summary>	
+            No documentation.	
+            </summary>	
+            <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='IXACT3Wave']/*"/>	
+            <unmanaged>IXACT3Wave</unmanaged>	
+            <unmanaged-short>IXACT3Wave</unmanaged-short>	
+        </member>
+        <member name="M:SharpDX.XACT3.Wave.#ctor(System.IntPtr)">
+            <summary>
+            Initializes a new instance of the <see cref="T:SharpDX.XACT3.Wave"/> class.
+            </summary>
+            <param name="nativePtr">The native pointer.</param>	
+        </member>
+        <member name="M:SharpDX.XACT3.Wave.op_Explicit(System.IntPtr)~SharpDX.XACT3.Wave">
+            <summary>
+            Performs an explicit conversion from <see cref="T:System.IntPtr"/> to <see cref="T:SharpDX.XACT3.Wave"/>. (This method is a shortcut to <see cref="P:SharpDX.CppObject.NativePointer"/>) 
+            </summary>
+            <param name="nativePointer">The native pointer.</param>
+            <returns>
+            The result of the conversion.
+            </returns>
+        </member>
+        <member name="M:SharpDX.XACT3.Wave.Destroy">
+            <summary>	
+            No documentation.	
+            </summary>	
+            <returns>No documentation.</returns>	
+            <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='IXACT3Wave::Destroy']/*"/>	
+            <unmanaged>HRESULT IXACT3Wave::Destroy()</unmanaged>	
+            <unmanaged-short>IXACT3Wave::Destroy</unmanaged-short>	
+        </member>
+        <member name="M:SharpDX.XACT3.Wave.Play">
+            <summary>	
+            No documentation.	
+            </summary>	
+            <returns>No documentation.</returns>	
+            <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='IXACT3Wave::Play']/*"/>	
+            <unmanaged>HRESULT IXACT3Wave::Play()</unmanaged>	
+            <unmanaged-short>IXACT3Wave::Play</unmanaged-short>	
+        </member>
+        <member name="M:SharpDX.XACT3.Wave.Stop(SharpDX.XACT3.StopFlags)">
+            <summary>	
+            No documentation.	
+            </summary>	
+            <param name="flags">No documentation.</param>	
+            <returns>No documentation.</returns>	
+            <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='IXACT3Wave::Stop']/*"/>	
+            <unmanaged>HRESULT IXACT3Wave::Stop([In] XACT_STOP_FLAGS dwFlags)</unmanaged>	
+            <unmanaged-short>IXACT3Wave::Stop</unmanaged-short>	
+        </member>
+        <member name="M:SharpDX.XACT3.Wave.Pause(SharpDX.Bool)">
+            <summary>	
+            No documentation.	
+            </summary>	
+            <param name="pause">No documentation.</param>	
+            <returns>No documentation.</returns>	
+            <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='IXACT3Wave::Pause']/*"/>	
+            <unmanaged>HRESULT IXACT3Wave::Pause([In] BOOL fPause)</unmanaged>	
+            <unmanaged-short>IXACT3Wave::Pause</unmanaged-short>	
+        </member>
+        <member name="M:SharpDX.XACT3.Wave.GetState(SharpDX.XACT3.WaveState@)">
+            <summary>	
+            No documentation.	
+            </summary>	
+            <param name="stateRef">No documentation.</param>	
+            <returns>No documentation.</returns>	
+            <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='IXACT3Wave::GetState']/*"/>	
+            <unmanaged>HRESULT IXACT3Wave::GetState([Out] XACT_WAVE_STATE* pdwState)</unmanaged>	
+            <unmanaged-short>IXACT3Wave::GetState</unmanaged-short>	
+        </member>
+        <member name="M:SharpDX.XACT3.Wave.SetPitch(System.Int16)">
+            <summary>	
+            No documentation.	
+            </summary>	
+            <param name="pitch">No documentation.</param>	
+            <returns>No documentation.</returns>	
+            <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='IXACT3Wave::SetPitch']/*"/>	
+            <unmanaged>HRESULT IXACT3Wave::SetPitch([In] short pitch)</unmanaged>	
+            <unmanaged-short>IXACT3Wave::SetPitch</unmanaged-short>	
+        </member>
+        <member name="M:SharpDX.XACT3.Wave.SetVolume(System.Single)">
+            <summary>	
+            No documentation.	
+            </summary>	
+            <param name="volume">No documentation.</param>	
+            <returns>No documentation.</returns>	
+            <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='IXACT3Wave::SetVolume']/*"/>	
+            <unmanaged>HRESULT IXACT3Wave::SetVolume([In] float volume)</unmanaged>	
+            <unmanaged-short>IXACT3Wave::SetVolume</unmanaged-short>	
+        </member>
+        <member name="M:SharpDX.XACT3.Wave.SetMatrixCoefficients(System.Int32,System.Int32,System.Single[])">
+            <summary>	
+            No documentation.	
+            </summary>	
+            <param name="srcChannelCount">No documentation.</param>	
+            <param name="dstChannelCount">No documentation.</param>	
+            <param name="matrixCoefficientsRef">No documentation.</param>	
+            <returns>No documentation.</returns>	
+            <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='IXACT3Wave::SetMatrixCoefficients']/*"/>	
+            <unmanaged>HRESULT IXACT3Wave::SetMatrixCoefficients([In] unsigned int uSrcChannelCount,[In] unsigned int uDstChannelCount,[In, Buffer] float* pMatrixCoefficients)</unmanaged>	
+            <unmanaged-short>IXACT3Wave::SetMatrixCoefficients</unmanaged-short>	
+        </member>
+        <member name="M:SharpDX.XACT3.Wave.GetProperties(SharpDX.XACT3.WaveInstanceProperties@)">
+            <summary>	
+            No documentation.	
+            </summary>	
+            <param name="propertiesRef">No documentation.</param>	
+            <returns>No documentation.</returns>	
+            <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='IXACT3Wave::GetProperties']/*"/>	
+            <unmanaged>HRESULT IXACT3Wave::GetProperties([Out] XACT_WAVE_INSTANCE_PROPERTIES* pProperties)</unmanaged>	
+            <unmanaged-short>IXACT3Wave::GetProperties</unmanaged-short>	
+        </member>
+        <member name="M:SharpDX.XACT3.Wave.OnNotificationDelegate(SharpDX.XACT3.Notification)">
+            <summary>
+            Called when an internal notification occurred.
+            </summary>
+            <param name="notification">The notification.</param>
+        </member>
+        <member name="M:SharpDX.XACT3.Wave.RegisterNotification(SharpDX.XACT3.NotificationType)">
+            <summary>
+            Registers this instance to notify for a type of notification.
+            </summary>
+            <param name="notificationType">Type of the notification.</param>
+        </member>
+        <member name="M:SharpDX.XACT3.Wave.UnregisterNotification(SharpDX.XACT3.NotificationType)">
+            <summary>
+            Unregisters this instance to notify for a type of notification.
+            </summary>
+            <param name="notificationType">Type of the notification.</param>
+        </member>
+        <member name="P:SharpDX.XACT3.Wave.State">
+            <summary>	
+            No documentation.	
+            </summary>	
+            <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='IXACT3Wave::GetState']/*"/>	
+            <unmanaged>GetState</unmanaged>	
+            <unmanaged-short>GetState</unmanaged-short>	
+            <unmanaged>HRESULT IXACT3Wave::GetState([Out] XACT_WAVE_STATE* pdwState)</unmanaged>
+        </member>
+        <member name="P:SharpDX.XACT3.Wave.Pitch">
+            <summary>	
+            No documentation.	
+            </summary>	
+            <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='IXACT3Wave::SetPitch']/*"/>	
+            <unmanaged>SetPitch</unmanaged>	
+            <unmanaged-short>SetPitch</unmanaged-short>	
+            <unmanaged>HRESULT IXACT3Wave::SetPitch([In] short pitch)</unmanaged>
+        </member>
+        <member name="P:SharpDX.XACT3.Wave.Volume">
+            <summary>	
+            No documentation.	
+            </summary>	
+            <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='IXACT3Wave::SetVolume']/*"/>	
+            <unmanaged>SetVolume</unmanaged>	
+            <unmanaged-short>SetVolume</unmanaged-short>	
+            <unmanaged>HRESULT IXACT3Wave::SetVolume([In] float volume)</unmanaged>
+        </member>
+        <member name="P:SharpDX.XACT3.Wave.Properties">
+            <summary>	
+            No documentation.	
+            </summary>	
+            <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='IXACT3Wave::GetProperties']/*"/>	
+            <unmanaged>GetProperties</unmanaged>	
+            <unmanaged-short>GetProperties</unmanaged-short>	
+            <unmanaged>HRESULT IXACT3Wave::GetProperties([Out] XACT_WAVE_INSTANCE_PROPERTIES* pProperties)</unmanaged>
+        </member>
+        <member name="P:SharpDX.XACT3.Wave.AudioEngine">
+            <summary>
+            Gets or sets the audio engine.
+            </summary>
+            <value>
+            The audio engine.
+            </value>
+        </member>
+        <member name="E:SharpDX.XACT3.Wave.OnNotification">
+            <summary>
+            Occurs when a Wave event occurs.
+            </summary>
+            <remarks>
+            Use <see cref="M:SharpDX.XACT3.Wave.RegisterNotification(SharpDX.XACT3.NotificationType)"/> to register types.
+            </remarks>
+        </member>
+        <member name="T:SharpDX.XACT3.WaveBank">
+            <summary>	
+            No documentation.	
+            </summary>	
+            <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='IXACT3WaveBank']/*"/>	
+            <unmanaged>IXACT3WaveBank</unmanaged>	
+            <unmanaged-short>IXACT3WaveBank</unmanaged-short>	
+        </member>
+        <member name="M:SharpDX.XACT3.WaveBank.#ctor(System.IntPtr)">
+            <summary>
+            Initializes a new instance of the <see cref="T:SharpDX.XACT3.WaveBank"/> class.
+            </summary>
+            <param name="nativePtr">The native pointer.</param>	
+        </member>
+        <member name="M:SharpDX.XACT3.WaveBank.op_Explicit(System.IntPtr)~SharpDX.XACT3.WaveBank">
+            <summary>
+            Performs an explicit conversion from <see cref="T:System.IntPtr"/> to <see cref="T:SharpDX.XACT3.WaveBank"/>. (This method is a shortcut to <see cref="P:SharpDX.CppObject.NativePointer"/>) 
+            </summary>
+            <param name="nativePointer">The native pointer.</param>
+            <returns>
+            The result of the conversion.
+            </returns>
+        </member>
+        <member name="M:SharpDX.XACT3.WaveBank.Destroy">
+            <summary>	
+            No documentation.	
+            </summary>	
+            <returns>No documentation.</returns>	
+            <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='IXACT3WaveBank::Destroy']/*"/>	
+            <unmanaged>HRESULT IXACT3WaveBank::Destroy()</unmanaged>	
+            <unmanaged-short>IXACT3WaveBank::Destroy</unmanaged-short>	
+        </member>
+        <member name="M:SharpDX.XACT3.WaveBank.GetWaveCount(System.Int16@)">
+            <summary>	
+            No documentation.	
+            </summary>	
+            <param name="numWavesRef">No documentation.</param>	
+            <returns>No documentation.</returns>	
+            <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='IXACT3WaveBank::GetNumWaves']/*"/>	
+            <unmanaged>HRESULT IXACT3WaveBank::GetNumWaves([Out] unsigned short* pnNumWaves)</unmanaged>	
+            <unmanaged-short>IXACT3WaveBank::GetNumWaves</unmanaged-short>	
+        </member>
+        <member name="M:SharpDX.XACT3.WaveBank.GetWaveIndex(System.String)">
+            <summary>	
+            No documentation.	
+            </summary>	
+            <param name="friendlyName">No documentation.</param>	
+            <returns>No documentation.</returns>	
+            <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='IXACT3WaveBank::GetWaveIndex']/*"/>	
+            <unmanaged>unsigned short IXACT3WaveBank::GetWaveIndex([In] const char* szFriendlyName)</unmanaged>	
+            <unmanaged-short>IXACT3WaveBank::GetWaveIndex</unmanaged-short>	
+        </member>
+        <member name="M:SharpDX.XACT3.WaveBank.GetWaveProperties(System.Int16,SharpDX.XACT3.WaveProperties@)">
+            <summary>	
+            No documentation.	
+            </summary>	
+            <param name="waveIndex">No documentation.</param>	
+            <param name="wavePropertiesRef">No documentation.</param>	
+            <returns>No documentation.</returns>	
+            <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='IXACT3WaveBank::GetWaveProperties']/*"/>	
+            <unmanaged>HRESULT IXACT3WaveBank::GetWaveProperties([In] unsigned short nWaveIndex,[Out] XACT_WAVE_PROPERTIES* pWaveProperties)</unmanaged>	
+            <unmanaged-short>IXACT3WaveBank::GetWaveProperties</unmanaged-short>	
+        </member>
+        <member name="M:SharpDX.XACT3.WaveBank.Prepare_(System.Int16,SharpDX.XACT3.ContentPreparationFlags,System.Int32,System.Byte)">
+            <summary>	
+            No documentation.	
+            </summary>	
+            <param name="waveIndex">No documentation.</param>	
+            <param name="flags">No documentation.</param>	
+            <param name="playOffset">No documentation.</param>	
+            <param name="loopCount">No documentation.</param>	
+            <returns>No documentation.</returns>	
+            <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='IXACT3WaveBank::Prepare']/*"/>	
+            <unmanaged>HRESULT IXACT3WaveBank::Prepare([In] unsigned short nWaveIndex,[In] XACT_CONTENT_PREPARATION_FLAGS dwFlags,[In] unsigned int dwPlayOffset,[In] unsigned char nLoopCount,[Out] IXACT3Wave** ppWave)</unmanaged>	
+            <unmanaged-short>IXACT3WaveBank::Prepare</unmanaged-short>	
+        </member>
+        <member name="M:SharpDX.XACT3.WaveBank.Play_(System.Int16,SharpDX.XACT3.ContentPreparationFlags,System.Int32,System.Byte)">
+            <summary>	
+            No documentation.	
+            </summary>	
+            <param name="waveIndex">No documentation.</param>	
+            <param name="flags">No documentation.</param>	
+            <param name="playOffset">No documentation.</param>	
+            <param name="loopCount">No documentation.</param>	
+            <returns>No documentation.</returns>	
+            <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='IXACT3WaveBank::Play']/*"/>	
+            <unmanaged>HRESULT IXACT3WaveBank::Play([In] unsigned short nWaveIndex,[In] XACT_CONTENT_PREPARATION_FLAGS dwFlags,[In] unsigned int dwPlayOffset,[In] unsigned char nLoopCount,[Out] IXACT3Wave** ppWave)</unmanaged>	
+            <unmanaged-short>IXACT3WaveBank::Play</unmanaged-short>	
+        </member>
+        <member name="M:SharpDX.XACT3.WaveBank.Stop(System.Int16,SharpDX.XACT3.StopFlags)">
+            <summary>	
+            No documentation.	
+            </summary>	
+            <param name="waveIndex">No documentation.</param>	
+            <param name="flags">No documentation.</param>	
+            <returns>No documentation.</returns>	
+            <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='IXACT3WaveBank::Stop']/*"/>	
+            <unmanaged>HRESULT IXACT3WaveBank::Stop([In] unsigned short nWaveIndex,[In] XACT_STOP_FLAGS dwFlags)</unmanaged>	
+            <unmanaged-short>IXACT3WaveBank::Stop</unmanaged-short>	
+        </member>
+        <member name="M:SharpDX.XACT3.WaveBank.GetState(System.Int32@)">
+            <summary>	
+            No documentation.	
+            </summary>	
+            <param name="stateRef">No documentation.</param>	
+            <returns>No documentation.</returns>	
+            <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='IXACT3WaveBank::GetState']/*"/>	
+            <unmanaged>HRESULT IXACT3WaveBank::GetState([Out] unsigned int* pdwState)</unmanaged>	
+            <unmanaged-short>IXACT3WaveBank::GetState</unmanaged-short>	
+        </member>
+        <member name="M:SharpDX.XACT3.WaveBank.#ctor(SharpDX.XACT3.AudioEngine,System.IO.Stream)">
+            <summary>
+            Initializes a new instance of the <see cref="T:SharpDX.XACT3.WaveBank"/> class from a wave bank stream.
+            </summary>
+            <param name="audioEngine">The engine.</param>
+            <param name="stream">The wave bank stream.</param>
+            <unmanaged>HRESULT IXACT3Engine::CreateInMemoryWaveBank([In] const void* pvBuffer,[In] unsigned int dwSize,[In] unsigned int dwFlags,[In] unsigned int dwAllocAttributes,[Out, Fast] IXACT3WaveBank** ppWaveBank)</unmanaged>
+        </member>
+        <member name="M:SharpDX.XACT3.WaveBank.#ctor(SharpDX.XACT3.AudioEngine,System.String,System.Int32,System.Int16)">
+            <summary>
+            Initializes a new instance of the <see cref="T:SharpDX.XACT3.WaveBank"/> class from a file for async reading.
+            </summary>
+            <param name="audioEngine">The engine.</param>
+            <param name="fileName">Name of the file to load the wavebank from.</param>
+            <param name="offset">The offset into the stream.</param>
+            <param name="packetSize">Packet size used to load the stream.</param>
+        </member>
+        <member name="M:SharpDX.XACT3.WaveBank.OnNotificationDelegate(SharpDX.XACT3.Notification)">
+            <summary>
+            Called when an internal notification occurred.
+            </summary>
+            <param name="notification">The notification.</param>
+        </member>
+        <member name="M:SharpDX.XACT3.WaveBank.RegisterNotification(SharpDX.XACT3.NotificationType)">
+            <summary>
+            Registers this instance to notify for a type of notification.
+            </summary>
+            <param name="notificationType">Type of the notification.</param>
+        </member>
+        <member name="M:SharpDX.XACT3.WaveBank.UnregisterNotification(SharpDX.XACT3.NotificationType)">
+            <summary>
+            Unregisters this instance to notify for a type of notification.
+            </summary>
+            <param name="notificationType">Type of the notification.</param>
+        </member>
+        <member name="M:SharpDX.XACT3.WaveBank.Prepare(System.Int16,SharpDX.XACT3.ContentPreparationFlags,System.Int32,System.Byte)">
+            <summary>	
+            No documentation.	
+            </summary>	
+            <param name="waveIndex">No documentation.</param>	
+            <param name="flags">No documentation.</param>	
+            <param name="playOffset">No documentation.</param>	
+            <param name="loopCount">No documentation.</param>	
+            <returns>No documentation.</returns>	
+            <!-- Failed to insert some or all of included XML --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='IXACT3WaveBank::Prepare']/*"/>	
+            <unmanaged>HRESULT IXACT3WaveBank::Prepare([In] unsigned short nWaveIndex,[In] XACT_CONTENT_PREPARATION_FLAGS dwFlags,[In] unsigned int dwPlayOffset,[In] unsigned char nLoopCount,[Out] IXACT3Wave** ppWave)</unmanaged>	
+        </member>
+        <member name="M:SharpDX.XACT3.WaveBank.Play(System.Int16,SharpDX.XACT3.ContentPreparationFlags,System.Int32,System.Byte)">
+            <summary>	
+            No documentation.	
+            </summary>	
+            <param name="waveIndex">No documentation.</param>	
+            <param name="flags">No documentation.</param>	
+            <param name="playOffset">No documentation.</param>	
+            <param name="loopCount">No documentation.</param>	
+            <returns>No documentation.</returns>	
+            <!-- Failed to insert some or all of included XML --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='IXACT3WaveBank::Play']/*"/>	
+            <unmanaged>HRESULT IXACT3WaveBank::Play([In] unsigned short nWaveIndex,[In] XACT_CONTENT_PREPARATION_FLAGS dwFlags,[In] unsigned int dwPlayOffset,[In] unsigned char nLoopCount,[Out] IXACT3Wave** ppWave)</unmanaged>	
+        </member>
+        <member name="P:SharpDX.XACT3.WaveBank.WaveCount">
+            <summary>	
+            No documentation.	
+            </summary>	
+            <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='IXACT3WaveBank::GetNumWaves']/*"/>	
+            <unmanaged>GetNumWaves</unmanaged>	
+            <unmanaged-short>GetNumWaves</unmanaged-short>	
+            <unmanaged>HRESULT IXACT3WaveBank::GetNumWaves([Out] unsigned short* pnNumWaves)</unmanaged>
+        </member>
+        <member name="P:SharpDX.XACT3.WaveBank.State">
+            <summary>	
+            No documentation.	
+            </summary>	
+            <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='IXACT3WaveBank::GetState']/*"/>	
+            <unmanaged>GetState</unmanaged>	
+            <unmanaged-short>GetState</unmanaged-short>	
+            <unmanaged>HRESULT IXACT3WaveBank::GetState([Out] unsigned int* pdwState)</unmanaged>
+        </member>
+        <member name="P:SharpDX.XACT3.WaveBank.AudioEngine">
+            <summary>
+            Gets or sets the audio engine.
+            </summary>
+            <value>
+            The audio engine.
+            </value>
+        </member>
+        <member name="E:SharpDX.XACT3.WaveBank.OnNotification">
+            <summary>
+            Occurs when a WaveBank event occurs.
+            </summary>
+            <remarks>
+            Use <see cref="M:SharpDX.XACT3.WaveBank.RegisterNotification(SharpDX.XACT3.NotificationType)"/> to register types.
+            </remarks>
+        </member>
+        <member name="T:SharpDX.XACT3.CueInstanceProperties">
+            <summary>	
+            No documentation.	
+            </summary>	
+            <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='XACT_CUE_INSTANCE_PROPERTIES']/*"/>	
+            <unmanaged>XACT_CUE_INSTANCE_PROPERTIES</unmanaged>	
+            <unmanaged-short>XACT_CUE_INSTANCE_PROPERTIES</unmanaged-short>	
+        </member>
+        <member name="F:SharpDX.XACT3.CueInstanceProperties.AllocAttributes">
+            <summary>	
+            No documentation.	
+            </summary>	
+            <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='XACT_CUE_INSTANCE_PROPERTIES::allocAttributes']/*"/>	
+            <unmanaged>unsigned int allocAttributes</unmanaged>	
+            <unmanaged-short>unsigned int allocAttributes</unmanaged-short>	
+        </member>
+        <member name="F:SharpDX.XACT3.CueInstanceProperties.CueProperties">
+            <summary>	
+            No documentation.	
+            </summary>	
+            <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='XACT_CUE_INSTANCE_PROPERTIES::cueProperties']/*"/>	
+            <unmanaged>XACT_CUE_PROPERTIES cueProperties</unmanaged>	
+            <unmanaged-short>XACT_CUE_PROPERTIES cueProperties</unmanaged-short>	
+        </member>
+        <member name="F:SharpDX.XACT3.CueInstanceProperties.ActiveVariationProperties">
+            <summary>	
+            No documentation.	
+            </summary>	
+            <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='XACT_CUE_INSTANCE_PROPERTIES::activeVariationProperties']/*"/>	
+            <unmanaged>XACT_SOUND_VARIATION_PROPERTIES activeVariationProperties</unmanaged>	
+            <unmanaged-short>XACT_SOUND_VARIATION_PROPERTIES activeVariationProperties</unmanaged-short>	
+        </member>
+        <member name="T:SharpDX.XACT3.CueProperties">
+            <summary>	
+            No documentation.	
+            </summary>	
+            <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='XACT_CUE_PROPERTIES']/*"/>	
+            <unmanaged>XACT_CUE_PROPERTIES</unmanaged>	
+            <unmanaged-short>XACT_CUE_PROPERTIES</unmanaged-short>	
+        </member>
+        <member name="F:SharpDX.XACT3.CueProperties.FriendlyName">
+            <summary>	
+            No documentation.	
+            </summary>	
+            <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='XACT_CUE_PROPERTIES::friendlyName']/*"/>	
+            <unmanaged>char friendlyName[255]</unmanaged>	
+            <unmanaged-short>char friendlyName</unmanaged-short>	
+        </member>
+        <member name="F:SharpDX.XACT3.CueProperties.IsInteractive">
+            <summary>	
+            No documentation.	
+            </summary>	
+            <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='XACT_CUE_PROPERTIES::interactive']/*"/>	
+            <unmanaged>BOOL interactive</unmanaged>	
+            <unmanaged-short>BOOL interactive</unmanaged-short>	
+        </member>
+        <member name="F:SharpDX.XACT3.CueProperties.VariableIndex">
+            <summary>	
+            No documentation.	
+            </summary>	
+            <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='XACT_CUE_PROPERTIES::iaVariableIndex']/*"/>	
+            <unmanaged>unsigned short iaVariableIndex</unmanaged>	
+            <unmanaged-short>unsigned short iaVariableIndex</unmanaged-short>	
+        </member>
+        <member name="F:SharpDX.XACT3.CueProperties.VariationCount">
+            <summary>	
+            No documentation.	
+            </summary>	
+            <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='XACT_CUE_PROPERTIES::numVariations']/*"/>	
+            <unmanaged>unsigned short numVariations</unmanaged>	
+            <unmanaged-short>unsigned short numVariations</unmanaged-short>	
+        </member>
+        <member name="F:SharpDX.XACT3.CueProperties.MaxInstances">
+            <summary>	
+            No documentation.	
+            </summary>	
+            <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='XACT_CUE_PROPERTIES::maxInstances']/*"/>	
+            <unmanaged>unsigned char maxInstances</unmanaged>	
+            <unmanaged-short>unsigned char maxInstances</unmanaged-short>	
+        </member>
+        <member name="F:SharpDX.XACT3.CueProperties.CurrentInstances">
+            <summary>	
+            No documentation.	
+            </summary>	
+            <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='XACT_CUE_PROPERTIES::currentInstances']/*"/>	
+            <unmanaged>unsigned char currentInstances</unmanaged>	
+            <unmanaged-short>unsigned char currentInstances</unmanaged-short>	
+        </member>
+        <member name="T:SharpDX.XACT3.FileIoCallbacks">
+            <summary>	
+            No documentation.	
+            </summary>	
+            <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='XACT_FILEIO_CALLBACKS']/*"/>	
+            <unmanaged>XACT_FILEIO_CALLBACKS</unmanaged>	
+            <unmanaged-short>XACT_FILEIO_CALLBACKS</unmanaged-short>	
+        </member>
+        <member name="F:SharpDX.XACT3.FileIoCallbacks.ReadFileCallback">
+            <summary>	
+            No documentation.	
+            </summary>	
+            <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='XACT_FILEIO_CALLBACKS::readFileCallback']/*"/>	
+            <unmanaged>__function__stdcall* readFileCallback</unmanaged>	
+            <unmanaged-short>__function__stdcall readFileCallback</unmanaged-short>	
+        </member>
+        <member name="F:SharpDX.XACT3.FileIoCallbacks.GetOverlappedResultCallback">
+            <summary>	
+            No documentation.	
+            </summary>	
+            <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='XACT_FILEIO_CALLBACKS::getOverlappedResultCallback']/*"/>	
+            <unmanaged>__function__stdcall* getOverlappedResultCallback</unmanaged>	
+            <unmanaged-short>__function__stdcall getOverlappedResultCallback</unmanaged-short>	
+        </member>
+        <member name="T:SharpDX.XACT3.RawNotificationCue">
+            <summary>	
+            No documentation.	
+            </summary>	
+            <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='XACT_NOTIFICATION_CUE']/*"/>	
+            <unmanaged>XACT_NOTIFICATION_CUE</unmanaged>	
+            <unmanaged-short>XACT_NOTIFICATION_CUE</unmanaged-short>	
+        </member>
+        <member name="F:SharpDX.XACT3.RawNotificationCue.CueIndex">
+            <summary>	
+            No documentation.	
+            </summary>	
+            <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='XACT_NOTIFICATION_CUE::cueIndex']/*"/>	
+            <unmanaged>unsigned short cueIndex</unmanaged>	
+            <unmanaged-short>unsigned short cueIndex</unmanaged-short>	
+        </member>
+        <member name="F:SharpDX.XACT3.RawNotificationCue.SoundBankPointer">
+            <summary>	
+            No documentation.	
+            </summary>	
+            <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='XACT_NOTIFICATION_CUE::pSoundBank']/*"/>	
+            <unmanaged>IXACT3SoundBank* pSoundBank</unmanaged>	
+            <unmanaged-short>IXACT3SoundBank pSoundBank</unmanaged-short>	
+        </member>
+        <member name="F:SharpDX.XACT3.RawNotificationCue.CuePointer">
+            <summary>	
+            No documentation.	
+            </summary>	
+            <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='XACT_NOTIFICATION_CUE::pCue']/*"/>	
+            <unmanaged>IXACT3Cue* pCue</unmanaged>	
+            <unmanaged-short>IXACT3Cue pCue</unmanaged-short>	
+        </member>
+        <member name="T:SharpDX.XACT3.RawNotificationDescription">
+            <summary>	
+            No documentation.	
+            </summary>	
+            <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='XACT_NOTIFICATION_DESCRIPTION']/*"/>	
+            <unmanaged>XACT_NOTIFICATION_DESCRIPTION</unmanaged>	
+            <unmanaged-short>XACT_NOTIFICATION_DESCRIPTION</unmanaged-short>	
+        </member>
+        <member name="F:SharpDX.XACT3.RawNotificationDescription.Type">
+            <summary>	
+            No documentation.	
+            </summary>	
+            <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='XACT_NOTIFICATION_DESCRIPTION::type']/*"/>	
+            <unmanaged>XACT_NOTIFICATION_TYPE type</unmanaged>	
+            <unmanaged-short>XACT_NOTIFICATION_TYPE type</unmanaged-short>	
+        </member>
+        <member name="F:SharpDX.XACT3.RawNotificationDescription.Flags">
+            <summary>	
+            No documentation.	
+            </summary>	
+            <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='XACT_NOTIFICATION_DESCRIPTION::flags']/*"/>	
+            <unmanaged>unsigned char flags</unmanaged>	
+            <unmanaged-short>unsigned char flags</unmanaged-short>	
+        </member>
+        <member name="F:SharpDX.XACT3.RawNotificationDescription.SoundBankPointer">
+            <summary>	
+            No documentation.	
+            </summary>	
+            <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='XACT_NOTIFICATION_DESCRIPTION::pSoundBank']/*"/>	
+            <unmanaged>IXACT3SoundBank* pSoundBank</unmanaged>	
+            <unmanaged-short>IXACT3SoundBank pSoundBank</unmanaged-short>	
+        </member>
+        <member name="F:SharpDX.XACT3.RawNotificationDescription.WaveBankPointer">
+            <summary>	
+            No documentation.	
+            </summary>	
+            <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='XACT_NOTIFICATION_DESCRIPTION::pWaveBank']/*"/>	
+            <unmanaged>IXACT3WaveBank* pWaveBank</unmanaged>	
+            <unmanaged-short>IXACT3WaveBank pWaveBank</unmanaged-short>	
+        </member>
+        <member name="F:SharpDX.XACT3.RawNotificationDescription.CuePointer">
+            <summary>	
+            No documentation.	
+            </summary>	
+            <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='XACT_NOTIFICATION_DESCRIPTION::pCue']/*"/>	
+            <unmanaged>IXACT3Cue* pCue</unmanaged>	
+            <unmanaged-short>IXACT3Cue pCue</unmanaged-short>	
+        </member>
+        <member name="F:SharpDX.XACT3.RawNotificationDescription.WavePointer">
+            <summary>	
+            No documentation.	
+            </summary>	
+            <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='XACT_NOTIFICATION_DESCRIPTION::pWave']/*"/>	
+            <unmanaged>IXACT3Wave* pWave</unmanaged>	
+            <unmanaged-short>IXACT3Wave pWave</unmanaged-short>	
+        </member>
+        <member name="F:SharpDX.XACT3.RawNotificationDescription.CueIndex">
+            <summary>	
+            No documentation.	
+            </summary>	
+            <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='XACT_NOTIFICATION_DESCRIPTION::cueIndex']/*"/>	
+            <unmanaged>unsigned short cueIndex</unmanaged>	
+            <unmanaged-short>unsigned short cueIndex</unmanaged-short>	
+        </member>
+        <member name="F:SharpDX.XACT3.RawNotificationDescription.WaveIndex">
+            <summary>	
+            No documentation.	
+            </summary>	
+            <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='XACT_NOTIFICATION_DESCRIPTION::waveIndex']/*"/>	
+            <unmanaged>unsigned short waveIndex</unmanaged>	
+            <unmanaged-short>unsigned short waveIndex</unmanaged-short>	
+        </member>
+        <member name="F:SharpDX.XACT3.RawNotificationDescription.ContextPointer">
+            <summary>	
+            No documentation.	
+            </summary>	
+            <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='XACT_NOTIFICATION_DESCRIPTION::pvContext']/*"/>	
+            <unmanaged>void* pvContext</unmanaged>	
+            <unmanaged-short>void pvContext</unmanaged-short>	
+        </member>
+        <member name="T:SharpDX.XACT3.RawNotificationGui">
+            <summary>	
+            No documentation.	
+            </summary>	
+            <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='XACT_NOTIFICATION_GUI']/*"/>	
+            <unmanaged>XACT_NOTIFICATION_GUI</unmanaged>	
+            <unmanaged-short>XACT_NOTIFICATION_GUI</unmanaged-short>	
+        </member>
+        <member name="F:SharpDX.XACT3.RawNotificationGui.Reserved">
+            <summary>	
+            No documentation.	
+            </summary>	
+            <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='XACT_NOTIFICATION_GUI::reserved']/*"/>	
+            <unmanaged>unsigned int reserved</unmanaged>	
+            <unmanaged-short>unsigned int reserved</unmanaged-short>	
+        </member>
+        <member name="T:SharpDX.XACT3.RawNotificationMarker">
+            <summary>	
+            No documentation.	
+            </summary>	
+            <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='XACT_NOTIFICATION_MARKER']/*"/>	
+            <unmanaged>XACT_NOTIFICATION_MARKER</unmanaged>	
+            <unmanaged-short>XACT_NOTIFICATION_MARKER</unmanaged-short>	
+        </member>
+        <member name="F:SharpDX.XACT3.RawNotificationMarker.CueIndex">
+            <summary>	
+            No documentation.	
+            </summary>	
+            <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='XACT_NOTIFICATION_MARKER::cueIndex']/*"/>	
+            <unmanaged>unsigned short cueIndex</unmanaged>	
+            <unmanaged-short>unsigned short cueIndex</unmanaged-short>	
+        </member>
+        <member name="F:SharpDX.XACT3.RawNotificationMarker.SoundBankPointer">
+            <summary>	
+            No documentation.	
+            </summary>	
+            <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='XACT_NOTIFICATION_MARKER::pSoundBank']/*"/>	
+            <unmanaged>IXACT3SoundBank* pSoundBank</unmanaged>	
+            <unmanaged-short>IXACT3SoundBank pSoundBank</unmanaged-short>	
+        </member>
+        <member name="F:SharpDX.XACT3.RawNotificationMarker.CuePointer">
+            <summary>	
+            No documentation.	
+            </summary>	
+            <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='XACT_NOTIFICATION_MARKER::pCue']/*"/>	
+            <unmanaged>IXACT3Cue* pCue</unmanaged>	
+            <unmanaged-short>IXACT3Cue pCue</unmanaged-short>	
+        </member>
+        <member name="F:SharpDX.XACT3.RawNotificationMarker.Marker">
+            <summary>	
+            No documentation.	
+            </summary>	
+            <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='XACT_NOTIFICATION_MARKER::marker']/*"/>	
+            <unmanaged>unsigned int marker</unmanaged>	
+            <unmanaged-short>unsigned int marker</unmanaged-short>	
+        </member>
+        <member name="T:SharpDX.XACT3.RawNotificationSoundbank">
+            <summary>	
+            No documentation.	
+            </summary>	
+            <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='XACT_NOTIFICATION_SOUNDBANK']/*"/>	
+            <unmanaged>XACT_NOTIFICATION_SOUNDBANK</unmanaged>	
+            <unmanaged-short>XACT_NOTIFICATION_SOUNDBANK</unmanaged-short>	
+        </member>
+        <member name="F:SharpDX.XACT3.RawNotificationSoundbank.SoundBankPointer">
+            <summary>	
+            No documentation.	
+            </summary>	
+            <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='XACT_NOTIFICATION_SOUNDBANK::pSoundBank']/*"/>	
+            <unmanaged>IXACT3SoundBank* pSoundBank</unmanaged>	
+            <unmanaged-short>IXACT3SoundBank pSoundBank</unmanaged-short>	
+        </member>
+        <member name="T:SharpDX.XACT3.RawNotificationVariable">
+            <summary>	
+            No documentation.	
+            </summary>	
+            <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='XACT_NOTIFICATION_VARIABLE']/*"/>	
+            <unmanaged>XACT_NOTIFICATION_VARIABLE</unmanaged>	
+            <unmanaged-short>XACT_NOTIFICATION_VARIABLE</unmanaged-short>	
+        </member>
+        <member name="F:SharpDX.XACT3.RawNotificationVariable.CueIndex">
+            <summary>	
+            No documentation.	
+            </summary>	
+            <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='XACT_NOTIFICATION_VARIABLE::cueIndex']/*"/>	
+            <unmanaged>unsigned short cueIndex</unmanaged>	
+            <unmanaged-short>unsigned short cueIndex</unmanaged-short>	
+        </member>
+        <member name="F:SharpDX.XACT3.RawNotificationVariable.SoundBankPointer">
+            <summary>	
+            No documentation.	
+            </summary>	
+            <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='XACT_NOTIFICATION_VARIABLE::pSoundBank']/*"/>	
+            <unmanaged>IXACT3SoundBank* pSoundBank</unmanaged>	
+            <unmanaged-short>IXACT3SoundBank pSoundBank</unmanaged-short>	
+        </member>
+        <member name="F:SharpDX.XACT3.RawNotificationVariable.CuePointer">
+            <summary>	
+            No documentation.	
+            </summary>	
+            <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='XACT_NOTIFICATION_VARIABLE::pCue']/*"/>	
+            <unmanaged>IXACT3Cue* pCue</unmanaged>	
+            <unmanaged-short>IXACT3Cue pCue</unmanaged-short>	
+        </member>
+        <member name="F:SharpDX.XACT3.RawNotificationVariable.VariableIndex">
+            <summary>	
+            No documentation.	
+            </summary>	
+            <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='XACT_NOTIFICATION_VARIABLE::variableIndex']/*"/>	
+            <unmanaged>unsigned short variableIndex</unmanaged>	
+            <unmanaged-short>unsigned short variableIndex</unmanaged-short>	
+        </member>
+        <member name="F:SharpDX.XACT3.RawNotificationVariable.VariableValue">
+            <summary>	
+            No documentation.	
+            </summary>	
+            <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='XACT_NOTIFICATION_VARIABLE::variableValue']/*"/>	
+            <unmanaged>float variableValue</unmanaged>	
+            <unmanaged-short>float variableValue</unmanaged-short>	
+        </member>
+        <member name="F:SharpDX.XACT3.RawNotificationVariable.Local">
+            <summary>	
+            No documentation.	
+            </summary>	
+            <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='XACT_NOTIFICATION_VARIABLE::local']/*"/>	
+            <unmanaged>BOOL local</unmanaged>	
+            <unmanaged-short>BOOL local</unmanaged-short>	
+        </member>
+        <member name="T:SharpDX.XACT3.RawNotificationWave">
+            <summary>	
+            No documentation.	
+            </summary>	
+            <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='XACT_NOTIFICATION_WAVE']/*"/>	
+            <unmanaged>XACT_NOTIFICATION_WAVE</unmanaged>	
+            <unmanaged-short>XACT_NOTIFICATION_WAVE</unmanaged-short>	
+        </member>
+        <member name="F:SharpDX.XACT3.RawNotificationWave.WaveBankPointer">
+            <summary>	
+            No documentation.	
+            </summary>	
+            <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='XACT_NOTIFICATION_WAVE::pWaveBank']/*"/>	
+            <unmanaged>IXACT3WaveBank* pWaveBank</unmanaged>	
+            <unmanaged-short>IXACT3WaveBank pWaveBank</unmanaged-short>	
+        </member>
+        <member name="F:SharpDX.XACT3.RawNotificationWave.WaveIndex">
+            <summary>	
+            No documentation.	
+            </summary>	
+            <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='XACT_NOTIFICATION_WAVE::waveIndex']/*"/>	
+            <unmanaged>unsigned short waveIndex</unmanaged>	
+            <unmanaged-short>unsigned short waveIndex</unmanaged-short>	
+        </member>
+        <member name="F:SharpDX.XACT3.RawNotificationWave.CueIndex">
+            <summary>	
+            No documentation.	
+            </summary>	
+            <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='XACT_NOTIFICATION_WAVE::cueIndex']/*"/>	
+            <unmanaged>unsigned short cueIndex</unmanaged>	
+            <unmanaged-short>unsigned short cueIndex</unmanaged-short>	
+        </member>
+        <member name="F:SharpDX.XACT3.RawNotificationWave.SoundBankPointer">
+            <summary>	
+            No documentation.	
+            </summary>	
+            <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='XACT_NOTIFICATION_WAVE::pSoundBank']/*"/>	
+            <unmanaged>IXACT3SoundBank* pSoundBank</unmanaged>	
+            <unmanaged-short>IXACT3SoundBank pSoundBank</unmanaged-short>	
+        </member>
+        <member name="F:SharpDX.XACT3.RawNotificationWave.CuePointer">
+            <summary>	
+            No documentation.	
+            </summary>	
+            <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='XACT_NOTIFICATION_WAVE::pCue']/*"/>	
+            <unmanaged>IXACT3Cue* pCue</unmanaged>	
+            <unmanaged-short>IXACT3Cue pCue</unmanaged-short>	
+        </member>
+        <member name="F:SharpDX.XACT3.RawNotificationWave.WavePointer">
+            <summary>	
+            No documentation.	
+            </summary>	
+            <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='XACT_NOTIFICATION_WAVE::pWave']/*"/>	
+            <unmanaged>IXACT3Wave* pWave</unmanaged>	
+            <unmanaged-short>IXACT3Wave pWave</unmanaged-short>	
+        </member>
+        <member name="T:SharpDX.XACT3.RawNotificationWavebank">
+            <summary>	
+            No documentation.	
+            </summary>	
+            <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='XACT_NOTIFICATION_WAVEBANK']/*"/>	
+            <unmanaged>XACT_NOTIFICATION_WAVEBANK</unmanaged>	
+            <unmanaged-short>XACT_NOTIFICATION_WAVEBANK</unmanaged-short>	
+        </member>
+        <member name="F:SharpDX.XACT3.RawNotificationWavebank.WaveBankPointer">
+            <summary>	
+            No documentation.	
+            </summary>	
+            <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='XACT_NOTIFICATION_WAVEBANK::pWaveBank']/*"/>	
+            <unmanaged>IXACT3WaveBank* pWaveBank</unmanaged>	
+            <unmanaged-short>IXACT3WaveBank pWaveBank</unmanaged-short>	
+        </member>
+        <member name="T:SharpDX.XACT3.RendererDetails">
+            <summary>	
+            No documentation.	
+            </summary>	
+            <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='XACT_RENDERER_DETAILS']/*"/>	
+            <unmanaged>XACT_RENDERER_DETAILS</unmanaged>	
+            <unmanaged-short>XACT_RENDERER_DETAILS</unmanaged-short>	
+        </member>
+        <member name="F:SharpDX.XACT3.RendererDetails.RendererId">
+            <summary>	
+            No documentation.	
+            </summary>	
+            <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='XACT_RENDERER_DETAILS::rendererID']/*"/>	
+            <unmanaged>wchar_t rendererID[255]</unmanaged>	
+            <unmanaged-short>wchar_t rendererID</unmanaged-short>	
+        </member>
+        <member name="F:SharpDX.XACT3.RendererDetails.DisplayName">
+            <summary>	
+            No documentation.	
+            </summary>	
+            <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='XACT_RENDERER_DETAILS::displayName']/*"/>	
+            <unmanaged>wchar_t displayName[255]</unmanaged>	
+            <unmanaged-short>wchar_t displayName</unmanaged-short>	
+        </member>
+        <member name="F:SharpDX.XACT3.RendererDetails.IsDefault">
+            <summary>	
+            No documentation.	
+            </summary>	
+            <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='XACT_RENDERER_DETAILS::defaultDevice']/*"/>	
+            <unmanaged>BOOL defaultDevice</unmanaged>	
+            <unmanaged-short>BOOL defaultDevice</unmanaged-short>	
+        </member>
+        <member name="T:SharpDX.XACT3.SoundProperties">
+            <summary>	
+            No documentation.	
+            </summary>	
+            <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='XACT_SOUND_PROPERTIES']/*"/>	
+            <unmanaged>XACT_SOUND_PROPERTIES</unmanaged>	
+            <unmanaged-short>XACT_SOUND_PROPERTIES</unmanaged-short>	
+        </member>
+        <member name="F:SharpDX.XACT3.SoundProperties.Category">
+            <summary>	
+            No documentation.	
+            </summary>	
+            <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='XACT_SOUND_PROPERTIES::category']/*"/>	
+            <unmanaged>unsigned short category</unmanaged>	
+            <unmanaged-short>unsigned short category</unmanaged-short>	
+        </member>
+        <member name="F:SharpDX.XACT3.SoundProperties.Priority">
+            <summary>	
+            No documentation.	
+            </summary>	
+            <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='XACT_SOUND_PROPERTIES::priority']/*"/>	
+            <unmanaged>unsigned char priority</unmanaged>	
+            <unmanaged-short>unsigned char priority</unmanaged-short>	
+        </member>
+        <member name="F:SharpDX.XACT3.SoundProperties.Pitch">
+            <summary>	
+            No documentation.	
+            </summary>	
+            <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='XACT_SOUND_PROPERTIES::pitch']/*"/>	
+            <unmanaged>short pitch</unmanaged>	
+            <unmanaged-short>short pitch</unmanaged-short>	
+        </member>
+        <member name="F:SharpDX.XACT3.SoundProperties.Volume">
+            <summary>	
+            No documentation.	
+            </summary>	
+            <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='XACT_SOUND_PROPERTIES::volume']/*"/>	
+            <unmanaged>float volume</unmanaged>	
+            <unmanaged-short>float volume</unmanaged-short>	
+        </member>
+        <member name="T:SharpDX.XACT3.SoundVariationProperties">
+            <summary>	
+            No documentation.	
+            </summary>	
+            <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='XACT_SOUND_VARIATION_PROPERTIES']/*"/>	
+            <unmanaged>XACT_SOUND_VARIATION_PROPERTIES</unmanaged>	
+            <unmanaged-short>XACT_SOUND_VARIATION_PROPERTIES</unmanaged-short>	
+        </member>
+        <member name="F:SharpDX.XACT3.SoundVariationProperties.VariationProperties">
+            <summary>	
+            No documentation.	
+            </summary>	
+            <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='XACT_SOUND_VARIATION_PROPERTIES::variationProperties']/*"/>	
+            <unmanaged>XACT_VARIATION_PROPERTIES variationProperties</unmanaged>	
+            <unmanaged-short>XACT_VARIATION_PROPERTIES variationProperties</unmanaged-short>	
+        </member>
+        <member name="F:SharpDX.XACT3.SoundVariationProperties.SoundProperties">
+            <summary>	
+            No documentation.	
+            </summary>	
+            <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='XACT_SOUND_VARIATION_PROPERTIES::soundProperties']/*"/>	
+            <unmanaged>XACT_SOUND_PROPERTIES soundProperties</unmanaged>	
+            <unmanaged-short>XACT_SOUND_PROPERTIES soundProperties</unmanaged-short>	
+        </member>
+        <member name="T:SharpDX.XACT3.StreamingParameters">
+            <summary>	
+            No documentation.	
+            </summary>	
+            <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='XACT_STREAMING_PARAMETERS']/*"/>	
+            <unmanaged>XACT_STREAMING_PARAMETERS</unmanaged>	
+            <unmanaged-short>XACT_STREAMING_PARAMETERS</unmanaged-short>	
+        </member>
+        <member name="F:SharpDX.XACT3.StreamingParameters.File">
+            <summary>	
+            No documentation.	
+            </summary>	
+            <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='XACT_STREAMING_PARAMETERS::file']/*"/>	
+            <unmanaged>void* file</unmanaged>	
+            <unmanaged-short>void file</unmanaged-short>	
+        </member>
+        <member name="F:SharpDX.XACT3.StreamingParameters.Offset">
+            <summary>	
+            No documentation.	
+            </summary>	
+            <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='XACT_STREAMING_PARAMETERS::offset']/*"/>	
+            <unmanaged>unsigned int offset</unmanaged>	
+            <unmanaged-short>unsigned int offset</unmanaged-short>	
+        </member>
+        <member name="F:SharpDX.XACT3.StreamingParameters.Flags">
+            <summary>	
+            No documentation.	
+            </summary>	
+            <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='XACT_STREAMING_PARAMETERS::flags']/*"/>	
+            <unmanaged>unsigned int flags</unmanaged>	
+            <unmanaged-short>unsigned int flags</unmanaged-short>	
+        </member>
+        <member name="F:SharpDX.XACT3.StreamingParameters.PacketSize">
+            <summary>	
+            No documentation.	
+            </summary>	
+            <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='XACT_STREAMING_PARAMETERS::packetSize']/*"/>	
+            <unmanaged>unsigned short packetSize</unmanaged>	
+            <unmanaged-short>unsigned short packetSize</unmanaged-short>	
+        </member>
+        <member name="T:SharpDX.XACT3.TrackProperties">
+            <summary>	
+            No documentation.	
+            </summary>	
+            <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='XACT_TRACK_PROPERTIES']/*"/>	
+            <unmanaged>XACT_TRACK_PROPERTIES</unmanaged>	
+            <unmanaged-short>XACT_TRACK_PROPERTIES</unmanaged-short>	
+        </member>
+        <member name="F:SharpDX.XACT3.TrackProperties.Duration">
+            <summary>	
+            No documentation.	
+            </summary>	
+            <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='XACT_TRACK_PROPERTIES::duration']/*"/>	
+            <unmanaged>int duration</unmanaged>	
+            <unmanaged-short>int duration</unmanaged-short>	
+        </member>
+        <member name="F:SharpDX.XACT3.TrackProperties.VariationCount">
+            <summary>	
+            No documentation.	
+            </summary>	
+            <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='XACT_TRACK_PROPERTIES::numVariations']/*"/>	
+            <unmanaged>unsigned short numVariations</unmanaged>	
+            <unmanaged-short>unsigned short numVariations</unmanaged-short>	
+        </member>
+        <member name="F:SharpDX.XACT3.TrackProperties.ChannelCount">
+            <summary>	
+            No documentation.	
+            </summary>	
+            <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='XACT_TRACK_PROPERTIES::numChannels']/*"/>	
+            <unmanaged>unsigned char numChannels</unmanaged>	
+            <unmanaged-short>unsigned char numChannels</unmanaged-short>	
+        </member>
+        <member name="F:SharpDX.XACT3.TrackProperties.WaveVariation">
+            <summary>	
+            No documentation.	
+            </summary>	
+            <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='XACT_TRACK_PROPERTIES::waveVariation']/*"/>	
+            <unmanaged>unsigned short waveVariation</unmanaged>	
+            <unmanaged-short>unsigned short waveVariation</unmanaged-short>	
+        </member>
+        <member name="F:SharpDX.XACT3.TrackProperties.LoopCount">
+            <summary>	
+            No documentation.	
+            </summary>	
+            <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='XACT_TRACK_PROPERTIES::loopCount']/*"/>	
+            <unmanaged>unsigned char loopCount</unmanaged>	
+            <unmanaged-short>unsigned char loopCount</unmanaged-short>	
+        </member>
+        <member name="T:SharpDX.XACT3.VariationProperties">
+            <summary>	
+            No documentation.	
+            </summary>	
+            <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='XACT_VARIATION_PROPERTIES']/*"/>	
+            <unmanaged>XACT_VARIATION_PROPERTIES</unmanaged>	
+            <unmanaged-short>XACT_VARIATION_PROPERTIES</unmanaged-short>	
+        </member>
+        <member name="F:SharpDX.XACT3.VariationProperties.Index">
+            <summary>	
+            No documentation.	
+            </summary>	
+            <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='XACT_VARIATION_PROPERTIES::index']/*"/>	
+            <unmanaged>unsigned short index</unmanaged>	
+            <unmanaged-short>unsigned short index</unmanaged-short>	
+        </member>
+        <member name="F:SharpDX.XACT3.VariationProperties.Weight">
+            <summary>	
+            No documentation.	
+            </summary>	
+            <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='XACT_VARIATION_PROPERTIES::weight']/*"/>	
+            <unmanaged>unsigned char weight</unmanaged>	
+            <unmanaged-short>unsigned char weight</unmanaged-short>	
+        </member>
+        <member name="F:SharpDX.XACT3.VariationProperties.VariableMin">
+            <summary>	
+            No documentation.	
+            </summary>	
+            <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='XACT_VARIATION_PROPERTIES::iaVariableMin']/*"/>	
+            <unmanaged>float iaVariableMin</unmanaged>	
+            <unmanaged-short>float iaVariableMin</unmanaged-short>	
+        </member>
+        <member name="F:SharpDX.XACT3.VariationProperties.VariableMax">
+            <summary>	
+            No documentation.	
+            </summary>	
+            <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='XACT_VARIATION_PROPERTIES::iaVariableMax']/*"/>	
+            <unmanaged>float iaVariableMax</unmanaged>	
+            <unmanaged-short>float iaVariableMax</unmanaged-short>	
+        </member>
+        <member name="F:SharpDX.XACT3.VariationProperties.ShouldLinger">
+            <summary>	
+            No documentation.	
+            </summary>	
+            <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='XACT_VARIATION_PROPERTIES::linger']/*"/>	
+            <unmanaged>BOOL linger</unmanaged>	
+            <unmanaged-short>BOOL linger</unmanaged-short>	
+        </member>
+        <member name="T:SharpDX.XACT3.WaveBankData">
+            <summary>	
+            No documentation.	
+            </summary>	
+            <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='WAVEBANKDATA']/*"/>	
+            <unmanaged>WAVEBANKDATA</unmanaged>	
+            <unmanaged-short>WAVEBANKDATA</unmanaged-short>	
+        </member>
+        <member name="F:SharpDX.XACT3.WaveBankData.Flags">
+            <summary>	
+            No documentation.	
+            </summary>	
+            <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='WAVEBANKDATA::dwFlags']/*"/>	
+            <unmanaged>unsigned int dwFlags</unmanaged>	
+            <unmanaged-short>unsigned int dwFlags</unmanaged-short>	
+        </member>
+        <member name="F:SharpDX.XACT3.WaveBankData.EntryCount">
+            <summary>	
+            No documentation.	
+            </summary>	
+            <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='WAVEBANKDATA::dwEntryCount']/*"/>	
+            <unmanaged>unsigned int dwEntryCount</unmanaged>	
+            <unmanaged-short>unsigned int dwEntryCount</unmanaged-short>	
+        </member>
+        <member name="F:SharpDX.XACT3.WaveBankData.SzBankName">
+            <summary>	
+            No documentation.	
+            </summary>	
+            <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='WAVEBANKDATA::szBankName']/*"/>	
+            <unmanaged>char szBankName[64]</unmanaged>	
+            <unmanaged-short>char szBankName</unmanaged-short>	
+        </member>
+        <member name="F:SharpDX.XACT3.WaveBankData.EntryMetaDataElementSize">
+            <summary>	
+            No documentation.	
+            </summary>	
+            <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='WAVEBANKDATA::dwEntryMetaDataElementSize']/*"/>	
+            <unmanaged>unsigned int dwEntryMetaDataElementSize</unmanaged>	
+            <unmanaged-short>unsigned int dwEntryMetaDataElementSize</unmanaged-short>	
+        </member>
+        <member name="F:SharpDX.XACT3.WaveBankData.EntryNameElementSize">
+            <summary>	
+            No documentation.	
+            </summary>	
+            <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='WAVEBANKDATA::dwEntryNameElementSize']/*"/>	
+            <unmanaged>unsigned int dwEntryNameElementSize</unmanaged>	
+            <unmanaged-short>unsigned int dwEntryNameElementSize</unmanaged-short>	
+        </member>
+        <member name="F:SharpDX.XACT3.WaveBankData.Alignment">
+            <summary>	
+            No documentation.	
+            </summary>	
+            <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='WAVEBANKDATA::dwAlignment']/*"/>	
+            <unmanaged>unsigned int dwAlignment</unmanaged>	
+            <unmanaged-short>unsigned int dwAlignment</unmanaged-short>	
+        </member>
+        <member name="F:SharpDX.XACT3.WaveBankData.CompactFormat">
+            <summary>	
+            No documentation.	
+            </summary>	
+            <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='WAVEBANKDATA::CompactFormat']/*"/>	
+            <unmanaged>WAVEBANKMINIWAVEFORMAT CompactFormat</unmanaged>	
+            <unmanaged-short>WAVEBANKMINIWAVEFORMAT CompactFormat</unmanaged-short>	
+        </member>
+        <member name="F:SharpDX.XACT3.WaveBankData.BuildTime">
+            <summary>	
+            No documentation.	
+            </summary>	
+            <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='WAVEBANKDATA::BuildTime']/*"/>	
+            <unmanaged>FILETIME BuildTime</unmanaged>	
+            <unmanaged-short>FILETIME BuildTime</unmanaged-short>	
+        </member>
+        <member name="T:SharpDX.XACT3.WaveBankEntry">
+            <summary>	
+            No documentation.	
+            </summary>	
+            <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='WAVEBANKENTRY']/*"/>	
+            <unmanaged>WAVEBANKENTRY</unmanaged>	
+            <unmanaged-short>WAVEBANKENTRY</unmanaged-short>	
+        </member>
+        <member name="F:SharpDX.XACT3.WaveBankEntry.FlagsAndDuration">
+            <summary>	
+            No documentation.	
+            </summary>	
+            <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='WAVEBANKENTRY::dwFlagsAndDuration']/*"/>	
+            <unmanaged>unsigned int dwFlagsAndDuration</unmanaged>	
+            <unmanaged-short>unsigned int dwFlagsAndDuration</unmanaged-short>	
+        </member>
+        <member name="F:SharpDX.XACT3.WaveBankEntry.Format">
+            <summary>	
+            No documentation.	
+            </summary>	
+            <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='WAVEBANKENTRY::Format']/*"/>	
+            <unmanaged>WAVEBANKMINIWAVEFORMAT Format</unmanaged>	
+            <unmanaged-short>WAVEBANKMINIWAVEFORMAT Format</unmanaged-short>	
+        </member>
+        <member name="F:SharpDX.XACT3.WaveBankEntry.PlayRegion">
+            <summary>	
+            No documentation.	
+            </summary>	
+            <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='WAVEBANKENTRY::PlayRegion']/*"/>	
+            <unmanaged>WAVEBANKREGION PlayRegion</unmanaged>	
+            <unmanaged-short>WAVEBANKREGION PlayRegion</unmanaged-short>	
+        </member>
+        <member name="F:SharpDX.XACT3.WaveBankEntry.LoopRegion">
+            <summary>	
+            No documentation.	
+            </summary>	
+            <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='WAVEBANKENTRY::LoopRegion']/*"/>	
+            <unmanaged>WAVEBANKSAMPLEREGION LoopRegion</unmanaged>	
+            <unmanaged-short>WAVEBANKSAMPLEREGION LoopRegion</unmanaged-short>	
+        </member>
+        <member name="P:SharpDX.XACT3.WaveBankEntry.Flags">
+            <summary>	
+            No documentation.	
+            </summary>	
+            <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='WAVEBANKENTRY::dwFlags']/*"/>	
+            <unmanaged>unsigned int dwFlags</unmanaged>	
+            <unmanaged-short>unsigned int dwFlags</unmanaged-short>	
+        </member>
+        <member name="P:SharpDX.XACT3.WaveBankEntry.Duration">
+            <summary>	
+            No documentation.	
+            </summary>	
+            <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='WAVEBANKENTRY::Duration']/*"/>	
+            <unmanaged>unsigned int Duration</unmanaged>	
+            <unmanaged-short>unsigned int Duration</unmanaged-short>	
+        </member>
+        <member name="T:SharpDX.XACT3.WaveBankEntryCompact">
+            <summary>	
+            No documentation.	
+            </summary>	
+            <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='WAVEBANKENTRYCOMPACT']/*"/>	
+            <unmanaged>WAVEBANKENTRYCOMPACT</unmanaged>	
+            <unmanaged-short>WAVEBANKENTRYCOMPACT</unmanaged-short>	
+        </member>
+        <member name="P:SharpDX.XACT3.WaveBankEntryCompact.Offset">
+            <summary>	
+            No documentation.	
+            </summary>	
+            <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='WAVEBANKENTRYCOMPACT::dwOffset']/*"/>	
+            <unmanaged>unsigned int dwOffset</unmanaged>	
+            <unmanaged-short>unsigned int dwOffset</unmanaged-short>	
+        </member>
+        <member name="P:SharpDX.XACT3.WaveBankEntryCompact.LengthDeviation">
+            <summary>	
+            No documentation.	
+            </summary>	
+            <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='WAVEBANKENTRYCOMPACT::dwLengthDeviation']/*"/>	
+            <unmanaged>unsigned int dwLengthDeviation</unmanaged>	
+            <unmanaged-short>unsigned int dwLengthDeviation</unmanaged-short>	
+        </member>
+        <member name="T:SharpDX.XACT3.WaveBankHeader">
+            <summary>	
+            No documentation.	
+            </summary>	
+            <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='WAVEBANKHEADER']/*"/>	
+            <unmanaged>WAVEBANKHEADER</unmanaged>	
+            <unmanaged-short>WAVEBANKHEADER</unmanaged-short>	
+        </member>
+        <member name="F:SharpDX.XACT3.WaveBankHeader.Signature">
+            <summary>	
+            No documentation.	
+            </summary>	
+            <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='WAVEBANKHEADER::dwSignature']/*"/>	
+            <unmanaged>unsigned int dwSignature</unmanaged>	
+            <unmanaged-short>unsigned int dwSignature</unmanaged-short>	
+        </member>
+        <member name="F:SharpDX.XACT3.WaveBankHeader.Version">
+            <summary>	
+            No documentation.	
+            </summary>	
+            <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='WAVEBANKHEADER::dwVersion']/*"/>	
+            <unmanaged>unsigned int dwVersion</unmanaged>	
+            <unmanaged-short>unsigned int dwVersion</unmanaged-short>	
+        </member>
+        <member name="F:SharpDX.XACT3.WaveBankHeader.HeaderVersion">
+            <summary>	
+            No documentation.	
+            </summary>	
+            <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='WAVEBANKHEADER::dwHeaderVersion']/*"/>	
+            <unmanaged>unsigned int dwHeaderVersion</unmanaged>	
+            <unmanaged-short>unsigned int dwHeaderVersion</unmanaged-short>	
+        </member>
+        <member name="P:SharpDX.XACT3.WaveBankHeader.Segments">
+            <summary>	
+            No documentation.	
+            </summary>	
+            <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='WAVEBANKHEADER::Segments']/*"/>	
+            <unmanaged>WAVEBANKREGION Segments[5]</unmanaged>	
+            <unmanaged-short>WAVEBANKREGION Segments</unmanaged-short>	
+        </member>
+        <member name="T:SharpDX.XACT3.WaveBankMiniWaveFormat">
+            <summary>	
+            No documentation.	
+            </summary>	
+            <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='WAVEBANKMINIWAVEFORMAT']/*"/>	
+            <unmanaged>WAVEBANKMINIWAVEFORMAT</unmanaged>	
+            <unmanaged-short>WAVEBANKMINIWAVEFORMAT</unmanaged-short>	
+        </member>
+        <member name="F:SharpDX.XACT3.WaveBankMiniWaveFormat.Value">
+            <summary>	
+            No documentation.	
+            </summary>	
+            <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='WAVEBANKMINIWAVEFORMAT::dwValue']/*"/>	
+            <unmanaged>unsigned int dwValue</unmanaged>	
+            <unmanaged-short>unsigned int dwValue</unmanaged-short>	
+        </member>
+        <member name="P:SharpDX.XACT3.WaveBankMiniWaveFormat.RawFormatTag">
+            <summary>	
+            No documentation.	
+            </summary>	
+            <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='WAVEBANKMINIWAVEFORMAT::wFormatTag']/*"/>	
+            <unmanaged>unsigned int wFormatTag</unmanaged>	
+            <unmanaged-short>unsigned int wFormatTag</unmanaged-short>	
+        </member>
+        <member name="P:SharpDX.XACT3.WaveBankMiniWaveFormat.Channels">
+            <summary>	
+            No documentation.	
+            </summary>	
+            <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='WAVEBANKMINIWAVEFORMAT::nChannels']/*"/>	
+            <unmanaged>unsigned int nChannels</unmanaged>	
+            <unmanaged-short>unsigned int nChannels</unmanaged-short>	
+        </member>
+        <member name="P:SharpDX.XACT3.WaveBankMiniWaveFormat.SamplesPerSecond">
+            <summary>	
+            No documentation.	
+            </summary>	
+            <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='WAVEBANKMINIWAVEFORMAT::nSamplesPerSec']/*"/>	
+            <unmanaged>unsigned int nSamplesPerSec</unmanaged>	
+            <unmanaged-short>unsigned int nSamplesPerSec</unmanaged-short>	
+        </member>
+        <member name="P:SharpDX.XACT3.WaveBankMiniWaveFormat.BlockAlign">
+            <summary>	
+            No documentation.	
+            </summary>	
+            <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='WAVEBANKMINIWAVEFORMAT::wBlockAlign']/*"/>	
+            <unmanaged>unsigned int wBlockAlign</unmanaged>	
+            <unmanaged-short>unsigned int wBlockAlign</unmanaged-short>	
+        </member>
+        <member name="P:SharpDX.XACT3.WaveBankMiniWaveFormat.BitsPerSample">
+            <summary>	
+            No documentation.	
+            </summary>	
+            <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='WAVEBANKMINIWAVEFORMAT::wBitsPerSample']/*"/>	
+            <unmanaged>unsigned int wBitsPerSample</unmanaged>	
+            <unmanaged-short>unsigned int wBitsPerSample</unmanaged-short>	
+        </member>
+        <member name="T:SharpDX.XACT3.WaveBankRegion">
+            <summary>	
+            No documentation.	
+            </summary>	
+            <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='WAVEBANKREGION']/*"/>	
+            <unmanaged>WAVEBANKREGION</unmanaged>	
+            <unmanaged-short>WAVEBANKREGION</unmanaged-short>	
+        </member>
+        <member name="F:SharpDX.XACT3.WaveBankRegion.Offset">
+            <summary>	
+            No documentation.	
+            </summary>	
+            <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='WAVEBANKREGION::dwOffset']/*"/>	
+            <unmanaged>unsigned int dwOffset</unmanaged>	
+            <unmanaged-short>unsigned int dwOffset</unmanaged-short>	
+        </member>
+        <member name="F:SharpDX.XACT3.WaveBankRegion.Length">
+            <summary>	
+            No documentation.	
+            </summary>	
+            <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='WAVEBANKREGION::dwLength']/*"/>	
+            <unmanaged>unsigned int dwLength</unmanaged>	
+            <unmanaged-short>unsigned int dwLength</unmanaged-short>	
+        </member>
+        <member name="T:SharpDX.XACT3.WaveBankSampleRegion">
+            <summary>	
+            No documentation.	
+            </summary>	
+            <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='WAVEBANKSAMPLEREGION']/*"/>	
+            <unmanaged>WAVEBANKSAMPLEREGION</unmanaged>	
+            <unmanaged-short>WAVEBANKSAMPLEREGION</unmanaged-short>	
+        </member>
+        <member name="F:SharpDX.XACT3.WaveBankSampleRegion.StartSample">
+            <summary>	
+            No documentation.	
+            </summary>	
+            <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='WAVEBANKSAMPLEREGION::dwStartSample']/*"/>	
+            <unmanaged>unsigned int dwStartSample</unmanaged>	
+            <unmanaged-short>unsigned int dwStartSample</unmanaged-short>	
+        </member>
+        <member name="F:SharpDX.XACT3.WaveBankSampleRegion.TotalSamples">
+            <summary>	
+            No documentation.	
+            </summary>	
+            <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='WAVEBANKSAMPLEREGION::dwTotalSamples']/*"/>	
+            <unmanaged>unsigned int dwTotalSamples</unmanaged>	
+            <unmanaged-short>unsigned int dwTotalSamples</unmanaged-short>	
+        </member>
+        <member name="T:SharpDX.XACT3.WaveInstanceProperties">
+            <summary>	
+            No documentation.	
+            </summary>	
+            <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='XACT_WAVE_INSTANCE_PROPERTIES']/*"/>	
+            <unmanaged>XACT_WAVE_INSTANCE_PROPERTIES</unmanaged>	
+            <unmanaged-short>XACT_WAVE_INSTANCE_PROPERTIES</unmanaged-short>	
+        </member>
+        <member name="F:SharpDX.XACT3.WaveInstanceProperties.Properties">
+            <summary>	
+            No documentation.	
+            </summary>	
+            <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='XACT_WAVE_INSTANCE_PROPERTIES::properties']/*"/>	
+            <unmanaged>XACT_WAVE_PROPERTIES properties</unmanaged>	
+            <unmanaged-short>XACT_WAVE_PROPERTIES properties</unmanaged-short>	
+        </member>
+        <member name="F:SharpDX.XACT3.WaveInstanceProperties.IsBackgroundMusic">
+            <summary>	
+            No documentation.	
+            </summary>	
+            <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='XACT_WAVE_INSTANCE_PROPERTIES::backgroundMusic']/*"/>	
+            <unmanaged>BOOL backgroundMusic</unmanaged>	
+            <unmanaged-short>BOOL backgroundMusic</unmanaged-short>	
+        </member>
+        <member name="T:SharpDX.XACT3.WaveProperties">
+            <summary>	
+            No documentation.	
+            </summary>	
+            <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='XACT_WAVE_PROPERTIES']/*"/>	
+            <unmanaged>XACT_WAVE_PROPERTIES</unmanaged>	
+            <unmanaged-short>XACT_WAVE_PROPERTIES</unmanaged-short>	
+        </member>
+        <member name="F:SharpDX.XACT3.WaveProperties.FriendlyName">
+            <summary>	
+            No documentation.	
+            </summary>	
+            <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='XACT_WAVE_PROPERTIES::friendlyName']/*"/>	
+            <unmanaged>char friendlyName[64]</unmanaged>	
+            <unmanaged-short>char friendlyName</unmanaged-short>	
+        </member>
+        <member name="F:SharpDX.XACT3.WaveProperties.Format">
+            <summary>	
+            No documentation.	
+            </summary>	
+            <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='XACT_WAVE_PROPERTIES::format']/*"/>	
+            <unmanaged>WAVEBANKMINIWAVEFORMAT format</unmanaged>	
+            <unmanaged-short>WAVEBANKMINIWAVEFORMAT format</unmanaged-short>	
+        </member>
+        <member name="F:SharpDX.XACT3.WaveProperties.DurationInSamples">
+            <summary>	
+            No documentation.	
+            </summary>	
+            <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='XACT_WAVE_PROPERTIES::durationInSamples']/*"/>	
+            <unmanaged>unsigned int durationInSamples</unmanaged>	
+            <unmanaged-short>unsigned int durationInSamples</unmanaged-short>	
+        </member>
+        <member name="F:SharpDX.XACT3.WaveProperties.LoopRegion">
+            <summary>	
+            No documentation.	
+            </summary>	
+            <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='XACT_WAVE_PROPERTIES::loopRegion']/*"/>	
+            <unmanaged>WAVEBANKSAMPLEREGION loopRegion</unmanaged>	
+            <unmanaged-short>WAVEBANKSAMPLEREGION loopRegion</unmanaged-short>	
+        </member>
+        <member name="F:SharpDX.XACT3.WaveProperties.IsStreaming">
+            <summary>	
+            No documentation.	
+            </summary>	
+            <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='XACT_WAVE_PROPERTIES::streaming']/*"/>	
+            <unmanaged>BOOL streaming</unmanaged>	
+            <unmanaged-short>BOOL streaming</unmanaged-short>	
+        </member>
+        <member name="T:SharpDX.XACT3.MarkerNotification">
+            <summary>
+            Marker notification parameters.
+            </summary>
+            <unmanaged>XACT_NOTIFICATION_MARKER</unmanaged>
+        </member>
+        <member name="T:SharpDX.XACT3.NamespaceDoc">
+            <summary>
+            The <see cref="N:SharpDX.XACT3"/> namespace provides a managed XACT3 API.
+            </summary>
+            <msdn-id>hh405049</msdn-id>
+            <unmanaged>XACT3</unmanaged>	
+            <unmanaged-short>XACT3</unmanaged-short>	
+        </member>
+        <member name="T:SharpDX.XACT3.RawNotification">
+            <summary>	
+            Hand written version of XACT_NOTIFICATION in order to smoothly support compatible x86/x64 inner anonymous union.
+            </summary>	
+            <unmanaged>XACT_NOTIFICATION</unmanaged>	
+        </member>
+        <member name="F:SharpDX.XACT3.RawNotification.Type">
+            <summary>	
+            No documentation.	
+            </summary>	
+            <unmanaged>XACT_NOTIFICATION_TYPE type</unmanaged>	
+        </member>
+        <member name="F:SharpDX.XACT3.RawNotification.TimeStamp">
+            <summary>	
+            No documentation.	
+            </summary>	
+            <unmanaged>int timeStamp</unmanaged>	
+        </member>
+        <member name="F:SharpDX.XACT3.RawNotification.ContextPointer">
+            <summary>	
+            No documentation.	
+            </summary>	
+            <unmanaged>void* pvContext</unmanaged>	
+        </member>
+        <member name="F:SharpDX.XACT3.RawNotification.Data">
+            <summary>
+            Notification data specific to the <see cref="F:SharpDX.XACT3.RawNotification.Type"/>.
+            </summary>
+        </member>
+        <member name="F:SharpDX.XACT3.RawNotification.SubData.Cue">
+            <summary>	
+            No documentation.	
+            </summary>	
+            <unmanaged>XACT_NOTIFICATION_CUE cue</unmanaged>	
+        </member>
+        <member name="F:SharpDX.XACT3.RawNotification.SubData.Marker">
+            <summary>	
+            No documentation.	
+            </summary>	
+            <unmanaged>XACT_NOTIFICATION_MARKER marker</unmanaged>	
+        </member>
+        <member name="F:SharpDX.XACT3.RawNotification.SubData.SoundBank">
+            <summary>	
+            No documentation.	
+            </summary>	
+            <unmanaged>XACT_NOTIFICATION_SOUNDBANK soundBank</unmanaged>	
+        </member>
+        <member name="F:SharpDX.XACT3.RawNotification.SubData.WaveBank">
+            <summary>	
+            No documentation.	
+            </summary>	
+            <unmanaged>XACT_NOTIFICATION_WAVEBANK waveBank</unmanaged>	
+        </member>
+        <member name="F:SharpDX.XACT3.RawNotification.SubData.Variable">
+            <summary>	
+            No documentation.	
+            </summary>	
+            <unmanaged>XACT_NOTIFICATION_VARIABLE variable</unmanaged>	
+        </member>
+        <member name="F:SharpDX.XACT3.RawNotification.SubData.Gui">
+            <summary>	
+            No documentation.	
+            </summary>	
+            <unmanaged>XACT_NOTIFICATION_GUI gui</unmanaged>	
+        </member>
+        <member name="F:SharpDX.XACT3.RawNotification.SubData.Wave">
+            <summary>	
+            No documentation.	
+            </summary>	
+            <unmanaged>XACT_NOTIFICATION_WAVE wave</unmanaged>	
+        </member>
+        <member name="T:SharpDX.XACT3.SoundBankNotification">
+            <summary>
+            SoundBank notification parameters.
+            </summary>
+            <unmanaged>XACT_NOTIFICATION_SOUNDBANK</unmanaged>	
+        </member>
+        <member name="T:SharpDX.XACT3.VariableNotification">
+            <summary>
+            Variable notification parameters.
+            </summary>
+            <unmanaged>XACT_NOTIFICATION_VARIABLE</unmanaged>
+        </member>
+        <member name="T:SharpDX.XACT3.WaveBankNotification">
+            <summary>
+            Wavebank notification parameters.
+            </summary>
+            <unmanaged>XACT_NOTIFICATION_WAVEBANK</unmanaged>
+        </member>
+        <member name="T:SharpDX.XACT3.WaveNotification">
+            <summary>
+            Wave notification parameters.
+            </summary>
+            <unmanaged>XACT_NOTIFICATION_WAVE</unmanaged>
+        </member>
+    </members>
+</doc>

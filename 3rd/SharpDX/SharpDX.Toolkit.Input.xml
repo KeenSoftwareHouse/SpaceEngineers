@@ -1,0 +1,1414 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>SharpDX.Toolkit.Input</name>
+    </assembly>
+    <members>
+        <member name="T:SharpDX.Toolkit.Input.AssemblyDoc">
+            <summary>
+            The <see cref="A:SharpDX.Toolkit.Input"/> assembly provides a high level Input API.
+            </summary>
+        </member>
+        <member name="T:SharpDX.Toolkit.Input.ButtonState">
+            <summary>
+            State of a button or key.
+            </summary>
+        </member>
+        <member name="M:SharpDX.Toolkit.Input.ButtonState.#ctor(SharpDX.Toolkit.Input.ButtonStateFlags)">
+            <summary>
+            Initializes a new instance of the <see cref="T:SharpDX.Toolkit.Input.ButtonState"/> struct.
+            </summary>
+            <param name="flags">The state.</param>
+        </member>
+        <member name="M:SharpDX.Toolkit.Input.ButtonState.ResetEvents">
+            <summary>
+            Resets the Pressed and Released events.
+            </summary>
+        </member>
+        <member name="M:SharpDX.Toolkit.Input.ButtonState.Equals(SharpDX.Toolkit.Input.ButtonState)">
+            <summary>
+            Indicates whether the current object is equal to another object of the same type.
+            </summary>
+            <param name="other">An object to compare with this object.</param>
+            <returns>true if the current object is equal to the <paramref name="other" /> parameter; otherwise, false.</returns>
+        </member>
+        <member name="M:SharpDX.Toolkit.Input.ButtonState.op_Equality(SharpDX.Toolkit.Input.ButtonState,SharpDX.Toolkit.Input.ButtonState)">
+            <summary>
+            Implements the ==.
+            </summary>
+            <param name="left">The left.</param>
+            <param name="right">The right.</param>
+            <returns>The result of the operator.</returns>
+        </member>
+        <member name="M:SharpDX.Toolkit.Input.ButtonState.op_Inequality(SharpDX.Toolkit.Input.ButtonState,SharpDX.Toolkit.Input.ButtonState)">
+            <summary>
+            Implements the !=.
+            </summary>
+            <param name="left">The left.</param>
+            <param name="right">The right.</param>
+            <returns>The result of the operator.</returns>
+        </member>
+        <member name="M:SharpDX.Toolkit.Input.ButtonState.op_Implicit(SharpDX.Toolkit.Input.ButtonState)~SharpDX.Toolkit.Input.ButtonStateFlags">
+            <summary>
+            Performs an implicit conversion from <see cref="T:SharpDX.Toolkit.Input.ButtonState"/> to <see cref="T:SharpDX.Toolkit.Input.ButtonStateFlags"/>.
+            </summary>
+            <param name="buttonState">State of the button.</param>
+            <returns>The result of the conversion.</returns>
+        </member>
+        <member name="M:SharpDX.Toolkit.Input.ButtonState.op_Implicit(SharpDX.Toolkit.Input.ButtonStateFlags)~SharpDX.Toolkit.Input.ButtonState">
+            <summary>
+            Performs an implicit conversion from <see cref="T:SharpDX.Toolkit.Input.ButtonStateFlags"/> to <see cref="T:SharpDX.Toolkit.Input.ButtonState"/>.
+            </summary>
+            <param name="buttonFlags">State of the button.</param>
+            <returns>The result of the conversion.</returns>
+        </member>
+        <member name="P:SharpDX.Toolkit.Input.ButtonState.Flags">
+            <summary>
+            Gets the state of this button as an enum.
+            </summary>
+            <value>The state.</value>
+        </member>
+        <member name="P:SharpDX.Toolkit.Input.ButtonState.Down">
+            <summary>
+            Gets a value indicating whether the button is being pressed.
+            </summary>
+            <value><c>true</c> if the button is being pressed; otherwise, <c>false</c>.</value>
+        </member>
+        <member name="P:SharpDX.Toolkit.Input.ButtonState.Pressed">
+            <summary>
+            Gets a value indicating whether the button was pressed since last frame.
+            </summary>
+            <value><c>true</c> if the button was pressed since last frame; otherwise, <c>false</c>.</value>
+        </member>
+        <member name="P:SharpDX.Toolkit.Input.ButtonState.Released">
+            <summary>
+            Gets a value indicating whether the button was released since last frame.
+            </summary>
+            <value><c>true</c> if the button was released since last frame; otherwise, <c>false</c>.</value>
+        </member>
+        <member name="T:SharpDX.Toolkit.Input.ButtonStateFlags">
+            <summary>
+            State of a button declared as an enum. See <see cref="T:SharpDX.Toolkit.Input.ButtonState"/>.
+            </summary>
+        </member>
+        <member name="F:SharpDX.Toolkit.Input.ButtonStateFlags.None">
+            <summary>
+            Button is in a none state.
+            </summary>
+        </member>
+        <member name="F:SharpDX.Toolkit.Input.ButtonStateFlags.Down">
+            <summary>
+            The button is being pressed.
+            </summary>
+        </member>
+        <member name="F:SharpDX.Toolkit.Input.ButtonStateFlags.Pressed">
+            <summary>
+            The button was pressed since last frame.
+            </summary>
+        </member>
+        <member name="F:SharpDX.Toolkit.Input.ButtonStateFlags.Released">
+            <summary>
+            The button was released since last frame.
+            </summary>
+        </member>
+        <member name="T:SharpDX.Toolkit.Input.IKeyboardService">
+            <summary>
+            Provides access to <see cref="T:SharpDX.Toolkit.Input.KeyboardState"/> snapshot
+            </summary>
+        </member>
+        <member name="M:SharpDX.Toolkit.Input.IKeyboardService.GetState">
+            <summary>
+            Returns immediate state of keyboard at the moment of call
+            </summary>
+            <returns>An instance of <see cref="T:SharpDX.Toolkit.Input.KeyboardState"/> with the information about pressed keys</returns>
+        </member>
+        <member name="T:SharpDX.Toolkit.Input.IPointerService">
+            <summary>
+            Provides access to platform-independent pointer events
+            </summary>
+        </member>
+        <member name="M:SharpDX.Toolkit.Input.IPointerService.GetState">
+            <summary>
+            Gets the current state of the pointer
+            </summary>
+            <returns>An instance of <see cref="T:SharpDX.Toolkit.Input.PointerState"/> class</returns>
+        </member>
+        <member name="M:SharpDX.Toolkit.Input.IPointerService.GetState(SharpDX.Toolkit.Input.PointerState)">
+            <summary>
+            Fills the provided object with the current pointer state information
+            </summary>
+            <remarks>All properties of provided object will be cleared.</remarks>
+            <param name="state">The object that needs to be filled with pointer information</param>
+            <exception cref="T:System.ArgumentNullException">Is thrown when <paramref name="state"/> is null</exception>
+        </member>
+        <member name="T:SharpDX.Toolkit.Input.KeyboardManager">
+            <summary>
+            Provides access to keyboard state
+            </summary>
+        </member>
+        <member name="M:SharpDX.Toolkit.Input.KeyboardManager.#ctor(SharpDX.Toolkit.Game)">
+            <summary>
+            Creates a new instance of <see cref="T:SharpDX.Toolkit.Input.KeyboardManager"/> class.
+            </summary>
+            <param name="game">The <see cref="T:SharpDX.Toolkit.Game"/> instance whose window is used as source of keyboard input events</param>
+            <exception cref="T:System.ArgumentNullException">Is thrown if <paramref name="game"/> is null</exception>
+        </member>
+        <member name="M:SharpDX.Toolkit.Input.KeyboardManager.Initialize">
+            <summary>
+            Initializes this instance and starts listening to keyboard input events
+            </summary>
+            <exception cref="T:System.NotSupportedException">Is thrown if keyboard manager is used on an unsupported platform.</exception>
+        </member>
+        <member name="M:SharpDX.Toolkit.Input.KeyboardManager.GetState">
+            <summary>
+            Gets current keyboard state.
+            </summary>
+            <returns>A snapshot of current keyboard state</returns>
+        </member>
+        <member name="M:SharpDX.Toolkit.Input.KeyboardManager.HandleKeyDown(SharpDX.Toolkit.Input.Keys)">
+            <summary>
+            Handles the <see cref="E:SharpDX.Toolkit.Input.KeyboardPlatform.KeyDown"/> event
+            </summary>
+            <param name="key">The pressed key</param>
+        </member>
+        <member name="M:SharpDX.Toolkit.Input.KeyboardManager.HandleKeyUp(SharpDX.Toolkit.Input.Keys)">
+            <summary>
+            Handles the <see cref="E:SharpDX.Toolkit.Input.KeyboardPlatform.KeyUp"/> event
+            </summary>
+            <param name="key">The released key</param>
+        </member>
+        <member name="T:SharpDX.Toolkit.Input.KeyboardPlatform">
+            <summary>
+            Provides platform-specific bindings to keyboard input events
+            </summary>
+        </member>
+        <member name="M:SharpDX.Toolkit.Input.KeyboardPlatform.#ctor(System.Object)">
+            <summary>
+            Creates a new instance of <see cref="T:SharpDX.Toolkit.Input.KeyboardPlatform"/> class.
+            </summary>
+            <param name="nativeWindow">The native window object reference</param>
+            <exception cref="T:System.ArgumentNullException">Is thrown when <paramref name="nativeWindow"/> is null</exception>
+        </member>
+        <member name="M:SharpDX.Toolkit.Input.KeyboardPlatform.Create(System.Object)">
+            <summary>
+            Creates a platform-specific instance of <see cref="T:SharpDX.Toolkit.Input.KeyboardPlatform"/> class.
+            </summary>
+            <param name="nativeWindow">The native window object reference</param>
+            <exception cref="T:System.ArgumentNullException">Is thrown when <paramref name="nativeWindow"/> is null</exception>
+            <returns>The instance of <see cref="T:SharpDX.Toolkit.Input.KeyboardPlatform"/></returns>
+        </member>
+        <member name="M:SharpDX.Toolkit.Input.KeyboardPlatform.BindWindow(System.Object)">
+            <summary>
+            Derived classes should implement platform-specific event bindings in this method
+            </summary>
+            <param name="nativeWindow">The native window object reference</param>
+        </member>
+        <member name="M:SharpDX.Toolkit.Input.KeyboardPlatform.RaiseKeyPressed(SharpDX.Toolkit.Input.Keys)">
+            <summary>
+            Raises the <see cref="E:SharpDX.Toolkit.Input.KeyboardPlatform.KeyDown"/> event.
+            </summary>
+            <param name="key">The key that was pressed</param>
+        </member>
+        <member name="M:SharpDX.Toolkit.Input.KeyboardPlatform.RaiseKeyReleased(SharpDX.Toolkit.Input.Keys)">
+            <summary>
+            Raises the <see cref="E:SharpDX.Toolkit.Input.KeyboardPlatform.KeyUp"/> event.
+            </summary>
+            <param name="key">The key that was released</param>
+        </member>
+        <member name="M:SharpDX.Toolkit.Input.KeyboardPlatform.Raise``1(System.Action{``0},``0)">
+            <summary>
+            Generic helper method to call a single-parameter event handler
+            </summary>
+            <remarks>This ensures that during the call - the handler reference will not be lost (due to stack-copy of delegate reference)</remarks>
+            <typeparam name="TArg">The type of event argument</typeparam>
+            <param name="handler">The reference to event delegate</param>
+            <param name="argument">The event argument</param>
+        </member>
+        <member name="E:SharpDX.Toolkit.Input.KeyboardPlatform.KeyDown">
+            <summary>
+            Raised when a key down.
+            </summary>
+        </member>
+        <member name="E:SharpDX.Toolkit.Input.KeyboardPlatform.KeyUp">
+            <summary>
+            Raised when a key is up.
+            </summary>
+        </member>
+        <member name="T:SharpDX.Toolkit.Input.KeyboardPlatformDesktop">
+            <summary>
+            A specific implementation of <see cref="T:SharpDX.Toolkit.Input.KeyboardPlatform"/> for desktop platform
+            </summary>
+        </member>
+        <member name="M:SharpDX.Toolkit.Input.KeyboardPlatformDesktop.#ctor(System.Object)">
+            <summary>
+            Creates a new instance of <see cref="T:SharpDX.Toolkit.Input.KeyboardPlatformDesktop"/> class
+            </summary>
+            <param name="nativeWindow">The native window object reference</param>
+            <exception cref="T:System.ArgumentNullException">Is thrown when <paramref name="nativeWindow"/> is null</exception>
+        </member>
+        <member name="M:SharpDX.Toolkit.Input.KeyboardPlatformDesktop.BindWindow(System.Object)">
+            <summary>
+            Derived classes should implement platform-specific event bindings in this method
+            </summary>
+            <param name="nativeWindow">The native window object reference</param>
+            <exception cref="T:System.ArgumentNullException">Is thrown when <paramref name="nativeWindow"/> is null</exception>
+            <exception cref="T:System.InvalidOperationException">Is thrown when <paramref name="nativeWindow"/> is of an unsupported type.</exception>
+        </member>
+        <member name="M:SharpDX.Toolkit.Input.KeyboardPlatformDesktop.HandlePreviewKeyDown(System.Object,System.Windows.Forms.PreviewKeyDownEventArgs)">
+            <summary>
+            Handles the <see cref="E:System.Windows.Forms.Control.PreviewKeyDown"/> event
+            </summary>
+            <param name="sender">Ignored</param>
+            <param name="e">Pressed key is read from <see cref="P:System.Windows.Forms.PreviewKeyDownEventArgs.KeyCode"/> property</param>
+        </member>
+        <member name="M:SharpDX.Toolkit.Input.KeyboardPlatformDesktop.HandleKeyDown(System.Object,System.Windows.Forms.KeyEventArgs)">
+            <summary>
+            Handles the <see cref="E:System.Windows.Forms.Control.KeyDown"/> event
+            </summary>
+            <param name="sender">Ignored</param>
+            <param name="e">Pressed key is read from <see cref="P:System.Windows.Forms.KeyEventArgs.KeyCode"/> property</param>
+        </member>
+        <member name="M:SharpDX.Toolkit.Input.KeyboardPlatformDesktop.HandleKeyUp(System.Object,System.Windows.Forms.KeyEventArgs)">
+            <summary>
+            Handles the <see cref="E:System.Windows.Forms.Control.KeyUp"/> event
+            </summary>
+            <param name="sender">Ignored</param>
+            <param name="e">Released key is read from <see cref="P:System.Windows.Forms.KeyEventArgs.KeyCode"/> property</param>
+        </member>
+        <member name="M:SharpDX.Toolkit.Input.KeyboardPlatformDesktop.ProcessKeyEvent(System.Windows.Forms.Keys,System.Action{SharpDX.Toolkit.Input.Keys})">
+            <summary>
+            Translates the WinForms key to Toolkit key and invokes status change
+            </summary>
+            <remarks>For modifier keys (Shift, Control, Alt) will invoke its Left... analog additionally</remarks>
+            <param name="keyCode">WinForms key code to be translated</param>
+            <param name="keyAction">delegate to invoke with translated key</param>
+        </member>
+        <member name="T:SharpDX.Toolkit.Input.KeyboardPlatformDesktopWpf">
+            <summary>
+            A specific implementation of <see cref="T:SharpDX.Toolkit.Input.KeyboardPlatform"/> for desktop WPF platform
+            </summary>
+        </member>
+        <member name="M:SharpDX.Toolkit.Input.KeyboardPlatformDesktopWpf.#ctor(System.Object)">
+            <summary>
+            Creates a new instance of <see cref="T:SharpDX.Toolkit.Input.KeyboardPlatformDesktopWpf"/> class
+            </summary>
+            <param name="nativeWindow">The native window object reference</param>
+            <exception cref="T:System.ArgumentNullException">Is thrown when <paramref name="nativeWindow"/> is null</exception>
+        </member>
+        <member name="M:SharpDX.Toolkit.Input.KeyboardPlatformDesktopWpf.BindWindow(System.Object)">
+            <summary>
+            Derived classes should implement platform-specific event bindings in this method
+            </summary>
+            <param name="nativeWindow">The native window object reference</param>
+            <exception cref="T:System.ArgumentNullException">Is thrown when <paramref name="nativeWindow"/> is null</exception>
+            <exception cref="T:System.InvalidOperationException">Is thrown when <paramref name="nativeWindow"/> is of an unsupported type.</exception>
+        </member>
+        <member name="M:SharpDX.Toolkit.Input.KeyboardPlatformDesktopWpf.HandleKeyDown(System.Object,System.Windows.Input.KeyEventArgs)">
+            <summary>
+            Handles the <see cref="E:System.Windows.UIElement.KeyDown"/> event.
+            </summary>
+            <param name="sender">Ignored</param>
+            <param name="e">The key is read from <see cref="P:System.Windows.Input.KeyEventArgs.Key"/> property.</param>
+        </member>
+        <member name="M:SharpDX.Toolkit.Input.KeyboardPlatformDesktopWpf.HandleKeyUp(System.Object,System.Windows.Input.KeyEventArgs)">
+            <summary>
+            Handles the <see cref="E:System.Windows.UIElement.KeyUp"/> event.
+            </summary>
+            <param name="sender">Ignored</param>
+            <param name="e">The key is read from <see cref="P:System.Windows.Input.KeyEventArgs.Key"/> property.</param>
+        </member>
+        <member name="M:SharpDX.Toolkit.Input.KeyboardPlatformDesktopWpf.ProcessKeyEvent(System.Windows.Input.Key,System.Action{SharpDX.Toolkit.Input.Keys})">
+            <summary>
+            Translates the WPF key to Toolkit key and invokes status change
+            </summary>
+            <remarks>For modifier keys (Shift, Control, Alt) will invoke its Left... analog additionally</remarks>
+            <param name="keyCode">WPF key code to be translated</param>
+            <param name="keyAction">delegate to invoke with translated key</param>
+        </member>
+        <member name="T:SharpDX.Toolkit.Input.KeyboardState">
+            <summary>
+            Represents the immediate state of keyboard (pressed keys)
+            </summary>
+            <remarks>The returned values from member methods require computation - it is advised to cache them when they needs to be reused</remarks>
+        </member>
+        <member name="M:SharpDX.Toolkit.Input.KeyboardState.IsKeyDown(SharpDX.Toolkit.Input.Keys)">
+            <summary>
+            Checks if the specified key is being pressed
+            </summary>
+            <remarks>Cache the returned value if it needs to be reused</remarks>
+            <param name="key">A <see cref="T:SharpDX.Toolkit.Input.Keys"/> to check whether it is pressed or not</param>
+            <returns>True if the specified key is being pressed; False - otherwise</returns>
+        </member>
+        <member name="M:SharpDX.Toolkit.Input.KeyboardState.IsKeyPressed(SharpDX.Toolkit.Input.Keys)">
+            <summary>
+            Checks if the specified key has been pressed since last frame
+            </summary>
+            <remarks>Cache the returned value if it needs to be reused</remarks>
+            <param name="key">A <see cref="T:SharpDX.Toolkit.Input.Keys"/> to check whether it is pressed or not</param>
+            <returns>True if the key is pressed; False - otherwise</returns>
+        </member>
+        <member name="M:SharpDX.Toolkit.Input.KeyboardState.IsKeyReleased(SharpDX.Toolkit.Input.Keys)">
+            <summary>
+            Checks if the specified key has been released since last frame.
+            </summary>
+            <remarks>Cache the returned value if it needs to be reused</remarks>
+            <param name="key">A <see cref="T:SharpDX.Toolkit.Input.Keys"/> to check whether if the specified key has been released since last frame</param>
+            <returns>True if the specified key has been released since last frame; False - otherwise</returns>
+        </member>
+        <member name="M:SharpDX.Toolkit.Input.KeyboardState.GetDownKeys(System.Collections.Generic.List{SharpDX.Toolkit.Input.Keys})">
+            <summary>
+            Gets an array with all keys down.
+            </summary>
+            <param name="keys">The list of keys that will received keys being pressed.</param>
+            <exception cref="T:System.ArgumentNullException">keys</exception>
+            <remarks>This method clears the list before appending</remarks>
+        </member>
+        <member name="P:SharpDX.Toolkit.Input.KeyboardState.Item(SharpDX.Toolkit.Input.Keys)">
+            <summary>
+            Gets the state of specified key
+            </summary>
+            <remarks>Cache the returned value if it needs to be reused</remarks>
+            <param name="key">A <see cref="T:SharpDX.Toolkit.Input.Keys"/> to check whether it is pressed or not</param>
+            <returns>The state of a key.</returns>
+        </member>
+        <member name="T:SharpDX.Toolkit.Input.KeyModifiers">
+            <summary>
+            These flags represent the corresponding modifier keys that were pressed at some specific event.
+            </summary>
+        </member>
+        <member name="F:SharpDX.Toolkit.Input.KeyModifiers.None">
+            <summary>
+            No modifier key are pressed.
+            </summary>
+        </member>
+        <member name="F:SharpDX.Toolkit.Input.KeyModifiers.Control">
+            <summary>
+            The CTRL modifier key.
+            </summary>
+        </member>
+        <member name="F:SharpDX.Toolkit.Input.KeyModifiers.Shift">
+            <summary>
+            The SHIFT modifier key.
+            </summary>
+        </member>
+        <member name="F:SharpDX.Toolkit.Input.KeyModifiers.Menu">
+            <summary>
+            The ALT modifier key.
+            </summary>
+        </member>
+        <member name="F:SharpDX.Toolkit.Input.KeyModifiers.Windows">
+            <summary>
+            The WIN modifier key.
+            </summary>
+        </member>
+        <member name="T:SharpDX.Toolkit.Input.Keys">
+            <summary>
+            Keyboard buttons
+            </summary>
+            <remarks>At this time only 256 key codes are supported</remarks>
+        </member>
+        <member name="T:SharpDX.Toolkit.Input.MousePlatformDesktopWpf">
+            <summary>
+            Represents a specific <see cref="T:SharpDX.Toolkit.Input.MousePlatform"/> implementation for WPF platform (desktop)
+            </summary>
+        </member>
+        <member name="T:SharpDX.Toolkit.Input.MousePlatform">
+            <summary>
+            Base class for platform-specific event bindings
+            </summary>
+        </member>
+        <member name="M:SharpDX.Toolkit.Input.MousePlatform.#ctor(System.Object)">
+            <summary>
+            Initializes a new instance of <see cref="T:SharpDX.Toolkit.Input.MousePlatform"/> class
+            </summary>
+            <param name="nativeWindow">The native window object reference</param>
+            <exception cref="T:System.ArgumentNullException">Is thrown when <paramref name="nativeWindow"/> is null</exception>
+        </member>
+        <member name="M:SharpDX.Toolkit.Input.MousePlatform.Create(System.Object)">
+            <summary>
+            Creates a platform-specific instance of <see cref="T:SharpDX.Toolkit.Input.MousePlatform"/> class.
+            </summary>
+            <param name="nativeWindow">The native window object reference</param>
+            <exception cref="T:System.ArgumentNullException">Is thrown when <paramref name="nativeWindow"/> is null</exception>
+            <returns>The instance of <see cref="T:SharpDX.Toolkit.Input.MousePlatform"/></returns>
+        </member>
+        <member name="M:SharpDX.Toolkit.Input.MousePlatform.GetLocation">
+            <summary>
+            Returns the location of mouse cursor relative to program window
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:SharpDX.Toolkit.Input.MousePlatform.SetLocation(SharpDX.Vector2)">
+            <summary>
+            Sets the mouse cursor location.
+            </summary>
+            <param name="point">The position in space [0,1].</param>
+            <remarks>Supported only on Desktop platform. On other platforms the call of this method has no effect.</remarks>
+        </member>
+        <member name="M:SharpDX.Toolkit.Input.MousePlatform.BindWindow(System.Object)">
+            <summary>
+            Derived classes should implement platform-specific event bindings in this method
+            </summary>
+            <param name="nativeWindow">The native window object reference</param>
+        </member>
+        <member name="M:SharpDX.Toolkit.Input.MousePlatform.GetLocationInternal">
+            <summary>
+            Derived classes should implement platform-specific code to retrieve the mouse cursor location
+            </summary>
+        </member>
+        <member name="M:SharpDX.Toolkit.Input.MousePlatform.OnMouseDown(SharpDX.Toolkit.Input.MouseButton)">
+            <summary>
+            Raises the <see cref="E:SharpDX.Toolkit.Input.MousePlatform.MouseDown"/> event
+            </summary>
+            <param name="button">Mouse button which has been pressed</param>
+        </member>
+        <member name="M:SharpDX.Toolkit.Input.MousePlatform.OnMouseUp(SharpDX.Toolkit.Input.MouseButton)">
+            <summary>
+            Raises the <see cref="E:SharpDX.Toolkit.Input.MousePlatform.MouseUp"/> event
+            </summary>
+            <param name="button">Mouse button which has been released</param>
+        </member>
+        <member name="M:SharpDX.Toolkit.Input.MousePlatform.OnMouseWheel(System.Int32)">
+            <summary>
+            Raises the <see cref="E:SharpDX.Toolkit.Input.MousePlatform.MouseWheelDelta"/> event
+            </summary>
+            <param name="wheelDelta">Current value of mouse wheel delta</param>
+        </member>
+        <member name="M:SharpDX.Toolkit.Input.MousePlatform.Raise``1(System.Action{``0},``0)">
+            <summary>
+            Generic helper method to call a single-parameter event handler
+            </summary>
+            <remarks>This ensures that during the call - the handler reference will not be lost (due to stack-copy of delegate reference)</remarks>
+            <typeparam name="TArg">The type of event argument</typeparam>
+            <param name="handler">The reference to event delegate</param>
+            <param name="argument">The event argument</param>
+        </member>
+        <member name="E:SharpDX.Toolkit.Input.MousePlatform.MouseDown">
+            <summary>
+            Raised when a button is pressed
+            </summary>
+        </member>
+        <member name="E:SharpDX.Toolkit.Input.MousePlatform.MouseUp">
+            <summary>
+            Raised when a button is released
+            </summary>
+        </member>
+        <member name="E:SharpDX.Toolkit.Input.MousePlatform.MouseWheelDelta">
+            <summary>
+            Raised when mouse wheel delta is changed
+            </summary>
+        </member>
+        <member name="M:SharpDX.Toolkit.Input.MousePlatformDesktopWpf.#ctor(System.Object)">
+            <summary>
+            Initializes a new instance of <see cref="T:SharpDX.Toolkit.Input.MousePlatformDesktopWpf"/> class.
+            </summary>
+            <param name="nativeWindow">A reference to <see cref="T:SharpDX.Toolkit.SharpDXElement"/> class.</param>
+            <exception cref="T:System.ArgumentNullException">Is thrown when <paramref name="nativeWindow"/> is null.</exception>
+        </member>
+        <member name="M:SharpDX.Toolkit.Input.MousePlatformDesktopWpf.SetLocation(SharpDX.Vector2)">
+            <inheritdoc />
+        </member>
+        <member name="M:SharpDX.Toolkit.Input.MousePlatformDesktopWpf.BindWindow(System.Object)">
+            <summary>
+            Binds to specific events of the provided CoreWindow
+            </summary>
+            <param name="nativeWindow">A reference to <see cref="T:SharpDX.Toolkit.SharpDXElement"/> class.</param>
+            <exception cref="T:System.ArgumentNullException">Is thrown when <paramref name="nativeWindow"/> is null.</exception>
+            <exception cref="T:System.InvalidCastException">Is thrown when <paramref name="nativeWindow"/> is not an instance of the <see cref="T:SharpDX.Toolkit.SharpDXElement"/> class.</exception>
+        </member>
+        <member name="M:SharpDX.Toolkit.Input.MousePlatformDesktopWpf.HandleMouseDown(System.Object,System.Windows.Input.MouseButtonEventArgs)">
+            <summary>
+            Handles the <see cref="E:System.Windows.UIElement.MouseDown"/> event to update the mouse state.
+            </summary>
+            <param name="sender">Ignored.</param>
+            <param name="e">Event arguments from where is determined the changed button.</param>
+        </member>
+        <member name="M:SharpDX.Toolkit.Input.MousePlatformDesktopWpf.HandleMouseUp(System.Object,System.Windows.Input.MouseButtonEventArgs)">
+            <summary>
+            Handles the <see cref="E:System.Windows.UIElement.MouseUp"/> event to update the mouse state.
+            </summary>
+            <param name="sender">Ignored.</param>
+            <param name="e">Event arguments from where is determined the changed button.</param>
+        </member>
+        <member name="M:SharpDX.Toolkit.Input.MousePlatformDesktopWpf.HandleMouseWheel(System.Object,System.Windows.Input.MouseWheelEventArgs)">
+            <summary>
+            Handles the <see cref="E:System.Windows.UIElement.MouseWheel"/> event to update the mouse state.
+            </summary>
+            <param name="sender">Ignored.</param>
+            <param name="e">Event arguments from where is determined the wheel delta.</param>
+        </member>
+        <member name="M:SharpDX.Toolkit.Input.MousePlatformDesktopWpf.GetLocationInternal">
+            <inheritdoc />
+        </member>
+        <member name="M:SharpDX.Toolkit.Input.MousePlatformDesktopWpf.TranslateButton(System.Windows.Input.MouseButton)">
+            <summary>
+            Translates the <see cref="T:System.Windows.Input.MouseButton"/> enum (WinForms specific) to platform-independent <see cref="T:SharpDX.Toolkit.Input.MouseButton"/>.
+            </summary>
+            <param name="button">WinForms-specific <see cref="T:System.Windows.Input.MouseButton"/> value.</param>
+            <returns>Platform-independent <see cref="T:SharpDX.Toolkit.Input.MouseButton"/> value.</returns>
+        </member>
+        <member name="M:SharpDX.Toolkit.Input.MousePlatformDesktopWpf.SetCursorPos(System.Int32,System.Int32)">
+            <summary>
+            http://msdn.microsoft.com/en-us/library/windows/desktop/ms648394%28v=vs.85%29.aspx
+            </summary>
+        </member>
+        <member name="T:SharpDX.Toolkit.Input.NamespaceDoc">
+            <summary>
+            The <see cref="N:SharpDX.Toolkit.Input"/> namespace provides a high level Input API.
+            </summary>
+        </member>
+        <member name="T:SharpDX.Toolkit.Input.MousePlatformDesktop">
+            <summary>
+            Represents a specific <see cref="T:SharpDX.Toolkit.Input.MousePlatform"/> implementation for WinForms platform (desktop)
+            </summary>
+        </member>
+        <member name="M:SharpDX.Toolkit.Input.MousePlatformDesktop.#ctor(System.Object)">
+            <summary>
+            Initializes a new instance of <see cref="T:SharpDX.Toolkit.Input.MousePlatformDesktop"/> class.
+            </summary>
+            <param name="nativeWindow">A reference to <see cref="T:System.Windows.Forms.Control"/> class.</param>
+            <exception cref="T:System.ArgumentNullException">Is thrown when <paramref name="nativeWindow"/> is null.</exception>
+        </member>
+        <member name="M:SharpDX.Toolkit.Input.MousePlatformDesktop.SetLocation(SharpDX.Vector2)">
+            <inheritdoc />
+        </member>
+        <member name="M:SharpDX.Toolkit.Input.MousePlatformDesktop.BindWindow(System.Object)">
+            <summary>
+            Binds to specific events of the provided CoreWindow
+            </summary>
+            <param name="nativeWindow">A reference to <see cref="T:System.Windows.Forms.Control"/> class.</param>
+            <exception cref="T:System.ArgumentNullException">Is thrown when <paramref name="nativeWindow"/> is null.</exception>
+            <exception cref="T:System.InvalidCastException">Is thrown when <paramref name="nativeWindow"/> is not an instance of the <see cref="T:System.Windows.Forms.Control"/> class.</exception>
+        </member>
+        <member name="M:SharpDX.Toolkit.Input.MousePlatformDesktop.GetLocationInternal">
+            <summary>
+            Returns the mouse cursor position from cached values
+            </summary>
+        </member>
+        <member name="M:SharpDX.Toolkit.Input.MousePlatformDesktop.HandleMouseDown(System.Object,System.Windows.Forms.MouseEventArgs)">
+            <summary>
+            Handles the <see cref="E:System.Windows.Forms.Control.MouseDown"/> event
+            </summary>
+            <param name="sender">Event sender. Ignored.</param>
+            <param name="e">Event arguments</param>
+        </member>
+        <member name="M:SharpDX.Toolkit.Input.MousePlatformDesktop.HandleMouseUp(System.Object,System.Windows.Forms.MouseEventArgs)">
+            <summary>
+            Handles the <see cref="E:System.Windows.Forms.Control.MouseUp"/> event
+            </summary>
+            <param name="sender">Event sender. Ignored.</param>
+            <param name="e">Event arguments</param>
+        </member>
+        <member name="M:SharpDX.Toolkit.Input.MousePlatformDesktop.HandleMouseMove(System.Object,System.Windows.Forms.MouseEventArgs)">
+            <summary>
+            Handles the <see cref="E:System.Windows.Forms.Control.MouseMove"/> event
+            </summary>
+            <param name="sender">Event sender. Ignored.</param>
+            <param name="e">Event arguments</param>
+        </member>
+        <member name="M:SharpDX.Toolkit.Input.MousePlatformDesktop.HandleMouseWheel(System.Object,System.Windows.Forms.MouseEventArgs)">
+            <summary>
+            Handles the <see cref="E:System.Windows.Forms.Control.MouseWheel"/> event
+            </summary>
+            <param name="sender">Event sender. Ignored.</param>
+            <param name="e">Event arguments</param>
+        </member>
+        <member name="M:SharpDX.Toolkit.Input.MousePlatformDesktop.TranslateButton(System.Windows.Forms.MouseButtons)">
+            <summary>
+            Translates the <see cref="T:System.Windows.Forms.MouseButtons"/> enum (WinForms specific) to platform-independent <see cref="T:SharpDX.Toolkit.Input.MouseButton"/>.
+            </summary>
+            <param name="button">WinForms-specific <see cref="T:System.Windows.Forms.MouseButtons"/> value</param>
+            <returns>Platform-independent <see cref="T:SharpDX.Toolkit.Input.MouseButton"/> value</returns>
+        </member>
+        <member name="T:SharpDX.Toolkit.Input.IMouseService">
+            <summary>
+            Service provides access to mouse state
+            </summary>
+        </member>
+        <member name="M:SharpDX.Toolkit.Input.IMouseService.GetState">
+            <summary>
+            Gets current mouse state.
+            </summary>
+            <returns>A snapshot of current mouse state</returns>
+        </member>
+        <member name="M:SharpDX.Toolkit.Input.IMouseService.SetPosition(SharpDX.Vector2)">
+            <summary>
+            Sets the position of mouse pointer
+            </summary>
+            <param name="point">The desired position</param>
+        </member>
+        <member name="T:SharpDX.Toolkit.Input.MouseButton">
+            <summary>
+            Represents a mouse button
+            </summary>
+        </member>
+        <member name="F:SharpDX.Toolkit.Input.MouseButton.None">
+            <summary>
+            No button ('null-object' pattern)
+            </summary>
+        </member>
+        <member name="F:SharpDX.Toolkit.Input.MouseButton.Left">
+            <summary>
+            Left mouse button
+            </summary>
+        </member>
+        <member name="F:SharpDX.Toolkit.Input.MouseButton.Middle">
+            <summary>
+            Middle mouse button
+            </summary>
+        </member>
+        <member name="F:SharpDX.Toolkit.Input.MouseButton.Right">
+            <summary>
+            Right mouse button
+            </summary>
+        </member>
+        <member name="F:SharpDX.Toolkit.Input.MouseButton.XButton1">
+            <summary>
+            Mouse X-Button 1
+            </summary>
+        </member>
+        <member name="F:SharpDX.Toolkit.Input.MouseButton.XButton2">
+            <summary>
+            Mouse X-Button 2
+            </summary>
+        </member>
+        <member name="T:SharpDX.Toolkit.Input.MouseManager">
+            <summary>
+            The <see cref="T:SharpDX.Toolkit.Input.MouseManager"/> component provides access to mouse state
+            </summary>
+        </member>
+        <member name="M:SharpDX.Toolkit.Input.MouseManager.#ctor(SharpDX.Toolkit.Game)">
+            <summary>
+            Initializes a new instance of <see cref="T:SharpDX.Toolkit.Input.MouseManager"/> class
+            </summary>
+            <param name="game">The <see cref="T:SharpDX.Toolkit.Game"/> instance whose window is used as source of mouse input events</param>
+            <exception cref="T:System.ArgumentNullException">Is thrown if <paramref name="game"/> is null</exception>
+        </member>
+        <member name="M:SharpDX.Toolkit.Input.MouseManager.Initialize">
+            <summary>
+            Initializes this instance and starts listening to mouse input events
+            </summary>
+            <exception cref="T:System.NotSupportedException">Is thrown if mouse manager is used on an unsupported platform.</exception>
+        </member>
+        <member name="M:SharpDX.Toolkit.Input.MouseManager.GetState">
+            <summary>
+            Gets current mouse state.
+            </summary>
+            <returns>A snapshot of current mouse state</returns>
+            <exception cref="T:System.NullReferenceException">Is thrown if <see cref="M:SharpDX.Toolkit.Input.MouseManager.Initialize"/> is not called.</exception>
+        </member>
+        <member name="M:SharpDX.Toolkit.Input.MouseManager.SetPosition(SharpDX.Vector2)">
+            <summary>
+            Sets the position of mouse pointer
+            </summary>
+            <param name="point">The desired position in the range X/Y [0,1]</param>
+            <exception cref="T:System.InvalidOperationException">Is thrown when <see cref="T:SharpDX.Toolkit.Input.MouseManager"/> is not initialized</exception>
+        </member>
+        <member name="M:SharpDX.Toolkit.Input.MouseManager.Update(SharpDX.Toolkit.GameTime)">
+            <summary>
+            Updates the mouse states.
+            </summary>
+            <param name="gameTime">Not used.</param>
+        </member>
+        <member name="M:SharpDX.Toolkit.Input.MouseManager.HandleMouseDown(SharpDX.Toolkit.Input.MouseButton)">
+            <summary>
+            Handler for <see cref="E:SharpDX.Toolkit.Input.MousePlatform.MouseDown"/> event
+            </summary>
+            <param name="button">The pressed button</param>
+        </member>
+        <member name="M:SharpDX.Toolkit.Input.MouseManager.HandleMouseUp(SharpDX.Toolkit.Input.MouseButton)">
+            <summary>
+            Handler for <see cref="E:SharpDX.Toolkit.Input.MousePlatform.MouseUp"/> event
+            </summary>
+            <param name="button">The pressed button</param>
+        </member>
+        <member name="M:SharpDX.Toolkit.Input.MouseManager.HandleWheelDelta(System.Int32)">
+            <summary>
+            Handler for <see cref="E:SharpDX.Toolkit.Input.MousePlatform.MouseWheelDelta"/> event
+            </summary>
+            <param name="wheelDelta">The pressed button</param>
+        </member>
+        <member name="M:SharpDX.Toolkit.Input.MouseManager.SetButtonStateTo(SharpDX.Toolkit.Input.MouseButton,System.Boolean)">
+            <summary>
+            Sets the state of specified mouse button
+            </summary>
+            <param name="button">The button whose state needs to be set.</param>
+            <param name="isDown">if set to <c>true</c> [is pressed].</param>
+            <exception cref="T:System.ArgumentOutOfRangeException">button</exception>
+            <exception cref="T:System.ArgumentOutOfRangeException">Is thrown if the <paramref name="button"/> has an unknown value.</exception>
+        </member>
+        <member name="M:SharpDX.Toolkit.Input.MouseManager.HandleState(SharpDX.Toolkit.Input.ButtonState@,System.Boolean)">
+            <summary>
+            Computes the next state from the provided button sate.
+            </summary>
+            <param name="state">The current button state.</param>
+            <param name="isDown">A value indicating whether the button is pressed or not.</param>
+        </member>
+        <member name="T:SharpDX.Toolkit.Input.MouseState">
+            <summary>
+            The <see cref="T:SharpDX.Toolkit.Input.MouseState"/> structure represents a snapshot of mouse state.
+            </summary>
+            <remarks>Is immutable.</remarks>
+        </member>
+        <member name="M:SharpDX.Toolkit.Input.MouseState.#ctor(SharpDX.Toolkit.Input.ButtonState,SharpDX.Toolkit.Input.ButtonState,SharpDX.Toolkit.Input.ButtonState,SharpDX.Toolkit.Input.ButtonState,SharpDX.Toolkit.Input.ButtonState,System.Single,System.Single,System.Single,System.Single,System.Int32)">
+            <summary>
+            Initializes a new instance of the <see cref="T:SharpDX.Toolkit.Input.MouseState"/> structure.
+            </summary>
+            <param name="leftButton">State of the left button</param>
+            <param name="middleButton">State of the middle button</param>
+            <param name="rightButton">State of the right button</param>
+            <param name="xButton1">State of the X-Button 1</param>
+            <param name="xButton2">State of the X-Button 2</param>
+            <param name="x">X-position of the mouse cursor</param>
+            <param name="y">Y-position of the mouse cursor</param>
+            <param name="wheelDelta">Delta of mouse wheel relative to previous input event</param>
+        </member>
+        <member name="M:SharpDX.Toolkit.Input.MouseState.op_Equality(SharpDX.Toolkit.Input.MouseState,SharpDX.Toolkit.Input.MouseState)">
+            <summary>
+            Implements the ==.
+            </summary>
+            <param name="left">The left.</param>
+            <param name="right">The right.</param>
+            <returns>The result of the operator.</returns>
+        </member>
+        <member name="M:SharpDX.Toolkit.Input.MouseState.op_Inequality(SharpDX.Toolkit.Input.MouseState,SharpDX.Toolkit.Input.MouseState)">
+            <summary>
+            Implements the !=.
+            </summary>
+            <param name="left">The left.</param>
+            <param name="right">The right.</param>
+            <returns>The result of the operator.</returns>
+        </member>
+        <member name="P:SharpDX.Toolkit.Input.MouseState.LeftButton">
+            <summary>
+            State of the left button
+            </summary>
+        </member>
+        <member name="P:SharpDX.Toolkit.Input.MouseState.MiddleButton">
+            <summary>
+            State of the middle button
+            </summary>
+        </member>
+        <member name="P:SharpDX.Toolkit.Input.MouseState.RightButton">
+            <summary>
+            State of the right button
+            </summary>
+        </member>
+        <member name="P:SharpDX.Toolkit.Input.MouseState.XButton1">
+            <summary>
+            State of the X-Button 1
+            </summary>
+        </member>
+        <member name="P:SharpDX.Toolkit.Input.MouseState.XButton2">
+            <summary>
+            State of the X-Button 2
+            </summary>
+        </member>
+        <member name="P:SharpDX.Toolkit.Input.MouseState.X">
+            <summary>
+            X-position of the mouse cursor in the range [0,1]
+            </summary>
+        </member>
+        <member name="P:SharpDX.Toolkit.Input.MouseState.Y">
+            <summary>
+            Y-position of the mouse cursor in the range [0,1]
+            </summary>
+        </member>
+        <member name="P:SharpDX.Toolkit.Input.MouseState.DeltaX">
+            <summary>
+            Gets the delta on x since the previous update.
+            </summary>
+            <value>The delta x.</value>
+        </member>
+        <member name="P:SharpDX.Toolkit.Input.MouseState.DeltaY">
+            <summary>
+            Gets the delta y since the previous update.
+            </summary>
+            <value>The delta y.</value>
+        </member>
+        <member name="P:SharpDX.Toolkit.Input.MouseState.WheelDelta">
+            <summary>
+            Gets the mouse scroll wheel value since the previous update.
+            </summary>
+        </member>
+        <member name="T:SharpDX.Toolkit.Input.PointerDeviceType">
+            <summary>
+            Represent the specific pointer device type
+            </summary>
+        </member>
+        <member name="F:SharpDX.Toolkit.Input.PointerDeviceType.Touch">
+            <summary>
+            Touch pointer device. A touchscreen, for example.
+            </summary>
+        </member>
+        <member name="F:SharpDX.Toolkit.Input.PointerDeviceType.Pen">
+            <summary>
+            The pen pointer device.
+            </summary>
+        </member>
+        <member name="F:SharpDX.Toolkit.Input.PointerDeviceType.Mouse">
+            <summary>
+            The mouse.
+            </summary>
+        </member>
+        <member name="T:SharpDX.Toolkit.Input.PointerEventType">
+            <summary>
+            Represents the type of pointer event
+            </summary>
+        </member>
+        <member name="F:SharpDX.Toolkit.Input.PointerEventType.CaptureLost">
+            <summary>
+            The pointer capture was lost
+            </summary>
+        </member>
+        <member name="F:SharpDX.Toolkit.Input.PointerEventType.Entered">
+            <summary>
+            The pointer entered the current control bounds
+            </summary>
+        </member>
+        <member name="F:SharpDX.Toolkit.Input.PointerEventType.Exited">
+            <summary>
+            The pointer exited the current control bounds
+            </summary>
+        </member>
+        <member name="F:SharpDX.Toolkit.Input.PointerEventType.Moved">
+            <summary>
+            The pointer moved over the current control bounds
+            </summary>
+        </member>
+        <member name="F:SharpDX.Toolkit.Input.PointerEventType.Pressed">
+            <summary>
+            The pointer was pressed
+            </summary>
+        </member>
+        <member name="F:SharpDX.Toolkit.Input.PointerEventType.Released">
+            <summary>
+            The pointer was released
+            </summary>
+        </member>
+        <member name="F:SharpDX.Toolkit.Input.PointerEventType.WheelChanged">
+            <summary>
+            The pointer wheel changed its state
+            </summary>
+        </member>
+        <member name="T:SharpDX.Toolkit.Input.PointerManager">
+            <summary>
+            Provides cross-platform access to pointer events
+            </summary>
+        </member>
+        <member name="M:SharpDX.Toolkit.Input.PointerManager.#ctor(SharpDX.Toolkit.Game)">
+            <summary>
+            Initializes a new instance of <see cref="T:SharpDX.Toolkit.Input.PointerManager"/> class
+            </summary>
+            <param name="game">The <see cref="T:SharpDX.Toolkit.Game"/> instance whose window is used as source of pointer input events</param>
+            <exception cref="T:System.ArgumentNullException">Is thrown if <paramref name="game"/> is null</exception>
+        </member>
+        <member name="M:SharpDX.Toolkit.Input.PointerManager.Initialize">
+            <summary>
+            Initializes this instance of <see cref="T:SharpDX.Toolkit.Input.PointerManager"/> class.
+            </summary>
+            <exception cref="T:System.NotSupportedException">Is thrown when this functionality is not supported on current platform</exception>
+        </member>
+        <member name="M:SharpDX.Toolkit.Input.PointerManager.GetState">
+            <inheritdoc/>
+        </member>
+        <member name="M:SharpDX.Toolkit.Input.PointerManager.GetState(SharpDX.Toolkit.Input.PointerState)">
+            <inheritdoc/>
+        </member>
+        <member name="M:SharpDX.Toolkit.Input.PointerManager.Update(SharpDX.Toolkit.GameTime)">
+            <inheritdoc/>
+        </member>
+        <member name="M:SharpDX.Toolkit.Input.PointerManager.AddPointerEvent(SharpDX.Toolkit.Input.PointerPoint@)">
+            <summary>
+            Adds a pointer point to the raised events collection. It will be copied to pointer state at next update.
+            </summary>
+            <param name="point">The raised pointer event</param>
+        </member>
+        <member name="M:SharpDX.Toolkit.Input.PointerManager.RaiseEvent(System.EventHandler{System.EventArgs})">
+            <summary>
+            Raises a simple event in a thread-safe way due to stack-copy of delegate reference
+            </summary>
+            <param name="handler">The event handler that needs to be raised</param>
+        </member>
+        <member name="P:SharpDX.Toolkit.Input.PointerManager.Enabled">
+            <inheritdoc/>
+        </member>
+        <member name="P:SharpDX.Toolkit.Input.PointerManager.UpdateOrder">
+            <inheritdoc/>
+        </member>
+        <member name="E:SharpDX.Toolkit.Input.PointerManager.EnabledChanged">
+            <inheritdoc/>
+        </member>
+        <member name="E:SharpDX.Toolkit.Input.PointerManager.UpdateOrderChanged">
+            <inheritdoc/>
+        </member>
+        <member name="T:SharpDX.Toolkit.Input.PointerPlatform">
+            <summary>
+            Base class for platform-specific event bindings
+            </summary>
+        </member>
+        <member name="M:SharpDX.Toolkit.Input.PointerPlatform.#ctor(System.Object,SharpDX.Toolkit.Input.PointerManager)">
+            <summary>
+            Initializes a new instance of <see cref="T:SharpDX.Toolkit.Input.PointerPlatform"/> class
+            </summary>
+            <param name="nativeWindow">The platform-specific reference to window object</param>
+            <param name="manager">The <see cref="T:SharpDX.Toolkit.Input.PointerManager"/> whose events will be raised in response to platform-specific events</param>
+            <exception cref="T:System.ArgumentNullException">Is thrown when either <paramref name="nativeWindow"/> or <paramref name="manager"/> is null.</exception>
+        </member>
+        <member name="M:SharpDX.Toolkit.Input.PointerPlatform.Create(System.Object,SharpDX.Toolkit.Input.PointerManager)">
+            <summary>
+            Creates a platform-specific instance of <see cref="T:SharpDX.Toolkit.Input.PointerPlatform"/> class.
+            </summary>
+            <param name="nativeWindow">The platform-specific reference to window object</param>
+            <param name="manager">The <see cref="T:SharpDX.Toolkit.Input.PointerManager"/> whose events will be raised in response to platform-specific events</param>
+            <exception cref="T:System.ArgumentNullException">Is thrown when either <paramref name="nativeWindow"/> or <paramref name="manager"/> is null.</exception>
+            <exception cref="T:System.NotSupportedException">Is thrown when this functionality is not supported on current platform</exception>
+            <returns>The platform-specific instance.</returns>
+        </member>
+        <member name="M:SharpDX.Toolkit.Input.PointerPlatform.BindWindow(System.Object)">
+            <summary>
+            Derived classes should perform the binding to platform-specific events on <paramref name="nativeWindow"/> and raise the corresponding events on <paramref name="manager"/>.
+            </summary>
+            <param name="nativeWindow">The platform-specific reference to window object</param>
+        </member>
+        <member name="T:SharpDX.Toolkit.Input.PointerPlatformDesktop">
+            <summary>
+            Specific implementation of <see cref="T:SharpDX.Toolkit.Input.PointerPlatform"/> for Desktop
+            </summary>
+        </member>
+        <member name="M:SharpDX.Toolkit.Input.PointerPlatformDesktop.#ctor(System.Object,SharpDX.Toolkit.Input.PointerManager)">
+            <summary>
+            Initializes a new instance of <see cref="T:SharpDX.Toolkit.Input.PointerPlatformDesktop"/> class.
+            </summary>
+            <param name="nativeWindow">The platform-specific reference to window object</param>
+            <param name="manager">The <see cref="T:SharpDX.Toolkit.Input.PointerManager"/> whose events will be raised in response to platform-specific events</param>
+            <exception cref="T:System.ArgumentNullException">Is thrown when either <paramref name="nativeWindow"/> or <paramref name="manager"/> is null.</exception>
+        </member>
+        <member name="M:SharpDX.Toolkit.Input.PointerPlatformDesktop.BindWindow(System.Object)">
+            <summary>
+            Binds to pointer events of specified <paramref name="nativeWindow"/> object and raises the corresponding events on <paramref name="manager"/>.
+            </summary>
+            <param name="nativeWindow">An instance of <see cref="T:System.Windows.Forms.Control"/>.</param>
+            <exception cref="T:System.ArgumentNullException">Is thrown when <paramref name="nativeWindow"/> is null.</exception>
+        </member>
+        <member name="M:SharpDX.Toolkit.Input.PointerPlatformDesktop.HandleMouseDown(System.Object,System.Windows.Forms.MouseEventArgs)">
+            <summary>
+            Handles the <see cref="E:System.Windows.Forms.Control.MouseDown"/> event.
+            </summary>
+            <param name="sender">Ignored.</param>
+            <param name="e">Is used to retrieve information about changed button (<see cref="P:System.Windows.Forms.MouseEventArgs.Button"/>) and wheel delta (<see cref="P:System.Windows.Forms.MouseEventArgs.Delta"/>).</param>
+        </member>
+        <member name="M:SharpDX.Toolkit.Input.PointerPlatformDesktop.HandleMouseUp(System.Object,System.Windows.Forms.MouseEventArgs)">
+            <summary>
+            Handles the <see cref="E:System.Windows.Forms.Control.MouseUp"/> event.
+            </summary>
+            <param name="sender">Ignored.</param>
+            <param name="e">Is used to retrieve information about changed button (<see cref="P:System.Windows.Forms.MouseEventArgs.Button"/>) and wheel delta (<see cref="P:System.Windows.Forms.MouseEventArgs.Delta"/>).</param>
+        </member>
+        <member name="M:SharpDX.Toolkit.Input.PointerPlatformDesktop.CreateAndAddPoint(SharpDX.Toolkit.Input.PointerEventType,SharpDX.Toolkit.Input.PointerUpdateKind,System.Int32)">
+            <summary>
+            Creates a <see cref="T:SharpDX.Toolkit.Input.PointerPoint"/> instance from current mouse state.
+            </summary>
+            <param name="eventType">The type of pointer event.</param>
+            <param name="pointerUpdateKind">The kind of pointer event.</param>
+            <param name="wheelDelta">The current mouse wheel delta.</param>
+        </member>
+        <member name="M:SharpDX.Toolkit.Input.PointerPlatformDesktop.GetCurrentKeyModifiers">
+            <summary>
+            Gets the currently pressed key modifiers
+            </summary>
+            <returns>Currently pressed key modifiers</returns>
+        </member>
+        <member name="M:SharpDX.Toolkit.Input.PointerPlatformDesktop.TranslateMouseButtonDown(System.Windows.Forms.MouseButtons)">
+            <summary>
+            Translates the <see cref="T:System.Windows.Forms.MouseButtons"/> to corresponding <see cref="T:SharpDX.Toolkit.Input.PointerUpdateKind"/> according to <see cref="E:System.Windows.Forms.Control.MouseDown"/> event.
+            </summary>
+            <param name="button">The pressed mouse button.</param>
+            <returns>The corresponding pointer update kind.</returns>
+        </member>
+        <member name="M:SharpDX.Toolkit.Input.PointerPlatformDesktop.TranslateMouseButtonUp(System.Windows.Forms.MouseButtons)">
+            <summary>
+            Translates the <see cref="T:System.Windows.Forms.MouseButtons"/> to corresponding <see cref="T:SharpDX.Toolkit.Input.PointerUpdateKind"/> according to <see cref="E:System.Windows.Forms.Control.MouseUp"/> event.
+            </summary>
+            <param name="button">The released mouse button.</param>
+            <returns>The corresponding pointer update kind.</returns>
+        </member>
+        <member name="M:SharpDX.Toolkit.Input.PointerPlatformDesktop.TryRegisterTouch">
+            <summary>
+            Tries to register a handler for touch Win32 events.
+            </summary>
+            <remarks>If Windows OS version is below Windows 7 - does nothing.</remarks>
+        </member>
+        <member name="M:SharpDX.Toolkit.Input.PointerPlatformDesktop.RegisterTouchWndProc">
+            <summary>
+            Registers a windows procedure that intercepts and handles the Win32 touch messages
+            </summary>
+        </member>
+        <member name="M:SharpDX.Toolkit.Input.PointerPlatformDesktop.InitializeTouchProcedures">
+            <summary>
+            Initializes window proc hook and reads current DPI info
+            </summary>
+        </member>
+        <member name="M:SharpDX.Toolkit.Input.PointerPlatformDesktop.WindowProcSubClass(System.IntPtr,System.Int32,System.IntPtr,System.IntPtr)">
+            <summary>
+            Window procedure that allows interception of needed events
+            </summary>
+            <param name="hWnd">The Windows Handle</param>
+            <param name="msg">Windows Message</param>
+            <param name="wparam">wParam</param>
+            <param name="lparam">lParam</param>
+            <returns>0 if message wasn't handled, any other value - the message was handled</returns>
+        </member>
+        <member name="M:SharpDX.Toolkit.Input.PointerPlatformDesktop.WindowProc(System.IntPtr,System.Int32,System.IntPtr,System.IntPtr)">
+            <summary>
+            Intercept and raise touch events
+            </summary>
+            <remarks>Will intercept and drop mouse events generated from touch.</remarks>
+            <param name="hWnd">The Windows Handle</param>
+            <param name="msg">Windows Message</param>
+            <param name="wparam">wParam</param>
+            <param name="lparam">lParam</param>
+            <returns>0 if message wasn't handled, any other value - the message was handled</returns>
+        </member>
+        <member name="M:SharpDX.Toolkit.Input.PointerPlatformDesktop.DecodeAndDispatchTouchMessages(System.IntPtr,System.IntPtr)">
+            <summary>
+            Decodes touch messages and calls corresponding methods on <see cref="T:SharpDX.Toolkit.Input.PointerManager"/> class
+            </summary>
+            <param name="wParam">wParam</param>
+            <param name="lParam">lParam</param>
+        </member>
+        <member name="M:SharpDX.Toolkit.Input.PointerPlatformDesktop.DecodeAndDispatchTouchPoint(SharpDX.Toolkit.Input.PointerPlatformDesktop.TOUCHINPUT)">
+            <summary>
+            Decodes a single touch point and creates from it the <see cref="T:SharpDX.Toolkit.Input.PointerPoint"/> class.
+            </summary>
+            <param name="input">The touch point input structure.</param>
+        </member>
+        <member name="M:SharpDX.Toolkit.Input.PointerPlatformDesktop.AdjustX(System.Int32)">
+            <summary>
+            Adjusts the value by current DPI on X axis
+            </summary>
+            <param name="x">Value to adjust</param>
+            <returns>Adjusted value</returns>
+        </member>
+        <member name="M:SharpDX.Toolkit.Input.PointerPlatformDesktop.AdjustY(System.Int32)">
+            <summary>
+            Adjusts the value by current DPI on Y axis
+            </summary>
+            <param name="y">Value to adjust</param>
+            <returns>Adjusted value</returns>
+        </member>
+        <member name="T:SharpDX.Toolkit.Input.PointerPlatformDesktop.TOUCHINPUT">
+            <summary>
+            Touch API defined structures [winuser.h]
+            </summary>
+        </member>
+        <member name="T:SharpDX.Toolkit.Input.PointerPlatformDesktop.DigitizerStatus">
+            <summary>
+            All available digitizer capabilities
+            </summary>
+        </member>
+        <member name="T:SharpDX.Toolkit.Input.PointerPlatformDesktop.DigitizerCapabilities">
+            <summary>
+            Report digitizer capabilities
+            </summary>
+        </member>
+        <member name="P:SharpDX.Toolkit.Input.PointerPlatformDesktop.DigitizerCapabilities.Status">
+            <summary>
+            Get the current Digitizer Status
+            </summary>
+        </member>
+        <member name="P:SharpDX.Toolkit.Input.PointerPlatformDesktop.DigitizerCapabilities.MaxumumTouches">
+            <summary>
+            Get the maximum touches capability
+            </summary>
+        </member>
+        <member name="P:SharpDX.Toolkit.Input.PointerPlatformDesktop.DigitizerCapabilities.IsIntegratedTouch">
+            <summary>
+            Check for integrated touch support
+            </summary>
+        </member>
+        <member name="P:SharpDX.Toolkit.Input.PointerPlatformDesktop.DigitizerCapabilities.IsExternalTouch">
+            <summary>
+            Check for external touch support
+            </summary>
+        </member>
+        <member name="P:SharpDX.Toolkit.Input.PointerPlatformDesktop.DigitizerCapabilities.IsIntegratedPan">
+            <summary>
+            Check for Pen support
+            </summary>
+        </member>
+        <member name="P:SharpDX.Toolkit.Input.PointerPlatformDesktop.DigitizerCapabilities.IsExternalPan">
+            <summary>
+            Check for external Pan support
+            </summary>
+        </member>
+        <member name="P:SharpDX.Toolkit.Input.PointerPlatformDesktop.DigitizerCapabilities.IsMultiInput">
+            <summary>
+            Check for multi-input
+            </summary>
+        </member>
+        <member name="P:SharpDX.Toolkit.Input.PointerPlatformDesktop.DigitizerCapabilities.IsStackReady">
+            <summary>
+            Check if touch device is ready
+            </summary>
+        </member>
+        <member name="P:SharpDX.Toolkit.Input.PointerPlatformDesktop.DigitizerCapabilities.IsMultiTouchReady">
+            <summary>
+            Check if Multi-touch support device is ready
+            </summary>
+        </member>
+        <member name="T:SharpDX.Toolkit.Input.PointerPlatformDesktopWpf">
+            <summary>
+            Specific implementation of <see cref="T:SharpDX.Toolkit.Input.PointerPlatform"/> for WPF desktop platform.
+            </summary>
+        </member>
+        <member name="M:SharpDX.Toolkit.Input.PointerPlatformDesktopWpf.#ctor(System.Object,SharpDX.Toolkit.Input.PointerManager)">
+            <summary>
+            Initializes a new instance of <see cref="T:SharpDX.Toolkit.Input.PointerPlatformDesktopWpf"/> class.
+            </summary>
+            <param name="nativeWindow">The platform-specific reference to window object</param>
+            <param name="manager">The <see cref="T:SharpDX.Toolkit.Input.PointerManager"/> whose events will be raised in response to platform-specific events</param>
+            <exception cref="T:System.ArgumentNullException">Is thrown when either <paramref name="nativeWindow"/> or <paramref name="manager"/> is null.</exception>
+        </member>
+        <member name="M:SharpDX.Toolkit.Input.PointerPlatformDesktopWpf.BindWindow(System.Object)">
+            <summary>
+            Binds to pointer events of specified <paramref name="nativeWindow"/> object and raises the corresponding events on <see cref="T:SharpDX.Toolkit.Input.PointerManager"/>.
+            </summary>
+            <param name="nativeWindow">An instance of <see cref="T:SharpDX.Toolkit.SharpDXElement"/>.</param>
+            <exception cref="T:System.ArgumentNullException">Is thrown when <paramref name="nativeWindow"/> is null.</exception>
+        </member>
+        <member name="T:SharpDX.Toolkit.Input.PointerPoint">
+            <summary>
+            Represents a platform-independent information about a pointer event.
+            </summary>
+        </member>
+        <member name="M:SharpDX.Toolkit.Input.PointerPoint.Equals(SharpDX.Toolkit.Input.PointerPoint)">
+            <summary>
+            Indicates whether the current object is equal to another object of the same type.
+            </summary>
+            <param name="other">An object to compare with this object.</param>
+            <returns>true if the current object is equal to the <paramref name="other" /> parameter; otherwise, false.</returns>
+        </member>
+        <member name="M:SharpDX.Toolkit.Input.PointerPoint.op_Equality(SharpDX.Toolkit.Input.PointerPoint,SharpDX.Toolkit.Input.PointerPoint)">
+            <summary>
+            Implements the ==.
+            </summary>
+            <param name="left">The left.</param>
+            <param name="right">The right.</param>
+            <returns>The result of the operator.</returns>
+        </member>
+        <member name="M:SharpDX.Toolkit.Input.PointerPoint.op_Inequality(SharpDX.Toolkit.Input.PointerPoint,SharpDX.Toolkit.Input.PointerPoint)">
+            <summary>
+            Implements the !=.
+            </summary>
+            <param name="left">The left.</param>
+            <param name="right">The right.</param>
+            <returns>The result of the operator.</returns>
+        </member>
+        <member name="P:SharpDX.Toolkit.Input.PointerPoint.EventType">
+            <summary>
+            The type of event that represents current pointer point
+            </summary>
+        </member>
+        <member name="P:SharpDX.Toolkit.Input.PointerPoint.DeviceType">
+            <summary>
+            The device type that raised the event.
+            </summary>
+        </member>
+        <member name="P:SharpDX.Toolkit.Input.PointerPoint.PointerId">
+            <summary>
+            An unique identifier of this pointer input point.
+            </summary>
+        </member>
+        <member name="P:SharpDX.Toolkit.Input.PointerPoint.Position">
+            <summary>
+            The location of pointer input point in client coordinates.
+            </summary>
+        </member>
+        <member name="P:SharpDX.Toolkit.Input.PointerPoint.Timestamp">
+            <summary>
+            The timestamp when the event occurred.
+            </summary>
+        </member>
+        <member name="P:SharpDX.Toolkit.Input.PointerPoint.KeyModifiers">
+            <summary>
+            The pressed key modifiers when the event occurred.
+            </summary>
+        </member>
+        <member name="P:SharpDX.Toolkit.Input.PointerPoint.ContactRect">
+            <summary>
+            The bounding rectangle of the contact area (typically for touch).
+            </summary>
+        </member>
+        <member name="P:SharpDX.Toolkit.Input.PointerPoint.IsBarrelButtonPressed">
+            <summary>
+            Indicates whether the barrel button of the pen/stylus device is pressed.
+            </summary>
+        </member>
+        <member name="P:SharpDX.Toolkit.Input.PointerPoint.IsCanceled">
+            <summary>
+            Indicates whether the input was canceled by pointer device.
+            </summary>
+        </member>
+        <member name="P:SharpDX.Toolkit.Input.PointerPoint.IsEraser">
+            <summary>
+            Indicates whether the input is from the digitizer eraser.
+            </summary>
+        </member>
+        <member name="P:SharpDX.Toolkit.Input.PointerPoint.IsHorizontalMouseWheel">
+            <summary>
+            Indicates whether the input is from the mouse tilt wheel.
+            </summary>
+        </member>
+        <member name="P:SharpDX.Toolkit.Input.PointerPoint.IsInRange">
+            <summary>
+            Indicates whether the finger or pen is in range of the digitizer.
+            </summary>
+        </member>
+        <member name="P:SharpDX.Toolkit.Input.PointerPoint.IsInverted">
+            <summary>
+            Indicates whether the digitizer is inverted.
+            </summary>
+        </member>
+        <member name="P:SharpDX.Toolkit.Input.PointerPoint.IsLeftButtonPressed">
+            <summary>
+            Indicates whether the input is from the left button of the mouse or other input device.
+            </summary>
+        </member>
+        <member name="P:SharpDX.Toolkit.Input.PointerPoint.IsMiddleButtonPressed">
+            <summary>
+            Indicates whether the input is from the middle button of the mouse or other input device.
+            </summary>
+        </member>
+        <member name="P:SharpDX.Toolkit.Input.PointerPoint.IsRightButtonPressed">
+            <summary>
+            Indicates whether the input is from the right button of the mouse or other input device.
+            </summary>
+        </member>
+        <member name="P:SharpDX.Toolkit.Input.PointerPoint.IsXButton1Pressed">
+            <summary>
+            Indicates whether the input is from the X button 1 of the mouse or other input device.
+            </summary>
+        </member>
+        <member name="P:SharpDX.Toolkit.Input.PointerPoint.IsXButton2Pressed">
+            <summary>
+            Indicates whether the input is from the X button 2 of the mouse or other input device.
+            </summary>
+        </member>
+        <member name="P:SharpDX.Toolkit.Input.PointerPoint.IsPrimary">
+            <summary>
+            Indicates whether the input is from the primary pointer when multiple pointers are registered.
+            </summary>
+        </member>
+        <member name="P:SharpDX.Toolkit.Input.PointerPoint.MouseWheelDelta">
+            <summary>
+            Indicates the raw device value of the change in wheel button input from the last event.
+            </summary>
+        </member>
+        <member name="P:SharpDX.Toolkit.Input.PointerPoint.Orientation">
+            <summary>
+            Indicates the counter-clockwise angle of the pointer device around the z-axis (perpendicular to digitizer).
+            </summary>
+        </member>
+        <member name="P:SharpDX.Toolkit.Input.PointerPoint.TouchConfidence">
+            <summary>
+            Indicates whether the pointer device rejected the touch input.
+            </summary>
+        </member>
+        <member name="P:SharpDX.Toolkit.Input.PointerPoint.Twist">
+            <summary>
+            Indicates the clock-wise rotation of the pointer device around its own major axis.
+            </summary>
+        </member>
+        <member name="P:SharpDX.Toolkit.Input.PointerPoint.XTilt">
+            <summary>
+            Indicates the plane angle between the Y-Z plane and the plane that contain the Y axis and the axis of the input device (typically pen or stylus).
+            </summary>
+        </member>
+        <member name="P:SharpDX.Toolkit.Input.PointerPoint.YTilt">
+            <summary>
+            Indicates the plane angle between the X-Z plane and the plane that contain the X axis and the axis of the input device (typically pen or stylus).
+            </summary>
+        </member>
+        <member name="P:SharpDX.Toolkit.Input.PointerPoint.PointerUpdateKind">
+            <summary>
+            Indicates the kind of pointer state change.
+            </summary>
+        </member>
+        <member name="T:SharpDX.Toolkit.Input.PointerState">
+            <summary>
+            Contains collection of <see cref="T:SharpDX.Toolkit.Input.PointerPoint"/>
+            </summary>
+        </member>
+        <member name="M:SharpDX.Toolkit.Input.PointerState.#ctor">
+            <summary>
+            Initializes a new instance of <see cref="T:SharpDX.Toolkit.Input.PointerState"/> class
+            </summary>
+        </member>
+        <member name="P:SharpDX.Toolkit.Input.PointerState.Points">
+            <summary>
+            The collection of <see cref="T:SharpDX.Toolkit.Input.PointerPoint"/> that were raised at some specific time
+            </summary>
+        </member>
+        <member name="T:SharpDX.Toolkit.Input.PointerUpdateKind">
+            <summary>
+            Indicates the kind of the pointer state change.
+            </summary>
+        </member>
+        <member name="F:SharpDX.Toolkit.Input.PointerUpdateKind.Other">
+            <summary>
+            Other pointer event.
+            </summary>
+        </member>
+        <member name="F:SharpDX.Toolkit.Input.PointerUpdateKind.LeftButtonPressed">
+            <summary>
+            The left device button was pressed.
+            </summary>
+        </member>
+        <member name="F:SharpDX.Toolkit.Input.PointerUpdateKind.LeftButtonReleased">
+            <summary>
+            The left device button was released.
+            </summary>
+        </member>
+        <member name="F:SharpDX.Toolkit.Input.PointerUpdateKind.RightButtonPressed">
+            <summary>
+            The right device button was pressed.
+            </summary>
+        </member>
+        <member name="F:SharpDX.Toolkit.Input.PointerUpdateKind.RightButtonReleased">
+            <summary>
+            The right device button was released.
+            </summary>
+        </member>
+        <member name="F:SharpDX.Toolkit.Input.PointerUpdateKind.MiddleButtonPressed">
+            <summary>
+            The middle device button was pressed.
+            </summary>
+        </member>
+        <member name="F:SharpDX.Toolkit.Input.PointerUpdateKind.MiddleButtonReleased">
+            <summary>
+            The middle device button was released.
+            </summary>
+        </member>
+        <member name="F:SharpDX.Toolkit.Input.PointerUpdateKind.XButton1Pressed">
+            <summary>
+            The device X-button 1 was pressed.
+            </summary>
+        </member>
+        <member name="F:SharpDX.Toolkit.Input.PointerUpdateKind.XButton1Released">
+            <summary>
+            The device X-button 1 was released.
+            </summary>
+        </member>
+        <member name="F:SharpDX.Toolkit.Input.PointerUpdateKind.XButton2Pressed">
+            <summary>
+            The device X-button 2 was pressed.
+            </summary>
+        </member>
+        <member name="F:SharpDX.Toolkit.Input.PointerUpdateKind.XButton2Released">
+            <summary>
+            The device X-button 2 was released.
+            </summary>
+        </member>
+    </members>
+</doc>

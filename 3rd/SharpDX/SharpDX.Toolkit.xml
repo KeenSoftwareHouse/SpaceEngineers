@@ -1,0 +1,3342 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>SharpDX.Toolkit</name>
+    </assembly>
+    <members>
+        <member name="T:SharpDX.Toolkit.AssemblyDoc">
+            <summary>
+            The <see cref="A:SharpDX.Toolkit"/> assembly provides a high level DirectX API.
+            </summary>
+        </member>
+        <member name="T:SharpDX.Toolkit.Content.AssetNotFoundException">
+            <summary>
+            Exception when an asset was not found from the <see cref="T:SharpDX.Toolkit.Content.ContentManager"/>.
+            </summary>
+        </member>
+        <member name="M:SharpDX.Toolkit.Content.AssetNotFoundException.#ctor">
+            <summary>
+            Initializes a new instance of the <see cref="T:SharpDX.Toolkit.Content.AssetNotFoundException"/> class.
+            </summary>
+        </member>
+        <member name="M:SharpDX.Toolkit.Content.AssetNotFoundException.#ctor(System.String)">
+            <summary>
+            Initializes a new instance of the <see cref="T:SharpDX.Toolkit.Content.AssetNotFoundException"/> class with the specified message.
+            </summary>
+            <param name="message">The exception message.</param>
+        </member>
+        <member name="M:SharpDX.Toolkit.Content.AssetNotFoundException.#ctor(System.String,System.Exception)">
+            <summary>
+            Initializes a new instance of the <see cref="T:SharpDX.Toolkit.Content.AssetNotFoundException"/> class with the specified message and inner exception.
+            </summary>
+            <param name="message">The exception message.</param>
+            <param name="innerException">The inner exception.</param>
+        </member>
+        <member name="T:SharpDX.Toolkit.Content.ContentManager">
+            <summary>
+            The content manager implementation is responsible to load and store content data (texture, songs, effects...etc.) using 
+            several <see cref="T:SharpDX.Toolkit.Content.IContentResolver"/> to resolve a stream from an asset name and several registered <see cref="T:SharpDX.Toolkit.Content.IContentReader"/>
+            to convert data from stream.
+            </summary>
+        </member>
+        <member name="T:SharpDX.Toolkit.Content.IContentManager">
+            <summary>
+            The content manager interface provides a service to load and store content data (texture, songs, effects...etc.).
+            </summary>
+        </member>
+        <member name="M:SharpDX.Toolkit.Content.IContentManager.Exists(System.String)">
+            <summary>
+            Checks if the specified assets exists.
+            </summary>
+            <param name="assetName">The asset name with extension.</param>
+            <returns><c>true</c> if the specified assets exists, <c>false</c> otherwise</returns>
+        </member>
+        <member name="M:SharpDX.Toolkit.Content.IContentManager.Load``1(System.String,System.Object)">
+            <summary>
+            Loads an asset that has been processed by the Content Pipeline.  Reference page contains code sample.
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="assetName">Full asset name (with its extension)</param>
+            <param name="options">The options to pass to the content reader (null by default).</param>
+            <returns>``0.</returns>
+            <exception cref="T:SharpDX.Toolkit.Content.AssetNotFoundException">If the asset was not found from all <see cref="T:SharpDX.Toolkit.Content.IContentResolver"/>.</exception>
+            <exception cref="T:System.NotSupportedException">If no content reader was suitable to decode the asset.</exception>
+        </member>
+        <!-- Badly formed XML comment ignored for member "M:SharpDX.Toolkit.Content.IContentManager.Load(System.Type,System.String,System.Object)" -->
+        <member name="M:SharpDX.Toolkit.Content.IContentManager.Unload">
+            <summary>
+            Unloads all data that was loaded by this ContentManager. All data will be disposed.
+            </summary>
+            <remarks>
+            Unlike <see cref="M:SharpDX.Toolkit.Content.ContentManager.Load``1(System.String,System.Object)"/> method, this method is not thread safe and must be called by a single caller at a single time.
+            </remarks>
+        </member>
+        <member name="M:SharpDX.Toolkit.Content.IContentManager.Unload``1(System.String)">
+            <summary>
+            Unloads and disposes an asset.
+            </summary>
+            <param name="assetName">The asset name</param>
+            <returns><c>true</c> if the asset exists and was unloaded, <c>false</c> otherwise.</returns>
+        </member>
+        <member name="M:SharpDX.Toolkit.Content.IContentManager.Unload(System.Type,System.String)">
+            <summary>
+            Unloads and disposes an asset.
+            </summary>
+            <param name="assetType">The asset type</param>
+            <param name="assetName">The asset name</param>
+            <returns><c>true</c> if the asset exists and was unloaded, <c>false</c> otherwise.</returns>
+        </member>
+        <member name="P:SharpDX.Toolkit.Content.IContentManager.ServiceProvider">
+            <summary>
+            Gets the service provider associated with the ContentManager.
+            </summary>
+            <value>The service provider.</value>
+            <remarks>
+            The service provider can be used by some <see cref="T:SharpDX.Toolkit.Content.IContentReader"/> when for example a <see cref="!:SharpDX.Toolkit.Graphics.GraphicsDevice"/> needs to be 
+            used to instantiate a content.
+            </remarks>
+        </member>
+        <member name="M:SharpDX.Toolkit.Content.ContentManager.#ctor(System.IServiceProvider)">
+            <summary>
+            Initializes a new instance of ContentManager. Reference page contains code sample.
+            </summary>
+            <param name="serviceProvider">The service provider that the ContentManager should use to locate services.</param>
+        </member>
+        <member name="M:SharpDX.Toolkit.Content.ContentManager.Exists(System.String)">
+            <summary>
+            Checks if the specified assets exists.
+            </summary>
+            <param name="assetName">The asset name with extension.</param>
+            <returns><c>true</c> if the specified assets exists, <c>false</c> otherwise</returns>
+        </member>
+        <member name="M:SharpDX.Toolkit.Content.ContentManager.Load``1(System.String,System.Object)">
+            <summary>
+            Loads an asset that has been processed by the Content Pipeline.  Reference page contains code sample.
+            </summary>
+            <typeparam name="T">Type of the asset</typeparam>
+            <param name="assetName">The asset name </param>
+            <param name="options">The options to pass to the content reader (null by default).</param>
+            <returns>``0.</returns>
+            <exception cref="T:SharpDX.Toolkit.Content.AssetNotFoundException">If the asset was not found from all <see cref="T:SharpDX.Toolkit.Content.IContentResolver"/>.</exception>
+            <exception cref="T:System.NotSupportedException">If no content reader was suitable to decode the asset.</exception>
+        </member>
+        <!-- Badly formed XML comment ignored for member "M:SharpDX.Toolkit.Content.ContentManager.Load(System.Type,System.String,System.Object)" -->
+        <member name="M:SharpDX.Toolkit.Content.ContentManager.Unload">
+            <summary>
+            Unloads all data that was loaded by this ContentManager. All data will be disposed.
+            </summary>
+            <remarks>
+            Unlike <see cref="M:SharpDX.Toolkit.Content.ContentManager.Load``1(System.String,System.Object)"/> method, this method is not thread safe and must be called by a single caller at a single time.
+            </remarks>
+        </member>
+        <member name="M:SharpDX.Toolkit.Content.ContentManager.Unload``1(System.String)">
+            <summary>
+            Unloads and disposes an asset.
+            </summary>
+            <param name="assetName">The asset name</param>
+            <returns><c>true</c> if the asset exists and was unloaded, <c>false</c> otherwise.</returns>
+        </member>
+        <member name="M:SharpDX.Toolkit.Content.ContentManager.Unload(System.Type,System.String)">
+            <summary>
+            Unloads and disposes an asset.
+            </summary>
+            <param name="assetType">The asset type</param>
+            <param name="assetName">The asset name</param>
+            <returns><c>true</c> if the asset exists and was unloaded, <c>false</c> otherwise.</returns>
+        </member>
+        <member name="P:SharpDX.Toolkit.Content.ContentManager.Resolvers">
+            <summary>
+            Add or remove registered <see cref="T:SharpDX.Toolkit.Content.IContentResolver"/> to this instance.
+            </summary>
+        </member>
+        <member name="P:SharpDX.Toolkit.Content.ContentManager.Readers">
+            <summary>
+            Add or remove registered <see cref="T:SharpDX.Toolkit.Content.IContentReader"/> to this instance.
+            </summary>
+        </member>
+        <member name="P:SharpDX.Toolkit.Content.ContentManager.ReaderFactories">
+            <summary>
+            Add or remove a registered <see cref="T:SharpDX.Toolkit.Content.IContentReaderFactory"/> to this instance.
+            </summary>
+            <value>The reader factories.</value>
+        </member>
+        <member name="P:SharpDX.Toolkit.Content.ContentManager.ServiceProvider">
+            <summary>
+            Gets the service provider associated with the ContentManager.
+            </summary>
+            <value>The service provider.</value>
+        </member>
+        <member name="P:SharpDX.Toolkit.Content.ContentManager.RootDirectory">
+            <summary>
+            Gets or sets the root directory.
+            </summary>
+        </member>
+        <member name="T:SharpDX.Toolkit.Content.ContentManager.AssetKey">
+            <summary>
+            Use this key to store loaded assets.
+            </summary>
+        </member>
+        <member name="T:SharpDX.Toolkit.Content.ContentReaderAttribute">
+            <summary>
+            This attributes is used by data that are providing a <see cref="T:SharpDX.Toolkit.Content.IContentReader"/> for decoding data from a stream.
+            </summary>
+        </member>
+        <member name="M:SharpDX.Toolkit.Content.ContentReaderAttribute.#ctor(System.Type)">
+            <summary>
+            Initializes a new instance of the <see cref="T:SharpDX.Toolkit.Content.ContentReaderAttribute"/> class.
+            </summary>
+            <param name="contentReaderType">Type of the content reader.</param>
+        </member>
+        <member name="P:SharpDX.Toolkit.Content.ContentReaderAttribute.ContentReaderType">
+            <summary>
+            Gets the type of the content reader.
+            </summary>
+            <value>The type of the content reader.</value>
+        </member>
+        <member name="T:SharpDX.Toolkit.Content.ContentReaderParameters">
+            <summary>
+            Parameters used by <see cref="M:SharpDX.Toolkit.Content.IContentReader.ReadContent(SharpDX.Toolkit.Content.IContentManager,SharpDX.Toolkit.Content.ContentReaderParameters@)"/>
+            </summary>
+        </member>
+        <member name="F:SharpDX.Toolkit.Content.ContentReaderParameters.AssetName">
+            <summary>
+            Name of the asset currently loaded when using <see cref="M:SharpDX.Toolkit.Content.IContentManager.Load``1(System.String,System.Object)"/>.
+            </summary>
+        </member>
+        <member name="F:SharpDX.Toolkit.Content.ContentReaderParameters.AssetType">
+            <summary>
+            Type of the asset currently loaded when using <see cref="M:SharpDX.Toolkit.Content.IContentManager.Load``1(System.String,System.Object)"/>.
+            </summary>
+        </member>
+        <member name="F:SharpDX.Toolkit.Content.ContentReaderParameters.Stream">
+            <summary>
+            Stream of the asset to load.
+            </summary>
+        </member>
+        <member name="F:SharpDX.Toolkit.Content.ContentReaderParameters.KeepStreamOpen">
+            <summary>
+            This parameter is an out parameter for <see cref="M:SharpDX.Toolkit.Content.IContentReader.ReadContent(SharpDX.Toolkit.Content.IContentManager,SharpDX.Toolkit.Content.ContentReaderParameters@)"/>. Set to true to let the ContentManager close the stream once the reader is done.
+            </summary>
+        </member>
+        <member name="F:SharpDX.Toolkit.Content.ContentReaderParameters.Options">
+            <summary>
+            Custom options provided when using <see cref="M:SharpDX.Toolkit.Content.IContentManager.Load``1(System.String,System.Object)"/>.
+            </summary>
+        </member>
+        <member name="T:SharpDX.Toolkit.Content.FileSystemContentResolver">
+            <summary>
+            This <see cref="T:SharpDX.Toolkit.Content.IContentResolver"/> is loading an asset name from a root directory from a physical disk.
+            </summary>
+        </member>
+        <member name="T:SharpDX.Toolkit.Content.IContentResolver">
+            <summary>
+            A content resolver is in charge of locating a stream from an asset name.
+            </summary>
+        </member>
+        <member name="M:SharpDX.Toolkit.Content.IContentResolver.Exists(System.String)">
+            <summary>
+            Checks if the specified asset name exists.
+            </summary>
+            <param name="assetName">Name of the asset.</param>
+            <returns><c>true</c> if the specified asset name exists, <c>false</c> otherwise</returns>
+        </member>
+        <member name="M:SharpDX.Toolkit.Content.IContentResolver.Resolve(System.String)">
+            <summary>
+            Resolves the specified asset name to a stream.
+            </summary>
+            <param name="assetName">Name of the asset.</param>
+            <returns>A Stream of the asset. This value can be null if this resolver was not able to locate the asset.</returns>
+        </member>
+        <member name="F:SharpDX.Toolkit.Content.FileSystemContentResolver.DefaultExtension">
+            <summary>
+            The default extension for asset files which is appended to any asset names that do not specify an extension.
+            </summary>
+        </member>
+        <member name="M:SharpDX.Toolkit.Content.FileSystemContentResolver.#ctor(System.String)">
+            <summary>
+            Initializes a new instance of the <see cref="T:SharpDX.Toolkit.Content.FileSystemContentResolver"/> class.
+            </summary>
+            <param name="rootDirectory">The root directory.</param>
+        </member>
+        <member name="M:SharpDX.Toolkit.Content.FileSystemContentResolver.GetAssetPath(System.String,System.Boolean)">
+            <summary>
+            Gets the full asset path based on the root directory and default extension.
+            </summary>
+            <param name="assetName">The asset name.</param>
+            <param name="forceAppendExtension">A value indicating whether to append the default extension even if the supplied name already has one.</param>
+            <returns>The full asset path.</returns>
+        </member>
+        <member name="P:SharpDX.Toolkit.Content.FileSystemContentResolver.RootDirectory">
+            <summary>
+            Gets the root directory from where assets will be loaded from the disk.
+            </summary>
+            <value>The root directory.</value>
+        </member>
+        <member name="T:SharpDX.Toolkit.Content.IContentReader">
+            <summary>
+            A content reader is in charge of reading object data from a stream.
+            </summary>
+        </member>
+        <member name="M:SharpDX.Toolkit.Content.IContentReader.ReadContent(SharpDX.Toolkit.Content.IContentManager,SharpDX.Toolkit.Content.ContentReaderParameters@)">
+            <summary>
+            Reads the content of a particular data from a stream.
+            </summary>
+            <param name="contentManager">The content manager.</param>
+            <param name="parameters"></param>
+            <returns>The data decoded from the stream, or null if the kind of asset is not supported by this content reader.</returns>
+        </member>
+        <member name="T:SharpDX.Toolkit.Content.IContentReaderFactory">
+            <summary>
+            A factory to create <see cref="T:SharpDX.Toolkit.Content.IContentReader"/> when a specific type is requested
+            from the <see cref="T:SharpDX.Toolkit.Content.IContentManager"/>.
+            </summary>
+        </member>
+        <member name="M:SharpDX.Toolkit.Content.IContentReaderFactory.TryCreate(System.Type)">
+            <summary>
+            Returns an instance of a <see cref="T:SharpDX.Toolkit.Content.IContentReader"/> for loading the specified type or null if not handled by this factory.
+            </summary>
+            <param name="type">The type.</param>
+            <returns>An instance of a <see cref="T:SharpDX.Toolkit.Content.IContentReader"/> for loading the specified type or null if not handled..</returns>
+        </member>
+        <member name="T:SharpDX.Toolkit.Content.NamespaceDoc">
+            <summary>
+            The <see cref="N:SharpDX.Toolkit.Content"/> namespace provides classes to handle game content.
+            </summary>
+        </member>
+        <member name="T:SharpDX.Toolkit.Diagnostics.LogMessage">
+            <summary>
+            Describes a log message.
+            </summary>
+        </member>
+        <member name="M:SharpDX.Toolkit.Diagnostics.LogMessage.#ctor(SharpDX.Toolkit.Diagnostics.LogMessageType,System.String)">
+            <summary>
+            Initializes a new instance of the <see cref="T:SharpDX.Toolkit.Diagnostics.LogMessage"/> class.
+            </summary>
+            <param name="type">The type.</param>
+            <param name="text">The text.</param>
+        </member>
+        <member name="F:SharpDX.Toolkit.Diagnostics.LogMessage.Type">
+            <summary>
+            Type of message.
+            </summary>
+        </member>
+        <member name="F:SharpDX.Toolkit.Diagnostics.LogMessage.Text">
+            <summary>
+            Text of the message.
+            </summary>
+        </member>
+        <member name="M:SharpDX.Toolkit.Diagnostics.LogMessage.ToString">
+            <inheritdoc/>
+        </member>
+        <member name="T:SharpDX.Toolkit.Diagnostics.LogMessageType">
+            <summary>
+            Type of a log message.
+            </summary>
+        </member>
+        <member name="F:SharpDX.Toolkit.Diagnostics.LogMessageType.Info">
+            <summary>
+            Information message.
+            </summary>
+        </member>
+        <member name="F:SharpDX.Toolkit.Diagnostics.LogMessageType.Warning">
+            <summary>
+            Warning message.
+            </summary>
+        </member>
+        <member name="F:SharpDX.Toolkit.Diagnostics.LogMessageType.Error">
+            <summary>
+            Error message.
+            </summary>
+        </member>
+        <member name="T:SharpDX.Toolkit.Diagnostics.Logger">
+            <summary>
+            Class used to log warning, error, info messages.
+            </summary>
+        </member>
+        <member name="M:SharpDX.Toolkit.Diagnostics.Logger.#ctor">
+            <summary>
+            Initializes a new instance of the <see cref="T:SharpDX.Toolkit.Diagnostics.Logger"/> class.
+            </summary>
+        </member>
+        <member name="F:SharpDX.Toolkit.Diagnostics.Logger.Messages">
+            <summary>
+            List of logged messages.
+            </summary>
+        </member>
+        <member name="M:SharpDX.Toolkit.Diagnostics.Logger.Error(System.String)">
+            <summary>
+            Logs an Error with the specified error message.
+            </summary>
+            <param name="errorMessage">The error message.</param>
+        </member>
+        <member name="M:SharpDX.Toolkit.Diagnostics.Logger.Error(System.String,System.Object[])">
+            <summary>
+            Logs an Error with the specified error message.
+            </summary>
+            <param name="errorMessage">The error message.</param>
+            <param name="parameters">The parameters.</param>
+            <exception cref="T:System.ArgumentNullException"></exception>
+        </member>
+        <member name="M:SharpDX.Toolkit.Diagnostics.Logger.Warning(System.String)">
+            <summary>
+            Logs a warning with the specified warning message.
+            </summary>
+            <param name="warningMessage">The warning message.</param>
+        </member>
+        <member name="M:SharpDX.Toolkit.Diagnostics.Logger.Warning(System.String,System.Object[])">
+            <summary>
+            Logs a warning with the specified warning message.
+            </summary>
+            <param name="warningMessage">The warning message.</param>
+            <param name="parameters">The parameters.</param>
+            <exception cref="T:System.ArgumentNullException"></exception>
+        </member>
+        <member name="M:SharpDX.Toolkit.Diagnostics.Logger.Info(System.String)">
+            <summary>
+            Logs a info with the specified info message.
+            </summary>
+            <param name="infoMessage">The info message.</param>
+        </member>
+        <member name="M:SharpDX.Toolkit.Diagnostics.Logger.Info(System.String,System.Object[])">
+            <summary>
+            Logs a warning with the specified info message.
+            </summary>
+            <param name="infoMessage">The info message.</param>
+            <param name="parameters">The parameters.</param>
+            <exception cref="T:System.ArgumentNullException"></exception>
+        </member>
+        <member name="M:SharpDX.Toolkit.Diagnostics.Logger.LogMessage(SharpDX.Toolkit.Diagnostics.LogMessage)">
+            <summary>
+            Logs the message.
+            </summary>
+            <param name="message">The message.</param>
+        </member>
+        <member name="P:SharpDX.Toolkit.Diagnostics.Logger.HasErrors">
+            <summary>
+            Gets a value indicating whether this instance has errors.
+            </summary>
+            <value><c>true</c> if this instance has errors; otherwise, <c>false</c>.</value>
+        </member>
+        <member name="E:SharpDX.Toolkit.Diagnostics.Logger.NewMessageLogged">
+            <summary>
+            Occurs when a new message is logged.
+            </summary>
+        </member>
+        <member name="T:SharpDX.Toolkit.Diagnostics.Logger.LogAction">
+            <summary>
+            An action to log a message.
+            </summary>
+            <param name="logger">The logger.</param>
+            <param name="message">The message.</param>
+        </member>
+        <member name="T:SharpDX.Toolkit.Diagnostics.NamespaceDoc">
+            <summary>
+            The <see cref="N:SharpDX.Toolkit.Diagnostics"/> namespace provides classes to help game diagnostics.
+            </summary>
+        </member>
+        <member name="T:SharpDX.Toolkit.Graphics.CommonData">
+            <summary>
+            Common data used by <see cref="T:SharpDX.Toolkit.Graphics.EffectData"/>, <see cref="T:SharpDX.Toolkit.Graphics.ModelData"/>.
+            </summary>
+        </member>
+        <member name="T:SharpDX.Toolkit.Graphics.MaterialKeys">
+            <summary>
+            Default keys optionally stored in <see cref="F:SharpDX.Toolkit.Graphics.ModelData.Material.Properties"/>.
+            </summary>
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.MaterialKeys.Name">
+            <summary>
+            The name of the material, if available. 
+            </summary>
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.MaterialKeys.TwoSided">
+            <summary>
+            Specifies whether meshes using this material must be rendered without backface culling. 0 for false, !0 for true. 
+            </summary>
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.MaterialKeys.ShadingMode">
+            <summary>
+            One of the <see cref="T:SharpDX.Toolkit.Graphics.MaterialShadingMode"/> enumerated values. Defines the library shading model to use for (real time) rendering to approximate the original look of the material as closely as possible. 
+            </summary>
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.MaterialKeys.Wireframe">
+            <summary>
+            Specifies whether wireframe rendering must be turned on for the material. 0 for false, !0 for true. 
+            </summary>
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.MaterialKeys.BlendMode">
+            <summary>
+            Defines the blending mode used when rendering this material.
+            </summary>
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.MaterialKeys.Opacity">
+            <summary>
+            Defines the opacity of the material in a range between 0..1. 
+            </summary>
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.MaterialKeys.BumpScaling">
+            <summary>
+            Defines the bump normal scaling.
+            </summary>
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.MaterialKeys.Shininess">
+            <summary>
+            Defines the shininess of a Phong-shaded material. This is actually the exponent of the Phong specular equation 
+            </summary>
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.MaterialKeys.Reflectivity">
+            <summary>
+            Defines the reflectivity of the material.
+            </summary>
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.MaterialKeys.ShininessStrength">
+            <summary>
+            Scales the specular color of the material. 
+            </summary>
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.MaterialKeys.Refraction">
+            <summary>
+            Defines the Index Of Refraction for the material. That's not supported by most file formats. 
+            </summary>
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.MaterialKeys.ColorDiffuse">
+            <summary>
+            Diffuse color of the material. This is typically scaled by the amount of incoming diffuse light (e.g. using Gouraud shading).
+            </summary>
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.MaterialKeys.ColorAmbient">
+            <summary>
+            Ambient color of the material. This is typically scaled by the amount of ambient light 
+            </summary>
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.MaterialKeys.ColorSpecular">
+            <summary>
+            Specular color of the material. This is typically scaled by the amount of incoming specular light (e.g. using Phong shading) 
+            </summary>
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.MaterialKeys.ColorEmissive">
+            <summary>
+            Emissive color of the material. This is the amount of light emitted by the object. In real time applications it will usually not affect surrounding objects, but ray tracing applications may wish to treat emissive objects as light sources. 
+            </summary>
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.MaterialKeys.ColorTransparent">
+            <summary>
+            Defines the transparent color of the material, this is the color to be multiplied with the color of translucent light to construct the final 'destination color' for a particular position in the screen buffer. T 
+            </summary>
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.MaterialKeys.ColorReflective">
+            <summary>
+            Defines the reflective color of the material.
+            </summary>
+        </member>
+        <member name="M:SharpDX.Toolkit.Graphics.MaterialKeys.FindKeyByName(System.String)">
+            <summary>
+            Finds the name of the key by.
+            </summary>
+            <param name="name">The name.</param>
+            <returns>PropertyKey.</returns>
+        </member>
+        <member name="M:SharpDX.Toolkit.Graphics.MaterialKeys.RegisterKey``1(SharpDX.Toolkit.PropertyKey{``0})">
+            <summary>
+            Registers the specified key.
+            </summary>
+            <typeparam name="T">Type of the property</typeparam>
+            <param name="key">The property key.</param>
+            <returns>The registered property key.</returns>
+        </member>
+        <member name="P:SharpDX.Toolkit.Graphics.MaterialKeys.RegisteredKeys">
+            <summary>
+            Gets the registered keys.
+            </summary>
+            <value>The registered keys.</value>
+        </member>
+        <member name="T:SharpDX.Toolkit.Graphics.ModelData">
+            <summary>
+            The model data used to store 3D mesh model.
+            </summary>
+        </member>
+        <member name="M:SharpDX.Toolkit.Graphics.ModelData.#ctor">
+            <summary>
+            Initializes a new instance of the <see cref="T:SharpDX.Toolkit.Graphics.ModelData"/> class.
+            </summary>
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.ModelData.MaximumBufferSizeInBytes">
+            <summary>
+            Gets the maximum buffer size in bytes that will be needed when loading this model.
+            </summary>
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.ModelData.Textures">
+            <summary>
+            Embedded textures.
+            </summary>
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.ModelData.Materials">
+            <summary>
+            Gets the material of this model.
+            </summary>
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.ModelData.Bones">
+            <summary>
+            Gets the bones of this model.
+            </summary>
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.ModelData.Meshes">
+            <summary>
+            Gets the mesh of this model.
+            </summary>
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.ModelData.Animations">
+            <summary>
+            Gets the mesh of this model.
+            </summary>
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.ModelData.Attributes">
+            <summary>
+            Gets the attributes attached to this instance.
+            </summary>
+        </member>
+        <member name="M:SharpDX.Toolkit.Graphics.ModelData.Load(System.IO.Stream)">
+            <summary>
+            Loads a <see cref="T:SharpDX.Toolkit.Graphics.ModelData"/> from the specified stream.
+            </summary>
+            <param name="stream">The stream.</param>
+            <returns>A <see cref="T:SharpDX.Toolkit.Graphics.ModelData"/>. Null if the stream is not a serialized <see cref="T:SharpDX.Toolkit.Graphics.ModelData"/>.</returns>
+            <remarks>
+            </remarks>
+        </member>
+        <member name="M:SharpDX.Toolkit.Graphics.ModelData.Load(System.Byte[])">
+            <summary>
+            Loads a <see cref="T:SharpDX.Toolkit.Graphics.ModelData"/> from the specified buffer.
+            </summary>
+            <param name="buffer">The buffer.</param>
+            <returns>A <see cref="T:SharpDX.Toolkit.Graphics.ModelData"/> </returns>
+        </member>
+        <member name="M:SharpDX.Toolkit.Graphics.ModelData.Load(System.String)">
+            <summary>
+            Loads an <see cref="T:SharpDX.Toolkit.Graphics.ModelData"/> from the specified file.
+            </summary>
+            <param name="fileName">The filename.</param>
+            <returns>A <see cref="T:SharpDX.Toolkit.Graphics.ModelData"/> </returns>
+        </member>
+        <member name="M:SharpDX.Toolkit.Graphics.ModelData.Save(System.IO.Stream)">
+            <summary>
+            Saves this <see cref="T:SharpDX.Toolkit.Graphics.ModelData"/> instance to the specified stream.
+            </summary>
+            <param name="stream">The stream.</param>
+        </member>
+        <member name="M:SharpDX.Toolkit.Graphics.ModelData.Save(System.String)">
+            <summary>
+            Saves this <see cref="T:SharpDX.Toolkit.Graphics.ModelData"/> instance to the specified file.
+            </summary>
+            <param name="fileName">The output filename.</param>
+        </member>
+        <member name="M:SharpDX.Toolkit.Graphics.ModelData.SharpDX#Serialization#IDataSerializable#Serialize(SharpDX.Serialization.BinarySerializer)">
+            <inheritdoc/>
+        </member>
+        <member name="T:SharpDX.Toolkit.Graphics.ModelData.Animation">
+            <summary>
+            Class Animation
+            </summary>
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.ModelData.Animation.Name">
+            <summary>
+            The name of this animation.
+            </summary>
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.ModelData.Animation.Duration">
+            <summary>
+            Total total animation duration.
+            </summary>
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.ModelData.Animation.Channels">
+            <summary>
+            The channels of this animation.
+            </summary>
+        </member>
+        <member name="M:SharpDX.Toolkit.Graphics.ModelData.Animation.#ctor">
+            <summary>
+            Initializes a new instance of the <see cref="T:SharpDX.Toolkit.Graphics.ModelData.Animation"/> class.
+            </summary>
+        </member>
+        <member name="M:SharpDX.Toolkit.Graphics.ModelData.Animation.SharpDX#Serialization#IDataSerializable#Serialize(SharpDX.Serialization.BinarySerializer)">
+            <inheritdoc/>
+        </member>
+        <member name="T:SharpDX.Toolkit.Graphics.ModelData.KeyFrame">
+            <summary>
+            Class KeyFrame
+            </summary>
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.ModelData.KeyFrame.Time">
+            <summary>
+            The key time.
+            </summary>
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.ModelData.KeyFrame.Value">
+            <summary>
+            The bone transform.
+            </summary>
+        </member>
+        <member name="M:SharpDX.Toolkit.Graphics.ModelData.KeyFrame.SharpDX#Serialization#IDataSerializable#Serialize(SharpDX.Serialization.BinarySerializer)">
+            <inheritdoc/>
+        </member>
+        <member name="T:SharpDX.Toolkit.Graphics.ModelData.SkinnedBone">
+            <summary>
+            Class SkinnedBone
+            </summary>
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.ModelData.SkinnedBone.BoneIndex">
+            <summary>
+            Index of the skinned bone.
+            </summary>
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.ModelData.SkinnedBone.InverseBindTransform">
+            <summary>
+            The absolute transform that takes the skinned vertices in bind pose from world space to bone space.
+            </summary>
+        </member>
+        <member name="M:SharpDX.Toolkit.Graphics.ModelData.SkinnedBone.SharpDX#Serialization#IDataSerializable#Serialize(SharpDX.Serialization.BinarySerializer)">
+            <inheritdoc/>
+        </member>
+        <member name="T:SharpDX.Toolkit.Graphics.ModelData.MaterialTexture">
+            <summary>
+            Slot of a texture
+            </summary>
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.ModelData.MaterialTexture.FilePath">
+            <summary>
+            The file path
+            </summary>
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.ModelData.MaterialTexture.Index">
+            <summary>
+            The index of this texture.
+            </summary>
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.ModelData.MaterialTexture.UVIndex">
+            <summary>
+            The UV index.
+            </summary>
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.ModelData.MaterialTexture.BlendFactor">
+            <summary>
+            The blend factor
+            </summary>
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.ModelData.MaterialTexture.Operation">
+            <summary>
+            The texture operation.
+            </summary>
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.ModelData.MaterialTexture.WrapMode">
+            <summary>
+            The wrap mode
+            </summary>
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.ModelData.MaterialTexture.Flags">
+            <summary>
+            Texture flags.
+            </summary>
+        </member>
+        <member name="T:SharpDX.Toolkit.Graphics.ModelData.Material">
+            <summary>
+            Class Mesh
+            </summary>
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.ModelData.Material.Textures">
+            <summary>
+            The textures
+            </summary>
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.ModelData.Material.Properties">
+            <summary>
+            Gets attributes attached to this material.
+            </summary>
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.ModelData.IndexBuffer.Count">
+            <summary>
+            The number of indices stored in this index buffer.
+            </summary>
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.ModelData.IndexBuffer.Buffer">
+            <summary>
+            Gets the index buffer for this mesh part.
+            </summary>
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.ModelData.VertexBuffer.Count">
+            <summary>
+            The number of vertices stored in this vertex buffer.
+            </summary>
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.ModelData.VertexBuffer.Layout">
+            <summary>
+            The layout of the vertex buffer.
+            </summary>
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.ModelData.VertexBuffer.Buffer">
+            <summary>
+            Gets the vertex buffer for this mesh part.
+            </summary>
+        </member>
+        <member name="T:SharpDX.Toolkit.Graphics.ModelData.Bone">
+            <summary>
+            Class Bone
+            </summary>
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.ModelData.Bone.ParentIndex">
+            <summary>
+            Gets parent node index.
+            </summary>
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.ModelData.Bone.Transform">
+            <summary>
+            The transform this node relative to its parent node.
+            </summary>
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.ModelData.Bone.Name">
+            <summary>
+            The name of this node.
+            </summary>
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.ModelData.Bone.Children">
+            <summary>
+            The children node indices.
+            </summary>
+        </member>
+        <member name="T:SharpDX.Toolkit.Graphics.ModelData.Mesh">
+            <summary>
+            Class Mesh
+            </summary>
+        </member>
+        <member name="M:SharpDX.Toolkit.Graphics.ModelData.Mesh.#ctor">
+            <summary>
+            Initializes a new instance of the <see cref="T:SharpDX.Toolkit.Graphics.ModelData.Mesh"/> class.
+            </summary>
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.ModelData.Mesh.Name">
+            <summary>
+            Gets the name of this mesh.
+            </summary>
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.ModelData.Mesh.ParentBoneIndex">
+            <summary>
+            Index of the parent bone for this mesh. The parent bone of a mesh contains a transformation matrix that describes how the mesh is located relative to any parent meshes in a model.
+            </summary>
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.ModelData.Mesh.BoundingSphere">
+            <summary>
+            The bounding sphere for this mesh (in local object space).
+            </summary>
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.ModelData.Mesh.VertexBuffers">
+            <summary>
+            Gets the shared vertex buffers
+            </summary>
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.ModelData.Mesh.IndexBuffers">
+            <summary>
+            Gets the shared index buffers
+            </summary>
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.ModelData.Mesh.MeshParts">
+            <summary>
+            Gets the <see cref="T:SharpDX.Toolkit.Graphics.ModelData.MeshPart"/> instances that make up this mesh. Each part of a mesh is composed of a set of primitives that share the same material. 
+            </summary>
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.ModelData.Mesh.Properties">
+            <summary>
+            Gets attributes attached to this mesh.
+            </summary>
+        </member>
+        <member name="M:SharpDX.Toolkit.Graphics.ModelData.MeshPart.#ctor">
+            <summary>
+            Initializes a new instance of the <see cref="T:SharpDX.Toolkit.Graphics.ModelData.MeshPart"/> class.
+            </summary>
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.ModelData.MeshPart.MaterialIndex">
+            <summary>
+            The material index.
+            </summary>
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.ModelData.MeshPart.IndexBufferRange">
+            <summary>
+            The index buffer range. The slot in the buffer range is the position of the index buffer in <see cref="T:SharpDX.Toolkit.Graphics.ModelData.IndexBuffer"/>s.
+            </summary>
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.ModelData.MeshPart.VertexBufferRange">
+            <summary>
+            The vertex buffer range. The slot in the buffer range is the position of the vertex buffer in <see cref="T:SharpDX.Toolkit.Graphics.ModelData.VertexBuffer"/>s.
+            </summary>
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.ModelData.MeshPart.SkinnedBones">
+            <summary>
+            Gets the skinned bones.
+            </summary>
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.ModelData.MeshPart.Properties">
+            <summary>
+            The attributes attached to this mesh part.
+            </summary>
+        </member>
+        <member name="T:SharpDX.Toolkit.Graphics.ModelData.AnimationChannel">
+            <summary>
+            Class AnimationChannel
+            </summary>
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.ModelData.AnimationChannel.BoneName">
+            <summary>
+            The name of the animated bone.
+            </summary>
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.ModelData.AnimationChannel.KeyFrames">
+            <summary>
+            The key frames of this animation.
+            </summary>
+        </member>
+        <member name="M:SharpDX.Toolkit.Graphics.ModelData.AnimationChannel.#ctor">
+            <summary>
+            Initializes a new instance of the <see cref="T:SharpDX.Toolkit.Graphics.ModelData.AnimationChannel"/> class.
+            </summary>
+        </member>
+        <member name="M:SharpDX.Toolkit.Graphics.ModelData.AnimationChannel.SharpDX#Serialization#IDataSerializable#Serialize(SharpDX.Serialization.BinarySerializer)">
+            <inheritdoc/>
+        </member>
+        <member name="T:SharpDX.Toolkit.PropertyKey">
+            <summary>
+            A Name describing a property attribute.
+            </summary>
+        </member>
+        <member name="M:SharpDX.Toolkit.PropertyKey.#ctor(System.String)">
+            <summary>
+            Initializes a new instance of the <see cref="T:SharpDX.Toolkit.PropertyKey"/> class.
+            </summary>
+            <param name="name">The Name.</param>
+        </member>
+        <member name="P:SharpDX.Toolkit.PropertyKey.Name">
+            <summary>
+            Gets the Name.
+            </summary>
+            <value>The Name.</value>
+        </member>
+        <member name="T:SharpDX.Toolkit.PropertyKey`1">
+            <summary>
+            A typed <see cref="T:SharpDX.Toolkit.PropertyKey"/>
+            </summary>
+            <typeparam name="T">Type of the value to associate with the key</typeparam>
+        </member>
+        <member name="M:SharpDX.Toolkit.PropertyKey`1.#ctor(System.String)">
+            <summary>
+            Initializes a new instance of the <see cref="T:SharpDX.Toolkit.PropertyKey"/> class.
+            </summary>
+            <param name="name">The Name.</param>
+        </member>
+        <member name="M:SharpDX.Toolkit.PropertyCollection.#ctor">
+            <summary>
+            Initializes a new instance of the <see cref="T:SharpDX.Toolkit.PropertyCollection"/> class.
+            </summary>
+        </member>
+        <member name="M:SharpDX.Toolkit.PropertyCollection.#ctor(System.Int32)">
+            <summary>
+            Initializes a new instance of the <see cref="T:SharpDX.Toolkit.PropertyCollection"/> class that is empty, has the specified initial capacity, and uses the default equality comparer for the key type.
+            </summary>
+            <param name="capacity">The initial number of elements that the <see cref="T:SharpDX.Toolkit.PropertyCollection"/> can contain.</param>
+        </member>
+        <member name="M:SharpDX.Toolkit.PropertyCollection.#ctor(System.Collections.Generic.IDictionary{SharpDX.Toolkit.PropertyKey,System.Object})">
+            <summary>
+            Initializes a new instance of the <see cref="T:SharpDX.Toolkit.PropertyCollection"/> class.
+            </summary>
+            <param name="dictionary">The dictionary.</param>
+        </member>
+        <!-- Badly formed XML comment ignored for member "T:SharpDX.Toolkit.Graphics.MaterialShadingMode" -->
+        <member name="F:SharpDX.Toolkit.Graphics.MaterialShadingMode.None">
+            <summary>
+            No particular shading.
+            </summary>
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.MaterialShadingMode.Flat">
+            <summary>
+            Flat shading. Shading is done on per-face base,
+            diffuse only. Also known as 'faceted shading'.
+            </summary>
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.MaterialShadingMode.Gouraud">
+            <summary>
+            Simple Gouraud shading. 
+            </summary>
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.MaterialShadingMode.Phong">
+            <summary>
+            Phong-Shading.
+            </summary>
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.MaterialShadingMode.Blinn">
+            <summary>
+            Phong-Blinn-Shading
+            </summary>
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.MaterialShadingMode.Toon">
+            <summary>
+            Toon-Shading per pixel, also known as 'comic' shader.
+            </summary>
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.MaterialShadingMode.OrenNayar">
+            <summary>
+            OrenNayar-Shading per pixel.
+            </summary>
+            <remarks>
+            Extension to standard Lambertian shading, taking the    
+            roughness of the material into account
+            </remarks>
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.MaterialShadingMode.Minnaert">
+            <summary>
+            Minnaert-Shading per pixel
+            </summary>
+            <remarks>
+            Extension to standard Lambertian shading, taking the
+            "darkness" of the material into account
+            </remarks>
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.MaterialShadingMode.CookTorrance">
+            <summary>
+            CookTorrance-Shading per pixel
+            </summary>
+            <remarks>
+            Special shader for metallic surfaces.
+            </remarks>
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.MaterialShadingMode.NoShading">
+            <summary>
+            No shading at all. Constant light influence of 1.0.
+            </summary>
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.MaterialShadingMode.Fresnel">
+            <summary>
+            Fresnel shading
+            </summary>
+        </member>
+        <member name="T:SharpDX.Toolkit.Graphics.MaterialTextureFlags">
+            <summary>
+            Defines some mixed flags for a particular texture.
+            </summary>
+            <remarks>
+            Usually you'll instruct your cg artists how textures have to look like ...
+            and how they will be processed in your application. However, if you use
+            Assimp for completely generic loading purposes you might also need to 
+            process these flags in order to display as many 'unknown' 3D models as 
+            possible correctly.
+            
+            This corresponds to the #AI_MATKEY_TEXFLAGS property.
+            </remarks>
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.MaterialTextureFlags.None">
+            <summary>
+            No flags.
+            </summary>
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.MaterialTextureFlags.Invert">
+            <summary>
+            The texture's color values have to be inverted (component-wise 1-n)
+            </summary>
+            
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.MaterialTextureFlags.aiTextureFlags_UseAlpha">
+            <summary>
+            Explicit request to the application to process the alpha channel
+            of the texture.
+            </summary>
+            <remarks>
+            Mutually exclusive with #aiTextureFlags_IgnoreAlpha. These
+            flags are set if the library can say for sure that the alpha
+            channel is used/is not used. If the model format does not
+            define this, it is left to the application to decide whether
+            the texture alpha channel - if any - is evaluated or not.
+            </remarks>
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.MaterialTextureFlags.IgnoreAlpha">
+            <summary>
+            Explicit request to the application to ignore the alpha channel of the texture.
+             </summary>
+            <remarks>
+            Mutually exclusive with #aiTextureFlags_UseAlpha. 
+            </remarks>
+        </member>
+        <member name="T:SharpDX.Toolkit.Graphics.MaterialTextureOperator">
+            <summary>
+            Defines how the Nth texture of a specific type is combined with the result of all previous layers.
+            </summary>
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.MaterialTextureOperator.Multiply">
+            <summary>
+            T = T1 * T2 
+            </summary>
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.MaterialTextureOperator.Add">
+            <summary>
+            T = T1 + T2
+            </summary>
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.MaterialTextureOperator.Subtract">
+            <summary>
+            T = T1 - T2
+            </summary>
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.MaterialTextureOperator.Divide">
+            <summary>
+            T = T1 / T2
+            </summary>
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.MaterialTextureOperator.SmoothAdd">
+            <summary>
+            T = (T1 + T2) - (T1 * T2)
+            </summary>
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.MaterialTextureOperator.SignedAdd">
+            <summary>
+            T = T1 + (T2-0.5)
+            </summary>
+        </member>
+        <member name="T:SharpDX.Toolkit.Graphics.EffectDataContentReader">
+            <summary>
+            Content reader for <see cref="T:SharpDX.Toolkit.Graphics.EffectData"/>.
+            </summary>
+        </member>
+        <member name="T:SharpDX.Toolkit.Graphics.EffectCompilerResult">
+            <summary>
+            Result of a compilation.
+            </summary>
+        </member>
+        <member name="M:SharpDX.Toolkit.Graphics.EffectCompilerResult.#ctor(System.String,SharpDX.Toolkit.Graphics.EffectData,SharpDX.Toolkit.Diagnostics.Logger)">
+            <summary>
+            Initializes a new instance of the <see cref="T:SharpDX.Toolkit.Graphics.EffectCompilerResult"/> class.
+            </summary>
+            <param name="dependencyFilePath">The path to dependency file (may be null).</param>
+            <param name="effectData">The EffectData.</param>
+            <param name="logger">The logger.</param>
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.EffectCompilerResult.DependencyFilePath">
+            <summary>
+            The effect dependency list (a list of files and includes that this effect is timestamp dependent).
+            </summary>
+        </member>
+        <member name="P:SharpDX.Toolkit.Graphics.EffectCompilerResult.EffectData">
+            <summary>
+            Gets the EffectData.
+            </summary>
+            <value>The EffectData.</value>
+        </member>
+        <member name="P:SharpDX.Toolkit.Graphics.EffectCompilerResult.HasErrors">
+            <summary>
+            Gets a value indicating whether this instance has errors.
+            </summary>
+            <value><c>true</c> if this instance has errors; otherwise, <c>false</c>.</value>
+        </member>
+        <member name="P:SharpDX.Toolkit.Graphics.EffectCompilerResult.Logger">
+            <summary>
+            Gets the logger containing compilation messages..
+            </summary>
+            <value>The logger.</value>
+        </member>
+        <member name="T:SharpDX.Toolkit.Graphics.EffectData">
+            <summary>
+            Container for shader bytecodes and effect metadata.
+            </summary>
+            <remarks>
+            This class is responsible to store shader bytecodes, effect, techniques, passes...etc.
+            It is serializable using <see cref="M:SharpDX.Toolkit.Graphics.EffectData.Load(System.IO.Stream)"/> and <see cref="M:SharpDX.Toolkit.Graphics.EffectData.Save(System.IO.Stream)"/> method.
+            </remarks>
+            <summary>
+            Container for shader bytecodes and effect metadata.
+            </summary>
+            <remarks>
+            This class is responsible to store shader bytecodes, effect, techniques, passes...etc.
+            It is serializable using <see cref="M:SharpDX.Toolkit.Graphics.EffectData.Load(System.IO.Stream)"/> and <see cref="M:SharpDX.Toolkit.Graphics.EffectData.Save(System.IO.Stream)"/> method.
+            </remarks>
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.EffectData.Shaders">
+            <summary>
+            List of compiled shaders.
+            </summary>
+        </member>
+        <member name="M:SharpDX.Toolkit.Graphics.EffectData.Save(System.IO.Stream)">
+            <summary>
+            Saves this <see cref="T:SharpDX.Toolkit.Graphics.EffectData"/> instance to the specified stream.
+            </summary>
+            <param name="stream">The stream.</param>
+        </member>
+        <member name="M:SharpDX.Toolkit.Graphics.EffectData.Save(System.String)">
+            <summary>
+            Saves this <see cref="T:SharpDX.Toolkit.Graphics.EffectData"/> instance to the specified file.
+            </summary>
+            <param name="fileName">The output filename.</param>
+        </member>
+        <member name="M:SharpDX.Toolkit.Graphics.EffectData.Load(System.IO.Stream)">
+            <summary>
+            Loads an <see cref="T:SharpDX.Toolkit.Graphics.EffectData"/> from the specified stream.
+            </summary>
+            <param name="stream">The stream.</param>
+            <returns>An <see cref="T:SharpDX.Toolkit.Graphics.EffectData"/>. Null if the stream is not a serialized <see cref="T:SharpDX.Toolkit.Graphics.EffectData"/>.</returns>
+            <remarks>
+            </remarks>
+        </member>
+        <member name="M:SharpDX.Toolkit.Graphics.EffectData.Load(System.Byte[])">
+            <summary>
+            Loads an <see cref="T:SharpDX.Toolkit.Graphics.EffectData"/> from the specified buffer.
+            </summary>
+            <param name="buffer">The buffer.</param>
+            <returns>An <see cref="T:SharpDX.Toolkit.Graphics.EffectData"/> </returns>
+        </member>
+        <member name="M:SharpDX.Toolkit.Graphics.EffectData.Load(System.String)">
+            <summary>
+            Loads an <see cref="T:SharpDX.Toolkit.Graphics.EffectData"/> from the specified file.
+            </summary>
+            <param name="fileName">The filename.</param>
+            <returns>An <see cref="T:SharpDX.Toolkit.Graphics.EffectData"/> </returns>
+        </member>
+        <member name="M:SharpDX.Toolkit.Graphics.EffectData.SharpDX#Serialization#IDataSerializable#Serialize(SharpDX.Serialization.BinarySerializer)">
+            <inheritdoc/>
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.EffectData.CompilerArguments.FilePath">
+            <summary>
+            The absolute path to the FX source file used to compile this effect.
+            </summary>
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.EffectData.CompilerArguments.DependencyFilePath">
+            <summary>
+            The absolute path to dependency file path generated when compiling this effect.
+            </summary>
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.EffectData.CompilerArguments.CompilerFlags">
+            <summary>
+            The flags used to compile an effect.
+            </summary>
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.EffectData.CompilerArguments.Macros">
+            <summary>
+            The macros used to compile this effect (may be null).
+            </summary>
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.EffectData.CompilerArguments.IncludeDirectoryList">
+            <summary>
+            The list of include directory used to compile this file (may be null)
+            </summary>
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.EffectData.ShaderMacro.Name">
+            <summary>
+            The name of the macro.
+            </summary>
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.EffectData.ShaderMacro.Value">
+            <summary>
+            The value of the macro.
+            </summary>
+        </member>
+        <member name="M:SharpDX.Toolkit.Graphics.EffectData.ShaderMacro.#ctor(System.String,System.Object)">
+            <summary>
+            Initializes a new instance of the <see cref="T:SharpDX.Toolkit.Graphics.EffectData.ShaderMacro"/> struct.
+            </summary>
+            <param name="name">The name.</param>
+            <param name="value">The value.</param>
+        </member>
+        <member name="T:SharpDX.Toolkit.Graphics.EffectData.ShaderLink">
+            <summary>
+            A link to a compiled shader.
+            </summary>
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.EffectData.ShaderLink.StreamOutputRasterizedStream">
+            <summary>
+            The stream output rasterized stream (-1 if no rasterized stream).
+            </summary>
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.EffectData.ShaderLink.StreamOutputElements">
+            <summary>
+            The stream output elements only valid for a geometry shader, can be null.
+            </summary>
+        </member>
+        <member name="M:SharpDX.Toolkit.Graphics.EffectData.ShaderLink.#ctor">
+            <summary>
+            Initializes a new instance of the <see cref="T:SharpDX.Toolkit.Graphics.EffectData.ShaderLink"/> class.
+            </summary>
+        </member>
+        <member name="M:SharpDX.Toolkit.Graphics.EffectData.ShaderLink.SharpDX#Serialization#IDataSerializable#Serialize(SharpDX.Serialization.BinarySerializer)">
+            <inheritdoc/>
+        </member>
+        <member name="P:SharpDX.Toolkit.Graphics.EffectData.ShaderLink.IsImport">
+            <summary>
+            Gets a value indicating whether this is an import.
+            </summary>
+            <value><c>true</c> if this is an import; otherwise, <c>false</c>.</value>
+            <remarks>
+            When this is an import, the <see cref="P:SharpDX.Toolkit.Graphics.EffectData.ShaderLink.Index"/> is not valid. Only <see cref="P:SharpDX.Toolkit.Graphics.EffectData.ShaderLink.ImportName"/> is valid.
+            </remarks>
+        </member>
+        <member name="P:SharpDX.Toolkit.Graphics.EffectData.ShaderLink.Index">
+            <summary>
+            Gets or sets the index in the shader pool.
+            </summary>
+            <value>The index.</value>
+            <remarks>
+            This index is a direct reference to the shader in <see cref="F:SharpDX.Toolkit.Graphics.EffectData.Shaders"/>.
+            </remarks>
+        </member>
+        <member name="P:SharpDX.Toolkit.Graphics.EffectData.ShaderLink.ImportName">
+            <summary>
+            Gets or sets the name of the shader import. Can be null.
+            </summary>
+            <value>The name of the import.</value>
+            <remarks>
+            This property is not null when there is no shader compiled and this is an import.
+            </remarks>
+        </member>
+        <member name="P:SharpDX.Toolkit.Graphics.EffectData.ShaderLink.IsNullShader">
+            <summary>
+            Gets a value indicating whether this instance is a null shader.
+            </summary>
+            <value><c>true</c> if this instance is null shader; otherwise, <c>false</c>.</value>
+        </member>
+        <member name="T:SharpDX.Toolkit.Graphics.EffectData.Signature">
+            <summary>	
+            <p>Describes a shader signature.</p>	
+            </summary>	
+            <remarks>	
+            Describes an input or output signature, composed of <see cref="T:SharpDX.Toolkit.Graphics.EffectData.Semantic"/> descriptions.
+            </remarks>	
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.EffectData.Signature.Semantics">
+            <summary>
+            Gets or sets the semantics
+            </summary>
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.EffectData.Signature.Bytecode">
+            <summary>
+            Gets the bytecode of this signature. This field is only valid for Input Vertex Shader.
+            </summary>
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.EffectData.Signature.Hashcode">
+            <summary>
+            Gets the hashcode associated with the signature bytecode.
+            </summary>
+        </member>
+        <member name="M:SharpDX.Toolkit.Graphics.EffectData.Signature.SharpDX#Serialization#IDataSerializable#Serialize(SharpDX.Serialization.BinarySerializer)">
+            <inheritdoc/>
+        </member>
+        <member name="T:SharpDX.Toolkit.Graphics.EffectData.Semantic">
+            <summary>	
+            <p>Describes a semantic signature.</p>	
+            </summary>	
+            <remarks>	
+            <p>A shader can take n inputs and can produce m outputs. The order of the input (or output) parameters, their associated types, and any attached semantics make up the shader signature. Each shader has an input and an output signature.</p><p>When compiling a shader or an effect, some API calls validate shader signatures  That is, they compare the output signature of one shader (like a vertex shader) with the input signature of another shader (like a pixel shader). This ensures that a shader outputs data that is compatible with a downstream shader that is consuming that data. Compatible means that a shader signature is a exact-match subset of the preceding shader stage. Exact match means parameter types and semantics must exactly match. Subset means that a parameter that is not required by a downstream stage, does not need to include that parameter in its shader signature.</p><p>Get a shader-signature from a shader or an effect by calling APIs such as <strong><see cref="!:SharpDX.D3DCompiler.ShaderReflection.GetInputParameterDescription"/></strong>. </p>	
+            </remarks>	
+            <msdn-id>ff476215</msdn-id>	
+            <unmanaged>D3D11_SIGNATURE_PARAMETER_DESC</unmanaged>	
+            <unmanaged-short>D3D11_SIGNATURE_PARAMETER_DESC</unmanaged-short>	
+        </member>
+        <member name="M:SharpDX.Toolkit.Graphics.EffectData.Semantic.#ctor">
+            <summary>
+            Semantic
+            </summary>
+        </member>
+        <member name="M:SharpDX.Toolkit.Graphics.EffectData.Semantic.#ctor(System.String,System.Byte,System.Byte,System.Byte,System.Byte,System.Byte,System.Byte,System.Byte)">
+            <summary>
+            Initializes a new instance of <see cref="T:SharpDX.Toolkit.Graphics.EffectData.Semantic"/> class.
+            </summary>
+            <param name="name">Name of the semantic.</param>
+            <param name="index">Index of the semantic.</param>
+            <param name="register">Register.</param>
+            <param name="systemValueType">A predefined string that determines the functionality of certain pipeline stages.</param>
+            <param name="componentType">The per-component-data type that is stored in a register.</param>
+            <param name="usageMask">Mask which indicates which components of a register are used.</param>
+            <param name="readWriteMask">Mask which indicates whether a given component is never written (if the signature is an output signature) or always read (if the signature is an input signature).</param>
+            <param name="stream">Indicates which stream the geometry shader is using for the signature parameter.</param>
+        </member>
+        <member name="M:SharpDX.Toolkit.Graphics.EffectData.Semantic.SharpDX#Serialization#IDataSerializable#Serialize(SharpDX.Serialization.BinarySerializer)">
+            <inheritdoc/>
+        </member>
+        <member name="P:SharpDX.Toolkit.Graphics.EffectData.Semantic.Name">
+            <summary>	
+            <dd> <p>A per-parameter string that identifies how the data will be used. </p> </dd>	
+            </summary>	
+            <msdn-id>ff476215</msdn-id>	
+            <unmanaged>const char* SemanticName</unmanaged>	
+            <unmanaged-short>char SemanticName</unmanaged-short>	
+        </member>
+        <member name="P:SharpDX.Toolkit.Graphics.EffectData.Semantic.Index">
+            <summary>	
+            <dd> <p>Semantic index that modifies the semantic. Used to differentiate different parameters that use the same semantic.</p> </dd>	
+            </summary>	
+            <msdn-id>ff476215</msdn-id>	
+            <unmanaged>unsigned int SemanticIndex</unmanaged>	
+            <unmanaged-short>unsigned int SemanticIndex</unmanaged-short>	
+        </member>
+        <member name="P:SharpDX.Toolkit.Graphics.EffectData.Semantic.Register">
+            <summary>	
+            <dd> <p>The register that will contain this variable's data.</p> </dd>	
+            </summary>	
+            <msdn-id>ff476215</msdn-id>	
+            <unmanaged>unsigned int Register</unmanaged>	
+            <unmanaged-short>unsigned int Register</unmanaged-short>	
+        </member>
+        <member name="P:SharpDX.Toolkit.Graphics.EffectData.Semantic.SystemValueType">
+            <summary>	
+            <dd> <p>A predefined string that determines the functionality of certain pipeline stages. See <strong>D3D10_NAME</strong>.</p> </dd>	
+            </summary>	
+            <msdn-id>ff476215</msdn-id>	
+            <unmanaged>D3D_NAME SystemValueType</unmanaged>	
+            <unmanaged-short>D3D_NAME SystemValueType</unmanaged-short>	
+        </member>
+        <member name="P:SharpDX.Toolkit.Graphics.EffectData.Semantic.ComponentType">
+            <summary>	
+            <dd> <p>The per-component-data type that is stored in a register.  See <strong>D3D10_REGISTER_COMPONENT_TYPE</strong>. Each register can store up to four-components of data.</p> </dd>	
+            </summary>	
+            <msdn-id>ff476215</msdn-id>	
+            <unmanaged>D3D_REGISTER_COMPONENT_TYPE ComponentType</unmanaged>	
+            <unmanaged-short>D3D_REGISTER_COMPONENT_TYPE ComponentType</unmanaged-short>	
+        </member>
+        <member name="P:SharpDX.Toolkit.Graphics.EffectData.Semantic.UsageMask">
+            <summary>	
+            <dd> <p>Mask which indicates which components of a register are used.</p> </dd>	
+            </summary>	
+            <msdn-id>ff476215</msdn-id>	
+            <unmanaged>D3D11_REGISTER_COMPONENT_MASK_FLAG Mask</unmanaged>	
+            <unmanaged-short>D3D11_REGISTER_COMPONENT_MASK_FLAG Mask</unmanaged-short>	
+        </member>
+        <member name="P:SharpDX.Toolkit.Graphics.EffectData.Semantic.ReadWriteMask">
+            <summary>	
+            <dd> <p>Mask which indicates whether a given component is never written (if the signature is an output signature) or always read (if the signature is an input signature). </p> </dd>	
+            </summary>	
+            <msdn-id>ff476215</msdn-id>	
+            <unmanaged>D3D11_REGISTER_COMPONENT_MASK_FLAG ReadWriteMask</unmanaged>	
+            <unmanaged-short>D3D11_REGISTER_COMPONENT_MASK_FLAG ReadWriteMask</unmanaged-short>	
+        </member>
+        <member name="P:SharpDX.Toolkit.Graphics.EffectData.Semantic.Stream">
+            <summary>	
+            <dd> <p>Indicates which stream the geometry shader is using for the signature parameter.</p> </dd>	
+            </summary>	
+            <msdn-id>ff476215</msdn-id>	
+            <unmanaged>unsigned int Stream</unmanaged>	
+            <unmanaged-short>unsigned int Stream</unmanaged-short>	
+        </member>
+        <member name="T:SharpDX.Toolkit.Graphics.EffectData.Pipeline">
+            <summary>
+            Describes link to shaders for each pipeline <see cref="T:SharpDX.Toolkit.Graphics.EffectShaderType"/>
+            </summary>
+        </member>
+        <member name="M:SharpDX.Toolkit.Graphics.EffectData.Pipeline.#ctor">
+            <summary>
+            Initializes a new instance of the <see cref="T:SharpDX.Toolkit.Graphics.EffectData.Pipeline"/> class.
+            </summary>
+        </member>
+        <member name="M:SharpDX.Toolkit.Graphics.EffectData.Pipeline.Clone">
+            <summary>
+            Clones this instance.
+            </summary>
+            <returns>Pipeline.</returns>
+        </member>
+        <member name="M:SharpDX.Toolkit.Graphics.EffectData.Pipeline.SharpDX#Serialization#IDataSerializable#Serialize(SharpDX.Serialization.BinarySerializer)">
+            <inheritdoc/>
+        </member>
+        <member name="P:SharpDX.Toolkit.Graphics.EffectData.Pipeline.Item(SharpDX.Toolkit.Graphics.EffectShaderType)">
+            <summary>
+            Gets or sets the <see cref="T:SharpDX.Toolkit.Graphics.EffectData.ShaderLink"/> with the specified stage type.
+            </summary>
+            <param name="effectShaderType">Type of the stage.</param>
+            <returns>A <see cref="T:SharpDX.Toolkit.Graphics.EffectData.ShaderLink"/></returns>
+            <remarks>
+            The return value can be null if there is no shaders associated for this particular stage.
+            </remarks>
+        </member>
+        <member name="T:SharpDX.Toolkit.Graphics.EffectData.ConstantBuffer">
+            <summary>
+            Describes a constant buffer.
+            </summary>
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.EffectData.ConstantBuffer.Name">
+            <summary>
+            Name of this constant buffer.
+            </summary>
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.EffectData.ConstantBuffer.Size">
+            <summary>
+            Size in bytes of this constant buffer.
+            </summary>
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.EffectData.ConstantBuffer.Parameters">
+            <summary>
+            List of parameters in this constant buffer.
+            </summary>
+        </member>
+        <member name="M:SharpDX.Toolkit.Graphics.EffectData.ConstantBuffer.SharpDX#Serialization#IDataSerializable#Serialize(SharpDX.Serialization.BinarySerializer)">
+            <inheritdoc/>
+        </member>
+        <member name="T:SharpDX.Toolkit.Graphics.EffectData.Pass">
+            <summary>
+            Describes a pass from a technique.
+            </summary>
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.EffectData.Pass.Name">
+            <summary>
+            Name of this pass.
+            </summary>
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.EffectData.Pass.IsSubPass">
+            <summary>
+            True if this pass is the sub-pass of a root pass.
+            </summary>
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.EffectData.Pass.Properties">
+            <summary>
+            List of <see cref="N:SharpDX.Properties"/>.
+            </summary>
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.EffectData.Pass.Pipeline">
+            <summary>
+            Description of the shader stage <see cref="F:SharpDX.Toolkit.Graphics.EffectData.Pass.Pipeline"/>.
+            </summary>
+        </member>
+        <member name="M:SharpDX.Toolkit.Graphics.EffectData.Pass.Clone">
+            <summary>
+            Clones this instance.
+            </summary>
+            <returns>Pass.</returns>
+        </member>
+        <member name="M:SharpDX.Toolkit.Graphics.EffectData.Pass.SharpDX#Serialization#IDataSerializable#Serialize(SharpDX.Serialization.BinarySerializer)">
+            <inheritdoc/>
+        </member>
+        <member name="T:SharpDX.Toolkit.Graphics.EffectData.Technique">
+            <summary>
+            Describes a technique.
+            </summary>
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.EffectData.Technique.Name">
+            <summary>
+            Name of this technique.
+            </summary>
+            <remarks>
+            This value can be null.
+            </remarks>
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.EffectData.Technique.Passes">
+            <summary>
+            List of <see cref="T:SharpDX.Toolkit.Graphics.EffectData.Pass"/>.
+            </summary>
+        </member>
+        <member name="M:SharpDX.Toolkit.Graphics.EffectData.Technique.Clone">
+            <summary>
+            Clones this instance.
+            </summary>
+            <returns>Technique.</returns>
+        </member>
+        <member name="M:SharpDX.Toolkit.Graphics.EffectData.Technique.SharpDX#Serialization#IDataSerializable#Serialize(SharpDX.Serialization.BinarySerializer)">
+            <inheritdoc/>
+        </member>
+        <member name="T:SharpDX.Toolkit.Graphics.EffectData.ResourceParameter">
+            <summary>
+            Describes a resource parameter.
+            </summary>
+        </member>
+        <member name="T:SharpDX.Toolkit.Graphics.EffectData.Parameter">
+            <summary>
+            An abstract parameter, which can be a <see cref="T:SharpDX.Toolkit.Graphics.EffectData.ResourceParameter"/> or a <see cref="T:SharpDX.Toolkit.Graphics.EffectData.ValueTypeParameter"/>.
+            </summary>
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.EffectData.Parameter.Name">
+            <summary>
+            Name of this parameter.
+            </summary>
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.EffectData.Parameter.Class">
+            <summary>
+            The <see cref="T:SharpDX.Toolkit.Graphics.EffectParameterClass"/> of this parameter.
+            </summary>
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.EffectData.Parameter.Type">
+            <summary>
+            The <see cref="T:SharpDX.Toolkit.Graphics.EffectParameterType"/> of this parameter.
+            </summary>
+        </member>
+        <member name="M:SharpDX.Toolkit.Graphics.EffectData.Parameter.SharpDX#Serialization#IDataSerializable#Serialize(SharpDX.Serialization.BinarySerializer)">
+            <inheritdoc/>
+        </member>
+        <member name="M:SharpDX.Toolkit.Graphics.EffectData.Parameter.InternalSerialize(SharpDX.Serialization.BinarySerializer)">
+            <summary>
+            Serialize this instance but hides implementation from outside..
+            </summary>
+            <param name="serializer">The serializer.</param>
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.EffectData.ResourceParameter.Slot">
+            <summary>
+            The slot index register to bind to.
+            </summary>
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.EffectData.ResourceParameter.Count">
+            <summary>
+            The number of slots to bind.
+            </summary>
+        </member>
+        <member name="M:SharpDX.Toolkit.Graphics.EffectData.ResourceParameter.InternalSerialize(SharpDX.Serialization.BinarySerializer)">
+            <inheritdoc/>
+        </member>
+        <member name="T:SharpDX.Toolkit.Graphics.EffectData.ValueTypeParameter">
+            <summary>
+            Describes a value type parameter used by a <see cref="T:SharpDX.Toolkit.Graphics.EffectData.ConstantBuffer"/>.
+            </summary>
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.EffectData.ValueTypeParameter.Offset">
+            <summary>
+            Offset in bytes into the <see cref="T:SharpDX.Toolkit.Graphics.EffectData.ConstantBuffer"/>.
+            </summary>
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.EffectData.ValueTypeParameter.Count">
+            <summary>
+            Number of elements.
+            </summary>
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.EffectData.ValueTypeParameter.Size">
+            <summary>
+            Size in bytes in the <see cref="T:SharpDX.Toolkit.Graphics.EffectData.ConstantBuffer"/>.
+            </summary>
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.EffectData.ValueTypeParameter.RowCount">
+            <summary>
+            Number of rows for this element.
+            </summary>
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.EffectData.ValueTypeParameter.ColumnCount">
+            <summary>
+            Number of columns for this element.
+            </summary>
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.EffectData.ValueTypeParameter.DefaultValue">
+            <summary>
+            The default value.
+            </summary>
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.EffectData.Effect.Name">
+            <summary>
+            Name of the effect.
+            </summary>
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.EffectData.Effect.ShareConstantBuffers">
+            <summary>
+            Share constant buffers.
+            </summary>
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.EffectData.Effect.Techniques">
+            <summary>
+            List of <see cref="T:SharpDX.Toolkit.Graphics.EffectData.Technique"/>.
+            </summary>
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.EffectData.Effect.Arguments">
+            <summary>
+            The compiler arguments used to compile this effect. This field is null if the effect is not compiled with the option "AllowDynamicRecompiling".
+            </summary>
+        </member>
+        <member name="M:SharpDX.Toolkit.Graphics.EffectData.Effect.SharpDX#Serialization#IDataSerializable#Serialize(SharpDX.Serialization.BinarySerializer)">
+            <inheritdoc/>
+        </member>
+        <member name="T:SharpDX.Toolkit.Graphics.EffectData.Shader">
+            <summary>
+            Describes a shader and associated bytecode.
+            </summary>
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.EffectData.Shader.Name">
+            <summary>
+            Name of this shader, only valid for public shaders, else null.
+            </summary>
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.EffectData.Shader.Type">
+            <summary>
+            Type of this shader.
+            </summary>
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.EffectData.Shader.CompilerFlags">
+            <summary>
+            Compiler flags used to compile this shader.
+            </summary>
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.EffectData.Shader.Level">
+            <summary>
+            Level of this shader.
+            </summary>
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.EffectData.Shader.Bytecode">
+            <summary>
+            Bytecode of this shader.
+            </summary>
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.EffectData.Shader.Hashcode">
+            <summary>
+            Hashcode from the bytecode.
+            </summary>
+            <remarks>
+            Shaders with same bytecode with have same hashcode.
+            </remarks>
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.EffectData.Shader.InputSignature">
+            <summary>
+            Description of the input <see cref="T:SharpDX.Toolkit.Graphics.EffectData.Signature"/>.
+            </summary>
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.EffectData.Shader.OutputSignature">
+            <summary>
+            Description of the output <see cref="T:SharpDX.Toolkit.Graphics.EffectData.Signature"/>.
+            </summary>
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.EffectData.Shader.ConstantBuffers">
+            <summary>
+            List of constant buffers used by this shader.
+            </summary>
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.EffectData.Shader.ResourceParameters">
+            <summary>
+            List of resource parameters used by this shader.
+            </summary>
+        </member>
+        <member name="M:SharpDX.Toolkit.Graphics.EffectData.Shader.IsSimilar(SharpDX.Toolkit.Graphics.EffectData.Shader)">
+            <summary>
+            Check if this instance is similar to another Shader.
+            </summary>
+            <param name="other">The other instance to check against.</param>
+            <returns>True if this instance is similar, false otherwise.</returns>
+            <remarks>
+            Except the name, all fields are checked for deep equality.
+            </remarks>
+        </member>
+        <member name="T:SharpDX.Toolkit.Graphics.IEffectCompiler">
+            <summary>
+            Interface to compile an effect.
+            </summary>
+        </member>
+        <member name="M:SharpDX.Toolkit.Graphics.IEffectCompiler.GetDependencyFileNameFromSourcePath(System.String)">
+            <summary>
+            Gets the dependency filename from the (fx) effect path.
+            </summary>
+            <param name="pathToFxFile">The (fx) effect path.</param>
+            <returns>A dependency filename.</returns>
+        </member>
+        <member name="M:SharpDX.Toolkit.Graphics.IEffectCompiler.LoadDependency(System.String)">
+            <summary>
+            Loads a dependency file.
+            </summary>
+            <param name="dependencyFilePath">The dependency file path.</param>
+            <returns>A list of file path.</returns>
+        </member>
+        <member name="M:SharpDX.Toolkit.Graphics.IEffectCompiler.CheckForChanges(System.String)">
+            <summary>
+            Checks for changes from a dependency file.
+            </summary>
+            <param name="dependencyFilePath">The dependency file path.</param>
+            <returns><c>true</c> if a file has been updated, <c>false</c> otherwise</returns>
+        </member>
+        <member name="M:SharpDX.Toolkit.Graphics.IEffectCompiler.CompileFromFile(System.String,SharpDX.Toolkit.Graphics.EffectCompilerFlags,System.Collections.Generic.List{SharpDX.Toolkit.Graphics.EffectData.ShaderMacro},System.Collections.Generic.List{System.String},System.Boolean,System.String)">
+            <summary>
+            Compiles an effect from file.
+            </summary>
+            <param name="filePath">The file path.</param>
+            <param name="flags">The flags.</param>
+            <param name="macros">The macrosArgs.</param>
+            <param name="includeDirectoryList">The include directory list.</param>
+            <param name="alloDynamicCompiling">Whether or not to allow dynamic compilation.</param>
+            <param name="dependencyFilePath">Path to dependency files.</param>
+            <returns>The result of compilation.</returns>
+        </member>
+        <member name="M:SharpDX.Toolkit.Graphics.IEffectCompiler.Compile(System.String,System.String,SharpDX.Toolkit.Graphics.EffectCompilerFlags,System.Collections.Generic.List{SharpDX.Toolkit.Graphics.EffectData.ShaderMacro},System.Collections.Generic.List{System.String},System.Boolean,System.String)">
+            <summary>
+            Compiles an effect from the specified source code and file path.
+            </summary>
+            <param name="sourceCode">The source code.</param>
+            <param name="filePath">The file path.</param>
+            <param name="flags">The flags.</param>
+            <param name="macrosArgs">The macrosArgs.</param>
+            <param name="includeDirectoryList">The include directory list.</param>
+            <param name="allowDynamicCompiling">Whether or not to allow dynamic compilation.</param>
+            <param name="dependencyFilePath">Path to dependency files.</param>
+            <returns>The result of compilation.</returns>
+        </member>
+        <member name="M:SharpDX.Toolkit.Graphics.IEffectCompiler.DisassembleShader(SharpDX.Toolkit.Graphics.EffectData.Shader)">
+            <summary>
+            Disassembles a shader HLSL bytecode to asm code.
+            </summary>
+            <param name="shader">The shader.</param>
+            <returns>A string containing asm code decoded from HLSL bytecode.</returns>
+        </member>
+        <member name="T:SharpDX.Toolkit.Graphics.DisplayOrientation">
+            <summary>
+            Describes the orientation of the display.
+            </summary>
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.DisplayOrientation.Default">
+            <summary>
+            The default value for the orientation.
+            </summary>
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.DisplayOrientation.LandscapeLeft">
+            <summary>
+            Displays in landscape mode to the left.
+            </summary>
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.DisplayOrientation.LandscapeRight">
+            <summary>
+            Displays in landscape mode to the right.
+            </summary>
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.DisplayOrientation.Portrait">
+            <summary>
+            Displays in portrait mode.
+            </summary>
+        </member>
+        <member name="T:SharpDX.Toolkit.Graphics.NamespaceDoc">
+            <summary>
+            The <see cref="N:SharpDX.Toolkit.Graphics"/> namespace provides classes to load and save content data for the Graphics API.
+            </summary>
+        </member>
+        <member name="T:SharpDX.Toolkit.Graphics.ReadOnlyArray`1">
+            <summary>
+            Exposes an array as readonly with readonly elements with support for improved performance for equality.
+            </summary>
+        </member>
+        <member name="M:SharpDX.Toolkit.Graphics.ReadOnlyArray`1.#ctor(`0[])">
+            <summary>
+            Initializes a new instance of the <see cref="T:SharpDX.Toolkit.Graphics.ReadOnlyArray`1"/> class.
+            </summary>
+            <param name="elements">The elements.</param>
+        </member>
+        <member name="M:SharpDX.Toolkit.Graphics.ReadOnlyArray`1.op_Equality(SharpDX.Toolkit.Graphics.ReadOnlyArray{`0},SharpDX.Toolkit.Graphics.ReadOnlyArray{`0})">
+            <summary>
+            Implements the operator ==.
+            </summary>
+            <param name="left">The left.</param>
+            <param name="right">The right.</param>
+            <returns>The result of the operator.</returns>
+        </member>
+        <member name="M:SharpDX.Toolkit.Graphics.ReadOnlyArray`1.op_Inequality(SharpDX.Toolkit.Graphics.ReadOnlyArray{`0},SharpDX.Toolkit.Graphics.ReadOnlyArray{`0})">
+            <summary>
+            Implements the operator !=.
+            </summary>
+            <param name="left">The left.</param>
+            <param name="right">The right.</param>
+            <returns>The result of the operator.</returns>
+        </member>
+        <member name="P:SharpDX.Toolkit.Graphics.ReadOnlyArray`1.Length">
+            <summary>
+            Gets number of elements.
+            </summary>
+            <value>The number of elements.</value>
+        </member>
+        <member name="P:SharpDX.Toolkit.Graphics.ReadOnlyArray`1.Item(System.Int32)">
+            <summary>Gets a specific element in the collection by using an index value.</summary>
+            <param name="index">Index of the value to get.</param>
+        </member>
+        <member name="T:SharpDX.Toolkit.Graphics.SpriteFontData">
+            <summary>
+            Data for a SpriteFont object that supports kerning.
+            </summary>
+            <remarks>
+            Loading of SpriteFontData supports DirectXTk "MakeSpriteFont" format and AngelCode Bitmap Font Maker (binary format).
+            </remarks>
+        </member>
+        <member name="M:SharpDX.Toolkit.Graphics.SpriteFontData.SerializeBMFFont(SharpDX.Serialization.BinarySerializer)">
+            <summary>
+             This method for loading/saving a font file generated from AngelCode BMFont.
+            </summary>
+            <param name="serializer">The binary serializer to use.</param>
+        </member>
+        <member name="M:SharpDX.Toolkit.Graphics.SpriteFontData.SerializeMakeSpriteFont(SharpDX.Serialization.BinarySerializer)">
+            <summary>
+             This method for loading/saving a font file generated from MakeSpriteFont.
+            </summary>
+            <param name="serializer">The binary serializer to use.</param>
+            <returns></returns>
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.SpriteFontData.BaseOffset">
+            <summary>
+            The number of pixels from the absolute top of the line to the base of the characters.
+            </summary>
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.SpriteFontData.LineSpacing">
+            <summary>
+            This is the distance in pixels between each line of text.
+            </summary>
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.SpriteFontData.DefaultCharacter">
+            <summary>
+            The default character fallback.
+            </summary>
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.SpriteFontData.Glyphs">
+            <summary>
+            An array of <see cref="T:SharpDX.Toolkit.Graphics.SpriteFontData.Glyph"/> data.
+            </summary>
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.SpriteFontData.Bitmaps">
+            <summary>
+            An array of <see cref="T:SharpDX.Toolkit.Graphics.SpriteFontData.Bitmap"/> data.
+            </summary>
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.SpriteFontData.Kernings">
+            <summary>
+            An array of <see cref="T:SharpDX.Toolkit.Graphics.SpriteFontData.Kerning"/> data.
+            </summary>
+        </member>
+        <member name="M:SharpDX.Toolkit.Graphics.SpriteFontData.Load(System.IO.Stream,SharpDX.Toolkit.Graphics.SpriteFontBitmapDataLoaderDelegate)">
+            <summary>
+            Loads a <see cref="T:SharpDX.Toolkit.Graphics.SpriteFontData"/> from the specified stream.
+            </summary>
+            <param name="stream">The stream.</param>
+            <param name="bitmapDataLoader">A delegate to load bitmap data that are not stored in the buffer.</param>
+            <returns>An <see cref="T:SharpDX.Toolkit.Graphics.SpriteFontData"/>. Null if the stream is not a serialized <see cref="T:SharpDX.Toolkit.Graphics.SpriteFontData"/>.</returns>
+        </member>
+        <member name="M:SharpDX.Toolkit.Graphics.SpriteFontData.Load(System.Byte[],SharpDX.Toolkit.Graphics.SpriteFontBitmapDataLoaderDelegate)">
+            <summary>
+            Loads a <see cref="T:SharpDX.Toolkit.Graphics.SpriteFontData"/> from the specified stream.
+            </summary>
+            <param name="buffer">The buffer.</param>
+            <param name="bitmapDataLoader">A delegate to load bitmap data that are not stored in the buffer.</param>
+            <returns>An <see cref="T:SharpDX.Toolkit.Graphics.SpriteFontData"/>. Null if the stream is not a serialized <see cref="T:SharpDX.Toolkit.Graphics.SpriteFontData"/>.</returns>
+        </member>
+        <member name="M:SharpDX.Toolkit.Graphics.SpriteFontData.Load(System.String,SharpDX.Toolkit.Graphics.SpriteFontBitmapDataLoaderDelegate)">
+            <summary>
+            Loads a <see cref="T:SharpDX.Toolkit.Graphics.SpriteFontData"/> from the specified stream.
+            </summary>
+            <param name="fileName">The filename.</param>
+            <param name="bitmapDataLoader">A delegate to load bitmap data that are not stored in the buffer.</param>
+            <returns>An <see cref="T:SharpDX.Toolkit.Graphics.SpriteFontData"/>. Null if the stream is not a serialized <see cref="T:SharpDX.Toolkit.Graphics.SpriteFontData"/>.</returns>
+        </member>
+        <member name="T:SharpDX.Toolkit.Graphics.SpriteFontData.ChannelType">
+            <summary>
+            Type of Channel, not used yet.
+            </summary>
+        </member>
+        <member name="T:SharpDX.Toolkit.Graphics.SpriteFontData.BMFCommon">
+            <summary>
+            A BMFont common header.
+            </summary>
+        </member>
+        <member name="T:SharpDX.Toolkit.Graphics.SpriteFontData.BMFGlyph">
+            <summary>
+            A BMFont glyph  header.
+            </summary>
+        </member>
+        <member name="T:SharpDX.Toolkit.Graphics.SpriteFontData.Kerning">
+            <summary>
+            Describes kerning information.
+            </summary>
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.SpriteFontData.Kerning.First">
+            <summary>
+            Unicode for the 1st character.
+            </summary>
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.SpriteFontData.Kerning.Second">
+            <summary>
+            Unicode for the 2nd character.
+            </summary>
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.SpriteFontData.Kerning.Offset">
+            <summary>
+            X Offsets in pixels to apply between the 1st and 2nd character.
+            </summary>
+        </member>
+        <member name="T:SharpDX.Toolkit.Graphics.SpriteFontData.Bitmap">
+            <summary>
+            Describes bitmap font data.
+            </summary>
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.SpriteFontData.Bitmap.Data">
+            <summary>
+            The actual data of the bitmap. See remarks.
+            </summary>
+            <remarks>
+            When loading bitmap from a DirectXTk "MakeSpriteFont/tkfont" exe, this field will contain a <see cref="T:SharpDX.Toolkit.Graphics.SpriteFontData.BitmapData"/>.
+            When loading from an AngelCode BMFont, this field will contain a string representing the name of the external texture to load.
+            </remarks>
+        </member>
+        <member name="T:SharpDX.Toolkit.Graphics.SpriteFontData.BitmapData">
+            <summary>
+            Bitmap data.
+            </summary>
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.SpriteFontData.BitmapData.Width">
+            <summary>
+            Width of the bitmap.
+            </summary>
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.SpriteFontData.BitmapData.Height">
+            <summary>
+            Height of the bitmap.
+            </summary>
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.SpriteFontData.BitmapData.PixelFormat">
+            <summary>
+            Format of the pixel.
+            </summary>
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.SpriteFontData.BitmapData.RowStride">
+            <summary>
+            Stride in bytes of a row of pixels.
+            </summary>
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.SpriteFontData.BitmapData.CompressedHeight">
+            <summary>
+            Number of row strides (may be less than <see cref="F:SharpDX.Toolkit.Graphics.SpriteFontData.BitmapData.Height"/> when using compressed format.
+            </summary>
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.SpriteFontData.BitmapData.Data">
+            <summary>
+            Actual raw data stored in <see cref="F:SharpDX.Toolkit.Graphics.SpriteFontData.BitmapData.PixelFormat"/> format.
+            </summary>
+        </member>
+        <member name="T:SharpDX.Toolkit.Graphics.SpriteFontData.Glyph">
+            <summary>
+            Description of a glyph (a single character)
+            </summary>
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.SpriteFontData.Glyph.Character">
+            <summary>
+            Unicode codepoint.
+            </summary>
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.SpriteFontData.Glyph.Subrect">
+            <summary>
+            Glyph image data (may only use a portion of a larger bitmap).
+            </summary>
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.SpriteFontData.Glyph.Offset">
+            <summary>
+            Layout information.
+            </summary>
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.SpriteFontData.Glyph.XAdvance">
+            <summary>
+            Advance X
+            </summary>
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.SpriteFontData.Glyph.BitmapIndex">
+            <summary>
+            Index to a bitmap stored in <see cref="F:SharpDX.Toolkit.Graphics.SpriteFontData.Bitmaps"/>. 
+            </summary>
+        </member>
+        <member name="T:SharpDX.Toolkit.Graphics.EffectCompilerFlags">
+            <summary>
+            Effect Compiler flags.
+            </summary>
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.EffectCompilerFlags.Debug">
+            <summary>	
+            Directs the compiler to insert debug file/line/type/symbol information into the output code.
+            </summary>	
+            <unmanaged>D3DCOMPILE_DEBUG</unmanaged>	
+            <unmanaged-short>D3DCOMPILE_DEBUG</unmanaged-short>	
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.EffectCompilerFlags.SkipValidation">
+            <summary>	
+            Directs the compiler not to validate the generated code against known capabilities and constraints. 
+            We recommend that you use this constant only with shaders that have been successfully compiled in the past. DirectX always validates shaders before it sets them to a device.
+            </summary>	
+            <unmanaged>D3DCOMPILE_SKIP_VALIDATION</unmanaged>	
+            <unmanaged-short>D3DCOMPILE_SKIP_VALIDATION</unmanaged-short>	
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.EffectCompilerFlags.SkipOptimization">
+            <summary>	
+            Directs the compiler to skip optimization steps during code generation. We recommend that you set this constant for debug purposes only.
+            </summary>	
+            <unmanaged>D3DCOMPILE_SKIP_OPTIMIZATION</unmanaged>	
+            <unmanaged-short>D3DCOMPILE_SKIP_OPTIMIZATION</unmanaged-short>	
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.EffectCompilerFlags.PackMatrixRowMajor">
+            <summary>	
+            Directs the compiler to pack matrices in row-major order on input and output from the shader.
+            </summary>	
+            <unmanaged>D3DCOMPILE_PACK_MATRIX_ROW_MAJOR</unmanaged>	
+            <unmanaged-short>D3DCOMPILE_PACK_MATRIX_ROW_MAJOR</unmanaged-short>	
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.EffectCompilerFlags.PackMatrixColumnMajor">
+            <summary>	
+            Directs the compiler to pack matrices in column-major order on input and output from the shader. This type of packing is generally more efficient because a series of dot-products can then perform vector-matrix multiplication.
+            </summary>	
+            <unmanaged>D3DCOMPILE_PACK_MATRIX_COLUMN_MAJOR</unmanaged>	
+            <unmanaged-short>D3DCOMPILE_PACK_MATRIX_COLUMN_MAJOR</unmanaged-short>	
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.EffectCompilerFlags.PartialPrecision">
+            <summary>	
+            Directs the compiler to perform all computations with partial precision. If you set this constant, the compiled code might run faster on some hardware.
+            </summary>	
+            <unmanaged>D3DCOMPILE_PARTIAL_PRECISION</unmanaged>	
+            <unmanaged-short>D3DCOMPILE_PARTIAL_PRECISION</unmanaged-short>	
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.EffectCompilerFlags.AvoidFlowControl">
+            <summary>	
+            Directs the compiler to not use flow-control constructs where possible.
+            </summary>	
+            <unmanaged>D3DCOMPILE_AVOID_FLOW_CONTROL</unmanaged>	
+            <unmanaged-short>D3DCOMPILE_AVOID_FLOW_CONTROL</unmanaged-short>	
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.EffectCompilerFlags.PreferFlowControl">
+            <summary>	
+            Directs the compiler to use flow-control constructs where possible.
+            </summary>	
+            <unmanaged>D3DCOMPILE_PREFER_FLOW_CONTROL</unmanaged>	
+            <unmanaged-short>D3DCOMPILE_PREFER_FLOW_CONTROL</unmanaged-short>	
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.EffectCompilerFlags.EnableStrictness">
+            <summary>	
+            Forces strict compile, which might not allow for legacy syntax.
+            </summary>	
+            <remarks>
+            By default, the compiler disables strictness on deprecated syntax.
+            </remarks>
+            <unmanaged>D3DCOMPILE_ENABLE_STRICTNESS</unmanaged>	
+            <unmanaged-short>D3DCOMPILE_ENABLE_STRICTNESS</unmanaged-short>	
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.EffectCompilerFlags.EnableBackwardsCompatibility">
+            <summary>	
+            Directs the compiler to enable older shaders to compile to 5_0 targets.
+            </summary>	
+            <unmanaged>D3DCOMPILE_ENABLE_BACKWARDS_COMPATIBILITY</unmanaged>	
+            <unmanaged-short>D3DCOMPILE_ENABLE_BACKWARDS_COMPATIBILITY</unmanaged-short>	
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.EffectCompilerFlags.IeeeStrictness">
+            <summary>	
+            Forces the IEEE strict compile.
+            </summary>	
+            <unmanaged>D3DCOMPILE_IEEE_STRICTNESS</unmanaged>	
+            <unmanaged-short>D3DCOMPILE_IEEE_STRICTNESS</unmanaged-short>	
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.EffectCompilerFlags.OptimizationLevel0">
+            <summary>	
+            Directs the compiler to use the lowest optimization level. If you set this constant, the compiler might produce slower code but produces the code more quickly. Set this constant when you develop the shader iteratively.	
+            </summary>	
+            <unmanaged>D3DCOMPILE_OPTIMIZATION_LEVEL0</unmanaged>	
+            <unmanaged-short>D3DCOMPILE_OPTIMIZATION_LEVEL0</unmanaged-short>	
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.EffectCompilerFlags.OptimizationLevel1">
+            <summary>	
+            Directs the compiler to use the second lowest optimization level.
+            </summary>	
+            <unmanaged>D3DCOMPILE_OPTIMIZATION_LEVEL1</unmanaged>	
+            <unmanaged-short>D3DCOMPILE_OPTIMIZATION_LEVEL1</unmanaged-short>	
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.EffectCompilerFlags.OptimizationLevel2">
+            <summary>	
+            Directs the compiler to use the second highest optimization level.
+            </summary>	
+            <unmanaged>D3DCOMPILE_OPTIMIZATION_LEVEL2</unmanaged>	
+            <unmanaged-short>D3DCOMPILE_OPTIMIZATION_LEVEL2</unmanaged-short>	
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.EffectCompilerFlags.OptimizationLevel3">
+            <summary>	
+            Directs the compiler to use the highest optimization level. If you set this constant, the compiler produces the best possible code but might take significantly longer to do so. Set this constant for final builds of an application when performance is the most important factor.
+            </summary>	
+            <unmanaged>D3DCOMPILE_OPTIMIZATION_LEVEL3</unmanaged>	
+            <unmanaged-short>D3DCOMPILE_OPTIMIZATION_LEVEL3</unmanaged-short>	
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.EffectCompilerFlags.WarningsAreErrors">
+            <summary>	
+            Directs the compiler to treat all warnings as errors when it compiles the shader code. We recommend that you use this constant for new shader code, so that you can resolve all warnings and lower the number of hard-to-find code defects.
+            </summary>	
+            <unmanaged>D3DCOMPILE_WARNINGS_ARE_ERRORS</unmanaged>	
+            <unmanaged-short>D3DCOMPILE_WARNINGS_ARE_ERRORS</unmanaged-short>	
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.EffectCompilerFlags.None">
+            <summary>	
+            None.	
+            </summary>	
+            <unmanaged>None</unmanaged>	
+            <unmanaged-short>None</unmanaged-short>	
+        </member>
+        <member name="T:SharpDX.Toolkit.Graphics.SpriteFontBitmapDataLoaderDelegate">
+            <summary>
+            A delegate to load binary bitmap data from a bitmap name (currently used to load external bitmap referenced in AngelCode Bitmap data).
+            </summary>
+            <param name="bitmapName">The name of the bitmap data to load.</param>
+            <returns>A bitmap data object.</returns>
+        </member>
+        <member name="T:SharpDX.Toolkit.Graphics.SpriteFontDataContentReader">
+            <summary>
+            Content reader for <see cref="T:SharpDX.Toolkit.Graphics.SpriteFontData"/>.
+            </summary>
+        </member>
+        <member name="T:SharpDX.Toolkit.Graphics.VertexBufferLayout">
+            <summary>	
+            A description of a vertex elements for particular slot for the input-assembler stage. 
+            This structure is related to <see cref="T:SharpDX.Direct3D11.InputElement"/>.
+            </summary>	
+            <remarks>	
+            Because <see cref="T:SharpDX.Direct3D11.InputElement"/> requires to have the same <see cref="F:SharpDX.Toolkit.Graphics.VertexBufferLayout.SlotIndex"/>, <see cref="F:SharpDX.Toolkit.Graphics.VertexBufferLayout.InstanceCount"/>,
+            this <see cref="T:SharpDX.Toolkit.Graphics.VertexBufferLayout"/> structure encapsulates a set of <see cref="T:SharpDX.Toolkit.Graphics.VertexElement"/> for a particular slot, instance count.
+            </remarks>	
+            <seealso cref="T:SharpDX.Toolkit.Graphics.VertexElement"/>
+            <msdn-id>ff476180</msdn-id>	
+            <unmanaged>D3D11_INPUT_ELEMENT_DESC</unmanaged>	
+            <unmanaged-short>D3D11_INPUT_ELEMENT_DESC</unmanaged-short>	
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.VertexBufferLayout.SlotIndex">
+            <summary>
+            Vertex buffer slot index.
+            </summary>
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.VertexBufferLayout.InstanceCount">
+            <summary>	
+            The number of instances to draw using the same per-instance data before advancing in the buffer by one element. This value must be 0 for an  element that contains per-vertex data (the slot class is set to <see cref="F:SharpDX.Direct3D11.InputClassification.PerVertexData"/>).
+            </summary>	
+            <msdn-id>ff476180</msdn-id>	
+            <unmanaged>unsigned int InstanceDataStepRate</unmanaged>	
+            <unmanaged-short>unsigned int InstanceDataStepRate</unmanaged-short>	
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.VertexBufferLayout.VertexElements">
+            <summary>
+            Vertex elements describing this declaration.
+            </summary>
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.VertexBufferLayout.hashCode">
+            <summary>
+            Precalculate hashcode for faster comparison.
+            </summary>
+        </member>
+        <member name="M:SharpDX.Toolkit.Graphics.VertexBufferLayout.#ctor(System.Int32,SharpDX.Toolkit.Graphics.VertexElement[],System.Int32)">
+            <summary>
+            Initializes a new instance of the <see cref="T:SharpDX.Toolkit.Graphics.VertexBufferLayout"/> struct.
+            </summary>
+            <param name="slot">The slot to bind this vertex buffer to. </param>
+            <param name="elements">The elements.</param>
+            <param name="instanceCount">The instance data step rate.</param>
+        </member>
+        <member name="M:SharpDX.Toolkit.Graphics.VertexBufferLayout.New(System.Int32,System.Type,System.Int32)">
+            <summary>
+            Initializes a new instance of the <see cref="T:SharpDX.Toolkit.Graphics.VertexBufferLayout"/> struct.
+            </summary>
+            <param name="slot">The slot to bind this vertex buffer to.</param>
+            <param name="structType">Type of a structure that is using <see cref="T:SharpDX.Toolkit.Graphics.VertexElementAttribute"/>.</param>
+            <param name="instanceCount">Specify the instancing count. Set to 0 for no instancing.</param>
+            <returns>A new instance of <see cref="T:SharpDX.Toolkit.Graphics.VertexBufferLayout"/>.</returns>
+        </member>
+        <member name="M:SharpDX.Toolkit.Graphics.VertexBufferLayout.New``1(System.Int32,System.Int32)">
+            <summary>
+            Initializes a new instance of the <see cref="T:SharpDX.Toolkit.Graphics.VertexBufferLayout"/> struct.
+            </summary>
+            <typeparam name="T">Type of a structure that is using <see cref="T:SharpDX.Toolkit.Graphics.VertexElementAttribute"/>.</typeparam>
+            <param name="slot">The slot to bind this vertex buffer to.</param>
+            <param name="instanceCount">Specify the instancing count. Set to 0 for no instancing.</param>
+            <returns>A new instance of <see cref="T:SharpDX.Toolkit.Graphics.VertexBufferLayout"/>.</returns>
+        </member>
+        <member name="M:SharpDX.Toolkit.Graphics.VertexBufferLayout.New(System.Int32,SharpDX.Toolkit.Graphics.VertexElement[])">
+            <summary>
+            Initializes a new instance of the <see cref="T:SharpDX.Toolkit.Graphics.VertexBufferLayout"/> struct.
+            </summary>
+            <param name="slot">The slot to bind this vertex buffer to.</param>
+            <param name="elements">The elements.</param>
+            <returns>A new instance of <see cref="T:SharpDX.Toolkit.Graphics.VertexBufferLayout"/>.</returns>
+        </member>
+        <member name="M:SharpDX.Toolkit.Graphics.VertexBufferLayout.New(System.Int32,SharpDX.Toolkit.Graphics.VertexElement[],System.Int32)">
+            <summary>
+            Initializes a new instance of the <see cref="T:SharpDX.Toolkit.Graphics.VertexBufferLayout"/> struct with instantiated data.
+            </summary>
+            <param name="slot">The slot to bind this vertex buffer to.</param>
+            <param name="elements">The elements.</param>
+            <param name="instanceCount">Specify the instancing count. Set to 0 for no instancing.</param>
+            <returns>A new instance of <see cref="T:SharpDX.Toolkit.Graphics.VertexBufferLayout"/>.</returns>
+        </member>
+        <member name="T:SharpDX.Toolkit.Graphics.VertexElement">
+            <summary>	
+            A description of a single element for the input-assembler stage. This structure is related to <see cref="T:SharpDX.Direct3D11.InputElement"/>.
+            </summary>	
+            <remarks>	
+            Because <see cref="T:SharpDX.Direct3D11.InputElement"/> requires to have the same <see cref="F:SharpDX.Toolkit.Graphics.VertexBufferLayout.SlotIndex"/>, <see cref="!:VertexBufferLayout.VertexClassification"/> and <see cref="!:VertexBufferLayout.instanceDataStepRate"/>,
+            the <see cref="T:SharpDX.Toolkit.Graphics.VertexBufferLayout"/> structure encapsulates a set of <see cref="T:SharpDX.Toolkit.Graphics.VertexElement"/> for a particular slot, classification and instance data step rate.
+            Unlike the default <see cref="T:SharpDX.Direct3D11.InputElement"/>, this structure accepts a semantic name with a postfix number that will be automatically extracted to the semantic index.
+            </remarks>	
+            <seealso cref="T:SharpDX.Toolkit.Graphics.VertexBufferLayout"/>
+            <msdn-id>ff476180</msdn-id>	
+            <unmanaged>D3D11_INPUT_ELEMENT_DESC</unmanaged>	
+            <unmanaged-short>D3D11_INPUT_ELEMENT_DESC</unmanaged-short>	
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.VertexElement.AppendAligned">
+            <summary>
+              Returns a value that can be used for the offset parameter of an InputElement to indicate that the element
+              should be aligned directly after the previous element, including any packing if necessary.
+            </summary>
+            <returns>A value used to align input elements.</returns>
+            <unmanaged>D3D11_APPEND_ALIGNED_ELEMENT</unmanaged>
+        </member>
+        <member name="M:SharpDX.Toolkit.Graphics.VertexElement.#ctor(System.String,SharpDX.DXGI.Format)">
+            <summary>
+            Initializes a new instance of the <see cref="T:SharpDX.Toolkit.Graphics.VertexElement"/> struct.
+            </summary>
+            <param name="semanticName">Name of the semantic.</param>
+            <param name="format">The format.</param>
+            <remarks>
+            If the semantic name contains a postfix number, this number will be used as a semantic index.
+            </remarks>
+        </member>
+        <member name="M:SharpDX.Toolkit.Graphics.VertexElement.#ctor(System.String,System.Int32,SharpDX.DXGI.Format,System.Int32)">
+            <summary>
+            Initializes a new instance of the <see cref="T:SharpDX.Toolkit.Graphics.VertexElement"/> struct.
+            </summary>
+            <param name="semanticName">Name of the semantic.</param>
+            <param name="semanticIndex">Index of the semantic.</param>
+            <param name="format">The format.</param>
+            <param name="alignedByteOffset">The aligned byte offset.</param>
+        </member>
+        <member name="M:SharpDX.Toolkit.Graphics.VertexElement.Color``1(System.Int32,System.Int32)">
+            <summary>
+            Declares a VertexElement with the semantic "COLOR".
+            </summary>
+            <typeparam name="T">Type of the Color semantic.</typeparam>
+            <param name="semanticIndex">The semantic index.</param>
+            <param name="offsetInBytes">The offset in bytes of this element. Use <see cref="F:SharpDX.Toolkit.Graphics.VertexElement.AppendAligned"/> to compute automatically the offset from previous elements.</param>
+            <returns>A new instance of <see cref="T:SharpDX.Toolkit.Graphics.VertexElement"/> that represents this semantic.</returns>
+        </member>
+        <member name="M:SharpDX.Toolkit.Graphics.VertexElement.Color(SharpDX.DXGI.Format,System.Int32)">
+            <summary>
+            Declares a VertexElement with the semantic "COLOR".
+            </summary>
+            <param name="format">Format of this element.</param>
+            <param name="offsetInBytes">The offset in bytes of this element. Use <see cref="F:SharpDX.Toolkit.Graphics.VertexElement.AppendAligned"/> to compute automatically the offset from previous elements.</param>
+            <returns>A new instance of <see cref="T:SharpDX.Toolkit.Graphics.VertexElement"/> that represents this semantic.</returns>
+        </member>
+        <member name="M:SharpDX.Toolkit.Graphics.VertexElement.Color(System.Int32,SharpDX.DXGI.Format,System.Int32)">
+            <summary>
+            Declares a VertexElement with the semantic "COLOR".
+            </summary>
+            <param name="semanticIndex">The semantic index.</param>
+            <param name="format">Format of this element.</param>
+            <param name="offsetInBytes">The offset in bytes of this element. Use <see cref="F:SharpDX.Toolkit.Graphics.VertexElement.AppendAligned"/> to compute automatically the offset from previous elements.</param>
+            <returns>A new instance of <see cref="T:SharpDX.Toolkit.Graphics.VertexElement"/> that represents this semantic.</returns>
+        </member>
+        <member name="M:SharpDX.Toolkit.Graphics.VertexElement.Normal``1(System.Int32,System.Int32)">
+            <summary>
+            Declares a VertexElement with the semantic "NORMAL".
+            </summary>
+            <typeparam name="T">Type of the Normal semantic.</typeparam>
+            <param name="semanticIndex">The semantic index.</param>
+            <param name="offsetInBytes">The offset in bytes of this element. Use <see cref="F:SharpDX.Toolkit.Graphics.VertexElement.AppendAligned"/> to compute automatically the offset from previous elements.</param>
+            <returns>A new instance of <see cref="T:SharpDX.Toolkit.Graphics.VertexElement"/> that represents this semantic.</returns>
+        </member>
+        <member name="M:SharpDX.Toolkit.Graphics.VertexElement.Normal(SharpDX.DXGI.Format,System.Int32)">
+            <summary>
+            Declares a VertexElement with the semantic "NORMAL".
+            </summary>
+            <param name="format">Format of this element.</param>
+            <param name="offsetInBytes">The offset in bytes of this element. Use <see cref="F:SharpDX.Toolkit.Graphics.VertexElement.AppendAligned"/> to compute automatically the offset from previous elements.</param>
+            <returns>A new instance of <see cref="T:SharpDX.Toolkit.Graphics.VertexElement"/> that represents this semantic.</returns>
+        </member>
+        <member name="M:SharpDX.Toolkit.Graphics.VertexElement.Normal(System.Int32,SharpDX.DXGI.Format,System.Int32)">
+            <summary>
+            Declares a VertexElement with the semantic "NORMAL".
+            </summary>
+            <param name="semanticIndex">The semantic index.</param>
+            <param name="format">Format of this element.</param>
+            <param name="offsetInBytes">The offset in bytes of this element. Use <see cref="F:SharpDX.Toolkit.Graphics.VertexElement.AppendAligned"/> to compute automatically the offset from previous elements.</param>
+            <returns>A new instance of <see cref="T:SharpDX.Toolkit.Graphics.VertexElement"/> that represents this semantic.</returns>
+        </member>
+        <member name="M:SharpDX.Toolkit.Graphics.VertexElement.BlendIndices``1(System.Int32,System.Int32)">
+            <summary>
+            Declares a VertexElement with the semantic "BLENDINDICES".
+            </summary>
+            <typeparam name="T">Type of the BlendIndices semantic.</typeparam>
+            <param name="semanticIndex">The semantic index.</param>
+            <param name="offsetInBytes">The offset in bytes of this element. Use <see cref="F:SharpDX.Toolkit.Graphics.VertexElement.AppendAligned"/> to compute automatically the offset from previous elements.</param>
+            <returns>A new instance of <see cref="T:SharpDX.Toolkit.Graphics.VertexElement"/> that represents this semantic.</returns>
+        </member>
+        <member name="M:SharpDX.Toolkit.Graphics.VertexElement.BlendIndices(SharpDX.DXGI.Format,System.Int32)">
+            <summary>
+            Declares a VertexElement with the semantic "BLENDINDICES".
+            </summary>
+            <param name="format">Format of this element.</param>
+            <param name="offsetInBytes">The offset in bytes of this element. Use <see cref="F:SharpDX.Toolkit.Graphics.VertexElement.AppendAligned"/> to compute automatically the offset from previous elements.</param>
+            <returns>A new instance of <see cref="T:SharpDX.Toolkit.Graphics.VertexElement"/> that represents this semantic.</returns>
+        </member>
+        <member name="M:SharpDX.Toolkit.Graphics.VertexElement.BlendIndices(System.Int32,SharpDX.DXGI.Format,System.Int32)">
+            <summary>
+            Declares a VertexElement with the semantic "BLENDINDICES".
+            </summary>
+            <param name="semanticIndex">The semantic index.</param>
+            <param name="format">Format of this element.</param>
+            <param name="offsetInBytes">The offset in bytes of this element. Use <see cref="F:SharpDX.Toolkit.Graphics.VertexElement.AppendAligned"/> to compute automatically the offset from previous elements.</param>
+            <returns>A new instance of <see cref="T:SharpDX.Toolkit.Graphics.VertexElement"/> that represents this semantic.</returns>
+        </member>
+        <member name="M:SharpDX.Toolkit.Graphics.VertexElement.BlendWeights``1(System.Int32,System.Int32)">
+            <summary>
+            Declares a VertexElement with the semantic "BLENDWEIGHT".
+            </summary>
+            <typeparam name="T">Type of the BlendWeights semantic.</typeparam>
+            <param name="semanticIndex">The semantic index.</param>
+            <param name="offsetInBytes">The offset in bytes of this element. Use <see cref="F:SharpDX.Toolkit.Graphics.VertexElement.AppendAligned"/> to compute automatically the offset from previous elements.</param>
+            <returns>A new instance of <see cref="T:SharpDX.Toolkit.Graphics.VertexElement"/> that represents this semantic.</returns>
+        </member>
+        <member name="M:SharpDX.Toolkit.Graphics.VertexElement.BlendWeights(SharpDX.DXGI.Format,System.Int32)">
+            <summary>
+            Declares a VertexElement with the semantic "BLENDWEIGHT".
+            </summary>
+            <param name="format">Format of this element.</param>
+            <param name="offsetInBytes">The offset in bytes of this element. Use <see cref="F:SharpDX.Toolkit.Graphics.VertexElement.AppendAligned"/> to compute automatically the offset from previous elements.</param>
+            <returns>A new instance of <see cref="T:SharpDX.Toolkit.Graphics.VertexElement"/> that represents this semantic.</returns>
+        </member>
+        <member name="M:SharpDX.Toolkit.Graphics.VertexElement.BlendWeights(System.Int32,SharpDX.DXGI.Format,System.Int32)">
+            <summary>
+            Declares a VertexElement with the semantic "BLENDWEIGHT".
+            </summary>
+            <param name="semanticIndex">The semantic index.</param>
+            <param name="format">Format of this element.</param>
+            <param name="offsetInBytes">The offset in bytes of this element. Use <see cref="F:SharpDX.Toolkit.Graphics.VertexElement.AppendAligned"/> to compute automatically the offset from previous elements.</param>
+            <returns>A new instance of <see cref="T:SharpDX.Toolkit.Graphics.VertexElement"/> that represents this semantic.</returns>
+        </member>
+        <member name="M:SharpDX.Toolkit.Graphics.VertexElement.Position``1(System.Int32,System.Int32)">
+            <summary>
+            Declares a VertexElement with the semantic "POSITION".
+            </summary>
+            <typeparam name="T">Type of the Position semantic.</typeparam>
+            <param name="semanticIndex">The semantic index.</param>
+            <param name="offsetInBytes">The offset in bytes of this element. Use <see cref="F:SharpDX.Toolkit.Graphics.VertexElement.AppendAligned"/> to compute automatically the offset from previous elements.</param>
+            <returns>A new instance of <see cref="T:SharpDX.Toolkit.Graphics.VertexElement"/> that represents this semantic.</returns>
+        </member>
+        <member name="M:SharpDX.Toolkit.Graphics.VertexElement.Position(SharpDX.DXGI.Format,System.Int32)">
+            <summary>
+            Declares a VertexElement with the semantic "POSITION".
+            </summary>
+            <param name="format">Format of this element.</param>
+            <param name="offsetInBytes">The offset in bytes of this element. Use <see cref="F:SharpDX.Toolkit.Graphics.VertexElement.AppendAligned"/> to compute automatically the offset from previous elements.</param>
+            <returns>A new instance of <see cref="T:SharpDX.Toolkit.Graphics.VertexElement"/> that represents this semantic.</returns>
+        </member>
+        <member name="M:SharpDX.Toolkit.Graphics.VertexElement.Position(System.Int32,SharpDX.DXGI.Format,System.Int32)">
+            <summary>
+            Declares a VertexElement with the semantic "POSITION".
+            </summary>
+            <param name="semanticIndex">The semantic index.</param>
+            <param name="format">Format of this element.</param>
+            <param name="offsetInBytes">The offset in bytes of this element. Use <see cref="F:SharpDX.Toolkit.Graphics.VertexElement.AppendAligned"/> to compute automatically the offset from previous elements.</param>
+            <returns>A new instance of <see cref="T:SharpDX.Toolkit.Graphics.VertexElement"/> that represents this semantic.</returns>
+        </member>
+        <member name="M:SharpDX.Toolkit.Graphics.VertexElement.PositionTransformed``1(System.Int32,System.Int32)">
+            <summary>
+            Declares a VertexElement with the semantic "SV_POSITION".
+            </summary>
+            <typeparam name="T">Type of the PositionTransformed semantic.</typeparam>
+            <param name="semanticIndex">The semantic index.</param>
+            <param name="offsetInBytes">The offset in bytes of this element. Use <see cref="F:SharpDX.Toolkit.Graphics.VertexElement.AppendAligned"/> to compute automatically the offset from previous elements.</param>
+            <returns>A new instance of <see cref="T:SharpDX.Toolkit.Graphics.VertexElement"/> that represents this semantic.</returns>
+        </member>
+        <member name="M:SharpDX.Toolkit.Graphics.VertexElement.PositionTransformed(SharpDX.DXGI.Format,System.Int32)">
+            <summary>
+            Declares a VertexElement with the semantic "SV_POSITION".
+            </summary>
+            <param name="format">Format of this element.</param>
+            <param name="offsetInBytes">The offset in bytes of this element. Use <see cref="F:SharpDX.Toolkit.Graphics.VertexElement.AppendAligned"/> to compute automatically the offset from previous elements.</param>
+            <returns>A new instance of <see cref="T:SharpDX.Toolkit.Graphics.VertexElement"/> that represents this semantic.</returns>
+        </member>
+        <member name="M:SharpDX.Toolkit.Graphics.VertexElement.PositionTransformed(System.Int32,SharpDX.DXGI.Format,System.Int32)">
+            <summary>
+            Declares a VertexElement with the semantic "SV_POSITION".
+            </summary>
+            <param name="semanticIndex">The semantic index.</param>
+            <param name="format">Format of this element.</param>
+            <param name="offsetInBytes">The offset in bytes of this element. Use <see cref="F:SharpDX.Toolkit.Graphics.VertexElement.AppendAligned"/> to compute automatically the offset from previous elements.</param>
+            <returns>A new instance of <see cref="T:SharpDX.Toolkit.Graphics.VertexElement"/> that represents this semantic.</returns>
+        </member>
+        <member name="M:SharpDX.Toolkit.Graphics.VertexElement.TextureCoordinate``1(System.Int32,System.Int32)">
+            <summary>
+            Declares a VertexElement with the semantic "TEXCOORD".
+            </summary>
+            <typeparam name="T">Type of the TextureCoordinate semantic.</typeparam>
+            <param name="semanticIndex">The semantic index.</param>
+            <param name="offsetInBytes">The offset in bytes of this element. Use <see cref="F:SharpDX.Toolkit.Graphics.VertexElement.AppendAligned"/> to compute automatically the offset from previous elements.</param>
+            <returns>A new instance of <see cref="T:SharpDX.Toolkit.Graphics.VertexElement"/> that represents this semantic.</returns>
+        </member>
+        <member name="M:SharpDX.Toolkit.Graphics.VertexElement.TextureCoordinate(SharpDX.DXGI.Format,System.Int32)">
+            <summary>
+            Declares a VertexElement with the semantic "TEXCOORD".
+            </summary>
+            <param name="format">Format of this element.</param>
+            <param name="offsetInBytes">The offset in bytes of this element. Use <see cref="F:SharpDX.Toolkit.Graphics.VertexElement.AppendAligned"/> to compute automatically the offset from previous elements.</param>
+            <returns>A new instance of <see cref="T:SharpDX.Toolkit.Graphics.VertexElement"/> that represents this semantic.</returns>
+        </member>
+        <member name="M:SharpDX.Toolkit.Graphics.VertexElement.TextureCoordinate(System.Int32,SharpDX.DXGI.Format,System.Int32)">
+            <summary>
+            Declares a VertexElement with the semantic "TEXCOORD".
+            </summary>
+            <param name="semanticIndex">The semantic index.</param>
+            <param name="format">Format of this element.</param>
+            <param name="offsetInBytes">The offset in bytes of this element. Use <see cref="F:SharpDX.Toolkit.Graphics.VertexElement.AppendAligned"/> to compute automatically the offset from previous elements.</param>
+            <returns>A new instance of <see cref="T:SharpDX.Toolkit.Graphics.VertexElement"/> that represents this semantic.</returns>
+        </member>
+        <member name="M:SharpDX.Toolkit.Graphics.VertexElement.Tangent``1(System.Int32,System.Int32)">
+            <summary>
+            Declares a VertexElement with the semantic "TANGENT".
+            </summary>
+            <typeparam name="T">Type of the Tangent semantic.</typeparam>
+            <param name="semanticIndex">The semantic index.</param>
+            <param name="offsetInBytes">The offset in bytes of this element. Use <see cref="F:SharpDX.Toolkit.Graphics.VertexElement.AppendAligned"/> to compute automatically the offset from previous elements.</param>
+            <returns>A new instance of <see cref="T:SharpDX.Toolkit.Graphics.VertexElement"/> that represents this semantic.</returns>
+        </member>
+        <member name="M:SharpDX.Toolkit.Graphics.VertexElement.Tangent(SharpDX.DXGI.Format,System.Int32)">
+            <summary>
+            Declares a VertexElement with the semantic "TANGENT".
+            </summary>
+            <param name="format">Format of this element.</param>
+            <param name="offsetInBytes">The offset in bytes of this element. Use <see cref="F:SharpDX.Toolkit.Graphics.VertexElement.AppendAligned"/> to compute automatically the offset from previous elements.</param>
+            <returns>A new instance of <see cref="T:SharpDX.Toolkit.Graphics.VertexElement"/> that represents this semantic.</returns>
+        </member>
+        <member name="M:SharpDX.Toolkit.Graphics.VertexElement.Tangent(System.Int32,SharpDX.DXGI.Format,System.Int32)">
+            <summary>
+            Declares a VertexElement with the semantic "TANGENT".
+            </summary>
+            <param name="semanticIndex">The semantic index.</param>
+            <param name="format">Format of this element.</param>
+            <param name="offsetInBytes">The offset in bytes of this element. Use <see cref="F:SharpDX.Toolkit.Graphics.VertexElement.AppendAligned"/> to compute automatically the offset from previous elements.</param>
+            <returns>A new instance of <see cref="T:SharpDX.Toolkit.Graphics.VertexElement"/> that represents this semantic.</returns>
+        </member>
+        <member name="M:SharpDX.Toolkit.Graphics.VertexElement.BiTangent``1(System.Int32,System.Int32)">
+            <summary>
+            Declares a VertexElement with the semantic "BITANGENT".
+            </summary>
+            <typeparam name="T">Type of the BiTangent semantic.</typeparam>
+            <param name="semanticIndex">The semantic index.</param>
+            <param name="offsetInBytes">The offset in bytes of this element. Use <see cref="F:SharpDX.Toolkit.Graphics.VertexElement.AppendAligned"/> to compute automatically the offset from previous elements.</param>
+            <returns>A new instance of <see cref="T:SharpDX.Toolkit.Graphics.VertexElement"/> that represents this semantic.</returns>
+        </member>
+        <member name="M:SharpDX.Toolkit.Graphics.VertexElement.BiTangent(SharpDX.DXGI.Format,System.Int32)">
+            <summary>
+            Declares a VertexElement with the semantic "BITANGENT".
+            </summary>
+            <param name="format">Format of this element.</param>
+            <param name="offsetInBytes">The offset in bytes of this element. Use <see cref="F:SharpDX.Toolkit.Graphics.VertexElement.AppendAligned"/> to compute automatically the offset from previous elements.</param>
+            <returns>A new instance of <see cref="T:SharpDX.Toolkit.Graphics.VertexElement"/> that represents this semantic.</returns>
+        </member>
+        <member name="M:SharpDX.Toolkit.Graphics.VertexElement.BiTangent(System.Int32,SharpDX.DXGI.Format,System.Int32)">
+            <summary>
+            Declares a VertexElement with the semantic "BITANGENT".
+            </summary>
+            <param name="semanticIndex">The semantic index.</param>
+            <param name="format">Format of this element.</param>
+            <param name="offsetInBytes">The offset in bytes of this element. Use <see cref="F:SharpDX.Toolkit.Graphics.VertexElement.AppendAligned"/> to compute automatically the offset from previous elements.</param>
+            <returns>A new instance of <see cref="T:SharpDX.Toolkit.Graphics.VertexElement"/> that represents this semantic.</returns>
+        </member>
+        <member name="M:SharpDX.Toolkit.Graphics.VertexElement.FromType``1">
+            <summary>
+            Extracts a set of <see cref="T:SharpDX.Toolkit.Graphics.VertexElement"/> defined from a type that is using <see cref="T:SharpDX.Toolkit.Graphics.VertexElementAttribute"/>.
+            </summary>
+            <typeparam name="T">Type of the class to inspect for <see cref="T:SharpDX.Toolkit.Graphics.VertexElementAttribute"/>.</typeparam>
+            <returns>An array of <see cref="T:SharpDX.Toolkit.Graphics.VertexElement"/>.</returns>
+        </member>
+        <member name="M:SharpDX.Toolkit.Graphics.VertexElement.FromType(System.Type)">
+            <summary>
+            Extracts a set of <see cref="T:SharpDX.Toolkit.Graphics.VertexElement"/> defined from a type that is using <see cref="T:SharpDX.Toolkit.Graphics.VertexElementAttribute"/>.
+            </summary>
+            <param name="type">The Type of the class to inspect for <see cref="T:SharpDX.Toolkit.Graphics.VertexElementAttribute"/>.</param>
+            <returns>An array of <see cref="T:SharpDX.Toolkit.Graphics.VertexElement"/>.</returns>
+            <exception cref="T:System.ArgumentNullException">If type is null.</exception>
+            <exception cref="T:System.ArgumentException">If type doesn't contain any <see cref="T:SharpDX.Toolkit.Graphics.VertexElementAttribute"/></exception>
+        </member>
+        <member name="M:SharpDX.Toolkit.Graphics.VertexElement.ConvertTypeToFormat(System.Type)">
+            <summary>
+            Converts a type to a <see cref="T:SharpDX.DXGI.Format"/>.
+            </summary>
+            <param name="typeT">The type T.</param>
+            <returns>The equivalent Format.</returns>
+            <exception cref="T:System.NotSupportedException">If the convertion for this type is not supported.</exception>
+        </member>
+        <member name="P:SharpDX.Toolkit.Graphics.VertexElement.SemanticName">
+            <summary>	
+            <dd> <p>The HLSL semantic associated with this element in a shader input-signature.</p> </dd>	
+            </summary>	
+            <msdn-id>ff476180</msdn-id>	
+            <unmanaged>const char* SemanticName</unmanaged>	
+            <unmanaged-short>char SemanticName</unmanaged-short>	
+        </member>
+        <member name="P:SharpDX.Toolkit.Graphics.VertexElement.SemanticIndex">
+            <summary>	
+            <dd> <p>The semantic index for the element. A semantic index modifies a semantic, with an integer index number. A semantic index is only needed in a  case where there is more than one element with the same semantic. For example, a 4x4 matrix would have four components each with the semantic  name </p>  <pre><code>matrix</code></pre>  <p>, however each of the four component would have different semantic indices (0, 1, 2, and 3).</p> </dd>	
+            </summary>	
+            <msdn-id>ff476180</msdn-id>	
+            <unmanaged>unsigned int SemanticIndex</unmanaged>	
+            <unmanaged-short>unsigned int SemanticIndex</unmanaged-short>	
+        </member>
+        <member name="P:SharpDX.Toolkit.Graphics.VertexElement.Format">
+            <summary>	
+            <dd> <p>The data type of the element data. See <strong><see cref="T:SharpDX.DXGI.Format"/></strong>.</p> </dd>	
+            </summary>	
+            <msdn-id>ff476180</msdn-id>	
+            <unmanaged>DXGI_FORMAT Format</unmanaged>	
+            <unmanaged-short>DXGI_FORMAT Format</unmanaged-short>	
+        </member>
+        <member name="P:SharpDX.Toolkit.Graphics.VertexElement.AlignedByteOffset">
+            <summary>	
+            <dd> <p>Optional. Offset (in bytes) between each element. Use D3D11_APPEND_ALIGNED_ELEMENT for convenience to define the current element directly  after the previous one, including any packing if necessary.</p> </dd>	
+            </summary>	
+            <msdn-id>ff476180</msdn-id>	
+            <unmanaged>unsigned int AlignedByteOffset</unmanaged>	
+            <unmanaged-short>unsigned int AlignedByteOffset</unmanaged-short>	
+        </member>
+        <member name="T:SharpDX.Toolkit.Graphics.VertexElementAttribute">
+            <summary>	
+            An attribute to use on a field in a structure, to describe a single vertex element for the input-assembler stage.
+            </summary>	
+            <seealso cref="!:VertexInputLayout"/>
+            <seealso cref="T:SharpDX.Toolkit.Graphics.VertexBufferLayout"/>
+            <seealso cref="T:SharpDX.Toolkit.Graphics.VertexElement"/>
+            <msdn-id>ff476180</msdn-id>	
+            <unmanaged>D3D11_INPUT_ELEMENT_DESC</unmanaged>	
+            <unmanaged-short>D3D11_INPUT_ELEMENT_DESC</unmanaged-short>	
+        </member>
+        <member name="M:SharpDX.Toolkit.Graphics.VertexElementAttribute.#ctor(System.String)">
+            <summary>
+            Initializes a new instance of the <see cref="T:SharpDX.Toolkit.Graphics.VertexElement"/> struct.
+            </summary>
+            <param name="semanticName">Name of the semantic.</param>
+            <remarks>
+            If the semantic name contains a postfix number, this number will be used as a semantic index. 
+            The <see cref="T:SharpDX.DXGI.Format"/> will be mapped from the field type.
+            </remarks>
+        </member>
+        <member name="M:SharpDX.Toolkit.Graphics.VertexElementAttribute.#ctor(System.String,SharpDX.DXGI.Format)">
+            <summary>
+            Initializes a new instance of the <see cref="T:SharpDX.Toolkit.Graphics.VertexElement"/> struct.
+            </summary>
+            <param name="semanticName">Name of the semantic.</param>
+            <param name="format">The format.</param>
+            <remarks>
+            If the semantic name contains a postfix number, this number will be used as a semantic index.
+            </remarks>
+        </member>
+        <member name="M:SharpDX.Toolkit.Graphics.VertexElementAttribute.#ctor(System.String,System.Int32,SharpDX.DXGI.Format,System.Int32)">
+            <summary>
+            Initializes a new instance of the <see cref="T:SharpDX.Toolkit.Graphics.VertexElement"/> struct.
+            </summary>
+            <param name="semanticName">Name of the semantic.</param>
+            <param name="semanticIndex">Index of the semantic.</param>
+            <param name="format">The format.</param>
+            <param name="alignedByteOffset">The aligned byte offset.</param>
+        </member>
+        <member name="P:SharpDX.Toolkit.Graphics.VertexElementAttribute.SemanticName">
+            <summary>	
+            <dd> <p>The HLSL semantic associated with this element in a shader input-signature.</p> </dd>	
+            </summary>	
+            <msdn-id>ff476180</msdn-id>	
+            <unmanaged>const char* SemanticName</unmanaged>	
+            <unmanaged-short>char SemanticName</unmanaged-short>	
+        </member>
+        <member name="P:SharpDX.Toolkit.Graphics.VertexElementAttribute.SemanticIndex">
+            <summary>	
+            <dd> <p>The semantic index for the element. A semantic index modifies a semantic, with an integer index number. A semantic index is only needed in a  case where there is more than one element with the same semantic. For example, a 4x4 matrix would have four components each with the semantic  name </p>  <pre><code>matrix</code></pre>  <p>, however each of the four component would have different semantic indices (0, 1, 2, and 3).</p> </dd>	
+            </summary>	
+            <msdn-id>ff476180</msdn-id>	
+            <unmanaged>unsigned int SemanticIndex</unmanaged>	
+            <unmanaged-short>unsigned int SemanticIndex</unmanaged-short>	
+        </member>
+        <member name="P:SharpDX.Toolkit.Graphics.VertexElementAttribute.Format">
+            <summary>	
+            <dd> <p>The data type of the element data. See <strong><see cref="T:SharpDX.DXGI.Format"/></strong>.</p> </dd>	
+            </summary>	
+            <msdn-id>ff476180</msdn-id>	
+            <unmanaged>DXGI_FORMAT Format</unmanaged>	
+            <unmanaged-short>DXGI_FORMAT Format</unmanaged-short>	
+        </member>
+        <member name="P:SharpDX.Toolkit.Graphics.VertexElementAttribute.AlignedByteOffset">
+            <summary>	
+            <dd> <p>Optional. Offset (in bytes) between each element. Use D3D11_APPEND_ALIGNED_ELEMENT for convenience to define the current element directly  after the previous one, including any packing if necessary.</p> </dd>	
+            </summary>	
+            <msdn-id>ff476180</msdn-id>	
+            <unmanaged>unsigned int AlignedByteOffset</unmanaged>	
+            <unmanaged-short>unsigned int AlignedByteOffset</unmanaged-short>	
+        </member>
+        <member name="T:SharpDX.Toolkit.NamespaceDoc">
+            <summary>
+            The <see cref="N:SharpDX.Toolkit"/> namespace provides a high level DirectX API.
+            </summary>
+        </member>
+        <member name="T:SharpDX.Toolkit.Graphics.EffectShaderType">
+            <summary>
+            Identify a single GPU stage in the pipeline.
+            </summary>
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.EffectShaderType.Vertex">
+            <summary>
+            Vertex shader stage.
+            </summary>
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.EffectShaderType.Hull">
+            <summary>
+            Hull shader stage.
+            </summary>
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.EffectShaderType.Domain">
+            <summary>
+            Domain shader stage.
+            </summary>
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.EffectShaderType.Geometry">
+            <summary>
+            Geometry shader stage.
+            </summary>
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.EffectShaderType.Pixel">
+            <summary>
+            Pixel shader stage.
+            </summary>
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.EffectShaderType.Compute">
+            <summary>
+            Compute shader stage.
+            </summary>
+        </member>
+        <member name="T:SharpDX.Toolkit.Graphics.EffectParameterClass">
+            <summary>	
+            Values that identify the class of a shader variable.
+            </summary>	
+            <remarks>	
+            The class of a shader variable is not a programming class; the class identifies the variable class such as scalar, vector, object, and so on.
+            </remarks>	
+            <msdn-id>ff728733</msdn-id>	
+            <unmanaged>D3D_SHADER_VARIABLE_CLASS</unmanaged>	
+            <unmanaged-short>D3D_SHADER_VARIABLE_CLASS</unmanaged-short>	
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.EffectParameterClass.Scalar">
+            <summary>	
+            <dd> <p>The shader variable is a scalar.</p> </dd>	
+            </summary>	
+            <msdn-id>ff728733</msdn-id>	
+            <unmanaged>D3D_SVC_SCALAR</unmanaged>	
+            <unmanaged-short>D3D_SVC_SCALAR</unmanaged-short>	
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.EffectParameterClass.Vector">
+            <summary>	
+            <dd> <p>The shader variable is a vector.</p> </dd>	
+            </summary>	
+            <msdn-id>ff728733</msdn-id>	
+            <unmanaged>D3D_SVC_VECTOR</unmanaged>	
+            <unmanaged-short>D3D_SVC_VECTOR</unmanaged-short>	
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.EffectParameterClass.MatrixRows">
+            <summary>	
+            <dd> <p>The shader variable is a row-major matrix.</p> </dd>	
+            </summary>	
+            <msdn-id>ff728733</msdn-id>	
+            <unmanaged>D3D_SVC_MATRIX_ROWS</unmanaged>	
+            <unmanaged-short>D3D_SVC_MATRIX_ROWS</unmanaged-short>	
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.EffectParameterClass.MatrixColumns">
+            <summary>	
+            <dd> <p>The shader variable is a column-major matrix.</p> </dd>	
+            </summary>	
+            <msdn-id>ff728733</msdn-id>	
+            <unmanaged>D3D_SVC_MATRIX_COLUMNS</unmanaged>	
+            <unmanaged-short>D3D_SVC_MATRIX_COLUMNS</unmanaged-short>	
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.EffectParameterClass.Object">
+            <summary>	
+            <dd> <p>The shader variable is an object.</p> </dd>	
+            </summary>	
+            <msdn-id>ff728733</msdn-id>	
+            <unmanaged>D3D_SVC_OBJECT</unmanaged>	
+            <unmanaged-short>D3D_SVC_OBJECT</unmanaged-short>	
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.EffectParameterClass.Struct">
+            <summary>	
+            <dd> <p>The shader variable is a structure.</p> </dd>	
+            </summary>	
+            <msdn-id>ff728733</msdn-id>	
+            <unmanaged>D3D_SVC_STRUCT</unmanaged>	
+            <unmanaged-short>D3D_SVC_STRUCT</unmanaged-short>	
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.EffectParameterClass.InterfaceClass">
+            <summary>	
+            <dd> <p>The shader variable is a class.</p> </dd>	
+            </summary>	
+            <msdn-id>ff728733</msdn-id>	
+            <unmanaged>D3D_SVC_INTERFACE_CLASS</unmanaged>	
+            <unmanaged-short>D3D_SVC_INTERFACE_CLASS</unmanaged-short>	
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.EffectParameterClass.InterfacePointer">
+            <summary>	
+            <dd> <p>The shader variable is an interface.</p> </dd>	
+            </summary>	
+            <msdn-id>ff728733</msdn-id>	
+            <unmanaged>D3D_SVC_INTERFACE_POINTER</unmanaged>	
+            <unmanaged-short>D3D_SVC_INTERFACE_POINTER</unmanaged-short>	
+        </member>
+        <member name="T:SharpDX.Toolkit.Graphics.EffectParameterType">
+            <summary>	
+            <p>Values that identify various data, texture, and buffer types that can be assigned to a shader variable.</p>	
+            </summary>	
+            <remarks>	
+            <p>A call to the <strong><see cref="!:SharpDX.D3DCompiler.ShaderReflectionType.GetDescription"/></strong> method returns a <strong><see cref="!:SharpDX.D3DCompiler.ShaderVariableType"/></strong> value in the  <strong>Type</strong> member of a  <strong><see cref="!:SharpDX.D3DCompiler.ShaderTypeDescription"/></strong> structure.</p><p>The types in a structured buffer describe the structure of the elements in the buffer. The layout of these types generally match their C++ struct counterparts. The following examples show structured buffers:</p><pre><code>struct mystruct {float4 val; uint ind;}; RWStructuredBuffer&lt;mystruct&gt; rwbuf;	
+            RWStructuredBuffer&lt;float3&gt; rwbuf2;</code></pre>	
+            </remarks>	
+            <msdn-id>ff728735</msdn-id>	
+            <unmanaged>D3D_SHADER_VARIABLE_TYPE</unmanaged>	
+            <unmanaged-short>D3D_SHADER_VARIABLE_TYPE</unmanaged-short>	
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.EffectParameterType.Void">
+            <summary>	
+            <dd> <p>The variable is a void reference.</p> </dd>	
+            </summary>	
+            <msdn-id>ff728735</msdn-id>	
+            <unmanaged>D3D_SVT_VOID</unmanaged>	
+            <unmanaged-short>D3D_SVT_VOID</unmanaged-short>	
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.EffectParameterType.Bool">
+            <summary>	
+            <dd> <p>The variable is a boolean.</p> </dd>	
+            </summary>	
+            <msdn-id>ff728735</msdn-id>	
+            <unmanaged>D3D_SVT_BOOL</unmanaged>	
+            <unmanaged-short>D3D_SVT_BOOL</unmanaged-short>	
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.EffectParameterType.Int">
+            <summary>	
+            <dd> <p>The variable is an integer.</p> </dd>	
+            </summary>	
+            <msdn-id>ff728735</msdn-id>	
+            <unmanaged>D3D_SVT_INT</unmanaged>	
+            <unmanaged-short>D3D_SVT_INT</unmanaged-short>	
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.EffectParameterType.Float">
+            <summary>	
+            <dd> <p>The variable is a floating-point number.</p> </dd>	
+            </summary>	
+            <msdn-id>ff728735</msdn-id>	
+            <unmanaged>D3D_SVT_FLOAT</unmanaged>	
+            <unmanaged-short>D3D_SVT_FLOAT</unmanaged-short>	
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.EffectParameterType.String">
+            <summary>	
+            <dd> <p>The variable is a string.</p> </dd>	
+            </summary>	
+            <msdn-id>ff728735</msdn-id>	
+            <unmanaged>D3D_SVT_STRING</unmanaged>	
+            <unmanaged-short>D3D_SVT_STRING</unmanaged-short>	
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.EffectParameterType.Texture">
+            <summary>	
+            <dd> <p>The variable is a texture.</p> </dd>	
+            </summary>	
+            <msdn-id>ff728735</msdn-id>	
+            <unmanaged>D3D_SVT_TEXTURE</unmanaged>	
+            <unmanaged-short>D3D_SVT_TEXTURE</unmanaged-short>	
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.EffectParameterType.Texture1D">
+            <summary>	
+            <dd> <p>The variable is a 1D texture.</p> </dd>	
+            </summary>	
+            <msdn-id>ff728735</msdn-id>	
+            <unmanaged>D3D_SVT_TEXTURE1D</unmanaged>	
+            <unmanaged-short>D3D_SVT_TEXTURE1D</unmanaged-short>	
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.EffectParameterType.Texture2D">
+            <summary>	
+            <dd> <p>The variable is a 2D texture.</p> </dd>	
+            </summary>	
+            <msdn-id>ff728735</msdn-id>	
+            <unmanaged>D3D_SVT_TEXTURE2D</unmanaged>	
+            <unmanaged-short>D3D_SVT_TEXTURE2D</unmanaged-short>	
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.EffectParameterType.Texture3D">
+            <summary>	
+            <dd> <p>The variable is a 3D texture.</p> </dd>	
+            </summary>	
+            <msdn-id>ff728735</msdn-id>	
+            <unmanaged>D3D_SVT_TEXTURE3D</unmanaged>	
+            <unmanaged-short>D3D_SVT_TEXTURE3D</unmanaged-short>	
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.EffectParameterType.TextureCube">
+            <summary>	
+            <dd> <p>The variable is a texture cube.</p> </dd>	
+            </summary>	
+            <msdn-id>ff728735</msdn-id>	
+            <unmanaged>D3D_SVT_TEXTURECUBE</unmanaged>	
+            <unmanaged-short>D3D_SVT_TEXTURECUBE</unmanaged-short>	
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.EffectParameterType.Sampler">
+            <summary>	
+            <dd> <p>The variable is a sampler.</p> </dd>	
+            </summary>	
+            <msdn-id>ff728735</msdn-id>	
+            <unmanaged>D3D_SVT_SAMPLER</unmanaged>	
+            <unmanaged-short>D3D_SVT_SAMPLER</unmanaged-short>	
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.EffectParameterType.Sampler1D">
+            <summary>	
+            <dd> <p>The variable is a sampler.</p> </dd>	
+            </summary>	
+            <msdn-id>ff728735</msdn-id>	
+            <unmanaged>D3D_SVT_SAMPLER1D</unmanaged>	
+            <unmanaged-short>D3D_SVT_SAMPLER1D</unmanaged-short>	
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.EffectParameterType.Sampler2D">
+            <summary>	
+            <dd> <p>The variable is a sampler.</p> </dd>	
+            </summary>	
+            <msdn-id>ff728735</msdn-id>	
+            <unmanaged>D3D_SVT_SAMPLER2D</unmanaged>	
+            <unmanaged-short>D3D_SVT_SAMPLER2D</unmanaged-short>	
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.EffectParameterType.Sampler3D">
+            <summary>	
+            <dd> <p>The variable is a sampler.</p> </dd>	
+            </summary>	
+            <msdn-id>ff728735</msdn-id>	
+            <unmanaged>D3D_SVT_SAMPLER3D</unmanaged>	
+            <unmanaged-short>D3D_SVT_SAMPLER3D</unmanaged-short>	
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.EffectParameterType.SamplerCube">
+            <summary>	
+            <dd> <p>The variable is a sampler.</p> </dd>	
+            </summary>	
+            <msdn-id>ff728735</msdn-id>	
+            <unmanaged>D3D_SVT_SAMPLERCUBE</unmanaged>	
+            <unmanaged-short>D3D_SVT_SAMPLERCUBE</unmanaged-short>	
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.EffectParameterType.Pixelshader">
+            <summary>	
+            <dd> <p>The variable is a pixel shader.</p> </dd>	
+            </summary>	
+            <msdn-id>ff728735</msdn-id>	
+            <unmanaged>D3D_SVT_PIXELSHADER</unmanaged>	
+            <unmanaged-short>D3D_SVT_PIXELSHADER</unmanaged-short>	
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.EffectParameterType.Vertexshader">
+            <summary>	
+            <dd> <p>The variable is a vertex shader.</p> </dd>	
+            </summary>	
+            <msdn-id>ff728735</msdn-id>	
+            <unmanaged>D3D_SVT_VERTEXSHADER</unmanaged>	
+            <unmanaged-short>D3D_SVT_VERTEXSHADER</unmanaged-short>	
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.EffectParameterType.Pixelfragment">
+            <summary>	
+            <dd> <p>The variable is a pixel shader.</p> </dd>	
+            </summary>	
+            <msdn-id>ff728735</msdn-id>	
+            <unmanaged>D3D_SVT_PIXELFRAGMENT</unmanaged>	
+            <unmanaged-short>D3D_SVT_PIXELFRAGMENT</unmanaged-short>	
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.EffectParameterType.Vertexfragment">
+            <summary>	
+            <dd> <p>The variable is a vertex shader.</p> </dd>	
+            </summary>	
+            <msdn-id>ff728735</msdn-id>	
+            <unmanaged>D3D_SVT_VERTEXFRAGMENT</unmanaged>	
+            <unmanaged-short>D3D_SVT_VERTEXFRAGMENT</unmanaged-short>	
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.EffectParameterType.UInt">
+            <summary>	
+            <dd> <p>The variable is an unsigned integer.</p> </dd>	
+            </summary>	
+            <msdn-id>ff728735</msdn-id>	
+            <unmanaged>D3D_SVT_UINT</unmanaged>	
+            <unmanaged-short>D3D_SVT_UINT</unmanaged-short>	
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.EffectParameterType.UInt8">
+            <summary>	
+            <dd> <p>The variable is an 8-bit unsigned integer.</p> </dd>	
+            </summary>	
+            <msdn-id>ff728735</msdn-id>	
+            <unmanaged>D3D_SVT_UINT8</unmanaged>	
+            <unmanaged-short>D3D_SVT_UINT8</unmanaged-short>	
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.EffectParameterType.Geometryshader">
+            <summary>	
+            <dd> <p>The variable is a geometry shader.</p> </dd>	
+            </summary>	
+            <msdn-id>ff728735</msdn-id>	
+            <unmanaged>D3D_SVT_GEOMETRYSHADER</unmanaged>	
+            <unmanaged-short>D3D_SVT_GEOMETRYSHADER</unmanaged-short>	
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.EffectParameterType.Rasterizer">
+            <summary>	
+            <dd> <p>The variable is a rasterizer-state object.</p> </dd>	
+            </summary>	
+            <msdn-id>ff728735</msdn-id>	
+            <unmanaged>D3D_SVT_RASTERIZER</unmanaged>	
+            <unmanaged-short>D3D_SVT_RASTERIZER</unmanaged-short>	
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.EffectParameterType.Depthstencil">
+            <summary>	
+            <dd> <p>The variable is a depth-stencil-state object.</p> </dd>	
+            </summary>	
+            <msdn-id>ff728735</msdn-id>	
+            <unmanaged>D3D_SVT_DEPTHSTENCIL</unmanaged>	
+            <unmanaged-short>D3D_SVT_DEPTHSTENCIL</unmanaged-short>	
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.EffectParameterType.Blend">
+            <summary>	
+            <dd> <p>The variable is a blend-state object.</p> </dd>	
+            </summary>	
+            <msdn-id>ff728735</msdn-id>	
+            <unmanaged>D3D_SVT_BLEND</unmanaged>	
+            <unmanaged-short>D3D_SVT_BLEND</unmanaged-short>	
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.EffectParameterType.Buffer">
+            <summary>	
+            <dd> <p>The variable is a buffer.</p> </dd>	
+            </summary>	
+            <msdn-id>ff728735</msdn-id>	
+            <unmanaged>D3D_SVT_BUFFER</unmanaged>	
+            <unmanaged-short>D3D_SVT_BUFFER</unmanaged-short>	
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.EffectParameterType.ConstantBuffer">
+            <summary>	
+            <dd> <p>The variable is a constant buffer.</p> </dd>	
+            </summary>	
+            <msdn-id>ff728735</msdn-id>	
+            <unmanaged>D3D_SVT_CBUFFER</unmanaged>	
+            <unmanaged-short>D3D_SVT_CBUFFER</unmanaged-short>	
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.EffectParameterType.TextureBuffer">
+            <summary>	
+            <dd> <p>The variable is a texture buffer.</p> </dd>	
+            </summary>	
+            <msdn-id>ff728735</msdn-id>	
+            <unmanaged>D3D_SVT_TBUFFER</unmanaged>	
+            <unmanaged-short>D3D_SVT_TBUFFER</unmanaged-short>	
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.EffectParameterType.Texture1DArray">
+            <summary>	
+            <dd> <p>The variable is a 1D-texture array.</p> </dd>	
+            </summary>	
+            <msdn-id>ff728735</msdn-id>	
+            <unmanaged>D3D_SVT_TEXTURE1DARRAY</unmanaged>	
+            <unmanaged-short>D3D_SVT_TEXTURE1DARRAY</unmanaged-short>	
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.EffectParameterType.Texture2DArray">
+            <summary>	
+            <dd> <p>The variable is a 2D-texture array.</p> </dd>	
+            </summary>	
+            <msdn-id>ff728735</msdn-id>	
+            <unmanaged>D3D_SVT_TEXTURE2DARRAY</unmanaged>	
+            <unmanaged-short>D3D_SVT_TEXTURE2DARRAY</unmanaged-short>	
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.EffectParameterType.Rendertargetview">
+            <summary>	
+            <dd> <p>The variable is a render-target view.</p> </dd>	
+            </summary>	
+            <msdn-id>ff728735</msdn-id>	
+            <unmanaged>D3D_SVT_RENDERTARGETVIEW</unmanaged>	
+            <unmanaged-short>D3D_SVT_RENDERTARGETVIEW</unmanaged-short>	
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.EffectParameterType.Depthstencilview">
+            <summary>	
+            <dd> <p>The variable is a depth-stencil view.</p> </dd>	
+            </summary>	
+            <msdn-id>ff728735</msdn-id>	
+            <unmanaged>D3D_SVT_DEPTHSTENCILVIEW</unmanaged>	
+            <unmanaged-short>D3D_SVT_DEPTHSTENCILVIEW</unmanaged-short>	
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.EffectParameterType.Texture2DMultisampled">
+            <summary>	
+            <dd> <p>The variable is a 2D-multisampled texture.</p> </dd>	
+            </summary>	
+            <msdn-id>ff728735</msdn-id>	
+            <unmanaged>D3D_SVT_TEXTURE2DMS</unmanaged>	
+            <unmanaged-short>D3D_SVT_TEXTURE2DMS</unmanaged-short>	
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.EffectParameterType.Texture2DMultisampledArray">
+            <summary>	
+            <dd> <p>The variable is a 2D-multisampled-texture array.</p> </dd>	
+            </summary>	
+            <msdn-id>ff728735</msdn-id>	
+            <unmanaged>D3D_SVT_TEXTURE2DMSARRAY</unmanaged>	
+            <unmanaged-short>D3D_SVT_TEXTURE2DMSARRAY</unmanaged-short>	
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.EffectParameterType.TextureCubeArray">
+            <summary>	
+            <dd> <p>The variable is a texture-cube array.</p> </dd>	
+            </summary>	
+            <msdn-id>ff728735</msdn-id>	
+            <unmanaged>D3D_SVT_TEXTURECUBEARRAY</unmanaged>	
+            <unmanaged-short>D3D_SVT_TEXTURECUBEARRAY</unmanaged-short>	
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.EffectParameterType.Hullshader">
+            <summary>	
+            <dd> <p>The variable holds a compiled hull-shader binary.</p> </dd>	
+            </summary>	
+            <msdn-id>ff728735</msdn-id>	
+            <unmanaged>D3D_SVT_HULLSHADER</unmanaged>	
+            <unmanaged-short>D3D_SVT_HULLSHADER</unmanaged-short>	
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.EffectParameterType.Domainshader">
+            <summary>	
+            <dd> <p>The variable holds a compiled domain-shader binary.</p> </dd>	
+            </summary>	
+            <msdn-id>ff728735</msdn-id>	
+            <unmanaged>D3D_SVT_DOMAINSHADER</unmanaged>	
+            <unmanaged-short>D3D_SVT_DOMAINSHADER</unmanaged-short>	
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.EffectParameterType.InterfacePointer">
+            <summary>	
+            <dd> <p>The variable is an interface.</p> </dd>	
+            </summary>	
+            <msdn-id>ff728735</msdn-id>	
+            <unmanaged>D3D_SVT_INTERFACE_POINTER</unmanaged>	
+            <unmanaged-short>D3D_SVT_INTERFACE_POINTER</unmanaged-short>	
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.EffectParameterType.Computeshader">
+            <summary>	
+            <dd> <p>The variable holds a compiled compute-shader binary.</p> </dd>	
+            </summary>	
+            <msdn-id>ff728735</msdn-id>	
+            <unmanaged>D3D_SVT_COMPUTESHADER</unmanaged>	
+            <unmanaged-short>D3D_SVT_COMPUTESHADER</unmanaged-short>	
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.EffectParameterType.Double">
+            <summary>	
+            <dd> <p>The variable is a double precision (64-bit) floating-point number.</p> </dd>	
+            </summary>	
+            <msdn-id>ff728735</msdn-id>	
+            <unmanaged>D3D_SVT_DOUBLE</unmanaged>	
+            <unmanaged-short>D3D_SVT_DOUBLE</unmanaged-short>	
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.EffectParameterType.RWTexture1D">
+            <summary>	
+            <dd> <p>The variable is a 1D read-and-write texture.</p> </dd>	
+            </summary>	
+            <msdn-id>ff728735</msdn-id>	
+            <unmanaged>D3D_SVT_RWTEXTURE1D</unmanaged>	
+            <unmanaged-short>D3D_SVT_RWTEXTURE1D</unmanaged-short>	
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.EffectParameterType.RWTexture1DArray">
+            <summary>	
+            <dd> <p>The variable is an array of 1D read-and-write textures.</p> </dd>	
+            </summary>	
+            <msdn-id>ff728735</msdn-id>	
+            <unmanaged>D3D_SVT_RWTEXTURE1DARRAY</unmanaged>	
+            <unmanaged-short>D3D_SVT_RWTEXTURE1DARRAY</unmanaged-short>	
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.EffectParameterType.RWTexture2D">
+            <summary>	
+            <dd> <p>The variable is a 2D read-and-write texture.</p> </dd>	
+            </summary>	
+            <msdn-id>ff728735</msdn-id>	
+            <unmanaged>D3D_SVT_RWTEXTURE2D</unmanaged>	
+            <unmanaged-short>D3D_SVT_RWTEXTURE2D</unmanaged-short>	
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.EffectParameterType.RWTexture2DArray">
+            <summary>	
+            <dd> <p>The variable is an array of 2D read-and-write textures.</p> </dd>	
+            </summary>	
+            <msdn-id>ff728735</msdn-id>	
+            <unmanaged>D3D_SVT_RWTEXTURE2DARRAY</unmanaged>	
+            <unmanaged-short>D3D_SVT_RWTEXTURE2DARRAY</unmanaged-short>	
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.EffectParameterType.RWTexture3D">
+            <summary>	
+            <dd> <p>The variable is a 3D read-and-write texture.</p> </dd>	
+            </summary>	
+            <msdn-id>ff728735</msdn-id>	
+            <unmanaged>D3D_SVT_RWTEXTURE3D</unmanaged>	
+            <unmanaged-short>D3D_SVT_RWTEXTURE3D</unmanaged-short>	
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.EffectParameterType.RWBuffer">
+            <summary>	
+            <dd> <p>The variable is a read-and-write buffer.</p> </dd>	
+            </summary>	
+            <msdn-id>ff728735</msdn-id>	
+            <unmanaged>D3D_SVT_RWBUFFER</unmanaged>	
+            <unmanaged-short>D3D_SVT_RWBUFFER</unmanaged-short>	
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.EffectParameterType.ByteAddressBuffer">
+            <summary>	
+            <dd> <p>The variable is a byte-address buffer.</p> </dd>	
+            </summary>	
+            <msdn-id>ff728735</msdn-id>	
+            <unmanaged>D3D_SVT_BYTEADDRESS_BUFFER</unmanaged>	
+            <unmanaged-short>D3D_SVT_BYTEADDRESS_BUFFER</unmanaged-short>	
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.EffectParameterType.RWByteAddressBuffer">
+            <summary>	
+            <dd> <p>The variable is a read-and-write byte-address buffer.</p> </dd>	
+            </summary>	
+            <msdn-id>ff728735</msdn-id>	
+            <unmanaged>D3D_SVT_RWBYTEADDRESS_BUFFER</unmanaged>	
+            <unmanaged-short>D3D_SVT_RWBYTEADDRESS_BUFFER</unmanaged-short>	
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.EffectParameterType.StructuredBuffer">
+            <summary>	
+            <dd> <p>The variable is a structured buffer. </p> <p>For more information about structured buffer, see the <strong>Remarks</strong> section.</p> </dd>	
+            </summary>	
+            <msdn-id>ff728735</msdn-id>	
+            <unmanaged>D3D_SVT_STRUCTURED_BUFFER</unmanaged>	
+            <unmanaged-short>D3D_SVT_STRUCTURED_BUFFER</unmanaged-short>	
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.EffectParameterType.RWStructuredBuffer">
+            <summary>	
+            <dd> <p>The variable is a read-and-write structured buffer.</p> </dd>	
+            </summary>	
+            <msdn-id>ff728735</msdn-id>	
+            <unmanaged>D3D_SVT_RWSTRUCTURED_BUFFER</unmanaged>	
+            <unmanaged-short>D3D_SVT_RWSTRUCTURED_BUFFER</unmanaged-short>	
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.EffectParameterType.AppendStructuredBuffer">
+            <summary>	
+            <dd> <p>The variable is an append structured buffer.</p> </dd>	
+            </summary>	
+            <msdn-id>ff728735</msdn-id>	
+            <unmanaged>D3D_SVT_APPEND_STRUCTURED_BUFFER</unmanaged>	
+            <unmanaged-short>D3D_SVT_APPEND_STRUCTURED_BUFFER</unmanaged-short>	
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.EffectParameterType.ConsumeStructuredBuffer">
+            <summary>	
+            <dd> <p>The variable is a consume structured buffer.</p> </dd>	
+            </summary>	
+            <msdn-id>ff728735</msdn-id>	
+            <unmanaged>D3D_SVT_CONSUME_STRUCTURED_BUFFER</unmanaged>	
+            <unmanaged-short>D3D_SVT_CONSUME_STRUCTURED_BUFFER</unmanaged-short>	
+        </member>
+        <member name="T:SharpDX.CompositeTransform">
+            <summary>
+            Represents a transformation composed of a scaling, rotation and translation operation.
+            </summary>
+        </member>
+        <member name="F:SharpDX.CompositeTransform.Scale">
+            <summary>
+            The scaling component of the transformation.
+            </summary>
+        </member>
+        <member name="F:SharpDX.CompositeTransform.Rotation">
+            <summary>
+            The rotation component of the transformation.
+            </summary>
+        </member>
+        <member name="F:SharpDX.CompositeTransform.Translation">
+            <summary>
+            The translation component of the transformation.
+            </summary>
+        </member>
+        <member name="F:SharpDX.CompositeTransform.Identity">
+            <summary>
+            The identety <see cref="T:SharpDX.CompositeTransform"/>.
+            </summary>
+        </member>
+        <member name="M:SharpDX.CompositeTransform.#ctor(SharpDX.Vector3,SharpDX.Quaternion,SharpDX.Vector3)">
+            <summary>
+            Initializes a new instance of the <see cref="T:SharpDX.CompositeTransform"/> struct.
+            </summary>
+            <param name="scale">The scaling component of the transformation.</param>
+            <param name="rotation">The rotation component of the transformation.</param>
+            <param name="translation">The translation component of the transformation.</param>
+        </member>
+        <member name="M:SharpDX.CompositeTransform.#ctor(SharpDX.Matrix)">
+            <summary>
+            Initializes a new instance of the <see cref="T:SharpDX.CompositeTransform"/> struct.
+            </summary>
+            <param name="transform">The transformation matrix.</param>
+            <remarks>
+            This constructor is designed to decompose a SRT transformation matrix only.
+            </remarks>
+        </member>
+        <member name="M:SharpDX.CompositeTransform.Slerp(SharpDX.CompositeTransform@,SharpDX.CompositeTransform@,System.Single,SharpDX.CompositeTransform@)">
+            <summary>
+            Interpolates between two transformation, using spherical linear interpolation for rotations and linear interpolation for scaling and translation.
+            </summary>
+            <param name="start">Start transformation.</param>
+            <param name="end">End transformation.</param>
+            <param name="amount">Value between 0 and 1 indicating the weight of <paramref name="end"/>.</param>
+            <param name="result">When the method completes, contains the interpolation of the two transformations.</param>
+        </member>
+        <member name="M:SharpDX.CompositeTransform.Slerp(SharpDX.CompositeTransform,SharpDX.CompositeTransform,System.Single)">
+            <summary>
+            Interpolates between two transformation, using spherical linear interpolation for rotations and linear interpolation for scaling and translation.
+            </summary>
+            <param name="start">Start transformation.</param>
+            <param name="end">End transformation.</param>
+            <param name="amount">Value between 0 and 1 indicating the weight of <paramref name="end"/>.</param>
+            <returns>The interpolation of the two transformations.</returns>
+        </member>
+        <member name="M:SharpDX.CompositeTransform.op_Explicit(SharpDX.CompositeTransform)~SharpDX.Matrix">
+            <summary>
+            Performs an explicit conversion from <see cref="T:SharpDX.CompositeTransform"/> to <see cref="!:SlimDX.Matrix"/>.
+            </summary>
+            <param name="value">The value.</param>
+            <returns>The result of the conversion.</returns>
+        </member>
+        <member name="M:SharpDX.CompositeTransform.op_Equality(SharpDX.CompositeTransform,SharpDX.CompositeTransform)">
+            <summary>
+            Tests for equality between two objects.
+            </summary>
+            <param name="left">The first value to compare.</param>
+            <param name="right">The second value to compare.</param>
+            <returns><c>true</c> if <paramref name="left"/> has the same value as <paramref name="right"/>; otherwise, <c>false</c>.</returns>
+        </member>
+        <member name="M:SharpDX.CompositeTransform.op_Inequality(SharpDX.CompositeTransform,SharpDX.CompositeTransform)">
+            <summary>
+            Tests for inequality between two objects.
+            </summary>
+            <param name="left">The first value to compare.</param>
+            <param name="right">The second value to compare.</param>
+            <returns><c>true</c> if <paramref name="left"/> has a different value than <paramref name="right"/>; otherwise, <c>false</c>.</returns>
+        </member>
+        <member name="M:SharpDX.CompositeTransform.ToString">
+            <summary>
+            Returns a <see cref="T:System.String"/> that represents this instance.
+            </summary>
+            <returns>
+            A <see cref="T:System.String"/> that represents this instance.
+            </returns>
+        </member>
+        <member name="M:SharpDX.CompositeTransform.ToString(System.String)">
+            <summary>
+            Returns a <see cref="T:System.String"/> that represents this instance.
+            </summary>
+            <param name="format">The format.</param>
+            <returns>
+            A <see cref="T:System.String"/> that represents this instance.
+            </returns>
+        </member>
+        <member name="M:SharpDX.CompositeTransform.ToString(System.IFormatProvider)">
+            <summary>
+            Returns a <see cref="T:System.String"/> that represents this instance.
+            </summary>
+            <param name="formatProvider">The format provider.</param>
+            <returns>
+            A <see cref="T:System.String"/> that represents this instance.
+            </returns>
+        </member>
+        <member name="M:SharpDX.CompositeTransform.ToString(System.String,System.IFormatProvider)">
+            <summary>
+            Returns a <see cref="T:System.String"/> that represents this instance.
+            </summary>
+            <param name="format">The format.</param>
+            <param name="formatProvider">The format provider.</param>
+            <returns>
+            A <see cref="T:System.String"/> that represents this instance.
+            </returns>
+        </member>
+        <member name="M:SharpDX.CompositeTransform.GetHashCode">
+            <summary>
+            Returns a hash code for this instance.
+            </summary>
+            <returns>
+            A hash code for this instance, suitable for use in hashing algorithms and data structures like a hash table. 
+            </returns>
+        </member>
+        <member name="M:SharpDX.CompositeTransform.Serialize(SharpDX.Serialization.BinarySerializer)">
+            <inheritdoc/>
+        </member>
+        <member name="M:SharpDX.CompositeTransform.Equals(SharpDX.CompositeTransform@)">
+            <summary>
+            Determines whether the specified <see cref="T:SharpDX.CompositeTransform"/> is equal to this instance.
+            </summary>
+            <param name="other">The <see cref="T:SharpDX.CompositeTransform"/> to compare with this instance.</param>
+            <returns>
+            <c>true</c> if the specified <see cref="T:SharpDX.CompositeTransform"/> is equal to this instance; otherwise, <c>false</c>.
+            </returns>
+        </member>
+        <member name="M:SharpDX.CompositeTransform.Equals(SharpDX.CompositeTransform)">
+            <summary>
+            Determines whether the specified <see cref="T:SharpDX.CompositeTransform"/> is equal to this instance.
+            </summary>
+            <param name="other">The <see cref="T:SharpDX.CompositeTransform"/> to compare with this instance.</param>
+            <returns>
+            <c>true</c> if the specified <see cref="T:SharpDX.CompositeTransform"/> is equal to this instance; otherwise, <c>false</c>.
+            </returns>
+        </member>
+        <member name="M:SharpDX.CompositeTransform.Equals(System.Object)">
+            <summary>
+            Determines whether the specified <see cref="T:System.Object"/> is equal to this instance.
+            </summary>
+            <param name="value">The <see cref="T:System.Object"/> to compare with this instance.</param>
+            <returns>
+            <c>true</c> if the specified <see cref="T:System.Object"/> is equal to this instance; otherwise, <c>false</c>.
+            </returns>
+        </member>
+    </members>
+</doc>

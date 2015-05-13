@@ -1,0 +1,456 @@
+﻿using Sandbox.Common;
+using Sandbox.Engine.Utils;
+using Sandbox.Game.Gui;
+using Sandbox.Game.Localization;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using VRage;
+using VRage;
+using VRage.Utils;
+using VRageMath;
+
+namespace Sandbox.Graphics.GUI
+{
+    // TODO: Heavy refactoring, split to proper controls
+    public class MyGuiControlBlockInfo : MyGuiControlBase
+    {
+        public static bool ShowComponentProgress = true;
+        public static bool ShowCriticalComponent = false;
+        public static bool ShowCriticalIntegrity = true;
+        public static bool ShowOwnershipIntegrity = MyFakes.SHOW_FACTIONS_GUI;
+
+        public static Vector4 CriticalIntegrityColor = Color.Red.ToVector4();
+        public static Vector4 CriticalComponentColor = CriticalIntegrityColor * new Vector4(1, 1, 1, 0.7f);
+        public static Vector4 OwnershipIntegrityColor = Color.Blue.ToVector4();
+
+        class ComponentLineControl : MyGuiControlBase
+        {
+            public MyGuiControlPanel IconPanel;
+            public MyGuiControlPanel IconPanelBackground;
+            public MyGuiControlPanel IconPanelProgress;
+            public MyGuiControlLabel NameLabel;
+            public MyGuiControlLabel NumbersLabel;
+
+            public ComponentLineControl(Vector2 size, float iconSize)
+                : base(size: size, originAlign: MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_TOP)
+            {
+                var m_iconSize = new Vector2(iconSize) * new Vector2(0.75f, 1);
+                var middleLeft = new Vector2(-this.Size.X / 2, 0);
+                var middleRight = new Vector2(this.Size.X / 2, 0);
+                var iconPos = middleLeft - new Vector2(0, m_iconSize.Y / 2);
+
+                IconPanel = new MyGuiControlPanel();
+                IconPanelBackground = new MyGuiControlPanel();
+                IconPanelProgress = new MyGuiControlPanel();
+                NameLabel = new MyGuiControlLabel(text: String.Empty);
+                NumbersLabel = new MyGuiControlLabel(text: String.Empty);
+                
+                IconPanel.Size = m_iconSize;
+                IconPanel.OriginAlign = MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_TOP;
+                IconPanel.Position = iconPos;
+
+                IconPanelBackground.Size = m_iconSize;
+                IconPanelBackground.OriginAlign = MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_TOP;
+                IconPanelBackground.Position = iconPos;
+                IconPanelBackground.BackgroundTexture = new MyGuiCompositeTexture(MyGuiConstants.TEXTURE_HUD_BG_MEDIUM_DEFAULT.Texture);
+
+                IconPanelProgress.Size = m_iconSize;
+                IconPanelProgress.OriginAlign = MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_TOP;
+                IconPanelProgress.Position = iconPos;
+                IconPanelProgress.BackgroundTexture = MyGuiConstants.TEXTURE_GUI_BLANK;
+                float gray = 0.1f;
+                IconPanelProgress.ColorMask = new Vector4(gray, gray, gray, 0.5f);
+
+                NameLabel.OriginAlign = MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_CENTER;
+                NameLabel.Position = middleLeft + new Vector2(m_iconSize.X + 0.01225f, 0);
+
+                NameLabel.AutoEllipsis = true;
+
+                NumbersLabel.OriginAlign = MyGuiDrawAlignEnum.HORISONTAL_RIGHT_AND_VERTICAL_CENTER;
+                NumbersLabel.Position = middleRight + new Vector2(-0.033f, 0); //topRight + new Vector2(-0.02f, 0.004f);
+
+                Elements.Add(IconPanelBackground);
+                Elements.Add(IconPanel);
+                Elements.Add(IconPanelProgress);
+                Elements.Add(NameLabel);
+                Elements.Add(NumbersLabel);
+            }
+
+            public void RecalcTextSize()
+            {
+                float numberLeft = NumbersLabel.Position.X - NumbersLabel.GetTextSize().X;
+                float minimumGapSize = 0.01f;
+
+                NameLabel.Size = new Vector2(numberLeft - NameLabel.Position.X - minimumGapSize, NameLabel.Size.Y);
+            }
+
+            public void SetProgress(float val)
+            {
+                IconPanelProgress.Size = IconPanel.Size * new Vector2(1, 1 - val);
+            }
+        }
+
+        MyGuiControlLabel m_blockTypeLabel;
+        MyGuiControlLabel m_blockNameLabel;
+        MyGuiControlLabel m_componentsLabel;
+        MyGuiControlLabel m_installedRequiredLabel;
+        MyGuiControlLabel m_integrityLabel;
+
+        MyGuiControlPanel m_blockIconPanel;
+        MyGuiControlPanel m_blockIconPanelBackground;
+
+        MyGuiControlPanel m_blockTypePanel;
+        MyGuiControlPanel m_blockTypePanelBackground;
+
+        MyGuiControlPanel m_titleBackground;
+        MyGuiControlPanel m_leftColumnBackground;
+        MyGuiControlPanel m_integrityBackground;
+        MyGuiControlPanel m_integrityForeground;
+
+        MyGuiControlPanel m_integrityCriticalLine;
+
+        MyGuiControlSeparatorList m_separator;
+
+        List<ComponentLineControl> m_componentLines = new List<ComponentLineControl>(15);
+
+        public MyHudBlockInfo BlockInfo;
+        private bool m_progressMode;
+
+        float m_smallerFontSize = 0.83f;
+
+        private float baseScale { get { return m_progressMode ? 1.0f : 0.83f; } }
+        private float itemHeight { get { return 0.037f * baseScale; } }
+
+        public MyGuiControlBlockInfo(bool progressMode = true, bool largeBlockInfo = true)
+            : base(backgroundTexture: new MyGuiCompositeTexture(MyGuiConstants.TEXTURE_HUD_BG_LARGE_DEFAULT.Texture))
+        {
+            m_progressMode = progressMode;
+
+            m_leftColumnBackground = new MyGuiControlPanel(backgroundColor: Color.Red.ToVector4());
+            m_leftColumnBackground.OriginAlign = MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_TOP;
+            Elements.Add(m_leftColumnBackground);
+
+            m_titleBackground = new MyGuiControlPanel(backgroundColor: Color.Red.ToVector4());
+            m_titleBackground.OriginAlign = MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_TOP;
+            Elements.Add(m_titleBackground);
+
+            if (m_progressMode)
+            {
+                m_integrityBackground = new MyGuiControlPanel(backgroundColor: Color.Red.ToVector4());
+                m_integrityBackground.OriginAlign = MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_BOTTOM;
+                Elements.Add(m_integrityBackground);
+
+                m_integrityForeground = new MyGuiControlPanel(backgroundColor: Color.Red.ToVector4());
+                m_integrityForeground.OriginAlign = MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_BOTTOM;
+                Elements.Add(m_integrityForeground);
+
+                m_integrityCriticalLine = new MyGuiControlPanel(backgroundColor: Color.Red.ToVector4());
+                m_integrityCriticalLine.OriginAlign = MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_BOTTOM;
+                Elements.Add(m_integrityCriticalLine);
+            }
+
+            m_blockIconPanelBackground = new MyGuiControlPanel();
+            m_blockIconPanelBackground.OriginAlign = MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_TOP;
+            m_blockIconPanelBackground.BackgroundTexture = new MyGuiCompositeTexture(MyGuiConstants.TEXTURE_HUD_BG_MEDIUM_DEFAULT.Texture);
+            m_blockIconPanelBackground.Size = m_progressMode ? new Vector2(0.088f) : new Vector2(0.04f);
+            m_blockIconPanelBackground.Size *= new Vector2(0.75f, 1);
+            Elements.Add(m_blockIconPanelBackground);
+
+            m_blockIconPanel = new MyGuiControlPanel();
+            m_blockIconPanel.OriginAlign = MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_TOP;
+            m_blockIconPanel.Size = m_progressMode ? new Vector2(0.088f) : new Vector2(0.04f);
+            m_blockIconPanel.Size *= new Vector2(0.75f, 1);
+            Elements.Add(m_blockIconPanel);
+
+            m_blockTypePanelBackground = new MyGuiControlPanel();
+            m_blockTypePanelBackground.OriginAlign = MyGuiDrawAlignEnum.HORISONTAL_RIGHT_AND_VERTICAL_TOP;
+            m_blockTypePanelBackground.BackgroundTexture = new MyGuiCompositeTexture(MyGuiConstants.TEXTURE_HUD_BG_MEDIUM_DEFAULT.Texture);
+            m_blockTypePanelBackground.Size = m_progressMode ? new Vector2(0.088f) : new Vector2(0.04f);
+            m_blockTypePanelBackground.Size *= new Vector2(0.75f, 1);
+            Elements.Add(m_blockTypePanelBackground);
+
+            m_blockTypePanel = new MyGuiControlPanel();
+            m_blockTypePanel.OriginAlign = MyGuiDrawAlignEnum.HORISONTAL_RIGHT_AND_VERTICAL_TOP;
+            m_blockTypePanel.Size = m_progressMode ? new Vector2(0.088f) : new Vector2(0.04f);
+            m_blockTypePanel.Size *= new Vector2(0.75f, 1);
+            m_blockTypePanel.BackgroundTexture = new MyGuiCompositeTexture(largeBlockInfo ? @"Textures\GUI\Icons\Cubes\LargeBlock.dds" : @"Textures\GUI\Icons\Cubes\SmallBlock.dds");
+            Elements.Add(m_blockTypePanel);
+
+            m_blockNameLabel = new MyGuiControlLabel(text: String.Empty);
+            m_blockNameLabel.OriginAlign = MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_TOP;
+            m_blockNameLabel.TextScale = 1 * baseScale;
+            m_blockNameLabel.Font = MyFontEnum.White;
+            m_blockNameLabel.AutoEllipsis = true;
+            Elements.Add(m_blockNameLabel);
+
+            m_blockTypeLabel = new MyGuiControlLabel(text: MyTexts.GetString(largeBlockInfo ? MySpaceTexts.HudBlockInfo_LargeShip_Station : MySpaceTexts.HudBlockInfo_SmallShip));
+            m_blockTypeLabel.OriginAlign = MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_TOP;
+            m_blockTypeLabel.TextScale = 1 * baseScale;
+            m_blockTypeLabel.Font = MyFontEnum.White;
+            Elements.Add(m_blockTypeLabel);
+
+            m_componentsLabel = new MyGuiControlLabel(text: MyTexts.GetString(MySpaceTexts.HudBlockInfo_Components));
+            m_componentsLabel.OriginAlign = MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_TOP;
+            m_componentsLabel.TextScale = m_smallerFontSize * baseScale;
+            m_componentsLabel.Font = MyFontEnum.Blue;
+            Elements.Add(m_componentsLabel);
+
+            m_installedRequiredLabel = new MyGuiControlLabel(text: MyTexts.GetString(MySpaceTexts.HudBlockInfo_Installed_Required));
+            m_installedRequiredLabel.OriginAlign = MyGuiDrawAlignEnum.HORISONTAL_RIGHT_AND_VERTICAL_TOP;
+            m_installedRequiredLabel.TextScale = m_smallerFontSize * baseScale;
+            m_installedRequiredLabel.Font = MyFontEnum.Blue;
+            Elements.Add(m_installedRequiredLabel);
+
+            if (m_progressMode)
+            {
+
+                m_integrityLabel = new MyGuiControlLabel(text: String.Empty);
+                m_integrityLabel.OriginAlign = MyGuiDrawAlignEnum.HORISONTAL_CENTER_AND_VERTICAL_BOTTOM;
+                m_integrityLabel.Font = MyFontEnum.White;
+                m_integrityLabel.TextScale = 0.75f * baseScale;
+                Elements.Add(m_integrityLabel);
+            }
+
+            m_separator = new MyGuiControlSeparatorList();
+            Elements.Add(m_separator);
+
+            EnsureLineControls(m_componentLines.Capacity);
+            Size = m_progressMode ? new Vector2(0.325f, 0.4f) : new Vector2(0.22f, 0.4f);
+        }
+
+        void EnsureLineControls(int count)
+        {
+            while (m_componentLines.Count < count)
+            {
+                var itemSize = m_progressMode ? new Vector2(0.3f, 0.05f) : new Vector2(0.235f, 0.05f);
+
+                var item = new ComponentLineControl(itemSize * new Vector2(1, baseScale), 0.035f * baseScale);
+                m_componentLines.Add(item);
+                Elements.Add(item);
+            }
+        }
+
+        void Reposition()
+        {
+            this.Size = new Vector2(this.Size.X, 0.12f * baseScale + itemHeight * BlockInfo.Components.Count);
+
+            //BackgroundTexture =  @"Textures\GUI\Screens\aa";
+            var topleft = -this.Size / 2;
+            var topRight = new Vector2(this.Size.X / 2, -this.Size.Y / 2);
+            var rightColumn = topleft + (m_progressMode ? new Vector2(0.0815f, 0) : new Vector2(0.036f, 0));
+
+            var titleHeight = 0.072f * baseScale;
+
+            Vector2 borderGap = new Vector2(0.0055f) * new Vector2(0.75f, 1) * baseScale;
+            if (!m_progressMode)
+                borderGap.Y *= 0.5f;
+
+            m_installedRequiredLabel.TextToDraw = MyTexts.Get(BlockInfo.BlockIntegrity > 0 ? MySpaceTexts.HudBlockInfo_Installed_Required : MySpaceTexts.HudBlockInfo_Required);
+
+            m_leftColumnBackground.ColorMask = new Vector4(46 / 255.0f, 76 / 255.0f, 94 / 255.0f, 1.0f);
+            m_leftColumnBackground.Position = topleft + borderGap;
+            m_leftColumnBackground.Size = new Vector2(rightColumn.X - topleft.X, this.Size.Y) - new Vector2(borderGap.X, 0.0088f);
+            m_leftColumnBackground.BackgroundTexture = MyGuiConstants.TEXTURE_GUI_BLANK;
+
+            m_titleBackground.ColorMask = new Vector4(72 / 255.0f, 109 / 255.0f, 130 / 255.0f, 1.0f);
+            if (m_progressMode)
+            {
+                m_titleBackground.Position = rightColumn + new Vector2(-0.0015f, borderGap.Y);
+            }
+            else
+            {
+                m_titleBackground.Position = topleft + borderGap;
+            }
+            m_titleBackground.Size = new Vector2(topRight.X - m_titleBackground.Position.X - (m_progressMode ? borderGap.X : 0), 0.101f * baseScale);
+            m_titleBackground.BackgroundTexture = MyGuiConstants.TEXTURE_GUI_BLANK;
+
+            Vector2 separatorPos;
+            if (m_progressMode)
+            {
+                separatorPos = rightColumn + new Vector2(0, titleHeight);
+            }
+            else
+            {
+                separatorPos = topleft + new Vector2(borderGap.X, titleHeight);
+            }
+            m_separator.Clear();
+            m_separator.AddHorizontal(separatorPos, this.Size.X + topleft.X - separatorPos.X - 0.002f, 0.003f); // Title separator
+
+            if (m_progressMode)
+            {
+                if (BlockInfo.BlockIntegrity > 0)
+                {
+                    float integrityHeight = itemHeight * BlockInfo.Components.Count - 0.002f;
+                    float integrityWidth = 0.032f;
+                    var integrityPos = topleft + new Vector2(0.01f, 0.11f + integrityHeight);
+
+                    m_integrityBackground.ColorMask = new Vector4(78 / 255.0f, 116 / 255.0f, 137 / 255.0f, 1.0f);
+                    m_integrityBackground.Position = integrityPos;
+                    m_integrityBackground.Size = new Vector2(integrityWidth, integrityHeight);
+                    m_integrityBackground.BackgroundTexture = MyGuiConstants.TEXTURE_GUI_BLANK;
+
+                    var color = (BlockInfo.BlockIntegrity > BlockInfo.CriticalIntegrity)
+                        ? new Vector4(118 / 255.0f, 166 / 255.0f, 192 / 255.0f, 1.0f)
+                        : new Vector4(0.5f, 0.1f, 0.1f, 1);
+
+                    m_integrityForeground.ColorMask = color;
+                    m_integrityForeground.Position = integrityPos;
+                    m_integrityForeground.Size = new Vector2(integrityWidth, integrityHeight * BlockInfo.BlockIntegrity);
+                    m_integrityForeground.BackgroundTexture = MyGuiConstants.TEXTURE_GUI_BLANK;
+
+                    if (ShowCriticalIntegrity)
+                    {
+                        float lineWidth = 0;
+                        if (Math.Abs(BlockInfo.CriticalIntegrity - BlockInfo.OwnershipIntegrity) < 0.005f)
+                            lineWidth = 0.004f; //if lines are overdrawing
+
+                        m_separator.AddHorizontal(integrityPos - new Vector2(0, integrityHeight * BlockInfo.CriticalIntegrity), integrityWidth, width: lineWidth, color: CriticalIntegrityColor);
+                    }
+
+                    if (ShowOwnershipIntegrity && BlockInfo.OwnershipIntegrity > 0)
+                    {
+                        m_separator.AddHorizontal(integrityPos - new Vector2(0, integrityHeight * BlockInfo.OwnershipIntegrity), integrityWidth, color: OwnershipIntegrityColor);
+                    }
+
+                    m_integrityLabel.Position = integrityPos + new Vector2(integrityWidth / 2, -0.005f);
+                    m_integrityLabel.Font = MyFontEnum.White;
+                    m_integrityLabel.TextToDraw.Clear();
+                    m_integrityLabel.TextToDraw.AppendInt32((int)Math.Floor(BlockInfo.BlockIntegrity * 100)).Append("%");
+
+                    m_integrityBackground.Visible = true;
+                    m_integrityForeground.Visible = true;
+                    m_integrityLabel.Visible = true;
+                }
+                else
+                {
+                    m_integrityBackground.Visible = false;
+                    m_integrityForeground.Visible = false;
+                    m_integrityLabel.Visible = false;
+                }
+            }
+
+            if (m_progressMode)
+            {
+                m_blockNameLabel.Position = rightColumn + new Vector2(0.006f, 0.026f * baseScale);
+                m_blockNameLabel.Size = new Vector2(Size.X / 2 - m_blockNameLabel.Position.X, m_blockNameLabel.Size.Y);
+                m_blockTypeLabel.Visible = false;
+                m_blockTypePanel.Visible = false;
+                m_blockTypePanelBackground.Visible = false;
+            }
+            else
+            {
+                m_blockTypePanel.Visible = true;
+                m_blockTypePanel.Position = topRight + new Vector2(-0.0085f, 0.012f);
+                m_blockTypePanelBackground.Visible = true;
+                m_blockTypePanelBackground.Position = topRight + new Vector2(-0.0085f, 0.012f);
+
+                m_blockNameLabel.TextScale = 0.95f * baseScale;
+                m_blockNameLabel.OriginAlign = MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_BOTTOM;
+                m_blockNameLabel.Position = m_blockIconPanel.Position + m_blockIconPanel.Size + new Vector2(0.004f, 0);
+                m_blockNameLabel.Size = new Vector2(m_blockTypePanel.Position.X - m_blockTypePanel.Size.X - m_blockNameLabel.Position.X, m_blockNameLabel.Size.Y);
+                
+                m_blockTypeLabel.Visible = true;
+                m_blockTypeLabel.OriginAlign = MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_TOP;
+                m_blockTypeLabel.TextScale = m_smallerFontSize * baseScale;
+                m_blockTypeLabel.Position = m_blockIconPanel.Position + new Vector2(m_blockIconPanel.Size.X, 0) + new Vector2(0.004f, -0.0025f);
+            }
+
+            m_componentsLabel.Position = rightColumn + new Vector2(0.006f, 0.076f * baseScale);
+            m_installedRequiredLabel.Position = topRight + new Vector2(-0.011f, 0.076f * baseScale);
+
+            m_blockIconPanel.Position = topleft + new Vector2(0.0085f, 0.012f);
+            m_blockIconPanelBackground.Position = topleft + new Vector2(0.0085f, 0.012f);
+
+            Vector2 listPos;
+            if (m_progressMode)
+                listPos = topleft + new Vector2(0.0485f, 0.102f);
+            else
+                listPos = topleft + new Vector2(0.008f, 0.102f * baseScale);
+
+            for (int i = 0; i < BlockInfo.Components.Count; i++)
+            {
+                m_componentLines[i].Position = listPos + new Vector2(0, (BlockInfo.Components.Count - i - 1) * itemHeight);
+                m_componentLines[i].IconPanelProgress.Visible = ShowComponentProgress;
+                m_componentLines[i].IconPanel.BorderColor = CriticalComponentColor;
+                m_componentLines[i].NameLabel.TextScale = m_smallerFontSize * baseScale;
+                m_componentLines[i].NumbersLabel.TextScale = m_smallerFontSize * baseScale;
+            }
+        }
+
+        public override void Draw(float transitionAlpha)
+        {
+            if (BlockInfo != null)
+            {
+                EnsureLineControls(BlockInfo.Components.Count);
+
+                Reposition();
+
+                for (int i = 0; i < m_componentLines.Count; i++)
+                {
+                    if (i < BlockInfo.Components.Count)
+                    {
+                        var info = BlockInfo.Components[i];
+                        MyFontEnum font;
+                        Vector4 color = Vector4.One;
+
+                        if (m_progressMode && BlockInfo.BlockIntegrity > 0)
+                        {
+                            if (BlockInfo.MissingComponentIndex == i)
+                                font = MyFontEnum.Red;
+                            else if (info.MountedCount == info.TotalCount)
+                                font = MyFontEnum.White;
+                            else if (info.InstalledCount == info.TotalCount)
+                                font = MyFontEnum.Blue;
+                            else
+                            {
+                                font = MyFontEnum.White;
+                                float gray = 0.6f;
+                                color = new Vector4(gray, gray, gray, 1f);
+                            }
+                        }
+                        else
+                        {
+                            font = MyFontEnum.White;
+                        }
+
+                        if (m_progressMode && BlockInfo.BlockIntegrity > 0)
+                            m_componentLines[i].SetProgress(info.MountedCount / (float)info.TotalCount);
+                        else
+                            m_componentLines[i].SetProgress(1);
+                        m_componentLines[i].Visible = true;
+                        m_componentLines[i].NameLabel.Font = font;
+                        m_componentLines[i].NameLabel.ColorMask = color;
+                        m_componentLines[i].NameLabel.TextToDraw.Clear();
+                        m_componentLines[i].NameLabel.TextToDraw.Append(info.ComponentName);
+                        m_componentLines[i].IconPanel.BackgroundTexture = new MyGuiCompositeTexture(info.Icon);
+                        m_componentLines[i].NumbersLabel.Font = font;
+                        m_componentLines[i].NumbersLabel.ColorMask = color;
+                        m_componentLines[i].NumbersLabel.TextToDraw.Clear();
+                        if (m_progressMode && BlockInfo.BlockIntegrity > 0)
+                            m_componentLines[i].NumbersLabel.TextToDraw.AppendInt32(info.InstalledCount).Append(" / ").AppendInt32(info.TotalCount);
+                        else
+                            m_componentLines[i].NumbersLabel.TextToDraw.AppendInt32(info.TotalCount);
+                        m_componentLines[i].NumbersLabel.Size = m_componentLines[i].NumbersLabel.GetTextSize();
+                        m_componentLines[i].IconPanel.BorderEnabled = ShowCriticalComponent && BlockInfo.CriticalComponentIndex == i;
+                        m_componentLines[i].RecalcTextSize();
+                    }
+                    else
+                    {
+                        m_componentLines[i].Visible = false;
+                    }
+                }
+
+                m_blockNameLabel.TextToDraw.Clear();
+                if (BlockInfo.BlockName != null)
+                    m_blockNameLabel.TextToDraw.Append(BlockInfo.BlockName);
+                m_blockNameLabel.TextToDraw.ToUpper();
+
+                m_blockIconPanel.BackgroundTexture = new MyGuiCompositeTexture(BlockInfo.BlockIcon);
+            }
+
+            base.Draw(transitionAlpha);
+        }
+    }
+}

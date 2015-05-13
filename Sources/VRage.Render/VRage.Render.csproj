@@ -1,0 +1,286 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
+    <ProductVersion>8.0.30703</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{1713E6CD-808A-4A44-9532-04771499BB01}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>VRageRender</RootNamespace>
+    <AssemblyName>VRage.Render</AssemblyName>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <TargetFrameworkProfile>
+    </TargetFrameworkProfile>
+    <FileAlignment>512</FileAlignment>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>TRACE;DEBUG;WINDOWS</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
+    <PlatformTarget>x86</PlatformTarget>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE;WINDOWS</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup>
+    <StartupObject />
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\x64\Debug\</OutputPath>
+    <DefineConstants>TRACE;DEBUG;WINDOWS</DefineConstants>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <DebugType>full</DebugType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
+    <OutputPath>bin\x64\Release\</OutputPath>
+    <DefineConstants>TRACE;WINDOWS</DefineConstants>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="BackgroundCube\MyBackgroundCube.cs" />
+    <Compile Include="Cockpit\MyCockpitGlass.cs" />
+    <Compile Include="Effects\MyEffectAtmosphere.cs" />
+    <Compile Include="MyDirect3D9Extensions.cs" />
+    <Compile Include="Effects\MyEffectAtmosphereBase.cs" />
+    <Compile Include="MyGraphicsTest.cs" />
+    <Compile Include="MyRender-Adapters.cs" />
+    <Compile Include="MyRender-Device.cs" />
+    <Compile Include="MyRenderTexturePool.cs" />
+    <Compile Include="RenderObjects\IMyFarDrawableRenderObject.cs" />
+    <Compile Include="RenderObjects\MyRenderAtmosphere.cs" />
+    <Compile Include="RenderObjects\MyRenderLineBasedObject.cs" />
+    <Compile Include="RenderObjects\MyRenderVoxelCellFar.cs" />
+    <Compile Include="RenderObjects\Voxels\MyRenderClipmap.cs" />
+    <Compile Include="RenderProxy\MyDX9Render.cs" />
+    <Compile Include="RenderProxy\MyNullRender.cs" />
+    <Compile Include="Decals\MyDecals.cs" />
+    <Compile Include="Decals\MyDecalsForRenderObjects.cs" />
+    <Compile Include="Decals\MyDecalsForRenderObjectsTriangleBuffer.cs" />
+    <Compile Include="Decals\MyDecalsForVoxels.cs" />
+    <Compile Include="Decals\MyDecalsForVoxelsTriangleBuffer.cs" />
+    <Compile Include="Effects\MyEffectChromaticAberration.cs" />
+    <Compile Include="Effects\MyEffectColorMapping.cs" />
+    <Compile Include="Effects\MyEffectVignetting.cs" />
+    <Compile Include="Impostors\MyDistantImpostors.cs" />
+    <Compile Include="Impostors\MyDistantObjectImpostor.cs" />
+    <Compile Include="Impostors\MyDistantObjectImpostors.cs" />
+    <Compile Include="Impostors\MyVoxelMapImpostors.cs" />
+    <Compile Include="Lights\MySunLight.cs" />
+    <Compile Include="MyRender-MessageSwitch.cs" />
+    <Compile Include="MyRender-Video.cs" />
+    <Compile Include="EnvironmentMap\MyEnvironmentMap.cs" />
+    <Compile Include="EnvironmentMap\MyEnvironmentMapRenderer.cs" />
+    <Compile Include="MyRender-AlternativeSort.cs" />
+    <Compile Include="MyRender-ProcessMessages.cs" />
+    <Compile Include="Lights\MyLightGlare.cs" />
+    <Compile Include="MyRender-Debug.cs" />
+    <Compile Include="MyRender-Lights.cs" />
+    <Compile Include="MyRenderCamera.cs" />
+    <Compile Include="MyElement.cs" />
+    <Compile Include="MyRenderModels.cs" />
+    <Compile Include="Lights\MyDirectionalLight.cs" />
+    <Compile Include="Lights\MyLights.cs" />
+    <Compile Include="MyRender-3D.cs" />
+    <Compile Include="Effects\BaseEffects\MyEffectBase.cs" />
+    <Compile Include="Effects\BaseEffects\MyEffectDynamicLightingBase.cs" />
+    <Compile Include="Effects\BaseEffects\MyEffectPerlinNoiseBase.cs" />
+    <Compile Include="Effects\BaseEffects\MyEffectReflectorBase.cs" />
+    <Compile Include="Effects\BaseEffects\MyEffectShadowBase.cs" />
+    <Compile Include="Effects\BaseEffects\MyEffectSpotShadowBase.cs" />
+    <Compile Include="Effects\BaseEffects\MyEffectVoxelsBase.cs" />
+    <Compile Include="Effects\Lights\MyEffectBlendLights.cs" />
+    <Compile Include="Effects\Lights\MyEffectDirectionalLight.cs" />
+    <Compile Include="Effects\Lights\MyEffectPointLight.cs" />
+    <Compile Include="Effects\MyEffectAmbientPrecalculation.cs" />
+    <Compile Include="Effects\MyEffectAntiAlias.cs" />
+    <Compile Include="Effects\MyEffectBackgroundCube.cs" />
+    <Compile Include="Effects\MyEffectClearGbuffer.cs" />
+    <Compile Include="Effects\MyEffectCockpitGlass.cs" />
+    <Compile Include="Effects\MyEffectContrast.cs" />
+    <Compile Include="Effects\MyEffectDecals.cs" />
+    <Compile Include="Effects\MyEffectDistantImpostors.cs" />
+    <Compile Include="Effects\MyEffectGaussianBlur.cs" />
+    <Compile Include="Effects\MyEffectGodRays.cs" />
+    <Compile Include="Effects\MyEffectHDR.cs" />
+    <Compile Include="Effects\MyEffectHDRBase.cs" />
+    <Compile Include="Effects\MyEffectHud.cs" />
+    <Compile Include="Effects\MyEffectHudRadar.cs" />
+    <Compile Include="Effects\MyEffectLuminance.cs" />
+    <Compile Include="Effects\MyEffectModelsDiffuse.cs" />
+    <Compile Include="Effects\MyEffectModelsDNS.cs" />
+    <Compile Include="Effects\MyEffectOcclusionQueryDraw.cs" />
+    <Compile Include="Effects\MyEffectRenderGizmo.cs" />
+    <Compile Include="Effects\MyEffectScale.cs" />
+    <Compile Include="Effects\MyEffectScreenshot.cs" />
+    <Compile Include="Effects\MyEffectShadowMap.cs" />
+    <Compile Include="Effects\MyEffectSpriteBatchShader.cs" />
+    <Compile Include="Effects\MyEffectThreshold.cs" />
+    <Compile Include="Effects\MyEffectTransparentGeometry.cs" />
+    <Compile Include="Effects\MyEffectVolumetricFog.cs" />
+    <Compile Include="Effects\SSAO\MyEffectDownsampleDepthForSSAO.cs" />
+    <Compile Include="Effects\SSAO\MyEffectSSAO3.cs" />
+    <Compile Include="Effects\SSAO\MyEffectSSAOBlur2.cs" />
+    <Compile Include="Effects\SSAO\MyEffectVolumetricSSAO2.cs" />
+    <Compile Include="Effects\Voxels\MyEffectVoxels.cs" />
+    <Compile Include="Effects\Voxels\MyEffectVoxelsDebris.cs" />
+    <Compile Include="MyDebugDraw.cs" />
+    <Compile Include="MyRender-Management.cs" />
+    <Compile Include="MyRenderFont.cs" />
+    <Compile Include="MyRender-Content.cs" />
+    <Compile Include="Graphics\MyStateObjects.cs" />
+    <Compile Include="MyConstants.cs" />
+    <Compile Include="MyRender-Draw.cs" />
+    <Compile Include="Graphics\BlendState.cs" />
+    <Compile Include="Graphics\DepthStencilState.cs" />
+    <Compile Include="Graphics\MyVertexFormats.cs" />
+    <Compile Include="Graphics\RasterizerState.cs" />
+    <Compile Include="Graphics\SamplerState.cs" />
+    <Compile Include="Graphics\SpriteBatch.cs" />
+    <Compile Include="Graphics\SpriteSortMode.cs" />
+    <Compile Include="MyRender-DrawMessages.cs" />
+    <Compile Include="MyRender.cs" />
+    <Compile Include="MyRenderConstants.cs" />
+    <Compile Include="MyRenderStats.cs" />
+    <Compile Include="MySortedElements.Comparers.cs" />
+    <Compile Include="MySortedElements.cs" />
+    <Compile Include="MySortedElements.Models.cs" />
+    <Compile Include="MySortedElements.Voxels.cs" />
+    <Compile Include="PostProcesses\MyPostProcessAntiAlias.cs" />
+    <Compile Include="PostProcesses\MyPostProcessBase.cs" />
+    <Compile Include="PostProcesses\MyPostProcessChromaticAberration.cs" />
+    <Compile Include="PostProcesses\MyPostProcessColorMapping.cs" />
+    <Compile Include="PostProcesses\MyPostProcessContrast.cs" />
+    <Compile Include="PostProcesses\MyPostProcessGodRays.cs" />
+    <Compile Include="PostProcesses\MyPostProcessHDR.cs" />
+    <Compile Include="PostProcesses\MyPostProcessVignetting.cs" />
+    <Compile Include="PostProcesses\MyPostProcessVolumetricFog.cs" />
+    <Compile Include="PostProcesses\MyPostProcessVolumetricSSAO2.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="RenderObjects\Characters\MyRenderCharacter.cs" />
+    <Compile Include="RenderObjects\MyManualCullableRenderObject.cs" />
+    <Compile Include="RenderObjects\MyRenderBatch.cs" />
+    <Compile Include="RenderObjects\MyRenderInstanceBuffer.cs" />
+    <Compile Include="RenderObjects\MyRenderSkeletonTexture.cs" />
+    <Compile Include="RenderObjects\MyRenderTransformObject.cs" />
+    <Compile Include="RenderObjects\MyRenderVoxelDebris.cs" />
+    <Compile Include="RenderObjects\MyRenderLight.cs" />
+    <Compile Include="RenderObjects\MyRenderVoxelCell.cs" />
+    <Compile Include="RenderObjects\Models\MyRenderModel.cs" />
+    <Compile Include="RenderObjects\Models\MyRenderMeshMaterial.cs" />
+    <Compile Include="RenderObjects\Models\MyRenderMesh.cs" />
+    <Compile Include="RenderObjects\MyRenderEntity.cs" />
+    <Compile Include="RenderObjects\MyCullableRenderObject.cs" />
+    <Compile Include="SecondaryCamera\MySecondaryCameraRenderer.cs" />
+    <Compile Include="SharpDxExtensions.cs" />
+    <Compile Include="Techniques\MyDrawTechniqueAtmosphere.cs" />
+    <Compile Include="Techniques\MyDrawTechniquePlanetSurface.cs" />
+    <Compile Include="Textures\Sun\MySunGlare.cs" />
+    <Compile Include="Techniques\MyDrawTechniqueMeshInstancedGenericMasked.cs" />
+    <Compile Include="Techniques\MyDrawTechniqueGlass.cs" />
+    <Compile Include="Techniques\MyDrawTechniqueMeshInstancedGeneric.cs" />
+    <Compile Include="Techniques\MyDrawTechniqueMeshInstancedSkinned.cs" />
+    <Compile Include="Techniques\MyDrawTechniqueMeshInstanced.cs" />
+    <Compile Include="Techniques\MyDrawTechniqueSkinned.cs" />
+    <Compile Include="Techniques\MyDrawTechniqueStaticCube.cs" />
+    <Compile Include="Techniques\MyDrawTechniqueAlphaMasked.cs" />
+    <Compile Include="Techniques\MyDrawTechniqueBase.cs" />
+    <Compile Include="Techniques\MyDrawTechniqueBaseDNS.cs" />
+    <Compile Include="Techniques\MyDrawTechniqueDecal.cs" />
+    <Compile Include="Techniques\MyDrawTechniqueHolo.cs" />
+    <Compile Include="Techniques\MyDrawTechniqueMesh.cs" />
+    <Compile Include="Techniques\MyDrawTechniqueVoxelDebris.cs" />
+    <Compile Include="Techniques\MyDrawTechniqueVoxelMulti.cs" />
+    <Compile Include="Techniques\MyDrawTechniqueVoxelSingle.cs" />
+    <Compile Include="Textures\MyTextureExtensions.cs" />
+    <Compile Include="TransparentGeometry\MyTransparentGeometry.cs" />
+    <Compile Include="Utils\MyRenderComponentBase.cs" />
+    <Compile Include="Utils\MyEnumsToStrings.cs" />
+    <Compile Include="Utils\MyOcclusionQuery.cs" />
+    <Compile Include="RenderObjects\MyRenderObject.cs" />
+    <Compile Include="RenderObjects\Voxels\MyRenderVoxelBatch.cs" />
+    <Compile Include="RenderObjects\Voxels\MyRenderVoxelMaterials.cs" />
+    <Compile Include="RenderObjects\Voxels\MyRenderVoxelMaterial.cs" />
+    <Compile Include="Utils\MyFullscreenQuad.cs" />
+    <Compile Include="Utils\MyScreenshot.cs" />
+    <Compile Include="Utils\MyStructs.cs" />
+    <Compile Include="Utils\MyTextureAtlas.cs" />
+    <Compile Include="Profiler\MyLineBatch.cs" />
+    <Compile Include="Profiler\MyRenderProfilerDX9.cs" />
+    <Compile Include="Shadows\MyCastShadowJob.cs" />
+    <Compile Include="Shadows\MyOrthographicCamera.cs" />
+    <Compile Include="Shadows\MyPerspectiveCamera.cs" />
+    <Compile Include="Shadows\MyBaseShadowCamera.cs" />
+    <Compile Include="Shadows\MyShadowRenderer.cs" />
+    <Compile Include="Shadows\MyShadowRendererBase.cs" />
+    <Compile Include="Shadows\MySpotShadowRenderer.cs" />
+    <Compile Include="SharpDXHelper.cs" />
+    <Compile Include="Textures\MyDDSFile.cs" />
+    <Compile Include="Textures\MyTexture.cs" />
+    <Compile Include="Textures\MyTexture2D.cs" />
+    <Compile Include="Textures\MyTextureCube.cs" />
+    <Compile Include="Textures\MyTextureManager.cs" />
+    <Compile Include="Utils\MyUtilsRender9.cs" />
+    <Compile Include="Utils\MyVideoPlayerDx9.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="SharpDX">
+      <HintPath>..\..\3rd\SharpDX\SharpDX.dll</HintPath>
+    </Reference>
+    <Reference Include="SharpDX.Direct3D9">
+      <HintPath>..\..\3rd\SharpDX\SharpDX.Direct3D9.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Management" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\VRage\VRage.csproj">
+      <Project>{1C814936-C9A7-4FAF-B543-28F021D98B6C}</Project>
+      <Name>VRage</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\VRage.Library\VRage.Library.csproj">
+      <Project>{26FE022E-42AB-40BE-BA9D-97CBE34E7D99}</Project>
+      <Name>VRage.Library</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\VRage.Math\VRage.Math.csproj">
+      <Project>{40CE67D5-C89F-4A56-AE52-85DB1BEA07FE}</Project>
+      <Name>VRage.Math</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup />
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

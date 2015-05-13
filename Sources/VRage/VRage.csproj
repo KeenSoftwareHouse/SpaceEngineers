@@ -1,0 +1,396 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>8.0.30703</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{1C814936-C9A7-4FAF-B543-28F021D98B6C}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>VRage</RootNamespace>
+    <AssemblyName>VRage</AssemblyName>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <TargetFrameworkProfile />
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x86'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\x86\Debug\</OutputPath>
+    <DefineConstants>TRACE;DEBUG;WINDOWS</DefineConstants>
+    <DebugType>full</DebugType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x86'">
+    <OutputPath>bin\x86\Release\</OutputPath>
+    <DefineConstants>TRACE;WINDOWS</DefineConstants>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisIgnoreBuiltInRuleSets>false</CodeAnalysisIgnoreBuiltInRuleSets>
+    <CodeAnalysisIgnoreBuiltInRules>false</CodeAnalysisIgnoreBuiltInRules>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <DocumentationFile>bin\x86\Release\VRage.xml</DocumentationFile>
+    <NoWarn>1591,1572,1571,1573,1587,1570</NoWarn>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\x64\Debug\</OutputPath>
+    <DefineConstants>TRACE;DEBUG;WINDOWS</DefineConstants>
+    <DebugType>full</DebugType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
+    <OutputPath>bin\x64\Release\</OutputPath>
+    <DefineConstants>TRACE;WINDOWS</DefineConstants>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisIgnoreBuiltInRuleSets>false</CodeAnalysisIgnoreBuiltInRuleSets>
+    <CodeAnalysisIgnoreBuiltInRules>false</CodeAnalysisIgnoreBuiltInRules>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <DocumentationFile>bin\x64\Release\VRage.xml</DocumentationFile>
+    <NoWarn>1591,1572,1571,1573,1587,1570</NoWarn>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="SharpDX, Version=2.5.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\3rd\SharpDX\SharpDX.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.XML" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="System.Data" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Animations\AnimationClip.cs" />
+    <Compile Include="Animations\ModelAnimations.cs" />
+    <Compile Include="Animations\MyAnimatedProperty.cs" />
+    <Compile Include="Animations\MyAnimatedProperty2D.cs" />
+    <Compile Include="Animations\MyConstProperty.cs" />
+    <Compile Include="Audio\IMy3DSoundEmitter.cs" />
+    <Compile Include="Audio\IMyAudio.cs" />
+    <Compile Include="Audio\IMyAudioEffect.cs" />
+    <Compile Include="Audio\IMySourceVoice.cs" />
+    <Compile Include="Audio\MyAudio.cs" />
+    <Compile Include="Audio\MyAudioConstants.cs" />
+    <Compile Include="Audio\MyAudioEffect.cs" />
+    <Compile Include="Audio\MyAudioInitParams.cs" />
+    <Compile Include="Audio\MyAudioWave.cs" />
+    <Compile Include="Audio\MyCurveType.cs" />
+    <Compile Include="Audio\MyMusicTrack.cs" />
+    <Compile Include="Audio\MyNullAudio.cs" />
+    <Compile Include="Audio\MySoundData.cs" />
+    <Compile Include="Audio\MySoundDimensions.cs" />
+    <Compile Include="Fractures\MyFractureSettings.cs" />
+    <Compile Include="Fractures\MyModelFractures.cs" />
+    <Compile Include="Fractures\RandomSplitFractureSettings.cs" />
+    <Compile Include="Fractures\VoronoiFractureSettings.cs" />
+    <Compile Include="Import\ModelAutoRebuild.cs" />
+    <Compile Include="Import\MyModelExporter.cs" />
+    <Compile Include="Input\IMyControlNameLookup.cs" />
+    <Compile Include="Input\IMyInput.cs" />
+    <Compile Include="Input\MyControl.cs" />
+    <Compile Include="Input\MyGuiControlTypeEnum.cs" />
+    <Compile Include="Input\MyGuiGameControlsHelpers.cs" />
+    <Compile Include="Input\MyGuiDescriptor.cs" />
+    <Compile Include="Input\MyGuiInputDeviceEnum.cs" />
+    <Compile Include="Input\MyInput.cs" />
+    <Compile Include="Input\MyJoystickAxesEnum.cs" />
+    <Compile Include="Input\MyJoystickButtonsEnum.cs" />
+    <Compile Include="Input\MyKeys.cs" />
+    <Compile Include="Input\MyMouseButtonsEnum.cs" />
+    <Compile Include="Input\MyNullInput.cs" />
+    <Compile Include="Input\MySharedButtonsEnum.cs" />
+    <Compile Include="ModdableContentFileAttribute.cs" />
+    <Compile Include="MyCompilationSymbols.cs" />
+    <Compile Include="Noise\MyCompositeNoise.cs" />
+    <Compile Include="Render\Messages\MyRenderMessageChangeMaterialTexture.cs" />
+    <Compile Include="Render\Messages\MyRenderMessageCreateRenderEntityAtmosphere.cs" />
+    <Compile Include="Render\Messages\MyRenderMessageDrawTextToMaterial.cs" />
+    <Compile Include="Render\Messages\MyRenderMessagePreloadMaterials.cs" />
+    <Compile Include="Render\Messages\MyModelData.cs" />
+    <Compile Include="Render\Messages\MyRenderMessageUnloadModel.cs" />
+    <Compile Include="Render\Messages\MyRenderMessagePreloadModel.cs" />
+    <Compile Include="Render\Messages\MyRenderMessageAddRuntimeModel.cs" />
+    <Compile Include="Render\Messages\MyRenderMessageReleaseRenderTexture.cs" />
+    <Compile Include="Render\Messages\MyRenderMessageSetRenderEntityData.cs" />
+    <Compile Include="Render\Messages\MyRenderMessageSwitchDeviceSettings.cs" />
+    <Compile Include="Render\Messages\MyRenderMessageSwitchRenderSettings.cs" />
+    <Compile Include="Render\Messages\MyRenderMessageVideoAdaptersRequest.cs" />
+    <Compile Include="Render\Messages\OutputMessages\MyRenderMessageCreatedDeviceSettings.cs" />
+    <Compile Include="Render\Messages\OutputMessages\MyRenderMessageClipmapsReady.cs" />
+    <Compile Include="Render\Messages\OutputMessages\MyRenderMessageRenderTextureFreed.cs" />
+    <Compile Include="Render\Messages\OutputMessages\MyRenderMessageVideoAdaptersResponse.cs" />
+    <Compile Include="Render\Messages\OutputMessages\MyRenderMessageTextNotDrawnToTexture.cs" />
+    <Compile Include="MyPhysicsMesh.cs" />
+    <Compile Include="MyRenderCustomMaterialData.cs" />
+    <Compile Include="ExternalApp\IMyBufferedInputSource.cs" />
+    <Compile Include="ExternalApp\IMyRenderWindow.cs" />
+    <Compile Include="ExternalApp\MyGameRenderComponent.cs" />
+    <Compile Include="ExternalApp\MyRenderThread.cs" />
+    <Compile Include="ExternalApp\MyRenderWindow.cs" />
+    <Compile Include="Render\Messages\MyRenderMessageCreateClipmap.cs" />
+    <Compile Include="Generics\MySparseGrid.cs" />
+    <Compile Include="Render\Messages\MyRenderMessageCreateLineBasedObject.cs" />
+    <Compile Include="Render\Messages\MyRenderMessageRenderColoredTexture.cs" />
+    <Compile Include="MyConsoleMethodNotFoundException.cs" />
+    <Compile Include="Generics\MyDynamicObjectsPool.cs" />
+    <Compile Include="Generics\MyNamedEnum.cs" />
+    <Compile Include="Generics\MyObjectsPool.cs" />
+    <Compile Include="Generics\MyObjectsPoolSimple.cs" />
+    <Compile Include="Generics\MyWeightDictionary.cs" />
+    <Compile Include="Import\MyLODDescriptor.cs" />
+    <Compile Include="Import\MyImporterConstants.cs" />
+    <Compile Include="Import\MyMaterialDescriptor.cs" />
+    <Compile Include="Import\MyImportUtils.cs" />
+    <Compile Include="Import\MyModelBone.cs" />
+    <Compile Include="Import\MyModelImporter.cs" />
+    <Compile Include="Import\VF_Packer.cs" />
+    <Compile Include="MyConsoleInvalidArgumentsException.cs" />
+    <Compile Include="Render\Messages\IMyRenderMessage.cs" />
+    <Compile Include="Render\Messages\MyRenderMessageAddLineBillboardLocal.cs" />
+    <Compile Include="Render\Messages\MyRenderMessageAddPointBillboardLocal.cs" />
+    <Compile Include="Render\Messages\MyRenderMessageChangeModel.cs" />
+    <Compile Include="Render\Messages\MyRenderMessageClearLightShadowIgnore.cs" />
+    <Compile Include="Render\Messages\MyRenderMessageCloseVideo.cs" />
+    <Compile Include="Render\Messages\MyRenderMessageCollectGarbage.cs" />
+    <Compile Include="Render\Messages\MyRenderMessageCommon.cs" />
+    <Compile Include="Render\Messages\MyRenderMessageCreateDecal.cs" />
+    <Compile Include="Render\Messages\MyRenderMessageCreateFont.cs" />
+    <Compile Include="Render\Messages\MyRenderMessageCreateManualCullObject.cs" />
+    <Compile Include="Render\Messages\MyRenderMessageCreateRenderBatch.cs" />
+    <Compile Include="Render\Messages\MyRenderMessageCreateRenderCharacter.cs" />
+    <Compile Include="Render\Messages\MyRenderMessageCreateRenderEntity.cs" />
+    <Compile Include="Render\Messages\MyRenderMessageCreateRenderInstanceGroup.cs" />
+    <Compile Include="Render\Messages\MyRenderMessageCreateRenderLight.cs" />
+    <Compile Include="Render\Messages\MyRenderMessageCreateRenderVoxelDebris.cs" />
+    <Compile Include="Render\Messages\MyRenderMessageCreateRenderVoxelMaterials.cs" />
+    <Compile Include="Render\Messages\MyRenderMessageDebugCrashRenderThread.cs" />
+    <Compile Include="Render\Messages\MyRenderMessageDebugDrawAABB.cs" />
+    <Compile Include="Render\Messages\MyRenderMessageDebugDrawAxis.cs" />
+    <Compile Include="Render\Messages\MyRenderMessageDebugDrawCapsule.cs" />
+    <Compile Include="Render\Messages\MyRenderMessageDebugDrawCylinder.cs" />
+    <Compile Include="Render\Messages\MyRenderMessageDebugDrawLine2D.cs" />
+    <Compile Include="Render\Messages\MyRenderMessageDebugDrawLine3D.cs" />
+    <Compile Include="Render\Messages\MyRenderMessageDebugDrawModel.cs" />
+    <Compile Include="Render\Messages\MyRenderMessageDebugDrawOBB.cs" />
+    <Compile Include="Render\Messages\MyRenderMessageDebugDrawPlane.cs" />
+    <Compile Include="Render\Messages\MyRenderMessageDebugDrawSphere.cs" />
+    <Compile Include="Render\Messages\MyRenderMessageDebugDrawText2D.cs" />
+    <Compile Include="Render\Messages\MyRenderMessageDebugDrawText3D.cs" />
+    <Compile Include="Render\Messages\MyRenderMessageDebugDrawTriangle.cs" />
+    <Compile Include="Render\Messages\MyRenderMessageDebugDrawTriangles.cs" />
+    <Compile Include="Render\Messages\MyRenderMessageDrawSecondaryCamera.cs" />
+    <Compile Include="Render\Messages\MyRenderMessageDrawSecondaryCameraSprite.cs" />
+    <Compile Include="Render\Messages\MyRenderMessageDrawSprite.cs" />
+    <Compile Include="Render\Messages\MyRenderMessageDrawSpriteAtlas.cs" />
+    <Compile Include="Render\Messages\MyRenderMessageDrawSpriteNormalized.cs" />
+    <Compile Include="Render\Messages\MyRenderMessageDrawString.cs" />
+    <Compile Include="Render\Messages\MyRenderMessageDrawVideo.cs" />
+    <Compile Include="Render\Messages\MyRenderMessageEnableRenderModule.cs" />
+    <Compile Include="Render\Messages\MyRenderMessageEnum.cs" />
+    <Compile Include="Render\Messages\MyRenderMessageHideDecals.cs" />
+    <Compile Include="Render\Messages\MyRenderMessageInvalidateClipmapRange.cs" />
+    <Compile Include="Render\Messages\MyRenderMessagePlayVideo.cs" />
+    <Compile Include="Render\Messages\MyRenderMessagePreloadTextures.cs" />
+    <Compile Include="Render\Messages\MyRenderMessageRemoveRenderObject.cs" />
+    <Compile Include="Render\Messages\MyRenderMessageRenderProfiler.cs" />
+    <Compile Include="Render\Messages\MyRenderMessageSetCameraViewMatrix.cs" />
+    <Compile Include="Render\Messages\MyRenderMessageSetCharacterTransforms.cs" />
+    <Compile Include="Render\Messages\MyRenderMessageSetInstanceBuffer.cs" />
+    <Compile Include="Render\Messages\MyRenderMessageSetLightShadowIgnore.cs" />
+    <Compile Include="Render\Messages\MyRenderMessageSetParentCullObject.cs" />
+    <Compile Include="Render\Messages\MyRenderMessageSetRenderEntityLOD.cs" />
+    <Compile Include="Render\Messages\MyRenderMessageSetTextureIgnoreQuality.cs" />
+    <Compile Include="Render\Messages\MyRenderMessageSetVideoVolume.cs" />
+    <Compile Include="Render\Messages\MyRenderMessageSpriteScissorPop.cs" />
+    <Compile Include="Render\Messages\MyRenderMessageSpriteScissorPush.cs" />
+    <Compile Include="Render\Messages\MyRenderMessageTakeScreenshot.cs" />
+    <Compile Include="Render\Messages\MyRenderMessageType.cs" />
+    <Compile Include="Render\Messages\MyRenderMessageUnloadTexture.cs" />
+    <Compile Include="Render\Messages\MyRenderMessageUpdateAntiAliasSettings.cs" />
+    <Compile Include="Render\Messages\MyRenderMessageUpdateBillboardsColorize.cs" />
+    <Compile Include="Render\Messages\MyRenderMessageUpdateChromaticAberrationSettings.cs" />
+    <Compile Include="Render\Messages\MyRenderMessageUpdateCockpitGlass.cs" />
+    <Compile Include="Render\Messages\MyRenderMessageUpdateColorMappingSettings.cs" />
+    <Compile Include="Render\Messages\MyRenderMessageUpdateContrastSettings.cs" />
+    <Compile Include="Render\Messages\MyRenderMessageUpdateDistantImpostors.cs" />
+    <Compile Include="Render\Messages\MyRenderMessageUpdateEnvironment.cs" />
+    <Compile Include="Render\Messages\MyRenderMessageUpdateFogSettings.cs" />
+    <Compile Include="Render\Messages\MyRenderMessageUpdateGodRaysSettings.cs" />
+    <Compile Include="Render\Messages\MyRenderMessageUpdateHDRSettings.cs" />
+    <Compile Include="Render\Messages\MyRenderMessageUpdateModelProperties.cs" />
+    <Compile Include="Render\Messages\MyRenderMessageUpdateRenderEntity.cs" />
+    <Compile Include="Render\Messages\MyRenderMessageUpdateRenderLight.cs" />
+    <Compile Include="Render\Messages\MyRenderMessageUpdateRenderObject.cs" />
+    <Compile Include="Render\Messages\MyRenderMessageUpdateRenderObjectVisibility.cs" />
+    <Compile Include="Render\Messages\MyRenderMessageUpdateRenderQuality.cs" />
+    <Compile Include="Render\Messages\MyRenderMessageUpdateClipmapCell.cs" />
+    <Compile Include="Render\Messages\MyRenderMessageUpdateSSAOSettings.cs" />
+    <Compile Include="Render\Messages\MyRenderMessageUpdateVideo.cs" />
+    <Compile Include="Render\Messages\MyRenderMessageUpdateVignettingSettings.cs" />
+    <Compile Include="Render\Messages\MyRenderMessageUpdateVoxelMaterialsProperties.cs" />
+    <Compile Include="Render\Messages\MyRenderMessageUseCustomDrawMatrix.cs" />
+    <Compile Include="Render\Messages\OutputMessages\MyRenderMessageExportToObjComplete.cs" />
+    <Compile Include="Render\Messages\OutputMessages\MyRenderMessageRequireClipmapCell.cs" />
+    <Compile Include="Render\Messages\OutputMessages\MyRenderMessageScreenshotTaken.cs" />
+    <Compile Include="MyCommand.cs" />
+    <Compile Include="MyCommandHandler.cs" />
+    <Compile Include="MyConsole.cs" />
+    <Compile Include="MyTexts.cs" />
+    <Compile Include="Noise\Combiners\MyBlend.cs" />
+    <Compile Include="Noise\Combiners\MyMax.cs" />
+    <Compile Include="Noise\Combiners\MyMin.cs" />
+    <Compile Include="Noise\Combiners\MyAdd.cs" />
+    <Compile Include="Noise\Combiners\MyMultiply.cs" />
+    <Compile Include="Noise\Combiners\MyPower.cs" />
+    <Compile Include="Noise\Modifiers\MyTerrace.cs" />
+    <Compile Include="Noise\Patterns\MyConstant.cs" />
+    <Compile Include="Noise\Patterns\MyCheckerBoard.cs" />
+    <Compile Include="Noise\Patterns\MyCylinders.cs" />
+    <Compile Include="Noise\Patterns\MyRing.cs" />
+    <Compile Include="Noise\IMyModule.cs" />
+    <Compile Include="Noise\Models\MyCylinder.cs" />
+    <Compile Include="Noise\Models\MySphere.cs" />
+    <Compile Include="Noise\Modifiers\MyCurve.cs" />
+    <Compile Include="Noise\Modifiers\MyBendFilter.cs" />
+    <Compile Include="Noise\Modifiers\MyExponent.cs" />
+    <Compile Include="Noise\Modifiers\MyAbs.cs" />
+    <Compile Include="Noise\Modifiers\MyInvert.cs" />
+    <Compile Include="Noise\Modifiers\MyClamp.cs" />
+    <Compile Include="Noise\Modifiers\MyRemapTo01.cs" />
+    <Compile Include="Noise\Modifiers\MySinus.cs" />
+    <Compile Include="Noise\MyBillow.cs" />
+    <Compile Include="Noise\MyBillowFast.cs" />
+    <Compile Include="Noise\MyModule.cs" />
+    <Compile Include="Noise\MyModuleFast.cs" />
+    <Compile Include="Noise\MyNoise2D.cs" />
+    <Compile Include="Noise\MyPerlin.cs" />
+    <Compile Include="Noise\MyPerlinFast.cs" />
+    <Compile Include="Noise\MyRidgedMultifractal.cs" />
+    <Compile Include="Noise\MyRidgedMultifractalFast.cs" />
+    <Compile Include="Noise\MyRNG.cs" />
+    <Compile Include="Noise\MySimplex.cs" />
+    <Compile Include="Noise\MySimplexFast.cs" />
+    <Compile Include="Noise\Patterns\MySphere.cs" />
+    <Compile Include="Noise\Patterns\MySpheres.cs" />
+    <Compile Include="Plugins\IPlugin.cs" />
+    <Compile Include="Plugins\MyPlugins.cs" />
+    <Compile Include="MyMultipleEnabledEnum.cs" />
+    <Compile Include="ProfilerShort.cs" />
+    <Compile Include="Render\MyPerformanceCounter.cs" />
+    <Compile Include="Render\MyRenderException.cs" />
+    <Compile Include="Render\MyRenderInstanceInfo.cs" />
+    <Compile Include="Render\MyRenderStats.cs" />
+    <Compile Include="Render\MyFont.cs" />
+    <Compile Include="MyRenderVoxelMaterialData.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Render\IDrawTrianglesMessage.cs" />
+    <Compile Include="Render\MyAdapters.cs" />
+    <Compile Include="Render\MyConstants.cs" />
+    <Compile Include="Render\MyImpostorProperties.cs" />
+    <Compile Include="Render\MyMessageQueue.cs" />
+    <Compile Include="Render\MyRenderBatchPart.cs" />
+    <Compile Include="Render\MyRenderEnums.cs" />
+    <Compile Include="Render\MyRenderProfiler.cs" />
+    <Compile Include="Render\MyRenderSettings.cs" />
+    <Compile Include="Render\MyRenderStructs.cs" />
+    <Compile Include="Render\SpriteScissorStack.cs" />
+    <Compile Include="Render\MySharedData.cs" />
+    <Compile Include="Render\MyTransparentMaterial.cs" />
+    <Compile Include="Render\MyUpdateData.cs" />
+    <Compile Include="Render\MyUpdateFrame.cs" />
+    <Compile Include="Render\MyUtils.cs" />
+    <Compile Include="Render\IMyRender.cs" />
+    <Compile Include="Render\MyRenderProxy.cs" />
+    <Compile Include="Render\SpriteEffects.cs" />
+    <Compile Include="Render\MyBillboard.cs" />
+    <Compile Include="Render\MyBillboardBatch.cs" />
+    <Compile Include="Render\MyBillboardViewProjection.cs" />
+    <Compile Include="Render\MyTriangleBillboard.cs" />
+    <Compile Include="MySpectator.cs" />
+    <Compile Include="SpriteEnums.cs" />
+    <Compile Include="Utils\MyPolygonBoolOps-Operations.cs" />
+    <Compile Include="Utils\MyCopyDataStructures.cs" />
+    <Compile Include="Utils\MyGuiDrawAlignEnum.cs" />
+    <Compile Include="Utils\MyMessageLoop.cs" />
+    <Compile Include="Utils\MyPolygon.cs" />
+    <Compile Include="Utils\MyPolygonBoolOps.cs" />
+    <Compile Include="Utils\MyVector3ISet.cs" />
+    <Compile Include="Utils\MyUtils-Mesh.cs" />
+    <Compile Include="Utils\My5BitEncoding.cs" />
+    <Compile Include="Utils\MyBinaryReader.cs" />
+    <Compile Include="Utils\MyDebug.cs" />
+    <Compile Include="Utils\MyEventArgs.cs" />
+    <Compile Include="Utils\MyEventSet.cs" />
+    <Compile Include="Utils\MyUtils-FileSystem.cs" />
+    <Compile Include="Utils\MyMemoryLogs.cs" />
+    <Compile Include="Utils\MyMessageBox.cs" />
+    <Compile Include="Utils\MyBuildNumbers.cs" />
+    <Compile Include="Utils\MyMwcConstants.cs" />
+    <Compile Include="Utils\MyEncryptionSymmetricRijndael.cs" />
+    <Compile Include="Utils\MyEnumDuplicitiesTester.cs" />
+    <Compile Include="Utils\MyLog.cs" />
+    <Compile Include="Utils\MyQuantizer.cs" />
+    <Compile Include="Utils\MySingleProgramInstance.cs" />
+    <Compile Include="Utils\MySingleCrypto.cs" />
+    <Compile Include="Utils\MyStructs.cs" />
+    <Compile Include="Utils\MyUtils.cs" />
+    <Compile Include="Utils\MyVersion.cs" />
+    <Compile Include="Utils\MyPolyLine.cs" />
+    <Compile Include="Utils\MySerialKey.cs" />
+    <Compile Include="Utils\MyUtils-String.cs" />
+    <Compile Include="Utils\MyValueFormatter.cs" />
+    <Compile Include="Utils\MyWingedEdgeMesh.cs" />
+    <Compile Include="Utils\MyWMCodes.cs" />
+    <Compile Include="Utils\MyBBSetSampler.cs" />
+    <Compile Include="Utils\MyUtils-Random.cs" />
+    <Compile Include="Utils\Stats.cs" />
+    <Compile Include="Utils\WM.cs" />
+    <Compile Include="Voxels\Enums.cs" />
+    <Compile Include="Voxels\MyCellCoord.cs" />
+    <Compile Include="Voxels\MyClipmap.cs" />
+    <Compile Include="Voxels\MyClipmap.Update.cs" />
+    <Compile Include="Voxels\MyStorageDataCache.cs" />
+    <Compile Include="Voxels\MyClipmapCellBatch.cs" />
+    <Compile Include="Voxels\MyVoxelConstants.cs" />
+    <Compile Include="Voxels\MyVoxelCoordSystems.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\VRage.Library\VRage.Library.csproj">
+      <Project>{26FE022E-42AB-40BE-BA9D-97CBE34E7D99}</Project>
+      <Name>VRage.Library</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\VRage.Math\VRage.Math.csproj">
+      <Project>{40CE67D5-C89F-4A56-AE52-85DB1BEA07FE}</Project>
+      <Name>VRage.Math</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

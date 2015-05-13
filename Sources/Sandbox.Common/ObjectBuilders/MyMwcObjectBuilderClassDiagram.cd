@@ -1,0 +1,151 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ClassDiagram MajorVersion="1" MinorVersion="1">
+  <Class Name="MinerWars.CommonLIB.AppCode.ObjectBuilders.MyMwcObjectBuilder_Base">
+    <Position X="22.5" Y="0.5" Width="2" />
+    <TypeIdentifier>
+      <HashCode>AgAAAAAAAAAAgQAEAAACAAQgAAAAABAAAACIIAEAQAA=</HashCode>
+      <FileName>AppCode\ObjectBuilders\MyMwcObjectBuilder_Base.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="MinerWars.CommonLIB.AppCode.ObjectBuilders.MyMwcObjectBuilder_Sector">
+    <Position X="25.75" Y="5" Width="2.25" />
+    <TypeIdentifier>
+      <HashCode>IAAAAAAAAAAAAAAAAAAAACQgQAAAAAAAAACIAAEAAAA=</HashCode>
+      <FileName>AppCode\ObjectBuilders\MyMwcObjectBuilder_Sector.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="MinerWars.CommonLIB.AppCode.ObjectBuilders.Object3D.MyMwcObjectBuilder_LargeDebrisField">
+    <Position X="11.25" Y="8.5" Width="3" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAGAAAgAAAAAAAAAACAIAEAAAA=</HashCode>
+      <FileName>AppCode\ObjectBuilders\Object3D\MyMwcObjectBuilder_LargeDebrisField.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="MinerWars.CommonLIB.AppCode.ObjectBuilders.Object3D.MyMwcObjectBuilder_LargeShip">
+    <Position X="15" Y="8.5" Width="2.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAABAAAACAAQgAAAAAAAAAACIIAEAAAA=</HashCode>
+      <FileName>AppCode\ObjectBuilders\Object3D\MyMwcObjectBuilder_LargeShip.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="MinerWars.CommonLIB.AppCode.ObjectBuilders.Object3D.MyMwcObjectBuilder_SmallDebris">
+    <Position X="18.25" Y="8.5" Width="2.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAGAAQgAAAAABAAAACIICEAAAA=</HashCode>
+      <FileName>AppCode\ObjectBuilders\Object3D\MyMwcObjectBuilder_SmallDebris.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="MinerWars.CommonLIB.AppCode.ObjectBuilders.Object3D.MyMwcObjectBuilder_SmallShip">
+    <Position X="7.75" Y="8.5" Width="2.75" />
+    <TypeIdentifier>
+      <HashCode>ACEAAAAAAAAAAABAAAACAAQgAAAAABAARACIIAEAABA=</HashCode>
+      <FileName>AppCode\ObjectBuilders\Object3D\MyMwcObjectBuilder_SmallShip.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="MinerWars.CommonLIB.AppCode.ObjectBuilders.Object3D.MyMwcObjectBuilder_SmallShip_Player">
+    <Position X="7.75" Y="13.25" Width="2.75" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAQAAAAAAAAAAACIAAAAAAA=</HashCode>
+      <FileName>AppCode\ObjectBuilders\Object3D\MyMwcObjectBuilder_SmallShip_Player.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="MinerWars.CommonLIB.AppCode.ObjectBuilders.SubObjects.MyMwcObjectBuilder_SubObjectBase">
+    <Position X="35" Y="5" Width="2.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAQAAAAAAAAAAAAIAAAAAAA=</HashCode>
+      <FileName>AppCode\ObjectBuilders\SubObjects\MyMwcObjectBuilder_SubObjectBase.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="MinerWars.CommonLIB.AppCode.ObjectBuilders.SubObjects.SmallShipTools.MyMwcObjectBuilder_SmallShip_Ammo">
+    <Position X="32.75" Y="7.5" Width="3.25" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAABAAAAAAAAAAACAACgAAAAAAAAAACAIAEAAAA=</HashCode>
+      <FileName>AppCode\ObjectBuilders\SubObjects\SmallShipTools\MyMwcObjectBuilder_SmallShip_Ammo.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="MinerWars.CommonLIB.AppCode.ObjectBuilders.SubObjects.SmallShipTools.MyMwcObjectBuilder_SmallShip_Engine">
+    <Position X="36.75" Y="7.5" Width="3" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAACABAgAAAAAAAAAACAIAEAAAA=</HashCode>
+      <FileName>AppCode\ObjectBuilders\SubObjects\SmallShipTools\MyMwcObjectBuilder_SmallShip_Engine.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="MinerWars.CommonLIB.AppCode.ObjectBuilders.Voxels.MyMwcObjectBuilder_VoxelMap">
+    <Position X="40.5" Y="5" Width="2.5" />
+    <TypeIdentifier>
+      <HashCode>ACAAAgDAAAAAAAAACAAAAAQgAAAAAABAEICJAAEAAAA=</HashCode>
+      <FileName>AppCode\ObjectBuilders\Voxels\MyMwcObjectBuilder_VoxelMap.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="MinerWars.CommonLIB.AppCode.ObjectBuilders.Voxels.MyMwcObjectBuilder_VoxelMap_MergeContent">
+    <Position X="3.75" Y="5" Width="3.25" />
+    <TypeIdentifier>
+      <HashCode>AgAAAACAAAAAAAAAAAAAAAQggAAAAAAAAACIAAEAAAA=</HashCode>
+      <FileName>AppCode\ObjectBuilders\Voxels\MyMwcObjectBuilder_VoxelMap_MergeContent.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="MinerWars.CommonLIB.AppCode.ObjectBuilders.Voxels.MyMwcObjectBuilder_VoxelMap_MergeMaterial">
+    <Position X="21.5" Y="5" Width="3.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAACAAAAAAAAAAAAAAAQggAAAAAAAAACJAAEAAAA=</HashCode>
+      <FileName>AppCode\ObjectBuilders\Voxels\MyMwcObjectBuilder_VoxelMap_MergeMaterial.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="MinerWars.CommonLIB.AppCode.ObjectBuilders.Voxels.MyMwcObjectBuilder_VoxelMap_Neighbour">
+    <Position X="28.75" Y="5" Width="3.25" />
+    <TypeIdentifier>
+      <HashCode>AAAAAACAAAAAAAAAAgAAAAQgAAAAAAAAEACJAAEAAAA=</HashCode>
+      <FileName>AppCode\ObjectBuilders\Voxels\MyMwcObjectBuilder_VoxelMap_Neighbour.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="MinerWars.CommonLIB.AppCode.ObjectBuilders.Object3D.MyMwcObjectBuilder_Object3dBase">
+    <Position X="13" Y="5" Width="2.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAIAAAAAAAAAIAAAAAQgAAAAAAAAAAAIAAEAAAA=</HashCode>
+      <FileName>AppCode\ObjectBuilders\Object3D\MyMwcObjectBuilder_Object3dBase.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Enum Name="MinerWars.CommonLIB.AppCode.ObjectBuilders.MyMwcObjectBuilderTypeEnum" Collapsed="true">
+    <Position X="47.5" Y="1.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AUAAgABACAAAiAaAAgAQAyQQAABAEABAAAAIAAAAhJg=</HashCode>
+      <FileName>AppCode\ObjectBuilders\MyMwcObjectBuilder_Base.cs</FileName>
+    </TypeIdentifier>
+  </Enum>
+  <Enum Name="MinerWars.CommonLIB.AppCode.ObjectBuilders.Object3D.MyMwcObjectBuilder_LargeShip_TypesEnum" Collapsed="true">
+    <Position X="44" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAACQgAAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAEAA=</HashCode>
+      <FileName>AppCode\ObjectBuilders\Object3D\MyMwcObjectBuilder_LargeShip.cs</FileName>
+    </TypeIdentifier>
+  </Enum>
+  <Enum Name="MinerWars.CommonLIB.AppCode.ObjectBuilders.Object3D.MyMwcObjectBuilder_SmallShip_TypesEnum" Collapsed="true">
+    <Position X="44" Y="1.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAEAAAAhAAAAAAACAAQAAAgD6HwBgACAAAAAAAQA=</HashCode>
+      <FileName>AppCode\ObjectBuilders\Object3D\MyMwcObjectBuilder_SmallShip.cs</FileName>
+    </TypeIdentifier>
+  </Enum>
+  <Enum Name="MinerWars.CommonLIB.AppCode.ObjectBuilders.SubObjects.MyMwcObjectBuilder_SmallShip_Weapon_TypesEnum" Collapsed="true">
+    <Position X="45.75" Y="1.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAGgAAAAACAAAAAAAAAgAwAQAEAAKAAAEAAAAAAkg=</HashCode>
+      <FileName>AppCode\ObjectBuilders\SubObjects\MyMwcObjectBuilder_SmallShip_Weapon.cs</FileName>
+    </TypeIdentifier>
+  </Enum>
+  <Enum Name="MinerWars.CommonLIB.AppCode.ObjectBuilders.SubObjects.SmallShipTools.MyMwcObjectBuilder_SmallShip_Ammo_TypesEnum" Collapsed="true">
+    <Position X="45.75" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>CICAVwAkAAASASgAARGUUAAAAQIDABAAAACAClCQFGc=</HashCode>
+      <FileName>AppCode\ObjectBuilders\SubObjects\SmallShipTools\MyMwcObjectBuilder_SmallShip_Ammo.cs</FileName>
+    </TypeIdentifier>
+  </Enum>
+  <Enum Name="MinerWars.CommonLIB.AppCode.ObjectBuilders.SubObjects.SmallShipTools.MyMwcObjectBuilder_SmallShip_Engine_TypesEnum" Collapsed="true">
+    <Position X="47.5" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAADLAAAgAAAAAAAAAAIAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>AppCode\ObjectBuilders\SubObjects\SmallShipTools\MyMwcObjectBuilder_SmallShip_Engine.cs</FileName>
+    </TypeIdentifier>
+  </Enum>
+  <Font Name="Segoe UI" Size="8.83" />
+</ClassDiagram>

@@ -1,0 +1,335 @@
+<?xml version="1.0"?>
+<ScenarioDefinitions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <Scenarios>
+    <ScenarioDefinition>
+      <Id>
+        <TypeId>ScenarioDefinition</TypeId>
+        <SubtypeId>EasyStart1</SubtypeId>
+      </Id>
+      <DisplayName>DisplayName_Scenario_EasyStart1</DisplayName>
+      <Description>Description_Scenario_EasyStart1</Description>
+      <Icon>Textures\GUI\Icons\scenarios\PreviewEasyStart1.dds</Icon>
+      <AsteroidClusters Enabled="true" Offset="700" CentralCluster="false" />
+      <CreativeModeWeapons>
+        <Weapon>AngleGrinderItem</Weapon>
+        <Weapon>AutomaticRifleItem</Weapon>
+        <Weapon>HandDrillItem</Weapon>
+        <Weapon>WelderItem</Weapon>
+      </CreativeModeWeapons>
+      <SurvivalModeWeapons>
+        <Weapon>AngleGrinderItem</Weapon>
+        <Weapon>HandDrillItem</Weapon>
+        <Weapon>WelderItem</Weapon>
+      </SurvivalModeWeapons>
+      <PossibleStartingStates>
+        <StartingState xsi:type="Transform" JetpackEnabled="false" DampenersEnabled="true">
+          <Transform>
+            <Position x="0" y="-3.5" z="0" />
+            <Forward x="0" y="0" z="-1" />
+            <Up x="0" y="1" z="0" />
+          </Transform>
+        </StartingState>
+      </PossibleStartingStates>
+      <WorldGeneratorOperations>
+        <Operation xsi:type="AddShipPrefab" PrefabFile="MinerSmallShip">
+          <Transform>
+            <Position x="9.5" y="3" z="40" />
+            <Forward x="0" y="0" z="-1" />
+            <Up x="0" y="1" z="0" />
+          </Transform>
+        </Operation>
+        <Operation xsi:type="AddShipPrefab" PrefabFile="LargeShipRedQS1">
+          <Transform>
+            <Position x="-33" y="4.8" z="-65.4" />
+            <Forward x="0" y="0" z="-1" />
+            <Up x="0" y="1" z="0" />
+          </Transform>
+        </Operation>
+        <Operation xsi:type="AddShipPrefab" PrefabFile="LargeShipBlue" RandomRadius="500">
+          <Transform>
+            <Position x="-550" y="350" z="500" />
+            <Forward x="0" y="0" z="-1" />
+            <Up x="0" y="1" z="0" />
+          </Transform>
+        </Operation>
+        <Operation xsi:type="AddShipPrefab" PrefabFile="Fighter2" RandomRadius="3">
+          <Transform>
+            <Position x="0" y="3" z="40" />
+            <Forward x="0" y="0" z="-1" />
+            <Up x="0" y="1" z="0" />
+          </Transform>
+        </Operation>
+        <Operation xsi:type="AddShipPrefab" PrefabFile="ConstructionShip">
+          <Transform>
+            <Position x="19" y="3" z="40" />
+            <Forward x="0" y="0" z="-1" />
+            <Up x="0" y="1" z="0" />
+          </Transform>
+        </Operation>
+        <Operation xsi:type="AddObjectsPrefab" PrefabFile="EasyStart1Objects" />
+        <Operation xsi:type="SetupBasePrefab" PrefabFile="BaseEasyStart1" AsteroidName="BaseAsteroid" />
+      </WorldGeneratorOperations>
+    </ScenarioDefinition>
+    <ScenarioDefinition>
+      <Id>
+        <TypeId>ScenarioDefinition</TypeId>
+        <SubtypeId>EasyStart2</SubtypeId>
+      </Id>
+      <DisplayName>DisplayName_Scenario_EasyStart2</DisplayName>
+      <Description>Description_Scenario_EasyStart2</Description>
+      <Icon>Textures\GUI\Icons\scenarios\PreviewEasyStart2.dds</Icon>
+      <AsteroidClusters Enabled="true" Offset="1500" CentralCluster="false" />
+      <CreativeModeWeapons>
+        <Weapon>AngleGrinderItem</Weapon>
+        <Weapon>AutomaticRifleItem</Weapon>
+        <Weapon>HandDrillItem</Weapon>
+        <Weapon>WelderItem</Weapon>
+      </CreativeModeWeapons>
+      <SurvivalModeWeapons>
+        <Weapon>AngleGrinderItem</Weapon>
+        <Weapon>HandDrillItem</Weapon>
+        <Weapon>WelderItem</Weapon>
+      </SurvivalModeWeapons>
+      <PossibleStartingStates>
+        <StartingState xsi:type="Transform" JetpackEnabled="false" DampenersEnabled="true">
+          <Transform>
+            <Position x="-503.1353" y="130.16748" z="-192.180252" />
+            <Forward x="-0.4472136" y="0" z="0.8944272" />
+            <Up x="0" y="1" z="0" />
+          </Transform>
+        </StartingState>
+      </PossibleStartingStates>
+      <WorldGeneratorOperations>
+        <Operation xsi:type="AddAsteroidPrefab" PrefabFile="TorusWithSmallTunnel_256x128x256" Name="BaseAsteroid0">
+          <Position x="-579.9686" y="-0.03455353" z="-290.732" />
+        </Operation>
+        <Operation xsi:type="AddAsteroidPrefab" PrefabFile="PirateBaseStaticAsteroid_A_5000m_1" Name="BaseAsteroid1">
+          <Position x="-314.8536" y="-14.97219" z="53.89093" />
+        </Operation>
+        <Operation xsi:type="AddAsteroidPrefab" PrefabFile="PirateBaseStaticAsteroid_A_5000m_1" Name="BaseAsteroid2">
+          <Position x="-996.8926" y="-269.9402" z="88.54382" />
+        </Operation>
+        <Operation xsi:type="AddShipPrefab" PrefabFile="Base4">
+          <Transform>
+            <Position x="-448.75" y="128" z="-175" />
+            <Forward x="0" y="0" z="-1" />
+            <Up x="0" y="1" z="0" />
+          </Transform>
+        </Operation>
+        <Operation xsi:type="AddShipPrefab" PrefabFile="Small Ship 5418">
+          <Transform>
+            <Position x="-469.996" y="71.90518" z="-212.4862" />
+            <Forward x="0.4612466" y="0.04925983" z="-0.8859036" />
+            <Up x="-0.1788524" y="0.9831242" z="-0.03845401" />
+          </Transform>
+        </Operation>
+        <Operation xsi:type="AddShipPrefab" PrefabFile="LargeShipBlue">
+          <Transform>
+            <Position x="-560.28" y="0.1500551" z="643.7235" />
+            <Forward x="0" y="0" z="-1" />
+            <Up x="0" y="1" z="0" />
+          </Transform>
+        </Operation>
+        <Operation xsi:type="AddShipPrefab" PrefabFile="Fighter2">
+          <Transform>
+            <Position x="-503.3175" y="129.5655" z="-140.4094" />
+            <Forward x="-0.9999998" y="-0.0001184217" z="-0.0005519263" />
+            <Up x="-0.0001186118" y="0.9999999" z="0.0003445118" />
+          </Transform>
+        </Operation>
+        <Operation xsi:type="AddShipPrefab" PrefabFile="LargeShipRedQS1" RandomRadius="100">
+          <Transform>
+            <Position x="-600" y="100" z="-300" />
+            <Forward x="0" y="0" z="-1" />
+            <Up x="0" y="1" z="0" />
+          </Transform>
+        </Operation>
+        <Operation xsi:type="AddShipPrefab" PrefabFile="LargeShipUnderConstruction" RandomRadius="300">
+          <Transform>
+            <Position x="-600" y="100" z="-300" />
+            <Forward x="0" y="0" z="-1" />
+            <Up x="0" y="1" z="0" />
+          </Transform>
+        </Operation>
+        <Operation xsi:type="AddShipPrefab" PrefabFile="ConstructionShip" RandomRadius="20">
+          <Transform>
+            <Position x="-399.6866" y="124.0971" z="-218.086" />
+            <Forward x="-0.01299519" y="-0.01834175" z="-0.9997473" />
+            <Up x="-0.0006986237" y="0.9998317" z="-0.01833421" />
+          </Transform>
+        </Operation>
+      </WorldGeneratorOperations>
+    </ScenarioDefinition>
+    <ScenarioDefinition>
+      <Id>
+        <TypeId>ScenarioDefinition</TypeId>
+        <SubtypeId>LoneSurvivor</SubtypeId>
+      </Id>
+      <DisplayName>DisplayName_Scenario_Survival</DisplayName>
+      <Description>Description_Scenario_LoneSurvivor</Description>
+      <Icon>Textures\GUI\Icons\scenarios\PreviewSurvival.dds</Icon>
+      <AsteroidClusters Enabled="true" Offset="700" CentralCluster="false" />
+      <CreativeModeWeapons>
+        <Weapon>AngleGrinderItem</Weapon>
+        <Weapon>AutomaticRifleItem</Weapon>
+        <Weapon>HandDrillItem</Weapon>
+        <Weapon>WelderItem</Weapon>
+      </CreativeModeWeapons>
+      <SurvivalModeWeapons>
+        <Weapon>AngleGrinderItem</Weapon>
+        <Weapon>HandDrillItem</Weapon>
+        <Weapon>WelderItem</Weapon>
+      </SurvivalModeWeapons>
+      <PossibleStartingStates>
+        <StartingState xsi:type="Transform" JetpackEnabled="false" DampenersEnabled="true" />
+      </PossibleStartingStates>
+      <WorldGeneratorOperations>
+        <Operation xsi:type="AddShipPrefab" PrefabFile="BaseLoneSurvivor">
+          <Transform>
+            <Position x="12.5" y="0" z="35" />
+            <Forward x="0" y="0" z="-1" />
+            <Up x="0" y="1" z="0" />
+          </Transform>
+        </Operation>
+        <Operation xsi:type="AddAsteroidPrefab" PrefabFile="VerticalIsland_128x128x128" Name="BaseAsteroid1">
+          <Position x="-20" y="-110" z="-60" />
+        </Operation>
+      </WorldGeneratorOperations>
+    </ScenarioDefinition>
+    <ScenarioDefinition>
+      <Id>
+        <TypeId>ScenarioDefinition</TypeId>
+        <SubtypeId>CrashedRedShip</SubtypeId>
+      </Id>
+      <DisplayName>DisplayName_Scenario_CrashedRedShip</DisplayName>
+      <Description>Description_Scenario_CrashedRedShip</Description>
+      <Icon>Textures\GUI\Icons\scenarios\PreviewCrashedRedShip.dds</Icon>
+      <AsteroidClusters Enabled="true" Offset="700" CentralCluster="false" />
+      <CreativeModeWeapons>
+        <Weapon>AngleGrinderItem</Weapon>
+        <Weapon>AutomaticRifleItem</Weapon>
+        <Weapon>HandDrillItem</Weapon>
+        <Weapon>WelderItem</Weapon>
+      </CreativeModeWeapons>
+      <SurvivalModeWeapons>
+        <Weapon>AngleGrinderItem</Weapon>
+        <Weapon>HandDrillItem</Weapon>
+        <Weapon>WelderItem</Weapon>
+      </SurvivalModeWeapons>
+      <PossibleStartingStates>
+        <StartingState xsi:type="Transform" JetpackEnabled="true" DampenersEnabled="true">
+          <Transform>
+            <Position x="61.20133" y="1.56743944" z="-65.2679749" />
+            <Forward x="-0.551659048" y="-0.250326127" z="0.7956187" />
+            <Up x="0.462239534" y="0.7022548" z="0.5414545" />
+          </Transform>
+        </StartingState>
+      </PossibleStartingStates>
+      <WorldGeneratorOperations>
+        <Operation xsi:type="AddShipPrefab" PrefabFile="LargeShipRedCrashed">
+          <Transform>
+            <Position x="19.08487" y="-1.492485" z="-25.23039" />
+            <Forward x="0.7403885" y="-0.64784" z="-0.1792434" />
+            <Up x="0.3920776" y="0.632824" z="-0.6676893" />
+          </Transform>
+        </Operation>
+        <Operation xsi:type="AddAsteroidPrefab" PrefabFile="RedShipCrashedAsteroid" Name="RedShipCrashed">
+          <Position x="-20" y="-110" z="-60" />
+        </Operation>
+      </WorldGeneratorOperations>
+    </ScenarioDefinition>
+    <ScenarioDefinition>
+      <Id>
+        <TypeId>ScenarioDefinition</TypeId>
+        <SubtypeId>TwoPlatforms</SubtypeId>
+      </Id>
+      <DisplayName>DisplayName_Scenario_TwoPlatforms</DisplayName>
+      <Description>Description_Scenario_TwoPlatforms</Description>
+      <Icon>Textures\GUI\Icons\scenarios\PreviewTwoPlatforms.dds</Icon>
+      <AsteroidClusters Enabled="true" Offset="700" CentralCluster="false" />
+      <CreativeModeWeapons>
+        <Weapon>AngleGrinderItem</Weapon>
+        <Weapon>AutomaticRifleItem</Weapon>
+        <Weapon>HandDrillItem</Weapon>
+        <Weapon>WelderItem</Weapon>
+      </CreativeModeWeapons>
+      <SurvivalModeWeapons>
+        <Weapon>AngleGrinderItem</Weapon>
+        <Weapon>HandDrillItem</Weapon>
+        <Weapon>WelderItem</Weapon>
+      </SurvivalModeWeapons>
+      <PossibleStartingStates>
+        <StartingState xsi:type="Transform" JetpackEnabled="false" DampenersEnabled="true">
+          <Transform>
+            <Position x="-1000" y="-3.5" z="-1000" />
+            <Forward x="0" y="0" z="-1" />
+            <Up x="0" y="1" z="0" />
+          </Transform>
+        </StartingState>
+        <StartingState xsi:type="Transform" JetpackEnabled="false" DampenersEnabled="true">
+          <Transform>
+            <Position x="1000" y="-3.5" z="1000" />
+            <Forward x="0" y="0" z="-1" />
+            <Up x="0" y="1" z="0" />
+          </Transform>
+        </StartingState>
+      </PossibleStartingStates>
+      <WorldGeneratorOperations>
+        <Operation xsi:type="SetupBasePrefab" PrefabFile="BaseEasyStart1" AsteroidName="BaseAsteroid1" BeaconName="Platform A">
+          <Offset x="-1000" y="0" z="-1000" />
+        </Operation>
+        <Operation xsi:type="SetupBasePrefab" PrefabFile="BaseEasyStart1" AsteroidName="BaseAsteroid2" BeaconName="Platform B">
+          <Offset x="1000" y="0" z="1000" />
+        </Operation>
+      </WorldGeneratorOperations>
+    </ScenarioDefinition>
+    <ScenarioDefinition>
+      <Id>
+        <TypeId>ScenarioDefinition</TypeId>
+        <SubtypeId>Asteroids</SubtypeId>
+      </Id>
+      <DisplayName>DisplayName_Scenario_Asteroids</DisplayName>
+      <Description>Description_Scenario_Asteroids</Description>
+      <Icon>Textures\GUI\Icons\scenarios\PreviewAsteroids.dds</Icon>
+      <AsteroidClusters Enabled="true" Offset="700" CentralCluster="true" />
+      <CreativeModeWeapons>
+        <Weapon>AngleGrinderItem</Weapon>
+        <Weapon>AutomaticRifleItem</Weapon>
+        <Weapon>HandDrillItem</Weapon>
+        <Weapon>WelderItem</Weapon>
+      </CreativeModeWeapons>
+      <SurvivalModeWeapons>
+        <Weapon>AngleGrinderItem</Weapon>
+        <Weapon>HandDrillItem</Weapon>
+        <Weapon>WelderItem</Weapon>
+      </SurvivalModeWeapons>
+      <PossibleStartingStates>
+        <StartingState xsi:type="RespawnShip" DampenersEnabled="true" RespawnShip="RespawnShip" />
+      </PossibleStartingStates>
+    </ScenarioDefinition>
+    <ScenarioDefinition>
+      <Id>
+        <TypeId>ScenarioDefinition</TypeId>
+        <SubtypeId>EmptyWorld</SubtypeId>
+      </Id>
+      <DisplayName>DisplayName_Scenario_EmptyWorld</DisplayName>
+      <Description>Description_Scenario_EmptyWorld</Description>
+      <Icon>Textures\GUI\Icons\scenarios\PreviewEmptyWorld.dds</Icon>
+      <AsteroidClusters Enabled="false" />
+      <CreativeModeWeapons>
+        <Weapon>AngleGrinderItem</Weapon>
+        <Weapon>AutomaticRifleItem</Weapon>
+        <Weapon>HandDrillItem</Weapon>
+        <Weapon>WelderItem</Weapon>
+      </CreativeModeWeapons>
+      <SurvivalModeWeapons>
+        <Weapon>AngleGrinderItem</Weapon>
+        <Weapon>HandDrillItem</Weapon>
+        <Weapon>WelderItem</Weapon>
+      </SurvivalModeWeapons>
+      <PossibleStartingStates>
+        <StartingState xsi:type="Transform" JetpackEnabled="true" DampenersEnabled="true" />
+      </PossibleStartingStates>
+    </ScenarioDefinition>
+  </Scenarios>
+</ScenarioDefinitions>

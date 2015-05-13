@@ -1,0 +1,67 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
+using System.Runtime.CompilerServices;
+using System.Text;
+using VRage.Library.Utils;
+using VRageRender;
+
+namespace VRage
+{
+    /// <summary>
+    /// Helper class, "shortcuts" to profiler
+    /// </summary>
+    public static class ProfilerShort
+    {
+        public const string Symbol = VRageRender.Profiler.MyRenderProfiler.Symbol;
+
+        public static bool Autocommit
+        {
+            get { bool val = false; MyRenderProxy.GetRenderProfiler().GetAutocommit(ref val); return val; }
+            set { MyRenderProxy.GetRenderProfiler().SetAutocommit(value); }
+        }
+
+        [Conditional(ProfilerShort.Symbol)]
+        public static void Begin(string blockName = null, float customValue = 0, [CallerMemberName] string member = "", [CallerLineNumber] int line = 0, [CallerFilePath] string file = "")
+        {
+            MyRenderProxy.GetRenderProfiler().StartProfilingBlock(blockName, customValue, member, line, file);
+        }
+
+        [Conditional(ProfilerShort.Symbol)]
+        public static void BeginNextBlock(string blockName = null, [CallerMemberName] string member = "", [CallerLineNumber] int line = 0, [CallerFilePath] string file = "")
+        {
+            MyRenderProxy.GetRenderProfiler().StartNextBlock(blockName, member, line, file);
+        }
+
+        [Conditional(ProfilerShort.Symbol)]
+        public static void End(float customValue = 0, MyTimeSpan? customTime = null, string timeFormat = null, string valueFormat = null, [CallerMemberName] string member = "", [CallerLineNumber] int line = 0, [CallerFilePath] string file = "")
+        {
+            MyRenderProxy.GetRenderProfiler().EndProfilingBlock(customValue, customTime, timeFormat, valueFormat, member, line, file);
+        }
+
+        [Conditional(ProfilerShort.Symbol)]
+        public static void CustomValue(string name, float value, MyTimeSpan? customTime, string timeFormat = null, string valueFormat = null, [CallerMemberName] string member = "", [CallerLineNumber] int line = 0, [CallerFilePath] string file = "")
+        {
+            MyRenderProxy.GetRenderProfiler().ProfileCustomValue(name, value, customTime, timeFormat, valueFormat, member, line, file);
+        }
+
+        [Conditional(ProfilerShort.Symbol)]
+        public static void End(float customValue, float customTimeMs, string timeFormat = null, string valueFormat = null, [CallerMemberName] string member = "", [CallerLineNumber] int line = 0, [CallerFilePath] string file = "")
+        {
+            MyRenderProxy.GetRenderProfiler().EndProfilingBlock(customValue, MyTimeSpan.FromMiliseconds(customTimeMs), timeFormat, valueFormat, member, line, file);
+        }
+
+        [Conditional(ProfilerShort.Symbol)]
+        public static void CustomValue(string name, float value, float customTimeMs, string timeFormat = null, string valueFormat = null, [CallerMemberName] string member = "", [CallerLineNumber] int line = 0, [CallerFilePath] string file = "")
+        {
+            MyRenderProxy.GetRenderProfiler().ProfileCustomValue(name, value, MyTimeSpan.FromMiliseconds(customTimeMs), timeFormat, valueFormat, member, line, file);
+        }
+
+        [Conditional(ProfilerShort.Symbol)]
+        public static void Commit()
+        {
+            MyRenderProxy.GetRenderProfiler().Commit();
+        }
+    }
+}

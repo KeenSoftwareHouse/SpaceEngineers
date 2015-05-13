@@ -1,0 +1,35 @@
+<?xml version="1.0"?>
+
+<MyTrailerXml>
+
+	<!-- Insert name of animation you want to play in regular game - it will work if this is specially enabled in the game -->
+	<!-- Leave blank if don't want -->
+	<GameAnimation>Fight01</GameAnimation>
+
+	<!-- Insert name of animation you want to play in fly-through or credits -->
+	<!-- Leave blank for random animation -->
+	<FlyThroughOrCreditsAnimation>Fight01</FlyThroughOrCreditsAnimation>
+
+	<!-- You can define as many animation elements as you want -->
+	<Animation>
+
+		<!-- Name of the animation. Should be unique and can be assigned to GameAnimation or FlyThroughOrCreditsAnimation -->
+		<Name>Fight01</Name>
+
+		<!-- When the animation starts and ends -->
+		<TimeStartInMilliseconds>1000</TimeStartInMilliseconds>
+		<TimeEndInMilliseconds>30000</TimeEndInMilliseconds>
+
+		<!-- You can define as many ships as you want -->	
+		<!-- Path should be in Content\Trailer folder -->	
+
+		<Ship>
+			<Filepath>FlyThrough_001_Green.tracked</Filepath>
+		</Ship>
+		<Ship>
+			<Filepath>FlyThrough_002_Green.tracked</Filepath>
+		</Ship>
+
+	</Animation>
+
+</MyTrailerXml>

@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+
+<Trailer>
+	<RunInRegularGame>???</RunInRegularGame>
+	<RunInFlyThroughOrCredits>???</RunInFlyThroughOrCredits>
+
+	<Animation>
+
+		<Name>Fight01</Name>
+
+		<TimeStartInMilliseconds>1000</TimeStartInMilliseconds>
+		<TimeEndInMilliseconds>1000</TimeEndInMilliseconds>
+	
+		<Ships>
+			<Ship>
+				<Filepath>gaaa.tracked</Filepath>
+			</Ship>
+		</Ships>
+
+	</Animation>
+</Trailer>

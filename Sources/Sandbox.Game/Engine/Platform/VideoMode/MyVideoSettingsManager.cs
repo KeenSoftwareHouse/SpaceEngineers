@@ -1,0 +1,667 @@
+﻿using Sandbox.Common;
+using Sandbox.Engine.Utils;
+using Sandbox.Game.World;
+using Sandbox.Graphics.GUI;
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Management;
+using System.Reflection;
+
+using VRage.Utils;
+using VRage.Win32;
+using VRageMath;
+using VRageRender;
+
+namespace Sandbox.Engine.Platform.VideoMode
+{
+    // mk:TODO backbuffer dimensions in Fullscreen Window mode could be customizable.
+    // We need to stick to FullscreenWindow=Desktop on DX9, while we can customize them on DX11
+
+    /// <summary>
+    /// This is old settings structure used by SE.
+    /// </summary>
+    public struct MyGraphicsSettings : IEquatable<MyGraphicsSettings>
+    {
+        public MyRenderQualityEnum RenderQuality;
+        public bool HardwareCursor;
+        public bool RenderInterpolation;
+        public float FieldOfView;
+        public bool EnableDamageEffects;
+
+        bool IEquatable<MyGraphicsSettings>.Equals(MyGraphicsSettings other)
+        {
+            return Equals(ref other);
+        }
+
+        public bool Equals(ref MyGraphicsSettings other)
+        {
+            return RenderQuality == other.RenderQuality &&
+                HardwareCursor == other.HardwareCursor &&
+                RenderInterpolation == other.RenderInterpolation &&
+                FieldOfView == other.FieldOfView&&
+                EnableDamageEffects == other.EnableDamageEffects;
+        }
+    }
+
+    /// <summary>
+    /// New and more detailed settings.
+    /// </summary>
+    public struct MyGraphicsSettings1 : IEquatable<MyGraphicsSettings1>
+    {
+        public bool EnableDamageEffects;
+        public bool HardwareCursor;
+        public float FieldOfView;
+        public MyRenderSettings1 Render;
+
+        bool IEquatable<MyGraphicsSettings1>.Equals(MyGraphicsSettings1 other)
+        {
+            return Equals(ref other);
+        }
+
+        public bool Equals(ref MyGraphicsSettings1 other)
+        {
+            return HardwareCursor == other.HardwareCursor &&
+                FieldOfView == other.FieldOfView &&
+                EnableDamageEffects == other.EnableDamageEffects &&
+                Render.Equals(ref other.Render);
+        }
+    }
+
+    public static class MyVideoSettingsManager
+    {
+        public enum ChangeResult
+        {
+            Success,
+            NothingChanged,
+            Failed,
+        }
+
+        private const MyAntialiasingMode DEFAULT_ANTI_ALIASING = MyAntialiasingMode.FXAA;
+        private const MyShadowsQuality DEFAULT_SHADOW_QUALITY = MyShadowsQuality.HIGH;
+        private const bool DEFAULT_MULTITHREADED_RENDERING = true;
+        private const MyTextureQuality DEFAULT_TEXTURE_QUALITY = MyTextureQuality.MEDIUM;
+        private const MyTextureAnisoFiltering DEFAULT_ANISOTROPIC_FILTERING = MyTextureAnisoFiltering.ANISO_4;
+        private const MyFoliageDetails DEFAULT_FOLIAGE_DETAILS = MyFoliageDetails.MEDIUM;
+
+        private static Dictionary<int, MyAspectRatio> m_recommendedAspectRatio;
+
+        /// <summary>
+        /// Adapters and their supported display modes as reported by the render.
+        /// </summary>
+        private static MyAdapterInfo[] m_adapters;
+        private static readonly MyAspectRatio[] m_aspectRatios;
+        private static MyRenderDeviceSettings m_currentDeviceSettings;
+        private static bool m_currentDeviceIsTripleHead;
+        private static MyGraphicsSettings1 m_currentGraphicsSettings1;
+
+        public static readonly MyDisplayMode[] DebugDisplayModes;
+
+        public static MyAdapterInfo[] Adapters
+        {
+            get { return m_adapters; }
+        }
+
+        public static MyRenderDeviceSettings CurrentDeviceSettings
+        {
+            get { return m_currentDeviceSettings; }
+        }
+
+        public static MyGraphicsSettings CurrentGraphicsSettings
+        {
+            get
+            {
+                return new MyGraphicsSettings()
+                {
+                    FieldOfView = m_currentGraphicsSettings1.FieldOfView,
+                    HardwareCursor = m_currentGraphicsSettings1.HardwareCursor,
+                    RenderInterpolation = m_currentGraphicsSettings1.Render.InterpolationEnabled,
+                    RenderQuality = MyRenderConstants.RenderQualityProfile.RenderQuality,
+                    EnableDamageEffects = m_currentGraphicsSettings1.EnableDamageEffects,
+                };
+            }
+        }
+
+        public static MyGraphicsSettings1 CurrentGraphicsSettings1
+        {
+            get { return m_currentGraphicsSettings1; }
+        }
+
+        public static bool GpuUnderMinimum
+        {
+            get;
+            private set;
+        }
+
+        static MyVideoSettingsManager()
+        {
+            m_aspectRatios = new MyAspectRatio[MyUtils.GetMaxValueFromEnum<MyAspectRatioEnum>() + 1];
+            Action<bool, MyAspectRatioEnum, float, string, bool> add =
+                delegate(bool isTripleHead, MyAspectRatioEnum aspectRatioEnum, float aspectRatioNumber, string textShort, bool isSupported)
+            {
+                m_aspectRatios[(int)aspectRatioEnum] = new MyAspectRatio(isTripleHead, aspectRatioEnum, aspectRatioNumber, textShort, isSupported);
+            };
+
+            add(false, MyAspectRatioEnum.Normal_4_3, 4.0f / 3.0f, "4:3", true);
+            add(false, MyAspectRatioEnum.Normal_16_9, 16.0f / 9.0f, "16:9", true);
+            add(false, MyAspectRatioEnum.Normal_16_10, 16.0f / 10.0f, "16:10", true);
+
+            add(false, MyAspectRatioEnum.Dual_4_3, 2 * 4.0f / 3.0f, "Dual 4:3", true);
+            add(false, MyAspectRatioEnum.Dual_16_9, 2 * 16.0f / 9.0f, "Dual 16:9", true);
+            add(false, MyAspectRatioEnum.Dual_16_10, 2 * 16.0f / 10.0f, "Dual 16:10", true);
+
+            add(true, MyAspectRatioEnum.Triple_4_3, 3 * 4.0f / 3.0f, "Triple 4:3", true);
+            add(true, MyAspectRatioEnum.Triple_16_9, 3 * 16.0f / 9.0f, "Triple 16:9", true);
+            add(true, MyAspectRatioEnum.Triple_16_10, 3 * 16.0f / 10.0f, "Triple 16:10", true);
+
+            add(false, MyAspectRatioEnum.Unsupported_5_4, 5f / 4f, "5:4", false);
+
+            if (MyFinalBuildConstants.IS_OFFICIAL)
+            {
+                DebugDisplayModes = new MyDisplayMode[0];
+            }
+            else
+            {
+                // For testing windowed mode dual/triple screens
+                DebugDisplayModes = new MyDisplayMode[]
+                {
+                    new MyDisplayMode(1600, 600, 60),
+                    new MyDisplayMode(1920, 480, 60),
+                    new MyDisplayMode(1920, 817, 60),
+                };
+            }
+        }
+
+        public static MyRenderDeviceSettings? Initialize()
+        {
+            // Tell render to supply currently supported video modes.
+            MyRenderProxy.RequestVideoAdapters();
+
+            var config = MySandboxGame.Config;
+
+            // Load previous graphics settings.
+            m_currentGraphicsSettings1.EnableDamageEffects = config.EnableDamageEffects;
+            m_currentGraphicsSettings1.FieldOfView                  = config.FieldOfView;
+            m_currentGraphicsSettings1.HardwareCursor               = config.HardwareCursor;
+            m_currentGraphicsSettings1.Render.InterpolationEnabled  = config.RenderInterpolation;
+            m_currentGraphicsSettings1.Render.AntialiasingMode      = config.AntialiasingMode ?? DEFAULT_ANTI_ALIASING;
+            m_currentGraphicsSettings1.Render.ShadowQuality         = config.ShadowQuality ?? DEFAULT_SHADOW_QUALITY;
+            m_currentGraphicsSettings1.Render.MultithreadingEnabled = config.MultithreadedRendering ?? DEFAULT_MULTITHREADED_RENDERING;
+            m_currentGraphicsSettings1.Render.TextureQuality        = config.TextureQuality ?? DEFAULT_TEXTURE_QUALITY;
+            m_currentGraphicsSettings1.Render.AnisotropicFiltering  = config.AnisotropicFiltering ?? DEFAULT_ANISOTROPIC_FILTERING;
+            m_currentGraphicsSettings1.Render.FoliageDetails        = config.FoliageDetails ?? DEFAULT_FOLIAGE_DETAILS;
+
+            SetEnableDamageEffects(config.EnableDamageEffects);
+            // Need to send both messages as I don't know which one will be used. One of them will be ignored.
+            MyRenderProxy.SwitchRenderSettings(
+                config.RenderQuality ?? MyRenderConstants.RenderQualityProfile.RenderQuality,
+                m_currentGraphicsSettings1.Render.InterpolationEnabled);
+            MyRenderProxy.SwitchRenderSettings(m_currentGraphicsSettings1.Render);
+
+            // Load previous device settings that will be used for device creation.
+            // If there are no settings in the config (eg. game is run for the first time), null is returned, leaving the decision up
+            // to render (it should let us know what settings it used later).
+            int? screenWidth = config.ScreenWidth;
+            int? screenHeight = config.ScreenHeight;
+            int? videoAdapter = config.VideoAdapter;
+            if (videoAdapter.HasValue && screenWidth.HasValue && screenHeight.HasValue)
+            {
+                return new MyRenderDeviceSettings()
+                {
+                    AdapterOrdinal   = videoAdapter.Value,
+                    BackBufferHeight = screenHeight.Value,
+                    BackBufferWidth  = screenWidth.Value,
+                    RefreshRate      = config.RefreshRate,
+                    VSync            = config.VerticalSync,
+                    WindowMode       = config.WindowMode,
+                };
+            }
+            else
+            {
+                return null;
+            }
+        }
+
+        public static ChangeResult Apply(MyRenderDeviceSettings settings)
+        {
+            MySandboxGame.Log.WriteLine("MyVideoModeManager.Apply(MyRenderDeviceSettings)");
+            using (MySandboxGame.Log.IndentUsing())
+            {
+                MySandboxGame.Log.WriteLine("VideoAdapter: " + settings.AdapterOrdinal);
+                MySandboxGame.Log.WriteLine("Width: " + settings.BackBufferWidth);
+                MySandboxGame.Log.WriteLine("Height: " + settings.BackBufferHeight);
+                MySandboxGame.Log.WriteLine("RefreshRate: " + settings.RefreshRate);
+                MySandboxGame.Log.WriteLine("WindowMode: " + ((settings.WindowMode == MyWindowModeEnum.Fullscreen) ? "Fullscreen" :
+                                                              (settings.WindowMode == MyWindowModeEnum.Window) ? "Window" : "Fullscreen window"));
+                MySandboxGame.Log.WriteLine("VerticalSync: " + settings.VSync);
+
+                if (settings.Equals(ref m_currentDeviceSettings))
+                    return ChangeResult.NothingChanged;
+
+                if (!IsSupportedDisplayMode(settings.AdapterOrdinal, settings.BackBufferWidth, settings.BackBufferHeight, settings.WindowMode))
+                    return ChangeResult.Failed;
+
+                m_currentDeviceSettings = settings;
+                m_currentDeviceSettings.VSync = m_currentDeviceSettings.VSync && !VRage.MyCompilationSymbols.RenderOrGpuProfiling;
+                m_currentDeviceSettings.RefreshRate = MySandboxGame.Config.RefreshRate == 0 ? m_currentDeviceSettings.RefreshRate : MySandboxGame.Config.RefreshRate;
+                MySandboxGame.Static.SwitchSettings(m_currentDeviceSettings);
+                float aspectRatio = (float)m_currentDeviceSettings.BackBufferWidth / (float)m_currentDeviceSettings.BackBufferHeight;
+                m_currentDeviceIsTripleHead = GetAspectRatio(GetClosestAspectRatio(aspectRatio)).IsTripleHead;
+
+                // Update FoV in case bounds have changed.
+                float fovMin, fovMax;
+                GetFovBounds(aspectRatio, out fovMin, out fovMax);
+                SetFov(MathHelper.Clamp(m_currentGraphicsSettings1.FieldOfView, fovMin, fovMax));
+            }
+
+            return ChangeResult.Success;
+        }
+
+        private static ChangeResult Apply(MyGraphicsSettings settings)
+        {
+            MySandboxGame.Log.WriteLine("MyVideoModeManager.Apply(MyGraphicsSettings)");
+            using (MySandboxGame.Log.IndentUsing())
+            {
+                MySandboxGame.Log.WriteLine("HardwareCursor: " + settings.HardwareCursor);
+                MySandboxGame.Log.WriteLine("RenderQuality: " + (int)settings.RenderQuality);
+                MySandboxGame.Log.WriteLine("RenderInterpolation: " + settings.RenderInterpolation);
+                MySandboxGame.Log.WriteLine("Field of view: " + settings.FieldOfView);
+
+                bool qualityChange = MyRenderConstants.RenderQualityProfile.RenderQuality != settings.RenderQuality;
+                bool fovChange = settings.FieldOfView != m_currentGraphicsSettings1.FieldOfView;
+                bool hardwareCursorChange = settings.HardwareCursor != m_currentGraphicsSettings1.HardwareCursor;
+                bool enableDamageEffectsChange = settings.EnableDamageEffects != m_currentGraphicsSettings1.EnableDamageEffects;
+                bool renderInterpolationChange = settings.RenderInterpolation != m_currentGraphicsSettings1.Render.InterpolationEnabled;
+
+                {
+                    bool somethingChanged = qualityChange || fovChange || hardwareCursorChange || renderInterpolationChange || enableDamageEffectsChange;
+                    if (!somethingChanged)
+                        return ChangeResult.NothingChanged;
+                }
+                if (enableDamageEffectsChange)
+                {
+                    SetEnableDamageEffects(settings.EnableDamageEffects);
+                }
+                if (fovChange)
+                {
+                    SetFov(settings.FieldOfView);            
+                }
+
+                if (hardwareCursorChange)
+                {
+                    SetHardwareCursor(settings.HardwareCursor);
+                }
+
+                if (qualityChange || renderInterpolationChange)
+                {
+                    m_currentGraphicsSettings1.Render.InterpolationEnabled = settings.RenderInterpolation;
+                    MyRenderProxy.SwitchRenderSettings(settings.RenderQuality, settings.RenderInterpolation);
+                }
+            }
+
+            return ChangeResult.Success;
+        }
+
+        private static void SetEnableDamageEffects(bool enableDamageEffects)
+        {
+            m_currentGraphicsSettings1.EnableDamageEffects = enableDamageEffects;
+            MySandboxGame.Static.EnableDamageEffects = enableDamageEffects;        
+        }
+
+        private static void SetHardwareCursor(bool useHardwareCursor)
+        {
+            m_currentGraphicsSettings1.HardwareCursor = useHardwareCursor;
+            MySandboxGame.Static.SetMouseVisible(IsHardwareCursorUsed());
+            MyGuiSandbox.SetMouseCursorVisibility(IsHardwareCursorUsed(), false);
+        }
+
+        public static ChangeResult Apply(MyGraphicsSettings1 settings)
+        {
+            MySandboxGame.Log.WriteLine("MyVideoModeManager.Apply(MyGraphicsSettings1)");
+            using (MySandboxGame.Log.IndentUsing())
+            {
+                MySandboxGame.Log.WriteLine("HardwareCursor: " + settings.HardwareCursor);
+                MySandboxGame.Log.WriteLine("Field of view: " + settings.FieldOfView);
+                MySandboxGame.Log.WriteLine("Render.InterpolationEnabled: " + settings.Render.InterpolationEnabled);
+                MySandboxGame.Log.WriteLine("Render.MultithreadingEnabled: " + settings.Render.MultithreadingEnabled);
+                MySandboxGame.Log.WriteLine("Render.AntialiasingMode: " + settings.Render.AntialiasingMode);
+                MySandboxGame.Log.WriteLine("Render.ShadowQuality: " + settings.Render.ShadowQuality);
+                MySandboxGame.Log.WriteLine("Render.TextureQuality: " + settings.Render.TextureQuality);
+                MySandboxGame.Log.WriteLine("Render.AnisotropicFiltering: " + settings.Render.AnisotropicFiltering);
+                MySandboxGame.Log.WriteLine("Render.FoliageDetails: " + settings.Render.FoliageDetails);
+
+                if (m_currentGraphicsSettings1.Equals(ref settings))
+                    return ChangeResult.NothingChanged;
+            
+                SetEnableDamageEffects(settings.EnableDamageEffects);      
+                SetFov(settings.FieldOfView);
+                SetHardwareCursor(settings.HardwareCursor);
+              
+                if (!m_currentGraphicsSettings1.Render.Equals(ref settings.Render))
+                {
+                    m_currentGraphicsSettings1.Render = settings.Render;
+                    MyRenderProxy.SwitchRenderSettings(settings.Render);
+                }
+            }
+
+            return ChangeResult.Success;
+        }
+
+        private static void SetFov(float fov)
+        {
+            if (m_currentGraphicsSettings1.FieldOfView == fov)
+                return;
+
+            m_currentGraphicsSettings1.FieldOfView = fov;
+            if (MySector.MainCamera != null)
+            {
+                MySector.MainCamera.FieldOfView = fov;
+
+                if (MySector.MainCamera.Zoom != null)
+                {
+                    MySector.MainCamera.Zoom.Update();
+                }
+                MySector.MainCamera.ChangeFov(MySector.MainCamera.FieldOfView);
+            }
+        }
+
+        public static ChangeResult ApplyVideoSettings(MyRenderDeviceSettings deviceSettings, MyGraphicsSettings graphicsSettings)
+        {
+            var res = Apply(deviceSettings);
+            if (res == ChangeResult.Failed)
+                return res;
+
+            var res2 = Apply(graphicsSettings);
+            Debug.Assert(res2 != ChangeResult.Failed, "Changing graphics settings should never fail, only device settings can!");
+            return res == ChangeResult.Success ? res : res2;
+        }
+
+        public static ChangeResult ApplyVideoSettings(MyRenderDeviceSettings deviceSettings, MyGraphicsSettings1 graphicsSettings)
+        {
+            var res = Apply(deviceSettings);
+            if (res == ChangeResult.Failed)
+                return res;
+
+            var res2 = Apply(graphicsSettings);
+            Debug.Assert(res2 != ChangeResult.Failed, "Changing graphics settings should never fail, only device settings can!");
+            return res == ChangeResult.Success ? res : res2;
+        }
+
+        private static bool IsSupportedDisplayMode(int videoAdapter, int width, int height, MyWindowModeEnum windowMode)
+        {
+            bool result = false;
+
+            if (windowMode == MyWindowModeEnum.Fullscreen)
+            {
+                foreach (var mode in m_adapters[videoAdapter].SupportedDisplayModes)
+                {
+                    if (mode.Width == width && mode.Height == height)
+                        result = true;
+                }
+            }
+            else
+            {
+                result = true;
+            }
+
+            int maxTextureSize = m_adapters[MySandboxGame.Config.VideoAdapter].MaxTextureSize;
+            if (width > maxTextureSize || height > maxTextureSize)
+            {
+                MySandboxGame.Log.WriteLine(
+                    string.Format("VideoMode {0}x{1} requires texture size which is not supported by this HW (this HW supports max {2})",
+                        width, height, maxTextureSize));
+                result = false;
+            }
+            return result;
+        }
+
+        private static bool IsVirtualized(string manufacturer, string model)
+        {
+            manufacturer = manufacturer.ToLower();
+            return manufacturer == "microsoft corporation" || manufacturer.Contains("vmware") || model == "VirtualBox" || model.ToLower().Contains("virtual");
+        }
+
+        public static void LogEnvironmentInformation()
+        {
+            MySandboxGame.Log.WriteLine("MyVideoModeManager.LogEnvironmentInformation - START");
+            MySandboxGame.Log.IncreaseIndent();
+
+            try
+            {
+                ManagementObjectSearcher mosComputer = new System.Management.ManagementObjectSearcher("Select Manufacturer, Model from Win32_ComputerSystem");
+                if (mosComputer != null)
+                {
+                    foreach (var item in mosComputer.Get())
+                    {
+                        MySandboxGame.Log.WriteLine("Win32_ComputerSystem.Manufacturer: " + item["Manufacturer"]);
+                        MySandboxGame.Log.WriteLine("Win32_ComputerSystem.Model: " + item["Model"]);
+                        MySandboxGame.Log.WriteLine("Virtualized: " + IsVirtualized(item["Manufacturer"].ToString(), item["Model"].ToString()));
+                    }
+                }
+
+                ManagementObjectSearcher mos = new ManagementObjectSearcher("root\\CIMV2", "SELECT Name FROM Win32_Processor");
+                if (mos != null)
+                {
+                    foreach (ManagementObject mo in mos.Get())
+                    {
+                        MySandboxGame.Log.WriteLine("Environment.ProcessorName: " + mo["Name"]);
+                    }
+                }
+
+                //  Get info about memory
+                var memory = new WinApi.MEMORYSTATUSEX();
+                WinApi.GlobalMemoryStatusEx(memory);
+
+                MySandboxGame.Log.WriteLine("ComputerInfo.TotalPhysicalMemory: " + MyValueFormatter.GetFormatedLong((long)memory.ullTotalPhys) + " bytes");
+                MySandboxGame.Log.WriteLine("ComputerInfo.TotalVirtualMemory: " + MyValueFormatter.GetFormatedLong((long)memory.ullTotalVirtual) + " bytes");
+                MySandboxGame.Log.WriteLine("ComputerInfo.AvailablePhysicalMemory: " + MyValueFormatter.GetFormatedLong((long)memory.ullAvailPhys) + " bytes");
+                MySandboxGame.Log.WriteLine("ComputerInfo.AvailableVirtualMemory: " + MyValueFormatter.GetFormatedLong((long)memory.ullAvailVirtual) + " bytes");
+
+                //  Get info about hard drives
+                ConnectionOptions oConn = new ConnectionOptions();
+                ManagementScope oMs = new ManagementScope("\\\\localhost", oConn);
+                ObjectQuery oQuery = new ObjectQuery("select FreeSpace,Size,Name from Win32_LogicalDisk where DriveType=3");
+                using (ManagementObjectSearcher oSearcher = new ManagementObjectSearcher(oMs, oQuery))
+                {
+                    ManagementObjectCollection oReturnCollection = oSearcher.Get();
+                    foreach (ManagementObject oReturn in oReturnCollection)
+                    {
+                        string capacity = MyValueFormatter.GetFormatedLong(Convert.ToInt64(oReturn["Size"]));
+                        string freeSpace = MyValueFormatter.GetFormatedLong(Convert.ToInt64(oReturn["FreeSpace"]));
+                        string name = oReturn["Name"].ToString();
+                        MySandboxGame.Log.WriteLine("Drive " + name + " | Capacity: " + capacity + " bytes | Free space: " + freeSpace + " bytes");
+                    }
+                    oReturnCollection.Dispose();
+                }
+            }
+            catch (Exception e)
+            {
+                MySandboxGame.Log.WriteLine("Error occured during enumerating environment information. Application is continuing. Exception: " + e.ToString());
+            }
+
+            MySandboxGame.Log.DecreaseIndent();
+            MySandboxGame.Log.WriteLine("MyVideoModeManager.LogEnvironmentInformation - END");
+        }
+
+        public static void LogApplicationInformation()
+        {
+            MySandboxGame.Log.WriteLine("MyVideoModeManager.LogApplicationInformation - START");
+            MySandboxGame.Log.IncreaseIndent();
+
+            try
+            {
+                Assembly assembly = Assembly.GetExecutingAssembly();
+                MySandboxGame.Log.WriteLine("Assembly.GetName: " + assembly.GetName().ToString());
+                MySandboxGame.Log.WriteLine("Assembly.FullName: " + assembly.FullName);
+                MySandboxGame.Log.WriteLine("Assembly.Location: " + assembly.Location);
+                MySandboxGame.Log.WriteLine("Assembly.ImageRuntimeVersion: " + assembly.ImageRuntimeVersion);
+            }
+            catch (Exception e)
+            {
+                MySandboxGame.Log.WriteLine("Error occured during enumerating application information. Application will still continue. Detail description: " + e.ToString());
+            }
+
+            MySandboxGame.Log.DecreaseIndent();
+            MySandboxGame.Log.WriteLine("MyVideoModeManager.LogApplicationInformation - END");
+        }
+
+        public static bool IsTripleHead()
+        {
+            return m_currentDeviceIsTripleHead;
+        }
+
+        public static bool IsHardwareCursorUsed()
+        {
+            // Never use hardware cursor in the exteral editor
+            if (Sandbox.AppCode.MyExternalAppBase.Static != null) return false;
+
+            var osVersion = Environment.OSVersion;
+
+            // Windows Vista
+            if (osVersion.Platform == PlatformID.Win32NT && osVersion.Version.Major == 6 && osVersion.Version.Minor == 0)
+                return false;
+
+            // Windows XP
+            if (osVersion.Platform == PlatformID.Win32NT && osVersion.Version.Major == 5 && osVersion.Version.Minor == 1)
+                return false;
+
+            return m_currentGraphicsSettings1.HardwareCursor;
+        }
+
+        public static MyAspectRatio GetAspectRatio(MyAspectRatioEnum aspectRatioEnum)
+        {
+            return m_aspectRatios[(int)aspectRatioEnum];
+        }
+
+        public static MyAspectRatio GetRecommendedAspectRatio(int adapterIndex)
+        {
+            return m_recommendedAspectRatio[adapterIndex];
+        }
+
+        //  Finds aspect ratio that is closest to aspectRatio paremeter aspect ratio (we assume that this aspect ration is good)
+        public static MyAspectRatioEnum GetClosestAspectRatio(float aspectRatio)
+        {
+            MyAspectRatioEnum closestAspectRatioEnum = default(MyAspectRatioEnum);
+
+            float closestDistance = float.MaxValue;
+            for (int i = 0; i < m_aspectRatios.Length; i++)
+            {
+                float tempDistance = Math.Abs(aspectRatio - m_aspectRatios[i].AspectRatioNumber);
+                if (tempDistance < closestDistance)
+                {
+                    closestDistance = tempDistance;
+                    closestAspectRatioEnum = m_aspectRatios[i].AspectRatioEnum;
+                }
+            }
+
+            return closestAspectRatioEnum;
+        }
+
+        public static void GetFovBounds(out float minRadians, out float maxRadians)
+        {
+            GetFovBounds((float)m_currentDeviceSettings.BackBufferWidth / (float)m_currentDeviceSettings.BackBufferHeight,
+                out minRadians, out maxRadians);
+        }
+
+        public static void GetFovBounds(float aspectRatio, out float minRadians, out float maxRadians)
+        {
+            minRadians = MyConstants.FIELD_OF_VIEW_CONFIG_MIN;
+            if (aspectRatio >= (12.0 / 3.0))
+            {
+                maxRadians = MyConstants.FIELD_OF_VIEW_CONFIG_MAX_TRIPLE_HEAD;
+            }
+            else if (aspectRatio >= (8.0 / 3.0))
+            {
+                maxRadians = MyConstants.FIELD_OF_VIEW_CONFIG_MAX_DUAL_HEAD;
+            }
+            else
+            {
+                maxRadians = MyConstants.FIELD_OF_VIEW_CONFIG_MAX;
+            }
+        }
+
+        internal static void OnVideoAdaptersResponse(MyRenderMessageVideoAdaptersResponse message)
+        {
+            MySandboxGame.Log.WriteLine("MyVideoSettingsManager.OnVideoAdaptersResponse");
+            using (MySandboxGame.Log.IndentUsing(LoggingOptions.NONE))
+            {
+                m_adapters = message.Adapters;
+
+                try
+                {
+                    var adapter = m_adapters[MySandboxGame.Static.GameRenderComponent.RenderThread.CurrentAdapter];
+                    GpuUnderMinimum = !(adapter.Has512MBRam || adapter.VRAM >= (512 * 1024 * 1024));
+                }
+                catch { }
+
+                m_recommendedAspectRatio = new Dictionary<int, MyAspectRatio>();
+
+                if (m_adapters.Length == 0)
+                {
+                    MySandboxGame.Log.WriteLine("ERROR: Adapters count is 0!");
+                }
+
+                for (int adapterIndex = 0; adapterIndex < m_adapters.Length; ++adapterIndex)
+                {
+                    var adapter = m_adapters[adapterIndex];
+                    MySandboxGame.Log.WriteLine(string.Format("Adapter {0}", adapter));
+                    using (MySandboxGame.Log.IndentUsing(LoggingOptions.NONE))
+                    {
+                        float aspectRatio = (float)adapter.CurrentDisplayMode.Width / (float)adapter.CurrentDisplayMode.Height;
+                        m_recommendedAspectRatio.Add(adapterIndex, GetAspectRatio(GetClosestAspectRatio(aspectRatio)));
+
+                        if (adapter.SupportedDisplayModes.Length == 0)
+                        {
+                            MySandboxGame.Log.WriteLine(string.Format("WARNING: Adapter {0} count of supported display modes is 0!", adapterIndex));
+                        }
+
+                        int maxTextureSize = adapter.MaxTextureSize;
+                        foreach (var mode in adapter.SupportedDisplayModes)
+                        {
+                            MySandboxGame.Log.WriteLine(mode.ToString());
+                            if (mode.Width > maxTextureSize || mode.Height > maxTextureSize)
+                            {
+                                MySandboxGame.Log.WriteLine(
+                                    string.Format("WARNING: Display mode {0} requires texture size which is not supported by this HW (this HW supports max {1})",
+                                        mode, maxTextureSize));
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        internal static void OnCreatedDeviceSettings(MyRenderMessageCreatedDeviceSettings message)
+        {
+            m_currentDeviceSettings = message.Settings;
+        }
+
+        public static void SaveCurrentSettings()
+        {
+            var config = MySandboxGame.Config;
+
+            config.VideoAdapter        = m_currentDeviceSettings.AdapterOrdinal;
+            config.ScreenWidth         = m_currentDeviceSettings.BackBufferWidth;
+            config.ScreenHeight        = m_currentDeviceSettings.BackBufferHeight;
+            config.RefreshRate         = m_currentDeviceSettings.RefreshRate;
+            config.WindowMode          = m_currentDeviceSettings.WindowMode;
+            config.VerticalSync        = m_currentDeviceSettings.VSync;
+            config.HardwareCursor      = m_currentGraphicsSettings1.HardwareCursor;
+            config.RenderQuality       = MyRenderConstants.RenderQualityProfile.RenderQuality;
+            config.FieldOfView         = m_currentGraphicsSettings1.FieldOfView;
+            config.RenderInterpolation = m_currentGraphicsSettings1.Render.InterpolationEnabled;
+
+            // Don't want these to show up in configs for now
+            var render = m_currentGraphicsSettings1.Render;
+            config.MultithreadedRendering = render.MultithreadingEnabled == DEFAULT_MULTITHREADED_RENDERING ? (bool?)null : render.MultithreadingEnabled;
+            config.AntialiasingMode       = render.AntialiasingMode == DEFAULT_ANTI_ALIASING ? (MyAntialiasingMode?)null : render.AntialiasingMode;
+            config.ShadowQuality          = render.ShadowQuality == DEFAULT_SHADOW_QUALITY ? (MyShadowsQuality?)null : render.ShadowQuality;
+            config.TextureQuality         = render.TextureQuality == DEFAULT_TEXTURE_QUALITY ? (MyTextureQuality?)null : render.TextureQuality;
+            config.AnisotropicFiltering   = render.AnisotropicFiltering == DEFAULT_ANISOTROPIC_FILTERING ? (MyTextureAnisoFiltering?)null : render.AnisotropicFiltering;
+            config.FoliageDetails         = render.FoliageDetails == DEFAULT_FOLIAGE_DETAILS ? (MyFoliageDetails?)null : render.FoliageDetails;
+
+            config.Save();
+        }
+
+    }
+}

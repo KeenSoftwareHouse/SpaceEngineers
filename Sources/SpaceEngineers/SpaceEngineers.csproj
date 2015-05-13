@@ -1,0 +1,455 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <ProjectGuid>{5CD034C8-A242-4BD6-94F4-F20C655A69E8}</ProjectGuid>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
+    <OutputType>WinExe</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Sandbox</RootNamespace>
+    <AssemblyName>SpaceEngineers</AssemblyName>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <ApplicationIcon>SpaceEngineers.ico</ApplicationIcon>
+    <Thumbnail>GameThumbnail.png</Thumbnail>
+    <PublishUrl>publish\</PublishUrl>
+    <Install>true</Install>
+    <InstallFrom>Disk</InstallFrom>
+    <UpdateEnabled>false</UpdateEnabled>
+    <UpdateMode>Foreground</UpdateMode>
+    <UpdateInterval>7</UpdateInterval>
+    <UpdateIntervalUnits>Days</UpdateIntervalUnits>
+    <UpdatePeriodically>false</UpdatePeriodically>
+    <UpdateRequired>false</UpdateRequired>
+    <MapFileExtensions>true</MapFileExtensions>
+    <ApplicationRevision>0</ApplicationRevision>
+    <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
+    <IsWebBootstrapper>false</IsWebBootstrapper>
+    <UseApplicationTrust>false</UseApplicationTrust>
+    <BootstrapperEnabled>true</BootstrapperEnabled>
+    <TargetFrameworkProfile />
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\x86\Debug\</OutputPath>
+    <DefineConstants>TRACE;DEBUG;WINDOWS</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <NoStdLib>true</NoStdLib>
+    <UseVSHostingProcess>true</UseVSHostingProcess>
+    <PlatformTarget>x86</PlatformTarget>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <NoWarn>162,612,618,429,414,169,649</NoWarn>
+    <GenerateSerializationAssemblies>On</GenerateSerializationAssemblies>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
+    <DebugType>none</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\x86\Release\Bin\</OutputPath>
+    <DefineConstants>WINDOWS</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <NoStdLib>true</NoStdLib>
+    <UseVSHostingProcess>true</UseVSHostingProcess>
+    <PlatformTarget>x86</PlatformTarget>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <NoWarn>162,612,618,429,414,169,649</NoWarn>
+    <DebugSymbols>false</DebugSymbols>
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\x64\Debug\Bin64\</OutputPath>
+    <DefineConstants>TRACE;DEBUG;WINDOWS</DefineConstants>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <NoWarn>162,612,618,429,414,169,649</NoWarn>
+    <NoStdLib>true</NoStdLib>
+    <DebugType>full</DebugType>
+    <PlatformTarget>x64</PlatformTarget>
+    <UseVSHostingProcess>true</UseVSHostingProcess>
+    <GenerateSerializationAssemblies>On</GenerateSerializationAssemblies>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
+    <OutputPath>bin\x64\Release\Bin64\</OutputPath>
+    <DefineConstants>WINDOWS</DefineConstants>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <Optimize>true</Optimize>
+    <NoWarn>162,612,618,429,414,169,649</NoWarn>
+    <NoStdLib>true</NoStdLib>
+    <PlatformTarget>x64</PlatformTarget>
+    <UseVSHostingProcess>false</UseVSHostingProcess>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release Official|x86'">
+    <OutputPath>$(SolutionDir)Output\Bin\</OutputPath>
+    <DefineConstants>WINDOWS</DefineConstants>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <Optimize>true</Optimize>
+    <NoWarn>162,612,618,429,414,169,649</NoWarn>
+    <NoStdLib>true</NoStdLib>
+    <PlatformTarget>x86</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <UseVSHostingProcess>false</UseVSHostingProcess>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release Official|x64'">
+    <OutputPath>$(SolutionDir)Output\Bin64\</OutputPath>
+    <DefineConstants>WINDOWS</DefineConstants>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <Optimize>true</Optimize>
+    <NoWarn>162,612,618,429,414,169,649</NoWarn>
+    <NoStdLib>true</NoStdLib>
+    <PlatformTarget>x64</PlatformTarget>
+    <UseVSHostingProcess>false</UseVSHostingProcess>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup>
+    <ContentPath>$(ProjectDir)Content</ContentPath>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="mscorlib">
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="SharpDX">
+      <HintPath>..\..\3rd\SharpDX\SharpDX.dll</HintPath>
+    </Reference>
+    <Reference Include="System">
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="System.Data" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.IdentityModel" />
+    <Reference Include="System.Management" />
+    <Reference Include="System.Runtime.Serialization" />
+    <Reference Include="System.ServiceModel" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Xml">
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="System.Core">
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="System.Xml.Linq">
+      <Private>False</Private>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="MyProgram.cs" />
+    <Compile Include="GUI\DebugScreens\MyGuiScreenDebugShipLargeProperties.cs" />
+    <Compile Include="GUI\DebugScreens\MyGuiScreenDebugShipSmallProperties.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Content\Effects2\BackgroundCube\MyBackgroundBillboards.fx" />
+    <Content Include="Content\Effects2\BackgroundCube\MyBackgroundCube.fx" />
+    <Content Include="Content\Effects2\BackgroundCube\MyDistantImpostorEffect.fx" />
+    <Content Include="Content\Effects2\BackgroundCube\MyHudSectorBorder.fx" />
+    <Content Include="Content\Effects2\Decals\MyDecalEffect.fx" />
+    <Content Include="Content\Effects2\Fullscreen\MyEffectAmbientPrecalculation.fx" />
+    <Content Include="Content\Effects2\Fullscreen\MyEffectAntiAlias.fx" />
+    <Content Include="Content\Effects2\Fullscreen\MyEffectChromaticAberration.fx" />
+    <Content Include="Content\Effects2\Fullscreen\MyEffectClearGbuffer.fx" />
+    <Content Include="Content\Effects2\Fullscreen\MyEffectColorMapping.fx" />
+    <Content Include="Content\Effects2\Fullscreen\MyEffectContrast.fx" />
+    <Content Include="Content\Effects2\Fullscreen\MyEffectGaussianBlur.fx" />
+    <Content Include="Content\Effects2\Fullscreen\MyEffectGodRays.fx" />
+    <Content Include="Content\Effects2\Fullscreen\MyEffectLodTransition2.fx" />
+    <Content Include="Content\Effects2\Fullscreen\MyEffectScreenshot.fx" />
+    <Content Include="Content\Effects2\Fullscreen\MyEffectVignetting.fx" />
+    <Content Include="Content\Effects2\Fullscreen\MyEffectVolumetricFog.fx" />
+    <Content Include="Content\Effects2\HDR\MyEffectHDR.fx" />
+    <Content Include="Content\Effects2\HDR\MyEffectLuminance.fx" />
+    <Content Include="Content\Effects2\HDR\MyEffectScale.fx" />
+    <Content Include="Content\Effects2\HDR\MyEffectSunGlare.fx" />
+    <Content Include="Content\Effects2\HDR\MyEffectThreshold.fx" />
+    <Content Include="Content\Effects2\HUD\MyEffectCockpitGlass.fx" />
+    <Content Include="Content\Effects2\HUD\MyHudEffect.fx" />
+    <Content Include="Content\Effects2\HUD\MyHudRadarEffect.fx" />
+    <Content Include="Content\Effects2\Lights\MyEffectBlendLights.fx" />
+    <Content Include="Content\Effects2\Lights\MyEffectDirectionalLight.fx" />
+    <Content Include="Content\Effects2\Lights\MyEffectPointLight.fx" />
+    <Content Include="Content\Effects2\Models\MyEffectAtmosphere.fx" />
+    <Content Include="Content\Effects2\Models\MyEffectModelsDiffuse.fx" />
+    <Content Include="Content\Effects2\Models\MyEffectModelsDNS.fx" />
+    <Content Include="Content\Effects2\Models\MyEffectOcclusionQueryDraw.fx" />
+    <Content Include="Content\Effects2\Models\MyEffectRenderGizmo.fx" />
+    <Content Include="Content\Effects2\MyEffectLights.fx" />
+    <Content Include="Content\Effects2\MyEffectLodTransition.fx" />
+    <Content Include="Content\Effects2\MyEffectModelsDS.fx" />
+    <Content Include="Content\Effects2\Shadows\MyEffectShadowMap.fx" />
+    <Content Include="Content\Effects2\Shadows\MyEffectShadowOcclusion.fx" />
+    <Content Include="Content\Effects2\Sprites\SpriteEffect.fx" />
+    <Content Include="Content\Effects2\SSAO\MyEffectDownsampleDepthForSSAO.fx" />
+    <Content Include="Content\Effects2\SSAO\MyEffectSSAO.fx" />
+    <Content Include="Content\Effects2\SSAO\MyEffectSSAO2.fx" />
+    <Content Include="Content\Effects2\SSAO\MyEffectSSAO3.fx" />
+    <Content Include="Content\Effects2\SSAO\MyEffectSSAOBlur.fx" />
+    <Content Include="Content\Effects2\SSAO\MyEffectSSAOBlur2.fx" />
+    <Content Include="Content\Effects2\SSAO\MyEffectVolumetricSSAO.fx" />
+    <Content Include="Content\Effects2\SSAO\MyEffectVolumetricSSAO2.fx" />
+    <Content Include="Content\Effects2\TransparentGeometry\MyEffectTransparentGeometry.fx" />
+    <Content Include="Content\Effects2\Voxels\MyEffectCube.fx" />
+    <Content Include="Content\Effects2\Voxels\MyEffectVoxels.fx" />
+    <Content Include="Content\Effects2\Voxels\MyEffectVoxelsDebris.fx" />
+    <Content Include="GameThumbnail.png" />
+    <Content Include="SpaceEngineers.ico">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Include="App.config" />
+    <None Include="Content\Data\AmmoMagazines.sbc" />
+    <None Include="Content\Data\Ammos.sbc" />
+    <None Include="Content\Data\Animations.sbc" />
+    <None Include="Content\Data\Audio.sbc">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Content\Data\BlockCategories.sbc" />
+    <None Include="Content\Data\BlueprintClasses.sbc">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Content\Data\Blueprints.sbc">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Content\Data\Characters.sbc" />
+    <None Include="Content\Data\Components.sbc" />
+    <None Include="Content\Data\Configuration.sbc" />
+    <None Include="Content\Data\ContainerTypes.sbc" />
+    <None Include="Content\Data\CubeBlocks.sbc">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Content\Data\DebrisModels.sbc" />
+    <None Include="Content\Data\Edges.sbc" />
+    <None Include="Content\Data\Environment.sbc" />
+    <None Include="Content\Data\GlobalEvents.sbc" />
+    <None Include="Content\Data\HandItems.sbc" />
+    <None Include="Content\Data\Localization\MyTexts.resx">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Content\Data\MaterialSounds.sbc" />
+    <None Include="Content\Data\PhysicalItems.sbc" />
+    <None Include="Content\Data\PhysicalMaterials.sbc" />
+    <None Include="Content\Data\Prefabs\Base1.sbc" />
+    <None Include="Content\Data\Prefabs\Base4.sbc" />
+    <None Include="Content\Data\Prefabs\BaseEasyStart1.sbc" />
+    <None Include="Content\Data\Prefabs\BaseLoneSurvivor.sbc" />
+    <None Include="Content\Data\Prefabs\CargoShip.sbc" />
+    <None Include="Content\Data\Prefabs\ConstructionShip.sbc" />
+    <None Include="Content\Data\Prefabs\EasyStart1Objects.sbs" />
+    <None Include="Content\Data\Prefabs\Fighter.sbc" />
+    <None Include="Content\Data\Prefabs\Fighter2.sbc" />
+    <None Include="Content\Data\Prefabs\LargeShipBlue.sbc" />
+    <None Include="Content\Data\Prefabs\LargeShipRed.sbc" />
+    <None Include="Content\Data\Prefabs\LargeShipRedBuilding.sbc" />
+    <None Include="Content\Data\Prefabs\LargeShipRedCrashed.sbc" />
+    <None Include="Content\Data\Prefabs\LargeShipRedQS1.sbc" />
+    <None Include="Content\Data\Prefabs\LargeShipUnderConstruction.sbc" />
+    <None Include="Content\Data\Prefabs\Military1.sbc" />
+    <None Include="Content\Data\Prefabs\Military2.sbc" />
+    <None Include="Content\Data\Prefabs\Military3.sbc" />
+    <None Include="Content\Data\Prefabs\MinerSmallShip.sbc" />
+    <None Include="Content\Data\Prefabs\Mining1.sbc" />
+    <None Include="Content\Data\Prefabs\Mining2.sbc" />
+    <None Include="Content\Data\Prefabs\Mining3.sbc" />
+    <None Include="Content\Data\Prefabs\NewLargeShipPrefab.sbc" />
+    <None Include="Content\Data\Prefabs\NewLargeShipPrefabSurvival.sbc" />
+    <None Include="Content\Data\Prefabs\NewSmallShipPrefab.sbc" />
+    <None Include="Content\Data\Prefabs\NewSmallShipPrefabSurvival.sbc" />
+    <None Include="Content\Data\Prefabs\NewStationPrefab.sbc" />
+    <None Include="Content\Data\Prefabs\NewStationPrefabSurvival.sbc" />
+    <None Include="Content\Data\Prefabs\RespawnShip.sbc" />
+    <None Include="Content\Data\Prefabs\Small Ship 5418.sbc" />
+    <None Include="Content\Data\Prefabs\SmallShip_SingleBlock.sbc" />
+    <None Include="Content\Data\Prefabs\SpawnShipAssembler.sbc" />
+    <None Include="Content\Data\Prefabs\SpawnShipDrill.sbc" />
+    <None Include="Content\Data\Prefabs\SpawnShipEscapePod.sbc" />
+    <None Include="Content\Data\Prefabs\SpawnShipRefineryAssembler.sbc" />
+    <None Include="Content\Data\Prefabs\Station_8315622.sbc" />
+    <None Include="Content\Data\Prefabs\SuicideShip.sbc" />
+    <None Include="Content\Data\Prefabs\Trade1.sbc" />
+    <None Include="Content\Data\Prefabs\Trade2.sbc" />
+    <None Include="Content\Data\Prefabs\Trade3.sbc" />
+    <None Include="Content\Data\RespawnShips.sbc" />
+    <None Include="Content\Data\Scenarios.sbx" />
+    <None Include="Content\Data\Screens\CubeBuilder.gsc" />
+    <None Include="Content\Data\Screens\CubeBuilderBar.gsc" />
+    <None Include="Content\Data\Screens\DialogAmount.gsc" />
+    <None Include="Content\Data\Screens\JoinScreen.gsc" />
+    <None Include="Content\Data\Screens\MedicalsScreen.gsc" />
+    <None Include="Content\Data\SpawnGroups.sbc">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Content\Data\TransparentMaterials.sbc" />
+    <None Include="Content\Data\VoxelMaterials.sbc">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Content\Data\Weapons.sbc">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Content\Effects2\BackgroundCube\MyBackgroundCube.fxo" />
+    <None Include="Content\Effects2\BackgroundCube\MyDistantImpostorEffect.fxo" />
+    <None Include="Content\Effects2\Decals\MyDecalEffect.fxo" />
+    <None Include="Content\Effects2\Fullscreen\MyEffectAmbientPrecalculation.fxo" />
+    <None Include="Content\Effects2\Fullscreen\MyEffectAntiAlias.fxo" />
+    <None Include="Content\Effects2\Fullscreen\MyEffectChromaticAberration.fxo" />
+    <None Include="Content\Effects2\Fullscreen\MyEffectClearGbuffer.fxo" />
+    <None Include="Content\Effects2\Fullscreen\MyEffectColorMapping.fxo" />
+    <None Include="Content\Effects2\Fullscreen\MyEffectContrast.fxo" />
+    <None Include="Content\Effects2\Fullscreen\MyEffectGaussianBlur.fxo" />
+    <None Include="Content\Effects2\Fullscreen\MyEffectGodRays.fxo" />
+    <None Include="Content\Effects2\Fullscreen\MyEffectScreenshot.fxo" />
+    <None Include="Content\Effects2\Fullscreen\MyEffectVignetting.fxo" />
+    <None Include="Content\Effects2\Fullscreen\MyEffectVolumetricFog.fxo" />
+    <None Include="Content\Effects2\HDR\MyEffectHDR.fxo" />
+    <None Include="Content\Effects2\HDR\MyEffectHDRBase.fxh" />
+    <None Include="Content\Effects2\HDR\MyEffectLuminance.fxo" />
+    <None Include="Content\Effects2\HDR\MyEffectScale.fxo" />
+    <None Include="Content\Effects2\HDR\MyEffectThreshold.fxo" />
+    <None Include="Content\Effects2\HUD\MyEffectCockpitGlass.fxo" />
+    <None Include="Content\Effects2\HUD\MyHudEffect.fxo" />
+    <None Include="Content\Effects2\HUD\MyHudRadarEffect.fxo" />
+    <None Include="Content\Effects2\Lights\MyEffectBlendLights.fxo" />
+    <None Include="Content\Effects2\Lights\MyEffectDirectionalLight.fxo" />
+    <None Include="Content\Effects2\Lights\MyEffectPointLight.fxo" />
+    <None Include="Content\Effects2\Models\MyEffectAtmosphere.fxo" />
+    <None Include="Content\Effects2\Models\MyEffectModelsDiffuse.fxo" />
+    <None Include="Content\Effects2\Models\MyEffectModelsDNS.fxo" />
+    <None Include="Content\Effects2\Models\MyEffectOcclusionQueryDraw.fxo" />
+    <None Include="Content\Effects2\Models\MyEffectRenderGizmo.fxo" />
+    <None Include="Content\Effects2\MyEffectAtmosphereBase.fxh" />
+    <None Include="Content\Effects2\MyEffectBase.fxh" />
+    <None Include="Content\Effects2\MyEffectDynamicLightingBase.fxh" />
+    <None Include="Content\Effects2\MyEffectInstanceBase.fxh" />
+    <None Include="Content\Effects2\MyEffectReflectorBase.fxh" />
+    <None Include="Content\Effects2\MyEffectShadowBase.fxh" />
+    <None Include="Content\Effects2\MyEffectSpotShadowBase.fxh" />
+    <None Include="Content\Effects2\MyPerlinNoise.fxh" />
+    <None Include="Content\Effects2\Shadows\MyEffectShadowMap.fxo" />
+    <None Include="Content\Effects2\Sprites\Macros.fxh" />
+    <None Include="Content\Effects2\Sprites\SpriteEffect.fxo" />
+    <None Include="Content\Effects2\SSAO\MyEffectDownsampleDepthForSSAO.fxo" />
+    <None Include="Content\Effects2\SSAO\MyEffectSSAO3.fxo" />
+    <None Include="Content\Effects2\SSAO\MyEffectSSAOBlur2.fxo" />
+    <None Include="Content\Effects2\SSAO\MyEffectVolumetricSSAO2.fxo" />
+    <None Include="Content\Effects2\TransparentGeometry\MyEffectTransparentGeometry.fxo" />
+    <None Include="Content\Effects2\Voxels\MyEffectVoxels.fxo" />
+    <None Include="Content\Effects2\Voxels\MyEffectVoxelsBase.fxh" />
+    <None Include="Content\Effects2\Voxels\MyEffectVoxelsClipping.fxh" />
+    <None Include="Content\Effects2\Voxels\MyEffectVoxelsDebris.fxo" />
+    <None Include="Content\Effects2\MyEffectWorldPosition.fxh" />
+    <None Include="steam_api64.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="steam_api.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="steam_appid.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Sandbox.Common\Sandbox.Common.csproj">
+      <Project>{2C96F0AB-7962-4B73-A075-B0E0B09F6195}</Project>
+      <Name>Sandbox.Common</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Sandbox.Game\Sandbox.Game.csproj">
+      <Project>{f77d0a49-f0a1-4e8a-80c8-cbe1842bf2d4}</Project>
+      <Name>Sandbox.Game</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Sandbox.Graphics\Sandbox.Graphics.csproj">
+      <Project>{f77d0a49-f0a1-4e8a-80c8-cbe1842ba2d4}</Project>
+      <Name>Sandbox.Graphics</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\SpaceEngineers.Game\SpaceEngineers.Game.csproj">
+      <Project>{9f620aab-5008-4d91-8d8f-8be6cf26f926}</Project>
+      <Name>SpaceEngineers.Game</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\VRage.Render11\VRage.Render11.csproj">
+      <Project>{a5a97aa5-e974-479e-bf93-1202393a4a06}</Project>
+      <Name>VRage.Render11</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\VRage\VRage.csproj">
+      <Project>{1C814936-C9A7-4FAF-B543-28F021D98B6C}</Project>
+      <Name>VRage</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\VRage.Library\VRage.Library.csproj">
+      <Project>{26FE022E-42AB-40BE-BA9D-97CBE34E7D99}</Project>
+      <Name>VRage.Library</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\VRage.Math\VRage.Math.csproj">
+      <Project>{40CE67D5-C89F-4A56-AE52-85DB1BEA07FE}</Project>
+      <Name>VRage.Math</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\VRage.Render\VRage.Render.csproj">
+      <Project>{1713E6CD-808A-4A44-9532-04771499BB01}</Project>
+      <Name>VRage.Render</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Properties\app.manifest" />
+  </ItemGroup>
+  <ItemGroup>
+    <BootstrapperPackage Include=".NETFramework,Version=v4.0">
+      <Visible>False</Visible>
+      <ProductName>Microsoft .NET Framework 4 %28x86 and x64%29</ProductName>
+      <Install>true</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Net.Client.3.5">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.5 SP1 Client Profile</ProductName>
+      <Install>false</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Net.Framework.3.5.SP1">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.5 SP1</ProductName>
+      <Install>false</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Windows.Installer.3.1">
+      <Visible>False</Visible>
+      <ProductName>Windows Installer 3.1</ProductName>
+      <Install>true</Install>
+    </BootstrapperPackage>
+  </ItemGroup>
+  <ItemGroup>
+    <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Content\Data\Scripts\" />
+    <Folder Include="Content\Effects2\Toolkit\" />
+  </ItemGroup>
+  <ImportGroup Label="PropertySheets">
+    <Import Project="$(SolutionDir)\global.props" Condition="exists('$(SolutionDir)\global.props')" />
+  </ImportGroup>
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets. -->
+  <!--
+  <ItemGroup>
+    <YourFilesToCopy Include="$(ProjectDir)Content\**\*.*" Exclude="$(ProjectDir)Content\VoxelMaps\*.bmp"/>
+  </ItemGroup>
+  -->
+  <ItemGroup>
+    <Redists86 Include="$(ProjectDir)Redists\x86\*.*" />
+    <Redists64 Include="$(ProjectDir)Redists\x64\*.*" />
+  </ItemGroup>
+  <Target Name="AfterBuild">
+    <Exec Command="echo %time% Copying content..." />
+    <!-- This will create Content junction (directory hardlink) in output, takes few ms -->
+    <RemoveDir Directories="$(OutDir)..\Content" />
+    <Exec Command="mklink /J &quot;$(OutDir)..\Content&quot; &quot;$(ContentPath)&quot;" IgnoreExitCode="true" />
+    <Exec Command="mklink /J &quot;Content\Shaders&quot; &quot;..\VRage.Render11\Shaders" IgnoreExitCode="true" />
+    <Exec Command="echo %time% Content copied" />
+    <!--<Copy SourceFiles="$(ProjectDir)..\..\Utils\PrepareScriptMod.bat" DestinationFolder="$(OutDir)..\" />-->
+    <Copy Condition="'$(Configuration)|$(Platform)' == 'Release Official|x86'" SourceFiles="@(Redists86)" DestinationFolder="$(OutDir)" />
+    <Copy Condition="'$(Configuration)|$(Platform)' == 'Release Official|x64'" SourceFiles="@(Redists64)" DestinationFolder="$(OutDir)" />
+  </Target>
+  <Target Name="BeforeBuild">
+  </Target>
+</Project>
