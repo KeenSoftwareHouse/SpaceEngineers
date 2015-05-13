@@ -19,7 +19,7 @@ Quickstart
 ----------
 Space Engineers must be installed on your computer, Steam must be running.
 
-- Clone or download the repository.
+- [Clone](github-windows://openRepo/https://github.com/KeenSoftwareHouse/SpaceEngineers) or [download](https://github.com/KeenSoftwareHouse/SpaceEngineers/archive/master.zip) the repository.
 - Open file **global.props** in text editor.
 - Make sure **ContentPath** tag contains correct path to SpaceEngineers **Content** directory in Steam folder.
 - Open up **SpaceEngineers.sln** in Visual Studio.
