@@ -41,3 +41,8 @@ One way to contribute changes is to send a GitHub [Pull Request](https://help.gi
 - Modify the source codes and test your changes.
 - Using the GitHub program, you can easily **submit contributions** back up to your **fork**.  These files will be visible to all subscribers.
 - When you're ready to send the changes to the Keen Software House for review, simply create a [Pull Request](https://help.github.com/articles/using-pull-requests).
+
+Where is 64-bit version?
+------------------------
+
+We're unable to provide 64-bit version of all 3rd party libraries because of licensing. We're working on this and trying to negotiate better license which will allows us to do that.
