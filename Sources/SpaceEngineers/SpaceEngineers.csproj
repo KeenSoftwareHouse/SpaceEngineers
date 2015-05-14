@@ -41,7 +41,7 @@
     <PlatformTarget>x86</PlatformTarget>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <NoWarn>162,612,618,429,414,169,649</NoWarn>
-    <GenerateSerializationAssemblies>On</GenerateSerializationAssemblies>
+    <GenerateSerializationAssemblies>Auto</GenerateSerializationAssemblies>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
@@ -72,7 +72,7 @@
     <DebugType>full</DebugType>
     <PlatformTarget>x64</PlatformTarget>
     <UseVSHostingProcess>true</UseVSHostingProcess>
-    <GenerateSerializationAssemblies>On</GenerateSerializationAssemblies>
+    <GenerateSerializationAssemblies>Auto</GenerateSerializationAssemblies>
     <ErrorReport>prompt</ErrorReport>
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
@@ -448,18 +448,14 @@
     <!-- Recreate content dir -->
     <RemoveDir Directories="$(OutDir)..\Content" ContinueOnError="true" />
     <MakeDir Directories="$(OutDir)..\Content" />
-
     <!-- Link Data and Effects2 from original source (always from source location) -->
     <Exec Command="mklink /J &quot;$(OutDir)..\Content\Data&quot; &quot;$(ProjectDir)Content\Data&quot;" IgnoreExitCode="true" Condition="$(DataFromSources)==true" />
     <Exec Command="mklink /J &quot;$(OutDir)..\Content\Effects2&quot; &quot;$(ProjectDir)Content\Effects2&quot;" IgnoreExitCode="true" Condition="$(EffectsFromSources)==true" />
-    
     <!-- Link the rest of content subdirs (on GitHub, this is linked from Steam; on SVN this is linked from source location) -->
     <Exec Command="mklink /J &quot;$(OutDir)..\Content\$([System.IO.Path]::GetFilename(%(ContentSubdirs.Identity)))&quot; &quot;%(ContentSubdirs.Identity)&quot;" IgnoreExitCode="true" />
-    
     <!-- Link shaders (this was added by JakubT?) -->
     <Exec Command="mklink /J &quot;Content\Shaders&quot; &quot;..\VRage.Render11\Shaders" IgnoreExitCode="true" />
     <Exec Command="echo %time% Content copied" />
-    
     <!-- Copy redists -->
     <Copy Condition="'$(Configuration)|$(Platform)' == 'Release Official|x86'" SourceFiles="@(Redists86)" DestinationFolder="$(OutDir)" />
     <Copy Condition="'$(Configuration)|$(Platform)' == 'Release Official|x64'" SourceFiles="@(Redists64)" DestinationFolder="$(OutDir)" />
