@@ -115,6 +115,7 @@ namespace Sandbox.Game.Entities
 
         public MyCubeBlockDefinition BlockDefinition { get { return SlimBlock.BlockDefinition; } }
         public Vector3I Min { get { return SlimBlock.Min; } }
+        public float Mass { get { return SlimBlock.GetMass(); } }
         public Vector3I Max { get { return SlimBlock.Max; } }
         public MyBlockOrientation Orientation { get { return SlimBlock.Orientation; } }
         public Vector3I Position { get { return SlimBlock.Position; } }
