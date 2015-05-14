@@ -8,7 +8,9 @@ From this repository you can build Space Engineers. To play Space Engineers you 
 Before downloading the source code please read carefully
 [End User License Agreement](https://github.com/KeenSoftwareHouse/SpaceEngineers/blob/master/EULA.txt)
 
-See [Change log](https://github.com/KeenSoftwareHouse/SpaceEngineers/wiki/Change-log) for latest changes. Have you found a problem related to source codes? Report an [Issue](https://github.com/KeenSoftwareHouse/SpaceEngineers/issues). Discuss source code on [Source code discussion sub-forum](http://forum.keenswh.com/forums/source-code.423135/)
+See [Change log](https://github.com/KeenSoftwareHouse/SpaceEngineers/wiki/Change-log) for latest changes.   
+Have you found a problem related to source codes? Report an [Issue](https://github.com/KeenSoftwareHouse/SpaceEngineers/issues).   
+Discuss source code on our [forum](http://forum.keenswh.com/forums/source-code.423135/).
 
 Prerequisities
 --------------
