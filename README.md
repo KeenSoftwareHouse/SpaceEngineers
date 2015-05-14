@@ -44,6 +44,14 @@ One way to contribute changes is to send a GitHub [Pull Request](https://help.gi
 - Using the GitHub program, you can easily **submit contributions** back up to your **fork**.  These files will be visible to all subscribers.
 - When you're ready to send the changes to the Keen Software House for review, simply create a [Pull Request](https://help.github.com/articles/using-pull-requests).
 
+Common issues
+-------------
+**Build error: The command "..\3rd\Utils\RunTemplate.bat "....\MyEnumToStringsGenerated"" exited with code 1.**
+Common when using old versions of visual studio, see [Visual Studio support](https://github.com/KeenSoftwareHouse/SpaceEngineers/wiki/Visual-Studio-support). It can also happen when  TextTemplating.exe was not found for some reason (it should be installed with Visual Studio).
+
+**Assert: unable to find audio/model/texture file: 'xxxxxx'**.
+This happens because repository is slightly ahead of content in Steam folder. Definitions (Content/Data) are taken from repository and may contain new definitions referencing assets which are not yet in Steam content folder. We decided to use definitions from repository by default, so you can easily modify it. You can edit **global.props** to use definitions from Steam (that should fix the issue). More info [here](https://github.com/KeenSoftwareHouse/SpaceEngineers/wiki/Initial-setup#setting-path-to-the-games-content).
+
 Where is 64-bit version?
 ------------------------
 
