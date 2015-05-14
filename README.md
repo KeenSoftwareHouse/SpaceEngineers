@@ -25,7 +25,7 @@ Space Engineers must be installed on your computer, Steam must be running.
 - Make sure **ContentPath** tag contains path to SpaceEngineers **Content** directory in Steam folder.
 - Start debugging by pressing **F5** or select **Debug** - **Start Debugging** in main menu
 
-Instead of modifying **global.props**, you can create **user.props**.
+Instead of modifying **global.props**, you can create **user.props**, more information [here](https://github.com/KeenSoftwareHouse/SpaceEngineers/wiki/Initial-setup).
 
 How to contribute
 -----------------
