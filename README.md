@@ -50,7 +50,7 @@ Common issues
 Common when using old versions of visual studio, see [Visual Studio support](https://github.com/KeenSoftwareHouse/SpaceEngineers/wiki/Visual-Studio-support). It can also happen when  TextTemplating.exe was not found for some reason (it should be installed with Visual Studio).
 
 **Assert: unable to find audio/model/texture file: 'xxxxxx'**.
-This happens because repository is slightly ahead of content in Steam folder. Definitions (Content/Data) are taken from repository and may contain new definitions referencing assets which are not yet in Steam content folder. We decided to use definitions from repository by default, so you can easily modify it. You can edit **global.props** to use definitions from Steam (that should fix the issue). More info [here](https://github.com/KeenSoftwareHouse/SpaceEngineers/wiki/Initial-setup#setting-path-to-the-games-content).
+This happens because repository is slightly ahead of content in Steam folder. Definitions (Content/Data) are taken from repository and may contain new definitions referencing assets which are not yet in Steam content folder. We decided to use definitions from repository by default, so you can easily modify it. You can edit **global.props** to use definitions from Steam (that should fix the issue). When running on **Release** asserts won't be shown; missing assets won't crash the game.  More info [here](https://github.com/KeenSoftwareHouse/SpaceEngineers/wiki/Initial-setup#setting-path-to-the-games-content).
 
 Where is 64-bit version?
 ------------------------
