@@ -10,7 +10,7 @@ Before downloading the source code please read carefully
 
 See [Change log](https://github.com/KeenSoftwareHouse/SpaceEngineers/wiki/Change-log) for latest changes.   
 Have you found a problem related to source codes? Report an [Issue](https://github.com/KeenSoftwareHouse/SpaceEngineers/issues).   
-Discuss source code on our [forum](http://forum.keenswh.com/forums/source-code.423135/).
+Discuss source code on our [source code sub-forum](http://forum.keenswh.com/forums/source-code.423135/).
 
 Prerequisities
 --------------
