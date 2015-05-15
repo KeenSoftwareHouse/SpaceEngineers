@@ -31,12 +31,12 @@ namespace Sandbox.Game.Entities
     {
         private const float CLOSED_DISSASEMBLE_RATIO = 3.3f;
 
-        private const float SLIDINGSPEED = 1.0f;
         private MySoundPair m_openSound;
         private MySoundPair m_closeSound;
 
         private float m_currOpening;
-        private float m_slidingSpeed;
+        protected float m_slidingSpeed = 1f;
+        protected float m_currSpeed = 0;
         private int m_lastUpdateTime;
 
         private MyEntitySubpart m_leftSubpart = null;
@@ -70,7 +70,7 @@ namespace Sandbox.Game.Entities
         {
             m_open = false;
             m_currOpening = 0f;
-            m_slidingSpeed = 0f;
+            m_currSpeed = 0f;
             SyncObject = new MySyncDoor(this);
         }
 
@@ -147,6 +147,7 @@ namespace Sandbox.Game.Entities
                 MaxOpen = doorDefinition.MaxOpen;
                 m_openSound = new MySoundPair(doorDefinition.OpenSound);
                 m_closeSound = new MySoundPair(doorDefinition.CloseSound);
+                m_slidingSpeed = (doorDefinition.OpeningSpeed <= 0f) ? 1f : doorDefinition.OpeningSpeed;
             }
             else
             {
@@ -231,15 +232,16 @@ namespace Sandbox.Game.Entities
             ob.Opening = m_currOpening;
             ob.OpenSound = m_openSound.ToString();
             ob.CloseSound = m_closeSound.ToString();
+            
             return ob;
         }
 
         private void OnStateChange()
         {
             if (m_open)
-                m_slidingSpeed = SLIDINGSPEED;
+                m_currSpeed = m_slidingSpeed;
             else
-                m_slidingSpeed = -SLIDINGSPEED;
+                m_currSpeed = -m_slidingSpeed;
 
             NeedsUpdate = MyEntityUpdateEnum.EACH_FRAME | MyEntityUpdateEnum.EACH_100TH_FRAME;
             m_lastUpdateTime = MySandboxGame.TotalGamePlayTimeInMilliseconds;
@@ -301,7 +303,7 @@ namespace Sandbox.Game.Entities
             if (Enabled && PowerReceiver.IsPowered)
             {
                 float timeDelta = (MySandboxGame.TotalGamePlayTimeInMilliseconds - m_lastUpdateTime) / 1000f;
-                float deltaPos = m_slidingSpeed * timeDelta;
+                float deltaPos = m_currSpeed * timeDelta;
                 m_currOpening = MathHelper.Clamp(m_currOpening + deltaPos, 0f, MaxOpen);
             }
         }
