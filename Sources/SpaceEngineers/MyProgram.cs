@@ -81,7 +81,10 @@ namespace SpaceEngineers
 
             MyInitializer.InitCheckSum();
 
-            InitSplashScreen();
+            if (!args.Contains("-nosplash"))
+            {
+                InitSplashScreen();
+            }
 
             // This won't crash with BadFormatExpection when 64-bit game started as 32-bit process, it will show message
             // Will uncomment when it's possible to test it

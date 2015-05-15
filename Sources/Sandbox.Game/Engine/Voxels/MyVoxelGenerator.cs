@@ -580,6 +580,9 @@ namespace Sandbox.Engine.Voxels
                 var newVal    = MathHelper.Clamp(original - toRemove, 0, maxRemove);
                 var removed   = Math.Abs(original - newVal);
 
+                if (voxelMat.IsIndestructible)
+                    continue;
+
                 if (!onlyCheck)
                     m_cache.Content(ref relPos, (byte)newVal);
 
