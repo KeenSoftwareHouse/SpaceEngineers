@@ -35,8 +35,8 @@ namespace Sandbox.Game.Entities
         private MySoundPair m_closeSound;
 
         private float m_currOpening;
-        protected float m_slidingSpeed = 1f;
-        protected float m_currSpeed = 0;
+        private float m_slidingSpeed = 1f;
+        private float m_currSpeed = 0;
         private int m_lastUpdateTime;
 
         private MyEntitySubpart m_leftSubpart = null;
@@ -44,6 +44,7 @@ namespace Sandbox.Game.Entities
 
         private new MySyncDoor SyncObject;
         private bool m_open;
+        private bool m_stateChange;
 
         public float MaxOpen = 1.2f;
 
@@ -105,6 +106,14 @@ namespace Sandbox.Game.Entities
                     OnStateChange();
                     RaisePropertiesChanged();
                 }
+            }
+        }
+
+        public bool IsFullyClosed
+        {
+            get
+            {
+                return (m_currOpening <= 0f);
             }
         }
 
@@ -244,11 +253,16 @@ namespace Sandbox.Game.Entities
                 m_currSpeed = -m_slidingSpeed;
 
             NeedsUpdate = MyEntityUpdateEnum.EACH_FRAME | MyEntityUpdateEnum.EACH_100TH_FRAME;
-            m_lastUpdateTime = MySandboxGame.TotalGamePlayTimeInMilliseconds;
+            m_lastUpdateTime = MySandboxGame.TotalGamePlayTimeInMilliseconds-1;
             UpdateCurrentOpening();
             UpdateSlidingDoorsPosition();
-            var handle = DoorStateChanged;
-            if (handle != null) handle(m_open);
+
+            if (m_open)
+            {   
+                var handle = DoorStateChanged;
+                if (handle != null) handle(m_open);
+            }
+            m_stateChange = true;
         }
 
         private void StartSound(MySoundPair cuePair)
@@ -272,24 +286,37 @@ namespace Sandbox.Game.Entities
             if (CubeGrid.Physics == null)
                 return;
             //Update door position because of inaccuracies in high velocities
-            UpdateSlidingDoorsPosition(this.CubeGrid.Physics.LinearVelocity.LengthSquared() > 10);
+            UpdateSlidingDoorsPosition(this.CubeGrid.Physics.LinearVelocity.LengthSquared() > 10f);
         }
 
         public override void UpdateBeforeSimulation()
         {
-            if ((Open && (m_currOpening == MaxOpen)) || (!Open && (m_currOpening == 0f)))
+            if (m_stateChange && ((m_open && m_currOpening >= MaxOpen) || (!m_open && m_currOpening <= 0f)))
             {
                 if (m_soundEmitter.IsPlaying && m_soundEmitter.Loop)
                     m_soundEmitter.StopSound(false);
-                return;
+
+                m_currSpeed = 0;
+                PowerReceiver.Update();
+                RaisePropertiesChanged();
+                if (!m_open)
+                {   
+                    var handle = DoorStateChanged;
+                    if (handle != null) handle(m_open);
+                }
+                m_stateChange = false;
             }
 
-            if (Enabled && PowerReceiver.IsPowered)
+            if (Enabled && PowerReceiver.IsPowered && m_currSpeed != 0)
             {
-                if (Open)
+                if (m_open)
                     StartSound(m_openSound);
                 else
                     StartSound(m_closeSound);
+            }
+            else
+            {
+                m_soundEmitter.StopSound(false);
             }
 
             base.UpdateBeforeSimulation();
