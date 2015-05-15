@@ -90,6 +90,7 @@ namespace Sandbox
 
         public static bool IsConsoleVisible = false;
 
+        public static event Action OnConfigLoaded;
         public static event Action OnSessionReady;
         public static bool FatalErrorDuringInit = false;
         public static VRageGameServices Services { get; private set; }
@@ -615,6 +616,8 @@ namespace Sandbox
                         {
                             if (MySteamWorkshop.DownloadWorldModsBlocking(checkpoint.Mods))
                             {
+                                MyLog.Default.WriteLineAndConsole("Config Loaded");
+                                if (OnConfigLoaded != null) OnConfigLoaded();
                                 MySession.Load(lastSessionPath, checkpoint, checkpointSizeInBytes);
                                 MySession.Static.StartServer(MyMultiplayer.Static);
                             }
@@ -646,6 +649,8 @@ namespace Sandbox
                             {
                                 if (MySteamWorkshop.DownloadWorldModsBlocking(checkpoint.Mods))
                                 {
+                                    MyLog.Default.WriteLineAndConsole("Config Loaded");
+                                    if (OnConfigLoaded != null) OnConfigLoaded();
                                     MySession.Load(sessionPath, checkpoint, checkpointSizeInBytes);
                                     MySession.Static.StartServer(MyMultiplayer.Static);
                                     MyModAPIHelper.OnSessionLoaded();
@@ -698,6 +703,7 @@ namespace Sandbox
 
                         if (MySteamWorkshop.DownloadWorldModsBlocking(mods))
                         {
+                            if (OnConfigLoaded != null) OnConfigLoaded();
                             MySession.Start(newWorldName, "", "", settings, mods,
                                 new MyWorldGenerator.Args()
                                 {
