@@ -217,6 +217,7 @@ namespace Sandbox.Game.Entities.Blocks
                 //END OF MOVEMENT
                 if (m_soundEmitter.IsPlaying && m_soundEmitter.Loop)
                     m_soundEmitter.StopSound(false);
+
                 m_currSpeed = 0;
                 PowerReceiver.Update();
                 RaisePropertiesChanged();
@@ -231,6 +232,11 @@ namespace Sandbox.Game.Entities.Blocks
             {
                 StartSound(m_sound);
             }
+            else
+            {
+                m_soundEmitter.StopSound(false);
+            }
+
             base.UpdateBeforeSimulation();
             UpdateCurrentOpening();
 

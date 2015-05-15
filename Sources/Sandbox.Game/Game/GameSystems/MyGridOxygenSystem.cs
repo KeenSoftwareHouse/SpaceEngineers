@@ -1175,7 +1175,7 @@ namespace Sandbox.Game.GameSystems
             if (block.FatBlock != null)
             {
                 var door = block.FatBlock as MyDoor;
-                if (door != null && !door.Open)
+                if (door != null && door.IsFullyClosed)
                 {
                     foreach (var mountPoint in block.BlockDefinition.MountPoints)
                     {
