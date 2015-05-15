@@ -10,6 +10,7 @@ namespace Sandbox.ModAPI.Ingame
         /// <summary>
         /// Param - active
         /// </summary>
+        float MaxDistance { get; }
         float LeftExtend { get; }
         float RightExtend { get; }
         float TopExtend { get; }
