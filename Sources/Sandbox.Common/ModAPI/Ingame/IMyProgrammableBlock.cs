@@ -9,5 +9,6 @@ namespace Sandbox.ModAPI.Ingame
     {
         bool IsRunning { get; }
         string TerminalRunArgument { get; }
+        bool ClearArgumentOnRun { get; }
     }
 }

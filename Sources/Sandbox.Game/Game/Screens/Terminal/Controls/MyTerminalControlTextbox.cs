@@ -28,6 +28,7 @@ namespace Sandbox.Game.Gui
         /// </summary>
         public GetterDelegate Getter;
         public SetterDelegate Setter;
+        public Action<TBlock> EnterPressed;
 
         public readonly MyStringId Title;
         public readonly MyStringId Tooltip;
@@ -43,6 +44,7 @@ namespace Sandbox.Game.Gui
 
         private StringBuilder m_tmpText = new StringBuilder(15);
         private Action<MyGuiControlTextbox> m_textChanged;
+        private Action<MyGuiControlTextbox> m_enterPressed;
 
         public MyTerminalControlTextbox(string id, MyStringId title, MyStringId tooltip)
             : base(id)
@@ -55,8 +57,10 @@ namespace Sandbox.Game.Gui
         {
             m_textbox = new MyGuiControlTextbox();
             m_textbox.Size = new Vector2(PREFERRED_CONTROL_WIDTH, m_textbox.Size.Y);
+            m_enterPressed = OnEnterPressed;
             m_textChanged = OnTextChanged;
             m_textbox.TextChanged += m_textChanged;
+            m_textbox.EnterPressed += m_enterPressed;
 
             var propertyControl = new MyGuiControlBlockProperty(MyTexts.GetString(Title), MyTexts.GetString(Tooltip), m_textbox);
             propertyControl.Size = new Vector2(PREFERRED_CONTROL_WIDTH, propertyControl.Size.Y);
@@ -64,6 +68,14 @@ namespace Sandbox.Game.Gui
             return propertyControl;
         }
 
+        void OnEnterPressed(MyGuiControlTextbox obj)
+        {
+            foreach (var item in TargetBlocks)
+            {
+                EnterPressed(item);
+            }
+        }
+        
         void OnTextChanged(MyGuiControlTextbox obj)
         {
             m_tmpText.Clear();

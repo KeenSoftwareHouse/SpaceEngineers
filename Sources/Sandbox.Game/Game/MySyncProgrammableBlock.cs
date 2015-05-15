@@ -105,6 +105,9 @@ namespace Sandbox.Game.Multiplayer
             public long GetEntityId() { return EntityId; }
             [ProtoBuf.ProtoMember(2)]
             public byte[] Argument;
+
+            [ProtoBuf.ProtoMember(3)]
+            public bool ClearTerminalArgument;
         }
 
         [ProtoBuf.ProtoContract]
@@ -117,6 +120,18 @@ namespace Sandbox.Game.Multiplayer
             public long GetEntityId() { return EntityId; }
             [ProtoBuf.ProtoMember(2)]
             public string Response;
+
+            [ProtoBuf.ProtoMember(3)]
+            public bool ClearTerminalArgument;
+        }
+
+        [MessageId(16282, P2PMessageEnum.Reliable)]
+        protected struct ClearArgumentOnRunMsg : IEntityMessage
+        {
+            public long EntityId;
+            public long GetEntityId() { return EntityId; }
+                
+            public BoolBlit ClearArgumentOnRun;
         }
 
         static MySyncProgrammableBlock()
@@ -134,6 +149,8 @@ namespace Sandbox.Game.Multiplayer
 
             MySyncLayer.RegisterMessage<ProgramRepsonseMsg>(ProgramResponeSuccess, MyMessagePermissions.FromServer, MyTransportMessageEnum.Success);
 
+            MySyncLayer.RegisterMessage<ClearArgumentOnRunMsg>(ClearArgumentOnRunRequestCallback, MyMessagePermissions.ToServer, MyTransportMessageEnum.Request);
+            MySyncLayer.RegisterMessage<ClearArgumentOnRunMsg>(ClearArgumentOnRunSuccessCallback, MyMessagePermissions.FromServer, MyTransportMessageEnum.Success);
         }
 
         public MySyncProgrammableBlock(MyProgrammableBlock block)
@@ -265,14 +282,15 @@ namespace Sandbox.Game.Multiplayer
             MyEntities.TryGetEntityById(msg.EntityId, out entity);
             if (entity is MyProgrammableBlock)
             {
-                (entity as MyProgrammableBlock).Run(StringCompressor.DecompressString(msg.Argument));
+                (entity as MyProgrammableBlock).Run(StringCompressor.DecompressString(msg.Argument), false);
             }
         }
-        public virtual void SendRunProgramRequest(string argument)
+        public virtual void SendRunProgramRequest(string argument, bool clearTerminalArgument)
         {
             var msg = new RunProgramMsg();
             msg.EntityId = m_programmableBlock.EntityId;
             msg.Argument = StringCompressor.CompressString(argument ?? string.Empty);
+            msg.ClearTerminalArgument = clearTerminalArgument;
             Sync.Layer.SendMessageToServer(ref msg, MyTransportMessageEnum.Request);
         }
 
@@ -280,17 +298,57 @@ namespace Sandbox.Game.Multiplayer
         {
             MyEntity entity;
             MyEntities.TryGetEntityById(msg.EntityId, out entity);
-            if (entity is MyProgrammableBlock)
+            var programmableBlock = entity as MyProgrammableBlock;
+            if (programmableBlock != null)
             {
-                (entity as MyProgrammableBlock).WriteProgramResponse(msg.Response);
+                if (msg.ClearTerminalArgument)
+                    programmableBlock.TerminalRunArgument = "";
+                programmableBlock.WriteProgramResponse(msg.Response);
             }
         }
-        public virtual void SendProgramResponseMessage(string response)
+        public virtual void SendProgramResponseMessage(string response, bool clearTerminalArgument)
         {
             var msg = new ProgramRepsonseMsg();
             msg.EntityId = m_programmableBlock.EntityId;
             msg.Response = response;
+            msg.ClearTerminalArgument = clearTerminalArgument;
             Sync.Layer.SendMessageToAll(ref msg, MyTransportMessageEnum.Success);
+        }
+        public virtual void RequestChangeClearArgumentOnRun(bool clear)
+        {
+            ClearArgumentOnRunMsg msg = new ClearArgumentOnRunMsg();
+            msg.EntityId = m_programmableBlock.EntityId;
+            msg.ClearArgumentOnRun = clear;
+
+            if (Sync.IsServer)
+            {
+                Sync.Layer.SendMessageToAll(ref msg, MyTransportMessageEnum.Success);
+                m_programmableBlock.ClearArgumentOnRun = msg.ClearArgumentOnRun;
+            }
+            else
+            {
+                Sync.Layer.SendMessageToServer(ref msg, MyTransportMessageEnum.Request);
+            }
+        }
+        static void ClearArgumentOnRunRequestCallback(ref ClearArgumentOnRunMsg msg, MyNetworkClient sender)
+        {
+            MyProgrammableBlock programmableBlock;
+            MyEntities.TryGetEntityById(msg.EntityId, out programmableBlock);
+            if (programmableBlock != null)
+            {
+                Sync.Layer.SendMessageToAll(ref msg, MyTransportMessageEnum.Success);
+                programmableBlock.ClearArgumentOnRun = msg.ClearArgumentOnRun;
+            }   
+        }
+
+        static void ClearArgumentOnRunSuccessCallback(ref ClearArgumentOnRunMsg msg, MyNetworkClient sender)
+        {
+            MyProgrammableBlock programmableBlock;
+            MyEntities.TryGetEntityById(msg.EntityId, out programmableBlock);
+            if (programmableBlock != null)
+            {
+                programmableBlock.ClearArgumentOnRun = msg.ClearArgumentOnRun;
+            }
         }
     }
 
