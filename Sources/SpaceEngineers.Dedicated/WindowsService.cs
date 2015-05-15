@@ -9,6 +9,7 @@ using System.ServiceProcess;
 using System.Threading;
 using System.Windows.Forms;
 using VRage.Service;
+using VRage.Utils;
 
 namespace Sandbox.AppCode.App
 {
@@ -64,7 +65,7 @@ namespace Sandbox.AppCode.App
             MainThread.CurrentUICulture = CultureInfo.InvariantCulture;
             m_waitEvent.Reset();
             MainThread.Start(args);
-            MySandboxGame.OnSessionReady += delegate
+            MySandboxGame.OnConfigLoaded += delegate
             {
                 m_waitEvent.Set();
             };
