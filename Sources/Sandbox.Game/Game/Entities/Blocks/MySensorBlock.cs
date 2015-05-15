@@ -126,6 +126,11 @@ namespace Sandbox.Game.Entities.Blocks
         public MyToolbar Toolbar { get; set; }
 
         private Vector3 m_maxDistance = new Vector3(50f);
+        public Vector3 MaxDistance
+        {
+            get { return m_maxDistance; }
+            set { m_maxDistance = value; }
+        }
 
         private Vector3 m_fieldMin = new Vector3(-5f);
         public Vector3 FieldMin
