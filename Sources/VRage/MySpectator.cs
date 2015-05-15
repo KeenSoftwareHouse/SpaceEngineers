@@ -1,5 +1,4 @@
-﻿using System;
-using VRage.Utils;
+﻿using VRage.Utils;
 using VRageMath;
 
 namespace VRage
