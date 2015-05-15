@@ -57,6 +57,6 @@ namespace Sandbox.Common.ObjectBuilders
         public bool DetectEnemy = true;
         
         [ProtoMember(15)]
-        public int MaxDistance = 50;
+        public SerializableVector3 MaxDistance = new SerializableVector3(-50f, -50f, -50f);
     }
 }
