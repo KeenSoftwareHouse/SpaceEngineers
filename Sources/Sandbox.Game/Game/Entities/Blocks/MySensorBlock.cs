@@ -125,8 +125,8 @@ namespace Sandbox.Game.Entities.Blocks
 
         public MyToolbar Toolbar { get; set; }
 
-        private Vector3 m_maxDistance = new Vector3(50f);
-        public Vector3 MaxDistance
+        private float m_maxDistance = 50f;
+        public float MaxDistance
         {
             get { return m_maxDistance; }
             set { m_maxDistance = value; }
@@ -574,8 +574,8 @@ namespace Sandbox.Game.Entities.Blocks
 
             m_maxDistance = builder.MaxDistance;
 
-            m_fieldMin = Vector3.Clamp(builder.FieldMin, -m_maxDistance, -Vector3.One);
-            m_fieldMax = Vector3.Clamp(builder.FieldMax, Vector3.One, m_maxDistance);
+            m_fieldMin = Vector3.Clamp(builder.FieldMin, new Vector3(-m_maxDistance), -Vector3.One);
+            m_fieldMax = Vector3.Clamp(builder.FieldMax, Vector3.One, new Vector3(m_maxDistance));
 
             DetectPlayers = builder.DetectPlayers;
             DetectFloatingObjects = builder.DetectFloatingObjects;
@@ -726,6 +726,8 @@ namespace Sandbox.Game.Entities.Blocks
             var ob = base.GetObjectBuilderCubeBlock(copy) as MyObjectBuilder_SensorBlock;
             ob.FieldMin = FieldMin;
             ob.FieldMax = FieldMax;
+            
+            ob.MaxDistance = MaxDistance;
 
             ob.DetectPlayers = DetectPlayers;
             ob.DetectFloatingObjects = DetectFloatingObjects;
@@ -1063,6 +1065,7 @@ namespace Sandbox.Game.Entities.Blocks
             return false;
         }
 
+        float ModAPI.Ingame.IMySensorBlock.MaxDistance { get { return m_maxDistance; } }
         float ModAPI.Ingame.IMySensorBlock.LeftExtend { get { return -m_fieldMin.X; } }
         float ModAPI.Ingame.IMySensorBlock.RightExtend { get { return m_fieldMax.X; } }
         float ModAPI.Ingame.IMySensorBlock.TopExtend { get { return m_fieldMax.Y; } }
