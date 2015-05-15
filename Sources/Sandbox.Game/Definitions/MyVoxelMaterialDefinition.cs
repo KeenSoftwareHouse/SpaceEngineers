@@ -16,6 +16,7 @@ namespace Sandbox.Definitions
         public float MinedOreRatio;
         public bool CanBeHarvested;
         public bool IsRare;
+        public bool IsIndestructible;
         public float DamageRatio;
         public int MinVersion;
 
@@ -60,6 +61,7 @@ namespace Sandbox.Definitions
             this.MinedOreRatio     = builder.MinedOreRatio;
             this.CanBeHarvested    = builder.CanBeHarvested;
             this.IsRare            = builder.IsRare;
+            this.IsIndestructible  = builder.IsIndestructible;
             this.DamageRatio       = builder.DamageRatio;
             this.DiffuseXZ         = builder.DiffuseXZ;
             this.DiffuseY          = builder.DiffuseY;
