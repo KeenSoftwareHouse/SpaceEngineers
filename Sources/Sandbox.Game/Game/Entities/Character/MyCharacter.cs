@@ -1832,7 +1832,7 @@ namespace Sandbox.Game.Entities.Character
                     interactive = block.GetInteractiveObject(h.HkHitInfo.GetShapeKey(0));
                 }
 
-                if (UseObject != null && UseObject != interactive)
+                if (UseObject != null && interactive != null && UseObject != interactive)
                 {
                     UseObject.OnSelectionLost();
                 }
@@ -1858,6 +1858,9 @@ namespace Sandbox.Game.Entities.Character
 
             if (!hasInteractive)
             {
+                if (UseObject != null)
+                    UseObject.OnSelectionLost();
+
                 UseObject = null;
             }
 
