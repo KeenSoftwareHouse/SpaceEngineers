@@ -21,6 +21,7 @@ namespace Sandbox.ModAPI
         //void DoDamage(float damage, Sandbox.Game.Weapons.MyDamageType damageType, bool addDirtyParts = true);
         IMyCubeBlock FatBlock { get; }
         void FixBones(float oldDamage, float maxAllowedBoneMovement);
+        void FullyDismount(IMyInventory outputInventory);
         //int GetConstructionStockpileItemAmount(Sandbox.Definitions.MyDefinitionId id);
         Sandbox.Common.ObjectBuilders.MyObjectBuilder_CubeBlock GetCopyObjectBuilder();
         void GetMissingComponents(System.Collections.Generic.Dictionary<string, int> addToDictionary);

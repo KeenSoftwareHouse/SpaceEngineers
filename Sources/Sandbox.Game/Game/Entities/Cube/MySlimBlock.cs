@@ -1198,6 +1198,44 @@ namespace Sandbox.Game.Entities.Cube
             CubeGrid.SyncObject.SendIntegrityChanged(this, integrityChangeType, toolOwner);
         }
 
+        /// <summary>
+        /// Completely deconstruct this block
+        /// Intended for server-side use
+        /// </summary>
+        public void FullyDismount(MyInventory outputInventory)
+        {
+            if (!Sync.IsServer)
+                return;
+
+            float oldBuildRatio = m_componentStack.BuildRatio;
+
+            if (MySession.Static.CreativeMode)
+                ClearConstructionStockpile(outputInventory);
+            else
+                EnsureConstructionStockpileExists();
+
+            if (m_stockpile != null)
+            {
+                m_stockpile.ClearSyncList();
+                m_componentStack.DecreaseMountLevel(BuildIntegrity, m_stockpile);
+                CubeGrid.SyncObject.SendStockpileChanged(this, m_stockpile.GetSyncList());
+                m_stockpile.ClearSyncList();
+            }
+            else
+                m_componentStack.DecreaseMountLevel(BuildIntegrity, null);
+
+            bool modelChangeNeeded = BlockDefinition.ModelChangeIsNeeded(m_componentStack.BuildRatio, oldBuildRatio);
+            if (modelChangeNeeded)
+            {
+                UpdateVisual();
+                PlayConstructionSound(MyCubeGrid.MyIntegrityChangeEnum.ConstructionEnd, true);
+                CreateConstructionSmokes();
+            }
+
+            if (CubeGrid.GridSystems.OxygenSystem != null)
+                CubeGrid.GridSystems.OxygenSystem.Pressurize();
+        }
+
         private void CreateConstructionSmokes()
         {
             Vector3 halfSize = new Vector3(CubeGrid.GridSize) / 2;

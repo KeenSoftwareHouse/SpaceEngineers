@@ -78,6 +78,11 @@ namespace Sandbox.Game.Entities.Cube
             FixBones(oldDamage, maxAllowedBoneMovement);
         }
 
+        void IMySlimBlock.FullyDismount(IMyInventory outputInventory)
+        {
+            FullyDismount(outputInventory as MyInventory);
+        }
+
         Common.ObjectBuilders.MyObjectBuilder_CubeBlock IMySlimBlock.GetCopyObjectBuilder()
         {
             return GetCopyObjectBuilder();
