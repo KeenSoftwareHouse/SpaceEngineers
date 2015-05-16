@@ -38,3 +38,10 @@ user.props
 3rd/SteamSDK/release/x64
 3rd/VRage.Native/debug/x64
 3rd/VRage.Native/release/x64
+
+# Ignore caches/tempfiles of some dev tools
+_Resharper.*
+*.ReSharper
+*.resharper.user
+_NCrunch_*
+*.ncrunchsolution.user
