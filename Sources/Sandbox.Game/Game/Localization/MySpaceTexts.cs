@@ -7765,6 +7765,16 @@ namespace Sandbox.Game.Localization
         public static readonly MyStringId KeepProjectionTooltip = MyStringId.GetOrCompute("KeepProjectionTooltip");
 
         ///<summary>
+        ///Only Can Build
+        ///</summary>
+        public static readonly MyStringId OnlyCanBuildBlockToggle = MyStringId.GetOrCompute("OnlyCanBuildBlockToggle");
+
+        ///<summary>
+        ///Only Show Can Build
+        ///</summary>
+        public static readonly MyStringId OnlyCanBuildBlockTooltip = MyStringId.GetOrCompute("OnlyCanBuildBlockTooltip");
+
+        ///<summary>
         ///Remove
         ///</summary>
         public static readonly MyStringId RemoveProjectionButton = MyStringId.GetOrCompute("RemoveProjectionButton");
