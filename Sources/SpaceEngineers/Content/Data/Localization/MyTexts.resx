@@ -6133,7 +6133,7 @@ To connect to lasers not listed here you can connect to coordinates.</value>
     <value>Dampeners</value>
   </data>
   <data name="TerminalControlPanel_RunArgument_ToolTip" xml:space="preserve">
-    <value>An argument passed to your code when clicking the Run button</value>
+    <value>An argument passed to your code when clicking the Run button. Pressing enter here will run the script.</value>
   </data>
   <data name="ControlMenuItemLabel_Helmet" xml:space="preserve">
     <value>Helmet</value>
@@ -6236,5 +6236,11 @@ To connect to lasers not listed here you can connect to coordinates.</value>
   </data>
   <data name="NotificationHintJoystickPressToOpenButtonPanel" xml:space="preserve">
     <value>Access control menu to setup panel's buttons</value>
+  </data>
+  <data name="TerminalControlPanel_ClearArgumentOnRun" xml:space="preserve">
+    <value>Clear argument after running</value>
+  </data>
+  <data name="TerminalControlPanel_ClearArgumentOnRun_ToolTip" xml:space="preserve">
+    <value>Clears the argument box when clicking the Run button.</value>
   </data>
 </root>

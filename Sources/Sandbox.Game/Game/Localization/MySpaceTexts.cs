@@ -9890,7 +9890,7 @@ namespace Sandbox.Game.Localization
         public static readonly MyStringId ControlMenuItemLabel_Dampeners = MyStringId.GetOrCompute("ControlMenuItemLabel_Dampeners");
 
         ///<summary>
-        ///An argument passed to your code when clicking the Run button
+        ///An argument passed to your code when clicking the Run button. Pressing enter here will run the script.
         ///</summary>
         public static readonly MyStringId TerminalControlPanel_RunArgument_ToolTip = MyStringId.GetOrCompute("TerminalControlPanel_RunArgument_ToolTip");
 
@@ -10063,5 +10063,15 @@ namespace Sandbox.Game.Localization
         ///Access control menu to setup panel's buttons
         ///</summary>
         public static readonly MyStringId NotificationHintJoystickPressToOpenButtonPanel = MyStringId.GetOrCompute("NotificationHintJoystickPressToOpenButtonPanel");
+
+        ///<summary>
+        ///Clear argument after running
+        ///</summary>
+        public static readonly MyStringId TerminalControlPanel_ClearArgumentOnRun = MyStringId.GetOrCompute("TerminalControlPanel_ClearArgumentOnRun");
+
+        ///<summary>
+        ///Clears the argument box when clicking the Run button.
+        ///</summary>
+        public static readonly MyStringId TerminalControlPanel_ClearArgumentOnRun_ToolTip = MyStringId.GetOrCompute("TerminalControlPanel_ClearArgumentOnRun_ToolTip");
     }
 }

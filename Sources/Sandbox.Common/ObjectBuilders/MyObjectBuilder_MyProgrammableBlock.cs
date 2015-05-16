@@ -18,5 +18,8 @@ namespace Sandbox.Common.ObjectBuilders
 
         [ProtoMember(3)]
         public string DefaultRunArgument = null;
+
+        [ProtoMember(4)]
+        public bool ClearArgumentOnRun = false;
     }
 }

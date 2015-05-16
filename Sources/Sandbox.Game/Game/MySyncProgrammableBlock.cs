@@ -66,6 +66,15 @@ namespace Sandbox.Game.Multiplayer
     {
         MyProgrammableBlock m_programmableBlock;
 
+        [MessageId(16276, P2PMessageEnum.Reliable)]
+        protected struct ClearArgumentOnRunMsg : IEntityMessage
+        {
+            public long EntityId;
+            public long GetEntityId() { return EntityId; }
+                
+            public BoolBlit ClearArgumentOnRun;
+        }
+        
         [MessageIdAttribute(16277, P2PMessageEnum.Reliable)]
         protected struct OpenEditorMsg : IEntityMessage
         {
@@ -123,15 +132,6 @@ namespace Sandbox.Game.Multiplayer
 
             [ProtoBuf.ProtoMember(3)]
             public bool ClearTerminalArgument;
-        }
-
-        [MessageId(16282, P2PMessageEnum.Reliable)]
-        protected struct ClearArgumentOnRunMsg : IEntityMessage
-        {
-            public long EntityId;
-            public long GetEntityId() { return EntityId; }
-                
-            public BoolBlit ClearArgumentOnRun;
         }
 
         static MySyncProgrammableBlock()

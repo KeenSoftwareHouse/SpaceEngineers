@@ -108,7 +108,7 @@ namespace Sandbox.Game.Entities.Blocks
             runAction.ParameterDefinitions.Add(TerminalActionParameter.Get(string.Empty));
             MyTerminalControlFactory.AddAction(runAction);
 
-            var slaveCheck = new MyTerminalControlCheckbox<MyProgrammableBlock>("ClearArgumentOnRun", MySpaceTexts.Assembler_SlaveMode, MySpaceTexts.Assembler_SlaveMode);
+            var slaveCheck = new MyTerminalControlCheckbox<MyProgrammableBlock>("ClearArgumentOnRun", MySpaceTexts.TerminalControlPanel_ClearArgumentOnRun, MySpaceTexts.TerminalControlPanel_ClearArgumentOnRun_ToolTip);
             slaveCheck.Getter = (x) => x.ClearArgumentOnRun;
             slaveCheck.Setter = (x, v) => x.SyncObject.RequestChangeClearArgumentOnRun(v);
             MyTerminalControlFactory.AddControl(slaveCheck);
@@ -357,7 +357,8 @@ namespace Sandbox.Game.Entities.Blocks
             var programmableBlockBuilder = (MyObjectBuilder_MyProgrammableBlock)objectBuilder;
             m_editorData = m_programData = programmableBlockBuilder.Program;
             m_storageData = programmableBlockBuilder.Storage;
-            this.m_terminalRunArgument = programmableBlockBuilder.DefaultRunArgument;
+            m_terminalRunArgument = programmableBlockBuilder.DefaultRunArgument;
+            ClearArgumentOnRun = programmableBlockBuilder.ClearArgumentOnRun;
 
             this.SyncObject = new MySyncProgrammableBlock(this);
             NeedsUpdate |= MyEntityUpdateEnum.BEFORE_NEXT_FRAME;
@@ -406,6 +407,7 @@ namespace Sandbox.Game.Entities.Blocks
             MyObjectBuilder_MyProgrammableBlock objectBuilder = (MyObjectBuilder_MyProgrammableBlock)base.GetObjectBuilderCubeBlock(copy);
             objectBuilder.Program = this.m_programData;
             objectBuilder.DefaultRunArgument = this.m_terminalRunArgument;
+            objectBuilder.ClearArgumentOnRun = ClearArgumentOnRun;
             if (m_storageField != null && m_instance != null)
             {
                 objectBuilder.Storage = (string)m_storageField.GetValue(m_instance);
