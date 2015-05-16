@@ -4844,6 +4844,12 @@ Reinstalling the game is not enough, because Steam does not delete unknown files
   <data name="KeepProjectionTooltip" xml:space="preserve">
     <value>Keep projection after building is complete. Useful for automated building, but can degrade performance.</value>
   </data>
+  <data name="OnlyCanBuildBlockToggle" xml:space="preserve">
+    <value>Only Can Build</value>
+  </data>
+  <data name="OnlyCanBuildBlockTooltip" xml:space="preserve">
+    <value>Only Show Can Build</value>
+  </data>
   <data name="RemoveProjectionButton" xml:space="preserve">
     <value>Remove</value>
   </data>
