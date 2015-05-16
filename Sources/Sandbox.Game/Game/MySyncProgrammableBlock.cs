@@ -364,6 +364,7 @@ namespace Sandbox.Game.Multiplayer
             if (programmableBlock != null)
             {
                 programmableBlock.ClearArgumentOnRun = msg.ClearArgumentOnRun;
+                programmableBlock.RefreshProperties();
             }
         }
     
@@ -401,6 +402,7 @@ namespace Sandbox.Game.Multiplayer
             if (programmableBlock != null)
             {
                 programmableBlock.TerminalRunArgument = msg.TerminalRunArgument;
+                programmableBlock.RefreshProperties();
             }
         }
     }

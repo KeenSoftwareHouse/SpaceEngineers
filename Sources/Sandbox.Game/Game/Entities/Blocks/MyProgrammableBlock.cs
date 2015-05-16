@@ -629,5 +629,10 @@ namespace Sandbox.Game.Entities.Blocks
             UpdateEmissivity();
             base.OnEnabledChanged();
         }
+
+        public void RefreshProperties()
+        {
+            this.RaisePropertiesChanged();
+        }
     }
 }
