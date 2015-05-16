@@ -21,7 +21,7 @@ namespace VRageRender
         // Are vertex buffers necessary?...for what...multiple MeshParts? (probably can be replaced by mesh/mesh part id)
         public ModelSet[] Models = new ModelSet[LodCount * DrawTechniqueCount];
 
-        // For further improvement (removing dictinary), there can be array of voxel materials instead. It's 38^3 combinations (about 50K) which equals array size of 200 KB
+        // For further improvement (removing dictionary), there can be array of voxel materials instead. It's 38^3 combinations (about 50K) which equals array size of 200 KB
         public VoxelSet[] Voxels = new VoxelSet[LodCount * VoxelTechniqueCount];
 
         public MySortedElements()
