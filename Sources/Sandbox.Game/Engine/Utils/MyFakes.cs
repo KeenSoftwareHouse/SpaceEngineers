@@ -359,6 +359,8 @@ namespace Sandbox.Engine.Utils
 
         public static bool ENABLE_GPS = true;
 
+        public static bool ENABLE_RADAR = true;
+
         public static bool LOG_RENDER_LOADED_FILES = false;
 
         public static bool SHOW_FORBIDDEN_ENITIES_VOXEL_HAND = true;

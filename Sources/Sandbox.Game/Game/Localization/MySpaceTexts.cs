@@ -10063,5 +10063,50 @@ namespace Sandbox.Game.Localization
         ///Access control menu to setup panel's buttons
         ///</summary>
         public static readonly MyStringId NotificationHintJoystickPressToOpenButtonPanel = MyStringId.GetOrCompute("NotificationHintJoystickPressToOpenButtonPanel");
+
+        ///<summary>
+        ///Radar
+        ///</summary>
+        public static readonly MyStringId DisplayName_Block_Radar = MyStringId.GetOrCompute("DisplayName_Block_Radar");
+
+        ///<summary>
+        ///Size of largest object to display.
+        ///</summary>
+        public static readonly MyStringId BlockPropertyDescription_RadarMaximumSize = MyStringId.GetOrCompute("BlockPropertyDescription_RadarMaximumSize");
+
+        ///<summary>
+        ///Size of smallest object to display.
+        ///</summary>
+        public static readonly MyStringId BlockPropertyDescription_RadarMinimumSize = MyStringId.GetOrCompute("BlockPropertyDescription_RadarMinimumSize");
+
+        ///<summary>
+        ///Maximum detection range.
+        ///</summary>
+        public static readonly MyStringId BlockPropertyDescription_RadarRange = MyStringId.GetOrCompute("BlockPropertyDescription_RadarRange");
+
+        ///<summary>
+        ///Number of objects that can be displayed at once.
+        ///</summary>
+        public static readonly MyStringId BlockPropertyDescription_RadarTrackingLimit = MyStringId.GetOrCompute("BlockPropertyDescription_RadarTrackingLimit");
+
+        ///<summary>
+        ///Maximum size
+        ///</summary>
+        public static readonly MyStringId BlockPropertyTitle_RadarMaximumSize = MyStringId.GetOrCompute("BlockPropertyTitle_RadarMaximumSize");
+
+        ///<summary>
+        ///Minimum size
+        ///</summary>
+        public static readonly MyStringId BlockPropertyTitle_RadarMinimumSize = MyStringId.GetOrCompute("BlockPropertyTitle_RadarMinimumSize");
+
+        ///<summary>
+        ///Range
+        ///</summary>
+        public static readonly MyStringId BlockPropertyTitle_RadarRange = MyStringId.GetOrCompute("BlockPropertyTitle_RadarRange");
+
+        ///<summary>
+        ///Tracking limit
+        ///</summary>
+        public static readonly MyStringId BlockPropertyTitle_RadarTrackingLimit = MyStringId.GetOrCompute("BlockPropertyTitle_RadarTrackingLimit");
     }
 }
