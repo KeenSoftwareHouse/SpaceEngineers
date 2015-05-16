@@ -55,8 +55,5 @@ namespace Sandbox.Common.ObjectBuilders
 
         [ProtoMember(14)]
         public bool DetectEnemy = true;
-        
-        [ProtoMember(15)]
-        public float MaxDistance = 50f;
     }
 }
