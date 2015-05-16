@@ -114,6 +114,7 @@ namespace Sandbox.Game.Entities.Blocks
             if (CubeGrid.GridSystems.PowerDistributor.PowerState != m_oldPowerState)
             {
                 m_oldPowerState = CubeGrid.GridSystems.PowerDistributor.PowerState;
+                m_needsRefresh = true;                      // Force refresh on power change (including initial power-on during world load)
                 UpdateEmissivity();
             }
 
