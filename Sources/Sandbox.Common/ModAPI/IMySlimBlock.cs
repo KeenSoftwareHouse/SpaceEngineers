@@ -37,7 +37,7 @@ namespace Sandbox.ModAPI
         float MaxDeformation { get; }
         float MaxIntegrity { get; }
         //void MoveFirstItemToConstructionStockpile(Sandbox.Game.MyInventory fromInventory);
-        //void MoveItemsFromConstructionStockpile(Sandbox.Game.MyInventory toInventory, Sandbox.Common.ObjectBuilders.MyItemFlags flags = MyItemFlags.None);
+        void MoveItemsFromConstructionStockpile(IMyInventory toInventory, Sandbox.Common.ObjectBuilders.MyItemFlags flags = Sandbox.Common.ObjectBuilders.MyItemFlags.None);
         //void MoveItemsToConstructionStockpile(Sandbox.Game.MyInventory fromInventory);
         //void PlayConstructionSound(Sandbox.Game.Entities.MyCubeGrid.MyIntegrityChangeEnum integrityChangeType, bool deconstruction = false);
         void RemoveNeighbours();

@@ -158,6 +158,11 @@ namespace Sandbox.Game.Entities.Cube
             SpawnConstructionStockpile();
         }
 
+        void IMySlimBlock.MoveItemsFromConstructionStockpile(IMyInventory toInventory, Sandbox.Common.ObjectBuilders.MyItemFlags flags)
+        {
+            MoveItemsFromConstructionStockpile(toInventory as MyInventory, flags);
+        }
+
         void IMySlimBlock.SpawnFirstItemInConstructionStockpile()
         {
             SpawnFirstItemInConstructionStockpile();
