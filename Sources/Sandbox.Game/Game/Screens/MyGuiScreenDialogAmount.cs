@@ -1,4 +1,6 @@
-﻿using Sandbox.Common.ObjectBuilders.Gui;
+﻿using System.Linq;
+using System.Text.RegularExpressions;
+using Sandbox.Common.ObjectBuilders.Gui;
 using Sandbox.Game.Localization;
 using Sandbox.Graphics.GUI;
 using System;
@@ -115,13 +117,41 @@ namespace Sandbox.Game.Gui
 
         private bool TryParseAndStoreAmount(string text)
         {
+            text = ReplaceShortHandDigitsWithFull(text);
             float newVal;
             if (float.TryParse(text, NumberStyles.AllowDecimalPoint | NumberStyles.AllowLeadingSign | NumberStyles.AllowThousands, CultureInfo.InvariantCulture, out newVal))
             {
                 m_amount = m_parseAsInteger ? (float)Math.Floor(newVal) : newVal;
+                m_amount = MathHelper.Clamp(m_amount, m_amountMin, m_amountMax);
                 return true;
             }
             return false;
+        }
+
+        /// Turns numbers in a shorthand format into full numbers
+        /// Examples
+        /// 1k    == 1,000
+        /// 1.4k  == 1,400
+        /// 1.98k == 1,980
+        /// 1m    == 1,000,000
+        /// 1b    == 1,000,000,000
+        /// k, m, b are case insensitive 
+        /// <param name="shortHandDigit">string that requires shorthand expansion</param>
+        private string ReplaceShortHandDigitsWithFull(string shortHandDigit)
+        {
+            Func<string, Regex> buildRe = (shortHand) => new Regex(@"([0-9]+(?:\.|,)?(?:[0-9]+)?)" + shortHand, RegexOptions.IgnoreCase);
+
+            var matches = new[] {"k", "m", "b"}.Select(shortHand => buildRe(shortHand).Match(shortHandDigit)).ToArray();
+            var multipliers = new[]{1000, 1000000, 1000000000};
+
+            for (var i = 0; i < matches.Count(); i++)
+            {
+                var match = matches[i];
+                if(match.Success)
+                    return (float.Parse(match.Groups[1].Value)*multipliers[i]).ToString(CultureInfo.InvariantCulture);
+            }
+
+            return shortHandDigit;
         }
 
         #region Event handlers
@@ -142,11 +172,9 @@ namespace Sandbox.Game.Gui
             }
 
             if (m_amount < m_amountMax)
-            {
                 ++m_amount;
-                m_amount = MathHelper.Clamp(m_amount, m_amountMin, m_amountMax);
-                RefreshAmountTextbox();
-            }
+
+            RefreshAmountTextbox();
         }
 
         void decreaseButton_OnButtonClick(MyGuiControlButton sender)
@@ -160,11 +188,9 @@ namespace Sandbox.Game.Gui
             }
 
             if (m_amount > m_amountMin)
-            {
                 --m_amount;
-                m_amount = MathHelper.Clamp(m_amount, m_amountMin, m_amountMax);
-                RefreshAmountTextbox();
-            }
+
+            RefreshAmountTextbox();
         }
 
         void confirmButton_OnButtonClick(MyGuiControlButton sender)
