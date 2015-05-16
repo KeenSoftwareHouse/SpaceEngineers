@@ -133,7 +133,7 @@ namespace Sandbox.Game.Multiplayer
 
         [ProtoBuf.ProtoContract]
         [MessageIdAttribute(16281, P2PMessageEnum.Reliable)]
-        protected struct ProgramRepsonseMsg : IEntityMessage
+        protected struct ProgramResponseMsg : IEntityMessage
         {
             [ProtoBuf.ProtoMember(1)]
             public long EntityId;
@@ -160,7 +160,7 @@ namespace Sandbox.Game.Multiplayer
 
             MySyncLayer.RegisterMessage<RunProgramMsg>(RunProgramRequest, MyMessagePermissions.ToServer, MyTransportMessageEnum.Request);
 
-            MySyncLayer.RegisterMessage<ProgramRepsonseMsg>(ProgramResponeSuccess, MyMessagePermissions.FromServer, MyTransportMessageEnum.Success);
+            MySyncLayer.RegisterMessage<ProgramResponseMsg>(ProgramResponseSuccess, MyMessagePermissions.FromServer, MyTransportMessageEnum.Success);
 
             MySyncLayer.RegisterMessage<ClearArgumentOnRunMsg>(ClearArgumentOnRunRequestCallback, MyMessagePermissions.ToServer, MyTransportMessageEnum.Request);
             MySyncLayer.RegisterMessage<ClearArgumentOnRunMsg>(ClearArgumentOnRunSuccessCallback, MyMessagePermissions.FromServer, MyTransportMessageEnum.Success);
@@ -310,7 +310,7 @@ namespace Sandbox.Game.Multiplayer
             Sync.Layer.SendMessageToServer(ref msg, MyTransportMessageEnum.Request);
         }
 
-        static void ProgramResponeSuccess(ref ProgramRepsonseMsg msg, MyNetworkClient sender)
+        static void ProgramResponseSuccess(ref ProgramResponseMsg msg, MyNetworkClient sender)
         {
             MyEntity entity;
             MyEntities.TryGetEntityById(msg.EntityId, out entity);
@@ -324,7 +324,7 @@ namespace Sandbox.Game.Multiplayer
         }
         public virtual void SendProgramResponseMessage(string response, bool clearTerminalArgument)
         {
-            var msg = new ProgramRepsonseMsg();
+            var msg = new ProgramResponseMsg();
             msg.EntityId = m_programmableBlock.EntityId;
             msg.Response = response;
             msg.ClearTerminalArgument = clearTerminalArgument;
@@ -354,6 +354,7 @@ namespace Sandbox.Game.Multiplayer
             {
                 Sync.Layer.SendMessageToAll(ref msg, MyTransportMessageEnum.Success);
                 programmableBlock.ClearArgumentOnRun = msg.ClearArgumentOnRun;
+                programmableBlock.RefreshProperties();
             }   
         }
 
@@ -392,6 +393,7 @@ namespace Sandbox.Game.Multiplayer
             {
                 Sync.Layer.SendMessageToAll(ref msg, MyTransportMessageEnum.Success);
                 programmableBlock.TerminalRunArgument = msg.TerminalRunArgument;
+                programmableBlock.RefreshProperties();
             }   
         }
 
