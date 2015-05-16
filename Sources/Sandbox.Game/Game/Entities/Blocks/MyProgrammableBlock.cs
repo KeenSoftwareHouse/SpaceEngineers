@@ -93,7 +93,7 @@ namespace Sandbox.Game.Entities.Blocks
             var arg = new MyTerminalControlTextbox<MyProgrammableBlock>("TerminalRunArgument", MySpaceTexts.TerminalControlPanel_RunArgument, MySpaceTexts.TerminalControlPanel_RunArgument_ToolTip);
             arg.Visible = (e) => MyFakes.ENABLE_PROGRAMMABLE_BLOCK && MySession.Static.EnableIngameScripts;
             arg.Getter = (e) => new StringBuilder(e.TerminalRunArgument);
-            arg.Setter = (e, v) => e.TerminalRunArgument = v.ToString();
+            arg.Setter = (e, v) => e.SyncObject.RequestChangeTerminalRunArgument(v.ToString());
             arg.EnterPressed = (b) => b.Run();
             MyTerminalControlFactory.AddControl(arg);
             

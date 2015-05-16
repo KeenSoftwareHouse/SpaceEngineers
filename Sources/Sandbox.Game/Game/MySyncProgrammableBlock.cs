@@ -66,6 +66,18 @@ namespace Sandbox.Game.Multiplayer
     {
         MyProgrammableBlock m_programmableBlock;
 
+        [MessageId(16275, P2PMessageEnum.Reliable)]
+        [ProtoBuf.ProtoContract]
+        protected struct TerminalRunArgumentMsg : IEntityMessage
+        {
+            [ProtoBuf.ProtoMember(1)]
+            public long EntityId;
+            public long GetEntityId() { return EntityId; }
+                
+            [ProtoBuf.ProtoMember(2)]
+            public string TerminalRunArgument;
+        }
+
         [MessageId(16276, P2PMessageEnum.Reliable)]
         protected struct ClearArgumentOnRunMsg : IEntityMessage
         {
@@ -127,6 +139,7 @@ namespace Sandbox.Game.Multiplayer
             public long EntityId;
 
             public long GetEntityId() { return EntityId; }
+            
             [ProtoBuf.ProtoMember(2)]
             public string Response;
 
@@ -151,6 +164,9 @@ namespace Sandbox.Game.Multiplayer
 
             MySyncLayer.RegisterMessage<ClearArgumentOnRunMsg>(ClearArgumentOnRunRequestCallback, MyMessagePermissions.ToServer, MyTransportMessageEnum.Request);
             MySyncLayer.RegisterMessage<ClearArgumentOnRunMsg>(ClearArgumentOnRunSuccessCallback, MyMessagePermissions.FromServer, MyTransportMessageEnum.Success);
+
+            MySyncLayer.RegisterMessage<TerminalRunArgumentMsg>(TerminalRunArgumentRequestCallback, MyMessagePermissions.ToServer, MyTransportMessageEnum.Request);
+            MySyncLayer.RegisterMessage<TerminalRunArgumentMsg>(TerminalRunArgumentSuccessCallback, MyMessagePermissions.FromServer, MyTransportMessageEnum.Success);
         }
 
         public MySyncProgrammableBlock(MyProgrammableBlock block)
@@ -348,6 +364,43 @@ namespace Sandbox.Game.Multiplayer
             if (programmableBlock != null)
             {
                 programmableBlock.ClearArgumentOnRun = msg.ClearArgumentOnRun;
+            }
+        }
+    
+        public virtual void RequestChangeTerminalRunArgument(string argument)
+        {
+            TerminalRunArgumentMsg msg = new TerminalRunArgumentMsg();
+            msg.EntityId = m_programmableBlock.EntityId;
+            msg.TerminalRunArgument = argument;
+
+            if (Sync.IsServer)
+            {
+                Sync.Layer.SendMessageToAll(ref msg, MyTransportMessageEnum.Success);
+                m_programmableBlock.TerminalRunArgument = msg.TerminalRunArgument;
+            }
+            else
+            {
+                Sync.Layer.SendMessageToServer(ref msg, MyTransportMessageEnum.Request);
+            }
+        }
+        static void TerminalRunArgumentRequestCallback(ref TerminalRunArgumentMsg msg, MyNetworkClient sender)
+        {
+            MyProgrammableBlock programmableBlock;
+            MyEntities.TryGetEntityById(msg.EntityId, out programmableBlock);
+            if (programmableBlock != null)
+            {
+                Sync.Layer.SendMessageToAll(ref msg, MyTransportMessageEnum.Success);
+                programmableBlock.TerminalRunArgument = msg.TerminalRunArgument;
+            }   
+        }
+
+        static void TerminalRunArgumentSuccessCallback(ref TerminalRunArgumentMsg msg, MyNetworkClient sender)
+        {
+            MyProgrammableBlock programmableBlock;
+            MyEntities.TryGetEntityById(msg.EntityId, out programmableBlock);
+            if (programmableBlock != null)
+            {
+                programmableBlock.TerminalRunArgument = msg.TerminalRunArgument;
             }
         }
     }
