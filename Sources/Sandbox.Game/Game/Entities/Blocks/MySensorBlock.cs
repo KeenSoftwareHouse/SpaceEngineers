@@ -572,7 +572,7 @@ namespace Sandbox.Game.Entities.Blocks
 
             var builder = (MyObjectBuilder_SensorBlock)objectBuilder;
 
-            m_maxDistance = builder.MaxDistance;
+            m_maxDistance = BlockDefinition.MaxDistance;
 
             m_fieldMin = Vector3.Clamp(builder.FieldMin, new Vector3(-m_maxDistance), -Vector3.One);
             m_fieldMax = Vector3.Clamp(builder.FieldMax, Vector3.One, new Vector3(m_maxDistance));
@@ -726,8 +726,6 @@ namespace Sandbox.Game.Entities.Blocks
             var ob = base.GetObjectBuilderCubeBlock(copy) as MyObjectBuilder_SensorBlock;
             ob.FieldMin = FieldMin;
             ob.FieldMax = FieldMax;
-            
-            ob.MaxDistance = MaxDistance;
 
             ob.DetectPlayers = DetectPlayers;
             ob.DetectFloatingObjects = DetectFloatingObjects;
