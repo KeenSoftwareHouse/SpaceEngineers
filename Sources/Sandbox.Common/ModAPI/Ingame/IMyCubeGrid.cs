@@ -10,5 +10,6 @@ namespace Sandbox.ModAPI.Ingame
         VRageMath.Vector3I Max { get; }
         VRageMath.Vector3I Min { get; }
         IMySlimBlock GetCubeBlock(VRageMath.Vector3I pos);
+        string DisplayName { get; }
     }
 }
