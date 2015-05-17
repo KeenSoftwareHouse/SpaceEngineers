@@ -25,6 +25,9 @@ namespace Sandbox.Game.Entities.Cube
         private MyRadioBroadcaster m_radioBroadcaster;
         public new MySyncRadar SyncObject;
 
+        public const int InfiniteTracking = 101;
+        public const float InfiniteSize = 10000;
+
         static MyRadar()
         {
             var range = new MyTerminalControlSlider<MyRadar>("Range", MySpaceTexts.BlockPropertyTitle_RadarRange, MySpaceTexts.BlockPropertyDescription_RadarRange);
@@ -37,32 +40,38 @@ namespace Sandbox.Game.Entities.Cube
 
             var minimumSize = new MyTerminalControlSlider<MyRadar>("MinimumSize",
                 MySpaceTexts.BlockPropertyTitle_RadarMinimumSize, MySpaceTexts.BlockPropertyDescription_RadarMinimumSize);
-            minimumSize.SetLogLimits(block => 1, block => 100);
+            minimumSize.SetLogLimits(block => 1, block => 500);
             minimumSize.DefaultValue = 1;
             minimumSize.Getter = (x) => x.MinimumSize;
             minimumSize.Setter = (x, v) => x.SyncObject.SendChangeRadar(x.Range, v, Math.Max(x.MaximumSize, v * 2), x.TrackingLimit, x.BroadcastUsingAntennas);
-            minimumSize.Writer = (x, result) => result.AppendInt32((int)x.MinimumSize).Append(" m");
+            minimumSize.Writer = (x, result) => { result.AppendInt32((int) x.MinimumSize).Append(" m"); };
             MyTerminalControlFactory.AddControl(minimumSize);
 
             var maximumSize = new MyTerminalControlSlider<MyRadar>("MaximumSize",
                 MySpaceTexts.BlockPropertyTitle_RadarMaximumSize, MySpaceTexts.BlockPropertyDescription_RadarMaximumSize);
-            maximumSize.SetLogLimits(block => 10, block => 10000);
-            maximumSize.DefaultValue = 10000;
+            maximumSize.SetLogLimits(block => 5, block => InfiniteSize);
+            maximumSize.DefaultValue = InfiniteSize;
             maximumSize.Getter = (x) => x.MaximumSize;
             maximumSize.Setter = (x, v) => x.SyncObject.SendChangeRadar(x.Range, Math.Min(x.MinimumSize, v / 2), v, x.TrackingLimit, x.BroadcastUsingAntennas);
-            maximumSize.Writer = (x, result) => result.AppendInt32((int)x.MaximumSize).Append(" m");
+            maximumSize.Writer = (x, result) =>
+            {
+                if (x.MaximumSize >= InfiniteSize)
+                    result.Append("Unlimited");
+                else
+                    result.AppendInt32((int) x.MaximumSize).Append(" m");
+            };
             MyTerminalControlFactory.AddControl(maximumSize);
 
             var trackingLimit = new MyTerminalControlSlider<MyRadar>("TrackingLimit",
                 MySpaceTexts.BlockPropertyTitle_RadarTrackingLimit, MySpaceTexts.BlockPropertyDescription_RadarTrackingLimit);
-            trackingLimit.SetLimits(1, 102);
-            trackingLimit.DefaultValue = 100;
+            trackingLimit.SetLimits(1, InfiniteTracking + 1);
+            trackingLimit.DefaultValue = 20;
             trackingLimit.Getter = (x) => x.TrackingLimit;
             trackingLimit.Setter = (x, v) => x.SyncObject.SendChangeRadar(x.Range, x.MinimumSize, x.MaximumSize, (int)v, x.BroadcastUsingAntennas);
             trackingLimit.Writer = (x, result) =>
             {
-                if (x.TrackingLimit > 100) 
-                    result.Append("Infinite");
+                if (x.TrackingLimit >= InfiniteTracking) 
+                    result.Append("Unlimited");
                 else 
                     result.AppendInt32(x.TrackingLimit);
             };
@@ -186,8 +195,17 @@ namespace Sandbox.Game.Entities.Cube
             m_radioBroadcaster.BroadcastRadius = m_radarComponent.DetectionRadius;
 
             m_radarComponent.MinimumSize = ob.MinimumSize;
+            if (m_radarComponent.MinimumSize == 0)
+                m_radarComponent.MinimumSize = 1;
+
             m_radarComponent.MaximumSize = ob.MaximumSize;
+            if (m_radarComponent.MaximumSize == 0)
+                m_radarComponent.MaximumSize = 10000;
+
             m_radarComponent.TrackingLimit = ob.TrackingLimit;
+            if (m_radarComponent.TrackingLimit == 0)
+                m_radarComponent.TrackingLimit = 20;
+
             m_radarComponent.BroadcastUsingAntennas = ob.BroadcastUsingAntennas;
 
             m_radarComponent.OnCheckControl += OnCheckControl;

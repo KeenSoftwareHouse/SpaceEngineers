@@ -17,6 +17,7 @@ namespace Sandbox.Game.Entities.Cube
 
         public float DetectionRadius { get; set; }
         public CheckControlDelegate OnCheckControl;
+        private List<MyDataBroadcaster> m_broadcastersCache = new List<MyDataBroadcaster>();
 
         public bool BroadcastUsingAntennas { get; set; }
 
@@ -45,12 +46,18 @@ namespace Sandbox.Game.Entities.Cube
 
         class RadarSignature
         {
+            public MyEntity m_entity;
             public BoundingSphereD m_boundingSphere;
             public double m_distance;
             public bool m_isAntenna;
 
-            public RadarSignature(BoundingSphereD boundingSphere, bool isAntenna = false, double distance = 0.0)
+            public Vector3D Center { get { return m_boundingSphere.Center; } }
+
+            public double Radius { get { return m_boundingSphere.Radius; } }
+
+            public RadarSignature(BoundingSphereD boundingSphere, MyEntity entity, bool isAntenna = false, double distance = 0.0)
             {
+                m_entity = entity;
                 m_boundingSphere = boundingSphere;
                 m_distance = distance;
                 m_isAntenna = isAntenna;
@@ -71,37 +78,42 @@ namespace Sandbox.Game.Entities.Cube
             var sphere = new BoundingSphereD(position, DetectionRadius);
             List<RadarSignature> targets = new List<RadarSignature>();
 
-            // Collect radio broadcasters. The radar can't display radio broadcasters itself, but radar broadcaster
-            // signatures will hide nearby entities.
-            List<MyDataBroadcaster> broadcasters = new List<MyDataBroadcaster>();
-            MyRadioBroadcasters.GetAllBroadcastersInSphere(sphere, broadcasters);
-            for (int i = 0; i < broadcasters.Count; i++)
+            // Collect radio broadcasters. The radar can't display radio broadcasters itself, but broadcaster
+            // signatures will hide nearby entities. Broadcasters use the broadcast radius as their radius, so 
+            // they will almost always come first when checking for hidden entities.
+            m_broadcastersCache.Clear();
+            MyRadioBroadcasters.GetAllBroadcastersInSphere(sphere, m_broadcastersCache);
+            for (int i = 0; i < m_broadcastersCache.Count; i++)
             {
+                var myDataBroadcaster = m_broadcastersCache[i];
                 targets.Add(
                     new RadarSignature(
-                        new BoundingSphereD(broadcasters[i].BroadcastPosition,
-                            (broadcasters[i] as MyRadioBroadcaster).BroadcastRadius), true));
+                        new BoundingSphereD(myDataBroadcaster.BroadcastPosition,
+                            (myDataBroadcaster as MyRadioBroadcaster).BroadcastRadius), myDataBroadcaster.Parent, true));
             }
 
-            List<MyEntity> entities = new List<MyEntity>();
-            MyGamePruningStructure.GetAllEntitiesInSphere<MyEntity>(ref sphere, entities);
-            for (int i = 0; i < entities.Count; i++)
+            List<MyEntity> m_entitiesCache = new List<MyEntity>();
+            MyGamePruningStructure.GetAllEntitiesInSphere<MyEntity>(ref sphere, m_entitiesCache);
+            for (int i = 0; i < m_entitiesCache.Count; i++)
             {
-                if (entities[i] is MyVoxelMap)
-                    targets.Add(new RadarSignature(entities[i].PositionComp.WorldVolume));
-                else if (entities[i] is MyCubeGrid)
-                    targets.Add(new RadarSignature(entities[i].PositionComp.WorldVolume));
+                var myEntity = m_entitiesCache[i];
+                if (myEntity is MyVoxelMap)
+                    targets.Add(new RadarSignature(myEntity.PositionComp.WorldVolume, myEntity));
+                else if (myEntity is MyCubeGrid)
+                    targets.Add(new RadarSignature(myEntity.PositionComp.WorldVolume, myEntity));
             }
-            targets.Sort((d, sphereD) => Math.Sign(sphereD.m_boundingSphere.Radius - d.m_boundingSphere.Radius));
+
+            targets.Sort((signature1, signature2) => Math.Sign(signature2.Radius - signature1.Radius));
+            
             int validTargets = 0;
             for (int i = 0; i < targets.Count; i++)
             {
-                var distance = Vector3D.Distance(position, targets[i].m_boundingSphere.Center);
+                var distance = Vector3D.Distance(position, targets[i].Center);
                 targets[i].m_distance = distance;
 
                 double modifiedDetectionRadius = DetectionRadius;
-                if (targets[i].m_boundingSphere.Radius < 50)
-                    modifiedDetectionRadius *= targets[i].m_boundingSphere.Radius / 50;
+                if (targets[i].Radius < 50)
+                    modifiedDetectionRadius *= targets[i].Radius / 50;
                 if (distance > modifiedDetectionRadius)
                     continue;
                 if (distance < 100)
@@ -110,7 +122,7 @@ namespace Sandbox.Game.Entities.Cube
                 // Filter out targets which are too close to other, larger targets
                 for (int j = 0; j < validTargets; j++)
                 {
-                    var separation = Vector3D.Distance(targets[i].m_boundingSphere.Center, targets[j].m_boundingSphere.Center);
+                    var separation = Vector3D.Distance(targets[i].Center, targets[j].Center);
                     if (separation < distance * 0.04f)
                         goto next_target;
                 }
@@ -120,25 +132,25 @@ namespace Sandbox.Game.Entities.Cube
             }
 
             targets.RemoveRange(validTargets, targets.Count - validTargets);
-            targets.Sort((signature, radarSignature) => Math.Sign(signature.m_distance - radarSignature.m_distance));
+            targets.Sort((signature1, signature2) => Math.Sign(signature1.m_distance - signature2.m_distance));
 
             int targetCount = 0;
             for (int i = 0; i < validTargets; i++)
             {
                 if (targets[i].m_isAntenna)
                     continue;
-                if (targets[i].m_boundingSphere.Radius * 2 > MaximumSize)
+                if (MaximumSize < MyRadar.InfiniteSize && targets[i].Radius * 2 > MaximumSize)
                     continue;
-                if (targets[i].m_boundingSphere.Radius * 2 < MinimumSize)
+                if (targets[i].Radius * 2 < MinimumSize)
                     continue;
 
-                if (TrackingLimit <= 100 && ++targetCount > TrackingLimit)
+                if (TrackingLimit < MyRadar.InfiniteTracking && ++targetCount > TrackingLimit)
                     break;
 
                 var desc = new MyGps();
                 desc.Description = "";
                 desc.DiscardAt = null;
-                desc.Coords = targets[i].m_boundingSphere.Center;
+                desc.Coords = targets[i].Center;
                 desc.ShowOnHud = true;
 
                 m_markers.Add(desc);

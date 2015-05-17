@@ -47,6 +47,7 @@ namespace Sandbox.Game.Gui
 
         private int m_oreHudMarkerStyle;
         private int m_gpsHudMarkerStyle;
+        private int m_radarHudMarkerStyle;
         private int m_buttonPanelHudMarkerStyle;
 
         private MyHudEntityParams m_tmpHudEntityParams;
@@ -66,6 +67,7 @@ namespace Sandbox.Game.Gui
             m_markerRender = new MyHudMarkerRender(this);
             m_oreHudMarkerStyle = m_markerRender.AllocateMarkerStyle(MyFontEnum.White, MyHudTexturesEnum.DirectionIndicator, MyHudTexturesEnum.Target_neutral, Color.White);
             m_gpsHudMarkerStyle = m_markerRender.AllocateMarkerStyle(MyFontEnum.DarkBlue, MyHudTexturesEnum.DirectionIndicator, MyHudTexturesEnum.Target_me, MyHudConstants.GPS_COLOR);
+            m_radarHudMarkerStyle = m_markerRender.AllocateMarkerStyle(MyFontEnum.White, MyHudTexturesEnum.DirectionIndicator, MyHudTexturesEnum.Target_neutral, MyHudConstants.MARKER_COLOR_WHITE);
             m_buttonPanelHudMarkerStyle = m_markerRender.AllocateMarkerStyle(MyFontEnum.DarkBlue, MyHudTexturesEnum.DirectionIndicator, MyHudTexturesEnum.Target_me, MyHudConstants.GPS_COLOR);
 
             m_tmpHudEntityParams = new MyHudEntityParams()
@@ -205,14 +207,14 @@ namespace Sandbox.Game.Gui
             if (MyHud.SelectedObjectHighlight.Visible && MyFakes.ENABLE_USE_OBJECT_HIGHLIGHT)
                 DrawSelectedObjectHighlight(m_atlas, GetTextureCoord(MyHudTexturesEnum.corner), MyHud.SelectedObjectHighlight);
 
+            if (MyHud.RadarMarkers.Visible && !MyHud.MinimalHud && MyFakes.ENABLE_RADAR)
+                DrawRadarMarkers(MyHud.RadarMarkers);
+
             if (MyHud.LocationMarkers.Visible && !MyHud.MinimalHud)
                 m_markerRender.DrawLocationMarkers(MyHud.LocationMarkers);
 
             if (MyHud.GpsMarkers.Visible && !MyHud.MinimalHud && MyFakes.ENABLE_GPS)
                 DrawGpsMarkers(MyHud.GpsMarkers);
-
-            if (MyHud.RadarMarkers.Visible && !MyHud.MinimalHud && MyFakes.ENABLE_RADAR)
-                DrawGpsMarkers(MyHud.RadarMarkers);
 
             if (MyHud.ButtonPanelMarkers.Visible && !MyHud.MinimalHud)
                 DrawButtonPanelMarkers(MyHud.ButtonPanelMarkers);
@@ -523,6 +525,29 @@ namespace Sandbox.Game.Gui
                 m_markerRender.DrawLocationMarker(
                     m_gpsHudMarkerStyle,
                     gps.Coords,
+                    m_tmpHudEntityParams,
+                    0, 0);
+            }
+            DrawTexts();
+            ProfilerShort.End();
+        }
+
+        private void DrawRadarMarkers(MyHudGpsMarkers radarMarkers)
+        {
+            ProfilerShort.Begin("MyGuiScreenHud.DrawGpsMarkers");
+
+            m_tmpHudEntityParams.FlagsEnum = MyHudIndicatorFlagsEnum.SHOW_ALL;
+            m_tmpHudEntityParams.IconColor = MyHudConstants.GPS_COLOR;
+            m_tmpHudEntityParams.OffsetText = true;
+
+            MySession.Static.Gpss.updateForHud();
+            radarMarkers.Sort();//re-sort by distance from new camera coordinates
+            foreach (var radar in radarMarkers.MarkerEntities)
+            {
+                m_tmpHudEntityParams.Text.Clear().Append(radar.Name);//reuse single instance to reduce overhead
+                m_markerRender.DrawLocationMarker(
+                    m_radarHudMarkerStyle,
+                    radar.Coords,
                     m_tmpHudEntityParams,
                     0, 0);
             }
