@@ -750,21 +750,71 @@ namespace Sandbox.Game.Entities.Cube
         }
 
         /// <summary>
-        /// Gets the linked receiver's IMyGridTerminalSystem. Returns null if no link is established.
+        /// Sets the argument for a specified programmable block connected to the current grid via laser antenna.
         /// </summary>
-        /// <returns></returns>
-        public IMyGridTerminalSystem GetReceiverGrid()
+        /// <param name="pb_name">The name of the target programmable block for this message.</param>
+        /// <param name="message">The new argument string.</param>
+        /// <param name="run">Should the programmable block be run after the argument was changed.</param>
+        /// <returns>Returns true if the pb could be reached. False otherwise.</returns>
+        public bool SendMessage(string pb_name, string message, bool run = false)
         {
+            if (pb_name == null || pb_name == string.Empty)
+                return false;
+
             if (State == StateEnum.connected)
             {
                 var gridGroup = MyCubeGridGroups.Static.Logical.GetGroup(GetOther().CubeGrid);
                 var terminalSystem = gridGroup.GroupData.TerminalSystem;
                 terminalSystem.UpdateGridBlocksOwnership(this.OwnerId);
 
-                return (IMyGridTerminalSystem)terminalSystem;
+                IMyGridTerminalSystem Igrid = (IMyGridTerminalSystem)terminalSystem;
+                if (Igrid == null)
+                    return false;
+
+                MyProgrammableBlock pb = (MyProgrammableBlock)Igrid.GetBlockWithName(pb_name); //Get the programmable block with the specified name.
+                if (pb == null) //If the block with the name does not exist, or if the player has no permission this will be null.
+                    return false;
+
+                pb.TerminalRunArgument = message;
+                if (run)
+                    pb.Run();
+
+                return true;
             }
 
-            return null;
+            return false;
+        }
+
+        /// <summary>
+        /// Runs the script of a specified programmable block connected to the current grid via laser antenna.
+        /// </summary>
+        /// <param name="pb_name">The name of the target programmable block for this run command.</param>
+        /// <returns>Returns true if the pb could be reached. False otherwise.</returns>
+        public bool SendRunCommand(string pb_name)
+        {
+            if (pb_name == null)
+                return false;
+
+            if (State == StateEnum.connected)
+            {
+                var gridGroup = MyCubeGridGroups.Static.Logical.GetGroup(GetOther().CubeGrid);
+                var terminalSystem = gridGroup.GroupData.TerminalSystem;
+                terminalSystem.UpdateGridBlocksOwnership(this.OwnerId);
+
+                IMyGridTerminalSystem Igrid = (IMyGridTerminalSystem)terminalSystem;
+                if (Igrid == null)
+                    return false;
+
+                MyProgrammableBlock pb = (MyProgrammableBlock)Igrid.GetBlockWithName(pb_name); //Get the programmable block with the specified name.
+                if (pb == null) //If the block with the name does not exist, or if the player has no permission this will be null.
+                    return false;
+
+                pb.Run();
+
+                return true;
+            }
+
+            return false;
         }
 
         public void AddBroadcastersContactingMe(ref HashSet<MyDataBroadcaster> broadcasters)
