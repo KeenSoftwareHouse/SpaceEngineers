@@ -6237,4 +6237,7 @@ To connect to lasers not listed here you can connect to coordinates.</value>
   <data name="NotificationHintJoystickPressToOpenButtonPanel" xml:space="preserve">
     <value>Access control menu to setup panel's buttons</value>
   </data>
+  <data name="DisplayName_Block_Radar" xml:space="preserve">
+    <value>Radar</value>
+  </data>
 </root>

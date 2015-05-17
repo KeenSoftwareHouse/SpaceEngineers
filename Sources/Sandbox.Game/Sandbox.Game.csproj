@@ -137,6 +137,7 @@
     <Compile Include="Definitions\MyAgentDefinition.cs" />
     <Compile Include="Definitions\MyAiCommandDefinition.cs" />
     <Compile Include="Definitions\MyBotDefinition.cs" />
+    <Compile Include="Definitions\MyRadarDefinition.cs" />
     <Compile Include="Definitions\MyTextPanelDefinition.cs" />
     <Compile Include="Definitions\MyLCDTextureDefinition.cs" />
     <Compile Include="Definitions\BehaviorTree\MyBehaviorDefinition.cs" />
@@ -406,6 +407,8 @@
     <Compile Include="Game\Entities\Blocks\MyOxygenTank.cs" />
     <Compile Include="Game\Entities\Blocks\MyProgrammableBlock.cs" />
     <Compile Include="Game\Entities\Blocks\MyCryoChamber.cs" />
+    <Compile Include="Game\Entities\Blocks\MyRadar.cs" />
+    <Compile Include="Game\Entities\Blocks\MyRadarComponent.cs" />
     <Compile Include="Game\Entities\Blocks\MySoundBlock.cs" />
     <Compile Include="Game\Entities\Blocks\MySpaceBall.cs" />
     <Compile Include="Game\Entities\Blocks\MyBatteryBlock.cs" />
@@ -560,6 +563,7 @@
     <Compile Include="Game\Multiplayer\MySyncConveyorSorter.cs" />
     <Compile Include="Game\Multiplayer\MySyncCryoChamber.cs" />
     <Compile Include="Game\Multiplayer\MySyncLaserAntenna.cs" />
+    <Compile Include="Game\Multiplayer\MySyncRadar.cs" />
     <Compile Include="Game\Multiplayer\MySyncSoundBlock.cs" />
     <Compile Include="Game\Multiplayer\MySyncSpaceBall.cs" />
     <Compile Include="Game\Multiplayer\MyCameraCollection.cs" />

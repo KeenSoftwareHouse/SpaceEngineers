@@ -19598,6 +19598,41 @@
       <MirroringX>Y</MirroringX>
     </Definition>
     <!-- End Region Window-->
+    <Definition xsi:type="MyObjectBuilder_RadarDefinition">
+      <Id>
+        <TypeId>Radar</TypeId>
+        <SubtypeId />
+      </Id>
+      <DisplayName>DisplayName_Block_Radar</DisplayName>
+      <Icon>Textures\GUI\Icons\Cubes\gravity_generator.dds</Icon>
+      <CubeSize>Large</CubeSize>
+      <BlockTopology>TriangleMesh</BlockTopology>
+      <Size x="1" y="1" z="1" />
+      <ModelOffset x="0" y="0" z="0" />
+      <Model>Models\Cubes\Large\GravityGenerator.mwm</Model>
+      <Components>
+        <Component Subtype="SteelPlate" Count="10" />
+        <Component Subtype="RadioCommunication" Count="10" />
+        <Component Subtype="Computer" Count="10" />
+        <Component Subtype="SteelPlate" Count="10" />
+      </Components>
+      <CriticalComponent Subtype="Computer" Index="0" />
+      <MountPoints>
+        <MountPoint Side="Bottom" StartX="0.25" StartY="0.25" EndX="0.75" EndY="0.75" />
+      </MountPoints>
+      <BuildProgressModels>
+        <Model BuildPercentUpperBound="0.33" File="Models\Cubes\Large\GravityGeneratorConstruction_1.mwm" />
+        <Model BuildPercentUpperBound="0.66" File="Models\Cubes\Large\GravityGeneratorConstruction_2.mwm" />
+        <Model BuildPercentUpperBound="1.00" File="Models\Cubes\Large\GravityGeneratorConstruction_3.mwm" />
+      </BuildProgressModels>
+      <BlockPairName>Radar</BlockPairName>
+      <MirroringY>Z</MirroringY>
+      <MirroringZ>Y</MirroringZ>
+      <EdgeType>Light</EdgeType>
+      <BuildTimeSeconds>50</BuildTimeSeconds>
+      <RequiredPowerInput>0.56713</RequiredPowerInput>
+      <DamageEffectId>214</DamageEffectId>
+    </Definition>
     <!-- Region Conveyor system -->
     <Definition>
       <Id>

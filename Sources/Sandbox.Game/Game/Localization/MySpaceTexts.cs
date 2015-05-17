@@ -10063,5 +10063,10 @@ namespace Sandbox.Game.Localization
         ///Access control menu to setup panel's buttons
         ///</summary>
         public static readonly MyStringId NotificationHintJoystickPressToOpenButtonPanel = MyStringId.GetOrCompute("NotificationHintJoystickPressToOpenButtonPanel");
+
+        ///<summary>
+        ///Radar
+        ///</summary>
+        public static readonly MyStringId DisplayName_Block_Radar = MyStringId.GetOrCompute("DisplayName_Block_Radar");
     }
 }
