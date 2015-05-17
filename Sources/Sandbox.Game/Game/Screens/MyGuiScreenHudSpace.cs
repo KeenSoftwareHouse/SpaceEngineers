@@ -211,8 +211,8 @@ namespace Sandbox.Game.Gui
             if (MyHud.GpsMarkers.Visible && !MyHud.MinimalHud && MyFakes.ENABLE_GPS)
                 DrawGpsMarkers(MyHud.GpsMarkers);
 
-            if (!MyHud.MinimalHud)
-                DrawRadarMarkers();
+            if (MyHud.RadarMarkers.Visible && !MyHud.MinimalHud && MyFakes.ENABLE_RADAR)
+                DrawGpsMarkers(MyHud.RadarMarkers);
 
             if (MyHud.ButtonPanelMarkers.Visible && !MyHud.MinimalHud)
                 DrawButtonPanelMarkers(MyHud.ButtonPanelMarkers);
@@ -528,68 +528,6 @@ namespace Sandbox.Game.Gui
             }
             DrawTexts();
             ProfilerShort.End();
-        }
-
-        private void DrawRadarMarkers()
-        {
-            m_tmpHudEntityParams.FlagsEnum = MyHudIndicatorFlagsEnum.SHOW_ALL;
-            m_tmpHudEntityParams.IconColor = MyHudConstants.GPS_COLOR;
-            m_tmpHudEntityParams.OffsetText = true;
-
-            var campos = MySector.MainCamera.Position;
-            var volumes =
-                MyEntities.GetEntities()
-                    .Select(entity => entity.PositionComp.WorldVolume)
-                    .Where(volume => Vector3D.Distance(volume.Center, campos) < 50000)
-                    .OrderByDescending(
-                        volume =>
-                            volume.Radius /
-                            Vector3D.Distance(volume.Center, campos)).ToArray();
-
-            for (int i = 0; i < volumes.Length; i++)
-            {
-                var volume = volumes[i];
-
-                var distance = Vector3D.Distance(volume.Center, campos);
-
-                for (int j = 0; j < i; j++)
-                {
-                    var volume2 = volumes[j];
-                    var d = Vector3D.Distance(volume.Center, volume2.Center);
-                    if (d < distance / 25)
-                    {
-                        volumes[j].Center = (volume.Center * volume.Radius + volume2.Center * volume2.Radius) /
-                                            (volume.Radius + volume2.Radius);
-                        volumes[j].Radius = Math.Max(volumes[j].Radius,
-                            Math.Min(
-                                Math.Sqrt(volume.Radius * volume.Radius + volume2.Radius * volume2.Radius),
-                                d + (volume.Radius + volume2.Radius) / 2));
-                        volumes[i].Radius = 0;
-                        break;
-                    }
-                }
-            }
-
-            int count = 0;
-            foreach (var volume in volumes)
-            {
-                if (volume.Radius == 0)
-                    continue;
-
-                var distance = Vector3D.Distance(volume.Center, campos);
-                if (distance > volume.Radius * 1e3 || distance < 10)
-                    continue;
-
-                m_tmpHudEntityParams.Text.Clear().AppendFormat("{0:N0}m", 100 * Math.Pow(2, Math.Round(Math.Log(volume.Radius / 50) / Math.Log(2))));
-                m_markerRender.DrawLocationMarker(
-                    m_gpsHudMarkerStyle,
-                    volume.Center,
-                    m_tmpHudEntityParams,
-                    0, 0);
-                count++;
-                if (count >= 15)
-                    break;
-            }
         }
 
         private void DrawButtonPanelMarkers(MyHudGpsMarkers buttonPanelMarkers)

@@ -13,6 +13,15 @@ namespace Sandbox.Common.ObjectBuilders
         [ProtoMember(1)]
         public float DetectionRadius;
 
+        [ProtoMember(3)] 
+        public float MinimumSize;
+
+        [ProtoMember(4)] 
+        public float MaximumSize;
+
+        [ProtoMember(5)] 
+        public int TrackingLimit;
+
         [ProtoMember(2)]
         public bool BroadcastUsingAntennas;
     }

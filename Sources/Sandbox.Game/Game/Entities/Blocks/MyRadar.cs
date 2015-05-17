@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Sandbox.Common;
 using Sandbox.Common.ObjectBuilders;
 using Sandbox.Definitions;
 using Sandbox.Game.Entities.Cube;
@@ -10,6 +11,7 @@ using Sandbox.Game.Gui;
 using Sandbox.Game.Localization;
 using Sandbox.Game.Multiplayer;
 using Sandbox.ModAPI.Ingame;
+using VRageMath;
 
 namespace Sandbox.Game.Entities.Cube
 {
@@ -17,35 +19,95 @@ namespace Sandbox.Game.Entities.Cube
     class MyRadar : MyFunctionalBlock, IMyPowerConsumer, IMyComponentOwner<MyRadarComponent>, IMyRadar
     {
         private MyRadarDefinition m_definition;
-
         private MyRadarComponent m_radarComponent;
-
+        private MyRadioBroadcaster m_radioBroadcaster;
         public new MySyncRadar SyncObject;
-
-        public MyPowerReceiver PowerReceiver
-        {
-            get;
-            private set;
-        }
 
         static MyRadar()
         {
-            var range = new MyTerminalControlSlider<MyRadar>("Range", MySpaceTexts.BlockPropertyTitle_OreDetectorRange, MySpaceTexts.BlockPropertyDescription_OreDetectorRange);
-            range.SetLimits(1, 100);
-            range.DefaultValue = 100;
+            var range = new MyTerminalControlSlider<MyRadar>("Range", MySpaceTexts.BlockPropertyTitle_RadarRange, MySpaceTexts.BlockPropertyDescription_RadarRange);
+            range.SetLogLimits(block => 1000, block => block.m_definition.MaximumRange);
+            range.DefaultValue = 10000;
             range.Getter = (x) => x.Range;
-            range.Setter = (x, v) => x.Range = v;
-            range.Writer = (x, result) => result.AppendInt32((int)x.m_radarComponent.DetectionRadius).Append(" m");
+            range.Setter = (x, v) => x.SyncObject.SendChangeRadar(v, x.MinimumSize, x.MaximumSize, x.TrackingLimit, x.BroadcastUsingAntennas);
+            range.Writer = (x, result) => result.AppendInt32((int)x.Range).Append(" m");
+            MyTerminalControlFactory.AddControl(range);
+
+            var minimumSize = new MyTerminalControlSlider<MyRadar>("MinimumSize",
+                MySpaceTexts.BlockPropertyTitle_RadarMinimumSize, MySpaceTexts.BlockPropertyDescription_RadarMinimumSize);
+            minimumSize.SetLogLimits(block => 1, block => 100);
+            minimumSize.DefaultValue = 1;
+            minimumSize.Getter = (x) => x.MinimumSize;
+            minimumSize.Setter = (x, v) => x.SyncObject.SendChangeRadar(x.Range, v, Math.Max(x.MaximumSize, v * 2), x.TrackingLimit, x.BroadcastUsingAntennas);
+            minimumSize.Writer = (x, result) => result.AppendInt32((int)x.MinimumSize).Append(" m");
+            MyTerminalControlFactory.AddControl(minimumSize);
+
+            var maximumSize = new MyTerminalControlSlider<MyRadar>("MaximumSize",
+                MySpaceTexts.BlockPropertyTitle_RadarMaximumSize, MySpaceTexts.BlockPropertyDescription_RadarMaximumSize);
+            maximumSize.SetLogLimits(block => 10, block => 10000);
+            maximumSize.DefaultValue = 10000;
+            maximumSize.Getter = (x) => x.MaximumSize;
+            maximumSize.Setter = (x, v) => x.SyncObject.SendChangeRadar(x.Range, Math.Min(x.MinimumSize, v / 2), v, x.TrackingLimit, x.BroadcastUsingAntennas);
+            maximumSize.Writer = (x, result) => result.AppendInt32((int)x.MaximumSize).Append(" m");
+            MyTerminalControlFactory.AddControl(maximumSize);
+
+            var trackingLimit = new MyTerminalControlSlider<MyRadar>("TrackingLimit",
+                MySpaceTexts.BlockPropertyTitle_RadarTrackingLimit, MySpaceTexts.BlockPropertyDescription_RadarTrackingLimit);
+            trackingLimit.SetLimits(1, 102);
+            trackingLimit.DefaultValue = 100;
+            trackingLimit.Normalizer = (block, val) => (int)val;
+            trackingLimit.Getter = (x) => x.TrackingLimit;
+            trackingLimit.Setter = (x, v) => x.SyncObject.SendChangeRadar(x.Range, x.MinimumSize, x.MaximumSize, (int)v, x.BroadcastUsingAntennas);
+            trackingLimit.Writer = (x, result) =>
+            {
+                if (x.TrackingLimit > 100) 
+                    result.Append("Infinite");
+                else 
+                    result.AppendInt32(x.TrackingLimit);
+            };
+            MyTerminalControlFactory.AddControl(trackingLimit);
 
             var broadcastUsingAntennas = new MyTerminalControlCheckbox<MyRadar>("BroadcastUsingAntennas", MySpaceTexts.BlockPropertyDescription_BroadcastUsingAntennas, MySpaceTexts.BlockPropertyDescription_BroadcastUsingAntennas);
             broadcastUsingAntennas.Getter = (x) => x.m_radarComponent.BroadcastUsingAntennas;
-            broadcastUsingAntennas.Setter = (x, v) => x.SyncObject.SendChangeOreDetector(v);
+            broadcastUsingAntennas.Setter = (x, v) => x.SyncObject.SendChangeRadar(x.Range, x.MinimumSize, x.MaximumSize, x.TrackingLimit, v);
             MyTerminalControlFactory.AddControl(broadcastUsingAntennas);
         }
 
-        protected override bool CheckIsWorking()
+        public float MinimumSize
         {
-            return PowerReceiver.IsPowered && base.CheckIsWorking();
+            get { return m_radarComponent.MinimumSize; }
+            set
+            {
+                if (m_radarComponent.MinimumSize != value)
+                {
+                    m_radarComponent.MinimumSize = value;
+                    RaisePropertiesChanged();
+                }
+            }
+        }
+        public float MaximumSize
+        {
+            get { return m_radarComponent.MaximumSize; }
+            set
+            {
+                if (m_radarComponent.MaximumSize != value)
+                {
+                    m_radarComponent.MaximumSize = value;
+                    RaisePropertiesChanged();
+                }
+            }
+        }
+        public int TrackingLimit
+        {
+            get { return m_radarComponent.TrackingLimit; }
+            set
+            {
+                if (m_radarComponent.TrackingLimit != value)
+                {
+                    m_radarComponent.TrackingLimit = value;
+                    RaisePropertiesChanged();
+                }
+            }
         }
 
         public bool GetComponent(out MyRadarComponent component)
@@ -54,22 +116,34 @@ namespace Sandbox.Game.Entities.Cube
             return IsWorking;
         }
 
+        public MyPowerReceiver PowerReceiver
+        {
+            get;
+            private set;
+        }
+
+        public override void UpdateVisual()
+        {
+            base.UpdateVisual();
+            UpdateEmissivity();
+        }
+
         public float Range
         {
             get
             {
-                return (m_radarComponent.DetectionRadius / m_definition.MaximumRange) * 100f;
+                return m_radarComponent.DetectionRadius;
             }
             set
             {
-                if (m_radarComponent.DetectionRadius != value)
+                if (m_radarComponent.DetectionRadius != value || m_radioBroadcaster.BroadcastRadius != value)
                 {
-                    m_radarComponent.DetectionRadius = (value / 100f) * m_definition.MaximumRange;
+                    m_radarComponent.DetectionRadius = value;
+                    m_radioBroadcaster.BroadcastRadius = value;
                     RaisePropertiesChanged();
                 }
             }
         }
-
 
         public bool BroadcastUsingAntennas
         {
@@ -79,6 +153,112 @@ namespace Sandbox.Game.Entities.Cube
                 m_radarComponent.BroadcastUsingAntennas = value;
                 RaisePropertiesChanged();
             }
+        }
+
+        protected override bool CheckIsWorking()
+        {
+            return PowerReceiver.IsPowered && base.CheckIsWorking();
+        }
+
+        public override void Init(MyObjectBuilder_CubeBlock objectBuilder, MyCubeGrid cubeGrid)
+        {
+            base.Init(objectBuilder, cubeGrid);
+
+            m_definition = BlockDefinition as MyRadarDefinition;
+
+            SyncObject = new MySyncRadar(this);
+
+            var ob = objectBuilder as MyObjectBuilder_Radar;
+
+            m_radioBroadcaster = new MyRadioBroadcaster(this);
+            m_radarComponent = new MyRadarComponent();
+
+            m_radarComponent.DetectionRadius = ob.DetectionRadius;
+            if (m_radarComponent.DetectionRadius == 0)
+                m_radarComponent.DetectionRadius = m_definition.MaximumRange;
+            m_radioBroadcaster.BroadcastRadius = m_radarComponent.DetectionRadius;
+
+            m_radarComponent.MinimumSize = ob.MinimumSize;
+            m_radarComponent.MaximumSize = ob.MaximumSize;
+            m_radarComponent.TrackingLimit = ob.TrackingLimit;
+            m_radarComponent.BroadcastUsingAntennas = ob.BroadcastUsingAntennas;
+
+            m_radarComponent.OnCheckControl += OnCheckControl;
+
+            SlimBlock.ComponentStack.IsFunctionalChanged += ComponentStack_IsFunctionalChanged;
+
+            NeedsUpdate = MyEntityUpdateEnum.EACH_10TH_FRAME;
+
+            PowerReceiver = new MyPowerReceiver(
+                MyConsumerGroupEnum.Factory,
+                false,
+                MyEnergyConstants.MAX_REQUIRED_POWER_RADAR,
+                () => (Enabled && IsFunctional) ? PowerReceiver.MaxRequiredInput : 0f);
+            PowerReceiver.Update();
+            PowerReceiver.IsPoweredChanged += Receiver_IsPoweredChanged;
+            AddDebugRenderComponent(new Components.MyDebugRenderComponentDrawPowerReciever(PowerReceiver, this));
+        }
+
+        public override MyObjectBuilder_CubeBlock GetObjectBuilderCubeBlock(bool copy = false)
+        {
+            var builder = base.GetObjectBuilderCubeBlock(copy) as MyObjectBuilder_Radar;
+            builder.DetectionRadius = m_radarComponent.DetectionRadius;
+            builder.MaximumSize = m_radarComponent.MaximumSize;
+            builder.MinimumSize = m_radarComponent.MinimumSize;
+            builder.TrackingLimit = m_radarComponent.TrackingLimit;
+            builder.BroadcastUsingAntennas = m_radarComponent.BroadcastUsingAntennas;
+            return builder;
+        }
+
+        protected override void OnEnabledChanged()
+        {
+            PowerReceiver.Update();
+            base.OnEnabledChanged();
+        }
+
+        private void Receiver_IsPoweredChanged()
+        {
+            UpdateIsWorking();
+            m_radioBroadcaster.Enabled = IsWorking;
+            UpdateEmissivity();
+        }
+
+        private void UpdateEmissivity()
+        {
+            if (IsWorking)
+                MyCubeBlock.UpdateEmissiveParts(Render.RenderObjectIDs[0], 1.0f, Color.Green, Color.White);
+            else
+                MyCubeBlock.UpdateEmissiveParts(Render.RenderObjectIDs[0], 0.0f, Color.Red, Color.White); ;
+        }
+
+        public override void OnUnregisteredFromGridSystems()
+        {
+            m_radarComponent.Clear();
+            base.OnUnregisteredFromGridSystems();
+        }
+
+        public override void UpdateBeforeSimulation10()
+        {
+            base.UpdateBeforeSimulation10();
+            if (HasLocalPlayerAccess())
+            {
+                m_radarComponent.Update(PositionComp.GetPosition());
+            }
+            else
+            {
+                m_radarComponent.Clear();
+            }
+        }
+
+        private void ComponentStack_IsFunctionalChanged()
+        {
+            PowerReceiver.Update();
+        }
+
+        private bool OnCheckControl()
+        {
+            bool isControlled = Sandbox.Game.World.MySession.ControlledEntity != null && ((MyEntity)Sandbox.Game.World.MySession.ControlledEntity).Parent == Parent;
+            return IsWorking && isControlled;
         }
     }
 }

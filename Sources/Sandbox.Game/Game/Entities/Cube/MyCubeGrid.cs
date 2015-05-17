@@ -46,6 +46,7 @@ using VRage.Collections;
 using Sandbox.ModAPI.Interfaces;
 using Sandbox.Game.Localization;
 using Havok;
+using Sandbox.Game.Gui;
 using VRage.Library.Utils;
 
 #endregion
@@ -1890,6 +1891,7 @@ namespace Sandbox.Game.Entities
 
                 if (objectBuilder == null)
                 {
+                    MyHud.ShowDebugNotification("No object builder");
                     return null;
                 }
 
@@ -1900,6 +1902,7 @@ namespace Sandbox.Game.Entities
                 catch (Exception e)
                 {
                     MyLog.Default.WriteLine("ERROR while adding cube " + blockDefinition.DisplayNameText.ToString() + ": " + e.ToString());
+                    MyHud.ShowDebugNotification("ERROR while adding cube " + blockDefinition.DisplayNameText.ToString() + ": " + e.ToString());
                     return null;
                 }
             }

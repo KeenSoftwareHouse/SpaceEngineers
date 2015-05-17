@@ -6240,4 +6240,28 @@ To connect to lasers not listed here you can connect to coordinates.</value>
   <data name="DisplayName_Block_Radar" xml:space="preserve">
     <value>Radar</value>
   </data>
+  <data name="BlockPropertyDescription_RadarMaximumSize" xml:space="preserve">
+    <value>Size of largest object to display.</value>
+  </data>
+  <data name="BlockPropertyDescription_RadarMinimumSize" xml:space="preserve">
+    <value>Size of smallest object to display.</value>
+  </data>
+  <data name="BlockPropertyDescription_RadarRange" xml:space="preserve">
+    <value>Maximum detection range.</value>
+  </data>
+  <data name="BlockPropertyDescription_RadarTrackingLimit" xml:space="preserve">
+    <value>Number of objects that can be displayed at once.</value>
+  </data>
+  <data name="BlockPropertyTitle_RadarMaximumSize" xml:space="preserve">
+    <value>Maximum size</value>
+  </data>
+  <data name="BlockPropertyTitle_RadarMinimumSize" xml:space="preserve">
+    <value>Minimum size</value>
+  </data>
+  <data name="BlockPropertyTitle_RadarRange" xml:space="preserve">
+    <value>Range</value>
+  </data>
+  <data name="BlockPropertyTitle_RadarTrackingLimit" xml:space="preserve">
+    <value>Tracking limit</value>
+  </data>
 </root>

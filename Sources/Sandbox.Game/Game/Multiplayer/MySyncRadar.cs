@@ -24,6 +24,9 @@ namespace Sandbox.Game.Multiplayer
                 return EntityId;
             }
 
+            public float Range;
+            public float MinimumSize, MaximumSize;
+            public int TrackingLimit;
             public BoolBlit BroadcastUsingAntennas;
 
             public override string ToString()
@@ -42,11 +45,15 @@ namespace Sandbox.Game.Multiplayer
             m_radar = detector;
         }
 
-        public void SendChangeOreDetector(bool broadcastUsingAntennas)
+        public void SendChangeRadar(float range, float minimumSize, float maximumSize, int trackingLimit, bool broadcastUsingAntennas)
         {
             var msg = new ChangeRadarMsg();
 
             msg.EntityId = m_radar.EntityId;
+            msg.Range = range;
+            msg.MinimumSize = minimumSize;
+            msg.MaximumSize = maximumSize;
+            msg.TrackingLimit = trackingLimit;
             msg.BroadcastUsingAntennas = broadcastUsingAntennas;
 
             Sync.Layer.SendMessageToAllAndSelf(ref msg, MyTransportMessageEnum.Request);
@@ -56,8 +63,14 @@ namespace Sandbox.Game.Multiplayer
         {
             MyEntity entity;
             if (MyEntities.TryGetEntityById(msg.EntityId, out entity))
-                (entity as MyRadar).BroadcastUsingAntennas = msg.BroadcastUsingAntennas;
-        
+            {
+                var myRadar = entity as MyRadar;
+                myRadar.Range = msg.Range;
+                myRadar.MinimumSize = msg.MinimumSize;
+                myRadar.MaximumSize = msg.MaximumSize;
+                myRadar.TrackingLimit = msg.TrackingLimit;
+                myRadar.BroadcastUsingAntennas = msg.BroadcastUsingAntennas;
+            }
         }
 
     }

@@ -4,7 +4,7 @@ using Sandbox.Common;
 using Sandbox.Engine.Utils;
 using Sandbox.Game.World;
 using System.Diagnostics;
-
+using Sandbox.Game.Localization;
 
 #endregion
 
@@ -26,6 +26,7 @@ namespace Sandbox.Game.Gui
         public static MyHudGpsMarkers ButtonPanelMarkers = new MyHudGpsMarkers();
         public static MyHudGpsMarkers GpsMarkers = new MyHudGpsMarkers();
         public static MyHudOreMarkers OreMarkers = new MyHudOreMarkers();
+        public static MyHudGpsMarkers RadarMarkers = new MyHudGpsMarkers();
         public static MyHudChat Chat = new MyHudChat();
         public static MyHudLargeTurretTargets LargeTurretTargets = new MyHudLargeTurretTargets();
         public static MyHudWorldBorderChecker WorldBorderChecker = new MyHudWorldBorderChecker();
@@ -81,6 +82,14 @@ namespace Sandbox.Game.Gui
             CharacterInfo.Reload();
             ConsumerGroupInfo.Reload();
         }
+
+        static public void ShowDebugNotification(string notificationText)
+        {
+            var debugNotification = new MyHudNotification(MySpaceTexts.CustomText, 5000, level: MyNotificationLevel.Important);
+            debugNotification.SetTextFormatArguments("DEBUG: " + notificationText);
+            Notifications.Add(debugNotification);
+        }
+
 
         public static void PushRotatingWheelVisible()
         {
