@@ -380,14 +380,16 @@ namespace Sandbox.Game.Entities.Character
                         UpdateWeaponPosition(); //mainly IK and some zoom + ironsight stuff
                         if (m_handItemDefinition.SimulateLeftHand && m_leftHandIKStartBone != -1 && m_leftHandIKEndBone != -1 && (!UseAnimationForWeapon && m_animationToIKState == 0))
                         {
-                            MatrixD leftHand = (MatrixD)m_handItemDefinition.LeftHand * ((MyEntity)m_currentWeapon).WorldMatrix;
+                            MatrixD offsetMatrix = MatrixD.Invert(m_bones[m_leftHandItemBone].BindTransform);
+                            MatrixD leftHand = offsetMatrix * (MatrixD)m_handItemDefinition.LeftHand * ((MyEntity)m_currentWeapon).WorldMatrix;
                             CalculateHandIK(m_leftHandIKStartBone, m_leftForearmBone, m_leftHandIKEndBone, ref leftHand);
                             //CalculateHandIK(m_leftHandIKStartBone, m_leftHandIKEndBone, ref leftHand);
                         }
 
                         if (m_handItemDefinition.SimulateRightHand && m_rightHandIKStartBone != -1 && m_rightHandIKEndBone != -1 && (!UseAnimationForWeapon || m_animationToIKState != 0))
                         {
-                            MatrixD rightHand = (MatrixD)m_handItemDefinition.RightHand * ((MyEntity)m_currentWeapon).WorldMatrix;
+                            MatrixD offsetMatrix = MatrixD.Invert(m_bones[m_rightHandItemBone].BindTransform);
+                            MatrixD rightHand = offsetMatrix * (MatrixD)m_handItemDefinition.RightHand * ((MyEntity)m_currentWeapon).WorldMatrix;
                             CalculateHandIK(m_rightHandIKStartBone, m_rightForearmBone, m_rightHandIKEndBone, ref rightHand);
                             //CalculateHandIK(m_rightHandIKStartBone, m_rightHandIKEndBone, ref rightHand);
                         }
