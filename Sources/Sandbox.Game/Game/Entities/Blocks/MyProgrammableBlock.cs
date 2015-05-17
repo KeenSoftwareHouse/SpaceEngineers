@@ -358,7 +358,7 @@ namespace Sandbox.Game.Entities.Blocks
             var programmableBlockBuilder = (MyObjectBuilder_MyProgrammableBlock)objectBuilder;
             m_editorData = m_programData = programmableBlockBuilder.Program;
             m_storageData = programmableBlockBuilder.Storage;
-            m_terminalRunArgument = programmableBlockBuilder.DefaultRunArgument;
+            m_terminalRunArgument = programmableBlockBuilder.DefaultRunArgument ?? string.Empty;
             ClearArgumentOnRun = programmableBlockBuilder.ClearArgumentOnRun;
 
             this.SyncObject = new MySyncProgrammableBlock(this);
