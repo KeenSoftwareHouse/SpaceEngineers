@@ -18,20 +18,11 @@ namespace Sandbox.ModAPI.Ingame
         void Connect();
 
         /// <summary>
-        /// Sets the argument for a specified programmable block connected to the current grid via laser antenna.
+        /// Runs the script of a specified programmable block connected to the current grid via laser antenna with a custom argument.
         /// </summary>
         /// <param name="pb_name">The name of the target programmable block for this message.</param>
-        /// <param name="message">The new argument string.</param>
-        /// <param name="run">Should the programmable block be run after the argument was changed.</param>
+        /// <param name="message">The custom argument string.</param>
         /// <returns>Returns true if the pb could be reached. False otherwise.</returns>
-        bool SendMessage(string pb_name, string message, bool run = false);
-
-        /// <summary>
-        /// Runs the script of a specified programmable block connected to the current grid via laser antenna.
-        /// </summary>
-        /// <param name="pb_name">The name of the target programmable block for this run command.</param>
-        /// <returns>Returns true if the pb could be reached. False otherwise.</returns>
-        bool SendRunCommand(string pb_name);
-
+        bool SendMessage(string pb_name, string message);
     }
 }
