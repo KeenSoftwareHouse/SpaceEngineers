@@ -51,6 +51,7 @@ namespace Sandbox.Game.World.Generator
         private static readonly List<MyVoxelMaterialDefinition> m_surfaceMaterials = new List<MyVoxelMaterialDefinition>();
         private static readonly List<MyVoxelMaterialDefinition> m_depositMaterials = new List<MyVoxelMaterialDefinition>();
         private static readonly List<MyVoxelMaterialDefinition> m_coreMaterials = new List<MyVoxelMaterialDefinition>();
+        private static readonly List<MyVoxelMaterialDefinition> m_innerCoreMaterials = new List<MyVoxelMaterialDefinition>();
 
         /// <summary>
         /// Table of methods that take care of creation of asteroids and possibly other composite shapes.
@@ -397,28 +398,100 @@ namespace Sandbox.Game.World.Generator
 
                 { // generating materials
                     // What to do when we (or mods) change the number of materials? Same seed will then produce different results.
+
+                    string surfaceMaterial = "Stone";
+                    string coreMaterial = "Iron";
+                    string innerCoreMaterial = null;
+                    int lightOreFrequency = 1;
+                    int mediumOreFrequency = 1;
+                    int heavyOreFrequency = 1;
+                    float depositCountMult = 1;
+
+                    switch (random.Next(5))
+                    {
+                        // Class C.
+                        case 0:
+                            surfaceMaterial = "Ice";
+                            coreMaterial = "Stone";
+                            innerCoreMaterial = "Iron";
+                            lightOreFrequency = 2;
+                            mediumOreFrequency = 1;
+                            heavyOreFrequency = 1;
+                            break;
+
+                        // Class S.
+                        case 1:
+                            surfaceMaterial = "Stone";
+                            coreMaterial = "Iron";
+                            lightOreFrequency = 2;
+                            mediumOreFrequency = 2;
+                            heavyOreFrequency = 1;
+                            break;
+
+                        // Class M.
+                        case 2:
+                            surfaceMaterial = "Stone";
+                            coreMaterial = "Iron";
+                            innerCoreMaterial = "Nickel";
+                            lightOreFrequency = 0;
+                            mediumOreFrequency = 1;
+                            heavyOreFrequency = 1;
+                            break;
+
+                        // Class E.
+                        case 3:
+                            surfaceMaterial = "Stone";
+                            coreMaterial = "Stone";
+                            lightOreFrequency = 1;
+                            mediumOreFrequency = 1;
+                            heavyOreFrequency = 2;
+                            depositCountMult = 2;
+                            break;
+
+                        // Kuiper belt object.
+                        default:
+                            surfaceMaterial = "Ice";
+                            coreMaterial = "Ice";
+                            lightOreFrequency = 1;
+                            mediumOreFrequency = 1;
+                            heavyOreFrequency = 0;
+                            break;
+                    }
+
                     foreach (var material in MyDefinitionManager.Static.GetVoxelMaterialDefinitions())
                     {
                         if (material.MinVersion > version)
                             continue;
 
-                        if (material.MinedOre == "Stone") // Surface
+                        if (material.MinedOre == surfaceMaterial)
                             m_surfaceMaterials.Add(material);
-                        else if (material.MinedOre == "Iron") // Core
+                        if (material.MinedOre == coreMaterial)
                             m_coreMaterials.Add(material);
-                        else if (material.MinedOre == "Uranium") // Uranium
+                        if (innerCoreMaterial != null && material.MinedOre == innerCoreMaterial)
+                            m_innerCoreMaterials.Add(material);
+
+                        int frequency = 1;
+                        switch (material.MinedOre)
                         {
-                            // We want more uranium, by design
-                            m_depositMaterials.Add(material);
-                            m_depositMaterials.Add(material);
+                            case "Stone":
+                            case "Magnesium":
+                            case "Silicon":
+                                frequency = lightOreFrequency;
+                                break;
+                            case "Iron":
+                            case "Nickel":
+                            case "Cobalt":
+                                frequency = mediumOreFrequency;
+                                break;
+                            case "Uranium":
+                                // We want more uranium, by design
+                                frequency = heavyOreFrequency * 2;
+                                break;
+                            default:
+                                frequency = heavyOreFrequency;
+                                break;
                         }
-                        else if (material.MinedOre == "Ice")
-                        { 
-                            // We also want more ice, by design
-                            m_depositMaterials.Add(material);
-                            m_depositMaterials.Add(material);
-                        }
-                        else
+                        for (int i = 0; i < frequency; i++)
                             m_depositMaterials.Add(material);
                     }
 
@@ -461,13 +534,14 @@ namespace Sandbox.Game.World.Generator
                     }
                     else
                     {
-                        int depositCount = Math.Max((int)Math.Log(size), data.FilledShapes.Length);
+                        int depositCount = Math.Max((int)(Math.Log(size) * depositCountMult), data.FilledShapes.Length);
                         data.Deposits = new MyCompositeShapeOreDeposit[depositCount];
 
                         var depositSize = size / 10f;
 
                         int currentMaterial = 0;
-                        for (int i = 0; i < data.FilledShapes.Length; ++i)
+                        int depositIndex = 0;
+                        for (int i = 0; i < data.FilledShapes.Length && depositIndex < depositCount; ++i, ++depositIndex)
                         {
                             MyVoxelMaterialDefinition material;
                             if (i == 0)
@@ -478,21 +552,28 @@ namespace Sandbox.Game.World.Generator
                             {
                                 material = m_depositMaterials[currentMaterial++];
                             }
-                            data.Deposits[i] = new MyCompositeShapeOreDeposit(data.FilledShapes[i].DeepCopy(), material);
-                            data.Deposits[i].Shape.ShrinkTo(random.NextFloat() * 0.15f + 0.6f);
+                            data.Deposits[depositIndex] = new MyCompositeShapeOreDeposit(data.FilledShapes[i].DeepCopy(), material);
+                            data.Deposits[depositIndex].Shape.ShrinkTo(random.NextFloat() * 0.15f + 0.6f);
+                            if (i == 0 && m_innerCoreMaterials.Count > 0)
+                            {
+                                ++depositIndex;
+                                material = m_innerCoreMaterials[(int) random.Next() % m_innerCoreMaterials.Count];
+                                data.Deposits[depositIndex] = new MyCompositeShapeOreDeposit(data.FilledShapes[i].DeepCopy(), material);
+                                data.Deposits[depositIndex].Shape.ShrinkTo(random.NextFloat() * 0.15f + 0.4f);
+                            }
                             if (currentMaterial == m_depositMaterials.Count)
                             {
                                 currentMaterial = 0;
                                 shuffleMaterials(m_depositMaterials);
                             }
                         }
-                        for (int i = data.FilledShapes.Length; i < depositCount; ++i)
+                        for (; depositIndex < depositCount; ++depositIndex)
                         {
                             var center = CreateRandomPointInBox(random, size * 0.7f) + storageOffset + size * 0.15f;
                             var radius = random.NextFloat() * depositSize + 8f;
                             random.NextFloat();random.NextFloat();//backwards compatibility
                             MyCsgShapeBase shape = new MyCsgSphere(center, radius);
-                            data.Deposits[i] = new MyCompositeShapeOreDeposit(shape, m_depositMaterials[currentMaterial++]);
+                            data.Deposits[depositIndex] = new MyCompositeShapeOreDeposit(shape, m_depositMaterials[currentMaterial++]);
                             if (currentMaterial == m_depositMaterials.Count)
                             {
                                 currentMaterial = 0;
@@ -503,6 +584,7 @@ namespace Sandbox.Game.World.Generator
 
                     m_surfaceMaterials.Clear();
                     m_coreMaterials.Clear();
+                    m_innerCoreMaterials.Clear();
                     m_depositMaterials.Clear();
                 }
             }
