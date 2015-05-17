@@ -496,6 +496,9 @@ namespace Sandbox.Game.World.Generator
                         switch (material.MinedOre)
                         {
                             case "Stone":
+                            case "Ice":
+                                frequency = 0;
+                                break;
                             case "Magnesium":
                             case "Silicon":
                                 frequency = lightOreFrequency;
