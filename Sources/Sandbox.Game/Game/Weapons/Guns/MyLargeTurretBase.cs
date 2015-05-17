@@ -34,6 +34,7 @@ using VRage.Import;
 using Sandbox.ModAPI.Ingame;
 using IMyDestroyableObject = Sandbox.ModAPI.Interfaces.IMyDestroyableObject;
 using Sandbox.Game.Localization;
+using VRage.Input;
 
 #endregion
 
@@ -369,6 +370,14 @@ namespace Sandbox.Game.Weapons
         float m_minRangeMeter = DEFAULT_MIN_RANGE;
         float m_maxRangeMeter = DEFAULT_MAX_RANGE;
         protected bool m_isControlled = false;
+
+
+        private const float MIN_FOV = 0.01f;
+        private const float MAX_FOV = 1.3f;
+
+        private float m_fov = MAX_FOV;
+        private float m_targetFov = MAX_FOV;
+
         #endregion
 
         #region Properties
@@ -894,6 +903,46 @@ namespace Sandbox.Game.Weapons
             }
         }
 
+
+        public override void UpdateBeforeSimulation()
+        {
+            if (MyInput.Static.DeltaMouseScrollWheelValue() != 0 && MyGuiScreenCubeBuilder.Static == null && !MyGuiScreenTerminal.IsOpen)
+            {
+                ChangeZoom(MyInput.Static.DeltaMouseScrollWheelValue());
+            }
+            base.UpdateBeforeSimulation();
+        }
+
+        internal void ChangeZoom(int deltaZoom)
+        {
+            if (deltaZoom > 0)
+            {
+                m_targetFov -= 0.15f;
+                if (m_targetFov < MIN_FOV)
+                {
+                    m_targetFov = MIN_FOV;
+                }
+            }
+            else
+            {
+                m_targetFov += 0.15f;
+                if (m_targetFov > MAX_FOV)
+                {
+                    m_targetFov = MAX_FOV;
+                }
+            }
+
+            SetFov(m_fov);
+        }
+
+        private static void SetFov(float fov)
+        {
+            System.Diagnostics.Debug.Assert(fov >= MIN_FOV && fov <= MAX_FOV, "FOV for camera has invalid values");
+            fov = MathHelper.Clamp(fov, MIN_FOV, MAX_FOV);
+
+            MySector.MainCamera.FieldOfView = fov;
+        }
+
         //Shooting must be handled here because only here is the correct start position for projectile (because of physics)
         public override void UpdateAfterSimulation()
         {
@@ -966,6 +1015,14 @@ namespace Sandbox.Game.Weapons
                 StopShootingSound();
             }
             VRageRender.MyRenderProxy.GetRenderProfiler().EndProfilingBlock();
+
+            if (MyFakes.ENABLE_CAMERA_BLOCK)
+            {
+
+                m_fov = VRageMath.MathHelper.Lerp(m_fov, m_targetFov, 0.5f);
+                SetFov(m_fov);
+
+            }
         }
 
         private void UpdateAiWeapon()
@@ -2661,7 +2718,6 @@ namespace Sandbox.Game.Weapons
                 worldMatrix.Translation += worldMatrix.Forward * ForwardCameraOffset;
                 worldMatrix.Translation += worldMatrix.Up * UpCameraOffset;
             }
-
             MatrixD.Invert(ref worldMatrix, out viewMatrix);
             return viewMatrix;
         }
