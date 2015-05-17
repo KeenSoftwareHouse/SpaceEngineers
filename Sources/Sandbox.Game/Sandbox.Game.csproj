@@ -248,6 +248,7 @@
     <Compile Include="Engine\Utils\MyTextureAtlasUtils.cs" />
     <Compile Include="Engine\Voxels\IMyVoxelDrawable.cs" />
     <Compile Include="Engine\Voxels\MyCsgShapeExcludedSphere.cs" />
+    <Compile Include="Engine\Voxels\MyCsgShapeMetaball.cs" />
     <Compile Include="Engine\Voxels\MyCsgShapePlanet.cs" />
     <Compile Include="Engine\Voxels\MyCsgSimpleSphere.cs" />
     <Compile Include="Engine\Voxels\MyPrecalcJobPhysicsBatch.cs" />

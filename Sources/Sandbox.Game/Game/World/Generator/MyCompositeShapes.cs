@@ -215,7 +215,7 @@ namespace Sandbox.Game.World.Generator
 
                 MyCsgShapeBase primaryShape;
                 { // determine primary shape
-                    var primaryType = random.Next() % 3;
+                    var primaryType = random.Next() % 5;
                     switch (primaryType)
                     {
                         case 0: //ShapeType.Torus
@@ -234,7 +234,7 @@ namespace Sandbox.Game.World.Generator
                             break;
 
                         case 1: //ShapeType.Sphere
-                        default:
+                        case 2:
                             {
                                 var sphere = new MyCsgSphere(
                                     translation: new Vector3(halfStorageSize),
@@ -243,6 +243,28 @@ namespace Sandbox.Game.World.Generator
                                     deviationFrequency: random.NextFloat() * 0.8f + 0.2f,
                                     detailFrequency: random.NextFloat() * 0.6f + 0.4f);
                                 primaryShape = sphere;
+                            }
+                            break;
+
+                        default: //ShapeType.Metaball
+                            {
+                                var balls = new Vector3[8];
+                                var weights = new float[8];
+                                for (int i = 0; i < balls.Length; i++)
+                                {
+                                    balls[i] = new Vector3(random.NextFloat(-0.25f, 0.25f) * size,
+                                        random.NextFloat(-0.25f, 0.25f) * size, random.NextFloat(-0.25f, 0.25f) * size);
+                                    weights[i] = i < 6 ? 1f : -1f;
+                                }
+                                var metaball = new MyCsgShapeMetaball(
+                                    translation: new Vector3(halfStorageSize),
+                                    radius: (random.NextFloat() * 0.1f + 0.2f) * size,
+                                    balls: balls,
+                                    weights: weights,
+                                    halfDeviation: (random.NextFloat() * 0.05f + 0.05f) * size + 1f,
+                                    deviationFrequency: random.NextFloat() * 0.8f + 0.2f,
+                                    detailFrequency: random.NextFloat() * 0.6f + 0.4f);
+                                primaryShape = metaball;                            
                             }
                             break;
                     }
