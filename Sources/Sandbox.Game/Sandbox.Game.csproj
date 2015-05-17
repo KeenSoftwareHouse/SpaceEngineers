@@ -428,6 +428,8 @@
     <Compile Include="Game\Entities\Blocks\MyTextPanel.cs" />
     <Compile Include="Game\Entities\Blocks\MyTimerBlock.cs" />
     <Compile Include="Game\Entities\Blocks\MyUpgradeModule.cs" />
+    <Compile Include="Game\Entities\Blocks\ToolbarItem.cs" />
+    <Compile Include="Game\Entities\Blocks\ToolbarItemParameter.cs" />
     <Compile Include="Game\Entities\Character\MyCharacterBreath.cs" />
     <Compile Include="Game\Entities\Character\MyChatHistory.cs" />
     <Compile Include="Game\Entities\Character\MyInverseKinematics.cs" />
