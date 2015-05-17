@@ -12,5 +12,8 @@ namespace Sandbox.Common.ObjectBuilders.Definitions
     {
         [ProtoMember(1)] 
         public float MaximumRange;
+
+        [ProtoMember(2)]
+        public float MaxRequiredPowerInput;
     }
 }

@@ -10,12 +10,14 @@ namespace Sandbox.Definitions
     public class MyRadarDefinition : MyCubeBlockDefinition
     {
         public float MaximumRange;
+        public float MaxRequiredPowerInput;
 
         protected override void Init(MyObjectBuilder_DefinitionBase builder)
         {
             base.Init(builder);
             var ob = builder as MyObjectBuilder_RadarDefinition;
             MaximumRange = ob.MaximumRange;
+            MaxRequiredPowerInput = ob.MaxRequiredPowerInput;
         }
     }
 }

@@ -11,6 +11,8 @@ using Sandbox.Game.Gui;
 using Sandbox.Game.Localization;
 using Sandbox.Game.Multiplayer;
 using Sandbox.ModAPI.Ingame;
+using VRage;
+using VRage.Utils;
 using VRageMath;
 
 namespace Sandbox.Game.Entities.Cube
@@ -55,7 +57,6 @@ namespace Sandbox.Game.Entities.Cube
                 MySpaceTexts.BlockPropertyTitle_RadarTrackingLimit, MySpaceTexts.BlockPropertyDescription_RadarTrackingLimit);
             trackingLimit.SetLimits(1, 102);
             trackingLimit.DefaultValue = 100;
-            trackingLimit.Normalizer = (block, val) => (int)val;
             trackingLimit.Getter = (x) => x.TrackingLimit;
             trackingLimit.Setter = (x, v) => x.SyncObject.SendChangeRadar(x.Range, x.MinimumSize, x.MaximumSize, (int)v, x.BroadcastUsingAntennas);
             trackingLimit.Writer = (x, result) =>
@@ -85,6 +86,7 @@ namespace Sandbox.Game.Entities.Cube
                 }
             }
         }
+
         public float MaximumSize
         {
             get { return m_radarComponent.MaximumSize; }
@@ -97,6 +99,7 @@ namespace Sandbox.Game.Entities.Cube
                 }
             }
         }
+
         public int TrackingLimit
         {
             get { return m_radarComponent.TrackingLimit; }
@@ -105,7 +108,9 @@ namespace Sandbox.Game.Entities.Cube
                 if (m_radarComponent.TrackingLimit != value)
                 {
                     m_radarComponent.TrackingLimit = value;
+                    PowerReceiver.Update();
                     RaisePropertiesChanged();
+                    UpdateText();
                 }
             }
         }
@@ -140,7 +145,9 @@ namespace Sandbox.Game.Entities.Cube
                 {
                     m_radarComponent.DetectionRadius = value;
                     m_radioBroadcaster.BroadcastRadius = value;
+                    PowerReceiver.Update();
                     RaisePropertiesChanged();
+                    UpdateText();
                 }
             }
         }
@@ -192,11 +199,31 @@ namespace Sandbox.Game.Entities.Cube
             PowerReceiver = new MyPowerReceiver(
                 MyConsumerGroupEnum.Factory,
                 false,
-                MyEnergyConstants.MAX_REQUIRED_POWER_RADAR,
-                () => (Enabled && IsFunctional) ? PowerReceiver.MaxRequiredInput : 0f);
+                m_definition.MaxRequiredPowerInput,
+                UpdatePowerInput);
             PowerReceiver.Update();
             PowerReceiver.IsPoweredChanged += Receiver_IsPoweredChanged;
             AddDebugRenderComponent(new Components.MyDebugRenderComponentDrawPowerReciever(PowerReceiver, this));
+        }
+
+        private float UpdatePowerInput()
+        {
+            float trackingRatio = (Math.Min(TrackingLimit, 100) + 25f) / 125f;
+            float rangeRatio = Range / m_definition.MaximumRange;
+            float requiredInput = m_definition.MaxRequiredPowerInput * trackingRatio * rangeRatio;
+            UpdateText();
+            return (Enabled && IsFunctional) ? requiredInput : 0f;
+        }
+
+        private void UpdateText()
+        {
+            DetailedInfo.Clear();
+            DetailedInfo.AppendStringBuilder(MyTexts.Get(MySpaceTexts.BlockPropertiesText_Type));
+            DetailedInfo.Append(BlockDefinition.DisplayNameText);
+            DetailedInfo.Append("\n");
+            DetailedInfo.AppendStringBuilder(MyTexts.Get(MySpaceTexts.BlockPropertyProperties_CurrentInput));
+            MyValueFormatter.AppendWorkInBestUnit(PowerReceiver.IsPowered ? PowerReceiver.RequiredInput : 0, DetailedInfo);
+            RaisePropertiesChanged();
         }
 
         public override MyObjectBuilder_CubeBlock GetObjectBuilderCubeBlock(bool copy = false)
@@ -221,6 +248,7 @@ namespace Sandbox.Game.Entities.Cube
             UpdateIsWorking();
             m_radioBroadcaster.Enabled = IsWorking;
             UpdateEmissivity();
+            UpdateText();
         }
 
         private void UpdateEmissivity()
@@ -253,6 +281,7 @@ namespace Sandbox.Game.Entities.Cube
         private void ComponentStack_IsFunctionalChanged()
         {
             PowerReceiver.Update();
+            UpdateText();
         }
 
         private bool OnCheckControl()
