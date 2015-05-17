@@ -749,6 +749,39 @@ namespace Sandbox.Game.Entities.Cube
             return null;
         }
 
+        /// <summary>
+        /// Runs the script of a specified programmable block connected to the current grid via laser antenna with a custom argument.
+        /// </summary>
+        /// <param name="pb_name">The name of the target programmable block for this message.</param>
+        /// <param name="message">The custom argument string.</param>
+        /// <returns>Returns true if the pb could be reached. False otherwise.</returns>
+        public bool SendMessage(string pb_name, string message)
+        {
+            if (pb_name == null || pb_name == string.Empty)
+                return false;
+
+            if (State == StateEnum.connected)
+            {
+                var gridGroup = MyCubeGridGroups.Static.Logical.GetGroup(GetOther().CubeGrid);
+                var terminalSystem = gridGroup.GroupData.TerminalSystem;
+                terminalSystem.UpdateGridBlocksOwnership(this.OwnerId);
+
+                IMyGridTerminalSystem grid = (IMyGridTerminalSystem)terminalSystem;
+                if (grid == null)
+                    return false;
+
+                MyProgrammableBlock pb = (MyProgrammableBlock)grid.GetBlockWithName(pb_name); //Get the programmable block with the specified name.
+                if (pb == null) //If the block with the name does not exist, or if the player has no permission this will be null.
+                    return false;
+
+                pb.Run(message);
+
+                return true;
+            }
+
+            return false;
+        }
+
         public void AddBroadcastersContactingMe(ref HashSet<MyDataBroadcaster> broadcasters)
         {//adds all broadcasters trying to contact me
         //these will be received and updated, but they do not relay information about others (only two way established link can do that)
