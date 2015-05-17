@@ -289,5 +289,12 @@ namespace Sandbox.Game.Entities.Cube
             bool isControlled = Sandbox.Game.World.MySession.ControlledEntity != null && ((MyEntity)Sandbox.Game.World.MySession.ControlledEntity).Parent == Parent;
             return IsWorking && isControlled;
         }
+
+        protected override void WorldPositionChanged(object source)
+        {
+            base.WorldPositionChanged(source);
+            if (m_radioBroadcaster != null)
+                m_radioBroadcaster.MoveBroadcaster();
+        }
     }
 }
