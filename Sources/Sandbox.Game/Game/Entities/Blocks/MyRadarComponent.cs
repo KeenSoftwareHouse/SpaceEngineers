@@ -86,7 +86,7 @@ namespace Sandbox.Game.Entities.Cube
                     targets.Add(new RadarSignature(myEntity.PositionComp.WorldVolume, myEntity));
             }
 
-            targets.Sort((signature1, signature2) => Math.Sign(signature2.Radius - signature1.Radius));
+            targets.Sort((signature1, signature2) => signature1.Radius != signature2.Radius ? Math.Sign(signature2.Radius - signature1.Radius) : signature1.m_entity.EntityId.CompareTo(signature2.m_entity.EntityId));
             
             int validTargets = 0;
             for (int i = 0; i < targets.Count; i++)
