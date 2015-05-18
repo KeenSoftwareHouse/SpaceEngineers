@@ -50,18 +50,15 @@ namespace Sandbox.Game.Entities.Cube
             public MyEntity m_entity;
             public BoundingSphereD m_boundingSphere;
             public double m_distance;
-            public bool m_isAntenna;
 
             public Vector3D Center { get { return m_boundingSphere.Center; } }
 
             public double Radius { get { return m_boundingSphere.Radius; } }
 
-            public RadarSignature(BoundingSphereD boundingSphere, MyEntity entity, bool isAntenna = false, double distance = 0.0)
+            public RadarSignature(BoundingSphereD boundingSphere, MyEntity entity)
             {
                 m_entity = entity;
                 m_boundingSphere = boundingSphere;
-                m_distance = distance;
-                m_isAntenna = isAntenna;
             }
         }
 
@@ -76,24 +73,9 @@ namespace Sandbox.Game.Entities.Cube
 
             SetRelayedRequest = false;
 
-            var sphere = new BoundingSphereD(position, 0.5);
+            var sphere = new BoundingSphereD(position, DetectionRadius);
             List<RadarSignature> targets = new List<RadarSignature>();
 
-            // Collect radio broadcasters. The radar can't display radio broadcasters itself, but broadcaster
-            // signatures will hide nearby entities. Broadcasters use the broadcast radius as their radius, so 
-            // they will usually come first when checking for hidden entities.
-            m_broadcastersCache.Clear();
-            MyRadioBroadcasters.GetAllBroadcastersInSphere(sphere, m_broadcastersCache);
-            for (int i = 0; i < m_broadcastersCache.Count; i++)
-            {
-                var myDataBroadcaster = m_broadcastersCache[i];
-                targets.Add(
-                    new RadarSignature(
-                        new BoundingSphereD(myDataBroadcaster.BroadcastPosition,
-                            (myDataBroadcaster as MyRadioBroadcaster).BroadcastRadius / 10), myDataBroadcaster.Parent, true));
-            }
-
-            sphere.Radius = DetectionRadius;
             MyGamePruningStructure.GetAllEntitiesInSphere<MyEntity>(ref sphere, m_entitiesCache);
             for (int i = 0; i < m_entitiesCache.Count; i++)
             {
@@ -140,7 +122,7 @@ namespace Sandbox.Game.Entities.Cube
             for (int i = 0; i < validTargets; i++)
             {
                 var radarSignature = targets[i];
-                if (!radarSignature.m_isAntenna && MaximumSize < MyRadar.InfiniteSize && radarSignature.Radius * 2 > MaximumSize)
+                if (MaximumSize < MyRadar.InfiniteSize && radarSignature.Radius * 2 > MaximumSize)
                     continue;
                 if (radarSignature.Radius * 2 < MinimumSize)
                     continue;
