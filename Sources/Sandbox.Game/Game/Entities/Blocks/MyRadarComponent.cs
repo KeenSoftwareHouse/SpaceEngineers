@@ -28,6 +28,9 @@ namespace Sandbox.Game.Entities.Cube
 
         public bool SetRelayedRequest { get; set; }
 
+        private Dictionary<MyEntity, RadarSignature> m_signatureCache = new Dictionary<MyEntity, RadarSignature>();
+        private List<RadarSignature> m_targetsCache = new List<RadarSignature>();
+
         public MyRadarComponent() 
         {
             DetectionRadius = 5000;
@@ -74,29 +77,43 @@ namespace Sandbox.Game.Entities.Cube
             SetRelayedRequest = false;
 
             var sphere = new BoundingSphereD(position, DetectionRadius);
-            List<RadarSignature> targets = new List<RadarSignature>();
 
+            m_entitiesCache.Clear();
+            m_targetsCache.Clear();
             MyGamePruningStructure.GetAllEntitiesInSphere<MyEntity>(ref sphere, m_entitiesCache);
             for (int i = 0; i < m_entitiesCache.Count; i++)
             {
                 var myEntity = m_entitiesCache[i];
-                if (myEntity is MyVoxelMap)
-                    targets.Add(new RadarSignature(myEntity.PositionComp.WorldVolume, myEntity));
-                else if (myEntity is MyCubeGrid)
-                    targets.Add(new RadarSignature(myEntity.PositionComp.WorldVolume, myEntity));
+                if (myEntity is MyVoxelMap || myEntity is MyCubeGrid)
+                {
+                    RadarSignature signature;
+                    if (m_signatureCache.TryGetValue(myEntity, out signature))
+                    {
+                        signature.m_boundingSphere = myEntity.PositionComp.WorldVolume;                       
+                    }
+                    else
+                    {
+                        signature = new RadarSignature(myEntity.PositionComp.WorldVolume, myEntity);
+                        m_signatureCache[myEntity] = signature;
+                    }
+                    m_targetsCache.Add(signature);
+                }
             }
 
-            targets.Sort((signature1, signature2) => signature1.Radius != signature2.Radius ? Math.Sign(signature2.Radius - signature1.Radius) : signature1.m_entity.EntityId.CompareTo(signature2.m_entity.EntityId));
+            if (m_signatureCache.Count > m_targetsCache.Count + 500)
+                m_signatureCache.Clear();
+
+            m_targetsCache.Sort(SizeComparison);
             
             int validTargets = 0;
-            for (int i = 0; i < targets.Count; i++)
+            for (int i = 0; i < m_targetsCache.Count; i++)
             {
-                var distance = Vector3D.Distance(position, targets[i].Center);
-                targets[i].m_distance = distance;
+                var distance = Vector3D.Distance(position, m_targetsCache[i].Center);
+                m_targetsCache[i].m_distance = distance;
 
                 double modifiedDetectionRadius = DetectionRadius;
-                if (targets[i].Radius < 50)
-                    modifiedDetectionRadius *= targets[i].Radius / 50;
+                if (m_targetsCache[i].Radius < 50)
+                    modifiedDetectionRadius *= m_targetsCache[i].Radius / 50;
                 if (distance > modifiedDetectionRadius)
                     continue;
                 if (distance < 100)
@@ -105,23 +122,23 @@ namespace Sandbox.Game.Entities.Cube
                 // Filter out targets which are too close to other, larger targets
                 for (int j = 0; j < validTargets; j++)
                 {
-                    var separation = Vector3D.Distance(targets[i].Center, targets[j].Center) -
-                        (targets[i].Radius + targets[j].Radius) * distance / DetectionRadius;
+                    var separation = Vector3D.Distance(m_targetsCache[i].Center, m_targetsCache[j].Center) -
+                                        (m_targetsCache[i].Radius + m_targetsCache[j].Radius) * distance / DetectionRadius;
                     if (separation < distance * 0.04)
                         goto next_target;
                 }
-                targets[validTargets++] = targets[i];
+                m_targetsCache[validTargets++] = m_targetsCache[i];
             next_target:
                 ;
             }
 
-            targets.RemoveRange(validTargets, targets.Count - validTargets);
-            targets.Sort((signature1, signature2) => Math.Sign(signature1.m_distance - signature2.m_distance));
+            m_targetsCache.RemoveRange(validTargets, m_targetsCache.Count - validTargets);
+            m_targetsCache.Sort((signature1, signature2) => Math.Sign(signature1.m_distance - signature2.m_distance));
 
             int targetCount = 0;
             for (int i = 0; i < validTargets; i++)
             {
-                var radarSignature = targets[i];
+                var radarSignature = m_targetsCache[i];
                 if (MaximumSize < MyRadar.InfiniteSize && radarSignature.Radius * 2 > MaximumSize)
                     continue;
                 if (radarSignature.Radius * 2 < MinimumSize)
@@ -133,6 +150,11 @@ namespace Sandbox.Game.Entities.Cube
                 m_markers.Add(radarSignature.m_entity);
                 MyHud.RadarMarkers.RegisterMarker(radarSignature.m_entity);
             }
+        }
+
+        private static int SizeComparison(RadarSignature signature1, RadarSignature signature2)
+        {
+            return signature1.Radius != signature2.Radius ? signature2.Radius.CompareTo(signature1.Radius) : signature1.m_entity.EntityId.CompareTo(signature2.m_entity.EntityId);
         }
     }
 }

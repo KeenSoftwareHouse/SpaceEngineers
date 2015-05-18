@@ -212,7 +212,7 @@ namespace Sandbox.Game.Entities.Cube
 
             SlimBlock.ComponentStack.IsFunctionalChanged += ComponentStack_IsFunctionalChanged;
 
-            NeedsUpdate = MyEntityUpdateEnum.EACH_10TH_FRAME;
+            NeedsUpdate = MyEntityUpdateEnum.EACH_100TH_FRAME;
 
             PowerReceiver = new MyPowerReceiver(
                 MyConsumerGroupEnum.Factory,
@@ -283,7 +283,7 @@ namespace Sandbox.Game.Entities.Cube
             base.OnUnregisteredFromGridSystems();
         }
 
-        public override void UpdateBeforeSimulation10()
+        public override void UpdateBeforeSimulation100()
         {
             base.UpdateBeforeSimulation10();
             if (HasLocalPlayerAccess())
