@@ -594,17 +594,6 @@ namespace Sandbox.Game
 
                     MyInventoryItem item = src.m_items[i];
 
-                    //TODO(AF) Remove oxygen specific code from inventory.
-                    //Will be fixed once MyInventory will support Entities.
-                    var oxygenBottle = item.Content as MyObjectBuilder_OxygenContainerObject;
-                    if (oxygenBottle != null && oxygenBottle.OxygenLevel == 1f)
-                    {
-                        i++;
-                        continue;
-                    }
-                    // End of oxygen specific code
-
-
                     if (item.Content.GetObjectId() != contentId)
                     {
                         i++;
