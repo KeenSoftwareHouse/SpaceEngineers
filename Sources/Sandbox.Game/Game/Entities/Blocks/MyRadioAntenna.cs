@@ -22,6 +22,7 @@ using Sandbox.Game.Localization;
 using VRage;
 using VRage.Utils;
 
+using Sandbox.Game.Entities.Blocks;
 #endregion
 
 namespace Sandbox.Game.Entities.Cube
@@ -34,7 +35,6 @@ namespace Sandbox.Game.Entities.Cube
 
         MyRadioBroadcaster m_radioBroadcaster;
         MyRadioReceiver m_radioReceiver;
-
         private bool m_showShipName;
         public bool ShowShipName
         {
@@ -156,6 +156,11 @@ namespace Sandbox.Game.Entities.Cube
             showShipName.Setter = (x, v) => x.RadioBroadcaster.SyncObject.SendChangeRadioAntennaDisplayName(v);
             MyTerminalControlFactory.AddControl(showShipName);
 
+            //unfinished
+            var enableListen = new MyTerminalControlCheckbox<MyRadioAntenna>("EnableListen", MySpaceTexts.Antenna_EnableListen, MySpaceTexts.Antenna_EnableListen);
+            enableBroadcast.Getter = (x) => x.Listen;
+            enableBroadcast.Setter = (x, v) => x.Listen = v;
+            MyTerminalControlFactory.AddControl(enableListen);
         }
 
         public MyRadioAntenna()
@@ -351,6 +356,10 @@ namespace Sandbox.Game.Entities.Cube
             DetailedInfo.Append("\n");
             DetailedInfo.AppendStringBuilder(MyTexts.Get(MySpaceTexts.BlockPropertyProperties_CurrentInput));
             MyValueFormatter.AppendWorkInBestUnit(PowerReceiver.IsPowered ? PowerReceiver.RequiredInput : 0, DetailedInfo);
+
+            DetailedInfo.Append("\n\n");
+            DetailedInfo.Append(LastReceivedMessage);
+
             RaisePropertiesChanged();
         }
 
@@ -358,5 +367,53 @@ namespace Sandbox.Game.Entities.Cube
         {
             get { return GetRadius(); }
         }
+
+        //mine
+        public void ReceiveMessage(string shipsender, string shipreceiver, string pbreceiver, string message)
+        {
+            LastReceivedMessage = "Last Message: " + shipsender + " to " + pbreceiver + " on " + shipreceiver + ": " + message;
+            UpdateText();
+        }
+
+        public void SendMessage(string shipreceiver, string pbreceiver, string message)
+        {
+            foreach (var broadcaster in RadioReceiver.RelayedBroadcasters)
+            {
+                if (broadcaster.Parent is MyRadioAntenna)
+                {
+                    MyRadioAntenna antenna = broadcaster.Parent as MyRadioAntenna;
+                    if (!antenna.Listen || antenna == this) //Antenna is not listening to open chatter, thus ignore it.
+                        continue;
+
+                    antenna.ReceiveMessage(this.CubeGrid.DisplayName, shipreceiver, pbreceiver, message);
+
+                    if (antenna.CubeGrid.DisplayName == shipreceiver)
+                    {
+                        var gridGroup = MyCubeGridGroups.Static.Logical.GetGroup(antenna.CubeGrid);
+                        var terminalSystem = gridGroup.GroupData.TerminalSystem;
+                        terminalSystem.UpdateGridBlocksOwnership(this.OwnerId);
+
+                        IMyGridTerminalSystem grid = (IMyGridTerminalSystem)terminalSystem;
+                        if (grid == null)
+                            continue;
+
+                        MyProgrammableBlock pb = (MyProgrammableBlock)grid.GetBlockWithName(pbreceiver); //Get the programmable block with the specified name.
+                        if (pb == null) //If the block with the name does not exist, or if the player has no permission this will be null.
+                            continue;
+
+                        pb.Run(message);
+                    }
+                }
+            }
+        }
+
+        private string m_lastReceivedMessage = string.Empty;
+        public string LastReceivedMessage
+        {
+            get { return m_lastReceivedMessage; }
+            private set { m_lastReceivedMessage = value; }
+        }
+
+        private bool Listen = false;
     }
 }

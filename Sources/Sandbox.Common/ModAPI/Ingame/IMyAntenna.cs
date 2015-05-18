@@ -7,6 +7,9 @@ namespace Sandbox.ModAPI.Ingame
 {
     public interface IMyRadioAntenna : IMyFunctionalBlock
     {
-       float Radius {get;}
+        float Radius {get;}
+
+        string LastReceivedMessage {get;}
+        void SendMessage(string shipreceiver, string pbreceiver, string message);
     }
 }
