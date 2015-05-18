@@ -337,7 +337,7 @@ namespace Sandbox.Game.Entities
                     Vector3.ClampToSphere(controlTorque, 1.0f);
 
                     GridThrustSystem.ControlThrust = controlThrust;
-                    GridGyroSystem.ControlTorque = controlTorque;
+                    GridGyroSystem.ControlTorque = GridThrustSystem.ControlTorque = controlTorque;
 
                     if (MyFakes.ENABLE_WHEEL_CONTROLS_IN_COCKPIT)
                     {

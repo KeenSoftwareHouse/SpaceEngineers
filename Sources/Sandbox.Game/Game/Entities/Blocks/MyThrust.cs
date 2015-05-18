@@ -115,6 +115,9 @@ namespace Sandbox.Game.Entities
 
         public float CurrentStrength { get; set; }
 
+        public Vector3 GridCenterPos { get; set; }
+        public Vector3 COMOffsetVector { get; set; }
+
         /// <summary>
         /// Overridden thrust in Newtons
         /// </summary>
