@@ -16,12 +16,5 @@ namespace Sandbox.ModAPI.Ingame
         void SetTargetCoords(string coords);
 
         void Connect();
-
-        /// <summary>
-        /// Gets the linked receiver's IMyGridTerminalSystem. Returns null if no link is established.
-        /// </summary>
-        /// <returns></returns>
-        IMyGridTerminalSystem GetReceiverGrid();
-
     }
 }

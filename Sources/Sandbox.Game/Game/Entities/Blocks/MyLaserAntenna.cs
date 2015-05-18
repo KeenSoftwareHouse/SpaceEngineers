@@ -749,24 +749,6 @@ namespace Sandbox.Game.Entities.Cube
             return null;
         }
 
-        /// <summary>
-        /// Gets the linked receiver's IMyGridTerminalSystem. Returns null if no link is established.
-        /// </summary>
-        /// <returns></returns>
-        public IMyGridTerminalSystem GetReceiverGrid()
-        {
-            if (State == StateEnum.connected)
-            {
-                var gridGroup = MyCubeGridGroups.Static.Logical.GetGroup(GetOther().CubeGrid);
-                var terminalSystem = gridGroup.GroupData.TerminalSystem;
-                terminalSystem.UpdateGridBlocksOwnership(this.OwnerId);
-
-                return (IMyGridTerminalSystem)terminalSystem;
-            }
-
-            return null;
-        }
-
         public void AddBroadcastersContactingMe(ref HashSet<MyDataBroadcaster> broadcasters)
         {//adds all broadcasters trying to contact me
         //these will be received and updated, but they do not relay information about others (only two way established link can do that)
