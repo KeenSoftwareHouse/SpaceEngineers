@@ -18,6 +18,7 @@ namespace Sandbox.Game.Entities.Cube
         public float DetectionRadius { get; set; }
         public CheckControlDelegate OnCheckControl;
         private List<MyDataBroadcaster> m_broadcastersCache = new List<MyDataBroadcaster>();
+        private List<MyEntity> m_entitiesCache = new List<MyEntity>();
 
         public bool BroadcastUsingAntennas { get; set; }
 
@@ -75,7 +76,7 @@ namespace Sandbox.Game.Entities.Cube
 
             SetRelayedRequest = false;
 
-            var sphere = new BoundingSphereD(position, DetectionRadius);
+            var sphere = new BoundingSphereD(position, 0.5);
             List<RadarSignature> targets = new List<RadarSignature>();
 
             // Collect radio broadcasters. The radar can't display radio broadcasters itself, but broadcaster
@@ -89,10 +90,10 @@ namespace Sandbox.Game.Entities.Cube
                 targets.Add(
                     new RadarSignature(
                         new BoundingSphereD(myDataBroadcaster.BroadcastPosition,
-                            (myDataBroadcaster as MyRadioBroadcaster).BroadcastRadius), myDataBroadcaster.Parent, true));
+                            (myDataBroadcaster as MyRadioBroadcaster).BroadcastRadius / 10), myDataBroadcaster.Parent, true));
             }
 
-            List<MyEntity> m_entitiesCache = new List<MyEntity>();
+            sphere.Radius = DetectionRadius;
             MyGamePruningStructure.GetAllEntitiesInSphere<MyEntity>(ref sphere, m_entitiesCache);
             for (int i = 0; i < m_entitiesCache.Count; i++)
             {
@@ -122,10 +123,9 @@ namespace Sandbox.Game.Entities.Cube
                 // Filter out targets which are too close to other, larger targets
                 for (int j = 0; j < validTargets; j++)
                 {
-                    // The radiuses should matter when checking separation, but for gameplay purposes
-                    // we ignore them.
-                    var separation = Vector3D.Distance(targets[i].Center, targets[j].Center);
-                    if (separation < distance * 0.04f)
+                    var separation = Vector3D.Distance(targets[i].Center, targets[j].Center) -
+                        (targets[i].Radius + targets[j].Radius) * distance / DetectionRadius;
+                    if (separation < distance * 0.04)
                         goto next_target;
                 }
                 targets[validTargets++] = targets[i];
@@ -140,9 +140,7 @@ namespace Sandbox.Game.Entities.Cube
             for (int i = 0; i < validTargets; i++)
             {
                 var radarSignature = targets[i];
-                if (radarSignature.m_isAntenna)
-                    continue;
-                if (MaximumSize < MyRadar.InfiniteSize && radarSignature.Radius * 2 > MaximumSize)
+                if (!radarSignature.m_isAntenna && MaximumSize < MyRadar.InfiniteSize && radarSignature.Radius * 2 > MaximumSize)
                     continue;
                 if (radarSignature.Radius * 2 < MinimumSize)
                     continue;

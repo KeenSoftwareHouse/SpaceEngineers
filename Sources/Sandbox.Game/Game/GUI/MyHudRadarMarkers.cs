@@ -44,7 +44,7 @@ namespace Sandbox.Game.Gui
         {
             public int Compare(MyEntity first, MyEntity second)
             {
-                return Vector3D.DistanceSquared(MySector.MainCamera.Position, second.LocationForHudMarker).CompareTo(Vector3D.DistanceSquared(MySector.MainCamera.Position, first.LocationForHudMarker));
+                return Vector3D.DistanceSquared(MySector.MainCamera.Position, second.PositionComp.WorldVolume.Center).CompareTo(Vector3D.DistanceSquared(MySector.MainCamera.Position, first.PositionComp.WorldVolume.Center));
             }
         }
         DistanceFromCameraComparer m_distFromCamComparer=new DistanceFromCameraComparer();

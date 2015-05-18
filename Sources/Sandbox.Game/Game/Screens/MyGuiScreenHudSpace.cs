@@ -547,7 +547,7 @@ namespace Sandbox.Game.Gui
                 m_tmpHudEntityParams.Text.Clear();//reuse single instance to reduce overhead
                 m_markerRender.DrawLocationMarker(
                     m_radarHudMarkerStyle,
-                    radar.LocationForHudMarker,
+                    radar.PositionComp.WorldVolume.Center,
                     m_tmpHudEntityParams,
                     0, 0);
             }
