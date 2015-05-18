@@ -26,7 +26,7 @@ namespace Sandbox.Game.Gui
         public static MyHudGpsMarkers ButtonPanelMarkers = new MyHudGpsMarkers();
         public static MyHudGpsMarkers GpsMarkers = new MyHudGpsMarkers();
         public static MyHudOreMarkers OreMarkers = new MyHudOreMarkers();
-        public static MyHudGpsMarkers RadarMarkers = new MyHudGpsMarkers();
+        public static MyHudRadarMarkers RadarMarkers = new MyHudRadarMarkers();
         public static MyHudChat Chat = new MyHudChat();
         public static MyHudLargeTurretTargets LargeTurretTargets = new MyHudLargeTurretTargets();
         public static MyHudWorldBorderChecker WorldBorderChecker = new MyHudWorldBorderChecker();

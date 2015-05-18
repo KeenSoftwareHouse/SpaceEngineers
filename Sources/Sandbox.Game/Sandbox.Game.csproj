@@ -544,6 +544,7 @@
     <Compile Include="Game\GUI\MyHudConsumerGroupInfo.cs" />
     <Compile Include="Game\GUI\MyHudGravityIndicator.cs" />
     <Compile Include="Game\GUI\MyHudCharacterInfo.cs" />
+    <Compile Include="Game\GUI\MyHudRadarMarkers.cs" />
     <Compile Include="Game\GUI\MyHudShipInfo.cs" />
     <Compile Include="Game\GUI\MyHudBlockInfo.cs" />
     <Compile Include="Game\GUI\MyHudCrosshair.cs" />

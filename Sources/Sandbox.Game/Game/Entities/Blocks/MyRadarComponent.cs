@@ -11,7 +11,7 @@ namespace Sandbox.Game.Entities.Cube
 {
     class MyRadarComponent 
     {
-        public List<MyGps> m_markers = new List<MyGps>(); 
+        public List<MyEntity> m_markers = new List<MyEntity>(); 
 
         public delegate bool CheckControlDelegate();
 
@@ -80,7 +80,7 @@ namespace Sandbox.Game.Entities.Cube
 
             // Collect radio broadcasters. The radar can't display radio broadcasters itself, but broadcaster
             // signatures will hide nearby entities. Broadcasters use the broadcast radius as their radius, so 
-            // they will almost always come first when checking for hidden entities.
+            // they will usually come first when checking for hidden entities.
             m_broadcastersCache.Clear();
             MyRadioBroadcasters.GetAllBroadcastersInSphere(sphere, m_broadcastersCache);
             for (int i = 0; i < m_broadcastersCache.Count; i++)
@@ -122,6 +122,8 @@ namespace Sandbox.Game.Entities.Cube
                 // Filter out targets which are too close to other, larger targets
                 for (int j = 0; j < validTargets; j++)
                 {
+                    // The radiuses should matter when checking separation, but for gameplay purposes
+                    // we ignore them.
                     var separation = Vector3D.Distance(targets[i].Center, targets[j].Center);
                     if (separation < distance * 0.04f)
                         goto next_target;
@@ -137,24 +139,19 @@ namespace Sandbox.Game.Entities.Cube
             int targetCount = 0;
             for (int i = 0; i < validTargets; i++)
             {
-                if (targets[i].m_isAntenna)
+                var radarSignature = targets[i];
+                if (radarSignature.m_isAntenna)
                     continue;
-                if (MaximumSize < MyRadar.InfiniteSize && targets[i].Radius * 2 > MaximumSize)
+                if (MaximumSize < MyRadar.InfiniteSize && radarSignature.Radius * 2 > MaximumSize)
                     continue;
-                if (targets[i].Radius * 2 < MinimumSize)
+                if (radarSignature.Radius * 2 < MinimumSize)
                     continue;
 
                 if (TrackingLimit < MyRadar.InfiniteTracking && ++targetCount > TrackingLimit)
                     break;
 
-                var desc = new MyGps();
-                desc.Description = "";
-                desc.DiscardAt = null;
-                desc.Coords = targets[i].Center;
-                desc.ShowOnHud = true;
-
-                m_markers.Add(desc);
-                MyHud.RadarMarkers.RegisterMarker(desc);
+                m_markers.Add(radarSignature.m_entity);
+                MyHud.RadarMarkers.RegisterMarker(radarSignature.m_entity);
             }
         }
     }

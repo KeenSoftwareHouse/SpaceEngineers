@@ -532,7 +532,7 @@ namespace Sandbox.Game.Gui
             ProfilerShort.End();
         }
 
-        private void DrawRadarMarkers(MyHudGpsMarkers radarMarkers)
+        private void DrawRadarMarkers(MyHudRadarMarkers radarMarkers)
         {
             ProfilerShort.Begin("MyGuiScreenHud.DrawGpsMarkers");
 
@@ -544,10 +544,10 @@ namespace Sandbox.Game.Gui
             radarMarkers.Sort();//re-sort by distance from new camera coordinates
             foreach (var radar in radarMarkers.MarkerEntities)
             {
-                m_tmpHudEntityParams.Text.Clear().Append(radar.Name);//reuse single instance to reduce overhead
+                m_tmpHudEntityParams.Text.Clear();//reuse single instance to reduce overhead
                 m_markerRender.DrawLocationMarker(
                     m_radarHudMarkerStyle,
-                    radar.Coords,
+                    radar.LocationForHudMarker,
                     m_tmpHudEntityParams,
                     0, 0);
             }
