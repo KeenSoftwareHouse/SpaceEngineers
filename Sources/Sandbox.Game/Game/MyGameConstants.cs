@@ -180,7 +180,6 @@ namespace Sandbox.Game
         public const float MAX_REQUIRED_POWER_SHIP_GUN = 10.0f / 50000;
         public const float MAX_REQUIRED_POWER_MEDICAL_ROOM = 100.0f / 50000;
         public const float MAX_REQUIRED_POWER_SOUNDBLOCK = 10.0f / 50000;
-        public const float MAX_REQUIRED_POWER_RADAR = 100.0f / 50000;
 
         public const float MIN_REQUIRED_POWER_THRUST_CHANGE_THRESHOLD = 0.001f / 50000;
 
