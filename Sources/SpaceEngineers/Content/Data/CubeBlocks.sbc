@@ -16098,7 +16098,6 @@
       <EdgeType>Light</EdgeType>
       <BuildTimeSeconds>20</BuildTimeSeconds>
       <DamageEffectId>214</DamageEffectId>
-      <MaxRange>50</MaxRange>
     </Definition>
     <Definition xsi:type="MyObjectBuilder_SensorBlockDefinition">
       <Id>
@@ -16134,7 +16133,6 @@
       <EdgeType>Light</EdgeType>
       <BuildTimeSeconds>20</BuildTimeSeconds>
       <DamageEffectId>214</DamageEffectId>
-      <MaxRange>50</MaxRange>
     </Definition>
     <Definition>
       <Id>
