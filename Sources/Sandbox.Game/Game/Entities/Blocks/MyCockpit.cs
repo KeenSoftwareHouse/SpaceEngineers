@@ -1064,6 +1064,11 @@ namespace Sandbox.Game.Entities
             }
         }
 
+        public bool IsUsed
+        {
+            get { return m_pilot != null; }
+        }
+
         #endregion
 
         public virtual UseActionResult CanUse(UseActionEnum actionEnum, IMyControllableEntity user)
