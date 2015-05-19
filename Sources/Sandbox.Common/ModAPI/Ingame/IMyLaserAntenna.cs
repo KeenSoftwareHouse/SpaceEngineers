@@ -17,8 +17,6 @@ namespace Sandbox.ModAPI.Ingame
 
         void Connect();
     
-        
-        
         /// <summary>
         /// Runs the script of a specified programmable block connected to the current grid via laser antenna with a custom argument.
         /// </summary>
