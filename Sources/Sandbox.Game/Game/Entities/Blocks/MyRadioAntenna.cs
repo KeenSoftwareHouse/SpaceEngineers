@@ -158,8 +158,8 @@ namespace Sandbox.Game.Entities.Cube
 
             //unfinished
             var enableListen = new MyTerminalControlCheckbox<MyRadioAntenna>("EnableListen", MySpaceTexts.Antenna_EnableListen, MySpaceTexts.Antenna_EnableListen);
-            enableBroadcast.Getter = (x) => x.Listen;
-            enableBroadcast.Setter = (x, v) => x.Listen = v;
+            enableListen.Getter = (x) => x.Listen;
+            enableListen.Setter = (x, v) => x.Listen = v;
             MyTerminalControlFactory.AddControl(enableListen);
         }
 
@@ -414,6 +414,18 @@ namespace Sandbox.Game.Entities.Cube
             private set { m_lastReceivedMessage = value; }
         }
 
-        private bool Listen = false;
+        private bool m_Listen = false;
+        public bool Listen
+        {
+            get { return m_Listen; }
+            set 
+            {
+                if (m_Listen != value)
+                {
+                    m_Listen = value;
+                    RaisePropertiesChanged();
+                }
+            }
+        }
     }
 }
