@@ -378,6 +378,21 @@ namespace Sandbox.Game.Entities.EnvironmentItems
             }
         }
 
+		public bool TryGetItemInfoById(int itemId, out ItemInfo result)
+		{
+			result = new ItemInfo();
+			MyEnvironmentItemData data;
+			if (m_itemsData.TryGetValue(itemId, out data))
+			{
+				if (data.Enabled)
+				{
+					result = new ItemInfo() { LocalId = itemId, SubtypeId = data.SubtypeId, Transform = data.Transform };
+					return true;
+				}
+			}
+			return false;
+		}
+
         public void GetItemsInRadius(Vector3D position, float radius, List<ItemInfo> result)
         {
             double radiusSq = radius * radius;

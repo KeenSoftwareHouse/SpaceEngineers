@@ -11,13 +11,13 @@ namespace Sandbox.Common.ObjectBuilders
     [MyObjectBuilderDefinition]
     public class MyObjectBuilder_Projector : MyObjectBuilder_FunctionalBlock
     {
-        [ProtoMember(1)]
+        [ProtoMember]
         public MyObjectBuilder_CubeGrid ProjectedGrid;
-        [ProtoMember(2)]
+        [ProtoMember]
         public Vector3I ProjectionOffset;
-        [ProtoMember(3)]
+        [ProtoMember]
         public Vector3I ProjectionRotation;
-        [ProtoMember(4)]
+        [ProtoMember]
         public bool KeepProjection = false;
 
         public override void Remap(IMyRemapHelper remapHelper)

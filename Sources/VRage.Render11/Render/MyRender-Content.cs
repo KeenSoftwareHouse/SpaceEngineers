@@ -48,6 +48,7 @@ namespace VRageRender
             MyDebugRenderer.Init();
             MyGPUFoliageGenerating.Init();
 
+            MyScreenDecals.Init();
             MyEnvProbeProcessing.Init();
             MyShadowsResolve.Init();
             MyAAEdgeMarking.Init(); 
@@ -60,7 +61,7 @@ namespace VRageRender
             MyLuminanceAverage.Init();
             MyToneMapping.Init();
             MySSAO.Init();
-            MyLuminanceDebugTools.Init();
+            MyHdrDebugTools.Init();
 
             MySceneMaterials.Init();
             MyMaterials1.Init();
@@ -251,9 +252,9 @@ namespace VRageRender
             RemoveScreenResources();
 
             m_resolvedLight = new MyRenderTarget(width, height, Format.R11G11B10_Float, 1, 0);
-            m_reduce0 = new MyUnorderedAccessTexture(width, height, Format.R32_Float);
+            m_reduce0 = new MyUnorderedAccessTexture(width, height, Format.R32G32_Float);
             m_reduce0.SetDebugName("reduce0");
-            m_reduce1 = new MyUnorderedAccessTexture(width, height, Format.R32_Float);
+            m_reduce1 = new MyUnorderedAccessTexture(width, height, Format.R32G32_Float);
             m_reduce1.SetDebugName("reduce1");
             m_uav3 = new MyUnorderedAccessTexture(width, height, Format.R11G11B10_Float);
 
@@ -274,7 +275,7 @@ namespace VRageRender
             m_rgba8_0.AddView(new MyViewKey { Fmt = Format.R8G8B8A8_UNorm_SRgb, View = MyViewEnum.SrvView });
 
             m_rgba8_1 = new MyRenderTarget(width, height, Format.R8G8B8A8_UNorm_SRgb, 1, 0);
-            m_prevLum = new MyUnorderedAccessTexture(1, 1, Format.R32_Float);
+            m_prevLum = new MyUnorderedAccessTexture(1, 1, Format.R32G32_Float);
 
             Debug.Assert(m_shadowsHelper == RwTexId.NULL);
             m_shadowsHelper = MyRwTextures.CreateUav2D(width, height, Format.R8_UNorm, "cascade shadows gather");

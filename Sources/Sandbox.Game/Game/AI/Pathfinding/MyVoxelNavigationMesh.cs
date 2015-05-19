@@ -324,7 +324,7 @@ namespace Sandbox.Game.AI.Pathfinding
                 {
                     Vector3 normal = (cPos - aPos).Cross(bPos - aPos);
                     normal.Normalize();
-                    if (normal.Dot(ref Vector3.Up) <= 0.4f) continue;
+                    if (normal.Dot(ref Vector3.Up) <= Math.Cos(MathHelper.ToRadians(54.0f))) continue;
                 }
 
                 Vector3D aTformed = aPos + voxelMapCenter;

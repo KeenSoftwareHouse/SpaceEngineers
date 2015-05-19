@@ -16,24 +16,24 @@ namespace Sandbox.Common.ObjectBuilders.Definitions
         [ProtoContract]
         public class MyCuttingPrefab
         {
-            [ProtoMember(1), DefaultValue(null)]
+            [ProtoMember, DefaultValue(null)]
             public string Prefab = null;
 
-            [ProtoMember(2), DefaultValue(1)]
+            [ProtoMember, DefaultValue(1)]
             public int SpawnCount = 1;
         }
 
-        [ProtoMember(1)]
+        [ProtoMember]
         public SerializableDefinitionId EntityId;
 
-        [ProtoMember(2)]
+        [ProtoMember]
         public string ScrapWoodBranchesPrefab = null;
 
-        [ProtoMember(3)]
+        [ProtoMember]
         public string ScrapWoodPrefab = null;
 
         [XmlArrayItem("CuttingPrefab")]
-        [ProtoMember(4), DefaultValue(null)]
+        [ProtoMember, DefaultValue(null)]
         public MyCuttingPrefab[] CuttingPrefabs = null;
     }
 }

@@ -11,7 +11,7 @@ namespace Sandbox.Game.AI
     public interface IMyEntityBot : IMyBot
     {
         MyEntity BotEntity { get; }
-        void Spawn(Vector3D? spawnPosition);
+        void Spawn(Vector3D? spawnPosition, bool spawnedByPlayer);
 
         // This is a hack!
         bool ShouldFollowPlayer { get; set; }

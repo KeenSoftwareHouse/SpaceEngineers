@@ -14,14 +14,14 @@ namespace Sandbox.Common.ObjectBuilders
         [ProtoContract]
         public struct BotData
         {
-            [ProtoMember(1)]
+            [ProtoMember]
             public int PlayerHandle;
 
-            [ProtoMember(2)]
+            [ProtoMember]
             public MyObjectBuilder_Bot BotBrain;
         }
 
-        [ProtoMember(1)]
+        [ProtoMember]
         public List<BotData> BotBrains;
         public bool ShouldSerializeBotBrains() { return BotBrains != null && BotBrains.Count > 0; }
     }

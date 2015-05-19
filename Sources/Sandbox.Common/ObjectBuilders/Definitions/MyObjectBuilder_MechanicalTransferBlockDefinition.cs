@@ -19,11 +19,11 @@ namespace Medieval.ObjectBuilders.Definitions
         public class MyOBMechanicalSwitch
         {
             [XmlAttribute]
-            [ProtoMember(1)]
+            [ProtoMember]
             public string SwitchName;
 
             [XmlAttribute]
-            [ProtoMember(2)]
+            [ProtoMember]
             public string[] SubBlocks;
         }
 
@@ -31,24 +31,24 @@ namespace Medieval.ObjectBuilders.Definitions
         public class MyOBMechanicalLock
         {
             [XmlAttribute]
-            [ProtoMember(1)]
+            [ProtoMember]
             public string LockName;
 
             [XmlAttribute]
-            [ProtoMember(2)]
+            [ProtoMember]
             public bool LockForwardDirection;
 
             [XmlAttribute]
-            [ProtoMember(3)]
+            [ProtoMember]
             public string[] SubBlocks;
         }
 
         [XmlArrayItem("Switch")]
-        [ProtoMember(1), DefaultValue(null)]
+        [ProtoMember, DefaultValue(null)]
         public MyOBMechanicalSwitch[] Switches = null;
 
         [XmlArrayItem("Lock")]
-        [ProtoMember(2), DefaultValue(null)]
+        [ProtoMember, DefaultValue(null)]
         public MyOBMechanicalLock[] Locks = null;
     }
 }

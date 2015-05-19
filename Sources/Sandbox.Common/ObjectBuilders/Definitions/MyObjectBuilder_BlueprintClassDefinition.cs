@@ -11,15 +11,15 @@ namespace Sandbox.Common.ObjectBuilders.Definitions
     [MyObjectBuilderDefinition]
     public class MyObjectBuilder_BlueprintClassDefinition : MyObjectBuilder_DefinitionBase
     {
-        [ProtoMember(4)]
+        [ProtoMember]
         [ModdableContentFile("dds")]
         public string HighlightIcon;
 
-        [ProtoMember(5)]
+        [ProtoMember]
         [ModdableContentFile("dds")]
         public string InputConstraintIcon;
 
-        [ProtoMember(6)]
+        [ProtoMember]
         [ModdableContentFile("dds")]
         public string OutputConstraintIcon;
     }

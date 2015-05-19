@@ -71,7 +71,7 @@ namespace Sandbox.Game.Entities.Cube
         {
             return new MyActionDescription()
             {
-                Text = MySpaceTexts.NotificationHintPressToEnterCockpit,
+                Text = MySpaceTexts.NotificationHintPressToEnterCryochamber,
                 FormatParams = new object[] { MyGuiSandbox.GetKeyName(MyControlsSpace.USE) },
                 IsTextControlHint = true,
                 JoystickFormatParams = new object[] { MyControllerHelper.GetCodeForControl(MySpaceBindingCreator.CX_CHARACTER, MyControlsSpace.USE) },

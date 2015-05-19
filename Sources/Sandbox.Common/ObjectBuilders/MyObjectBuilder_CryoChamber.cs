@@ -10,10 +10,10 @@ namespace Sandbox.Common.ObjectBuilders
     [MyObjectBuilderDefinition]
     public class MyObjectBuilder_CryoChamber : MyObjectBuilder_Cockpit
     {
-        [ProtoMember(1)]
+        [ProtoMember]
         public ulong? SteamId = null;
 
-        [ProtoMember(2)]
+        [ProtoMember]
         public int? SerialId = null;
     }
 }

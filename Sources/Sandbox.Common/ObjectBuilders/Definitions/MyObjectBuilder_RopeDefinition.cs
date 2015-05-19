@@ -11,10 +11,19 @@ namespace Sandbox.Common.ObjectBuilders.Definitions
     [MyObjectBuilderDefinition]
     public class MyObjectBuilder_RopeDefinition : MyObjectBuilder_DefinitionBase
     {
-        [ProtoMember(1)]
+        [ProtoMember]
         public bool EnableRayCastRelease;
 
-        [ProtoMember(2)]
+        [ProtoMember]
         public bool IsDefaultCreativeRope;
+
+        [ProtoMember]
+        public string ColorMetalTexture;
+
+        [ProtoMember]
+        public string NormalGlossTexture;
+
+        [ProtoMember]
+        public string AddMapsTexture;
     }
 }

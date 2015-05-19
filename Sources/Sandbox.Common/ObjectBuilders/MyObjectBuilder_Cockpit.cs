@@ -8,13 +8,13 @@ namespace Sandbox.Common.ObjectBuilders
     [MyObjectBuilderDefinition]
     public class MyObjectBuilder_Cockpit : MyObjectBuilder_ShipController
     {
-        [ProtoMember(1)]
+        [ProtoMember]
         public MyObjectBuilder_Character Pilot;
 
-        [ProtoMember(2)]
+        [ProtoMember]
         public MyPositionAndOrientation? PilotRelativeWorld;
 
-        [ProtoMember(3)]
+        [ProtoMember]
         public MyObjectBuilder_AutopilotBase Autopilot;
 
         public void ClearPilotAndAutopilot()
@@ -23,13 +23,13 @@ namespace Sandbox.Common.ObjectBuilders
             Autopilot = null;
         }
 
-        [ProtoMember(4)]
+        [ProtoMember]
         public SerializableDefinitionId? PilotGunDefinition;
 
-        [ProtoMember(5)]
+        [ProtoMember]
         public bool IsInFirstPersonView;
 
-        [ProtoMember(6)]
+        [ProtoMember]
         public float OxygenLevel;
 
         public override void SetupForProjector()

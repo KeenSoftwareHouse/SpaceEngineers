@@ -1161,16 +1161,14 @@
       </Id>
       <Category>WEP_PLAY</Category>
       <MaxDistance>46.6797371</MaxDistance>
-      <Volume>0.602728665</Volume>
+      <Volume>0.7</Volume>
       <Loopable>true</Loopable>
       <Waves>
         <Wave Type="D2">
-          <Loop>ARC\WEP\ArcWepPlayRifleShotLoop2d.xwm</Loop>
-          <End>ARC\WEP\ArcWepPlayRifleShotEnd2d.xwm</End>
+          <Loop>ARC\WEP\ArcWepPlayRifleShotLoop2d.wav</Loop>
         </Wave>
         <Wave Type="D3">
-          <Loop>ARC\WEP\ArcWepPlayRifleShotLoop3d.xwm</Loop>
-          <End>ARC\WEP\ArcWepPlayRifleShotEnd3d.xwm</End>
+          <Loop>ARC\WEP\ArcWepPlayRifleShotLoop3d.wav</Loop>
         </Wave>
       </Waves>
     </Sound>
@@ -1295,12 +1293,11 @@
       </Id>
       <Category>R_WEP_PLAY</Category>
       <MaxDistance>46.6797371</MaxDistance>
-      <Volume>0.602728665</Volume>
+      <Volume>0.6</Volume>
       <Loopable>true</Loopable>
       <Waves>
-        <Wave Type="D2">
-          <Loop>Real\WEP\RealWepPlayRifleShotLoop2d.wav</Loop>
-          <End>Real\WEP\RealWepPlayRifleShotEnd2d.wav</End>
+        <Wave Type="D3">
+          <Loop>Real\WEP\RealWepPlayRifleShotLoop3d.wav</Loop>
         </Wave>
       </Waves>
     </Sound>
@@ -1311,10 +1308,10 @@
       </Id>
       <Category>R_WEP_PLAY</Category>
       <MaxDistance>46.6797371</MaxDistance>
-      <Volume>0.602728665</Volume>
+      <Volume>0.5</Volume>
       <Waves>
-        <Wave Type="D2">
-          <Start>Real\WEP\RealWepPlayRifleNoAmmo2d.xwm</Start>
+        <Wave Type="D3">
+          <Start>Real\WEP\RealWepPlayRifleNoAmmo3d.wav</Start>
         </Wave>
       </Waves>
     </Sound>
@@ -1392,7 +1389,7 @@
       <MaxDistance>104.207764</MaxDistance>
       <Waves>
         <Wave Type="D3">
-          <Start>Real\WEP\RealWepShipGatlingNoAmmo3d.xwm</Start>
+          <Start>Real\WEP\RealWepShipGatlingNoAmmo3d.wav</Start>
         </Wave>
       </Waves>
     </Sound>
@@ -1607,7 +1604,7 @@
         </Wave>
       </Waves>
     </Sound>
-        <Sound>
+    <Sound>
       <Id>
         <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
         <SubtypeId>RealWepPlayRifleImpMetal</SubtypeId>
@@ -1672,7 +1669,7 @@
         </Wave>
       </Waves>
     </Sound>
-        <Sound>
+    <Sound>
       <Id>
         <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
         <SubtypeId>RealWepPlayRifleImpPlay</SubtypeId>
@@ -2886,6 +2883,21 @@
           <Loop>Real\TOOL\RealToolShipDrillIdleLoop3d.wav</Loop>
           <End>Real\TOOL\RealToolShipDrillEnd3d.wav</End>
         </Wave>
+        <Wave Type="D3">
+          <Start>Real\TOOL\RealToolShipDrillStart3d.wav</Start>
+          <Loop>Real\TOOL\RealToolShipDrillIdleLoop3d01.wav</Loop>
+          <End>Real\TOOL\RealToolShipDrillEnd3d.wav</End>
+        </Wave>
+        <Wave Type="D3">
+          <Start>Real\TOOL\RealToolShipDrillStart3d.wav</Start>
+          <Loop>Real\TOOL\RealToolShipDrillIdleLoop3d02.wav</Loop>
+          <End>Real\TOOL\RealToolShipDrillEnd3d.wav</End>
+        </Wave>
+        <Wave Type="D3">
+          <Start>Real\TOOL\RealToolShipDrillStart3d.wav</Start>
+          <Loop>Real\TOOL\RealToolShipDrillIdleLoop3d03.wav</Loop>
+          <End>Real\TOOL\RealToolShipDrillEnd3d.wav</End>
+        </Wave>
       </Waves>
     </Sound>
     <Sound>
@@ -2900,6 +2912,15 @@
         <Wave Type="D3">
           <Loop>Real\TOOL\RealToolShipDrillMetalLoop3d.wav</Loop>
         </Wave>
+        <Wave Type="D3">
+          <Loop>Real\TOOL\RealToolShipDrillMetalLoop3d01.wav</Loop>
+        </Wave>
+        <Wave Type="D3">
+          <Loop>Real\TOOL\RealToolShipDrillMetalLoop3d02.wav</Loop>
+        </Wave>
+        <Wave Type="D3">
+          <Loop>Real\TOOL\RealToolShipDrillMetalLoop3d03.wav</Loop>
+        </Wave>
       </Waves>
     </Sound>
     <Sound>
@@ -2913,6 +2934,15 @@
       <Waves>
         <Wave Type="D3">
           <Loop>Real\TOOL\RealToolShipDrillRockLoop3d.wav</Loop>
+        </Wave>
+        <Wave Type="D3">
+          <Loop>Real\TOOL\RealToolShipDrillRockLoop3d01.wav</Loop>
+        </Wave>
+        <Wave Type="D3">
+          <Loop>Real\TOOL\RealToolShipDrillRockLoop3d02.wav</Loop>
+        </Wave>
+        <Wave Type="D3">
+          <Loop>Real\TOOL\RealToolShipDrillRockLoop3d03.wav</Loop>
         </Wave>
       </Waves>
     </Sound>
@@ -3113,13 +3143,13 @@
         <Wave Type="D3">
           <Start>Real\IMP\RealImpShipMetal3d01.wav</Start>
         </Wave>
-              <Wave Type="D3">
+        <Wave Type="D3">
           <Start>Real\IMP\RealImpShipMetal3d02.wav</Start>
         </Wave>
-              <Wave Type="D3">
+        <Wave Type="D3">
           <Start>Real\IMP\RealImpShipMetal3d03.wav</Start>
         </Wave>
-                  <Wave Type="D3">
+        <Wave Type="D3">
           <Start>Real\IMP\RealImpShipMetal3d04.wav</Start>
         </Wave>
       </Waves>
@@ -3368,7 +3398,6 @@
       </Id>
       <Category>R_TOOL_LRG</Category>
       <MaxDistance>30.2429581</MaxDistance>
-      <Volume>1</Volume>
       <Loopable>true</Loopable>
       <Waves>
         <Wave Type="D3">
@@ -3385,11 +3414,9 @@
       </Id>
       <Category>R_TOOL_LRG</Category>
       <MaxDistance>38.461113</MaxDistance>
-      <Volume>1</Volume>
       <Loopable>true</Loopable>
       <Waves>
         <Wave Type="D3">
-          <Start>Real\TOOL\RealToolLrgGrindMetalStart3d.wav</Start>
           <Loop>Real\TOOL\RealToolLrgGrindMetalLoop3d.wav</Loop>
           <End>Real\TOOL\RealToolLrgGrindMetalEnd3d.wav</End>
         </Wave>
@@ -3449,7 +3476,6 @@
       </Id>
       <Category>R_TOOL_LRG</Category>
       <MaxDistance>30.2429581</MaxDistance>
-      <Volume>1</Volume>
       <Waves>
         <Wave Type="D3">
           <Start>Real\TOOL\RealToolLrgWeldIdle3d.wav </Start>
@@ -3463,7 +3489,6 @@
       </Id>
       <Category>R_TOOL_LRG</Category>
       <MaxDistance>30</MaxDistance>
-      <Volume>1</Volume>
       <Waves>
         <Wave Type="D3">
           <Loop>Real\TOOL\RealToolLrgWeldMetalLoop3d.wav</Loop>
@@ -3570,7 +3595,7 @@
         <SubtypeId>RealBlockGravityGen</SubtypeId>
       </Id>
       <Category>R_BLOCK</Category>
-      <MaxDistance>22.0248051</MaxDistance>
+      <MaxDistance>20</MaxDistance>
       <Volume>0.5041087</Volume>
       <Loopable>true</Loopable>
       <Waves>
@@ -3614,7 +3639,7 @@
         <SubtypeId>RealBlockRafinery</SubtypeId>
       </Id>
       <Category>R_BLOCK</Category>
-      <MaxDistance>22.0248051</MaxDistance>
+      <MaxDistance>20</MaxDistance>
       <Volume>0.5041087</Volume>
       <Loopable>true</Loopable>
       <Waves>
@@ -3653,7 +3678,7 @@
         <SubtypeId>RealBlockAssembler</SubtypeId>
       </Id>
       <Category>R_BLOCK</Category>
-      <MaxDistance>22.0248051</MaxDistance>
+      <MaxDistance>20</MaxDistance>
       <Volume>0.5041087</Volume>
       <Loopable>true</Loopable>
       <Waves>
@@ -4337,11 +4362,12 @@
       </Id>
       <Category>R_PROGRESS</Category>
       <MaxDistance>30</MaxDistance>
-      <VolumeVariation>1.26068211</VolumeVariation>
-      <PitchVariation>150</PitchVariation>
       <Waves>
         <Wave Type="D2">
           <Start>Real\PROGRESS\RealPrgDeconstrPh01Start2d01.wav</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>Real\PROGRESS\RealPrgDeconstrPh01Start3d01.wav</Start>
         </Wave>
       </Waves>
     </Sound>
@@ -4379,6 +4405,12 @@
         <Wave Type="D2">
           <Start>Real\PROGRESS\RealPrgDeconstrPh02Proc2d02.wav</Start>
         </Wave>
+        <Wave Type="D3">
+          <Start>Real\PROGRESS\RealPrgDeconstrPh02Proc3d01.wav</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>Real\PROGRESS\RealPrgDeconstrPh02Proc3d02.wav</Start>
+        </Wave>
       </Waves>
     </Sound>
     <Sound>
@@ -4408,6 +4440,9 @@
       <Waves>
         <Wave Type="D2">
           <Start>Real\PROGRESS\RealPrgDeconstrPh03Fin2d01.wav</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>Real\PROGRESS\RealPrgDeconstrPh03Fin3d01.wav</Start>
         </Wave>
       </Waves>
     </Sound>
@@ -4739,7 +4774,7 @@
         </Wave>
       </Waves>
     </Sound>
-      <Sound>
+    <Sound>
       <Id>
         <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
         <SubtypeId>ArcBlockCryoIn</SubtypeId>
@@ -4757,7 +4792,7 @@
         </Wave>
       </Waves>
     </Sound>
-        <Sound>
+    <Sound>
       <Id>
         <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
         <SubtypeId>ArcBlockCryoOut</SubtypeId>
@@ -4772,7 +4807,7 @@
         </Wave>
       </Waves>
     </Sound>
-        <Sound>
+    <Sound>
       <Id>
         <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
         <SubtypeId>RealBlockCryoIn</SubtypeId>
@@ -4790,7 +4825,7 @@
         </Wave>
       </Waves>
     </Sound>
-        <Sound>
+    <Sound>
       <Id>
         <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
         <SubtypeId>RealBlockCryoOut</SubtypeId>
@@ -4874,7 +4909,7 @@
         </Wave>
       </Waves>
     </Sound>
-      <Sound>
+    <Sound>
       <Id>
         <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
         <SubtypeId>RealParticleElectrical</SubtypeId>
@@ -4940,6 +4975,57 @@
       <Waves>
         <Wave Type="D3">
           <Loop>REAL\PARTICLE\RealParticleWeapExplLoop3d01.wav</Loop>
+        </Wave>
+      </Waves>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>ArcBlockModuleProductivity</SubtypeId>
+      </Id>
+      <Category>Block</Category>
+      <MaxDistance>20</MaxDistance>
+      <Volume>0.3</Volume>
+      <VolumeVariation>50</VolumeVariation>
+      <PitchVariation>200</PitchVariation>
+      <Loopable>true</Loopable>
+      <Waves>
+        <Wave Type="D3">
+          <Loop>Arc\BLOCK\ArcBlockModuleProductLoop3d.wav</Loop>
+        </Wave>
+      </Waves>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>ArcBlockModuleEffectiveness</SubtypeId>
+      </Id>
+      <Category>Block</Category>
+      <MaxDistance>20</MaxDistance>
+      <Volume>0.3</Volume>
+      <VolumeVariation>50</VolumeVariation>
+      <PitchVariation>200</PitchVariation>
+      <Loopable>true</Loopable>
+      <Waves>
+        <Wave Type="D3">
+          <Loop>Arc\BLOCK\ArcBlockModuleEffectLoop3d.wav</Loop>
+        </Wave>
+      </Waves>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>ArcBlockModuleEfficiency</SubtypeId>
+      </Id>
+      <Category>Block</Category>
+      <MaxDistance>20</MaxDistance>
+      <Volume>0.3</Volume>
+      <VolumeVariation>50</VolumeVariation>
+      <PitchVariation>200</PitchVariation>
+      <Loopable>true</Loopable>
+      <Waves>
+        <Wave Type="D3">
+          <Loop>Arc\BLOCK\ArcBlockModuleEfficiLoop3d.wav</Loop>
         </Wave>
       </Waves>
     </Sound>

@@ -48,7 +48,7 @@ namespace Sandbox.Common.ObjectBuilders
         private MyStringId m_subtypeId;
         public bool ShouldSerializeSubtypeId() { return false; } // prevent serialization to XML
 
-        [ProtoMember(2), DefaultValue(null)]
+        [ProtoMember, DefaultValue(null)]
         public string SubtypeName
         {
             get { return m_subtypeName; }

@@ -15,11 +15,11 @@ namespace Sandbox.Common.ObjectBuilders.Definitions
     [MyObjectBuilderDefinition]
     public class MyObjectBuilder_BehaviorTreeDefinition : MyObjectBuilder_DefinitionBase
     {
-        [ProtoMember(1)]
+        [ProtoMember]
         public MyObjectBuilder_BehaviorTreeNode FirstNode;
 
         // MW:TODO remove (use masks)
-        [ProtoMember(2), DefaultValue("Barbarian")]
+        [ProtoMember, DefaultValue("Barbarian")]
         public string Behavior = "Barbarian";
     }
 }

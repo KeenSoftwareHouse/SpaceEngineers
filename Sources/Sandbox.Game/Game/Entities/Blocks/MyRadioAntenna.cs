@@ -149,11 +149,13 @@ namespace Sandbox.Game.Entities.Cube
             var enableBroadcast = new MyTerminalControlCheckbox<MyRadioAntenna>("EnableBroadCast", MySpaceTexts.Antenna_EnableBroadcast, MySpaceTexts.Antenna_EnableBroadcast);
             enableBroadcast.Getter = (x) => x.RadioBroadcaster.Enabled;
             enableBroadcast.Setter = (x, v) => x.RadioBroadcaster.SyncObject.SendChangeRadioAntennaRequest(x.RadioBroadcaster.BroadcastRadius, v);
+            enableBroadcast.EnableAction();
             MyTerminalControlFactory.AddControl(enableBroadcast);
 
             var showShipName = new MyTerminalControlCheckbox<MyRadioAntenna>("ShowShipName", MySpaceTexts.BlockPropertyTitle_ShowShipName, MySpaceTexts.BlockPropertyDescription_ShowShipName);
             showShipName.Getter = (x) => x.ShowShipName;
             showShipName.Setter = (x, v) => x.RadioBroadcaster.SyncObject.SendChangeRadioAntennaDisplayName(v);
+            showShipName.EnableAction();
             MyTerminalControlFactory.AddControl(showShipName);
 
         }
@@ -358,5 +360,15 @@ namespace Sandbox.Game.Entities.Cube
         {
             get { return GetRadius(); }
         }
+
+		bool IsBroadcasting()
+		{
+			return (m_radioBroadcaster != null) ? m_radioBroadcaster.WantsToBeEnabled : false;
+		}
+
+		bool IMyRadioAntenna.IsBroadcasting
+		{
+			get {  return IsBroadcasting(); }
+		}
     }
 }

@@ -490,9 +490,6 @@ namespace Sandbox.Game.Gui
             MyInput.Static.SetMouseYInversion(m_invertMouseYCheckbox.IsChecked);
             MyInput.Static.SetMouseSensitivity(m_mouseSensitivitySlider.Value);
 
-            MyInput.Static.SaveControls(MySandboxGame.Config.ControlsGeneral, MySandboxGame.Config.ControlsButtons);
-            MySandboxGame.Config.Save();
-
             if (MyFakes.ENABLE_JOYSTICK_SETTINGS)
             {
                 MyInput.Static.JoystickInstanceName = m_joystickCombobox.GetSelectedIndex() == 0 ? null : m_joystickCombobox.GetSelectedValue().ToString();
@@ -500,6 +497,9 @@ namespace Sandbox.Game.Gui
                 MyInput.Static.SetJoystickExponent(m_joystickExponentSlider.Value);
                 MyInput.Static.SetJoystickDeadzone(m_joystickDeadzoneSlider.Value);
             }
+
+            MyInput.Static.SaveControls(MySandboxGame.Config.ControlsGeneral, MySandboxGame.Config.ControlsButtons);
+            MySandboxGame.Config.Save();
 
             //MyGuiScreenGamePlay.Static.SetControlsChange(true);
             MyScreenManager.RecreateControls();

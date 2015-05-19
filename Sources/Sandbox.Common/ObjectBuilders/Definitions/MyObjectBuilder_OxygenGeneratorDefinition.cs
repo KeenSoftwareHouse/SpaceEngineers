@@ -10,13 +10,13 @@ namespace Sandbox.Common.ObjectBuilders.Definitions
     [MyObjectBuilderDefinition]
     public class MyObjectBuilder_OxygenGeneratorDefinition : MyObjectBuilder_ProductionBlockDefinition
     {
-        [ProtoMember(1)]
+        [ProtoMember]
         public float IceToOxygenRatio;
-        [ProtoMember(2)]
+        [ProtoMember]
         public float OxygenProductionPerSecond;
-        [ProtoMember(3)]
+        [ProtoMember]
         public string IdleSound;
-        [ProtoMember(4)]
+        [ProtoMember]
         public string GenerateSound;
     }
 }

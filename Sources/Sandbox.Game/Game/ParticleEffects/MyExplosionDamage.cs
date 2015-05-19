@@ -221,7 +221,7 @@ namespace Sandbox.Game
             Vector3 normal;
 
             var physTarget = MyPhysics.CastRay(fromWorldPos, m_explosion.Center, out pos, out normal, MyPhysics.ExplosionRaycastLayer);
-            var hitEntity = physTarget != null ? ((MyPhysicsBody)physTarget.UserObject).Entity : null;
+            var hitEntity = (physTarget != null && physTarget.UserObject != null) ? ((MyPhysicsBody)physTarget.UserObject).Entity : null;
 
             Vector3D direction = (m_explosion.Center - fromWorldPos);
             float lengthToCenter = (float)direction.Length();

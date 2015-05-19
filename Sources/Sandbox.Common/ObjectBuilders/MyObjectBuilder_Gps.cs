@@ -16,23 +16,23 @@ namespace Sandbox.Common.ObjectBuilders
             [ProtoContract]
             public struct Entry
             {
-                [ProtoMember(1)]
+                [ProtoMember]
                 public string name;
 
-                [ProtoMember(2)]
+                [ProtoMember]
                 public string description;
 
-                [ProtoMember(3)]
+                [ProtoMember]
                 public Vector3D coords;
 
-                [ProtoMember(4)]
+                [ProtoMember]
                 public bool isFinal;
 
-                [ProtoMember(4)]
+                [ProtoMember]
                 public bool showOnHud;
             }
 
-            [ProtoMember(1)]
+            [ProtoMember]
             public List<Entry> Entries;
 
         }

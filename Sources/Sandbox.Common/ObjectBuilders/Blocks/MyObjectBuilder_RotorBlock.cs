@@ -14,7 +14,7 @@ namespace Medieval.ObjectBuilders.Blocks
     [MyObjectBuilderDefinition]
     public class MyObjectBuilder_RotorBlock : MyObjectBuilder_CogWheelsBlock 
     {
-        [ProtoMember(1)]
+        [ProtoMember]
         public bool RotationEnabled;
     }
 }
