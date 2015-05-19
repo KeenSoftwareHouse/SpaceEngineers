@@ -53,6 +53,7 @@ namespace Sandbox.Game.Weapons
                 {
                     x.m_helpOthers = v;
                 };
+                helpOthersCheck.EnableAction();
                 MyTerminalControlFactory.AddControl(helpOthersCheck);
             }
         }

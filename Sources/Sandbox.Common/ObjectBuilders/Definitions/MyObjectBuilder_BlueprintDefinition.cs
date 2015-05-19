@@ -12,17 +12,17 @@ namespace Sandbox.Common.ObjectBuilders.Definitions
     [MyObjectBuilderDefinition]
     public class MyObjectBuilder_BlueprintDefinition : MyObjectBuilder_DefinitionBase
     {
-        [ProtoMember(1)]
+        [ProtoMember]
         [XmlArrayItem("Item")]
         public BlueprintItem[] Prerequisites;
 
         /// <summary>
         /// THIS IS OBSOLETE
         /// </summary>
-        [ProtoMember(3)]
+        [ProtoMember]
         public BlueprintItem Result;
 
-        [ProtoMember(4)]
+        [ProtoMember]
         [XmlArrayItem("Item")]
         public BlueprintItem[] Results;
 
@@ -30,7 +30,7 @@ namespace Sandbox.Common.ObjectBuilders.Definitions
         /// Base production time in seconds, which is affected by speed increase of
         /// refinery or assembler.
         /// </summary>
-        [ProtoMember(5)]
+        [ProtoMember]
         public float BaseProductionTimeInSeconds = 1.0f;
 
     }

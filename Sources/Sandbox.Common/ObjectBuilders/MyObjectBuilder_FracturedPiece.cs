@@ -14,17 +14,17 @@ namespace Sandbox.Common.ObjectBuilders
         [ProtoContract]
         public struct Shape
         {
-            [ProtoMember(1)]
+            [ProtoMember]
             public string Name;
-            [ProtoMember(2)]
+            [ProtoMember]
             public SerializableQuaternion Orientation;// = Quaternion.Identity;
-            [ProtoMember(3), DefaultValue(false)]
+            [ProtoMember, DefaultValue(false)]
             public bool Fixed;
         }
-        [ProtoMember(1)]
+        [ProtoMember]
         public List<SerializableDefinitionId> BlockDefinitions = new List<SerializableDefinitionId>();
 
-        [ProtoMember(2)]
+        [ProtoMember]
         public List<Shape> Shapes = new List<Shape>();
     }
 }

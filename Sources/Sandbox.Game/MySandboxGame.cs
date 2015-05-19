@@ -574,6 +574,7 @@ namespace Sandbox
                 {
                     case MyQuickLaunchType.LAST_SANDBOX:
                     case MyQuickLaunchType.NEW_SANDBOX:
+                    case MyQuickLaunchType.SCENARIO_QUICKSTART:
                         MyGuiSandbox.AddScreen(new MyGuiScreenStartQuickLaunch(quickLaunch.Value, MySpaceTexts.StartGameInProgressPleaseWait));
                         break;
                     default:

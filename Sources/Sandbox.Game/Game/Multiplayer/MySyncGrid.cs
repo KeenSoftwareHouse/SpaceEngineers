@@ -53,17 +53,17 @@ namespace Sandbox.Game.Multiplayer
         [MessageId(14, P2PMessageEnum.Reliable)]
         struct BuildBlocksMsg : IEntityMessage
         {
-            [ProtoMember(1)]
+            [ProtoMember]
             public long GridEntityId;
             public long GetEntityId() { return GridEntityId; }
 
-            //[ProtoMember(2)]
+            //[ProtoMember]
             //public SerializableDefinitionId DefinitionId;
 
-            [ProtoMember(3)]
+            [ProtoMember]
             public HashSet<MyCubeGrid.MyBlockLocation> Locations;
 
-            [ProtoMember(4)]
+            [ProtoMember]
             public uint ColorMaskHsv;
         }
 
@@ -114,17 +114,17 @@ namespace Sandbox.Game.Multiplayer
         [MessageId(4715, P2PMessageEnum.Reliable)]
         struct BuildBlockMsg : IEntityMessage
         {
-            [ProtoMember(1)]
+            [ProtoMember]
             public long GridEntityId;
             public long GetEntityId() { return GridEntityId; }
 
-            [ProtoMember(2)]
+            [ProtoMember]
             public MyCubeGrid.MyBlockLocation Location;
 
-            [ProtoMember(3)]
+            [ProtoMember]
             public uint ColorMaskHsv;
 
-            [ProtoMember(4)]
+            [ProtoMember]
             public MyObjectBuilder_CubeBlock BlockObjectBuilder;
         }
 
@@ -171,11 +171,11 @@ namespace Sandbox.Game.Multiplayer
         [MessageId(17, P2PMessageEnum.Reliable)]
         struct RazeBlocksMsg : IEntityMessage
         {
-            [ProtoMember(1)]
+            [ProtoMember]
             public long GridEntityId;
             public long GetEntityId() { return GridEntityId; }
 
-            [ProtoMember(2)]
+            [ProtoMember]
             public List<Vector3I> Locations;
         }
 
@@ -183,20 +183,20 @@ namespace Sandbox.Game.Multiplayer
         [MessageId(18, P2PMessageEnum.Reliable)]
         struct RemoveBlocksMsg : IEntityMessage
         {
-            [ProtoMember(1)]
+            [ProtoMember]
             public long GridEntityId;
             public long GetEntityId() { return GridEntityId; }
 
-            [ProtoMember(2)]
+            [ProtoMember]
             public List<Vector3I> LocationsWithGenerator;
 
-            [ProtoMember(3)]
+            [ProtoMember]
             public List<Vector3I> DestroyLocations;
 
-            [ProtoMember(4)]
+            [ProtoMember]
             public List<Vector3I> DestructionDeformationLocations;
 
-            [ProtoMember(5)]
+            [ProtoMember]
             public List<Vector3I> LocationsWithoutGenerator;
 
 
@@ -236,14 +236,14 @@ namespace Sandbox.Game.Multiplayer
         [MessageId(26, P2PMessageEnum.Reliable)]
         public struct StockpileChangedMsg : IEntityMessage
         {
-            [ProtoMember(1)]
+            [ProtoMember]
             public long GridEntityId;
             public long GetEntityId() { return GridEntityId; }
 
-            [ProtoMember(2)]
+            [ProtoMember]
             public Vector3I BlockPosition;
 
-            [ProtoMember(3)]
+            [ProtoMember]
             public List<MyStockpileItem> Changes;
         }
 
@@ -251,17 +251,17 @@ namespace Sandbox.Game.Multiplayer
         [MessageId(27, P2PMessageEnum.Reliable)]
         public struct StockpileFillRequestMsg : IEntityMessage
         {
-            [ProtoMember(1)]
+            [ProtoMember]
             public long GridEntityId;
             public long GetEntityId() { return GridEntityId; }
 
-            [ProtoMember(2)]
+            [ProtoMember]
             public Vector3I BlockPosition;
 
-            [ProtoMember(3)]
+            [ProtoMember]
             public long OwnerEntityId;
 
-            [ProtoMember(4)]
+            [ProtoMember]
             public byte InventoryIndex;
         }
 
@@ -269,20 +269,20 @@ namespace Sandbox.Game.Multiplayer
         [MessageId(28, P2PMessageEnum.Reliable)]
         public struct SetToConstructionRequestMsg : IEntityMessage
         {
-            [ProtoMember(1)]
+            [ProtoMember]
             public long GridEntityId;
             public long GetEntityId() { return GridEntityId; }
 
-            [ProtoMember(2)]
+            [ProtoMember]
             public Vector3I BlockPosition;
 
-            [ProtoMember(3)]
+            [ProtoMember]
             public long OwnerEntityId;
 
-            [ProtoMember(4)]
+            [ProtoMember]
             public byte InventoryIndex;
 
-            [ProtoMember(5)]
+            [ProtoMember]
             public long RequestingPlayer;
         }
 
@@ -335,13 +335,13 @@ namespace Sandbox.Game.Multiplayer
         [MessageId(15263, P2PMessageEnum.Reliable)]
         struct ModifyBlockGroupMsg : IEntityMessage
         {
-            [ProtoMember(1)]
+            [ProtoMember]
             public long GridEntityId;
             public long GetEntityId() { return GridEntityId; }
 
-            [ProtoMember(2)]
+            [ProtoMember]
             public String Name;
-            [ProtoMember(3)]
+            [ProtoMember]
             public long[] Blocks;
         }
 
@@ -349,7 +349,7 @@ namespace Sandbox.Game.Multiplayer
         [MessageId(15264, P2PMessageEnum.Reliable)]
         struct ConvertToShipMsg : IEntityMessage
         {
-            [ProtoMember(1)]
+            [ProtoMember]
             public long GridEntityId;
             public long GetEntityId() { return GridEntityId; }
         }
@@ -358,20 +358,20 @@ namespace Sandbox.Game.Multiplayer
         [MessageId(15265, P2PMessageEnum.Reliable)]
         struct MergeMsg : IEntityMessage
         {
-            [ProtoMember(1)]
+            [ProtoMember]
             public long GridEntityId;
             public long GetEntityId() { return GridEntityId; }
 
-            [ProtoMember(2)]
+            [ProtoMember]
             public long OtherEntityId;
 
-            [ProtoMember(3)]
+            [ProtoMember]
             public SerializableVector3I GridOffset;
 
-            [ProtoMember(4)]
+            [ProtoMember]
             public Base6Directions.Direction GridForward;
 
-            [ProtoMember(5)]
+            [ProtoMember]
             public Base6Directions.Direction GridUp;
         }
 
@@ -379,30 +379,30 @@ namespace Sandbox.Game.Multiplayer
         [MessageId(15266, P2PMessageEnum.Reliable)]
         struct ChangeOwnershipMsg : IEntityMessage
         {
-            [ProtoMember(1)]
+            [ProtoMember]
             public long GridEntityId;
             public long GetEntityId() { return GridEntityId; }
 
-            [ProtoMember(2)]
+            [ProtoMember]
             public long BlockId;
 
-            [ProtoMember(3)]
+            [ProtoMember]
             public long Owner; //PlayerId
 
-            [ProtoMember(4)]
+            [ProtoMember]
             public long RequestingPlayer; // PlayerId
 
-            [ProtoMember(5)]
+            [ProtoMember]
             public MyOwnershipShareModeEnum ShareMode;
         }
 
         [ProtoContract]
         public struct MySingleOwnershipRequest
         {
-            [ProtoMember(1)]
+            [ProtoMember]
             public long BlockId;
 
-            [ProtoMember(2)]
+            [ProtoMember]
             public long Owner; //PlayerId
 
             public MySingleOwnershipRequest(long blockId, long owner)
@@ -416,13 +416,13 @@ namespace Sandbox.Game.Multiplayer
         [MessageId(15166, P2PMessageEnum.Reliable)]
         struct ChangeOwnershipsMsg
         {
-            [ProtoMember(1)]
+            [ProtoMember]
             public long RequestingPlayer; // PlayerId
 
-            [ProtoMember(2)]
+            [ProtoMember]
             public MyOwnershipShareModeEnum ShareMode;
 
-            [ProtoMember(3)]
+            [ProtoMember]
             public List<MySingleOwnershipRequest> Requests;
         }
 
@@ -449,11 +449,11 @@ namespace Sandbox.Game.Multiplayer
         [MessageId(15279, P2PMessageEnum.Reliable)]
         struct ChangeDisplayNameMsg : IEntityMessage
         {
-            [ProtoMember(1)]
+            [ProtoMember]
             public long GridEntityId;
             public long GetEntityId() { return GridEntityId; }
 
-            [ProtoMember(2)]
+            [ProtoMember]
             public String DisplayName;
         }
 
@@ -462,14 +462,14 @@ namespace Sandbox.Game.Multiplayer
         [MessageId(15280, P2PMessageEnum.Reliable)]
         struct CreateSplitMsg : IEntityMessage
         {
-            [ProtoMember(1)]
+            [ProtoMember]
             public long GridEntityId;
             public long GetEntityId() { return GridEntityId; }
 
-            [ProtoMember(2)]
+            [ProtoMember]
             public long NewGridEntityId;
 
-            [ProtoMember(3)]
+            [ProtoMember]
             public List<Vector3I> SplitBlocks;
         }
 
@@ -477,11 +477,11 @@ namespace Sandbox.Game.Multiplayer
         [MessageId(15281, P2PMessageEnum.Reliable)]
         struct RemoveSplitMsg : IEntityMessage
         {
-            [ProtoMember(1)]
+            [ProtoMember]
             public long GridEntityId;
             public long GetEntityId() { return GridEntityId; }
 
-            [ProtoMember(2)]
+            [ProtoMember]
             public List<Vector3I> RemovedBlocks;
         }
 
@@ -489,11 +489,11 @@ namespace Sandbox.Game.Multiplayer
         [MessageId(15282, P2PMessageEnum.Reliable)]
         struct RazeBlockInCompoundBlockMsg : IEntityMessage
         {
-            [ProtoMember(1)]
+            [ProtoMember]
             public long GridEntityId;
             public long GetEntityId() { return GridEntityId; }
 
-            [ProtoMember(2)]
+            [ProtoMember]
             public List<Tuple<Vector3I, ushort>> LocationsAndIds;
         }
 

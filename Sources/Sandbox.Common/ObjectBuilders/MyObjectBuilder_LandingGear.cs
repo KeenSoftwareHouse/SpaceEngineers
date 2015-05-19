@@ -10,22 +10,22 @@ namespace Sandbox.Common.ObjectBuilders
     [MyObjectBuilderDefinition]
     public class MyObjectBuilder_LandingGear : MyObjectBuilder_FunctionalBlock
     {
-        [ProtoMember(1)]
+        [ProtoMember]
         public bool IsLocked;
 
-        [ProtoMember(2)]
+        [ProtoMember]
         public float BrakeForce = 1f;
 
-        [ProtoMember(3)]
+        [ProtoMember]
         public bool AutoLock;
 
-        [ProtoMember(4)]
+        [ProtoMember]
         public string LockSound;
 
-        [ProtoMember(5)]
+        [ProtoMember]
         public string UnlockSound;
 
-        [ProtoMember(6)]
+        [ProtoMember]
         public string FailedAttachSound;
     }
 }

@@ -29,7 +29,7 @@ using VRage.Utils;
 namespace Sandbox.Game.Entities
 {
     [MyCubeBlockType(typeof(MyObjectBuilder_SpaceBall))]
-    class MySpaceBall : MyFunctionalBlock, IMyVirtualMass, IMyComponentOwner<MyDataBroadcaster>, IMyComponentOwner<MyDataReceiver>
+    class MySpaceBall : MyFunctionalBlock, IMySpaceBall, IMyComponentOwner<MyDataBroadcaster>, IMyComponentOwner<MyDataReceiver>
     {
         #region Properties
 
@@ -148,6 +148,7 @@ namespace Sandbox.Game.Entities
             var enableBroadcast = new MyTerminalControlCheckbox<MySpaceBall>("EnableBroadCast", MySpaceTexts.Antenna_EnableBroadcast, MySpaceTexts.Antenna_EnableBroadcast);
             enableBroadcast.Getter = (x) => x.RadioBroadcaster.Enabled;
             enableBroadcast.Setter = (x, v) => x.SyncObject.SendChangeBroadcastRequest(v);
+            enableBroadcast.EnableAction();
             MyTerminalControlFactory.AddControl(enableBroadcast);
         }
 
@@ -339,6 +340,11 @@ namespace Sandbox.Game.Entities
         float IMyVirtualMass.VirtualMass
         {
             get { return GetMass(); }
+        }
+
+        bool IMySpaceBall.IsBroadcasting
+        {
+            get { return (m_radioBroadcaster == null) ? false : m_radioBroadcaster.Enabled; }
         }
     }
 }

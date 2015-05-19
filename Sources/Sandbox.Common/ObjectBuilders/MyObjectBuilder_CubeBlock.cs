@@ -15,18 +15,18 @@ namespace Sandbox.Common.ObjectBuilders
     [MyObjectBuilderDefinition]
     public class MyObjectBuilder_CubeBlock : MyObjectBuilder_Base
     {
-        [ProtoMember(1), DefaultValue(0)]
+        [ProtoMember, DefaultValue(0)]
         public long EntityId = 0;
         public bool ShouldSerializeEntityId() { return EntityId != 0; }
 
-        [ProtoMember(2)]
+        [ProtoMember]
         public SerializableVector3I Min;
-        //[ProtoMember(3)]
+        //[ProtoMember]
         //public SerializableVector3I Max;
 
         // Backward compatibility orientation.
         private SerializableQuaternion m_orientation;
-        //[ProtoMember(4)]
+        //[ProtoMember]
         public SerializableQuaternion Orientation
         {
             get { return m_orientation; }
@@ -43,20 +43,20 @@ namespace Sandbox.Common.ObjectBuilders
         }
         public bool ShouldSerializeOrientation() { return false; }
 
-        [ProtoMember(5), DefaultValue(1.0f)]
+        [ProtoMember, DefaultValue(1.0f)]
         public float IntegrityPercent = 1.0f;
 
-        [ProtoMember(6), DefaultValue(1.0f)]
+        [ProtoMember, DefaultValue(1.0f)]
         public float BuildPercent = 1.0f;
 
-        [ProtoMember(7)]
+        [ProtoMember]
         public SerializableBlockOrientation BlockOrientation;
 
-        [ProtoMember(8), DefaultValue(null)]
+        [ProtoMember, DefaultValue(null)]
         public MyObjectBuilder_Inventory ConstructionInventory = null;
         public bool ShouldSerializeConstructionInventory() { return false; }
 
-        [ProtoMember(9)]
+        [ProtoMember]
         public SerializableVector3 ColorMaskHSV = new SerializableVector3(0f, -1f, 0f);
 
         public static MyObjectBuilder_CubeBlock Upgrade(MyObjectBuilder_CubeBlock cubeBlock, MyObjectBuilderType newType, string newSubType)
@@ -80,40 +80,40 @@ namespace Sandbox.Common.ObjectBuilders
             return upgraded;
         }
 
-        [ProtoMember(10), DefaultValue(null)]
+        [ProtoMember, DefaultValue(null)]
         public MyObjectBuilder_ConstructionStockpile ConstructionStockpile = null;
         public bool ShouldSerializeConstructionStockpile() { return ConstructionStockpile != null; }
 
-        [ProtoMember(11), DefaultValue(0)]
+        [ProtoMember, DefaultValue(0)]
         public long Owner = 0;
 
-        //[ProtoMember(12), DefaultValue(false)]
+        //[ProtoMember, DefaultValue(false)]
         //public bool ShareWithFaction = false;
 
-        //[ProtoMember(13), DefaultValue(false)]
+        //[ProtoMember, DefaultValue(false)]
         //public bool ShareWithAll = false;
 
-        [ProtoMember(14)]
+        [ProtoMember]
         public MyOwnershipShareModeEnum ShareMode;
 
-        [ProtoMember(15)]
+        [ProtoMember]
         public float DeformationRatio;
 
         [ProtoContract]
         public struct MySubBlockId
         {
-            [ProtoMember(1)]
+            [ProtoMember]
             public long SubGridId;
 
-            [ProtoMember(2)]
+            [ProtoMember]
             public string SubGridName;
 
-            [ProtoMember(3)]
+            [ProtoMember]
             public SerializableVector3I SubBlockPosition;
         }
 
         [XmlArrayItem("SubBlock")]
-        [ProtoMember(16)]
+        [ProtoMember]
         public MySubBlockId[] SubBlocks;
 
 

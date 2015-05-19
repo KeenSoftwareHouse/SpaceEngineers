@@ -10,15 +10,15 @@ namespace Sandbox.Common.ObjectBuilders.Definitions
     [MyObjectBuilderDefinition]
     public class MyObjectBuilder_AirtightDoorGenericDefinition : MyObjectBuilder_CubeBlockDefinition
     {
-        [ProtoMember(1)]
+        [ProtoMember]
         public float PowerConsumptionIdle;
-        [ProtoMember(2)]
+        [ProtoMember]
         public float PowerConsumptionMoving;
-        [ProtoMember(3)]
+        [ProtoMember]
         public float OpeningSpeed;
-        [ProtoMember(4)]
+        [ProtoMember]
         public string Sound;
-        [ProtoMember(5)]
+        [ProtoMember]
         public float SubpartMovementDistance=2.5f;
     }
 }

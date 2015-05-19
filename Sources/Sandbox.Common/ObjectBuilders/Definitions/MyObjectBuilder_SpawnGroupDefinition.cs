@@ -17,41 +17,41 @@ namespace Sandbox.Common.ObjectBuilders.Definitions
         public class SpawnGroupPrefab
         {
             [XmlAttribute]
-            [ProtoMember(1)]
+            [ProtoMember]
             public String SubtypeId;
 
-            [ProtoMember(2)]
+            [ProtoMember]
             public Vector3 Position;
 
-            [ProtoMember(3), DefaultValue("")]
+            [ProtoMember, DefaultValue("")]
             public String BeaconText = "";
 
-            [ProtoMember(4), DefaultValue(10.0f)]
+            [ProtoMember, DefaultValue(10.0f)]
             public float Speed = 10.0f;
         }
         [ProtoContract]
         public class SpawnGroupVoxel
         {
             [XmlAttribute]
-            [ProtoMember(1)]
+            [ProtoMember]
             public String StorageName;
 
-            [ProtoMember(2)]
+            [ProtoMember]
             public Vector3 Offset;
         }
 
-        [ProtoMember(1), DefaultValue(1.0f)]
+        [ProtoMember, DefaultValue(1.0f)]
         public float Frequency = 1.0f;
 
-        [ProtoMember(2)]
+        [ProtoMember]
         [XmlArrayItem("Prefab")]
         public SpawnGroupPrefab[] Prefabs;
 
-        [ProtoMember(3)]
+        [ProtoMember]
         [XmlArrayItem("Voxel")]
         public SpawnGroupVoxel[] Voxels;
 
-        [ProtoMember(4), DefaultValue(false)]
+        [ProtoMember, DefaultValue(false)]
         public bool IsEncounter;
     }
 }

@@ -11,7 +11,7 @@ namespace Sandbox.Common.ObjectBuilders
     [MyObjectBuilderDefinition]
     public abstract class MyObjectBuilder_ToolbarItemDefinition : MyObjectBuilder_ToolbarItem
     {
-        [ProtoMember(1)]
+        [ProtoMember]
         public SerializableDefinitionId DefinitionId;
     }
 }

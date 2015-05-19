@@ -22,24 +22,24 @@ namespace Medieval.ObjectBuilders.Definitions
         public class MyOBCogWheelConnection
         {
             [XmlAttribute]
-            [ProtoMember(1)]
+            [ProtoMember]
             public string Wheel1;
 
             [XmlAttribute]
-            [ProtoMember(2)]
+            [ProtoMember]
             public float Radius1;
 
             [XmlAttribute]
-            [ProtoMember(3)]
+            [ProtoMember]
             public string Wheel2;
 
             [XmlAttribute]
-            [ProtoMember(4)]
+            [ProtoMember]
             public float Radius2;
         }
 
         [XmlArrayItem("Connection")]
-        [ProtoMember(1), DefaultValue(null)]
+        [ProtoMember, DefaultValue(null)]
         public MyOBCogWheelConnection[] CogWheelConnections = null;
     }
 }

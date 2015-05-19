@@ -11,7 +11,7 @@ namespace Sandbox.Common.ObjectBuilders.Definitions
     [MyObjectBuilderDefinition]
     public class MyObjectBuilder_CompositeBlueprintDefinition : MyObjectBuilder_DefinitionBase
     {
-        [ProtoMember(1)]
+        [ProtoMember]
         [XmlArrayItem("Blueprint")]
         public BlueprintItem[] Blueprints;
     }

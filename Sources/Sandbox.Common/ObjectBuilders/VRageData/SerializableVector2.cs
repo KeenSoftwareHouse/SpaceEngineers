@@ -23,10 +23,10 @@ namespace Sandbox.Common.ObjectBuilders.VRageData
             this.Y = y;
         }
 
-        [ProtoMember(1), XmlAttribute]
+        [ProtoMember, XmlAttribute]
         public float x { get { return X; } set { X = value; } }
 
-        [ProtoMember(2), XmlAttribute]
+        [ProtoMember, XmlAttribute]
         public float y { get { return Y; } set { Y = value; } }
 
         public static implicit operator Vector2(SerializableVector2 v)

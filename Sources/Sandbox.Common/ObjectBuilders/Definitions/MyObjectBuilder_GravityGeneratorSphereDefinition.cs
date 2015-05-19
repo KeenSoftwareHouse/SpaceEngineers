@@ -11,13 +11,13 @@ namespace Sandbox.Common.ObjectBuilders.Definitions
     [MyObjectBuilderDefinition]
     public class MyObjectBuilder_GravityGeneratorSphereDefinition : MyObjectBuilder_CubeBlockDefinition
     {
-        [ProtoMember(1)]
+        [ProtoMember]
         public float MinRadius;
-        [ProtoMember(2)]
+        [ProtoMember]
         public float MaxRadius;
-        [ProtoMember(3)]
+        [ProtoMember]
         public float BasePowerInput;
-        [ProtoMember(4)]
+        [ProtoMember]
         public float ConsumptionPower;
     }
 }

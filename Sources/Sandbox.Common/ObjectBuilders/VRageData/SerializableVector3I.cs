@@ -26,13 +26,13 @@ namespace Sandbox.Common.ObjectBuilders.VRageData
             this.Z = z;
         }
 
-        [ProtoMember(1), XmlAttribute]
+        [ProtoMember, XmlAttribute]
         public int x { get { return X; } set { X = value; } }
 
-        [ProtoMember(2), XmlAttribute]
+        [ProtoMember, XmlAttribute]
         public int y { get { return Y; } set { Y = value; } }
 
-        [ProtoMember(3), XmlAttribute]
+        [ProtoMember, XmlAttribute]
         public int z { get { return Z; } set { Z = value; } }
 
         public static implicit operator Vector3I(SerializableVector3I v)

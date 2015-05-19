@@ -25,7 +25,7 @@ namespace VRage
         public static readonly MyFixedPoint MaxValue = new MyFixedPoint(long.MaxValue);
         public static readonly MyFixedPoint SmallestPossibleValue = new MyFixedPoint(1);
 
-        [ProtoMember(1)]
+        [ProtoMember]
         public long RawValue;
 
         private MyFixedPoint(long rawValue)

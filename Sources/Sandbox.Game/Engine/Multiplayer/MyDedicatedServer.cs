@@ -27,13 +27,24 @@ using VRage.Trace;
 
 namespace Sandbox.Engine.Multiplayer
 {
+    #region Structs
+
+    public static class MyDedicatedServerOverrides
+    {
+        public static int? MaxPlayers;
+        public static IPAddress IpAddress;
+        public static int? Port;
+    }
+
+    #endregion
+
     #region Messages
 
     [ProtoBuf.ProtoContract]
     [MessageId(13872, P2PMessageEnum.Reliable)]
     public struct ChatMsg
     {
-        [ProtoBuf.ProtoMember(1)]
+        [ProtoBuf.ProtoMember]
         public string Text;
     }
 
@@ -61,40 +72,40 @@ namespace Sandbox.Engine.Multiplayer
     [MessageId(13873, P2PMessageEnum.Reliable)]
     public struct ServerDataMsg
     {
-        [ProtoBuf.ProtoMember(1)]
+        [ProtoBuf.ProtoMember]
         public string WorldName;
 
-        [ProtoBuf.ProtoMember(2)]
+        [ProtoBuf.ProtoMember]
         public MyGameModeEnum GameMode;
 
-        [ProtoBuf.ProtoMember(3)]
+        [ProtoBuf.ProtoMember]
         public float InventoryMultiplier;
 
-        [ProtoBuf.ProtoMember(4)]
+        [ProtoBuf.ProtoMember]
         public float AssemblerMultiplier;
 
-        [ProtoBuf.ProtoMember(5)]
+        [ProtoBuf.ProtoMember]
         public float RefineryMultiplier;
 
-        [ProtoBuf.ProtoMember(6)]
+        [ProtoBuf.ProtoMember]
         public string HostName;
 
-        [ProtoBuf.ProtoMember(7)]
+        [ProtoBuf.ProtoMember]
         public ulong WorldSize;
 
-        [ProtoBuf.ProtoMember(8)]
+        [ProtoBuf.ProtoMember]
         public int AppVersion;
 
-        [ProtoBuf.ProtoMember(9)]
+        [ProtoBuf.ProtoMember]
         public int MembersLimit;
 
-        [ProtoBuf.ProtoMember(10)]
+        [ProtoBuf.ProtoMember]
         public string DataHash;
 
-        [ProtoBuf.ProtoMember(11)]
+        [ProtoBuf.ProtoMember]
         public float WelderMultiplier;
 
-        [ProtoBuf.ProtoMember(12)]
+        [ProtoBuf.ProtoMember]
         public float GrinderMultiplier;
     }
 
@@ -102,10 +113,10 @@ namespace Sandbox.Engine.Multiplayer
     [MessageId(13874, P2PMessageEnum.Reliable)]
     public struct JoinResultMsg
     {
-        [ProtoBuf.ProtoMember(1)]
+        [ProtoBuf.ProtoMember]
         public JoinResult JoinResult;
 
-        [ProtoBuf.ProtoMember(2)]
+        [ProtoBuf.ProtoMember]
         public ulong Admin;
     }
 
@@ -114,31 +125,20 @@ namespace Sandbox.Engine.Multiplayer
     [MessageId(13875, P2PMessageEnum.Reliable)]
     public struct ConnectedClientDataMsg
     {
-        [ProtoBuf.ProtoMember(1)]
+        [ProtoBuf.ProtoMember]
         public ulong SteamID;
 
-        [ProtoBuf.ProtoMember(2)]
+        [ProtoBuf.ProtoMember]
         public string Name;
 
-        [ProtoBuf.ProtoMember(3)]
+        [ProtoBuf.ProtoMember]
         public bool IsAdmin;
 
-        [ProtoBuf.ProtoMember(4)]
+        [ProtoBuf.ProtoMember]
         public bool Join;
 
-        [ProtoBuf.ProtoMember(5)]
+        [ProtoBuf.ProtoMember]
         public byte[] Token;
-    }
-
-    #endregion
-
-    #region Structs
-
-    public static class MyDedicatedServerOverrides
-    {
-        public static int? MaxPlayers;
-        public static IPAddress IpAddress;
-        public static int? Port;
     }
 
     #endregion
@@ -295,7 +295,31 @@ namespace Sandbox.Engine.Multiplayer
             set;
         }
 
-        public override int MaxBattleBlueprintPoints
+        public override bool BattleStarted
+        {
+            get;
+            set;
+        }
+
+        public override int BattleFaction1MaxBlueprintPoints
+        {
+            get;
+            set;
+        }
+
+        public override int BattleFaction2MaxBlueprintPoints
+        {
+            get;
+            set;
+        }
+
+        public override int BattleFaction1BlueprintPoints
+        {
+            get;
+            set;
+        }
+
+        public override int BattleFaction2BlueprintPoints
         {
             get;
             set;
@@ -338,6 +362,12 @@ namespace Sandbox.Engine.Multiplayer
         }
 
         public override bool BattleFaction2Ready
+        {
+            get;
+            set;
+        }
+
+        public override int BattleTimeLimit
         {
             get;
             set;

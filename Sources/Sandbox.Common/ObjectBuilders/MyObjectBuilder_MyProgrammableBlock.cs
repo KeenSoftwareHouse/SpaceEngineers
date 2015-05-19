@@ -10,13 +10,13 @@ namespace Sandbox.Common.ObjectBuilders
     [MyObjectBuilderDefinition]
     public class MyObjectBuilder_MyProgrammableBlock : MyObjectBuilder_FunctionalBlock
     {
-        [ProtoMember(1)]
+        [ProtoMember]
         public string Program = null;
 
-        [ProtoMember(2)]
+        [ProtoMember]
         public string Storage ="";
 
-        [ProtoMember(3)]
+        [ProtoMember]
         public string DefaultRunArgument = null;
     }
 }

@@ -11,13 +11,16 @@ namespace Sandbox.Common.ObjectBuilders.Definitions
     [MyObjectBuilderDefinition]
     public class MyObjectBuilder_DoorDefinition : MyObjectBuilder_CubeBlockDefinition
     {
-        [ProtoMember(1)]
+        [ProtoMember]
         public float MaxOpen;
 
-        [ProtoMember(2)]
+        [ProtoMember]
         public string OpenSound;
 
-        [ProtoMember(3)]
+        [ProtoMember]
         public string CloseSound;
+
+        [ProtoMember]
+        public float OpeningSpeed = 1f;
     }
 }

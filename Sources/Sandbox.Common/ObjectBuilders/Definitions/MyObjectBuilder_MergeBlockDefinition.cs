@@ -10,7 +10,7 @@ namespace Sandbox.Common.ObjectBuilders.Definitions
     [MyObjectBuilderDefinition]
     public class MyObjectBuilder_MergeBlockDefinition : MyObjectBuilder_CubeBlockDefinition
     {
-        [ProtoMember(1)]
+        [ProtoMember]
         public float Strength = 0.1f;
 
     }

@@ -20,25 +20,25 @@ namespace Sandbox.Common.ObjectBuilders.AI
         [ProtoContract]
         public class TimerLogicMemoryBuilder : LogicMemoryBuilder
         {
-            [ProtoMember(1)]
+            [ProtoMember]
             public long CurrentTime = 0;
 
-            [ProtoMember(2)]
+            [ProtoMember]
             public bool TimeLimitReached = false;
         }
 
         [ProtoContract]
         public class CounterLogicMemoryBuilder : LogicMemoryBuilder
         {
-            [ProtoMember(1)]
+            [ProtoMember]
             public int CurrentCount = 0;
         }
 
         [XmlAttribute]
-        [ProtoMember(1), DefaultValue(MyBehaviorTreeState.NOT_TICKED)]
+        [ProtoMember, DefaultValue(MyBehaviorTreeState.NOT_TICKED)]
         public MyBehaviorTreeState ChildState = MyBehaviorTreeState.NOT_TICKED;
 
-        [ProtoMember(2)]
+        [ProtoMember]
         public LogicMemoryBuilder Logic = null;
     }
 }

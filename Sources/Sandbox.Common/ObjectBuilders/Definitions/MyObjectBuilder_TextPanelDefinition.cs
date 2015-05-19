@@ -10,13 +10,13 @@ namespace Sandbox.Common.ObjectBuilders.Definitions
     [MyObjectBuilderDefinition]
     public class MyObjectBuilder_TextPanelDefinition : MyObjectBuilder_CubeBlockDefinition
     {     
-        [ProtoMember(1)]
+        [ProtoMember]
         public float RequiredPowerInput = 0.001f;
 
-        [ProtoMember(2)]
+        [ProtoMember]
         public int TextureResolution = 512;
 
-        [ProtoMember(3)]
+        [ProtoMember]
         public int TextureAspectRadio = 1;
     }
 }

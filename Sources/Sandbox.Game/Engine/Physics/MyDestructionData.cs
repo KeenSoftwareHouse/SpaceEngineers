@@ -34,7 +34,7 @@ namespace Sandbox
         public MyBlockShapePool BlockShapePool { get; private set; }
         HkDestructionStorage Storage;
 
-        static Dictionary<string, MyPhysicalMaterialDefinition> m_physicalMaterials;// = new Dictionary<string, MyDestructionMaterial>()
+        static Dictionary<string, MyPhysicalMaterialDefinition> m_physicalMaterials;
 
         public override bool IsRequiredByGame
         {
@@ -211,19 +211,6 @@ namespace Sandbox
                 }
 
             }
-            //if (woodButton.IsChecked)
-            //{
-            //    fracture = new HkdWoodFracture()
-            //    {
-            //        RandomSeed = 123456,
-            //        BoardSplittingData = new HkdWoodFracture.SplittingData()
-            //        {
-            //        },
-            //        SplinterSplittingData = new HkdWoodFracture.SplittingData()
-            //        {
-            //        }
-            //    };
-            //}
 
             if (fracture != null)
             {
@@ -419,10 +406,7 @@ namespace Sandbox
                     if (volume <= 0 || useShapeVolume)
                         volume = bShape.Volume;
                     var realMass = volume * material.Density;
-                    if (bShape.Name == "House Half Timber Triangle")
-                    {
 
-                    }
                     System.Diagnostics.Debug.Assert(realMass > 0, "Invalid mass data");
 
                     bShape.SetMassRecursively(MyDestructionHelper.MassToHavok(realMass));

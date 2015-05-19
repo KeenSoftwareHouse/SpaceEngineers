@@ -15,7 +15,7 @@ namespace Sandbox.Engine.Multiplayer
     public class Container<T>
         where T : struct
     {
-        [ProtoMember(1)]
+        [ProtoMember]
         public T Message;
     }
 
@@ -23,13 +23,13 @@ namespace Sandbox.Engine.Multiplayer
     [Obsolete]
     public class MyMultiplayerWorldData
     {
-        //[ProtoMember(1)]
+        //[ProtoMember]
         //public MyObjectBuilder_World World;
 
-        //[ProtoMember(2)]
+        //[ProtoMember]
         //public Dictionary<Type, ushort> TypeMap;
 
-        //[ProtoMember(3)]
+        //[ProtoMember]
         //public SerializableDictionary<string, byte[]> VoxelMaps;
     }
 }

@@ -12,9 +12,9 @@ namespace Sandbox.Common.ObjectBuilders.Definitions
     [MyObjectBuilderDefinition]
     public class MyObjectBuilder_ComponentDefinition : MyObjectBuilder_PhysicalItemDefinition
     {
-        [ProtoMember(1)]
+        [ProtoMember]
         public int MaxIntegrity;
-        [ProtoMember(2)]
+        [ProtoMember]
         public float DropProbability;
     }
 }

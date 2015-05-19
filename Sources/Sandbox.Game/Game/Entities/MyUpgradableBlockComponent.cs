@@ -22,6 +22,11 @@ namespace Sandbox.Game.Entities
 
         public void Refresh(MyCubeBlock parent)
         {
+            if (parent.BlockDefinition.Model == null)
+            {
+                return;
+            }
+
             ConnectionPositions.Clear();
             var positions = MyMultilineConveyorEndpoint.GetLinePositions(parent, "detector_upgrade");
             foreach (var position in positions)

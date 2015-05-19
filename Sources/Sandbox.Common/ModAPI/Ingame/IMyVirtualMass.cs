@@ -5,7 +5,11 @@ using System.Text;
 
 namespace Sandbox.ModAPI.Ingame
 {
-    public interface IMyVirtualMass : Sandbox.ModAPI.Ingame.IMyFunctionalBlock
+    public interface IMyVirtualMass : IMyFunctionalBlock
     {
+        /// <summary>
+        /// Virtualmass weight
+        /// </summary>
+        float VirtualMass { get; }
     }
 }

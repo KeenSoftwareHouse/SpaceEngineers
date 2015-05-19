@@ -86,65 +86,65 @@ namespace Sandbox.Common.ObjectBuilders
             {"Astronaut_Yellow", new SerializableVector3(0.122f, 0.05f, 0.46f)}
         };
 
-        [ProtoMember(1)]
+        [ProtoMember]
         public string CharacterModel;
 
-        [ProtoMember(2)]
+        [ProtoMember]
         public MyObjectBuilder_Inventory Inventory;
 
-        [ProtoMember(3)]
+        [ProtoMember]
         [XmlElement("HandWeapon", Type = typeof(MyAbstractXmlSerializer<MyObjectBuilder_EntityBase>))]
         public MyObjectBuilder_EntityBase HandWeapon;
 
-        [ProtoMember(4)]
+        [ProtoMember]
         public MyObjectBuilder_Battery Battery;
 
-        [ProtoMember(5)]
+        [ProtoMember]
         public bool LightEnabled;
 
-        [ProtoMember(6), DefaultValue(true)]
+        [ProtoMember, DefaultValue(true)]
         public bool DampenersEnabled = true;
 
-        [ProtoMember(7)]
+        [ProtoMember]
         public long? UsingLadder;
 
-        [ProtoMember(8)]
+        [ProtoMember]
         public SerializableVector2 HeadAngle;
 
-        [ProtoMember(9)]
+        [ProtoMember]
         public SerializableVector3 LinearVelocity;
 
-        [ProtoMember(10)]
+        [ProtoMember]
         public float AutoenableJetpackDelay;
 
-        [ProtoMember(11)]
+        [ProtoMember]
         public bool JetpackEnabled;
 
-        [ProtoMember(12)]
+        [ProtoMember]
         public float? Health;
 
-        [ProtoMember(13), DefaultValue(false)]
+        [ProtoMember, DefaultValue(false)]
         public bool AIMode = false;
         
-        [ProtoMember(14)]
+        [ProtoMember]
         public SerializableVector3 ColorMaskHSV;
 
-        [ProtoMember(15)]
+        [ProtoMember]
         public float LootingCounter;
 
-        [ProtoMember(16)]
+        [ProtoMember]
         public string DisplayName;
 
-        [ProtoMember(17)]
+        [ProtoMember]
         public bool IsInFirstPersonView = true;
 
-        [ProtoMember(18)]
+        [ProtoMember]
         public bool EnableBroadcasting = true;
 
-        [ProtoMember(19)]
+        [ProtoMember]
         public float OxygenLevel = 1f;
 
-        [ProtoMember(20)]
+        [ProtoMember]
         public MyCharacterMovementEnum MovementState = MyCharacterMovementEnum.Standing;
         public bool ShouldSerializeMovementState() { return MovementState != MyCharacterMovementEnum.Standing; }
     }

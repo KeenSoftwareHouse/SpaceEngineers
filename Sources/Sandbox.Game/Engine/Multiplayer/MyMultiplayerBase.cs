@@ -290,7 +290,31 @@ namespace Sandbox.Engine.Multiplayer
             set;
         }
 
-        public abstract int MaxBattleBlueprintPoints
+        public abstract bool BattleStarted
+        {
+            get;
+            set;
+        }
+
+        public abstract int BattleFaction1MaxBlueprintPoints
+        {
+            get;
+            set;
+        }
+
+        public abstract int BattleFaction2MaxBlueprintPoints
+        {
+            get;
+            set;
+        }
+
+        public abstract int BattleFaction1BlueprintPoints
+        {
+            get;
+            set;
+        }
+
+        public abstract int BattleFaction2BlueprintPoints
         {
             get;
             set;
@@ -338,6 +362,12 @@ namespace Sandbox.Engine.Multiplayer
             set;
         }
 
+        public abstract int BattleTimeLimit
+        {
+            get;
+            set;
+        }
+
 
         #endregion
 
@@ -347,6 +377,8 @@ namespace Sandbox.Engine.Multiplayer
         public event Action<ulong, ChatMemberStateChangeEnum> ClientLeft;
         public event Action HostLeft;
         public event Action<ulong, string, ChatEntryTypeEnum> ChatMessageReceived;
+        public event Action<ulong> ClientKicked;
+
 
         internal MyMultiplayerBase(MySyncLayer syncLayer)
         {
@@ -719,6 +751,13 @@ namespace Sandbox.Engine.Multiplayer
             var handler = ClientJoined;
             if (handler != null) 
                 handler(changedUser);
+        }
+
+        protected void RaiseClientKicked(ulong user)
+        {
+            var handler = ClientKicked;
+            if (handler != null)
+            handler(user);
         }
 
         public abstract ulong LobbyId

@@ -169,7 +169,7 @@ namespace Sandbox.Common.ObjectBuilders
     [ProtoBuf.ProtoContract]
     public struct MyRuntimeObjectBuilderId
     {
-        [ProtoBuf.ProtoMember(1)]
+        [ProtoBuf.ProtoMember]
         internal readonly ushort Value;
 
         public MyRuntimeObjectBuilderId(ushort value)

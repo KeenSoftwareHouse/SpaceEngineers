@@ -358,10 +358,10 @@ namespace Sandbox.Game.Entities.Cube
                 m_visible = true;
                 IsSnapped = false;
 
-                Vector3D? fixedPastePosition = GetFreeSpacePlacementPosition(true, out m_dynamicBuildAllowed);
-                if (fixedPastePosition.HasValue)
-                    m_pastePosition = fixedPastePosition.Value;
-                else
+                //Vector3D? fixedPastePosition = GetFreeSpacePlacementPosition(true, out m_dynamicBuildAllowed);
+                //if (fixedPastePosition.HasValue)
+                //    m_pastePosition = fixedPastePosition.Value;
+                //else
                     m_pastePosition = MyCubeBuilder.IntersectionStart + m_dragDistance * MyCubeBuilder.IntersectionDirection;
 
                 Matrix firstGridOrientation = GetFirstGridOrientationMatrix();

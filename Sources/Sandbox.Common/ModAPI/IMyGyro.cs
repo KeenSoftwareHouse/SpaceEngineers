@@ -8,5 +8,6 @@ namespace Sandbox.ModAPI
     public interface IMyGyro : Sandbox.ModAPI.Ingame.IMyGyro, Sandbox.ModAPI.IMyFunctionalBlock
     {
         float GyroStrengthMultiplier { get; set; }
+        float PowerConsumptionMultiplier { get; set; }
     }
 }

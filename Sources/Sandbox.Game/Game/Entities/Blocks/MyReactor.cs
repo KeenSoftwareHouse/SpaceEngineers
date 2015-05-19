@@ -22,21 +22,20 @@ using VRage.Trace;
 using VRageMath;
 using Sandbox.Game.Multiplayer;
 using Sandbox.Game.Screens;
-using Sandbox.ModAPI.Ingame;
+using Sandbox.ModAPI;
 using Sandbox.Game.GameSystems.Conveyors;
 using System.Reflection;
 using Sandbox.Common;
 using Sandbox.Game.GameSystems;
 using VRage;
 using Sandbox.Game.Localization;
-using VRage;
 using VRage.Audio;
 using VRage.Utils;
 
 namespace Sandbox.Game.Entities
 {
     [MyCubeBlockType(typeof(MyObjectBuilder_Reactor))]
-    class MyReactor : MyFunctionalBlock, IMyPowerProducer, IMyInventoryOwner, IMyConveyorEndpointBlock,IMyReactor
+    class MyReactor : MyFunctionalBlock, IMyPowerProducer, IMyInventoryOwner, IMyConveyorEndpointBlock, IMyReactor
     {
         static MyReactor()
         {
@@ -218,7 +217,7 @@ namespace Sandbox.Game.Entities
             DetailedInfo.Append(BlockDefinition.DisplayNameText);
             DetailedInfo.Append("\n");
             DetailedInfo.AppendStringBuilder(MyTexts.Get(MySpaceTexts.BlockPropertiesText_MaxOutput));
-            MyValueFormatter.AppendWorkInBestUnit(m_reactorDefinition.MaxPowerOutput, DetailedInfo);
+            MyValueFormatter.AppendWorkInBestUnit(m_reactorDefinition.MaxPowerOutput * m_powerOutputMultiplier, DetailedInfo);
             DetailedInfo.Append("\n");
             if (IsFunctional) DetailedInfo.AppendStringBuilder(MyTexts.Get(MySpaceTexts.BlockPropertyProperties_CurrentOutput));
             MyValueFormatter.AppendWorkInBestUnit(CurrentPowerOutput, DetailedInfo);
@@ -280,7 +279,7 @@ namespace Sandbox.Game.Entities
 
         private float ComputeMaxPowerOutput()
         {
-            return IsWorking ? m_reactorDefinition.MaxPowerOutput : 0f;
+            return IsWorking ? m_reactorDefinition.MaxPowerOutput * m_powerOutputMultiplier : 0f;
         }
 
         #region IMyPowerProducer
@@ -443,6 +442,27 @@ namespace Sandbox.Game.Entities
             m_multilineConveyorEndpoint = new MyMultilineConveyorEndpoint(this);
             AddDebugRenderComponent(new Components.MyDebugRenderComponentDrawConveyorEndpoint(m_multilineConveyorEndpoint));
         }
-        bool IMyReactor.UseConveyorSystem { get { return (this as IMyInventoryOwner).UseConveyorSystem; } }
+        bool Sandbox.ModAPI.Ingame.IMyReactor.UseConveyorSystem { get { return (this as IMyInventoryOwner).UseConveyorSystem; } }
+
+        private float m_powerOutputMultiplier = 1f;
+        float Sandbox.ModAPI.IMyReactor.PowerOutputMultiplier
+        {
+            get
+            {
+                return m_powerOutputMultiplier;
+            }
+            set
+            {
+                m_powerOutputMultiplier = value;
+                if (m_powerOutputMultiplier < 0.01f)
+                {
+                    m_powerOutputMultiplier = 0.01f;
+                }
+
+                MaxPowerOutput = ComputeMaxPowerOutput();
+
+                UpdateText();
+            }
+        }
     }
 }

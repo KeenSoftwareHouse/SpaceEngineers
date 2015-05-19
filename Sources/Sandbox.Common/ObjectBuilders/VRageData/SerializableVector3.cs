@@ -26,13 +26,13 @@ namespace Sandbox.Common.ObjectBuilders.VRageData
             this.Z = z;
         }
 
-        [ProtoMember(1), XmlAttribute]
+        [ProtoMember, XmlAttribute]
         public float x { get { return X; } set { X = value; } }
 
-        [ProtoMember(2), XmlAttribute]
+        [ProtoMember, XmlAttribute]
         public float y { get { return Y; } set { Y = value; } }
 
-        [ProtoMember(3), XmlAttribute]
+        [ProtoMember, XmlAttribute]
         public float z { get { return Z; } set { Z = value; } }
 
         public bool IsZero { get { return X == 0.0f && Y == 0.0f && Z == 0.0f; }  }
