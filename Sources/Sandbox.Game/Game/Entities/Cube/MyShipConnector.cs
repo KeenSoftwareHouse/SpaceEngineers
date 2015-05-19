@@ -222,6 +222,9 @@ namespace Sandbox.Game.Entities.Cube
             m_throwOut = ob.ThrowOut;
             m_collectAll = ob.CollectAll;
 
+            if (MyPerGameSettings.InventoryMass)
+                m_inventory.ContentsChanged += Inventory_ContentsChanged;
+
             SlimBlock.DeformationRatio = ob.DeformationRatio;
 
             float consumption = MyEnergyConstants.MAX_REQUIRED_POWER_CONNECTOR;
@@ -262,6 +265,20 @@ namespace Sandbox.Game.Entities.Cube
             IsWorkingChanged += MyShipConnector_IsWorkingChanged;
 
             AddDebugRenderComponent(new Components.MyDebugRenderCompoonentShipConnector(this));
+        }
+
+        void Inventory_ContentsChanged(MyInventory obj)
+        {
+            CubeGrid.SetInventoryMassDirty();
+        }
+
+        internal override float GetMass()
+        {
+            var mass = base.GetMass();
+            if (MyPerGameSettings.InventoryMass)
+                return mass + (float)m_inventory.CurrentMass;
+            else
+                return mass;
         }
 
         public override void UpdateOnceBeforeFrame()
