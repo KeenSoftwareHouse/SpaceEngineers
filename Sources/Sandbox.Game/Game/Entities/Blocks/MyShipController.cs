@@ -66,8 +66,6 @@ namespace Sandbox.Game.Entities
 
         MyHudNotification m_noControlNotification;
 
-        protected virtual MyStringId LeaveNotificationHintText { get { return MySpaceTexts.NotificationHintLeaveCockpit; } }
-
         protected bool m_enableFirstPerson = false;
         protected bool m_enableShipControl = true;
         public bool EnableShipControl { get { return m_enableShipControl; } }
@@ -573,6 +571,11 @@ namespace Sandbox.Game.Entities
                 MyHud.ShipInfo.LandingGearsLocked = CubeGrid.GridSystems.LandingSystem[Interfaces.LandingGearMode.Locked];
                 MyHud.ShipInfo.LandingGearsInProximity = CubeGrid.GridSystems.LandingSystem[Interfaces.LandingGearMode.ReadyToLock];
 
+                if (MyPerGameSettings.InventoryMass)
+                {
+                    MyHud.ShipInfo.Mass = (int)Parent.Physics.Mass;
+                }
+
                 if (GridPowerDistributor.ProducersEnabled != MyMultipleEnabledEnum.NoObjects)
                 {
                     if (GridPowerDistributor.ProducersEnabled == MyMultipleEnabledEnum.AllEnabled)
@@ -745,7 +748,7 @@ namespace Sandbox.Game.Entities
             if (m_notificationLeave == null)
             {
                 var controlName = MyInput.Static.GetGameControl(MyControlsSpace.USE).GetControlButtonName(MyGuiInputDeviceEnum.Keyboard);
-                m_notificationLeave = new MyHudNotification(LeaveNotificationHintText, 0);
+                m_notificationLeave = new MyHudNotification(MySpaceTexts.NotificationHintLeaveCockpit, 0);
                 if (!MyInput.Static.IsJoystickConnected())
                     m_notificationLeave.SetTextFormatArguments(controlName);
                 else
