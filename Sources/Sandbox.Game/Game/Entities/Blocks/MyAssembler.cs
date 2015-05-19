@@ -1065,5 +1065,22 @@ namespace Sandbox.Game.Entities.Cube
         {
             return base.GetOperationalPowerConsumption() * (1f + UpgradeValues["Productivity"]) * (1f / UpgradeValues["PowerEfficiency"]);
         }
+
+        bool Sandbox.ModAPI.Ingame.IMyAssembler.QueueItem(string itemType, string subtypeName, int amount)
+        {
+            try
+            {
+                InsertQueueItemRequest(-1,
+                                       MyDefinitionManager.Static.TryGetBlueprintDefinitionByResultId(new MyDefinitionId(MyObjectBuilderType.Parse(itemType), subtypeName)),
+                                       (VRage.MyFixedPoint)amount);
+            }
+            catch { return false; } // User probably entered invalid type or name
+            return true;
+        }
+
+        void Sandbox.ModAPI.Ingame.IMyAssembler.ClearQueue()
+        {
+            ClearQueue();
+        }
     }
 }
