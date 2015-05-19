@@ -2258,8 +2258,6 @@ namespace VRage.Input
                     LoadGameControl(gameControlData["Keyboard"], controlType.Value, ParseMyGuiInputDeviceEnum("Keyboard"));
                     LoadGameControl(gameControlData["Keyboard2"], controlType.Value, ParseMyGuiInputDeviceEnum("KeyboardSecond"));
                     LoadGameControl(gameControlData["Mouse"], controlType.Value, ParseMyGuiInputDeviceEnum("Mouse"));
-                    LoadGameControl(gameControlData["Joystick"], controlType.Value, ParseMyGuiInputDeviceEnum("Joystick"));
-                    LoadGameControl(gameControlData["JoystickAxis"], controlType.Value, ParseMyGuiInputDeviceEnum("JoystickAxis"));
                 }
             }
         }

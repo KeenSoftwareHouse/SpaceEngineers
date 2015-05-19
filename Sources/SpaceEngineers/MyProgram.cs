@@ -122,8 +122,6 @@ namespace SpaceEngineers
 
             if (MyFakes.ENABLE_DX11_RENDERER)
             {
-                
-
                 Sandbox.Graphics.Render.MyPostProcessVolumetricSSAO2.MinRadius = 0.095f;
                 Sandbox.Graphics.Render.MyPostProcessVolumetricSSAO2.MaxRadius = 4.16f;
                 Sandbox.Graphics.Render.MyPostProcessVolumetricSSAO2.RadiusGrowZScale = 1.007f;
@@ -137,7 +135,20 @@ namespace SpaceEngineers
                 Sandbox.Graphics.Render.MyPostprocessSettingsWrapper.Settings.LuminanceExposure = 0;
                 Sandbox.Graphics.Render.MyPostprocessSettingsWrapper.Settings.BloomExposure = 0;
                 Sandbox.Graphics.Render.MyPostprocessSettingsWrapper.Settings.BloomMult = 0.1f;
+                Sandbox.Graphics.Render.MyPostprocessSettingsWrapper.Settings.EyeAdaptationTau = 6;
+                Sandbox.Graphics.Render.MyPostprocessSettingsWrapper.Settings.MiddleGreyAt0 = 0.068f;
+                Sandbox.Graphics.Render.MyPostprocessSettingsWrapper.Settings.MiddleGreyCurveSharpness = 4.36f;
+                Sandbox.Graphics.Render.MyPostprocessSettingsWrapper.Settings.LogLumThreshold = -6.0f;
+                Sandbox.Graphics.Render.MyPostprocessSettingsWrapper.Settings.BlueShiftRapidness = 0;
+                Sandbox.Graphics.Render.MyPostprocessSettingsWrapper.Settings.BlueShiftScale = 0;
+                Sandbox.Graphics.Render.MyPostprocessSettingsWrapper.Settings.Tonemapping_A = 0.748f;
+                Sandbox.Graphics.Render.MyPostprocessSettingsWrapper.Settings.Tonemapping_B = 0.324f;
+                Sandbox.Graphics.Render.MyPostprocessSettingsWrapper.Settings.Tonemapping_C = 0.143f;
+                Sandbox.Graphics.Render.MyPostprocessSettingsWrapper.Settings.Tonemapping_D = 0.196f;
+                Sandbox.Graphics.Render.MyPostprocessSettingsWrapper.Settings.Tonemapping_E = 0.009f;
+                Sandbox.Graphics.Render.MyPostprocessSettingsWrapper.Settings.Tonemapping_F = 0.130f;
 
+                
             }
 
             if (MyFakes.DETECT_LEAKS)

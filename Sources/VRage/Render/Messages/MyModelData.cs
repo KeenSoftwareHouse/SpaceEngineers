@@ -33,6 +33,7 @@ namespace VRage
             Normals.Clear();
             Tangents.Clear();
             TexCoords.Clear();
+            Sections.Clear();
         }
     }
 }

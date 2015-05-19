@@ -11,16 +11,16 @@ namespace Sandbox.Common.ObjectBuilders
     [MyObjectBuilderDefinition]
     public class MyObjectBuilder_Meteor : MyObjectBuilder_EntityBase
     {
-        [ProtoMember(1)]
+        [ProtoMember]
         public MyObjectBuilder_InventoryItem Item;
 
-        [ProtoMember(2)]
+        [ProtoMember]
         public Vector3 LinearVelocity;
 
-        [ProtoMember(3)]
+        [ProtoMember]
         public Vector3 AngularVelocity;
 
-        [ProtoMember(4)]
+        [ProtoMember]
         public float Integrity = 100;
     }
 }

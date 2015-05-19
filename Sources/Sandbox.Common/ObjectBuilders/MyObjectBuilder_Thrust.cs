@@ -8,10 +8,10 @@ namespace Sandbox.Common.ObjectBuilders
     [MyObjectBuilderDefinition]
     public class MyObjectBuilder_Thrust : MyObjectBuilder_FunctionalBlock
     {
-        //[ProtoMember(1), DefaultValue(true)]
+        //[ProtoMember, DefaultValue(true)]
         //public bool Enabled = true;
 
-        [ProtoMember(2), DefaultValue(0.0f)]
+        [ProtoMember, DefaultValue(0.0f)]
         public float ThrustOverride = 0.0f;
     }
 }

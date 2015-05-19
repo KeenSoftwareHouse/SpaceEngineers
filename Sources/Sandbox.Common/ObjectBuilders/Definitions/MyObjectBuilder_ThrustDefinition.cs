@@ -15,46 +15,46 @@ namespace Sandbox.Common.ObjectBuilders.Definitions
     {
         static readonly Vector4 DefaultThrustColor = new Vector4(Color.CornflowerBlue.ToVector3() * 0.7f, 0.75f);
         
-        [ProtoMember(1)]
+        [ProtoMember]
         public float ForceMagnitude;
 
-        [ProtoMember(2)]
+        [ProtoMember]
         public float MaxPowerConsumption;
 
-        [ProtoMember(3)]
+        [ProtoMember]
         public float MinPowerConsumption;
 
-        [ProtoMember(4)]
+        [ProtoMember]
         public float FlameDamageLengthScale = 0.6f;
 
-        [ProtoMember(5)]
+        [ProtoMember]
         public float FlameLengthScale = 1.15f;
 
-        [ProtoMember(6)]
+        [ProtoMember]
         public Vector4 FlameFullColor = DefaultThrustColor;
 
-        [ProtoMember(7)]
+        [ProtoMember]
         public Vector4 FlameIdleColor = DefaultThrustColor;
 
-        [ProtoMember(8)]
+        [ProtoMember]
         public string FlamePointMaterial = "EngineThrustMiddle";
 
-        [ProtoMember(9)]
+        [ProtoMember]
         public string FlameLengthMaterial = "EngineThrustMiddle";
 
-        [ProtoMember(10)]
+        [ProtoMember]
         public string FlameGlareMaterial = "GlareSsThrustSmall";
 
-        [ProtoMember(11)]
+        [ProtoMember]
         public float FlameVisibilityDistance = 200;
 
-        [ProtoMember(12)]
+        [ProtoMember]
         public float FlameGlareSize = 0.391f;
 
-        [ProtoMember(13)]
+        [ProtoMember]
         public float FlameGlareQuerySize = 1;
 
-        [ProtoMember(14)]
+        [ProtoMember]
         public float FlameDamage = 0.5f;
     }
 }

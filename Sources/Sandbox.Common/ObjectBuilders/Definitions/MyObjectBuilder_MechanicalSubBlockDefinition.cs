@@ -17,10 +17,10 @@ namespace Medieval.ObjectBuilders.Definitions
     [MyObjectBuilderDefinition]
     public class MyObjectBuilder_MechanicalSubBlockDefinition : MyObjectBuilder_CubeBlockDefinition
     {
-        [ProtoMember(1)]
+        [ProtoMember]
         public SerializableVector3 PivotOffset;
 
-        [ProtoMember(2), DefaultValue(25000f)]
+        [ProtoMember, DefaultValue(25000f)]
         public float BreakableThreshold = 25000f;
     }
 }

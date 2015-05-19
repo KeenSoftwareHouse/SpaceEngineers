@@ -39,49 +39,49 @@ namespace Sandbox.Common.ObjectBuilders.Definitions
         public class ControlDef
         {
             [XmlAttribute]
-            [ProtoMember(1)]
+            [ProtoMember]
             public string Type;
 
             [XmlAttribute]
-            [ProtoMember(2)]
+            [ProtoMember]
             public MyControllerSchemaEnum Control;
         }
 
         [ProtoContract]
         public class ControlGroup
         {
-            [ProtoMember(1)]
+            [ProtoMember]
             public string Type;
 
-            [ProtoMember(2)]
+            [ProtoMember]
             public string Name;
 
-            [ProtoMember(3)]
+            [ProtoMember]
             public List<ControlDef> ControlDefs;
         }
 
         [ProtoContract]
         public class CompatibleDevice
         {
-            [ProtoMember(1)]
+            [ProtoMember]
             public string DeviceId;
         }
 
         [ProtoContract]
         public class Schema
         {
-            [ProtoMember(1)]
+            [ProtoMember]
             public string SchemaName;
 
-            [ProtoMember(2)]
+            [ProtoMember]
             public List<ControlGroup> ControlGroups;
         }
 
         [XmlArrayItem("DeviceId")]
-        [ProtoMember(1)]
+        [ProtoMember]
         public List<string> CompatibleDeviceIds;
 
-        [ProtoMember(2)]
+        [ProtoMember]
         public List<Schema> Schemas;
     }
 }

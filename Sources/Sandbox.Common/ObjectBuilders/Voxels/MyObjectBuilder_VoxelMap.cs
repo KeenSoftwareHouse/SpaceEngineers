@@ -25,7 +25,7 @@ namespace Sandbox.Common.ObjectBuilders.Voxels
         }
         public bool ShouldSerializeName() { return false; }
 
-        [ProtoMember(1)]
+        [ProtoMember]
         public string StorageName
         {
             get { return m_storageName ?? base.Name; }
@@ -33,7 +33,7 @@ namespace Sandbox.Common.ObjectBuilders.Voxels
         }
         private string m_storageName;
 
-        //[ProtoMember(2)]
+        //[ProtoMember]
         public bool MutableStorage = true;
         public bool ShouldSerializeMutableStorage() { return !MutableStorage; }
 

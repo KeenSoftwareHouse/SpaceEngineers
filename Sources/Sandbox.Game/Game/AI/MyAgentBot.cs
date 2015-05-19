@@ -114,6 +114,12 @@ namespace Sandbox.Game.AI
             }
         }
 
+        public bool CreatedByPlayer
+        {
+            get;
+            set;
+        }
+
         public MyAgentBot(MyPlayer player, MyBotDefinition botDefinition)
         {
             m_player = player;
@@ -169,8 +175,9 @@ namespace Sandbox.Game.AI
             }
         }
 
-        public virtual void Spawn(Vector3D? spawnPosition)
+        public virtual void Spawn(Vector3D? spawnPosition, bool spawnedByPlayer)
         {
+            CreatedByPlayer = spawnedByPlayer;
             var character = m_player.Controller.ControlledEntity as MyCharacter;
             if (character != null && character.IsDead || m_player.Identity.IsDead)
             {

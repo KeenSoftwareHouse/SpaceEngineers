@@ -10,13 +10,13 @@ namespace Sandbox.Common.ObjectBuilders
     [MyObjectBuilderDefinition]
     public class MyObjectBuilder_OxygenTank : MyObjectBuilder_FunctionalBlock
     {
-        [ProtoMember(1)]
+        [ProtoMember]
         public bool IsStockpiling;
-        [ProtoMember(2)]
+        [ProtoMember]
         public float FilledRatio;
-        [ProtoMember(3)]
+        [ProtoMember]
         public MyObjectBuilder_Inventory Inventory;
-        [ProtoMember(4)]
+        [ProtoMember]
         public bool AutoRefill;
 
         public override void SetupForProjector()

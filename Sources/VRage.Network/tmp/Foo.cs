@@ -18,7 +18,6 @@ namespace Server
         {
             Name = new MySyncedString();
             Name.Set("Foo");
-            Position.Set(new Vector3D(1,2,3));
         }
     }
 }

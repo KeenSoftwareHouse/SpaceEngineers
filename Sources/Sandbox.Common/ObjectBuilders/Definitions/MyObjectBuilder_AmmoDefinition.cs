@@ -30,7 +30,11 @@ namespace Sandbox.Common.ObjectBuilders.Definitions
         Drill,
         Radioactivity,
         Deformation,
-        Suicide
+        Suicide,
+        Fall,
+        Weapon,
+        Fire,
+        Squeez
     }
 
     public enum MyCustomHitMaterialMethodType
@@ -59,19 +63,19 @@ namespace Sandbox.Common.ObjectBuilders.Definitions
         [ProtoContract]
         public class AmmoBasicProperties
         {
-            [ProtoMember(1)]
+            [ProtoMember]
             public float DesiredSpeed;
-            [ProtoMember(2)]
+            [ProtoMember]
             public float SpeedVariance;
-            [ProtoMember(3)]
+            [ProtoMember]
             public float MaxTrajectory;
-            [ProtoMember(4), DefaultValue(false)]
+            [ProtoMember, DefaultValue(false)]
             public bool IsExplosive;
-            [ProtoMember(5), DefaultValue(0.0f)]
+            [ProtoMember, DefaultValue(0.0f)]
             public float BackkickForce;
         }
 
-        [ProtoMember(1)]
+        [ProtoMember]
         public AmmoBasicProperties BasicProperties;
     }
 }

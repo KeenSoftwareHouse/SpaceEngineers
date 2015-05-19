@@ -7,7 +7,7 @@ namespace Sandbox.Common.ObjectBuilders
     [MyObjectBuilderDefinition]
     public class MyObjectBuilder_ConstructionStockpile : MyObjectBuilder_Base
     {
-        [ProtoMember(1)]
+        [ProtoMember]
         public List<MyObjectBuilder_StockpileItem> Items = new List<MyObjectBuilder_StockpileItem>();
     }
 }

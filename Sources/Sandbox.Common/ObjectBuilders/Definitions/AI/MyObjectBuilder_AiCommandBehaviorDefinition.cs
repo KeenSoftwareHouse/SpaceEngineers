@@ -16,10 +16,10 @@ namespace Sandbox.Common.ObjectBuilders.Definitions
     [MyObjectBuilderDefinition]
     public class MyObjectBuilder_AiCommandBehaviorDefinition : MyObjectBuilder_AiCommandDefinition
     {
-        [ProtoMember(1)]
+        [ProtoMember]
         public string BehaviorTreeName;
 
-        [ProtoMember(2)]
+        [ProtoMember]
         public MyAiCommandEffect CommandEffect;
     }
 }

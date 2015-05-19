@@ -15,11 +15,11 @@ namespace Sandbox.Common.ObjectBuilders.Definitions
     [ProtoContract]
     public struct MyUpgradeModuleInfo
     {
-        [ProtoMember(1)]
+        [ProtoMember]
         public string UpgradeType;
-        [ProtoMember(2)]
+        [ProtoMember]
         public float Modifier;
-        [ProtoMember(3)]
+        [ProtoMember]
         public MyUpgradeModifierType ModifierType;
     }
 
@@ -27,7 +27,7 @@ namespace Sandbox.Common.ObjectBuilders.Definitions
     [MyObjectBuilderDefinition]
     public class MyObjectBuilder_UpgradeModuleDefinition : MyObjectBuilder_CubeBlockDefinition
     {
-        [ProtoMember(1)]
+        [ProtoMember]
         public MyUpgradeModuleInfo[] Upgrades;
     }
 }

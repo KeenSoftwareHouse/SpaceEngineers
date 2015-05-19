@@ -32,11 +32,11 @@ namespace Sandbox.Game.Entities.Blocks
     [ProtoContract]
     struct ToolbarItem : IEqualityComparer<ToolbarItem>
     {
-        [ProtoMember(1)]
+        [ProtoMember]
         public long EntityID;
-        [ProtoMember(2)]
+        [ProtoMember]
         public string GroupName;
-        [ProtoMember(3)]
+        [ProtoMember]
         public string Action;
 
         public bool Equals(ToolbarItem x, ToolbarItem y)

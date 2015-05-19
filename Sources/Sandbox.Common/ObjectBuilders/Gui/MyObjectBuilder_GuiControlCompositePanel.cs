@@ -8,7 +8,7 @@ namespace Sandbox.Common.ObjectBuilders.Gui
     [MyObjectBuilderDefinition]
     public class MyObjectBuilder_GuiControlCompositePanel : MyObjectBuilder_GuiControlPanel
     {
-        [ProtoMember(1)]
+        [ProtoMember]
         public float InnerHeight;
 
     }

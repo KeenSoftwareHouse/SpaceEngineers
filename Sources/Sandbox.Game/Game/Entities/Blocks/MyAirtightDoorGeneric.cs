@@ -69,6 +69,11 @@ namespace Sandbox.Game.Entities.Blocks
             }
         }
 
+        public float OpenRatio
+        {
+            get { return m_currOpening; }
+        }
+
         public bool IsFullyClosed //closed and airtight
         {
             get

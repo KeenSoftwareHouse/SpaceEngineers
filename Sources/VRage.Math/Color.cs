@@ -10,7 +10,7 @@ namespace VRageMath
     [ProtoBuf.ProtoContract, Serializable]
     public struct Color : IPackedVector<uint>, IPackedVector, IEquatable<Color>
     {
-        [ProtoBuf.ProtoMember(1)]
+        [ProtoBuf.ProtoMember]
         private uint packedValue;
 
         /// <summary>

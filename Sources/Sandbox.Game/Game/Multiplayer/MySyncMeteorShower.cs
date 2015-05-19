@@ -19,13 +19,13 @@ namespace Sandbox.Game.Multiplayer
         [MessageId(7687, P2PMessageEnum.Reliable)]
         protected struct UpdateShowerTargetMsg
         {
-            [ProtoMember(1)]
+            [ProtoMember]
             public bool HasTarget;
 
-            [ProtoMember(2)]
+            [ProtoMember]
             public Vector3 Center;
 
-            [ProtoMember(3)]
+            [ProtoMember]
             public float Radius;
         }
 

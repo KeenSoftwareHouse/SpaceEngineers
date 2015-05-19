@@ -14,13 +14,13 @@ namespace Sandbox.Common.ObjectBuilders.Audio
         [ProtoContract]
         public struct Point
         {
-            [ProtoMember(1)]
+            [ProtoMember]
             public float Time;
-            [ProtoMember(2)]
+            [ProtoMember]
             public float Value;
         }
 
-         [ProtoMember(1)]
+         [ProtoMember]
          public List<Point> Points;
     }
 }

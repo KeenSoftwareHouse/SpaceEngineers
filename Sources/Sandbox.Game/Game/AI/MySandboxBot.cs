@@ -53,6 +53,12 @@ namespace Sandbox.Game.AI
             get { return false; }
         }
 
+        public bool CreatedByPlayer
+        {
+            get;
+            set;
+        }
+
         // TODO: Remove this terrible hack :-)
         public bool ShouldFollowPlayer { get { return false; } set { return; } }
 
@@ -91,8 +97,9 @@ namespace Sandbox.Game.AI
             m_actionCollection = actionCollection;
         }
 
-        public void Spawn(Vector3D? spawnPosition)
+        public void Spawn(Vector3D? spawnPosition, bool spawnedByPlayer)
         {
+            CreatedByPlayer = spawnedByPlayer;
             var character = m_player.Controller.ControlledEntity as MyCharacter;
             if (character != null && character.IsDead || m_player.Identity.IsDead)
             {

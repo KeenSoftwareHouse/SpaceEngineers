@@ -240,6 +240,12 @@ namespace Sandbox.Engine.Physics
             world.DisableCollisionsBetween(RagdollCollisionLayer, VirtualMassLayer);
             world.DisableCollisionsBetween(RagdollCollisionLayer, NoCollisionLayer);
             world.DisableCollisionsBetween(RagdollCollisionLayer, ExplosionRaycastLayer);
+            world.DisableCollisionsBetween(RagdollCollisionLayer, CollisionLayerWithoutCharacter);
+            world.DisableCollisionsBetween(RagdollCollisionLayer, CollideWithStaticLayer);
+            world.DisableCollisionsBetween(RagdollCollisionLayer, CollectorCollisionLayer);
+            world.DisableCollisionsBetween(RagdollCollisionLayer, AmmoLayer);
+            
+
                     }
 
         [Conditional("DEBUG")]

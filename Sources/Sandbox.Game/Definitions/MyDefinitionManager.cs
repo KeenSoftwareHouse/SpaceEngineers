@@ -540,6 +540,13 @@ namespace Sandbox.Definitions
                 InitBotCommands(context, definitionSet.m_definitionsById, objBuilder.AiCommands, failOnDebug);
             }
 
+            if (objBuilder.AreaMarkerDefinitions != null)
+            {
+                MySandboxGame.Log.WriteLine("Loading area definitions");
+                InitDefinitionsGeneric<MyObjectBuilder_AreaMarkerDefinition, MyAreaMarkerDefinition>
+                    (context, definitionSet.m_definitionsById, objBuilder.AreaMarkerDefinitions, failOnDebug);
+            }
+
             if (objBuilder.BlockNavigationDefinitions != null)
             {
                 MySandboxGame.Log.WriteLine("Loading navigation definitions");

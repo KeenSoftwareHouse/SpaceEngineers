@@ -17,7 +17,7 @@ namespace Medieval.ObjectBuilders.Definitions
     [MyObjectBuilderDefinition]
     public class MyObjectBuilder_SwitchBlockDefinition : MyObjectBuilder_MechanicalSubBlockDefinition
     {
-        [ProtoMember(1)]
+        [ProtoMember]
         public SerializableVector3 SwitchOffset;
     }
 }

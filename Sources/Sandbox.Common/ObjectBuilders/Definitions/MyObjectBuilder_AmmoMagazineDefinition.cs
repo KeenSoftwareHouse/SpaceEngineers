@@ -27,17 +27,17 @@ namespace Sandbox.Common.ObjectBuilders.Definitions
             public MyObjectBuilderType Type = typeof(MyObjectBuilder_AmmoDefinition);
 
             [XmlAttribute]
-            [ProtoMember(1)]
+            [ProtoMember]
             public string Subtype;
         }
 
-        [ProtoMember(1)]
+        [ProtoMember]
         public int Capacity;
 
-        [ProtoMember(2)]
+        [ProtoMember]
         public MyAmmoCategoryEnum Category;
 
-        [ProtoMember(3)]
+        [ProtoMember]
         public AmmoDefinition AmmoDefinitionId;
     }
 }

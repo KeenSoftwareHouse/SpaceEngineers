@@ -161,7 +161,7 @@ namespace Sandbox.Game.Gui
             {
                 BoundingBoxD one = new BoundingBoxD(new Vector3(-0.5f, -0.5f, -0.5f), new Vector3(0.5f, 0.5f, 0.5f));
                 Color color = Color.Gold;
-                color *= 0.2f;
+                color *= 0.4f;
                 var m = selection.InteractiveObject.ActivationMatrix;
                 var localToWorld = MatrixD.Invert(selection.InteractiveObject.WorldMatrix);
                 //MySimpleObjectDraw.DrawTransparentBox(ref m, ref one, ref color, MySimpleObjectRasterizer.Solid, 0, 0.05f, "Square", null, true);

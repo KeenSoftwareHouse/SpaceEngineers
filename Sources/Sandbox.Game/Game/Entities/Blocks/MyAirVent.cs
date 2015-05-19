@@ -35,7 +35,7 @@ namespace Sandbox.Game.Entities.Blocks
                 return dummy;
             }
         }
-        
+
         private bool m_isProducing;
         private bool m_producedSinceLastUpdate;
         private MyParticleEffect m_effect;
@@ -99,7 +99,7 @@ namespace Sandbox.Game.Entities.Blocks
             base.Init(objectBuilder, cubeGrid);
 
             var builder = (MyObjectBuilder_AirVent)objectBuilder;
-            
+
             m_isDepressurizing = builder.IsDepressurizing;
 
             InitializeConveyorEndpoint();
@@ -491,7 +491,7 @@ namespace Sandbox.Game.Entities.Blocks
         {
             if (!IsDepressurizing || !CanVent)
             {
-               return 0f; 
+                return 0f;
             }
 
             var oxygenBlock = GetOxygenBlock();
@@ -539,15 +539,27 @@ namespace Sandbox.Game.Entities.Blocks
         }
         #endregion
 
+        /// <summary>
+        /// Compatibility method
+        /// </summary>
         public bool IsPressurized()
         {
-            var oxygenBlock = GetOxygenBlock();
-            if (oxygenBlock.Room == null)
-            {
-                return false;
-            }
+            return CanPressurize;
+        }
 
-            return oxygenBlock.Room.IsPressurized;
+        public bool CanPressurize
+        {
+            get
+            {
+
+                var oxygenBlock = GetOxygenBlock();
+                if (oxygenBlock.Room == null)
+                {
+                    return false;
+                }
+
+                return oxygenBlock.Room.IsPressurized;
+            }
         }
         public float GetOxygenLevel()
         {

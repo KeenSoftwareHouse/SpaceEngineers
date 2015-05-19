@@ -12,11 +12,11 @@ namespace Sandbox.Common.ObjectBuilders
     [MyObjectBuilderDefinition]
     public class MyObjectBuilder_ChatHistory : MyObjectBuilder_Base
     {
-        [ProtoMember(1)]
+        [ProtoMember]
         public long IdentityId;
-        [ProtoMember(2)]
+        [ProtoMember]
         public List<MyObjectBuilder_PlayerChatHistory> PlayerChatHistory;
-        [ProtoMember(3)]
+        [ProtoMember]
         public MyObjectBuilder_GlobalChatHistory GlobalChatHistory;
     }
 
@@ -24,10 +24,10 @@ namespace Sandbox.Common.ObjectBuilders
     [MyObjectBuilderDefinition]
     public class MyObjectBuilder_PlayerChatHistory : MyObjectBuilder_Base
     {
-        [ProtoMember(1)]
+        [ProtoMember]
         [XmlArrayItem("PCI")]
         public List<MyObjectBuilder_PlayerChatItem> Chat;
-        [ProtoMember(2)]
+        [ProtoMember]
         [XmlElement(ElementName = "ID")]
         public long IdentityId;
     }
@@ -36,10 +36,10 @@ namespace Sandbox.Common.ObjectBuilders
     [MyObjectBuilderDefinition]
     public class MyObjectBuilder_FactionChatHistory : MyObjectBuilder_Base
     {
-        [ProtoMember(1)]
+        [ProtoMember]
         [XmlArrayItem("FCI")]
         public List<MyObjectBuilder_FactionChatItem> Chat;
-        [ProtoMember(2)]
+        [ProtoMember]
         [XmlElement(ElementName = "ID1")]
         public long FactionId1;
         [XmlElement(ElementName = "ID2")]
@@ -50,7 +50,7 @@ namespace Sandbox.Common.ObjectBuilders
     [MyObjectBuilderDefinition]
     public class MyObjectBuilder_GlobalChatHistory : MyObjectBuilder_Base
     {
-        [ProtoMember(1)]
+        [ProtoMember]
         [XmlArrayItem("GCI")]
         public List<MyObjectBuilder_GlobalChatItem> Chat;
     }
@@ -59,16 +59,16 @@ namespace Sandbox.Common.ObjectBuilders
     [MyObjectBuilderDefinition]
     public class MyObjectBuilder_PlayerChatItem : MyObjectBuilder_Base
     {
-        [ProtoMember(1)]
+        [ProtoMember]
         [XmlAttribute("t")]
         public string Text;
-        [ProtoMember(2)]
+        [ProtoMember]
         [XmlElement(ElementName = "I")]
         public long IdentityIdUniqueNumber;
-        [ProtoMember(3)]
+        [ProtoMember]
         [XmlElement(ElementName = "T")]
         public long TimestampMs;
-        [ProtoMember(4), DefaultValue(true)]
+        [ProtoMember, DefaultValue(true)]
         [XmlElement(ElementName = "S")]
         public bool Sent = true;
     }
@@ -77,19 +77,19 @@ namespace Sandbox.Common.ObjectBuilders
     [MyObjectBuilderDefinition]
     public class MyObjectBuilder_FactionChatItem : MyObjectBuilder_Base
     {
-        [ProtoMember(1)]
+        [ProtoMember]
         [XmlAttribute("t")]
         public string Text;
-        [ProtoMember(2)]
+        [ProtoMember]
         [XmlElement(ElementName = "I")]
         public long IdentityIdUniqueNumber;
-        [ProtoMember(3)]
+        [ProtoMember]
         [XmlElement(ElementName = "T")]
         public long TimestampMs;
-        [ProtoMember(4), DefaultValue(null)]
+        [ProtoMember, DefaultValue(null)]
         [XmlElement(ElementName = "PTST")]
         public List<long> PlayersToSendToUniqueNumber;
-        [ProtoMember(5), DefaultValue(null)]
+        [ProtoMember, DefaultValue(null)]
         [XmlElement(ElementName = "IAST")]
         public List<bool> IsAlreadySentTo;
     }
@@ -98,10 +98,10 @@ namespace Sandbox.Common.ObjectBuilders
     [MyObjectBuilderDefinition]
     public class MyObjectBuilder_GlobalChatItem : MyObjectBuilder_Base
     {
-        [ProtoMember(1)]
+        [ProtoMember]
         [XmlAttribute("t")]
         public string Text;
-        [ProtoMember(2)]
+        [ProtoMember]
         [XmlElement(ElementName = "I")]
         public long IdentityIdUniqueNumber;
     }

@@ -12,10 +12,10 @@ namespace Sandbox.Common.ObjectBuilders
     [MyObjectBuilderDefinition]
     public abstract class MyObjectBuilder_ToolbarItemTerminal : MyObjectBuilder_ToolbarItem
     {
-        [ProtoMember(1)]
+        [ProtoMember]
         public string Action;
 
-        [ProtoMember(2)]
+        [ProtoMember]
         public List<MyObjectBuilder_ToolbarItemActionParameter> Parameters = new List<MyObjectBuilder_ToolbarItemActionParameter>();
 
         public bool ShouldSerializeParameters()

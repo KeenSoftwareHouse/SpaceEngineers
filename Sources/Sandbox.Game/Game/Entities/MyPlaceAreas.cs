@@ -16,13 +16,15 @@ using VRageMath;
 using Sandbox.Engine.Utils;
 using Sandbox.Game.Gui;
 using Sandbox.Game.Entities.Cube;
+using VRage.Library.Utils;
 
 
 #endregion
 
 namespace Sandbox.Game.Entities
 {
-    static class MyPlaceAreas
+    [MySessionComponentDescriptor(MyUpdateOrder.NoUpdate)]
+    public class MyPlaceAreas : MySessionComponentBase
     {
         #region Fields
 
@@ -30,11 +32,25 @@ namespace Sandbox.Game.Entities
 
         #endregion
 
+        protected override void UnloadData()
+        {
+            base.UnloadData();
+
+            List<MyPlaceArea> areas = new List<MyPlaceArea>();
+            m_aabbTree.GetAll(areas, false);
+            foreach (var area in areas)
+            {
+                area.PlaceAreaProxyId = MyConstants.PRUNING_PROXY_ID_UNITIALIZED;
+            }
+
+            Clear();
+        }
+
         public static void AddPlaceArea(MyPlaceArea area)
         {
             if (area.PlaceAreaProxyId == MyConstants.PRUNING_PROXY_ID_UNITIALIZED)
             {
-                BoundingBoxD box = area.PositionComp.WorldAABB;
+                BoundingBoxD box = area.WorldAABB;
                 area.PlaceAreaProxyId = m_aabbTree.AddProxy(ref box, area, 0);
             }
         }
@@ -52,7 +68,7 @@ namespace Sandbox.Game.Entities
         {
             if (area.PlaceAreaProxyId != MyConstants.PRUNING_PROXY_ID_UNITIALIZED)
             {
-                BoundingBoxD box = area.PositionComp.WorldAABB;
+                BoundingBoxD box = area.WorldAABB;
                 m_aabbTree.MoveProxy(area.PlaceAreaProxyId, ref box, Vector3.Zero);
             }
         }
@@ -65,6 +81,11 @@ namespace Sandbox.Game.Entities
         public static void GetAllAreasInSphere(BoundingSphereD sphere, List<MyPlaceArea> result)
         {
             m_aabbTree.OverlapAllBoundingSphere<MyPlaceArea>(ref sphere, result, false);
+        }
+
+        public static void GetAllAreas(List<MyPlaceArea> result)
+        {
+            m_aabbTree.GetAll<MyPlaceArea>(result, false);
         }
 
         public static void DebugDraw()

@@ -17,7 +17,7 @@ namespace Medieval.ObjectBuilders.Definitions
     [MyObjectBuilderDefinition]
     public class MyObjectBuilder_LockBlockDefinition : MyObjectBuilder_MechanicalSubBlockDefinition
     {
-        [ProtoMember(1)]
+        [ProtoMember]
         public float LockAngle;
     }
 }

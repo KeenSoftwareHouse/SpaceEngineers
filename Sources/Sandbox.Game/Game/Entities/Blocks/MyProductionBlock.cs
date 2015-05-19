@@ -58,14 +58,14 @@ namespace Sandbox.Game.Entities.Cube
             [MessageId(2477, P2PMessageEnum.Reliable)]
             struct AddQueueItemMsg : IEntityMessage
             {
-                [ProtoMember(1)]
+                [ProtoMember]
                 public long ProductionEntityId;
                 public long GetEntityId() { return ProductionEntityId; }
-                [ProtoMember(2)]
+                [ProtoMember]
                 public SerializableDefinitionId Blueprint;
-                [ProtoMember(3)]
+                [ProtoMember]
                 public MyFixedPoint Amount;
-                [ProtoMember(4)]
+                [ProtoMember]
                 public int Idx;
             }
 

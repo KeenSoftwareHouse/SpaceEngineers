@@ -19,4 +19,15 @@ namespace VRageRender
         MyRenderMessageType IMyRenderMessage.MessageClass { get { return MyRenderMessageType.StateChangeOnce; } }
         MyRenderMessageEnum IMyRenderMessage.MessageType { get { return MyRenderMessageEnum.CreateDecal; } }
     }
+
+    public class MyRenderMessageCreateScreenDecal : IMyRenderMessage
+    {
+        public uint ID;
+        public uint ParentID;
+        public Matrix LocalOBB; // transforms unit box centered at 0 to volume relative to object space
+        public string DecalMaterial;
+
+        MyRenderMessageType IMyRenderMessage.MessageClass { get { return MyRenderMessageType.StateChangeOnce; } }
+        MyRenderMessageEnum IMyRenderMessage.MessageType { get { return MyRenderMessageEnum.CreateScreenDecal; } }
+    }
 }
