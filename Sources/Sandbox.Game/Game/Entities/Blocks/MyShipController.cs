@@ -425,8 +425,12 @@ namespace Sandbox.Game.Entities
         public override void UpdateAfterSimulation()
         {
             base.UpdateAfterSimulation();
-
             GridThrustSystem.IsGyroOverrideActive = GridGyroSystem.IsGyroOverrideActive;
+
+            // This is a very ugly hack necessary to prevent gyrocopes from over-compensating
+            // (for some reason angular velocity sometimes has an incorrect value and direction when calculated in MyGridGyroSystem.cs)
+            GridGyroSystem.LocalAngularVelocity = GridThrustSystem.LocalAngularVelocity;
+            
             UpdateShipInfo();
 
             //Debug.Assert(GridGyroSystem != null && GridThrustSystem != null && Parent.Physics != null && m_cameraSpring != null && m_cameraShake != null, "CALL PROGRAMMER, this cant happen");

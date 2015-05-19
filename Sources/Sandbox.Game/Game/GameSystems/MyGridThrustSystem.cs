@@ -22,7 +22,7 @@ using Sandbox.Graphics;
 using Sandbox.Common;
 using VRage;
 
-//using Sandbox.Game.Gui;
+using Sandbox.Game.Gui;
 
 namespace Sandbox.Game.GameSystems
 {
@@ -139,7 +139,8 @@ namespace Sandbox.Game.GameSystems
             set;
         }
 
-        public bool IsGyroOverrideActive { get; set; }
+        public bool    IsGyroOverrideActive { get;         set; }
+        public Vector3 LocalAngularVelocity { get; private set; }
 
         #endregion
 
@@ -257,6 +258,8 @@ namespace Sandbox.Game.GameSystems
 
         private void UpdateThrusts()
         {
+            const float ROTATION_LIMITER = 0.8f;     // must be between 0 and 1.
+            
             Matrix invWorldRot = m_grid.PositionComp.GetWorldMatrixNormalizedInv().GetOrientation();
 
             Vector3 localVelocity = Vector3.Transform(m_grid.Physics.LinearVelocity, ref invWorldRot);
@@ -295,21 +298,23 @@ namespace Sandbox.Game.GameSystems
                 if (m_COMUpdateCounter++ >= COM_UPDATE_TICKS)
                     m_COMUpdateCounter = 0;
 
-                Vector3 localAngularVelocity = Vector3.Transform(m_grid.Physics.AngularVelocity, ref invWorldRot);
-                Vector3 desiredAngularVelocity = ControlTorque * 10;
+                LocalAngularVelocity = Vector3.Transform(m_grid.Physics.AngularVelocity, ref invWorldRot);
+                Vector3 desiredAngularVelocity = (LocalAngularVelocity + ControlTorque) * ROTATION_LIMITER;
+                //MyHud.Notifications.Add(new MyHudNotificationDebug("LAVT: " + LocalAngularVelocity.ToString()));
+
                 // Do not adjust for rotation when thrusters on opposite side are overidden or in linear acceleration mode.
                 if (thrustNegative.X <= 0.1f && m_totalThrustOverride.X >= -1.0f)
-                    AdjustThrustForRotation(m_thrustsByDirection[Vector3I.Left    ], Vector3.Right   , ref adjustedThrust, m_maxPositiveThrust.X, localAngularVelocity, desiredAngularVelocity);
+                    AdjustThrustForRotation(m_thrustsByDirection[Vector3I.Left    ], Vector3.Right   , ref adjustedThrust, m_maxPositiveThrust.X, LocalAngularVelocity, desiredAngularVelocity);
                 if (thrustNegative.Y <= 0.1f && m_totalThrustOverride.Y >= -1.0f)
-                    AdjustThrustForRotation(m_thrustsByDirection[Vector3I.Down    ], Vector3.Up      , ref adjustedThrust, m_maxPositiveThrust.Y, localAngularVelocity, desiredAngularVelocity);
+                    AdjustThrustForRotation(m_thrustsByDirection[Vector3I.Down    ], Vector3.Up      , ref adjustedThrust, m_maxPositiveThrust.Y, LocalAngularVelocity, desiredAngularVelocity);
                 if (thrustNegative.Z <= 0.1f && m_totalThrustOverride.Z >= -1.0f)
-                    AdjustThrustForRotation(m_thrustsByDirection[Vector3I.Forward ], Vector3.Backward, ref adjustedThrust, m_maxPositiveThrust.Z, localAngularVelocity, desiredAngularVelocity);
+                    AdjustThrustForRotation(m_thrustsByDirection[Vector3I.Forward ], Vector3.Backward, ref adjustedThrust, m_maxPositiveThrust.Z, LocalAngularVelocity, desiredAngularVelocity);
                 if (thrustPositive.X <= 0.1f && m_totalThrustOverride.X <= 1.0f)
-                    AdjustThrustForRotation(m_thrustsByDirection[Vector3I.Right   ], Vector3.Right   , ref adjustedThrust, m_maxNegativeThrust.X, localAngularVelocity, desiredAngularVelocity);
+                    AdjustThrustForRotation(m_thrustsByDirection[Vector3I.Right   ], Vector3.Right   , ref adjustedThrust, m_maxNegativeThrust.X, LocalAngularVelocity, desiredAngularVelocity);
                 if (thrustPositive.Y <= 0.1f && m_totalThrustOverride.Y <= 1.0f)
-                    AdjustThrustForRotation(m_thrustsByDirection[Vector3I.Up      ], Vector3.Up      , ref adjustedThrust, m_maxNegativeThrust.Y, localAngularVelocity, desiredAngularVelocity);
+                    AdjustThrustForRotation(m_thrustsByDirection[Vector3I.Up      ], Vector3.Up      , ref adjustedThrust, m_maxNegativeThrust.Y, LocalAngularVelocity, desiredAngularVelocity);
                 if (thrustPositive.Z <= 0.1f && m_totalThrustOverride.Z <= 1.0f)
-                    AdjustThrustForRotation(m_thrustsByDirection[Vector3I.Backward], Vector3.Backward, ref adjustedThrust, m_maxNegativeThrust.Z, localAngularVelocity, desiredAngularVelocity);
+                    AdjustThrustForRotation(m_thrustsByDirection[Vector3I.Backward], Vector3.Backward, ref adjustedThrust, m_maxNegativeThrust.Z, LocalAngularVelocity, desiredAngularVelocity);
                 ControlTorque = Vector3.Zero;
 
                 // Recalculate ratio of usage after rotational ajustments.
@@ -443,13 +448,13 @@ namespace Sandbox.Game.GameSystems
                     if (IsOverridden(thrust))
                     {
                         thrust.CurrentStrength = thrust.ThrustOverride * suppliedPowerRatio / thrust.ThrustForce.Length();
-                        m_currentTorque += Vector3.Cross(thrust.COMOffsetVector, thrust.ThrustForce * thrust.CurrentStrength * MyFakes.SLOWDOWN_FACTOR_THRUST_MULTIPLIER);
+                        m_currentTorque += Vector3.Cross(thrust.COMOffsetVector, thrust.ThrustForce * thrust.CurrentStrength);
                     }
                     else if (IsUsed(thrust))
                     {
                         thrust.CurrentStrength *= suppliedPowerRatio;   // thrust.CurrentStrength is initialized in InitializeThrottleAndCOMOffset()
                                                                         // and optionally adjusted in AdjustThrustForRotation().
-                        m_currentTorque += Vector3.Cross(thrust.COMOffsetVector, thrust.ThrustForce * thrust.CurrentStrength * MyFakes.SLOWDOWN_FACTOR_THRUST_MULTIPLIER);
+                        m_currentTorque += Vector3.Cross(thrust.COMOffsetVector, thrust.ThrustForce * thrust.CurrentStrength);
                     }
                     else
                         thrust.CurrentStrength = 0;
