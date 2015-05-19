@@ -450,6 +450,7 @@ namespace VRageRender
 
     struct MyMaterialTextureSwap
     {
+        internal string MaterialSlot;
         internal MyStringId TextureName;
     }
 
@@ -463,8 +464,8 @@ namespace VRageRender
         internal float Emissivity = DefaultEmissivity;
         internal Vector3 ColorMul = DefaultColorMul;
 
-        internal MyMaterialTextureSwap? TextureSwap = null;
-
+        //internal MyMaterialTextureSwap? TextureSwap = null;
+        internal List<MyMaterialTextureSwap> TextureSwaps = null;
 
         internal MyMaterialProxyId CustomMaterialProxy = MyMaterialProxyId.NULL;
         internal RwTexId CustomRenderedTexture = RwTexId.NULL;
@@ -1246,13 +1247,31 @@ namespace VRageRender
 
                         //
 
-                        if(property.Value.TextureSwap.HasValue)
+                        if(property.Value.TextureSwaps != null)
                         {
                             var meshMat = part.Info.Material;
                             var info = meshMat.Info;
-                            info.ColorMetal_Texture = property.Value.TextureSwap.Value.TextureName;
+
+                            foreach(var s in property.Value.TextureSwaps)
+                            {
+                                switch(s.MaterialSlot)
+                                {
+                                    case "NormalGlossTexture":
+                                        info.NormalGloss_Texture = s.TextureName;
+                                        break;
+                                    case "AddMapsTexture":
+                                        info.Extensions_Texture = s.TextureName;
+                                        break;
+                                    case "AlphamaskTexture":
+                                        info.Alphamask_Texture = s.TextureName;
+                                        break;
+                                    default:
+                                        info.ColorMetal_Texture = s.TextureName;
+                                        break;
+                                }
+                            }
+
                             proxy.Draw.MaterialId = MyMeshMaterials1.GetProxyId(MyMeshMaterials1.GetMaterialId(ref info));
-                            proxy.ObjectData.Emissive = 1;
                         }
 
                         else if(property.Value.CustomRenderedTexture != RwTexId.NULL)
@@ -1269,7 +1288,6 @@ namespace VRageRender
                                 MyMaterials1.ProxyPool.Data[matProxy.Index].MaterialSRVs.Version = (int)m_owner.ID;
                             }
 
-                            proxy.ObjectData.Emissive = 1;
                             proxy.Draw.MaterialId = matProxy;
                         }
                     }

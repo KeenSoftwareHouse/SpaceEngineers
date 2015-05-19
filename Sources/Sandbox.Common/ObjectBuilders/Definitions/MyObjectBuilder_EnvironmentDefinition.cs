@@ -13,79 +13,79 @@ namespace Sandbox.Common.ObjectBuilders.Definitions
     [MyObjectBuilderDefinition]
     public class MyObjectBuilder_EnvironmentDefinition : MyObjectBuilder_DefinitionBase
     {
-        [ProtoMember(1)]
+        [ProtoMember]
         public SerializableVector3 SunDirection;
 
-        [ProtoMember(2), ModdableContentFile("dds")]
+        [ProtoMember, ModdableContentFile("dds")]
         public string EnvironmentTexture;
 
-        [ProtoMember(3)]
+        [ProtoMember]
         public MyOrientation EnvironmentOrientation;
 
-        [ProtoMember(4)]
+        [ProtoMember]
         public bool EnableFog;
 
-        [ProtoMember(5)]
+        [ProtoMember]
         public float FogNear;
 
-        [ProtoMember(6)]
+        [ProtoMember]
         public float FogFar;
 
-        [ProtoMember(7)]
+        [ProtoMember]
         public float FogMultiplier;
 
-        [ProtoMember(8)]
+        [ProtoMember]
         public float FogBacklightMultiplier;
 
-        [ProtoMember(9)]
+        [ProtoMember]
         public float FogDensity;
 
-        [ProtoMember(10)]
+        [ProtoMember]
         public SerializableVector3 FogColor;
 
-        [ProtoMember(11)]
+        [ProtoMember]
         public SerializableVector3 SunDiffuse = new SerializableVector3(200 / 255.0f, 200 / 255.0f, 200 / 255.0f);
 
-        [ProtoMember(12)]
+        [ProtoMember]
         public float SunIntensity = 1.456f;
 
-        [ProtoMember(13)]
+        [ProtoMember]
         public SerializableVector3 SunSpecular = new SerializableVector3(200 / 255.0f, 200 / 255.0f, 200 / 255.0f);
 
-        [ProtoMember(14)]
+        [ProtoMember]
         public SerializableVector3 BackLightDiffuse = new SerializableVector3(200 / 255.0f, 200 / 255.0f, 200 / 255.0f);
 
-        [ProtoMember(15)]
+        [ProtoMember]
         public float BackLightIntensity = 0.239f;
 
-        [ProtoMember(16)]
+        [ProtoMember]
         public SerializableVector3 AmbientColor = new SerializableVector3(36 / 255.0f, 36 / 255.0f, 36 / 255.0f);
 
-        [ProtoMember(17)]
+        [ProtoMember]
         public float AmbientMultiplier = 0.969f;
 
-        [ProtoMember(18)]
+        [ProtoMember]
         public float EnvironmentAmbientIntensity = 0.500f;
 
-        [ProtoMember(19)]
+        [ProtoMember]
         public SerializableVector3 BackgroundColor = new SerializableVector3(1, 1, 1);
 
-        [ProtoMember(20)]
+        [ProtoMember]
         public string SunMaterial = "SunDisk";
 
-        [ProtoMember(21)]
+        [ProtoMember]
         public float SunSizeMultiplier = 200;
 
-        [ProtoMember(22)]
+        [ProtoMember]
         public float SmallShipMaxSpeed = 100;
 
-        [ProtoMember(23)]
+        [ProtoMember]
         public float LargeShipMaxSpeed = 100;
 
-        [ProtoMember(24)]
+        [ProtoMember]
         public float SmallShipMaxAngularSpeed = 36000;
 
-        [ProtoMember(25)]
+        [ProtoMember]
         public float LargeShipMaxAngularSpeed = 18000;
     }
 }

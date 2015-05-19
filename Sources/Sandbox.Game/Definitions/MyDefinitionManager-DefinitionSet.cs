@@ -95,6 +95,7 @@ namespace Sandbox.Definitions
                 m_environmentDef = new MyEnvironmentDefinition();
                 m_behaviorDefinitions = new DefinitionDictionary<MyBehaviorDefinition>(10);
                 m_voxelMapStorages = new Dictionary<string, MyVoxelMapStorageDefinition>(64);
+                m_characterNames = new List<MyCharacterName>(32);
             }
 
             public void OverrideBy(DefinitionSet definitionSet)
@@ -308,6 +309,11 @@ namespace Sandbox.Definitions
                 {
                     m_voxelMapStorages[voxelMapStorageDef.Key] = voxelMapStorageDef.Value;
                 }
+
+                foreach (var nameEntry in definitionSet.m_characterNames)
+                {
+                    m_characterNames.Add(nameEntry);
+                }
             }
 
             static void MergeDefinitionLists<T>(List<T> output, List<T> input) where T : MyDefinitionBase
@@ -390,6 +396,8 @@ namespace Sandbox.Definitions
             internal DefinitionDictionary<MyBehaviorDefinition> m_behaviorDefinitions;
 
             public Dictionary<string, MyVoxelMapStorageDefinition> m_voxelMapStorages;
+
+            internal List<MyCharacterName> m_characterNames;
         }
     }
 }

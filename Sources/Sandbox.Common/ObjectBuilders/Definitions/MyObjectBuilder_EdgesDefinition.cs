@@ -11,19 +11,19 @@ namespace Sandbox.Common.ObjectBuilders.Definitions
     [ProtoContract]
     public class MyEdgesModelSet
     {
-        [ProtoMember(1)]
+        [ProtoMember]
         [ModdableContentFile("mwm")]
         public string Vertical;
 
-        [ProtoMember(2)]
+        [ProtoMember]
         [ModdableContentFile("mwm")]
         public string VerticalDiagonal;
 
-        [ProtoMember(3)]
+        [ProtoMember]
         [ModdableContentFile("mwm")]
         public string Horisontal;
 
-        [ProtoMember(4)]
+        [ProtoMember]
         [ModdableContentFile("mwm")]
         public string HorisontalDiagonal;
     }
@@ -32,10 +32,10 @@ namespace Sandbox.Common.ObjectBuilders.Definitions
     [MyObjectBuilderDefinition]
     public class MyObjectBuilder_EdgesDefinition : MyObjectBuilder_DefinitionBase
     {
-        [ProtoMember(1)]
+        [ProtoMember]
         public MyEdgesModelSet Small;
 
-        [ProtoMember(2)]
+        [ProtoMember]
         public MyEdgesModelSet Large;
     }
 }

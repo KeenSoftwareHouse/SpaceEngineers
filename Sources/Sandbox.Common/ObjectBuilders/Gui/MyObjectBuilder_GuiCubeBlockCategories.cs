@@ -14,25 +14,25 @@ namespace Sandbox.Common.ObjectBuilders.Definitions
     [MyObjectBuilderDefinition]
     public class MyObjectBuilder_GuiBlockCategoryDefinition : MyObjectBuilder_DefinitionBase
     {
-        [ProtoMember(1)]
+        [ProtoMember]
         public string Name;
 
-        [ProtoMember(2)]
+        [ProtoMember]
         public string[] ItemIds;
 
-        [ProtoMember(3)]
+        [ProtoMember]
         public bool IsShipCategory = false;
 
-        [ProtoMember(4)]
+        [ProtoMember]
         public bool IsBlockCategory = true;
 
-        [ProtoMember(5)]
+        [ProtoMember]
         public bool SearchBlocks = true;
 
-        [ProtoMember(6)]
+        [ProtoMember]
         public bool ShowAnimations = false;
 
-        [ProtoMember(7)]
+        [ProtoMember]
         public bool Public = true;
     }
 }

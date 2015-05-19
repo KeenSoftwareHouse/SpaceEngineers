@@ -10,7 +10,7 @@ namespace Sandbox.Common.ObjectBuilders.Definitions
     [MyObjectBuilderDefinition]
     public class MyObjectBuilder_OxygenTankDefinition : MyObjectBuilder_ProductionBlockDefinition
     {
-        [ProtoMember(1)]
+        [ProtoMember]
         public float Capacity;
     }
 }

@@ -457,10 +457,27 @@
     </PhysicalItem>
     <PhysicalItem>
       <Id>
-        <TypeId>Ingot</TypeId>
+        <TypeId>Ore</TypeId>
         <SubtypeId>Scrap</SubtypeId>
       </Id>
       <DisplayName>DisplayName_Item_Scrap</DisplayName>
+      <Icon>Textures\GUI\Icons\component\ScrapMetalComponent.dds</Icon>
+      <Size>
+        <X>0.2</X>
+        <Y>0.2</Y>
+        <Z>0.1</Z>
+      </Size>
+      <Mass>1</Mass>
+      <Volume>0.254</Volume>
+      <Model>Models\Components\ScrapMetalComponent.mwm</Model>
+    </PhysicalItem>
+    <PhysicalItem>
+      <Id>
+        <TypeId>Ingot</TypeId>
+        <SubtypeId>Scrap</SubtypeId>
+      </Id>
+      <DisplayName>DisplayName_Item_ScrapIngot</DisplayName>
+      <!-- Old definition for backwards compatibility -->
       <Icon>Textures\GUI\Icons\component\ScrapMetalComponent.dds</Icon>
       <Size>
         <X>0.2</X>

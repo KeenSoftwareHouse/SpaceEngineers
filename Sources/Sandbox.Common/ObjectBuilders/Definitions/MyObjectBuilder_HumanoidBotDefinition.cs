@@ -18,15 +18,15 @@ namespace Sandbox.Common.ObjectBuilders.Definitions
             public MyObjectBuilderType Type = typeof(MyObjectBuilder_PhysicalGunObject);
 
             [XmlAttribute]
-            [ProtoMember(1)]
+            [ProtoMember]
             public string Subtype;
         }
 
-        [ProtoMember(1)]
+        [ProtoMember]
         public Item StartingItem = null;
 
         [XmlArrayItem("Item")]
-        [ProtoMember(2)]
+        [ProtoMember]
         public Item[] InventoryItems = null;
     }
 }

@@ -3,7 +3,7 @@ using System.ComponentModel;
 using System.Configuration.Install;
 using System.ServiceProcess;
 
-namespace Sandbox.AppCode.App
+namespace VRage.Dedicated
 {
     [RunInstaller(true)]
     public class WindowsServiceInstaller : Installer
@@ -26,13 +26,13 @@ namespace Sandbox.AppCode.App
             serviceProcessInstaller.Password = null;
 
             //# Service Information
-            m_serviceInstaller.DisplayName = "Space engineers dedicated server";
+            m_serviceInstaller.DisplayName = MyPerServerSettings.GameName + " dedicated server";
             m_serviceInstaller.StartType = ServiceStartMode.Automatic;
 
             //# This must be identical to the WindowsService.ServiceBase name
             //# set in the constructor of WindowsService.cs
-            m_serviceInstaller.ServiceName = "Space engineers dedicated server";
-            m_serviceInstaller.Description = "Your place for space engineering, destruction and exploring.";
+            m_serviceInstaller.ServiceName = m_serviceInstaller.DisplayName;
+            m_serviceInstaller.Description = MyPerServerSettings.GameDSDescription;
 
             this.Installers.Add(serviceProcessInstaller);
             this.Installers.Add(m_serviceInstaller);

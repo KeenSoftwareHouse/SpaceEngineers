@@ -11,7 +11,8 @@ namespace Sandbox.Common
     public enum MyQuickLaunchType : byte
     {
         NEW_SANDBOX,
-        LAST_SANDBOX
+        LAST_SANDBOX,
+        SCENARIO_QUICKSTART
     }
 
     public enum MyFontEnum

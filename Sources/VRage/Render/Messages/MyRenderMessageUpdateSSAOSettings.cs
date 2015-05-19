@@ -46,7 +46,13 @@ namespace VRageRender
         public float BloomExposure;
         public float BloomMult;
 
-
+        public float Tonemapping_A;
+        public float Tonemapping_B;
+        public float Tonemapping_C;
+        public float Tonemapping_D;
+        public float Tonemapping_E;
+        public float Tonemapping_F;
+        public float LogLumThreshold;
 
         public static MyPostprocessSettings DefaultGame()
         {
@@ -67,6 +73,14 @@ namespace VRageRender
                 MiddleGreyAt0 = 0.005f,
                 BlueShiftRapidness = 0.01f,
                 BlueShiftScale = 0.5f,
+
+                Tonemapping_A = 0.22f,
+                Tonemapping_B = 0.30f,
+                Tonemapping_C = 0.10f,
+                Tonemapping_D = 0.20f,
+                Tonemapping_E = 0.01f,
+                Tonemapping_F = 0.30f,
+                LogLumThreshold = -16.0f
             };
         }
 

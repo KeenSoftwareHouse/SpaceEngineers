@@ -10,30 +10,30 @@ namespace Sandbox.Common.ObjectBuilders
     [MyObjectBuilderDefinition]
     public class MyObjectBuilder_Sector : MyObjectBuilder_Base
     {
-        [ProtoMember(1)]
+        [ProtoMember]
         public Vector3I Position;
 
-        [ProtoMember(2)]
+        [ProtoMember]
         [XmlArrayItem("MyObjectBuilder_EntityBase", Type = typeof(MyAbstractXmlSerializer<MyObjectBuilder_EntityBase>))]
         public List<MyObjectBuilder_EntityBase> SectorObjects { get; set; }
 
-//        [ProtoMember(3)]
+//        [ProtoMember]
 //        public MyMwcPositionAndOrientation SpectatorPosition = new MyMwcPositionAndOrientation(Matrix.Identity);
-        [ProtoMember(3)]
+        [ProtoMember]
         public MyObjectBuilder_GlobalEvents SectorEvents;
 
-        [ProtoMember(4)]
+        [ProtoMember]
         public int AppVersion = 0;
 
-        [ProtoMember(5)]
+        [ProtoMember]
         public MyObjectBuilder_Encounters Encounters;
 
         // If not null, this overrides the environment definition settings.
-        [ProtoMember(6)]
+        [ProtoMember]
         public MyObjectBuilder_EnvironmentSettings Environment = null;
         public bool ShouldSerializeEnvironment() { return Environment != null; }
 
-        [ProtoMember(7)]
+        [ProtoMember]
         public ulong VoxelHandVolumeChanged;
     }
 }

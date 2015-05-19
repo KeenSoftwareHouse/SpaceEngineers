@@ -24,8 +24,8 @@ Texture2DMS<float4, MS_SAMPLE_COUNT> SourceMS : register( t0 );
 
 RWTexture2D<float4> Destination	: register( u0 );
 
-Texture2D<float> ReduceInput : register( t0 );
-RWTexture2D<float> ReduceOutput	: register( u0 );
+Texture2D<float2> ReduceInput : register( t0 );
+RWTexture2D<float2> ReduceOutput	: register( u0 );
 
 RWTexture2D<float> LocalAvgLum	: register( u1 );
 Texture2D<float> PrevLum		: register( t1 );
@@ -81,7 +81,10 @@ void resolve_depth(PostprocessVertex vertex, out float depth_write : SV_Depth)
 
 #include <math.h>
 
-groupshared float ReduceBuffer[NumThreads];
+groupshared float2 ReduceBuffer[NumThreads];
+
+
+static const float EXP_LUM_THRESHOLD = -5;
 
 [numthreads(NUMTHREADS_X, NUMTHREADS_Y, 1)]
 void luminance_init(
@@ -93,31 +96,42 @@ void luminance_init(
 	uint2 texel = dispatchThreadID.xy;
 
 	float luminance = 0;
+	float validCtr = 0;
 	
 #if !MSAA_ENABLED
 	float3 sample = Source[texel].xyz;
-	luminance += log(max( calc_luminance(sample), 0.0001f));
+	float v = log(max( calc_luminance(sample), 0.0001f));
+	float ok = v > EXP_LUM_THRESHOLD;
+	luminance += v * ok;
+	validCtr += ok;
 #else
 	[unroll]
 	for(uint i=0; i< MS_SAMPLE_COUNT; i++) {
 		float3 sample = SourceMS.Load(texel, i).xyz;
-		luminance += log(max( calc_luminance(sample), 0.0001f));
+		
+		float v = log(max( calc_luminance(sample), 0.0001f));
+		float ok = v > LUM_THRESHOLD;
+		luminance += v * ok;
+		validCtr += ok;
 	}
 #endif
 
-	ReduceBuffer[ThreadIndex] = luminance * all(texel < Texture_size);
+	ReduceBuffer[ThreadIndex].x = luminance * all(texel < Texture_size);
+	ReduceBuffer[ThreadIndex].y = validCtr;
     GroupMemoryBarrierWithGroupSync();
 
     [unroll]
 	for(uint s = NumThreads / 2; s > 0; s >>= 1)
     {
-		if(ThreadIndex < s)
+		if(ThreadIndex < s) {
 			ReduceBuffer[ThreadIndex] += ReduceBuffer[ThreadIndex + s];
+		}
 		GroupMemoryBarrierWithGroupSync();
 	}
 
-    if(ThreadIndex == 0)
+    if(ThreadIndex == 0) {
         ReduceOutput[GroupID.xy] = ReduceBuffer[0];
+    }
 }
 
 [numthreads(NUMTHREADS_X, NUMTHREADS_Y, 1)]
@@ -129,32 +143,31 @@ void luminance_reduce(
 {
 	uint2 texel = dispatchThreadID.xy;
 
-	float luminance = ReduceInput[texel];
-
-	ReduceBuffer[ThreadIndex] = luminance;
+	ReduceBuffer[ThreadIndex] = ReduceInput[texel];
     GroupMemoryBarrierWithGroupSync();
 
     [unroll]
 	for(uint s = NumThreads / 2; s > 0; s >>= 1)
     {
-		if(ThreadIndex < s)
+		if(ThreadIndex < s) {
 			ReduceBuffer[ThreadIndex] += ReduceBuffer[ThreadIndex + s];
+		}
 		GroupMemoryBarrierWithGroupSync();
 	}
 
 	if(ThreadIndex == 0) {
 #ifdef _FINAL
-		float prevlum = PrevLum[uint2(0, 0)];
+		float prevlum = PrevLum[uint2(0, 0)].x;
 		prevlum = clamp(prevlum, 0, 100000);
-		float sum = ReduceBuffer[0] / Texture_texels;
-#if MSAA_ENABLED
-		sum /= MS_SAMPLE_COUNT;
-#endif
+		float sum = ReduceBuffer[0].x / ReduceBuffer[0].y;
+	#if MSAA_ENABLED
+		//sum /= MS_SAMPLE_COUNT;
+	#endif
 		float currentlum = exp(sum);
 		prevlum = prevlum == 0 ? currentlum : prevlum;
         float adaptedlum = prevlum + (currentlum - prevlum) * saturate(1 - exp(-frame_.timedelta * frame_.tau));
 
-		ReduceOutput[GroupID.xy] = adaptedlum;
+		ReduceOutput[GroupID.xy].x = adaptedlum;
 #else
 		ReduceOutput[GroupID.xy] = ReduceBuffer[0];
 #endif

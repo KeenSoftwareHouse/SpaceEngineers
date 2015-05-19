@@ -14,23 +14,23 @@ namespace Sandbox.Common.ObjectBuilders.Definitions
     [MyObjectBuilderDefinition]
     public abstract class MyObjectBuilder_DefinitionBase : MyObjectBuilder_Base
     {
-        [ProtoMember(1)]
+        [ProtoMember]
         public SerializableDefinitionId Id;
 
-        [ProtoMember(2), DefaultValue("")]
+        [ProtoMember, DefaultValue("")]
         public string DisplayName;
 
-        [ProtoMember(3), DefaultValue("")]
+        [ProtoMember, DefaultValue("")]
         public string Description;
 
-        [ProtoMember(4)]
+        [ProtoMember]
         [ModdableContentFile("dds")]
         public string Icon;
 
-        [ProtoMember(5), DefaultValue(true)]
+        [ProtoMember, DefaultValue(true)]
         public bool Public = true;
 
-        [ProtoMember(6), DefaultValue(true), XmlAttribute(AttributeName = "Enabled")]
+        [ProtoMember, DefaultValue(true), XmlAttribute(AttributeName = "Enabled")]
         public bool Enabled = true;
     }
 }

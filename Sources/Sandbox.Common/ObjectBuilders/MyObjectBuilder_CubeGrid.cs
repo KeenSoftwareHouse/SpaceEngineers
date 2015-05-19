@@ -23,10 +23,10 @@ namespace Sandbox.Common.ObjectBuilders
     [ProtoContract]
     public struct BoneInfo
     {
-        [ProtoMember(1)]
+        [ProtoMember]
         public SerializableVector3I BonePosition;
 
-        [ProtoMember(2)]
+        [ProtoMember]
         public SerializableVector3UByte BoneOffset;
     }
 
@@ -34,58 +34,58 @@ namespace Sandbox.Common.ObjectBuilders
     [MyObjectBuilderDefinition]
     public class MyObjectBuilder_CubeGrid : MyObjectBuilder_EntityBase
     {
-        [ProtoMember(44)]
+        [ProtoMember]
         public MyCubeSize GridSizeEnum;
-        [ProtoMember(46)]
+        [ProtoMember]
         [XmlArrayItem("MyObjectBuilder_CubeBlock", Type = typeof(MyAbstractXmlSerializer<MyObjectBuilder_CubeBlock>))]
         public List<MyObjectBuilder_CubeBlock> CubeBlocks = new List<MyObjectBuilder_CubeBlock>();
 
-        [ProtoMember(47)]
+        [ProtoMember]
         public bool IsStatic;
 
-        [ProtoMember(48)]
+        [ProtoMember]
         public List<BoneInfo> Skeleton;
 
-        [ProtoMember(49)]
+        [ProtoMember]
         public SerializableVector3 LinearVelocity;
 
-        [ProtoMember(50)]
+        [ProtoMember]
         public SerializableVector3 AngularVelocity;
 
-        [ProtoMember(51)]
+        [ProtoMember]
         public SerializableVector3I? XMirroxPlane;
 
-        [ProtoMember(52)]
+        [ProtoMember]
         public SerializableVector3I? YMirroxPlane;
 
-        [ProtoMember(53)]
+        [ProtoMember]
         public SerializableVector3I? ZMirroxPlane;
 
-        [ProtoMember(54), DefaultValue(false)]
+        [ProtoMember, DefaultValue(false)]
         public bool XMirroxOdd = false;
 
-        [ProtoMember(55), DefaultValue(false)]
+        [ProtoMember, DefaultValue(false)]
         public bool YMirroxOdd = false;
 
-        [ProtoMember(56), DefaultValue(false)]
+        [ProtoMember, DefaultValue(false)]
         public bool ZMirroxOdd = false;
 
-        [ProtoMember(57), DefaultValue(true)]
+        [ProtoMember, DefaultValue(true)]
         public bool DampenersEnabled = true;
 
-        [ProtoMember(58)]
+        [ProtoMember]
         public List<MyObjectBuilder_ConveyorLine> ConveyorLines = new List<MyObjectBuilder_ConveyorLine>();
 
-        [ProtoMember(59)]
+        [ProtoMember]
         public List<MyObjectBuilder_BlockGroup> BlockGroups = new List<MyObjectBuilder_BlockGroup>();
 
-        [ProtoMember(60)]
+        [ProtoMember]
         public bool Handbrake;
 
-        [ProtoMember(61)]
+        [ProtoMember]
         public string DisplayName;
 
-        [ProtoMember(62)]
+        [ProtoMember]
         public float[] OxygenAmount;
 
         public override void Remap(IMyRemapHelper remapHelper)

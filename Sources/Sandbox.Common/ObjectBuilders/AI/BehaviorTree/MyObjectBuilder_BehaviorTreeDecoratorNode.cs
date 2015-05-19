@@ -25,24 +25,24 @@ namespace Sandbox.Common.ObjectBuilders.AI
         [ProtoContract]
         public class TimerLogic : Logic
         {
-            [ProtoMember(1)]
+            [ProtoMember]
             public long TimeInMs;
         }
 
         [ProtoContract]
         public class CounterLogic : Logic
         {
-            [ProtoMember(1)]
+            [ProtoMember]
             public int Count;
         }
 
-        [ProtoMember(1)]
+        [ProtoMember]
         public MyObjectBuilder_BehaviorTreeNode BTNode = null;
 
-        [ProtoMember(2)]
+        [ProtoMember]
         public Logic DecoratorLogic = null;
 
-        [ProtoMember(3)]
+        [ProtoMember]
         public MyDecoratorDefaultReturnValues DefaultReturnValue = MyDecoratorDefaultReturnValues.SUCCESS;
     }
 }

@@ -11,16 +11,16 @@ namespace Sandbox.Common.ObjectBuilders
     [MyObjectBuilderDefinition]
     public class MyObjectBuilder_TimerBlock : MyObjectBuilder_FunctionalBlock
     {
-        [ProtoMember(1)]
+        [ProtoMember]
         public MyObjectBuilder_Toolbar Toolbar;
 
-        [ProtoMember(2), DefaultValue(false)]
+        [ProtoMember, DefaultValue(false)]
         public bool JustTriggered = false;
 
-        [ProtoMember(3)]
+        [ProtoMember]
         public int Delay = 10 * 1000;
 
-        [ProtoMember(4)]
+        [ProtoMember]
         public int CurrentTime;
 
         public override void Remap(IMyRemapHelper remapHelper)

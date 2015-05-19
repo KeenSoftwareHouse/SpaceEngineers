@@ -8,10 +8,10 @@
       </Id>
       <CubeGrids>
         <CubeGrid>
-          <EntityId>165382164148604640</EntityId>
+          <EntityId>210000826643422011</EntityId>
           <PersistentFlags>CastShadows InScene</PersistentFlags>
           <PositionAndOrientation>
-            <Position x="54.705576346132148" y="9.5328803948723362" z="-5.4756893991052493" />
+            <Position x="-25.843259811401367" y="-168.86191713809967" z="92.737503051757812" />
             <Forward x="-0" y="-0" z="-1" />
             <Up x="0" y="1" z="0" />
           </PositionAndOrientation>
@@ -19,7 +19,7 @@
           <CubeBlocks>
             <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_Projector">
               <SubtypeName>LargeProjector</SubtypeName>
-              <EntityId>159431742567718700</EntityId>
+              <EntityId>181662897463336896</EntityId>
               <Min x="0" y="0" z="0" />
               <BlockOrientation Forward="Forward" Up="Up" />
               <ColorMaskHSV x="0" y="-1" z="0" />
@@ -42,7 +42,7 @@
             </MyObjectBuilder_CubeBlock>
             <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_BatteryBlock">
               <SubtypeName>LargeBlockBatteryBlock</SubtypeName>
-              <EntityId>215823515483118979</EntityId>
+              <EntityId>167592968821965155</EntityId>
               <Min x="0" y="-1" z="0" />
               <BlockOrientation Forward="Forward" Up="Up" />
               <ColorMaskHSV x="0" y="-1" z="0" />
@@ -59,7 +59,7 @@
           </CubeBlocks>
           <IsStatic>false</IsStatic>
           <Skeleton />
-          <LinearVelocity x="0" y="0" z="0" />
+          <LinearVelocity x="-0.07457237" y="-0.0353263281" z="0.01307397" />
           <AngularVelocity x="0" y="0" z="0" />
           <XMirroxPlane xsi:nil="true" />
           <YMirroxPlane xsi:nil="true" />

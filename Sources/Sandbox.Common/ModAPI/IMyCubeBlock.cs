@@ -116,6 +116,11 @@ namespace Sandbox.ModAPI
         /// Maximum coordinates of grid cells occupied by this block
         /// </summary>
         VRageMath.Vector3I Max { get; }
+        
+        /// <summary>
+        /// Block mass
+        /// </summary>
+        float Mass { get; }
         /// <summary>
         /// Minimum coordinates of grid cells occupied by this block
         /// </summary>

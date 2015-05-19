@@ -31,26 +31,26 @@ namespace Sandbox.Common.ObjectBuilders
         [ProtoContract]
         public struct Slot
         {
-            [ProtoMember(1)]
+            [ProtoMember]
             public int Index;
 
-            [ProtoMember(2)]
+            [ProtoMember]
             public string Item;
 
-            [ProtoMember(3)]
+            [ProtoMember]
             public MyObjectBuilder_ToolbarItem Data;
         }
 
-        [ProtoMember(1)]
+        [ProtoMember]
         public MyToolbarType ToolbarType = MyToolbarType.Character;
 
-        [ProtoMember(2), DefaultValue(null)]
+        [ProtoMember, DefaultValue(null)]
         public int? SelectedSlot = null;
 
-        [ProtoMember(3)]
+        [ProtoMember]
         public List<Slot> Slots;
 
-        [ProtoMember(4)]
+        [ProtoMember]
         public List<Vector3> ColorMaskHSVList;
 
         public void Remap(IMyRemapHelper remapHelper)

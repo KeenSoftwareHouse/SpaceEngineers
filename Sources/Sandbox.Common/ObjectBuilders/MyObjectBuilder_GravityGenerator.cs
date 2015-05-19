@@ -12,13 +12,13 @@ namespace Sandbox.Common.ObjectBuilders
     [MyObjectBuilderDefinition]
     public class MyObjectBuilder_GravityGenerator : MyObjectBuilder_FunctionalBlock
     {
-        //[ProtoMember(1), DefaultValue(true)]
+        //[ProtoMember, DefaultValue(true)]
         //public bool Enabled = true;
 
-        [ProtoMember(2)]
+        [ProtoMember]
         public SerializableVector3 FieldSize = new SerializableVector3(150f, 150f, 150f);
 
-        [ProtoMember(3), DefaultValue(9.81f)]
+        [ProtoMember, DefaultValue(9.81f)]
         public float GravityAcceleration = 9.81f;
 
 

@@ -1,5 +1,8 @@
 ﻿
+using Medieval.ObjectBuilders;
 using Sandbox.Common;
+using Sandbox.Common.ObjectBuilders.Definitions;
+using Sandbox.Definitions;
 using Sandbox.Engine.Networking;
 using Sandbox.Graphics.GUI;
 using System;
@@ -71,7 +74,16 @@ namespace Sandbox.Game.Gui
                     break;
                 case MyQuickLaunchType.NEW_SANDBOX:
                     {
-                        MyGuiScreenStartSandbox.QuickstartSandbox(null);
+                        MyGuiScreenStartSandbox.QuickstartSandbox(null, null);
+                        m_childScreenLaunched = true;
+                    }
+                    break;
+                case MyQuickLaunchType.SCENARIO_QUICKSTART:
+                    {
+                        MyGuiScreenStartSandbox.QuickstartSandbox(new MyObjectBuilder_MedievalSessionSettings() { EnableBarbarians = true, MaximumBots = 10000 }, new World.MyWorldGenerator.Args()
+                            {
+                                Scenario = (MyScenarioDefinition)MyDefinitionManager.Static.GetScenarioDefinition(new MyDefinitionId(typeof(MyObjectBuilder_ScenarioDefinition), "Quickstart"))
+                            });
                         m_childScreenLaunched = true;
                     }
                     break;

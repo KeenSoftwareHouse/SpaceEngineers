@@ -13,13 +13,13 @@ namespace Sandbox.Common.ObjectBuilders.AI
     public class MyObjectBuilder_BehaviorControlBaseNode : MyObjectBuilder_BehaviorTreeNode
     {
         [XmlArrayItem("BTNode")]
-        [ProtoMember(1)]
+        [ProtoMember]
         public MyObjectBuilder_BehaviorTreeNode[] BTNodes = null;
 
-        [ProtoMember(2)]
+        [ProtoMember]
         public string Name = null;
 
-        [ProtoMember(3), DefaultValue(false)]
+        [ProtoMember, DefaultValue(false)]
         public bool IsMemorable = false;
     }
 }
