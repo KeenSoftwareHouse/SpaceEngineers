@@ -131,6 +131,7 @@ namespace Sandbox.Game.Weapons
             m_gunBase.Init(ob.GunBase, BlockDefinition, this);
 
             m_ammoInventory.ContentsChanged += m_ammoInventory_ContentsChanged;
+            m_ammoInventory.ContentsChanged += Inventory_ContentsChanged;
 
             PowerReceiver = new MyPowerReceiver(
                 MyConsumerGroupEnum.Defense, 
@@ -149,6 +150,20 @@ namespace Sandbox.Game.Weapons
             LoadDummies();
 
             NeedsUpdate |= MyEntityUpdateEnum.EACH_100TH_FRAME;
+        }
+
+        public void Inventory_ContentsChanged(MyInventory obj)
+        {
+            CubeGrid.SetInventoryMassDirty();
+        }
+
+        internal override float GetMass()
+        {
+            var mass = base.GetMass();
+            if (MyPerGameSettings.InventoryMass)
+                return mass + (float)m_ammoInventory.CurrentMass;
+            else
+                return mass;
         }
 
         private void LoadDummies()

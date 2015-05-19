@@ -121,6 +121,9 @@ namespace Sandbox.Game.Weapons
             m_inventory = new MyInventory(inventoryVolume, inventorySize, MyInventoryFlags.CanSend, this);
             m_inventory.Init(typedBuilder.Inventory);
 
+            if (MyPerGameSettings.InventoryMass)
+                m_inventory.ContentsChanged += Inventory_ContentsChanged;
+
             SlimBlock.UsesDeformation = false;
             SlimBlock.DeformationRatio = typedBuilder.DeformationRatio; // 3x times harder for destruction by high speed
 
@@ -143,6 +146,20 @@ namespace Sandbox.Game.Weapons
             PowerReceiver.Update();
 
             NeedsUpdate |= MyEntityUpdateEnum.EACH_100TH_FRAME | MyEntityUpdateEnum.EACH_FRAME;
+        }
+
+        public void Inventory_ContentsChanged(MyInventory obj)
+        {
+            CubeGrid.SetInventoryMassDirty();
+        }
+
+        internal override float GetMass()
+        {
+            var mass = base.GetMass();
+            if (MyPerGameSettings.InventoryMass)
+                return mass + (float)m_inventory.CurrentMass;
+            else
+                return mass;
         }
 
         public override MyObjectBuilder_CubeBlock GetObjectBuilderCubeBlock(bool copy = false)

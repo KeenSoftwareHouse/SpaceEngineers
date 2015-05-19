@@ -81,6 +81,11 @@ namespace Sandbox.Game.Entities
             m_inventory.Constraint = m_reactorDefinition.InventoryConstraint;
             RefreshRemainingCapacity();
 
+            if (MyPerGameSettings.InventoryMass)
+            {
+                m_inventory.ContentsChanged += Inventory_ContentsChanged;
+            }
+
             UpdateText();
 
             SlimBlock.ComponentStack.IsFunctionalChanged += ComponentStack_IsFunctionalChanged;
@@ -95,6 +100,20 @@ namespace Sandbox.Game.Entities
 
             if (IsWorking)
                 OnStartWorking();
+        }
+
+        public void Inventory_ContentsChanged(MyInventory obj)
+        {
+            CubeGrid.SetInventoryMassDirty();
+        }
+
+        internal override float GetMass()
+        {
+            var mass = base.GetMass();
+            if (MyPerGameSettings.InventoryMass)
+                return mass + (float)m_inventory.CurrentMass;
+            else
+                return mass;
         }
 
         public override MyObjectBuilder_CubeBlock GetObjectBuilderCubeBlock(bool copy = false)
@@ -254,6 +273,8 @@ namespace Sandbox.Game.Entities
             {
                 var amountAvailable = m_inventory.GetItemAmount(m_reactorDefinition.FuelId);
                 m_inventory.RemoveItemsOfType(amountAvailable, m_reactorDefinition.FuelId);
+                if (MyPerGameSettings.InventoryMass)
+                    m_inventory.ContentsChanged += Inventory_ContentsChanged;
             }
 
             //RefreshRemainingCapacity();
