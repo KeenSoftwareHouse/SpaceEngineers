@@ -22,13 +22,14 @@ using VRage.Trace;
 using VRageMath;
 using Sandbox.Game.Multiplayer;
 using Sandbox.Game.Screens;
-using Sandbox.ModAPI;
+using Sandbox.ModAPI.Ingame;
 using Sandbox.Game.GameSystems.Conveyors;
 using System.Reflection;
 using Sandbox.Common;
 using Sandbox.Game.GameSystems;
 using VRage;
 using Sandbox.Game.Localization;
+using VRage;
 using VRage.Audio;
 using VRage.Utils;
 using VRage.ModAPI;
@@ -36,7 +37,7 @@ using VRage.ModAPI;
 namespace Sandbox.Game.Entities
 {
     [MyCubeBlockType(typeof(MyObjectBuilder_Reactor))]
-    class MyReactor : MyFunctionalBlock, IMyPowerProducer, IMyInventoryOwner, IMyConveyorEndpointBlock, IMyReactor
+    class MyReactor : MyFunctionalBlock, IMyPowerProducer, IMyInventoryOwner, IMyConveyorEndpointBlock,IMyReactor
     {
         static MyReactor()
         {
@@ -81,6 +82,11 @@ namespace Sandbox.Game.Entities
             m_inventory.Constraint = m_reactorDefinition.InventoryConstraint;
             RefreshRemainingCapacity();
 
+            if (MyPerGameSettings.InventoryMass)
+            {
+                m_inventory.ContentsChanged += Inventory_ContentsChanged;
+            }
+
             UpdateText();
 
             SlimBlock.ComponentStack.IsFunctionalChanged += ComponentStack_IsFunctionalChanged;
@@ -95,6 +101,20 @@ namespace Sandbox.Game.Entities
 
             if (IsWorking)
                 OnStartWorking();
+        }
+
+        void Inventory_ContentsChanged(MyInventory obj)
+        {
+            CubeGrid.SetInventoryMassDirty();
+        }
+
+        internal override float GetMass()
+        {
+            var mass = base.GetMass();
+            if (MyPerGameSettings.InventoryMass)
+                return mass + (float)m_inventory.CurrentMass;
+            else
+                return mass;
         }
 
         public override MyObjectBuilder_CubeBlock GetObjectBuilderCubeBlock(bool copy = false)
@@ -218,7 +238,7 @@ namespace Sandbox.Game.Entities
             DetailedInfo.Append(BlockDefinition.DisplayNameText);
             DetailedInfo.Append("\n");
             DetailedInfo.AppendStringBuilder(MyTexts.Get(MySpaceTexts.BlockPropertiesText_MaxOutput));
-            MyValueFormatter.AppendWorkInBestUnit(m_reactorDefinition.MaxPowerOutput * m_powerOutputMultiplier, DetailedInfo);
+            MyValueFormatter.AppendWorkInBestUnit(m_reactorDefinition.MaxPowerOutput, DetailedInfo);
             DetailedInfo.Append("\n");
             if (IsFunctional) DetailedInfo.AppendStringBuilder(MyTexts.Get(MySpaceTexts.BlockPropertyProperties_CurrentOutput));
             MyValueFormatter.AppendWorkInBestUnit(CurrentPowerOutput, DetailedInfo);
@@ -254,6 +274,8 @@ namespace Sandbox.Game.Entities
             {
                 var amountAvailable = m_inventory.GetItemAmount(m_reactorDefinition.FuelId);
                 m_inventory.RemoveItemsOfType(amountAvailable, m_reactorDefinition.FuelId);
+                if (MyPerGameSettings.InventoryMass)
+                    m_inventory.ContentsChanged += Inventory_ContentsChanged;
             }
 
             //RefreshRemainingCapacity();
@@ -280,7 +302,7 @@ namespace Sandbox.Game.Entities
 
         private float ComputeMaxPowerOutput()
         {
-            return IsWorking ? m_reactorDefinition.MaxPowerOutput * m_powerOutputMultiplier : 0f;
+            return IsWorking ? m_reactorDefinition.MaxPowerOutput : 0f;
         }
 
         #region IMyPowerProducer
@@ -453,27 +475,6 @@ namespace Sandbox.Game.Entities
             m_multilineConveyorEndpoint = new MyMultilineConveyorEndpoint(this);
             AddDebugRenderComponent(new Components.MyDebugRenderComponentDrawConveyorEndpoint(m_multilineConveyorEndpoint));
         }
-        bool Sandbox.ModAPI.Ingame.IMyReactor.UseConveyorSystem { get { return (this as IMyInventoryOwner).UseConveyorSystem; } }
-
-        private float m_powerOutputMultiplier = 1f;
-        float Sandbox.ModAPI.IMyReactor.PowerOutputMultiplier
-        {
-            get
-            {
-                return m_powerOutputMultiplier;
-            }
-            set
-            {
-                m_powerOutputMultiplier = value;
-                if (m_powerOutputMultiplier < 0.01f)
-                {
-                    m_powerOutputMultiplier = 0.01f;
-                }
-
-                MaxPowerOutput = ComputeMaxPowerOutput();
-
-                UpdateText();
-            }
-        }
+        bool IMyReactor.UseConveyorSystem { get { return (this as IMyInventoryOwner).UseConveyorSystem; } }
     }
 }

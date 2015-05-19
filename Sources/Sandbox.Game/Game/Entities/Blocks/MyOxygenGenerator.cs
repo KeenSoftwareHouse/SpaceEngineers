@@ -13,7 +13,7 @@ using VRage;
 using VRageMath;
 using System.Text;
 using VRage.Utils;
-using Sandbox.ModAPI;
+using Sandbox.ModAPI.Ingame;
 using Sandbox.Common.ObjectBuilders.Definitions;
 using System;
 using Sandbox.Engine.Multiplayer;
@@ -225,6 +225,20 @@ namespace Sandbox.Game.Entities.Blocks
             SlimBlock.ComponentStack.IsFunctionalChanged += ComponentStack_IsFunctionalChanged;
         }
 
+        void Inventory_ContentsChanged(MyInventory obj)
+        {
+            CubeGrid.SetInventoryMassDirty();
+        }
+
+        internal override float GetMass()
+        {
+            var mass = base.GetMass();
+            if (MyPerGameSettings.InventoryMass)
+                return mass + (float)m_inventory.CurrentMass;
+            else
+                return mass;
+        }
+
         public override MyObjectBuilder_CubeBlock GetObjectBuilderCubeBlock(bool copy = false)
         {
             var builder = (MyObjectBuilder_OxygenGenerator)base.GetObjectBuilderCubeBlock(copy);
@@ -311,8 +325,8 @@ namespace Sandbox.Game.Entities.Blocks
                 return 0;
             }
 
-            return (Enabled && IsFunctional) ? (m_isProducing) ? BlockDefinition.OperationalPowerConsumption * m_powerConsumptionMultiplier
-                                                             : BlockDefinition.StandbyPowerConsumption * m_powerConsumptionMultiplier
+            return (Enabled && IsFunctional) ? (m_isProducing) ? BlockDefinition.OperationalPowerConsumption
+                                                             : BlockDefinition.StandbyPowerConsumption
                                              : 0.0f;
         }
 
@@ -511,7 +525,7 @@ namespace Sandbox.Game.Entities.Blocks
                 return 0f;
             }
 
-            float productionCapacity = BlockDefinition.OxygenProductionPerSecond * m_productionCapacityMultiplier * deltaTime;
+            float productionCapacity = BlockDefinition.OxygenProductionPerSecond * deltaTime;
 
             if (MySession.Static.CreativeMode)
             {
@@ -580,57 +594,25 @@ namespace Sandbox.Game.Entities.Blocks
                     if (iceAmount < (float)item.Amount)
                     {
                         m_inventory.RemoveItems(item.ItemId, (MyFixedPoint)iceAmount);
+                        if (MyPerGameSettings.InventoryMass)
+                        {
+                            m_inventory.ContentsChanged += Inventory_ContentsChanged;
+                        }
                         return;
                     }
                     else
                     {
                         iceAmount -= (float)item.Amount;
                         m_inventory.RemoveItems(item.ItemId);
+                        if (MyPerGameSettings.InventoryMass)
+                        {
+                            m_inventory.ContentsChanged += Inventory_ContentsChanged;
+                        }
                     }
                 }
             }
         }
         #endregion
-
-        private float m_productionCapacityMultiplier = 1f;
-        float Sandbox.ModAPI.IMyOxygenGenerator.ProductionCapacityMultiplier
-        {
-            get
-            {
-                return m_productionCapacityMultiplier;
-            }
-            set
-            {
-                m_productionCapacityMultiplier = value;
-                if (m_productionCapacityMultiplier < 0.01f)
-                {
-                    m_productionCapacityMultiplier = 0.01f;
-                }
-            }
-        }
-
-        private float m_powerConsumptionMultiplier = 1f;
-        float Sandbox.ModAPI.IMyOxygenGenerator.PowerConsumptionMultiplier
-        {
-            get
-            {
-                return m_powerConsumptionMultiplier;
-            }
-            set
-            {
-                m_powerConsumptionMultiplier = value;
-                if (m_powerConsumptionMultiplier < 0.01f)
-                {
-                    m_powerConsumptionMultiplier = 0.01f;
-                }
-
-                if (PowerReceiver != null)
-                {
-                    PowerReceiver.MaxRequiredInput = BlockDefinition.OperationalPowerConsumption * m_powerConsumptionMultiplier;
-                    PowerReceiver.Update();
-                }
-            }
-        }
 
         #region Sync
         protected override MySyncEntity OnCreateSync()
