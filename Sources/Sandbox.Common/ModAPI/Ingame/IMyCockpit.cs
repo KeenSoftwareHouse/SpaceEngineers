@@ -7,6 +7,5 @@ namespace Sandbox.ModAPI.Ingame
 {
     public interface IMyCockpit : IMyShipController
     {
-        bool IsUsed { get; }
     }
 }
