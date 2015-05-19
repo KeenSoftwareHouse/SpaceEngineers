@@ -411,5 +411,11 @@ namespace Sandbox.Game.World
         {
             get { return MySession.Static.Gpss; }
         }
+
+        event Action IMySession.OnSessionReady
+        {
+            add { MySandboxGame.OnSessionReady += value; }
+            remove { MySandboxGame.OnSessionReady -= value; }
+        }
     }
 }
