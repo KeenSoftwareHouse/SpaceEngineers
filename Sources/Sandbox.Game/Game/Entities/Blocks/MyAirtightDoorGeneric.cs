@@ -236,6 +236,11 @@ namespace Sandbox.Game.Entities.Blocks
             {
                 StartSound(m_sound);
             }
+            else
+            {
+                m_soundEmitter.StopSound(false);
+            }
+
             base.UpdateBeforeSimulation();
             UpdateCurrentOpening();
 
