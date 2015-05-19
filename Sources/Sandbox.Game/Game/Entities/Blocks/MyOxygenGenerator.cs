@@ -13,7 +13,7 @@ using VRage;
 using VRageMath;
 using System.Text;
 using VRage.Utils;
-using Sandbox.ModAPI.Ingame;
+using Sandbox.ModAPI;
 using Sandbox.Common.ObjectBuilders.Definitions;
 using System;
 using Sandbox.Engine.Multiplayer;
@@ -325,8 +325,8 @@ namespace Sandbox.Game.Entities.Blocks
                 return 0;
             }
 
-            return (Enabled && IsFunctional) ? (m_isProducing) ? BlockDefinition.OperationalPowerConsumption
-                                                             : BlockDefinition.StandbyPowerConsumption
+            return (Enabled && IsFunctional) ? (m_isProducing) ? BlockDefinition.OperationalPowerConsumption * m_powerConsumptionMultiplier
+                                                             : BlockDefinition.StandbyPowerConsumption * m_powerConsumptionMultiplier
                                              : 0.0f;
         }
 
@@ -525,7 +525,7 @@ namespace Sandbox.Game.Entities.Blocks
                 return 0f;
             }
 
-            float productionCapacity = BlockDefinition.OxygenProductionPerSecond * deltaTime;
+            float productionCapacity = BlockDefinition.OxygenProductionPerSecond * m_productionCapacityMultiplier * deltaTime;
 
             if (MySession.Static.CreativeMode)
             {
@@ -594,11 +594,7 @@ namespace Sandbox.Game.Entities.Blocks
                     if (iceAmount < (float)item.Amount)
                     {
                         m_inventory.RemoveItems(item.ItemId, (MyFixedPoint)iceAmount);
-<<<<<<< HEAD
                         if (MySession.Static.Settings.EnableInventoryMass)
-=======
-                        if (MyPerGameSettings.InventoryMass)
->>>>>>> Add Inventory Mass
                         {
                             m_inventory.ContentsChanged += Inventory_ContentsChanged;
                         }
@@ -608,11 +604,7 @@ namespace Sandbox.Game.Entities.Blocks
                     {
                         iceAmount -= (float)item.Amount;
                         m_inventory.RemoveItems(item.ItemId);
-<<<<<<< HEAD
                         if (MySession.Static.Settings.EnableInventoryMass)
-=======
-                        if (MyPerGameSettings.InventoryMass)
->>>>>>> Add Inventory Mass
                         {
                             m_inventory.ContentsChanged += Inventory_ContentsChanged;
                         }
@@ -621,7 +613,6 @@ namespace Sandbox.Game.Entities.Blocks
             }
         }
         #endregion
-<<<<<<< HEAD
 		
         private float m_productionCapacityMultiplier = 1f;
         float Sandbox.ModAPI.IMyOxygenGenerator.ProductionCapacityMultiplier
@@ -662,8 +653,6 @@ namespace Sandbox.Game.Entities.Blocks
                 }
             }
         }
-=======
->>>>>>> Add Inventory Mass
 
         #region Sync
         protected override MySyncEntity OnCreateSync()
