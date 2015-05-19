@@ -8,5 +8,7 @@ namespace Sandbox.ModAPI.Ingame
     public interface IMyReactor : IMyFunctionalBlock
     {
         bool UseConveyorSystem { get; }
+        float CurrentPowerOutput { get; }
+        float MaxPowerOutput { get; }
     }
 }
