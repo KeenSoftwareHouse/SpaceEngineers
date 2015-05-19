@@ -9,8 +9,13 @@ using VRageMath;
 
 namespace Sandbox.Game.Entities.Cube
 {
-    class MyRadarComponent 
+    class MyRadarComponent
     {
+        public const float RANGE_FALLOFF_RADIUS = 50;       // Objects below this radius will be detected at a reduced range
+        public const float MINIMUM_DETECTION_RANGE = 100;   // Objects closer than this are ignored
+        public const float RESOLUTION_ANGLE = 0.04f;        // Determines how close objects can be without being occluded, relative to distance
+        public const int MAXIMUM_CACHE_GARBAGE = 500;       // Controls clearing signature cache
+
         public List<MyEntity> m_markers = new List<MyEntity>(); 
 
         public delegate bool CheckControlDelegate();
@@ -100,7 +105,7 @@ namespace Sandbox.Game.Entities.Cube
                 }
             }
 
-            if (m_signatureCache.Count > m_targetsCache.Count + 500)
+            if (m_signatureCache.Count > m_targetsCache.Count + MAXIMUM_CACHE_GARBAGE)
                 m_signatureCache.Clear();
 
             m_targetsCache.Sort(SizeComparison);
@@ -112,11 +117,11 @@ namespace Sandbox.Game.Entities.Cube
                 m_targetsCache[i].m_distance = distance;
 
                 double modifiedDetectionRadius = DetectionRadius;
-                if (m_targetsCache[i].Radius < 50)
-                    modifiedDetectionRadius *= m_targetsCache[i].Radius / 50;
+                if (m_targetsCache[i].Radius < RANGE_FALLOFF_RADIUS)
+                    modifiedDetectionRadius *= m_targetsCache[i].Radius / RANGE_FALLOFF_RADIUS;
                 if (distance > modifiedDetectionRadius)
                     continue;
-                if (distance < 100)
+                if (distance < MINIMUM_DETECTION_RANGE)
                     continue;
 
                 // Filter out targets which are too close to other, larger targets
@@ -124,7 +129,7 @@ namespace Sandbox.Game.Entities.Cube
                 {
                     var separation = Vector3D.Distance(m_targetsCache[i].Center, m_targetsCache[j].Center) -
                                         (m_targetsCache[i].Radius + m_targetsCache[j].Radius) * distance / DetectionRadius;
-                    if (separation < distance * 0.04)
+                    if (separation < distance * RESOLUTION_ANGLE)
                         goto next_target;
                 }
                 m_targetsCache[validTargets++] = m_targetsCache[i];
