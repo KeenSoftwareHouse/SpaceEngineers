@@ -253,7 +253,7 @@ namespace Sandbox.Game.Weapons
             base.UpdateAfterSimulation100();
             m_drillBase.UpdateAfterSimulation100();
 
-            if (Sync.IsServer && IsFunctional && m_useConveyorSystem && m_inventory.VolumeFillFactor > 0.9f)
+            if (Sync.IsServer && IsFunctional && m_useConveyorSystem && m_inventory.VolumeFillFactor > 0.7f)
             {
                 MyGridConveyorSystem.PushAnyRequest(this, m_inventory, OwnerId);
             }
