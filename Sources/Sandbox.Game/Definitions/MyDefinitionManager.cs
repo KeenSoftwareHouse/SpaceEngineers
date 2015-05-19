@@ -504,6 +504,12 @@ namespace Sandbox.Definitions
                 InitLCDTextureCategories(context, definitionSet.m_definitionsById, objBuilder.LCDTextures, failOnDebug);
             }
 
+            if (objBuilder.LCDFonts != null)
+            {
+                MySandboxGame.Log.WriteLine("Loading LCD font categories");
+                InitLCDFontCategories(context, definitionSet.m_definitionsById, objBuilder.LCDFonts, failOnDebug);
+            }
+
             if (objBuilder.AIBehaviors != null)
             {
                 MySandboxGame.Log.WriteLine("Loading behaviors");
@@ -1087,6 +1093,16 @@ namespace Sandbox.Definitions
                 var newCategory = InitDefinition<MyLCDTextureDefinition>(context, LCDTextureCategory);
                 Check(!output.ContainsKey(LCDTextureCategory.Id), LCDTextureCategory.Id, failOnDebug);          
                 output[LCDTextureCategory.Id] = newCategory;
+            }
+        }
+
+        private void InitLCDFontCategories(MyModContext context, DefinitionDictionary<MyDefinitionBase> output, MyObjectBuilder_LCDFontDefinition[] categories, bool failOnDebug = true)
+        {
+            foreach (var LCDFontCategory in categories)
+            {
+                var newCategory = InitDefinition<MyLCDFontDefinition>(context, LCDFontCategory);
+                Check(!output.ContainsKey(LCDFontCategory.Id), LCDFontCategory.Id, failOnDebug);          
+                output[LCDFontCategory.Id] = newCategory;
             }
         }
         private void InitBlueprintClasses(MyModContext context,
@@ -2053,6 +2069,11 @@ namespace Sandbox.Definitions
         public ListReader<MyLCDTextureDefinition> GetLCDTexturesDefinitions()
         {
             return new ListReader<MyLCDTextureDefinition>(m_definitions.m_definitionsById.Values.OfType<MyLCDTextureDefinition>().ToList());
+        }
+
+        public ListReader<MyLCDFontDefinition> GetLCDFontDefinitions()
+        {
+            return new ListReader<MyLCDFontDefinition>(m_definitions.m_definitionsById.Values.OfType<MyLCDFontDefinition>().ToList());
         }
 
         public ListReader<MyBehaviorDefinition> GetBehaviorDefinitions()

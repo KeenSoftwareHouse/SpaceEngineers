@@ -677,6 +677,8 @@ namespace VRageRender
 
                         if (handle != RwTexId.NULL)
                         {
+                            var font = MyRender11.GetOrLoadCustomFont(rMessage.FontPath);
+
                             var clearColor = new SharpDX.Color4(rMessage.BackgroundColor.PackedValue);
                             clearColor.Alpha = 0;
                             MyRender11.ImmediateContext.ClearRenderTargetView(handle.Rtv, clearColor);
@@ -685,7 +687,7 @@ namespace VRageRender
                             MySpritesRenderer.PushState(new Vector2(rMessage.TextureResolution * rMessage.TextureAspectRatio, rMessage.TextureResolution));
 
 
-                            MySpritesRenderer.DrawText(Vector2.Zero, new StringBuilder(rMessage.Text), rMessage.FontColor, rMessage.TextScale);
+                            MySpritesRenderer.DrawText(Vector2.Zero, new StringBuilder(rMessage.Text), rMessage.FontColor, rMessage.TextScale, font);
                             // render text with fonts to rt
                             // update texture of proxy
                             MySpritesRenderer.Draw(handle.Rtv, new MyViewport(rMessage.TextureResolution * rMessage.TextureAspectRatio, rMessage.TextureResolution));

@@ -1021,7 +1021,7 @@ namespace VRageRender
             message.EntityId = entityId;
             EnqueueMessage(message);
         }
-        public static void RenderTextToTexture(uint id, long entityId, string materialName, string text, float scale, Color fontColor, Color backgroundColor, int textureResolution, int textureAspectRatio, int fontIndex)
+        public static void RenderTextToTexture(uint id, long entityId, string materialName, string text, float scale, Color fontColor, Color backgroundColor, int textureResolution, int textureAspectRatio, string fontPath)
         {
             var message = MessagePool.Get<MyRenderMessageDrawTextToMaterial>(MyRenderMessageEnum.DrawTextToMaterial);
 
@@ -1034,7 +1034,7 @@ namespace VRageRender
             message.TextureAspectRatio = textureAspectRatio;
             message.BackgroundColor = backgroundColor;
             message.EntityId = entityId;
-            message.FontIndex = fontIndex;
+            message.FontPath = fontPath;
             EnqueueMessage(message);
         }
         public static void TextNotDrawnToTexture(long entityID)

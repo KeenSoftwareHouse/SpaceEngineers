@@ -121,6 +121,7 @@ namespace VRageRender
         static readonly MyEffectBase[] m_effects = new MyEffectBase[Enum.GetValues(typeof(MyEffects)).GetLength(0)];
         static Texture m_randomTexture = null;
         static SortedDictionary<int, MyRenderFont> m_fontsById = new SortedDictionary<int, MyRenderFont>();
+        static Dictionary<string, MyRenderFont> m_customFonts = new Dictionary<string, MyRenderFont>();
         static MyRenderFont m_debugFont;
         static Dictionary<int, MyRenderComponentBase> m_renderComponents = new Dictionary<int, MyRenderComponentBase>();
 
@@ -335,6 +336,12 @@ namespace VRageRender
             m_farObjectsPrunningStructure.Clear();
             m_atmospherePurunnigStructure.Clear();
             m_nearObjects.Clear();
+
+            foreach (var customFont in m_customFonts)
+            {
+                customFont.Value.UnloadContent();
+            }
+            m_customFonts.Clear();
 
             Clear();
 
@@ -885,6 +892,10 @@ namespace VRageRender
             return m_postProcesses;
         }
 
+        #endregion
+
+        #region Fonts
+
         internal static MyRenderFont GetDebugFont()
         {
             return m_debugFont;
@@ -899,6 +910,23 @@ namespace VRageRender
         {
             MyRenderFont font;
             m_fontsById.TryGetValue(id, out font);
+            return font;
+        }
+
+        internal static MyRenderFont GetOrLoadCustomFont(string path)
+        {
+            MyRenderFont font;
+            if (!m_customFonts.TryGetValue(path, out font))
+            {
+                font = new MyRenderFont(path);
+                if (!font.LoadContent())
+                {
+                    // Unable to load custom font, fallback to default (debug) font
+                    MyLog.Default.WriteLine(string.Format("ERROR Failed to load custom font '{0}'", path));
+                    font = m_debugFont;
+                }
+                m_customFonts.Add(path, font);
+            }
             return font;
         }
 

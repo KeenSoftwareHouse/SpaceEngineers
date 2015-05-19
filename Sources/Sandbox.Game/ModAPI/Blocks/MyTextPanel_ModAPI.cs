@@ -14,6 +14,21 @@ namespace Sandbox.Game.Entities.Blocks
         private StringBuilder m_publicDescriptionHelper = new StringBuilder();
         private StringBuilder m_privateDescriptionHelper = new StringBuilder();
 
+        string ModAPI.Ingame.IMyTextPanel.Font { get { return Font; } }
+
+        void ModAPI.Ingame.IMyTextPanel.GetFonts(List<string> ids)
+        {
+            foreach (var definition in m_fontDefinitions)
+            {
+                ids.Add(definition.Id.SubtypeName);
+            }
+        }
+
+        void ModAPI.Ingame.IMyTextPanel.SetFont(string id)
+        {
+            Font = id;
+        }
+
         void ModAPI.Ingame.IMyTextPanel.ShowPublicTextOnScreen()
         {
             SyncObject.SendShowOnScreenChangeRequest((byte)ShowTextOnScreenFlag.PUBLIC);

@@ -1056,8 +1056,6 @@ namespace Sandbox
                 new MyFontDescription { Id = MyFontEnum.LoadingScreen,          Path = @"Fonts\blue\FontData.xml" },
                 new MyFontDescription { Id = MyFontEnum.BuildInfo,              Path = @"Fonts\blue\FontData.xml" },
                 new MyFontDescription { Id = MyFontEnum.BuildInfoHighlight,     Path = @"Fonts\red\FontData.xml" },
-
-                new MyFontDescription { Id = MyFontEnum.Monospace,              Path = @"Fonts\monospace\FontData.xml" },
             });
         }
 

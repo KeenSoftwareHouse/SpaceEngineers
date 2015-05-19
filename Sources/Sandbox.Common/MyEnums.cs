@@ -35,8 +35,6 @@ namespace Sandbox.Common
 
         BuildInfo,
         BuildInfoHighlight,
-
-        Monospace,
     }
 
     //  Material type of a physical object. This value determine sound of collision, decal type, explosion type, etc.

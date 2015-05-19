@@ -7,7 +7,7 @@ using System.Text;
 using SharpDX;
 using SharpDX.Direct3D11;
 using SharpDX.DXGI;
-
+using VRage.Utils;
 using VRageMath;
 using VRageRender.Resources;
 using VRageRender.Vertex;
@@ -131,6 +131,12 @@ namespace VRageRender
 
             MyRender11.Log.WriteLine("Unloading session data");
 
+            foreach (var customFont in m_customFonts)
+            {
+                customFont.Value.UnloadContent();
+            }
+            m_customFonts.Clear();
+
             MyScene.RenderablesDBVH.Clear();
             MyScene.GroupsDBVH.Clear();
             MyClipmapFactory.RemoveAll();
@@ -166,6 +172,7 @@ namespace VRageRender
         #region Fonts
 
         static SortedDictionary<int, MyRenderFont> m_fontsById = new SortedDictionary<int, MyRenderFont>();
+        static Dictionary<string, MyRenderFont> m_customFonts = new Dictionary<string, MyRenderFont>();
         static MyRenderFont m_debugFont;
         internal static MyRenderFont DebugFont { get { return m_debugFont; } }
 
@@ -188,6 +195,17 @@ namespace VRageRender
         internal static MyRenderFont GetFont(int id)
         {
             return m_fontsById[id];
+        }
+        internal static MyRenderFont GetOrLoadCustomFont(string path)
+        {
+            MyRenderFont font;
+            if (!m_customFonts.TryGetValue(path, out font))
+            {
+                 font = new MyRenderFont(path);
+                 font.LoadContent();
+                 m_customFonts.Add(path, font);
+            }
+            return font;
         }
 
         #endregion

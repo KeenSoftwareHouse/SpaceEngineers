@@ -7,6 +7,10 @@ namespace Sandbox.ModAPI.Ingame
 {
     public interface IMyTextPanel : IMyFunctionalBlock
     {
+        string Font { get; }
+        void GetFonts(List<string> ids);
+        void SetFont(string id);
+
         bool WritePublicText(string value, bool append = false);
         string GetPublicText();
 

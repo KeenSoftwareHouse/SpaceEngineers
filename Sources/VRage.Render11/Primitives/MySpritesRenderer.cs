@@ -313,9 +313,12 @@ namespace VRageRender
             //clipOffset += new Vector2(0.5f, -0.5f) * clipScale;
         }
 
-        internal static float DrawText(Vector2 screenCoord, StringBuilder text, VRageMath.Color color, float scale, MyGuiDrawAlignEnum align = MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_TOP)
+        internal static float DrawText(Vector2 screenCoord, StringBuilder text, VRageMath.Color color, float scale, MyRenderFont font = null, MyGuiDrawAlignEnum align = MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_TOP)
         {
-            var font = MyRender11.DebugFont;
+            if (font == null)
+            {
+                font = MyRender11.DebugFont;
+            }
 
             return font.DrawString(
                 MyUtils.GetCoordAligned(screenCoord, font.MeasureString(text, scale), align),

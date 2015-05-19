@@ -298,7 +298,7 @@ namespace VRageRender.Resources
             return NameIndex[nameKey];
         }
 
-        static void UnloadResources(TexId texId)
+        internal static void UnloadResources(TexId texId)
         {
             //Debug.Assert(CheckState(texId, MyTextureState.LOADED));
 

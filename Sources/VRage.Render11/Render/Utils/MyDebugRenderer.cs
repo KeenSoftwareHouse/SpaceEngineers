@@ -347,7 +347,7 @@ namespace VRageRender
                     {
                         displayString.AppendFormat("{0}", ID);
                         MySpritesRenderer.DrawText(new Vector2(clipPosition.X, clipPosition.Y) * MyRender11.ViewportResolution,
-                            displayString, Color.DarkCyan, 0.5f);
+                            displayString, Color.DarkCyan, 0.5f, MyRender11.DebugFont);
                     }
 
                     displayString.Clear();

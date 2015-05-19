@@ -53,7 +53,7 @@ namespace VRageRender
                         pos = new Vector2(MyRender11.ViewportResolution.X - m_rightColumnWidth, 0);
                     }
 
-                    MySpritesRenderer.DrawText(pos, m_tmpDrawText, color, scale);
+                    MySpritesRenderer.DrawText(pos, m_tmpDrawText, color, scale, MyRender11.DebugFont);
                 }
                 finally
                 {

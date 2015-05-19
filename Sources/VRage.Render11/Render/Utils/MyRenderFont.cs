@@ -28,6 +28,16 @@ namespace VRageRender
             }
         }
 
+        internal void UnloadContent()
+        {
+            foreach (var entry in m_bitmapTextureById)
+            {
+                MyTextures.UnloadResources(entry.Value);
+            }
+
+            m_bitmapTextureById.Clear();
+        }
+
         /// <summary>
         /// Draw the given string at vOrigin using the specified color
         /// </summary>

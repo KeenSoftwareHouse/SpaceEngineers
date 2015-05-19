@@ -268,7 +268,7 @@ namespace VRageRender
 
                             var text = new StringBuilder(message.Text);
 
-                            MySpritesRenderer.DrawText(message.Coord, text, message.Color, message.Scale, message.Align);
+                            MySpritesRenderer.DrawText(message.Coord, text, message.Color, message.Scale, MyRender11.DebugFont, message.Align);
 
                             break;
                         }
@@ -317,7 +317,7 @@ namespace VRageRender
                             if (clipPosition.Z > minDepth && clipPosition.Z < 1)
                             {
                                 MySpritesRenderer.DrawText(new Vector2(clipPosition.X, clipPosition.Y) * MyRender11.ViewportResolution,
-                                    new StringBuilder(message.Text), message.Color, message.Scale, message.Align);
+                                    new StringBuilder(message.Text), message.Color, message.Scale, MyRender11.DebugFont, message.Align);
                             }
 
                             break;

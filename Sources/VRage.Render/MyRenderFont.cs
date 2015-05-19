@@ -19,13 +19,31 @@ namespace VRageRender
         {
         }
 
-        internal void LoadContent()
+        internal bool LoadContent()
         {
             foreach (var entry in m_bitmapInfoByID)
             {
                 var texture = MyTextureManager.GetTexture<MyTexture2D>(Path.Combine(m_fontDirectory, entry.Value.strFilename), "", null, LoadingMode.Immediate, TextureFlags.IgnoreQuality);
                 m_bitmapTextureById[entry.Key] = texture;
+
+                if (texture == null)
+                {
+                    UnloadContent();
+                    return false;
+                }
             }
+
+            return true;
+        }
+
+        internal void UnloadContent()
+        {
+            foreach (var entry in m_bitmapTextureById)
+            {
+                MyTextureManager.UnloadTexture(entry.Value);
+            }
+
+            m_bitmapTextureById.Clear();
         }
 
         /// <summary>

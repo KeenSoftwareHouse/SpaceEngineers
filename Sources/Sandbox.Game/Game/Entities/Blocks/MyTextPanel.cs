@@ -17,7 +17,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
-
+using Sandbox.Common.ObjectBuilders.Definitions;
 using VRage;
 using Sandbox.Engine.Utils;
 using VRage.Library.Utils;
@@ -66,6 +66,15 @@ namespace Sandbox.Game.Entities.Blocks
 
         List<Sandbox.Definitions.MyLCDTextureDefinition> m_selectedTexturesToDraw = new List<Sandbox.Definitions.MyLCDTextureDefinition>();
         static List<Sandbox.Definitions.MyLCDTextureDefinition> m_definitions = new List<Sandbox.Definitions.MyLCDTextureDefinition>();
+        static List<Sandbox.Definitions.MyLCDFontDefinition> m_fontDefinitions = new List<Sandbox.Definitions.MyLCDFontDefinition>();
+
+        // Hardcoded default font
+        private static readonly MyLCDFontDefinition DEFAULT_FONT = new MyLCDFontDefinition
+        {
+            Id = new MyDefinitionId(typeof (MyObjectBuilder_LCDFontDefinition), "Default"),
+            FontDataPath = @"Fonts\white\FontData.xml",
+            FontTexturePathes = new[] { @"Fonts\white\FontData-0.dds" }
+        };
         List<MyGuiControlListbox.Item> m_selectedTextures = null;
         List<MyGuiControlListbox.Item> m_selectedTexturesToRemove = null;
 
@@ -101,17 +110,33 @@ namespace Sandbox.Game.Entities.Blocks
             }
         }
 
-        private MyFontEnum m_fontFace;
+        private MyLCDFontDefinition m_font;
         bool m_fontChanged = true;
-        public MyFontEnum FontFace
+        public string Font
         {
-            get { return m_fontFace; }
+            get { return m_font.Id.SubtypeName; }
             set
             {
-                if (m_fontFace != value)
+                MyLCDFontDefinition font = null;
+
+                for (int index = 0; index < m_fontDefinitions.Count; index++)
+                {
+                    if (m_fontDefinitions[index].Id.SubtypeName == value)
+                    {
+                        font = m_fontDefinitions[index];
+                        break;
+                    }
+                }
+
+                if (font == null)
+                {
+                    font = DEFAULT_FONT;
+                }
+                
+                if (m_font != font)
                 {
                     m_fontChanged = true;
-                    m_fontFace = value;
+                    m_font = font;
                     RaisePropertiesChanged();
                 }
             }
@@ -382,7 +407,7 @@ namespace Sandbox.Game.Entities.Blocks
                     return;
                 }
 
-                if (ShowTextOnScreen&&(NeedsToDrawText() || m_isOutofRange || m_forceUpdateText))
+                if (ShowTextOnScreen && (NeedsToDrawText() || m_isOutofRange || m_forceUpdateText))
                 {
                     m_descriptionChanged = false;
                     m_forceUpdateText = false;
@@ -390,7 +415,17 @@ namespace Sandbox.Game.Entities.Blocks
                     m_fontColorChanged = false;
                     m_fontSizeChanged = false;
                     m_backgroundColorChanged = false;
-                    Render.RenderTextToTexture(EntityId, ShowTextFlag == ShowTextOnScreenFlag.PUBLIC ? m_publicDescription.ToString() : m_privateDescription.ToString(), FontSize * BlockDefinition.TextureResolution / DEFAULT_RESOLUTION, FontColor, BackgroundColor, BlockDefinition.TextureResolution, BlockDefinition.TextureAspectRadio, m_fontFace);
+                    Render.RenderTextToTexture(
+                        EntityId,
+                        ShowTextFlag == ShowTextOnScreenFlag.PUBLIC
+                            ? m_publicDescription.ToString()
+                            : m_privateDescription.ToString(),
+                        FontSize*BlockDefinition.TextureResolution/DEFAULT_RESOLUTION, 
+                        FontColor, 
+                        BackgroundColor,
+                        BlockDefinition.TextureResolution, 
+                        BlockDefinition.TextureAspectRadio, 
+                        (m_font ?? DEFAULT_FONT).FontDataPath);
                     FailedToRenderTexture = false;
                 }
 
@@ -601,10 +636,10 @@ namespace Sandbox.Game.Entities.Blocks
             MyTerminalControlFactory.AddControl(showTextOnScreen);
 
 
-            var fontFaceCombobox = new MyTerminalControlCombobox<MyTextPanel>("FontFace", MyStringId.GetOrCompute("Font"), MySpaceTexts.Blank);
-            fontFaceCombobox.Getter = (x) => (int)x.FontFace;
-            fontFaceCombobox.Setter = (x, v) => x.SyncObject.SendFontFaceChangeRequest((MyFontEnum)(int)v);
-            fontFaceCombobox.ComboBoxContent = (x) => FillFontFaceComboBoxContent(x);
+            var fontFaceCombobox = new MyTerminalControlCombobox<MyTextPanel>("Font", MyStringId.GetOrCompute("Font"), MySpaceTexts.Blank);
+            fontFaceCombobox.Getter = (x) => x.GetSelectedFontNameIndex();
+            fontFaceCombobox.Setter = (x, v) => x.SyncObject.SendFontNameChangeMessage(x.GetFontName((int)v));
+            fontFaceCombobox.ComboBoxContent = (x) => FillFontNameComboBoxContent(x);
             MyTerminalControlFactory.AddControl(fontFaceCombobox);
 
             var changeFontSlider = new MyTerminalControlSlider<MyTextPanel>("FontSize", MySpaceTexts.BlockPropertyTitle_LCDScreenTextSize, MySpaceTexts.Blank);
@@ -652,7 +687,6 @@ namespace Sandbox.Game.Entities.Blocks
 
             var removeSelectedButton = new MyTerminalControlButton<MyTextPanel>("RemoveSelectedTextures", MySpaceTexts.BlockPropertyTitle_LCDScreenRemoveSelectedTextures, MySpaceTexts.Blank, (x) => x.RemoveImagesFromSelection());
             MyTerminalControlFactory.AddControl(removeSelectedButton);
-
         }
 
         public MyTextPanel()
@@ -667,9 +701,15 @@ namespace Sandbox.Game.Entities.Blocks
 
             Render = new MyRenderComponentTextPanel();
             m_definitions.Clear();
+            m_fontDefinitions.Clear();
             foreach (var textureDefinition in MyDefinitionManager.Static.GetLCDTexturesDefinitions())
             {
                 m_definitions.Add(textureDefinition);
+            }
+            m_fontDefinitions.Add(DEFAULT_FONT);
+            foreach (var fontDefinition in MyDefinitionManager.Static.GetLCDFontDefinitions())
+            {
+                m_fontDefinitions.Add(fontDefinition);
             }
         }
 
@@ -700,7 +740,7 @@ namespace Sandbox.Game.Entities.Blocks
             Render.NeedsDrawFromParent = true;
             this.ChangeInterval = ob.ChangeInterval;
             FontSize = ob.FontSize;
-            FontFace = ob.FontFace;
+            Font = ob.FontName;
             ShowTextFlag = ob.ShowText;
             if (ob.SelectedImages != null)
             {
@@ -742,7 +782,7 @@ namespace Sandbox.Game.Entities.Blocks
             ob.AccessFlag = m_accessFlag;
             ob.ChangeInterval = ChangeInterval;
             ob.FontSize = FontSize;
-            ob.FontFace = FontFace;
+            ob.FontName = Font;
             ob.ShowText = ShowTextFlag;
             ob.FontColor = FontColor;
             ob.BackgroundColor = BackgroundColor;
@@ -971,10 +1011,49 @@ namespace Sandbox.Game.Entities.Blocks
             items.Add(new TerminalComboBoxItem() { Key = (long)ShowTextOnScreenFlag.PRIVATE, Value = MySpaceTexts.BlockComboBoxValue_TextPanelShowTextPrivate });
         }
 
-        public static void FillFontFaceComboBoxContent(List<TerminalComboBoxItem> items)
+        public static void FillFontNameComboBoxContent(List<TerminalComboBoxItem> items)
         {
-            items.Add(new TerminalComboBoxItem() { Key = (long)MyFontEnum.Debug, Value = MyStringId.GetOrCompute ("Normal")});
-            items.Add(new TerminalComboBoxItem() { Key = (long)MyFontEnum.Monospace, Value = MyStringId.GetOrCompute ("Monospace") });
+            for (int index = 0; index < m_fontDefinitions.Count; index++)
+            {
+                var font = m_fontDefinitions[index];
+            
+                var item = new TerminalComboBoxItem
+                {
+                    Key = index,
+                    Value = MyStringId.GetOrCompute(font.Id.SubtypeName)
+                };
+                items.Add(item);
+            }
+        }
+
+        private int GetSelectedFontNameIndex()
+        {
+            for (int index = 0; index < m_fontDefinitions.Count; index++)
+            {
+                var font = m_fontDefinitions[index];
+                if (font == m_font)
+                {
+                    return index;
+                }
+            }
+
+            return 0;
+        }
+
+        private string GetFontName(int i)
+        {
+            MyLCDFontDefinition fontDefinition;
+
+            if (i >= 0 && i < m_fontDefinitions.Count)
+            {
+                fontDefinition = m_fontDefinitions[i];
+            }
+            else
+            {
+                fontDefinition = DEFAULT_FONT;
+            }
+
+            return fontDefinition.Id.SubtypeName;
         }
 
         private void TextPanel_ClientRemoved(ulong playerId)
@@ -1031,7 +1110,15 @@ namespace Sandbox.Game.Entities.Blocks
             string currentDescription = m_publicDescription.ToString();
             if (BlockDefinition.TextureResolution * BlockDefinition.TextureResolution * BlockDefinition.TextureAspectRadio <= freeResources && currentDescription.Length > 0)
             {
-                Render.RenderTextToTexture(EntityId, currentDescription, FontSize * BlockDefinition.TextureResolution / DEFAULT_RESOLUTION, FontColor, BackgroundColor, BlockDefinition.TextureResolution, BlockDefinition.TextureAspectRadio, m_fontFace);
+                Render.RenderTextToTexture(
+                    EntityId, 
+                    currentDescription,
+                    FontSize*BlockDefinition.TextureResolution/DEFAULT_RESOLUTION, 
+                    FontColor, 
+                    BackgroundColor,
+                    BlockDefinition.TextureResolution, 
+                    BlockDefinition.TextureAspectRadio,
+                    (m_font ?? DEFAULT_FONT).FontDataPath);
                 FailedToRenderTexture = false;
             }
         }

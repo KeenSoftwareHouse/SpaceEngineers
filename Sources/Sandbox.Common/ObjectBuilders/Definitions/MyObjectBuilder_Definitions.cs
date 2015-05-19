@@ -156,7 +156,7 @@ namespace Sandbox.Common.ObjectBuilders.Definitions
         [XmlArrayItem("LCDTextureDefinition")]
         [ProtoMember(36)]
         public MyObjectBuilder_LCDTextureDefinition[] LCDTextures;
-
+        
         [XmlArrayItem("Bot")]
         [ProtoMember(37)]
         public MyObjectBuilder_BotDefinition[] Bots;
@@ -204,5 +204,9 @@ namespace Sandbox.Common.ObjectBuilders.Definitions
         [XmlArrayItem("Entry")]
         [ProtoMember(48)]
         public EnvironmentItemsEntry[] EnvironmentItemsEntries;
+        
+        [XmlArrayItem("LCDFontDefinition")]
+        [ProtoMember(49)]
+        public MyObjectBuilder_LCDFontDefinition[] LCDFonts;
     }
 }

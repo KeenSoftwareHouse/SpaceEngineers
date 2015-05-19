@@ -70,7 +70,7 @@ namespace Sandbox.Common.ObjectBuilders
         public int CurrentShownTexture = 0;
 
         [ProtoMember(13)]
-        public MyFontEnum FontFace = MyFontEnum.Debug;
+        public string FontName = null;
 
     }
 }

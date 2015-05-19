@@ -90,15 +90,18 @@ namespace Sandbox.Game.Multiplayer
             public float Interval;
         }
 
+        [ProtoContract]
         [MessageId(435, P2PMessageEnum.Reliable)]
-        struct ChangeFontFaceMsg : IEntityMessage
+        struct ChangeFontNameMsg : IEntityMessage
         {
+            [ProtoMember(1)]
             public long EntityId;
             public long GetEntityId()
             {
                 return EntityId;
             }
-            public int FontFace;
+            [ProtoMember(2)]
+            public string FontName;
         }
 
         [ProtoContract]
@@ -214,42 +217,27 @@ namespace Sandbox.Game.Multiplayer
 
             Sync.Layer.SendMessageToServer(ref msg, MyTransportMessageEnum.Request);
         }
-
-        static void OnChangeFontFaceRequest(ref ChangeFontFaceMsg msg, MyNetworkClient sender)
+        
+        static void OnChangeFontName(MySyncTextPanel sync, ref ChangeFontNameMsg msg, MyNetworkClient sender)
         {
-            MyEntity entity = null;
-            MyEntities.TryGetEntityById(msg.EntityId, out entity);
-            MyTextPanel block = entity as MyTextPanel;
-            if (block != null)
+            sync.Entity.Font = msg.FontName;
+
+            if (Sync.IsServer)
+                Sync.Layer.SendMessageToAll(ref msg);
+        }
+        public void SendFontNameChangeMessage(string FontName)
+        {
+            Entity.Font = FontName;
+
+            var msg = new ChangeFontNameMsg()
             {
-                block.FontFace = (MyFontEnum)msg.FontFace;
-                Sync.Layer.SendMessageToAll(msg, MyTransportMessageEnum.Success);
-            }
+                EntityId = Entity.EntityId,
+                FontName = FontName,
+            };
+
+            Sync.Layer.SendMessageToServer(ref msg);
         }
-        static void OnChangeFontFaceSucess(ref ChangeFontFaceMsg msg, MyNetworkClient sender)
-        {
-            MyEntity entity = null;
-            MyEntities.TryGetEntityById(msg.EntityId, out entity);
-            MyTextPanel block = entity as MyTextPanel;
-            if (block != null)
-            {
-                block.FontFace = (MyFontEnum)msg.FontFace;
-            }
-        }
-        public void SendFontFaceChangeRequest(MyFontEnum Font)
-        {
-            ChangeFontFaceMsg msg = new ChangeFontFaceMsg();
-
-            msg.EntityId = m_block.EntityId;
-            msg.FontFace = (int)Font;
-
-            Sync.Layer.SendMessageToServer(ref msg, MyTransportMessageEnum.Request);
-        }
-
-
-
-
-
+        
         static void OnChangeIntervalRequest(ref ChangeIntervalMsg msg, MyNetworkClient sender)
         {
             MyEntity entity = null;
@@ -353,15 +341,13 @@ namespace Sandbox.Game.Multiplayer
             MySyncLayer.RegisterEntityMessage<MySyncTextPanel, ChangeTitleMsg>(OnChangeTitle, MyMessagePermissions.Any);
             MySyncLayer.RegisterEntityMessage<MySyncTextPanel, ChangeAccessFlagMsg>(OnChangAccessFlag, MyMessagePermissions.Any);
             MySyncLayer.RegisterEntityMessage<MySyncTextPanel, ChangeOpenMsg>(OnChangeOpen, MyMessagePermissions.Any);
+            MySyncLayer.RegisterEntityMessage<MySyncTextPanel, ChangeFontNameMsg>(OnChangeFontName, MyMessagePermissions.Any);
 
             MySyncLayer.RegisterMessage<ChangeIntervalMsg>(OnChangeIntervalRequest, MyMessagePermissions.ToServer, MyTransportMessageEnum.Request);
             MySyncLayer.RegisterMessage<ChangeIntervalMsg>(OnChangeIntervalSucess, MyMessagePermissions.FromServer, MyTransportMessageEnum.Success);
 
             MySyncLayer.RegisterMessage<ChangeFontSizeMsg>(OnChangeFontSizeRequest, MyMessagePermissions.ToServer, MyTransportMessageEnum.Request);
             MySyncLayer.RegisterMessage<ChangeFontSizeMsg>(OnChangeFontSizeSucess, MyMessagePermissions.FromServer, MyTransportMessageEnum.Success);
-
-            MySyncLayer.RegisterMessage<ChangeFontFaceMsg>(OnChangeFontFaceRequest, MyMessagePermissions.ToServer, MyTransportMessageEnum.Request);
-            MySyncLayer.RegisterMessage<ChangeFontFaceMsg>(OnChangeFontFaceSucess, MyMessagePermissions.FromServer, MyTransportMessageEnum.Success);
 
             MySyncLayer.RegisterMessage<SelectImagesMsg>(OnSelectImageRequest, MyMessagePermissions.ToServer, MyTransportMessageEnum.Request);
             MySyncLayer.RegisterMessage<SelectImagesMsg>(OnSelectImageSucess, MyMessagePermissions.FromServer, MyTransportMessageEnum.Success);

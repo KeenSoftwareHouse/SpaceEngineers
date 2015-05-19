@@ -901,7 +901,7 @@ namespace VRageRender
                             id.EntityId = rMessage.EntityId;
                             id.RenderObjectId = rMessage.RenderObjectID;
 
-                            material.DiffuseTexture = MyRender.RenderTextToTexture(id, rMessage.Text, rMessage.TextScale , rMessage.FontColor, rMessage.BackgroundColor, rMessage.TextureResolution, rMessage.TextureAspectRatio, rMessage.FontIndex);
+                            material.DiffuseTexture = MyRender.RenderTextToTexture(id, rMessage.Text, rMessage.TextScale , rMessage.FontColor, rMessage.BackgroundColor, rMessage.TextureResolution, rMessage.TextureAspectRatio, rMessage.FontPath);
                             if (material.DiffuseTexture == null)
                             {
                                 MyRenderProxy.TextNotDrawnToTexture(rMessage.EntityId);

@@ -834,6 +834,29 @@ namespace VRageRender
 
             return textLength;
         }
+
+        public static float DrawText(Vector2 screenCoord, StringBuilder text, Color color, float scale, bool depthRead, BlendState blendState, MyRenderFont font, MyGuiDrawAlignEnum align = MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_TOP)
+        {
+            if (depthRead)
+                DepthStencilState.DepthRead.Apply();
+            else
+                DepthStencilState.None.Apply();
+            
+            if (font == null)
+            {
+                font = MyRender.GetDebugFont();
+            }
+            
+            MyRender.BeginSpriteBatch(blendState);
+
+            Vector2 textSize = font.MeasureString(text, scale);
+            screenCoord = MyUtils.GetCoordAligned(screenCoord, textSize, align);
+            float textLength = font.DrawString(screenCoord, color, text, scale);
+
+            MyRender.EndSpriteBatch();
+
+            return textLength;
+        }
         public static void DrawText(Vector3D worldCoord, StringBuilder text, Color color, float scale, bool depthRead, MyGuiDrawAlignEnum align = MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_TOP, int customViewProjection = -1)
         {
             System.Diagnostics.Debug.Assert(customViewProjection == -1 || MyRenderProxy.BillboardsViewProjectionRead.ContainsKey(customViewProjection));

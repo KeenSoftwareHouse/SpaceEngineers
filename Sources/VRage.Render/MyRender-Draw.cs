@@ -638,6 +638,29 @@ namespace VRageRender
             return renderTexture;
         }
 
+        private static Texture RenderTextToTexture(MyRenderTextureId objectId, string text, float scale, Color fontColor, Color backgroundColor, int resolution, int aspectRatio, string fontPath)
+        {
+            if (m_screenshot != null)
+            {
+                return null;
+            }
+            Texture renderTexture = MyRenderTexturePool.GetRenderTexture(objectId, resolution, aspectRatio);
+            if (renderTexture != null)
+            {
+                MyRender.SetRenderTarget(renderTexture, null);
+
+                var surfaceDesc = renderTexture.GetLevelDescription(0);
+                MyRender.GraphicsDevice.Clear(ClearFlags.Target, new SharpDX.ColorBGRA(backgroundColor.R, backgroundColor.G, backgroundColor.B, 0), 1, 0);
+                MyRender.SetDeviceViewport(new SharpDX.Viewport(0, 0, surfaceDesc.Width, surfaceDesc.Height));
+                
+                var font = MyRender.GetOrLoadCustomFont(fontPath);
+                MyDebugDraw.DrawText(Vector2.Zero, new StringBuilder(text), fontColor, scale * MyRenderTexturePool.RenderQualityScale(), false, BlendState.EmissiveTexture, font);
+
+                MyRender.SetRenderTarget(null, null);
+            }
+            return renderTexture;
+        }
+
         public static Texture GetScreenshotTexture()
         {
             return m_renderSetup.RenderTargets[0];
