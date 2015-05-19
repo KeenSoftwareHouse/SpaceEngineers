@@ -142,8 +142,8 @@ namespace Sandbox.Game.Weapons
             m_blockLength = def.Size.Z;
             m_cubeSideLength = MyDefinitionManager.Static.GetCubeSize(def.CubeSize);
 
-            float inventoryVolume = def.Size.X * def.Size.Y * def.Size.Z * m_cubeSideLength * m_cubeSideLength * m_cubeSideLength * 0.5f;
-            Vector3 inventorySize = new Vector3(def.Size.X, def.Size.Y, def.Size.Z * 0.5f);
+            Vector3 inventorySize = new Vector3(m_cubeSideLength, m_cubeSideLength, m_cubeSideLength);
+            float inventoryVolume = inventorySize.X * inventorySize.Y * inventorySize.Z;
 
             m_inventory = new MyInventory(inventoryVolume, inventorySize, MyInventoryFlags.CanSend, this);
             m_inventory.Constraint = new MyInventoryConstraint(MySpaceTexts.ToolTipItemFilter_AnyOre)
