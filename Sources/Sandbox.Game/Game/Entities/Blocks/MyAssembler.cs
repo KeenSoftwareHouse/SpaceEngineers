@@ -1065,5 +1065,49 @@ namespace Sandbox.Game.Entities.Cube
         {
             return base.GetOperationalPowerConsumption() * (1f + UpgradeValues["Productivity"]) * (1f / UpgradeValues["PowerEfficiency"]);
         }
+
+        bool Sandbox.ModAPI.Ingame.IMyAssembler.AddQueueItem(string itemType, string subtypeName, int amount)
+        {
+            MyObjectBuilderType iType;
+            if (!MyObjectBuilderType.TryParse(itemType, out iType))
+                return false;
+
+            var blueprint = MyDefinitionManager.Static.TryGetBlueprintDefinitionByResultId(new MyDefinitionId(iType, subtypeName));
+            if (blueprint == null || !CanUseBlueprint(blueprint))
+                return false;
+            if (amount < 1)
+                return false;
+
+            InsertQueueItemRequest(-1, blueprint, (VRage.MyFixedPoint)amount);
+
+            return true;
+        }
+
+        List<AssemblerQueueItem> Sandbox.ModAPI.Ingame.IMyAssembler.GetQueueItems()
+        {
+            var queueItems = new List<AssemblerQueueItem>();
+            for (int i = 0; i < m_queue.Count; i++)
+            {
+                var resultItemId = m_queue[i].Blueprint.Results[0].Id;
+                AssemblerQueueItem newItem = new AssemblerQueueItem() { idx = i, itemType = resultItemId.TypeId.ToString(), subtypeName = resultItemId.SubtypeName, amount = (int)m_queue[i].Amount };
+                queueItems.Add(newItem);
+            }
+            return queueItems;
+        }
+
+        bool Sandbox.ModAPI.Ingame.IMyAssembler.RemoveQueueItem(AssemblerQueueItem queueItem)
+        {
+            if (m_queue[queueItem.idx].Blueprint.Results[0].Id.TypeId.ToString() != queueItem.itemType ||
+                m_queue[queueItem.idx].Blueprint.Results[0].Id.SubtypeName != queueItem.subtypeName ||
+                m_queue[queueItem.idx].Amount != queueItem.amount)
+                return false;
+            RemoveQueueItemRequest(queueItem.idx);
+            return true;
+        }
+
+        void Sandbox.ModAPI.Ingame.IMyAssembler.ClearQueue()
+        {
+            ClearQueue();
+        }
     }
 }
