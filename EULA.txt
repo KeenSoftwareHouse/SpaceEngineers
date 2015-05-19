@@ -1,16 +1,16 @@
-Shorter version (however  it doesn’t replace the official EULA):
+Shorter version (however it doesn't replace the official EULA):
 -	The source code and art assets must not to be mistaken for free software, an open source in a free-software activist understanding, copy-left or public domain software. All source code and art assets remain copyrighted and licensed by KEEN SWH LTD. and you are allowed to use them (modify, tweak, make a derivative work, distribute, etc.) only under following conditions.
 -	The source code, modifications or derivative works can be distributed only if they are intended to be used as a mod for Space Engineers, and only if valid customers would be able to use them. You are not allowed to bypass this restriction and create a standalone application or use our code in your projects.
 -	In other words, everyone who wants to develop and/or use mods based on our source code is required to own a valid Steam version of Space Engineers. You are not allowed to use our source code in an application other than Space Engineers. You are not allowed to remove the Steam integration from the code.
--	You are not allowed to distribute original art assets (textures, models, fonts, etc.) except when you won’t be able to make your modifications without our original files (e.g. painting a mustache on our astronaut texture and then distributing it as a mod to Space Engineers is allowed)
+-	You are not allowed to distribute original art assets (textures, models, fonts, etc.) except when you won't be able to make your modifications without our original files (e.g. painting a mustache on our astronaut texture and then distributing it as a mod to Space Engineers is allowed)
 -	You are allowed to share the source files with other developers (crediting us when logical/reasonable), downloading and compiling the game locally, modifying and tweaking the game locally, and even publicly forking, modifying, and tweaking the game source on GitHub.
 -	The origin of this software must not be misrepresented; you must not claim that you wrote the original software. 
 -	Altered source versions must be plainly marked as such, and must not be misrepresented as being the original software. This notice may not be removed or altered from any source distribution. 
 -	By making a pull request on our GitHub repository, you're stating that you're author of these changes or have rights to the changes you've made and you're giving us the right to use it in any way.
 -	Commercial usage is allowed only after you obtain an agreement from us: info@keenswh.com
 -	We reserve the right to change this license at any time with or without notice, with immediate and/or retroactive effect. We believe that what we ask is reasonable, so please don't try to bypass it. We're trying to be open and honest, and we hope people treat us the same way back. 
--	Don’t be afraid to experiment with the source code. If you break something, you can always revert by downloading it again. 
--	If there's anything legal you're wondering about that wasn’t answered: don't do it or ask us about it. If there's anything you don't understand or you consider confusing, please email us your suggestions: info@keenswh.com 
+-	Don't be afraid to experiment with the source code. If you break something, you can always revert by downloading it again. 
+-	If there's anything legal you're wondering about that wasn't answered: don't do it or ask us about it. If there's anything you don't understand or you consider confusing, please email us your suggestions: info@keenswh.com 
 -	That's it! No more rules. If the above wasn't clear, here's a summary: use this source code only for developing mods for Space Engineers. 
 
 
@@ -22,8 +22,8 @@ We licence use of the Software and Documents to you on the basis of this Licence
 The Software will be hosted by Steam, an online platform provided by Valve S.a.r.l. (in the EU) and Valve Corporation (in the US). To make use of the Software you must have a Steam account and the terms of this Licence supplement the Steam Subscriber Agreement which is located at: http://store.steampowered.com/subscriber_agreement/. 
 
 IMPORTANT NOTICE TO ALL USERS: 
-·	BY CLICKING ON THE "ACCEPT" BUTTON BELOW OR BY DOWNLOADING OR ACCESSING THE SOFTWARE BY ANY OTHER MEANS, YOU AGREE TO THE TERMS OF THIS LICENCE WHICH WILL BIND YOU. THE TERMS OF THIS LICENCE INCLUDE, IN PARTICULAR, LIMITATIONS ON LIABILITY IN CONDITION 4.
-·	IF YOU DO NOT AGREE TO THE TERMS OF THIS LICENCE, WE WILL NOT LICENSE THE SOFTWARE AND DOCUMENTS TO YOU AND YOU MUST DISCONTINUE THE DOWNLOADING PROCESS NOW. IN THIS CASE THE DOWNLOADING PROCESS WILL TERMINATE.
+	BY CLICKING ON THE "ACCEPT" BUTTON BELOW OR BY DOWNLOADING OR ACCESSING THE SOFTWARE BY ANY OTHER MEANS, YOU AGREE TO THE TERMS OF THIS LICENCE WHICH WILL BIND YOU. THE TERMS OF THIS LICENCE INCLUDE, IN PARTICULAR, LIMITATIONS ON LIABILITY IN CONDITION 4.
+	IF YOU DO NOT AGREE TO THE TERMS OF THIS LICENCE, WE WILL NOT LICENSE THE SOFTWARE AND DOCUMENTS TO YOU AND YOU MUST DISCONTINUE THE DOWNLOADING PROCESS NOW. IN THIS CASE THE DOWNLOADING PROCESS WILL TERMINATE.
 
 You should print a copy of this Licence for future reference.
 1.	GRANT AND SCOPE OF LICENCE
@@ -106,4 +106,4 @@ SharpDX - Copyright (c) 2010-2012 SharpDX - Alexandre Mutel
 Parallel Tasks - Microsoft Public License (Ms-PL), http://paralleltasks.codeplex.com/
 Perlin's Improved Noise - http://mrl.nyu.edu/~perlin/noise/, http://mrl.nyu.edu/~perlin/paper445.pdf, sgg 6/26/04
 Trace Tool - Common Public License Version 1.0 (CPL), http://www.codeproject.com/Articles/5498/TraceTool-12-4-The-Swiss-Army-Knife-of-Trace
-GImpact - Copyright  (c) 2006 , Francisco León.
+GImpact - Copyright  (c) 2006 , Francisco LeÃ³n.
