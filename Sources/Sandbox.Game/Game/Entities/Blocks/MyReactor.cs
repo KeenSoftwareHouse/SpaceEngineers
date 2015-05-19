@@ -111,9 +111,13 @@ namespace Sandbox.Game.Entities
         {
             var mass = base.GetMass();
 <<<<<<< HEAD
+<<<<<<< HEAD
             if (MySession.Static.Settings.EnableInventoryMass)
 =======
             if (MyPerGameSettings.InventoryMass)
+>>>>>>> Add Inventory Mass
+=======
+            if (MySession.Static.Settings.EnableInventoryMass)
 >>>>>>> Add Inventory Mass
                 return mass + (float)m_inventory.CurrentMass;
             else
@@ -277,11 +281,7 @@ namespace Sandbox.Game.Entities
             {
                 var amountAvailable = m_inventory.GetItemAmount(m_reactorDefinition.FuelId);
                 m_inventory.RemoveItemsOfType(amountAvailable, m_reactorDefinition.FuelId);
-<<<<<<< HEAD
                 if (MySession.Static.Settings.EnableInventoryMass)
-=======
-                if (MyPerGameSettings.InventoryMass)
->>>>>>> Add Inventory Mass
                     m_inventory.ContentsChanged += Inventory_ContentsChanged;
             }
 
