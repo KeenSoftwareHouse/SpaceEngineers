@@ -490,17 +490,12 @@ namespace Sandbox.Game.Entities
         public override void OnAddedToScene(object source)
         {
             base.OnAddedToScene(source);
-            if (UseObjectsComponent.DetectorPhysics != null)
-                UseObjectsComponent.DetectorPhysics.Activate();
-
             UpdateIsWorking();
         }
 
         public override void OnRemovedFromScene(object source)
         {
             base.OnRemovedFromScene(source);
-            if (UseObjectsComponent != null && UseObjectsComponent.DetectorPhysics != null)
-                UseObjectsComponent.DetectorPhysics.Deactivate();
         }
 
         /// <summary>

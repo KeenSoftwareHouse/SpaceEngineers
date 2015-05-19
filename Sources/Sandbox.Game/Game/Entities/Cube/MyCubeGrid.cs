@@ -1,55 +1,40 @@
 ﻿#region Using
 
+using Havok;
+using ProtoBuf;
+using Sandbox.Common;
+using Sandbox.Common.ModAPI;
+using Sandbox.Common.ObjectBuilders;
+using Sandbox.Common.ObjectBuilders.Definitions;
+using Sandbox.Definitions;
+using Sandbox.Engine.Physics;
+using Sandbox.Engine.Utils;
+using Sandbox.Game.Components;
+using Sandbox.Game.Entities.Character;
+using Sandbox.Game.Entities.Cube;
+using Sandbox.Game.GameSystems;
+using Sandbox.Game.GameSystems.StructuralIntegrity;
+using Sandbox.Game.GUI;
+using Sandbox.Game.Localization;
+using Sandbox.Game.Multiplayer;
+using Sandbox.Game.Weapons;
+using Sandbox.Game.World;
+using Sandbox.ModAPI.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using ProtoBuf;
-using Sandbox.Common;
-using Sandbox.Common.ObjectBuilders;
-using Sandbox.Common.ObjectBuilders.Definitions;
-using Sandbox.Definitions;
-using Sandbox.Engine.Models;
-using Sandbox.Engine.Physics;
-using Sandbox.Engine.Utils;
-using Sandbox.Game.Entities.Cube;
-using Sandbox.Game.Entities.Interfaces;
-using Sandbox.Game.GameSystems;
-using Sandbox.Game.GameSystems.Electricity;
-using Sandbox.Game.Multiplayer;
-using Sandbox.Game.Weapons;
-using Sandbox.Game.World;
+using System.Runtime.InteropServices;
+using System.Text;
 using VRage;
-using VRage;
-using VRage.Import;
+using VRage.Collections;
+using VRage.Components;
+using VRage.Library.Utils;
+using VRage.ModAPI;
+using VRage.ObjectBuilders;
 using VRage.Utils;
 using VRageMath;
 using VRageRender;
-
-using Sandbox.Game.GameSystems.Conveyors;
-using System.Text;
-using Sandbox.Common.ObjectBuilders.VRageData;
-using Sandbox.Graphics;
-using Sandbox.Game.GUI;
-using System.Runtime.InteropServices;
-using Sandbox.Game.Screens.Helpers;
-
-using Sandbox.Game.Entities.Character;
-using System.Reflection;
-using VRage.Plugins;
-
-using Sandbox.Game.GameSystems.StructuralIntegrity;
-using Sandbox.Common.Components;
-using Sandbox.Game.Components;
-using VRage.Collections;
-using Sandbox.ModAPI.Interfaces;
-using Sandbox.Game.Localization;
-using Havok;
-using VRage.Library.Utils;
-using Sandbox.Common.ModAPI;
-using VRage.ObjectBuilders;
-using VRage.Components;
-using VRage.ModAPI;
 
 #endregion
 
@@ -5336,10 +5321,10 @@ namespace Sandbox.Game.Entities
         {
             MyCubeGrid m_grid;
 
-            public override void OnAddedToContainer(MyComponentContainer container)
+            public override void OnAddedToContainer()
             {
-                base.OnAddedToContainer(container);
-                m_grid = container.Entity as MyCubeGrid;
+                base.OnAddedToContainer();
+                m_grid = Container.Entity as MyCubeGrid;
             }
 
             public override BoundingBox LocalAABBHr

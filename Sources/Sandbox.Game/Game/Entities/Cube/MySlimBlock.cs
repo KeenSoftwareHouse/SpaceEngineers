@@ -1,29 +1,25 @@
-﻿using Sandbox.Common.ObjectBuilders;
+﻿using Sandbox.Common.ModAPI;
+using Sandbox.Common.ObjectBuilders;
 using Sandbox.Common.ObjectBuilders.Definitions;
 using Sandbox.Definitions;
 using Sandbox.Engine.Utils;
+using Sandbox.Game.Entities.Character;
+using Sandbox.Game.GameSystems;
+using Sandbox.Game.GameSystems.StructuralIntegrity;
+using Sandbox.Game.Gui;
+using Sandbox.Game.Multiplayer;
 using Sandbox.Game.World;
+using Sandbox.Graphics.TransparentGeometry.Particles;
+using Sandbox.ModAPI.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using System.Text;
-using VRageMath;
-using Sandbox.Game.Weapons;
-using VRage.Utils;
-using Sandbox.Game.Entities.Character;
-using VRageRender;
-using Sandbox.Graphics.TransparentGeometry.Particles;
 using VRage;
-using Sandbox.Graphics;
-using Sandbox.Game.Multiplayer;
-using Sandbox.Game.GameSystems.StructuralIntegrity;
-using Sandbox.ModAPI.Interfaces;
 using VRage.Library.Utils;
-using Sandbox.Game.GameSystems;
-using Sandbox.Engine.Physics;
-using Sandbox.Common.ModAPI;
 using VRage.ObjectBuilders;
+using VRage.Utils;
+using VRageMath;
 
 namespace Sandbox.Game.Entities.Cube
 {
@@ -618,6 +614,30 @@ namespace Sandbox.Game.Entities.Cube
             }
         }
 
+		public void FillConstructionStockpile()
+		{
+			if(!MySession.Static.CreativeMode)
+			{
+				EnsureConstructionStockpileExists();
+				bool stockpileChanged = false;
+
+				for (int i = 0; i < ComponentStack.GroupCount; i++)
+				{
+					var groupInfo = ComponentStack.GetGroupInfo(i);
+
+					var addAmount = groupInfo.TotalCount - groupInfo.MountedCount;
+
+					if (addAmount > 0)
+					{
+						m_stockpile.AddItems(addAmount, groupInfo.Component.Id);
+						stockpileChanged = true;
+					}
+				}
+				if(stockpileChanged)
+					CubeGrid.SyncObject.SendStockpileChanged(this, m_stockpile.GetSyncList());
+			}
+		}
+
         public void MoveItemsToConstructionStockpile(IMyComponentInventory fromInventory)
         {
             if (MySession.Static.CreativeMode || MySession.Static.SimpleSurvival)
@@ -1041,7 +1061,7 @@ namespace Sandbox.Game.Entities.Cube
             }
         }
 
-        public bool IncreaseMountLevel(float welderMountAmount, long welderOwnerPlayerId, MyInventory outputInventory = null, float maxAllowedBoneMovement = 0.0f, bool isHelping = false, MyOwnershipShareModeEnum sharing = MyOwnershipShareModeEnum.Faction)
+        public bool IncreaseMountLevel(float welderMountAmount, long welderOwnerPlayerId, IMyComponentInventory outputInventory = null, float maxAllowedBoneMovement = 0.0f, bool isHelping = false, MyOwnershipShareModeEnum sharing = MyOwnershipShareModeEnum.Faction)
         {
 			bool modelChanged = false;
             welderMountAmount *= BlockDefinition.IntegrityPointsPerSec;
@@ -1140,7 +1160,7 @@ namespace Sandbox.Game.Entities.Cube
 			return modelChanged;
         }
 
-        public void DecreaseMountLevel(float grinderAmount, MyInventory outputInventory)
+        public void DecreaseMountLevel(float grinderAmount, IMyComponentInventory outputInventory)
         {
             if (FatBlock != null)
                 grinderAmount /= FatBlock.DisassembleRatio;
@@ -1234,6 +1254,44 @@ namespace Sandbox.Game.Entities.Cube
             }
 
             CubeGrid.SyncObject.SendIntegrityChanged(this, integrityChangeType, toolOwner);
+        }
+
+        /// <summary>
+        /// Completely deconstruct this block
+        /// Intended for server-side use
+        /// </summary>
+        public void FullyDismount(MyInventory outputInventory)
+        {
+            if (!Sync.IsServer)
+                return;
+
+            float oldBuildRatio = m_componentStack.BuildRatio;
+
+            if (MySession.Static.CreativeMode)
+                ClearConstructionStockpile(outputInventory);
+            else
+                EnsureConstructionStockpileExists();
+
+            if (m_stockpile != null)
+            {
+                m_stockpile.ClearSyncList();
+                m_componentStack.DecreaseMountLevel(BuildIntegrity, m_stockpile);
+                CubeGrid.SyncObject.SendStockpileChanged(this, m_stockpile.GetSyncList());
+                m_stockpile.ClearSyncList();
+            }
+            else
+                m_componentStack.DecreaseMountLevel(BuildIntegrity, null);
+
+            bool modelChangeNeeded = BlockDefinition.ModelChangeIsNeeded(m_componentStack.BuildRatio, oldBuildRatio);
+            if (modelChangeNeeded)
+            {
+                UpdateVisual();
+                PlayConstructionSound(MyCubeGrid.MyIntegrityChangeEnum.ConstructionEnd, true);
+                CreateConstructionSmokes();
+            }
+
+            if (CubeGrid.GridSystems.OxygenSystem != null)
+                CubeGrid.GridSystems.OxygenSystem.Pressurize();
         }
 
         private void CreateConstructionSmokes()
@@ -1551,5 +1609,51 @@ namespace Sandbox.Game.Entities.Cube
                 aabb = aabb.Transform(CubeGrid.WorldMatrix);
             }
         }
+
+		public static void SetBlockComponents(MyHudBlockInfo hudInfo, MySlimBlock block, IMyComponentInventory availableInventory = null)
+		{
+			hudInfo.Components.Clear();
+			for (int i = 0; i < block.ComponentStack.GroupCount; i++)
+			{
+				var groupInfo = block.ComponentStack.GetGroupInfo(i);
+				var componentInfo = new MyHudBlockInfo.ComponentInfo();
+				componentInfo.ComponentName = groupInfo.Component.DisplayNameText;
+				componentInfo.Icon = groupInfo.Component.Icon;
+				componentInfo.TotalCount = groupInfo.TotalCount;
+				componentInfo.MountedCount = groupInfo.MountedCount;
+				if (availableInventory != null)
+					componentInfo.AvailableAmount = (int)availableInventory.GetItemAmount(groupInfo.Component.Id);
+
+				hudInfo.Components.Add(componentInfo);
+			}
+
+			if (!block.StockpileEmpty)
+			{
+				// For each component
+				foreach (var comp in block.BlockDefinition.Components)
+				{
+					// Get amount in stockpile
+					int amount = block.GetConstructionStockpileItemAmount(comp.Definition.Id);
+
+					for (int i = 0; amount > 0 && i < hudInfo.Components.Count; i++)
+					{
+						if (block.ComponentStack.GetGroupInfo(i).Component == comp.Definition)
+						{
+							if (block.ComponentStack.IsFullyDismounted)
+							{
+								return;
+							}
+							// Distribute amount in stockpile from bottom to top
+							var info = hudInfo.Components[i];
+							int space = info.TotalCount - info.MountedCount;
+							int movedItems = Math.Min(space, amount);
+							info.StockpileCount = movedItems;
+							amount -= movedItems;
+							hudInfo.Components[i] = info;
+						}
+					}
+				}
+			}
+		}
     }
 }

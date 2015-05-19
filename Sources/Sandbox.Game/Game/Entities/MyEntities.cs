@@ -86,6 +86,7 @@ namespace Sandbox.Game.Entities
         {
             MyEntityFactory.RegisterDescriptorsFromAssembly(Assembly.GetCallingAssembly());
             MyEntityFactory.RegisterDescriptorsFromAssembly(MyPlugins.GameAssembly);
+            MyEntityFactory.RegisterDescriptorsFromAssembly(MyPlugins.SandboxAssembly);
             MyEntityFactory.RegisterDescriptorsFromAssembly(MyPlugins.UserAssembly);
         }
 

@@ -418,7 +418,6 @@ namespace Sandbox.Game.Gui
                         MyGuiScreenGamePlay.StartLoading(delegate
                         {
                             MySession.Static.LoadMultiplayerWorld(world, multiplayerSession);
-                            Debug.Assert(MySession.Static.IsScenario);
                             if (ScenarioWorldLoaded != null)
                                 ScenarioWorldLoaded();
                         });

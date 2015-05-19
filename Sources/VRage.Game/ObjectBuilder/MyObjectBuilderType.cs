@@ -130,7 +130,7 @@ namespace VRage.ObjectBuilders
             //MyObjectBuilderType.RegisterLegacyName(typeof(MyObjectBuilder_FactionCollection), "Factions");
 
             MyObjectBuilderType.RegisterFromAssembly(MyPlugins.GameAssembly, true);
-            MyObjectBuilderType.RegisterFromAssembly(Assembly.LoadFrom("Sandbox.Common.dll"), true); //TODO: Will be removed 
+            MyObjectBuilderType.RegisterFromAssembly(MyPlugins.SandboxAssembly, true); //TODO: Will be removed 
             MyObjectBuilderType.RegisterFromAssembly(MyPlugins.UserAssembly, true);
         }
 

@@ -22,7 +22,8 @@ namespace VRage.Game.Entity.UseObject
         UsedBySomeoneElse,
         AccessDenied,
         Closed,
-        Unpowered
+        Unpowered,
+        CockpitDamaged
     }
 
     public struct MyActionDescription

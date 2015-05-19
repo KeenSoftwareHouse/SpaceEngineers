@@ -17,9 +17,9 @@ namespace Sandbox.Game.Components
         MyReflectorLight m_reflectorLight = null;
 
         #region overrides
-        public override void OnAddedToContainer(MyComponentContainer container)
+        public override void OnAddedToContainer()
         {
-            base.OnAddedToContainer(container);
+            base.OnAddedToContainer();
             m_reflectorLight = Container.Entity as MyReflectorLight;
         }
         public override void Draw()

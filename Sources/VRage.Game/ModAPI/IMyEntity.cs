@@ -109,11 +109,11 @@ namespace VRage.ModAPI
     public interface IMyEntity
     {
         //Components
-        MyComponentContainer Components { get; }
+        MyEntityComponentContainer Components { get; }
         MyPhysicsComponentBase Physics { get; set; }
         MyPositionComponentBase PositionComp { get; set; }
         MyRenderComponentBase Render { get; set; }
-        MyComponentBase GameLogic { get; set; }
+        MyEntityComponentBase GameLogic { get; set; }
         MyHierarchyComponentBase Hierarchy { get; set; }
         MySyncComponentBase SyncObject { get; }
 

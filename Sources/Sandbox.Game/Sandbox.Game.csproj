@@ -116,6 +116,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Definitions\MyAdvancedDoorDefinition.cs" />
     <Compile Include="Definitions\MyAiCommandBehaviorDefinition.cs" />
     <Compile Include="Definitions\MyAirtightDoorGenericDefinition.cs" />
     <Compile Include="Definitions\MyAirtightHangarDoorDefinition.cs" />
@@ -398,6 +399,7 @@
     <Compile Include="Game\Components\Renders\MyRenderComponentVoxelMap.cs" />
     <Compile Include="Game\Components\DebugRenders\MyDebugRenderComponentLadder.cs" />
     <Compile Include="Game\Console\MyCommandScript.cs" />
+    <Compile Include="Game\Entities\Blocks\MyAdvancedDoor.cs" />
     <Compile Include="Game\Entities\Blocks\MyAirtightDoorGeneric.cs" />
     <Compile Include="Game\Entities\Blocks\MyAirtightHangarDoor.cs" />
     <Compile Include="Game\Entities\Blocks\MyCockpit.cs" />
@@ -433,10 +435,12 @@
     <Compile Include="Game\Entities\Blocks\MyTextPanel.cs" />
     <Compile Include="Game\Entities\Blocks\MyTimerBlock.cs" />
     <Compile Include="Game\Entities\Blocks\MyUpgradeModule.cs" />
+    <Compile Include="Game\Entities\Blocks\ToolbarItem.cs" />
     <Compile Include="Game\Entities\Character\MyCharacterBreath.cs" />
     <Compile Include="Game\Entities\Character\MyChatHistory.cs" />
     <Compile Include="Game\Entities\Character\MyInverseKinematics.cs" />
     <Compile Include="Game\Entities\Character\MySkinnedEntity.cs" />
+    <Compile Include="Game\Entities\Cube\MyUseObjectAdvancedDoorTerminal.cs" />
     <Compile Include="Game\Entities\Inventory\IMyComponentInventory.cs" />
     <Compile Include="Game\Entities\Inventory\MyAreaInventory.cs" />
     <Compile Include="Game\Entities\Inventory\MyAreaInventoryComponentBase.cs" />
@@ -537,6 +541,8 @@
     <Compile Include="Game\GUI\MyGuiDetailScreen.cs" />
     <Compile Include="Game\GUI\MyGuiIngameScriptsPage.cs" />
     <Compile Include="Game\GUI\MyGuiScreenBotSettings.cs" />
+    <Compile Include="Game\Multiplayer\MySyncAdvancedDoor.cs" />
+    <Compile Include="Game\Multiplayer\MySyncEnvironmentItems.cs" />
     <Compile Include="Game\Screens\MyGuiScreenScenarioMpClient.cs" />
     <Compile Include="Game\Screens\MyGuiScreenScenarioWaitForPlayers.cs" />
     <Compile Include="Game\GUI\MyHudCameraInfo.cs" />
@@ -712,6 +718,8 @@
     <Compile Include="Game\World\Triggers\MyTriggerPositionLeft.cs" />
     <Compile Include="Game\World\Triggers\MyTriggerSomeoneWon.cs" />
     <Compile Include="ModAPI\Blocks\MyTextPanel_ModAPI.cs" />
+    <Compile Include="ModAPI\MyMotorSuspension_ModAPI.cs" />
+    <Compile Include="ModAPI\MyHudNotification_ModAPI.cs" />
     <Compile Include="ModAPI\MyBlockGroup_ModAPI.cs" />
     <Compile Include="ModAPI\MyGpsCollection_ModAPI.cs" />
     <Compile Include="ModAPI\MyGps_ModAPI.cs" />

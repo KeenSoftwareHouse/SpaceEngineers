@@ -14,7 +14,7 @@ Discuss source code on our [source code sub-forum](http://forum.keenswh.com/foru
 
 Prerequisities
 --------------
-- [Visual Studio 2013 Community Edition] (https://www.visualstudio.com/en-us/downloads/download-visual-studio-vs#d-community) or different version of VS2013
+- [Visual Studio 2013 Community Edition with Update 4] (https://www.visualstudio.com/en-us/downloads/download-visual-studio-vs#d-community) or different version of VS2013 with Update 4
 - Steam Client + Space Engineers game (to run and test the game)
 
 Quickstart

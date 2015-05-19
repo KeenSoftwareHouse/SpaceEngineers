@@ -9,7 +9,7 @@ using VRage.ObjectBuilders;
 
 namespace Sandbox.Game.Entities
 {
-    public partial class MyCubeBlock : IMyCubeBlock
+    public partial class MyCubeBlock : IMyCubeBlock, IMyUpgradableBlock
     {
         SerializableDefinitionId Sandbox.ModAPI.IMyCubeBlock.BlockDefinition { get { return BlockDefinition.Id; } }
         SerializableDefinitionId Sandbox.ModAPI.Ingame.IMyCubeBlock.BlockDefinition { get { return BlockDefinition.Id; } }
@@ -221,6 +221,21 @@ namespace Sandbox.Game.Entities
         void IMyCubeBlock.SetDamageEffect(bool start)
         {
             SetDamageEffect(start);
+        }
+
+        uint ModAPI.Ingame.IMyUpgradableBlock.UpgradeCount
+        {
+            get
+            {
+                return (uint)UpgradeValues.Count();
+            }
+        }
+
+        void ModAPI.Ingame.IMyUpgradableBlock.GetUpgrades(out Dictionary<string, float> upgrades)
+        {
+            upgrades = new Dictionary<string, float>();
+            foreach (var value in UpgradeValues)
+                upgrades.Add(value.Key, value.Value);
         }
     }
 }

@@ -17,6 +17,7 @@ namespace Sandbox.Definitions
 
         public Vector3 ColorHSV;
         public Vector3 MarkerPosition;
+		public int MaxNumber;
 
         protected override void Init(MyObjectBuilder_DefinitionBase builder)
         {
@@ -28,6 +29,7 @@ namespace Sandbox.Definitions
 			AddMapsTexture = ob.AddMapsTexture;
             ColorHSV = ob.ColorHSV;
             MarkerPosition = ob.MarkerPosition;
+			MaxNumber = ob.MaxNumber;
         }
 
         public override MyObjectBuilder_DefinitionBase GetObjectBuilder()
@@ -39,6 +41,7 @@ namespace Sandbox.Definitions
 			ob.AddMapsTexture = AddMapsTexture;
             ob.ColorHSV = ColorHSV;
             ob.MarkerPosition = MarkerPosition;
+			ob.MaxNumber = MaxNumber;
 
             return ob;
         }

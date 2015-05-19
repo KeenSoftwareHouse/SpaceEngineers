@@ -41,6 +41,10 @@ namespace Sandbox.Game.Entities.Cube
         bool IMyLaserAntenna.RequireLoS
         {
             get { return m_needLineOfSight; }
+		}
+        bool IMyLaserAntenna.IsOutsideLimits
+        {
+            get { return m_outsideLimits; }
         }
     }
 }

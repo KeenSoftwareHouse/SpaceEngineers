@@ -45,7 +45,7 @@ namespace Sandbox.Game.Entities.Debris
             GameLogic = new MyDebrisBaseLogic();
         }
 
-        void Components_ComponentAdded(Type arg1, MyComponentBase arg2)
+        void Components_ComponentAdded(Type arg1, IMyComponentBase arg2)
         {
             if (arg1 == typeof(MyGameLogicComponent))
                 m_debrisLogic = arg2 as MyDebrisBaseLogic;
@@ -163,10 +163,10 @@ namespace Sandbox.Game.Entities.Debris
                 m_isStarted = true;
             }
 
-            public override void OnAddedToContainer(MyComponentContainer container)
+            public override void OnAddedToContainer()
             {
-                base.OnAddedToContainer(container);
-                m_debris = container.Entity as MyDebrisBase;
+                base.OnAddedToContainer();
+                m_debris = Container.Entity as MyDebrisBase;
             }
 
             public override void UpdateAfterSimulation()

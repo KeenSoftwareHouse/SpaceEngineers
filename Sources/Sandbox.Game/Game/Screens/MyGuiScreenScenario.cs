@@ -344,7 +344,7 @@ namespace Sandbox.Game.Gui
                 MyGuiSandbox.AddScreen(messageBox);
                 return;
             }
-
+            CloseScreen();
             LoadSandbox(m_onlineMode.GetSelectedKey() != (int)MyOnlineModeEnum.OFFLINE);
         }
         private void LoadSandbox(bool MP)
@@ -358,7 +358,7 @@ namespace Sandbox.Game.Gui
                     //if (MP)
                     //    LoadMultiplayerMission();
                     //else
-                        LoadSingleplayerMission(save.Item1, m_nameTextbox.Text, m_descriptionTextbox.Text);
+                        LoadMission(save.Item1, m_nameTextbox.Text, m_descriptionTextbox.Text, MP);
             }
 
             MyLog.Default.WriteLine("LoadSandbox() - End");
@@ -447,7 +447,7 @@ namespace Sandbox.Game.Gui
             return entry;
         }
 
-        public void LoadSingleplayerMission(string sessionPath, string name, string description)
+        public void LoadMission(string sessionPath, string name, string description, bool multiplayer)
         {
             MyLog.Default.WriteLine("LoadSession() - Start");
             MyLog.Default.WriteLine(sessionPath);
@@ -457,7 +457,9 @@ namespace Sandbox.Game.Gui
 
             //online?
             checkpoint.Settings.OnlineMode=(MyOnlineModeEnum)m_onlineMode.GetSelectedKey();
-            //TODOcheckpoint.Settings.MaxPlayers=m_maxPlayersSlider.get
+            checkpoint.Settings.MaxPlayers = (short)m_maxPlayersSlider.Value;
+            checkpoint.Settings.Scenario = true;
+            checkpoint.Settings.GameMode = MyGameModeEnum.Survival;
 
             if (!MySession.IsCompatibleVersion(checkpoint))
             {
@@ -503,9 +505,11 @@ namespace Sandbox.Game.Gui
                     if (checkpoint.Settings.ProceduralSeed==0)
                         checkpoint.Settings.ProceduralSeed = MyRandom.Instance.Next();
 
-                    MyGuiScreenGamePlay.StartLoading(delegate{  MySession.LoadMission(sessionPath, checkpoint, checkpointSizeInBytes, name, description);
-                                                                MySession.Static.IsScenario = true;
-                                                            });
+                    MyGuiScreenGamePlay.StartLoading(delegate
+                    {
+                        checkpoint.Settings.Scenario = true;
+                        MySession.LoadMission(sessionPath, checkpoint, checkpointSizeInBytes, name, description);
+                    });
                 }
                 else
                 {

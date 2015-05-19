@@ -332,6 +332,7 @@
     <Compile Include="Serialization\MyOrientation.cs" />
     <Compile Include="Serialization\MyPositionAndOrientation.cs" />
     <Compile Include="Serialization\SerializableBoundingBoxD.cs" />
+    <Compile Include="Serialization\SerializableBoundingSphereD.cs" />
     <Compile Include="Serialization\SerializableBounds.cs" />
     <Compile Include="Serialization\SerializableQuaternion.cs" />
     <Compile Include="Serialization\SerializableVector2.cs" />

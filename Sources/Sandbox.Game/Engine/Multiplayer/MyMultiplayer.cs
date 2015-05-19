@@ -45,6 +45,7 @@ namespace Sandbox.Engine.Multiplayer
 
         public const string BattleTag = "battle";
         public const string BattleCanBeJoinedTag = "battleCanBeJoined";
+        public const string BattleWorldWorkshopIdTag = "battleWorldWorkshopId";
         public const string BattleFaction1MaxBlueprintPointsTag = "battleFaction1MaxBlueprintPoints";
         public const string BattleFaction2MaxBlueprintPointsTag = "battleFaction2MaxBlueprintPoints";
         public const string BattleFaction1BlueprintPointsTag = "battleFaction1BlueprintPoints";
@@ -59,6 +60,8 @@ namespace Sandbox.Engine.Multiplayer
         public const string BattleTimeLimitTag = "battleTimeLimit";
 
         public const string ScenarioTag = "scenario";
+        public const string ScenarioBriefingTag = "scenarioBriefing";
+        public const string ScenarioStartTimeTag = "scenarioStartTime";
 
         public static MyMultiplayerBase Static;
 

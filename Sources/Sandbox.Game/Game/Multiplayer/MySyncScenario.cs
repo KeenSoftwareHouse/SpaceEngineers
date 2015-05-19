@@ -3,6 +3,7 @@ using Sandbox.Engine.Multiplayer;
 using Sandbox.Engine.Networking;
 using Sandbox.Game.Gui;
 using Sandbox.Game.Multiplayer;
+using Sandbox.Game.Screens;
 using Sandbox.Game.World;
 using SteamSDK;
 using System;
@@ -58,22 +59,61 @@ namespace Sandbox.Game.Multiplayer
 
         }
 
+        [MessageId(5404, P2PMessageEnum.Reliable)]
+        [ProtoContract]
+        struct AskInfoMsg
+        {
+            [ProtoMember]
+            public byte dummy;
+        }
+
+        [MessageId(5405, P2PMessageEnum.Reliable)]
+        [ProtoContract]
+        struct AnswerInfoMsg
+        {
+            [ProtoMember]
+            public bool IsRunning;
+
+        }
+
+        internal static event Action<bool> InfoAnswer;
         internal static event Action<long> PrepareScenario;
         internal static event Action<ulong> PlayerReadyToStartScenario;
         internal static event Action ClientWorldLoaded;
         internal static event Action<long> StartScenario;
         internal static event Action<int> TimeoutReceived;
         //internal static event Action<long, int> EndScenario;
-
-
+        
         static MySyncScenario()
         {
+            MySyncLayer.RegisterMessage<AskInfoMsg>(OnAskInfo, MyMessagePermissions.ToServer, MyTransportMessageEnum.Request);
+            MySyncLayer.RegisterMessage<AnswerInfoMsg>(OnAnswerInfo, MyMessagePermissions.FromServer, MyTransportMessageEnum.Request);
+
             MySyncLayer.RegisterMessage<PrepareScenarioFromLobbyMsg>(OnPrepareScenarioFromLobby, MyMessagePermissions.FromServer, MyTransportMessageEnum.Request);
             MySyncLayer.RegisterMessage<PlayerReadyToStartScenarioMsg>(OnPlayerReadyToStartScenario, MyMessagePermissions.ToServer, MyTransportMessageEnum.Request);
             MySyncLayer.RegisterMessage<PlayerReadyToStartScenarioMsg>(OnPlayerReadyToStartScenario, MyMessagePermissions.FromServer, MyTransportMessageEnum.Success);
             MySyncLayer.RegisterMessage<StartScenarioMsg>(OnStartScenario, MyMessagePermissions.FromServer, MyTransportMessageEnum.Request);
             //MySyncLayer.RegisterMessage<EndScenarioMsg>(OnEndScenario, MyMessagePermissions.FromServer, MyTransportMessageEnum.Request);
-            MySyncLayer.RegisterMessage<SetTimeoutMsg>(OnSetTimeout, MyMessagePermissions.FromServer, MyTransportMessageEnum.Success);
+            MySyncLayer.RegisterMessage<SetTimeoutMsg>(OnSetTimeout, MyMessagePermissions.FromServer, MyTransportMessageEnum.Request);
+        }
+
+        //client connected, asks for latest info (like if the game is already running and gui should be used accordingly)
+        internal static void AskInfo()
+        {
+            var msg = new AskInfoMsg();
+            Sync.Layer.SendMessageToServer(ref msg);
+        }
+        private static void OnAskInfo(ref AskInfoMsg msg, MyNetworkClient sender)
+        {
+            var answer = new AnswerInfoMsg();
+            answer.IsRunning = MyMultiplayer.Static.ScenarioStartTime > DateTime.MinValue;
+            Sync.Layer.SendMessage(ref answer, sender.SteamUserId);
+        }
+
+        private static void OnAnswerInfo(ref AnswerInfoMsg msg, MyNetworkClient sender)
+        {
+            if (InfoAnswer != null)
+                InfoAnswer(msg.IsRunning);
         }
 
         /// <summary>
@@ -97,11 +137,12 @@ namespace Sandbox.Game.Multiplayer
         private static void OnPrepareScenarioFromLobby(ref PrepareScenarioFromLobbyMsg msg, MyNetworkClient sender)
         {
             Debug.Assert(!Sync.IsServer);
-
-
+            OnPrepareScenarioFromLobby(msg.PreparationStartTime);
+        }
+        public static void OnPrepareScenarioFromLobby(long PrepStartTime)
+        {
             if (PrepareScenario != null)
-                PrepareScenario(msg.PreparationStartTime);
-
+                PrepareScenario(PrepStartTime);
             MyJoinGameHelper.DownloadScenarioWorld(MyMultiplayer.Static);
             MyGuiScreenLoadSandbox.ScenarioWorldLoaded += MyGuiScreenLoadSandbox_ScenarioWorldLoaded;
         }                    

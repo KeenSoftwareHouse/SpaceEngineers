@@ -1,6 +1,8 @@
 ﻿using VRage.ObjectBuilders;
 using ProtoBuf;
 using VRage;
+using VRageMath;
+using VRage.Serialization;
 
 namespace Sandbox.Common.ObjectBuilders
 {
@@ -9,7 +11,7 @@ namespace Sandbox.Common.ObjectBuilders
     public class MyObjectBuilder_BattleSystemComponent : MyObjectBuilder_SessionComponent
     {
         [ProtoMember]
-        public bool IsBattleMap;
+        public bool IsCastleSiegeMap;
 
         [ProtoMember]
         public ulong Points;
@@ -24,12 +26,12 @@ namespace Sandbox.Common.ObjectBuilders
         public ulong BaseMapLargeGridsPoints;
 
         [ProtoMember]
-        public SerializableBoundingBoxD[] AttackerSlots;
+        public SerializableBoundingSphereD[] AttackerSlots;
 
         [ProtoMember]
-        public SerializableBoundingBoxD DefenderSlot;
+        public SerializableBoundingSphereD DefenderSlot;
 
         [ProtoMember]
-        public long DefenderEntityId;
+        public long Faction1EntityId;
     }
 }

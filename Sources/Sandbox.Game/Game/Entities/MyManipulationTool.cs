@@ -162,7 +162,7 @@ namespace Sandbox.Game.Entities
         public override void Init(MyObjectBuilder_EntityBase objectBuilder)
         {
             m_manipulationDistance = 2.5f;
-            m_limitingLinearVelocity = 3f;
+            m_limitingLinearVelocity = 4f;
             m_handItemDefId = objectBuilder.GetId();
             m_physItemDef = MyDefinitionManager.Static.GetPhysicalItemForHandItem(m_handItemDefId);
             base.Init(objectBuilder);
@@ -293,8 +293,6 @@ namespace Sandbox.Game.Entities
         public void OnControlReleased()
         {
             SyncTool.StopManipulation();
-
-            Owner = null;
         }
 
         public override void UpdateAfterSimulation()
@@ -319,7 +317,7 @@ namespace Sandbox.Game.Entities
             MatrixD ownerWorldMatrix = Owner.GetHeadMatrix(false, true, false, true);
             Vector3 ownerWorldForward = ownerWorldMatrix.Forward;
 
-            Vector3 force = 650 * ownerWorldForward * MyFakes.SIMULATION_SPEED;
+            Vector3 force = 400 * ownerWorldForward * MyFakes.SIMULATION_SPEED;
             otherEntity.Physics.AddForce(MyPhysicsForceType.APPLY_WORLD_FORCE, force, null, null);
         }
 
@@ -413,7 +411,7 @@ namespace Sandbox.Game.Entities
             if (state == MyState.HOLD)
             {
                 // Player can hold large projectile (~222kg)
-                if ((GetRealMass(otherEntity.Physics) <= 230) || ((otherEntity is MyCharacter) && (otherEntity.Physics.Mass < 230)))
+                if ((GetRealMass(otherEntity.Physics) <= 210) || ((otherEntity is MyCharacter) && (otherEntity.Physics.Mass < 210)))
                     data = CreateFixedConstraintData(ref m_otherLocalPivotMatrix, headPivotOffset);
                 else
                     return;
@@ -439,8 +437,8 @@ namespace Sandbox.Game.Entities
             m_otherEntity = otherEntity;
             m_otherEntity.OnClosing += OtherEntity_OnClosing;
 
-            m_otherAngularDamping = m_otherRigidBody.AngularDamping;
-            m_otherLinearDamping = m_otherRigidBody.LinearDamping;
+            //m_otherAngularDamping = m_otherRigidBody.AngularDamping;
+            //m_otherLinearDamping = m_otherRigidBody.LinearDamping;
             m_otherRestitution = m_otherRigidBody.Restitution;
             m_otherMaxLinearVelocity = m_otherRigidBody.MaxLinearVelocity;
             m_otherMaxAngularVelocity = m_otherRigidBody.MaxAngularVelocity;
@@ -448,8 +446,8 @@ namespace Sandbox.Game.Entities
             SetManipulated(m_otherEntity, true);
             if (state == MyState.HOLD)
             {
-                m_otherRigidBody.AngularDamping = TARGET_ANGULAR_DAMPING;
-                m_otherRigidBody.LinearDamping = TARGET_LINEAR_DAMPING;
+                //m_otherRigidBody.AngularDamping = TARGET_ANGULAR_DAMPING;
+                //m_otherRigidBody.LinearDamping = TARGET_LINEAR_DAMPING;
                 m_otherRigidBody.Restitution = TARGET_RESTITUTION;
                 m_otherRigidBody.MaxLinearVelocity = m_limitingLinearVelocity;
                 m_otherRigidBody.MaxAngularVelocity = (float)Math.PI;
@@ -457,8 +455,8 @@ namespace Sandbox.Game.Entities
                 {
                     foreach (var body in m_otherEntity.Physics.Ragdoll.RigidBodies)
                     {
-                        body.AngularDamping = TARGET_ANGULAR_DAMPING;
-                        body.LinearDamping = TARGET_LINEAR_DAMPING;
+                        //body.AngularDamping = TARGET_ANGULAR_DAMPING;
+                        //body.LinearDamping = TARGET_LINEAR_DAMPING;
                         body.Restitution = TARGET_RESTITUTION;
                         body.MaxLinearVelocity = m_limitingLinearVelocity;
                         body.MaxAngularVelocity = (float)Math.PI;
@@ -592,7 +590,7 @@ namespace Sandbox.Game.Entities
 
         public void StopManipulation()
         {
-            if (m_state != MyState.NONE)
+            if (m_state != MyState.NONE && Owner != null)
             {
                 var characterMovementState = Owner.GetCurrentMovementState();
                 switch (characterMovementState)
@@ -622,9 +620,9 @@ namespace Sandbox.Game.Entities
                         Owner.PlayCharacterAnimation("Idle", true, MyPlayAnimationMode.Immediate | MyPlayAnimationMode.Play, 0.2f, 1f);
                         break;
                 }
-
-                m_state = MyState.NONE;
             }
+
+            m_state = MyState.NONE;
 
             if (m_constraint != null)
             {
@@ -657,8 +655,8 @@ namespace Sandbox.Game.Entities
                 if (m_otherEntity.Physics != null && m_otherRigidBody != null && !m_otherRigidBody.IsDisposed)
                 {
                     SetManipulated(m_otherEntity, false);
-                    m_otherRigidBody.AngularDamping = m_otherAngularDamping;
-                    m_otherRigidBody.LinearDamping = m_otherLinearDamping;
+                    //m_otherRigidBody.AngularDamping = m_otherAngularDamping;
+                    //m_otherRigidBody.LinearDamping = m_otherLinearDamping;
                     m_otherRigidBody.Restitution = m_otherRestitution;
                     m_otherRigidBody.MaxLinearVelocity = m_otherMaxLinearVelocity;
                     m_otherRigidBody.MaxAngularVelocity = m_otherMaxAngularVelocity;
@@ -715,8 +713,11 @@ namespace Sandbox.Game.Entities
 
                     m_constraintInitialized = true;
 
-                    m_otherRigidBody.MaxLinearVelocity = m_otherMaxLinearVelocity;
-                    m_otherRigidBody.MaxAngularVelocity = m_otherMaxAngularVelocity;
+                    if (!MyFakes.MANIPULATION_TOOL_VELOCITY_LIMIT)
+                    {
+                        m_otherRigidBody.MaxLinearVelocity = m_otherMaxLinearVelocity;
+                        m_otherRigidBody.MaxAngularVelocity = m_otherMaxAngularVelocity;
+                    }
 
                     if (m_fixedConstraintData != null)
                     {

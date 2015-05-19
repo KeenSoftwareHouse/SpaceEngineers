@@ -30,7 +30,6 @@ namespace Sandbox.Engine.Networking
         public static string LastSessionPath { get { return Path.Combine(MyFileSystem.SavesPath, LAST_SESSION_FILE); } }
         public static string ContentSessionsPath { get { return "Worlds"; } }
         public static string MissionSessionsPath { get { return "Missions"; } }
-        public static string BattlesSessionsPath { get { return Path.Combine(MyFileSystem.ContentPath, "Battles"); } }
 
         private static string GetSectorPath(string sessionPath, Vector3I sectorPosition)
         {
@@ -199,19 +198,7 @@ namespace Sandbox.Engine.Networking
             return result;
         }
 
-        public static List<Tuple<string, MyWorldInfo>> GetAvailableBattlesInfos()
-        {
-            MySandboxGame.Log.WriteLine("Loading available battles - START");
-            var result = new List<Tuple<string, MyWorldInfo>>();
-            using (MySandboxGame.Log.IndentUsing(LoggingOptions.ALL))
-            {
-                GetWorldInfoFromDirectory(BattlesSessionsPath, result);
-            }
-            MySandboxGame.Log.WriteLine("Loading available battles - END");
-            return result;
-        }
-
-        private static void GetWorldInfoFromDirectory(string path, List<Tuple<string, MyWorldInfo>> result)
+        public static void GetWorldInfoFromDirectory(string path, List<Tuple<string, MyWorldInfo>> result)
         {
             bool dirExists = Directory.Exists(path);
             MySandboxGame.Log.WriteLine(string.Format("GetWorldInfoFromDirectory (Exists: {0}) '{1}'", dirExists, path));

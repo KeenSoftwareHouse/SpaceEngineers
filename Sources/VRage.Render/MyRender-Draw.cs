@@ -562,7 +562,8 @@ namespace VRageRender
             ClearDrawMessages();
             GetRenderProfiler().EndProfilingBlock();
 
-            Debug.Assert(m_spriteBatch.ScissorStack.Empty);
+            if (m_spriteBatch != null)
+                Debug.Assert(m_spriteBatch.ScissorStack.Empty);
         }
 
         private static void RenderColoredTextures()
