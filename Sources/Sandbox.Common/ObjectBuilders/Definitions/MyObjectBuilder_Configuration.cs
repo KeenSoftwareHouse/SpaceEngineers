@@ -11,38 +11,38 @@ namespace Sandbox.Common.ObjectBuilders.Definitions
     [MyObjectBuilderDefinition]
     public class MyObjectBuilder_Configuration : MyObjectBuilder_Base
     {
-        [ProtoMember(1)]
+        [ProtoMember]
         public CubeSizeSettings CubeSizes;
 
-        [ProtoMember(2)]
+        [ProtoMember]
         public BaseBlockSettings BaseBlockPrefabs;
 
-        [ProtoMember(3)]
+        [ProtoMember]
         public BaseBlockSettings BaseBlockPrefabsSurvival;
 
         [ProtoContract]
         public struct CubeSizeSettings
         {
-            [ProtoMember(1), XmlAttribute]
+            [ProtoMember, XmlAttribute]
             public float Large;
 
-            [ProtoMember(2), XmlAttribute]
+            [ProtoMember, XmlAttribute]
             public float Small;
         }
 
         [ProtoContract]
         public struct BaseBlockSettings
         {
-            [ProtoMember(1), XmlAttribute]
+            [ProtoMember, XmlAttribute]
             public string SmallStatic;
 
-            [ProtoMember(2), XmlAttribute]
+            [ProtoMember, XmlAttribute]
             public string LargeStatic;
 
-            [ProtoMember(3), XmlAttribute]
+            [ProtoMember, XmlAttribute]
             public string SmallDynamic;
 
-            [ProtoMember(4), XmlAttribute]
+            [ProtoMember, XmlAttribute]
             public string LargeDynamic;
         }
     }

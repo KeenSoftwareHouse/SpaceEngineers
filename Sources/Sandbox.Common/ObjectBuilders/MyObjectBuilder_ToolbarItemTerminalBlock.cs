@@ -12,7 +12,7 @@ namespace Sandbox.Common.ObjectBuilders
     [MyObjectBuilderDefinition]
     public class MyObjectBuilder_ToolbarItemTerminalBlock : MyObjectBuilder_ToolbarItemTerminal
     {
-        [ProtoMember(1)]
+        [ProtoMember]
         public long BlockEntityId;
         
         public override void Remap(IMyRemapHelper remapHelper)

@@ -47,12 +47,12 @@ namespace Sandbox.Game.Multiplayer
         [ProtoContract]
         struct ChangeNameMsg : IEntityMessage
         {
-            [ProtoMember(1)]
+            [ProtoMember]
             public long EntityId;
 
             public long GetEntityId() { return EntityId; }
 
-            [ProtoMember(2)]
+            [ProtoMember]
             public string Name;
 
             public override string ToString()

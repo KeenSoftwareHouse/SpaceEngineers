@@ -11,7 +11,7 @@ namespace Sandbox.Common.ObjectBuilders
     [MyObjectBuilderDefinition]
     public class MyObjectBuilder_BlockItem : MyObjectBuilder_PhysicalObject
     {
-        [ProtoMember(1)]
+        [ProtoMember]
         public SerializableDefinitionId BlockDefId;
 
         public override bool CanStack(MyObjectBuilder_PhysicalObject a)

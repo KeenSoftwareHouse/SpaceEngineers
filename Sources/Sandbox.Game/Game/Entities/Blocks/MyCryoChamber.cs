@@ -16,6 +16,8 @@ using Sandbox.ModAPI.Interfaces;
 using VRage.Import;
 using VRageMath;
 using VRageRender;
+using VRage.Library.Utils;
+using Sandbox.Game.Localization;
 
 namespace Sandbox.Game.Entities.Blocks
 {
@@ -46,6 +48,8 @@ namespace Sandbox.Game.Entities.Blocks
             get;
             protected set;
         }
+
+        protected override MyStringId LeaveNotificationHintText { get { return MySpaceTexts.NotificationHintLeaveCryoChamber; } }
 
         public MyCryoChamber()
         {

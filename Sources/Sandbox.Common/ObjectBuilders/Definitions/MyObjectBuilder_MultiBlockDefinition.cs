@@ -16,18 +16,18 @@ namespace Sandbox.Common.ObjectBuilders.Definitions
         [ProtoContract]
         public class MyOBMultiBlockPartDefinition
         {
-            [ProtoMember(1)]
+            [ProtoMember]
             public SerializableDefinitionId Id;
 
-            [ProtoMember(2)]
+            [ProtoMember]
             public SerializableVector3I Position;
 
-            [ProtoMember(3)]
+            [ProtoMember]
             public SerializableBlockOrientation Orientation;
         }
 
         [XmlArrayItem("BlockDefinition")]
-        [ProtoMember(1), DefaultValue(null)]
+        [ProtoMember, DefaultValue(null)]
         public MyOBMultiBlockPartDefinition[] BlockDefinitions = null;
     }
 }

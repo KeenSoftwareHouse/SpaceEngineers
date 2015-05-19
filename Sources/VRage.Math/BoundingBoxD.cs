@@ -18,12 +18,12 @@ namespace VRageMath
         /// <summary>
         /// The minimum point the BoundingBox contains.
         /// </summary>
-        [ProtoBuf.ProtoMember(1)]
+        [ProtoBuf.ProtoMember]
         public Vector3D Min;
         /// <summary>
         /// The maximum point the BoundingBox contains.
         /// </summary>
-        [ProtoBuf.ProtoMember(2)]
+        [ProtoBuf.ProtoMember]
         public Vector3D Max;
 
         /// <summary>

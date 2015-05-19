@@ -11,13 +11,13 @@ namespace Sandbox.Common.ObjectBuilders
     [MyObjectBuilderDefinition]
     public class MyObjectBuilder_Warhead : MyObjectBuilder_TerminalBlock
     {
-        [ProtoMember(1)]
+        [ProtoMember]
         public int CountdownMs = 10000;
 
-        [ProtoMember(2)]
+        [ProtoMember]
         public bool IsArmed = false;
 
-        [ProtoMember(3)]
+        [ProtoMember]
         public bool IsCountingDown = false;
     }
 }

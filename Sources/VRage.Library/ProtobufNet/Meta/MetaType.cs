@@ -1030,7 +1030,7 @@ namespace ProtoBuf.Meta
                 if (GetAttribute(attribs, "System.NonSerializedAttribute") != null) ignore = true;
             }
             if (ignore || (fieldNumber < minAcceptFieldNumber && !forced)) return null;
-            ProtoMemberAttribute result = new ProtoMemberAttribute(fieldNumber, forced || inferByTagName);
+            ProtoMemberAttribute result = new ProtoMemberAttribute(forced || inferByTagName, fieldNumber);
             result.AsReference = asReference;
             result.AsReferenceHasValue = asReferenceHasValue;
             result.DataFormat = dataFormat;

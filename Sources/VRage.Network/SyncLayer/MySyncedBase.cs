@@ -6,6 +6,8 @@ using System.Text;
 
 namespace VRage.Network
 {
+    // TODO:SK only for structs and have string special case?
+    // TODO:SK different locks
     public abstract class MySyncedBase<T> : IMySyncedValue, IEquatable<T>
     {
         public abstract void Write(ref T value, BitStream s);
@@ -13,6 +15,11 @@ namespace VRage.Network
 
         private bool m_dirty;
         public bool IsDirty { get { return m_dirty; } }
+
+        public bool IsDefault()
+        {
+            return m_value.Equals(default(T));
+        }
 
         private T m_value;
 
@@ -38,9 +45,11 @@ namespace VRage.Network
             return self.Get();
         }
 
-        //If you change the value of the returned class, you should call Invalidate() or Set() to make the new value synchronize
+        // Client is not supposed to modify the returned value
+        // Server should call Set() with the new value after changing it
         public T Get()
         {
+            Debug.Assert(m_value != null);
             lock (this)
             {
                 return m_value;
@@ -49,6 +58,7 @@ namespace VRage.Network
 
         public void Set(T value)
         {
+            Debug.Assert(value != null);
             lock (this)
             {
                 if (!value.Equals(m_value))
@@ -61,7 +71,7 @@ namespace VRage.Network
 
         public override string ToString()
         {
-            return m_value.GetType() + ": " + m_value.ToString();
+            return typeof(T) + ": " + m_value.ToString();
         }
 
         public override int GetHashCode()
@@ -71,6 +81,7 @@ namespace VRage.Network
 
         public void Serialize(BitStream bs)
         {
+            Debug.Assert(m_value != null);
             lock (this)
             {
                 bs.Write(m_dirty);
@@ -95,7 +106,39 @@ namespace VRage.Network
                 lock (this)
                 {
                     success = Read(out m_value, bs);
-                    Debug.Assert(success, "Failed to read synced int value");
+                    Debug.Assert(success, "Failed to read synced value");
+                }
+            }
+        }
+
+        public void SerializeDefault(BitStream bs)
+        {
+            Debug.Assert(m_value != null);
+            lock (this)
+            {
+                bool isDefault = IsDefault();
+                bs.Write(!isDefault);
+                if (!isDefault)
+                {
+                    Write(ref m_value, bs);
+                }
+            }
+        }
+
+        public void DeserializeDefault(BitStream bs)
+        {
+            bool success;
+
+            bool isDefault;
+            success = bs.Read(out isDefault);
+            Debug.Assert(success, "Failed to read synced value defaultness");
+
+            if (!isDefault)
+            {
+                lock (this)
+                {
+                    success = Read(out m_value, bs);
+                    Debug.Assert(success, "Failed to read synced value");
                 }
             }
         }

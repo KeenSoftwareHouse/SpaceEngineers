@@ -12,7 +12,7 @@ namespace Sandbox.Common.ObjectBuilders.Definitions
     [MyObjectBuilderDefinition]
     public class MyObjectBuilder_AssemblerDefinition : MyObjectBuilder_ProductionBlockDefinition
     {
-        [ProtoMember(1)]
+        [ProtoMember]
         public float AssemblySpeed = 1.0f;
     }
 }

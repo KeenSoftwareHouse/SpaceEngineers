@@ -36,6 +36,7 @@ namespace Sandbox.ModAPI
         bool IsFullyDismounted { get; }
         float MaxDeformation { get; }
         float MaxIntegrity { get; }
+        float Mass { get; }
         //void MoveFirstItemToConstructionStockpile(Sandbox.Game.MyInventory fromInventory);
         //void MoveItemsFromConstructionStockpile(Sandbox.Game.MyInventory toInventory, Sandbox.Common.ObjectBuilders.MyItemFlags flags = MyItemFlags.None);
         //void MoveItemsToConstructionStockpile(Sandbox.Game.MyInventory fromInventory);

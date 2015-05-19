@@ -9,7 +9,7 @@ namespace Sandbox.Common.ObjectBuilders.Definitions
         [XmlIgnore]
         public MyObjectBuilderType TypeId;
 
-        [ProtoMember(1)]
+        [ProtoMember]
         [XmlElement("TypeId")]
         public string TypeIdString
         {
@@ -20,7 +20,7 @@ namespace Sandbox.Common.ObjectBuilders.Definitions
         [XmlIgnore]
         public string SubtypeName;
 
-        [ProtoMember(2)]
+        [ProtoMember]
         public string SubtypeId
         {
             get { return SubtypeName; }

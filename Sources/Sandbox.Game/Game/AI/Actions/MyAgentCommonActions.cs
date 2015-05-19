@@ -1,9 +1,11 @@
 ﻿using Sandbox.Common.AI;
 using Sandbox.Common.ObjectBuilders.AI;
+using Sandbox.Game.Entities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using VRageMath;
 
 namespace Sandbox.Game.AI.Actions
 {
@@ -70,6 +72,23 @@ namespace Sandbox.Game.AI.Actions
             }
         }
 
+		public MyBehaviorTreeState IsAtTargetPositionCylinder(float radius, float height)
+		{
+			if (!AiTargetBase.HasTarget())
+            {
+                return MyBehaviorTreeState.FAILURE;
+            }
+
+			Vector3D position = Bot.Player.Character.PositionComp.GetPosition();
+			Vector3D gotoPosition;
+			float gotoRadius;
+			AiTargetBase.GetGotoPosition(position, out gotoPosition, out gotoRadius);
+			var xzPosition = new Vector2((float)position.X, (float)position.Z);
+			var xzGotoPosition = new Vector2((float)gotoPosition.X, (float)gotoPosition.Z);
+
+			return (Vector2.Distance(xzPosition, xzGotoPosition) <= radius && xzPosition.Y < xzGotoPosition.Y && xzPosition.Y+height > xzGotoPosition.Y ? MyBehaviorTreeState.SUCCESS : MyBehaviorTreeState.FAILURE);
+		}
+
         public MyBehaviorTreeState IsNotAtTargetPosition(float radius)
         {
             if (!AiTargetBase.HasTarget())
@@ -101,6 +120,19 @@ namespace Sandbox.Game.AI.Actions
             return MyBehaviorTreeState.FAILURE;
         }
 
+		public MyBehaviorTreeState UnsetTarget(ref MyBBMemoryTarget inTarget)
+		{
+			if (inTarget != null)
+			{
+				inTarget.TargetType = MyAiTargetEnum.NO_TARGET;
+				inTarget.Position = null;
+				inTarget.EntityId = null;
+				inTarget.TreeId = null;
+			}
+
+			return MyBehaviorTreeState.SUCCESS;
+		}
+
         public MyBehaviorTreeState IsTargetValid(ref MyBBMemoryTarget inTarget)
         {
             if (inTarget != null)
@@ -110,6 +142,23 @@ namespace Sandbox.Game.AI.Actions
             }
             return MyBehaviorTreeState.FAILURE;
         }
+
+		public MyBehaviorTreeState HasTargetArea(ref MyBBMemoryTarget inTarget)
+		{
+			if (inTarget != null && inTarget.EntityId.HasValue)
+			{
+				MyEntity entity = null;
+				if (MyEntities.TryGetEntityById(inTarget.EntityId.Value, out entity))
+				{
+					MyPlaceArea area = null;
+					if (entity.Components.TryGet<MyPlaceArea>(out area))
+					{
+						return MyBehaviorTreeState.SUCCESS;
+					}
+				}
+			}
+			return MyBehaviorTreeState.FAILURE;
+		}
 
         public void Init_Action_Idle()
         {

@@ -11,13 +11,13 @@ namespace Sandbox.Common.ObjectBuilders
     [MyObjectBuilderDefinition]
     public class MyObjectBuilder_TerminalBlock : MyObjectBuilder_CubeBlock
     {
-        [ProtoMember(1), DefaultValue(null)]
+        [ProtoMember, DefaultValue(null)]
         public string CustomName = null;
 
-        [ProtoMember(2)]
+        [ProtoMember]
         public bool ShowOnHUD;
 
-        [ProtoMember(3)]
+        [ProtoMember]
         public bool ShowInTerminal = true;
     }
 }

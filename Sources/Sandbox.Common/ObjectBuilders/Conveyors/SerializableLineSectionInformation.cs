@@ -11,10 +11,10 @@ namespace Sandbox.Common.ObjectBuilders.Conveyors
     [ProtoContract]
     public struct SerializableLineSectionInformation
     {
-        [ProtoMember(1), XmlAttribute]
+        [ProtoMember, XmlAttribute]
         public Base6Directions.Direction Direction;
 
-        [ProtoMember(2), XmlAttribute]
+        [ProtoMember, XmlAttribute]
         public int Length;
     }
 }

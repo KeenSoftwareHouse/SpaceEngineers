@@ -35,26 +35,26 @@ namespace Sandbox.Game.World
         [MessageIdAttribute(9234, P2PMessageEnum.Reliable)]
         protected struct SpawnPrefabMsg
         {
-            [ProtoMember(1)]
+            [ProtoMember]
             public String PrefabName;
 
-            [ProtoMember(2)]
+            [ProtoMember]
             public MyPositionAndOrientation PositionAndOrientation;
 
-            [ProtoMember(3)]
+            [ProtoMember]
             public Vector3 LinearVelocity;
 
-            [ProtoMember(4)]
+            [ProtoMember]
             public Vector3 AngularVelocity;
 
-            [ProtoMember(5), DefaultValue(null)]
+            [ProtoMember, DefaultValue(null)]
             public String BeaconName;
             public bool ShouldSerializeBeaconName() { return BeaconName != null; }
 
-            [ProtoMember(6)]
+            [ProtoMember]
             public Sandbox.ModAPI.SpawningOptions SpawningOptions;
 
-            [ProtoMember(7)]
+            [ProtoMember]
             public int RngSeed;
         }
 

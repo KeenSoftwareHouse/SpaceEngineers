@@ -885,8 +885,9 @@ namespace VRageRender
                         MyRenderMeshMaterial material = GetMeshMaterial(rMessage.RenderObjectID, rMessage.MaterialName);
                         if (material != null)
                         {
-                            material.DiffuseTexture = MyTextureManager.GetTexture<MyTexture2D>(rMessage.TextureName, "", null, LoadingMode.Immediate);
+                            material.DiffuseTexture = MyTextureManager.GetTexture<MyTexture2D>(rMessage.Changes[0].TextureName, "", null, LoadingMode.Immediate);
                         }
+                        rMessage.Changes.Clear();
 
                         break;
                     }

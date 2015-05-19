@@ -633,7 +633,8 @@ namespace VRageRender
                         MyRender11.Log.WriteLine(String.Format("Mesh asset {0} has no material in part {1}", file, partIndex));
                     }
 
-                    var matId = MyMeshMaterials1.GetMaterialId(materialDesc, contentPath);
+
+                    var matId = MyMeshMaterials1.GetMaterialId(materialDesc, contentPath, file);
 
                     parts[partIndex] = new MyMeshPartInfo1 
                     {

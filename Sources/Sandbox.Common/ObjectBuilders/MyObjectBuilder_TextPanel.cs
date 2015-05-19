@@ -33,40 +33,40 @@ namespace Sandbox.Common.ObjectBuilders
     [MyObjectBuilderDefinition]
     public class MyObjectBuilder_TextPanel : MyObjectBuilder_FunctionalBlock
     {
-        [ProtoMember(1)]
+        [ProtoMember]
         public string Description = "";
 
-        [ProtoMember(2)]
+        [ProtoMember]
         public string Title = "Title";
 
-        [ProtoMember(3)]
+        [ProtoMember]
         public TextPanelAccessFlag AccessFlag = TextPanelAccessFlag.READ_AND_WRITE_FACTION;
 
-        [ProtoMember(4)]
+        [ProtoMember]
         public float ChangeInterval = 0.0f;
 
-        [ProtoMember(5)]
+        [ProtoMember]
         public List<string> SelectedImages = null;
 
-        [ProtoMember(6)]
+        [ProtoMember]
         public float FontSize = 1.0f;
 
-        [ProtoMember(7)]
+        [ProtoMember]
         public string PublicDescription = "";
 
-        [ProtoMember(8)]
+        [ProtoMember]
         public string PublicTitle = "Public title";
 
-        [ProtoMember(9)]
+        [ProtoMember]
         public ShowTextOnScreenFlag ShowText = ShowTextOnScreenFlag.NONE;
 
-        [ProtoMember(10)]
+        [ProtoMember]
         public Color FontColor = Color.White;
 
-        [ProtoMember(11)]
+        [ProtoMember]
         public Color BackgroundColor = Color.Black;
 
-        [ProtoMember(12)]
+        [ProtoMember]
         public int CurrentShownTexture = 0;
 
     }

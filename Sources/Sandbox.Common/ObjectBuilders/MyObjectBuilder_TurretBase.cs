@@ -12,61 +12,61 @@ namespace Sandbox.Common.ObjectBuilders
     [MyObjectBuilderDefinition]
     public class MyObjectBuilder_TurretBase : MyObjectBuilder_UserControllableGun
     {
-        [ProtoMember(1)]
+        [ProtoMember]
         public MyObjectBuilder_Inventory Inventory;
 
-        [ProtoMember(2), DefaultValue(800)]
+        [ProtoMember, DefaultValue(800)]
         public float Range = 800;
 
-        [ProtoMember(4)]
+        [ProtoMember]
         public int RemainingAmmo;
 
-        [ProtoMember(5)]
+        [ProtoMember]
         public long Target;
 
-        [ProtoMember(6), DefaultValue(true)]
+        [ProtoMember, DefaultValue(true)]
         public bool TargetMeteors = true;
 
-        [ProtoMember(7), DefaultValue(false)]
+        [ProtoMember, DefaultValue(false)]
         public bool TargetMoving = false;
 
-        [ProtoMember(8), DefaultValue(false)]
+        [ProtoMember, DefaultValue(false)]
         public bool TargetMissiles = false;
 
-        [ProtoMember(9)]
+        [ProtoMember]
         public bool IsPotentialTarget;
 
-        [ProtoMember(10)]
+        [ProtoMember]
         public long? PreviousControlledEntityId;
 
-        [ProtoMember(11)]
+        [ProtoMember]
         public float Rotation;
 
-        [ProtoMember(12)]
+        [ProtoMember]
         public float Elevation;
 
-        [ProtoMember(13)]
+        [ProtoMember]
         public bool IsShooting;
 
-        [ProtoMember(14)]
+        [ProtoMember]
         public MyObjectBuilder_GunBase GunBase;
 
-        [ProtoMember(15)]
+        [ProtoMember]
         public bool EnableIdleRotation = true;
 
-        [ProtoMember(16)]
+        [ProtoMember]
         public bool PreviousIdleRotationState = true;
 
-        [ProtoMember(17), DefaultValue(true)]
+        [ProtoMember, DefaultValue(true)]
         public bool TargetCharacters = true;
 
-        [ProtoMember(18), DefaultValue(true)]
+        [ProtoMember, DefaultValue(true)]
         public bool TargetSmallGrids = true;
 
-        [ProtoMember(19), DefaultValue(true)]
+        [ProtoMember, DefaultValue(true)]
         public bool TargetLargeGrids = true;
 
-        [ProtoMember(20), DefaultValue(true)]
+        [ProtoMember, DefaultValue(true)]
         public bool TargetStations = true;
 
         public override void SetupForProjector()

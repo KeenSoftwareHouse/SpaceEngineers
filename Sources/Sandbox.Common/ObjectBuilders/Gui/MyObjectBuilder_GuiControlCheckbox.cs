@@ -18,13 +18,13 @@ namespace Sandbox.Common.ObjectBuilders.Gui
     [MyObjectBuilderDefinition]
     public class MyObjectBuilder_GuiControlCheckbox : MyObjectBuilder_GuiControlBase
     {
-        [ProtoMember(1)]
+        [ProtoMember]
         public bool IsChecked;
                 
-        [ProtoMember(2)]
+        [ProtoMember]
         public string CheckedTexture;
 
-        [ProtoMember(3)]
+        [ProtoMember]
         public MyGuiControlCheckboxStyleEnum VisualStyle;
 
     }

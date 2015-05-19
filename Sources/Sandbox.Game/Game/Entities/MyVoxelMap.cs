@@ -139,6 +139,7 @@ namespace Sandbox.Game.Entities
             return true;
         }
 
+        // mk:TODO Remove. This shouldn't be used anymore.
         virtual public MyVoxelRangeType GetVoxelRangeTypeInBoundingBox(BoundingBoxD worldAabb)
         {
             Debug.Assert(Thread.CurrentThread == MySandboxGame.Static.UpdateThread);
@@ -153,6 +154,7 @@ namespace Sandbox.Game.Entities
             return MyVoxelRangeType.MIXED;
         }
 
+        // mk:TODO Remove since it's inaccurate and hard to use.
         override public float GetVoxelContentInBoundingBox(BoundingBoxD worldAabb, out float cellCount)
         {
             MyPrecalcComponent.AssertUpdateThread();
@@ -193,8 +195,64 @@ namespace Sandbox.Game.Entities
             }
             return result;
         }
+
+        public override bool IsOverlapOverThreshold(BoundingBoxD worldAabb, float thresholdPercentage)
+        {
+            MyPrecalcComponent.AssertUpdateThread();
+
+            Vector3I minCorner, maxCorner;
+            MyVoxelCoordSystems.WorldPositionToVoxelCoord(PositionLeftBottomCorner, ref worldAabb.Min, out minCorner);
+            MyVoxelCoordSystems.WorldPositionToVoxelCoord(PositionLeftBottomCorner, ref worldAabb.Max, out maxCorner);
+
+            minCorner += StorageMin;
+            maxCorner += StorageMin;
+
+            Storage.ClampVoxelCoord(ref minCorner);
+            Storage.ClampVoxelCoord(ref maxCorner);
+            m_storageCache.Resize(minCorner, maxCorner);
+            Storage.ReadRange(m_storageCache, MyStorageDataTypeFlags.Content, 0, ref minCorner, ref maxCorner);
+            BoundingBoxD voxelBox;
+
+            //MyRenderProxy.DebugDrawAABB(worldAabb, Color.White, 1f, 1f, true);
+
+            var invFullVoxel = 1.0 / (double)MyVoxelConstants.VOXEL_CONTENT_FULL_FLOAT;
+            var voxelVolume = 1.0 / (double)MyVoxelConstants.VOXEL_VOLUME_IN_METERS;
+            double overlapContentVolume = 0.0;
+
+            var queryVolume = worldAabb.Volume;
+
+            //using (var batch = MyRenderProxy.DebugDrawBatchAABB(Matrix.Identity, new Color(Color.Green, 0.1f), true, true))
+            {
+                Vector3I coord, cache;
+                for (coord.Z = minCorner.Z, cache.Z = 0; coord.Z <= maxCorner.Z; coord.Z++, cache.Z++)
+                {
+                    for (coord.Y = minCorner.Y, cache.Y = 0; coord.Y <= maxCorner.Y; coord.Y++, cache.Y++)
+                    {
+                        for (coord.X = minCorner.X, cache.X = 0; coord.X <= maxCorner.X; coord.X++, cache.X++)
+                        {
+                            MyVoxelCoordSystems.VoxelCoordToWorldAABB(PositionLeftBottomCorner, ref coord, out voxelBox);
+                            if (worldAabb.Intersects(voxelBox))
+                            {
+                                var contentVolume = m_storageCache.Content(ref cache) * invFullVoxel * voxelVolume;
+                                var overlapVolume = worldAabb.Intersect(voxelBox).Volume;
+                                overlapContentVolume += contentVolume * overlapVolume;
+
+                                //batch.Add(ref voxelBox);
+                            }
+                        }
+                    }
+                }
+            }
+
+            var overlapVolumePercentage = overlapContentVolume / queryVolume;
+            //MyRenderProxy.DebugDrawText3D(worldAabb.Center, overlapVolumePercentage.ToString("0.000"), Color.White, 1f, false);
+            return overlapVolumePercentage >= thresholdPercentage;
+        }
+
+
         //collisions
         //sphere vs voxel volumetric test
+        // mk:TODO Remove. This is not very accurate.
         public override bool DoOverlapSphereTest(float sphereRadius, Vector3D spherePos)
         {
             ProfilerShort.Begin("MyVoxelMap.DoOverlapSphereTest");

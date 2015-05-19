@@ -21,6 +21,7 @@
     <PlatformTarget>x86</PlatformTarget>
     <ErrorReport>prompt</ErrorReport>
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x86'">
     <OutputPath>bin\x86\Release\</OutputPath>
@@ -30,6 +31,7 @@
     <PlatformTarget>x86</PlatformTarget>
     <ErrorReport>prompt</ErrorReport>
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
     <DebugSymbols>true</DebugSymbols>
@@ -39,6 +41,7 @@
     <PlatformTarget>x64</PlatformTarget>
     <ErrorReport>prompt</ErrorReport>
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
     <OutputPath>bin\x64\Release\</OutputPath>
@@ -48,9 +51,11 @@
     <PlatformTarget>x64</PlatformTarget>
     <ErrorReport>prompt</ErrorReport>
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
+    <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.Configuration.Install" />
     <Reference Include="System.Core" />
     <Reference Include="System.Drawing" />
@@ -69,6 +74,13 @@
     <Compile Include="Configurator\AddNewInstanceForm.Designer.cs">
       <DependentUpon>AddNewInstanceForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="Configurator\ConfigForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Configurator\ConfigForm.Designer.cs">
+      <DependentUpon>ConfigForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Configurator\MyConfigurator.cs" />
     <Compile Include="Configurator\SelectInstanceForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -78,6 +90,12 @@
     <Compile Include="DedicatedServer.cs" />
     <Compile Include="MyPerDedicatedServerSettings.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="WindowsService.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="WindowsServiceInstaller.cs">
+      <SubType>Component</SubType>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <None Include="steam_api.dll">
@@ -123,14 +141,33 @@
     <EmbeddedResource Include="Configurator\AddNewInstanceForm.resx">
       <DependentUpon>AddNewInstanceForm.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="Configurator\ConfigForm.resx">
+      <DependentUpon>ConfigForm.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Configurator\SelectInstanceForm.resx">
       <DependentUpon>SelectInstanceForm.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Sandbox.Common\Sandbox.Common.csproj">
+      <Project>{2c96f0ab-7962-4b73-a075-b0e0b09f6195}</Project>
+      <Name>Sandbox.Common</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Sandbox.Game\Sandbox.Game.csproj">
+      <Project>{f77d0a49-f0a1-4e8a-80c8-cbe1842bf2d4}</Project>
+      <Name>Sandbox.Game</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Sandbox.Graphics\Sandbox.Graphics.csproj">
+      <Project>{f77d0a49-f0a1-4e8a-80c8-cbe1842ba2d4}</Project>
+      <Name>Sandbox.Graphics</Name>
+    </ProjectReference>
     <ProjectReference Include="..\VRage.Library\VRage.Library.csproj">
       <Project>{26fe022e-42ab-40be-ba9d-97cbe34e7d99}</Project>
       <Name>VRage.Library</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\VRage.Render\VRage.Render.csproj">
+      <Project>{1713e6cd-808a-4a44-9532-04771499bb01}</Project>
+      <Name>VRage.Render</Name>
     </ProjectReference>
     <ProjectReference Include="..\VRage\VRage.csproj">
       <Project>{1c814936-c9a7-4faf-b543-28f021d98b6c}</Project>

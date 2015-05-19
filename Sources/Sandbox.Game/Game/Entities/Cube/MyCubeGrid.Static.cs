@@ -1764,11 +1764,10 @@ namespace Sandbox.Game.Entities
                     var invWorldMatrix = grid.PositionComp.WorldMatrixNormalizedInv;
                     var otherLocalAabb = worldAabb.Transform(ref invWorldMatrix);
 
-                    otherLocalAabb.Max -= grid.GridSize; // when grid size is 1^3, this ensures max and min are the same
-                    var scaledMin = otherLocalAabb.Min / grid.GridSize;
+					var scaledMin = otherLocalAabb.Min / grid.GridSize;
                     var scaledMax = otherLocalAabb.Max / grid.GridSize;
-                    var min = Vector3I.Round(scaledMin + 0.5f);
-                    var max = Vector3I.Round(scaledMax + 0.5f);
+                    var min = Vector3I.Round(scaledMin);
+                    var max = Vector3I.Round(scaledMax);
 
                     MyBlockOrientation? gridBlockOrientation = null;
                     if (MyFakes.ENABLE_COMPOUND_BLOCKS && isStatic && grid.IsStatic && blockOrientation != null)

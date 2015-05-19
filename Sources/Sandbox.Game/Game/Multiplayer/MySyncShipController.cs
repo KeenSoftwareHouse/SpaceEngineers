@@ -40,11 +40,11 @@ namespace Sandbox.Game.Multiplayer
         [MessageIdAttribute(2487, P2PMessageEnum.Reliable)]
         protected struct AttachAutopilotMsg : IEntityMessage
         {
-            [ProtoMember(1)]
+            [ProtoMember]
             public long EntityId;
             public long GetEntityId() { return EntityId; }
 
-            [ProtoMember(2)]
+            [ProtoMember]
             public MyObjectBuilder_AutopilotBase Autopilot;
         }
 

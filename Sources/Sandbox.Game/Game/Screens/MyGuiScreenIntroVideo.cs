@@ -11,7 +11,6 @@ using VRage.FileSystem;
 using VRage.Input;
 using VRage.Library.Utils;
 using VRage.Utils;
-using VRage.Utils;
 using VRageMath;
 using VRageRender;
 
@@ -42,7 +41,7 @@ namespace Sandbox.Game.Gui
         bool m_playbackStarted;
 
         string[] m_videos;
-        string m_currentVideo;
+        string m_currentVideo = "";
         List<Subtitle> m_subtitles = new List<Subtitle>();
         int m_currentSubtitleIndex = 0;
 
@@ -83,7 +82,10 @@ namespace Sandbox.Game.Gui
         private void LoadRandomVideo()
         {
             int index = MyUtils.GetRandomInt(0, m_videos.Length);
-            m_currentVideo = m_videos[index];
+            if (index > 0)
+            {
+                m_currentVideo = m_videos[index];
+            }
         }
 
         public override void LoadContent()

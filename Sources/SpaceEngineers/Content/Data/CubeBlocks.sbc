@@ -13293,7 +13293,7 @@
       </Components>
       <CriticalComponent Subtype="Construction" Index="0" />
       <MountPoints>
-        <MountPoint Side="Back" ExclusionMask="3" PropertiesMask="3" StartX="0.4" StartY="0.44" EndX="0.6" EndY="0.55" />
+        <MountPoint Side="Back" ExclusionMask="3" PropertiesMask="3" StartY="0.4" StartX="0.44" EndY="0.6" EndX="0.55" />
       </MountPoints>
       <BuildProgressModels>
         <Model BuildPercentUpperBound="1.00" File="Models\Cubes\Large\ControlPanelConstruction_1.mwm" />
@@ -16098,6 +16098,7 @@
       <EdgeType>Light</EdgeType>
       <BuildTimeSeconds>20</BuildTimeSeconds>
       <DamageEffectId>214</DamageEffectId>
+      <MaxRange>50</MaxRange>
     </Definition>
     <Definition xsi:type="MyObjectBuilder_SensorBlockDefinition">
       <Id>
@@ -16133,6 +16134,7 @@
       <EdgeType>Light</EdgeType>
       <BuildTimeSeconds>20</BuildTimeSeconds>
       <DamageEffectId>214</DamageEffectId>
+      <MaxRange>50</MaxRange>
     </Definition>
     <Definition>
       <Id>
@@ -16186,7 +16188,7 @@
       </Components>
       <CriticalComponent Subtype="Computer" Index="0" />
       <MountPoints>
-        <MountPoint Side="Back" StartX="0" StartY="0" EndX="1" EndY="1" />
+        <MountPoint Side="Back" StartX="0.4" StartY="0.4" EndX="0.6" EndY="0.6" />
       </MountPoints>
       <BuildProgressModels>
         <Model BuildPercentUpperBound="0.50" File="Models\Cubes\Large\SoundBlockConstruction_1.mwm" />

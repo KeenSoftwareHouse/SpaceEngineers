@@ -259,7 +259,8 @@ namespace Sandbox.Game.Entities.Cube
                 {
                     self.sync.ChangePerm(v);
                 };
-                isPerm.Enabled = (self) => self.State==StateEnum.connected;
+            isPerm.Enabled = (self) => self.State==StateEnum.connected;
+            isPerm.EnableAction();
             MyTerminalControlFactory.AddControl(isPerm);
 
             //--------------------------------------------------------------------------------------
@@ -1342,6 +1343,6 @@ namespace Sandbox.Game.Entities.Cube
         /*public override void DebugDraw()
         {
             MyRenderProxy.DebugDrawLine3D(m_origin, FrontPoint, Color.Red, Color.Blue, false);
-        } */   
+        } */
     }
 }

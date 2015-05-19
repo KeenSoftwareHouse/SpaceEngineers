@@ -13,7 +13,7 @@ namespace Sandbox.Common.ObjectBuilders.AI
     public class MyObjectBuilder_BehaviorTreeNodeMemory : MyObjectBuilder_Base
     {
         [XmlAttribute]
-        [ProtoMember(1), DefaultValue(false)]
+        [ProtoMember, DefaultValue(false)]
         public bool InitCalled = false;
 
     }

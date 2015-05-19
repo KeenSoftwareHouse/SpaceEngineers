@@ -47,17 +47,17 @@ namespace Sandbox.Game.Multiplayer
         [ProtoContract]
         struct AddMsg
         {
-            [ProtoMember(1)]
+            [ProtoMember]
             public long IdentityId;
-            [ProtoMember(2)]
+            [ProtoMember]
             public string Name;
-            [ProtoMember(3)]
+            [ProtoMember]
             public string Description;
-            [ProtoMember(4)]
+            [ProtoMember]
             public Vector3D Coords;
-            [ProtoMember(5)]
+            [ProtoMember]
             public bool ShowOnHud;
-            [ProtoMember(6)]
+            [ProtoMember]
             public bool IsFinal;
         }
 
@@ -80,15 +80,15 @@ namespace Sandbox.Game.Multiplayer
         [ProtoContract]
         struct ModifyMsg
         {
-            [ProtoMember(1)]
+            [ProtoMember]
             public long IdentityId;
-            [ProtoMember(2)]
+            [ProtoMember]
             public int Hash;
-            [ProtoMember(3)]
+            [ProtoMember]
             public string Name;
-            [ProtoMember(4)]
+            [ProtoMember]
             public string Description;
-            [ProtoMember(5)]
+            [ProtoMember]
             public Vector3D Coords;
         }
 

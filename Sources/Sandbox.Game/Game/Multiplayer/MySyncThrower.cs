@@ -32,15 +32,15 @@ namespace Sandbox.Game.Multiplayer
         [MessageId(11889, P2PMessageEnum.Reliable)]
         struct ThrowMsg
         {
-            [ProtoMember(1)]
+            [ProtoMember]
             public MyObjectBuilder_CubeGrid Grid;
-            [ProtoMember(2)]
+            [ProtoMember]
             public Vector3D Position;
-            [ProtoMember(3)]
+            [ProtoMember]
             public Vector3D LinearVelocity;
-            [ProtoMember(4)]
+            [ProtoMember]
             public float Mass;
-            [ProtoMember(5)]
+            [ProtoMember]
             public MyStringId ThrowSound;
         }
 

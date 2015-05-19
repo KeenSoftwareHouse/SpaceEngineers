@@ -10000,6 +10000,16 @@ namespace Sandbox.Game.Localization
         public static readonly MyStringId NotificationJoystickCompoundBuildingFormat = MyStringId.GetOrCompute("NotificationJoystickCompoundBuildingFormat");
 
         ///<summary>
+        ///Extend
+        ///</summary>
+        public static readonly MyStringId BlockActionTitle_Extend = MyStringId.GetOrCompute("BlockActionTitle_Extend");
+
+        ///<summary>
+        ///Retract
+        ///</summary>
+        public static readonly MyStringId BlockActionTitle_Retract = MyStringId.GetOrCompute("BlockActionTitle_Retract");
+
+        ///<summary>
         ///Press {0} to access control menu
         ///</summary>
         public static readonly MyStringId NotificationJoystickControlMenuFormat = MyStringId.GetOrCompute("NotificationJoystickControlMenuFormat");
@@ -10063,5 +10073,40 @@ namespace Sandbox.Game.Localization
         ///Access control menu to setup panel's buttons
         ///</summary>
         public static readonly MyStringId NotificationHintJoystickPressToOpenButtonPanel = MyStringId.GetOrCompute("NotificationHintJoystickPressToOpenButtonPanel");
+
+        ///<summary>
+        ///Access control menu to open inventory of {0}
+        ///</summary>
+        public static readonly MyStringId NotificationHintJoystickPressToOpenInventory = MyStringId.GetOrCompute("NotificationHintJoystickPressToOpenInventory");
+
+        ///<summary>
+        ///Press {0} to enter build mode
+        ///</summary>
+        public static readonly MyStringId NotificationHintPressToOpenBuildMode = MyStringId.GetOrCompute("NotificationHintPressToOpenBuildMode");
+
+        ///<summary>
+        ///Joining battle lobby
+        ///</summary>
+        public static readonly MyStringId DialogTextJoiningBattleLobby = MyStringId.GetOrCompute("DialogTextJoiningBattleLobby");
+
+        ///<summary>
+        ///Joining battle lobby failed, reason: {0}
+        ///</summary>
+        public static readonly MyStringId DialogTextJoinBattleLobbyFailed = MyStringId.GetOrCompute("DialogTextJoinBattleLobbyFailed");
+
+        ///<summary>
+        ///Press {0} to enter cryo chamber
+        ///</summary>
+        public static readonly MyStringId NotificationHintPressToEnterCryochamber = MyStringId.GetOrCompute("NotificationHintPressToEnterCryochamber");
+
+        ///<summary>
+        ///Press {0} to leave cryo chamber
+        ///</summary>
+        public static readonly MyStringId NotificationHintLeaveCryoChamber = MyStringId.GetOrCompute("NotificationHintLeaveCryoChamber");
+
+        ///<summary>
+        ///Old Scrap Metal
+        ///</summary>
+        public static readonly MyStringId DisplayName_Item_ScrapIngot = MyStringId.GetOrCompute("DisplayName_Item_ScrapIngot");
     }
 }

@@ -22,13 +22,22 @@ namespace Sandbox.Common.AI
         [MyBehaviorTreeAction("IsAtTargetPosition", ReturnsRunning = false)]
         protected abstract MyBehaviorTreeState Condition_IsAtTargetPosition([BTParam] float radius);
 
+		[MyBehaviorTreeAction("IsAtTargetPositionCylinder", ReturnsRunning = false)]
+		protected abstract MyBehaviorTreeState Condition_IsAtTargetPositionCylinder([BTParam] float radius, [BTParam] float height);
+
         [MyBehaviorTreeAction("IsNotAtTargetPosition", ReturnsRunning = false)]
         protected abstract MyBehaviorTreeState Condition_IsNotAtTargetPosition([BTParam] float radius);
 
         [MyBehaviorTreeAction("SetTarget", ReturnsRunning = false)]
         protected abstract MyBehaviorTreeState Action_SetTarget([BTIn] ref MyBBMemoryTarget inTarget);
 
+		[MyBehaviorTreeAction("ClearTarget", ReturnsRunning = false)]
+		protected abstract MyBehaviorTreeState Action_ClearTarget([BTInOut] ref MyBBMemoryTarget inTarget);
+
         [MyBehaviorTreeAction("IsTargetValid", ReturnsRunning = false)]
         protected abstract MyBehaviorTreeState Condition_IsTargetValid([BTIn] ref MyBBMemoryTarget inTarget);
+
+		[MyBehaviorTreeAction("HasPlaceArea", ReturnsRunning = false)]
+		protected abstract MyBehaviorTreeState Condition_HasTargetArea([BTIn] ref MyBBMemoryTarget inTarget);
     }
 }
