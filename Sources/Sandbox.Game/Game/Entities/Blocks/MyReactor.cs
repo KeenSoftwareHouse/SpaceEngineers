@@ -81,7 +81,7 @@ namespace Sandbox.Game.Entities
             m_inventory.Constraint = m_reactorDefinition.InventoryConstraint;
             RefreshRemainingCapacity();
 
-            if (MyPerGameSettings.InventoryMass)
+            if (MySession.Static.Settings.EnableInventoryMass)
             {
                 m_inventory.ContentsChanged += Inventory_ContentsChanged;
             }
@@ -110,7 +110,7 @@ namespace Sandbox.Game.Entities
         internal override float GetMass()
         {
             var mass = base.GetMass();
-            if (MyPerGameSettings.InventoryMass)
+            if (MySession.Static.Settings.EnableInventoryMass)
                 return mass + (float)m_inventory.CurrentMass;
             else
                 return mass;
@@ -273,7 +273,7 @@ namespace Sandbox.Game.Entities
             {
                 var amountAvailable = m_inventory.GetItemAmount(m_reactorDefinition.FuelId);
                 m_inventory.RemoveItemsOfType(amountAvailable, m_reactorDefinition.FuelId);
-                if (MyPerGameSettings.InventoryMass)
+                if (MySession.Static.Settings.EnableInventoryMass)
                     m_inventory.ContentsChanged += Inventory_ContentsChanged;
             }
 
