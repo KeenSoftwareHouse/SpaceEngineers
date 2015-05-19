@@ -15,31 +15,31 @@ namespace Sandbox.Common.ObjectBuilders.Definitions
         [ProtoContract]
         public struct ContactSound
         {
-            [ProtoMember(1)]
+            [ProtoMember]
             public string Type;
-            [ProtoMember(2)]
+            [ProtoMember]
             public string Material;
-            [ProtoMember(3)]
+            [ProtoMember]
             public string Cue;
         }
 
         [ProtoContract]
         public struct GeneralSound
         {
-            [ProtoMember(1)]
+            [ProtoMember]
             public string Type;
-            [ProtoMember(2)]
+            [ProtoMember]
             public string Cue;
         }
 
-        [ProtoMember(1)]
+        [ProtoMember]
         public List<ContactSound> ContactSounds;
 
         [XmlArrayItem("Sound")]
-        [ProtoMember(2)]
+        [ProtoMember]
         public List<GeneralSound> GeneralSounds;
 
-        [ProtoMember(3)]
+        [ProtoMember]
         public string InheritFrom;
     }
 }

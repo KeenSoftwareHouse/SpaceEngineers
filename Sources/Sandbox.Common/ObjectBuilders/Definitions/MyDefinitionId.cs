@@ -121,9 +121,9 @@ namespace Sandbox.Definitions
     {
         // 6B (ushort + int)
 
-        [ProtoMember(1)]
+        [ProtoMember]
         public MyRuntimeObjectBuilderId TypeId;
-        [ProtoMember(2)]
+        [ProtoMember]
         public MyStringId SubtypeId;
 
         public DefinitionIdBlit(MyObjectBuilderType type, MyStringId subtypeId)

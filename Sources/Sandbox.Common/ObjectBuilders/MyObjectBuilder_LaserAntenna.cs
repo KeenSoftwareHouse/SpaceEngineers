@@ -7,19 +7,19 @@ namespace Sandbox.Common.ObjectBuilders
     [MyObjectBuilderDefinition]
     public class MyObjectBuilder_LaserAntenna : MyObjectBuilder_FunctionalBlock
     {
-        [ProtoMember(1)]
+        [ProtoMember]
         public byte State;
-        [ProtoMember(2)]
+        [ProtoMember]
         public long? targetEntityId;
-        [ProtoMember(3)]
+        [ProtoMember]
         public Vector3D? gpsTarget;
-        [ProtoMember(4)]
+        [ProtoMember]
         public string gpsTargetName;
-        [ProtoMember(5)]
+        [ProtoMember]
         public Vector3D LastTargetPosition;
-        [ProtoMember(6)]
+        [ProtoMember]
         public Vector2 HeadRotation;
-        [ProtoMember(7)]
+        [ProtoMember]
         public string LastKnownTargetName;
     }
 }

@@ -1053,7 +1053,7 @@ namespace Sandbox.Game.Entities
                             Matrix subGridWorldMatrix = subBlockMatrix * PositionComp.LocalMatrix * CubeGrid.WorldMatrix;
 
                             //TODO: Try to find better way how to sync entity ID of subblocks..
-                            subgrid = MyCubeBuilder.SpawnDynamicGrid(subBlockDefinition, subGridWorldMatrix, CubeGrid.EntityId + CubeGrid.BlocksCount * 128 + SubBlocks.Count * 16);
+                            subgrid = MyCubeBuilder.SpawnDynamicGrid(subBlockDefinition, subGridWorldMatrix, EntityId + SubBlocks.Count + 1);
                             if (subgrid != null)
                                 subblock = subgrid.GetCubeBlock(Vector3I.Zero);
                         }

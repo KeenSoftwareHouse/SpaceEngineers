@@ -510,5 +510,37 @@
 		<ScaleFar1>50</ScaleFar1>
 		<ScaleFar2>100</ScaleFar2>
 		</VoxelMaterial>
+		<VoxelMaterial xsi:type="MyObjectBuilder_Dx11VoxelMaterialDefinition">
+      <Id>
+        <TypeId>VoxelMaterialDefinition</TypeId>
+        <SubtypeId>Ice_02</SubtypeId>
+      </Id>
+      <MinedOre>Ice</MinedOre>
+      <MinedOreRatio>0.3</MinedOreRatio>
+      <CanBeHarvested>true</CanBeHarvested>
+      <IsRare>true</IsRare>
+      <IsIndestructible>false</IsIndestructible>
+      <DamageRatio>0.2</DamageRatio>
+      <DiffuseXZ>Textures\Voxels\Ice_02_ForAxisXZ_de.dds</DiffuseXZ>
+      <NormalXZ>Textures\Voxels\Ice_02_ForAxisXZ_ns.dds</NormalXZ>
+      <SpecularPower>21</SpecularPower>
+      <SpecularShininess>0.632</SpecularShininess>
+      <MinVersion>1</MinVersion>
+    <ColorMetalXZnY>Textures\Voxels\Ice_02_ForAxisXZ_cm.dds</ColorMetalXZnY>
+		<ColorMetalXZnYFar1>Textures\Voxels\Ice_02_ForAxisXZ_cm.dds</ColorMetalXZnYFar1>
+		<ColorMetalXZnYFar2>Textures\Voxels\Ice_02_ForAxisXZ_cm.dds</ColorMetalXZnYFar2>
+		<ColorMetalY>Textures\Voxels\Ice_02_ForAxisXZ_cm.dds</ColorMetalY>
+		<ColorMetalYFar1>Textures\Voxels\Ice_02_ForAxisXZ_cm.dds</ColorMetalYFar1>
+		<ColorMetalYFar2>Textures\Voxels\Ice_02_ForAxisXZ_cm.dds</ColorMetalYFar2>
+		<NormalGlossXZnY>Textures\Voxels\Ice_02_ForAxisXZ_ng.dds</NormalGlossXZnY>
+		<NormalGlossXZnYFar1>Textures\Voxels\Ice_02_ForAxisXZ_ng.dds</NormalGlossXZnYFar1>
+		<NormalGlossXZnYFar2>Textures\Voxels\Ice_02_ForAxisXZ_ng.dds</NormalGlossXZnYFar2>
+		<NormalGlossY>Textures\Voxels\Ice_02_ForAxisXZ_ng.dds</NormalGlossY>
+		<NormalGlossYFar1>Textures\Voxels\Ice_02_ForAxisXZ_ng.dds</NormalGlossYFar1>
+		<NormalGlossYFar2>Textures\Voxels\Ice_02_ForAxisXZ_ng.dds</NormalGlossYFar2>
+		<Scale>10</Scale>
+		<ScaleFar1>50</ScaleFar1>
+		<ScaleFar2>100</ScaleFar2>
+		</VoxelMaterial>
   </VoxelMaterials>
 </Definitions>

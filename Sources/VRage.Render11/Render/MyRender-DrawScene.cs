@@ -159,6 +159,12 @@ namespace VRageRender
                 MyImmediateRC.RC.Context.ClearState();
             }
 
+            MyRender11.GetRenderProfiler().StartProfilingBlock("Render decals");
+            MyGpuProfiler.IC_BeginBlock("Render decals");
+            MyScreenDecals.Draw();
+            MyGpuProfiler.IC_EndBlock();
+            MyRender11.GetRenderProfiler().EndProfilingBlock();
+
             MyRender11.GetRenderProfiler().StartProfilingBlock("Render foliage");
             MyGpuProfiler.IC_BeginBlock("Render foliage");
             MyFoliageRenderer.Render();
@@ -236,10 +242,10 @@ namespace VRageRender
             
             MyGpuProfiler.IC_EndBlock();
 
-            if(MyRender11.Settings.ShowLuminanceHistogram)
+            if(MyRender11.Settings.DispalyHdrDebug)
             {
                 var src = MyGBuffer.Main.Get(MyGbufferSlot.LBuffer) as MyRenderTarget;
-                MyLuminanceDebugTools.CreateHistogram(src.m_SRV, src.m_resolution, src.m_samples.X);
+                MyHdrDebugTools.CreateHistogram(src.m_SRV, src.m_resolution, src.m_samples.X);
             }
 
             
@@ -284,9 +290,9 @@ namespace VRageRender
                 MyCopyToRT.Run(Backbuffer, renderedImage);
             }
 
-            if(MyRender11.Settings.ShowLuminanceHistogram)
+            if(MyRender11.Settings.DispalyHdrDebug)
             {
-                MyLuminanceDebugTools.DisplayHistogram(Backbuffer.m_RTV);
+                MyHdrDebugTools.DisplayHistogram(Backbuffer.m_RTV, (avgLum as IShaderResourceBindable).SRV);
             }
 
             MyGpuProfiler.IC_EndBlock();

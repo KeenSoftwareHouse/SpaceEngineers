@@ -40,7 +40,7 @@ float3 ambient_specular(float3 f0, float gloss, float3 N, float3 V)
 	float nv = saturate(dot(N, V));
 
 	float3 R = 2 * nv * N - V;
-	R.x = -R.x;
+	//R.x = -R.x;
 
 	float3 sample = SkyboxIBLTex.SampleLevel(TextureSampler, R, (1 - gloss) * IBL_MAX_MIPMAP).xyz;
 	float3 sample1 = Skybox2IBLTex.SampleLevel(TextureSampler, R, (1 - gloss) * IBL_MAX_MIPMAP).xyz;
@@ -51,7 +51,7 @@ float3 ambient_specular(float3 f0, float gloss, float3 N, float3 V)
 
 float3 ambient_diffuse(float3 f0, float gloss, float3 N, float3 V)
 {
-	N.x = -N.x;
+	//N.x = -N.x;
 	float3 sample = SkyboxIBLTex.SampleLevel(TextureSampler, N, IBL_MAX_MIPMAP).xyz;
 	float3 sample1 = Skybox2IBLTex.SampleLevel(TextureSampler, N, IBL_MAX_MIPMAP).xyz;
 

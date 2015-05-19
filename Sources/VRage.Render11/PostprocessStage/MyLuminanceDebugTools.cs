@@ -10,9 +10,10 @@ using VRageRender.Resources;
 
 namespace VRageRender
 {
-    class MyLuminanceDebugTools : MyImmediateRC
+    class MyHdrDebugTools : MyImmediateRC
     {
         static PixelShaderId m_drawHistogram;
+        static PixelShaderId m_drawTonemapping;
         static ComputeShaderId m_buildHistogram;
         static RwTexId m_histogram;
 
@@ -24,8 +25,9 @@ namespace VRageRender
         {
             m_buildHistogram = MyShaders.CreateCs("histogram.hlsl", "build_histogram", MyShaderHelpers.FormatMacros("NUMTHREADS 8"));
             m_drawHistogram = MyShaders.CreatePs("data_visualization.hlsl", "display_histogram");
+            m_drawTonemapping = MyShaders.CreatePs("data_visualization.hlsl", "display_tonemapping");
 
-            m_histogram = MyRwTextures.CreateUav1D(512, SharpDX.DXGI.Format.R32_UInt, "histogram");
+            m_histogram = MyRwTextures.CreateUav1D(513, SharpDX.DXGI.Format.R32_UInt, "histogram");
         }
 
         internal static void CreateHistogram(ShaderResourceView texture, Vector2I resolution, int samples)
@@ -46,12 +48,15 @@ namespace VRageRender
             RC.Context.ComputeShader.Set(null);
         }
 
-        internal static void DisplayHistogram(RenderTargetView rtv)
+        internal static void DisplayHistogram(RenderTargetView rtv, ShaderResourceView avgLumSrv)
         {
-            RC.Context.PixelShader.SetShaderResource(0, m_histogram.ShaderView);
+            RC.Context.PixelShader.SetShaderResources(0, m_histogram.ShaderView, avgLumSrv);
             RC.Context.PixelShader.Set(m_drawHistogram);
             RC.Context.OutputMerger.SetRenderTargets(rtv);
             MyScreenPass.DrawFullscreenQuad(new MyViewport(64, 64, 512, 64));
+
+            RC.Context.PixelShader.Set(m_drawTonemapping);
+            MyScreenPass.DrawFullscreenQuad(new MyViewport(64, 128, 512, 64));
         }
     }
 }

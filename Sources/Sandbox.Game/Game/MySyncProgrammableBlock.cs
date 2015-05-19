@@ -106,13 +106,13 @@ namespace Sandbox.Game.Multiplayer
         [MessageIdAttribute(16279, P2PMessageEnum.Reliable)]
         protected struct UpdateProgramMsg : IEntityMessage
         { 
-            [ProtoBuf.ProtoMember(1)]
+            [ProtoBuf.ProtoMember]
             public long EntityId;
 
             public long GetEntityId() { return EntityId; }
-            [ProtoBuf.ProtoMember(2)]
+            [ProtoBuf.ProtoMember]
             public byte[] Program;
-            [ProtoBuf.ProtoMember(3)]
+            [ProtoBuf.ProtoMember]
             public byte[] Storage;
         }
 
@@ -120,11 +120,11 @@ namespace Sandbox.Game.Multiplayer
         [MessageIdAttribute(16280, P2PMessageEnum.Reliable)]
         protected struct RunProgramMsg : IEntityMessage
         {
-            [ProtoBuf.ProtoMember(1)]
+            [ProtoBuf.ProtoMember]
             public long EntityId;
 
             public long GetEntityId() { return EntityId; }
-            [ProtoBuf.ProtoMember(2)]
+            [ProtoBuf.ProtoMember]
             public byte[] Argument;
 
             [ProtoBuf.ProtoMember(3)]
@@ -135,12 +135,12 @@ namespace Sandbox.Game.Multiplayer
         [MessageIdAttribute(16281, P2PMessageEnum.Reliable)]
         protected struct ProgramResponseMsg : IEntityMessage
         {
-            [ProtoBuf.ProtoMember(1)]
+            [ProtoBuf.ProtoMember]
             public long EntityId;
 
             public long GetEntityId() { return EntityId; }
             
-            [ProtoBuf.ProtoMember(2)]
+            [ProtoBuf.ProtoMember]
             public string Response;
 
             [ProtoBuf.ProtoMember(3)]

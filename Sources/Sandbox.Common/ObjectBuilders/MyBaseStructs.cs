@@ -13,15 +13,15 @@ namespace Sandbox.Common.ObjectBuilders
     [ProtoContract]
     public struct MyPositionAndOrientation
     {
-        [ProtoMember(1)]
+        [ProtoMember]
         [XmlElement("Position")]
         public SerializableVector3D Position;    //  Position within sector
         
-        [ProtoMember(2)]
+        [ProtoMember]
         [XmlElement("Forward")]
         public SerializableVector3 Forward;     //  Forward vector (for orientation)
         
-        [ProtoMember(3)]
+        [ProtoMember]
         [XmlElement("Up")]
         public SerializableVector3 Up;          //  Up vector (for orientation)
 
@@ -63,13 +63,13 @@ namespace Sandbox.Common.ObjectBuilders
     [ProtoContract]
     public struct MyOrientation
     {
-        [ProtoMember(1), XmlAttribute]
+        [ProtoMember, XmlAttribute]
         public float Yaw;
 
-        [ProtoMember(2), XmlAttribute]
+        [ProtoMember, XmlAttribute]
         public float Pitch;
         
-        [ProtoMember(3), XmlAttribute]
+        [ProtoMember, XmlAttribute]
         public float Roll;
 
         public MyOrientation(float yaw, float pitch, float roll)

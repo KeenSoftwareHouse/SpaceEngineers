@@ -12,7 +12,7 @@ namespace Sandbox.Common.ObjectBuilders
     [MyObjectBuilderDefinition]
     public class MyObjectBuilder_Identity : MyObjectBuilder_Base
     {
-        //[ProtoMember(1)] Obsolete!
+        //[ProtoMember] Obsolete!
         public long PlayerId
         {
             get { Debug.Fail("Obsolete."); return IdentityId; }
@@ -20,19 +20,19 @@ namespace Sandbox.Common.ObjectBuilders
         }
         public bool ShouldSerializePlayerId() { return false; }
 
-        [ProtoMember(1)]
+        [ProtoMember]
         public long IdentityId;
 
-        [ProtoMember(2)]
+        [ProtoMember]
         public string DisplayName;
 
-        [ProtoMember(3)]
+        [ProtoMember]
         public long CharacterEntityId;
 
-        [ProtoMember(4)]
+        [ProtoMember]
         public string Model;
 
-        [ProtoMember(5)]
+        [ProtoMember]
         public SerializableVector3? ColorMask;
         public bool ShouldSerializeColorMask() { return ColorMask != null; }
     }

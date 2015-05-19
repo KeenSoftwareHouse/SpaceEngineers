@@ -17,13 +17,13 @@ namespace Sandbox.Common.ObjectBuilders
         [ProtoContract]
         public struct QueueItem
         {
-            [ProtoMember(1)]
+            [ProtoMember]
             public SerializableDefinitionId Id;
 
-            [ProtoMember(2)]
+            [ProtoMember]
             public MyFixedPoint Amount;
 
-            [ProtoMember(3)]
+            [ProtoMember]
             public uint? ItemId;
         }
 
@@ -37,20 +37,20 @@ namespace Sandbox.Common.ObjectBuilders
         }
         public bool ShouldSerializeInventory() { return false; }
 
-        [ProtoMember(1)]
+        [ProtoMember]
         public MyObjectBuilder_Inventory InputInventory;
 
-        [ProtoMember(2)]
+        [ProtoMember]
         public MyObjectBuilder_Inventory OutputInventory;
 
-        [ProtoMember(3)]
+        [ProtoMember]
         [XmlArrayItem("Item")]
         public QueueItem[] Queue;
 
-        [ProtoMember(4), DefaultValue(true)]
+        [ProtoMember, DefaultValue(true)]
         public bool UseConveyorSystem = true;
 
-        [ProtoMember(5), DefaultValue(0)]
+        [ProtoMember, DefaultValue(0)]
         public uint NextItemId = 0;
 
         public override void SetupForProjector()
@@ -58,6 +58,8 @@ namespace Sandbox.Common.ObjectBuilders
             base.SetupForProjector();
             if (Inventory != null)
                 Inventory.Clear();
+            if (OutputInventory != null)
+                OutputInventory.Clear();
         }
 
     }

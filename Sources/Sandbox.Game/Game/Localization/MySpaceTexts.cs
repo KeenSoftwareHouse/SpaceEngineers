@@ -9890,7 +9890,7 @@ namespace Sandbox.Game.Localization
         public static readonly MyStringId ControlMenuItemLabel_Dampeners = MyStringId.GetOrCompute("ControlMenuItemLabel_Dampeners");
 
         ///<summary>
-        ///An argument passed to your code when clicking the Run button. Pressing enter here will run the script.
+        ///An argument passed to your code when clicking the Run button
         ///</summary>
         public static readonly MyStringId TerminalControlPanel_RunArgument_ToolTip = MyStringId.GetOrCompute("TerminalControlPanel_RunArgument_ToolTip");
 
@@ -10000,6 +10000,16 @@ namespace Sandbox.Game.Localization
         public static readonly MyStringId NotificationJoystickCompoundBuildingFormat = MyStringId.GetOrCompute("NotificationJoystickCompoundBuildingFormat");
 
         ///<summary>
+        ///Extend
+        ///</summary>
+        public static readonly MyStringId BlockActionTitle_Extend = MyStringId.GetOrCompute("BlockActionTitle_Extend");
+
+        ///<summary>
+        ///Retract
+        ///</summary>
+        public static readonly MyStringId BlockActionTitle_Retract = MyStringId.GetOrCompute("BlockActionTitle_Retract");
+
+        ///<summary>
         ///Press {0} to access control menu
         ///</summary>
         public static readonly MyStringId NotificationJoystickControlMenuFormat = MyStringId.GetOrCompute("NotificationJoystickControlMenuFormat");
@@ -10065,13 +10075,38 @@ namespace Sandbox.Game.Localization
         public static readonly MyStringId NotificationHintJoystickPressToOpenButtonPanel = MyStringId.GetOrCompute("NotificationHintJoystickPressToOpenButtonPanel");
 
         ///<summary>
-        ///Clear argument after running
+        ///Access control menu to open inventory of {0}
         ///</summary>
-        public static readonly MyStringId TerminalControlPanel_ClearArgumentOnRun = MyStringId.GetOrCompute("TerminalControlPanel_ClearArgumentOnRun");
+        public static readonly MyStringId NotificationHintJoystickPressToOpenInventory = MyStringId.GetOrCompute("NotificationHintJoystickPressToOpenInventory");
 
         ///<summary>
-        ///Clears the argument box when clicking the Run button.
+        ///Press {0} to enter build mode
         ///</summary>
-        public static readonly MyStringId TerminalControlPanel_ClearArgumentOnRun_ToolTip = MyStringId.GetOrCompute("TerminalControlPanel_ClearArgumentOnRun_ToolTip");
+        public static readonly MyStringId NotificationHintPressToOpenBuildMode = MyStringId.GetOrCompute("NotificationHintPressToOpenBuildMode");
+
+        ///<summary>
+        ///Joining battle lobby
+        ///</summary>
+        public static readonly MyStringId DialogTextJoiningBattleLobby = MyStringId.GetOrCompute("DialogTextJoiningBattleLobby");
+
+        ///<summary>
+        ///Joining battle lobby failed, reason: {0}
+        ///</summary>
+        public static readonly MyStringId DialogTextJoinBattleLobbyFailed = MyStringId.GetOrCompute("DialogTextJoinBattleLobbyFailed");
+
+        ///<summary>
+        ///Press {0} to enter cryo chamber
+        ///</summary>
+        public static readonly MyStringId NotificationHintPressToEnterCryochamber = MyStringId.GetOrCompute("NotificationHintPressToEnterCryochamber");
+
+        ///<summary>
+        ///Press {0} to leave cryo chamber
+        ///</summary>
+        public static readonly MyStringId NotificationHintLeaveCryoChamber = MyStringId.GetOrCompute("NotificationHintLeaveCryoChamber");
+
+        ///<summary>
+        ///Old Scrap Metal
+        ///</summary>
+        public static readonly MyStringId DisplayName_Item_ScrapIngot = MyStringId.GetOrCompute("DisplayName_Item_ScrapIngot");
     }
 }

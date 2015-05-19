@@ -8,49 +8,49 @@ namespace Sandbox.Common.ObjectBuilders.VRageData
     [MyObjectBuilderDefinition]
     public class MyObjectBuilder_TransparentMaterial : MyObjectBuilder_Base
     {
-        [ProtoMember(1)]
+        [ProtoMember]
         public string Name;
 
-        [ProtoMember(2)]
+        [ProtoMember]
         public bool AlphaMistingEnable;
 
-        [ProtoMember(3), DefaultValue(1)]
+        [ProtoMember, DefaultValue(1)]
         public float AlphaMistingStart = 1;
 
-        [ProtoMember(4), DefaultValue(4)]
+        [ProtoMember, DefaultValue(4)]
         public float AlphaMistingEnd = 4;
 
-        [ProtoMember(5), DefaultValue(1)]
+        [ProtoMember, DefaultValue(1)]
         public float AlphaSaturation = 1;
 
-        [ProtoMember(6)]
+        [ProtoMember]
         public bool CanBeAffectedByOtherLights;
 
-        [ProtoMember(7)]
+        [ProtoMember]
         public float Emissivity;
 
-        [ProtoMember(8)]
+        [ProtoMember]
         public bool IgnoreDepth;
 
-        [ProtoMember(9), DefaultValue(true)]
+        [ProtoMember, DefaultValue(true)]
         public bool NeedSort = true;
 
-        [ProtoMember(10)]
+        [ProtoMember]
         public float SoftParticleDistanceScale;
 
-        [ProtoMember(11)]
+        [ProtoMember]
         public string Texture;
 
-        [ProtoMember(12)]
+        [ProtoMember]
         public bool UseAtlas;
 
-        [ProtoMember(13)]
+        [ProtoMember]
         public Vector2 UVOffset = new Vector2(0, 0);
 
-        [ProtoMember(14)]
+        [ProtoMember]
         public Vector2 UVSize = new Vector2(1, 1);
 
-        [ProtoMember(15)]
+        [ProtoMember]
         public bool Reflection;
     }
 }

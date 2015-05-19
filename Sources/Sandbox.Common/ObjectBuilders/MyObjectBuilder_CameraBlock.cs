@@ -11,12 +11,12 @@ namespace Sandbox.Common.ObjectBuilders
     [MyObjectBuilderDefinition]
     public class MyObjectBuilder_CameraBlock : MyObjectBuilder_FunctionalBlock
     {
-        [ProtoMember(1)]
+        [ProtoMember]
         public bool IsActive;
 
         //By default set to maximum FOV value
         //Will get clamped to actual FOV in init
-        [ProtoMember(2)]
+        [ProtoMember]
         public float Fov = 90;
     }
 }

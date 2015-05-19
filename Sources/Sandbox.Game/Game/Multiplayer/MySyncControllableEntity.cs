@@ -62,18 +62,18 @@ namespace Sandbox.Game.Multiplayer
         [MessageId(8, P2PMessageEnum.Reliable)]
         struct SwitchToWeaponMsg : IEntityMessage
         {
-            [ProtoMember(1)]
+            [ProtoMember]
             public long ControlledEntityId;
             public long GetEntityId() { return ControlledEntityId; }
 
-            [ProtoMember(2)]
+            [ProtoMember]
             public SerializableDefinitionId? Weapon;
 
             //TODO: Temporary until inventory synchronization is done
-            [ProtoMember(3)]
+            [ProtoMember]
             public MyObjectBuilder_EntityBase WeaponObjectBuilder;
 
-            [ProtoMember(4)]
+            [ProtoMember]
             public long WeaponEntityId;
         }
 
@@ -81,7 +81,7 @@ namespace Sandbox.Game.Multiplayer
         [MessageId(89, P2PMessageEnum.Reliable)]
         struct SwitchAmmoMagazineMsg : IEntityMessage
         {
-            [ProtoMember(1)]
+            [ProtoMember]
             public long ControlledEntityId;
             public long GetEntityId() { return ControlledEntityId; }
         }

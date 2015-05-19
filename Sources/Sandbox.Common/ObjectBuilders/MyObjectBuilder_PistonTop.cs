@@ -10,7 +10,7 @@ namespace Sandbox.Common.ObjectBuilders
     [MyObjectBuilderDefinition]
     public class MyObjectBuilder_PistonTop : MyObjectBuilder_CubeBlock
     {
-        [ProtoMember(1)]
+        [ProtoMember]
         public long PistonBlockId;
 
         public override void Remap(IMyRemapHelper remapHelper)

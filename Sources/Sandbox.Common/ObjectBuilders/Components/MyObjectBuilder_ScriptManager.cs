@@ -13,7 +13,7 @@ namespace Sandbox.Common.ObjectBuilders
     [MyObjectBuilderDefinition]
     public class MyObjectBuilder_ScriptManager : MyObjectBuilder_SessionComponent
     {
-        [ProtoMember(1)]
+        [ProtoMember]
         public SerializableDictionary<string, object> variables=new SerializableDictionary<string,object>();
     }
 }

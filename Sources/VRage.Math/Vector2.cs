@@ -19,12 +19,12 @@ namespace VRageMath
         /// <summary>
         /// Gets or sets the x-component of the vector.
         /// </summary>
-        [ProtoBuf.ProtoMember(1)]
+        [ProtoBuf.ProtoMember]
         public float X;
         /// <summary>
         /// Gets or sets the y-component of the vector.
         /// </summary>
-        [ProtoBuf.ProtoMember(2)]
+        [ProtoBuf.ProtoMember]
         public float Y;
 
         static Vector2()

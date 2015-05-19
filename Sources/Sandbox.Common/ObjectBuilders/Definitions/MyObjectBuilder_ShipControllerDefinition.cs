@@ -12,9 +12,9 @@ namespace Sandbox.Common.ObjectBuilders.Definitions
     [MyObjectBuilderDefinition]
     public class MyObjectBuilder_ShipControllerDefinition : MyObjectBuilder_CubeBlockDefinition
     {
-        [ProtoMember(1)]
+        [ProtoMember]
         public bool EnableFirstPerson;
-        [ProtoMember(2)]
+        [ProtoMember]
         public bool EnableShipControl;
     }
 }

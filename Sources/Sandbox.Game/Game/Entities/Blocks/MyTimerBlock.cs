@@ -57,14 +57,14 @@ namespace Sandbox.Game.Entities.Blocks
             [MessageIdAttribute(2460, P2PMessageEnum.Reliable)]
             protected struct ChangeToolbarItemMsg : IEntityMessage
             {
-                [ProtoMember(1)]
+                [ProtoMember]
                 public long EntityId;
                 public long GetEntityId() { return EntityId; }
 
-                [ProtoMember(2)]
+                [ProtoMember]
                 public ToolbarItem Item;
 
-                [ProtoMember(3)]
+                [ProtoMember]
                 public int Index;
             }
 

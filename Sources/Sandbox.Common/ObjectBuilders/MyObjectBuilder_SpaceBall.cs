@@ -10,16 +10,16 @@ namespace Sandbox.Common.ObjectBuilders
     [MyObjectBuilderDefinition]
     public class MyObjectBuilder_SpaceBall : MyObjectBuilder_FunctionalBlock
     {
-        [ProtoMember(1)]
+        [ProtoMember]
         public float VirtualMass = 100;
 
-        [ProtoMember(2)]
+        [ProtoMember]
         public float Friction = 0.5f;
 
-        [ProtoMember(3)]
+        [ProtoMember]
         public float Restitution = 0.5f;
 
-        [ProtoMember(4)]
+        [ProtoMember]
         public bool EnableBroadcast = true;
     }
 }

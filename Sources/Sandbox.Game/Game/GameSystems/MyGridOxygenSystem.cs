@@ -1387,9 +1387,9 @@ namespace Sandbox.Game.GameSystems
             [MessageIdAttribute(7900, P2PMessageEnum.Unreliable)]
             protected struct UpdateOxygenAmountMsg
             {
-                [ProtoMember(1)]
+                [ProtoMember]
                 public long EntityId;
-                [ProtoMember(2)]
+                [ProtoMember]
                 public float[] OxygenAmount;
             }
 

@@ -12,10 +12,10 @@ namespace Sandbox.Common.ObjectBuilders.Definitions
     [MyObjectBuilderDefinition]
     public class MyObjectBuilder_ReactorDefinition : MyObjectBuilder_PowerProducerDefinition
     {
-        [ProtoMember(1)]
+        [ProtoMember]
         public Vector3 InventorySize = new Vector3(10, 10, 10);
 
-        [ProtoMember(2)]
+        [ProtoMember]
         public SerializableDefinitionId FuelId = new SerializableDefinitionId(typeof(MyObjectBuilder_Ingot), "Uranium");
     }
 }

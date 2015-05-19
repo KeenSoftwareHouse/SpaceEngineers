@@ -320,7 +320,11 @@ namespace Sandbox.Game.Weapons
 
         protected override void AddHudInfo()
         {
-            m_weldingHintNotification.SetTextFormatArguments(MyInput.Static.GetGameControl(MyControlsSpace.PRIMARY_TOOL_ACTION));
+            if (MyInput.Static.IsJoystickConnected())
+                m_weldingHintNotification.SetTextFormatArguments(MyInput.Static.GetGameControl(MyControlsSpace.PRIMARY_TOOL_ACTION));
+            else
+                m_weldingHintNotification.SetTextFormatArguments(MyControllerHelper.GetCodeForControl(MySpaceBindingCreator.CX_CHARACTER, MyControlsSpace.PRIMARY_TOOL_ACTION));
+
             MyHud.Notifications.Add(m_weldingHintNotification);
         }
 

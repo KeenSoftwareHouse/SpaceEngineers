@@ -11,19 +11,19 @@ namespace Sandbox.Common.ObjectBuilders.Definitions
     [MyObjectBuilderDefinition]
     public class MyObjectBuilder_OxygenFarmDefinition : MyObjectBuilder_CubeBlockDefinition
     {
-        [ProtoMember(1)]
+        [ProtoMember]
         public Vector3 PanelOrientation = new Vector3(0, 0, 0);
 
-        [ProtoMember(2)]
+        [ProtoMember]
         public bool TwoSidedPanel = true;
 
-        [ProtoMember(3)]
+        [ProtoMember]
         public float PanelOffset = 1;
 
-        [ProtoMember(4)]
+        [ProtoMember]
         public float MaxOxygenOutput = 0f;
 
-        [ProtoMember(5)]
+        [ProtoMember]
         public float OperationalPowerConsumption = 0.001f;
     }
 }

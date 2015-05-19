@@ -16,34 +16,34 @@ namespace Sandbox.Common.ObjectBuilders.Definitions
         public class ContainerTypeItem
         {
             [XmlAttribute]
-            [ProtoMember(1)]
+            [ProtoMember]
             public string AmountMin;
 
             [XmlAttribute]
-            [ProtoMember(2)]
+            [ProtoMember]
             public string AmountMax;
 
-            [ProtoMember(3), DefaultValue(1.0f)]
+            [ProtoMember, DefaultValue(1.0f)]
             public float Frequency = 1.0f;
 
-            [ProtoMember(4)]
+            [ProtoMember]
             public SerializableDefinitionId Id;
         }
 
         //[XmlAttribute]
-        //[ProtoMember(1)]
+        //[ProtoMember]
         //public String Name;
 
         [XmlAttribute]
-        [ProtoMember(2)]
+        [ProtoMember]
         public int CountMin;
 
         [XmlAttribute]
-        [ProtoMember(3)]
+        [ProtoMember]
         public int CountMax;
 
         [XmlArrayItem("Item")]
-        [ProtoMember(4)]
+        [ProtoMember]
         public ContainerTypeItem[] Items;
     }
 }

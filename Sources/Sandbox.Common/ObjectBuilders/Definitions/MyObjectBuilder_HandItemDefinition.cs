@@ -13,123 +13,123 @@ namespace Sandbox.Common.ObjectBuilders.Definitions
     [MyObjectBuilderDefinition]
     public class MyObjectBuilder_HandItemDefinition : MyObjectBuilder_DefinitionBase
     {
-        [ProtoMember(1)]
+        [ProtoMember]
         public Quaternion LeftHandOrientation;
 
-        [ProtoMember(2)]
+        [ProtoMember]
         public Vector3 LeftHandPosition;
 
-        [ProtoMember(3)]
+        [ProtoMember]
         public Quaternion RightHandOrientation;
 
-        [ProtoMember(4)]
+        [ProtoMember]
         public Vector3 RightHandPosition;
 
-        [ProtoMember(5)]
+        [ProtoMember]
         public Quaternion ItemOrientation;
 
-        [ProtoMember(6)]
+        [ProtoMember]
         public Vector3 ItemPosition;
 
-        [ProtoMember(7)]
+        [ProtoMember]
         public Quaternion ItemWalkingOrientation;
 
-        [ProtoMember(8)]
+        [ProtoMember]
         public Vector3 ItemWalkingPosition;
 
-        [ProtoMember(9)]
+        [ProtoMember]
         public float BlendTime;
 
-        [ProtoMember(10)]
+        [ProtoMember]
         public float XAmplitudeOffset;
-        [ProtoMember(11)]
+        [ProtoMember]
         public float YAmplitudeOffset;
-        [ProtoMember(12)]
+        [ProtoMember]
         public float ZAmplitudeOffset;
 
-        [ProtoMember(13)]
+        [ProtoMember]
         public float XAmplitudeScale;
-        [ProtoMember(14)]
+        [ProtoMember]
         public float YAmplitudeScale;
-        [ProtoMember(15)]
+        [ProtoMember]
         public float ZAmplitudeScale;
 
-        [ProtoMember(16)]
+        [ProtoMember]
         public float RunMultiplier;
 
-        [ProtoMember(17)]
+        [ProtoMember]
         public Quaternion ItemWalkingOrientation3rd;
 
-        [ProtoMember(18)]
+        [ProtoMember]
         public Vector3 ItemWalkingPosition3rd;
 
-        [ProtoMember(19)]
+        [ProtoMember]
         public float AmplitudeMultiplier3rd;
 
-        [ProtoMember(20), DefaultValue(true)]
+        [ProtoMember, DefaultValue(true)]
         public bool SimulateLeftHand = true;
 
-        [ProtoMember(21), DefaultValue(true)]
+        [ProtoMember, DefaultValue(true)]
         public bool SimulateRightHand = true;
 
-        [ProtoMember(22)]
+        [ProtoMember]
         public Quaternion ItemOrientation3rd;
 
-        [ProtoMember(23)]
+        [ProtoMember]
         public Vector3 ItemPosition3rd;
 
-        [ProtoMember(24)]
+        [ProtoMember]
         public string FingersAnimation;
 
-        [ProtoMember(25)]
+        [ProtoMember]
         public Quaternion ItemShootOrientation;
 
-        [ProtoMember(26)]
+        [ProtoMember]
         public Vector3 ItemShootPosition;
 
-        [ProtoMember(27)]
+        [ProtoMember]
         public Quaternion ItemShootOrientation3rd;
 
-        [ProtoMember(28)]
+        [ProtoMember]
         public Vector3 ItemShootPosition3rd;
 
-        [ProtoMember(29)]
+        [ProtoMember]
         public float ShootBlend;
 
-        [ProtoMember(30)]
+        [ProtoMember]
         public Vector3 MuzzlePosition;
 
-        [ProtoMember(31)]
+        [ProtoMember]
         public Vector3 ShootScatter;
 
-        [ProtoMember(32)]
+        [ProtoMember]
         public float ScatterSpeed;
 
-        [ProtoMember(33)]
+        [ProtoMember]
         public SerializableDefinitionId PhysicalItemId;
 
-        [ProtoMember(34)]
+        [ProtoMember]
         public Vector4 LightColor;
 
-        [ProtoMember(35)]
+        [ProtoMember]
         public float LightFalloff;
 
-        [ProtoMember(36)]
+        [ProtoMember]
         public float LightRadius;
 
-        [ProtoMember(37)]
+        [ProtoMember]
         public float LightGlareSize;
 
-        [ProtoMember(38)]
+        [ProtoMember]
         public float LightIntensityLower;
         
-        [ProtoMember(39)]
+        [ProtoMember]
         public float LightIntensityUpper;
 
-        [ProtoMember(40)]
+        [ProtoMember]
         public float ShakeAmountTarget;
 
-        [ProtoMember(41)]
+        [ProtoMember]
         public float ShakeAmountNoTarget;
     }
 }

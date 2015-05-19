@@ -11,10 +11,10 @@ namespace Sandbox.Common.ObjectBuilders
     [MyObjectBuilderDefinition]
     public class MyObjectBuilder_BlockGroup : MyObjectBuilder_Base
     {
-        [ProtoMember(1)]
+        [ProtoMember]
         public String Name;
 
-        [ProtoMember(2)]
+        [ProtoMember]
         public List<Vector3I> Blocks = new List<Vector3I>();
     }
 }

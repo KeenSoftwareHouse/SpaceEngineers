@@ -30,13 +30,15 @@ namespace Sandbox.Game.AI
             return false;
         }
 
-        public int MaximumBotCount 
+        public int MaximumUncontrolledBotCount 
         { 
             get 
             {
                 return 0;
             } 
         }
+
+        public int MaximumBotPerPlayer { get { return 0; } }
 
         public bool GetBotSpawnPosition(string behaviorType, out VRageMath.Vector3D spawnPosition)
         {

@@ -44,14 +44,14 @@ namespace Sandbox.Game.Entities.Blocks
             [MessageIdAttribute(3317, P2PMessageEnum.Reliable)]
             protected struct ChangeToolbarItemMsg : IEntityMessage
             {
-                [ProtoMember(1)]
+                [ProtoMember]
                 public long EntityId;
                 public long GetEntityId() { return EntityId; }
 
-                [ProtoMember(2)]
+                [ProtoMember]
                 public ToolbarItem Item;
 
-                [ProtoMember(3)]
+                [ProtoMember]
                 public int Index;
             }
 
@@ -59,14 +59,14 @@ namespace Sandbox.Game.Entities.Blocks
             [MessageIdAttribute(3318, P2PMessageEnum.Reliable)]
             protected struct SetCustomButtonName : IEntityMessage
             {
-                [ProtoMember(1)]
+                [ProtoMember]
                 public long EntityId;
                 public long GetEntityId() { return EntityId; }
 
-                [ProtoMember(2)]
+                [ProtoMember]
                 public String CustomName;
 
-                [ProtoMember(3)]
+                [ProtoMember]
                 public int Index;
             }
 

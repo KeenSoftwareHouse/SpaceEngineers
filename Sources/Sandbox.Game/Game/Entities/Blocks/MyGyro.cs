@@ -50,7 +50,7 @@ namespace Sandbox.Game.Entities
 
         public float RequiredPowerInput
         {
-            get { return m_gyroDefinition.RequiredPowerInput * m_gyroPower; }
+            get { return m_gyroDefinition.RequiredPowerInput * m_gyroPower * m_powerConsumptionMultiplier; }
         }
 
         public float GyroPower
@@ -266,6 +266,30 @@ namespace Sandbox.Game.Entities
                 {
                     CubeGrid.GridSystems.GyroSystem.MarkDirty();
                 }
+            }
+        }
+
+        private float m_powerConsumptionMultiplier = 1f;
+        float Sandbox.ModAPI.IMyGyro.PowerConsumptionMultiplier
+        {
+            get
+            {
+                return m_powerConsumptionMultiplier;
+            }
+            set
+            {
+                m_powerConsumptionMultiplier = value;
+                if (m_powerConsumptionMultiplier < 0.01f)
+                {
+                    m_powerConsumptionMultiplier = 0.01f;
+                }
+
+                if (CubeGrid.GridSystems.GyroSystem != null)
+                {
+                    CubeGrid.GridSystems.GyroSystem.MarkDirty();
+                }
+
+                UpdateText();
             }
         }
     }
