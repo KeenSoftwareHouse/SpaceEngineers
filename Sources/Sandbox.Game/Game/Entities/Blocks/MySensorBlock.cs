@@ -28,38 +28,6 @@ using Sandbox.Game.Screens.Terminal.Controls;
 
 namespace Sandbox.Game.Entities.Blocks
 {
-<<<<<<< HEAD
-=======
-    [ProtoContract]
-    struct ToolbarItem : IEqualityComparer<ToolbarItem>
-    {
-        [ProtoMember]
-        public long EntityID;
-        [ProtoMember]
-        public string GroupName;
-        [ProtoMember]
-        public string Action;
-
-        public bool Equals(ToolbarItem x, ToolbarItem y)
-        {
-            if (x.EntityID != y.EntityID || x.GroupName != y.GroupName || x.Action != y.Action)
-                return false;
-            return true;
-        }
-
-        public int GetHashCode(ToolbarItem obj)
-        {
-            unchecked
-            {
-                int result = obj.EntityID.GetHashCode();
-                result = (result * 397) ^ obj.GroupName.GetHashCode();
-                result = (result * 397) ^ obj.Action.GetHashCode();
-                return result;
-            }
-        }
-    }
-
->>>>>>> 6f82188204384cd766b664eab7381d621db616a8
     [Flags]
     public enum MySensorFilterFlags : ushort
     {

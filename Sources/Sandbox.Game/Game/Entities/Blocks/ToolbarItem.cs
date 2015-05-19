@@ -86,13 +86,13 @@ namespace Sandbox.Game.Entities.Blocks
             return item;
         }
 
-        [ProtoMember(1)]
+        [ProtoMember]
         public long EntityID;
-        [ProtoMember(2)]
+        [ProtoMember]
         public string GroupName;
-        [ProtoMember(3)]
+        [ProtoMember]
         public string Action;
-        [ProtoMember(4)]
+        [ProtoMember]
         public ToolbarItemParameter[] Parameters;
 
         public bool Equals(ToolbarItem x, ToolbarItem y)
