@@ -125,22 +125,6 @@ namespace Sandbox.Game.Entities.Blocks
 
         public MyToolbar Toolbar { get; set; }
 
-        private float m_maxRange = 50f;
-        public float MaxRange
-        {
-            get { return m_maxRange; }
-            set
-            {
-                if (value < m_maxRange)
-                {
-                    m_fieldMin = Vector3.Clamp(m_fieldMin, new Vector3(-value), -Vector3.One);
-                    m_fieldMax = Vector3.Clamp(m_fieldMax, Vector3.One, new Vector3(value));
-                    UpdateField();
-                }
-                m_maxRange = value;
-            }
-        }
-
         private Vector3 m_fieldMin = new Vector3(-5f);
         public Vector3 FieldMin
         {
@@ -167,6 +151,11 @@ namespace Sandbox.Game.Entities.Blocks
                     UpdateField();
                 }
             }
+        }
+
+        public float MaxRange
+        {
+            get { return BlockDefinition.MaxRange; }
         }
 
         public MySensorFilterFlags Filters
@@ -353,7 +342,7 @@ namespace Sandbox.Game.Entities.Blocks
             MyTerminalControlFactory.AddControl(toolbarButton);
 
             var fieldWidthMin = new MyTerminalControlSlider<MySensorBlock>("Left", MySpaceTexts.BlockPropertyTitle_SensorFieldWidthMin, MySpaceTexts.BlockPropertyDescription_SensorFieldLeft);
-            fieldWidthMin.SetLimits(block => 1, block => block.m_maxRange);
+            fieldWidthMin.SetLimits(block => 1, block => block.MaxRange);
             fieldWidthMin.DefaultValue = 5;
             fieldWidthMin.Getter = (x) => -x.m_fieldMin.X;
             fieldWidthMin.Setter = (x, v) =>
@@ -368,7 +357,7 @@ namespace Sandbox.Game.Entities.Blocks
             MyTerminalControlFactory.AddControl(fieldWidthMin);
 
             var fieldWidthMax = new MyTerminalControlSlider<MySensorBlock>("Right", MySpaceTexts.BlockPropertyTitle_SensorFieldWidthMax, MySpaceTexts.BlockPropertyDescription_SensorFieldRight);
-            fieldWidthMax.SetLimits(block => 1, block => block.m_maxRange);
+            fieldWidthMax.SetLimits(block => 1, block => block.MaxRange);
             fieldWidthMax.DefaultValue = 5;
             fieldWidthMax.Getter = (x) => x.m_fieldMax.X;
             fieldWidthMax.Setter = (x, v) =>
@@ -384,7 +373,7 @@ namespace Sandbox.Game.Entities.Blocks
 
 
             var fieldHeightMin = new MyTerminalControlSlider<MySensorBlock>("Bottom", MySpaceTexts.BlockPropertyTitle_SensorFieldHeightMin, MySpaceTexts.BlockPropertyDescription_SensorFieldBottom);
-            fieldHeightMin.SetLimits(block => 1, block => block.m_maxRange);
+            fieldHeightMin.SetLimits(block => 1, block => block.MaxRange);
             fieldHeightMin.DefaultValue = 5;
             fieldHeightMin.Getter = (x) => -x.m_fieldMin.Y;
             fieldHeightMin.Setter = (x, v) =>
@@ -399,7 +388,7 @@ namespace Sandbox.Game.Entities.Blocks
             MyTerminalControlFactory.AddControl(fieldHeightMin);
 
             var fieldHeightMax = new MyTerminalControlSlider<MySensorBlock>("Top", MySpaceTexts.BlockPropertyTitle_SensorFieldHeightMax, MySpaceTexts.BlockPropertyDescription_SensorFieldTop);
-            fieldHeightMax.SetLimits(block => 1, block => block.m_maxRange);
+            fieldHeightMax.SetLimits(block => 1, block => block.MaxRange);
             fieldHeightMax.DefaultValue = 5;
             fieldHeightMax.Getter = (x) => x.m_fieldMax.Y;
             fieldHeightMax.Setter = (x, v) =>
@@ -414,7 +403,7 @@ namespace Sandbox.Game.Entities.Blocks
             MyTerminalControlFactory.AddControl(fieldHeightMax);
 
             var fieldDepthMax = new MyTerminalControlSlider<MySensorBlock>("Back", MySpaceTexts.BlockPropertyTitle_SensorFieldDepthMax, MySpaceTexts.BlockPropertyDescription_SensorFieldBack);
-            fieldDepthMax.SetLimits(block => 1, block => block.m_maxRange);
+            fieldDepthMax.SetLimits(block => 1, block => block.MaxRange);
             fieldDepthMax.DefaultValue = 5;
             fieldDepthMax.Getter = (x) => x.m_fieldMax.Z;
             fieldDepthMax.Setter = (x, v) =>
@@ -429,7 +418,7 @@ namespace Sandbox.Game.Entities.Blocks
             MyTerminalControlFactory.AddControl(fieldDepthMax);
 
             var fieldDepthMin = new MyTerminalControlSlider<MySensorBlock>("Front", MySpaceTexts.BlockPropertyTitle_SensorFieldDepthMin, MySpaceTexts.BlockPropertyDescription_SensorFieldFront);
-            fieldDepthMin.SetLimits(block => 1, block => block.m_maxRange);
+            fieldDepthMin.SetLimits(block => 1, block => block.MaxRange);
             fieldDepthMin.DefaultValue = 5;
             fieldDepthMin.Getter = (x) => -x.m_fieldMin.Z;
             fieldDepthMin.Setter = (x, v) =>
@@ -580,11 +569,9 @@ namespace Sandbox.Game.Entities.Blocks
             Toolbar.DrawNumbers = false;
 
             var builder = (MyObjectBuilder_SensorBlock)objectBuilder;
-
-            m_maxRange = BlockDefinition.MaxRange;
-
-            m_fieldMin = Vector3.Clamp(builder.FieldMin, new Vector3(-m_maxRange), -Vector3.One);
-            m_fieldMax = Vector3.Clamp(builder.FieldMax, Vector3.One, new Vector3(m_maxRange));
+            
+            m_fieldMin = Vector3.Clamp(builder.FieldMin, new Vector3(-MaxRange), -Vector3.One);
+            m_fieldMax = Vector3.Clamp(builder.FieldMax, Vector3.One, new Vector3(MaxRange));
 
             DetectPlayers = builder.DetectPlayers;
             DetectFloatingObjects = builder.DetectFloatingObjects;
