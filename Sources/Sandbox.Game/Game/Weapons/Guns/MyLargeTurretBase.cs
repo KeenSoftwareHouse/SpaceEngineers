@@ -299,6 +299,7 @@ namespace Sandbox.Game.Weapons
         private float m_elevationLast;
         protected float m_rotationSpeed;
         protected float m_elevationSpeed;
+        protected bool m_cancameraZoom;
         protected int m_rotationInterval_ms;
         protected int m_elevationInterval_ms;
         protected int m_randomStandbyChange_ms;
@@ -640,6 +641,8 @@ namespace Sandbox.Game.Weapons
 
             m_isPlayerShooting = builder.IsShooting;
 
+            m_cancameraZoom = true;
+
             if (BlockDefinition != null)
             {
                 m_maxRangeMeter = BlockDefinition.MaxRangeMeters;
@@ -661,6 +664,7 @@ namespace Sandbox.Game.Weapons
 
                 m_rotationSpeed = BlockDefinition.RotationSpeed;
                 m_elevationSpeed = BlockDefinition.ElevationSpeed;
+                m_cancameraZoom = BlockDefinition.CancameraZoom;
 
                 m_enableIdleRotation = BlockDefinition.IdleRotation;
                 ClampRotationAndElevation();
@@ -915,6 +919,10 @@ namespace Sandbox.Game.Weapons
 
         internal void ChangeZoom(int deltaZoom)
         {
+            if (m_cancameraZoom == false)
+            {
+                return;
+            }
             if (deltaZoom > 0)
             {
                 m_targetFov -= 0.15f;
@@ -1016,9 +1024,9 @@ namespace Sandbox.Game.Weapons
             }
             VRageRender.MyRenderProxy.GetRenderProfiler().EndProfilingBlock();
 
-            if (MyFakes.ENABLE_CAMERA_BLOCK)
+            if (MyFakes.ENABLE_CAMERA_BLOCK && m_cancameraZoom)
             {
-
+                
                 m_fov = VRageMath.MathHelper.Lerp(m_fov, m_targetFov, 0.5f);
                 SetFov(m_fov);
 
