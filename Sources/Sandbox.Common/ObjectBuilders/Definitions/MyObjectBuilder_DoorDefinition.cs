@@ -21,6 +21,6 @@ namespace Sandbox.Common.ObjectBuilders.Definitions
         public string CloseSound;
 
         [ProtoMember(4)]
-        public float OpeningSpeed;
+        public float OpeningSpeed = 1f;
     }
 }
