@@ -316,6 +316,7 @@ namespace Sandbox.Game.Entities.Cube
             foreach (var result in queueItem.Results)
             {
                 var resultId = result.Id;
+
                 var obResult = (MyObjectBuilder_PhysicalObject)MyObjectBuilderSerializer.CreateNewObject(resultId);
 
                 var conversionRatio = result.Amount * m_refineryDef.MaterialEfficiency * UpgradeValues["Effectiveness"];
@@ -327,14 +328,14 @@ namespace Sandbox.Game.Entities.Cube
                 var resultAmount = blueprintAmount * conversionRatio;
                 OutputInventory.AddItems(resultAmount, obResult);
                 if (MyPerGameSettings.InventoryMass)
-                {
-                    OutputInventory.ContentsChanged += Inventory_ContentsChanged;
-                }
+				{
+					OutputInventory.ContentsChanged += Inventory_ContentsChanged;
+				}
             }
 
             RemoveFirstQueueItemAnnounce(blueprintAmount);
         }
-
+				
         protected override float GetOperationalPowerConsumption()
         {
             return base.GetOperationalPowerConsumption() * (1f + UpgradeValues["Productivity"]) * (1f / UpgradeValues["PowerEfficiency"]);
