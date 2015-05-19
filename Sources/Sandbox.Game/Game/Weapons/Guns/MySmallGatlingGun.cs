@@ -148,7 +148,7 @@ namespace Sandbox.Game.Weapons
 
             m_ammoInventory.ContentsChanged += AmmoInventory_ContentsChanged;
 
-            if (MyPerGameSettings.InventoryMass)
+            if (MySession.Static.Settings.EnableInventoryMass)
                 m_ammoInventory.ContentsChanged += Inventory_ContentsChanged;
 
             GetBarrelAndMuzzle();
@@ -170,7 +170,7 @@ namespace Sandbox.Game.Weapons
         internal override float GetMass()
         {
             var mass = base.GetMass();
-            if (MyPerGameSettings.InventoryMass)
+            if (MySession.Static.Settings.EnableInventoryMass)
                 return mass + (float)m_ammoInventory.CurrentMass;
             else
                 return mass;

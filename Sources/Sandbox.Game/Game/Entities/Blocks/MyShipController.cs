@@ -587,7 +587,7 @@ namespace Sandbox.Game.Entities
                 MyHud.ShipInfo.LandingGearsLocked = CubeGrid.GridSystems.LandingSystem[Interfaces.LandingGearMode.Locked];
                 MyHud.ShipInfo.LandingGearsInProximity = CubeGrid.GridSystems.LandingSystem[Interfaces.LandingGearMode.ReadyToLock];
 
-                if (MyPerGameSettings.InventoryMass)
+                if (MySession.Static.Settings.EnableInventoryMass)
                 {
                     MyHud.ShipInfo.Mass = (int)Parent.Physics.Mass;
                 }

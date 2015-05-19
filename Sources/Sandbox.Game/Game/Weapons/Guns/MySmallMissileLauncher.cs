@@ -161,7 +161,7 @@ namespace Sandbox.Game.Weapons
         internal override float GetMass()
         {
             var mass = base.GetMass();
-            if (MyPerGameSettings.InventoryMass)
+            if (MySession.Static.Settings.EnableInventoryMass)
                 return mass + (float)m_ammoInventory.CurrentMass;
             else
                 return mass;
