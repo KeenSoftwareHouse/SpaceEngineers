@@ -72,7 +72,7 @@ namespace Sandbox.Common.ObjectBuilders
         [GameRelationAttribute(Game.Shared)]
         public bool EnableCopyPaste = true;
 
-        //[ProtoMember(12)]
+        //[ProtoMember]
         public bool AutoSave
         {
             get { Debug.Fail("Obsolete."); return AutoSaveInMinutes > 0; }
