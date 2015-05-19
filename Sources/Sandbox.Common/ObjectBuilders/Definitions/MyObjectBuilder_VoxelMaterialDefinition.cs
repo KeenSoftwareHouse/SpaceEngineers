@@ -62,5 +62,11 @@ namespace Sandbox.Common.ObjectBuilders.Definitions
 
         [ProtoMember]
         public int MinVersion;
+
+        [ProtoMember(17), DefaultValue(true)]
+        public bool SpawnsInAsteroids = true;
+
+        [ProtoMember(18), DefaultValue(true)]
+        public bool SpawnsFromMeteorites = true;
     }
 }
