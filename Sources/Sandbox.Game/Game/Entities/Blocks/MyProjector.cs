@@ -452,6 +452,7 @@ namespace Sandbox.Game.Entities.Blocks
             if (m_clipboard.PreviewGrids.Count != 0)
                 ProjectedGrid.Projector = this;
             m_shouldUpdateProjection = true;
+            m_shouldUpdateTexts = true;
 
             SetRotation(m_projectionRotation);
 
@@ -522,6 +523,8 @@ namespace Sandbox.Game.Entities.Blocks
             IsWorkingChanged += MyProjector_IsWorkingChanged;
 
             PowerReceiver.Update();
+            m_statsDirty = true;
+            UpdateText();
             
             SyncObject = new MySyncProjector(this);
 
@@ -701,12 +704,14 @@ namespace Sandbox.Game.Entities.Blocks
                         }
                     }
                 }
+                m_shouldUpdateTexts = true;
             }
         }
 
         void previewGrid_OnBlockRemoved(MySlimBlock obj)
         {
             m_shouldUpdateProjection = true;
+            m_shouldUpdateTexts = true;
         }
 
         //Stats
@@ -847,6 +852,8 @@ namespace Sandbox.Game.Entities.Blocks
             }
 
             UpdateEmissivity();
+            m_statsDirty = true;
+            UpdateText();
 
             //We call this to disable the controls
             RaisePropertiesChanged();
