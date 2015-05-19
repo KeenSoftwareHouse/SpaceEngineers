@@ -35,7 +35,6 @@ namespace Sandbox.Game.Entities
         private MySoundPair m_closeSound;
 
         private float m_currOpening;
-        private float m_slidingSpeed;
         private float m_currSpeed;
         private int m_lastUpdateTime;
 
@@ -147,14 +146,12 @@ namespace Sandbox.Game.Entities
                 MaxOpen = doorDefinition.MaxOpen;
                 m_openSound = new MySoundPair(doorDefinition.OpenSound);
                 m_closeSound = new MySoundPair(doorDefinition.CloseSound);
-                m_slidingSpeed = (doorDefinition.OpeningSpeed <= 0f) ? 1f : doorDefinition.OpeningSpeed; // defualt 1f
             }
             else
             {
                 MaxOpen = 1.2f;
                 m_openSound = new MySoundPair("BlockDoorSmallOpen");
                 m_closeSound = new MySoundPair("BlockDoorSmallClose");
-                m_slidingSpeed = 1f;
             }
 
             var ob = (MyObjectBuilder_Door)builder;
@@ -233,16 +230,13 @@ namespace Sandbox.Game.Entities
             ob.Opening = m_currOpening;
             ob.OpenSound = m_openSound.ToString();
             ob.CloseSound = m_closeSound.ToString();
-            ob.OpeningSpeed = m_slidingSpeed;
             return ob;
         }
 
         private void OnStateChange()
         {
-            if (m_open)
-                m_currSpeed = m_slidingSpeed;
-            else
-                m_currSpeed = -m_slidingSpeed;
+            float speed = ((MyDoorDefinition)BlockDefinition).OpeningSpeed;
+            m_currSpeed = m_open ? speed : -speed;
 
             NeedsUpdate = MyEntityUpdateEnum.EACH_FRAME | MyEntityUpdateEnum.EACH_100TH_FRAME;
             m_lastUpdateTime = MySandboxGame.TotalGamePlayTimeInMilliseconds;
