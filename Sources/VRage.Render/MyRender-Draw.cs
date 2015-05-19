@@ -616,7 +616,7 @@ namespace VRageRender
         }
 
 
-        private static Texture RenderTextToTexture(MyRenderTextureId objectId, string text, float scale, Color fontColor, Color backgroundColor, int resolution, int aspectRatio)
+        private static Texture RenderTextToTexture(MyRenderTextureId objectId, string text, float scale, Color fontColor, Color backgroundColor, int resolution, int aspectRatio, int fontIndex)
         {
             if (m_screenshot != null)
             {
@@ -631,7 +631,7 @@ namespace VRageRender
                 MyRender.GraphicsDevice.Clear(ClearFlags.Target, new SharpDX.ColorBGRA(backgroundColor.R, backgroundColor.G, backgroundColor.B, 0), 1, 0);
                 MyRender.SetDeviceViewport(new SharpDX.Viewport(0, 0, surfaceDesc.Width, surfaceDesc.Height));
 
-                MyDebugDraw.DrawText(Vector2.Zero, new StringBuilder(text), fontColor, scale * MyRenderTexturePool.RenderQualityScale(), false, blendState:BlendState.EmissiveTexture);
+                MyDebugDraw.DrawText(Vector2.Zero, new StringBuilder(text), fontColor, scale * MyRenderTexturePool.RenderQualityScale(), false, blendState:BlendState.EmissiveTexture, fontIndex: fontIndex);
 
                 MyRender.SetRenderTarget(null, null);
             }

@@ -806,18 +806,29 @@ namespace VRageRender
             return DrawText(screenCoord, text, color, scale, depthRead, MyStateObjects.GuiDefault_BlendState, align);
         }
 
-        public static float DrawText(Vector2 screenCoord, StringBuilder text, Color color, float scale, bool depthRead, BlendState blendState, MyGuiDrawAlignEnum align = MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_TOP)
+        public static float DrawText(Vector2 screenCoord, StringBuilder text, Color color, float scale, bool depthRead, BlendState blendState, MyGuiDrawAlignEnum align = MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_TOP, int fontIndex = -1)
         {
             if (depthRead)
                 DepthStencilState.DepthRead.Apply();
             else
                 DepthStencilState.None.Apply();
 
+            MyRenderFont renderFont = null;
+            if (fontIndex >= 0)
+            {
+                renderFont = MyRender.TryGetFont(fontIndex);
+            }
+
+            if (renderFont == null)
+            {
+                renderFont = MyRender.GetDebugFont();
+            }
+            
             MyRender.BeginSpriteBatch(blendState);
 
-            Vector2 textSize = MyRender.GetDebugFont().MeasureString(text, scale);
+            Vector2 textSize = renderFont.MeasureString(text, scale);
             screenCoord = MyUtils.GetCoordAligned(screenCoord, textSize, align);
-            float textLength = MyRender.GetDebugFont().DrawString(screenCoord, color, text, scale);
+            float textLength = renderFont.DrawString(screenCoord, color, text, scale);
 
             MyRender.EndSpriteBatch();
 

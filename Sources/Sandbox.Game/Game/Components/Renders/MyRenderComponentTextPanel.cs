@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Sandbox.Common;
 using Sandbox.Common.Components;
 using VRageRender;
 using VRageMath;
@@ -23,9 +24,9 @@ namespace Sandbox.Game.Components
         {
             MyRenderProxy.ChangeMaterialTexture(this.RenderObjectIDs[0], PANEL_MATERIAL_NAME, path);
         }
-        public void RenderTextToTexture(long entityId,string text, float scale, Color fontColor, Color backgroundColor, int textureResolution,int aspectRatio)
+        public void RenderTextToTexture(long entityId,string text, float scale, Color fontColor, Color backgroundColor, int textureResolution,int aspectRatio, MyFontEnum font)
         {
-            MyRenderProxy.RenderTextToTexture(RenderObjectIDs[0], entityId, PANEL_MATERIAL_NAME, text, scale, fontColor, backgroundColor, textureResolution, aspectRatio);
+            MyRenderProxy.RenderTextToTexture(RenderObjectIDs[0], entityId, PANEL_MATERIAL_NAME, text, scale, fontColor, backgroundColor, textureResolution, aspectRatio, (int)font);
         }
         public void ReleaseRenderTexture()
         {

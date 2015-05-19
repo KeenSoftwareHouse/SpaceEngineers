@@ -9,6 +9,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Sandbox.Common;
 using VRageMath;
 
 namespace Sandbox.Game.Multiplayer
@@ -90,21 +91,21 @@ namespace Sandbox.Game.Multiplayer
         }
 
         [MessageId(435, P2PMessageEnum.Reliable)]
-        struct ChangeFontSizeMsg : IEntityMessage
+        struct ChangeFontFaceMsg : IEntityMessage
         {
             public long EntityId;
             public long GetEntityId()
             {
                 return EntityId;
             }
-            public float FontSize;
+            public int FontFace;
         }
 
         [ProtoContract]
         [MessageId(436, P2PMessageEnum.Reliable)]
         struct SelectImagesMsg : IEntityMessage
         {
-           [ProtoMember(1)]
+            [ProtoMember(1)]
             public long EntityId;
             public long GetEntityId()
             {
@@ -170,10 +171,21 @@ namespace Sandbox.Game.Multiplayer
             public byte Show;
         }
 
+        [MessageId(441, P2PMessageEnum.Reliable)]
+        struct ChangeFontSizeMsg : IEntityMessage
+        {
+            public long EntityId;
+            public long GetEntityId()
+            {
+                return EntityId;
+            }
+            public float FontSize;
+        }
+
         MyTextPanel m_block = null;
 
         static void OnChangeFontSizeRequest(ref ChangeFontSizeMsg msg, MyNetworkClient sender)
-        { 
+        {
             MyEntity entity = null;
             MyEntities.TryGetEntityById(msg.EntityId, out entity);
             MyTextPanel block = entity as MyTextPanel;
@@ -202,6 +214,41 @@ namespace Sandbox.Game.Multiplayer
 
             Sync.Layer.SendMessageToServer(ref msg, MyTransportMessageEnum.Request);
         }
+
+        static void OnChangeFontFaceRequest(ref ChangeFontFaceMsg msg, MyNetworkClient sender)
+        {
+            MyEntity entity = null;
+            MyEntities.TryGetEntityById(msg.EntityId, out entity);
+            MyTextPanel block = entity as MyTextPanel;
+            if (block != null)
+            {
+                block.FontFace = (MyFontEnum)msg.FontFace;
+                Sync.Layer.SendMessageToAll(msg, MyTransportMessageEnum.Success);
+            }
+        }
+        static void OnChangeFontFaceSucess(ref ChangeFontFaceMsg msg, MyNetworkClient sender)
+        {
+            MyEntity entity = null;
+            MyEntities.TryGetEntityById(msg.EntityId, out entity);
+            MyTextPanel block = entity as MyTextPanel;
+            if (block != null)
+            {
+                block.FontFace = (MyFontEnum)msg.FontFace;
+            }
+        }
+        public void SendFontFaceChangeRequest(MyFontEnum Font)
+        {
+            ChangeFontFaceMsg msg = new ChangeFontFaceMsg();
+
+            msg.EntityId = m_block.EntityId;
+            msg.FontFace = (int)Font;
+
+            Sync.Layer.SendMessageToServer(ref msg, MyTransportMessageEnum.Request);
+        }
+
+
+
+
 
         static void OnChangeIntervalRequest(ref ChangeIntervalMsg msg, MyNetworkClient sender)
         {
@@ -313,6 +360,9 @@ namespace Sandbox.Game.Multiplayer
             MySyncLayer.RegisterMessage<ChangeFontSizeMsg>(OnChangeFontSizeRequest, MyMessagePermissions.ToServer, MyTransportMessageEnum.Request);
             MySyncLayer.RegisterMessage<ChangeFontSizeMsg>(OnChangeFontSizeSucess, MyMessagePermissions.FromServer, MyTransportMessageEnum.Success);
 
+            MySyncLayer.RegisterMessage<ChangeFontFaceMsg>(OnChangeFontFaceRequest, MyMessagePermissions.ToServer, MyTransportMessageEnum.Request);
+            MySyncLayer.RegisterMessage<ChangeFontFaceMsg>(OnChangeFontFaceSucess, MyMessagePermissions.FromServer, MyTransportMessageEnum.Success);
+
             MySyncLayer.RegisterMessage<SelectImagesMsg>(OnSelectImageRequest, MyMessagePermissions.ToServer, MyTransportMessageEnum.Request);
             MySyncLayer.RegisterMessage<SelectImagesMsg>(OnSelectImageSucess, MyMessagePermissions.FromServer, MyTransportMessageEnum.Success);
 
@@ -390,15 +440,15 @@ namespace Sandbox.Game.Multiplayer
             sync.Entity.UserId = msg.User;
 
             if (!MySandboxGame.IsDedicated && msg.User == Sync.MyId && msg.IsOpen)
-            {            
-                sync.Entity.OpenWindow(msg.Editable, false,msg.IsPublic);
+            {
+                sync.Entity.OpenWindow(msg.Editable, false, msg.IsPublic);
             }
 
             if (Sync.IsServer)
                 Sync.Layer.SendMessageToAll(ref msg);
         }
 
-        public void SendChangeDescriptionMessage(StringBuilder description,bool isPublic)
+        public void SendChangeDescriptionMessage(StringBuilder description, bool isPublic)
         {
             if (description.CompareTo(Entity.PublicDescription) == 0 && isPublic)
             {
@@ -410,7 +460,7 @@ namespace Sandbox.Game.Multiplayer
                 return;
             }
 
-            if(isPublic)
+            if (isPublic)
             {
                 Entity.PublicDescription = description;
             }
@@ -431,7 +481,7 @@ namespace Sandbox.Game.Multiplayer
 
         public void SendChangeTitleMessage(StringBuilder title, bool isPublic)
         {
-            if ( title.CompareTo(Entity.PublicTitle) == 0 && isPublic)
+            if (title.CompareTo(Entity.PublicTitle) == 0 && isPublic)
             {
                 return;
             }
@@ -471,7 +521,7 @@ namespace Sandbox.Game.Multiplayer
             Sync.Layer.SendMessageToServer(ref msg);
         }
 
-        public void SendChangeOpenMessage(bool isOpen, bool editable = false, ulong user = 0,bool isPublic = false)
+        public void SendChangeOpenMessage(bool isOpen, bool editable = false, ulong user = 0, bool isPublic = false)
         {
             var msg = new ChangeOpenMsg()
             {
@@ -490,7 +540,7 @@ namespace Sandbox.Game.Multiplayer
             var msg = new ChangeFontColorMsg();
 
             msg.EntityId = m_block.EntityId;
-            msg.FontColor = color; 
+            msg.FontColor = color;
 
             Sync.Layer.SendMessageToServer(ref msg, MyTransportMessageEnum.Request);
         }

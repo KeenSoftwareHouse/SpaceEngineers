@@ -20,8 +20,10 @@ using System.Text;
 
 using VRage;
 using Sandbox.Engine.Utils;
+using VRage.Library.Utils;
 using VRageMath;
 using VRage.Utils;
+using VRageRender;
 
 namespace Sandbox.Game.Entities.Blocks
 {
@@ -44,7 +46,7 @@ namespace Sandbox.Game.Entities.Blocks
         private ShowTextOnScreenFlag m_showFlag;
         private bool m_isOpen;
         private ulong m_userId;
-
+        
         private static StringBuilder m_helperSB = new StringBuilder();
         int m_currentPos = 0;
         int m_previousUpdateTime = 0;
@@ -94,6 +96,22 @@ namespace Sandbox.Game.Entities.Blocks
                 {
                     m_fontColorChanged = true;
                     m_fontColor = value;
+                    RaisePropertiesChanged();
+                }
+            }
+        }
+
+        private MyFontEnum m_fontFace;
+        bool m_fontChanged = true;
+        public MyFontEnum FontFace
+        {
+            get { return m_fontFace; }
+            set
+            {
+                if (m_fontFace != value)
+                {
+                    m_fontChanged = true;
+                    m_fontFace = value;
                     RaisePropertiesChanged();
                 }
             }
@@ -368,10 +386,11 @@ namespace Sandbox.Game.Entities.Blocks
                 {
                     m_descriptionChanged = false;
                     m_forceUpdateText = false;
+                    m_fontChanged = false;
                     m_fontColorChanged = false;
                     m_fontSizeChanged = false;
                     m_backgroundColorChanged = false;
-                    Render.RenderTextToTexture(EntityId, ShowTextFlag == ShowTextOnScreenFlag.PUBLIC ? m_publicDescription.ToString() : m_privateDescription.ToString(), FontSize * BlockDefinition.TextureResolution / DEFAULT_RESOLUTION, FontColor, BackgroundColor, BlockDefinition.TextureResolution, BlockDefinition.TextureAspectRadio);
+                    Render.RenderTextToTexture(EntityId, ShowTextFlag == ShowTextOnScreenFlag.PUBLIC ? m_publicDescription.ToString() : m_privateDescription.ToString(), FontSize * BlockDefinition.TextureResolution / DEFAULT_RESOLUTION, FontColor, BackgroundColor, BlockDefinition.TextureResolution, BlockDefinition.TextureAspectRadio, m_fontFace);
                     FailedToRenderTexture = false;
                 }
 
@@ -412,7 +431,7 @@ namespace Sandbox.Game.Entities.Blocks
 
         bool NeedsToDrawText()
         {
-            return ShowTextOnScreen && (m_descriptionChanged || m_fontSizeChanged || m_fontColorChanged || m_backgroundColorChanged);
+            return ShowTextOnScreen && (m_descriptionChanged || m_fontSizeChanged || m_fontChanged || m_fontColorChanged || m_backgroundColorChanged);
         }
 
         public void AddImagesToSelection()
@@ -581,6 +600,13 @@ namespace Sandbox.Game.Entities.Blocks
 
             MyTerminalControlFactory.AddControl(showTextOnScreen);
 
+
+            var fontFaceCombobox = new MyTerminalControlCombobox<MyTextPanel>("FontFace", MyStringId.GetOrCompute("Font"), MySpaceTexts.Blank);
+            fontFaceCombobox.Getter = (x) => (int)x.FontFace;
+            fontFaceCombobox.Setter = (x, v) => x.SyncObject.SendFontFaceChangeRequest((MyFontEnum)(int)v);
+            fontFaceCombobox.ComboBoxContent = (x) => FillFontFaceComboBoxContent(x);
+            MyTerminalControlFactory.AddControl(fontFaceCombobox);
+
             var changeFontSlider = new MyTerminalControlSlider<MyTextPanel>("FontSize", MySpaceTexts.BlockPropertyTitle_LCDScreenTextSize, MySpaceTexts.Blank);
             changeFontSlider.SetLimits(0.1f, 10.0f);
             changeFontSlider.DefaultValue = 1.0f;
@@ -674,6 +700,7 @@ namespace Sandbox.Game.Entities.Blocks
             Render.NeedsDrawFromParent = true;
             this.ChangeInterval = ob.ChangeInterval;
             FontSize = ob.FontSize;
+            FontFace = ob.FontFace;
             ShowTextFlag = ob.ShowText;
             if (ob.SelectedImages != null)
             {
@@ -715,6 +742,7 @@ namespace Sandbox.Game.Entities.Blocks
             ob.AccessFlag = m_accessFlag;
             ob.ChangeInterval = ChangeInterval;
             ob.FontSize = FontSize;
+            ob.FontFace = FontFace;
             ob.ShowText = ShowTextFlag;
             ob.FontColor = FontColor;
             ob.BackgroundColor = BackgroundColor;
@@ -941,7 +969,12 @@ namespace Sandbox.Game.Entities.Blocks
             items.Add(new TerminalComboBoxItem() { Key = (long)ShowTextOnScreenFlag.NONE, Value = MySpaceTexts.BlockComboBoxValue_TextPanelShowTextNone });
             items.Add(new TerminalComboBoxItem() { Key = (long)ShowTextOnScreenFlag.PUBLIC, Value = MySpaceTexts.BlockComboBoxValue_TextPanelShowTextPublic });
             items.Add(new TerminalComboBoxItem() { Key = (long)ShowTextOnScreenFlag.PRIVATE, Value = MySpaceTexts.BlockComboBoxValue_TextPanelShowTextPrivate });
+        }
 
+        public static void FillFontFaceComboBoxContent(List<TerminalComboBoxItem> items)
+        {
+            items.Add(new TerminalComboBoxItem() { Key = (long)MyFontEnum.Debug, Value = MyStringId.GetOrCompute ("Normal")});
+            items.Add(new TerminalComboBoxItem() { Key = (long)MyFontEnum.Monospace, Value = MyStringId.GetOrCompute ("Monospace") });
         }
 
         private void TextPanel_ClientRemoved(ulong playerId)
@@ -998,7 +1031,7 @@ namespace Sandbox.Game.Entities.Blocks
             string currentDescription = m_publicDescription.ToString();
             if (BlockDefinition.TextureResolution * BlockDefinition.TextureResolution * BlockDefinition.TextureAspectRadio <= freeResources && currentDescription.Length > 0)
             {
-                Render.RenderTextToTexture(EntityId, currentDescription, FontSize * BlockDefinition.TextureResolution / DEFAULT_RESOLUTION, FontColor, BackgroundColor, BlockDefinition.TextureResolution, BlockDefinition.TextureAspectRadio);
+                Render.RenderTextToTexture(EntityId, currentDescription, FontSize * BlockDefinition.TextureResolution / DEFAULT_RESOLUTION, FontColor, BackgroundColor, BlockDefinition.TextureResolution, BlockDefinition.TextureAspectRadio, m_fontFace);
                 FailedToRenderTexture = false;
             }
         }

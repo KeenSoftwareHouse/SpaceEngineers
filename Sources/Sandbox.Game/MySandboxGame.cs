@@ -1038,14 +1038,14 @@ namespace Sandbox
         {
             MyGuiSandbox.LoadContent(new MyFontDescription[]
             {
-                new MyFontDescription { Id = MyFontEnum.Debug,          Path = @"Fonts\white_shadow\FontData.xml", IsDebug = true },
-                new MyFontDescription { Id = MyFontEnum.Red,            Path = @"Fonts\red\FontData.xml" },
-                new MyFontDescription { Id = MyFontEnum.Green,          Path = @"Fonts\green\FontData.xml" },
-                new MyFontDescription { Id = MyFontEnum.Blue,           Path = @"Fonts\blue\FontData.xml" },
-                new MyFontDescription { Id = MyFontEnum.White,          Path = @"Fonts\white\FontData.xml" },
-                new MyFontDescription { Id = MyFontEnum.DarkBlue,       Path = @"Fonts\DarkBlue\FontData.xml" },
-                new MyFontDescription { Id = MyFontEnum.UrlNormal,      Path = @"Fonts\blue\FontData.xml" },
-                new MyFontDescription { Id = MyFontEnum.UrlHighlight,   Path = @"Fonts\white\FontData.xml" },
+                new MyFontDescription { Id = MyFontEnum.Debug,                  Path = @"Fonts\white_shadow\FontData.xml", IsDebug = true },
+                new MyFontDescription { Id = MyFontEnum.Red,                    Path = @"Fonts\red\FontData.xml" },
+                new MyFontDescription { Id = MyFontEnum.Green,                  Path = @"Fonts\green\FontData.xml" },
+                new MyFontDescription { Id = MyFontEnum.Blue,                   Path = @"Fonts\blue\FontData.xml" },
+                new MyFontDescription { Id = MyFontEnum.White,                  Path = @"Fonts\white\FontData.xml" },
+                new MyFontDescription { Id = MyFontEnum.DarkBlue,               Path = @"Fonts\DarkBlue\FontData.xml" },
+                new MyFontDescription { Id = MyFontEnum.UrlNormal,              Path = @"Fonts\blue\FontData.xml" },
+                new MyFontDescription { Id = MyFontEnum.UrlHighlight,           Path = @"Fonts\white\FontData.xml" },
 
                 new MyFontDescription { Id = MyFontEnum.ErrorMessageBoxCaption, Path = @"Fonts\white\FontData.xml" },
                 new MyFontDescription { Id = MyFontEnum.ErrorMessageBoxText,    Path = @"Fonts\red\FontData.xml" },
@@ -1056,6 +1056,8 @@ namespace Sandbox
                 new MyFontDescription { Id = MyFontEnum.LoadingScreen,          Path = @"Fonts\blue\FontData.xml" },
                 new MyFontDescription { Id = MyFontEnum.BuildInfo,              Path = @"Fonts\blue\FontData.xml" },
                 new MyFontDescription { Id = MyFontEnum.BuildInfoHighlight,     Path = @"Fonts\red\FontData.xml" },
+
+                new MyFontDescription { Id = MyFontEnum.Monospace,              Path = @"Fonts\monospace\FontData.xml" },
             });
         }
 

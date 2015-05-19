@@ -17,6 +17,7 @@ namespace VRageRender
         public int TextureResolution;
         public int TextureAspectRatio;
         public long EntityId;
+        public int FontIndex;
 
         MyRenderMessageType IMyRenderMessage.MessageClass { get { return MyRenderMessageType.StateChangeOnce; } }
         MyRenderMessageEnum IMyRenderMessage.MessageType { get { return MyRenderMessageEnum.DrawTextToMaterial; } }
