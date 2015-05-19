@@ -26,8 +26,8 @@ namespace Sandbox.Common.ObjectBuilders.Definitions
         [ProtoMember(5)]
         public bool IsRare;
 
-        //[ProtoMember(6)]
-        //public bool IsIndestructible;
+        [ProtoMember(6)]
+        public bool IsIndestructible;
 
         [ProtoMember(7)]
         public float DamageRatio;
