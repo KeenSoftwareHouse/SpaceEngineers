@@ -13,6 +13,10 @@ namespace VRage.Network
         void Serialize(BitStream bs);
         void Deserialize(BitStream bs);
 
+        void SerializeDefault(BitStream bs);
+        void DeserializeDefault(BitStream bs);
+
         bool IsDirty { get; }
+        bool IsDefault();
     }
 }

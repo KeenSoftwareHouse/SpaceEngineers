@@ -359,7 +359,7 @@ namespace Sandbox.Game
             }
             foreach(var b in lst)
             {
-                grid.RemoveBlock(b);
+                grid.RemoveBlock(b, true);
             }
             return lst.Count > 0;
             //grid.Close();

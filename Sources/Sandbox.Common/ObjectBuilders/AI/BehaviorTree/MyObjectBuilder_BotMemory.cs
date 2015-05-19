@@ -14,41 +14,41 @@ namespace Sandbox.Common.ObjectBuilders.AI
         [ProtoContract]
         public class BehaviorTreeBlackboardMemory
         {
-            [ProtoMember(1)]
+            [ProtoMember]
             public string MemberName;
 
-            [ProtoMember(2)]
+            [ProtoMember]
             public MyBBMemoryValue Value;
         }
 
         [ProtoContract]
         public class BehaviorTreeNodesMemory
         {
-            [ProtoMember(1)]
+            [ProtoMember]
             public string BehaviorName = null;
 
             [XmlArrayItem("Node")]
-            [ProtoMember(2)]
+            [ProtoMember]
             public List<MyObjectBuilder_BehaviorTreeNodeMemory> Memory = null;
 
             [XmlArrayItem("BBMem")]
-            [ProtoMember(3)]
+            [ProtoMember]
             public List<BehaviorTreeBlackboardMemory> BlackboardMemory = null;
         }
 
         // obsolete
         //public List<BehaviorTreeNodesMemory> MemoryPerBehaviorTree = null;
 
-        [ProtoMember(1)]
+        [ProtoMember]
         public BehaviorTreeNodesMemory BehaviorTreeMemory = null;
 
-        [ProtoMember(2)]
+        [ProtoMember]
         public List<int> NewPath = null;
 
-        [ProtoMember(3)]
+        [ProtoMember]
         public List<int> OldPath = null;
 
-        [ProtoMember(4)]
+        [ProtoMember]
         public int LastRunningNodeIndex = -1;
     }
 }

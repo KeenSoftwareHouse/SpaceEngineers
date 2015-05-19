@@ -33,13 +33,13 @@ namespace Sandbox.Common.ObjectBuilders.VRageData
             this.Z = v.Z;
         }
 
-        [ProtoMember(1), XmlAttribute]
+        [ProtoMember, XmlAttribute]
         public double x { get { return X; } set { X = value; } }
 
-        [ProtoMember(2), XmlAttribute]
+        [ProtoMember, XmlAttribute]
         public double y { get { return Y; } set { Y = value; } }
 
-        [ProtoMember(3), XmlAttribute]
+        [ProtoMember, XmlAttribute]
         public double z { get { return Z; } set { Z = value; } }
 
         public bool IsZero { get { return X == 0.0 && Y == 0.0 && Z == 0.0; }  }

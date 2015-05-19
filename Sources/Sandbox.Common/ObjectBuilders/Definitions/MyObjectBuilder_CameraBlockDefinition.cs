@@ -11,13 +11,13 @@ namespace Sandbox.Common.ObjectBuilders.Definitions
     [MyObjectBuilderDefinition]
     public class MyObjectBuilder_CameraBlockDefinition : MyObjectBuilder_CubeBlockDefinition
     {
-        [ProtoMember(1)]
+        [ProtoMember]
         public float RequiredPowerInput;
-        [ProtoMember(2), ModdableContentFile(".dds")]
+        [ProtoMember, ModdableContentFile(".dds")]
         public string OverlayTexture;
-        [ProtoMember(3)]
+        [ProtoMember]
         public float MinFov = 0.1f;
-        [ProtoMember(4)]
+        [ProtoMember]
         public float MaxFov = 1.04719755f;
     }
 }

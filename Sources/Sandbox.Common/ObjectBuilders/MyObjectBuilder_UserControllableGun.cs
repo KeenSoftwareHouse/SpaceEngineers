@@ -10,13 +10,13 @@ namespace Sandbox.Common.ObjectBuilders
     [MyObjectBuilderDefinition]
     public class MyObjectBuilder_UserControllableGun : MyObjectBuilder_FunctionalBlock
     {
-        [ProtoMember(1)]
+        [ProtoMember]
         public bool IsShooting = false;
 
-        [ProtoMember(2)]
+        [ProtoMember]
         public bool IsShootingFromTerminal = false;
 
-        [ProtoMember(3)]
+        [ProtoMember]
         public bool IsLargeTurret = false;
     }
 }

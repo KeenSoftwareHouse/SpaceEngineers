@@ -116,6 +116,7 @@ namespace Sandbox.Game.Entities.Blocks
                 {
                     x.SyncObject.SendNewKeepProjection(v);
                 };
+            keepProjectionToggle.EnableAction();
             keepProjectionToggle.Enabled = (b) => b.IsProjecting();
             MyTerminalControlFactory.AddControl(keepProjectionToggle);
             //Position
@@ -1111,11 +1112,11 @@ namespace Sandbox.Game.Entities.Blocks
             [MessageIdAttribute(7600, SteamSDK.P2PMessageEnum.Reliable)]
             protected struct NewBlueprintMsg : IEntityMessage
             {
-                [ProtoBuf.ProtoMember(1)]
+                [ProtoBuf.ProtoMember]
                 public long EntityId;
                 public long GetEntityId() { return EntityId; }
 
-                [ProtoBuf.ProtoMember(2)]
+                [ProtoBuf.ProtoMember]
                 public MyObjectBuilder_CubeGrid ProjectedGrid;
             }
 

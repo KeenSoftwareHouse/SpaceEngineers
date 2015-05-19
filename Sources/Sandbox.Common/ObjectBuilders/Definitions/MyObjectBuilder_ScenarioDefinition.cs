@@ -16,46 +16,50 @@ namespace Sandbox.Common.ObjectBuilders.Definitions
     [XmlType("ScenarioDefinition")]
     public class MyObjectBuilder_ScenarioDefinition : MyObjectBuilder_DefinitionBase
     {
-        [ProtoMember(1)]
+        [ProtoMember]
         public AsteroidClustersSettings AsteroidClusters;
 
-        [ProtoMember(2)]
+        [ProtoMember]
         [XmlArrayItem("StartingState", Type = typeof(MyAbstractXmlSerializer<MyObjectBuilder_WorldGeneratorPlayerStartingState>))]
         public MyObjectBuilder_WorldGeneratorPlayerStartingState[] PossibleStartingStates;
 
-        [ProtoMember(3)]
+        [ProtoMember]
         [XmlArrayItem("Operation", Type = typeof(MyAbstractXmlSerializer<MyObjectBuilder_WorldGeneratorOperation>))]
         public MyObjectBuilder_WorldGeneratorOperation[] WorldGeneratorOperations;
 
-        [ProtoMember(4)]
+        [ProtoMember]
         [XmlArrayItem("Weapon")]
         public string[] CreativeModeWeapons;
 
-        [ProtoMember(5)]
+        [ProtoMember]
         [XmlArrayItem("Weapon")]
         public string[] SurvivalModeWeapons;
 
-        [ProtoMember(6)]
+        [ProtoMember]
         public SerializableBoundingBoxD WorldBoundaries;
 
-        [ProtoMember(7)]
+        [ProtoMember]
         public MyObjectBuilder_Toolbar DefaultToolbar;
 
-        [ProtoMember(8)]
+        [ProtoMember]
         public MyOBBattleSettings Battle;
+
+        [ProtoMember]
+        public string MainCharacterModel;
+
 
 
         [ProtoContract]
         public struct AsteroidClustersSettings
         {
-            [ProtoMember(1), XmlAttribute]
+            [ProtoMember, XmlAttribute]
             public bool Enabled;
 
-            [ProtoMember(2), XmlAttribute]
+            [ProtoMember, XmlAttribute]
             public float Offset;
             public bool ShouldSerializeOffset() { return Enabled; }
 
-            [ProtoMember(3), XmlAttribute]
+            [ProtoMember, XmlAttribute]
             public bool CentralCluster;
             public bool ShouldSerializeCentralCluster() { return Enabled; }
         }
@@ -63,14 +67,14 @@ namespace Sandbox.Common.ObjectBuilders.Definitions
         [ProtoContract]
         public class MyOBBattleSettings
         {
-            [ProtoMember(1)]
+            [ProtoMember]
             [XmlArrayItem("Slot")]
             public SerializableBoundingBoxD[] AttackerSlots;
 
-            [ProtoMember(2)]
+            [ProtoMember]
             public SerializableBoundingBoxD DefenderSlot;
 
-            [ProtoMember(3)]
+            [ProtoMember]
             public long DefenderEntityId;
         }
     }
@@ -88,14 +92,14 @@ namespace Sandbox.Common.ObjectBuilders.Definitions
     [XmlType("Transform")]
     public class MyObjectBuilder_WorldGeneratorPlayerStartingState_Transform : MyObjectBuilder_WorldGeneratorPlayerStartingState
     {
-        [ProtoMember(1)]
+        [ProtoMember]
         public MyPositionAndOrientation? Transform;
         public bool ShouldSerializeTransform() { return Transform.HasValue; }
 
-        [ProtoMember(2), XmlAttribute]
+        [ProtoMember, XmlAttribute]
         public bool JetpackEnabled;
 
-        [ProtoMember(3), XmlAttribute]
+        [ProtoMember, XmlAttribute]
         public bool DampenersEnabled;
     }
 
@@ -103,10 +107,10 @@ namespace Sandbox.Common.ObjectBuilders.Definitions
     [XmlType("RespawnShip")]
     public class MyObjectBuilder_WorldGeneratorPlayerStartingState_RespawnShip : MyObjectBuilder_WorldGeneratorPlayerStartingState
     {
-        [ProtoMember(1), XmlAttribute]
+        [ProtoMember, XmlAttribute]
         public bool DampenersEnabled;
 
-        [ProtoMember(2), XmlAttribute]
+        [ProtoMember, XmlAttribute]
         public string RespawnShip;
     }
 
@@ -121,13 +125,13 @@ namespace Sandbox.Common.ObjectBuilders.Definitions
     [XmlType("AddAsteroidPrefab")]
     public class MyObjectBuilder_WorldGeneratorOperation_AddAsteroidPrefab : MyObjectBuilder_WorldGeneratorOperation
     {
-        [ProtoMember(1), XmlAttribute]
+        [ProtoMember, XmlAttribute]
         public string PrefabFile;
 
-        [ProtoMember(2), XmlAttribute]
+        [ProtoMember, XmlAttribute]
         public string Name;
 
-        [ProtoMember(3)]
+        [ProtoMember]
         public SerializableVector3 Position;
     }
 
@@ -135,7 +139,7 @@ namespace Sandbox.Common.ObjectBuilders.Definitions
     [XmlType("AddObjectsPrefab")]
     public class MyObjectBuilder_WorldGeneratorOperation_AddObjectsPrefab : MyObjectBuilder_WorldGeneratorOperation
     {
-        [ProtoMember(1), XmlAttribute]
+        [ProtoMember, XmlAttribute]
         public string PrefabFile;
     }
 
@@ -143,13 +147,13 @@ namespace Sandbox.Common.ObjectBuilders.Definitions
     [XmlType("AddShipPrefab")]
     public class MyObjectBuilder_WorldGeneratorOperation_AddShipPrefab : MyObjectBuilder_WorldGeneratorOperation
     {
-        [ProtoMember(1), XmlAttribute]
+        [ProtoMember, XmlAttribute]
         public string PrefabFile;
 
-        [ProtoMember(2)]
+        [ProtoMember]
         public MyPositionAndOrientation Transform;
 
-        [ProtoMember(3), XmlAttribute]
+        [ProtoMember, XmlAttribute]
         public float RandomRadius;
         public bool ShouldSerializeRandomRadius() { return RandomRadius != 0f; }
     }
@@ -158,17 +162,17 @@ namespace Sandbox.Common.ObjectBuilders.Definitions
     [XmlType("SetupBasePrefab")]
     public class MyObjectBuilder_WorldGeneratorOperation_SetupBasePrefab : MyObjectBuilder_WorldGeneratorOperation
     {
-        [ProtoMember(1), XmlAttribute]
+        [ProtoMember, XmlAttribute]
         public string PrefabFile;
 
-        [ProtoMember(2)]
+        [ProtoMember]
         public SerializableVector3 Offset;
         public bool ShouldSerializeOffset() { return Offset != Vector3.Zero; }
 
-        [ProtoMember(3), XmlAttribute]
+        [ProtoMember, XmlAttribute]
         public string AsteroidName;
 
-        [ProtoMember(4), XmlAttribute]
+        [ProtoMember, XmlAttribute]
         public string BeaconName;
         public bool ShouldSerializeBeaconName() { return !string.IsNullOrEmpty(BeaconName); }
 

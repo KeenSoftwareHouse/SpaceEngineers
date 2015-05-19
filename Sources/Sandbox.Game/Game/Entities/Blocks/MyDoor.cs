@@ -108,6 +108,11 @@ namespace Sandbox.Game.Entities
             }
         }
 
+        public float OpenRatio
+        {
+            get { return m_currOpening; }
+        }
+
         static MyDoor()
         {
             var open = new MyTerminalControlOnOffSwitch<MyDoor>("Open", MySpaceTexts.Blank, on: MySpaceTexts.BlockAction_DoorOpen, off: MySpaceTexts.BlockAction_DoorClosed);

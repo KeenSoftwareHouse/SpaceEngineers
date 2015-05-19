@@ -13,13 +13,13 @@ namespace Sandbox.Common.ObjectBuilders
     [MyObjectBuilderDefinition]
     public class MyObjectBuilder_Bot : MyObjectBuilder_Base
     {
-        [ProtoMember(1)]
+        [ProtoMember]
         public SerializableDefinitionId BotDefId;
 
-        [ProtoMember(2)]
+        [ProtoMember]
         public MyObjectBuilder_BotMemory BotMemory;
 
-        [ProtoMember(3)]
+        [ProtoMember]
         public string LastBehaviorTree = null;
     }
 }

@@ -11,13 +11,13 @@ namespace Sandbox.Common.ObjectBuilders.VRageData
     [ProtoContract]
     public struct SerializableBounds
     {
-        [ProtoMember(1), XmlAttribute]
+        [ProtoMember, XmlAttribute]
         public float Min;
 
-        [ProtoMember(2), XmlAttribute]
+        [ProtoMember, XmlAttribute]
         public float Max;
 
-        [ProtoMember(3), XmlAttribute]
+        [ProtoMember, XmlAttribute]
         public float Default;
 
         public SerializableBounds(float min, float max, float def)

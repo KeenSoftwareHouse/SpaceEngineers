@@ -7,10 +7,10 @@ namespace Sandbox.Common.ObjectBuilders
     [MyObjectBuilderDefinition]
     public class MyObjectBuilder_StockpileItem : MyObjectBuilder_Base
     {
-        [ProtoMember(1)]
+        [ProtoMember]
         public int Amount;
 
-        [ProtoMember(2)]
+        [ProtoMember]
         public MyObjectBuilder_PhysicalObject PhysicalContent;
     }
 }

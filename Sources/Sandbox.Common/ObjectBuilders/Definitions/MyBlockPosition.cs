@@ -10,10 +10,10 @@ namespace Sandbox.Common.ObjectBuilders.Definitions
     [ProtoContract]
     public class MyBlockPosition
     {
-        [ProtoMember(1)]
+        [ProtoMember]
         public string Name;
 
-        [ProtoMember(2)]
+        [ProtoMember]
         public Vector2I Position;
     }
 }

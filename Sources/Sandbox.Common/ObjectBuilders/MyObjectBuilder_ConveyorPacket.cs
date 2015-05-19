@@ -7,10 +7,10 @@ namespace Sandbox.Common.ObjectBuilders
     [MyObjectBuilderDefinition]
     public class MyObjectBuilder_ConveyorPacket : MyObjectBuilder_Base
     {
-        [ProtoMember(1)]
+        [ProtoMember]
         public MyObjectBuilder_InventoryItem Item;
 
-        [ProtoMember(2), DefaultValue(0)]
+        [ProtoMember, DefaultValue(0)]
         public int LinePosition = 0;
         public bool ShouldSerializeLinePosition() { return LinePosition != 0; }
     }

@@ -88,6 +88,7 @@
     <Compile Include="GeometryStage\Geometry\MyMergeInstancing.cs" />
     <Compile Include="GeometryStage\Geometry\MyMeshes.cs" />
     <Compile Include="GeometryStage\Geometry\MyMeshTableSRV.cs" />
+    <Compile Include="GeometryStage\Geometry\MyScreenDecals.cs" />
     <Compile Include="GeometryStage\Materials\Materials.cs" />
     <Compile Include="GeometryStage\Materials\MeshMaterial.cs" />
     <Compile Include="GeometryStage\MyRenderingDispatcher.cs" />

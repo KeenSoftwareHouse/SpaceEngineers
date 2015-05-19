@@ -9,7 +9,7 @@ namespace Sandbox.Common.ObjectBuilders.Gui
     [MyObjectBuilderDefinition]
     public class MyObjectBuilder_GuiControls : MyObjectBuilder_Base
     {
-        [ProtoMember(1)]
+        [ProtoMember]
         public List<MyObjectBuilder_GuiControlBase> Controls;
     }
 }

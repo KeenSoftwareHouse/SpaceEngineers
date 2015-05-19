@@ -415,7 +415,8 @@ namespace Sandbox.Game.Gui
             {
                 Position = m_blockSearch.Position + new Vector2(0.13f, 0f),
                 OriginAlign = MyGuiDrawAlignEnum.HORISONTAL_RIGHT_AND_VERTICAL_CENTER,
-                VisualStyle = MyGuiControlButtonStyleEnum.Close
+				VisualStyle = MyGuiControlButtonStyleEnum.Close,
+				ActivateOnMouseRelease = true
             };
             m_blockSearchClear.ButtonClicked += BlockSearchClear_ButtonClicked;
             page.Controls.Add(m_blockSearchClear);

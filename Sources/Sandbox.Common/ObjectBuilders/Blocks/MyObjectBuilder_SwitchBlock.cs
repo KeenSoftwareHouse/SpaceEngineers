@@ -12,7 +12,7 @@ namespace Medieval.ObjectBuilders.Blocks
     [MyObjectBuilderDefinition]
     public class MyObjectBuilder_SwitchBlock : MyObjectBuilder_CubeBlock
     {
-        [ProtoMember(1)]
+        [ProtoMember]
         public int State;
     }
 }

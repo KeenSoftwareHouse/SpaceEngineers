@@ -11,6 +11,7 @@ using System.Diagnostics;
 using System;
 using Medieval.ObjectBuilders;
 using VRage.Library.Utils;
+using VRageMath;
 using Sandbox.Game.Multiplayer;
 
 namespace Sandbox.Game.GameSystems
@@ -336,6 +337,42 @@ namespace Sandbox.Game.GameSystems
             }
             return fp;
         }
+
+		public List<MyFracturedPiece> GetFracturesInSphere(ref BoundingSphereD searchSphere)
+		{
+			var fracturesInRadius = new List<MyFracturedPiece>();
+			var activeFractures = m_piecesTimesOfDeath.Keys;
+
+			double radiusSq = searchSphere.Radius * searchSphere.Radius;
+			foreach(var fracture in activeFractures)
+			{
+				double distanceSq = Vector3D.DistanceSquared(searchSphere.Center, fracture.PositionComp.GetPosition());
+				if(distanceSq < radiusSq)
+				{
+					fracturesInRadius.Add(fracture);
+				}
+			}
+			
+			return fracturesInRadius;
+		}
+
+		public bool TryGetFractureById(long entityId, out MyFracturedPiece outFracture)
+		{
+			outFracture = null;
+			var activeFractures = m_piecesTimesOfDeath.Keys;
+
+			foreach(var fracture in activeFractures)
+			{
+				if (fracture.EntityId == entityId)
+				{
+					outFracture = fracture;
+					return true;
+				}
+			}
+
+
+			return false;
+		}
 
         //jn: TODO move to some more general position 
         private Queue<Bodies> m_bodyPool = new Queue<Bodies>();

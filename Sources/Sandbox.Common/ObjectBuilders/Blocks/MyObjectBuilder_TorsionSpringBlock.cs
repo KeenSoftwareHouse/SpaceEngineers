@@ -13,10 +13,10 @@ namespace Medieval.ObjectBuilders.Blocks
     [MyObjectBuilderDefinition]
     public class MyObjectBuilder_TorsionSpringBlock : MyObjectBuilder_CubeBlock
     {
-        [ProtoMember(1)]
+        [ProtoMember]
         public float Angle;
 
-        [ProtoMember(2)]
+        [ProtoMember]
         public bool State;
     }
 }

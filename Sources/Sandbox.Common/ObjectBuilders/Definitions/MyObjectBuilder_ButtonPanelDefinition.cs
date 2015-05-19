@@ -11,16 +11,16 @@ namespace Sandbox.Common.ObjectBuilders.Definitions
     [MyObjectBuilderDefinition]
     public class MyObjectBuilder_ButtonPanelDefinition : MyObjectBuilder_CubeBlockDefinition
     {
-        [ProtoMember(1)]
+        [ProtoMember]
         public int ButtonCount;
 
-        [ProtoMember(2)]
+        [ProtoMember]
         public string[] ButtonSymbols;
 
-        [ProtoMember(3)]
+        [ProtoMember]
         public Vector4[] ButtonColors;
 
-        [ProtoMember(4)]
+        [ProtoMember]
         public Vector4 UnassignedButtonColor;
     }
 }

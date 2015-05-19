@@ -8,13 +8,13 @@ namespace Sandbox.Common.ObjectBuilders
     [MyObjectBuilderDefinition]
     public class MyObjectBuilder_SensorBlock : MyObjectBuilder_FunctionalBlock
     {
-        [ProtoMember(1)]
+        [ProtoMember]
         public SerializableVector3 FieldMin = new SerializableVector3(-5f, -5f, -5f);
 
-        [ProtoMember(2)]
+        [ProtoMember]
         public SerializableVector3 FieldMax = new SerializableVector3(5f, 5f, 5f);
 
-        [ProtoMember(3)]
+        [ProtoMember]
         public MyObjectBuilder_Toolbar Toolbar;
 
         public override void Remap(IMyRemapHelper remapHelper)
@@ -23,37 +23,37 @@ namespace Sandbox.Common.ObjectBuilders
             Toolbar.Remap(remapHelper);
         }
 
-        [ProtoMember(4)]
+        [ProtoMember]
         public bool DetectPlayers = true;
 
-        [ProtoMember(5)]
+        [ProtoMember]
         public bool DetectFloatingObjects = false;
 
-        [ProtoMember(6)]
+        [ProtoMember]
         public bool DetectSmallShips = false;
 
-        [ProtoMember(7)]
+        [ProtoMember]
         public bool DetectLargeShips = false;
 
-        [ProtoMember(8)]
+        [ProtoMember]
         public bool DetectStations = false;
 
-        [ProtoMember(9)]
+        [ProtoMember]
         public bool IsActive = false;
 
-        [ProtoMember(10)]
+        [ProtoMember]
         public bool DetectAsteroids = false;
 
-        [ProtoMember(11)]
+        [ProtoMember]
         public bool DetectOwner = true;
 
-        [ProtoMember(12)]
+        [ProtoMember]
         public bool DetectFriendly = true;
 
-        [ProtoMember(13)]
+        [ProtoMember]
         public bool DetectNeutral = true;
 
-        [ProtoMember(14)]
+        [ProtoMember]
         public bool DetectEnemy = true;
     }
 }

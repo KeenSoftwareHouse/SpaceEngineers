@@ -97,6 +97,10 @@ namespace Sandbox.Definitions
         public float CharacterHeadHeight;
         public float CharacterCollisionScale;
 
+        public float CharacterWidth;
+        public float CharacterHeight;
+        public float CharacterLength;
+
         protected override void Init(MyObjectBuilder_DefinitionBase objectBuilder)
         {
             var builder = (MyObjectBuilder_CharacterDefinition)objectBuilder;
@@ -143,6 +147,7 @@ namespace Sandbox.Definitions
             DeathSoundName = builder.DeathSoundName;
             VisibleOnHud = builder.VisibleOnHud;
             RagdollRootBody = builder.RagdollRootBody;
+
 
             FeetIKSettings = new Dictionary<MyCharacterMovementEnum,MyFeetIKSettings>();
             if (builder.IKSettings != null)
@@ -219,6 +224,10 @@ namespace Sandbox.Definitions
             CharacterHeadSize = builder.CharacterHeadSize;
             CharacterHeadHeight = builder.CharacterHeadHeight;
             CharacterCollisionScale = builder.CharacterCollisionScale;
+
+            CharacterWidth = builder.CharacterWidth;
+            CharacterHeight = builder.CharacterHeight;
+            CharacterLength = builder.CharacterLength;
         }
 
         public override MyObjectBuilder_DefinitionBase GetObjectBuilder()
@@ -272,6 +281,11 @@ namespace Sandbox.Definitions
             ob.CharacterHeadSize = CharacterHeadSize;
             ob.CharacterHeadHeight = CharacterHeadHeight;
             ob.CharacterCollisionScale = CharacterCollisionScale;
+
+            ob.CharacterHeight = CharacterHeight;
+            ob.CharacterLength = CharacterLength;
+            ob.CharacterWidth = CharacterWidth;
+
             return ob;
         }
     }

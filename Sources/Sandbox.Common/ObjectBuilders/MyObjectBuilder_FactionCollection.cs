@@ -18,23 +18,23 @@ namespace Sandbox.Common.ObjectBuilders
     [ProtoContract]
     public struct MyObjectBuilder_FactionRelation
     {
-        [ProtoMember(1)]
+        [ProtoMember]
         public long FactionId1;
 
-        [ProtoMember(2)]
+        [ProtoMember]
         public long FactionId2;
 
-        [ProtoMember(3)]
+        [ProtoMember]
         public MyRelationsBetweenFactions Relation;
     }
 
     [ProtoContract]
     public struct MyObjectBuilder_FactionRequests
     {
-        [ProtoMember(1)]
+        [ProtoMember]
         public long FactionId;
 
-        [ProtoMember(2)]
+        [ProtoMember]
         public List<long> FactionRequests;
     }
 
@@ -42,16 +42,16 @@ namespace Sandbox.Common.ObjectBuilders
     [MyObjectBuilderDefinition]
     public class MyObjectBuilder_FactionCollection : MyObjectBuilder_Base
     {
-        [ProtoMember(1)]
+        [ProtoMember]
         public List<MyObjectBuilder_Faction> Factions;
 
-        [ProtoMember(2)]
+        [ProtoMember]
         public SerializableDictionary<long, long> Players;
 
-        [ProtoMember(3)]
+        [ProtoMember]
         public List<MyObjectBuilder_FactionRelation> Relations;
 
-        [ProtoMember(4)]
+        [ProtoMember]
         public List<MyObjectBuilder_FactionRequests> Requests;
     }
 }

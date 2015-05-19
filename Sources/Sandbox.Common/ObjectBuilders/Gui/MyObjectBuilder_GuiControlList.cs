@@ -16,7 +16,7 @@ namespace Sandbox.Common.ObjectBuilders.Gui
     [MyObjectBuilderDefinition]
     public class MyObjectBuilder_GuiControlList : MyObjectBuilder_GuiControlParent
     {
-        [ProtoMember(2)]
+        [ProtoMember]
         public MyGuiControlListStyleEnum VisualStyle;
     }
 }

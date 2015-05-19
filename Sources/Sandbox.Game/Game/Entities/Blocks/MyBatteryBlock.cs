@@ -68,6 +68,7 @@ namespace Sandbox.Game.Entities
             var semiAuto = new MyTerminalControlCheckbox<MyBatteryBlock>("SemiAuto", MySpaceTexts.BlockPropertyTitle_Semiauto, MySpaceTexts.ToolTipBatteryBlock_Semiauto);
             semiAuto.Getter = (x) => x.SemiautoEnabled;
             semiAuto.Setter = (x, v) => x.SyncObject.SendSemiautoEnableChange(v);
+            semiAuto.EnableAction();
 
             MyTerminalControlFactory.AddControl(recharge);
             MyTerminalControlFactory.AddControl(semiAuto);

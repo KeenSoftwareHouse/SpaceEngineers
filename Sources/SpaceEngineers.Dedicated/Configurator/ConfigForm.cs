@@ -19,7 +19,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace DedicatedConfigurator
 {
-    public partial class ConfigForm : Form
+    public partial class ConfigFormOld : Form
     {
         IMyAsyncResult m_loadWorldsAsync;
         MyObjectBuilder_SessionSettings m_selectedSessionSettings;
@@ -31,7 +31,7 @@ namespace DedicatedConfigurator
 
         ServiceController m_serviceController;
 
-        public ConfigForm(bool isService, string serviceName)
+        public ConfigFormOld(bool isService, string serviceName)
         {
             m_isService = isService;
             m_serviceName = serviceName;
