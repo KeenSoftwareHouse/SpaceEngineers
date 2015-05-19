@@ -265,7 +265,7 @@ namespace Sandbox.Game.Entities.Cube
             AddDebugRenderComponent(new Components.MyDebugRenderCompoonentShipConnector(this));
         }
 
-        public void Inventory_ContentsChanged(MyInventory obj)
+        void Inventory_ContentsChanged(MyInventory obj)
         {
             CubeGrid.SetInventoryMassDirty();
         }

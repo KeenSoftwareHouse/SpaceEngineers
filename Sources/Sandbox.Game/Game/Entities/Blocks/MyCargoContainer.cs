@@ -82,7 +82,7 @@ namespace Sandbox.Game.Entities
             UpdateIsWorking();
         }
 
-        public void Inventory_ContentsChanged(MyInventory obj)
+        void Inventory_ContentsChanged(MyInventory obj)
         {
             CubeGrid.SetInventoryMassDirty();
         }
