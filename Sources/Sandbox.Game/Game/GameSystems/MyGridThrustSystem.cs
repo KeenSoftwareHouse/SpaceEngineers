@@ -292,6 +292,7 @@ namespace Sandbox.Game.GameSystems
             InitializeThrottleAndCOMOffset(m_thrustsByDirection[Vector3I.Up      ], thrustNegative.Y, ref adjustedThrust, ref invWorldRot);
             InitializeThrottleAndCOMOffset(m_thrustsByDirection[Vector3I.Backward], thrustNegative.Z, ref adjustedThrust, ref invWorldRot);
 
+            LocalAngularVelocity = Vector3.Transform(m_grid.Physics.AngularVelocity, ref invWorldRot);
             // A quick'n'dirty way of making torque optional. Activating gyroscope override also disables RCS.
             if (MySession.Static.ThrusterDamage && !IsGyroOverrideActive)        
             {

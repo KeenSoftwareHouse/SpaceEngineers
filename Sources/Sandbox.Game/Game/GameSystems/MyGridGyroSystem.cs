@@ -208,7 +208,7 @@ namespace Sandbox.Game.GameSystems
 
             m_gyroControlIntegral = Vector3.Zero;
             m_enableIntegral      = false;
-            IsGyroOverrideActive  = true;
+            m_resetIntegral       = IsGyroOverrideActive = true;
             if (MyDebugDrawSettings.DEBUG_DRAW_GYROS)
                 MyRenderProxy.DebugDrawText2D(new Vector2(0.0f, 0.0f), "New gyros", Color.White, 1.0f);
 
