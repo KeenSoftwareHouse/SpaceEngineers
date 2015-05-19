@@ -20,6 +20,7 @@ namespace Sandbox.Definitions
         public MyBounds BlinkOffset;
         public float RequiredPowerInput;
         public string LightGlare;
+        public bool HasPhysics;
 
         protected override void Init(MyObjectBuilder_DefinitionBase builder)
         {
@@ -35,6 +36,7 @@ namespace Sandbox.Definitions
             LightIntensity     = ob.LightIntensity;
             RequiredPowerInput = ob.RequiredPowerInput;
             LightGlare         = ob.LightGlare;
+            HasPhysics = ob.HasPhysics;
         }
     }
 }

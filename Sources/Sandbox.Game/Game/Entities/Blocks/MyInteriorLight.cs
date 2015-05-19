@@ -28,7 +28,7 @@ namespace Sandbox.Game.Entities.Cube
 
         public override void Init(MyObjectBuilder_CubeBlock objectBuilder, MyCubeGrid cubeGrid)
         {
-            SlimBlock.HasPhysics = false;
+            SlimBlock.HasPhysics = BlockDefinition.HasPhysics;
             base.Init(objectBuilder, cubeGrid);
         }
 
