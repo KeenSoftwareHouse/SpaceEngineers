@@ -62,6 +62,7 @@ namespace Sandbox.Game.World.Generator
             Generator0,
             Generator1,
             Generator2,
+            Generator3,
         };
 
         public static readonly MyCompositeShapeGeneratorPlanetDelegate[] PlanetGenerators = new MyCompositeShapeGeneratorPlanetDelegate[]
@@ -84,6 +85,12 @@ namespace Sandbox.Game.World.Generator
         {
             Generator(2, seed, size, out data);
         }
+
+        private static void Generator3(int seed, float size, out MyCompositeShapeGeneratedData data)
+        {
+            Generator(3, seed, size, out data);
+        }
+
         private static void PlanetGenerator0(ref MyCsgShapePlanetShapeAttributes shapeAttributes, ref MyCsgShapePlanetHillAttributes hillAttributes, ref MyCsgShapePlanetHillAttributes canyonAttributes, MyMaterialLayer[] materialLevels, out MyCompositeShapeGeneratedData data)
         {
             PlanetGenerator(ref shapeAttributes, ref hillAttributes, ref canyonAttributes, materialLevels, out data);
@@ -215,7 +222,11 @@ namespace Sandbox.Game.World.Generator
 
                 MyCsgShapeBase primaryShape;
                 { // determine primary shape
-                    var primaryType = random.Next() % 5;
+                    int primaryType;
+                    if (version >= 3)
+                        primaryType = random.Next() % 5;
+                    else
+                        primaryType = random.Next() % 3;
                     switch (primaryType)
                     {
                         case 0: //ShapeType.Torus
@@ -421,103 +432,134 @@ namespace Sandbox.Game.World.Generator
                 { // generating materials
                     // What to do when we (or mods) change the number of materials? Same seed will then produce different results.
 
-                    string surfaceMaterial = "Stone";
-                    string coreMaterial = "Iron";
-                    string innerCoreMaterial = null;
-                    int lightOreFrequency = 1;
-                    int mediumOreFrequency = 1;
-                    int heavyOreFrequency = 1;
                     float depositCountMult = 1;
-
-                    switch (random.Next(5))
+                    if (version >= 3)
                     {
-                        // Class C.
-                        case 0:
-                            surfaceMaterial = "Ice";
-                            coreMaterial = "Stone";
-                            innerCoreMaterial = "Iron";
-                            lightOreFrequency = 2;
-                            mediumOreFrequency = 1;
-                            heavyOreFrequency = 1;
-                            break;
+                        string surfaceMaterial = "Stone";
+                        string coreMaterial = "Iron";
+                        string innerCoreMaterial = null;
+                        int lightOreFrequency = 1;
+                        int mediumOreFrequency = 1;
+                        int heavyOreFrequency = 1;
 
-                        // Class S.
-                        case 1:
-                            surfaceMaterial = "Stone";
-                            coreMaterial = "Iron";
-                            lightOreFrequency = 2;
-                            mediumOreFrequency = 2;
-                            heavyOreFrequency = 1;
-                            break;
-
-                        // Class M.
-                        case 2:
-                            surfaceMaterial = "Stone";
-                            coreMaterial = "Iron";
-                            innerCoreMaterial = "Nickel";
-                            lightOreFrequency = 0;
-                            mediumOreFrequency = 1;
-                            heavyOreFrequency = 1;
-                            break;
-
-                        // Class E.
-                        case 3:
-                            surfaceMaterial = "Stone";
-                            coreMaterial = "Stone";
-                            lightOreFrequency = 1;
-                            mediumOreFrequency = 1;
-                            heavyOreFrequency = 2;
-                            depositCountMult = 2;
-                            break;
-
-                        // Kuiper belt object.
-                        default:
-                            surfaceMaterial = "Ice";
-                            coreMaterial = "Ice";
-                            lightOreFrequency = 1;
-                            mediumOreFrequency = 1;
-                            heavyOreFrequency = 0;
-                            break;
-                    }
-
-                    foreach (var material in MyDefinitionManager.Static.GetVoxelMaterialDefinitions())
-                    {
-                        if (material.MinVersion > version)
-                            continue;
-
-                        if (material.MinedOre == surfaceMaterial)
-                            m_surfaceMaterials.Add(material);
-                        if (material.MinedOre == coreMaterial)
-                            m_coreMaterials.Add(material);
-                        if (innerCoreMaterial != null && material.MinedOre == innerCoreMaterial)
-                            m_innerCoreMaterials.Add(material);
-
-                        int frequency = 1;
-                        switch (material.MinedOre)
+                        switch (random.Next(5))
                         {
-                            case "Stone":
-                            case "Ice":
-                                frequency = 0;
+                            // Class C.
+                            case 0:
+                                surfaceMaterial = "Ice";
+                                coreMaterial = "Stone";
+                                innerCoreMaterial = "Iron";
+                                lightOreFrequency = 2;
+                                mediumOreFrequency = 1;
+                                heavyOreFrequency = 1;
                                 break;
-                            case "Magnesium":
-                            case "Silicon":
-                                frequency = lightOreFrequency;
+
+                            // Class S.
+                            case 1:
+                                surfaceMaterial = "Stone";
+                                coreMaterial = "Iron";
+                                lightOreFrequency = 2;
+                                mediumOreFrequency = 2;
+                                heavyOreFrequency = 1;
                                 break;
-                            case "Iron":
-                            case "Nickel":
-                            case "Cobalt":
-                                frequency = mediumOreFrequency;
+
+                            // Class M.
+                            case 2:
+                                surfaceMaterial = "Stone";
+                                coreMaterial = "Iron";
+                                innerCoreMaterial = "Nickel";
+                                lightOreFrequency = 0;
+                                mediumOreFrequency = 1;
+                                heavyOreFrequency = 1;
                                 break;
-                            case "Uranium":
-                                // We want more uranium, by design
-                                frequency = heavyOreFrequency * 2;
+
+                            // Class E.
+                            case 3:
+                                surfaceMaterial = "Stone";
+                                coreMaterial = "Stone";
+                                lightOreFrequency = 1;
+                                mediumOreFrequency = 1;
+                                heavyOreFrequency = 2;
+                                depositCountMult = 2;
                                 break;
+
+                            // Kuiper belt object.
                             default:
-                                frequency = heavyOreFrequency;
+                                surfaceMaterial = "Ice";
+                                coreMaterial = "Ice";
+                                lightOreFrequency = 1;
+                                mediumOreFrequency = 1;
+                                heavyOreFrequency = 0;
                                 break;
                         }
-                        for (int i = 0; i < frequency; i++)
-                            m_depositMaterials.Add(material);
+
+                        foreach (var material in MyDefinitionManager.Static.GetVoxelMaterialDefinitions())
+                        {
+                            if (material.MinVersion > version)
+                                continue;
+
+                            if (material.MinedOre == surfaceMaterial)
+                                m_surfaceMaterials.Add(material);
+                            if (material.MinedOre == coreMaterial)
+                                m_coreMaterials.Add(material);
+                            if (innerCoreMaterial != null && material.MinedOre == innerCoreMaterial)
+                                m_innerCoreMaterials.Add(material);
+
+                            int frequency = 1;
+                            switch (material.MinedOre)
+                            {
+                                case "Stone":
+                                case "Ice":
+                                    frequency = 0;
+                                    break;
+                                case "Magnesium":
+                                case "Silicon":
+                                    frequency = lightOreFrequency;
+                                    break;
+                                case "Iron":
+                                case "Nickel":
+                                case "Cobalt":
+                                    frequency = mediumOreFrequency;
+                                    break;
+                                case "Uranium":
+                                    // We want more uranium, by design
+                                    frequency = heavyOreFrequency * 2;
+                                    break;
+                                default:
+                                    frequency = heavyOreFrequency;
+                                    break;
+                            }
+                            for (int i = 0; i < frequency; i++)
+                                m_depositMaterials.Add(material);
+                        }
+                    }
+                    else
+                    {
+                        // What to do when we (or mods) change the number of materials? Same seed will then produce different results.
+                        foreach (var material in MyDefinitionManager.Static.GetVoxelMaterialDefinitions())
+                        {
+                            if (material.MinVersion > version)
+                                continue;
+
+                            if (material.MinedOre == "Stone") // Surface
+                                m_surfaceMaterials.Add(material);
+                            else if (material.MinedOre == "Iron") // Core
+                                m_coreMaterials.Add(material);
+                            else if (material.MinedOre == "Uranium") // Uranium
+                            {
+                                // We want more uranium, by design
+                                m_depositMaterials.Add(material);
+                                m_depositMaterials.Add(material);
+                            }
+                            else if (material.MinedOre == "Ice")
+                            {
+                                // We also want more ice, by design
+                                m_depositMaterials.Add(material);
+                                m_depositMaterials.Add(material);
+                            }
+                            else
+                                m_depositMaterials.Add(material);
+                        }                        
                     }
 
                     Action<List<MyVoxelMaterialDefinition>> shuffleMaterials = (list) =>

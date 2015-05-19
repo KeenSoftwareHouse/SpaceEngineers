@@ -64,7 +64,7 @@ namespace VRage.Voxels
         public const float DEFAULT_WRINKLE_WEIGHT_REMOVE = 0.45f;
 
         // Increment this when adding a new generator version
-        public const int VOXEL_GENERATOR_VERSION = 2;
+        public const int VOXEL_GENERATOR_VERSION = 3;
         public const int VOXEL_GENERATOR_MIN_ICE_VERSION = 1;
     }
 
