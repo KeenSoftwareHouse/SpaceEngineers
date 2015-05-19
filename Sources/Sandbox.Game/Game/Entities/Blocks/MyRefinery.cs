@@ -325,7 +325,10 @@ namespace Sandbox.Game.Entities.Cube
 
                 var resultAmount = blueprintAmount * conversionRatio;
                 OutputInventory.AddItems(resultAmount, obResult);
-                OutputInventory.ContentsChanged += Inventory_ContentsChanged;
+				if(MyPerGameSettings.InventoryMass)
+				{
+					OutputInventory.ContentsChanged += Inventory_ContentsChanged;
+				}
             }
 
             RemoveFirstQueueItemAnnounce(blueprintAmount);
