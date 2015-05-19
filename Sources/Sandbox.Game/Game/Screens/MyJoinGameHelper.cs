@@ -162,7 +162,7 @@ namespace Sandbox.Game.Gui
 
         public static void JoinBattleGame(ulong lobbyId)
         {
-            StringBuilder text = MyTexts.Get(MySpaceTexts.DialogTextJoiningWorld);
+            StringBuilder text = MyTexts.Get(MySpaceTexts.DialogTextJoiningBattleLobby);
 
             MyGuiScreenProgress progress = new MyGuiScreenProgress(text, MySpaceTexts.Cancel);
             MyGuiSandbox.AddScreen(progress);
@@ -318,7 +318,7 @@ namespace Sandbox.Game.Gui
                     status = enterInfo.EnterState.ToString();
                 }
 
-                OnJoinFailed(progress, multiplayer, status);
+                OnJoinBattleFailed(progress, multiplayer, status);
             }
         }
 
@@ -346,6 +346,20 @@ namespace Sandbox.Game.Gui
             progress.Cancel();
             StringBuilder error = new StringBuilder();
             error.AppendFormat(MySpaceTexts.DialogTextJoinWorldFailed, status);
+
+            MyGuiScreenMessageBox mb = MyGuiSandbox.CreateMessageBox(messageText: error, messageCaption: MyTexts.Get(MySpaceTexts.MessageBoxCaptionError));
+            MyGuiSandbox.AddScreen(mb);
+        }
+
+        private static void OnJoinBattleFailed(MyGuiScreenProgress progress, MyMultiplayerBase multiplayer, string status)
+        {
+            if (multiplayer != null)
+            {
+                multiplayer.Dispose();
+            }
+            progress.Cancel();
+            StringBuilder error = new StringBuilder();
+            error.AppendFormat(MySpaceTexts.DialogTextJoinBattleLobbyFailed, status);
 
             MyGuiScreenMessageBox mb = MyGuiSandbox.CreateMessageBox(messageText: error, messageCaption: MyTexts.Get(MySpaceTexts.MessageBoxCaptionError));
             MyGuiSandbox.AddScreen(mb);

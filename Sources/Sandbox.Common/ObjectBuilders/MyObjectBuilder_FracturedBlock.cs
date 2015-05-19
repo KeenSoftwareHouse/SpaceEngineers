@@ -17,20 +17,20 @@ namespace Sandbox.Common.ObjectBuilders
         [ProtoContract]
         public struct ShapeB
         {
-            [ProtoMember(1)]
+            [ProtoMember]
             public string Name;
-            [ProtoMember(2)]
+            [ProtoMember]
             public SerializableQuaternion Orientation;// = Quaternion.Identity;
-            [ProtoMember(3), DefaultValue(false)]
+            [ProtoMember, DefaultValue(false)]
             public bool Fixed;
         }
-        [ProtoMember(1)]
+        [ProtoMember]
         public List<SerializableDefinitionId> BlockDefinitions = new List<Common.ObjectBuilders.Definitions.SerializableDefinitionId>();
 
-        [ProtoMember(2)]
+        [ProtoMember]
         public List<ShapeB> Shapes = new List<ShapeB>();
 
-        [ProtoMember(3)]
+        [ProtoMember]
         public List<SerializableBlockOrientation> BlockOrientations = new List<SerializableBlockOrientation>();
     }
 }

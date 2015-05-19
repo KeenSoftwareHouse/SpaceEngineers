@@ -79,16 +79,16 @@ namespace Sandbox.Game.Multiplayer
         [MessageId(13, P2PMessageEnum.Reliable)]
         struct IdentityCreatedMsg
         {
-            [ProtoMember(1)]
+            [ProtoMember]
             public bool IsNPC;
 
-            [ProtoMember(2)]
+            [ProtoMember]
             public long IdentityId;
 
-            [ProtoMember(3)]
+            [ProtoMember]
             public string DisplayName;
 
-            [ProtoMember(4)]
+            [ProtoMember]
             public string Model;
         }
 
@@ -115,17 +115,17 @@ namespace Sandbox.Game.Multiplayer
         [ProtoContract]
         public struct RespawnMsg
         {
-            [ProtoMember(1)]
+            [ProtoMember]
             public bool JoinGame;
-            [ProtoMember(2)]
+            [ProtoMember]
             public bool NewIdentity;
-            [ProtoMember(3)]
+            [ProtoMember]
             public long MedicalRoom;
-            [ProtoMember(4)]
+            [ProtoMember]
             public string RespawnShipId;
-            [ProtoMember(5)]
+            [ProtoMember]
             public int PlayerSerialId;
-            [ProtoMember(6)]
+            [ProtoMember]
             public Vector3D? SpawnPosition;
         }
 
@@ -133,13 +133,13 @@ namespace Sandbox.Game.Multiplayer
         [ProtoContract]
         struct NewPlayerRequestMsg
         {
-            [ProtoMember(1)]
+            [ProtoMember]
             public ulong ClientSteamId;
-            [ProtoMember(2)]
+            [ProtoMember]
             public int PlayerSerialId;
-            [ProtoMember(3)]
+            [ProtoMember]
             public string DisplayName;
-            [ProtoMember(4)]
+            [ProtoMember]
             public string CharacterModel;
         }
 
@@ -161,13 +161,13 @@ namespace Sandbox.Game.Multiplayer
         [ProtoContract]
         struct PlayerCreatedMsg
         {
-            [ProtoMember(1)]
+            [ProtoMember]
             public ulong ClientSteamId;
-            [ProtoMember(2)]
+            [ProtoMember]
             public int PlayerSerialId;
-            [ProtoMember(3)]
+            [ProtoMember]
             public long IdentityId;
-            [ProtoMember(4)]
+            [ProtoMember]
             public string DisplayName;
         }
 
@@ -190,9 +190,9 @@ namespace Sandbox.Game.Multiplayer
         [ProtoContract]
         struct AllIdentitiesRequestMsg
         {
-            [ProtoMember(1)]
+            [ProtoMember]
             public ulong ClientSteamId;
-            [ProtoMember(2)]
+            [ProtoMember]
             public int PlayerSerialId;
         }
 
@@ -200,7 +200,7 @@ namespace Sandbox.Game.Multiplayer
         [ProtoContract]
         struct AllIdentitiesSuccessMsg
         {
-            [ProtoMember(1)]
+            [ProtoMember]
             public List<MyObjectBuilder_Identity> Identities;
         }
 
@@ -208,20 +208,20 @@ namespace Sandbox.Game.Multiplayer
         [ProtoContract]
         struct AllPlayersRequestMsg
         {
-            [ProtoMember(1)]
+            [ProtoMember]
             public ulong ClientSteamId;
-            [ProtoMember(2)]
+            [ProtoMember]
             public int PlayerSerialId;
         }
 
         [ProtoContract]
         struct AllPlayerData 
         {
-            [ProtoMember(1)]
+            [ProtoMember]
             public ulong SteamId;
-            [ProtoMember(2)]
+            [ProtoMember]
             public int SerialId;
-            [ProtoMember(3)]
+            [ProtoMember]
             public MyObjectBuilder_Player Player;
 
         }
@@ -230,7 +230,7 @@ namespace Sandbox.Game.Multiplayer
         [ProtoContract]
         struct AllPlayersSuccessMsg
         {
-            [ProtoMember(1)]
+            [ProtoMember]
             public List<AllPlayerData> Players;
         }
 

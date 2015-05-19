@@ -6,7 +6,7 @@ namespace Sandbox.Common.ObjectBuilders
     [MyObjectBuilderDefinition]
     public class MyObjectBuilder_AmmoMagazine : MyObjectBuilder_PhysicalObject
     {
-        [ProtoMember(3)]
+        [ProtoMember]
         public int ProjectilesCount;
     }
 }

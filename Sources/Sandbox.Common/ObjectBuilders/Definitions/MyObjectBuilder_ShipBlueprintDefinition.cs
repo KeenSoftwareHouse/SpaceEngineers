@@ -12,13 +12,13 @@ namespace Sandbox.Common.ObjectBuilders.Definitions
     [MyObjectBuilderDefinition]
     public class MyObjectBuilder_ShipBlueprintDefinition : MyObjectBuilder_PrefabDefinition
     {
-        [ProtoMember(1)]
+        [ProtoMember]
         public ulong WorkshopId;
 
-        [ProtoMember(2)]
+        [ProtoMember]
         public ulong OwnerSteamId;
 
-        [ProtoMember(3)]
+        [ProtoMember]
         public ulong BattlePoints;
     }
 }

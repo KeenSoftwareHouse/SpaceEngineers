@@ -10,9 +10,9 @@ namespace Sandbox.Common.ObjectBuilders.Definitions
     [MyObjectBuilderDefinition]
     public class MyObjectBuilder_Trigger : MyObjectBuilder_Base
     {
-        [ProtoMember(1)]
+        [ProtoMember]
         public bool IsTrue;
-        [ProtoMember(2)]
+        [ProtoMember]
         public string Message;
     }
 }

@@ -14,6 +14,8 @@ namespace Sandbox.Common.Components
 
         private Dictionary<Type, MyComponentBase> m_components = new Dictionary<Type, MyComponentBase>();
 
+		private static List<MyComponentBase> m_tmpComponentList = new List<MyComponentBase>();
+
         public MyComponentContainer(Sandbox.ModAPI.IMyEntity entity)
         {
             Entity = entity;
@@ -92,5 +94,30 @@ namespace Sandbox.Common.Components
             }
             return false;
         }
-    }
+
+		public void Clear()
+		{
+			try
+			{
+				foreach(var component in m_components)
+				{
+					m_tmpComponentList.Add(component.Value);
+				}
+				m_components.Clear();
+
+				foreach(var component in m_tmpComponentList)
+				{
+					component.OnRemovedFromContainer(this);
+					var handle = ComponentRemoved;
+					if (handle != null) handle(component.GetType(), component);
+				}
+				
+			}
+			finally
+			{
+				m_tmpComponentList.Clear();
+			}
+			
+		}
+	}
 }

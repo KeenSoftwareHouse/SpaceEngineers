@@ -11,7 +11,7 @@ namespace Sandbox.Common.ObjectBuilders
     [MyObjectBuilderDefinition]
     public class MyObjectBuilder_ConveyorTurretBase : MyObjectBuilder_TurretBase
     {
-        [ProtoMember(1), DefaultValue(true)]
+        [ProtoMember, DefaultValue(true)]
         public bool UseConveyorSystem = true;
     }
 }

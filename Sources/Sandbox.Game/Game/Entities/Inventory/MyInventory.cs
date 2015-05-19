@@ -359,7 +359,7 @@ namespace Sandbox.Game
             }
             foreach(var b in lst)
             {
-                grid.RemoveBlock(b);
+                grid.RemoveBlock(b, true);
             }
             return lst.Count > 0;
             //grid.Close();
@@ -585,6 +585,47 @@ namespace Sandbox.Game
             {
                 bool transferAll = !amount.HasValue;
                 MyFixedPoint remainingAmount = transferAll ? 0 : amount.Value;
+                
+                //TODO(AF) Remove oxygen specific code from inventory.
+                //Will be fixed once MyInventory will support Entities.
+                // If the requested item is an oxygen container, do a preliminary loop to pull any non-full items first.
+                if (contentId.TypeId == typeof(MyObjectBuilder_OxygenContainerObject))
+                {
+                    int k = 0;
+                    while (k < src.m_items.Count)
+                    {
+                        if (!transferAll && remainingAmount == 0)
+                            break;
+
+                        MyInventoryItem item = src.m_items[k];
+                        
+                        // Skip full oxygen bottles in this loop.  They will not be skipped in the next one.
+                        var oxygenBottle = item.Content as MyObjectBuilder_OxygenContainerObject;
+                        if (oxygenBottle != null && oxygenBottle.OxygenLevel == 1f)
+                        {
+                            k++;
+                            continue;
+                        }
+
+                        if (item.Content.GetObjectId() != contentId)
+                        {
+                            k++;
+                            continue;
+                        }
+
+                        if (transferAll || remainingAmount >= item.Amount)
+                        {
+                            remainingAmount -= item.Amount;
+                            Transfer(src, dst, item.ItemId, -1, spawn: spawn);
+                        }
+                        else
+                        {
+                            Transfer(src, dst, item.ItemId, -1, remainingAmount, spawn);
+                            remainingAmount = 0;
+                        }
+                    }
+                }
+                // End of oxygen specific code
 
                 int i = 0;
                 while (i < src.m_items.Count)
@@ -593,17 +634,6 @@ namespace Sandbox.Game
                         break;
 
                     MyInventoryItem item = src.m_items[i];
-
-                    //TODO(AF) Remove oxygen specific code from inventory.
-                    //Will be fixed once MyInventory will support Entities.
-                    var oxygenBottle = item.Content as MyObjectBuilder_OxygenContainerObject;
-                    if (oxygenBottle != null && oxygenBottle.OxygenLevel == 1f)
-                    {
-                        i++;
-                        continue;
-                    }
-                    // End of oxygen specific code
-
 
                     if (item.Content.GetObjectId() != contentId)
                     {

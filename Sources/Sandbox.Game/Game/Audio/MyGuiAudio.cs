@@ -40,7 +40,7 @@ namespace Sandbox.Game.GUI
         HudVocShipFuelNo,
 
     }
-    class MyGuiAudio : IMyGuiAudio
+    public class MyGuiAudio : IMyGuiAudio
     {
         public static bool HudWarnings;
         public static IMyGuiAudio Static { get; set; }

@@ -138,6 +138,10 @@ namespace Sandbox.Game.Entities.Cube
             get { return MaxIntegrity; }
         }
 
+        float IMySlimBlock.Mass
+        {
+            get { return GetMass();  }
+        }
         void IMySlimBlock.RemoveNeighbours()
         {
             RemoveNeighbours();
@@ -236,6 +240,11 @@ namespace Sandbox.Game.Entities.Cube
         float ModAPI.Ingame.IMySlimBlock.MaxIntegrity
         {
             get { return MaxIntegrity; }
+        }
+
+        float ModAPI.Ingame.IMySlimBlock.Mass
+        {
+            get { return GetMass(); }
         }
 
         bool ModAPI.Ingame.IMySlimBlock.ShowParts

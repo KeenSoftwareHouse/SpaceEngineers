@@ -11,28 +11,31 @@ namespace Sandbox.Common.ObjectBuilders.Definitions
     [MyObjectBuilderDefinition]
     public class MyObjectBuilder_LightingBlockDefinition : MyObjectBuilder_CubeBlockDefinition
     {
-        [ProtoMember(1)]
+        [ProtoMember]
         public SerializableBounds LightRadius = new SerializableBounds(2, 10, 2.8f);
 
-        [ProtoMember(2)]
+        [ProtoMember]
         public SerializableBounds LightFalloff = new SerializableBounds(1, 3, 1.5f);
 
-        [ProtoMember(3)]
+        [ProtoMember]
         public SerializableBounds LightIntensity = new SerializableBounds(0.5f, 5, 2);
 
-        [ProtoMember(4)]
+        [ProtoMember]
         public float RequiredPowerInput = 0.001f;
 
-        [ProtoMember(5)]
+        [ProtoMember]
         public string LightGlare = "GlareLsLight";
 
-        [ProtoMember(6)]
+        [ProtoMember]
         public SerializableBounds LightBlinkIntervalSeconds = new SerializableBounds(0.0f, 30.0f, 0);
 
-        [ProtoMember(7)]
+        [ProtoMember]
         public SerializableBounds LightBlinkLenght = new SerializableBounds(0.0f, 100.0f, 10.0f);
 
-        [ProtoMember(8)]
+        [ProtoMember]
         public SerializableBounds LightBlinkOffset = new SerializableBounds(0.0f, 100.0f, 0);
+
+        [ProtoMember]
+        public bool HasPhysics = false;
     }
 }

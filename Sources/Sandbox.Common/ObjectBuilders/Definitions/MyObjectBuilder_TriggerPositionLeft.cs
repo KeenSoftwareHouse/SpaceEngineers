@@ -11,9 +11,9 @@ namespace Sandbox.Common.ObjectBuilders.Definitions
     [MyObjectBuilderDefinition]
     public class MyObjectBuilder_TriggerPositionLeft : MyObjectBuilder_Trigger
     {
-        [ProtoMember(1)]
+        [ProtoMember]
         public Vector3D Pos;
-        [ProtoMember(2)]
+        [ProtoMember]
         public double Distance2;
     }
 }

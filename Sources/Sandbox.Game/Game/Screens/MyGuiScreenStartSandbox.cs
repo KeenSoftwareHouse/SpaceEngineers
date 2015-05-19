@@ -32,6 +32,11 @@ namespace Sandbox.Game.Gui
         {
             EnabledBackgroundFade = true;
 
+            if (MyFakes.ENABLE_BATTLE_SYSTEM)
+            {
+                Size = new Vector2(0.36f, 0.34f);
+            }
+
             MyDefinitionManager.Static.LoadScenarios();
 
             RecreateControls(true);
@@ -105,7 +110,7 @@ namespace Sandbox.Game.Gui
 
         void OnQuickstartClick(MyGuiControlButton sender)
         {
-            QuickstartSandbox(this);
+            QuickstartSandbox(GetQuickstartSettings(), GetQuickstartArgs());
         }
 
         protected virtual MyObjectBuilder_SessionSettings GetQuickstartSettings()
@@ -139,7 +144,7 @@ namespace Sandbox.Game.Gui
         }
 
         // Start game with some default values
-        public static void QuickstartSandbox(MyGuiScreenStartSandbox instance)
+        public static void QuickstartSandbox(MyObjectBuilder_SessionSettings quickstartSettings, MyWorldGenerator.Args? quickstartArgs)
         {
             MyLog.Default.WriteLine("QuickstartSandbox - START");
 
@@ -147,8 +152,8 @@ namespace Sandbox.Game.Gui
 
             MyGuiScreenGamePlay.StartLoading(delegate
             {
-                var settings = (instance != null) ? instance.GetQuickstartSettings() : CreateBasicQuickStartSettings();
-                var args = (instance != null) ? instance.GetQuickstartArgs() : CreateBasicQuickstartArgs();
+                var settings = (quickstartSettings != null) ? quickstartSettings : CreateBasicQuickStartSettings();
+                var args = (quickstartArgs != null) ? quickstartArgs.Value : CreateBasicQuickstartArgs();
                 var mods = new List<MyObjectBuilder_Checkpoint.ModItem>(0);
                 MySession.Start("Created " + DateTime.Now.ToString("yyyy-MM-dd HH:mm"), "", "", settings, mods, args);
             });

@@ -11,11 +11,11 @@ namespace Sandbox.Common.ObjectBuilders
     [ProtoContract]
     public struct MyEncounterId
     {
-        [ProtoMember(1)]
+        [ProtoMember]
         public BoundingBoxD BoundingBox;
-        [ProtoMember(2)]
+        [ProtoMember]
         public int Seed;
-        [ProtoMember(2)]
+        [ProtoMember]
         public int EncounterId;
 
         public Vector3D PlacePosition;
@@ -62,10 +62,10 @@ namespace Sandbox.Common.ObjectBuilders
     [MyObjectBuilderDefinition]
     public class MyObjectBuilder_Encounters : MyObjectBuilder_Base
     {
-        [ProtoMember(1)]
+        [ProtoMember]
         public HashSet<MyEncounterId> SavedEcounters;
 
-        [ProtoMember(2)]
+        [ProtoMember]
         public SerializableDictionary<MyEncounterId, Vector3D> MovedOnlyEncounters;
     }
 }

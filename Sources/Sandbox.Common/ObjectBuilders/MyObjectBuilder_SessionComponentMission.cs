@@ -22,7 +22,7 @@ namespace Sandbox.Common.ObjectBuilders
             }
         }
 
-        [ProtoMember(1)]
+        [ProtoMember]
         public SerializableDictionary<pair, MyObjectBuilder_MissionTriggers> Triggers = new SerializableDictionary<pair, MyObjectBuilder_MissionTriggers>();
 
     }

@@ -47,9 +47,9 @@ namespace Sandbox.Game.Multiplayer
         [MessageIdAttribute(6402, P2PMessageEnum.Reliable)]
         protected struct CoordinatesPasted : IEntityMessage
         {
-            [ProtoMember(1)]
+            [ProtoMember]
             public long EntityId;
-            [ProtoMember(2)]
+            [ProtoMember]
             public string Coordinates;
 
             public long GetEntityId() { return EntityId; }

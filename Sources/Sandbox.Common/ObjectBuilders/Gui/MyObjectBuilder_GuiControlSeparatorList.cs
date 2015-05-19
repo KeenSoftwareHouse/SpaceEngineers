@@ -16,20 +16,20 @@ namespace Sandbox.Common.ObjectBuilders.Gui
         [ProtoContract]
         public struct Separator
         {
-            [ProtoMember(1), DefaultValue(0f), XmlAttribute]
+            [ProtoMember, DefaultValue(0f), XmlAttribute]
             public float StartX { get; set; }
 
-            [ProtoMember(2), DefaultValue(0f), XmlAttribute]
+            [ProtoMember, DefaultValue(0f), XmlAttribute]
             public float StartY { get; set; }
 
-            [ProtoMember(3), DefaultValue(0f), XmlAttribute]
+            [ProtoMember, DefaultValue(0f), XmlAttribute]
             public float SizeX { get; set; }
 
-            [ProtoMember(4), DefaultValue(0f), XmlAttribute]
+            [ProtoMember, DefaultValue(0f), XmlAttribute]
             public float SizeY { get; set; }
         }
 
-        [ProtoMember(1)]
+        [ProtoMember]
         public List<Separator> Separators = new List<Separator>();
     }
 }

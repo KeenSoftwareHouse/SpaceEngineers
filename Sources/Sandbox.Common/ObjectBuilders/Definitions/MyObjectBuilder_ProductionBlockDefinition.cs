@@ -13,19 +13,19 @@ namespace Sandbox.Common.ObjectBuilders.Definitions
     [MyObjectBuilderDefinition]
     public class MyObjectBuilder_ProductionBlockDefinition : MyObjectBuilder_CubeBlockDefinition
     {
-        [ProtoMember(1)]
+        [ProtoMember]
         public float InventoryMaxVolume;
 
-        [ProtoMember(2)]
+        [ProtoMember]
         public Vector3 InventorySize;
 
-        [ProtoMember(3)]
+        [ProtoMember]
         public float StandbyPowerConsumption;
 
-        [ProtoMember(4)]
+        [ProtoMember]
         public float OperationalPowerConsumption;
 
-        [ProtoMember(5), XmlArrayItem("Class")]
+        [ProtoMember, XmlArrayItem("Class")]
         public string[] BlueprintClasses;
     }
 }

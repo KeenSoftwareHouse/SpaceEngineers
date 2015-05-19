@@ -38,17 +38,17 @@ namespace Sandbox.Game.Gui
         [MessageIdAttribute(3242, P2PMessageEnum.Reliable)]
         protected struct SpawnAsteroidMsg
         {
-            [ProtoMember(1)]
+            [ProtoMember]
             public string Asteroid;
-            [ProtoMember(2)]
+            [ProtoMember]
             public int RandomSeed;
-            [ProtoMember(3)]
+            [ProtoMember]
             public Vector3D Position;
-            [ProtoMember(4)]
+            [ProtoMember]
             public string StorageName;
-            [ProtoMember(5)]
+            [ProtoMember]
             public bool IsProcedural;
-            [ProtoMember(6)]
+            [ProtoMember]
             public float ProceduralRadius;
 
             public override string ToString()
@@ -61,10 +61,10 @@ namespace Sandbox.Game.Gui
         [MessageIdAttribute(3243, P2PMessageEnum.Reliable)]
         protected struct SpawnAsteroidConfirmedMsg
         {
-            [ProtoMember(1)]
+            [ProtoMember]
             public SpawnAsteroidMsg AsteroidDetails;
 
-            [ProtoMember(2)]
+            [ProtoMember]
             public long EntityId;
         }
 

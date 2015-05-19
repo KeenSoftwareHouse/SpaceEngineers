@@ -13,46 +13,46 @@ namespace Sandbox.Common.ObjectBuilders.Definitions
     [MyObjectBuilderDefinition]
     public class MyObjectBuilder_TransparentMaterialDefinition : MyObjectBuilder_DefinitionBase
     {
-        [ProtoMember(1), ModdableContentFile("dds")]
+        [ProtoMember, ModdableContentFile("dds")]
         public string Texture;
 
-        [ProtoMember(2)]
+        [ProtoMember]
         public bool CanBeAffectedByLights;
 
-        [ProtoMember(3)]
+        [ProtoMember]
         public bool AlphaMistingEnable;
 
-        [ProtoMember(4)]
+        [ProtoMember]
         public bool IgnoreDepth;
 
-        [ProtoMember(5)]
+        [ProtoMember]
         public bool NeedSort;
 
-        [ProtoMember(6)]
+        [ProtoMember]
         public bool UseAtlas;
 
-        [ProtoMember(7)]
+        [ProtoMember]
         public float AlphaMistingStart;
 
-        [ProtoMember(8)]
+        [ProtoMember]
         public float AlphaMistingEnd;
 
-        [ProtoMember(9)]
+        [ProtoMember]
         public float SoftParticleDistanceScale;
 
-        [ProtoMember(10)]
+        [ProtoMember]
         public float Emissivity;
 
-        [ProtoMember(11)]
+        [ProtoMember]
         public float AlphaSaturation;
 
-        [ProtoMember(12)]
+        [ProtoMember]
         public bool Reflection;
 
-        [ProtoMember(13)]
+        [ProtoMember]
         public Vector4 Color = Vector4.One;
 
-        [ProtoMember(14)]
+        [ProtoMember]
         public float Reflectivity;
     }
 }

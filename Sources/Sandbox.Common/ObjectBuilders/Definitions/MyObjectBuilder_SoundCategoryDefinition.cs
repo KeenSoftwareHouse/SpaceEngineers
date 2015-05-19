@@ -21,7 +21,7 @@ namespace Sandbox.Common.ObjectBuilders.Definitions
             public string SoundName;
         }
 
-        [ProtoMember(1)]
+        [ProtoMember]
         public SoundDesc[] Sounds;
     }
 }

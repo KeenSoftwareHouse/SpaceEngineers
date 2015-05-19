@@ -354,7 +354,7 @@ namespace Sandbox.Game.Gui
 
             //MyInventoryItem item = new MyInventoryItem(100, 
             var oreBuilder = Sandbox.Common.ObjectBuilders.Serializer.MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_Ore>("Stone");
-            var scrapBuilder = Sandbox.Common.ObjectBuilders.Serializer.MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_Ingot>("Scrap");
+			var scrapBuilder = MyFloatingObject.ScrapBuilder;
 
             for (int i = 1; i <= 25; i++)
             {

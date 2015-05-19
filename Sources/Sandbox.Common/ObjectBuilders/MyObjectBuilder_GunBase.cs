@@ -22,7 +22,7 @@ namespace Sandbox.Common.ObjectBuilders
             [XmlAttribute]
             public int Amount;
         }
-        //[ProtoMember(1)]
+        //[ProtoMember]
         // Obsolete!
         private SerializableDictionary<string, int> m_remainingAmmos;
         public SerializableDictionary<string, int> RemainingAmmos
@@ -44,13 +44,13 @@ namespace Sandbox.Common.ObjectBuilders
         }
         public bool ShouldSerializeRemainingAmmos() { return false; }
 
-        [ProtoMember(1)]
+        [ProtoMember]
         public int RemainingAmmo = 0;
 
-        [ProtoMember(2)]
+        [ProtoMember]
         public string CurrentAmmoMagazineName = "";
 
-        [ProtoMember(3)]
+        [ProtoMember]
         public List<RemainingAmmoIns> RemainingAmmosList = new List<RemainingAmmoIns>();
     }
 }
