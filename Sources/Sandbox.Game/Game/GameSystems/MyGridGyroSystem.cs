@@ -66,6 +66,8 @@ namespace Sandbox.Game.GameSystems
         /// </summary>
         public Vector3 Torque { get; private set; }
 
+        public bool IsGyroOverrideActive { get; private set; }
+
         #endregion
 
         public MyGridGyroSystem(MyCubeGrid grid)
@@ -185,12 +187,16 @@ namespace Sandbox.Game.GameSystems
 
             if (m_maxOverrideForce == 0.0f)
             {
+                IsGyroOverrideActive = false;
                 if (MyDebugDrawSettings.DEBUG_DRAW_GYROS)
                     MyRenderProxy.DebugDrawText2D(new Vector2(0.0f, 0.0f), "Old gyros", Color.White, 1.0f);
                 UpdateBeforeSimulationOld();
                 return;
             }
 
+            m_gyroControlIntegral = Vector3.Zero;
+            m_enableIntegral      = false;
+            IsGyroOverrideActive  = true;
             if (MyDebugDrawSettings.DEBUG_DRAW_GYROS)
                 MyRenderProxy.DebugDrawText2D(new Vector2(0.0f, 0.0f), "New gyros", Color.White, 1.0f);
 

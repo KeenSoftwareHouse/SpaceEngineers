@@ -337,7 +337,7 @@ namespace Sandbox.Game.Entities
                     Vector3.ClampToSphere(controlTorque, 1.0f);
 
                     GridThrustSystem.ControlThrust = controlThrust;
-                    GridGyroSystem.ControlTorque = GridThrustSystem.ControlTorque = controlTorque;
+                    GridGyroSystem.ControlTorque   = GridThrustSystem.ControlTorque = controlTorque;
 
                     if (MyFakes.ENABLE_WHEEL_CONTROLS_IN_COCKPIT)
                     {
@@ -426,6 +426,7 @@ namespace Sandbox.Game.Entities
         {
             base.UpdateAfterSimulation();
 
+            GridThrustSystem.IsGyroOverrideActive = GridGyroSystem.IsGyroOverrideActive;
             UpdateShipInfo();
 
             //Debug.Assert(GridGyroSystem != null && GridThrustSystem != null && Parent.Physics != null && m_cameraSpring != null && m_cameraShake != null, "CALL PROGRAMMER, this cant happen");
