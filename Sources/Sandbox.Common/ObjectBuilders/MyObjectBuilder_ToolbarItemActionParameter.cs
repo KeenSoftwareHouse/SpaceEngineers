@@ -7,10 +7,10 @@ namespace Sandbox.Common.ObjectBuilders
     [MyObjectBuilderDefinition]
     public class MyObjectBuilder_ToolbarItemActionParameter : MyObjectBuilder_Base
     {
-        [ProtoMember(1)] 
+        [ProtoMember] 
         public TypeCode TypeCode;
 
-        [ProtoMember(2)] 
+        [ProtoMember] 
         public string Value;
     }
 }

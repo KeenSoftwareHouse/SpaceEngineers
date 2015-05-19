@@ -8,16 +8,16 @@ namespace Sandbox.Common.ObjectBuilders.Gui
     [MyObjectBuilderDefinition]
     public class MyObjectBuilder_GuiControlLabel : MyObjectBuilder_GuiControlBase
     {
-        [ProtoMember(1)]
+        [ProtoMember]
         public string TextEnum;
                 
-        [ProtoMember(2)]
+        [ProtoMember]
         public string Text;
 
-        [ProtoMember(4)]
+        [ProtoMember]
         public float TextScale;
 
-        [ProtoMember(5)]
+        [ProtoMember]
         public MyFontEnum Font;
     }
 }

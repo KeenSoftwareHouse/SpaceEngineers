@@ -17,7 +17,7 @@ namespace VRage.Serialization
 
         public SerializableDictionary(Dictionary<T, U> dict) { Dictionary = dict; }
 
-        [ProtoMember(1)]
+        [ProtoMember]
         private Dictionary<T, U> m_dictionary = new Dictionary<T, U>();
         /// <summary>
         /// Public stuff dictionary.

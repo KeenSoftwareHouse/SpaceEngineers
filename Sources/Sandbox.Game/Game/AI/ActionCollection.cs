@@ -146,19 +146,23 @@ namespace Sandbox.Game.AI
                     var parameterDesc = action.ParametersDesc[i];
                     Boxed<MyStringId> stringId = arg as Boxed<MyStringId>;
                     MyBBMemoryValue value = null;
-                    
-                    if (botMemory.TryGetFromBlackboard(stringId, out value))
-                    {
-                        if (value == null || value.GetType() == parameterDesc.Item1)
-                        {
-                            action.ActionParams[i] = value;
-                        }
-                        else
-                        {
-                            Debug.Assert(false, "Mismatch of types in the blackboard. Did you use a wrong identifier?");
-                            action.ActionParams[i] = null;
-                        }
-                    }
+
+					if (botMemory.TryGetFromBlackboard(stringId, out value))
+					{
+						if (value == null || (value.GetType() == parameterDesc.Item1 && parameterDesc.Item2 != MyMemoryParameterType.OUT))
+						{
+							action.ActionParams[i] = value;
+						}
+						else
+						{
+							if (value.GetType() != parameterDesc.Item1)
+								Debug.Assert(false, "Mismatch of types in the blackboard. Did you use a wrong identifier?");
+
+							action.ActionParams[i] = null;
+						}
+					}
+					else
+						action.ActionParams[i] = null;
                 }
                 else
                 {
@@ -172,7 +176,9 @@ namespace Sandbox.Game.AI
             foreach (var key in action.ParametersDesc.Keys)
             {
                 MyStringId stringId = args[key] as Boxed<MyStringId>;
-                botMemory.SaveToBlackboard(stringId, action.ActionParams[key] as MyBBMemoryValue);
+				var parameterDesc = action.ParametersDesc[key];
+				if(parameterDesc.Item2 != MyMemoryParameterType.IN)
+				  botMemory.SaveToBlackboard(stringId, action.ActionParams[key] as MyBBMemoryValue);
             }
         }
 

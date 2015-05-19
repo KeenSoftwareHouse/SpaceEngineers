@@ -18,14 +18,14 @@ namespace Medieval.ObjectBuilders.Definitions
     public class MyObjectBuilder_TorsionSpringBlockDefinition : MyObjectBuilder_MechanicalSubBlockDefinition
     {
         // Max angular impulse in MaxAngle position.
-        [ProtoMember(1)]
+        [ProtoMember]
         public float MaxAngularImpulse;
 
         // Maximum angle in degrees from origin.
-        [ProtoMember(2)]
+        [ProtoMember]
         public float MaxAngle;
 
-        [ProtoMember(3), DefaultValue(10f)]
+        [ProtoMember, DefaultValue(10f)]
         public float MaxFrictionTorque = 10f;
     }
 }

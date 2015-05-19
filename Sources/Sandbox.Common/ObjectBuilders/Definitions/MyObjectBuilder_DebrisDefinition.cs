@@ -18,11 +18,11 @@ namespace Sandbox.Common.ObjectBuilders.Definitions
     [MyObjectBuilderDefinition]
     public class MyObjectBuilder_DebrisDefinition : MyObjectBuilder_DefinitionBase
     {
-        [ProtoMember(1)]
+        [ProtoMember]
         [ModdableContentFile("mwm")]
         public string Model;
 
-        [ProtoMember(2)]
+        [ProtoMember]
         public MyDebrisType Type;
     }
 }

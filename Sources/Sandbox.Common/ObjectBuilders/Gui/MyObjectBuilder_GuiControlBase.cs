@@ -10,22 +10,22 @@ namespace Sandbox.Common.ObjectBuilders.Gui
     [MyObjectBuilderDefinition]
     public abstract class MyObjectBuilder_GuiControlBase : MyObjectBuilder_Base
     {
-        [ProtoMember(1)]
+        [ProtoMember]
         public Vector2 Position;
                 
-        [ProtoMember(2)]
+        [ProtoMember]
         public Vector2 Size;
 
-        [ProtoMember(3)]
+        [ProtoMember]
         public string Name;
 
-        [ProtoMember(4)]
+        [ProtoMember]
         public Vector4 BackgroundColor = Vector4.One;
 
-        [ProtoMember(5)]
+        [ProtoMember]
         public string ControlTexture;
 
-        [ProtoMember(6)]
+        [ProtoMember]
         public MyGuiDrawAlignEnum OriginAlign;
 
         public int ControlAlign

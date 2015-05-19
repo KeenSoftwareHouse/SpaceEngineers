@@ -7,16 +7,16 @@ namespace Sandbox.Common.ObjectBuilders
     [MyObjectBuilderDefinition]
     public class MyObjectBuilder_BatteryBlock : MyObjectBuilder_FunctionalBlock
     {
-        [ProtoMember(1)]
+        [ProtoMember]
         public float CurrentStoredPower = 0;
 
-        [ProtoMember(2)]
+        [ProtoMember]
         public bool ProducerEnabled = true;
 
-        [ProtoMember(3)]
+        [ProtoMember]
         public float MaxStoredPower;
 
-        [ProtoMember(4)]
+        [ProtoMember]
         public bool SemiautoEnabled = false;
 
         public override void SetupForProjector()

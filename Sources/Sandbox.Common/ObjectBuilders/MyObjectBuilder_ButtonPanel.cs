@@ -11,13 +11,13 @@ namespace Sandbox.Common.ObjectBuilders
     [MyObjectBuilderDefinition]
     public class MyObjectBuilder_ButtonPanel : MyObjectBuilder_TerminalBlock
     {
-        [ProtoMember(1)]
+        [ProtoMember]
         public MyObjectBuilder_Toolbar Toolbar;
 
-        [ProtoMember(2)]
+        [ProtoMember]
         public bool AnyoneCanUse;
 
-        [ProtoMember(3)]
+        [ProtoMember]
         public SerializableDictionary<int, String> CustomButtonNames;
 
         public override void Remap(IMyRemapHelper remapHelper)

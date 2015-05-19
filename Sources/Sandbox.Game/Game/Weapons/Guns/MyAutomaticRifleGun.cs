@@ -386,7 +386,7 @@ namespace Sandbox.Game.Weapons
 
         MyEntity IMyGunBaseUser.Weapon
         {
-            get { return null; }
+            get { return this; }
         }
 
         MyEntity IMyGunBaseUser.Owner

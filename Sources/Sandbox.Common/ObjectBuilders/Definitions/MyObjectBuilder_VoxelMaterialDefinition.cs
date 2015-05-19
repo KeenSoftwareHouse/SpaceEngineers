@@ -14,53 +14,53 @@ namespace Sandbox.Common.ObjectBuilders.Definitions
     [MyObjectBuilderDefinition]
     public class MyObjectBuilder_VoxelMaterialDefinition : MyObjectBuilder_DefinitionBase
     {
-        [ProtoMember(2)]
+        [ProtoMember]
         public string MinedOre;
         
-        [ProtoMember(3)]
+        [ProtoMember]
         public float MinedOreRatio;
         
-        [ProtoMember(4)]
+        [ProtoMember]
         public bool CanBeHarvested;
         
-        [ProtoMember(5)]
+        [ProtoMember]
         public bool IsRare;
 
-        //[ProtoMember(6)]
+        //[ProtoMember]
         //public bool IsIndestructible;
 
-        [ProtoMember(7)]
+        [ProtoMember]
         public float DamageRatio;
         
-        //[ProtoMember(8)]
+        //[ProtoMember]
         //public string AssetName;
         
-        [ProtoMember(9)]
+        [ProtoMember]
         public bool UseTwoTextures;
         
-        [ProtoMember(10)]
+        [ProtoMember]
         public float SpecularPower;
         
-        [ProtoMember(11)]
+        [ProtoMember]
         public float SpecularShininess;
 
-        [ProtoMember(12)]
+        [ProtoMember]
         [ModdableContentFile("dds")]
         public string DiffuseXZ;
 
-        [ProtoMember(13)]
+        [ProtoMember]
         [ModdableContentFile("dds")]
         public string NormalXZ;
 
-        [ProtoMember(14)]
+        [ProtoMember]
         [ModdableContentFile("dds")]
         public string DiffuseY;
 
-        [ProtoMember(15)]
+        [ProtoMember]
         [ModdableContentFile("dds")]
         public string NormalY;
 
-        [ProtoMember(16)]
+        [ProtoMember]
         public int MinVersion;
     }
 }

@@ -20,7 +20,7 @@
 //        /// <summary>
 //        /// The value of the pair.
 //        /// </summary>
-//        [ProtoMember(2)]
+//        [ProtoMember]
 //        public TValue Value{ get { return value; } set { this.value = value; } }
 //        private KeyValuePairSurrogate(TKey key, TValue value)
 //        {

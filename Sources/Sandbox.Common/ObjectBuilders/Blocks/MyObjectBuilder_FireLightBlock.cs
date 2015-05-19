@@ -12,7 +12,7 @@ namespace Medieval.ObjectBuilders.Blocks
 
     public class MyObjectBuilder_FireLightBlock : MyObjectBuilder_CubeBlock
     {
-        [ProtoMember(1)]
+        [ProtoMember]
         public bool Enabled = true;
     }
 }

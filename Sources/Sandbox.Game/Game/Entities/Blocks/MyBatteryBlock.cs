@@ -32,13 +32,12 @@ namespace Sandbox.Game.Entities
     using Sandbox.Common;
     using Sandbox.Game.GameSystems;
     using Sandbox.Game.Screens.Terminal.Controls;
-    using Sandbox.ModAPI.Ingame;
     using Sandbox.Game.Localization;
     using VRage;
     using VRage.Utils;
 
     [MyCubeBlockType(typeof(MyObjectBuilder_BatteryBlock))]
-    class MyBatteryBlock : MyFunctionalBlock, IMyPowerProducer, IMyPowerConsumer, IMyBatteryBlock
+    class MyBatteryBlock : MyFunctionalBlock, IMyPowerProducer, IMyPowerConsumer, Sandbox.ModAPI.Ingame.IMyBatteryBlock
     {
         static string[] m_emissiveNames = new string[] { "Emissive0", "Emissive1", "Emissive2", "Emissive3" };
         private MyBatteryBlockDefinition m_batteryBlockDefinition;
@@ -68,6 +67,7 @@ namespace Sandbox.Game.Entities
             var semiAuto = new MyTerminalControlCheckbox<MyBatteryBlock>("SemiAuto", MySpaceTexts.BlockPropertyTitle_Semiauto, MySpaceTexts.ToolTipBatteryBlock_Semiauto);
             semiAuto.Getter = (x) => x.SemiautoEnabled;
             semiAuto.Setter = (x, v) => x.SyncObject.SendSemiautoEnableChange(v);
+            semiAuto.EnableAction();
 
             MyTerminalControlFactory.AddControl(recharge);
             MyTerminalControlFactory.AddControl(semiAuto);

@@ -460,12 +460,18 @@ namespace VRageRender
             return id;
         }
 
-        public static uint CreateLineBasedObject()
+        public static uint CreateLineBasedObject(
+            string colorMetalTexture,
+            string normalGlossTexture,
+            string extensionTexture)
         {
             var message = MessagePool.Get<MyRenderMessageCreateLineBasedObject>(MyRenderMessageEnum.CreateLineBasedObject);
 
             uint id = m_render.GlobalMessageCounter++;
             message.ID = id;
+            message.ColorMetalTexture = colorMetalTexture;
+            message.NormalGlossTexture = normalGlossTexture;
+            message.ExtensionTexture = extensionTexture;
 
             EnqueueMessage(message);
 
@@ -1008,11 +1014,35 @@ namespace VRageRender
         public static void ChangeMaterialTexture(uint id,string materialName,string textureName)
         {
             var message = MessagePool.Get<MyRenderMessageChangeMaterialTexture>(MyRenderMessageEnum.ChangeMaterialTexture);
-            message.TextureName = textureName;
+            if (message.Changes == null)
+            {
+                message.Changes = new List<MyTextureChange>();
+            }
+            else
+            {
+                Debug.Assert(message.Changes.Count == 0, "content should be cleared after consuming in renderer");
+            }
+            message.Changes.Add(new MyTextureChange { TextureName = textureName });
             message.MaterialName = materialName;
             message.RenderObjectID = id;
             EnqueueMessage(message);
         }
+
+		public static void ChangeMaterialTexture(uint id, string materialName, List<MyTextureChange> textureChanges)
+		{
+			if (textureChanges == null)
+				return;
+
+			var message = MessagePool.Get<MyRenderMessageChangeMaterialTexture>(MyRenderMessageEnum.ChangeMaterialTexture);
+
+			if (message.Changes != null)
+				Debug.Assert(message.Changes.Count == 0, "content should be cleared after consuming in renderer");
+
+			message.Changes = textureChanges;
+			message.MaterialName = materialName;
+			message.RenderObjectID = id;
+			EnqueueMessage(message);
+		}
 
         public static void ReleaseRenderTexture(long entityId,uint id)
         {

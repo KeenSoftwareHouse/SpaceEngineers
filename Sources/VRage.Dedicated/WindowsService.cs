@@ -1,4 +1,5 @@
-﻿using Sandbox.Game.World;
+﻿using Sandbox;
+using Sandbox.Game.World;
 using System;
 using System.Configuration;
 using System.Diagnostics;
@@ -10,7 +11,7 @@ using System.Threading;
 using System.Windows.Forms;
 using VRage.Service;
 
-namespace Sandbox.AppCode.App
+namespace VRage.Dedicated
 {
     class WindowsService : MyServiceBase
     {
@@ -23,7 +24,7 @@ namespace Sandbox.AppCode.App
         /// </summary>
         public WindowsService()
         {
-            //this.ServiceName = "Space engineers dedicated server";
+            //this.ServiceName = "Medieval engineers dedicated server";
             this.EventLog.Log = "Application";
 
             // These Flags set whether or not to handle that specific
@@ -75,7 +76,7 @@ namespace Sandbox.AppCode.App
         void MainThreadStart(object obj)
         {
             string instanceName = String.IsNullOrWhiteSpace(UsedServiceName) ? "Service" : UsedServiceName;
-            MyProgram.RunMain(instanceName, null, true);
+            DedicatedServer.RunMain(instanceName, null, true);
             m_waitEvent.Set();
         }
 

@@ -13,7 +13,7 @@ namespace Sandbox.Common.ObjectBuilders.VRageData
     public class MyObjectBuilder_TransparentMaterials : MyObjectBuilder_Base
     {
         [XmlArrayItem("TransparentMaterial")]
-        [ProtoMember(1)]
+        [ProtoMember]
         public MyObjectBuilder_TransparentMaterial[] Materials;
     }
 }
