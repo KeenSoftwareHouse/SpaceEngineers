@@ -30,4 +30,12 @@ namespace VRageRender
         MyRenderMessageType IMyRenderMessage.MessageClass { get { return MyRenderMessageType.StateChangeOnce; } }
         MyRenderMessageEnum IMyRenderMessage.MessageType { get { return MyRenderMessageEnum.CreateScreenDecal; } }
     }
+
+    public class MyRenderMessageRemoveDecal : IMyRenderMessage
+    {
+        public uint ID;
+
+        MyRenderMessageType IMyRenderMessage.MessageClass { get { return MyRenderMessageType.StateChangeOnce; } }
+        MyRenderMessageEnum IMyRenderMessage.MessageType { get { return MyRenderMessageEnum.RemoveDecal; } }
+    }
 }

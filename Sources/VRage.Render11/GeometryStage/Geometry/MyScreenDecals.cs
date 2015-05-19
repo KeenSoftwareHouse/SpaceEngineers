@@ -64,7 +64,16 @@ namespace VRageRender
             EntityDecals[ParentID].Add(handle);
         }
 
-        internal static void RemoveDecal(int handle)
+        internal static void RemoveDecal(uint ID)
+        {
+            var handle = IdIndex[ID];
+            var parent = Decals.Data[handle].ParentID;
+            EntityDecals[parent].Remove(handle);
+            Decals.Free(handle);
+            IdIndex.Remove(ID);
+        }
+
+        internal static void RemoveDecalByHandle(int handle)
         {
             IdIndex.Remove(Decals.Data[handle].ID);
             Decals.Free(handle);
@@ -79,7 +88,7 @@ namespace VRageRender
 
             foreach (var handle in EntityDecals[id])
             {
-                RemoveDecal(handle);
+                RemoveDecalByHandle(handle);
             }
 
             EntityDecals[id] = null;
@@ -106,6 +115,11 @@ namespace VRageRender
             var decals = IdIndex.Values.ToArray();
             // sort visible decals by material
             Array.Sort(decals, DecalsMaterialComparer);
+
+            ///
+            // copy gbuffer with normals for read (uhoh)
+            // bind copy and depth for read
+            // bind gbuffer for write
 
             var batch = MyLinesRenderer.CreateBatch();
 

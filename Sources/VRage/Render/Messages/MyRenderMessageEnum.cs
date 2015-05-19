@@ -96,6 +96,7 @@ namespace VRageRender
 
         CreateDecal,
         CreateScreenDecal,
+        RemoveDecal,
         HideDecals,
 
         UpdateCockpitGlass,
