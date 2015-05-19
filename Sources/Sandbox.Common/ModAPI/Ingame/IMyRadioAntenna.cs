@@ -24,5 +24,8 @@ namespace Sandbox.ModAPI.Ingame
         /// Returns true if antena is broadcasting (read-only)
         /// </summary>
         bool IsBroadcasting { get; }
+
+        string LastReceivedMessage { get; }
+        void SendMessage(string shipreceiver, string pbreceiver, string message);
 	}
 }
