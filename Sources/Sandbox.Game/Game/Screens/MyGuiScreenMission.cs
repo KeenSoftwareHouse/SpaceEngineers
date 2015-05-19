@@ -70,7 +70,7 @@ namespace Sandbox.Game.Gui
         protected MyGuiControlMultilineText m_descriptionBox;
         protected MyGuiControlButton m_okButton;
         protected MyGuiControlCompositePanel m_descriptionBackgroundPanel = null;
-        private Action<ResultEnum> m_resultCallback = null;
+        private Action<ResultEnum, string> m_resultCallback = null;
         private ResultEnum m_screenResult = ResultEnum.CANCEL;
         private Style m_style;
 
@@ -107,7 +107,7 @@ namespace Sandbox.Game.Gui
             string currentObjective = null,
             string description = null,
 
-            Action<ResultEnum> resultCallback = null, 
+            Action<ResultEnum, string> resultCallback = null, 
             string okButtonCaption = null,
             Vector2? windowSize = null,
             Vector2? descSize = null,
@@ -288,7 +288,7 @@ namespace Sandbox.Game.Gui
 
         protected void CallResultCallback(ResultEnum result)
         {
-            if (m_resultCallback != null) m_resultCallback(result);
+            if (m_resultCallback != null) m_resultCallback(result, m_descriptionBox.Text.ToString());
         }
     }
 }

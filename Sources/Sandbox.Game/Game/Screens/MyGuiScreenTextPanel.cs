@@ -14,7 +14,7 @@ namespace Sandbox.Game.Gui
             string currentObjectivePrefix = null,
             string currentObjective = null,
             string description = null,
-            Action<ResultEnum> resultCallback = null,
+            Action<ResultEnum, string> resultCallback = null,
             Action saveCodeCallback = null,
             string okButtonCaption = null,      
             bool editable = false,

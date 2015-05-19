@@ -48,7 +48,7 @@ namespace Sandbox.Game.Gui
             string currentObjective = null,
             string description = null,
 
-            Action<ResultEnum> resultCallback = null,
+            Action<ResultEnum, string> resultCallback = null,
             Action saveCodeCallback = null,
             string okButtonCaption = null)
             : base(missionTitle, currentObjectivePrefix, currentObjective, description, resultCallback, okButtonCaption, m_editorWindowSize, m_editorDescSize,true)
