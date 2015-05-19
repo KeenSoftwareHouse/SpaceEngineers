@@ -164,6 +164,7 @@
     <Compile Include="ModAPI\IMyPrefabManager.cs" />
     <Compile Include="ModAPI\IMyProductionBlock.cs" />
     <Compile Include="ModAPI\IMySensorBlock.cs" />
+    <Compile Include="ModAPI\IMyShieldBlock.cs" />
     <Compile Include="ModAPI\IMyShipDrill.cs" />
     <Compile Include="ModAPI\IMyTerminalBlock.cs" />
     <Compile Include="ModAPI\IMyThrust.cs" />
@@ -211,6 +212,7 @@
     <Compile Include="ModAPI\Ingame\IMyRefinery.cs" />
     <Compile Include="ModAPI\Ingame\IMyReflectorLight.cs" />
     <Compile Include="ModAPI\Ingame\IMyRemoteControl.cs" />
+    <Compile Include="ModAPI\Ingame\IMyShieldBlock.cs" />
     <Compile Include="ModAPI\Ingame\IMyShipConnector.cs" />
     <Compile Include="ModAPI\Ingame\IMyShipController.cs" />
     <Compile Include="ModAPI\Ingame\IMyShipDrill.cs" />
@@ -338,6 +340,7 @@
     <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_OxygenContainerDefinition.cs" />
     <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_OxygenContainerObject.cs" />
     <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_OxygenFarmDefinition.cs" />
+    <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_ShieldBlockDefinition.cs" />
     <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_TreeCuttingDefinition.cs" />
     <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_Trigger.cs" />
     <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_TriggerPositionReached.cs" />
@@ -386,6 +389,7 @@
     <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_WarheadDefinition.cs" />
     <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_OxygenTankDefinition.cs" />
     <Compile Include="ObjectBuilders\MyObjectBuilder_DestroyableItem.cs" />
+    <Compile Include="ObjectBuilders\MyObjectBuilder_ShieldBlock.cs" />
     <Compile Include="ObjectBuilders\Obsolete\MyObjectBuilder_Bushes.cs" />
     <Compile Include="ObjectBuilders\MyObjectBuilder_ConveyorSorter.cs" />
     <Compile Include="ObjectBuilders\MyObjectBuilder_Environment.cs" />

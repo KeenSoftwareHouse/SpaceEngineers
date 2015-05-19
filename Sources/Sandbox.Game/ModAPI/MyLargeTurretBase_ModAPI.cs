@@ -124,7 +124,7 @@ namespace Sandbox.Game.Weapons
 
         public MyStringId ControlContext
         {
-            get { return MyStringId.NullOrEmpty; }
+            get { return Sandbox.Engine.Utils.MySpaceBindingCreator.CX_SPACESHIP; }
         }
     }
 }
