@@ -58,6 +58,8 @@ namespace Sandbox.Common.ObjectBuilders
             base.SetupForProjector();
             if (Inventory != null)
                 Inventory.Clear();
+            if (OutputInventory != null)
+                OutputInventory.Clear();
         }
 
     }
