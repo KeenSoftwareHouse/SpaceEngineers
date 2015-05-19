@@ -316,17 +316,21 @@ namespace Sandbox.Game.Entities.Cube
             {
                 var resultId = result.Id;
                 var obResult = (MyObjectBuilder_PhysicalObject)Sandbox.Common.ObjectBuilders.Serializer.MyObjectBuilderSerializer.CreateNewObject(resultId);
-                var resultAmount = blueprintAmount * result.Amount * m_refineryDef.MaterialEfficiency * UpgradeValues["Effectiveness"];
-                OutputInventory.AddItems(resultAmount, obResult);
-                if (MyPerGameSettings.InventoryMass)
+
+                var conversionRatio = result.Amount * m_refineryDef.MaterialEfficiency * UpgradeValues["Effectiveness"];
+                if (conversionRatio > (MyFixedPoint)1.0f)
                 {
-                    OutputInventory.ContentsChanged += Inventory_ContentsChanged;
+                    conversionRatio = (MyFixedPoint)1.0f;
                 }
+
+                var resultAmount = blueprintAmount * conversionRatio;
+                OutputInventory.AddItems(resultAmount, obResult);
+                OutputInventory.ContentsChanged += Inventory_ContentsChanged;
             }
 
             RemoveFirstQueueItemAnnounce(blueprintAmount);
         }
-
+				
         protected override float GetOperationalPowerConsumption()
         {
             return base.GetOperationalPowerConsumption() * (1f + UpgradeValues["Productivity"]) * (1f / UpgradeValues["PowerEfficiency"]);
