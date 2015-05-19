@@ -9,7 +9,7 @@ namespace Sandbox.Common.ObjectBuilders.Definitions
         [ProtoMember]
         public float RequiredPowerInput;
 
-        [ProtoMember(2)]
-        public float MaxRange;
+        [ProtoMember]
+        public float MaxRange = 50.0f; // Default value used as magic number till now
     }
 }
