@@ -60,7 +60,7 @@ namespace Sandbox.Game.Entities.Cube
             Debug.Assert(!removed, "Inventory filter removed items which were present in the object builder.");
             OutputInventory.ContentsChanged += inventory_OnContentsChanged;
 
-            if (MyPerGameSettings.InventoryMass)
+            if (MySession.Static.Settings.EnableInventoryMass)
                 OutputInventory.ContentsChanged += Inventory_ContentsChanged;
                 InputInventory.ContentsChanged += Inventory_ContentsChanged;
 
@@ -79,7 +79,7 @@ namespace Sandbox.Game.Entities.Cube
         internal override float GetMass()
         {
             var mass = base.GetMass();
-            if (MyPerGameSettings.InventoryMass)
+            if (MySession.Static.Settings.EnableInventoryMass)
                 return mass + (float)InputInventory.CurrentMass + (float)OutputInventory.CurrentMass;
             else
                 return mass;
@@ -306,7 +306,7 @@ namespace Sandbox.Game.Entities.Cube
                 var obPrerequisite = (MyObjectBuilder_PhysicalObject)Sandbox.Common.ObjectBuilders.Serializer.MyObjectBuilderSerializer.CreateNewObject(prerequisite.Id);
                 var prerequisiteAmount = blueprintAmount * prerequisite.Amount;
                 InputInventory.RemoveItemsOfType(prerequisiteAmount, obPrerequisite);
-                if (MyPerGameSettings.InventoryMass)
+                if (MySession.Static.Settings.EnableInventoryMass)
                 {
                     InputInventory.ContentsChanged += Inventory_ContentsChanged;
                 }
@@ -325,7 +325,7 @@ namespace Sandbox.Game.Entities.Cube
 
                 var resultAmount = blueprintAmount * conversionRatio;
                 OutputInventory.AddItems(resultAmount, obResult);
-				if(MyPerGameSettings.InventoryMass)
+				if(MySession.Static.Settings.EnableInventoryMass)
 				{
 					OutputInventory.ContentsChanged += Inventory_ContentsChanged;
 				}

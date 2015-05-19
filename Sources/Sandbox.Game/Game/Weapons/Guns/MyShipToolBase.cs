@@ -121,7 +121,7 @@ namespace Sandbox.Game.Weapons
             m_inventory = new MyInventory(inventoryVolume, inventorySize, MyInventoryFlags.CanSend, this);
             m_inventory.Init(typedBuilder.Inventory);
 
-            if (MyPerGameSettings.InventoryMass)
+            if (MySession.Static.Settings.EnableInventoryMass)
                 m_inventory.ContentsChanged += Inventory_ContentsChanged;
 
             SlimBlock.UsesDeformation = false;
@@ -156,7 +156,7 @@ namespace Sandbox.Game.Weapons
         internal override float GetMass()
         {
             var mass = base.GetMass();
-            if (MyPerGameSettings.InventoryMass)
+            if (MySession.Static.Settings.EnableInventoryMass)
                 return mass + (float)m_inventory.CurrentMass;
             else
                 return mass;

@@ -220,7 +220,7 @@ namespace Sandbox.Game.Entities.Cube
             m_throwOut = ob.ThrowOut;
             m_collectAll = ob.CollectAll;
 
-            if (MyPerGameSettings.InventoryMass)
+            if (MySession.Static.Settings.EnableInventoryMass)
                 m_inventory.ContentsChanged += Inventory_ContentsChanged;
 
             SlimBlock.DeformationRatio = ob.DeformationRatio;
@@ -273,7 +273,7 @@ namespace Sandbox.Game.Entities.Cube
         internal override float GetMass()
         {
             var mass = base.GetMass();
-            if (MyPerGameSettings.InventoryMass)
+            if (MySession.Static.Settings.EnableInventoryMass)
                 return mass + (float)m_inventory.CurrentMass;
             else
                 return mass;

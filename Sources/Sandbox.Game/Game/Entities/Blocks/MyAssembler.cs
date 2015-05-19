@@ -354,7 +354,7 @@ namespace Sandbox.Game.Entities.Cube
 
             if (Sync.IsServer)
                 OutputInventory.ContentsChanged += OutputInventory_ContentsChanged;
-                if (MyPerGameSettings.InventoryMass)
+                if (MySession.Static.Settings.EnableInventoryMass)
                 OutputInventory.ContentsChanged += Inventory_ContentsChanged;
                 InputInventory.ContentsChanged += Inventory_ContentsChanged;
 
@@ -405,7 +405,7 @@ namespace Sandbox.Game.Entities.Cube
         internal override float GetMass()
         {
             var mass = base.GetMass();
-            if (MyPerGameSettings.InventoryMass)
+            if (MySession.Static.Settings.EnableInventoryMass)
                 return mass + (float)InputInventory.CurrentMass + (float)OutputInventory.CurrentMass;
             else
                 return mass;
@@ -713,7 +713,7 @@ namespace Sandbox.Game.Entities.Cube
             {
                 var item = blueprint.Prerequisites[i];
                 InputInventory.RemoveItemsOfType(item.Amount * amountMult, item.Id);
-                if (MyPerGameSettings.InventoryMass)
+                if (MySession.Static.Settings.EnableInventoryMass)
                 {
                     InputInventory.ContentsChanged += Inventory_ContentsChanged;
                 }
@@ -723,7 +723,7 @@ namespace Sandbox.Game.Entities.Cube
             {
                 MyObjectBuilder_PhysicalObject resOb = (MyObjectBuilder_PhysicalObject)Sandbox.Common.ObjectBuilders.Serializer.MyObjectBuilderSerializer.CreateNewObject(res.Id.TypeId, res.Id.SubtypeName);
                 OutputInventory.AddItems(res.Amount, resOb);
-                if (MyPerGameSettings.InventoryMass)
+                if (MySession.Static.Settings.EnableInventoryMass)
                 {
                     InputInventory.ContentsChanged += Inventory_ContentsChanged;
                 }
@@ -736,7 +736,7 @@ namespace Sandbox.Game.Entities.Cube
             foreach (var res in blueprint.Results)
             {
                 OutputInventory.RemoveItemsOfType(res.Amount, res.Id);
-                if (MyPerGameSettings.InventoryMass)
+                if (MySession.Static.Settings.EnableInventoryMass)
                 {
                     OutputInventory.ContentsChanged += Inventory_ContentsChanged;
                 }
@@ -749,7 +749,7 @@ namespace Sandbox.Game.Entities.Cube
                 var item = blueprint.Prerequisites[i];
                 var itemOb = (MyObjectBuilder_PhysicalObject)Sandbox.Common.ObjectBuilders.Serializer.MyObjectBuilderSerializer.CreateNewObject(item.Id.TypeId, item.Id.SubtypeName);
                 InputInventory.AddItems(item.Amount * amountMult, itemOb);
-                if (MyPerGameSettings.InventoryMass)
+                if (MySession.Static.Settings.EnableInventoryMass)
                 {
                     OutputInventory.ContentsChanged += Inventory_ContentsChanged;
                 }

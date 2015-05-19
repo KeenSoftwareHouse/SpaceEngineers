@@ -587,7 +587,7 @@ namespace Sandbox.Game.Weapons
 
             m_ammoInventory.Init(builder.Inventory);
 
-            if (MyPerGameSettings.InventoryMass)
+            if (MySession.Static.Settings.EnableInventoryMass)
                 m_ammoInventory.ContentsChanged += Inventory_ContentsChanged;
 
             m_gunBase = new MyGunBase();
@@ -673,7 +673,7 @@ namespace Sandbox.Game.Weapons
         internal override float GetMass()
         {
             var mass = base.GetMass();
-            if (MyPerGameSettings.InventoryMass)
+            if (MySession.Static.Settings.EnableInventoryMass)
                 return mass + (float)m_ammoInventory.CurrentMass;
             else
                 return mass;
@@ -3086,7 +3086,7 @@ namespace Sandbox.Game.Weapons
         public void SwitchAmmoMagazine()
         {
             m_gunBase.SwitchAmmoMagazineToNextAvailable();
-            if (MyPerGameSettings.InventoryMass)
+            if (MySession.Static.Settings.EnableInventoryMass)
                 m_ammoInventory.ContentsChanged += Inventory_ContentsChanged;
         }
 
