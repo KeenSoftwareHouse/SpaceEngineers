@@ -274,6 +274,15 @@ namespace VRageRender
                     break;
                 }
 
+                case MyRenderMessageEnum.RemoveDecal:
+                {
+                    var rMessage = (MyRenderMessageRemoveDecal)message;
+
+                    MyScreenDecals.RemoveDecal(rMessage.ID);
+
+                    break;
+                }
+
                 case MyRenderMessageEnum.UpdateRenderObject:
                 { 
                     var rMessage = (MyRenderMessageUpdateRenderObject)message;

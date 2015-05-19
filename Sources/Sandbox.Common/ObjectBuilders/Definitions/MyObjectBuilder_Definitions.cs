@@ -1,4 +1,5 @@
 ﻿using ProtoBuf;
+using Sandbox.Common.ObjectBuilders.Definitions;
 using Sandbox.Common.ObjectBuilders.AI;
 using Sandbox.Common.ObjectBuilders.Audio;
 using Sandbox.Common.ObjectBuilders.VRageData;
@@ -208,5 +209,9 @@ namespace Sandbox.Common.ObjectBuilders.Definitions
         [XmlArrayItem("Definition")]
         [ProtoMember]
         public MyObjectBuilder_AreaMarkerDefinition[] AreaMarkerDefinitions;
+
+        [XmlArrayItem("Entry")]
+        [ProtoMember]
+        public MyCharacterName[] CharacterNames;
     }
 }

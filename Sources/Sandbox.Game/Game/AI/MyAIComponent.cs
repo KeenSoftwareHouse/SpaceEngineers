@@ -271,7 +271,7 @@ namespace Sandbox.Game.AI
             m_agentsToSpawn[newBotId] = new AgentSpawnData(agentDefinition, spawnPosition, createdByPlayer);
             m_lastSpawnedBot = newBotId;
 
-            Sync.Players.RequestNewPlayer(newBotId, agentDefinition.DisplayNameText, agentDefinition.BotModel);
+            Sync.Players.RequestNewPlayer(newBotId, MyDefinitionManager.Static.GetRandomCharacterName(), agentDefinition.BotModel);
             return newBotId;
         }
 
@@ -299,8 +299,7 @@ namespace Sandbox.Game.AI
                 return false;
             }
 
-			if (MySession.Static.CreativeMode)
-				return true;
+			int perPlayerBotMultiplier = (MySession.Static.CreativeMode ? MySession.Static.MaxPlayers : 1);
 
             if (MySteam.UserId == pid.SteamId)
             {
@@ -308,7 +307,7 @@ namespace Sandbox.Game.AI
                 if (m_agentsToSpawn.TryGetValue(pid.SerialId, out spawnData))
                 {
                     if (spawnData.CreatedByPlayer)
-                        return Bots.GetCreatedBotCount() < BotFactory.MaximumBotPerPlayer;
+                        return Bots.GetCreatedBotCount() < BotFactory.MaximumBotPerPlayer*perPlayerBotMultiplier;
                     else
                         return Bots.GetGeneratedBotCount() < BotFactory.MaximumUncontrolledBotCount;
                 }
@@ -328,7 +327,7 @@ namespace Sandbox.Game.AI
                     if (player.SteamId == lookedPlayer && player.SerialId != 0)
                         playerBotCount++;
                 }
-                return playerBotCount < BotFactory.MaximumBotPerPlayer;
+                return playerBotCount < BotFactory.MaximumBotPerPlayer*perPlayerBotMultiplier;
             }
         }
 
