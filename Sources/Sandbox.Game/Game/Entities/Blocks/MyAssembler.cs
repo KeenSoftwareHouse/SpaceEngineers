@@ -329,6 +329,7 @@ namespace Sandbox.Game.Entities.Cube
                     x.SyncObject.RequestSlaveSwitch(v);
 
                 };
+
 				slaveCheck.EnableAction();
                 MyTerminalControlFactory.AddControl(slaveCheck);
             }
@@ -357,7 +358,11 @@ namespace Sandbox.Game.Entities.Cube
 
             if (Sync.IsServer)
                 OutputInventory.ContentsChanged += OutputInventory_ContentsChanged;
+<<<<<<< HEAD
                 if (MySession.Static.Settings.EnableInventoryMass)
+=======
+                if (MyPerGameSettings.InventoryMass)
+>>>>>>> Add Inventory Mass
                 OutputInventory.ContentsChanged += Inventory_ContentsChanged;
                 InputInventory.ContentsChanged += Inventory_ContentsChanged;
 
@@ -408,7 +413,11 @@ namespace Sandbox.Game.Entities.Cube
         internal override float GetMass()
         {
             var mass = base.GetMass();
+<<<<<<< HEAD
             if (MySession.Static.Settings.EnableInventoryMass)
+=======
+            if (MyPerGameSettings.InventoryMass)
+>>>>>>> Add Inventory Mass
                 return mass + (float)InputInventory.CurrentMass + (float)OutputInventory.CurrentMass;
             else
                 return mass;
@@ -759,7 +768,11 @@ namespace Sandbox.Game.Entities.Cube
             {
                 var item = blueprint.Prerequisites[i];
                 InputInventory.RemoveItemsOfType(item.Amount * amountMult, item.Id);
+<<<<<<< HEAD
                 if (MySession.Static.Settings.EnableInventoryMass)
+=======
+                if (MyPerGameSettings.InventoryMass)
+>>>>>>> Add Inventory Mass
                 {
                     InputInventory.ContentsChanged += Inventory_ContentsChanged;
                 }
@@ -769,9 +782,15 @@ namespace Sandbox.Game.Entities.Cube
             {
                 MyObjectBuilder_PhysicalObject resOb = (MyObjectBuilder_PhysicalObject)MyObjectBuilderSerializer.CreateNewObject(res.Id.TypeId, res.Id.SubtypeName);
                 OutputInventory.AddItems(res.Amount, resOb);
+<<<<<<< HEAD
                 if (MySession.Static.Settings.EnableInventoryMass)
                 {
                     OutputInventory.ContentsChanged += Inventory_ContentsChanged;
+=======
+                if (MyPerGameSettings.InventoryMass)
+                {
+                    InputInventory.ContentsChanged += Inventory_ContentsChanged;
+>>>>>>> Add Inventory Mass
                 }
             }
         }
@@ -782,7 +801,11 @@ namespace Sandbox.Game.Entities.Cube
             foreach (var res in blueprint.Results)
             {
                 OutputInventory.RemoveItemsOfType(res.Amount, res.Id);
+<<<<<<< HEAD
                 if (MySession.Static.Settings.EnableInventoryMass)
+=======
+                if (MyPerGameSettings.InventoryMass)
+>>>>>>> Add Inventory Mass
                 {
                     OutputInventory.ContentsChanged += Inventory_ContentsChanged;
                 }
@@ -795,9 +818,15 @@ namespace Sandbox.Game.Entities.Cube
                 var item = blueprint.Prerequisites[i];
                 var itemOb = (MyObjectBuilder_PhysicalObject)MyObjectBuilderSerializer.CreateNewObject(item.Id.TypeId, item.Id.SubtypeName);
                 InputInventory.AddItems(item.Amount * amountMult, itemOb);
+<<<<<<< HEAD
                 if (MySession.Static.Settings.EnableInventoryMass)
                 {
                     InputInventory.ContentsChanged += Inventory_ContentsChanged;
+=======
+                if (MyPerGameSettings.InventoryMass)
+                {
+                    OutputInventory.ContentsChanged += Inventory_ContentsChanged;
+>>>>>>> Add Inventory Mass
                 }
             }
         }
