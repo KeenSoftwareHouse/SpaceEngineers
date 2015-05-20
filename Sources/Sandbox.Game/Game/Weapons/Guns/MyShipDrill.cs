@@ -65,7 +65,11 @@ namespace Sandbox.Game.Weapons
         private IMyConveyorEndpoint m_multilineConveyorEndpoint;
 
         private float m_pushFactor;
-        public float PushItemsFactor { get; set; }
+        public float PushItemsFactor 
+        { 
+            get { return m_pushFactor; }
+            set { m_pushFactor = value; } 
+        }
 
         private new MySyncShipDrill SyncObject;
 
@@ -83,15 +87,16 @@ namespace Sandbox.Game.Weapons
             MyTerminalControlFactory.AddControl(useConvSystem);
 
             var pushFactor = new MyTerminalControlSlider<MyShipDrill>("PushFactor", MySpaceTexts.BlockPropertyTitle_DrillPushFactor, MySpaceTexts.BlockPropertyDescription_DrillPushFactor);
-            pushFactor.SetLimits(0, 1);
+            pushFactor.SetLimits(0, 100);
             pushFactor.DefaultValue = 0;
-            pushFactor.Getter = (x) => x.m_pushFactor;
+            pushFactor.Getter = (x) => x.m_pushFactor * 100f;
             pushFactor.Setter = (x, v) =>
             {
+                v *= 0.01f;
                 x.m_pushFactor = v;
                 x.SyncObject.SendChangePushFactorRequest(v);
             };
-            pushFactor.Writer = (x, result) => result.AppendInt32((int)x.m_pushFactor).Append(" %");
+            pushFactor.Writer = (x, result) => result.AppendInt32((int)(x.m_pushFactor * 100f)).Append(" %");
             pushFactor.EnableActions();
             MyTerminalControlFactory.AddControl(pushFactor);
 
