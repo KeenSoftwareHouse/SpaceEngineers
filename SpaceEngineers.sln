@@ -72,6 +72,7 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Configuration", "Configuration", "{BB2E2FD7-114E-441E-A282-643353F31A64}"
 	ProjectSection(SolutionItems) = preProject
 		global.props = global.props
+		user.props = user.props
 	EndProjectSection
 EndProject
 Global
