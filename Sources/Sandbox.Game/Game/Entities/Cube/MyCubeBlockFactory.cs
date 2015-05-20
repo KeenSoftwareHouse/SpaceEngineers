@@ -37,8 +37,13 @@ namespace Sandbox.Game.Entities.Cube
             var obj = m_objectFactory.CreateInstance(builder.TypeId);
             MyEntity entity = obj as MyEntity;
             var scriptManager = Sandbox.Game.World.MyScriptManager.Static;
+
+			if (scriptManager != null && builder.SubtypeName != null && scriptManager.SubEntityScripts.ContainsKey(new Tuple<Type, string>(builder.TypeId, builder.SubtypeName)))
+				entity.GameLogic = (Sandbox.Common.Components.MyGameLogicComponent)Activator.CreateInstance(scriptManager.SubEntityScripts[new Tuple<Type, string>(builder.TypeId, builder.SubtypeName)]);
+
             if (entity != null && scriptManager != null && scriptManager.EntityScripts.ContainsKey(builder.TypeId))
                 entity.GameLogic = (Sandbox.Common.Components.MyGameLogicComponent)Activator.CreateInstance(scriptManager.EntityScripts[builder.TypeId]);
+
             return obj;
         }
 

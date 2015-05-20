@@ -33,6 +33,7 @@ namespace Sandbox.Game.World
         public Dictionary<Type, Type> EntityScripts = new Dictionary<Type, Type>(); //Binds object builder type with Game Logic component type
         public Dictionary<MyStringId, Type> InGameScripts = new Dictionary<MyStringId, Type>(); //Ingame script is just game logic component
         public Dictionary<MyStringId, StringBuilder> InGameScriptsCode = new Dictionary<MyStringId, StringBuilder>();
+		public Dictionary<Tuple<Type, string>, Type> SubEntityScripts = new Dictionary<Tuple<Type, string>, Type>();
         private List<string> m_errors = new List<string>();
         private List<string> m_cachedFiles = new List<string>();
         static Dictionary<string, bool> testFiles = new Dictionary<string, bool>();
@@ -180,20 +181,37 @@ namespace Sandbox.Game.World
                 var descriptorArray = type.GetCustomAttributes(typeof(MyEntityComponentDescriptor), false);
                 if (descriptorArray != null && descriptorArray.Length > 0)
                 {
-                    var descriptor = (MyEntityComponentDescriptor)descriptorArray[0];
-                    var component = (MyGameLogicComponent)Activator.CreateInstance(type);
-                    if (gameLogicType.IsAssignableFrom(type) && builderType.IsAssignableFrom(descriptor.EntityBuilderType))
-                    {
-                        if (EntityScripts.Remove(descriptor.EntityBuilderType))
-                        {
-                            var msg = string.Format("Entity script overwritten: {0}", descriptor.EntityBuilderType.Name);
-                            Debug.Fail(msg);
-                            var c = new MyModContext();
-                            c.Init(assembly.FullName, assembly.FullName);
-                            MyDefinitionErrors.Add(c, msg, ErrorSeverity.Notice);
-                        }
-                        EntityScripts.Add(descriptor.EntityBuilderType, type);
-                    }
+					var descriptor = (MyEntityComponentDescriptor)descriptorArray[0];
+					var component = (MyGameLogicComponent)Activator.CreateInstance(type);
+
+					var subIdDescriptorArray = type.GetCustomAttributes(typeof(MyEntitySubIdComponentDescriptor), false);
+					if (subIdDescriptorArray != null && subIdDescriptorArray.Length > 0)
+					{
+						foreach (var item in subIdDescriptorArray)
+						{
+							if (gameLogicType.IsAssignableFrom(type) && builderType.IsAssignableFrom(descriptor.EntityBuilderType))
+							{
+								var subIdDescriptor = (MyEntitySubIdComponentDescriptor)item;
+								if (!SubEntityScripts.ContainsKey(new Tuple<Type, string>(descriptor.EntityBuilderType, subIdDescriptor.SubIdName)))
+									SubEntityScripts.Add(new Tuple<Type, string>(descriptor.EntityBuilderType, subIdDescriptor.SubIdName), type);
+							}
+						}
+					}
+					else
+					{
+						if (gameLogicType.IsAssignableFrom(type) && builderType.IsAssignableFrom(descriptor.EntityBuilderType))
+						{
+							if (EntityScripts.Remove(descriptor.EntityBuilderType))
+							{
+								var msg = string.Format("Entity script overwritten: {0}", descriptor.EntityBuilderType.Name);
+								Debug.Fail(msg);
+								var c = new MyModContext();
+								c.Init(assembly.FullName, assembly.FullName);
+								MyDefinitionErrors.Add(c, msg, ErrorSeverity.Notice);
+							}
+							EntityScripts.Add(descriptor.EntityBuilderType, type);
+						}
+					}
                 }
             }
         }
