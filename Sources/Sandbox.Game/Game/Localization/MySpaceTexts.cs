@@ -10108,5 +10108,15 @@ namespace Sandbox.Game.Localization
         ///Old Scrap Metal
         ///</summary>
         public static readonly MyStringId DisplayName_Item_ScrapIngot = MyStringId.GetOrCompute("DisplayName_Item_ScrapIngot");
+
+        ///<summary>
+        ///The percentage of completion of the inventory when it is pushed from the drill.
+        ///</summary>
+        public static readonly MyStringId BlockPropertyDescription_DrillPushFactor = MyStringId.GetOrCompute("BlockPropertyDescription_DrillPushFactor");
+
+        ///<summary>
+        ///Push items factor
+        ///</summary>
+        public static readonly MyStringId BlockPropertyTitle_DrillPushFactor = MyStringId.GetOrCompute("BlockPropertyTitle_DrillPushFactor");
     }
 }
