@@ -206,7 +206,7 @@ namespace Sandbox.Game.Entities
                 if ((m_leftSubpart.ModelCollision.HavokCollisionShapes != null) && (m_leftSubpart.ModelCollision.HavokCollisionShapes.Length > 0))
                 {
                     var shape = m_leftSubpart.ModelCollision.HavokCollisionShapes[0];
-                    m_leftSubpart.Physics = new Engine.Physics.MyPhysicsBody(m_leftSubpart, Engine.Physics.RigidBodyFlag.RBF_KINEMATIC);
+                    m_leftSubpart.Physics = new Engine.Physics.MyPhysicsBody(m_leftSubpart, Engine.Physics.RigidBodyFlag.RBF_KINEMATIC | RigidBodyFlag.RBF_DOUBLED_KINEMATIC);
                     m_leftSubpart.Physics.IsPhantom = false;
                     Vector3 center = new Vector3(0.35f, 0f, 0f) + m_leftSubpart.PositionComp.LocalVolume.Center;
                     m_leftSubpart.Physics.CreateFromCollisionObject(shape, center, WorldMatrix, null, MyPhysics.KinematicDoubledCollisionLayer);
@@ -219,7 +219,7 @@ namespace Sandbox.Game.Entities
                 if ((m_rightSubpart.ModelCollision.HavokCollisionShapes != null) && (m_rightSubpart.ModelCollision.HavokCollisionShapes.Length > 0))
                 {
                     var shape = m_rightSubpart.ModelCollision.HavokCollisionShapes[0];
-                    m_rightSubpart.Physics = new Engine.Physics.MyPhysicsBody(m_rightSubpart, Engine.Physics.RigidBodyFlag.RBF_KINEMATIC);
+                    m_rightSubpart.Physics = new Engine.Physics.MyPhysicsBody(m_rightSubpart, Engine.Physics.RigidBodyFlag.RBF_KINEMATIC | RigidBodyFlag.RBF_DOUBLED_KINEMATIC);
                     m_rightSubpart.Physics.IsPhantom = false;
                     Vector3 center = new Vector3(-0.35f, 0f, 0f) + m_rightSubpart.PositionComp.LocalVolume.Center;
                     m_rightSubpart.Physics.CreateFromCollisionObject(shape, center, WorldMatrix, null, MyPhysics.KinematicDoubledCollisionLayer);
