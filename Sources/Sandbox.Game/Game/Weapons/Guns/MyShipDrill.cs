@@ -64,6 +64,16 @@ namespace Sandbox.Game.Weapons
         private bool m_useConveyorSystem;
         private IMyConveyorEndpoint m_multilineConveyorEndpoint;
 
+        private float m_pushFactor;
+        public float PushItemsFactor { get; set; }
+
+        private new MySyncShipDrill SyncObject;
+
+        private new MyShipDrillDefinition BlockDefinition
+        {
+            get { return (MyShipDrillDefinition)base.BlockDefinition; }
+        }
+
         static MyShipDrill()
         {
             var useConvSystem = new MyTerminalControlOnOffSwitch<MyShipDrill>("UseConveyor", MySpaceTexts.Terminal_UseConveyorSystem);
@@ -71,6 +81,19 @@ namespace Sandbox.Game.Weapons
             useConvSystem.Setter = (x, v) => MySyncConveyors.SendChangeUseConveyorSystemRequest(x.EntityId, v);
             useConvSystem.EnableToggleAction();
             MyTerminalControlFactory.AddControl(useConvSystem);
+
+            var pushFactor = new MyTerminalControlSlider<MyShipDrill>("PushFactor", MySpaceTexts.BlockPropertyTitle_DrillPushFactor, MySpaceTexts.BlockPropertyDescription_DrillPushFactor);
+            pushFactor.SetLimits(0, 1);
+            pushFactor.DefaultValue = 0;
+            pushFactor.Getter = (x) => x.m_pushFactor;
+            pushFactor.Setter = (x, v) =>
+            {
+                x.m_pushFactor = v;
+                x.SyncObject.SendChangePushFactorRequest(v);
+            };
+            pushFactor.Writer = (x, result) => result.AppendInt32((int)x.m_pushFactor).Append(" %");
+            pushFactor.EnableActions();
+            MyTerminalControlFactory.AddControl(pushFactor);
 
             m_sounds = new MyDrillBase.Sounds()
             {
@@ -131,13 +154,14 @@ namespace Sandbox.Game.Weapons
             NeedsUpdate |= MyEntityUpdateEnum.EACH_FRAME | MyEntityUpdateEnum.EACH_100TH_FRAME;
             Debug.Assert((NeedsUpdate & MyEntityUpdateEnum.EACH_10TH_FRAME) == 0, "Base class of ship drill uses Update10, and ship drill turns it on and off. Things might break!");
             SetupDrillFrameCountdown();
+            SyncObject = new MySyncShipDrill(this);
         }
 
         public override void Init(MyObjectBuilder_CubeBlock builder, MyCubeGrid cubeGrid)
         {
             base.Init(builder, cubeGrid);
             m_defId = builder.GetId();
-            var def = MyDefinitionManager.Static.GetCubeBlockDefinition(m_defId) as MyShipDrillDefinition;
+            var def = BlockDefinition;// MyDefinitionManager.Static.GetCubeBlockDefinition(m_defId) as MyShipDrillDefinition;
             
             m_blockLength = def.Size.Z;
             m_cubeSideLength = MyDefinitionManager.Static.GetCubeSize(def.CubeSize);
@@ -187,6 +211,7 @@ namespace Sandbox.Game.Weapons
             SlimBlock.ComponentStack.IsFunctionalChanged += ComponentStack_IsFunctionalChanged;
 
             m_useConveyorSystem = obDrill.UseConveyorSystem;
+            m_pushFactor = obDrill.PushItemsFactor;
 
             UpdateDetailedInfo();
         }
@@ -226,6 +251,7 @@ namespace Sandbox.Game.Weapons
             var obDrill = (MyObjectBuilder_Drill)base.GetObjectBuilderCubeBlock(copy);
             obDrill.Inventory = m_inventory.GetObjectBuilder();
             obDrill.UseConveyorSystem = m_useConveyorSystem;
+            obDrill.PushItemsFactor = m_pushFactor;
             return obDrill;
         }
 
@@ -256,7 +282,7 @@ namespace Sandbox.Game.Weapons
             base.UpdateAfterSimulation100();
             m_drillBase.UpdateAfterSimulation100();
 
-            if (Sync.IsServer && IsFunctional && m_useConveyorSystem && m_inventory.VolumeFillFactor > 0.7f)
+            if (Sync.IsServer && IsFunctional && m_useConveyorSystem && m_inventory.VolumeFillFactor > PushItemsFactor)
             {
                 MyGridConveyorSystem.PushAnyRequest(this, m_inventory, OwnerId);
             }

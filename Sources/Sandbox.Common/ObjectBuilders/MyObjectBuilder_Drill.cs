@@ -13,6 +13,9 @@ namespace Sandbox.Common.ObjectBuilders
         [ProtoMember, DefaultValue(true)]
         public bool UseConveyorSystem = true;
 
+        [ProtoMember]
+        public float PushItemsFactor;
+
         public MyObjectBuilder_Drill()
         {
             // Overriding base default value.
