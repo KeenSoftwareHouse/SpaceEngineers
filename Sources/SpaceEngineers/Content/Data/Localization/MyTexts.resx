@@ -6264,4 +6264,10 @@ To connect to lasers not listed here you can connect to coordinates.</value>
   <data name="DisplayName_Item_ScrapIngot" xml:space="preserve">
     <value>Old Scrap Metal</value>
   </data>
+  <data name="ScreenOptionsGame_MemoryLimits" xml:space="preserve">
+    <value>Memory limits</value>
+  </data>
+  <data name="ToolTipGameOptionsMemoryLimits" xml:space="preserve">
+    <value>Activate memory limits</value>
+  </data>
 </root>
