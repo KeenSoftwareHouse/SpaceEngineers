@@ -14,12 +14,18 @@ namespace Sandbox.Game.Gui
             string currentObjectivePrefix = null,
             string currentObjective = null,
             string description = null,
-            Action<ResultEnum, string> resultCallback = null,
+            Action<ResultEnum> resultCallback = null,
             Action saveCodeCallback = null,
-            string okButtonCaption = null,      
+            string okButtonCaption = null,
             bool editable = false,
             MyGuiScreenBase previousScreen = null)
-            : base(missionTitle, currentObjectivePrefix, currentObjective, description, resultCallback, okButtonCaption, null, null, editable)
+            : base(missionTitle: missionTitle,
+                currentObjectivePrefix: currentObjectivePrefix,
+                currentObjective: currentObjective,
+                description: description,
+                resultCallback: resultCallback,
+                okButtonCaption: okButtonCaption,
+                editEnabled: editable)
         {
             CanHideOthers = editable;
         }

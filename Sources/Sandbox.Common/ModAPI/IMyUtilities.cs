@@ -36,7 +36,8 @@ namespace Sandbox.ModAPI
         string SerializeToXML<T>(T objToSerialize);
         T SerializeFromXML<T>(string buffer);
         void InvokeOnGameThread(Action action);
-        void ShowMissionScreen(string screenTitle = null, string currentObjectivePrefix = null, string currentObjective = null, string screenDescription = null, Action<ResultEnum, string> callback = null, string okButtonCaption = null, bool editEnabled = false);
+        void ShowMissionScreen(string screenTitle = null, string currentObjectivePrefix = null, string currentObjective = null, string screenDescription = null, Action<ResultEnum> callback = null, string okButtonCaption = null);
+        void ShowEditableMissionScreen(string screenTitle = null, string currentObjectivePrefix = null, string currentObjective = null, string screenDescription = null, Action<ResultEnum, string> callback = null, string okButtonCaption = null);
         IMyHudObjectiveLine GetObjectiveLine();
 
         System.IO.BinaryReader ReadBinaryFileInGlobalStorage(string file);

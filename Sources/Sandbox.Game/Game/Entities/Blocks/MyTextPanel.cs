@@ -763,9 +763,9 @@ namespace Sandbox.Game.Entities.Blocks
             MyScreenManager.AddScreen(MyGuiScreenGamePlay.ActiveGameplayScreen = m_textBox);
         }
 
-        public void OnClosedTextBox(ModAPI.ResultEnum result, string text)
+        public void OnClosedTextBox(ModAPI.ResultEnum result)
         {
-            if (text.Length > MAX_NUMBER_CHARACTERS)
+            if (m_textBox.Description.Text.Length > MAX_NUMBER_CHARACTERS)
             {
                 MyGuiSandbox.AddScreen(MyGuiSandbox.CreateMessageBox(
                                      styleEnum: MyMessageBoxStyleEnum.Info,

@@ -168,7 +168,7 @@ namespace Sandbox.Game.Entities.Blocks
             SyncObject.SendUpdateProgramRequest(m_programData, m_storageData);
         }
 
-        private void SaveCode(ResultEnum result, string text)
+        private void SaveCode(ResultEnum result)
         {
             MyGuiScreenGamePlay.ActiveGameplayScreen = MyGuiScreenGamePlay.TmpGameplayScreenHolder;
             MyGuiScreenGamePlay.TmpGameplayScreenHolder = null;
@@ -205,7 +205,7 @@ namespace Sandbox.Game.Entities.Blocks
                     {
                         if (result2 == MyGuiScreenMessageBox.ResultEnum.YES)
                         {
-                            SaveCode(ResultEnum.OK, text);
+                            SaveCode(ResultEnum.OK);
                         }
                         else
                         {
