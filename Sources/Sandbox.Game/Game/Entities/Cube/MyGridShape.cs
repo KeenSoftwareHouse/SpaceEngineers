@@ -38,6 +38,8 @@ namespace Sandbox.Game.Entities.Cube
 
         private MyCubeGrid m_grid;
         private HkGridShape m_root;
+        private MyCargoContainer m_cargocontainer;
+        private MyInventory m_inv;
 
         private Dictionary<Vector3I, HkMassElement> m_massElements;
         public HkdBreakableShape BreakableShape { get; set; }
@@ -1045,6 +1047,8 @@ namespace Sandbox.Game.Entities.Cube
             // MW: so far just plain recalculation.
             m_blockCollector.CollectMassElements(m_grid, m_massElements);
             UpdateMass(m_grid.Physics.RigidBody);
+            //m_cargocontainer.Inventory_ContentsChanged(m_inv);
+            //Physics.Shape.UpdateMassFromInventories(m_cubeBlocks, Physics);
         }
 
         public void UpdateMassFromInventories(HashSet<MySlimBlock> blocks, MyPhysicsBody rb)
