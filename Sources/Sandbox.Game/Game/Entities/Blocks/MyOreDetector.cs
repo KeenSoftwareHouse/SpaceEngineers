@@ -12,6 +12,7 @@ using VRageMath;
 using Sandbox.Game.Components;
 using Sandbox.ModAPI.Ingame;
 using Sandbox.Game.Localization;
+using System.Collections.Generic;
 
 #endregion
 
@@ -184,5 +185,6 @@ namespace Sandbox.Game.Entities.Cube
         }
         bool IMyOreDetector.BroadcastUsingAntennas { get { return m_oreDetectorComponent.BroadcastUsingAntennas; } }
         float IMyOreDetector.Range { get { return Range; } }
+        Dictionary<string, Vector3D> IMyOreDetector.DetectedOres { get { return m_oreDetectorComponent.detectedOres; } }
     }
 }

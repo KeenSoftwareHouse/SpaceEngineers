@@ -9,5 +9,6 @@ namespace Sandbox.ModAPI.Ingame
     {
         float Range {get;}
         bool BroadcastUsingAntennas {get;}
+        Dictionary<string, VRageMath.Vector3D> DetectedOres { get; }
     }
 }

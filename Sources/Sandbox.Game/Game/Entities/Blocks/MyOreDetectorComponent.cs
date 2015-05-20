@@ -191,6 +191,8 @@ namespace Sandbox.Game.Entities.Cube
 
         private readonly Dictionary<MyVoxelBase, MyOreDepositGroup> m_depositGroupsByEntity = new Dictionary<MyVoxelBase, MyOreDepositGroup>();
 
+        public Dictionary<string, Vector3D> detectedOres = new Dictionary<string, Vector3D>();
+
         public MyOreDetectorComponent()
         {
             DetectionRadius = 50;
@@ -203,6 +205,7 @@ namespace Sandbox.Game.Entities.Cube
         public void Update(Vector3D position, bool checkControl = true)
         {
             Clear();
+            detectedOres.Clear();
 
             if (!SetRelayedRequest && checkControl && !OnCheckControl())
             {
@@ -248,6 +251,16 @@ namespace Sandbox.Game.Entities.Cube
                 {
                     if (deposit != null)
                     {
+                        foreach(var ore in deposit.Materials)
+                        {
+                            string oreName = ore.Material.MinedOre;
+                            Vector3D orePosition;
+                            ore.ComputeWorldPosition(deposit.VoxelMap, out orePosition);
+                            if (!detectedOres.ContainsKey(oreName))
+                                detectedOres.Add(oreName, orePosition);
+                            else if (VRageMath.Vector3D.Distance(detectedOres[oreName], position) > VRageMath.Vector3D.Distance(orePosition, position))
+                                detectedOres[oreName] = orePosition;
+                        }
                         MyHud.OreMarkers.RegisterMarker(deposit);
                     }
                 }
