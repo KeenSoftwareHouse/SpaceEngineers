@@ -491,9 +491,9 @@ namespace VRage.Dedicated
             {
                 checkBox = foundControls[0] as CheckBox;
                 checkBox.Enabled = !enabled;
-                checkBox.Checked = !enabled;
+                checkBox.Checked = enabled ? false : m_selectedSessionSettings.PermanentDeath.Value;
                 checkLabel[0].Enabled = !enabled;
-                m_selectedSessionSettings.PermanentDeath &= !enabled;
+                m_selectedSessionSettings.PermanentDeath &= checkBox.Checked;
             }
         }
 
