@@ -772,7 +772,7 @@ namespace Sandbox.Game.Entities.Cube
                 OutputInventory.AddItems(res.Amount, resOb);
                 if (MySession.Static.Settings.EnableInventoryMass)
                 {
-                    OutputInventory.ContentsChanged += Inventory_ContentsChanged;
+                    InputInventory.ContentsChanged += Inventory_ContentsChanged;
                 }
             }
         }
@@ -798,7 +798,7 @@ namespace Sandbox.Game.Entities.Cube
                 InputInventory.AddItems(item.Amount * amountMult, itemOb);
                 if (MySession.Static.Settings.EnableInventoryMass)
                 {
-                    InputInventory.ContentsChanged += Inventory_ContentsChanged;
+                    OutputInventory.ContentsChanged += Inventory_ContentsChanged;
                 }
             }
         }
