@@ -226,6 +226,43 @@ namespace Sandbox.Game.Entities
                     m_rightSubpart.Physics.Enabled = true;
                 }
             }
+
+            CubeGrid.OnHavokSystemIDChanged -= CubeGrid_HavokSystemIDChanged;
+            CubeGrid.OnHavokSystemIDChanged += CubeGrid_HavokSystemIDChanged;
+            if (CubeGrid.Physics!=null)
+                UpdateHavokCollisionSystemID(CubeGrid.Physics.HavokCollisionSystemID);
+        }
+
+        internal void UpdateHavokCollisionSystemID(int HavokCollisionSystemID)
+        {
+            if (m_rightSubpart != null && m_rightSubpart.Physics != null)
+            {
+                if ((m_rightSubpart.ModelCollision.HavokCollisionShapes != null) && (m_rightSubpart.ModelCollision.HavokCollisionShapes.Length > 0))
+                {
+                    var info = HkGroupFilter.CalcFilterInfo(MyPhysics.KinematicDoubledCollisionLayer, HavokCollisionSystemID, 1, 1);
+                    m_rightSubpart.Physics.RigidBody.SetCollisionFilterInfo(info);
+
+                    info = HkGroupFilter.CalcFilterInfo(MyPhysics.DynamicDoubledCollisionLayer, HavokCollisionSystemID, 1, 1);
+                    m_rightSubpart.Physics.RigidBody2.SetCollisionFilterInfo(info);
+                }
+            }
+
+            if (m_leftSubpart != null && m_leftSubpart.Physics != null)
+            {
+                if ((m_leftSubpart.ModelCollision.HavokCollisionShapes != null) && (m_leftSubpart.ModelCollision.HavokCollisionShapes.Length > 0))
+                {
+                    var info = HkGroupFilter.CalcFilterInfo(MyPhysics.KinematicDoubledCollisionLayer, HavokCollisionSystemID, 1, 1);
+                    m_leftSubpart.Physics.RigidBody.SetCollisionFilterInfo(info);
+
+                    info = HkGroupFilter.CalcFilterInfo(MyPhysics.DynamicDoubledCollisionLayer, HavokCollisionSystemID, 1, 1);
+                    m_leftSubpart.Physics.RigidBody2.SetCollisionFilterInfo(info);
+                }
+            }
+        }
+
+        void CubeGrid_HavokSystemIDChanged(int id)
+        {
+            UpdateHavokCollisionSystemID(id);
         }
 
         public override MyObjectBuilder_CubeBlock GetObjectBuilderCubeBlock(bool copy = false)
