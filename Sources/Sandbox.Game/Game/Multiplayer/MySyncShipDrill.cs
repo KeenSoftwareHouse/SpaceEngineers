@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using Sandbox.Game.Weapons;
 using Sandbox.Engine.Multiplayer;
 using SteamSDK;
@@ -13,21 +10,14 @@ namespace Sandbox.Game.Multiplayer
     [PreloadRequired]
     class MySyncShipDrill
     {
-        MyShipDrill m_block;
+        private MyShipDrill m_block;
 
-        [MessageIdAttribute(8201, P2PMessageEnum.Reliable)]
-        protected struct ChangePushFactorMsg : IEntityMessage
+        [MessageIdAttribute(821, P2PMessageEnum.Reliable)]
+        protected struct ChangePushFactorMsg
         {
             public long EntityId;
 
-            public long GetEntityId() { return EntityId; }
-
             public float PushFactor;
-
-            public override string ToString()
-            {
-                return String.Format("{0}, {1}", this.GetType().Name, this.GetEntityText());
-            }
         }
 
         static MySyncShipDrill()
