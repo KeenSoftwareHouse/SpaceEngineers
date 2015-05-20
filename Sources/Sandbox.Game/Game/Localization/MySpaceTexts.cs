@@ -10108,5 +10108,15 @@ namespace Sandbox.Game.Localization
         ///Old Scrap Metal
         ///</summary>
         public static readonly MyStringId DisplayName_Item_ScrapIngot = MyStringId.GetOrCompute("DisplayName_Item_ScrapIngot");
+
+        ///<summary>
+        ///Memory limits
+        ///</summary>
+        public static readonly MyStringId ScreenOptionsGame_MemoryLimits = MyStringId.GetOrCompute("ScreenOptionsGame_MemoryLimits");
+
+        ///<summary>
+        ///Activate memory limits
+        ///</summary>
+        public static readonly MyStringId ToolTipGameOptionsMemoryLimits = MyStringId.GetOrCompute("ToolTipGameOptionsMemoryLimits");
     }
 }

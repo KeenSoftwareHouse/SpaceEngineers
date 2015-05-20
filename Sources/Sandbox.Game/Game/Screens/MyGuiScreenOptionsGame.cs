@@ -24,6 +24,7 @@ namespace Sandbox.Game.Gui
             public bool DisableHeadbob;
             public bool CompressSaveGames;
             public bool ShowPlayerNamesOnHud;
+            public bool MemoryLimits;
         }
 
         MyGuiControlCombobox m_languageCombobox;
@@ -34,6 +35,7 @@ namespace Sandbox.Game.Gui
         MyGuiControlCheckbox m_disableHeadbobCheckbox;
         MyGuiControlCheckbox m_compressSavesCheckbox;
         MyGuiControlCheckbox m_showPlayerNamesCheckbox;
+        MyGuiControlCheckbox m_memoryLimitsCheckbox;
         private MyGuiControlButton m_localizationWebButton;
         private MyGuiControlLabel m_localizationWarningLabel;
         private OptionsGameSettings m_settings = new OptionsGameSettings();
@@ -197,6 +199,19 @@ namespace Sandbox.Game.Gui
             };
             m_showPlayerNamesCheckbox.IsCheckedChanged += checkboxChanged;
 
+            rowIndex++;
+            var memoryLimitsLabel = new MyGuiControlLabel(text: MyTexts.GetString(MySpaceTexts.ScreenOptionsGame_MemoryLimits))
+            {
+                Position = controlsOriginLeft + rowIndex * controlsDelta,
+                OriginAlign = leftAlign
+            };
+            m_memoryLimitsCheckbox = new MyGuiControlCheckbox(toolTip: MyTexts.GetString(MySpaceTexts.ToolTipGameOptionsMemoryLimits))
+            {
+                Position = controlsOriginRight + rowIndex * controlsDelta,
+                OriginAlign = rightAlign,
+            };
+            m_memoryLimitsCheckbox.IsCheckedChanged += checkboxChanged;
+
             //  Buttons OK and CANCEL
             var buttonOk = new MyGuiControlButton(text: MyTexts.Get(MySpaceTexts.Ok), onButtonClick: OnOkClick);
             var buttonCancel = new MyGuiControlButton(text: MyTexts.Get(MySpaceTexts.Cancel), onButtonClick: OnCancelClick);
@@ -225,6 +240,8 @@ namespace Sandbox.Game.Gui
             Controls.Add(m_compressSavesCheckbox);
             Controls.Add(showPlayerNamesOnHudLabel);
             Controls.Add(m_showPlayerNamesCheckbox);
+            Controls.Add(memoryLimitsLabel);
+            Controls.Add(m_memoryLimitsCheckbox);
             Controls.Add(buttonOk);
             Controls.Add(buttonCancel);
 
@@ -249,6 +266,8 @@ namespace Sandbox.Game.Gui
                 m_settings.CompressSaveGames = obj.IsChecked;
             else if (obj == m_showPlayerNamesCheckbox)
                 m_settings.ShowPlayerNamesOnHud = obj.IsChecked;
+            else if (obj == m_memoryLimitsCheckbox)
+                m_settings.MemoryLimits = obj.IsChecked;
         }
 
         void m_buildingModeCombobox_ItemSelected()
@@ -307,6 +326,7 @@ namespace Sandbox.Game.Gui
                 m_disableHeadbobCheckbox.IsChecked = MySandboxGame.Config.DisableHeadbob;
                 m_compressSavesCheckbox.IsChecked = MySandboxGame.Config.CompressSaveGames;
                 m_showPlayerNamesCheckbox.IsChecked = MySandboxGame.Config.ShowPlayerNamesOnHud;
+                m_memoryLimitsCheckbox.IsChecked = MySandboxGame.Config.MemoryLimits;
             }
             else
             {
@@ -318,6 +338,7 @@ namespace Sandbox.Game.Gui
                 m_disableHeadbobCheckbox.IsChecked = m_settings.DisableHeadbob;
                 m_compressSavesCheckbox.IsChecked = m_settings.CompressSaveGames;
                 m_showPlayerNamesCheckbox.IsChecked = m_settings.ShowPlayerNamesOnHud;
+                m_memoryLimitsCheckbox.IsChecked = m_settings.MemoryLimits;
             }
         }
 
@@ -332,6 +353,7 @@ namespace Sandbox.Game.Gui
             MySandboxGame.Config.DisableHeadbob = m_disableHeadbobCheckbox.IsChecked;
             MySandboxGame.Config.CompressSaveGames = m_compressSavesCheckbox.IsChecked;
             MySandboxGame.Config.ShowPlayerNamesOnHud = m_showPlayerNamesCheckbox.IsChecked;
+            MySandboxGame.Config.MemoryLimits = m_memoryLimitsCheckbox.IsChecked;
             MySandboxGame.Config.Save();
         }
 
