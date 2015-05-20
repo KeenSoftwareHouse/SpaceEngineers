@@ -6,7 +6,7 @@ namespace Sandbox.Common.ObjectBuilders
     [MyObjectBuilderDefinition]
     public class MyObjectBuilder_RemoteControl : MyObjectBuilder_ShipController
     {
-        [ProtoMember(1)]
+        [ProtoMember]
         public long? PreviousControlledEntityId = null;
     }
 }

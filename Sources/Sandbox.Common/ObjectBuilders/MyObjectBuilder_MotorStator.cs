@@ -12,39 +12,39 @@ namespace Sandbox.Common.ObjectBuilders
     public class MyObjectBuilder_MotorStator : MyObjectBuilder_MotorBase
     {
         // We cannot save attached block entity IDs because copy/paste wouldn't work that way
-        //[ProtoMember(1)]
+        //[ProtoMember]
         //public long RotorEntityId;
 
-        //[ProtoMember(2)]
+        //[ProtoMember]
         //public bool Enabled;
 
-        [ProtoMember(3), DefaultValue(1f)]
+        [ProtoMember, DefaultValue(1f)]
         public float Force = 1f;
 
-        [ProtoMember(4), DefaultValue(0f)]
+        [ProtoMember, DefaultValue(0f)]
         public float Friction = 0f;
 
-        [ProtoMember(5)]
+        [ProtoMember]
         public float TargetVelocity;
 
-        [ProtoMember(6)]
+        [ProtoMember]
         public float? MinAngle;
 
-        [ProtoMember(7)]
+        [ProtoMember]
         public float? MaxAngle;
 
-        [ProtoMember(8)]
+        [ProtoMember]
         public float CurrentAngle;
 
-        [ProtoMember(9)]
+        [ProtoMember]
         public bool LimitsActive;
 
         //chaning to 0 deafult is ok for older saves, before there was "hack" that changed 0.2 (previous default value) to 0.0
         //so how when value is not set it's default value will be 0.0 (same as with "hack")
-        [ProtoMember(10), DefaultValue(0.0f)] 
+        [ProtoMember, DefaultValue(0.0f)] 
         public float DummyDisplacement = 0.0f;
 
-        //[ProtoMember(10)]
+        //[ProtoMember]
         //public bool ControllableFromCockpit;
     }
 }

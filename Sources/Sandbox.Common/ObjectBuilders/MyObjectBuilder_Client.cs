@@ -10,13 +10,13 @@ namespace Sandbox.Common.ObjectBuilders
     [MyObjectBuilderDefinition]
     public class MyObjectBuilder_Client : MyObjectBuilder_Base
     {
-        [ProtoMember(1)]
+        [ProtoMember]
         public ulong SteamId;
 
-        [ProtoMember(2)]
+        [ProtoMember]
         public string Name;
 
-        [ProtoMember(3)]
+        [ProtoMember]
         public bool IsAdmin;
     }
 }

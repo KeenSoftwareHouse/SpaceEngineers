@@ -165,7 +165,31 @@ namespace Sandbox.Engine.Multiplayer
             set;
         }
 
-        public override int MaxBattleBlueprintPoints
+        public override bool BattleStarted
+        {
+            get;
+            set;
+        }
+
+        public override int BattleFaction1MaxBlueprintPoints
+        {
+            get;
+            set;
+        }
+
+        public override int BattleFaction2MaxBlueprintPoints
+        {
+            get;
+            set;
+        }
+
+        public override int BattleFaction1BlueprintPoints
+        {
+            get;
+            set;
+        }
+
+        public override int BattleFaction2BlueprintPoints
         {
             get;
             set;
@@ -208,6 +232,12 @@ namespace Sandbox.Engine.Multiplayer
         }
 
         public override bool BattleFaction2Ready
+        {
+            get;
+            set;
+        }
+
+        public override int BattleTimeLimit
         {
             get;
             set;

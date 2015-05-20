@@ -11,10 +11,10 @@ namespace Sandbox.Common.ObjectBuilders
     [MyObjectBuilderDefinition]
     public class MyObjectBuilder_SimpleAutopilot : MyObjectBuilder_AutopilotBase
     {
-        [ProtoMember(1)]
+        [ProtoMember]
         public Vector3D Destination;
 
-        [ProtoMember(2)]
+        [ProtoMember]
         public Vector3 Direction;
     }
 }

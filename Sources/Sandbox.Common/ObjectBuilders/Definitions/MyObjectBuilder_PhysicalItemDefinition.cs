@@ -15,24 +15,24 @@ namespace Sandbox.Common.ObjectBuilders.Definitions
     [MyObjectBuilderDefinition]
     public class MyObjectBuilder_PhysicalItemDefinition : MyObjectBuilder_DefinitionBase
     {
-        [ProtoMember(1)]
+        [ProtoMember]
         public Vector3 Size; // in meters
 
-        [ProtoMember(2)]
+        [ProtoMember]
         public float Mass; // in Kg
 
-        [ProtoMember(3)]
+        [ProtoMember]
         [ModdableContentFile("mwm")]
         public string Model = @"Models\Components\Sphere.mwm";
 
-        [ProtoMember(4), DefaultValue(null)]
+        [ProtoMember, DefaultValue(null)]
         public string IconSymbol = null;
         public bool ShouldSerializeIconSymbol() { return IconSymbol != null; }
 
-        [ProtoMember(5), DefaultValue(null)]
+        [ProtoMember, DefaultValue(null)]
         public float? Volume = null; // in liters
 
-        [ProtoMember(6)]
+        [ProtoMember]
         public string PhysicalMaterial;
     }
 }

@@ -823,8 +823,12 @@ namespace Sandbox.Game.Entities.Blocks
                 switch (relation)
                 {
                     case Common.MyRelationsBetweenPlayerAndBlock.Enemies:
-                    case Common.MyRelationsBetweenPlayerAndBlock.Neutral:
-                        OnEnemyUse(actionEnum, user);
+                    case Common.MyRelationsBetweenPlayerAndBlock.Neutral:	// HACK: relation is neutral if sharing is set to none and we would like to access a faction text panel text field
+						if (MySession.Static.Factions.TryGetPlayerFaction(user.ControllerInfo.Controller.Player.Identity.IdentityId) == MySession.Static.Factions.TryGetPlayerFaction(IDModule.Owner) && 
+							actionEnum == UseActionEnum.Manipulate && IsAccessibleForFaction)
+							OnFactionUse(actionEnum, user);
+						else
+							OnEnemyUse(actionEnum, user);
                         break;
                     case Common.MyRelationsBetweenPlayerAndBlock.FactionShare:
                         if (OwnerId == 0 && IsAccessibleForOnlyOwner)

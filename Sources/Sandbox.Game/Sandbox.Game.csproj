@@ -120,6 +120,7 @@
     <Compile Include="Definitions\MyAirtightDoorGenericDefinition.cs" />
     <Compile Include="Definitions\MyAirtightHangarDoorDefinition.cs" />
     <Compile Include="Definitions\MyAnimalBotDefinition.cs" />
+    <Compile Include="Definitions\MyAreaMarkerDefinition.cs" />
     <Compile Include="Definitions\MyControllerSchemaDefinition.cs" />
     <Compile Include="Definitions\MyConveyorSorterDefinition.cs" />
     <Compile Include="Definitions\MyCryoChamberDefinition.cs" />
@@ -464,9 +465,9 @@
     <Compile Include="Game\Entities\EnvironmentItems\MyTrees.cs" />
     <Compile Include="Game\Entities\IMyGravityProvider.cs" />
     <Compile Include="Game\Entities\IMyOxygenProvider.cs" />
+    <Compile Include="Game\Entities\MyAreaMarker.cs" />
     <Compile Include="Game\Entities\MyDataBroadcaster.cs" />
     <Compile Include="Game\Entities\IMyGizmoDrawableObject.cs" />
-    <Compile Include="Game\Entities\Interfaces\IMyVirtualMass.cs" />
     <Compile Include="Game\Entities\Interfaces\IMyGunBaseUser.cs" />
     <Compile Include="Game\Entities\Inventory\MyInventoryConstraint.cs" />
     <Compile Include="Game\Entities\MyDataReceiver.cs" />
@@ -486,6 +487,7 @@
     <Compile Include="Game\Entities\MyPlaceAreas.cs" />
     <Compile Include="Game\Entities\MyPlaceArea.cs" />
     <Compile Include="Game\Entities\MySolarGameLogicComponent.cs" />
+    <Compile Include="Game\Entities\MySpherePlaceArea.cs" />
     <Compile Include="Game\Entities\MyUpgradableBlockComponent.cs" />
     <Compile Include="Game\Entities\MyVoxelClipboard.cs" />
     <Compile Include="Game\Entities\MyVoxelMapExtensions.cs" />
@@ -615,6 +617,7 @@
     <Compile Include="Game\Screens\Helpers\MyGuiControlOnOffSwitch.cs" />
     <Compile Include="Game\Screens\Helpers\MySpaceControlHelpers.cs" />
     <Compile Include="Game\Screens\Helpers\MyToolbarItemAiCommand.cs" />
+    <Compile Include="Game\Screens\Helpers\MyToolbarItemAreaMarker.cs" />
     <Compile Include="Game\Screens\Helpers\MyToolbarItemBot.cs" />
     <Compile Include="Game\Screens\MyGuiScreenControlMenu.cs" />
     <Compile Include="Game\Screens\MyGuiScreenDialogText.cs" />

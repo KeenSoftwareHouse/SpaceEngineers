@@ -10,7 +10,7 @@ namespace Sandbox.Common.ObjectBuilders
     [MyObjectBuilderDefinition]
     public class MyObjectBuilder_MotorBase : MyObjectBuilder_FunctionalBlock
     {
-        [ProtoMember(1)]
+        [ProtoMember]
         public long RotorEntityId;
 
         public override void Remap(IMyRemapHelper remapHelper)

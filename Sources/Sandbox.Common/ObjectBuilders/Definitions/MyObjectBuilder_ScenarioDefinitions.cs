@@ -16,7 +16,7 @@ namespace Sandbox.Common.ObjectBuilders.Definitions
     public class MyObjectBuilder_ScenarioDefinitions : MyObjectBuilder_Base
     {
         [XmlArrayItem("ScenarioDefinition")]
-        [ProtoMember(1)]
+        [ProtoMember]
         public MyObjectBuilder_ScenarioDefinition[] Scenarios;
     }
 }

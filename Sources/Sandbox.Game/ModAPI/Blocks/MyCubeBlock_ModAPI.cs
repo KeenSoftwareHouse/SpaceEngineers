@@ -124,6 +124,15 @@ namespace Sandbox.Game.Entities
             get { return Max; }
         }
 
+        float IMyCubeBlock.Mass
+        {
+            get { return GetMass(); }
+        }
+
+        float ModAPI.Ingame.IMyCubeBlock.Mass
+        {
+            get { return GetMass(); }
+        }
         VRageMath.Vector3I IMyCubeBlock.Min
         {
             get { return Min; }

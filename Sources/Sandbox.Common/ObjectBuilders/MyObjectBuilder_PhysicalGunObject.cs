@@ -12,7 +12,7 @@ namespace Sandbox.Common.ObjectBuilders
     [MyObjectBuilderDefinition]
     public class MyObjectBuilder_PhysicalGunObject : MyObjectBuilder_PhysicalObject
     {
-        [ProtoMember(3)]
+        [ProtoMember]
         [XmlElement("GunEntity", Type = typeof(MyAbstractXmlSerializer<MyObjectBuilder_EntityBase>))]
         public MyObjectBuilder_EntityBase GunEntity;
 

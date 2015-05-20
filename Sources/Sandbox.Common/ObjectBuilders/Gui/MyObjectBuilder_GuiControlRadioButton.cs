@@ -22,10 +22,10 @@ namespace Sandbox.Common.ObjectBuilders.Gui
     [MyObjectBuilderDefinition]
     public class MyObjectBuilder_GuiControlRadioButton : MyObjectBuilder_GuiControlBase
     {
-        [ProtoMember(1)]
+        [ProtoMember]
         public int Key;
 
-        [ProtoMember(2)]
+        [ProtoMember]
         public MyGuiControlRadioButtonStyleEnum VisualStyle;
     }
 }

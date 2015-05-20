@@ -42,7 +42,7 @@ namespace Sandbox.Game.Multiplayer
         [ProtoContract]
         struct CreateFracturePieceMsg
         {
-            [ProtoMember(1)]
+            [ProtoMember]
             public MyObjectBuilder_FracturedPiece FracturePiece;
 
             public override string ToString()
@@ -67,13 +67,13 @@ namespace Sandbox.Game.Multiplayer
         [ProtoContract]
         struct CreateFractureBlockMsg
         {
-            [ProtoMember(1)]
+            [ProtoMember]
             public MyObjectBuilder_FracturedBlock FracturedBlock;
 
-            [ProtoMember(2)]
+            [ProtoMember]
             public long Grid;
 
-            [ProtoMember(3)]
+            [ProtoMember]
             public Vector3I Position;
         }
 

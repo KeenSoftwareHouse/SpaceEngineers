@@ -20,90 +20,90 @@ namespace Sandbox.Common.ObjectBuilders.Audio
     public sealed class MyObjectBuilder_AudioDefinition : MyObjectBuilder_DefinitionBase
     {
         //replaced by Id.SubTypeId
-        //[ProtoMember(1)]
+        //[ProtoMember]
         //public string Name;
 
         [XmlIgnore]
         public MySoundData SoundData = new MySoundData();
 
-        [ProtoMember(2)]
+        [ProtoMember]
         public string Category
         {
             get { return SoundData.Category.ToString(); }
             set { SoundData.Category = MyStringId.GetOrCompute(value); }
         }
 
-        [ProtoMember(3), DefaultValue(MyCurveType.Custom_1)]
+        [ProtoMember, DefaultValue(MyCurveType.Custom_1)]
         public MyCurveType VolumeCurve
         {
             get { return SoundData.VolumeCurve; }
             set { SoundData.VolumeCurve = value; }
         }
 
-        [ProtoMember(4)]
+        [ProtoMember]
         public float MaxDistance
         {
             get { return SoundData.MaxDistance; }
             set { SoundData.MaxDistance = value; }
         }
 
-        [ProtoMember(5), DefaultValue(1.0f)]
+        [ProtoMember, DefaultValue(1.0f)]
         public float Volume
         {
             get { return SoundData.Volume; }
             set { SoundData.Volume = value; }
         }
 
-        [ProtoMember(6), DefaultValue(0.0f)]
+        [ProtoMember, DefaultValue(0.0f)]
         public float VolumeVariation
         {
             get { return SoundData.VolumeVariation; }
             set { SoundData.VolumeVariation = value; }
         }
 
-        [ProtoMember(7), DefaultValue(0.0f)]
+        [ProtoMember, DefaultValue(0.0f)]
         public float PitchVariation
         {
             get { return SoundData.PitchVariation; }
             set { SoundData.PitchVariation = value; }
         }
 
-        [ProtoMember(8), DefaultValue(false)]
+        [ProtoMember, DefaultValue(false)]
         public bool Loopable
         {
             get { return SoundData.Loopable; }
             set { SoundData.Loopable = value; }
         }
 
-        [ProtoMember(9)]
+        [ProtoMember]
         public string Alternative2D
         {
             get { return SoundData.Alternative2D; }
             set { SoundData.Alternative2D = value; }
         }
 
-        [ProtoMember(10), DefaultValue(false)]
+        [ProtoMember, DefaultValue(false)]
         public bool UseOcclusion
         {
             get { return SoundData.UseOcclusion; }
             set { SoundData.UseOcclusion = value; }
         }
 
-        [ProtoMember(11)]
+        [ProtoMember]
         public List<MyAudioWave> Waves
         {
             get { return SoundData.Waves; }
             set { SoundData.Waves = value; }
         }
 
-        [ProtoMember(12), DefaultValue("")]
+        [ProtoMember, DefaultValue("")]
         public string TransitionCategory
         {
             get { return SoundData.MusicTrack.TransitionCategory.ToString(); }
             set { SoundData.MusicTrack.TransitionCategory = MyStringId.GetOrCompute(value); }
         }
 
-        [ProtoMember(13), DefaultValue("")]
+        [ProtoMember, DefaultValue("")]
         public string MusicCategory
         {
             get { return SoundData.MusicTrack.MusicCategory.ToString(); }

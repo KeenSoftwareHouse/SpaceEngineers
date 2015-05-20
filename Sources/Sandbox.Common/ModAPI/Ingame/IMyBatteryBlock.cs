@@ -5,8 +5,11 @@ using System.Text;
 
 namespace Sandbox.ModAPI.Ingame
 {
-    public interface IMyBatteryBlock : IMyFunctionalBlock
+    public interface IMyBatteryBlock : IMyFunctionalBlock, IMyPowerProducer
     {
         bool HasCapacityRemaining { get; }
+
+        float CurrentStoredPower { get; }
+        float MaxStoredPower { get; }
     }
 }

@@ -334,7 +334,12 @@ namespace Sandbox.Game.Entities
         public void RemoveFromGamePruningStructure()
         {
             MyGamePruningStructure.Remove(this);
-            foreach (var child in Hierarchy.Children) child.Entity.RemoveFromGamePruningStructure();
+
+            if (Hierarchy != null)
+            {
+                foreach (var child in Hierarchy.Children) 
+                    child.Entity.RemoveFromGamePruningStructure();
+            }
         }
 
         protected virtual bool CanBeAddedToRender()
@@ -933,9 +938,12 @@ namespace Sandbox.Game.Entities
         {
             InScene = false;
 
-            foreach (var child in Hierarchy.Children)
+            if (Hierarchy != null)
             {
-                child.Entity.OnRemovedFromScene(source);
+                foreach (var child in Hierarchy.Children)
+                {
+                    child.Entity.OnRemovedFromScene(source);
+                }
             }
 
             MyEntities.UnregisterForUpdate(this);
@@ -1230,6 +1238,8 @@ namespace Sandbox.Game.Entities
             Debug.Assert(this.Hierarchy.Children.Count == 0);
 
             CallAndClearOnClose();
+
+			Components.Clear();
 
             Closed = true;
         }

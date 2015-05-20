@@ -11,10 +11,10 @@ namespace Sandbox.Common.ObjectBuilders
     [MyObjectBuilderDefinition]
     public class MyObjectBuilder_ModInfo : MyObjectBuilder_Base
     {
-        [ProtoMember(1)]
+        [ProtoMember]
         public ulong SteamIDOwner;
 
-        [ProtoMember(2)]
+        [ProtoMember]
         public ulong WorkshopId;
     }
 }

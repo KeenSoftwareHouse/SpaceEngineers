@@ -11,11 +11,11 @@ namespace Sandbox.Common.ObjectBuilders.Definitions
     [MyObjectBuilderDefinition]
     public class MyObjectBuilder_CryoChamberDefinition : MyObjectBuilder_CockpitDefinition
     {
-        [ProtoMember(1)]
+        [ProtoMember]
         [ModdableContentFile("dds")]
         public string OverlayTexture;
 
-        [ProtoMember(2)]
+        [ProtoMember]
         public float IdlePowerConsumption = 0.001f;
     }
 }

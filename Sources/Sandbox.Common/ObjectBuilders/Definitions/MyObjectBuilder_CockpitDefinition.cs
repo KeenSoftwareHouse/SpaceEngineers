@@ -49,9 +49,9 @@ namespace Sandbox.Common.ObjectBuilders.Definitions
         [ModdableContentFile("mwm")]
         public string CharacterAnimationFile;
 
-        [ProtoMember(1)]
+        [ProtoMember]
         public float OxygenCapacity;
-        [ProtoMember(2)]
+        [ProtoMember]
         public bool IsPressurized;
     }
 }

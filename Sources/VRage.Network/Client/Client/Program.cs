@@ -177,19 +177,10 @@ namespace Client
             client.OnDisconnectionNotification += client_OnDisconnectionNotification;
             client.OnInvalidPassword += client_OnInvalidPassword;
             client.OnModListRecieved += client_OnModListRecieved;
-            client.OnWorldDownloadProgress += client_OnWorldDownloadProgress;
-            client.OnWorldRecieved += client_OnWorldRecieved;
+            client.OnStateDataDownloadProgress += client_OnStateDataDownloadProgress;
         }
 
-        static void client_OnWorldRecieved(MemoryStream worldStream)
-        {
-            using (var sr = new StreamReader(worldStream))
-            {
-                Console.Out.WriteLine("WorldRecieved {0}", sr.ReadToEnd());
-            }
-        }
-
-        static void client_OnWorldDownloadProgress(uint progress, uint total, uint partLength)
+        static void client_OnStateDataDownloadProgress(uint progress, uint total, uint partLength)
         {
             throw new NotImplementedException();
         }

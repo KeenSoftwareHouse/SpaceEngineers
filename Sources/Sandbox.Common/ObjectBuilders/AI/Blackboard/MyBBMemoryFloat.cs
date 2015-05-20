@@ -9,7 +9,7 @@ namespace Sandbox.Common.ObjectBuilders.AI
     [ProtoContract]
     public class MyBBMemoryFloat : MyBBMemoryValue
     {
-        [ProtoMember(1)]
+        [ProtoMember]
         public float FloatValue = 0;
     }
 }

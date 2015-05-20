@@ -20,16 +20,16 @@ namespace Sandbox.Game.Multiplayer
         [MessageId(430, P2PMessageEnum.Reliable)]
         struct ChangeDescriptionMsg : IEntityMessage
         {
-            [ProtoMember(1)]
+            [ProtoMember]
             public long EntityId;
             public long GetEntityId()
             {
                 return EntityId;
             }
 
-            [ProtoMember(2)]
+            [ProtoMember]
             public string Description;
-            [ProtoMember(3)]
+            [ProtoMember]
             public bool IsPublic;
         }
 
@@ -37,16 +37,16 @@ namespace Sandbox.Game.Multiplayer
         [MessageId(431, P2PMessageEnum.Reliable)]
         struct ChangeTitleMsg : IEntityMessage
         {
-            [ProtoMember(1)]
+            [ProtoMember]
             public long EntityId;
             public long GetEntityId()
             {
                 return EntityId;
             }
 
-            [ProtoMember(2)]
+            [ProtoMember]
             public string Title;
-            [ProtoMember(3)]
+            [ProtoMember]
             public bool IsPublic;
 
         }
@@ -104,13 +104,13 @@ namespace Sandbox.Game.Multiplayer
         [MessageId(436, P2PMessageEnum.Reliable)]
         struct SelectImagesMsg : IEntityMessage
         {
-           [ProtoMember(1)]
+           [ProtoMember]
             public long EntityId;
             public long GetEntityId()
             {
                 return EntityId;
             }
-            [ProtoMember(2)]
+            [ProtoMember]
             public int[] Selection;
         }
 
@@ -118,13 +118,13 @@ namespace Sandbox.Game.Multiplayer
         [MessageId(437, P2PMessageEnum.Reliable)]
         struct RemoveSelectedImagesMsg : IEntityMessage
         {
-            [ProtoMember(1)]
+            [ProtoMember]
             public long EntityId;
             public long GetEntityId()
             {
                 return EntityId;
             }
-            [ProtoMember(2)]
+            [ProtoMember]
             public int[] Selection;
         }
 
@@ -132,13 +132,13 @@ namespace Sandbox.Game.Multiplayer
         [MessageId(438, P2PMessageEnum.Reliable)]
         struct ChangeFontColorMsg : IEntityMessage
         {
-            [ProtoMember(1)]
+            [ProtoMember]
             public long EntityId;
             public long GetEntityId()
             {
                 return EntityId;
             }
-            [ProtoMember(2)]
+            [ProtoMember]
             public Color FontColor;
         }
 
@@ -146,13 +146,13 @@ namespace Sandbox.Game.Multiplayer
         [MessageId(439, P2PMessageEnum.Reliable)]
         struct ChangeBackgroundColorMsg : IEntityMessage
         {
-            [ProtoMember(1)]
+            [ProtoMember]
             public long EntityId;
             public long GetEntityId()
             {
                 return EntityId;
             }
-            [ProtoMember(2)]
+            [ProtoMember]
             public Color BackgroundColor;
         }
 
@@ -160,13 +160,13 @@ namespace Sandbox.Game.Multiplayer
         [MessageId(440, P2PMessageEnum.Reliable)]
         struct ChangeShowOnScreenMsg : IEntityMessage
         {
-            [ProtoMember(1)]
+            [ProtoMember]
             public long EntityId;
             public long GetEntityId()
             {
                 return EntityId;
             }
-            [ProtoMember(2)]
+            [ProtoMember]
             public byte Show;
         }
 

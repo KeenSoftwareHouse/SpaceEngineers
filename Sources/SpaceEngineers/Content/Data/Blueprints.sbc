@@ -134,12 +134,25 @@
     <Blueprint>
       <Id>
         <TypeId>BlueprintDefinition</TypeId>
-        <SubtypeId>ScrapToIronIngot</SubtypeId>
+        <SubtypeId>ScrapIngotToIronIngot</SubtypeId>
       </Id>
       <DisplayName>DisplayName_Item_IronIngot</DisplayName>
       <Icon>Textures\GUI\Icons\component\ScrapMetalComponent.dds</Icon>
       <Prerequisites>
         <Item Amount="1" TypeId="Ingot" SubtypeId="Scrap" />
+      </Prerequisites>
+      <Result Amount="0.8" TypeId="Ingot" SubtypeId="Iron" />
+      <BaseProductionTimeInSeconds>0.04</BaseProductionTimeInSeconds>
+    </Blueprint>
+    <Blueprint>
+      <Id>
+        <TypeId>BlueprintDefinition</TypeId>
+        <SubtypeId>ScrapToIronIngot</SubtypeId>
+      </Id>
+      <DisplayName>DisplayName_Item_IronIngot</DisplayName>
+      <Icon>Textures\GUI\Icons\component\ScrapMetalComponent.dds</Icon>
+      <Prerequisites>
+        <Item Amount="1" TypeId="Ore" SubtypeId="Scrap" />
       </Prerequisites>
       <Result Amount="0.8" TypeId="Ingot" SubtypeId="Iron" />
       <BaseProductionTimeInSeconds>0.04</BaseProductionTimeInSeconds>

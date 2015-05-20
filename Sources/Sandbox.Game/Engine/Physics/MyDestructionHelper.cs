@@ -8,6 +8,7 @@ using Sandbox.Game.GameSystems;
 using Sandbox.Game.Multiplayer;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using VRage;
@@ -19,6 +20,13 @@ namespace Sandbox.Engine.Physics
 {
     public static class MyDestructionHelper
     {
+        public struct HitInfo
+        {
+            public Vector3D Position;
+            public Vector3D Normal;
+            public Vector3D Velocity; //of impacting entity/bulet, normalize to get direction
+        }
+
         public static readonly float MASS_REDUCTION_COEF = 1f/25f;
  
         private static List<HkdShapeInstanceInfo> m_tmpInfos = new List<HkdShapeInstanceInfo>();
@@ -295,6 +303,56 @@ namespace Sandbox.Engine.Physics
             shape.RemoveReference();
             ProfilerShort.End();
             return fracturedPiece;
+        }
+
+        public static void TriggerDestruction(HkWorld world, HkRigidBody body, Vector3 havokPosition, float radius = 0.0005f)
+        {
+            Havok.HkdFractureImpactDetails details = Havok.HkdFractureImpactDetails.Create();
+            details.SetBreakingBody(body);
+            details.SetContactPoint(havokPosition);
+            details.SetDestructionRadius(radius);
+            details.SetBreakingImpulse(Sandbox.MyDestructionConstants.STRENGTH * 10);
+            //details.SetParticlePosition(havokPosition);
+            //details.SetParticleMass(1000000);
+            details.Flag = details.Flag | Havok.HkdFractureImpactDetails.Flags.FLAG_DONT_RECURSE;
+
+            Sandbox.Engine.Physics.MyPhysics.FractureImpactDetails destruction = new Sandbox.Engine.Physics.MyPhysics.FractureImpactDetails();
+            destruction.Details = details;
+            destruction.World = world;
+            Sandbox.Engine.Physics.MyPhysics.EnqueueDestruction(destruction);
+        }
+
+        public static void TriggerDestruction(float destructionImpact, MyPhysicsBody body, Vector3D position, Vector3 normal, float maxDestructionRadius)
+        {
+            if (body.BreakableBody != null)
+            {
+                float collidingMass = body.Mass;// == 0 ? Mass : body.Mass; //fall on voxel
+                float destructionRadius = Math.Min(destructionImpact / 8000, maxDestructionRadius);
+                float destructionImpulse = MyDestructionConstants.STRENGTH + destructionImpact / 10000;
+                float expandVelocity = Math.Min(destructionImpact / 10000, 3);
+
+                MyPhysics.FractureImpactDetails destruction;
+                HkdFractureImpactDetails details;
+                details = HkdFractureImpactDetails.Create();
+                details.SetBreakingBody(body.RigidBody);
+                details.SetContactPoint(body.WorldToCluster(position));
+                details.SetDestructionRadius(destructionRadius);
+                details.SetBreakingImpulse(destructionImpulse);
+                details.SetParticleExpandVelocity(expandVelocity);
+                //details.SetParticleVelocity(contactVelocity);
+                details.SetParticlePosition(body.WorldToCluster(position - normal * 0.25f));
+                details.SetParticleMass(10000000);//collidingMass);
+                details.ZeroCollidingParticleVelocity();
+                details.Flag = details.Flag | HkdFractureImpactDetails.Flags.FLAG_DONT_RECURSE | HkdFractureImpactDetails.Flags.FLAG_TRIGGERED_DESTRUCTION;
+
+                destruction = new MyPhysics.FractureImpactDetails();
+                destruction.Details = details;
+                destruction.World = body.HavokWorld;
+                destruction.ContactInWorld = position;
+                destruction.Entity = (MyEntity)body.Entity;
+
+                MyPhysics.EnqueueDestruction(destruction);
+            }
         }
 
         public static float MassToHavok(float m)

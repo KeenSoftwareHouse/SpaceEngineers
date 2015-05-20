@@ -226,6 +226,28 @@ namespace Sandbox.Game.AI
             }
         }
 
+        public int GetCreatedBotCount()
+        {
+            int count = 0;
+            foreach (var bot in m_allBots.Values)
+            {
+                if (bot.CreatedByPlayer)
+                    count++;
+            }
+            return count;
+        }
+
+        public int GetGeneratedBotCount()
+        {
+            int count = 0;
+            foreach (var bot in m_allBots.Values)
+            {
+                if (!bot.CreatedByPlayer)
+                    count++;
+            }
+            return count;
+        }
+
         private void GetBotActions(IMyBot bot, ActionCollection actions)
         {
             var methodInfos = bot.BotActions.GetType().GetMethods(BindingFlags.Instance | BindingFlags.NonPublic);

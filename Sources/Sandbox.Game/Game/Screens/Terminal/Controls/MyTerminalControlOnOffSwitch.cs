@@ -49,8 +49,6 @@ namespace Sandbox.Game.Gui
         public MyTerminalControlOnOffSwitch(string id, MyStringId title, MyStringId tooltip = default(MyStringId), MyStringId? on = null, MyStringId? off = null)
             : base(id)
         {
-            if (MySandboxGame.IsDedicated) return; // Temporal hack
-
             Title = title;
             OnText = on ?? MySpaceTexts.SwitchText_On;
             OffText = off ?? MySpaceTexts.SwitchText_Off;

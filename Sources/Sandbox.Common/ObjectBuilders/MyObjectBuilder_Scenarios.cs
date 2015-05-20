@@ -10,10 +10,10 @@ namespace Medieval.ObjectBuilders
     [XmlType("Range")]
     public class MyObjectBuilder_WorldGeneratorPlayerStartingState_Range : MyObjectBuilder_WorldGeneratorPlayerStartingState
     {
-        [ProtoMember(1)]
+        [ProtoMember]
         public SerializableVector3 MinPosition;
 
-        [ProtoMember(2)]
+        [ProtoMember]
         public SerializableVector3 MaxPosition;
     }
 
@@ -21,10 +21,10 @@ namespace Medieval.ObjectBuilders
     [XmlType("GenerateTerrain")]
     public class MyObjectBuilder_WorldGeneratorOperation_GenerateTerrain : MyObjectBuilder_WorldGeneratorOperation
     {
-        [ProtoMember(1), XmlAttribute]
+        [ProtoMember, XmlAttribute]
         public string Name;
 
-        [ProtoMember(2)]
+        [ProtoMember]
         public SerializableVector3 Size;
     }
 
@@ -32,7 +32,7 @@ namespace Medieval.ObjectBuilders
     [XmlType("WorldFromSave")]
     public class MyObjectBuilder_WorldGeneratorOperation_WorldFromSave : MyObjectBuilder_WorldGeneratorOperation
     {
-        [ProtoMember(1), XmlAttribute]
+        [ProtoMember, XmlAttribute]
         public string PrefabDirectory;
     }
 
@@ -46,22 +46,22 @@ namespace Medieval.ObjectBuilders
     [XmlType("WorldFromMaps")]
     public class MyObjectBuilder_WorldGeneratorOperation_WorldFromMaps : MyObjectBuilder_WorldGeneratorOperation
     {
-        [ProtoMember(1), XmlAttribute]
+        [ProtoMember, XmlAttribute]
         public string Name;
 
-        [ProtoMember(2)]
+        [ProtoMember]
         public SerializableVector3 Size;
 
-        [ProtoMember(3)]
+        [ProtoMember]
         public string HeightMapFile;
 
-        [ProtoMember(4)]
+        [ProtoMember]
         public string BiomeMapFile;
 
-        [ProtoMember(5)]
+        [ProtoMember]
         public string TreeMapFile;
 
-        [ProtoMember(6)]
+        [ProtoMember]
         public string TreeMaskFile;
 
     }
@@ -70,7 +70,7 @@ namespace Medieval.ObjectBuilders
     [XmlType("GenerateStatues")]
     public class MyObjectBuilder_WorldGeneratorOperation_GenerateStatues : MyObjectBuilder_WorldGeneratorOperation
     {
-        [ProtoMember(1), XmlAttribute]
+        [ProtoMember, XmlAttribute]
         public int Count;
     }
 

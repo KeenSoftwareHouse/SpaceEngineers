@@ -9,7 +9,7 @@ namespace Sandbox.Common.ObjectBuilders.AI
     [ProtoContract]
     public class MyBBMemoryInt : MyBBMemoryValue
     {
-        [ProtoMember(1)]
+        [ProtoMember]
         public int IntValue = 0;
     }
 }

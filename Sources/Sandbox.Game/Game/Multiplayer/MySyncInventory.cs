@@ -52,17 +52,17 @@ namespace Sandbox.Game.Multiplayer
         [MessageId(2469, P2PMessageEnum.Reliable)]
         struct AddItemsMsg : IEntityMessage
         {
-            [ProtoMember(1)]
+            [ProtoMember]
             public long OwnerEntityId;
             public long GetEntityId() { return OwnerEntityId; }
 
-            [ProtoMember(2)]
+            [ProtoMember]
             public byte InventoryIndex;
-            [ProtoMember(3)]
+            [ProtoMember]
             public int itemIdx;
-            [ProtoMember(4)]
+            [ProtoMember]
             public MyFixedPoint Amount;
-            [ProtoMember(5)]
+            [ProtoMember]
             public MyObjectBuilder_PhysicalObject Item;
         }
 
@@ -70,15 +70,15 @@ namespace Sandbox.Game.Multiplayer
         [MessageId(2470, P2PMessageEnum.Reliable)]
         struct TakeFloatingObjectMsg : IEntityMessage
         {
-            [ProtoMember(1)]
+            [ProtoMember]
             public long OwnerEntityId;
             public long GetEntityId() { return OwnerEntityId; }
 
-            [ProtoMember(2)]
+            [ProtoMember]
             public byte InventoryIndex;
-            [ProtoMember(3)]
+            [ProtoMember]
             public long FloatingObjectId;
-            [ProtoMember(4)]
+            [ProtoMember]
             public MyFixedPoint Amount;
         }
 

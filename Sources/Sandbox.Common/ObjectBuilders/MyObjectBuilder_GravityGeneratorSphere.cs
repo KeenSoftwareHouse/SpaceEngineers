@@ -12,10 +12,10 @@ namespace Sandbox.Common.ObjectBuilders
     [MyObjectBuilderDefinition]
     public class MyObjectBuilder_GravityGeneratorSphere : MyObjectBuilder_FunctionalBlock
     {
-        [ProtoMember(2)]
+        [ProtoMember]
         public float Radius = 150f;
 
-        [ProtoMember(3), DefaultValue(9.81f)]
+        [ProtoMember, DefaultValue(9.81f)]
         public float GravityAcceleration = 9.81f;
     }
 }
