@@ -134,6 +134,14 @@ namespace VRageRender
              internal float SkyboxBlend;
              internal Vector3 DirectionalLightColor;
              internal uint Padding1;
+             internal float Tonemapping_A;
+             internal float Tonemapping_B;
+             internal float Tonemapping_C;
+             internal float Tonemapping_D;
+             internal float Tonemapping_E;
+             internal float Tonemapping_F;
+             internal float LogLumThreshold;
+             internal float padding2_;
             
              internal Vector4 VoxelLodRange0;
              internal Vector4 VoxelLodRange1;
@@ -197,6 +205,15 @@ namespace VRageRender
             constants.FogMult = MyEnvironment.FogSettings.FogMultiplier;
             constants.FogYOffset = MyRender11.Settings.FogYOffset;
             constants.FogColor = MyEnvironment.FogSettings.FogColor.PackedValue;
+
+            constants.LogLumThreshold = MyRender11.Postprocess.LogLumThreshold;
+            constants.Tonemapping_A = MyRender11.Postprocess.Tonemapping_A;
+            constants.Tonemapping_B = MyRender11.Postprocess.Tonemapping_B;
+            constants.Tonemapping_C = MyRender11.Postprocess.Tonemapping_C;
+            constants.Tonemapping_D = MyRender11.Postprocess.Tonemapping_D;
+            constants.Tonemapping_E = MyRender11.Postprocess.Tonemapping_E;
+            constants.Tonemapping_F = MyRender11.Postprocess.Tonemapping_F;
+
 
             //if (true)
             //{

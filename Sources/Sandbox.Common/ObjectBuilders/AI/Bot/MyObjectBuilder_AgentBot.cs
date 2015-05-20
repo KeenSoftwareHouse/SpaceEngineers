@@ -10,7 +10,7 @@ namespace Sandbox.Common.ObjectBuilders.AI.Bot
     [MyObjectBuilderDefinition]
     public class MyObjectBuilder_AgentBot : MyObjectBuilder_Bot
     {
-        [ProtoMember(1)]
+        [ProtoMember]
         public MyObjectBuilder_AiTarget AiTarget;
     }
 }

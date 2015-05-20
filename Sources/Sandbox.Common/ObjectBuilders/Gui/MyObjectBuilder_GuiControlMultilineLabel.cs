@@ -8,22 +8,22 @@ namespace Sandbox.Common.ObjectBuilders.Gui
     [MyObjectBuilderDefinition]
     public class MyObjectBuilder_GuiControlMultilineLabel : MyObjectBuilder_GuiControlBase
     {
-        [ProtoMember(1)]
+        [ProtoMember]
         public float TextScale = 1.0f;
 
-        [ProtoMember(2)]
+        [ProtoMember]
         public int TextAlign;
 
-        [ProtoMember(3)]
+        [ProtoMember]
         public Vector4 TextColor = Vector4.One;
 
-        [ProtoMember(4)]
+        [ProtoMember]
         public string Text;
 
-        [ProtoMember(5)]
+        [ProtoMember]
         public int TextBoxAlign;
 
-        [ProtoMember(6)]
+        [ProtoMember]
         public MyFontEnum Font;
     }
 }

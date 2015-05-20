@@ -10,10 +10,10 @@ namespace Sandbox.Common.ObjectBuilders.Definitions
     [MyObjectBuilderDefinition]
     public class MyObjectBuilder_RespawnShipDefinition : MyObjectBuilder_DefinitionBase
     {
-        [ProtoMember(1)]
+        [ProtoMember]
         public string Prefab;
 
-        [ProtoMember(2)]
+        [ProtoMember]
         public int CooldownSeconds;
     }
 }

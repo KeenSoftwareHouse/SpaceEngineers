@@ -12,11 +12,11 @@ namespace Sandbox.Common.ObjectBuilders.Definitions
     [MyObjectBuilderDefinition]
     public class MyObjectBuilder_AgentDefinition : MyObjectBuilder_BotDefinition
     { // used for humanoids
-        [ProtoMember(1)]
+        [ProtoMember]
         public string BotModel = "";
 
         // Obsolete!
-        // [ProtoMember(2)]
+        // [ProtoMember]
         // public string DeathSoundName = "";
     }
 }

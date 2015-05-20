@@ -14,7 +14,7 @@ namespace Medieval.ObjectBuilders.Definitions
     public class MyObjectBuilder_TreeDefinition : MyObjectBuilder_EnvironmentItemDefinition
     {
         // Distance [m] from tree origin to first log with branches
-        [ProtoMember(1)]
+        [ProtoMember]
         public float BranchesStartHeight = 0.0f;
     }
 }

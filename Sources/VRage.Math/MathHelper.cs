@@ -133,8 +133,8 @@ namespace VRageMath
         /// <param name="value">The value to clamp.</param><param name="min">The minimum value. If value is less than min, min will be returned.</param><param name="max">The maximum value. If value is greater than max, max will be returned.</param>
         public static float Clamp(float value, float min, float max)
         {
-            value = (double)value > (double)max ? max : value;
-            value = (double)value < (double)min ? min : value;
+            value = (value > max) ? max : value;
+            value = (value < min) ? min : value;
             return value;
         }
 

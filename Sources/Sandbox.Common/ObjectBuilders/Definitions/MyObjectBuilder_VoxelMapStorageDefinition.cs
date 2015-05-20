@@ -12,7 +12,7 @@ namespace Sandbox.Common.ObjectBuilders.Definitions
     [MyObjectBuilderDefinition]
     public class MyObjectBuilder_VoxelMapStorageDefinition : MyObjectBuilder_DefinitionBase
     {
-        [ProtoMember(1), ModdableContentFile(MyVoxelConstants.FILE_EXTENSION)]
+        [ProtoMember, ModdableContentFile(MyVoxelConstants.FILE_EXTENSION)]
         public string StorageFile;
     }
 }

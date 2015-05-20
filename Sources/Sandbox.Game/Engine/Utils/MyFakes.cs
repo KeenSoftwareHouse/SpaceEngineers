@@ -448,8 +448,6 @@ namespace Sandbox.Engine.Utils
 
         public static bool ENABLE_RAKNET = false;
 
-        public static bool ENABLE_MEDIEVAL_CHARACTER_DAMAGE = false;
-
         public static bool ENABLE_RAGDOLL_COLLISION_WITH_CHARACTER_BODY = true;
 
         public static bool ENABLE_FOOT_IK_USE_HAVOK_RAYCAST = true;
@@ -477,13 +475,13 @@ namespace Sandbox.Engine.Utils
         public static bool ENABLE_OXYGEN_SOUNDS = false;
 
         public static bool ENABLE_ROPE_UNWINDING_TORQUE = false;
-        public static bool ENABLE_NEW_ROPE_DRUM = false;
+        public static bool ENABLE_LOCKABLE_ROPE_DRUM = false;
 
         public static bool ENABLE_BONES_AND_ANIMATIONS_DEBUG = false;
 
         public static bool ENABLE_MISSION_TRIGGERS = false;
         
-        public static bool ENABLE_RAGDOLL_PROPERTIES_DEFAULTS = false;
+        public static bool ENABLE_RAGDOLL_DEFAULT_PROPERTIES = false;
 
         public static bool XBOX_PREVIEW = false;
                 

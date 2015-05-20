@@ -18,7 +18,7 @@ namespace Sandbox.Game.Screens.Helpers
     [MyToolbarItemDescriptor(typeof(MyObjectBuilder_ToolbarItemTerminalGroup))]
     class MyToolbarItemTerminalGroup : MyToolbarItemActions
     {
-        private static HashSet<MyDefinitionId> tmpBlockDefinitions = new HashSet<MyDefinitionId>();
+        private static HashSet<Type> tmpBlockTypes = new HashSet<Type>();
         private static List<MyTerminalBlock> m_tmpBlocks = new List<MyTerminalBlock>();
         private static StringBuilder m_tmpStringBuilder = new StringBuilder();
 
@@ -52,15 +52,15 @@ namespace Sandbox.Game.Screens.Helpers
                 foreach (var block in blocks)
                 {
                     allFunctional &= block is MyFunctionalBlock;
-                    tmpBlockDefinitions.Add(block.BlockDefinition.Id);
+                    tmpBlockTypes.Add(block.GetType());
                 }
 
-                if (tmpBlockDefinitions.Count == 1)
+                if (tmpBlockTypes.Count == 1)
                 {
                     genericType = false;
                     return GetValidActions(blocks.ItemAt(0).GetType());
                 }
-                else if (tmpBlockDefinitions.Count == 0 || !allFunctional)
+                else if (tmpBlockTypes.Count == 0 || !allFunctional)
                 {
                     genericType = true;
                     return ListReader<ITerminalAction>.Empty;
@@ -73,7 +73,7 @@ namespace Sandbox.Game.Screens.Helpers
             }
             finally
             {
-                tmpBlockDefinitions.Clear();
+                tmpBlockTypes.Clear();
             }
         }
 

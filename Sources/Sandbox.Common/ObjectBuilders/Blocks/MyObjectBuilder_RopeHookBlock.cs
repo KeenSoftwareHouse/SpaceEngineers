@@ -16,15 +16,15 @@ namespace Medieval.ObjectBuilders.Blocks
         [ProtoContract]
         public struct ReleaseData
         {
-            [ProtoMember(1)]
+            [ProtoMember]
             [XmlAttribute]
             public float Threshold;
 
-            [ProtoMember(2)]
+            [ProtoMember]
             public SerializableVector2 Orientation;
         }
 
-        [ProtoMember(1)]
+        [ProtoMember]
         public ReleaseData? Release;
         public bool ShouldSerializeRelease() { return Release.HasValue; }
 

@@ -11,19 +11,19 @@ namespace Sandbox.Common.ObjectBuilders.Definitions
     [MyObjectBuilderDefinition]
     public class MyObjectBuilder_EnvironmentItemsDefinition : MyObjectBuilder_DefinitionBase
     {
-        [ProtoMember(1)]
+        [ProtoMember]
         public int Channel;
 
-        [ProtoMember(2)]
+        [ProtoMember]
         public float MaxViewDistance;
 
-        [ProtoMember(3)]
+        [ProtoMember]
         public float SectorSize;
 
-        [ProtoMember(4)]
+        [ProtoMember]
         public string PhysicalMaterial;
 
-        [ProtoMember(5)]
+        [ProtoMember]
         public float ItemSize;
     }
 }

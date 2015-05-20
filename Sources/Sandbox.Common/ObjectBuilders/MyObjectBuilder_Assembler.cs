@@ -10,27 +10,27 @@ namespace Sandbox.Common.ObjectBuilders
     [MyObjectBuilderDefinition]
     public class MyObjectBuilder_Assembler : MyObjectBuilder_ProductionBlock
     {
-        //[ProtoMember(1), DefaultValue(null)]
+        //[ProtoMember, DefaultValue(null)]
         //public MyDefinitionId? CurrentBlueprint = null;
         //public bool ShouldSerializeCurrentBlueprintResult() { return CurrentBlueprint.HasValue; }
 
-        [ProtoMember(2)]
+        [ProtoMember]
         public float CurrentProgress;
 
-        [ProtoMember(4)]
+        [ProtoMember]
         public bool DisassembleEnabled;
 
-        [ProtoMember(5)]
+        [ProtoMember]
         [XmlArrayItem("Item")]
         public QueueItem[] OtherQueue;
 
-        [ProtoMember(3)]
+        [ProtoMember]
         public bool RepeatAssembleEnabled;
 
-        [ProtoMember(6)]
+        [ProtoMember]
         public bool RepeatDisassembleEnabled;
 
-        [ProtoMember(7)]
+        [ProtoMember]
         public bool SlaveEnabled;
     }
 }

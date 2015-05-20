@@ -10,10 +10,10 @@ namespace Sandbox.Common.ObjectBuilders.VRageData
     [ProtoContract]
     public struct SerializableBoundingBoxD
     {
-        [ProtoMember(1)]
+        [ProtoMember]
         public SerializableVector3D Min;
 
-        [ProtoMember(2)]
+        [ProtoMember]
         public SerializableVector3D Max;
 
         public static implicit operator BoundingBoxD(SerializableBoundingBoxD v)

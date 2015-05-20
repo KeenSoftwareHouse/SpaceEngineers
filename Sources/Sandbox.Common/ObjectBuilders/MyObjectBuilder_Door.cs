@@ -7,19 +7,19 @@ namespace Sandbox.Common.ObjectBuilders
     [MyObjectBuilderDefinition]
     public class MyObjectBuilder_Door : MyObjectBuilder_FunctionalBlock
     {
-        [ProtoMember(1), DefaultValue(false)]
+        [ProtoMember, DefaultValue(false)]
         public bool State = false;
 
-        //[ProtoMember(2), DefaultValue(true)]
+        //[ProtoMember, DefaultValue(true)]
         //public bool Enabled = true;
 
-        [ProtoMember(3), DefaultValue(0f)]
+        [ProtoMember, DefaultValue(0f)]
         public float Opening = 0f;
         
-        [ProtoMember(4)]
+        [ProtoMember]
         public string OpenSound;
 
-        [ProtoMember(5)]
+        [ProtoMember]
         public string CloseSound;
     }
 }

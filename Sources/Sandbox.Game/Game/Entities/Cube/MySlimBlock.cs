@@ -21,6 +21,7 @@ using Sandbox.Game.GameSystems.StructuralIntegrity;
 using Sandbox.ModAPI.Interfaces;
 using VRage.Library.Utils;
 using Sandbox.Game.GameSystems;
+using Sandbox.Engine.Physics;
 
 namespace Sandbox.Game.Entities.Cube
 {
@@ -887,7 +888,7 @@ namespace Sandbox.Game.Entities.Cube
         /// <summary>
         /// Returns true when block is destroyed
         /// </summary>
-        public void DoDamage(float damage, MyDamageType damageType, bool addDirtyParts = true)
+        public void DoDamage(float damage, MyDamageType damageType, bool addDirtyParts = true, MyDestructionHelper.HitInfo? hitInfo = null)
         {
             if (!MySession.Static.DestructibleBlocks)
                 return;
@@ -910,8 +911,18 @@ namespace Sandbox.Game.Entities.Cube
             AccumulatedDamage += damage;
             if (m_componentStack.Integrity - AccumulatedDamage <= MyComponentStack.MOUNT_THRESHOLD)
             {
+                if (MyPerGameSettings.Destruction && hitInfo.HasValue)
+                {
+                    AccumulatedDamage = 0;
+                    var gridPhysics = CubeGrid.Physics;
+                    float maxDestructionRadius = CubeGrid.GridSizeEnum == MyCubeSize.Small ? 0.5f : 3;
+                    Sandbox.Engine.Physics.MyDestructionHelper.TriggerDestruction(damage, gridPhysics, hitInfo.Value.Position, hitInfo.Value.Normal, maxDestructionRadius);
+                }
+                else
+                {
+                    ApplyAccumulatedDamage(addDirtyParts);
+                }
                 CubeGrid.RemoveFromDamageApplication(this);
-                ApplyAccumulatedDamage(addDirtyParts);
             }
             else
                 if (MyFakes.SHOW_DAMAGE_EFFECTS && FatBlock != null && BlockDefinition.RationEnoughForDamageEffect((Integrity-damage) / MaxIntegrity))

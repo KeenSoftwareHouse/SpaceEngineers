@@ -466,6 +466,7 @@
     <Entry Class="Ingots" BlueprintSubtypeId="StoneOreToIngot" />
     <Entry Class="Ingots" BlueprintSubtypeId="IronOreToIngot" />
     <Entry Class="Ingots" BlueprintSubtypeId="ScrapToIronIngot" />
+    <Entry Class="Ingots" BlueprintSubtypeId="ScrapIngotToIronIngot" />
     <Entry Class="Ingots" BlueprintSubtypeId="NickelOreToIngot" />
     <Entry Class="Ingots" BlueprintSubtypeId="CobaltOreToIngot" />
     <Entry Class="Ingots" BlueprintSubtypeId="MagnesiumOreToIngot" />
@@ -479,6 +480,7 @@
     <Entry Class="CommonMetals" BlueprintSubtypeId="NickelOreToIngot" />
     <Entry Class="CommonMetals" BlueprintSubtypeId="CobaltOreToIngot" />
     <Entry Class="CommonMetals" BlueprintSubtypeId="ScrapToIronIngot" />
+    <Entry Class="CommonMetals" BlueprintSubtypeId="ScrapIngotToIronIngot" />
     
     <Entry Class="PreciousMetals" BlueprintSubtypeId="PlatinumOreToIngot" />
     <Entry Class="PreciousMetals" BlueprintSubtypeId="SilverOreToIngot" />

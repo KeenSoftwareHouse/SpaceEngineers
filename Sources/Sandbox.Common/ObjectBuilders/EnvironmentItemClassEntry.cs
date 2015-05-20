@@ -11,19 +11,19 @@ namespace Sandbox.Common.ObjectBuilders.Definitions
     [ProtoContract]
     public class EnvironmentItemsEntry
     {
-        [ProtoMember(1)]
+        [ProtoMember]
         [XmlAttribute]
         public string Type;
 
-        [ProtoMember(2)]
+        [ProtoMember]
         [XmlAttribute]
         public string Subtype;
 
-        [ProtoMember(3)]
+        [ProtoMember]
         [XmlAttribute]
         public string ItemSubtype;
 
-        [ProtoMember(4), DefaultValue(true)]
+        [ProtoMember, DefaultValue(true)]
         public bool Enabled = true;
 
         public override bool Equals(object other)

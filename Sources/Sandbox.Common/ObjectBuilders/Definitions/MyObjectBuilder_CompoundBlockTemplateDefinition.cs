@@ -20,11 +20,11 @@ namespace Sandbox.Common.ObjectBuilders.Definitions
         public class CompoundBlockRotationBinding
         {
             [XmlAttribute]
-            [ProtoMember(1)]
+            [ProtoMember]
             public string BuildTypeReference;
 
             [XmlArrayItem("Rotation")]
-            [ProtoMember(2)]
+            [ProtoMember]
             public SerializableBlockOrientation[] Rotations = null;
         }
 
@@ -32,21 +32,21 @@ namespace Sandbox.Common.ObjectBuilders.Definitions
         public class CompoundBlockBinding
         {
             [XmlAttribute]
-            [ProtoMember(1)]
+            [ProtoMember]
             public string BuildType;
 
             [XmlAttribute]
-            [ProtoMember(2), DefaultValue(false)]
+            [ProtoMember, DefaultValue(false)]
             public bool Multiple = false;
 
             // Rotation binding - allowed rotations to referenced type of this build type.
             [XmlArrayItem("RotationBind")]
-            [ProtoMember(3)]
+            [ProtoMember]
             public CompoundBlockRotationBinding[] RotationBinds = null;
         }
 
         [XmlArrayItem("Binding")]
-        [ProtoMember(1)]
+        [ProtoMember]
         public CompoundBlockBinding[] Bindings;
     }
 }

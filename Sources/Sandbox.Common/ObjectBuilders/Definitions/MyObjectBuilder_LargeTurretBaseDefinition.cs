@@ -13,25 +13,25 @@ namespace Sandbox.Common.ObjectBuilders.Definitions
     [MyObjectBuilderDefinition]
     public class MyObjectBuilder_LargeTurretBaseDefinition : MyObjectBuilder_WeaponBlockDefinition
     {
-        [ProtoMember(1), ModdableContentFile(".dds")]
+        [ProtoMember, ModdableContentFile(".dds")]
         public string OverlayTexture;
-        [ProtoMember(2)]
+        [ProtoMember]
         public bool AiEnabled = true;
-        [ProtoMember(3)]
+        [ProtoMember]
         public int MinElevationDegrees = -180;
-        [ProtoMember(4)]
+        [ProtoMember]
         public int MaxElevationDegrees = 180;
-        [ProtoMember(5)]
+        [ProtoMember]
         public int MinAzimuthDegrees = -180;
-        [ProtoMember(6)]
+        [ProtoMember]
         public int MaxAzimuthDegrees = 180;
-        [ProtoMember(7)]
+        [ProtoMember]
         public bool IdleRotation = true;
-        [ProtoMember(8)]
+        [ProtoMember]
         public float MaxRangeMeters = 800.0f;
-        [ProtoMember(9)]
+        [ProtoMember]
         public float RotationSpeed = 0.005f;
-        [ProtoMember(10)]
+        [ProtoMember]
         public float ElevationSpeed = 0.005f; 
     }
 }

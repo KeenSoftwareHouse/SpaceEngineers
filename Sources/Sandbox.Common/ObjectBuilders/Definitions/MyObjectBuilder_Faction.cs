@@ -10,44 +10,44 @@ namespace Sandbox.Common.ObjectBuilders.Definitions
     [ProtoContract]
     public struct MyObjectBuilder_FactionMember
     {
-        [ProtoMember(1)]
+        [ProtoMember]
         public long PlayerId;
 
-        [ProtoMember(2)]
+        [ProtoMember]
         public bool IsLeader;
 
-        [ProtoMember(3)]
+        [ProtoMember]
         public bool IsFounder;
     }
 
     [ProtoContract]
     public class MyObjectBuilder_Faction
     {
-        [ProtoMember(1)]
+        [ProtoMember]
         public long FactionId;
 
-        [ProtoMember(2)]
+        [ProtoMember]
         public string Tag;
 
-        [ProtoMember(3)]
+        [ProtoMember]
         public string Name;
 
-        [ProtoMember(4)]
+        [ProtoMember]
         public string Description;
 
-        [ProtoMember(5)]
+        [ProtoMember]
         public string PrivateInfo;
 
-        [ProtoMember(6)]
+        [ProtoMember]
         public List<MyObjectBuilder_FactionMember> Members;
 
-        [ProtoMember(7)]
+        [ProtoMember]
         public List<MyObjectBuilder_FactionMember> JoinRequests;
 
-        [ProtoMember(8)]
+        [ProtoMember]
         public bool AutoAcceptMember;
 
-        [ProtoMember(9)]
+        [ProtoMember]
         public bool AutoAcceptPeace;
     }
 }

@@ -6198,6 +6198,12 @@ To connect to lasers not listed here you can connect to coordinates.</value>
   <data name="NotificationJoystickCompoundBuildingFormat" xml:space="preserve">
     <value>Press {0} to toggle compound building</value>
   </data>
+  <data name="BlockActionTitle_Extend" xml:space="preserve">
+    <value>Extend</value>
+  </data>
+  <data name="BlockActionTitle_Retract" xml:space="preserve">
+    <value>Retract</value>
+  </data>
   <data name="NotificationJoystickControlMenuFormat" xml:space="preserve">
     <value>Press {0} to access control menu</value>
   </data>
@@ -6236,5 +6242,26 @@ To connect to lasers not listed here you can connect to coordinates.</value>
   </data>
   <data name="NotificationHintJoystickPressToOpenButtonPanel" xml:space="preserve">
     <value>Access control menu to setup panel's buttons</value>
+  </data>
+  <data name="NotificationHintJoystickPressToOpenInventory" xml:space="preserve">
+    <value>Access control menu to open inventory of {0}</value>
+  </data>
+  <data name="NotificationHintPressToOpenBuildMode" xml:space="preserve">
+    <value>Press {0} to enter build mode</value>
+  </data>
+  <data name="DialogTextJoiningBattleLobby" xml:space="preserve">
+    <value>Joining battle lobby</value>
+  </data>
+  <data name="DialogTextJoinBattleLobbyFailed" xml:space="preserve">
+    <value>Joining battle lobby failed, reason: {0}</value>
+  </data>
+  <data name="NotificationHintPressToEnterCryochamber" xml:space="preserve">
+    <value>Press {0} to enter cryo chamber</value>
+  </data>
+  <data name="NotificationHintLeaveCryoChamber" xml:space="preserve">
+    <value>Press {0} to leave cryo chamber</value>
+  </data>
+  <data name="DisplayName_Item_ScrapIngot" xml:space="preserve">
+    <value>Old Scrap Metal</value>
   </data>
 </root>

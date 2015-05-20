@@ -10,22 +10,22 @@ namespace Sandbox.Common.ObjectBuilders.Definitions
     [MyObjectBuilderDefinition]
     public class MyObjectBuilder_MotorStatorDefinition : MyObjectBuilder_CubeBlockDefinition
     {
-        [ProtoMember(1)]
+        [ProtoMember]
         public float RequiredPowerInput;
 
-        [ProtoMember(2)]
+        [ProtoMember]
         public float MaxForceMagnitude;
 
-        [ProtoMember(3)]
+        [ProtoMember]
         public string RotorPart;
 
-        [ProtoMember(4)]
+        [ProtoMember]
         public float RotorDisplacementMin;
 
-        [ProtoMember(5)]
+        [ProtoMember]
         public float RotorDisplacementMax;
 
-        [ProtoMember(6)]
+        [ProtoMember]
         public float RotorDisplacementInModel;
     }
 }

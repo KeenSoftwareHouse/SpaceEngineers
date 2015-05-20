@@ -29,13 +29,13 @@ namespace Sandbox.Game.Multiplayer
         [ProtoContract]
         protected struct PlayMusicMsg 
         {
-            [ProtoMember(1)]
+            [ProtoMember]
             public MyStringId Transition;
 
-            [ProtoMember(2)]
+            [ProtoMember]
             public MyStringId Category;
 
-            [ProtoMember(3)]
+            [ProtoMember]
             public BoolBlit Loop;
         }
 

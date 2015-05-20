@@ -14,10 +14,10 @@ namespace Sandbox.Common.ObjectBuilders.VRageData
     {
         public static readonly SerializableBlockOrientation Identity = new SerializableBlockOrientation(Base6Directions.Direction.Forward, Base6Directions.Direction.Up);
 
-        [ProtoMember(1), XmlAttribute]
+        [ProtoMember, XmlAttribute]
         public Base6Directions.Direction Forward;
 
-        [ProtoMember(2), XmlAttribute]
+        [ProtoMember, XmlAttribute]
         public Base6Directions.Direction Up;
 
         public SerializableBlockOrientation(Base6Directions.Direction forward, Base6Directions.Direction up)

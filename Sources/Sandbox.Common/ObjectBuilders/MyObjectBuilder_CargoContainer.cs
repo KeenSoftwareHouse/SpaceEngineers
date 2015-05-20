@@ -7,10 +7,10 @@ namespace Sandbox.Common.ObjectBuilders
     [MyObjectBuilderDefinition]
     public class MyObjectBuilder_CargoContainer : MyObjectBuilder_TerminalBlock
     {
-        [ProtoMember(1)]
+        [ProtoMember]
         public MyObjectBuilder_Inventory Inventory;
 
-        [ProtoMember(2), DefaultValue(null)]
+        [ProtoMember, DefaultValue(null)]
         public string ContainerType = null;
         public bool ShouldSerializeContainerType() { return ContainerType != null; }
 

@@ -87,8 +87,9 @@ namespace SpaceEngineers.Game
             MyFakes.ENABLE_PATHFINDING = false;
             MyDebugDrawSettings.DEBUG_DRAW_MOUNT_POINTS_AXIS_HELPERS = true;
 
-            // TODO: after the ragdoll models are correct this can be removed..
-            //MyFakes.ENABLE_RAGDOLL_PROPERTIES_DEFAULTS = true;
+            // RAGDOLL PARAMATERS
+            // TODO: after the ragdoll models are correctly configured this can be removed..
+            MyFakes.ENABLE_RAGDOLL_DEFAULT_PROPERTIES = true;
             //MyPerGameSettings.EnableRagdollModels = false;
             MyPerGameSettings.EnableRagdollInJetpack = true;
             //MyFakes.ENABLE_RAGDOLL_BONES_TRANSLATION = false;

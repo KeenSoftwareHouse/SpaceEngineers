@@ -250,5 +250,7 @@ namespace Sandbox.Game
         public static bool EnableRagdollInJetpack = false;
 
         public static bool InventoryMass = false;
+
+        public static bool EnableCharacterCollisionDamage = false;
     }
 }

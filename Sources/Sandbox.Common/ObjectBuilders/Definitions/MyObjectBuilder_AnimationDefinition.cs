@@ -25,29 +25,29 @@ namespace Sandbox.Common.ObjectBuilders.Definitions
     [MyObjectBuilderDefinition]
     public class MyObjectBuilder_AnimationDefinition : MyObjectBuilder_DefinitionBase
     {
-        [ProtoMember(1)]
+        [ProtoMember]
         [ModdableContentFile("mwm")]
         public string AnimationModel;
 
-        [ProtoMember(2)]
+        [ProtoMember]
         public int ClipIndex;
 
-        [ProtoMember(3)]
+        [ProtoMember]
         public MyBonesArea InfluenceArea;
 
-        [ProtoMember(4)]
+        [ProtoMember]
         public bool AllowInCockpit = true;
 
-        [ProtoMember(5)]
+        [ProtoMember]
         public bool AllowWithWeapon;
 
-        [ProtoMember(6)]
+        [ProtoMember]
         public string SupportedSkeletons = "Humanoid";
 
-        [ProtoMember(7)]
+        [ProtoMember]
         public bool Loop;
 
-        [ProtoMember(8)]
+        [ProtoMember]
         public SerializableDefinitionId LeftHandItem;
     }
 }

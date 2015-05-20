@@ -10,19 +10,19 @@ namespace Sandbox.Common.ObjectBuilders.Definitions
     [MyObjectBuilderDefinition]
     public class MyObjectBuilder_PistonBaseDefinition : MyObjectBuilder_CubeBlockDefinition
     {
-        [ProtoMember(1)]
+        [ProtoMember]
         public float Minimum = 0f;
 
-        [ProtoMember(2)]
+        [ProtoMember]
         public float Maximum = 10f;
 
-        [ProtoMember(3)]
+        [ProtoMember]
         public string TopPart;
 
-        [ProtoMember(4)]
+        [ProtoMember]
         public float MaxVelocity = 5;
 
-        [ProtoMember(5)]
+        [ProtoMember]
         public float RequiredPowerInput;
     }
 }

@@ -11,22 +11,22 @@ namespace Sandbox.Common.ObjectBuilders
     [MyObjectBuilderDefinition]
     public class MyObjectBuilder_EnvironmentSettings : MyObjectBuilder_Base
     {
-        [ProtoMember(1)]
+        [ProtoMember]
         public float SunAzimuth;
 
-        [ProtoMember(2)]
+        [ProtoMember]
         public float SunElevation;
 
-        [ProtoMember(3)]
+        [ProtoMember]
         public float SunIntensity;
 
-        [ProtoMember(4)]
+        [ProtoMember]
         public float FogMultiplier;
 
-        [ProtoMember(5)]
+        [ProtoMember]
         public float FogDensity;
 
-        [ProtoMember(6)]
+        [ProtoMember]
         public SerializableVector3 FogColor;
     }
 }

@@ -11,13 +11,13 @@ namespace Sandbox.Common.ObjectBuilders.Definitions
     [MyObjectBuilderDefinition]
     public class MyObjectBuilder_LandingGearDefinition : MyObjectBuilder_CubeBlockDefinition
     {
-        [ProtoMember(1)]
+        [ProtoMember]
         public string LockSound;
 
-        [ProtoMember(2)]
+        [ProtoMember]
         public string UnlockSound;
 
-        [ProtoMember(3)]
+        [ProtoMember]
         public string FailedAttachSound;
     }
 }
