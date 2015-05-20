@@ -14,7 +14,8 @@ namespace VRageRender
     public class MyRenderTexturePool
     {
         const int POOL_RESOURCES = 512*512* 20;
-        static int m_currentFreeResources = POOL_RESOURCES;
+        private static int m_maxFreeResources = POOL_RESOURCES;
+        static int m_currentFreeResources = m_maxFreeResources;
         static float m_renderQualityScale = 1;
 
         static Dictionary<MyRenderTextureId, Texture> m_renderTextureTargetsInUse = new Dictionary<MyRenderTextureId, Texture>();
@@ -118,7 +119,7 @@ namespace VRageRender
                 MyRenderProxy.RenderTextureFreed(FreeResourcesCount());
             }
             m_renderTextureTargetsInUse.Clear();
-            m_currentFreeResources = (int)(POOL_RESOURCES * m_renderQualityScale * m_renderQualityScale);
+            m_currentFreeResources = m_maxFreeResources;
         }
 
         static public float RenderQualityScale()
@@ -139,6 +140,11 @@ namespace VRageRender
                     m_renderQualityScale = 2.0f;
                     break;        
             }
+
+            // Update available resources according to new render quality
+            var newMaxResources = (int)(POOL_RESOURCES * m_renderQualityScale * m_renderQualityScale);
+            m_currentFreeResources += newMaxResources - m_maxFreeResources;
+            m_maxFreeResources = newMaxResources;
         }
     }
 }

@@ -2,6 +2,9 @@
 using VRageMath;
 namespace Sandbox.ModAPI.Ingame
 {
+    /// <summary>
+    /// basic block interface
+    /// </summary>
     public interface IMySlimBlock
     {
         float AccumulatedDamage { get; }
@@ -17,6 +20,10 @@ namespace Sandbox.ModAPI.Ingame
         bool IsFullyDismounted { get; }
         float MaxDeformation { get; }
         float MaxIntegrity { get; }
+        /// <summary>
+        /// Block mass
+        /// </summary>
+        float Mass { get; }
         bool ShowParts { get; }
         bool StockpileAllocated { get; }
         bool StockpileEmpty { get; }

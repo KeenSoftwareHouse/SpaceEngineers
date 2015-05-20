@@ -30,15 +30,15 @@ namespace Sandbox.Common.ObjectBuilders
         [ProtoContract]
         public struct MyOBEnvironmentItemData
         {
-            [ProtoMember(1)]
+            [ProtoMember]
             public MyPositionAndOrientation PositionAndOrientation;
 
-            [ProtoMember(2)]
+            [ProtoMember]
             public string SubtypeName;
         }
 
         [XmlArrayItem("Item")]
-        [ProtoMember(1)]
+        [ProtoMember]
         public MyOBEnvironmentItemData[] Items;
     }
 }

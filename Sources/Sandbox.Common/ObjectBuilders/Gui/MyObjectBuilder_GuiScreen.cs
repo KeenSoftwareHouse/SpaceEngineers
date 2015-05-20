@@ -13,22 +13,22 @@ namespace Sandbox.Common.ObjectBuilders.Gui
     [MyObjectBuilderDefinition]
     public class MyObjectBuilder_GuiScreen : MyObjectBuilder_Base
     {
-        [ProtoMember(1)]
+        [ProtoMember]
         public MyObjectBuilder_GuiControls Controls;
 
-        [ProtoMember(2)]
+        [ProtoMember]
         public Vector4? BackgroundColor;
 
-        [ProtoMember(3)]
+        [ProtoMember]
         public string BackgroundTexture;
 
-        [ProtoMember(4)]
+        [ProtoMember]
         public Vector2? Size;
 
-        [ProtoMember(5)]
+        [ProtoMember]
         public bool CloseButtonEnabled;
 
-        [ProtoMember(7)]
+        [ProtoMember]
         public Vector2 CloseButtonOffset;
         public bool ShouldSerializeCloseButtonOffset() { return CloseButtonEnabled; }
     }

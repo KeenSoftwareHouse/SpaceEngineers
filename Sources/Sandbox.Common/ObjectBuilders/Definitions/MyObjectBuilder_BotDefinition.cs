@@ -19,17 +19,23 @@ namespace Sandbox.Common.ObjectBuilders.Definitions
             public MyObjectBuilderType Type = typeof(MyObjectBuilder_BehaviorTreeDefinition);
 
             [XmlAttribute]
-            [ProtoMember(1)]
+            [ProtoMember]
             public string Subtype;
         }
 
-        [ProtoMember(1)]
+        [ProtoMember]
         public BotBehavior BotBehaviorTree;
 
-        [ProtoMember(2), DefaultValue("")]
+        [ProtoMember, DefaultValue("")]
         public string BehaviorType = "";
 
-        [ProtoMember(3), DefaultValue("")]
+        [ProtoMember, DefaultValue("")]
         public string BehaviorSubtype = "";
+
+        [ProtoMember]
+        public bool Commandable = false;
+
+        [ProtoMember(5)]
+        public bool AvailableInSurvival = false;
     }
 }

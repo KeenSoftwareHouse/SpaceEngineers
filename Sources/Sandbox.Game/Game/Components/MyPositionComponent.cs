@@ -54,12 +54,14 @@ namespace Sandbox.Game.Components
             m_physics = container.Get<MyPhysicsComponentBase>();
             m_hierarchy = container.Get<MyHierarchyComponentBase>();
             container.ComponentAdded += container_ComponentAdded;
+            container.ComponentRemoved += container_ComponentRemoved;
         }
 
         public override void OnRemovedFromContainer(MyComponentContainer container)
         {
             base.OnRemovedFromContainer(container);
             container.ComponentAdded -= container_ComponentAdded;
+            container.ComponentRemoved -= container_ComponentRemoved;
         }
 
         void container_ComponentAdded(Type type, MyComponentBase comp)
@@ -70,6 +72,16 @@ namespace Sandbox.Game.Components
                 m_physics = comp as MyPhysicsComponentBase;
             else if (type == typeof(MyHierarchyComponentBase))
                 m_hierarchy = comp as MyHierarchyComponentBase;
+        }
+
+        void container_ComponentRemoved(Type type, MyComponentBase comp)
+        {
+            if (type == typeof(MySyncComponentBase))
+                m_syncObject = null;
+            else if (type == typeof(MyPhysicsComponentBase))
+                m_physics = null;
+            else if (type == typeof(MyHierarchyComponentBase))
+                m_hierarchy = null;
         }
 
         #region Position And Movement Methods

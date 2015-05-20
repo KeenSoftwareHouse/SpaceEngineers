@@ -13,20 +13,20 @@ namespace Sandbox.Common.ObjectBuilders.Definitions
     public class MyObjectBuilder_PrefabDefinition : MyObjectBuilder_DefinitionBase
     {
         // Obsolete
-        [ProtoMember(1)]
+        [ProtoMember]
         public bool RespawnShip;
         public bool ShouldSerializeRespawnShip() { return false; }
 
         // Obsolete
-        [ProtoMember(2)]
+        [ProtoMember]
         public MyObjectBuilder_CubeGrid CubeGrid;
         public bool ShouldSerializeCubeGrid() { return false; }
 
-        [ProtoMember(3)]
+        [ProtoMember]
         [XmlArrayItem("CubeGrid")]
         public MyObjectBuilder_CubeGrid[] CubeGrids;
 
-        [ProtoMember(4), ModdableContentFile(".sbc")]
+        [ProtoMember, ModdableContentFile(".sbc")]
         public String PrefabPath;
     }
 }

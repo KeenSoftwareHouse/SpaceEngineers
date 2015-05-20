@@ -11,19 +11,19 @@ namespace Sandbox.Common.ObjectBuilders
     [MyObjectBuilderDefinition]
     public class MyObjectBuilder_GlobalEventBase : MyObjectBuilder_Base
     {
-        [ProtoMember(1)]
+        [ProtoMember]
         public SerializableDefinitionId DefinitionId;
 
-        //[ProtoMember(2)]
+        //[ProtoMember]
         //public bool WriteToLog;
 
-        [ProtoMember(3)]
+        [ProtoMember]
         public bool Enabled;
 
-        [ProtoMember(4)]
+        [ProtoMember]
         public long ActivationTimeMs;
 
-        [ProtoMember(5)] // Obsolete, use DefinitionId now!
+        [ProtoMember] // Obsolete, use DefinitionId now!
         public MyGlobalEventTypeEnum EventType;
         public bool ShouldSerializeEventType() { return false; }
     }

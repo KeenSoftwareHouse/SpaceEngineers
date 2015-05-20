@@ -10,6 +10,9 @@ namespace VRageRender
     {
         public uint ID;
         public string DebugName;
+        public string ColorMetalTexture;
+        public string NormalGlossTexture;
+        public string ExtensionTexture;
 
         public MyRenderMessageType MessageClass { get { return MyRenderMessageType.StateChangeOnce; } }
         public MyRenderMessageEnum MessageType { get { return MyRenderMessageEnum.CreateLineBasedObject; } }

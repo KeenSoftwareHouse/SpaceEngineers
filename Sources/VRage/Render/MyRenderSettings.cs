@@ -227,7 +227,7 @@ namespace VRageRender
         public float Cascade3SmallSkip = 8000.0f;
 
         public bool EnableTonemapping = true;
-        public bool ShowLuminanceHistogram = false;
+        public bool DispalyHdrDebug = false;
         public float AdaptationTau = 0.3f;
         public float LuminanceExposure = 0.51f;
         public float Contrast = 0.006f;
@@ -376,6 +376,7 @@ namespace VRageRender
             Cascade3SmallSkip = settings.Cascade3SmallSkip;
 
             EnableTonemapping = settings.EnableTonemapping;
+            DispalyHdrDebug = settings.DispalyHdrDebug;
             AdaptationTau = settings.AdaptationTau;
             LuminanceExposure = settings.LuminanceExposure;
             Contrast = settings.Contrast;

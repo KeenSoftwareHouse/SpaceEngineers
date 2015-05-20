@@ -18,13 +18,13 @@ namespace Sandbox.Common.ObjectBuilders.Gui
     [MyObjectBuilderDefinition]
     public class MyObjectBuilder_GuiControlGrid : MyObjectBuilder_GuiControlBase
     {
-        [ProtoMember(1)]
+        [ProtoMember]
         public MyGuiControlGridStyleEnum VisualStyle;
 
-        [ProtoMember(2)]
+        [ProtoMember]
         public int DisplayColumnsCount = 1;
 
-        [ProtoMember(3)]
+        [ProtoMember]
         public int DisplayRowsCount = 1;
     }
 }

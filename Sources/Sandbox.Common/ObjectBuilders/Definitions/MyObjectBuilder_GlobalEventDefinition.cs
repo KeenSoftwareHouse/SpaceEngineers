@@ -30,22 +30,22 @@ namespace Sandbox.Common.ObjectBuilders.Definitions
     public class MyObjectBuilder_GlobalEventDefinition : MyObjectBuilder_DefinitionBase
     {
         // Obsolete! Get accessor is missing on purpose! Use DefinitionId instead
-        [ProtoMember(1)]
+        [ProtoMember]
         private MyGlobalEventTypeEnum EventType
         {
             set { Debug.Assert(false, "Setting an EventType on MyObjectBuilder_GlobalEventDefinition is obsolete!"); }
             get { Debug.Assert(false, "Getting an EventType on MyObjectBuilder_GlobalEventDefinition is obsolete!"); return MyGlobalEventTypeEnum.InvalidEventType; }
         }
 
-        [ProtoMember(2)]
+        [ProtoMember]
         public long? MinActivationTimeMs;
         public bool ShouldSerializeMinActivationTime() { return MinActivationTimeMs.HasValue; }
 
-        [ProtoMember(3)]
+        [ProtoMember]
         public long? MaxActivationTimeMs;
         public bool ShouldSerializeMaxActivationTime() { return MaxActivationTimeMs.HasValue; }
 
-        [ProtoMember(4)]
+        [ProtoMember]
         public long? FirstActivationTimeMs;
         public bool ShouldSerializeFirstActivationTime() { return FirstActivationTimeMs.HasValue; }
     }

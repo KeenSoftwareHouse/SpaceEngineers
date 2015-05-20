@@ -32,6 +32,7 @@ namespace Sandbox.Definitions
         public MyStringId[] SurvivalModeWeapons;
         public MyObjectBuilder_Toolbar DefaultToolbar;
         public MyBattleSettings Battle;
+        public MyStringId MainCharacterModel;
 
         protected override void Init(MyObjectBuilder_DefinitionBase builder)
         {
@@ -42,6 +43,7 @@ namespace Sandbox.Definitions
             AsteroidClustersOffset  = ob.AsteroidClusters.Offset;
             CentralClusterEnabled   = ob.AsteroidClusters.CentralCluster;
             DefaultToolbar = ob.DefaultToolbar;
+            MainCharacterModel = MyStringId.GetOrCompute(ob.MainCharacterModel);
 
             if (ob.PossibleStartingStates != null && ob.PossibleStartingStates.Length > 0)
             {
@@ -108,6 +110,7 @@ namespace Sandbox.Definitions
             ob.AsteroidClusters.Offset         = AsteroidClustersOffset;
             ob.AsteroidClusters.CentralCluster = CentralClusterEnabled;
             ob.DefaultToolbar = DefaultToolbar;
+            ob.MainCharacterModel = MainCharacterModel.ToString();
 
             if (PossiblePlayerStarts != null && PossiblePlayerStarts.Length > 0)
             {

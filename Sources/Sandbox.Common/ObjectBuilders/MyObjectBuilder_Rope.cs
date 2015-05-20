@@ -11,16 +11,16 @@ namespace Medieval.Entities
     [MyObjectBuilderDefinition]
     public class MyObjectBuilder_Rope : MyObjectBuilder_EntityBase
     {
-        [ProtoMember(1)]
+        [ProtoMember]
         public float MaxRopeLength;
 
-        [ProtoMember(2)]
+        [ProtoMember]
         public float CurrentRopeLength;
 
-        [ProtoMember(3)]
+        [ProtoMember]
         public long EntityIdHookA;
 
-        [ProtoMember(4)]
+        [ProtoMember]
         public long EntityIdHookB;
     }
 }

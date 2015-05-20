@@ -32,18 +32,18 @@ namespace Sandbox.ModAPI
             [MessageIdAttribute(16295, P2PMessageEnum.Reliable)]
             struct CustomModMsg
             {
-                [ProtoBuf.ProtoMember(1)]
+                [ProtoBuf.ProtoMember]
                 public ushort ModID;
-                [ProtoBuf.ProtoMember(2)]
+                [ProtoBuf.ProtoMember]
                 public byte[] Message;
             }
             [ProtoBuf.ProtoContract]
             [MessageIdAttribute(16296, P2PMessageEnum.Unreliable)]
             struct CustomModMsgUnreliable
             {
-                [ProtoBuf.ProtoMember(1)]
+                [ProtoBuf.ProtoMember]
                 public ushort ModID;
-                [ProtoBuf.ProtoMember(2)]
+                [ProtoBuf.ProtoMember]
                 public byte[] Message;
             }
 

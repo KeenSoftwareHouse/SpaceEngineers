@@ -19,10 +19,10 @@ namespace Sandbox.Common.ObjectBuilders.Gui
     [MyObjectBuilderDefinition]
     public class MyObjectBuilder_GuiControlListbox : MyObjectBuilder_GuiControlBase
     {
-        [ProtoMember(1)]
+        [ProtoMember]
         public MyGuiControlListboxStyleEnum VisualStyle;
 
-        [ProtoMember(2)]
+        [ProtoMember]
         public int VisibleRows;
 
     }

@@ -10,10 +10,10 @@ namespace Sandbox.Common.ObjectBuilders
     [MyObjectBuilderDefinition]
     public class MyObjectBuilder_CompoundCubeBlock : MyObjectBuilder_CubeBlock
     {
-        [ProtoMember(1)]
+        [ProtoMember]
         public MyObjectBuilder_CubeBlock[] Blocks;
 
-        [ProtoMember(2)]
+        [ProtoMember]
         public ushort[] BlockIds;
 
         public override void Remap(IMyRemapHelper remapHelper)

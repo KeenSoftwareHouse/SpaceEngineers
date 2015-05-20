@@ -10,7 +10,7 @@ namespace Sandbox.Common.ObjectBuilders.Definitions
     [MyObjectBuilderDefinition]
     public class MyObjectBuilder_RemoteControlDefinition : MyObjectBuilder_ShipControllerDefinition
     {
-        [ProtoMember(1)]
+        [ProtoMember]
         public float RequiredPowerInput;
     }
 }

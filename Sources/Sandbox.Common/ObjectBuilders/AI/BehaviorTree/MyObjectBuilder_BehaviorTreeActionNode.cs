@@ -30,7 +30,7 @@ namespace Sandbox.Common.ObjectBuilders.AI
         public class IntType : TypeValue
         {
             [XmlAttribute]
-            [ProtoMember(1)]
+            [ProtoMember]
             public int IntValue;
             public override object GetValue()
             {
@@ -42,7 +42,7 @@ namespace Sandbox.Common.ObjectBuilders.AI
         public class StringType : TypeValue
         {
             [XmlAttribute]
-            [ProtoMember(1)]
+            [ProtoMember]
             public string StringValue;
 
             public override object GetValue()
@@ -55,7 +55,7 @@ namespace Sandbox.Common.ObjectBuilders.AI
         public class FloatType : TypeValue
         {
             [XmlAttribute]
-            [ProtoMember(1)]
+            [ProtoMember]
             public float FloatValue;
 
             public override object GetValue()
@@ -68,7 +68,7 @@ namespace Sandbox.Common.ObjectBuilders.AI
         public class BoolType : TypeValue
         {
             [XmlAttribute]
-            [ProtoMember(1)]
+            [ProtoMember]
             public bool BoolValue;
 
             public override object GetValue()
@@ -81,7 +81,7 @@ namespace Sandbox.Common.ObjectBuilders.AI
         public class MemType : TypeValue
         {
             [XmlAttribute]
-            [ProtoMember(1)]
+            [ProtoMember]
             public string MemName;
 
             public override object GetValue()
@@ -90,10 +90,10 @@ namespace Sandbox.Common.ObjectBuilders.AI
             }
         }
 
-        [ProtoMember(1)]
+        [ProtoMember]
         public string ActionName = null;
 
-        [ProtoMember(2)]
+        [ProtoMember]
         [XmlArrayItem("Parameter")]
         public TypeValue[] Parameters = null;
     }

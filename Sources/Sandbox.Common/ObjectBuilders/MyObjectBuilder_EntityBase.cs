@@ -21,16 +21,16 @@ namespace Sandbox.Common.ObjectBuilders
     [MyObjectBuilderDefinition]
     public abstract class MyObjectBuilder_EntityBase : MyObjectBuilder_Base
     {
-        [ProtoMember(1)]
+        [ProtoMember]
         public long EntityId;
 
-        [ProtoMember(2)]
+        [ProtoMember]
         public MyPersistentEntityFlags2 PersistentFlags;
 
-        [ProtoMember(3)]
+        [ProtoMember]
         public string Name;
 
-        [ProtoMember(4)]
+        [ProtoMember]
         public MyPositionAndOrientation? PositionAndOrientation;
 
         // Tells XML Serializer that PositionAndOrientation should be serialized only if it has value

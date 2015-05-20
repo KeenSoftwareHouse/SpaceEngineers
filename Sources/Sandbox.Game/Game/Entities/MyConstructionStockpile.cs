@@ -15,10 +15,10 @@ namespace Sandbox.Game.Entities
     [ProtoContract]
     public struct MyStockpileItem
     {
-        [ProtoMember(1)]
+        [ProtoMember]
         public int Amount;
 
-        [ProtoMember(2)]
+        [ProtoMember]
         public MyObjectBuilder_PhysicalObject Content;
 
         public override string ToString()

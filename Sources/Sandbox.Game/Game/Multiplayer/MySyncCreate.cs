@@ -24,7 +24,7 @@ namespace Sandbox.Game.Multiplayer
         [MessageId(37, P2PMessageEnum.Reliable)]
         struct CreateMsg
         {
-            [ProtoMember(1)]
+            [ProtoMember]
             public MyObjectBuilder_EntityBase ObjectBuilder;
         }
 
@@ -32,10 +32,10 @@ namespace Sandbox.Game.Multiplayer
         [MessageId(38, P2PMessageEnum.Reliable)]
         struct CreateCompressedMsg
         {
-            [ProtoMember(1)]
+            [ProtoMember]
             public byte[] ObjectBuilders;
 
-            [ProtoMember(2)]
+            [ProtoMember]
             public int[] BuilderLengths;
         }
 
@@ -43,19 +43,19 @@ namespace Sandbox.Game.Multiplayer
         [MessageId(11873, P2PMessageEnum.Reliable)]
         struct MergingCopyPasteCompressedMsg
         {
-            [ProtoMember(1)]
+            [ProtoMember]
             public CreateCompressedMsg CreateMessage;
 
-            [ProtoMember(2)]
+            [ProtoMember]
             public long MergeGridId;
 
-            [ProtoMember(3)]
+            [ProtoMember]
             public SerializableVector3I MergeOffset;
 
-            [ProtoMember(4)]
+            [ProtoMember]
             public Base6Directions.Direction MergeForward;
 
-            [ProtoMember(5)]
+            [ProtoMember]
             public Base6Directions.Direction MergeUp;
         }
 
@@ -63,13 +63,13 @@ namespace Sandbox.Game.Multiplayer
         [MessageId(11874, P2PMessageEnum.Reliable)]
         struct CreateRelativeCompressedMsg
         {
-            [ProtoMember(1)]
+            [ProtoMember]
             public CreateCompressedMsg CreateMessage;
 
-            [ProtoMember(2)]
+            [ProtoMember]
             public long BaseEntity;
 
-            [ProtoMember(3)]
+            [ProtoMember]
             public SerializableVector3 RelativeVelocity;
         }
 
@@ -77,22 +77,22 @@ namespace Sandbox.Game.Multiplayer
         [MessageId(11875, P2PMessageEnum.Reliable)]
         struct SpawnGridMsg
         {
-            [ProtoMember(1)]
+            [ProtoMember]
             public MyObjectBuilder_CubeGrid Grid;
             
-            [ProtoMember(2)]
+            [ProtoMember]
             public DefinitionIdBlit Definition;
             
-            [ProtoMember(3)]
+            [ProtoMember]
             public Vector3D Position;
             
-            [ProtoMember(4)]
+            [ProtoMember]
             public Vector3 Forward;
             
-            [ProtoMember(5)]
+            [ProtoMember]
             public Vector3 Up;
             
-            [ProtoMember(6)]
+            [ProtoMember]
             public bool Static;
         }
 

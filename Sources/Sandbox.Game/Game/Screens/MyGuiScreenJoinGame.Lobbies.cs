@@ -265,29 +265,23 @@ namespace Sandbox.Game.Gui
 
                     m_gameTypeText.Clear();
                     m_gameTypeToolTip.Clear();
-                    if (appVersion > 01022000)
+                    //TODO: refactor - split to ME a SE versions
+                    if (appVersion > 01022000 && MySteam.AppId == 244850)
                     {
                         var inventory = MyMultiplayerLobby.GetLobbyFloat(MyMultiplayer.InventoryMultiplierTag, lobby, 1);
                         var refinery = MyMultiplayerLobby.GetLobbyFloat(MyMultiplayer.RefineryMultiplierTag, lobby, 1);
                         var assembler = MyMultiplayerLobby.GetLobbyFloat(MyMultiplayer.AssemblerMultiplierTag, lobby, 1);
 
                         MyGameModeEnum gameMode = MyMultiplayerLobby.GetLobbyGameMode(lobby);
-                        bool isBattle = MyMultiplayerLobby.GetLobbyBattle(lobby);
+
                         switch (gameMode)
                         {
                             case MyGameModeEnum.Creative:
                                 m_gameTypeText.AppendStringBuilder(MyTexts.Get(MySpaceTexts.WorldSettings_GameModeCreative));
                                 break;
                             case MyGameModeEnum.Survival:
-                                if (MyFakes.ENABLE_BATTLE_SYSTEM && isBattle)
-                                {
-                                    m_gameTypeText.AppendStringBuilder(MyTexts.Get(MySpaceTexts.WorldSettings_Battle));
-                                }
-                                else
-                                {
-                                    m_gameTypeText.AppendStringBuilder(MyTexts.Get(MySpaceTexts.WorldSettings_GameModeSurvival));
-                                    m_gameTypeText.Append(String.Format(" {0}-{1}-{2}", inventory, assembler, refinery));
-                                }
+                                m_gameTypeText.AppendStringBuilder(MyTexts.Get(MySpaceTexts.WorldSettings_GameModeSurvival));
+                                m_gameTypeText.Append(String.Format(" {0}-{1}-{2}", inventory, assembler, refinery));
                                 break;
 
                             default:
@@ -300,6 +294,41 @@ namespace Sandbox.Game.Gui
                         var viewDistance = MyMultiplayerLobby.GetLobbyViewDistance(lobby);
                         m_gameTypeToolTip.AppendLine();
                         m_gameTypeToolTip.AppendFormat(MyTexts.Get(MySpaceTexts.JoinGame_GameTypeToolTip_ViewDistance).ToString(), viewDistance);
+                    }
+                    else
+                    {
+                        MyGameModeEnum gameMode = MyMultiplayerLobby.GetLobbyGameMode(lobby);
+
+                        switch (gameMode)
+                        {
+                            case MyGameModeEnum.Creative:
+                                m_gameTypeText.AppendStringBuilder(MyTexts.Get(MySpaceTexts.WorldSettings_GameModeCreative));
+                                m_gameTypeToolTip.AppendStringBuilder(MyTexts.Get(MySpaceTexts.WorldSettings_GameModeCreative));
+                                break;
+                            case MyGameModeEnum.Survival:
+                                bool isBattle = MyMultiplayerLobby.GetLobbyBattle(lobby);
+
+                                if (MyFakes.ENABLE_BATTLE_SYSTEM && isBattle)
+                                {
+                                    // Cannot join already started battles
+                                    bool isBattleStarted = MyMultiplayerLobby.GetLobbyBattleStarted(lobby);
+                                    if (isBattleStarted)
+                                        continue;
+
+                                    m_gameTypeText.AppendStringBuilder(MyTexts.Get(MySpaceTexts.WorldSettings_Battle));
+                                    m_gameTypeToolTip.AppendStringBuilder(MyTexts.Get(MySpaceTexts.WorldSettings_Battle));
+                                }
+                                else
+                                {
+                                    m_gameTypeText.AppendStringBuilder(MyTexts.Get(MySpaceTexts.WorldSettings_GameModeSurvival));
+                                    m_gameTypeToolTip.AppendStringBuilder(MyTexts.Get(MySpaceTexts.WorldSettings_GameModeSurvival));
+                                }
+                                break;
+
+                            default:
+                                Debug.Fail("Unknown game type");
+                                break;
+                        }
                     }
 
                     // Skip world without name (not fully initialized)

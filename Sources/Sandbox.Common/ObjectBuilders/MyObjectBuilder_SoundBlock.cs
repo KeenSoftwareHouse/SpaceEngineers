@@ -10,16 +10,16 @@ namespace Sandbox.Common.ObjectBuilders
     [MyObjectBuilderDefinition]
     public class MyObjectBuilder_SoundBlock : MyObjectBuilder_FunctionalBlock
     {
-        [ProtoMember(1)]
+        [ProtoMember]
         public float Range = 50;
 
-        [ProtoMember(2)]
+        [ProtoMember]
         public float Volume = 1;
 
-        [ProtoMember(3)]
+        [ProtoMember]
         public int CueId = 0;
 
-        [ProtoMember(4)]
+        [ProtoMember]
         public float LoopPeriod = 1f;
     }
 }

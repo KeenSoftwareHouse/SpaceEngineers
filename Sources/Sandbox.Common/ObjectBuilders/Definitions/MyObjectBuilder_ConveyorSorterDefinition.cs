@@ -11,10 +11,10 @@ namespace Sandbox.Common.ObjectBuilders.Definitions
     [MyObjectBuilderDefinition]
     public class MyObjectBuilder_ConveyorSorterDefinition : MyObjectBuilder_CubeBlockDefinition
     {
-        [ProtoMember(1)]
+        [ProtoMember]
         public float PowerInput = 0.001f;
 
-        [ProtoMember(2)]
+        [ProtoMember]
         public Vector3 InventorySize;
     }
 }

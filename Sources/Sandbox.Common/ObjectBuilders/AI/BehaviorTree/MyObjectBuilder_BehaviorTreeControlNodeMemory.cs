@@ -13,7 +13,7 @@ namespace Sandbox.Common.ObjectBuilders.AI
     public class MyObjectBuilder_BehaviorTreeControlNodeMemory : MyObjectBuilder_BehaviorTreeNodeMemory
     {
         [XmlAttribute]
-        [ProtoMember(1), DefaultValue(0)]
+        [ProtoMember, DefaultValue(0)]
         public int InitialIndex = 0;
     }
 }

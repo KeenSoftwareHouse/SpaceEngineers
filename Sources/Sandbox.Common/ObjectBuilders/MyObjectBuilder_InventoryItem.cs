@@ -12,7 +12,7 @@ namespace Sandbox.Common.ObjectBuilders
     [MyObjectBuilderDefinition]
     public class MyObjectBuilder_InventoryItem : MyObjectBuilder_Base
     {
-        [ProtoMember(1)]
+        [ProtoMember]
         [XmlElement("Amount")]
         public MyFixedPoint Amount;
 
@@ -68,11 +68,11 @@ namespace Sandbox.Common.ObjectBuilders
         }
         public bool ShouldSerializeContent() { return false; }
 
-        [ProtoMember(2)]
+        [ProtoMember]
         [XmlElement("PhysicalContent", Type = typeof(MyAbstractXmlSerializer<MyObjectBuilder_PhysicalObject>))]
         public MyObjectBuilder_PhysicalObject PhysicalContent;
 
-        [ProtoMember(3)]
+        [ProtoMember]
         public uint ItemId;
     }
 }
