@@ -1097,7 +1097,8 @@ namespace Sandbox.Game.Entities.Cube
 
         bool Sandbox.ModAPI.Ingame.IMyAssembler.RemoveQueueItem(AssemblerQueueItem queueItem)
         {
-            if (m_queue[queueItem.idx].Blueprint.Results[0].Id.TypeId.ToString() != queueItem.itemType ||
+            if (m_queue.Count<queueItem.idx ||
+                m_queue[queueItem.idx].Blueprint.Results[0].Id.TypeId.ToString() != queueItem.itemType ||
                 m_queue[queueItem.idx].Blueprint.Results[0].Id.SubtypeName != queueItem.subtypeName ||
                 m_queue[queueItem.idx].Amount != queueItem.amount)
                 return false;
