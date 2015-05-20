@@ -6264,4 +6264,6 @@ To connect to lasers not listed here you can connect to coordinates.</value>
   <data name="DisplayName_Item_ScrapIngot" xml:space="preserve">
     <value>Old Scrap Metal</value>
   </data>
+  <data name="WorldSettings_InventoryMass" xml:space="preserve">
+    <value>Enable inventory mass</value>
 </root>
