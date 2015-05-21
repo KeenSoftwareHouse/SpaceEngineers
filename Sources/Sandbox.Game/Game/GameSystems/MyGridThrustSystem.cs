@@ -1,4 +1,4 @@
-﻿// NOTE: To adjust aggressiveness of thruster rotational damping, change DAMPENING_CONSTANT in AdjustThrustForRotation() method.
+﻿// NOTE: To adjust aggressiveness of thruster rotational damping, change DAMPING_CONSTANT in AdjustThrustForRotation() method.
 
 using System;
 using System.Collections.Generic;
@@ -54,7 +54,7 @@ namespace Sandbox.Game.GameSystems
         
         // Only used when thruster torque is enabled (it's currently tied to thruster damage checkbox).
         const int   COM_UPDATE_TICKS  = 10;
-        const float MAX_THRUST_CHANGE = 0.3f;   
+        const float MAX_THRUST_CHANGE = 0.1f;   
         
         private float m_currentRequiredPowerInput;
         private MyCubeGrid m_grid;
@@ -79,8 +79,8 @@ namespace Sandbox.Game.GameSystems
 
         private Vector3 m_currentTorque;
 
-        public Vector3 ControlTorque;
-        private int m_COMUpdateCounter;
+        public  Vector3 ControlTorque;
+        private int     m_COMUpdateCounter;
 
         #endregion
 
@@ -139,7 +139,6 @@ namespace Sandbox.Game.GameSystems
             set;
         }
 
-        public bool    IsGyroOverrideActive { get;         set; }
         public Vector3 LocalAngularVelocity { get; private set; }
 
         #endregion
@@ -178,6 +177,7 @@ namespace Sandbox.Game.GameSystems
             thrust.EnabledChanged += thrust_EnabledChanged;
             thrust.SlimBlock.ComponentStack.IsFunctionalChanged += ComponentStack_IsFunctionalChanged;
             thrust.GridCenterPos = (thrust.Min + thrust.Max) / 2.0f;
+            thrust.StaticMoment  = thrust.GridCenterPos * (m_grid.GridSize * thrust.ThrustForce.Length()); 
             ++ThrustCount;
         }
 
@@ -258,7 +258,7 @@ namespace Sandbox.Game.GameSystems
 
         private void UpdateThrusts()
         {
-            const float ROTATION_LIMITER = 0.8f;     // must be between 0 and 1.
+            const float ROTATION_LIMITER = 5.0f;
             
             Matrix invWorldRot = m_grid.PositionComp.GetWorldMatrixNormalizedInv().GetOrientation();
 
@@ -279,29 +279,34 @@ namespace Sandbox.Game.GameSystems
             Thrust = Vector3.Clamp(Thrust + slowdownThrust, -m_maxNegativeThrust * MyFakes.SLOWDOWN_FACTOR_THRUST_MULTIPLIER, m_maxPositiveThrust * MyFakes.SLOWDOWN_FACTOR_THRUST_MULTIPLIER);
             
             // Calculate ratio of usage for different directions.
-            Vector3 thrustPositive = Thrust / (m_maxPositiveThrust + 0.0000001f);
-            Vector3 thrustNegative = -Thrust / (m_maxNegativeThrust + 0.0000001f);
-            thrustPositive = Vector3.Clamp(thrustPositive, Vector3.Zero, Vector3.One * MyConstants.MAX_THRUST);
-            thrustNegative = Vector3.Clamp(thrustNegative, Vector3.Zero, Vector3.One * MyConstants.MAX_THRUST);
+            Vector3 thrustPositive  =  Thrust / (m_maxPositiveThrust + 0.0000001f);
+            Vector3 thrustNegative  = -Thrust / (m_maxNegativeThrust + 0.0000001f);
+            thrustPositive          = Vector3.Clamp(thrustPositive, Vector3.Zero, Vector3.One * MyConstants.MAX_THRUST);
+            thrustNegative          = Vector3.Clamp(thrustNegative, Vector3.Zero, Vector3.One * MyConstants.MAX_THRUST);
+            Vector3 extraBrakeForce = Thrust - thrustPositive - thrustNegative;     // A fictitious force that mimics turbo-brake
+                                                                                    // of stock inertia dampeners.
 
-            Vector3 adjustedThrust = Thrust;
+            Vector3 adjustedThrust = Vector3.Zero;
             InitializeThrottleAndCOMOffset(m_thrustsByDirection[Vector3I.Left    ], thrustPositive.X, ref adjustedThrust, ref invWorldRot);
             InitializeThrottleAndCOMOffset(m_thrustsByDirection[Vector3I.Down    ], thrustPositive.Y, ref adjustedThrust, ref invWorldRot);
             InitializeThrottleAndCOMOffset(m_thrustsByDirection[Vector3I.Forward ], thrustPositive.Z, ref adjustedThrust, ref invWorldRot);
             InitializeThrottleAndCOMOffset(m_thrustsByDirection[Vector3I.Right   ], thrustNegative.X, ref adjustedThrust, ref invWorldRot);
             InitializeThrottleAndCOMOffset(m_thrustsByDirection[Vector3I.Up      ], thrustNegative.Y, ref adjustedThrust, ref invWorldRot);
             InitializeThrottleAndCOMOffset(m_thrustsByDirection[Vector3I.Backward], thrustNegative.Z, ref adjustedThrust, ref invWorldRot);
+            adjustedThrust += extraBrakeForce;
 
             LocalAngularVelocity = Vector3.Transform(m_grid.Physics.AngularVelocity, ref invWorldRot);
             // A quick'n'dirty way of making torque optional. Activating gyroscope override also disables RCS.
-            if (MySession.Static.ThrusterDamage && !IsGyroOverrideActive)        
+            if (MySession.Static.ThrusterDamage && !m_grid.GridSystems.GyroSystem.IsGyroOverrideActive)        
             {
                 if (m_COMUpdateCounter++ >= COM_UPDATE_TICKS)
+                {
                     m_COMUpdateCounter = 0;
+                    UpdateCenterOfThrust();
+                }
 
                 LocalAngularVelocity = Vector3.Transform(m_grid.Physics.AngularVelocity, ref invWorldRot);
-                Vector3 desiredAngularVelocity = (LocalAngularVelocity + ControlTorque) * ROTATION_LIMITER;
-                //MyHud.Notifications.Add(new MyHudNotificationDebug("LAVT: " + LocalAngularVelocity.ToString()));
+                Vector3 desiredAngularVelocity = ControlTorque * ROTATION_LIMITER;
 
                 // Do not adjust for rotation when thrusters on opposite side are overidden or in linear acceleration mode.
                 if (thrustNegative.X <= 0.1f && m_totalThrustOverride.X >= -1.0f)
@@ -317,11 +322,18 @@ namespace Sandbox.Game.GameSystems
                 if (thrustPositive.Z <= 0.1f && m_totalThrustOverride.Z <= 1.0f)
                     AdjustThrustForRotation(m_thrustsByDirection[Vector3I.Backward], Vector3.Backward, ref adjustedThrust, m_maxNegativeThrust.Z, LocalAngularVelocity, desiredAngularVelocity);
                 ControlTorque = Vector3.Zero;
+                Thrust        = adjustedThrust;
 
                 // Recalculate ratio of usage after rotational ajustments.
-                Thrust = adjustedThrust;
-                thrustPositive = Thrust / (m_maxPositiveThrust + 0.0000001f);
-                thrustNegative = -Thrust / (m_maxNegativeThrust + 0.0000001f);
+                thrustPositive = thrustNegative = Vector3.Zero;
+                CalculateTotalThrustForPowerUsage(m_thrustsByDirection[Vector3I.Left    ], ref thrustPositive);
+                CalculateTotalThrustForPowerUsage(m_thrustsByDirection[Vector3I.Down    ], ref thrustPositive);
+                CalculateTotalThrustForPowerUsage(m_thrustsByDirection[Vector3I.Forward ], ref thrustPositive);
+                CalculateTotalThrustForPowerUsage(m_thrustsByDirection[Vector3I.Right   ], ref thrustNegative);
+                CalculateTotalThrustForPowerUsage(m_thrustsByDirection[Vector3I.Up      ], ref thrustNegative);
+                CalculateTotalThrustForPowerUsage(m_thrustsByDirection[Vector3I.Backward], ref thrustNegative);
+                thrustPositive =  thrustPositive / (m_maxPositiveThrust + 0.0000001f);
+                thrustNegative = -thrustNegative / (m_maxNegativeThrust + 0.0000001f);
                 thrustPositive = Vector3.Clamp(thrustPositive, Vector3.Zero, Vector3.One * MyConstants.MAX_THRUST);
                 thrustNegative = Vector3.Clamp(thrustNegative, Vector3.Zero, Vector3.One * MyConstants.MAX_THRUST);
             }
@@ -347,16 +359,16 @@ namespace Sandbox.Game.GameSystems
             Thrust *= MyFakes.THRUST_FORCE_RATIO;
 
             m_currentTorque = Vector3.Zero;
-            UpdateThrustStrength(m_thrustsByDirection[Vector3I.Left    ], thrustPositive.X, PowerReceiver.SuppliedRatio);
-            UpdateThrustStrength(m_thrustsByDirection[Vector3I.Down    ], thrustPositive.Y, PowerReceiver.SuppliedRatio);
-            UpdateThrustStrength(m_thrustsByDirection[Vector3I.Forward ], thrustPositive.Z, PowerReceiver.SuppliedRatio);
-            UpdateThrustStrength(m_thrustsByDirection[Vector3I.Right   ], thrustNegative.X, PowerReceiver.SuppliedRatio);
-            UpdateThrustStrength(m_thrustsByDirection[Vector3I.Up      ], thrustNegative.Y, PowerReceiver.SuppliedRatio);
-            UpdateThrustStrength(m_thrustsByDirection[Vector3I.Backward], thrustNegative.Z, PowerReceiver.SuppliedRatio);
+            UpdateThrustStrength(m_thrustsByDirection[Vector3I.Left    ], PowerReceiver.SuppliedRatio);
+            UpdateThrustStrength(m_thrustsByDirection[Vector3I.Down    ], PowerReceiver.SuppliedRatio);
+            UpdateThrustStrength(m_thrustsByDirection[Vector3I.Forward ], PowerReceiver.SuppliedRatio);
+            UpdateThrustStrength(m_thrustsByDirection[Vector3I.Right   ], PowerReceiver.SuppliedRatio);
+            UpdateThrustStrength(m_thrustsByDirection[Vector3I.Up      ], PowerReceiver.SuppliedRatio);
+            UpdateThrustStrength(m_thrustsByDirection[Vector3I.Backward], PowerReceiver.SuppliedRatio);
 
             if (m_grid.GridSystems.ControlSystem.IsLocallyControlled || (!m_grid.GridSystems.ControlSystem.IsControlled && Sync.IsServer) || (false && Sync.IsServer))
             {
-                if (Thrust.LengthSquared() > 0.001f)
+                if (Thrust.LengthSquared() > 0.001f || m_currentTorque.LengthSquared() > 0.001f)
                 {
                     if (m_grid.Physics.Enabled)
                         m_grid.Physics.AddForce(MyPhysicsForceType.ADD_BODY_FORCE_AND_BODY_TORQUE, Thrust, null, m_currentTorque);
@@ -373,10 +385,35 @@ namespace Sandbox.Game.GameSystems
             }
         }
 
-        private void InitializeThrottleAndCOMOffset(HashSet<MyThrust> thrusters, float throttle, ref Vector3 thrustTotalForce, ref Matrix invWorldRot)
+        private void UpdateCenterOfThrust()
         {
-            Vector3 currentThrust;
+            Vector3 totalThrustStaticMoment = Vector3.Zero;
+            float   totalThrust             = 0;
 
+            foreach (var dir in m_thrustsByDirection)
+            {
+                foreach (var curThrust in dir.Value)
+                {
+                    if (IsOverridden(curThrust) || IsUsed(curThrust))
+                    {
+                        totalThrustStaticMoment += curThrust.StaticMoment;
+                        totalThrust             += curThrust.ThrustForce.Length();
+                    }
+                }
+            }
+            Vector3 COTLocation = totalThrustStaticMoment / totalThrust;
+            foreach (var dir in m_thrustsByDirection)
+            {
+                foreach (var curThrust in dir.Value)
+                {
+                    if (IsOverridden(curThrust) || IsUsed(curThrust))
+                        curThrust.COTOffsetVector = curThrust.GridCenterPos * m_grid.GridSize - COTLocation;
+                }
+            }
+        }
+
+        private void InitializeThrottleAndCOMOffset(HashSet<MyThrust> thrusters,  float throttle, ref Vector3 thrustTotalForce, ref Matrix invWorldRot)
+        {
             if (!MySession.Static.ThrusterDamage)
             {
                 foreach (var curThrust in thrusters)
@@ -403,17 +440,24 @@ namespace Sandbox.Game.GameSystems
                     {
                         // To supress an annoying flicker, change thruster output gradually.
                         curThrust.PrevStrength    = curThrust.CurrentStrength;
-                        currentThrust             = curThrust.ThrustForce * curThrust.CurrentStrength;
                         curThrust.CurrentStrength = MathHelper.Clamp(throttle, curThrust.PrevStrength - MAX_THRUST_CHANGE, curThrust.PrevStrength + MAX_THRUST_CHANGE);
-                        thrustTotalForce         += curThrust.ThrustForce * curThrust.CurrentStrength - currentThrust;
+                        thrustTotalForce         += curThrust.ThrustForce * curThrust.CurrentStrength;
                     }
                 }
             }
         }
 
+        private void CalculateTotalThrustForPowerUsage(HashSet<MyThrust> thrusters, ref Vector3 totalThrust)
+        {
+            foreach (var curThrust in thrusters)
+            {
+                totalThrust += curThrust.ThrustForce * curThrust.CurrentStrength;
+            }
+        }
+
         private void AdjustThrustForRotation(HashSet<MyThrust> thrusters, Vector3 primaryAxisDirection, ref Vector3 thrustTotalForce, float thrustMaxForce, Vector3 localAngularVelocity, Vector3 desiredAngularVelocity)
         {
-            const float DAMPENING_CONSTANT = 0.1f;
+            const float DAMPING_CONSTANT = 0.1f;
             Vector3 localLinearVelocity, desiredLinearVelocity, desiredAcceleration, currentThrust, extraThrust, newThrust;
             float   thrustMagnitude;
 
@@ -423,9 +467,9 @@ namespace Sandbox.Game.GameSystems
                 {
                     thrustMagnitude       = curThrust.ThrustForce.Length(); 
                     currentThrust         = curThrust.ThrustForce * curThrust.CurrentStrength;
-                    localLinearVelocity   = Vector3.Cross(  localAngularVelocity, curThrust.COMOffsetVector);
-                    desiredLinearVelocity = Vector3.Cross(desiredAngularVelocity, curThrust.COMOffsetVector);
-                    desiredAcceleration = (desiredLinearVelocity - localLinearVelocity) / (DAMPENING_CONSTANT * thrustMaxForce / thrustMagnitude);
+                    localLinearVelocity   = Vector3.Cross(  localAngularVelocity, curThrust.COTOffsetVector);
+                    desiredLinearVelocity = Vector3.Cross(desiredAngularVelocity, curThrust.COTOffsetVector);
+                    desiredAcceleration   = (desiredLinearVelocity - localLinearVelocity) / (DAMPING_CONSTANT * thrustMaxForce / thrustMagnitude);
                     extraThrust           = m_grid.Physics.Mass * desiredAcceleration * primaryAxisDirection;
                     newThrust             = currentThrust + extraThrust;
                     if (Vector3.Dot(newThrust, curThrust.ThrustForce) <= 0.0f)  // desired force is opposite to thruster's force?
@@ -440,7 +484,7 @@ namespace Sandbox.Game.GameSystems
             }
         }
 
-        private /*static*/ void UpdateThrustStrength(HashSet<MyThrust> thrusters, float thrustForce, float suppliedPowerRatio)
+        private /*static*/ void UpdateThrustStrength(HashSet<MyThrust> thrusters, float suppliedPowerRatio)
         {
             if (MySession.Static.ThrusterDamage)
             {
@@ -449,7 +493,7 @@ namespace Sandbox.Game.GameSystems
                     if (IsOverridden(thrust))
                     {
                         thrust.CurrentStrength = thrust.ThrustOverride * suppliedPowerRatio / thrust.ThrustForce.Length();
-                        m_currentTorque += Vector3.Cross(thrust.COMOffsetVector, thrust.ThrustForce * thrust.CurrentStrength);
+                        m_currentTorque       += Vector3.Cross(thrust.COMOffsetVector, thrust.ThrustForce * thrust.CurrentStrength);
                     }
                     else if (IsUsed(thrust))
                     {

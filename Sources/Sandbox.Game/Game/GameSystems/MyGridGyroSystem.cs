@@ -47,6 +47,7 @@ namespace Sandbox.Game.GameSystems
 
         private Vector3 m_gyroControlIntegral;
         private Vector3 m_prevAngularVelocity;
+        private Vector3 m_AngularVelocityAtRelease;
         private bool    m_enableIntegral;
         private bool    m_resetIntegral;
 
@@ -70,7 +71,6 @@ namespace Sandbox.Game.GameSystems
         public Vector3 Torque { get; private set; }
 
         public bool    IsGyroOverrideActive { get; private set; }
-        public Vector3 LocalAngularVelocity { get;         set; }
 
         #endregion
 
@@ -123,27 +123,28 @@ namespace Sandbox.Game.GameSystems
                 // engines are stopped (set by cockpit).
                 if (PowerReceiver.SuppliedRatio > 0f && m_grid.Physics != null && m_grid.Physics.Enabled && !m_grid.Physics.RigidBody.IsFixed)
                 {
-                    Matrix invWorldRot = m_grid.PositionComp.GetWorldMatrixNormalizedInv().GetOrientation();
-                    Matrix worldRot = m_grid.WorldMatrix.GetOrientation();
+                    Matrix  invWorldRot          = m_grid.PositionComp.GetWorldMatrixNormalizedInv().GetOrientation();
+                    Matrix  worldRot             = m_grid.WorldMatrix.GetOrientation();
+                    Vector3 localAngularVelocity = m_grid.GridSystems.ThrustSystem.LocalAngularVelocity;
 
-                    m_gyroControlIntegral = m_enableIntegral ? (m_gyroControlIntegral + LocalAngularVelocity * I_COEFF) : Vector3.Zero;
-                    // To prevent integral part from fighting the player input, reenable it only after controls have been released
-                    // and angular velocity is sufficiently low.
-                    if (m_enableIntegral && m_resetIntegral && Vector3.Dot(LocalAngularVelocity, m_prevAngularVelocity) <= 0.0f)
+                    m_gyroControlIntegral = m_enableIntegral ? (m_gyroControlIntegral + localAngularVelocity * I_COEFF) : Vector3.Zero;
+                    // To prevent integral part from fighting the player input, force reset of integral portion 
+                    // when ship starts to spring back after releasing the controls.
+                    if (m_resetIntegral && Vector3.Dot(localAngularVelocity, m_AngularVelocityAtRelease) <= 0.0f)
                     {
                         m_resetIntegral       = false;
                         m_gyroControlIntegral = Vector3.Zero;
                     }
-                    var angularAcceleration = (LocalAngularVelocity - m_prevAngularVelocity) / MyEngineConstants.UPDATE_STEP_SIZE_IN_SECONDS;
+                    var angularAcceleration = (localAngularVelocity - m_prevAngularVelocity) / MyEngineConstants.UPDATE_STEP_SIZE_IN_SECONDS;
 
                     float slowdown = (1 - MAX_SLOWDOWN) * (1 - PowerReceiver.SuppliedRatio) + MAX_SLOWDOWN;
-                    var slowdownAngularAcceleration = P_COEFF * LocalAngularVelocity + m_gyroControlIntegral + D_COEFF * angularAcceleration;
+                    var slowdownAngularAcceleration = P_COEFF * localAngularVelocity + m_gyroControlIntegral + D_COEFF * angularAcceleration;
                     var invTensor = m_grid.Physics.RigidBody.InverseInertiaTensor;
                     invTensor.M44 = 1;
                     var minInvTensor = Math.Min(Math.Min(invTensor.M11, invTensor.M22), invTensor.M33);
                     var slowdownTorque = slowdownAngularAcceleration / new Vector3(invTensor.M11, invTensor.M22, invTensor.M33);
 
-                    m_prevAngularVelocity = LocalAngularVelocity;
+                    m_prevAngularVelocity = localAngularVelocity;
 
                     float torqueSlowdownMultiplier = m_grid.GridSizeEnum == MyCubeSize.Large ? MyFakes.SLOWDOWN_FACTOR_TORQUE_MULTIPLIER_LARGE_SHIP : MyFakes.SLOWDOWN_FACTOR_TORQUE_MULTIPLIER;
                     Vector3 slowdownClamp = new Vector3(m_maxGyroForce * torqueSlowdownMultiplier);
@@ -164,8 +165,16 @@ namespace Sandbox.Game.GameSystems
 
                     Torque = Vector3.Clamp(ControlTorque, -Vector3.One, Vector3.One) * m_maxGyroForce / divider;
                     Torque *= PowerReceiver.SuppliedRatio;
-                    m_enableIntegral = true;
-                    if (Torque.LengthSquared() > 0.0001f)
+                    if (Torque.LengthSquared() <= 0.0001f)
+                    {
+                        if (!m_enableIntegral && !m_resetIntegral)
+                        {
+                            m_AngularVelocityAtRelease = localAngularVelocity;
+                            m_resetIntegral            = true;
+                        }
+                        m_enableIntegral = true;
+                    }
+                    else
                     {
                         m_grid.Physics.AddForce(MyPhysicsForceType.ADD_BODY_FORCE_AND_BODY_TORQUE, null, null, Torque);
 
@@ -177,11 +186,7 @@ namespace Sandbox.Game.GameSystems
 
                         // Disable integral part when player activates the rotation controls.
                         m_enableIntegral = false;
-                        m_resetIntegral  = true;
                     }
-
-                    // Another clumsy hack, this one is necessary to prevent a ship from spinning out of control when player exits the cockpit.
-                    LocalAngularVelocity = Vector3.Transform(m_grid.Physics.AngularVelocity, ref invWorldRot);
 
                     const float stoppingVelocitySq = 0.0003f * 0.0003f;
                     if (ControlTorque == Vector3.Zero && m_grid.Physics.AngularVelocity != Vector3.Zero && m_grid.Physics.AngularVelocity.LengthSquared() < stoppingVelocitySq && m_grid.Physics.RigidBody.IsActive)
@@ -207,8 +212,8 @@ namespace Sandbox.Game.GameSystems
             }
 
             m_gyroControlIntegral = Vector3.Zero;
-            m_enableIntegral      = false;
-            m_resetIntegral       = IsGyroOverrideActive = true;
+            m_enableIntegral      = m_resetIntegral = false;
+            IsGyroOverrideActive  = true;
             if (MyDebugDrawSettings.DEBUG_DRAW_GYROS)
                 MyRenderProxy.DebugDrawText2D(new Vector2(0.0f, 0.0f), "New gyros", Color.White, 1.0f);
 

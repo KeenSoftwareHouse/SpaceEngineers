@@ -117,6 +117,8 @@ namespace Sandbox.Game.Entities
 
         public Vector3 GridCenterPos   { get; set; }
         public Vector3 COMOffsetVector { get; set; }
+        public Vector3 COTOffsetVector { get; set; }
+        public Vector3 StaticMoment    { get; set; }
         public float   PrevStrength    { get; set; }
 
         /// <summary>
