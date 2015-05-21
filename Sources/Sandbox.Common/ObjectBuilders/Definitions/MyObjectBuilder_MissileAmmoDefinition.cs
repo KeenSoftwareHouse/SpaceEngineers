@@ -16,30 +16,30 @@ namespace Sandbox.Common.ObjectBuilders.Definitions
         [ProtoContract]
         public class AmmoMissileProperties
         {
-            [ProtoMember(1)]
+            [ProtoMember]
             public float MissileMass;
 
-            [ProtoMember(2)]
+            [ProtoMember]
             public float MissileExplosionRadius;
 
-            [ProtoMember(3)]
+            [ProtoMember]
             [ModdableContentFile("mwm")]
             public string MissileModelName;
 
-            [ProtoMember(4)]
+            [ProtoMember]
             public float MissileAcceleration;
 
-            [ProtoMember(5)]
+            [ProtoMember]
             public float MissileInitialSpeed;
 
-            [ProtoMember(6)]
+            [ProtoMember]
             public bool MissileSkipAcceleration;
 
-            [ProtoMember(7)]
+            [ProtoMember]
             public float MissileExplosionDamage;
         }
 
-        [ProtoMember(1), DefaultValue(null)]
+        [ProtoMember, DefaultValue(null)]
         public AmmoMissileProperties MissileProperties;
     }
 }

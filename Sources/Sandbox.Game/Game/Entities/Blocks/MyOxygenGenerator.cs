@@ -13,7 +13,7 @@ using VRage;
 using VRageMath;
 using System.Text;
 using VRage.Utils;
-using Sandbox.ModAPI.Ingame;
+using Sandbox.ModAPI;
 using Sandbox.Common.ObjectBuilders.Definitions;
 using System;
 using Sandbox.Engine.Multiplayer;
@@ -310,8 +310,8 @@ namespace Sandbox.Game.Entities.Blocks
                 return 0;
             }
 
-            return (Enabled && IsFunctional) ? (m_isProducing) ? BlockDefinition.OperationalPowerConsumption
-                                                             : BlockDefinition.StandbyPowerConsumption
+            return (Enabled && IsFunctional) ? (m_isProducing) ? BlockDefinition.OperationalPowerConsumption * m_powerConsumptionMultiplier
+                                                             : BlockDefinition.StandbyPowerConsumption * m_powerConsumptionMultiplier
                                              : 0.0f;
         }
 
@@ -504,7 +504,7 @@ namespace Sandbox.Game.Entities.Blocks
                 return 0f;
             }
 
-            float productionCapacity = BlockDefinition.OxygenProductionPerSecond * deltaTime;
+            float productionCapacity = BlockDefinition.OxygenProductionPerSecond * m_productionCapacityMultiplier * deltaTime;
 
             if (MySession.Static.CreativeMode)
             {
@@ -584,6 +584,46 @@ namespace Sandbox.Game.Entities.Blocks
             }
         }
         #endregion
+
+        private float m_productionCapacityMultiplier = 1f;
+        float Sandbox.ModAPI.IMyOxygenGenerator.ProductionCapacityMultiplier
+        {
+            get
+            {
+                return m_productionCapacityMultiplier;
+            }
+            set
+            {
+                m_productionCapacityMultiplier = value;
+                if (m_productionCapacityMultiplier < 0.01f)
+                {
+                    m_productionCapacityMultiplier = 0.01f;
+                }
+            }
+        }
+
+        private float m_powerConsumptionMultiplier = 1f;
+        float Sandbox.ModAPI.IMyOxygenGenerator.PowerConsumptionMultiplier
+        {
+            get
+            {
+                return m_powerConsumptionMultiplier;
+            }
+            set
+            {
+                m_powerConsumptionMultiplier = value;
+                if (m_powerConsumptionMultiplier < 0.01f)
+                {
+                    m_powerConsumptionMultiplier = 0.01f;
+                }
+
+                if (PowerReceiver != null)
+                {
+                    PowerReceiver.MaxRequiredInput = BlockDefinition.OperationalPowerConsumption * m_powerConsumptionMultiplier;
+                    PowerReceiver.Update();
+                }
+            }
+        }
 
         #region Sync
         protected override MySyncEntity OnCreateSync()

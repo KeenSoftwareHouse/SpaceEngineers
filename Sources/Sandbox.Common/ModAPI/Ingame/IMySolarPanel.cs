@@ -5,7 +5,7 @@ using System.Text;
 
 namespace Sandbox.ModAPI.Ingame
 {
-    public interface IMySolarPanel : IMyTerminalBlock
+    public interface IMySolarPanel : IMyTerminalBlock, IMyPowerProducer
     {
     }
 }

@@ -14,13 +14,13 @@ namespace Medieval.ObjectBuilders.Definitions
     [MyObjectBuilderDefinition]
     public class MyObjectBuilder_MechanicalSourceBlockDefinition : MyObjectBuilder_CubeBlockDefinition
     {
-        [ProtoMember(1), DefaultValue(10)]
+        [ProtoMember, DefaultValue(10)]
         public float AngularImpulse = 10f;
 
-        [ProtoMember(2), DefaultValue(null)]
+        [ProtoMember, DefaultValue(null)]
         public string AngularImpulseSubBockName = null;
 
-        [ProtoMember(3), DefaultValue(0)]
+        [ProtoMember, DefaultValue(0)]
         public float AngularVelocityLimit = 0;
 
     }

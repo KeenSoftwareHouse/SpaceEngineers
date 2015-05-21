@@ -11,7 +11,7 @@ namespace Sandbox.Common.ObjectBuilders
     [MyObjectBuilderDefinition]
     public class MyObjectBuilder_LastLoadedTimes : MyObjectBuilder_Base
     {
-        [ProtoMember(1)]
+        [ProtoMember]
         public SerializableDictionary<string, DateTime> LastLoaded;
     }
 }

@@ -12,19 +12,19 @@ namespace Sandbox.Common.ObjectBuilders.Definitions
     [MyObjectBuilderDefinition]
     public class MyObjectBuilder_PhysicalMaterialDefinition : MyObjectBuilder_DefinitionBase
     {
-        [ProtoMember(1)]
+        [ProtoMember]
         public float Density = 32000;
 
-        [ProtoMember(2)]
+        [ProtoMember]
         public float HorisontalTransmissionMultiplier = 1;
 
-        [ProtoMember(3)]
+        [ProtoMember]
         public float HorisontalFragility = 1;
 
-        [ProtoMember(4)]
+        [ProtoMember]
         public float SupportMultiplier = 1;
 
-        [ProtoMember(5)]
+        [ProtoMember]
         public float CollisionMultiplier = 1;
     }
 }

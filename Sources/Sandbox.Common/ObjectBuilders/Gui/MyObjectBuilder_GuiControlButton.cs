@@ -32,25 +32,25 @@ namespace Sandbox.Common.ObjectBuilders.Gui
     [MyObjectBuilderDefinition]
     public class MyObjectBuilder_GuiControlButton : MyObjectBuilder_GuiControlBase
     {
-        [ProtoMember(1)]
+        [ProtoMember]
         public string Text;
 
-        [ProtoMember(2)]
+        [ProtoMember]
         public string TextEnum;
 
-        [ProtoMember(5)]
+        [ProtoMember]
         public float TextScale;
 
-        [ProtoMember(6)]
+        [ProtoMember]
         public int TextAlignment;
 
-        [ProtoMember(7)]
+        [ProtoMember]
         public bool DrawCrossTextureWhenDisabled;
 
-        [ProtoMember(10)]
+        [ProtoMember]
         public bool DrawRedTextureWhenDisabled;
 
-        [ProtoMember(12)]
+        [ProtoMember]
         public MyGuiControlButtonStyleEnum VisualStyle;
 
     }

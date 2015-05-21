@@ -187,6 +187,11 @@ namespace Sandbox.Game.Entities
             return MyVoxelRangeType.MIXED;
         }
 
+        public virtual bool IsOverlapOverThreshold(BoundingBoxD worldAabb, float thresholdPercentage = 0.9f)
+        {
+            return false;
+        }
+
         virtual public MyClipmapScaleEnum ScaleGroup
         {
             get

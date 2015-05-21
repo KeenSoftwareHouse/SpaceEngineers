@@ -11,7 +11,7 @@ namespace Sandbox.Common.ObjectBuilders.Definitions
     public class BlueprintItem
     {
         [XmlIgnore]
-        [ProtoMember(1)]
+        [ProtoMember]
         public SerializableDefinitionId Id;
 
         [XmlAttribute]
@@ -33,7 +33,7 @@ namespace Sandbox.Common.ObjectBuilders.Definitions
         /// pieces. For ingots and ore, this refers to volume in m^3.
         /// </summary>
         [XmlAttribute]
-        [ProtoMember(2)]
+        [ProtoMember]
         public string Amount;
     }
 }

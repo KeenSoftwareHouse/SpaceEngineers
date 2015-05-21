@@ -22,6 +22,7 @@ namespace Sandbox.Game.AI
         void Reset();
 
         bool IsValidForUpdate { get; }
+        bool CreatedByPlayer { get; }
 
         MyObjectBuilder_Bot GetBotData();
 

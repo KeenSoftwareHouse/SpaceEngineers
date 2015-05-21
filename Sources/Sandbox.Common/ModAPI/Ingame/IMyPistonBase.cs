@@ -13,5 +13,15 @@ namespace Sandbox.ModAPI.Ingame
         float Velocity { get; }
         float MinLimit { get; }
         float MaxLimit { get; }
+
+        /// <summary>
+        /// Gets the current position of the piston head relative to the base.
+        /// </summary>
+        float CurrentPosition { get; }
+
+        /// <summary>
+        /// Gets the current status.
+        /// </summary>
+        PistonStatus Status { get; }
     }
 }

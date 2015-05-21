@@ -11,13 +11,13 @@ namespace Sandbox.Common.ObjectBuilders
     [MyObjectBuilderDefinition]
     public class MyObjectBuilder_World : MyObjectBuilder_Base
     {
-        [ProtoMember(1)]
+        [ProtoMember]
         public MyObjectBuilder_Checkpoint Checkpoint;
 
-        [ProtoMember(2)]
+        [ProtoMember]
         public MyObjectBuilder_Sector Sector;
 
-        [ProtoMember(3)]
+        [ProtoMember]
         public SerializableDictionary<string, byte[]> VoxelMaps;
     }
 }

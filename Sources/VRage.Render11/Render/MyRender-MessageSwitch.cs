@@ -181,14 +181,9 @@ namespace VRageRender
                     {
                         if(rMessage.ColorMaskHSV.HasValue)
                         {
-                            actor.GetRenderable().SetKeyColor(new Vector4(ColorFromMask(rMessage.ColorMaskHSV.Value), 1));
+                            actor.GetRenderable().SetKeyColor(new Vector4(ColorFromMask(rMessage.ColorMaskHSV.Value), 0));
                         }
                         actor.GetRenderable().SetDithering(rMessage.Dithering);
-
-                        if(rMessage.Dithering < 0)
-                        {
-
-                        }
                     }
 
                     break;
@@ -269,6 +264,25 @@ namespace VRageRender
                     break;
                 }
 
+                case MyRenderMessageEnum.CreateScreenDecal:
+                {
+                    var rMessage = (MyRenderMessageCreateScreenDecal)message;
+
+                    //rMessage.ParentID
+                    MyScreenDecals.AddDecal(rMessage.ID, rMessage.ParentID, rMessage.LocalOBB);
+
+                    break;
+                }
+
+                case MyRenderMessageEnum.RemoveDecal:
+                {
+                    var rMessage = (MyRenderMessageRemoveDecal)message;
+
+                    MyScreenDecals.RemoveDecal(rMessage.ID);
+
+                    break;
+                }
+
                 case MyRenderMessageEnum.UpdateRenderObject:
                 { 
                     var rMessage = (MyRenderMessageUpdateRenderObject)message;
@@ -312,6 +326,7 @@ namespace VRageRender
                         }
 
                         actor.Destruct();
+                        MyScreenDecals.RemoveEntityDecals(rMessage.ID);
                     }
 
                     var instancing = MyInstancing.Get(rMessage.ID);
@@ -457,7 +472,7 @@ namespace VRageRender
                     actor.SetID(rMessage.ID);
                     actor.SetMatrix(ref Matrix.Identity);
 
-                    MyMeshMaterials1.GetMaterialId("__ROPE_MATERIAL", null, "Textures/rope_cm.dds", "Textures/rope_ng.dds", "Textures/rope_add.dds", MyMesh.DEFAULT_MESH_TECHNIQUE);
+                    MyMeshMaterials1.GetMaterialId("__ROPE_MATERIAL", null, rMessage.ColorMetalTexture, rMessage.NormalGlossTexture, rMessage.ExtensionTexture, MyMesh.DEFAULT_MESH_TECHNIQUE);
                     actor.GetRenderable().SetModel(MyMeshes.CreateRuntimeMesh(X.TEXT("LINE" + rMessage.ID), 1, true));
 
                     break;
@@ -632,12 +647,55 @@ namespace VRageRender
                         {
                             r.ModelProperties[key] = new MyModelProperties();
                         }
-                        r.ModelProperties[key].TextureSwap = new MyMaterialTextureSwap { TextureName = X.TEXT(rMessage.TextureName) };
+
+                        if (r.ModelProperties[key].TextureSwaps == null)
+                        {
+                            r.ModelProperties[key].TextureSwaps = new List<MyMaterialTextureSwap>();
+
+                            foreach(var s in rMessage.Changes)
+                            {
+                                r.ModelProperties[key].TextureSwaps.Add(new MyMaterialTextureSwap { 
+                                    TextureName = X.TEXT(s.TextureName), 
+                                    MaterialSlot = s.MaterialSlot
+                                });
+                            }
+                        }
+                        else
+                        {
+                            foreach (var s in rMessage.Changes)
+                            {
+                                bool swapped = false;
+                                for(int i=0; i<r.ModelProperties[key].TextureSwaps.Count; ++i)
+                                {
+                                    if(r.ModelProperties[key].TextureSwaps[i].MaterialSlot == s.MaterialSlot)
+                                    {
+                                        r.ModelProperties[key].TextureSwaps[i] = new MyMaterialTextureSwap
+                                        {
+                                            TextureName = X.TEXT(s.TextureName),
+                                            MaterialSlot = s.MaterialSlot
+                                        };
+                                        swapped = true;
+                                        break;
+                                    }
+                                }
+
+                                if(!swapped)
+                                {
+                                    r.ModelProperties[key].TextureSwaps.Add(new MyMaterialTextureSwap
+                                        {
+                                            TextureName = X.TEXT(s.TextureName),
+                                            MaterialSlot = s.MaterialSlot
+                                        });
+                                }
+                            }
+                        }
 
                         r.FreeCustomRenderTextures(key);
 
                         actor.MarkRenderDirty();
                     }
+
+                    rMessage.Changes.Clear();
                    
                     break;
                 }
@@ -664,7 +722,7 @@ namespace VRageRender
                         }
                         else
                         {
-                            r.ModelProperties[key].TextureSwap = null;
+                            r.ModelProperties[key].TextureSwaps = null;
                         }
 
                         RwTexId handle = r.ModelProperties[key].CustomRenderedTexture;

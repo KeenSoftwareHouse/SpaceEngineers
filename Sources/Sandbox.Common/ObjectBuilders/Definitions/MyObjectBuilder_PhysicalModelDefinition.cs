@@ -11,14 +11,14 @@ namespace Sandbox.Common.ObjectBuilders.Definitions
     [MyObjectBuilderDefinition]
     public class MyObjectBuilder_PhysicalModelDefinition : MyObjectBuilder_DefinitionBase
     {
-        [ProtoMember(1)]
+        [ProtoMember]
         [ModdableContentFile("mwm")]
         public string Model;
 
-        [ProtoMember(2)]
+        [ProtoMember]
         public string PhysicalMaterial;
 
-        [ProtoMember(3)]
+        [ProtoMember]
         public float Mass;
     }
 }

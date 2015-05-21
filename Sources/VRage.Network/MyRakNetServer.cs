@@ -40,7 +40,7 @@ namespace VRage.Network
             AddIgnoredMessage(MessageIDEnum.NEW_INCOMING_CONNECTION);
 
             AddMessageHandler(MessageIDEnum.CLIENT_DATA, ClientData);
-            AddMessageHandler(MessageIDEnum.REQUEST_WORLD, RequestWorld);
+            AddMessageHandler(MessageIDEnum.STATE_DATA_REQUEST, StateDataRequest);
             AddMessageHandler(MessageIDEnum.CLIENT_READY, ClientReady);
             AddMessageHandler(MessageIDEnum.DISCONNECTION_NOTIFICATION, DisconnectionNotification);
         }
@@ -71,12 +71,15 @@ namespace VRage.Network
                 handler(steamID);
         }
 
-        private void RequestWorld(Packet packet)
+        private void StateDataRequest(Packet packet)
         {
             ulong steamID = m_GUIDToSteamID[packet.GUID.G];
 
             BitStream bs = new BitStream(null);
-            bs.Write((byte)MessageIDEnum.WORLD_DATA);
+            bs.Write((byte)MessageIDEnum.STATE_DATA);
+
+            MyRakNetSyncLayer.Static.SerializeStateData(steamID, bs);
+
             var handler = OnRequestWorld;
             if (handler != null)
                 handler(steamID, bs);

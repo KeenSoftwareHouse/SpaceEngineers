@@ -19,6 +19,34 @@ namespace Sandbox.Game.AI.Actions
 
         }
 
+		public void Init_AimAtTarget()
+		{
+			if (AiTargetBase.HasTarget())
+			{
+				AiTargetBase.AimAtTarget();
+			}
+		}
+
+		public MyBehaviorTreeState AimAtTarget(float rotationAngle = 2)
+		{
+			if (!AiTargetBase.HasTarget())
+				return MyBehaviorTreeState.FAILURE;
+
+			if (Bot.Navigation.HasRotation(MathHelper.ToRadians(rotationAngle)))
+			{
+				return MyBehaviorTreeState.RUNNING;
+			}
+			else
+			{
+				return MyBehaviorTreeState.SUCCESS;
+			}
+		}
+
+		public void Post_AimAtTarget()
+		{
+			Bot.Navigation.ResetAiming(false);
+		}
+
         public void Init_GotoAndAimTarget()
         {
             if (AiTargetBase.HasTarget())

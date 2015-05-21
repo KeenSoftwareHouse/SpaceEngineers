@@ -142,7 +142,6 @@ namespace VRage.Network
 
         public event Action<ulong, string> OnChatMessage;
         public event Action<ulong> OnConnectionLost;
-        public event Action<byte[], uint, ulong> OnSteamHackMessage;
         public event Action<ulong> OnClientJoined;
         public event Action<ulong> OnClientLeft;
 
@@ -170,7 +169,6 @@ namespace VRage.Network
         {
             AddMessageHandler(MessageIDEnum.CHAT_MESSAGE, ChatMessage);
             AddMessageHandler(MessageIDEnum.CONNECTION_LOST, ConnectionLost);
-            AddMessageHandler(MessageIDEnum.STEAMHACK, SteamHack);
 
             AddMessageHandler(MessageIDEnum.SYNC_FIELD, SyncField);
             AddMessageHandler(MessageIDEnum.REPLICATION_CREATE, ReplicationCreate);
@@ -193,19 +191,6 @@ namespace VRage.Network
         {
             Debug.Assert(MyRakNetSyncLayer.Static != null);
             MyRakNetSyncLayer.Static.ProcessSync(packet.Data);
-        }
-
-        private void SteamHack(Packet packet)
-        {
-            Debug.Assert(packet.Length >= 2, "Missing steam messageID");
-            byte[] data = new byte[packet.Length - 1];
-            bool success = packet.Data.Read(data, packet.Length - 1);
-            Debug.Assert(success, "Failed to read steam data");
-            Debug.Assert(data[0] != 0 || data[1] != 0, "Invalid steam messageID");
-
-            var handler = OnSteamHackMessage;
-            if (handler != null)
-                handler(data, packet.Length - 1, GUIDToSteamID(packet.GUID.G));
         }
 
         protected abstract void ChatMessage(Packet packet);

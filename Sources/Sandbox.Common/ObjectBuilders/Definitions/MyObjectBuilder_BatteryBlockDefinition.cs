@@ -13,10 +13,10 @@ namespace Sandbox.Common.ObjectBuilders.Definitions
     [MyObjectBuilderDefinition]
     public class MyObjectBuilder_BatteryBlockDefinition : MyObjectBuilder_PowerProducerDefinition
     {
-        [ProtoMember(1)]
+        [ProtoMember]
         public float MaxStoredPower;
 
-        [ProtoMember(2)]
+        [ProtoMember]
         public float RequiredPowerInput;
     }
 }

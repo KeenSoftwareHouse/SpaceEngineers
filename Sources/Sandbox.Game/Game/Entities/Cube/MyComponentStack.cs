@@ -512,7 +512,7 @@ namespace Sandbox.Game.Entities
 
             // Continue removing components, until the to be removed component's health is larger than unmountAmount
             MyObjectBuilder_Component componentBuilder = null;
-            MyObjectBuilder_Ingot scrapBuilder = Sandbox.Common.ObjectBuilders.Serializer.MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_Ingot>("Scrap");
+            var scrapBuilder = MyFloatingObject.ScrapBuilder;
             while (unmountAmount >= topIntegrity)
             {
                 m_integrity -= topIntegrity;
