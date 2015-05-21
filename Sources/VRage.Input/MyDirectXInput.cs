@@ -18,7 +18,6 @@ using VRage.Utils;
 using VRage.Win32;
 using VRageMath;
 
-
 #endregion
 
 
@@ -37,7 +36,7 @@ namespace VRage.Input
         }
     }
 
-    public class MyDirectXInput : IMyInput
+    public partial class MyDirectXInput : IMyInput
     {
         [DllImport("user32.dll")]
         static extern IntPtr GetForegroundWindow();
@@ -900,6 +899,12 @@ namespace VRage.Input
         public bool IsKeyPress(MyKeys key)
         {
             return m_keyboardState.IsKeyDown(key);
+        }
+
+        //  Return true if the key was pressed in the previous update, doesn't care for the current update.
+        public bool WasKeyPressed(MyKeys key)
+        {
+            return m_keyboardState.IsPreviousKeyDown(key);
         }
 
         //  Return true if new key was pressed, that means this key was pressed now. During previous Update it wasn't pressed at all.
@@ -1990,6 +1995,17 @@ namespace VRage.Input
             MyControl control;
             if (m_gameControlsList.TryGetValue(controlId, out control))
                 return control.IsPressed();
+            else
+                return false;
+        }
+
+        // Check if an assigned control for game was pressed in the last update.
+        public bool WasGameControlPressed(MyStringId controlId)
+        {
+            //  If you are trying to set a control that does not exist do nothing.
+            MyControl control;
+            if (m_gameControlsList.TryGetValue(controlId, out control))
+                return control.WasPressed();
             else
                 return false;
         }

@@ -107,6 +107,7 @@
     <Compile Include="Fractures\WoodFractureSettings.cs" />
     <Compile Include="Import\ModelAutoRebuild.cs" />
     <Compile Include="Import\MyModelExporter.cs" />
+    <Compile Include="Input\MyJoystickDPadEnum.cs" />
     <Compile Include="Input\IMyControlNameLookup.cs" />
     <Compile Include="Input\IMyInput.cs" />
     <Compile Include="Input\MyControl.cs" />
@@ -398,6 +399,9 @@
       <Project>{40CE67D5-C89F-4A56-AE52-85DB1BEA07FE}</Project>
       <Name>VRage.Math</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <WCFMetadata Include="Service References\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
