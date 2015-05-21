@@ -432,7 +432,7 @@ namespace Sandbox.Game.World.Generator
                 { // generating materials
                     // What to do when we (or mods) change the number of materials? Same seed will then produce different results.
 
-                    float depositCountMult = 1;
+                    float depositSizeMult = 1;
                     if (version >= 3)
                     {
                         string surfaceMaterial = "Stone";
@@ -480,7 +480,7 @@ namespace Sandbox.Game.World.Generator
                                 lightOreFrequency = 1;
                                 mediumOreFrequency = 1;
                                 heavyOreFrequency = 2;
-                                depositCountMult = 2;
+                                depositSizeMult = 1.25f;
                                 break;
 
                             // Kuiper belt object.
@@ -601,10 +601,10 @@ namespace Sandbox.Game.World.Generator
                     }
                     else
                     {
-                        int depositCount = Math.Max((int)(Math.Log(size) * depositCountMult), data.FilledShapes.Length);
+                        int depositCount = Math.Max((int)Math.Log(size), data.FilledShapes.Length);
                         data.Deposits = new MyCompositeShapeOreDeposit[depositCount];
 
-                        var depositSize = size / 10f;
+                        var depositSize = size * depositSizeMult / 10f;
 
                         int currentMaterial = 0;
                         int depositIndex = 0;

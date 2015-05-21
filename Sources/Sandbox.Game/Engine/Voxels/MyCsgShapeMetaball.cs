@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Drawing.Printing;
 using System.Linq;
 using System.Text;
 using VRage.Noise;
@@ -10,6 +11,8 @@ namespace Sandbox.Engine.Voxels
 {
     class MyCsgShapeMetaball : MyCsgShapeBase
     {
+        private const float SHRINK_FACTOR = 2;
+
         private Vector3 m_translation;
         private Vector3[] m_balls;
         private float[] m_weights;
@@ -37,16 +40,38 @@ namespace Sandbox.Engine.Voxels
 
         internal override ContainmentType Contains(ref BoundingBox queryAabb, ref BoundingSphere querySphere, float lodVoxelSize)
         {
+            double minSum = 0;
+            double maxSum = 0;
+            Vector3 localPosition = querySphere.Center - m_translation;
             for (int i = 0; i < m_balls.Length; i++)
             {
-                ContainmentType outerContainment;
-                BoundingSphere sphere = new BoundingSphere(m_translation + m_balls[i], m_radius * m_balls.Length + m_halfDeviation + m_detailSize + lodVoxelSize);
-                sphere.Contains(ref queryAabb, out outerContainment);
-                if (outerContainment != ContainmentType.Disjoint)
-                    return ContainmentType.Intersects;
+                var distance = (localPosition - m_balls[i]).Length();
+                double closeDistance = Math.Max(distance - querySphere.Radius, 0.0001);
+                double farDistance = distance + querySphere.Radius;
+                var weight = m_weights[i];
+                if (weight > 0)
+                {
+                    minSum += weight / (farDistance * farDistance);
+                    maxSum += weight / (closeDistance * closeDistance);
+                }
+                else
+                {
+                    minSum += weight / (closeDistance * closeDistance);
+                    maxSum += weight / (farDistance * farDistance);
+                }
             }
 
-            return ContainmentType.Disjoint;
+            if (minSum < 0)
+                minSum = 0.0001;
+
+            float minDistance = (float) Math.Sqrt(1 / maxSum) * SHRINK_FACTOR;
+            float maxDistance = (float) Math.Sqrt(1 / minSum) * SHRINK_FACTOR;
+
+            if (minDistance > m_outerRadius + lodVoxelSize)
+                return ContainmentType.Disjoint;
+            if (maxDistance < m_innerRadius - lodVoxelSize)
+                return ContainmentType.Contains;
+            return ContainmentType.Intersects;
         }
 
         internal override float SignedDistance(ref Vector3 position, float lodVoxelSize, IMyModule macroModulator, IMyModule detailModulator)
@@ -59,8 +84,10 @@ namespace Sandbox.Engine.Voxels
                 double distSquared = (localPosition - m_balls[i]).LengthSquared();
                 sum += m_weights[i] / distSquared;
             }
+            if (sum < 0)
+                return 1f;
 
-            float distance = (float)Math.Sqrt(1 / sum) * 2;
+            float distance = (float)Math.Sqrt(1 / sum) * SHRINK_FACTOR;
             if ((m_innerRadius - lodVoxelSize) > distance)
                 return -1f;
             if ((m_outerRadius + lodVoxelSize) < distance)
@@ -70,8 +97,7 @@ namespace Sandbox.Engine.Voxels
             if (m_enableModulation)
             {
                 Debug.Assert(m_deviationFrequency != 0f);
-                float normalizer = m_deviationFrequency * m_radius / distance;
-                var tmp = localPosition * normalizer;
+                var tmp = localPosition * m_deviationFrequency;
                 halfDeviationRatio = (float)macroModulator.GetValue(tmp.X, tmp.Y, tmp.Z);
             }
             else
@@ -83,8 +109,7 @@ namespace Sandbox.Engine.Voxels
             if (m_enableModulation && -m_detailSize < signedDistance && signedDistance < m_detailSize)
             {
                 Debug.Assert(m_detailFrequency != 0f);
-                float normalizer = m_detailFrequency * m_radius / distance;
-                var tmp = localPosition * normalizer;
+                var tmp = localPosition * m_detailFrequency;
                 signedDistance += m_detailSize * (float)detailModulator.GetValue(tmp.X, tmp.Y, tmp.Z);
             }
 
