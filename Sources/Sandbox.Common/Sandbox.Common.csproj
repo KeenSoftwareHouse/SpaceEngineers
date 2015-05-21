@@ -123,6 +123,7 @@
     <Compile Include="Components\MySessionComponentMapping.cs" />
     <Compile Include="ModAPI\IMyCamera.cs" />
     <Compile Include="ModAPI\IMyConfig.cs" />
+    <Compile Include="ModAPI\IMyControl.cs" />
     <Compile Include="ModAPI\IMyGps.cs" />
     <Compile Include="ModAPI\IMyGpsCollection.cs" />
     <Compile Include="ModAPI\IMyGridProgram.cs" />
@@ -164,6 +165,7 @@
     <Compile Include="ModAPI\IMyTerminalBlock.cs" />
     <Compile Include="ModAPI\IMyThrust.cs" />
     <Compile Include="ModAPI\IMyVirtualMass.cs" />
+    <Compile Include="ModAPI\IMyUserInput.cs" />
     <Compile Include="ModAPI\IMyVoxelBase.cs" />
     <Compile Include="ModAPI\IMyVoxelShape.cs" />
     <Compile Include="ModAPI\IMyVoxelShapeBox.cs" />
@@ -271,6 +273,8 @@
     <Compile Include="Models\MyIntersectionResultLineTriangle.cs" />
     <Compile Include="Models\MyMesh.cs" />
     <Compile Include="Models\MyMeshMaterial.cs" />
+    <Compile Include="MyAbstractXmlSerializer.cs" />
+    <Compile Include="MyControlWrapper.cs" />
     <Compile Include="MyDefinitionErrors.cs" />
     <Compile Include="MyEngineConstants.cs" />
     <Compile Include="MyEnums.cs" />
