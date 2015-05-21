@@ -10108,5 +10108,10 @@ namespace Sandbox.Game.Localization
         ///Old Scrap Metal
         ///</summary>
         public static readonly MyStringId DisplayName_Item_ScrapIngot = MyStringId.GetOrCompute("DisplayName_Item_ScrapIngot");
+
+        ///<summary>
+        ///Enable inventory mass
+        ///</summary>
+        public static readonly MyStringId WorldSettings_InventoryMass = MyStringId.GetOrCompute("WorldSettings_InventoryMass");
     }
 }
