@@ -158,11 +158,13 @@ namespace Sandbox.Game.Entities.Cube
             showShipName.EnableAction();
             MyTerminalControlFactory.AddControl(showShipName);
 
-            //unfinished
             var enableListen = new MyTerminalControlCheckbox<MyRadioAntenna>("EnableListen", MySpaceTexts.Antenna_EnableListen, MySpaceTexts.Antenna_EnableListen);
             enableListen.Getter = (x) => x.Listen;
             enableListen.Setter = (x, v) => x.Listen = v;
             MyTerminalControlFactory.AddControl(enableListen);
+
+            var showReceivedMessages = new MyTerminalControlButton<MyRadioAntenna>("ShowReceivedMessages", MySpaceTexts.Antenna_DisplayReceivedMessages, MySpaceTexts.Antenna_DisplayReceivedMessagesTooltipp, (b) => b.OpenReceivedMessagesDisplay() );
+            MyTerminalControlFactory.AddControl(showReceivedMessages);
         }
 
         public MyRadioAntenna()
@@ -359,9 +361,6 @@ namespace Sandbox.Game.Entities.Cube
             DetailedInfo.AppendStringBuilder(MyTexts.Get(MySpaceTexts.BlockPropertyProperties_CurrentInput));
             MyValueFormatter.AppendWorkInBestUnit(PowerReceiver.IsPowered ? PowerReceiver.RequiredInput : 0, DetailedInfo);
 
-            DetailedInfo.Append("\n\n");
-            DetailedInfo.Append(LastReceivedMessage);
-
             RaisePropertiesChanged();
         }
 
@@ -373,12 +372,36 @@ namespace Sandbox.Game.Entities.Cube
         //mine
         public void ReceiveMessage(string shipsender, string shipreceiver, string pbreceiver, string message)
         {
-            LastReceivedMessage = "Last Message: " + shipsender + " to " + pbreceiver + " on " + shipreceiver + ": " + message;
-            UpdateText();
+            //LastReceivedMessage = shipsender + " to " + pbreceiver + " on " + shipreceiver + ": " + message;
+
+            //Change to string builder, make sure that only one antenna per ship is listening, global storage for messenges?
         }
 
-        public void SendMessage(string shipreceiver, string pbreceiver, string message)
+        public bool SendMessage(string shipreceiver, string pbreceiver, string message)
         {
+            
+            if (m_sendMessageTimestamp == 0)
+            {
+                //First message sent.
+                m_sendMessageTimestamp = Stopwatch.GetTimestamp();
+            }
+            else
+            {
+                var elapsedTime = (Stopwatch.GetTimestamp() - m_sendMessageTimestamp) * Sync.RelativeSimulationRatio;
+                elapsedTime *= STOPWATCH_FREQUENCY;
+
+                if (elapsedTime >= SEND_MESSAGES_COOLDOWN)
+                {
+                    //We waited long enough, allow the send. And set the timestamp
+                    m_sendMessageTimestamp = Stopwatch.GetTimestamp();
+                }
+                else
+                {
+                    //We haven't yet waited long enough. Don't send the message.
+                    return false;
+                }
+            }
+
             foreach (var broadcaster in RadioReceiver.RelayedBroadcasters)
             {
                 if (broadcaster.Parent is MyRadioAntenna)
@@ -407,14 +430,52 @@ namespace Sandbox.Game.Entities.Cube
                     }
                 }
             }
+
+            return true;
         }
 
-        private string m_lastReceivedMessage = string.Empty;
-        public string LastReceivedMessage
+        public void OpenReceivedMessagesDisplay() 
         {
-            get { return m_lastReceivedMessage; }
-            private set { m_lastReceivedMessage = value; }
+            /*var missionScreen = new MyGuiScreenMission(missionTitle: "Received Messages",
+                    currentObjectivePrefix: "",
+                    currentObjective: "",
+                    description: null,
+                    resultCallback: null,
+                    okButtonCaption: "Close");
+
+            missionScreen.AppendTextToDescription("LastReceivedMessage", Common.MyFontEnum.White, 0.8f);*/
+
+            var m_textBox = new MyGuiScreenTextPanel(missionTitle: "Received Messages",
+                           currentObjectivePrefix: "",
+                           currentObjective: "",
+                           description: "Blaaa",
+                           editable: false,
+                           resultCallback: null);
+
+            MyScreenManager.AddScreen(m_textBox);
         }
+
+        /// <summary>
+        /// This method makes sure that only one antenna per ship has the listen attribute enabled.
+        /// </summary>
+        /// <param name="radio">The radio antenna which was just enabled.</param>
+        private void AssertOnlyOneListener(MyRadioAntenna radio)
+        {
+            var gridGroup = MyCubeGridGroups.Static.Logical.GetGroup(radio.CubeGrid);
+            var terminalGrid = (IMyGridTerminalSystem)gridGroup.GroupData.TerminalSystem;
+
+            var blocks = terminalGrid.Blocks;
+            foreach (var block in blocks)
+            {
+                if (block is MyRadioAntenna && block != radio)
+                    ((MyRadioAntenna)block).Listen = false;
+            }
+        }
+
+        private const float SEND_MESSAGES_COOLDOWN = 0.75f;
+        private static readonly float STOPWATCH_FREQUENCY = 1.0f / Stopwatch.Frequency;
+
+        private long m_sendMessageTimestamp = 0;
 
         private bool m_Listen = false;
         public bool Listen
@@ -425,6 +486,7 @@ namespace Sandbox.Game.Entities.Cube
                 if (m_Listen != value)
                 {
                     m_Listen = value;
+                    AssertOnlyOneListener(this);
                     RaisePropertiesChanged();
                 }
             }

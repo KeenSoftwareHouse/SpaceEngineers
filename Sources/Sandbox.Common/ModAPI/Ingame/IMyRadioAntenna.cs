@@ -25,7 +25,6 @@ namespace Sandbox.ModAPI.Ingame
         /// </summary>
         bool IsBroadcasting { get; }
 
-        string LastReceivedMessage { get; }
-        void SendMessage(string shipreceiver, string pbreceiver, string message);
+        bool SendMessage(string shipreceiver, string pbreceiver, string message);
 	}
 }

@@ -10079,6 +10079,7 @@ namespace Sandbox.Game.Localization
         ///</summary>
         public static readonly MyStringId Antenna_EnableListen = MyStringId.GetOrCompute("Antenna_EnableListen");
 
+        ///<summary>
         ///Access control menu to open inventory of {0}
         ///</summary>
         public static readonly MyStringId NotificationHintJoystickPressToOpenInventory = MyStringId.GetOrCompute("NotificationHintJoystickPressToOpenInventory");
@@ -10112,5 +10113,15 @@ namespace Sandbox.Game.Localization
         ///Old Scrap Metal
         ///</summary>
         public static readonly MyStringId DisplayName_Item_ScrapIngot = MyStringId.GetOrCompute("DisplayName_Item_ScrapIngot");
+
+        ///<summary>
+        ///Received Messages
+        ///</summary>
+        public static readonly MyStringId Antenna_DisplayReceivedMessages = MyStringId.GetOrCompute("Antenna_DisplayReceivedMessages");
+
+        ///<summary>
+        ///Displays the received messages
+        ///</summary>
+        public static readonly MyStringId Antenna_DisplayReceivedMessagesTooltipp = MyStringId.GetOrCompute("Antenna_DisplayReceivedMessagesTooltipp");
     }
 }

@@ -6267,4 +6267,10 @@ To connect to lasers not listed here you can connect to coordinates.</value>
   <data name="DisplayName_Item_ScrapIngot" xml:space="preserve">
     <value>Old Scrap Metal</value>
   </data>
+  <data name="Antenna_DisplayReceivedMessages" xml:space="preserve">
+    <value>Received Messages</value>
+  </data>
+  <data name="Antenna_DisplayReceivedMessagesTooltipp" xml:space="preserve">
+    <value>Displays the received messages</value>
+  </data>
 </root>
