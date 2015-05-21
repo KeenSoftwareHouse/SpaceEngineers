@@ -6160,6 +6160,16 @@ namespace Sandbox.Game.Localization
         public static readonly MyStringId BlockPropertyTitle_Motor_Power = MyStringId.GetOrCompute("BlockPropertyTitle_Motor_Power");
 
         ///<summary>
+        ///Axle height offset from center
+        ///</summary>
+        public static readonly MyStringId BlockPropertyDescription_Motor_Height = MyStringId.GetOrCompute("BlockPropertyDescription_Motor_Height");
+
+        ///<summary>
+        ///Height Offset
+        ///</summary>
+        public static readonly MyStringId BlockPropertyTitle_Motor_Height = MyStringId.GetOrCompute("BlockPropertyTitle_Motor_Height");
+
+        ///<summary>
         ///Centered Window
         ///</summary>
         public static readonly MyStringId DisplayName_Block_VerticalCen = MyStringId.GetOrCompute("DisplayName_Block_VerticalCen");
