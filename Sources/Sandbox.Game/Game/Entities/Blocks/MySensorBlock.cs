@@ -678,7 +678,17 @@ namespace Sandbox.Game.Entities.Blocks
         protected float CalculateRequiredPowerInput()
         {
             if (Enabled && IsFunctional)
-                return 0.0003f * (float)Math.Pow((m_fieldMax - m_fieldMin).Volume, 1f / 3f);
+            {
+                float sensorVolume = (m_fieldMax - m_fieldMin).Volume;
+                float factor = (((float)Math.Floor(Math.Abs(m_fieldMax.X) / 50f + 0.5f) * 0.5f) / 10000f) +
+                               (((float)Math.Floor(Math.Abs(m_fieldMax.Y) / 50f + 0.5f) * 0.5f) / 10000f) +
+                               (((float)Math.Floor(Math.Abs(m_fieldMax.Z) / 50f + 0.5f) * 0.5f) / 10000f) +
+                               (((float)Math.Floor(Math.Abs(m_fieldMin.X) / 50f + 0.5f) * 0.5f) / 10000f) +
+                               (((float)Math.Floor(Math.Abs(m_fieldMin.Y) / 50f + 0.5f) * 0.5f) / 10000f) +
+                               (((float)Math.Floor(Math.Abs(m_fieldMin.Z) / 50f + 0.5f) * 0.5f) / 10000f);
+
+               return factor * (float)Math.Pow(sensorVolume, 1f / 3f);
+            }
             else
                 return 0.0f;
         }
