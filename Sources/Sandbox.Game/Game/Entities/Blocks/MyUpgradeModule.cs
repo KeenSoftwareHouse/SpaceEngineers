@@ -21,7 +21,7 @@ using VRage.ModAPI;
 namespace Sandbox.Game.Entities.Blocks
 {
     [MyCubeBlockType(typeof(MyObjectBuilder_UpgradeModule))]
-    class MyUpgradeModule : MyTerminalBlock
+    class MyUpgradeModule : MyFunctionalBlock
     {
         private ConveyorLinePosition[] m_connectionPositions;
         private Dictionary<ConveyorLinePosition, MyCubeBlock> m_connectedBlocks;
