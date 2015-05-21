@@ -13,88 +13,88 @@ namespace Medieval.ObjectBuilders.Definitions
     [MyObjectBuilderDefinition]
     public class MyObjectBuilder_Dx11VoxelMaterialDefinition : MyObjectBuilder_VoxelMaterialDefinition
     {
-        [ProtoMember(1)]
+        [ProtoMember]
         public string ColorMetalXZnY;
 
-        [ProtoMember(2)]
+        [ProtoMember]
         public string ColorMetalY;
 
-        [ProtoMember(3)]
+        [ProtoMember]
         public string NormalGlossXZnY;
 
-        [ProtoMember(4)]
+        [ProtoMember]
         public string NormalGlossY;
 
-        [ProtoMember(5)]
+        [ProtoMember]
         public string ExtXZnY;
 
-        [ProtoMember(6)]
+        [ProtoMember]
         public string ExtY;
 
-        [ProtoMember(7)]
+        [ProtoMember]
         public string ColorMetalXZnYFar1;
 
-        [ProtoMember(8)]
+        [ProtoMember]
         public string ColorMetalYFar1;
 
-        [ProtoMember(9)]
+        [ProtoMember]
         public string NormalGlossXZnYFar1;
 
-        [ProtoMember(10)]
+        [ProtoMember]
         public string NormalGlossYFar1;
 
-        [ProtoMember(11)]
+        [ProtoMember]
         public float Scale = 8f;
 
-        [ProtoMember(12)]
+        [ProtoMember]
         public float ScaleFar1 = 8f;
 
-        [ProtoMember(13)]
+        [ProtoMember]
         public string ExtXZnYFar1;
 
-        [ProtoMember(14)]
+        [ProtoMember]
         public string ExtYFar1;
 
-        [ProtoMember(15)]
+        [ProtoMember]
         public string FoliageTextureArray1 = null;
 
-        [ProtoMember(16)]
+        [ProtoMember]
         public string FoliageTextureArray2 = null;
 
-        [ProtoMember(17)]
+        [ProtoMember]
         public float FoliageDensity;
 
-        [ProtoMember(18)]
+        [ProtoMember]
         public Vector2 FoliageScale = Vector2.One;
 
-        [ProtoMember(19)]
+        [ProtoMember]
         public float FoliageRandomRescaleMult = 0;
 
-        [ProtoMember(20)]
+        [ProtoMember]
         public byte BiomeValueMin;
 
-        [ProtoMember(21)]
+        [ProtoMember]
         public byte BiomeValueMax;
 
-        [ProtoMember(22)]
+        [ProtoMember]
         public string ColorMetalXZnYFar2;
 
-        [ProtoMember(23)]
+        [ProtoMember]
         public string ColorMetalYFar2;
 
-        [ProtoMember(24)]
+        [ProtoMember]
         public string NormalGlossXZnYFar2;
 
-        [ProtoMember(25)]
+        [ProtoMember]
         public string NormalGlossYFar2;
 
-        [ProtoMember(26)]
+        [ProtoMember]
         public string ExtXZnYFar2;
 
-        [ProtoMember(27)]
+        [ProtoMember]
         public string ExtYFar2;
 
-        [ProtoMember(28)]
+        [ProtoMember]
         public float ScaleFar2 = 8f;
     }
 }

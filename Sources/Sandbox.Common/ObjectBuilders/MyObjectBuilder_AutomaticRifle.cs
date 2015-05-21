@@ -6,11 +6,11 @@ namespace Sandbox.Common.ObjectBuilders
     [MyObjectBuilderDefinition]
     public class MyObjectBuilder_AutomaticRifle : MyObjectBuilder_EntityBase
     {
-     //   [ProtoMember(1)]
+     //   [ProtoMember]
         public int CurrentAmmo;
         public bool ShouldSerializeCurrentAmmo() { return false; }
 
-        [ProtoMember(1)]
+        [ProtoMember]
         public MyObjectBuilder_GunBase GunBase;
     }
 }

@@ -294,7 +294,14 @@ namespace Sandbox.Game.Entities.Cube
             {
                 var resultId = result.Id;
                 var obResult = (MyObjectBuilder_PhysicalObject)Sandbox.Common.ObjectBuilders.Serializer.MyObjectBuilderSerializer.CreateNewObject(resultId);
-                var resultAmount = blueprintAmount * result.Amount * m_refineryDef.MaterialEfficiency * UpgradeValues["Effectiveness"];
+
+                var conversionRatio = result.Amount * m_refineryDef.MaterialEfficiency * UpgradeValues["Effectiveness"];
+                if (conversionRatio > (MyFixedPoint)1.0f)
+                {
+                    conversionRatio = (MyFixedPoint)1.0f;
+                }
+
+                var resultAmount = blueprintAmount * conversionRatio;
                 OutputInventory.AddItems(resultAmount, obResult);
             }
 

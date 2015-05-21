@@ -12,73 +12,73 @@ namespace Sandbox.Common.ObjectBuilders.Definitions
     [ProtoContract]
     public class MyJetpackThrustDefinition
     {
-        [ProtoMember(1)]
+        [ProtoMember]
         public string ThrustBone;
 
-        [ProtoMember(2)]
+        [ProtoMember]
         public Vector4 ThrustColor = new Vector4(Color.CornflowerBlue.ToVector3() * 0.7f, 0.75f);
 
-        [ProtoMember(3)]
+        [ProtoMember]
         public float ThrustGlareSize = 5.585f;
 
-        [ProtoMember(4)]
+        [ProtoMember]
         public string ThrustMaterial = "EngineThrustMiddle";
 
-        [ProtoMember(5)]
+        [ProtoMember]
         public float SideFlameOffset = 0.12f;
 
-        [ProtoMember(6)]
+        [ProtoMember]
         public float FrontFlameOffset = 0.04f;
     }
 
     [ProtoContract]
     public class MyBoneSetDefinition
     {
-        [ProtoMember(1)]
+        [ProtoMember]
         public string Name;
 
-        [ProtoMember(2)]
+        [ProtoMember]
         public string Bones;
     }
 
     [ProtoContract]
     public class MyMovementAnimationMapping
     {
-        [ProtoMember(1), XmlAttribute]
+        [ProtoMember, XmlAttribute]
         public string Name = null;
 
-        [ProtoMember(2), XmlAttribute]
+        [ProtoMember, XmlAttribute]
         public string AnimationSubtypeName;
     }
 
     [ProtoContract]
     public class MyObjectBuilder_MyFeetIKSettings
     {
-        [ProtoMember(1)]
+        [ProtoMember]
         public string MovementState;
         
-        [ProtoMember(2)]
+        [ProtoMember]
         public bool Enabled;
 
-        [ProtoMember(3)]
+        [ProtoMember]
         public float BelowReachableDistance; 
 
-        [ProtoMember(4)]
+        [ProtoMember]
         public float AboveReachableDistance; 
 
-        [ProtoMember(5)]
+        [ProtoMember]
         public float VerticalShiftUpGain;
 
-        [ProtoMember(6)]
+        [ProtoMember]
         public float VerticalShiftDownGain;
 
-        [ProtoMember(7)]
+        [ProtoMember]
         public float FootLenght;
 
-        [ProtoMember(8)]
+        [ProtoMember]
         public float FootWidth;
 
-        [ProtoMember(9)]
+        [ProtoMember]
         public float AnkleHeight;
     }
 
@@ -87,205 +87,214 @@ namespace Sandbox.Common.ObjectBuilders.Definitions
     [MyObjectBuilderDefinition]
     public class MyObjectBuilder_CharacterDefinition : MyObjectBuilder_DefinitionBase
     {
-        [ProtoMember(1)]
+        [ProtoMember]
         public string Name;
 
-        [ProtoMember(2)]
+        [ProtoMember]
         [ModdableContentFile("mwm")]
         public string Model;
 
-        [ProtoMember(3)]
+        [ProtoMember]
         [ModdableContentFile("dds")]
         public string ReflectorTexture = @"Textures\Lights\reflector.dds";
 
-        [ProtoMember(4)]
+        [ProtoMember]
         public string LeftGlare = null;
 
-        [ProtoMember(5)]
+        [ProtoMember]
         public string RightGlare = null;
 
-        [ProtoMember(6)]
+        [ProtoMember]
         public string Skeleton = "Humanoid";
 
-        [ProtoMember(7)]
+        [ProtoMember]
         public float LightGlareSize = 0.02f;
 
-        [ProtoMember(8)]
+        [ProtoMember]
         public bool JetpackAvailable = false;
 
-        [ProtoMember(9)]
+        [ProtoMember]
         public float JetpackSlowdown = 0.975f;
 
-        [ProtoMember(10), XmlArrayItem("Thrust")]
+        [ProtoMember, XmlArrayItem("Thrust")]
         public MyJetpackThrustDefinition[] Thrusts;
 
-        [ProtoMember(11), XmlArrayItem("BoneSet")]
+        [ProtoMember, XmlArrayItem("BoneSet")]
         public MyBoneSetDefinition[] BoneSets;
 
-        [ProtoMember(12)]
+        [ProtoMember]
         public string LeftLightBone = null;
 
-        [ProtoMember(13)]
+        [ProtoMember]
         public string RightLightBone = null;
 
-        [ProtoMember(14)]
+        [ProtoMember]
         public string HeadBone = null;
 
-        [ProtoMember(15)]
+        [ProtoMember]
         public string LeftHandIKStartBone = null;
 
-        [ProtoMember(16)]
+        [ProtoMember]
         public string LeftHandIKEndBone = null;
 
-        [ProtoMember(17)]
+        [ProtoMember]
         public string RightHandIKStartBone = null;
 
-        [ProtoMember(18)]
+        [ProtoMember]
         public string RightHandIKEndBone = null;
 
-        [ProtoMember(19)]
+        [ProtoMember]
         public string WeaponBone = null;
 
-        [ProtoMember(20)]
+        [ProtoMember]
         public string Camera3rdBone = null;
 
-        [ProtoMember(21)]
+        [ProtoMember]
         public string LeftHandItemBone = null;
 
-        [ProtoMember(22)]
+        [ProtoMember]
         public string LeftForearmBone = null;
 
-        [ProtoMember(23)]
+        [ProtoMember]
         public string LeftUpperarmBone = null;
 
-        [ProtoMember(24)]
+        [ProtoMember]
         public string RightForearmBone = null;
 
-        [ProtoMember(25)]
+        [ProtoMember]
         public string RightUpperarmBone = null;
 
-        [ProtoMember(26)]
+        [ProtoMember]
         public string SpineBone = null;
 
-        [ProtoMember(27)]
+        [ProtoMember]
         public float BendMultiplier1st = 1;
 
-        [ProtoMember(28)]
+        [ProtoMember]
         public float BendMultiplier3rd = 1;
 
-        [ProtoMember(29)]
+        [ProtoMember]
         [XmlArrayItem("Material")]
         public string[] MaterialsDisabledIn1st;
 
-        [ProtoMember(30), XmlArrayItem("Mapping")]
+        [ProtoMember, XmlArrayItem("Mapping")]
         public MyMovementAnimationMapping[] AnimationMappings;
 
-        [ProtoMember(31)]
+        [ProtoMember]
         public float Mass = 100f;
 
-        [ProtoMember(32)]
+        [ProtoMember]
         public float MaxHealth = 100f;
 
-        [ProtoMember(33)]
+        [ProtoMember]
         public string ModelRootBoneName;
 
-        [ProtoMember(34)]
+        [ProtoMember]
         public string LeftHipBoneName;
 
-        [ProtoMember(35)]
+        [ProtoMember]
         public string LeftKneeBoneName;
 
-        [ProtoMember(36)]
+        [ProtoMember]
         public string LeftAnkleBoneName;
 
-        [ProtoMember(37)]
+        [ProtoMember]
         public string RightHipBoneName;
 
-        [ProtoMember(38)]
+        [ProtoMember]
         public string RightKneeBoneName;
 
-        [ProtoMember(39)]
+        [ProtoMember]
         public string RightAnkleBoneName;
 
-        [ProtoMember(40)]
+        [ProtoMember]
         public bool FeetIKEnabled = false;
 
-        [ProtoMember(41), XmlArrayItem("FeetIKSettings")]
+        [ProtoMember, XmlArrayItem("FeetIKSettings")]
         public MyObjectBuilder_MyFeetIKSettings[] IKSettings;        
 
-        [ProtoMember(42)]
+        [ProtoMember]
         public string RightHandItemBone;
 
-        [ProtoMember(43)]
+        [ProtoMember]
         public bool NeedsOxygen = false;
 
-        [ProtoMember(44)]
+        [ProtoMember]
         public string RagdollDataFile;
 
-        [ProtoMember(45), XmlArrayItem("BoneSet")]
+        [ProtoMember, XmlArrayItem("BoneSet")]
         public MyBoneSetDefinition[] RagdollBonesMappings;
 
-        [ProtoMember(46)]
+        [ProtoMember]
         public float OxygenConsumption = 10f;
 
-        [ProtoMember(47)]
+        [ProtoMember]
         public float PressureLevelForLowDamage = 0.5f;
 
-        [ProtoMember(48)]
+        [ProtoMember]
         public float DamageAmountAtZeroPressure = 7f;
 
-        [ProtoMember(49)]
+        [ProtoMember]
         public float OxygenCapacity = 6000f;
 
         //Character control
-        [ProtoMember(50)]
+        [ProtoMember]
         public bool VerticalPositionFlyingOnly = false;
-        [ProtoMember(51)]
+        [ProtoMember]
         public bool UseOnlyWalking = true;
 
-        [ProtoMember(52)]
+        [ProtoMember]
         public float MaxSlope = 60;
-        [ProtoMember(53)]
+        [ProtoMember]
         public float MaxSprintSpeed = 11;
 
-        [ProtoMember(54)]
+        [ProtoMember]
         public float MaxRunSpeed = 11;
-        [ProtoMember(55)]
+        [ProtoMember]
         public float MaxBackrunSpeed = 11;
-        [ProtoMember(56)]
+        [ProtoMember]
         public float MaxRunStrafingSpeed = 11;
 
-        [ProtoMember(57)]
+        [ProtoMember]
         public float MaxWalkSpeed = 6;
-        [ProtoMember(58)]
+        [ProtoMember]
         public float MaxBackwalkSpeed = 6;
-        [ProtoMember(59)]
+        [ProtoMember]
         public float MaxWalkStrafingSpeed = 6;
 
-        [ProtoMember(60)]
+        [ProtoMember]
         public float MaxCrouchWalkSpeed = 4;
-        [ProtoMember(61)]
+        [ProtoMember]
         public float MaxCrouchBackwalkSpeed = 4;
-        [ProtoMember(62)]
+        [ProtoMember]
         public float MaxCrouchStrafingSpeed = 4;
 
-        [ProtoMember(63)]
+        [ProtoMember]
         public float CharacterHeadSize = 0.55f;
-        [ProtoMember(64)]
+        [ProtoMember]
         public float CharacterHeadHeight = 0.25f;
-        [ProtoMember(65)]
+        [ProtoMember]
         public float CharacterCollisionScale = 1.0f;
 
-        [ProtoMember(66)]
+        [ProtoMember]
         public string HelmetVariation;
 
-        [ProtoMember(67)]
+        [ProtoMember]
         public string DeathSoundName = "";
 
-        [ProtoMember(68)]
+        [ProtoMember]
         public bool VisibleOnHud = true;
 
-        [ProtoMember(69)]
+        [ProtoMember]
         public string RagdollRootBody = String.Empty;
+
+        [ProtoMember]
+        public float CharacterWidth = 1.0f;
+        [ProtoMember]
+        public float CharacterHeight = 1.8f;
+        [ProtoMember]
+        public float CharacterLength = 1.0f;
+
+
     }
 }

@@ -31,12 +31,11 @@ namespace Sandbox.Game.Entities
     {
         private const float CLOSED_DISSASEMBLE_RATIO = 3.3f;
 
-        private const float SLIDINGSPEED = 1.0f;
         private MySoundPair m_openSound;
         private MySoundPair m_closeSound;
 
         private float m_currOpening;
-        private float m_slidingSpeed;
+        private float m_currSpeed;
         private int m_lastUpdateTime;
 
         private MyEntitySubpart m_leftSubpart = null;
@@ -70,7 +69,7 @@ namespace Sandbox.Game.Entities
         {
             m_open = false;
             m_currOpening = 0f;
-            m_slidingSpeed = 0f;
+            m_currSpeed = 0f;
             SyncObject = new MySyncDoor(this);
         }
 
@@ -106,6 +105,11 @@ namespace Sandbox.Game.Entities
                     RaisePropertiesChanged();
                 }
             }
+        }
+
+        public float OpenRatio
+        {
+            get { return m_currOpening; }
         }
 
         static MyDoor()
@@ -236,10 +240,8 @@ namespace Sandbox.Game.Entities
 
         private void OnStateChange()
         {
-            if (m_open)
-                m_slidingSpeed = SLIDINGSPEED;
-            else
-                m_slidingSpeed = -SLIDINGSPEED;
+            float speed = ((MyDoorDefinition)BlockDefinition).OpeningSpeed;
+            m_currSpeed = m_open ? speed : -speed;
 
             NeedsUpdate = MyEntityUpdateEnum.EACH_FRAME | MyEntityUpdateEnum.EACH_100TH_FRAME;
             m_lastUpdateTime = MySandboxGame.TotalGamePlayTimeInMilliseconds;
@@ -270,7 +272,7 @@ namespace Sandbox.Game.Entities
             if (CubeGrid.Physics == null)
                 return;
             //Update door position because of inaccuracies in high velocities
-            UpdateSlidingDoorsPosition(this.CubeGrid.Physics.LinearVelocity.LengthSquared() > 10);
+            UpdateSlidingDoorsPosition(this.CubeGrid.Physics.LinearVelocity.LengthSquared() > 10f);
         }
 
         public override void UpdateBeforeSimulation()
@@ -301,7 +303,7 @@ namespace Sandbox.Game.Entities
             if (Enabled && PowerReceiver.IsPowered)
             {
                 float timeDelta = (MySandboxGame.TotalGamePlayTimeInMilliseconds - m_lastUpdateTime) / 1000f;
-                float deltaPos = m_slidingSpeed * timeDelta;
+                float deltaPos = m_currSpeed * timeDelta;
                 m_currOpening = MathHelper.Clamp(m_currOpening + deltaPos, 0f, MaxOpen);
             }
         }

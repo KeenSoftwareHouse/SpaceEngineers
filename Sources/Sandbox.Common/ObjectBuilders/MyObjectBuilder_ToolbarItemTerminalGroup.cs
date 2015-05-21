@@ -13,9 +13,9 @@ namespace Sandbox.Common.ObjectBuilders
         //Old save compatibility
         public long GridEntityId;
 
-        [ProtoMember(1)]
+        [ProtoMember]
         public long BlockEntityId;
-        [ProtoMember(2)]
+        [ProtoMember]
         public string GroupName;
         
         public override void Remap(IMyRemapHelper remapHelper)

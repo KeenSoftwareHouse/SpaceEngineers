@@ -29,30 +29,30 @@ namespace Sandbox.Common.ObjectBuilders.Definitions
             public MyObjectBuilderType Type = typeof(MyObjectBuilder_AmmoMagazine);
 
             [XmlAttribute]
-            [ProtoMember(1)]
+            [ProtoMember]
             public string Subtype;
         }
 
-        [ProtoMember(1)]
+        [ProtoMember]
         public WeaponAmmoData ProjectileAmmoData = null;
 
-        [ProtoMember(2)]
+        [ProtoMember]
         public WeaponAmmoData MissileAmmoData = null;
 
-        [ProtoMember(3)]
+        [ProtoMember]
         public string NoAmmoSoundName = null;
 
-        [ProtoMember(4)]
+        [ProtoMember]
         public float DeviateShotAngle = 0;
 
-        [ProtoMember(5)]
+        [ProtoMember]
         public float ReleaseTimeAfterFire = 0;
 
-        [ProtoMember(6)]
+        [ProtoMember]
         public int MuzzleFlashLifeSpan = 0;
 
         [XmlArrayItem("AmmoMagazine")]
-        [ProtoMember(8)]
+        [ProtoMember]
         public WeaponAmmoMagazine[] AmmoMagazines;
     }
 }

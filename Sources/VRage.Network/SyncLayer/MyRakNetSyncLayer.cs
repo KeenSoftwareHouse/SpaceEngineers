@@ -16,11 +16,13 @@ namespace VRage.Network
 
         private MyRakNetPeer m_peer;
 
-        private Dictionary<ulong, MySyncedClass> m_registered = new Dictionary<ulong, MySyncedClass>();
+        private Dictionary<ulong, MySyncedClass> m_stateData = new Dictionary<ulong, MySyncedClass>();
         public static MyRakNetSyncLayer Static;
 
         private List<Type> m_idToType;
         private Dictionary<Type, int> m_typeToId;
+
+        public bool IsServer { get { return m_peer.IsServer; } }
 
         public ListReader<Type> GetTypeTable()
         {
@@ -79,6 +81,32 @@ namespace VRage.Network
             Static = this;
         }
 
+        //TODO:SK: Split the message to allow clint to load the 
+        internal void SerializeStateData(ulong steamID, BitStream bs)
+        {
+            bs.Write(m_stateData.Count);
+            foreach (var syncedObject in m_stateData.Values)
+            {
+                bs.WriteCompressed(syncedObject.TypeID);
+                bs.Write((long)syncedObject.EntityId);
+                syncedObject.SerializeDefault(bs);
+            }
+        }
+
+        internal void DeserializeStateData(BitStream bs)
+        {
+            bool success;
+            int count;
+
+            success = bs.Read(out count);
+            Debug.Assert(success, "Failed to read state count");
+
+            for (int i = 0; i < count; i++)
+            {
+                ProcessReplication(bs);
+            }
+        }
+
         public void UnloadData()
         {
             if (Static != null)
@@ -90,7 +118,7 @@ namespace VRage.Network
 
         public void Update()
         {
-            foreach (var syncedObject in m_registered.Values)
+            foreach (var syncedObject in m_stateData.Values)
             {
                 if (syncedObject.IsDirty)
                 {
@@ -114,32 +142,34 @@ namespace VRage.Network
 
         public void Dispose()
         {
-            m_registered.Clear();
+            m_stateData.Clear();
             m_idToType.Clear();
             m_typeToId.Clear();
         }
 
         public static void RegisterSynced(MySyncedClass mySyncedClass)
         {
-            Debug.Assert(mySyncedClass.entityId != 0);
+            Debug.Assert(mySyncedClass.EntityId != 0);
             Debug.Assert(Static != null);
-            Debug.Assert(!Static.m_registered.ContainsKey(mySyncedClass.entityId));
-            Debug.Assert(!Static.m_registered.ContainsValue(mySyncedClass));
+            Debug.Assert(!Static.m_stateData.ContainsKey(mySyncedClass.EntityId));
 
-            Static.m_registered.Add(mySyncedClass.entityId, mySyncedClass);
+            //mySyncedClass.Init
+
+            Static.m_stateData.Add(mySyncedClass.EntityId, mySyncedClass);
         }
 
         internal static void Sync(MySyncedClass mySyncedClass)
         {
-            Debug.Assert(mySyncedClass.entityId != 0);
+            Debug.Assert(mySyncedClass.EntityId != 0);
             Debug.Assert(Static != null);
             Debug.Assert(Static.m_peer is MyRakNetServer);
 
             BitStream bs = new BitStream(null);
             bs.Write((byte)MessageIDEnum.SYNC_FIELD);
-            bs.Write((long)mySyncedClass.entityId);
+            bs.Write((long)mySyncedClass.EntityId);
             mySyncedClass.Serialize(bs);
 
+            // TODO:SK use UNRELIABLE_WITH_ACK_RECEIPT
             ((MyRakNetServer)Static.m_peer).BroadcastMessage(bs, PacketPriorityEnum.LOW_PRIORITY, PacketReliabilityEnum.UNRELIABLE, 0, RakNetGUID.UNASSIGNED_RAKNET_GUID);
         }
 
@@ -161,13 +191,13 @@ namespace VRage.Network
         {
             Debug.Assert(Static != null);
             Debug.Assert(Static.m_peer is MyRakNetServer);
-            Debug.Assert(Static.m_registered.ContainsKey(entityID));
+            Debug.Assert(Static.m_stateData.ContainsKey(entityID));
 
             BitStream bs = new BitStream(null);
             bs.Write((byte)MessageIDEnum.REPLICATION_DESTROY);
             bs.Write((long)entityID);
 
-            Static.m_registered.Remove(entityID);
+            Static.m_stateData.Remove(entityID);
 
             ((MyRakNetServer)Static.m_peer).BroadcastMessage(bs, PacketPriorityEnum.LOW_PRIORITY, PacketReliabilityEnum.RELIABLE, 0, RakNetGUID.UNASSIGNED_RAKNET_GUID);
         }
@@ -176,30 +206,34 @@ namespace VRage.Network
         {
             Debug.Assert(Static != null);
             Debug.Assert(Static.m_peer is MyRakNetServer);
-            Debug.Assert(!Static.m_registered.ContainsKey(entityID));
+            Debug.Assert(!Static.m_stateData.ContainsKey(entityID));
             Debug.Assert(Static.m_idToType.Contains(obj.GetType()));
+
+            int typeID = Static.m_typeToId[obj.GetType()];
 
             BitStream bs = new BitStream(null);
             bs.Write((byte)MessageIDEnum.REPLICATION_CREATE);
-            bs.WriteCompressed(Static.m_typeToId[obj.GetType()]);
+            bs.WriteCompressed(typeID); // TODO:SK better compression
             bs.Write((long)entityID);
 
             MySyncedClass syncedClass = GetSyncedClass(obj);
-            syncedClass.entityId = entityID;
+            syncedClass.TypeID = typeID;
+            syncedClass.EntityId = entityID;
             syncedClass.Serialize(bs);
 
-            Static.m_registered.Add(entityID, syncedClass);
+            RegisterSynced(syncedClass);
 
             ((MyRakNetServer)Static.m_peer).BroadcastMessage(bs, PacketPriorityEnum.LOW_PRIORITY, PacketReliabilityEnum.RELIABLE, 0, RakNetGUID.UNASSIGNED_RAKNET_GUID);
         }
 
         private static SortedDictionary<int, object> tmpFields = new SortedDictionary<int, object>();
 
-        // TODO:sk reflection should be cached if possible
+        // TODO:SK reflection should be cached if possible
         private static MySyncedClass GetSyncedClass(object obj, Type type = null)
         {
             Debug.Assert(tmpFields.Count == 0);
-            MySyncedClass sync = new MySyncedClass();
+            MySyncedClass sync = null;
+            MySyncedClass baseSync = null;
 
             type = type ?? obj.GetType();
 
@@ -207,7 +241,7 @@ namespace VRage.Network
 
             if (baseType != null && baseType != typeof(object))
             {
-                sync.Add(GetSyncedClass(obj, baseType));
+                baseSync = GetSyncedClass(obj, baseType);
             }
 
             var fields = type.GetFields(BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly);
@@ -236,9 +270,21 @@ namespace VRage.Network
                 }
             }
 
-            foreach (var value in tmpFields.Values)
+            if (baseSync != null && tmpFields.Count == 0)
             {
-                sync.Add((IMySyncedValue)value);
+                return baseSync;
+            }
+            else
+            {
+                sync = new MySyncedClass();
+                if (baseSync != null)
+                {
+                    sync.Add(baseSync);
+                }
+                foreach (var value in tmpFields.Values)
+                {
+                    sync.Add((IMySyncedValue)value);
+                }
             }
             tmpFields.Clear();
 
@@ -262,12 +308,13 @@ namespace VRage.Network
             ulong entityID = (ulong)tmpLong;
 
             object obj = Activator.CreateInstance(type);
-            // should init here
             MySyncedClass sync = GetSyncedClass(obj);
-            sync.entityId = entityID;
+            sync.TypeID = typeID;
+            sync.EntityId = entityID;
             sync.Deserialize(bs);
+            // TODO:SK should init here
 
-            m_registered.Add(entityID, sync);
+            RegisterSynced(sync);
 
             var handle = OnEntityCreated;
             if (handle != null)
@@ -285,7 +332,7 @@ namespace VRage.Network
             Debug.Assert(success, "Failed to read entityID");
             ulong entityID = (ulong)tmpLong;
 
-            m_registered.Remove(entityID);
+            m_stateData.Remove(entityID);
 
             var handle = OnEntityDestroyed;
             if (handle != null)
@@ -296,9 +343,9 @@ namespace VRage.Network
 
         private MySyncedClass GetEntitySyncFields(ulong entityID)
         {
-            if (m_registered.ContainsKey(entityID))
+            if (m_stateData.ContainsKey(entityID))
             {
-                return m_registered[entityID];
+                return m_stateData[entityID];
             }
             return null;
         }

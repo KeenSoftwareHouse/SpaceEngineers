@@ -11,14 +11,14 @@ namespace Sandbox.Common.ObjectBuilders.Definitions
     [ProtoContract]
     public class BlueprintClassEntry
     {
-        [ProtoMember(1)]
+        [ProtoMember]
         [XmlAttribute]
         public string Class;
 
         [XmlIgnore]
         public MyObjectBuilderType TypeId;
 
-        [ProtoMember(2)]
+        [ProtoMember]
         [XmlAttribute]
         public string BlueprintTypeId
         {
@@ -26,11 +26,11 @@ namespace Sandbox.Common.ObjectBuilders.Definitions
             set { TypeId = MyObjectBuilderType.ParseBackwardsCompatible(value); }
         }
 
-        [ProtoMember(3)]
+        [ProtoMember]
         [XmlAttribute]
         public string BlueprintSubtypeId;
 
-        [ProtoMember(4), DefaultValue(true)]
+        [ProtoMember, DefaultValue(true)]
         public bool Enabled = true;
 
         public override bool Equals(object other)

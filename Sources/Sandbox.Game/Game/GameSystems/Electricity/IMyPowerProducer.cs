@@ -8,19 +8,14 @@ namespace Sandbox.Game.GameSystems.Electricity
 {
     delegate void ProductionStateChangeDelegate(IMyPowerProducer stoppedProducer);
 
-    interface IMyPowerProducer
+    interface IMyPowerProducer : Sandbox.ModAPI.Ingame.IMyPowerProducer
     {
         MyProducerGroupEnum Group { get; }
 
         /// <summary>
-        /// Maximum power output of the producer in [MW].
-        /// </summary>
-        float MaxPowerOutput { get; }
-
-        /// <summary>
         /// Currently used power output of the producer in [MW].
         /// </summary>
-        float CurrentPowerOutput { get; set; }
+        new float CurrentPowerOutput { get; set; }
 
         bool HasCapacityRemaining { get; }
 

@@ -6,10 +6,10 @@ namespace Sandbox.Common.ObjectBuilders
     [MyObjectBuilderDefinition]
     public class MyObjectBuilder_OreDetector : MyObjectBuilder_FunctionalBlock
     {
-        [ProtoMember(1)]
+        [ProtoMember]
         public float DetectionRadius;
 
-        [ProtoMember(2)]
+        [ProtoMember]
         public bool BroadcastUsingAntennas;
     }
 }

@@ -7,13 +7,13 @@ namespace VRageMath
     [ProtoBuf.ProtoContract]
     public struct Vector4I
     {
-        [ProtoBuf.ProtoMember(1)]
+        [ProtoBuf.ProtoMember]
         public int X;
-        [ProtoBuf.ProtoMember(2)]
+        [ProtoBuf.ProtoMember]
         public int Y;
-        [ProtoBuf.ProtoMember(3)]
+        [ProtoBuf.ProtoMember]
         public int Z;
-        [ProtoBuf.ProtoMember(4)]
+        [ProtoBuf.ProtoMember]
         public int W;
 
         public Vector4I(int x, int y, int z, int w)

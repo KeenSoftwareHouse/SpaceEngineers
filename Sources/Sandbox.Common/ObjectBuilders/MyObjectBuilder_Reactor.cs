@@ -7,10 +7,10 @@ namespace Sandbox.Common.ObjectBuilders
     [MyObjectBuilderDefinition]
     public class MyObjectBuilder_Reactor : MyObjectBuilder_FunctionalBlock
     {
-        [ProtoMember(1)]
+        [ProtoMember]
         public MyObjectBuilder_Inventory Inventory;
 
-        [ProtoMember(2), DefaultValue(true)]
+        [ProtoMember, DefaultValue(true)]
         public bool UseConveyorSystem = true;
 
         public override void SetupForProjector()

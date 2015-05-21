@@ -10,14 +10,17 @@ namespace Sandbox.Common.ObjectBuilders.AI
     [ProtoContract]
     public class MyBBMemoryTarget : MyBBMemoryValue
     {
-        [ProtoMember(1)]
+        [ProtoMember]
         public MyAiTargetEnum TargetType = MyAiTargetEnum.NO_TARGET;
 
-        [ProtoMember(2)]
+        [ProtoMember]
         public long? EntityId = null;
 
-        [ProtoMember(3)]
+        [ProtoMember]
         public Vector3D? Position = null;
+
+		[ProtoMember]
+		public long? TreeId = null;
 
         public Vector3I BlockPosition { get { return Vector3I.Round(Position.Value); } }
 
@@ -40,10 +43,19 @@ namespace Sandbox.Common.ObjectBuilders.AI
             SetTargetCube(blockPosition, entityId);
         }
 
+		public MyBBMemoryTarget(Vector3D position, long environmentId, long itemId)
+		{
+			TargetType = MyAiTargetEnum.ENVIRONMENT_ITEM;
+			EntityId = environmentId;
+			TreeId = itemId;
+			Position = position;
+		}
+
         public void SetTargetEntity(MyAiTargetEnum targetType, long entityId)
         {
             TargetType = targetType;
             EntityId = entityId;
+			TreeId = null;
             Position = null;
         }
 
@@ -51,6 +63,7 @@ namespace Sandbox.Common.ObjectBuilders.AI
         {
             TargetType = MyAiTargetEnum.POSITION;
             EntityId = null;
+			TreeId = null;
             Position = position;
         }
 
@@ -58,7 +71,16 @@ namespace Sandbox.Common.ObjectBuilders.AI
         {
             TargetType = MyAiTargetEnum.CUBE;
             EntityId = entityId;
+			TreeId = null;
             Position = new Vector3D(blockPosition);
         }
+
+		public void SetTargetTree(Vector3D treePosition, long entityId, long treeId)
+		{
+			TargetType = MyAiTargetEnum.ENVIRONMENT_ITEM;
+			EntityId = entityId;
+			TreeId = treeId;
+			Position = treePosition;
+		}
     }
 }

@@ -11,13 +11,13 @@ namespace Sandbox.Common.ObjectBuilders
     [MyObjectBuilderDefinition]
     public class MyObjectBuilder_MedicalRoom : MyObjectBuilder_FunctionalBlock
     {
-        [ProtoMember(1)]
+        [ProtoMember]
         public ulong SteamUserId;
 
-        [ProtoMember(2)]
+        [ProtoMember]
         public string IdleSound;
 
-        [ProtoMember(3)]
+        [ProtoMember]
         public string ProgressSound;
     }
 }

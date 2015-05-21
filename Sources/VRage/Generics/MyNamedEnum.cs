@@ -16,7 +16,7 @@ namespace VRage.Generics
     [ProtoContract]
     public struct MyNamedEnum<T> : IXmlSerializable where T : struct, IConvertible
     {
-        [ProtoMember(1)]
+        [ProtoMember]
         [XmlIgnore]
         int m_enumInt;
 

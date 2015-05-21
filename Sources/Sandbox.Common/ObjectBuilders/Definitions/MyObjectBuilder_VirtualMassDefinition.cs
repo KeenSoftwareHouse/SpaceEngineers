@@ -10,10 +10,10 @@ namespace Sandbox.Common.ObjectBuilders.Definitions
     [MyObjectBuilderDefinition]
     public class MyObjectBuilder_VirtualMassDefinition : MyObjectBuilder_CubeBlockDefinition
     {
-        [ProtoMember(1)]
+        [ProtoMember]
         public float RequiredPowerInput;
 
-        [ProtoMember(2)]
+        [ProtoMember]
         public float VirtualMass;
     }
 }

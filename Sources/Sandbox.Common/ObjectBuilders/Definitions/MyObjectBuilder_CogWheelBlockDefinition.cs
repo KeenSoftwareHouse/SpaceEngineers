@@ -17,10 +17,10 @@ namespace Medieval.ObjectBuilders.Definitions
     [MyObjectBuilderDefinition]
     public class MyObjectBuilder_CogWheelBlockDefinition : MyObjectBuilder_MechanicalSubBlockDefinition
     {
-        [ProtoMember(1)]
+        [ProtoMember]
         public int TeethCount;
 
-        [ProtoMember(2)]
+        [ProtoMember]
         public float MaxFrictionTorque;
     }
 }

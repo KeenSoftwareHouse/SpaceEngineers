@@ -32,5 +32,10 @@ namespace Sandbox.Game.Entities.Cube
                 ConnectToGps();
             }
         }
+
+        bool IMyLaserAntenna.IsPermanent
+        {
+            get {  return m_IsPermanent; }
+        }
     }
 }

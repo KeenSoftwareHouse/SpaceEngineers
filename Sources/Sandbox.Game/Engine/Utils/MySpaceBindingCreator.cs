@@ -91,10 +91,10 @@ namespace Sandbox.Engine.Utils
             MyControllerHelper.AddControl(CX_BUILD_MODE, MyControlsSpace.SYMMETRY_SWITCH, MyJoystickButtonsEnum.J04);
             MyControllerHelper.AddControl(CX_BUILD_MODE, MyControlsSpace.CUBE_ROTATE_ROLL_POSITIVE, MyJoystickButtonsEnum.J05);
             MyControllerHelper.AddControl(CX_BUILD_MODE, MyControlsSpace.CUBE_ROTATE_ROLL_NEGATIVE, MyJoystickButtonsEnum.J06);
-            MyControllerHelper.AddControl(CX_BUILD_MODE, MyControlsSpace.CUBE_ROTATE_VERTICAL_POSITIVE, MyJoystickAxesEnum.Yneg);
-            MyControllerHelper.AddControl(CX_BUILD_MODE, MyControlsSpace.CUBE_ROTATE_VERTICAL_NEGATIVE, MyJoystickAxesEnum.Ypos);
-            MyControllerHelper.AddControl(CX_BUILD_MODE, MyControlsSpace.CUBE_ROTATE_HORISONTAL_POSITIVE, MyJoystickAxesEnum.Xneg);
-            MyControllerHelper.AddControl(CX_BUILD_MODE, MyControlsSpace.CUBE_ROTATE_HORISONTAL_NEGATIVE, MyJoystickAxesEnum.Xpos);
+            MyControllerHelper.AddControl(CX_BUILD_MODE, MyControlsSpace.CUBE_ROTATE_VERTICAL_POSITIVE, MyJoystickAxesEnum.Xneg);
+            MyControllerHelper.AddControl(CX_BUILD_MODE, MyControlsSpace.CUBE_ROTATE_VERTICAL_NEGATIVE, MyJoystickAxesEnum.Xpos);
+            MyControllerHelper.AddControl(CX_BUILD_MODE, MyControlsSpace.CUBE_ROTATE_HORISONTAL_POSITIVE, MyJoystickAxesEnum.Yneg);
+            MyControllerHelper.AddControl(CX_BUILD_MODE, MyControlsSpace.CUBE_ROTATE_HORISONTAL_NEGATIVE, MyJoystickAxesEnum.Ypos);
         }
 
         private static void CreateForVoxelHands()
@@ -108,10 +108,10 @@ namespace Sandbox.Engine.Utils
             MyControllerHelper.NullControl(CX_VOXEL, MyControlsSpace.CROUCH);
             MyControllerHelper.NullControl(CX_VOXEL, MyControlsSpace.PRIMARY_BUILD_ACTION);
             MyControllerHelper.NullControl(CX_VOXEL, MyControlsSpace.SECONDARY_BUILD_ACTION);
-            MyControllerHelper.AddControl(CX_VOXEL, MyControlsSpace.CUBE_ROTATE_HORISONTAL_POSITIVE, MyJoystickAxesEnum.Xneg);
-            MyControllerHelper.AddControl(CX_VOXEL, MyControlsSpace.CUBE_ROTATE_HORISONTAL_NEGATIVE, MyJoystickAxesEnum.Xpos);
-            MyControllerHelper.AddControl(CX_VOXEL, MyControlsSpace.CUBE_ROTATE_VERTICAL_NEGATIVE, MyJoystickAxesEnum.Ypos);
-            MyControllerHelper.AddControl(CX_VOXEL, MyControlsSpace.CUBE_ROTATE_VERTICAL_POSITIVE, MyJoystickAxesEnum.Yneg);
+            MyControllerHelper.AddControl(CX_VOXEL, MyControlsSpace.CUBE_ROTATE_VERTICAL_POSITIVE, MyJoystickAxesEnum.Xneg);
+            MyControllerHelper.AddControl(CX_VOXEL, MyControlsSpace.CUBE_ROTATE_VERTICAL_NEGATIVE, MyJoystickAxesEnum.Xpos);
+            MyControllerHelper.AddControl(CX_VOXEL, MyControlsSpace.CUBE_ROTATE_HORISONTAL_POSITIVE, MyJoystickAxesEnum.Yneg);
+            MyControllerHelper.AddControl(CX_VOXEL, MyControlsSpace.CUBE_ROTATE_HORISONTAL_NEGATIVE, MyJoystickAxesEnum.Ypos);
         }
     }
 }

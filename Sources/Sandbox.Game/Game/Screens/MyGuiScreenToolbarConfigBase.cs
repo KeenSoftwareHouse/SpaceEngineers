@@ -678,18 +678,20 @@ namespace Sandbox.Game.Gui
                         AddWeaponDefinition(m_gridBlocks, definition);
                     }
                 }
-                AddAnimations(false, searchCondition);
 
-                AddVoxelHands(false, searchCondition);
+                if (MyPerGameSettings.EnableAi && MyFakes.ENABLE_BARBARIANS)
+                {
+                    AddAiCommandDefinitions(searchCondition);
+                    AddBotDefinitions(searchCondition);
+                    AddAreaMarkerDefinitions(searchCondition);
+                }
+
+                AddVoxelHands(searchCondition);
 
                 if (MyFakes.ENABLE_PREFAB_THROWER)
-                    AddPrefabThrowers(false, searchCondition);
+                    AddPrefabThrowers(searchCondition);
 
-                if (MyPerGameSettings.EnableAi && MyFakes.ENABLE_BARBARIANS && MySession.Static.CreativeMode)
-                {
-                    AddBotDefinitions(false, searchCondition);
-                    AddAiCommandDefinitions(false, searchCondition);
-                }
+                AddAnimations(false, searchCondition);
             }
             else
             {
@@ -704,17 +706,6 @@ namespace Sandbox.Game.Gui
                             AddTools(m_shipController, searchCondition);
                         }
                         AddAnimations(true, searchCondition);
-
-                        AddVoxelHands(true, searchCondition);
-
-                        if (MyFakes.ENABLE_PREFAB_THROWER)
-                            AddPrefabThrowers(true, searchCondition);
-
-                        if (MyPerGameSettings.EnableAi && MyFakes.ENABLE_BARBARIANS && MySession.Static.CreativeMode)
-                        {
-                            AddBotDefinitions(true, searchCondition);
-                            AddAiCommandDefinitions(true, searchCondition);
-                        }
                     }
                 }
             }
@@ -899,11 +890,11 @@ namespace Sandbox.Game.Gui
             }
         }
 
-        private void AddVoxelHands(bool shipController, IMySearchCondition searchCondition)
+        private void AddVoxelHands(IMySearchCondition searchCondition)
         {
             foreach (MyVoxelHandDefinition definition in MyDefinitionManager.Static.GetVoxelHandDefinitions())
             {
-                if (definition.Public && !shipController)
+                if (definition.Public)
                 {
                     if (searchCondition != null && !searchCondition.MatchesCondition(definition))
                         continue;
@@ -913,11 +904,11 @@ namespace Sandbox.Game.Gui
             }
         }
 
-        private void AddPrefabThrowers(bool shipController, IMySearchCondition searchCondition)
+        private void AddPrefabThrowers(IMySearchCondition searchCondition)
         {
             foreach (MyPrefabThrowerDefinition definition in MyDefinitionManager.Static.GetPrefabThrowerDefinitions())
             {
-                if ((definition.Public || MyFakes.ENABLE_NON_PUBLIC_BLOCKS) && !shipController)
+                if ((definition.Public || MyFakes.ENABLE_NON_PUBLIC_BLOCKS))
                 {
                     if (searchCondition != null && !searchCondition.MatchesCondition(definition))
                         continue;
@@ -926,11 +917,11 @@ namespace Sandbox.Game.Gui
             }
         }
 
-        private void AddBotDefinitions(bool shipController, IMySearchCondition searchCondition)
+        private void AddBotDefinitions(IMySearchCondition searchCondition)
         {
             foreach (MyBotDefinition definition in MyDefinitionManager.Static.GetDefinitionsOfType<MyBotDefinition>())
             {
-                if ((definition.Public || MyFakes.ENABLE_NON_PUBLIC_BLOCKS) && !shipController)
+                if ((definition.Public || MyFakes.ENABLE_NON_PUBLIC_BLOCKS) && (definition.AvailableInSurvival || MySession.Static.CreativeMode))
                 {
                     if (searchCondition != null && !searchCondition.MatchesCondition(definition))
                         continue;
@@ -940,11 +931,11 @@ namespace Sandbox.Game.Gui
             }
         }
 
-        private void AddAiCommandDefinitions(bool shipController, IMySearchCondition searchCondition)
+        private void AddAiCommandDefinitions(IMySearchCondition searchCondition)
         {
             foreach (MyAiCommandDefinition definition in MyDefinitionManager.Static.GetDefinitionsOfType<MyAiCommandDefinition>())
             {
-                if ((definition.Public || MyFakes.ENABLE_NON_PUBLIC_BLOCKS) && !shipController)
+                if (definition.Public || MyFakes.ENABLE_NON_PUBLIC_BLOCKS)
                 {
                     if (searchCondition != null && !searchCondition.MatchesCondition(definition))
                         continue;
@@ -953,6 +944,20 @@ namespace Sandbox.Game.Gui
                 }
             }
         }
+
+		private void AddAreaMarkerDefinitions(IMySearchCondition searchCondition)
+		{
+			foreach(MyAreaMarkerDefinition definition in MyDefinitionManager.Static.GetDefinitionsOfType<MyAreaMarkerDefinition>())
+			{
+				if(definition.Public || MyFakes.ENABLE_NON_PUBLIC_BLOCKS)
+				{
+					if (searchCondition != null && !searchCondition.MatchesCondition(definition))
+						continue;
+
+					AddToolbarItemDefinition<MyObjectBuilder_ToolbarItemAreaMarker>(m_gridBlocks, definition);
+				}
+			}
+		}
 
         void AddWeaponDefinition(MyGuiControlGrid grid, MyDefinitionBase definition)
         {

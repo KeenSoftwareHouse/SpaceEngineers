@@ -31,12 +31,12 @@ namespace Sandbox.Game.Gui
             Visible = true;
         }
 
-        internal void RegisterChat(MyMultiplayerBase multiplayer)
+        public void RegisterChat(MyMultiplayerBase multiplayer)
         {
             multiplayer.ChatMessageReceived += Multiplayer_ChatMessageReceived;
         }
 
-        internal void UnregisterChat(MyMultiplayerBase multiplayer)
+        public void UnregisterChat(MyMultiplayerBase multiplayer)
         {
             multiplayer.ChatMessageReceived -= Multiplayer_ChatMessageReceived;
             MessagesQueue.Clear();

@@ -6,11 +6,11 @@ namespace Sandbox.Common.ObjectBuilders
     [MyObjectBuilderDefinition]
     public class MyObjectBuilder_RadioAntenna : MyObjectBuilder_FunctionalBlock
     {
-        [ProtoMember(1)]
+        [ProtoMember]
         public float BroadcastRadius;
-        [ProtoMember(2)]
+        [ProtoMember]
         public bool ShowShipName;
-        [ProtoMember(3)]
+        [ProtoMember]
         public bool EnableBroadcasting = true;
     }
 }

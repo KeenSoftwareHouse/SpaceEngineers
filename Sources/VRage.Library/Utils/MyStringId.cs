@@ -11,7 +11,7 @@ namespace VRage.Library.Utils
     {
         public static readonly MyStringId NullOrEmpty;
 
-        [ProtoBuf.ProtoMember(1)]
+        [ProtoBuf.ProtoMember]
         private readonly int m_id;
 
         private MyStringId(int hash)

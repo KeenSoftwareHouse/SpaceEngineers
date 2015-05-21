@@ -17,25 +17,25 @@ namespace Sandbox.Common.ObjectBuilders
         [ProtoContract]
         public class CameraControllerSettings
         {
-            [ProtoMember(1)]
+            [ProtoMember]
             public bool IsFirstPerson;
 
-            [ProtoMember(2)]
+            [ProtoMember]
             public double Distance;
 
-            [ProtoMember(3)]
+            [ProtoMember]
             public SerializableVector2? HeadAngle;
 
             [XmlAttribute]
             public long EntityId;
         }
 
-        //[ProtoMember(1)]
+        //[ProtoMember]
         // Obsolete!
         public ulong SteamID;
         public bool ShouldSerializeSteamID() { return false; }
 
-        //[ProtoMember(1)]
+        //[ProtoMember]
         // Obsolete! Dont use dictionaries when not needed
         private SerializableDictionary<long, CameraControllerSettings> m_cameraData;
         public SerializableDictionary<long, CameraControllerSettings> CameraData
@@ -45,40 +45,40 @@ namespace Sandbox.Common.ObjectBuilders
         }
         public bool ShouldSerializeCameraData() { return false; }
 
-        //[ProtoMember(3)]
+        //[ProtoMember]
         // Obsolete!
         public long PlayerEntity;
         public bool ShouldSerializePlayerEntity() { return false; }
 
-        //[ProtoMember(4)]
+        //[ProtoMember]
         // Obsolete!
         public string PlayerModel;
         public bool ShouldSerializePlayerModel() { return false; }
 
-        //[ProtoMember(5)]
+        //[ProtoMember]
         // Obsolete!
         public long PlayerId;
         public bool ShouldSerializePlayerId() { return false; }
 
-        [ProtoMember(1)]
+        [ProtoMember]
         public string DisplayName;
 
-        [ProtoMember(2)]
+        [ProtoMember]
         public long IdentityId;
 
-        [ProtoMember(3)]
+        [ProtoMember]
         public bool Connected;
 
-        [ProtoMember(4)]
+        [ProtoMember]
         public MyObjectBuilder_Toolbar Toolbar;
 
-        [ProtoMember(5)]
+        [ProtoMember]
         public long LastActivity;
 
-        [ProtoMember(6)]
+        [ProtoMember]
         public CameraControllerSettings CharacterCameraData;
 
-        [ProtoMember(7)]
+        [ProtoMember]
         public List<CameraControllerSettings> EntityCameraData;
     }
 }

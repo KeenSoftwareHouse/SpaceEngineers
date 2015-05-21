@@ -1,5 +1,6 @@
 ﻿using Sandbox.Common;
 using Sandbox.Common.ObjectBuilders;
+using Sandbox.Common.ObjectBuilders.Definitions;
 using Sandbox.Common.ObjectBuilders.AI;
 using Sandbox.Definitions;
 using Sandbox.Engine.Networking;
@@ -35,13 +36,13 @@ namespace Sandbox.Game.AI
         {
             public MyAgentDefinition AgentDefinition;
             public Vector3D? SpawnPosition;
-            public bool CreateAlways;
+            public bool CreatedByPlayer;
 
             public AgentSpawnData(MyAgentDefinition agentDefinition, Vector3D? spawnPosition = null, bool createAlways = false)
             {
                 AgentDefinition = agentDefinition;
                 SpawnPosition = spawnPosition;
-                CreateAlways = createAlways;
+                CreatedByPlayer = createAlways;
             }
         }
 
@@ -59,6 +60,8 @@ namespace Sandbox.Game.AI
         private List<int> m_loadedLocalPlayers;
         private Queue<int> m_removeQueue;
 
+        private static List<MyPlaceArea> m_tmpAreas = new List<MyPlaceArea>();
+
         public static MyAIComponent Static;
         public static IMyBotFactory BotFactory;
 
@@ -69,6 +72,7 @@ namespace Sandbox.Game.AI
 
         public MyAgentDefinition BotToSpawn = null;
         public MyAiCommandDefinition CommandDefinition = null;
+		public MyAreaMarkerDefinition AreaMarkerDefinition = null;
 
         public MyAIComponent()
         {
@@ -252,9 +256,6 @@ namespace Sandbox.Game.AI
 
         public int SpawnNewBot(MyAgentDefinition agentDefinition)
         {
-            //if (!MyAIComponent.Static.CanSpawnMoreBots(agentDefinition.BehaviorType)) 
-            //    return 0;
-
             Vector3D spawnPosition = default(Vector3D);
             if (!BotFactory.GetBotSpawnPosition(agentDefinition.BehaviorType, out spawnPosition)) 
                 return 0;
@@ -262,27 +263,20 @@ namespace Sandbox.Game.AI
             return SpawnNewBotInternal(agentDefinition, spawnPosition, false);
         }
 
-        private int SpawnNewBotInternal(MyAgentDefinition agentDefinition, Vector3D? spawnPosition = null, bool createAlways = false)
+        private int SpawnNewBotInternal(MyAgentDefinition agentDefinition, Vector3D? spawnPosition = null, bool createdByPlayer = false)
         {
             var currentHighestBotID = MyAIComponent.GenerateBotId(m_lastSpawnedBot);
             var newBotId = currentHighestBotID;
             EnsureIdentityUniqueness(newBotId);
-            m_agentsToSpawn[newBotId] = new AgentSpawnData(agentDefinition, spawnPosition, createAlways);
+            m_agentsToSpawn[newBotId] = new AgentSpawnData(agentDefinition, spawnPosition, createdByPlayer);
             m_lastSpawnedBot = newBotId;
 
-            Sync.Players.RequestNewPlayer(newBotId, agentDefinition.DisplayNameText, agentDefinition.BotModel);
+            Sync.Players.RequestNewPlayer(newBotId, MyDefinitionManager.Static.GetRandomCharacterName(), agentDefinition.BotModel);
             return newBotId;
         }
 
-        public int ForceSpawnNewBot(MyAgentDefinition agentDefinition, Vector3D? spawnPosition)
+        public int SpawnNewBot(MyAgentDefinition agentDefinition, Vector3D? spawnPosition)
         {
-            //if (!MyAIComponent.Static.CanSpawnMoreBots(agentDefinition.BehaviorType))
-            //{
-            //    var botHandle = m_botCollection.GetHandleToFirstBot(agentDefinition.BehaviorType);
-            //    var player = Sync.Players.TryGetPlayerById(new MyPlayer.PlayerId(MySteam.UserId, botHandle));
-            //    Sync.Players.RemovePlayer(player);
-            //}
-
             return SpawnNewBotInternal(agentDefinition, spawnPosition, true);
         }
 
@@ -297,14 +291,44 @@ namespace Sandbox.Game.AI
             }
         }
 
-        public bool CanSpawnMoreBots(string behaviorType)
+        public bool CanSpawnMoreBots(MyPlayer.PlayerId pid)
         {
             if (!Sync.IsServer)
             {
                 Debug.Assert(false, "Server only");
                 return false;
             }
-            return Static.Bots.TotalBotCount < BotFactory.MaximumBotCount;
+
+			int perPlayerBotMultiplier = (MySession.Static.CreativeMode ? MySession.Static.MaxPlayers : 1);
+
+            if (MySteam.UserId == pid.SteamId)
+            {
+                AgentSpawnData spawnData = default(AgentSpawnData);
+                if (m_agentsToSpawn.TryGetValue(pid.SerialId, out spawnData))
+                {
+                    if (spawnData.CreatedByPlayer)
+                        return Bots.GetCreatedBotCount() < BotFactory.MaximumBotPerPlayer*perPlayerBotMultiplier;
+                    else
+                        return Bots.GetGeneratedBotCount() < BotFactory.MaximumUncontrolledBotCount;
+                }
+                else
+                {
+                    Debug.Assert(false, "Bot doesn't exist");
+                    return false;
+                }
+            }
+            else
+            {
+                int playerBotCount = 0;
+                var lookedPlayer = pid.SteamId;
+                var players = Sync.Players.GetAllPlayers();
+                foreach (var player in players)
+                {
+                    if (player.SteamId == lookedPlayer && player.SerialId != 0)
+                        playerBotCount++;
+                }
+                return playerBotCount < BotFactory.MaximumBotPerPlayer*perPlayerBotMultiplier;
+            }
         }
 
         public int GetBotCount(string behaviorType)
@@ -334,10 +358,17 @@ namespace Sandbox.Game.AI
             if (serialId == 0)
                 return;
 
-            Debug.Assert(m_agentsToSpawn.ContainsKey(serialId));
-            m_agentsToSpawn.Remove(serialId);
-
-            MyHud.Notifications.Add(m_maxBotNotification);
+            if (m_agentsToSpawn.ContainsKey(serialId))
+            {
+                var data = m_agentsToSpawn[serialId];
+                m_agentsToSpawn.Remove(serialId);
+                if (data.CreatedByPlayer)
+                    MyHud.Notifications.Add(m_maxBotNotification);
+            }
+            else
+            {
+                Debug.Assert(false, "Undefined bot");
+            }
         }
 
         private void Players_PlayerRequesting(PlayerRequestArgs args)
@@ -345,7 +376,7 @@ namespace Sandbox.Game.AI
             if (args.PlayerId.SerialId == 0)
                 return;
 
-            if (!CanSpawnMoreBots(null))
+            if (!CanSpawnMoreBots(args.PlayerId))
                 args.Cancel = true;
             else
                 Bots.TotalBotCount++;
@@ -379,13 +410,13 @@ namespace Sandbox.Game.AI
 
             var isBotSpawned = m_agentsToSpawn.ContainsKey(playerNumber);
             var isLoading = botBuilder != null;
-            var forceSpawn = false;
+            var createdByPlayer = false;
             MyBotDefinition botDefinition = null;
             AgentSpawnData spawnData = default(AgentSpawnData);
             if (isBotSpawned)
             {
                 spawnData = m_agentsToSpawn[playerNumber];
-                forceSpawn = spawnData.CreateAlways;
+                createdByPlayer = spawnData.CreatedByPlayer;
                 botDefinition = spawnData.AgentDefinition;
                 m_agentsToSpawn.Remove(playerNumber);
             }
@@ -403,7 +434,7 @@ namespace Sandbox.Game.AI
 
             if ((newPlayer.Character == null || !newPlayer.Character.IsDead)
                 && BotFactory.CanCreateBotOfType(botDefinition.BehaviorType, isLoading) 
-                || forceSpawn)
+                || createdByPlayer)
             {
                 IMyBot bot = null;
                 if (isBotSpawned)
@@ -419,7 +450,7 @@ namespace Sandbox.Game.AI
                 {
                     m_botCollection.AddBot(playerNumber, bot);
                     if (isBotSpawned && bot is IMyEntityBot)
-                        (bot as IMyEntityBot).Spawn(spawnData.SpawnPosition);
+                        (bot as IMyEntityBot).Spawn(spawnData.SpawnPosition, createdByPlayer);
                 }
             }
             else
@@ -455,6 +486,8 @@ namespace Sandbox.Game.AI
                     TrySpawnBot();
                 if (MySession.ControlledEntity != null && CommandDefinition != null)
                     UseCommand();
+				if (MySession.ControlledEntity != null && AreaMarkerDefinition != null)
+					PlaceAreaMarker();
             }
         }
 
@@ -464,6 +497,8 @@ namespace Sandbox.Game.AI
                 BotToSpawn = null;
             if (!(toolbar.SelectedItem is MyToolbarItemAiCommand))
                 CommandDefinition = null;
+			if (!(toolbar.SelectedItem is MyToolbarItemAreaMarker))
+				AreaMarkerDefinition = null;
         }
 
         private void CurrentToolbar_SlotActivated(MyToolbar toolbar, MyToolbar.SlotArgs args)
@@ -472,12 +507,15 @@ namespace Sandbox.Game.AI
                 BotToSpawn = null;
             if (!(toolbar.GetItemAtIndex(toolbar.SlotToIndex(args.SlotNumber.Value)) is MyToolbarItemAiCommand))
                 CommandDefinition = null;
+			if (!(toolbar.GetItemAtIndex(toolbar.SlotToIndex(args.SlotNumber.Value)) is MyToolbarItemAreaMarker))
+				AreaMarkerDefinition = null;
         }
 
         private void CurrentToolbar_Unselected(MyToolbar toolbar)
         {
             BotToSpawn = null;
             CommandDefinition = null;
+			AreaMarkerDefinition = null;
         }
 
         private void TrySpawnBot()
@@ -521,7 +559,7 @@ namespace Sandbox.Game.AI
             if (closestValidHit.HasValue)
             {
                 Vector3D position = closestValidHit.Value.Position;
-                MyAIComponent.Static.ForceSpawnNewBot(BotToSpawn, position);
+                MyAIComponent.Static.SpawnNewBot(BotToSpawn, position);
             }
         }
 
@@ -532,6 +570,76 @@ namespace Sandbox.Game.AI
             tmpCommand.InitCommand(CommandDefinition);
             tmpCommand.ActivateCommand();
         }
+
+		private void PlaceAreaMarker()
+		{
+			Vector3D cameraPos, cameraDir;
+
+			if (MySession.GetCameraControllerEnum() == Common.ObjectBuilders.MyCameraControllerEnum.ThirdPersonSpectator || MySession.GetCameraControllerEnum() == Common.ObjectBuilders.MyCameraControllerEnum.Entity)
+			{
+				var headMatrix = MySession.ControlledEntity.GetHeadMatrix(true, true);
+				cameraPos = headMatrix.Translation;
+				cameraDir = headMatrix.Forward;
+			}
+			else
+			{
+				cameraPos = MySector.MainCamera.Position;
+				cameraDir = MySector.MainCamera.WorldMatrix.Forward;
+			}
+
+			List<MyPhysics.HitInfo> hitInfos = new List<MyPhysics.HitInfo>();
+
+			MyPhysics.CastRay(cameraPos, cameraPos + cameraDir * 100, hitInfos, MyPhysics.ObjectDetectionCollisionLayer);
+			if (hitInfos.Count == 0)
+				return;
+
+			MyPhysics.HitInfo? closestValidHit = null;
+			foreach (var hitInfo in hitInfos)
+			{
+				var ent = hitInfo.HkHitInfo.Body.GetEntity();
+				if (ent is MyCubeGrid)
+				{
+					closestValidHit = hitInfo;
+					break;
+				}
+				else if (ent is MyVoxelMap)
+				{
+					closestValidHit = hitInfo;
+					break;
+				}
+			}
+
+			if (closestValidHit.HasValue)
+			{
+				Vector3D position = closestValidHit.Value.Position;
+				MyAreaMarkerDefinition definition = AreaMarkerDefinition;
+				//MyDefinitionManager.Static.TryGetDefinition(new MyDefinitionId(typeof(MyObjectBuilder_AreaMarkerDefinition), "ForestingArea"), out definition);
+
+                m_tmpAreas.Clear();
+                MyPlaceAreas.GetAllAreas(m_tmpAreas);
+
+                foreach (var area in m_tmpAreas)
+                {
+                    if (area.AreaType == AreaMarkerDefinition.Id.SubtypeId)
+                    {
+                        area.Entity.Close();
+                    }
+                }
+                m_tmpAreas.Clear();
+
+				Debug.Assert(definition != null, "Area marker definition cannot be null!");
+				if (definition == null) return;
+
+				var forward = Vector3D.Reject(cameraDir, Vector3D.Up);
+
+				if (Vector3D.IsZero(forward))
+					forward = Vector3D.Forward;
+
+				var flag = new MyAreaMarker(new MyPositionAndOrientation(position, Vector3D.Normalize(forward), Vector3D.Up), definition);
+
+				MyEntities.Add(flag);
+			}
+		}
 
         public static int GenerateBotId(int lastSpawnedBot)
         {

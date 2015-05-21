@@ -11,13 +11,13 @@ namespace Sandbox.Common.ObjectBuilders.Gui
     [MyObjectBuilderDefinition]
     public class MyObjectBuilder_GuiControlTabPage : MyObjectBuilder_GuiControlParent
     {
-        [ProtoMember(1)]
+        [ProtoMember]
         public int PageKey;
 
-        [ProtoMember(2)]
+        [ProtoMember]
         public string TextEnum;
         
-        [ProtoMember(3)]
+        [ProtoMember]
         public float TextScale;
     }
 }

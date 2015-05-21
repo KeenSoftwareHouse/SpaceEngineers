@@ -95,6 +95,8 @@ namespace VRageRender
         DrawSecondaryCameraSprite,
 
         CreateDecal,
+        CreateScreenDecal,
+        RemoveDecal,
         HideDecals,
 
         UpdateCockpitGlass,

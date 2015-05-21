@@ -1,6 +1,6 @@
 ﻿namespace DedicatedConfigurator
 {
-    partial class ConfigForm
+    partial class ConfigFormOld
     {
         /// <summary>
         /// Required designer variable.
@@ -29,7 +29,7 @@
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
-            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(ConfigForm));
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(ConfigFormOld));
             this.gamesListBox = new System.Windows.Forms.ListBox();
             this.startGameButton = new System.Windows.Forms.RadioButton();
             this.loadGameButton = new System.Windows.Forms.RadioButton();
@@ -546,7 +546,7 @@
             this.restartServiceButton.UseVisualStyleBackColor = true;
             this.restartServiceButton.Click += new System.EventHandler(this.restartServiceButton_Click);
             // 
-            // ConfigForm
+            // ConfigFormOld
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
@@ -569,7 +569,7 @@
             this.MaximumSize = new System.Drawing.Size(720, 16384);
             this.MinimizeBox = false;
             this.MinimumSize = new System.Drawing.Size(720, 720);
-            this.Name = "ConfigForm";
+            this.Name = "ConfigFormOld";
             this.ShowIcon = false;
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "Space engineers - Dedicated server configurator";

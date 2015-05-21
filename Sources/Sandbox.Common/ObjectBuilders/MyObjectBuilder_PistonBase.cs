@@ -10,22 +10,22 @@ namespace Sandbox.Common.ObjectBuilders
     [MyObjectBuilderDefinition]
     public class MyObjectBuilder_PistonBase : MyObjectBuilder_FunctionalBlock
     {
-        [ProtoMember(1)]
+        [ProtoMember]
         public float Velocity = -0.1f;
 
-        [ProtoMember(2)]
+        [ProtoMember]
         public float? MaxLimit;
 
-        [ProtoMember(3)]
+        [ProtoMember]
         public float? MinLimit;
 
-        [ProtoMember(4)]
+        [ProtoMember]
         public bool Reverse;
 
-        [ProtoMember(5)]
+        [ProtoMember]
         public long TopBlockId;
 
-        [ProtoMember(6)]
+        [ProtoMember]
         public float CurrentPosition;
 
         public override void Remap(IMyRemapHelper remapHelper)

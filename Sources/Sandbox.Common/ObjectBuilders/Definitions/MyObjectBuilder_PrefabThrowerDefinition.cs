@@ -10,22 +10,22 @@ namespace Sandbox.Common.ObjectBuilders.Definitions
     [MyObjectBuilderDefinition]
     public class MyObjectBuilder_PrefabThrowerDefinition : MyObjectBuilder_DefinitionBase
     {
-        [ProtoMember(1)]
+        [ProtoMember]
         public float? Mass = null;
 
-        [ProtoMember(2)]
+        [ProtoMember]
         public float MaxSpeed = 80; //m/sec
 
-        [ProtoMember(3)]
+        [ProtoMember]
         public float MinSpeed = 1; //m/sec
 
-        [ProtoMember(4)]
+        [ProtoMember]
         public float PushTime = 1; //sec
 
-        [ProtoMember(5)]
+        [ProtoMember]
         public string PrefabToThrow;
 
-        [ProtoMember(6)]
+        [ProtoMember]
         public string ThrowSound;
     }
 }

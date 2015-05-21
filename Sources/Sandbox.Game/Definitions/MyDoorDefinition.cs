@@ -13,6 +13,7 @@ namespace Sandbox.Definitions
         public float MaxOpen;
         public string OpenSound;
         public string CloseSound;
+        public float OpeningSpeed;
 
         protected override void Init(MyObjectBuilder_DefinitionBase builder)
         {
@@ -23,6 +24,7 @@ namespace Sandbox.Definitions
             MaxOpen = doorBuilder.MaxOpen;
             OpenSound = doorBuilder.OpenSound;
             CloseSound = doorBuilder.CloseSound;
+            OpeningSpeed = doorBuilder.OpeningSpeed;
         }
     }
 }

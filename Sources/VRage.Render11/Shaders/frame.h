@@ -56,6 +56,16 @@ struct FrameConstants {
 	float3 	directionalLightColor;
 	float 	padding1_;
 
+	float 	tonemapping_A;
+	float 	tonemapping_B;
+	float 	tonemapping_C;
+	float 	tonemapping_D;
+
+	float 	tonemapping_E;
+	float 	tonemapping_F;
+	float 	logLumThreshold;
+	float 	padding2_;
+
 	// up to 8 lods
 	float4 voxel_lod_range[4]; 
 };

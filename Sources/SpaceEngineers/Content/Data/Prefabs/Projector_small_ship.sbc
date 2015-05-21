@@ -8,18 +8,18 @@
       </Id>
       <CubeGrids>
         <CubeGrid>
-          <EntityId>163851094222333015</EntityId>
+          <EntityId>201457943077613159</EntityId>
           <PersistentFlags>CastShadows InScene</PersistentFlags>
           <PositionAndOrientation>
-            <Position x="44.92624910507115" y="-6.1595678503959448" z="-25.3624324502899" />
-            <Forward x="0.00742897671" y="0.00211292249" z="-0.9999702" />
-            <Up x="-0.00131662749" y="0.9999969" z="0.00210319739" />
+            <Position x="-28.186925888061523" y="-171.01879274845123" z="114.89638519287109" />
+            <Forward x="0.0579602644" y="0.202545777" z="-0.97755605" />
+            <Up x="0.0174887" y="0.9788459" z="0.203849956" />
           </PositionAndOrientation>
           <GridSizeEnum>Small</GridSizeEnum>
           <CubeBlocks>
             <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_Projector">
               <SubtypeName>SmallProjector</SubtypeName>
-              <EntityId>207015257313950032</EntityId>
+              <EntityId>154210415706501119</EntityId>
               <Min x="0" y="0" z="0" />
               <BlockOrientation Forward="Forward" Up="Up" />
               <ColorMaskHSV x="0.575" y="0" z="0" />
@@ -42,7 +42,7 @@
             </MyObjectBuilder_CubeBlock>
             <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_BatteryBlock">
               <SubtypeName>SmallBlockBatteryBlock</SubtypeName>
-              <EntityId>180467716864212699</EntityId>
+              <EntityId>172909338135491447</EntityId>
               <Min x="-1" y="-3" z="0" />
               <BlockOrientation Forward="Up" Up="Backward" />
               <ColorMaskHSV x="0.575" y="0" z="0" />
@@ -57,10 +57,21 @@
               <MaxStoredPower>0</MaxStoredPower>
               <SemiautoEnabled>false</SemiautoEnabled>
             </MyObjectBuilder_CubeBlock>
+            <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_TerminalBlock">
+              <SubtypeName>SmallControlPanel</SubtypeName>
+              <EntityId>196824489711073151</EntityId>
+              <Min x="0" y="-2" z="-1" />
+              <BlockOrientation Forward="Forward" Up="Up" />
+              <ColorMaskHSV x="0" y="-0.81" z="-0.3" />
+              <ShareMode>All</ShareMode>
+              <DeformationRatio>0</DeformationRatio>
+              <ShowOnHUD>false</ShowOnHUD>
+              <ShowInTerminal>true</ShowInTerminal>
+            </MyObjectBuilder_CubeBlock>
           </CubeBlocks>
           <IsStatic>false</IsStatic>
           <Skeleton />
-          <LinearVelocity x="0" y="0" z="0" />
+          <LinearVelocity x="0.404432565" y="-1.65971732" z="0.8512781" />
           <AngularVelocity x="0" y="0" z="0" />
           <XMirroxPlane xsi:nil="true" />
           <YMirroxPlane xsi:nil="true" />
