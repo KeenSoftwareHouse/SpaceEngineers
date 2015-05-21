@@ -52,5 +52,11 @@ namespace Sandbox.Common.ObjectBuilders
 
         [ProtoMember]
         public List<RemainingAmmoIns> RemainingAmmosList = new List<RemainingAmmoIns>();
+
+        public void ClearRemainingAmmos()
+        {
+            RemainingAmmo = 0;
+            RemainingAmmosList.Clear();
+        }
     }
 }
