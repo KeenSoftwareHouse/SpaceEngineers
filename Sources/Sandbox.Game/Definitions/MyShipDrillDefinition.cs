@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Sandbox.Engine.Utils;
+using VRageMath;
 
 namespace Sandbox.Definitions
 {
@@ -13,6 +14,7 @@ namespace Sandbox.Definitions
     {
         public float SensorRadius;
         public float SensorOffset;
+        public Vector3 InventorySize;
 
         protected override void Init(MyObjectBuilder_DefinitionBase builder)
         {
@@ -20,6 +22,7 @@ namespace Sandbox.Definitions
             var cbuilder = builder as MyObjectBuilder_ShipDrillDefinition;
             SensorRadius = cbuilder.SensorRadius;
             SensorOffset = cbuilder.SensorOffset;
+            InventorySize = cbuilder.InventorySize;
             DeformationRatio = 0.5f;
         }
     }

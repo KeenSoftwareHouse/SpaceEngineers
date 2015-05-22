@@ -15975,6 +15975,11 @@
       <BuildTimeSeconds>20</BuildTimeSeconds>
       <SensorRadius>1.1</SensorRadius>
       <SensorOffset>0.8</SensorOffset>
+      <InventorySize>
+        <X>1</X>
+        <Y>1</Y>
+        <Z>1</Z>
+      </InventorySize>
       <DeformationRatio>0.7</DeformationRatio>
       <DamageEffectId>212</DamageEffectId>
     </Definition>
@@ -16022,6 +16027,11 @@
       <Center x="0" y="0" z="2" />
       <SensorRadius>1.9</SensorRadius>
       <SensorOffset>2.8</SensorOffset>
+      <InventorySize>
+        <X>2</X>
+        <Y>2</Y>
+        <Z>2</Z>
+      </InventorySize>
       <DeformationRatio>0.7</DeformationRatio>
       <DamageEffectId>212</DamageEffectId>
     </Definition>
