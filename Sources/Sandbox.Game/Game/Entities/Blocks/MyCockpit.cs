@@ -421,6 +421,8 @@ namespace Sandbox.Game.Entities
 
         public override void UpdateBeforeSimulation100()
         {
+            base.UpdateBeforeSimulation100();
+
             if (m_pilot != null && m_oxygenLevel < 0.2f && CubeGrid.GridSizeEnum == MyCubeSize.Small)
             {
                 List<IMyConveyorEndpoint> reachableVertices = new List<IMyConveyorEndpoint>();
