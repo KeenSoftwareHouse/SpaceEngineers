@@ -328,7 +328,13 @@ namespace Sandbox.Game.Gui
             items[(int)LineEnum.Speed].Value.Clear().AppendDecimal(Speed, 1).Append(" m/s");
 
             var inventory = items[(int)LineEnum.Inventory];
-            inventory.Value.Clear().AppendDecimal((double)InventoryVolume * 1000, 0).Append(" l");
+            var volume = (double) InventoryVolume;
+            if (volume < 1e4)
+                inventory.Value.Clear().AppendDecimal(volume * 1000, 0).Append(" l");
+            else if (volume < 1e7)
+                inventory.Value.Clear().AppendFormat("{0:f1} m\x00B3", volume);
+            else
+                inventory.Value.Clear().AppendFormat("{0:e4} m\x00B3", volume);
             inventory.NameFont = inventory.ValueFont = IsInventoryFull ? (MyFontEnum?)MyFontEnum.Red : null;
 
             var powerState = items[(int)LineEnum.PowerState];
