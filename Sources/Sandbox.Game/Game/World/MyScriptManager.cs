@@ -46,6 +46,8 @@ namespace Sandbox.Game.World
             base.LoadData();
             Static = this;
             Scripts.Clear();
+            EntityScripts.Clear();
+            SubEntityScripts.Clear();
             if(Sync.IsServer)
                 LoadScripts(MyFileSystem.ContentPath);
             LoadScripts(MySession.Static.CurrentPath);

@@ -1100,7 +1100,14 @@ namespace Sandbox.Game.Entities
             {
                 CreateSync();
             }
+
             GameLogic.Init(objectBuilder);
+            if (m_gameLogicSet != null)
+            {
+                foreach (MyGameLogicComponent item in m_gameLogicSet)
+                    item.Init(objectBuilder);
+            }
+
             ProfilerShort.End();
         }
 
@@ -1241,7 +1248,16 @@ namespace Sandbox.Game.Entities
         {
             Close();
             BeforeDelete();
+
             GameLogic.Close();
+            if(m_gameLogicSet != null)
+            {
+                foreach (MyGameLogicComponent item in m_gameLogicSet)
+                    item.Close();
+
+                m_gameLogicSet = null;
+            }
+
             //doesnt work in parallel update
             //Debug.Assert(MySandboxGame.IsMainThread(), "Entity.Close() called not from Main Thread!");
             Debug.Assert(MyEntities.UpdateInProgress == false, "Do not close entities directly in Update*, use MarkForClose() instead");
@@ -1328,7 +1344,14 @@ namespace Sandbox.Game.Entities
                 MarkedForClose = true;
                 Closing();
                 MyEntities.Close(this);
+
                 GameLogic.MarkForClose();
+                if (m_gameLogicSet != null)
+                {
+                    foreach (MyGameLogicComponent item in m_gameLogicSet)
+                        item.MarkForClose();
+                }
+
                 ProfilerShort.Begin("MarkForCloseHandler");
                 var handler = OnMarkForClose;
                 if (handler != null) handler(this);
