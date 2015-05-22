@@ -1088,16 +1088,18 @@ namespace Sandbox.Game.Entities.Cube
             var queueItems = new List<AssemblerQueueItem>();
             for (int i = 0; i < m_queue.Count; i++)
             {
+                if (!m_queue[i].Blueprint.Results.IsValidIndex(0))
+                    continue;
                 var resultItemId = m_queue[i].Blueprint.Results[0].Id;
-                AssemblerQueueItem newItem = new AssemblerQueueItem() { idx = i, itemType = resultItemId.TypeId.ToString(), subtypeName = resultItemId.SubtypeName, amount = (int)m_queue[i].Amount };
-                queueItems.Add(newItem);
+                queueItems.Add(new AssemblerQueueItem() { idx = i, itemType = resultItemId.TypeId.ToString(), subtypeName = resultItemId.SubtypeName, amount = (int)m_queue[i].Amount });
             }
             return queueItems;
         }
 
         bool Sandbox.ModAPI.Ingame.IMyAssembler.RemoveQueueItem(AssemblerQueueItem queueItem)
         {
-            if (m_queue.Count<queueItem.idx ||
+            if (!m_queue.IsValidIndex(queueItem.idx) ||
+                !m_queue[queueItem.idx].Blueprint.Results.IsValidIndex(0) ||
                 m_queue[queueItem.idx].Blueprint.Results[0].Id.TypeId.ToString() != queueItem.itemType ||
                 m_queue[queueItem.idx].Blueprint.Results[0].Id.SubtypeName != queueItem.subtypeName ||
                 m_queue[queueItem.idx].Amount != queueItem.amount)
@@ -1109,6 +1111,19 @@ namespace Sandbox.Game.Entities.Cube
         void Sandbox.ModAPI.Ingame.IMyAssembler.ClearQueue()
         {
             ClearQueue();
+        }
+
+        int Sandbox.ModAPI.Ingame.IMyAssembler.GetQueueItemAmount(string subtypeName)
+        {
+            int amount = 0;
+            foreach(QueueItem queueItem in m_queue)
+            {
+                if (queueItem.Blueprint.Results.IsValidIndex(0) && queueItem.Blueprint.Results[0].Id.SubtypeName==subtypeName)
+                {
+                    amount += (int)queueItem.Amount;
+                }
+            }
+            return amount;
         }
     }
 }
