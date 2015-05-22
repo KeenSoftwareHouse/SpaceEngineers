@@ -184,17 +184,15 @@ namespace Sandbox.Game.World
                     var descriptor = (MyEntityComponentDescriptor)descriptorArray[0];
                     var component = (MyGameLogicComponent)Activator.CreateInstance(type);
 
-					var subIdDescriptorArray = type.GetCustomAttributes(typeof(MyEntitySubIdComponentDescriptor), false);
-					if (subIdDescriptorArray != null && subIdDescriptorArray.Length > 0)
-					{
-						foreach (var item in subIdDescriptorArray)
+                    if(descriptor.EntityBuilderSubTypeNames != null && descriptor.EntityBuilderSubTypeNames.Length > 0)
+                    {
+                        foreach (string subTypeName in descriptor.EntityBuilderSubTypeNames)
 						{
 							if (gameLogicType.IsAssignableFrom(type) && builderType.IsAssignableFrom(descriptor.EntityBuilderType))
 							{
-								var subIdDescriptor = (MyEntitySubIdComponentDescriptor)item;
-								if (!SubEntityScripts.ContainsKey(new Tuple<Type, string>(descriptor.EntityBuilderType, subIdDescriptor.SubIdName)))
+                                if (!SubEntityScripts.ContainsKey(new Tuple<Type, string>(descriptor.EntityBuilderType, subTypeName)))
 								{
-									SubEntityScripts.Add(new Tuple<Type, string>(descriptor.EntityBuilderType, subIdDescriptor.SubIdName), new HashSet<Type>());
+                                    SubEntityScripts.Add(new Tuple<Type, string>(descriptor.EntityBuilderType, subTypeName), new HashSet<Type>());
 								}
 								else
 								{
@@ -203,7 +201,7 @@ namespace Sandbox.Game.World
 									MyDefinitionErrors.Add(c, "Possible entity type script logic collision", ErrorSeverity.Warning);
 								}
 
-								SubEntityScripts[new Tuple<Type, string>(descriptor.EntityBuilderType, subIdDescriptor.SubIdName)].Add(type);
+                                SubEntityScripts[new Tuple<Type, string>(descriptor.EntityBuilderType, subTypeName)].Add(type);
 							}
 						}
 					}

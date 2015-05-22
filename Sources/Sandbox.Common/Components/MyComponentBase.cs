@@ -11,23 +11,14 @@ namespace Sandbox.Common.Components
     public class MyEntityComponentDescriptor : System.Attribute
     {
         public Type EntityBuilderType;
+        public string[] EntityBuilderSubTypeNames;
 
-        public MyEntityComponentDescriptor(Type entityBuilderType)
+        public MyEntityComponentDescriptor(Type entityBuilderType, params string[] entityBuilderSubTypeNames)
         {
             EntityBuilderType = entityBuilderType;
+            EntityBuilderSubTypeNames = entityBuilderSubTypeNames;
         }
     }
-
-	[AttributeUsage(AttributeTargets.Class, AllowMultiple = true)]
-	public class MyEntitySubIdComponentDescriptor : System.Attribute
-	{
-		public string SubIdName;
-
-		public MyEntitySubIdComponentDescriptor(string subIdName)
-		{
-			SubIdName = subIdName;
-		}
-	}
 
     public abstract class MyComponentBase
     {
