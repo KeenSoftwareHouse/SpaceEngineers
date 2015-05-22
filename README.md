@@ -47,6 +47,7 @@ One way to contribute changes is to send a GitHub [Pull Request](https://help.gi
 - You can update your master branch by executing:
   - git pull https://github.com/KeenSoftwareHouse/SpaceEngineers.git master
 - If your master is tainted, so any branch you make is not based off of KeenSoftwareHouse master and includes junk commits. You should fix that by inputting these git commands on your local repo:
+  - **WARNING: THIS WILL DELETE ALL OF YOUR UNMERGED COMMITS ON THE MASTER BRANCH**
   - git checkout master
   - git fetch https://github.com/KeenSoftwareHouse/SpaceEngineers.git master
   - git reset --hard FETCH_HEAD
