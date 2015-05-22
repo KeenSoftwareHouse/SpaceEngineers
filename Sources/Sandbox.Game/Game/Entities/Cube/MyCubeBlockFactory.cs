@@ -38,16 +38,14 @@ namespace Sandbox.Game.Entities.Cube
             var obj = m_objectFactory.CreateInstance(builder.TypeId);
             MyEntity entity = obj as MyEntity;
             var scriptManager = Sandbox.Game.World.MyScriptManager.Static;
-
-			if (scriptManager != null && builder.SubtypeName != null && scriptManager.SubEntityScripts.ContainsKey(new Tuple<Type, string>(builder.TypeId, builder.SubtypeName)))
-			{
-				entity.AssignGamelogicFromHashSet(scriptManager.SubEntityScripts[new Tuple<Type, string>(builder.TypeId, builder.SubtypeName)]);
-			}
-			else if (entity != null && scriptManager != null && scriptManager.EntityScripts.ContainsKey(builder.TypeId))
-			{
-				entity.AssignGamelogicFromHashSet(scriptManager.EntityScripts[builder.TypeId]);
-			}
-
+            if (scriptManager != null && builder.SubtypeName != null && scriptManager.SubEntityScripts.ContainsKey(new Tuple<Type, string>(builder.TypeId, builder.SubtypeName)))
+            {
+                entity.AssignGamelogicFromHashSet(scriptManager.SubEntityScripts[new Tuple<Type, string>(builder.TypeId, builder.SubtypeName)]);
+            }
+            else if (entity != null && scriptManager != null && scriptManager.EntityScripts.ContainsKey(builder.TypeId))
+            {
+                entity.AssignGamelogicFromHashSet(scriptManager.EntityScripts[builder.TypeId]);
+            }
             return obj;
         }
 
