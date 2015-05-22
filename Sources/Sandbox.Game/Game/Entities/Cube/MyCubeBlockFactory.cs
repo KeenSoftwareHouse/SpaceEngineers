@@ -6,6 +6,7 @@ using System.Reflection;
 using System.Text;
 using Sandbox.Common;
 using Sandbox.Common.ObjectBuilders;
+using Sandbox.Common.Components;
 using VRage.Plugins;
 
 namespace Sandbox.Game.Entities.Cube
@@ -37,8 +38,16 @@ namespace Sandbox.Game.Entities.Cube
             var obj = m_objectFactory.CreateInstance(builder.TypeId);
             MyEntity entity = obj as MyEntity;
             var scriptManager = Sandbox.Game.World.MyScriptManager.Static;
-            if (entity != null && scriptManager != null && scriptManager.EntityScripts.ContainsKey(builder.TypeId))
-                entity.GameLogic = (Sandbox.Common.Components.MyGameLogicComponent)Activator.CreateInstance(scriptManager.EntityScripts[builder.TypeId]);
+
+			if (scriptManager != null && builder.SubtypeName != null && scriptManager.SubEntityScripts.ContainsKey(new Tuple<Type, string>(builder.TypeId, builder.SubtypeName)))
+			{
+				entity.AssignGamelogicFromHashSet(scriptManager.SubEntityScripts[new Tuple<Type, string>(builder.TypeId, builder.SubtypeName)]);
+			}
+			else if (entity != null && scriptManager != null && scriptManager.EntityScripts.ContainsKey(builder.TypeId))
+			{
+				entity.AssignGamelogicFromHashSet(scriptManager.EntityScripts[builder.TypeId]);
+			}
+
             return obj;
         }
 
