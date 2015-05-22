@@ -10123,5 +10123,15 @@ namespace Sandbox.Game.Localization
         ///Displays the received messages
         ///</summary>
         public static readonly MyStringId Antenna_DisplayReceivedMessagesTooltipp = MyStringId.GetOrCompute("Antenna_DisplayReceivedMessagesTooltipp");
+
+        ///<summary>
+        /// on 
+        ///</summary>
+        public static readonly MyStringId Antenna_MsgPart_on = MyStringId.GetOrCompute("Antenna_MsgPart_on");
+
+        ///<summary>
+        /// to 
+        ///</summary>
+        public static readonly MyStringId Antenna_MsgPart_to = MyStringId.GetOrCompute("Antenna_MsgPart_to");
     }
 }

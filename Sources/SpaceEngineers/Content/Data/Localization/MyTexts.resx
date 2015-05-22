@@ -6273,4 +6273,10 @@ To connect to lasers not listed here you can connect to coordinates.</value>
   <data name="Antenna_DisplayReceivedMessagesTooltipp" xml:space="preserve">
     <value>Displays the received messages</value>
   </data>
+  <data name="Antenna_MsgPart_on" xml:space="preserve">
+    <value> on </value>
+  </data>
+  <data name="Antenna_MsgPart_to" xml:space="preserve">
+    <value> to </value>
+  </data>
 </root>

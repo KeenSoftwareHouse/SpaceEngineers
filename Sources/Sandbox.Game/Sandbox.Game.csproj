@@ -244,6 +244,7 @@
     <Compile Include="Engine\Utils\MyConfigBase.cs" />
     <Compile Include="Engine\Utils\MyConfigDedicated.cs" />
     <Compile Include="Engine\Utils\MyDataIntegrityChecker.cs" />
+    <Compile Include="Engine\Utils\MyRadioAntennaMessages.cs" />
     <Compile Include="Engine\Utils\MySpaceBindingCreator.cs" />
     <Compile Include="Engine\Utils\MyUtils.cs" />
     <Compile Include="Engine\Utils\MyTextureAtlasUtils.cs" />

@@ -370,16 +370,35 @@ namespace Sandbox.Game.Entities.Cube
         }
 
         //mine
-        public void ReceiveMessage(string shipsender, string shipreceiver, string pbreceiver, string message)
+        private int PushMessageToStorage(string shipsender, string shipreceiver, string pbreceiver, string message)
         {
-            //LastReceivedMessage = shipsender + " to " + pbreceiver + " on " + shipreceiver + ": " + message;
+            //localisation! Magic 12 has to be adapted also!
+            StringBuilder text = new StringBuilder(shipsender);
+            text.Append(MyTexts.Get(MySpaceTexts.Antenna_MsgPart_to)); // " to "
+            text.Append(pbreceiver);
+            text.Append(MyTexts.Get(MySpaceTexts.Antenna_MsgPart_on)); // " on "
+            text.Append(shipreceiver);
+            text.Append(": "); //I think this is in all languages the same...
+            text.Append(message);
+            text.Append("\n");
 
-            //Change to string builder, make sure that only one antenna per ship is listening, global storage for messenges?
+            return MyRadioAntennaMessages.Add(text);
+        }
+
+        public void ReceiveMessage(int hash)
+        {
+            if (m_messageHashs == null)
+                m_messageHashs = new List<int>();
+
+            m_messageHashs.Add(hash);
         }
 
         public bool SendMessage(string shipreceiver, string pbreceiver, string message)
         {
-            
+
+            if (shipreceiver.Length + pbreceiver.Length + message.Length + MESSAGE_PART_LENGTH > MyRadioAntennaMessages.MAX_MESSAGE_LENGTH)
+                return false; //Message was to long. The magic 12 comes from the added strings: " to " + " on " + ": " + "\n"
+
             if (m_sendMessageTimestamp == 0)
             {
                 //First message sent.
@@ -402,6 +421,9 @@ namespace Sandbox.Game.Entities.Cube
                 }
             }
 
+            //Create the message in the storage and keep the reference.
+            int hash = PushMessageToStorage(this.CubeGrid.DisplayName, shipreceiver, pbreceiver, message);
+
             foreach (var broadcaster in RadioReceiver.RelayedBroadcasters)
             {
                 if (broadcaster.Parent is MyRadioAntenna)
@@ -410,7 +432,8 @@ namespace Sandbox.Game.Entities.Cube
                     if (!antenna.Listen || antenna == this) //Antenna is not listening to open chatter, thus ignore it.
                         continue;
 
-                    antenna.ReceiveMessage(this.CubeGrid.DisplayName, shipreceiver, pbreceiver, message);
+                    //Send the reference to the listening antenna
+                    antenna.ReceiveMessage(hash);
 
                     if (antenna.CubeGrid.DisplayName == shipreceiver)
                     {
@@ -436,44 +459,53 @@ namespace Sandbox.Game.Entities.Cube
 
         public void OpenReceivedMessagesDisplay() 
         {
-            /*var missionScreen = new MyGuiScreenMission(missionTitle: "Received Messages",
-                    currentObjectivePrefix: "",
-                    currentObjective: "",
-                    description: null,
-                    resultCallback: null,
-                    okButtonCaption: "Close");
+            if (m_messageHashs == null)
+                m_messageHashs = new List<int>();
 
-            missionScreen.AppendTextToDescription("LastReceivedMessage", Common.MyFontEnum.White, 0.8f);*/
+            StringBuilder desc = MyRadioAntennaMessages.GetMessages(this);
+            MyGuiScreenTextPanel textBox;
 
-            var m_textBox = new MyGuiScreenTextPanel(missionTitle: "Received Messages",
+            if (desc != null)
+            {
+                textBox = new MyGuiScreenTextPanel(missionTitle: "Received Messages",
                            currentObjectivePrefix: "",
                            currentObjective: "",
-                           description: "Blaaa",
+                           description: MyRadioAntennaMessages.GetMessages(this).ToString(),
                            editable: false,
                            resultCallback: null);
+            }
+            else
+            {
+                textBox = new MyGuiScreenTextPanel(missionTitle: "Received Messages",
+                           currentObjectivePrefix: "",
+                           currentObjective: "",
+                           description: "",
+                           editable: false,
+                           resultCallback: null);
+            }
 
-            MyScreenManager.AddScreen(m_textBox);
+            MyScreenManager.AddScreen(textBox);
         }
 
         /// <summary>
         /// This method makes sure that only one antenna per ship has the listen attribute enabled.
         /// </summary>
-        /// <param name="radio">The radio antenna which was just enabled.</param>
-        private void AssertOnlyOneListener(MyRadioAntenna radio)
+        private void AssertOnlyOneListener()
         {
-            var gridGroup = MyCubeGridGroups.Static.Logical.GetGroup(radio.CubeGrid);
+            var gridGroup = MyCubeGridGroups.Static.Logical.GetGroup(this.CubeGrid);
             var terminalGrid = (IMyGridTerminalSystem)gridGroup.GroupData.TerminalSystem;
 
             var blocks = terminalGrid.Blocks;
             foreach (var block in blocks)
             {
-                if (block is MyRadioAntenna && block != radio)
+                if (block is MyRadioAntenna && !block.Equals(this))
                     ((MyRadioAntenna)block).Listen = false;
             }
         }
 
         private const float SEND_MESSAGES_COOLDOWN = 0.75f;
         private static readonly float STOPWATCH_FREQUENCY = 1.0f / Stopwatch.Frequency;
+        private static readonly int MESSAGE_PART_LENGTH = MyTexts.Get(MySpaceTexts.Antenna_MsgPart_to).Length + MyTexts.GetString(MySpaceTexts.Antenna_MsgPart_on).Length;
 
         private long m_sendMessageTimestamp = 0;
 
@@ -485,12 +517,16 @@ namespace Sandbox.Game.Entities.Cube
             {
                 if (m_Listen != value)
                 {
+                    if (value == true)
+                        AssertOnlyOneListener();
+
                     m_Listen = value;
-                    AssertOnlyOneListener(this);
                     RaisePropertiesChanged();
                 }
             }
         }
+
+        public List<int> m_messageHashs;
         //not mine
 
 		bool IsBroadcasting()
