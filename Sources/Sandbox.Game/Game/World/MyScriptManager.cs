@@ -31,8 +31,8 @@ namespace Sandbox.Game.World
        
         public Dictionary<MyStringId, Assembly> Scripts = new Dictionary<MyStringId, Assembly>();
         public Dictionary<Type, HashSet<Type>> EntityScripts = new Dictionary<Type, HashSet<Type>>(); //Binds object builder type with Game Logic component type
-		public Dictionary<Tuple<Type, string>, HashSet<Type>> SubEntityScripts = new Dictionary<Tuple<Type, string>, HashSet<Type>>();
-		public Dictionary<MyStringId, Type> InGameScripts = new Dictionary<MyStringId, Type>(); //Ingame script is just game logic component
+        public Dictionary<Tuple<Type, string>, HashSet<Type>> SubEntityScripts = new Dictionary<Tuple<Type, string>, HashSet<Type>>();
+        public Dictionary<MyStringId, Type> InGameScripts = new Dictionary<MyStringId, Type>(); //Ingame script is just game logic component
         public Dictionary<MyStringId, StringBuilder> InGameScriptsCode = new Dictionary<MyStringId, StringBuilder>();
         private List<string> m_errors = new List<string>();
         private List<string> m_cachedFiles = new List<string>();
@@ -184,45 +184,45 @@ namespace Sandbox.Game.World
                     var descriptor = (MyEntityComponentDescriptor)descriptorArray[0];
                     var component = (MyGameLogicComponent)Activator.CreateInstance(type);
 
-                    if(descriptor.EntityBuilderSubTypeNames != null && descriptor.EntityBuilderSubTypeNames.Length > 0)
+                    if (descriptor.EntityBuilderSubTypeNames != null && descriptor.EntityBuilderSubTypeNames.Length > 0)
                     {
                         foreach (string subTypeName in descriptor.EntityBuilderSubTypeNames)
-						{
-							if (gameLogicType.IsAssignableFrom(type) && builderType.IsAssignableFrom(descriptor.EntityBuilderType))
-							{
+                        {
+                            if (gameLogicType.IsAssignableFrom(type) && builderType.IsAssignableFrom(descriptor.EntityBuilderType))
+                            {
                                 if (!SubEntityScripts.ContainsKey(new Tuple<Type, string>(descriptor.EntityBuilderType, subTypeName)))
-								{
+                                {
                                     SubEntityScripts.Add(new Tuple<Type, string>(descriptor.EntityBuilderType, subTypeName), new HashSet<Type>());
-								}
-								else
-								{
-									var c = new MyModContext();
-									c.Init(assembly.FullName, assembly.FullName);
-									MyDefinitionErrors.Add(c, "Possible entity type script logic collision", ErrorSeverity.Warning);
-								}
+                                }
+                                else
+                                {
+                                    var c = new MyModContext();
+                                    c.Init(assembly.FullName, assembly.FullName);
+                                    MyDefinitionErrors.Add(c, "Possible entity type script logic collision", ErrorSeverity.Warning);
+                                }
 
                                 SubEntityScripts[new Tuple<Type, string>(descriptor.EntityBuilderType, subTypeName)].Add(type);
-							}
-						}
-					}
-					else
-					{
-						if (gameLogicType.IsAssignableFrom(type) && builderType.IsAssignableFrom(descriptor.EntityBuilderType))
-						{
-							if (!EntityScripts.ContainsKey(descriptor.EntityBuilderType))
-							{
-								EntityScripts.Add(descriptor.EntityBuilderType, new HashSet<Type>());
-							}
-							else
-							{
-								var c = new MyModContext();
-								c.Init(assembly.FullName, assembly.FullName);
-								MyDefinitionErrors.Add(c, "Possible entity type script logic collision", ErrorSeverity.Warning);
-							}
+                            }
+                        }
+                    }
+                    else
+                    {
+                        if (gameLogicType.IsAssignableFrom(type) && builderType.IsAssignableFrom(descriptor.EntityBuilderType))
+                        {
+                            if (!EntityScripts.ContainsKey(descriptor.EntityBuilderType))
+                            {
+                                EntityScripts.Add(descriptor.EntityBuilderType, new HashSet<Type>());
+                            }
+                            else
+                            {
+                                var c = new MyModContext();
+                                c.Init(assembly.FullName, assembly.FullName);
+                                MyDefinitionErrors.Add(c, "Possible entity type script logic collision", ErrorSeverity.Warning);
+                            }
 
-							EntityScripts[descriptor.EntityBuilderType].Add(type);
-						}
-					}
+                            EntityScripts[descriptor.EntityBuilderType].Add(type);
+                        }
+                    }
                 }
             }
         }
