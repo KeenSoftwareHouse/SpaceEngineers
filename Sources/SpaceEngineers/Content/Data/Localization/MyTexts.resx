@@ -6263,5 +6263,7 @@ To connect to lasers not listed here you can connect to coordinates.</value>
   </data>
   <data name="DisplayName_Item_ScrapIngot" xml:space="preserve">
     <value>Old Scrap Metal</value>
+  <data name="HudBlockInfo_Integrity" xml:space="preserve">
+    <value>Integrity: {0}</value>
   </data>
 </root>

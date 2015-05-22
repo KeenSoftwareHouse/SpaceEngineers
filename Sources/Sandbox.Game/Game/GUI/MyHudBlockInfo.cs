@@ -62,6 +62,8 @@ namespace Sandbox.Game.Gui
         public float BlockIntegrity;
         public float CriticalIntegrity;
         public float OwnershipIntegrity;
+        public float Mass;
+        public float MaxIntegrity;
 
         public int CriticalComponentIndex = -1;
         public int MissingComponentIndex = -1;

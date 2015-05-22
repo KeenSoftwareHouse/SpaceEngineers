@@ -4,9 +4,7 @@ using Sandbox.Game.Gui;
 using Sandbox.Game.Localization;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
-using VRage;
 using VRage;
 using VRage.Utils;
 using VRageMath;
@@ -94,6 +92,8 @@ namespace Sandbox.Graphics.GUI
 
         MyGuiControlLabel m_blockTypeLabel;
         MyGuiControlLabel m_blockNameLabel;
+        MyGuiControlLabel m_blockMassLabel;
+        MyGuiControlLabel m_blockIntegrityLabel;
         MyGuiControlLabel m_componentsLabel;
         MyGuiControlLabel m_installedRequiredLabel;
         MyGuiControlLabel m_integrityLabel;
@@ -191,6 +191,21 @@ namespace Sandbox.Graphics.GUI
             m_blockTypeLabel.Font = MyFontEnum.White;
             Elements.Add(m_blockTypeLabel);
 
+            if (!m_progressMode)
+            {
+                m_blockMassLabel = new MyGuiControlLabel(text: String.Empty);
+                m_blockMassLabel.OriginAlign = MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_TOP;
+                m_blockMassLabel.TextScale = 1 * baseScale;
+                m_blockMassLabel.Font = MyFontEnum.White;
+                Elements.Add(m_blockMassLabel);
+
+                m_blockIntegrityLabel = new MyGuiControlLabel(text: String.Empty);
+                m_blockIntegrityLabel.OriginAlign = MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_TOP;
+                m_blockIntegrityLabel.TextScale = 1 * baseScale;
+                m_blockIntegrityLabel.Font = MyFontEnum.White;
+                Elements.Add(m_blockIntegrityLabel);
+            }
+
             m_componentsLabel = new MyGuiControlLabel(text: MyTexts.GetString(MySpaceTexts.HudBlockInfo_Components));
             m_componentsLabel.OriginAlign = MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_TOP;
             m_componentsLabel.TextScale = m_smallerFontSize * baseScale;
@@ -235,6 +250,9 @@ namespace Sandbox.Graphics.GUI
         void Reposition()
         {
             this.Size = new Vector2(this.Size.X, 0.12f * baseScale + itemHeight * BlockInfo.Components.Count);
+
+            if (!m_progressMode)
+                this.Size += new Vector2(0, 0.02f);
 
             //BackgroundTexture =  @"Textures\GUI\Screens\aa";
             var topleft = -this.Size / 2;
@@ -355,10 +373,38 @@ namespace Sandbox.Graphics.GUI
                 m_blockTypeLabel.OriginAlign = MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_TOP;
                 m_blockTypeLabel.TextScale = m_smallerFontSize * baseScale;
                 m_blockTypeLabel.Position = m_blockIconPanel.Position + new Vector2(m_blockIconPanel.Size.X, 0) + new Vector2(0.004f, -0.0025f);
+
+                if (!m_progressMode)
+                {
+                    m_blockMassLabel.Visible = true;
+                    m_blockMassLabel.OriginAlign = MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_TOP;
+                    m_blockMassLabel.TextScale = m_smallerFontSize * baseScale;
+                    m_blockMassLabel.Position = new Vector2(m_blockIconPanel.Position.X, separatorPos.Y + 0.0025f);
+                    m_blockMassLabel.TextToDraw.Clear();
+                    m_blockMassLabel.TextToDraw.AppendFormat(MyTexts.GetString(MySpaceTexts.ScreenTerminalInventory_Mass), (int)Math.Floor(BlockInfo.Mass));
+
+                    m_blockIntegrityLabel.Visible = true;
+                    m_blockIntegrityLabel.OriginAlign = MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_TOP;
+                    m_blockIntegrityLabel.TextScale = m_smallerFontSize * baseScale;
+                    m_blockIntegrityLabel.Position = new Vector2(topRight.X - 0.1f, m_blockMassLabel.Position.Y);
+                    m_blockIntegrityLabel.TextToDraw.Clear();
+                    m_blockIntegrityLabel.TextToDraw.AppendFormat(MyTexts.GetString(MySpaceTexts.HudBlockInfo_Integrity), (int)Math.Floor(BlockInfo.MaxIntegrity));
+                }
+                else
+                {
+                    m_blockMassLabel.Visible = false;
+                    m_blockIntegrityLabel.Visible = false;
+                }
             }
 
             m_componentsLabel.Position = rightColumn + new Vector2(0.006f, 0.076f * baseScale);
             m_installedRequiredLabel.Position = topRight + new Vector2(-0.011f, 0.076f * baseScale);
+
+            if (!m_progressMode)
+            {
+                m_componentsLabel.Position += new Vector2(0, 0.03f * baseScale);
+                m_installedRequiredLabel.Position += new Vector2(0, 0.03f * baseScale);
+            }
 
             m_blockIconPanel.Position = topleft + new Vector2(0.0085f, 0.012f);
             m_blockIconPanelBackground.Position = topleft + new Vector2(0.0085f, 0.012f);
@@ -367,7 +413,7 @@ namespace Sandbox.Graphics.GUI
             if (m_progressMode)
                 listPos = topleft + new Vector2(0.0485f, 0.102f);
             else
-                listPos = topleft + new Vector2(0.008f, 0.102f * baseScale);
+                listPos = topleft + new Vector2(0.008f, 0.127f * baseScale);
 
             for (int i = 0; i < BlockInfo.Components.Count; i++)
             {

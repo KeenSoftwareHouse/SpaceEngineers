@@ -10108,5 +10108,9 @@ namespace Sandbox.Game.Localization
         ///Old Scrap Metal
         ///</summary>
         public static readonly MyStringId DisplayName_Item_ScrapIngot = MyStringId.GetOrCompute("DisplayName_Item_ScrapIngot");
+        ///<summary>
+        ///Integrity: {0}
+        ///</summary>
+        public static readonly MyStringId HudBlockInfo_Integrity = MyStringId.GetOrCompute("HudBlockInfo_Integrity");
     }
 }
