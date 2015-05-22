@@ -100,13 +100,6 @@ namespace Sandbox.Game.Entities
             set { Components.Add<MyGameLogicComponent>(value); }
         }
 
-		private HashSet<MyGameLogicComponent> m_gameLogicSet = null;
-		public HashSet<MyGameLogicComponent> GameLogicSet
-		{
-			get { return m_gameLogicSet; }
-			set { m_gameLogicSet = value; }
-		}
-
         /// <summary>
         /// Entity id, can be set by subclasses (for example when using pool...)
         /// </summary>
@@ -470,26 +463,6 @@ namespace Sandbox.Game.Entities
             }
         }
 
-        public void AssignGamelogicFromHashSet(HashSet<Type> items)
-        {
-            bool first = true;
-            foreach (Type logicType in items)
-            {
-                if (first)
-                {
-                    GameLogic = (MyGameLogicComponent)Activator.CreateInstance(logicType);
-                    first = false;
-                }
-                else
-                {
-                    if (GameLogicSet == null)
-                        GameLogicSet = new HashSet<MyGameLogicComponent>();
-
-                    GameLogicSet.Add((MyGameLogicComponent)Activator.CreateInstance(logicType));
-                }
-            }
-        }
-
         protected virtual MySyncEntity OnCreateSync()
         {
             return new MySyncEntity(this);
@@ -504,32 +477,17 @@ namespace Sandbox.Game.Entities
         public virtual void UpdateOnceBeforeFrame()
         {
             m_gameLogic.UpdateOnceBeforeFrame();
-            if (m_gameLogicSet != null)
-            {
-                foreach (MyGameLogicComponent item in m_gameLogicSet)
-                    item.UpdateOnceBeforeFrame();
-            }
             Debug.Assert(!Closed, "Cannot update entity, entity is closed");
         }
 
         public virtual void UpdateBeforeSimulation()
         {
             m_gameLogic.UpdateBeforeSimulation();
-            if (m_gameLogicSet != null)
-            {
-                foreach (MyGameLogicComponent item in m_gameLogicSet)
-                    item.UpdateBeforeSimulation();
-            }
             Debug.Assert(!Closed, "Cannot update entity, entity is closed");
         }
         public virtual void UpdateAfterSimulation()
         {
             m_gameLogic.UpdateAfterSimulation();
-            if (m_gameLogicSet != null)
-            {
-                foreach (MyGameLogicComponent item in m_gameLogicSet)
-                    item.UpdateAfterSimulation();
-            }
             Debug.Assert(!Closed, "Cannot update entity, entity is closed");
             //if(m_syncObject != null) m_syncObject.Update();
         }
@@ -546,21 +504,11 @@ namespace Sandbox.Game.Entities
         public virtual void UpdateBeforeSimulation10()
         {
             m_gameLogic.UpdateBeforeSimulation10();
-            if (m_gameLogicSet != null)
-            {
-                foreach (MyGameLogicComponent item in m_gameLogicSet)
-                    item.UpdateBeforeSimulation10();
-            }
             Debug.Assert(!Closed, "Cannot update entity, entity is closed");
         }
         public virtual void UpdateAfterSimulation10()
         {
             m_gameLogic.UpdateAfterSimulation10();
-            if (m_gameLogicSet != null)
-            {
-                foreach (MyGameLogicComponent item in m_gameLogicSet)
-                    item.UpdateAfterSimulation10();
-            }
             Debug.Assert(!Closed, "Cannot update entity, entity is closed");
             //if (m_syncObject != null) m_syncObject.Update10();
         }
@@ -572,21 +520,11 @@ namespace Sandbox.Game.Entities
         public virtual void UpdateBeforeSimulation100()
         {
             m_gameLogic.UpdateBeforeSimulation100();
-            if (m_gameLogicSet != null)
-            {
-                foreach (MyGameLogicComponent item in m_gameLogicSet)
-                    item.UpdateBeforeSimulation();
-            }
             Debug.Assert(!Closed, "Cannot update entity, entity is closed");
         }
         public virtual void UpdateAfterSimulation100()
         {
             m_gameLogic.UpdateAfterSimulation100();
-            if (m_gameLogicSet != null)
-            {
-                foreach (MyGameLogicComponent item in m_gameLogicSet)
-                    item.UpdateAfterSimulation100();
-            }
             Debug.Assert(!Closed, "Cannot update entity, entity is closed");
             //if (m_syncObject != null) m_syncObject.Update100();
         }
@@ -1100,14 +1038,7 @@ namespace Sandbox.Game.Entities
             {
                 CreateSync();
             }
-
             GameLogic.Init(objectBuilder);
-            if (m_gameLogicSet != null)
-            {
-                foreach (MyGameLogicComponent item in m_gameLogicSet)
-                    item.Init(objectBuilder);
-            }
-
             ProfilerShort.End();
         }
 
@@ -1248,16 +1179,7 @@ namespace Sandbox.Game.Entities
         {
             Close();
             BeforeDelete();
-
             GameLogic.Close();
-            if(m_gameLogicSet != null)
-            {
-                foreach (MyGameLogicComponent item in m_gameLogicSet)
-                    item.Close();
-
-                m_gameLogicSet = null;
-            }
-
             //doesnt work in parallel update
             //Debug.Assert(MySandboxGame.IsMainThread(), "Entity.Close() called not from Main Thread!");
             Debug.Assert(MyEntities.UpdateInProgress == false, "Do not close entities directly in Update*, use MarkForClose() instead");
@@ -1344,14 +1266,7 @@ namespace Sandbox.Game.Entities
                 MarkedForClose = true;
                 Closing();
                 MyEntities.Close(this);
-
                 GameLogic.MarkForClose();
-                if (m_gameLogicSet != null)
-                {
-                    foreach (MyGameLogicComponent item in m_gameLogicSet)
-                        item.MarkForClose();
-                }
-
                 ProfilerShort.Begin("MarkForCloseHandler");
                 var handler = OnMarkForClose;
                 if (handler != null) handler(this);
