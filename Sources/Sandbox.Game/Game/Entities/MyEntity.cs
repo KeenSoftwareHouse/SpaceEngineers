@@ -470,25 +470,25 @@ namespace Sandbox.Game.Entities
             }
         }
 
-		public void AssignGamelogicFromHashSet(HashSet<Type> items)
-		{
-			bool first = true;
-			foreach (Type logicType in items)
-			{
-				if (first)
-				{
-					GameLogic = (MyGameLogicComponent)Activator.CreateInstance(logicType);
-					first = false;
-				}
-				else
-				{
-					if (GameLogicSet == null)
-						GameLogicSet = new HashSet<MyGameLogicComponent>();
+        public void AssignGamelogicFromHashSet(HashSet<Type> items)
+        {
+            bool first = true;
+            foreach (Type logicType in items)
+            {
+                if (first)
+                {
+                    GameLogic = (MyGameLogicComponent)Activator.CreateInstance(logicType);
+                    first = false;
+                }
+                else
+                {
+                    if (GameLogicSet == null)
+                        GameLogicSet = new HashSet<MyGameLogicComponent>();
 
-					GameLogicSet.Add((MyGameLogicComponent)Activator.CreateInstance(logicType));
-				}
-			}
-		}
+                    GameLogicSet.Add((MyGameLogicComponent)Activator.CreateInstance(logicType));
+                }
+            }
+        }
 
         protected virtual MySyncEntity OnCreateSync()
         {
