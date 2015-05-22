@@ -1,11 +1,11 @@
 ﻿using System.Text;
-using VRage.Library.Utils;
+using VRage.Utils;
 
 // This file has been generated. Do not edit it.
 namespace Sandbox.Game.Localization
 {
     [System.CodeDom.Compiler.GeneratedCode("Space Engineers Localization Generator Template", "1.0.0.0")]
-    internal static class MySpaceTexts
+    public static class MySpaceTexts
     {
         public static readonly MyStringId Blank = default(MyStringId);
 
@@ -10108,5 +10108,225 @@ namespace Sandbox.Game.Localization
         ///Old Scrap Metal
         ///</summary>
         public static readonly MyStringId DisplayName_Item_ScrapIngot = MyStringId.GetOrCompute("DisplayName_Item_ScrapIngot");
+
+        ///<summary>
+        ///Add
+        ///</summary>
+        public static readonly MyStringId BlockActionTitle_AddWaypoint = MyStringId.GetOrCompute("BlockActionTitle_AddWaypoint");
+
+        ///<summary>
+        ///Move Down
+        ///</summary>
+        public static readonly MyStringId BlockActionTitle_MoveWaypointDown = MyStringId.GetOrCompute("BlockActionTitle_MoveWaypointDown");
+
+        ///<summary>
+        ///Move Up
+        ///</summary>
+        public static readonly MyStringId BlockActionTitle_MoveWaypointUp = MyStringId.GetOrCompute("BlockActionTitle_MoveWaypointUp");
+
+        ///<summary>
+        ///Remove
+        ///</summary>
+        public static readonly MyStringId BlockActionTitle_RemoveWaypoint = MyStringId.GetOrCompute("BlockActionTitle_RemoveWaypoint");
+
+        ///<summary>
+        ///Autopilot
+        ///</summary>
+        public static readonly MyStringId BlockPropertyTitle_AutoPilot = MyStringId.GetOrCompute("BlockPropertyTitle_AutoPilot");
+
+        ///<summary>
+        ///Flight Mode
+        ///</summary>
+        public static readonly MyStringId BlockPropertyTitle_FlightMode = MyStringId.GetOrCompute("BlockPropertyTitle_FlightMode");
+
+        ///<summary>
+        ///Circle
+        ///</summary>
+        public static readonly MyStringId BlockPropertyTitle_FlightMode_Circle = MyStringId.GetOrCompute("BlockPropertyTitle_FlightMode_Circle");
+
+        ///<summary>
+        ///One Way
+        ///</summary>
+        public static readonly MyStringId BlockPropertyTitle_FlightMode_OneWay = MyStringId.GetOrCompute("BlockPropertyTitle_FlightMode_OneWay");
+
+        ///<summary>
+        ///Patrol
+        ///</summary>
+        public static readonly MyStringId BlockPropertyTitle_FlightMode_Patrol = MyStringId.GetOrCompute("BlockPropertyTitle_FlightMode_Patrol");
+
+        ///<summary>
+        ///GPS Locations
+        ///</summary>
+        public static readonly MyStringId BlockPropertyTitle_GpsLocations = MyStringId.GetOrCompute("BlockPropertyTitle_GpsLocations");
+
+        ///<summary>
+        ///Waypoints
+        ///</summary>
+        public static readonly MyStringId BlockPropertyTitle_Waypoints = MyStringId.GetOrCompute("BlockPropertyTitle_Waypoints");
+
+        ///<summary>
+        ///Set an action to be done when autopilot reaches destination
+        ///</summary>
+        public static readonly MyStringId BlockPropertyPopup_AutoPilotToolbarOpen = MyStringId.GetOrCompute("BlockPropertyPopup_AutoPilotToolbarOpen");
+
+        ///<summary>
+        ///Setup Action
+        ///</summary>
+        public static readonly MyStringId BlockPropertyTitle_AutoPilotToolbarOpen = MyStringId.GetOrCompute("BlockPropertyTitle_AutoPilotToolbarOpen");
+
+        ///<summary>
+        ///Autopilot enabled
+        ///</summary>
+        public static readonly MyStringId Notification_NoControlAutoPilot = MyStringId.GetOrCompute("Notification_NoControlAutoPilot");
+
+        ///<summary>
+        ///Physics
+        ///</summary>
+        public static readonly MyStringId WorldSettings_Physics = MyStringId.GetOrCompute("WorldSettings_Physics");
+
+        ///<summary>
+        ///Fast
+        ///</summary>
+        public static readonly MyStringId WorldSettings_Physics_Fast = MyStringId.GetOrCompute("WorldSettings_Physics_Fast");
+
+        ///<summary>
+        ///Normal
+        ///</summary>
+        public static readonly MyStringId WorldSettings_Physics_Normal = MyStringId.GetOrCompute("WorldSettings_Physics_Normal");
+
+        ///<summary>
+        ///Precise
+        ///</summary>
+        public static readonly MyStringId WorldSettings_Physics_Precise = MyStringId.GetOrCompute("WorldSettings_Physics_Precise");
+
+        ///<summary>
+        ///Higher settings improve simulation BUT directly affects performance.
+        ///</summary>
+        public static readonly MyStringId WorldSettings_Physics_Tooltip = MyStringId.GetOrCompute("WorldSettings_Physics_Tooltip");
+
+        ///<summary>
+        ///Graphics options
+        ///</summary>
+        public static readonly MyStringId ScreenCaptionGraphicsOptions = MyStringId.GetOrCompute("ScreenCaptionGraphicsOptions");
+
+        ///<summary>
+        ///Anisotropic filtering
+        ///</summary>
+        public static readonly MyStringId ScreenGraphicsOptions_AnisotropicFiltering = MyStringId.GetOrCompute("ScreenGraphicsOptions_AnisotropicFiltering");
+
+        ///<summary>
+        ///Off
+        ///</summary>
+        public static readonly MyStringId ScreenGraphicsOptions_AnisotropicFiltering_Off = MyStringId.GetOrCompute("ScreenGraphicsOptions_AnisotropicFiltering_Off");
+
+        ///<summary>
+        ///Anti-aliasing
+        ///</summary>
+        public static readonly MyStringId ScreenGraphicsOptions_AntiAliasing = MyStringId.GetOrCompute("ScreenGraphicsOptions_AntiAliasing");
+
+        ///<summary>
+        ///None
+        ///</summary>
+        public static readonly MyStringId ScreenGraphicsOptions_AntiAliasing_None = MyStringId.GetOrCompute("ScreenGraphicsOptions_AntiAliasing_None");
+
+        ///<summary>
+        ///Foliage details
+        ///</summary>
+        public static readonly MyStringId ScreenGraphicsOptions_FoliageDetails = MyStringId.GetOrCompute("ScreenGraphicsOptions_FoliageDetails");
+
+        ///<summary>
+        ///Disabled
+        ///</summary>
+        public static readonly MyStringId ScreenGraphicsOptions_FoliageDetails_Disabled = MyStringId.GetOrCompute("ScreenGraphicsOptions_FoliageDetails_Disabled");
+
+        ///<summary>
+        ///High
+        ///</summary>
+        public static readonly MyStringId ScreenGraphicsOptions_FoliageDetails_High = MyStringId.GetOrCompute("ScreenGraphicsOptions_FoliageDetails_High");
+
+        ///<summary>
+        ///Low
+        ///</summary>
+        public static readonly MyStringId ScreenGraphicsOptions_FoliageDetails_Low = MyStringId.GetOrCompute("ScreenGraphicsOptions_FoliageDetails_Low");
+
+        ///<summary>
+        ///Medium
+        ///</summary>
+        public static readonly MyStringId ScreenGraphicsOptions_FoliageDetails_Medium = MyStringId.GetOrCompute("ScreenGraphicsOptions_FoliageDetails_Medium");
+
+        ///<summary>
+        ///Multi-threaded rendering
+        ///</summary>
+        public static readonly MyStringId ScreenGraphicsOptions_MultiThreadedRendering = MyStringId.GetOrCompute("ScreenGraphicsOptions_MultiThreadedRendering");
+
+        ///<summary>
+        ///Quality preset
+        ///</summary>
+        public static readonly MyStringId ScreenGraphicsOptions_QualityPreset = MyStringId.GetOrCompute("ScreenGraphicsOptions_QualityPreset");
+
+        ///<summary>
+        ///Custom
+        ///</summary>
+        public static readonly MyStringId ScreenGraphicsOptions_QualityPreset_Custom = MyStringId.GetOrCompute("ScreenGraphicsOptions_QualityPreset_Custom");
+
+        ///<summary>
+        ///High
+        ///</summary>
+        public static readonly MyStringId ScreenGraphicsOptions_QualityPreset_High = MyStringId.GetOrCompute("ScreenGraphicsOptions_QualityPreset_High");
+
+        ///<summary>
+        ///Low
+        ///</summary>
+        public static readonly MyStringId ScreenGraphicsOptions_QualityPreset_Low = MyStringId.GetOrCompute("ScreenGraphicsOptions_QualityPreset_Low");
+
+        ///<summary>
+        ///Medium
+        ///</summary>
+        public static readonly MyStringId ScreenGraphicsOptions_QualityPreset_Medium = MyStringId.GetOrCompute("ScreenGraphicsOptions_QualityPreset_Medium");
+
+        ///<summary>
+        ///Renderer
+        ///</summary>
+        public static readonly MyStringId ScreenGraphicsOptions_Renderer = MyStringId.GetOrCompute("ScreenGraphicsOptions_Renderer");
+
+        ///<summary>
+        ///Shadow map resolution
+        ///</summary>
+        public static readonly MyStringId ScreenGraphicsOptions_ShadowMapResolution = MyStringId.GetOrCompute("ScreenGraphicsOptions_ShadowMapResolution");
+
+        ///<summary>
+        ///High
+        ///</summary>
+        public static readonly MyStringId ScreenGraphicsOptions_ShadowMapResolution_High = MyStringId.GetOrCompute("ScreenGraphicsOptions_ShadowMapResolution_High");
+
+        ///<summary>
+        ///Low
+        ///</summary>
+        public static readonly MyStringId ScreenGraphicsOptions_ShadowMapResolution_Low = MyStringId.GetOrCompute("ScreenGraphicsOptions_ShadowMapResolution_Low");
+
+        ///<summary>
+        ///Texture quality
+        ///</summary>
+        public static readonly MyStringId ScreenGraphicsOptions_TextureQuality = MyStringId.GetOrCompute("ScreenGraphicsOptions_TextureQuality");
+
+        ///<summary>
+        ///High
+        ///</summary>
+        public static readonly MyStringId ScreenGraphicsOptions_TextureQuality_High = MyStringId.GetOrCompute("ScreenGraphicsOptions_TextureQuality_High");
+
+        ///<summary>
+        ///Low
+        ///</summary>
+        public static readonly MyStringId ScreenGraphicsOptions_TextureQuality_Low = MyStringId.GetOrCompute("ScreenGraphicsOptions_TextureQuality_Low");
+
+        ///<summary>
+        ///Medium
+        ///</summary>
+        public static readonly MyStringId ScreenGraphicsOptions_TextureQuality_Medium = MyStringId.GetOrCompute("ScreenGraphicsOptions_TextureQuality_Medium");
+
+        ///<summary>
+        ///Changing the renderer requires restart of the game.
+        ///</summary>
+        public static readonly MyStringId ToolTipVideoOptionsRenderer = MyStringId.GetOrCompute("ToolTipVideoOptionsRenderer");
     }
 }

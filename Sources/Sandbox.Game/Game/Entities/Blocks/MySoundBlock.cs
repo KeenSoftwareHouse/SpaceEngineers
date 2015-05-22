@@ -37,7 +37,7 @@ namespace Sandbox.Game.Entities.Blocks
 
         private float m_soundRadius;
         private float m_volume;
-        private int m_cueId;
+        private MyStringId m_cueId;
         private float m_loopPeriod;
         private MySoundPair m_soundPair;
         private bool m_isLoopable;
@@ -79,7 +79,7 @@ namespace Sandbox.Game.Entities.Blocks
             }
         }
 
-        public int CueId
+        public MyStringId CueId
         {
             get { return m_cueId; }
             set { m_cueId = value; }
@@ -117,7 +117,7 @@ namespace Sandbox.Game.Entities.Blocks
 
         public bool IsSoundSelected
         {
-            get { return CueId != 0; }
+            get { return CueId != MyStringId.NullOrEmpty; }
         }
 
         public MyPowerReceiver PowerReceiver
@@ -205,7 +205,7 @@ namespace Sandbox.Game.Entities.Blocks
             Volume = builder.Volume;
             Range = builder.Range;
             LoopPeriod = builder.LoopPeriod;
-            InitCue(builder.CueId);
+            InitCue(builder.CueName);
 
             PowerReceiver = new MyPowerReceiver(
                 MyConsumerGroupEnum.Utility,
@@ -218,15 +218,15 @@ namespace Sandbox.Game.Entities.Blocks
             SlimBlock.ComponentStack.IsFunctionalChanged += ComponentStack_IsFunctionalChanged;
         }
 
-        private void InitCue(int cueId)
+        private void InitCue(string cueName)
         {
-            if (cueId == 0)
+            if (string.IsNullOrEmpty(cueName))
             {
-                CueId = cueId;
+                CueId = MyStringId.NullOrEmpty;
             }
             else
             {
-                MyStringId stringId = MyStringId.TryGet(cueId);
+                MyStringId stringId = MyStringId.GetOrCompute(cueName);
                 MySoundCategoryDefinition.SoundDescription soundDesc = null;
                 var soundCategories = MyDefinitionManager.Static.GetSoundCategoryDefinitions();
 
@@ -243,7 +243,7 @@ namespace Sandbox.Game.Entities.Blocks
                 if (soundDesc != null)
                     SelectSound(stringId, false);
                 else
-                    CueId = 0;
+                    CueId = MyStringId.NullOrEmpty;
             }
         }
     
@@ -253,7 +253,7 @@ namespace Sandbox.Game.Entities.Blocks
 
             ob.Volume = Volume;
             ob.Range = Range;
-            ob.CueId = CueId;
+            ob.CueName = CueId.ToString();
             ob.LoopPeriod = LoopPeriod;
 
             return ob;
@@ -320,11 +320,11 @@ namespace Sandbox.Game.Entities.Blocks
         {
             if (sync)
             {
-                SyncObject.SendSelectSoundRequest((int)cueId);
+                SyncObject.SendSelectSoundRequest(cueId);
             }
             else
             {
-                CueId = (int)cueId;
+                CueId = cueId;
 
                 if (!MySandboxGame.IsDedicated)
                 {
@@ -382,7 +382,7 @@ namespace Sandbox.Game.Entities.Blocks
                     var item = new MyGuiControlListbox.Item(text: m_helperSB, userData: stringId);
 
                     listBoxContent.Add(item);
-                    if ((int)stringId == CueId)
+                    if (stringId == CueId)
                         listBoxSelectedItems.Add(item);
                 }
             }

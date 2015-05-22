@@ -6264,4 +6264,136 @@ To connect to lasers not listed here you can connect to coordinates.</value>
   <data name="DisplayName_Item_ScrapIngot" xml:space="preserve">
     <value>Old Scrap Metal</value>
   </data>
+  <data name="BlockActionTitle_AddWaypoint" xml:space="preserve">
+    <value>Add</value>
+  </data>
+  <data name="BlockActionTitle_MoveWaypointDown" xml:space="preserve">
+    <value>Move Down</value>
+  </data>
+  <data name="BlockActionTitle_MoveWaypointUp" xml:space="preserve">
+    <value>Move Up</value>
+  </data>
+  <data name="BlockActionTitle_RemoveWaypoint" xml:space="preserve">
+    <value>Remove</value>
+  </data>
+  <data name="BlockPropertyTitle_AutoPilot" xml:space="preserve">
+    <value>Autopilot</value>
+  </data>
+  <data name="BlockPropertyTitle_FlightMode" xml:space="preserve">
+    <value>Flight Mode</value>
+  </data>
+  <data name="BlockPropertyTitle_FlightMode_Circle" xml:space="preserve">
+    <value>Circle</value>
+  </data>
+  <data name="BlockPropertyTitle_FlightMode_OneWay" xml:space="preserve">
+    <value>One Way</value>
+  </data>
+  <data name="BlockPropertyTitle_FlightMode_Patrol" xml:space="preserve">
+    <value>Patrol</value>
+  </data>
+  <data name="BlockPropertyTitle_GpsLocations" xml:space="preserve">
+    <value>GPS Locations</value>
+  </data>
+  <data name="BlockPropertyTitle_Waypoints" xml:space="preserve">
+    <value>Waypoints</value>
+  </data>
+  <data name="BlockPropertyPopup_AutoPilotToolbarOpen" xml:space="preserve">
+    <value>Set an action to be done when autopilot reaches destination</value>
+  </data>
+  <data name="BlockPropertyTitle_AutoPilotToolbarOpen" xml:space="preserve">
+    <value>Setup Action</value>
+  </data>
+  <data name="Notification_NoControlAutoPilot" xml:space="preserve">
+    <value>Autopilot enabled</value>
+  </data>
+  <data name="WorldSettings_Physics" xml:space="preserve">
+    <value>Physics</value>
+  </data>
+  <data name="WorldSettings_Physics_Fast" xml:space="preserve">
+    <value>Fast</value>
+  </data>
+  <data name="WorldSettings_Physics_Normal" xml:space="preserve">
+    <value>Normal</value>
+  </data>
+  <data name="WorldSettings_Physics_Precise" xml:space="preserve">
+    <value>Precise</value>
+  </data>
+  <data name="WorldSettings_Physics_Tooltip" xml:space="preserve">
+    <value>Higher settings improve simulation BUT directly affects performance.</value>
+  </data>
+  <data name="ScreenCaptionGraphicsOptions" xml:space="preserve">
+    <value>Graphics options</value>
+  </data>
+  <data name="ScreenGraphicsOptions_AnisotropicFiltering" xml:space="preserve">
+    <value>Anisotropic filtering</value>
+  </data>
+  <data name="ScreenGraphicsOptions_AnisotropicFiltering_Off" xml:space="preserve">
+    <value>Off</value>
+  </data>
+  <data name="ScreenGraphicsOptions_AntiAliasing" xml:space="preserve">
+    <value>Anti-aliasing</value>
+  </data>
+  <data name="ScreenGraphicsOptions_AntiAliasing_None" xml:space="preserve">
+    <value>None</value>
+  </data>
+  <data name="ScreenGraphicsOptions_FoliageDetails" xml:space="preserve">
+    <value>Foliage details</value>
+  </data>
+  <data name="ScreenGraphicsOptions_FoliageDetails_Disabled" xml:space="preserve">
+    <value>Disabled</value>
+  </data>
+  <data name="ScreenGraphicsOptions_FoliageDetails_High" xml:space="preserve">
+    <value>High</value>
+  </data>
+  <data name="ScreenGraphicsOptions_FoliageDetails_Low" xml:space="preserve">
+    <value>Low</value>
+  </data>
+  <data name="ScreenGraphicsOptions_FoliageDetails_Medium" xml:space="preserve">
+    <value>Medium</value>
+  </data>
+  <data name="ScreenGraphicsOptions_MultiThreadedRendering" xml:space="preserve">
+    <value>Multi-threaded rendering</value>
+  </data>
+  <data name="ScreenGraphicsOptions_QualityPreset" xml:space="preserve">
+    <value>Quality preset</value>
+  </data>
+  <data name="ScreenGraphicsOptions_QualityPreset_Custom" xml:space="preserve">
+    <value>Custom</value>
+  </data>
+  <data name="ScreenGraphicsOptions_QualityPreset_High" xml:space="preserve">
+    <value>High</value>
+  </data>
+  <data name="ScreenGraphicsOptions_QualityPreset_Low" xml:space="preserve">
+    <value>Low</value>
+  </data>
+  <data name="ScreenGraphicsOptions_QualityPreset_Medium" xml:space="preserve">
+    <value>Medium</value>
+  </data>
+  <data name="ScreenGraphicsOptions_Renderer" xml:space="preserve">
+    <value>Renderer</value>
+  </data>
+  <data name="ScreenGraphicsOptions_ShadowMapResolution" xml:space="preserve">
+    <value>Shadow map resolution</value>
+  </data>
+  <data name="ScreenGraphicsOptions_ShadowMapResolution_High" xml:space="preserve">
+    <value>High</value>
+  </data>
+  <data name="ScreenGraphicsOptions_ShadowMapResolution_Low" xml:space="preserve">
+    <value>Low</value>
+  </data>
+  <data name="ScreenGraphicsOptions_TextureQuality" xml:space="preserve">
+    <value>Texture quality</value>
+  </data>
+  <data name="ScreenGraphicsOptions_TextureQuality_High" xml:space="preserve">
+    <value>High</value>
+  </data>
+  <data name="ScreenGraphicsOptions_TextureQuality_Low" xml:space="preserve">
+    <value>Low</value>
+  </data>
+  <data name="ScreenGraphicsOptions_TextureQuality_Medium" xml:space="preserve">
+    <value>Medium</value>
+  </data>
+  <data name="ToolTipVideoOptionsRenderer" xml:space="preserve">
+    <value>Changing the renderer requires restart of the game.</value>
+  </data>
 </root>

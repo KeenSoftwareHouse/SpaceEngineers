@@ -409,10 +409,6 @@ namespace VRageRender
                 {
                     MyPerformanceCounter.PerCameraDraw11Write.ViewFrustumObjectsNum = m_cullQuery.FrustumQuery[i].List.Count;
 
-                    //
-                    // is type (0), flags
-                    //m_cullQuery.FrustumQuery[i].List[0].Proxies[0].PerMaterialIndex;
-
                     int N = m_cullQuery.FrustumQuery[i].List.Count;
                     for (int j = 0; j < N; j++)
                     {

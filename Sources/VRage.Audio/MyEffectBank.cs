@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using VRage.Collections;
 using VRage.Data.Audio;
-using VRage.Library.Utils;
+using VRage.Utils;
 
 namespace VRage.Audio
 {

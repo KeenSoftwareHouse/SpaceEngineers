@@ -334,8 +334,6 @@ namespace VRageRender.Resources
             var texId = TexId.NULL;
             if (NameIndex.TryGetValue(nameKey, out texId))
                 UnloadResources(texId);
-            else
-                Debug.Fail("Resource not found");
         }
 
         internal static void RemoveTextures(Func<TexId, bool> filter)
@@ -932,6 +930,31 @@ namespace VRageRender.Resources
 
             Srvs[handle] = new MySrvInfo { Description = null, View = new ShaderResourceView(MyRender11.Device, Textures.Data[handle.Index].Resource) };
             Uavs[handle] = new MyUavInfo { Description = null, View = new UnorderedAccessView(MyRender11.Device, Textures.Data[handle.Index].Resource) };
+            Index.Add(handle);
+
+            return handle;
+        }
+
+        internal static RwTexId CreateScratch2D(int width, int height, Format resourceFormat, int samplesCount, int samplesQuality, string debugName = null)
+        {
+            var desc = new Texture2DDescription
+            {
+                ArraySize = 1,
+                BindFlags = BindFlags.ShaderResource,
+                CpuAccessFlags = CpuAccessFlags.None,
+                Format = resourceFormat,
+                MipLevels = 1,
+                Usage = ResourceUsage.Default,
+                Width = width,
+                Height = height,
+                SampleDescription = new SampleDescription(samplesCount, samplesQuality)
+            };
+
+            var handle = new RwTexId { Index = Textures.Allocate() };
+            Textures.Data[handle.Index] = new MyRwTextureInfo { Description2D = desc };
+            Textures.Data[handle.Index].Resource = new Texture2D(MyRender11.Device, desc);
+
+            Srvs[handle] = new MySrvInfo { Description = null, View = new ShaderResourceView(MyRender11.Device, Textures.Data[handle.Index].Resource) };
             Index.Add(handle);
 
             return handle;

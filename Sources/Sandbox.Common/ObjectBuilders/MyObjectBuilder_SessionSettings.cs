@@ -230,6 +230,9 @@ namespace Sandbox.Common.ObjectBuilders
         [Display(Name = "")]
         public bool Battle = false;
 
+        [ProtoMember]
+        public int PhysicsIterations = 4;
+
 
         public void LogMembers(MyLog log, LoggingOptions options)
         {
@@ -271,6 +274,13 @@ namespace Sandbox.Common.ObjectBuilders
         }
     }
 
+    public enum MyPhysicsPerformanceEnum
+    {
+        Fast = 4,
+        Normal = 8,
+        Precise = 32,
+    }
+    
     public enum MyOnlineModeEnum
     {
         OFFLINE,

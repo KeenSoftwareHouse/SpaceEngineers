@@ -77,6 +77,8 @@ namespace VRage.Dedicated
             this.groupBox3 = new System.Windows.Forms.GroupBox();
             this.groupBox4 = new System.Windows.Forms.GroupBox();
             this.serviceUpdateTimer = new System.Windows.Forms.Timer(this.components);
+            this.splitContainer1 = new System.Windows.Forms.SplitContainer();
+            this.panel1 = new System.Windows.Forms.Panel();
             this.groupBox1.SuspendLayout();
             this.newGameSettingsPanel.SuspendLayout();
             this.groupBox2.SuspendLayout();
@@ -84,16 +86,20 @@ namespace VRage.Dedicated
             ((System.ComponentModel.ISupportInitialize)(this.logoPictureBox)).BeginInit();
             this.groupBox3.SuspendLayout();
             this.groupBox4.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
+            this.splitContainer1.Panel1.SuspendLayout();
+            this.splitContainer1.Panel2.SuspendLayout();
+            this.splitContainer1.SuspendLayout();
+            this.panel1.SuspendLayout();
             this.SuspendLayout();
             // 
             // gamesListBox
             // 
-            this.gamesListBox.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left)));
+            this.gamesListBox.Dock = System.Windows.Forms.DockStyle.Fill;
             this.gamesListBox.FormattingEnabled = true;
-            this.gamesListBox.Location = new System.Drawing.Point(10, 76);
+            this.gamesListBox.Location = new System.Drawing.Point(0, 0);
             this.gamesListBox.Name = "gamesListBox";
-            this.gamesListBox.Size = new System.Drawing.Size(333, 173);
+            this.gamesListBox.Size = new System.Drawing.Size(337, 191);
             this.gamesListBox.TabIndex = 0;
             this.gamesListBox.SelectedIndexChanged += new System.EventHandler(this.gamesListBox_SelectedIndexChanged);
             // 
@@ -162,12 +168,11 @@ namespace VRage.Dedicated
             this.groupBox1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
+            this.groupBox1.Controls.Add(this.splitContainer1);
             this.groupBox1.Controls.Add(this.newGameSettingsPanel);
             this.groupBox1.Controls.Add(this.startGameButton);
             this.groupBox1.Controls.Add(this.tableLayoutPanel1);
-            this.groupBox1.Controls.Add(this.gamesListBox);
             this.groupBox1.Controls.Add(this.loadGameButton);
-            this.groupBox1.Controls.Add(this.groupBox2);
             this.groupBox1.Location = new System.Drawing.Point(1, 92);
             this.groupBox1.Name = "groupBox1";
             this.groupBox1.Size = new System.Drawing.Size(705, 589);
@@ -204,46 +209,28 @@ namespace VRage.Dedicated
             // 
             // groupBox2
             // 
-            this.groupBox2.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.groupBox2.Controls.Add(this.worldNameTextBox);
-            this.groupBox2.Controls.Add(this.label10);
-            this.groupBox2.Controls.Add(this.label9);
-            this.groupBox2.Controls.Add(this.ignoreLastSessionCHB);
-            this.groupBox2.Controls.Add(this.modIdsTextBox);
-            this.groupBox2.Controls.Add(this.label8);
-            this.groupBox2.Controls.Add(this.label3);
-            this.groupBox2.Controls.Add(this.pauseWhenEmptyCHB);
-            this.groupBox2.Controls.Add(this.bannedIDs);
-            this.groupBox2.Controls.Add(this.label2);
-            this.groupBox2.Controls.Add(this.adminIDs);
-            this.groupBox2.Controls.Add(this.steamAdminsLabel);
-            this.groupBox2.Controls.Add(this.SteamGroupID);
-            this.groupBox2.Controls.Add(this.steamGroupLabel);
-            this.groupBox2.Controls.Add(this.serverNameTextBox);
-            this.groupBox2.Controls.Add(this.label7);
-            this.groupBox2.Controls.Add(this.QueryPortUD);
-            this.groupBox2.Controls.Add(this.IPTextBox);
-            this.groupBox2.Controls.Add(this.label4);
-            this.groupBox2.Controls.Add(this.label1);
-            this.groupBox2.Location = new System.Drawing.Point(0, 264);
+            this.groupBox2.Controls.Add(this.panel1);
+            this.groupBox2.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.groupBox2.Location = new System.Drawing.Point(0, 0);
             this.groupBox2.Name = "groupBox2";
-            this.groupBox2.Size = new System.Drawing.Size(343, 319);
+            this.groupBox2.Size = new System.Drawing.Size(337, 314);
             this.groupBox2.TabIndex = 8;
             this.groupBox2.TabStop = false;
             this.groupBox2.Text = "Server settings";
             // 
             // worldNameTextBox
             // 
-            this.worldNameTextBox.Location = new System.Drawing.Point(98, 97);
+            this.worldNameTextBox.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.worldNameTextBox.Location = new System.Drawing.Point(116, 80);
             this.worldNameTextBox.Name = "worldNameTextBox";
-            this.worldNameTextBox.Size = new System.Drawing.Size(239, 20);
+            this.worldNameTextBox.Size = new System.Drawing.Size(212, 20);
             this.worldNameTextBox.TabIndex = 24;
             this.toolTip1.SetToolTip(this.worldNameTextBox, "A name of the world. Empty name will generate unique world name.");
             // 
             // label10
             // 
             this.label10.AutoSize = true;
-            this.label10.Location = new System.Drawing.Point(6, 100);
+            this.label10.Location = new System.Drawing.Point(3, 83);
             this.label10.Name = "label10";
             this.label10.Size = new System.Drawing.Size(67, 13);
             this.label10.TabIndex = 23;
@@ -252,7 +239,7 @@ namespace VRage.Dedicated
             // label9
             // 
             this.label9.AutoSize = true;
-            this.label9.Location = new System.Drawing.Point(6, 294);
+            this.label9.Location = new System.Drawing.Point(3, 277);
             this.label9.Name = "label9";
             this.label9.Size = new System.Drawing.Size(97, 13);
             this.label9.TabIndex = 22;
@@ -260,8 +247,9 @@ namespace VRage.Dedicated
             // 
             // ignoreLastSessionCHB
             // 
+            this.ignoreLastSessionCHB.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.ignoreLastSessionCHB.AutoSize = true;
-            this.ignoreLastSessionCHB.Location = new System.Drawing.Point(322, 293);
+            this.ignoreLastSessionCHB.Location = new System.Drawing.Point(313, 276);
             this.ignoreLastSessionCHB.Name = "ignoreLastSessionCHB";
             this.ignoreLastSessionCHB.Size = new System.Drawing.Size(15, 14);
             this.ignoreLastSessionCHB.TabIndex = 21;
@@ -269,17 +257,18 @@ namespace VRage.Dedicated
             // 
             // modIdsTextBox
             // 
-            this.modIdsTextBox.Location = new System.Drawing.Point(98, 204);
+            this.modIdsTextBox.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.modIdsTextBox.Location = new System.Drawing.Point(116, 187);
             this.modIdsTextBox.Multiline = true;
             this.modIdsTextBox.Name = "modIdsTextBox";
-            this.modIdsTextBox.Size = new System.Drawing.Size(239, 39);
+            this.modIdsTextBox.Size = new System.Drawing.Size(212, 39);
             this.modIdsTextBox.TabIndex = 20;
             this.toolTip1.SetToolTip(this.modIdsTextBox, "Workshop ID of mods");
             // 
             // label8
             // 
             this.label8.AutoSize = true;
-            this.label8.Location = new System.Drawing.Point(6, 207);
+            this.label8.Location = new System.Drawing.Point(3, 190);
             this.label8.Name = "label8";
             this.label8.Size = new System.Drawing.Size(36, 13);
             this.label8.TabIndex = 19;
@@ -288,7 +277,7 @@ namespace VRage.Dedicated
             // label3
             // 
             this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(6, 274);
+            this.label3.Location = new System.Drawing.Point(3, 257);
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(129, 13);
             this.label3.TabIndex = 18;
@@ -296,8 +285,9 @@ namespace VRage.Dedicated
             // 
             // pauseWhenEmptyCHB
             // 
+            this.pauseWhenEmptyCHB.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.pauseWhenEmptyCHB.AutoSize = true;
-            this.pauseWhenEmptyCHB.Location = new System.Drawing.Point(322, 273);
+            this.pauseWhenEmptyCHB.Location = new System.Drawing.Point(313, 256);
             this.pauseWhenEmptyCHB.Name = "pauseWhenEmptyCHB";
             this.pauseWhenEmptyCHB.Size = new System.Drawing.Size(15, 14);
             this.pauseWhenEmptyCHB.TabIndex = 17;
@@ -305,17 +295,18 @@ namespace VRage.Dedicated
             // 
             // bannedIDs
             // 
-            this.bannedIDs.Location = new System.Drawing.Point(98, 163);
+            this.bannedIDs.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.bannedIDs.Location = new System.Drawing.Point(116, 146);
             this.bannedIDs.Multiline = true;
             this.bannedIDs.Name = "bannedIDs";
-            this.bannedIDs.Size = new System.Drawing.Size(239, 39);
+            this.bannedIDs.Size = new System.Drawing.Size(212, 39);
             this.bannedIDs.TabIndex = 15;
             this.toolTip1.SetToolTip(this.bannedIDs, "Steam ID of banned players");
             // 
             // label2
             // 
             this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(7, 166);
+            this.label2.Location = new System.Drawing.Point(4, 149);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(75, 13);
             this.label2.TabIndex = 14;
@@ -323,17 +314,18 @@ namespace VRage.Dedicated
             // 
             // adminIDs
             // 
-            this.adminIDs.Location = new System.Drawing.Point(98, 123);
+            this.adminIDs.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.adminIDs.Location = new System.Drawing.Point(116, 106);
             this.adminIDs.Multiline = true;
             this.adminIDs.Name = "adminIDs";
-            this.adminIDs.Size = new System.Drawing.Size(239, 39);
+            this.adminIDs.Size = new System.Drawing.Size(212, 39);
             this.adminIDs.TabIndex = 13;
             this.toolTip1.SetToolTip(this.adminIDs, "Steam ID of server admins (can kick people)\r\nInsert one Steam ID per line");
             // 
             // steamAdminsLabel
             // 
             this.steamAdminsLabel.AutoSize = true;
-            this.steamAdminsLabel.Location = new System.Drawing.Point(7, 126);
+            this.steamAdminsLabel.Location = new System.Drawing.Point(4, 109);
             this.steamAdminsLabel.Name = "steamAdminsLabel";
             this.steamAdminsLabel.Size = new System.Drawing.Size(77, 13);
             this.steamAdminsLabel.TabIndex = 12;
@@ -341,9 +333,10 @@ namespace VRage.Dedicated
             // 
             // SteamGroupID
             // 
-            this.SteamGroupID.Location = new System.Drawing.Point(98, 244);
+            this.SteamGroupID.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.SteamGroupID.Location = new System.Drawing.Point(116, 227);
             this.SteamGroupID.Name = "SteamGroupID";
-            this.SteamGroupID.Size = new System.Drawing.Size(239, 20);
+            this.SteamGroupID.Size = new System.Drawing.Size(212, 20);
             this.SteamGroupID.TabIndex = 11;
             this.toolTip1.SetToolTip(this.SteamGroupID, "ID of the Steam group\r\nOnly users in this group will be allowed to connect to ser" +
         "ver\r\nUse 0 or empty to allow everyone to connect");
@@ -351,7 +344,7 @@ namespace VRage.Dedicated
             // steamGroupLabel
             // 
             this.steamGroupLabel.AutoSize = true;
-            this.steamGroupLabel.Location = new System.Drawing.Point(6, 247);
+            this.steamGroupLabel.Location = new System.Drawing.Point(3, 230);
             this.steamGroupLabel.Name = "steamGroupLabel";
             this.steamGroupLabel.Size = new System.Drawing.Size(86, 13);
             this.steamGroupLabel.TabIndex = 10;
@@ -359,9 +352,10 @@ namespace VRage.Dedicated
             // 
             // serverNameTextBox
             // 
-            this.serverNameTextBox.Location = new System.Drawing.Point(98, 69);
+            this.serverNameTextBox.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.serverNameTextBox.Location = new System.Drawing.Point(116, 52);
             this.serverNameTextBox.Name = "serverNameTextBox";
-            this.serverNameTextBox.Size = new System.Drawing.Size(239, 20);
+            this.serverNameTextBox.Size = new System.Drawing.Size(212, 20);
             this.serverNameTextBox.TabIndex = 9;
             this.serverNameTextBox.Text = "Medieval Engineers Dedicated Server";
             this.toolTip1.SetToolTip(this.serverNameTextBox, "A name of the server");
@@ -369,7 +363,7 @@ namespace VRage.Dedicated
             // label7
             // 
             this.label7.AutoSize = true;
-            this.label7.Location = new System.Drawing.Point(6, 72);
+            this.label7.Location = new System.Drawing.Point(3, 55);
             this.label7.Name = "label7";
             this.label7.Size = new System.Drawing.Size(70, 13);
             this.label7.TabIndex = 8;
@@ -377,7 +371,8 @@ namespace VRage.Dedicated
             // 
             // QueryPortUD
             // 
-            this.QueryPortUD.Location = new System.Drawing.Point(217, 43);
+            this.QueryPortUD.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.QueryPortUD.Location = new System.Drawing.Point(208, 26);
             this.QueryPortUD.Maximum = new decimal(new int[] {
             65535,
             0,
@@ -396,7 +391,8 @@ namespace VRage.Dedicated
             // 
             // IPTextBox
             // 
-            this.IPTextBox.Location = new System.Drawing.Point(217, 17);
+            this.IPTextBox.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.IPTextBox.Location = new System.Drawing.Point(208, 0);
             this.IPTextBox.Name = "IPTextBox";
             this.IPTextBox.Size = new System.Drawing.Size(120, 20);
             this.IPTextBox.TabIndex = 4;
@@ -408,7 +404,7 @@ namespace VRage.Dedicated
             // label4
             // 
             this.label4.AutoSize = true;
-            this.label4.Location = new System.Drawing.Point(6, 45);
+            this.label4.Location = new System.Drawing.Point(3, 28);
             this.label4.Name = "label4";
             this.label4.Size = new System.Drawing.Size(62, 13);
             this.label4.TabIndex = 3;
@@ -417,7 +413,7 @@ namespace VRage.Dedicated
             // label1
             // 
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(6, 20);
+            this.label1.Location = new System.Drawing.Point(3, 3);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(51, 13);
             this.label1.TabIndex = 0;
@@ -590,6 +586,56 @@ namespace VRage.Dedicated
             this.serviceUpdateTimer.Interval = 1000;
             this.serviceUpdateTimer.Tick += new System.EventHandler(this.serviceUpdateTimer_Tick);
             // 
+            // splitContainer1
+            // 
+            this.splitContainer1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left)));
+            this.splitContainer1.Location = new System.Drawing.Point(6, 76);
+            this.splitContainer1.Name = "splitContainer1";
+            this.splitContainer1.Orientation = System.Windows.Forms.Orientation.Horizontal;
+            // 
+            // splitContainer1.Panel1
+            // 
+            this.splitContainer1.Panel1.Controls.Add(this.gamesListBox);
+            // 
+            // splitContainer1.Panel2
+            // 
+            this.splitContainer1.Panel2.AutoScroll = true;
+            this.splitContainer1.Panel2.Controls.Add(this.groupBox2);
+            this.splitContainer1.Size = new System.Drawing.Size(337, 507);
+            this.splitContainer1.SplitterDistance = 191;
+            this.splitContainer1.SplitterWidth = 2;
+            this.splitContainer1.TabIndex = 11;
+            // 
+            // panel1
+            // 
+            this.panel1.AutoScroll = true;
+            this.panel1.Controls.Add(this.worldNameTextBox);
+            this.panel1.Controls.Add(this.label1);
+            this.panel1.Controls.Add(this.label10);
+            this.panel1.Controls.Add(this.label4);
+            this.panel1.Controls.Add(this.label9);
+            this.panel1.Controls.Add(this.IPTextBox);
+            this.panel1.Controls.Add(this.ignoreLastSessionCHB);
+            this.panel1.Controls.Add(this.QueryPortUD);
+            this.panel1.Controls.Add(this.modIdsTextBox);
+            this.panel1.Controls.Add(this.label7);
+            this.panel1.Controls.Add(this.label8);
+            this.panel1.Controls.Add(this.serverNameTextBox);
+            this.panel1.Controls.Add(this.label3);
+            this.panel1.Controls.Add(this.steamGroupLabel);
+            this.panel1.Controls.Add(this.pauseWhenEmptyCHB);
+            this.panel1.Controls.Add(this.SteamGroupID);
+            this.panel1.Controls.Add(this.bannedIDs);
+            this.panel1.Controls.Add(this.steamAdminsLabel);
+            this.panel1.Controls.Add(this.label2);
+            this.panel1.Controls.Add(this.adminIDs);
+            this.panel1.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.panel1.Location = new System.Drawing.Point(3, 16);
+            this.panel1.Name = "panel1";
+            this.panel1.Size = new System.Drawing.Size(331, 295);
+            this.panel1.TabIndex = 25;
+            // 
             // ConfigForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -616,12 +662,17 @@ namespace VRage.Dedicated
             this.newGameSettingsPanel.ResumeLayout(false);
             this.newGameSettingsPanel.PerformLayout();
             this.groupBox2.ResumeLayout(false);
-            this.groupBox2.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.QueryPortUD)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.logoPictureBox)).EndInit();
             this.groupBox3.ResumeLayout(false);
             this.groupBox4.ResumeLayout(false);
             this.groupBox4.PerformLayout();
+            this.splitContainer1.Panel1.ResumeLayout(false);
+            this.splitContainer1.Panel2.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).EndInit();
+            this.splitContainer1.ResumeLayout(false);
+            this.panel1.ResumeLayout(false);
+            this.panel1.PerformLayout();
             this.ResumeLayout(false);
 
         }
@@ -675,6 +726,8 @@ namespace VRage.Dedicated
         private System.Windows.Forms.Button resetButton;
         private System.Windows.Forms.Button reloadButton;
         private System.Windows.Forms.Timer serviceUpdateTimer;
+        private System.Windows.Forms.SplitContainer splitContainer1;
+        private System.Windows.Forms.Panel panel1;
     }
 }
 

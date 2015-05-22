@@ -87,9 +87,9 @@ namespace VRageRender
             MyRender.Device.EndScene();
         }
 
-        public MyAdapterInfo[] GetAdaptersList()
+        public bool IsSupported
         {
-            return MyRender.GetAdaptersList();
+            get { return true; } // We could possibly do the same check as Dx11, non-zero count of adapters or something.
         }
 
         public void Present()
@@ -191,11 +191,6 @@ namespace VRageRender
             MyRender.Draw(draw);
         }
 
-        public void RestoreDXGISwapchainFullscreenMode()
-        {
-
-        }
-
         //Video
         public bool IsVideoValid(uint id)
         {
@@ -207,5 +202,6 @@ namespace VRageRender
             return MyRender.GetVideoState(id);
         }
 
+        public void HandleFocusMessage(MyWindowFocusMessage msg) { }
     }
 }

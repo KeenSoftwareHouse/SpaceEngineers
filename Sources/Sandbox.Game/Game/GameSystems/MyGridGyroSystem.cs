@@ -53,6 +53,14 @@ namespace Sandbox.Game.GameSystems
         }
 
         /// <summary>
+        /// This should not be used to modify the gyros.
+        /// Use Register/Unregister for that.
+        /// </summary>
+        public HashSet<MyGyro> Gyros
+        {
+            get { return m_gyros; }
+        }
+        /// <summary>
         /// Final torque (clamped by available power, added anti-gravity, slowdown).
         /// </summary>
         public Vector3 Torque { get; private set; }
@@ -153,6 +161,88 @@ namespace Sandbox.Game.GameSystems
             }
         }
 
+        public Vector3 GetAngularVelocity(Vector3 control)
+        {
+            /*if (m_grid.GridControllers.IsControlledByLocalPlayer || (!m_grid.GridControllers.IsControlledByAnyPlayer && Sync.IsServer) || (false && Sync.IsServer))
+            {*/
+            // Not checking whether engines are running, since ControlTorque should be 0 when
+            // engines are stopped (set by cockpit).
+            if (PowerReceiver.SuppliedRatio > 0f && m_grid.Physics != null && m_grid.Physics.Enabled && !m_grid.Physics.RigidBody.IsFixed)
+            {
+                Matrix invWorldRot = m_grid.PositionComp.WorldMatrixInvScaled.GetOrientation();
+                Matrix worldRot = m_grid.WorldMatrix.GetOrientation();
+                Vector3 localAngularVelocity = Vector3.Transform(m_grid.Physics.AngularVelocity, ref invWorldRot);
+
+                // CH: CAUTION: Don't try to use InertiaTensor, although it might be more intuitive in some cases.
+                // I tried it and it's not an inverse of the InverseInertiaTensor! Only the InverseInertiaTensor seems to be correct!
+                var invTensor = m_grid.Physics.RigidBody.InverseInertiaTensor;
+                Vector3 invTensorVector = new Vector3(invTensor.M11, invTensor.M22, invTensor.M33);
+                var minInvTensor = invTensorVector.Min();
+
+                // Max rotation limiter
+                float divider = Math.Max(1, minInvTensor * INV_TENSOR_MAX_LIMIT);
+
+                // Calculate the velocity correction torque
+                Vector3 correctionTorque = Vector3.Zero;
+                Vector3 desiredAcceleration = desiredAcceleration = (m_overrideTargetVelocity - localAngularVelocity) * MyEngineConstants.UPDATE_STEPS_PER_SECOND;
+
+                // The correction is done by overridden gyros and by the remaining power of the controlled gyros
+                // This is not entirely physically correct, but it feels good
+                float correctionForce = m_maxOverrideForce + m_maxGyroForce * (1.0f - control.Length());
+
+                // This is to ensure that the correction is done uniformly in all axes
+                desiredAcceleration = desiredAcceleration * Vector3.Normalize(invTensorVector);
+
+                Vector3 desiredTorque = desiredAcceleration / invTensorVector;
+                float framesToDesiredVelocity = desiredTorque.Length() / correctionForce;
+
+                // If we are very close to the target velocity, just set it without applying the torque
+                const float minimalBypassVelocity = 0.005f * 0.005f;
+                if (framesToDesiredVelocity < 0.5f && m_overrideTargetVelocity.LengthSquared() < minimalBypassVelocity)
+                {
+                    return m_overrideTargetVelocity;
+                }
+
+                if (!Vector3.IsZero(desiredAcceleration, 0.0001f))
+                {
+                    // The smoothing coefficient is here to avoid the slowdown stopping the ship abruptly, which doesn't look good
+                    float smoothingCoeff = 1.0f - 0.8f / (float)Math.Exp(0.5f * framesToDesiredVelocity);
+                    correctionTorque = Vector3.ClampToSphere(desiredTorque, correctionForce) * 0.95f * smoothingCoeff + desiredTorque * 0.05f * (1.0f - smoothingCoeff);
+
+                    // A little black magic to make slowdown on large ships bigger
+                    if (m_grid.GridSizeEnum == MyCubeSize.Large)
+                        correctionTorque *= 2.0f;
+                }
+
+                Torque = (control * m_maxGyroForce + correctionTorque) / divider;
+
+                Torque *= PowerReceiver.SuppliedRatio;
+                if (Torque.LengthSquared() > 0.0001f)
+                {
+                    // Manually apply torque and use minimal component of inverted inertia tensor to make rotate same in all axes
+                    var delta = Torque * new Vector3(minInvTensor) * MyEngineConstants.UPDATE_STEP_SIZE_IN_SECONDS;
+                    var newAngularVelocity = localAngularVelocity + delta;
+                    return Vector3.Transform(newAngularVelocity, ref worldRot);
+                }
+
+                const float stoppingVelocitySq = 0.0003f * 0.0003f;
+                if (control == Vector3.Zero && m_overrideTargetVelocity == Vector3.Zero && m_grid.Physics.AngularVelocity != Vector3.Zero && m_grid.Physics.AngularVelocity.LengthSquared() < stoppingVelocitySq && m_grid.Physics.RigidBody.IsActive)
+                {
+                    return Vector3.Zero;
+                }
+            }
+            //}
+
+            if (m_grid.Physics != null)
+            {
+                return m_grid.Physics.AngularVelocity;
+            }
+            else
+            {
+                return Vector3.Zero;
+            }
+        }
+
         public void UpdateBeforeSimulation()
         {
             if (m_gyrosChanged)
@@ -169,75 +259,9 @@ namespace Sandbox.Game.GameSystems
             if (MyDebugDrawSettings.DEBUG_DRAW_GYROS)
                 MyRenderProxy.DebugDrawText2D(new Vector2(0.0f, 0.0f), "New gyros", Color.White, 1.0f);
 
-            /*if (m_grid.GridControllers.IsControlledByLocalPlayer || (!m_grid.GridControllers.IsControlledByAnyPlayer && Sync.IsServer) || (false && Sync.IsServer))
-            {*/
-                // Not checking whether engines are running, since ControlTorque should be 0 when
-                // engines are stopped (set by cockpit).
-                if (PowerReceiver.SuppliedRatio > 0f && m_grid.Physics != null && m_grid.Physics.Enabled && !m_grid.Physics.RigidBody.IsFixed)
-                {
-                    Matrix invWorldRot = m_grid.PositionComp.WorldMatrixInvScaled.GetOrientation();
-                    Matrix worldRot = m_grid.WorldMatrix.GetOrientation();
-                    Vector3 localAngularVelocity = Vector3.Transform(m_grid.Physics.AngularVelocity, ref invWorldRot);
-
-                    // CH: CAUTION: Don't try to use InertiaTensor, although it might be more intuitive in some cases.
-                    // I tried it and it's not an inverse of the InverseInertiaTensor! Only the InverseInertiaTensor seems to be correct!
-                    var invTensor = m_grid.Physics.RigidBody.InverseInertiaTensor;
-                    Vector3 invTensorVector = new Vector3(invTensor.M11, invTensor.M22, invTensor.M33);
-                    var minInvTensor = invTensorVector.Min();
-
-                    // Max rotation limiter
-                    float divider = Math.Max(1, minInvTensor * INV_TENSOR_MAX_LIMIT);
-
-                    // Calculate the velocity correction torque
-                    Vector3 correctionTorque = Vector3.Zero;
-                    Vector3 desiredAcceleration = desiredAcceleration = (m_overrideTargetVelocity - localAngularVelocity) * MyEngineConstants.UPDATE_STEPS_PER_SECOND;
-
-                    // The correction is done by overridden gyros and by the remaining power of the controlled gyros
-                    // This is not entirely physically correct, but it feels good
-                    float correctionForce = m_maxOverrideForce + m_maxGyroForce * (1.0f - ControlTorque.Length());
-
-                    // This is to ensure that the correction is done uniformly in all axes
-                    desiredAcceleration = desiredAcceleration * Vector3.Normalize(invTensorVector);
-
-                    Vector3 desiredTorque = desiredAcceleration / invTensorVector;
-                    float framesToDesiredVelocity = desiredTorque.Length() / correctionForce;
-
-                    // If we are very close to the target velocity, just set it without applying the torque
-                    const float minimalBypassVelocity = 0.005f * 0.005f;
-                    if (framesToDesiredVelocity < 0.5f && m_overrideTargetVelocity.LengthSquared() < minimalBypassVelocity)
-                    {
-                        m_grid.Physics.AngularVelocity = m_overrideTargetVelocity;
-                        return;
-                    }
-
-                    if (!Vector3.IsZero(desiredAcceleration, 0.0001f))
-                    {
-                        // The smoothing coefficient is here to avoid the slowdown stopping the ship abruptly, which doesn't look good
-                        float smoothingCoeff = 1.0f - 0.8f / (float)Math.Exp(0.5f * framesToDesiredVelocity);
-                        correctionTorque = Vector3.ClampToSphere(desiredTorque, correctionForce) * 0.95f * smoothingCoeff + desiredTorque * 0.05f *(1.0f - smoothingCoeff);
-
-                        // A little black magic to make slowdown on large ships bigger
-                        if (m_grid.GridSizeEnum == MyCubeSize.Large)
-                            correctionTorque *= 2.0f;
-                    }
-
-                    Torque = (ControlTorque * m_maxGyroForce + correctionTorque) / divider;
-
-                    Torque *= PowerReceiver.SuppliedRatio;
-                    if (Torque.LengthSquared() > 0.0001f)
-                    {
-                        // Manually apply torque and use minimal component of inverted inertia tensor to make rotate same in all axes
-                        var delta = Torque * new Vector3(minInvTensor) * MyEngineConstants.UPDATE_STEP_SIZE_IN_SECONDS;
-                        var newAngularVelocity = localAngularVelocity + delta;
-                        m_grid.Physics.AngularVelocity = Vector3.Transform(newAngularVelocity, ref worldRot);
-                    }
-
-                    const float stoppingVelocitySq = 0.0003f * 0.0003f;
-                    if (ControlTorque == Vector3.Zero && m_overrideTargetVelocity == Vector3.Zero && m_grid.Physics.AngularVelocity != Vector3.Zero && m_grid.Physics.AngularVelocity.LengthSquared() < stoppingVelocitySq && m_grid.Physics.RigidBody.IsActive)
-                    {
-                        m_grid.Physics.AngularVelocity = Vector3.Zero;
-                    }
-                //}
+            if (m_grid.Physics != null)
+            {
+                m_grid.Physics.AngularVelocity = GetAngularVelocity(ControlTorque);
             }
         }
 

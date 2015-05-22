@@ -1191,7 +1191,7 @@ namespace Sandbox.Game.Entities
                     }
                 }
 
-                if (MyControllerHelper.IsControl(context, MyControlsSpace.PRIMARY_TOOL_ACTION))
+                if (MyInput.Static.IsNewLeftMousePressed() || MyControllerHelper.IsControl(context, MyControlsSpace.COPY_PASTE_ACTION))
                 {
                     if (m_clipboard.IsActive)
                     {
