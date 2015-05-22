@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using VRage.Library.Utils;
+using VRage.Utils;
 
 namespace VRage.Data.Audio
 {

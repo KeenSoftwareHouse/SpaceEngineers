@@ -30,6 +30,11 @@ namespace VRageRender
 
     public interface IMyRender
     {
+        /// <summary>
+        /// Must be possible to query during startup before render thread and window is created.
+        /// </summary>
+        bool IsSupported { get; }
+
         string RootDirectory { get; set; }
         string RootDirectoryEffects { get; set; }
         string RootDirectoryDebug { get; set; }
@@ -50,7 +55,6 @@ namespace VRageRender
 
         bool SettingsChanged(MyRenderDeviceSettings settings);
         void ApplySettings(MyRenderDeviceSettings settings);
-        void RestoreDXGISwapchainFullscreenMode();
 
         void Present();
         void ClearBackbuffer(ColorBGRA clearColor);
@@ -76,5 +80,7 @@ namespace VRageRender
         //Video
         bool IsVideoValid(uint id);
         VideoState GetVideoState(uint id);
+
+        void HandleFocusMessage(MyWindowFocusMessage msg);
     }
 }

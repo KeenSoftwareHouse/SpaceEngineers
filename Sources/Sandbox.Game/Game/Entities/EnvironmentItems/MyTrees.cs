@@ -93,11 +93,7 @@ namespace Sandbox.Game.Entities.EnvironmentItems
 
             if (cutTreeInfo.Progress >= 1)
             {
-                if (type != MyDamageType.Drill)
-                {
-                    position.Y = m_itemsData[itemInstanceId].Transform.Position.Y;
-                }
-                CutTree(itemInstanceId, position, normal);
+                CutTree(itemInstanceId, position, normal, type == MyDamageType.Drill ? 1.0f : 4.0f);
                 m_cutTreeInfos.RemoveAtFast(index);
             }
             else
@@ -120,7 +116,7 @@ namespace Sandbox.Game.Entities.EnvironmentItems
             emitter.PlaySound(m_soundTreeBreak);
         }
 
-        private void CutTree(int itemInstanceId, Vector3D hitWorldPosition, Vector3 hitNormal)
+        private void CutTree(int itemInstanceId, Vector3D hitWorldPosition, Vector3 hitNormal, float forceMultiplier = 1.0f)
         {
             HkStaticCompoundShape shape = (HkStaticCompoundShape)Physics.RigidBody.GetShape();
             int physicsInstanceId;
@@ -187,10 +183,10 @@ namespace Sandbox.Game.Entities.EnvironmentItems
                     }
 
                     if (childrenBelow.Count > 0)
-                        CreateFracturePiece(itemDefinition, breakableShape, world, hitNormal, childrenBelow, true);
+                        CreateFracturePiece(itemDefinition, breakableShape, world, hitNormal, childrenBelow, forceMultiplier, true);
 
                     if (childrenAbove.Count > 0)
-                        CreateFracturePiece(itemDefinition, breakableShape, world, hitNormal, childrenAbove, false);
+                        CreateFracturePiece(itemDefinition, breakableShape, world, hitNormal, childrenAbove, forceMultiplier, false);
 
                     m_childrenTmp.Clear();
                 }
@@ -198,7 +194,7 @@ namespace Sandbox.Game.Entities.EnvironmentItems
         }
 
         public static void CreateFracturePiece(MyEnvironmentItemDefinition itemDefinition, HkdBreakableShape oldBreakableShape, MatrixD worldMatrix, Vector3 hitNormal, List<HkdShapeInstanceInfo> shapeList,
-            bool canContainFixedChildren)
+            float forceMultiplier, bool canContainFixedChildren)
         {
             bool containsFixedChildren = false;
             if (canContainFixedChildren)
@@ -231,12 +227,12 @@ namespace Sandbox.Game.Entities.EnvironmentItems
             var fp = MyDestructionHelper.CreateFracturePiece(compound, MyPhysics.SingleWorld.DestructionWorld, ref worldMatrix, containsFixedChildren, itemDefinition.Id, true);
             if (fp != null && !canContainFixedChildren)
             {
-                ApplyImpulseToTreeFracture(ref worldMatrix, ref hitNormal, shapeList, ref compound, fp);
+                ApplyImpulseToTreeFracture(ref worldMatrix, ref hitNormal, shapeList, ref compound, fp, forceMultiplier);
                 fp.Physics.ForceActivate();
             }
         }
 
-        public static void ApplyImpulseToTreeFracture(ref MatrixD worldMatrix, ref Vector3 hitNormal, List<HkdShapeInstanceInfo> shapeList, ref HkdBreakableShape compound, MyFracturedPiece fp)
+        public static void ApplyImpulseToTreeFracture(ref MatrixD worldMatrix, ref Vector3 hitNormal, List<HkdShapeInstanceInfo> shapeList, ref HkdBreakableShape compound, MyFracturedPiece fp, float forceMultiplier = 1.0f)
         {
             float mass = compound.GetMass();
             Vector3 coMMaxY = Vector3.MinValue;
@@ -246,7 +242,7 @@ namespace Sandbox.Game.Entities.EnvironmentItems
             forceVector.Y = 0;
             forceVector.Normalize();
 
-            Vector3 force = 0.3f * mass * forceVector;
+            Vector3 force = 0.3f * forceMultiplier * mass * forceVector;
             fp.Physics.Enabled = true;//so we get the body in world
             Vector3 worldForcePoint = fp.Physics.WorldToCluster(Vector3D.Transform(coMMaxY, worldMatrix));
 

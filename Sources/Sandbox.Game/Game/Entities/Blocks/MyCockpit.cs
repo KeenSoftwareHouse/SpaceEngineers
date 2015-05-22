@@ -544,6 +544,9 @@ namespace Sandbox.Game.Entities
                 if (m_pilot != null)
                     m_pilot.RadioReceiver.Clear();
             }
+
+            // to turn on/off sound in dependence of distance from listener
+            NeedsUpdate = MyEntityUpdateEnum.EACH_100TH_FRAME;
         }
 
         void m_pilot_OnMarkForClose(MyEntity obj)

@@ -17,7 +17,7 @@ namespace Sandbox.Common.ObjectBuilders
         public float Volume = 1;
 
         [ProtoMember]
-        public int CueId = 0;
+        public string CueName = null;
 
         [ProtoMember]
         public float LoopPeriod = 1f;

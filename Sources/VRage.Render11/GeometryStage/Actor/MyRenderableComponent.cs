@@ -1,28 +1,15 @@
-﻿using SharpDX;
-using SharpDX.Direct3D;
-using SharpDX.Direct3D11;
-using SharpDX.DXGI;
+﻿using SharpDX.Direct3D11;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using System.Text;
-using VRage.Generics;
-
+using VRage.Utils;
 using VRageMath;
 using VRageRender.Resources;
-using VRageRender.Vertex;
-using Buffer = SharpDX.Direct3D11.Buffer;
+using BoundingBox = VRageMath.BoundingBox;
 using Matrix = VRageMath.Matrix;
 using Vector3 = VRageMath.Vector3;
 using Vector4 = VRageMath.Vector4;
-using BoundingBox = VRageMath.BoundingBox;
-using BoundingFrustum = VRageMath.BoundingFrustum;
-using VRage.Collections;
-using System.Collections.Specialized;
-using System.Threading;
-using VRage.Library.Utils;
 
 
 namespace VRageRender
@@ -1374,7 +1361,7 @@ namespace VRageRender
 
             if(m_lodTransitionState != 0)
             {
-                float state = Math.Abs(distance - m_lodTransitionStartDistance) / m_lodTransitionVector;
+                float state = Math.Abs(distance - m_lodTransitionStartDistance) / (float) Math.Max(m_lodTransitionVector, 0.0001f);
                 state = (float)Math.Max(Math.Abs(m_lodTransitionState) + (float)MyRender11.TimeDelta.Seconds / LodTransitionTime, Math.Max(Math.Min(state, 1), 0));
 
                 m_lodTransitionState = Math.Sign(m_lodTransitionState) * state;

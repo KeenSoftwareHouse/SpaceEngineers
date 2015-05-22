@@ -363,11 +363,23 @@ namespace Sandbox.Engine.Voxels
             if (!TryGetMesh(cell, out isEmpty, out mesh))
             {
                 ProfilerShort.Begin("Cell precalc");
-                mesh = MyPrecalcComponent.IsoMesher.Precalc(new MyIsoMesherArgs()
+                if (true)
                 {
-                    Storage = m_storage,
-                    GeometryCell = cell,
-                });
+                    var min = cell.CoordInLod << MyVoxelConstants.GEOMETRY_CELL_SIZE_IN_VOXELS_BITS;
+                    var max = min + MyVoxelConstants.GEOMETRY_CELL_SIZE_IN_VOXELS;
+                    // overlap to neighbor; introduces extra data but it makes logic for raycasts simpler (no need to check neighbor cells)
+                    min -= 1;
+                    max += 2;
+                    mesh = MyPrecalcComponent.IsoMesher.Precalc(m_storage, 0, min, max, false);
+                }
+                else
+                {
+                    mesh = MyPrecalcComponent.IsoMesher.Precalc(new MyIsoMesherArgs()
+                    {
+                        Storage = m_storage,
+                        GeometryCell = cell,
+                    });
+                }
                 ProfilerShort.End();
             }
 

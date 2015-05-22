@@ -3,16 +3,11 @@ using Sandbox.Common.ObjectBuilders;
 using Sandbox.Engine.Utils;
 using System;
 using System.Collections.Generic;
-using System.Configuration;
 using System.IO;
 using System.Linq;
-using System.Threading.Tasks;
 using System.Windows.Forms;
-using VRage.Dedicated;
 using VRage.Dedicated.Configurator;
 using VRage.FileSystem;
-using VRage.Library.Utils;
-using VRage.Utils;
 
 namespace VRage.Dedicated
 {

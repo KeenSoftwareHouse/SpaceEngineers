@@ -127,14 +127,6 @@
   <data name="MessageBoxTextAreYouSureYouWantToExit" xml:space="preserve">
     <value>Biztosan ki akarsz lépni?</value>
   </data>
-  <data name="AssignControlJoystick" xml:space="preserve">
-    <value>Kérlek nyomj meg egy gombot
-a botkormányon/gamepad-en</value>
-  </data>
-  <data name="AssignControlJoystickAxis" xml:space="preserve">
-    <value>Kérlek mozgass meg egy analóg tengelyt
-a botkormányon/gamepad-en</value>
-  </data>
   <data name="AssignControlKeyboard" xml:space="preserve">
     <value>Kérlek nyomj meg egy gombot</value>
   </data>
@@ -521,7 +513,7 @@ Felülírod az eredeti irányítást?</value>
     <value>Vessző</value>
   </data>
   <data name="KeysMinus" xml:space="preserve">
-    <value>Minusz</value>
+    <value>Mínusz jel</value>
   </data>
   <data name="KeysOpenBracket" xml:space="preserve">
     <value>[</value>
@@ -990,7 +982,7 @@ Felülírod az eredeti irányítást?</value>
     <value>A sérülés adott és kapott ellenségeknek és ellenségektől, környezetnek és környezettől. A magasabb nehézségi fok realisztikusabb sérülést jelent.</value>
   </data>
   <data name="ToolTipWorldSettingsEnvironment" xml:space="preserve">
-    <value>A meteoreső gyakorisága és intenzitása</value>
+    <value>Meteoresők gyakorisága és intenzitása</value>
   </data>
   <data name="ToolTipWorldSettingsFriendlyFire" xml:space="preserve">
     <value>Ha ki van jelölve, a játékosok képesek sebezni egymást.</value>
@@ -2557,7 +2549,7 @@ Térfogat: {2} L</value>
     <value>Gravitációs mező szélessége.</value>
   </data>
   <data name="BlockPropertyTitle_GravityAcceleration" xml:space="preserve">
-    <value>Gyorsulás.</value>
+    <value>Gyorsulás</value>
   </data>
   <data name="BlockPropertyTitle_GravityFieldDepth" xml:space="preserve">
     <value>Mező mélység.</value>
@@ -2590,7 +2582,7 @@ Térfogat: {2} L</value>
     <value>Tömörítve legyenek-e a mentett játékok helytakarékosság érdekében</value>
   </data>
   <data name="Headbob" xml:space="preserve">
-    <value>Fejmozgás kikapcsolása (futás közben)</value>
+    <value>Fejmozgás kikapcsolása</value>
   </data>
   <data name="ToolTipWorldSettingsShowPlayerNamesOnHud" xml:space="preserve">
     <value>Ha be van kapcsolva, a játékosok képesek látni a játékosok neveit a karaktereik felett</value>
@@ -2672,7 +2664,7 @@ Extrém: 16 nagy aszteroida, 80 kis aszteroida (csak 64-bit)</value>
     <value>Hatótávolság</value>
   </data>
   <data name="JoinGame_ColumnTitle_GameMode" xml:space="preserve">
-    <value>Játék mód</value>
+    <value>Játékmód</value>
   </data>
   <data name="JoinGame_ColumnTitle_Players" xml:space="preserve">
     <value>Játékosok</value>
@@ -2878,7 +2870,7 @@ Finomító gyorsasága {2}x</value>
     <value>Játékos lekapcsolódott: {0}</value>
   </data>
   <data name="WorldSettings_ThrusterDamage" xml:space="preserve">
-    <value>Hajtómű okozta sebzések</value>
+    <value>Hajtómű okozta károsodás</value>
   </data>
   <data name="ToolTipWorldSettingsThrusterDamage" xml:space="preserve">
     <value>A hajtómű lángja károsít minden objektumot, beleértve a játékost, blokkokat és a kisebb tárgyakat.</value>
@@ -3007,7 +2999,7 @@ Finomító gyorsasága {2}x</value>
     <value>Nyomj {0}-t a fegyvermód váltásához</value>
   </data>
   <data name="BlockPropertyTitle_LargeTurretRadius" xml:space="preserve">
-    <value>Aiming radius</value>
+    <value>Célzási sugár</value>
   </data>
   <data name="ToolTipItemFilter_NATO_5p56x45mm" xml:space="preserve">
     <value>NATO 5.56x45 mm</value>
@@ -3086,7 +3078,7 @@ Finomító gyorsasága {2}x</value>
     <value>Típus:</value>
   </data>
   <data name="BlockPropertyValue_Locked" xml:space="preserve">
-    <value>Zárva</value>
+    <value>Rögzített</value>
   </data>
   <data name="BlockPropertyValue_ReadyToLock" xml:space="preserve">
     <value>Készen áll a lezárásra</value>
@@ -3117,6 +3109,9 @@ Finomító gyorsasága {2}x</value>
   </data>
   <data name="DialogAmount_SetValueCaption" xml:space="preserve">
     <value>Beállítandó érték</value>
+  </data>
+  <data name="DialogText_RunArgument" xml:space="preserve">
+    <value>Argument</value>
   </data>
   <data name="BlockPropertyTitle_LargeTurretTargetMissiles" xml:space="preserve">
     <value>Cél lövedékek</value>
@@ -3999,7 +3994,7 @@ Biztos vagy benne?</value>
     <value>Kapcsoló</value>
   </data>
   <data name="BlockAction_DoorClosed" xml:space="preserve">
-    <value>Zárt</value>
+    <value>Zárva</value>
   </data>
   <data name="BlockAction_DoorOpen" xml:space="preserve">
     <value>Nyitott</value>
@@ -4510,7 +4505,7 @@ Az újratelepítés nem elég, mert a Steam nem törli az ismeretlen fileokat.</
     <value>Tulajdonos / Időtúllépés</value>
   </data>
   <data name="ScreenMedicals_RespawnWhenShipReady" xml:space="preserve">
-    <value>Will spawn in "{0}" when it is ready.</value>
+    <value>Újraszületés a "{0}"-ban/-ben amikor az készen áll.</value>
   </data>
   <data name="ScreenMedicals_RespawnShipReady" xml:space="preserve">
     <value>Kész</value>
@@ -4633,7 +4628,7 @@ Az újratelepítés nem elég, mert a Steam nem törli az ismeretlen fileokat.</
     <value>Besegítés</value>
   </data>
   <data name="DisplayName_Block_Ammo_Assembler" xml:space="preserve">
-    <value>Muníció összeszerelő</value>
+    <value>Lőszer összeszerelő</value>
   </data>
   <data name="DisplayName_Block_Base_Components_Assembler" xml:space="preserve">
     <value>Alapkomponens összeszerelő</value>
@@ -4738,7 +4733,7 @@ Az újratelepítés nem elég, mert a Steam nem törli az ismeretlen fileokat.</
     <value>Seed (különböző seed és sugár másféle aszteroidát eredményez)</value>
   </data>
   <data name="ScreenDebugSpawnMenu_ProceduralSize" xml:space="preserve">
-    <value>Aszteroida sugara</value>
+    <value>Asteroid size</value>
   </data>
   <data name="ScreenDebugSpawnMenu_SelectAsteroidType" xml:space="preserve">
     <value>Aszteroida típusának kiválasztása</value>
@@ -4792,13 +4787,13 @@ Az újratelepítés nem elég, mert a Steam nem törli az ismeretlen fileokat.</
     <value>Forward offset</value>
   </data>
   <data name="BlockPropertyTitle_ProjectionRotationX" xml:space="preserve">
-    <value>Pitch</value>
+    <value>Magasság</value>
   </data>
   <data name="BlockPropertyTitle_ProjectionRotationY" xml:space="preserve">
-    <value>Yaw</value>
+    <value>Elfordul</value>
   </data>
   <data name="BlockPropertyTitle_ProjectionRotationZ" xml:space="preserve">
-    <value>Roll</value>
+    <value>Fordulás</value>
   </data>
   <data name="DisplayName_Block_Projector" xml:space="preserve">
     <value>Kivetítő</value>
@@ -4810,7 +4805,7 @@ Az újratelepítés nem elég, mert a Steam nem törli az ismeretlen fileokat.</
     <value>Multiple grids are not supported. Only the largest grid will be used.</value>
   </data>
   <data name="SelectBlueprint" xml:space="preserve">
-    <value>Select</value>
+    <value>Kiválaszt</value>
   </data>
   <data name="TerminalTab_Info_PivotBtn" xml:space="preserve">
     <value>Show grid pivot</value>
@@ -4819,19 +4814,19 @@ Az újratelepítés nem elég, mert a Steam nem törli az ismeretlen fileokat.</
     <value>Facepalm</value>
   </data>
   <data name="DisplayName_Animation_ThumbUp" xml:space="preserve">
-    <value>Thumb-Up</value>
+    <value>Hüvelykujj fel</value>
   </data>
   <data name="DisplayName_Animation_Victory" xml:space="preserve">
-    <value>Victory</value>
+    <value>Győzelem</value>
   </data>
   <data name="DisplayName_Block_ControlPanel" xml:space="preserve">
-    <value>Control Panel</value>
+    <value>Vezérlőpult</value>
   </data>
   <data name="DisplayName_Block_SteelCatwalkCorner" xml:space="preserve">
-    <value>Steel Catwalk Corner</value>
+    <value>Acél Futóhíd Sarok</value>
   </data>
   <data name="DisplayName_Block_SteelCatwalkPlate" xml:space="preserve">
-    <value>Steel Catwalk Plate</value>
+    <value>Acél Futóhíd</value>
   </data>
   <data name="DisplayName_Block_SteelCatwalkTwoSides" xml:space="preserve">
     <value>Steel Catwalk Two Sides</value>
@@ -4849,7 +4844,7 @@ Az újratelepítés nem elég, mert a Steam nem törli az ismeretlen fileokat.</
     <value>Eltávolítás</value>
   </data>
   <data name="DisplayName_Block_SpaceBall" xml:space="preserve">
-    <value>Space Ball</value>
+    <value>Űrlabda</value>
   </data>
   <data name="DisplayName_Category_VoxelHands" xml:space="preserve">
     <value>Voxel Kezek</value>
@@ -4989,7 +4984,7 @@ A területet elhagyó karakterek meghalnak.</value>
     <value>Futás</value>
   </data>
   <data name="ExportToObjModded" xml:space="preserve">
-    <value>Model contains modded blocks. Only models with default blocks can be exported.</value>
+    <value>A model modolt blokkokat tartalmaz. Csak alap blokkokból álló modellek exportálhatóak.</value>
   </data>
   <data name="DisplayName_VoxelHand_Ramp" xml:space="preserve">
     <value>Rámpa</value>
@@ -5073,61 +5068,61 @@ A területet elhagyó karakterek meghalnak.</value>
     <value>Remembers code inside editor and returns to terminal panel</value>
   </data>
   <data name="ProgrammableBlock_Editor_BrowseWorkshop_Tooltip" xml:space="preserve">
-    <value>Opens workshop where you can upload your's scripts or suscribe to another authors scripts.</value>
+    <value>Opens workshop where you can upload your scripts or subscribe to another author's scripts.</value>
   </data>
   <data name="ProgrammableBlock_Editor_CheckCode" xml:space="preserve">
-    <value>Check code</value>
+    <value>Kód ellenőrzése</value>
   </data>
   <data name="ProgrammableBlock_Editor_CheckCode_Tooltip" xml:space="preserve">
-    <value>Checks code inside editor for errors</value>
+    <value>Kód ellenőrzése a szerkesztőben hibakeresés végett</value>
   </data>
   <data name="ProgrammableBlock_Editor_CompilationFailed" xml:space="preserve">
-    <value>Compilation failed</value>
+    <value>Összeállítás sikertelen</value>
   </data>
   <data name="ProgrammableBlock_Editor_CompilationFailedErrorFormat" xml:space="preserve">
-    <value>Line {0} : {1}</value>
+    <value>Sor : {0} / {1}</value>
   </data>
   <data name="ProgrammableBlock_Editor_CompilationFailedErrorList" xml:space="preserve">
-    <value>Error list</value>
+    <value>Hiba lista</value>
   </data>
   <data name="ProgrammableBlock_Editor_CompilationOk" xml:space="preserve">
-    <value>Compilation succesfull.</value>
+    <value>Összeállítás sikeres</value>
   </data>
   <data name="ProgrammableBlock_Editor_LineNo" xml:space="preserve">
-    <value>Line : {0} / {1}</value>
+    <value>Sor : {0} / {1}</value>
   </data>
   <data name="ProgrammableBlock_Editor_RememberCode" xml:space="preserve">
-    <value>Remember code</value>
+    <value>Kód megjegyzése</value>
   </data>
   <data name="ProgrammableBlock_Editor_RememberCode_Tooltip" xml:space="preserve">
     <value>Remember current script and leave editor window open</value>
   </data>
   <data name="ProgrammableBlock_ButtonCreateFromEditor" xml:space="preserve">
-    <value>Create from editor</value>
+    <value>Létrehozás a szerkesztőből</value>
   </data>
   <data name="ProgrammableBlock_ButtonDetails" xml:space="preserve">
-    <value>Details</value>
+    <value>Részletek</value>
   </data>
   <data name="ProgrammableBlock_ButtonRefreshScripts" xml:space="preserve">
-    <value>Refresh Scripts</value>
+    <value>Szkriptek frissítése</value>
   </data>
   <data name="ProgrammableBlock_ButtonRename" xml:space="preserve">
-    <value>Rename</value>
+    <value>Átnevezés</value>
   </data>
   <data name="ProgrammableBlock_ButtonReplaceFromEditor" xml:space="preserve">
-    <value>Replace from editor</value>
+    <value>Csere a szerkesztőből</value>
   </data>
   <data name="ProgrammableBlock_NewScriptName" xml:space="preserve">
-    <value>Enter new name</value>
+    <value>Új név megadása</value>
   </data>
   <data name="ProgrammableBlock_OpenInWorkshop" xml:space="preserve">
     <value/>
   </data>
   <data name="ProgrammableBlock_PublishScriptDialogText" xml:space="preserve">
-    <value>Do you want to publish this script?</value>
+    <value>Biztosan közzéteszed ezt a szkriptet?</value>
   </data>
   <data name="ProgrammableBlock_PublishScriptPublished" xml:space="preserve">
-    <value>SCRIPT PUBLISHED</value>
+    <value>SZKRIPT PUBLIKÁLVA</value>
   </data>
   <data name="ProgrammableBlock_ReplaceScriptDialogText" xml:space="preserve">
     <value>Are you sure to replace existing script with new one from editor ?</value>
@@ -5136,7 +5131,7 @@ A területet elhagyó karakterek meghalnak.</value>
     <value>Script with the name  {0} already exists. Do you want to replace it?</value>
   </data>
   <data name="ProgrammableBlock_ReplaceScriptNameDialogTitle" xml:space="preserve">
-    <value>Replace</value>
+    <value>Cserél</value>
   </data>
   <data name="ProgrammableBlock_ReplaceScriptNameUsed" xml:space="preserve">
     <value>Cannot rename script because it is used by another process.</value>
@@ -5145,22 +5140,22 @@ A területet elhagyó karakterek meghalnak.</value>
     <value>Cannot find the script file</value>
   </data>
   <data name="ProgrammableBlock_ScriptsScreenTitle" xml:space="preserve">
-    <value>Scripts screen</value>
+    <value>Szkript képernyő</value>
   </data>
   <data name="ProgrammableBlock_Editor_Help" xml:space="preserve">
-    <value>Help</value>
+    <value>Segítség</value>
   </data>
   <data name="ProgrammableBlock_Editor_HelpTooltip" xml:space="preserve">
     <value>Opens steam workshop page with description about in-game programming</value>
   </data>
   <data name="ProgrammableBlock_DeleteScriptDialogText" xml:space="preserve">
-    <value>Are you sure you want to delete this script ?</value>
+    <value>Biztosan törölni szeretnéd ezt a szkriptet?</value>
   </data>
   <data name="ProgrammableBlock_Exception_NotAllowed" xml:space="preserve">
-    <value>In-game scripts are disabled for this world</value>
+    <value>A játékbeli szkriptek le vannak tiltva ebben a világban</value>
   </data>
   <data name="WorldSettings_EnableIngameScripts" xml:space="preserve">
-    <value>In-game scripts</value>
+    <value>Játékonbelüli szkriptek</value>
   </data>
   <data name="BlockPropertyTitle_SensorDetectEnemy" xml:space="preserve">
     <value>Ellenség észlelése</value>
@@ -5187,10 +5182,10 @@ A területet elhagyó karakterek meghalnak.</value>
     <value>Új üzenet tőle: {0}</value>
   </data>
   <data name="TerminalTab_Chat_GlobalChat" xml:space="preserve">
-    <value>-Broadcast-</value>
+    <value>Közvetítés</value>
   </data>
   <data name="TerminalTab_Chat" xml:space="preserve">
-    <value>Comms</value>
+    <value>Kommunikáció</value>
   </data>
   <data name="ErrorDescriptionTooLong" xml:space="preserve">
     <value>Túl hosszú leírás (max. 8000 karakter megengedett)</value>
@@ -5236,13 +5231,13 @@ Large view distances are not recommended on worlds with high asteroid densities.
     <value>Restitution</value>
   </data>
   <data name="TooltipScreenMods_Category_All" xml:space="preserve">
-    <value>All</value>
+    <value>Összes</value>
   </data>
   <data name="TooltipScreenMods_Category_Animation" xml:space="preserve">
     <value>Animáció</value>
   </data>
   <data name="TooltipScreenMods_Category_Block" xml:space="preserve">
-    <value>Block</value>
+    <value>Blokk</value>
   </data>
   <data name="TooltipScreenMods_Category_Character" xml:space="preserve">
     <value>Karakter</value>
@@ -5251,31 +5246,31 @@ Large view distances are not recommended on worlds with high asteroid densities.
     <value>Modcsomag</value>
   </data>
   <data name="TooltipScreenMods_Category_Other" xml:space="preserve">
-    <value>Other</value>
+    <value>Egyéb</value>
   </data>
   <data name="TooltipScreenMods_Category_Production" xml:space="preserve">
-    <value>Production</value>
+    <value>Termelés</value>
   </data>
   <data name="TooltipScreenMods_Category_RespawnShip" xml:space="preserve">
-    <value>Respawn Ship</value>
+    <value>Kezdőhajó</value>
   </data>
   <data name="TooltipScreenMods_Category_Script" xml:space="preserve">
-    <value>Script</value>
+    <value>Szkript</value>
   </data>
   <data name="TooltipScreenMods_Category_Skybox" xml:space="preserve">
     <value>Skybox</value>
   </data>
   <data name="TooltipScreenMods_SelectCategories" xml:space="preserve">
-    <value>Select categories</value>
+    <value>Kategóriák kiválasztása</value>
   </data>
   <data name="TerminalTab_GPS_Description" xml:space="preserve">
-    <value>Description</value>
+    <value>Leírás</value>
   </data>
   <data name="TerminalTab_GPS_Name" xml:space="preserve">
-    <value>Name</value>
+    <value>Név</value>
   </data>
   <data name="TerminalTab_GPS_ShowOnHud" xml:space="preserve">
-    <value>Show on  HUD</value>
+    <value>Megjelenítés HUD-on</value>
   </data>
   <data name="TerminalTab_GPS_X" xml:space="preserve">
     <value>X</value>
@@ -5290,28 +5285,28 @@ Large view distances are not recommended on worlds with high asteroid densities.
     <value>GPS</value>
   </data>
   <data name="TerminalTab_GPS_Add" xml:space="preserve">
-    <value>New</value>
+    <value>Új</value>
   </data>
   <data name="TerminalTab_GPS_CopyToClipboard" xml:space="preserve">
-    <value>Copy to clipboard</value>
+    <value>Másolás vágólapra</value>
   </data>
   <data name="TerminalTab_GPS_Delete" xml:space="preserve">
-    <value>Delete</value>
+    <value>Törlés</value>
   </data>
   <data name="TerminalTab_GPS_NewFromClipboard" xml:space="preserve">
     <value>New from clipboard</value>
   </data>
   <data name="TerminalTab_GPS_NewFromCurrent" xml:space="preserve">
-    <value>New from current pos.</value>
+    <value>Új a jelenlegi koordinátákból</value>
   </data>
   <data name="ScreenDebugSpawnMenu_GenerateSeed" xml:space="preserve">
-    <value>Generate seed</value>
+    <value>Seed generálása</value>
   </data>
   <data name="TerminalTab_GPS_SaveWarning" xml:space="preserve">
-    <value>Warning: illegal data. Modifications will not be saved.</value>
+    <value>Figyelem! Illegális adatok. A változtatások nem lesznek elmentve.</value>
   </data>
   <data name="JoinGame_GameTypeToolTip_ViewDistance" xml:space="preserve">
-    <value>View distance: {0}m</value>
+    <value>Látótávolság: {0}m</value>
   </data>
   <data name="TerminalTab_Chat_NoFaction" xml:space="preserve">
     <value>Only faction members can use faction-to-faction communications</value>
@@ -5320,46 +5315,46 @@ Large view distances are not recommended on worlds with high asteroid densities.
     <value>offline</value>
   </data>
   <data name="TerminalTab_Chat_Pending" xml:space="preserve">
-    <value>PENDING</value>
+    <value>Függőben</value>
   </data>
   <data name="TerminalTab_GPS_FromChatDescPrefix" xml:space="preserve">
-    <value>By: </value>
+    <value>által:</value>
   </data>
   <data name="TerminalTab_GPS_NewCoord_Desc" xml:space="preserve">
-    <value>New coordinates</value>
+    <value>Új koordináták</value>
   </data>
   <data name="TerminalTab_GPS_NewCoord_Name" xml:space="preserve">
-    <value>New</value>
+    <value>Új</value>
   </data>
   <data name="TerminalTab_GPS_NewFromClipboard_Desc" xml:space="preserve">
-    <value>Pasted from clipboard</value>
+    <value>Vágólapról bemásolva</value>
   </data>
   <data name="TerminalTab_GPS_NewFromCurrent_Desc" xml:space="preserve">
-    <value>Current position</value>
+    <value>Jelenlegi pozíció:</value>
   </data>
   <data name="TerminalTab_GPS_NewFromCurrent_Name" xml:space="preserve">
-    <value>Current</value>
+    <value>Jelenlegi</value>
   </data>
   <data name="VoxelHandSettingScreen_HandProjectToVoxel" xml:space="preserve">
     <value>Project to voxel</value>
   </data>
   <data name="BlockPropertyTitle_TextPanelShowTextPanel" xml:space="preserve">
-    <value>Edit private text</value>
+    <value>Privát szöveg szerkesztése</value>
   </data>
   <data name="BlockPropertyTitle_TextPanelTitle" xml:space="preserve">
-    <value>Private title</value>
+    <value>Privát cím</value>
   </data>
   <data name="DisplayName_Block_TextPanel" xml:space="preserve">
-    <value>Text panel</value>
+    <value>Szöveges Panel</value>
   </data>
   <data name="NotificationHintPressToShowScreen" xml:space="preserve">
     <value>Press {0} to show screen</value>
   </data>
   <data name="Terminal_Shoot" xml:space="preserve">
-    <value>Shoot</value>
+    <value>Lövés</value>
   </data>
   <data name="Terminal_ShootOnce" xml:space="preserve">
-    <value>Shoot once</value>
+    <value>Egyszeri lövés</value>
   </data>
   <data name="ControlDescNextVoxelMaterial" xml:space="preserve">
     <value>Next voxel material</value>
@@ -5371,34 +5366,34 @@ Large view distances are not recommended on worlds with high asteroid densities.
     <value>Previous voxel material</value>
   </data>
   <data name="BlockComboBoxValue_TextPanelAccessOnlyOwner" xml:space="preserve">
-    <value>Only owner</value>
+    <value>Csak tulajdonosnak</value>
   </data>
   <data name="BlockComboBoxValue_TextPanelAccessReadAll" xml:space="preserve">
-    <value>Everyone read-only</value>
+    <value>Mindenki csak olvashatja</value>
   </data>
   <data name="BlockComboBoxValue_TextPanelAccessReadFaction" xml:space="preserve">
-    <value>Faction read-only</value>
+    <value>Frakció csak olvashatja</value>
   </data>
   <data name="BlockComboBoxValue_TextPanelAccessReadWriteAll" xml:space="preserve">
-    <value>Everyone read/write</value>
+    <value>Mindenki szerkesztheti/olvashatja</value>
   </data>
   <data name="BlockComboBoxValue_TextPanelAccessReadWriteFaction" xml:space="preserve">
-    <value>Faction read/write</value>
+    <value>Frakció szerkesztheti/olvashatja</value>
   </data>
   <data name="BlockPropertyTitle_TextPanelAccessType" xml:space="preserve">
-    <value>Access type</value>
+    <value>Hozzáférés típusa</value>
   </data>
   <data name="BlueprintsMessageBoxDesc_Replace" xml:space="preserve">
     <value>Are you sure you want to replace this blueprint with clipboard?</value>
   </data>
   <data name="BlueprintsMessageBoxTitle_Replace" xml:space="preserve">
-    <value>Replace</value>
+    <value>Cserél</value>
   </data>
   <data name="NotificationTextPanelReadOnly" xml:space="preserve">
-    <value>Text panel is read-only</value>
+    <value>Szöveg panel csak olvasható</value>
   </data>
   <data name="DisplayName_Category_GeneratedBlocks" xml:space="preserve">
-    <value>Generated Blocks</value>
+    <value>Generált Blokkok</value>
   </data>
   <data name="TerminalTab_GPS_NewFromBroadcast" xml:space="preserve">
     <value>New from broadcast</value>
@@ -5410,28 +5405,28 @@ Large view distances are not recommended on worlds with high asteroid densities.
     <value>New from private comms</value>
   </data>
   <data name="ToolTipWorldSettings_ToolShake" xml:space="preserve">
-    <value>Enable shaking of ship drills and welders</value>
+    <value>Hajó fúró és hegesztő rázkódás engedélyezése</value>
   </data>
   <data name="WorldSettings_EnableToolShake" xml:space="preserve">
-    <value>Enable tools shake</value>
+    <value>Eszköz rázkódás engedélyezése</value>
   </data>
   <data name="MessageBoxTextTooLongText" xml:space="preserve">
     <value>Text is too long. Do you want to truncate it?</value>
   </data>
   <data name="ControlDescExportModel" xml:space="preserve">
-    <value>Export model</value>
+    <value>Model Kimentés</value>
   </data>
   <data name="ProgrammableBlock_Editor_TextTooLong" xml:space="preserve">
-    <value>Text is too long. It won't be saved.</value>
+    <value>A szöveg túl hosszú, nem lesz elmentve.</value>
   </data>
   <data name="VoxelHandSettingScreen_HandShowGizmos" xml:space="preserve">
     <value>Show bounding box</value>
   </data>
   <data name="ControlName_Console" xml:space="preserve">
-    <value>Console</value>
+    <value>Konzol</value>
   </data>
   <data name="ControlDescCameraZoom" xml:space="preserve">
-    <value>Camera zoom</value>
+    <value>Kamera zoom</value>
   </data>
   <data name="EnableDamageEffects" xml:space="preserve">
     <value>Enable damage effects</value>
@@ -5440,112 +5435,112 @@ Large view distances are not recommended on worlds with high asteroid densities.
     <value>Enables/disables particle effects  for damaged blocks </value>
   </data>
   <data name="WorkshopTag_Asteroid" xml:space="preserve">
-    <value>Asteroid</value>
+    <value>Aszteroida</value>
   </data>
   <data name="DisplayName_Block_HeavyAngledArmorCorner" xml:space="preserve">
-    <value>Angled Heavy Armor Corner</value>
+    <value>Szögletes Nehéz Páncél Sarok</value>
   </data>
   <data name="DisplayName_Block_HeavyAngledArmorSlope" xml:space="preserve">
-    <value>Angled Heavy Armor Slope</value>
+    <value>Szögletes Nehéz Páncél Lejtő</value>
   </data>
   <data name="DisplayName_Block_HeavyRoundedArmorCorner" xml:space="preserve">
-    <value>Rounded Heavy Armor Corner</value>
+    <value>Lekerekített Nehéz Páncél Sarok</value>
   </data>
   <data name="DisplayName_Block_HeavyRoundedArmorSlope" xml:space="preserve">
-    <value>Rounded Heavy Armor Slope</value>
+    <value>Lekerekített  Nehéz Páncél Lejtő</value>
   </data>
   <data name="DisplayName_Block_LightAngledArmorCorner" xml:space="preserve">
-    <value>Angled Armor Corner</value>
+    <value>Szögletes Nehéz Sarok</value>
   </data>
   <data name="DisplayName_Block_LightAngledArmorSlope" xml:space="preserve">
-    <value>Angled Armor Slope</value>
+    <value>Szögletes Nehéz Páncél Lejtő</value>
   </data>
   <data name="DisplayName_Block_LightRoundedArmorCorner" xml:space="preserve">
-    <value>Rounded Armor Corner</value>
+    <value>Lekerekített Nehéz Páncél Sarok</value>
   </data>
   <data name="DisplayName_Block_LightRoundedArmorSlope" xml:space="preserve">
-    <value>Rounded Armor Slope</value>
+    <value>Lekerekített Döntött Nehéz Páncél</value>
   </data>
   <data name="ControlDescNetgraph" xml:space="preserve">
     <value>Toggle netgraph</value>
   </data>
   <data name="BlockPropertyTitle_BackgroundColor" xml:space="preserve">
-    <value>Backgr.</value>
+    <value>Háttér</value>
   </data>
   <data name="BlockPropertyTitle_FontColor" xml:space="preserve">
-    <value>Font</value>
+    <value>Betű</value>
   </data>
   <data name="BlockPropertyTitle_LCDScreenDefinitionsTextures" xml:space="preserve">
-    <value>Loaded textures</value>
+    <value>Betöltött textúrák</value>
   </data>
   <data name="BlockPropertyTitle_LCDScreenRefreshInterval" xml:space="preserve">
     <value>Image change interval</value>
   </data>
   <data name="BlockPropertyTitle_LCDScreenRemoveSelectedTextures" xml:space="preserve">
-    <value>Remove selected</value>
+    <value>Kiválasztott eltávolítása</value>
   </data>
   <data name="BlockPropertyTitle_LCDScreenSelectedTextures" xml:space="preserve">
-    <value>Selected textures</value>
+    <value>Kiválasztott textúrák</value>
   </data>
   <data name="BlockPropertyTitle_LCDScreenSelectTextures" xml:space="preserve">
-    <value>Add to selection</value>
+    <value>Hozzáadás a kiválasztáshoz</value>
   </data>
   <data name="BlockPropertyTitle_LCDScreenTextSize" xml:space="preserve">
-    <value>Font Size</value>
+    <value>Betű méret</value>
   </data>
   <data name="BlockPropertyTitle_ShowTextOnScreen" xml:space="preserve">
-    <value>Show text on screen</value>
+    <value>Szöveg megjelenítése a képernyőn</value>
   </data>
   <data name="DisplayName_LCD_Panel" xml:space="preserve">
-    <value>LCD Panel</value>
+    <value>LCD panel</value>
   </data>
   <data name="DisplayName_LCD_PanelWide" xml:space="preserve">
-    <value>Wide LCD panel</value>
+    <value>Széles LCD panel</value>
   </data>
   <data name="BlockComboBoxValue_TextPanelShowTextNone" xml:space="preserve">
-    <value>None</value>
+    <value>Semmi</value>
   </data>
   <data name="BlockComboBoxValue_TextPanelShowTextPrivate" xml:space="preserve">
-    <value>Private</value>
+    <value>Privát</value>
   </data>
   <data name="BlockComboBoxValue_TextPanelShowTextPublic" xml:space="preserve">
-    <value>Public</value>
+    <value>Publikus</value>
   </data>
   <data name="BlockPropertyTitle_TextPanelPublicTitle" xml:space="preserve">
-    <value>Public title</value>
+    <value>Nyilvános cím</value>
   </data>
   <data name="BlockPropertyTitle_TextPanelShowPublicTextPanel" xml:space="preserve">
-    <value>Edit public text</value>
+    <value>Nyilvános szöveg szerkesztése</value>
   </data>
   <data name="DisplayName_Block_LaserAntenna" xml:space="preserve">
-    <value>Laser Antenna</value>
+    <value>Lézer Antenna</value>
   </data>
   <data name="LaserAntennaModeIdle" xml:space="preserve">
-    <value>Idle</value>
+    <value>Tétlen</value>
   </data>
   <data name="LaserAntennaCopyCoords" xml:space="preserve">
-    <value>Copy my coords</value>
+    <value>Koordinátáim másolása</value>
   </data>
   <data name="LaserAntennaCopyCoordsHelp" xml:space="preserve">
     <value>Copy this antenna's position into clipboard</value>
   </data>
   <data name="LaserAntennaIdleButton" xml:space="preserve">
-    <value>Idle</value>
+    <value>Tétlen</value>
   </data>
   <data name="LaserAntennaConnectButton" xml:space="preserve">
-    <value>Connect to receiver</value>
+    <value>Csatlakozás a fogadóhoz</value>
   </data>
   <data name="LaserAntennaConnectGPS" xml:space="preserve">
-    <value>Connect to coords</value>
+    <value>Csatlakozás a koordinátákhoz</value>
   </data>
   <data name="LaserAntennaSelectedCoords" xml:space="preserve">
-    <value>Selected GPS coordinates</value>
+    <value>Kiválasztott GPS koordináták</value>
   </data>
   <data name="LaserAntennaPasteGPS" xml:space="preserve">
-    <value>Paste coords</value>
+    <value>Koordináták beillesztése</value>
   </data>
   <data name="LaserAntennaReceiversList" xml:space="preserve">
-    <value>Known receivers</value>
+    <value>Ismert vevőkészülékek</value>
   </data>
   <data name="DisplayName_Block_LightRoundArmorCorner" xml:space="preserve">
     <value>Round Armor Corner</value>
@@ -5554,7 +5549,7 @@ Large view distances are not recommended on worlds with high asteroid densities.
     <value>Round Armor Inv. Corner</value>
   </data>
   <data name="DisplayName_Block_LightRoundArmorSlope" xml:space="preserve">
-    <value>Round Armor Slope</value>
+    <value>Lekerekített Döntött Nehéz Páncél</value>
   </data>
   <data name="MessageBoxTextOpenUrlOverlayNotEnabled" xml:space="preserve">
     <value>This will open {0} in your internet browser, because Steam Overlay is either disabled or failed to open. The game will keep running.
@@ -5570,25 +5565,25 @@ Do you want to continue?</value>
     <value>Press {0} to toggle dynamic building</value>
   </data>
   <data name="DisplayName_Block_HeavyRoundArmorCorner" xml:space="preserve">
-    <value>Heavy Armor Round Corner</value>
+    <value>Nehéz Páncél Körsarok</value>
   </data>
   <data name="DisplayName_Block_HeavyRoundArmorInvCorner" xml:space="preserve">
-    <value>Heavy Armor Round Inv. Corner</value>
+    <value>Nehéz Páncél Fordított Körsarok</value>
   </data>
   <data name="DisplayName_Block_HeavyRoundArmorSlope" xml:space="preserve">
-    <value>Heavy Armor Round Slope</value>
+    <value>Nehéz Páncél Körlejtő</value>
   </data>
   <data name="ControlName_SwitchWalk" xml:space="preserve">
     <value>Switch walk</value>
   </data>
   <data name="LaserAntennaModeConnectedTo" xml:space="preserve">
-    <value>Connected to </value>
+    <value>Csatlakoztatva</value>
   </data>
   <data name="LaserAntennaModeContactRec" xml:space="preserve">
     <value>Trying to establish connection to </value>
   </data>
   <data name="LaserAntennaModeRotGPS" xml:space="preserve">
-    <value>Rotating towards GPS coordinates </value>
+    <value>Forgatás a GPS koordináták irányába</value>
   </data>
   <data name="LaserAntennaModeRotRec" xml:space="preserve">
     <value>Rotating towards </value>
@@ -5600,28 +5595,28 @@ Do you want to continue?</value>
     <value>The list of favorite servers</value>
   </data>
   <data name="JoinGame_TabTitle_Favorites" xml:space="preserve">
-    <value>Favorites</value>
+    <value>Kedvencek</value>
   </data>
   <data name="JoinGame_TabTitle_History" xml:space="preserve">
-    <value>History</value>
+    <value>Korábban játszott</value>
   </data>
   <data name="JoinGame_TabTooltip_Friends" xml:space="preserve">
     <value>The list of friends servers</value>
   </data>
   <data name="JoinGame_TabTooltip_History" xml:space="preserve">
-    <value>The list of previously visited servers</value>
+    <value>A korábban meglátogatott szerverek listája</value>
   </data>
   <data name="DisplayName_Block_LightArmorCorner2" xml:space="preserve">
-    <value>Light Armor Corner 2x1x1</value>
+    <value>Könnyű Páncél Sarok 2x1x1</value>
   </data>
   <data name="DisplayName_Block_LightArmorCorner2Smooth" xml:space="preserve">
-    <value>Light Armor Corner 2x1x1 Smooth</value>
+    <value>Könnyű Páncél Sarok 2x1x1 Simított</value>
   </data>
   <data name="DisplayName_Block_LightArmorCorner3" xml:space="preserve">
-    <value>Light Armor Corner 3x1x1</value>
+    <value>Könnyű Páncél Sarok 3x1x1</value>
   </data>
   <data name="DisplayName_Block_LightArmorCorner3Smooth" xml:space="preserve">
-    <value>Light Armor Corner 3x1x1 Smooth</value>
+    <value>Könnyű Páncél Sarok 3x1x1 Simított</value>
   </data>
   <data name="DisplayName_Block_LightArmorInvCorner2" xml:space="preserve">
     <value>Light Armor Inv. Corner 2x1x1</value>
@@ -5642,16 +5637,16 @@ Do you want to continue?</value>
     <value>Light Armor Slope 2x1x1 Smooth</value>
   </data>
   <data name="DisplayName_Block_LightArmorSlope3" xml:space="preserve">
-    <value>Light Armor Slope 3x1x1</value>
+    <value>Könnyű Páncélelem (lejtett) 3x1x1</value>
   </data>
   <data name="DisplayName_Block_LightArmorSlope3Smooth" xml:space="preserve">
-    <value>Light Armor Slope 3x1x1 Smooth</value>
+    <value>Könnyű Páncélelem (lejtett, simított) 3x1x1</value>
   </data>
   <data name="JoinGame_Favorites_Add" xml:space="preserve">
-    <value>Add server to favorites</value>
+    <value>Szerver hozzáadása a kedvencekhez</value>
   </data>
   <data name="JoinGame_Favorites_Remove" xml:space="preserve">
-    <value>Remove server from favorites</value>
+    <value>Szerver eltávolítása a kedvencekből</value>
   </data>
   <data name="DisplayName_Block_LightArmorCorner2Base" xml:space="preserve">
     <value>Light Armor Corner 2x1x1 Base</value>
@@ -5754,7 +5749,7 @@ Do you want to continue?</value>
   </data>
   <data name="LaserAntennaReceiversListHelp" xml:space="preserve">
     <value>These receivers are in radio range and can report their position.
-Their current state and target is in parentesis:
+Their current state and target is in parenthesis:
 idle   laser is idling
 &gt;&gt; laser is rotating towards other receiver or GPS coordinates
 ?&gt;  searching for other laser at requested GPS coordinates
@@ -5765,10 +5760,10 @@ idle   laser is idling
 To connect to lasers not listed here you can connect to coordinates.</value>
   </data>
   <data name="BlockPropertyTitle_LargeTurretEnableTurretIdleMovement" xml:space="preserve">
-    <value>Enable idle movement</value>
+    <value>Tétlen mozgás engedélyezése</value>
   </data>
   <data name="LaserAntennaCopyTargetCoords" xml:space="preserve">
-    <value>Copy target coords</value>
+    <value>Célkoordináták másolása</value>
   </data>
   <data name="LaserAntennaCopyTargetCoordsHelp" xml:space="preserve">
     <value>Copy target's current or last known position into clipboard</value>
@@ -5777,111 +5772,624 @@ To connect to lasers not listed here you can connect to coordinates.</value>
     <value>Enable bots debugging</value>
   </data>
   <data name="BotSettingsScreen_NextBot" xml:space="preserve">
-    <value>Next bot</value>
+    <value>Következő bot</value>
   </data>
   <data name="BotSettingsScreen_PreviousBot" xml:space="preserve">
-    <value>Previous bot</value>
+    <value>Előző bot</value>
   </data>
   <data name="BotSettingsScreen_Title" xml:space="preserve">
-    <value>Bots settings</value>
+    <value>Botok beállításai</value>
   </data>
   <data name="BlockAction_ConveyorSorterBlacklist" xml:space="preserve">
-    <value>Blacklist</value>
+    <value>Feketelista</value>
   </data>
   <data name="BlockAction_ConveyorSorterWhitelist" xml:space="preserve">
-    <value>Whitelist</value>
+    <value>Fehérlista</value>
   </data>
   <data name="BlockPropertyTitle_ConveyorSorterFilterMode" xml:space="preserve">
-    <value>Filter Mode</value>
+    <value>Szűrő mód</value>
   </data>
   <data name="DisplayName_Block_ConveyorSorter" xml:space="preserve">
-    <value>Conveyor Sorter</value>
+    <value>Továbbító szűrő</value>
   </data>
   <data name="LaserAntennaOnlyPerm" xml:space="preserve">
     <value>Only receivers set to permanent connection found</value>
   </data>
   <data name="LaserAntennaPermanentCheckbox" xml:space="preserve">
-    <value>Permanent connection</value>
+    <value>Állandó csatlakozás</value>
   </data>
   <data name="BlockPropertyTitle_ConveyorSorterAdd" xml:space="preserve">
-    <value>Add</value>
+    <value>Hozzáadás</value>
   </data>
   <data name="BlockPropertyTitle_ConveyorSorterCandidatesList" xml:space="preserve">
-    <value>Add new filter</value>
+    <value>Szűrő hozzáadása</value>
   </data>
   <data name="BlockPropertyTitle_ConveyorSorterFilterItemsList" xml:space="preserve">
-    <value>Active filters</value>
+    <value>Aktív szűrők</value>
   </data>
   <data name="BlockPropertyTitle_ConveyorSorterFilterModeBlacklist" xml:space="preserve">
-    <value>Blacklist</value>
+    <value>Feketelista</value>
   </data>
   <data name="BlockPropertyTitle_ConveyorSorterFilterModeWhitelist" xml:space="preserve">
-    <value>Whitelist</value>
+    <value>Fehérlista</value>
   </data>
   <data name="BlockPropertyTitle_ConveyorSorterRemove" xml:space="preserve">
-    <value>Remove</value>
+    <value>Eltávolítás</value>
   </data>
   <data name="ScreenDebugOfficial_BotSettings" xml:space="preserve">
-    <value>Bots settings</value>
+    <value>Botok beállításai</value>
   </data>
   <data name="DisplayName_Block_SmallConveyorSorter" xml:space="preserve">
-    <value>Small Conveyor Sorter</value>
+    <value>Kis továbbító szűrő</value>
   </data>
   <data name="DisplayName_ConvSorterTypes_Ammo" xml:space="preserve">
-    <value>*ammo*</value>
+    <value>*lőszer*</value>
   </data>
   <data name="DisplayName_ConvSorterTypes_Component" xml:space="preserve">
-    <value>*components*</value>
+    <value>*alkatrészek*</value>
   </data>
   <data name="DisplayName_ConvSorterTypes_HandTool" xml:space="preserve">
-    <value>*hand tools*</value>
+    <value>*kézi eszközök*</value>
   </data>
   <data name="DisplayName_ConvSorterTypes_Ingot" xml:space="preserve">
-    <value>*ingots*</value>
+    <value>*öntvények*</value>
   </data>
   <data name="DisplayName_ConvSorterTypes_Ore" xml:space="preserve">
-    <value>*ore*</value>
+    <value>*ércek*</value>
   </data>
   <data name="BlockPropertyDescription_Depressurize" xml:space="preserve">
-    <value>The vent will remove air from the room and store it in tanks</value>
+    <value>A szellőző kiszívja a levegőt a szobából és eltárolja a tartályokban.</value>
   </data>
   <data name="BlockPropertyDescription_Stockpile" xml:space="preserve">
     <value>Stockpiling tanks will not get drained by air vents</value>
   </data>
   <data name="BlockPropertyTitle_Depressurize" xml:space="preserve">
-    <value>Depressurize</value>
+    <value>Nyomás csökkentés</value>
   </data>
   <data name="BlockPropertyTitle_Stockpile" xml:space="preserve">
-    <value>Stockpile</value>
+    <value>Raktároz</value>
   </data>
   <data name="DisplayName_Block_AirVent" xml:space="preserve">
-    <value>Air Vent</value>
+    <value>Szellőztető</value>
   </data>
   <data name="DisplayName_Block_OxygenGenerator" xml:space="preserve">
-    <value>Oxygen Generator</value>
+    <value>Oxigén generátor</value>
   </data>
   <data name="DisplayName_Block_OxygenTank" xml:space="preserve">
-    <value>Oxygen Tank</value>
+    <value>Oxigén tartály</value>
   </data>
   <data name="DisplayName_BlueprintClass_Ice" xml:space="preserve">
-    <value>Ice</value>
+    <value>Jég</value>
   </data>
   <data name="DisplayName_Item_Oxygen" xml:space="preserve">
-    <value>Oxygen</value>
+    <value>Oxigén</value>
   </data>
   <data name="MessageBoxTextAreYouSureEnableOxygen" xml:space="preserve">
-    <value>Are you sure you want to enable oxygen? Doing so will cause materials on untouched asteroids to change. This is irreversible.</value>
+    <value>Biztosan be akarod kapcsolni az oxigént? A bekapcsolásával az érintetlen aszteroidáknak változni fog az anyaga, jeget fognak tartalmazni. Ez nem visszavonható.</value>
   </data>
   <data name="ToolTipWorldSettings_EnableOxygen" xml:space="preserve">
-    <value>Enable ice material, pressurization detection and oxygen generation and circulation</value>
+    <value>Jég, nyomásérzékelés, oxigén generátor és keringetés bekapcsolása</value>
   </data>
   <data name="World_Settings_EnableOxygen" xml:space="preserve">
-    <value>Enable oxygen</value>
+    <value>Oxigén bekapcsolása</value>
   </data>
   <data name="Terminal_DrainAll" xml:space="preserve">
-    <value>Drain All</value>
+    <value>Mindent begyűjt</value>
   </data>
   <data name="BlockOwner_TransferTo" xml:space="preserve">
-    <value>Transfer to:</value>
+    <value>Átvitel ide:</value>
+  </data>
+  <data name="DisplayName_Block_AirtightHangarDoor" xml:space="preserve">
+    <value>Airtight Hangar Door</value>
+  </data>
+  <data name="BlockPropertyTitle_LargeTurretTargetCharacters" xml:space="preserve">
+    <value>Target characters</value>
+  </data>
+  <data name="BlockPropertyTitle_LargeTurretTargetLargeGrids" xml:space="preserve">
+    <value>Target large ships</value>
+  </data>
+  <data name="BlockPropertyTitle_LargeTurretTargetSmallGrids" xml:space="preserve">
+    <value>Target small ships</value>
+  </data>
+  <data name="BlockPropertyTitle_LargeTurretTargetStations" xml:space="preserve">
+    <value>Target stations</value>
+  </data>
+  <data name="DisplayName_Item_OxygenBottle" xml:space="preserve">
+    <value>Oxygen Bottle</value>
+  </data>
+  <data name="DisplayName_BlueprintClass_OxygenBottles" xml:space="preserve">
+    <value>Oxygen Bottles</value>
+  </data>
+  <data name="DisplayName_Item_OxygenBottles" xml:space="preserve">
+    <value>Oxygen Bottles</value>
+  </data>
+  <data name="BlockPropertyTitle_Refill" xml:space="preserve">
+    <value>Refill Bottles</value>
+  </data>
+  <data name="ScreenDebugSpawnMenu_Planets" xml:space="preserve">
+    <value>Planets</value>
+  </data>
+  <data name="ScreenDebugSpawnMenu_CreateLayer" xml:space="preserve">
+    <value>Create layer</value>
+  </data>
+  <data name="ScreenDebugSpawnMenu_RemoveLayer" xml:space="preserve">
+    <value>Remove layer</value>
+  </data>
+  <data name="BlockPropertyTitle_AutoRefill" xml:space="preserve">
+    <value>Auto-Refill</value>
+  </data>
+  <data name="Terminal_ShowInTerminal" xml:space="preserve">
+    <value>Show block in terminal</value>
+  </data>
+  <data name="Terminal_ShowAllInTerminal" xml:space="preserve">
+    <value>Show hidden blocks</value>
+  </data>
+  <data name="NotificationBottleRefill" xml:space="preserve">
+    <value>Oxygen refilled from bottles.</value>
+  </data>
+  <data name="NotificationOxygenCritical" xml:space="preserve">
+    <value>Oxygen is critical.</value>
+  </data>
+  <data name="NotificationOxygenLow" xml:space="preserve">
+    <value>Oxygen is low.</value>
+  </data>
+  <data name="ScreenDebugSpawnMenu_PickPlanet" xml:space="preserve">
+    <value>Pick planet to edit</value>
+  </data>
+  <data name="buttonBrowseWorkshop" xml:space="preserve">
+    <value>Browse Workshop</value>
+  </data>
+  <data name="buttonCreateNew" xml:space="preserve">
+    <value>Create new</value>
+  </data>
+  <data name="buttonOpenInWorkshop" xml:space="preserve">
+    <value>Open in Workshop</value>
+  </data>
+  <data name="buttonPublish" xml:space="preserve">
+    <value>Publish</value>
+  </data>
+  <data name="buttonRefresh" xml:space="preserve">
+    <value>Refresh</value>
+  </data>
+  <data name="buttonRemove" xml:space="preserve">
+    <value>Remove</value>
+  </data>
+  <data name="Difficulty" xml:space="preserve">
+    <value>Nehézség</value>
+  </data>
+  <data name="DifficultyEasy" xml:space="preserve">
+    <value>Könnyű </value>
+  </data>
+  <data name="DifficultyHard" xml:space="preserve">
+    <value>Nehéz</value>
+  </data>
+  <data name="DifficultyNormal" xml:space="preserve">
+    <value>Normal</value>
+  </data>
+  <data name="ScreenCaptionScenario" xml:space="preserve">
+    <value>Scenario</value>
+  </data>
+  <data name="NotificationSuitEnergyCriticalNoDamage" xml:space="preserve">
+    <value>Warning: Suit energy is critically low.</value>
+  </data>
+  <data name="NotificationSuitEnergyLowNoDamage" xml:space="preserve">
+    <value>Suit energy is low.</value>
+  </data>
+  <data name="ControlName_Helmet" xml:space="preserve">
+    <value>Helmet on / off</value>
+  </data>
+  <data name="NotificationNoHelmetVariation" xml:space="preserve">
+    <value>Cannot remove helmet on this suit.</value>
+  </data>
+  <data name="ReportBug" xml:space="preserve">
+    <value>Report a Bug</value>
+  </data>
+  <data name="HudInfoHelmet" xml:space="preserve">
+    <value>Helmet</value>
+  </data>
+  <data name="ScreenDebugSpawnMenu_UpdatePlanet" xml:space="preserve">
+    <value>Update planet</value>
+  </data>
+  <data name="Terminal_ShowInTerminalToolTip" xml:space="preserve">
+    <value>Show/hide current block in terminal</value>
+  </data>
+  <data name="NotificationHelmetOff" xml:space="preserve">
+    <value>Helmet Off</value>
+  </data>
+  <data name="NotificationHelmetOn" xml:space="preserve">
+    <value>Helmet On</value>
+  </data>
+  <data name="BlockPropertiesText_MainCockpit" xml:space="preserve">
+    <value>Main ship cockpit</value>
+  </data>
+  <data name="TerminalControlPanel_Cockpit_MainCockpit" xml:space="preserve">
+    <value>Main cockpit</value>
+  </data>
+  <data name="NotificationHintNoAction" xml:space="preserve">
+    <value>Empty</value>
+  </data>
+  <data name="BlockPropertyText_Button" xml:space="preserve">
+    <value>Button</value>
+  </data>
+  <data name="BlockPropertyText_ButtonList" xml:space="preserve">
+    <value>Available buttons</value>
+  </data>
+  <data name="BlockPropertyText_ButtonName" xml:space="preserve">
+    <value>Button name</value>
+  </data>
+  <data name="WorldSettings_Enable3rdPersonCamera" xml:space="preserve">
+    <value>Enable 3rd person view</value>
+  </data>
+  <data name="ControlName_ToolbarNextItem" xml:space="preserve">
+    <value>Next toolbar item</value>
+  </data>
+  <data name="ControlName_ToolbarPreviousItem" xml:space="preserve">
+    <value>Previous toolbar item</value>
+  </data>
+  <data name="ControlTypeToolsOrWeapons2" xml:space="preserve">
+    <value>Tools / Weapons 2</value>
+  </data>
+  <data name="BlockPropertiesText_OxygenOutput" xml:space="preserve">
+    <value>Oxygen Output: </value>
+  </data>
+  <data name="DisplayName_Block_OxygenFarm" xml:space="preserve">
+    <value>Oxygen Farm</value>
+  </data>
+  <data name="WorldSettings_Encounters" xml:space="preserve">
+    <value>Random encounters</value>
+  </data>
+  <data name="ControlName_BuildMode" xml:space="preserve">
+    <value>Build mode</value>
+  </data>
+  <data name="ScreenControlMenu_Title" xml:space="preserve">
+    <value>Control menu</value>
+  </data>
+  <data name="TerminalTab_Info_EnemyAntennaRange" xml:space="preserve">
+    <value>Show distance for enemy antennas</value>
+  </data>
+  <data name="TerminalTab_Info_FriendlyAntennaRange" xml:space="preserve">
+    <value>Show distance for friendly antennas</value>
+  </data>
+  <data name="TerminalTab_Info_OwnedAntennaRange" xml:space="preserve">
+    <value>Show distance for owned antennas</value>
+  </data>
+  <data name="ScreenButtonBattle" xml:space="preserve">
+    <value>Battle</value>
+  </data>
+  <data name="ControlName_ControlMenu" xml:space="preserve">
+    <value>Open control menu</value>
+  </data>
+  <data name="DisplayName_Block_CryoChamber" xml:space="preserve">
+    <value>Cryo Chamber</value>
+  </data>
+  <data name="ControlMenuItemLabel_Lights" xml:space="preserve">
+    <value>Lights</value>
+  </data>
+  <data name="ControlMenuItemLabel_Terminal" xml:space="preserve">
+    <value>Show terminal</value>
+  </data>
+  <data name="ControlMenuItemValue_Off" xml:space="preserve">
+    <value>Off</value>
+  </data>
+  <data name="ControlMenuItemValue_On" xml:space="preserve">
+    <value>On</value>
+  </data>
+  <data name="ControlMenuItemLabel_CameraMode" xml:space="preserve">
+    <value>Camera mode</value>
+  </data>
+  <data name="ControlMenuItemValue_FPP" xml:space="preserve">
+    <value>FPP</value>
+  </data>
+  <data name="ControlMenuItemValue_TPP" xml:space="preserve">
+    <value>TPP</value>
+  </data>
+  <data name="ControlName_MissionSettings" xml:space="preserve">
+    <value>Scenario Settings</value>
+  </data>
+  <data name="MissionScreenCaption" xml:space="preserve">
+    <value>Scenario Settings</value>
+  </data>
+  <data name="MissionTriggerOtherWon" xml:space="preserve">
+    <value>Other side won</value>
+  </data>
+  <data name="MissionTriggerReachPosition" xml:space="preserve">
+    <value>Reach GPS position</value>
+  </data>
+  <data name="GuiTriggerCaptionPositionLeft" xml:space="preserve">
+    <value>Leave GPS position</value>
+  </data>
+  <data name="GuiTriggerCaptionPositionReached" xml:space="preserve">
+    <value>Reach GPS position</value>
+  </data>
+  <data name="GuiTriggerCaptionSomeoneWon" xml:space="preserve">
+    <value>Someone Won</value>
+  </data>
+  <data name="GuiTriggerMessage" xml:space="preserve">
+    <value>Message</value>
+  </data>
+  <data name="BlockIsNotPowered" xml:space="preserve">
+    <value>Block is not powered</value>
+  </data>
+  <data name="GuiMissionTriggersLostCondition" xml:space="preserve">
+    <value>Lost condition:</value>
+  </data>
+  <data name="GuiMissionTriggersWinCondition" xml:space="preserve">
+    <value>Win condition:</value>
+  </data>
+  <data name="GuiTriggerPasteGps" xml:space="preserve">
+    <value>Paste GPS</value>
+  </data>
+  <data name="GuiTriggerPositionRadius" xml:space="preserve">
+    <value>Radius</value>
+  </data>
+  <data name="TerminalControlPanel_RunArgument" xml:space="preserve">
+    <value>Argument</value>
+  </data>
+  <data name="ControlMenuItemLabel_Dampeners" xml:space="preserve">
+    <value>Dampeners</value>
+  </data>
+  <data name="TerminalControlPanel_RunArgument_ToolTip" xml:space="preserve">
+    <value>An argument passed to your code when clicking the Run button</value>
+  </data>
+  <data name="ControlMenuItemLabel_Helmet" xml:space="preserve">
+    <value>Helmet</value>
+  </data>
+  <data name="ControlMenuItemLabel_Jetpack" xml:space="preserve">
+    <value>Jetpack</value>
+  </data>
+  <data name="ControlMenuItemLabel_LandingGear" xml:space="preserve">
+    <value>Landing gear / connector</value>
+  </data>
+  <data name="ControlMenuItemLabel_Reactors" xml:space="preserve">
+    <value>Reactors</value>
+  </data>
+  <data name="ControlMenuItemLabel_Thrusts" xml:space="preserve">
+    <value>Thrusters</value>
+  </data>
+  <data name="ControlMenuItemLabel_Broadcasting" xml:space="preserve">
+    <value>Broadcasting</value>
+  </data>
+  <data name="ControlMenuItemLabel_CommitSuicide" xml:space="preserve">
+    <value>Suicide</value>
+  </data>
+  <data name="ControlMenuItemLabel_QuickLoad" xml:space="preserve">
+    <value>Quick load / reconnect</value>
+  </data>
+  <data name="ControlMenuItemLabel_ShowColorPicker" xml:space="preserve">
+    <value>Show color picker</value>
+  </data>
+  <data name="ControlMenuItemLabel_ShowTerminal" xml:space="preserve">
+    <value>Show terminal</value>
+  </data>
+  <data name="ControlMenuItemLabel_ShowToolbarScreen" xml:space="preserve">
+    <value>Show toolbar screen</value>
+  </data>
+  <data name="ControlMenuItemLabel_ToggleHud" xml:space="preserve">
+    <value>Toggle HUD</value>
+  </data>
+  <data name="ControlMenuItemLabel_PauseGame" xml:space="preserve">
+    <value>Pause game</value>
+  </data>
+  <data name="MessageBoxTextErrorFeatureNotAvailableYet" xml:space="preserve">
+    <value>Feature is not available yet</value>
+  </data>
+  <data name="NotificationMaximumNumberBots" xml:space="preserve">
+    <value>Maximum number of bots has been reached</value>
+  </data>
+  <data name="DisplayName_Block_EffectivenessModule" xml:space="preserve">
+    <value>Effectiveness Module</value>
+  </data>
+  <data name="DisplayName_Block_PowerEfficiencyModule" xml:space="preserve">
+    <value>Power Efficiency Module</value>
+  </data>
+  <data name="DisplayName_Block_ProductivityModule" xml:space="preserve">
+    <value>Productivity Module</value>
+  </data>
+  <data name="WorldSettings_Battle" xml:space="preserve">
+    <value>Battle</value>
+  </data>
+  <data name="Hud_BuildMode" xml:space="preserve">
+    <value>Build mode</value>
+  </data>
+  <data name="NotificationJoystickCompoundBuildingFormat" xml:space="preserve">
+    <value>Press {0} to toggle compound building</value>
+  </data>
+  <data name="BlockActionTitle_Extend" xml:space="preserve">
+    <value>Extend</value>
+  </data>
+  <data name="BlockActionTitle_Retract" xml:space="preserve">
+    <value>Retract</value>
+  </data>
+  <data name="NotificationJoystickControlMenuFormat" xml:space="preserve">
+    <value>Press {0} to access control menu</value>
+  </data>
+  <data name="NotificationJoystickMenus" xml:space="preserve">
+    <value>In order to show help or modify toolbar, open control menu</value>
+  </data>
+  <data name="NotificationJoystickSlotEquipFormat" xml:space="preserve">
+    <value>Press {0} or {1} to select toolbar slots</value>
+  </data>
+  <data name="NotificationJoystickUnlimitedBuildingFormat" xml:space="preserve">
+    <value>Press {0} to add block, press {1} to remove block</value>
+  </data>
+  <data name="NotificationJoystickVoxelMaterialFormat" xml:space="preserve">
+    <value>Press {0} to change voxel material</value>
+  </data>
+  <data name="Notification_GameplayOptions" xml:space="preserve">
+    <value>Press {0} to change Gameplay options</value>
+  </data>
+  <data name="ControlMenuItemLabel_Wardrobe" xml:space="preserve">
+    <value>Change appearance</value>
+  </data>
+  <data name="NotificationHintJoystickPressToOpenControlPanel" xml:space="preserve">
+    <value>Access control menu to open control panel of {0}</value>
+  </data>
+  <data name="NotificationHintJoystickPressToOpenTerminal" xml:space="preserve">
+    <value>Access control menu to open terminal</value>
+  </data>
+  <data name="ControlMenuItemLabel_OpenInventory" xml:space="preserve">
+    <value>Open inventory</value>
+  </data>
+  <data name="ControlMenuItemLabel_SetupButtons" xml:space="preserve">
+    <value>Setup buttons</value>
+  </data>
+  <data name="ControlMenuItemLabel_ShowControlPanel" xml:space="preserve">
+    <value>Show control panel</value>
+  </data>
+  <data name="NotificationHintJoystickPressToOpenButtonPanel" xml:space="preserve">
+    <value>Access control menu to setup panel's buttons</value>
+  </data>
+  <data name="NotificationHintJoystickPressToOpenInventory" xml:space="preserve">
+    <value>Access control menu to open inventory of {0}</value>
+  </data>
+  <data name="NotificationHintPressToOpenBuildMode" xml:space="preserve">
+    <value>Press {0} to enter build mode</value>
+  </data>
+  <data name="DialogTextJoiningBattleLobby" xml:space="preserve">
+    <value>Joining battle lobby</value>
+  </data>
+  <data name="DialogTextJoinBattleLobbyFailed" xml:space="preserve">
+    <value>Joining battle lobby failed, reason: {0}</value>
+  </data>
+  <data name="NotificationHintPressToEnterCryochamber" xml:space="preserve">
+    <value>Press {0} to enter cryo chamber</value>
+  </data>
+  <data name="NotificationHintLeaveCryoChamber" xml:space="preserve">
+    <value>Press {0} to leave cryo chamber</value>
+  </data>
+  <data name="DisplayName_Item_ScrapIngot" xml:space="preserve">
+    <value>Old Scrap Metal</value>
+  </data>
+  <data name="BlockActionTitle_AddWaypoint" xml:space="preserve">
+    <value>Add</value>
+  </data>
+  <data name="BlockActionTitle_MoveWaypointDown" xml:space="preserve">
+    <value>Move Down</value>
+  </data>
+  <data name="BlockActionTitle_MoveWaypointUp" xml:space="preserve">
+    <value>Move Up</value>
+  </data>
+  <data name="BlockActionTitle_RemoveWaypoint" xml:space="preserve">
+    <value>Remove</value>
+  </data>
+  <data name="BlockPropertyTitle_AutoPilot" xml:space="preserve">
+    <value>Autopilot</value>
+  </data>
+  <data name="BlockPropertyTitle_FlightMode" xml:space="preserve">
+    <value>Flight Mode</value>
+  </data>
+  <data name="BlockPropertyTitle_FlightMode_Circle" xml:space="preserve">
+    <value>Circle</value>
+  </data>
+  <data name="BlockPropertyTitle_FlightMode_OneWay" xml:space="preserve">
+    <value>One Way</value>
+  </data>
+  <data name="BlockPropertyTitle_FlightMode_Patrol" xml:space="preserve">
+    <value>Patrol</value>
+  </data>
+  <data name="BlockPropertyTitle_GpsLocations" xml:space="preserve">
+    <value>GPS Locations</value>
+  </data>
+  <data name="BlockPropertyTitle_Waypoints" xml:space="preserve">
+    <value>Waypoints</value>
+  </data>
+  <data name="BlockPropertyPopup_AutoPilotToolbarOpen" xml:space="preserve">
+    <value>Set an action to be done when autopilot reaches destination</value>
+  </data>
+  <data name="BlockPropertyTitle_AutoPilotToolbarOpen" xml:space="preserve">
+    <value>Setup Action</value>
+  </data>
+  <data name="Notification_NoControlAutoPilot" xml:space="preserve">
+    <value>Autopilot enabled</value>
+  </data>
+  <data name="WorldSettings_Physics" xml:space="preserve">
+    <value>Physics</value>
+  </data>
+  <data name="WorldSettings_Physics_Fast" xml:space="preserve">
+    <value>Fast</value>
+  </data>
+  <data name="WorldSettings_Physics_Normal" xml:space="preserve">
+    <value>Normal</value>
+  </data>
+  <data name="WorldSettings_Physics_Precise" xml:space="preserve">
+    <value>Precise</value>
+  </data>
+  <data name="WorldSettings_Physics_Tooltip" xml:space="preserve">
+    <value>Higher settings improve simulation BUT directly affects performance.</value>
+  </data>
+  <data name="ScreenCaptionGraphicsOptions" xml:space="preserve">
+    <value>Graphics options</value>
+  </data>
+  <data name="ScreenGraphicsOptions_AnisotropicFiltering" xml:space="preserve">
+    <value>Anisotropic filtering</value>
+  </data>
+  <data name="ScreenGraphicsOptions_AnisotropicFiltering_Off" xml:space="preserve">
+    <value>Off</value>
+  </data>
+  <data name="ScreenGraphicsOptions_AntiAliasing" xml:space="preserve">
+    <value>Anti-aliasing</value>
+  </data>
+  <data name="ScreenGraphicsOptions_AntiAliasing_None" xml:space="preserve">
+    <value>None</value>
+  </data>
+  <data name="ScreenGraphicsOptions_FoliageDetails" xml:space="preserve">
+    <value>Foliage details</value>
+  </data>
+  <data name="ScreenGraphicsOptions_FoliageDetails_Disabled" xml:space="preserve">
+    <value>Disabled</value>
+  </data>
+  <data name="ScreenGraphicsOptions_FoliageDetails_High" xml:space="preserve">
+    <value>High</value>
+  </data>
+  <data name="ScreenGraphicsOptions_FoliageDetails_Low" xml:space="preserve">
+    <value>Low</value>
+  </data>
+  <data name="ScreenGraphicsOptions_FoliageDetails_Medium" xml:space="preserve">
+    <value>Medium</value>
+  </data>
+  <data name="ScreenGraphicsOptions_MultiThreadedRendering" xml:space="preserve">
+    <value>Multi-threaded rendering</value>
+  </data>
+  <data name="ScreenGraphicsOptions_QualityPreset" xml:space="preserve">
+    <value>Quality preset</value>
+  </data>
+  <data name="ScreenGraphicsOptions_QualityPreset_Custom" xml:space="preserve">
+    <value>Custom</value>
+  </data>
+  <data name="ScreenGraphicsOptions_QualityPreset_High" xml:space="preserve">
+    <value>High</value>
+  </data>
+  <data name="ScreenGraphicsOptions_QualityPreset_Low" xml:space="preserve">
+    <value>Low</value>
+  </data>
+  <data name="ScreenGraphicsOptions_QualityPreset_Medium" xml:space="preserve">
+    <value>Medium</value>
+  </data>
+  <data name="ScreenGraphicsOptions_Renderer" xml:space="preserve">
+    <value>Renderer</value>
+  </data>
+  <data name="ScreenGraphicsOptions_ShadowMapResolution" xml:space="preserve">
+    <value>Shadow map resolution</value>
+  </data>
+  <data name="ScreenGraphicsOptions_ShadowMapResolution_High" xml:space="preserve">
+    <value>High</value>
+  </data>
+  <data name="ScreenGraphicsOptions_ShadowMapResolution_Low" xml:space="preserve">
+    <value>Low</value>
+  </data>
+  <data name="ScreenGraphicsOptions_TextureQuality" xml:space="preserve">
+    <value>Texture quality</value>
+  </data>
+  <data name="ScreenGraphicsOptions_TextureQuality_High" xml:space="preserve">
+    <value>High</value>
+  </data>
+  <data name="ScreenGraphicsOptions_TextureQuality_Low" xml:space="preserve">
+    <value>Low</value>
+  </data>
+  <data name="ScreenGraphicsOptions_TextureQuality_Medium" xml:space="preserve">
+    <value>Medium</value>
+  </data>
+  <data name="ToolTipVideoOptionsRenderer" xml:space="preserve">
+    <value>Changing the renderer requires restart of the game.</value>
   </data>
 </root>

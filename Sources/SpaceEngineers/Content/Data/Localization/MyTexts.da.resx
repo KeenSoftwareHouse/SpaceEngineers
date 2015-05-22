@@ -127,14 +127,6 @@
   <data name="MessageBoxTextAreYouSureYouWantToExit" xml:space="preserve">
     <value>Er du sikker på at du vil forlade spillet?</value>
   </data>
-  <data name="AssignControlJoystick" xml:space="preserve">
-    <value>Tryk venligst på en knap
-på dit joystick/gamepad</value>
-  </data>
-  <data name="AssignControlJoystickAxis" xml:space="preserve">
-    <value>Bevæg venligst en analog akse
-på dit joystick/gamepad</value>
-  </data>
   <data name="AssignControlKeyboard" xml:space="preserve">
     <value>Tryk venligst på en tast</value>
   </data>
@@ -933,7 +925,7 @@ Fjern den originale kontrol?</value>
     <value>Sikkert</value>
   </data>
   <data name="ErrorNameTooLong" xml:space="preserve">
-    <value>Name is too long (max 128 characters allowed)</value>
+    <value>Navnet er for langt (Max 128 tegn tilladt)</value>
   </data>
   <data name="ErrorNameTooShort" xml:space="preserve">
     <value>Navnet er for kort (Minimum 5 tegn er påkrævet)</value>
@@ -1827,7 +1819,7 @@ Hvis spillet ikke køre flydende, sænk din skærmopløsning.</value>
     <value>Musehjul</value>
   </data>
   <data name="ScreenCubeBuilderBuildingBlocks" xml:space="preserve">
-    <value>Tab content:</value>
+    <value>Fane indhold:</value>
   </data>
   <data name="ScreenCubeBuilderCreativeMode" xml:space="preserve">
     <value>Kreativ mode</value>
@@ -2867,10 +2859,10 @@ Samlers effektivitet {1}x
 Raffinaderis hastighed {2}x</value>
   </data>
   <data name="NotificationClientConnected" xml:space="preserve">
-    <value>Player connected: {0}</value>
+    <value>Spiller tilsluttet: {0}</value>
   </data>
   <data name="NotificationClientDisconnected" xml:space="preserve">
-    <value>Player disconnected: {0}</value>
+    <value>Spiller afbrudt: {0}</value>
   </data>
   <data name="WorldSettings_ThrusterDamage" xml:space="preserve">
     <value>Skade fra raketmotorer</value>
@@ -3002,7 +2994,7 @@ Raffinaderis hastighed {2}x</value>
     <value>Tryk {0} for at skifte mellem enkelt/alle våben modus.</value>
   </data>
   <data name="BlockPropertyTitle_LargeTurretRadius" xml:space="preserve">
-    <value>Aiming radius</value>
+    <value>Sigte radius</value>
   </data>
   <data name="ToolTipItemFilter_NATO_5p56x45mm" xml:space="preserve">
     <value>NATO 5.56x45 mm</value>
@@ -3112,6 +3104,9 @@ Raffinaderis hastighed {2}x</value>
   </data>
   <data name="DialogAmount_SetValueCaption" xml:space="preserve">
     <value>Angiv værdi</value>
+  </data>
+  <data name="DialogText_RunArgument" xml:space="preserve">
+    <value>Argument</value>
   </data>
   <data name="BlockPropertyTitle_LargeTurretTargetMissiles" xml:space="preserve">
     <value>Lås på missiler</value>
@@ -3486,13 +3481,13 @@ Teknisk information. Højere antal på virker ydeevnen.</value>
     <value>Valgte fraktion navn findes allerede</value>
   </data>
   <data name="MessageBoxErrorFactionsTag" xml:space="preserve">
-    <value>Faction tag must be exactly 3 characters long</value>
+    <value>Fraktion tag skal være præcist 3 tegn lang</value>
   </data>
   <data name="MessageBoxErrorFactionsTagAlreadyExists" xml:space="preserve">
-    <value>Given faction tag already exists</value>
+    <value>Fraktionens tag findes allerede</value>
   </data>
   <data name="MessageBoxErrorFactionsNameTooShort" xml:space="preserve">
-    <value>Faction name must be at least 4 characters long</value>
+    <value>Navnet på fraktionen skal være mindst 4 tegn lang</value>
   </data>
   <data name="TerminalTab_Factions_BeforeCreateLeave" xml:space="preserve">
     <value>Du skal forlade din fraktion før du kan lave en ny</value>
@@ -3737,7 +3732,7 @@ ukontrolleret, uden en medbay og tilstrækkeligt langt fra alle spillere så de 
     <value>Samme spil data</value>
   </data>
   <data name="TerminalTab_Factions_AcceptPeaceRequest" xml:space="preserve">
-    <value>Accept peace</value>
+    <value>Accepter fred</value>
   </data>
   <data name="MessageBoxCaptionRespawn" xml:space="preserve">
     <value>Du vil miste al ejerskab og
@@ -3942,7 +3937,7 @@ genopstå som en ny spiller! Genopstå?</value>
     <value>Skift mellem blokke</value>
   </data>
   <data name="TerminalTab_Factions_AutoAcceptRequest" xml:space="preserve">
-    <value>Accept peace</value>
+    <value>Accepter fred</value>
   </data>
   <data name="TerminalTab_Factions_AutoAcceptRequestToolTip" xml:space="preserve">
     <value>Automatisk acceptere fredsaftaler</value>
@@ -3954,13 +3949,13 @@ genopstå som en ny spiller! Genopstå?</value>
     <value>Rotor forskydning</value>
   </data>
   <data name="DisplayName_Block_ArmorCenter" xml:space="preserve">
-    <value>Blast door</value>
+    <value>Blast dør</value>
   </data>
   <data name="DisplayName_Block_ArmorCorner" xml:space="preserve">
-    <value>Blast door corner</value>
+    <value>Blast dør hjørne</value>
   </data>
   <data name="DisplayName_Block_ArmorSide" xml:space="preserve">
-    <value>Blast door edge</value>
+    <value>Blast dør kant</value>
   </data>
   <data name="BlockAction_RemoveFromToolbar" xml:space="preserve">
     <value>[Fjern fra toolbar]</value>
@@ -3978,19 +3973,19 @@ genopstå som en ny spiller! Genopstå?</value>
     <value>Nulstil</value>
   </data>
   <data name="BlockPropertyDescription_ThrustOverride" xml:space="preserve">
-    <value>Overriding thruster will cause activation of thruster even without cockpit</value>
+    <value> Hvis du tilsidesætter styreraket vil det medføre aktivering af styreraket selv uden cockpit</value>
   </data>
   <data name="BlockPropertyTitle_ThrustOverride" xml:space="preserve">
-    <value>Thrust override</value>
+    <value>Styreraket overbelastning</value>
   </data>
   <data name="MessageBoxTextYouHaveBeenKickedFromFaction" xml:space="preserve">
-    <value>You have been kicked from the faction.</value>
+    <value>Du er blevet smidt ud fra fraktionen</value>
   </data>
   <data name="MessageBoxTextYouHaveBeenAcceptedToFaction" xml:space="preserve">
-    <value>You have been accepted to faction.</value>
+    <value>Du er blevet accepteret til fraktion.</value>
   </data>
   <data name="BlockAction_Switch" xml:space="preserve">
-    <value>Switch</value>
+    <value>Skift</value>
   </data>
   <data name="BlockAction_DoorClosed" xml:space="preserve">
     <value>Luk</value>
@@ -4005,139 +4000,139 @@ genopstå som en ny spiller! Genopstå?</value>
     <value>Rotor del</value>
   </data>
   <data name="DisplayName_Block_ArmorInvCorner" xml:space="preserve">
-    <value>Blast door corner inverted</value>
+    <value>Blast dør hjørne inverteret</value>
   </data>
   <data name="BlockPropertyDescription_GyroOverride" xml:space="preserve">
-    <value>If set, the gyro does not respond to cockpit controls, but can instead be controlled manually using the terminal control sliders</value>
+    <value>Hvis du sætter gyroen reagerer cockpittet ikke, men kan i stedet styres manuelt ved hjælp af skydernes terminal kontrol</value>
   </data>
   <data name="BlockPropertyTitle_GyroOverride" xml:space="preserve">
     <value>Overskriv kontrol</value>
   </data>
   <data name="BlockPropertyDescription_GyroPitchOverride" xml:space="preserve">
-    <value>Pitch component of the constant torque that is applied by this gyro if the cockpit controls are overridden</value>
+    <value>Pitch komponent af det konstante drejningsmoment, der er anvendt ved denne gyro, hvis cockpittets kontrolelementerne tilsidesættes</value>
   </data>
   <data name="BlockPropertyDescription_GyroRollOverride" xml:space="preserve">
-    <value>Roll component of the constant torque that is applied by this gyro if the cockpit controls are overridden</value>
+    <value>Ruld komponent af det konstante drejningsmoment, der er anvendt ved denne gyro, hvis cockpittets kontrolelementer tilsidesættes</value>
   </data>
   <data name="BlockPropertyDescription_GyroYawOverride" xml:space="preserve">
-    <value>Yaw component of the constant torque that is applied by this gyro if the cockpit controls are overridden</value>
+    <value>Krøje komponent af det konstant drejningsmoment, der er anvendt ved denne gyro, hvis cockpittets kontrolelementer tilsidesættes</value>
   </data>
   <data name="BlockPropertyTitle_GyroPitchOverride" xml:space="preserve">
-    <value>Pitch override</value>
+    <value>Pitch overbelastning</value>
   </data>
   <data name="BlockPropertyTitle_GyroRollOverride" xml:space="preserve">
-    <value>Roll override</value>
+    <value>Roll overbelastning</value>
   </data>
   <data name="BlockPropertyTitle_GyroYawOverride" xml:space="preserve">
-    <value>Yaw override</value>
+    <value>Krøje overbelastning</value>
   </data>
   <data name="ControlName_ToolbarDown" xml:space="preserve">
-    <value>Previous toolbar</value>
+    <value>Sidste værktøjslinje</value>
   </data>
   <data name="ControlName_ToolbarUp" xml:space="preserve">
-    <value>Next toolbar</value>
+    <value>Næste værktøjslinje</value>
   </data>
   <data name="BlockPropertiesText_PistonCurrentPosition" xml:space="preserve">
-    <value>Current position: </value>
+    <value>Nuværende position:</value>
   </data>
   <data name="HudEnergyGroupBatteries" xml:space="preserve">
-    <value>Batteries</value>
+    <value>Batterier</value>
   </data>
   <data name="BlockActionTitle_SwitchLock" xml:space="preserve">
-    <value>Switch lock</value>
+    <value>Skift lås</value>
   </data>
   <data name="Description_Animation_Wave" xml:space="preserve">
-    <value>Wave to friends (or enemies!)</value>
+    <value>Vink til venner (eller fjender!)</value>
   </data>
   <data name="DisplayName_Animation_Wave" xml:space="preserve">
-    <value>Wave animation</value>
+    <value>Vinke animation</value>
   </data>
   <data name="DialogTextDownloadModsFailed" xml:space="preserve">
-    <value>Downloading mods has failed! Please check mods in world settings.</value>
+    <value>Kunne ikke downloade mods! Tjek venligst mods i verden indstillinger.</value>
   </data>
   <data name="ProgressTextCheckingMods" xml:space="preserve">
-    <value>Checking for mod updates ... please wait.</value>
+    <value>Søger efter mod opdateringer ... vent venligst.</value>
   </data>
   <data name="ScreenDebugOfficial_Caption" xml:space="preserve">
-    <value>Debug draw</value>
+    <value>Debug tegn</value>
   </data>
   <data name="ScreenDebugOfficial_EnableDebugDraw" xml:space="preserve">
-    <value>Enable debug draw</value>
+    <value>Aktiver debug tegn</value>
   </data>
   <data name="ScreenDebugOfficial_ErrorLogCaption" xml:space="preserve">
-    <value>Loading error log:</value>
+    <value>Indlæser fejllog:</value>
   </data>
   <data name="ScreenDebugOfficial_ModelDummies" xml:space="preserve">
     <value>Model dummies</value>
   </data>
   <data name="ScreenDebugOfficial_MountPoints" xml:space="preserve">
-    <value>Mount points</value>
+    <value>Mount point</value>
   </data>
   <data name="ScreenDebugOfficial_NoErrorText" xml:space="preserve">
-    <value>There were no loading errors</value>
+    <value>Der var ingen indlæsnings fejl</value>
   </data>
   <data name="ScreenDebugOfficial_PhysicsPrimitives" xml:space="preserve">
-    <value>Physics primitives</value>
+    <value>Fysike primitiver</value>
   </data>
   <data name="BlockPropertyDescription_ShowShipName" xml:space="preserve">
-    <value>Show ship name</value>
+    <value>Vis skibsnavn</value>
   </data>
   <data name="BlockPropertyTitle_ShowShipName" xml:space="preserve">
-    <value>Show ship name</value>
+    <value>Vis skibsnavn</value>
   </data>
   <data name="BroadcastStatus_Connected" xml:space="preserve">
-    <value>Remote access</value>
+    <value>Fjernbetjenings adgang</value>
   </data>
   <data name="BroadcastStatus_OutOfBroadcastingRange" xml:space="preserve">
-    <value>Out of broadcasting range</value>
+    <value>Ude for broadcastings afstand</value>
   </data>
   <data name="BroadcastStatus_OutOfReceivingRange" xml:space="preserve">
-    <value>Out of receiving range</value>
+    <value>Ude for modtagelses afstand</value>
   </data>
   <data name="ScreenTerminalError_ShipHasBeenDisconnected" xml:space="preserve">
-    <value>Ship has been disconnected from terminal</value>
+    <value>Skibet er blevet afbrudt fra terminal</value>
   </data>
   <data name="CustomShipName_LargeShip" xml:space="preserve">
-    <value>Large Ship</value>
+    <value>Stort Skib</value>
   </data>
   <data name="CustomShipName_SmallShip" xml:space="preserve">
-    <value>Small Ship</value>
+    <value>Lille skib</value>
   </data>
   <data name="ScreenDebugOfficial_OpenErrorLog" xml:space="preserve">
-    <value>Open in new window</value>
+    <value>Åben i nyt vindue</value>
   </data>
   <data name="ScreenDebugOfficial_ReloadTextures" xml:space="preserve">
-    <value>Reload textures</value>
+    <value>Genindlæs teksturer</value>
   </data>
   <data name="BroadcastStatus_PhysicallyConnected" xml:space="preserve">
-    <value>Direct access</value>
+    <value>Direkte adgang</value>
   </data>
   <data name="DialogTextLocalModsDisabledInMultiplayer" xml:space="preserve">
-    <value>Local mods are not allowed in multiplayer. Use workshop mods instead.</value>
+    <value>Lokale mods er ikke tilladt i multiplayer. Brug værkstedet mods i stedet.</value>
   </data>
   <data name="ScreenMods_LocalMod" xml:space="preserve">
-    <value>Local mod</value>
+    <value>Lokalt mod</value>
   </data>
   <data name="ScreenMods_MissingDetails" xml:space="preserve">
     <value>Kunne ikke modtage mod detalier fra Steam</value>
   </data>
   <data name="ScreenMods_MissingLocalMod" xml:space="preserve">
-    <value>Missing local mod</value>
+    <value>Mangler lokalt mod</value>
   </data>
   <data name="ScreenMods_WorkshopMod" xml:space="preserve">
-    <value>Workshop mod</value>
+    <value>Værksted mod</value>
   </data>
   <data name="BlockOwner_Unknown" xml:space="preserve">
-    <value>Unknown</value>
+    <value>Ukendt</value>
   </data>
   <data name="ScreenDebugOfficial_ReloadModels" xml:space="preserve">
-    <value>Reload models</value>
+    <value>Genindlæs modeler</value>
   </data>
   <data name="ScreenDebugOfficial_CopyErrorLogToClipboard" xml:space="preserve">
-    <value>Copy log to system clipboard</value>
+    <value>Kopier log til systemets udklipsholder</value>
   </data>
   <data name="NotificationLeavingWorld_Creative" xml:space="preserve">
-    <value>Warning: All ships will be removed in {0:F1} meters!</value>
+    <value>Advarsel: Alle skibe vil blive fjernet i {0:F1} meter!</value>
   </data>
   <data name="PlayerCharacterModel" xml:space="preserve">
     <value>Spillermodel</value>
@@ -4146,25 +4141,25 @@ genopstå som en ny spiller! Genopstå?</value>
     <value>Mods</value>
   </data>
   <data name="NotificationHintPressToOpenButtonPanel" xml:space="preserve">
-    <value>Press {0} to setup panel's buttons</value>
+    <value>Tryk {0} for at opsætte panelets knapper</value>
   </data>
   <data name="NotificationHintPressToUse" xml:space="preserve">
-    <value>Press {0} to use {1}</value>
+    <value>Tryk {0} for at bruge {1}</value>
   </data>
   <data name="BlockPropertyDescription_GravityFieldRadius" xml:space="preserve">
-    <value>Radius of the gravity field</value>
+    <value>Radius af tyndekraftsfelt</value>
   </data>
   <data name="BlockPropertyTitle_GravityFieldRadius" xml:space="preserve">
     <value>Radius</value>
   </data>
   <data name="DisplayName_Block_GravityGeneratorSphere" xml:space="preserve">
-    <value>Spherical Gravity Generator</value>
+    <value>Sfærisk tyngdekraftsgenerator</value>
   </data>
   <data name="BroadcastStatus_Me" xml:space="preserve">
     <value>Mig</value>
   </data>
   <data name="ScreenTerminal_ShipList" xml:space="preserve">
-    <value>Accessible ships</value>
+    <value>Tilgængelige skibe</value>
   </data>
   <data name="CustomShipName_Platform" xml:space="preserve">
     <value>Platform</value>
@@ -4173,50 +4168,50 @@ genopstå som en ny spiller! Genopstå?</value>
     <value>Radio:</value>
   </data>
   <data name="BlockPropertyText_AnyoneCanUse" xml:space="preserve">
-    <value>Anyone Can Use</value>
+    <value>Enhver Kan Bruge</value>
   </data>
   <data name="BlockPropertyDescription_AnyoneCanUse" xml:space="preserve">
-    <value>If false checks whether player pressing button has access to the block.</value>
+    <value>Hvis falsk kontrollerer, om afspiller trykker knappen har den adgang til blokken.</value>
   </data>
   <data name="DefinitionError_BlockWithComputerNotTerminalBlock" xml:space="preserve">
-    <value>Definition for {0} contains computer, but the block's TypeId is not a terminal block. This means that the block can be owned, but the ownership cannot be changed via terminal.
-Hint: Try setting the TypeId to any block that is in the terminal - the simplest case being just TerminalBlock</value>
+    <value>Definition for {0} indeholder computer, men den blok type er ikke en terminal blok. Det betyder at blokken kan være ejet, men ejendomsretten kan ikke ændres via terminal.
+Tip: Prøv at indstille typen til enhver blok, der er i terminal - det enkleste tilfælde er bare TerminalBlok</value>
   </data>
   <data name="JoinGame_SelectServerToShowModList" xml:space="preserve">
-    <value>Select server to show mod list</value>
+    <value>Vælg server for at vise mod liste</value>
   </data>
   <data name="DisplayName_Block_ButtonPanel" xml:space="preserve">
-    <value>Button Panel</value>
+    <value>Knappe panel</value>
   </data>
   <data name="ScreenMods_SearchLabel" xml:space="preserve">
     <value>Søg</value>
   </data>
   <data name="JoinGame_BadModsListResponse" xml:space="preserve">
-    <value>Could not get mod list from the server</value>
+    <value>Kunne ikke få fat i modliste fra server</value>
   </data>
   <data name="SpawnInSpaceSuit" xml:space="preserve">
-    <value>Space Suit</value>
+    <value>Rumdragt</value>
   </data>
   <data name="HudWarnings" xml:space="preserve">
-    <value>Hud Warnings</value>
+    <value>Hud advarsler</value>
   </data>
   <data name="NPCIdentityAdded" xml:space="preserve">
-    <value>{0} identity was added</value>
+    <value>{0} identitet blev tilføjet</value>
   </data>
   <data name="DialogTextIncompatibleWorldVersion" xml:space="preserve">
-    <value>This world can not be loaded. It has been created in newer version of the game.</value>
+    <value>Denne verden kan ikke indlæses. Den har været lavet i nyere version af spillet.</value>
   </data>
   <data name="MessageBoxTextPublishFailed_AccessDenied" xml:space="preserve">
-    <value>This workshop item does not seem to belong to you. Make sure you are logged in with the right account.</value>
+    <value>Denne workshops genstand synes ikke at tilhøre dig. Kontroller, at du er logget ind med den rigtige konto.</value>
   </data>
   <data name="ScreenDebugOfficial_SavePrefab" xml:space="preserve">
-    <value>Export clipboard to file</value>
+    <value>Eksporter Udklipsholder til fil</value>
   </data>
   <data name="ToolTipSaveShip" xml:space="preserve">
-    <value>Save ships from clipboard to file</value>
+    <value>Gem skibe fra udklipsholder til fil</value>
   </data>
   <data name="AddNewNPC" xml:space="preserve">
-    <value>Add New Enemy Identity</value>
+    <value>Tilføj ny fjende Identitet</value>
   </data>
   <data name="DisplayName_BlueprintClass_Components" xml:space="preserve">
     <value>Komponenter</value>
@@ -4225,28 +4220,28 @@ Hint: Try setting the TypeId to any block that is in the terminal - the simplest
     <value>Store blokke</value>
   </data>
   <data name="DisplayName_BlueprintClass_SmallBlocks" xml:space="preserve">
-    <value>Small Blocks</value>
+    <value>Små Blokke</value>
   </data>
   <data name="DisplayName_BlueprintClass_Tools" xml:space="preserve">
     <value>Værktøjer</value>
   </data>
   <data name="ScreenCaptionWorkshopTags" xml:space="preserve">
-    <value>Select tags</value>
+    <value>Vælg tags</value>
   </data>
   <data name="WorkshopTag_Animation" xml:space="preserve">
     <value>Animation</value>
   </data>
   <data name="WorkshopTag_Block" xml:space="preserve">
-    <value>Block</value>
+    <value>Blok</value>
   </data>
   <data name="WorkshopTag_Character" xml:space="preserve">
-    <value>Character</value>
+    <value>Karakter</value>
   </data>
   <data name="WorkshopTag_Other" xml:space="preserve">
-    <value>Other</value>
+    <value>Andre</value>
   </data>
   <data name="WorkshopTag_Skybox" xml:space="preserve">
-    <value>Skybox</value>
+    <value>Himmelboks</value>
   </data>
   <data name="BlockActionTitle_View" xml:space="preserve">
     <value>Vis</value>
@@ -4255,183 +4250,181 @@ Hint: Try setting the TypeId to any block that is in the terminal - the simplest
     <value>Kamera</value>
   </data>
   <data name="MessageBoxTextPublishFailed_OwnerMismatchMod" xml:space="preserve">
-    <value>Could not update because you are not the owner of this mod.</value>
+    <value>Kunne ikke opdatere da du ikke er ejer af dette mod.</value>
   </data>
   <data name="LoadingError_ModifiedOriginalContent" xml:space="preserve">
-    <value>Error loading original game content, cannot load file:
+    <value>Fejl under indlæsning af oprindelige spilindhold, kan ikke indlæse filen:
 {0}
-
-Original game content has been probably modified, revert any modification and try again. Best way to do it is to delete folder 'SpaceEngineers\Content\Data' and then select in Steam 'Verify local game cache'.
-
-Reinstalling the game is not enough, because Steam does not delete unknown files!</value>
+Originale spil indhold er blevet ændret, sandsynligvis, vend enhver ændring og prøv igen. Bedste måde at gøre det er at slette mappen 'SpaceEngineers\Content\Data' og derefter vælge i Steam 'Bekræft lokale spil cache'.
+Geninstallere spillet er ikke nok, fordi Steam ikke sletter ukendte filer!</value>
   </data>
   <data name="BlockPropertyDescription_BroadcastUsingAntennas" xml:space="preserve">
-    <value>Broadcast using antennas</value>
+    <value>Broadcast ved brug af antenne</value>
   </data>
   <data name="MessageBoxErrorModLoadingFailure" xml:space="preserve">
-    <value>Some mods were not loaded because of errors. See log file for details or run the game in single player to access the mod debug screen.</value>
+    <value>Nogle mods blev ikke indlæst på grund af fejl. Se detaljer i logfilen eller kør spillet i single player til at få adgang til mod debug skærmen</value>
   </data>
   <data name="ToolTipItemFilter_GenericProductionBlockInput" xml:space="preserve">
-    <value>Any item accepted by {0}</value>
+    <value>Enhver ting accepterede af {0} </value>
   </data>
   <data name="ToolTipItemFilter_GenericProductionBlockOutput" xml:space="preserve">
-    <value>Any item produced by {0}</value>
+    <value>Enhver ting producerede af {0}</value>
   </data>
   <data name="RenderIterpolation" xml:space="preserve">
-    <value>Render interpolation</value>
+    <value>Renderings interpolation</value>
   </data>
   <data name="ToolTipVideoOptionRenderIterpolation" xml:space="preserve">
-    <value>Reduces stuttering and makes game smoother.</value>
+    <value>Reducerer stammen og gør spillet glattere.</value>
   </data>
   <data name="WorkshopTag_Production" xml:space="preserve">
-    <value>Production</value>
+    <value>Produktion</value>
   </data>
   <data name="WorkshopTag_RespawnShip" xml:space="preserve">
-    <value>Respawn Ship</value>
+    <value>Genoplivnings Skib</value>
   </data>
   <data name="NotificationHintPressToExitCamera" xml:space="preserve">
-    <value>Press {0} to exit camera view</value>
+    <value>Tryk {0} for at gå væk fra kameravisning</value>
   </data>
   <data name="WorkshopTag_ModPack" xml:space="preserve">
-    <value>Modpack</value>
+    <value>Modpakke</value>
   </data>
   <data name="DisplayName_Block_Arc_Furnace" xml:space="preserve">
-    <value>Arc furnace</value>
+    <value>Arc ovn</value>
   </data>
   <data name="ScreenDebugSpawnMenu_Caption" xml:space="preserve">
-    <value>Spawn Menu</value>
+    <value>Genoplivnings Menu</value>
   </data>
   <data name="ScreenDebugSpawnMenu_SpawnAsteroid" xml:space="preserve">
-    <value>Spawn Asteroid</value>
+    <value>Genoplivnings Asteroide</value>
   </data>
   <data name="BlockPropertyTitle_SensorFieldDepthMax" xml:space="preserve">
-    <value>Back extent</value>
+    <value>Tilbage omfang</value>
   </data>
   <data name="BlockPropertyTitle_SensorFieldDepthMin" xml:space="preserve">
-    <value>Front extent</value>
+    <value>Foran omfang</value>
   </data>
   <data name="BlockPropertyTitle_SensorFieldHeightMax" xml:space="preserve">
-    <value>Top extent</value>
+    <value>Top omfang</value>
   </data>
   <data name="BlockPropertyTitle_SensorFieldHeightMin" xml:space="preserve">
-    <value>Bottom extent</value>
+    <value>Nedenunder omfang</value>
   </data>
   <data name="BlockPropertyTitle_SensorFieldWidthMax" xml:space="preserve">
-    <value>Right extent</value>
+    <value>Højre omfang</value>
   </data>
   <data name="BlockPropertyTitle_SensorFieldWidthMin" xml:space="preserve">
-    <value>Left extent</value>
+    <value>Venstre omfang</value>
   </data>
   <data name="DisplayName_Block_Sensor" xml:space="preserve">
     <value>Sensor</value>
   </data>
   <data name="BlockPropertyDescription_LightBlinkInterval" xml:space="preserve">
-    <value>Blinking interval of light (in seconds)</value>
+    <value>Blinkende interval af lys (i sekunder)</value>
   </data>
   <data name="BlockPropertyDescription_LightBlinkLenght" xml:space="preserve">
-    <value>Length  of blinking as percentage of blink interval</value>
+    <value>Længden af blink som procentdel af blinke interval</value>
   </data>
   <data name="BlockPropertyDescription_LightBlinkOffset" xml:space="preserve">
-    <value>Offset of blinking as percentage of blink interval</value>
+    <value>Forskydningen af blink som procentdel af blinke interval</value>
   </data>
   <data name="BlockPropertyTitle_LightBlinkInterval" xml:space="preserve">
-    <value>Blink Interval</value>
+    <value>Blinke Interval</value>
   </data>
   <data name="BlockPropertyTitle_LightBlinkLenght" xml:space="preserve">
-    <value>Blink Length</value>
+    <value>Blinke Længde</value>
   </data>
   <data name="BlockPropertyTitle_LightBlinkOffset" xml:space="preserve">
-    <value>Blink Offset</value>
+    <value>Blinke Forskydning</value>
   </data>
   <data name="TerminalControlPanel_Warhead_DetonationTime" xml:space="preserve">
-    <value>Detonation time</value>
+    <value>Detonations tid</value>
   </data>
   <data name="TerminalControlPanel_Warhead_StartCountdown" xml:space="preserve">
-    <value>Start countdown</value>
+    <value>Start nedtælling</value>
   </data>
   <data name="TerminalControlPanel_Warhead_StopCountdown" xml:space="preserve">
-    <value>Stop countdown</value>
+    <value>Stop nedtælling</value>
   </data>
   <data name="TerminalControlPanel_Warhead_Safety" xml:space="preserve">
-    <value>Safety</value>
+    <value>Sikkerhed</value>
   </data>
   <data name="TerminalControlPanel_Warhead_Detonate" xml:space="preserve">
-    <value>Detonate</value>
+    <value>Detoner</value>
   </data>
   <data name="TerminalControlPanel_Warhead_SwitchTextArmed" xml:space="preserve">
-    <value>Armed</value>
+    <value>Bevæbnet</value>
   </data>
   <data name="TerminalControlPanel_Warhead_SwitchTextDisarmed" xml:space="preserve">
-    <value>Disarmed</value>
+    <value>Afvæbnet</value>
   </data>
   <data name="BlockPropertyDescription_SensorToolbarOpen" xml:space="preserve">
-    <value>Opens toolbar</value>
+    <value>Åbner værktøjslinje</value>
   </data>
   <data name="BlockPropertyTitle_SensorToolbarOpen" xml:space="preserve">
-    <value>Setup actions</value>
+    <value>Indstil aktioner</value>
   </data>
   <data name="BlockPropertyTitle_SensorDetectFloatingObjects" xml:space="preserve">
-    <value>Detect floating objects</value>
+    <value>Opdag flydende objekter</value>
   </data>
   <data name="BlockPropertyTitle_SensorDetectLargeShips" xml:space="preserve">
-    <value>Detect large ships</value>
+    <value>Opdag store skibe</value>
   </data>
   <data name="BlockPropertyTitle_SensorDetectPlayers" xml:space="preserve">
-    <value>Detect players</value>
+    <value>Opdag spillere</value>
   </data>
   <data name="BlockPropertyTitle_SensorDetectSmallShips" xml:space="preserve">
-    <value>Detect small ships</value>
+    <value>Opdag små skibe</value>
   </data>
   <data name="BlockPropertyDescription_SensorFieldBack" xml:space="preserve">
-    <value>How far the sensing field extends backwards from the sensor's position</value>
+    <value>Hvor langt feltets sensing strækker sig baglæns fra sensorens placering</value>
   </data>
   <data name="BlockPropertyDescription_SensorFieldBottom" xml:space="preserve">
-    <value>How far the sensing field extends below the sensor's position</value>
+    <value>Hvor langt feltet sensing strækker sig under fra sensorens placering</value>
   </data>
   <data name="BlockPropertyDescription_SensorFieldFront" xml:space="preserve">
-    <value>How far the sensing field extends in front of the sensor</value>
+    <value>Hvor langt feltets sensing strækker foran fra sensorens placering</value>
   </data>
   <data name="BlockPropertyDescription_SensorFieldLeft" xml:space="preserve">
-    <value>How far the sensing field extends to the left from the sensor's position</value>
+    <value>Hvor langt feltet sensing strækker sig venstre fra sensorens placering</value>
   </data>
   <data name="BlockPropertyDescription_SensorFieldRight" xml:space="preserve">
-    <value>How far the sensing field extends to the right from the sensor's position</value>
+    <value>Hvor langt feltets sensing strækker sig højre fra sensorens placering</value>
   </data>
   <data name="BlockPropertyDescription_SensorFieldTop" xml:space="preserve">
-    <value>How far the sensing field extends above the sensor's position</value>
+    <value>Hvor langt feltets sensing strækker sig ovenover fra sensorens placering</value>
   </data>
   <data name="TerminalControlPanel_Warhead_SafetyTooltip" xml:space="preserve">
-    <value>When unchecked, the warhead can be detonated manually. This does not affect automatic detonation after the countdown.</value>
+    <value>Når markeringen er fjernet, kan sprænghoved detoneres manuelt. Dette påvirker ikke automatisk detonation efter nedtællingen.</value>
   </data>
   <data name="BlockPropertyTitle_SensorDetectStations" xml:space="preserve">
-    <value>Detect stations</value>
+    <value>Opdag stationer</value>
   </data>
   <data name="CustomText" xml:space="preserve">
     <value>{0}</value>
   </data>
   <data name="TerminalTab_Info_ShowGravityGizmo" xml:space="preserve">
-    <value>Show gravity range</value>
+    <value>Vis tyngdekrafts afstand</value>
   </data>
   <data name="TerminalTab_Info_ShowSenzorGizmo" xml:space="preserve">
-    <value>Show sensors field range</value>
+    <value>Vis sensorens feltafstand</value>
   </data>
   <data name="ControlRemote" xml:space="preserve">
-    <value>Control</value>
+    <value>Kontroler</value>
   </data>
   <data name="DisplayName_Block_RemoteControl" xml:space="preserve">
-    <value>Remote Control</value>
+    <value>Fjernbetjening</value>
   </data>
   <data name="DisplayName_Block_TimerBlock" xml:space="preserve">
-    <value>Timer Block</value>
+    <value>Timer-Blok</value>
   </data>
   <data name="BlockPropertyTitle_TimerToolbarOpen" xml:space="preserve">
-    <value>Setup actions</value>
+    <value>Indstil aktioner</value>
   </data>
   <data name="BlockPropertyTitle_TimerTrigger" xml:space="preserve">
-    <value>Trigger now</value>
+    <value>Udløs nu</value>
   </data>
   <data name="TerminalControlPanel_TimerDelay" xml:space="preserve">
-    <value>Delay</value>
+    <value>Forsinkelse</value>
   </data>
   <data name="BlockPropertyTitle_TimerStart" xml:space="preserve">
     <value>Start</value>
@@ -4440,73 +4433,73 @@ Reinstalling the game is not enough, because Steam does not delete unknown files
     <value>Stop</value>
   </data>
   <data name="BlockPropertyTitle_TimerToTrigger" xml:space="preserve">
-    <value>Time to trigger: </value>
+    <value>Tid til at udløsning:</value>
   </data>
   <data name="ScreenCubeBuilderBlockCategories" xml:space="preserve">
-    <value>Tabs of tools and objects:</value>
+    <value>Faner af værktøjer og objekter:</value>
   </data>
   <data name="ScreenCubeBuilderBlockSearch" xml:space="preserve">
     <value>Søg:</value>
   </data>
   <data name="DisplayName_Block_SmallRocketLauncherReload" xml:space="preserve">
-    <value>Reloadable Rocket Launcher</value>
+    <value>Genopladelig raketkaster</value>
   </data>
   <data name="DisplayName_Category_AllBlocks" xml:space="preserve">
-    <value>All Blocks</value>
+    <value>Alle blokke</value>
   </data>
   <data name="DisplayName_Category_ShipGroups" xml:space="preserve">
-    <value>Groups</value>
+    <value>Grupper</value>
   </data>
   <data name="DisplayName_Category_ArmorBlocks" xml:space="preserve">
-    <value>Armor Blocks</value>
+    <value>Panserblokke</value>
   </data>
   <data name="DisplayName_Category_CharacterAnimations" xml:space="preserve">
-    <value>Character Animations</value>
+    <value>Karakter Animationer</value>
   </data>
   <data name="DisplayName_Category_CharacterTools" xml:space="preserve">
     <value>Karakter-værktøjer</value>
   </data>
   <data name="DisplayName_Category_ConveyorBlocks" xml:space="preserve">
-    <value>Conv./Cargo Blocks</value>
+    <value>Transportbånd/Gods blokke</value>
   </data>
   <data name="DisplayName_Category_ShipLights" xml:space="preserve">
     <value>Lys</value>
   </data>
   <data name="DisplayName_Category_ShipThrusters" xml:space="preserve">
-    <value>Thrusters</value>
+    <value>Styreraketter</value>
   </data>
   <data name="DisplayName_Category_ShipWeaponsTools" xml:space="preserve">
-    <value>Weapons and Tools</value>
+    <value>Våben og Værktøj</value>
   </data>
   <data name="DisplayName_Category_WindowBlocks" xml:space="preserve">
-    <value>Window Blocks</value>
+    <value>Vinduesblokke</value>
   </data>
   <data name="DisplayName_Category_LargeBlocks" xml:space="preserve">
-    <value>Large Blocks</value>
+    <value>Store Blokke</value>
   </data>
   <data name="DisplayName_Category_SmallBlocks" xml:space="preserve">
-    <value>Small Blocks</value>
+    <value>Små Blokke</value>
   </data>
   <data name="DisplayName_RespawnShip_Assembler" xml:space="preserve">
-    <value>Respawn Ship 2</value>
+    <value>Genoplivningsskib 2</value>
   </data>
   <data name="DisplayName_RespawnShip_EscapePod" xml:space="preserve">
-    <value>Escape Pod</value>
+    <value>Nødskapsel</value>
   </data>
   <data name="DisplayName_RespawnShip_RefineryAssembler" xml:space="preserve">
-    <value>Respawn Ship 3</value>
+    <value>Genoplivningsskib 3</value>
   </data>
   <data name="DisplayName_RespawnShip_ShipDrill" xml:space="preserve">
-    <value>Small Drill Ship</value>
+    <value>Lille Bore Skib</value>
   </data>
   <data name="DisplayName_RespawnShip_Yellow" xml:space="preserve">
-    <value>Respawn Ship</value>
+    <value>Genoplivningsskib</value>
   </data>
   <data name="ScreenMedicals_OwnerTimeoutColumn" xml:space="preserve">
-    <value>Owner / Timeout</value>
+    <value>Ejer / Timeout</value>
   </data>
   <data name="ScreenMedicals_RespawnWhenShipReady" xml:space="preserve">
-    <value>Will spawn in "{0}" when it is ready.</value>
+    <value>Du vil blive genoplivet i "{0}" når den er klar</value>
   </data>
   <data name="ScreenMedicals_RespawnShipReady" xml:space="preserve">
     <value>Klar</value>
@@ -4515,94 +4508,94 @@ Reinstalling the game is not enough, because Steam does not delete unknown files
     <value>Ikke klar</value>
   </data>
   <data name="TerminalTab_Info_ShowAntenaGizmo" xml:space="preserve">
-    <value>Show antenna range</value>
+    <value>Vis antennens afstand</value>
   </data>
   <data name="WorldSettings_AsteroidAmountNone" xml:space="preserve">
     <value>Ingen</value>
   </data>
   <data name="WorldSettings_RespawnShipCooldown" xml:space="preserve">
-    <value>Respawn ship cooldown</value>
+    <value>Genoplivningsskib cooldown</value>
   </data>
   <data name="WorldSettings_RespawnShip_Default" xml:space="preserve">
-    <value>Default cooldowns</value>
+    <value>Standard cooldowns</value>
   </data>
   <data name="WorldSettings_RespawnShip_x01" xml:space="preserve">
-    <value>Default / 10</value>
+    <value>Standard / 10</value>
   </data>
   <data name="WorldSettings_RespawnShip_x02" xml:space="preserve">
-    <value>Default / 5</value>
+    <value>Standard / 5</value>
   </data>
   <data name="WorldSettings_RespawnShip_x05" xml:space="preserve">
-    <value>Default / 2</value>
+    <value>Standard / 2</value>
   </data>
   <data name="WorldSettings_RespawnShip_x10" xml:space="preserve">
-    <value>Default x 10</value>
+    <value>Standard x 10</value>
   </data>
   <data name="WorldSettings_RespawnShip_x100" xml:space="preserve">
-    <value>Default x 100</value>
+    <value>Standard x 100</value>
   </data>
   <data name="WorldSettings_RespawnShip_x2" xml:space="preserve">
-    <value>Default x 2</value>
+    <value>Standard x 2</value>
   </data>
   <data name="WorldSettings_RespawnShip_x20" xml:space="preserve">
-    <value>Default x 20</value>
+    <value>Standard x 20</value>
   </data>
   <data name="WorldSettings_RespawnShip_x5" xml:space="preserve">
-    <value>Default x 5</value>
+    <value>Standard x 5</value>
   </data>
   <data name="WorldSettings_RespawnShip_x50" xml:space="preserve">
-    <value>Default x 50</value>
+    <value>Standard x 50</value>
   </data>
   <data name="ControlDescCopyPasteMove" xml:space="preserve">
-    <value>Move pasted object</value>
+    <value>Flyt indsatte objekt</value>
   </data>
   <data name="WorldSettings_RespawnShip_CooldownsDisabled" xml:space="preserve">
-    <value>Cooldowns disabled</value>
+    <value>Cooldowns deaktiveret</value>
   </data>
   <data name="DisplayName_Block_FighterCockpit" xml:space="preserve">
-    <value>Fighter Cockpit</value>
+    <value>Kæmper cockpit</value>
   </data>
   <data name="BlockPropertyTitle_SensorDetectAsteroids" xml:space="preserve">
-    <value>Detect asteroids</value>
+    <value>Opdag asteroider</value>
   </data>
   <data name="DisplayName_Category_Cockpit" xml:space="preserve">
-    <value>Cockpit Blocks</value>
+    <value>Cockpit Blokke</value>
   </data>
   <data name="WorkshopTag_Script" xml:space="preserve">
     <value>Script</value>
   </data>
   <data name="NotificationCopyPasteBlockNotAvailable" xml:space="preserve">
-    <value>Some blocks in the pasted grid are not available in this world</value>
+    <value>Nogle blokke i indsatte gitter er ikke tilgængelige i denne verden</value>
   </data>
   <data name="ConvertingObjs" xml:space="preserve">
-    <value>Converting models. Please wait.</value>
+    <value>Konverterer modeler. Vent venligst.</value>
   </data>
   <data name="ConvertToObjDone" xml:space="preserve">
-    <value>All models converted.</value>
+    <value>Alle modeller konverteret.</value>
   </data>
   <data name="ExportingToObj" xml:space="preserve">
-    <value>Exporting model. Please wait.</value>
+    <value>Eksporterer model. Vent venligst.</value>
   </data>
   <data name="DisplayName_Category_Power" xml:space="preserve">
-    <value>Power Blocks</value>
+    <value>Strømblokke</value>
   </data>
   <data name="DisplayName_Category_Production" xml:space="preserve">
-    <value>Production Blocks</value>
+    <value>Produktionsblokke</value>
   </data>
   <data name="ScreenDebugSpawnMenu_ItemAmount" xml:space="preserve">
-    <value>Amount</value>
+    <value>Beløb</value>
   </data>
   <data name="ScreenDebugSpawnMenu_ItemType" xml:space="preserve">
     <value>Genstandstype</value>
   </data>
   <data name="ScreenDebugSpawnMenu_SpawnObject" xml:space="preserve">
-    <value>Spawn Object</value>
+    <value>Spawn Objekt</value>
   </data>
   <data name="MessageBoxTextDoYouWantToPasteGridWithMissingBlocks" xml:space="preserve">
-    <value>Pasted ship contains some blocks that are not available in this world. These blocks will not be pasted, which could possibly cause the ship to split. Do you really want to paste this ship?</value>
+    <value>Indsatte skib indeholder nogle blokke, som ikke findes i denne verden. Disse blokke vil ikke blive indsat, det kan muligvis forårsage at skibet bliver splittet. Vil du indsætte dette skib?</value>
   </data>
   <data name="ScreenDebugSpawnMenu_Asteroids" xml:space="preserve">
-    <value>Asteroids</value>
+    <value>Asteroider</value>
   </data>
   <data name="ScreenDebugSpawnMenu_Items" xml:space="preserve">
     <value>Genstande</value>
@@ -4617,175 +4610,175 @@ Reinstalling the game is not enough, because Steam does not delete unknown files
     <value>Tilføj tilfældige materialer</value>
   </data>
   <data name="ScreenDebugSpawnMenu_AsteroidCoreMaterial" xml:space="preserve">
-    <value>Core Material</value>
+    <value>Kernemateriale</value>
   </data>
   <data name="ScreenDebugSpawnMenu_AsteroidSurfaceMaterial" xml:space="preserve">
-    <value>Surface Material</value>
+    <value>Overflademateriale</value>
   </data>
   <data name="Assembler_SlaveMode" xml:space="preserve">
-    <value>Cooperative Mode</value>
+    <value>Samarbejds-Tilstand</value>
   </data>
   <data name="ShipWelder_HelpOthers" xml:space="preserve">
-    <value>Help Others</value>
+    <value>Hjælp Andre</value>
   </data>
   <data name="DisplayName_Block_Ammo_Assembler" xml:space="preserve">
-    <value>Ammo Assembler</value>
+    <value>Ammunitions Samler</value>
   </data>
   <data name="DisplayName_Block_Base_Components_Assembler" xml:space="preserve">
-    <value>Base Components Assembler</value>
+    <value>Basiskomponent Samler</value>
   </data>
   <data name="DisplayName_Block_Big_Arc_Furnace" xml:space="preserve">
-    <value>Big Arc Furnace</value>
+    <value>Stor Arc Ovn</value>
   </data>
   <data name="DisplayName_Block_Big_Gas_Centrifugal_Refinery" xml:space="preserve">
-    <value>Big Gas Centrifugal Refinery</value>
+    <value>Stor Gas Centrifugal raffinaderi</value>
   </data>
   <data name="DisplayName_Block_Big_Precious_Furnace" xml:space="preserve">
-    <value>Big Noble Metals Furnace</value>
+    <value>Stor Ædelmetal Ovn</value>
   </data>
   <data name="DisplayName_Block_Big_Solids_Refinery" xml:space="preserve">
-    <value>Big Solids Refinery</value>
+    <value>Stor Fast Raffinaderi</value>
   </data>
   <data name="DisplayName_Block_Construction_Components_Assembler" xml:space="preserve">
-    <value>Construction Components Assembler</value>
+    <value>Byggekomponent Samler </value>
   </data>
   <data name="DisplayName_Block_Electronics_Assembler" xml:space="preserve">
-    <value>Electronics Assembler</value>
+    <value>Elektronik Samler</value>
   </data>
   <data name="DisplayName_BlueprintClass_Ammo" xml:space="preserve">
-    <value>Ammo</value>
+    <value>Ammunition</value>
   </data>
   <data name="DisplayName_BlueprintClass_Base_Components" xml:space="preserve">
-    <value>Base Components</value>
+    <value>Basiskomponenter</value>
   </data>
   <data name="DisplayName_BlueprintClass_CommonMetals" xml:space="preserve">
-    <value>Common Metals</value>
+    <value>Almindelige metaller</value>
   </data>
   <data name="DisplayName_BlueprintClass_Construction_Components" xml:space="preserve">
-    <value>Construction Components</value>
+    <value>Byggekomponenter</value>
   </data>
   <data name="DisplayName_BlueprintClass_Electronics" xml:space="preserve">
-    <value>Electronics</value>
+    <value>Elektronik</value>
   </data>
   <data name="DisplayName_BlueprintClass_EnergeticIngots" xml:space="preserve">
-    <value>Energetic Ingots</value>
+    <value>Energiske Bare</value>
   </data>
   <data name="DisplayName_BlueprintClass_Ingots" xml:space="preserve">
-    <value>Ingots</value>
+    <value>Bare</value>
   </data>
   <data name="DisplayName_BlueprintClass_PreciousMetals" xml:space="preserve">
-    <value>Noble Metals</value>
+    <value>Ædelmetaller</value>
   </data>
   <data name="DisplayName_BlueprintClass_Solids" xml:space="preserve">
-    <value>Solids</value>
+    <value>Faste Stoffer</value>
   </data>
   <data name="MessageBoxTextAreYouSureToRemoveAsteroid" xml:space="preserve">
-    <value>Are you sure you want to delete selected asteroid? (this can not be undone!)</value>
+    <value>Er du sikker på du vil slette valgte asteroide? (dette kan ikke fortrydes!)</value>
   </data>
   <data name="ScreenDebugSpawnMenu_AsteroidGenerationCanTakeLong" xml:space="preserve">
-    <value>Generating asteroids can take a long time!</value>
+    <value>At genererer asteroider kan tage lang tid!</value>
   </data>
   <data name="Antenna_EnableBroadcast" xml:space="preserve">
-    <value>Enable broadcasting</value>
+    <value>Aktiver broadcasting</value>
   </data>
   <data name="ControlName_Broadcasting" xml:space="preserve">
-    <value>Broadcasting on / off</value>
+    <value>Broadcasting til / fra</value>
   </data>
   <data name="LargeMissileTurretReloadingNotification" xml:space="preserve">
-    <value>Reloading</value>
+    <value>Genlader</value>
   </data>
   <data name="HudInfoBroadcasting" xml:space="preserve">
     <value>Broadcasting</value>
   </data>
   <data name="NotificationCharacterBroadcastingOff" xml:space="preserve">
-    <value>Broadcasting Off</value>
+    <value>Broadcasting Fra</value>
   </data>
   <data name="NotificationCharacterBroadcastingOn" xml:space="preserve">
-    <value>Broadcasting On</value>
+    <value>Broadcasting Til</value>
   </data>
   <data name="NotificationCopyPasteAsteroidObstructed" xml:space="preserve">
-    <value>Can not place asteroids over ships and players</value>
+    <value>Kan ikke placere asteroider over skibe og spillere</value>
   </data>
   <data name="DisplayName_Block_AdvancedRotor" xml:space="preserve">
-    <value>Advanced Rotor</value>
+    <value>Avanceret Rotor</value>
   </data>
   <data name="DisplayName_Block_AdvancedRotorPart" xml:space="preserve">
-    <value>Advanced Rotor Part</value>
+    <value>Avanceret Rotor Del</value>
   </data>
   <data name="ScreenDebugSpawnMenu_InvalidAmount" xml:space="preserve">
-    <value>Invalid amount</value>
+    <value>Ugyldigt beløb</value>
   </data>
   <data name="PlacingObjectsToScene" xml:space="preserve">
-    <value>Placing objects to world. Please wait.</value>
+    <value>Placerer objekter til verden. Vent venligst.</value>
   </data>
   <data name="ControlTypeSystems3" xml:space="preserve">
-    <value>Systems 3</value>
+    <value>Systemer 3</value>
   </data>
   <data name="ToolTipTerminalProduction_SlaveMode" xml:space="preserve">
-    <value>Enable or disable cooperative mode</value>
+    <value>Aktiver eller deaktiver samarbejds-mode</value>
   </data>
   <data name="ScreenDebugSpawnMenu_PredefinedAsteroids" xml:space="preserve">
-    <value>Predefined Asteroids</value>
+    <value>Foruddefinerede asteroider</value>
   </data>
   <data name="ScreenDebugSpawnMenu_ProceduralAsteroids" xml:space="preserve">
-    <value>Procedural asteroids</value>
+    <value>Proceduremæssige asteroider</value>
   </data>
   <data name="ScreenDebugSpawnMenu_ProceduralSeed" xml:space="preserve">
-    <value>Seed (different seed and radius produces different asteroid)</value>
+    <value>Seed (forskellig seed og radius producerer forskellige asteroide)</value>
   </data>
   <data name="ScreenDebugSpawnMenu_ProceduralSize" xml:space="preserve">
-    <value>Asteroid radius</value>
+    <value>Asteroid size</value>
   </data>
   <data name="ScreenDebugSpawnMenu_SelectAsteroidType" xml:space="preserve">
-    <value>Select Asteroid Type</value>
+    <value>Vælg asteroide type</value>
   </data>
   <data name="NotificationSwitchedToWeapon" xml:space="preserve">
-    <value>Switched to weapon: {0}</value>
+    <value>Skiftede til våben: {0}</value>
   </data>
   <data name="ToolTipItemFilter_AmmoMagazineInput" xml:space="preserve">
-    <value>Any ammo magazine accepted by {0}</value>
+    <value>Enhver ammunitions magasin accepterede af {0}</value>
   </data>
   <data name="BlockActionTitle_Detach" xml:space="preserve">
-    <value>Detach</value>
+    <value>Frigør</value>
   </data>
   <data name="BlockActionTitle_Attach" xml:space="preserve">
-    <value>Attach</value>
+    <value>Vedhæft</value>
   </data>
   <data name="Thrust_Back" xml:space="preserve">
-    <value>Backward</value>
+    <value>Baglæns</value>
   </data>
   <data name="Thrust_Down" xml:space="preserve">
-    <value>Down</value>
+    <value>Ned</value>
   </data>
   <data name="Thrust_Forward" xml:space="preserve">
-    <value>Forward</value>
+    <value>Fremad</value>
   </data>
   <data name="Thrust_Left" xml:space="preserve">
-    <value>Left</value>
+    <value>Venstre</value>
   </data>
   <data name="Thrust_Right" xml:space="preserve">
-    <value>Right</value>
+    <value>Højre</value>
   </data>
   <data name="Thrust_Up" xml:space="preserve">
-    <value>Up</value>
+    <value>Op</value>
   </data>
   <data name="Notification_NoControl" xml:space="preserve">
-    <value>Someone else is using this ship!</value>
+    <value>En eller anden spiller bruger det her skib!</value>
   </data>
   <data name="Notification_NoControlStation" xml:space="preserve">
-    <value>Someone else is using this station!</value>
+    <value>En eller anden spiller bruger den her station!</value>
   </data>
   <data name="MissileLauncherReloadingNotification" xml:space="preserve">
-    <value>Reloading</value>
+    <value>Genlader</value>
   </data>
   <data name="BlockPropertyTitle_ProjectionOffsetX" xml:space="preserve">
-    <value>Horizontal offset</value>
+    <value>Vandret forskydning</value>
   </data>
   <data name="BlockPropertyTitle_ProjectionOffsetY" xml:space="preserve">
-    <value>Vertical offset</value>
+    <value>Lodret forskydning</value>
   </data>
   <data name="BlockPropertyTitle_ProjectionOffsetZ" xml:space="preserve">
-    <value>Forward offset</value>
+    <value>Fremad forskydning</value>
   </data>
   <data name="BlockPropertyTitle_ProjectionRotationX" xml:space="preserve">
     <value>Pitch</value>
@@ -4797,85 +4790,85 @@ Reinstalling the game is not enough, because Steam does not delete unknown files
     <value>Roll</value>
   </data>
   <data name="DisplayName_Block_Projector" xml:space="preserve">
-    <value>Projector</value>
+    <value>Projektor</value>
   </data>
   <data name="NotificationProjectorGridSize" xml:space="preserve">
-    <value>Incorrect grid size. Blueprint size must match that of the projector.</value>
+    <value>Forkert gitterstørrelse. Blueprintets størrelse skal svare til projektoren.</value>
   </data>
   <data name="NotificationProjectorMultipleGrids" xml:space="preserve">
-    <value>Multiple grids are not supported. Only the largest grid will be used.</value>
+    <value>Flere gitre understøttes ikke. Kun det største gitter vil blive brugt.</value>
   </data>
   <data name="SelectBlueprint" xml:space="preserve">
     <value>Vælg</value>
   </data>
   <data name="TerminalTab_Info_PivotBtn" xml:space="preserve">
-    <value>Show grid pivot</value>
+    <value>Vis gitter pivot</value>
   </data>
   <data name="DisplayName_Animation_Facepalm" xml:space="preserve">
-    <value>Facepalm</value>
+    <value>Ansigtsslask</value>
   </data>
   <data name="DisplayName_Animation_ThumbUp" xml:space="preserve">
-    <value>Thumb-Up</value>
+    <value>Tommelfingeren op</value>
   </data>
   <data name="DisplayName_Animation_Victory" xml:space="preserve">
-    <value>Victory</value>
+    <value>Sejr</value>
   </data>
   <data name="DisplayName_Block_ControlPanel" xml:space="preserve">
     <value>Kontrolpanel</value>
   </data>
   <data name="DisplayName_Block_SteelCatwalkCorner" xml:space="preserve">
-    <value>Steel Catwalk Corner</value>
+    <value>Stål Gangbros Hjørne</value>
   </data>
   <data name="DisplayName_Block_SteelCatwalkPlate" xml:space="preserve">
-    <value>Steel Catwalk Plate</value>
+    <value>Stål Gangbros Plade</value>
   </data>
   <data name="DisplayName_Block_SteelCatwalkTwoSides" xml:space="preserve">
-    <value>Steel Catwalk Two Sides</value>
+    <value>Stål Gangbro To Sider</value>
   </data>
   <data name="AvailableBlueprints" xml:space="preserve">
     <value>Tilgængelige arbejdstegninger</value>
   </data>
   <data name="KeepProjectionToggle" xml:space="preserve">
-    <value>Keep Projection</value>
+    <value>Hold Projektion</value>
   </data>
   <data name="KeepProjectionTooltip" xml:space="preserve">
-    <value>Keep projection after building is complete. Useful for automated building, but can degrade performance.</value>
+    <value>Hold projektion, når bygningen er færdig. Nyttigt for automatiseret bygning, men kan forringe ydeevnen.</value>
   </data>
   <data name="RemoveProjectionButton" xml:space="preserve">
-    <value>Remove</value>
+    <value>Fjern</value>
   </data>
   <data name="DisplayName_Block_SpaceBall" xml:space="preserve">
-    <value>Space Ball</value>
+    <value>Rumboldt</value>
   </data>
   <data name="DisplayName_Category_VoxelHands" xml:space="preserve">
-    <value>Voxel Hands</value>
+    <value>Voxel Hænder</value>
   </data>
   <data name="BlockPropertyDescription_SpaceBallFriction" xml:space="preserve">
-    <value>Friction</value>
+    <value>Friktion</value>
   </data>
   <data name="BlockPropertyDescription_SpaceBallVirtualMass" xml:space="preserve">
-    <value>Virtual mass</value>
+    <value>Virtuel masse</value>
   </data>
   <data name="BlockPropertyDescription_SoundBlockRange" xml:space="preserve">
-    <value>Range of played sound</value>
+    <value>Afstand af spillet lyd</value>
   </data>
   <data name="BlockPropertyDescription_SoundBlockVolume" xml:space="preserve">
-    <value>Volume of played sound</value>
+    <value>Volumen af spillet lyd</value>
   </data>
   <data name="BlockPropertyTitle_SoundBlockRange" xml:space="preserve">
-    <value>Range</value>
+    <value>Afstand</value>
   </data>
   <data name="BlockPropertyTitle_SoundBlockVolume" xml:space="preserve">
     <value>Volume</value>
   </data>
   <data name="DisplayName_Block_SoundBlock" xml:space="preserve">
-    <value>Sound Block</value>
+    <value>Lyd Blok</value>
   </data>
   <data name="DisplayName_VoxelHand_Box" xml:space="preserve">
-    <value>Box</value>
+    <value>Boks</value>
   </data>
   <data name="DisplayName_VoxelHand_Sphere" xml:space="preserve">
-    <value>Sphere</value>
+    <value>Kugle</value>
   </data>
   <data name="VoxelHandProperty_Sphere_Radius" xml:space="preserve">
     <value>Radius</value>
@@ -4916,7 +4909,7 @@ Spillere, der forlader spillet område vil blive dræbt.</value>
     <value>Afstand</value>
   </data>
   <data name="BlockPropertyTitle_SoundBlockLoopTime" xml:space="preserve">
-    <value>Loop time</value>
+    <value>Loop tid</value>
   </data>
   <data name="BlockPropertyTitle_SoundBlockPlay" xml:space="preserve">
     <value>Afspil</value>
@@ -4928,190 +4921,190 @@ Spillere, der forlader spillet område vil blive dræbt.</value>
     <value>Stop</value>
   </data>
   <data name="BlockPropertiesText_LoopTimer" xml:space="preserve">
-    <value>Loop timer: </value>
+    <value>Loop timer.</value>
   </data>
   <data name="VoxelHandSettingScreen_HandSettings" xml:space="preserve">
-    <value>Brush Settings</value>
+    <value>Pensel Indstillinger</value>
   </data>
   <data name="VoxelHandSettingScreen_HandTransparency" xml:space="preserve">
-    <value>Transparency</value>
+    <value>Gennemsigtighed</value>
   </data>
   <data name="VoxelHandSettingScreen_ShapeSettings" xml:space="preserve">
-    <value>Shape Settings</value>
+    <value>Figur Indstillinger</value>
   </data>
   <data name="DisplayName_VoxelHand_AutoLevel" xml:space="preserve">
-    <value>Terrain auto level</value>
+    <value>Terræn auto niveau</value>
   </data>
   <data name="DisplayName_VoxelHand_Capsule" xml:space="preserve">
-    <value>Capsule</value>
+    <value>Kapsel</value>
   </data>
   <data name="VoxelHandProperty_Capsule_Length" xml:space="preserve">
-    <value>Length</value>
+    <value>Længde</value>
   </data>
   <data name="VoxelHandProperty_Capsule_Radius" xml:space="preserve">
     <value>Radius</value>
   </data>
   <data name="SoundBlock_SoundName_Alert1" xml:space="preserve">
-    <value>Alert 1</value>
+    <value>Alarm 1</value>
   </data>
   <data name="SoundBlock_SoundName_Alert2" xml:space="preserve">
-    <value>Alert 2</value>
+    <value>Alarm 2</value>
   </data>
   <data name="SoundBlock_SoundName_Alert3" xml:space="preserve">
-    <value>Alert 3</value>
+    <value>Alarm 3</value>
   </data>
   <data name="SoundBlock_SoundName_EnemyDetected" xml:space="preserve">
-    <value>Enemy detected</value>
+    <value>Fjende opdagede</value>
   </data>
   <data name="SoundBlock_SoundName_LightsOff" xml:space="preserve">
-    <value>Lights off</value>
+    <value>Lys fra</value>
   </data>
   <data name="SoundBlock_SoundName_LightsOn" xml:space="preserve">
-    <value>Lights on</value>
+    <value>Lys til</value>
   </data>
   <data name="SoundBlock_SoundName_Music1" xml:space="preserve">
-    <value>Music 1</value>
+    <value>Musik 1</value>
   </data>
   <data name="SoundBlock_SoundName_Music2" xml:space="preserve">
-    <value>Music 2</value>
+    <value>Musik 2</value>
   </data>
   <data name="SoundBlock_SoundName_ObjectiveComplete" xml:space="preserve">
-    <value>Objective complete</value>
+    <value>Mål komplet</value>
   </data>
   <data name="TerminalControlPanel_EditCode" xml:space="preserve">
-    <value>Edit</value>
+    <value>Rediger</value>
   </data>
   <data name="TerminalControlPanel_RunCode" xml:space="preserve">
     <value>Løb</value>
   </data>
   <data name="ExportToObjModded" xml:space="preserve">
-    <value>Model contains modded blocks. Only models with default blocks can be exported.</value>
+    <value>Modellen indeholder modded blokke. Kun modeller med standard blokke kan eksporteres.</value>
   </data>
   <data name="DisplayName_VoxelHand_Ramp" xml:space="preserve">
-    <value>Ramp</value>
+    <value>Rampe</value>
   </data>
   <data name="VoxelHandSettingScreen_HandSnapToVoxel" xml:space="preserve">
-    <value>Snap to voxel grid</value>
+    <value>Fastgør til voxel gitter</value>
   </data>
   <data name="VoxelHandProperty_AutoLevel_Area" xml:space="preserve">
-    <value>Area</value>
+    <value>Område</value>
   </data>
   <data name="VoxelHandProperty_AutoLevel_Axis" xml:space="preserve">
-    <value>Choose axis</value>
+    <value>Vælg akse</value>
   </data>
   <data name="VoxelHandProperty_AutoLevel_AxisX" xml:space="preserve">
-    <value>X axis</value>
+    <value>X akse</value>
   </data>
   <data name="VoxelHandProperty_AutoLevel_AxisY" xml:space="preserve">
-    <value>Y axis</value>
+    <value>Y akse</value>
   </data>
   <data name="VoxelHandProperty_AutoLevel_AxisZ" xml:space="preserve">
-    <value>Z axis</value>
+    <value>Z akse</value>
   </data>
   <data name="VoxelHandSettingScreen_HandMaterial" xml:space="preserve">
-    <value>Material</value>
+    <value>Materiale</value>
   </data>
   <data name="WorldSettings_AsteroidAmountProceduralHigh" xml:space="preserve">
-    <value>Infinite: High density</value>
+    <value>Infinite: Høj tæthed</value>
   </data>
   <data name="WorldSettings_AsteroidAmountProceduralLow" xml:space="preserve">
-    <value>Infinite: Low density</value>
+    <value>Infinite: Lav tæthed</value>
   </data>
   <data name="WorldSettings_AsteroidAmountProceduralNormal" xml:space="preserve">
-    <value>Infinite: Normal density</value>
+    <value>Infinite: Normal tæthed</value>
   </data>
   <data name="ToolTipWorldSettingsDestructibleBlocks" xml:space="preserve">
-    <value>Enable/Disable blocks destruction</value>
+    <value>Aktiver / Deaktiver blok ødelæggelse </value>
   </data>
   <data name="WorldSettings_DestructibleBlocks" xml:space="preserve">
-    <value>Destructible blocks</value>
+    <value>Destruerbare blokke</value>
   </data>
   <data name="WorkshopTag_Exploration" xml:space="preserve">
-    <value>Exploration</value>
+    <value>Udforskning</value>
   </data>
   <data name="DisplayName_Programmable_Block" xml:space="preserve">
-    <value>Programmable block</value>
+    <value>Programmerbar blok</value>
   </data>
   <data name="ProgrammableBlock_CodeChanged" xml:space="preserve">
-    <value>Code changed</value>
+    <value>Kode ændret</value>
   </data>
   <data name="ProgrammableBlock_CodeEditor_SaveExit" xml:space="preserve">
-    <value>Remember &amp; Exit</value>
+    <value>Husk og forlad</value>
   </data>
   <data name="ProgrammableBlock_CodeEditor_Title" xml:space="preserve">
-    <value>Code editor</value>
+    <value>Kode redigeringsværktøj</value>
   </data>
   <data name="ProgrammableBlock_Exception_AllreadyRunning" xml:space="preserve">
-    <value>Program is already running.</value>
+    <value>Program køre allerede</value>
   </data>
   <data name="ProgrammableBlock_Exception_ExceptionCaught" xml:space="preserve">
-    <value>Caught exception during execution of script:</value>
+    <value>Fanget undtagelse under udførelse af script:</value>
   </data>
   <data name="ProgrammableBlock_Exception_NoAssembly" xml:space="preserve">
-    <value>Assembly not found. Please compile script.</value>
+    <value>Samlingen blev ikke fundet. Venligst kompiler script.</value>
   </data>
   <data name="ProgrammableBlock_Exception_NoMain" xml:space="preserve">
-    <value>Main method not found. Please add Main method into script.</value>
+    <value>Normal metode blev ikke fundet. Tilføj venligst normal metode i script.</value>
   </data>
   <data name="ProgrammableBlock_Exception_TooComplex" xml:space="preserve">
-    <value>Script execution terminated, script is too complex. Please edit and rebuilt script.</value>
+    <value>Scriptudførelse afsluttet, script er for kompleks. Venligst rediger og genopbyg script.</value>
   </data>
   <data name="ProgrammableBlock_SaveChanges" xml:space="preserve">
-    <value>Do you want to remember changes ?</value>
+    <value>Vil du gerne gemme ændringerne?</value>
   </data>
   <data name="TerminalControlPanel_EditCode_Tooltip" xml:space="preserve">
-    <value>Opens code editor where you can create new scripts and upload/download them from steam workshop</value>
+    <value>Åbner Kode redigeringsværktøj hvor du kan oprette nye scripts og uploade/downloade dem fra steam-værksted</value>
   </data>
   <data name="TerminalControlPanel_RunCode_Tooltip" xml:space="preserve">
-    <value>Run current script and notifies about any exception during run.</value>
+    <value>Kør aktuelle script og giv besked om enhver undtagelse under kørsel af scriptet.</value>
   </data>
   <data name="ProgrammableBlock_CodeEditor_SaveExit_Tooltip" xml:space="preserve">
-    <value>Remembers code inside editor and returns to terminal panel</value>
+    <value>Husk kode inde i redigeringsværktøj og vend tilbage til terminal panel</value>
   </data>
   <data name="ProgrammableBlock_Editor_BrowseWorkshop_Tooltip" xml:space="preserve">
-    <value>Opens workshop where you can upload your's scripts or suscribe to another authors scripts.</value>
+    <value>Åbner workshop hvor du kan uploade din scripts eller abonnere til en anden forfatters scripts.</value>
   </data>
   <data name="ProgrammableBlock_Editor_CheckCode" xml:space="preserve">
-    <value>Check code</value>
+    <value>Kontroler kode</value>
   </data>
   <data name="ProgrammableBlock_Editor_CheckCode_Tooltip" xml:space="preserve">
-    <value>Checks code inside editor for errors</value>
+    <value>Kontroler kode inde i redigeringsværktøj for fejl</value>
   </data>
   <data name="ProgrammableBlock_Editor_CompilationFailed" xml:space="preserve">
-    <value>Compilation failed</value>
+    <value>Kompileringen mislykkedes</value>
   </data>
   <data name="ProgrammableBlock_Editor_CompilationFailedErrorFormat" xml:space="preserve">
-    <value>Line {0} : {1}</value>
+    <value>Linje {0}: {1}</value>
   </data>
   <data name="ProgrammableBlock_Editor_CompilationFailedErrorList" xml:space="preserve">
-    <value>Error list</value>
+    <value>Fejlliste</value>
   </data>
   <data name="ProgrammableBlock_Editor_CompilationOk" xml:space="preserve">
-    <value>Compilation succesfull.</value>
+    <value>Kompilering succesfuld.</value>
   </data>
   <data name="ProgrammableBlock_Editor_LineNo" xml:space="preserve">
-    <value>Line : {0} / {1}</value>
+    <value>Linje: {0} / {1}</value>
   </data>
   <data name="ProgrammableBlock_Editor_RememberCode" xml:space="preserve">
     <value>Husk kode</value>
   </data>
   <data name="ProgrammableBlock_Editor_RememberCode_Tooltip" xml:space="preserve">
-    <value>Remember current script and leave editor window open</value>
+    <value>Husk nuværende script og lad redigeringsværktøjet være åbent</value>
   </data>
   <data name="ProgrammableBlock_ButtonCreateFromEditor" xml:space="preserve">
-    <value>Create from editor</value>
+    <value>Opret fra redigeringsværktøj</value>
   </data>
   <data name="ProgrammableBlock_ButtonDetails" xml:space="preserve">
-    <value>Details</value>
+    <value>Detaljer</value>
   </data>
   <data name="ProgrammableBlock_ButtonRefreshScripts" xml:space="preserve">
-    <value>Refresh Scripts</value>
+    <value>Opdater Scripts</value>
   </data>
   <data name="ProgrammableBlock_ButtonRename" xml:space="preserve">
     <value>Omdøb</value>
   </data>
   <data name="ProgrammableBlock_ButtonReplaceFromEditor" xml:space="preserve">
-    <value>Replace from editor</value>
+    <value>Genplacer fra redigeringsværktøj</value>
   </data>
   <data name="ProgrammableBlock_NewScriptName" xml:space="preserve">
     <value>Indtast nyt navn</value>
@@ -5120,82 +5113,82 @@ Spillere, der forlader spillet område vil blive dræbt.</value>
     <value/>
   </data>
   <data name="ProgrammableBlock_PublishScriptDialogText" xml:space="preserve">
-    <value>Do you want to publish this script?</value>
+    <value>Vil du gerne publicere det her script?</value>
   </data>
   <data name="ProgrammableBlock_PublishScriptPublished" xml:space="preserve">
-    <value>SCRIPT PUBLISHED</value>
+    <value>SCRIPT PUBLICEREDE</value>
   </data>
   <data name="ProgrammableBlock_ReplaceScriptDialogText" xml:space="preserve">
-    <value>Are you sure to replace existing script with new one from editor ?</value>
+    <value>Er du sikker på at du vil erstatte eksisterende script med nyt fra redigeringsværktøj?</value>
   </data>
   <data name="ProgrammableBlock_ReplaceScriptNameDialogText" xml:space="preserve">
-    <value>Script with the name  {0} already exists. Do you want to replace it?</value>
+    <value>Scriptet med navnet {0} findes allerede. Vil erstatte det?</value>
   </data>
   <data name="ProgrammableBlock_ReplaceScriptNameDialogTitle" xml:space="preserve">
-    <value>Replace</value>
+    <value>Erstat</value>
   </data>
   <data name="ProgrammableBlock_ReplaceScriptNameUsed" xml:space="preserve">
-    <value>Cannot rename script because it is used by another process.</value>
+    <value>Script kan ikke omdøbes, fordi det bruges af en anden proces.</value>
   </data>
   <data name="ProgrammableBlock_ScriptNotFound" xml:space="preserve">
-    <value>Cannot find the script file</value>
+    <value>Kan ikke finde script filen</value>
   </data>
   <data name="ProgrammableBlock_ScriptsScreenTitle" xml:space="preserve">
-    <value>Scripts screen</value>
+    <value>Script skærm</value>
   </data>
   <data name="ProgrammableBlock_Editor_Help" xml:space="preserve">
     <value>Hjælp</value>
   </data>
   <data name="ProgrammableBlock_Editor_HelpTooltip" xml:space="preserve">
-    <value>Opens steam workshop page with description about in-game programming</value>
+    <value>Åbner Steam Værksteds side med beskrivelse omkring in-game programmering</value>
   </data>
   <data name="ProgrammableBlock_DeleteScriptDialogText" xml:space="preserve">
-    <value>Are you sure you want to delete this script ?</value>
+    <value>Er du sikker på at du vil slette det her script?</value>
   </data>
   <data name="ProgrammableBlock_Exception_NotAllowed" xml:space="preserve">
-    <value>In-game scripts are disabled for this world</value>
+    <value>In-game scripts er deaktiveret for den her verden</value>
   </data>
   <data name="WorldSettings_EnableIngameScripts" xml:space="preserve">
     <value>In-game scripts</value>
   </data>
   <data name="BlockPropertyTitle_SensorDetectEnemy" xml:space="preserve">
-    <value>Detect enemy</value>
+    <value>Opdag fjende</value>
   </data>
   <data name="BlockPropertyTitle_SensorDetectFriendly" xml:space="preserve">
-    <value>Detect friendly</value>
+    <value>Opdag venlig</value>
   </data>
   <data name="BlockPropertyTitle_SensorDetectOwner" xml:space="preserve">
-    <value>Detect owner</value>
+    <value>Opdag ejer</value>
   </data>
   <data name="BlockPropertyTitle_SensorDetectNeutral" xml:space="preserve">
-    <value>Detect neutral</value>
+    <value>Opdag neutrale</value>
   </data>
   <data name="ProgrammableBlock_Exception_Ownershipchanged" xml:space="preserve">
-    <value>Ownership of programmable block changed. Please recompile program.</value>
+    <value>Ejerskab af programmerbare blok er blevet ændret. Du skal genkompilere programmet.</value>
   </data>
   <data name="NotificationNewFactionChatMessage" xml:space="preserve">
-    <value>New message in {0} faction chat</value>
+    <value>Ny meddelelse i {0} fraktion chat</value>
   </data>
   <data name="NotificationNewGlobalChatMessage" xml:space="preserve">
-    <value>New global chat message</value>
+    <value>Nye global chat-meddelelse</value>
   </data>
   <data name="NotificationNewPlayerChatMessage" xml:space="preserve">
-    <value>New message from {0}</value>
+    <value>Ny meddelelse fra {0}</value>
   </data>
   <data name="TerminalTab_Chat_GlobalChat" xml:space="preserve">
     <value>-Broadcast-</value>
   </data>
   <data name="TerminalTab_Chat" xml:space="preserve">
-    <value>Comms</value>
+    <value>Kommentarer</value>
   </data>
   <data name="ErrorDescriptionTooLong" xml:space="preserve">
-    <value>Description is too long (max 8000 characters allowed)</value>
+    <value>Beskrivelsen er for lang (Max 8000 tegn tilladt)</value>
   </data>
   <data name="Description" xml:space="preserve">
     <value>Beskrivelse</value>
   </data>
   <data name="WorldSettings_ViewDistance" xml:space="preserve">
-    <value>View distance</value>
+    <value>Vis afstand</value>
   </data>
   <data name="WorldSettings_ViewDistance_10_Km" xml:space="preserve">
     <value>10 km</value>
@@ -5207,71 +5200,71 @@ Spillere, der forlader spillet område vil blive dræbt.</value>
     <value>20 km</value>
   </data>
   <data name="WorldSettings_ViewDistance_30_Km" xml:space="preserve">
-    <value>30 km - small performance hit</value>
+    <value>30 km - lille ydeevnes slag</value>
   </data>
   <data name="WorldSettings_ViewDistance_40_Km" xml:space="preserve">
-    <value>40 km - performance hit</value>
+    <value>40 km - ydeevnes slag</value>
   </data>
   <data name="WorldSettings_ViewDistance_50_Km" xml:space="preserve">
-    <value>50 km - big performance hit</value>
+    <value>50 km - høj ydeevnes slag</value>
   </data>
   <data name="WorldSettings_ViewDistance_5_Km" xml:space="preserve">
-    <value>5 km - low end machines</value>
+    <value>5 km - 5 km - lav ende maskiner</value>
   </data>
   <data name="WorldSettings_ViewDistance_7_Km" xml:space="preserve">
-    <value>7 km - performance friendly</value>
+    <value>7 km - ydeevne venlig</value>
   </data>
   <data name="WorldSettings_ViewDistance_Custom" xml:space="preserve">
     <value>Custom</value>
   </data>
   <data name="ToolTipWorldSettingsViewDistance" xml:space="preserve">
-    <value>Larger view distances can cause performance issues depending on how many objects are in the world.
-Large view distances are not recommended on worlds with high asteroid densities.</value>
+    <value>Større visnings afstande kan forårsage problemer med ydeevnen afhængigt af hvor mange genstande der er i verdenen.
+Stor visnings afstand er ikke anbefalet på verdener med høj asteroide tætheder.</value>
   </data>
   <data name="BlockPropertyDescription_SpaceBallRestitution" xml:space="preserve">
-    <value>Restitution</value>
+    <value>Tilbagelevering</value>
   </data>
   <data name="TooltipScreenMods_Category_All" xml:space="preserve">
-    <value>All</value>
+    <value>Alle</value>
   </data>
   <data name="TooltipScreenMods_Category_Animation" xml:space="preserve">
     <value>Animation</value>
   </data>
   <data name="TooltipScreenMods_Category_Block" xml:space="preserve">
-    <value>Block</value>
+    <value>Blok</value>
   </data>
   <data name="TooltipScreenMods_Category_Character" xml:space="preserve">
-    <value>Character</value>
+    <value>Karakter</value>
   </data>
   <data name="TooltipScreenMods_Category_Modpack" xml:space="preserve">
-    <value>Modpack</value>
+    <value>Modpakke</value>
   </data>
   <data name="TooltipScreenMods_Category_Other" xml:space="preserve">
-    <value>Other</value>
+    <value>Andre</value>
   </data>
   <data name="TooltipScreenMods_Category_Production" xml:space="preserve">
-    <value>Production</value>
+    <value>Produktion</value>
   </data>
   <data name="TooltipScreenMods_Category_RespawnShip" xml:space="preserve">
-    <value>Respawn Ship</value>
+    <value>Genoplivningsskib</value>
   </data>
   <data name="TooltipScreenMods_Category_Script" xml:space="preserve">
     <value>Script</value>
   </data>
   <data name="TooltipScreenMods_Category_Skybox" xml:space="preserve">
-    <value>Skybox</value>
+    <value>Himmelboks</value>
   </data>
   <data name="TooltipScreenMods_SelectCategories" xml:space="preserve">
-    <value>Select categories</value>
+    <value>Vælg kategorier</value>
   </data>
   <data name="TerminalTab_GPS_Description" xml:space="preserve">
-    <value>Description</value>
+    <value>Beskrivelse</value>
   </data>
   <data name="TerminalTab_GPS_Name" xml:space="preserve">
-    <value>Name</value>
+    <value>Navn</value>
   </data>
   <data name="TerminalTab_GPS_ShowOnHud" xml:space="preserve">
-    <value>Show on  HUD</value>
+    <value>Vis på HUD</value>
   </data>
   <data name="TerminalTab_GPS_X" xml:space="preserve">
     <value>X</value>
@@ -5286,598 +5279,1111 @@ Large view distances are not recommended on worlds with high asteroid densities.
     <value>GPS</value>
   </data>
   <data name="TerminalTab_GPS_Add" xml:space="preserve">
-    <value>New</value>
+    <value>Ny</value>
   </data>
   <data name="TerminalTab_GPS_CopyToClipboard" xml:space="preserve">
-    <value>Copy to clipboard</value>
+    <value>Kopier til udklipsholderen</value>
   </data>
   <data name="TerminalTab_GPS_Delete" xml:space="preserve">
-    <value>Delete</value>
+    <value>Slet</value>
   </data>
   <data name="TerminalTab_GPS_NewFromClipboard" xml:space="preserve">
-    <value>New from clipboard</value>
+    <value>Ny fra udklipsholderen</value>
   </data>
   <data name="TerminalTab_GPS_NewFromCurrent" xml:space="preserve">
-    <value>New from current pos.</value>
+    <value>Ny fra nuværende pos.</value>
   </data>
   <data name="ScreenDebugSpawnMenu_GenerateSeed" xml:space="preserve">
-    <value>Generate seed</value>
+    <value>Generer seed</value>
   </data>
   <data name="TerminalTab_GPS_SaveWarning" xml:space="preserve">
-    <value>Warning: illegal data. Modifications will not be saved.</value>
+    <value>Advarsel: ulovlige data. Ændringer bliver ikke gemt.</value>
   </data>
   <data name="JoinGame_GameTypeToolTip_ViewDistance" xml:space="preserve">
-    <value>View distance: {0}m</value>
+    <value>Se afstand: {0}m</value>
   </data>
   <data name="TerminalTab_Chat_NoFaction" xml:space="preserve">
-    <value>Only faction members can use faction-to-faction communications</value>
+    <value>Kun fraktions medlemmer kan bruge fraktion til fraktion kommunikation</value>
   </data>
   <data name="TerminalTab_Chat_Offline" xml:space="preserve">
-    <value>offline</value>
+    <value>Offline</value>
   </data>
   <data name="TerminalTab_Chat_Pending" xml:space="preserve">
-    <value>PENDING</value>
+    <value>VENTENDE</value>
   </data>
   <data name="TerminalTab_GPS_FromChatDescPrefix" xml:space="preserve">
-    <value>By: </value>
+    <value>Af:</value>
   </data>
   <data name="TerminalTab_GPS_NewCoord_Desc" xml:space="preserve">
-    <value>New coordinates</value>
+    <value>Nye koordinater</value>
   </data>
   <data name="TerminalTab_GPS_NewCoord_Name" xml:space="preserve">
-    <value>New</value>
+    <value>Ny</value>
   </data>
   <data name="TerminalTab_GPS_NewFromClipboard_Desc" xml:space="preserve">
-    <value>Pasted from clipboard</value>
+    <value>Indsat fra Udklipsholderen</value>
   </data>
   <data name="TerminalTab_GPS_NewFromCurrent_Desc" xml:space="preserve">
-    <value>Current position</value>
+    <value>Nuværende position:</value>
   </data>
   <data name="TerminalTab_GPS_NewFromCurrent_Name" xml:space="preserve">
-    <value>Current</value>
+    <value>Nuværende</value>
   </data>
   <data name="VoxelHandSettingScreen_HandProjectToVoxel" xml:space="preserve">
-    <value>Project to voxel</value>
+    <value>Projekt til voxel</value>
   </data>
   <data name="BlockPropertyTitle_TextPanelShowTextPanel" xml:space="preserve">
-    <value>Edit private text</value>
+    <value>Rediger privat tekst</value>
   </data>
   <data name="BlockPropertyTitle_TextPanelTitle" xml:space="preserve">
-    <value>Private title</value>
+    <value>Privat titel</value>
   </data>
   <data name="DisplayName_Block_TextPanel" xml:space="preserve">
-    <value>Text panel</value>
+    <value>Tekstpanel</value>
   </data>
   <data name="NotificationHintPressToShowScreen" xml:space="preserve">
-    <value>Press {0} to show screen</value>
+    <value>Tryk {0} for at vise skærm</value>
   </data>
   <data name="Terminal_Shoot" xml:space="preserve">
-    <value>Shoot</value>
+    <value>Skyd</value>
   </data>
   <data name="Terminal_ShootOnce" xml:space="preserve">
-    <value>Shoot once</value>
+    <value>Skyd engang</value>
   </data>
   <data name="ControlDescNextVoxelMaterial" xml:space="preserve">
-    <value>Next voxel material</value>
+    <value>Næste voxel materiale</value>
   </data>
   <data name="ControlDescOpenVoxelHandSettings" xml:space="preserve">
-    <value>Open voxel hand settings</value>
+    <value>Åben voxel hånds indstillinger</value>
   </data>
   <data name="ControlDescPreviousVoxelMaterial" xml:space="preserve">
-    <value>Previous voxel material</value>
+    <value>Tidligere voxel materiale</value>
   </data>
   <data name="BlockComboBoxValue_TextPanelAccessOnlyOwner" xml:space="preserve">
-    <value>Only owner</value>
+    <value>Kun ejer</value>
   </data>
   <data name="BlockComboBoxValue_TextPanelAccessReadAll" xml:space="preserve">
-    <value>Everyone read-only</value>
+    <value>Alle skrivebeskyttet</value>
   </data>
   <data name="BlockComboBoxValue_TextPanelAccessReadFaction" xml:space="preserve">
-    <value>Faction read-only</value>
+    <value>Fraktion skrivebeskyttet</value>
   </data>
   <data name="BlockComboBoxValue_TextPanelAccessReadWriteAll" xml:space="preserve">
-    <value>Everyone read/write</value>
+    <value>Alle kan læse/skrive</value>
   </data>
   <data name="BlockComboBoxValue_TextPanelAccessReadWriteFaction" xml:space="preserve">
-    <value>Faction read/write</value>
+    <value>Fraktion læse/skrive</value>
   </data>
   <data name="BlockPropertyTitle_TextPanelAccessType" xml:space="preserve">
-    <value>Access type</value>
+    <value>Adgangs type</value>
   </data>
   <data name="BlueprintsMessageBoxDesc_Replace" xml:space="preserve">
-    <value>Are you sure you want to replace this blueprint with clipboard?</value>
+    <value>Er du sikker på, du vil erstatte denne plan med Udklipsholderen?</value>
   </data>
   <data name="BlueprintsMessageBoxTitle_Replace" xml:space="preserve">
-    <value>Replace</value>
+    <value>Erstat</value>
   </data>
   <data name="NotificationTextPanelReadOnly" xml:space="preserve">
-    <value>Text panel is read-only</value>
+    <value>Tekstpanelet er skrivebeskyttet</value>
   </data>
   <data name="DisplayName_Category_GeneratedBlocks" xml:space="preserve">
-    <value>Generated Blocks</value>
+    <value>Genereret Blokke</value>
   </data>
   <data name="TerminalTab_GPS_NewFromBroadcast" xml:space="preserve">
-    <value>New from broadcast</value>
+    <value>Nyt fra udsendelsen</value>
   </data>
   <data name="TerminalTab_GPS_NewFromFactionComms" xml:space="preserve">
-    <value>New from faction comms</value>
+    <value>Nyt fra fraktionens kommenterer</value>
   </data>
   <data name="TerminalTab_GPS_NewFromPrivateComms" xml:space="preserve">
-    <value>New from private comms</value>
+    <value>Nyt fra privatkommentarer</value>
   </data>
   <data name="ToolTipWorldSettings_ToolShake" xml:space="preserve">
-    <value>Enable shaking of ship drills and welders</value>
+    <value>Aktivere rystelser af skibets bor og svejsere</value>
   </data>
   <data name="WorldSettings_EnableToolShake" xml:space="preserve">
-    <value>Enable tools shake</value>
+    <value>Aktiver værktøjsrystelser</value>
   </data>
   <data name="MessageBoxTextTooLongText" xml:space="preserve">
-    <value>Text is too long. Do you want to truncate it?</value>
+    <value>Teksten er for lang. Vil du afkorte den?</value>
   </data>
   <data name="ControlDescExportModel" xml:space="preserve">
-    <value>Export model</value>
+    <value>Eksporter model</value>
   </data>
   <data name="ProgrammableBlock_Editor_TextTooLong" xml:space="preserve">
-    <value>Text is too long. It won't be saved.</value>
+    <value>Teksten er for lang. Den vil ikke blive gemt.</value>
   </data>
   <data name="VoxelHandSettingScreen_HandShowGizmos" xml:space="preserve">
-    <value>Show bounding box</value>
+    <value>Vis afgrænsningsområde</value>
   </data>
   <data name="ControlName_Console" xml:space="preserve">
-    <value>Console</value>
+    <value>Konsol</value>
   </data>
   <data name="ControlDescCameraZoom" xml:space="preserve">
-    <value>Camera zoom</value>
+    <value>Kamera zoom</value>
   </data>
   <data name="EnableDamageEffects" xml:space="preserve">
-    <value>Enable damage effects</value>
+    <value>Aktiver skadeeffekter</value>
   </data>
   <data name="ToolTipVideoOptionsEnableDamageEffects" xml:space="preserve">
-    <value>Enables/disables particle effects  for damaged blocks </value>
+    <value>Aktiver/deaktiver partikeleffekter for beskadigede blokke</value>
   </data>
   <data name="WorkshopTag_Asteroid" xml:space="preserve">
-    <value>Asteroid</value>
+    <value>Asteroide</value>
   </data>
   <data name="DisplayName_Block_HeavyAngledArmorCorner" xml:space="preserve">
-    <value>Angled Heavy Armor Corner</value>
+    <value>Stærkt pansret vinklet hjørneblok</value>
   </data>
   <data name="DisplayName_Block_HeavyAngledArmorSlope" xml:space="preserve">
-    <value>Angled Heavy Armor Slope</value>
+    <value>Stærkt pansret vinklet blok med hældning</value>
   </data>
   <data name="DisplayName_Block_HeavyRoundedArmorCorner" xml:space="preserve">
-    <value>Rounded Heavy Armor Corner</value>
+    <value>Stærkt pansret afrundet hjørneblok</value>
   </data>
   <data name="DisplayName_Block_HeavyRoundedArmorSlope" xml:space="preserve">
-    <value>Rounded Heavy Armor Slope</value>
+    <value>Stærkt pansret afrundet blok med hældning</value>
   </data>
   <data name="DisplayName_Block_LightAngledArmorCorner" xml:space="preserve">
-    <value>Angled Armor Corner</value>
+    <value>Vinklet panser hjørneblok</value>
   </data>
   <data name="DisplayName_Block_LightAngledArmorSlope" xml:space="preserve">
-    <value>Angled Armor Slope</value>
+    <value>Vinklet panserblok med hældning</value>
   </data>
   <data name="DisplayName_Block_LightRoundedArmorCorner" xml:space="preserve">
-    <value>Rounded Armor Corner</value>
+    <value>Afrundet panser hjørneblok</value>
   </data>
   <data name="DisplayName_Block_LightRoundedArmorSlope" xml:space="preserve">
-    <value>Rounded Armor Slope</value>
+    <value>Afrundet panserblok med hældning</value>
   </data>
   <data name="ControlDescNetgraph" xml:space="preserve">
-    <value>Toggle netgraph</value>
+    <value>Skift netgraph</value>
   </data>
   <data name="BlockPropertyTitle_BackgroundColor" xml:space="preserve">
-    <value>Backgr.</value>
+    <value>Baggr.</value>
   </data>
   <data name="BlockPropertyTitle_FontColor" xml:space="preserve">
-    <value>Font</value>
+    <value>Skrifttype</value>
   </data>
   <data name="BlockPropertyTitle_LCDScreenDefinitionsTextures" xml:space="preserve">
-    <value>Loaded textures</value>
+    <value>Indlæste teksturer</value>
   </data>
   <data name="BlockPropertyTitle_LCDScreenRefreshInterval" xml:space="preserve">
-    <value>Image change interval</value>
+    <value>Billede ændrings interval</value>
   </data>
   <data name="BlockPropertyTitle_LCDScreenRemoveSelectedTextures" xml:space="preserve">
-    <value>Remove selected</value>
+    <value>Fjern vælgte</value>
   </data>
   <data name="BlockPropertyTitle_LCDScreenSelectedTextures" xml:space="preserve">
-    <value>Selected textures</value>
+    <value>Valgte teksturer</value>
   </data>
   <data name="BlockPropertyTitle_LCDScreenSelectTextures" xml:space="preserve">
-    <value>Add to selection</value>
+    <value>Føj til markering</value>
   </data>
   <data name="BlockPropertyTitle_LCDScreenTextSize" xml:space="preserve">
-    <value>Font Size</value>
+    <value>Skriftstørrelse</value>
   </data>
   <data name="BlockPropertyTitle_ShowTextOnScreen" xml:space="preserve">
-    <value>Show text on screen</value>
+    <value>Vis tekst på skærm</value>
   </data>
   <data name="DisplayName_LCD_Panel" xml:space="preserve">
     <value>LCD Panel</value>
   </data>
   <data name="DisplayName_LCD_PanelWide" xml:space="preserve">
-    <value>Wide LCD panel</value>
+    <value>Stort LCD Panel</value>
   </data>
   <data name="BlockComboBoxValue_TextPanelShowTextNone" xml:space="preserve">
-    <value>None</value>
+    <value>Ingen</value>
   </data>
   <data name="BlockComboBoxValue_TextPanelShowTextPrivate" xml:space="preserve">
-    <value>Private</value>
+    <value>Privat</value>
   </data>
   <data name="BlockComboBoxValue_TextPanelShowTextPublic" xml:space="preserve">
-    <value>Public</value>
+    <value>Offentlig</value>
   </data>
   <data name="BlockPropertyTitle_TextPanelPublicTitle" xml:space="preserve">
-    <value>Public title</value>
+    <value>Offentlig titel</value>
   </data>
   <data name="BlockPropertyTitle_TextPanelShowPublicTextPanel" xml:space="preserve">
-    <value>Edit public text</value>
+    <value>Rediger offentlig titel</value>
   </data>
   <data name="DisplayName_Block_LaserAntenna" xml:space="preserve">
-    <value>Laser Antenna</value>
+    <value>Laser Antenne</value>
   </data>
   <data name="LaserAntennaModeIdle" xml:space="preserve">
-    <value>Idle</value>
+    <value>Tomgang</value>
   </data>
   <data name="LaserAntennaCopyCoords" xml:space="preserve">
-    <value>Copy my coords</value>
+    <value>Kopier mine koordinater</value>
   </data>
   <data name="LaserAntennaCopyCoordsHelp" xml:space="preserve">
-    <value>Copy this antenna's position into clipboard</value>
+    <value>Kopier antennens position til udklipsholderen</value>
   </data>
   <data name="LaserAntennaIdleButton" xml:space="preserve">
-    <value>Idle</value>
+    <value>Tomgang</value>
   </data>
   <data name="LaserAntennaConnectButton" xml:space="preserve">
-    <value>Connect to receiver</value>
+    <value>Forbind til modtager</value>
   </data>
   <data name="LaserAntennaConnectGPS" xml:space="preserve">
-    <value>Connect to coords</value>
+    <value>Forbind til koordinater</value>
   </data>
   <data name="LaserAntennaSelectedCoords" xml:space="preserve">
-    <value>Selected GPS coordinates</value>
+    <value>Valgte GPS koordinater</value>
   </data>
   <data name="LaserAntennaPasteGPS" xml:space="preserve">
-    <value>Paste coords</value>
+    <value>Indsæt koordinater</value>
   </data>
   <data name="LaserAntennaReceiversList" xml:space="preserve">
-    <value>Known receivers</value>
+    <value>Kendte modtagere</value>
   </data>
   <data name="DisplayName_Block_LightRoundArmorCorner" xml:space="preserve">
-    <value>Round Armor Corner</value>
+    <value>Afrundet panser hjørneblok</value>
   </data>
   <data name="DisplayName_Block_LightRoundArmorInvCorner" xml:space="preserve">
-    <value>Round Armor Inv. Corner</value>
+    <value>Afrundet panser hjørneblok inv.</value>
   </data>
   <data name="DisplayName_Block_LightRoundArmorSlope" xml:space="preserve">
-    <value>Round Armor Slope</value>
+    <value>Rund panserblok med hældning</value>
   </data>
   <data name="MessageBoxTextOpenUrlOverlayNotEnabled" xml:space="preserve">
-    <value>This will open {0} in your internet browser, because Steam Overlay is either disabled or failed to open. The game will keep running.
-Do you want to continue?</value>
+    <value>Dette åbner {0} i din internetbrowser, fordi Steam Overlay er enten deaktiveret eller undladt at åbne. Spillet vil holde kørende.
+Vil du fortsætte?</value>
   </data>
   <data name="NotificationRotationFormatCombined" xml:space="preserve">
-    <value>Press {0} to rotate the block</value>
+    <value>Tryk på {0} for at rotere blokken</value>
   </data>
   <data name="NotificationCompoundBuildingFormat" xml:space="preserve">
-    <value>Press {0} or {1} to toggle compound building</value>
+    <value>Tryk på {0} eller {1} for at skifte sammensat bygning</value>
   </data>
   <data name="NotificationSwitchBuildingModeFormat" xml:space="preserve">
-    <value>Press {0} to toggle dynamic building</value>
+    <value>Tryk på {0} for at slå dynamisk bygning til / fra</value>
   </data>
   <data name="DisplayName_Block_HeavyRoundArmorCorner" xml:space="preserve">
-    <value>Heavy Armor Round Corner</value>
+    <value>Stærkt pansret afrundet hjørneblok</value>
   </data>
   <data name="DisplayName_Block_HeavyRoundArmorInvCorner" xml:space="preserve">
-    <value>Heavy Armor Round Inv. Corner</value>
+    <value>Stærkt pansret inv. afrundet hjørneblok</value>
   </data>
   <data name="DisplayName_Block_HeavyRoundArmorSlope" xml:space="preserve">
-    <value>Heavy Armor Round Slope</value>
+    <value>Stærkt pansret afrundet hældning</value>
   </data>
   <data name="ControlName_SwitchWalk" xml:space="preserve">
-    <value>Switch walk</value>
+    <value>Skift gangstil</value>
   </data>
   <data name="LaserAntennaModeConnectedTo" xml:space="preserve">
-    <value>Connected to </value>
+    <value>Tilsluttet</value>
   </data>
   <data name="LaserAntennaModeContactRec" xml:space="preserve">
-    <value>Trying to establish connection to </value>
+    <value>Forsøger at oprette forbindelse til</value>
   </data>
   <data name="LaserAntennaModeRotGPS" xml:space="preserve">
-    <value>Rotating towards GPS coordinates </value>
+    <value>Rotere mod GPS koordinater</value>
   </data>
   <data name="LaserAntennaModeRotRec" xml:space="preserve">
-    <value>Rotating towards </value>
+    <value>Rotere mod</value>
   </data>
   <data name="LaserAntennaModeSearchGPS" xml:space="preserve">
-    <value>Searching for a laser at GPS coordinates </value>
+    <value>Søger efter en laser på GPS-koordinater</value>
   </data>
   <data name="JoinGame_TabTooltip_Favorites" xml:space="preserve">
-    <value>The list of favorite servers</value>
+    <value>Liste over yndlings-servere</value>
   </data>
   <data name="JoinGame_TabTitle_Favorites" xml:space="preserve">
-    <value>Favorites</value>
+    <value>Farvoriter</value>
   </data>
   <data name="JoinGame_TabTitle_History" xml:space="preserve">
-    <value>History</value>
+    <value>Historie</value>
   </data>
   <data name="JoinGame_TabTooltip_Friends" xml:space="preserve">
-    <value>The list of friends servers</value>
+    <value>Listen over venners servere</value>
   </data>
   <data name="JoinGame_TabTooltip_History" xml:space="preserve">
-    <value>The list of previously visited servers</value>
+    <value>Listen over tidligere besøgte servere</value>
   </data>
   <data name="DisplayName_Block_LightArmorCorner2" xml:space="preserve">
-    <value>Light Armor Corner 2x1x1</value>
+    <value>Let pansret hjørneblok 2x1x1</value>
   </data>
   <data name="DisplayName_Block_LightArmorCorner2Smooth" xml:space="preserve">
-    <value>Light Armor Corner 2x1x1 Smooth</value>
+    <value>Let pansret hjørneblok 2x1x1 glat</value>
   </data>
   <data name="DisplayName_Block_LightArmorCorner3" xml:space="preserve">
-    <value>Light Armor Corner 3x1x1</value>
+    <value>Let pansret hjørneblok 3x1x1</value>
   </data>
   <data name="DisplayName_Block_LightArmorCorner3Smooth" xml:space="preserve">
-    <value>Light Armor Corner 3x1x1 Smooth</value>
+    <value>Let pansret hjørneblok 3x1x1</value>
   </data>
   <data name="DisplayName_Block_LightArmorInvCorner2" xml:space="preserve">
-    <value>Light Armor Inv. Corner 2x1x1</value>
+    <value>Let pansret hjørneblok inv. 2x1x1</value>
   </data>
   <data name="DisplayName_Block_LightArmorInvCorner2Smooth" xml:space="preserve">
-    <value>Light Armor Inv. Corner 2x1x1 Smooth</value>
+    <value>Let pansret hjørneblok inv. 2x1x1 glat</value>
   </data>
   <data name="DisplayName_Block_LightArmorInvCorner3" xml:space="preserve">
-    <value>Light Armor Inv. Corner 3x1x1</value>
+    <value>Let pansret hjørneblok inv. 3x1x1</value>
   </data>
   <data name="DisplayName_Block_LightArmorInvCorner3Smooth" xml:space="preserve">
-    <value>Light Armor Inv. Corner 3x1x1 Smooth</value>
+    <value>Let pansret hjørneblok inv. 3x1x1 glat</value>
   </data>
   <data name="DisplayName_Block_LightArmorSlope2" xml:space="preserve">
-    <value>Light Armor Slope 2x1x1</value>
+    <value>Let pansret skråning 2x1x1</value>
   </data>
   <data name="DisplayName_Block_LightArmorSlope2Smooth" xml:space="preserve">
-    <value>Light Armor Slope 2x1x1 Smooth</value>
+    <value>Let pansret skåning 2x1x1 glat</value>
   </data>
   <data name="DisplayName_Block_LightArmorSlope3" xml:space="preserve">
-    <value>Light Armor Slope 3x1x1</value>
+    <value>Let pansret skråning 3x1x1</value>
   </data>
   <data name="DisplayName_Block_LightArmorSlope3Smooth" xml:space="preserve">
-    <value>Light Armor Slope 3x1x1 Smooth</value>
+    <value>Let pansret skråning 3x1x1 glat</value>
   </data>
   <data name="JoinGame_Favorites_Add" xml:space="preserve">
-    <value>Add server to favorites</value>
+    <value>Tilføj serveren til favoritter</value>
   </data>
   <data name="JoinGame_Favorites_Remove" xml:space="preserve">
-    <value>Remove server from favorites</value>
+    <value>Fjern server fra favoritter</value>
   </data>
   <data name="DisplayName_Block_LightArmorCorner2Base" xml:space="preserve">
-    <value>Light Armor Corner 2x1x1 Base</value>
+    <value>Let pansret hjørneblok 2x1x1 base</value>
   </data>
   <data name="DisplayName_Block_LightArmorCorner2BaseSmooth" xml:space="preserve">
-    <value>Light Armor Corner 2x1x1 Base Smooth</value>
+    <value>Let pansret hjørneblok 2x1x1 base glat</value>
   </data>
   <data name="DisplayName_Block_LightArmorCorner2Tip" xml:space="preserve">
-    <value>Light Armor Corner 2x1x1 Tip</value>
+    <value>Let pansret hjørneblok 2x1x1 tip</value>
   </data>
   <data name="DisplayName_Block_LightArmorCorner2TipSmooth" xml:space="preserve">
-    <value>Light Armor Corner 2x1x1 Tip Smooth</value>
+    <value>Let pansret hjørneblok 2x1x1 tip glat</value>
   </data>
   <data name="DisplayName_Block_LightArmorInvCorner2Base" xml:space="preserve">
-    <value>Light Armor Inv. Corner 2x1x1 Base</value>
+    <value>Let pansret hjørneblok inv. 2x1x1 base</value>
   </data>
   <data name="DisplayName_Block_LightArmorInvCorner2BaseSmooth" xml:space="preserve">
-    <value>Light Armor Inv. Corner 2x1x1 Base Smooth</value>
+    <value>Let pansret hjørneblok inv. 2x1x1 base glat</value>
   </data>
   <data name="DisplayName_Block_LightArmorInvCorner2Tip" xml:space="preserve">
-    <value>Light Armor Inv. Corner 2x1x1 Tip</value>
+    <value>Let pansret hjørneblok inv. 2x1x1 tip</value>
   </data>
   <data name="DisplayName_Block_LightArmorInvCorner2TipSmooth" xml:space="preserve">
-    <value>Light Armor Inv. Corner 2x1x1 Tip Smooth</value>
+    <value>Let pansret hjørneblok 2x1x1 tip glat</value>
   </data>
   <data name="DisplayName_Block_LightArmorSlope2Base" xml:space="preserve">
-    <value>Light Armor Slope 2x1x1 Base</value>
+    <value>Let pansret skråning 2x1x1 base</value>
   </data>
   <data name="DisplayName_Block_LightArmorSlope2BaseSmooth" xml:space="preserve">
-    <value>Light Armor Slope 2x1x1 Base Smooth</value>
+    <value>Let pansret hælding 2x1x1 base glat</value>
   </data>
   <data name="DisplayName_Block_LightArmorSlope2Tip" xml:space="preserve">
-    <value>Light Armor Slope 2x1x1 Tip</value>
+    <value>Let pansret hældning 2x1x1 tip</value>
   </data>
   <data name="DisplayName_Block_LightArmorSlope2TipSmooth" xml:space="preserve">
-    <value>Light Armor Slope 2x1x1 Tip Smooth</value>
+    <value>Let pansret hældning 2x1x1 tip glat</value>
   </data>
   <data name="DisplayName_Block_HeavyArmorCorner2" xml:space="preserve">
-    <value>Heavy Armor Corner 2x1x1</value>
+    <value>Stærkt pansret hjørneblok 2x1x1</value>
   </data>
   <data name="DisplayName_Block_HeavyArmorCorner2Base" xml:space="preserve">
-    <value>Heavy Armor Corner 2x1x1 Base</value>
+    <value>Stærkt pansret hjørneblok 2x1x1 base</value>
   </data>
   <data name="DisplayName_Block_HeavyArmorCorner2BaseSmooth" xml:space="preserve">
-    <value>Heavy Armor Corner 2x1x1 Base Smooth</value>
+    <value>Stærkt pansret hjørneblok 2x1x1 base glat</value>
   </data>
   <data name="DisplayName_Block_HeavyArmorCorner2Smooth" xml:space="preserve">
-    <value>Heavy Armor Corner 2x1x1 Smooth</value>
+    <value>Stærkt pansret hjørneblok 2x1x1 glat</value>
   </data>
   <data name="DisplayName_Block_HeavyArmorCorner2Tip" xml:space="preserve">
-    <value>Heavy Armor Corner 2x1x1 Tip</value>
+    <value>Stærkt pansret hjørneblok 2x1x1 tip</value>
   </data>
   <data name="DisplayName_Block_HeavyArmorCorner2TipSmooth" xml:space="preserve">
-    <value>Heavy Armor Corner 2x1x1 Tip Smooth</value>
+    <value>Tungt pansret hjørneblok 2x1x1 tip glat</value>
   </data>
   <data name="DisplayName_Block_HeavyArmorInvCorner2" xml:space="preserve">
-    <value>Heavy Armor Inv. Corner 2x1x1</value>
+    <value>Stærkt pansret hjørneblok inv. 2x1x1</value>
   </data>
   <data name="DisplayName_Block_HeavyArmorInvCorner2Base" xml:space="preserve">
-    <value>Heavy Armor Inv. Corner 2x1x1 Base</value>
+    <value>Stærkt pansret hjørneblok inv. 2x1x1 base</value>
   </data>
   <data name="DisplayName_Block_HeavyArmorInvCorner2BaseSmooth" xml:space="preserve">
-    <value>Heavy Armor Inv. Corner 2x1x1 Base Smooth</value>
+    <value>Stærkt pansret hjørneblok 2x1x1 base glat</value>
   </data>
   <data name="DisplayName_Block_HeavyArmorInvCorner2Smooth" xml:space="preserve">
-    <value>Heavy Armor Inv. Corner 2x1x1 Smooth</value>
+    <value>Stærkt pansret hjørneblok inv. 2x1x1 glat</value>
   </data>
   <data name="DisplayName_Block_HeavyArmorInvCorner2Tip" xml:space="preserve">
-    <value>Heavy Armor Inv. Corner 2x1x1 Tip</value>
+    <value>Stærkt pansret hjørneblok inv. 2x1x1 tip</value>
   </data>
   <data name="DisplayName_Block_HeavyArmorInvCorner2TipSmooth" xml:space="preserve">
-    <value>Heavy Armor Inv. Corner 2x1x1 Tip Smooth</value>
+    <value>Stærkt pansret hjørneblok inv. 2x1x1 tip glat</value>
   </data>
   <data name="DisplayName_Block_HeavyArmorSlope2" xml:space="preserve">
-    <value>Heavy Armor Slope 2x1x1</value>
+    <value>Stærkt pansret hælding 2x1x1</value>
   </data>
   <data name="DisplayName_Block_HeavyArmorSlope2Base" xml:space="preserve">
-    <value>Heavy Armor Slope 2x1x1 Base</value>
+    <value>Stærkt pansret hælding 2x1x1 base</value>
   </data>
   <data name="DisplayName_Block_HeavyArmorSlope2BaseSmooth" xml:space="preserve">
-    <value>Heavy Armor Slope 2x1x1 Base Smooth</value>
+    <value>Stærkt pansret hældning 2x1x1 base glat</value>
   </data>
   <data name="DisplayName_Block_HeavyArmorSlope2Smooth" xml:space="preserve">
-    <value>Heavy Armor Slope 2x1x1 Smooth</value>
+    <value>Stærkt pansret hældning 2x1x1 glat</value>
   </data>
   <data name="DisplayName_Block_HeavyArmorSlope2Tip" xml:space="preserve">
-    <value>Heavy Armor Slope 2x1x1 Tip</value>
+    <value>Stærkt pansret hældning 2x1x1 tip</value>
   </data>
   <data name="DisplayName_Block_HeavyArmorSlope2TipSmooth" xml:space="preserve">
-    <value>Heavy Armor Slope 2x1x1 Tip Smooth</value>
+    <value>Stærkt pansret hældning 2x1x1 tip glat</value>
   </data>
   <data name="ControlName_VoxelHandSettings" xml:space="preserve">
-    <value>Open voxel hand settings</value>
+    <value>Åben voxel hånd indstillinger</value>
   </data>
   <data name="NotificationVoxelHandHintFormat" xml:space="preserve">
-    <value>Press {0} to open voxel hand settings</value>
+    <value>Tryk på {0} for at åbne voxel hånd indstillinger</value>
   </data>
   <data name="NotificationVoxelMaterialFormat" xml:space="preserve">
-    <value>Press {0} or {1} to change voxel material</value>
+    <value>Tryk på {0} eller {1} for at ændre voxel materiale</value>
   </data>
   <data name="LaserAntennaReceiversListHelp" xml:space="preserve">
-    <value>These receivers are in radio range and can report their position.
-Their current state and target is in parentesis:
-idle   laser is idling
+    <value>Disse modtagere i intervallet for radio og kan rapportere deres position.
+Deres aktuelle tilstand og målet er i parentesis:
+tomgang tomgang laser
 &gt;&gt; laser is rotating towards other receiver or GPS coordinates
-?&gt;  searching for other laser at requested GPS coordinates
+?&gt; searching for other laser at requested GPS coordinates
 ~&gt; contacting other side of link (this includes waiting for other laser
-       to turn its face to me or futile effort to contact receiver
-       which is turned off or is not there any more)
+to turn its face to me or futile effort to contact receiver
+which is turned off or is not there any more)
 =&gt; connection is established
-To connect to lasers not listed here you can connect to coordinates.</value>
+For at oprette forbindelse til lasere, der ikke er opført kan her du tilslutte til koordinater.</value>
   </data>
   <data name="BlockPropertyTitle_LargeTurretEnableTurretIdleMovement" xml:space="preserve">
-    <value>Enable idle movement</value>
+    <value>Aktiver tomgangs bevæglese</value>
   </data>
   <data name="LaserAntennaCopyTargetCoords" xml:space="preserve">
-    <value>Copy target coords</value>
+    <value>Kopier målets koordinater</value>
   </data>
   <data name="LaserAntennaCopyTargetCoordsHelp" xml:space="preserve">
-    <value>Copy target's current or last known position into clipboard</value>
+    <value>Kopiere målets nuværende eller sidste kendte position til udklipsholder</value>
   </data>
   <data name="BotSettingsScreen_EnableBotsDebugging" xml:space="preserve">
-    <value>Enable bots debugging</value>
+    <value>Aktiver bot fejlfinding</value>
   </data>
   <data name="BotSettingsScreen_NextBot" xml:space="preserve">
-    <value>Next bot</value>
+    <value>Næste bot</value>
   </data>
   <data name="BotSettingsScreen_PreviousBot" xml:space="preserve">
-    <value>Previous bot</value>
+    <value>Sidste bot</value>
   </data>
   <data name="BotSettingsScreen_Title" xml:space="preserve">
-    <value>Bots settings</value>
+    <value>Bot indstillinger</value>
   </data>
   <data name="BlockAction_ConveyorSorterBlacklist" xml:space="preserve">
-    <value>Blacklist</value>
+    <value>Sortliste</value>
   </data>
   <data name="BlockAction_ConveyorSorterWhitelist" xml:space="preserve">
-    <value>Whitelist</value>
+    <value>Hvidliste</value>
   </data>
   <data name="BlockPropertyTitle_ConveyorSorterFilterMode" xml:space="preserve">
-    <value>Filter Mode</value>
+    <value>Filtertilstand</value>
   </data>
   <data name="DisplayName_Block_ConveyorSorter" xml:space="preserve">
-    <value>Conveyor Sorter</value>
+    <value>Transportbånd Sorteringsanlæg</value>
   </data>
   <data name="LaserAntennaOnlyPerm" xml:space="preserve">
-    <value>Only receivers set to permanent connection found</value>
+    <value>Kun modtagere indstillet til permanent forbindelse fundet</value>
   </data>
   <data name="LaserAntennaPermanentCheckbox" xml:space="preserve">
-    <value>Permanent connection</value>
+    <value>Permanent forbindelse</value>
   </data>
   <data name="BlockPropertyTitle_ConveyorSorterAdd" xml:space="preserve">
-    <value>Add</value>
+    <value>Tilføj</value>
   </data>
   <data name="BlockPropertyTitle_ConveyorSorterCandidatesList" xml:space="preserve">
-    <value>Add new filter</value>
+    <value>Tilføj nyt filter</value>
   </data>
   <data name="BlockPropertyTitle_ConveyorSorterFilterItemsList" xml:space="preserve">
-    <value>Active filters</value>
+    <value>Aktive filtre</value>
   </data>
   <data name="BlockPropertyTitle_ConveyorSorterFilterModeBlacklist" xml:space="preserve">
-    <value>Blacklist</value>
+    <value>Sortliste</value>
   </data>
   <data name="BlockPropertyTitle_ConveyorSorterFilterModeWhitelist" xml:space="preserve">
-    <value>Whitelist</value>
+    <value>Hvidliste</value>
   </data>
   <data name="BlockPropertyTitle_ConveyorSorterRemove" xml:space="preserve">
-    <value>Remove</value>
+    <value>Fjern</value>
   </data>
   <data name="ScreenDebugOfficial_BotSettings" xml:space="preserve">
-    <value>Bots settings</value>
+    <value>Bot indstillinger</value>
   </data>
   <data name="DisplayName_Block_SmallConveyorSorter" xml:space="preserve">
-    <value>Small Conveyor Sorter</value>
+    <value>Lille Transportbånds Sorteringsanlæg</value>
   </data>
   <data name="DisplayName_ConvSorterTypes_Ammo" xml:space="preserve">
-    <value>*ammo*</value>
+    <value>*ammunition*</value>
   </data>
   <data name="DisplayName_ConvSorterTypes_Component" xml:space="preserve">
-    <value>*components*</value>
+    <value>*komponenter*</value>
   </data>
   <data name="DisplayName_ConvSorterTypes_HandTool" xml:space="preserve">
-    <value>*hand tools*</value>
+    <value>*hånd værktøjer*</value>
   </data>
   <data name="DisplayName_ConvSorterTypes_Ingot" xml:space="preserve">
-    <value>*ingots*</value>
+    <value>*bare*</value>
   </data>
   <data name="DisplayName_ConvSorterTypes_Ore" xml:space="preserve">
-    <value>*ore*</value>
+    <value>*malm*</value>
   </data>
   <data name="BlockPropertyDescription_Depressurize" xml:space="preserve">
-    <value>The vent will remove air from the room and store it in tanks</value>
+    <value>Ventilationsristen vil fjerne luft fra rummet og gemme det i lufttankene på skibet</value>
   </data>
   <data name="BlockPropertyDescription_Stockpile" xml:space="preserve">
-    <value>Stockpiling tanks will not get drained by air vents</value>
+    <value>Oplagrings tanke vil ikke blive drænet ved ventilationskanaler</value>
   </data>
   <data name="BlockPropertyTitle_Depressurize" xml:space="preserve">
-    <value>Depressurize</value>
+    <value>Tryk</value>
   </data>
   <data name="BlockPropertyTitle_Stockpile" xml:space="preserve">
-    <value>Stockpile</value>
+    <value>Lager</value>
   </data>
   <data name="DisplayName_Block_AirVent" xml:space="preserve">
-    <value>Air Vent</value>
+    <value>Ventilationsrist</value>
   </data>
   <data name="DisplayName_Block_OxygenGenerator" xml:space="preserve">
-    <value>Oxygen Generator</value>
+    <value>Ilt Generator</value>
   </data>
   <data name="DisplayName_Block_OxygenTank" xml:space="preserve">
-    <value>Oxygen Tank</value>
+    <value>Ilttank </value>
   </data>
   <data name="DisplayName_BlueprintClass_Ice" xml:space="preserve">
-    <value>Ice</value>
+    <value>Is</value>
   </data>
   <data name="DisplayName_Item_Oxygen" xml:space="preserve">
-    <value>Oxygen</value>
+    <value>Ilt</value>
   </data>
   <data name="MessageBoxTextAreYouSureEnableOxygen" xml:space="preserve">
-    <value>Are you sure you want to enable oxygen? Doing so will cause materials on untouched asteroids to change. This is irreversible.</value>
+    <value>Er du sikker på, du vil aktivere ilt? Dette vil dermed forårsage materialer på uberørte asteroider til at ændre. Dette er irreversibel.</value>
   </data>
   <data name="ToolTipWorldSettings_EnableOxygen" xml:space="preserve">
-    <value>Enable ice material, pressurization detection and oxygen generation and circulation</value>
+    <value>Aktiver is materiale, opretholdeler tryk i hovedbrandledningssystemet påvisning og ilt produktion og omsætning</value>
   </data>
   <data name="World_Settings_EnableOxygen" xml:space="preserve">
-    <value>Enable oxygen</value>
+    <value>Aktiver ilt</value>
   </data>
   <data name="Terminal_DrainAll" xml:space="preserve">
-    <value>Drain All</value>
+    <value>Dræn alle</value>
   </data>
   <data name="BlockOwner_TransferTo" xml:space="preserve">
-    <value>Transfer to:</value>
+    <value>Overfør til:</value>
+  </data>
+  <data name="DisplayName_Block_AirtightHangarDoor" xml:space="preserve">
+    <value>Airtight Hangar Door</value>
+  </data>
+  <data name="BlockPropertyTitle_LargeTurretTargetCharacters" xml:space="preserve">
+    <value>Target characters</value>
+  </data>
+  <data name="BlockPropertyTitle_LargeTurretTargetLargeGrids" xml:space="preserve">
+    <value>Target large ships</value>
+  </data>
+  <data name="BlockPropertyTitle_LargeTurretTargetSmallGrids" xml:space="preserve">
+    <value>Target small ships</value>
+  </data>
+  <data name="BlockPropertyTitle_LargeTurretTargetStations" xml:space="preserve">
+    <value>Target stations</value>
+  </data>
+  <data name="DisplayName_Item_OxygenBottle" xml:space="preserve">
+    <value>Oxygen Bottle</value>
+  </data>
+  <data name="DisplayName_BlueprintClass_OxygenBottles" xml:space="preserve">
+    <value>Oxygen Bottles</value>
+  </data>
+  <data name="DisplayName_Item_OxygenBottles" xml:space="preserve">
+    <value>Oxygen Bottles</value>
+  </data>
+  <data name="BlockPropertyTitle_Refill" xml:space="preserve">
+    <value>Refill Bottles</value>
+  </data>
+  <data name="ScreenDebugSpawnMenu_Planets" xml:space="preserve">
+    <value>Planets</value>
+  </data>
+  <data name="ScreenDebugSpawnMenu_CreateLayer" xml:space="preserve">
+    <value>Create layer</value>
+  </data>
+  <data name="ScreenDebugSpawnMenu_RemoveLayer" xml:space="preserve">
+    <value>Remove layer</value>
+  </data>
+  <data name="BlockPropertyTitle_AutoRefill" xml:space="preserve">
+    <value>Auto-Refill</value>
+  </data>
+  <data name="Terminal_ShowInTerminal" xml:space="preserve">
+    <value>Show block in terminal</value>
+  </data>
+  <data name="Terminal_ShowAllInTerminal" xml:space="preserve">
+    <value>Show hidden blocks</value>
+  </data>
+  <data name="NotificationBottleRefill" xml:space="preserve">
+    <value>Oxygen refilled from bottles.</value>
+  </data>
+  <data name="NotificationOxygenCritical" xml:space="preserve">
+    <value>Oxygen is critical.</value>
+  </data>
+  <data name="NotificationOxygenLow" xml:space="preserve">
+    <value>Oxygen is low.</value>
+  </data>
+  <data name="ScreenDebugSpawnMenu_PickPlanet" xml:space="preserve">
+    <value>Pick planet to edit</value>
+  </data>
+  <data name="buttonBrowseWorkshop" xml:space="preserve">
+    <value>Browse Workshop</value>
+  </data>
+  <data name="buttonCreateNew" xml:space="preserve">
+    <value>Create new</value>
+  </data>
+  <data name="buttonOpenInWorkshop" xml:space="preserve">
+    <value>Open in Workshop</value>
+  </data>
+  <data name="buttonPublish" xml:space="preserve">
+    <value>Publish</value>
+  </data>
+  <data name="buttonRefresh" xml:space="preserve">
+    <value>Refresh</value>
+  </data>
+  <data name="buttonRemove" xml:space="preserve">
+    <value>Remove</value>
+  </data>
+  <data name="Difficulty" xml:space="preserve">
+    <value>Sværhedsgrad</value>
+  </data>
+  <data name="DifficultyEasy" xml:space="preserve">
+    <value>Nemt</value>
+  </data>
+  <data name="DifficultyHard" xml:space="preserve">
+    <value>Svært</value>
+  </data>
+  <data name="DifficultyNormal" xml:space="preserve">
+    <value>Normal</value>
+  </data>
+  <data name="ScreenCaptionScenario" xml:space="preserve">
+    <value>Scenario</value>
+  </data>
+  <data name="NotificationSuitEnergyCriticalNoDamage" xml:space="preserve">
+    <value>Warning: Suit energy is critically low.</value>
+  </data>
+  <data name="NotificationSuitEnergyLowNoDamage" xml:space="preserve">
+    <value>Suit energy is low.</value>
+  </data>
+  <data name="ControlName_Helmet" xml:space="preserve">
+    <value>Helmet on / off</value>
+  </data>
+  <data name="NotificationNoHelmetVariation" xml:space="preserve">
+    <value>Cannot remove helmet on this suit.</value>
+  </data>
+  <data name="ReportBug" xml:space="preserve">
+    <value>Report a Bug</value>
+  </data>
+  <data name="HudInfoHelmet" xml:space="preserve">
+    <value>Helmet</value>
+  </data>
+  <data name="ScreenDebugSpawnMenu_UpdatePlanet" xml:space="preserve">
+    <value>Update planet</value>
+  </data>
+  <data name="Terminal_ShowInTerminalToolTip" xml:space="preserve">
+    <value>Show/hide current block in terminal</value>
+  </data>
+  <data name="NotificationHelmetOff" xml:space="preserve">
+    <value>Helmet Off</value>
+  </data>
+  <data name="NotificationHelmetOn" xml:space="preserve">
+    <value>Helmet On</value>
+  </data>
+  <data name="BlockPropertiesText_MainCockpit" xml:space="preserve">
+    <value>Main ship cockpit</value>
+  </data>
+  <data name="TerminalControlPanel_Cockpit_MainCockpit" xml:space="preserve">
+    <value>Main cockpit</value>
+  </data>
+  <data name="NotificationHintNoAction" xml:space="preserve">
+    <value>Empty</value>
+  </data>
+  <data name="BlockPropertyText_Button" xml:space="preserve">
+    <value>Button</value>
+  </data>
+  <data name="BlockPropertyText_ButtonList" xml:space="preserve">
+    <value>Available buttons</value>
+  </data>
+  <data name="BlockPropertyText_ButtonName" xml:space="preserve">
+    <value>Button name</value>
+  </data>
+  <data name="WorldSettings_Enable3rdPersonCamera" xml:space="preserve">
+    <value>Enable 3rd person view</value>
+  </data>
+  <data name="ControlName_ToolbarNextItem" xml:space="preserve">
+    <value>Next toolbar item</value>
+  </data>
+  <data name="ControlName_ToolbarPreviousItem" xml:space="preserve">
+    <value>Previous toolbar item</value>
+  </data>
+  <data name="ControlTypeToolsOrWeapons2" xml:space="preserve">
+    <value>Tools / Weapons 2</value>
+  </data>
+  <data name="BlockPropertiesText_OxygenOutput" xml:space="preserve">
+    <value>Oxygen Output: </value>
+  </data>
+  <data name="DisplayName_Block_OxygenFarm" xml:space="preserve">
+    <value>Oxygen Farm</value>
+  </data>
+  <data name="WorldSettings_Encounters" xml:space="preserve">
+    <value>Random encounters</value>
+  </data>
+  <data name="ControlName_BuildMode" xml:space="preserve">
+    <value>Build mode</value>
+  </data>
+  <data name="ScreenControlMenu_Title" xml:space="preserve">
+    <value>Control menu</value>
+  </data>
+  <data name="TerminalTab_Info_EnemyAntennaRange" xml:space="preserve">
+    <value>Show distance for enemy antennas</value>
+  </data>
+  <data name="TerminalTab_Info_FriendlyAntennaRange" xml:space="preserve">
+    <value>Show distance for friendly antennas</value>
+  </data>
+  <data name="TerminalTab_Info_OwnedAntennaRange" xml:space="preserve">
+    <value>Show distance for owned antennas</value>
+  </data>
+  <data name="ScreenButtonBattle" xml:space="preserve">
+    <value>Battle</value>
+  </data>
+  <data name="ControlName_ControlMenu" xml:space="preserve">
+    <value>Open control menu</value>
+  </data>
+  <data name="DisplayName_Block_CryoChamber" xml:space="preserve">
+    <value>Cryo Chamber</value>
+  </data>
+  <data name="ControlMenuItemLabel_Lights" xml:space="preserve">
+    <value>Lights</value>
+  </data>
+  <data name="ControlMenuItemLabel_Terminal" xml:space="preserve">
+    <value>Show terminal</value>
+  </data>
+  <data name="ControlMenuItemValue_Off" xml:space="preserve">
+    <value>Off</value>
+  </data>
+  <data name="ControlMenuItemValue_On" xml:space="preserve">
+    <value>On</value>
+  </data>
+  <data name="ControlMenuItemLabel_CameraMode" xml:space="preserve">
+    <value>Camera mode</value>
+  </data>
+  <data name="ControlMenuItemValue_FPP" xml:space="preserve">
+    <value>FPP</value>
+  </data>
+  <data name="ControlMenuItemValue_TPP" xml:space="preserve">
+    <value>TPP</value>
+  </data>
+  <data name="ControlName_MissionSettings" xml:space="preserve">
+    <value>Scenario Settings</value>
+  </data>
+  <data name="MissionScreenCaption" xml:space="preserve">
+    <value>Scenario Settings</value>
+  </data>
+  <data name="MissionTriggerOtherWon" xml:space="preserve">
+    <value>Other side won</value>
+  </data>
+  <data name="MissionTriggerReachPosition" xml:space="preserve">
+    <value>Reach GPS position</value>
+  </data>
+  <data name="GuiTriggerCaptionPositionLeft" xml:space="preserve">
+    <value>Leave GPS position</value>
+  </data>
+  <data name="GuiTriggerCaptionPositionReached" xml:space="preserve">
+    <value>Reach GPS position</value>
+  </data>
+  <data name="GuiTriggerCaptionSomeoneWon" xml:space="preserve">
+    <value>Someone Won</value>
+  </data>
+  <data name="GuiTriggerMessage" xml:space="preserve">
+    <value>Message</value>
+  </data>
+  <data name="BlockIsNotPowered" xml:space="preserve">
+    <value>Block is not powered</value>
+  </data>
+  <data name="GuiMissionTriggersLostCondition" xml:space="preserve">
+    <value>Lost condition:</value>
+  </data>
+  <data name="GuiMissionTriggersWinCondition" xml:space="preserve">
+    <value>Win condition:</value>
+  </data>
+  <data name="GuiTriggerPasteGps" xml:space="preserve">
+    <value>Paste GPS</value>
+  </data>
+  <data name="GuiTriggerPositionRadius" xml:space="preserve">
+    <value>Radius</value>
+  </data>
+  <data name="TerminalControlPanel_RunArgument" xml:space="preserve">
+    <value>Argument</value>
+  </data>
+  <data name="ControlMenuItemLabel_Dampeners" xml:space="preserve">
+    <value>Dampeners</value>
+  </data>
+  <data name="TerminalControlPanel_RunArgument_ToolTip" xml:space="preserve">
+    <value>An argument passed to your code when clicking the Run button</value>
+  </data>
+  <data name="ControlMenuItemLabel_Helmet" xml:space="preserve">
+    <value>Helmet</value>
+  </data>
+  <data name="ControlMenuItemLabel_Jetpack" xml:space="preserve">
+    <value>Jetpack</value>
+  </data>
+  <data name="ControlMenuItemLabel_LandingGear" xml:space="preserve">
+    <value>Landing gear / connector</value>
+  </data>
+  <data name="ControlMenuItemLabel_Reactors" xml:space="preserve">
+    <value>Reactors</value>
+  </data>
+  <data name="ControlMenuItemLabel_Thrusts" xml:space="preserve">
+    <value>Thrusters</value>
+  </data>
+  <data name="ControlMenuItemLabel_Broadcasting" xml:space="preserve">
+    <value>Broadcasting</value>
+  </data>
+  <data name="ControlMenuItemLabel_CommitSuicide" xml:space="preserve">
+    <value>Suicide</value>
+  </data>
+  <data name="ControlMenuItemLabel_QuickLoad" xml:space="preserve">
+    <value>Quick load / reconnect</value>
+  </data>
+  <data name="ControlMenuItemLabel_ShowColorPicker" xml:space="preserve">
+    <value>Show color picker</value>
+  </data>
+  <data name="ControlMenuItemLabel_ShowTerminal" xml:space="preserve">
+    <value>Show terminal</value>
+  </data>
+  <data name="ControlMenuItemLabel_ShowToolbarScreen" xml:space="preserve">
+    <value>Show toolbar screen</value>
+  </data>
+  <data name="ControlMenuItemLabel_ToggleHud" xml:space="preserve">
+    <value>Toggle HUD</value>
+  </data>
+  <data name="ControlMenuItemLabel_PauseGame" xml:space="preserve">
+    <value>Pause game</value>
+  </data>
+  <data name="MessageBoxTextErrorFeatureNotAvailableYet" xml:space="preserve">
+    <value>Feature is not available yet</value>
+  </data>
+  <data name="NotificationMaximumNumberBots" xml:space="preserve">
+    <value>Maximum number of bots has been reached</value>
+  </data>
+  <data name="DisplayName_Block_EffectivenessModule" xml:space="preserve">
+    <value>Effectiveness Module</value>
+  </data>
+  <data name="DisplayName_Block_PowerEfficiencyModule" xml:space="preserve">
+    <value>Power Efficiency Module</value>
+  </data>
+  <data name="DisplayName_Block_ProductivityModule" xml:space="preserve">
+    <value>Productivity Module</value>
+  </data>
+  <data name="WorldSettings_Battle" xml:space="preserve">
+    <value>Battle</value>
+  </data>
+  <data name="Hud_BuildMode" xml:space="preserve">
+    <value>Build mode</value>
+  </data>
+  <data name="NotificationJoystickCompoundBuildingFormat" xml:space="preserve">
+    <value>Press {0} to toggle compound building</value>
+  </data>
+  <data name="BlockActionTitle_Extend" xml:space="preserve">
+    <value>Extend</value>
+  </data>
+  <data name="BlockActionTitle_Retract" xml:space="preserve">
+    <value>Retract</value>
+  </data>
+  <data name="NotificationJoystickControlMenuFormat" xml:space="preserve">
+    <value>Press {0} to access control menu</value>
+  </data>
+  <data name="NotificationJoystickMenus" xml:space="preserve">
+    <value>In order to show help or modify toolbar, open control menu</value>
+  </data>
+  <data name="NotificationJoystickSlotEquipFormat" xml:space="preserve">
+    <value>Press {0} or {1} to select toolbar slots</value>
+  </data>
+  <data name="NotificationJoystickUnlimitedBuildingFormat" xml:space="preserve">
+    <value>Press {0} to add block, press {1} to remove block</value>
+  </data>
+  <data name="NotificationJoystickVoxelMaterialFormat" xml:space="preserve">
+    <value>Press {0} to change voxel material</value>
+  </data>
+  <data name="Notification_GameplayOptions" xml:space="preserve">
+    <value>Press {0} to change Gameplay options</value>
+  </data>
+  <data name="ControlMenuItemLabel_Wardrobe" xml:space="preserve">
+    <value>Change appearance</value>
+  </data>
+  <data name="NotificationHintJoystickPressToOpenControlPanel" xml:space="preserve">
+    <value>Access control menu to open control panel of {0}</value>
+  </data>
+  <data name="NotificationHintJoystickPressToOpenTerminal" xml:space="preserve">
+    <value>Access control menu to open terminal</value>
+  </data>
+  <data name="ControlMenuItemLabel_OpenInventory" xml:space="preserve">
+    <value>Open inventory</value>
+  </data>
+  <data name="ControlMenuItemLabel_SetupButtons" xml:space="preserve">
+    <value>Setup buttons</value>
+  </data>
+  <data name="ControlMenuItemLabel_ShowControlPanel" xml:space="preserve">
+    <value>Show control panel</value>
+  </data>
+  <data name="NotificationHintJoystickPressToOpenButtonPanel" xml:space="preserve">
+    <value>Access control menu to setup panel's buttons</value>
+  </data>
+  <data name="NotificationHintJoystickPressToOpenInventory" xml:space="preserve">
+    <value>Access control menu to open inventory of {0}</value>
+  </data>
+  <data name="NotificationHintPressToOpenBuildMode" xml:space="preserve">
+    <value>Press {0} to enter build mode</value>
+  </data>
+  <data name="DialogTextJoiningBattleLobby" xml:space="preserve">
+    <value>Joining battle lobby</value>
+  </data>
+  <data name="DialogTextJoinBattleLobbyFailed" xml:space="preserve">
+    <value>Joining battle lobby failed, reason: {0}</value>
+  </data>
+  <data name="NotificationHintPressToEnterCryochamber" xml:space="preserve">
+    <value>Press {0} to enter cryo chamber</value>
+  </data>
+  <data name="NotificationHintLeaveCryoChamber" xml:space="preserve">
+    <value>Press {0} to leave cryo chamber</value>
+  </data>
+  <data name="DisplayName_Item_ScrapIngot" xml:space="preserve">
+    <value>Old Scrap Metal</value>
+  </data>
+  <data name="BlockActionTitle_AddWaypoint" xml:space="preserve">
+    <value>Add</value>
+  </data>
+  <data name="BlockActionTitle_MoveWaypointDown" xml:space="preserve">
+    <value>Move Down</value>
+  </data>
+  <data name="BlockActionTitle_MoveWaypointUp" xml:space="preserve">
+    <value>Move Up</value>
+  </data>
+  <data name="BlockActionTitle_RemoveWaypoint" xml:space="preserve">
+    <value>Remove</value>
+  </data>
+  <data name="BlockPropertyTitle_AutoPilot" xml:space="preserve">
+    <value>Autopilot</value>
+  </data>
+  <data name="BlockPropertyTitle_FlightMode" xml:space="preserve">
+    <value>Flight Mode</value>
+  </data>
+  <data name="BlockPropertyTitle_FlightMode_Circle" xml:space="preserve">
+    <value>Circle</value>
+  </data>
+  <data name="BlockPropertyTitle_FlightMode_OneWay" xml:space="preserve">
+    <value>One Way</value>
+  </data>
+  <data name="BlockPropertyTitle_FlightMode_Patrol" xml:space="preserve">
+    <value>Patrol</value>
+  </data>
+  <data name="BlockPropertyTitle_GpsLocations" xml:space="preserve">
+    <value>GPS Locations</value>
+  </data>
+  <data name="BlockPropertyTitle_Waypoints" xml:space="preserve">
+    <value>Waypoints</value>
+  </data>
+  <data name="BlockPropertyPopup_AutoPilotToolbarOpen" xml:space="preserve">
+    <value>Set an action to be done when autopilot reaches destination</value>
+  </data>
+  <data name="BlockPropertyTitle_AutoPilotToolbarOpen" xml:space="preserve">
+    <value>Setup Action</value>
+  </data>
+  <data name="Notification_NoControlAutoPilot" xml:space="preserve">
+    <value>Autopilot enabled</value>
+  </data>
+  <data name="WorldSettings_Physics" xml:space="preserve">
+    <value>Physics</value>
+  </data>
+  <data name="WorldSettings_Physics_Fast" xml:space="preserve">
+    <value>Fast</value>
+  </data>
+  <data name="WorldSettings_Physics_Normal" xml:space="preserve">
+    <value>Normal</value>
+  </data>
+  <data name="WorldSettings_Physics_Precise" xml:space="preserve">
+    <value>Precise</value>
+  </data>
+  <data name="WorldSettings_Physics_Tooltip" xml:space="preserve">
+    <value>Higher settings improve simulation BUT directly affects performance.</value>
+  </data>
+  <data name="ScreenCaptionGraphicsOptions" xml:space="preserve">
+    <value>Graphics options</value>
+  </data>
+  <data name="ScreenGraphicsOptions_AnisotropicFiltering" xml:space="preserve">
+    <value>Anisotropic filtering</value>
+  </data>
+  <data name="ScreenGraphicsOptions_AnisotropicFiltering_Off" xml:space="preserve">
+    <value>Off</value>
+  </data>
+  <data name="ScreenGraphicsOptions_AntiAliasing" xml:space="preserve">
+    <value>Anti-aliasing</value>
+  </data>
+  <data name="ScreenGraphicsOptions_AntiAliasing_None" xml:space="preserve">
+    <value>None</value>
+  </data>
+  <data name="ScreenGraphicsOptions_FoliageDetails" xml:space="preserve">
+    <value>Foliage details</value>
+  </data>
+  <data name="ScreenGraphicsOptions_FoliageDetails_Disabled" xml:space="preserve">
+    <value>Disabled</value>
+  </data>
+  <data name="ScreenGraphicsOptions_FoliageDetails_High" xml:space="preserve">
+    <value>High</value>
+  </data>
+  <data name="ScreenGraphicsOptions_FoliageDetails_Low" xml:space="preserve">
+    <value>Low</value>
+  </data>
+  <data name="ScreenGraphicsOptions_FoliageDetails_Medium" xml:space="preserve">
+    <value>Medium</value>
+  </data>
+  <data name="ScreenGraphicsOptions_MultiThreadedRendering" xml:space="preserve">
+    <value>Multi-threaded rendering</value>
+  </data>
+  <data name="ScreenGraphicsOptions_QualityPreset" xml:space="preserve">
+    <value>Quality preset</value>
+  </data>
+  <data name="ScreenGraphicsOptions_QualityPreset_Custom" xml:space="preserve">
+    <value>Custom</value>
+  </data>
+  <data name="ScreenGraphicsOptions_QualityPreset_High" xml:space="preserve">
+    <value>High</value>
+  </data>
+  <data name="ScreenGraphicsOptions_QualityPreset_Low" xml:space="preserve">
+    <value>Low</value>
+  </data>
+  <data name="ScreenGraphicsOptions_QualityPreset_Medium" xml:space="preserve">
+    <value>Medium</value>
+  </data>
+  <data name="ScreenGraphicsOptions_Renderer" xml:space="preserve">
+    <value>Renderer</value>
+  </data>
+  <data name="ScreenGraphicsOptions_ShadowMapResolution" xml:space="preserve">
+    <value>Shadow map resolution</value>
+  </data>
+  <data name="ScreenGraphicsOptions_ShadowMapResolution_High" xml:space="preserve">
+    <value>High</value>
+  </data>
+  <data name="ScreenGraphicsOptions_ShadowMapResolution_Low" xml:space="preserve">
+    <value>Low</value>
+  </data>
+  <data name="ScreenGraphicsOptions_TextureQuality" xml:space="preserve">
+    <value>Texture quality</value>
+  </data>
+  <data name="ScreenGraphicsOptions_TextureQuality_High" xml:space="preserve">
+    <value>High</value>
+  </data>
+  <data name="ScreenGraphicsOptions_TextureQuality_Low" xml:space="preserve">
+    <value>Low</value>
+  </data>
+  <data name="ScreenGraphicsOptions_TextureQuality_Medium" xml:space="preserve">
+    <value>Medium</value>
+  </data>
+  <data name="ToolTipVideoOptionsRenderer" xml:space="preserve">
+    <value>Changing the renderer requires restart of the game.</value>
   </data>
 </root>
