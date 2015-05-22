@@ -1,10 +1,13 @@
 ﻿using Sandbox.Definitions;
 using Sandbox.Engine.Utils;
 using Sandbox.Engine.Voxels;
+using Sandbox.Game.World;
+using Sandbox.Game.World.Generator;
 using Sandbox.ModAPI;
 using Sandbox.ModAPI.Interfaces;
 using System;
 using System.Collections.Generic;
+using VRage.Voxels;
 using VRageMath;
 using IMyStorage = Sandbox.ModAPI.Interfaces.IMyStorage;
 
