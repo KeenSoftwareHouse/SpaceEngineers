@@ -57,6 +57,7 @@ namespace Sandbox.Game.Weapons
         private bool m_isActivated;
         private bool m_isActivatedOnSomething;
         protected int m_lastTimeActivate;
+        
 
         private int m_shootHeatup;
 
@@ -82,6 +83,14 @@ namespace Sandbox.Game.Weapons
         protected override bool CheckIsWorking()
         {
             return PowerReceiver.IsPowered && base.CheckIsWorking();
+        }
+        
+        protected bool IsActivated()
+        {
+            get
+            {
+                return m_isActivated;
+            }
         }
 
         static MyShipToolBase()
