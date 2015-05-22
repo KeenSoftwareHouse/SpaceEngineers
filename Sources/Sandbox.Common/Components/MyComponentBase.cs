@@ -18,6 +18,17 @@ namespace Sandbox.Common.Components
         }
     }
 
+	[AttributeUsage(AttributeTargets.Class, AllowMultiple = true)]
+	public class MyEntitySubIdComponentDescriptor : System.Attribute
+	{
+		public string SubIdName;
+
+		public MyEntitySubIdComponentDescriptor(string subIdName)
+		{
+			SubIdName = subIdName;
+		}
+	}
+
     public abstract class MyComponentBase
     {
         public IMyEntity Entity { get { return CurrentContainer != null ? CurrentContainer.Entity : null; } }  // to be obsolete once components are finished
