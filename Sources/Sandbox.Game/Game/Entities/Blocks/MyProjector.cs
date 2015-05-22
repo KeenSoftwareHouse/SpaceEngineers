@@ -69,6 +69,10 @@ namespace Sandbox.Game.Entities.Blocks
 
         private bool m_keepProjection = false;
 
+        // As a percentage 0% = invisible ; 100% fully opaque;
+        private float m_buildableBlockOpacity = MyGridConstants.BUILDER_TRANSPARENCY;
+        private float m_pendingBlockOpacity = MyGridConstants.PROJECTOR_TRANSPARENCY;
+
         public MyPowerReceiver PowerReceiver
         {
             get;
@@ -206,6 +210,34 @@ namespace Sandbox.Game.Entities.Blocks
             rotationZ.EnableActions(step: 0.2f);
             rotationZ.Enabled = (x) => x.IsProjecting();
             MyTerminalControlFactory.AddControl(rotationZ);
+
+            // Transparency for blocks able to be built
+            var buildableOpacity = new MyTerminalControlSlider<MyProjector>("BuildableOpacity", MyStringId.GetOrCompute("Weldable Block Opacity"), MySpaceTexts.Blank);
+            buildableOpacity.SetLimits(0.0f, 100.0f);
+            buildableOpacity.DefaultValue = 0.0f;
+            buildableOpacity.Getter = (x) => (1.0f - x.m_buildableBlockOpacity) * 100.0f;
+            buildableOpacity.Setter = (x, v) =>
+            { 
+                x.m_buildableBlockOpacity = 1.0f - (Convert.ToSingle(v) / 100.0f);
+                x.OnTransparencyChanged();
+            };
+            buildableOpacity.Writer = (x, result) => result.AppendInt32((int)((1.0f - x.m_buildableBlockOpacity) * 100.0f)).Append("%");
+            buildableOpacity.Enabled = (x) => x.IsProjecting();
+            MyTerminalControlFactory.AddControl(buildableOpacity);
+
+            // Transparency for blocks not able to be built
+            var pendingOpacity = new MyTerminalControlSlider<MyProjector>("PendingOpacity", MyStringId.GetOrCompute("Non Weldable Block Opacity"), MySpaceTexts.Blank);
+            pendingOpacity.SetLimits(0.0f, 100.0f);
+            pendingOpacity.DefaultValue = 0.0f;
+            pendingOpacity.Getter = (x) => (1.0f - x.m_pendingBlockOpacity) * 100.0f;
+            pendingOpacity.Setter = (x, v) =>
+            { 
+                x.m_pendingBlockOpacity = 1.0f - (Convert.ToSingle(v) / 100.0f);
+                x.OnTransparencyChanged();
+            };
+            pendingOpacity.Writer = (x, result) => result.AppendInt32((int)((1.0f - x.m_pendingBlockOpacity)*100.0f)).Append("%");
+            pendingOpacity.Enabled = (x) => x.IsProjecting();
+            MyTerminalControlFactory.AddControl(pendingOpacity);
         }
 
         private bool IsProjecting()
@@ -226,11 +258,11 @@ namespace Sandbox.Game.Entities.Blocks
             ProfilerShort.Begin("SetTransparency");
             if (canBuild)
             {
-                SetTransparency(cubeBlock, MyGridConstants.BUILDER_TRANSPARENCY);
+                SetTransparency(cubeBlock, m_buildableBlockOpacity);
             }
             else
             {
-                SetTransparency(cubeBlock, MyGridConstants.PROJECTOR_TRANSPARENCY);
+                SetTransparency(cubeBlock, m_pendingBlockOpacity);
             }
             ProfilerShort.End();
         }
@@ -248,6 +280,12 @@ namespace Sandbox.Game.Entities.Blocks
 
             //We need to remap because the after the movement, blocks that were already built can be built again
             SyncObject.SendRemap();
+        }
+
+        private void OnTransparencyChanged()
+        {
+            m_shouldUpdateProjection = true;
+            SyncObject.SendNewTransparency(m_buildableBlockOpacity, m_pendingBlockOpacity);
         }
 
         private void SetTransparency(MySlimBlock cubeBlock, float transparency)
@@ -1176,6 +1214,15 @@ namespace Sandbox.Game.Entities.Blocks
                 public int Seed;
             }
 
+            [MessageIdAttribute(7607, SteamSDK.P2PMessageEnum.Reliable)]
+            protected struct TransparencyMsg : IEntityMessage
+            {
+                public long EntityId;
+                public long GetEntityId() { return EntityId; }
+
+                public float buildableOpacity, pendingOpacity;
+            }
+
 
             static MySyncProjector()
             {
@@ -1190,6 +1237,8 @@ namespace Sandbox.Game.Entities.Blocks
                 MySyncLayer.RegisterMessage<RemoveProjectionMsg>(OnRemoveProjectionSuccess, MyMessagePermissions.FromServer, MyTransportMessageEnum.Success);
                 MySyncLayer.RegisterMessage<RemapRequestMsg>(OnRemapRequest, MyMessagePermissions.ToServer, MyTransportMessageEnum.Request);
                 MySyncLayer.RegisterMessage<RemapSeedMsg>(OnRemapSuccess, MyMessagePermissions.FromServer, MyTransportMessageEnum.Success);
+                MySyncLayer.RegisterMessage<TransparencyMsg>(OnTransparencyChangedRequest, MyMessagePermissions.ToServer, MyTransportMessageEnum.Request);
+                MySyncLayer.RegisterMessage<TransparencyMsg>(OnTransparencyChangedSuccess, MyMessagePermissions.FromServer, MyTransportMessageEnum.Success);
             }
 
             public MySyncProjector(MyProjector projector)
@@ -1380,6 +1429,41 @@ namespace Sandbox.Game.Entities.Blocks
                 if (projector != null)
                 {
                     projector.OnRemap(msg.Seed);
+                }
+            }
+
+            public void SendNewTransparency(float buildableOpacity, float pendingOpacity)
+            {
+                var msg = new TransparencyMsg();
+                msg.EntityId = m_projector.EntityId;
+                msg.buildableOpacity = buildableOpacity;
+                msg.pendingOpacity = pendingOpacity;
+
+                if (Sync.IsServer)
+                {
+                    Sync.Layer.SendMessageToAllAndSelf(ref msg, MyTransportMessageEnum.Success);
+                }
+                else
+                {
+                    Sync.Layer.SendMessageToServer(ref msg, MyTransportMessageEnum.Request);
+                }
+            }
+
+            private static void OnTransparencyChangedRequest(ref TransparencyMsg msg, MyNetworkClient sender)
+            {
+                Sync.Layer.SendMessageToAllAndSelf(ref msg, MyTransportMessageEnum.Success);
+            }
+
+            private static void OnTransparencyChangedSuccess(ref TransparencyMsg msg, MyNetworkClient sender)
+            {
+                MyEntity projectorEntity;
+                MyEntities.TryGetEntityById(msg.EntityId, out projectorEntity);
+                var projector = projectorEntity as MyProjector;
+                if (projector != null)
+                {
+                    projector.m_buildableBlockOpacity = msg.buildableOpacity;
+                    projector.m_pendingBlockOpacity = msg.pendingOpacity;
+                    projector.m_shouldUpdateProjection = true;
                 }
             }
         }
