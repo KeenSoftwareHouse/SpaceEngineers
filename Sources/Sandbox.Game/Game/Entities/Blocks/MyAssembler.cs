@@ -355,6 +355,9 @@ namespace Sandbox.Game.Entities.Cube
 
             if (Sync.IsServer)
                 OutputInventory.ContentsChanged += OutputInventory_ContentsChanged;
+                if (MyPerGameSettings.InventoryMass)
+                OutputInventory.ContentsChanged += Inventory_ContentsChanged;
+                InputInventory.ContentsChanged += Inventory_ContentsChanged;
 
             bool removed = InputInventory.FilterItemsUsingConstraint();
             Debug.Assert(!removed, "Inventory filter removed items which were present in the object builder.");
@@ -398,6 +401,20 @@ namespace Sandbox.Game.Entities.Cube
 
             PowerReceiver.RequiredInputChanged += PowerReceiver_RequiredInputChanged;
             UpdateDetailedInfo();
+        }
+
+        internal override float GetMass()
+        {
+            var mass = base.GetMass();
+            if (MyPerGameSettings.InventoryMass)
+                return mass + (float)InputInventory.CurrentMass + (float)OutputInventory.CurrentMass;
+            else
+                return mass;
+        }
+
+        void Inventory_ContentsChanged(MyInventory obj)
+        {
+            CubeGrid.SetInventoryMassDirty();
         }
 
         public override MyObjectBuilder_CubeBlock GetObjectBuilderCubeBlock(bool copy = false)
@@ -697,12 +714,20 @@ namespace Sandbox.Game.Entities.Cube
             {
                 var item = blueprint.Prerequisites[i];
                 InputInventory.RemoveItemsOfType(item.Amount * amountMult, item.Id);
+                if (MyPerGameSettings.InventoryMass)
+                {
+                    InputInventory.ContentsChanged += Inventory_ContentsChanged;
+                }
             }
 
             foreach (var res in blueprint.Results)
             {
                 MyObjectBuilder_PhysicalObject resOb = (MyObjectBuilder_PhysicalObject)Sandbox.Common.ObjectBuilders.Serializer.MyObjectBuilderSerializer.CreateNewObject(res.Id.TypeId, res.Id.SubtypeName);
                 OutputInventory.AddItems(res.Amount, resOb);
+                if (MyPerGameSettings.InventoryMass)
+                {
+                    InputInventory.ContentsChanged += Inventory_ContentsChanged;
+                }
             }
         }
 
@@ -712,6 +737,10 @@ namespace Sandbox.Game.Entities.Cube
             foreach (var res in blueprint.Results)
             {
                 OutputInventory.RemoveItemsOfType(res.Amount, res.Id);
+                if (MyPerGameSettings.InventoryMass)
+                {
+                    OutputInventory.ContentsChanged += Inventory_ContentsChanged;
+                }
             }
             if (RepeatEnabled && Sync.IsServer) OutputInventory.ContentsChanged += OutputInventory_ContentsChanged;
 
@@ -721,6 +750,10 @@ namespace Sandbox.Game.Entities.Cube
                 var item = blueprint.Prerequisites[i];
                 var itemOb = (MyObjectBuilder_PhysicalObject)Sandbox.Common.ObjectBuilders.Serializer.MyObjectBuilderSerializer.CreateNewObject(item.Id.TypeId, item.Id.SubtypeName);
                 InputInventory.AddItems(item.Amount * amountMult, itemOb);
+                if (MyPerGameSettings.InventoryMass)
+                {
+                    OutputInventory.ContentsChanged += Inventory_ContentsChanged;
+                }
             }
         }
 

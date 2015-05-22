@@ -60,6 +60,10 @@ namespace Sandbox.Game.Entities.Cube
             Debug.Assert(!removed, "Inventory filter removed items which were present in the object builder.");
             OutputInventory.ContentsChanged += inventory_OnContentsChanged;
 
+            if (MyPerGameSettings.InventoryMass)
+                OutputInventory.ContentsChanged += Inventory_ContentsChanged;
+                InputInventory.ContentsChanged += Inventory_ContentsChanged;
+
             m_queueNeedsRebuild = true;
 
             UpgradeValues.Add("Productivity", 0f);
@@ -70,6 +74,20 @@ namespace Sandbox.Game.Entities.Cube
             OnUpgradeValuesChanged += UpdateDetailedInfo;
 
             UpdateDetailedInfo();
+        }
+
+        internal override float GetMass()
+        {
+            var mass = base.GetMass();
+            if (MyPerGameSettings.InventoryMass)
+                return mass + (float)InputInventory.CurrentMass + (float)OutputInventory.CurrentMass;
+            else
+                return mass;
+        }
+
+        void Inventory_ContentsChanged(MyInventory obj)
+        {
+            CubeGrid.SetInventoryMassDirty();
         }
 
         public override void UpdateBeforeSimulation100()
@@ -288,6 +306,10 @@ namespace Sandbox.Game.Entities.Cube
                 var obPrerequisite = (MyObjectBuilder_PhysicalObject)Sandbox.Common.ObjectBuilders.Serializer.MyObjectBuilderSerializer.CreateNewObject(prerequisite.Id);
                 var prerequisiteAmount = blueprintAmount * prerequisite.Amount;
                 InputInventory.RemoveItemsOfType(prerequisiteAmount, obPrerequisite);
+                if (MyPerGameSettings.InventoryMass)
+                {
+                    InputInventory.ContentsChanged += Inventory_ContentsChanged;
+                }
             }
 
             foreach (var result in queueItem.Results)
@@ -303,6 +325,10 @@ namespace Sandbox.Game.Entities.Cube
 
                 var resultAmount = blueprintAmount * conversionRatio;
                 OutputInventory.AddItems(resultAmount, obResult);
+                if (MyPerGameSettings.InventoryMass)
+                {
+                    OutputInventory.ContentsChanged += Inventory_ContentsChanged;
+                }
             }
 
             RemoveFirstQueueItemAnnounce(blueprintAmount);

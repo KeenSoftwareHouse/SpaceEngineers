@@ -587,6 +587,9 @@ namespace Sandbox.Game.Weapons
 
             m_ammoInventory.Init(builder.Inventory);
 
+            if (MyPerGameSettings.InventoryMass)
+                m_ammoInventory.ContentsChanged += Inventory_ContentsChanged;
+
             m_gunBase = new MyGunBase();
             m_gunBase.Init(builder.GunBase, base.BlockDefinition, this);
 
@@ -660,6 +663,20 @@ namespace Sandbox.Game.Weapons
             m_enableIdleRotation &= builder.EnableIdleRotation;
 
             m_previousIdleRotationState = builder.PreviousIdleRotationState;
+        }
+
+        void Inventory_ContentsChanged(MyInventory obj)
+        {
+            CubeGrid.SetInventoryMassDirty();
+        }
+
+        internal override float GetMass()
+        {
+            var mass = base.GetMass();
+            if (MyPerGameSettings.InventoryMass)
+                return mass + (float)m_ammoInventory.CurrentMass;
+            else
+                return mass;
         }
 
         float NormalizeAngle(int angle)
@@ -3069,6 +3086,8 @@ namespace Sandbox.Game.Weapons
         public void SwitchAmmoMagazine()
         {
             m_gunBase.SwitchAmmoMagazineToNextAvailable();
+            if (MyPerGameSettings.InventoryMass)
+                m_ammoInventory.ContentsChanged += Inventory_ContentsChanged;
         }
 
         public bool CanSwitchAmmoMagazine()

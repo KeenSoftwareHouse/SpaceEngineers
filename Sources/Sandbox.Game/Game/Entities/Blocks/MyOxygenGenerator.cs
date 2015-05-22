@@ -224,6 +224,20 @@ namespace Sandbox.Game.Entities.Blocks
             SlimBlock.ComponentStack.IsFunctionalChanged += ComponentStack_IsFunctionalChanged;
         }
 
+        void Inventory_ContentsChanged(MyInventory obj)
+        {
+            CubeGrid.SetInventoryMassDirty();
+        }
+
+        internal override float GetMass()
+        {
+            var mass = base.GetMass();
+            if (MyPerGameSettings.InventoryMass)
+                return mass + (float)m_inventory.CurrentMass;
+            else
+                return mass;
+        }
+
         public override MyObjectBuilder_CubeBlock GetObjectBuilderCubeBlock(bool copy = false)
         {
             var builder = (MyObjectBuilder_OxygenGenerator)base.GetObjectBuilderCubeBlock(copy);
@@ -573,12 +587,20 @@ namespace Sandbox.Game.Entities.Blocks
                     if (iceAmount < (float)item.Amount)
                     {
                         m_inventory.RemoveItems(item.ItemId, (MyFixedPoint)iceAmount);
+                        if (MyPerGameSettings.InventoryMass)
+                        {
+                            m_inventory.ContentsChanged += Inventory_ContentsChanged;
+                        }
                         return;
                     }
                     else
                     {
                         iceAmount -= (float)item.Amount;
                         m_inventory.RemoveItems(item.ItemId);
+                        if (MyPerGameSettings.InventoryMass)
+                        {
+                            m_inventory.ContentsChanged += Inventory_ContentsChanged;
+                        }
                     }
                 }
             }
