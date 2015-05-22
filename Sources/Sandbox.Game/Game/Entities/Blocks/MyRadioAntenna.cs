@@ -505,7 +505,7 @@ namespace Sandbox.Game.Entities.Cube
 
         private const float SEND_MESSAGES_COOLDOWN = 0.75f;
         private static readonly float STOPWATCH_FREQUENCY = 1.0f / Stopwatch.Frequency;
-        private static readonly int MESSAGE_PART_LENGTH = MyTexts.Get(MySpaceTexts.Antenna_MsgPart_to).Length + MyTexts.GetString(MySpaceTexts.Antenna_MsgPart_on).Length;
+        private static readonly int MESSAGE_PART_LENGTH = MyTexts.Get(MySpaceTexts.Antenna_MsgPart_to).Length + MyTexts.GetString(MySpaceTexts.Antenna_MsgPart_on).Length + 4; // ": " + "\n"
 
         private long m_sendMessageTimestamp = 0;
 
