@@ -54,6 +54,7 @@ namespace Sandbox.Game.GameSystems
         
         // Only used when thruster torque is enabled (it's currently tied to thruster damage checkbox).
         const int   COM_UPDATE_TICKS      = 10;
+        const float MAX_THRUST_CHANGE     = 0.2f;
         const float ANGULAR_STABILISATION = -0.05f;
         
         private float m_currentRequiredPowerInput;
