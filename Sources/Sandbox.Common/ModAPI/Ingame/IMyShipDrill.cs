@@ -8,5 +8,6 @@ namespace Sandbox.ModAPI.Ingame
     public interface IMyShipDrill : IMyFunctionalBlock
     {
         bool UseConveyorSystem { get; }
+        bool UsePushItems { get; }
     }
 }

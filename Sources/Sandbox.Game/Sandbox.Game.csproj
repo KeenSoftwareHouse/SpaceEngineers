@@ -566,6 +566,7 @@
     <Compile Include="Game\Multiplayer\MySyncCryoChamber.cs" />
     <Compile Include="Game\Multiplayer\MySyncLaserAntenna.cs" />
     <Compile Include="Game\Multiplayer\MySyncMissionTriggers.cs" />
+    <Compile Include="Game\Multiplayer\MySyncShipDrill.cs" />
     <Compile Include="Game\Multiplayer\MySyncSoundBlock.cs" />
     <Compile Include="Game\Multiplayer\MySyncSpaceBall.cs" />
     <Compile Include="Game\Multiplayer\MyCameraCollection.cs" />

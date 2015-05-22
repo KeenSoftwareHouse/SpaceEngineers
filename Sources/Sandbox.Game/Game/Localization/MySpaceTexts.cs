@@ -10328,5 +10328,10 @@ namespace Sandbox.Game.Localization
         ///Changing the renderer requires restart of the game.
         ///</summary>
         public static readonly MyStringId ToolTipVideoOptionsRenderer = MyStringId.GetOrCompute("ToolTipVideoOptionsRenderer");
+
+        ///<summary>
+        ///Use push items
+        ///</summary>
+        public static readonly MyStringId BlockPropertyTitle_DrillUsePushItems = MyStringId.GetOrCompute("BlockPropertyTitle_DrillUsePushItems");
     }
 }

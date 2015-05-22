@@ -31,7 +31,7 @@ namespace Sandbox.Game.Gui
         public readonly MyStringId OffText;
         public readonly MyStringId Tooltip;
 
-        public MyTerminalControlCheckbox(string id, MyStringId title, MyStringId tooltip, MyStringId? on = null, MyStringId? off = null)
+        public MyTerminalControlCheckbox(string id, MyStringId title, MyStringId tooltip = default(MyStringId), MyStringId? on = null, MyStringId? off = null)
             : base(id)
         {
             Title = title;

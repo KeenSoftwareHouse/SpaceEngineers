@@ -6396,4 +6396,7 @@ To connect to lasers not listed here you can connect to coordinates.</value>
   <data name="ToolTipVideoOptionsRenderer" xml:space="preserve">
     <value>Changing the renderer requires restart of the game.</value>
   </data>
+  <data name="BlockPropertyTitle_DrillUsePushItems" xml:space="preserve">
+    <value>Auto push items</value>
+  </data>
 </root>

@@ -64,6 +64,20 @@ namespace Sandbox.Game.Weapons
         private bool m_useConveyorSystem;
         private IMyConveyorEndpoint m_multilineConveyorEndpoint;
 
+        private bool m_usePushItems;
+        public bool UsePushItems 
+        { 
+            get { return m_usePushItems; }
+            set { m_usePushItems = value; } 
+        }
+
+        private new MySyncShipDrill SyncObject;
+
+        private new MyShipDrillDefinition BlockDefinition
+        {
+            get { return (MyShipDrillDefinition)base.BlockDefinition; }
+        }
+
         static MyShipDrill()
         {
             var useConvSystem = new MyTerminalControlOnOffSwitch<MyShipDrill>("UseConveyor", MySpaceTexts.Terminal_UseConveyorSystem);
@@ -71,6 +85,16 @@ namespace Sandbox.Game.Weapons
             useConvSystem.Setter = (x, v) => MySyncConveyors.SendChangeUseConveyorSystemRequest(x.EntityId, v);
             useConvSystem.EnableToggleAction();
             MyTerminalControlFactory.AddControl(useConvSystem);
+
+            var useItemsPush = new MyTerminalControlCheckbox<MyShipDrill>("PushOnOff", MySpaceTexts.BlockPropertyTitle_DrillUsePushItems);
+            useItemsPush.Getter = (x) => x.m_usePushItems;
+            useItemsPush.Setter = (x, v) =>
+            {
+                x.m_usePushItems = v;
+                x.SyncObject.SendChangeUsePushItemsRequest(v);
+            };
+            useItemsPush.EnableAction();
+            MyTerminalControlFactory.AddControl(useItemsPush);
 
             m_sounds = new MyDrillBase.Sounds()
             {
@@ -131,13 +155,14 @@ namespace Sandbox.Game.Weapons
             NeedsUpdate |= MyEntityUpdateEnum.EACH_FRAME | MyEntityUpdateEnum.EACH_100TH_FRAME;
             Debug.Assert((NeedsUpdate & MyEntityUpdateEnum.EACH_10TH_FRAME) == 0, "Base class of ship drill uses Update10, and ship drill turns it on and off. Things might break!");
             SetupDrillFrameCountdown();
+            SyncObject = new MySyncShipDrill(this);
         }
 
         public override void Init(MyObjectBuilder_CubeBlock builder, MyCubeGrid cubeGrid)
         {
             base.Init(builder, cubeGrid);
             m_defId = builder.GetId();
-            var def = MyDefinitionManager.Static.GetCubeBlockDefinition(m_defId) as MyShipDrillDefinition;
+            var def = BlockDefinition;// MyDefinitionManager.Static.GetCubeBlockDefinition(m_defId) as MyShipDrillDefinition;
             
             m_blockLength = def.Size.Z;
             m_cubeSideLength = MyDefinitionManager.Static.GetCubeSize(def.CubeSize);
@@ -187,6 +212,7 @@ namespace Sandbox.Game.Weapons
             SlimBlock.ComponentStack.IsFunctionalChanged += ComponentStack_IsFunctionalChanged;
 
             m_useConveyorSystem = obDrill.UseConveyorSystem;
+            m_usePushItems = obDrill.UsePushItems;
 
             UpdateDetailedInfo();
         }
@@ -226,6 +252,7 @@ namespace Sandbox.Game.Weapons
             var obDrill = (MyObjectBuilder_Drill)base.GetObjectBuilderCubeBlock(copy);
             obDrill.Inventory = m_inventory.GetObjectBuilder();
             obDrill.UseConveyorSystem = m_useConveyorSystem;
+            obDrill.UsePushItems = m_usePushItems;
             return obDrill;
         }
 
@@ -256,7 +283,7 @@ namespace Sandbox.Game.Weapons
             base.UpdateAfterSimulation100();
             m_drillBase.UpdateAfterSimulation100();
 
-            if (Sync.IsServer && IsFunctional && m_useConveyorSystem && m_inventory.GetItems().Count > 0)
+            if (Sync.IsServer && IsFunctional && m_useConveyorSystem && UsePushItems && m_inventory.GetItems().Count > 0)
             {
                 MyGridConveyorSystem.PushAnyRequest(this, m_inventory, OwnerId);
             }
