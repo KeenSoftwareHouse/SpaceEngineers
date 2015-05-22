@@ -23,24 +23,17 @@ namespace Sandbox.Game.Entities
 
         public static MyEntity CreateEntity(MyObjectBuilder_Base builder)
         {
-            MyEntity entity = CreateEntity(builder.TypeId, builder.SubtypeName);
+            MyEntity entity = CreateEntity(builder.TypeId);
             return entity;
         }
 
-        public static MyEntity CreateEntity(MyObjectBuilderType typeId, string subTypeName = null)
+        public static MyEntity CreateEntity(MyObjectBuilderType typeId)
         {
             ProfilerShort.Begin("MyEntityFactory.CreateEntity(...)");
             MyEntity entity = m_objectFactory.CreateInstance(typeId);
             var scriptManager = Sandbox.Game.World.MyScriptManager.Static;
-			if(scriptManager != null && subTypeName != null && scriptManager.SubEntityScripts.ContainsKey(new Tuple<Type,string>(typeId, subTypeName)))
-			{
-				entity.AssignGamelogicFromHashSet(scriptManager.SubEntityScripts[new Tuple<Type, string>(typeId, subTypeName)]);
-			}
-			else if (scriptManager != null && scriptManager.EntityScripts.ContainsKey(typeId))
-			{
-				entity.AssignGamelogicFromHashSet(scriptManager.EntityScripts[typeId]);
-			}
-			
+            if (scriptManager != null && scriptManager.EntityScripts.ContainsKey(typeId))
+                entity.GameLogic = (MyGameLogicComponent)Activator.CreateInstance(scriptManager.EntityScripts[typeId]);
             ProfilerShort.End();
 
             return entity;
@@ -51,15 +44,9 @@ namespace Sandbox.Game.Entities
             ProfilerShort.Begin("MyEntityFactory.CreateEntity(...)");
             T entity = m_objectFactory.CreateInstance<T>(builder.TypeId);
             var scriptManager = Sandbox.Game.World.MyScriptManager.Static;
-            var builderType = builder.GetType();					
-			if(scriptManager != null && builder.SubtypeName != null && scriptManager.SubEntityScripts.ContainsKey(new Tuple<Type,string>(builderType, builder.SubtypeName)))
-			{
-				entity.AssignGamelogicFromHashSet(scriptManager.SubEntityScripts[new Tuple<Type, string>(builderType, builder.SubtypeName)]);
-			}
-			else if (scriptManager != null && scriptManager.EntityScripts.ContainsKey(builderType))
-			{
-				entity.AssignGamelogicFromHashSet(scriptManager.EntityScripts[builderType]);
-			}
+            var builderType = builder.GetType();
+            if (scriptManager != null && scriptManager.EntityScripts.ContainsKey(builderType))
+                entity.GameLogic = (MyGameLogicComponent)Activator.CreateInstance(scriptManager.EntityScripts[builderType]);
             ProfilerShort.End();
             return entity;
         }

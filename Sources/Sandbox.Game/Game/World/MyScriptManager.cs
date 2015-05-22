@@ -30,9 +30,8 @@ namespace Sandbox.Game.World
         string[] Separators = new string[] { " " };
        
         public Dictionary<MyStringId, Assembly> Scripts = new Dictionary<MyStringId, Assembly>();
-        public Dictionary<Type, HashSet<Type>> EntityScripts = new Dictionary<Type, HashSet<Type>>(); //Binds object builder type with Game Logic component type
-		public Dictionary<Tuple<Type, string>, HashSet<Type>> SubEntityScripts = new Dictionary<Tuple<Type, string>, HashSet<Type>>();
-		public Dictionary<MyStringId, Type> InGameScripts = new Dictionary<MyStringId, Type>(); //Ingame script is just game logic component
+        public Dictionary<Type, Type> EntityScripts = new Dictionary<Type, Type>(); //Binds object builder type with Game Logic component type
+        public Dictionary<MyStringId, Type> InGameScripts = new Dictionary<MyStringId, Type>(); //Ingame script is just game logic component
         public Dictionary<MyStringId, StringBuilder> InGameScriptsCode = new Dictionary<MyStringId, StringBuilder>();
         private List<string> m_errors = new List<string>();
         private List<string> m_cachedFiles = new List<string>();
@@ -183,48 +182,18 @@ namespace Sandbox.Game.World
                 {
                     var descriptor = (MyEntityComponentDescriptor)descriptorArray[0];
                     var component = (MyGameLogicComponent)Activator.CreateInstance(type);
-
-					var subIdDescriptorArray = type.GetCustomAttributes(typeof(MyEntitySubIdComponentDescriptor), false);
-					if (subIdDescriptorArray != null && subIdDescriptorArray.Length > 0)
-					{
-						foreach (var item in subIdDescriptorArray)
-						{
-							if (gameLogicType.IsAssignableFrom(type) && builderType.IsAssignableFrom(descriptor.EntityBuilderType))
-							{
-								var subIdDescriptor = (MyEntitySubIdComponentDescriptor)item;
-								if (!SubEntityScripts.ContainsKey(new Tuple<Type, string>(descriptor.EntityBuilderType, subIdDescriptor.SubIdName)))
-								{
-									SubEntityScripts.Add(new Tuple<Type, string>(descriptor.EntityBuilderType, subIdDescriptor.SubIdName), new HashSet<Type>());
-								}
-								else
-								{
-									var c = new MyModContext();
-									c.Init(assembly.FullName, assembly.FullName);
-									MyDefinitionErrors.Add(c, "Possible entity type script logic collision", ErrorSeverity.Warning);
-								}
-
-								SubEntityScripts[new Tuple<Type, string>(descriptor.EntityBuilderType, subIdDescriptor.SubIdName)].Add(type);
-							}
-						}
-					}
-					else
-					{
-						if (gameLogicType.IsAssignableFrom(type) && builderType.IsAssignableFrom(descriptor.EntityBuilderType))
-						{
-							if (!EntityScripts.ContainsKey(descriptor.EntityBuilderType))
-							{
-								EntityScripts.Add(descriptor.EntityBuilderType, new HashSet<Type>());
-							}
-							else
-							{
-								var c = new MyModContext();
-								c.Init(assembly.FullName, assembly.FullName);
-								MyDefinitionErrors.Add(c, "Possible entity type script logic collision", ErrorSeverity.Warning);
-							}
-
-							EntityScripts[descriptor.EntityBuilderType].Add(type);
-						}
-					}
+                    if (gameLogicType.IsAssignableFrom(type) && builderType.IsAssignableFrom(descriptor.EntityBuilderType))
+                    {
+                        if (EntityScripts.Remove(descriptor.EntityBuilderType))
+                        {
+                            var msg = string.Format("Entity script overwritten: {0}", descriptor.EntityBuilderType.Name);
+                            Debug.Fail(msg);
+                            var c = new MyModContext();
+                            c.Init(assembly.FullName, assembly.FullName);
+                            MyDefinitionErrors.Add(c, msg, ErrorSeverity.Notice);
+                        }
+                        EntityScripts.Add(descriptor.EntityBuilderType, type);
+                    }
                 }
             }
         }
