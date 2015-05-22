@@ -58,6 +58,7 @@ namespace Sandbox.Game.Entities
         MyHudNotification m_notificationReactorsOn;
         MyHudNotification m_notificationLeave;
         MyHudNotification m_notificationTerminal;
+        MyHudNotification m_inertiaDampenersNotification;
 
         MyHudNotification m_noWeaponNotification;
         MyHudNotification m_weaponSelectedNotification;
@@ -1122,10 +1123,10 @@ namespace Sandbox.Game.Entities
 
             if (ControllerInfo.IsLocallyHumanControlled())
             {
-                if (GridThrustSystem.DampenersEnabled)
-                    MyHud.Notifications.Add(new MyHudNotification(MySpaceTexts.NotificationInertiaDampenersOn));
-                else
-                    MyHud.Notifications.Add(new MyHudNotification(MySpaceTexts.NotificationInertiaDampenersOff));
+                if (m_inertiaDampenersNotification == null)
+                    m_inertiaDampenersNotification = new MyHudNotification();
+                m_inertiaDampenersNotification.Text = (GridThrustSystem.DampenersEnabled ? MySpaceTexts.NotificationInertiaDampenersOn : MySpaceTexts.NotificationInertiaDampenersOff);
+                MyHud.Notifications.Add(m_inertiaDampenersNotification);
             }
         }
 

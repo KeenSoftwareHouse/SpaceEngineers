@@ -273,7 +273,10 @@ namespace Sandbox.Game.Entities.Character
         MyHudNotification m_pickupObjectNotification;
         MyHudNotification m_showTerminalNotification;
         MyHudNotification m_openInventoryNotification;
-
+        MyHudNotification m_inertiaDampenersNotification;
+        MyHudNotification m_broadcastingNotification;
+        MyHudNotification m_jetpackToggleNotification;
+        
         HkCharacterStateType m_currentCharacterState;
         bool m_isFalling = false;
         bool m_isFallingAnimationPlayed = false;
@@ -445,9 +448,7 @@ namespace Sandbox.Game.Entities.Character
         MyHudNotification m_lowOxygenNotification;
         MyHudNotification m_criticalOxygenNotification;
         MyHudNotification m_oxygenBottleRefillNotification;
-        MyHudNotification m_noHelmetVariationNotification;
-        MyHudNotification m_helmetOnNotification;
-        MyHudNotification m_helmetOffNotification;
+        MyHudNotification m_helmetToggleNotification;
 
         bool m_useAnimationForWeapon = false;
         Matrix m_relativeWeaponMatrix = Matrix.Identity;
@@ -804,9 +805,10 @@ namespace Sandbox.Game.Entities.Character
             m_oxygenBottleRefillNotification = new MyHudNotification(text: MySpaceTexts.NotificationBottleRefill, level: MyNotificationLevel.Important);
             m_lowOxygenNotification = new MyHudNotification(text: MySpaceTexts.NotificationOxygenLow, font: MyFontEnum.Red, level: MyNotificationLevel.Important);
             m_criticalOxygenNotification = new MyHudNotification(text: MySpaceTexts.NotificationOxygenCritical, font: MyFontEnum.Red, level: MyNotificationLevel.Important);
-            m_noHelmetVariationNotification = new MyHudNotification(text: MySpaceTexts.NotificationNoHelmetVariation, level: MyNotificationLevel.Normal);
-            m_helmetOffNotification = new MyHudNotification(text: MySpaceTexts.NotificationHelmetOff, level: MyNotificationLevel.Normal);
-            m_helmetOnNotification = new MyHudNotification(text: MySpaceTexts.NotificationHelmetOn, level: MyNotificationLevel.Normal);
+            m_broadcastingNotification = new MyHudNotification();
+            m_inertiaDampenersNotification = new MyHudNotification();
+            m_jetpackToggleNotification = new MyHudNotification();
+            m_helmetToggleNotification = new MyHudNotification();
 
             m_needsOxygen = Definition.NeedsOxygen;
 
@@ -5344,11 +5346,10 @@ namespace Sandbox.Game.Entities.Character
 
             if (MySession.ControlledEntity == this && valueChanged)
             {
-                MyStringId text = (noEnergy) ? MySpaceTexts.NotificationJetpackOffNoEnergy
+                m_jetpackToggleNotification.Text = (noEnergy) ? MySpaceTexts.NotificationJetpackOffNoEnergy
                                                      : (canUseJetpack) ? MySpaceTexts.NotificationJetpackOn
                                                                           : MySpaceTexts.NotificationJetpackOff;
-                var notificationUse = new MyHudNotification(text, 2000);
-                MyHud.Notifications.Add(notificationUse);
+                MyHud.Notifications.Add(m_jetpackToggleNotification);
             }
 
             if (Physics.CharacterProxy != null)
@@ -5419,10 +5420,8 @@ namespace Sandbox.Game.Entities.Character
 
                 EnableDampeners(!m_dampenersEnabled, true);
 
-                if (m_dampenersEnabled)
-                    MyHud.Notifications.Add(new MyHudNotification(MySpaceTexts.NotificationInertiaDampenersOn));
-                else
-                    MyHud.Notifications.Add(new MyHudNotification(MySpaceTexts.NotificationInertiaDampenersOff));
+                m_inertiaDampenersNotification.Text = (m_dampenersEnabled ? MySpaceTexts.NotificationInertiaDampenersOn : MySpaceTexts.NotificationInertiaDampenersOff);
+                MyHud.Notifications.Add(m_inertiaDampenersNotification);
             }
         }
 
@@ -5453,10 +5452,8 @@ namespace Sandbox.Game.Entities.Character
             {
                 EnableBroadcasting(!m_radioBroadcaster.WantsToBeEnabled);
 
-                if (m_radioBroadcaster.Enabled)
-                    MyHud.Notifications.Add(new MyHudNotification(MySpaceTexts.NotificationCharacterBroadcastingOn));
-                else
-                    MyHud.Notifications.Add(new MyHudNotification(MySpaceTexts.NotificationCharacterBroadcastingOff));
+                m_broadcastingNotification.Text = (m_radioBroadcaster.Enabled ? MySpaceTexts.NotificationCharacterBroadcastingOn : MySpaceTexts.NotificationCharacterBroadcastingOff);
+                MyHud.Notifications.Add(m_broadcastingNotification);
             }
         }
 
@@ -7987,19 +7984,14 @@ namespace Sandbox.Game.Entities.Character
             {
                 ChangeModelAndColor(Definition.HelmetVariation, this.ColorMask);
                 m_needsOxygen = !Definition.NeedsOxygen;
-                if (Definition.NeedsOxygen)
-                {
-                    MyHud.Notifications.Add(m_helmetOnNotification);
-                }
-                else
-                {
-                    MyHud.Notifications.Add(m_helmetOffNotification);
-                }
+                m_helmetToggleNotification.Text = (Definition.NeedsOxygen ? MySpaceTexts.NotificationHelmetOn : MySpaceTexts.NotificationHelmetOff);
             }
             else
             {
-                MyHud.Notifications.Add(m_noHelmetVariationNotification);
+                m_helmetToggleNotification.Text = MySpaceTexts.NotificationNoHelmetVariation;
             }
+
+            MyHud.Notifications.Add(m_helmetToggleNotification);
         }
 
         void Sandbox.ModAPI.Interfaces.IMyControllableEntity.Die()
