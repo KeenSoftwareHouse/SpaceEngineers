@@ -18,6 +18,8 @@ namespace Sandbox.Game.Gui
             blockInfo.CriticalIntegrity = 0;
             blockInfo.OwnershipIntegrity = 0;
             blockInfo.MissingComponentIndex = -1;
+            blockInfo.Mass = definition.Mass;
+            blockInfo.MaxIntegrity = definition.MaxIntegrity;
 
             blockInfo.Components.Clear();
             for (int i = 0; i < definition.Components.Length; ++i)
