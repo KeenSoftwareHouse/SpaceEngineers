@@ -1586,7 +1586,7 @@ namespace Sandbox.Game.Entities
                     foreach (var gizmoSpace in m_gizmo.Spaces)
                     {
                         if (gizmoSpace.m_removeBlock != null)
-                            MyToolbar.ColorMaskHSV = gizmoSpace.m_removeBlock.ColorMaskHSV;
+                            MyToolbar.AddOrSwitchToColor(gizmoSpace.m_removeBlock.ColorMaskHSV);
                     }
                 }
             }
