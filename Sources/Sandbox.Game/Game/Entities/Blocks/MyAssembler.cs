@@ -1113,12 +1113,14 @@ namespace Sandbox.Game.Entities.Cube
             ClearQueue();
         }
 
-        int Sandbox.ModAPI.Ingame.IMyAssembler.GetQueueItemAmount(string subtypeName)
+        int Sandbox.ModAPI.Ingame.IMyAssembler.GetQueueItemAmount(string itemType,string subtypeName)
         {
             int amount = 0;
             foreach(QueueItem queueItem in m_queue)
             {
-                if (queueItem.Blueprint.Results.IsValidIndex(0) && queueItem.Blueprint.Results[0].Id.SubtypeName==subtypeName)
+                if (queueItem.Blueprint.Results.IsValidIndex(0) && 
+                    queueItem.Blueprint.Results[0].Id.TypeId.ToString() == itemType &&
+                    queueItem.Blueprint.Results[0].Id.SubtypeName == subtypeName)
                 {
                     amount += (int)queueItem.Amount;
                 }

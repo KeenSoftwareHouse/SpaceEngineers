@@ -52,9 +52,10 @@ namespace Sandbox.ModAPI.Ingame
         /// <summary>
         /// Returns the total amount of an item in the queue by subtype name
         /// </summary>
+        /// <param name="itemType">the item type of item, i.e. MyObjectBuilder_Component</param>
         /// <param name="subtypeName">The subtype name of item to count, i.e. SteelPlate</param>
         /// <returns>int - amount queued in total</returns>
-        int GetQueueItemAmount(string subtypeName);
+        int GetQueueItemAmount(string itemType, string subtypeName);
     }
 
     public struct AssemblerQueueItem
