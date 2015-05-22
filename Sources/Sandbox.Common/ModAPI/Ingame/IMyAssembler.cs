@@ -8,9 +8,8 @@ namespace Sandbox.ModAPI.Ingame
     public interface IMyAssembler : IMyProductionBlock
     {
         /// <summary>
-        /// Assembler set to disassemble
+        /// True if assembler set to disassemble (read only)
         /// </summary>
-        /// <returns>true if set to disassemble</returns>
         bool DisassembleEnabled { get; }
 
         /// <summary>
