@@ -212,6 +212,7 @@
     <Compile Include="ModAPI\Ingame\IMyOxygenTank.cs" />
     <Compile Include="ModAPI\Ingame\IMyProgrammableBlock.cs" />
     <Compile Include="ModAPI\Ingame\IMyProjector.cs" />
+    <Compile Include="ModAPI\Ingame\IMyRadar.cs" />
     <Compile Include="ModAPI\Ingame\IMyReactor.cs" />
     <Compile Include="ModAPI\Ingame\IMyRefinery.cs" />
     <Compile Include="ModAPI\Ingame\IMyReflectorLight.cs" />
@@ -349,6 +350,7 @@
     <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_OxygenContainerDefinition.cs" />
     <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_OxygenContainerObject.cs" />
     <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_OxygenFarmDefinition.cs" />
+    <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_RadarDefinition.cs" />
     <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_TreeCuttingDefinition.cs" />
     <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_Trigger.cs" />
     <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_TriggerPositionReached.cs" />
@@ -399,6 +401,7 @@
     <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_OxygenTankDefinition.cs" />
     <Compile Include="ObjectBuilders\MyObjectBuilder_DestroyableItem.cs" />
     <Compile Include="ObjectBuilders\MyObjectBuilder_ToolbarItemAreaMarker.cs" />
+    <Compile Include="ObjectBuilders\MyObjectBuilder_Radar.cs" />
     <Compile Include="ObjectBuilders\Obsolete\MyObjectBuilder_Bushes.cs" />
     <Compile Include="ObjectBuilders\MyObjectBuilder_ConveyorSorter.cs" />
     <Compile Include="ObjectBuilders\MyObjectBuilder_Environment.cs" />

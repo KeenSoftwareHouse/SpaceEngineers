@@ -266,6 +266,17 @@ namespace Sandbox.Game.Entities.Cube
                                     oreDetector.SetRelayedRequest = true;
                                 }
                             }
+
+                            var radarOwner = terminalBlock as IMyComponentOwner<MyRadarComponent>;
+                            if (radarOwner != null)
+                            {
+                                MyRadarComponent radar;
+                                if (radarOwner.GetComponent(out radar) && radar.BroadcastUsingAntennas)
+                                {
+                                    radar.Update(terminalBlock.PositionComp.GetPosition(), false);
+                                    radar.SetRelayedRequest = true;
+                                }
+                            }
                         }
                     }
                 }
