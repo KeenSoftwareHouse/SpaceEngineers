@@ -27,7 +27,7 @@ namespace VRage.Compiler
         {
             assembly = null;
             Options.OutputAssembly = assemblyName;
-            Options.GenerateInMemory = true;
+            Options.GenerateInMemory = false;
             var result = m_cp.CompileAssemblyFromFile(Options, files);
             return CheckResultInternal(ref assembly, errors, result,false);
         }

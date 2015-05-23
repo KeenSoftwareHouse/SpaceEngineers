@@ -219,6 +219,10 @@ namespace VRage.Compiler
             {
                 found = AllowedNamespacesModAPI.ContainsKey(type.Assembly) && AllowedNamespacesModAPI[type.Assembly].Contains(type.Namespace);
             }
+            if (found == false && isIngameScript == false)
+            {
+                found = AllowedNamespacesModAPI.ContainsKey(type.Assembly) && type.Namespace.Contains("Sandbox.Game");
+            }
             return found;
         }
 

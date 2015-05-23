@@ -72,6 +72,11 @@ namespace Sandbox.Definitions
 
         #region Loading and unloading
 
+        public static void  RegisterFromAssembly(Assembly assembly)
+        {
+            m_definitionFactory.RegisterFromAssembly(assembly);
+        }
+
         public void LoadSounds()
         {
             MySandboxGame.Log.WriteLine("MyDefinitionManager.LoadSounds() - START");

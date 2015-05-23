@@ -133,7 +133,7 @@ namespace Sandbox.Common.ObjectBuilders
             MyObjectBuilderType.RegisterFromAssembly(MyPlugins.UserAssembly, true);
         }
 
-        internal static void RegisterFromAssembly(Assembly assembly, bool registerLegacyNames = false)
+        public static void RegisterFromAssembly(Assembly assembly, bool registerLegacyNames = false)
         {
             if (assembly == null)
                 return;
