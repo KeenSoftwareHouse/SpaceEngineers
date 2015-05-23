@@ -3112,18 +3112,24 @@ namespace Sandbox.Game.Weapons
             Vector3D targetRelativePosition = targetPosition - GunBase.GetMuzzleWorldPosition();
 
             float shotSpeed = 0;
+            float shotInitialSpeed = 0;
+            float shotMaxSpeed = 0;
+            float shotAcceleration = 0;
 
             if (GunBase.CurrentAmmoMagazineDefinition != null)
             {
                 var ammoDefinition =
                     MyDefinitionManager.Static.GetAmmoDefinition(GunBase.CurrentAmmoMagazineDefinition.AmmoDefinitionId);
 
-                shotSpeed = ammoDefinition.DesiredSpeed;
+                shotSpeed = shotInitialSpeed = shotMaxSpeed = ammoDefinition.DesiredSpeed;
 
                 if (ammoDefinition.AmmoType == MyAmmoType.Missile)
                 {
                     //missiles are accelerating, shotSpeed is reached later
                     var mDef = (Sandbox.Definitions.MyMissileAmmoDefinition) ammoDefinition;
+                    shotInitialSpeed = mDef.MissileInitialSpeed;
+                    shotSpeed = (shotInitialSpeed + shotMaxSpeed) / 2;
+                    shotAcceleration = mDef.MissileAcceleration;
                     if (mDef.MissileInitialSpeed == 100f && mDef.MissileAcceleration == 600f &&
                         ammoDefinition.DesiredSpeed == 700f) //our missile
                     {
@@ -3179,6 +3185,44 @@ namespace Sandbox.Game.Weapons
             // This is always given by the solution with positive square root.
             double timeToTarget = a / (sqrtDeterminant - half_b);
             Vector3D predictedPosition = targetPosition + targetVelocity * timeToTarget;
+
+            if (shotAcceleration > 0)
+            {
+                // For missiles, use Newton's method to correct our aim.
+
+                // This is accurate as long as the turrent isn't moving too fast. The maximum speed of missiles is
+                // based on absolute velocity, not relative velocity.
+                double shotAccelerationTime = (shotMaxSpeed - shotInitialSpeed) / shotAcceleration;
+
+                for (int i = 0; i < 10; i++)
+                {
+                    Vector3D targetFinalRelativePosition = (targetRelativePosition + targetRelativeVelocity * timeToTarget);
+                 
+                    // We will hit if the target and the shot are both the same distance from the gun at the impact time.
+                    // The error in distance is much easier to minimize than the error in time or the error in position.
+                    double targetDistance = targetFinalRelativePosition.Length();
+                    double shotDistance = timeToTarget > shotAccelerationTime
+                        ? (shotInitialSpeed - shotMaxSpeed) * shotAccelerationTime / 2 +
+                          shotMaxSpeed * timeToTarget
+                        : (shotInitialSpeed + 0.5 * shotAcceleration * timeToTarget) * timeToTarget;
+                    shotDistance += 2;
+                    if (Math.Abs(shotDistance - targetDistance) < 0.01)
+                        break;
+
+                    // Correct to minimize the error in distance.
+                    double dTargetDistance = Vector3D.Dot(targetFinalRelativePosition, targetRelativeVelocity) /
+                                             targetDistance;
+                    double dShotDistance = timeToTarget > shotAccelerationTime
+                        ? shotMaxSpeed
+                        : shotInitialSpeed + 0.5 * shotAcceleration * timeToTarget;
+
+                    double correction = (targetDistance - shotDistance) / (dShotDistance - dTargetDistance);
+                    timeToTarget += correction;
+                }
+
+                predictedPosition = targetPosition + targetVelocity * timeToTarget;
+            }
+
             return predictedPosition;
         }
     }
