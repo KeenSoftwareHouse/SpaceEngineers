@@ -213,5 +213,8 @@ namespace Sandbox.Common.ObjectBuilders.Definitions
         [XmlArrayItem("Entry")]
         [ProtoMember]
         public MyCharacterName[] CharacterNames;
+
+        [ProtoMember]
+        public MyObjectBuilder_BattleDefinition Battle;
     }
 }

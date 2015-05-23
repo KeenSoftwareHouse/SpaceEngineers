@@ -13,10 +13,13 @@ namespace Sandbox.Common.AI
         protected abstract MyBehaviorTreeState Condition_IsWorking();
 
         [MyBehaviorTreeAction("IsStoneInArea", ReturnsRunning = false)]
-        protected abstract MyBehaviorTreeState Condition_IsStoneInArea([BTParam] float radius, [BTOut] ref MyBBMemoryTarget outFoundLocation);
+        protected abstract MyBehaviorTreeState Condition_IsStoneInArea([BTParam] float radius, [BTOut] ref MyBBMemoryTarget outFoundTarget);
 
 		[MyBehaviorTreeAction("IsStoneInPlaceArea", ReturnsRunning = false)]
-		protected abstract MyBehaviorTreeState Condition_IsStoneInPlaceArea([BTIn] ref MyBBMemoryTarget inPlaceArea, [BTOut] ref MyBBMemoryTarget outFoundLocation);
+		protected abstract MyBehaviorTreeState Condition_IsStoneInPlaceArea([BTIn] ref MyBBMemoryTarget inPlaceArea, [BTOut] ref MyBBMemoryTarget outFoundTarget);
+
+		[MyBehaviorTreeAction("FindRandomStoneInPlaceArea", ReturnsRunning = false)]
+		protected abstract MyBehaviorTreeState Action_FindRandomStoneInPlaceArea([BTIn] ref MyBBMemoryTarget inPlaceArea, [BTOut] ref MyBBMemoryTarget outFoundTarget);
 
         [MyBehaviorTreeAction("StartDig")]
         protected abstract MyBehaviorTreeState Action_StartDig();
@@ -38,6 +41,9 @@ namespace Sandbox.Common.AI
 
 		[MyBehaviorTreeAction("AreTreesInPlaceArea", ReturnsRunning = false)]
 		protected abstract MyBehaviorTreeState Condition_AreTreesInPlaceArea([BTIn] ref MyBBMemoryTarget inPlaceArea, [BTOut] ref MyBBMemoryTarget outTarget);
+
+		[MyBehaviorTreeAction("FindRandomTreeInPlaceArea", ReturnsRunning = false)]
+		protected abstract MyBehaviorTreeState Action_FindRandomTreeInPlaceArea([BTIn] ref MyBBMemoryTarget inPlaceArea, [BTOut] ref MyBBMemoryTarget outTarget);
 
 		[MyBehaviorTreeAction("StartCuttingTree")]
 		protected abstract MyBehaviorTreeState Action_StartCuttingTree();
@@ -69,6 +75,9 @@ namespace Sandbox.Common.AI
 		[MyBehaviorTreeAction("AreTreeTrunksInPlaceArea", ReturnsRunning = false)]
 		protected abstract MyBehaviorTreeState Condition_AreTreeTrunksInPlaceArea([BTIn] ref MyBBMemoryTarget inPlaceArea, [BTOut] ref MyBBMemoryTarget outTarget);
 
+		[MyBehaviorTreeAction("FindRandomTreeTrunkInPlaceArea", ReturnsRunning = false)]
+		protected abstract MyBehaviorTreeState Action_FindRandomTreeTrunkInPlaceArea([BTIn] ref MyBBMemoryTarget inPlaceArea, [BTOut] ref MyBBMemoryTarget outTarget);
+
 		[MyBehaviorTreeAction("IsTrunkCut", ReturnsRunning = false)]
 		protected abstract MyBehaviorTreeState Condition_IsTrunkCut([BTIn] ref MyBBMemoryTarget inTargetTrunk);
 
@@ -89,6 +98,12 @@ namespace Sandbox.Common.AI
 
 		[MyBehaviorTreeAction("IsWoodInPlaceArea", ReturnsRunning = false)]
 		protected abstract MyBehaviorTreeState Condition_IsWoodInPlaceArea([BTIn] ref MyBBMemoryTarget inPlaceArea, [BTOut] ref MyBBMemoryTarget outTarget);
+
+		[MyBehaviorTreeAction("FindRandomStoneOreInPlaceArea", ReturnsRunning = false)]
+		protected abstract MyBehaviorTreeState Action_FindRandomStoneOreInPlaceArea([BTIn] ref MyBBMemoryTarget inPlaceArea, [BTOut] ref MyBBMemoryTarget outTarget);
+
+		[MyBehaviorTreeAction("FindRandomWoodInPlaceArea", ReturnsRunning = false)]
+		protected abstract MyBehaviorTreeState Action_FindRandomWoodInPlaceArea([BTIn] ref MyBBMemoryTarget inPlaceArea, [BTOut] ref MyBBMemoryTarget outTarget);
 
 		[MyBehaviorTreeAction("FindOwner", ReturnsRunning = false)]
 		protected abstract MyBehaviorTreeState Action_FindOwner([BTOut] ref MyBBMemoryTarget outTarget);

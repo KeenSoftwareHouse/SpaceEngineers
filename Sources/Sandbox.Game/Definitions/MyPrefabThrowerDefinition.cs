@@ -1,7 +1,7 @@
-﻿using System;
+﻿using Sandbox.Common.ObjectBuilders.Definitions;
+using System;
 using System.Collections.Generic;
-using Sandbox.Common.ObjectBuilders.Definitions;
-using VRage.Library.Utils;
+using VRage.Utils;
 
 
 namespace Sandbox.Definitions

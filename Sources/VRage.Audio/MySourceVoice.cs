@@ -2,7 +2,7 @@
 using SharpDX.XAudio2;
 using System;
 using System.Diagnostics;
-using VRage.Library.Utils;
+using VRage.Utils;
 
 namespace VRage.Audio
 {

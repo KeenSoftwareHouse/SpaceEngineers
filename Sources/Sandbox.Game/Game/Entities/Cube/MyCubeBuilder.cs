@@ -1191,7 +1191,7 @@ namespace Sandbox.Game.Entities
                     }
                 }
 
-                if (MyControllerHelper.IsControl(context, MyControlsSpace.PRIMARY_TOOL_ACTION))
+                if (MyInput.Static.IsNewLeftMousePressed() || MyControllerHelper.IsControl(context, MyControlsSpace.COPY_PASTE_ACTION))
                 {
                     if (m_clipboard.IsActive)
                     {
@@ -1586,7 +1586,7 @@ namespace Sandbox.Game.Entities
                     foreach (var gizmoSpace in m_gizmo.Spaces)
                     {
                         if (gizmoSpace.m_removeBlock != null)
-                            MyToolbar.ColorMaskHSV = gizmoSpace.m_removeBlock.ColorMaskHSV;
+                            MyToolbar.AddOrSwitchToColor(gizmoSpace.m_removeBlock.ColorMaskHSV);
                     }
                 }
             }

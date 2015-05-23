@@ -3,24 +3,12 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Xml;
-
-
-using Sandbox.Engine.Platform.VideoMode;
-using VRage.Utils;
-
-
-using Sandbox;
-using VRageMath;
-using Sandbox.Common;
 using System.Xml.Serialization;
 using VRage;
-
-using VRage.Serialization;
-using Sandbox.Graphics.Render;
-using Sandbox.Graphics;
-using VRage;
-using VRage.Library.Utils;
 using VRage.FileSystem;
+using VRage.Serialization;
+using VRage.Utils;
+using VRageMath;
 
 //  This class encapsulated read/write access to our config file - xxx.cfg - stored in user's local files
 //  It assumes that config file may be non existing, or that some values may be missing or in wrong format - this class can handle it

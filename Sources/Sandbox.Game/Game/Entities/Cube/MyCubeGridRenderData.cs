@@ -1,19 +1,14 @@
-﻿using System;
+﻿using Sandbox.Game.Components;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
-using Sandbox.Engine.Utils;
-using VRage.Import;
-using VRageMath;
-using VRageRender;
-using Sandbox.Definitions;
-using Sandbox.Graphics;
-using VRage;
-using Sandbox.Game.Components;
 using VRage;
 using VRage.Library.Utils;
+using VRage.Utils;
+using VRageMath;
+using VRageRender;
 
 namespace Sandbox.Game.Entities.Cube
 {
@@ -71,7 +66,7 @@ namespace Sandbox.Game.Entities.Cube
             var pos = (point0 + point1) * 0.5f;
             Vector3I direction = Vector3I.Round((point0 - point1) / m_gridRender.GridSize);
 
-            MyEdgeInfo info = new MyEdgeInfo(ref pos, ref direction, ref normal0, ref normal1, ref color, MyLibraryUtils.GetHash(owner.BlockDefinition.EdgeType));
+            MyEdgeInfo info = new MyEdgeInfo(ref pos, ref direction, ref normal0, ref normal1, ref color, MyStringId.GetOrCompute(owner.BlockDefinition.EdgeType));
             var cell = GetCell(pos);
             if (cell.AddEdgeInfo(hash, info, owner))
                 m_dirtyCells.Add(cell);
@@ -127,6 +122,41 @@ namespace Sandbox.Game.Entities.Cube
                 m_cells[cellPos] = result;
             }
             return result;
+        }
+
+        private const int MAX_DECALS_PER_CUBE = 10;
+        private Dictionary<Vector3I, List<uint>> m_cubeDecals = new Dictionary<Vector3I, List<uint>>();
+        public void AddDecal(Vector3I cube, Vector3 position, Vector3 normal)
+        {
+            if (!m_cubeDecals.ContainsKey(cube))
+                m_cubeDecals[cube] = new List<uint>();
+            if(m_cubeDecals[cube].Count > MAX_DECALS_PER_CUBE)
+            {
+                MyRenderProxy.RemoveDecal(m_cubeDecals[cube][0]);
+                m_cubeDecals[cube].RemoveAt(0);
+            }
+            Quaternion q = Quaternion.CreateFromAxisAngle(normal, MyRandom.Instance.NextFloat() * MathHelper.TwoPi);
+            var perp = Vector3.CalculatePerpendicularVector(normal);
+            perp = new Vector3((new Quaternion(perp, 0) * q).ToVector4()); //rotate around normal
+            var pos = MatrixD.CreateWorld(position, normal, perp);
+            var size = 1f + MyRandom.Instance.NextFloat(-0.35f,0.35f); //TODO: variable size?
+            float depth = 0.2f;
+            pos = Matrix.CreateScale(new Vector3(size,size,depth)) * pos;
+            pos.Translation = pos.Translation + pos.Backward * depth;
+            var decalId = MyRenderProxy.CreateDecal(m_gridRender.GetRenderObjectID(), (Matrix)pos);
+            m_cubeDecals[cube].Add(decalId);
+
+        }
+
+        public void RemoveDecals(Vector3I cube)
+        {
+            List<uint> decals;
+            if(m_cubeDecals.TryGetValue(cube, out decals))
+            {
+                foreach (var decal in decals)
+                    MyRenderProxy.RemoveDecal(decal);
+                decals.Clear();
+            }
         }
 
         internal void DebugDraw()

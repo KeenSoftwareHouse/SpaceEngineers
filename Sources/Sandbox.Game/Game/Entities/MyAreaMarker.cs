@@ -1,14 +1,10 @@
 ﻿using Havok;
 using Sandbox.Common;
-using Sandbox.Common.Components;
 using Sandbox.Common.ObjectBuilders;
 using Sandbox.Common.ObjectBuilders.Definitions;
 using Sandbox.Definitions;
 using Sandbox.Engine.Physics;
-using Sandbox.Game.Components;
-using Sandbox.Game.Entities;
 using Sandbox.Game.Gui;
-using Sandbox.Game.Multiplayer;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -16,7 +12,7 @@ using System.Linq;
 using System.Text;
 using VRage;
 using VRage.Input;
-using VRage.Library.Utils;
+using VRage.Utils;
 using VRageMath;
 using VRageRender;
 

@@ -34,5 +34,8 @@ namespace Sandbox.Common.ObjectBuilders.Definitions
 
         [ProtoMember]
         public SerializableBounds LightBlinkOffset = new SerializableBounds(0.0f, 100.0f, 0);
+
+        [ProtoMember]
+        public bool HasPhysics = false;
     }
 }

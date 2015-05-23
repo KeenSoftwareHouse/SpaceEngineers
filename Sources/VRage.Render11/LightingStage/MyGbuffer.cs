@@ -48,7 +48,6 @@ namespace VRageRender
             m_particlesRT = new MyRenderTarget(width, height, Format.R16G16B16A16_Float, 1, 0);
             m_ambientOcclusion = new MyRenderTarget(width, height, Format.R8G8B8A8_UNorm, 1, 0);
             m_test = new MyUnorderedAccessTexture(width, height, Format.R8G8B8A8_UNorm);
-
             
             int tilesNum = ((width + MyLightRendering.TILE_SIZE - 1) / MyLightRendering.TILE_SIZE) * ((height + MyLightRendering.TILE_SIZE - 1) / MyLightRendering.TILE_SIZE);
             TilesNum = tilesNum;

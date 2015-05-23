@@ -125,6 +125,19 @@ namespace VRage.Import
         #region Reading
 
         /// <summary>
+        /// Read Vector34
+        /// </summary>
+        static Vector3 ReadVector3(BinaryReader reader)
+        {
+            Vector3 vct = new Vector3();
+            vct.X = reader.ReadSingle();
+            vct.Y = reader.ReadSingle();
+            vct.Z = reader.ReadSingle();
+            return vct;
+        }
+
+
+        /// <summary>
         /// Read HalfVector4
         /// </summary>
         static HalfVector4 ReadHalfVector4(BinaryReader reader)
@@ -661,6 +674,38 @@ namespace VRage.Import
                     settings.NumSitesToGenerate = reader.ReadInt32();
                     settings.NumIterations = reader.ReadInt32();
                     settings.SplitPlane = reader.ReadString();
+
+                    modelFractures.Fractures = new MyFractureSettings[] { settings };
+                }
+                else if (fractureName == "WoodFracture")
+                {                   
+                    var settings = new WoodFractureSettings();
+                    settings.BoardCustomSplittingPlaneAxis = reader.ReadBoolean();
+                    settings.BoardFractureLineShearingRange = reader.ReadSingle();
+                    settings.BoardFractureNormalShearingRange = reader.ReadSingle();
+                    settings.BoardNumSubparts = reader.ReadInt32();
+                    settings.BoardRotateSplitGeom = (WoodFractureSettings.Rotation)reader.ReadInt32();
+                    settings.BoardScale = ReadVector3(reader);
+                    settings.BoardScaleRange = ReadVector3(reader);
+                    settings.BoardSplitGeomShiftRangeY = reader.ReadSingle();
+                    settings.BoardSplitGeomShiftRangeZ = reader.ReadSingle();
+                    settings.BoardSplittingAxis = ReadVector3(reader);
+                    settings.BoardSplittingPlane = reader.ReadString();
+                    settings.BoardSurfaceNormalShearingRange =reader.ReadSingle();
+                    settings.BoardWidthRange = reader.ReadSingle();
+                    settings.SplinterCustomSplittingPlaneAxis = reader.ReadBoolean();
+                    settings.SplinterFractureLineShearingRange = reader.ReadSingle();
+                    settings.SplinterFractureNormalShearingRange = reader.ReadSingle();
+                    settings.SplinterNumSubparts = reader.ReadInt32();
+                    settings.SplinterRotateSplitGeom = (WoodFractureSettings.Rotation)reader.ReadInt32();
+                    settings.SplinterScale = ReadVector3(reader);
+                    settings.SplinterScaleRange = ReadVector3(reader);
+                    settings.SplinterSplitGeomShiftRangeY = reader.ReadSingle();
+                    settings.SplinterSplitGeomShiftRangeZ = reader.ReadSingle();
+                    settings.SplinterSplittingAxis = ReadVector3(reader);
+                    settings.SplinterSplittingPlane = reader.ReadString();
+                    settings.SplinterSurfaceNormalShearingRange = reader.ReadSingle();
+                    settings.SplinterWidthRange = reader.ReadSingle();
 
                     modelFractures.Fractures = new MyFractureSettings[] { settings };
                 }

@@ -11,8 +11,8 @@ using Sandbox.Game.AI.Commands;
 using Sandbox.Game.AI.Pathfinding;
 using Sandbox.Game.Entities;
 using Sandbox.Game.Gui;
-using Sandbox.Game.Localization;
 using Sandbox.Game.Multiplayer;
+using Sandbox.Game.Localization;
 using Sandbox.Game.Screens.Helpers;
 using Sandbox.Game.World;
 using Sandbox.Graphics.GUI;
@@ -29,10 +29,19 @@ using VRageMath;
 
 namespace Sandbox.Game.AI
 {
+	public enum MyReservedEntityType
+	{
+		NONE,
+		ENTITY,
+		ENVIRONMENT_ITEM,
+		VOXEL
+	}
+
     [MySessionComponentDescriptor(MyUpdateOrder.Simulation | MyUpdateOrder.AfterSimulation, 500, typeof(MyObjectBuilder_AIComponent))]
     public class MyAIComponent : MySessionComponentBase
-    {
-        private struct AgentSpawnData
+	{
+
+		private struct AgentSpawnData
         {
             public MyAgentDefinition AgentDefinition;
             public Vector3D? SpawnPosition;
@@ -73,6 +82,9 @@ namespace Sandbox.Game.AI
         public MyAgentDefinition BotToSpawn = null;
         public MyAiCommandDefinition CommandDefinition = null;
 		public MyAreaMarkerDefinition AreaMarkerDefinition = null;
+
+
+		
 
         public MyAIComponent()
         {
@@ -176,6 +188,7 @@ namespace Sandbox.Game.AI
                 base.Simulate();
                 m_behaviorTreeCollection.Update();
                 m_botCollection.Update();
+
                 ProfilerShort.End();
             }
         }
@@ -319,15 +332,31 @@ namespace Sandbox.Game.AI
             }
             else
             {
-                int playerBotCount = 0;
+				if (MySession.Static.CreativeMode)
+					return Bots.GetCreatedBotCount() < BotFactory.MaximumBotPerPlayer * perPlayerBotMultiplier;
+
+                int botCount = 0;
                 var lookedPlayer = pid.SteamId;
                 var players = Sync.Players.GetAllPlayers();
-                foreach (var player in players)
-                {
-                    if (player.SteamId == lookedPlayer && player.SerialId != 0)
-                        playerBotCount++;
-                }
-                return playerBotCount < BotFactory.MaximumBotPerPlayer*perPlayerBotMultiplier;
+
+				if (MySession.Static.CreativeMode)
+				{
+					foreach (var player in players)
+					{
+						if (player.SerialId != 0)
+							++botCount;
+					}
+				}
+				else
+				{
+					foreach (var player in players)
+					{
+						if (player.SteamId == lookedPlayer && player.SerialId != 0)
+							botCount++;
+					}
+				}
+
+				return botCount < BotFactory.MaximumBotPerPlayer * perPlayerBotMultiplier;
             }
         }
 

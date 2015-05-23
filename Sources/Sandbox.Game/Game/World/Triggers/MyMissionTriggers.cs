@@ -7,89 +7,110 @@ using Sandbox.Common.ObjectBuilders;
 using Sandbox.Common;
 using Sandbox.Common.ObjectBuilders.Definitions;
 using System.Diagnostics;
+using Sandbox.Game.Multiplayer;
 
 namespace Sandbox.Game.World.Triggers
 {
     public enum Signal
     {
         NONE=0,
-        SOMEONE_WON,
-        SOMEONE_LOST,
-        PLAYER_DIED,
-        BLOCK_DESTROYED
+        OTHER_WON,
+        //ALL_OTHERS_LOST,
+        //PLAYER_DIED,
+        //BLOCK_DESTROYED
     };
 
     public class MyMissionTriggers
     {
+        public static readonly MyPlayer.PlayerId DefaultPlayerId = new MyPlayer.PlayerId(0, 0);
+
         List<MyTrigger> m_winTriggers=new List<MyTrigger>();
         List<MyTrigger> m_loseTriggers = new List<MyTrigger>();
         public bool Won { get; protected set; }
+        public string SetWon(int triggerIndex)
+        {
+            Won = true;
+            m_winTriggers[triggerIndex].IsTrue = true;
+            return m_winTriggers[triggerIndex].Message;
+        }
         public bool Lost { get; protected set; }
-
+        public string SetLost(int triggerIndex)
+        {
+            Lost = true;
+            m_loseTriggers[triggerIndex].IsTrue = true;
+            return m_loseTriggers[triggerIndex].Message;
+        }
 
         public List<MyTrigger> WinTriggers { get { return m_winTriggers; } /*set { m_winTriggers = value; }*/ }
         public List<MyTrigger> LoseTriggers { get { return m_loseTriggers; } /*set { m_winTriggers = value; }*/ }
 
         public bool UpdateWin(MyCharacter me)
         {
-            foreach (var trigger in m_winTriggers)
+            if (Won)
+                return true;//already won
+            for (int i=0;i<m_winTriggers.Count;i++)
+            {
+                var trigger=m_winTriggers[i];
                 if (trigger.IsTrue || trigger.Update(me))
                 { //Won!
-                    if (IsLocal(me))
-                        trigger.DisplayMessage(true);
+                    MySyncMissionTriggers.PlayerWon(me.ControllerInfo.Controller.Player.Id, i);
                     Won = true;
                     return true;
                 }
+            }
             return false;
         }
         public bool UpdateLose(MyCharacter me)
         {
-            foreach (var trigger in m_loseTriggers) 
+            if (Lost)
+                return true;//already lost
+            for (int i = 0; i < m_loseTriggers.Count; i++)
+            {
+                var trigger = m_loseTriggers[i];
                 if (trigger.IsTrue || trigger.Update(me))
-                {//Lost
-                    if (IsLocal(me))
-                        trigger.DisplayMessage(false);
+                { //Loser!
+                    MySyncMissionTriggers.PlayerLost(me.ControllerInfo.Controller.Player.Id, i);
                     Lost = true;
                     return true;
                 }
+            }
             return false;
         }
-        private bool IsLocal(MyCharacter me)
-        {
-            if (!MySandboxGame.IsDedicated && me.ControllerInfo.ControllingIdentityId == MySession.LocalPlayerId)
-                return true;
-            return false;
-        }
-        public bool RaiseSignal(Signal signal, long? id)
+
+        public bool RaiseSignal(MyPlayer.PlayerId Id, Signal signal)
         {
             switch (signal)
             {
-                case Signal.SOMEONE_WON:
-                    foreach (var trigger in m_winTriggers)
-                        if (trigger.IsTrue || trigger.RaiseSignal(signal, id))
+                case Signal.OTHER_WON:
+                    for (int i = 0; i < m_winTriggers.Count; i++)
+                    {
+                        var trigger = m_winTriggers[i];
+                        if (trigger.IsTrue || trigger.RaiseSignal(signal))
                         { //Won!
-                            trigger.DisplayMessage(true);
+                            MySyncMissionTriggers.PlayerWon(Id, i);
                             Won = true;
                             return true;
                         }
+                    }
 
-                    foreach (var trigger in m_loseTriggers)
-                        if (trigger.IsTrue || trigger.RaiseSignal(signal, id))
+                    for (int i = 0; i < m_loseTriggers.Count; i++)
+                    {
+                        var trigger = m_loseTriggers[i];
+                        if (trigger.IsTrue || trigger.RaiseSignal(signal))
                         {//Lost
-                            trigger.DisplayMessage(false);
+                            MySyncMissionTriggers.PlayerLost(Id, i);
                             Lost = true;
                             return true;
                         }
-                    return false;
+                    }
                     break;
 
                 default:
-                    Debug.Assert(false,"Wrong signal received");
-                    return false;
+                    Debug.Fail("Wrong signal received");
                     break;
             }
+            return false;
         }
-
 
         public MyMissionTriggers(MyObjectBuilder_MissionTriggers builder)
         {
@@ -106,10 +127,12 @@ namespace Sandbox.Game.World.Triggers
         {
             m_winTriggers.Clear();
             foreach (var trigger in source.m_winTriggers)
-                m_winTriggers.Add(new MyTrigger(trigger));
+                m_winTriggers.Add((MyTrigger)trigger.Clone());
             m_loseTriggers.Clear();
             foreach (var trigger in source.m_loseTriggers)
-                m_loseTriggers.Add(new MyTrigger(trigger));
+                m_loseTriggers.Add((MyTrigger)trigger.Clone());
+            Won = false;
+            Lost=false;
         }
 
         public void Init(MyObjectBuilder_MissionTriggers builder)

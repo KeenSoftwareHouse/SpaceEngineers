@@ -171,7 +171,7 @@ namespace Sandbox.Game.World
         public readonly MyVoxelMaps VoxelMaps = new MyVoxelMaps();
         public readonly MyFactionCollection Factions = new MyFactionCollection();
         internal MyPlayerCollection Players = new MyPlayerCollection();
-        internal MyToolBarCollection Toolbars = new MyToolBarCollection();
+        public readonly MyToolBarCollection Toolbars = new MyToolBarCollection();
         internal MyCameraCollection Cameras = new MyCameraCollection();
         internal MyGpsCollection Gpss = new MyGpsCollection();
 

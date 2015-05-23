@@ -37,7 +37,7 @@ namespace Sandbox.Game.Entities
 
         float IMyVoxelMap.GetVoxelContentInBoundingBox(VRageMath.BoundingBoxD worldAabb, out float cellCount)
         {
-            return GetVoxelContentInBoundingBox(worldAabb, out cellCount);
+            return GetVoxelContentInBoundingBox_Obsolete(worldAabb, out cellCount);
         }
 
         VRageMath.Vector3I IMyVoxelMap.GetVoxelCoordinateFromMeters(VRageMath.Vector3D pos)

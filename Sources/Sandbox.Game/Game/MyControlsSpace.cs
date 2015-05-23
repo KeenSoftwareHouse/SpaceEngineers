@@ -92,5 +92,6 @@ namespace Sandbox.Game
         public static readonly MyStringId MOVE_FURTHER = MyStringId.GetOrCompute("MOVE_FURTHER");
         public static readonly MyStringId PRIMARY_BUILD_ACTION = MyStringId.GetOrCompute("PRIMARY_BUILD_ACTION");
         public static readonly MyStringId SECONDARY_BUILD_ACTION = MyStringId.GetOrCompute("SECONDARY_BUILD_ACTION");
+        public static readonly MyStringId COPY_PASTE_ACTION = MyStringId.GetOrCompute("COPY_PASTE_ACTION");
     }
 }

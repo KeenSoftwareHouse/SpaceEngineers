@@ -1,13 +1,14 @@
-﻿using VRageMath;
-using Sandbox;
-
+﻿using Sandbox;
 using Sandbox.Engine.Utils;
-using Sandbox.Graphics.GUI;
-
+using Sandbox.Game.Gui;
 using Sandbox.Game.Localization;
+using Sandbox.Graphics.GUI;
+using SpaceEngineers.Game.Gui;
+using System.Text;
 using VRage;
+using VRageMath;
 
-namespace Sandbox.Game.Gui
+namespace SpaceEngineers.Game.GUI
 {
     class MyGuiScreenOptionsSpace : MyGuiScreenBase
     {
@@ -34,10 +35,30 @@ namespace Sandbox.Game.Gui
                 text: MyTexts.Get(MySpaceTexts.ScreenOptionsButtonGame),
                 onButtonClick: OnGameClick));
 
-            Controls.Add(new MyGuiControlButton(
-                position: menuPositionOrigin + index++ * MyGuiConstants.MENU_BUTTONS_POSITION_DELTA,
-                text: MyTexts.Get(MySpaceTexts.ScreenOptionsButtonVideo),
-                onButtonClick: OnVideoClick));
+            if (MyFakes.ENABLE_DX11_RENDERER)
+            {
+                Controls.Add(new MyGuiControlButton(
+                    position: menuPositionOrigin + index++ * MyGuiConstants.MENU_BUTTONS_POSITION_DELTA,
+                    text: new StringBuilder("Display"),
+                    onButtonClick: (sender) =>
+                    {
+                        MyGuiSandbox.AddScreen(new MyGuiScreenOptionsDisplay());
+                    }));
+                Controls.Add(new MyGuiControlButton(
+                    position: menuPositionOrigin + index++ * MyGuiConstants.MENU_BUTTONS_POSITION_DELTA,
+                    text: new StringBuilder("Graphics"),
+                    onButtonClick: (sender) =>
+                    {
+                        MyGuiSandbox.AddScreen(new MyGuiScreenOptionsGraphics());
+                    }));
+            }
+            else
+            {
+                Controls.Add(new MyGuiControlButton(
+                    position: menuPositionOrigin + index++ * MyGuiConstants.MENU_BUTTONS_POSITION_DELTA,
+                    text: MyTexts.Get(MySpaceTexts.ScreenOptionsButtonVideo),
+                    onButtonClick: OnDx9VideoClick));
+            }
 
             Controls.Add(new MyGuiControlButton(
                 position: menuPositionOrigin + index++ * MyGuiConstants.MENU_BUTTONS_POSITION_DELTA,
@@ -62,7 +83,7 @@ namespace Sandbox.Game.Gui
             MyGuiSandbox.AddScreen(new MyGuiScreenOptionsGame());
         }
 
-        public void OnVideoClick(MyGuiControlButton sender)
+        public void OnDx9VideoClick(MyGuiControlButton sender)
         {
             MySandboxGame.Log.WriteLine("MyGuiScreenOptions.OnVideoClick START");
 

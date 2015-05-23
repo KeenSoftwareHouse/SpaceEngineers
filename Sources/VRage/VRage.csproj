@@ -104,6 +104,7 @@
     <Compile Include="Fractures\MyModelFractures.cs" />
     <Compile Include="Fractures\RandomSplitFractureSettings.cs" />
     <Compile Include="Fractures\VoronoiFractureSettings.cs" />
+    <Compile Include="Fractures\WoodFractureSettings.cs" />
     <Compile Include="Import\ModelAutoRebuild.cs" />
     <Compile Include="Import\MyModelExporter.cs" />
     <Compile Include="Input\IMyControlNameLookup.cs" />
@@ -335,6 +336,8 @@
     <Compile Include="Utils\MyMessageLoop.cs" />
     <Compile Include="Utils\MyPolygon.cs" />
     <Compile Include="Utils\MyPolygonBoolOps.cs" />
+    <Compile Include="Utils\MyStringId.cs" />
+    <Compile Include="Utils\MyUtils-Hash.cs" />
     <Compile Include="Utils\MyVector3ISet.cs" />
     <Compile Include="Utils\MyUtils-Mesh.cs" />
     <Compile Include="Utils\My5BitEncoding.cs" />

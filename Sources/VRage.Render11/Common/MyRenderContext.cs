@@ -468,12 +468,12 @@ namespace VRageRender
             }
         }
 
-        internal void SetBS(BlendState bs)
+        internal void SetBS(BlendState bs, Color4? blendFactor = null)
         {
-            if (State.m_BS != bs)
+            if (State.m_BS != bs || blendFactor != null)
             {
                 State.m_BS = bs;
-                Context.OutputMerger.SetBlendState(bs);
+                Context.OutputMerger.SetBlendState(bs, blendFactor);
                 Stats.SetBlendState++;
             }
         }

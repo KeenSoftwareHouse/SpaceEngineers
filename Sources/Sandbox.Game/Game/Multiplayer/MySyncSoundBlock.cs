@@ -7,6 +7,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using VRage.Library.Utils;
+using VRage.Utils;
 
 namespace Sandbox.Game.Multiplayer
 {
@@ -31,7 +33,7 @@ namespace Sandbox.Game.Multiplayer
             {
                 return EntityId;
             }
-            public int CueId;
+            public MyStringId CueId;
         }
 
         [MessageId(333, P2PMessageEnum.Reliable)]
@@ -150,7 +152,7 @@ namespace Sandbox.Game.Multiplayer
             Sync.Layer.SendMessageToServer(ref msg, MyTransportMessageEnum.Request);
         }
 
-        public void SendSelectSoundRequest(int cueId)
+        public void SendSelectSoundRequest(MyStringId cueId)
         {
             SelectSoundMsg msg = new SelectSoundMsg();
 

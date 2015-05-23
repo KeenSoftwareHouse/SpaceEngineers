@@ -21,6 +21,12 @@ namespace Sandbox.Common.ObjectBuilders
         public ulong BaseMapVoxelHandVolumeChanged;
 
         [ProtoMember]
+        public ulong BaseMapSmallGridsPoints;
+
+        [ProtoMember]
+        public ulong BaseMapLargeGridsPoints;
+
+        [ProtoMember]
         public SerializableBoundingBoxD[] AttackerSlots;
 
         [ProtoMember]
