@@ -314,7 +314,7 @@ namespace Sandbox.Engine.Physics
 
         public static HkWorld CreateHkWorld(float broadphaseSize = 100000)
         {
-            var hkWorld = new HkWorld(MyPerGameSettings.EnableGlobalGravity, broadphaseSize, RestingVelocity, MyFakes.ENABLE_HAVOK_MULTITHREADING);
+            var hkWorld = new HkWorld(MyPerGameSettings.EnableGlobalGravity, broadphaseSize, RestingVelocity, MyFakes.ENABLE_HAVOK_MULTITHREADING, MySession.Static.Settings.PhysicsIterations);
 
             hkWorld.MarkForWrite();
 
