@@ -39,10 +39,16 @@ namespace Sandbox.Game.Entities.Cube
             onOffSwitch.Getter = (x) => x.ShowOnHUD;
             onOffSwitch.Setter = (x, v) => x.RequestShowOnHUD(v);
             MyTerminalControlFactory.AddControl(onOffSwitch);
+
+            var showTerminal = new MyTerminalControlOnOffSwitch<MyTerminalBlock>("ShowTerminalAccess", MySpaceTexts.Terminal_ShowTerminalAccess, MySpaceTexts.Terminal_ShowTerminalAccessToolTip);
+            showTerminal.Getter = (x) => x.m_showTerminalAccess;
+            showTerminal.Setter = (x, v) => x.RequestShowTerminalAccess(v);
+            MyTerminalControlFactory.AddControl(showTerminal);
         }
 
         private bool m_showOnHUD;
         private bool m_showInTerminal;
+        private bool m_showTerminalAccess;
 
         /// <summary>
         /// Name in terminal
@@ -76,6 +82,21 @@ namespace Sandbox.Game.Entities.Cube
                 }
             }
         }
+
+        public bool ShowTerminalAccess
+        {
+            get { return m_showTerminalAccess; }
+            set
+            {
+                if (m_showTerminalAccess != value)
+                {
+                    m_showTerminalAccess = value;
+                    ReloadDetectors();
+                    RaiseShowTerminalAccessChanged();
+                }
+            }
+        }
+
         public bool IsAccessibleForProgrammableBlock = true;
 
         public void RequestShowOnHUD(bool enable)
@@ -86,6 +107,11 @@ namespace Sandbox.Game.Entities.Cube
         public void RequestShowInTerminal(bool enable)
         {
             MySyncBlockHelpers.SendShowInTerminalRequest(this, enable);
+        }
+
+        public void RequestShowTerminalAccess(bool enable)
+        {
+            MySyncBlockHelpers.SendShowTerminalAccessRequest(this, enable);
         }
 
         /// <summary>
@@ -99,6 +125,7 @@ namespace Sandbox.Game.Entities.Cube
         public event Action<MyTerminalBlock> VisibilityChanged;
         public event Action<MyTerminalBlock> ShowOnHUDChanged;
         public event Action<MyTerminalBlock> ShowInTerminalChanged;
+        public event Action<MyTerminalBlock> ShowTerminalAccessChanged;
 
         public MyTerminalBlock()
         {
@@ -125,6 +152,7 @@ namespace Sandbox.Game.Entities.Cube
 
             ShowOnHUD = ob.ShowOnHUD;
             ShowInTerminal = ob.ShowInTerminal;
+            ShowTerminalAccess = ob.ShowTerminalAccess;
             AddDebugRenderComponent(new MyDebugRenderComponentTerminal(this));
         }
 
@@ -134,6 +162,7 @@ namespace Sandbox.Game.Entities.Cube
             ob.CustomName = (DisplayNameText.CompareTo(BlockDefinition.DisplayNameText) != 0) ? DisplayNameText.ToString() : null;
             ob.ShowOnHUD = ShowOnHUD;
             ob.ShowInTerminal = ShowInTerminal;
+            ob.ShowTerminalAccess = ShowTerminalAccess;
             return ob;
         }
 
@@ -204,6 +233,12 @@ namespace Sandbox.Game.Entities.Cube
         protected void RaiseShowInTerminalChanged()
         {
             var handler = ShowInTerminalChanged;
+            if (handler != null) handler(this);
+        }
+
+        protected void RaiseShowTerminalAccessChanged()
+        {
+            var handler = ShowTerminalAccessChanged;
             if (handler != null) handler(this);
         }
 
