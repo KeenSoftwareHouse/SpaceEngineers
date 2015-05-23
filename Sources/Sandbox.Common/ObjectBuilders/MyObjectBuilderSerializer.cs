@@ -52,6 +52,53 @@ namespace Sandbox.Common.ObjectBuilders.Serializer
 
         #region Definitions
 
+        public static void LoadSerializers(Assembly assembly)
+        {
+            var objectFactory = new MyObjectFactory<MyObjectBuilderDefinitionAttribute, MyObjectBuilder_Base>();
+            objectFactory.RegisterFromAssembly(assembly);
+            m_objectFactory.RegisterFromAssembly(assembly);
+
+            List<Type> serializationTypes = new List<Type>();
+            foreach (var definition in objectFactory.Attributes)
+            {
+                m_serializationTypes.Add(definition.ProducedType);
+                serializationTypes.Add(definition.ProducedType);
+                var typeId = (MyRuntimeObjectBuilderId)(MyObjectBuilderType)definition.ProducedType;
+                Serializer.Add(definition.ProducedType.BaseType, true)
+                    .AddSubType(typeId.Value * 1000, definition.ProducedType);
+            }
+
+
+            foreach (var type in serializationTypes)
+            {
+                try
+                {
+                    var importer = new XmlReflectionImporter();
+                    var mapping = importer.ImportTypeMapping(type, null, null);
+
+                    // This will load serializers from Sandbox.Common.XmlSerializers.dll
+                    var serializer = new XmlSerializer(mapping);
+                    m_serializersByType.Add(type, serializer);
+
+                    {
+                        string serializedName = type.Name;
+                        var xmlTypeAttributes = type.GetCustomAttributes(typeof(XmlTypeAttribute), false);
+                        if (xmlTypeAttributes.Length != 0)
+                        {
+                            Debug.Assert(xmlTypeAttributes.Length == 1);
+                            serializedName = (xmlTypeAttributes[0] as XmlTypeAttribute).TypeName;
+                        }
+                        m_serializersBySerializedName.Add(serializedName, serializer);
+                        m_serializedNameByType.Add(type, serializedName);
+                    }
+                }
+                catch (Exception e)
+                {
+                    throw new InvalidOperationException("Error creating XML serializer for type " + type.Name, e);
+                }
+            }
+
+        }
         private static void LoadSerializers()
         {
             foreach (var definition in m_objectFactory.Attributes)
