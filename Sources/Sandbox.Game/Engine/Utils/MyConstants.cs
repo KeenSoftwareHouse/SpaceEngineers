@@ -505,4 +505,17 @@ namespace Sandbox.Engine.Utils
     {
         public const float OXYGEN_REGEN_PER_SECOND = 2000f;
     }
+
+    static class MyDummyNameConstants
+    {
+        public const string BLOCK = "block";
+        public const string COCKPIT = "cockpit";
+        public const string CONVEYOR = "conveyor";
+        public const string CRYOPOD = "cryopod";
+        public const string INVENTORY = "inventory";
+        public const string PANEL = "panel";
+        public const string TERMINAL = "terminal";
+        public const string TEXTPANEL = "textpanel";
+        public const string WARDROBE = "wardrobe";
+    }
 }

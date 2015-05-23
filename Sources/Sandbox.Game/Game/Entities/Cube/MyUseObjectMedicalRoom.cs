@@ -9,7 +9,7 @@ using VRageMath;
 
 namespace Sandbox.Game.Entities.Cube
 {
-    [MyUseObject("block")]
+    [MyUseObject(MyDummyNameConstants.BLOCK)]
     class MyUseObjectMedicalRoom : IMyUseObject
     {
         private MyMedicalRoom m_medicalRoom;

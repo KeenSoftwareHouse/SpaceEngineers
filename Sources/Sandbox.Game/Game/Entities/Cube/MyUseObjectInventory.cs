@@ -10,8 +10,8 @@ using VRageMath;
 
 namespace Sandbox.Game.Entities.Cube
 {
-    [MyUseObject("inventory")]
-    [MyUseObject("conveyor")]
+    [MyUseObject(MyDummyNameConstants.INVENTORY)]
+    [MyUseObject(MyDummyNameConstants.CONVEYOR)]
     class MyUseObjectInventory : IMyUseObject
     {
         public readonly MyCubeBlock Block;
