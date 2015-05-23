@@ -64,7 +64,7 @@ namespace Sandbox
             Static = this;
             BlockShapePool = new MyBlockShapePool();
 
-            TemporaryWorld = new HkWorld(true, 50000, MyPhysics.RestingVelocity, MyFakes.ENABLE_HAVOK_MULTITHREADING);
+            TemporaryWorld = new HkWorld(true, 50000, MyPhysics.RestingVelocity, MyFakes.ENABLE_HAVOK_MULTITHREADING, 4);
             TemporaryWorld.MarkForWrite();
             TemporaryWorld.DestructionWorld = new HkdWorld(TemporaryWorld);
             TemporaryWorld.UnmarkForWrite();
