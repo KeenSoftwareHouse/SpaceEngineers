@@ -664,6 +664,21 @@ namespace Sandbox.Game.Gui
             return MyTexts.GetString(enumVal);
         }
 
+        private int GetQuantityModifier()
+        {
+            // Allow chording of Shift/Control/Alt to allow for enqueuing more items
+            // If control key pressed, enqueue 10 items
+            // If shift key pressed, enqueue 100 items (or 1k with CTRL+SHIFT)
+            // If alt key pressed, enqueue 1000 items (or 10k with CTRL+ALT, 100k with SHIFT+ALT, or 1M with CTRL+SHIFT+ALT)
+            var ctrlPressed = MyInput.Static.IsAnyCtrlKeyPressed();
+            var shiftPressed = MyInput.Static.IsAnyShiftKeyPressed();
+            var altPressed = MyInput.Static.IsAnyAltKeyPressed();
+
+            return (altPressed ? 1000 : 1) *
+                (shiftPressed ? 100 : 1) *
+                (ctrlPressed ? 10 : 1);
+        }
+
         #region Event handlers
 
         void blueprintButtonGroup_SelectedChanged(MyGuiControlRadioButtonGroup obj)
@@ -736,9 +751,8 @@ namespace Sandbox.Game.Gui
                     return;
 
                 var blueprint = (MyBlueprintDefinitionBase)item.UserData;
-                var amount = MyInput.Static.IsAnyShiftKeyPressed() ? 100 :
-                             MyInput.Static.IsAnyCtrlKeyPressed() ? 10 : 1;
-                EnqueueBlueprint(blueprint, amount);
+
+                EnqueueBlueprint(blueprint, GetQuantityModifier());
             }
         }
 
@@ -753,9 +767,7 @@ namespace Sandbox.Game.Gui
             var blueprint = MyDefinitionManager.Static.TryGetBlueprintDefinitionByResultId(item.Content.GetId());
             if (blueprint != null)
             {
-                var amount = MyInput.Static.IsAnyShiftKeyPressed() ? 100 :
-                             MyInput.Static.IsAnyCtrlKeyPressed() ? 10 : 1;
-                EnqueueBlueprint(blueprint, amount);
+                EnqueueBlueprint(blueprint, GetQuantityModifier());
             }
         }
 
