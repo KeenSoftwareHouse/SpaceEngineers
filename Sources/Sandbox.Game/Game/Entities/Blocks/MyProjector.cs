@@ -214,7 +214,7 @@ namespace Sandbox.Game.Entities.Blocks
             // Transparency for blocks able to be built
             // Convert the transparency value used by the graphics engine to an opacity value for the UI.
             // I think this is easier to comprehend because low values on the slider will result in less of the ship showing up and vice versa.
-            var buildableOpacity = new MyTerminalControlSlider<MyProjector>("BuildableOpacity", MyStringId.GetOrCompute("Weldable Block Opacity"), MySpaceTexts.Blank);
+            var buildableOpacity = new MyTerminalControlSlider<MyProjector>("BuildableOpacity", MySpaceTexts.BlockPropertyTitle_ProjectionWeldableBlockOpacity, MySpaceTexts.Blank);
             buildableOpacity.SetLimits(0.0f, 100.0f);
             buildableOpacity.DefaultValue = 0.0f;
             buildableOpacity.Getter = (x) => (1.0f - x.m_buildableBlockTransparency) * 100.0f;
@@ -229,7 +229,7 @@ namespace Sandbox.Game.Entities.Blocks
             MyTerminalControlFactory.AddControl(buildableOpacity);
 
             // Transparency for blocks not able to be built
-            var pendingOpacity = new MyTerminalControlSlider<MyProjector>("PendingOpacity", MyStringId.GetOrCompute("Non Weldable Block Opacity"), MySpaceTexts.Blank);
+            var pendingOpacity = new MyTerminalControlSlider<MyProjector>("PendingOpacity", MySpaceTexts.BlockPropertyTitle_ProjectionPendingBlockOpacity, MySpaceTexts.Blank);
             pendingOpacity.SetLimits(0.0f, 100.0f);
             pendingOpacity.DefaultValue = 0.0f;
             pendingOpacity.Getter = (x) => (1.0f - x.m_pendingBlockTransparency) * 100.0f;

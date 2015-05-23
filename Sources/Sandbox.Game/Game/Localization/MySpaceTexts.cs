@@ -10328,5 +10328,15 @@ namespace Sandbox.Game.Localization
         ///Changing the renderer requires restart of the game.
         ///</summary>
         public static readonly MyStringId ToolTipVideoOptionsRenderer = MyStringId.GetOrCompute("ToolTipVideoOptionsRenderer");
+
+        ///<summary>
+        ///Non Weldable Block Opacity
+        ///</summary>
+        public static readonly MyStringId BlockPropertyTitle_ProjectionPendingBlockOpacity = MyStringId.GetOrCompute("BlockPropertyTitle_ProjectionPendingBlockOpacity");
+
+        ///<summary>
+        ///Weldable Block Opacity
+        ///</summary>
+        public static readonly MyStringId BlockPropertyTitle_ProjectionWeldableBlockOpacity = MyStringId.GetOrCompute("BlockPropertyTitle_ProjectionWeldableBlockOpacity");
     }
 }
