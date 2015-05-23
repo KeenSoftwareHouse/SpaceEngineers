@@ -118,7 +118,7 @@ namespace Sandbox.Game.World
             if (Scripts.ContainsKey(myStringId))
             {
                 MySandboxGame.Log.WriteLine(string.Format("Script already in list {0}", myStringId.ToString()));
-                Debug.Fail(string.Format("Script already in list {0}", myStringId.ToString()));
+                //Debug.Fail(string.Format("Script already in list {0}", myStringId.ToString()));
                 return;
             }
             Scripts.Add(myStringId, assembly);
