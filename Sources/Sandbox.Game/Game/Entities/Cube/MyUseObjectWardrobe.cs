@@ -12,7 +12,7 @@ using VRageMath;
 
 namespace Sandbox.Game.Entities.Cube
 {
-    [MyUseObject("wardrobe")]
+    [MyUseObject(MyDummyNameConstants.WARDROBE)]
     class MyUseObjectWardrobe : IMyUseObject
     {
         public readonly MyCubeBlock Block;

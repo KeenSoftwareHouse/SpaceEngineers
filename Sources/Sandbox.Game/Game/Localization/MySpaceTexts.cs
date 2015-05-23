@@ -10328,5 +10328,15 @@ namespace Sandbox.Game.Localization
         ///Changing the renderer requires restart of the game.
         ///</summary>
         public static readonly MyStringId ToolTipVideoOptionsRenderer = MyStringId.GetOrCompute("ToolTipVideoOptionsRenderer");
+
+        ///<summary>
+        ///Show exterior terminal access
+        ///</summary>
+        public static readonly MyStringId Terminal_ShowTerminalAccess = MyStringId.GetOrCompute("Terminal_ShowTerminalAccess");
+
+        ///<summary>
+        ///Show/hide current block's exterior terminal access ports
+        ///</summary>
+        public static readonly MyStringId Terminal_ShowTerminalAccessToolTip = MyStringId.GetOrCompute("Terminal_ShowTerminalAccessToolTip");
     }
 }

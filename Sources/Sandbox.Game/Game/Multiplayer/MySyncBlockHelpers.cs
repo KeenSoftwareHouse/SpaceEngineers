@@ -76,6 +76,22 @@ namespace Sandbox.Game.Multiplayer
             }
         }
 
+        [MessageId(15274, P2PMessageEnum.Reliable)]
+        struct ShowTerminalAccessMsg : IEntityMessage
+        {
+            public long EntityId;
+
+            public long GetEntityId() { return EntityId; }
+
+            public BoolBlit Show;
+
+            public override string ToString()
+            {
+                return String.Format("{0}, {1}", this.GetType().Name, this.GetEntityText());
+            }
+        }
+
+
         static MySyncBlockHelpers()
         {
             MySyncLayer.RegisterMessage<EnableMsg>(EnableRequest, MyMessagePermissions.ToServer, MyTransportMessageEnum.Request);
@@ -90,6 +106,8 @@ namespace Sandbox.Game.Multiplayer
             MySyncLayer.RegisterMessage<ShowInTerminalMsg>(ShowInTerminalRequest, MyMessagePermissions.ToServer, MyTransportMessageEnum.Request);
             MySyncLayer.RegisterMessage<ShowInTerminalMsg>(ShowInTerminalSuccess, MyMessagePermissions.FromServer, MyTransportMessageEnum.Success);
 
+            MySyncLayer.RegisterMessage<ShowTerminalAccessMsg>(ShowTerminalAccessRequest, MyMessagePermissions.ToServer, MyTransportMessageEnum.Request);
+            MySyncLayer.RegisterMessage<ShowTerminalAccessMsg>(ShowTerminalAccessSuccess, MyMessagePermissions.FromServer, MyTransportMessageEnum.Success);
         }
 
         static bool GetBlock<T>(long entityId, out T block)
@@ -214,6 +232,15 @@ namespace Sandbox.Game.Multiplayer
             Sync.Layer.SendMessageToServer(ref msg, MyTransportMessageEnum.Request);
         }
 
+        public static void SendShowTerminalAccessRequest(MyTerminalBlock block, bool show)
+        {
+            var msg = new ShowTerminalAccessMsg();
+            msg.EntityId = block.EntityId;
+            msg.Show = show;
+
+            Sync.Layer.SendMessageToServer(ref msg, MyTransportMessageEnum.Request);
+        }
+
         static void ShowInTerminalRequest(ref ShowInTerminalMsg msg, MyNetworkClient sender)
         {
             MyTerminalBlock block;
@@ -229,6 +256,24 @@ namespace Sandbox.Game.Multiplayer
             if (GetBlock(msg.EntityId, out block))
             {
                 block.ShowInTerminal = msg.Show;
+            }
+        }
+
+        static void ShowTerminalAccessRequest(ref ShowTerminalAccessMsg msg, MyNetworkClient sender)
+        {
+            MyTerminalBlock block;
+            if (GetBlock(msg.EntityId, out block))
+            {
+                Sync.Layer.SendMessageToAllAndSelf(ref msg, MyTransportMessageEnum.Success);
+            }
+        }
+
+        static void ShowTerminalAccessSuccess(ref ShowTerminalAccessMsg msg, MyNetworkClient sender)
+        {
+            MyTerminalBlock block;
+            if (GetBlock(msg.EntityId, out block))
+            {
+                block.ShowTerminalAccess = msg.Show;
             }
         }
     }

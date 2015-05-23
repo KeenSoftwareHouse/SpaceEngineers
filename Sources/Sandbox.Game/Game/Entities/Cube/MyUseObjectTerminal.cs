@@ -10,7 +10,7 @@ using VRageMath;
 
 namespace Sandbox.Game.Entities.Cube
 {
-    [MyUseObject("terminal")]
+    [MyUseObject(MyDummyNameConstants.TERMINAL)]
     class MyUseObjectTerminal : IMyUseObject
     {
         public readonly MyCubeBlock Block;

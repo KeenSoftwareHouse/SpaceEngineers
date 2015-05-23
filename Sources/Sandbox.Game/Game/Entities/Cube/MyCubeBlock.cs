@@ -576,6 +576,24 @@ namespace Sandbox.Game.Entities
                         if (parts.Length < 2)
                             continue;
 
+                        if (this is MyTerminalBlock && !(this as MyTerminalBlock).ShowTerminalAccess)
+                        {
+                            switch (parts[1])
+                            {
+                                    // Don't block access to "conveyor"
+                                    // Even though reactors and cargo allow terminal access through them,
+                                    // removing them will remove conveyor access as well
+                                case MyDummyNameConstants.TERMINAL:    // Most terminal blocks
+                                case MyDummyNameConstants.TEXTPANEL:   // LCD/Text Panel
+                                case MyDummyNameConstants.INVENTORY:   // non-conveyor inventory access
+                                case MyDummyNameConstants.COCKPIT:     // Seats
+                                case MyDummyNameConstants.BLOCK:       // Healing station of med room (wardrobe doesn't have terminal access)
+                                case MyDummyNameConstants.CRYOPOD:     // similar access as cockpit
+                                    continue;
+                            }
+                         
+                        }
+
                         var dummyData = dummy.Value;
                         List<Matrix> matrices;
                         if (!m_detectors.TryGetValue(parts[1], out matrices))

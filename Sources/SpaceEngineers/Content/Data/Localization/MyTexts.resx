@@ -6396,4 +6396,10 @@ To connect to lasers not listed here you can connect to coordinates.</value>
   <data name="ToolTipVideoOptionsRenderer" xml:space="preserve">
     <value>Changing the renderer requires restart of the game.</value>
   </data>
+  <data name="Terminal_ShowTerminalAccess" xml:space="preserve">
+    <value>Show exterior terminal access</value>
+  </data>
+  <data name="Terminal_ShowTerminalAccessToolTip" xml:space="preserve">
+    <value>Show/hide current block's exterior terminal access ports</value>
+  </data>
 </root>

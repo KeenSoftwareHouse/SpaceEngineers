@@ -15,7 +15,7 @@ using VRageMath;
 
 namespace Sandbox.Game.Entities.Cube
 {
-    [MyUseObject("cryopod")]
+    [MyUseObject(MyDummyNameConstants.CRYOPOD)]
     class MyUseObjectCryoChamberDoor : IMyUseObject
     {
         public readonly MyCryoChamber CryoChamber;
