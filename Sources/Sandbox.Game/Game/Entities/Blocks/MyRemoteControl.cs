@@ -60,35 +60,6 @@ namespace Sandbox.Game.Entities
             }
         }
 
-        [ProtoContract]
-        public struct ToolbarItem : IEqualityComparer<ToolbarItem>
-        {
-            [ProtoMember]
-            public long EntityID;
-            [ProtoMember]
-            public string GroupName;
-            [ProtoMember]
-            public string Action;
-
-            public bool Equals(ToolbarItem x, ToolbarItem y)
-            {
-                if (x.EntityID != y.EntityID || x.GroupName != y.GroupName || x.Action != y.Action)
-                    return false;
-                return true;
-            }
-
-            public int GetHashCode(ToolbarItem obj)
-            {
-                unchecked
-                {
-                    int result = obj.EntityID.GetHashCode();
-                    result = (result * 397) ^ obj.GroupName.GetHashCode();
-                    result = (result * 397) ^ obj.Action.GetHashCode();
-                    return result;
-                }
-            }
-        }
-
         private const float MAX_TERMINAL_DISTANCE_SQUARED = 10.0f;
 
         private float m_powerNeeded = 0.01f;
@@ -637,7 +608,7 @@ namespace Sandbox.Game.Entities
                 if (item == null)
                     continue;
                 m_items.RemoveAt(i);
-                m_items.Insert(i, GetToolbarItem(item));
+                m_items.Insert(i, ToolbarItem.FromObject(item));
             }
             AutoPilotToolbar.ItemChanged += Toolbar_ItemChanged;
 
@@ -1041,7 +1012,7 @@ namespace Sandbox.Game.Entities
         {
             Debug.Assert(self == AutoPilotToolbar);
 
-            var tItem = GetToolbarItem(self.GetItemAtIndex(index.ItemIndex));
+            var tItem = ToolbarItem.FromObject(self.GetItemAtIndex(index.ItemIndex));
             var oldItem = m_items[index.ItemIndex];
             if ((tItem.EntityID == 0 && oldItem.EntityID == 0 || (tItem.EntityID != 0 && oldItem.EntityID != 0 && tItem.Equals(oldItem))))
                 return;
@@ -1066,25 +1037,25 @@ namespace Sandbox.Game.Entities
             }
         }
 
-        private ToolbarItem GetToolbarItem(MyToolbarItem item)
-        {
-            var tItem = new ToolbarItem();
-            tItem.EntityID = 0;
-            if (item is MyToolbarItemTerminalBlock)
-            {
-                var block = item.GetObjectBuilder() as MyObjectBuilder_ToolbarItemTerminalBlock;
-                tItem.EntityID = block.BlockEntityId;
-                tItem.Action = block.Action;
-            }
-            else if (item is MyToolbarItemTerminalGroup)
-            {
-                var block = item.GetObjectBuilder() as MyObjectBuilder_ToolbarItemTerminalGroup;
-                tItem.EntityID = block.BlockEntityId;
-                tItem.Action = block.Action;
-                tItem.GroupName = block.GroupName;
-            }
-            return tItem;
-        }
+        //private ToolbarItem GetToolbarItem(MyToolbarItem item)
+        //{
+        //    var tItem = new ToolbarItem();
+        //    tItem.EntityID = 0;
+        //    if (item is MyToolbarItemTerminalBlock)
+        //    {
+        //        var block = item.GetObjectBuilder() as MyObjectBuilder_ToolbarItemTerminalBlock;
+        //        tItem.EntityID = block.BlockEntityId;
+        //        tItem.Action = block.Action;
+        //    }
+        //    else if (item is MyToolbarItemTerminalGroup)
+        //    {
+        //        var block = item.GetObjectBuilder() as MyObjectBuilder_ToolbarItemTerminalGroup;
+        //        tItem.EntityID = block.BlockEntityId;
+        //        tItem.Action = block.Action;
+        //        tItem.GroupName = block.GroupName;
+        //    }
+        //    return tItem;
+        //}
 
         protected override void ComponentStack_IsFunctionalChanged()
         {
@@ -1736,34 +1707,7 @@ namespace Sandbox.Game.Entities
                 sync.m_syncing = true;
                 MyToolbarItem item = null;
                 if (msg.Item.EntityID != 0)
-                    if (string.IsNullOrEmpty(msg.Item.GroupName))
-                    {
-                        MyTerminalBlock block;
-                        if (MyEntities.TryGetEntityById<MyTerminalBlock>(msg.Item.EntityID, out block))
-                        {
-                            var builder = MyToolbarItemFactory.TerminalBlockObjectBuilderFromBlock(block);
-                            builder.Action = msg.Item.Action;
-                            item = MyToolbarItemFactory.CreateToolbarItem(builder);
-                        }
-                    }
-                    else
-                    {
-                        MyRemoteControl parent;
-                        if (MyEntities.TryGetEntityById<MyRemoteControl>(msg.Item.EntityID, out parent))
-                        {
-                            var grid = parent.CubeGrid;
-                            var groupName = msg.Item.GroupName;
-                            var group = grid.GridSystems.TerminalSystem.BlockGroups.Find((x) => x.Name.ToString() == groupName);
-                            if (group != null)
-                            {
-                                var builder = MyToolbarItemFactory.TerminalGroupObjectBuilderFromGroup(group);
-                                builder.Action = msg.Item.Action;
-                                builder.BlockEntityId = msg.Item.EntityID;
-                                item = MyToolbarItemFactory.CreateToolbarItem(builder);
-                            }
-                        }
-
-                    }
+                    item = ToolbarItem.ToObject<MyRemoteControl>(msg.Item);
                 sync.m_remoteControl.AutoPilotToolbar.SetItemAtIndex(msg.Index, item);
                 sync.m_syncing = false;
             }
