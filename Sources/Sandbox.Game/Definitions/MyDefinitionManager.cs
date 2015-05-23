@@ -576,6 +576,13 @@ namespace Sandbox.Definitions
                 MySandboxGame.Log.WriteLine("Loading character names");
                 InitCharacterNames(context, definitionSet.m_characterNames, objBuilder.CharacterNames, failOnDebug);
             }
+
+            if (objBuilder.Battle != null)
+            {
+                MySandboxGame.Log.WriteLine("Loading battle definition");
+                Check(failOnDebug, "Battle", failOnDebug, WARNING_ON_REDEFINITION_MESSAGE);
+                InitBattle(context, ref definitionSet.m_battleDefinition, objBuilder.Battle, failOnDebug);
+            }
         }
 
         void LoadPhase2(MyObjectBuilder_Definitions objBuilder, MyModContext context, DefinitionSet definitionSet, bool failOnDebug)
@@ -1365,6 +1372,13 @@ namespace Sandbox.Definitions
                 Check(!output.ContainsKey(res[i].Id), res[i].Id, failOnDebug);
                 output[res[i].Id] = res[i];
             }
+        }
+
+        private static void InitBattle(MyModContext context,
+            ref MyBattleDefinition output, MyObjectBuilder_BattleDefinition objBuilder, bool failOnDebug = true)
+        {
+            var battleDef = InitDefinition<MyBattleDefinition>(context, objBuilder);
+            output = battleDef;
         }
 
         public void SetDefaultNavDef(MyCubeBlockDefinition blockDefinition)
@@ -2441,6 +2455,11 @@ namespace Sandbox.Definitions
         public MyEnvironmentDefinition EnvironmentDefinition
         {
             get { return m_definitions.m_environmentDef; }
+        }
+
+        public MyBattleDefinition BattleDefinition
+        {
+            get { return m_definitions.m_battleDefinition; }
         }
 
         #endregion

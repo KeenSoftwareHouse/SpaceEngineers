@@ -114,6 +114,7 @@ namespace Sandbox
             Thread.CurrentThread.CurrentUICulture = CultureInfo.InvariantCulture;
 
             MySandboxGame.Config = new MyConfig(appName + ".cfg");
+            MySandboxGame.Config.Load();
             //MySandboxGame.ConfigDedicated = new MyConfigDedicated("MedievalEngineers-Dedicated.cfg");
         }
 

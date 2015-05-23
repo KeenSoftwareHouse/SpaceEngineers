@@ -826,6 +826,38 @@ namespace VRage.Import
                         m_writer.Write(settings.NumIterations);
                         m_writer.Write(settings.SplitPlane);
                     }
+                    else
+                        if (modelFracture is WoodFractureSettings)
+                        {                            
+                            var settings = (WoodFractureSettings)modelFracture;
+                            m_writer.Write("WoodFracture");                            
+                            m_writer.Write(settings.BoardCustomSplittingPlaneAxis);
+                            m_writer.Write(settings.BoardFractureLineShearingRange);
+                            m_writer.Write(settings.BoardFractureNormalShearingRange);
+                            m_writer.Write(settings.BoardNumSubparts);
+                            m_writer.Write((int)settings.BoardRotateSplitGeom);
+                            WriteVector(settings.BoardScale);
+                            WriteVector(settings.BoardScaleRange);
+                            m_writer.Write(settings.BoardSplitGeomShiftRangeY);
+                            m_writer.Write(settings.BoardSplitGeomShiftRangeZ);
+                            WriteVector(settings.BoardSplittingAxis);
+                            m_writer.Write(settings.BoardSplittingPlane);
+                            m_writer.Write(settings.BoardSurfaceNormalShearingRange);
+                            m_writer.Write(settings.BoardWidthRange);
+                            m_writer.Write(settings.SplinterCustomSplittingPlaneAxis);
+                            m_writer.Write(settings.SplinterFractureLineShearingRange);
+                            m_writer.Write(settings.SplinterFractureNormalShearingRange);
+                            m_writer.Write(settings.SplinterNumSubparts);
+                            m_writer.Write((int)settings.SplinterRotateSplitGeom);
+                            WriteVector(settings.SplinterScale);
+                            WriteVector(settings.SplinterScaleRange);
+                            m_writer.Write(settings.SplinterSplitGeomShiftRangeY);
+                            m_writer.Write(settings.SplinterSplitGeomShiftRangeZ);
+                            WriteVector(settings.SplinterSplittingAxis);
+                            m_writer.Write(settings.SplinterSplittingPlane);
+                            m_writer.Write(settings.SplinterSurfaceNormalShearingRange);
+                            m_writer.Write(settings.SplinterWidthRange);
+                        }
             }
         }
 

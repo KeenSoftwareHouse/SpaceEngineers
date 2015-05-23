@@ -189,6 +189,9 @@ namespace Sandbox.Game.Gui
 
         private void UpdateButtonsEnabledState()
         {
+            if (MyMultiplayer.Static == null)
+                return;
+
             bool hasTarget       = m_playersTable.SelectedRow != null;
             ulong currentUserId  = SteamAPI.Instance.GetSteamUserId();
             ulong currentOwnerId = MyMultiplayer.Static.GetOwner();

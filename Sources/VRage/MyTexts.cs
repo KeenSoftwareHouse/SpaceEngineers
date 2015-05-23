@@ -6,7 +6,7 @@ using System.Resources;
 using System.Text;
 using VRage.Collections;
 using VRage.FileSystem;
-using VRage.Library.Utils;
+using VRage.Utils;
 
 namespace VRage
 {

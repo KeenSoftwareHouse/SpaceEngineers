@@ -237,12 +237,12 @@ namespace Sandbox.Game.AI
             }
             ProfilerShort.End();
 
-            ProfilerShort.Begin("Steering accumulate correction");
-            CorrectMovement();
-            ProfilerShort.End();
-
             ProfilerShort.Begin("Aiming");
             m_aiming.Update();
+            ProfilerShort.End();
+
+            ProfilerShort.Begin("Steering accumulate correction");
+            CorrectMovement(m_aiming.RotationHint);
             ProfilerShort.End();
 
             ProfilerShort.Begin("MoveCharacter");
@@ -311,7 +311,7 @@ namespace Sandbox.Game.AI
                 m_correction /= totalWeight;
         }
 
-        private void CorrectMovement()
+        private void CorrectMovement(Vector3 rotationHint)
         {
             m_correction = Vector3.Zero;
 
@@ -322,6 +322,18 @@ namespace Sandbox.Game.AI
             }
 
             AccumulateCorrection();
+
+            if (rotationHint.Length() > 1.0f)
+            {
+                m_correction = Vector3.Zero;
+                m_speed = 0.0f;
+                m_stuckDetection.SetRotating(true);
+            }
+            else
+            {
+                m_stuckDetection.SetRotating(false);
+            }
+
             // Correct the movement vector
             Vector3 movement = m_forwardVector * m_speed;
             movement += m_correction;
@@ -524,13 +536,19 @@ namespace Sandbox.Game.AI
             if (Stuck)
                 MyRenderProxy.DebugDrawSphere(pos, 1.0f, Color.Red.ToVector3(), 1.0f, false);
 
-            MyRenderProxy.DebugDrawLine3D(pos, pos + rightVector, Color.Red, Color.Red, false);
+            //MyRenderProxy.DebugDrawLine3D(pos, pos + rightVector, Color.Red, Color.Red, false);
             //MyRenderProxy.DebugDrawSphere(pos + rightVector * m_aiming.RotationHint.X, 0.05f, Color.Red.ToVector3(), 1.0f, true);
 
-            MyRenderProxy.DebugDrawLine3D(pos, pos + UpVector, Color.Green, Color.Green, false);
+            //MyRenderProxy.DebugDrawLine3D(pos, pos + UpVector, Color.Green, Color.Green, false);
             //MyRenderProxy.DebugDrawSphere(pos + UpVector * m_aiming.RotationHint.Y, 0.05f, Color.Green.ToVector3(), 1.0f, true);
 
-            MyRenderProxy.DebugDrawLine3D(pos, pos + ForwardVector, Color.Blue, Color.Blue, false);
+            //MyRenderProxy.DebugDrawLine3D(pos, pos + ForwardVector, Color.Blue, Color.Blue, false);
+
+
+            Vector3 pos2 = PositionAndOrientation.Translation + PositionAndOrientation.Up * 1.5f;
+            MyRenderProxy.DebugDrawLine3D(pos2, pos2 + m_aimingPositionAndOrientation.Right, Color.Red, Color.Red, false);
+            MyRenderProxy.DebugDrawLine3D(pos2, pos2 + m_aimingPositionAndOrientation.Up, Color.Green, Color.Green, false);
+            MyRenderProxy.DebugDrawLine3D(pos2, pos2 + m_aimingPositionAndOrientation.Forward, Color.Blue, Color.Blue, false);
 
             //var normalizedCorrection = Vector3D.Normalize(m_correction);
             //var normalizedCorrectedDirXZ = normalizedCorrection + m_forwardVector;

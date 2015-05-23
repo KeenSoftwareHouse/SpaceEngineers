@@ -35,23 +35,17 @@ using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading;
-
 using VRage;
 using VRage.Audio;
 using VRage.Collections;
-using VRage;
-using VRage.Audio;
+using VRage.Compiler;
+using VRage.FileSystem;
 using VRage.Input;
 using VRage.Plugins;
-using VRage.Utils;
-using VRage.Compiler;
-using VRage.Input;
 using VRage.Utils;
 using VRage.Win32;
 using VRageMath;
 using VRageRender;
-using VRage.Library.Utils;
-using VRage.FileSystem;
 #endregion
 
 [assembly: InternalsVisibleTo("ScriptsUT")]
@@ -284,8 +278,6 @@ namespace Sandbox
 
                 ProfilerShort.End();
             }
-
-            Config.Load();
 
             Initialize();
 
@@ -1121,7 +1113,7 @@ namespace Sandbox
 
             IlChecker.AllowNamespaceOfTypeModAPI(typeof(VRage.Voxels.MyStorageDataCache));
             IlChecker.AllowNamespaceOfTypeModAPI(typeof(VRage.Utils.MyEventArgs));
-            IlChecker.AllowNamespaceOfTypeModAPI(typeof(VRage.Library.Utils.MyStringId));
+            IlChecker.AllowNamespaceOfTypeModAPI(typeof(VRage.Library.Utils.MyGameTimer));
 
             var serializerType = typeof(Sandbox.Common.ObjectBuilders.Serializer.MyObjectBuilderSerializer);
             IlChecker.AllowedOperands[serializerType] = new List<MemberInfo>()

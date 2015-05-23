@@ -87,6 +87,14 @@ namespace Sandbox.Game.Screens.Helpers
             }
         }
 
+        public static int ColorMaskSlotCount
+        {
+            get
+            {
+                return m_colorMaskSlotCount;
+            }
+        }
+
         public bool ShowHolsterSlot
         {
             get { return m_toolbarType == MyToolbarType.Character; }
@@ -296,8 +304,20 @@ namespace Sandbox.Game.Screens.Helpers
             m_colorMaskHSVSlots[5] = (MyRenderComponentBase.OldWhiteToHSV);
             m_colorMaskHSVSlots[6] = (MyRenderComponentBase.OldBlackToHSV);
             for (int i = 7; i < m_colorMaskSlotCount; i++)
-                if (m_colorMaskHSVSlots[i] == MyRenderComponentBase.OldBlackToHSV)
-                    m_colorMaskHSVSlots[i] = (m_colorMaskHSVSlots[i - 7] + new Vector3(0, 0.15f, 0.2f));
+                m_colorMaskHSVSlots[i] = (m_colorMaskHSVSlots[i - 7] + new Vector3(0, 0.15f, 0.2f));
+        }
+
+        public static void AddOrSwitchToColor(Vector3 color)
+        {
+            for (int i = 0; i < m_colorMaskSlotCount; i++)
+            {
+                if (m_colorMaskHSVSlots[i] == color)
+                {
+                    m_currentColorMaskHSV = i;
+                    return;
+                }
+            }
+            ColorMaskHSV = color;
         }
 
         public MyObjectBuilder_Toolbar GetObjectBuilder()
@@ -313,8 +333,6 @@ namespace Sandbox.Game.Screens.Helpers
             {
                 if (m_items[i] != null)
                 {
-
-                    //This is only for compatibility with old save. Item and Index slots will be empty for new toolbar item types
                     MyObjectBuilder_ToolbarItem slotObjectBuilder = m_items[i].GetObjectBuilder();
                     var data = m_items[i].GetObjectBuilder();
                     if (data != null)
@@ -322,7 +340,7 @@ namespace Sandbox.Game.Screens.Helpers
                         objectBuilder.Slots.Add(new MyObjectBuilder_Toolbar.Slot()
                         {
                             Index = i,
-                            Item = "",
+                            Item = "", // "Item" field is only for backwards compatibility, new items serialize into "Data"
                             Data = data
                         });
                     }

@@ -204,7 +204,7 @@ namespace Sandbox.Game.Entities.Cube
             DetailedInfo.Append("Effectiveness: ");
             DetailedInfo.Append(((UpgradeValues["Effectiveness"]) * 100f).ToString("F0"));
             DetailedInfo.Append("%\n");
-            DetailedInfo.Append("Power Efficinecy: ");
+            DetailedInfo.Append("Power Efficiency: ");
             DetailedInfo.Append(((UpgradeValues["PowerEfficiency"]) * 100f).ToString("F0"));
             DetailedInfo.Append("%\n");
 

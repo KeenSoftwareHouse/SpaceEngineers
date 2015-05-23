@@ -189,6 +189,25 @@ namespace VRageRender
                     break;
                 }
 
+                case MyRenderMessageEnum.ChangeModel:
+                {
+                    var rMessage = (MyRenderMessageChangeModel)message;
+
+                    var actor = MyIDTracker<MyActor>.FindByID(rMessage.ID);
+                    if (actor != null && actor.GetRenderable() != null)
+                    {
+                        var r = actor.GetRenderable();
+
+                        var modelId = MyMeshes.GetMeshId(X.TEXT(rMessage.Model));
+                        if(r.GetModel() != modelId)
+                        {
+                            r.SetModel(modelId);
+                        }
+                    }
+
+                    break;
+                }
+
                 case MyRenderMessageEnum.ChangeModelMaterial:
                 {
                     var rMessage = (MyRenderMessageChangeModelMaterial)message;
@@ -244,6 +263,26 @@ namespace VRageRender
                     break;
                 }
 
+                case MyRenderMessageEnum.UpdateCockpitGlass:
+                {
+                    var rMessage = (MyRenderMessageUpdateCockpitGlass)message;
+
+                    //if (MyEnvironment.CockpitGlass == null)
+                    //{
+                    //    MyEnvironment.CockpitGlass = MyActorFactory.CreateSceneObject();
+                    //}
+
+                    //MyEnvironment.CockpitGlass.GetRenderable().SetModel(MyMeshes.GetMeshId(X.TEXT(rMessage.Model)));
+                    //MyEnvironment.CockpitGlass.SetVisibility(rMessage.Visible);
+                    //MyEnvironment.CockpitGlass.MarkRenderDirty();
+
+                    //var matrix = (Matrix)rMessage.WorldMatrix;
+                    //MyEnvironment.CockpitGlass.SetMatrix(ref matrix);
+
+
+                    break;
+                }
+
                 case MyRenderMessageEnum.CreateRenderVoxelDebris:
                 {
                     var rMessage = (MyRenderMessageCreateRenderVoxelDebris)message;
@@ -269,7 +308,7 @@ namespace VRageRender
                     var rMessage = (MyRenderMessageCreateScreenDecal)message;
 
                     //rMessage.ParentID
-                    MyScreenDecals.AddDecal(rMessage.ID, rMessage.ParentID, rMessage.LocalOBB);
+                    MyScreenDecals.AddDecal(rMessage.ID, rMessage.ParentID, rMessage.LocalOBB, rMessage.DecalMaterial);
 
                     break;
                 }
@@ -279,6 +318,16 @@ namespace VRageRender
                     var rMessage = (MyRenderMessageRemoveDecal)message;
 
                     MyScreenDecals.RemoveDecal(rMessage.ID);
+
+                    break;
+                }
+
+                case MyRenderMessageEnum.RegisterDecalsMaterials:
+                {
+                    var rMessage = (MyRenderMessageRegisterScreenDecalsMaterials)message;
+
+                    MyScreenDecals.RegisterMaterials(rMessage.MaterialsNames, rMessage.MaterialsDescriptions);
+
 
                     break;
                 }
@@ -358,6 +407,17 @@ namespace VRageRender
                     if (actor != null)
                     {
                         actor.SetVisibility(rMessage.Visible);
+
+                        //if(rMessage.NearFlag)
+                        //{
+                        //    actor.GetRenderable().m_additionalFlags = MyRenderableProxyFlags.InvertFaceCulling;
+                        //    actor.MarkRenderDirty();
+                        //}
+                        //else
+                        //{
+                        //    actor.GetRenderable().m_additionalFlags = 0;
+                        //    actor.MarkRenderDirty();
+                        //}
                     }
 
                     break;
@@ -972,6 +1032,7 @@ namespace VRageRender
                     MyEnvironment.SunColor = rMessage.SunColor;
                     MyEnvironment.SunMaterial = rMessage.SunMaterial;
                     MyEnvironment.SunSizeMultiplier = rMessage.SunSizeMultiplier;
+                    MyEnvironment.SunBillboardEnabled = rMessage.SunBillboardEnabled;
 
                     var skybox = rMessage.BackgroundTexture;
 
@@ -1208,11 +1269,8 @@ namespace VRageRender
                 }
 
                 case MyRenderMessageEnum.SwitchRenderSettings:
-                        break; // Can be ignored as we're handling newer version of the message.
-
-                case MyRenderMessageEnum.SwitchRenderSettings1:
                     {
-                        UpdateRenderSettings((message as MyRenderMessageSwitchRenderSettings1).Settings);
+                        UpdateRenderSettings((message as MyRenderMessageSwitchRenderSettings).Settings);
                         break;
                     }
 

@@ -4,14 +4,13 @@ using Sandbox.Game.Gui;
 using Sandbox.Game.Localization;
 using Sandbox.Game.Multiplayer;
 using Sandbox.Game.World;
-using Sandbox.Graphics;
 using Sandbox.Graphics.GUI;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using VRage;
-using VRage.Library.Utils;
+using VRage.Utils;
 
 namespace Sandbox.Game.Screens.Helpers
 {

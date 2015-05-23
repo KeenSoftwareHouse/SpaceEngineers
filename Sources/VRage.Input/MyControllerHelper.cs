@@ -1,9 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using VRage.Library.Utils;
+﻿using System.Collections.Generic;
+using VRage.Utils;
 
 namespace VRage.Input
 {

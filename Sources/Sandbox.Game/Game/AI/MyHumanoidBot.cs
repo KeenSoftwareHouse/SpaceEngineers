@@ -1,26 +1,17 @@
 ﻿using Sandbox.Common.AI;
 using Sandbox.Common.ObjectBuilders;
-using Sandbox.Common.ObjectBuilders.AI;
 using Sandbox.Common.ObjectBuilders.Definitions;
 using Sandbox.Definitions;
-using Sandbox.Engine.Networking;
-using Sandbox.Engine.Utils;
-using Sandbox.Game;
-using Sandbox.Game.AI;
-using Sandbox.Game.AI.BehaviorTree;
 using Sandbox.Game.AI.Logic;
 using Sandbox.Game.Entities;
 using Sandbox.Game.Entities.Character;
-using Sandbox.Game.Multiplayer;
-using Sandbox.Game.Weapons;
 using Sandbox.Game.World;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
-using VRage;
-using VRage.Library.Utils;
+using VRage.Utils;
 using VRageMath;
 
 namespace Sandbox.Game.AI
@@ -121,7 +112,7 @@ namespace Sandbox.Game.AI
 
             var headMatrix = HumanoidEntity.GetHeadMatrix(true, true, false, true);
         //    VRageRender.MyRenderProxy.DebugDrawAxis(headMatrix, 1.0f, false);
-            VRageRender.MyRenderProxy.DebugDrawLine3D(headMatrix.Translation, headMatrix.Translation + headMatrix.Forward * 30, Color.Pink, Color.Pink, false);
+            VRageRender.MyRenderProxy.DebugDrawLine3D(headMatrix.Translation, headMatrix.Translation + headMatrix.Forward * 30, Color.HotPink, Color.HotPink, false);
             VRageRender.MyRenderProxy.DebugDrawAxis(HumanoidEntity.PositionComp.WorldMatrix, 1.0f, false);
             var invHeadMatrix = headMatrix;
             invHeadMatrix.Translation = Vector3.Zero;
@@ -165,6 +156,7 @@ namespace Sandbox.Game.AI
                 target.SetTargetEntity(closestStatue);
                 target.GotoTarget(m_navigation);
             }*/
+            m_navigation.ResetAiming(true);
             m_navigation.Goto(point, 0.0f, entity);
         }
     }

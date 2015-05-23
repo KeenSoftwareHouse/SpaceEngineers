@@ -436,6 +436,9 @@ namespace Sandbox.Graphics.GUI
 
             if (selectedIdx > (m_visibleRowIndexOffset + VisibleRowsCount))
                 m_scrollBar.Value = (selectedIdx - VisibleRowsCount + 1);
+
+            if(selectedIdx < m_visibleRowIndexOffset)
+                m_scrollBar.Value = selectedIdx;
         }
 
         public override void Draw(float transitionAlpha)

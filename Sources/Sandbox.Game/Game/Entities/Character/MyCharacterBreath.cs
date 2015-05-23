@@ -26,6 +26,7 @@ namespace Sandbox.Game.Entities.Character
         MyCharacter m_character;
         private MyTimeSpan m_lastChange;
         private State m_state;
+        private MyTimeSpan m_healthOverride;
 
         public MyCharacterBreath(MyCharacter character)
         {
@@ -45,11 +46,24 @@ namespace Sandbox.Game.Entities.Character
                 {
                     m_state = value;
                     m_lastChange = MySandboxGame.Static.UpdateTime + MyTimeSpan.FromSeconds(2);
+                    if (m_state == State.Dead)
+                        m_healthOverride = MyTimeSpan.Zero;
                 }
             }
         }
 
-        public void Update()
+        public void SetHealth(float health)
+        {
+            if (health<20)
+                //play heavy breath indefinitely
+                m_healthOverride = MyTimeSpan.MaxValue;
+            else
+            if (health<100)
+                m_healthOverride = MySandboxGame.Static.UpdateTime + MyTimeSpan.FromSeconds(300 / (health - 19.99));
+            Update(true);
+        }
+
+        public void Update(bool force=false)
         {
             if (!Sandbox.Game.World.MySession.Static.Settings.RealisticSound)
                 return;
@@ -60,22 +74,21 @@ namespace Sandbox.Game.Entities.Character
                 return;
             }
 
-            if (m_lastChange < MySandboxGame.Static.UpdateTime)
+            if (force || m_lastChange < MySandboxGame.Static.UpdateTime)
             {
-                switch(CurrentState)
-                {
-                    case State.Calm:
-                        if (m_sound == null || m_sound.CueEnum != BREATH_CALM.SoundId)
-                        {
-                            PlaySound(BREATH_CALM.SoundId);
-                        }
-                        break;
-                    case State.Heated:
-                        if (m_sound == null || m_sound.CueEnum != BREATH_HEAVY.SoundId)
-                        {
-                            PlaySound(BREATH_HEAVY.SoundId);
-                        }
-                        break;
+                if (m_healthOverride > MySandboxGame.Static.UpdateTime || CurrentState == State.Heated)
+                {//State.Heated
+                    if (m_sound == null || m_sound.CueEnum != BREATH_HEAVY.SoundId)
+                    {
+                        PlaySound(BREATH_HEAVY.SoundId);
+                    }
+                }
+                else
+                {//State.Calm:
+                    if (m_sound == null || m_sound.CueEnum != BREATH_CALM.SoundId)
+                    {
+                        PlaySound(BREATH_CALM.SoundId);
+                    }
                 }
             }
         }

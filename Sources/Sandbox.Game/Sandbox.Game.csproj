@@ -121,6 +121,7 @@
     <Compile Include="Definitions\MyAirtightHangarDoorDefinition.cs" />
     <Compile Include="Definitions\MyAnimalBotDefinition.cs" />
     <Compile Include="Definitions\MyAreaMarkerDefinition.cs" />
+    <Compile Include="Definitions\MyBattleDefinition.cs" />
     <Compile Include="Definitions\MyControllerSchemaDefinition.cs" />
     <Compile Include="Definitions\MyConveyorSorterDefinition.cs" />
     <Compile Include="Definitions\MyCryoChamberDefinition.cs" />
@@ -298,6 +299,7 @@
     <Compile Include="Game\AI\Logic\MyHumanoidBotLogic.cs" />
     <Compile Include="Game\AI\MyAgentBot.cs" />
     <Compile Include="Game\AI\MyAiTargetBase.cs" />
+    <Compile Include="Game\AI\MyAiTargetManager.cs" />
     <Compile Include="Game\AI\MyBehaviorAttributes.cs" />
     <Compile Include="Game\AI\Logic\MyBotLogic.cs" />
     <Compile Include="Game\AI\MyBotMemory.cs" />
@@ -498,6 +500,7 @@
     <Compile Include="Game\GameSystems\IMyOxygenConsumer.cs" />
     <Compile Include="Game\GameSystems\IMyOxygenProducer.cs" />
     <Compile Include="Game\GameSystems\MyAntennaSystem.cs" />
+    <Compile Include="Engine\Utils\MyBattleHelper.cs" />
     <Compile Include="Game\GameSystems\MyChatSystem.cs" />
     <Compile Include="Game\GameSystems\MyFracturedPiecesManager.cs" />
     <Compile Include="Game\GameSystems\MyGravityProviderSystem.cs" />
@@ -562,6 +565,7 @@
     <Compile Include="Game\Multiplayer\MySyncConveyorSorter.cs" />
     <Compile Include="Game\Multiplayer\MySyncCryoChamber.cs" />
     <Compile Include="Game\Multiplayer\MySyncLaserAntenna.cs" />
+    <Compile Include="Game\Multiplayer\MySyncMissionTriggers.cs" />
     <Compile Include="Game\Multiplayer\MySyncSoundBlock.cs" />
     <Compile Include="Game\Multiplayer\MySyncSpaceBall.cs" />
     <Compile Include="Game\Multiplayer\MyCameraCollection.cs" />
@@ -626,6 +630,7 @@
     <Compile Include="Game\Screens\MyGuiScreenJoinGame.Friends.cs" />
     <Compile Include="Game\Screens\MyGuiScreenJoinGame.History.cs" />
     <Compile Include="Game\Screens\MyGuiScreenMissionTriggers.cs" />
+    <Compile Include="Game\Screens\MyGuiScreenOptionsDisplay.cs" />
     <Compile Include="Game\Screens\MyGuiScreenScenario.cs" />
     <Compile Include="Game\Screens\MyGuiScreenTextPanel.cs" />
     <Compile Include="Game\Screens\MyGuiScreenToolbarConfigBase.cs" />
@@ -1099,11 +1104,9 @@
     <Compile Include="Game\Screens\MyGuiScreenIntroVideo.cs" />
     <Compile Include="Game\Screens\MyGuiScreenLoading.cs" />
     <Compile Include="Game\Screens\MyGuiScreenMainMenu.cs" />
-    <Compile Include="Game\Screens\MyGuiScreenOptionsSpace.cs" />
     <Compile Include="Game\Screens\MyGuiScreenOptionsAudio.cs" />
     <Compile Include="Game\Screens\MyGuiScreenOptionsControls.cs" />
     <Compile Include="Game\Screens\MyGuiScreenOptionsGame.cs" />
-    <Compile Include="Game\Screens\MyGuiScreenOptionsVideoSpace.cs" />
     <Compile Include="Game\Screens\MyGuiScreenProgressAsync.cs" />
     <Compile Include="Game\Screens\MyGuiScreenStartQuickLaunch.cs" />
     <Compile Include="Game\Lights\MyDirectionalLight.cs" />

@@ -21,7 +21,7 @@ using Sandbox.Definitions;
 namespace Sandbox.Game.Multiplayer
 {
     [PreloadRequired]
-    class MyToolBarCollection
+    public class MyToolBarCollection
     {
         [MessageId(14568, P2PMessageEnum.Reliable)]
         struct PlayerToolbarCreatedMsg
