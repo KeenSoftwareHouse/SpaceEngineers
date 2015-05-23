@@ -1,6 +1,7 @@
 ﻿using Sandbox.Common;
 using Sandbox.Common.ObjectBuilders;
 using Sandbox.Definitions;
+using Sandbox.Engine.Multiplayer;
 using Sandbox.Engine.Utils;
 using Sandbox.Game.Entities;
 using Sandbox.Game.Gui;
@@ -11,7 +12,7 @@ using Sandbox.Graphics.GUI;
 using System;
 using VRage;
 using VRage.Input;
-using VRage.Library.Utils;
+using VRage.Utils;
 using VRageMath;
 
 namespace Sandbox.Game.Components
@@ -55,6 +56,12 @@ namespace Sandbox.Game.Components
                 return;
             if (!(MyScreenManager.GetScreenWithFocus() is MyGuiScreenGamePlay))
                 return;
+
+            if (!
+                (VRage.Input.MyInput.Static.ENABLE_DEVELOPER_KEYS || !MySession.Static.SurvivalMode || (MyMultiplayer.Static != null && MyMultiplayer.Static.IsAdmin(MySession.LocalHumanPlayer.Id.SteamId)))
+                )
+                return;
+
 
             base.HandleInput();
 

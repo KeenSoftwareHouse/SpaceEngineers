@@ -248,35 +248,6 @@ namespace Sandbox.Game.Entities
             }
         }
 
-        /// <summary>
-        /// Returns total blocks count in the grid including blocks in compound block.
-        /// RKTODO - change to int member
-        /// </summary>
-        public int TotalBlocksCount
-        {
-            get
-            {
-                if (MyFakes.ENABLE_COMPOUND_BLOCKS)
-                {
-                    int count = 0;
-                    foreach (var block in m_cubeBlocks)
-                    {
-                        MyCompoundCubeBlock compoundBlock = block.FatBlock as MyCompoundCubeBlock;
-                        if (compoundBlock != null)
-                            count += compoundBlock.GetBlocksCount();
-                        else
-                            count += 1;
-                    }
-
-                    return count;
-                }
-                else
-                {
-                    return m_cubeBlocks.Count;
-                }
-            }
-        }
-
         private bool m_smallToLargeConnectionsInitialized = false;
         private bool m_enableSmallToLargeConnections = true;
         internal bool EnableSmallToLargeConnections { get { return m_enableSmallToLargeConnections;  } }
@@ -493,6 +464,8 @@ namespace Sandbox.Game.Entities
                     Physics.AngularVelocity = builder.AngularVelocity;
                     if (!IsStatic)
                         Physics.Shape.BlocksConnectedToWorld.Clear();
+                    if(MyPerGameSettings.InventoryMass)
+                        m_inventoryMassDirty = true;
                 }
 
                 XSymmetryPlane = builder.XMirroxPlane;
@@ -3271,6 +3244,8 @@ namespace Sandbox.Game.Entities
                 Debug.Fail("Block being removed twice");
                 return;
             }
+
+            RenderData.RemoveDecals(block.Position);
 
             ProfilerShort.Begin("Remove terminal block");
             var terminalBlock = block.FatBlock as MyTerminalBlock;

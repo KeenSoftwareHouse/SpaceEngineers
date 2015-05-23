@@ -81,9 +81,11 @@ namespace VRageRender
             MyRwTextures.OnDeviceEnd();
             MyShadows.OnDeviceReset();
             MyBillboardRenderer.OnDeviceRestart();
+            MyScreenDecals.OnDeviceEnd();
 
             MyMeshMaterials1.InvalidateMaterials();
             MyVoxelMaterials1.InvalidateMaterials();
+
 
             MyRenderableComponent.MarkAllDirty();
             foreach (var f in MyComponentFactory<MyFoliageComponent>.GetAll())
@@ -100,10 +102,12 @@ namespace VRageRender
             MySceneMaterials.OnDeviceReset();
             MyMeshes.OnDeviceReset();
             MyInstancing.OnDeviceReset();
+            MyScreenDecals.OnDeviceReset();
         }
 
         internal static void OnDeviceEnd()
         {
+            MyScreenDecals.OnDeviceEnd();
             MyShaders.OnDeviceEnd();
             MyMaterialShaders.OnDeviceEnd();
             MyVoxelMaterials1.OnDeviceEnd();
@@ -143,9 +147,11 @@ namespace VRageRender
             MyMaterials1.OnSessionEnd();
             MyVoxelMaterials1.OnSessionEnd();
             MyMeshMaterials1.OnSessionEnd();
+            MyScreenDecals.OnSessionEnd();
             
             MyTextures.OnSessionEnd();
             MyBigMeshTable.Table.OnSessionEnd();
+            MyScreenDecals.OnSessionEnd();
 
             //MyAssetsLoader.ClearMeshes();
         }
@@ -154,6 +160,7 @@ namespace VRageRender
         {
             MyMeshMaterials1.OnResourcesRequesting();
             MyVoxelMaterials1.OnResourcesRequesting();
+            MyScreenDecals.OnResourcesRequesting();
         }
 
         internal static void GatherTextures()
@@ -211,6 +218,7 @@ namespace VRageRender
 
         internal static RwTexId m_shadowsHelper = RwTexId.NULL;
         internal static RwTexId m_shadowsHelper1 = RwTexId.NULL;
+        internal static RwTexId m_gbuffer1Copy = RwTexId.NULL;
 
         internal static void RemoveScreenResources()
         {
@@ -232,6 +240,7 @@ namespace VRageRender
 
                 MyRwTextures.Destroy(ref m_shadowsHelper);
                 MyRwTextures.Destroy(ref m_shadowsHelper1);
+                MyRwTextures.Destroy(ref m_gbuffer1Copy);
             }
         }
 
@@ -280,6 +289,13 @@ namespace VRageRender
             Debug.Assert(m_shadowsHelper == RwTexId.NULL);
             m_shadowsHelper = MyRwTextures.CreateUav2D(width, height, Format.R8_UNorm, "cascade shadows gather");
             m_shadowsHelper1 = MyRwTextures.CreateUav2D(width, height, Format.R8_UNorm, "cascade shadows gather 2");
+
+            m_gbuffer1Copy = MyRwTextures.CreateScratch2D(width, height, Format.R8G8B8A8_UNorm, samples, 0, "gbuffer 1 copy");
+        }
+
+        internal static void CopyGbufferToScratch()
+        {
+            MyImmediateRC.RC.Context.CopyResource(MyGBuffer.Main.m_resources[(int)MyGbufferSlot.GBuffer1].m_resource, m_gbuffer1Copy.Resource);
         }
     }
 }

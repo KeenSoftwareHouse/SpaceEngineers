@@ -274,7 +274,7 @@ namespace Sandbox.Game.Gui
             if ((m_sound != null) && (m_sound.IsPlaying))
                 m_sound.Stop(true);
             var cue = MyStringId.TryGet(m_cuesCombo.GetSelectedValue().ToString());
-            m_sound = MyAudio.Static.PlayTestSound(cue);
+            m_sound = MyAudio.Static.PlaySound(cue);
             var effect = MyStringId.TryGet(m_effects.GetSelectedValue().ToString());
             if(effect != MyStringId.NullOrEmpty)
             {

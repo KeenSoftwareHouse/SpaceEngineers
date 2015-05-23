@@ -1232,7 +1232,7 @@ namespace Sandbox.Game.Multiplayer
                 // This is case when player entered second cockpit (and first cockpit is controlled by someone)
                 TrySetControlledEntity(controller.Player.Id, entityGettingControl);
             }
-            else
+            else if (!(baseEntity is MyRemoteControl))
             {
                 Debug.Fail("'entityWithControl' is not controlled");
             }
@@ -1252,7 +1252,7 @@ namespace Sandbox.Game.Multiplayer
 
         public void ReduceControl(IMyControllableEntity baseEntity, MyEntity entityWhichLoosesControl)
         {
-            if (!TryReduceControl(baseEntity, entityWhichLoosesControl))
+            if (!TryReduceControl(baseEntity, entityWhichLoosesControl) && !(baseEntity is MyRemoteControl))
             {
                 Debug.Fail("Both entities must be controlled by same player");
             }
@@ -1262,7 +1262,7 @@ namespace Sandbox.Game.Multiplayer
         {
             MyPlayer.PlayerId playerId;
             bool success = m_controlledEntities.TryGetValue(baseEntity.Entity.EntityId, out playerId);
-            Debug.Assert(success, "Could not get the controller of the base entity!");
+            Debug.Assert(success || baseEntity is MyRemoteControl, "Could not get the controller of the base entity!");
             if (!success) return;
 
             foreach (var entry in m_controlledEntities)

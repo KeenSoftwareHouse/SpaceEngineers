@@ -1,15 +1,14 @@
-﻿using Sandbox.Game.Entities.Character;
+﻿using Sandbox.Common.ObjectBuilders.Definitions;
+using Sandbox.Game.Entities.Character;
+using Sandbox.Game.Localization;
+using Sandbox.Game.Screens.Triggers;
+using Sandbox.Graphics.GUI;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using VRage.Utils;
 using VRageMath;
-using Sandbox.Common.ObjectBuilders.Definitions;
-using Sandbox.Definitions;
-using Sandbox.Graphics.GUI;
-using Sandbox.Game.Screens.Triggers;
-using VRage.Library.Utils;
-using Sandbox.Game.Localization;
 
 
 namespace Sandbox.Game.World.Triggers

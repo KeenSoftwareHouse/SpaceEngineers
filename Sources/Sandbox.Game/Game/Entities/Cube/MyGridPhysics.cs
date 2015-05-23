@@ -1,34 +1,27 @@
 ﻿using Havok;
+using Sandbox.Common;
 using Sandbox.Common.ObjectBuilders;
 using Sandbox.Common.ObjectBuilders.Definitions;
+using Sandbox.Definitions;
 using Sandbox.Engine.Physics;
+using Sandbox.Engine.Utils;
+using Sandbox.Game.Entities.Character;
+using Sandbox.Game.Entities.Debris;
+using Sandbox.Game.GameSystems;
+using Sandbox.Game.Multiplayer;
+using Sandbox.Game.World;
+using Sandbox.Graphics.TransparentGeometry.Particles;
+using Sandbox.ModAPI;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
-using VRageMath;
-using Sandbox.Engine.Utils;
-using VRage.Trace;
-using Sandbox.Game.Entities.Debris;
 using VRage;
-using Sandbox.Game.World;
-using Sandbox.Graphics.TransparentGeometry.Particles;
-using Sandbox.Game.Gui;
-using Sandbox.Game.Weapons;
-using Sandbox.Game.Multiplayer;
-using Sandbox.Graphics;
-using VRage;
-using Sandbox.Common;
-using VRageRender;
 using VRage.Collections;
-using Sandbox.Definitions;
-using Sandbox.Game.GameSystems;
-using Sandbox.Game.Entities.Character;
-using Sandbox.ModAPI;
-using VRage.Library.Utils;
-using Sandbox.ModAPI.Interfaces;
+using VRage.Utils;
+using VRageMath;
+using VRageRender;
 
 namespace Sandbox.Game.Entities.Cube
 {
@@ -1023,7 +1016,7 @@ namespace Sandbox.Game.Entities.Cube
             }
         }
 
-        public override VRage.Library.Utils.MyStringId GetMaterialAt(Vector3D worldPos)
+        public override MyStringId GetMaterialAt(Vector3D worldPos)
         {
             var pos = Vector3.Transform(worldPos, m_grid.PositionComp.WorldMatrixNormalizedInv) / m_grid.GridSize;
             Vector3I cubePos;
@@ -1034,7 +1027,7 @@ namespace Sandbox.Game.Entities.Cube
             if (cube.FatBlock is MyCompoundCubeBlock)
                 cube = (cube.FatBlock as MyCompoundCubeBlock).GetBlocks()[0];
             var blockMaterial = cube.BlockDefinition.PhysicalMaterial.Id.SubtypeId;
-            return blockMaterial != VRage.Library.Utils.MyStringId.NullOrEmpty ? blockMaterial : base.GetMaterialAt(worldPos);
+            return blockMaterial != MyStringId.NullOrEmpty ? blockMaterial : base.GetMaterialAt(worldPos);
         }
 
         /// <summary>

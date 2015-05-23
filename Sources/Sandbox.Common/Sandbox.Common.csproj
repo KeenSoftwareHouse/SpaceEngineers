@@ -317,6 +317,7 @@
     <Compile Include="ObjectBuilders\Components\MyObjectBuilder_WeatherComponent.cs" />
     <Compile Include="ObjectBuilders\Definitions\AI\MyObjectBuilder_AiCommandBehaviorDefinition.cs" />
     <Compile Include="ObjectBuilders\Definitions\AI\MyObjectBuilder_AreaMarkerDefinition.cs" />
+    <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_BattleDefinition.cs" />
     <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_ControllerSchemaDefinition.cs" />
     <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_CryoChamberDefinition.cs" />
     <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_EnvironmentItemsDefinition.cs" />

@@ -174,13 +174,17 @@ namespace Sandbox.Game.Components
                 }
             }
 
-            foreach(var b in m_cubeGrid.GetBlocks())
+            if(MyDebugDrawSettings.DEBUG_DRAW_BLOCK_INTEGRITY)
             {
-                if(b.FatBlock is MyFracturedBlock)
-                {
-                    MyRenderProxy.DebugDrawText3D(m_cubeGrid.GridIntegerToWorld(b.Position), "F", Color.Red, 1, false);
-                }
+                if (MySector.MainCamera != null && (MySector.MainCamera.Position - m_cubeGrid.PositionComp.WorldVolume.Center).Length() < 16 +m_cubeGrid.PositionComp.WorldVolume.Radius)
+                    foreach (var cubeBlock in m_cubeGrid.CubeBlocks)
+                    {
+                        var pos = m_cubeGrid.GridIntegerToWorld(cubeBlock.Position);
+                        if (m_cubeGrid.GridSizeEnum == MyCubeSize.Large || (MySector.MainCamera != null && (MySector.MainCamera.Position - pos).LengthSquared() < 9))
+                            MyRenderProxy.DebugDrawText3D(m_cubeGrid.GridIntegerToWorld(cubeBlock.Position), ((int)cubeBlock.Integrity).ToString(), Color.White, m_cubeGrid.GridSizeEnum == MyCubeSize.Large ? 0.65f : 0.5f, false);
+                    }
             }
+
             return base.DebugDraw();
         }
 

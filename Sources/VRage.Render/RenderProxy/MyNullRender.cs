@@ -113,11 +113,6 @@ namespace VRageRender
             return Vector2.Zero;
         }
 
-        public void RestoreDXGISwapchainFullscreenMode()
-        {
-
-        }
-
         public MyRenderDeviceSettings CreateDevice(IntPtr windowHandle, MyRenderDeviceSettings? settingsToTry)
         {
             return default(MyRenderDeviceSettings);
@@ -150,10 +145,7 @@ namespace VRageRender
         {
         }
 
-        public MyAdapterInfo[] GetAdaptersList()
-        {
-            return null;
-        }
+        bool IMyRender.IsSupported { get { return true; } }
 
         public bool SettingsChanged(MyRenderDeviceSettings settings)
         {
@@ -167,5 +159,7 @@ namespace VRageRender
         public void Present()
         {
         }
+
+        public void HandleFocusMessage(MyWindowFocusMessage msg) { }
     }
 }

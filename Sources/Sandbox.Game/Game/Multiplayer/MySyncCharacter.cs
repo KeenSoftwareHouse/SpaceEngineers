@@ -176,11 +176,11 @@ namespace Sandbox.Game.Multiplayer
             public long EntityId;
             public long GetEntityId() { return EntityId; }
 
-            public int CueIdHash;
+            public MyStringId SoundId;
 
             public override string ToString()
             {
-                return String.Format("{0}, {1}", this.GetType().Name, this.CueIdHash);
+                return String.Format("{0}, {1}", this.GetType().Name, this.SoundId);
             }
         }
 
@@ -912,12 +912,12 @@ namespace Sandbox.Game.Multiplayer
             }
         }
 
-        internal void PlaySecondarySound(int soundId)
+        internal void PlaySecondarySound(MyStringId soundId)
         {
             var msg = new PlaySecondarySoundMsg()
             {
                 EntityId = this.SyncedEntityId,
-                CueIdHash = soundId,
+                SoundId = soundId,
             };
 
             if (Sync.IsServer)
@@ -934,8 +934,7 @@ namespace Sandbox.Game.Multiplayer
         {
             if (!MySandboxGame.IsDedicated)
             {
-                MyStringId soundId = MyStringId.TryGet(msg.CueIdHash);
-                syncObject.Entity.StartSecondarySound(soundId, sync: false);
+                syncObject.Entity.StartSecondarySound(msg.SoundId, sync: false);
             }
 
             if (Sync.IsServer)

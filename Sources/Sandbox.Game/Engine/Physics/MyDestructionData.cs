@@ -64,7 +64,7 @@ namespace Sandbox
             Static = this;
             BlockShapePool = new MyBlockShapePool();
 
-            TemporaryWorld = new HkWorld(true, 50000, MyPhysics.RestingVelocity, MyFakes.ENABLE_HAVOK_MULTITHREADING);
+            TemporaryWorld = new HkWorld(true, 50000, MyPhysics.RestingVelocity, MyFakes.ENABLE_HAVOK_MULTITHREADING, 4);
             TemporaryWorld.MarkForWrite();
             TemporaryWorld.DestructionWorld = new HkdWorld(TemporaryWorld);
             TemporaryWorld.UnmarkForWrite();
@@ -211,6 +211,48 @@ namespace Sandbox
                 }
 
             }
+            if (modelFractures.Fractures[0] is WoodFractureSettings)
+            {
+                //TODO: Apply wood fracture algorithm
+                var settings = (WoodFractureSettings)modelFractures.Fractures[0];
+                fracture = new HkdWoodFracture()
+                {
+                    //Seed = settings.Seed,
+                    //NumSitesToGenerate = settings.NumSitesToGenerate,
+                    //NumIterations = settings.NumIterations
+                };
+
+                //if (!string.IsNullOrEmpty(settings.SplitPlane))
+                //{
+                //    var splitPlane = settings.SplitPlane;
+                //    if (!string.IsNullOrEmpty(modPath))
+                //        splitPlane = Path.Combine(modPath, settings.SplitPlane);
+
+                //    geometry = CreateGeometryFromSplitPlane(splitPlane);
+
+                //    var pspm = MyModels.GetModel(splitPlane);
+
+                //    if (geometry != null)
+                //    {
+                //        ((HkdWoodFracture)fracture).SetGeometry(geometry);
+                //        VRageRender.MyRenderProxy.PreloadMaterials(splitPlane);
+                //    }
+                //}
+            }
+           
+            //if (woodButton.IsChecked)
+            //{
+            //    fracture = new HkdWoodFracture()
+            //    {
+            //        RandomSeed = 123456,
+            //        BoardSplittingData = new HkdWoodFracture.SplittingData()
+            //        {
+            //        },
+            //        SplinterSplittingData = new HkdWoodFracture.SplittingData()
+            //        {
+            //        }
+            //    };
+            //}
 
             if (fracture != null)
             {

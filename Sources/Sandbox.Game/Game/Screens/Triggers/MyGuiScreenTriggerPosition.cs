@@ -125,9 +125,7 @@ namespace Sandbox.Game.Screens.Triggers
         protected override void OnOkButtonClick(MyGuiControlButton sender)
         {
             double? radius = StrToDouble(m_radius.Text);
-            if (radius!=null)
-                ((MyTriggerPositionReached)m_trigger).Radius = (double)radius;
-            CloseScreen();
+            base.OnOkButtonClick(sender);
         }
         
         #region paste

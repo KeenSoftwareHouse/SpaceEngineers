@@ -194,7 +194,17 @@ namespace Sandbox.Engine.Physics
 
         #region Properties
 
-        public bool IsRagdollModeActive { get; private set; }
+        /// <summary>
+        /// Returns true when ragdoll is in world
+        /// </summary>
+        public bool IsRagdollModeActive 
+        { 
+            get
+            {
+                if (Ragdoll == null) return false;
+                return Ragdoll.IsAddedToWorld;
+            }
+        }
 
         public HkRagdoll Ragdoll
         {
@@ -207,13 +217,7 @@ namespace Sandbox.Engine.Physics
                 m_ragdoll = value;
             }
         }
-
-        public HkRagdoll GetRagdoll()
-        {
-            return m_ragdoll;
-        }
-
-
+        
         public MyCharacterProxy CharacterProxy { get; set; }
 
         /// This system group id will is used to set's this character rigid bodies collision filters        
@@ -340,8 +344,7 @@ namespace Sandbox.Engine.Physics
         /// <param name="entity">The entity.</param>
         public MyPhysicsBody(Sandbox.ModAPI.IMyEntity entity, RigidBodyFlag flags)
         {
-            //Debug.Assert(entity != null);
-            this.IsRagdollModeActive = false;
+            //Debug.Assert(entity != null);           
             this.m_enabled = false;
             this.Entity = entity;
             this.Flags = flags;
@@ -1457,14 +1460,11 @@ false,
                 CharacterProxy.Activate(m_world);
             }
 
-            if (Ragdoll != null)
-            {                
-                if (IsRagdollModeActive)
-                {
-                    m_world.AddRagdoll(Ragdoll);
-                    Ragdoll.SetWorldMatrix(rigidBodyMatrix);
-                }
-            }
+            if (ReactivateRagdoll)
+            {
+                ActivateRagdoll();
+                ReactivateRagdoll = false;
+            }           
 
             foreach (var constraint in m_constraints)
             {
@@ -1508,6 +1508,13 @@ false,
             {
                 m_constraintsAddBatch.Add(constraint);
             }
+
+            if (ReactivateRagdoll)
+            {
+                ActivateRagdoll();
+                ReactivateRagdoll = false;
+            }           
+
         }
 
         /// <summary>
@@ -1526,8 +1533,9 @@ false,
         {
             System.Diagnostics.Debug.Assert(world == m_world, "Inconsistency in clusters!");
 
-            if (Ragdoll != null && IsRagdollModeActive)
+            if (IsRagdollModeActive)
             {
+                ReactivateRagdoll = true;
                 CloseRagdollMode();                
             }
 
@@ -1559,7 +1567,13 @@ false,
 
         public virtual void DeactivateBatch(object world)
         {
-            System.Diagnostics.Debug.Assert(world == m_world, "Inconsistency in clusters!");          
+            System.Diagnostics.Debug.Assert(world == m_world, "Inconsistency in clusters!");
+
+            if (IsRagdollModeActive)
+            {
+                ReactivateRagdoll = true;
+                CloseRagdollMode();
+            }
 
             if (BreakableBody != null)
             {
@@ -1596,13 +1610,12 @@ false,
             }
             m_constraintsAddBatch.Clear();
 
-            if (Ragdoll != null && IsRagdollModeActive)
+            if (ReactivateRagdoll)
             {
-                m_world.AddRagdoll(Ragdoll);
-                Ragdoll.SetWorldMatrix(GetRigidBodyMatrix());
-            }
+                ActivateRagdoll();
+                ReactivateRagdoll = false;
+            }           
 
-            
         }
 
         public void FinishRemoveBatch(object userData)
@@ -1620,9 +1633,10 @@ false,
                 }
             }
 
-            if (Ragdoll != null && IsRagdollModeActive)
+            if (IsRagdollModeActive)
             {
-                world.RemoveRagdoll(Ragdoll);
+                ReactivateRagdoll = true;
+                CloseRagdollMode();
             }
 
             m_constraintsRemoveBatch.Clear();
@@ -2025,6 +2039,8 @@ false,
                 return; // This PhysicsBody don't have always HavokWorld?
             }
 
+            if (IsRagdollModeActive) return;
+
             Matrix havokMatrix = GetWorldMatrix();
             havokMatrix.Translation = WorldToCluster(havokMatrix.Translation);
 
@@ -2033,11 +2049,16 @@ false,
                 RagdollSystemGroupCollisionFilterID = m_world.GetCollisionFilter().GetNewSystemGroup();
             }
 
-            m_ragdoll.GenerateRigidBodiesCollisionFilters(deadMode ? MyPhysics.CharacterCollisionLayer : MyPhysics.RagdollCollisionLayer, RagdollSystemGroupCollisionFilterID, firstRagdollSubID);
-            
-            m_ragdoll.ResetToRigPose();
+            Ragdoll.SetToKeyframed();   // this will disable the bodies to get the impulse when repositioned
 
-            // set rigid bodies 
+            Ragdoll.GenerateRigidBodiesCollisionFilters(deadMode ? MyPhysics.CharacterCollisionLayer : MyPhysics.RagdollCollisionLayer, RagdollSystemGroupCollisionFilterID, firstRagdollSubID);
+            
+            Ragdoll.ResetToRigPose();
+
+            Ragdoll.SetWorldMatrix(havokMatrix, true);
+
+            if (deadMode) Ragdoll.SetToDynamic();
+            
             foreach (HkRigidBody body in Ragdoll.RigidBodies)
             {
                 // set the velocities for the bodies
@@ -2052,10 +2073,6 @@ false,
                     body.LinearVelocity = Vector3.Zero;
                 }
             }
-
-            if (deadMode) m_ragdoll.SetToDynamic();
-           
-            m_ragdoll.SetWorldMatrix(havokMatrix);
 
             if (CharacterProxy != null && deadMode)
             {
@@ -2080,22 +2097,32 @@ false,
                 RigidBody2 = null;
             }
 
-            foreach (var body in m_ragdoll.RigidBodies)
+            foreach (var body in Ragdoll.RigidBodies)
             {
                 body.UserObject = this;
             }               
             
             Ragdoll.OptimizeInertiasOfConstraintTree();
 
-            if (!m_ragdoll.IsAddedToWorld)
+            if (!Ragdoll.IsAddedToWorld)
             {
-                HavokWorld.AddRagdoll(m_ragdoll);
+                HavokWorld.AddRagdoll(Ragdoll);
             }
 
-            m_ragdoll.EnableConstraints();
-            m_ragdoll.Activate();            
+            Ragdoll.EnableConstraints();
+            Ragdoll.Activate();            
+            
+        }
 
-            IsRagdollModeActive = true;
+        private void ActivateRagdoll()
+        {
+            if (Ragdoll == null) return;
+            if (HavokWorld == null) return;
+            if (IsRagdollModeActive) return;
+
+            Matrix world = GetRigidBodyMatrix();
+            Ragdoll.SetWorldMatrix(world, true);
+            HavokWorld.AddRagdoll(Ragdoll);
         }
 
         public void CloseRagdollMode()
@@ -2103,17 +2130,13 @@ false,
             if (IsRagdollModeActive)
             {
 
-                foreach (var body in m_ragdoll.RigidBodies)
+                foreach (var body in Ragdoll.RigidBodies)
                 {
                     body.UserObject = null;
                 }
 
-                if (m_ragdoll.IsAddedToWorld)
-                {
-                    HavokWorld.RemoveRagdoll(Ragdoll);
-                }
-
-                IsRagdollModeActive = false;
+                Debug.Assert(Ragdoll.IsAddedToWorld, "Can not remove ragdoll when it's not in the world");
+                HavokWorld.RemoveRagdoll(Ragdoll);
             }
         }
 
@@ -2160,5 +2183,7 @@ false,
                 }
             }
         }
+
+        public bool ReactivateRagdoll { get; set; }
     }
 }

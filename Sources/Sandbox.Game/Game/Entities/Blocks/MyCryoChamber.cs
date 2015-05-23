@@ -1,23 +1,22 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using Sandbox.Common.ObjectBuilders;
+﻿using Sandbox.Common.ObjectBuilders;
 using Sandbox.Common.ObjectBuilders.Definitions;
 using Sandbox.Definitions;
 using Sandbox.Game.Entities.Character;
 using Sandbox.Game.Entities.Cube;
 using Sandbox.Game.GameSystems.Electricity;
 using Sandbox.Game.GUI;
+using Sandbox.Game.Localization;
 using Sandbox.Game.Multiplayer;
 using Sandbox.Game.World;
 using Sandbox.ModAPI.Interfaces;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
 using VRage.Import;
+using VRage.Utils;
 using VRageMath;
 using VRageRender;
-using VRage.Library.Utils;
-using Sandbox.Game.Localization;
 
 namespace Sandbox.Game.Entities.Blocks
 {

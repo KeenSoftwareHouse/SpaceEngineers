@@ -127,14 +127,6 @@
   <data name="MessageBoxTextAreYouSureYouWantToExit" xml:space="preserve">
     <value>Вы уверены, что хотите выйти?</value>
   </data>
-  <data name="AssignControlJoystick" xml:space="preserve">
-    <value>Пожалуйста, нажмите кнопку
-на вашем джойстике/геймпаде</value>
-  </data>
-  <data name="AssignControlJoystickAxis" xml:space="preserve">
-    <value>Пожалуйста, сдвиньте аналоговую ось
-на джойстике/геймпаде</value>
-  </data>
   <data name="AssignControlKeyboard" xml:space="preserve">
     <value>Пожалуйста, нажмите кнопку</value>
   </data>
@@ -1462,7 +1454,7 @@
     <value>Учёные исследуют то, что уже есть; инженеры создают то, чего никогда не было.</value>
   </data>
   <data name="Quote40Author" xml:space="preserve">
-    <value>U.S. Army Ordnance</value>
+    <value>Войска Поддержки США</value>
   </data>
   <data name="Quote40Text" xml:space="preserve">
     <value>Трассирующие снаряды работают в обоих направлениях.</value>
@@ -3004,7 +2996,7 @@
     <value>Нажмите {0} чтобы переключиться между режимами одно/всё оружие.</value>
   </data>
   <data name="BlockPropertyTitle_LargeTurretRadius" xml:space="preserve">
-    <value>Aiming radius</value>
+    <value>Дистанция прицеливания</value>
   </data>
   <data name="ToolTipItemFilter_NATO_5p56x45mm" xml:space="preserve">
     <value>НАТО 5.56х45 мм</value>
@@ -3114,6 +3106,9 @@
   </data>
   <data name="DialogAmount_SetValueCaption" xml:space="preserve">
     <value>Задать значение</value>
+  </data>
+  <data name="DialogText_RunArgument" xml:space="preserve">
+    <value>Argument</value>
   </data>
   <data name="BlockPropertyTitle_LargeTurretTargetMissiles" xml:space="preserve">
     <value>Стрелять по ракетам</value>
@@ -4734,7 +4729,7 @@
     <value>Зерно (разные зерна и размеры сгенерерируют разные астероиды)</value>
   </data>
   <data name="ScreenDebugSpawnMenu_ProceduralSize" xml:space="preserve">
-    <value>Радиус астероида</value>
+    <value>Asteroid size</value>
   </data>
   <data name="ScreenDebugSpawnMenu_SelectAsteroidType" xml:space="preserve">
     <value>Выберите тип астероидов</value>
@@ -4979,7 +4974,7 @@
     <value>Задача выполнена</value>
   </data>
   <data name="TerminalControlPanel_EditCode" xml:space="preserve">
-    <value>Изменить</value>
+    <value>Редактировать</value>
   </data>
   <data name="TerminalControlPanel_RunCode" xml:space="preserve">
     <value>Выполнить</value>
@@ -5027,7 +5022,7 @@
     <value>Разрушаемые блоки</value>
   </data>
   <data name="WorkshopTag_Exploration" xml:space="preserve">
-    <value>Исследование мира</value>
+    <value>Исследование</value>
   </data>
   <data name="DisplayName_Programmable_Block" xml:space="preserve">
     <value>Программируемый блок</value>
@@ -5259,7 +5254,7 @@
     <value>Скрипт</value>
   </data>
   <data name="TooltipScreenMods_Category_Skybox" xml:space="preserve">
-    <value>Текстуры космоса</value>
+    <value>Текстуры небосвода</value>
   </data>
   <data name="TooltipScreenMods_SelectCategories" xml:space="preserve">
     <value>Выберите категории</value>
@@ -5520,25 +5515,25 @@
     <value>Ожидание</value>
   </data>
   <data name="LaserAntennaCopyCoords" xml:space="preserve">
-    <value>Copy my coords</value>
+    <value>Копировать мои координаты</value>
   </data>
   <data name="LaserAntennaCopyCoordsHelp" xml:space="preserve">
     <value>Копировать координаты этой антенны в буфер</value>
   </data>
   <data name="LaserAntennaIdleButton" xml:space="preserve">
-    <value>В ожидание</value>
+    <value>Ожидание</value>
   </data>
   <data name="LaserAntennaConnectButton" xml:space="preserve">
-    <value>Connect to receiver</value>
+    <value>Подключиться к приемнику</value>
   </data>
   <data name="LaserAntennaConnectGPS" xml:space="preserve">
-    <value>Connect to coords</value>
+    <value>Подключиться по координатам</value>
   </data>
   <data name="LaserAntennaSelectedCoords" xml:space="preserve">
-    <value>Выбранные координаты</value>
+    <value>Выбранные GPS-координаты</value>
   </data>
   <data name="LaserAntennaPasteGPS" xml:space="preserve">
-    <value>Paste coords</value>
+    <value>Вставить координаты</value>
   </data>
   <data name="LaserAntennaReceiversList" xml:space="preserve">
     <value>Известные приемники</value>
@@ -5566,7 +5561,7 @@
     <value>Для включения динамического строительства нажмите {0}</value>
   </data>
   <data name="DisplayName_Block_HeavyRoundArmorCorner" xml:space="preserve">
-    <value>Тяжелая Броня, Круглый Угол</value>
+    <value>Угол Тяжелой Брони (Закруглённый)</value>
   </data>
   <data name="DisplayName_Block_HeavyRoundArmorInvCorner" xml:space="preserve">
     <value>Тяжелая Броня, Круглый Инв.Угол</value>
@@ -5578,7 +5573,7 @@
     <value>Перекл. шаг</value>
   </data>
   <data name="LaserAntennaModeConnectedTo" xml:space="preserve">
-    <value>Соединен с</value>
+    <value>Подключен к</value>
   </data>
   <data name="LaserAntennaModeContactRec" xml:space="preserve">
     <value>Попытка установить соединение с</value>
@@ -5608,10 +5603,10 @@
     <value>Список посещенных ранее серверов</value>
   </data>
   <data name="DisplayName_Block_LightArmorCorner2" xml:space="preserve">
-    <value>Лёгкая Броня, Угол 2x1x1</value>
+    <value>Лёгкая наклонная броня 2x1x1</value>
   </data>
   <data name="DisplayName_Block_LightArmorCorner2Smooth" xml:space="preserve">
-    <value>Лёгкая Броня, Угол 2x1x1 Сглаж.</value>
+    <value>Гладкая наклонная лёгкая наклонная броня2x1x1</value>
   </data>
   <data name="DisplayName_Block_LightArmorCorner3" xml:space="preserve">
     <value>Лёгкая Броня, Угол 3x1x1</value>
@@ -5749,135 +5744,649 @@
     <value>Нажмите {0} или {1}, чтобы изменить материал вокселей.</value>
   </data>
   <data name="LaserAntennaReceiversListHelp" xml:space="preserve">
-    <value>These receivers are in radio range and can report their position.
-Their current state and target is in parentesis:
-idle   laser is idling
-&gt;&gt; laser is rotating towards other receiver or GPS coordinates
-?&gt;  searching for other laser at requested GPS coordinates
-~&gt; contacting other side of link (this includes waiting for other laser
-       to turn its face to me or futile effort to contact receiver
-       which is turned off or is not there any more)
-=&gt; connection is established
-To connect to lasers not listed here you can connect to coordinates.</value>
+    <value>Эти приемники находятся на расстоянии приема и могут сообщить свою позицию.
+Их текущее состояние и цель указаны в круглых скобках:
+Ожидание - модуль в режиме ожидания
+&gt;&gt; лазер поворачивается к другому приемнику или к указанным координатам
+?&gt; ищет другой приемник в указанных координатах
+~&gt; устанавливает соединение (этот режим включает ожидание поворота
+удаленного приемника или невозможность установки соединения при выключенном
+или недоступном приемнике)
+=&gt; соединение установлено
+Чтобы подключиться к приемникам лазера не указанным в списке, 
+вы можете подключиться  указав их координаты.</value>
   </data>
   <data name="BlockPropertyTitle_LargeTurretEnableTurretIdleMovement" xml:space="preserve">
-    <value>Enable idle movement</value>
+    <value>Включить движение при ожидании</value>
   </data>
   <data name="LaserAntennaCopyTargetCoords" xml:space="preserve">
-    <value>Copy target coords</value>
+    <value>Копировать координаты цели</value>
   </data>
   <data name="LaserAntennaCopyTargetCoordsHelp" xml:space="preserve">
-    <value>Copy target's current or last known position into clipboard</value>
+    <value>Скопировать текущие или последние известные координаты цели в буфер</value>
   </data>
   <data name="BotSettingsScreen_EnableBotsDebugging" xml:space="preserve">
-    <value>Enable bots debugging</value>
+    <value>Включить отладку ботов</value>
   </data>
   <data name="BotSettingsScreen_NextBot" xml:space="preserve">
-    <value>Next bot</value>
+    <value>Следующий бот</value>
   </data>
   <data name="BotSettingsScreen_PreviousBot" xml:space="preserve">
-    <value>Previous bot</value>
+    <value>Предыдущий бот</value>
   </data>
   <data name="BotSettingsScreen_Title" xml:space="preserve">
-    <value>Bots settings</value>
+    <value>Настройки ботов</value>
   </data>
   <data name="BlockAction_ConveyorSorterBlacklist" xml:space="preserve">
-    <value>Blacklist</value>
+    <value>Черный список</value>
   </data>
   <data name="BlockAction_ConveyorSorterWhitelist" xml:space="preserve">
-    <value>Whitelist</value>
+    <value>Белый список</value>
   </data>
   <data name="BlockPropertyTitle_ConveyorSorterFilterMode" xml:space="preserve">
-    <value>Filter Mode</value>
+    <value>Режим фильтра</value>
   </data>
   <data name="DisplayName_Block_ConveyorSorter" xml:space="preserve">
-    <value>Conveyor Sorter</value>
+    <value>Сортировщик</value>
   </data>
   <data name="LaserAntennaOnlyPerm" xml:space="preserve">
-    <value>Only receivers set to permanent connection found</value>
+    <value>Найдены только приемники, настроенные на постоянное соединение</value>
   </data>
   <data name="LaserAntennaPermanentCheckbox" xml:space="preserve">
-    <value>Permanent connection</value>
+    <value>Постоянное соединение</value>
   </data>
   <data name="BlockPropertyTitle_ConveyorSorterAdd" xml:space="preserve">
-    <value>Add</value>
+    <value>Добавить</value>
   </data>
   <data name="BlockPropertyTitle_ConveyorSorterCandidatesList" xml:space="preserve">
-    <value>Add new filter</value>
+    <value>Добавить новый фильтр</value>
   </data>
   <data name="BlockPropertyTitle_ConveyorSorterFilterItemsList" xml:space="preserve">
-    <value>Active filters</value>
+    <value>Активные фильтры</value>
   </data>
   <data name="BlockPropertyTitle_ConveyorSorterFilterModeBlacklist" xml:space="preserve">
-    <value>Blacklist</value>
+    <value>Черный список</value>
   </data>
   <data name="BlockPropertyTitle_ConveyorSorterFilterModeWhitelist" xml:space="preserve">
-    <value>Whitelist</value>
+    <value>Белый список</value>
   </data>
   <data name="BlockPropertyTitle_ConveyorSorterRemove" xml:space="preserve">
-    <value>Remove</value>
+    <value>Удалить</value>
   </data>
   <data name="ScreenDebugOfficial_BotSettings" xml:space="preserve">
-    <value>Bots settings</value>
+    <value>Настройки ботов</value>
   </data>
   <data name="DisplayName_Block_SmallConveyorSorter" xml:space="preserve">
-    <value>Small Conveyor Sorter</value>
+    <value>Малый сортировщик</value>
   </data>
   <data name="DisplayName_ConvSorterTypes_Ammo" xml:space="preserve">
-    <value>*ammo*</value>
+    <value>*боеприпасы*</value>
   </data>
   <data name="DisplayName_ConvSorterTypes_Component" xml:space="preserve">
-    <value>*components*</value>
+    <value>*компоненты*</value>
   </data>
   <data name="DisplayName_ConvSorterTypes_HandTool" xml:space="preserve">
-    <value>*hand tools*</value>
+    <value>*инструменты*</value>
   </data>
   <data name="DisplayName_ConvSorterTypes_Ingot" xml:space="preserve">
-    <value>*ingots*</value>
+    <value>*слитки*</value>
   </data>
   <data name="DisplayName_ConvSorterTypes_Ore" xml:space="preserve">
-    <value>*ore*</value>
+    <value>*руда*</value>
   </data>
   <data name="BlockPropertyDescription_Depressurize" xml:space="preserve">
-    <value>The vent will remove air from the room and store it in tanks</value>
+    <value>Вытяжка удалит воздух из комнаты и упакует его в баллоны</value>
   </data>
   <data name="BlockPropertyDescription_Stockpile" xml:space="preserve">
-    <value>Stockpiling tanks will not get drained by air vents</value>
+    <value>Накопительные баллоны не будут опустошаться вентиляцией</value>
   </data>
   <data name="BlockPropertyTitle_Depressurize" xml:space="preserve">
-    <value>Depressurize</value>
+    <value>Разгерметизация</value>
   </data>
   <data name="BlockPropertyTitle_Stockpile" xml:space="preserve">
-    <value>Stockpile</value>
+    <value>Накопитель</value>
   </data>
   <data name="DisplayName_Block_AirVent" xml:space="preserve">
-    <value>Air Vent</value>
+    <value>Вентиляция</value>
   </data>
   <data name="DisplayName_Block_OxygenGenerator" xml:space="preserve">
-    <value>Oxygen Generator</value>
+    <value>Генератор кислорода</value>
   </data>
   <data name="DisplayName_Block_OxygenTank" xml:space="preserve">
-    <value>Oxygen Tank</value>
+    <value>Баллон с кислородом</value>
   </data>
   <data name="DisplayName_BlueprintClass_Ice" xml:space="preserve">
-    <value>Ice</value>
+    <value>Лед</value>
   </data>
   <data name="DisplayName_Item_Oxygen" xml:space="preserve">
-    <value>Oxygen</value>
+    <value>Кислород</value>
   </data>
   <data name="MessageBoxTextAreYouSureEnableOxygen" xml:space="preserve">
-    <value>Are you sure you want to enable oxygen? Doing so will cause materials on untouched asteroids to change. This is irreversible.</value>
+    <value>Вы уверены, что хотите включить кислород? Это изменит материалы на нетронутых астероидах. Действие необратимо.</value>
   </data>
   <data name="ToolTipWorldSettings_EnableOxygen" xml:space="preserve">
-    <value>Enable ice material, pressurization detection and oxygen generation and circulation</value>
+    <value>Включает материал льда, проверку герметичности, генерацию и циркуляцию кислорода.</value>
   </data>
   <data name="World_Settings_EnableOxygen" xml:space="preserve">
-    <value>Enable oxygen</value>
+    <value>Включить кислород</value>
   </data>
   <data name="Terminal_DrainAll" xml:space="preserve">
-    <value>Drain All</value>
+    <value>Опустошить всё</value>
   </data>
   <data name="BlockOwner_TransferTo" xml:space="preserve">
-    <value>Transfer to:</value>
+    <value>Переместить в:</value>
+  </data>
+  <data name="DisplayName_Block_AirtightHangarDoor" xml:space="preserve">
+    <value>Airtight Hangar Door</value>
+  </data>
+  <data name="BlockPropertyTitle_LargeTurretTargetCharacters" xml:space="preserve">
+    <value>Target characters</value>
+  </data>
+  <data name="BlockPropertyTitle_LargeTurretTargetLargeGrids" xml:space="preserve">
+    <value>Target large ships</value>
+  </data>
+  <data name="BlockPropertyTitle_LargeTurretTargetSmallGrids" xml:space="preserve">
+    <value>Target small ships</value>
+  </data>
+  <data name="BlockPropertyTitle_LargeTurretTargetStations" xml:space="preserve">
+    <value>Target stations</value>
+  </data>
+  <data name="DisplayName_Item_OxygenBottle" xml:space="preserve">
+    <value>Oxygen Bottle</value>
+  </data>
+  <data name="DisplayName_BlueprintClass_OxygenBottles" xml:space="preserve">
+    <value>Oxygen Bottles</value>
+  </data>
+  <data name="DisplayName_Item_OxygenBottles" xml:space="preserve">
+    <value>Oxygen Bottles</value>
+  </data>
+  <data name="BlockPropertyTitle_Refill" xml:space="preserve">
+    <value>Refill Bottles</value>
+  </data>
+  <data name="ScreenDebugSpawnMenu_Planets" xml:space="preserve">
+    <value>Planets</value>
+  </data>
+  <data name="ScreenDebugSpawnMenu_CreateLayer" xml:space="preserve">
+    <value>Create layer</value>
+  </data>
+  <data name="ScreenDebugSpawnMenu_RemoveLayer" xml:space="preserve">
+    <value>Remove layer</value>
+  </data>
+  <data name="BlockPropertyTitle_AutoRefill" xml:space="preserve">
+    <value>Auto-Refill</value>
+  </data>
+  <data name="Terminal_ShowInTerminal" xml:space="preserve">
+    <value>Show block in terminal</value>
+  </data>
+  <data name="Terminal_ShowAllInTerminal" xml:space="preserve">
+    <value>Show hidden blocks</value>
+  </data>
+  <data name="NotificationBottleRefill" xml:space="preserve">
+    <value>Oxygen refilled from bottles.</value>
+  </data>
+  <data name="NotificationOxygenCritical" xml:space="preserve">
+    <value>Oxygen is critical.</value>
+  </data>
+  <data name="NotificationOxygenLow" xml:space="preserve">
+    <value>Oxygen is low.</value>
+  </data>
+  <data name="ScreenDebugSpawnMenu_PickPlanet" xml:space="preserve">
+    <value>Pick planet to edit</value>
+  </data>
+  <data name="buttonBrowseWorkshop" xml:space="preserve">
+    <value>Browse Workshop</value>
+  </data>
+  <data name="buttonCreateNew" xml:space="preserve">
+    <value>Create new</value>
+  </data>
+  <data name="buttonOpenInWorkshop" xml:space="preserve">
+    <value>Open in Workshop</value>
+  </data>
+  <data name="buttonPublish" xml:space="preserve">
+    <value>Publish</value>
+  </data>
+  <data name="buttonRefresh" xml:space="preserve">
+    <value>Refresh</value>
+  </data>
+  <data name="buttonRemove" xml:space="preserve">
+    <value>Remove</value>
+  </data>
+  <data name="Difficulty" xml:space="preserve">
+    <value>Сложность</value>
+  </data>
+  <data name="DifficultyEasy" xml:space="preserve">
+    <value>Легко</value>
+  </data>
+  <data name="DifficultyHard" xml:space="preserve">
+    <value>Сложно</value>
+  </data>
+  <data name="DifficultyNormal" xml:space="preserve">
+    <value>Normal</value>
+  </data>
+  <data name="ScreenCaptionScenario" xml:space="preserve">
+    <value>Scenario</value>
+  </data>
+  <data name="NotificationSuitEnergyCriticalNoDamage" xml:space="preserve">
+    <value>Warning: Suit energy is critically low.</value>
+  </data>
+  <data name="NotificationSuitEnergyLowNoDamage" xml:space="preserve">
+    <value>Suit energy is low.</value>
+  </data>
+  <data name="ControlName_Helmet" xml:space="preserve">
+    <value>Helmet on / off</value>
+  </data>
+  <data name="NotificationNoHelmetVariation" xml:space="preserve">
+    <value>Cannot remove helmet on this suit.</value>
+  </data>
+  <data name="ReportBug" xml:space="preserve">
+    <value>Report a Bug</value>
+  </data>
+  <data name="HudInfoHelmet" xml:space="preserve">
+    <value>Helmet</value>
+  </data>
+  <data name="ScreenDebugSpawnMenu_UpdatePlanet" xml:space="preserve">
+    <value>Update planet</value>
+  </data>
+  <data name="Terminal_ShowInTerminalToolTip" xml:space="preserve">
+    <value>Show/hide current block in terminal</value>
+  </data>
+  <data name="NotificationHelmetOff" xml:space="preserve">
+    <value>Helmet Off</value>
+  </data>
+  <data name="NotificationHelmetOn" xml:space="preserve">
+    <value>Helmet On</value>
+  </data>
+  <data name="BlockPropertiesText_MainCockpit" xml:space="preserve">
+    <value>Main ship cockpit</value>
+  </data>
+  <data name="TerminalControlPanel_Cockpit_MainCockpit" xml:space="preserve">
+    <value>Main cockpit</value>
+  </data>
+  <data name="NotificationHintNoAction" xml:space="preserve">
+    <value>Empty</value>
+  </data>
+  <data name="BlockPropertyText_Button" xml:space="preserve">
+    <value>Button</value>
+  </data>
+  <data name="BlockPropertyText_ButtonList" xml:space="preserve">
+    <value>Available buttons</value>
+  </data>
+  <data name="BlockPropertyText_ButtonName" xml:space="preserve">
+    <value>Button name</value>
+  </data>
+  <data name="WorldSettings_Enable3rdPersonCamera" xml:space="preserve">
+    <value>Enable 3rd person view</value>
+  </data>
+  <data name="ControlName_ToolbarNextItem" xml:space="preserve">
+    <value>Next toolbar item</value>
+  </data>
+  <data name="ControlName_ToolbarPreviousItem" xml:space="preserve">
+    <value>Previous toolbar item</value>
+  </data>
+  <data name="ControlTypeToolsOrWeapons2" xml:space="preserve">
+    <value>Tools / Weapons 2</value>
+  </data>
+  <data name="BlockPropertiesText_OxygenOutput" xml:space="preserve">
+    <value>Oxygen Output: </value>
+  </data>
+  <data name="DisplayName_Block_OxygenFarm" xml:space="preserve">
+    <value>Oxygen Farm</value>
+  </data>
+  <data name="WorldSettings_Encounters" xml:space="preserve">
+    <value>Random encounters</value>
+  </data>
+  <data name="ControlName_BuildMode" xml:space="preserve">
+    <value>Build mode</value>
+  </data>
+  <data name="ScreenControlMenu_Title" xml:space="preserve">
+    <value>Control menu</value>
+  </data>
+  <data name="TerminalTab_Info_EnemyAntennaRange" xml:space="preserve">
+    <value>Show distance for enemy antennas</value>
+  </data>
+  <data name="TerminalTab_Info_FriendlyAntennaRange" xml:space="preserve">
+    <value>Show distance for friendly antennas</value>
+  </data>
+  <data name="TerminalTab_Info_OwnedAntennaRange" xml:space="preserve">
+    <value>Show distance for owned antennas</value>
+  </data>
+  <data name="ScreenButtonBattle" xml:space="preserve">
+    <value>Battle</value>
+  </data>
+  <data name="ControlName_ControlMenu" xml:space="preserve">
+    <value>Open control menu</value>
+  </data>
+  <data name="DisplayName_Block_CryoChamber" xml:space="preserve">
+    <value>Cryo Chamber</value>
+  </data>
+  <data name="ControlMenuItemLabel_Lights" xml:space="preserve">
+    <value>Lights</value>
+  </data>
+  <data name="ControlMenuItemLabel_Terminal" xml:space="preserve">
+    <value>Show terminal</value>
+  </data>
+  <data name="ControlMenuItemValue_Off" xml:space="preserve">
+    <value>Off</value>
+  </data>
+  <data name="ControlMenuItemValue_On" xml:space="preserve">
+    <value>On</value>
+  </data>
+  <data name="ControlMenuItemLabel_CameraMode" xml:space="preserve">
+    <value>Camera mode</value>
+  </data>
+  <data name="ControlMenuItemValue_FPP" xml:space="preserve">
+    <value>FPP</value>
+  </data>
+  <data name="ControlMenuItemValue_TPP" xml:space="preserve">
+    <value>TPP</value>
+  </data>
+  <data name="ControlName_MissionSettings" xml:space="preserve">
+    <value>Scenario Settings</value>
+  </data>
+  <data name="MissionScreenCaption" xml:space="preserve">
+    <value>Scenario Settings</value>
+  </data>
+  <data name="MissionTriggerOtherWon" xml:space="preserve">
+    <value>Other side won</value>
+  </data>
+  <data name="MissionTriggerReachPosition" xml:space="preserve">
+    <value>Reach GPS position</value>
+  </data>
+  <data name="GuiTriggerCaptionPositionLeft" xml:space="preserve">
+    <value>Leave GPS position</value>
+  </data>
+  <data name="GuiTriggerCaptionPositionReached" xml:space="preserve">
+    <value>Reach GPS position</value>
+  </data>
+  <data name="GuiTriggerCaptionSomeoneWon" xml:space="preserve">
+    <value>Someone Won</value>
+  </data>
+  <data name="GuiTriggerMessage" xml:space="preserve">
+    <value>Message</value>
+  </data>
+  <data name="BlockIsNotPowered" xml:space="preserve">
+    <value>Block is not powered</value>
+  </data>
+  <data name="GuiMissionTriggersLostCondition" xml:space="preserve">
+    <value>Lost condition:</value>
+  </data>
+  <data name="GuiMissionTriggersWinCondition" xml:space="preserve">
+    <value>Win condition:</value>
+  </data>
+  <data name="GuiTriggerPasteGps" xml:space="preserve">
+    <value>Paste GPS</value>
+  </data>
+  <data name="GuiTriggerPositionRadius" xml:space="preserve">
+    <value>Radius</value>
+  </data>
+  <data name="TerminalControlPanel_RunArgument" xml:space="preserve">
+    <value>Argument</value>
+  </data>
+  <data name="ControlMenuItemLabel_Dampeners" xml:space="preserve">
+    <value>Dampeners</value>
+  </data>
+  <data name="TerminalControlPanel_RunArgument_ToolTip" xml:space="preserve">
+    <value>An argument passed to your code when clicking the Run button</value>
+  </data>
+  <data name="ControlMenuItemLabel_Helmet" xml:space="preserve">
+    <value>Helmet</value>
+  </data>
+  <data name="ControlMenuItemLabel_Jetpack" xml:space="preserve">
+    <value>Jetpack</value>
+  </data>
+  <data name="ControlMenuItemLabel_LandingGear" xml:space="preserve">
+    <value>Landing gear / connector</value>
+  </data>
+  <data name="ControlMenuItemLabel_Reactors" xml:space="preserve">
+    <value>Reactors</value>
+  </data>
+  <data name="ControlMenuItemLabel_Thrusts" xml:space="preserve">
+    <value>Thrusters</value>
+  </data>
+  <data name="ControlMenuItemLabel_Broadcasting" xml:space="preserve">
+    <value>Broadcasting</value>
+  </data>
+  <data name="ControlMenuItemLabel_CommitSuicide" xml:space="preserve">
+    <value>Suicide</value>
+  </data>
+  <data name="ControlMenuItemLabel_QuickLoad" xml:space="preserve">
+    <value>Quick load / reconnect</value>
+  </data>
+  <data name="ControlMenuItemLabel_ShowColorPicker" xml:space="preserve">
+    <value>Show color picker</value>
+  </data>
+  <data name="ControlMenuItemLabel_ShowTerminal" xml:space="preserve">
+    <value>Show terminal</value>
+  </data>
+  <data name="ControlMenuItemLabel_ShowToolbarScreen" xml:space="preserve">
+    <value>Show toolbar screen</value>
+  </data>
+  <data name="ControlMenuItemLabel_ToggleHud" xml:space="preserve">
+    <value>Toggle HUD</value>
+  </data>
+  <data name="ControlMenuItemLabel_PauseGame" xml:space="preserve">
+    <value>Pause game</value>
+  </data>
+  <data name="MessageBoxTextErrorFeatureNotAvailableYet" xml:space="preserve">
+    <value>Feature is not available yet</value>
+  </data>
+  <data name="NotificationMaximumNumberBots" xml:space="preserve">
+    <value>Maximum number of bots has been reached</value>
+  </data>
+  <data name="DisplayName_Block_EffectivenessModule" xml:space="preserve">
+    <value>Effectiveness Module</value>
+  </data>
+  <data name="DisplayName_Block_PowerEfficiencyModule" xml:space="preserve">
+    <value>Power Efficiency Module</value>
+  </data>
+  <data name="DisplayName_Block_ProductivityModule" xml:space="preserve">
+    <value>Productivity Module</value>
+  </data>
+  <data name="WorldSettings_Battle" xml:space="preserve">
+    <value>Battle</value>
+  </data>
+  <data name="Hud_BuildMode" xml:space="preserve">
+    <value>Build mode</value>
+  </data>
+  <data name="NotificationJoystickCompoundBuildingFormat" xml:space="preserve">
+    <value>Press {0} to toggle compound building</value>
+  </data>
+  <data name="BlockActionTitle_Extend" xml:space="preserve">
+    <value>Extend</value>
+  </data>
+  <data name="BlockActionTitle_Retract" xml:space="preserve">
+    <value>Retract</value>
+  </data>
+  <data name="NotificationJoystickControlMenuFormat" xml:space="preserve">
+    <value>Press {0} to access control menu</value>
+  </data>
+  <data name="NotificationJoystickMenus" xml:space="preserve">
+    <value>In order to show help or modify toolbar, open control menu</value>
+  </data>
+  <data name="NotificationJoystickSlotEquipFormat" xml:space="preserve">
+    <value>Press {0} or {1} to select toolbar slots</value>
+  </data>
+  <data name="NotificationJoystickUnlimitedBuildingFormat" xml:space="preserve">
+    <value>Press {0} to add block, press {1} to remove block</value>
+  </data>
+  <data name="NotificationJoystickVoxelMaterialFormat" xml:space="preserve">
+    <value>Press {0} to change voxel material</value>
+  </data>
+  <data name="Notification_GameplayOptions" xml:space="preserve">
+    <value>Press {0} to change Gameplay options</value>
+  </data>
+  <data name="ControlMenuItemLabel_Wardrobe" xml:space="preserve">
+    <value>Change appearance</value>
+  </data>
+  <data name="NotificationHintJoystickPressToOpenControlPanel" xml:space="preserve">
+    <value>Access control menu to open control panel of {0}</value>
+  </data>
+  <data name="NotificationHintJoystickPressToOpenTerminal" xml:space="preserve">
+    <value>Access control menu to open terminal</value>
+  </data>
+  <data name="ControlMenuItemLabel_OpenInventory" xml:space="preserve">
+    <value>Open inventory</value>
+  </data>
+  <data name="ControlMenuItemLabel_SetupButtons" xml:space="preserve">
+    <value>Setup buttons</value>
+  </data>
+  <data name="ControlMenuItemLabel_ShowControlPanel" xml:space="preserve">
+    <value>Show control panel</value>
+  </data>
+  <data name="NotificationHintJoystickPressToOpenButtonPanel" xml:space="preserve">
+    <value>Access control menu to setup panel's buttons</value>
+  </data>
+  <data name="NotificationHintJoystickPressToOpenInventory" xml:space="preserve">
+    <value>Access control menu to open inventory of {0}</value>
+  </data>
+  <data name="NotificationHintPressToOpenBuildMode" xml:space="preserve">
+    <value>Press {0} to enter build mode</value>
+  </data>
+  <data name="DialogTextJoiningBattleLobby" xml:space="preserve">
+    <value>Joining battle lobby</value>
+  </data>
+  <data name="DialogTextJoinBattleLobbyFailed" xml:space="preserve">
+    <value>Joining battle lobby failed, reason: {0}</value>
+  </data>
+  <data name="NotificationHintPressToEnterCryochamber" xml:space="preserve">
+    <value>Press {0} to enter cryo chamber</value>
+  </data>
+  <data name="NotificationHintLeaveCryoChamber" xml:space="preserve">
+    <value>Press {0} to leave cryo chamber</value>
+  </data>
+  <data name="DisplayName_Item_ScrapIngot" xml:space="preserve">
+    <value>Old Scrap Metal</value>
+  </data>
+  <data name="BlockActionTitle_AddWaypoint" xml:space="preserve">
+    <value>Add</value>
+  </data>
+  <data name="BlockActionTitle_MoveWaypointDown" xml:space="preserve">
+    <value>Move Down</value>
+  </data>
+  <data name="BlockActionTitle_MoveWaypointUp" xml:space="preserve">
+    <value>Move Up</value>
+  </data>
+  <data name="BlockActionTitle_RemoveWaypoint" xml:space="preserve">
+    <value>Remove</value>
+  </data>
+  <data name="BlockPropertyTitle_AutoPilot" xml:space="preserve">
+    <value>Autopilot</value>
+  </data>
+  <data name="BlockPropertyTitle_FlightMode" xml:space="preserve">
+    <value>Flight Mode</value>
+  </data>
+  <data name="BlockPropertyTitle_FlightMode_Circle" xml:space="preserve">
+    <value>Circle</value>
+  </data>
+  <data name="BlockPropertyTitle_FlightMode_OneWay" xml:space="preserve">
+    <value>One Way</value>
+  </data>
+  <data name="BlockPropertyTitle_FlightMode_Patrol" xml:space="preserve">
+    <value>Patrol</value>
+  </data>
+  <data name="BlockPropertyTitle_GpsLocations" xml:space="preserve">
+    <value>GPS Locations</value>
+  </data>
+  <data name="BlockPropertyTitle_Waypoints" xml:space="preserve">
+    <value>Waypoints</value>
+  </data>
+  <data name="BlockPropertyPopup_AutoPilotToolbarOpen" xml:space="preserve">
+    <value>Set an action to be done when autopilot reaches destination</value>
+  </data>
+  <data name="BlockPropertyTitle_AutoPilotToolbarOpen" xml:space="preserve">
+    <value>Setup Action</value>
+  </data>
+  <data name="Notification_NoControlAutoPilot" xml:space="preserve">
+    <value>Autopilot enabled</value>
+  </data>
+  <data name="WorldSettings_Physics" xml:space="preserve">
+    <value>Physics</value>
+  </data>
+  <data name="WorldSettings_Physics_Fast" xml:space="preserve">
+    <value>Fast</value>
+  </data>
+  <data name="WorldSettings_Physics_Normal" xml:space="preserve">
+    <value>Normal</value>
+  </data>
+  <data name="WorldSettings_Physics_Precise" xml:space="preserve">
+    <value>Precise</value>
+  </data>
+  <data name="WorldSettings_Physics_Tooltip" xml:space="preserve">
+    <value>Higher settings improve simulation BUT directly affects performance.</value>
+  </data>
+  <data name="ScreenCaptionGraphicsOptions" xml:space="preserve">
+    <value>Graphics options</value>
+  </data>
+  <data name="ScreenGraphicsOptions_AnisotropicFiltering" xml:space="preserve">
+    <value>Anisotropic filtering</value>
+  </data>
+  <data name="ScreenGraphicsOptions_AnisotropicFiltering_Off" xml:space="preserve">
+    <value>Off</value>
+  </data>
+  <data name="ScreenGraphicsOptions_AntiAliasing" xml:space="preserve">
+    <value>Anti-aliasing</value>
+  </data>
+  <data name="ScreenGraphicsOptions_AntiAliasing_None" xml:space="preserve">
+    <value>None</value>
+  </data>
+  <data name="ScreenGraphicsOptions_FoliageDetails" xml:space="preserve">
+    <value>Foliage details</value>
+  </data>
+  <data name="ScreenGraphicsOptions_FoliageDetails_Disabled" xml:space="preserve">
+    <value>Disabled</value>
+  </data>
+  <data name="ScreenGraphicsOptions_FoliageDetails_High" xml:space="preserve">
+    <value>High</value>
+  </data>
+  <data name="ScreenGraphicsOptions_FoliageDetails_Low" xml:space="preserve">
+    <value>Low</value>
+  </data>
+  <data name="ScreenGraphicsOptions_FoliageDetails_Medium" xml:space="preserve">
+    <value>Medium</value>
+  </data>
+  <data name="ScreenGraphicsOptions_MultiThreadedRendering" xml:space="preserve">
+    <value>Multi-threaded rendering</value>
+  </data>
+  <data name="ScreenGraphicsOptions_QualityPreset" xml:space="preserve">
+    <value>Quality preset</value>
+  </data>
+  <data name="ScreenGraphicsOptions_QualityPreset_Custom" xml:space="preserve">
+    <value>Custom</value>
+  </data>
+  <data name="ScreenGraphicsOptions_QualityPreset_High" xml:space="preserve">
+    <value>High</value>
+  </data>
+  <data name="ScreenGraphicsOptions_QualityPreset_Low" xml:space="preserve">
+    <value>Low</value>
+  </data>
+  <data name="ScreenGraphicsOptions_QualityPreset_Medium" xml:space="preserve">
+    <value>Medium</value>
+  </data>
+  <data name="ScreenGraphicsOptions_Renderer" xml:space="preserve">
+    <value>Renderer</value>
+  </data>
+  <data name="ScreenGraphicsOptions_ShadowMapResolution" xml:space="preserve">
+    <value>Shadow map resolution</value>
+  </data>
+  <data name="ScreenGraphicsOptions_ShadowMapResolution_High" xml:space="preserve">
+    <value>High</value>
+  </data>
+  <data name="ScreenGraphicsOptions_ShadowMapResolution_Low" xml:space="preserve">
+    <value>Low</value>
+  </data>
+  <data name="ScreenGraphicsOptions_TextureQuality" xml:space="preserve">
+    <value>Texture quality</value>
+  </data>
+  <data name="ScreenGraphicsOptions_TextureQuality_High" xml:space="preserve">
+    <value>High</value>
+  </data>
+  <data name="ScreenGraphicsOptions_TextureQuality_Low" xml:space="preserve">
+    <value>Low</value>
+  </data>
+  <data name="ScreenGraphicsOptions_TextureQuality_Medium" xml:space="preserve">
+    <value>Medium</value>
+  </data>
+  <data name="ToolTipVideoOptionsRenderer" xml:space="preserve">
+    <value>Changing the renderer requires restart of the game.</value>
   </data>
 </root>
