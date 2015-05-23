@@ -6126,7 +6126,7 @@
     <value>Демпферы</value>
   </data>
   <data name="TerminalControlPanel_RunArgument_ToolTip" xml:space="preserve">
-    <value>Аргумент передется в ваш код при нажатии на кнопку Выполнить</value>
+    <value>Аргумент передается в ваш код при нажатии на кнопку Выполнить</value>
   </data>
   <data name="ControlMenuItemLabel_Helmet" xml:space="preserve">
     <value>Шлем</value>
