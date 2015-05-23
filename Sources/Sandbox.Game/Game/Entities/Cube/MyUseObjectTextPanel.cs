@@ -11,7 +11,7 @@ using VRageMath;
 
 namespace Sandbox.Game.Entities.Cube
 {
-    [MyUseObject("textpanel")]
+    [MyUseObject(MyDummyNameConstants.TEXTPANEL)]
     class MyUseObjectTextPanel : IMyUseObject
     {
         private MyTextPanel m_textPanel;

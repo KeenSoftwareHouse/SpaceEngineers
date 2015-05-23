@@ -10,7 +10,7 @@ using VRageMath;
 
 namespace Sandbox.Game.Entities.Cube
 {
-    [MyUseObject("cockpit")]
+    [MyUseObject(MyDummyNameConstants.COCKPIT)]
     class MyUseObjectCockpitDoor : IMyUseObject
     {
         public readonly MyCubeBlock Cockpit;
