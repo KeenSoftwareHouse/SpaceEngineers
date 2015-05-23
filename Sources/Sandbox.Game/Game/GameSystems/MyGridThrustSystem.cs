@@ -155,11 +155,11 @@ namespace Sandbox.Game.GameSystems
             m_maxRequirementsByDirection = new Dictionary<Vector3I, float>(6, m_directionComparer);
             m_thrustsByDirection = new Dictionary<Vector3I, HashSet<MyThrust>>(6, m_directionComparer);
             m_thrustsByDirection[Vector3I.Backward] = new HashSet<MyThrust>();
-            m_thrustsByDirection[Vector3I.Forward] = new HashSet<MyThrust>();
-            m_thrustsByDirection[Vector3I.Right] = new HashSet<MyThrust>();
-            m_thrustsByDirection[Vector3I.Left] = new HashSet<MyThrust>();
-            m_thrustsByDirection[Vector3I.Down] = new HashSet<MyThrust>();
-            m_thrustsByDirection[Vector3I.Up] = new HashSet<MyThrust>();
+            m_thrustsByDirection[Vector3I.Forward ] = new HashSet<MyThrust>();
+            m_thrustsByDirection[Vector3I.Right   ] = new HashSet<MyThrust>();
+            m_thrustsByDirection[Vector3I.Left    ] = new HashSet<MyThrust>();
+            m_thrustsByDirection[Vector3I.Down    ] = new HashSet<MyThrust>();
+            m_thrustsByDirection[Vector3I.Up      ] = new HashSet<MyThrust>();
             Enabled = true;
             m_thrustsChanged = true;
             m_grid = grid;
@@ -264,6 +264,11 @@ namespace Sandbox.Game.GameSystems
         private void UpdateThrusts()
         {
             const float ROTATION_LIMITER    = 5.0f;
+            const float STATIC_MODE_MAX_ACC = 0.1f;   // A threshold linear acceleration value, above which RCS will switch 
+                                                      // from stationary to accelerating mode.
+                                                      // In stationary mode RCS employs 3 separate centres of thrust, one for each pair
+                                                      // of opposite thruster sets in order to maximise turning rate.
+                                                      // In accelerating mode only 1 common COT for all engines is used.
             const float LINEAR_INEFFICIENCY = 0.1f;   // A maximum relative force magnitude at which opposing thrusters are allowed 
                                                       // to push against each other when accelerating. Increasing this value will prioritise
                                                       // turning over linear acceleration, thus improving rotational stability on unbalanced 
@@ -311,7 +316,14 @@ namespace Sandbox.Game.GameSystems
                 if (m_COMUpdateCounter++ >= COM_UPDATE_TICKS)
                 {
                     m_COMUpdateCounter = 0;
-                    UpdateCenterOfThrust();
+                    if (adjustedThrust.Length() / m_grid.Physics.Mass > STATIC_MODE_MAX_ACC)
+                        UpdateCenterOfThrustAcceelerating();
+                    else
+                    {
+                        UpdateCenterOfThrustStationary(m_thrustsByDirection[Vector3I.Left   ], m_thrustsByDirection[Vector3I.Right   ]);
+                        UpdateCenterOfThrustStationary(m_thrustsByDirection[Vector3I.Up     ], m_thrustsByDirection[Vector3I.Down    ]);
+                        UpdateCenterOfThrustStationary(m_thrustsByDirection[Vector3I.Forward], m_thrustsByDirection[Vector3I.Backward]);
+                    }
                 }
 
                 LocalAngularVelocity = Vector3.Transform(m_grid.Physics.AngularVelocity, ref invWorldRot);
@@ -411,7 +423,7 @@ namespace Sandbox.Game.GameSystems
             }
         }
 
-        private void UpdateCenterOfThrust()
+        private void UpdateCenterOfThrustAcceelerating()
         {
             Vector3 totalThrustStaticMoment = Vector3.Zero;
             float   totalThrust             = 0;
@@ -435,6 +447,40 @@ namespace Sandbox.Game.GameSystems
                     if (IsOverridden(curThrust) || IsUsed(curThrust))
                         curThrust.COTOffsetVector = curThrust.GridCenterPos * m_grid.GridSize - COTLocation;
                 }
+            }
+        }
+
+        private void UpdateCenterOfThrustStationary(HashSet<MyThrust> thrusters1, HashSet<MyThrust> thrusters2)
+        {
+            Vector3 totalThrustStaticMoment = Vector3.Zero;
+            Vector3 totalThrust             = Vector3.Zero;
+
+            foreach (var curThrust in thrusters1)
+            {
+                if (IsOverridden(curThrust) || IsUsed(curThrust))
+                {
+                    totalThrustStaticMoment += curThrust.StaticMoment;
+                    totalThrust             += curThrust.ThrustForce;
+                }
+            }
+            foreach (var curThrust in thrusters2)
+            {
+                if (IsOverridden(curThrust) || IsUsed(curThrust))
+                {
+                    totalThrustStaticMoment += curThrust.StaticMoment;
+                    totalThrust             -= curThrust.ThrustForce;
+                }
+            }
+            Vector3 COTLocation = totalThrustStaticMoment / totalThrust.Length();
+            foreach (var curThrust in thrusters1)
+            {
+                if (IsOverridden(curThrust) || IsUsed(curThrust))
+                    curThrust.COTOffsetVector = curThrust.GridCenterPos * m_grid.GridSize - COTLocation;
+            }
+            foreach (var curThrust in thrusters2)
+            {
+                if (IsOverridden(curThrust) || IsUsed(curThrust))
+                    curThrust.COTOffsetVector = curThrust.GridCenterPos * m_grid.GridSize - COTLocation;
             }
         }
 
