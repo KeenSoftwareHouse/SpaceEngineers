@@ -519,6 +519,8 @@ namespace Sandbox.Game.Entities.Blocks
                 objectBuilder.ProjectionOffset = m_projectionOffset;
                 objectBuilder.ProjectionRotation = m_projectionRotation;
                 objectBuilder.KeepProjection = m_keepProjection;
+                objectBuilder.BuildableTransparency = m_buildableBlockTransparency;
+                objectBuilder.PendingTransparency = m_pendingBlockTransparency;
             }
             else
             {
@@ -528,6 +530,8 @@ namespace Sandbox.Game.Entities.Blocks
                     objectBuilder.ProjectionOffset = m_projectionOffset;
                     objectBuilder.ProjectionRotation = m_projectionRotation;
                     objectBuilder.KeepProjection = m_keepProjection;
+                    objectBuilder.BuildableTransparency = m_buildableBlockTransparency;
+                    objectBuilder.PendingTransparency = m_pendingBlockTransparency;
                 }
                 else
                 {
@@ -553,6 +557,9 @@ namespace Sandbox.Game.Entities.Blocks
 
                 m_savedProjection = projectorBuilder.ProjectedGrid;
                 m_keepProjection = projectorBuilder.KeepProjection;
+
+                m_buildableBlockTransparency = projectorBuilder.BuildableTransparency;
+                m_pendingBlockTransparency = projectorBuilder.PendingTransparency;
             }
 
             PowerReceiver = new MyPowerReceiver(
