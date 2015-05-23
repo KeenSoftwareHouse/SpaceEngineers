@@ -10108,5 +10108,15 @@ namespace Sandbox.Game.Localization
         ///Old Scrap Metal
         ///</summary>
         public static readonly MyStringId DisplayName_Item_ScrapIngot = MyStringId.GetOrCompute("DisplayName_Item_ScrapIngot");
+
+        ///<summary>
+        ///Non Weldable Block Opacity
+        ///</summary>
+        public static readonly MyStringId BlockPropertyTitle_ProjectionPendingBlockOpacity = MyStringId.GetOrCompute("BlockPropertyTitle_ProjectionPendingBlockOpacity");
+
+        ///<summary>
+        ///Weldable Block Opacity
+        ///</summary>
+        public static readonly MyStringId BlockPropertyTitle_ProjectionWeldableBlockOpacity = MyStringId.GetOrCompute("BlockPropertyTitle_ProjectionWeldableBlockOpacity");
     }
 }

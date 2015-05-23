@@ -6264,4 +6264,10 @@ To connect to lasers not listed here you can connect to coordinates.</value>
   <data name="DisplayName_Item_ScrapIngot" xml:space="preserve">
     <value>Old Scrap Metal</value>
   </data>
+  <data name="BlockPropertyTitle_ProjectionPendingBlockOpacity" xml:space="preserve">
+    <value>Non Weldable Block Opacity</value>
+  </data>
+  <data name="BlockPropertyTitle_ProjectionWeldableBlockOpacity" xml:space="preserve">
+    <value>Weldable Block Opacity</value>
+  </data>
 </root>
