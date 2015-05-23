@@ -87,27 +87,23 @@ float4 CalculateColorValues(CalculatedWorldValues worldValues, out CalculatedCol
 
 	float specularIntensity = colorValues.Diffuse.a * SPECULAR_INTENSITY_RATIO;
 
-	float attenuation = GetDynamicLightBaseIntensity(length(lightVector), radius, 1/falloff); 
+	float attenuation = GetDynamicLightBaseIntensity(length(lightVector), radius, 1 / falloff);
 
 	//if att > 0, int > 0
 
 	lightVector = normalize(lightVector);
 
-	//reflection vector
-    float3 reflectionVector = normalize(reflect(-lightVector, normal));
+	//camera-to-surface vector
+	float3 directionToCamera = normalize(CameraPosition - worldValues.Position);
 
-    //camera-to-surface vector
-    float3 directionToCamera = normalize(CameraPosition - worldValues.Position);
+	float F;
+	float specularLight = CalcSpec(lightVector, directionToCamera, normal, specularIntensity, specularPower, F);
 
-    //compute specular light
-    float specularLight = specularIntensity * pow( saturate(dot(reflectionVector, directionToCamera)), specularPower);
+	colorValues.NdL = saturate(dot(normal, lightVector));
 
-	colorValues.NdL = max(0,dot(normal,lightVector));
+	colorValues.Specular = specularLight.xxx * lerp(float3(1, 1, 1), colorValues.Diffuse.rgb, 0.5);
 
-    float3 diffuseLight = colorValues.NdL * lightColor * colorValues.Diffuse.rgb;
-	colorValues.Specular = specularLight.xxx * lerp(float3(1,1,1), colorValues.Diffuse.rgb, 0.5);
-
-	return float4(attenuation * intensity * (diffuseLight + colorValues.Specular), 1);
+	return float4(colorValues.NdL * lightColor * attenuation * intensity * (colorValues.Diffuse * (1 - F) + colorValues.Specular), 1);
 }
 
 

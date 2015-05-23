@@ -159,15 +159,14 @@ float4 CalculateLighting(VertexShaderOutput input, out CalculatedValues values, 
 	
 	//compute diffuse light
 	float NdLbase = dot(normal.xyz, -LightDirection);
-	float NdL = max(0,NdLbase);
-	float3 diffuseLight = NdL * LightColorAndIntensity.xyz * values.Diffuse.rgb;
+	float NdL = saturate(NdLbase);
+	float3 diffuseLight = LightColorAndIntensity.xyz * values.Diffuse.rgb;
 
 	//compute back diffuse light
-	float backNdL = max(0,-NdLbase);
+	float backNdL = saturate(-NdLbase);
 	float3 backDiffuseLight = backNdL * BacklightColorAndIntensity.xyz * values.Diffuse.rgb;
 
 	//reflection vector
-	float3 reflectionVector = -(reflect(-LightDirection, normal.xyz));
 	float3 reflectionVectorBack = -(reflect(LightDirection, normal.xyz));
 
 	//camera-to-surface vector
@@ -210,11 +209,11 @@ float4 CalculateLighting(VertexShaderOutput input, out CalculatedValues values, 
 	//specularIntensity = 0.8f;
 	//specularPower = 2.0f;
 
+	float F = 0;
 	float specularLight = 0;	
 	if ((shadows.x + specularIntensity) > 0)
 	{
-		//compute specular light
-		float specularLight = specularIntensity * pow( saturate(dot(reflectionVector, directionToCamera)), specularPower);
+		float specularLight = CalcSpec(-LightDirection, directionToCamera, normal, specularIntensity, specularPower, F);
 		//values.Specular = specularLight.xxx * LightSpecularColor * lerp(LightSpecularColor, values.Diffuse.rgb, 0.5);
 		values.Specular = specularLight.xxx * LightSpecularColor;
 		//values.Specular = float3(1,0,0);
@@ -226,9 +225,9 @@ float4 CalculateLighting(VertexShaderOutput input, out CalculatedValues values, 
 	float3 ambientTexCoord = -normal.xyz;
 	float4 ambientSample = SampleAmbientTexture(ambientTexCoord);
 	float3 ambientColor = AmbientMinimumAndIntensity.w * ambientSample.xyz * EnableAmbientEnv;
-	float3 finalAmbientColor =  max(ambientColor, AmbientMinimumAndIntensity.xyz) * values.Diffuse.rgb;
+	float3 finalAmbientColor = max(ambientColor, AmbientMinimumAndIntensity.xyz) * values.Diffuse.rgb;
 
-	float4 lightColor =  float4(((LightColorAndIntensity.w * (diffuseLight + values.Specular))) * max(shadows, shadowsDisabled), 1) * lightingEnabled;
+	float4 lightColor = float4(((NdL * LightColorAndIntensity.w * (diffuseLight * (1 - F) + values.Specular))) * max(shadows, shadowsDisabled), 1) * lightingEnabled;
 	lightColor += float4(finalAmbientColor + BacklightColorAndIntensity.w * (backDiffuseLight + backSpecular) * ambientSample.w, 1);
 	float4 result = lightColor;
 
