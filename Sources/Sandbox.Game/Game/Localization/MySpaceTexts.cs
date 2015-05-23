@@ -10348,5 +10348,15 @@ namespace Sandbox.Game.Localization
         ///Enables rotation of base station block
         ///</summary>
         public static readonly MyStringId StationRotation_Static_Desc = MyStringId.GetOrCompute("StationRotation_Static_Desc");
+
+        ///<summary>
+        ///Non Weldable Block Opacity
+        ///</summary>
+        public static readonly MyStringId BlockPropertyTitle_ProjectionPendingBlockOpacity = MyStringId.GetOrCompute("BlockPropertyTitle_ProjectionPendingBlockOpacity");
+
+        ///<summary>
+        ///Weldable Block Opacity
+        ///</summary>
+        public static readonly MyStringId BlockPropertyTitle_ProjectionWeldableBlockOpacity = MyStringId.GetOrCompute("BlockPropertyTitle_ProjectionWeldableBlockOpacity");
     }
 }
