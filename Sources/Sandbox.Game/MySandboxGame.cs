@@ -440,7 +440,7 @@ namespace Sandbox
             AddDefaultGameControl(defaultGameControls, MyGuiControlTypeEnum.Systems3, MyControlsSpace.CUBE_ROTATE_HORISONTAL_NEGATIVE, null, MyKeys.End);
             AddDefaultGameControl(defaultGameControls, MyGuiControlTypeEnum.Systems3, MyControlsSpace.CUBE_ROTATE_ROLL_POSITIVE, null, MyKeys.Insert);
             AddDefaultGameControl(defaultGameControls, MyGuiControlTypeEnum.Systems3, MyControlsSpace.CUBE_ROTATE_ROLL_NEGATIVE, null, MyKeys.PageUp);
-            AddDefaultGameControl(defaultGameControls, MyGuiControlTypeEnum.Systems3, MyControlsSpace.CUBE_COLOR_CHANGE, MyMouseButtonsEnum.Middle, null);
+            AddDefaultGameControl(defaultGameControls, MyGuiControlTypeEnum.Systems3, MyControlsSpace.CUBE_COLOR_CHANGE, MyMouseButtonsEnum.Middle, MyKeys.OemQuestion);
             AddDefaultGameControl(defaultGameControls, MyGuiControlTypeEnum.Systems3, MyControlsSpace.SYMMETRY_SWITCH, null, MyKeys.M);
             AddDefaultGameControl(defaultGameControls, MyGuiControlTypeEnum.Systems3, MyControlsSpace.USE_SYMMETRY, null, MyKeys.N);
             AddDefaultGameControl(defaultGameControls, MyGuiControlTypeEnum.Systems3, MyControlsSpace.VOXEL_HAND_SETTINGS, null, MyKeys.H);
