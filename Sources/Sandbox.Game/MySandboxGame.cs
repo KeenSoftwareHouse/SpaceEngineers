@@ -935,7 +935,7 @@ namespace Sandbox
             MySandboxGame.Log.WriteLine("Preallocate - END");
         }
 
-        private static void PreloadTypesFrom(Assembly assembly)
+        public static void PreloadTypesFrom(Assembly assembly)
         {
             if (assembly != null)
                 ForceStaticCtor(assembly.GetTypes().Where(type => Attribute.IsDefined(type, typeof(PreloadRequiredAttribute))).ToArray());

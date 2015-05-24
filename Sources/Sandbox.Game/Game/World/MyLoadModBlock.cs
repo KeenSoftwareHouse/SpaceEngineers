@@ -128,6 +128,7 @@ namespace Sandbox.Game.World
             Sandbox.Game.Entities.Cube.MyCubeBlockFactory.RegisterFromAssembly(assembly);
             MyDefinitionManager.RegisterFromAssembly(assembly);
             Sandbox.Engine.Multiplayer.MyTransportLayer.RegisterFromAssembly(assembly);
+            MySandboxGame.PreloadTypesFrom(assembly);
         }
     }
 }
