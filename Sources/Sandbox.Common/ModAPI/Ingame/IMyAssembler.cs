@@ -57,10 +57,4 @@ namespace Sandbox.ModAPI.Ingame
         int GetQueueItemAmount(string itemType, string subtypeName);
     }
 
-    public struct AssemblerQueueItem
-    {
-        public int idx;
-        public string itemType, subtypeName;
-        public int amount;
-    }
 }
