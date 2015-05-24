@@ -87,7 +87,10 @@ namespace Sandbox.Common.ObjectBuilders
             if (m_typeByName.TryGetValue(value, out result))
                 return result;
             else
-                return m_typeByLegacyName[value];
+            {
+                 m_typeByLegacyName.TryGetValue(value, out result);
+            }
+            return result;
         }
 
         public static bool TryParse(string value, out MyObjectBuilderType result)
@@ -155,6 +158,33 @@ namespace Sandbox.Common.ObjectBuilders
                     const string PREFIX = "MyObjectBuilder_";
                     if (registerLegacyNames && type.Name.StartsWith(PREFIX))
                         m_typeByLegacyName.Add(type.Name.Substring(PREFIX.Length), myType);
+                }
+            }
+        }
+
+
+        public static void UnRegisterFromAssembly(Assembly assembly)
+        {
+            if (assembly == null)
+                return;
+
+            var baseType = typeof(MyObjectBuilder_Base);
+            var types = assembly.GetTypes();
+            Array.Sort(types, FullyQualifiedNameComparer.Default);
+            foreach (var type in types)
+            {
+                if (baseType.IsAssignableFrom(type))
+                {
+                    var myType = new MyObjectBuilderType(type);
+                    var myId = new MyRuntimeObjectBuilderId(++m_idCounter);
+
+                    m_typeById.Remove(myId);
+                    m_idByType.Remove(myType);
+                    m_typeByName.Remove(type.Name);
+
+                    const string PREFIX = "MyObjectBuilder_";
+                    if ( type.Name.StartsWith(PREFIX))
+                        m_typeByLegacyName.Remove(type.Name.Substring(PREFIX.Length));
                 }
             }
         }

@@ -127,6 +127,7 @@ namespace Sandbox.Game.World
             Sandbox.Common.ObjectBuilders.Serializer.MyObjectBuilderSerializer.LoadSerializers(assembly);
             Sandbox.Game.Entities.Cube.MyCubeBlockFactory.RegisterFromAssembly(assembly);
             MyDefinitionManager.RegisterFromAssembly(assembly);
+            Sandbox.Engine.Multiplayer.MyTransportLayer.RegisterFromAssembly(assembly);
         }
     }
 }
