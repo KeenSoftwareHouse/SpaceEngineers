@@ -1620,13 +1620,18 @@ namespace Sandbox.Game.Weapons
 
             foreach (var target in m_targetList)
             {
-                // Base the distance for targetting purposes on where the target will be soon, not where it is now.
-                // This prioritizes things that are moving towards us.
-                var targetVelocity = target.Physics != null
-                    ? target.Physics.LinearVelocity
-                    : target.GetTopMostParent().Physics.LinearVelocity;
-                var targetRelativeVelocity = targetVelocity - Parent.Physics.LinearVelocity;
-                var predictedPosition = target.PositionComp.GetPosition() + targetRelativeVelocity * TARGETING_PREDICTION_TIME;
+                var predictedPosition = target.PositionComp.GetPosition();
+
+                if (target.Physics != null || target.GetTopMostParent().Physics != null)
+                {
+                    // Base the distance for targetting purposes on where the target will be soon, not where it is now.
+                    // This prioritizes things that are moving towards us.
+                    var targetVelocity = target.Physics != null
+                        ? target.Physics.LinearVelocity
+                        : target.GetTopMostParent().Physics.LinearVelocity;
+                    var targetRelativeVelocity = targetVelocity - Parent.Physics.LinearVelocity;
+                    predictedPosition += targetRelativeVelocity * TARGETING_PREDICTION_TIME;
+                }
 
                 var dist = Vector3D.DistanceSquared(predictedPosition, PositionComp.GetPosition());
 
