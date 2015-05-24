@@ -36,7 +36,7 @@ namespace Sandbox.ModAPI.Ingame
         /// OutOfRange - Not in range of another connector
         /// ReadyToLock - In range but not connected
         /// Connected - Connected to OtherConnector
-        /// i.e. if (myConnector.ConnectState == ConnectorState.Connected) DoStuffWhenConnected();
+        /// i.e. if (myConnector.Status == ConnectorStatus.Connected) DoStuffWhenConnected();
         /// </summary>
         ConnectorStatus Status { get; }
 
