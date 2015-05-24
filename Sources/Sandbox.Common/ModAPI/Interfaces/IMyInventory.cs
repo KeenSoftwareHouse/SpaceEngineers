@@ -53,5 +53,13 @@ namespace Sandbox.ModAPI.Interfaces
             get;
         }
         bool IsConnectedTo(IMyInventory dst);
+
+        /// <summary>
+        /// Counts the amount of an item in inventory
+        /// </summary>
+        /// <param name="itemType">The item type, i.e. MyObjectBuilder_Component</param>
+        /// <param name="subtypeName">The subtype name, i.e. SteelPlate, Medical, MetalGrid, etc.</param>
+        /// <returns>VRage.MyFixedPoint number of items found</returns>
+        VRage.MyFixedPoint CountItem(string itemType, string subtypeName);
     }
 }

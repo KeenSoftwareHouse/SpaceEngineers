@@ -195,5 +195,16 @@ namespace Sandbox.Game
             }
             return false;
         }
+
+        VRage.MyFixedPoint Sandbox.ModAPI.Interfaces.IMyInventory.CountItem(string itemType, string subtypeName)
+        {
+            VRage.MyFixedPoint count = 0;
+            foreach(MyInventoryItem item in m_items)
+            {
+                if (item.Content.TypeId.ToString() == itemType && item.Content.SubtypeName == subtypeName)
+                    count += item.Amount;
+            }
+            return count;
+        }
     }
 }
