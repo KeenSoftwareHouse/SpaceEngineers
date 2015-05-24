@@ -38,7 +38,7 @@ namespace Sandbox.ModAPI.Ingame
         /// Connected - Connected to OtherConnector
         /// i.e. if (myConnector.ConnectState == ConnectorState.Connected) DoStuffWhenConnected();
         /// </summary>
-        ConnectorState ConnectState { get; }
+        ConnectorStatus Status { get; }
 
         /// <summary>
         /// The other connector that this connector is connected too.
@@ -46,10 +46,4 @@ namespace Sandbox.ModAPI.Ingame
         IMyShipConnector OtherConnector { get; }
     }
 
-    public enum ConnectorState
-    {
-        OutOfRange,
-        ReadyToLock,
-        Connected
-    }
 }
