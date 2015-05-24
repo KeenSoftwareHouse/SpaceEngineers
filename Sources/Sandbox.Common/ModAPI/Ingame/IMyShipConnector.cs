@@ -18,17 +18,17 @@ namespace Sandbox.ModAPI.Ingame
         bool CollectAll { get; }
 
         /// <summary>
-        /// DEPRECATED use ConnectStatus
+        /// DEPRECATED use Status
         /// Connector is working and in range of another connector, could be connected or ready to lock (Read Only)
         /// </summary>
-        [Obsolete("Deprecated, Use ConnectStatus instead")]
+        [Obsolete("Deprecated, Use Status instead")]
         bool IsLocked { get; }
 
         /// <summary>
-        /// DEPRECATED use ConnectStatus
+        /// DEPRECATED use Status
         /// Connector is connected to another connector (Read Only)
         /// </summary>
-        [Obsolete("Deprecated, Use ConnectStatus instead")]
+        [Obsolete("Deprecated, Use Status instead")]
         bool IsConnected { get; }
 
         /// <summary>
