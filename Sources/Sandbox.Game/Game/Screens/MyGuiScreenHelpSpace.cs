@@ -142,6 +142,7 @@ namespace Sandbox.Game.Gui
             advancedPage.LeftColumn.Add(new ControlWithDescription(MyControlsSpace.INVENTORY));
             advancedPage.LeftColumn.Add(new ControlWithDescription(MyControlsSpace.TOGGLE_REACTORS));
             advancedPage.LeftColumn.Add(new ControlWithDescription(MyControlsSpace.TERMINAL));
+            advancedPage.LeftColumn.Add(new ControlWithDescription(MyControlsSpace.TOGGLE_TERMINAL));
             advancedPage.LeftColumn.Add(new ControlWithDescription(MyControlsSpace.HEADLIGHTS));
             advancedPage.LeftColumn.Add(new ControlWithDescription(MyControlsSpace.SUICIDE));
             advancedPage.LeftColumn.Add(new ControlWithDescription(MyControlsSpace.TOGGLE_HUD));
