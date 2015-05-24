@@ -480,9 +480,9 @@ namespace VRage.Dedicated
             var checkBox = tableLayoutPanel1.Controls.Find("EnableCopyPaste", true)[0] as CheckBox;
 
             checkBox.Enabled = enabled;
-            checkBox.Checked = enabled;
+            checkBox.Checked = !enabled ? false : m_selectedSessionSettings.EnableCopyPaste;
             checkLabel[0].Enabled = enabled;
-            m_selectedSessionSettings.EnableCopyPaste = enabled;
+            m_selectedSessionSettings.EnableCopyPaste = checkBox.Checked;
 
             checkLabel = tableLayoutPanel1.Controls.Find("PermanentDeathLabel", true);
             var foundControls = tableLayoutPanel1.Controls.Find("PermanentDeath", true);
