@@ -1348,9 +1348,15 @@ namespace Sandbox.Game.Entities.Cube
             get { return Connected; }
         }
 
-        bool IMyShipConnector.IsReadyToLock
+        ConnectorState IMyShipConnector.ConnectState
         {
-            get { return !Connected && InConstraint; }
+            get {
+                if (!Connected && InConstraint)
+                    return ConnectorState.ReadyToLock;
+                else if (Connected)
+                    return ConnectorState.Connected;
+                return ConnectorState.OutOfRange;
+            }
         }
 
         IMyShipConnector IMyShipConnector.OtherConnector

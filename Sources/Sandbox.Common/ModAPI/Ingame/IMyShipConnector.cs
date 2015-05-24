@@ -18,25 +18,38 @@ namespace Sandbox.ModAPI.Ingame
         bool CollectAll { get; }
 
         /// <summary>
-        /// DEPRECATED use IsReadyToLock or for same functionallity IsReadyToLock || IsConnected
+        /// DEPRECATED use ConnectState
         /// Connector is working and in range of another connector, could be connected or ready to lock (Read Only)
         /// </summary>
-        [Obsolete("Deprecated, Use IsReadyToLock instead")]
+        [Obsolete("Deprecated, Use ConnectState instead")]
         bool IsLocked { get; }
 
         /// <summary>
+        /// DEPRECATED use ConnectState
         /// Connector is connected to another connector (Read Only)
         /// </summary>
+        [Obsolete("Deprecated, Use ConnectState instead")]
         bool IsConnected { get; }
 
         /// <summary>
-        /// Connector is in range and ready to lock with another connector, returns false if already connected. (Read Only)
+        /// Represents state of connection
+        /// OutOfRange - Not in range of another connector
+        /// ReadyToLock - In range but not connected
+        /// Connected - Connected to OtherConnector
+        /// i.e. if (myConnector.ConnectState == ConnectorState.Connected) DoStuffWhenConnected();
         /// </summary>
-        bool IsReadyToLock { get; }
+        ConnectorState ConnectState { get; }
 
         /// <summary>
         /// The other connector that this connector is connected too.
         /// </summary>
         IMyShipConnector OtherConnector { get; }
+    }
+
+    public enum ConnectorState
+    {
+        OutOfRange,
+        ReadyToLock,
+        Connected
     }
 }
