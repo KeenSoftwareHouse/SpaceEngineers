@@ -18,8 +18,10 @@ namespace Sandbox.ModAPI.Ingame
         bool CollectAll { get; }
 
         /// <summary>
+        /// DEPRECATED use IsReadyToLock or for same functionallity IsReadyToLock || IsConnected
         /// Connector is working and in range of another connector, could be connected or ready to lock (Read Only)
         /// </summary>
+        [Obsolete("Deprecated, Use IsReadyToLock instead")]
         bool IsLocked { get; }
 
         /// <summary>
