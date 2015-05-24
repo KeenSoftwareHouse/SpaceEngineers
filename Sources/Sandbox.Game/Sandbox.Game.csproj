@@ -601,6 +601,7 @@
     <Compile Include="Game\Multiplayer\MyFactionCollection.cs" />
     <Compile Include="Game\Multiplayer\MySyncUserControllableGun.cs" />
     <Compile Include="Game\Multiplayer\MySyncThrower.cs" />
+    <Compile Include="Game\Multiplayer\MySyncVirtualMass.cs" />
     <Compile Include="Game\Multiplayer\MyToolbarCollection.cs" />
     <Compile Include="Game\MyCredits.cs" />
     <Compile Include="Game\MyControlsSpace.cs" />

@@ -15,6 +15,11 @@ namespace Sandbox.Definitions
         public float RequiredPowerInput;
         public float VirtualMass;
 
+        /// <summary>
+        ///     Max allowed virtual mass for block
+        /// </summary>
+        public float MaxVirtualMass = 10000;
+
         protected override void Init(MyObjectBuilder_DefinitionBase builder)
         {
             base.Init(builder);
