@@ -161,17 +161,10 @@ float4 CalculateLighting(VertexShaderOutput input, out CalculatedValues values, 
 	float NdLbase = dot(normal.xyz, -LightDirection);
 	float NdL = saturate(NdLbase);
 	float3 diffuseLight = LightColorAndIntensity.xyz * values.Diffuse.rgb;
-
-	//compute back diffuse light
-	float backNdL = saturate(-NdLbase);
-	float3 backDiffuseLight = backNdL * BacklightColorAndIntensity.xyz * values.Diffuse.rgb;
-
-	//reflection vector
-	float3 reflectionVectorBack = -(reflect(LightDirection, normal.xyz));
+	float3 backDiffuseLight = BacklightColorAndIntensity.xyz * values.Diffuse.rgb;
 
 	//camera-to-surface vector
 	float3 directionToCamera = normalize(CameraPosition - worldPosition.xyz);
-
 
 	float3 shadows = 0;
 
@@ -218,8 +211,8 @@ float4 CalculateLighting(VertexShaderOutput input, out CalculatedValues values, 
 		values.Specular = specularLight.xxx * LightSpecularColor;
 		//values.Specular = float3(1,0,0);
 	}
-
-	float backSpecular = specularIntensity * pow( saturate(dot(reflectionVectorBack, directionToCamera)), specularPower) * 0.5f;
+	
+	float backSpecular = specularIntensity * pow(1 - dot(normal, directionToCamera), specularPower) * 0.5f;
 	backSpecular = backSpecular.xxx * float3(1,1,1) * lerp(float3(1,1,1), values.Diffuse.rgb, 0.5);
 
 	float3 ambientTexCoord = -normal.xyz;
@@ -228,7 +221,7 @@ float4 CalculateLighting(VertexShaderOutput input, out CalculatedValues values, 
 	float3 finalAmbientColor = max(ambientColor, AmbientMinimumAndIntensity.xyz) * values.Diffuse.rgb;
 
 	float4 lightColor = float4(((NdL * LightColorAndIntensity.w * (diffuseLight * (1 - F) + values.Specular))) * max(shadows, shadowsDisabled), 1) * lightingEnabled;
-	lightColor += float4(finalAmbientColor + BacklightColorAndIntensity.w * (backDiffuseLight + backSpecular) * ambientSample.w, 1);
+	lightColor += float4(finalAmbientColor + BacklightColorAndIntensity.w * (backDiffuseLight * (1 - specularIntensity) + backSpecular) * ambientSample.w, 1);
 	float4 result = lightColor;
 
 	if ((reflection > 0) && (specularIntensity > 0))

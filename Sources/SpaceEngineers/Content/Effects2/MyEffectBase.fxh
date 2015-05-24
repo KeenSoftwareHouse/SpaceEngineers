@@ -567,12 +567,12 @@ float4 SampleAmbientTexture(float3 ambientTexCoord)
 
 float Fresnel( float F0, float HdotL )
 {
-  return F0 + ( 1 - F0 ) * pow( 1 - HdotL, 5 );
+	return F0 + ( 1 - F0 ) * pow( 1 - HdotL, 5 );
 }
 
 float CalcSpec(float3 L, float3 V, float3 N, float SpecGloss, float SpecPower, out float F)
 {
 	float3 H = normalize( L + V );
-    F = Fresnel( SpecGloss, dot( H, L ) );
-    return pow( saturate( dot( N, H ) ), SpecPower ) * ( SpecPower + 8 ) / 8 * F;
+	F = Fresnel( SpecGloss, dot( H, L ) );
+	return pow( saturate( dot( N, H ) ), SpecPower ) * ( SpecPower + 8 ) / 8 * F;
 }
