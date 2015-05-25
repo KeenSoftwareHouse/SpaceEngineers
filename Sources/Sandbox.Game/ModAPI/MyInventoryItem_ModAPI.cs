@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Sandbox.Common.ObjectBuilders.Definitions;
 
 namespace Sandbox.Game
 {
@@ -40,6 +41,17 @@ namespace Sandbox.Game
             set
             {
                 ItemId = value;
+            }
+        }
+
+        float ModAPI.Interfaces.IMyInventoryItem.OxygenBottleLevel
+        {
+            get
+            {
+                if (this.Content.TypeId != typeof(MyObjectBuilder_OxygenContainerObject))
+                    return -1;
+                else
+                    return (this.Content as MyObjectBuilder_OxygenContainerObject).OxygenLevel;
             }
         }
     }
