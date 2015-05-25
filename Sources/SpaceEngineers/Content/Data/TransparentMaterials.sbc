@@ -228,7 +228,7 @@
         <SubtypeId>GlareHeadlight</SubtypeId>
       </Id>								
       <AlphaMistingEnable>false</AlphaMistingEnable>
-      <AlphaSaturation>1</AlphaSaturation>
+      <AlphaSaturation>0.55</AlphaSaturation>
       <CanBeAffectedByOtherLights>false</CanBeAffectedByOtherLights>
       <Emissivity>0</Emissivity>
       <IgnoreDepth>true</IgnoreDepth>
