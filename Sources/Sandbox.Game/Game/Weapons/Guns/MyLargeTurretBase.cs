@@ -3189,7 +3189,7 @@ namespace Sandbox.Game.Weapons
             // We want the smallest nonnegative timeToTarget. 
             // This is always given by the solution with positive square root.
             double timeToTarget = a / (sqrtDeterminant - half_b);
-            Vector3D predictedPosition = targetPosition + targetVelocity * timeToTarget;
+            Vector3D predictedPosition = targetPosition + targetRelativeVelocity * timeToTarget;
 
             if (shotAcceleration > 0)
             {
@@ -3225,7 +3225,7 @@ namespace Sandbox.Game.Weapons
                     timeToTarget += correction;
                 }
 
-                predictedPosition = targetPosition + targetVelocity * timeToTarget;
+                predictedPosition = targetPosition + targetRelativeVelocity * timeToTarget;
             }
 
             return predictedPosition;
