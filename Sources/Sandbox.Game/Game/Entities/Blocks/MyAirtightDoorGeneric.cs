@@ -297,5 +297,15 @@ namespace Sandbox.Game.Entities.Blocks
             add { DoorStateChanged += value; }
             remove { DoorStateChanged -= value; }
         }
+
+        public virtual float OpenPosition
+        {
+            get { return m_currOpening * m_subpartMovementDistance; }
+        }
+
+        public virtual float MaxOpenPosition
+        {
+            get { return m_subpartMovementDistance; }
+        }
     }
 }

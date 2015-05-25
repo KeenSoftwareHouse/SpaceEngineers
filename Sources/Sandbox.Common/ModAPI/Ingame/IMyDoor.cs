@@ -16,5 +16,15 @@ namespace Sandbox.ModAPI.Ingame
         /// Door state, zero is fully closed. One is fully opened.
         /// </summary>
         float OpenRatio { get; }
+
+        /// <summary>
+        /// Current open position of the door.
+        /// </summary>
+        float OpenPosition { get; }
+
+        /// <summary>
+        /// Maximum open position of the door.
+        /// </summary>
+        float MaxOpenPosition { get; }
     }
 }

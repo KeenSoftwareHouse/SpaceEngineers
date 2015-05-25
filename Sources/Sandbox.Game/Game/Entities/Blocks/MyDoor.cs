@@ -373,5 +373,15 @@ namespace Sandbox.Game.Entities
             add { DoorStateChanged += value; }
             remove { DoorStateChanged -= value; }
         }
+
+        public float OpenPosition
+        {
+            get { return m_currOpening; }
+        }
+
+        public float MaxOpenPosition
+        {
+            get { return MaxOpen; }
+        }
     }
 }
