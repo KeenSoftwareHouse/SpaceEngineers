@@ -11,7 +11,8 @@ namespace Sandbox.ModAPI.Interfaces
         /// <summary>
         /// Level of oxygen in the bottle as float 0-1.
         /// I.e. 0.5 = 50%
-        /// Usage Example:
+        /// </summary>
+        /// <example>
         ///    var OxyGen = GridTerminalSystem.GetBlockWithName("Oxygen Generator"); 
         ///    var inv = OxyGen.GetInventory(0); 
         ///    var items = inv.GetItems(); 
@@ -20,7 +21,7 @@ namespace Sandbox.ModAPI.Interfaces
         ///        if (item.Content is IMyOxygenBottle) 
         ///            Echo("OxyLevel:" + (item.Content as IMyOxygenBottle).OxygenLevel); 
         ///    }); 
-        /// </summary>
+        /// </example>
         float OxygenLevel { get; }
     }
 }
