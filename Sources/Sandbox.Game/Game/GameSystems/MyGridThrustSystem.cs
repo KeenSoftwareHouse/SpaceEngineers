@@ -56,7 +56,6 @@ namespace Sandbox.Game.GameSystems
         const int   COM_UPDATE_TICKS      = 10;
         const float MAX_THRUST_CHANGE     = 0.2f;
         const float ANGULAR_STABILISATION = -0.01f;
-        const float ANGULAR_STAB_FADEOUT  = 1.0f;
 
         private float m_currentRequiredPowerInput;
         private MyCubeGrid m_grid;
