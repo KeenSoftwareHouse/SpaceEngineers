@@ -55,8 +55,9 @@ namespace Sandbox.Game.GameSystems
         // Only used when thruster torque is enabled (it's currently tied to thruster damage checkbox).
         const int   COM_UPDATE_TICKS      = 10;
         const float MAX_THRUST_CHANGE     = 0.2f;
-        const float ANGULAR_STABILISATION = -0.05f;
-        
+        const float ANGULAR_STABILISATION = -0.01f;
+        const float ANGULAR_STAB_FADEOUT  = 1.0f;
+
         private float m_currentRequiredPowerInput;
         private MyCubeGrid m_grid;
         private Vector3 m_maxNegativeThrust;
@@ -353,8 +354,8 @@ namespace Sandbox.Game.GameSystems
                                                       // from stationary to accelerating mode.
                                                       // In stationary mode RCS employs 3 separate centres of thrust, one for each pair
                                                       // of opposite thruster sets in order to maximise turning rate.
-                                                      // In accelerating mode only 1 common COT for all engines is used.
-            const float LINEAR_INEFFICIENCY = 0.1f;   // A maximum relative force magnitude at which opposing thrusters are allowed 
+                                                      // In accelerating mode centre of mass is used instead as a reference point.
+            const float LINEAR_INEFFICIENCY = 0.1f;  // A maximum relative force magnitude at which opposing thrusters are allowed 
                                                       // to push against each other when accelerating. Increasing this value will prioritise
                                                       // turning over linear acceleration, thus improving rotational responsiveness on 
                                                       // unbalanced designs at cost of producing undesired linear movement. Use a value 
@@ -424,9 +425,9 @@ namespace Sandbox.Game.GameSystems
                     AdjustThrustForRotation(m_thrustsByDirection[Vector3I.Down    ], Vector3.Up      , ref adjustedThrust, m_maxPositiveThrust.Y, LocalAngularVelocity, desiredAngularVelocity);
                 if (thrustNegative.Z <= LINEAR_INEFFICIENCY && m_totalThrustOverride.Z >= -1.0f)
                     AdjustThrustForRotation(m_thrustsByDirection[Vector3I.Forward ], Vector3.Backward, ref adjustedThrust, m_maxPositiveThrust.Z, LocalAngularVelocity, desiredAngularVelocity);
-                if (thrustPositive.X <= LINEAR_INEFFICIENCY && m_totalThrustOverride.X <= 1.0f)
+                if (thrustPositive.X <= LINEAR_INEFFICIENCY && m_totalThrustOverride.X <= 1.0f )
                     AdjustThrustForRotation(m_thrustsByDirection[Vector3I.Right   ], Vector3.Right   , ref adjustedThrust, m_maxNegativeThrust.X, LocalAngularVelocity, desiredAngularVelocity);
-                if (thrustPositive.Y <= LINEAR_INEFFICIENCY && m_totalThrustOverride.Y <= 1.0f)
+                if (thrustPositive.Y <= LINEAR_INEFFICIENCY && m_totalThrustOverride.Y <= 1.0f )
                     AdjustThrustForRotation(m_thrustsByDirection[Vector3I.Up      ], Vector3.Up      , ref adjustedThrust, m_maxNegativeThrust.Y, LocalAngularVelocity, desiredAngularVelocity);
                 if (thrustPositive.Z <= LINEAR_INEFFICIENCY && m_totalThrustOverride.Z <= 1.0f)
                     AdjustThrustForRotation(m_thrustsByDirection[Vector3I.Backward], Vector3.Backward, ref adjustedThrust, m_maxNegativeThrust.Z, LocalAngularVelocity, desiredAngularVelocity);
@@ -528,39 +529,18 @@ namespace Sandbox.Game.GameSystems
                     }
                 }
             }
-//<<<<<<< HEAD
         }
 
         private void UpdateCenterOfThrustAcceelerating()
         {
-            Vector3 totalThrustStaticMoment = Vector3.Zero;
-            float   totalThrust             = 0;
-
             foreach (var dir in m_thrustsByDirection)
             {
                 foreach (var curThrust in dir.Value)
                 {
                     if (IsOverridden(curThrust) || IsUsed(curThrust))
-                    {
-                        totalThrustStaticMoment += curThrust.StaticMoment;
-                        totalThrust             += curThrust.ThrustForce.Length();
-                    }
+                        curThrust.COTOffsetVector = curThrust.COMOffsetVector;
                 }
             }
-            Vector3 COTLocation = totalThrustStaticMoment / totalThrust;
-            foreach (var dir in m_thrustsByDirection)
-            {
-                foreach (var curThrust in dir.Value)
-                {
-                    if (IsOverridden(curThrust) || IsUsed(curThrust))
-                        curThrust.COTOffsetVector = curThrust.GridCenterPos * m_grid.GridSize - COTLocation;
-                }
-            }
-            var invTensor = m_grid.Physics.RigidBody.InverseInertiaTensor;
-            Vector3 invTensorVector = new Vector3(invTensor.M11, invTensor.M22, invTensor.M33);
-            var minInvTensor = invTensorVector.Min();
-//=======
-//>>>>>>> KeenSoftwareHouse/master
         }
 
         private void UpdateCenterOfThrustStationary(HashSet<MyThrust> thrusters1, HashSet<MyThrust> thrusters2)
