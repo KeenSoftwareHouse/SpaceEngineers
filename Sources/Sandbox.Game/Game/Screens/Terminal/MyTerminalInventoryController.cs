@@ -816,7 +816,7 @@ namespace Sandbox.Game.Gui
             if (ctrlPressed || shiftPressed || altPressed)
             {
                 var item = (MyInventoryItem)sender.GetItemAt(eventArgs.ItemIndex).UserData;
-                item.Amount = MyFixedPoint.Min((shiftPressed ? 100 : 1) * (ctrlPressed ? 10 : 1) * 1, item.Amount);
+                item.Amount = MyFixedPoint.Min((shiftPressed ? 100 : 1) * (ctrlPressed ? 10 : 1), item.Amount);
                 bool transfered = TransferToOppositeFirst(item);
                 RefreshSelectedInventoryItem();
                 //MyAudio.Static.PlayCue(transfered ? MySoundCuesEnum.HudMouseClick : MySoundCuesEnum.HudUnable);
