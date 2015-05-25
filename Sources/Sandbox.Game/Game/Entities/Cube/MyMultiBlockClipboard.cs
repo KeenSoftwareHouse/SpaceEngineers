@@ -508,11 +508,16 @@ namespace Sandbox.Game.Entities.Cube
 
                 if (MySession.Static.SurvivalMode && !MyCubeBuilder.DeveloperSpectatorIsBuilding)
                 {
+                    if (i == 0 && MySession.GetCameraControllerEnum() == MyCameraControllerEnum.Spectator)
+                    {
+                        m_visible = false;
+                        return false;
+                    }
+
                     if (i == 0 && !MyCubeBuilder.Static.DynamicMode)
                     {
                         MatrixD invMatrix = grid.PositionComp.WorldMatrixNormalizedInv;
-                        if (!MyCubeBuilderGizmo.DefaultGizmoCloseEnough(ref invMatrix, (BoundingBoxD)grid.PositionComp.LocalAABB, grid.GridSize, MyCubeBuilder.Static.IntersectionDistance) 
-                            || MySession.GetCameraControllerEnum() == MyCameraControllerEnum.Spectator)
+                        if (!MyCubeBuilderGizmo.DefaultGizmoCloseEnough(ref invMatrix, (BoundingBoxD)grid.PositionComp.LocalAABB, grid.GridSize, MyCubeBuilder.Static.IntersectionDistance))
                         {
                             m_visible = false;
                             return false;

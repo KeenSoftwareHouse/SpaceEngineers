@@ -494,7 +494,7 @@ namespace Sandbox.Engine.Utils
         
         public static bool ENABLE_COLLISONS_ON_RAGDOLL = true;
 
-        public static bool ENABLE_STATION_ROTATION = false;
+        public static bool ENABLE_STATION_ROTATION = true;
 
         public static bool ENABLE_CONTROLLER_HINTS = true;
 

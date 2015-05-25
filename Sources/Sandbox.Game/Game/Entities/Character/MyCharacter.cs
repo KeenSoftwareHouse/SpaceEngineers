@@ -666,7 +666,9 @@ namespace Sandbox.Game.Entities.Character
 
             if (!MyDefinitionManager.Static.Characters.TryGetValue(m_characterModel, out m_characterDefinition))
             {
+                System.Diagnostics.Debug.Fail("Character model " + m_characterModel + " not found!");
                 m_characterDefinition = MyDefinitionManager.Static.Characters.First();
+                m_characterModel = m_characterDefinition.Model;
             }
 
             CharacterHeight = m_characterDefinition.CharacterHeight;

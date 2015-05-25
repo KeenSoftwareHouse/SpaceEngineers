@@ -2,7 +2,7 @@
 <Definitions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
   <Characters>    
     <Character>
-      <Name>Engineer_suit</Name>
+      <Name>Default_Astronaut</Name>
       <Model>Models\Characters\Astronaut\SE_astronaut.mwm</Model>
       <Mass>100</Mass>
       <MaxHealth>100</MaxHealth>
@@ -331,7 +331,7 @@
       <DamageAmountAtZeroPressure>7</DamageAmountAtZeroPressure>
       <OxygenCapacity>60</OxygenCapacity>
       <NeedsOxygen>true</NeedsOxygen>
-      <HelmetVariation>Engineer_suit</HelmetVariation>
+      <HelmetVariation>Default_Astronaut</HelmetVariation>
 
       <!-- Jetpack -->
       <JetpackAvailable>true</JetpackAvailable>

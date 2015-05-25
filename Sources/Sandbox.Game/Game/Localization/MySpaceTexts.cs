@@ -10328,5 +10328,15 @@ namespace Sandbox.Game.Localization
         ///Changing the renderer requires restart of the game.
         ///</summary>
         public static readonly MyStringId ToolTipVideoOptionsRenderer = MyStringId.GetOrCompute("ToolTipVideoOptionsRenderer");
+
+        ///<summary>
+        ///Station rotation
+        ///</summary>
+        public static readonly MyStringId StationRotation_Static = MyStringId.GetOrCompute("StationRotation_Static");
+
+        ///<summary>
+        ///Enables rotation of base station block
+        ///</summary>
+        public static readonly MyStringId StationRotation_Static_Desc = MyStringId.GetOrCompute("StationRotation_Static_Desc");
     }
 }

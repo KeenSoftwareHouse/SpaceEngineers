@@ -973,6 +973,13 @@ namespace Sandbox.Game.Entities
             }
         }
 
+        public void EnableStationRotation()
+        {
+            m_shipCreationClipboard.EnableStationRotation = !m_shipCreationClipboard.EnableStationRotation;
+            m_clipboard.EnableStationRotation = !m_clipboard.EnableStationRotation;
+            m_floatingObjectClipboard.EnableStationRotation = !m_floatingObjectClipboard.EnableStationRotation;
+        }
+
         public bool HandleGameInput()
         {
             m_rotationHintRotating = false;
@@ -1020,6 +1027,11 @@ namespace Sandbox.Game.Entities
             if (IsActivated && MyControllerHelper.IsControl(context, MyControlsSpace.BUILD_MODE))
             {
                 IsBuildMode = !IsBuildMode;
+            }
+
+            if (MyInput.Static.IsNewGameControlPressed(MyControlsSpace.STATION_ROTATION) && ShipCreationIsActivated)
+            {
+                EnableStationRotation();
             }
 
             // When spectator active, building is instant
@@ -1439,8 +1451,7 @@ namespace Sandbox.Game.Entities
                         MyInput.Static.IsNewRightMouseReleased())
                     {
                         StopBuilding();
-                    }
-
+                    }               
                 } //if (CurrentGrid != null)
                 else if (CurrentVoxelMap != null)
                 {
@@ -2035,6 +2046,14 @@ namespace Sandbox.Game.Entities
                 //    gizmoSpace.m_buildAllowed = false;
                 //    gizmoSpace.m_removeBlock = null;
                 //}
+
+                if (MySession.GetCameraControllerEnum() == MyCameraControllerEnum.Spectator)
+                {
+                    gizmoSpace.m_showGizmoCube = false;
+                    gizmoSpace.m_buildAllowed = false;
+                    return;
+                }
+
                 if (!MySession.Static.SimpleSurvival && MySession.ControlledEntity is MyCharacter)
                 {
                     gizmoSpace.m_buildAllowed &= (MySession.ControlledEntity as MyCharacter).CanStartConstruction(CurrentBlockDefinition);
@@ -3860,6 +3879,10 @@ namespace Sandbox.Game.Entities
 
             foreach (var gridBuilder in gridBuilders)
             {
+                if (gridBuilder.IsStatic && gridBuilder.PositionAndOrientation.HasValue)
+                {
+                    gridBuilder.PositionAndOrientation = MyPositionAndOrientation.Default;
+                }
                 foreach (var blockBuilder in gridBuilder.CubeBlocks)
                 {
                     blockBuilder.ColorMaskHSV = MyToolbar.ColorMaskHSV;
