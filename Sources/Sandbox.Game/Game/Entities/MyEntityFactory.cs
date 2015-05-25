@@ -45,12 +45,12 @@ namespace Sandbox.Game.Entities
         }
 
         // using an empty set instead of null avoids special-casing null
-        private static readonly HashSet<Type> EMPTY = new HashSet<Type>();
+        private static readonly HashSet<Type> m_emptySet = new HashSet<Type>();
 
         public static void AddScriptGameLogic(MyEntity entity, MyObjectBuilderType builderType, string subTypeName = null)
         {
             var scriptManager = Sandbox.Game.World.MyScriptManager.Static;
-            if (scriptManager == null)
+            if (scriptManager == null || entity == null)
                 return;
 
             // both types of logic components are valid to be attached:
@@ -60,15 +60,15 @@ namespace Sandbox.Game.Entities
             if (subTypeName != null)
             {
                 var key = new Tuple<Type, string>(builderType, subTypeName);
-                subEntityScripts = scriptManager.SubEntityScripts.GetValueOrDefault(key, EMPTY);
+                subEntityScripts = scriptManager.SubEntityScripts.GetValueOrDefault(key, m_emptySet);
             }
             else
             {
-                subEntityScripts = EMPTY;
+                subEntityScripts = m_emptySet;
             }
 
             // (2) and those that don't care about the subTypeName
-            HashSet<Type> entityScripts = scriptManager.EntityScripts.GetValueOrDefault(builderType, EMPTY);
+            HashSet<Type> entityScripts = scriptManager.EntityScripts.GetValueOrDefault(builderType, m_emptySet);
 
             // if there are no component types to attach leave the entity as-is
             var count = subEntityScripts.Count + entityScripts.Count;
@@ -83,7 +83,7 @@ namespace Sandbox.Game.Entities
             }
 
             // wrap the gamelogic-components to appear as a single component to the entity
-            entity.GameLogic = MyCompositeGameLogicComponent.create(logicComponents);
+            entity.GameLogic = MyCompositeGameLogicComponent.Create(logicComponents, entity);
         }
 
         public static MyObjectBuilder_EntityBase CreateObjectBuilder(MyEntity entity)

@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Sandbox.Common.ObjectBuilders;
 
 namespace Sandbox.Game.Entities
 {
@@ -15,15 +16,18 @@ namespace Sandbox.Game.Entities
             m_logicComponents = logicComponents;
         }
 
-        public static MyGameLogicComponent create(ICollection<MyGameLogicComponent> logicComponents)
+        public static MyGameLogicComponent Create(ICollection<MyGameLogicComponent> logicComponents, MyEntity entity)
         {
+            foreach (MyGameLogicComponent item in logicComponents)
+                item.CurrentContainer = entity.Components;
+
             switch (logicComponents.Count)
             {
                 case 0: 
                     return null;
                 case 1: 
                     return logicComponents.First();
-                default: 
+                default:
                     return new MyCompositeGameLogicComponent(logicComponents);
             }
         }
