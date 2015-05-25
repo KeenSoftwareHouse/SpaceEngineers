@@ -718,6 +718,7 @@
     <Compile Include="Game\World\Triggers\MyTriggerSomeoneWon.cs" />
     <Compile Include="ModAPI\Blocks\MyTextPanel_ModAPI.cs" />
     <Compile Include="ModAPI\MyMotorSuspension_ModAPI.cs" />
+    <Compile Include="ModAPI\MyHudNotification_ModAPI.cs" />
     <Compile Include="ModAPI\MyBlockGroup_ModAPI.cs" />
     <Compile Include="ModAPI\MyGpsCollection_ModAPI.cs" />
     <Compile Include="ModAPI\MyGps_ModAPI.cs" />
