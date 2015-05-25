@@ -48,7 +48,7 @@ namespace Medieval.ObjectBuilders
         public bool EnableAnimals = false;
 
         [ProtoMember]
-        [Display(Name = "Maximum bots")]
+        [Display(Name = "Max uncontrolled bots")]
         [GameRelation(Game.MedievalEngineers)]
         [Range(0, 20)]
         public short MaximumBots = 10;

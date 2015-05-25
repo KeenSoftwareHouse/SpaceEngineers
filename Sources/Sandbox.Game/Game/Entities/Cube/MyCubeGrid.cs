@@ -3921,7 +3921,14 @@ namespace Sandbox.Game.Entities
             //Debug.Assert(this.WorldMatrix.Up == Vector3D.Up && this.WorldMatrix.Forward == Vector3D.Forward, "This grid must have identity rotation");
             //Debug.Assert(gridToMerge.WorldMatrix.Up == Vector3D.Up && gridToMerge.WorldMatrix.Forward == Vector3D.Forward, "Grid to merge must have identity rotation");
 
+           
             gridOffset = Vector3I.Round((gridToMerge.PositionComp.GetPosition() - this.PositionComp.GetPosition()) / GridSize);
+
+            MatrixD otherMatrix = gridToMerge.PositionComp.WorldMatrix.GetOrientation();
+            if (this.PositionComp.WorldMatrix.GetOrientation().EqualsFast(ref otherMatrix) == false)
+            {
+                return false;
+            }
 
             var blockPosInSecondGrid = block.Position - gridOffset;
             Quaternion blockOrientation;

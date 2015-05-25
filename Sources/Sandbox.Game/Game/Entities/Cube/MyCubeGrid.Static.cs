@@ -1812,13 +1812,16 @@ namespace Sandbox.Game.Entities
             { // Havok only detects overlap with voxel map surface. This test will detect a voxel map even if we're fully inside it.
                 //BoundingSphere sphere = new BoundingSphere(Vector3.Transform(targetGrid.LocalAABB.Center, worldMatrix), targetGrid.LocalAABB.Size.AbsMin() / 2.0f);
                 //overlappedVoxelMap = MySession.Static.VoxelMaps.GetOverlappingWithSphere(ref sphere);
+
+                //VRageRender.MyRenderProxy.DebugDrawAABB(worldAabb, Color.White, 1, 1, false);
+
                 overlappedVoxelMap = MySession.Static.VoxelMaps.GetVoxelMapWhoseBoundingBoxIntersectsBox(ref worldAabb, null);
                 if (overlappedVoxelMap != null)
                 {
-                    float cellCount = 0;
-                    var res = overlappedVoxelMap.GetVoxelContentInBoundingBox_Obsolete(worldAabb, out cellCount);
-                    if (res < 0.01f)
+                    //We have just test, if aabb is not completelly inside voxelmap
+                    if (!overlappedVoxelMap.IsOverlapOverThreshold(worldAabb))
                         overlappedVoxelMap = null;
+                
                 }
                 //using (m_tmpResultList.GetClearToken())
                 //{

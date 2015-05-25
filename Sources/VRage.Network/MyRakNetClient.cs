@@ -58,6 +58,10 @@ namespace VRage.Network
             if (handler != null)
                 handler();
 
+            foreach (var guid in m_steamIDToGUID.Values)
+            {
+                guid.Delete();
+            }
             m_steamIDToGUID.Clear();
             m_GUIDToSteamID.Clear();
         }
@@ -158,8 +162,9 @@ namespace VRage.Network
             Debug.Assert(success, "Failed to read serverID");
             ServerId = (ulong)tmpLong;
 
-            m_steamIDToGUID[ServerId] = packet.GUID;
-            m_GUIDToSteamID[packet.GUID.G] = ServerId;
+            var guid = new RakNetGUID(packet.GUID);
+            m_steamIDToGUID.Add(ServerId, guid);
+            m_GUIDToSteamID.Add(guid.G, ServerId);
 
             RaiseOnClientJoined(ServerId);
 
