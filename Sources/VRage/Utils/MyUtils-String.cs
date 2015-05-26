@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
+using System.Globalization;
 using VRageMath;
 
 namespace VRage.Utils
@@ -8,6 +10,17 @@ namespace VRage.Utils
     {
         public const string C_CRLF = "\r\n";
 
+        /// <summary>
+        /// Default number suffix, k = thousand, m = million, g/b = billion
+        /// </summary>
+        public static Tuple<string, float>[] DefaultNumberSuffix = new Tuple<string, float>[]
+        {
+            new Tuple<string, float>("k", 1000),
+            new Tuple<string, float>("m", 1000 * 1000),
+            new Tuple<string, float>("g", 1000 * 1000 * 1000),
+            new Tuple<string, float>("b", 1000 * 1000 * 1000),
+        };
+
         //  Example: for AlignIntToRight(12, 4, "0") it returns "0012"
         public static string AlignIntToRight(int value, int charsCount, char ch)
         {
@@ -15,6 +28,20 @@ namespace VRage.Utils
             int length = ret.Length;
             if (length > charsCount) return ret;
             return new string(ch, charsCount - length) + ret;
+        }
+
+        public static bool TryParseWithSuffix(this string text, NumberStyles numberStyle, IFormatProvider formatProvider, out float value, Tuple<string, float>[] suffix = null)
+        {
+            foreach (var s in suffix ?? DefaultNumberSuffix)
+            {
+                if (text.EndsWith(s.Item1, StringComparison.InvariantCultureIgnoreCase))
+                {
+                    bool result = float.TryParse(text.Substring(0, text.Length - s.Item1.Length), numberStyle, formatProvider, out value);
+                    value *= s.Item2;
+                    return result;
+                }
+            }
+            return float.TryParse(text, out value);
         }
 
         #region Coordinate computation from alignment
@@ -67,17 +94,17 @@ namespace VRage.Utils
         {
             switch (drawAlign)
             {
-                case MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_TOP:    return coordCenter + size * new Vector2(-0.5f, -0.5f);
-                case MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_CENTER: return coordCenter + size * new Vector2(-0.5f,  0.0f);
-                case MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_BOTTOM: return coordCenter + size * new Vector2(-0.5f,  0.5f);
+                case MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_TOP: return coordCenter + size * new Vector2(-0.5f, -0.5f);
+                case MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_CENTER: return coordCenter + size * new Vector2(-0.5f, 0.0f);
+                case MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_BOTTOM: return coordCenter + size * new Vector2(-0.5f, 0.5f);
 
-                case MyGuiDrawAlignEnum.HORISONTAL_CENTER_AND_VERTICAL_TOP:    return coordCenter + size * new Vector2(0.0f, -0.5f);
+                case MyGuiDrawAlignEnum.HORISONTAL_CENTER_AND_VERTICAL_TOP: return coordCenter + size * new Vector2(0.0f, -0.5f);
                 case MyGuiDrawAlignEnum.HORISONTAL_CENTER_AND_VERTICAL_CENTER: return coordCenter;
                 case MyGuiDrawAlignEnum.HORISONTAL_CENTER_AND_VERTICAL_BOTTOM: return coordCenter + size * new Vector2(0.0f, 0.5f);
 
-                case MyGuiDrawAlignEnum.HORISONTAL_RIGHT_AND_VERTICAL_TOP:    return coordCenter + size * new Vector2(0.5f, -0.5f);
-                case MyGuiDrawAlignEnum.HORISONTAL_RIGHT_AND_VERTICAL_CENTER: return coordCenter + size * new Vector2(0.5f,  0.0f);
-                case MyGuiDrawAlignEnum.HORISONTAL_RIGHT_AND_VERTICAL_BOTTOM: return coordCenter + size * new Vector2(0.5f,  0.5f);
+                case MyGuiDrawAlignEnum.HORISONTAL_RIGHT_AND_VERTICAL_TOP: return coordCenter + size * new Vector2(0.5f, -0.5f);
+                case MyGuiDrawAlignEnum.HORISONTAL_RIGHT_AND_VERTICAL_CENTER: return coordCenter + size * new Vector2(0.5f, 0.0f);
+                case MyGuiDrawAlignEnum.HORISONTAL_RIGHT_AND_VERTICAL_BOTTOM: return coordCenter + size * new Vector2(0.5f, 0.5f);
 
                 default:
                     throw new InvalidBranchException();
@@ -88,17 +115,17 @@ namespace VRage.Utils
         {
             switch (drawAlign)
             {
-                case MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_TOP:       return topLeft;
-                case MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_CENTER:    return topLeft + size * new Vector2(0f, 0.5f);
-                case MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_BOTTOM:    return topLeft + size * new Vector2(0f, 1f);
+                case MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_TOP: return topLeft;
+                case MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_CENTER: return topLeft + size * new Vector2(0f, 0.5f);
+                case MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_BOTTOM: return topLeft + size * new Vector2(0f, 1f);
 
-                case MyGuiDrawAlignEnum.HORISONTAL_CENTER_AND_VERTICAL_TOP:     return topLeft + size * new Vector2(0.5f, 0f);
-                case MyGuiDrawAlignEnum.HORISONTAL_CENTER_AND_VERTICAL_CENTER:  return topLeft + size * new Vector2(0.5f, 0.5f);
-                case MyGuiDrawAlignEnum.HORISONTAL_CENTER_AND_VERTICAL_BOTTOM:  return topLeft + size * new Vector2(0.5f, 1f);
+                case MyGuiDrawAlignEnum.HORISONTAL_CENTER_AND_VERTICAL_TOP: return topLeft + size * new Vector2(0.5f, 0f);
+                case MyGuiDrawAlignEnum.HORISONTAL_CENTER_AND_VERTICAL_CENTER: return topLeft + size * new Vector2(0.5f, 0.5f);
+                case MyGuiDrawAlignEnum.HORISONTAL_CENTER_AND_VERTICAL_BOTTOM: return topLeft + size * new Vector2(0.5f, 1f);
 
-                case MyGuiDrawAlignEnum.HORISONTAL_RIGHT_AND_VERTICAL_TOP:      return topLeft + size * new Vector2(1f, 0f);
-                case MyGuiDrawAlignEnum.HORISONTAL_RIGHT_AND_VERTICAL_CENTER:   return topLeft + size * new Vector2(1f, 0.5f);
-                case MyGuiDrawAlignEnum.HORISONTAL_RIGHT_AND_VERTICAL_BOTTOM:   return topLeft + size * new Vector2(1f, 1f);
+                case MyGuiDrawAlignEnum.HORISONTAL_RIGHT_AND_VERTICAL_TOP: return topLeft + size * new Vector2(1f, 0f);
+                case MyGuiDrawAlignEnum.HORISONTAL_RIGHT_AND_VERTICAL_CENTER: return topLeft + size * new Vector2(1f, 0.5f);
+                case MyGuiDrawAlignEnum.HORISONTAL_RIGHT_AND_VERTICAL_BOTTOM: return topLeft + size * new Vector2(1f, 1f);
 
                 default:
                     Debug.Fail("Invalid branch reached.");
