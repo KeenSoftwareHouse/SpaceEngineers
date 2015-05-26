@@ -563,15 +563,14 @@ namespace Sandbox.Game.Entities.Cube
                             var item = TryGetQueueItem(i);
                             if (item.HasValue)
                             {
-                                var factor = MySession.Static.AssemblerSpeedMultiplier / MySession.Static.AssemblerEfficiencyMultiplier;
+                                var factor = (MySession.Static.AssemblerSpeedMultiplier * ((MyAssemblerDefinition)BlockDefinition).AssemblySpeed + UpgradeValues["Productivity"]);
                                 var itemAmount = 1;
                                 var remainingTime = TIME_IN_ADVANCE - time;
-                                if (item.Value.Blueprint.BaseProductionTimeInSeconds < remainingTime)
+                                if ((item.Value.Blueprint.BaseProductionTimeInSeconds / factor) <= remainingTime)
                                 {
                                     itemAmount = Math.Min((int)item.Value.Amount, Convert.ToInt32(Math.Floor(remainingTime / (item.Value.Blueprint.BaseProductionTimeInSeconds / factor))));
-                                    time += itemAmount * item.Value.Blueprint.BaseProductionTimeInSeconds / MySession.Static.AssemblerSpeedMultiplier;
+                                    time += itemAmount * item.Value.Blueprint.BaseProductionTimeInSeconds / factor;
                                     if (time < TIME_IN_ADVANCE)
-
                                     {
                                         next = true;
                                     }
@@ -583,7 +582,7 @@ namespace Sandbox.Game.Entities.Cube
                                     {
                                         availableAmount = 0;
                                     }
-                                    var neededAmount = component.Amount * itemAmount - availableAmount;
+                                    var neededAmount = ((VRage.MyFixedPoint)((float)component.Amount / MySession.Static.AssemblerEfficiencyMultiplier)) * itemAmount - availableAmount;
                                     if (neededAmount <= 0) continue;
 
                                     MyGridConveyorSystem.ItemPullRequest(this, InputInventory, OwnerId, component.Id, neededAmount);

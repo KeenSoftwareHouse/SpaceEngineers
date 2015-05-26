@@ -56,8 +56,8 @@ namespace Sandbox.Common.ObjectBuilders
         public override void SetupForProjector()
         {
             base.SetupForProjector();
-            if (Inventory != null)
-                Inventory.Clear();
+            if (InputInventory != null)
+                InputInventory.Clear();
             if (OutputInventory != null)
                 OutputInventory.Clear();
         }
