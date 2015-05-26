@@ -582,7 +582,7 @@ namespace Sandbox.Game.Entities.Cube
                                     {
                                         availableAmount = 0;
                                     }
-                                    var neededAmount = ((VRage.MyFixedPoint)((float)component.Amount * 1 / MySession.Static.AssemblerEfficiencyMultiplier)) * itemAmount - availableAmount;
+                                    var neededAmount = ((VRage.MyFixedPoint)((float)component.Amount / MySession.Static.AssemblerEfficiencyMultiplier)) * itemAmount - availableAmount;
                                     if (neededAmount <= 0) continue;
 
                                     MyGridConveyorSystem.ItemPullRequest(this, InputInventory, OwnerId, component.Id, neededAmount);
