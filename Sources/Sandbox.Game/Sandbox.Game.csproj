@@ -434,6 +434,7 @@
     <Compile Include="Game\Entities\Character\MyCharacterBreath.cs" />
     <Compile Include="Game\Entities\Character\MyChatHistory.cs" />
     <Compile Include="Game\Entities\Character\MyInverseKinematics.cs" />
+    <Compile Include="Game\Entities\MyCompositeGameLogicComponent.cs" />
     <Compile Include="Game\Entities\Cube\MyBlockGroupData.cs" />
     <Compile Include="Game\Entities\Cube\MyCubeBuilder-Draw.cs" />
     <Compile Include="Game\Entities\Cube\IMyGridOverlapTest.cs" />

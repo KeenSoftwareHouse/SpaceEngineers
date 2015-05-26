@@ -6,6 +6,7 @@ using System.Reflection;
 using System.Text;
 using Sandbox.Common;
 using Sandbox.Common.ObjectBuilders;
+using Sandbox.Common.Components;
 using VRage.Plugins;
 
 namespace Sandbox.Game.Entities.Cube
@@ -35,10 +36,7 @@ namespace Sandbox.Game.Entities.Cube
         public static object CreateCubeBlock(MyObjectBuilder_CubeBlock builder)
         {
             var obj = m_objectFactory.CreateInstance(builder.TypeId);
-            MyEntity entity = obj as MyEntity;
-            var scriptManager = Sandbox.Game.World.MyScriptManager.Static;
-            if (entity != null && scriptManager != null && scriptManager.EntityScripts.ContainsKey(builder.TypeId))
-                entity.GameLogic = (Sandbox.Common.Components.MyGameLogicComponent)Activator.CreateInstance(scriptManager.EntityScripts[builder.TypeId]);
+            MyEntityFactory.AddScriptGameLogic(obj as MyEntity, builder.TypeId, builder.SubtypeName);
             return obj;
         }
 
