@@ -21,6 +21,15 @@ namespace Sandbox.ModAPI
 
         IMyVoxelMap CreateVoxelMap(string storageName, IMyStorage storage, Vector3D position, long voxelMapId);
 
+        /// <summary>
+        /// Adds a prefab voxel to the game world.
+        /// </summary>
+        /// <param name="storageName">The name of which the voxel storage will be called within the world.</param>
+        /// <param name="prefabVoxelMapName">The prefab voxel to add.</param>
+        /// <param name="position">The Min corner position of the voxel within the world.</param>
+        /// <returns>The newly added voxel map. Returns null if the prefabVoxelMapName does not exist.</returns>
+        IMyVoxelMap CreateVoxelMapFromStorageName(string storageName, string prefabVoxelMapName, Vector3D position);
+
         IMyVoxelShapeBox GetBoxVoxelHand();
 
         IMyVoxelShapeCapsule GetCapsuleVoxelHand();
