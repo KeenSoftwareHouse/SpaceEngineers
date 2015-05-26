@@ -21,5 +21,7 @@ namespace Sandbox.Common.ObjectBuilders.Definitions
         public float RotationRate = MathHelper.Pi / 20000.0f;
         [ProtoMember]
         public float MaxRange = 40000;
+        [ProtoMember(6)]
+        public bool RequireLineOfSight = true;
     }
 }
