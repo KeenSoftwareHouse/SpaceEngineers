@@ -26,5 +26,8 @@ namespace Sandbox.Common.ObjectBuilders.Definitions
 
         [ProtoMember]
         public float CollisionMultiplier = 1;
+
+        [ProtoMember]
+        public string DamageDecal = null;
     }
 }

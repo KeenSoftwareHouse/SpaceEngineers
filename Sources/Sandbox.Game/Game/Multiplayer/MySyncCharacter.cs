@@ -184,6 +184,21 @@ namespace Sandbox.Game.Multiplayer
             }
         }
 
+        [MessageId(7420, P2PMessageEnum.Reliable)]
+        [ProtoContract]
+        struct RagdollTransformsMsg : IEntityMessage
+        {
+            [ProtoMember]
+            public long CharacterEntityId;
+            public long GetEntityId() { return CharacterEntityId; }
+
+            [ProtoMember]            
+            public int TransformsCount;
+
+            [ProtoMember]
+            public List<Matrix> Transforms;
+        }
+
         static MySyncCharacter()
         {
             MySyncLayer.RegisterEntityMessage<MySyncCharacter, ChangeMovementStateMsg>(OnMovementStateChanged, MyMessagePermissions.Any);
@@ -210,7 +225,35 @@ namespace Sandbox.Game.Multiplayer
             MySyncLayer.RegisterEntityMessage<MySyncCharacter, RefillFromBottleMsg>(OnRefillFromBottle, MyMessagePermissions.FromServer);
 
             MySyncLayer.RegisterEntityMessage<MySyncCharacter, PlaySecondarySoundMsg>(OnSecondarySoundPlay, MyMessagePermissions.ToServer | MyMessagePermissions.FromServer);
+
+            MySyncLayer.RegisterEntityMessage<MySyncCharacter, RagdollTransformsMsg>(OnRagdollTransformsUpdate, MyMessagePermissions.FromServer);
         }
+
+        private static void OnRagdollTransformsUpdate(MySyncCharacter syncObject, ref RagdollTransformsMsg message, MyNetworkClient sender)
+        {
+            if (syncObject.Entity.Physics == null) return;
+            if (syncObject.Entity.Physics.Ragdoll == null) return;
+            if (syncObject.Entity.RagdollMapper == null) return;
+            if (!syncObject.Entity.Physics.Ragdoll.IsAddedToWorld) return;
+            if (!syncObject.Entity.RagdollMapper.IsActive) return;
+            syncObject.Entity.RagdollMapper.UpdateRigidBodiesTransformsSynced(message.TransformsCount, message.Transforms);
+
+        }
+
+        public void SendRagdollTransforms(int transformsCount, Matrix[] transforms)
+        {
+            if (ResponsibleForUpdate(this))
+            {
+                var msg = new RagdollTransformsMsg();
+                List<Matrix> listTransforms = new List<Matrix>(transforms);
+                msg.Transforms = listTransforms;
+                msg.TransformsCount = transformsCount;
+                msg.CharacterEntityId = Entity.EntityId;
+
+                Sync.Layer.SendMessageToAll(ref msg);
+            }
+        }
+
 
         private ChangeHeadOrSpineMsg m_headMsg;
         private bool m_headDirty = false;

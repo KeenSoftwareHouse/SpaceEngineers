@@ -46,7 +46,8 @@ float4 shade_forward(SurfaceInterface surface, float3 position) {
 	float4 shaded = 0;
 
 	shaded.xyz = main_directional_light(surface);
-	shaded.xyz += 0.1f * surface.albedo;
+	
+	shaded.xyz = max(shaded.xyz, 0.3f * surface.albedo);
 	shaded.w = 1;
 	return shaded;
 }

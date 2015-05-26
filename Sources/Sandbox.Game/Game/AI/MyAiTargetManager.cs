@@ -31,7 +31,7 @@ namespace Sandbox.Game.AI
 		struct ReserveEnvironmentItemMsg
 		{
 			public long EntityId;
-			public long LocalId;
+			public int LocalId;
 			public long ReservationTimeMs;
 			public int SenderSerialId;
 		}
@@ -51,7 +51,7 @@ namespace Sandbox.Game.AI
 		{
 			public MyReservedEntityType Type;
 			public long EntityId;
-			public long LocalId;
+			public int LocalId;
 			public Vector3I GridPos;
 			public long ReservationTimer;
 			public MyPlayer.PlayerId ReserverId;
@@ -275,7 +275,7 @@ namespace Sandbox.Game.AI
 			Sync.Layer.SendMessageToServer(ref msg, MyTransportMessageEnum.Request);
 		}
 
-		public void RequestEnvironmentItemReservation(long entityId, long localId, long reservationTimeMs, int senderSerialId)
+		public void RequestEnvironmentItemReservation(long entityId, int localId, long reservationTimeMs, int senderSerialId)
 		{
 			var msg = new ReserveEnvironmentItemMsg()
 			{

@@ -10335,8 +10335,23 @@ namespace Sandbox.Game.Localization
         public static readonly MyStringId StationRotation_Static = MyStringId.GetOrCompute("StationRotation_Static");
 
         ///<summary>
-        ///Enables rotation of base station block
+        ///Enables rotation of station block
         ///</summary>
         public static readonly MyStringId StationRotation_Static_Desc = MyStringId.GetOrCompute("StationRotation_Static_Desc");
+
+        ///<summary>
+        ///Station rotation mode
+        ///</summary>
+        public static readonly MyStringId NotificationStationRotation = MyStringId.GetOrCompute("NotificationStationRotation");
+
+        ///<summary>
+        ///Push-to-talk voice chat
+        ///</summary>
+        public static readonly MyStringId ControlName_VoiceChat = MyStringId.GetOrCompute("ControlName_VoiceChat");
+
+        ///<summary>
+        ///Enable voice chat
+        ///</summary>
+        public static readonly MyStringId EnableVoiceChat = MyStringId.GetOrCompute("EnableVoiceChat");
     }
 }

@@ -1004,6 +1004,7 @@ namespace Sandbox
             MyAudio.Static.VolumeGame = Config.GameVolume;
             MyAudio.Static.VolumeHud = Config.GameVolume;
             MyGuiAudio.HudWarnings = Config.HudWarnings;
+            MyAudio.Static.EnableVoiceChat = Config.EnableVoiceChat;
             Config.MusicVolume = MyAudio.Static.VolumeMusic;
             Config.GameVolume = MyAudio.Static.VolumeGame;
             MyGuiSoundManager.Audio = MyGuiAudio.Static;

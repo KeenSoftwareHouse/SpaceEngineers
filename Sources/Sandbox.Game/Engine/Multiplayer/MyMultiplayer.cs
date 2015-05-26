@@ -26,6 +26,7 @@ namespace Sandbox.Engine.Multiplayer
         public const int ControlChannel = 0;
         public const int WorldDownloadChannel = 1;
         public const int GameEventChannel = 2;
+        public const int VoiceChatChannel = 3;
 
         public const string HostNameTag = "host";
         public const string WorldNameTag = "world";

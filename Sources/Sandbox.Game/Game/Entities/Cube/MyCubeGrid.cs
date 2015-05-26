@@ -2500,7 +2500,7 @@ namespace Sandbox.Game.Entities
 
                             if (MyFakes.ENABLE_SMALL_BLOCK_TO_LARGE_STATIC_CONNECTIONS && m_enableSmallToLargeConnections)
                             {
-                                MyCubeGridSmallToLargeConnection.Static.CheckBlockSmallToLargeDisconnect(blockToRemove);
+                                MyCubeGridSmallToLargeConnection.Static.RemoveBlockSmallToLargeConnection(blockToRemove);
                             }
 
                             if (OnBlockRemoved != null)
@@ -2545,7 +2545,7 @@ namespace Sandbox.Game.Entities
 
                             if (MyFakes.ENABLE_SMALL_BLOCK_TO_LARGE_STATIC_CONNECTIONS && m_enableSmallToLargeConnections)
                             {
-                                MyCubeGridSmallToLargeConnection.Static.CheckBlockSmallToLargeDisconnect(blockToRemove);
+                                MyCubeGridSmallToLargeConnection.Static.RemoveBlockSmallToLargeConnection(blockToRemove);
                             }
 
                             if (OnBlockRemoved != null)
@@ -2678,7 +2678,7 @@ namespace Sandbox.Game.Entities
                 }
 
                 if (MyFakes.ENABLE_SMALL_BLOCK_TO_LARGE_STATIC_CONNECTIONS && m_enableSmallToLargeConnections)
-                    MyCubeGridSmallToLargeConnection.Static.CheckBlockSmallToLargeConnect(block);
+                    MyCubeGridSmallToLargeConnection.Static.AddBlockSmallToLargeConnection(block);
             }
 
             ProfilerShort.End();
@@ -3335,7 +3335,7 @@ namespace Sandbox.Game.Entities
             if (MyFakes.ENABLE_SMALL_BLOCK_TO_LARGE_STATIC_CONNECTIONS && m_enableSmallToLargeConnections)
             {
                 ProfilerShort.Begin("CheckRemovedBlockSmallToLargeConnection");
-                MyCubeGridSmallToLargeConnection.Static.CheckBlockSmallToLargeDisconnect(block);
+                MyCubeGridSmallToLargeConnection.Static.RemoveBlockSmallToLargeConnection(block);
                 ProfilerShort.End();
             }
 
@@ -4308,7 +4308,7 @@ namespace Sandbox.Game.Entities
                     if (added)
                     {
                         if (MyFakes.ENABLE_SMALL_BLOCK_TO_LARGE_STATIC_CONNECTIONS && m_enableSmallToLargeConnections)
-                            MyCubeGridSmallToLargeConnection.Static.CheckBlockSmallToLargeConnect(block);
+                            MyCubeGridSmallToLargeConnection.Static.AddBlockSmallToLargeConnection(block);
 
                         if (OnBlockAdded != null)
                         {
@@ -4386,7 +4386,7 @@ namespace Sandbox.Game.Entities
             if (MyFakes.ENABLE_SMALL_BLOCK_TO_LARGE_STATIC_CONNECTIONS && m_enableSmallToLargeConnections && blockAddSuccessfull)
             {
                 ProfilerShort.Begin("CheckAddedBlockSmallToLargeConnection");
-                MyCubeGridSmallToLargeConnection.Static.CheckBlockSmallToLargeConnect(block);
+                MyCubeGridSmallToLargeConnection.Static.AddBlockSmallToLargeConnection(block);
                 ProfilerShort.End();
             }
 
@@ -4480,7 +4480,7 @@ namespace Sandbox.Game.Entities
         {
             if (MyFakes.ENABLE_SMALL_BLOCK_TO_LARGE_STATIC_CONNECTIONS && m_enableSmallToLargeConnections && !m_smallToLargeConnectionsInitialized)
             {
-                MyCubeGridSmallToLargeConnection.Static.CheckGridSmallToLargeConnect(this);
+                MyCubeGridSmallToLargeConnection.Static.AddGridSmallToLargeConnection(this);
             }
             m_smallToLargeConnectionsInitialized = true;
 

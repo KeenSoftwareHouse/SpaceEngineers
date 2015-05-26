@@ -537,6 +537,8 @@ namespace Sandbox.Game.Entities.Character
 
         public event EventHandler OnWeaponChanged;
 
+        public event Action<MyCharacter> CharacterDied;
+
         #endregion
 
         #region Init
@@ -666,7 +668,7 @@ namespace Sandbox.Game.Entities.Character
 
             if (!MyDefinitionManager.Static.Characters.TryGetValue(m_characterModel, out m_characterDefinition))
             {
-                System.Diagnostics.Debug.Fail("Character model " + m_characterModel + " not found!");
+                //System.Diagnostics.Debug.Fail("Character model " + m_characterModel + " not found!");
                 m_characterDefinition = MyDefinitionManager.Static.Characters.First();
                 m_characterModel = m_characterDefinition.Model;
             }
@@ -859,8 +861,11 @@ namespace Sandbox.Game.Entities.Character
             if (Physics.Ragdoll != null)
             {
                 Physics.CloseRagdollMode();
-                Physics.CloseRagdoll();
-                Physics.Ragdoll = null;
+                Physics.Ragdoll.ResetToRigPose();
+                Physics.Ragdoll.SetToKeyframed();                
+                //Physics.CloseRagdoll();
+                //Physics.Ragdoll = null;
+                return;
             }
 
             Physics.Ragdoll = new HkRagdoll();
@@ -2062,6 +2067,7 @@ namespace Sandbox.Game.Entities.Character
         private void CheckRagdollSwitch()
         {
             if (IsDead) return;
+            if (MySession.ControlledEntity != this) return;
             if (SwitchToJetpackRagdoll && !Physics.IsRagdollModeActive)
             {
                 ActivateJetpackRagdoll();
@@ -2086,7 +2092,7 @@ namespace Sandbox.Game.Entities.Character
         {
             if (Physics == null || Physics.Ragdoll == null || RagdollMapper == null ) return;
             if (!MyPerGameSettings.EnableRagdollModels) return;
-
+            //return;
             CheckRagdollSwitch();
 
             if (!RagdollMapper.IsActive || !Physics.IsRagdollModeActive) return;
@@ -2201,6 +2207,11 @@ namespace Sandbox.Game.Entities.Character
                 m_boneRelativeTransforms[i] = bone.ComputeBoneTransform();                
             }
                        
+            if (Sync.IsServer && IsDead)
+            {
+                RagdollMapper.SyncRigidBodiesTransforms();
+            }
+
             VRageRender.MyRenderProxy.GetRenderProfiler().EndProfilingBlock();
         }
 
@@ -6639,6 +6650,9 @@ namespace Sandbox.Game.Entities.Character
             StartRespawn(RespawnTime);
 
             m_currentLootingCounter = MyPerGameSettings.CharacterDefaultLootingCounter ;
+
+            if (CharacterDied != null)
+                CharacterDied(this);
         }
 
         private void StartRespawn(float respawnTime)

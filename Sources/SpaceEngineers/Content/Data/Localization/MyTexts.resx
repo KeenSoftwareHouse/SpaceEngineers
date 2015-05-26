@@ -6400,6 +6400,15 @@ To connect to lasers not listed here you can connect to coordinates.</value>
     <value>Station rotation</value>
   </data>
   <data name="StationRotation_Static_Desc" xml:space="preserve">
-    <value>Enables rotation of base station block</value>
+    <value>Enables rotation of station block</value>
+  </data>
+  <data name="NotificationStationRotation" xml:space="preserve">
+    <value>Station rotation mode</value>
+  </data>
+  <data name="ControlName_VoiceChat" xml:space="preserve">
+    <value>Push-to-talk voice chat</value>
+  </data>
+  <data name="EnableVoiceChat" xml:space="preserve">
+    <value>Enable voice chat</value>
   </data>
 </root>

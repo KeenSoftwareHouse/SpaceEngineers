@@ -690,7 +690,12 @@ namespace Sandbox.Game.Entities
                 foreach (var pair in SubBlocks)
                 {
                     MySlimBlock subBlock = pair.Value;
-                    pair.Value.FatBlock.OnClosing -= SubBlock_OnClosing;
+                    if (subBlock.FatBlock != null)
+                    {
+                        subBlock.FatBlock.OwnerBlock = null;
+                        subBlock.FatBlock.SubBlockName = null;
+                        subBlock.FatBlock.OnClosing -= SubBlock_OnClosing;
+                    }
                 }
             }
             SetDamageEffect(false);
@@ -1055,7 +1060,7 @@ namespace Sandbox.Game.Entities
                             Matrix subGridWorldMatrix = subBlockMatrix * PositionComp.LocalMatrix * CubeGrid.WorldMatrix;
 
                             //TODO: Try to find better way how to sync entity ID of subblocks..
-                            subgrid = MyCubeBuilder.SpawnDynamicGrid(subBlockDefinition, subGridWorldMatrix, EntityId + SubBlocks.Count + 1);
+                            subgrid = MyCubeBuilder.SpawnDynamicGrid(subBlockDefinition, subGridWorldMatrix, EntityId + (SubBlocks.Count * 16) + 1);
                             if (subgrid != null)
                                 subblock = subgrid.GetCubeBlock(Vector3I.Zero);
                         }
