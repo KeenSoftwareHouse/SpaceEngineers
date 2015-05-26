@@ -1804,20 +1804,13 @@ namespace Sandbox.Game.Gui
 
         public override void HandleUnhandledInput(bool receivedFocusInThisUpdate)
         {
-            if (MyInput.Static.IsNewGameControlPressed(MyControlsSpace.TOGGLE_TERMINAL))
-            {
-                HideTerminalGui();
-                return;
-            }
-
-            if (MyInput.Static.IsNewGameControlReleased(MyControlsSpace.TOGGLE_TERMINAL))
-            {
-                HideTerminalGui();
-                return;
-            }
-
             if (!m_visible)
             {
+                if (MyInput.Static.IsNewGameControlReleased(MyControlsSpace.TOGGLE_TERMINAL))
+                {
+                    HideTerminalGui();
+                    return;
+                }
                 return;
             }
 
@@ -1857,6 +1850,12 @@ namespace Sandbox.Game.Gui
                     m_controllerControlPanel.SelectAllBlocks();
                 }
             }
+
+            if (!textboxHasFocus && MyInput.Static.IsNewGameControlPressed(MyControlsSpace.TOGGLE_TERMINAL))
+            {
+                HideTerminalGui();
+            }
+
 
             base.HandleUnhandledInput(receivedFocusInThisUpdate);
         }
