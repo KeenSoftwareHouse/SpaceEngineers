@@ -21,5 +21,11 @@ namespace Sandbox.Common.ObjectBuilders.Definitions
 
         [ProtoMember]
         public float SuspensionLimit = 0.1f;
+
+        [ProtoMember]
+        public float MinHeight = -0.32f;
+
+        [ProtoMember]
+        public float MaxHeight = 0.26f;
     }
 }

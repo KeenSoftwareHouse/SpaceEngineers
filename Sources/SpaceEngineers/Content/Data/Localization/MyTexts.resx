@@ -3875,6 +3875,12 @@ Respawn?</value>
   <data name="BlockPropertyTitle_Motor_Power" xml:space="preserve">
     <value>Power</value>
   </data>
+  <data name="BlockPropertyDescription_Motor_Height" xml:space="preserve">
+    <value>Axle height offset from center</value>
+  </data>
+  <data name="BlockPropertyTitle_Motor_Height" xml:space="preserve">
+    <value>Height Offset</value>
+  </data>
   <data name="DisplayName_Block_VerticalCen" xml:space="preserve">
     <value>Centered Window</value>
   </data>
