@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using Sandbox.ModAPI.Interfaces;
+using Sandbox.ModAPI.Ingame;
 
 namespace Sandbox.Common.ObjectBuilders.Definitions
 {
@@ -23,7 +23,7 @@ namespace Sandbox.Common.ObjectBuilders.Definitions
             return false;
         }
 
-        float Sandbox.ModAPI.Interfaces.IMyOxygenBottle.OxygenLevel 
+        float Sandbox.ModAPI.Ingame.IMyOxygenBottle.OxygenLevel 
         {
             get {
                 return OxygenLevel;

@@ -4,8 +4,12 @@ using System.Linq;
 using System.Text;
 
 
-namespace Sandbox.ModAPI.Interfaces
+namespace Sandbox.ModAPI.Ingame
 {
+
+    /// <summary>
+    /// Allows an item to be cast as IMyOxygenBottle to retreive OxygenLevel
+    /// </summary>
     public interface IMyOxygenBottle
     {
         /// <summary>

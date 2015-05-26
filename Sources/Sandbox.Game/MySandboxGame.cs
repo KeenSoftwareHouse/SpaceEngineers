@@ -1138,7 +1138,6 @@ namespace Sandbox
             IlChecker.AllowedOperands.Add(typeof(Sandbox.ModAPI.Interfaces.IMyInventoryOwner), null);
             IlChecker.AllowedOperands.Add(typeof(Sandbox.ModAPI.Interfaces.IMyInventory), null);
             IlChecker.AllowedOperands.Add(typeof(Sandbox.ModAPI.Interfaces.IMyInventoryItem), null);
-            IlChecker.AllowedOperands.Add(typeof(Sandbox.ModAPI.Interfaces.IMyOxygenBottle), null);
             IlChecker.AllowedOperands.Add(typeof(Sandbox.ModAPI.Interfaces.ITerminalProperty), null);
             IlChecker.AllowedOperands.Add(typeof(Sandbox.ModAPI.Interfaces.ITerminalProperty<>), null);
             IlChecker.AllowedOperands.Add(typeof(Sandbox.ModAPI.Interfaces.TerminalPropertyExtensions), null);

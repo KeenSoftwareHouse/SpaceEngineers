@@ -239,7 +239,7 @@
     <Compile Include="ModAPI\IMyShipMergeBlock.cs" />
     <Compile Include="ModAPI\Ingame\PistonStatus.cs" />
     <Compile Include="ModAPI\Ingame\TerminalActionParameter.cs" />
-    <Compile Include="ModAPI\Interfaces\IMyOxygenBottle.cs" />
+    <Compile Include="ModAPI\Ingame\IMyOxygenBottle.cs" />
     <Compile Include="ModAPI\Interfaces\IMyDestroyableObject.cs" />
     <Compile Include="ModAPI\IMyIdentity.cs" />
     <Compile Include="ModAPI\Interfaces\IMyInventoryOwner.cs" />
