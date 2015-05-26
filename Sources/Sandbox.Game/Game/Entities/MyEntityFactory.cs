@@ -7,7 +7,6 @@ using Sandbox.Common;
 using Sandbox.Common.ObjectBuilders;
 using Sandbox.Common.Components;
 using VRage;
-using VRage;
 
 namespace Sandbox.Game.Entities
 {
@@ -23,19 +22,16 @@ namespace Sandbox.Game.Entities
 
         public static MyEntity CreateEntity(MyObjectBuilder_Base builder)
         {
-            MyEntity entity = CreateEntity(builder.TypeId);
+            MyEntity entity = CreateEntity(builder.TypeId, builder.SubtypeName);
             return entity;
         }
 
-        public static MyEntity CreateEntity(MyObjectBuilderType typeId)
+        public static MyEntity CreateEntity(MyObjectBuilderType typeId, string subTypeName = null)
         {
             ProfilerShort.Begin("MyEntityFactory.CreateEntity(...)");
             MyEntity entity = m_objectFactory.CreateInstance(typeId);
-            var scriptManager = Sandbox.Game.World.MyScriptManager.Static;
-            if (scriptManager != null && scriptManager.EntityScripts.ContainsKey(typeId))
-                entity.GameLogic = (MyGameLogicComponent)Activator.CreateInstance(scriptManager.EntityScripts[typeId]);
+            AddScriptGameLogic(entity, typeId, subTypeName);
             ProfilerShort.End();
-
             return entity;
         }
 
@@ -43,12 +39,51 @@ namespace Sandbox.Game.Entities
         {
             ProfilerShort.Begin("MyEntityFactory.CreateEntity(...)");
             T entity = m_objectFactory.CreateInstance<T>(builder.TypeId);
-            var scriptManager = Sandbox.Game.World.MyScriptManager.Static;
-            var builderType = builder.GetType();
-            if (scriptManager != null && scriptManager.EntityScripts.ContainsKey(builderType))
-                entity.GameLogic = (MyGameLogicComponent)Activator.CreateInstance(scriptManager.EntityScripts[builderType]);
+            AddScriptGameLogic(entity, builder.GetType(), builder.SubtypeName);
             ProfilerShort.End();
             return entity;
+        }
+
+        // using an empty set instead of null avoids special-casing null
+        private static readonly HashSet<Type> m_emptySet = new HashSet<Type>();
+
+        public static void AddScriptGameLogic(MyEntity entity, MyObjectBuilderType builderType, string subTypeName = null)
+        {
+            var scriptManager = Sandbox.Game.World.MyScriptManager.Static;
+            if (scriptManager == null || entity == null)
+                return;
+
+            // both types of logic components are valid to be attached:
+
+            // (1) those that are specific for the given subTypeName
+            HashSet<Type> subEntityScripts;
+            if (subTypeName != null)
+            {
+                var key = new Tuple<Type, string>(builderType, subTypeName);
+                subEntityScripts = scriptManager.SubEntityScripts.GetValueOrDefault(key, m_emptySet);
+            }
+            else
+            {
+                subEntityScripts = m_emptySet;
+            }
+
+            // (2) and those that don't care about the subTypeName
+            HashSet<Type> entityScripts = scriptManager.EntityScripts.GetValueOrDefault(builderType, m_emptySet);
+
+            // if there are no component types to attach leave the entity as-is
+            var count = subEntityScripts.Count + entityScripts.Count;
+            if (count == 0)
+                return;
+
+            // just concatenate the two type-sets, they are disjunct by definition (see ScriptManager)
+            var logicComponents = new List<MyGameLogicComponent>(count);
+            foreach (var logicComponentType in entityScripts.Concat(subEntityScripts))
+            {
+                logicComponents.Add((MyGameLogicComponent)Activator.CreateInstance(logicComponentType));
+            }
+
+            // wrap the gamelogic-components to appear as a single component to the entity
+            entity.GameLogic = MyCompositeGameLogicComponent.Create(logicComponents, entity);
         }
 
         public static MyObjectBuilder_EntityBase CreateObjectBuilder(MyEntity entity)
