@@ -21649,6 +21649,7 @@
       <PowerInputLasing>0.576</PowerInputLasing>
       <RotationRate>0.01</RotationRate>
       <MaxRange>40000</MaxRange>
+      <RequireLineOfSight>true</RequireLineOfSight>
     </Definition>
     <Definition xsi:type="MyObjectBuilder_LaserAntennaDefinition">
       <Id>
@@ -21695,6 +21696,7 @@
       <PowerInputLasing>0.18</PowerInputLasing>
       <RotationRate>0.01</RotationRate>
       <MaxRange>20000</MaxRange>
+      <RequireLineOfSight>true</RequireLineOfSight>
     </Definition>
 
     <Definition xsi:type="MyObjectBuilder_AirtightHangarDoorDefinition">
