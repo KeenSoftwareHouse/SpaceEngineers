@@ -13,5 +13,6 @@ namespace Sandbox.ModAPI.Ingame
         float Strength { get;}
         float Friction { get;}
         float Power { get; }
+        float Height { get; }
     }
 }
