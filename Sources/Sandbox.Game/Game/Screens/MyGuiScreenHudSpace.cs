@@ -123,11 +123,11 @@ namespace Sandbox.Game.Gui
             m_relayNotification.Visible = false;
             Controls.Add(m_relayNotification);
             var offset = new Vector2(0, m_relayNotification.Size.Y);
-            m_noMsgSentNotification = new MyGuiControlLabel(new Vector2(1, 0) + offset,font: MyFontEnum.Debug, text: MyTexts.GetString(MySpaceTexts.Multiplayer_LastMsg), originAlign: MyGuiDrawAlignEnum.HORISONTAL_RIGHT_AND_VERTICAL_TOP);
+            m_noMsgSentNotification = new MyGuiControlLabel(new Vector2(1, 0) + offset, font: MyFontEnum.Debug, text: MyTexts.GetString(MySpaceTexts.Multiplayer_LastMsg), originAlign: MyGuiDrawAlignEnum.HORISONTAL_RIGHT_AND_VERTICAL_TOP);
             m_noMsgSentNotification.Visible = false;
             Controls.Add(m_noMsgSentNotification);
             offset += new Vector2(0, m_noMsgSentNotification.Size.Y);
-            m_noConnectionNotification = new MyGuiControlLabel(new Vector2(1, 0) + offset, font: MyFontEnum.Red , originAlign: MyGuiDrawAlignEnum.HORISONTAL_RIGHT_AND_VERTICAL_TOP);
+            m_noConnectionNotification = new MyGuiControlLabel(new Vector2(1, 0) + offset, font: MyFontEnum.Red, originAlign: MyGuiDrawAlignEnum.HORISONTAL_RIGHT_AND_VERTICAL_TOP);
             m_noConnectionNotification.TextEnum = MySpaceTexts.Multiplayer_NoConnection;
             m_noConnectionNotification.Visible = false;
             Controls.Add(m_noConnectionNotification);
@@ -145,7 +145,7 @@ namespace Sandbox.Game.Gui
             }
 
             m_toolbarControl.Visible = !MyHud.MinimalHud;
-            
+
             Vector2 position = new Vector2(0.99f, 0.8f);
             position = ConvertHudToNormalizedGuiPosition(ref position);
             if (MyVideoSettingsManager.IsTripleHead())
@@ -158,9 +158,6 @@ namespace Sandbox.Game.Gui
             m_blockInfo.OriginAlign = MyGuiDrawAlignEnum.HORISONTAL_RIGHT_AND_VERTICAL_BOTTOM;
 
             m_rotatingWheelControl.Visible = MyHud.RotatingWheelVisible && !MyHud.MinimalHud;
-
-            if (!base.Draw())
-                return false;
 
             var bgPos = new Vector2(0.01f, 0.85f);
             bgPos = MyGuiScreenHudBase.ConvertHudToNormalizedGuiPosition(ref bgPos);
@@ -181,27 +178,10 @@ namespace Sandbox.Game.Gui
 
             m_buildModeLabel.Visible = !MyHud.MinimalHud && MyHud.IsBuildMode;
 
-            if (MyHud.ShipInfo.Visible && !MyHud.MinimalHud)
-                DrawShipInfo(MyHud.ShipInfo);
-
-            if (MyHud.CharacterInfo.Visible && !MyHud.MinimalHud)
-                DrawSuitInfo(MyHud.CharacterInfo);
-
             if (MyHud.ObjectiveLine.Visible && !MyHud.MinimalHud && MyFakes.ENABLE_OBJECTIVE_LINE)
                 DrawObjectiveLine(MyHud.ObjectiveLine);
 
-            MyHud.BlockInfo.Visible = false;
-            m_blockInfo.BlockInfo = null;
-
-            if (MyHud.GravityIndicator.Visible && !MyHud.MinimalHud)
-                DrawGravityIndicator(MyHud.GravityIndicator, MyHud.CharacterInfo);
-
-            if (MyHud.ConsumerGroupInfo.Visible && !MyHud.MinimalHud)
-                DrawPowerGroupInfo(MyHud.ConsumerGroupInfo);
-
-            if (MyHud.SelectedObjectHighlight.Visible && MyFakes.ENABLE_USE_OBJECT_HIGHLIGHT)
-                DrawSelectedObjectHighlight(m_atlas, GetTextureCoord(MyHudTexturesEnum.corner), MyHud.SelectedObjectHighlight);
-
+            // Firstly, draw text markers so that they are layered behind HUD element boxes
             if (MyHud.LocationMarkers.Visible && !MyHud.MinimalHud)
                 m_markerRender.DrawLocationMarkers(MyHud.LocationMarkers);
 
@@ -213,6 +193,29 @@ namespace Sandbox.Game.Gui
 
             if (MyHud.OreMarkers.Visible && !MyHud.MinimalHud)
                 DrawOreMarkers(MyHud.OreMarkers);
+
+            // Now perform base draw, after text has been rendered so that base HUD elements render in front of markers
+            if (!base.Draw())
+                return false;
+
+            MyHud.BlockInfo.Visible = false;
+            m_blockInfo.BlockInfo = null;
+
+            // Now render other HUD elements
+            if (MyHud.GravityIndicator.Visible && !MyHud.MinimalHud)
+                DrawGravityIndicator(MyHud.GravityIndicator, MyHud.CharacterInfo);
+
+            if (MyHud.ShipInfo.Visible && !MyHud.MinimalHud)
+                DrawShipInfo(MyHud.ShipInfo);
+
+            if (MyHud.CharacterInfo.Visible && !MyHud.MinimalHud)
+                DrawSuitInfo(MyHud.CharacterInfo);
+
+            if (MyHud.ConsumerGroupInfo.Visible && !MyHud.MinimalHud)
+                DrawPowerGroupInfo(MyHud.ConsumerGroupInfo);
+
+            if (MyHud.SelectedObjectHighlight.Visible && MyFakes.ENABLE_USE_OBJECT_HIGHLIGHT)
+                DrawSelectedObjectHighlight(m_atlas, GetTextureCoord(MyHudTexturesEnum.corner), MyHud.SelectedObjectHighlight);
 
             if (MyHud.LargeTurretTargets.Visible && !MyHud.MinimalHud)
                 DrawLargeTurretTargets(MyHud.LargeTurretTargets);
@@ -234,6 +237,7 @@ namespace Sandbox.Game.Gui
             if (MyFakes.ENABLE_NETGRAPH && MyHud.IsNetgraphVisible)
                 DrawNetgraph(MyHud.Netgraph);
             ProfilerShort.End();
+
             //if (Sync.MultiplayerActive)
             DrawMultiplayerNotifications();
 
@@ -362,7 +366,7 @@ namespace Sandbox.Game.Gui
                 {
                     oxygenText.Append("High");
                 }
-                
+
                 MyGuiManager.DrawString(oxygenFont, oxygenText, textPos - new Vector2(0f, 0.025f), m_textScale);
             }
 
@@ -460,14 +464,14 @@ namespace Sandbox.Game.Gui
             var color = Color.AliceBlue;
             var basePos = new Vector2(0.45f, 0.01f);
             var offset = new Vector2(0f, 0.02f);
-            
+
             var bgPos = ConvertHudToNormalizedGuiPosition(ref basePos);
             MyGuiManager.DrawString(MyFontEnum.Debug, new StringBuilder(objective.Title), bgPos, 1f, drawAlign: align, colorMask: color);
-            
+
             basePos += offset;
             bgPos = ConvertHudToNormalizedGuiPosition(ref basePos);
             MyGuiManager.DrawString(MyFontEnum.Debug, new StringBuilder("- " + objective.CurrentObjective), bgPos, 1f, drawAlign: align);
-            
+
         }
 
         private void DrawGravityVectorIndicator(Vector2 centerPos, Vector3 worldGravity, MyHudTexturesEnum texture, Color color)
@@ -650,7 +654,7 @@ namespace Sandbox.Game.Gui
                     0
                 );
             }
-            
+
             ProfilerShort.End();
         }
 
