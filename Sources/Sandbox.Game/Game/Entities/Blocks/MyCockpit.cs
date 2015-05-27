@@ -627,6 +627,12 @@ namespace Sandbox.Game.Entities
             if (usePilotOriginalWorld || allowedPosition.HasValue)
             {
                 Hierarchy.RemoveChild(m_pilot);
+
+                MyObjectBuilder_Character characterOb = (MyObjectBuilder_Character)m_pilot.GetObjectBuilder();
+                m_pilot.Physics.Close();
+                m_pilot.Physics = null;
+                m_pilot.Init(characterOb);
+                
                 MyEntities.Add(m_pilot);
                 m_pilot.Physics.Enabled = true;
                 m_rechargeSocket.Unplug();
