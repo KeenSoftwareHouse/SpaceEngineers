@@ -77,10 +77,6 @@ namespace VRageRender
 
         //Geometry quality
         public bool UseNormals;
-        public bool NeedReloadContent;
-
-        // Use additional channel textures on models (dirt, rust, etc...)
-        public bool UseChannels;
 
         // Spot shadow max distance multiplier 
         public float SpotShadowsMaxDistanceMultiplier;
@@ -90,12 +86,6 @@ namespace VRageRender
 
         // Distant impostors
         public bool EnableDistantImpostors;
-
-        // Flying debris
-        public bool EnableFlyingDebris;
-
-        // Decals
-        public bool EnableDecals;
 
         //Explosion voxel debris
         public float ExplosionDebrisCountMultiplier;
@@ -243,8 +233,6 @@ namespace VRageRender
 
                 //Geometry quality
                 UseNormals = true,
-                NeedReloadContent = true, //because normal->high and vertex channels
-                UseChannels = false,
 
                 // Spot shadow max distance multiplier 
                 SpotShadowsMaxDistanceMultiplier = 1.0f,
@@ -254,12 +242,6 @@ namespace VRageRender
 
                 // Distant impostors
                 EnableDistantImpostors = false,
-
-                // Flying debris
-                EnableFlyingDebris = false,
-
-                // Decals
-                EnableDecals = false,
 
                 //Explosion voxel debris
                 ExplosionDebrisCountMultiplier = 0.5f,
@@ -327,8 +309,6 @@ namespace VRageRender
 
                 //Geometry quality
                 UseNormals = false,
-                NeedReloadContent = true,
-                UseChannels = false,
 
                 // Spot shadow max distance multiplier 
                 SpotShadowsMaxDistanceMultiplier = 0.0f,
@@ -338,12 +318,6 @@ namespace VRageRender
 
                 // Distant impostors
                 EnableDistantImpostors = false,
-
-                // Flying debris
-                EnableFlyingDebris = false,
-
-                // Decals
-                EnableDecals = false,
 
                 //Explosion voxel debris
                 ExplosionDebrisCountMultiplier = 0,
@@ -410,8 +384,6 @@ namespace VRageRender
 
                 //Geometry quality
                 UseNormals = true,
-                NeedReloadContent = false,
-                UseChannels = true,
 
                 // Spot shadow max distance multiplier 
                 SpotShadowsMaxDistanceMultiplier = 2.5f,
@@ -421,12 +393,6 @@ namespace VRageRender
 
                 // Distant impostors
                 EnableDistantImpostors = true,
-
-                // Flying debris
-                EnableFlyingDebris = true,
-
-                // Decals
-                EnableDecals = true,
 
                 //Explosion voxel debris
                 ExplosionDebrisCountMultiplier = 0.8f,
@@ -493,8 +459,6 @@ namespace VRageRender
 
                 //Geometry quality
                 UseNormals = true,
-                NeedReloadContent = false,
-                UseChannels = true,
 
                 // Spot shadow max distance multiplier 
                 SpotShadowsMaxDistanceMultiplier = 3.0f,
@@ -504,12 +468,6 @@ namespace VRageRender
 
                 // Distant impostors
                 EnableDistantImpostors = true,
-
-                // Flying debris
-                EnableFlyingDebris = true,
-
-                // Decals
-                EnableDecals = true,
 
                 //Explosion voxel debris
                 ExplosionDebrisCountMultiplier = 3.0f,

@@ -1,9 +1,6 @@
 ﻿using ProtoBuf;
 using Sandbox.Common.ObjectBuilders.Definitions;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+using VRage.Utils;
 
 namespace Sandbox.Common.ObjectBuilders
 {
@@ -19,7 +16,7 @@ namespace Sandbox.Common.ObjectBuilders
             return false;
         }
 
-        public override bool CanStack(MyObjectBuilderType typeId, VRage.Library.Utils.MyStringId subtypeId, MyItemFlags flags)
+        public override bool CanStack(MyObjectBuilderType typeId, MyStringId subtypeId, MyItemFlags flags)
         {
             return false;
         }

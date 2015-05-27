@@ -6,17 +6,59 @@ using System.Text;
 using System.Reflection;
 using VRage.Plugins;
 using VRage.Collections;
+using VRage.Library.Utils;
 
 namespace VRage.Network
 {
+    class MyStateDataEntry : IComparable<MyStateDataEntry>
+    {
+        public float Priority;
+        public uint PacketID;
+        public uint NetworkID { get; private set; }
+        public MySyncedClass Sync { get; private set; }
+
+        public MyStateDataEntry(uint networkID, MySyncedClass sync)
+        {
+            Priority = 0;
+            PacketID = 0;
+            NetworkID = networkID;
+            Sync = sync;
+        }
+
+        public int CompareTo(MyStateDataEntry other)
+        {
+            return Priority.CompareTo(other.Priority);
+        }
+
+        internal void UpdatePriority(ulong steamID)
+        {
+            // TODO:SK
+            Priority = MyRandom.Instance.NextFloat();
+        }
+    }
+
     public class MyRakNetSyncLayer : IDisposable
     {
-        public event Action<ulong> OnEntityDestroyed;
-        public event Action<object, ulong> OnEntityCreated;
+        public event Action<object> OnEntityDestroyed;
+        public event Action<object> OnEntityCreated;
 
         private MyRakNetPeer m_peer;
 
-        private Dictionary<ulong, MySyncedClass> m_stateData = new Dictionary<ulong, MySyncedClass>();
+        public const int MaxClients = 32;
+
+        private uint m_uniqueID = 1;
+
+        private Dictionary<uint, object> m_networkIDToObject = new Dictionary<uint, object>();
+        private Dictionary<object, uint> m_objectToNetworkID = new Dictionary<object, uint>();
+
+        private Dictionary<uint, MySyncedClass> m_stateData = new Dictionary<uint, MySyncedClass>();
+
+        private Dictionary<ulong, List<MyStateDataEntry>> m_perPlayerStateData;
+
+        private Queue<int> m_freeClientIndexes = new Queue<int>(MaxClients);
+        private Dictionary<ulong, int> m_steamIDToClientIndex = new Dictionary<ulong, int>();
+        private Dictionary<int, ulong> m_clientIndexToSteamID = new Dictionary<int, ulong>();
+
         public static MyRakNetSyncLayer Static;
 
         private List<Type> m_idToType;
@@ -32,6 +74,8 @@ namespace VRage.Network
 
         internal void SetTypeTable(List<Guid> guids)
         {
+            Debug.Assert(m_idToType.Count == guids.Count);
+
             List<Type> ordered = new List<Type>(guids.Count);
             foreach (var guid in guids)
             {
@@ -42,6 +86,7 @@ namespace VRage.Network
                     {
                         ordered.Add(type);
                         found = true;
+                        break;
                     }
                 }
 
@@ -52,6 +97,9 @@ namespace VRage.Network
                     throw new KeyNotFoundException(msg);
                 }
             }
+
+            Debug.Assert(m_idToType.Count == ordered.Count);
+
             m_idToType = ordered;
 
             m_typeToId.Clear();
@@ -67,6 +115,15 @@ namespace VRage.Network
 
             m_idToType = new List<Type>();
             m_typeToId = new Dictionary<Type, int>();
+            m_perPlayerStateData = new Dictionary<ulong, List<MyStateDataEntry>>();
+
+            for (int i = 0; i < MaxClients; i++)
+            {
+                m_freeClientIndexes.Enqueue(i);
+            }
+
+            m_peer.OnClientLeft += m_peer_OnClientLeft;
+            m_peer.OnClientJoined += m_peer_OnClientJoined;
 
             RegisterFromAssembly(peer.GetType().Assembly);
 
@@ -81,20 +138,63 @@ namespace VRage.Network
             Static = this;
         }
 
-        //TODO:SK: Split the message to allow clint to load the 
+        void m_peer_OnClientLeft(ulong steamID)
+        {
+            Debug.Assert(m_perPlayerStateData.ContainsKey(steamID));
+            m_perPlayerStateData.Remove(steamID);
+
+            Debug.Assert(m_steamIDToClientIndex.ContainsKey(steamID));
+            var clientIndex = m_steamIDToClientIndex[steamID];
+            m_steamIDToClientIndex.Remove(steamID);
+
+            Debug.Assert(m_clientIndexToSteamID.ContainsKey(clientIndex));
+            m_clientIndexToSteamID.Remove(clientIndex);
+        }
+
+        void m_peer_OnClientJoined(ulong steamID)
+        {
+            Debug.Assert(!m_perPlayerStateData.ContainsKey(steamID));
+            var playerStateData = new List<MyStateDataEntry>();
+            m_perPlayerStateData.Add(steamID, playerStateData);
+
+            Debug.Assert(m_freeClientIndexes.Count > 0);
+            int clientIndex = m_freeClientIndexes.Dequeue();
+
+            Debug.Assert(!m_steamIDToClientIndex.ContainsKey(steamID));
+            m_steamIDToClientIndex.Add(steamID, clientIndex);
+
+            Debug.Assert(!m_clientIndexToSteamID.ContainsKey(clientIndex));
+            m_clientIndexToSteamID.Add(clientIndex, steamID);
+        }
+
+        //TODO:SK: Split the message to allow client to load the state data incrementaly
         internal void SerializeStateData(ulong steamID, BitStream bs)
         {
+            ProfilerShort.Begin("MyRakNetSyncLayer::SerializeStateData");
+            Debug.Assert(m_perPlayerStateData.ContainsKey(steamID));
+            var playerStateData = m_perPlayerStateData[steamID];
+
+            playerStateData.Capacity = m_stateData.Count;
+
+            int clientIndex = GetClientIndexFromSteamID(steamID);
+
             bs.Write(m_stateData.Count);
-            foreach (var syncedObject in m_stateData.Values)
+            foreach (var pair in m_stateData)
             {
-                bs.WriteCompressed(syncedObject.TypeID);
-                bs.Write((long)syncedObject.EntityId);
-                syncedObject.SerializeDefault(bs);
+                var networkID = pair.Key;
+                var sync = pair.Value;
+                playerStateData.Add(new MyStateDataEntry(networkID, sync));
+
+                bs.WriteCompressed(sync.TypeID);
+                bs.WriteCompressed(networkID);
+                sync.SerializeDefault(bs, clientIndex);
             }
+            ProfilerShort.End();
         }
 
         internal void DeserializeStateData(BitStream bs)
         {
+            ProfilerShort.Begin("MyRakNetSyncLayer::DeserializeStateData");
             bool success;
             int count;
 
@@ -103,8 +203,9 @@ namespace VRage.Network
 
             for (int i = 0; i < count; i++)
             {
-                ProcessReplication(bs);
+                ProcessReplicationCreate(bs);
             }
+            ProfilerShort.End();
         }
 
         public void UnloadData()
@@ -116,15 +217,44 @@ namespace VRage.Network
             }
         }
 
+        // TODO:SK performance
         public void Update()
         {
-            foreach (var syncedObject in m_stateData.Values)
+            Debug.Assert(IsServer);
+            ProfilerShort.Begin("MyRakNetSyncLayer::Update");
+            foreach (var pair in m_perPlayerStateData)
             {
-                if (syncedObject.IsDirty)
+                var steamID = pair.Key;
+                var stateData = pair.Value;
+                foreach (var entry in stateData)
                 {
-                    Sync(syncedObject);
+                    entry.UpdatePriority(steamID);
+                }
+
+                stateData.Sort();
+
+                int clientIndex = GetClientIndexFromSteamID(steamID);
+
+                foreach (var entry in stateData)
+                {
+                    if (entry.PacketID != 0)
+                    {
+                        continue;
+                    }
+
+                    if (entry.Sync.IsDirty(clientIndex))
+                    {
+                        Sync(entry.NetworkID, entry.Sync, clientIndex);
+                    }
                 }
             }
+            ProfilerShort.End();
+        }
+
+        private int GetClientIndexFromSteamID(ulong steamID)
+        {
+            Debug.Assert(m_steamIDToClientIndex.ContainsKey(steamID));
+            return m_steamIDToClientIndex[steamID];
         }
 
         private void RegisterFromAssembly(Assembly assembly)
@@ -147,83 +277,127 @@ namespace VRage.Network
             m_typeToId.Clear();
         }
 
-        public static void RegisterSynced(MySyncedClass mySyncedClass)
+        private static void RegisterSynced(uint networkID, MySyncedClass sync)
         {
-            Debug.Assert(mySyncedClass.EntityId != 0);
+            Debug.Assert(networkID != 0); // ??
             Debug.Assert(Static != null);
-            Debug.Assert(!Static.m_stateData.ContainsKey(mySyncedClass.EntityId));
+            Debug.Assert(!Static.m_stateData.ContainsKey(networkID));
 
-            //mySyncedClass.Init
+            Static.m_stateData.Add(networkID, sync);
+            foreach (var pair in Static.m_perPlayerStateData)
+            {
+                var steamID = pair.Key;
+                var stateData = pair.Value;
 
-            Static.m_stateData.Add(mySyncedClass.EntityId, mySyncedClass);
+                stateData.Add(new MyStateDataEntry(networkID, sync));
+            }
         }
 
-        internal static void Sync(MySyncedClass mySyncedClass)
+        private static void Sync(uint networkID, MySyncedClass sync, int clientIndex)
         {
-            Debug.Assert(mySyncedClass.EntityId != 0);
+            Debug.Assert(networkID != 0);
             Debug.Assert(Static != null);
             Debug.Assert(Static.m_peer is MyRakNetServer);
 
             BitStream bs = new BitStream(null);
             bs.Write((byte)MessageIDEnum.SYNC_FIELD);
-            bs.Write((long)mySyncedClass.EntityId);
-            mySyncedClass.Serialize(bs);
+            bs.WriteCompressed(networkID);
+            sync.Serialize(bs, clientIndex);
+
+            var steamID = Static.m_clientIndexToSteamID[clientIndex];
 
             // TODO:SK use UNRELIABLE_WITH_ACK_RECEIPT
-            ((MyRakNetServer)Static.m_peer).BroadcastMessage(bs, PacketPriorityEnum.LOW_PRIORITY, PacketReliabilityEnum.UNRELIABLE, 0, RakNetGUID.UNASSIGNED_RAKNET_GUID);
+            var packetID = ((MyRakNetServer)Static.m_peer).SendMessage(bs, steamID, PacketPriorityEnum.LOW_PRIORITY, PacketReliabilityEnum.UNRELIABLE);
         }
 
         internal void ProcessSync(BitStream bs)
         {
-            long tmpLong;
-            bool success = bs.Read(out tmpLong);
-            Debug.Assert(success, "Failed to read entityID");
-            ulong entityID = (ulong)tmpLong;
+            uint networkID;
+            bool success = bs.ReadCompressed(out networkID);
+            Debug.Assert(success, "Failed to read networkID");
 
-            MySyncedClass mySyncedObject = GetEntitySyncFields(entityID);
+            MySyncedClass mySyncedObject = GetNetworkedSync(networkID);
             if (mySyncedObject != null)
             {
                 mySyncedObject.Deserialize(bs);
             }
         }
 
-        public static void Destroy(ulong entityID)
+        public static void Destroy(object obj)
         {
+            Debug.Assert(obj != null);
             Debug.Assert(Static != null);
             Debug.Assert(Static.m_peer is MyRakNetServer);
-            Debug.Assert(Static.m_stateData.ContainsKey(entityID));
+            Debug.Assert(Static.m_objectToNetworkID.ContainsKey(obj));
+
+            uint networkID = Static.m_objectToNetworkID[obj];
+
+            Debug.Assert(Static.m_networkIDToObject.ContainsKey(networkID));
+            Debug.Assert(Static.m_stateData.ContainsKey(networkID));
 
             BitStream bs = new BitStream(null);
             bs.Write((byte)MessageIDEnum.REPLICATION_DESTROY);
-            bs.Write((long)entityID);
+            bs.WriteCompressed(networkID);
 
-            Static.m_stateData.Remove(entityID);
+            Static.RemoveNetworkedObject(networkID, obj);
 
-            ((MyRakNetServer)Static.m_peer).BroadcastMessage(bs, PacketPriorityEnum.LOW_PRIORITY, PacketReliabilityEnum.RELIABLE, 0, RakNetGUID.UNASSIGNED_RAKNET_GUID);
+            ((MyRakNetServer)Static.m_peer).BroadcastMessage(bs, PacketPriorityEnum.LOW_PRIORITY, PacketReliabilityEnum.RELIABLE);
         }
 
-        public static void Replicate(object obj, ulong entityID)
+        private void AddNetworkedObject(uint networkID, object obj, MySyncedClass sync)
+        {
+            m_objectToNetworkID.Add(obj, networkID);
+            m_networkIDToObject.Add(networkID, obj);
+            RegisterSynced(networkID, sync);
+        }
+
+        private object RemoveNetworkedObject(uint networkID)
+        {
+            Debug.Assert(m_networkIDToObject.ContainsKey(networkID));
+            var obj = m_networkIDToObject[networkID];
+            RemoveNetworkedObject(networkID, obj);
+            return obj;
+        }
+
+        private void RemoveNetworkedObject(uint networkID, object obj)
+        {
+            m_objectToNetworkID.Remove(obj);
+            m_networkIDToObject.Remove(networkID);
+            m_stateData.Remove(networkID);
+        }
+
+        // TODO:SK this will be bad if we actually get over uint size (http://bitsquid.blogspot.cz/2014/08/building-data-oriented-entity-system.html)
+        private uint GetNetworkUniqueID()
+        {
+            uint uniqueID;
+            while (m_networkIDToObject.ContainsKey(uniqueID = m_uniqueID++)) ;
+            Debug.Assert(uniqueID != 0);
+            return uniqueID;
+        }
+
+        public static void Replicate(object obj)
         {
             Debug.Assert(Static != null);
             Debug.Assert(Static.m_peer is MyRakNetServer);
-            Debug.Assert(!Static.m_stateData.ContainsKey(entityID));
             Debug.Assert(Static.m_idToType.Contains(obj.GetType()));
 
             int typeID = Static.m_typeToId[obj.GetType()];
 
+            uint networkID = Static.GetNetworkUniqueID();
+
             BitStream bs = new BitStream(null);
             bs.Write((byte)MessageIDEnum.REPLICATION_CREATE);
             bs.WriteCompressed(typeID); // TODO:SK better compression
-            bs.Write((long)entityID);
+            bs.WriteCompressed(networkID);
 
-            MySyncedClass syncedClass = GetSyncedClass(obj);
-            syncedClass.TypeID = typeID;
-            syncedClass.EntityId = entityID;
-            syncedClass.Serialize(bs);
+            MySyncedClass sync = GetSyncedClass(obj);
+            sync.TypeID = typeID;
 
-            RegisterSynced(syncedClass);
+            Static.AddNetworkedObject(networkID, obj, sync);
 
-            ((MyRakNetServer)Static.m_peer).BroadcastMessage(bs, PacketPriorityEnum.LOW_PRIORITY, PacketReliabilityEnum.RELIABLE, 0, RakNetGUID.UNASSIGNED_RAKNET_GUID);
+            sync.SerializeDefault(bs);
+
+            ((MyRakNetServer)Static.m_peer).BroadcastMessage(bs, PacketPriorityEnum.LOW_PRIORITY, PacketReliabilityEnum.RELIABLE);
         }
 
         private static SortedDictionary<int, object> tmpFields = new SortedDictionary<int, object>();
@@ -291,7 +465,7 @@ namespace VRage.Network
             return sync;
         }
 
-        internal void ProcessReplication(BitStream bs)
+        internal void ProcessReplicationCreate(BitStream bs)
         {
             bool success;
 
@@ -302,50 +476,47 @@ namespace VRage.Network
 
             Type type = m_idToType[typeID];
 
-            long tmpLong;
-            success = bs.Read(out tmpLong);
-            Debug.Assert(success, "Failed to read entityID");
-            ulong entityID = (ulong)tmpLong;
+            uint networkID;
+            success = bs.ReadCompressed(out networkID);
+            Debug.Assert(success, "Failed to read networkID");
 
             object obj = Activator.CreateInstance(type);
             MySyncedClass sync = GetSyncedClass(obj);
             sync.TypeID = typeID;
-            sync.EntityId = entityID;
             sync.Deserialize(bs);
             // TODO:SK should init here
 
-            RegisterSynced(sync);
+            AddNetworkedObject(networkID, obj, sync);
 
             var handle = OnEntityCreated;
             if (handle != null)
             {
-                handle(obj, entityID);
+                handle(obj);
             }
         }
 
-        internal void ReplicationDestroy(BitStream bs)
+        internal void ProcessReplicationDestroy(BitStream bs)
         {
             bool success;
 
-            long tmpLong;
-            success = bs.Read(out tmpLong);
-            Debug.Assert(success, "Failed to read entityID");
-            ulong entityID = (ulong)tmpLong;
+            uint networkID;
+            success = bs.ReadCompressed(out networkID);
+            Debug.Assert(success, "Failed to read networkID");
 
-            m_stateData.Remove(entityID);
+            var obj = RemoveNetworkedObject(networkID);
 
             var handle = OnEntityDestroyed;
             if (handle != null)
             {
-                handle(entityID);
+                handle(obj);
             }
         }
 
-        private MySyncedClass GetEntitySyncFields(ulong entityID)
+        private MySyncedClass GetNetworkedSync(uint networkID)
         {
-            if (m_stateData.ContainsKey(entityID))
+            if (m_stateData.ContainsKey(networkID))
             {
-                return m_stateData[entityID];
+                return m_stateData[networkID];
             }
             return null;
         }

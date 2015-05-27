@@ -14,6 +14,8 @@ namespace Sandbox.Definitions
         public float SteeringSpeed;
         public float PropulsionForce;
         public float SuspensionLimit;
+        public float MinHeight;
+        public float MaxHeight;
 
         protected override void Init(MyObjectBuilder_DefinitionBase builder)
         {
@@ -24,6 +26,8 @@ namespace Sandbox.Definitions
             SteeringSpeed = ob.SteeringSpeed;
             PropulsionForce = ob.PropulsionForce;
             SuspensionLimit = ob.SuspensionLimit;
+            MinHeight = ob.MinHeight;
+            MaxHeight = ob.MaxHeight;
         }
     }
 }

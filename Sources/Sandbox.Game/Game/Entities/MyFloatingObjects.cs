@@ -246,7 +246,7 @@ namespace Sandbox.Game.Entities
                     if (voxelMap != null && !voxelMap.MarkedForClose)
                     {
                         float unused;
-                        var penetrationAmountNormalized = voxelMap.GetVoxelContentInBoundingBox(aabb, out unused);
+                        var penetrationAmountNormalized = voxelMap.GetVoxelContentInBoundingBox_Obsolete(aabb, out unused);
                         var penetrationVolume = penetrationAmountNormalized * MyVoxelConstants.VOXEL_VOLUME_IN_METERS;
                         var penetrationRatio = penetrationVolume / aabb.Volume;
                         if (penetrationRatio >= 1.0f)

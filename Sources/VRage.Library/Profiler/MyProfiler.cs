@@ -330,13 +330,19 @@ namespace VRage.Profiler
                 return;
             }
 
-            MyProfilerBlock profilingBlock = m_currentProfilingStack.Pop();
-            CheckEndBlock(profilingBlock, member, file, GetParentId());
-
-            profilingBlock.CustomValue = customValue;
-            profilingBlock.TimeFormat = timeFormat;
-            profilingBlock.ValueFormat = valueFormat;
-            profilingBlock.End(MemoryProfiling, customTime);
+            if (m_currentProfilingStack.Count > 0)
+            {
+                MyProfilerBlock profilingBlock = m_currentProfilingStack.Pop();
+                CheckEndBlock(profilingBlock, member, file, GetParentId());
+                profilingBlock.CustomValue = customValue;
+                profilingBlock.TimeFormat = timeFormat;
+                profilingBlock.ValueFormat = valueFormat;
+                profilingBlock.End(MemoryProfiling, customTime);
+            }
+            else
+            {
+                Debug.Fail(String.Format("Unpaired profiling end block encountered for '{0}'{1}File: {2}({3}){1}", member, Environment.NewLine, file, line));
+            }
 
             if (AutoCommit && m_currentProfilingStack.Count == 0)
                 CommitInternal();

@@ -202,7 +202,7 @@ namespace Sandbox.Game.Entities.Cube
                     return false;
 
                 var gridSettings = m_settings.GetGridPlacementSettings(m_previewGrids[0]);
-                return gridSettings.EnablePreciseRotationWhenSnapped && MyFakes.ENABLE_STATION_ROTATION;
+                return gridSettings.EnablePreciseRotationWhenSnapped && EnableStationRotation;
             }
         }
 
@@ -223,12 +223,36 @@ namespace Sandbox.Game.Entities.Cube
         {
             get
             {
+                if (EnableStationRotation == true)
+                {
+                    return false;
+                }
+
+                foreach (var grid in m_previewGrids)
+                {
+                    if (grid.IsStatic)
+                        return true;
+                }
                 return false;
             }
         }
 
         protected bool EnableGridChangeToDynamic = MyFakes.ENABLE_GRID_CLIPBOARD_CHANGE_TO_DYNAMIC;
         private bool m_gridChangeToDynamicDisabled;
+
+        bool m_enableStationRotation = false;
+        public bool EnableStationRotation
+        {
+            get
+            {
+                return m_enableStationRotation && MyFakes.ENABLE_STATION_ROTATION;
+            }
+
+            set
+            {
+                m_enableStationRotation = value;
+            }
+        }
 
 
         public MyGridClipboard(MyPlacementSettings settings, bool calculateVelocity = true)
@@ -516,6 +540,7 @@ namespace Sandbox.Game.Entities.Cube
                 if (forceDynamicGrid)
                     gridBuilder.IsStatic = false;
 
+                var previousPos = gridBuilder.PositionAndOrientation;
                 gridBuilder.PositionAndOrientation = new MyPositionAndOrientation(m_previewGrids[i].WorldMatrix);
 
                 var pastedGrid = MyEntities.CreateFromObjectBuilder(gridBuilder) as MyCubeGrid;
@@ -997,9 +1022,17 @@ namespace Sandbox.Game.Entities.Cube
             {
                 double gridSize = m_previewGrids[0].GridSize;
                 if (m_settings.StaticGridAlignToCenter)
+                {
                     m_pastePosition = Vector3I.Round(m_pastePosition / gridSize) * gridSize;
+                }
                 else
+                {
                     m_pastePosition = Vector3I.Round(m_pastePosition / gridSize + 0.5) * gridSize - 0.5 * gridSize;
+                }
+
+                m_pasteDirForward = Vector3.Forward;
+                m_pasteDirUp = Vector3.Up;
+                m_pasteOrientationAngle = 0.0f;
             }
 
             if (MyDebugDrawSettings.DEBUG_DRAW_COPY_PASTE)
@@ -1258,7 +1291,7 @@ namespace Sandbox.Game.Entities.Cube
             if (entity != null)
             {
                 MyCubeGrid grid = entity as MyCubeGrid;
-                if (grid != null  && (!grid.IsStatic|| MyFakes.ENABLE_STATION_ROTATION))
+                if (grid != null && (!grid.IsStatic || EnableStationRotation))
                 {
                     Vector3I gridSize = grid.Max - grid.Min + new Vector3I(1, 1, 1);
                     BoundingBoxD worldBox = new BoundingBoxD(-gridSize * grid.GridSize * 0.5f, gridSize * grid.GridSize * 0.5f);

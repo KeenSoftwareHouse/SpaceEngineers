@@ -35,10 +35,7 @@ namespace Sandbox.Engine.Physics
         /// </summary>
         private Dictionary<int, List<int>> m_rigidBodiesToBonesIndices;
 
-        /// <summary>
-        /// Reference to ragdoll model which is used for mapping
-        /// </summary>
-        private HkRagdoll m_ragdoll;
+        private MyCharacter m_character;
 
         /// <summary>
         /// Reference to bones which are used for mapping
@@ -93,8 +90,8 @@ namespace Sandbox.Engine.Physics
         {
             get
             {
-                if (m_ragdoll == null) return false;
-                return m_ragdoll.IsKeyframed;
+                if (Ragdoll == null) return false;
+                return Ragdoll.IsKeyframed;
             }
         }
 
@@ -134,26 +131,36 @@ namespace Sandbox.Engine.Physics
         /// </summary>
         public bool IsActive { get; private set; }
 
-        public HkRagdoll Ragdoll { get { return m_ragdoll; } set { m_ragdoll = value; } }
+        public HkRagdoll Ragdoll 
+        { 
+            get 
+            {
+                if (m_character == null) return null;
+                if (m_character.Physics == null) return null;
+                return m_character.Physics.Ragdoll; 
+            } 
+        }
+
+
 
         /// <summary>
         /// Constructs the new mapper
         /// </summary>
         /// <param name="ragdoll">The ragdoll model</param>
         /// <param name="bones">List of the mapped bones</param>
-        public MyRagdollMapper(HkRagdoll ragdoll, List<MyCharacterBone> bones)
+        public MyRagdollMapper(MyCharacter character, List<MyCharacterBone> bones)
         {
-            Debug.Assert(ragdoll != null, "Creating ragdoll mapper without ragdoll?");
+            Debug.Assert(character.Physics.Ragdoll != null, "Creating ragdoll mapper without ragdoll?");
             Debug.Assert(bones != null && bones.Count > 0, "Creating ragdoll mapper without mapped bones?");
 
+
             m_rigidBodiesToBonesIndices = new Dictionary<int, List<int>>();
-            m_ragdoll = ragdoll;
+            m_character = character;
             m_bones = bones;
 
             m_rigidBodies = new Dictionary<string, int>();
             m_keyframedBodies = new List<int>();
             m_dynamicBodies = new List<int>();
-            m_ragdollRigidBodiesAbsoluteTransforms = new Matrix[ragdoll.RigidBodies.Count];
             IsActive = false;
             m_inicialized = false;
             IsPartiallySimulated = false;
@@ -172,7 +179,8 @@ namespace Sandbox.Engine.Physics
         public bool Init(Dictionary<string, string[]> ragdollBonesMappings)
         {
             Debug.Assert(ragdollBonesMappings != null, "Inicializing ragdoll mapper with null data?");
-            m_ragdollBonesMappings = ragdollBonesMappings;
+            m_ragdollBonesMappings = ragdollBonesMappings;            
+
             foreach (var boneSet in ragdollBonesMappings)
             {
                 try
@@ -180,8 +188,8 @@ namespace Sandbox.Engine.Physics
                     String rigidBodyName = boneSet.Key;
                     String[] boneNames = boneSet.Value;
                     List<int> boneIndices = new List<int>();
-                    int rigidBodyIndex = m_ragdoll.FindRigidBodyIndex(rigidBodyName);
-                    System.Diagnostics.Debug.Assert(m_ragdoll.RigidBodies.IsValidIndex(rigidBodyIndex), "Ragdoll bones mapping error!  Rigid body with name: " + rigidBodyName + " was not found in ragdoll.");
+                    int rigidBodyIndex = Ragdoll.FindRigidBodyIndex(rigidBodyName);
+                    System.Diagnostics.Debug.Assert(Ragdoll.RigidBodies.IsValidIndex(rigidBodyIndex), "Ragdoll bones mapping error!  Rigid body with name: " + rigidBodyName + " was not found in ragdoll.");
                     foreach (var bone in boneNames)
                     {
                         int boneIndex = m_bones.FindIndex(x => x.Name == bone);
@@ -189,7 +197,7 @@ namespace Sandbox.Engine.Physics
                         if (m_bones.IsValidIndex(boneIndex)) boneIndices.Add(boneIndex);
                         else return false;
                     }
-                    if (m_ragdoll.RigidBodies.IsValidIndex(rigidBodyIndex)) AddRigidBodyToBonesMap(rigidBodyIndex, boneIndices, rigidBodyName);
+                    if (Ragdoll.RigidBodies.IsValidIndex(rigidBodyIndex)) AddRigidBodyToBonesMap(rigidBodyIndex, boneIndices, rigidBodyName);
                     else return false;
                 }
                 catch (Exception e)
@@ -210,17 +218,18 @@ namespace Sandbox.Engine.Physics
         /// </summary>
         private void InitRigTransforms()
         {
-            m_bodyToBoneRigTransforms = new Matrix[m_ragdoll.RigidBodies.Count];
-            m_boneToBodyRigTransforms = new Matrix[m_ragdoll.RigidBodies.Count];
-            BodiesRigTransfoms = new Matrix[m_ragdoll.RigidBodies.Count];
-            BodiesRigTransfomsInverted = new Matrix[m_ragdoll.RigidBodies.Count];
+            m_ragdollRigidBodiesAbsoluteTransforms = new Matrix[Ragdoll.RigidBodies.Count];
+            m_bodyToBoneRigTransforms = new Matrix[Ragdoll.RigidBodies.Count];
+            m_boneToBodyRigTransforms = new Matrix[Ragdoll.RigidBodies.Count];
+            BodiesRigTransfoms = new Matrix[Ragdoll.RigidBodies.Count];
+            BodiesRigTransfomsInverted = new Matrix[Ragdoll.RigidBodies.Count];
             foreach (var bodyIndex in m_rigidBodiesToBonesIndices.Keys)
             {
                 MyCharacterBone bone = m_bones[m_rigidBodiesToBonesIndices[bodyIndex].First()];
 
                 Matrix boneRig = bone.GetAbsoluteRigTransform();
 
-                Matrix rigidBodyTransform = m_ragdoll.RigidBodies[bodyIndex].GetRigidBodyMatrix();
+                Matrix rigidBodyTransform = Ragdoll.RigidBodies[bodyIndex].GetRigidBodyMatrix();
 
                 Matrix bodyToBone = boneRig * Matrix.Invert(rigidBodyTransform);
 
@@ -254,7 +263,7 @@ namespace Sandbox.Engine.Physics
         /// <param name="rigidBodyName"></param>
         private void AddRigidBodyToBonesMap(int rigidBodyIndex, List<int> bonesIndices, String rigidBodyName)
         {
-            Debug.Assert(m_ragdoll.RigidBodies.IsValidIndex(rigidBodyIndex), "Ragdoll: RigidBody index is invalid. The ragdoll mode is invalid, is the rigid body definitions correct?");
+            Debug.Assert(Ragdoll.RigidBodies.IsValidIndex(rigidBodyIndex), "Ragdoll: RigidBody index is invalid. The ragdoll mode is invalid, is the rigid body definitions correct?");
             foreach (var index in bonesIndices)
             {
                 Debug.Assert(m_bones.IsValidIndex(index), "The bone index is invalid. The ragdoll definition is invalid, use proper names for character bones in ragdoll mappings definition.");
@@ -269,8 +278,9 @@ namespace Sandbox.Engine.Physics
         /// </summary>        
         public void UpdateRagdollPose()
         {
-            Debug.Assert(m_ragdoll != null, "Ragdoll mapper ragdoll in not inicialized, can not update pose!");
-            if (!m_inicialized || !IsActive) return;
+            Debug.Assert(Ragdoll != null, "Ragdoll mapper ragdoll in not inicialized, can not update pose!");
+            if (Ragdoll == null) return;
+            if (!m_inicialized || !IsActive) return; 
             CalculateRagdollTransformsFromBones();
             UpdateRagdollRigidBodies();
         }
@@ -282,11 +292,12 @@ namespace Sandbox.Engine.Physics
         /// <param name="worldMatrix"></param>
         private void CalculateRagdollTransformsFromBones()
         {
-            Debug.Assert(m_ragdoll != null, "Ragdoll mapper ragdoll in not inicialized, calculate ragdoll transforms!");
-            if (!m_inicialized) return;
+            Debug.Assert(Ragdoll != null, "Ragdoll mapper ragdoll in not inicialized, calculate ragdoll transforms!");
+            if (Ragdoll == null) return;
+            if (!m_inicialized || !IsActive) return; 
             foreach (var rigidBodyIndex in m_rigidBodiesToBonesIndices.Keys)
             {
-                HkRigidBody rigidBody = m_ragdoll.RigidBodies[rigidBodyIndex];
+                HkRigidBody rigidBody = Ragdoll.RigidBodies[rigidBodyIndex];
                 var boneIndices = m_rigidBodiesToBonesIndices[rigidBodyIndex];
 
                 Matrix finalTransform = m_bones[boneIndices.First()].AbsoluteTransform;
@@ -300,13 +311,14 @@ namespace Sandbox.Engine.Physics
         /// </summary>
         private void UpdateRagdollRigidBodies()
         {
-            Debug.Assert(m_ragdoll != null, "Ragdoll mapper ragdoll in not inicialized, calculate ragdoll transforms!");
-            if (!m_inicialized) return;
-            Debug.Assert(m_ragdoll.WorldMatrix.IsValid(), "Ragdoll matrix is invalid!");
+            Debug.Assert(Ragdoll != null, "Ragdoll mapper ragdoll in not inicialized, calculate ragdoll transforms!");
+            if (Ragdoll == null) return;
+            if (!m_inicialized || !IsActive) return; 
+            Debug.Assert(Ragdoll.WorldMatrix.IsValid(), "Ragdoll matrix is invalid!");
             foreach (var rigidBodyIndex in m_keyframedBodies)
             {
-                Debug.Assert(m_ragdoll.RigidBodies.IsValidIndex(rigidBodyIndex), "Ragdoll rigid body index is invalid. Is the ragdoll model correctly built?");
-                HkRigidBody rigidBody = m_ragdoll.RigidBodies[rigidBodyIndex];
+                Debug.Assert(Ragdoll.RigidBodies.IsValidIndex(rigidBodyIndex), "Ragdoll rigid body index is invalid. Is the ragdoll model correctly built?");
+                HkRigidBody rigidBody = Ragdoll.RigidBodies[rigidBodyIndex];
 
                 if (m_ragdollRigidBodiesAbsoluteTransforms[rigidBodyIndex].IsValid() && m_ragdollRigidBodiesAbsoluteTransforms[rigidBodyIndex] != Matrix.Zero)
                 {
@@ -317,7 +329,7 @@ namespace Sandbox.Engine.Physics
                     rotation.Normalize();
                     transform = Matrix.CreateFromQuaternion(rotation);
                     transform.Translation = translation;
-                    m_ragdoll.SetRigidBodyLocalTransform(rigidBodyIndex, transform);
+                    Ragdoll.SetRigidBodyLocalTransform(rigidBodyIndex, transform);
                 }
             }
 
@@ -329,29 +341,32 @@ namespace Sandbox.Engine.Physics
         /// <param name="weight">transform influence weight on dynamic bodies</param>
         public void UpdateCharacterPose(float dynamicBodiesWeight = 1.0f, float keyframedBodiesWeight = 1.0f)
         {
-            Debug.Assert(m_ragdoll != null, "Ragdoll mapper ragdoll in not inicialized, can't calculate ragdoll transforms!");
+            Debug.Assert(Ragdoll != null, "Ragdoll mapper ragdoll in not inicialized, can't calculate ragdoll transforms!");
             if (!m_inicialized || !IsActive) return;
 
 
             float weight = dynamicBodiesWeight;
-            if (m_keyframedBodies.Contains(m_ragdoll.m_ragdollTree.m_rigidBodyIndex))
+            if (m_keyframedBodies.Contains(Ragdoll.m_ragdollTree.m_rigidBodyIndex))
             {
                 weight = keyframedBodiesWeight;
             }
 
             // Instead of blind settings, we need to traverse tree from root to children 
-            SetBoneTo(m_ragdoll.m_ragdollTree, weight, dynamicBodiesWeight, keyframedBodiesWeight);
+            SetBoneTo(Ragdoll.m_ragdollTree, weight, dynamicBodiesWeight, keyframedBodiesWeight);
         }
 
         private void SetBoneTo(RagdollBone ragdollBone, float weight, float dynamicChildrenWeight, float keyframedChildrenWeight)
         {
+            if (Ragdoll == null) return;
+            if (!m_inicialized || !IsActive) return;
+
             int firstBoneIndex = m_rigidBodiesToBonesIndices[ragdollBone.m_rigidBodyIndex].First();
 
             MyCharacterBone bone = m_bones[firstBoneIndex];
 
-            //Matrix localTransform = m_ragdoll.GetRigidBodyLocalTransform(ragdollBone.m_rigidBodyIndex);
+            //Matrix localTransform = Ragdoll.GetRigidBodyLocalTransform(ragdollBone.m_rigidBodyIndex);
 
-            Matrix localTransform = m_bodyToBoneRigTransforms[ragdollBone.m_rigidBodyIndex] * m_ragdoll.GetRigidBodyLocalTransform(ragdollBone.m_rigidBodyIndex);
+            Matrix localTransform = m_bodyToBoneRigTransforms[ragdollBone.m_rigidBodyIndex] * Ragdoll.GetRigidBodyLocalTransform(ragdollBone.m_rigidBodyIndex);
 
             Matrix parentMatrix = (bone.Parent != null) ? bone.Parent.AbsoluteTransform : Matrix.Identity;
 
@@ -397,6 +412,11 @@ namespace Sandbox.Engine.Physics
 
         public void Activate()
         {
+            if (Ragdoll == null)
+            {
+                IsActive = false;
+                return;
+            }
             IsActive = true;
         }
 
@@ -408,7 +428,8 @@ namespace Sandbox.Engine.Physics
 
         public void SetRagdollToKeyframed()
         {
-            m_ragdoll.SetToKeyframed();
+            if (Ragdoll == null) return;
+            Ragdoll.SetToKeyframed();
             m_dynamicBodies.Clear();
             m_keyframedBodies.Clear();
             m_keyframedBodies.AddRange(m_rigidBodies.Values);
@@ -417,7 +438,8 @@ namespace Sandbox.Engine.Physics
 
         public void SetRagdollToDynamic()
         {
-            m_ragdoll.SetToDynamic();
+            if (Ragdoll == null) return;
+            Ragdoll.SetToDynamic();
             m_keyframedBodies.Clear();
             m_dynamicBodies.Clear();
             m_dynamicBodies.AddRange(m_rigidBodies.Values);
@@ -447,34 +469,33 @@ namespace Sandbox.Engine.Physics
 
         public void ActivatePartialSimulation(List<int> dynamicRigidBodies)
         {
-            if (!m_inicialized || m_ragdoll == null || IsPartiallySimulated) return;
-
-            m_ragdoll.SetToDynamic();
+            if (!m_inicialized || Ragdoll == null || IsPartiallySimulated) return;
+                        
             m_dynamicBodies.Clear();
             m_dynamicBodies.AddList(dynamicRigidBodies);
             m_keyframedBodies.Clear();
             m_keyframedBodies.AddRange(m_rigidBodies.Values.Except(dynamicRigidBodies));
-
-
+            
             foreach (var bodyIndex in m_dynamicBodies)
             {
-                m_ragdoll.SetToDynamic(bodyIndex);                
-                m_ragdoll.SwitchRigidBodyToLayer(bodyIndex, MyPhysics.RagdollCollisionLayer);
+                Ragdoll.SetToDynamic(bodyIndex);                
+                Ragdoll.SwitchRigidBodyToLayer(bodyIndex, MyPhysics.RagdollCollisionLayer);
             }
 
             // TODO: When we have fully wrapped HkRagdollContraintData update parameters here..
-            //foreach (var constraint in m_ragdoll.RagdollConstraintsData)
+            //foreach (var constraint in Ragdoll.RagdollConstraintsData)
             //{
 
             //}
 
             foreach (var bodyIndex in m_keyframedBodies)
             {
-                m_ragdoll.SetToKeyframed(bodyIndex);                
-                m_ragdoll.SwitchRigidBodyToLayer(bodyIndex, MyPhysics.RagdollCollisionLayer);
+                Ragdoll.SetToKeyframed(bodyIndex);                
+                Ragdoll.SwitchRigidBodyToLayer(bodyIndex, MyPhysics.RagdollCollisionLayer);
             }
-            m_ragdoll.EnableConstraints();
-            m_ragdoll.Activate();
+
+            Ragdoll.EnableConstraints();
+            Ragdoll.Activate();
 
             IsActive = true;
             IsPartiallySimulated = true;
@@ -483,8 +504,9 @@ namespace Sandbox.Engine.Physics
         public void DeactivatePartialSimulation()
         {
             if (!IsPartiallySimulated) return;
+            if (Ragdoll == null) return;
 
-            m_ragdoll.Deactivate();
+            Ragdoll.Deactivate();
 
             m_keyframedBodies.Clear();
             m_dynamicBodies.Clear();
@@ -521,7 +543,7 @@ namespace Sandbox.Engine.Physics
             {
                 foreach (var bodyIndex in m_rigidBodiesToBonesIndices.Keys)
                 {
-                    Matrix debug = m_bodyToBoneRigTransforms[bodyIndex] * m_ragdoll.GetRigidBodyLocalTransform(bodyIndex) * worldMatrix;
+                    Matrix debug = m_bodyToBoneRigTransforms[bodyIndex] * Ragdoll.GetRigidBodyLocalTransform(bodyIndex) * worldMatrix;
                     VRageRender.MyRenderProxy.DebugDrawSphere(debug.Translation, 0.035f, Color.Blue, 0.8f, false);
                 }
             }
@@ -540,7 +562,7 @@ namespace Sandbox.Engine.Physics
                 foreach (var bodyIndex in m_rigidBodiesToBonesIndices.Keys)
                 {
                     Color color = new Color(((bodyIndex & 1) * 255), ((bodyIndex & 2) * 255), ((bodyIndex & 4) * 255));
-                    DrawShape(m_ragdoll.RigidBodies[bodyIndex].GetShape(), m_ragdoll.GetRigidBodyLocalTransform(bodyIndex) * worldMatrix, color, 0.6f);
+                    DrawShape(Ragdoll.RigidBodies[bodyIndex].GetShape(), Ragdoll.GetRigidBodyLocalTransform(bodyIndex) * worldMatrix, color, 0.6f);
                 }
 
             }
@@ -548,9 +570,41 @@ namespace Sandbox.Engine.Physics
 
 
 
-        public void UpateHavokWorldPosition(Matrix havokWorldMatrix)
+        /// <summary>
+        /// Update Ragdoll position in the Havok world to copy the Physics position
+        /// </summary>
+        public void UpateHavokWorldPosition()
         {
-            m_ragdoll.SetWorldMatrix(havokWorldMatrix, !IsPartiallySimulated);
+            if (Ragdoll == null) return;
+            if (!m_inicialized || !IsActive) return;
+            if (!IsPartiallySimulated && !IsKeyFramed) return;
+
+            Matrix havokWorldMatrix;
+            if (m_character.Physics.CharacterProxy != null)
+            {
+                MatrixD characterTransform = m_character.Physics.CharacterProxy.GetRigidBodyTransform();
+
+                Vector3 transformedCenter = Vector3.TransformNormal(m_character.Physics.Center, characterTransform);
+                characterTransform.Translation = m_character.Physics.CharacterProxy.Position - transformedCenter;
+                havokWorldMatrix = characterTransform;
+            }
+            else
+            {
+                havokWorldMatrix = m_character.Physics.GetWorldMatrix();
+                havokWorldMatrix.Translation = m_character.Physics.WorldToCluster(havokWorldMatrix.Translation);
+            }
+
+            // If ragdoll is repositioned to a far distance instantly, havok doesn't hadle it properly. Simulation is broken etc.
+            // Therefore in that case we need to reposition the ragdoll without breaking the simulation - setting all bodies to new position
+            Vector3 distance = havokWorldMatrix.Translation - Ragdoll.WorldMatrix.Translation;
+            if (distance.LengthSquared() > 100)
+            {
+                Ragdoll.SetWorldMatrix(havokWorldMatrix, true);
+            }
+            else
+            {
+                Ragdoll.SetWorldMatrix(havokWorldMatrix, !IsPartiallySimulated);
+            }
         }
 
         public static void DrawShape(HkShape shape, Matrix worldMatrix, Color color, float alpha, bool shaded = true)
@@ -575,16 +629,17 @@ namespace Sandbox.Engine.Physics
 
         public void SetLinearVelocity(Vector3 linearVelocity, bool onKeyframedOnly = true)
         {
+            if (!m_inicialized || !IsActive) return;
             if (onKeyframedOnly)
             {
                 foreach (var bodyindex in m_keyframedBodies)
                 {
-                    m_ragdoll.RigidBodies[bodyindex].LinearVelocity = linearVelocity;
+                    Ragdoll.RigidBodies[bodyindex].LinearVelocity = linearVelocity;
                 }
             }
             else
             {
-                foreach (var body in m_ragdoll.RigidBodies)
+                foreach (var body in Ragdoll.RigidBodies)
                 {
                     body.LinearVelocity = linearVelocity;
                 }
@@ -593,21 +648,38 @@ namespace Sandbox.Engine.Physics
 
         public void SetAngularVelocity(Vector3 angularVelocity, bool onKeyframedOnly = true)
         {
+            if (!m_inicialized || !IsActive) return;
             if (onKeyframedOnly)
             {
                 foreach (var bodyindex in m_keyframedBodies)
                 {
-                    m_ragdoll.RigidBodies[bodyindex].AngularVelocity = angularVelocity;
+                    Ragdoll.RigidBodies[bodyindex].AngularVelocity = angularVelocity;
                 }
             }
             else
             {
-                foreach (var body in m_ragdoll.RigidBodies)
+                foreach (var body in Ragdoll.RigidBodies)
                 {
                     body.AngularVelocity = angularVelocity;
                 }
             }
         }
 
+        public void SetVelocities()
+        {
+            if (!m_inicialized || !IsActive) return;
+            if (Ragdoll == null) return;
+            
+            SetAngularVelocity(m_character.Physics.AngularVelocity);
+            SetLinearVelocity(m_character.Physics.LinearVelocity);
+        }
+
+        public void UpdateRagdollAfterSimulation()
+        {
+            if (!m_inicialized || !IsActive) return;
+            if (Ragdoll == null || !Ragdoll.IsActive) return;
+
+            m_character.Physics.Ragdoll.UpdateWorldMatrixAfterSimulation();
+        }
     }
 }

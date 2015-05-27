@@ -357,7 +357,6 @@
     <Compile Include="Utils\MyGameTimer.cs" />
     <Compile Include="Utils\MyInterpolationQueue.cs" />
     <Compile Include="Utils\MyRandom.cs" />
-    <Compile Include="Utils\MyStringId.cs" />
     <Compile Include="Utils\MyTimer.cs" />
     <Compile Include="Utils\MyTimeSpan.cs" />
     <Compile Include="Utils\MyUtils.cs" />

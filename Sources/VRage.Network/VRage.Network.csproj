@@ -70,6 +70,7 @@
     <Compile Include="SyncLayer\MyRakNetSyncLayer.cs" />
     <Compile Include="SyncLayer\IMySyncedValue.cs" />
     <Compile Include="SyncLayer\MySyncedBase.cs" />
+    <Compile Include="SyncLayer\MySyncedBool.cs" />
     <Compile Include="SyncLayer\MySyncedFloat.cs" />
     <Compile Include="SyncLayer\MySyncedFloatSNorm.cs" />
     <Compile Include="SyncLayer\MySyncedFloatUNorm.cs" />

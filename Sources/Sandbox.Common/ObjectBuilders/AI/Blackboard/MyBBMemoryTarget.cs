@@ -22,34 +22,20 @@ namespace Sandbox.Common.ObjectBuilders.AI
 		[ProtoMember]
 		public long? TreeId = null;
 
+		[ProtoMember]
+		public Vector3I? VoxelPosition = null;
+
         public Vector3I BlockPosition { get { return Vector3I.Round(Position.Value); } }
 
         public MyBBMemoryTarget()
         {
         }
 
-        public MyBBMemoryTarget(MyAiTargetEnum targetType, long entityId)
-        {
-            SetTargetEntity(targetType, entityId);
-        }
-
-        public MyBBMemoryTarget(Vector3D position)
-        {
-            SetTargetPosition(position);
-        }
-
-        public MyBBMemoryTarget(Vector3I blockPosition, long entityId)
-        {
-            SetTargetCube(blockPosition, entityId);
-        }
-
-		public MyBBMemoryTarget(Vector3D position, long environmentId, long itemId)
-		{
-			TargetType = MyAiTargetEnum.ENVIRONMENT_ITEM;
-			EntityId = environmentId;
-			TreeId = itemId;
-			Position = position;
-		}
+        public MyBBMemoryTarget(MyAiTargetEnum targetType, long entityId)							{ SetTargetEntity(targetType, entityId); }
+        public MyBBMemoryTarget(Vector3D position)													{ SetTargetPosition(position); }
+        public MyBBMemoryTarget(Vector3I blockPosition, long entityId)								{ SetTargetCube(blockPosition, entityId); }
+		public MyBBMemoryTarget(Vector3D position, long environmentId, long itemId)					{ SetTargetTree(position, environmentId, itemId); }
+		public MyBBMemoryTarget(Vector3D exactPosition, Vector3I voxelGridPosition, long entityId)	{ SetTargetVoxel(exactPosition, voxelGridPosition, entityId); }
 
         public void SetTargetEntity(MyAiTargetEnum targetType, long entityId)
         {
@@ -81,6 +67,14 @@ namespace Sandbox.Common.ObjectBuilders.AI
 			EntityId = entityId;
 			TreeId = treeId;
 			Position = treePosition;
+		}
+
+		public void SetTargetVoxel(Vector3D exactPosition, Vector3I voxelGridPosition, long entityId)
+		{
+			TargetType = MyAiTargetEnum.VOXEL;
+			Position = exactPosition;
+			VoxelPosition = voxelGridPosition;
+			EntityId = entityId;
 		}
     }
 }

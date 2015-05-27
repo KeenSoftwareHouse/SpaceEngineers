@@ -164,7 +164,7 @@ namespace Sandbox.Game.World
                     worldMatrix.Translation = correctedPos.Value;
             }
 
-            var character = MyCharacter.CreateCharacter(worldMatrix, velocity, Identity.DisplayName, Identity.Model, Identity.ColorMask, false);
+            var character = MyCharacter.CreateCharacter(worldMatrix, velocity, Identity.DisplayName, Identity.Model, Identity.ColorMask, findNearPos: false, useInventory: Id.SerialId == 0);
             Sync.Players.SetPlayerCharacter(this, character);
             Sync.Players.RevivePlayer(this);
         }

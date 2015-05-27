@@ -90,6 +90,8 @@ namespace Sandbox.Game.Entities.Cube
         bool m_IsPermanent = false;
         bool m_OnlyPermanentExists = false;
 
+        public bool m_needLineOfSight = true;
+
         public Vector3D HeadPos{
             get{
                 if (m_base2!=null)
@@ -423,6 +425,7 @@ namespace Sandbox.Game.Entities.Cube
             m_targetCoords = ob.LastTargetPosition;
 
             m_maxRange = BlockDefinition.MaxRange;
+            m_needLineOfSight = BlockDefinition.RequireLineOfSight;
 
             InitializationMatrix = (MatrixD)PositionComp.LocalMatrix;
 
@@ -647,7 +650,7 @@ namespace Sandbox.Game.Entities.Cube
                         || !IsInRange(target)
                         || !m_receiver.CanIUseIt(target.m_broadcaster, this.OwnerId)
                         || !target.m_receiver.CanIUseIt(m_broadcaster, target.OwnerId)
-                        || !LosTest(target.HeadPos)//target will make other half of line in its update
+                        || (m_needLineOfSight && !LosTest(target.HeadPos))//target will make other half of line in its update
                         )
                         sync.ShiftMode(StateEnum.contact_Rec);//other side MIA
                     else

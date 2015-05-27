@@ -287,7 +287,7 @@ namespace Sandbox.Engine.Multiplayer
                 else
                 {
                     // Kicked client can be already removed from Clients
-                    if (Sync.Clients.HasClient(changedUser))
+                    if (Sync.Clients == null || Sync.Clients.HasClient(changedUser))
                         RaiseClientLeft(changedUser, stateChange);
 
                     if (changedUser == ServerId)

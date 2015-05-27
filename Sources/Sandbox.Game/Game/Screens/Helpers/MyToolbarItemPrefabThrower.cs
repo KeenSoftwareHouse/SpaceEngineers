@@ -39,7 +39,8 @@ namespace Sandbox.Game.Screens.Helpers
 
         public override bool AllowedInToolbarType(MyToolbarType type)
         {
-            if (VRage.Input.MyInput.Static.ENABLE_DEVELOPER_KEYS || !MySession.Static.SurvivalMode || (MyMultiplayer.Static != null && MyMultiplayer.Static.IsAdmin(MySession.LocalHumanPlayer.Id.SteamId)))
+            //So, this is not the way, because server is handling this...?
+            //if (VRage.Input.MyInput.Static.ENABLE_DEVELOPER_KEYS || !MySession.Static.SurvivalMode || (MyMultiplayer.Static != null && MyMultiplayer.Static.IsAdmin(MySession.LocalHumanPlayer.Id.SteamId)))
             {
                 return type == MyToolbarType.Character || type == MyToolbarType.Spectator;
             }

@@ -520,7 +520,7 @@ namespace Sandbox.Game.Entities.Character
             float ankleHeight = footDimensions.Y;
                         
             // get the current foot matrix and location
-            Matrix invWorld = Matrix.Invert(WorldMatrix);
+            Matrix invWorld = PositionComp.WorldMatrixInvScaled;
             MyCharacterBone rootBone = m_bones[m_rootBone]; // root bone is used to transpose the model up or down
             Matrix modelRootBoneMatrix = rootBone.AbsoluteTransform;
             float verticalShift = modelRootBoneMatrix.Translation.Y;

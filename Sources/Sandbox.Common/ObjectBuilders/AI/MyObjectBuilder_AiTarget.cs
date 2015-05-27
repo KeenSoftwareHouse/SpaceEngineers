@@ -16,6 +16,7 @@ namespace Sandbox.Common.ObjectBuilders.AI
         POSITION,
         ENTITY,
 		ENVIRONMENT_ITEM,
+		VOXEL,
     }
 
     [ProtoContract]
