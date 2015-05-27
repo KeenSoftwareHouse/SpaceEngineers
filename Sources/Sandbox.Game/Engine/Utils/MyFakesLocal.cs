@@ -8,13 +8,12 @@ using VRageMath;
 
 namespace Sandbox.Engine.Utils
 {
-    [PreloadRequired]
-    static class MyFakesLocal
+    public static class MyFakesLocal
     {
         static MyFakesLocal()
         {
+            MyFakes.ENABLE_NEW_SOUNDS = true;
             // TODO: Set your fakes here, never commit this file
-            //MyFakes.QUICK_LAUNCH = null;          
         }
     }
 }

@@ -986,50 +986,6 @@ namespace VRage.Audio
                 return (distanceToSound <= cueDefinition.MaxDistance * cueDefinition.MaxDistance);
         }
 
-        public IMySourceVoice PlayTestSound(MyStringId cue)
-        {
-            if (cue == MyStringId.NullOrEmpty)
-                return null;
-
-            MySoundData cueDefinition = m_cueBank.GetCue(cue);
-
-            //  If this computer can't play sound, we don't create cues
-            if (!m_canPlay)
-                return null;
-
-            if (m_cueBank == null)
-                return null;
-
-            MySourceVoice sound = m_cueBank.GetVoice(cue);
-            if (sound == null)
-                sound = m_cueBank.GetVoice(cue, MySoundDimensions.D3);
-            if (sound == null)
-                return null;
-
-            if (cueDefinition.PitchVariation != 0f)
-            {
-                float semitones = PitchVariation(cueDefinition);
-                sound.FrequencyRatio = SemitonesToFrequencyRatio(semitones);
-            }
-            else
-                sound.FrequencyRatio = 1f;
-
-            float volume = cueDefinition.Volume;
-            if (cueDefinition.VolumeVariation != 0f)
-            {
-                float variation = VolumeVariation(cueDefinition);
-                volume = MathHelper.Clamp(volume + variation, 0f, 1f);
-            }
-
-            sound.SetVolume(volume);
-            sound.SetOutputVoices(m_gameAudioVoiceDesc);
-
-            //  Play the cue
-            sound.Start(false);
-
-            return sound;
-        }
-
         internal MySourceVoice PlaySound(MyStringId cueId, IMy3DSoundEmitter source = null, MySoundDimensions type = MySoundDimensions.D2, bool skipIntro = false, bool skipToEnd = false)
         {
             var sound = GetSound(cueId, source, type);

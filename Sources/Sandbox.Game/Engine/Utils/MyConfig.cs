@@ -41,7 +41,7 @@ namespace Sandbox.Engine.Utils
         readonly string LAST_LOGIN_WAS_SUCCESSFUL = "LastLoginWasSuccessful";
         readonly string REMEBER_USERNAME_AND_PASSWORD = "RememberUsernameAndPassword";
         readonly string AUTOLOGIN = "Autologin";
-        readonly string RENDER_QUALITY = "RenderQuality";
+        readonly string DX9_RENDER_QUALITY = "RenderQuality";
         readonly string FIELD_OF_VIEW = "FieldOfView";
         readonly string ENABLE_DAMAGE_EFFECTS = "EnableDamageEffects";
         readonly string RENDER_INTERPOLATION = "RenderInterpolation";
@@ -85,7 +85,7 @@ namespace Sandbox.Engine.Utils
         readonly string TEXTURE_QUALITY = "TextureQuality";
         readonly string ANISOTROPIC_FILTERING = "AnisotropicFiltering";
         readonly string FOLIAGE_DETAILS = "FoliageDetails";
-
+        readonly string GRAPHICS_RENDERER = "GraphicsRenderer";
 
         public MyConfig(string fileName)
             : base(fileName)
@@ -229,11 +229,11 @@ namespace Sandbox.Engine.Utils
             }
         }
 
-        public MyRenderQualityEnum? RenderQuality
+        public MyRenderQualityEnum? Dx9RenderQuality
         {
             get
             {
-                int? retInt = MyUtils.GetIntFromString(GetParameterValue(RENDER_QUALITY));
+                int? retInt = MyUtils.GetIntFromString(GetParameterValue(DX9_RENDER_QUALITY));
                 if (retInt.HasValue && Enum.IsDefined(typeof(MyRenderQualityEnum), retInt.Value))
                     return (MyRenderQualityEnum)retInt.Value;
                 else
@@ -242,7 +242,7 @@ namespace Sandbox.Engine.Utils
 
             set
             {
-                SetParameterValue(RENDER_QUALITY, (int)value);
+                SetParameterValue(DX9_RENDER_QUALITY, (int)value);
             }
         }
 
@@ -710,6 +710,25 @@ namespace Sandbox.Engine.Utils
             set { SetParameterValue(HUD_WARNINGS, value); }
         }
 
+        public MyStringId? GraphicsRenderer
+        {
+            get
+            {
+                var id = MyStringId.TryGet(GetParameterValue(GRAPHICS_RENDERER));
+                if (id != MyStringId.NullOrEmpty)
+                    return id;
+                else
+                    return null;
+            }
+            set
+            {
+                if (value.HasValue)
+                    SetParameterValue(GRAPHICS_RENDERER, value.Value.ToString());
+                else
+                    RemoveParameterValue(GRAPHICS_RENDERER);
+            }
+        }
+
         #region ModAPI
         MyTextureAnisoFiltering? ModAPI.IMyConfig.AnisotropicFiltering
         {
@@ -833,7 +852,7 @@ namespace Sandbox.Engine.Utils
 
         MyRenderQualityEnum? ModAPI.IMyConfig.RenderQuality
         {
-            get { return RenderQuality; }
+            get { return Dx9RenderQuality; }
         }
 
         bool ModAPI.IMyConfig.RotationHints

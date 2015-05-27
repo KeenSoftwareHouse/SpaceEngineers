@@ -193,7 +193,9 @@ namespace VRageRender
             Color color = new Color(.95f * sunColorMultiplier, .65f * sunColorMultiplier, .35f * sunColorMultiplier, 1);
 
             color = color * 5;
-            MyBillboardsHelper.AddPointBillboard(MyEnvironment.SunMaterial, color, sunPosition, radius, 0);
+
+            if (MyEnvironment.SunBillboardEnabled)
+                MyBillboardsHelper.AddPointBillboard(MyEnvironment.SunMaterial, color, sunPosition, radius, 0);
         }
 
         internal static void DrawGlare(LightId light)

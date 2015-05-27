@@ -53,7 +53,7 @@ namespace Sandbox.Game.Gui
         bool m_showWarningForOxygen;
 
         MyGuiControlTextbox m_passwordTextbox;
-        MyGuiControlCombobox m_onlineMode, m_environment, m_worldSizeCombo, m_soundModeCombo, m_spawnShipTimeCombo, m_viewDistanceCombo;
+        MyGuiControlCombobox m_onlineMode, m_environment, m_worldSizeCombo, m_soundModeCombo, m_spawnShipTimeCombo, m_viewDistanceCombo, m_physicsOptionsCombo;
         MyGuiControlCheckbox m_autoHealing, m_clientCanSave, m_enableCopyPaste, m_weaponsEnabled, m_showPlayerNamesOnHud, m_thrusterDamage, m_cargoShipsEnabled, m_enableSpectator,
                              m_trashRemoval, m_respawnShipDelete, m_resetOwnership, m_permanentDeath, m_destructibleBlocks, m_enableIngameScripts, m_enableToolShake, m_enableOxygen,
                              m_enable3rdPersonCamera,m_enableEncounters;
@@ -172,6 +172,7 @@ namespace Sandbox.Game.Gui
             var soundModeLabel = MakeLabel(MySpaceTexts.WorldSettings_SoundMode);
             var spawnShipTimeLabel = MakeLabel(MySpaceTexts.WorldSettings_RespawnShipCooldown);
             var viewDistanceLabel = MakeLabel(MySpaceTexts.WorldSettings_ViewDistance);
+            var physicsOptionLabel = MakeLabel(MySpaceTexts.WorldSettings_Physics);
 
             float width = 0.284375f + 0.025f;
 
@@ -237,6 +238,7 @@ namespace Sandbox.Game.Gui
             m_soundModeCombo = new MyGuiControlCombobox(size: new Vector2(width, 0.04f));
             m_spawnShipTimeCombo = new MyGuiControlCombobox(size: new Vector2(width, 0.04f));
             m_viewDistanceCombo = new MyGuiControlCombobox(size: new Vector2(width, 0.04f));
+            m_physicsOptionsCombo = new MyGuiControlCombobox(size: new Vector2(width, 0.04f));
 
             // Ok/Cancel
             m_okButton = new MyGuiControlButton(position: buttonsOrigin - new Vector2(0.01f, 0f), size: buttonSize, text: MyTexts.Get(MySpaceTexts.Ok), onButtonClick: OkButtonClicked, originAlign: MyGuiDrawAlignEnum.HORISONTAL_RIGHT_AND_VERTICAL_BOTTOM);
@@ -344,6 +346,11 @@ namespace Sandbox.Game.Gui
             m_viewDistanceCombo.AddItem((int)MyViewDistanceEnum.FORTY_KM, MySpaceTexts.WorldSettings_ViewDistance_40_Km);
             m_viewDistanceCombo.AddItem((int)MyViewDistanceEnum.FIFTY_KM, MySpaceTexts.WorldSettings_ViewDistance_50_Km);
 
+            m_physicsOptionsCombo.SetToolTip(MySpaceTexts.WorldSettings_Physics_Tooltip);
+            m_physicsOptionsCombo.AddItem((int)MyPhysicsPerformanceEnum.Fast, MySpaceTexts.WorldSettings_Physics_Fast);
+            m_physicsOptionsCombo.AddItem((int)MyPhysicsPerformanceEnum.Normal, MySpaceTexts.WorldSettings_Physics_Normal);
+            m_physicsOptionsCombo.AddItem((int)MyPhysicsPerformanceEnum.Precise, MySpaceTexts.WorldSettings_Physics_Precise);
+
             m_autoHealing.SetToolTip(MyTexts.GetString(MySpaceTexts.ToolTipWorldSettingsAutoHealing));
             m_thrusterDamage.SetToolTip(MyTexts.GetString(MySpaceTexts.ToolTipWorldSettingsThrusterDamage));
             m_cargoShipsEnabled.SetToolTip(MyTexts.GetString(MySpaceTexts.ToolTipWorldSettingsEnableCargoShips));
@@ -407,6 +414,12 @@ namespace Sandbox.Game.Gui
             {
                 parent.Controls.Add(soundModeLabel);
                 parent.Controls.Add(m_soundModeCombo);
+            }
+
+            if (MyFakes.ENABLE_PHYSICS_SETTINGS)
+            {
+                parent.Controls.Add(physicsOptionLabel);
+                parent.Controls.Add(m_physicsOptionsCombo);
             }
 
             parent.Controls.Add(autoHealingLabel);
@@ -836,6 +849,8 @@ namespace Sandbox.Game.Gui
             output.ViewDistance = GetViewDistance();
             output.RealisticSound = ((MySoundModeEnum)m_soundModeCombo.GetSelectedKey() == MySoundModeEnum.Realistic);
 
+            output.PhysicsIterations = (int)m_physicsOptionsCombo.GetSelectedKey();
+
             output.GameMode = GetGameMode();
         }
 
@@ -847,6 +862,10 @@ namespace Sandbox.Game.Gui
             m_spawnShipTimeCombo.SelectItemByKey((int)(settings.SpawnShipTimeMultiplier * 10));
             m_viewDistanceCombo.SelectItemByKey((int)ViewDistanceEnumKey(settings.ViewDistance));
             m_soundModeCombo.SelectItemByKey(settings.RealisticSound ? (int)MySoundModeEnum.Realistic : (int)MySoundModeEnum.Arcade);
+            if (m_physicsOptionsCombo.TryGetItemByKey(settings.PhysicsIterations) != null)
+                m_physicsOptionsCombo.SelectItemByKey(settings.PhysicsIterations);
+            else
+                m_physicsOptionsCombo.SelectItemByKey((int)MyPhysicsPerformanceEnum.Fast);
 
             m_autoHealing.IsChecked = settings.AutoHealing;
             m_clientCanSave.IsChecked = settings.ClientCanSave;

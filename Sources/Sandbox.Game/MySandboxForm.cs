@@ -115,37 +115,22 @@ namespace Sandbox
 
         public void OnModeChanged(VRageRender.MyWindowModeEnum windowMode, int width, int height)
         {
-            if (!MyFakes.ENABLE_DX11_RENDERER)
+            if (windowMode == VRageRender.MyWindowModeEnum.Window)
             {
-                if (windowMode == VRageRender.MyWindowModeEnum.Window)
-                {
-                    FormBorderStyle = FormBorderStyle.FixedSingle;
-                    TopMost = false;
-                }
-                else
-                {
-                    FormBorderStyle = FormBorderStyle.None;
-                    TopMost = false; // false for fullscreen window, shouldn't matter for true fullscren
-                    SizeGripStyle = SizeGripStyle.Hide;
-                }
+                FormBorderStyle = FormBorderStyle.FixedSingle;
+                TopMost = false;
             }
-            else
+            else if (windowMode == VRageRender.MyWindowModeEnum.FullscreenWindow)
             {
-                if (windowMode == VRageRender.MyWindowModeEnum.Window)
-                {
-                    FormBorderStyle = FormBorderStyle.FixedSingle;
-                    TopMost = false;
-                }
-                else if (windowMode == VRageRender.MyWindowModeEnum.FullscreenWindow)
-                {
-                    FormBorderStyle = FormBorderStyle.None;
-                    TopMost = false; // false for fullscreen window, shouldn't matter for true fullscren
-                    SizeGripStyle = SizeGripStyle.Hide;
-                }
-                else if(windowMode == VRageRender.MyWindowModeEnum.Fullscreen)
-                {
-                    FormBorderStyle = FormBorderStyle.None;
-                }
+                FormBorderStyle = FormBorderStyle.None;
+                TopMost = false; // false for fullscreen window, shouldn't matter for true fullscren
+                SizeGripStyle = SizeGripStyle.Hide;
+            }
+            else if(windowMode == VRageRender.MyWindowModeEnum.Fullscreen)
+            {
+                FormBorderStyle = FormBorderStyle.None;
+                // Fullscreen used to have same settings as FullscreenWindow, but Dx11 render required change for Shadow Play to work.
+                // It still seems like TopMost and SizeGripStyle should carry over from other branches.
             }
 
             ClientSize = new System.Drawing.Size(width, height);
@@ -159,15 +144,6 @@ namespace Sandbox
             }
             else
             {
-                //if (MyFakes.ENABLE_DX11_RENDERER)
-                //{
-                //    Location = new System.Drawing.Point(0, 0);
-                //}
-                //else
-                //{
-                //    Location = new System.Drawing.Point(mode.dmPelsWidth / 2 - width / 2, mode.dmPelsHeight / 2 - height / 2);
-                //}
-
                 Location = new System.Drawing.Point(mode.dmPelsWidth / 2 - width / 2, mode.dmPelsHeight / 2 - height / 2);
             }
 

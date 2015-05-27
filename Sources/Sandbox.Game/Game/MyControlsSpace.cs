@@ -82,6 +82,7 @@ namespace Sandbox.Game
         public static readonly MyStringId SPECTATOR_DELTA = MyStringId.GetOrCompute("SPECTATOR_DELTA");
         public static readonly MyStringId SPECTATOR_FREE = MyStringId.GetOrCompute("SPECTATOR_FREE");
         public static readonly MyStringId SPECTATOR_STATIC = MyStringId.GetOrCompute("SPECTATOR_STATIC");
+        public static readonly MyStringId STATION_ROTATION = MyStringId.GetOrCompute("STATION_ROTATION");
 
         // NOT BINDABLE
         public static readonly MyStringId VOXEL_PAINT = MyStringId.GetOrCompute("VOXEL_PAINT");
@@ -92,5 +93,6 @@ namespace Sandbox.Game
         public static readonly MyStringId MOVE_FURTHER = MyStringId.GetOrCompute("MOVE_FURTHER");
         public static readonly MyStringId PRIMARY_BUILD_ACTION = MyStringId.GetOrCompute("PRIMARY_BUILD_ACTION");
         public static readonly MyStringId SECONDARY_BUILD_ACTION = MyStringId.GetOrCompute("SECONDARY_BUILD_ACTION");
+        public static readonly MyStringId COPY_PASTE_ACTION = MyStringId.GetOrCompute("COPY_PASTE_ACTION");
     }
 }

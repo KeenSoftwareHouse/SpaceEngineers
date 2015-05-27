@@ -49,5 +49,11 @@ namespace Sandbox.Common.AI
 
 		[MyBehaviorTreeAction("FindClosestPlaceAreaInRadius", ReturnsRunning = false)]
 		protected abstract MyBehaviorTreeState Action_FindClosestPlaceAreaInRadius([BTParam] float radius, [BTParam] string typeName, [BTOut] ref MyBBMemoryTarget outTarget);
+
+		[MyBehaviorTreeAction("TryReserveEntity")]
+		protected abstract MyBehaviorTreeState Action_TryReserveEntity([BTIn] ref MyBBMemoryTarget inTarget, [BTParam] int timeMs);
+
+		[MyBehaviorTreeAction("TryReserveEntity", MyBehaviorTreeActionType.POST)]
+		protected abstract void Post_Action_TryReserveEntity();
     }
 }

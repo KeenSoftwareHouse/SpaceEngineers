@@ -31,5 +31,8 @@ namespace Sandbox.Common.ObjectBuilders
 
         [ProtoMember]
         public float Power = 1;
+
+        [ProtoMember]
+        public float Height = 0;
     }
 }

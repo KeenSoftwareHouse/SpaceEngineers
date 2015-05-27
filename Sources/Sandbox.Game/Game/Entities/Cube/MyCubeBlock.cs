@@ -419,11 +419,13 @@ namespace Sandbox.Game.Entities
             NumberInGrid = cubeGrid.BlockCounter.GetNextNumber(builder.GetId());
             Render.ColorMaskHsv = builder.ColorMaskHSV;
 
-            if (BlockDefinition.ContainsComputer())
+            if (BlockDefinition.ContainsComputer() || (MyFakes.ENABLE_BATTLE_SYSTEM && MySession.Static.Battle))
             {
                 m_IDModule = new MyIDModule();
 
-                if (MySession.Static.Settings.ResetOwnership && Sync.IsServer)
+                bool resetOwnership = MySession.Static.Settings.ResetOwnership && Sync.IsServer && (!MyFakes.ENABLE_BATTLE_SYSTEM || !MySession.Static.Battle);
+
+                if (resetOwnership)
                 {
                     m_IDModule.Owner = 0;
                     m_IDModule.ShareMode = MyOwnershipShareModeEnum.None;

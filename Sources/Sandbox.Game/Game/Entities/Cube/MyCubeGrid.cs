@@ -248,35 +248,6 @@ namespace Sandbox.Game.Entities
             }
         }
 
-        /// <summary>
-        /// Returns total blocks count in the grid including blocks in compound block.
-        /// RKTODO - change to int member
-        /// </summary>
-        public int TotalBlocksCount
-        {
-            get
-            {
-                if (MyFakes.ENABLE_COMPOUND_BLOCKS)
-                {
-                    int count = 0;
-                    foreach (var block in m_cubeBlocks)
-                    {
-                        MyCompoundCubeBlock compoundBlock = block.FatBlock as MyCompoundCubeBlock;
-                        if (compoundBlock != null)
-                            count += compoundBlock.GetBlocksCount();
-                        else
-                            count += 1;
-                    }
-
-                    return count;
-                }
-                else
-                {
-                    return m_cubeBlocks.Count;
-                }
-            }
-        }
-
         private bool m_smallToLargeConnectionsInitialized = false;
         private bool m_enableSmallToLargeConnections = true;
         internal bool EnableSmallToLargeConnections { get { return m_enableSmallToLargeConnections;  } }
@@ -493,6 +464,8 @@ namespace Sandbox.Game.Entities
                     Physics.AngularVelocity = builder.AngularVelocity;
                     if (!IsStatic)
                         Physics.Shape.BlocksConnectedToWorld.Clear();
+                    if(MyPerGameSettings.InventoryMass)
+                        m_inventoryMassDirty = true;
                 }
 
                 XSymmetryPlane = builder.XMirroxPlane;
@@ -3272,6 +3245,8 @@ namespace Sandbox.Game.Entities
                 return;
             }
 
+            RenderData.RemoveDecals(block.Position);
+
             ProfilerShort.Begin("Remove terminal block");
             var terminalBlock = block.FatBlock as MyTerminalBlock;
             if (terminalBlock != null)
@@ -3946,7 +3921,14 @@ namespace Sandbox.Game.Entities
             //Debug.Assert(this.WorldMatrix.Up == Vector3D.Up && this.WorldMatrix.Forward == Vector3D.Forward, "This grid must have identity rotation");
             //Debug.Assert(gridToMerge.WorldMatrix.Up == Vector3D.Up && gridToMerge.WorldMatrix.Forward == Vector3D.Forward, "Grid to merge must have identity rotation");
 
+           
             gridOffset = Vector3I.Round((gridToMerge.PositionComp.GetPosition() - this.PositionComp.GetPosition()) / GridSize);
+
+            MatrixD otherMatrix = gridToMerge.PositionComp.WorldMatrix.GetOrientation();
+            if (this.PositionComp.WorldMatrix.GetOrientation().EqualsFast(ref otherMatrix) == false)
+            {
+                return false;
+            }
 
             var blockPosInSecondGrid = block.Position - gridOffset;
             Quaternion blockOrientation;

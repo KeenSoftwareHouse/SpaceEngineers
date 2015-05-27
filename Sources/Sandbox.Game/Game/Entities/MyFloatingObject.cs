@@ -265,6 +265,7 @@ namespace Sandbox.Game.Entities
                     MyAudio.Static.PlaySound(TAKE_ITEM_SOUND.SoundId);
                 //user.StartSecondarySound(TAKE_ITEM_SOUND);
                 user.GetInventory().TakeFloatingObject(this);
+                MyHud.Notifications.ReloadTexts();
             }
         }
 
