@@ -778,6 +778,9 @@ namespace Sandbox.Game.Entities.Cube
                 if (pb == null) //If the block with the name does not exist, or if the player has no permission this will be null.
                     return false;
 
+                if (!pb.HasLocalPlayerAccess()) //Without this, it might be possible to access a pb you don't have access for. As long as you have access to at least one working laser antenna.
+                    return false;
+
                 pb.Run(message);
 
                 return true;
