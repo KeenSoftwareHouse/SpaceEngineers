@@ -68,7 +68,8 @@ namespace VRage.Dedicated
             }
             else // Local / Console
             {
-                Process.Start(MyPerServerSettings.GameDSName + ".exe", "-console -ignorelastsession");
+                string[] cmdLine = Environment.CommandLine.Split(null as string[], 2, StringSplitOptions.RemoveEmptyEntries);
+                Process.Start(cmdLine[0], cmdLine[1] + " -console -ignorelastsession");
                 Close();
             }
         }

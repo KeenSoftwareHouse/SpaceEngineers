@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using SystemTrace = System.Diagnostics.Trace;
 using VRage.Collections;
 using VRage.FileSystem;
 using VRage.Library.Utils;
@@ -99,13 +100,12 @@ namespace VRage.Plugins
             {
                 try
                 {
-                    MyLog.Default.WriteLine("Creating instance of: " + pluginClass.FullName);
+                    //MyLog.Default.WriteLine("Creating instance of: " + pluginClass.FullName);
                     m_plugins.Add((IPlugin)Activator.CreateInstance(pluginClass));
                 }
                 catch (Exception e)
                 {
-                    MyLog.Default.WriteLine("Error instantiating plugin class: " + pluginClass);
-                    MyLog.Default.WriteLine(e);
+                    SystemTrace.Fail("Cannot create instance of '" + pluginClass.FullName + "': " + e.ToString());
                 }
             }
         }
