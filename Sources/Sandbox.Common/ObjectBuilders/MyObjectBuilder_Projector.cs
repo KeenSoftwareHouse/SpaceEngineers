@@ -19,6 +19,11 @@ namespace Sandbox.Common.ObjectBuilders
         public Vector3I ProjectionRotation;
         [ProtoMember]
         public bool KeepProjection = false;
+        [ProtoMember]
+        public float BuildableTransparency = 0.0f;
+        [ProtoMember]
+        public float PendingTransparency = 0.0f;
+
 
         public override void Remap(IMyRemapHelper remapHelper)
         {

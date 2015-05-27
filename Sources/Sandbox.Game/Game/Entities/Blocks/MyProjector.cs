@@ -69,6 +69,10 @@ namespace Sandbox.Game.Entities.Blocks
 
         private bool m_keepProjection = false;
 
+        // As a percentage 0% = opaque ; 100% invisible;
+        private float m_buildableBlockTransparency = MyGridConstants.BUILDER_TRANSPARENCY;
+        private float m_pendingBlockTransparency = MyGridConstants.PROJECTOR_TRANSPARENCY;
+
         public MyPowerReceiver PowerReceiver
         {
             get;
@@ -206,6 +210,38 @@ namespace Sandbox.Game.Entities.Blocks
             rotationZ.EnableActions(step: 0.2f);
             rotationZ.Enabled = (x) => x.IsProjecting();
             MyTerminalControlFactory.AddControl(rotationZ);
+
+            // Transparency for blocks able to be built
+            // Convert the transparency value used by the graphics engine to an opacity value for the UI.
+            // I think this is easier to comprehend because low values on the slider will result in less of the ship showing up and vice versa.
+            var buildableOpacity = new MyTerminalControlSlider<MyProjector>("BuildableOpacity", MySpaceTexts.BlockPropertyTitle_ProjectionWeldableBlockOpacity, MySpaceTexts.Blank);
+            buildableOpacity.SetLimits(0.0f, 100.0f);
+            buildableOpacity.DefaultValue = 0.0f;
+            buildableOpacity.Getter = (x) => (1.0f - x.m_buildableBlockTransparency) * 100.0f;
+            buildableOpacity.Setter = (x, v) =>
+            {
+                x.m_buildableBlockTransparency = 1.0f - (Convert.ToSingle(v) / 100.0f);
+                x.OnTransparencyChanged();
+            };
+            buildableOpacity.Writer = (x, result) => result.AppendInt32((int)((1.0f - x.m_buildableBlockTransparency) * 100.0f)).Append("%");
+            buildableOpacity.Enabled = (x) => x.IsProjecting();
+            buildableOpacity.EnableActions(step: 0.05f);
+            MyTerminalControlFactory.AddControl(buildableOpacity);
+
+            // Transparency for blocks not able to be built
+            var pendingOpacity = new MyTerminalControlSlider<MyProjector>("PendingOpacity", MySpaceTexts.BlockPropertyTitle_ProjectionPendingBlockOpacity, MySpaceTexts.Blank);
+            pendingOpacity.SetLimits(0.0f, 100.0f);
+            pendingOpacity.DefaultValue = 0.0f;
+            pendingOpacity.Getter = (x) => (1.0f - x.m_pendingBlockTransparency) * 100.0f;
+            pendingOpacity.Setter = (x, v) =>
+            {
+                x.m_pendingBlockTransparency = 1.0f - (Convert.ToSingle(v) / 100.0f);
+                x.OnTransparencyChanged();
+            };
+            pendingOpacity.Writer = (x, result) => result.AppendInt32((int)((1.0f - x.m_pendingBlockTransparency) * 100.0f)).Append("%");
+            pendingOpacity.Enabled = (x) => x.IsProjecting();
+            pendingOpacity.EnableActions(step: 0.05f);
+            MyTerminalControlFactory.AddControl(pendingOpacity);
         }
 
         private bool IsProjecting()
@@ -226,11 +262,11 @@ namespace Sandbox.Game.Entities.Blocks
             ProfilerShort.Begin("SetTransparency");
             if (canBuild)
             {
-                SetTransparency(cubeBlock, MyGridConstants.BUILDER_TRANSPARENCY);
+                SetTransparency(cubeBlock, m_buildableBlockTransparency);
             }
             else
             {
-                SetTransparency(cubeBlock, MyGridConstants.PROJECTOR_TRANSPARENCY);
+                SetTransparency(cubeBlock, m_pendingBlockTransparency);
             }
             ProfilerShort.End();
         }
@@ -248,6 +284,12 @@ namespace Sandbox.Game.Entities.Blocks
 
             //We need to remap because the after the movement, blocks that were already built can be built again
             SyncObject.SendRemap();
+        }
+
+        private void OnTransparencyChanged()
+        {
+            m_shouldUpdateProjection = true;
+            SyncObject.SendNewTransparency(m_buildableBlockTransparency, m_pendingBlockTransparency);
         }
 
         private void SetTransparency(MySlimBlock cubeBlock, float transparency)
@@ -477,6 +519,8 @@ namespace Sandbox.Game.Entities.Blocks
                 objectBuilder.ProjectionOffset = m_projectionOffset;
                 objectBuilder.ProjectionRotation = m_projectionRotation;
                 objectBuilder.KeepProjection = m_keepProjection;
+                objectBuilder.BuildableTransparency = m_buildableBlockTransparency;
+                objectBuilder.PendingTransparency = m_pendingBlockTransparency;
             }
             else
             {
@@ -486,6 +530,8 @@ namespace Sandbox.Game.Entities.Blocks
                     objectBuilder.ProjectionOffset = m_projectionOffset;
                     objectBuilder.ProjectionRotation = m_projectionRotation;
                     objectBuilder.KeepProjection = m_keepProjection;
+                    objectBuilder.BuildableTransparency = m_buildableBlockTransparency;
+                    objectBuilder.PendingTransparency = m_pendingBlockTransparency;
                 }
                 else
                 {
@@ -511,6 +557,9 @@ namespace Sandbox.Game.Entities.Blocks
 
                 m_savedProjection = projectorBuilder.ProjectedGrid;
                 m_keepProjection = projectorBuilder.KeepProjection;
+
+                m_buildableBlockTransparency = projectorBuilder.BuildableTransparency;
+                m_pendingBlockTransparency = projectorBuilder.PendingTransparency;
             }
 
             PowerReceiver = new MyPowerReceiver(
@@ -1176,6 +1225,15 @@ namespace Sandbox.Game.Entities.Blocks
                 public int Seed;
             }
 
+            [MessageIdAttribute(7607, SteamSDK.P2PMessageEnum.Reliable)]
+            protected struct TransparencyMsg : IEntityMessage
+            {
+                public long EntityId;
+                public long GetEntityId() { return EntityId; }
+
+                public float buildableTransparency, pendingTransparency;
+            }
+
 
             static MySyncProjector()
             {
@@ -1190,6 +1248,8 @@ namespace Sandbox.Game.Entities.Blocks
                 MySyncLayer.RegisterMessage<RemoveProjectionMsg>(OnRemoveProjectionSuccess, MyMessagePermissions.FromServer, MyTransportMessageEnum.Success);
                 MySyncLayer.RegisterMessage<RemapRequestMsg>(OnRemapRequest, MyMessagePermissions.ToServer, MyTransportMessageEnum.Request);
                 MySyncLayer.RegisterMessage<RemapSeedMsg>(OnRemapSuccess, MyMessagePermissions.FromServer, MyTransportMessageEnum.Success);
+                MySyncLayer.RegisterMessage<TransparencyMsg>(OnTransparencyChangedRequest, MyMessagePermissions.ToServer, MyTransportMessageEnum.Request);
+                MySyncLayer.RegisterMessage<TransparencyMsg>(OnTransparencyChangedSuccess, MyMessagePermissions.FromServer, MyTransportMessageEnum.Success);
             }
 
             public MySyncProjector(MyProjector projector)
@@ -1382,6 +1442,41 @@ namespace Sandbox.Game.Entities.Blocks
                     projector.OnRemap(msg.Seed);
                 }
             }
+
+            public void SendNewTransparency(float buildableTransparency, float pendingTransparency)
+            {
+                var msg = new TransparencyMsg();
+                msg.EntityId = m_projector.EntityId;
+                msg.buildableTransparency = buildableTransparency;
+                msg.pendingTransparency = pendingTransparency;
+
+                if (Sync.IsServer)
+                {
+                    Sync.Layer.SendMessageToAllAndSelf(ref msg, MyTransportMessageEnum.Success);
+                }
+                else
+                {
+                    Sync.Layer.SendMessageToServer(ref msg, MyTransportMessageEnum.Request);
+                }
+            }
+
+            private static void OnTransparencyChangedRequest(ref TransparencyMsg msg, MyNetworkClient sender)
+            {
+                Sync.Layer.SendMessageToAllAndSelf(ref msg, MyTransportMessageEnum.Success);
+            }
+
+            private static void OnTransparencyChangedSuccess(ref TransparencyMsg msg, MyNetworkClient sender)
+            {
+                MyEntity projectorEntity;
+                MyEntities.TryGetEntityById(msg.EntityId, out projectorEntity);
+                var projector = projectorEntity as MyProjector;
+                if (projector != null)
+                {
+                    projector.m_buildableBlockTransparency = msg.buildableTransparency;
+                    projector.m_pendingBlockTransparency = msg.pendingTransparency;
+                    projector.m_shouldUpdateProjection = true;
+                }
+            }
         }
         #endregion
 
@@ -1394,6 +1489,9 @@ namespace Sandbox.Game.Entities.Blocks
         int ModAPI.Ingame.IMyProjector.ProjectionRotZ { get { return this.m_projectionRotation.Z* 90; } }
 
         int ModAPI.Ingame.IMyProjector.RemainingBlocks { get { return this.m_remainingBlocks; } }
+
+        int ModAPI.Ingame.IMyProjector.BuildableOpacity { get { return (int)(1.0f - this.m_buildableBlockTransparency) * 100; } }
+        int ModAPI.Ingame.IMyProjector.PendingOpacity { get { return (int)(1.0f - this.m_pendingBlockTransparency) * 100; } }
 
 
         void ModAPI.Ingame.IMyProjector.LoadRandomBlueprint(string searchPattern)

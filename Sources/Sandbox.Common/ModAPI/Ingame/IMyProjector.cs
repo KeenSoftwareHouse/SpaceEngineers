@@ -17,6 +17,9 @@ namespace Sandbox.ModAPI.Ingame
 
         int RemainingBlocks { get; }
 
+        int BuildableOpacity { get; }
+        int PendingOpacity { get; }
+
         void LoadRandomBlueprint(string searchPattern);
         void LoadBlueprint(string name);
     }
