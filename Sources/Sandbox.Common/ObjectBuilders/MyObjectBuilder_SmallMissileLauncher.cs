@@ -10,13 +10,13 @@ namespace Sandbox.Common.ObjectBuilders
     [MyObjectBuilderDefinition]
     public class MyObjectBuilder_SmallMissileLauncher : MyObjectBuilder_UserControllableGun
     {
-        [ProtoMember(1)]
+        [ProtoMember]
         public MyObjectBuilder_Inventory Inventory;
 
-        [ProtoMember(2)]
+        [ProtoMember]
         public bool UseConveyorSystem = true;
 
-        [ProtoMember(3)]
+        [ProtoMember]
         public MyObjectBuilder_GunBase GunBase;
 
         public override void SetupForProjector()

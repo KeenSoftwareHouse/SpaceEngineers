@@ -112,7 +112,7 @@ namespace VRageRender
 
         static MyRender11()
         {
-            const string logName = "VRageRender.log";
+            const string logName = "VRageRender-DirectX11.log";
             Log.Init(logName, new System.Text.StringBuilder("Version unknown"));
             Log.WriteLine("VRage renderer started");
         }

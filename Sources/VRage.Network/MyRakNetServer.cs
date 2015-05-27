@@ -32,7 +32,7 @@ namespace VRage.Network
             return base.Startup(maxConnections, port, host);
         }
 
-        public event Action<ulong, BitStream> OnRequestWorld;
+        public event Action<ulong> OnRequestStateData;
         public event Action<ulong> OnClientReady;
 
         private void RegisterHandlers()
@@ -40,7 +40,7 @@ namespace VRage.Network
             AddIgnoredMessage(MessageIDEnum.NEW_INCOMING_CONNECTION);
 
             AddMessageHandler(MessageIDEnum.CLIENT_DATA, ClientData);
-            AddMessageHandler(MessageIDEnum.REQUEST_WORLD, RequestWorld);
+            AddMessageHandler(MessageIDEnum.STATE_DATA_REQUEST, StateDataRequest);
             AddMessageHandler(MessageIDEnum.CLIENT_READY, ClientReady);
             AddMessageHandler(MessageIDEnum.DISCONNECTION_NOTIFICATION, DisconnectionNotification);
         }
@@ -52,8 +52,10 @@ namespace VRage.Network
 
         private void DisconnectionNotification(Packet packet)
         {
+            Debug.Assert(m_GUIDToSteamID.ContainsKey(packet.GUID.G));
             ulong steamID = m_GUIDToSteamID[packet.GUID.G];
 
+            m_steamIDToGUID[steamID].Delete();
             m_steamIDToGUID.Remove(steamID);
             m_GUIDToSteamID.Remove(packet.GUID.G);
 
@@ -71,15 +73,18 @@ namespace VRage.Network
                 handler(steamID);
         }
 
-        private void RequestWorld(Packet packet)
+        private void StateDataRequest(Packet packet)
         {
             ulong steamID = m_GUIDToSteamID[packet.GUID.G];
 
             BitStream bs = new BitStream(null);
-            bs.Write((byte)MessageIDEnum.WORLD_DATA);
-            var handler = OnRequestWorld;
+            bs.Write((byte)MessageIDEnum.STATE_DATA);
+
+            MyRakNetSyncLayer.Static.SerializeStateData(steamID, bs);
+
+            var handler = OnRequestStateData;
             if (handler != null)
-                handler(steamID, bs);
+                handler(steamID);
 
             SendMessage(bs, packet.GUID, PacketPriorityEnum.IMMEDIATE_PRIORITY, PacketReliabilityEnum.RELIABLE_ORDERED);
         }
@@ -92,6 +97,14 @@ namespace VRage.Network
             Debug.Assert(success, "Failed to read steamID");
             ulong steamID = (ulong)tmpLong;
 
+            // already connected
+            // TODO:SK handle properly (who to disconnect?)
+            if (m_steamIDToGUID.ContainsKey(steamID))
+            {
+                m_peer.CloseConnection(packet.GUID, false);
+                return;
+            }
+
             int version;
             success = bs.Read(out version);
             Debug.Assert(success, "Failed to read version");
@@ -103,8 +116,9 @@ namespace VRage.Network
 
             SendServerData(packet.GUID);
 
-            m_steamIDToGUID.Add(steamID, packet.GUID);
-            m_GUIDToSteamID.Add(packet.GUID.G, steamID);
+            var guid = new RakNetGUID(packet.GUID);
+            m_steamIDToGUID.Add(steamID, guid);
+            m_GUIDToSteamID.Add(guid.G, steamID);
 
             SendClientConnected(steamID, packet.GUID);
 

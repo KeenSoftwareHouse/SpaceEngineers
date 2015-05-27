@@ -252,6 +252,7 @@ namespace Sandbox.Game.Entities.Cube
         private bool m_repeatAssembleEnabled;
         private bool m_disassembleEnabled;
         private List<IMyInventoryOwner> m_inventoryOwners = new List<IMyInventoryOwner>();
+        private List<MyBlueprintDefinitionBase.Item> m_requiredComponents = new List<MyBlueprintDefinitionBase.Item>(); 
 
         private const float TIME_IN_ADVANCE = 5;
 
@@ -327,6 +328,7 @@ namespace Sandbox.Game.Entities.Cube
                     x.SyncObject.RequestSlaveSwitch(v);
 
                 };
+                slaveCheck.EnableAction();
                 MyTerminalControlFactory.AddControl(slaveCheck);
             }
         }
@@ -444,7 +446,7 @@ namespace Sandbox.Game.Entities.Cube
             DetailedInfo.Append("Productivity: ");
             DetailedInfo.Append(((UpgradeValues["Productivity"] + 1f) * 100f).ToString("F0"));
             DetailedInfo.Append("%\n");
-            DetailedInfo.Append("Power Efficinecy: ");
+            DetailedInfo.Append("Power Efficiency: ");
             DetailedInfo.Append(((UpgradeValues["PowerEfficiency"]) * 100f).ToString("F0"));
             DetailedInfo.Append("%\n");
 
@@ -490,17 +492,19 @@ namespace Sandbox.Game.Entities.Cube
             return null;
         }
 
-        private void GetItemFromOtherAssemblers()
+        private void GetItemFromOtherAssemblers(float remainingTime)
         {
-            Debug.Assert(m_queue.Count < 1, "Slave assembler q is not empty.");
             var masterAssembler = GetMasterAssembler();
             if (masterAssembler != null)
             {
                 if (masterAssembler.m_repeatAssembleEnabled)
                 {
-                    foreach (var qItem in masterAssembler.m_queue)
+                    if (m_queue.Count == 0)
                     {
-                        InsertQueueItemRequest(m_queue.Count, qItem.Blueprint, qItem.Amount);
+                        foreach (var qItem in masterAssembler.m_queue)
+                        {
+                            InsertQueueItemRequest(m_queue.Count, qItem.Blueprint, qItem.Amount);
+                        }
                     }
                 }
                 else if (masterAssembler.m_queue.Count > 0)
@@ -508,8 +512,13 @@ namespace Sandbox.Game.Entities.Cube
                     var item = masterAssembler.TryGetQueueItem(0);
                     if (item != null && item.Value.Amount > 1)
                     {
-                        masterAssembler.RemoveFirstQueueItemAnnounce(1, masterAssembler.CurrentProgress);
-                        InsertQueueItemRequest(0, item.Value.Blueprint, 1);
+                        var factor = MySession.Static.AssemblerSpeedMultiplier * (((MyAssemblerDefinition)BlockDefinition).AssemblySpeed + UpgradeValues["Productivity"]);
+                        var itemAmount = Math.Min((int)item.Value.Amount - 1, Convert.ToInt32(Math.Ceiling(remainingTime / (item.Value.Blueprint.BaseProductionTimeInSeconds / factor))));
+                        if (itemAmount > 0)
+                        {
+                            masterAssembler.RemoveFirstQueueItemAnnounce(itemAmount, masterAssembler.CurrentProgress);
+                            InsertQueueItemRequest(m_queue.Count, item.Value.Blueprint, itemAmount);
+                        }
                     }
                 }
             }
@@ -550,49 +559,85 @@ namespace Sandbox.Game.Entities.Cube
                 {
                     if (IsSlave && m_queue.Count < 1 && MyFakes.ENABLE_ASSEMBLER_COOPERATION && !RepeatEnabled) 
                     {
-                        GetItemFromOtherAssemblers();
+                        GetItemFromOtherAssemblers(TIME_IN_ADVANCE);
                     }
                     if (InputInventory.VolumeFillFactor < 0.99f)
                     {
+                        m_requiredComponents.Clear();
+
                         var next = false;
                         int i = 0;
                         var time = 0f;
                         do
                         {
                             var item = TryGetQueueItem(i);
+                            var remainingTime = TIME_IN_ADVANCE - time;
                             if (item.HasValue)
                             {
-                                var factor = MySession.Static.AssemblerSpeedMultiplier / MySession.Static.AssemblerEfficiencyMultiplier;
+                                var productivity = (((MyAssemblerDefinition)BlockDefinition).AssemblySpeed + UpgradeValues["Productivity"]);
+                                var factor = MySession.Static.AssemblerSpeedMultiplier * productivity;
                                 var itemAmount = 1;
-                                var remainingTime = TIME_IN_ADVANCE - time;
-                                if (item.Value.Blueprint.BaseProductionTimeInSeconds < remainingTime)
+                                if (item.Value.Blueprint.BaseProductionTimeInSeconds / factor < remainingTime)
                                 {
-                                    itemAmount = Math.Min((int)item.Value.Amount, Convert.ToInt32(Math.Floor(remainingTime / (item.Value.Blueprint.BaseProductionTimeInSeconds / factor))));
-                                    time += itemAmount * item.Value.Blueprint.BaseProductionTimeInSeconds / MySession.Static.AssemblerSpeedMultiplier;
-                                    if (time < TIME_IN_ADVANCE)
-
-                                    {
-                                        next = true;
-                                    }
+                                    itemAmount = Math.Min((int)item.Value.Amount, Convert.ToInt32(Math.Ceiling(remainingTime / (item.Value.Blueprint.BaseProductionTimeInSeconds / factor))));
                                 }
+                                time += itemAmount * item.Value.Blueprint.BaseProductionTimeInSeconds / factor;
+                                if (time < TIME_IN_ADVANCE)
+                                {
+                                    next = true;
+                                }
+                                var amountMult = (MyFixedPoint)(1.0f / MySession.Static.AssemblerEfficiencyMultiplier);
                                 foreach (var component in item.Value.Blueprint.Prerequisites)
                                 {
-                                    var availableAmount = InputInventory.GetItemAmount(component.Id);
-                                    if (i > 0)
-                                    {
-                                        availableAmount = 0;
-                                    }
-                                    var neededAmount = component.Amount * itemAmount - availableAmount;
-                                    if (neededAmount <= 0) continue;
+                                    var requiredAmount = component.Amount * itemAmount * amountMult;
 
-                                    MyGridConveyorSystem.ItemPullRequest(this, InputInventory, OwnerId, component.Id, neededAmount);
+                                    bool found = false;
+                                    for (int j = 0; j < m_requiredComponents.Count; j++)
+                                    {
+                                        if (m_requiredComponents[j].Id == component.Id)
+                                        {
+                                            m_requiredComponents[j] = new MyBlueprintDefinitionBase.Item
+                                            {
+                                                Amount = m_requiredComponents[j].Amount + requiredAmount,
+                                                Id = component.Id
+                                            };
+                                            found = true;
+                                            break;
+                                        }
+                                    }
+                                    if (!found)
+                                    {
+                                        m_requiredComponents.Add(new MyBlueprintDefinitionBase.Item
+                                        {
+                                            Amount = requiredAmount,
+                                            Id = component.Id
+                                        });
+                                    }
                                 }
                             }
-                            if (i > 0)
-                                next = false;
+
                             i++;
+                            if (i >= m_queue.Count)
+                                next = false;
                         } while (next);
+
+                        foreach (var component in m_requiredComponents)
+                        {
+                            var availableAmount = InputInventory.GetItemAmount(component.Id);
+                            var neededAmount = component.Amount - availableAmount;
+                            if (neededAmount <= 0) continue;
+
+                            MyGridConveyorSystem.ItemPullRequest(this, InputInventory, OwnerId, component.Id, neededAmount);                            
+                        }
+
+                        if (IsSlave && MyFakes.ENABLE_ASSEMBLER_COOPERATION && !RepeatEnabled)
+                        {
+                            var remainingTime = TIME_IN_ADVANCE - time;
+                            if (remainingTime > 0)
+                                GetItemFromOtherAssemblers(remainingTime);
+                        }
                     }
+
                     if (OutputInventory.VolumeFillFactor > 0.75f)
                     {
                         Debug.Assert(OutputInventory.GetItems().Count > 0);

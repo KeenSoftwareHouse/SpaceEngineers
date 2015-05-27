@@ -4,14 +4,14 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 
-namespace VRage.Library.Utils
+namespace VRage.Utils
 {
     [ProtoBuf.ProtoContract]
     public struct MyStringId
     {
         public static readonly MyStringId NullOrEmpty;
 
-        [ProtoBuf.ProtoMember(1)]
+        [ProtoBuf.ProtoMember]
         private readonly int m_id;
 
         private MyStringId(int hash)
@@ -76,8 +76,8 @@ namespace VRage.Library.Utils
 
             NullOrEmpty = GetOrCompute("");
             Debug.Assert(NullOrEmpty == default(MyStringId));
-            Debug.Assert(NullOrEmpty.m_id == MyLibraryUtils.GetHash(null));
-            Debug.Assert(NullOrEmpty.m_id == MyLibraryUtils.GetHash(""));
+            Debug.Assert(NullOrEmpty.m_id == MyUtils.GetHash(null, 0));
+            Debug.Assert(NullOrEmpty.m_id == MyUtils.GetHash("", 0));
         }
 
         public static MyStringId GetOrCompute(string str)
@@ -89,7 +89,7 @@ namespace VRage.Library.Utils
             }
             else if (!m_idByString.TryGetValue(str, out result))
             {
-                result = new MyStringId(MyLibraryUtils.GetHash(str));
+                result = new MyStringId(MyUtils.GetHash(str, 0));
                 m_stringById.Add(result, str);
                 m_idByString.Add(str, result);
             }
@@ -100,11 +100,6 @@ namespace VRage.Library.Utils
         public static MyStringId Get(string str)
         {
             return m_idByString[str];
-        }
-
-        public static MyStringId Get(int id)
-        {
-            return m_idByString[m_stringById[new MyStringId(id)]];
         }
 
         public static bool TryGet(string str, out MyStringId id)
@@ -119,6 +114,9 @@ namespace VRage.Library.Utils
             return id;
         }
 
+        /// <summary>
+        /// Think HARD before using this. Usually you should be able to use MyStringId as it is without conversion to int.
+        /// </summary>
         public static MyStringId TryGet(int id)
         {
             MyStringId stringId = new MyStringId(id);

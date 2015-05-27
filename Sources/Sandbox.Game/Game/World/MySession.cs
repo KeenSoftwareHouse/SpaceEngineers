@@ -159,8 +159,6 @@ namespace Sandbox.Game.World
         public bool Battle { get { return Settings.Battle; } }
         // Attacker leader blueprints.
         public List<Tuple<string, MyBlueprintItemInfo>> BattleBlueprints;
-        // Slot for first spawn.
-        public int BattleSlot;
 
         public bool SimpleSurvival { get { return MyFakes.ENABLE_SIMPLE_SURVIVAL && SurvivalMode && !Battle; } }
 
@@ -173,7 +171,7 @@ namespace Sandbox.Game.World
         public readonly MyVoxelMaps VoxelMaps = new MyVoxelMaps();
         public readonly MyFactionCollection Factions = new MyFactionCollection();
         internal MyPlayerCollection Players = new MyPlayerCollection();
-        internal MyToolBarCollection Toolbars = new MyToolBarCollection();
+        public readonly MyToolBarCollection Toolbars = new MyToolBarCollection();
         internal MyCameraCollection Cameras = new MyCameraCollection();
         internal MyGpsCollection Gpss = new MyGpsCollection();
 
@@ -1262,25 +1260,6 @@ namespace Sandbox.Game.World
             MyLocalCache.ClearLastSessionInfo();
 
             Static.BeforeStartComponents();
-
-            if (MyFakes.ENABLE_BATTLE_SYSTEM && Battle)
-            {
-                var faction = Factions.TryGetPlayerFaction(MySession.LocalPlayerId);
-                if (faction != null)
-                {
-                    if (faction.FactionId == multiplayerSession.BattleFaction1Id)
-                        MySession.Static.BattleSlot = multiplayerSession.BattleFaction1Slot;
-                    else if (faction.FactionId == multiplayerSession.BattleFaction2Id)
-                        MySession.Static.BattleSlot = multiplayerSession.BattleFaction2Slot;
-                    else
-                        Debug.Fail("Player faction is not any battle faction");
-
-                }
-                else
-                {
-                    Debug.Fail("Player is not in any faction");
-                }
-            }
         }
 
         private void LoadMembersFromWorld(MyObjectBuilder_World world, MyMultiplayerBase multiplayerSession)
@@ -1441,7 +1420,7 @@ namespace Sandbox.Game.World
             // MySpectator.Static.SpectatorCameraMovement = checkpoint.SpectatorCameraMovement;
             MySpectatorCameraController.Static.SetViewMatrix((MatrixD)Matrix.Invert(checkpoint.SpectatorPosition.GetMatrix()));
 
-            if (Sync.IsServer || !Battle)
+            if (!Battle)
             {
                 Sync.Players.LoadConnectedPlayers(checkpoint, savingPlayerNullable);
                 Sync.Players.LoadControlledEntities(checkpoint.ControlledEntities, checkpoint.ControlledObject, savingPlayerNullable);

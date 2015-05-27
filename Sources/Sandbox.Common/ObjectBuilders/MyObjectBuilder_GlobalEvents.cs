@@ -10,7 +10,7 @@ namespace Sandbox.Common.ObjectBuilders
     [MyObjectBuilderDefinition]
     public class MyObjectBuilder_GlobalEvents : MyObjectBuilder_Base
     {
-        [ProtoMember(1)]
+        [ProtoMember]
         public List<MyObjectBuilder_GlobalEventBase> Events = new List<MyObjectBuilder_GlobalEventBase>();
     }
 }

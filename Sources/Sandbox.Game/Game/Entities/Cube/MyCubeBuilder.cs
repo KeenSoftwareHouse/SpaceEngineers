@@ -433,6 +433,8 @@ namespace Sandbox.Game.Entities
         private static MyHudNotification JoystickCompoundModeHint;
         private static MyHudNotification JoystickDynamicModeHint;
 
+        private MyHudNotification m_buildModeHint;
+
         #endregion
 
         #region Constructor
@@ -643,6 +645,8 @@ namespace Sandbox.Game.Entities
         {
             if (MyInput.Static.IsJoystickConnected() && MyFakes.ENABLE_CONTROLLER_HINTS)
             {
+                if (!IsBuildMode)
+                    MyHud.Notifications.Add(m_buildModeHint);
                 if (MySession.Static.CreativeMode)
                     MyHud.Notifications.Add(JoystickUnlimitedBuildingHint);
                 else
@@ -663,6 +667,7 @@ namespace Sandbox.Game.Entities
 
         private void DeactivateNotifications()
         {
+            MyHud.Notifications.Remove(m_buildModeHint);
             if (MySession.Static.CreativeMode)
             {
                 MyHud.Notifications.Remove(UnlimitedBuildingHint);
@@ -684,6 +689,7 @@ namespace Sandbox.Game.Entities
         {
             if (joystick)
             {
+                MyHud.Notifications.Remove(m_buildModeHint);
                 MyHud.Notifications.Add(JoystickRotationHint);
                 if (MyFakes.ENABLE_COMPOUND_BLOCKS)
                     MyHud.Notifications.Add(JoystickCompoundModeHint);
@@ -702,6 +708,9 @@ namespace Sandbox.Game.Entities
 
         private void DeactivateBuildModeNotifications()
         {
+            if (MyInput.Static.IsJoystickConnected() && IsActivated)
+                MyHud.Notifications.Add(m_buildModeHint);
+
             MyHud.Notifications.Remove(BlockRotationHint);
             MyHud.Notifications.Remove(JoystickRotationHint);
 
@@ -744,7 +753,8 @@ namespace Sandbox.Game.Entities
                 if (MyFakes.ENABLE_COMPOUND_BLOCKS)
                     CompoundModeHint = MyHudNotifications.CreateControlNotification(MySpaceTexts.NotificationCompoundBuildingFormat, compoundToggle, "ALT");
                 if (MyFakes.ENABLE_CUBE_BUILDER_DYNAMIC_MODE)
-                    DynamicModeHint = MyHudNotifications.CreateControlNotification(MySpaceTexts.NotificationSwitchBuildingModeFormat, buildingModeToggle); 
+                    DynamicModeHint = MyHudNotifications.CreateControlNotification(MySpaceTexts.NotificationSwitchBuildingModeFormat, buildingModeToggle);
+                m_buildModeHint = null;
             }
 
             // joystick notifications
@@ -754,16 +764,20 @@ namespace Sandbox.Game.Entities
 
                 var primaryActionCode = MyControllerHelper.GetCodeForControl(cx_char, MyControlsSpace.PRIMARY_TOOL_ACTION);
                 var secondaryActionCode = MyControllerHelper.GetCodeForControl(cx_char, MyControlsSpace.SECONDARY_TOOL_ACTION);
-                var rotateBlockCode = MyControllerHelper.GetCodeForControl(cx_build, MyControlsSpace.CUBE_ROTATE_HORISONTAL_POSITIVE);
+                var rotateBlockCode1 = MyControllerHelper.GetCodeForControl(cx_build, MyControlsSpace.CUBE_ROTATE_HORISONTAL_POSITIVE);
+                var rotateBlockCode2 = MyControllerHelper.GetCodeForControl(cx_build, MyControlsSpace.CUBE_ROTATE_HORISONTAL_NEGATIVE);
+                var rotateBlockCode3 = MyControllerHelper.GetCodeForControl(cx_build, MyControlsSpace.CUBE_ROTATE_VERTICAL_NEGATIVE);
+                var rotateBlockCode4 = MyControllerHelper.GetCodeForControl(cx_build, MyControlsSpace.CUBE_ROTATE_VERTICAL_POSITIVE);
                 var rotateBlockRollCode = MyControllerHelper.GetCodeForControl(cx_build, MyControlsSpace.CUBE_ROTATE_ROLL_POSITIVE);
                 var rotateBlockRollCode2 = MyControllerHelper.GetCodeForControl(cx_build, MyControlsSpace.CUBE_ROTATE_ROLL_NEGATIVE);
                 var dynamicModeCode = MyControllerHelper.GetCodeForControl(cx_build, MyControlsSpace.SWITCH_BUILDING_MODE);
                 var compoundCode = MyControllerHelper.GetCodeForControl(cx_build, MyControlsSpace.SWITCH_COMPOUND);
+                var buildModeCode = MyControllerHelper.GetCodeForControl(cx_char, MyControlsSpace.BUILD_MODE);
 
                 StringBuilder sb = new StringBuilder();
-                var rotation = new HashSet<char>() { rotateBlockCode, rotateBlockRollCode, rotateBlockRollCode2 };
+                var rotation = new HashSet<char>() { rotateBlockCode1, rotateBlockCode2, rotateBlockCode3, rotateBlockCode4, rotateBlockRollCode, rotateBlockRollCode2 };
                 foreach (var c in rotation)
-                    sb.Append(c).Append(" ");
+                    sb.Append(c);
 
                 JoystickRotationHint = MyHudNotifications.CreateControlNotification(MySpaceTexts.NotificationRotationFormatCombined, sb.ToString().Trim());
                 JoystickBuildingHint = MyHudNotifications.CreateControlNotification(MySpaceTexts.NotificationBuildingFormat, primaryActionCode);
@@ -772,6 +786,7 @@ namespace Sandbox.Game.Entities
                     JoystickCompoundModeHint = MyHudNotifications.CreateControlNotification(MySpaceTexts.NotificationJoystickCompoundBuildingFormat, compoundCode);
                 if (MyFakes.ENABLE_CUBE_BUILDER_DYNAMIC_MODE)
                     JoystickDynamicModeHint = MyHudNotifications.CreateControlNotification(MySpaceTexts.NotificationSwitchBuildingModeFormat, dynamicModeCode);
+                m_buildModeHint = MyHudNotifications.CreateControlNotification(MySpaceTexts.NotificationHintPressToOpenBuildMode, buildModeCode);
             }
         }
 
@@ -958,6 +973,13 @@ namespace Sandbox.Game.Entities
             }
         }
 
+        public void EnableStationRotation()
+        {
+            m_shipCreationClipboard.EnableStationRotation = !m_shipCreationClipboard.EnableStationRotation;
+            m_clipboard.EnableStationRotation = !m_clipboard.EnableStationRotation;
+            m_floatingObjectClipboard.EnableStationRotation = !m_floatingObjectClipboard.EnableStationRotation;
+        }
+
         public bool HandleGameInput()
         {
             m_rotationHintRotating = false;
@@ -1005,6 +1027,11 @@ namespace Sandbox.Game.Entities
             if (IsActivated && MyControllerHelper.IsControl(context, MyControlsSpace.BUILD_MODE))
             {
                 IsBuildMode = !IsBuildMode;
+            }
+
+            if (MyInput.Static.IsNewGameControlPressed(MyControlsSpace.STATION_ROTATION) && ShipCreationIsActivated)
+            {
+                EnableStationRotation();
             }
 
             // When spectator active, building is instant
@@ -1176,7 +1203,7 @@ namespace Sandbox.Game.Entities
                     }
                 }
 
-                if (MyControllerHelper.IsControl(context, MyControlsSpace.PRIMARY_TOOL_ACTION))
+                if (MyInput.Static.IsNewLeftMousePressed() || MyControllerHelper.IsControl(context, MyControlsSpace.COPY_PASTE_ACTION))
                 {
                     if (m_clipboard.IsActive)
                     {
@@ -1424,8 +1451,7 @@ namespace Sandbox.Game.Entities
                         MyInput.Static.IsNewRightMouseReleased())
                     {
                         StopBuilding();
-                    }
-
+                    }               
                 } //if (CurrentGrid != null)
                 else if (CurrentVoxelMap != null)
                 {
@@ -1571,7 +1597,7 @@ namespace Sandbox.Game.Entities
                     foreach (var gizmoSpace in m_gizmo.Spaces)
                     {
                         if (gizmoSpace.m_removeBlock != null)
-                            MyToolbar.ColorMaskHSV = gizmoSpace.m_removeBlock.ColorMaskHSV;
+                            MyToolbar.AddOrSwitchToColor(gizmoSpace.m_removeBlock.ColorMaskHSV);
                     }
                 }
             }
@@ -1583,44 +1609,47 @@ namespace Sandbox.Game.Entities
                 Change(expand);
             }
 
-            for (int i = 0; i < 6; ++i)
+            if (IsActivated)
             {
-                bool standardRotation = MyControllerHelper.IsControl(context, m_rotationControls[i], MyControlStateType.PRESSED);
-                if (standardRotation)
+                for (int i = 0; i < 6; ++i)
                 {
-                    bool newStandardPress = MyControllerHelper.IsControl(context, m_rotationControls[i], MyControlStateType.NEW_PRESSED);
-                    bool newPress = newStandardPress;
-
-                    int axis = -1;
-                    int direction = m_rotationDirections[i];
-
-                    if (MyFakes.ENABLE_STANDARD_AXES_ROTATION)
+                    bool standardRotation = MyControllerHelper.IsControl(context, m_rotationControls[i], MyControlStateType.PRESSED);
+                    if (standardRotation)
                     {
-                        axis = GetStandardRotationAxisAndDirection(i, ref direction);
-                    }
-                    else
-                    {
-                        if (i < 2)
-                        {
-                            axis = m_rotationHints.RotationUpAxis;
-                            direction *= m_rotationHints.RotationUpDirection;
-                        }
-                        if (i >= 2 && i < 4)
-                        {
-                            axis = m_rotationHints.RotationRightAxis;
-                            direction *= m_rotationHints.RotationRightDirection;
-                        }
-                        if (i >= 4)
-                        {
-                            axis = m_rotationHints.RotationForwardAxis;
-                            direction *= m_rotationHints.RotationForwardDirection;
-                        }
-                    }
+                        bool newStandardPress = MyControllerHelper.IsControl(context, m_rotationControls[i], MyControlStateType.NEW_PRESSED);
+                        bool newPress = newStandardPress;
 
-                    if (axis != -1)
-                    {
-                        m_rotationHintRotating |= !newPress;
-                        RotateAxis(axis, direction, newPress, frameDt);
+                        int axis = -1;
+                        int direction = m_rotationDirections[i];
+
+                        if (MyFakes.ENABLE_STANDARD_AXES_ROTATION)
+                        {
+                            axis = GetStandardRotationAxisAndDirection(i, ref direction);
+                        }
+                        else
+                        {
+                            if (i < 2)
+                            {
+                                axis = m_rotationHints.RotationUpAxis;
+                                direction *= m_rotationHints.RotationUpDirection;
+                            }
+                            if (i >= 2 && i < 4)
+                            {
+                                axis = m_rotationHints.RotationRightAxis;
+                                direction *= m_rotationHints.RotationRightDirection;
+                            }
+                            if (i >= 4)
+                            {
+                                axis = m_rotationHints.RotationForwardAxis;
+                                direction *= m_rotationHints.RotationForwardDirection;
+                            }
+                        }
+
+                        if (axis != -1)
+                        {
+                            m_rotationHintRotating |= !newPress;
+                            RotateAxis(axis, direction, newPress, frameDt);
+                        }
                     }
                 }
             }
@@ -1920,9 +1949,18 @@ namespace Sandbox.Game.Entities
             RemoveSymmetryNotification();
 
             m_symmetryNotification = new MyHudNotification(myTextsWrapperEnum, 0, level: MyNotificationLevel.Control);
-            m_symmetryNotification.SetTextFormatArguments(
-                MyInput.Static.GetGameControl(MyControlsSpace.PRIMARY_TOOL_ACTION),
-                MyInput.Static.GetGameControl(MyControlsSpace.SECONDARY_TOOL_ACTION));
+            if (!MyInput.Static.IsJoystickConnected())
+            {
+                m_symmetryNotification.SetTextFormatArguments(
+                    MyInput.Static.GetGameControl(MyControlsSpace.PRIMARY_TOOL_ACTION),
+                    MyInput.Static.GetGameControl(MyControlsSpace.SECONDARY_TOOL_ACTION));
+            }
+            else
+            {
+                m_symmetryNotification.SetTextFormatArguments(
+                    MyControllerHelper.GetCodeForControl(MySpaceBindingCreator.CX_BUILD_MODE, MyControlsSpace.PRIMARY_TOOL_ACTION),
+                    MyControllerHelper.GetCodeForControl(MySpaceBindingCreator.CX_BUILD_MODE, MyControlsSpace.SECONDARY_BUILD_ACTION));
+            }
 
             MyHud.Notifications.Add(m_symmetryNotification);
         }
@@ -2008,6 +2046,14 @@ namespace Sandbox.Game.Entities
                 //    gizmoSpace.m_buildAllowed = false;
                 //    gizmoSpace.m_removeBlock = null;
                 //}
+
+                if (MySession.GetCameraControllerEnum() == MyCameraControllerEnum.Spectator)
+                {
+                    gizmoSpace.m_showGizmoCube = false;
+                    gizmoSpace.m_buildAllowed = false;
+                    return;
+                }
+
                 if (!MySession.Static.SimpleSurvival && MySession.ControlledEntity is MyCharacter)
                 {
                     gizmoSpace.m_buildAllowed &= (MySession.ControlledEntity as MyCharacter).CanStartConstruction(CurrentBlockDefinition);
@@ -3833,6 +3879,10 @@ namespace Sandbox.Game.Entities
 
             foreach (var gridBuilder in gridBuilders)
             {
+                if (gridBuilder.IsStatic && gridBuilder.PositionAndOrientation.HasValue)
+                {
+                    gridBuilder.PositionAndOrientation = MyPositionAndOrientation.Default;
+                }
                 foreach (var blockBuilder in gridBuilder.CubeBlocks)
                 {
                     blockBuilder.ColorMaskHSV = MyToolbar.ColorMaskHSV;

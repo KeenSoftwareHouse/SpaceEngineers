@@ -12,10 +12,10 @@ namespace Sandbox.Common.ObjectBuilders
     [MyObjectBuilderDefinition]
     public class MyObjectBuilder_Battery : MyObjectBuilder_Base
     {
-        [ProtoMember(1), DefaultValue(true)]
+        [ProtoMember, DefaultValue(true)]
         public bool ProducerEnabled = true;
 
-        [ProtoMember(2)]
+        [ProtoMember]
         public float CurrentCapacity;
     }
 }

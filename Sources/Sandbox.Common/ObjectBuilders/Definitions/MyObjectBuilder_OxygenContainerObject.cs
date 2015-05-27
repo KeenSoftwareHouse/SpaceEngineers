@@ -14,7 +14,7 @@ namespace Sandbox.Common.ObjectBuilders.Definitions
         /// This is not synced automatically
         /// Call SyncOxygenContainerLevel on inventory to sync it
         /// </summary>
-        [ProtoMember(1)]
+        [ProtoMember]
         public float OxygenLevel = 0f;
 
         public override bool CanStack(MyObjectBuilder_PhysicalObject a)

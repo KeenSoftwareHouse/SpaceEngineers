@@ -11,22 +11,22 @@ namespace Sandbox.Common.ObjectBuilders
     [MyObjectBuilderDefinition]
     public class MyObjectBuilder_ShipConnector : MyObjectBuilder_FunctionalBlock
     {
-        [ProtoMember(1)]
+        [ProtoMember]
         public MyObjectBuilder_Inventory Inventory;
 
-        [ProtoMember(2), DefaultValue(false)]
+        [ProtoMember, DefaultValue(false)]
         public bool ThrowOut = false;
 
-        [ProtoMember(3), DefaultValue(false)]
+        [ProtoMember, DefaultValue(false)]
         public bool CollectAll = false;
 
         /// <summary>
         /// When ConnectedEntityId is not null, this tells whether the connection is only approach (yellow) or locked connection (green)
         /// </summary>
-        [ProtoMember(4), DefaultValue(false)]
+        [ProtoMember, DefaultValue(false)]
         public bool Connected = false;
 
-        [ProtoMember(5), DefaultValue(0)]
+        [ProtoMember, DefaultValue(0)]
         public long ConnectedEntityId = 0;
 
         public bool ShouldSerializeConnectedEntityId() { return ConnectedEntityId != 0; }

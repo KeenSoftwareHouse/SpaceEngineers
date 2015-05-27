@@ -1,28 +1,15 @@
-﻿using SharpDX;
-using SharpDX.Direct3D;
-using SharpDX.Direct3D11;
-using SharpDX.DXGI;
+﻿using SharpDX.Direct3D11;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using System.Text;
-using VRage.Generics;
-
+using VRage.Utils;
 using VRageMath;
 using VRageRender.Resources;
-using VRageRender.Vertex;
-using Buffer = SharpDX.Direct3D11.Buffer;
+using BoundingBox = VRageMath.BoundingBox;
 using Matrix = VRageMath.Matrix;
 using Vector3 = VRageMath.Vector3;
 using Vector4 = VRageMath.Vector4;
-using BoundingBox = VRageMath.BoundingBox;
-using BoundingFrustum = VRageMath.BoundingFrustum;
-using VRage.Collections;
-using System.Collections.Specialized;
-using System.Threading;
-using VRage.Library.Utils;
 
 
 namespace VRageRender
@@ -450,6 +437,7 @@ namespace VRageRender
 
     struct MyMaterialTextureSwap
     {
+        internal string MaterialSlot;
         internal MyStringId TextureName;
     }
 
@@ -463,8 +451,8 @@ namespace VRageRender
         internal float Emissivity = DefaultEmissivity;
         internal Vector3 ColorMul = DefaultColorMul;
 
-        internal MyMaterialTextureSwap? TextureSwap = null;
-
+        //internal MyMaterialTextureSwap? TextureSwap = null;
+        internal List<MyMaterialTextureSwap> TextureSwaps = null;
 
         internal MyMaterialProxyId CustomMaterialProxy = MyMaterialProxyId.NULL;
         internal RwTexId CustomRenderedTexture = RwTexId.NULL;
@@ -1246,13 +1234,31 @@ namespace VRageRender
 
                         //
 
-                        if(property.Value.TextureSwap.HasValue)
+                        if(property.Value.TextureSwaps != null)
                         {
                             var meshMat = part.Info.Material;
                             var info = meshMat.Info;
-                            info.ColorMetal_Texture = property.Value.TextureSwap.Value.TextureName;
+
+                            foreach(var s in property.Value.TextureSwaps)
+                            {
+                                switch(s.MaterialSlot)
+                                {
+                                    case "NormalGlossTexture":
+                                        info.NormalGloss_Texture = s.TextureName;
+                                        break;
+                                    case "AddMapsTexture":
+                                        info.Extensions_Texture = s.TextureName;
+                                        break;
+                                    case "AlphamaskTexture":
+                                        info.Alphamask_Texture = s.TextureName;
+                                        break;
+                                    default:
+                                        info.ColorMetal_Texture = s.TextureName;
+                                        break;
+                                }
+                            }
+
                             proxy.Draw.MaterialId = MyMeshMaterials1.GetProxyId(MyMeshMaterials1.GetMaterialId(ref info));
-                            proxy.ObjectData.Emissive = 1;
                         }
 
                         else if(property.Value.CustomRenderedTexture != RwTexId.NULL)
@@ -1269,7 +1275,6 @@ namespace VRageRender
                                 MyMaterials1.ProxyPool.Data[matProxy.Index].MaterialSRVs.Version = (int)m_owner.ID;
                             }
 
-                            proxy.ObjectData.Emissive = 1;
                             proxy.Draw.MaterialId = matProxy;
                         }
                     }
@@ -1356,7 +1361,7 @@ namespace VRageRender
 
             if(m_lodTransitionState != 0)
             {
-                float state = Math.Abs(distance - m_lodTransitionStartDistance) / m_lodTransitionVector;
+                float state = Math.Abs(distance - m_lodTransitionStartDistance) / (float) Math.Max(m_lodTransitionVector, 0.0001f);
                 state = (float)Math.Max(Math.Abs(m_lodTransitionState) + (float)MyRender11.TimeDelta.Seconds / LodTransitionTime, Math.Max(Math.Min(state, 1), 0));
 
                 m_lodTransitionState = Math.Sign(m_lodTransitionState) * state;

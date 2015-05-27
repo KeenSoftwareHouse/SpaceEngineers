@@ -419,11 +419,13 @@ namespace Sandbox.Game.Entities
             NumberInGrid = cubeGrid.BlockCounter.GetNextNumber(builder.GetId());
             Render.ColorMaskHsv = builder.ColorMaskHSV;
 
-            if (BlockDefinition.ContainsComputer())
+            if (BlockDefinition.ContainsComputer() || (MyFakes.ENABLE_BATTLE_SYSTEM && MySession.Static.Battle))
             {
                 m_IDModule = new MyIDModule();
 
-                if (MySession.Static.Settings.ResetOwnership && Sync.IsServer)
+                bool resetOwnership = MySession.Static.Settings.ResetOwnership && Sync.IsServer && (!MyFakes.ENABLE_BATTLE_SYSTEM || !MySession.Static.Battle);
+
+                if (resetOwnership)
                 {
                     m_IDModule.Owner = 0;
                     m_IDModule.ShareMode = MyOwnershipShareModeEnum.None;
@@ -1053,7 +1055,7 @@ namespace Sandbox.Game.Entities
                             Matrix subGridWorldMatrix = subBlockMatrix * PositionComp.LocalMatrix * CubeGrid.WorldMatrix;
 
                             //TODO: Try to find better way how to sync entity ID of subblocks..
-                            subgrid = MyCubeBuilder.SpawnDynamicGrid(subBlockDefinition, subGridWorldMatrix, CubeGrid.EntityId + CubeGrid.BlocksCount * 128 + SubBlocks.Count * 16);
+                            subgrid = MyCubeBuilder.SpawnDynamicGrid(subBlockDefinition, subGridWorldMatrix, EntityId + SubBlocks.Count + 1);
                             if (subgrid != null)
                                 subblock = subgrid.GetCubeBlock(Vector3I.Zero);
                         }

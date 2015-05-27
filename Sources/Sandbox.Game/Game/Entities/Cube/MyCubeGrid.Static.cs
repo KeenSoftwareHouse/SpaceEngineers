@@ -1764,11 +1764,10 @@ namespace Sandbox.Game.Entities
                     var invWorldMatrix = grid.PositionComp.WorldMatrixNormalizedInv;
                     var otherLocalAabb = worldAabb.Transform(ref invWorldMatrix);
 
-                    otherLocalAabb.Max -= grid.GridSize; // when grid size is 1^3, this ensures max and min are the same
-                    var scaledMin = otherLocalAabb.Min / grid.GridSize;
+					var scaledMin = otherLocalAabb.Min / grid.GridSize;
                     var scaledMax = otherLocalAabb.Max / grid.GridSize;
-                    var min = Vector3I.Round(scaledMin + 0.5f);
-                    var max = Vector3I.Round(scaledMax + 0.5f);
+                    var min = Vector3I.Round(scaledMin);
+                    var max = Vector3I.Round(scaledMax);
 
                     MyBlockOrientation? gridBlockOrientation = null;
                     if (MyFakes.ENABLE_COMPOUND_BLOCKS && isStatic && grid.IsStatic && blockOrientation != null)
@@ -1813,13 +1812,16 @@ namespace Sandbox.Game.Entities
             { // Havok only detects overlap with voxel map surface. This test will detect a voxel map even if we're fully inside it.
                 //BoundingSphere sphere = new BoundingSphere(Vector3.Transform(targetGrid.LocalAABB.Center, worldMatrix), targetGrid.LocalAABB.Size.AbsMin() / 2.0f);
                 //overlappedVoxelMap = MySession.Static.VoxelMaps.GetOverlappingWithSphere(ref sphere);
+
+                //VRageRender.MyRenderProxy.DebugDrawAABB(worldAabb, Color.White, 1, 1, false);
+
                 overlappedVoxelMap = MySession.Static.VoxelMaps.GetVoxelMapWhoseBoundingBoxIntersectsBox(ref worldAabb, null);
                 if (overlappedVoxelMap != null)
                 {
-                    float cellCount = 0;
-                    var res = overlappedVoxelMap.GetVoxelContentInBoundingBox(worldAabb, out cellCount);
-                    if (res < 0.01f)
+                    //We have just test, if aabb is not completelly inside voxelmap
+                    if (!overlappedVoxelMap.IsOverlapOverThreshold(worldAabb))
                         overlappedVoxelMap = null;
+                
                 }
                 //using (m_tmpResultList.GetClearToken())
                 //{
@@ -1840,10 +1842,62 @@ namespace Sandbox.Game.Entities
                 //}
             }
             ProfilerShort.End();
-            
 
             return TestPlacementVoxelMapPenetration(overlappedVoxelMap, ref settings, ref localAabb, ref worldMatrix, touchingStaticGrid: touchingStaticGrid);
         }
+
+        //private static bool TestPlacementVoxelMapOverlap(
+        //    MyVoxelBase voxelMap,
+        //    ref MyGridPlacementSettings settings,
+        //    ref BoundingBoxD localAabb,
+        //    ref MatrixD worldMatrix,
+        //    bool touchingStaticGrid = false)
+        //{
+        //    ProfilerShort.Begin("TestPlacementVoxelMapOverlap");
+
+        //    var worldAabb = localAabb.Transform(ref worldMatrix);
+
+        //    const int Inside = 0;
+        //    const int Intersects = 1;
+        //    const int Outside = 2;
+
+        //    int overlapState = Intersects;
+
+        //    if (voxelMap == null)
+        //    {
+        //        overlapState = Outside;
+
+        //        voxelMap = MySession.Static.VoxelMaps.GetVoxelMapWhoseBoundingBoxIntersectsBox(ref worldAabb, null);
+        //        if (voxelMap != null && voxelMap.IsOverlapOverThreshold(worldAabb, 0.8f))
+        //        {
+        //            overlapState = Inside;
+        //        }
+        //        else
+        //        {
+        //            voxelMap = null;
+        //        }
+        //    }
+
+        //    bool testPassed = true;
+
+        //    switch (overlapState)
+        //    {
+        //        case Inside:
+        //            testPassed = settings.CanAnchorToStaticGrid && touchingStaticGrid;
+        //            break;
+        //        case Intersects:
+        //            testPassed = settings.Penetration.MaxAllowed > 0;
+        //            break;
+        //        case Outside:
+        //            testPassed = settings.Penetration.MinAllowed <= 0 || (settings.CanAnchorToStaticGrid && touchingStaticGrid);
+        //            break;
+        //        default:
+        //            Debug.Fail("Invalid branch.");
+        //            break;
+        //    }
+
+        //    return testPassed;
+        //}
 
         private static bool TestPlacementVoxelMapPenetration(
             MyVoxelBase voxelMap, 
@@ -1861,7 +1915,7 @@ namespace Sandbox.Game.Entities
             if (voxelMap != null)
             {
                 float unused;
-                penetrationAmountNormalized = voxelMap.GetVoxelContentInBoundingBox(worldAabb, out unused);
+                penetrationAmountNormalized = voxelMap.GetVoxelContentInBoundingBox_Obsolete(worldAabb, out unused);
                 penetrationVolume = penetrationAmountNormalized * MyVoxelConstants.VOXEL_VOLUME_IN_METERS;
                 penetrationRatio = penetrationVolume / (float)worldAabb.Volume;
             }
@@ -2117,43 +2171,13 @@ namespace Sandbox.Game.Entities
             if (overlappedVoxelMap != null)
             {
                 float unused;
-                var penetrationAmountNormalized = overlappedVoxelMap.GetVoxelContentInBoundingBox(worldAabb, out unused);
+                var penetrationAmountNormalized = overlappedVoxelMap.GetVoxelContentInBoundingBox_Obsolete(worldAabb, out unused);
                 var penetrationVolume = penetrationAmountNormalized * MyVoxelConstants.VOXEL_VOLUME_IN_METERS;
                 penetrationRatio = penetrationVolume / (float)worldAabb.Volume;
             }
 
             return penetrationRatio > 0.125f;
         }
-
-        public static ulong GetBattlePoints(MyCubeGrid grid)
-        {
-            if (!MyFakes.ENABLE_BATTLE_SYSTEM)
-                return 0;
-
-            return (ulong)grid.TotalBlocksCount;
-        }
-
-        public static ulong GetBattlePoints(MyObjectBuilder_CubeGrid grid)
-        {
-            if (!MyFakes.ENABLE_BATTLE_SYSTEM)
-                return 0;
-
-            ulong pts = 0;
-            foreach (var block in grid.CubeBlocks)
-            {
-                if (block is MyObjectBuilder_CompoundCubeBlock)
-                {
-                    pts += (ulong)(block as MyObjectBuilder_CompoundCubeBlock).Blocks.Length;
-                }
-                else
-                {
-                    pts += 1;
-                }
-            }
-
-            return pts;
-        }
-
     }
 
     struct BlockMaterial

@@ -14,15 +14,15 @@ namespace Medieval.ObjectBuilders.Definitions
     [MyObjectBuilderDefinition]
     public class MyObjectBuilder_FireLightBlockDefinition : MyObjectBuilder_CubeBlockDefinition
     {
-        [ProtoMember(1)]
+        [ProtoMember]
         public SerializableBounds LightIntensity = new MyBounds(1.3f, 1.7f, 1.5f);
-        [ProtoMember(2)]
+        [ProtoMember]
         public Vector4 LightColor = new Vector4(0.9f, 0.7f, 0.5f, 1);
-        [ProtoMember(3)]
+        [ProtoMember]
         public SerializableBounds LightRadius = new MyBounds(1, 2, 1.6f);
-        [ProtoMember(4)]
+        [ProtoMember]
         public SerializableBounds LightFalloff = new MyBounds(1, 2, 1.3f);
-        [ProtoMember(5)]
+        [ProtoMember]
         public float ParticleScale = 0.1f;
     }
 }

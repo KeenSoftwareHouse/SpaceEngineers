@@ -11,22 +11,28 @@ namespace Sandbox.Common.ObjectBuilders
     [MyObjectBuilderDefinition]
     public class MyObjectBuilder_BattleSystemComponent : MyObjectBuilder_SessionComponent
     {
-        [ProtoMember(1)]
+        [ProtoMember]
         public bool IsBattleMap;
 
-        [ProtoMember(2)]
+        [ProtoMember]
         public ulong Points;
 
-        [ProtoMember(3)]
+        [ProtoMember]
         public ulong BaseMapVoxelHandVolumeChanged;
 
-        [ProtoMember(4)]
+        [ProtoMember]
+        public ulong BaseMapSmallGridsPoints;
+
+        [ProtoMember]
+        public ulong BaseMapLargeGridsPoints;
+
+        [ProtoMember]
         public SerializableBoundingBoxD[] AttackerSlots;
 
-        [ProtoMember(5)]
+        [ProtoMember]
         public SerializableBoundingBoxD DefenderSlot;
 
-        [ProtoMember(6)]
+        [ProtoMember]
         public long DefenderEntityId;
     }
 }

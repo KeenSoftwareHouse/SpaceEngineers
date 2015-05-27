@@ -10,7 +10,7 @@ namespace Sandbox.Common.ObjectBuilders
     [MyObjectBuilderDefinition]
     public class MyObjectBuilder_WeatherComponent : MyObjectBuilder_SessionComponent
     {
-        [ProtoMember(1)]
+        [ProtoMember]
         public bool WeatherEnabled;
     }
 }

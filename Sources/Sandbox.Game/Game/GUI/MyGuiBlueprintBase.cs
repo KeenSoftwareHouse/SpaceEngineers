@@ -88,19 +88,22 @@ namespace Sandbox.Game.Gui
         [MessageIdAttribute(13789, P2PMessageEnum.Reliable)]
         protected struct ShareBlueprintMsg
         {
-            [ProtoMember(1)]
+            [ProtoMember]
             public ulong WorkshopId;
-            [ProtoMember(2)]
+            [ProtoMember]
             public string Name;
         }
 
         public static string m_localBlueprintFolder = Path.Combine(MyFileSystem.UserDataPath, "Blueprints", "local");
         public static string m_workshopBlueprintFolder = Path.Combine(MyFileSystem.UserDataPath, "Blueprints", "workshop");
+        public static string m_defaultBlueprintFolder = Path.Combine(MyFileSystem.ContentPath, "Data", "Blueprints");
         public static readonly string m_workshopBlueprintSuffix = ".sbb";
 
         public MyGuiBlueprintScreenBase(Vector2 position, Vector2 size, Vector4 backgroundColor, bool isTopMostScreen) :
             base(position, size, backgroundColor, isTopMostScreen)
         {
+            m_localBlueprintFolder = Path.Combine(MyFileSystem.UserDataPath, "Blueprints", "local");
+            m_workshopBlueprintFolder = Path.Combine(MyFileSystem.UserDataPath, "Blueprints", "workshop");
             m_canShareInput = false;
             CanBeHidden = true;
             CanHideOthers = false;

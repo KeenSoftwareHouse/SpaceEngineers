@@ -36,6 +36,7 @@ namespace Sandbox.Game.Entities
     {
         static MySoundPair TAKE_ITEM_SOUND = new MySoundPair("PlayTakeItem");
         static MyStringId m_explosives = MyStringId.GetOrCompute("Explosives");
+		static public MyObjectBuilder_Ore ScrapBuilder = Sandbox.Common.ObjectBuilders.Serializer.MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_Ore>("Scrap");
 
         private StringBuilder m_displayedText = new StringBuilder();
 
@@ -264,6 +265,7 @@ namespace Sandbox.Game.Entities
                     MyAudio.Static.PlaySound(TAKE_ITEM_SOUND.SoundId);
                 //user.StartSecondarySound(TAKE_ITEM_SOUND);
                 user.GetInventory().TakeFloatingObject(this);
+                MyHud.Notifications.ReloadTexts();
             }
         }
 
@@ -381,7 +383,7 @@ namespace Sandbox.Game.Entities
 
                     if (MyFakes.ENABLE_SCRAP && Sync.IsServer)
                     {
-                        if (Item.Content.SubtypeName.Equals("Scrap"))
+                        if (Item.Content.SubtypeId == ScrapBuilder.SubtypeId)
                             return;
 
                         var contentDefinitionId = Item.Content.GetId();
@@ -389,7 +391,7 @@ namespace Sandbox.Game.Entities
                         {
                             var definition = MyDefinitionManager.Static.GetComponentDefinition((Item.Content as MyObjectBuilder_Component).GetId());
                             if (MyRandom.Instance.NextFloat() < definition.DropProbability)
-                                MyFloatingObjects.Spawn(new MyInventoryItem(Item.Amount * 0.8f, Sandbox.Common.ObjectBuilders.Serializer.MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_Ingot>("Scrap")), PositionComp.GetPosition(), WorldMatrix.Forward, WorldMatrix.Up);
+                                MyFloatingObjects.Spawn(new MyInventoryItem(Item.Amount * 0.8f, ScrapBuilder), PositionComp.GetPosition(), WorldMatrix.Forward, WorldMatrix.Up);
                         }
                     }
                 }

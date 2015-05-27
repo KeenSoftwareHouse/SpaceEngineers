@@ -2,7 +2,7 @@
 <Definitions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
   <Characters>    
     <Character>
-      <Name>Engineer_suit</Name>
+      <Name>Default_Astronaut</Name>
       <Model>Models\Characters\Astronaut\SE_astronaut.mwm</Model>
       <Mass>100</Mass>
       <MaxHealth>100</MaxHealth>
@@ -33,7 +33,7 @@
 
 		<!-- <CharacterHeadSize>0.45</CharacterHeadSize>
 		<CharacterHeadHeight>0.25</CharacterHeadHeight>
-		<CharacterCollisionScale>0.75</CharacterCollisionScale> -->
+		<CharacterCollisionScale>1.1</CharacterCollisionScale> -->
 
       <!-- BONE DEFINITIONS - MUST BE UPDATED IF SKELETON CHANGES - BONE NAMES CAN BE REVIEWED IN MODELVIEWER -->
       <HeadBone>HeadDummy</HeadBone>
@@ -50,7 +50,7 @@
       <RightForearmBone>SE_RigRForearm1</RightForearmBone>
       <RightUpperarmBone>SE_RigRUpperarm</RightUpperarmBone>
       <SpineBone>SE_RigSpine1</SpineBone>
-	  <BendMultiplier1st>-0.8</BendMultiplier1st>
+	  <BendMultiplier1st>-0.3</BendMultiplier1st>
 	  <BendMultiplier3rd>-0.4</BendMultiplier3rd>
       <LeftLightBone>LeftLightDummy</LeftLightBone>
       <RightLightBone>RightLightDummy</RightLightBone>
@@ -301,7 +301,7 @@
 
 		<!--<CharacterHeadSize>0.45</CharacterHeadSize>
 		<CharacterHeadHeight>0.25</CharacterHeadHeight>
-		<CharacterCollisionScale>0.75</CharacterCollisionScale>-->
+		<CharacterCollisionScale>1.1</CharacterCollisionScale> -->
 	  
 	  <!-- BONE DEFINITIONS - MUST BE UPDATED IF SKELETON CHANGES - BONE NAMES CAN BE REVIEWED IN MODELVIEWER -->
       <HeadBone>HeadDummy</HeadBone>
@@ -318,7 +318,7 @@
       <RightForearmBone>SE_RigRForearm1</RightForearmBone>
       <RightUpperarmBone>SE_RigRUpperarm</RightUpperarmBone>
       <SpineBone>SE_RigSpine1</SpineBone>
-	  <BendMultiplier1st>-0.8</BendMultiplier1st>
+	  <BendMultiplier1st>-0.3</BendMultiplier1st>
 	  <BendMultiplier3rd>-0.4</BendMultiplier3rd>      
 	  
       <MaterialsDisabledIn1st>
@@ -331,7 +331,7 @@
       <DamageAmountAtZeroPressure>7</DamageAmountAtZeroPressure>
       <OxygenCapacity>60</OxygenCapacity>
       <NeedsOxygen>true</NeedsOxygen>
-      <HelmetVariation>Engineer_suit</HelmetVariation>
+      <HelmetVariation>Default_Astronaut</HelmetVariation>
 
       <!-- Jetpack -->
       <JetpackAvailable>true</JetpackAvailable>

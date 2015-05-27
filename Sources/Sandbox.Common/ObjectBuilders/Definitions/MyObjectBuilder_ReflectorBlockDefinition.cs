@@ -12,7 +12,7 @@ namespace Sandbox.Common.ObjectBuilders.Definitions
     [MyObjectBuilderDefinition]
     public class MyObjectBuilder_ReflectorBlockDefinition : MyObjectBuilder_LightingBlockDefinition
     {
-        [ProtoMember(1)]
+        [ProtoMember]
         [ModdableContentFile("dds")]
         public string ReflectorTexture = @"Textures\Lights\reflector_large.dds";
     }

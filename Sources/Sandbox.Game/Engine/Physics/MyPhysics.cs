@@ -240,6 +240,12 @@ namespace Sandbox.Engine.Physics
             world.DisableCollisionsBetween(RagdollCollisionLayer, VirtualMassLayer);
             world.DisableCollisionsBetween(RagdollCollisionLayer, NoCollisionLayer);
             world.DisableCollisionsBetween(RagdollCollisionLayer, ExplosionRaycastLayer);
+            world.DisableCollisionsBetween(RagdollCollisionLayer, CollisionLayerWithoutCharacter);
+            world.DisableCollisionsBetween(RagdollCollisionLayer, CollideWithStaticLayer);
+            world.DisableCollisionsBetween(RagdollCollisionLayer, CollectorCollisionLayer);
+            world.DisableCollisionsBetween(RagdollCollisionLayer, AmmoLayer);
+            
+
                     }
 
         [Conditional("DEBUG")]
@@ -308,7 +314,7 @@ namespace Sandbox.Engine.Physics
 
         public static HkWorld CreateHkWorld(float broadphaseSize = 100000)
         {
-            var hkWorld = new HkWorld(MyPerGameSettings.EnableGlobalGravity, broadphaseSize, RestingVelocity, MyFakes.ENABLE_HAVOK_MULTITHREADING);
+            var hkWorld = new HkWorld(MyPerGameSettings.EnableGlobalGravity, broadphaseSize, RestingVelocity, MyFakes.ENABLE_HAVOK_MULTITHREADING, MySession.Static.Settings.PhysicsIterations);
 
             hkWorld.MarkForWrite();
 

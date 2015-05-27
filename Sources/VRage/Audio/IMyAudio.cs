@@ -112,8 +112,6 @@ namespace VRage.Audio
         bool SourceIsCloseEnoughToPlaySound(IMy3DSoundEmitter source, MyStringId cueEnum);
         bool IsLoopable(MyStringId cueId);
 
-        IMySourceVoice PlayTestSound(MyStringId cue);
-
         object CalculateDspSettingsDebug(IMy3DSoundEmitter source);
 
         bool ApplyTransition(MyStringId transitionEnum, int priority = 0, MyStringId? category = null, bool loop = true);

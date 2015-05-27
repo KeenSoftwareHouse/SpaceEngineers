@@ -118,6 +118,7 @@ namespace Sandbox.Game.Entities.Blocks
                 {
                     x.SyncObject.SendNewKeepProjection(v);
                 };
+            keepProjectionToggle.EnableAction();
             keepProjectionToggle.Enabled = (b) => b.IsProjecting();
             MyTerminalControlFactory.AddControl(keepProjectionToggle);
 
@@ -464,6 +465,7 @@ namespace Sandbox.Game.Entities.Blocks
             if (m_clipboard.PreviewGrids.Count != 0)
                 ProjectedGrid.Projector = this;
             m_shouldUpdateProjection = true;
+            m_shouldUpdateTexts = true;
 
             SetRotation(m_projectionRotation);
 
@@ -534,6 +536,8 @@ namespace Sandbox.Game.Entities.Blocks
             IsWorkingChanged += MyProjector_IsWorkingChanged;
 
             PowerReceiver.Update();
+            m_statsDirty = true;
+            UpdateText();
             
             SyncObject = new MySyncProjector(this);
 
@@ -713,12 +717,14 @@ namespace Sandbox.Game.Entities.Blocks
                         }
                     }
                 }
+                m_shouldUpdateTexts = true;
             }
         }
 
         void previewGrid_OnBlockRemoved(MySlimBlock obj)
         {
             m_shouldUpdateProjection = true;
+            m_shouldUpdateTexts = true;
         }
 
         //Stats
@@ -867,6 +873,8 @@ namespace Sandbox.Game.Entities.Blocks
             }
 
             UpdateEmissivity();
+            m_statsDirty = true;
+            UpdateText();
 
             //We call this to disable the controls
             RaisePropertiesChanged();
@@ -1133,11 +1141,11 @@ namespace Sandbox.Game.Entities.Blocks
             [MessageIdAttribute(7600, SteamSDK.P2PMessageEnum.Reliable)]
             protected struct NewBlueprintMsg : IEntityMessage
             {
-                [ProtoBuf.ProtoMember(1)]
+                [ProtoBuf.ProtoMember]
                 public long EntityId;
                 public long GetEntityId() { return EntityId; }
 
-                [ProtoBuf.ProtoMember(2)]
+                [ProtoBuf.ProtoMember]
                 public MyObjectBuilder_CubeGrid ProjectedGrid;
             }
 

@@ -78,29 +78,25 @@ float3 tonemap_reinhard(float3 color) {
     return color * lum / (1 + lum);
 }
 
-float A = 0.22;
-float B = 0.30;
-float C = 0.10;
-float D = 0.20;
-float E = 0.01;
-float F = 0.30;
-float W = 11.2;
-
-float3 Uncharted2Tonemap(float3 x)
+float3 curve_tonemap(float3 x)
 {
+	const float A = frame_.tonemapping_A;
+	const float B = frame_.tonemapping_B;
+	const float C = frame_.tonemapping_C;
+	const float D = frame_.tonemapping_D;
+	const float E = frame_.tonemapping_E;
+	const float F = frame_.tonemapping_F;
+
 	return ((x*(A*x+C*B)+D*E)/(x*(A*x+B)+D*F))-E/F;
 }
 
-// broken, why?
-float3 tonemap_uncharted2(float3 color)
-{
-	return Uncharted2Tonemap(color) / Uncharted2Tonemap(W);
+float3 tonemap_operator(float3 color)  {
+	return curve_tonemap(color);
 }
 
 float3 exposed_color(float3 color, float exposure)
 {
     float avg_lum = max(get_avg_luminance(), 0.0001f);
-    float img_lum = calc_luminance(color);
     float linear_exposure = middle_grey() / avg_lum;
     linear_exposure = log2(max(linear_exposure, 0.0001f));
     linear_exposure += exposure;
@@ -111,7 +107,7 @@ float3 calc_tonemap(float3 color)
 {
     color = exposed_color(color, frame_.luminance_exposure);
     
-    color = tonemap_filmic(color);
+    color = tonemap_operator(color);
     return color;
 }
 
@@ -145,7 +141,7 @@ void tonemapping(
 	sum += pixel;
 #else
 	float3 color = calc_tonemap(pixel);
-	color += tonemap_filmic(Bloom.SampleLevel(BilinearSampler, uv, 0).xyz * frame_.bloom_mult);
+	color += tonemap_operator(Bloom.SampleLevel(BilinearSampler, uv, 0).xyz * frame_.bloom_mult);
 
 	float L = calc_luminance(exposed_color(pixel, frame_.luminance_exposure));
 	float sigma = eye_insensitivity(get_avg_luminance());

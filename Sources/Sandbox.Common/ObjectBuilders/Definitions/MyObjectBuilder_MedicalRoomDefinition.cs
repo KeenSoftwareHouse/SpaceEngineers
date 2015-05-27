@@ -11,10 +11,10 @@ namespace Sandbox.Common.ObjectBuilders.Definitions
     [MyObjectBuilderDefinition]
     public class MyObjectBuilder_MedicalRoomDefinition : MyObjectBuilder_CubeBlockDefinition
     {
-        [ProtoMember(1)]
+        [ProtoMember]
         public string IdleSound;
 
-        [ProtoMember(2)]
+        [ProtoMember]
         public string ProgressSound;
     }
 }

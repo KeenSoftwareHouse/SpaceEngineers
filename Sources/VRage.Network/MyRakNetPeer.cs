@@ -52,14 +52,6 @@ namespace VRage.Network
             return m_GUIDToSteamID[GUID];
         }
 
-        public void GetAllPeerSteamIDs(List<ulong> peers)
-        {
-            foreach (var steamID in m_steamIDToGUID.Keys)
-            {
-                peers.Add(steamID);
-            }
-        }
-
         protected RakPeer m_peer;
         protected MyConcurrentQueue<Packet> m_receiveQueue;
         private MyTimer m_timer;
@@ -142,7 +134,6 @@ namespace VRage.Network
 
         public event Action<ulong, string> OnChatMessage;
         public event Action<ulong> OnConnectionLost;
-        public event Action<byte[], uint, ulong> OnSteamHackMessage;
         public event Action<ulong> OnClientJoined;
         public event Action<ulong> OnClientLeft;
 
@@ -170,7 +161,6 @@ namespace VRage.Network
         {
             AddMessageHandler(MessageIDEnum.CHAT_MESSAGE, ChatMessage);
             AddMessageHandler(MessageIDEnum.CONNECTION_LOST, ConnectionLost);
-            AddMessageHandler(MessageIDEnum.STEAMHACK, SteamHack);
 
             AddMessageHandler(MessageIDEnum.SYNC_FIELD, SyncField);
             AddMessageHandler(MessageIDEnum.REPLICATION_CREATE, ReplicationCreate);
@@ -180,32 +170,19 @@ namespace VRage.Network
         private void ReplicationDestroy(Packet packet)
         {
             Debug.Assert(MyRakNetSyncLayer.Static != null);
-            MyRakNetSyncLayer.Static.ReplicationDestroy(packet.Data);
+            MyRakNetSyncLayer.Static.ProcessReplicationDestroy(packet.Data);
         }
 
         private void ReplicationCreate(Packet packet)
         {
             Debug.Assert(MyRakNetSyncLayer.Static != null);
-            MyRakNetSyncLayer.Static.ProcessReplication(packet.Data);
+            MyRakNetSyncLayer.Static.ProcessReplicationCreate(packet.Data);
         }
 
         private void SyncField(Packet packet)
         {
             Debug.Assert(MyRakNetSyncLayer.Static != null);
             MyRakNetSyncLayer.Static.ProcessSync(packet.Data);
-        }
-
-        private void SteamHack(Packet packet)
-        {
-            Debug.Assert(packet.Length >= 2, "Missing steam messageID");
-            byte[] data = new byte[packet.Length - 1];
-            bool success = packet.Data.Read(data, packet.Length - 1);
-            Debug.Assert(success, "Failed to read steam data");
-            Debug.Assert(data[0] != 0 || data[1] != 0, "Invalid steam messageID");
-
-            var handler = OnSteamHackMessage;
-            if (handler != null)
-                handler(data, packet.Length - 1, GUIDToSteamID(packet.GUID.G));
         }
 
         protected abstract void ChatMessage(Packet packet);
@@ -233,8 +210,10 @@ namespace VRage.Network
 
         private void ConnectionLost(Packet packet)
         {
+            Debug.Assert(m_GUIDToSteamID.ContainsKey(packet.GUID.G));
             ulong steamID = m_GUIDToSteamID[packet.GUID.G];
 
+            m_steamIDToGUID[steamID].Delete();
             m_steamIDToGUID.Remove(steamID);
             m_GUIDToSteamID.Remove(packet.GUID.G);
 
@@ -274,8 +253,8 @@ namespace VRage.Network
 
         private bool IsInternal(MessageIDEnum msgID)
         {
-            if (msgID <= MessageIDEnum.RESERVED_9)
-                return true;
+            //if (msgID <= MessageIDEnum.RESERVED_9)
+            //    return true;
             return m_internalMessages.Contains(msgID);
         }
 
@@ -325,6 +304,14 @@ namespace VRage.Network
         }
 
         public abstract void SendChatMessage(string message);
+
+        public uint SendMessage(BitStream bs, ulong steamID, PacketPriorityEnum packetPriorityEnum, PacketReliabilityEnum packetReliabilityEnum, byte channel = 0)
+        {
+            Debug.Assert(m_steamIDToGUID.ContainsKey(steamID));
+            RakNetGUID recipent = m_steamIDToGUID[steamID];
+            Debug.Assert(recipent != RakNetGUID.UNASSIGNED_RAKNET_GUID);
+            return SendMessage(bs, recipent, packetPriorityEnum, packetReliabilityEnum, channel);
+        }
 
         public uint SendMessage(BitStream data, RakNetGUID recipent, PacketPriorityEnum priority = PacketPriorityEnum.LOW_PRIORITY, PacketReliabilityEnum reliability = PacketReliabilityEnum.UNRELIABLE, byte channel = 0)
         {

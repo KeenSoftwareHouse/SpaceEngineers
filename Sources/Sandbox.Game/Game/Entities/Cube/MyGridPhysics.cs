@@ -1,33 +1,27 @@
 ﻿using Havok;
+using Sandbox.Common;
 using Sandbox.Common.ObjectBuilders;
 using Sandbox.Common.ObjectBuilders.Definitions;
+using Sandbox.Definitions;
 using Sandbox.Engine.Physics;
+using Sandbox.Engine.Utils;
+using Sandbox.Game.Entities.Character;
+using Sandbox.Game.Entities.Debris;
+using Sandbox.Game.GameSystems;
+using Sandbox.Game.Multiplayer;
+using Sandbox.Game.World;
+using Sandbox.Graphics.TransparentGeometry.Particles;
+using Sandbox.ModAPI;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
-using VRageMath;
-using Sandbox.Engine.Utils;
-using VRage.Trace;
-using Sandbox.Game.Entities.Debris;
 using VRage;
-using Sandbox.Game.World;
-using Sandbox.Graphics.TransparentGeometry.Particles;
-using Sandbox.Game.Gui;
-using Sandbox.Game.Weapons;
-using Sandbox.Game.Multiplayer;
-using Sandbox.Graphics;
-using VRage;
-using Sandbox.Common;
-using VRageRender;
 using VRage.Collections;
-using Sandbox.Definitions;
-using Sandbox.Game.GameSystems;
-using Sandbox.Game.Entities.Character;
-using Sandbox.ModAPI;
-using VRage.Library.Utils;
+using VRage.Utils;
+using VRageMath;
+using VRageRender;
 
 namespace Sandbox.Game.Entities.Cube
 {
@@ -428,7 +422,10 @@ namespace Sandbox.Game.Entities.Cube
                 }
             }
 
-            if (entity1 is MyCubeGrid && entity2 is MyCubeGrid && (MyCubeGridGroups.Static.Physical.GetGroup((MyCubeGrid)entity1) == MyCubeGridGroups.Static.Physical.GetGroup((MyCubeGrid)entity2)))
+            var grid1 = entity1 as MyCubeGrid;
+            var grid2 = entity2 as MyCubeGrid;
+
+            if (grid1 != null && grid2 != null && (MyCubeGridGroups.Static.Physical.GetGroup(grid1) == MyCubeGridGroups.Static.Physical.GetGroup(grid2)))
                 return;
 
             ProfilerShort.Begin("Grid contact point callback");
@@ -462,23 +459,20 @@ namespace Sandbox.Game.Entities.Cube
                 bool is1Static = mass1 == 0;
                 bool is2Static = mass2 == 0;
 
-                bool is1Small = entity1 is MyFracturedPiece || (entity1 is MyCubeGrid && ((MyCubeGrid)entity1).GridSizeEnum == MyCubeSize.Small);
-                bool is2Small = entity2 is MyFracturedPiece || (entity2 is MyCubeGrid && ((MyCubeGrid)entity2).GridSizeEnum == MyCubeSize.Small);
+                bool is1Small = entity1 is MyFracturedPiece || (grid1 != null && grid1.GridSizeEnum == MyCubeSize.Small);
+                bool is2Small = entity2 is MyFracturedPiece || (grid2 != null && grid2.GridSizeEnum == MyCubeSize.Small);
                 
 
                 float dot = Vector3.Dot(dir1, dir2);
 
                 float maxDestructionRadius = 0.5f;
-                if (entity1 is MyCubeGrid)
-                    maxDestructionRadius = Math.Max(maxDestructionRadius, 3 * ((MyCubeGrid)entity1).GridSize);
-                if (entity2 is MyCubeGrid)
-                    maxDestructionRadius = Math.Max(maxDestructionRadius, 3 * ((MyCubeGrid)entity2).GridSize);
-
-                maxDestructionRadius = Math.Min(maxDestructionRadius, 3);
-
 
                 impact1 *= info.ImpulseMultiplier;
                 impact2 *= info.ImpulseMultiplier;
+
+                MyDestructionHelper.HitInfo hitInfo = new MyDestructionHelper.HitInfo();
+                hitInfo.Position = info.ContactPosition;
+                hitInfo.Normal = value.ContactPoint.Normal;
 
                 //direct hit
                 if (dot1withNormal < 0.0f)
@@ -498,8 +492,14 @@ namespace Sandbox.Game.Entities.Cube
 
                         if (is2Static || impact1 / impact2 > 10)
                         {
-                            CreateDestructionFor(impact1, LinearVelocity + info.CollidingEntity.Physics.LinearVelocity, (MyPhysicsBody)entity1.Physics, info, value.ContactPoint.Normal, maxDestructionRadius);
-                            CreateDestructionFor(impact1, LinearVelocity + info.CollidingEntity.Physics.LinearVelocity, (MyPhysicsBody)entity2.Physics, info, value.ContactPoint.Normal, maxDestructionRadius);
+                            if (grid1 != null)
+                                grid1.DoDamage(impact1, hitInfo);
+                            else
+                                MyDestructionHelper.TriggerDestruction(impact1, (MyPhysicsBody)entity1.Physics, info.ContactPosition, value.ContactPoint.Normal, maxDestructionRadius);
+                            if(grid2 != null)
+                                grid2.DoDamage(impact1, hitInfo);
+                            else
+                                MyDestructionHelper.TriggerDestruction(impact1, (MyPhysicsBody)entity2.Physics, info.ContactPosition, value.ContactPoint.Normal, maxDestructionRadius);
 
                             ReduceVelocities(info);
                         }
@@ -519,8 +519,14 @@ namespace Sandbox.Game.Entities.Cube
 
                         if (is1Static || impact2 / impact1 > 10)
                         {
-                            CreateDestructionFor(impact2, LinearVelocity + info.CollidingEntity.Physics.LinearVelocity, (MyPhysicsBody)entity1.Physics, info, value.ContactPoint.Normal, maxDestructionRadius);
-                            CreateDestructionFor(impact2, LinearVelocity + info.CollidingEntity.Physics.LinearVelocity, (MyPhysicsBody)entity2.Physics, info, value.ContactPoint.Normal, maxDestructionRadius);
+                            if (grid1 != null)
+                                grid1.DoDamage(impact2, hitInfo);
+                            else
+                                MyDestructionHelper.TriggerDestruction(impact2, (MyPhysicsBody)entity1.Physics, info.ContactPosition, value.ContactPoint.Normal, maxDestructionRadius);
+                            if (grid2 != null)
+                                grid2.DoDamage(impact2, hitInfo);
+                            else
+                                MyDestructionHelper.TriggerDestruction(impact2, (MyPhysicsBody)entity2.Physics, info.ContactPosition, value.ContactPoint.Normal, maxDestructionRadius);
 
                             ReduceVelocities(info);
                         }
@@ -554,41 +560,6 @@ namespace Sandbox.Game.Entities.Cube
             info.Event.UpdateVelocities(1);
             return info;
         }
-
-        void CreateDestructionFor(float destructionImpact, Vector3 contactVelocity, MyPhysicsBody body, MyGridContactInfo info, Vector3 normal, float maxDestructionRadius)
-        {
-            if (body.BreakableBody != null)
-            {
-                float collidingMass = body.Mass == 0 ? Mass : body.Mass; //fall on voxel
-                float destructionRadius = Math.Min(destructionImpact / 8000, maxDestructionRadius);
-                float destructionImpulse = MyDestructionConstants.STRENGTH + destructionImpact / 10000;
-                float expandVelocity = Math.Min(destructionImpact / 10000, 3);
-
-                MyPhysics.FractureImpactDetails destruction;
-                HkdFractureImpactDetails details;
-                details = HkdFractureImpactDetails.Create();
-                details.SetBreakingBody(body.RigidBody);
-                details.SetContactPoint(WorldToCluster(info.ContactPosition));
-                details.SetDestructionRadius(destructionRadius);
-                details.SetBreakingImpulse(destructionImpulse);
-                details.SetParticleExpandVelocity(expandVelocity);
-                details.SetParticleVelocity(contactVelocity);
-                details.SetParticlePosition(WorldToCluster(info.ContactPosition - normal * 0.25f));
-                details.SetParticleMass(collidingMass);
-                details.ZeroCollidingParticleVelocity();
-                details.Flag = details.Flag | HkdFractureImpactDetails.Flags.FLAG_DONT_RECURSE | HkdFractureImpactDetails.Flags.FLAG_TRIGGERED_DESTRUCTION;
-
-                destruction = new MyPhysics.FractureImpactDetails();
-                destruction.Details = details;
-                destruction.World = HavokWorld;
-                destruction.ContactInWorld = info.ContactPosition;
-                destruction.Entity = (MyEntity)body.Entity;
-
-                MyPhysics.EnqueueDestruction(destruction);
-            }
-        }
-
-
 
         HkBreakOffPointInfo CreateBreakOffPoint(HkContactPointEvent value, Vector3D contactPosition, float breakImpulse)
         {
@@ -1045,7 +1016,7 @@ namespace Sandbox.Game.Entities.Cube
             }
         }
 
-        public override VRage.Library.Utils.MyStringId GetMaterialAt(Vector3D worldPos)
+        public override MyStringId GetMaterialAt(Vector3D worldPos)
         {
             var pos = Vector3.Transform(worldPos, m_grid.PositionComp.WorldMatrixNormalizedInv) / m_grid.GridSize;
             Vector3I cubePos;
@@ -1056,7 +1027,7 @@ namespace Sandbox.Game.Entities.Cube
             if (cube.FatBlock is MyCompoundCubeBlock)
                 cube = (cube.FatBlock as MyCompoundCubeBlock).GetBlocks()[0];
             var blockMaterial = cube.BlockDefinition.PhysicalMaterial.Id.SubtypeId;
-            return blockMaterial != VRage.Library.Utils.MyStringId.NullOrEmpty ? blockMaterial : base.GetMaterialAt(worldPos);
+            return blockMaterial != MyStringId.NullOrEmpty ? blockMaterial : base.GetMaterialAt(worldPos);
         }
 
         /// <summary>
@@ -1429,6 +1400,8 @@ namespace Sandbox.Game.Entities.Cube
             }
         }
 
+        public List<MyFracturedBlock.Info> GetFracturedBlocks() { return m_fractureBlocksCache; }
+        private List<MyFracturedBlock.Info> m_fractureBlocksCache = new List<MyFracturedBlock.Info>();
         Dictionary<Vector3I, List<HkdShapeInstanceInfo>> m_fracturedBlocksShapes = new Dictionary<Vector3I, List<HkdShapeInstanceInfo>>();
         private void FindFracturedBlocks(HkdBreakableBodyInfo b)
         {
@@ -1523,8 +1496,7 @@ namespace Sandbox.Game.Entities.Cube
                     info.OriginalBlocks.Add(originalBlock.BlockDefinition.Id);
                     info.Orientations.Add(originalBlock.Orientation);
                 }
-
-                m_grid.AddFractureBlock(info);
+                m_fractureBlocksCache.Add(info);
             }
             m_fracturedBlocksShapes.Clear();
             m_children.Clear();
@@ -1577,7 +1549,7 @@ namespace Sandbox.Game.Entities.Cube
                     }
                 }
                 m_childList.Clear();
-                foreach (var fb in m_grid.m_fractureBlocksCache) //add fractures grouped by block
+                foreach (var fb in m_fractureBlocksCache) //add fractures grouped by block
                 {
                     Matrix m = Matrix.Identity;
                     m.Translation = fb.Position * m_grid.GridSize;
@@ -1594,8 +1566,8 @@ namespace Sandbox.Game.Entities.Cube
                 {
                     if(MyCubeGridSmallToLargeConnection.Static.CheckGridSmallToLargeConnect(m_grid));
                     {
-                        RigidBody.Quality = HkCollidableQualityType.Fixed;
                         RigidBody.UpdateMotionType(HkMotionType.Fixed);
+                        RigidBody.Quality = HkCollidableQualityType.Fixed;
                     }
                 }
                 ProfilerShort.BeginNextBlock("Add");
@@ -1648,6 +1620,7 @@ namespace Sandbox.Game.Entities.Cube
                 ProfilerShort.End();
             }
             m_newBreakableBodies.Clear();
+            m_fractureBlocksCache.Clear();
             ProfilerShort.End();
         }
 

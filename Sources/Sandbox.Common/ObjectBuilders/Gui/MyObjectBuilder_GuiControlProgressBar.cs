@@ -12,7 +12,7 @@ namespace Sandbox.Common.ObjectBuilders.Gui
     [MyObjectBuilderDefinition]
     public class MyObjectBuilder_GuiControlProgressBar : MyObjectBuilder_GuiControlBase
     {
-        [ProtoMember(1)]
+        [ProtoMember]
         public Vector4? ProgressColor;
         public bool ShouldSerializeProgressColor() { return ProgressColor.HasValue; }
     }

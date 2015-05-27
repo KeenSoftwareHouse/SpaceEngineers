@@ -80,6 +80,11 @@ namespace Sandbox.Game.Gui
             return result;
         }
 
+        protected int GetNumberOfBattlePoints() 
+        {
+            return (int)m_loadedPrefab.ShipBlueprints[0].BattlePoints;
+        }
+
         protected void RefreshTextField()
         {
             if (m_textField == null)
@@ -109,6 +114,17 @@ namespace Sandbox.Game.Gui
             m_textField.AppendLine();
             m_textField.AppendText("Number of blocks: " + GetNumberOfBlocks());
             m_textField.AppendLine();
+
+            if (MyFakes.ENABLE_BATTLE_SYSTEM)
+            {
+                int battlePoints = GetNumberOfBattlePoints();
+                if (battlePoints != 0)
+                {
+                    m_textField.AppendText("Battle points: " + battlePoints);
+                    m_textField.AppendLine();
+                }
+            }
+
             m_textField.AppendText("Author: " + m_loadedPrefab.ShipBlueprints[0].DisplayName);
             m_textField.AppendLine();
         }
@@ -305,6 +321,54 @@ namespace Sandbox.Game.Gui
                     messageText: new StringBuilder("")
                     ));
             }
+        }
+    }
+
+    class MyGuiDetailScreenDefault : MyGuiDetailScreenBase
+    {
+        public MyGuiDetailScreenDefault(Action<MyGuiControlListbox.Item> callBack, MyGuiControlListbox.Item selectedItem, MyGuiBlueprintScreen parent, MyGuiCompositeTexture thumbnailTexture, float textScale) :
+            base(false, parent, thumbnailTexture, selectedItem, textScale)
+        {
+            var prefabPath = Path.Combine(m_defaultBlueprintFolder, m_blueprintName, "bp.sbc");
+            this.callBack = callBack;
+
+            if (File.Exists(prefabPath))
+            {
+                m_loadedPrefab = LoadPrefab(prefabPath);
+
+                if (m_loadedPrefab == null)
+                {
+                    MyGuiSandbox.AddScreen(MyGuiSandbox.CreateMessageBox(
+                        buttonType: MyMessageBoxButtonsType.OK,
+                        styleEnum: MyMessageBoxStyleEnum.Error,
+                        messageCaption: new StringBuilder("Error"),
+                        messageText: new StringBuilder("Failed to load the blueprint file.")
+                        ));
+                    m_killScreen = true;
+                }
+                else
+                {
+                    RecreateControls(true);
+                }
+            }
+            else
+            {
+                m_killScreen = true;
+            }
+        }
+
+        public override string GetFriendlyName()
+        {
+            return "MyGuiDetailScreenDefault";
+        }
+
+        protected override void CreateButtons()
+        {
+            Vector2 buttonPosition = new Vector2(0.215f, -0.173f) + m_offset;
+            Vector2 buttonOffset = new Vector2(0.13f, 0.0f);
+
+            var closeButton = CreateButton(0.14f, new StringBuilder("Close"), OnCloseButton, textScale: m_textScale);
+            closeButton.Position = buttonPosition + new Vector2(0.5f, 0f) * buttonOffset + new Vector2(-0.005f, 0.005f);
         }
     }
 

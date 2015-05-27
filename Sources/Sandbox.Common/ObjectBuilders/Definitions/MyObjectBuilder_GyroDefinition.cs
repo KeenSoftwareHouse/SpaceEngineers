@@ -11,9 +11,9 @@ namespace Sandbox.Common.ObjectBuilders.Definitions
     [MyObjectBuilderDefinition]
     public class MyObjectBuilder_GyroDefinition : MyObjectBuilder_CubeBlockDefinition
     {
-        [ProtoMember(1)]
+        [ProtoMember]
         public float ForceMagnitude;
-        [ProtoMember(2)]
+        [ProtoMember]
         public float RequiredPowerInput;
     }
 }

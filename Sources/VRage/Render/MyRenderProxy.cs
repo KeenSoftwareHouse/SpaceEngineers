@@ -460,12 +460,18 @@ namespace VRageRender
             return id;
         }
 
-        public static uint CreateLineBasedObject()
+        public static uint CreateLineBasedObject(
+            string colorMetalTexture,
+            string normalGlossTexture,
+            string extensionTexture)
         {
             var message = MessagePool.Get<MyRenderMessageCreateLineBasedObject>(MyRenderMessageEnum.CreateLineBasedObject);
 
             uint id = m_render.GlobalMessageCounter++;
             message.ID = id;
+            message.ColorMetalTexture = colorMetalTexture;
+            message.NormalGlossTexture = normalGlossTexture;
+            message.ExtensionTexture = extensionTexture;
 
             EnqueueMessage(message);
 
@@ -635,6 +641,8 @@ namespace VRageRender
             Vector3D cameraPosition)
         {
             var message = MessagePool.Get<MyRenderMessageSetCameraViewMatrix>(MyRenderMessageEnum.SetCameraViewMatrix);
+
+            cameraPosition.AssertIsValid();
 
             message.ViewMatrix = viewMatrix;
             message.ProjectionMatrix = projectionMatrix;
@@ -1008,11 +1016,35 @@ namespace VRageRender
         public static void ChangeMaterialTexture(uint id,string materialName,string textureName)
         {
             var message = MessagePool.Get<MyRenderMessageChangeMaterialTexture>(MyRenderMessageEnum.ChangeMaterialTexture);
-            message.TextureName = textureName;
+            if (message.Changes == null)
+            {
+                message.Changes = new List<MyTextureChange>();
+            }
+            else
+            {
+                Debug.Assert(message.Changes.Count == 0, "content should be cleared after consuming in renderer");
+            }
+            message.Changes.Add(new MyTextureChange { TextureName = textureName });
             message.MaterialName = materialName;
             message.RenderObjectID = id;
             EnqueueMessage(message);
         }
+
+		public static void ChangeMaterialTexture(uint id, string materialName, List<MyTextureChange> textureChanges)
+		{
+			if (textureChanges == null)
+				return;
+
+			var message = MessagePool.Get<MyRenderMessageChangeMaterialTexture>(MyRenderMessageEnum.ChangeMaterialTexture);
+
+			if (message.Changes != null)
+				Debug.Assert(message.Changes.Count == 0, "content should be cleared after consuming in renderer");
+
+			message.Changes = textureChanges;
+			message.MaterialName = materialName;
+			message.RenderObjectID = id;
+			EnqueueMessage(message);
+		}
 
         public static void ReleaseRenderTexture(long entityId,uint id)
         {
@@ -1277,7 +1309,8 @@ namespace VRageRender
             float distanceToSun,
             string sunMaterial,
             float dayTime,
-            bool resetEyeAdaptation = false
+            bool resetEyeAdaptation = false,
+            bool enableSunBillboard = false
 )
         {
             var message = MessagePool.Get<MyRenderMessageUpdateRenderEnvironment>(MyRenderMessageEnum.UpdateRenderEnvironment);
@@ -1300,6 +1333,7 @@ namespace VRageRender
             message.SunMaterial = sunMaterial;
             message.DayTime = dayTime;
             message.ResetEyeAdaptation = resetEyeAdaptation;
+            message.SunBillboardEnabled = enableSunBillboard;
 
             EnqueueMessage(message);
         }
@@ -2182,11 +2216,6 @@ namespace VRageRender
             EnqueueMessage(message);
         }
 
-        public static void RestoreDXGISwapchainFullscreenMode()
-        {
-            m_render.RestoreDXGISwapchainFullscreenMode();
-        }
-
         public static void SpriteScissorPop()
         {
             var message = MessagePool.Get<MyRenderMessageSpriteScissorPop>(MyRenderMessageEnum.SpriteScissorPop);
@@ -2227,17 +2256,9 @@ namespace VRageRender
             EnqueueMessage(message);
         }
 
-        public static void SwitchRenderSettings(MyRenderQualityEnum quality, bool enableInterpolation)
-        {
-            var message = MessagePool.Get<MyRenderMessageSwitchRenderSettings>(MyRenderMessageEnum.SwitchRenderSettings);
-            message.Quality = quality;
-            message.EnableInterpolation = enableInterpolation;
-            EnqueueMessage(message);
-        }
-
         public static void SwitchRenderSettings(MyRenderSettings1 settings)
         {
-            var message = MessagePool.Get<MyRenderMessageSwitchRenderSettings1>(MyRenderMessageEnum.SwitchRenderSettings1);
+            var message = MessagePool.Get<MyRenderMessageSwitchRenderSettings>(MyRenderMessageEnum.SwitchRenderSettings);
             message.Settings = settings;
             EnqueueMessage(message);
         }
@@ -2253,6 +2274,38 @@ namespace VRageRender
         {
             EnqueueOutputMessage(MessagePool.Get<MyRenderMessageClipmapsReady>(MyRenderMessageEnum.ClipmapsReady));
         }
+
+        public static uint CreateDecal(int parentId, Matrix localOBB, string material = "")
+        {
+            var message = MessagePool.Get<MyRenderMessageCreateScreenDecal>(MyRenderMessageEnum.CreateScreenDecal);
+            message.ID = m_render.GlobalMessageCounter++;
+            message.ParentID = (uint)parentId;
+            message.LocalOBB = localOBB;
+            message.DecalMaterial = material;
+
+            EnqueueMessage(message);
+
+            return message.ID;
+        }
+
+        public static void RemoveDecal(uint decalId)
+        {
+            var message = MessagePool.Get<MyRenderMessageRemoveDecal>(MyRenderMessageEnum.RemoveDecal);
+            message.ID = decalId;
+
+            EnqueueMessage(message);
+        }
+
+        public static void HandleFocusMessage(MyWindowFocusMessage msg)
+        {
+            m_render.HandleFocusMessage(msg);
+        }
+    }
+
+    public enum MyWindowFocusMessage
+    {
+        Activate,
+        SetFocus
     }
 
     public struct MyDebugDrawBatchAABB : IDisposable

@@ -81,6 +81,11 @@ namespace Sandbox.Game.GameSystems
         /// </summary>
         public Vector3 ControlThrust;
 
+        /// <summary>
+        /// Thrust wanted by AutoPilot
+        /// </summary>
+        public Vector3 AutoPilotThrust;
+
         public bool IsPowered
         {
             get { return PowerReceiver.IsPowered; }
@@ -234,32 +239,93 @@ namespace Sandbox.Game.GameSystems
             ProfilerShort.End();
         }
 
-        private void UpdateThrusts()
+        private Vector3 ComputeBaseThrust(Vector3 direction)
         {
             Matrix invWorldRot = m_grid.PositionComp.GetWorldMatrixNormalizedInv().GetOrientation();
 
             Vector3 localVelocity = Vector3.Transform(m_grid.Physics.LinearVelocity, ref invWorldRot);
-            Vector3 positiveControl = Vector3.Clamp(ControlThrust, Vector3.Zero, Vector3.One);
-            Vector3 negativeControl = Vector3.Clamp(ControlThrust, -Vector3.One, Vector3.Zero);
+            Vector3 positiveControl = Vector3.Clamp(direction, Vector3.Zero, Vector3.One);
+            Vector3 negativeControl = Vector3.Clamp(direction, -Vector3.One, Vector3.Zero);
             Vector3 slowdownControl = Vector3.Zero;
             if (DampenersEnabled)
-                slowdownControl = Vector3.IsZeroVector(ControlThrust, 0.001f) * Vector3.IsZeroVector(m_totalThrustOverride);
+                slowdownControl = Vector3.IsZeroVector(direction, 0.001f) * Vector3.IsZeroVector(m_totalThrustOverride);
 
-            Thrust = negativeControl * m_maxNegativeThrust + positiveControl * m_maxPositiveThrust;
-            Thrust = Vector3.Clamp(Thrust, -m_maxNegativeThrust, m_maxPositiveThrust);
+            Vector3 thrust = negativeControl * m_maxNegativeThrust + positiveControl * m_maxPositiveThrust;
+            thrust = Vector3.Clamp(thrust, -m_maxNegativeThrust, m_maxPositiveThrust);
 
             const float STOPPING_TIME = 0.5f;
             var slowdownAcceleration = -localVelocity / STOPPING_TIME;
             var slowdownThrust = slowdownAcceleration * m_grid.Physics.Mass * slowdownControl;
-            Thrust = Vector3.Clamp(Thrust + slowdownThrust, -m_maxNegativeThrust * MyFakes.SLOWDOWN_FACTOR_THRUST_MULTIPLIER, m_maxPositiveThrust * MyFakes.SLOWDOWN_FACTOR_THRUST_MULTIPLIER);
+            thrust = Vector3.Clamp(thrust + slowdownThrust, -m_maxNegativeThrust * MyFakes.SLOWDOWN_FACTOR_THRUST_MULTIPLIER, m_maxPositiveThrust * MyFakes.SLOWDOWN_FACTOR_THRUST_MULTIPLIER);
+
+            return thrust;
+        }
+
+        public Vector3 ComputeAiThrust(Vector3 direction)
+        {
+            Vector3 positiveControl = Vector3.Clamp(direction, Vector3.Zero, Vector3.One);
+            Vector3 negativeControl = Vector3.Clamp(direction, -Vector3.One, Vector3.Zero);
+
+            Vector3 maxPositiveControl = m_maxPositiveThrust * positiveControl;
+            Vector3 maxNegativeControl = m_maxNegativeThrust * -negativeControl;
             
+            float max = Math.Max(maxPositiveControl.Max(), maxNegativeControl.Max());
+
+            Vector3 thrust = Vector3.Zero;
+            if (max > 0.001f)
+            {
+                Vector3 optimalPositive = positiveControl * max;
+                Vector3 optimalNegative = -negativeControl * max;
+
+                Vector3 optimalPositiveRatio = m_maxPositiveThrust / optimalPositive;
+                Vector3 optimalNegativeRatio = m_maxNegativeThrust / optimalNegative;
+
+                FlipNegativeInfinity(ref optimalPositiveRatio);
+                FlipNegativeInfinity(ref optimalNegativeRatio);
+
+                float min = Math.Min(optimalPositiveRatio.Min(), optimalNegativeRatio.Min());
+
+                if (min > 1.0f)
+                    min = 1.0f;
+
+                thrust = -optimalNegative * min + optimalPositive * min;
+                thrust = Vector3.Clamp(thrust, -m_maxNegativeThrust, m_maxPositiveThrust);
+            }
+
+            const float STOPPING_TIME = 0.5f;
+            Matrix invWorldRot = m_grid.PositionComp.GetWorldMatrixNormalizedInv().GetOrientation();
+            Vector3 localVelocity = Vector3.Transform(m_grid.Physics.LinearVelocity, ref invWorldRot);
+            Vector3 slowdownControl = Vector3.IsZeroVector(direction, 0.001f);
+            var slowdownAcceleration = -localVelocity / STOPPING_TIME;
+            var slowdownThrust = slowdownAcceleration * m_grid.Physics.Mass * slowdownControl;
+            thrust = Vector3.Clamp(thrust + slowdownThrust, -m_maxNegativeThrust * MyFakes.SLOWDOWN_FACTOR_THRUST_MULTIPLIER, m_maxPositiveThrust * MyFakes.SLOWDOWN_FACTOR_THRUST_MULTIPLIER);
+
+            return thrust;
+        }
+
+        private void FlipNegativeInfinity(ref Vector3 v)
+        {
+            if (v.X == float.NegativeInfinity) v.X = float.PositiveInfinity;
+            if (v.Y == float.NegativeInfinity) v.Y = float.PositiveInfinity;
+            if (v.Z == float.NegativeInfinity) v.Z = float.PositiveInfinity;
+        }
+
+        private Vector3 ApplyThrustModifiers(Vector3 thrust)
+        {
+            thrust += m_totalThrustOverride;
+            thrust *= PowerReceiver.SuppliedRatio;
+            thrust *= MyFakes.THRUST_FORCE_RATIO;
+
+            return thrust;
+        }
+
+        private void UpdatePowerAndThrustStrength(Vector3 thrust, bool updateThrust)
+        {
             // Calculate ratio of usage for different directions.
-            Vector3 thrustPositive = Thrust / (m_maxPositiveThrust + 0.0000001f);
-            Vector3 thrustNegative = -Thrust / (m_maxNegativeThrust + 0.0000001f);
+            Vector3 thrustPositive = thrust / (m_maxPositiveThrust + 0.0000001f);
+            Vector3 thrustNegative = -thrust / (m_maxNegativeThrust + 0.0000001f);
             thrustPositive = Vector3.Clamp(thrustPositive, Vector3.Zero, Vector3.One * MyConstants.MAX_THRUST);
             thrustNegative = Vector3.Clamp(thrustNegative, Vector3.Zero, Vector3.One * MyConstants.MAX_THRUST);
-
-            
 
             // When using joystick, there may be fractional values, not just 0 and 1.
             float requiredPower = 0;
@@ -277,9 +343,55 @@ namespace Sandbox.Game.GameSystems
             RequiredPowerInput = requiredPower;
             PowerReceiver.Update();
 
-            Thrust += m_totalThrustOverride;
-            Thrust *= PowerReceiver.SuppliedRatio;
-            Thrust *= MyFakes.THRUST_FORCE_RATIO;
+            if (updateThrust)
+            {
+                UpdateThrustStrength(m_thrustsByDirection[Vector3I.Left], thrustPositive.X, PowerReceiver.SuppliedRatio);
+                UpdateThrustStrength(m_thrustsByDirection[Vector3I.Down], thrustPositive.Y, PowerReceiver.SuppliedRatio);
+                UpdateThrustStrength(m_thrustsByDirection[Vector3I.Forward], thrustPositive.Z, PowerReceiver.SuppliedRatio);
+                UpdateThrustStrength(m_thrustsByDirection[Vector3I.Right], thrustNegative.X, PowerReceiver.SuppliedRatio);
+                UpdateThrustStrength(m_thrustsByDirection[Vector3I.Up], thrustNegative.Y, PowerReceiver.SuppliedRatio);
+                UpdateThrustStrength(m_thrustsByDirection[Vector3I.Backward], thrustNegative.Z, PowerReceiver.SuppliedRatio);
+            }
+        }
+        
+        public Vector3 GetThrustForDirection(Vector3 direction)
+        {
+            Vector3 thrust = ComputeBaseThrust(direction);
+            UpdatePowerAndThrustStrength(thrust, false);
+            thrust = ApplyThrustModifiers(thrust);
+            return thrust;
+        }
+
+        public HashSet<MyThrust> GetThrustersForDirection(Vector3I direction)
+        {
+            HashSet<MyThrust> thrustersForDirection;
+            m_thrustsByDirection.TryGetValue(direction, out thrustersForDirection);
+            return thrustersForDirection;
+        }
+
+        public Vector3 GetAutoPilotThrustForDirection(Vector3 direction)
+        {
+            Vector3 thrust = ComputeAiThrust(direction);
+            UpdatePowerAndThrustStrength(thrust, false);
+            thrust = ApplyThrustModifiers(thrust);
+            return thrust;
+        }
+
+        private void UpdateThrusts()
+        {
+            Vector3 thrust;
+            if (AutoPilotThrust != Vector3.Zero)
+            {
+                thrust = ComputeAiThrust(AutoPilotThrust);
+            }
+            else
+            {
+                thrust = ComputeBaseThrust(ControlThrust);
+            }
+            UpdatePowerAndThrustStrength(thrust, true);
+            thrust = ApplyThrustModifiers(thrust);
+
+            Thrust = thrust;
 
             if (m_grid.GridSystems.ControlSystem.IsLocallyControlled || (!m_grid.GridSystems.ControlSystem.IsControlled && Sync.IsServer) || (false && Sync.IsServer))
             {
@@ -298,13 +410,6 @@ namespace Sandbox.Game.GameSystems
                     }
                 }
             }
-
-            UpdateThrustStrength(m_thrustsByDirection[Vector3I.Left]    , thrustPositive.X, PowerReceiver.SuppliedRatio);
-            UpdateThrustStrength(m_thrustsByDirection[Vector3I.Down]    , thrustPositive.Y, PowerReceiver.SuppliedRatio);
-            UpdateThrustStrength(m_thrustsByDirection[Vector3I.Forward] , thrustPositive.Z, PowerReceiver.SuppliedRatio);
-            UpdateThrustStrength(m_thrustsByDirection[Vector3I.Right]   , thrustNegative.X, PowerReceiver.SuppliedRatio);
-            UpdateThrustStrength(m_thrustsByDirection[Vector3I.Up]      , thrustNegative.Y, PowerReceiver.SuppliedRatio);
-            UpdateThrustStrength(m_thrustsByDirection[Vector3I.Backward], thrustNegative.Z, PowerReceiver.SuppliedRatio);
         }
 
         private static void UpdateThrustStrength(HashSet<MyThrust> thrusters, float thrustForce, float suppliedPowerRatio)

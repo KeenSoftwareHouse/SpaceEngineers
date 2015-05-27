@@ -11,10 +11,10 @@ namespace Sandbox.Common.ObjectBuilders
     [MyObjectBuilderDefinition]
     public class MyObjectBuilder_FloatingObject : MyObjectBuilder_EntityBase
     {
-        [ProtoMember(1)]
+        [ProtoMember]
         public MyObjectBuilder_InventoryItem Item;
 
-        [ProtoMember(2), DefaultValue(null)]
+        [ProtoMember, DefaultValue(null)]
         public string OreSubtypeId;
     }
 }

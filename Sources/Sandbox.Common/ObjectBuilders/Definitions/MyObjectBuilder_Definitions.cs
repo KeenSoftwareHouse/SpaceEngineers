@@ -1,4 +1,5 @@
 ﻿using ProtoBuf;
+using Sandbox.Common.ObjectBuilders.Definitions;
 using Sandbox.Common.ObjectBuilders.AI;
 using Sandbox.Common.ObjectBuilders.Audio;
 using Sandbox.Common.ObjectBuilders.VRageData;
@@ -16,193 +17,204 @@ namespace Sandbox.Common.ObjectBuilders.Definitions
     public class MyObjectBuilder_Definitions : MyObjectBuilder_Base
     {
         [XmlArrayItem("AmmoMagazine")]
-        [ProtoMember(1)]
+        [ProtoMember]
         public MyObjectBuilder_AmmoMagazineDefinition[] AmmoMagazines;
 
         [XmlArrayItem("Blueprint")]
-        [ProtoMember(2)]
+        [ProtoMember]
         public MyObjectBuilder_BlueprintDefinition[] Blueprints;
 
         [XmlArrayItem("Component")]
-        [ProtoMember(3)]
+        [ProtoMember]
         public MyObjectBuilder_ComponentDefinition[] Components;
 
         [XmlArrayItem("ContainerType")]
-        [ProtoMember(4)]
+        [ProtoMember]
         public MyObjectBuilder_ContainerTypeDefinition[] ContainerTypes;
 
         [XmlArrayItem("Definition", Type = typeof(MyAbstractXmlSerializer<MyObjectBuilder_CubeBlockDefinition>))]
-        [ProtoMember(5)]
+        [ProtoMember]
         public MyObjectBuilder_CubeBlockDefinition[] CubeBlocks;
 
         [XmlArrayItem("BlockPosition")]
-        [ProtoMember(6)]
+        [ProtoMember]
         public MyBlockPosition[] BlockPositions;
 
-        [ProtoMember(7)]
+        [ProtoMember]
         public MyObjectBuilder_Configuration Configuration;
 
-        [ProtoMember(8)]
+        [ProtoMember]
         public MyObjectBuilder_EnvironmentDefinition Environment;
 
         [XmlArrayItem("GlobalEvent")]
-        [ProtoMember(9)]
+        [ProtoMember]
         public MyObjectBuilder_GlobalEventDefinition[] GlobalEvents;
 
         [XmlArrayItem("HandItem")]
-        [ProtoMember(10)]
+        [ProtoMember]
         public MyObjectBuilder_HandItemDefinition[] HandItems;
 
         [XmlArrayItem("PhysicalItem", Type = typeof(MyAbstractXmlSerializer<MyObjectBuilder_PhysicalItemDefinition>))]
-        [ProtoMember(11)]
+        [ProtoMember]
         public MyObjectBuilder_PhysicalItemDefinition[] PhysicalItems;
 
         [XmlArrayItem("SpawnGroup")]
-        [ProtoMember(12)]
+        [ProtoMember]
         public MyObjectBuilder_SpawnGroupDefinition[] SpawnGroups;
 
         [XmlArrayItem("TransparentMaterial")]
-        [ProtoMember(13)]
+        [ProtoMember]
         public MyObjectBuilder_TransparentMaterialDefinition[] TransparentMaterials;
 
         [XmlArrayItem("VoxelMaterial", Type = typeof(MyAbstractXmlSerializer<MyObjectBuilder_VoxelMaterialDefinition>))]
-        [ProtoMember(14)]
+        [ProtoMember]
         public MyObjectBuilder_VoxelMaterialDefinition[] VoxelMaterials;
 
         [XmlArrayItem("Character")]
-        [ProtoMember(15)]
+        [ProtoMember]
         public MyObjectBuilder_CharacterDefinition[] Characters;
 
         [XmlArrayItem("Animation")]
-        [ProtoMember(16)]
+        [ProtoMember]
         public MyObjectBuilder_AnimationDefinition[] Animations;
 
         [XmlArrayItem("Debris")]
-        [ProtoMember(17)]
+        [ProtoMember]
         public MyObjectBuilder_DebrisDefinition[] Debris;
 
         [XmlArrayItem("Edges")]
-        [ProtoMember(18)]
+        [ProtoMember]
         public MyObjectBuilder_EdgesDefinition[] Edges;
 
         [XmlArrayItem("Prefab")]
-        [ProtoMember(19)]
+        [ProtoMember]
         public MyObjectBuilder_PrefabDefinition[] Prefabs;
 
         [XmlArrayItem("Class")]
-        [ProtoMember(20)]
+        [ProtoMember]
         public MyObjectBuilder_BlueprintClassDefinition[] BlueprintClasses;
 
         [XmlArrayItem("Entry")]
-        [ProtoMember(21)]
+        [ProtoMember]
         public BlueprintClassEntry[] BlueprintClassEntries;
 
         [XmlArrayItem("EnvironmentItem", Type = typeof(MyAbstractXmlSerializer<MyObjectBuilder_EnvironmentItemDefinition>))]
-        [ProtoMember(22)]
+        [ProtoMember]
         public MyObjectBuilder_EnvironmentItemDefinition[] EnvironmentItems;
 
         [XmlArrayItem("Template", Type = typeof(MyAbstractXmlSerializer<MyObjectBuilder_CompoundBlockTemplateDefinition>))]
-        [ProtoMember(23)]
+        [ProtoMember]
         public MyObjectBuilder_CompoundBlockTemplateDefinition[] CompoundBlockTemplates;
 
         [XmlArrayItem("Ship", Type = typeof(MyAbstractXmlSerializer<MyObjectBuilder_RespawnShipDefinition>))]
-        [ProtoMember(24)]
+        [ProtoMember]
         public MyObjectBuilder_RespawnShipDefinition[] RespawnShips;
 
         [XmlArrayItem("Category")]
-        [ProtoMember(25)]
+        [ProtoMember]
         public MyObjectBuilder_GuiBlockCategoryDefinition[] CategoryClasses;
 
         [XmlArrayItem("ShipBlueprint")]
-        [ProtoMember(26)]
+        [ProtoMember]
         public MyObjectBuilder_ShipBlueprintDefinition[] ShipBlueprints;
 
         [XmlArrayItem("Weapon")]
-        [ProtoMember(27)]
+        [ProtoMember]
         public MyObjectBuilder_WeaponDefinition[] Weapons;
 
         [XmlArrayItem("Ammo")]
-        [ProtoMember(28)]
+        [ProtoMember]
         public MyObjectBuilder_AmmoDefinition[] Ammos;
 
         [XmlArrayItem("Sound")]
-        [ProtoMember(29)]
+        [ProtoMember]
         public MyObjectBuilder_AudioDefinition[] Sounds;
 
         [XmlArrayItem("VoxelHand")]
-        [ProtoMember(30)]
+        [ProtoMember]
         public MyObjectBuilder_VoxelHandDefinition[] VoxelHands;
 
         [XmlArrayItem("MultiBlock")]
-        [ProtoMember(31)]
+        [ProtoMember]
         public MyObjectBuilder_MultiBlockDefinition[] MultiBlocks;
 
         [XmlArrayItem("PrefabThrower")]
-        [ProtoMember(32)]
+        [ProtoMember]
         public MyObjectBuilder_PrefabThrowerDefinition[] PrefabThrowers;
 
         [XmlArrayItem("SoundCategory")]
-        [ProtoMember(33)]
+        [ProtoMember]
         public MyObjectBuilder_SoundCategoryDefinition[] SoundCategories;
 
         [XmlArrayItem("AIBehavior")]
-        [ProtoMember(34)]
+        [ProtoMember]
         public MyObjectBuilder_BehaviorTreeDefinition[] AIBehaviors;
 
         [XmlArrayItem("VoxelMapStorage")]
-        [ProtoMember(35)]
+        [ProtoMember]
         public MyObjectBuilder_VoxelMapStorageDefinition[] VoxelMapStorages;
 
         [XmlArrayItem("LCDTextureDefinition")]
-        [ProtoMember(36)]
+        [ProtoMember]
         public MyObjectBuilder_LCDTextureDefinition[] LCDTextures;
 
         [XmlArrayItem("Bot")]
-        [ProtoMember(37)]
+        [ProtoMember]
         public MyObjectBuilder_BotDefinition[] Bots;
 
         [XmlArrayItem("Rope")]
-        [ProtoMember(38)]
+        [ProtoMember]
         public MyObjectBuilder_RopeDefinition[] RopeTypes;
 
         [XmlArrayItem("PhysicalMaterial")]
-        [ProtoMember(39)]
+        [ProtoMember]
         public MyObjectBuilder_PhysicalMaterialDefinition[] PhysicalMaterials;
 
         [XmlArrayItem("AiCommand")]
-        [ProtoMember(40)]
+        [ProtoMember]
         public MyObjectBuilder_AiCommandDefinition[] AiCommands;
 
         [XmlArrayItem("NavDef")]
-        [ProtoMember(41)]
+        [ProtoMember]
         public MyObjectBuilder_BlockNavigationDefinition[] BlockNavigationDefinitions;
 
         [XmlArrayItem("Cutting")]
-        [ProtoMember(42)]
+        [ProtoMember]
         public MyObjectBuilder_CuttingDefinition[] Cuttings;
 
         [XmlArrayItem("Sounds")]
-        [ProtoMember(43)]
+        [ProtoMember]
         public MyObjectBuilder_MaterialSoundsDefinition[] MaterialSounds;
 
         [XmlArrayItem("ControllerSchema")]
-        [ProtoMember(44)]
+        [ProtoMember]
         public MyObjectBuilder_ControllerSchemaDefinition[] ControllerSchemas;
 
         [XmlArrayItem("SoundCurve")]
-        [ProtoMember(45)]
+        [ProtoMember]
         public MyObjectBuilder_CurveDefinition[] CurveDefinitions;
 
         [XmlArrayItem("Effect")]
-        [ProtoMember(46)]
+        [ProtoMember]
         public MyObjectBuilder_AudioEffectDefinition[] AudioEffects;
 
         [XmlArrayItem("Definition")]
-        [ProtoMember(47)]
+        [ProtoMember]
         public MyObjectBuilder_EnvironmentItemsDefinition[] EnvironmentItemsDefinitions;
 
         [XmlArrayItem("Entry")]
-        [ProtoMember(48)]
+        [ProtoMember]
         public EnvironmentItemsEntry[] EnvironmentItemsEntries;
+
+        [XmlArrayItem("Definition")]
+        [ProtoMember]
+        public MyObjectBuilder_AreaMarkerDefinition[] AreaMarkerDefinitions;
+
+        [XmlArrayItem("Entry")]
+        [ProtoMember]
+        public MyCharacterName[] CharacterNames;
+
+        [ProtoMember]
+        public MyObjectBuilder_BattleDefinition Battle;
     }
 }

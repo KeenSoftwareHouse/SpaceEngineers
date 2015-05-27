@@ -94,14 +94,14 @@ namespace Sandbox.Game.Multiplayer
         [ProtoContract]
         struct SwitchCharacterModelMsg : IEntityMessage
         {
-            [ProtoMember(1)]
+            [ProtoMember]
             public long CharacterEntityId;
             public long GetEntityId() { return CharacterEntityId; }
 
-            [ProtoMember(2)]
+            [ProtoMember]
             public string Model;
 
-            [ProtoMember(3)]
+            [ProtoMember]
             public Vector3 ColorMaskHSV;
         }
 
@@ -124,21 +124,21 @@ namespace Sandbox.Game.Multiplayer
         [ProtoContract]
         struct AnimationCommandMsg : IEntityMessage
         {
-            [ProtoMember(1)]
+            [ProtoMember]
             public long CharacterEntityId;
             public long GetEntityId() { return CharacterEntityId; }
 
-            [ProtoMember(2)]
+            [ProtoMember]
             public string AnimationSubtypeName;
-            [ProtoMember(3)]
+            [ProtoMember]
             public bool Loop;
-            [ProtoMember(4)]
+            [ProtoMember]
             public MyPlayAnimationMode Mode;
-            [ProtoMember(5)]
+            [ProtoMember]
             public MyBonesArea Area;
-            [ProtoMember(6)]
+            [ProtoMember]
             public float BlendTime;
-            [ProtoMember(7)]
+            [ProtoMember]
             public float TimeScale;
         }
 
@@ -146,11 +146,11 @@ namespace Sandbox.Game.Multiplayer
         [ProtoContract]
         struct AttachToCockpitMsg : IEntityMessage
         {
-            [ProtoMember(1)]
+            [ProtoMember]
             public long CharacterEntityId;
             public long GetEntityId() { return CharacterEntityId; }
 
-            [ProtoMember(2)]
+            [ProtoMember]
             public long CockpitEntityId;
         }
 
@@ -176,11 +176,11 @@ namespace Sandbox.Game.Multiplayer
             public long EntityId;
             public long GetEntityId() { return EntityId; }
 
-            public int CueIdHash;
+            public MyStringId SoundId;
 
             public override string ToString()
             {
-                return String.Format("{0}, {1}", this.GetType().Name, this.CueIdHash);
+                return String.Format("{0}, {1}", this.GetType().Name, this.SoundId);
             }
         }
 
@@ -456,17 +456,17 @@ namespace Sandbox.Game.Multiplayer
         [MessageId(7610, P2PMessageEnum.Reliable)]
         struct SendPlayerMessageMsg : IEntityMessage
         {
-            [ProtoMember(1)]
+            [ProtoMember]
             public long CharacterEntityId;
             public long GetEntityId() { return CharacterEntityId; }
 
-            [ProtoMember(2)]
+            [ProtoMember]
             public ulong SenderSteamId;
-            [ProtoMember(3)]
+            [ProtoMember]
             public ulong ReceiverSteamId;
-            [ProtoMember(4)]
+            [ProtoMember]
             public string Text;
-            [ProtoMember(5)]
+            [ProtoMember]
             public long Timestamp;
         }
 
@@ -474,15 +474,15 @@ namespace Sandbox.Game.Multiplayer
         [MessageId(7611, P2PMessageEnum.Reliable)]
         struct SendNewFactionMessageMsg : IEntityMessage
         {
-            [ProtoMember(1)]
+            [ProtoMember]
             public long CharacterEntityId;
             public long GetEntityId() { return CharacterEntityId; }
 
-            [ProtoMember(2)]
+            [ProtoMember]
             public long FactionId1;
-            [ProtoMember(3)]
+            [ProtoMember]
             public long FactionId2;
-            [ProtoMember(4)]
+            [ProtoMember]
             public MyObjectBuilder_FactionChatItem ChatItem;
         }
 
@@ -490,21 +490,21 @@ namespace Sandbox.Game.Multiplayer
         [MessageId(7613, P2PMessageEnum.Reliable)]
         struct ConfirmFactionMessageMsg : IEntityMessage
         {
-            [ProtoMember(1)]
+            [ProtoMember]
             public long CharacterEntityId;
             public long GetEntityId() { return CharacterEntityId; }
          
-            [ProtoMember(2)]
+            [ProtoMember]
             public long FactionId1;
-            [ProtoMember(3)]
+            [ProtoMember]
             public long FactionId2;
-            [ProtoMember(4)]
+            [ProtoMember]
             public long OriginalSenderId;
-            [ProtoMember(5)]
+            [ProtoMember]
             public long ReceiverId;
-            [ProtoMember(6)]
+            [ProtoMember]
             public long Timestamp;
-            [ProtoMember(7)]
+            [ProtoMember]
             public string Text;
         }
 
@@ -512,13 +512,13 @@ namespace Sandbox.Game.Multiplayer
         [MessageId(7614, P2PMessageEnum.Reliable)]
         struct SendGlobalMessageMsg : IEntityMessage
         {
-            [ProtoMember(1)]
+            [ProtoMember]
             public long CharacterEntityId;
             public long GetEntityId() { return CharacterEntityId; }
 
-            [ProtoMember(2)]
+            [ProtoMember]
             public ulong SenderSteamId;
-            [ProtoMember(3)]
+            [ProtoMember]
             public string Text;
         }
 
@@ -912,12 +912,12 @@ namespace Sandbox.Game.Multiplayer
             }
         }
 
-        internal void PlaySecondarySound(int soundId)
+        internal void PlaySecondarySound(MyStringId soundId)
         {
             var msg = new PlaySecondarySoundMsg()
             {
                 EntityId = this.SyncedEntityId,
-                CueIdHash = soundId,
+                SoundId = soundId,
             };
 
             if (Sync.IsServer)
@@ -934,8 +934,7 @@ namespace Sandbox.Game.Multiplayer
         {
             if (!MySandboxGame.IsDedicated)
             {
-                MyStringId soundId = MyStringId.TryGet(msg.CueIdHash);
-                syncObject.Entity.StartSecondarySound(soundId, sync: false);
+                syncObject.Entity.StartSecondarySound(msg.SoundId, sync: false);
             }
 
             if (Sync.IsServer)

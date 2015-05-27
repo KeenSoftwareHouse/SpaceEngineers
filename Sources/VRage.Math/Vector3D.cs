@@ -31,17 +31,17 @@ namespace VRageMath
         /// <summary>
         /// Gets or sets the x-component of the vector.
         /// </summary>
-        [ProtoBuf.ProtoMember(1)]
+        [ProtoBuf.ProtoMember]
         public double X;
         /// <summary>
         /// Gets or sets the y-component of the vector.
         /// </summary>
-        [ProtoBuf.ProtoMember(2)]
+        [ProtoBuf.ProtoMember]
         public double Y;
         /// <summary>
         /// Gets or sets the z-component of the vector.
         /// </summary>
-        [ProtoBuf.ProtoMember(3)]
+        [ProtoBuf.ProtoMember]
         public double Z;
 
 
@@ -1756,14 +1756,20 @@ namespace VRageMath
 
         public static void GetAzimuthAndElevation(Vector3D v, out double azimuth, out double elevation)
         {
-            double elevationCos, azimuthCos, azimuthSin;
-            Vector3D.Dot(ref v, ref Vector3D.Up, out elevationCos);
-            v.Y = 0;
+            double elevationSin, azimuthCos;
+            Vector3D.Dot(ref v, ref Vector3D.Up, out elevationSin);
+            v.Y = 0f;
             v.Normalize();
             Vector3D.Dot(ref v, ref Vector3D.Forward, out azimuthCos);
-            azimuthSin = Vector3D.Cross(v, Vector3D.Forward).Length();
-            elevation = (double)Math.Acos(elevationCos);
-            azimuth = (double)Math.Atan2(-azimuthSin, azimuthCos);
+            elevation = Math.Asin(elevationSin);
+            if (v.X >= 0)
+            {
+                azimuth = -Math.Acos(azimuthCos);
+            }
+            else
+            {
+                azimuth = Math.Acos(azimuthCos);
+            }
         }
 
         public static void CreateFromAzimuthAndElevation(double azimuth, double elevation, out Vector3D direction)

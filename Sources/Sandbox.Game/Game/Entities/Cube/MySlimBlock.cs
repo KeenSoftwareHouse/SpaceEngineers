@@ -21,6 +21,7 @@ using Sandbox.Game.GameSystems.StructuralIntegrity;
 using Sandbox.ModAPI.Interfaces;
 using VRage.Library.Utils;
 using Sandbox.Game.GameSystems;
+using Sandbox.Engine.Physics;
 
 namespace Sandbox.Game.Entities.Cube
 {
@@ -392,6 +393,17 @@ namespace Sandbox.Game.Entities.Cube
                 if (FatBlock != null)
                 {
                     builder.EntityId = FatBlock.EntityId;
+
+                    // Set ownership in battles - actually don't know why "FatBlock.GetObjectBuilderCubeBlock(copy)" is not processed for default MyCubeBlock 
+                    // - see first if "if (FatBlock != null && FatBlock.GetType() != typeof(MyCubeBlock))"
+                    if (MyFakes.ENABLE_BATTLE_SYSTEM && MySession.Static.Battle)
+                    {
+                        if (FatBlock.IDModule != null)
+                        {
+                            builder.Owner = FatBlock.IDModule.Owner;
+                            builder.ShareMode = FatBlock.IDModule.ShareMode;
+                        }
+                    }
                 }
             }
 
@@ -887,7 +899,7 @@ namespace Sandbox.Game.Entities.Cube
         /// <summary>
         /// Returns true when block is destroyed
         /// </summary>
-        public void DoDamage(float damage, MyDamageType damageType, bool addDirtyParts = true)
+        public void DoDamage(float damage, MyDamageType damageType, bool addDirtyParts = true, MyDestructionHelper.HitInfo? hitInfo = null)
         {
             if (!MySession.Static.DestructibleBlocks)
                 return;
@@ -910,12 +922,28 @@ namespace Sandbox.Game.Entities.Cube
             AccumulatedDamage += damage;
             if (m_componentStack.Integrity - AccumulatedDamage <= MyComponentStack.MOUNT_THRESHOLD)
             {
+                if (MyPerGameSettings.Destruction && hitInfo.HasValue)
+                {
+                    AccumulatedDamage = 0;
+                    var gridPhysics = CubeGrid.Physics;
+                    float maxDestructionRadius = CubeGrid.GridSizeEnum == MyCubeSize.Small ? 0.5f : 3;
+                    Sandbox.Engine.Physics.MyDestructionHelper.TriggerDestruction(damage, gridPhysics, hitInfo.Value.Position, hitInfo.Value.Normal, maxDestructionRadius);
+                }
+                else
+                {
+                    ApplyAccumulatedDamage(addDirtyParts);
+                }
                 CubeGrid.RemoveFromDamageApplication(this);
-                ApplyAccumulatedDamage(addDirtyParts);
             }
             else
-                if (MyFakes.SHOW_DAMAGE_EFFECTS && FatBlock != null && BlockDefinition.RationEnoughForDamageEffect((Integrity-damage) / MaxIntegrity))
+            {
+                if (MyFakes.SHOW_DAMAGE_EFFECTS && FatBlock != null && BlockDefinition.RationEnoughForDamageEffect((Integrity - damage) / MaxIntegrity))
                     FatBlock.SetDamageEffect(true);
+
+                if (hitInfo.HasValue)
+                    CubeGrid.RenderData.AddDecal(Position, Vector3D.Transform(hitInfo.Value.Position, CubeGrid.PositionComp.WorldMatrixInvScaled),
+                        Vector3D.TransformNormal(hitInfo.Value.Normal, CubeGrid.PositionComp.WorldMatrixInvScaled));
+            }
 
             return;
         }

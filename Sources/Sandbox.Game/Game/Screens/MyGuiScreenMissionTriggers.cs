@@ -171,12 +171,12 @@ namespace Sandbox.Game.Screens
             }
             return null;
         }
-        static readonly MyPlayer.PlayerId m_defaultId = new MyPlayer.PlayerId(0, 0);
+        
         private void SetDefaultValues()
         {
             //triggers:
             MyMissionTriggers triggers;
-            if (!MySessionComponentMission.Static.MissionTriggers.TryGetValue(m_defaultId, out triggers))
+            if (!MySessionComponentMission.Static.MissionTriggers.TryGetValue(MyMissionTriggers.DefaultPlayerId, out triggers))
             {
                 Debug.Fail("Triggers do not exist");
                 return;
@@ -263,16 +263,19 @@ namespace Sandbox.Game.Screens
         }
         private void SaveData()
         {
+            //delete everyone else's triggers, they will be copied from defaults as needed
+            MySessionComponentMission.Static.MissionTriggers.Clear();
+            //create defaults:
             MyMissionTriggers triggers;
-            if (!MySessionComponentMission.Static.MissionTriggers.TryGetValue(m_defaultId, out triggers))
-            {
+            //if (!MySessionComponentMission.Static.MissionTriggers.TryGetValue(m_defaultId, out triggers))
+            //{
                 //Debug.Fail("Triggers don't exist");
                 //return;
                 triggers = new MyMissionTriggers();
-                MySessionComponentMission.Static.MissionTriggers.Add(m_defaultId, triggers);
-            }
-            triggers.WinTriggers.Clear();
-            triggers.LoseTriggers.Clear();
+                MySessionComponentMission.Static.MissionTriggers.Add(MyMissionTriggers.DefaultPlayerId, triggers);
+            //}
+            //triggers.WinTriggers.Clear();
+            //triggers.LoseTriggers.Clear();
             for (int i = 0; i < 6; i++)
             {
                 if (m_winTrigger[i] != null)

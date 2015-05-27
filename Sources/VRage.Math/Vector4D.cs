@@ -18,22 +18,22 @@ namespace VRageMath
         /// <summary>
         /// Gets or sets the x-component of the vector.
         /// </summary>
-        [ProtoBuf.ProtoMember(1)]
+        [ProtoBuf.ProtoMember]
         public double X;
         /// <summary>
         /// Gets or sets the y-component of the vector.
         /// </summary>
-        [ProtoBuf.ProtoMember(2)]
+        [ProtoBuf.ProtoMember]
         public double Y;
         /// <summary>
         /// Gets or sets the z-component of the vector.
         /// </summary>
-        [ProtoBuf.ProtoMember(3)]
+        [ProtoBuf.ProtoMember]
         public double Z;
         /// <summary>
         /// Gets or sets the w-component of the vector.
         /// </summary>
-        [ProtoBuf.ProtoMember(4)]
+        [ProtoBuf.ProtoMember]
         public double W;
 
         static Vector4D()

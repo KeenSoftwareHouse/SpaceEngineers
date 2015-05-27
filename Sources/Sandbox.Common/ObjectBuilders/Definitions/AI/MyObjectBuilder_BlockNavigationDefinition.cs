@@ -17,20 +17,20 @@ namespace Sandbox.Common.ObjectBuilders.AI
         [ProtoContract]
         public class Triangle
         {
-            [ProtoMember(1), XmlArrayItem("Point")]
+            [ProtoMember, XmlArrayItem("Point")]
             public SerializableVector3[] Points;
         }
 
-        [ProtoMember(1), XmlArrayItem("Triangle")]
+        [ProtoMember, XmlArrayItem("Triangle")]
         public Triangle[] Triangles;
 
-        [ProtoMember(2)]
+        [ProtoMember]
         public bool NoEntry = false;
 
-        [ProtoMember(3)]
+        [ProtoMember]
         public SerializableVector3I Size = new SerializableVector3I(1, 1, 1);
 
-        [ProtoMember(4)]
+        [ProtoMember]
         public SerializableVector3I Center = new SerializableVector3I(0, 0, 0);
     }
 }

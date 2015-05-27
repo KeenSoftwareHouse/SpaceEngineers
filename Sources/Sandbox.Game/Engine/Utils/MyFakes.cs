@@ -1,13 +1,18 @@
 ﻿using Sandbox.Common;
 using Sandbox.Game.Entities;
-using Sandbox.Graphics.GUI;
 using System;
-using VRage.Utils;
+using System.Runtime.CompilerServices;
 
 namespace Sandbox.Engine.Utils
 {
     public static class MyFakes
     {
+        static MyFakes()
+        {
+            // Called after all the fields have been initialized to override any settings with local ones.
+            RuntimeHelpers.RunClassConstructor(typeof(MyFakesLocal).TypeHandle);
+        }
+
         /// <summary>
         /// This should be const
         /// </summary>
@@ -126,7 +131,7 @@ namespace Sandbox.Engine.Utils
 
         public static bool ENABLE_METEOR_SHOWERS = true;
 
-        public static bool ENABLE_DX11_RENDERER = false;
+        public static bool ENABLE_DX11_RENDERER = true;
 
         public static bool APRIL2014_ENABLED = false;
         public static bool SHOW_INVENTORY_ITEM_IDS = false;
@@ -390,7 +395,7 @@ namespace Sandbox.Engine.Utils
 
         public static bool ENABLE_DEVELOPER_SPECTATOR_CONTROLS = MyFinalBuildConstants.IS_DEBUG;
 
-        public static bool LAZY_LOAD_DESTRUCTION = false;
+        public static bool LAZY_LOAD_DESTRUCTION = true;
 
         public static bool ENABLE_STANDARD_AXES_ROTATION = false;
 
@@ -448,8 +453,6 @@ namespace Sandbox.Engine.Utils
 
         public static bool ENABLE_RAKNET = false;
 
-        public static bool ENABLE_MEDIEVAL_CHARACTER_DAMAGE = false;
-
         public static bool ENABLE_RAGDOLL_COLLISION_WITH_CHARACTER_BODY = true;
 
         public static bool ENABLE_FOOT_IK_USE_HAVOK_RAYCAST = true;
@@ -477,13 +480,13 @@ namespace Sandbox.Engine.Utils
         public static bool ENABLE_OXYGEN_SOUNDS = false;
 
         public static bool ENABLE_ROPE_UNWINDING_TORQUE = false;
-        public static bool ENABLE_NEW_ROPE_DRUM = false;
+        public static bool ENABLE_LOCKABLE_ROPE_DRUM = false;
 
         public static bool ENABLE_BONES_AND_ANIMATIONS_DEBUG = false;
 
         public static bool ENABLE_MISSION_TRIGGERS = false;
         
-        public static bool ENABLE_RAGDOLL_PROPERTIES_DEFAULTS = false;
+        public static bool ENABLE_RAGDOLL_DEFAULT_PROPERTIES = false;
 
         public static bool XBOX_PREVIEW = false;
                 
@@ -491,8 +494,15 @@ namespace Sandbox.Engine.Utils
         
         public static bool ENABLE_COLLISONS_ON_RAGDOLL = true;
 
-        public static bool ENABLE_STATION_ROTATION = false;
+        public static bool ENABLE_STATION_ROTATION = true;
 
         public static bool ENABLE_CONTROLLER_HINTS = true;
+
+        public static bool ENABLE_SUN_BILLBOARD = false;
+
+        public static bool ENABLE_PHYSICS_SETTINGS = false;
+
+        // Enables blueprints in Data/Blueprints folder) to be visible in game.
+        public static bool ENABLE_DEFAULT_BLUEPRINTS = false;
     }
 }

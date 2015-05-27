@@ -17,6 +17,7 @@ using Sandbox.Common.Components;
 using Sandbox.Engine.Utils;
 using VRage.Voxels;
 using VRage.Utils;
+using System;
 
 namespace Sandbox.Game.Entities
 {
@@ -139,7 +140,8 @@ namespace Sandbox.Game.Entities
             return true;
         }
 
-        virtual public MyVoxelRangeType GetVoxelRangeTypeInBoundingBox(BoundingBoxD worldAabb)
+        // mk:TODO Remove. This shouldn't be used anymore.
+        public MyVoxelRangeType GetVoxelRangeTypeInBoundingBox(BoundingBoxD worldAabb)
         {
             Debug.Assert(Thread.CurrentThread == MySandboxGame.Static.UpdateThread);
 
@@ -153,7 +155,9 @@ namespace Sandbox.Game.Entities
             return MyVoxelRangeType.MIXED;
         }
 
-        override public float GetVoxelContentInBoundingBox(BoundingBoxD worldAabb, out float cellCount)
+        // mk:TODO Remove since it's inaccurate and hard to use.
+        [Obsolete]
+        override public float GetVoxelContentInBoundingBox_Obsolete(BoundingBoxD worldAabb, out float cellCount)
         {
             MyPrecalcComponent.AssertUpdateThread();
 
@@ -193,8 +197,126 @@ namespace Sandbox.Game.Entities
             }
             return result;
         }
+
+        public override bool IsAnyAabbCornerInside(BoundingBoxD worldAabb)
+        {
+            MyRenderProxy.DebugDrawAABB(worldAabb, Color.White, 1f, 1f, true);
+
+            unsafe
+            {
+                Vector3D* corners = stackalloc Vector3D[8];
+                worldAabb.GetCornersUnsafe(corners);
+                //byte insideMask = 0;
+                for (int i = 0; i < 8; i++)
+                {
+                    Vector3D local;
+                    Vector3I min;
+                    Vector3D minRel;
+                    MyVoxelCoordSystems.WorldPositionToLocalPosition(PositionLeftBottomCorner, ref corners[i], out local);
+                    MyVoxelCoordSystems.LocalPositionToVoxelCoord(ref local, out min);
+                    MyVoxelCoordSystems.LocalPositionToVoxelCoord(ref local, out minRel);
+                    minRel -= (Vector3D)min;
+                    var max = min + 1;
+                    m_storageCache.Resize(min, max);
+                    // mk:TODO Could be improved to not load the same range for each corner if they are inside the same voxel.
+                    Storage.ReadRange(m_storageCache, MyStorageDataTypeFlags.Content, 0, ref min, ref max);
+
+                    // Don't really need doubles but since position is in double and C# doesn't do SIMD yet, this makes little difference.
+                    var c000 = (double)m_storageCache.Content(0, 0, 0);
+                    var c100 = (double)m_storageCache.Content(1, 0, 0);
+                    var c010 = (double)m_storageCache.Content(0, 1, 0);
+                    var c110 = (double)m_storageCache.Content(1, 1, 0);
+                    var c001 = (double)m_storageCache.Content(0, 0, 1);
+                    var c101 = (double)m_storageCache.Content(1, 0, 1);
+                    var c011 = (double)m_storageCache.Content(0, 1, 1);
+                    var c111 = (double)m_storageCache.Content(1, 1, 1);
+
+                    c000 = c000 + (c100 - c000) * minRel.X;
+                    c010 = c010 + (c110 - c010) * minRel.X;
+                    c001 = c001 + (c101 - c001) * minRel.X;
+                    c011 = c011 + (c111 - c011) * minRel.X;
+
+                    c000 = c000 + (c010 - c000) * minRel.Y;
+                    c001 = c001 + (c011 - c001) * minRel.Y;
+
+                    c000 = c000 + (c001 - c000) * minRel.Z;
+
+                    //Color color = Color.Green;
+                    if (c000 >= (double)MyVoxelConstants.VOXEL_ISO_LEVEL)
+                    {
+                        return true;
+                        //insideMask |= (byte)(1 << i);
+                        //color = Color.Red;
+                    }
+                    //MyRenderProxy.DebugDrawText3D(corners[i], c000.ToString("000.0"), color, 0.7f, false);
+                }
+
+                return false;
+                //return insideMask != 0;
+            }
+        }
+
+        public override bool IsOverlapOverThreshold(BoundingBoxD worldAabb, float thresholdPercentage)
+        {
+            //Debug.Assert(
+            //    worldAabb.Size.X > MyVoxelConstants.VOXEL_SIZE_IN_METRES &&
+            //    worldAabb.Size.Y > MyVoxelConstants.VOXEL_SIZE_IN_METRES &&
+            //    worldAabb.Size.Z > MyVoxelConstants.VOXEL_SIZE_IN_METRES,
+            //    "One of the sides of queried AABB is too small compared to voxel size. Results will be unreliable.");
+
+            Vector3I minCorner, maxCorner;
+            MyVoxelCoordSystems.WorldPositionToVoxelCoord(PositionLeftBottomCorner, ref worldAabb.Min, out minCorner);
+            MyVoxelCoordSystems.WorldPositionToVoxelCoord(PositionLeftBottomCorner, ref worldAabb.Max, out maxCorner);
+
+            minCorner += StorageMin;
+            maxCorner += StorageMin;
+
+            Storage.ClampVoxelCoord(ref minCorner);
+            Storage.ClampVoxelCoord(ref maxCorner);
+            m_storageCache.Resize(minCorner, maxCorner);
+            Storage.ReadRange(m_storageCache, MyStorageDataTypeFlags.Content, 0, ref minCorner, ref maxCorner);
+            BoundingBoxD voxelBox;
+
+            //MyRenderProxy.DebugDrawAABB(worldAabb, Color.White, 1f, 1f, true);
+
+            var invFullVoxel = 1.0 / (double)MyVoxelConstants.VOXEL_CONTENT_FULL_FLOAT;
+            var voxelVolume = 1.0 / (double)MyVoxelConstants.VOXEL_VOLUME_IN_METERS;
+            double overlapContentVolume = 0.0;
+
+            var queryVolume = worldAabb.Volume;
+
+            //using (var batch = MyRenderProxy.DebugDrawBatchAABB(Matrix.Identity, new Color(Color.Green, 0.1f), true, true))
+            {
+                Vector3I coord, cache;
+                for (coord.Z = minCorner.Z, cache.Z = 0; coord.Z <= maxCorner.Z; coord.Z++, cache.Z++)
+                {
+                    for (coord.Y = minCorner.Y, cache.Y = 0; coord.Y <= maxCorner.Y; coord.Y++, cache.Y++)
+                    {
+                        for (coord.X = minCorner.X, cache.X = 0; coord.X <= maxCorner.X; coord.X++, cache.X++)
+                        {
+                            MyVoxelCoordSystems.VoxelCoordToWorldAABB(PositionLeftBottomCorner, ref coord, out voxelBox);
+                            if (worldAabb.Intersects(voxelBox))
+                            {
+                                var contentVolume = m_storageCache.Content(ref cache) * invFullVoxel * voxelVolume;
+                                var overlapVolume = worldAabb.Intersect(voxelBox).Volume;
+                                overlapContentVolume += contentVolume * overlapVolume;
+
+                                //batch.Add(ref voxelBox);
+                            }
+                        }
+                    }
+                }
+            }
+
+            var overlapVolumePercentage = overlapContentVolume / queryVolume;
+            //MyRenderProxy.DebugDrawText3D(worldAabb.Center, overlapVolumePercentage.ToString("0.000"), Color.White, 1f, false);
+            return overlapVolumePercentage >= thresholdPercentage;
+        }
+
+
         //collisions
         //sphere vs voxel volumetric test
+        // mk:TODO Remove. This is not very accurate.
         public override bool DoOverlapSphereTest(float sphereRadius, Vector3D spherePos)
         {
             ProfilerShort.Begin("MyVoxelMap.DoOverlapSphereTest");

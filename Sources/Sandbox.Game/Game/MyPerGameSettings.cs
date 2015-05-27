@@ -6,6 +6,7 @@ using System;
 using System.Diagnostics;
 using VRage.Data;
 using VRage.Data.Audio;
+using VRage.Utils;
 using VRageMath;
 
 namespace Sandbox.Game
@@ -194,7 +195,6 @@ namespace Sandbox.Game
             },
             HUDScreen = typeof(Sandbox.Game.Gui.MyGuiScreenHudSpace),
             ToolbarConfigScreen = typeof(Sandbox.Game.Gui.MyGuiScreenCubeBuilder),
-            OptionsScreen = typeof(Sandbox.Game.Gui.MyGuiScreenOptionsSpace),
             CustomWorldScreen = typeof(Sandbox.Game.Gui.MyGuiScreenWorldSettings),
             ScenarioScreen = typeof(Sandbox.Game.Gui.MyGuiScreenScenario),
             EditWorldSettingsScreen = typeof(Sandbox.Game.Gui.MyGuiScreenWorldSettings),
@@ -221,12 +221,26 @@ namespace Sandbox.Game
         public static int NetworkCharacterCollisionLayer = MyPhysics.CharacterNetworkCollisionLayer;
         public static bool TryConvertGridToDynamicAfterSplit = false;
 
-        public static float CharacterDamageCharacterEnergyScale = 0.025f;   // this reduces the damage on character caused by character's energy
-        public static float CharacterDamageObjectEnergyScale = 0.1f;    // this reduces the damage on character caused by object's energy when the object is squeezing the character
-        public static float CharacterDamageCharacterMinVelocity = 12.0f;    // minimal speed of character to cause damage to itself 3 blocks ~ 16.7 m/s, 2 blocks 13.47 m/s 1 block 9.0 m/s
-        public static float CharacterDamageObjectMinMass = 200f;    // minimal weight of the object to cause damage when squeezing the character
-        public static float CharacterDamageObjectMinVelocity = 3.5f;   // minimal speed of object to cause damage to character 25 km/h ~ 7 m/s 
-        public static float CharacterDamageScale = 1.0f;   // the scale of final damage = (object energy + character energy) * separating velocity * CharacterDamageScale;
+        // DAMAGE SETTINGS
+        public static float CharacterDamageMinVelocity = 12.0f;    // minimal speed of character to cause damage to itself 3 blocks ~ 16.7 m/s, 2 blocks 13.47 m/s 1 block 9.0 m/s
+        public static float CharacterDamageDeadlyDamageVelocity = 16.0f; // speed to cause deadly damage
+        public static float CharacterDamageMediumDamageVelocity = 13.0f; // speed to cause mediun damage when character falls
+        public static float CharacterDamageHitObjectMinMass = 200f;    // minimal weight of the object to cause damage when squeezing the character
+        public static float CharacterDamageHitObjectMinVelocity = 7.5f;   // minimal speed of object to cause damage to character 25 km/h ~ 7 m/s 
+        public static float CharacterDamageHitObjectMediumEnergy = 100; // energy of the colliding object with the character to cause the medium damage
+        public static float CharacterDamageHitObjectSmallEnergy = 80;
+        public static float CharacterDamageHitObjectCriticalEnergy = 200;
+        public static float CharacterDamageHitObjectDeadlyEnergy = 500;
+        public static float CharacterSmallDamage = 10;  // amount of health points for that kind of damage
+        public static float CharacterMediumDamage = 30;
+        public static float CharacterCriticalDamage = 70;
+        public static float CharacterDeadlyDamage = 100;
+        public static float CharacterSqueezeDamageDelay = 1f; // delay before applying damage on character when squeezing
+        public static float CharacterSqueezeMinMass = 200f; // minimal mass to cause squeeze on character
+        public static float CharacterSqueezeMediumDamageMass = 1000;
+        public static float CharacterSqueezeCriticalDamageMass = 3000;
+        public static float CharacterSqueezeDeadlyDamageMass = 5000;        
+        
         public static bool AlwaysSpawnPlayerOnVoxel = false;
         
         public static bool CharacterSuicideEnabled = false;
@@ -250,5 +264,10 @@ namespace Sandbox.Game
         public static bool EnableRagdollInJetpack = false;
 
         public static bool InventoryMass = false;
+
+        public static bool EnableCharacterCollisionDamage = false;
+        public static MyStringId DefaultGraphicsRenderer;
+
+        public static bool EnableWelderAutoswitch = false;
     }
 }

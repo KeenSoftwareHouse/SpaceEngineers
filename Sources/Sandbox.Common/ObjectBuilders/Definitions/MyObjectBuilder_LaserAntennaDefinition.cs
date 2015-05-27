@@ -11,15 +11,17 @@ namespace Sandbox.Common.ObjectBuilders.Definitions
     [MyObjectBuilderDefinition]
     public class MyObjectBuilder_LaserAntennaDefinition : MyObjectBuilder_CubeBlockDefinition
     {
-        [ProtoMember(1)]
+        [ProtoMember]
         public float PowerInputIdle=0.001f;
-        [ProtoMember(2)]
+        [ProtoMember]
         public float PowerInputTurning=0.01f;
-        [ProtoMember(3)]
+        [ProtoMember]
         public float PowerInputLasing=2f;
-        [ProtoMember(4)]
+        [ProtoMember]
         public float RotationRate = MathHelper.Pi / 20000.0f;
-        [ProtoMember(5)]
+        [ProtoMember]
         public float MaxRange = 40000;
+        [ProtoMember(6)]
+        public bool RequireLineOfSight = true;
     }
 }

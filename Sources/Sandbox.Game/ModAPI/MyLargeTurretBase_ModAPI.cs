@@ -1,12 +1,12 @@
-﻿using System;
+﻿using Sandbox.Engine.Utils;
+using Sandbox.Game.Multiplayer;
+using Sandbox.ModAPI;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using VRage.Utils;
 using VRageMath;
-using Sandbox.Game.Entities;
-using Sandbox.ModAPI;
-using Sandbox.Game.Multiplayer;
-using VRage.Library.Utils;
 
 namespace Sandbox.Game.Weapons
 {
@@ -124,7 +124,7 @@ namespace Sandbox.Game.Weapons
 
         public MyStringId ControlContext
         {
-            get { return MyStringId.NullOrEmpty; }
+            get { return MySpaceBindingCreator.CX_SPACESHIP; }
         }
     }
 }

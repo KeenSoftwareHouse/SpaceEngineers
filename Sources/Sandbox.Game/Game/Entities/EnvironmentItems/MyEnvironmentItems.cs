@@ -378,6 +378,21 @@ namespace Sandbox.Game.Entities.EnvironmentItems
             }
         }
 
+		public bool TryGetItemInfoById(int itemId, out ItemInfo result)
+		{
+			result = new ItemInfo();
+			MyEnvironmentItemData data;
+			if (m_itemsData.TryGetValue(itemId, out data))
+			{
+				if (data.Enabled)
+				{
+					result = new ItemInfo() { LocalId = itemId, SubtypeId = data.SubtypeId, Transform = data.Transform };
+					return true;
+				}
+			}
+			return false;
+		}
+
         public void GetItemsInRadius(Vector3D position, float radius, List<ItemInfo> result)
         {
             double radiusSq = radius * radius;
@@ -553,7 +568,7 @@ namespace Sandbox.Game.Entities.EnvironmentItems
             float impactEnergy = vel * vel * otherMass;
 
             // If environment item is hit by a gun, nothing happens here. If you want a weapon damage to env. items, call DoDamage there
-            if (impactEnergy > 350000 && !(other is IMyHandheldGunObject<MyDeviceBase>))
+            if (impactEnergy > 200000 && !(other is IMyHandheldGunObject<MyDeviceBase>))
             {
                 int bodyId = e.ContactPointEvent.Base.BodyA.GetEntity() == this ? 0 : 1;
                 var shapeKey = e.ContactPointEvent.GetShapeKey(bodyId);
@@ -564,7 +579,6 @@ namespace Sandbox.Game.Entities.EnvironmentItems
                 uint childKey;
                 if (shapeKey == uint.MaxValue) //jn: TODO find out why this happens, there is ticket for it https://app.asana.com/0/9887996365574/26645443970236
                 {
-                    ProfilerShort.End();
                     return;
                 }
                 shape.DecomposeShapeKey(shapeKey, out physicsInstanceId, out childKey);

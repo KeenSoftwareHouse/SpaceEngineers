@@ -540,6 +540,13 @@ namespace Sandbox.Definitions
                 InitBotCommands(context, definitionSet.m_definitionsById, objBuilder.AiCommands, failOnDebug);
             }
 
+            if (objBuilder.AreaMarkerDefinitions != null)
+            {
+                MySandboxGame.Log.WriteLine("Loading area definitions");
+                InitDefinitionsGeneric<MyObjectBuilder_AreaMarkerDefinition, MyAreaMarkerDefinition>
+                    (context, definitionSet.m_definitionsById, objBuilder.AreaMarkerDefinitions, failOnDebug);
+            }
+
             if (objBuilder.BlockNavigationDefinitions != null)
             {
                 MySandboxGame.Log.WriteLine("Loading navigation definitions");
@@ -558,10 +565,23 @@ namespace Sandbox.Definitions
                 InitControllerSchemas(context, definitionSet.m_definitionsById, objBuilder.ControllerSchemas, failOnDebug);
             }
 
-            if(objBuilder.CurveDefinitions != null)
+            if (objBuilder.CurveDefinitions != null)
             {
                 MySandboxGame.Log.WriteLine("Loading curve definitions");
                 InitCurves(context, definitionSet.m_definitionsById, objBuilder.CurveDefinitions, failOnDebug);
+            }
+
+            if (objBuilder.CharacterNames != null)
+            {
+                MySandboxGame.Log.WriteLine("Loading character names");
+                InitCharacterNames(context, definitionSet.m_characterNames, objBuilder.CharacterNames, failOnDebug);
+            }
+
+            if (objBuilder.Battle != null)
+            {
+                MySandboxGame.Log.WriteLine("Loading battle definition");
+                Check(failOnDebug, "Battle", failOnDebug, WARNING_ON_REDEFINITION_MESSAGE);
+                InitBattle(context, ref definitionSet.m_battleDefinition, objBuilder.Battle, failOnDebug);
             }
         }
 
@@ -1354,6 +1374,13 @@ namespace Sandbox.Definitions
             }
         }
 
+        private static void InitBattle(MyModContext context,
+            ref MyBattleDefinition output, MyObjectBuilder_BattleDefinition objBuilder, bool failOnDebug = true)
+        {
+            var battleDef = InitDefinition<MyBattleDefinition>(context, objBuilder);
+            output = battleDef;
+        }
+
         public void SetDefaultNavDef(MyCubeBlockDefinition blockDefinition)
         {
             var ob = MyBlockNavigationDefinition.GetDefaultObjectBuilder(blockDefinition);
@@ -1541,6 +1568,14 @@ namespace Sandbox.Definitions
             }
         }
 
+        private void InitCharacterNames(MyModContext context, List<MyCharacterName> output, MyCharacterName[] names, bool failOnDebug)
+        {
+            foreach (var nameEntry in names)
+            {
+                output.Add(nameEntry);
+            }
+        }
+
         private void InitAudioEffects(MyModContext context, DefinitionDictionary<MyDefinitionBase> outputDefinitions, MyObjectBuilder_AudioEffectDefinition[] audioEffects, bool failOnDebug)
         {
             foreach (var effect in audioEffects)
@@ -1663,6 +1698,14 @@ namespace Sandbox.Definitions
         public DictionaryValuesReader<string, MyCharacterDefinition> Characters
         {
             get { return new DictionaryValuesReader<string, MyCharacterDefinition>(m_definitions.m_characters); }
+        }
+
+        public string GetRandomCharacterName()
+        {
+            if (m_definitions.m_characterNames.Count == 0) return "";
+
+            int index = MyUtils.GetRandomInt(m_definitions.m_characterNames.Count);
+            return m_definitions.m_characterNames[index].Name;
         }
 
         public MyAudioDefinition GetSoundDefinition(MyStringId subtypeId)
@@ -2412,6 +2455,11 @@ namespace Sandbox.Definitions
         public MyEnvironmentDefinition EnvironmentDefinition
         {
             get { return m_definitions.m_environmentDef; }
+        }
+
+        public MyBattleDefinition BattleDefinition
+        {
+            get { return m_definitions.m_battleDefinition; }
         }
 
         #endregion

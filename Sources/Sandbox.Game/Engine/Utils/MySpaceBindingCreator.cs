@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using VRage.Input;
-using VRage.Library.Utils;
+using VRage.Utils;
 
 namespace Sandbox.Engine.Utils
 {
@@ -57,6 +57,7 @@ namespace Sandbox.Engine.Utils
             MyControllerHelper.AddControl(CX_CHARACTER, MyControlsSpace.SECONDARY_TOOL_ACTION, MyJoystickAxesEnum.Zpos);
             MyControllerHelper.AddControl(CX_CHARACTER, MyControlsSpace.PRIMARY_BUILD_ACTION,  MyJoystickAxesEnum.Zneg); // MW:TODO shouldn't be this way I think
             MyControllerHelper.AddControl(CX_CHARACTER, MyControlsSpace.SECONDARY_BUILD_ACTION,MyJoystickAxesEnum.Zpos); // this too
+            MyControllerHelper.AddControl(CX_CHARACTER, MyControlsSpace.COPY_PASTE_ACTION,     MyJoystickAxesEnum.Zneg); // this too
             MyControllerHelper.AddControl(CX_CHARACTER, MyControlsSpace.ROTATION_LEFT,         MyJoystickAxesEnum.RotationXneg);
             MyControllerHelper.AddControl(CX_CHARACTER, MyControlsSpace.ROTATION_RIGHT,        MyJoystickAxesEnum.RotationXpos);
             MyControllerHelper.AddControl(CX_CHARACTER, MyControlsSpace.ROTATION_UP,           MyJoystickAxesEnum.RotationYneg);
@@ -91,10 +92,10 @@ namespace Sandbox.Engine.Utils
             MyControllerHelper.AddControl(CX_BUILD_MODE, MyControlsSpace.SYMMETRY_SWITCH, MyJoystickButtonsEnum.J04);
             MyControllerHelper.AddControl(CX_BUILD_MODE, MyControlsSpace.CUBE_ROTATE_ROLL_POSITIVE, MyJoystickButtonsEnum.J05);
             MyControllerHelper.AddControl(CX_BUILD_MODE, MyControlsSpace.CUBE_ROTATE_ROLL_NEGATIVE, MyJoystickButtonsEnum.J06);
-            MyControllerHelper.AddControl(CX_BUILD_MODE, MyControlsSpace.CUBE_ROTATE_VERTICAL_POSITIVE, MyJoystickAxesEnum.Yneg);
-            MyControllerHelper.AddControl(CX_BUILD_MODE, MyControlsSpace.CUBE_ROTATE_VERTICAL_NEGATIVE, MyJoystickAxesEnum.Ypos);
-            MyControllerHelper.AddControl(CX_BUILD_MODE, MyControlsSpace.CUBE_ROTATE_HORISONTAL_POSITIVE, MyJoystickAxesEnum.Xneg);
-            MyControllerHelper.AddControl(CX_BUILD_MODE, MyControlsSpace.CUBE_ROTATE_HORISONTAL_NEGATIVE, MyJoystickAxesEnum.Xpos);
+            MyControllerHelper.AddControl(CX_BUILD_MODE, MyControlsSpace.CUBE_ROTATE_VERTICAL_POSITIVE, MyJoystickAxesEnum.Xneg);
+            MyControllerHelper.AddControl(CX_BUILD_MODE, MyControlsSpace.CUBE_ROTATE_VERTICAL_NEGATIVE, MyJoystickAxesEnum.Xpos);
+            MyControllerHelper.AddControl(CX_BUILD_MODE, MyControlsSpace.CUBE_ROTATE_HORISONTAL_POSITIVE, MyJoystickAxesEnum.Yneg);
+            MyControllerHelper.AddControl(CX_BUILD_MODE, MyControlsSpace.CUBE_ROTATE_HORISONTAL_NEGATIVE, MyJoystickAxesEnum.Ypos);
         }
 
         private static void CreateForVoxelHands()
@@ -108,10 +109,10 @@ namespace Sandbox.Engine.Utils
             MyControllerHelper.NullControl(CX_VOXEL, MyControlsSpace.CROUCH);
             MyControllerHelper.NullControl(CX_VOXEL, MyControlsSpace.PRIMARY_BUILD_ACTION);
             MyControllerHelper.NullControl(CX_VOXEL, MyControlsSpace.SECONDARY_BUILD_ACTION);
-            MyControllerHelper.AddControl(CX_VOXEL, MyControlsSpace.CUBE_ROTATE_HORISONTAL_POSITIVE, MyJoystickAxesEnum.Xneg);
-            MyControllerHelper.AddControl(CX_VOXEL, MyControlsSpace.CUBE_ROTATE_HORISONTAL_NEGATIVE, MyJoystickAxesEnum.Xpos);
-            MyControllerHelper.AddControl(CX_VOXEL, MyControlsSpace.CUBE_ROTATE_VERTICAL_NEGATIVE, MyJoystickAxesEnum.Ypos);
-            MyControllerHelper.AddControl(CX_VOXEL, MyControlsSpace.CUBE_ROTATE_VERTICAL_POSITIVE, MyJoystickAxesEnum.Yneg);
+            MyControllerHelper.AddControl(CX_VOXEL, MyControlsSpace.CUBE_ROTATE_VERTICAL_POSITIVE, MyJoystickAxesEnum.Xneg);
+            MyControllerHelper.AddControl(CX_VOXEL, MyControlsSpace.CUBE_ROTATE_VERTICAL_NEGATIVE, MyJoystickAxesEnum.Xpos);
+            MyControllerHelper.AddControl(CX_VOXEL, MyControlsSpace.CUBE_ROTATE_HORISONTAL_POSITIVE, MyJoystickAxesEnum.Yneg);
+            MyControllerHelper.AddControl(CX_VOXEL, MyControlsSpace.CUBE_ROTATE_HORISONTAL_NEGATIVE, MyJoystickAxesEnum.Ypos);
         }
     }
 }

@@ -10,10 +10,10 @@ namespace Sandbox.Common.ObjectBuilders
     [MyObjectBuilderDefinition]
     public class MyObjectBuilder_AirtightDoorGeneric : MyObjectBuilder_FunctionalBlock
     {
-        [ProtoMember(1)]
+        [ProtoMember]
         public bool Open = true;
 
-        [ProtoMember(2)]
+        [ProtoMember]
         public float CurrOpening = 1f;
     }
 }

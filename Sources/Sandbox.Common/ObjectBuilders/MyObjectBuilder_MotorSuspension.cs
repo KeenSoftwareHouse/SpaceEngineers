@@ -11,25 +11,28 @@ namespace Sandbox.Common.ObjectBuilders
     [MyObjectBuilderDefinition]
     public class MyObjectBuilder_MotorSuspension : MyObjectBuilder_MotorBase
     {
-        [ProtoMember(1)]
+        [ProtoMember]
         public float SteerAngle;
 
-        [ProtoMember(2), DefaultValue(true)]
+        [ProtoMember, DefaultValue(true)]
         public bool Steering = true;
 
-        [ProtoMember(3)]
+        [ProtoMember]
         public float Damping = 0.02f;
 
-        [ProtoMember(4)]
+        [ProtoMember]
         public float Strength = 0.04f;
 
-        [ProtoMember(5)]
+        [ProtoMember]
         public bool Propulsion = true;
 
-        [ProtoMember(6)]
+        [ProtoMember]
         public float Friction = 1.5f / 8;
 
-        [ProtoMember(7)]
+        [ProtoMember]
         public float Power = 1;
+
+        [ProtoMember]
+        public float Height = 0;
     }
 }

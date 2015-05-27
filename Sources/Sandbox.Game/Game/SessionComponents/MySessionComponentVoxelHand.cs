@@ -109,10 +109,11 @@ namespace Sandbox.Game.SessionComponents
         public IMyVoxelBrush CurrentShape { get; set; }
         public MyVoxelHandDefinition CurrentDefinition { get; set; }
 
-        private static MyHudNotification VoxelMaterialHint;
-        private static MyHudNotification VoxelSettingsHint;
-        private static MyHudNotification JoystickVoxelMaterialHint;
-        private static MyHudNotification JoystickVoxelSettingsHint;
+        private MyHudNotification m_voxelMaterialHint;
+        private MyHudNotification m_voxelSettingsHint;
+        private MyHudNotification m_joystickVoxelMaterialHint;
+        private MyHudNotification m_joystickVoxelSettingsHint;
+        private MyHudNotification m_buildModeHint;
 
         public MySessionComponentVoxelHand()
         {
@@ -159,17 +160,18 @@ namespace Sandbox.Game.SessionComponents
                 var prev = MyInput.Static.GetGameControl(MyControlsSpace.SWITCH_RIGHT);
                 var voxelHandSettings = MyInput.Static.GetGameControl(MyControlsSpace.VOXEL_HAND_SETTINGS);
                 
-                VoxelMaterialHint = MyHudNotifications.CreateControlNotification(MySpaceTexts.NotificationVoxelMaterialFormat, next, prev);
-                VoxelSettingsHint = MyHudNotifications.CreateControlNotification(MySpaceTexts.NotificationVoxelHandHintFormat, voxelHandSettings);
+                m_voxelMaterialHint = MyHudNotifications.CreateControlNotification(MySpaceTexts.NotificationVoxelMaterialFormat, next, prev);
+                m_voxelSettingsHint = MyHudNotifications.CreateControlNotification(MySpaceTexts.NotificationVoxelHandHintFormat, voxelHandSettings);
             }
 
             { // joystick hints
                 var cx_voxel = MySpaceBindingCreator.CX_VOXEL;
                 var voxelNextMaterialCode = MyControllerHelper.GetCodeForControl(cx_voxel, MyControlsSpace.SWITCH_LEFT);
                 var voxelSettingsCode = MyControllerHelper.GetCodeForControl(cx_voxel, MyControlsSpace.VOXEL_HAND_SETTINGS);
-
-                JoystickVoxelMaterialHint = MyHudNotifications.CreateControlNotification(MySpaceTexts.NotificationJoystickVoxelMaterialFormat, voxelNextMaterialCode);
-                JoystickVoxelSettingsHint = MyHudNotifications.CreateControlNotification(MySpaceTexts.NotificationVoxelHandHintFormat, voxelSettingsCode);
+                var buildModeCode = MyControllerHelper.GetCodeForControl(MySpaceBindingCreator.CX_CHARACTER, MyControlsSpace.BUILD_MODE);
+                m_joystickVoxelMaterialHint = MyHudNotifications.CreateControlNotification(MySpaceTexts.NotificationJoystickVoxelMaterialFormat, voxelNextMaterialCode);
+                m_joystickVoxelSettingsHint = MyHudNotifications.CreateControlNotification(MySpaceTexts.NotificationVoxelHandHintFormat, voxelSettingsCode);
+                m_buildModeHint = MyHudNotifications.CreateControlNotification(MySpaceTexts.NotificationHintPressToOpenBuildMode, buildModeCode);
             }
         }
 
@@ -251,8 +253,16 @@ namespace Sandbox.Game.SessionComponents
             var shape = CurrentShape as MyBrushAutoLevel;
             if (shape != null)
             {
-                if      (MyControllerHelper.IsControl(context, MyControlsSpace.PRIMARY_TOOL_ACTION, MyControlStateType.NEW_PRESSED)) shape.FixAxis();
-                else if (MyControllerHelper.IsControl(context, MyControlsSpace.PRIMARY_TOOL_ACTION, MyControlStateType.NEW_RELEASED)) shape.UnFix();
+                if (MyControllerHelper.IsControl(context, MyControlsSpace.PRIMARY_TOOL_ACTION, MyControlStateType.NEW_PRESSED) ||
+                    MyControllerHelper.IsControl(context, MyControlsSpace.SECONDARY_TOOL_ACTION, MyControlStateType.NEW_PRESSED))
+                {
+                    shape.FixAxis();
+                }
+                else if (MyControllerHelper.IsControl(context, MyControlsSpace.PRIMARY_TOOL_ACTION, MyControlStateType.NEW_RELEASED) ||
+                    MyControllerHelper.IsControl(context, MyControlsSpace.SECONDARY_TOOL_ACTION, MyControlStateType.NEW_RELEASED))
+                {
+                    shape.UnFix();
+                }
             }
 
             if      (MyControllerHelper.IsControl(context, MyControlsSpace.PRIMARY_TOOL_ACTION, MyControlStateType.PRESSED)) CurrentShape.Fill(m_currentVoxelMap, m_selectedMaterial);
@@ -418,10 +428,17 @@ namespace Sandbox.Game.SessionComponents
 
         private void ActivateHudNotifications()
         {
-            if (MySession.Static.CreativeMode && !MyInput.Static.IsJoystickConnected())
+            if (MySession.Static.CreativeMode)
             {
-                MyHud.Notifications.Add(VoxelMaterialHint);
-                MyHud.Notifications.Add(VoxelSettingsHint);
+                if (!MyInput.Static.IsJoystickConnected())
+                {
+                    MyHud.Notifications.Add(m_voxelMaterialHint);
+                    MyHud.Notifications.Add(m_voxelSettingsHint);
+                }
+                else
+                {
+                    MyHud.Notifications.Add(m_buildModeHint);
+                }
             }
         }
 
@@ -429,10 +446,12 @@ namespace Sandbox.Game.SessionComponents
         {
             if (MySession.Static.CreativeMode)
             {
-                MyHud.Notifications.Remove(VoxelMaterialHint);
-                MyHud.Notifications.Remove(VoxelSettingsHint);
-                MyHud.Notifications.Remove(JoystickVoxelMaterialHint);
-                MyHud.Notifications.Remove(JoystickVoxelSettingsHint);
+                MyHud.Notifications.Remove(m_voxelMaterialHint);
+                MyHud.Notifications.Remove(m_voxelSettingsHint);
+                MyHud.Notifications.Remove(m_joystickVoxelMaterialHint);
+                MyHud.Notifications.Remove(m_joystickVoxelSettingsHint);
+                if (m_buildModeHint != null)
+                    MyHud.Notifications.Remove(m_buildModeHint);
             }
         }
 
@@ -440,8 +459,9 @@ namespace Sandbox.Game.SessionComponents
         {
             if (MySession.Static.CreativeMode && MyInput.Static.IsJoystickConnected())
             {
-                MyHud.Notifications.Add(JoystickVoxelMaterialHint);
-                MyHud.Notifications.Add(JoystickVoxelSettingsHint);
+                MyHud.Notifications.Add(m_joystickVoxelMaterialHint);
+                MyHud.Notifications.Add(m_joystickVoxelSettingsHint);
+                MyHud.Notifications.Remove(m_buildModeHint);
             }
         }
 
@@ -449,8 +469,10 @@ namespace Sandbox.Game.SessionComponents
         {
             if (MySession.Static.CreativeMode)
             {
-                MyHud.Notifications.Remove(JoystickVoxelMaterialHint);
-                MyHud.Notifications.Remove(JoystickVoxelSettingsHint);
+                MyHud.Notifications.Remove(m_joystickVoxelMaterialHint);
+                MyHud.Notifications.Remove(m_joystickVoxelSettingsHint);
+                if (Enabled)
+                    MyHud.Notifications.Add(m_buildModeHint);
             }
         }
     }
@@ -1376,7 +1398,10 @@ namespace Sandbox.Game.SessionComponents
         }
 
         public void Paint(MyVoxelBase map, byte matId) { }
-        public void CutOut(MyVoxelBase map) { }
+        public void CutOut(MyVoxelBase map) 
+        {
+            MyVoxelGenerator.RequestCutOutShape(map, m_shape);
+        }
 
         public void SetPosition(ref Vector3D targetPosition)
         {

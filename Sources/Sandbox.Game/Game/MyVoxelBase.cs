@@ -176,15 +176,21 @@ namespace Sandbox.Game.Entities
             }
         }
 
-        virtual public float GetVoxelContentInBoundingBox(BoundingBoxD worldAabb, out float cellCount)
+        [Obsolete]
+        virtual public float GetVoxelContentInBoundingBox_Obsolete(BoundingBoxD worldAabb, out float cellCount)
         {
             cellCount = 0;
             return 0.0f;
         }
 
-        virtual public MyVoxelRangeType GetVoxelRangeTypeInBoundingBox(BoundingBoxD worldAabb)
+        public virtual bool IsAnyAabbCornerInside(BoundingBoxD worldAabb)
         {
-            return MyVoxelRangeType.MIXED;
+            return false;
+        }
+
+        public virtual bool IsOverlapOverThreshold(BoundingBoxD worldAabb, float thresholdPercentage = 0.9f)
+        {
+            return false;
         }
 
         virtual public MyClipmapScaleEnum ScaleGroup

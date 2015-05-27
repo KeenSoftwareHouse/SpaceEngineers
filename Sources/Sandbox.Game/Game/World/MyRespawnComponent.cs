@@ -30,13 +30,13 @@ namespace Sandbox.Game.World
         [ProtoContract]
         struct RespawnCooldownEntry
         {
-            [ProtoMember(1)]
+            [ProtoMember]
             public int ControllerId;
 
-            [ProtoMember(2)]
+            [ProtoMember]
             public string ShipId;
 
-            [ProtoMember(3)]
+            [ProtoMember]
             public int RelativeRespawnTime;
         }
 
@@ -47,7 +47,7 @@ namespace Sandbox.Game.World
         [MessageId(9385, P2PMessageEnum.Reliable)]
         struct SyncCooldownResponseMessage
         {
-            [ProtoMember(1)]
+            [ProtoMember]
             public RespawnCooldownEntry[] RespawnTimes;
         }
 

@@ -51,6 +51,7 @@ namespace VRageRender
         internal static float   SunDistance;
         internal static string  SunMaterial;
         internal static float   SunSizeMultiplier;
+        internal static bool    SunBillboardEnabled;
 
         internal static string DaySkybox = "Textures/BackgroundCube/Final/BackgroundCube_skybox.dds";
         internal static string DaySkyboxPrefiltered = "Textures/BackgroundCube/Final/BackgroundCube_skybox_prefiltered.dds";

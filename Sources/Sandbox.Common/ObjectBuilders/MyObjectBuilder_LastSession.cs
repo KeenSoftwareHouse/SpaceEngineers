@@ -9,10 +9,10 @@ namespace Sandbox.Common.ObjectBuilders
     [MyObjectBuilderDefinition]
     public class MyObjectBuilder_LastSession : MyObjectBuilder_Base
     {
-        [ProtoMember(2)]
+        [ProtoMember]
         public string Path;
 
-        [ProtoMember(3)]
+        [ProtoMember]
         public bool IsContentWorlds;
     }
 }

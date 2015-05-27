@@ -40,16 +40,17 @@ namespace Client
                 IsRunning = false;
             };
 
-            m_client = new MyRakNetClient((ulong)m_port);
-
             for (int i = 0; i < 10; i++)
             {
+                m_client = new MyRakNetClient((ulong)m_port);
                 switch (m_client.Startup(m_port))
                 {
                     case StartupResultEnum.SOCKET_PORT_ALREADY_IN_USE:
                         m_port++;
-                        break;
+                        m_client.Dispose();
+                        continue;
                     default:
+                        i = 10;
                         break;
                 }
             }
@@ -141,22 +142,21 @@ namespace Client
             MyPlugins.Unload();
         }
 
-        static void Static_OnEntityCreated(object obj, ulong entityID)
+        static void Static_OnEntityCreated(object obj)
         {
-            Debug.Assert(foo == null);
-            Console.Out.WriteLine("EntityCreated {0}, {1}", obj, entityID);
+            //Debug.Assert(foo == null);
+            Console.Out.WriteLine("EntityCreated {0}", obj);
             foo = (Server.Foo)obj;
-            foo.EntityID = entityID;
             lastD = double.NaN;
             lastStr = string.Empty;
         }
 
-        static void Static_OnEntityDestroyed(ulong entityID)
+        static void Static_OnEntityDestroyed(object obj)
         {
-            Console.Out.WriteLine("EntityDestroyed {0}", entityID);
+            Console.Out.WriteLine("EntityDestroyed {0}", obj);
             if (foo != null)
             {
-                if (foo.EntityID == entityID)
+                if (foo == obj)
                 {
                     foo = null;
                     lastD = double.NaN;
@@ -177,21 +177,12 @@ namespace Client
             client.OnDisconnectionNotification += client_OnDisconnectionNotification;
             client.OnInvalidPassword += client_OnInvalidPassword;
             client.OnModListRecieved += client_OnModListRecieved;
-            client.OnWorldDownloadProgress += client_OnWorldDownloadProgress;
-            client.OnWorldRecieved += client_OnWorldRecieved;
+            client.OnStateDataDownloadProgress += client_OnStateDataDownloadProgress;
         }
 
-        static void client_OnWorldRecieved(MemoryStream worldStream)
+        static void client_OnStateDataDownloadProgress(uint progress, uint total, uint partLength)
         {
-            using (var sr = new StreamReader(worldStream))
-            {
-                Console.Out.WriteLine("WorldRecieved {0}", sr.ReadToEnd());
-            }
-        }
-
-        static void client_OnWorldDownloadProgress(uint progress, uint total, uint partLength)
-        {
-            throw new NotImplementedException();
+            Console.Out.WriteLine("StateDataDownloadProgress {0},{1},{2}", progress, total, partLength);
         }
 
         static void client_OnModListRecieved(List<ulong> mods)

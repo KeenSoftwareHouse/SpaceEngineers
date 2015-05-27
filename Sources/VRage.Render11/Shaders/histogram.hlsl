@@ -40,20 +40,25 @@ static const float HISTOGRAM_MAX = 8.0f;
 static const float HISTOGRAM_SPAN = HISTOGRAM_MAX - HISTOGRAM_MIN;
 static const uint HISTOGRAM_BINS = 512;
 
-
 void store_value(float x) {
-	uint bin = (x - HISTOGRAM_MIN) / HISTOGRAM_SPAN * HISTOGRAM_BINS;
-	uint tmp;
-	InterlockedAdd(Histogram[bin], 1, tmp);
+	//if(x > EXP_LUM_THRESHOLD) {
+		uint bin = clamp((x - HISTOGRAM_MIN) / HISTOGRAM_SPAN * HISTOGRAM_BINS, 0, HISTOGRAM_BINS - 1);
+		uint prev;
+		InterlockedAdd(Histogram[bin], 1, prev);
+
+		if(x > frame_.logLumThreshold) {
+			uint tmp;
+			InterlockedMax(Histogram[512], prev + 1, tmp);
+		}
+	//}
 }
 
 [numthreads(NUMTHREADS_X, NUMTHREADS_Y, 1)]
-void build_histogram(uint3 dispatchThreadID : SV_DispatchThreadID)
-{
+void build_histogram(uint3 dispatchThreadID : SV_DispatchThreadID) {
 	uint2 texel = dispatchThreadID.xy;
 	
-	if(all(texel < Texture_size))
-	{
+	if(all(texel < Texture_size)) {
+
 	#if !MSAA_ENABLED
 		float3 sample = Source[texel].xyz;
 		store_value(log(max( calc_luminance(sample), 0.0001f)));
@@ -64,5 +69,6 @@ void build_histogram(uint3 dispatchThreadID : SV_DispatchThreadID)
 			store_value(log(max( calc_luminance(sample), 0.0001f)));
 		}
 	#endif
+		
 	}
 }

@@ -15,6 +15,8 @@ namespace Sandbox.Common.ObjectBuilders.AI
         CHARACTER,
         POSITION,
         ENTITY,
+		ENVIRONMENT_ITEM,
+		VOXEL,
     }
 
     [ProtoContract]
@@ -24,26 +26,26 @@ namespace Sandbox.Common.ObjectBuilders.AI
         [ProtoContract]
         public class UnreachableEntitiesData
         {
-            [ProtoMember(1)]
+            [ProtoMember]
             public long UnreachableEntityId;
 
-            [ProtoMember(2)]
+            [ProtoMember]
             public int Timeout;
         }
 
-        [ProtoMember(1)]
+        [ProtoMember]
         public MyAiTargetEnum CurrentTarget = MyAiTargetEnum.NO_TARGET;
 
-        [ProtoMember(2)]
+        [ProtoMember]
         public long? EntityId = null;
 
-        [ProtoMember(3)]
+        [ProtoMember]
         public Vector3I TargetCube = Vector3I.Zero;
 
-        [ProtoMember(4)]
+        [ProtoMember]
         public Vector3D TargetPosition = Vector3D.Zero;
 
-        [ProtoMember(5)]
+        [ProtoMember]
         public List<UnreachableEntitiesData> UnreachableEntities = null;
     }
 }

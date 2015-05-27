@@ -69,14 +69,14 @@ namespace Sandbox.Game.Multiplayer
         [MessageIdAttribute(3144, P2PMessageEnum.Reliable)]
         protected struct ChangeMySensorToolbarItemMsg : IEntityMessage
         {
-            [ProtoMember(1)]
+            [ProtoMember]
             public long EntityId;
             public long GetEntityId() { return EntityId; }
 
-            [ProtoMember(2)]
+            [ProtoMember]
             public ToolbarItem Item;
 
-            [ProtoMember(3)]
+            [ProtoMember]
             public int Index;
 
             public override string ToString()

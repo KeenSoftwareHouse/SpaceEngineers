@@ -1,22 +1,22 @@
-﻿using Sandbox.Common;
-
+﻿using Sandbox;
+using Sandbox.Common;
 using Sandbox.Engine.Platform.VideoMode;
 using Sandbox.Engine.Utils;
+using Sandbox.Game.Localization;
 using Sandbox.Graphics.GUI;
 using System;
 using System.Collections.Generic;
 using System.Text;
-using System.Linq;
 using VRage;
+using VRage.Utils;
 using VRageMath;
 using VRageRender;
 using MyGuiConstants = Sandbox.Graphics.GUI.MyGuiConstants;
-using Sandbox.Game.Localization;
-using VRage;
-using VRage.Utils;
 
-namespace Sandbox.Game.Gui
+namespace SpaceEngineers.Game.Gui
 {
+    // mk:TODO Remove once switching between Dx9 and Dx11 has been released.
+    [Obsolete("Can be removed once switching between Dx9 and Dx11 has been released.")]
     class MyGuiScreenOptionsVideoSpace : MyGuiScreenBase
     {
         private MyGuiControlCombobox m_videoAdapterCombobox;
@@ -82,7 +82,7 @@ namespace Sandbox.Game.Gui
             var labelEnableDamageEffects = new MyGuiControlLabel(textScale: TEXT_SCALE, text: MyTexts.GetString(MySpaceTexts.EnableDamageEffects));
 
             m_videoAdapterCombobox   = new MyGuiControlCombobox(toolTip: MyTexts.GetString(MySpaceTexts.ToolTipVideoOptionsVideoAdapter));
-            m_resolutionCombobox      = new MyGuiControlCombobox(toolTip: MyTexts.GetString(MySpaceTexts.ToolTipVideoOptionsVideoMode));
+            m_resolutionCombobox     = new MyGuiControlCombobox(toolTip: MyTexts.GetString(MySpaceTexts.ToolTipVideoOptionsVideoMode));
             m_windowModeCombobox     = new MyGuiControlCombobox();
             m_verticalSyncCheckbox   = new MyGuiControlCheckbox(toolTip: MyTexts.GetString(MySpaceTexts.ToolTipVideoOptionsVerticalSync));
             m_hardwareCursorCheckbox = new MyGuiControlCheckbox(toolTip: MyTexts.GetString(MySpaceTexts.ToolTipVideoOptionsHardwareCursor));
@@ -111,7 +111,7 @@ namespace Sandbox.Game.Gui
             m_videoAdapterCombobox.Position = controlsOriginRight; controlsOriginRight += MyGuiConstants.CONTROLS_DELTA;
 
             labelVideoMode.Position                = controlsOriginLeft; controlsOriginLeft += MyGuiConstants.CONTROLS_DELTA;
-            m_resolutionCombobox.Position           = controlsOriginRight; controlsOriginRight += MyGuiConstants.CONTROLS_DELTA;
+            m_resolutionCombobox.Position          = controlsOriginRight; controlsOriginRight += MyGuiConstants.CONTROLS_DELTA;
             m_unsupportedAspectRatioLabel.Position = controlsOriginRight + hintOffset;
             m_recommendAspectRatioLabel.Position   = controlsOriginRight + hintOffset + hintLineOffset;
             controlsOriginLeft                    += MyGuiConstants.CONTROLS_DELTA;
@@ -127,7 +127,7 @@ namespace Sandbox.Game.Gui
             m_renderQualityCombobox.Position       = controlsOriginRight; controlsOriginRight += MyGuiConstants.CONTROLS_DELTA;
             labelRenderInterpolation.Position      = controlsOriginLeft; controlsOriginLeft += MyGuiConstants.CONTROLS_DELTA;
             m_renderInterpolationCheckbox.Position = controlsOriginRight; controlsOriginRight += MyGuiConstants.CONTROLS_DELTA;
-            labelEnableDamageEffects.Position = controlsOriginLeft; controlsOriginLeft += MyGuiConstants.CONTROLS_DELTA;
+            labelEnableDamageEffects.Position      = controlsOriginLeft; controlsOriginLeft += MyGuiConstants.CONTROLS_DELTA;
             m_enableDamageEffectsCheckbox.Position = controlsOriginRight; controlsOriginRight += MyGuiConstants.CONTROLS_DELTA;
 
             labelFoV.Position                  = controlsOriginLeft; controlsOriginLeft += MyGuiConstants.CONTROLS_DELTA;
@@ -329,11 +329,11 @@ namespace Sandbox.Game.Gui
             changed = changed || graphicsSettings.EnableDamageEffects != m_enableDamageEffectsCheckbox.IsChecked;
             graphicsSettings.EnableDamageEffects = m_enableDamageEffectsCheckbox.IsChecked;
 
-            changed = changed || graphicsSettings.RenderInterpolation != m_renderInterpolationCheckbox.IsChecked;
-            graphicsSettings.RenderInterpolation = m_renderInterpolationCheckbox.IsChecked;
+            changed = changed || graphicsSettings.Render.InterpolationEnabled != m_renderInterpolationCheckbox.IsChecked;
+            graphicsSettings.Render.InterpolationEnabled = m_renderInterpolationCheckbox.IsChecked;
 
-            changed = changed || graphicsSettings.RenderQuality != (MyRenderQualityEnum)m_renderQualityCombobox.GetSelectedKey();
-            graphicsSettings.RenderQuality = (MyRenderQualityEnum)m_renderQualityCombobox.GetSelectedKey();
+            changed = changed || graphicsSettings.Render.Dx9Quality != (MyRenderQualityEnum)m_renderQualityCombobox.GetSelectedKey();
+            graphicsSettings.Render.Dx9Quality = (MyRenderQualityEnum)m_renderQualityCombobox.GetSelectedKey();
 
             return changed;
         }
@@ -348,13 +348,13 @@ namespace Sandbox.Game.Gui
             m_hardwareCursorCheckbox.IsChecked = graphicsSettings.HardwareCursor;
             m_enableDamageEffectsCheckbox.IsChecked = graphicsSettings.EnableDamageEffects;
 
-            m_renderQualityCombobox.SelectItemByKey((int)graphicsSettings.RenderQuality);
+            m_renderQualityCombobox.SelectItemByKey((int)graphicsSettings.Render.Dx9Quality);
             if (m_renderQualityCombobox.GetSelectedKey() == -1)
                 m_renderQualityCombobox.SelectItemByIndex(0);
 
             m_fieldOfViewSlider.Value = MathHelper.ToDegrees(graphicsSettings.FieldOfView);
 
-            m_renderInterpolationCheckbox.IsChecked = graphicsSettings.RenderInterpolation;
+            m_renderInterpolationCheckbox.IsChecked = graphicsSettings.Render.InterpolationEnabled;
         }
 
         public void OnCancelClick(MyGuiControlButton sender)

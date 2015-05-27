@@ -17,62 +17,62 @@ namespace Sandbox.Common.ObjectBuilders
         [XmlIgnore]
         public const uint DEFAULT_AUTOSAVE_IN_MINUTES = 5;
 
-        [ProtoMember(1)]
+        [ProtoMember]
         [Display(Name = "Game mode")]
         [GameRelationAttribute(Game.Shared)]
         public MyGameModeEnum GameMode = MyGameModeEnum.Survival;
 
-        [ProtoMember(2)]
+        [ProtoMember]
         [Display(Name = "Inventory size multiplier")]
         [GameRelationAttribute(Game.SpaceEngineers)]
         public float InventorySizeMultiplier = 1;
 
-        [ProtoMember(3)]
+        [ProtoMember]
         [Display(Name = "Assembler speed multiplier")]
         [GameRelationAttribute(Game.SpaceEngineers)]
         public float AssemblerSpeedMultiplier = 1;
 
-        [ProtoMember(4)]
+        [ProtoMember]
         [Display(Name = "Assembler efficiency multiplier")]
         [GameRelationAttribute(Game.SpaceEngineers)]
         public float AssemblerEfficiencyMultiplier = 1;
 
-        [ProtoMember(5)]
+        [ProtoMember]
         [Display(Name = "Refinery speed multiplier")]
         [GameRelationAttribute(Game.SpaceEngineers)]
         public float RefinerySpeedMultiplier = 1;
 
-        [ProtoMember(6)]
+        [ProtoMember]
         public MyOnlineModeEnum OnlineMode = MyOnlineModeEnum.OFFLINE;
 
-        [ProtoMember(7)]
+        [ProtoMember]
         [Display(Name = "Max players")]
         [GameRelationAttribute(Game.Shared)]
         [Range(2, int.MaxValue)]
         public short MaxPlayers = 4;
 
-        [ProtoMember(8)]
+        [ProtoMember]
         [Display(Name = "Max floating objects")]
         [GameRelationAttribute(Game.SpaceEngineers)]
         [Range(2, int.MaxValue)]
         public short MaxFloatingObjects = 256;
 
-        [ProtoMember(9)]
+        [ProtoMember]
         [Display(Name = "Environment hostility")]
         [GameRelationAttribute(Game.SpaceEngineers)]
         public MyEnvironmentHostilityEnum EnvironmentHostility = MyEnvironmentHostilityEnum.SAFE;
 
-        [ProtoMember(10)]
+        [ProtoMember]
         [Display(Name = "Auto healing")]
         [GameRelationAttribute(Game.SpaceEngineers)]
         public bool AutoHealing = true;
 
-        [ProtoMember(11)]
+        [ProtoMember]
         [Display(Name = "Enable Copy&Paste")]
         [GameRelationAttribute(Game.Shared)]
         public bool EnableCopyPaste = true;
 
-        //[ProtoMember(12)]
+        //[ProtoMember]
         public bool AutoSave
         {
             get { Debug.Fail("Obsolete."); return AutoSaveInMinutes > 0; }
@@ -80,32 +80,32 @@ namespace Sandbox.Common.ObjectBuilders
         }
         public bool ShouldSerializeAutoSave() { return false; }
 
-        [ProtoMember(13)]
+        [ProtoMember]
         [Display(Name = "Weapons enabled")]
         [GameRelationAttribute(Game.SpaceEngineers)]
         public bool WeaponsEnabled = true;
 
-        [ProtoMember(14)]
+        [ProtoMember]
         [Display(Name = "Show player names on HUD")]
         [GameRelationAttribute(Game.SpaceEngineers)]
         public bool ShowPlayerNamesOnHud = true;
 
-        [ProtoMember(15)]
+        [ProtoMember]
         [Display(Name = "Thruster damage")]
         [GameRelationAttribute(Game.SpaceEngineers)]
         public bool ThrusterDamage = true;
 
-        [ProtoMember(16)]
+        [ProtoMember]
         [Display(Name = "Cargo ships enabled")]
         [GameRelationAttribute(Game.SpaceEngineers)]
         public bool CargoShipsEnabled = true;
 
-        [ProtoMember(17)]
+        [ProtoMember]
         [Display(Name = "Enable spectator")]
         [GameRelationAttribute(Game.Shared)]
         public bool EnableSpectator = false;
 
-        [ProtoMember(18)]
+        [ProtoMember]
         [Display(Name = "Remove trash")]
         [GameRelationAttribute(Game.SpaceEngineers)]
         public bool RemoveTrash = false;
@@ -115,120 +115,123 @@ namespace Sandbox.Common.ObjectBuilders
         /// Don't use directly, as it is error-prone (it's km instead of m and edge size instead of half-extent)
         /// Rather use MyEntities.WorldHalfExtent()
         /// </summary>
-        [ProtoMember(19)]
+        [ProtoMember]
         [Display(Name = "World size in Km")]
         [GameRelationAttribute(Game.SpaceEngineers)]
         public int WorldSizeKm = 0;
 
-        [ProtoMember(20)]
+        [ProtoMember]
         [Display(Name = "Respawn ship delete")]
         [GameRelationAttribute(Game.SpaceEngineers)]
         public bool RespawnShipDelete = true;
 
-        [ProtoMember(21)]
+        [ProtoMember]
         [Display(Name = "Reset ownership")]
         [GameRelationAttribute(Game.SpaceEngineers)]
         public bool ResetOwnership = false;
 
-        [ProtoMember(22)]
+        [ProtoMember]
         [Display(Name = "Welder speed multiplier")]
         [GameRelationAttribute(Game.SpaceEngineers)]
         public float WelderSpeedMultiplier = 1;
 
-        [ProtoMember(23)]
+        [ProtoMember]
         [Display(Name = "Grinder speed multiplier")]
         [GameRelationAttribute(Game.SpaceEngineers)]
         public float GrinderSpeedMultiplier = 1;
 
-        [ProtoMember(24)]
+        [ProtoMember]
         [Display(Name = "Realistic sound")]
         [GameRelationAttribute(Game.SpaceEngineers)]
         public bool RealisticSound = false;
 
-        [ProtoMember(25)]
+        [ProtoMember]
         [Display(Name = "Client can save")]
         [GameRelationAttribute(Game.Shared)]
         public bool ClientCanSave = false;
 
-        [ProtoMember(26)]
+        [ProtoMember]
         [Display(Name = "Hack speed multiplier")]
         [GameRelationAttribute(Game.SpaceEngineers)]
         public float HackSpeedMultiplier = 0.33f;
 
-        [ProtoMember(27)]
+        [ProtoMember]
         [Display(Name = "Permanent death")]
         [GameRelationAttribute(Game.SpaceEngineers)]
         public bool? PermanentDeath = true;
 
-        [ProtoMember(28)]
+        [ProtoMember]
         [Display(Name = "AutoSave in minutes")]
         [GameRelationAttribute(Game.Shared)]
         [Range(0, int.MaxValue)]
         public uint AutoSaveInMinutes = DEFAULT_AUTOSAVE_IN_MINUTES;
 
-        [ProtoMember(29)]
+        [ProtoMember]
         [Display(Name = "Spawnship time multiplier")]
         [GameRelationAttribute(Game.SpaceEngineers)]
         public float SpawnShipTimeMultiplier = 1.0f;
 
-        [ProtoMember(30)]
+        [ProtoMember]
         [Display(Name = "Procedural density")]
         [GameRelationAttribute(Game.SpaceEngineers)]
         public float ProceduralDensity = 0f;
         public bool ShouldSerializeProceduralDensity() { return ProceduralDensity > 0; }
 
-        [ProtoMember(31)]
+        [ProtoMember]
         [Display(Name = "Procedural seed")]
         [GameRelationAttribute(Game.SpaceEngineers)]
         public int ProceduralSeed = 0;
         public bool ShouldSerializeProceduralSeed() { return ProceduralDensity > 0; }
 
-        [ProtoMember(32)]
+        [ProtoMember]
         [Display(Name = "Destructible blocks")]
         [GameRelationAttribute(Game.SpaceEngineers)]
         public bool DestructibleBlocks = true;
 
-        [ProtoMember(33)]
+        [ProtoMember]
         [Display(Name = "Enable ingame scripts")]
         [GameRelationAttribute(Game.SpaceEngineers)]
         public bool EnableIngameScripts = true;
 
-        [ProtoMember(34)]
+        [ProtoMember]
         [Display(Name = "View distance")]
         [GameRelationAttribute(Game.SpaceEngineers)]
         public int ViewDistance = 20000;
 
-        [ProtoMember(35)]
+        [ProtoMember]
         [DefaultValue(false)]// must leave default value here because it fails to deserialize world if it finds old save where this was nullable (bleh)
         [Display(Name = "Enable tool shake")]
         [GameRelationAttribute(Game.SpaceEngineers)]
         public bool EnableToolShake = false;
 
-        [ProtoMember(36)]
+        [ProtoMember]
         //[Display(Name = "")] //do not display this
         [Display(Name = "Voxel generator version")]
         [GameRelationAttribute(Game.SpaceEngineers)]
         public int VoxelGeneratorVersion = 0;
 
-        [ProtoMember(37)]
+        [ProtoMember]
         [Display(Name = "Enable oxygen")]
         [GameRelationAttribute(Game.SpaceEngineers)]
         public bool EnableOxygen = false;
 
-        [ProtoMember(38)]
+        [ProtoMember]
         [Display(Name = "Enable 3rd person view")]
         [GameRelationAttribute(Game.SpaceEngineers)]
         public bool Enable3rdPersonView = true;
 
-        [ProtoMember(39)]
+        [ProtoMember]
         [Display(Name = "Enable encounters")]
         [GameRelationAttribute(Game.SpaceEngineers)]
         public bool EnableEncounters = true;
 
-        [ProtoMember(40)]
+        [ProtoMember]
         [GameRelationAttribute(Game.MedievalEngineers)]
         [Display(Name = "")]
         public bool Battle = false;
+
+        [ProtoMember]
+        public int PhysicsIterations = 4;
 
 
         public void LogMembers(MyLog log, LoggingOptions options)
@@ -271,6 +274,13 @@ namespace Sandbox.Common.ObjectBuilders
         }
     }
 
+    public enum MyPhysicsPerformanceEnum
+    {
+        Fast = 4,
+        Normal = 8,
+        Precise = 32,
+    }
+    
     public enum MyOnlineModeEnum
     {
         OFFLINE,

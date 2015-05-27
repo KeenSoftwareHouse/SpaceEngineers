@@ -18,16 +18,17 @@ string resxFilePath = "..\\..\\..\\SpaceEngineers\\Content\\Data\\Localization\\
 XDocument document = XDocument.Parse(File.ReadAllText(Path.Combine(path, resxFilePath)));
 var data = document.Element("root").Elements("data");
 // data = data.OrderBy(x => x.Attribute("name").Value);
+// mk:TODO Generated class shouldn't be public once games are properly separated and these texts are part of game-specific DLL or something.
 
 #>
 using System.Text;
-using VRage.Library.Utils;
+using VRage.Utils;
 
 // This file has been generated. Do not edit it.
 namespace Sandbox.Game.Localization
 {
     [System.CodeDom.Compiler.GeneratedCode("<#= appName #>", "<#= version #>")]
-    internal static class MySpaceTexts
+    public static class MySpaceTexts
     {
         public static readonly MyStringId Blank = default(MyStringId);
 <#

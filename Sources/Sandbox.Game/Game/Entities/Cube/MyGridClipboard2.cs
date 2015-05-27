@@ -358,10 +358,10 @@ namespace Sandbox.Game.Entities.Cube
                 m_visible = true;
                 IsSnapped = false;
 
-                Vector3D? fixedPastePosition = GetFreeSpacePlacementPosition(true, out m_dynamicBuildAllowed);
-                if (fixedPastePosition.HasValue)
-                    m_pastePosition = fixedPastePosition.Value;
-                else
+                //Vector3D? fixedPastePosition = GetFreeSpacePlacementPosition(true, out m_dynamicBuildAllowed);
+                //if (fixedPastePosition.HasValue)
+                //    m_pastePosition = fixedPastePosition.Value;
+                //else
                     m_pastePosition = MyCubeBuilder.IntersectionStart + m_dragDistance * MyCubeBuilder.IntersectionDirection;
 
                 Matrix firstGridOrientation = GetFirstGridOrientationMatrix();
@@ -558,7 +558,8 @@ namespace Sandbox.Game.Entities.Cube
                     }
                 }
                 else
-                {
+                { //not dynamic building mode
+
                     if (i == 0 && m_hitEntity is MyCubeGrid && IsSnapped && SnapMode == MyGridPlacementSettings.SnapMode.Base6Directions)
                     {
                         var settings = grid.GridSizeEnum == MyCubeSize.Large ? MyPerGameSettings.BuildingSettings.LargeStaticGrid : MyPerGameSettings.BuildingSettings.SmallStaticGrid;
@@ -657,7 +658,7 @@ namespace Sandbox.Game.Entities.Cube
                                     Vector3 minLocal = block.Min * PreviewGrids[i].GridSize - Vector3.Half * PreviewGrids[i].GridSize;
                                     Vector3 maxLocal = block.Max * PreviewGrids[i].GridSize + Vector3.Half * PreviewGrids[i].GridSize;
                                     BoundingBoxD aabbLocal = new BoundingBoxD(minLocal, maxLocal);
-                                    retval = retval && MyCubeGrid.TestPlacementArea(grid, grid.IsStatic, ref settings, aabbLocal, true);
+                                    retval = retval && MyCubeGrid.TestPlacementArea(grid, grid.IsStatic, ref settings, aabbLocal, false);
 
                                     if (!retval)
                                         break;

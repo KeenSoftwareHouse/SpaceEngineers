@@ -1,16 +1,23 @@
 ﻿using Sandbox;
 using Sandbox.Common.ObjectBuilders;
+using Sandbox.Engine.Platform.VideoMode;
 using Sandbox.Engine.Utils;
 using Sandbox.Game;
 using Sandbox.Game.Entities.Cube;
 using Sandbox.Game.Screens.Helpers;
+using Sandbox.Graphics.Render;
+using SpaceEngineers.Game.GUI;
 using System.Collections.Generic;
 using System.Text;
+using VRage.Utils;
 
 namespace SpaceEngineers.Game
 {
     public static partial class SpaceEngineersGame
     {
+        public static readonly MyStringId DirectX9RendererKey = MyStringId.GetOrCompute("DirectX 9");
+        public static readonly MyStringId DirectX11RendererKey = MyStringId.GetOrCompute("DirectX 11");
+
         public static void SetupPerGameSettings()
         {
             MyPerGameSettings.Game = GameEnum.SE_GAME;
@@ -87,15 +94,53 @@ namespace SpaceEngineers.Game
             MyFakes.ENABLE_PATHFINDING = false;
             MyDebugDrawSettings.DEBUG_DRAW_MOUNT_POINTS_AXIS_HELPERS = true;
 
-            // TODO: after the ragdoll models are correct this can be removed..
-            //MyFakes.ENABLE_RAGDOLL_PROPERTIES_DEFAULTS = true;
+            // RAGDOLL PARAMATERS
+            // TODO: after the ragdoll models are correctly configured this can be removed..
+            MyFakes.ENABLE_RAGDOLL_DEFAULT_PROPERTIES = true;
             //MyPerGameSettings.EnableRagdollModels = false;
             MyPerGameSettings.EnableRagdollInJetpack = true;
             //MyFakes.ENABLE_RAGDOLL_BONES_TRANSLATION = false;
 
             MyPerGameSettings.EnableKinematicMPCharacter = true;
 
+            MyPerGameSettings.GUI.OptionsScreen = typeof(MyGuiScreenOptionsSpace);
+            MyPerGameSettings.DefaultGraphicsRenderer = DirectX9RendererKey;
+
+            MyPerGameSettings.EnableWelderAutoswitch = true;
+
             FillCredits();
+
+            // Video settings manager has not been initialized yet, so accessing config file directly.
+            if (MySandboxGame.Config != null && // Dedicated server calls this as first thing, even before it has loaded config ... doesn't need render though.
+                MySandboxGame.Config.GraphicsRenderer == DirectX11RendererKey)
+            {
+                MyPostProcessVolumetricSSAO2.MinRadius = 0.095f;
+                MyPostProcessVolumetricSSAO2.MaxRadius = 4.16f;
+                MyPostProcessVolumetricSSAO2.RadiusGrowZScale = 1.007f;
+                MyPostProcessVolumetricSSAO2.Falloff = 3.08f;
+                MyPostProcessVolumetricSSAO2.Bias = 0.25f;
+                MyPostProcessVolumetricSSAO2.Contrast = 2.617f;
+                MyPostProcessVolumetricSSAO2.NormValue = 0.075f;
+
+                MyPostprocessSettingsWrapper.Settings.Brightness = 0;
+                MyPostprocessSettingsWrapper.Settings.Contrast = 0;
+                MyPostprocessSettingsWrapper.Settings.LuminanceExposure = 0;
+                MyPostprocessSettingsWrapper.Settings.BloomExposure = 0;
+                MyPostprocessSettingsWrapper.Settings.BloomMult = 0.1f;
+                MyPostprocessSettingsWrapper.Settings.EyeAdaptationTau = 6;
+                MyPostprocessSettingsWrapper.Settings.MiddleGreyAt0 = 0.068f;
+                MyPostprocessSettingsWrapper.Settings.MiddleGreyCurveSharpness = 4.36f;
+                MyPostprocessSettingsWrapper.Settings.LogLumThreshold = -6.0f;
+                MyPostprocessSettingsWrapper.Settings.BlueShiftRapidness = 0;
+                MyPostprocessSettingsWrapper.Settings.BlueShiftScale = 0;
+                MyPostprocessSettingsWrapper.Settings.Tonemapping_A = 0.748f;
+                MyPostprocessSettingsWrapper.Settings.Tonemapping_B = 0.324f;
+                MyPostprocessSettingsWrapper.Settings.Tonemapping_C = 0.143f;
+                MyPostprocessSettingsWrapper.Settings.Tonemapping_D = 0.196f;
+                MyPostprocessSettingsWrapper.Settings.Tonemapping_E = 0.009f;
+                MyPostprocessSettingsWrapper.Settings.Tonemapping_F = 0.130f;
+            }
+
         }
 
         static void FillCredits()

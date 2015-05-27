@@ -34,7 +34,7 @@ namespace Sandbox
         public MyBlockShapePool BlockShapePool { get; private set; }
         HkDestructionStorage Storage;
 
-        static Dictionary<string, MyPhysicalMaterialDefinition> m_physicalMaterials;// = new Dictionary<string, MyDestructionMaterial>()
+        static Dictionary<string, MyPhysicalMaterialDefinition> m_physicalMaterials;
 
         public override bool IsRequiredByGame
         {
@@ -64,7 +64,7 @@ namespace Sandbox
             Static = this;
             BlockShapePool = new MyBlockShapePool();
 
-            TemporaryWorld = new HkWorld(true, 50000, MyPhysics.RestingVelocity, MyFakes.ENABLE_HAVOK_MULTITHREADING);
+            TemporaryWorld = new HkWorld(true, 50000, MyPhysics.RestingVelocity, MyFakes.ENABLE_HAVOK_MULTITHREADING, 4);
             TemporaryWorld.MarkForWrite();
             TemporaryWorld.DestructionWorld = new HkdWorld(TemporaryWorld);
             TemporaryWorld.UnmarkForWrite();
@@ -211,6 +211,35 @@ namespace Sandbox
                 }
 
             }
+            if (modelFractures.Fractures[0] is WoodFractureSettings)
+            {
+                //TODO: Apply wood fracture algorithm
+                var settings = (WoodFractureSettings)modelFractures.Fractures[0];
+                fracture = new HkdWoodFracture()
+                {
+                    //Seed = settings.Seed,
+                    //NumSitesToGenerate = settings.NumSitesToGenerate,
+                    //NumIterations = settings.NumIterations
+                };
+
+                //if (!string.IsNullOrEmpty(settings.SplitPlane))
+                //{
+                //    var splitPlane = settings.SplitPlane;
+                //    if (!string.IsNullOrEmpty(modPath))
+                //        splitPlane = Path.Combine(modPath, settings.SplitPlane);
+
+                //    geometry = CreateGeometryFromSplitPlane(splitPlane);
+
+                //    var pspm = MyModels.GetModel(splitPlane);
+
+                //    if (geometry != null)
+                //    {
+                //        ((HkdWoodFracture)fracture).SetGeometry(geometry);
+                //        VRageRender.MyRenderProxy.PreloadMaterials(splitPlane);
+                //    }
+                //}
+            }
+           
             //if (woodButton.IsChecked)
             //{
             //    fracture = new HkdWoodFracture()
@@ -419,10 +448,7 @@ namespace Sandbox
                     if (volume <= 0 || useShapeVolume)
                         volume = bShape.Volume;
                     var realMass = volume * material.Density;
-                    if (bShape.Name == "House Half Timber Triangle")
-                    {
 
-                    }
                     System.Diagnostics.Debug.Assert(realMass > 0, "Invalid mass data");
 
                     bShape.SetMassRecursively(MyDestructionHelper.MassToHavok(realMass));

@@ -19,7 +19,7 @@ namespace Sandbox.Common.ObjectBuilders
     [MyObjectBuilderDefinition]
     public class MyObjectBuilder_PhysicalObject : MyObjectBuilder_Base
     {
-        [ProtoMember(1), DefaultValue(MyItemFlags.None)]
+        [ProtoMember, DefaultValue(MyItemFlags.None)]
         public MyItemFlags Flags = MyItemFlags.None;
 
         public virtual bool CanStack(MyObjectBuilder_PhysicalObject a)

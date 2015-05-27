@@ -22,6 +22,7 @@ using System.Text;
 using VRage;
 using VRage.Input;
 using VRage.Library.Utils;
+using VRage.Utils;
 using VRageMath;
 using IMyModdingControllableEntity = Sandbox.ModAPI.Interfaces.IMyControllableEntity;
 #endregion
@@ -30,8 +31,9 @@ namespace Sandbox.Game.Entities
 {
     enum ControllerPriority
     {
-        Primary = 1,
-        Secondary = 2
+        AutoPilot = 1,
+        Primary = 2,
+        Secondary = 3
     };
     partial class MyShipController : MyTerminalBlock, IMyControllableEntity, IMyRechargeSocketOwner, IMyShipController
     {
@@ -58,6 +60,7 @@ namespace Sandbox.Game.Entities
         MyHudNotification m_notificationReactorsOn;
         MyHudNotification m_notificationLeave;
         MyHudNotification m_notificationTerminal;
+        MyHudNotification m_inertiaDampenersNotification;
 
         MyHudNotification m_noWeaponNotification;
         MyHudNotification m_weaponSelectedNotification;
@@ -65,6 +68,8 @@ namespace Sandbox.Game.Entities
         MyHudNotification m_weaponNotWorkingNotification;
 
         MyHudNotification m_noControlNotification;
+
+        protected virtual MyStringId LeaveNotificationHintText { get { return MySpaceTexts.NotificationHintLeaveCockpit; } }
 
         protected bool m_enableFirstPerson = false;
         protected bool m_enableShipControl = true;
@@ -446,7 +451,8 @@ namespace Sandbox.Game.Entities
 
             if (ControllerInfo.Controller != null && MySession.LocalHumanPlayer != null && ControllerInfo.Controller == MySession.LocalHumanPlayer.Controller)
             {
-                if (CubeGrid.GridSystems.ControlSystem.GetController() == ControllerInfo.Controller)
+                var shipController = CubeGrid.GridSystems.ControlSystem.GetController();
+                if (shipController == ControllerInfo.Controller)
                 {
                     if (m_noControlNotification != null)
                     {
@@ -458,13 +464,20 @@ namespace Sandbox.Game.Entities
                 {
                     if (m_noControlNotification == null && EnableShipControl)
                     {
-                        if (CubeGrid.IsStatic)
+                        if (shipController == null)
                         {
-                            m_noControlNotification = new MyHudNotification(MySpaceTexts.Notification_NoControlStation, 0);
+                            m_noControlNotification = new MyHudNotification(MySpaceTexts.Notification_NoControlAutoPilot, 0);
                         }
                         else
                         {
-                            m_noControlNotification = new MyHudNotification(MySpaceTexts.Notification_NoControl, 0);
+                            if (CubeGrid.IsStatic)
+                            {
+                                m_noControlNotification = new MyHudNotification(MySpaceTexts.Notification_NoControlStation, 0);
+                            }
+                            else
+                            {
+                                m_noControlNotification = new MyHudNotification(MySpaceTexts.Notification_NoControl, 0);
+                            }
                         }
                         MyHud.Notifications.Add(m_noControlNotification);
                     }
@@ -743,7 +756,7 @@ namespace Sandbox.Game.Entities
             if (m_notificationLeave == null)
             {
                 var controlName = MyInput.Static.GetGameControl(MyControlsSpace.USE).GetControlButtonName(MyGuiInputDeviceEnum.Keyboard);
-                m_notificationLeave = new MyHudNotification(MySpaceTexts.NotificationHintLeaveCockpit, 0);
+                m_notificationLeave = new MyHudNotification(LeaveNotificationHintText, 0);
                 if (!MyInput.Static.IsJoystickConnected())
                     m_notificationLeave.SetTextFormatArguments(controlName);
                 else
@@ -989,8 +1002,6 @@ namespace Sandbox.Game.Entities
                     group.GroupData.ControlSystem.RemoveControllerBlock(this);
                 }
             }
-            // to turn on/off sound in dependence of distance from listener
-            NeedsUpdate = MyEntityUpdateEnum.EACH_100TH_FRAME;
         }
 
         //Will be called when someone kicks player out of controller
@@ -1120,10 +1131,10 @@ namespace Sandbox.Game.Entities
 
             if (ControllerInfo.IsLocallyHumanControlled())
             {
-                if (GridThrustSystem.DampenersEnabled)
-                    MyHud.Notifications.Add(new MyHudNotification(MySpaceTexts.NotificationInertiaDampenersOn));
-                else
-                    MyHud.Notifications.Add(new MyHudNotification(MySpaceTexts.NotificationInertiaDampenersOff));
+                if (m_inertiaDampenersNotification == null)
+                    m_inertiaDampenersNotification = new MyHudNotification();
+                m_inertiaDampenersNotification.Text = (GridThrustSystem.DampenersEnabled ? MySpaceTexts.NotificationInertiaDampenersOn : MySpaceTexts.NotificationInertiaDampenersOff);
+                MyHud.Notifications.Add(m_inertiaDampenersNotification);
             }
         }
 

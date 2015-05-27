@@ -29,16 +29,16 @@ namespace Sandbox.Common.ObjectBuilders.VRageData
             this.W = w;
         }
 
-        [ProtoMember(1), XmlAttribute]
+        [ProtoMember, XmlAttribute]
         public float x { get { return X; } set { X = value; } }
 
-        [ProtoMember(2), XmlAttribute]
+        [ProtoMember, XmlAttribute]
         public float y { get { return Y; } set { Y = value; } }
 
-        [ProtoMember(3), XmlAttribute]
+        [ProtoMember, XmlAttribute]
         public float z { get { return Z; } set { Z = value; } }
 
-        [ProtoMember(4), XmlAttribute]
+        [ProtoMember, XmlAttribute]
         public float w { get { return W; } set { W = value; } }
 
         public static implicit operator Quaternion(SerializableQuaternion q)

@@ -35,23 +35,17 @@ using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading;
-
 using VRage;
 using VRage.Audio;
 using VRage.Collections;
-using VRage;
-using VRage.Audio;
+using VRage.Compiler;
+using VRage.FileSystem;
 using VRage.Input;
 using VRage.Plugins;
-using VRage.Utils;
-using VRage.Compiler;
-using VRage.Input;
 using VRage.Utils;
 using VRage.Win32;
 using VRageMath;
 using VRageRender;
-using VRage.Library.Utils;
-using VRage.FileSystem;
 #endregion
 
 [assembly: InternalsVisibleTo("ScriptsUT")]
@@ -285,8 +279,6 @@ namespace Sandbox
                 ProfilerShort.End();
             }
 
-            Config.Load();
-
             Initialize();
 
             if (disposeSplashScreen != null)
@@ -402,6 +394,7 @@ namespace Sandbox
             MyGuiGameControlsHelpers.Add(MyControlsSpace.CONTROL_MENU, new MyGuiDescriptor(MySpaceTexts.ControlName_ControlMenu));
             if (MyFakes.ENABLE_MISSION_TRIGGERS)
                 MyGuiGameControlsHelpers.Add(MyControlsSpace.MISSION_SETTINGS, new MyGuiDescriptor(MySpaceTexts.ControlName_MissionSettings));
+            MyGuiGameControlsHelpers.Add(MyControlsSpace.STATION_ROTATION, new MyGuiDescriptor(MySpaceTexts.StationRotation_Static, MySpaceTexts.StationRotation_Static_Desc));
 
             Dictionary<MyStringId, MyControl> defaultGameControls = new Dictionary<MyStringId, MyControl>();
             AddDefaultGameControl(defaultGameControls, MyGuiControlTypeEnum.Navigation, MyControlsSpace.FORWARD, null, MyKeys.W);
@@ -455,6 +448,8 @@ namespace Sandbox
             AddDefaultGameControl(defaultGameControls, MyGuiControlTypeEnum.Systems3, MyControlsSpace.CONTROL_MENU);
             if (MyFakes.ENABLE_MISSION_TRIGGERS)
                 AddDefaultGameControl(defaultGameControls, MyGuiControlTypeEnum.Systems3, MyControlsSpace.MISSION_SETTINGS, null, MyKeys.U);
+            AddDefaultGameControl(defaultGameControls, MyGuiControlTypeEnum.Systems3, MyControlsSpace.STATION_ROTATION, null, MyKeys.B);
+
             AddDefaultGameControl(defaultGameControls, MyGuiControlTypeEnum.ToolsOrWeapons, MyControlsSpace.SLOT1, null, MyKeys.D1);
             AddDefaultGameControl(defaultGameControls, MyGuiControlTypeEnum.ToolsOrWeapons, MyControlsSpace.SLOT2, null, MyKeys.D2);
             AddDefaultGameControl(defaultGameControls, MyGuiControlTypeEnum.ToolsOrWeapons, MyControlsSpace.SLOT3, null, MyKeys.D3);
@@ -473,6 +468,7 @@ namespace Sandbox
             AddDefaultGameControl(defaultGameControls, MyGuiControlTypeEnum.Spectator, MyControlsSpace.SPECTATOR_DELTA, null, MyKeys.F7);
             AddDefaultGameControl(defaultGameControls, MyGuiControlTypeEnum.Spectator, MyControlsSpace.SPECTATOR_FREE, null, MyKeys.F8);
             AddDefaultGameControl(defaultGameControls, MyGuiControlTypeEnum.Spectator, MyControlsSpace.SPECTATOR_STATIC, null, MyKeys.F9);
+
 
             MyInput.Initialize(IsDedicated
                 ? (IMyInput)new MyNullInput()
@@ -574,6 +570,7 @@ namespace Sandbox
                 {
                     case MyQuickLaunchType.LAST_SANDBOX:
                     case MyQuickLaunchType.NEW_SANDBOX:
+                    case MyQuickLaunchType.SCENARIO_QUICKSTART:
                         MyGuiSandbox.AddScreen(new MyGuiScreenStartQuickLaunch(quickLaunch.Value, MySpaceTexts.StartGameInProgressPleaseWait));
                         break;
                     default:
@@ -1120,7 +1117,7 @@ namespace Sandbox
 
             IlChecker.AllowNamespaceOfTypeModAPI(typeof(VRage.Voxels.MyStorageDataCache));
             IlChecker.AllowNamespaceOfTypeModAPI(typeof(VRage.Utils.MyEventArgs));
-            IlChecker.AllowNamespaceOfTypeModAPI(typeof(VRage.Library.Utils.MyStringId));
+            IlChecker.AllowNamespaceOfTypeModAPI(typeof(VRage.Library.Utils.MyGameTimer));
 
             var serializerType = typeof(Sandbox.Common.ObjectBuilders.Serializer.MyObjectBuilderSerializer);
             IlChecker.AllowedOperands[serializerType] = new List<MemberInfo>()

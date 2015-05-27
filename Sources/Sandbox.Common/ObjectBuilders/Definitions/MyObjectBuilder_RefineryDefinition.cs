@@ -12,10 +12,10 @@ namespace Sandbox.Common.ObjectBuilders.Definitions
     [MyObjectBuilderDefinition]
     public class MyObjectBuilder_RefineryDefinition : MyObjectBuilder_ProductionBlockDefinition
     {
-        [ProtoMember(1)]
+        [ProtoMember]
         public float RefineSpeed;
 
-        [ProtoMember(2)]
+        [ProtoMember]
         public float MaterialEfficiency;
     }
 }

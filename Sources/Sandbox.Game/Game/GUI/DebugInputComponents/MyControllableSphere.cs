@@ -5,10 +5,9 @@ using Sandbox.Common.ObjectBuilders;
 using Sandbox.Definitions;
 using Sandbox.Engine.Physics;
 using Sandbox.Game.Multiplayer;
-using Sandbox.Game.Utils;
 using Sandbox.Game.World;
 using Sandbox.ModAPI.Interfaces;
-using VRage.Library.Utils;
+using VRage.Utils;
 using VRageMath;
 
 #endregion

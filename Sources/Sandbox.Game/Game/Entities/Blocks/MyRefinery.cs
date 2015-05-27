@@ -204,7 +204,7 @@ namespace Sandbox.Game.Entities.Cube
             DetailedInfo.Append("Effectiveness: ");
             DetailedInfo.Append(((UpgradeValues["Effectiveness"]) * 100f).ToString("F0"));
             DetailedInfo.Append("%\n");
-            DetailedInfo.Append("Power Efficinecy: ");
+            DetailedInfo.Append("Power Efficiency: ");
             DetailedInfo.Append(((UpgradeValues["PowerEfficiency"]) * 100f).ToString("F0"));
             DetailedInfo.Append("%\n");
 
@@ -294,7 +294,14 @@ namespace Sandbox.Game.Entities.Cube
             {
                 var resultId = result.Id;
                 var obResult = (MyObjectBuilder_PhysicalObject)Sandbox.Common.ObjectBuilders.Serializer.MyObjectBuilderSerializer.CreateNewObject(resultId);
-                var resultAmount = blueprintAmount * result.Amount * m_refineryDef.MaterialEfficiency * UpgradeValues["Effectiveness"];
+
+                var conversionRatio = result.Amount * m_refineryDef.MaterialEfficiency * UpgradeValues["Effectiveness"];
+                if (conversionRatio > (MyFixedPoint)1.0f)
+                {
+                    conversionRatio = (MyFixedPoint)1.0f;
+                }
+
+                var resultAmount = blueprintAmount * conversionRatio;
                 OutputInventory.AddItems(resultAmount, obResult);
             }
 
