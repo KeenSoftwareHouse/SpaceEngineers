@@ -11,5 +11,7 @@ namespace Sandbox.ModAPI.Ingame
 
         float CurrentStoredPower { get; }
         float MaxStoredPower { get; }
+
+        bool IsCharging { get; }
     }
 }
