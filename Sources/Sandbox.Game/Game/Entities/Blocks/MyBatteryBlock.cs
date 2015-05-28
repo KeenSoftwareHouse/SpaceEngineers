@@ -438,6 +438,11 @@ namespace Sandbox.Game.Entities
             private set;
         }
 
+        bool Sandbox.ModAPI.Ingame.IMyBatteryBlock.IsCharging
+        {
+            get { return IsWorking && !ProducerEnabled; }
+        }
+
         #region IMyPowerProducer
 
         public event Action<IMyPowerProducer> MaxPowerOutputChanged;
