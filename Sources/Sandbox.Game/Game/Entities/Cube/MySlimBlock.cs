@@ -896,13 +896,16 @@ namespace Sandbox.Game.Entities.Cube
             return;
         }
 
-        /// <summary>
-        /// Returns true when block is destroyed
-        /// </summary>
-        public void DoDamage(float damage, MyDamageType damageType, bool addDirtyParts = true, MyDestructionHelper.HitInfo? hitInfo = null)
+        public void DoDamage(float damage, MyDamageType damageType, bool addDirtyParts = true, MyDestructionHelper.HitInfo? hitInfo = null, bool createDecal = true)
         {
             if (!MySession.Static.DestructibleBlocks)
                 return;
+
+            if(FatBlock is MyCompoundCubeBlock) //jn: TODO think of something better
+            {
+                (FatBlock as MyCompoundCubeBlock).DoDamage(damage, damageType, addDirtyParts, hitInfo);
+                return;
+            }
 
             damage *= DamageRatio; // Low-integrity blocks get more damage
             ProfilerShort.Begin("FatBlock.DoDamage");
@@ -940,9 +943,9 @@ namespace Sandbox.Game.Entities.Cube
                 if (MyFakes.SHOW_DAMAGE_EFFECTS && FatBlock != null && BlockDefinition.RationEnoughForDamageEffect((Integrity - damage) / MaxIntegrity))
                     FatBlock.SetDamageEffect(true);
 
-                if (hitInfo.HasValue)
+                if (hitInfo.HasValue && createDecal)
                     CubeGrid.RenderData.AddDecal(Position, Vector3D.Transform(hitInfo.Value.Position, CubeGrid.PositionComp.WorldMatrixInvScaled),
-                        Vector3D.TransformNormal(hitInfo.Value.Normal, CubeGrid.PositionComp.WorldMatrixInvScaled));
+                        Vector3D.TransformNormal(hitInfo.Value.Normal, CubeGrid.PositionComp.WorldMatrixInvScaled), BlockDefinition.PhysicalMaterial.DamageDecal);
             }
 
             return;

@@ -258,11 +258,11 @@ namespace Sandbox.Game.Entities
 
         public override bool IsOverlapOverThreshold(BoundingBoxD worldAabb, float thresholdPercentage)
         {
-            Debug.Assert(
-                worldAabb.Size.X > MyVoxelConstants.VOXEL_SIZE_IN_METRES &&
-                worldAabb.Size.Y > MyVoxelConstants.VOXEL_SIZE_IN_METRES &&
-                worldAabb.Size.Z > MyVoxelConstants.VOXEL_SIZE_IN_METRES,
-                "One of the sides of queried AABB is too small compared to voxel size. Results will be unreliable.");
+            //Debug.Assert(
+            //    worldAabb.Size.X > MyVoxelConstants.VOXEL_SIZE_IN_METRES &&
+            //    worldAabb.Size.Y > MyVoxelConstants.VOXEL_SIZE_IN_METRES &&
+            //    worldAabb.Size.Z > MyVoxelConstants.VOXEL_SIZE_IN_METRES,
+            //    "One of the sides of queried AABB is too small compared to voxel size. Results will be unreliable.");
 
             Vector3I minCorner, maxCorner;
             MyVoxelCoordSystems.WorldPositionToVoxelCoord(PositionLeftBottomCorner, ref worldAabb.Min, out minCorner);

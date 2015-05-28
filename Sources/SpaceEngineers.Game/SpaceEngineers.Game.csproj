@@ -60,6 +60,7 @@
     <Compile Include="SpaceEngineersGame.Secrets.cs" />
     <Compile Include="SpaceEngineersGame.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="VoiceChat\MyVoiceChatLogic.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Sandbox.Common\Sandbox.Common.csproj">

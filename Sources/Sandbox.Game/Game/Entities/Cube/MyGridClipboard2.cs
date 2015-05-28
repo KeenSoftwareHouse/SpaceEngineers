@@ -358,7 +358,8 @@ namespace Sandbox.Game.Entities.Cube
                 m_visible = true;
                 IsSnapped = false;
 
-                //Vector3D? fixedPastePosition = GetFreeSpacePlacementPosition(true, out m_dynamicBuildAllowed);
+                // Cast shapes commented out - difficult to place larger grids (blueprints).
+                //Vector3D? fixedPastePosition = GetFreeSpacePlacementPositionGridAabbs(true, out m_dynamicBuildAllowed);
                 //if (fixedPastePosition.HasValue)
                 //    m_pastePosition = fixedPastePosition.Value;
                 //else
@@ -526,6 +527,105 @@ namespace Sandbox.Game.Entities.Cube
             return freePlacementIntersectionPoint;
         }
 
+        /// <summary>
+        /// Casts preview grids aabbs and get shortest distance. Returns shortest intersection or null.
+        /// </summary>
+        protected Vector3D? GetFreeSpacePlacementPositionGridAabbs(bool copyPaste, out bool buildAllowed)
+        {
+            Vector3D? freePlacementIntersectionPoint = null;
+            buildAllowed = true;
+
+            float gridSize = PreviewGrids[0].GridSize;
+
+            double shortestDistance = double.MaxValue;
+            double? currentRayInts = GetCurrentRayIntersection();
+            if (currentRayInts.HasValue)
+                shortestDistance = currentRayInts.Value;
+
+            Vector3D worldRefPointOffset = Vector3D.Zero;
+            if (copyPaste)
+            {
+                Matrix firstGridOrientation = GetFirstGridOrientationMatrix();
+                worldRefPointOffset = Vector3.TransformNormal(m_dragPointToPositionLocal, firstGridOrientation);
+            }
+
+            Vector3D worldRefPoint = PreviewGrids[0].GridIntegerToWorld(Vector3I.Zero);
+
+            foreach (var grid in PreviewGrids)
+            {
+                Vector3 halfExt = grid.PositionComp.LocalAABB.HalfExtents;
+                Vector3 minLocal = grid.Min * grid.GridSize - Vector3.Half * grid.GridSize;
+                Vector3 maxLocal = grid.Max * grid.GridSize + Vector3.Half * grid.GridSize;
+
+                MatrixD gridWorlTransform = MatrixD.Identity;
+                gridWorlTransform.Translation = 0.5f * (minLocal + maxLocal);
+                gridWorlTransform = gridWorlTransform * grid.WorldMatrix;
+
+                Vector3I size = grid.Max - grid.Min + Vector3I.One;
+                Vector3 sizeOffset = Vector3I.Abs((size % 2) - Vector3I.One) * 0.5 * grid.GridSize;
+                sizeOffset = Vector3.TransformNormal(sizeOffset, grid.WorldMatrix);
+                Vector3D offset = gridWorlTransform.Translation + worldRefPointOffset - worldRefPoint /*- sizeOffset*/;// Vector3.Zero;// gridWorlTransform.Translation + worldRefPointOffset - worldRefPoint;
+
+                HkShape shape = new HkBoxShape(halfExt);
+
+                Vector3D rayStart = MyCubeBuilder.IntersectionStart + offset;
+                double castPlaneDistanceToRayStart = DistanceFromCharacterPlane(ref rayStart);
+                rayStart -= castPlaneDistanceToRayStart * MyCubeBuilder.IntersectionDirection;
+
+                Vector3D rayEnd = MyCubeBuilder.IntersectionStart + (m_dragDistance - castPlaneDistanceToRayStart) * MyCubeBuilder.IntersectionDirection + offset;
+                MatrixD matrix = gridWorlTransform;
+                matrix.Translation = rayStart;
+
+                try
+                {
+                    float? dist = MyPhysics.CastShape(rayEnd, shape, ref matrix, MyPhysics.CollisionLayerWithoutCharacter);
+                    if (dist.HasValue && dist.Value != 0f)
+                    {
+                        Vector3D intersectionPoint = rayStart + dist.Value * (rayEnd - rayStart);
+
+                        const bool debugDraw = true;
+                        if (debugDraw)
+                        {
+                            Color green = Color.Green;
+                            BoundingBoxD localAABB = new BoundingBoxD(-halfExt, halfExt);
+                            localAABB.Inflate(0.03f);
+                            MatrixD drawMatrix = matrix;
+                            drawMatrix.Translation = intersectionPoint;
+                            MySimpleObjectDraw.DrawTransparentBox(ref drawMatrix, ref localAABB, ref green, MySimpleObjectRasterizer.Wireframe, 1, 0.04f);
+                        }
+
+                        double fixedDistance = DistanceFromCharacterPlane(ref intersectionPoint) - castPlaneDistanceToRayStart;
+                        if (fixedDistance <= 0)
+                        {
+                            fixedDistance = 0;
+                            shortestDistance = 0;
+                            buildAllowed = false;
+                            break;
+                        }
+
+                        if (fixedDistance < shortestDistance)
+                            shortestDistance = fixedDistance;
+                    }
+                    else
+                    {
+                        buildAllowed = false;
+                    }
+                }
+                finally
+                {
+                    shape.RemoveReference();
+                }
+
+            }
+
+            if (shortestDistance != 0 && shortestDistance < m_dragDistance)
+                freePlacementIntersectionPoint = MyCubeBuilder.IntersectionStart + shortestDistance * MyCubeBuilder.IntersectionDirection;
+            else
+                buildAllowed = false;
+
+            return freePlacementIntersectionPoint;
+        }
+
         private bool TestPlacement()
         {
             bool retval = true;
@@ -544,7 +644,16 @@ namespace Sandbox.Game.Entities.Cube
                     {
                         var settings = m_settings.GetGridPlacementSettings(grid, false);
 
-                        retval = retval && MyCubeGrid.TestPlacementArea(grid, false, ref settings, (BoundingBoxD)grid.PositionComp.LocalAABB, true);
+                        BoundingBoxD localAabb = (BoundingBoxD)grid.PositionComp.LocalAABB;
+                        MatrixD worldMatrix = grid.WorldMatrix;
+
+                        if (MyFakes.ENABLE_VOXEL_MAP_AABB_CORNER_TEST)
+                            retval = retval && MyCubeGrid.TestPlacementVoxelMapOverlap(null, ref settings, ref localAabb, ref worldMatrix);
+
+                        retval = retval && MyCubeGrid.TestPlacementArea(grid, false, ref settings, localAabb, true);
+
+                        if (!retval)
+                            break;
 
                         //foreach (var block in grid.GetBlocks())
                         //{
@@ -558,7 +667,8 @@ namespace Sandbox.Game.Entities.Cube
                     }
                 }
                 else
-                {
+                { //not dynamic building mode
+
                     if (i == 0 && m_hitEntity is MyCubeGrid && IsSnapped && SnapMode == MyGridPlacementSettings.SnapMode.Base6Directions)
                     {
                         var settings = grid.GridSizeEnum == MyCubeSize.Large ? MyPerGameSettings.BuildingSettings.LargeStaticGrid : MyPerGameSettings.BuildingSettings.SmallStaticGrid;
@@ -657,7 +767,7 @@ namespace Sandbox.Game.Entities.Cube
                                     Vector3 minLocal = block.Min * PreviewGrids[i].GridSize - Vector3.Half * PreviewGrids[i].GridSize;
                                     Vector3 maxLocal = block.Max * PreviewGrids[i].GridSize + Vector3.Half * PreviewGrids[i].GridSize;
                                     BoundingBoxD aabbLocal = new BoundingBoxD(minLocal, maxLocal);
-                                    retval = retval && MyCubeGrid.TestPlacementArea(grid, grid.IsStatic, ref settings, aabbLocal, true);
+                                    retval = retval && MyCubeGrid.TestPlacementArea(grid, grid.IsStatic, ref settings, aabbLocal, false);
 
                                     if (!retval)
                                         break;

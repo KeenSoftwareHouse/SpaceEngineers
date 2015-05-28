@@ -103,6 +103,19 @@ namespace Sandbox.Game.Multiplayer
             public float Steer;
         }
 
+        [MessageId(239, P2PMessageEnum.Reliable)]
+        struct HeightMsg : IEntityMessage
+        {
+            public long EntityId;
+
+            public long GetEntityId()
+            {
+                return EntityId;
+            }
+
+            public float Height;
+        }
+
         static MySyncMotorSuspension()
         {
             MySyncLayer.RegisterEntityMessage<MySyncMotorSuspension, SteeringMsg>(OnChangeControllable, MyMessagePermissions.Any);
@@ -112,6 +125,7 @@ namespace Sandbox.Game.Multiplayer
             MySyncLayer.RegisterEntityMessage<MySyncMotorSuspension, FrictionMsg>(OnChangeFriction, MyMessagePermissions.Any);
             MySyncLayer.RegisterEntityMessage<MySyncMotorSuspension, PowerMsg>(OnChangePower, MyMessagePermissions.Any);
             MySyncLayer.RegisterEntityMessage<MySyncMotorSuspension, SteerMsg>(OnUpdateSteer, MyMessagePermissions.Any);
+            MySyncLayer.RegisterEntityMessage<MySyncMotorSuspension, HeightMsg>(OnChangeHeight, MyMessagePermissions.Any);
         }
 
         public new MyMotorSuspension Entity
@@ -222,6 +236,20 @@ namespace Sandbox.Game.Multiplayer
         static void OnUpdateSteer(MySyncMotorSuspension sync, ref SteerMsg msg, MyNetworkClient sender)
         {
             sync.Entity.SteerAngle = msg.Steer;
+        }
+
+        internal void ChangeHeight(float v)
+        {
+            var msg = new HeightMsg();
+            msg.EntityId = Entity.EntityId;
+            msg.Height = v;
+
+            Sync.Layer.SendMessageToAllAndSelf(ref msg);
+        }
+
+        static void OnChangeHeight(MySyncMotorSuspension sync, ref HeightMsg msg, MyNetworkClient sender)
+        {
+            sync.Entity.Height = msg.Height;
         }
     }
 }

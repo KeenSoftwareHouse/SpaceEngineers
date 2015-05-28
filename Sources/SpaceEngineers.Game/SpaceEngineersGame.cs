@@ -7,6 +7,7 @@ using Sandbox.Game.Entities.Cube;
 using Sandbox.Game.Screens.Helpers;
 using Sandbox.Graphics.Render;
 using SpaceEngineers.Game.GUI;
+using SpaceEngineers.Game.VoiceChat;
 using System.Collections.Generic;
 using System.Text;
 using VRage.Utils;
@@ -77,6 +78,7 @@ namespace SpaceEngineers.Game
             MyPerGameSettings.BuildingSettings.LargeStaticGrid = MyPerGameSettings.CreationSettings.LargeStaticGrid;
             MyPerGameSettings.Destruction = false;
             MyPerGameSettings.ConstantVoxelAmbient = -0.35f;
+            MyFakes.ENABLE_SUN_BILLBOARD = true;
 
             MyPerGameSettings.BallFriendlyPhysics = true;
 
@@ -141,6 +143,8 @@ namespace SpaceEngineers.Game
                 MyPostprocessSettingsWrapper.Settings.Tonemapping_F = 0.130f;
             }
 
+            MyPerGameSettings.VoiceChatEnabled = false;
+            MyPerGameSettings.VoiceChatLogic = typeof(MyVoiceChatLogic);
         }
 
         static void FillCredits()

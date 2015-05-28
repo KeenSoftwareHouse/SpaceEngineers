@@ -41,8 +41,18 @@ One way to contribute changes is to send a GitHub [Pull Request](https://help.gi
 - Use the GitHub program to **Sync** the project's files to a folder on your computer.
 - Open up **SpaceEngineers.sln** in Visual Studio.
 - Modify the source codes and test your changes.
-- Using the GitHub program, you can easily **submit contributions** back up to your **fork**.  These files will be visible to all subscribers.
+- Using the GitHub program, you can easily **submit contributions** back up to your **fork**.
+- Do not **commit to master**, for each feature **create new branch**.
 - When you're ready to send the changes to the Keen Software House for review, simply create a [Pull Request](https://help.github.com/articles/using-pull-requests).
+
+**Advanced topics:**
+- You can update your master branch by executing:
+  - git pull https://github.com/KeenSoftwareHouse/SpaceEngineers.git master
+- If your master is tainted and any branch you make contains junk, you can do **hard reset**. All unmerged commits on master branch will be lost.
+  - git checkout master
+  - git fetch https://github.com/KeenSoftwareHouse/SpaceEngineers.git master
+  - git reset --hard FETCH_HEAD
+  - git push --force origin master
 
 Common issues
 -------------

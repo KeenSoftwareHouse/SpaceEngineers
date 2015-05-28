@@ -237,6 +237,9 @@ namespace Sandbox.Game.Gui
             //if (Sync.MultiplayerActive)
             DrawMultiplayerNotifications();
 
+            if (!MyHud.MinimalHud && MyHud.VoiceChat.Visible)
+                DrawVoiceChat(MyHud.VoiceChat);
+
             return true;
         }
 
@@ -422,6 +425,20 @@ namespace Sandbox.Game.Gui
             var namePos = bgPos - bgScale * new Vector2(bg.SizeGui.X - bg.PaddingSizeGui.X, bg.PaddingSizeGui.Y);
 
             info.Data.DrawBottomUp(namePos, valuePos, m_textScale);
+        }
+
+        private void DrawVoiceChat(MyHudVoiceChat voiceChat)
+        {
+            MyGuiDrawAlignEnum align = MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_BOTTOM;
+            var bg = MyGuiConstants.TEXTURE_VOICE_CHAT;
+            var basePos = new Vector2(0.01f, 0.99f);
+            var bgPos = ConvertHudToNormalizedGuiPosition(ref basePos);
+            MyGuiManager.DrawSpriteBatch(
+                bg.Texture,
+                bgPos,
+                bg.SizeGui,
+                Color.White,
+                align);
         }
 
         private void DrawPowerGroupInfo(MyHudConsumerGroupInfo info)
@@ -703,6 +720,13 @@ namespace Sandbox.Game.Gui
             {
                 ProfilerShort.End();
             }
+        }
+
+        protected override void OnHide()
+        {
+            base.OnHide();
+            if (MyHud.VoiceChat.Visible)
+                MyHud.VoiceChat.Hide();
         }
 
         #region NetGraph

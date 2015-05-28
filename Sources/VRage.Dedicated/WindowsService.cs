@@ -65,7 +65,7 @@ namespace VRage.Dedicated
             MainThread.CurrentUICulture = CultureInfo.InvariantCulture;
             m_waitEvent.Reset();
             MainThread.Start(args);
-            MySandboxGame.OnSessionReady += delegate
+            MySession.OnLoading += delegate
             {
                 m_waitEvent.Set();
             };

@@ -277,6 +277,8 @@ namespace Sandbox.Game.Multiplayer
 
         public event Action<bool, ulong> PlayersChanged;
 
+        public event Action<long> PlayerCharacterDied;
+
         #region Construction & (de)serialization
 
         static MyPlayerCollection()
@@ -1698,6 +1700,17 @@ namespace Sandbox.Game.Multiplayer
             Debug.Assert(!m_players.ContainsKey(id), "Cannot remove identity of active player");
             if (m_players.ContainsKey(id))
                 return false;
+
+            MyIdentity identity;
+            if (m_allIdentities.TryGetValue(identityId, out identity))
+            {
+                identity.CharacterChanged -= Identity_CharacterChanged;
+                if (identity.Character != null)
+                {
+                    identity.Character.CharacterDied -= Character_CharacterDied;
+                }
+            }
+
             m_allIdentities.Remove(identityId);
             m_playerIdentityIds.Remove(id);
             return true;
@@ -1740,6 +1753,12 @@ namespace Sandbox.Game.Multiplayer
 
             m_allIdentities.Add(identity.IdentityId, identity);
 
+            identity.CharacterChanged += Identity_CharacterChanged;
+            if (identity.Character != null)
+            {
+                identity.Character.CharacterDied += Character_CharacterDied;
+            }
+
             if (Sync.IsServer)
             {
                 IdentityCreatedMsg msg = new IdentityCreatedMsg();
@@ -1750,6 +1769,21 @@ namespace Sandbox.Game.Multiplayer
 
                 Sync.Layer.SendMessageToAll(ref msg);
             }
+        }
+
+        void Character_CharacterDied(MyCharacter diedCharacter)
+        {
+            if (PlayerCharacterDied != null && diedCharacter != null && diedCharacter.ControllerInfo.ControllingIdentityId != 0)
+                PlayerCharacterDied(diedCharacter.ControllerInfo.ControllingIdentityId);
+        }
+
+        void Identity_CharacterChanged(MyCharacter oldCharacter, MyCharacter newCharacter)
+        {
+            if (oldCharacter != null)
+                oldCharacter.CharacterDied -= Character_CharacterDied;
+
+            if (newCharacter != null)
+                newCharacter.CharacterDied += Character_CharacterDied;
         }
 
         //private void LoadPlayerInternal(long identityId, ref PlayerId playerId, string playerName, bool obsolete = false)

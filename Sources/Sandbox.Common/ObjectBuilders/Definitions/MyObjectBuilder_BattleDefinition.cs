@@ -18,5 +18,9 @@ namespace Sandbox.Common.ObjectBuilders.Definitions
         [XmlArrayItem("Block")]
         [ProtoMember, DefaultValue(null)]
         public SerializableDefinitionId[] SpawnBlocks = null;
+
+        [ProtoMember, DefaultValue(2000)]
+        public float DefenderEntityDamage = 2000;
+
     }
 }

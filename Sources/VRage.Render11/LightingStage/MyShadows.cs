@@ -34,8 +34,17 @@ namespace VRageRender
         internal Matrix CurrentLocalToProjection { get { return Matrix.CreateTranslation(MyEnvironment.CameraPosition - WorldCameraOffsetPosition) * LocalToProjection; } }
     }
 
+    class MyLightsCameraDistanceComparer : IComparer<LightId> {
+
+        public int Compare(LightId x, LightId y)
+        {
+            return x.ViewerDistanceSquared.CompareTo(y.ViewerDistanceSquared);
+        }
+    }
+
     class MyShadows : MyImmediateRC
     {
+        const int MAX_SPOTLIGHT_SHADOWCASTERS = 20;
         const bool VisualizeDebug = false;
 
         internal struct MyShadowmapQuery
@@ -66,6 +75,8 @@ namespace VRageRender
         static InputLayoutId m_inputLayout;
         static VertexShaderId m_markVS;
         static PixelShaderId m_markPS;
+
+        static MyLightsCameraDistanceComparer m_spotlightCastersComparer = new MyLightsCameraDistanceComparer();
 
         internal static void ResizeCascades()
         {
@@ -131,6 +142,13 @@ namespace VRageRender
         static void PrepareSpotlights()
         {
             MyLights.SpotlightsBvh.OverlapAllFrustum(ref MyEnvironment.ViewFrustum, MyLightRendering.VisibleSpotlights);
+
+            MyLightRendering.VisibleSpotlights.Sort(m_spotlightCastersComparer);
+            while (MyLightRendering.VisibleSpotlights.Count > MAX_SPOTLIGHT_SHADOWCASTERS)
+            {
+                MyLightRendering.VisibleSpotlights.RemoveAtFast(MyLightRendering.VisibleSpotlights.Count - 1);
+            }
+
             MyArrayHelpers.Reserve(ref MyLightRendering.Spotlights, MyLightRendering.VisibleSpotlights.Count);
 
             int index = 0;

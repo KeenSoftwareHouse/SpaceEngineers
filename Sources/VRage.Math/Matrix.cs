@@ -12,7 +12,7 @@ namespace VRageMath
     /// <summary>
     /// Defines a matrix.
     /// </summary>
-    [Serializable]
+    [ProtoBuf.ProtoContract, Serializable]    
     [StructLayout(LayoutKind.Explicit)]
     public struct Matrix : IEquatable<Matrix>
     {

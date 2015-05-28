@@ -8,6 +8,7 @@ using Sandbox.Common;
 using Sandbox.Common.ObjectBuilders.Definitions;
 using System.Diagnostics;
 using Sandbox.Game.Multiplayer;
+using Sandbox.ModAPI;
 
 namespace Sandbox.Game.World.Triggers
 {
@@ -27,34 +28,53 @@ namespace Sandbox.Game.World.Triggers
         List<MyTrigger> m_winTriggers=new List<MyTrigger>();
         List<MyTrigger> m_loseTriggers = new List<MyTrigger>();
         public bool Won { get; protected set; }
-        public string SetWon(int triggerIndex)
+        public void SetWon(int triggerIndex)
         {
             Won = true;
             m_winTriggers[triggerIndex].IsTrue = true;
-            return m_winTriggers[triggerIndex].Message;
+            if (Message == null)
+            {
+                Message = m_winTriggers[triggerIndex].Message;
+                IsMsgWinning = true;
+            }
         }
         public bool Lost { get; protected set; }
-        public string SetLost(int triggerIndex)
+        public void SetLost(int triggerIndex)
         {
             Lost = true;
             m_loseTriggers[triggerIndex].IsTrue = true;
-            return m_loseTriggers[triggerIndex].Message;
+            if (Message == null)
+            {
+                Message = m_loseTriggers[triggerIndex].Message;
+                IsMsgWinning = false;
+            }
         }
+        public string Message {get; protected set;}
+        public bool IsMsgWinning { get; protected set; }
+        public bool DisplayMsg()
+        {
+            if (Message!=null)
+            {
+                MyAPIGateway.Utilities.ShowNotification(Message, 0, (IsMsgWinning ? Sandbox.Common.MyFontEnum.Green : Sandbox.Common.MyFontEnum.Red));
+                return true;
+            }
+            return false;
+        }
+        
 
         public List<MyTrigger> WinTriggers { get { return m_winTriggers; } /*set { m_winTriggers = value; }*/ }
         public List<MyTrigger> LoseTriggers { get { return m_loseTriggers; } /*set { m_winTriggers = value; }*/ }
 
         public bool UpdateWin(MyCharacter me)
         {
-            if (Won)
-                return true;//already won
+            if (Won || Lost)
+                return true;
             for (int i=0;i<m_winTriggers.Count;i++)
             {
                 var trigger=m_winTriggers[i];
                 if (trigger.IsTrue || trigger.Update(me))
                 { //Won!
                     MySyncMissionTriggers.PlayerWon(me.ControllerInfo.Controller.Player.Id, i);
-                    Won = true;
                     return true;
                 }
             }
@@ -62,15 +82,14 @@ namespace Sandbox.Game.World.Triggers
         }
         public bool UpdateLose(MyCharacter me)
         {
-            if (Lost)
-                return true;//already lost
+            if (Won || Lost)
+                return true;
             for (int i = 0; i < m_loseTriggers.Count; i++)
             {
                 var trigger = m_loseTriggers[i];
                 if (trigger.IsTrue || trigger.Update(me))
                 { //Loser!
                     MySyncMissionTriggers.PlayerLost(me.ControllerInfo.Controller.Player.Id, i);
-                    Lost = true;
                     return true;
                 }
             }
@@ -79,6 +98,8 @@ namespace Sandbox.Game.World.Triggers
 
         public bool RaiseSignal(MyPlayer.PlayerId Id, Signal signal)
         {
+            if (Won || Lost)
+                return true;
             switch (signal)
             {
                 case Signal.OTHER_WON:
@@ -88,7 +109,6 @@ namespace Sandbox.Game.World.Triggers
                         if (trigger.IsTrue || trigger.RaiseSignal(signal))
                         { //Won!
                             MySyncMissionTriggers.PlayerWon(Id, i);
-                            Won = true;
                             return true;
                         }
                     }
@@ -99,7 +119,6 @@ namespace Sandbox.Game.World.Triggers
                         if (trigger.IsTrue || trigger.RaiseSignal(signal))
                         {//Lost
                             MySyncMissionTriggers.PlayerLost(Id, i);
-                            Lost = true;
                             return true;
                         }
                     }
@@ -132,7 +151,7 @@ namespace Sandbox.Game.World.Triggers
             foreach (var trigger in source.m_loseTriggers)
                 m_loseTriggers.Add((MyTrigger)trigger.Clone());
             Won = false;
-            Lost=false;
+            Lost = false;
         }
 
         public void Init(MyObjectBuilder_MissionTriggers builder)
@@ -141,6 +160,12 @@ namespace Sandbox.Game.World.Triggers
                 m_winTriggers.Add(TriggerFactory.CreateInstance(triggerBuilder));
             foreach (var triggerBuilder in builder.LoseTriggers)
                 m_loseTriggers.Add(TriggerFactory.CreateInstance(triggerBuilder));
+            Message = builder.message;
+            Won = builder.Won;
+            Lost = builder.Lost;
+            Debug.Assert(!(Won && Lost), "Triggers: won&&lost should not happen");
+            if (Won)
+                IsMsgWinning = true;
         }
 
         public virtual MyObjectBuilder_MissionTriggers GetObjectBuilder()
@@ -150,6 +175,9 @@ namespace Sandbox.Game.World.Triggers
                 ob.WinTriggers.Add(trigger.GetObjectBuilder());
             foreach (var trigger in m_loseTriggers)
                 ob.LoseTriggers.Add(trigger.GetObjectBuilder());
+            ob.message = Message;
+            ob.Won = Won;
+            ob.Lost = Lost;
             return ob;
         }
     }

@@ -74,6 +74,15 @@ namespace Sandbox.Game.Entities
             }
         }
 
+        public static bool CameraControllerSpectator
+        {
+            get
+            {
+                var cameraController = MySession.GetCameraControllerEnum();
+                return cameraController == MyCameraControllerEnum.Spectator || cameraController == MyCameraControllerEnum.SpectatorDelta;
+            }
+        }
+
         public static Vector3D IntersectionStart
         {
             get

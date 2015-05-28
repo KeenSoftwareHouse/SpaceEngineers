@@ -82,6 +82,8 @@ namespace Sandbox.Game
         public static readonly MyStringId SPECTATOR_DELTA = MyStringId.GetOrCompute("SPECTATOR_DELTA");
         public static readonly MyStringId SPECTATOR_FREE = MyStringId.GetOrCompute("SPECTATOR_FREE");
         public static readonly MyStringId SPECTATOR_STATIC = MyStringId.GetOrCompute("SPECTATOR_STATIC");
+        public static readonly MyStringId STATION_ROTATION = MyStringId.GetOrCompute("STATION_ROTATION");
+        public static readonly MyStringId VOICE_CHAT = MyStringId.GetOrCompute("VOICE_CHAT");
 
         // NOT BINDABLE
         public static readonly MyStringId VOXEL_PAINT = MyStringId.GetOrCompute("VOXEL_PAINT");

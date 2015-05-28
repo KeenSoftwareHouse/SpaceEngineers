@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Text;
 using VRage.Collections;
 using VRage.Data.Audio;
@@ -82,6 +83,14 @@ namespace VRage.Audio
             get;
         }
 
+        bool EnableVoiceChat
+        {
+            get;
+            set;
+        }
+
+        event Action<bool> VoiceChatEnabled;
+
         void PlayMusic(MyMusicTrack? track = null);
         void StopMusic();
         void MuteHud(bool mute);
@@ -101,6 +110,8 @@ namespace VRage.Audio
         IMySourceVoice PlaySound(MyStringId cueId, IMy3DSoundEmitter source = null, MySoundDimensions type = MySoundDimensions.D2, bool skipIntro = false, bool skipToEnd = false);
         
         IMySourceVoice GetSound(MyStringId cueId, IMy3DSoundEmitter source = null, MySoundDimensions type = MySoundDimensions.D2);
+
+        IMySourceVoice GetSound(IMy3DSoundEmitter source, int sampleRate, int channels, MySoundDimensions dimension);
 
         float SemitonesToFrequencyRatio(float semitones);
         
