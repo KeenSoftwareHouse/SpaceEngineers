@@ -817,20 +817,21 @@ namespace Sandbox.Game.Entities
 
         private bool UpdateGyro()
         {
-            var gyros = CubeGrid.GridSystems.GyroSystem;
-            gyros.ControlTorque = Vector3.Zero;
+            var gyros     = CubeGrid.GridSystems.GyroSystem;
+            var thrusters = CubeGrid.GridSystems.ThrustSystem;
+            gyros.ControlTorque = thrusters.ControlTorque = Vector3.Zero;
             Vector3D angularVelocity = CubeGrid.Physics.AngularVelocity;
             var orientation = WorldMatrix.GetOrientation();
             Matrix invWorldRot = CubeGrid.PositionComp.WorldMatrixNormalizedInv.GetOrientation();
 
             Vector3D targetPos = m_currentWaypoint.Coords;
-            Vector3D currentPos = m_startPosition;
+            Vector3D currentPos = WorldMatrix.Translation;
             Vector3D deltaPos = targetPos - currentPos;
 
             Vector3D targetDirection = Vector3D.Normalize(deltaPos);
 
             QuaternionD current = QuaternionD.CreateFromRotationMatrix(orientation);
-            QuaternionD target = QuaternionD.CreateFromForwardUp(targetDirection, orientation.Up);
+            QuaternionD target  = QuaternionD.CreateFromForwardUp(targetDirection, orientation.Up);
 
             Vector3D velocity = GetAngleVelocity(current, target);
             Vector3D velocityToTarget = velocity * angularVelocity.Dot(ref velocity);
@@ -857,18 +858,15 @@ namespace Sandbox.Game.Entities
                 gyros.ControlTorque = CubeGrid.GridSystems.ThrustSystem.ControlTorque = velocity;
             }
 
-            if (angle > 0.25)
-            {
-                return true;
-            }
-
-            return false;
+            return angle > 0.25;
         }
 
         private void UpdateThrust()
         {
-            const float STOPPING_TIME = 5.0f;
-
+            const double ACCELERATION_THRESHOLD = 5.0;
+            const double COAST_THRESHOLD        = 3.0;
+            const double BRAKE_THRESHOLD        = 1.5;
+            
             var thrustSystem = CubeGrid.GridSystems.ThrustSystem;
             thrustSystem.AutoPilotThrust = Vector3.Zero;
             Matrix invWorldRot = CubeGrid.PositionComp.WorldMatrixNormalizedInv.GetOrientation();
@@ -914,20 +912,20 @@ namespace Sandbox.Game.Entities
             }
             else 
             {
-                if (timeToReachTarget < timeToStop * 1.5)
+                if (timeToReachTarget < timeToStop * BRAKE_THRESHOLD)
                     m_autoPilotCoast = false;
-                else if (timeToReachTarget > timeToStop * 2.0)
+                else if (timeToReachTarget > timeToStop * COAST_THRESHOLD)
                     m_autoPilotCoast = true;
-                if (timeToReachTarget < timeToStop * 2.0)
+                if (timeToReachTarget < timeToStop * COAST_THRESHOLD)
                     m_autoPilotAccelerate = false;
-                else if (timeToReachTarget > timeToStop * 3.0)
+                else if (timeToReachTarget > timeToStop * ACCELERATION_THRESHOLD)
                     m_autoPilotAccelerate = true;
                 if (m_autoPilotAccelerate)
                 {
                     thrustSystem.AutoPilotThrust = Vector3D.Transform(delta, invWorldRot);
                     var localVelocityToCancel = Vector3D.Transform(velocityToCancel, invWorldRot);
                     if (localVelocityToCancel != Vector3.Zero)
-                        thrustSystem.AutoPilotThrust -= (localVelocityToCancel.LengthSquared() > 0.01f) ? Vector3D.Normalize(localVelocityToCancel) : localVelocityToCancel;
+                        thrustSystem.AutoPilotThrust -= (localVelocityToCancel.LengthSquared() > 0.01f) ? Vector3D.Normalize(localVelocityToCancel) : (localVelocityToCancel * 10.0f);
                     thrustSystem.AutoPilotThrust.Normalize();
                 }
                 else if (m_autoPilotCoast)
@@ -935,7 +933,7 @@ namespace Sandbox.Game.Entities
                     thrustSystem.AutoPilotThrust = Vector3.Backward * 0.1f;     // Minimal reverse thrust for coasting.
                     var localVelocityToCancel = Vector3D.Transform(velocityToCancel, invWorldRot);
                     if (localVelocityToCancel != Vector3.Zero)
-                        thrustSystem.AutoPilotThrust -= (localVelocityToCancel.LengthSquared() > 0.01f) ? Vector3D.Normalize(localVelocityToCancel) : localVelocityToCancel;
+                        thrustSystem.AutoPilotThrust -= (localVelocityToCancel.LengthSquared() > 0.01f) ? Vector3D.Normalize(localVelocityToCancel) : (localVelocityToCancel * 10.0f);
                 }
             }
         }

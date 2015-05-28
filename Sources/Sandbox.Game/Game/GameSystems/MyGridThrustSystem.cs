@@ -86,6 +86,8 @@ namespace Sandbox.Game.GameSystems
         private bool    m_enableIntegral;
         private bool    m_resetIntegral;
         private int     m_COMUpdateCounter;
+        private float   m_lastSuppliedPowerRatio;   // Used by autopilot to estimate thrust. Calling PowerReceiver.Update() more than once
+                                                    // per tick results in buggy power usage.
 
         #endregion
 
@@ -379,7 +381,8 @@ namespace Sandbox.Game.GameSystems
 
             LocalAngularVelocity = Vector3.Transform(m_grid.Physics.AngularVelocity, ref invWorldRot);
             // A quick'n'dirty way of making torque optional. Activating gyroscope override also disables RCS.
-            if (MySession.Static.ThrusterDamage && !m_grid.GridSystems.GyroSystem.IsGyroOverrideActive)
+            if (   MySession.Static.ThrusterDamage && !m_grid.GridSystems.GyroSystem.IsGyroOverrideActive 
+                && (m_grid.Physics.AngularVelocity != Vector3.Zero || ControlTorque != Vector3.Zero))
             {
                 // A fake force that mimics the behaviour of stock inertia dampeners.
                 adjustedThrust += thrust - thrustPositive * m_maxPositiveThrust + thrustNegative * m_maxNegativeThrust;
@@ -388,7 +391,7 @@ namespace Sandbox.Game.GameSystems
                 {
                     m_COMUpdateCounter = 0;
                     if (adjustedThrust.Length() / m_grid.Physics.Mass > STATIC_MODE_MAX_ACC)
-                        UpdateCenterOfThrustAcceelerating();
+                        UpdateCenterOfThrustAccelerating();
                     else
                     {
                         UpdateCenterOfThrustStationary(m_thrustsByDirection[Vector3I.Left   ], m_thrustsByDirection[Vector3I.Right   ]);
@@ -398,7 +401,7 @@ namespace Sandbox.Game.GameSystems
                 }
 
                 LocalAngularVelocity = Vector3.Transform(m_grid.Physics.AngularVelocity, ref invWorldRot);
-                if (ControlTorque.LengthSquared() >= 0.0001f)
+                if (ControlTorque.LengthSquared() >= 0.0001f || m_grid.GridSystems.GyroSystem.MaxGyroForce > 0.0f)  // Don't use thruster stabilisation when gyroscopes are operational.
                     m_enableIntegral = false;
                 else
                 {
@@ -470,6 +473,7 @@ namespace Sandbox.Game.GameSystems
             UpdateThrustStrength(m_thrustsByDirection[Vector3I.Right   ], PowerReceiver.SuppliedRatio);
             UpdateThrustStrength(m_thrustsByDirection[Vector3I.Up      ], PowerReceiver.SuppliedRatio);
             UpdateThrustStrength(m_thrustsByDirection[Vector3I.Backward], PowerReceiver.SuppliedRatio);
+            m_lastSuppliedPowerRatio = PowerReceiver.SuppliedRatio;
         }
         
         public Vector3 GetThrustForDirection(Vector3 direction)
@@ -491,7 +495,7 @@ namespace Sandbox.Game.GameSystems
         {
             Vector3 thrust = ComputeAiThrust(direction);
             UpdatePowerAndThrustStrength(ref thrust, false);
-            thrust = ApplyThrustModifiers(thrust);
+            thrust = (thrust + m_totalThrustOverride) * (m_lastSuppliedPowerRatio * MyFakes.THRUST_FORCE_RATIO);
             return thrust;
         }
 
@@ -530,7 +534,7 @@ namespace Sandbox.Game.GameSystems
             }
         }
 
-        private void UpdateCenterOfThrustAcceelerating()
+        private void UpdateCenterOfThrustAccelerating()
         {
             foreach (var dir in m_thrustsByDirection)
             {
