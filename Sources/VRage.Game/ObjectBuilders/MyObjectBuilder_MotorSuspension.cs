@@ -31,5 +31,20 @@ namespace Sandbox.Common.ObjectBuilders
 
         [ProtoMember]
         public float Height = 0;
+
+        [ProtoMember]
+        public float MaxSteerAngle = 0.45f;
+
+        [ProtoMember]
+        public float SteerSpeed = 0.02f;
+
+        [ProtoMember]
+        public float SteerReturnSpeed = 0.01f;
+
+        [ProtoMember]
+        public bool InvertSteer = false;
+
+        [ProtoMember]
+        public float SuspensionTravel = 100;
     }
 }
