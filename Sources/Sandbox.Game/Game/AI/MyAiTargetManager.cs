@@ -14,6 +14,7 @@ using VRageMath;
 
 namespace Sandbox.Game.AI
 {
+	[PreloadRequired]
     [MySessionComponentDescriptor(MyUpdateOrder.AfterSimulation)]
     public class MyAiTargetManager : MySessionComponentBase
     {

@@ -428,8 +428,7 @@ namespace Sandbox.Game.Gui
                 },
                 onCancelledCallback: delegate()
                 {
-                    multiplayerSession.Dispose();
-                    MyGuiScreenMainMenu.ReturnToMainMenu();
+                    MyGuiScreenMainMenu.UnloadAndExitToMenu();
                 });
         }
 

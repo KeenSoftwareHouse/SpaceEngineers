@@ -1038,6 +1038,8 @@ namespace Sandbox.Game.Entities.Character
             // Are bodies moving one to another? if not we do not apply damage
             if (value.SeparatingVelocity < 0)
             {
+                if (!ControllerInfo.IsLocallyControlled() && !Sync.IsServer) return;
+
                 DamageImpactEnum damageImpact = DamageImpactEnum.NoDamage;
 
                 // Get the colliding object and skip collisions between characters
@@ -1135,7 +1137,7 @@ namespace Sandbox.Game.Entities.Character
             if (collidingEntity == ManipulatedEntity) return DamageImpactEnum.NoDamage;
 
             // Get the objects energies to calculate the damage - must be higher above treshold
-            float objectEnergy = Math.Abs(value.SeparatingVelocity) * collidingBody.Mass;
+            float objectEnergy = Math.Abs(value.SeparatingVelocity) * (MyPerGameSettings.Destruction ? MyDestructionHelper.MassFromHavok(collidingBody.Mass) : collidingBody.Mass);
 
             if (objectEnergy > MyPerGameSettings.CharacterDamageHitObjectDeadlyEnergy) return DamageImpactEnum.DeadlyDamage;
             if (objectEnergy > MyPerGameSettings.CharacterDamageHitObjectCriticalEnergy) return DamageImpactEnum.CriticalDamage;
@@ -1148,7 +1150,7 @@ namespace Sandbox.Game.Entities.Character
         private void ApplyDamage(DamageImpactEnum damageImpact, MyDamageType myDamageType)
         {
             if (!ControllerInfo.IsLocallyControlled() && !Sync.IsServer) return;
-            
+
             if (MyDebugDrawSettings.ENABLE_DEBUG_DRAW && MyDebugDrawSettings.DEBUG_DRAW_SHOW_DAMAGE)
             {
                 if (damageImpact != DamageImpactEnum.NoDamage)
@@ -1180,8 +1182,8 @@ namespace Sandbox.Game.Entities.Character
         private DamageImpactEnum GetDamageFromFall(HkRigidBody collidingBody, MyEntity collidingEntity, ref HkContactPointEvent value)
         {
             //if (m_currentMovementState != MyCharacterMovementEnum.Falling || m_currentMovementState != MyCharacterMovementEnum.Jump) return DamageImpactEnum.NoDamage;
-            
-            if (Physics.LinearVelocity.Length() < MyPerGameSettings.CharacterDamageMinVelocity) return DamageImpactEnum.NoDamage;
+            if (!collidingBody.IsFixed && collidingBody.Mass < Physics.Mass * 50) return DamageImpactEnum.NoDamage;
+            if (Math.Abs(value.SeparatingVelocity) < MyPerGameSettings.CharacterDamageMinVelocity) return DamageImpactEnum.NoDamage;
 
             if (Math.Abs(value.SeparatingVelocity) > MyPerGameSettings.CharacterDamageDeadlyDamageVelocity) return DamageImpactEnum.DeadlyDamage;
 

@@ -324,6 +324,11 @@ namespace Sandbox.Game.Entities
             }
         }
 
+        float ModAPI.Ingame.IMyPowerProducer.DefinedPowerOutput
+        {
+            get { return m_reactorDefinition.MaxPowerOutput; }
+        }
+
         public float CurrentPowerOutput
         {
             get { return m_currentPowerOutput; }

@@ -15,6 +15,11 @@ namespace Sandbox.Graphics.GUI
         protected MyGuiControlLabel m_progressTextLabel;
         protected MyGuiControlRotatingWheel m_rotatingWheel;
 
+        public MyGuiControlRotatingWheel RotatingWheel
+        {
+            get { return m_rotatingWheel; }
+        }
+
         string m_wheelTexture;
 
         public event Action ProgressCancelled;

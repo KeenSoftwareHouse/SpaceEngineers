@@ -19,8 +19,9 @@ namespace Sandbox.Common.ObjectBuilders.Definitions
         [ProtoMember, DefaultValue(null)]
         public SerializableDefinitionId[] SpawnBlocks = null;
 
-        [ProtoMember, DefaultValue(2000)]
-        public float DefenderEntityDamage = 2000;
+        // Defender king statue entity damage 0 - 1 (removes integrity = DefenderEntityDamage * MaxIntegrity).
+        [ProtoMember, DefaultValue(0.067f)]
+        public float DefenderEntityDamage = 0.067f;
 
     }
 }

@@ -557,7 +557,7 @@ namespace Sandbox.Engine.Physics
 
         public void SetShapeForCrouch(HkWorld world, bool enable)
         {
-            if (CharacterRigidBody != null)
+            if (CharacterRigidBody != null && world != null)
             {
                 world.Lock();
 

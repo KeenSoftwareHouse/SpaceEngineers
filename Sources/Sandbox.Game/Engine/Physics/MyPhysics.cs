@@ -55,6 +55,7 @@ namespace Sandbox.Engine.Physics
             public MyEntity Entity;
             //public StackTrace dbgTrace;
         }
+		public const int NotCollideWithStaticLayer = 12;
         public const int StaticCollisionLayer = 13;
         public const int CollideWithStaticLayer = 14;
         public const int DefaultCollisionLayer = 15;
@@ -129,6 +130,8 @@ namespace Sandbox.Engine.Physics
             world.DisableCollisionsBetween(DynamicDoubledCollisionLayer, CharacterCollisionLayer);
             world.DisableCollisionsBetween(DynamicDoubledCollisionLayer, DebrisCollisionLayer);
             world.DisableCollisionsBetween(DynamicDoubledCollisionLayer, CharacterNetworkCollisionLayer);
+
+			world.DisableCollisionsBetween(NotCollideWithStaticLayer, StaticCollisionLayer);
 
             world.DisableCollisionsBetween(KinematicDoubledCollisionLayer, DefaultCollisionLayer);
             world.DisableCollisionsBetween(KinematicDoubledCollisionLayer, StaticCollisionLayer);

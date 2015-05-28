@@ -500,7 +500,7 @@ namespace Sandbox.Engine.Utils
 
         public static bool ENABLE_CONTROLLER_HINTS = true;
 
-        public static bool ENABLE_SUN_BILLBOARD = false;
+        public static bool ENABLE_SUN_BILLBOARD = true;
 
         public static bool ENABLE_PHYSICS_SETTINGS = false;
 

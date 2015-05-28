@@ -16,5 +16,10 @@ namespace Sandbox.ModAPI.Ingame
         /// Maximum power output of the producer in [MW].
         /// </summary>
         float MaxPowerOutput { get; }
+
+        /// <summary>
+        /// Max power output defined in definition [MW].
+        /// </summary>
+        float DefinedPowerOutput { get; }
     }
 }

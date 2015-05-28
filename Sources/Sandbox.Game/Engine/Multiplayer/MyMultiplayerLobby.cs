@@ -149,10 +149,10 @@ namespace Sandbox.Engine.Multiplayer
             set { Lobby.SetLobbyData(MyMultiplayer.BattleTag, value.ToString()); }
         }
 
-        public override bool BattleStarted
+        public override bool BattleCanBeJoined
         {
-            get { return GetLobbyBool(MyMultiplayer.BattleStartedTag, Lobby, false); }
-            set { Lobby.SetLobbyData(MyMultiplayer.BattleStartedTag, value.ToString()); }
+            get { return GetLobbyBool(MyMultiplayer.BattleCanBeJoinedTag, Lobby, false); }
+            set { Lobby.SetLobbyData(MyMultiplayer.BattleCanBeJoinedTag, value.ToString()); }
         }
 
         public override int BattleFaction1MaxBlueprintPoints
@@ -624,9 +624,9 @@ namespace Sandbox.Engine.Multiplayer
             return GetLobbyBool(MyMultiplayer.BattleTag, lobby, false);
         }
 
-        public static bool GetLobbyBattleStarted(Lobby lobby)
+        public static bool GetLobbyBattleCanBeJoined(Lobby lobby)
         {
-            return GetLobbyBool(MyMultiplayer.BattleStartedTag, lobby, false);
+            return GetLobbyBool(MyMultiplayer.BattleCanBeJoinedTag, lobby, false);
         }
 
         public override string GetMemberName(ulong steamUserID)

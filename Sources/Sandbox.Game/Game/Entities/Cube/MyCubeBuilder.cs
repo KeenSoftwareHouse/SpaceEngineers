@@ -1055,7 +1055,7 @@ namespace Sandbox.Game.Entities
                 IsBuildMode = !IsBuildMode;
             }
 
-            if (MyInput.Static.IsNewGameControlPressed(MyControlsSpace.STATION_ROTATION) && ShipCreationIsActivated)
+            if (MyInput.Static.IsNewGameControlPressed(MyControlsSpace.STATION_ROTATION) && (ShipCreationIsActivated || CopyPasteIsActivated))
             {
                 EnableStationRotation();
             }
@@ -1148,6 +1148,7 @@ namespace Sandbox.Game.Entities
                     if (MyInput.Static.IsNewKeyPressed(MyKeys.V) && MyInput.Static.IsAnyCtrlKeyPressed() && !MyInput.Static.IsAnyShiftKeyPressed())
                     {
                         DeactivateBlockCreation();
+                        ShowStationRotationNotification();
                         if (m_clipboard.PasteGrid())
                         {
                             UpdatePasteNotification(MySpaceTexts.CubeBuilderPasteNotification);
@@ -1177,6 +1178,7 @@ namespace Sandbox.Game.Entities
                 {
                     if (m_clipboard.IsActive)
                     {
+                        HideStationRotationNotification();
                         m_clipboard.Deactivate();
                         UpdatePasteNotification(MySpaceTexts.CubeBuilderPasteNotification);
                         return true;
@@ -1198,6 +1200,7 @@ namespace Sandbox.Game.Entities
 
                     if (m_shipCreationClipboard.IsActive)
                     {
+                        HideStationRotationNotification();
                         m_shipCreationClipboard.Deactivate();
                         UpdatePasteNotification(MySpaceTexts.CubeBuilderPasteNotification);
                         return true;
@@ -1235,6 +1238,7 @@ namespace Sandbox.Game.Entities
                     {
                         if (m_clipboard.PasteGrid())
                         {
+                            HideStationRotationNotification();
                             UpdatePasteNotification(MySpaceTexts.CubeBuilderPasteNotification);
                             return true;
                         }
