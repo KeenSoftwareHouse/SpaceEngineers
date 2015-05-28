@@ -3424,45 +3424,25 @@ namespace Sandbox.Game.Entities.Character
                 {
                     switch (state)
                     {
-                        case MyCharacterMovementEnum.Walking:
-                        case MyCharacterMovementEnum.Sprinting:
-                        case MyCharacterMovementEnum.Jump:
-                        case MyCharacterMovementEnum.WalkingLeftFront:
-                        case MyCharacterMovementEnum.WalkingRightFront:
-                        case MyCharacterMovementEnum.Running:
-                        case MyCharacterMovementEnum.RunningLeftFront:
-                        case MyCharacterMovementEnum.RunningRightFront:
-                            Physics.CharacterProxy.SetShapeForMove(true);
-                            break;
-
                         case MyCharacterMovementEnum.Crouching:
                             Physics.CharacterProxy.SetShapeForCrouch(Physics.HavokWorld, true);
                             break;
 
-                        case MyCharacterMovementEnum.CrouchWalking:
-                            Physics.CharacterProxy.SetMoveShapeForCrouch(true);
-                            break;
-
-                        case MyCharacterMovementEnum.CrouchWalkingLeftFront:
-                        case MyCharacterMovementEnum.CrouchWalkingRightFront:
-                            Physics.CharacterProxy.SetDiagonalMoveShapeForCrouch(true);
-                            break;
-
-                        case MyCharacterMovementEnum.RotatingLeft:
-                        case MyCharacterMovementEnum.RotatingRight:
-                            Physics.CharacterProxy.SetShapeForMove(false);
-                            break;
-
                         case MyCharacterMovementEnum.CrouchRotatingLeft:
                         case MyCharacterMovementEnum.CrouchRotatingRight:
+                        case MyCharacterMovementEnum.CrouchWalking:
+                        case MyCharacterMovementEnum.CrouchBackWalking:
+                        case MyCharacterMovementEnum.CrouchWalkingLeftBack:
+                        case MyCharacterMovementEnum.CrouchWalkingRightBack:
+                        case MyCharacterMovementEnum.CrouchWalkingLeftFront:
+                        case MyCharacterMovementEnum.CrouchWalkingRightFront:
+                        case MyCharacterMovementEnum.CrouchStrafingLeft:
+                        case MyCharacterMovementEnum.CrouchStrafingRight:
                             Physics.CharacterProxy.SetShapeForCrouch(Physics.HavokWorld, true);
                             break;
 
-                        case MyCharacterMovementEnum.Sitting:
-                            break;
-
                         default:
-                            Physics.CharacterProxy.SetShapeForMove(false);
+                            Physics.CharacterProxy.SetShapeForCrouch(Physics.HavokWorld, false);
                             break;
                     }
                 }
