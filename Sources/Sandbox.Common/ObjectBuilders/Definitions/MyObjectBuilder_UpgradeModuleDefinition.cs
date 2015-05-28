@@ -3,24 +3,19 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Sandbox.ModAPI.Ingame;
 
 namespace Sandbox.Common.ObjectBuilders.Definitions
 {
-    public enum MyUpgradeModifierType
-    {
-        Multiplicative,
-        Additive,
-    }
-
     [ProtoContract]
-    public struct MyUpgradeModuleInfo
+    public struct MyUpgradeModuleInfo : IMyUpgradeInfo
     {
         [ProtoMember]
-        public string UpgradeType;
+        public string UpgradeType { get; set; }
         [ProtoMember]
-        public float Modifier;
+        public float Modifier { get; set; }
         [ProtoMember]
-        public MyUpgradeModifierType ModifierType;
+        public MyUpgradeModifierType ModifierType { get; set; }
     }
 
     [ProtoContract]

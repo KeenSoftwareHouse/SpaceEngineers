@@ -20,7 +20,7 @@ using System.Diagnostics;
 namespace Sandbox.Game.Entities.Blocks
 {
     [MyCubeBlockType(typeof(MyObjectBuilder_UpgradeModule))]
-    class MyUpgradeModule : MyFunctionalBlock
+    class MyUpgradeModule : MyFunctionalBlock, ModAPI.IMyUpgradeModule
     {
         private ConveyorLinePosition[] m_connectionPositions;
         private Dictionary<ConveyorLinePosition, MyCubeBlock> m_connectedBlocks;
@@ -237,7 +237,7 @@ namespace Sandbox.Game.Entities.Blocks
                 float val;
                 if (block.UpgradeValues.TryGetValue(upgrade.UpgradeType, out val))
                 {
-                    if (upgrade.ModifierType == MyUpgradeModifierType.Additive)
+                    if (upgrade.ModifierType == ModAPI.Ingame.MyUpgradeModifierType.Additive)
                     {
                         val -= upgrade.Modifier;
 
@@ -270,7 +270,7 @@ namespace Sandbox.Game.Entities.Blocks
                 float val;
                 if (block.UpgradeValues.TryGetValue(upgrade.UpgradeType, out val))
                 {
-                    if (upgrade.ModifierType == MyUpgradeModifierType.Additive)
+                    if (upgrade.ModifierType == ModAPI.Ingame.MyUpgradeModifierType.Additive)
                     {
                         val += upgrade.Modifier;
                     }
@@ -359,6 +359,46 @@ namespace Sandbox.Game.Entities.Blocks
             }
 
             return count;
+        }
+
+        List<ModAPI.Ingame.IMyUpgradeInfo> ModAPI.Ingame.IMyUpgradeModule.UpgradeList
+        {
+            get
+            {
+                List < ModAPI.Ingame.IMyUpgradeInfo > upgradelist = new List<ModAPI.Ingame.IMyUpgradeInfo>();
+                foreach (var value in m_upgrades)
+                    upgradelist.Add(value);
+
+                return upgradelist;
+            }
+        }
+
+        uint ModAPI.Ingame.IMyUpgradeModule.UpgradeCount
+        {
+            get
+            {
+                return (uint)m_upgrades.Count();
+            }
+        }
+
+        uint ModAPI.Ingame.IMyUpgradeModule.Connections
+        {
+            get
+            {
+                uint count = 0;
+                MyCubeBlock lastblock = null;
+                foreach (var value in m_connectedBlocks.Values)
+                {
+                    if (lastblock == value)
+                        continue;
+                    if (value != null)
+                    {
+                        count++;
+                        lastblock = value;
+                    }
+                }
+                return count;
+            }
         }
     }
 }
