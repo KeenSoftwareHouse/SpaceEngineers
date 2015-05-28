@@ -18299,6 +18299,7 @@
       <MaxForceMagnitude>3.36E+07</MaxForceMagnitude>
       <RotorPart>RealWheel1x1</RotorPart>
       <PropulsionForce>50</PropulsionForce>
+      <SuspensionLimit>0.25</SuspensionLimit>
       <MinHeight>-0.32</MinHeight>
       <MaxHeight>0.26</MaxHeight>
       <DamageEffectId>212</DamageEffectId>
