@@ -163,6 +163,7 @@
     <Compile Include="ModAPI\IMySpaceBall.cs" />
     <Compile Include="ModAPI\IMyTerminalBlock.cs" />
     <Compile Include="ModAPI\IMyThrust.cs" />
+    <Compile Include="ModAPI\IMyUpgradeModule.cs" />
     <Compile Include="ModAPI\IMyVirtualMass.cs" />
     <Compile Include="ModAPI\IMyVoxelBase.cs" />
     <Compile Include="ModAPI\IMyVoxelShape.cs" />
@@ -224,12 +225,15 @@
     <Compile Include="ModAPI\Ingame\IMyTextPanel.cs" />
     <Compile Include="ModAPI\Ingame\IMyThrust.cs" />
     <Compile Include="ModAPI\Ingame\IMyTimerBlock.cs" />
+    <Compile Include="ModAPI\Ingame\IMyUpgradableBlock.cs" />
+    <Compile Include="ModAPI\Ingame\IMyUpgradeModule.cs" />
     <Compile Include="ModAPI\Ingame\IMyUserControllableGun.cs" />
     <Compile Include="ModAPI\Ingame\IMyVirtualMass.cs" />
     <Compile Include="ModAPI\Ingame\IMyControlPanel.cs" />
     <Compile Include="ModAPI\Ingame\IMyWarhead.cs" />
     <Compile Include="ModAPI\IMyButtonPanel.cs" />
     <Compile Include="ModAPI\IMyShipMergeBlock.cs" />
+    <Compile Include="ModAPI\Ingame\IMyUpgradeModuleInfo.cs" />
     <Compile Include="ModAPI\Ingame\PistonStatus.cs" />
     <Compile Include="ModAPI\Ingame\MyGridProgram.cs" />
     <Compile Include="ModAPI\Ingame\TerminalActionParameter.cs" />
