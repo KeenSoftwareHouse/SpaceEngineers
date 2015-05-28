@@ -6160,6 +6160,16 @@ namespace Sandbox.Game.Localization
         public static readonly MyStringId BlockPropertyTitle_Motor_Power = MyStringId.GetOrCompute("BlockPropertyTitle_Motor_Power");
 
         ///<summary>
+        ///Axle height offset from center
+        ///</summary>
+        public static readonly MyStringId BlockPropertyDescription_Motor_Height = MyStringId.GetOrCompute("BlockPropertyDescription_Motor_Height");
+
+        ///<summary>
+        ///Height Offset
+        ///</summary>
+        public static readonly MyStringId BlockPropertyTitle_Motor_Height = MyStringId.GetOrCompute("BlockPropertyTitle_Motor_Height");
+
+        ///<summary>
         ///Centered Window
         ///</summary>
         public static readonly MyStringId DisplayName_Block_VerticalCen = MyStringId.GetOrCompute("DisplayName_Block_VerticalCen");
@@ -7763,6 +7773,16 @@ namespace Sandbox.Game.Localization
         ///Keep projection after building is complete. Useful for automated building, but can degrade performance.
         ///</summary>
         public static readonly MyStringId KeepProjectionTooltip = MyStringId.GetOrCompute("KeepProjectionTooltip");
+
+        ///<summary>
+        ///Show Only Buildable
+        ///</summary>
+        public static readonly MyStringId ShowOnlyBuildableBlockToggle = MyStringId.GetOrCompute("ShowOnlyBuildableBlockToggle");
+
+        ///<summary>
+        ///Show Only Buildable
+        ///</summary>
+        public static readonly MyStringId ShowOnlyBuildableTooltip = MyStringId.GetOrCompute("ShowOnlyBuildableTooltip");
 
         ///<summary>
         ///Remove
@@ -10328,5 +10348,35 @@ namespace Sandbox.Game.Localization
         ///Changing the renderer requires restart of the game.
         ///</summary>
         public static readonly MyStringId ToolTipVideoOptionsRenderer = MyStringId.GetOrCompute("ToolTipVideoOptionsRenderer");
+
+        ///<summary>
+        ///Station rotation
+        ///</summary>
+        public static readonly MyStringId StationRotation_Static = MyStringId.GetOrCompute("StationRotation_Static");
+
+        ///<summary>
+        ///Enables rotation of station block
+        ///</summary>
+        public static readonly MyStringId StationRotation_Static_Desc = MyStringId.GetOrCompute("StationRotation_Static_Desc");
+
+        ///<summary>
+        ///Station rotation mode
+        ///</summary>
+        public static readonly MyStringId NotificationStationRotation = MyStringId.GetOrCompute("NotificationStationRotation");
+
+        ///<summary>
+        ///Push-to-talk voice chat
+        ///</summary>
+        public static readonly MyStringId ControlName_VoiceChat = MyStringId.GetOrCompute("ControlName_VoiceChat");
+
+        ///<summary>
+        ///Enable voice chat
+        ///</summary>
+        public static readonly MyStringId EnableVoiceChat = MyStringId.GetOrCompute("EnableVoiceChat");
+
+        ///<summary>
+        ///Applied changes will be visible after restarting the game
+        ///</summary>
+        public static readonly MyStringId MessageBoxTextRestartNeededAfterRendererSwitch = MyStringId.GetOrCompute("MessageBoxTextRestartNeededAfterRendererSwitch");
     }
 }

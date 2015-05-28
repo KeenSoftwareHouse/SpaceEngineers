@@ -242,7 +242,7 @@ namespace VRageRender.Resources
 
         internal static ShaderResourceView GetView(TexId tex)
         {
-            return Views[tex.Index];
+            return tex != TexId.NULL ? Views[tex.Index] : null;
         }
 
         internal static TexId GetTexture(string path, MyTextureEnum type, bool waitTillLoaded = false)

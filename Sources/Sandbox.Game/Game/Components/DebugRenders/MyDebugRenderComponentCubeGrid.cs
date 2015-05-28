@@ -181,7 +181,17 @@ namespace Sandbox.Game.Components
                     {
                         var pos = m_cubeGrid.GridIntegerToWorld(cubeBlock.Position);
                         if (m_cubeGrid.GridSizeEnum == MyCubeSize.Large || (MySector.MainCamera != null && (MySector.MainCamera.Position - pos).LengthSquared() < 9))
-                            MyRenderProxy.DebugDrawText3D(m_cubeGrid.GridIntegerToWorld(cubeBlock.Position), ((int)cubeBlock.Integrity).ToString(), Color.White, m_cubeGrid.GridSizeEnum == MyCubeSize.Large ? 0.65f : 0.5f, false);
+                        {
+                            float integrity = 0;
+                            if (cubeBlock.FatBlock is MyCompoundCubeBlock)
+                            {
+                                foreach (var b in (cubeBlock.FatBlock as MyCompoundCubeBlock).GetBlocks())
+                                    integrity += b.Integrity;
+                            }
+                            else
+                                integrity = cubeBlock.Integrity;
+                            MyRenderProxy.DebugDrawText3D(m_cubeGrid.GridIntegerToWorld(cubeBlock.Position), ((int)integrity).ToString(), Color.White, m_cubeGrid.GridSizeEnum == MyCubeSize.Large ? 0.65f : 0.5f, false);
+                        }
                     }
             }
 

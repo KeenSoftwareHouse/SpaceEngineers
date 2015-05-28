@@ -17,6 +17,8 @@ namespace Sandbox.Definitions
 
         public float MaxRange;
 
+        public bool RequireLineOfSight;
+
         protected override void Init(MyObjectBuilder_DefinitionBase builder)
         {
             base.Init(builder);
@@ -28,6 +30,7 @@ namespace Sandbox.Definitions
             PowerInputLasing = ob.PowerInputLasing;
             RotationRate=ob.RotationRate;
             MaxRange = ob.MaxRange;
+            RequireLineOfSight = ob.RequireLineOfSight;
         }
     }
 }

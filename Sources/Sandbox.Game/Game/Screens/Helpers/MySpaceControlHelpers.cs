@@ -390,4 +390,26 @@ namespace Sandbox.Game.Screens.Helpers
             m_label = MyTexts.GetString(id);
         }
     }
+
+    public class MyEnableStationRotationControlHelper : MyAbstractControlMenuItem
+    {
+        private IMyControllableEntity m_entity;
+
+        public MyEnableStationRotationControlHelper()
+            : base(MyControlsSpace.STATION_ROTATION)
+        {
+        }
+
+        public override void Activate()
+        {
+            MyScreenManager.CloseScreen(typeof(MyGuiScreenControlMenu));
+            MyCubeBuilder.Static.EnableStationRotation();
+        }
+
+        public override string Label
+        {
+            get { return MyTexts.GetString(MySpaceTexts.StationRotation_Static); }
+        }
+    }
 }
+

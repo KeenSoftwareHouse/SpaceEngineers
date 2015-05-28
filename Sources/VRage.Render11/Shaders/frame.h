@@ -54,7 +54,7 @@ struct FrameConstants {
 	float3  directionalLightVec;
 	float 	skyboxBlend;
 	float3 	directionalLightColor;
-	float 	padding1_;
+	float 	forwardPassAmbient;
 
 	float 	tonemapping_A;
 	float 	tonemapping_B;

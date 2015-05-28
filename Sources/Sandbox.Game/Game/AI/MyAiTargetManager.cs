@@ -31,7 +31,7 @@ namespace Sandbox.Game.AI
 		struct ReserveEnvironmentItemMsg
 		{
 			public long EntityId;
-			public long LocalId;
+			public int LocalId;
 			public long ReservationTimeMs;
 			public int SenderSerialId;
 		}
@@ -51,7 +51,7 @@ namespace Sandbox.Game.AI
 		{
 			public MyReservedEntityType Type;
 			public long EntityId;
-			public long LocalId;
+			public int LocalId;
 			public Vector3I GridPos;
 			public long ReservationTimer;
 			public MyPlayer.PlayerId ReserverId;
@@ -275,7 +275,7 @@ namespace Sandbox.Game.AI
 			Sync.Layer.SendMessageToServer(ref msg, MyTransportMessageEnum.Request);
 		}
 
-		public void RequestEnvironmentItemReservation(long entityId, long localId, long reservationTimeMs, int senderSerialId)
+		public void RequestEnvironmentItemReservation(long entityId, int localId, long reservationTimeMs, int senderSerialId)
 		{
 			var msg = new ReserveEnvironmentItemMsg()
 			{
@@ -337,9 +337,9 @@ namespace Sandbox.Game.AI
             MyEntities.OnEntityRemove -= OnEntityRemoved;
         }
 
-		public override void Simulate()
+		public override void UpdateAfterSimulation()
 		{
-			base.Simulate();
+			base.UpdateAfterSimulation();
 
 			if (Sync.IsServer)
 			{
@@ -348,15 +348,6 @@ namespace Sandbox.Game.AI
 					if (Stopwatch.GetTimestamp() > entity.Value.ReservationTimer)
 						m_removeReservedEntities.Enqueue(entity.Key);
 				}
-			}
-		}
-
-		public override void UpdateAfterSimulation()
-		{
-			base.UpdateAfterSimulation();
-
-			if (Sync.IsServer)
-			{
 				foreach (var id in m_removeReservedEntities)
 				{
 					m_reservedEntities.Remove(id);

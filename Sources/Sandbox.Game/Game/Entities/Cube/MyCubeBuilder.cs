@@ -386,6 +386,7 @@ namespace Sandbox.Game.Entities
         MyHudNotification m_blockNotAvailableNotification;
         MyHudNotification m_symmetryNotification;
         MyHudNotification m_pasteNotification;
+        MyHudNotification m_stationRotationNotification;
 
         private bool m_dynamicMode;
         internal bool DynamicMode
@@ -792,6 +793,7 @@ namespace Sandbox.Game.Entities
 
         public override void Deactivate()
         {
+            HideStationRotationNotification();
             DeactivateShipCreationClipboard();
             DeactivateCopyPaste();
             DeactivateCopyPasteFloatingObject();
@@ -973,6 +975,37 @@ namespace Sandbox.Game.Entities
             }
         }
 
+        private void ShowStationRotationNotification()
+        {
+            if (m_stationRotationNotification == null && m_shipCreationClipboard.EnableStationRotation)
+                m_stationRotationNotification = new MyHudNotification(MySpaceTexts.NotificationStationRotation, 0, priority: 1);
+
+            if (m_shipCreationClipboard.EnableStationRotation)
+            {
+                MyHud.Notifications.Add(m_stationRotationNotification);
+            }
+            else
+            {
+                MyHud.Notifications.Remove(m_stationRotationNotification);
+            }
+        }
+
+        private void HideStationRotationNotification()
+        {
+            if (m_stationRotationNotification != null)
+            {
+                MyHud.Notifications.Remove(m_stationRotationNotification);
+            }
+        }
+
+        public void EnableStationRotation()
+        {
+            m_shipCreationClipboard.EnableStationRotation = !m_shipCreationClipboard.EnableStationRotation;
+            m_clipboard.EnableStationRotation = !m_clipboard.EnableStationRotation;
+            m_floatingObjectClipboard.EnableStationRotation = !m_floatingObjectClipboard.EnableStationRotation;
+            ShowStationRotationNotification();     
+        }
+
         public bool HandleGameInput()
         {
             m_rotationHintRotating = false;
@@ -1020,6 +1053,11 @@ namespace Sandbox.Game.Entities
             if (IsActivated && MyControllerHelper.IsControl(context, MyControlsSpace.BUILD_MODE))
             {
                 IsBuildMode = !IsBuildMode;
+            }
+
+            if (MyInput.Static.IsNewGameControlPressed(MyControlsSpace.STATION_ROTATION) && ShipCreationIsActivated)
+            {
+                EnableStationRotation();
             }
 
             // When spectator active, building is instant
@@ -1224,6 +1262,7 @@ namespace Sandbox.Game.Entities
                     {
                         if (m_shipCreationClipboard.PasteGrid())
                         {
+                            HideStationRotationNotification();
                             MyGuiAudio.PlaySound(MyGuiSounds.HudPlaceBlock);
                             return true;
                         }
@@ -1439,8 +1478,7 @@ namespace Sandbox.Game.Entities
                         MyInput.Static.IsNewRightMouseReleased())
                     {
                         StopBuilding();
-                    }
-
+                    }               
                 } //if (CurrentGrid != null)
                 else if (CurrentVoxelMap != null)
                 {
@@ -2035,6 +2073,14 @@ namespace Sandbox.Game.Entities
                 //    gizmoSpace.m_buildAllowed = false;
                 //    gizmoSpace.m_removeBlock = null;
                 //}
+
+                if (CameraControllerSpectator)
+                {
+                    gizmoSpace.m_showGizmoCube = false;
+                    gizmoSpace.m_buildAllowed = false;
+                    return;
+                }
+
                 if (!MySession.Static.SimpleSurvival && MySession.ControlledEntity is MyCharacter)
                 {
                     gizmoSpace.m_buildAllowed &= (MySession.ControlledEntity as MyCharacter).CanStartConstruction(CurrentBlockDefinition);
@@ -2156,7 +2202,7 @@ namespace Sandbox.Game.Entities
             {
                 BoundingBoxD gizmoBox = localAABB.Transform(ref drawMatrix);
 
-                if (!MyCubeBuilderGizmo.DefaultGizmoCloseEnough(ref MatrixD.Identity, gizmoBox, gridSize, IntersectionDistance) || MySession.GetCameraControllerEnum() == MyCameraControllerEnum.Spectator)
+                if (!MyCubeBuilderGizmo.DefaultGizmoCloseEnough(ref MatrixD.Identity, gizmoBox, gridSize, IntersectionDistance) || CameraControllerSpectator)
                 {
                     gizmoSpace.m_buildAllowed = false;
                     gizmoSpace.m_showGizmoCube = false;
@@ -2248,7 +2294,7 @@ namespace Sandbox.Game.Entities
                         Vector3 localMax = (m_gizmo.SpaceDefault.m_max + new Vector3(0.5f)) * CurrentGrid.GridSize;
                         BoundingBoxD gizmoBox = new BoundingBoxD(localMin, localMax);
 
-                        if (!MyCubeBuilderGizmo.DefaultGizmoCloseEnough(ref m_invGridWorldMatrix, gizmoBox, CurrentGrid.GridSize, IntersectionDistance) || MySession.GetCameraControllerEnum() == MyCameraControllerEnum.Spectator)
+                        if (!MyCubeBuilderGizmo.DefaultGizmoCloseEnough(ref m_invGridWorldMatrix, gizmoBox, CurrentGrid.GridSize, IntersectionDistance) || CameraControllerSpectator)
                         {
                             gizmoSpace.m_buildAllowed = false;
                             gizmoSpace.m_removeBlock = null;
@@ -2388,7 +2434,7 @@ namespace Sandbox.Game.Entities
                         {
                             MatrixD invDrawMatrix = Matrix.Invert(drawMatrix);
 
-                            if (!MyCubeBuilderGizmo.DefaultGizmoCloseEnough(ref invDrawMatrix, localAABB, gridSize, IntersectionDistance) || MySession.GetCameraControllerEnum() == MyCameraControllerEnum.Spectator)
+                            if (!MyCubeBuilderGizmo.DefaultGizmoCloseEnough(ref invDrawMatrix, localAABB, gridSize, IntersectionDistance) || CameraControllerSpectator)
                             {
                                 gizmoSpace.m_buildAllowed = false;
                                 gizmoSpace.m_removeBlock = null;
@@ -2508,7 +2554,7 @@ namespace Sandbox.Game.Entities
             }
             else
             {
-                if (MySession.Static.SurvivalMode && (MySession.GetCameraControllerEnum() != MyCameraControllerEnum.Spectator || MyFinalBuildConstants.IS_OFFICIAL))
+                if (MySession.Static.SurvivalMode && (!CameraControllerSpectator || MyFinalBuildConstants.IS_OFFICIAL))
                 {
                     Vector3 localMin = (m_gizmo.SpaceDefault.m_min - new Vector3(0.5f)) * CurrentGrid.GridSize;
                     Vector3 localMax = (m_gizmo.SpaceDefault.m_max + new Vector3(0.5f)) * CurrentGrid.GridSize;
@@ -3519,6 +3565,8 @@ namespace Sandbox.Game.Entities
             {
                 CurrentGrid.RazeBlocks(m_tmpBlockPositionList);
             }
+
+            HideStationRotationNotification();
         }
 
         // CH: At the time of writing this comment, this is not called anywhere (only one commented out occurence). If you want to use it, it's up to you to make it work :-)
@@ -3860,6 +3908,10 @@ namespace Sandbox.Game.Entities
 
             foreach (var gridBuilder in gridBuilders)
             {
+                if (gridBuilder.IsStatic && gridBuilder.PositionAndOrientation.HasValue)
+                {
+                    gridBuilder.PositionAndOrientation = MyPositionAndOrientation.Default;
+                }
                 foreach (var blockBuilder in gridBuilder.CubeBlocks)
                 {
                     blockBuilder.ColorMaskHSV = MyToolbar.ColorMaskHSV;
@@ -3867,6 +3919,15 @@ namespace Sandbox.Game.Entities
             }
 
             MyCubeBuilder.Static.ActivateShipCreationClipboard(gridBuilders, centerDisplacement, 5.0f + blockDiagonal.Length() * 0.5f);
+
+            if (isStatic)
+            {
+                ShowStationRotationNotification();
+            }
+            else
+            {
+                HideStationRotationNotification();
+            }
         }
 
         public void StartNewGridPlacement(MyCubeBlockDefinition blockDefinition, bool isStatic)
@@ -4002,6 +4063,11 @@ namespace Sandbox.Game.Entities
             blockBuilder.Orientation = Quaternion.CreateFromForwardUp(Vector3I.Round(worldMatrix.Forward), Vector3I.Round(worldMatrix.Up));
             Vector3I sizeRotated = Vector3I.Abs(Vector3I.Round(Vector3D.TransformNormal((Vector3)blockDefinition.Size, worldMatrix)));
             blockBuilder.Min = sizeRotated / 2 - sizeRotated + Vector3I.One;
+			if (MySession.Static.SurvivalMode && !MySession.Static.SimpleSurvival)
+			{
+				blockBuilder.IntegrityPercent = MyComponentStack.MOUNT_THRESHOLD;
+				blockBuilder.BuildPercent = MyComponentStack.MOUNT_THRESHOLD;
+			}
 
             gridBuilder.CubeBlocks.Add(blockBuilder);
 
@@ -4024,7 +4090,7 @@ namespace Sandbox.Game.Entities
 
                 if (MyFakes.ENABLE_SMALL_BLOCK_TO_LARGE_STATIC_CONNECTIONS)
                 {
-                    MyCubeGridSmallToLargeConnection.Static.CheckBlockSmallToLargeConnect(block);
+                    MyCubeGridSmallToLargeConnection.Static.AddBlockSmallToLargeConnection(block);
                 }
             }
             else

@@ -31,8 +31,5 @@ namespace Sandbox.Common.ObjectBuilders.Definitions
 
         [ProtoMember]
         public bool ShowAnimations = false;
-
-        [ProtoMember]
-        public bool Public = true;
     }
 }

@@ -20,13 +20,6 @@ namespace Sandbox.Engine.Physics
 {
     public static class MyDestructionHelper
     {
-        public struct HitInfo
-        {
-            public Vector3D Position;
-            public Vector3D Normal;
-            public Vector3D Velocity; //of impacting entity/bulet, normalize to get direction
-        }
-
         public static readonly float MASS_REDUCTION_COEF = 1f/25f;
  
         private static List<HkdShapeInstanceInfo> m_tmpInfos = new List<HkdShapeInstanceInfo>();

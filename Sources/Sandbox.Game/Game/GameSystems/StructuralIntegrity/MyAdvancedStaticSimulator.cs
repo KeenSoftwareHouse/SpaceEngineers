@@ -311,6 +311,12 @@ namespace Sandbox.Game.GameSystems.StructuralIntegrity
                                 else
                                     if (b.BlockDefinition.IsGeneratedBlock && b.BlockDefinition.PhysicalMaterial.Id.SubtypeName == "Stone")
                                         isGenerated = false;
+                                    else
+                                        if (b.BlockDefinition.IsGeneratedBlock && b.BlockDefinition.PhysicalMaterial.Id.SubtypeName == "RoofTile" && compBlock.GetBlocks().Count == 1)
+                                        {
+                                            isGenerated = false;
+                                            cubeMass *= 6f;
+                                        }
                             }
 
                             //we dont want to simulate these pieces..

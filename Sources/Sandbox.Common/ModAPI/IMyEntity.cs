@@ -143,9 +143,6 @@ namespace Sandbox.ModAPI
         bool InScene { get; set; }
         bool InvalidateOnMove { get; }
         bool IsCCDForProjectiles { get; }
-        bool IsSelectable();
-        bool IsSelectableAsChild();
-        bool IsSelectableParentOnly();
         bool IsVisible();
         bool IsVolumetric { get; }
 

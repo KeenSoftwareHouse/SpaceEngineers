@@ -248,6 +248,12 @@ namespace Sandbox.Game.Entities.Blocks
                 if (m_blinkIntervalSeconds != value)
                 {
                     m_blinkIntervalSeconds = (float)Math.Round(value, NUM_DECIMALS);
+                    if (m_blinkIntervalSeconds == 0.0f && Enabled)
+                    {
+                        m_light.ReflectorOn = true;
+                        m_light.GlareOn = true;
+                        m_light.LightOn = true;
+                    }
                     RaisePropertiesChanged();
                 }
             }

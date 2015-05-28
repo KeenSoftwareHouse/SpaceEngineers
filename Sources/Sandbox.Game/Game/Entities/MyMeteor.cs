@@ -1,6 +1,7 @@
 ﻿using Havok;
 using Sandbox.Common;
 using Sandbox.Common.Components;
+using Sandbox.Common.ModAPI;
 using Sandbox.Common.ObjectBuilders;
 using Sandbox.Common.ObjectBuilders.Definitions;
 using Sandbox.Definitions;
@@ -20,7 +21,6 @@ using Sandbox.ModAPI.Interfaces;
 using System;
 using System.Linq;
 using System.Text;
-
 using VRage;
 using VRage.Utils;
 using VRageMath;
@@ -116,9 +116,9 @@ namespace Sandbox.Game.Entities
             GameLogic.OnDestroy();
         }
 
-        public void DoDamage(float damage, MyDamageType damageType, bool sync)
+        public void DoDamage(float damage, MyDamageType damageType, bool sync, MyHitInfo? hitInfo)
         {
-            GameLogic.DoDamage(damage, damageType, sync);
+            GameLogic.DoDamage(damage, damageType, sync, hitInfo);
         }
 
         public float Integrity
@@ -438,8 +438,16 @@ namespace Sandbox.Game.Entities
                     else
                         direction = Vector3.Normalize(Vector3.Reflect(Entity.Physics.LinearVelocity, value.ContactPointEvent.ContactPoint.Normal));
                     var material = VoxelMaterial;
-                    while (!material.IsRare)
+                    int tries = MyDefinitionManager.Static.GetVoxelMaterialDefinitions().Count() * 2; // max amount of tries
+                    while (!material.IsRare || !material.SpawnsFromMeteorites || material.MinVersion > MySession.Static.Settings.VoxelGeneratorVersion)
+                    {
+                        if (--tries < 0) // to prevent infinite loops in case all materials are disabled just use the meteorites' initial material
+                        {
+                            material = VoxelMaterial;
+                            break;
+                        }
                         material = MyDefinitionManager.Static.GetVoxelMaterialDefinitions().ElementAt(MyUtils.GetRandomInt(MyDefinitionManager.Static.GetVoxelMaterialDefinitions().Count() - 1));
+                    }
                     voxel.SyncObject.CreateVoxelMeteorCrater(sphere.Center, (float)sphere.Radius, -direction, material);
                     MyVoxelGenerator.MakeCrater(voxel, sphere, -direction, material);
                 }
@@ -482,7 +490,7 @@ namespace Sandbox.Game.Entities
             }
 
 
-            public void DoDamage(float damage, MyDamageType damageType, bool sync)
+            public void DoDamage(float damage, MyDamageType damageType, bool sync, MyHitInfo? hitInfo)
             {
                 if (sync)
                 {

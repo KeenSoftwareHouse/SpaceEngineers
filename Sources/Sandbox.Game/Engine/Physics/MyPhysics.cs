@@ -53,6 +53,7 @@ namespace Sandbox.Engine.Physics
             public HkWorld World;
             public Vector3D ContactInWorld;
             public MyEntity Entity;
+            //public StackTrace dbgTrace;
         }
         public const int StaticCollisionLayer = 13;
         public const int CollideWithStaticLayer = 14;
@@ -398,6 +399,7 @@ namespace Sandbox.Engine.Physics
                 m_jobQueue.Dispose();
                 m_jobQueue = null;
             }
+            m_destructionQueue.Clear();
         }
 
         void AddTimestamp()
@@ -430,6 +432,7 @@ namespace Sandbox.Engine.Physics
 
             foreach (HkWorld world in Clusters.GetList())
             {
+                //VRageRender.MyRenderProxy.DebugDrawText2D(new Vector2(100, 100), "Constr:" + world.GetConstraintCount(), Color.Red, 0.9f);
                 world.UnmarkForWrite();
                 world.StepSimulation(MyEngineConstants.UPDATE_STEP_SIZE_IN_SECONDS * MyFakes.SIMULATION_SPEED);
                 world.MarkForWrite();
@@ -489,7 +492,6 @@ namespace Sandbox.Engine.Physics
             ProfilerShort.Begin("HavokWorld.StepVDB");
             foreach (HkWorld world in Clusters.GetList())
             {
-                //jn: peaks with Render profiling and destruction
                 world.StepVDB(MyEngineConstants.UPDATE_STEP_SIZE_IN_SECONDS);
             }
 
@@ -500,14 +502,29 @@ namespace Sandbox.Engine.Physics
         private static void ProcessDestructions()
         {
             ProfilerShort.Begin("Destruction");
+            int counter = 0;
             while (m_destructionQueue.Count > 0)
             {
+                counter++;
                 var destructionInfo = m_destructionQueue.Dequeue();
-
+                Debug.Assert(destructionInfo.Entity.Physics.RigidBody == destructionInfo.Details.GetBreakingBody());
                 var details = destructionInfo.Details;
                 if (details.IsValid())
                 {
                     details.Flag = details.Flag | HkdFractureImpactDetails.Flags.FLAG_DONT_DELAY_OPERATION;
+                    for (int i = 0; i < details.GetBreakingBody().BreakableBody.BreakableShape.GetChildrenCount(); i++)
+                    {
+                        var child = details.GetBreakingBody().BreakableBody.BreakableShape.GetChild(i);
+                        Debug.Assert(child.Shape.IsValid());
+                        var strength = child.Shape.GetStrenght();
+                        for(int j = 0; j < child.Shape.GetChildrenCount(); j++)
+                        {
+                            var child2 = child.Shape.GetChild(j);
+                            Debug.Assert(child2.Shape.IsValid());
+                            strength = child2.Shape.GetStrenght();
+                        }
+                    }
+
                     destructionInfo.World.DestructionWorld.TriggerDestruction(ref details);
                     
                     MySyncDestructions.AddDestructionEffect(MyPerGameSettings.CollisionParticle.LargeGridClose, destructionInfo.ContactInWorld, Vector3D.Forward,0.2f);
@@ -552,6 +569,7 @@ namespace Sandbox.Engine.Physics
         private static Queue<FractureImpactDetails> m_destructionQueue = new Queue<FractureImpactDetails>();
         public static void EnqueueDestruction(FractureImpactDetails details)
         {
+            //details.dbgTrace = new System.Diagnostics.StackTrace();
             System.Diagnostics.Debug.Assert(Sandbox.Game.Multiplayer.Sync.IsServer, "Clients cannot create destructions");
             m_destructionQueue.Enqueue(details);
         }
@@ -578,6 +596,7 @@ namespace Sandbox.Engine.Physics
 
         public static void RemoveDestructions(HkRigidBody body)
         {
+            ProfilerShort.Begin("MyPhysics.RemoveDestructions");
             var list = m_destructionQueue.ToList();
 
             for (int i = 0; i < list.Count; i++)
@@ -595,6 +614,7 @@ namespace Sandbox.Engine.Physics
             {
                 m_destructionQueue.Enqueue(details);
             }
+            ProfilerShort.End();
         }
 
         public static bool DebugDrawClustersEnable = false;

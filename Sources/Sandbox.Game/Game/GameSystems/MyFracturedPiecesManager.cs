@@ -338,9 +338,8 @@ namespace Sandbox.Game.GameSystems
             return fp;
         }
 
-		public List<MyFracturedPiece> GetFracturesInSphere(ref BoundingSphereD searchSphere)
+		public void GetFracturesInSphere(ref BoundingSphereD searchSphere, ref List<MyFracturedPiece> output)
 		{
-			var fracturesInRadius = new List<MyFracturedPiece>();
 			var activeFractures = m_piecesTimesOfDeath.Keys;
 
 			double radiusSq = searchSphere.Radius * searchSphere.Radius;
@@ -349,11 +348,9 @@ namespace Sandbox.Game.GameSystems
 				double distanceSq = Vector3D.DistanceSquared(searchSphere.Center, fracture.PositionComp.GetPosition());
 				if(distanceSq < radiusSq)
 				{
-					fracturesInRadius.Add(fracture);
+					output.Add(fracture);
 				}
 			}
-			
-			return fracturesInRadius;
 		}
 
 		public bool TryGetFractureById(long entityId, out MyFracturedPiece outFracture)

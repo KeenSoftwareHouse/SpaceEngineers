@@ -227,6 +227,8 @@ namespace Sandbox.Engine.Multiplayer
             set { Lobby.SetLobbyData(MyMultiplayer.BattleTimeLimitTag, value.ToString()); }
         }
 
+        private bool m_serverDataValid;
+
 
         internal MyMultiplayerLobby(Lobby lobby, MySyncLayer syncLayer)
             : base(syncLayer)
@@ -369,7 +371,16 @@ namespace Sandbox.Engine.Multiplayer
         public override void Tick()
         {
             base.Tick();
-           
+
+            // TODO: Hack for invisible battle games - sometimes values are not written to Lobby so we try it again here
+            if (!m_serverDataValid)
+            {
+                if (AppVersion == 0) 
+                    MySession.Static.StartServer(this);
+
+                m_serverDataValid = true;
+            }
+
             //var delta = TimeSpan.FromMilliseconds(SyncLayer.Interpolation.Timer.AverageDeltaMilliseconds);
             //Profiler.CustomValue("Average delta ", (float)delta.TotalMilliseconds + 10, delta + TimeSpan.FromMilliseconds(10));
 

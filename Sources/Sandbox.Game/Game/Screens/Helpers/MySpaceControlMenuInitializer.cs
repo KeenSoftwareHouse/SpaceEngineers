@@ -33,6 +33,7 @@ namespace Sandbox.Game.Screens.Helpers
         private MyShowBuildScreenControlHelper m_showBuildScreenControlHelper;
         private MySuicideControlHelper m_suicideControlHelper;
         private MyUseTerminalControlHelper m_terminalControlHelper;
+        private MyEnableStationRotationControlHelper m_enableStationRotationControlHelper;
 
         public MySpaceControlMenuInitializer()
         {
@@ -75,6 +76,8 @@ namespace Sandbox.Game.Screens.Helpers
             m_showBuildScreenControlHelper = new MyShowBuildScreenControlHelper();
             m_suicideControlHelper = new MySuicideControlHelper();
             m_terminalControlHelper = new MyUseTerminalControlHelper();
+
+            m_enableStationRotationControlHelper = new MyEnableStationRotationControlHelper();
         }
 
         public void OpenControlMenu(IMyControllableEntity controlledEntity)
@@ -113,6 +116,11 @@ namespace Sandbox.Game.Screens.Helpers
 
             m_controlMenu.AddItem(m_showTerminalControlHelper);
             m_controlMenu.AddItem(m_showBuildScreenControlHelper);
+
+            if (MyCubeBuilder.Static.ShipCreationIsActivated)
+            {
+                m_controlMenu.AddItem(m_enableStationRotationControlHelper);
+            }
 
             m_controlMenu.AddItem(m_quickLoadControlHelper);
             m_controlMenu.AddItem(m_hudToggleControlHelper);

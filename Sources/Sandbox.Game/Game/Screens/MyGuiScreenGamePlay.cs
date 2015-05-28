@@ -13,6 +13,7 @@ using Sandbox.Game.Multiplayer;
 using Sandbox.Game.Screens;
 using Sandbox.Game.Screens.Helpers;
 using Sandbox.Game.SessionComponents;
+using Sandbox.Game.VoiceChat;
 using Sandbox.Game.World;
 using Sandbox.Graphics;
 using Sandbox.Graphics.GUI;
@@ -536,6 +537,18 @@ namespace Sandbox.Game.Gui
                         chatPos = MyGuiScreenHudBase.ConvertHudToNormalizedGuiPosition(ref chatPos);
                         MyGuiScreenChat chatScreen = new MyGuiScreenChat(chatPos);
                         MyGuiSandbox.AddScreen(chatScreen);
+                    }
+                }
+
+                if (MyPerGameSettings.VoiceChatEnabled)
+                {
+                    if (MyControllerHelper.IsControl(context, MyControlsSpace.VOICE_CHAT, MyControlStateType.NEW_PRESSED))
+                    {
+                        MyVoiceChatSessionComponent.Static.StartRecording();
+                    }
+                    else if (MyControllerHelper.IsControl(context, MyControlsSpace.VOICE_CHAT, MyControlStateType.NEW_RELEASED))
+                    {
+                        MyVoiceChatSessionComponent.Static.StopRecording();
                     }
                 }
             }

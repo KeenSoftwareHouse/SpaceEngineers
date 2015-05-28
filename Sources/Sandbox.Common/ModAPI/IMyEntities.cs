@@ -49,9 +49,6 @@ namespace Sandbox.ModAPI
         IMyEntity GetEntityById(long entityId);
         bool EntityExists(long entityId);
         IMyEntity GetEntityByName(string name);
-        void SetTypeSelectable(Type type, bool selectable);
-        bool IsTypeSelectable(Type type);
-        bool IsSelectable(IMyEntity entity);
         void SetTypeHidden(Type type, bool hidden);
         bool IsTypeHidden(Type type);
         bool IsVisible(IMyEntity entity);

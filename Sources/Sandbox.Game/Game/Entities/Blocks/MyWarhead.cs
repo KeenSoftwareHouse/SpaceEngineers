@@ -30,6 +30,7 @@ using SteamSDK;
 using Sandbox.ModAPI.Ingame;
 using Sandbox.ModAPI.Interfaces;
 using Sandbox.Game.Localization;
+using Sandbox.Common.ModAPI;
 
 #endregion
 
@@ -650,7 +651,7 @@ namespace Sandbox.Game.Entities.Cube
             OnDestroy();
         }
 
-        void IMyDestroyableObject.DoDamage(float damage, MyDamageType damageType, bool sync)
+        void IMyDestroyableObject.DoDamage(float damage, MyDamageType damageType, bool sync, MyHitInfo? hitInfo)
         {
             if (MarkedToExplode || (!MySession.Static.DestructibleBlocks))
                 return;

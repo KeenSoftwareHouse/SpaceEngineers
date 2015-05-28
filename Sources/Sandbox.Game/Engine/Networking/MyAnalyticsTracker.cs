@@ -50,6 +50,8 @@ namespace Sandbox.Engine.Networking
         private static string[] m_oreTypes;
         private static readonly CommonRequiredData m_requiredData;
 
+        private static bool AnalyticsEnabled = MyFinalBuildConstants.IS_OFFICIAL && !MyCompilationSymbols.RenderOrGpuProfiling;
+
         static MyAnalyticsTracker()
         {
             var hashKey = new byte[64]; // SHA key, not used for any security, just hashing of user id
@@ -74,7 +76,7 @@ namespace Sandbox.Engine.Networking
 
         private static bool IsDev
         {
-            get { return MyFinalBuildConstants.IS_OFFICIAL && MySteam.BranchName == "development"; }
+            get { return MyFinalBuildConstants.IS_OFFICIAL && (MySteam.BranchName == "development" || MySteam.BranchName == "dev"); }
         }
 
         private static bool IsPirate
@@ -92,31 +94,31 @@ namespace Sandbox.Engine.Networking
 
         public static void SendGameStart()
         {
-            if (!MyCompilationSymbols.RenderOrGpuProfiling)
+            if (AnalyticsEnabled)
                 Parallel.Start(() => { SendGameStartInternal(); });
         }
 
         public static void SendGameEnd(string method, int totalTimeInSeconds)
         {
-            if (!MyCompilationSymbols.RenderOrGpuProfiling)
+            if (AnalyticsEnabled)
                 Parallel.Start(() => { SendGameEndInternal(method, totalTimeInSeconds); });
         }
 
         public static void SendSessionStart(MyStartSessionStatistics sessionStatistics)
         {
-            if (!MyCompilationSymbols.RenderOrGpuProfiling)
+            if (AnalyticsEnabled)
                 Parallel.Start(() => { SendSessionStartInternal(sessionStatistics); });
         }
 
         public static void SendSessionEnd(MyEndSessionStatistics sessionStatistics)
         {
-            if (!MyCompilationSymbols.RenderOrGpuProfiling)
+            if (AnalyticsEnabled)
                 Parallel.Start(() => { SendSessionEndInternal(sessionStatistics); });
         }
 
         public static void ReportError(SeverityEnum severityEnum, Exception ex, bool async = true)
         {
-            if (!MyCompilationSymbols.RenderOrGpuProfiling)
+            if (AnalyticsEnabled)
             {
                 var data = new ErrorEventData()
                 {
@@ -132,7 +134,7 @@ namespace Sandbox.Engine.Networking
 
         public static void ReportError(SeverityEnum severityEnum, string messageText, bool async = true)
         {
-            if (!MyCompilationSymbols.RenderOrGpuProfiling)
+            if (AnalyticsEnabled)
             {
                 var data = new ErrorEventData()
                 {

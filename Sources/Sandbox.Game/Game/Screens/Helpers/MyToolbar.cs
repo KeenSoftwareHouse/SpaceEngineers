@@ -40,10 +40,10 @@ namespace Sandbox.Game.Screens.Helpers
         }
 
         public const int DEF_SLOT_COUNT = 9;
-        public const int DEF_PAGE_COUNT = 4;
+        public const int DEF_PAGE_COUNT = 9;
 
-        public int SlotCount = 9;
-        public int PageCount = 4;
+        public int SlotCount;
+        public int PageCount;
         public int ItemCount { get { return SlotCount * PageCount; } }
 
         private MyToolbarItem[] m_items;

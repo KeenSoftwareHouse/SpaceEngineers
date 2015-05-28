@@ -198,71 +198,92 @@ namespace Sandbox.Game.Entities
             return result;
         }
 
+        public override bool IsAnyAabbCornerInside(ref MatrixD aabbWorldTransform, BoundingBoxD aabb)
+        {
+            unsafe
+            {
+                const int cornerCount = 8;
+                Vector3D* corners = stackalloc Vector3D[cornerCount];
+                aabb.GetCornersUnsafe(corners);
+                for (int i = 0; i < cornerCount; i++)
+                {
+                    Vector3D.Transform(ref corners[i], ref aabbWorldTransform, out corners[i]);
+                }
+                return IsAnyPointInside(corners, cornerCount);
+            }
+        }
+
         public override bool IsAnyAabbCornerInside(BoundingBoxD worldAabb)
         {
             MyRenderProxy.DebugDrawAABB(worldAabb, Color.White, 1f, 1f, true);
 
             unsafe
             {
-                Vector3D* corners = stackalloc Vector3D[8];
+                const int cornerCount = 8;
+                Vector3D* corners = stackalloc Vector3D[cornerCount];
                 worldAabb.GetCornersUnsafe(corners);
-                //byte insideMask = 0;
-                for (int i = 0; i < 8; i++)
-                {
-                    Vector3D local;
-                    Vector3I min;
-                    Vector3D minRel;
-                    MyVoxelCoordSystems.WorldPositionToLocalPosition(PositionLeftBottomCorner, ref corners[i], out local);
-                    MyVoxelCoordSystems.LocalPositionToVoxelCoord(ref local, out min);
-                    MyVoxelCoordSystems.LocalPositionToVoxelCoord(ref local, out minRel);
-                    minRel -= (Vector3D)min;
-                    var max = min + 1;
-                    m_storageCache.Resize(min, max);
-                    // mk:TODO Could be improved to not load the same range for each corner if they are inside the same voxel.
-                    Storage.ReadRange(m_storageCache, MyStorageDataTypeFlags.Content, 0, ref min, ref max);
-
-                    // Don't really need doubles but since position is in double and C# doesn't do SIMD yet, this makes little difference.
-                    var c000 = (double)m_storageCache.Content(0, 0, 0);
-                    var c100 = (double)m_storageCache.Content(1, 0, 0);
-                    var c010 = (double)m_storageCache.Content(0, 1, 0);
-                    var c110 = (double)m_storageCache.Content(1, 1, 0);
-                    var c001 = (double)m_storageCache.Content(0, 0, 1);
-                    var c101 = (double)m_storageCache.Content(1, 0, 1);
-                    var c011 = (double)m_storageCache.Content(0, 1, 1);
-                    var c111 = (double)m_storageCache.Content(1, 1, 1);
-
-                    c000 = c000 + (c100 - c000) * minRel.X;
-                    c010 = c010 + (c110 - c010) * minRel.X;
-                    c001 = c001 + (c101 - c001) * minRel.X;
-                    c011 = c011 + (c111 - c011) * minRel.X;
-
-                    c000 = c000 + (c010 - c000) * minRel.Y;
-                    c001 = c001 + (c011 - c001) * minRel.Y;
-
-                    c000 = c000 + (c001 - c000) * minRel.Z;
-
-                    //Color color = Color.Green;
-                    if (c000 >= (double)MyVoxelConstants.VOXEL_ISO_LEVEL)
-                    {
-                        return true;
-                        //insideMask |= (byte)(1 << i);
-                        //color = Color.Red;
-                    }
-                    //MyRenderProxy.DebugDrawText3D(corners[i], c000.ToString("000.0"), color, 0.7f, false);
-                }
-
-                return false;
-                //return insideMask != 0;
+                return IsAnyPointInside(corners, cornerCount);
             }
+        }
+
+        private unsafe bool IsAnyPointInside(Vector3D* worldPoints, int pointCount)
+        {
+            //bool anyInside = false;
+            for (int i = 0; i < pointCount; i++)
+            {
+                Vector3D local;
+                Vector3I min;
+                Vector3D minRel;
+                MyVoxelCoordSystems.WorldPositionToLocalPosition(PositionLeftBottomCorner, ref worldPoints[i], out local);
+                MyVoxelCoordSystems.LocalPositionToVoxelCoord(ref local, out min);
+                MyVoxelCoordSystems.LocalPositionToVoxelCoord(ref local, out minRel);
+                minRel -= (Vector3D)min;
+                var max = min + 1;
+                m_storageCache.Resize(min, max);
+                // mk:TODO Could be improved to not load the same range for each corner if they are inside the same voxel.
+                Storage.ReadRange(m_storageCache, MyStorageDataTypeFlags.Content, 0, ref min, ref max);
+
+                // Don't really need doubles but since position is in double and C# doesn't do SIMD yet, this makes little difference.
+                var c000 = (double)m_storageCache.Content(0, 0, 0);
+                var c100 = (double)m_storageCache.Content(1, 0, 0);
+                var c010 = (double)m_storageCache.Content(0, 1, 0);
+                var c110 = (double)m_storageCache.Content(1, 1, 0);
+                var c001 = (double)m_storageCache.Content(0, 0, 1);
+                var c101 = (double)m_storageCache.Content(1, 0, 1);
+                var c011 = (double)m_storageCache.Content(0, 1, 1);
+                var c111 = (double)m_storageCache.Content(1, 1, 1);
+
+                c000 = c000 + (c100 - c000) * minRel.X;
+                c010 = c010 + (c110 - c010) * minRel.X;
+                c001 = c001 + (c101 - c001) * minRel.X;
+                c011 = c011 + (c111 - c011) * minRel.X;
+
+                c000 = c000 + (c010 - c000) * minRel.Y;
+                c001 = c001 + (c011 - c001) * minRel.Y;
+
+                c000 = c000 + (c001 - c000) * minRel.Z;
+
+                //Color color = Color.Green;
+                if (c000 >= (double)MyVoxelConstants.VOXEL_ISO_LEVEL)
+                {
+                    return true;
+                    //anyInside = true;
+                    //color = Color.Red;
+                }
+                //MyRenderProxy.DebugDrawText3D(worldPoints[i], c000.ToString("000.0"), color, 0.7f, false);
+            }
+
+            return false;
+            //return anyInside;
         }
 
         public override bool IsOverlapOverThreshold(BoundingBoxD worldAabb, float thresholdPercentage)
         {
-            Debug.Assert(
-                worldAabb.Size.X > MyVoxelConstants.VOXEL_SIZE_IN_METRES &&
-                worldAabb.Size.Y > MyVoxelConstants.VOXEL_SIZE_IN_METRES &&
-                worldAabb.Size.Z > MyVoxelConstants.VOXEL_SIZE_IN_METRES,
-                "One of the sides of queried AABB is too small compared to voxel size. Results will be unreliable.");
+            //Debug.Assert(
+            //    worldAabb.Size.X > MyVoxelConstants.VOXEL_SIZE_IN_METRES &&
+            //    worldAabb.Size.Y > MyVoxelConstants.VOXEL_SIZE_IN_METRES &&
+            //    worldAabb.Size.Z > MyVoxelConstants.VOXEL_SIZE_IN_METRES,
+            //    "One of the sides of queried AABB is too small compared to voxel size. Results will be unreliable.");
 
             Vector3I minCorner, maxCorner;
             MyVoxelCoordSystems.WorldPositionToVoxelCoord(PositionLeftBottomCorner, ref worldAabb.Min, out minCorner);
