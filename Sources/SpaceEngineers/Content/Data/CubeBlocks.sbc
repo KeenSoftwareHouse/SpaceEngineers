@@ -14202,7 +14202,8 @@
       <BlockPairName>Warhead</BlockPairName>
       <EdgeType>Light</EdgeType>
       <BuildTimeSeconds>30</BuildTimeSeconds>
-      <ExplosionRadius>22.4415</ExplosionRadius> 
+      <ExplosionRadius>22.4415</ExplosionRadius>
+      <WarheadExplosionDamage>15000</WarheadExplosionDamage>
     </Definition>
     <Definition xsi:type="MyObjectBuilder_WarheadDefinition">
       <Id>
@@ -14232,6 +14233,7 @@
       <EdgeType>Light</EdgeType>
       <BuildTimeSeconds>10</BuildTimeSeconds>
       <ExplosionRadius> 4.4883 </ExplosionRadius>
+      <WarheadExplosionDamage>15000</WarheadExplosionDamage>
     </Definition>
     <Definition>
       <Id>
