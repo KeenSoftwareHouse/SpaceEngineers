@@ -337,9 +337,9 @@ namespace Sandbox.Game.AI
             MyEntities.OnEntityRemove -= OnEntityRemoved;
         }
 
-		public override void Simulate()
+		public override void UpdateAfterSimulation()
 		{
-			base.Simulate();
+			base.UpdateAfterSimulation();
 
 			if (Sync.IsServer)
 			{
@@ -348,15 +348,6 @@ namespace Sandbox.Game.AI
 					if (Stopwatch.GetTimestamp() > entity.Value.ReservationTimer)
 						m_removeReservedEntities.Enqueue(entity.Key);
 				}
-			}
-		}
-
-		public override void UpdateAfterSimulation()
-		{
-			base.UpdateAfterSimulation();
-
-			if (Sync.IsServer)
-			{
 				foreach (var id in m_removeReservedEntities)
 				{
 					m_reservedEntities.Remove(id);

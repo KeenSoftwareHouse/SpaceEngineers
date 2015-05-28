@@ -514,5 +514,7 @@ namespace Sandbox.Engine.Utils
         public static bool ENABLE_GENERATED_INTEGRITY_FIX = true; //forces generated blocks to have same stack and integrity as owner
 
         public static bool ENABLE_VOXEL_MAP_AABB_CORNER_TEST = false;
+        
+        public static bool ENABLE_RAGDOLL_DEACTIVATION = false;
     }
 }

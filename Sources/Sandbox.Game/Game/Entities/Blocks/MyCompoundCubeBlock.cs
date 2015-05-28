@@ -11,6 +11,7 @@ using Sandbox.Definitions;
 using Sandbox.Game.Entities.Cube;
 using VRage.Collections;
 using VRageMath;
+using Sandbox.Common.ModAPI;
 
 namespace Sandbox.Game.Entities
 {
@@ -739,7 +740,7 @@ namespace Sandbox.Game.Entities
             return id;
         }
 
-        internal void DoDamage(float damage, MyDamageType damageType, bool addDirtyParts, Engine.Physics.MyDestructionHelper.HitInfo? hitInfo)
+        internal void DoDamage(float damage, MyDamageType damageType, MyHitInfo? hitInfo)
         {
             float integrity = 0;
             foreach(var block in m_blocks)
@@ -756,7 +757,7 @@ namespace Sandbox.Game.Entities
 
             foreach (var block in m_blocks)
             {
-                block.Value.DoDamage(damage * (block.Value.MaxIntegrity / integrity), damageType, addDirtyParts, hitInfo, false);
+                block.Value.DoDamage(damage * (block.Value.MaxIntegrity / integrity), damageType, true, hitInfo, false);
             }
         }
     }

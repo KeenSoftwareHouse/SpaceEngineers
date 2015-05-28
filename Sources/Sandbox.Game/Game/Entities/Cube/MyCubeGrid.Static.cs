@@ -378,7 +378,7 @@ namespace Sandbox.Game.Entities
                 {
                     prevCount = validOffsets.Count;
 
-                    for (int i = 0; i < validOffsets.Count; i++)
+                    for (int i = validOffsets.Count - 1; i >= 0; i--)
                     {
                         Vector3I center = area.PosInGrid + validOffsets[i] * stepDir;
 
@@ -1874,7 +1874,7 @@ namespace Sandbox.Game.Entities
                 overlapState = Outside;
 
                 voxelMap = MySession.Static.VoxelMaps.GetVoxelMapWhoseBoundingBoxIntersectsBox(ref worldAabb, null);
-                if (voxelMap != null && voxelMap.IsAnyAabbCornerInside(worldAabb))
+                if (voxelMap != null && voxelMap.IsAnyAabbCornerInside(ref worldMatrix, localAabb))
                 {
                     overlapState = IntersectsOrInside;
                 }
@@ -1898,6 +1898,8 @@ namespace Sandbox.Game.Entities
                     Debug.Fail("Invalid branch.");
                     break;
             }
+
+            ProfilerShort.End();
 
             return testPassed;
         }

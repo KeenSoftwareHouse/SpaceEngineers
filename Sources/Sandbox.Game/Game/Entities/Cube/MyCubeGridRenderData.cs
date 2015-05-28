@@ -144,7 +144,7 @@ namespace Sandbox.Game.Entities.Cube
             var size = (1f + MyRandom.Instance.NextFloat(-0.35f,0.35f)) *1.5f; //TODO: variable size?
             float depth = 0.2f;
             pos = Matrix.CreateScale(new Vector3(size,size,depth)) * pos;
-            pos.Translation = pos.Translation + pos.Backward * depth;
+            //pos.Translation = pos.Translation + pos.Backward * depth;
             var decalId = MyRenderProxy.CreateDecal(m_gridRender.GetRenderObjectID(), (Matrix)pos, material);
             m_cubeDecals[cube].Add(decalId);
 

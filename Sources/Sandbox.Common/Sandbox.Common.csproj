@@ -272,6 +272,7 @@
     <Compile Include="ModAPI\Interfaces\ITerminalProperty.cs" />
     <Compile Include="ModAPI\Interfaces\ITerminalAction.cs" />
     <Compile Include="ModAPI\MyAPIGateway.cs" />
+    <Compile Include="ModAPI\MyHitInfo.cs" />
     <Compile Include="Models\IMyTriangePruningStructure.cs" />
     <Compile Include="Models\MyIntersectionResultLineTriangle.cs" />
     <Compile Include="Models\MyMesh.cs" />
@@ -360,6 +361,7 @@
     <Compile Include="ObjectBuilders\MyCharacterName.cs" />
     <Compile Include="ObjectBuilders\MyObjectBuilder_AirtightDoorGeneric.cs" />
     <Compile Include="ObjectBuilders\MyObjectBuilder_AirtightHangarDoor.cs" />
+    <Compile Include="ObjectBuilders\MyObjectBuilder_AutopilotWaypoint.cs" />
     <Compile Include="ObjectBuilders\MyObjectBuilder_BlockItem.cs" />
     <Compile Include="ObjectBuilders\MyObjectBuilder_AreaMarker.cs" />
     <Compile Include="ObjectBuilders\MyObjectBuilder_CryoChamber.cs" />

@@ -46,9 +46,6 @@ namespace Sandbox.Common.ObjectBuilders
         public float Elevation;
 
         [ProtoMember]
-        public bool IsShooting;
-
-        [ProtoMember]
         public MyObjectBuilder_GunBase GunBase;
 
         [ProtoMember]

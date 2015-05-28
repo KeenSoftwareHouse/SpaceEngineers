@@ -22,10 +22,8 @@ namespace Sandbox.Common.ObjectBuilders.AI
 		[ProtoMember]
 		public int? TreeId = null;
 
-		[ProtoMember]
-		public Vector3I? VoxelPosition = null;
-
         public Vector3I BlockPosition { get { return Vector3I.Round(Position.Value); } }
+        public Vector3I VoxelPosition { get { return Vector3I.Round(Position.Value); } }
 
         public MyBBMemoryTarget()
         {

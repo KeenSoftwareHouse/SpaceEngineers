@@ -432,6 +432,7 @@ namespace Sandbox.Engine.Physics
 
             foreach (HkWorld world in Clusters.GetList())
             {
+                //VRageRender.MyRenderProxy.DebugDrawText2D(new Vector2(100, 100), "Constr:" + world.GetConstraintCount(), Color.Red, 0.9f);
                 world.UnmarkForWrite();
                 world.StepSimulation(MyEngineConstants.UPDATE_STEP_SIZE_IN_SECONDS * MyFakes.SIMULATION_SPEED);
                 world.MarkForWrite();
@@ -491,7 +492,6 @@ namespace Sandbox.Engine.Physics
             ProfilerShort.Begin("HavokWorld.StepVDB");
             foreach (HkWorld world in Clusters.GetList())
             {
-                //jn: peaks with Render profiling and destruction
                 world.StepVDB(MyEngineConstants.UPDATE_STEP_SIZE_IN_SECONDS);
             }
 

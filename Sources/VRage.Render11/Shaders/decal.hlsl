@@ -131,7 +131,7 @@ void ps(VsOut vertex, out float4 out_gbuffer0 : SV_TARGET0, out float4 out_gbuff
 		blendedN = normalize(mul(decalNm, tangent_to_world));	
 
 		out_gbuffer1 = float4(decalNm * 0.5 + 0.5, 1);
-		aoBump = pow(1 - dot(blendedN, gbufferN), 1);
+		aoBump = pow(dot(blendedN, gbufferN), 4);
 	}
 	else
 	{

@@ -1297,34 +1297,6 @@ namespace Sandbox.Game.Entities
         #region Global visibility and selectability by entity types/groups
 
         /// <summary>
-        /// Types in this set and their subtypes won't be able to be selected.
-        /// </summary>
-        private static HashSet<Type> m_unselectableTypes = new HashSet<Type>();
-
-        public static void SetTypeSelectable(Type type, bool selectable)
-        {
-            if (selectable)
-                m_unselectableTypes.Remove(type);
-            else
-                m_unselectableTypes.Add(type);
-        }
-
-        public static bool IsTypeSelectable(Type type)
-        {
-            foreach (var unselectableType in m_unselectableTypes)
-                if (unselectableType.IsAssignableFrom(type))
-                    return false;
-            return !IsTypeHidden(type);  // hidden entities aren't selectable
-        }
-
-        public static bool IsSelectable(MyEntity entity)
-        {
-            // Didn't you want to override MyEntity.IsSelectable instead? Thought so.
-            return IsTypeSelectable(entity.GetType());
-        }
-
-
-        /// <summary>
         /// Types in this set and their subtypes will be temporarily invisible.
         /// </summary>
         private static HashSet<Type> m_hiddenTypes = new HashSet<Type>();

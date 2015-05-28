@@ -1877,12 +1877,12 @@ false,
 
             // TODO: This is disabled due to world synchronization, Ragdoll if set to some position from server doesn't simulate properly
             // Ragdoll updates it's position also in AfterUpdate on MyCharacter, so now this is not needed, but should be working.
-            if (Ragdoll != null && IsRagdollModeActive && m_ragdollDeadMode && !Sync.IsServer && MyFakes.ENABLE_RAGDOLL_CLIENT_SYNC)
-            {
-                //Ragdoll.SetToKeyframed();
-                //Ragdoll.SwitchToLayer(MyPhysics.RagdollCollisionLayer);
-                Ragdoll.SetWorldMatrix(rigidBodyMatrix,true);
-            }
+            //if (Ragdoll != null && IsRagdollModeActive && m_ragdollDeadMode && !Sync.IsServer && MyFakes.ENABLE_RAGDOLL_CLIENT_SYNC)
+            //{
+            //    //Ragdoll.SetToKeyframed();
+            //    //Ragdoll.SwitchToLayer(MyPhysics.RagdollCollisionLayer);
+            //    Ragdoll.SetWorldMatrix(rigidBodyMatrix,true);
+            //}
         }
 
         protected Matrix GetRigidBodyMatrix()
@@ -2131,6 +2131,11 @@ false,
             foreach (var body in Ragdoll.RigidBodies)
             {
                 body.UserObject = deadMode? this : null;
+
+                // TODO: THIS SHOULD BE SET IN THE RAGDOLL MODEL AND NOT DEFINING IT FOR EVERY MODEL HERE
+                body.Motion.SetDeactivationClass(deadMode ? HkSolverDeactivation.High : HkSolverDeactivation.Medium);// - TODO: Find another way - this is deprecated by Havok
+                body.Quality = HkCollidableQualityType.Moving;
+                
             }               
             
             Ragdoll.OptimizeInertiasOfConstraintTree();
@@ -2193,9 +2198,9 @@ false,
                 }
 
                 Debug.Assert(Ragdoll.IsAddedToWorld, "Can not remove ragdoll when it's not in the world");
-                Ragdoll.Deactivate();
-                Ragdoll.DisableConstraints();
+                Ragdoll.Deactivate();                
                 HavokWorld.RemoveRagdoll(Ragdoll);
+                Ragdoll.ResetToRigPose();
             }            
         }
 

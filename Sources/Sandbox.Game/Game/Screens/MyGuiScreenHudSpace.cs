@@ -85,11 +85,33 @@ namespace Sandbox.Game.Gui
             Elements.Add(m_toolbarControl);
             m_textScale = MyGuiConstants.HUD_TEXT_SCALE * MyGuiManager.LanguageTextScale;
 
-            m_blockInfo = new MyGuiControlBlockInfo();
+			var style = new MyGuiControlBlockInfo.MyControlBlockInfoStyle()
+			{
+				BlockNameLabelFont = MyFontEnum.White,
+				EnableBlockTypeLabel = true,
+				ComponentsLabelText = MySpaceTexts.HudBlockInfo_Components,
+				ComponentsLabelFont = MyFontEnum.Blue,
+				InstalledRequiredLabelText = MySpaceTexts.HudBlockInfo_Installed_Required,
+				InstalledRequiredLabelFont = MyFontEnum.Blue,
+				RequiredLabelText = MySpaceTexts.HudBlockInfo_Required,
+				IntegrityLabelFont = MyFontEnum.White,
+				IntegrityBackgroundColor = new Vector4(78 / 255.0f, 116 / 255.0f, 137 / 255.0f, 1.0f),
+				IntegrityForegroundColor = new Vector4(0.5f, 0.1f, 0.1f, 1),
+				IntegrityForegroundColorOverCritical = new Vector4(118 / 255.0f, 166 / 255.0f, 192 / 255.0f, 1.0f),
+				LeftColumnBackgroundColor = new Vector4(46 / 255.0f, 76 / 255.0f, 94 / 255.0f, 1.0f),
+				TitleBackgroundColor = new Vector4(72 / 255.0f, 109 / 255.0f, 130 / 255.0f, 1.0f),
+				ComponentLineMissingFont = MyFontEnum.Red,
+				ComponentLineAllMountedFont = MyFontEnum.White,
+				ComponentLineAllInstalledFont = MyFontEnum.Blue,
+				ComponentLineDefaultFont = MyFontEnum.White,
+				ComponentLineDefaultColor = new Vector4(0.6f, 0.6f, 0.6f, 1f),
+				ShowAvailableComponents = false,
+			};
+            m_blockInfo = new MyGuiControlBlockInfo(style);
             m_blockInfo.IsActiveControl = false;
             Controls.Add(m_blockInfo);
 
-            m_chatControl = new MyHudControlChat(Vector2.Zero, new Vector2(0.4f, 0.25f));
+            m_chatControl = new MyHudControlChat(MyHud.Chat, Vector2.Zero, new Vector2(0.4f, 0.25f));
             Elements.Add(m_chatControl);
 
             m_cameraInfoMultilineControl = new MyGuiControlMultilineText(
@@ -223,9 +245,7 @@ namespace Sandbox.Game.Gui
             if (MyHud.HackingMarkers.Visible && !MyHud.MinimalHud)
                 DrawHackingMarkers(MyHud.HackingMarkers);
 
-            //if (MyHud.Chat.Visible && !MyHud.MinimalHud)
-            if (MyHud.Chat.Visible)
-                m_chatControl.UpdateChat(MyHud.Chat);
+            //m_chatControl.Visible = !MyHud.MinimalHud;
 
             if (!MyHud.MinimalHud)
                 DrawCameraInfo(MyHud.CameraInfo);

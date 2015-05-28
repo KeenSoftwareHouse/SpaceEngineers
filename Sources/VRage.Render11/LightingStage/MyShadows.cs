@@ -60,6 +60,7 @@ namespace VRageRender
         }
 
         internal static RwTexId m_cascadeShadowmapArray = RwTexId.NULL;
+        internal static RwTexId m_cascadeShadowmapBackup = RwTexId.NULL;
         internal static ConstantsBufferId m_csmConstants;
         static int m_cascadeResolution;
         static int m_cascadesNum;
@@ -83,12 +84,15 @@ namespace VRageRender
             if (m_cascadeShadowmapArray != RwTexId.NULL)
             {
                 MyRwTextures.Destroy(m_cascadeShadowmapArray);
+                MyRwTextures.Destroy(m_cascadeShadowmapBackup);
             }
 
             m_cascadeResolution = MyRender11.m_renderSettings.ShadowQuality.Resolution();
 
             m_cascadeShadowmapArray = MyRwTextures.CreateShadowmapArray(m_cascadeResolution, m_cascadeResolution,
                 m_cascadesNum, Format.R24G8_Typeless, Format.D24_UNorm_S8_UInt, Format.R24_UNorm_X8_Typeless, "cascades shadowmaps");
+            m_cascadeShadowmapBackup = MyRwTextures.CreateShadowmapArray(m_cascadeResolution, m_cascadeResolution,
+                m_cascadesNum, Format.R24G8_Typeless, Format.D24_UNorm_S8_UInt, Format.R24_UNorm_X8_Typeless, "cascades shadowmaps backup");
         }
 
         internal unsafe static void Init()
@@ -212,6 +216,8 @@ namespace VRageRender
 
         static void PrepareCascades()
         {
+            MyImmediateRC.RC.Context.CopyResource(m_cascadeShadowmapArray.Resource, m_cascadeShadowmapBackup.Resource);
+
             bool stabilize = true;
 
             for (int i = 0; i < 4; i++)

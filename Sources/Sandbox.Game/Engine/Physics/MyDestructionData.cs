@@ -453,6 +453,11 @@ namespace Sandbox
 
                     bShape.SetMassRecursively(MyDestructionHelper.MassToHavok(realMass));
                 }
+
+                if(modelDef.Mass > 0)
+                {
+                    bShape.SetMassRecursively(MyDestructionHelper.MassToHavok(modelDef.Mass));
+                }
                 //Debug.Assert(CheckVolumeMassRec(bShape, 0.00001f, 0.01f), "Low volume or mass." + bShape.Name);
                 DisableRefCountRec(bShape);
 

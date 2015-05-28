@@ -1,6 +1,7 @@
 ﻿using Havok;
 using Sandbox.Common;
 using Sandbox.Common.Components;
+using Sandbox.Common.ModAPI;
 using Sandbox.Common.ObjectBuilders;
 using Sandbox.Common.ObjectBuilders.Definitions;
 using Sandbox.Definitions;
@@ -20,7 +21,6 @@ using Sandbox.ModAPI.Interfaces;
 using System;
 using System.Linq;
 using System.Text;
-
 using VRage;
 using VRage.Utils;
 using VRageMath;
@@ -116,9 +116,9 @@ namespace Sandbox.Game.Entities
             GameLogic.OnDestroy();
         }
 
-        public void DoDamage(float damage, MyDamageType damageType, bool sync)
+        public void DoDamage(float damage, MyDamageType damageType, bool sync, MyHitInfo? hitInfo)
         {
-            GameLogic.DoDamage(damage, damageType, sync);
+            GameLogic.DoDamage(damage, damageType, sync, hitInfo);
         }
 
         public float Integrity
@@ -490,7 +490,7 @@ namespace Sandbox.Game.Entities
             }
 
 
-            public void DoDamage(float damage, MyDamageType damageType, bool sync)
+            public void DoDamage(float damage, MyDamageType damageType, bool sync, MyHitInfo? hitInfo)
             {
                 if (sync)
                 {

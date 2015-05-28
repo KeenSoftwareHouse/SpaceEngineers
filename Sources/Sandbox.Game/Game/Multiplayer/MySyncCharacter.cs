@@ -184,7 +184,7 @@ namespace Sandbox.Game.Multiplayer
             }
         }
 
-        [MessageId(7420, P2PMessageEnum.Reliable)]
+        [MessageId(7420, P2PMessageEnum.Unreliable)]
         [ProtoContract]
         struct RagdollTransformsMsg : IEntityMessage
         {
@@ -196,7 +196,16 @@ namespace Sandbox.Game.Multiplayer
             public int TransformsCount;
 
             [ProtoMember]
-            public List<Matrix> Transforms;
+            public Vector3[] transformsPositions;
+
+            [ProtoMember]
+            public Quaternion[] transformsOrientations;
+
+            [ProtoMember]
+            public Quaternion worldOrientation;
+
+            [ProtoMember]
+            public Vector3 worldPosition;
         }
 
         static MySyncCharacter()
@@ -236,20 +245,39 @@ namespace Sandbox.Game.Multiplayer
             if (syncObject.Entity.RagdollMapper == null) return;
             if (!syncObject.Entity.Physics.Ragdoll.IsAddedToWorld) return;
             if (!syncObject.Entity.RagdollMapper.IsActive) return;
-            syncObject.Entity.RagdollMapper.UpdateRigidBodiesTransformsSynced(message.TransformsCount, message.Transforms);
+            Debug.Assert(message.worldOrientation != null && message.worldOrientation != Quaternion.Zero, "Received invalid ragdoll orientation from server!");
+            Debug.Assert(message.worldPosition != null && message.worldPosition != Vector3.Zero, "Received invalid ragdoll orientation from server!");
+            Debug.Assert(message.transformsOrientations != null && message.transformsPositions != null, "Received empty ragdoll transformations from server!");
+            Debug.Assert(message.transformsPositions.Count() == message.TransformsCount && message.transformsOrientations.Count() == message.TransformsCount, "Received ragdoll data count doesn't match!");
+            Matrix worldMatrix = Matrix.CreateFromQuaternion(message.worldOrientation);
+            worldMatrix.Translation = message.worldPosition;
+            Matrix[] transforms = new Matrix[message.TransformsCount];
+                        
+            for (int i = 0; i < message.TransformsCount; ++i)
+            {
+                transforms[i] = Matrix.CreateFromQuaternion(message.transformsOrientations[i]);
+                transforms[i].Translation = message.transformsPositions[i];
+            }
 
+            syncObject.Entity.RagdollMapper.UpdateRigidBodiesTransformsSynced(message.TransformsCount, worldMatrix, transforms);
         }
 
-        public void SendRagdollTransforms(int transformsCount, Matrix[] transforms)
+        public void SendRagdollTransforms(Matrix world, Matrix[] localBodiesTransforms)
         {
             if (ResponsibleForUpdate(this))
             {
                 var msg = new RagdollTransformsMsg();
-                List<Matrix> listTransforms = new List<Matrix>(transforms);
-                msg.Transforms = listTransforms;
-                msg.TransformsCount = transformsCount;
                 msg.CharacterEntityId = Entity.EntityId;
-
+                msg.worldPosition = world.Translation;
+                msg.TransformsCount = localBodiesTransforms.Count();
+                msg.worldOrientation = Quaternion.CreateFromRotationMatrix(world.GetOrientation());
+                msg.transformsPositions = new Vector3[msg.TransformsCount];
+                msg.transformsOrientations = new Quaternion[msg.TransformsCount];
+                for (int i = 0; i < localBodiesTransforms.Count(); ++i )
+                {
+                    msg.transformsPositions[i] = localBodiesTransforms[i].Translation;
+                    msg.transformsOrientations[i] = Quaternion.CreateFromRotationMatrix(localBodiesTransforms[i].GetOrientation());
+                }
                 Sync.Layer.SendMessageToAll(ref msg);
             }
         }

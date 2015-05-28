@@ -25,6 +25,7 @@ using VRage.Trace;
 using VRageMath;
 using VRageRender;
 using PlayerId = Sandbox.Game.World.MyPlayer.PlayerId;
+using Sandbox.Game.SessionComponents;
 
 namespace Sandbox.Game.Multiplayer
 {
@@ -1541,6 +1542,9 @@ namespace Sandbox.Game.Multiplayer
             newPlayer.Controller.ControlledEntityChanged += controller_ControlledEntityChanged;
 
             AddPlayer(playerId, newPlayer);
+
+            if (MyFakes.ENABLE_MISSION_TRIGGERS)
+                MySessionComponentMission.Static.TryCreateFromDefault(playerId);
 
             return newPlayer;
         }

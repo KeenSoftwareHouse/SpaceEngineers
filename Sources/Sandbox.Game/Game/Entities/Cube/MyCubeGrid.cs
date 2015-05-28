@@ -47,6 +47,7 @@ using Sandbox.ModAPI.Interfaces;
 using Sandbox.Game.Localization;
 using Havok;
 using VRage.Library.Utils;
+using Sandbox.Common.ModAPI;
 
 #endregion
 
@@ -3000,23 +3001,29 @@ namespace Sandbox.Game.Entities
             RaisePhysicsChanged();
         }
 
-        public void DoDamage(float damage, MyDestructionHelper.HitInfo hitInfo)
+        public void DoDamage(float damage, MyHitInfo hitInfo, Vector3? localPos = null)
         {
+            Debug.Assert(Sync.IsServer);
             Vector3I cubePos;
-            FixTargetCube(out cubePos, Vector3D.Transform(hitInfo.Position, PositionComp.WorldMatrixInvScaled) / GridSize);
+            if (localPos.HasValue)
+                FixTargetCube(out cubePos, localPos.Value / GridSize);
+            else
+                FixTargetCube(out cubePos, Vector3D.Transform(hitInfo.Position, PositionComp.WorldMatrixInvScaled) / GridSize);
+
             var cube = GetCubeBlock(cubePos);
+            //Debug.Assert(cube != null, "Cannot find block for damage!");
             if (cube != null)
             {
                 ApplyDestructionDeformation(cube, damage, hitInfo);
             }
         }
 
-        public void ApplyDestructionDeformation(MySlimBlock block, float damage = 1f, MyDestructionHelper.HitInfo? hitInfo = null)
+        public void ApplyDestructionDeformation(MySlimBlock block, float damage = 1f, MyHitInfo? hitInfo = null)
         {
             if (MyPerGameSettings.Destruction)
             {
                 Debug.Assert(hitInfo.HasValue, "Destruction needs additional info");
-                block.DoDamage(damage, MyDamageType.Unknown, true, hitInfo);
+                (block as IMyDestroyableObject).DoDamage(damage, MyDamageType.Unknown, true, hitInfo);
             }
             else
             {

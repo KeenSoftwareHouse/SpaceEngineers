@@ -19,6 +19,6 @@ namespace Sandbox.Common.ObjectBuilders.Definitions
         public string PhysicalMaterial;
 
         [ProtoMember]
-        public float Mass;
+        public float Mass = 0;
     }
 }

@@ -10373,5 +10373,10 @@ namespace Sandbox.Game.Localization
         ///Enable voice chat
         ///</summary>
         public static readonly MyStringId EnableVoiceChat = MyStringId.GetOrCompute("EnableVoiceChat");
+
+        ///<summary>
+        ///Applied changes will be visible after restarting the game
+        ///</summary>
+        public static readonly MyStringId MessageBoxTextRestartNeededAfterRendererSwitch = MyStringId.GetOrCompute("MessageBoxTextRestartNeededAfterRendererSwitch");
     }
 }

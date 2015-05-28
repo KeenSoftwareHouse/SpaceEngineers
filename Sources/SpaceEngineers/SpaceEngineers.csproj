@@ -206,7 +206,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="GameThumbnail.png" />
-    <Content Include="SpaceEngineers.ico" />
+    <Content Include="SpaceEngineers.ico">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <None Include="App.config" />
     <None Include="Content\Data\AmmoMagazines.sbc" />
     <None Include="Content\Data\Ammos.sbc" />

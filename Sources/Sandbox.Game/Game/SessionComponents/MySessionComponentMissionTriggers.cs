@@ -34,7 +34,7 @@ namespace Sandbox.Game.SessionComponents
 
         public bool Update(MyPlayer.PlayerId Id, MyCharacter me)
         {
-            MySessionComponentMission.Static.TryCreateFromDefault(Id, false);
+            //MySessionComponentMission.Static.TryCreateFromDefault(Id);
 
             if (IsLocal(Id))
                 UpdateLocal(Id);
@@ -96,12 +96,12 @@ namespace Sandbox.Game.SessionComponents
         #endregion
         private bool IsLocal(MyPlayer.PlayerId Id)
         {
-            if (!MySandboxGame.IsDedicated && Id == MySession.LocalHumanPlayer.Id)
+            if (!MySandboxGame.IsDedicated && MySession.LocalHumanPlayer!=null && Id == MySession.LocalHumanPlayer.Id)
                 return true;
             return false;
         }
 
-        public void TryCreateFromDefault(MyPlayer.PlayerId newId, bool overwrite)
+        public void TryCreateFromDefault(MyPlayer.PlayerId newId, bool overwrite = false)
         {
             if (overwrite)
                 MissionTriggers.Remove(newId);

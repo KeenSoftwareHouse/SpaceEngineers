@@ -352,21 +352,6 @@ namespace Sandbox.Game.Entities
             get { return IsCCDForProjectiles; }
         }
 
-        bool IMyEntity.IsSelectable()
-        {
-            return IsSelectable();
-        }
-
-        bool IMyEntity.IsSelectableAsChild()
-        {
-            return IsSelectableAsChild();
-        }
-
-        bool IMyEntity.IsSelectableParentOnly()
-        {
-            return IsSelectableParentOnly();
-        }
-
         bool IMyEntity.IsVisible()
         {
             return Render.IsVisible();

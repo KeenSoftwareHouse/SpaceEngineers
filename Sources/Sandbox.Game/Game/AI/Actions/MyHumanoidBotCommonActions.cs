@@ -179,7 +179,7 @@ namespace Sandbox.Game.AI.Actions
 								logic.EntityReservationStatus = Logic.MyEntityReservationStatus.WAITING;
 								logic.ReservationEntityData = new MyAiTargetManager.ReservedEntityData() { Type = MyReservedEntityType.VOXEL,
 																									   EntityId = inTarget.EntityId.Value,
-																									   GridPos = inTarget.VoxelPosition.Value,
+																									   GridPos = inTarget.VoxelPosition,
 																									   ReservationTimer = timeMs,
 																									   ReserverId = new World.MyPlayer.PlayerId(Bot.Player.Id.SteamId, Bot.Player.Id.SerialId) };
 								MyAiTargetManager.OnReservationResult += ReservationHandler;
