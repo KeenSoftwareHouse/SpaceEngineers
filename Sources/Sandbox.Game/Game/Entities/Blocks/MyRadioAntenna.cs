@@ -126,6 +126,11 @@ namespace Sandbox.Game.Entities.Cube
             show.Setter = (x, v) => x.RequestShowInTerminal(v);
             MyTerminalControlFactory.AddControl(show);
 
+            show = new MyTerminalControlOnOffSwitch<MyRadioAntenna>("ShowInToolbarConfig", MySpaceTexts.Terminal_ShowInToolbarConfig, MySpaceTexts.Terminal_ShowInToolbarConfigToolTip);
+            show.Getter = (x) => x.ShowInToolbarConfig;
+            show.Setter = (x, v) => x.RequestShowInToolbarConfig(v);
+            MyTerminalControlFactory.AddControl(show);
+
             var customName = new MyTerminalControlTextbox<MyRadioAntenna>("CustomName", MySpaceTexts.Name, MySpaceTexts.Blank);
             customName.Getter = (x) => x.CustomName;
             customName.Setter = (x, v) => MySyncBlockHelpers.SendChangeNameRequest(x, v);
