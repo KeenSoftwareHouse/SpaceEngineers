@@ -42,6 +42,10 @@ namespace VRageRender
 
         public int Compare(int x, int y)
         {
+            if (m_freelist.Data[x].Material.GetHashCode() == m_freelist.Data[y].Material.GetHashCode())
+            {
+                return x.CompareTo(y);
+            }
             return m_freelist.Data[x].Material.GetHashCode().CompareTo(m_freelist.Data[y].Material.GetHashCode());
         }
     }
@@ -80,8 +84,9 @@ namespace VRageRender
         {
             Materials[MyStringId.NullOrEmpty] = new MyDecalMaterial
             {
-                DecalType = MyScreenDecalType.ScreenDecalBump,
-                NormalmapTexture = MyTextures.GetTexture("Textures/decals/impact_1x5_ng.dds", MyTextureEnum.NORMALMAP_GLOSS),
+                DecalType = MyScreenDecalType.ScreenDecalColor,
+                //NormalmapTexture = MyTextures.GetTexture("Textures/decals/impact_1x5_ng.dds", MyTextureEnum.NORMALMAP_GLOSS),
+                NormalmapTexture = TexId.NULL,
                 ColorMetalTexture = MyTextures.GetTexture("Textures/decals/impact_1_cm.dds", MyTextureEnum.COLOR_METAL),
                 AlphamaskTexture = MyTextures.GetTexture("Textures/decals/impact_1_alphamask.dds", MyTextureEnum.ALPHAMASK),
             };
@@ -140,7 +145,7 @@ namespace VRageRender
 
             if (m_IB == IndexBufferId.NULL)
             {
-                fixed (ushort* I = indices)
+                fixed (ushort* I = indicesData)
                 {
                     m_IB = MyHwBuffers.CreateIndexBuffer(indicesData.Length, Format.R16_UInt, BindFlags.IndexBuffer, ResourceUsage.Immutable, new IntPtr(I));
                 }
@@ -266,7 +271,8 @@ namespace VRageRender
             RC.BindDepthRT(
                 MyGBuffer.Main.Get(MyGbufferSlot.DepthStencil), DepthStencilAccess.DepthReadOnly,
                 MyGBuffer.Main.Get(MyGbufferSlot.GBuffer0),
-                MyGBuffer.Main.Get(MyGbufferSlot.GBuffer1));
+                MyGBuffer.Main.Get(MyGbufferSlot.GBuffer1),
+                MyGBuffer.Main.Get(MyGbufferSlot.GBuffer2));
             RC.SetVS(m_vs);
             RC.SetPS(m_ps);
             RC.SetDS(MyDepthStencilState.DepthTest);
@@ -293,7 +299,8 @@ namespace VRageRender
                     var matDesc = Materials[material];
 
                     decalType = matDesc.DecalType;
-                    RC.SetBS(MyRender11.BlendDecal, matDesc.DecalType == MyScreenDecalType.ScreenDecalBump ? SharpDX.Color4.White : new SharpDX.Color4(0));
+                    // factor 1 makes overwriting of gbuffer color & subtracting from ao
+                    RC.SetBS(MyRender11.BlendDecal, matDesc.DecalType == MyScreenDecalType.ScreenDecalBump ? new SharpDX.Color4(0) : SharpDX.Color4.White);
                     RC.Context.PixelShader.SetShaderResources(3, MyTextures.GetView(matDesc.AlphamaskTexture), MyTextures.GetView(matDesc.ColorMetalTexture), MyTextures.GetView(matDesc.NormalmapTexture));
                 }
 
@@ -302,7 +309,6 @@ namespace VRageRender
                 {
                     var parentMatrix = parent.WorldMatrix;
                     var volumeMatrix = Decals.Data[index].LocalOBB * parentMatrix * Matrix.CreateTranslation(-MyEnvironment.CameraPosition);
-                    var invVolumeMatrix = Matrix.Invert(volumeMatrix);
 
                     m_matrices.Add(volumeMatrix);
                 }

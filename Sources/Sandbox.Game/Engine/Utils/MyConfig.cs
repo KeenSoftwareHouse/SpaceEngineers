@@ -86,6 +86,7 @@ namespace Sandbox.Engine.Utils
         readonly string ANISOTROPIC_FILTERING = "AnisotropicFiltering";
         readonly string FOLIAGE_DETAILS = "FoliageDetails";
         readonly string GRAPHICS_RENDERER = "GraphicsRenderer";
+        readonly string ENABLE_VOICE_CHAT = "VoiceChat";
 
         public MyConfig(string fileName)
             : base(fileName)
@@ -708,6 +709,12 @@ namespace Sandbox.Engine.Utils
         {
             get { return MyUtils.GetBoolFromString(GetParameterValue(HUD_WARNINGS), true); }
             set { SetParameterValue(HUD_WARNINGS, value); }
+        }
+
+        public bool EnableVoiceChat
+        {
+            get { return MyUtils.GetBoolFromString(GetParameterValue(ENABLE_VOICE_CHAT), true); }
+            set { SetParameterValue(ENABLE_VOICE_CHAT, value); }
         }
 
         public MyStringId? GraphicsRenderer

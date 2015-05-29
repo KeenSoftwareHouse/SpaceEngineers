@@ -81,7 +81,7 @@ float3x3 pixel_tangent_space(float3 N, float3 pos, float2 uv) {
 }
 
 // copy of gbuffer normals? (resolved for msaa...)
-void ps(VsOut vertex, out float4 out_gbuffer0 : SV_TARGET0, out float4 out_gbuffer1 : SV_TARGET1)
+void ps(VsOut vertex, out float4 out_gbuffer0 : SV_TARGET0, out float4 out_gbuffer1 : SV_TARGET1, out float4 out_gbuffer2 : SV_TARGET2)
 {
 	float2 screencoord = vertex.position.xy;
 
@@ -117,6 +117,7 @@ void ps(VsOut vertex, out float4 out_gbuffer0 : SV_TARGET0, out float4 out_gbuff
 	out_gbuffer0 = 0;
 
 	float3 projN = normalize(vertex.normal);
+	float aoBump = 0;
 
 	if(Decals[vertex.id].DecalData.x)
 	{
@@ -130,6 +131,7 @@ void ps(VsOut vertex, out float4 out_gbuffer0 : SV_TARGET0, out float4 out_gbuff
 		blendedN = normalize(mul(decalNm, tangent_to_world));	
 
 		out_gbuffer1 = float4(decalNm * 0.5 + 0.5, 1);
+		aoBump = pow(dot(blendedN, gbufferN), 4);
 	}
 	else
 	{
@@ -146,4 +148,5 @@ void ps(VsOut vertex, out float4 out_gbuffer0 : SV_TARGET0, out float4 out_gbuff
 	}
 
 	out_gbuffer1 = float4(blendedN * 0.5 + 0.5, gbuffer1.w);
+	out_gbuffer2 = aoBump;
 }

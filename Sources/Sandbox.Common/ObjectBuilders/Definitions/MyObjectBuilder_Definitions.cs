@@ -216,5 +216,9 @@ namespace Sandbox.Common.ObjectBuilders.Definitions
 
         [ProtoMember]
         public MyObjectBuilder_BattleDefinition Battle;
+
+        [XmlArrayItem("Decal")]
+        [ProtoMember]
+        public MyObjectBuilder_DecalDefinition[] Decals;
     }
 }

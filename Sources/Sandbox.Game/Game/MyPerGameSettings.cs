@@ -269,5 +269,8 @@ namespace Sandbox.Game
         public static MyStringId DefaultGraphicsRenderer;
 
         public static bool EnableWelderAutoswitch = false;
+
+        public static Type VoiceChatLogic = null;
+        public static bool VoiceChatEnabled = false;
     }
 }

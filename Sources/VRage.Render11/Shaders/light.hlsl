@@ -147,7 +147,7 @@ void pointlights_tiled(PostprocessVertex vertex, uint instance_id : SV_InstanceI
 
 	[loop]
 	for(uint i = 0; i < numLights; i++) {
-		uint index = TileIndices[ tileIndex * MAX_TILE_LIGHTS + i];
+		uint index = TileIndices[frame_.tiles_num + tileIndex * MAX_TILE_LIGHTS + i];
 		PointLightData light = LightList[index];
 
 		float3 L = light.positionView - input.positionView;
@@ -179,7 +179,8 @@ void pointlights_tiled(PostprocessVertex vertex, uint instance_id : SV_InstanceI
 	}
 
 	output = acc;
-	//output = lerp(float3(0,1,0), float3(1,0,0), (float)numLights / 256);
+	//output = lerp(float3(0,1,0), float3(1,0,0), (float)numLights / 4);
+	//output = lerp(float3(0,1,0), float3(1,0,0), (float)numLights);
 }
 
 void directional_environment(PostprocessVertex vertex, out float3 output : SV_Target0

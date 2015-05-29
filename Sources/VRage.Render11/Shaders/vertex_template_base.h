@@ -181,7 +181,7 @@ VertexShaderInterface __prepare_interface(__VertexInput input, uint sv_vertex_id
 #endif
 
 #ifdef USE_DEFORMED_CUBE_INSTANCING
-	__texcoord0 = __texcoord0 * 0.25 + float2(__packed_bone5.w, __packed_bone6.w);
+	__texcoord0 = __texcoord0 + float2(__packed_bone5.w, __packed_bone6.w);
 	__instance_matrix = construct_deformed_cube_instance_matrix(__packed_bone0, __packed_bone1, __packed_bone2, __packed_bone3, __packed_bone4, __packed_bone5, __packed_bone6, __packed_bone7, __cube_transformation, __blend_indices, __blend_weights);
 #endif
 

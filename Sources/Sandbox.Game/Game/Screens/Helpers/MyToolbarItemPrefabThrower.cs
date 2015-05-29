@@ -26,7 +26,7 @@ namespace Sandbox.Game.Screens.Helpers
             if (Definition == null)
                 return false;
 
-            MySessionComponentThrower.Static.Enabled = Sandbox.Engine.Utils.MyFakes.ENABLE_PREFAB_THROWER;
+            MySessionComponentThrower.Static.Enabled = Sandbox.Engine.Utils.MyFakes.ENABLE_PREFAB_THROWER && !MySession.Static.Battle;
             MySessionComponentThrower.Static.CurrentDefinition = (MyPrefabThrowerDefinition)Definition;
             var controlledObject = MySession.ControlledEntity as IMyControllableEntity;
             if (controlledObject != null)
@@ -51,7 +51,7 @@ namespace Sandbox.Game.Screens.Helpers
         public override MyToolbarItem.ChangeInfo Update(Entities.MyEntity owner, long playerID = 0)
         {
             var blockDefinition = MySessionComponentThrower.Static.Enabled ? MySessionComponentThrower.Static.CurrentDefinition : null;
-            WantsToBeSelected = MySessionComponentThrower.Static.Enabled && blockDefinition != null && blockDefinition.Id.SubtypeId == (this.Definition as MyPrefabThrowerDefinition).Id.SubtypeId;
+            WantsToBeSelected = MySessionComponentThrower.Static.Enabled && !MySession.Static.Battle && blockDefinition != null && blockDefinition.Id.SubtypeId == (this.Definition as MyPrefabThrowerDefinition).Id.SubtypeId;
             return ChangeInfo.None;
         }
     }

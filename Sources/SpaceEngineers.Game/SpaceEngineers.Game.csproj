@@ -60,6 +60,7 @@
     <Compile Include="SpaceEngineersGame.Secrets.cs" />
     <Compile Include="SpaceEngineersGame.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="VoiceChat\MyVoiceChatLogic.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Sandbox.Common\Sandbox.Common.csproj">
@@ -73,6 +74,10 @@
     <ProjectReference Include="..\Sandbox.Graphics\Sandbox.Graphics.csproj">
       <Project>{f77d0a49-f0a1-4e8a-80c8-cbe1842ba2d4}</Project>
       <Name>Sandbox.Graphics</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\VRage.Game\VRage.Game.csproj">
+      <Project>{4539b5f0-3316-40e6-b032-9fbcafaac5be}</Project>
+      <Name>VRage.Game</Name>
     </ProjectReference>
     <ProjectReference Include="..\VRage.Library\VRage.Library.csproj">
       <Project>{26fe022e-42ab-40be-ba9d-97cbe34e7d99}</Project>

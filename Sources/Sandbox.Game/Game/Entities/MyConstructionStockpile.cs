@@ -27,7 +27,7 @@ namespace Sandbox.Game.Entities
         }
     }
 
-    class MyConstructionStockpile
+    public class MyConstructionStockpile
     {
         private List<MyStockpileItem> m_items = new List<MyStockpileItem>();
         private static List<MyStockpileItem> m_syncItems = new List<MyStockpileItem>();

@@ -29,7 +29,7 @@ namespace Sandbox.Game
         CanSend = 2
     }
 
-    public partial class MyInventory
+    public partial class MyInventory : IMyComponentInventory
     {
 
         #region Fields

@@ -15,6 +15,12 @@ namespace Sandbox.Common.ObjectBuilders
         public List<MyObjectBuilder_Trigger> WinTriggers =new List<MyObjectBuilder_Trigger>();
         [ProtoMember]
         public List<MyObjectBuilder_Trigger> LoseTriggers =new List<MyObjectBuilder_Trigger>();
+        [ProtoMember]
+        public string message;
+        [ProtoMember]
+        public bool Won;
+        [ProtoMember]
+        public bool Lost;
 
     }
 }

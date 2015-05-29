@@ -145,15 +145,18 @@ namespace Sandbox.Game.Multiplayer
 
         public override void UpdatePosition()
         {
-            if (!IsResponsibleForUpdate)
+            if (Entity.SyncFlag)
             {
-                RequestPositionUpdate(); // Requests position update from owner, when moving entity is not updated by anyone
+                if (!IsResponsibleForUpdate)
+                {
+                    RequestPositionUpdate(); // Requests position update from owner, when moving entity is not updated by anyone
 
-                m_interpolator.CurrentMatrix = Entity.WorldMatrix;
-            }
-            else
-            {
-                SendPositionUpdate();
+                    m_interpolator.CurrentMatrix = Entity.WorldMatrix;
+                }
+                else
+                {
+                    SendPositionUpdate();
+                }
             }
         }
 

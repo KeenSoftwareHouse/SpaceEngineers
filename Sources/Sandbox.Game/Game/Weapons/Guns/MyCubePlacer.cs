@@ -47,7 +47,7 @@ namespace Sandbox.Game.Weapons
 
             base.Shoot(action, direction);
 
-            if (action == MyShootActionEnum.PrimaryAction && !m_firstShot && MyPerGameSettings.EnableWelderAutoswitch)
+            if (action == MyShootActionEnum.PrimaryAction && !m_firstShot)
             {
                 if ((MySandboxGame.TotalGamePlayTimeInMilliseconds - m_lastKeyPress) >= 500)
                 {

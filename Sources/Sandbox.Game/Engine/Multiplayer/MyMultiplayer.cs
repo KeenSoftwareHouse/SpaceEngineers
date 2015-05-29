@@ -26,6 +26,7 @@ namespace Sandbox.Engine.Multiplayer
         public const int ControlChannel = 0;
         public const int WorldDownloadChannel = 1;
         public const int GameEventChannel = 2;
+        public const int VoiceChatChannel = 3;
 
         public const string HostNameTag = "host";
         public const string WorldNameTag = "world";
@@ -43,7 +44,7 @@ namespace Sandbox.Engine.Multiplayer
         public const string GrinderMultiplierTag = "grinderMultiplier";
 
         public const string BattleTag = "battle";
-        public const string BattleStartedTag = "battleStarted";
+        public const string BattleCanBeJoinedTag = "battleCanBeJoined";
         public const string BattleFaction1MaxBlueprintPointsTag = "battleFaction1MaxBlueprintPoints";
         public const string BattleFaction2MaxBlueprintPointsTag = "battleFaction2MaxBlueprintPoints";
         public const string BattleFaction1BlueprintPointsTag = "battleFaction1BlueprintPoints";

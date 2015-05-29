@@ -42,6 +42,9 @@ namespace Sandbox.Game.World
 
         public bool IsDead { get; private set; }
 
+        public event Action<MyCharacter, MyCharacter> CharacterChanged;
+
+
         private MyIdentity(string name, MyEntityIdentifier.ID_OBJECT_TYPE identityType, string model = null)
         {
             Debug.Assert(identityType == MyEntityIdentifier.ID_OBJECT_TYPE.IDENTITY, "Trying to create invalid identity type!");
@@ -96,6 +99,8 @@ namespace Sandbox.Game.World
     
         public void ChangeCharacter(MyCharacter character)
         {
+            var oldCharacter = Character;
+
             if (Character != null)
             {
                 Character.SyncObject.CharacterModelSwitched -= character_CharacterModelSwitched;
@@ -110,6 +115,9 @@ namespace Sandbox.Game.World
             SaveModelAndColorFromCharacter();
 
             IsDead = character.IsDead;
+
+            if (CharacterChanged != null)
+                CharacterChanged(oldCharacter, Character);
         }
 
         private void SaveModelAndColorFromCharacter()

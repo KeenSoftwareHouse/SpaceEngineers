@@ -38,12 +38,6 @@ namespace Sandbox.Game.World.Triggers
             return IsTrue;
         }
 
-        public void DisplayMessage(bool won)//"won" because trigger does not know if he is in winning or losing set
-        {
-            MyAPIGateway.Utilities.ShowNotification(Message, 3000, (won ? Sandbox.Common.MyFontEnum.Green : Sandbox.Common.MyFontEnum.Red));
-        }
-        
-
         //save/load
         public virtual void Init(MyObjectBuilder_Trigger ob)
         {

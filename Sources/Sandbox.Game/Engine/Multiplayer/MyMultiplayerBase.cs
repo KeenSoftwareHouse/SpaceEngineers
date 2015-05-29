@@ -290,7 +290,7 @@ namespace Sandbox.Engine.Multiplayer
             set;
         }
 
-        public abstract bool BattleStarted
+        public abstract bool BattleCanBeJoined
         {
             get;
             set;

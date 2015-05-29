@@ -508,7 +508,7 @@ namespace Sandbox.Game.Entities.Cube
 
                 if (MySession.Static.SurvivalMode && !MyCubeBuilder.DeveloperSpectatorIsBuilding)
                 {
-                    if (i == 0 && MySession.GetCameraControllerEnum() == MyCameraControllerEnum.Spectator)
+                    if (i == 0 && MyCubeBuilder.CameraControllerSpectator)
                     {
                         m_visible = false;
                         return false;

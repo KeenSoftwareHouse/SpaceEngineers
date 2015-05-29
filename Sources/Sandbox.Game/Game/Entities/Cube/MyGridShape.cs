@@ -1116,8 +1116,11 @@ namespace Sandbox.Game.Entities.Cube
                 var position = m_grid.GridIntegerToWorld((pair.Value.GetTransform().Translation + pair.Value.CoM) / m_grid.GridSize);
                 if ((position - MySector.MainCamera.Position).Length() > 20)
                     continue;
-
-                var mass = m_grid.GetCubeBlock(pair.Key).GetMass();
+                var block = m_grid.GetCubeBlock(pair.Key);
+                if (block == null) continue;
+                float mass = block.GetMass();
+                if (block.FatBlock is MyFracturedBlock)
+                    mass = m_blocksShapes[block.Position].Shape.GetMass();
                 switch(Sandbox.Game.Gui.MyHonzaInputComponent.ShowRealBlockMass)
                 {
                     case Gui.MyHonzaInputComponent.ShownMassEnum.Real:

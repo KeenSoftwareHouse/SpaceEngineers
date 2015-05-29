@@ -15,12 +15,13 @@ using VRage.Library.Utils;
 
 namespace Sandbox.Game.Entities
 {
-    class MyComponentStack
+    public class MyComponentStack
     {
         public struct GroupInfo
         {
             public int MountedCount;
             public int TotalCount;
+			public int AvailableCount;
 
             /// <summary>
             /// Integrity of group, increases when mounting more components
@@ -604,6 +605,7 @@ namespace Sandbox.Game.Entities
                 Component = component.Definition,
                 TotalCount = component.Count,
                 MountedCount = 0,
+				AvailableCount = 0,
                 Integrity = 0.0f,
                 MaxIntegrity = component.Count * component.Definition.MaxIntegrity,
             };
