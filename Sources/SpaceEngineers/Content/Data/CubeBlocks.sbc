@@ -21647,6 +21647,10 @@
       <PowerInputIdle>0.186</PowerInputIdle>
       <PowerInputTurning>0.001</PowerInputTurning>
       <PowerInputLasing>0.576</PowerInputLasing>
+      <MinElevationDegrees>-180</MinElevationDegrees> 
+      <MaxElevationDegrees>180</MaxElevationDegrees>
+      <MinAzimuthDegrees>-180</MinAzimuthDegrees>
+      <MaxAzimuthDegrees>180</MaxAzimuthDegrees>
       <RotationRate>0.01</RotationRate>
       <MaxRange>40000</MaxRange>
       <RequireLineOfSight>true</RequireLineOfSight>
@@ -21694,6 +21698,10 @@
       <PowerInputIdle>0.060</PowerInputIdle>
       <PowerInputTurning>0.001</PowerInputTurning>
       <PowerInputLasing>0.18</PowerInputLasing>
+      <MinElevationDegrees>-180</MinElevationDegrees> 
+      <MaxElevationDegrees>180</MaxElevationDegrees>
+      <MinAzimuthDegrees>-180</MinAzimuthDegrees>
+      <MaxAzimuthDegrees>180</MaxAzimuthDegrees>
       <RotationRate>0.01</RotationRate>
       <MaxRange>20000</MaxRange>
       <RequireLineOfSight>true</RequireLineOfSight>
