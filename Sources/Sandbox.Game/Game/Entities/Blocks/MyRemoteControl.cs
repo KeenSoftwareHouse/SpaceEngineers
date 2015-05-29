@@ -1963,7 +1963,7 @@ namespace Sandbox.Game.Entities
                 sync.m_syncing = true;
                 MyToolbarItem item = null;
                 if (msg.Item.EntityID != 0)
-                    item = ToolbarItem.ToObject<MyTimerBlock>(msg.Item);
+                    item = ToolbarItem.ToObject<MyRemoteControl>(msg.Item);
 
                 var waypoint = sync.m_remoteControl.m_waypoints[msg.WaypointIndex];
                 if (waypoint.Actions == null)
