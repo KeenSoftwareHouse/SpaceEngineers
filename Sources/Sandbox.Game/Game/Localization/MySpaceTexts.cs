@@ -9560,11 +9560,6 @@ namespace Sandbox.Game.Localization
         public static readonly MyStringId Terminal_ShowAllInTerminal = MyStringId.GetOrCompute("Terminal_ShowAllInTerminal");
 
         ///<summary>
-        ///Show block in toolbar config
-        ///</summary>
-        public static readonly MyStringId Terminal_ShowInToolbarConfig = MyStringId.GetOrCompute("Terminal_ShowInToolbarConfig");
-
-        ///<summary>
         ///Oxygen refilled from bottles.
         ///</summary>
         public static readonly MyStringId NotificationBottleRefill = MyStringId.GetOrCompute("NotificationBottleRefill");
@@ -9678,11 +9673,6 @@ namespace Sandbox.Game.Localization
         ///Show/hide current block in terminal
         ///</summary>
         public static readonly MyStringId Terminal_ShowInTerminalToolTip = MyStringId.GetOrCompute("Terminal_ShowInTerminalToolTip");
-
-        ///<summary>
-        ///Show/hide current block in toolbar config
-        ///</summary>
-        public static readonly MyStringId Terminal_ShowInToolbarConfigToolTip = MyStringId.GetOrCompute("Terminal_ShowInToolbarConfigToolTip");
 
         ///<summary>
         ///Helmet Off
