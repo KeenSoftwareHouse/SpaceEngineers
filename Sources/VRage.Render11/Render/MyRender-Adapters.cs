@@ -205,7 +205,7 @@ namespace VRageRender
 
                 LogAdapterInfoBegin(ref info);
 
-                if(supportedDevice)
+                if(supportedDevice && vram > 0)
                 {
                     for(int j=0; j<factory.Adapters[i].Outputs.Length; j++)
                     {
@@ -242,13 +242,14 @@ namespace VRageRender
                         LogOutputDisplayModes(ref info);
                     }
                 }
+                /* nope, not supported
                 else
                 {
                     info.SupportedDisplayModes = new MyDisplayMode[0];
                     adaptersList.Add(info);
                     adapterIndex++;
                 }
-
+                */
                 LogAdapterInfoEnd();
 
                 if(adapterTestDevice != null)
