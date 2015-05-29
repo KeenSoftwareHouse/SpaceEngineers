@@ -127,34 +127,8 @@ namespace Sandbox.Game.Entities.Blocks
             {
                 sync.m_syncing = true;
                 MyToolbarItem item = null;
-                if(msg.Item.EntityID != 0)
-                    if (string.IsNullOrEmpty(msg.Item.GroupName))
-                    {
-                        MyTerminalBlock block;
-                        if(MyEntities.TryGetEntityById<MyTerminalBlock>(msg.Item.EntityID, out block))
-                        {
-                            var builder = MyToolbarItemFactory.TerminalBlockObjectBuilderFromBlock(block);
-                            builder.Action = msg.Item.Action;
-                            item = MyToolbarItemFactory.CreateToolbarItem(builder);
-                        }
-                    }
-                    else
-                    {
-                        MyButtonPanel parent;
-                        if (MyEntities.TryGetEntityById<MyButtonPanel>(msg.Item.EntityID, out parent))
-                        {
-                            var grid = parent.CubeGrid;
-                            var groupName = msg.Item.GroupName;
-                            var group = grid.GridSystems.TerminalSystem.BlockGroups.Find((x) => x.Name.ToString() == groupName);
-                            if (group != null)
-                            {
-                                var builder = MyToolbarItemFactory.TerminalGroupObjectBuilderFromGroup(group);
-                                builder.Action = msg.Item.Action;
-                                builder.BlockEntityId = msg.Item.EntityID;
-                                item = MyToolbarItemFactory.CreateToolbarItem(builder);
-                            }
-                        }
-                    }
+                if (msg.Item.EntityID != 0)
+                    item = ToolbarItem.ToObject<MyButtonPanel>(msg.Item);
                 sync.m_panel.Toolbar.SetItemAtIndex(msg.Index, item);
                 sync.m_syncing = false;
             }
@@ -169,17 +143,6 @@ namespace Sandbox.Game.Entities.Blocks
                 syncObject.m_panel.SetButtonName(msg.CustomName,msg.Index);
             }
 
-        }
-
-        [ProtoContract]
-        struct ToolbarItem
-        {
-            [ProtoMember]
-            public long EntityID;
-            [ProtoMember]
-            public string GroupName;
-            [ProtoMember]
-            public string Action;
         }
 
         private const string DETECTOR_NAME = "panel";

@@ -1,5 +1,4 @@
 ﻿using Havok;
-using ProtoBuf;
 using Sandbox.Common;
 
 using Sandbox.Common.ObjectBuilders;
@@ -29,17 +28,6 @@ using Sandbox.Game.Screens.Terminal.Controls;
 
 namespace Sandbox.Game.Entities.Blocks
 {
-    [ProtoContract]
-    struct ToolbarItem
-    {
-        [ProtoMember]
-        public long EntityID;
-        [ProtoMember]
-        public string GroupName;
-        [ProtoMember]
-        public string Action;
-    }
-
     [Flags]
     public enum MySensorFilterFlags : ushort
     {
@@ -752,22 +740,7 @@ namespace Sandbox.Game.Entities.Blocks
 
         private ToolbarItem GetToolbarItem(MyToolbarItem item)
         {
-            var tItem = new ToolbarItem();
-            tItem.EntityID = 0;
-            if (item is MyToolbarItemTerminalBlock)
-            {
-                var block = item.GetObjectBuilder() as MyObjectBuilder_ToolbarItemTerminalBlock;
-                tItem.EntityID = block.BlockEntityId;
-                tItem.Action = block.Action;
-            }
-            else if (item is MyToolbarItemTerminalGroup)
-            {
-                var block = item.GetObjectBuilder() as MyObjectBuilder_ToolbarItemTerminalGroup;
-                tItem.EntityID = block.BlockEntityId;
-                tItem.Action = block.Action;
-                tItem.GroupName = block.GroupName;
-            }
-            return tItem;
+            return ToolbarItem.FromObject(item);
         }
 
         private void OnFirstEnter()

@@ -54,8 +54,8 @@ namespace Sandbox.Game.Entities.Blocks
         private StringBuilder m_echoOutput = new StringBuilder();
         private FieldInfo m_elapsedTimeField = null;
         private long m_previousRunTimestamp = 0;
-        
-        private readonly object[] m_argumentArray = new object[1]; 
+
+        private readonly object[] m_argumentArray = new object[1];
 
         public bool ConsoleOpen = false;
         MyGuiScreenEditor m_editorScreen;
@@ -70,9 +70,11 @@ namespace Sandbox.Game.Entities.Blocks
 
         public string TerminalRunArgument
         {
-            get { return this.m_terminalRunArgument; }
-            set { this.m_terminalRunArgument = value ?? string.Empty; }
+            get { return m_terminalRunArgument; }
+            set { m_terminalRunArgument = value ?? string.Empty; }
         }
+
+        public bool ClearArgumentOnRun { get; set; }
         public MyPowerReceiver PowerReceiver
         {
             get;
@@ -89,22 +91,28 @@ namespace Sandbox.Game.Entities.Blocks
             console.Visible = (b) => MyFakes.ENABLE_PROGRAMMABLE_BLOCK && MySession.Static.EnableIngameScripts;
             MyTerminalControlFactory.AddControl(console);
 
-            var arg = new MyTerminalControlTextbox<MyProgrammableBlock>("ConsoleCommand", MySpaceTexts.TerminalControlPanel_RunArgument, MySpaceTexts.TerminalControlPanel_RunArgument_ToolTip);
+            var arg = new MyTerminalControlTextbox<MyProgrammableBlock>("TerminalRunArgument", MySpaceTexts.TerminalControlPanel_RunArgument, MySpaceTexts.TerminalControlPanel_RunArgument_ToolTip);
             arg.Visible = (e) => MyFakes.ENABLE_PROGRAMMABLE_BLOCK && MySession.Static.EnableIngameScripts;
             arg.Getter = (e) => new StringBuilder(e.TerminalRunArgument);
-            arg.Setter = (e, v) => e.TerminalRunArgument = v.ToString();
+            arg.Setter = (e, v) => e.SyncObject.RequestChangeTerminalRunArgument(v.ToString());
+            arg.EnterPressed = (b) => b.Run();
             MyTerminalControlFactory.AddControl(arg);
-            
+
             var terminalRun = new MyTerminalControlButton<MyProgrammableBlock>("TerminalRun", MySpaceTexts.TerminalControlPanel_RunCode, MySpaceTexts.TerminalControlPanel_RunCode_Tooltip, (b) => b.Run());
             terminalRun.Visible = (b) => MyFakes.ENABLE_PROGRAMMABLE_BLOCK && MySession.Static.EnableIngameScripts;
             terminalRun.Enabled = (b) => b.IsWorking == true && b.IsFunctional == true;
             MyTerminalControlFactory.AddControl(terminalRun);
-            
+
             var runAction = new MyTerminalAction<MyProgrammableBlock>("Run", MyTexts.Get(MySpaceTexts.TerminalControlPanel_RunCode), OnRunApplied, null, MyTerminalActionIcons.START);
             runAction.Enabled = (b) => b.IsWorking == true && b.IsFunctional == true;
             runAction.DoUserParameterRequest = RequestRunArgument;
             runAction.ParameterDefinitions.Add(TerminalActionParameter.Get(string.Empty));
             MyTerminalControlFactory.AddAction(runAction);
+
+            var slaveCheck = new MyTerminalControlCheckbox<MyProgrammableBlock>("ClearArgumentOnRun", MySpaceTexts.TerminalControlPanel_ClearArgumentOnRun, MySpaceTexts.TerminalControlPanel_ClearArgumentOnRun_ToolTip);
+            slaveCheck.Getter = (x) => x.ClearArgumentOnRun;
+            slaveCheck.Setter = (x, v) => x.SyncObject.RequestChangeClearArgumentOnRun(v);
+            MyTerminalControlFactory.AddControl(slaveCheck);
         }
 
         private static void OnRunApplied(MyProgrammableBlock programmableBlock, ListReader<TerminalActionParameter> parameters)
@@ -113,7 +121,8 @@ namespace Sandbox.Game.Entities.Blocks
             var firstParameter = parameters.FirstOrDefault();
             if (!firstParameter.IsEmpty && firstParameter.TypeCode == TypeCode.String)
                 argument = firstParameter.Value as string;
-            programmableBlock.Run(argument);
+            // Running this way should never respect the clear programmable argument setting.
+            programmableBlock.Run(argument, false);
         }
 
         /// <summary>
@@ -317,10 +326,10 @@ namespace Sandbox.Game.Entities.Blocks
 
         public void Run()
         {
-            this.Run(this.TerminalRunArgument);
+            this.Run(this.TerminalRunArgument, ClearArgumentOnRun);
         }
 
-        public void Run(string argument)
+        public void Run(string argument, bool clearArgument)
         {
             if (this.IsWorking == false || this.IsFunctional == false)
             {
@@ -331,13 +340,15 @@ namespace Sandbox.Game.Entities.Blocks
                 string response = this.ExecuteCode(argument);
                 if (this.DetailedInfo.ToString() != response)
                 {
-                    this.SyncObject.SendProgramResponseMessage(response);
+                    this.SyncObject.SendProgramResponseMessage(response, clearArgument);
+                    if (clearArgument)
+                        this.TerminalRunArgument = "";
                     this.WriteProgramResponse(response);
                 }
             }
             else
             {
-                this.SyncObject.SendRunProgramRequest(argument);
+                this.SyncObject.SendRunProgramRequest(argument, clearArgument);
             }
         }
 
@@ -347,7 +358,8 @@ namespace Sandbox.Game.Entities.Blocks
             var programmableBlockBuilder = (MyObjectBuilder_MyProgrammableBlock)objectBuilder;
             m_editorData = m_programData = programmableBlockBuilder.Program;
             m_storageData = programmableBlockBuilder.Storage;
-            this.m_terminalRunArgument = programmableBlockBuilder.DefaultRunArgument;
+            m_terminalRunArgument = programmableBlockBuilder.DefaultRunArgument ?? string.Empty;
+            ClearArgumentOnRun = programmableBlockBuilder.ClearArgumentOnRun;
 
             this.SyncObject = new MySyncProgrammableBlock(this);
             NeedsUpdate |= MyEntityUpdateEnum.BEFORE_NEXT_FRAME;
@@ -368,6 +380,7 @@ namespace Sandbox.Game.Entities.Blocks
                 Sync.Clients.ClientRemoved += ProgrammableBlock_ClientRemoved;
             }
         }
+
         public override void UpdateOnceBeforeFrame()
         {
             base.UpdateOnceBeforeFrame();
@@ -376,12 +389,12 @@ namespace Sandbox.Game.Entities.Blocks
                 string response = MyTexts.GetString(MySpaceTexts.ProgrammableBlock_Exception_NotAllowed);
                 if (Sync.IsServer)
                 {
-                    SyncObject.SendProgramResponseMessage(response);
+                    SyncObject.SendProgramResponseMessage(response, false);
                     WriteProgramResponse(response);
                 }
                 else
                 {
-                    SyncObject.SendRunProgramRequest(string.Empty);
+                    SyncObject.SendRunProgramRequest(string.Empty, false);
                 }
                 return;
             }
@@ -391,11 +404,13 @@ namespace Sandbox.Game.Entities.Blocks
             }
             UpdateEmissivity();
         }
+
         public override MyObjectBuilder_CubeBlock GetObjectBuilderCubeBlock(bool copy = false)
         {
             MyObjectBuilder_MyProgrammableBlock objectBuilder = (MyObjectBuilder_MyProgrammableBlock)base.GetObjectBuilderCubeBlock(copy);
             objectBuilder.Program = this.m_programData;
             objectBuilder.DefaultRunArgument = this.m_terminalRunArgument;
+            objectBuilder.ClearArgumentOnRun = ClearArgumentOnRun;
             if (m_storageField != null && m_instance != null)
             {
                 objectBuilder.Storage = (string)m_storageField.GetValue(m_instance);
@@ -404,7 +419,7 @@ namespace Sandbox.Game.Entities.Blocks
             return objectBuilder;
         }
 
-        private void CompileAndCreateInstance(string program,string storage)
+        private void CompileAndCreateInstance(string program, string storage)
         {
             if (MySession.Static.EnableIngameScripts == false)
             {
@@ -462,7 +477,7 @@ namespace Sandbox.Game.Entities.Blocks
                                 string response = MyTexts.GetString(MySpaceTexts.ProgrammableBlock_Exception_ExceptionCaught) + ex.InnerException.Message;
                                 if (DetailedInfo.ToString() != response)
                                 {
-                                    SyncObject.SendProgramResponseMessage(response);
+                                    SyncObject.SendProgramResponseMessage(response, false);
                                     WriteProgramResponse(response);
                                 }
                             }
@@ -474,7 +489,7 @@ namespace Sandbox.Game.Entities.Blocks
                     string response = MyTexts.GetString(MySpaceTexts.ProgrammableBlock_Exception_ExceptionCaught) + ex.Message;
                     if (DetailedInfo.ToString() != response)
                     {
-                        SyncObject.SendProgramResponseMessage(response);
+                        SyncObject.SendProgramResponseMessage(response, false);
                         WriteProgramResponse(response);
                     }
                 }
@@ -517,14 +532,14 @@ namespace Sandbox.Game.Entities.Blocks
                                  messageText: new StringBuilder("Editor is opened by another player.")));
         }
 
-        public void UpdateProgram(string program,string storage)
+        public void UpdateProgram(string program, string storage)
         {
             this.m_editorData = this.m_programData = program;
             this.m_storageData = storage;
             m_compilerErrors.Clear();
             if (Sync.IsServer)
             {
-                CompileAndCreateInstance(m_programData,storage);
+                CompileAndCreateInstance(m_programData, storage);
             }
         }
 
@@ -543,7 +558,7 @@ namespace Sandbox.Game.Entities.Blocks
 
             //new owner needs to recompile script to be able to run it
             OnProgramTermination();
-            SyncObject.SendProgramResponseMessage(MyTexts.GetString(MySpaceTexts.ProgrammableBlock_Exception_Ownershipchanged));
+            SyncObject.SendProgramResponseMessage(MyTexts.GetString(MySpaceTexts.ProgrammableBlock_Exception_Ownershipchanged), false);
             if (Sync.IsServer)
             {
                 WriteProgramResponse(MyTexts.GetString(MySpaceTexts.ProgrammableBlock_Exception_Ownershipchanged));
@@ -616,6 +631,11 @@ namespace Sandbox.Game.Entities.Blocks
             PowerReceiver.Update();
             UpdateEmissivity();
             base.OnEnabledChanged();
+        }
+
+        public void RefreshProperties()
+        {
+            this.RaisePropertiesChanged();
         }
     }
 }

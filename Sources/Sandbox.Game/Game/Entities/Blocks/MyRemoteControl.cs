@@ -867,22 +867,7 @@ namespace Sandbox.Game.Entities
 
         private ToolbarItem GetToolbarItem(MyToolbarItem item)
         {
-            var tItem = new ToolbarItem();
-            tItem.EntityID = 0;
-            if (item is MyToolbarItemTerminalBlock)
-            {
-                var block = item.GetObjectBuilder() as MyObjectBuilder_ToolbarItemTerminalBlock;
-                tItem.EntityID = block.BlockEntityId;
-                tItem.Action = block.Action;
-            }
-            else if (item is MyToolbarItemTerminalGroup)
-            {
-                var block = item.GetObjectBuilder() as MyObjectBuilder_ToolbarItemTerminalGroup;
-                tItem.EntityID = block.BlockEntityId;
-                tItem.Action = block.Action;
-                tItem.GroupName = block.GroupName;
-            }
-            return tItem;
+            return ToolbarItem.FromObject(item);
         }
         #endregion
 
@@ -1978,35 +1963,7 @@ namespace Sandbox.Game.Entities
                 sync.m_syncing = true;
                 MyToolbarItem item = null;
                 if (msg.Item.EntityID != 0)
-                {
-                    if (string.IsNullOrEmpty(msg.Item.GroupName))
-                    {
-                        MyTerminalBlock block;
-                        if (MyEntities.TryGetEntityById<MyTerminalBlock>(msg.Item.EntityID, out block))
-                        {
-                            var builder = MyToolbarItemFactory.TerminalBlockObjectBuilderFromBlock(block);
-                            builder.Action = msg.Item.Action;
-                            item = MyToolbarItemFactory.CreateToolbarItem(builder);
-                        }
-                    }
-                    else
-                    {
-                        MyRemoteControl parent;
-                        if (MyEntities.TryGetEntityById<MyRemoteControl>(msg.Item.EntityID, out parent))
-                        {
-                            var grid = parent.CubeGrid;
-                            var groupName = msg.Item.GroupName;
-                            var group = grid.GridSystems.TerminalSystem.BlockGroups.Find((x) => x.Name.ToString() == groupName);
-                            if (group != null)
-                            {
-                                var builder = MyToolbarItemFactory.TerminalGroupObjectBuilderFromGroup(group);
-                                builder.Action = msg.Item.Action;
-                                builder.BlockEntityId = msg.Item.EntityID;
-                                item = MyToolbarItemFactory.CreateToolbarItem(builder);
-                            }
-                        }
-                    }
-                }
+                    item = ToolbarItem.ToObject<MyRemoteControl>(msg.Item);
 
                 var waypoint = sync.m_remoteControl.m_waypoints[msg.WaypointIndex];
                 if (waypoint.Actions == null)
