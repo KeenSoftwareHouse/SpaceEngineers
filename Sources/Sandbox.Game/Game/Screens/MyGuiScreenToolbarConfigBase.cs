@@ -1088,6 +1088,10 @@ namespace Sandbox.Game.Gui
                 {
                     continue;
                 }
+                if (block.ShowInToolbarConfig == false)
+                {
+                    continue;
+                }
 
                 MyObjectBuilder_ToolbarItemTerminalBlock blockData = MyToolbarItemFactory.TerminalBlockObjectBuilderFromBlock(block);
                 m_gridBlocks.Add(new MyGuiControlGrid.Item(
