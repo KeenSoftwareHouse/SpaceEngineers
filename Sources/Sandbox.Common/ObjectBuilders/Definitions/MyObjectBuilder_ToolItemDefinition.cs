@@ -54,5 +54,8 @@ namespace Medieval.ObjectBuilders.Definitions
         [ProtoMember, DefaultValue(0)]
         public float CuttingEfficiency = 0;
 
+		[ProtoMember, DefaultValue(0)]
+		public float BuildingEfficiency = 0;
+
     }
 }

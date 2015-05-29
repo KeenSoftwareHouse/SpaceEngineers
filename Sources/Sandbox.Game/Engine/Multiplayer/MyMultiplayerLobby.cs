@@ -149,10 +149,10 @@ namespace Sandbox.Engine.Multiplayer
             set { Lobby.SetLobbyData(MyMultiplayer.BattleTag, value.ToString()); }
         }
 
-        public override bool BattleStarted
+        public override bool BattleCanBeJoined
         {
-            get { return GetLobbyBool(MyMultiplayer.BattleStartedTag, Lobby, false); }
-            set { Lobby.SetLobbyData(MyMultiplayer.BattleStartedTag, value.ToString()); }
+            get { return GetLobbyBool(MyMultiplayer.BattleCanBeJoinedTag, Lobby, false); }
+            set { Lobby.SetLobbyData(MyMultiplayer.BattleCanBeJoinedTag, value.ToString()); }
         }
 
         public override int BattleFaction1MaxBlueprintPoints
@@ -226,6 +226,8 @@ namespace Sandbox.Engine.Multiplayer
             get { return GetLobbyInt(MyMultiplayer.BattleTimeLimitTag, Lobby, 0); }
             set { Lobby.SetLobbyData(MyMultiplayer.BattleTimeLimitTag, value.ToString()); }
         }
+
+        private bool m_serverDataValid;
 
 
         internal MyMultiplayerLobby(Lobby lobby, MySyncLayer syncLayer)
@@ -369,7 +371,16 @@ namespace Sandbox.Engine.Multiplayer
         public override void Tick()
         {
             base.Tick();
-           
+
+            // TODO: Hack for invisible battle games - sometimes values are not written to Lobby so we try it again here
+            if (!m_serverDataValid)
+            {
+                if (AppVersion == 0) 
+                    MySession.Static.StartServer(this);
+
+                m_serverDataValid = true;
+            }
+
             //var delta = TimeSpan.FromMilliseconds(SyncLayer.Interpolation.Timer.AverageDeltaMilliseconds);
             //Profiler.CustomValue("Average delta ", (float)delta.TotalMilliseconds + 10, delta + TimeSpan.FromMilliseconds(10));
 
@@ -613,9 +624,9 @@ namespace Sandbox.Engine.Multiplayer
             return GetLobbyBool(MyMultiplayer.BattleTag, lobby, false);
         }
 
-        public static bool GetLobbyBattleStarted(Lobby lobby)
+        public static bool GetLobbyBattleCanBeJoined(Lobby lobby)
         {
-            return GetLobbyBool(MyMultiplayer.BattleStartedTag, lobby, false);
+            return GetLobbyBool(MyMultiplayer.BattleCanBeJoinedTag, lobby, false);
         }
 
         public override string GetMemberName(ulong steamUserID)

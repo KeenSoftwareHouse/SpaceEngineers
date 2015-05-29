@@ -62,13 +62,13 @@ namespace VRageRender
             desc.IndependentBlendEnable = true;
             // color metal
             desc.RenderTarget[0].IsBlendEnabled = true;
-            desc.RenderTarget[0].RenderTargetWriteMask = ColorWriteMaskFlags.Red | ColorWriteMaskFlags.Green | ColorWriteMaskFlags.Blue;
+            desc.RenderTarget[0].RenderTargetWriteMask = ColorWriteMaskFlags.All;
             desc.RenderTarget[0].BlendOperation = BlendOperation.Add;
             desc.RenderTarget[0].AlphaBlendOperation = BlendOperation.Add;
-            desc.RenderTarget[0].DestinationBlend = BlendOption.BlendFactor;
-            desc.RenderTarget[0].DestinationAlphaBlend = BlendOption.BlendFactor;
-            desc.RenderTarget[0].SourceBlend = BlendOption.InverseBlendFactor;
-            desc.RenderTarget[0].SourceAlphaBlend = BlendOption.InverseBlendFactor;
+            desc.RenderTarget[0].DestinationBlend = BlendOption.InverseBlendFactor;
+            desc.RenderTarget[0].DestinationAlphaBlend = BlendOption.InverseBlendFactor;
+            desc.RenderTarget[0].SourceBlend = BlendOption.BlendFactor;
+            desc.RenderTarget[0].SourceAlphaBlend = BlendOption.BlendFactor;
             // normal gloss
             desc.RenderTarget[1].IsBlendEnabled = true;
             desc.RenderTarget[1].RenderTargetWriteMask = ColorWriteMaskFlags.All;
@@ -78,6 +78,15 @@ namespace VRageRender
             desc.RenderTarget[1].DestinationAlphaBlend = BlendOption.Zero;
             desc.RenderTarget[1].SourceBlend = BlendOption.One;
             desc.RenderTarget[1].SourceAlphaBlend = BlendOption.One;
+            // ao
+            desc.RenderTarget[2].IsBlendEnabled = true;
+            desc.RenderTarget[2].RenderTargetWriteMask = ColorWriteMaskFlags.Red;
+            desc.RenderTarget[2].BlendOperation = BlendOperation.Minimum;
+            desc.RenderTarget[2].AlphaBlendOperation = BlendOperation.Minimum;
+            desc.RenderTarget[2].DestinationBlend = BlendOption.One;
+            desc.RenderTarget[2].DestinationAlphaBlend = BlendOption.One;
+            desc.RenderTarget[2].SourceBlend = BlendOption.InverseBlendFactor;
+            desc.RenderTarget[2].SourceAlphaBlend = BlendOption.InverseBlendFactor;
 
             BlendDecal = MyPipelineStates.CreateBlendState(desc);
         }

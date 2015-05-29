@@ -84,7 +84,6 @@ namespace Sandbox
 
         public static bool IsConsoleVisible = false;
 
-        public static event Action OnSessionReady;
         public static bool FatalErrorDuringInit = false;
         public static VRageGameServices Services { get; private set; }
 
@@ -182,12 +181,6 @@ namespace Sandbox
 
             ProfilerShort.BeginNextBlock("MyTexts.Init()");
             MyLanguage.Init();
-
-            MySession.OnReady += delegate
-            {
-                if (OnSessionReady != null)
-                    OnSessionReady();
-            };
 
             ProfilerShort.BeginNextBlock("MyDefinitionManager.LoadScenarios");
             MyDefinitionManager.Static.LoadScenarios();
@@ -1004,6 +997,7 @@ namespace Sandbox
             MyAudio.Static.VolumeGame = Config.GameVolume;
             MyAudio.Static.VolumeHud = Config.GameVolume;
             MyGuiAudio.HudWarnings = Config.HudWarnings;
+            MyAudio.Static.EnableVoiceChat = Config.EnableVoiceChat;
             Config.MusicVolume = MyAudio.Static.VolumeMusic;
             Config.GameVolume = MyAudio.Static.VolumeGame;
             MyGuiSoundManager.Audio = MyGuiAudio.Static;

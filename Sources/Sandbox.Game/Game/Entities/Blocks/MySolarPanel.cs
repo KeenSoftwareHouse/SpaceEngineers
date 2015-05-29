@@ -75,6 +75,11 @@ namespace Sandbox.Game.Entities.Blocks
             }
         }
 
+        float ModAPI.Ingame.IMyPowerProducer.DefinedPowerOutput
+        {
+            get { return m_solarPanelDefinition.MaxPowerOutput; }
+        }
+
         private void UpdateDisplay()
         {
             DetailedInfo.Clear();
@@ -147,7 +152,7 @@ namespace Sandbox.Game.Entities.Blocks
             }
         }
 
-       
+
 
         public override void UpdateBeforeSimulation100()
         {

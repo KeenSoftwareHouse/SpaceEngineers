@@ -1339,7 +1339,7 @@
       </Id>
       <Category>R_TOOL_PLAY_DRILL</Category>
       <MaxDistance>46.6797371</MaxDistance>
-      <Volume>0.6890203</Volume>
+      <Volume>0.9</Volume>
       <Loopable>true</Loopable>
       <Waves>
         <Wave Type="D2">
@@ -1480,7 +1480,7 @@
         <SubtypeId>ArcWepTurretGatlingFire</SubtypeId>
       </Id>
       <Category>WEP_TURR</Category>
-      <MaxDistance>60</MaxDistance>
+      <MaxDistance>30</MaxDistance>
       <Volume>0.7</Volume>
       <Loopable>true</Loopable>
       <Waves>
@@ -1559,8 +1559,98 @@
       <Loopable>true</Loopable>
       <Waves>
         <Wave Type="D3">
-          <Loop>ARC\WEP\ArcWepTurretInteriorRotateLoop3d.xwm</Loop>
-          <End>ARC\WEP\ArcWepTurretInteriorRotateEnd3d.xwm</End>
+          <Loop>ARC\WEP\ArcWepTurretInteriorRotateLoop3d.wav</Loop>
+          <End>ARC\WEP\ArcWepTurretInteriorRotateEnd3d.wav</End>
+        </Wave>
+      </Waves>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>RealWepTurretGatlingFire</SubtypeId>
+      </Id>
+      <Category>WEP_TURR</Category>
+      <MaxDistance>30</MaxDistance>
+      <Volume>0.7</Volume>
+      <Loopable>true</Loopable>
+      <Waves>
+        <Wave Type="D3">
+          <Loop>REAL\WEP\RealWepTurretGatlingFireLoop3d.wav</Loop>
+          <End>REAL\WEP\RealWepTurretGatlingFireEnd3d.wav</End>
+        </Wave>
+      </Waves>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>RealWepTurretMissileShot</SubtypeId>
+      </Id>
+      <Category>WEP_TURR</Category>
+      <MaxDistance>30</MaxDistance>
+      <Volume>0.7</Volume>
+      <Waves>
+        <Wave Type="D3">
+          <Start>REAL\WEP\RealWepTurretMissileShot3d01.wav</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>REAL\WEP\RealWepTurretMissileShot3d02.wav</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>REAL\WEP\RealWepTurretMissileShot3d03.wav</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>REAL\WEP\RealWepTurretMissileShot3d04.wav</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>REAL\WEP\RealWepTurretMissileShot3d05.wav</Start>
+        </Wave>
+      </Waves>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>RealWepTurretGatlingRotate</SubtypeId>
+      </Id>
+      <Category>WEP_TURR</Category>
+      <MaxDistance>30</MaxDistance>
+      <Volume>0.6</Volume>
+      <Loopable>true</Loopable>
+      <Waves>
+        <Wave Type="D3">
+          <Loop>REAL\WEP\RealWepTurretGatlingRotateLoop3d.wav</Loop>
+          <End>REAL\WEP\RealWepTurretGatlingRotateEnd3d.wav</End>
+        </Wave>
+      </Waves>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>RealWepTurretInteriorFire</SubtypeId>
+      </Id>
+      <Category>WEP_TURR</Category>
+      <MaxDistance>30</MaxDistance>
+      <Volume>0.6</Volume>
+      <Loopable>true</Loopable>
+      <Waves>
+        <Wave Type="D3">
+          <Loop>REAL\WEP\RealWepTurretInteriorFireLoop3d.wav</Loop>
+          <End>REAL\WEP\RealWepTurretInteriorFireEnd3d.wav</End>
+        </Wave>
+      </Waves>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>RealWepTurretInteriorRotate</SubtypeId>
+      </Id>
+      <Category>WEP_TURR</Category>
+      <MaxDistance>30</MaxDistance>
+      <Volume>0.6</Volume>
+      <Loopable>true</Loopable>
+      <Waves>
+        <Wave Type="D3">
+          <Loop>REAL\WEP\RealWepTurretInteriorRotateLoop3d.wav</Loop>
+          <!--<End>REAL\WEP\RealWepTurretInteriorRotateEnd3d.wav</End>-->
         </Wave>
       </Waves>
     </Sound>
@@ -3671,18 +3761,18 @@
       </Id>
       <Category>R_BLOCK</Category>
       <MaxDistance>15</MaxDistance>
-      <Volume>0.5041087</Volume>
+      <Volume>0.6</Volume>
       <Loopable>true</Loopable>
       <Waves>
-        <Wave Type="D2">
+        <!--<Wave Type="D2">
           <Start>REAL\BLOCK\RealBlockAssemblerStart2d.xwm</Start>
           <Loop>REAL\BLOCK\RealBlockAssemblerLoop2d.xwm</Loop>
           <End>REAL\BLOCK\RealBlockAssemblerEnd2d.xwm</End>
-        </Wave>
+        </Wave>-->
         <Wave Type="D3">
-          <Start>REAL\BLOCK\RealBlockAssemblerStart3d.xwm</Start>
-          <Loop>REAL\BLOCK\RealBlockAssemblerLoop3d.xwm</Loop>
-          <End>REAL\BLOCK\RealBlockAssemblerEnd3d.xwm</End>
+          <Start>REAL\BLOCK\RealBlockAssemblerStart3d.wav</Start>
+          <Loop>REAL\BLOCK\RealBlockAssemblerLoop3d.wav</Loop>
+          <End>REAL\BLOCK\RealBlockAssemblerEnd3d.wav</End>
         </Wave>
       </Waves>
     </Sound>
@@ -3988,7 +4078,7 @@
       </Id>
       <Category>R_BLOCK_PROGRESS</Category>
       <MaxDistance>15</MaxDistance>
-      <Volume>0.5082183</Volume>
+      <Volume>0.6</Volume>
       <Loopable>true</Loopable>
       <Waves>
         <!--<Wave Type="D2">
@@ -3997,9 +4087,9 @@
           <End>Real\BLOCK\RealBlockAssemblerProcessEnd2d.xwm</End>
         </Wave>-->
         <Wave Type="D3">
-          <Start>Real\BLOCK\RealBlockAssemblerProcessStart3d.xwm</Start>
-          <Loop>Real\BLOCK\RealBlockAssemblerProcessLoop3d.xwm</Loop>
-          <End>Real\BLOCK\RealBlockAssemblerProcessEnd3d.xwm</End>
+          <Start>Real\BLOCK\RealBlockAssemblerProcessStart3d.wav</Start>
+          <Loop>Real\BLOCK\RealBlockAssemblerProcessLoop3d.wav</Loop>
+          <End>Real\BLOCK\RealBlockAssemblerProcessEnd3d.wav</End>
         </Wave>
       </Waves>
     </Sound>

@@ -1,0 +1,110 @@
+Shorter version (however it doesn't replace the official EULA):
+-	The source code and art assets must not to be mistaken for free software, an open source in a free-software activist understanding, copy-left or public domain software. All source code and art assets remain copyrighted and licensed by KEEN SWH LTD. and you are allowed to use them (modify, tweak, make a derivative work, distribute, etc.) only under following conditions.
+-	The source code, modifications or derivative works can be distributed only if they are intended to be used as a mod for Space Engineers, and only if valid customers would be able to use them. You are not allowed to bypass this restriction and create a standalone application or use our code in your projects.
+-	In other words, everyone who wants to develop and/or use mods based on our source code is required to own a valid Steam version of Space Engineers. You are not allowed to use our source code in an application other than Space Engineers. You are not allowed to remove the Steam integration from the code.
+-	You are not allowed to distribute original art assets (textures, models, fonts, etc.) except when you won't be able to make your modifications without our original files (e.g. painting a mustache on our astronaut texture and then distributing it as a mod to Space Engineers is allowed)
+-	You are allowed to share the source files with other developers (crediting us when logical/reasonable), downloading and compiling the game locally, modifying and tweaking the game locally, and even publicly forking, modifying, and tweaking the game source on GitHub.
+-	The origin of this software must not be misrepresented; you must not claim that you wrote the original software. 
+-	Altered source versions must be plainly marked as such, and must not be misrepresented as being the original software. This notice may not be removed or altered from any source distribution. 
+-	By making a pull request on our GitHub repository, you're stating that you're author of these changes or have rights to the changes you've made and you're giving us the right to use it in any way.
+-	Commercial usage is allowed only after you obtain an agreement from us: info@keenswh.com
+-	We reserve the right to change this license at any time with or without notice, with immediate and/or retroactive effect. We believe that what we ask is reasonable, so please don't try to bypass it. We're trying to be open and honest, and we hope people treat us the same way back. 
+-	Don't be afraid to experiment with the source code. If you break something, you can always revert by downloading it again. 
+-	If there's anything legal you're wondering about that wasn't answered: don't do it or ask us about it. If there's anything you don't understand or you consider confusing, please email us your suggestions: info@keenswh.com 
+-	That's it! No more rules. If the above wasn't clear, here's a summary: use this source code only for developing mods for Space Engineers. 
+
+
+PLEASE READ CAREFULLY BEFORE DOWNLOADING THE SOFTWARE: 
+This licence agreement (Licence) is a legal agreement between you (Licensee or you) and KEEN SWH LTD of 2nd Floor, 9 Chapel Place, London EC2A 3DQ (Licensor, us or we) for computer software, the data supplied with the software, and the associated media (Software) and online documents (Documents) that are necessary for the operation of the following game/s:
+-	Space Engineers (a Game/the Games)   
+
+We licence use of the Software and Documents to you on the basis of this Licence. We do not sell the Software or Documents to you. We remain the owners of the Software and Documents at all times. 
+The Software will be hosted by Steam, an online platform provided by Valve S.a.r.l. (in the EU) and Valve Corporation (in the US). To make use of the Software you must have a Steam account and the terms of this Licence supplement the Steam Subscriber Agreement which is located at: http://store.steampowered.com/subscriber_agreement/. 
+
+IMPORTANT NOTICE TO ALL USERS: 
+	BY CLICKING ON THE "ACCEPT" BUTTON BELOW OR BY DOWNLOADING OR ACCESSING THE SOFTWARE BY ANY OTHER MEANS, YOU AGREE TO THE TERMS OF THIS LICENCE WHICH WILL BIND YOU. THE TERMS OF THIS LICENCE INCLUDE, IN PARTICULAR, LIMITATIONS ON LIABILITY IN CONDITION 4.
+	IF YOU DO NOT AGREE TO THE TERMS OF THIS LICENCE, WE WILL NOT LICENSE THE SOFTWARE AND DOCUMENTS TO YOU AND YOU MUST DISCONTINUE THE DOWNLOADING PROCESS NOW. IN THIS CASE THE DOWNLOADING PROCESS WILL TERMINATE.
+
+You should print a copy of this Licence for future reference.
+1.	GRANT AND SCOPE OF LICENCE
+1.1.	In consideration of the payment of the Licence fee (which is part of the price you pay when you purchase a Game), we hereby grant to you a non-exclusive, non-transferable licence to use the Software and the Documents for your personal, non-commercial use (except where commercial use has been expressly permitted by us) on the terms of this Licence.
+1.2.	You may:
+1.2.1.	Download, install and use the Software for your personal purposes only and only for the purpose of the operation of the Game/s;
+1.2.2.	Provided you comply with the provisions in condition 2, copy the Software for back-up purposes only;
+1.2.3.	Receive and use any free supplementary software code or update of the Software as may be provided by us from time to time; and
+1.2.4.	Use any Documents in support of the use permitted under condition.
+1.3.	The Software may include access to various third party/Licensor tools that can be used to create content within a Game, edit the content of a Game and generally make modifications to the Software (Development Tools).
+1.4.	The Software is made available to you on an "open source" basis and therefore you may use the Development Tools to modify the Software and you may use, reproduce, publish, perform, display and distribute any modified Software you create in source or object form (subject to clauses 1.5 and 1.6 below) but solely on a non-commercial basis (except where commercial use has been expressly permitted by us) and solely in relation to the Game/s. 
+1.5.	You must not misrepresent modified Software as the original Software and you agree to use all reasonable endeavours to credit us as the owners of the Software and modified Software as part of any modified Software created and distributed by you. Without prejudice to the generality of the foregoing, you must ensure all modified Software carries a prominent notice stating that you have modified the Software.   
+1.6.	YOU UNCONDITIONALLY UNDERTAKE NOT TO SELL, LOAN, LEASE OR SUB-LICENCE MODIFIED SOFTWARE TO ANY THIRD PARTY USER AND YOU UNDERTAKE NOT TO TRANSFER TO, SHARE WITH OR IN ANY WAY DISTRIBUTE MODIFIED SOFTWARE TO ANY THIRD PARTY USER WHO HAS NOT ALREADY LICENSED THE SOFTWARE FROM US AND WHO IS NOT ALREADY AGREEED TO THE TERMS OF THIS LICENCE.  
+1.7.	Without prejudice to clause 3.2 of this Licence, you grant to us a non-exclusive, irrevocable right to use, reproduce, modify, create derivative works from, distribute, transmit, broadcast or otherwise communicate your modified Software in connection with the promotion and operation of a Game. 
+
+2.	RESTRICTIONS
+2.1.	Except as otherwise permitted in this agreement, you may not use the Software or Documents or any modified Software for any purpose other than in relation to the operation of a Game. 
+2.2.	Except as expressly set out in this Licence or as permitted by any local law, you undertake:
+2.2.1.	not to copy the Software or Documents except where such copying is incidental to normal use of the Software, or where it is necessary for the purpose of back-up or operational security;
+2.2.2.	not to rent, lease, sub-license, loan, translate, merge, adapt, vary or modify the Software or Documents;
+2.2.3.	not to make alterations to, or modifications of, the whole or any part of the Software, nor permit the Software or any part of it to be combined with, or become incorporated in, any other programs;
+2.2.4.	not to disassemble, decompile, reverse-engineer or create derivative works based on the whole or any part of the Software nor attempt to do any such thing except to the extent that (by virtue of section 296A of the Copyright, Designs and Patents Act 1988) such actions cannot be prohibited because they are essential for the purpose of achieving inter-operability of the Software with another software program, and provided that the information obtained by you during such activities: 
+2.2.4.1.	is used only for the purpose of achieving inter-operability of the Software with another software programs; and
+2.2.4.2.	is not disclosed or communicated without our prior written consent to any third party; and
+2.2.4.3.	is not used to create any software which is substantially similar to the Software;
+2.2.5.	to keep all copies of the Software secure and to maintain accurate and up-to-date records of the number and locations of all copies of the Software;
+2.2.6.	to include our copyright notice on all entire and partial copies and modifications you make of the Software on any medium;
+2.2.7.	not to provide or otherwise make available the Software in whole or in part (including but not limited to program listings, object and source program listings, object code and source code), in any form to any person without prior written consent from us; and
+2.2.8.	not to use the Software via any communications network or by means of remote access.
+3.	INTELLECTUAL PROPERTY RIGHTS
+3.1.	You acknowledge that all intellectual property rights in the Software and the Documents anywhere in the world belong to us, that rights in the Software are licensed (not sold) to you, and that you have no rights in, or to, the Software or the Documents other than the right to use them in accordance with the terms of this Licence.
+3.2.	You acknowledge that all intellectual property rights in any modified Software created by you belong to us and we shall have the exclusive right to deal with and restrict the dealing with any modified Software at our sole discretion.  
+3.3.	You must retain, in the source form of any modified Software that you distribute, all copyright, patent, and trade mark notices from the source form of the original Software.
+3.4.	This License does not grant permission to use the trade names, trademarks, service marks, or product names of the Licensor, except as required for reasonable and customary use in describing the origin of the original software.
+3.5.	You acknowledge that in agreeing to the terms of this Licence, you relinquish your legal rights, including your right to bring legal proceedings, in respect of any part of the Software in which you claim to own intellectual property rights. 
+4.	LIMITATION OF LIABILITY
+4.1.	You acknowledge that the Software has not been developed to meet your individual requirements, and that it is therefore your responsibility to ensure that the facilities and functions of the Software meet your requirements.
+4.2.	 If you are a consumer, we only supply the Software and Documents for domestic and private use. You agree not to use the Software and Documents for any commercial, business or re-sale purposes, and we have no liability to you for any loss of profit, loss of business, business interruption, or loss of business opportunity.
+4.3.	If you are a business customer (such as an educational establishment), we only supply the Software and the Documents for internal use by your business, and you agree not to use the Software or Documents for any re-sale purposes. 
+4.4.	You acknowledge that the Software may not be free of bugs or errors, and agree that the existence of minor errors shall not constitute a breach of this Licence. 
+4.5.	We do not offer any warranty or guarantee in respect of the operation of your Steam Account and we shall have no liability to you resulting from the operation of your Steam account and the effect that has on the Software 
+4.6.	We shall have no liability under or in connection with this Licence whether in contract, tort (including negligence), breach of statutory duty or otherwise This does not apply to the types of loss set out in condition 4.7.
+4.7.	Nothing in this Licence shall limit or exclude our liability for:
+4.7.1.	death or personal injury resulting from our negligence;
+4.7.2.	fraud or fraudulent misrepresentation; or
+4.7.3.	any other liability that cannot be excluded or limited by English law.
+
+4.8.	This Licence sets out the full extent of our obligations and liabilities in respect of the supply of the Software and Documents. Except as expressly stated in this Licence, there are no conditions, warranties, representations or other terms, express or implied, that are binding on us. Any condition, warranty, representation or other term concerning the supply of the Software and Documents which might otherwise be implied into, or incorporated in, this Licence whether by statute, common law or otherwise, is excluded to the fullest extent permitted by law.
+5.	TERMINATION
+5.1.	We may terminate this Licence immediately by written notice to you if you commit a material or persistent breach of this Licence which you fail to remedy (if remediable) within 14 days after the service of written notice requiring you to do so. 
+5.2.	Upon termination for any reason:
+5.2.1.	all rights granted to you under this Licence shall cease;
+5.2.2.	you must immediately cease all activities authorised by this Licence; 
+5.2.3.	you must immediately delete or remove the Software from all computer equipment in your possession, and immediately destroy or return to us (at our option) all copies of the Software and Documents then in your possession, custody or control and, in the case of destruction, certify to us that you have done so.
+6.	COMMUNICATIONS BETWEEN US
+6.1.	If you wish to contact us in writing, or if any condition in this Licence requires you to give us notice in writing, you can send this to us by e-mail to info@keenswh.com) or by pre-paid post to KEEN SWH LTD of 2nd Floor, 9 Chapel Place, London EC2A 3DQ . We will confirm receipt of this by contacting you in writing, normally by e-mail. 
+6.2.	If we have to contact you or give you notice in writing, we will do so by e-mail or by pre-paid post to the address you provide to us in your order for the Software.
+7.	 EVENTS OUTSIDE OUR CONTROL
+7.1.	We will not be liable or responsible for any failure to perform, or delay in performance of, any of our obligations under this Licence that is caused by an Event Outside Our Control. An Event Outside Our Control is defined below in condition 7.2.
+7.2.	An Event Outside Our Control means any act or event beyond our reasonable control, including without limitation failure of public or private telecommunications networks.
+7.3.	If an Event Outside Our Control takes place that affects the performance of our obligations under this Licence:
+7.3.1.	our obligations under this Licence will be suspended and the time for performance of our obligations will be extended for the duration of the Event Outside Our Control; and
+7.3.2.	we will use our reasonable endeavours to find a solution by which our obligations under this Licence may be performed despite the Event Outside Our Control.
+8.	OTHER IMPORTANT TERMS
+8.1.	We may transfer our rights and obligations under this Licence to another organisation, but this will not affect your rights or our obligations under this Licence. 
+8.2.	We may amend this Licence at any time at our sole discretion. You can view the Licence at any time at http://www.spaceengineersgame.com/eula.html. If you do not agree to the amendments or any of the terms of this Licence, your only remedy shall be to terminate the Licence. We shall not have any obligation to refund the Licence Fee.
+8.3.	You may only transfer your rights or your obligations under this Licence to another person if we agree in writing.
+8.4.	If we fail to insist that you perform any of your obligations under this Licence, or if we do not enforce our rights against you, or if we delay in doing so, that will not mean that we have waived our rights against you and will not mean that you do not have to comply with those obligations. If we do waive a default by you, we will only do so in writing, and that will not mean that we will automatically waive any later default by you. 
+8.5.	Each of the conditions of this Licence operates separately. If any court or competent authority decides that any of them are unlawful or unenforceable, the remaining conditions will remain in full force and effect. 
+8.6.	Please note that this Licence, its subject matter and its formation, are governed by English law. You and we both agree to that the courts of England and Wales will have non-exclusive jurisdiction. However, if you are a resident of Northern Ireland you may also bring proceedings in Northern Ireland, and if you are resident of Scotland, you may also bring proceedings in Scotland.
+Thank you and have fun!
+KEEN SWH LTD.
+www.keenswh.com 
+
+===		
+FXAA - Copyright (c) 2010 NVIDIA Corporation. All rights reserved.
+Lidgren networking library - Copyright (c) 2010 Michael Lidgren
+StringBuilderExt - Copyright (c) Gavin Pugh 2010 - Released under the zlib license
+SharpDX - Copyright (c) 2010-2012 SharpDX - Alexandre Mutel
+Parallel Tasks - Microsoft Public License (Ms-PL), http://paralleltasks.codeplex.com/
+Perlin's Improved Noise - http://mrl.nyu.edu/~perlin/noise/, http://mrl.nyu.edu/~perlin/paper445.pdf, sgg 6/26/04
+Trace Tool - Common Public License Version 1.0 (CPL), http://www.codeproject.com/Articles/5498/TraceTool-12-4-The-Swiss-Army-Knife-of-Trace
+GImpact - Copyright  (c) 2006 , Francisco León.
+

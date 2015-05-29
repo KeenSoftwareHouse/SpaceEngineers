@@ -429,10 +429,21 @@ namespace Sandbox.Definitions
 
                     Components[j] = tmp;
                 }
+
                 MaxIntegrity = integrity;
-                IntegrityPointsPerSec = integrity / ob.BuildTimeSeconds;
+
+                if (ob.MaxIntegrity != 0)
+                    MaxIntegrity = ob.MaxIntegrity;
+
+                IntegrityPointsPerSec = MaxIntegrity / ob.BuildTimeSeconds;
                 DisassembleRatio = ob.DisassembleRatio;
-                Mass = mass;
+                if(!MyPerGameSettings.Destruction)
+                    Mass = mass;
+            }
+            else
+            {
+                if (ob.MaxIntegrity != 0)
+                    MaxIntegrity = ob.MaxIntegrity;
             }
 
             CriticalIntegrityRatio = criticalIntegrity / MaxIntegrity;

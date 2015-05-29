@@ -32,6 +32,7 @@ namespace Sandbox.Game.Entities.Cube
         private float m_damping;
         private float m_strenth;
         private float m_friction;
+        private float m_height;
         private static List<HkRigidBody> m_tmpList = new List<HkRigidBody>();
         private static HashSet<MySlimBlock> m_tmpSet = new HashSet<MySlimBlock>();
         private bool m_wasAccelerating;
@@ -97,6 +98,24 @@ namespace Sandbox.Game.Entities.Cube
             }
         }
 
+        public float Height
+        {
+            get
+            {
+                return m_height;
+            }
+            set
+            {
+                if (m_height != value)
+                {
+                    m_height = value;
+
+                    if (m_constraint != null)
+                        Reattach();
+                }
+            }
+        }
+
         public float SteerAngle { get { return m_steerAngle; } set { m_steerAngle = value; } }
         public float Power { get; set; }
         public bool Steering { get; set; }
@@ -153,6 +172,14 @@ namespace Sandbox.Game.Entities.Cube
             power.EnableActions();
             MyTerminalControlFactory.AddControl(power);
 
+            var height = new MyTerminalControlSlider<MyMotorSuspension>("Height", MySpaceTexts.BlockPropertyTitle_Motor_Height, MySpaceTexts.BlockPropertyDescription_Motor_Height);
+            height.SetLimits((x) => x.BlockDefinition.MinHeight, (x) => x.BlockDefinition.MaxHeight);
+            height.DefaultValue = 0;
+            height.Getter = (x) => x.GetHeightForTerminal();
+            height.Setter = (x, v) => x.SyncObject.ChangeHeight(v);
+            height.Writer = (x, res) => res.AppendFormatedDecimal("", x.Height, 2, "m");
+            height.EnableActionsWithReset();
+            MyTerminalControlFactory.AddControl(height);
         }
 
 
@@ -177,6 +204,7 @@ namespace Sandbox.Game.Entities.Cube
             Propulsion = ob.Propulsion;
             Friction = ob.Friction;
             Power = ob.Power;
+            Height = ob.Height;
 
             NeedsUpdate |= MyEntityUpdateEnum.EACH_FRAME | MyEntityUpdateEnum.BEFORE_NEXT_FRAME;
             AddDebugRenderComponent(new Components.MyDebugRenderComponentMotorSuspension(this));
@@ -200,6 +228,7 @@ namespace Sandbox.Game.Entities.Cube
             ob.Propulsion = Propulsion;
             ob.Friction = Friction;
             ob.Power = Power;
+            ob.Height = Height;
             return ob;
         }
 
@@ -273,19 +302,19 @@ namespace Sandbox.Game.Entities.Cube
                 m_rotorGrid = m_rotorBlock.CubeGrid;
                 var rotorBody = m_rotorGrid.Physics.RigidBody;
                 HkWheelConstraintData data = new HkWheelConstraintData();
-                var posA = DummyPosition;
+                var suspensionAx = PositionComp.LocalMatrix.Forward;
+                var posA = DummyPosition + (suspensionAx * m_height);
                 var posB = rotor.DummyPosLoc;
                 var axisA = PositionComp.LocalMatrix.Up;
                 var axisAPerp = PositionComp.LocalMatrix.Forward;
                 var axisB = rotor.PositionComp.LocalMatrix.Up;
-                var suspensionAx = PositionComp.LocalMatrix.Forward;
                 //empirical values because who knows what havoc sees behind this 
                 //docs say one value should mean same effect for 2 ton or 200 ton vehicle 
                 //but we have virtual mass blocks so real mass doesnt corespond to actual "weight" in game and varying gravity
                 data.SetSuspensionDamping(Damping);
                 data.SetSuspensionStrength(Strength);
-                data.SetSuspensionMaxLimit(BlockDefinition.SuspensionLimit);
-                data.SetSuspensionMinLimit(-BlockDefinition.SuspensionLimit);
+                data.SetSuspensionMaxLimit(BlockDefinition.SuspensionLimit - m_height); // keep the limit at the same level even when changing height
+                data.SetSuspensionMinLimit(-BlockDefinition.SuspensionLimit + m_height);
                 data.SetInBodySpace(ref posB, ref posA, ref axisB, ref axisA, ref suspensionAx, ref suspensionAx);
                 m_constraint = new HkConstraint(rotorBody, CubeGrid.Physics.RigidBody, data);
 
@@ -452,11 +481,17 @@ namespace Sandbox.Game.Entities.Cube
 
         public float GetFrictionForTerminal()
         {
-            return Friction * 100; ;
-         }
+            return Friction * 100;
+        }
+
         public float GetPowerForTerminal()
         {
             return Power * 100;
+        }
+
+        public float GetHeightForTerminal()
+        {
+            return Height;
         }
 
         bool IMyMotorSuspension.Steering { get { return Steering; } }
@@ -465,5 +500,6 @@ namespace Sandbox.Game.Entities.Cube
         float IMyMotorSuspension.Strength { get { return GetStrengthForTerminal(); } }
         float IMyMotorSuspension.Friction { get { return GetFrictionForTerminal(); } }
         float IMyMotorSuspension.Power { get { return GetPowerForTerminal();} }
+        float IMyMotorSuspension.Height { get { return GetHeightForTerminal(); } }
     }
 }

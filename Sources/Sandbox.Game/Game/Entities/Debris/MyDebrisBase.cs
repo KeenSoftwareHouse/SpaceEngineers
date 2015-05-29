@@ -49,30 +49,6 @@ namespace Sandbox.Game.Entities.Debris
                 m_debrisLogic = arg2 as MyDebrisBaseLogic;
         }
 
-        public override bool IsSelectable()
-        {
-            return false;
-        }
-
-        public override bool IsSelectableAsChild()
-        {
-            return false;
-        }
-        /// <summary>
-        /// Updates resource.
-        /// </summary>
-        //public override void UpdateBeforeSimulation()
-        //{
-        //    base.UpdateBeforeSimulation();
-
-        //    if (m_isStarted)
-        //    {
-        //        int age = MySandboxGame.TotalGamePlayTimeInMilliseconds - m_createdTime;
-        //        if (age > m_lifespanInMiliseconds)
-        //            MarkForClose();
-        //    }
-        //}
-
         public class MyDebrisPhysics : MyPhysicsBody
         {
             private ModAPI.IMyEntity Entity1;

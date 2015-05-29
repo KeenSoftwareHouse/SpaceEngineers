@@ -74,6 +74,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Configuration", "Configurat
 		global.props = global.props
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VRage.Game", "Sources\VRage.Game\VRage.Game.csproj", "{4539B5F0-3316-40E6-B032-9FBCAFAAC5BE}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x86 = Debug|x86
@@ -171,6 +173,12 @@ Global
 		{0E3C8169-55FC-4AFA-88AB-F0C0488AFEBA}.Release Official|x86.Build.0 = Release Official|x86
 		{0E3C8169-55FC-4AFA-88AB-F0C0488AFEBA}.Release|x86.ActiveCfg = Release|x86
 		{0E3C8169-55FC-4AFA-88AB-F0C0488AFEBA}.Release|x86.Build.0 = Release|x86
+		{4539B5F0-3316-40E6-B032-9FBCAFAAC5BE}.Debug|x86.ActiveCfg = Debug|x86
+		{4539B5F0-3316-40E6-B032-9FBCAFAAC5BE}.Debug|x86.Build.0 = Debug|x86
+		{4539B5F0-3316-40E6-B032-9FBCAFAAC5BE}.Release Official|x86.ActiveCfg = Release|x86
+		{4539B5F0-3316-40E6-B032-9FBCAFAAC5BE}.Release Official|x86.Build.0 = Release|x86
+		{4539B5F0-3316-40E6-B032-9FBCAFAAC5BE}.Release|x86.ActiveCfg = Release|x86
+		{4539B5F0-3316-40E6-B032-9FBCAFAAC5BE}.Release|x86.Build.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -188,6 +196,7 @@ Global
 		{F77D0A49-F0A1-4E8A-80C8-CBF1842BF2D4} = {776E066A-DE02-4627-B6BE-25F0287682E2}
 		{76080059-9756-4065-BCE8-373E7150A8F7} = {776E066A-DE02-4627-B6BE-25F0287682E2}
 		{BA24CF8D-109D-4728-BE1D-AD13AF824093} = {776E066A-DE02-4627-B6BE-25F0287682E2}
+		{4539B5F0-3316-40E6-B032-9FBCAFAAC5BE} = {776E066A-DE02-4627-B6BE-25F0287682E2}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		VisualSVNWorkingCopyRoot = ..

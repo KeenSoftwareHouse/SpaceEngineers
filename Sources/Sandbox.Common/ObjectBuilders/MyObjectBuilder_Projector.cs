@@ -19,6 +19,8 @@ namespace Sandbox.Common.ObjectBuilders
         public Vector3I ProjectionRotation;
         [ProtoMember]
         public bool KeepProjection = false;
+        [ProtoMember]
+        public bool ShowOnlyBuildable = false;
 
         public override void Remap(IMyRemapHelper remapHelper)
         {

@@ -311,8 +311,8 @@ namespace Sandbox.Game.Gui
                                 if (MyFakes.ENABLE_BATTLE_SYSTEM && isBattle)
                                 {
                                     // Cannot join already started battles
-                                    bool isBattleStarted = MyMultiplayerLobby.GetLobbyBattleStarted(lobby);
-                                    if (isBattleStarted)
+                                    bool battleCanBeJoined = MyMultiplayerLobby.GetLobbyBattleCanBeJoined(lobby);
+                                    if (!battleCanBeJoined)
                                         continue;
 
                                     m_gameTypeText.AppendStringBuilder(MyTexts.Get(MySpaceTexts.WorldSettings_Battle));

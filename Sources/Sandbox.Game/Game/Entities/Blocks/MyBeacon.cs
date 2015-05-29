@@ -28,7 +28,7 @@ namespace Sandbox.Game.Entities.Cube
     class MyBeacon : MyFunctionalBlock, IMyPowerConsumer, IMyComponentOwner<MyDataBroadcaster>, IMyBeacon
     {
         private static readonly Color COLOR_ON = new Color(255, 255, 128);
-        private static readonly Color COLOR_OFF = COLOR_ON ; //Color.Red;
+        private static readonly Color COLOR_OFF  = new Color(30, 30, 30);
         private static readonly float POINT_LIGHT_RANGE_SMALL = 2.0f;
         private static readonly float POINT_LIGHT_RANGE_LARGE = 7.5f;
         private static readonly float POINT_LIGHT_INTENSITY_SMALL = 4;

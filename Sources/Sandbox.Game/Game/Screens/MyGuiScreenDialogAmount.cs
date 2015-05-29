@@ -9,7 +9,6 @@ using VRage.FileSystem;
 using VRage.Input;
 using VRage.Library.Utils;
 using VRage.Utils;
-using VRage.Utils;
 using VRageMath;
 
 namespace Sandbox.Game.Gui
@@ -48,7 +47,7 @@ namespace Sandbox.Game.Gui
             m_textBuffer = new StringBuilder();
             m_amountMin = min;
             m_amountMax = max;
-            m_amount = defaultAmount.HasValue? defaultAmount.Value : max;
+            m_amount = defaultAmount.HasValue ? defaultAmount.Value : max;
             m_parseAsInteger = parseAsInteger;
             m_caption = caption ?? MySpaceTexts.DialogAmount_AddAmountCaption;
             RecreateControls(true);
@@ -73,20 +72,20 @@ namespace Sandbox.Game.Gui
             m_amountTextbox = (MyGuiControlTextbox)Controls.GetControlByName("AmountTextbox");
             m_increaseButton = (MyGuiControlButton)Controls.GetControlByName("IncreaseButton");
             m_decreaseButton = (MyGuiControlButton)Controls.GetControlByName("DecreaseButton");
-            m_confirmButton  = (MyGuiControlButton)Controls.GetControlByName("ConfirmButton");
-            m_cancelButton   = (MyGuiControlButton)Controls.GetControlByName("CancelButton");
-            m_errorLabel     = (MyGuiControlLabel)Controls.GetControlByName("ErrorLabel");
+            m_confirmButton = (MyGuiControlButton)Controls.GetControlByName("ConfirmButton");
+            m_cancelButton = (MyGuiControlButton)Controls.GetControlByName("CancelButton");
+            m_errorLabel = (MyGuiControlLabel)Controls.GetControlByName("ErrorLabel");
             m_captionLabel = (MyGuiControlLabel)Controls.GetControlByName("CaptionLabel");
             m_captionLabel.Text = null;
             m_captionLabel.TextEnum = m_caption;
 
             m_errorLabel.Visible = false;
 
-            m_amountTextbox.TextChanged    += amountTextbox_TextChanged;
+            m_amountTextbox.TextChanged += amountTextbox_TextChanged;
             m_increaseButton.ButtonClicked += increaseButton_OnButtonClick;
             m_decreaseButton.ButtonClicked += decreaseButton_OnButtonClick;
-            m_confirmButton.ButtonClicked  += confirmButton_OnButtonClick;
-            m_cancelButton.ButtonClicked   += cancelButton_OnButtonClick;
+            m_confirmButton.ButtonClicked += confirmButton_OnButtonClick;
+            m_cancelButton.ButtonClicked += cancelButton_OnButtonClick;
 
             RefreshAmountTextbox();
         }
@@ -116,7 +115,7 @@ namespace Sandbox.Game.Gui
         private bool TryParseAndStoreAmount(string text)
         {
             float newVal;
-            if (float.TryParse(text, NumberStyles.AllowDecimalPoint | NumberStyles.AllowLeadingSign | NumberStyles.AllowThousands, CultureInfo.InvariantCulture, out newVal))
+            if (MyUtils.TryParseWithSuffix(text, NumberStyles.AllowDecimalPoint | NumberStyles.AllowLeadingSign | NumberStyles.AllowThousands, CultureInfo.InvariantCulture, out newVal))
             {
                 m_amount = m_parseAsInteger ? (float)Math.Floor(newVal) : newVal;
                 return true;
@@ -141,12 +140,9 @@ namespace Sandbox.Game.Gui
                 return;
             }
 
-            if (m_amount < m_amountMax)
-            {
-                ++m_amount;
-                m_amount = MathHelper.Clamp(m_amount, m_amountMin, m_amountMax);
-                RefreshAmountTextbox();
-            }
+            ++m_amount;
+            m_amount = MathHelper.Clamp(m_amount, m_amountMin, m_amountMax);
+            RefreshAmountTextbox();
         }
 
         void decreaseButton_OnButtonClick(MyGuiControlButton sender)
@@ -159,12 +155,9 @@ namespace Sandbox.Game.Gui
                 return;
             }
 
-            if (m_amount > m_amountMin)
-            {
-                --m_amount;
-                m_amount = MathHelper.Clamp(m_amount, m_amountMin, m_amountMax);
-                RefreshAmountTextbox();
-            }
+            --m_amount;
+            m_amount = MathHelper.Clamp(m_amount, m_amountMin, m_amountMax);
+            RefreshAmountTextbox();
         }
 
         void confirmButton_OnButtonClick(MyGuiControlButton sender)

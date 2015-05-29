@@ -179,8 +179,15 @@ namespace VRageRender
         {
             get
             {
-                var adapters = MyRender11.GetAdaptersList();
-                return adapters.Length > 0;
+                try
+                {
+                    var adapters = MyRender11.GetAdaptersList();
+                    return adapters.Length > 0;
+                }
+                catch
+                {
+                    return false;
+                }
             }
         }
 

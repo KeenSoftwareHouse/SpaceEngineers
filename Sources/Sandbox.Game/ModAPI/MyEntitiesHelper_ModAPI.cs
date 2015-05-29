@@ -145,6 +145,7 @@ namespace Sandbox.ModAPI
             var result = new List<IMyEntity>(lst.Count);
             foreach (var entity in lst)
                 result.Add(entity);
+			lst.Clear();
             return result;
         }
 
@@ -279,21 +280,6 @@ namespace Sandbox.ModAPI
         IMyEntity IMyEntities.GetEntityByName(string name)
         {
             return MyEntities.GetEntityByName(name);
-        }
-
-        void IMyEntities.SetTypeSelectable(Type type, bool selectable)
-        {
-            MyEntities.SetTypeSelectable(type, selectable);
-        }
-
-        bool IMyEntities.IsTypeSelectable(Type type)
-        {
-            return MyEntities.IsTypeSelectable(type);
-        }
-
-        bool IMyEntities.IsSelectable(IMyEntity entity)
-        {
-            return (this as IMyEntities).IsTypeSelectable(entity.GetType());
         }
 
         void IMyEntities.SetTypeHidden(Type type, bool hidden)

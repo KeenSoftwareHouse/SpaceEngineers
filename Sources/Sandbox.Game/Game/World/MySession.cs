@@ -68,7 +68,7 @@ namespace Sandbox.Game.World
     public sealed partial class MySession : IMySession
     {
         [MessageId(2494, P2PMessageEnum.Reliable)]
-        struct ServerSavingMsg 
+        struct ServerSavingMsg
         {
             public BoolBlit SaveStarted;
         }
@@ -90,7 +90,7 @@ namespace Sandbox.Game.World
         public static MySession Static { get; set; }
 
         private List<MySessionComponentBase> m_sessionComponents = new List<MySessionComponentBase>();
-        private Dictionary<int, List<MySessionComponentBase>> m_sessionComponentsForUpdate = new Dictionary<int, List<MySessionComponentBase>>();   
+        private Dictionary<int, List<MySessionComponentBase>> m_sessionComponentsForUpdate = new Dictionary<int, List<MySessionComponentBase>>();
 
         //This is for backwards compatibility (ModAPI)
         public DateTime GameDateTime
@@ -111,17 +111,17 @@ namespace Sandbox.Game.World
         //This is datetime inside game world, it flows differently to realtime
         public DateTime InGameTime { get; set; }
 
-        public string   Name { get; set; }
-        public string   Description { get; set; }
-        public string   Password { get; set; }
-        public ulong?   WorkshopId { get; private set; }
+        public string Name { get; set; }
+        public string Description { get; set; }
+        public string Password { get; set; }
+        public ulong? WorkshopId { get; private set; }
         public string CurrentPath { get; private set; }
         public string Briefing { get; set; }
 
         public MyObjectBuilder_SessionSettings Settings;
-        public uint AutoSaveInMinutes 
-        { 
-            get 
+        public uint AutoSaveInMinutes
+        {
+            get
             {
                 if (MyFakes.ENABLE_AUTOSAVE)
                 {
@@ -129,7 +129,7 @@ namespace Sandbox.Game.World
                         return Settings.AutoSaveInMinutes;
                 }
                 return 0;
-            } 
+            }
         }
         public bool CreativeMode { get { return Settings.GameMode == MyGameModeEnum.Creative; } }
         public bool SurvivalMode { get { return Settings.GameMode == MyGameModeEnum.Survival; } }
@@ -305,11 +305,23 @@ namespace Sandbox.Game.World
         int m_framesToReady;
         public static bool Ready { get; private set; }
 
+        /// <summary>
+        /// Called after session is created, but before it's loaded.
+        /// MySession.Statis is valid when raising OnLoading.
+        /// </summary>
+        public static event Action OnLoading;
+
         public static event Action OnReady;
 
         public MyEnvironmentHostilityEnum? PreviousEnvironmentHostility { get; set; }
 
         #endregion
+
+        private static void RaiseOnLoading()
+        {
+            var handler = OnLoading;
+            if (handler != null) handler();
+        }
 
         private static void OnServerSaving(ref ServerSavingMsg msg, MyNetworkClient sender)
         {
@@ -338,14 +350,14 @@ namespace Sandbox.Game.World
                                 styleEnum: MyMessageBoxStyleEnum.Info,
                                 buttonType: MyMessageBoxButtonsType.NONE_TIMEOUT,
                                 messageText: new StringBuilder(MyTexts.GetString(MySpaceTexts.SavingPleaseWait)),
-                                callback: 
+                                callback:
                                 delegate(MyGuiScreenMessageBox.ResultEnum callbackReturn)
                                 {
                                     ServerSavingMsg msg = new ServerSavingMsg();
                                     msg.SaveStarted = false;
                                     OnServerSaving(ref msg, sender);
                                 },
-                                canHideOthers:false);
+                                canHideOthers: false);
             m_currentServerSaveScreen.SkipTransition = true;
             m_currentServerSaveScreen.InstantClose = false;
             MyGuiSandbox.AddScreen(m_currentServerSaveScreen);
@@ -356,8 +368,8 @@ namespace Sandbox.Game.World
         private MySession(MySyncLayer syncLayer, bool registerComponents = true)
         {
             System.Diagnostics.Debug.Assert(syncLayer != null);
-            
-            if(syncLayer == null)
+
+            if (syncLayer == null)
                 MyLog.Default.WriteLine("MySession.MySession() - sync layer is null");
 
             SyncLayer = syncLayer;
@@ -489,7 +501,7 @@ namespace Sandbox.Game.World
                 MyMultiplayer.Static.Dispose();
 
                 SyncLayer = null;
-            }            
+            }
         }
 
         #region Components
@@ -574,6 +586,8 @@ namespace Sandbox.Game.World
 
         public void LoadDataComponents(bool registerEvents = true)
         {
+            RaiseOnLoading();
+
             if (registerEvents)
             {
                 if (SyncLayer.AutoRegisterGameEvents)
@@ -683,10 +697,10 @@ namespace Sandbox.Game.World
         {
             for (int i = m_loadOrder.Count - 1; i >= 0; i--)
                 m_loadOrder[i].UnloadDataConditional();
-                //foreach (var component in m_sessionComponents)
-                //{
-                //    component.UnloadDataConditional();
-                //}
+            //foreach (var component in m_sessionComponents)
+            //{
+            //    component.UnloadDataConditional();
+            //}
 
             MySessionComponentMapping.Clear();
 
@@ -695,7 +709,7 @@ namespace Sandbox.Game.World
                 Sync.Players.UnregisterEvents();
                 Sync.Clients.Clear();
                 MyNetworkReader.Clear();
-           }
+            }
 
             Ready = false;
         }
@@ -803,7 +817,7 @@ namespace Sandbox.Game.World
         public void Update(MyTimeSpan updateTime)
         {
             CheckUpdate();
-            
+
             ProfilerShort.Begin("Parallel.RunCallbacks");
             ParallelTasks.Parallel.RunCallbacks();
             ProfilerShort.End();
@@ -1097,7 +1111,7 @@ namespace Sandbox.Game.World
         public static void Load(string sessionPath, MyObjectBuilder_Checkpoint checkpoint, ulong checkpointSizeInBytes)
         {
             ProfilerShort.Begin("MySession.Load");
-            
+
             MyLog.Default.WriteLineAndConsole("Loading session: " + sessionPath);
 
             //MyAudio.Static.Mute = true;
@@ -1287,7 +1301,7 @@ namespace Sandbox.Game.World
 
                         c.Close();
                     }
-                     
+
                 }
 
                 foreach (var g in MyEntities.GetEntities().OfType<MyCubeGrid>())
@@ -1460,7 +1474,7 @@ namespace Sandbox.Game.World
             }
 
             Gpss.LoadGpss(checkpoint);
-            
+
             LoadChatHistory(checkpoint);
 
             if (MyFakes.ENABLE_MISSION_TRIGGERS)
@@ -1791,7 +1805,7 @@ namespace Sandbox.Game.World
                 case MyCameraControllerEnum.Entity:
                     System.Diagnostics.Debug.Assert(cameraEntity != null);
                     MySandboxGame.Log.WriteLine("CameraAttachedTo: Entity");
-                    MySession.Static.CameraController = (IMyCameraController)cameraEntity;                  
+                    MySession.Static.CameraController = (IMyCameraController)cameraEntity;
                     break;
                 case MyCameraControllerEnum.Spectator:
                     MySandboxGame.Log.WriteLine("CameraAttachedTo: Spectator");
@@ -1823,7 +1837,7 @@ namespace Sandbox.Game.World
                     if (cameraEntity != null)
                     {
                         MySession.Static.CameraController = (IMyCameraController)cameraEntity;
-                        MySession.Static.CameraController.IsInFirstPersonView = false;            
+                        MySession.Static.CameraController.IsInFirstPersonView = false;
                     }
                     else
                     {
@@ -1916,7 +1930,7 @@ namespace Sandbox.Game.World
             if (success)
                 WorldSizeInBytes = snapshot.SavedSizeInBytes;
 
-           
+
             return success;
         }
 
@@ -2064,7 +2078,7 @@ namespace Sandbox.Game.World
             checkpoint.WorldBoundaries = WorldBoundaries;
             checkpoint.PreviousEnvironmentHostility = PreviousEnvironmentHostility;
 
-          //  checkpoint.PlayerToolbars = Toolbars.GetSerDictionary();
+            //  checkpoint.PlayerToolbars = Toolbars.GetSerDictionary();
 
             Sync.Players.SavePlayers(checkpoint);
             Toolbars.SaveToolbars(checkpoint);
