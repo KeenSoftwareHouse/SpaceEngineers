@@ -82,6 +82,11 @@ namespace Sandbox.Game.Entities.Cube
         float m_needRotation=0;
         float m_needElevation = 0;
 
+        float m_minElevationRadians = 0;
+        float m_maxElevationRadians = (float)(2.0 * Math.PI);
+        float m_minAzimuthRadians = 0;
+        float m_maxAzimuthRadians = (float)(2.0 * Math.PI);
+
         Vector3D m_targetCoords;//where is or where we think is receiver
 
         float m_maxRange;
@@ -427,6 +432,27 @@ namespace Sandbox.Game.Entities.Cube
             m_maxRange = BlockDefinition.MaxRange;
             m_needLineOfSight = BlockDefinition.RequireLineOfSight;
 
+            if (BlockDefinition != null)
+            {
+                m_minElevationRadians = MathHelper.ToRadians(NormalizeAngle(BlockDefinition.MinElevationDegrees));
+                m_maxElevationRadians = MathHelper.ToRadians(NormalizeAngle(BlockDefinition.MaxElevationDegrees));
+
+                if (m_minElevationRadians > m_maxElevationRadians)
+                {
+                    m_minElevationRadians -= MathHelper.TwoPi;
+                }
+
+                m_minAzimuthRadians = MathHelper.ToRadians(NormalizeAngle(BlockDefinition.MinAzimuthDegrees));
+                m_maxAzimuthRadians = MathHelper.ToRadians(NormalizeAngle(BlockDefinition.MaxAzimuthDegrees));
+
+                if (m_minAzimuthRadians > m_maxAzimuthRadians)
+                {
+                    m_minAzimuthRadians -= MathHelper.TwoPi;
+                }
+
+                ClampRotationAndElevation();
+            }
+
             InitializationMatrix = (MatrixD)PositionComp.LocalMatrix;
 
             PowerReceiver = new MyPowerReceiver(
@@ -452,6 +478,50 @@ namespace Sandbox.Game.Entities.Cube
             UpdateMyStateText();
 
             NeedsUpdate = Common.MyEntityUpdateEnum.EACH_FRAME | Common.MyEntityUpdateEnum.EACH_10TH_FRAME | Common.MyEntityUpdateEnum.EACH_100TH_FRAME;
+        }
+
+        protected float NormalizeAngle(int angle)
+        {
+            int retVal = angle % 360;
+            if (retVal == 0 && angle != 0)
+            {
+                return 360;
+            }
+            return retVal;
+        }
+
+        protected void ClampRotationAndElevation()
+        {
+            m_rotation = ClampRotation(m_rotation);
+            m_elevation = ClampElevation(m_elevation);
+        }
+
+        private float ClampRotation(float value)
+        {
+            if (IsRotationLimited())
+            {
+                value = Math.Min(m_maxAzimuthRadians, Math.Max(m_minAzimuthRadians, value));
+            }
+            return value;
+        }
+
+        private bool IsRotationLimited()
+        {
+            return Math.Abs((m_maxAzimuthRadians - m_minAzimuthRadians) - MathHelper.TwoPi) > 0.01;
+        }
+
+        private float ClampElevation(float value)
+        {
+            if (IsElevationLimited())
+            {
+                value = Math.Min(m_maxElevationRadians, Math.Max(m_minElevationRadians, value));
+            }
+            return value;
+        }
+
+        private bool IsElevationLimited()
+        {
+            return Math.Abs((m_maxElevationRadians - m_minElevationRadians) - MathHelper.TwoPi) > 0.01;
         }
 
         public void OnReadyAction()
@@ -1183,6 +1253,7 @@ namespace Sandbox.Game.Entities.Cube
         {
             m_rotation = 0;
             m_elevation = 0;
+            ClampRotationAndElevation();
             m_rotationInterval_ms = MySandboxGame.TotalGamePlayTimeInMilliseconds;
         }
         public override void OnModelChange()
@@ -1210,6 +1281,8 @@ namespace Sandbox.Game.Entities.Cube
         }
         protected void RotateModels()
         {
+            ClampRotationAndElevation();
+
             VRageRender.MyRenderProxy.GetRenderProfiler().StartProfilingBlock("MyLargeShipGunBase::RotateModels");
 
             Matrix m = (Matrix)InitializationMatrixWorld;
