@@ -625,30 +625,36 @@ namespace Sandbox.Game.GameSystems
 
         private void AdjustThrustForRotation(HashSet<MyThrust> thrusters, Vector3 primaryAxisDirection, ref Vector3 thrustTotalForce, float thrustMaxForce, Vector3 localAngularVelocity, Vector3 desiredAngularVelocity)
         {
-            const float DAMPING_CONSTANT = 0.1f;
-            Vector3 localLinearVelocity, desiredLinearVelocity, desiredAcceleration, currentThrust, extraThrust, newThrust;
+            const float DAMPING_CONSTANT             = 0.1f;
+            const float MAX_THRUST_TO_ALLOW_SKIPPING = 0.1f;
+            Vector3 desiredAcceleration, currentThrust, newThrust, rotForceDir, maxThrust;
             float   thrustMagnitude;
 
             foreach (var curThrust in thrusters)
             {
-                if (IsUsed(curThrust))      // Skip thrusters on override
-                {
-                    thrustMagnitude       = curThrust.ThrustForce.Length(); 
-                    currentThrust         = curThrust.ThrustForce * curThrust.CurrentStrength;
-                    localLinearVelocity   = Vector3.Cross(  localAngularVelocity, curThrust.COTOffsetVector);
-                    desiredLinearVelocity = Vector3.Cross(desiredAngularVelocity, curThrust.COTOffsetVector);
-                    desiredAcceleration   = (desiredLinearVelocity - localLinearVelocity) / (DAMPING_CONSTANT * thrustMaxForce / thrustMagnitude);
-                    extraThrust           = m_grid.Physics.Mass * desiredAcceleration * primaryAxisDirection;
-                    newThrust             = currentThrust + extraThrust;
-                    if (Vector3.Dot(newThrust, curThrust.ThrustForce) <= 0.0f)  // desired force is opposite to thruster's force?
-                        newThrust = Vector3.Zero;
-                    else if (newThrust.LengthSquared() > thrustMagnitude * thrustMagnitude)
-                        newThrust = curThrust.ThrustForce;
+                if (!IsUsed(curThrust))      // Skip thrusters on override
+                    continue;
+                
+                // Skip thrusters with relative output less than MAX_THRUST_TO_ALLOW_SKIPPING, 
+                // whose force direction is opposite to one required for turning.
+                // Remember that ThrustForwardVector is opposite to actual force direction.
+                rotForceDir =  Vector3.Cross((desiredAngularVelocity - localAngularVelocity), curThrust.COTOffsetVector) * primaryAxisDirection;
+                if (curThrust.CurrentStrength <= MAX_THRUST_TO_ALLOW_SKIPPING && Vector3.Dot(rotForceDir, curThrust.ThrustForwardVector) >= 0.0f)
+                    continue;
 
-                    // To supress an annoying flicker, change thruster output gradually.
-                    curThrust.CurrentStrength = MathHelper.Clamp(newThrust.Length() / thrustMagnitude, curThrust.PrevStrength - MAX_THRUST_CHANGE, curThrust.PrevStrength + MAX_THRUST_CHANGE);
-                    thrustTotalForce += curThrust.ThrustForce * curThrust.CurrentStrength - currentThrust;
-                }
+                maxThrust           = curThrust.ThrustForce;
+                thrustMagnitude     = maxThrust.Length(); 
+                currentThrust       = maxThrust * curThrust.CurrentStrength;
+                desiredAcceleration = rotForceDir / (DAMPING_CONSTANT * thrustMaxForce / thrustMagnitude);
+                newThrust           = currentThrust + m_grid.Physics.Mass * desiredAcceleration;
+                if (Vector3.Dot(newThrust, curThrust.ThrustForwardVector) >= 0.0f)  // desired force is opposite to thruster's force?
+                    newThrust = Vector3.Zero;
+                else if (newThrust.LengthSquared() > thrustMagnitude * thrustMagnitude)
+                    newThrust = maxThrust;
+
+                // To supress an annoying flicker, change thruster output gradually.
+                curThrust.CurrentStrength = MathHelper.Clamp(newThrust.Length() / thrustMagnitude, curThrust.PrevStrength - MAX_THRUST_CHANGE, curThrust.PrevStrength + MAX_THRUST_CHANGE);
+                thrustTotalForce += maxThrust * curThrust.CurrentStrength - currentThrust;
             }
         }
 
@@ -656,18 +662,21 @@ namespace Sandbox.Game.GameSystems
         {
             if (MySession.Static.ThrusterDamage)
             {
+                Vector3 maxThrust;
+                
                 foreach (var thrust in thrusters)
                 {
+                    maxThrust = thrust.ThrustForce;
                     if (IsOverridden(thrust))
                     {
-                        thrust.CurrentStrength = thrust.ThrustOverride * suppliedPowerRatio / thrust.ThrustForce.Length();
-                        m_currentTorque       += Vector3.Cross(thrust.COMOffsetVector, thrust.ThrustForce * thrust.CurrentStrength);
+                        thrust.CurrentStrength = thrust.ThrustOverride * suppliedPowerRatio / maxThrust.Length();
+                        m_currentTorque       += Vector3.Cross(thrust.COMOffsetVector, maxThrust * thrust.CurrentStrength);
                     }
                     else if (IsUsed(thrust))
                     {
                         thrust.CurrentStrength *= suppliedPowerRatio;   // thrust.CurrentStrength is initialized in InitializeThrottleAndCOMOffset()
                                                                         // and optionally adjusted in AdjustThrustForRotation().
-                        m_currentTorque += Vector3.Cross(thrust.COMOffsetVector, thrust.ThrustForce * thrust.CurrentStrength);
+                        m_currentTorque += Vector3.Cross(thrust.COMOffsetVector, maxThrust * thrust.CurrentStrength);
                     }
                     else
                         thrust.CurrentStrength = 0;
