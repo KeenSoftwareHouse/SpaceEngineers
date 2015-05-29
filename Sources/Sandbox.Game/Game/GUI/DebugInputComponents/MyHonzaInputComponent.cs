@@ -157,8 +157,18 @@ namespace Sandbox.Game.Gui
                 MyPhysics.CastRay(MySector.MainCamera.Position, MySector.MainCamera.Position + MySector.MainCamera.ForwardVector * 100, lst);
                 foreach (var hit in lst)
                 {
-                    VRageRender.MyRenderProxy.DebugDrawText2D(new Vector2(600, 10), hit.HkHitInfo.Body.GetEntity().ToString(), Color.White, 1);
-                    break;
+                    VRageRender.MyRenderProxy.DebugDrawText2D(new Vector2(600, 10), hit.HkHitInfo.Body.GetEntity().ToString() + " " 
+                        + MyDestructionHelper.MassFromHavok(hit.HkHitInfo.Body.Mass), Color.White, 0.8f);
+                    VRageRender.MyRenderProxy.DebugDrawText2D(new Vector2(600, 30), "Layer: " + hit.HkHitInfo.Body.Layer, Color.White, 0.8f);
+
+                    if (hit.HkHitInfo.Body.GetEntity() is MyCubeGrid)
+                    {
+                        var grid= hit.HkHitInfo.Body.GetEntity() as MyCubeGrid;
+                        var det = grid.GetBlocks().FirstElement().FatBlock.DetectorPhysics;
+                        //var layer = det.RigidBody.Layer;
+                    }
+
+                    break; 
                 }
             }
 
@@ -193,36 +203,37 @@ namespace Sandbox.Game.Gui
             if (m_tmpHitList.Count == 0)
                 return;
 
-            MyEntity closestGrid = null;
+            MyEntity closestEntity = null;
             MyPhysics.HitInfo closestHit = default(MyPhysics.HitInfo);
 
             foreach (var hit in m_tmpHitList)
             {
                 if (hit.HkHitInfo.Body != null)
                 {
-                    closestGrid = hit.HkHitInfo.Body.GetEntity() as MyEntity;
+                    closestEntity = hit.HkHitInfo.Body.GetEntity() as MyEntity;
                     closestHit = hit;
                     break;
                 }
             }
-            if (closestGrid == null)
+            if (closestEntity == null)
                 return;
             HkdFractureImpactDetails details = HkdFractureImpactDetails.Create();
-            details.SetBreakingBody(closestGrid.Physics.RigidBody);
-            details.SetContactPoint(closestGrid.Physics.WorldToCluster(closestHit.Position));
+            details.SetBreakingBody(closestEntity.Physics.RigidBody);
+            details.SetContactPoint(closestEntity.Physics.WorldToCluster(closestHit.Position));
             details.SetDestructionRadius(RADIUS);
             details.SetBreakingImpulse(Sandbox.MyDestructionConstants.STRENGTH * 10);
             if(HammerForce)
                 details.SetParticleVelocity(-line.Direction * 20);
-            details.SetParticlePosition(closestGrid.Physics.WorldToCluster(closestHit.Position));
+            details.SetParticlePosition(closestEntity.Physics.WorldToCluster(closestHit.Position));
             details.SetParticleMass(1000000);
             //details.ZeroColidingParticleVelocity();
             details.Flag = details.Flag | HkdFractureImpactDetails.Flags.FLAG_DONT_RECURSE;
-            if (closestGrid.Physics.HavokWorld.DestructionWorld != null)
+            if (closestEntity.Physics.HavokWorld.DestructionWorld != null)
             {
                 MyPhysics.FractureImpactDetails destruction = new MyPhysics.FractureImpactDetails();
                 destruction.Details = details;
-                destruction.World = closestGrid.Physics.HavokWorld;
+                destruction.World = closestEntity.Physics.HavokWorld;
+                destruction.Entity = closestEntity;
                 MyPhysics.EnqueueDestruction(destruction);
                 //closestGrid.Physics.HavokWorld.DestructionWorld.TriggerDestruction(ref details);
             }

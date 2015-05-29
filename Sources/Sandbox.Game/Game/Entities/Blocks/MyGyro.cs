@@ -28,7 +28,7 @@ namespace Sandbox.Game.Entities
     class MyGyro : MyFunctionalBlock, IMyGyro
     {
         private MyGyroDefinition m_gyroDefinition;
-        private bool m_oldEmissiveState = false;
+        private int m_oldEmissiveState = -1;
         private float m_gyroPower = 1f;
 
         private new MySyncGyro SyncObject;
@@ -176,6 +176,12 @@ namespace Sandbox.Game.Entities
             base.UpdateVisual();
             UpdateEmissivity();
         }
+        public override void OnModelChange()
+        {
+            m_oldEmissiveState = -1;
+            base.OnModelChange();
+        }
+
 
         private void UpdateText()
         {
@@ -192,18 +198,29 @@ namespace Sandbox.Game.Entities
         {
             if (Enabled && IsPowered)
             {
-                if (!m_oldEmissiveState)
+                if (GyroOverride)
                 {
-                    MyCubeBlock.UpdateEmissiveParts(Render.RenderObjectIDs[0], 1.0f, Color.Green, Color.White);
-                    m_oldEmissiveState = true;
+                    if (m_oldEmissiveState != 3)
+                    {
+                        MyCubeBlock.UpdateEmissiveParts(Render.RenderObjectIDs[0], 1.0f, Color.Yellow, Color.White);
+                        m_oldEmissiveState = 3;
+                    }
+                }
+                else
+                {
+                    if (m_oldEmissiveState!=1)
+                    {
+                        MyCubeBlock.UpdateEmissiveParts(Render.RenderObjectIDs[0], 1.0f, Color.Green, Color.White);
+                        m_oldEmissiveState = 1;
+                    }
                 }
             }
             else
             {
-                if (m_oldEmissiveState)
+                if (m_oldEmissiveState!=2)
                 {
                     MyCubeBlock.UpdateEmissiveParts(Render.RenderObjectIDs[0], 0.0f, Color.Red, Color.White); ;
-                    m_oldEmissiveState = false;
+                    m_oldEmissiveState = 2;
                 }
             }
         }

@@ -495,6 +495,7 @@ namespace VRageRender
         bool m_lodBorder;
 
         bool m_isRenderedStandalone;
+        internal MyRenderableProxyFlags m_additionalFlags;
 
         internal Dictionary<MyEntityMaterialKey, MyModelProperties> ModelProperties;
 
@@ -550,6 +551,7 @@ namespace VRageRender
             m_lod = 0;
 
             m_voxelLod = -1;
+            m_additionalFlags = 0;
 
             ModelProperties = new Dictionary<MyEntityMaterialKey, MyModelProperties>();
         }
@@ -973,7 +975,7 @@ namespace VRageRender
                 lod.RenderableProxies[p].objectBuffer = MyCommon.GetObjectCB(objectConstantsSize);
                 lod.RenderableProxies[p].instanceCount = m_instanceCount;
                 lod.RenderableProxies[p].startInstance = m_startInstance;
-                lod.RenderableProxies[p].flags = MapTechniqueToRenderableFlags(technique);
+                lod.RenderableProxies[p].flags = MapTechniqueToRenderableFlags(technique) | m_additionalFlags;
                 lod.RenderableProxies[p].type = MapTechniqueToMaterialType(technique);
                 lod.RenderableProxies[p].Parent = this;
                 lod.RenderableProxies[p].Lod = lodNum;
@@ -1087,7 +1089,7 @@ namespace VRageRender
                 lod.RenderableProxies[p].objectBuffer = MyCommon.GetObjectCB(objectConstantsSize);
                 lod.RenderableProxies[p].instanceCount = m_instanceCount;
                 lod.RenderableProxies[p].startInstance = m_startInstance;
-                lod.RenderableProxies[p].flags = MapTechniqueToRenderableFlags(technique);
+                lod.RenderableProxies[p].flags = MapTechniqueToRenderableFlags(technique) | m_additionalFlags;
                 lod.RenderableProxies[p].type = MapTechniqueToMaterialType(technique);
                 lod.RenderableProxies[p].Parent = this;
                 lod.RenderableProxies[p].Lod = 0;
@@ -1359,55 +1361,58 @@ namespace VRageRender
 
             var distance = CalculateViewerDistance();
 
-            if(m_lodTransitionState != 0)
+            if(distance.IsValid())
             {
-                float state = Math.Abs(distance - m_lodTransitionStartDistance) / (float) Math.Max(m_lodTransitionVector, 0.0001f);
-                state = (float)Math.Max(Math.Abs(m_lodTransitionState) + (float)MyRender11.TimeDelta.Seconds / LodTransitionTime, Math.Max(Math.Min(state, 1), 0));
-
-                m_lodTransitionState = Math.Sign(m_lodTransitionState) * state;
-
-                if(Math.Abs(m_lodTransitionState) > 1)
+                if (m_lodTransitionState != 0)
                 {
-                    m_lod = m_lodTransitionState > 0 ? m_lod + 1 : m_lod - 1;
-                    m_lodTransitionState = 0;
+                    float state = Math.Abs(distance - m_lodTransitionStartDistance) / (float)Math.Max(m_lodTransitionVector, 0.0001f);
+                    state = (float)Math.Max(Math.Abs(m_lodTransitionState) + (float)MyRender11.TimeDelta.Seconds / LodTransitionTime, Math.Max(Math.Min(state, 1), 0));
 
-                    SetProxiesForCurrentLod();
-                    SetLodShaders(m_lod, MyShaderUnifiedFlags.NONE);
-                }
+                    m_lodTransitionState = Math.Sign(m_lodTransitionState) * state;
 
-                UpdateProxiesCustomAlpha();
-            }
-            else
-            {
-                if(m_lodBorder)
-                {
-                    if (Math.Abs(distance - m_lods[m_lod].Distance) > GetLodTransitionBorder(m_lod))
+                    if (Math.Abs(m_lodTransitionState) > 1)
                     {
-                        m_lodBorder = false;
+                        m_lod = m_lodTransitionState > 0 ? m_lod + 1 : m_lod - 1;
+                        m_lodTransitionState = 0;
+
+                        SetProxiesForCurrentLod();
+                        SetLodShaders(m_lod, MyShaderUnifiedFlags.NONE);
                     }
+
+                    UpdateProxiesCustomAlpha();
                 }
                 else
                 {
-                    var lod = 0;
-                    for (int i = 0; i < m_lods.Length; i++)
+                    if (m_lodBorder)
                     {
-                        if (m_lods[i].Distance <= distance && ((i == m_lods.Length - 1) || distance < m_lods[i + 1].Distance))
+                        if (Math.Abs(distance - m_lods[m_lod].Distance) > GetLodTransitionBorder(m_lod))
                         {
-                            lod = i;
+                            m_lodBorder = false;
                         }
                     }
-
-                    if(lod != m_lod)
+                    else
                     {
-                        m_lodTransitionState = lod < m_lod ? -0.001f : 0.001f;
-                        m_lodTransitionStartDistance = distance;
-                        m_lodTransitionVector = GetLodTransitionBorder(m_lod) * 2;
-                        m_lodBorder = true;
+                        var lod = 0;
+                        for (int i = 0; i < m_lods.Length; i++)
+                        {
+                            if (m_lods[i].Distance <= distance && ((i == m_lods.Length - 1) || distance < m_lods[i + 1].Distance))
+                            {
+                                lod = i;
+                            }
+                        }
 
-                        SetProxiesForCurrentLod();
-                        UpdateProxiesCustomAlpha();
-                        SetLodShaders(m_lod, MyShaderUnifiedFlags.DITHERED);
-                        SetLodShaders(lod, MyShaderUnifiedFlags.DITHERED);
+                        if (lod != m_lod)
+                        {
+                            m_lodTransitionState = lod < m_lod ? -0.001f : 0.001f;
+                            m_lodTransitionStartDistance = distance;
+                            m_lodTransitionVector = GetLodTransitionBorder(m_lod) * 2;
+                            m_lodBorder = true;
+
+                            SetProxiesForCurrentLod();
+                            UpdateProxiesCustomAlpha();
+                            SetLodShaders(m_lod, MyShaderUnifiedFlags.DITHERED);
+                            SetLodShaders(lod, MyShaderUnifiedFlags.DITHERED);
+                        }
                     }
                 }
             }

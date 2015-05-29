@@ -47,6 +47,7 @@ using Sandbox.ModAPI.Interfaces;
 using Sandbox.Game.Localization;
 using Havok;
 using VRage.Library.Utils;
+using Sandbox.Common.ModAPI;
 
 #endregion
 
@@ -2500,7 +2501,7 @@ namespace Sandbox.Game.Entities
 
                             if (MyFakes.ENABLE_SMALL_BLOCK_TO_LARGE_STATIC_CONNECTIONS && m_enableSmallToLargeConnections)
                             {
-                                MyCubeGridSmallToLargeConnection.Static.CheckBlockSmallToLargeDisconnect(blockToRemove);
+                                MyCubeGridSmallToLargeConnection.Static.RemoveBlockSmallToLargeConnection(blockToRemove);
                             }
 
                             if (OnBlockRemoved != null)
@@ -2545,7 +2546,7 @@ namespace Sandbox.Game.Entities
 
                             if (MyFakes.ENABLE_SMALL_BLOCK_TO_LARGE_STATIC_CONNECTIONS && m_enableSmallToLargeConnections)
                             {
-                                MyCubeGridSmallToLargeConnection.Static.CheckBlockSmallToLargeDisconnect(blockToRemove);
+                                MyCubeGridSmallToLargeConnection.Static.RemoveBlockSmallToLargeConnection(blockToRemove);
                             }
 
                             if (OnBlockRemoved != null)
@@ -2678,7 +2679,7 @@ namespace Sandbox.Game.Entities
                 }
 
                 if (MyFakes.ENABLE_SMALL_BLOCK_TO_LARGE_STATIC_CONNECTIONS && m_enableSmallToLargeConnections)
-                    MyCubeGridSmallToLargeConnection.Static.CheckBlockSmallToLargeConnect(block);
+                    MyCubeGridSmallToLargeConnection.Static.AddBlockSmallToLargeConnection(block);
             }
 
             ProfilerShort.End();
@@ -3000,23 +3001,29 @@ namespace Sandbox.Game.Entities
             RaisePhysicsChanged();
         }
 
-        public void DoDamage(float damage, MyDestructionHelper.HitInfo hitInfo)
+        public void DoDamage(float damage, MyHitInfo hitInfo, Vector3? localPos = null)
         {
+            Debug.Assert(Sync.IsServer);
             Vector3I cubePos;
-            FixTargetCube(out cubePos, Vector3D.Transform(hitInfo.Position, PositionComp.WorldMatrixInvScaled) / GridSize);
+            if (localPos.HasValue)
+                FixTargetCube(out cubePos, localPos.Value / GridSize);
+            else
+                FixTargetCube(out cubePos, Vector3D.Transform(hitInfo.Position, PositionComp.WorldMatrixInvScaled) / GridSize);
+
             var cube = GetCubeBlock(cubePos);
+            //Debug.Assert(cube != null, "Cannot find block for damage!");
             if (cube != null)
             {
                 ApplyDestructionDeformation(cube, damage, hitInfo);
             }
         }
 
-        public void ApplyDestructionDeformation(MySlimBlock block, float damage = 1f, MyDestructionHelper.HitInfo? hitInfo = null)
+        public void ApplyDestructionDeformation(MySlimBlock block, float damage = 1f, MyHitInfo? hitInfo = null)
         {
             if (MyPerGameSettings.Destruction)
             {
                 Debug.Assert(hitInfo.HasValue, "Destruction needs additional info");
-                block.DoDamage(damage, MyDamageType.Unknown, true, hitInfo);
+                (block as IMyDestroyableObject).DoDamage(damage, MyDamageType.Unknown, true, hitInfo);
             }
             else
             {
@@ -3335,7 +3342,7 @@ namespace Sandbox.Game.Entities
             if (MyFakes.ENABLE_SMALL_BLOCK_TO_LARGE_STATIC_CONNECTIONS && m_enableSmallToLargeConnections)
             {
                 ProfilerShort.Begin("CheckRemovedBlockSmallToLargeConnection");
-                MyCubeGridSmallToLargeConnection.Static.CheckBlockSmallToLargeDisconnect(block);
+                MyCubeGridSmallToLargeConnection.Static.RemoveBlockSmallToLargeConnection(block);
                 ProfilerShort.End();
             }
 
@@ -3921,7 +3928,14 @@ namespace Sandbox.Game.Entities
             //Debug.Assert(this.WorldMatrix.Up == Vector3D.Up && this.WorldMatrix.Forward == Vector3D.Forward, "This grid must have identity rotation");
             //Debug.Assert(gridToMerge.WorldMatrix.Up == Vector3D.Up && gridToMerge.WorldMatrix.Forward == Vector3D.Forward, "Grid to merge must have identity rotation");
 
+           
             gridOffset = Vector3I.Round((gridToMerge.PositionComp.GetPosition() - this.PositionComp.GetPosition()) / GridSize);
+
+            MatrixD otherMatrix = gridToMerge.PositionComp.WorldMatrix.GetOrientation();
+            if (this.PositionComp.WorldMatrix.GetOrientation().EqualsFast(ref otherMatrix) == false)
+            {
+                return false;
+            }
 
             var blockPosInSecondGrid = block.Position - gridOffset;
             Quaternion blockOrientation;
@@ -4301,7 +4315,7 @@ namespace Sandbox.Game.Entities
                     if (added)
                     {
                         if (MyFakes.ENABLE_SMALL_BLOCK_TO_LARGE_STATIC_CONNECTIONS && m_enableSmallToLargeConnections)
-                            MyCubeGridSmallToLargeConnection.Static.CheckBlockSmallToLargeConnect(block);
+                            MyCubeGridSmallToLargeConnection.Static.AddBlockSmallToLargeConnection(block);
 
                         if (OnBlockAdded != null)
                         {
@@ -4379,7 +4393,7 @@ namespace Sandbox.Game.Entities
             if (MyFakes.ENABLE_SMALL_BLOCK_TO_LARGE_STATIC_CONNECTIONS && m_enableSmallToLargeConnections && blockAddSuccessfull)
             {
                 ProfilerShort.Begin("CheckAddedBlockSmallToLargeConnection");
-                MyCubeGridSmallToLargeConnection.Static.CheckBlockSmallToLargeConnect(block);
+                MyCubeGridSmallToLargeConnection.Static.AddBlockSmallToLargeConnection(block);
                 ProfilerShort.End();
             }
 
@@ -4473,7 +4487,7 @@ namespace Sandbox.Game.Entities
         {
             if (MyFakes.ENABLE_SMALL_BLOCK_TO_LARGE_STATIC_CONNECTIONS && m_enableSmallToLargeConnections && !m_smallToLargeConnectionsInitialized)
             {
-                MyCubeGridSmallToLargeConnection.Static.CheckGridSmallToLargeConnect(this);
+                MyCubeGridSmallToLargeConnection.Static.AddGridSmallToLargeConnection(this);
             }
             m_smallToLargeConnectionsInitialized = true;
 

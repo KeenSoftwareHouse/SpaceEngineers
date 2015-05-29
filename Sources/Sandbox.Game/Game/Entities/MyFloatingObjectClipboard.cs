@@ -69,6 +69,20 @@ namespace Sandbox.Game.Entities
             get { return m_previewFloatingObjects; }
         }
 
+        bool m_enableStationRotation = false;
+        public bool EnableStationRotation
+        {
+            get
+            {
+                return m_enableStationRotation && MyFakes.ENABLE_STATION_ROTATION;
+            }
+
+            set
+            {
+                m_enableStationRotation = value;
+            }
+        }
+
         public MyFloatingObjectClipboard(bool calculateVelocity = true)
         {
             m_calculateVelocity = calculateVelocity;
@@ -477,7 +491,7 @@ namespace Sandbox.Game.Entities
             if (entity != null)
             {
                 MyCubeGrid grid = entity as MyCubeGrid;
-                if (grid != null &&(!grid.IsStatic || MyFakes.ENABLE_STATION_ROTATION))
+                if (grid != null && (!grid.IsStatic || EnableStationRotation))
                 {
                     Vector3I gridSize = grid.Max - grid.Min + new Vector3I(1, 1, 1);
                     BoundingBoxD worldBox = new BoundingBoxD(-gridSize * grid.GridSize * 0.5f, gridSize * grid.GridSize * 0.5f);

@@ -11,6 +11,7 @@ using Sandbox.Definitions;
 using Sandbox.Game.Entities.Cube;
 using VRage.Collections;
 using VRageMath;
+using Sandbox.Common.ModAPI;
 
 namespace Sandbox.Game.Entities
 {
@@ -737,6 +738,27 @@ namespace Sandbox.Game.Entities
             }
 
             return id;
+        }
+
+        internal void DoDamage(float damage, MyDamageType damageType, MyHitInfo? hitInfo)
+        {
+            float integrity = 0;
+            foreach(var block in m_blocks)
+            {
+                integrity += block.Value.MaxIntegrity;
+            }
+
+            if (hitInfo.HasValue)
+            {
+                Debug.Assert(m_blocks.Count > 0);
+                CubeGrid.RenderData.AddDecal(Position, Vector3D.Transform(hitInfo.Value.Position, CubeGrid.PositionComp.WorldMatrixInvScaled),
+                    Vector3D.TransformNormal(hitInfo.Value.Normal, CubeGrid.PositionComp.WorldMatrixInvScaled), m_blocks.First().Value.BlockDefinition.PhysicalMaterial.DamageDecal);
+            }
+
+            foreach (var block in m_blocks)
+            {
+                block.Value.DoDamage(damage * (block.Value.MaxIntegrity / integrity), damageType, true, hitInfo, false);
+            }
         }
     }
 }

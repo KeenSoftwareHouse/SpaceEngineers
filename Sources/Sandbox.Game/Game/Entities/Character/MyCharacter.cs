@@ -41,6 +41,7 @@ using Sandbox.Engine.Multiplayer;
 using SteamSDK;
 using Sandbox.Game.SessionComponents;
 using Sandbox.Game.GameSystems;
+using Sandbox.Common.ModAPI;
 
 #endregion
 
@@ -537,6 +538,8 @@ namespace Sandbox.Game.Entities.Character
 
         public event EventHandler OnWeaponChanged;
 
+        public event Action<MyCharacter> CharacterDied;
+
         #endregion
 
         #region Init
@@ -639,7 +642,6 @@ namespace Sandbox.Game.Entities.Character
             SyncObject.Tick();
             SyncObject.UpdatePosition();
 
-            //m_inventory = new MyInventory(InventoryVolume * MySession.Static.GameTypeMultiplier, InventorySize, 0, this);
             m_suitBattery = new MyBattery(this);
             m_suitBattery.Init(characterOb.Battery);
 
@@ -666,7 +668,9 @@ namespace Sandbox.Game.Entities.Character
 
             if (!MyDefinitionManager.Static.Characters.TryGetValue(m_characterModel, out m_characterDefinition))
             {
+                //System.Diagnostics.Debug.Fail("Character model " + m_characterModel + " not found!");
                 m_characterDefinition = MyDefinitionManager.Static.Characters.First();
+                m_characterModel = m_characterDefinition.Model;
             }
 
             CharacterHeight = m_characterDefinition.CharacterHeight;
@@ -734,7 +738,7 @@ namespace Sandbox.Game.Entities.Character
 
             m_lightEnabled = characterOb.LightEnabled;
 
-            if (MySession.Static.SimpleSurvival || MySession.Static.Battle)
+			if ((MySession.Static.SurvivalMode && MyPerGameSettings.Game == GameEnum.ME_GAME) || MySession.Static.Battle)
                 m_jetpackEnabled = false;
             else
                 m_jetpackEnabled = m_characterDefinition.JetpackAvailable ? characterOb.JetpackEnabled : false;
@@ -857,8 +861,11 @@ namespace Sandbox.Game.Entities.Character
             if (Physics.Ragdoll != null)
             {
                 Physics.CloseRagdollMode();
-                Physics.CloseRagdoll();
-                Physics.Ragdoll = null;
+                Physics.Ragdoll.ResetToRigPose();
+                Physics.Ragdoll.SetToKeyframed();                
+                //Physics.CloseRagdoll();
+                //Physics.Ragdoll = null;
+                return;
             }
 
             Physics.Ragdoll = new HkRagdoll();
@@ -1031,6 +1038,8 @@ namespace Sandbox.Game.Entities.Character
             // Are bodies moving one to another? if not we do not apply damage
             if (value.SeparatingVelocity < 0)
             {
+                if (!ControllerInfo.IsLocallyControlled() && !Sync.IsServer) return;
+
                 DamageImpactEnum damageImpact = DamageImpactEnum.NoDamage;
 
                 // Get the colliding object and skip collisions between characters
@@ -1124,9 +1133,11 @@ namespace Sandbox.Game.Entities.Character
         private DamageImpactEnum GetDamageFromHit(HkRigidBody collidingBody, MyEntity collidingEntity, ref HkContactPointEvent value)
         {
             if (collidingBody.LinearVelocity.Length() < MyPerGameSettings.CharacterDamageHitObjectMinVelocity) return DamageImpactEnum.NoDamage;
-            
+
+            if (collidingEntity == ManipulatedEntity) return DamageImpactEnum.NoDamage;
+
             // Get the objects energies to calculate the damage - must be higher above treshold
-            float objectEnergy = Math.Abs(value.SeparatingVelocity) * collidingBody.Mass;
+            float objectEnergy = Math.Abs(value.SeparatingVelocity) * (MyPerGameSettings.Destruction ? MyDestructionHelper.MassFromHavok(collidingBody.Mass) : collidingBody.Mass);
 
             if (objectEnergy > MyPerGameSettings.CharacterDamageHitObjectDeadlyEnergy) return DamageImpactEnum.DeadlyDamage;
             if (objectEnergy > MyPerGameSettings.CharacterDamageHitObjectCriticalEnergy) return DamageImpactEnum.CriticalDamage;
@@ -1139,7 +1150,7 @@ namespace Sandbox.Game.Entities.Character
         private void ApplyDamage(DamageImpactEnum damageImpact, MyDamageType myDamageType)
         {
             if (!ControllerInfo.IsLocallyControlled() && !Sync.IsServer) return;
-            
+
             if (MyDebugDrawSettings.ENABLE_DEBUG_DRAW && MyDebugDrawSettings.DEBUG_DRAW_SHOW_DAMAGE)
             {
                 if (damageImpact != DamageImpactEnum.NoDamage)
@@ -1171,8 +1182,8 @@ namespace Sandbox.Game.Entities.Character
         private DamageImpactEnum GetDamageFromFall(HkRigidBody collidingBody, MyEntity collidingEntity, ref HkContactPointEvent value)
         {
             //if (m_currentMovementState != MyCharacterMovementEnum.Falling || m_currentMovementState != MyCharacterMovementEnum.Jump) return DamageImpactEnum.NoDamage;
-            
-            if (Physics.LinearVelocity.Length() < MyPerGameSettings.CharacterDamageMinVelocity) return DamageImpactEnum.NoDamage;
+            if (!collidingBody.IsFixed && collidingBody.Mass < Physics.Mass * 50) return DamageImpactEnum.NoDamage;
+            if (Math.Abs(value.SeparatingVelocity) < MyPerGameSettings.CharacterDamageMinVelocity) return DamageImpactEnum.NoDamage;
 
             if (Math.Abs(value.SeparatingVelocity) > MyPerGameSettings.CharacterDamageDeadlyDamageVelocity) return DamageImpactEnum.DeadlyDamage;
 
@@ -1281,7 +1292,7 @@ namespace Sandbox.Game.Entities.Character
 
             m_soundEmitter.StopSound(true);
 
-            if (MyFakes.ENABLE_CHARACTER_VIRTUAL_PHYSICS)
+            if (MyFakes.ENABLE_CHARACTER_VIRTUAL_PHYSICS && VirtualPhysics != null)
             {
                 VirtualPhysics.Close();
                 VirtualPhysics = null;
@@ -1372,7 +1383,7 @@ namespace Sandbox.Game.Entities.Character
                     DoDamage(1000, MyDamageType.Suicide, true);
             }
 
-            if (MyFakes.ENABLE_CHARACTER_VIRTUAL_PHYSICS)
+            if (MyFakes.ENABLE_CHARACTER_VIRTUAL_PHYSICS && VirtualPhysics != null)
             {
                 if (!VirtualPhysics.IsInWorld && Physics.IsInWorld)
                 {
@@ -1577,6 +1588,11 @@ namespace Sandbox.Game.Entities.Character
             UpdateOxygen();
             if (MyFakes.ENABLE_MISSION_TRIGGERS)
                 UpdateMissionTriggers();
+
+            if (Sync.IsServer && IsDead && MyFakes.ENABLE_RAGDOLL_CLIENT_SYNC)
+            {
+                RagdollMapper.SyncRigidBodiesTransforms(WorldMatrix);
+            }
         }
 
         private void UpdateChat()
@@ -2060,6 +2076,7 @@ namespace Sandbox.Game.Entities.Character
         private void CheckRagdollSwitch()
         {
             if (IsDead) return;
+            if (MySession.ControlledEntity != this) return;
             if (SwitchToJetpackRagdoll && !Physics.IsRagdollModeActive)
             {
                 ActivateJetpackRagdoll();
@@ -2084,7 +2101,7 @@ namespace Sandbox.Game.Entities.Character
         {
             if (Physics == null || Physics.Ragdoll == null || RagdollMapper == null ) return;
             if (!MyPerGameSettings.EnableRagdollModels) return;
-
+            //return;
             CheckRagdollSwitch();
 
             if (!RagdollMapper.IsActive || !Physics.IsRagdollModeActive) return;
@@ -2104,33 +2121,50 @@ namespace Sandbox.Game.Entities.Character
             if (RagdollMapper == null || Physics == null || Physics.Ragdoll == null) return;
             if (!MyPerGameSettings.EnableRagdollModels) return;
             if (!MyPerGameSettings.EnableRagdollInJetpack) return;
-
-            string[] leftHandBones = null;
-            m_characterDefinition.BoneSets.TryGetValue("LeftHand", out leftHandBones);
-
-            string[] rightHandBones = null;
-            m_characterDefinition.BoneSets.TryGetValue("RightHand", out rightHandBones);
-
-           
-            // TODO: MOVE THIS TO DEFINITIONS
+                        
             List<string> bodies = new List<string>();
-                       
+            string[] bodiesArray;                       
+            
             if (CurrentWeapon == null)
             {
-                bodies.Add("Ragdoll_SE_rig_LUpperarm001");
-                bodies.Add("Ragdoll_SE_rig_LForearm001");
-                bodies.Add("Ragdoll_SE_rig_LPalm001");
-                bodies.Add("Ragdoll_SE_rig_RUpperarm001");
-                bodies.Add("Ragdoll_SE_rig_RForearm001");
-                bodies.Add("Ragdoll_SE_rig_RPalm001");
-            }
+                if (m_characterDefinition.RagdollPartialSimulations.TryGetValue("Jetpack", out bodiesArray))
+                {
+                    bodies.AddArray(bodiesArray);
+                }
+                else
+                {
+                    // Fallback if missing definitions
+                    bodies.Add("Ragdoll_SE_rig_LUpperarm001");
+                    bodies.Add("Ragdoll_SE_rig_LForearm001");
+                    bodies.Add("Ragdoll_SE_rig_LPalm001");
+                    bodies.Add("Ragdoll_SE_rig_RUpperarm001");
+                    bodies.Add("Ragdoll_SE_rig_RForearm001");
+                    bodies.Add("Ragdoll_SE_rig_RPalm001");
 
-            bodies.Add("Ragdoll_SE_rig_LThigh001");
-            bodies.Add("Ragdoll_SE_rig_LCalf001");
-            bodies.Add("Ragdoll_SE_rig_LFoot001");
-            bodies.Add("Ragdoll_SE_rig_RThigh001");
-            bodies.Add("Ragdoll_SE_rig_RCalf001");
-            bodies.Add("Ragdoll_SE_rig_RFoot001");
+                    bodies.Add("Ragdoll_SE_rig_LThigh001");
+                    bodies.Add("Ragdoll_SE_rig_LCalf001");
+                    bodies.Add("Ragdoll_SE_rig_LFoot001");
+                    bodies.Add("Ragdoll_SE_rig_RThigh001");
+                    bodies.Add("Ragdoll_SE_rig_RCalf001");
+                    bodies.Add("Ragdoll_SE_rig_RFoot001");
+                }
+            }
+            else
+            {
+                if (m_characterDefinition.RagdollPartialSimulations.TryGetValue("Jetpack_Weapon", out bodiesArray))
+                {
+                    bodies.AddArray(bodiesArray);
+                }
+                else
+                {
+                    bodies.Add("Ragdoll_SE_rig_LThigh001");
+                    bodies.Add("Ragdoll_SE_rig_LCalf001");
+                    bodies.Add("Ragdoll_SE_rig_LFoot001");
+                    bodies.Add("Ragdoll_SE_rig_RThigh001");
+                    bodies.Add("Ragdoll_SE_rig_RCalf001");
+                    bodies.Add("Ragdoll_SE_rig_RFoot001");
+                }
+            }
 
             List<int> simulatedBodies = new List<int>();
 
@@ -2143,18 +2177,7 @@ namespace Sandbox.Game.Entities.Character
 
             if (Physics.IsRagdollModeActive)
             {
-                RagdollMapper.ActivatePartialSimulation(simulatedBodies);
-
-                //TODO: Right now, we don't know how to properly set contraints in order to avoid jerky motion which is cause by collision on bodies in ragdoll
-                // If that is solved this should be removed. Right now, this causes that ragdoll bodies can penetrate each other due to non collision
-                if (!MyFakes.ENABLE_COLLISONS_ON_RAGDOLL)
-                {
-                    Physics.Ragdoll.GenerateRigidBodiesCollisionFilters(MyPhysics.RagdollCollisionLayer, 0, 0);
-                }
-
-                //Matrix havokWorldMatrix = WorldMatrix;
-                //havokWorldMatrix.Translation = Physics.WorldToCluster(WorldMatrix.Translation);
-                //Physics.Ragdoll.SetWorldMatrix(havokWorldMatrix);
+                RagdollMapper.ActivatePartialSimulation(simulatedBodies);                
             }
         }
 
@@ -2198,7 +2221,7 @@ namespace Sandbox.Game.Entities.Character
                 MyCharacterBone bone = m_bones[i];
                 m_boneRelativeTransforms[i] = bone.ComputeBoneTransform();                
             }
-                       
+
             VRageRender.MyRenderProxy.GetRenderProfiler().EndProfilingBlock();
         }
 
@@ -3403,45 +3426,25 @@ namespace Sandbox.Game.Entities.Character
                 {
                     switch (state)
                     {
-                        case MyCharacterMovementEnum.Walking:
-                        case MyCharacterMovementEnum.Sprinting:
-                        case MyCharacterMovementEnum.Jump:
-                        case MyCharacterMovementEnum.WalkingLeftFront:
-                        case MyCharacterMovementEnum.WalkingRightFront:
-                        case MyCharacterMovementEnum.Running:
-                        case MyCharacterMovementEnum.RunningLeftFront:
-                        case MyCharacterMovementEnum.RunningRightFront:
-                            Physics.CharacterProxy.SetShapeForMove(true);
-                            break;
-
                         case MyCharacterMovementEnum.Crouching:
                             Physics.CharacterProxy.SetShapeForCrouch(Physics.HavokWorld, true);
                             break;
 
-                        case MyCharacterMovementEnum.CrouchWalking:
-                            Physics.CharacterProxy.SetMoveShapeForCrouch(true);
-                            break;
-
-                        case MyCharacterMovementEnum.CrouchWalkingLeftFront:
-                        case MyCharacterMovementEnum.CrouchWalkingRightFront:
-                            Physics.CharacterProxy.SetDiagonalMoveShapeForCrouch(true);
-                            break;
-
-                        case MyCharacterMovementEnum.RotatingLeft:
-                        case MyCharacterMovementEnum.RotatingRight:
-                            Physics.CharacterProxy.SetShapeForMove(false);
-                            break;
-
                         case MyCharacterMovementEnum.CrouchRotatingLeft:
                         case MyCharacterMovementEnum.CrouchRotatingRight:
+                        case MyCharacterMovementEnum.CrouchWalking:
+                        case MyCharacterMovementEnum.CrouchBackWalking:
+                        case MyCharacterMovementEnum.CrouchWalkingLeftBack:
+                        case MyCharacterMovementEnum.CrouchWalkingRightBack:
+                        case MyCharacterMovementEnum.CrouchWalkingLeftFront:
+                        case MyCharacterMovementEnum.CrouchWalkingRightFront:
+                        case MyCharacterMovementEnum.CrouchStrafingLeft:
+                        case MyCharacterMovementEnum.CrouchStrafingRight:
                             Physics.CharacterProxy.SetShapeForCrouch(Physics.HavokWorld, true);
                             break;
 
-                        case MyCharacterMovementEnum.Sitting:
-                            break;
-
                         default:
-                            Physics.CharacterProxy.SetShapeForMove(false);
+                            Physics.CharacterProxy.SetShapeForCrouch(Physics.HavokWorld, false);
                             break;
                     }
                 }
@@ -5296,6 +5299,14 @@ namespace Sandbox.Game.Entities.Character
 
         public void EnableJetpack(bool enable, bool fromLoad = false, bool updateSync = true, bool fromInit = false)
         {
+            if (enable)
+            {
+                SwitchToJetpackRagdoll = true;
+            }
+            else
+            {
+                SwitchToJetpackRagdoll = false;
+            }
             if (m_currentMovementState == MyCharacterMovementEnum.Sitting)
                 return;
 
@@ -5380,15 +5391,7 @@ namespace Sandbox.Game.Entities.Character
             //            Physics.RigidBody.UpdateMotionType(HkMotionType.Dynamic);
             //        }
             //    }
-            //}
-            if (enable) 
-            {
-                SwitchToJetpackRagdoll = true;
-            }
-            else
-            {
-                SwitchToJetpackRagdoll = false;               
-            }
+            //}           
         }
 
         /// <summary>
@@ -5410,7 +5413,7 @@ namespace Sandbox.Game.Entities.Character
 
         public void SwitchThrusts()
         {
-            if (m_currentMovementState != MyCharacterMovementEnum.Died && (!MySession.Static.SimpleSurvival || !MySession.Static.SurvivalMode) && !MySession.Static.Battle)
+            if (m_currentMovementState != MyCharacterMovementEnum.Died && ((!MySession.Static.SimpleSurvival && MyPerGameSettings.Game != GameEnum.ME_GAME) || !MySession.Static.SurvivalMode) && !MySession.Static.Battle)
             {
                 EnableJetpack(!JetpackEnabled);
             }
@@ -6637,6 +6640,9 @@ namespace Sandbox.Game.Entities.Character
             StartRespawn(RespawnTime);
 
             m_currentLootingCounter = MyPerGameSettings.CharacterDefaultLootingCounter ;
+
+            if (CharacterDied != null)
+                CharacterDied(this);
         }
 
         private void StartRespawn(float respawnTime)
@@ -6720,6 +6726,12 @@ namespace Sandbox.Game.Entities.Character
                 RagdollMapper.SetRagdollToDynamic();
                 RagdollMapper.Activate();
                 //Physics.IsPhantom = true;
+                if (VirtualPhysics != null)
+                {
+                    VirtualPhysics.Enabled = false;
+                    VirtualPhysics.Close();
+                    VirtualPhysics = null;
+                }
             }
 
 
@@ -7991,7 +8003,7 @@ namespace Sandbox.Game.Entities.Character
             OnDestroy();
         }
 
-        void IMyDestroyableObject.DoDamage(float damage, MyDamageType damageType, bool sync)
+        void IMyDestroyableObject.DoDamage(float damage, MyDamageType damageType, bool sync, MyHitInfo? hitInfo)
         {
             DoDamage(damage, damageType, sync);
         }
@@ -8191,6 +8203,8 @@ namespace Sandbox.Game.Entities.Character
             return UseObject is T;
         }
 
-        
+
+
+        public MyEntity ManipulatedEntity;
     }
 }

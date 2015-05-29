@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
+using VRage.Voxels;
 using VRageMath;
 
 namespace Sandbox.Game.AI.Actions
@@ -178,7 +179,7 @@ namespace Sandbox.Game.AI.Actions
 								logic.EntityReservationStatus = Logic.MyEntityReservationStatus.WAITING;
 								logic.ReservationEntityData = new MyAiTargetManager.ReservedEntityData() { Type = MyReservedEntityType.VOXEL,
 																									   EntityId = inTarget.EntityId.Value,
-																									   GridPos = inTarget.VoxelPosition.Value,
+																									   GridPos = inTarget.VoxelPosition,
 																									   ReservationTimer = timeMs,
 																									   ReserverId = new World.MyPlayer.PlayerId(Bot.Player.Id.SteamId, Bot.Player.Id.SerialId) };
 								MyAiTargetManager.OnReservationResult += ReservationHandler;

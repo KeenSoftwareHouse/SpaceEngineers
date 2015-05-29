@@ -64,8 +64,7 @@ namespace Sandbox
             Static = this;
             BlockShapePool = new MyBlockShapePool();
 
-            //TemporaryWorld = new HkWorld(true, 50000, MyPhysics.RestingVelocity, MyFakes.ENABLE_HAVOK_MULTITHREADING, 4);
-            TemporaryWorld = new HkWorld(true, 50000, MyPhysics.RestingVelocity, MyFakes.ENABLE_HAVOK_MULTITHREADING);
+            TemporaryWorld = new HkWorld(true, 50000, MyPhysics.RestingVelocity, MyFakes.ENABLE_HAVOK_MULTITHREADING, 4);
             TemporaryWorld.MarkForWrite();
             TemporaryWorld.DestructionWorld = new HkdWorld(TemporaryWorld);
             TemporaryWorld.UnmarkForWrite();
@@ -453,6 +452,11 @@ namespace Sandbox
                     System.Diagnostics.Debug.Assert(realMass > 0, "Invalid mass data");
 
                     bShape.SetMassRecursively(MyDestructionHelper.MassToHavok(realMass));
+                }
+
+                if(modelDef.Mass > 0)
+                {
+                    bShape.SetMassRecursively(MyDestructionHelper.MassToHavok(modelDef.Mass));
                 }
                 //Debug.Assert(CheckVolumeMassRec(bShape, 0.00001f, 0.01f), "Low volume or mass." + bShape.Name);
                 DisableRefCountRec(bShape);

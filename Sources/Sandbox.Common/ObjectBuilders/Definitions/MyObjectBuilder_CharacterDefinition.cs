@@ -225,6 +225,9 @@ namespace Sandbox.Common.ObjectBuilders.Definitions
         [ProtoMember, XmlArrayItem("BoneSet")]
         public MyBoneSetDefinition[] RagdollBonesMappings;
 
+        [ProtoMember, XmlArrayItem("BoneSet")]
+        public MyBoneSetDefinition[] RagdollPartialSimulations;
+
         [ProtoMember]
         public float OxygenConsumption = 10f;
 

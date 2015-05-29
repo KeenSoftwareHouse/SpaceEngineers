@@ -288,11 +288,7 @@ namespace Sandbox.Game.Gui
             if (joinResult == Result.OK && enterInfo.EnterState == LobbyEnterResponseEnum.Success && multiplayer.GetOwner() != MySteam.UserId)
             {
                 // Create session with empty world
-                if (MySession.Static != null)
-                {
-                    MySession.Static.Unload();
-                    MySession.Static = null;
-                }
+                Debug.Assert(MySession.Static == null);
 
                 MySession.CreateWithEmptyWorld(multiplayer);
                 MySession.Static.Settings.Battle = true;
@@ -328,10 +324,12 @@ namespace Sandbox.Game.Gui
 
             MyGuiScreenProgress progress = new MyGuiScreenProgress(text, MySpaceTexts.Cancel);
             MyGuiSandbox.AddScreen(progress);
+            // Set focus to different control than Cancel button (because focused Cancel button can be unexpectedly pressed when sending a chat message - in case server has just started game).
+            progress.FocusedControl = progress.RotatingWheel;
 
             progress.ProgressCancelled += () =>
             {
-                MyGuiScreenMainMenu.ReturnToMainMenu();
+                MyGuiScreenMainMenu.UnloadAndExitToMenu();
             };
 
             DownloadWorld(progress, multiplayer);

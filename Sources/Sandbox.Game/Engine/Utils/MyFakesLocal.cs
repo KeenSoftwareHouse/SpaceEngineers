@@ -12,7 +12,6 @@ namespace Sandbox.Engine.Utils
     {
         static MyFakesLocal()
         {
-            MyFakes.ENABLE_NEW_SOUNDS = true;
             // TODO: Set your fakes here, never commit this file
         }
     }

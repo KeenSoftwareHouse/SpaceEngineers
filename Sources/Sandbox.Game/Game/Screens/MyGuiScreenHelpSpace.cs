@@ -197,6 +197,7 @@ namespace Sandbox.Game.Gui
             advancedPage2.LeftColumn.Add(new ControlWithDescription(MyControlsSpace.CUBE_ROTATE_HORISONTAL_NEGATIVE));
             advancedPage2.LeftColumn.Add(new ControlWithDescription(MyControlsSpace.CUBE_ROTATE_ROLL_POSITIVE));
             advancedPage2.LeftColumn.Add(new ControlWithDescription(MyControlsSpace.CUBE_ROTATE_ROLL_NEGATIVE));
+            advancedPage2.LeftColumn.Add(new ControlWithDescription(MyControlsSpace.STATION_ROTATION));
 
             advancedPage2.RightColumn.Add(new ControlWithDescription(MyControlsSpace.SWITCH_LEFT));
             advancedPage2.RightColumn.Add(new ControlWithDescription(MyControlsSpace.SWITCH_RIGHT));
@@ -210,12 +211,12 @@ namespace Sandbox.Game.Gui
             advancedPage2.RightColumn.Add(new ControlWithDescription("]", MyTexts.GetString(MySpaceTexts.ControlDescPreviousVoxelMaterial)));
             advancedPage2.RightColumn.Add(new ControlWithDescription("H", MyTexts.GetString(MySpaceTexts.ControlDescOpenVoxelHandSettings)));
 
+
             spectatorPage.LeftColumn.Add(new ControlWithDescription(MyControlsSpace.SPECTATOR_NONE));
             spectatorPage.LeftColumn.Add(new ControlWithDescription(MyControlsSpace.SPECTATOR_DELTA));
             spectatorPage.LeftColumn.Add(new ControlWithDescription(MyControlsSpace.SPECTATOR_FREE));
             spectatorPage.LeftColumn.Add(new ControlWithDescription(MyControlsSpace.SPECTATOR_STATIC));
-
-
+            
 
             //These keys are to be used just for developers or testing
             if (MyInput.Static.ENABLE_DEVELOPER_KEYS)

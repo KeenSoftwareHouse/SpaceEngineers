@@ -238,10 +238,10 @@ namespace Sandbox.Game.Entities.Cube
         }
 
         /// <summary>
-        /// Checks whole grid connection small to large.
+        /// Adds possible connections of grid blocks.  
         /// </summary>
-        /// <returns>Returns true when small/large block connection has been found otherwise false.</returns>
-        internal bool CheckGridSmallToLargeConnect(MyCubeGrid grid)
+        /// <returns>Returns true when small/large block connection has been added otherwise false.</returns>
+        internal bool AddGridSmallToLargeConnection(MyCubeGrid grid)
         {
             if (!Sync.IsServer)
                 return false;
@@ -254,7 +254,7 @@ namespace Sandbox.Game.Entities.Cube
             {
                 if (!(block.FatBlock is MyFracturedBlock))
                 {
-                    bool localRetVal = CheckBlockSmallToLargeConnect(block);
+                    bool localRetVal = AddBlockSmallToLargeConnection(block);
                     retval = retval || localRetVal;
                 }
             }
@@ -263,9 +263,9 @@ namespace Sandbox.Game.Entities.Cube
         }
 
         /// <summary>
-        /// Checks small/large added block static connections and creates links. Returns true if the lock connects to ny other block.
+        /// Adds small/large block static connections and creates links. Returns true if the block connects to any other block.
         /// </summary>
-        internal bool CheckBlockSmallToLargeConnect(MySlimBlock block)
+        internal bool AddBlockSmallToLargeConnection(MySlimBlock block)
         {
             if (!Sync.IsServer)
                 return false;
@@ -283,7 +283,7 @@ namespace Sandbox.Game.Entities.Cube
                 MyCompoundCubeBlock compoundBlock = block.FatBlock as MyCompoundCubeBlock;
                 foreach (var blockInCompound in compoundBlock.GetBlocks())
                 {
-                    bool localRetVal = CheckBlockSmallToLargeConnect(blockInCompound);
+                    bool localRetVal = AddBlockSmallToLargeConnection(blockInCompound);
                     retval = retval || localRetVal;
                 }
                 return retval;
@@ -341,6 +341,169 @@ namespace Sandbox.Game.Entities.Cube
             }
 
             return retval;
+        }
+
+        /// <summary>
+        /// Block has been removed and all small/large static connections must be removed.
+        /// </summary>
+        internal void RemoveBlockSmallToLargeConnection(MySlimBlock block)
+        {
+            if (!Sync.IsServer)
+                return;
+
+            if (!m_smallToLargeCheckEnabled)
+                return;
+
+            if (!block.CubeGrid.IsStatic)
+                return;
+
+            MyCompoundCubeBlock compoundBlock = block.FatBlock as MyCompoundCubeBlock;
+            if (compoundBlock != null)
+            {
+                foreach (var blockInCompound in compoundBlock.GetBlocks())
+                    RemoveBlockSmallToLargeConnection(blockInCompound);
+                return;
+            }
+
+            Debug.Assert(m_tmpGrids.Count == 0);
+            m_tmpGrids.Clear();
+
+            if (block.BlockDefinition.CubeSize == MyCubeSize.Large)
+            {
+                RemoveChangedLargeBlockConnectionToSmallBlocks(block, m_tmpGrids);
+
+                // Convert free small grids to dynamic
+                foreach (var smallGrid in m_tmpGrids)
+                {
+                    if (!smallGrid.TestDynamic && !SmallGridIsStatic(smallGrid))
+                        smallGrid.TestDynamic = true;
+                }
+
+                m_tmpGrids.Clear();
+            }
+            else
+            {
+                Debug.Assert(block.BlockDefinition.CubeSize == MyCubeSize.Small);
+
+                var group = MyCubeGridGroups.Static.SmallToLargeBlockConnections.GetGroup(block);
+                if (group == null)
+                {
+                    if (block.CubeGrid.GetBlocks().Count > 0)
+                    {
+                        // Convert free small grid to dynamic
+                        if (!block.CubeGrid.TestDynamic && !SmallGridIsStatic(block.CubeGrid))
+                            block.CubeGrid.TestDynamic = true;
+                    }
+                    return;
+                }
+
+                Debug.Assert(m_tmpSlimBlocks.Count == 0);
+                m_tmpSlimBlocks.Clear();
+
+                // Get connections
+                foreach (var node in group.Nodes)
+                {
+                    foreach (var child in node.Children)
+                    {
+                        if (child.NodeData == block)
+                        {
+                            m_tmpSlimBlocks.Add(node.NodeData);
+                            break;
+                        }
+                    }
+                }
+
+                // Remove connections
+                foreach (var largeBlock in m_tmpSlimBlocks)
+                {
+                    DisconnectSmallToLargeBlock(block, largeBlock);
+                }
+
+                m_tmpSlimBlocks.Clear();
+
+                HashSet<MySlimBlockPair> connections;
+                if (!m_mapSmallGridToConnectedBlocks.TryGetValue(block.CubeGrid, out connections) && block.CubeGrid.GetBlocks().Count > 0)
+                {
+                    // Convert free small grid to dynamic
+                    if (!block.CubeGrid.TestDynamic && !SmallGridIsStatic(block.CubeGrid))
+                        block.CubeGrid.TestDynamic = true;
+                }
+            }
+
+        }
+
+        /// <summary>
+        /// Grid has been converted to dynamic, all small to large connections must be removed.
+        /// </summary>
+        internal void GridConvertedToDynamic(MyCubeGrid grid)
+        {
+            if (!Sync.IsServer)
+                return;
+
+            if (grid.GridSizeEnum == MyCubeSize.Small)
+                return;
+
+            Debug.Assert(m_tmpGrids.Count == 0);
+            m_tmpGrids.Clear();
+
+            HashSet<MySlimBlockPair> connections;
+            if (!m_mapLargeGridToConnectedBlocks.TryGetValue(grid, out connections))
+                return;
+
+            m_tmpBlockConnections.Clear();
+            m_tmpBlockConnections.AddList(connections.ToList());
+
+            foreach (var connection in m_tmpBlockConnections)
+            {
+                DisconnectSmallToLargeBlock(connection.Child, connection.Parent);
+                m_tmpGrids.Add(connection.Child.CubeGrid);
+            }
+
+            m_tmpBlockConnections.Clear();
+
+            Debug.Assert(m_tmpGridList.Count == 0);
+            m_tmpGridList.Clear();
+
+            // Remove small grids with some connections
+            foreach (var smallGrid in m_tmpGrids)
+            {
+                Debug.Assert(smallGrid.GridSizeEnum == MyCubeSize.Small);
+                if (m_mapSmallGridToConnectedBlocks.TryGetValue(smallGrid, out connections))
+                    m_tmpGridList.Add(smallGrid);
+            }
+
+            foreach (var smallgGrid in m_tmpGridList)
+                m_tmpGrids.Remove(smallgGrid);
+
+            m_tmpGridList.Clear();
+
+            // Convert free small grids to dynamic
+            foreach (var smallGrid in m_tmpGrids)
+            {
+                if (smallGrid.IsStatic && !smallGrid.TestDynamic && !SmallGridIsStatic(smallGrid))
+                    smallGrid.TestDynamic = true;
+            }
+
+            m_tmpGrids.Clear();
+        }
+
+        /// <summary>
+        /// Tests whether the given small grid connect to any large tatic block.
+        /// </summary>
+        /// <returns>true if small grid connects to a latge grid otherwise false</returns>
+        internal bool TestGridSmallToLargeConnection(MyCubeGrid smallGrid)
+        {
+            Debug.Assert(smallGrid.GridSizeEnum == MyCubeSize.Small);
+
+            if (!smallGrid.IsStatic)
+                return false;
+
+            // Any connection in grid
+            HashSet<MySlimBlockPair> connections;
+            if (m_mapSmallGridToConnectedBlocks.TryGetValue(smallGrid, out connections) && connections.Count > 0)
+                return true;
+
+            return false;
         }
 
         /// <summary>
@@ -490,162 +653,11 @@ namespace Sandbox.Game.Entities.Cube
         }
 
         /// <summary>
-        /// Block has been removed and all connections small/large static blocks must be removed.
-        /// </summary>
-        internal void CheckBlockSmallToLargeDisconnect(MySlimBlock block)
-        {
-            if (!Sync.IsServer)
-                return;
-
-            if (!m_smallToLargeCheckEnabled)
-                return;
-
-            if (!block.CubeGrid.IsStatic)
-                return;
-
-            MyCompoundCubeBlock compoundBlock = block.FatBlock as MyCompoundCubeBlock;
-            if (compoundBlock != null)
-            {
-                foreach (var blockInCompound in compoundBlock.GetBlocks())
-                    CheckBlockSmallToLargeDisconnect(blockInCompound);
-                return;
-            }
-
-            Debug.Assert(m_tmpGrids.Count == 0);
-            m_tmpGrids.Clear();
-
-            if (block.BlockDefinition.CubeSize == MyCubeSize.Large)
-            {
-                RemoveChangedLargeBlockConnectionToSmallBlocks(block, m_tmpGrids);
-
-                // Convert free small grids to dynamic
-                foreach (var smallGrid in m_tmpGrids)
-                {
-                    if (!smallGrid.TestDynamic && !SmallGridIsStatic(smallGrid))
-                        smallGrid.TestDynamic = true;
-                }
-
-                m_tmpGrids.Clear();
-            }
-            else
-            {
-                Debug.Assert(block.BlockDefinition.CubeSize == MyCubeSize.Small);
-
-                var group = MyCubeGridGroups.Static.SmallToLargeBlockConnections.GetGroup(block);
-                if (group == null)
-                {
-                    if (block.CubeGrid.GetBlocks().Count > 0)
-                    {
-                        // Convert free small grid to dynamic
-                        if (!block.CubeGrid.TestDynamic && !SmallGridIsStatic(block.CubeGrid))
-                            block.CubeGrid.TestDynamic = true;
-                    }
-                    return;
-                }
-
-                Debug.Assert(m_tmpSlimBlocks.Count == 0);
-                m_tmpSlimBlocks.Clear();
-
-                // Get connections
-                foreach (var node in group.Nodes)
-                {
-                    foreach (var child in node.Children)
-                    {
-                        if (child.NodeData == block)
-                        {
-                            m_tmpSlimBlocks.Add(node.NodeData);
-                            break;
-                        }
-                    }
-                }
-
-                // Remove connections
-                foreach (var largeBlock in m_tmpSlimBlocks)
-                {
-                    DisconnectSmallToLargeBlock(block, largeBlock);
-                }
-
-                m_tmpSlimBlocks.Clear();
-
-                HashSet<MySlimBlockPair> connections;
-                if (!m_mapSmallGridToConnectedBlocks.TryGetValue(block.CubeGrid, out connections) && block.CubeGrid.GetBlocks().Count > 0)
-                {
-                    // Convert free small grid to dynamic
-                    if (!block.CubeGrid.TestDynamic && !SmallGridIsStatic(block.CubeGrid))
-                        block.CubeGrid.TestDynamic = true;
-                }
-            }
-
-        }
-
-        /// <summary>
-        /// Grid has been converted to dynamic, all small to large connections must be removed.
-        /// </summary>
-        internal void GridConvertedToDynamic(MyCubeGrid grid)
-        {
-            if (!Sync.IsServer)
-                return;
-
-            if (grid.GridSizeEnum == MyCubeSize.Small)
-                return;
-
-            Debug.Assert(m_tmpGrids.Count == 0);
-            m_tmpGrids.Clear();
-
-            HashSet<MySlimBlockPair> connections;
-            if (!m_mapLargeGridToConnectedBlocks.TryGetValue(grid, out connections))
-                return;
-
-            m_tmpBlockConnections.Clear();
-            m_tmpBlockConnections.AddList(connections.ToList());
-
-            foreach (var connection in m_tmpBlockConnections)
-            {
-                DisconnectSmallToLargeBlock(connection.Child, connection.Parent);
-                m_tmpGrids.Add(connection.Child.CubeGrid);
-            }
-
-            m_tmpBlockConnections.Clear();
-
-            Debug.Assert(m_tmpGridList.Count == 0);
-            m_tmpGridList.Clear();
-
-            // Remove small grids with some connections
-            foreach (var smallGrid in m_tmpGrids)
-            {
-                Debug.Assert(smallGrid.GridSizeEnum == MyCubeSize.Small);
-                if (m_mapSmallGridToConnectedBlocks.TryGetValue(smallGrid, out connections))
-                    m_tmpGridList.Add(smallGrid);
-            }
-
-            foreach (var smallgGrid in m_tmpGridList)
-                m_tmpGrids.Remove(smallgGrid);
-
-            m_tmpGridList.Clear();
-
-            // Convert free small grids to dynamic
-            foreach (var smallGrid in m_tmpGrids)
-            {
-                if (smallGrid.IsStatic && !smallGrid.TestDynamic && !SmallGridIsStatic(smallGrid))
-                    smallGrid.TestDynamic = true;
-            }
-
-            m_tmpGrids.Clear();
-        }
-
-        /// <summary>
         /// Returns true if the given small grid connects to a large static grid, otherwise false.
         /// </summary>
         private bool SmallGridIsStatic(MyCubeGrid smallGrid)
         {
-            Debug.Assert(smallGrid.GridSizeEnum == MyCubeSize.Small);
-
-            if (!smallGrid.IsStatic)
-                return false;
-
-            // Any connection in grid
-            HashSet<MySlimBlockPair> connections;
-            if (m_mapSmallGridToConnectedBlocks.TryGetValue(smallGrid, out connections) && connections.Count > 0)
+            if (TestGridSmallToLargeConnection(smallGrid))
                 return true;
 
             if (MyCubeGrid.ShouldBeStatic(smallGrid))

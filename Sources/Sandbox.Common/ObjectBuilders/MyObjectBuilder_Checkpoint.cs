@@ -21,24 +21,6 @@ namespace Sandbox.Common.ObjectBuilders
         SpectatorFixed,
     }
 
-    [Obsolete("For compatibility")]
-    public enum MySessionHarvestMode
-    {
-        REALISTIC = 0,
-        TEN_TIMES = 1,
-        FIFTY_TIMES = 2,
-        CREATIVE = 3
-    }
-
-    [Obsolete("For compatibility")]
-    public enum MySessionGameType
-    {
-        SURVIVAL = MySessionHarvestMode.REALISTIC,
-        THREE_TIMES = MySessionHarvestMode.TEN_TIMES,
-        TEN_TIMES = MySessionHarvestMode.FIFTY_TIMES,
-        CREATIVE = MySessionHarvestMode.CREATIVE
-    }
-
     [ProtoContract]
     [MyObjectBuilderDefinition]
     public class MyObjectBuilder_Checkpoint : MyObjectBuilder_Base
@@ -120,23 +102,6 @@ namespace Sandbox.Common.ObjectBuilders
         }
         public bool ShouldSerializeOnlineMode() { return false; }
 
-        /// <summary>
-        /// This member is obsolete. Use GameType instead.
-        /// </summary>
-        //[ProtoMember]
-        public MySessionHarvestMode HarvestMode
-        {
-            set
-            {
-                GameType = (MySessionGameType)value;
-            }
-            get
-            {
-                Debug.Assert(false, "Should not call getter on Harvest mode. Harvest mode is obsolete. Use GameType instead.");
-                return MySessionHarvestMode.REALISTIC;
-            }
-        }
-        public bool ShouldSerializeHarvestMode() { return false; }
 
         //[ProtoMember]
         //public MySessionHardwareRequirements HardwareRequirements;
@@ -279,54 +244,7 @@ namespace Sandbox.Common.ObjectBuilders
         }
         public bool ShouldSerializeShowPlayerNamesOnHud() { return false; }
 
-        //[ProtoMember]
-        public MySessionGameType GameType
-        {
-            set
-            {
-                switch (value)
-                {
-                    case MySessionGameType.CREATIVE:
-                        GameMode = MyGameModeEnum.Creative;
-                        InventorySizeMultiplier = 1;
-                        AssemblerSpeedMultiplier = 1;
-                        AssemblerEfficiencyMultiplier = 1;
-                        RefinerySpeedMultiplier = 1;
-                        break;
-
-                    case MySessionGameType.SURVIVAL:
-                        GameMode = MyGameModeEnum.Survival;
-                        InventorySizeMultiplier = 1;
-                        AssemblerSpeedMultiplier = 1;
-                        AssemblerEfficiencyMultiplier = 1;
-                        RefinerySpeedMultiplier = 1;
-                        break;
-
-                    case MySessionGameType.THREE_TIMES:
-                        GameMode = MyGameModeEnum.Survival;
-                        InventorySizeMultiplier = 3;
-                        AssemblerSpeedMultiplier = 3;
-                        AssemblerEfficiencyMultiplier = 3;
-                        RefinerySpeedMultiplier = 1; // This was always 1 when MySessionGameType was used
-                        break;
-
-                    case MySessionGameType.TEN_TIMES:
-                        GameMode = MyGameModeEnum.Survival;
-                        InventorySizeMultiplier = 10;
-                        AssemblerSpeedMultiplier = 10;
-                        AssemblerEfficiencyMultiplier = 10;
-                        RefinerySpeedMultiplier = 1; // This was always 1 when MySessionGameType was used
-                        break;
-                }
-            }
-            get
-            {
-                Debug.Fail("Should not call getter on GameType. Game type is obsolete. Use Game mode and multipliers instead.");
-                return MySessionGameType.SURVIVAL;
-            }
-        }
-        public bool ShouldSerializeGameType() { return false; }
-
+      
         //[ProtoMember, DefaultValue(256)]
         public short MaxFloatingObjects
         {

@@ -1,10 +1,13 @@
 ﻿using Sandbox.Definitions;
 using Sandbox.Engine.Utils;
 using Sandbox.Engine.Voxels;
+using Sandbox.Game.World;
+using Sandbox.Game.World.Generator;
 using Sandbox.ModAPI;
 using Sandbox.ModAPI.Interfaces;
 using System;
 using System.Collections.Generic;
+using VRage.Voxels;
 using VRageMath;
 using IMyStorage = Sandbox.ModAPI.Interfaces.IMyStorage;
 
@@ -64,6 +67,16 @@ namespace Sandbox.Game.Entities
             return voxelMap;
         }
 
+        IMyVoxelMap IMyVoxelMaps.CreateVoxelMapFromStorageName(string storageName, string prefabVoxelMapName, Vector3D position)
+        {
+            var filePath = MyWorldGenerator.GetVoxelPrefabPath(prefabVoxelMapName);
+            var storage = MyStorageBase.LoadFromFile(filePath);
+            if (storage == null) return null;
+            storage.DataProvider = MyCompositeShapeProvider.CreateAsteroidShape(0,
+                storage.Size.AbsMax() * MyVoxelConstants.VOXEL_SIZE_IN_METRES,
+                MySession.Static.Settings.VoxelGeneratorVersion);
+            return MyWorldGenerator.AddVoxelMap(storageName, storage, position);
+        }
 
         IMyStorage IMyVoxelMaps.CreateStorage(byte[] data)
         {

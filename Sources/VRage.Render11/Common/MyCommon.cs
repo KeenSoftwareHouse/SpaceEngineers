@@ -133,7 +133,7 @@ namespace VRageRender
              internal Vector3 DirectionalLightDir;
              internal float SkyboxBlend;
              internal Vector3 DirectionalLightColor;
-             internal uint Padding1;
+             internal float ForwardPassAmbient;
              internal float Tonemapping_A;
              internal float Tonemapping_B;
              internal float Tonemapping_C;
@@ -205,6 +205,7 @@ namespace VRageRender
             constants.FogMult = MyEnvironment.FogSettings.FogMultiplier;
             constants.FogYOffset = MyRender11.Settings.FogYOffset;
             constants.FogColor = MyEnvironment.FogSettings.FogColor.PackedValue;
+            constants.ForwardPassAmbient = MyRender11.Postprocess.ForwardPassAmbient;
 
             constants.LogLumThreshold = MyRender11.Postprocess.LogLumThreshold;
             constants.Tonemapping_A = MyRender11.Postprocess.Tonemapping_A;
