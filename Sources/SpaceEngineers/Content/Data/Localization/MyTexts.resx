@@ -5934,9 +5934,6 @@ To connect to lasers not listed here you can connect to coordinates.</value>
   <data name="Terminal_ShowAllInTerminal" xml:space="preserve">
     <value>Show hidden blocks</value>
   </data>
-  <data name="Terminal_ShowInToolbarConfig" xml:space="preserve">
-    <value>Show block in toolbar config</value>
-  </data>
   <data name="NotificationBottleRefill" xml:space="preserve">
     <value>Oxygen refilled from bottles.</value>
   </data>
@@ -6005,9 +6002,6 @@ To connect to lasers not listed here you can connect to coordinates.</value>
   </data>
   <data name="Terminal_ShowInTerminalToolTip" xml:space="preserve">
     <value>Show/hide current block in terminal</value>
-  </data>
-  <data name="Terminal_ShowInToolbarConfigToolTip" xml:space="preserve">
-    <value>Show/hide current block in toolbar config</value>
   </data>
   <data name="NotificationHelmetOff" xml:space="preserve">
     <value>Helmet Off</value>
