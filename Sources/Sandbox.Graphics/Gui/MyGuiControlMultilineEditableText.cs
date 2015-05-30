@@ -95,14 +95,21 @@ namespace Sandbox.Graphics.GUI
                 //  Move home
                 if (m_keyThrottler.IsNewPressAndThrottled(MyKeys.Home))
                 {
-                    int lineIndex = GetLineStartIndex(CarriagePositionIndex);
+                    int startOfLineIndex = GetLineStartIndex(CarriagePositionIndex);
+                    int lineIndex = startOfLineIndex;
+
                     //offset carriage to first letter of the line
-                    while(lineIndex < CarriagePositionIndex && Text[lineIndex] == ' ')
+                    while (lineIndex < Text.Length && Text[lineIndex]  == ' ')
                     {
                         lineIndex++;
                     }
 
-                    CarriagePositionIndex = lineIndex;
+                    // Alternate between the first letter of the line and the actual start position of the line
+                    if (CarriagePositionIndex == lineIndex || lineIndex == Text.Length)
+                        CarriagePositionIndex = startOfLineIndex;
+                    else
+                        CarriagePositionIndex = lineIndex;
+                    
                     if (MyInput.Static.IsAnyShiftKeyPressed())
                     {
                         m_selection.SetEnd(this);
