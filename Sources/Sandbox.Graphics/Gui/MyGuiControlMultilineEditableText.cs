@@ -326,11 +326,11 @@ namespace Sandbox.Graphics.GUI
         private int CalculateNewCarriageLine(int idx)
         {
             BuildLineInformation();
-            for (int currentLine = 0; currentLine < m_lineInformation.Count; ++currentLine)
+            for (int currentLine = 1; currentLine < m_lineInformation.Count; ++currentLine)
             {
                 if (idx <= m_lineInformation[currentLine])
                 {
-                    return Math.Max(0, currentLine+1);
+                    return Math.Max(0, currentLine);
                 }
             }
             return m_lineInformation.Count;
