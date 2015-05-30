@@ -110,13 +110,14 @@ namespace Sandbox.Graphics.GUI
                     else
                         CarriagePositionIndex = lineIndex;
                     
+                    if (MyInput.Static.IsAnyCtrlKeyPressed())
+                    {
+                        CarriagePositionIndex = 0;
+                    }
+                    
                     if (MyInput.Static.IsAnyShiftKeyPressed())
                     {
                         m_selection.SetEnd(this);
-                    }
-                    else if (MyInput.Static.IsAnyCtrlKeyPressed())
-                    {
-                        CarriagePositionIndex = 0;
                     }
                     else
                     {
@@ -131,13 +132,14 @@ namespace Sandbox.Graphics.GUI
                 {
                     int lineIndex = GetLineEndIndex(CarriagePositionIndex);
                     CarriagePositionIndex = lineIndex;
+                    if (MyInput.Static.IsAnyCtrlKeyPressed())
+                    {
+                        CarriagePositionIndex = Text.Length;
+                    }
+                    
                     if (MyInput.Static.IsAnyShiftKeyPressed())
                     {
                         m_selection.SetEnd(this);
-                    }
-                    else if (MyInput.Static.IsAnyCtrlKeyPressed())
-                    {
-                        CarriagePositionIndex = Text.Length;
                     }
                     else
                     {
