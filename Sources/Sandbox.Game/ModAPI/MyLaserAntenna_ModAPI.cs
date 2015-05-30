@@ -37,5 +37,10 @@ namespace Sandbox.Game.Entities.Cube
         {
             get {  return m_IsPermanent; }
         }
+
+        bool IMyLaserAntenna.IsOutsideLimits
+        {
+            get { return m_outsideLimits; }
+        }
     }
 }

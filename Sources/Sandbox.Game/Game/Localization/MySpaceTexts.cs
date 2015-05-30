@@ -10378,5 +10378,10 @@ namespace Sandbox.Game.Localization
         ///Applied changes will be visible after restarting the game
         ///</summary>
         public static readonly MyStringId MessageBoxTextRestartNeededAfterRendererSwitch = MyStringId.GetOrCompute("MessageBoxTextRestartNeededAfterRendererSwitch");
+
+        ///<summary>
+        ///Target outside movement range
+        ///</summary>
+        public static readonly MyStringId LaserAntennaOutsideLimits = MyStringId.GetOrCompute("LaserAntennaOutsideLimits");
     }
 }
