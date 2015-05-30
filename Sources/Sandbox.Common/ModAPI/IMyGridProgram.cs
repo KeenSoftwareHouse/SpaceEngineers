@@ -4,7 +4,7 @@ using Sandbox.ModAPI.Ingame;
 namespace Sandbox.ModAPI
 {
     /// <summary>
-    /// The interface for the grid program provides extra access. See <see cref="MyGridProgram"/> for the class the scripts
+    /// The interface for the grid program provides extra access for the game and for mods. See <see cref="MyGridProgram"/> for the class the scripts
     /// actually derive from.
     /// </summary>
     public interface IMyGridProgram
