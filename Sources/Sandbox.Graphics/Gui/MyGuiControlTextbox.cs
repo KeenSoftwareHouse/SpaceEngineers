@@ -445,6 +445,12 @@ namespace Sandbox.Graphics.GUI
                         if (m_keyThrottler.IsNewPressAndThrottled(MyKeys.Home))
                         {
                             CarriagePositionIndex = 0;
+
+                            if (MyInput.Static.IsAnyShiftKeyPressed())
+                                m_selection.SetEnd(this);
+                            else
+                                m_selection.Reset(this);
+
                             ret = this;
                         }
 
@@ -452,6 +458,12 @@ namespace Sandbox.Graphics.GUI
                         if (m_keyThrottler.IsNewPressAndThrottled(MyKeys.End))
                         {
                             CarriagePositionIndex = m_text.Length;
+                            
+                            if (MyInput.Static.IsAnyShiftKeyPressed())
+                                m_selection.SetEnd(this);
+                            else
+                                m_selection.Reset(this);
+                            
                             ret = this;
                         }
 
