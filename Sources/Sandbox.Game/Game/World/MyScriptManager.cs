@@ -138,11 +138,11 @@ namespace Sandbox.Game.World
                         MyDefinitionErrors.Add(c, e.Message, ErrorSeverity.Error);
                     }
                 }
-                IlCompiler.CompileFile(assemblyName, m_cachedFiles.ToArray(), out assembly, m_errors);
+                IlCompiler.GameInstance.CompileFile(assemblyName, m_cachedFiles.ToArray(), out assembly, m_errors);
             }
             else
             {
-                IlCompiler.CompileFile(assemblyName, scriptFiles.ToArray(), out assembly, m_errors);
+                IlCompiler.GameInstance.CompileFile(assemblyName, scriptFiles.ToArray(), out assembly, m_errors);
             }
             if(assembly != null)
                 AddAssembly(MyStringId.GetOrCompute(assemblyName), assembly);
@@ -235,7 +235,7 @@ namespace Sandbox.Game.World
                 return false;
             Assembly assembly;
             bool success;
-            success = IlCompiler.Compile(new string[] { InGameScriptsCode[id].ToString() }, out assembly, false);
+            success = IlCompiler.GameInstance.Compile(new string[] { InGameScriptsCode[id].ToString() }, out assembly, false);
             if (success)
             {
                 var scriptType = typeof(MyIngameScript);
@@ -263,19 +263,19 @@ namespace Sandbox.Game.World
         private bool CallScriptInternal(string message)
         {
             Assembly ass;
-            if (IlCompiler.Buffer.Length > 0)
+            if (IlCompiler.GameInstance.Buffer.Length > 0)
             {
-                if (IlCompiler.Compile(new string[] { IlCompiler.Buffer.ToString() }, out ass,true))
+                if (IlCompiler.GameInstance.Compile(new string[] { IlCompiler.GameInstance.Buffer.ToString() }, out ass, true))
                 {
                     var retval = ass.GetType("wrapclass").GetMethod("run").Invoke(null, null);
                     if (!string.IsNullOrEmpty(message))
                         Sandbox.Game.Gui.MyHud.Chat.ShowMessage("returned", retval.ToString());
                     return true;
-                    IlCompiler.Buffer.Clear();
+                    IlCompiler.GameInstance.Buffer.Clear();
                 }
                 else
                 {
-                    IlCompiler.Buffer.Clear();
+                    IlCompiler.GameInstance.Buffer.Clear();
                     return false;
                 }
             }

@@ -1074,12 +1074,25 @@ namespace Sandbox
         {
             Log.IncreaseIndent();
             Func<string, string> getPath = (x) => Path.Combine(MyFileSystem.ExePath, x);
-            IlCompiler.Options = new System.CodeDom.Compiler.CompilerParameters(new string[] { "System.Xml.dll", getPath("Sandbox.Game.dll"),
-                getPath("Sandbox.Common.dll"), getPath("Sandbox.Graphics.dll"), getPath("VRage.dll"), //getPath("VRage.Data.dll"),
-                getPath("VRage.Library.dll"), getPath("VRage.Math.dll"), "System.Core.dll", "System.dll"/*, "Microsoft.CSharp.dll" */});
+            var options = new IlCompilerOptions()
+            {
+                AssemblyNames = {
+                    "System.Xml.dll",
+                    getPath("Sandbox.Game.dll"),
+                    getPath("Sandbox.Common.dll"),
+                    getPath("Sandbox.Graphics.dll"),
+                    getPath("VRage.dll"),
+                    //getPath("VRage.Data.dll"),
+                    getPath("VRage.Library.dll"),
+                    getPath("VRage.Math.dll"),
+                    "System.Core.dll",
+                    "System.dll"
+                    /*, "Microsoft.CSharp.dll" */
+                }
+            };
+            if (MyFakes.ENABLE_SCRIPTS_PDB) options.Debug = true;
+            IlCompiler.GameInstance = new IlCompiler(options);
             Log.DecreaseIndent();
-            if (MyFakes.ENABLE_SCRIPTS_PDB)
-                IlCompiler.Options.CompilerOptions = string.Format("/debug {0}", IlCompiler.Options.CompilerOptions);
         }
 
         internal static void InitIlChecker()

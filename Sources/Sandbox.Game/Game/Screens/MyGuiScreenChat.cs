@@ -166,7 +166,7 @@ namespace Sandbox.Game.Gui
         private void Process(string message)
         {
             var line = message.Substring(1);
-            IlCompiler.Buffer.Append(line);
+            IlCompiler.GameInstance.Buffer.Append(line);
         }
 
         public override string GetFriendlyName()

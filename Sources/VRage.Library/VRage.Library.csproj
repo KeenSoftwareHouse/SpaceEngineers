@@ -2,7 +2,7 @@
 <Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
     <ProductVersion>8.0.30703</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{26FE022E-42AB-40BE-BA9D-97CBE34E7D99}</ProjectGuid>
@@ -113,6 +113,7 @@
     <Compile Include="Collections\SerializableDictionary.cs" />
     <Compile Include="Collections\StackReader.cs" />
     <Compile Include="Compiler\IlCompiler.cs" />
+    <Compile Include="Compiler\IlCompilerOptions.cs" />
     <Compile Include="Compiler\IlInjector.cs" />
     <Compile Include="Compiler\TestScriptHelpers.cs" />
     <Compile Include="Compression\MyZipArchive.cs" />

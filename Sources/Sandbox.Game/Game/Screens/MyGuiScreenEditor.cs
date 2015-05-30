@@ -204,7 +204,7 @@ namespace Sandbox.Game.Gui
             if (program != null && program.Length > 0)
             {
                 string finalCode = CODE_WRAPPER_BEFORE + program + CODE_WRAPPER_AFTER;
-                if (true == IlCompiler.CompileString("IngameScript.dll", new string[] { finalCode }, out assembly, errors))
+                if (true == IlCompiler.GameInstance.CompileString("IngameScript.dll", new string[] { finalCode }, out assembly, errors))
                 {
                     return true;
                 }
