@@ -20,45 +20,6 @@ namespace Sandbox.Graphics.GUI
     [MyGuiControlType(typeof(MyObjectBuilder_GuiControlMultilineLabel))]
     public class MyGuiControlMultilineText : MyGuiControlBase
     {
-        protected enum TextKeyStatus
-        {
-            /// <summary>
-            /// The requested key is not pressed.
-            /// </summary>
-            UNPRESSED,
-
-            /// <summary>
-            /// The requested key is pressed, but it's waiting for a delay.
-            /// </summary>
-            PRESSED_AND_WAITING,
-
-            /// <summary>
-            /// The key is pressed and any time delay has passed.
-            /// </summary>
-            PRESSED_AND_READY
-        }
-
-        private class MyMultilineKeyTimeController
-        {
-            public MyKeys Key;
-
-            /// <summary>
-            /// This is not for converting key to string, but for controling repeated key input with delay
-            /// </summary>
-            public int LastKeyPressTime;
-
-            /// <summary>
-            /// The required delay until the key is ready again.
-            /// </summary>
-            public int RequiredDelay;
-
-            public MyMultilineKeyTimeController(MyKeys key)
-            {
-                Key = key;
-                LastKeyPressTime = MyGuiManager.FAREST_TIME_IN_PAST;
-            }
-        }
-
         #region Fields
 
         private float m_textScale;
@@ -76,12 +37,12 @@ namespace Sandbox.Graphics.GUI
 
         private bool m_selectable;
 
+        protected MyKeyThrottler m_keyThrottler;
+
         //Carriage data for selectable texts
         private int m_carriageBlinkerTimer;
         protected int m_carriagePositionIndex;
         protected MyGuiControlMultilineSelection m_selection;
-        //private static MyMultilineKeyTimeController[] m_keys;
-        private Dictionary<MyKeys, MyMultilineKeyTimeController> m_keyTimeControllers;
 
         protected int CarriagePositionIndex
         {
@@ -211,7 +172,7 @@ namespace Sandbox.Graphics.GUI
             if (contents != null && contents.Length > 0)
                 Text = contents;
 
-            m_keyTimeControllers = new Dictionary<MyKeys, MyMultilineKeyTimeController>();
+            m_keyThrottler = new MyKeyThrottler();
         }
 
         public override void Init(MyObjectBuilder_GuiControlBase objectBuilder)
@@ -412,17 +373,16 @@ namespace Sandbox.Graphics.GUI
         public override MyGuiControlBase HandleInput()
         {
             MyGuiControlBase baseResult = base.HandleInput();
-            TextKeyStatus keyStatus;
 
             if (HasFocus && Selectable)
             {
                 //  Move left
-                switch (GetTextKeyStatus(MyKeys.Left))
+                switch (m_keyThrottler.GetKeyStatus(MyKeys.Left))
                 {
-                    case TextKeyStatus.PRESSED_AND_WAITING:
+                    case ThrottledKeyStatus.PRESSED_AND_WAITING:
                         return this;
 
-                    case TextKeyStatus.PRESSED_AND_READY:
+                    case ThrottledKeyStatus.PRESSED_AND_READY:
                         if (MyInput.Static.IsAnyCtrlKeyPressed())
                             CarriagePositionIndex = GetPreviousSpace();
                         else
@@ -436,12 +396,12 @@ namespace Sandbox.Graphics.GUI
                 }
 
                 //  Move right
-                switch (GetTextKeyStatus(MyKeys.Right))
+                switch (m_keyThrottler.GetKeyStatus(MyKeys.Right))
                 {
-                    case TextKeyStatus.PRESSED_AND_WAITING:
+                    case ThrottledKeyStatus.PRESSED_AND_WAITING:
                         return this;
 
-                    case TextKeyStatus.PRESSED_AND_READY:
+                    case ThrottledKeyStatus.PRESSED_AND_READY:
                         if (MyInput.Static.IsAnyCtrlKeyPressed())
                             CarriagePositionIndex = GetNextSpace();
                         else
@@ -454,12 +414,12 @@ namespace Sandbox.Graphics.GUI
                 }
 
                 //  Move Down
-                switch (GetTextKeyStatus(MyKeys.Down))
+                switch (m_keyThrottler.GetKeyStatus(MyKeys.Down))
                 {
-                    case TextKeyStatus.PRESSED_AND_WAITING:
+                    case ThrottledKeyStatus.PRESSED_AND_WAITING:
                         return this;
 
-                    case TextKeyStatus.PRESSED_AND_READY:
+                    case ThrottledKeyStatus.PRESSED_AND_READY:
                         CarriagePositionIndex = GetIndexUnderCarriage(CarriagePositionIndex);
                         if (MyInput.Static.IsAnyShiftKeyPressed())
                             m_selection.SetEnd(this);
@@ -469,12 +429,12 @@ namespace Sandbox.Graphics.GUI
                 }
 
                 //  Move Up
-                switch (GetTextKeyStatus(MyKeys.Up))
+                switch (m_keyThrottler.GetKeyStatus(MyKeys.Up))
                 {
-                    case TextKeyStatus.PRESSED_AND_WAITING:
+                    case ThrottledKeyStatus.PRESSED_AND_WAITING:
                         return this;
 
-                    case TextKeyStatus.PRESSED_AND_READY:
+                    case ThrottledKeyStatus.PRESSED_AND_READY:
                         CarriagePositionIndex = GetIndexOverCarriage(CarriagePositionIndex);
                         if (MyInput.Static.IsAnyShiftKeyPressed())
                             m_selection.SetEnd(this);
@@ -484,13 +444,13 @@ namespace Sandbox.Graphics.GUI
                 }
 
                 //Copy
-                if (this.IsNewPressAndThrottled(MyKeys.C) && MyInput.Static.IsAnyCtrlKeyPressed())
+                if (m_keyThrottler.IsNewPressAndThrottled(MyKeys.C) && MyInput.Static.IsAnyCtrlKeyPressed())
                 {
                     m_selection.CopyText(this);
                 }
 
                 //Select All
-                if (this.IsNewPressAndThrottled(MyKeys.A) && MyInput.Static.IsAnyCtrlKeyPressed())
+                if (m_keyThrottler.IsNewPressAndThrottled(MyKeys.A) && MyInput.Static.IsAnyCtrlKeyPressed())
                 {
                     m_selection.SelectAll(this);
                     return this;
@@ -817,82 +777,6 @@ namespace Sandbox.Graphics.GUI
                 return m_text.Length;
 
             return CarriagePositionIndex + Math.Min(nextSpace, nextLine) + 1;
-        }
-
-        private MyMultilineKeyTimeController GetKeyController(MyKeys key)
-        {
-            MyMultilineKeyTimeController controller;
-            if (m_keyTimeControllers.TryGetValue(key, out controller))
-                return controller;
-
-            controller = new MyMultilineKeyTimeController(key);
-            m_keyTimeControllers[key] = controller;
-            return controller;
-        }
-
-        /// <summary>
-        /// Determines if the given key was pressed during this update cycle, but it also
-        /// makes sure a minimum amount of time has passed before allowing a press.
-        /// </summary>
-        /// <param name="key"></param>
-        /// <returns></returns>
-        protected bool IsNewPressAndThrottled(MyKeys key)
-        {
-            if (!MyInput.Static.IsNewKeyPressed(key))
-                return false;
-        
-            var controller = GetKeyController(key);
-
-            // If we find no controller, we cannot time so we assume the key is ready.
-            if (controller == null)
-                return true;
-        
-            // Make sure we wait a minimum amount of time before allowing a repeat of the action this key enables. This
-            // version of the check overrides the currently configured required delay for the key on purpose.
-            if ((MyGuiManager.TotalTimeInMilliseconds - controller.LastKeyPressTime) > MyGuiConstants.TEXTBOX_MOVEMENT_DELAY)
-            {
-                // Reset the required delay to the default for the next repeat.
-                controller.LastKeyPressTime = MyGuiManager.TotalTimeInMilliseconds;
-                return true;
-            }
-
-            // The key was pressed but was choked by the minimum time requirement.
-            return false;
-        }
-        
-        protected TextKeyStatus GetTextKeyStatus(MyKeys key)
-        {
-            if (!MyInput.Static.IsKeyPress(key))
-                return TextKeyStatus.UNPRESSED;
-
-            var controller = GetKeyController(key);
-
-            // If we find no controller, we cannot time so we assume the key is ready.
-            if (controller == null)
-                return TextKeyStatus.PRESSED_AND_READY;
-
-            // If the key was pressed during this update cycle, the key is deemed as instantly
-            // ready, but it will be a longer delay before the next repeat is allowed.
-            var wasPressedNow = MyInput.Static.IsNewKeyPressed(key);
-            if (wasPressedNow)
-            {
-                controller.RequiredDelay = MyGuiConstants.TEXTBOX_INITIAL_THROTTLE_DELAY;
-                controller.LastKeyPressTime = MyGuiManager.TotalTimeInMilliseconds;
-                return TextKeyStatus.PRESSED_AND_READY;
-            }
-
-            // If this is a continuous key press, we want to make sure we wait a minimum amount of time before allowing a repeat
-            // of the action this key enables.
-            if ((MyGuiManager.TotalTimeInMilliseconds - controller.LastKeyPressTime) > controller.RequiredDelay)
-            {
-                // Reset the required delay to the default for the next repeat.
-                controller.RequiredDelay = MyGuiConstants.TEXTBOX_REPEAT_THROTTLE_DELAY;
-                controller.LastKeyPressTime = MyGuiManager.TotalTimeInMilliseconds;
-                return TextKeyStatus.PRESSED_AND_READY;
-            }
-
-            // The key was pressed, but we're still waiting for the required delay.
-            return TextKeyStatus.PRESSED_AND_WAITING;
         }
 
         #endregion

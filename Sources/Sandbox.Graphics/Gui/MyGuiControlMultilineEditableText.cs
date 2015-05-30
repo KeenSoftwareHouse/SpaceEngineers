@@ -73,7 +73,7 @@ namespace Sandbox.Graphics.GUI
             if (HasFocus && Selectable)
             {
                 //Cut
-                if (IsNewPressAndThrottled(MyKeys.X) && MyInput.Static.IsAnyCtrlKeyPressed())
+                if (m_keyThrottler.IsNewPressAndThrottled(MyKeys.X) && MyInput.Static.IsAnyCtrlKeyPressed())
                 {             
                     AddToUndo(m_text.ToString());
                     m_selection.CutText(this);
@@ -83,7 +83,7 @@ namespace Sandbox.Graphics.GUI
                 }
 
                 //Paste
-                if (IsNewPressAndThrottled(MyKeys.V) && MyInput.Static.IsAnyCtrlKeyPressed())
+                if (m_keyThrottler.IsNewPressAndThrottled(MyKeys.V) && MyInput.Static.IsAnyCtrlKeyPressed())
                 {
                     AddToUndo(m_text.ToString());
                     m_selection.PasteText(this);
@@ -93,7 +93,7 @@ namespace Sandbox.Graphics.GUI
                 }
             
                 //  Move home
-                if ((IsNewPressAndThrottled(MyKeys.Home)))
+                if (m_keyThrottler.IsNewPressAndThrottled(MyKeys.Home))
                 {
                     int lineIndex = GetLineStartIndex(CarriagePositionIndex);
                     //offset carriage to first letter of the line
@@ -120,7 +120,7 @@ namespace Sandbox.Graphics.GUI
                 }
 
                 //  Move end
-                if ((this.IsNewPressAndThrottled(MyKeys.End)))
+                if (m_keyThrottler.IsNewPressAndThrottled(MyKeys.End))
                 {
                     int lineIndex = GetLineEndIndex(CarriagePositionIndex);
                     CarriagePositionIndex = lineIndex;
@@ -220,7 +220,7 @@ namespace Sandbox.Graphics.GUI
             }
 
             // Unbuffered Delete because it's not delivered as a message through Win32 message loop.
-            if (GetTextKeyStatus(MyKeys.Delete) == TextKeyStatus.PRESSED_AND_READY)
+            if (m_keyThrottler.GetKeyStatus(MyKeys.Delete) == ThrottledKeyStatus.PRESSED_AND_READY)
             {
                 m_currentCarriageColumn = GetCarriageColumn(CarriagePositionIndex);
                 AddToUndo(m_text.ToString());

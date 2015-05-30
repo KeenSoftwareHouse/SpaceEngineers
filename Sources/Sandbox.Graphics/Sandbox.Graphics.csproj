@@ -74,10 +74,12 @@
   <ItemGroup>
     <Compile Include="Gui\MyGuiControlContextMenu.cs" />
     <Compile Include="Gui\MyGuiControlMultilineEditableText.cs" />
+    <Compile Include="Gui\MyKeyThrottler.cs" />
     <Compile Include="Gui\MyLayoutTable.cs" />
     <Compile Include="Gui\MyLayoutVertical.cs" />
     <Compile Include="Gui\MyWikiMarkupParser.cs" />
     <Compile Include="Gui\RichTextLabel\MyRichLabelLink.cs" />
+    <Compile Include="Gui\ThrottledKeyStatus.cs" />
     <Compile Include="MyControlsGUI.cs" />
     <Compile Include="MyGuiSoundManager.cs" />
     <Compile Include="MyScreenManager.cs" />
