@@ -481,8 +481,8 @@ namespace Sandbox.Graphics.GUI
         override protected int GetIndexUnderCarriage(int idx)
         {
             int end = GetLineEndIndex(idx);
-            int newRowEnd = GetLineEndIndex(Math.Min(Text.Length, end + 2));
-            int newRowStart = GetLineStartIndex(Math.Min(Text.Length, end + 2));
+            int newRowEnd = GetLineEndIndex(Math.Min(Text.Length, end + 1));
+            int newRowStart = GetLineStartIndex(Math.Min(Text.Length, end + 1));
             return CalculateNewCarriagePos(newRowEnd, newRowStart);
         }
 
@@ -497,8 +497,8 @@ namespace Sandbox.Graphics.GUI
         override protected int GetIndexOverCarriage(int idx)
         {
             int start = GetLineStartIndex(idx);
-            int newRowEnd = GetLineEndIndex(Math.Max(0,start-2));
-            int newRowStart = GetLineStartIndex(Math.Max(0, start - 2));
+            int newRowEnd = GetLineEndIndex(Math.Max(0, start - 1));
+            int newRowStart = GetLineStartIndex(Math.Max(0, start - 1));
             return CalculateNewCarriagePos(newRowEnd, newRowStart);
         }
 

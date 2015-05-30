@@ -339,6 +339,12 @@ namespace Sandbox.Graphics.GUI
             Vector2 carriageOffset = GetCarriageOffset(CarriagePositionIndex);
 
             var scissor = new RectangleF(textArea.LeftTop, textArea.Size);
+            
+            // Adjust the scissor a little bit, because currently it's hiding the carriage at its left side, and it's
+            // too far out on the edges.
+            scissor.X -= 0.001f;
+            scissor.Y -= 0.001f;
+
             using (MyGuiManager.UsingScissorRectangle(ref scissor))
             {
                 DrawSelectionBackgrounds(textArea, transitionAlpha);
