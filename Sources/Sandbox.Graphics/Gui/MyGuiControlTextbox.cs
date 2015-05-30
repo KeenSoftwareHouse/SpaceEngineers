@@ -396,12 +396,9 @@ namespace Sandbox.Graphics.GUI
                     }
                     else if (m_selection.Dragging)
                     {
-                        if (IsMouseOver)
-                        {
-                            CarriagePositionIndex = GetCarriagePositionFromMouseCursor();
-                            m_selection.SetEnd(this);
-                            ret = this;
-                        }
+                        CarriagePositionIndex = GetCarriagePositionFromMouseCursor();
+                        m_selection.SetEnd(this);
+                        ret = this;
                     }
 
                     if (HasFocus)
