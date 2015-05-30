@@ -400,6 +400,7 @@ namespace Sandbox.Game.Entities.Blocks
                             m_instance = Activator.CreateInstance(type) as IMyGridProgram;
                             if (m_instance != null)
                             {
+                                m_previousRunTimestamp = 0;
                                 m_instance.Storage = storage;
                                 m_instance.Me = this;
                                 m_instance.Echo = EchoTextToDetailInfo;
