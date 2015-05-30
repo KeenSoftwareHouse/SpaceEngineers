@@ -17,6 +17,7 @@ namespace Sandbox.Graphics.GUI
         List<string> m_undoCache = new List<string>();
         List<string> m_redoCache = new List<string>();
 
+        const int TAB_SIZE = 4;
         const int MAX_UNDO_HISTORY = 50;
         const char NEW_LINE = '\n';
         const char BACKSPACE = '\b';
@@ -193,12 +194,15 @@ namespace Sandbox.Graphics.GUI
                     }
                     else if (character == TAB)
                     {
+                        m_currentCarriageLine = CalculateNewCarriageLine(CarriagePositionIndex);
+                        m_currentCarriageColumn = GetCarriageColumn(CarriagePositionIndex);
                         AddToUndo(m_text.ToString());
-                        for (int i = 0; i < 4; ++i)
+                        var missingChars = TAB_SIZE - (m_currentCarriageColumn % TAB_SIZE);
+                        for (int i = 0; i < missingChars; ++i)
                         {
                             InsertChar(' ');
                         }
-                        textChanged = true;
+                        textChanged = missingChars > 0;
                     }
                 }
                 else
