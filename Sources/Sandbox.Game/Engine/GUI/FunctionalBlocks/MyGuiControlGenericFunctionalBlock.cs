@@ -205,6 +205,8 @@ namespace Sandbox.Graphics.GUI
             if (m_currentBlocks.Count() == 1)
             {
                 m_blockPropertiesLabel.Text.AppendStringBuilder(m_currentBlocks[0].DetailedInfo);
+                m_blockPropertiesLabel.Text.Append("\n");
+                m_blockPropertiesLabel.Text.AppendStringBuilder(m_currentBlocks[0].CustomDetailedInfo);
             }
             m_blockPropertiesLabel.RefreshText(false);
             ProfilerShort.End();
