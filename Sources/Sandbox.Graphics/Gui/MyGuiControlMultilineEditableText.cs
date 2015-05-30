@@ -72,10 +72,9 @@ namespace Sandbox.Graphics.GUI
             if (HasFocus && Selectable)
             {
                 //Cut
-                if (MyInput.Static.IsNewKeyPressed(MyKeys.X) && IsEnoughDelay(MyMultilineTextKeys.X, MyGuiConstants.TEXTBOX_MOVEMENT_DELAY) && MyInput.Static.IsAnyCtrlKeyPressed())
+                if (IsNewPressAndThrottled(MyKeys.X) && MyInput.Static.IsAnyCtrlKeyPressed())
                 {             
                     AddToUndo(m_text.ToString());
-                    UpdateLastKeyPressTimes(MyMultilineTextKeys.X);
                     m_selection.CutText(this);
                     m_currentCarriageLine = CalculateNewCarriageLine(CarriagePositionIndex);
                     m_currentCarriageColumn = GetCarriageColumn(CarriagePositionIndex);
@@ -83,10 +82,9 @@ namespace Sandbox.Graphics.GUI
                 }
 
                 //Paste
-                if (MyInput.Static.IsNewKeyPressed(MyKeys.V) && IsEnoughDelay(MyMultilineTextKeys.V, MyGuiConstants.TEXTBOX_MOVEMENT_DELAY) && MyInput.Static.IsAnyCtrlKeyPressed())
+                if (IsNewPressAndThrottled(MyKeys.V) && MyInput.Static.IsAnyCtrlKeyPressed())
                 {
                     AddToUndo(m_text.ToString());
-                    UpdateLastKeyPressTimes(MyMultilineTextKeys.V);
                     m_selection.PasteText(this);
                     m_currentCarriageLine = CalculateNewCarriageLine(CarriagePositionIndex);
                     m_currentCarriageColumn = GetCarriageColumn(CarriagePositionIndex);
@@ -94,9 +92,8 @@ namespace Sandbox.Graphics.GUI
                 }
             
                 //  Move home
-                if ((MyInput.Static.IsNewKeyPressed(MyKeys.Home)) && (IsEnoughDelay(MyMultilineTextKeys.HOME, MyGuiConstants.TEXTBOX_MOVEMENT_DELAY)))         
+                if ((IsNewPressAndThrottled(MyKeys.Home)))
                 {
-                    
                     int lineIndex = GetLineStartIndex(CarriagePositionIndex);
                     //offset carriage to first letter of the line
                     while(lineIndex < CarriagePositionIndex && Text[lineIndex] == ' ')
@@ -118,15 +115,12 @@ namespace Sandbox.Graphics.GUI
                         m_selection.Reset(this);
                     }
                     m_currentCarriageColumn = GetCarriageColumn(CarriagePositionIndex);
-                    UpdateLastKeyPressTimes(MyMultilineTextKeys.HOME);
-                    baseResult = this;
                     return this;
                 }
 
                 //  Move end
-                if ((MyInput.Static.IsNewKeyPressed(MyKeys.End)) && (IsEnoughDelay(MyMultilineTextKeys.END, MyGuiConstants.TEXTBOX_MOVEMENT_DELAY)))
+                if ((this.IsNewPressAndThrottled(MyKeys.End)))
                 {
-                    
                     int lineIndex = GetLineEndIndex(CarriagePositionIndex);
                     CarriagePositionIndex = lineIndex;
                     if (MyInput.Static.IsAnyShiftKeyPressed())
@@ -142,10 +136,9 @@ namespace Sandbox.Graphics.GUI
                         m_selection.Reset(this);
                     }
                     m_currentCarriageColumn = GetCarriageColumn(CarriagePositionIndex);
-                    UpdateLastKeyPressTimes(MyMultilineTextKeys.END);
-                    baseResult = this;
                     return this;
                 }
+
                 if (MyInput.Static.IsKeyPress(MyKeys.Left) || MyInput.Static.IsKeyPress(MyKeys.Right))
                 {
                     m_currentCarriageColumn = GetCarriageColumn(CarriagePositionIndex);
@@ -223,7 +216,7 @@ namespace Sandbox.Graphics.GUI
             }
 
             // Unbuffered Delete because it's not delivered as a message through Win32 message loop.
-            if (MyInput.Static.IsKeyPress(MyKeys.Delete) && IsEnoughDelay(MyMultilineTextKeys.DELETE, MyGuiConstants.TEXTBOX_MOVEMENT_DELAY))
+            if (GetTextKeyStatus(MyKeys.Delete) == TextKeyStatus.PRESSED_AND_READY)
             {
                 m_currentCarriageColumn = GetCarriageColumn(CarriagePositionIndex);
                 AddToUndo(m_text.ToString());
@@ -231,8 +224,6 @@ namespace Sandbox.Graphics.GUI
                     ApplyDelete();
                 else
                     m_selection.EraseText(this);
-
-                UpdateLastKeyPressTimes(MyMultilineTextKeys.DELETE);
                 textChanged = true;
             }
 
