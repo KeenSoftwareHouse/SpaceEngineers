@@ -225,6 +225,20 @@ namespace Sandbox.Game.Entities.Blocks
             SlimBlock.ComponentStack.IsFunctionalChanged += ComponentStack_IsFunctionalChanged;
         }
 
+        void Inventory_ContentsChanged(MyInventory obj)
+        {
+            CubeGrid.SetInventoryMassDirty();
+        }
+
+        internal override float GetMass()
+        {
+            var mass = base.GetMass();
+            if (MySession.Static.Settings.EnableInventoryMass)
+                return mass + (float)m_inventory.CurrentMass;
+            else
+                return mass;
+        }
+
         public override MyObjectBuilder_CubeBlock GetObjectBuilderCubeBlock(bool copy = false)
         {
             var builder = (MyObjectBuilder_OxygenGenerator)base.GetObjectBuilderCubeBlock(copy);
@@ -422,9 +436,14 @@ namespace Sandbox.Game.Entities.Blocks
             }
         }
 
+        private Color m_prevEmissiveColor = Color.Black;
         private void SetEmissive(Color color)
         {
-            MyCubeBlock.UpdateEmissiveParts(Render.RenderObjectIDs[0], 1.0f, color, Color.White);
+            if (m_prevEmissiveColor != color)
+            {
+                MyCubeBlock.UpdateEmissiveParts(Render.RenderObjectIDs[0], 1.0f, m_prevEmissiveColor, Color.White);
+                m_prevEmissiveColor = color;
+            }
         }
         #endregion
 
@@ -580,12 +599,20 @@ namespace Sandbox.Game.Entities.Blocks
                     if (iceAmount < (float)item.Amount)
                     {
                         m_inventory.RemoveItems(item.ItemId, (MyFixedPoint)iceAmount);
+                        if (MySession.Static.Settings.EnableInventoryMass)
+                        {
+                            m_inventory.ContentsChanged += Inventory_ContentsChanged;
+                        }
                         return;
                     }
                     else
                     {
                         iceAmount -= (float)item.Amount;
                         m_inventory.RemoveItems(item.ItemId);
+                        if (MySession.Static.Settings.EnableInventoryMass)
+                        {
+                            m_inventory.ContentsChanged += Inventory_ContentsChanged;
+                        }
                     }
                 }
             }

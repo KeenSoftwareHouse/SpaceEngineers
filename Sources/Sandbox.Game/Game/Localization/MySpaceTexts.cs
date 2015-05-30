@@ -6170,6 +6170,56 @@ namespace Sandbox.Game.Localization
         public static readonly MyStringId BlockPropertyTitle_Motor_Height = MyStringId.GetOrCompute("BlockPropertyTitle_Motor_Height");
 
         ///<summary>
+        ///The maximum angle that the wheel will turn when steering
+        ///</summary>
+        public static readonly MyStringId BlockPropertyDescription_Motor_MaxSteerAngle = MyStringId.GetOrCompute("BlockPropertyDescription_Motor_MaxSteerAngle");
+
+        ///<summary>
+        ///Steering Angle
+        ///</summary>
+        public static readonly MyStringId BlockPropertyTitle_Motor_MaxSteerAngle = MyStringId.GetOrCompute("BlockPropertyTitle_Motor_MaxSteerAngle");
+
+        ///<summary>
+        ///The wheel turn speed.
+        ///</summary>
+        public static readonly MyStringId BlockPropertyDescription_Motor_SteerSpeed = MyStringId.GetOrCompute("BlockPropertyDescription_Motor_SteerSpeed");
+
+        ///<summary>
+        ///Steering Speed
+        ///</summary>
+        public static readonly MyStringId BlockPropertyTitle_Motor_SteerSpeed = MyStringId.GetOrCompute("BlockPropertyTitle_Motor_SteerSpeed");
+
+        ///<summary>
+        ///The wheel's return speed from turning.
+        ///</summary>
+        public static readonly MyStringId BlockPropertyDescription_Motor_SteerReturnSpeed = MyStringId.GetOrCompute("BlockPropertyDescription_Motor_SteerReturnSpeed");
+
+        ///<summary>
+        ///Steer Return Speed
+        ///</summary>
+        public static readonly MyStringId BlockPropertyTitle_Motor_SteerReturnSpeed = MyStringId.GetOrCompute("BlockPropertyTitle_Motor_SteerReturnSpeed");
+
+        ///<summary>
+        ///Invert the steering direction.
+        ///</summary>
+        public static readonly MyStringId BlockPropertyDescription_Motor_InvertSteer = MyStringId.GetOrCompute("BlockPropertyDescription_Motor_InvertSteer");
+
+        ///<summary>
+        ///Invert Steering
+        ///</summary>
+        public static readonly MyStringId BlockPropertyTitle_Motor_InvertSteer = MyStringId.GetOrCompute("BlockPropertyTitle_Motor_InvertSteer");
+
+        ///<summary>
+        ///Limits the suspension's travel height. Setting to 0% will effectively lock the suspension.
+        ///</summary>
+        public static readonly MyStringId BlockPropertyDescription_Motor_SuspensionTravel = MyStringId.GetOrCompute("BlockPropertyDescription_Motor_SuspensionTravel");
+
+        ///<summary>
+        ///Suspension Travel
+        ///</summary>
+        public static readonly MyStringId BlockPropertyTitle_Motor_SuspensionTravel = MyStringId.GetOrCompute("BlockPropertyTitle_Motor_SuspensionTravel");
+
+        ///<summary>
         ///Centered Window
         ///</summary>
         public static readonly MyStringId DisplayName_Block_VerticalCen = MyStringId.GetOrCompute("DisplayName_Block_VerticalCen");
@@ -10410,7 +10460,7 @@ namespace Sandbox.Game.Localization
         public static readonly MyStringId GuiScenarioStart = MyStringId.GetOrCompute("GuiScenarioStart");
 
         ///<summary>
-        ///Docking Mode
+        ///Precision Mode
         ///</summary>
         public static readonly MyStringId BlockPropertyTitle_EnableDockingMode = MyStringId.GetOrCompute("BlockPropertyTitle_EnableDockingMode");
 
@@ -10468,5 +10518,35 @@ namespace Sandbox.Game.Localization
         ///Scenario
         ///</summary>
         public static readonly MyStringId WorldSettings_GameScenario = MyStringId.GetOrCompute("WorldSettings_GameScenario");
+
+        ///<summary>
+        ///Enable inventory mass
+        ///</summary>
+        public static readonly MyStringId WorldSettings_InventoryMass = MyStringId.GetOrCompute("WorldSettings_InventoryMass");
+
+        ///<summary>
+        ///Cockpit is damaged
+        ///</summary>
+        public static readonly MyStringId Notification_CockpitIsDamaged = MyStringId.GetOrCompute("Notification_CockpitIsDamaged");
+
+        ///<summary>
+        ///Target outside movement range
+        ///</summary>
+        public static readonly MyStringId LaserAntennaOutsideLimits = MyStringId.GetOrCompute("LaserAntennaOutsideLimits");
+
+        ///<summary>
+        ///Tonemapping
+        ///</summary>
+        public static readonly MyStringId ScreenGraphicsOptions_Tonemapping = MyStringId.GetOrCompute("ScreenGraphicsOptions_Tonemapping");
+
+        ///<summary>
+        ///Disable respawn ships
+        ///</summary>
+        public static readonly MyStringId WorldSettings_DisableRespawnShips = MyStringId.GetOrCompute("WorldSettings_DisableRespawnShips");
+
+        ///<summary>
+        ///Respawn in ships and suit is disabled. If no valid medical rooms exist, respawn won't be possible at all!
+        ///</summary>
+        public static readonly MyStringId ToolTipWorldSettings_DisableRespawnShips = MyStringId.GetOrCompute("ToolTipWorldSettings_DisableRespawnShips");
     }
 }

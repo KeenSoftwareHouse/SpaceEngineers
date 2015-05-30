@@ -587,6 +587,11 @@ namespace Sandbox.Game.Entities
                 MyHud.ShipInfo.LandingGearsLocked = CubeGrid.GridSystems.LandingSystem[Interfaces.LandingGearMode.Locked];
                 MyHud.ShipInfo.LandingGearsInProximity = CubeGrid.GridSystems.LandingSystem[Interfaces.LandingGearMode.ReadyToLock];
 
+                if (MySession.Static.Settings.EnableInventoryMass)
+                {
+                    MyHud.ShipInfo.Mass = (int)Parent.Physics.Mass;
+                }
+
                 if (GridPowerDistributor.ProducersEnabled != MyMultipleEnabledEnum.NoObjects)
                 {
                     if (GridPowerDistributor.ProducersEnabled == MyMultipleEnabledEnum.AllEnabled)
@@ -1543,6 +1548,8 @@ namespace Sandbox.Game.Entities
                     MyHud.Notifications.Add(MyNotificationSingletons.AccessDenied);
                 else if (actionResult == UseActionResult.Unpowered)
                     MyHud.Notifications.Add(new MyHudNotification(MySpaceTexts.BlockIsNotPowered, 2500, MyFontEnum.Red));
+                else if (actionResult == UseActionResult.CockpitDamaged)
+                    MyHud.Notifications.Add(new MyHudNotification(MySpaceTexts.Notification_CockpitIsDamaged, 2500, MyFontEnum.Red));
             }
         }
 

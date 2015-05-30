@@ -42,5 +42,10 @@ namespace Sandbox.Game.Entities.Cube
         {
             get { return m_needLineOfSight; }
         }
+
+        bool ModAPI.Ingame.IMyLaserAntenna.IsOutsideLimits
+        {
+            get { return m_outsideLimits; }
+        }
     }
 }
