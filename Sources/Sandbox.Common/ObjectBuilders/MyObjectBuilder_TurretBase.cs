@@ -75,6 +75,7 @@ namespace Sandbox.Common.ObjectBuilders
             }
 
             RemainingAmmo = 0;
+            GunBase.ClearRemainingAmmos();
         }
     }
 }

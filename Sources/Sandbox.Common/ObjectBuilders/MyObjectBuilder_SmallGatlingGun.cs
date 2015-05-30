@@ -21,6 +21,7 @@ namespace Sandbox.Common.ObjectBuilders
             base.SetupForProjector();
             if (Inventory != null)
                 Inventory.Clear();
+            GunBase.ClearRemainingAmmos();
         }
     }
 }
