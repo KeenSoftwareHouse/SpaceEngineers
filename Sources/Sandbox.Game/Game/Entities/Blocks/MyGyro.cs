@@ -87,7 +87,7 @@ namespace Sandbox.Game.Entities
                 var gyroOverride = new MyTerminalControlCheckbox<MyGyro>("Override", MySpaceTexts.BlockPropertyTitle_GyroOverride, MySpaceTexts.BlockPropertyDescription_GyroOverride);
                 gyroOverride.Getter = (x) => x.GyroOverride;
                 gyroOverride.Setter = (x, v) => { x.SetGyroOverride(v); x.SyncObject.SendGyroOverrideRequest(v); };
-                gyroOverride.EnableAction();
+                gyroOverride.EnableToggleAction();
                 MyTerminalControlFactory.AddControl(gyroOverride);
 
                 // Pitch = X axis, Yaw = Y axis, Roll = Z axis

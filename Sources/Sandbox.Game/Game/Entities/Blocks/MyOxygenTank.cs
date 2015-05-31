@@ -96,7 +96,7 @@ namespace Sandbox.Game.Entities.Blocks
             var autoRefill = new MyTerminalControlCheckbox<MyOxygenTank>("Auto-Refill", MySpaceTexts.BlockPropertyTitle_AutoRefill, MySpaceTexts.BlockPropertyTitle_AutoRefill);
             autoRefill.Getter = (x) => x.m_autoRefill;
             autoRefill.Setter = (x, v) => x.SyncObject.ChangeAutoRefill(v);
-            autoRefill.EnableAction();
+            autoRefill.EnableToggleAction();
             MyTerminalControlFactory.AddControl(autoRefill);
         }
 

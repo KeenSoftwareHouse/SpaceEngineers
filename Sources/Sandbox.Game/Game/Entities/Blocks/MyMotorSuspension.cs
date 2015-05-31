@@ -148,7 +148,7 @@ namespace Sandbox.Game.Entities.Cube
             var steering = new MyTerminalControlCheckbox<MyMotorSuspension>("Steering", MySpaceTexts.BlockPropertyTitle_Motor_Steering, MySpaceTexts.BlockPropertyDescription_Motor_Steering);
             steering.Getter = (x) => x.Steering;
             steering.Setter = (x, v) => x.SyncObject.ChangeSteering(v);
-            steering.EnableAction();
+            steering.EnableToggleAction();
             steering.Enabled = (x) => x.m_constraint != null;
             MyTerminalControlFactory.AddControl(steering);
 

@@ -125,7 +125,7 @@ namespace Sandbox.Game.Entities.Cube
             var autoLock = new MyTerminalControlCheckbox<MyLandingGear>("Autolock", MySpaceTexts.BlockPropertyTitle_LandGearAutoLock, MySpaceTexts.Blank);
             autoLock.Getter = (b) => b.m_autoLock;
             autoLock.Setter = (b, v) => b.SyncObject.SendAutoLockChange(v);
-            autoLock.EnableAction();
+            autoLock.EnableToggleAction();
             MyTerminalControlFactory.AddControl(autoLock);
 
             if (MyFakes.LANDING_GEAR_BREAKABLE)

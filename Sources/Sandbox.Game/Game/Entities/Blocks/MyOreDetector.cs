@@ -45,7 +45,7 @@ namespace Sandbox.Game.Entities.Cube
             var broadcastUsingAntennas = new MyTerminalControlCheckbox<MyOreDetector>("BroadcastUsingAntennas", MySpaceTexts.BlockPropertyDescription_BroadcastUsingAntennas, MySpaceTexts.BlockPropertyDescription_BroadcastUsingAntennas);
             broadcastUsingAntennas.Getter = (x) => x.m_oreDetectorComponent.BroadcastUsingAntennas;
             broadcastUsingAntennas.Setter = (x, v) => x.SyncObject.SendChangeOreDetector(v);
-            broadcastUsingAntennas.EnableAction();
+            broadcastUsingAntennas.EnableToggleAction();
             MyTerminalControlFactory.AddControl(broadcastUsingAntennas);
         }
 
