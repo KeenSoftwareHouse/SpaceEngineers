@@ -183,7 +183,7 @@ namespace Sandbox.Game.Gui
 
         protected const string SHIP_GROUPS_NAME = "Groups";
         protected const string CHARACTER_ANIMATIONS_GROUP_NAME = "CharacterAnimations";
-        protected const string WEAPON_GROUP = "WeaponGroup/";
+        protected const string WEAPON_GROUP = "_WeaponGroup";
 
         protected string[] m_forcedCategoryOrder = new string[] { "ShipWeaponsTools", "WeaponsTools", "CharacterTools", CHARACTER_ANIMATIONS_GROUP_NAME, SHIP_GROUPS_NAME };
 
@@ -587,7 +587,7 @@ namespace Sandbox.Game.Gui
                                 {
                                     continue;
                                 }
-                                groups.Add(WEAPON_GROUP + group.Name.ToString());
+                                groups.Add(group.Name.ToString() + WEAPON_GROUP);
                             }
                             if (groups.Count > 0)
                             {
@@ -905,7 +905,7 @@ namespace Sandbox.Game.Gui
             Array.Sort(groupArray, MyTerminalComparer.Static);
             foreach (MyBlockGroup group in groupArray)
             {
-                if (null != searchCondition && false == searchCondition.MatchesCondition(WEAPON_GROUP + group.Name.ToString()))
+                if (null != searchCondition && false == searchCondition.MatchesCondition(group.Name.ToString() + WEAPON_GROUP))
                 {
                     continue;
                 }
