@@ -886,10 +886,6 @@ namespace Sandbox.Game.Gui
             } 
         }
 
-        class WeaponGroup : MyObjectBuilder_Base
-        {
-
-        }
 
         void AddTools(MyShipController shipController, IMySearchCondition searchCondition)
         {
