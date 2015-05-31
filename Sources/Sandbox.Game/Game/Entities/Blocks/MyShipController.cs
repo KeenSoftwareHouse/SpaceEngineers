@@ -430,7 +430,7 @@ namespace Sandbox.Game.Entities
         public override void UpdateAfterSimulation()
         {
             base.UpdateAfterSimulation();
-            
+
             UpdateShipInfo();
 
             //Debug.Assert(GridGyroSystem != null && GridThrustSystem != null && Parent.Physics != null && m_cameraSpring != null && m_cameraShake != null, "CALL PROGRAMMER, this cant happen");

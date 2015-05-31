@@ -120,6 +120,7 @@ namespace Sandbox.Game.Entities
         public Vector3 COTOffsetVector { get; set; }
         public Vector3 StaticMoment    { get; set; }
         public float   PrevStrength    { get; set; }
+        public Vector3 ThrustTorque    { get; set; }
 
         /// <summary>
         /// Overridden thrust in Newtons
