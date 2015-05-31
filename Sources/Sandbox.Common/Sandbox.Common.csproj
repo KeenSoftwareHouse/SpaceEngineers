@@ -402,6 +402,7 @@
     <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_OxygenTankDefinition.cs" />
     <Compile Include="ObjectBuilders\MyObjectBuilder_DestroyableItem.cs" />
     <Compile Include="ObjectBuilders\MyObjectBuilder_ToolbarItemAreaMarker.cs" />
+    <Compile Include="ObjectBuilders\MyObjectBuilder_ToolbarItemWeaponGroup.cs" />
     <Compile Include="ObjectBuilders\Obsolete\MyObjectBuilder_Bushes.cs" />
     <Compile Include="ObjectBuilders\MyObjectBuilder_ConveyorSorter.cs" />
     <Compile Include="ObjectBuilders\MyObjectBuilder_Environment.cs" />

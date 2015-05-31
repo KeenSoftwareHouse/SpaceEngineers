@@ -1300,7 +1300,8 @@ namespace Sandbox.Game.Entities
                 type == typeof(MyObjectBuilder_SmallGatlingGun) ||
                 type == typeof(MyObjectBuilder_ShipGrinder) ||
                 type == typeof(MyObjectBuilder_ShipWelder) ||
-                type == typeof(MyObjectBuilder_SmallMissileLauncherReload))
+                type == typeof(MyObjectBuilder_SmallMissileLauncherReload)||
+                type == typeof(MyObjectBuilder_ToolbarItemWeaponGroup))
             {
                 return true;
             }
@@ -1356,7 +1357,14 @@ namespace Sandbox.Game.Entities
             {
                 if (m_weaponSelectedNotification == null)
                     m_weaponSelectedNotification = new MyHudNotification(MySpaceTexts.NotificationSwitchedToWeapon);
-                m_weaponSelectedNotification.SetTextFormatArguments(MyDeviceBase.GetGunNotificationName(m_selectedGunId.Value));
+                if (m_selectedGunId.Value.TypeId == typeof(MyObjectBuilder_ToolbarItemWeaponGroup))
+                {
+                    m_weaponSelectedNotification.SetTextFormatArguments(m_selectedGunId.Value.SubtypeName);
+                }
+                else
+                {
+                    m_weaponSelectedNotification.SetTextFormatArguments(MyDeviceBase.GetGunNotificationName(m_selectedGunId.Value));
+                }
                 MyHud.Notifications.Add(m_weaponSelectedNotification);
             }
         }

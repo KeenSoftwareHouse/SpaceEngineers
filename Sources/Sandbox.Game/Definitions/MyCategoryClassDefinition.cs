@@ -28,6 +28,20 @@ namespace Sandbox.Definitions
             }
         }
 
+        public override MyObjectBuilder_DefinitionBase GetObjectBuilder()
+        {
+            MyObjectBuilder_GuiBlockCategoryDefinition builder = (MyObjectBuilder_GuiBlockCategoryDefinition)base.GetObjectBuilder();
+            builder.Name = this.Name;
+            builder.ItemIds = this.ItemIds.ToArray();
+            builder.IsBlockCategory = this.IsBlockCategory;
+            builder.IsShipCategory = this.IsShipCategory;
+            builder.SearchBlocks = this.SearchBlocks;
+            builder.ShowAnimations = this.ShowAnimations;
+            builder.Public = this.Public;
+
+            return builder;
+        }
+
         protected override void Init(MyObjectBuilder_DefinitionBase ob)
         {
             base.Init(ob);
