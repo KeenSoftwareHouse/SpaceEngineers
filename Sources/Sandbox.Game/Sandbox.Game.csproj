@@ -116,6 +116,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Definitions\MyAdvancedDoorDefinition.cs" />
     <Compile Include="Definitions\MyAiCommandBehaviorDefinition.cs" />
     <Compile Include="Definitions\MyAirtightDoorGenericDefinition.cs" />
     <Compile Include="Definitions\MyAirtightHangarDoorDefinition.cs" />
@@ -397,6 +398,7 @@
     <Compile Include="Game\Components\Renders\MyRenderComponentVoxelMap.cs" />
     <Compile Include="Game\Components\DebugRenders\MyDebugRenderComponentLadder.cs" />
     <Compile Include="Game\Console\MyCommandScript.cs" />
+    <Compile Include="Game\Entities\Blocks\MyAdvancedDoor.cs" />
     <Compile Include="Game\Entities\Blocks\MyAirtightDoorGeneric.cs" />
     <Compile Include="Game\Entities\Blocks\MyAirtightHangarDoor.cs" />
     <Compile Include="Game\Entities\Blocks\MyConveyorSorter.cs" />
@@ -434,6 +436,7 @@
     <Compile Include="Game\Entities\Character\MyCharacterBreath.cs" />
     <Compile Include="Game\Entities\Character\MyChatHistory.cs" />
     <Compile Include="Game\Entities\Character\MyInverseKinematics.cs" />
+    <Compile Include="Game\Entities\Cube\MyUseObjectAdvancedDoorTerminal.cs" />
     <Compile Include="Game\Entities\Inventory\IMyComponentInventory.cs" />
     <Compile Include="Game\Entities\MyCompositeGameLogicComponent.cs" />
     <Compile Include="Game\Entities\Cube\MyBlockGroupData.cs" />
@@ -564,6 +567,7 @@
       <AutoGen>True</AutoGen>
     </Compile>
     <Compile Include="Game\Multiplayer\MyGpsCollection.cs" />
+    <Compile Include="Game\Multiplayer\MySyncAdvancedDoor.cs" />
     <Compile Include="Game\Multiplayer\MySyncAirtightDoorGeneric.cs" />
     <Compile Include="Game\Multiplayer\MySyncConveyorSorter.cs" />
     <Compile Include="Game\Multiplayer\MySyncCryoChamber.cs" />

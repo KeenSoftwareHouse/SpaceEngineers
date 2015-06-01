@@ -319,6 +319,8 @@ namespace Sandbox.Game.Entities
             // temporary hack until dummy for door terminal is renamed
             if (this is MyDoor && detectorName == "terminal")
                 return new MyUseObjectDoorTerminal(this, dummyName, dummyData, shapeKey);
+            else if (this is MyAdvancedDoor && detectorName == "terminal")
+                return new MyUseObjectAdvancedDoorTerminal(this, dummyName, dummyData, shapeKey);
 
             return MyUseObjectFactory.CreateUseObject(detectorName, this, dummyName, dummyData, shapeKey);
         }
