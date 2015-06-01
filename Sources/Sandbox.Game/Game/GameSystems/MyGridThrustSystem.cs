@@ -154,6 +154,10 @@ namespace Sandbox.Game.GameSystems
 
         public Vector3 LocalAngularVelocity { get; private set; }
 
+        public bool    IsAutopilotActive         { get; set; }
+        public bool    IsCourseEstablished       { get; set; }
+        public Vector3 AutopilotAngularDeviation { get; set; }
+
         #endregion
 
         public MyGridThrustSystem(MyCubeGrid grid)
@@ -372,6 +376,7 @@ namespace Sandbox.Game.GameSystems
             if (!updateThrust)
                 return;
 
+            var gyros = m_grid.GridSystems.GyroSystem;
             Vector3 adjustedThrust = Vector3.Zero;
             InitializeThrottleAndCOMOffset(m_thrustsByDirection[Vector3I.Left    ], thrustPositive.X, ref adjustedThrust, ref invWorldRot);
             InitializeThrottleAndCOMOffset(m_thrustsByDirection[Vector3I.Down    ], thrustPositive.Y, ref adjustedThrust, ref invWorldRot);
@@ -384,10 +389,11 @@ namespace Sandbox.Game.GameSystems
 
             LocalAngularVelocity = Vector3.Transform(m_grid.Physics.AngularVelocity, ref invWorldRot);
             // A quick'n'dirty way of making torque optional. Activating gyroscope override also disables RCS.
-            if (   MySession.Static.ThrusterDamage && !m_grid.GridSystems.GyroSystem.IsGyroOverrideActive 
-                && (m_grid.Physics.AngularVelocity != Vector3.Zero || m_grid.Physics.LinearVelocity != Vector3.Zero || ControlTorque != Vector3.Zero))
+            if (   MySession.Static.ThrusterDamage && !gyros.IsGyroOverrideActive 
+                && (   m_grid.Physics.AngularVelocity != Vector3.Zero || m_grid.Physics.LinearVelocity != Vector3.Zero 
+                    || ControlTorque != Vector3.Zero || IsAutopilotActive))
             {
-                // Add a magic force that mimics TurboBrake of stock inertia dampeners. Not entirely accurate, but since it's magic, no big deal.
+                // Add a magic force that mimics TurboBrake of stock inertia dampeners. Not entirely accurate, but since it's magic, it's no huge deal.
                 adjustedThrust += thrust - thrustPositive * m_maxPositiveThrust + thrustNegative * m_maxNegativeThrust;
                 
                 bool useAcceleratingMode = adjustedThrust.Length() / m_grid.Physics.Mass > STATIC_MODE_MAX_ACC;
@@ -406,8 +412,9 @@ namespace Sandbox.Game.GameSystems
 
                 LocalAngularVelocity = Vector3.Transform(m_grid.Physics.AngularVelocity, ref invWorldRot);
                 
-                // Don't use thruster stabilisation when gyroscopes are operational.
-                if (ControlTorque.LengthSquared() >= 0.0001f || m_grid.GridSystems.GyroSystem.MaxGyroForce > 0.0f)  
+                bool areGyroscopesSaturated = 0.75f * gyros.MaxGyroForce <= gyros.SlowdownTorque.Length();
+                // Don't use thruster stabilisation unless gyroscopes are saturated or inoperative.
+                if (ControlTorque.LengthSquared() >= 0.0001f || !areGyroscopesSaturated)  
                     m_enableIntegral = false;
                 else
                 {
@@ -418,7 +425,25 @@ namespace Sandbox.Game.GameSystems
                     }
                     m_enableIntegral = true;
                 }
-                m_DesiredAngularVelocityStab = m_enableIntegral ? (m_DesiredAngularVelocityStab + LocalAngularVelocity * ANGULAR_STABILISATION) : Vector3.Zero;
+
+                if (!IsAutopilotActive)
+                {
+                    m_DesiredAngularVelocityStab = m_enableIntegral ? (m_DesiredAngularVelocityStab + LocalAngularVelocity * ANGULAR_STABILISATION) : Vector3.Zero;
+                    IsCourseEstablished = false;    // Just in case.
+                }
+                else if (IsCourseEstablished)
+                {
+                    // Don't use thruster stabilisation unless gyroscopes are saturated or inoperative.
+                    if (!areGyroscopesSaturated)
+                        m_DesiredAngularVelocityStab = Vector3.Zero;
+                    else
+                        m_DesiredAngularVelocityStab = (-AutopilotAngularDeviation) * (ANGULAR_STABILISATION * MyEngineConstants.UPDATE_STEPS_PER_SECOND);
+                    m_resetIntegral = false;
+                }
+                else
+                    m_DesiredAngularVelocityStab = Vector3.Zero;
+                IsAutopilotActive = false;  // Needs to be done here and not in the remote control code, as there may be more than 1 RC block.
+
                 if (m_resetIntegral && Vector3.Dot(LocalAngularVelocity, m_AngularVelocityAtRelease) <= 0.0f)
                 {
                     m_DesiredAngularVelocityStab = Vector3.Zero;
@@ -634,7 +659,7 @@ namespace Sandbox.Game.GameSystems
 
         private void AdjustThrustForRotation(HashSet<MyThrust> thrusters, Vector3 primaryAxisDirection, ref Vector3 thrustTotalForce, float thrustMaxForce, Vector3 localAngularVelocity, Vector3 desiredAngularVelocity)
         {
-            const float DAMPING_CONSTANT             = 0.1f;
+            const float DAMPING_CONSTANT             = 10.0f;
             const float MAX_THRUST_TO_ALLOW_SKIPPING = 0.1f;
             Vector3 desiredAcceleration, currentThrust, newThrust, rotForceDir, maxThrust;
             float   thrustMagnitude;
@@ -654,7 +679,7 @@ namespace Sandbox.Game.GameSystems
                 maxThrust           = curThrust.ThrustForce;
                 thrustMagnitude     = maxThrust.Length(); 
                 currentThrust       = maxThrust * curThrust.CurrentStrength;
-                desiredAcceleration = rotForceDir / (DAMPING_CONSTANT * thrustMaxForce / thrustMagnitude);
+                desiredAcceleration = DAMPING_CONSTANT * (rotForceDir * thrustMagnitude / thrustMaxForce);
                 newThrust           = currentThrust + m_grid.Physics.Mass * desiredAcceleration;
                 if (Vector3.Dot(newThrust, curThrust.ThrustForwardVector) >= 0.0f)  // desired force is opposite to thruster's force?
                     newThrust = Vector3.Zero;

@@ -4505,12 +4505,12 @@ namespace Sandbox.Game.Localization
         public static readonly MyStringId NotificationClientDisconnected = MyStringId.GetOrCompute("NotificationClientDisconnected");
 
         ///<summary>
-        ///Thruster damage
+        ///Thruster dmg. & torque
         ///</summary>
         public static readonly MyStringId WorldSettings_ThrusterDamage = MyStringId.GetOrCompute("WorldSettings_ThrusterDamage");
 
         ///<summary>
-        ///Thruster flame deals damage to blocks, players and small objects
+        ///Thruster flame deals damage to blocks, players and small objects.                         Off-center thrusters generate torque.
         ///</summary>
         public static readonly MyStringId ToolTipWorldSettingsThrusterDamage = MyStringId.GetOrCompute("ToolTipWorldSettingsThrusterDamage");
 

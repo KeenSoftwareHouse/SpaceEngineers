@@ -2873,10 +2873,11 @@ Refinery speed {2}x</value>
     <value>Player disconnected: {0}</value>
   </data>
   <data name="WorldSettings_ThrusterDamage" xml:space="preserve">
-    <value>Thruster damage</value>
+    <value>Thruster dmg. &amp; torque</value>
   </data>
   <data name="ToolTipWorldSettingsThrusterDamage" xml:space="preserve">
-    <value>Thruster flame deals damage to blocks, players and small objects</value>
+    <value>Thruster flame deals damage to blocks, players and small objects.
+                        Off-center thrusters generate torque.</value>
   </data>
   <data name="ToolTipWorldSettingsEnableCargoShips" xml:space="preserve">
     <value>Whether random cargo ships should be enabled</value>

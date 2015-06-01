@@ -138,6 +138,10 @@ namespace Sandbox.Game.Entities
         private long? m_savedPreviousControlledEntityId;
         private IMyControllableEntity m_previousControlledEntity;
 
+        private Vector3D m_recordedAngularAcceleration;
+        private Vector3D m_prevAngularVelocity;
+        private double   m_maxAngle;
+
         public IMyControllableEntity PreviousControlledEntity
         {
             get
@@ -899,19 +903,29 @@ namespace Sandbox.Game.Entities
         #region Autopilot Logic
         private void UpdateAutopilot()
         {
+            var gyros     = CubeGrid.GridSystems.GyroSystem;
+            var thrusters = CubeGrid.GridSystems.ThrustSystem;
+
             if (IsWorking && m_autoPilotEnabled && CubeGrid.GridSystems.ControlSystem.GetShipController() == this)
             {
+                gyros.AutopilotAngularDeviation = thrusters.AutopilotAngularDeviation = Vector3.Zero;
+
                 if (m_currentWaypoint == null && m_waypoints.Count > 0)
                 {
+                    gyros.IsCourseEstablished = thrusters.IsCourseEstablished = false;
+                    m_maxAngle        = 0.25;
                     m_currentWaypoint = m_waypoints[0];
-                    m_startPosition = WorldMatrix.Translation;
+                    m_startPosition   = WorldMatrix.Translation;
                     UpdateText();
                 }
 
                 if (m_currentWaypoint != null)
                 {
+                    gyros.IsAutopilotActive = thrusters.IsAutopilotActive = true;
                     if (IsInStoppingDistance())
                     {
+                        gyros.IsCourseEstablished = thrusters.IsCourseEstablished = false;
+                        m_maxAngle = 0.25;
                         AdvanceWaypoint();
                     }
 
@@ -1053,7 +1067,6 @@ namespace Sandbox.Game.Entities
             Matrix invWorldRot = CubeGrid.PositionComp.WorldMatrixNormalizedInv.GetOrientation();
 
             Vector3D targetPos  = m_currentWaypoint.Coords;
-            //Vector3D currentPos = m_startPosition;
             Vector3D currentPos = WorldMatrix.Translation;
             Vector3D deltaPos   = targetPos - currentPos;
 
@@ -1070,24 +1083,40 @@ namespace Sandbox.Game.Entities
             double angle = System.Math.Acos(Vector3D.Dot(targetDirection, WorldMatrix.Forward));
             if (angle < 0.01)
             {
-                return false;
+                gyros.IsCourseEstablished = thrusters.IsCourseEstablished = true;
             }
 
-            if (velocity.LengthSquared() > 1.0)
+            if (!gyros.IsCourseEstablished && !thrusters.IsCourseEstablished)
             {
-                Vector3D.Normalize(velocity);
+                // Prevent an unbalanced craft from bouncing back and forth excessively before stabilisers engage.
+                if (angle + 0.01 < m_maxAngle)
+                    m_maxAngle = angle + 0.01;
+
+                if (velocity.LengthSquared() > 1.0)
+                {
+                    Vector3D.Normalize(velocity);
+                }
+
+                Vector3D deceleration = (angularVelocity - m_prevAngularVelocity) / MyEngineConstants.UPDATE_STEP_SIZE_IN_SECONDS;
+                // If current deceleration is greater than last recorded one, then use the former.
+                // Otherwise take a weighed average to smooth changes in torque (important when rotating solely on thrusters).
+                if (deceleration.LengthSquared() < m_recordedAngularAcceleration.LengthSquared())
+                    deceleration = m_recordedAngularAcceleration * 0.8 + deceleration * 0.2;
+                m_prevAngularVelocity         = angularVelocity;
+                m_recordedAngularAcceleration = deceleration;
+                double timeToStop        = angularVelocity.Length() /    deceleration.Length();
+                double timeToReachTarget =                    angle / angularVelocity.Length();
+
+                if (double.IsNaN(timeToStop) || double.IsInfinity(timeToReachTarget) || timeToReachTarget > timeToStop)
+                {
+                    gyros.ControlTorque = CubeGrid.GridSystems.ThrustSystem.ControlTorque = velocity;
+                }
             }
+            if (velocity != Vector3.Zero)
+                velocity.Normalize();
+            gyros.AutopilotAngularDeviation = thrusters.AutopilotAngularDeviation = velocity * angle;
 
-            Vector3D deceleration = angularVelocity - gyros.GetAngularVelocity(-velocity);
-            double timeToStop = (angularVelocity / deceleration).Max();
-            double timeToReachTarget = (angle / velocityToTarget.Length()) * angle;
-
-            if (double.IsNaN(timeToStop) || double.IsInfinity(timeToReachTarget) || timeToReachTarget > timeToStop)
-            {
-                gyros.ControlTorque = CubeGrid.GridSystems.ThrustSystem.ControlTorque = velocity;
-            }
-
-            return angle > 0.25;
+            return angle > m_maxAngle && !gyros.IsCourseEstablished && !thrusters.IsCourseEstablished;
         }
 
         private void UpdateThrust()
@@ -1152,10 +1181,10 @@ namespace Sandbox.Game.Entities
                 if (m_autoPilotAccelerate)
                 {
                     thrustSystem.AutoPilotThrust = Vector3D.Transform(delta, invWorldRot);
+                    thrustSystem.AutoPilotThrust.Normalize();
                     var localVelocityToCancel = Vector3D.Transform(velocityToCancel, invWorldRot);
                     if (localVelocityToCancel != Vector3.Zero)
                         thrustSystem.AutoPilotThrust -= (localVelocityToCancel.LengthSquared() > 0.01f) ? Vector3D.Normalize(localVelocityToCancel) : (localVelocityToCancel * 10.0f);
-                    thrustSystem.AutoPilotThrust.Normalize();
                 }
                 else if (m_autoPilotCoast)
                 {
