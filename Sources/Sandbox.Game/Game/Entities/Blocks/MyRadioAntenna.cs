@@ -156,14 +156,14 @@ namespace Sandbox.Game.Entities.Cube
             enableBroadcast.Getter = (x) => x.RadioBroadcaster.Enabled;
             enableBroadcast.Setter = (x, v) => x.RadioBroadcaster.SyncObject.SendChangeRadioAntennaRequest(x.RadioBroadcaster.BroadcastRadius, v);
             enableBroadcast.EnableToggleAction();
-            enableBroadcast.EnableCheckUncheckActions();
+            enableBroadcast.EnableOnOffActions();
             MyTerminalControlFactory.AddControl(enableBroadcast);
 
             var showShipName = new MyTerminalControlCheckbox<MyRadioAntenna>("ShowShipName", MySpaceTexts.BlockPropertyTitle_ShowShipName, MySpaceTexts.BlockPropertyDescription_ShowShipName);
             showShipName.Getter = (x) => x.ShowShipName;
             showShipName.Setter = (x, v) => x.RadioBroadcaster.SyncObject.SendChangeRadioAntennaDisplayName(v);
             showShipName.EnableToggleAction();
-            showShipName.EnableCheckUncheckActions();
+            showShipName.EnableOnOffActions();
             MyTerminalControlFactory.AddControl(showShipName);
 
         }

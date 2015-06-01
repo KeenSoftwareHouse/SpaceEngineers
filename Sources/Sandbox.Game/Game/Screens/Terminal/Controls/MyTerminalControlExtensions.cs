@@ -81,19 +81,28 @@ namespace Sandbox.Game.Gui
             return checkbox.EnableToggleAction(MyTerminalActionIcons.TOGGLE, name, onText, offText);
         }
 
-        public static void EnableCheckUncheckActions<TBlock>(this MyTerminalControlCheckbox<TBlock> checkbox)
-            where TBlock : MyTerminalBlock
+        public static MyTerminalAction<TBlock> EnableToggleAction<TBlock>(this MyTerminalControlCheckbox<TBlock> onOff, string iconPath)
+           where TBlock : MyTerminalBlock
         {
-            EnableCheckUncheckActions(checkbox, MyTerminalActionIcons.ON, MyTerminalActionIcons.OFF);
+            StringBuilder name = CombineOnOff(onOff.Title, onOff.OnText, onOff.OffText);
+            StringBuilder onText = MyTexts.Get(onOff.OnText);
+            StringBuilder offText = MyTexts.Get(onOff.OffText);
+            return onOff.EnableToggleAction(iconPath, name, onText, offText);
         }
 
-        public static void EnableCheckUncheckActions<TBlock>(this MyTerminalControlCheckbox<TBlock> checkbox, string checkIcon, string uncheckIcon)
+        public static void EnableOnOffActions<TBlock>(this MyTerminalControlCheckbox<TBlock> checkbox)
             where TBlock : MyTerminalBlock
         {
-            StringBuilder checkText = MyTexts.Get(checkbox.OnText);
-            StringBuilder uncheckText = MyTexts.Get(checkbox.OffText);
-            checkbox.EnableCheckAction(checkIcon, GetTitle(checkbox.Title).Append(" ").Append(checkText), checkText, uncheckText);
-            checkbox.EnableUncheckAction(uncheckIcon, GetTitle(checkbox.Title).Append(" ").Append(uncheckText), checkText, uncheckText);
+            EnableOnOffActions(checkbox, MyTerminalActionIcons.ON, MyTerminalActionIcons.OFF);
+        }
+
+        public static void EnableOnOffActions<TBlock>(this MyTerminalControlCheckbox<TBlock> checkbox, string onIcon, string offIcon)
+            where TBlock : MyTerminalBlock
+        {
+            StringBuilder onText = MyTexts.Get(checkbox.OnText);
+            StringBuilder offText = MyTexts.Get(checkbox.OffText);
+            checkbox.EnableOnAction(onIcon, GetTitle(checkbox.Title).Append(" ").Append(onText), onText, offText);
+            checkbox.EnableOffAction(offIcon, GetTitle(checkbox.Title).Append(" ").Append(offText), onText, offText);
         }
 
         public static MyTerminalAction<TBlock> EnableToggleAction<TBlock>(this MyTerminalControlOnOffSwitch<TBlock> onOff)

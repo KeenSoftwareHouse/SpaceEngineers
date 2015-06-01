@@ -101,17 +101,17 @@ namespace Sandbox.Game.Gui
             return action;
         }
 
-        public MyTerminalAction<TBlock> EnableCheckAction(string icon, StringBuilder name, StringBuilder onText, StringBuilder offText)
+        public MyTerminalAction<TBlock> EnableOnAction(string icon, StringBuilder name, StringBuilder onText, StringBuilder offText)
         {
-            var action = new MyTerminalAction<TBlock>(Id + "_Check", name, CheckAction, (x, r) => Writer(x, r, onText, offText), icon);
+            var action = new MyTerminalAction<TBlock>(Id + "_On", name, CheckAction, (x, r) => Writer(x, r, onText, offText), icon);
             AppendAction(action);
 
             return action;
         }
 
-        public MyTerminalAction<TBlock> EnableUncheckAction(string icon, StringBuilder name, StringBuilder onText, StringBuilder offText)
+        public MyTerminalAction<TBlock> EnableOffAction(string icon, StringBuilder name, StringBuilder onText, StringBuilder offText)
         {
-            var action = new MyTerminalAction<TBlock>(Id + "_Uncheck", name, UncheckAction, (x, r) => Writer(x, r, onText, offText), icon);
+            var action = new MyTerminalAction<TBlock>(Id + "_Off", name, UncheckAction, (x, r) => Writer(x, r, onText, offText), icon);
             AppendAction(action);
 
             return action;
