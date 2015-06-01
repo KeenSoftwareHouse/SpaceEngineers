@@ -151,6 +151,7 @@ namespace Sandbox.Game.Entities
             enableBroadcast.Getter = (x) => x.RadioBroadcaster.Enabled;
             enableBroadcast.Setter = (x, v) => x.SyncObject.SendChangeBroadcastRequest(v);
             enableBroadcast.EnableToggleAction();
+            enableBroadcast.EnableOnOffActions();
             MyTerminalControlFactory.AddControl(enableBroadcast);
         }
 

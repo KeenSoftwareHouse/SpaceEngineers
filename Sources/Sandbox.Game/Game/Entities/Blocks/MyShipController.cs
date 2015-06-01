@@ -167,6 +167,7 @@ namespace Sandbox.Game.Entities
             mainCockpit.Enabled = (x) => x.IsMainCockpitFree();
             mainCockpit.Visible = (x) => x.CanBeMainCockpit();
             mainCockpit.EnableToggleAction();
+            mainCockpit.EnableOnOffActions();
 
             MyTerminalControlFactory.AddControl(mainCockpit);
         }

@@ -46,6 +46,7 @@ namespace Sandbox.Game.Entities.Cube
             broadcastUsingAntennas.Getter = (x) => x.m_oreDetectorComponent.BroadcastUsingAntennas;
             broadcastUsingAntennas.Setter = (x, v) => x.SyncObject.SendChangeOreDetector(v);
             broadcastUsingAntennas.EnableToggleAction();
+            broadcastUsingAntennas.EnableOnOffActions();
             MyTerminalControlFactory.AddControl(broadcastUsingAntennas);
         }
 

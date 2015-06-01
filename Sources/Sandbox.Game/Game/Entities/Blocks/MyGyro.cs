@@ -88,6 +88,7 @@ namespace Sandbox.Game.Entities
                 gyroOverride.Getter = (x) => x.GyroOverride;
                 gyroOverride.Setter = (x, v) => { x.SetGyroOverride(v); x.SyncObject.SendGyroOverrideRequest(v); };
                 gyroOverride.EnableToggleAction();
+                gyroOverride.EnableOnOffActions();
                 MyTerminalControlFactory.AddControl(gyroOverride);
 
                 // Pitch = X axis, Yaw = Y axis, Roll = Z axis

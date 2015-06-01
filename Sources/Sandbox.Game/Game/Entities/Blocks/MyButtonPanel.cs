@@ -187,6 +187,7 @@ namespace Sandbox.Game.Entities.Blocks
             checkAccess.Getter = (x) => x.AnyoneCanUse;
             checkAccess.Setter = (x, v) => x.AnyoneCanUse = v;
             checkAccess.EnableToggleAction();
+            checkAccess.EnableOnOffActions();
             MyTerminalControlFactory.AddControl(checkAccess);
 
             var toolbarButton = new MyTerminalControlButton<MyButtonPanel>("Open Toolbar", MySpaceTexts.BlockPropertyTitle_SensorToolbarOpen, MySpaceTexts.BlockPropertyDescription_SensorToolbarOpen,

@@ -126,6 +126,7 @@ namespace Sandbox.Game.Entities.Cube
             autoLock.Getter = (b) => b.m_autoLock;
             autoLock.Setter = (b, v) => b.SyncObject.SendAutoLockChange(v);
             autoLock.EnableToggleAction();
+            autoLock.EnableOnOffActions();
             MyTerminalControlFactory.AddControl(autoLock);
 
             if (MyFakes.LANDING_GEAR_BREAKABLE)
