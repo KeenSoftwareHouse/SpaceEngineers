@@ -733,8 +733,13 @@ namespace Sandbox.Game.GameSystems
 
         private void RecomputeThrustParameters()
         {
-            m_grid.OnBlockAdded   += ScheduleCOMOffsetUpdate;
-            m_grid.OnBlockRemoved += ScheduleCOMOffsetUpdate;
+            m_grid.OnBlockAdded   -= ScheduleCOMOffsetUpdate;
+            m_grid.OnBlockRemoved -= ScheduleCOMOffsetUpdate;
+            if (ThrustCount > 0)
+            {
+                m_grid.OnBlockAdded   += ScheduleCOMOffsetUpdate;
+                m_grid.OnBlockRemoved += ScheduleCOMOffsetUpdate;
+            }
             
             m_totalThrustOverride = Vector3.Zero;
             m_totalThrustOverridePower = 0;
