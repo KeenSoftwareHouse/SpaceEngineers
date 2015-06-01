@@ -808,7 +808,7 @@ namespace Sandbox.Game.Entities.Character
             m_broadcastingNotification = new MyHudNotification();
             m_inertiaDampenersNotification = new MyHudNotification();
             m_jetpackToggleNotification = new MyHudNotification();
-            m_helmetToggleNotification = new MyHudNotification();
+            m_helmetToggleNotification = m_helmetToggleNotification ?? new MyHudNotification(); // Init() is called when toggling helmet so this check is required
 
             m_needsOxygen = Definition.NeedsOxygen;
 
