@@ -568,14 +568,7 @@ namespace VRageRender
                 MyProxiesFactory.Remove(m_cullProxy);
                 m_cullProxy = null;
             }
-            if(m_lods != null)
-            {
-                for(int i=0; i<m_lods.Length; i++)
-                {
-                    m_lods[i].DeallocateProxies();
-                }
-                m_lods = null;
-            }
+            DeallocateLodProxies();
             ModelProperties.Clear();
 
             base.Destruct();
@@ -1023,6 +1016,8 @@ namespace VRageRender
         {
             var objectConstantsSize = sizeof(Matrix);
 
+            DeallocateLodProxies();
+
             Debug.Assert(Mesh.Info.LodsNum == 1);
             m_lods = new MyRenderLod[1];
             m_lods[0] = new MyRenderLod();
@@ -1145,6 +1140,8 @@ namespace VRageRender
                 {
                     objectConstantsSize += sizeof(Matrix) * 60;
                 }
+
+                DeallocateLodProxies();
 
                 m_lods = new MyRenderLod[Mesh.Info.LodsNum];
                 for (int i = 0; i < m_lods.Length; i++)
@@ -1285,6 +1282,16 @@ namespace VRageRender
 
             m_owner.MarkRenderClean();
             return true;
+        }
+
+        private void DeallocateLodProxies()
+        {
+            if (m_lods != null)
+            {
+                for (int i = 0; i < m_lods.Length; i++)
+                    m_lods[i].DeallocateProxies();
+                m_lods = null;
+            }
         }
 
         internal void FreeCustomRenderTextures(MyEntityMaterialKey key)

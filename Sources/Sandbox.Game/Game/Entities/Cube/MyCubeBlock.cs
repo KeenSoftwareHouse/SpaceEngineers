@@ -701,6 +701,9 @@ namespace Sandbox.Game.Entities
             SetDamageEffect(false);
             //Moved to RemoveBlockInternal
             //CubeGrid.ChangeOwner(this, OwnerId, 0);
+
+            SlimBlock.ComponentStack.IsFunctionalChanged -= ComponentStack_IsFunctionalChanged;
+
             base.Closing();
         }
 
