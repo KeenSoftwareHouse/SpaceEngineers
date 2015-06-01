@@ -468,24 +468,22 @@ namespace Sandbox.Game.World.Generator
                 if (!material.SpawnsInAsteroids || material.MinVersion > version) // filter out non-natural and version-incompatible materials
                     continue;
 
-                if (material.MinedOre == "Stone") // Surface
-                    m_surfaceMaterials.Add(material);
-                else if (material.MinedOre == "Iron") // Core
-                    m_coreMaterials.Add(material);
-                else if (material.MinedOre == "Uranium") // Uranium
+                int frequency = material.SpawnFrequencyWeight == null ? 1 : material.SpawnFrequencyWeight;
+                if (material.MaterialType == "Surface")
                 {
-                    // We want more uranium, by design
-                    m_depositMaterials.Add(material);
-                    m_depositMaterials.Add(material);
+                    for (int i = 0; i < material.SpawnFrequencyWeight; i++)
+                        m_surfaceMaterials.Add(material);
                 }
-                else if (material.MinedOre == "Ice")
+                else if (material.MaterialType == "Core")
                 {
-                    // We also want more ice, by design
-                    m_depositMaterials.Add(material);
-                    m_depositMaterials.Add(material);
+                    for (int i = 0; i < material.SpawnFrequencyWeight; i++)
+                        m_coreMaterials.Add(material);
                 }
-                else
-                    m_depositMaterials.Add(material);
+                else // Deposit
+                {
+                    for (int i = 0; i < material.SpawnFrequencyWeight; i++)
+                        m_depositMaterials.Add(material);
+                }
             }
 
             if (m_surfaceMaterials.Count == 0) // this can happen if all materials are disabled or set to not spawn in asteroids

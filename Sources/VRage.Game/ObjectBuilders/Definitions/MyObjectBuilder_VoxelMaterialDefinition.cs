@@ -27,6 +27,12 @@ namespace Sandbox.Common.ObjectBuilders.Definitions
         [ProtoMember]
         public bool IsRare;
 
+        [ProtoMember]
+        public string MaterialType = "Deposit";
+
+        [ProtoMember]
+        public int SpawnFrequencyWeight = 1;
+
         //[ProtoMember]
         //public bool IsIndestructible;
 

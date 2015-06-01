@@ -409,8 +409,12 @@
       <CanBeHarvested>true</CanBeHarvested>
       <!-- Wether it spawns in asteroids, default true (even if undefined) -->
       <SpawnsInAsteroids>true</SpawnsInAsteroids>
-      <!-- True = generated in ore pockets and gets detected by ore detector, false = used as asteroids shell -->
+      <!-- True = gets detected by ore detector -->
       <IsRare>false</IsRare>
+      <!-- {Surface, Core, Deposit} how material is spawned in asteroids, default Deposit (even if undefined) -->
+      <MaterialType>Surface</MaterialType>
+      <!-- Integer frequency of spawn in asteroids relative to all other materials of the same type, default 1 (even if undefined) -->
+      <SpawnFrequencyWeight>1</SpawnFrequencyWeight>
       <!-- Wether it can spawn from meteorite impacts, default true (even if undefined); NOTE: requires IsRare to be true. -->
       <SpawnsFromMeteorites>true</SpawnsFromMeteorites>
       <IsIndestructible>false</IsIndestructible>
@@ -452,6 +456,8 @@
       <MinedOreRatio>1</MinedOreRatio>
       <CanBeHarvested>true</CanBeHarvested>
       <IsRare>false</IsRare>
+      <MaterialType>Surface</MaterialType>
+      <SpawnFrequencyWeight>1</SpawnFrequencyWeight>
       <IsIndestructible>false</IsIndestructible>
       <DamageRatio>0.2</DamageRatio>
       <DiffuseXZ>Textures\Voxels\Stone_02_ForAxisXZ_de.dds</DiffuseXZ>
@@ -491,6 +497,8 @@
       <MinedOreRatio>1</MinedOreRatio>
       <CanBeHarvested>true</CanBeHarvested>
       <IsRare>false</IsRare>
+      <MaterialType>Surface</MaterialType>
+      <SpawnFrequencyWeight>1</SpawnFrequencyWeight>
       <IsIndestructible>false</IsIndestructible>
       <DamageRatio>0.2</DamageRatio>
       <DiffuseXZ>Textures\Voxels\Stone_03_ForAxisXZ_de.dds</DiffuseXZ>
@@ -530,6 +538,8 @@
       <MinedOreRatio>1</MinedOreRatio>
       <CanBeHarvested>true</CanBeHarvested>
       <IsRare>false</IsRare>
+      <MaterialType>Surface</MaterialType>
+      <SpawnFrequencyWeight>1</SpawnFrequencyWeight>
       <IsIndestructible>false</IsIndestructible>
       <DamageRatio>0.2</DamageRatio>
       <DiffuseXZ>Textures\Voxels\Stone_04_ForAxisXZ_de.dds</DiffuseXZ>
@@ -569,6 +579,8 @@
       <MinedOreRatio>1</MinedOreRatio>
       <CanBeHarvested>true</CanBeHarvested>
       <IsRare>false</IsRare>
+      <MaterialType>Surface</MaterialType>
+      <SpawnFrequencyWeight>1</SpawnFrequencyWeight>
       <IsIndestructible>false</IsIndestructible>
       <DamageRatio>0.1</DamageRatio>
       <DiffuseXZ>Textures\Voxels\Stone_05_ForAxisXZ_de.dds</DiffuseXZ>
@@ -603,6 +615,8 @@
       <MinedOreRatio>1</MinedOreRatio>
       <CanBeHarvested>true</CanBeHarvested>
       <IsRare>true</IsRare>
+      <MaterialType>Core</MaterialType>
+      <SpawnFrequencyWeight>1</SpawnFrequencyWeight>
       <IsIndestructible>false</IsIndestructible>
       <DamageRatio>0.4</DamageRatio>
       <DiffuseXZ>Textures\Voxels\Iron_01_ForAxisXZ_de.dds</DiffuseXZ>
@@ -638,6 +652,8 @@
       <MinedOreRatio>1</MinedOreRatio>
       <CanBeHarvested>true</CanBeHarvested>
       <IsRare>true</IsRare>
+      <MaterialType>Core</MaterialType>
+      <SpawnFrequencyWeight>1</SpawnFrequencyWeight>
       <IsIndestructible>false</IsIndestructible>
       <DamageRatio>0.4</DamageRatio>
       <DiffuseXZ>Textures\Voxels\Iron_02_ForAxisXZ_de.dds</DiffuseXZ>
@@ -673,6 +689,8 @@
       <MinedOreRatio>1</MinedOreRatio>
       <CanBeHarvested>true</CanBeHarvested>
       <IsRare>true</IsRare>
+      <MaterialType>Deposit</MaterialType>
+      <SpawnFrequencyWeight>1</SpawnFrequencyWeight>
       <IsIndestructible>false</IsIndestructible>
       <DamageRatio>0.5</DamageRatio>
       <DiffuseXZ>Textures\Voxels\Nickel_01_ForAxisXZ_de.dds</DiffuseXZ>
@@ -708,6 +726,8 @@
       <MinedOreRatio>1</MinedOreRatio>
       <CanBeHarvested>true</CanBeHarvested>
       <IsRare>true</IsRare>
+      <MaterialType>Deposit</MaterialType>
+      <SpawnFrequencyWeight>1</SpawnFrequencyWeight>
       <IsIndestructible>false</IsIndestructible>
       <DamageRatio>0.4</DamageRatio>
       <DiffuseXZ>Textures\Voxels\Cobalt_01_ForAxisXZ_de.dds</DiffuseXZ>
@@ -743,6 +763,8 @@
       <MinedOreRatio>1</MinedOreRatio>
       <CanBeHarvested>true</CanBeHarvested>
       <IsRare>true</IsRare>
+      <MaterialType>Deposit</MaterialType>
+      <SpawnFrequencyWeight>1</SpawnFrequencyWeight>
       <IsIndestructible>false</IsIndestructible>
       <DamageRatio>1</DamageRatio>
       <DiffuseXZ>Textures\Voxels\Magnesium_01_ForAxisXZ_de.dds</DiffuseXZ>
@@ -782,6 +804,8 @@
       <MinedOreRatio>1</MinedOreRatio>
       <CanBeHarvested>true</CanBeHarvested>
       <IsRare>true</IsRare>
+      <MaterialType>Deposit</MaterialType>
+      <SpawnFrequencyWeight>1</SpawnFrequencyWeight>
       <IsIndestructible>false</IsIndestructible>
       <DamageRatio>0.2</DamageRatio>
       <DiffuseXZ>Textures\Voxels\Silicon_01_ForAxisXZ_de.dds</DiffuseXZ>
@@ -815,6 +839,8 @@
       <MinedOreRatio>0.9</MinedOreRatio>
       <CanBeHarvested>true</CanBeHarvested>
       <IsRare>true</IsRare>
+      <MaterialType>Deposit</MaterialType>
+      <SpawnFrequencyWeight>1</SpawnFrequencyWeight>
       <IsIndestructible>false</IsIndestructible>
       <DamageRatio>1</DamageRatio>
       <DiffuseXZ>Textures\Voxels\Silver_01_ForAxisXZ_de.dds</DiffuseXZ>
@@ -846,6 +872,8 @@
       <MinedOreRatio>0.7</MinedOreRatio>
       <CanBeHarvested>true</CanBeHarvested>
       <IsRare>true</IsRare>
+      <MaterialType>Deposit</MaterialType>
+      <SpawnFrequencyWeight>1</SpawnFrequencyWeight>
       <IsIndestructible>false</IsIndestructible>
       <DamageRatio>1</DamageRatio>
       <DiffuseXZ>Textures\Voxels\Gold_01_ForAxisXZ_de.dds</DiffuseXZ>
@@ -881,6 +909,8 @@
       <MinedOreRatio>0.8</MinedOreRatio>
       <CanBeHarvested>true</CanBeHarvested>
       <IsRare>true</IsRare>
+      <MaterialType>Deposit</MaterialType>
+      <SpawnFrequencyWeight>1</SpawnFrequencyWeight>
       <IsIndestructible>false</IsIndestructible>
       <DamageRatio>0.4</DamageRatio>
       <DiffuseXZ>Textures\Voxels\Platinum_01_ForAxisXZ_de.dds</DiffuseXZ>
@@ -912,6 +942,8 @@
       <MinedOreRatio>0.3</MinedOreRatio>
       <CanBeHarvested>true</CanBeHarvested>
       <IsRare>true</IsRare>
+      <MaterialType>Deposit</MaterialType>
+      <SpawnFrequencyWeight>2</SpawnFrequencyWeight>
       <IsIndestructible>false</IsIndestructible>
       <DamageRatio>0.4</DamageRatio>
       <DiffuseXZ>Textures\Voxels\Uraninite_01_ForAxisXZ_de.dds</DiffuseXZ>
@@ -943,6 +975,8 @@
       <MinedOreRatio>0.3</MinedOreRatio>
       <CanBeHarvested>true</CanBeHarvested>
       <IsRare>true</IsRare>
+      <MaterialType>Deposit</MaterialType>
+      <SpawnFrequencyWeight>2</SpawnFrequencyWeight>
       <IsIndestructible>false</IsIndestructible>
       <DamageRatio>0.2</DamageRatio>
       <DiffuseXZ>Textures\Voxels\Ice_01_ForAxisXZ_de.dds</DiffuseXZ>
@@ -975,6 +1009,8 @@
       <MinedOreRatio>0.3</MinedOreRatio>
       <CanBeHarvested>true</CanBeHarvested>
       <IsRare>true</IsRare>
+      <MaterialType>Deposit</MaterialType>
+      <SpawnFrequencyWeight>2</SpawnFrequencyWeight>
       <IsIndestructible>false</IsIndestructible>
       <DamageRatio>0.2</DamageRatio>
       <DiffuseXZ>Textures\Voxels\Ice_02_ForAxisXZ_de.dds</DiffuseXZ>
