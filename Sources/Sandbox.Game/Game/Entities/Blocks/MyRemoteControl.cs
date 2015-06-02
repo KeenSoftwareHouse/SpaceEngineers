@@ -41,41 +41,6 @@ namespace Sandbox.Game.Entities
     [MyCubeBlockType(typeof(MyObjectBuilder_RemoteControl))]
     class MyRemoteControl : MyShipController, IMyPowerConsumer, IMyUsableEntity, IMyRemoteControl
     {
-        //[ProtoContract]
-        //public class RemoteToolbarItem : IEqualityComparer<RemoteToolbarItem>
-        //{
-        //    [ProtoMember]
-        //    public long EntityID;
-        //    [ProtoMember]
-        //    public string GroupName;
-        //    [ProtoMember]
-        //    public string Action;
-        //    [ProtoMember]
-        //    public List<MyObjectBuilder_ToolbarItemActionParameter> Parameters = new List<MyObjectBuilder_ToolbarItemActionParameter>();
-
-        //    public bool Equals(RemoteToolbarItem x, RemoteToolbarItem y)
-        //    {
-        //        if (x.EntityID != y.EntityID || x.GroupName != y.GroupName || x.Action != y.Action)
-        //            return false;
-        //        return true;
-        //    }
-
-        //    public int GetHashCode(RemoteToolbarItem obj)
-        //    {
-        //        unchecked
-        //        {
-        //            int result = obj.EntityID.GetHashCode();
-        //            result = (result * 397) ^ obj.GroupName.GetHashCode();
-        //            result = (result * 397) ^ obj.Action.GetHashCode();
-        //            if (obj.Parameters != null)
-        //            {
-        //                result = (result * 397) ^ obj.Parameters.GetHashCode();
-        //            }
-        //            return result;
-        //        }
-        //    }
-        //}
-
         public enum FlightMode : int
         {
             Patrol = 0,
