@@ -164,7 +164,7 @@ namespace Sandbox.Game.Gui
                     if (hit.HkHitInfo.Body.GetEntity() is MyCubeGrid)
                     {
                         var grid= hit.HkHitInfo.Body.GetEntity() as MyCubeGrid;
-                        var det = grid.GetBlocks().FirstElement().FatBlock.DetectorPhysics;
+                        var det = grid.GetBlocks().FirstElement().FatBlock.UseObjectsComponent.DetectorPhysics;
                         //var layer = det.RigidBody.Layer;
                     }
 

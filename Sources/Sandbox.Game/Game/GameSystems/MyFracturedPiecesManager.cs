@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using Sandbox.Common;
+using Sandbox.Engine.Physics;
 using Sandbox.Engine.Utils;
 using Sandbox.Game.Entities;
 using Sandbox.Game.GameSystems.StructuralIntegrity;
@@ -13,6 +14,7 @@ using Medieval.ObjectBuilders;
 using VRage.Library.Utils;
 using VRageMath;
 using Sandbox.Game.Multiplayer;
+using VRage.Components;
 
 namespace Sandbox.Game.GameSystems
 {
@@ -37,6 +39,8 @@ namespace Sandbox.Game.GameSystems
 
         HashSet<long> m_dbgCreated = new HashSet<long>();
         HashSet<long> m_dbgRemoved = new HashSet<long>();
+
+		List<HkRigidBody> m_rigidList = new List<HkRigidBody>();
 
         public override bool IsRequiredByGame
         {
@@ -341,15 +345,27 @@ namespace Sandbox.Game.GameSystems
 		public void GetFracturesInSphere(ref BoundingSphereD searchSphere, ref List<MyFracturedPiece> output)
 		{
 			var activeFractures = m_piecesTimesOfDeath.Keys;
-
-			double radiusSq = searchSphere.Radius * searchSphere.Radius;
-			foreach(var fracture in activeFractures)
+			
+			HkShape shape = new HkSphereShape((float)searchSphere.Radius);
+			try
 			{
-				double distanceSq = Vector3D.DistanceSquared(searchSphere.Center, fracture.PositionComp.GetPosition());
-				if(distanceSq < radiusSq)
+				MyPhysics.GetPenetrationsShape(shape, ref searchSphere.Center, ref Quaternion.Identity, m_rigidList, MyPhysics.NotCollideWithStaticLayer);
+			
+				foreach(var rigidBody in m_rigidList)
 				{
-					output.Add(fracture);
+					var physicsBody = rigidBody.UserObject as MyPhysicsBody;
+					if (physicsBody != null)
+					{
+						var fracture = physicsBody.Entity as MyFracturedPiece;
+						if (fracture != null)
+							output.Add(fracture);
+					}
 				}
+			}
+			finally
+			{
+				m_rigidList.Clear();
+				shape.RemoveReference();
 			}
 		}
 

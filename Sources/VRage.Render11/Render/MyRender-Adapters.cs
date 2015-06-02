@@ -87,7 +87,7 @@ namespace VRageRender
             MyRender11.Log.WriteLine("Device name = " + info.DeviceName);
             MyRender11.Log.WriteLine("Description = " + info.Description);
             MyRender11.Log.WriteLine("DXGIAdapter id = " + info.AdapterDeviceId);
-            MyRender11.Log.WriteLine("SUPPORTED = " + info.IsSupported);
+            MyRender11.Log.WriteLine("SUPPORTED = " + info.IsDx11Supported);
             MyRender11.Log.WriteLine("VRAM = " + info.VRAM);
             MyRender11.Log.WriteLine("Multithreaded rendering supported = " + info.MultithreadedRenderingSupported);
         }
@@ -147,6 +147,8 @@ namespace VRageRender
                 void* ptr = ((IntPtr)adapter.Description.DedicatedVideoMemory).ToPointer();
                 ulong vram = (ulong)ptr;
 
+                supportedDevice = supportedDevice && vram > 500000000;
+
                 var deviceDesc = String.Format("{0}, dev id: {1}, shared mem: {2}, Luid: {3}, rev: {4}, subsys id: {5}, vendor id: {6}",
                     adapter.Description.Description,
                     adapter.Description.DeviceId,
@@ -162,7 +164,7 @@ namespace VRageRender
                     Name = adapter.Description.Description,
                     DeviceName = adapter.Description.Description,
                     Description = deviceDesc,
-                    IsSupported = supportedDevice,
+                    IsDx11Supported = supportedDevice,
                     AdapterDeviceId = i,
 
                     Has512MBRam = vram > 500000000,
@@ -205,7 +207,7 @@ namespace VRageRender
 
                 LogAdapterInfoBegin(ref info);
 
-                if(supportedDevice)
+                if(supportedDevice && vram > 0)
                 {
                     for(int j=0; j<factory.Adapters[i].Outputs.Length; j++)
                     {
@@ -242,13 +244,14 @@ namespace VRageRender
                         LogOutputDisplayModes(ref info);
                     }
                 }
+                /* nope, not supported
                 else
                 {
                     info.SupportedDisplayModes = new MyDisplayMode[0];
                     adaptersList.Add(info);
                     adapterIndex++;
                 }
-
+                */
                 LogAdapterInfoEnd();
 
                 if(adapterTestDevice != null)

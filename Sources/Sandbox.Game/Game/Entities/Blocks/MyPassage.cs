@@ -5,6 +5,7 @@ using Sandbox.Common.ObjectBuilders;
 using Sandbox.Engine.Physics;
 using Sandbox.Engine.Utils;
 using Sandbox.Graphics.TransparentGeometry;
+using VRage.Components;
 using VRageMath;
 using VRageRender;
 

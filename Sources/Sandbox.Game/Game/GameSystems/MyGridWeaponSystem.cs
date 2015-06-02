@@ -16,7 +16,7 @@ using VRage.Utils;
 
 namespace Sandbox.Game.GameSystems
 {
-    class MyGridWeaponSystem
+    public class MyGridWeaponSystem
     {
         public struct EventArgs
         {

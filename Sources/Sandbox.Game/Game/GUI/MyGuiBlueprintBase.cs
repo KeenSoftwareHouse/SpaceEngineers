@@ -22,7 +22,6 @@ using VRageMath;
 using Sandbox.Game.GUI;
 using System.Drawing;
 using Sandbox.Game.World;
-using Sandbox.Common.ObjectBuilders.Serializer;
 using SteamSDK;
 using Sandbox.Game.Multiplayer;
 using Sandbox.Engine.Networking;
@@ -30,9 +29,9 @@ using Sandbox.Engine.Multiplayer;
 using ProtoBuf;
 using System.Diagnostics;
 using VRage.Compression;
-using VRage.Utils;
 using VRage.Library.Utils;
 using VRage.FileSystem;
+using VRage.ObjectBuilders;
 #endregion
 
 namespace Sandbox.Game.Gui

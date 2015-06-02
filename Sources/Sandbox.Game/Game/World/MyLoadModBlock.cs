@@ -9,6 +9,7 @@ using System.Reflection;
 using System.Text;
 using VRage.Compiler;
 using VRage.FileSystem;
+using VRage.ObjectBuilders;
 using VRage.Utils;
 
 namespace Sandbox.Game.World
@@ -90,11 +91,11 @@ namespace Sandbox.Game.World
                         MyDefinitionErrors.Add(c, e.Message, ErrorSeverity.Error);
                     }
                 }
-                IlCompiler.CompileFile(assemblyName, m_cachedFiles.ToArray(), out assembly, m_errors);
+                IlCompiler.CompileFileModAPI(assemblyName, m_cachedFiles.ToArray(), out assembly, m_errors);
             }
             else
             {
-                IlCompiler.CompileFile(assemblyName, scriptFiles.ToArray(), out assembly, m_errors);
+                IlCompiler.CompileFileModAPI(assemblyName, scriptFiles.ToArray(), out assembly, m_errors);
             }
             if (assembly != null)
             {
@@ -123,8 +124,8 @@ namespace Sandbox.Game.World
             }
             Scripts.Add(myStringId, assembly);
 
-            Sandbox.Common.ObjectBuilders.MyObjectBuilderType.RegisterFromAssembly(assembly, true);
-            Sandbox.Common.ObjectBuilders.Serializer.MyObjectBuilderSerializer.LoadSerializers(assembly);
+          MyObjectBuilderType.RegisterFromAssembly(assembly, true);
+          MyObjectBuilderSerializer.LoadSerializers(assembly);
             Sandbox.Game.Entities.Cube.MyCubeBlockFactory.RegisterFromAssembly(assembly);
             MyDefinitionManager.RegisterFromAssembly(assembly);
             Sandbox.Engine.Multiplayer.MyTransportLayer.RegisterFromAssembly(assembly);

@@ -18,9 +18,10 @@ using Sandbox.Game.Gui;
 using Sandbox.Graphics.GUI;
 using System.Diagnostics;
 using Sandbox.Game.GUI;
-using Sandbox.Common.ObjectBuilders.Serializer;
 using Sandbox.ModAPI.Interfaces;
 using Sandbox.Game.Components;
+using VRage.ObjectBuilders;
+using VRage.ModAPI;
 #endregion
 
 namespace Sandbox.Game.Weapons
@@ -103,7 +104,7 @@ namespace Sandbox.Game.Weapons
                 m_gunBase.AddMuzzleMatrix(MyAmmoType.HighSpeed, muzzleMatrix);
             }
 
-            PhysicalObject = (MyObjectBuilder_PhysicalGunObject)Sandbox.Common.ObjectBuilders.Serializer.MyObjectBuilderSerializer.CreateNewObject(m_physicalItemDef.Id.TypeId, m_physicalItemDef.Id.SubtypeName);
+            PhysicalObject = (MyObjectBuilder_PhysicalGunObject)MyObjectBuilderSerializer.CreateNewObject(m_physicalItemDef.Id.TypeId, m_physicalItemDef.Id.SubtypeName);
             PhysicalObject.GunEntity = (MyObjectBuilder_EntityBase)rifleBuilder.Clone();
             PhysicalObject.GunEntity.EntityId = this.EntityId;
         }

@@ -1,5 +1,6 @@
 ﻿using Sandbox.Common.ObjectBuilders;
 using Sandbox.ModAPI.Interfaces;
+using VRage.ObjectBuilders;
 using VRageMath;
 
 namespace Sandbox.ModAPI

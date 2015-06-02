@@ -46,6 +46,7 @@ namespace Sandbox.Graphics.GUI
 			public Vector4 ComponentLineDefaultColor;
 			public bool EnableBlockTypeLabel;
 			public bool ShowAvailableComponents;
+			public bool EnableBlockTypePanel;
 		}
 
         class ComponentLineControl : MyGuiControlBase
@@ -376,15 +377,27 @@ namespace Sandbox.Graphics.GUI
             }
             else
             {
-                m_blockTypePanel.Visible = true;
-                m_blockTypePanel.Position = topRight + new Vector2(-0.0085f, 0.012f);
-                m_blockTypePanelBackground.Visible = true;
-                m_blockTypePanelBackground.Position = topRight + new Vector2(-0.0085f, 0.012f);
+				m_blockTypePanel.Position = topRight + new Vector2(-0.0085f, 0.012f);
+				m_blockTypePanelBackground.Position = topRight + new Vector2(-0.0085f, 0.012f);
+				if (m_style.EnableBlockTypePanel)
+				{
+					m_blockTypePanel.Visible = true;
+					m_blockTypePanelBackground.Visible = true;
+					
+					m_blockNameLabel.Size = new Vector2(m_blockTypePanel.Position.X - m_blockTypePanel.Size.X - m_blockNameLabel.Position.X, m_blockNameLabel.Size.Y);
+				}
+				else
+				{
+					m_blockTypePanel.Visible = false;
+					m_blockTypePanelBackground.Visible = false;
+
+					m_blockNameLabel.Size = new Vector2(m_blockTypePanel.Position.X - m_blockNameLabel.Position.X, m_blockNameLabel.Size.Y);
+				}
 
                 m_blockNameLabel.TextScale = 0.95f * baseScale;
                 m_blockNameLabel.OriginAlign = MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_BOTTOM;
                 m_blockNameLabel.Position = m_blockIconPanel.Position + m_blockIconPanel.Size + new Vector2(0.004f, 0);
-                m_blockNameLabel.Size = new Vector2(m_blockTypePanel.Position.X - m_blockTypePanel.Size.X - m_blockNameLabel.Position.X, m_blockNameLabel.Size.Y);
+               
                 
                 m_blockTypeLabel.Visible = true;
                 m_blockTypeLabel.OriginAlign = MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_TOP;
@@ -447,7 +460,7 @@ namespace Sandbox.Graphics.GUI
                         }
                         else
                         {
-                            font = MyFontEnum.White;
+							font = m_style.ComponentLineDefaultFont;
                         }
 
                         if (m_progressMode && BlockInfo.BlockIntegrity > 0)
@@ -470,7 +483,9 @@ namespace Sandbox.Graphics.GUI
 								m_componentLines[i].NumbersLabel.TextToDraw.Append(" / ").AppendInt32(info.AvailableAmount);
 						}
 						else
+						{
 							m_componentLines[i].NumbersLabel.TextToDraw.AppendInt32(info.TotalCount);
+						}
                         m_componentLines[i].NumbersLabel.Size = m_componentLines[i].NumbersLabel.GetTextSize();
                         m_componentLines[i].IconPanel.BorderEnabled = ShowCriticalComponent && BlockInfo.CriticalComponentIndex == i;
                         m_componentLines[i].RecalcTextSize();

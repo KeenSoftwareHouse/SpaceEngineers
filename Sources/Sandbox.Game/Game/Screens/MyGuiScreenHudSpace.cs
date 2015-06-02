@@ -106,6 +106,7 @@ namespace Sandbox.Game.Gui
 				ComponentLineDefaultFont = MyFontEnum.White,
 				ComponentLineDefaultColor = new Vector4(0.6f, 0.6f, 0.6f, 1f),
 				ShowAvailableComponents = false,
+				EnableBlockTypePanel = true,
 			};
             m_blockInfo = new MyGuiControlBlockInfo(style);
             m_blockInfo.IsActiveControl = false;

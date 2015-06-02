@@ -871,7 +871,17 @@ namespace Sandbox.Game.Gui
             //    VRageRender.MyRenderProxy.DebugDrawAxis(m, 1, false);
             //}
 
-            MySector.MainCamera.SetViewMatrix(MySession.Static.CameraController.GetViewMatrix());
+            MatrixD viewMatrix = MySession.Static.CameraController.GetViewMatrix();
+            if (viewMatrix.IsValid() && viewMatrix != MatrixD.Zero)            
+            {
+                MySector.MainCamera.SetViewMatrix(viewMatrix);
+            }
+            else
+            {
+                Debug.Fail("Camera matrix is invalid or zero!");
+            }
+
+            
 
             VRageRender.MyRenderProxy.UpdateGodRaysSettings(
                 MySector.GodRaysProperties.Enabled,

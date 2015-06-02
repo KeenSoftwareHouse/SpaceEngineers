@@ -11,6 +11,8 @@ using VRageMath;
 using Sandbox.Common;
 using Sandbox.Common.Components;
 using Sandbox.Game.Components;
+using VRage.Components;
+using VRage.ModAPI;
 namespace Sandbox.Game.Entities.Debris
 {
 
@@ -51,10 +53,10 @@ namespace Sandbox.Game.Entities.Debris
 
         public class MyDebrisPhysics : MyPhysicsBody
         {
-            private ModAPI.IMyEntity Entity1;
+            private IMyEntity Entity1;
             private RigidBodyFlag rigidBodyFlag;
 
-            public MyDebrisPhysics(ModAPI.IMyEntity Entity1, RigidBodyFlag rigidBodyFlag) 
+            public MyDebrisPhysics(IMyEntity Entity1, RigidBodyFlag rigidBodyFlag) 
                : base(Entity1, rigidBodyFlag)
             {
             }
@@ -105,27 +107,27 @@ namespace Sandbox.Game.Entities.Debris
             {
                 base.Init(null, desc.Model, null, 1.0f);
                 m_randomScale = MyUtils.GetRandomFloat(desc.ScaleMin, desc.ScaleMax);
-                Entity.PositionComp.Scale = m_randomScale;
+                Container.Entity.PositionComp.Scale = m_randomScale;
                 m_lifespanInMiliseconds = MyUtils.GetRandomInt(desc.LifespanMinInMiliseconds, desc.LifespanMaxInMiliseconds);
 
                 HkShape shape;
                 m_massProperties = new HkMassProperties();
                 m_massProperties.Mass = 50;
-                Entity.Physics = GetPhysics(RigidBodyFlag.RBF_DEBRIS);
-                (Entity.Physics as MyDebrisPhysics).CreatePhysicsShape(out shape, ref m_massProperties);
-                (Entity.Physics as MyDebrisPhysics).CreateFromCollisionObject(shape, Vector3.Zero, MatrixD.Identity, m_massProperties, MyPhysics.DebrisCollisionLayer);
-                Entity.Physics.Enabled = false;
+                Container.Entity.Physics = GetPhysics(RigidBodyFlag.RBF_DEBRIS);
+                (Container.Entity.Physics as MyDebrisPhysics).CreatePhysicsShape(out shape, ref m_massProperties);
+                (Container.Entity.Physics as MyDebrisPhysics).CreateFromCollisionObject(shape, Vector3.Zero, MatrixD.Identity, m_massProperties, MyPhysics.DebrisCollisionLayer);
+                Container.Entity.Physics.Enabled = false;
                 shape.RemoveReference();
 
                 m_entity.Save = false;
-                Entity.Physics.PlayCollisionCueEnabled = true;
+                Container.Entity.Physics.PlayCollisionCueEnabled = true;
                 NeedsUpdate = MyEntityUpdateEnum.EACH_FRAME;
                 m_onCloseCallback = desc.OnCloseAction;
             }
 
             protected virtual MyPhysicsComponentBase GetPhysics(RigidBodyFlag rigidBodyFlag)
             {
-                return new MyDebrisPhysics(Entity, rigidBodyFlag);
+                return new MyDebrisPhysics(Container.Entity, rigidBodyFlag);
             }
 
             /// <summary>
@@ -133,10 +135,10 @@ namespace Sandbox.Game.Entities.Debris
             /// </summary>
             public virtual void Free()
             {
-                if (Entity.Physics != null)
+                if (Container.Entity.Physics != null)
                 {
-                    Entity.Physics.Close();
-                    Entity.Physics = null;
+                    Container.Entity.Physics.Close();
+                    Container.Entity.Physics = null;
                 }
             }
 
@@ -147,17 +149,17 @@ namespace Sandbox.Game.Entities.Debris
             {
                 MyDebug.AssertDebug(!m_isStarted);
                 m_createdTime = MySandboxGame.TotalGamePlayTimeInMilliseconds;
-                Entity.PositionComp.Scale = m_randomScale * scale;
-                Entity.WorldMatrix = MatrixD.CreateTranslation(position);
-                (Entity.Physics as MyDebrisPhysics).ScalePhysicsShape(ref m_massProperties);
-                Entity.Physics.Clear();
-                Entity.Physics.LinearVelocity = initialVelocity;
+                Container.Entity.PositionComp.Scale = m_randomScale * scale;
+                Container.Entity.WorldMatrix = MatrixD.CreateTranslation(position);
+                (Container.Entity.Physics as MyDebrisPhysics).ScalePhysicsShape(ref m_massProperties);
+                Container.Entity.Physics.Clear();
+                Container.Entity.Physics.LinearVelocity = initialVelocity;
                 //apply random rotation impulse
-                Entity.Physics.AngularVelocity = new Vector3(MyUtils.GetRandomRadian(),
+                Container.Entity.Physics.AngularVelocity = new Vector3(MyUtils.GetRandomRadian(),
                                                       MyUtils.GetRandomRadian(),
                                                       MyUtils.GetRandomRadian());
                 MyEntities.Add(m_entity);
-                Entity.Physics.Enabled = true;
+                Container.Entity.Physics.Enabled = true;
                 m_isStarted = true;
             }
 
@@ -185,11 +187,11 @@ namespace Sandbox.Game.Entities.Debris
                 MyEntities.Remove(m_debris);
                 MyEntities.RemoveFromClosedEntities(m_debris);
 
-                if (Entity.Physics != null)
-                    Entity.Physics.Enabled = false;
+                if (Container.Entity.Physics != null)
+                    Container.Entity.Physics.Enabled = false;
                 else
                     MySandboxGame.Log.WriteLine("WARNING: Closing debris which no longer has its Physics.");
-                Entity.WorldMatrix = Matrix.Identity;
+                Container.Entity.WorldMatrix = Matrix.Identity;
                 m_isStarted = false;
                 if (m_onCloseCallback != null)
                     m_onCloseCallback(m_debris);

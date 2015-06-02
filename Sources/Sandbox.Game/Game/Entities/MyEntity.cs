@@ -30,12 +30,15 @@ using Sandbox.Game.Entities.Character;
 using VRage;
 using Sandbox.Game.Components;
 using VRage;
+using VRage.Components;
+using VRage.ModAPI;
+using VRage.ObjectBuilders;
 
 #endregion
 
 namespace Sandbox.Game.Entities
 {
-    public abstract partial class MyEntity
+    public partial class MyEntity
     {
         #region Fields
 
@@ -61,7 +64,7 @@ namespace Sandbox.Game.Entities
         {
             foreach (var child in this.Hierarchy.Children)
             {
-                child.Entity.DebugDraw();
+                child.Container.Entity.DebugDraw();
             }
 
             foreach (var render in m_debugRenderers)
@@ -225,7 +228,7 @@ namespace Sandbox.Game.Entities
         /// <value>
         /// The parent.
         /// </value>
-        public MyEntity Parent { get { return m_hierarchy != null && m_hierarchy.Parent != null ? m_hierarchy.Parent.CurrentContainer.Entity as MyEntity : null; } private set { m_hierarchy.Parent = value.Components.Get<MyHierarchyComponentBase>(); } }
+        public MyEntity Parent { get { return m_hierarchy != null && m_hierarchy.Parent != null ? m_hierarchy.Parent.Container.Entity as MyEntity : null; } private set { m_hierarchy.Parent = value.Components.Get<MyHierarchyComponentBase>(); } }
 
         /// <summary>
         /// Return top most parent of this entity
@@ -321,14 +324,14 @@ namespace Sandbox.Game.Entities
         public void UpdateGamePruningStructure()
         {
             MyGamePruningStructure.Move(this);
-            foreach (var child in Hierarchy.Children) child.Entity.UpdateGamePruningStructure();
+            foreach (var child in Hierarchy.Children) child.Container.Entity.UpdateGamePruningStructure();
         }
 
         public void AddToGamePruningStructure()
         {
             MyGamePruningStructure.Add(this);
             foreach (var child in Hierarchy.Children)
-                child.Entity.AddToGamePruningStructure();
+                child.Container.Entity.AddToGamePruningStructure();
         }
 
         public void RemoveFromGamePruningStructure()
@@ -337,8 +340,8 @@ namespace Sandbox.Game.Entities
 
             if (Hierarchy != null)
             {
-                foreach (var child in Hierarchy.Children) 
-                    child.Entity.RemoveFromGamePruningStructure();
+                foreach (var child in Hierarchy.Children)
+                    child.Container.Entity.RemoveFromGamePruningStructure();
             }
         }
 
@@ -400,7 +403,7 @@ namespace Sandbox.Game.Entities
         /// <summary>
         /// Initializes a new instance of the <see cref="MyEntity"/> class.
         /// </summary>
-        protected MyEntity(bool initComponents = true)
+        public MyEntity(bool initComponents = true)
         {
             Components = new MyComponentContainer(this);
             Components.ComponentAdded += Components_ComponentAdded;
@@ -427,7 +430,7 @@ namespace Sandbox.Game.Entities
             }
         }
 
-        void Components_ComponentAdded(Type t, Sandbox.Common.Components.MyComponentBase c)
+        void Components_ComponentAdded(Type t, MyComponentBase c)
         {
             if (t == typeof(MyPhysicsComponentBase))
                 m_physics = c as MyPhysicsBody;
@@ -445,7 +448,7 @@ namespace Sandbox.Game.Entities
             }
         }
 
-        void Components_ComponentRemoved(Type t, Sandbox.Common.Components.MyComponentBase c)
+        void Components_ComponentRemoved(Type t, MyComponentBase c)
         {
             if (t == typeof(MyPhysicsComponentBase))
                 m_physics = null;
@@ -617,7 +620,7 @@ namespace Sandbox.Game.Entities
         {
             foreach (var child in Hierarchy.Children)
             {
-                (child.Entity as MyEntity).DebugDrawPhysics();
+                (child.Container.Entity as MyEntity).DebugDrawPhysics();
             }
 
             if (this.m_physics == null)
@@ -828,7 +831,7 @@ namespace Sandbox.Game.Entities
 
             foreach (var child in Hierarchy.Children)
             {
-                child.Entity.OnAddedToScene(source);
+                child.Container.Entity.OnAddedToScene(source);
             }
 
             if (MyFakes.ENABLE_ASTEROID_FIELDS)
@@ -848,7 +851,7 @@ namespace Sandbox.Game.Entities
             {
                 foreach (var child in Hierarchy.Children)
                 {
-                    child.Entity.OnRemovedFromScene(source);
+                    child.Container.Entity.OnRemovedFromScene(source);
                 }
             }
 
@@ -1083,7 +1086,7 @@ namespace Sandbox.Game.Entities
                 MyHierarchyComponentBase compToRemove = Hierarchy.Children[Hierarchy.Children.Count - 1];
                 Debug.Assert(compToRemove.Parent != null, "Entity has no parent but is part of children collection");
 
-                compToRemove.Entity.Delete();
+                compToRemove.Container.Entity.Delete();
 
                 Hierarchy.Children.Remove(compToRemove);
             }

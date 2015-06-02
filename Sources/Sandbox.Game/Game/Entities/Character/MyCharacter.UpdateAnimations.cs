@@ -69,14 +69,7 @@ namespace Sandbox.Game.Entities.Character
     {
         #region Fields
 
-        static int MAX_BONES = 120;
 
-        /// <summary>
-        /// The model bones
-        /// </summary>
-        private List<MyCharacterBone> m_bones = new List<MyCharacterBone>();
-
-        public List<MyCharacterBone> Bones { get { return m_bones; } }
 
         /// <summary>
         /// An associated animation clip player
@@ -104,8 +97,6 @@ namespace Sandbox.Game.Entities.Character
 
         MatrixD m_helperMatrix;
 
-        public Matrix[] BoneTransforms;
-
         float m_verticalFootError = 0;
         float m_cummulativeVerticalFootError = 0;
 
@@ -116,11 +107,10 @@ namespace Sandbox.Game.Entities.Character
 
         void InitAnimations()
         {
-            ObtainBones();
+            InitBones();
+
 
             Debug.Assert(TestCharacterBoneDefinitions(), "Warning! Bone definitions in model " + this.ModelName + " are incorrect.");
-
-            BoneTransforms = new Matrix[m_bones.Count];
 
             m_helperMatrix = Matrix.CreateRotationY((float)Math.PI);
             
@@ -207,37 +197,7 @@ namespace Sandbox.Game.Entities.Character
            return isOk;
         }
 
-        /// <summary>
-        /// Get the bones from the model and create a bone class object for
-        /// each bone. We use our bone class to do the real animated bone work.
-        /// </summary>
-        private void ObtainBones()
-        {
-            m_bones.Clear();
-            foreach (MyModelBone bone in Model.Bones)
-            {
-                Matrix boneTransform = bone.Transform;
-
-                if (Model.DataVersion < 01047001)
-                {
-                    if (bone.Name.Contains("Dummy"))
-                    {   //0.009860006
-                        boneTransform = boneTransform * Matrix.CreateScale(0.009860006f);
-                    }
-                }
-
-                // Create the bone object and add to the heirarchy
-                MyCharacterBone newBone = new MyCharacterBone(bone.Name, boneTransform, bone.Parent != -1 ? m_bones[bone.Parent] : null);
-
-                if (Model.DataVersion < 01050001)
-                {
-                    newBone.CompatibilityMode = true;
-                }
-
-                // Add to the bones for this model
-                m_bones.Add(newBone);
-            }
-        }
+      
 
         /// <summary>
         /// Find a bone in this model by name
@@ -248,7 +208,7 @@ namespace Sandbox.Game.Entities.Character
         {
             index = -1;
             if (name == null) return null;
-            foreach (MyCharacterBone bone in m_bones)
+            foreach (MyCharacterBone bone in Bones)
             {
                 index++;
 
@@ -269,7 +229,7 @@ namespace Sandbox.Game.Entities.Character
             ProfilerShort.Begin("MyCharacter.CalculateTransforms");
 
             VRageRender.MyRenderProxy.GetRenderProfiler().StartProfilingBlock("Clear bones");
-            foreach (var bone in m_bones)
+            foreach (var bone in Bones)
             {
                 bone.Translation = Vector3.Zero;
                 bone.Rotation = Quaternion.Identity;
@@ -300,130 +260,67 @@ namespace Sandbox.Game.Entities.Character
             m_rightFingersPlayer.UpdateBones();
             VRageRender.MyRenderProxy.GetRenderProfiler().EndProfilingBlock();
 
-            m_simulatedBones.Clear();
-
-            if (MyFakes.USE_HAVOK_ANIMATION_FOOT || MyFakes.USE_HAVOK_ANIMATION_HANDS || MyFakes.USE_HAVOK_ANIMATION_HEAD)
+            VRageRender.MyRenderProxy.GetRenderProfiler().StartProfilingBlock("ComputeAbsoluteTransforms");
+            for (int i = 0; i < Bones.Count; i++)
             {
-                //VRageRender.MyRenderProxy.GetRenderProfiler().StartProfilingBlock("Simulate character physics");
-
-                //List<Quaternion> rotations = new List<Quaternion>();
-                //List<Vector3> translations = new List<Vector3>();
-                //foreach (var bone in m_bones)
-                //{
-                //    Matrix transform = bone.ComputeBoneTransform();
-                //    Quaternion rotation = Quaternion.CreateFromRotationMatrix(transform);
-                //    rotation.Normalize();
-
-                //    Vector3 translation = transform.Translation;
-
-                //    rotations.Add(rotation);
-                //    translations.Add(translation);
-                //}
-
-                //Physics.CharacterProxy.UpdatePose(rotations, translations);
-
-                //if (this == MySession.ControlledObject)
-                //{
-                //    Matrix invWorld = Matrix.Invert(WorldMatrix);
-                //    Vector3 lookAtTarget = Vector3.Transform(MySector.MainCamera.Position, invWorld);
-
-                //    Matrix leftHand = m_currentWeapon == null? Matrix.Identity : Matrix.CreateTranslation(Vector3.Transform(m_leftHandToolLocalMatrix.Translation, ((MyEntity)m_currentWeapon).WorldMatrix * invWorld));
-                //    Matrix rightHand = m_currentWeapon == null ? Matrix.Identity : Matrix.CreateTranslation(Vector3.Transform(m_rightHandToolLocalMatrix.Translation, ((MyEntity)m_currentWeapon).WorldMatrix * invWorld));
-
-                //    float leftFootError;
-                //    float rightFootError;
-                //    Physics.CharacterProxy.SimulatePose(
-                //        m_currentWeapon != null && MyFakes.USE_HAVOK_ANIMATION_HANDS,
-                //        !m_weaponIsDrivenByBone && m_currentWeapon != null && MyFakes.USE_HAVOK_ANIMATION_HANDS,
-                //        false && MyFakes.USE_HAVOK_ANIMATION_HEAD,
-                //        false && MyFakes.USE_HAVOK_ANIMATION_FOOT /*m_currentMovementState == MyCharacterMovementEnum.Standing*/,
-                //        leftHand, rightHand, 
-                //        Vector3.Zero,
-                //        WorldMatrix, out leftFootError, out rightFootError);
-
-                //    m_verticalFootError = System.Math.Min(leftFootError, rightFootError);
-                //}
-
-                //Physics.CharacterProxy.GetPoseModelSpace(m_simulatedBones);
-
-                //VRageRender.MyRenderProxy.GetRenderProfiler().EndProfilingBlock();
-
-
-                //VRageRender.MyRenderProxy.GetRenderProfiler().StartProfilingBlock("CopyTransforms");
-                //for (int i = 0; i < m_simulatedBones.Count; i++)
-                //{
-                //    BoneTransformsWrite[i] = m_simulatedBones[i];
-                //}
-                //VRageRender.MyRenderProxy.GetRenderProfiler().EndProfilingBlock();
-
+                MyCharacterBone bone = Bones[i];
+                bone.ComputeAbsoluteTransform();
             }
-            else
+            VRageRender.MyRenderProxy.GetRenderProfiler().EndProfilingBlock();
+
+            if (m_leftHandItem != null)
             {
-                VRageRender.MyRenderProxy.GetRenderProfiler().StartProfilingBlock("ComputeAbsoluteTransforms");
-                for (int i = 0; i < m_bones.Count; i++)
-                {
-                    MyCharacterBone bone = m_bones[i];
-                    bone.ComputeAbsoluteTransform();
-                }
-                VRageRender.MyRenderProxy.GetRenderProfiler().EndProfilingBlock();
+                UpdateLeftHandItemPosition();
+            }
 
-                if (m_leftHandItem != null)
+            VRageRender.MyRenderProxy.GetRenderProfiler().StartProfilingBlock("Calculate Hand IK");
+            if (m_currentWeapon != null)
+            {
+                if (!MyPerGameSettings.UseAnimationInsteadOfIK)
                 {
-                    UpdateLeftHandItemPosition();
-                }
-
-                VRageRender.MyRenderProxy.GetRenderProfiler().StartProfilingBlock("Calculate Hand IK");
-                if (m_currentWeapon != null)
-                {
-                    if (!MyPerGameSettings.UseAnimationInsteadOfIK)
+                    UpdateWeaponPosition(); //mainly IK and some zoom + ironsight stuff
+                    if (m_handItemDefinition.SimulateLeftHand && m_leftHandIKStartBone != -1 && m_leftHandIKEndBone != -1 && (!UseAnimationForWeapon && m_animationToIKState == 0))
                     {
-                        UpdateWeaponPosition(); //mainly IK and some zoom + ironsight stuff
-                        if (m_handItemDefinition.SimulateLeftHand && m_leftHandIKStartBone != -1 && m_leftHandIKEndBone != -1 && (!UseAnimationForWeapon && m_animationToIKState == 0))
-                        {
-                            MatrixD leftHand = (MatrixD)m_handItemDefinition.LeftHand * ((MyEntity)m_currentWeapon).WorldMatrix;
-                            CalculateHandIK(m_leftHandIKStartBone, m_leftForearmBone, m_leftHandIKEndBone, ref leftHand);
-                            //CalculateHandIK(m_leftHandIKStartBone, m_leftHandIKEndBone, ref leftHand);
-                        }
-
-                        if (m_handItemDefinition.SimulateRightHand && m_rightHandIKStartBone != -1 && m_rightHandIKEndBone != -1 && (!UseAnimationForWeapon || m_animationToIKState != 0))
-                        {
-                            MatrixD rightHand = (MatrixD)m_handItemDefinition.RightHand * ((MyEntity)m_currentWeapon).WorldMatrix;
-                            CalculateHandIK(m_rightHandIKStartBone, m_rightForearmBone, m_rightHandIKEndBone, ref rightHand);
-                            //CalculateHandIK(m_rightHandIKStartBone, m_rightHandIKEndBone, ref rightHand);
-                        }
+                        MatrixD leftHand = (MatrixD)m_handItemDefinition.LeftHand * ((MyEntity)m_currentWeapon).WorldMatrix;
+                        CalculateHandIK(m_leftHandIKStartBone, m_leftForearmBone, m_leftHandIKEndBone, ref leftHand);
                     }
-                    else
+
+                    if (m_handItemDefinition.SimulateRightHand && m_rightHandIKStartBone != -1 && m_rightHandIKEndBone != -1 && (!UseAnimationForWeapon || m_animationToIKState != 0))
                     {
-                        Debug.Assert(m_rightHandItemBone != -1, "Invalid bone for weapon.");
-                        if (m_rightHandItemBone != -1)
-                        {
-                            //use animation for right hand item
-                            MatrixD rightHandItemMatrix = m_bones[m_rightHandItemBone].AbsoluteTransform * WorldMatrix;
-                            //var rightHandItemMatrix = ((MyEntity)m_currentWeapon).PositionComp.WorldMatrix; //use with UpdateWeaponPosition() but not working for barbarians
-                            Vector3D up = rightHandItemMatrix.Up;
-                            rightHandItemMatrix.Up = rightHandItemMatrix.Forward;
-                            rightHandItemMatrix.Forward = up;
-                            rightHandItemMatrix.Right = -rightHandItemMatrix.Right;
-                            ((MyEntity)m_currentWeapon).PositionComp.WorldMatrix = rightHandItemMatrix;
-                        }
+                        MatrixD rightHand = (MatrixD)m_handItemDefinition.RightHand * ((MyEntity)m_currentWeapon).WorldMatrix;
+                        CalculateHandIK(m_rightHandIKStartBone, m_rightForearmBone, m_rightHandIKEndBone, ref rightHand);
                     }
                 }
-                VRageRender.MyRenderProxy.GetRenderProfiler().EndProfilingBlock();
-
-                if (m_boneRelativeTransforms == null || m_bones.Count != m_boneRelativeTransforms.Length)
-                    m_boneRelativeTransforms = new Matrix[m_bones.Count];
-
-                VRageRender.MyRenderProxy.GetRenderProfiler().StartProfilingBlock("Saving bone transforms");
-                for (int i = 0; i < m_bones.Count; i++)
+                else
                 {
-                    MyCharacterBone bone = m_bones[i];
-                    m_boneRelativeTransforms[i] = bone.ComputeBoneTransform();
-                    bone.ComputeAbsoluteTransform();
-                    BoneTransforms[i] = bone.AbsoluteTransform;
-                    m_simulatedBones.Add(bone.AbsoluteTransform);
+                    Debug.Assert(m_rightHandItemBone != -1, "Invalid bone for weapon.");
+                    if (m_rightHandItemBone != -1)
+                    {
+                        //use animation for right hand item
+                        MatrixD rightHandItemMatrix = Bones[m_rightHandItemBone].AbsoluteTransform * WorldMatrix;
+                        //var rightHandItemMatrix = ((MyEntity)m_currentWeapon).PositionComp.WorldMatrix; //use with UpdateWeaponPosition() but not working for barbarians
+                        Vector3D up = rightHandItemMatrix.Up;
+                        rightHandItemMatrix.Up = rightHandItemMatrix.Forward;
+                        rightHandItemMatrix.Forward = up;
+                        rightHandItemMatrix.Right = -rightHandItemMatrix.Right;
+                        ((MyEntity)m_currentWeapon).PositionComp.WorldMatrix = rightHandItemMatrix;
+                    }
                 }
-                VRageRender.MyRenderProxy.GetRenderProfiler().EndProfilingBlock();
             }
+            VRageRender.MyRenderProxy.GetRenderProfiler().EndProfilingBlock();
+
+            if (m_boneRelativeTransforms == null || Bones.Count != m_boneRelativeTransforms.Length)
+                m_boneRelativeTransforms = new Matrix[Bones.Count];
+
+            VRageRender.MyRenderProxy.GetRenderProfiler().StartProfilingBlock("Saving bone transforms");
+            for (int i = 0; i < Bones.Count; i++)
+            {
+                MyCharacterBone bone = Bones[i];
+                m_boneRelativeTransforms[i] = bone.ComputeBoneTransform();
+                bone.ComputeAbsoluteTransform();
+                BoneTransforms[i] = bone.AbsoluteTransform;
+            }
+            VRageRender.MyRenderProxy.GetRenderProfiler().EndProfilingBlock();
 
             ProfilerShort.End();
         }
@@ -431,20 +328,15 @@ namespace Sandbox.Game.Entities.Character
 
         void CalculateHandIK(int startBoneIndex, int endBoneIndex, ref MatrixD targetTransform)
         {
-            MyCharacterBone endBone = m_bones[endBoneIndex];
-            MyCharacterBone startBone = m_bones[startBoneIndex];
-
-            if (Model.DataVersion < 01047001)
-            {
-                Vector3D pos = targetTransform.Translation;
-                targetTransform = MatrixD.CreateRotationZ(MathHelper.Pi) * Matrix.CreateRotationX(MathHelper.Pi) * targetTransform;
-                targetTransform.Translation = pos;
-            }
+            MyCharacterBone endBone = Bones[endBoneIndex];
+            MyCharacterBone startBone = Bones[startBoneIndex];
 
             // Solve IK Problem
             List<MyCharacterBone> bones = new List<MyCharacterBone>();
 
-            for (int i = startBoneIndex; i <= endBoneIndex; i++) bones.Add(m_bones[i]);
+            for (int i = startBoneIndex; i <= endBoneIndex; i++) 
+                bones.Add(Bones[i]);
+
             MatrixD invWorld = MatrixD.Invert(WorldMatrix);
             Matrix localFinalTransform = targetTransform * invWorld;
             Vector3 finalPos = localFinalTransform.Translation;
@@ -464,26 +356,11 @@ namespace Sandbox.Game.Entities.Character
         {
             if (MyFakes.ENABLE_BONES_AND_ANIMATIONS_DEBUG)
             {
-                Debug.Assert(m_bones.IsValidIndex(upperarm), "UpperArm index for IK is invalid");
-                Debug.Assert(m_bones.IsValidIndex(forearm), "ForeArm index for IK is invalid");
-                Debug.Assert(m_bones.IsValidIndex(palm), "Palm index for IK is invalid");
+                Debug.Assert(Bones.IsValidIndex(upperarm), "UpperArm index for IK is invalid");
+                Debug.Assert(Bones.IsValidIndex(forearm), "ForeArm index for IK is invalid");
+                Debug.Assert(Bones.IsValidIndex(palm), "Palm index for IK is invalid");
             }
 
-
-            //MyCharacterBone endBone = m_bones[endBoneIndex];
-            //MyCharacterBone startBone = m_bones[startBoneIndex];
-
-            if (Model.DataVersion < 01047001)
-            {
-                Vector3D pos = targetTransform.Translation;
-                targetTransform = MatrixD.CreateRotationZ(MathHelper.Pi) * Matrix.CreateRotationX(MathHelper.Pi) * targetTransform;
-                targetTransform.Translation = pos;
-            }
-
-            // Solve IK Problem
-            //List<MyCharacterBone> bones = new List<MyCharacterBone>();
-
-            //for (int i = startBoneIndex; i <= endBoneIndex; i++) bones.Add(m_bones[i]);
             MatrixD invWorld = MatrixD.Invert(WorldMatrix);
             Matrix localFinalTransform = targetTransform * invWorld;
             Vector3 finalPos = localFinalTransform.Translation;
@@ -495,9 +372,9 @@ namespace Sandbox.Game.Entities.Character
             }
 
             //MyInverseKinematics.SolveCCDIk(ref finalPos, bones, 0.0005f, 5, 0.5f, ref localFinalTransform, endBone);
-            if (m_bones.IsValidIndex(upperarm) && m_bones.IsValidIndex(forearm) && m_bones.IsValidIndex(palm))
+            if (Bones.IsValidIndex(upperarm) && Bones.IsValidIndex(forearm) && Bones.IsValidIndex(palm))
             {
-                MyInverseKinematics.SolveTwoJointsIkCCD(ref finalPos, m_bones[upperarm], m_bones[forearm], m_bones[palm], ref localFinalTransform, WorldMatrix, m_bones[palm], false);
+                MyInverseKinematics.SolveTwoJointsIkCCD(ref finalPos, Bones[upperarm], Bones[forearm], Bones[palm], ref localFinalTransform, WorldMatrix, Bones[palm], false);
             }
 
         }
@@ -521,11 +398,11 @@ namespace Sandbox.Game.Entities.Character
                         
             // get the current foot matrix and location
             Matrix invWorld = PositionComp.WorldMatrixInvScaled;
-            MyCharacterBone rootBone = m_bones[m_rootBone]; // root bone is used to transpose the model up or down
+            MyCharacterBone rootBone = Bones[m_rootBone]; // root bone is used to transpose the model up or down
             Matrix modelRootBoneMatrix = rootBone.AbsoluteTransform;
             float verticalShift = modelRootBoneMatrix.Translation.Y;
-            Matrix leftFootMatrix = m_bones[m_leftAnkleBone].AbsoluteTransform;
-            Matrix rightFootMatrix = m_bones[m_rightAnkleBone].AbsoluteTransform;
+            Matrix leftFootMatrix = Bones[m_leftAnkleBone].AbsoluteTransform;
+            Matrix rightFootMatrix = Bones[m_rightAnkleBone].AbsoluteTransform;
 
             // ok first we get the closest support to feet and we need to know from where to raycast for each foot in world coords
             // we need to raycast from original ground position of the feet, no from the character shifted position            
@@ -674,8 +551,8 @@ namespace Sandbox.Game.Entities.Character
 
             if (MyDebugDrawSettings.ENABLE_DEBUG_DRAW && MyDebugDrawSettings.DEBUG_DRAW_CHARACTER_IK_BONES)
             {
-                List<Matrix> left = new List<Matrix> { m_bones[m_leftHipBone].AbsoluteTransform, m_bones[m_leftKneeBone].AbsoluteTransform, m_bones[m_leftAnkleBone].AbsoluteTransform };
-                List<Matrix> right = new List<Matrix> { m_bones[m_rightHipBone].AbsoluteTransform, m_bones[m_rightKneeBone].AbsoluteTransform, m_bones[m_rightAnkleBone].AbsoluteTransform };
+                List<Matrix> left = new List<Matrix> { Bones[m_leftHipBone].AbsoluteTransform, Bones[m_leftKneeBone].AbsoluteTransform, Bones[m_leftAnkleBone].AbsoluteTransform };
+                List<Matrix> right = new List<Matrix> { Bones[m_rightHipBone].AbsoluteTransform, Bones[m_rightKneeBone].AbsoluteTransform, Bones[m_rightAnkleBone].AbsoluteTransform };
                 debugDrawBones(left);
                 debugDrawBones(right);
                 VRageRender.MyRenderProxy.DebugDrawText3D(WorldMatrix.Translation, "Rigid body", Color.Yellow, 1, false);
@@ -687,12 +564,12 @@ namespace Sandbox.Game.Entities.Character
             VRageRender.MyRenderProxy.GetRenderProfiler().StartProfilingBlock("Storing bones transforms");
 
             // After the feet placement we need to save new bone transformations
-            if (m_boneRelativeTransforms == null || m_bones.Count != m_boneRelativeTransforms.Length)
-                m_boneRelativeTransforms = new Matrix[m_bones.Count];
+            if (m_boneRelativeTransforms == null || Bones.Count != m_boneRelativeTransforms.Length)
+                m_boneRelativeTransforms = new Matrix[Bones.Count];
 
-            for (int i = 0; i < m_bones.Count; i++)
+            for (int i = 0; i < Bones.Count; i++)
             {
-                MyCharacterBone bone = m_bones[i];
+                MyCharacterBone bone = Bones[i];
                 m_boneRelativeTransforms[i] = bone.ComputeBoneTransform();
                 //bone.ComputeAbsoluteTransform();
                 //BoneTransforms[i] = bone.AbsoluteTransform;
@@ -733,9 +610,9 @@ namespace Sandbox.Game.Entities.Character
             Vector3 endPos = footPosition;
            
             List<MyCharacterBone> boneTransforms = new List<MyCharacterBone>();
-            boneTransforms.Add(m_bones[hipBoneIndex]);
-            boneTransforms.Add(m_bones[kneeBoneIndex]);
-            boneTransforms.Add(m_bones[ankleBoneIndex]);
+            boneTransforms.Add(Bones[hipBoneIndex]);
+            boneTransforms.Add(Bones[kneeBoneIndex]);
+            boneTransforms.Add(Bones[ankleBoneIndex]);
 
             VRageRender.MyRenderProxy.GetRenderProfiler().StartProfilingBlock("Calculate foot transform");
 
@@ -764,7 +641,7 @@ namespace Sandbox.Game.Entities.Character
                 finalAnkleTransform = finalAnkleTransform * invWorld;
 
                 // get the original ankleSpace
-                MatrixD originalAngleTransform = m_bones[ankleBoneIndex].BindTransform * m_bones[ankleBoneIndex].Parent.AbsoluteTransform;
+                MatrixD originalAngleTransform = Bones[ankleBoneIndex].BindTransform * Bones[ankleBoneIndex].Parent.AbsoluteTransform;
 
                 // now it needs to be related to rig transform
                 finalAnkleTransform = originalAngleTransform.GetOrientation() * finalAnkleTransform.GetOrientation();
@@ -778,7 +655,7 @@ namespace Sandbox.Game.Entities.Character
 
             VRageRender.MyRenderProxy.GetRenderProfiler().StartProfilingBlock("IK Calculation");
 
-            MyInverseKinematics.SolveTwoJointsIk(ref endPos, m_bones[hipBoneIndex], m_bones[kneeBoneIndex], m_bones[ankleBoneIndex], ref finalAnkleTransform, WorldMatrix, setFootTransform ? m_bones[ankleBoneIndex] : null, false);
+            MyInverseKinematics.SolveTwoJointsIk(ref endPos, Bones[hipBoneIndex], Bones[kneeBoneIndex], Bones[ankleBoneIndex], ref finalAnkleTransform, WorldMatrix, setFootTransform ? Bones[ankleBoneIndex] : null, false);
 
             VRageRender.MyRenderProxy.GetRenderProfiler().EndProfilingBlock();
 
@@ -787,7 +664,7 @@ namespace Sandbox.Game.Entities.Character
             if (MyDebugDrawSettings.ENABLE_DEBUG_DRAW && MyDebugDrawSettings.DEBUG_DRAW_CHARACTER_IK_ANKLE_FINALPOS)
             {
                 Matrix debug = finalAnkleTransform * WorldMatrix;
-                Matrix debug2 = m_bones[ankleBoneIndex].AbsoluteTransform * WorldMatrix;
+                Matrix debug2 = Bones[ankleBoneIndex].AbsoluteTransform * WorldMatrix;
                 VRageRender.MyRenderProxy.DebugDrawText3D(debug.Translation, "Final ankle position", Color.Red, 1.0f, false);
                 VRageRender.MyRenderProxy.DebugDrawOBB(Matrix.CreateScale(footDimensions) * debug, Color.Red, 1, false, false);
                 VRageRender.MyRenderProxy.DebugDrawText3D(debug2.Translation, "Actual ankle position", Color.Green, 1.0f, false);

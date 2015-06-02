@@ -130,7 +130,9 @@ float4 ps(VsOut vertex) : SV_Target0
 		float4 dirt = sample;
 		float3 cDirt = lerp(c, dirt.xyz, dirt.w);
 
-		return float4(cDirt, max(dirt.w, billboard_color.w));	
+		float4 finalR = float4(cDirt, max(dirt.w, billboard_color.w));
+		finalR.xyz *= 0.1;
+		return finalR;	
 	}
 
 #endif

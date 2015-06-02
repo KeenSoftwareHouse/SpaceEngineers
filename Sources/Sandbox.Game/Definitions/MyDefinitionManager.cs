@@ -36,6 +36,7 @@ using VRage.Library.Utils;
 using Sandbox.Common.ObjectBuilders.AI;
 using Sandbox.Game.AI.Pathfinding;
 using VRage.FileSystem;
+using VRage.ObjectBuilders;
 
 #endregion
 
@@ -1021,7 +1022,7 @@ namespace Sandbox.Definitions
         private T Load<T>(string path) where T : MyObjectBuilder_Base
         {
             T result = null;
-            Sandbox.Common.ObjectBuilders.Serializer.MyObjectBuilderSerializer.DeserializeXML(path, out result);
+            MyObjectBuilderSerializer.DeserializeXML(path, out result);
             return result;
         }
 
@@ -1029,7 +1030,7 @@ namespace Sandbox.Definitions
         {
             string filePath = Path.Combine(dataPath, fileName);
             var path = Path.Combine(MyFileSystem.ContentPath, filePath);
-            Sandbox.Common.ObjectBuilders.Serializer.MyObjectBuilderSerializer.SerializeXML(path, false, builder);
+            MyObjectBuilderSerializer.SerializeXML(path, false, builder);
         }
 
         private static void InitAmmoMagazines(MyModContext context,
@@ -1520,7 +1521,7 @@ namespace Sandbox.Definitions
 
         public void SaveHandItems()
         {
-            var objBuilder = Sandbox.Common.ObjectBuilders.Serializer.MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_Definitions>();
+            var objBuilder = MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_Definitions>();
             List<MyObjectBuilder_HandItemDefinition> defList = new List<MyObjectBuilder_HandItemDefinition>();
 
             foreach (var handDef in m_definitions.m_handItemsById.Values)
@@ -1806,7 +1807,7 @@ namespace Sandbox.Definitions
         {
             Type blockType = MyCubeBlockFactory.GetProducedType(cubeBlockDefinition.Id.TypeId);
 
-            MyObjectBuilder_CompositeBlueprintDefinition ob = Sandbox.Common.ObjectBuilders.Serializer.MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_CompositeBlueprintDefinition>();
+            MyObjectBuilder_CompositeBlueprintDefinition ob = MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_CompositeBlueprintDefinition>();
 
             ob.Id = new SerializableDefinitionId(typeof(MyObjectBuilder_BlueprintDefinition), cubeBlockDefinition.Id.ToString().Replace("MyObjectBuilder_", "")); /*blockType.Name.Substring(2) + "/" + cubeBlockDefinition.Id.SubtypeName*/
             
@@ -2699,7 +2700,7 @@ namespace Sandbox.Definitions
 
             foreach (var defPair in defs)
             {
-                var objBuilder = Sandbox.Common.ObjectBuilders.Serializer.MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_Definitions>();
+                var objBuilder = MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_Definitions>();
                 var defList = new List<MyObjectBuilder_DefinitionBase>();
 
                 foreach (var def in defPair.Value)
@@ -2711,7 +2712,7 @@ namespace Sandbox.Definitions
                 //TODO: Add here all needed properties
                 objBuilder.CubeBlocks = defList.OfType<MyObjectBuilder_CubeBlockDefinition>().ToArray();
                     
-                Sandbox.Common.ObjectBuilders.Serializer.MyObjectBuilderSerializer.SerializeXML(defPair.Key, false, objBuilder);
+                MyObjectBuilderSerializer.SerializeXML(defPair.Key, false, objBuilder);
             }                
         }
 

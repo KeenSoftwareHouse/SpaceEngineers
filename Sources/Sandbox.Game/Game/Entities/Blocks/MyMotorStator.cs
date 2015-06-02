@@ -32,6 +32,7 @@ namespace Sandbox.Game.Entities.Cube
     using Sandbox.ModAPI.Ingame;
     using Sandbox.Game.Localization;
     using VRage;
+    using VRage.ModAPI;
 
     [MyCubeBlockType(typeof(MyObjectBuilder_MotorStator))]
     class MyMotorStator : MyMotorBase, IMyConveyorEndpointBlock, Sandbox.ModAPI.IMyMotorStator

@@ -34,6 +34,7 @@ using VRageMath;
 using VRageRender;
 using ModelId = System.Int32;
 using Sandbox.Game.Multiplayer;
+using VRage.ObjectBuilders;
 
 #endregion
 
@@ -623,6 +624,11 @@ namespace Sandbox.Game.Entities
                 AllowFreeSpacePlacement = false;
                 ShowRemoveGizmo = MyFakes.SHOW_REMOVE_GIZMO;
             }
+            else
+            {
+                AllowFreeSpacePlacement = false;
+                ShowRemoveGizmo = true;
+            }
 
             ActivateNotifications();
 
@@ -1055,7 +1061,7 @@ namespace Sandbox.Game.Entities
                 IsBuildMode = !IsBuildMode;
             }
 
-            if (MyInput.Static.IsNewGameControlPressed(MyControlsSpace.STATION_ROTATION) && ShipCreationIsActivated)
+            if (MyInput.Static.IsNewGameControlPressed(MyControlsSpace.STATION_ROTATION) && (ShipCreationIsActivated || CopyPasteIsActivated))
             {
                 EnableStationRotation();
             }
@@ -1148,6 +1154,7 @@ namespace Sandbox.Game.Entities
                     if (MyInput.Static.IsNewKeyPressed(MyKeys.V) && MyInput.Static.IsAnyCtrlKeyPressed() && !MyInput.Static.IsAnyShiftKeyPressed())
                     {
                         DeactivateBlockCreation();
+                        ShowStationRotationNotification();
                         if (m_clipboard.PasteGrid())
                         {
                             UpdatePasteNotification(MySpaceTexts.CubeBuilderPasteNotification);
@@ -1177,6 +1184,7 @@ namespace Sandbox.Game.Entities
                 {
                     if (m_clipboard.IsActive)
                     {
+                        HideStationRotationNotification();
                         m_clipboard.Deactivate();
                         UpdatePasteNotification(MySpaceTexts.CubeBuilderPasteNotification);
                         return true;
@@ -1198,6 +1206,7 @@ namespace Sandbox.Game.Entities
 
                     if (m_shipCreationClipboard.IsActive)
                     {
+                        HideStationRotationNotification();
                         m_shipCreationClipboard.Deactivate();
                         UpdatePasteNotification(MySpaceTexts.CubeBuilderPasteNotification);
                         return true;
@@ -1235,6 +1244,7 @@ namespace Sandbox.Game.Entities
                     {
                         if (m_clipboard.PasteGrid())
                         {
+                            HideStationRotationNotification();
                             UpdatePasteNotification(MySpaceTexts.CubeBuilderPasteNotification);
                             return true;
                         }
@@ -2081,15 +2091,7 @@ namespace Sandbox.Game.Entities
                     return;
                 }
 
-                if (!MySession.Static.SimpleSurvival && MySession.ControlledEntity is MyCharacter)
-                {
-                    gizmoSpace.m_buildAllowed &= (MySession.ControlledEntity as MyCharacter).CanStartConstruction(CurrentBlockDefinition);
-                }
-
-                if (MySession.Static.SimpleSurvival)
-                {
-                    gizmoSpace.m_buildAllowed &= CanBuildBlockSurvivalTime();
-                }
+                gizmoSpace.m_buildAllowed &= CanStartConstruction();
             }
 
             // m_buildAllowed is set in shape cast
@@ -2210,15 +2212,7 @@ namespace Sandbox.Game.Entities
                     return;
                 }
 
-                if (!MySession.Static.SimpleSurvival && MySession.ControlledEntity is MyCharacter)
-                {
-                    gizmoSpace.m_buildAllowed &= (MySession.ControlledEntity as MyCharacter).CanStartConstruction(CurrentBlockDefinition);
-                }
-
-                if (MySession.Static.SimpleSurvival)
-                {
-                    gizmoSpace.m_buildAllowed &= CanBuildBlockSurvivalTime();
-                }
+                gizmoSpace.m_buildAllowed &= CanStartConstruction();
             }
 
 
@@ -2282,12 +2276,14 @@ namespace Sandbox.Game.Entities
                     Matrix addOrientationMat = gizmoSpace.m_localMatrixAdd.GetOrientation();
                     MyBlockOrientation gizmoAddOrientation = new MyBlockOrientation(ref addOrientationMat);
 
+                    // Test free space in the cube grid (& valid rotation of the block)
                     if (!PlacingSmallGridOnLargeStatic)
                     {
                         gizmoSpace.m_buildAllowed &= CheckValidBlockRotation(gizmoSpace.m_localMatrixAdd, CurrentBlockDefinition.Direction, CurrentBlockDefinition.Rotation) 
                             && CurrentGrid.CanPlaceBlock(gizmoSpace.m_min, gizmoSpace.m_max, gizmoAddOrientation, gizmoSpace.m_blockDefinition);
                     }
 
+                    // In survival, check whether you're close enough, and have enough materials or haven't built for long enough
                     if (!PlacingSmallGridOnLargeStatic && MySession.Static.SurvivalMode && !DeveloperSpectatorIsBuilding)
                     {
                         Vector3 localMin = (m_gizmo.SpaceDefault.m_min - new Vector3(0.5f)) * CurrentGrid.GridSize;
@@ -2300,15 +2296,8 @@ namespace Sandbox.Game.Entities
                             gizmoSpace.m_removeBlock = null;
                             return;
                         }
-                        if (!MySession.Static.SimpleSurvival && MySession.ControlledEntity is MyCharacter)
-                        {
-                            gizmoSpace.m_buildAllowed &= (MySession.ControlledEntity as MyCharacter).CanStartConstruction(CurrentBlockDefinition);
-                        }
 
-                        if (MySession.Static.SimpleSurvival)
-                        {
-                            gizmoSpace.m_buildAllowed &= CanBuildBlockSurvivalTime();
-                        }
+                        gizmoSpace.m_buildAllowed &= CanStartConstruction();
                     }
 
                     // Check whether mount points match any of its neighbors (only if we can build here though).
@@ -2439,16 +2428,9 @@ namespace Sandbox.Game.Entities
                                 gizmoSpace.m_buildAllowed = false;
                                 gizmoSpace.m_removeBlock = null;
                                 return;
-                            }
-                            if (!MySession.Static.SimpleSurvival && MySession.ControlledEntity is MyCharacter)
-                            {
-                                gizmoSpace.m_buildAllowed &= (MySession.ControlledEntity as MyCharacter).CanStartConstruction(CurrentBlockDefinition);
-                            }
 
-                            if (MySession.Static.SimpleSurvival)
-                            {
-                                gizmoSpace.m_buildAllowed &= CanBuildBlockSurvivalTime();
                             }
+                            gizmoSpace.m_buildAllowed &= CanStartConstruction();
                         }
 
                         var settings = MyPerGameSettings.BuildingSettings.GetGridPlacementSettings(CurrentGrid);
@@ -2566,6 +2548,21 @@ namespace Sandbox.Game.Entities
                     }
                 }
             }
+        }
+
+        private bool CanStartConstruction()
+        {
+            if (!MySession.Static.SimpleSurvival && MySession.ControlledEntity is MyCharacter)
+            {
+                return (MySession.ControlledEntity as MyCharacter).CanStartConstruction(CurrentBlockDefinition);
+            }
+
+            if (MySession.Static.SimpleSurvival)
+            {
+                return CanBuildBlockSurvivalTime();
+            }
+
+            return false;
         }
 
         private void UpdateShowGizmoCube(MyCubeBuilderGizmo.MyGizmoSpaceProperties gizmoSpace, float gridSize)
@@ -2687,6 +2684,7 @@ namespace Sandbox.Game.Entities
                 gridWorldMatrix.Translation -= offset;
                 
                 MySyncCreate.RequestStaticGridSpawn(gizmoSpace.m_blockDefinition, gridWorldMatrix);
+                MyGuiAudio.PlaySound(MyGuiSounds.HudPlaceBlock);
             }
             else if (DynamicMode)
             {
@@ -2870,7 +2868,8 @@ namespace Sandbox.Game.Entities
 
                 Vector3D localIntersectionExact = sideCenter + sideCenterToIntersectionExact;
                 float smallToLarge = gridSize / CurrentGrid.GridSize;
-                Vector3I addPosSmallOnLargeInt = Vector3I.Round((localIntersectionExact + 0.5f * smallToLarge * addDir - smallToLarge * Vector3.Half) / smallToLarge);
+                // Note that there is 0.1 coef instead of 0.5 - because we need that small block is into large one when intersection is not on sides.
+                Vector3I addPosSmallOnLargeInt = Vector3I.Round((localIntersectionExact + 0.1f * smallToLarge * addDir - smallToLarge * Vector3.Half) / smallToLarge);
                 addPosSmallOnLarge = smallToLarge * addPosSmallOnLargeInt + smallToLarge * Vector3.Half;
             }
 
@@ -3939,13 +3938,13 @@ namespace Sandbox.Game.Entities
                 character.SwitchToWeapon(null);
             }
 
-            var gridBuilder = Sandbox.Common.ObjectBuilders.Serializer.MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_CubeGrid>();
+            var gridBuilder = MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_CubeGrid>();
             gridBuilder.PositionAndOrientation = new MyPositionAndOrientation(Vector3.Zero, Vector3.Forward, Vector3.Up);
             gridBuilder.GridSizeEnum = MyCubeSize.Small;
             gridBuilder.IsStatic = isStatic;
             gridBuilder.PersistentFlags |= MyPersistentEntityFlags2.Enabled | MyPersistentEntityFlags2.InScene;
 
-            var blockBuilder = Sandbox.Common.ObjectBuilders.Serializer.MyObjectBuilderSerializer.CreateNewObject(blockDefinition.Id) as MyObjectBuilder_CubeBlock;
+            var blockBuilder = MyObjectBuilderSerializer.CreateNewObject(blockDefinition.Id) as MyObjectBuilder_CubeBlock;
             blockBuilder.Orientation = Quaternion.CreateFromForwardUp(Vector3I.Forward, Vector3I.Up);
             blockBuilder.ColorMaskHSV = new Vector3(0, -1, 0);
 
@@ -3978,7 +3977,7 @@ namespace Sandbox.Game.Entities
             //    character.SwitchToWeapon(null);
             //}
 
-            var gridBuilder = Sandbox.Common.ObjectBuilders.Serializer.MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_CubeGrid>();
+            var gridBuilder = MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_CubeGrid>();
             gridBuilder.PositionAndOrientation = new MyPositionAndOrientation(Vector3.Zero, rotationMatrix.Forward, rotationMatrix.Up);
             gridBuilder.IsStatic = isStatic;
             gridBuilder.PersistentFlags |= MyPersistentEntityFlags2.Enabled | MyPersistentEntityFlags2.InScene;
@@ -4013,7 +4012,7 @@ namespace Sandbox.Game.Entities
                     continue;
                 }
 
-                MyObjectBuilder_CubeBlock blockBuilder = Sandbox.Common.ObjectBuilders.Serializer.MyObjectBuilderSerializer.CreateNewObject(blockDefinition.Id) as MyObjectBuilder_CubeBlock;
+                MyObjectBuilder_CubeBlock blockBuilder = MyObjectBuilderSerializer.CreateNewObject(blockDefinition.Id) as MyObjectBuilder_CubeBlock;
                 blockBuilder.Orientation = Base6Directions.GetOrientation(multiBlockPartDefinition.Forward, multiBlockPartDefinition.Up);
                 blockBuilder.Min = multiBlockPartDefinition.Position;
                 blockBuilder.ColorMaskHSV = MyToolbar.ColorMaskHSV;
@@ -4052,14 +4051,14 @@ namespace Sandbox.Game.Entities
         /// </summary>
         public static MyCubeGrid SpawnStaticGrid(MyCubeBlockDefinition blockDefinition, MatrixD worldMatrix)
         {
-            var gridBuilder = Sandbox.Common.ObjectBuilders.Serializer.MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_CubeGrid>();
+            var gridBuilder = MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_CubeGrid>();
             gridBuilder.PositionAndOrientation = new MyPositionAndOrientation(worldMatrix.Translation, Vector3.Forward, Vector3.Up);
             gridBuilder.GridSizeEnum = blockDefinition.CubeSize;
             gridBuilder.IsStatic = true;
             gridBuilder.PersistentFlags |= MyPersistentEntityFlags2.Enabled | MyPersistentEntityFlags2.InScene;
 
             // Block must be placed on (0,0,0) coordinate
-            var blockBuilder = Sandbox.Common.ObjectBuilders.Serializer.MyObjectBuilderSerializer.CreateNewObject(blockDefinition.Id) as MyObjectBuilder_CubeBlock;
+            var blockBuilder = MyObjectBuilderSerializer.CreateNewObject(blockDefinition.Id) as MyObjectBuilder_CubeBlock;
             blockBuilder.Orientation = Quaternion.CreateFromForwardUp(Vector3I.Round(worldMatrix.Forward), Vector3I.Round(worldMatrix.Up));
             Vector3I sizeRotated = Vector3I.Abs(Vector3I.Round(Vector3D.TransformNormal((Vector3)blockDefinition.Size, worldMatrix)));
             blockBuilder.Min = sizeRotated / 2 - sizeRotated + Vector3I.One;
@@ -4076,7 +4075,7 @@ namespace Sandbox.Game.Entities
             return grid;
         }
 
-        public static void AfterStaticGridSpawn(MyCubeGrid grid)
+        public static void AfterStaticGridSpawn(MyCubeGrid grid, bool localBuilder)
         {
             Debug.Assert(grid.IsStatic);
 
@@ -4092,6 +4091,11 @@ namespace Sandbox.Game.Entities
                 {
                     MyCubeGridSmallToLargeConnection.Static.AddBlockSmallToLargeConnection(block);
                 }
+
+				if (localBuilder && MySession.Static.SurvivalMode && !MySession.Static.SimpleSurvival)
+				{
+					TakeSpawnItemFromBuilder(block);
+				}
             }
             else
                 Debug.Fail("Block not created");
@@ -4099,7 +4103,7 @@ namespace Sandbox.Game.Entities
 
         public static MyCubeGrid SpawnDynamicGrid(MyCubeBlockDefinition blockDefinition, MatrixD worldMatrix, long entityId = 0)
         {
-            var gridBuilder = Sandbox.Common.ObjectBuilders.Serializer.MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_CubeGrid>();
+            var gridBuilder = MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_CubeGrid>();
             gridBuilder.PositionAndOrientation = new MyPositionAndOrientation(ref worldMatrix);
             gridBuilder.GridSizeEnum = blockDefinition.CubeSize;
             gridBuilder.IsStatic = false;
@@ -4107,7 +4111,7 @@ namespace Sandbox.Game.Entities
             gridBuilder.EntityId = entityId;
 
             // Block must be placed on (0,0,0) coordinate
-            var blockBuilder = Sandbox.Common.ObjectBuilders.Serializer.MyObjectBuilderSerializer.CreateNewObject(blockDefinition.Id) as MyObjectBuilder_CubeBlock;
+            var blockBuilder = MyObjectBuilderSerializer.CreateNewObject(blockDefinition.Id) as MyObjectBuilder_CubeBlock;
             blockBuilder.Orientation = Quaternion.CreateFromForwardUp(Vector3I.Forward, Vector3I.Up);
             blockBuilder.Min = blockDefinition.Size / 2 - blockDefinition.Size + Vector3I.One;
             
@@ -4117,19 +4121,49 @@ namespace Sandbox.Game.Entities
             {
                 blockBuilder.EntityId = entityId + 1;
             }
+
+			if (MySession.Static.SurvivalMode && !MySession.Static.SimpleSurvival)
+			{
+				blockBuilder.IntegrityPercent = MyComponentStack.MOUNT_THRESHOLD;
+				blockBuilder.BuildPercent = MyComponentStack.MOUNT_THRESHOLD;
+			}
             
-
             gridBuilder.CubeBlocks.Add(blockBuilder);
-
-
-
-
 
             MyCubeGrid grid = MyEntities.CreateFromObjectBuilderAndAdd(gridBuilder) as MyCubeGrid;
             
 
             return grid;
         }
+
+		public static void AfterDynamicGridSpawn(MyCubeGrid grid, bool localBuilder)
+		{
+			MySlimBlock block = grid.GetCubeBlock(Vector3I.Zero);
+			if (block != null)
+			{
+				if (localBuilder && MySession.Static.SurvivalMode && !MySession.Static.SimpleSurvival)
+				{
+					TakeSpawnItemFromBuilder(block);
+				}
+			}
+		}
+
+		private static void TakeSpawnItemFromBuilder(MySlimBlock block)
+		{
+			if (MyFakes.ENABLE_COMPOUND_BLOCKS && block.FatBlock is MyCompoundCubeBlock)
+			{
+				block = (block.FatBlock as MyCompoundCubeBlock).GetBlocks().First();
+			}
+
+			IMyComponentInventory inventory = null;
+			var character = MySession.LocalCharacter;
+
+			if (character != null)
+				inventory = character.GetComponentInventory();
+
+			if (inventory != null)
+				inventory.RemoveItemsOfType(1, block.BlockDefinition.Components[0].Definition.Id);
+		}
 
         #endregion
 

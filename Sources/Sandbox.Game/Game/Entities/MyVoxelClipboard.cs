@@ -239,7 +239,7 @@ namespace Sandbox.Game.Entities
             //    voxelMap.NeedsUpdate = MyEntityUpdateEnum.NONE;
 
             foreach (var child in entity.Hierarchy.Children)
-                DisablePhysicsRecursively(child.Entity as MyEntity);
+                DisablePhysicsRecursively(child.Container.Entity as MyEntity);
         }
 
         private void EnablePhysicsRecursively(MyEntity entity)
@@ -252,7 +252,7 @@ namespace Sandbox.Game.Entities
             //    voxelMap.NeedsUpdate = MyEntityUpdateEnum.NONE;
 
             foreach (var child in entity.Hierarchy.Children)
-                EnablePhysicsRecursively(child.Entity as MyEntity);
+                EnablePhysicsRecursively(child.Container.Entity as MyEntity);
         }
 
         public void Update()

@@ -1,6 +1,5 @@
 ﻿using Sandbox.Common.ObjectBuilders.AI;
 using Sandbox.Common.ObjectBuilders.Definitions;
-using Sandbox.Common.ObjectBuilders.Serializer;
 using Sandbox.Definitions;
 using Sandbox.Engine.Utils;
 using Sandbox.Game.Gui;
@@ -13,6 +12,7 @@ using System.Runtime.InteropServices;
 using System.Text;
 using VRage.FileSystem;
 using VRage.Library.Utils;
+using VRage.ObjectBuilders;
 using VRage.Utils;
 using VRage.Win32;
 
