@@ -6,12 +6,14 @@ using System.Text;
 using ProtoBuf;
 using Sandbox.Common.ObjectBuilders;
 using Sandbox.Common.ObjectBuilders.Definitions;
-using Sandbox.Common.ObjectBuilders.Serializer;
 using Sandbox.Definitions;
 using Sandbox.Game.Entities.Cube;
 using VRage.Collections;
 using VRageMath;
 using Sandbox.Common.ModAPI;
+using VRage.Components;
+using VRage.ObjectBuilders;
+using VRage;
 
 namespace Sandbox.Game.Entities
 {
@@ -27,7 +29,7 @@ namespace Sandbox.Game.Entities
         {
             private MyCompoundCubeBlock m_block;
 
-            public override void OnAddedToContainer(Common.Components.MyComponentContainer container)
+            public override void OnAddedToContainer(MyComponentContainer container)
             {
                 base.OnAddedToContainer(container);
                 m_block = container.Entity as MyCompoundCubeBlock;

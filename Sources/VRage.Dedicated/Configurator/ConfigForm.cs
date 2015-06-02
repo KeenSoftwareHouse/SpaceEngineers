@@ -11,20 +11,20 @@ using System.ServiceProcess;
 using System.Text;
 using VRage.Utils;
 using System.Collections.Generic;
-using Sandbox.Common.ObjectBuilders.Serializer;
 using VRage.Library.Utils;
 using VRage.FileSystem;
 using Sandbox.Engine.Utils;
 using VRage.Plugins;
 using Sandbox.Game;
 using System.ComponentModel.DataAnnotations;
+using Sandbox.Game;
 
 namespace VRage.Dedicated
 {
     public partial class ConfigForm<T> : Form where T : MyObjectBuilder_SessionSettings, new()
     {
         public static Action OnReset;
-        public static Game GameAttributes;
+        public static Sandbox.Common.ObjectBuilders.Game GameAttributes;
         public static System.Drawing.Image LogoImage;
 
         IMyAsyncResult m_loadWorldsAsync;
@@ -324,7 +324,7 @@ namespace VRage.Dedicated
                 if (gameAttr.Length > 0)
                 {
                     var gameRel = ((GameRelationAttribute)gameAttr[0]).RelatedTo;
-                    if (gameRel != Game.Shared && gameRel != GameAttributes)
+                    if (gameRel != Sandbox.Common.ObjectBuilders.Game.Shared && gameRel != GameAttributes)
                         continue;
                 }
 

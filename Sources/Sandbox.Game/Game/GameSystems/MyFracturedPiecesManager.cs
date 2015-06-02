@@ -14,6 +14,7 @@ using Medieval.ObjectBuilders;
 using VRage.Library.Utils;
 using VRageMath;
 using Sandbox.Game.Multiplayer;
+using VRage.Components;
 
 namespace Sandbox.Game.GameSystems
 {

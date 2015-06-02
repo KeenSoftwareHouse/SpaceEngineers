@@ -143,6 +143,13 @@ namespace Sandbox.Engine.Multiplayer
             set { Lobby.SetLobbyData(MyMultiplayer.ViewDistanceTag, value.ToString()); }
         }
 
+
+        public override bool Scenario
+        {
+            get { return GetLobbyBool(MyMultiplayer.ScenarioTag, Lobby, false); }
+            set { Lobby.SetLobbyData(MyMultiplayer.ScenarioTag, value.ToString()); }
+        }
+
         public override bool Battle
         {
             get { return GetLobbyBool(MyMultiplayer.BattleTag, Lobby, false); }
@@ -617,6 +624,11 @@ namespace Sandbox.Engine.Multiplayer
         public static int GetLobbyViewDistance(Lobby lobby)
         {
             return GetLobbyInt(MyMultiplayer.ViewDistanceTag, lobby, 20000);
+        }
+
+        public static bool GetLobbyScenario(Lobby lobby)
+        {
+            return GetLobbyBool(MyMultiplayer.ScenarioTag, lobby, false);
         }
 
         public static bool GetLobbyBattle(Lobby lobby)

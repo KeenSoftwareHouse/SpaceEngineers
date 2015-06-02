@@ -17,6 +17,7 @@ using Sandbox.Common;
 using VRage;
 using Sandbox.Game.Localization;
 using VRage.Utils;
+using VRage.ModAPI;
 
 namespace Sandbox.Game.Entities.Blocks
 {

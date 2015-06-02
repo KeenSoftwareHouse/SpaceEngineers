@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using VRageMath;
 
-namespace Sandbox.Game.Entities.Character
+namespace Sandbox.Game.Entities
 {
     /// <summary>
     /// Bones in this model are represented by this class, which
@@ -27,8 +27,6 @@ namespace Sandbox.Game.Entities.Character
 	public class MyCharacterBone
     {
         #region Fields
-
-        public bool IsFinger;
 
         /// <summary>
         /// Any parent for this bone
@@ -74,8 +72,6 @@ namespace Sandbox.Game.Entities.Character
         /// </summary>
         private bool m_hierarchyUpdate = false;
 
-        public bool CompatibilityMode = false;
-
         #endregion 
 
         #region Properties
@@ -120,11 +116,13 @@ namespace Sandbox.Game.Entities.Character
         /// </summary>
         public Matrix AbsoluteTransform = Matrix.Identity;
 
-        public bool HasChanged
+        bool HasChanged
         {
             get
             {
-                if (m_parent != null) return Parent.HasChanged || m_changed || m_hierarchyUpdate;
+                if (m_parent != null) 
+                    return Parent.HasChanged || m_changed || m_hierarchyUpdate;
+
                 return m_changed || m_hierarchyUpdate;
             }
         }
@@ -205,13 +203,6 @@ namespace Sandbox.Game.Entities.Character
         public void SetCompleteTransform(Matrix m, float weight)
         {
             m_changed = true;
-            if (CompatibilityMode)
-            {
-                m.Translation = m.Translation * 0.01f;
-                var rotationMatrix = Matrix.CreateRotationY(MathHelper.Pi);
-                var invert = Matrix.Invert(rotationMatrix);
-                m = invert * m * rotationMatrix;
-            }
 
             Matrix setTo = m * Matrix.Invert(BindTransform);
 

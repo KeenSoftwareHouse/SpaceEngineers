@@ -9,6 +9,7 @@ using Sandbox.Common.ObjectBuilders.Definitions;
 using System.Diagnostics;
 using Sandbox.Game.Multiplayer;
 using Sandbox.ModAPI;
+using VRage.ObjectBuilders;
 
 namespace Sandbox.Game.World.Triggers
 {

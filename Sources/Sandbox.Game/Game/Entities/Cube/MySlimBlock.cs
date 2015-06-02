@@ -23,6 +23,7 @@ using VRage.Library.Utils;
 using Sandbox.Game.GameSystems;
 using Sandbox.Engine.Physics;
 using Sandbox.Common.ModAPI;
+using VRage.ObjectBuilders;
 
 namespace Sandbox.Game.Entities.Cube
 {
@@ -390,7 +391,7 @@ namespace Sandbox.Game.Entities.Cube
             }
             else
             {
-                builder = (MyObjectBuilder_CubeBlock)Sandbox.Common.ObjectBuilders.Serializer.MyObjectBuilderSerializer.CreateNewObject(BlockDefinition.Id);
+                builder = (MyObjectBuilder_CubeBlock)MyObjectBuilderSerializer.CreateNewObject(BlockDefinition.Id);
                 if (FatBlock != null)
                 {
                     builder.EntityId = FatBlock.EntityId;
@@ -1040,8 +1041,9 @@ namespace Sandbox.Game.Entities.Cube
             }
         }
 
-        public void IncreaseMountLevel(float welderMountAmount, long welderOwnerPlayerId, MyInventory outputInventory = null, float maxAllowedBoneMovement = 0.0f, bool isHelping = false, MyOwnershipShareModeEnum sharing = MyOwnershipShareModeEnum.Faction)
+        public bool IncreaseMountLevel(float welderMountAmount, long welderOwnerPlayerId, MyInventory outputInventory = null, float maxAllowedBoneMovement = 0.0f, bool isHelping = false, MyOwnershipShareModeEnum sharing = MyOwnershipShareModeEnum.Faction)
         {
+			bool modelChanged = false;
             welderMountAmount *= BlockDefinition.IntegrityPointsPerSec;
             MySession.Static.PositiveIntegrityTotal += welderMountAmount;
 
@@ -1094,6 +1096,7 @@ namespace Sandbox.Game.Entities.Cube
             MyCubeGrid.MyIntegrityChangeEnum integrityChangeType = MyCubeGrid.MyIntegrityChangeEnum.Damage;
             if (BlockDefinition.ModelChangeIsNeeded(oldPercentage, m_componentStack.BuildRatio) || BlockDefinition.ModelChangeIsNeeded(m_componentStack.BuildRatio, oldPercentage))
             {
+				modelChanged = true;
                 if (FatBlock != null)
                 {
                     // this needs to be detected here because for cubes the following call to UpdateVisual() set FatBlock to null when the construction is complete
@@ -1133,6 +1136,8 @@ namespace Sandbox.Game.Entities.Cube
 
             if (maxAllowedBoneMovement != 0.0f)
                 FixBones(oldDamage, maxAllowedBoneMovement);
+
+			return modelChanged;
         }
 
         public void DecreaseMountLevel(float grinderAmount, MyInventory outputInventory)

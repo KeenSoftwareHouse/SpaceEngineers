@@ -18,7 +18,7 @@ using Sandbox.Game.Weapons;
 
 namespace Sandbox.Game.GameSystems
 {
-    class MyGridSelectionSystem
+    public class MyGridSelectionSystem
     {
         HashSet<IMyGunObject<MyDeviceBase>> m_currentGuns = new HashSet<IMyGunObject<MyDeviceBase>>();
         MyDefinitionId? m_gunId;

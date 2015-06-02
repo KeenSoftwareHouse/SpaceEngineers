@@ -1969,7 +1969,7 @@
         <SubtypeId>ArcShipSmNuclearSm</SubtypeId>
       </Id>
       <Category>SHIP_NUCLEAR</Category>
-      <MaxDistance>40</MaxDistance>
+      <MaxDistance>30</MaxDistance>
       <Volume>0.5</Volume>
       <Loopable>true</Loopable>
       <Waves>
@@ -1991,7 +1991,7 @@
         <SubtypeId>ArcShipSmNuclearLrg</SubtypeId>
       </Id>
       <Category>SHIP_NUCLEAR</Category>
-      <MaxDistance>50</MaxDistance>
+      <MaxDistance>30</MaxDistance>
       <Volume>0.602728665</Volume>
       <Loopable>true</Loopable>
       <Waves>
@@ -2013,7 +2013,7 @@
         <SubtypeId>RealShipSmNuclearSm</SubtypeId>
       </Id>
       <Category>REAL_SHIP_NUCLEAR</Category>
-      <MaxDistance>40</MaxDistance>
+      <MaxDistance>30</MaxDistance>
       <Volume>0.4</Volume>
       <Loopable>true</Loopable>
       <Waves>
@@ -2030,7 +2030,7 @@
         <SubtypeId>RealShipSmNuclearLrg</SubtypeId>
       </Id>
       <Category>REAL_SHIP_NUCLEAR</Category>
-      <MaxDistance>50</MaxDistance>
+      <MaxDistance>30</MaxDistance>
       <Volume>0.6</Volume>
       <Loopable>true</Loopable>
       <Waves>
@@ -2047,7 +2047,7 @@
         <SubtypeId>ArcShipLrgNuclearSm</SubtypeId>
       </Id>
       <Category>SHIP_NUCLEAR</Category>
-      <MaxDistance>50</MaxDistance>
+      <MaxDistance>30</MaxDistance>
       <Volume>0.602728665</Volume>
       <Loopable>true</Loopable>
       <Waves>
@@ -2069,7 +2069,7 @@
         <SubtypeId>ArcShipLrgNuclearLrg</SubtypeId>
       </Id>
       <Category>SHIP_NUCLEAR</Category>
-      <MaxDistance>50</MaxDistance>
+      <MaxDistance>30</MaxDistance>
       <Volume>0.602728665</Volume>
       <Loopable>true</Loopable>
       <Waves>
@@ -4772,7 +4772,7 @@
         <SubtypeId>ArcBlockAirVentDepressurize</SubtypeId>
       </Id>
       <Category>Block</Category>
-      <MaxDistance>100</MaxDistance>
+      <MaxDistance>30</MaxDistance>
       <Volume>0.4</Volume>
       <Loopable>true</Loopable>
       <Waves>
@@ -4789,7 +4789,7 @@
         <SubtypeId>ArcBlockAirVentExhale</SubtypeId>
       </Id>
       <Category>Block</Category>
-      <MaxDistance>100</MaxDistance>
+      <MaxDistance>30</MaxDistance>
       <Volume>0.4</Volume>
       <Loopable>true</Loopable>
       <Waves>
@@ -4806,8 +4806,8 @@
         <SubtypeId>ArcBlockAirVentIdle</SubtypeId>
       </Id>
       <Category>Block</Category>
-      <MaxDistance>100</MaxDistance>
-      <Volume>0.4</Volume>
+      <MaxDistance>30</MaxDistance>
+      <Volume>0.7</Volume>
       <Loopable>true</Loopable>
       <Waves>
         <Wave Type="D3">
@@ -4823,8 +4823,8 @@
         <SubtypeId>ArcBlockOxyGenProcess</SubtypeId>
       </Id>
       <Category>Block</Category>
-      <MaxDistance>100</MaxDistance>
-      <Volume>0.4</Volume>
+      <MaxDistance>25</MaxDistance>
+      <Volume>0.9</Volume>
       <Loopable>true</Loopable>
       <Waves>
         <Wave Type="D3">
@@ -4840,7 +4840,7 @@
         <SubtypeId>ArcBlockOxyGenIdle</SubtypeId>
       </Id>
       <Category>Block</Category>
-      <MaxDistance>100</MaxDistance>
+      <MaxDistance>25</MaxDistance>
       <Volume>0.4</Volume>
       <Loopable>true</Loopable>
       <Waves>
@@ -4857,11 +4857,38 @@
         <SubtypeId>ArcEventAirVent</SubtypeId>
       </Id>
       <Category>Event</Category>
-      <MaxDistance>100</MaxDistance>
+      <MaxDistance>35</MaxDistance>
       <Volume>0.4</Volume>
       <Waves>
         <Wave Type="D3">
           <Start>Arc\EVENT\ArcEventAirVent3d.wav</Start>
+        </Wave>
+      </Waves>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>RealBlockAirVentIdle</SubtypeId>
+      </Id>
+      <Category>Block</Category>
+      <MaxDistance>30</MaxDistance>
+      <Volume>0.7</Volume>
+      <Loopable>true</Loopable>
+      <Waves>
+        <Wave Type="D3">
+          <!--<Start>REAL\BLOCK\RealBlockAirVentIdleStart3d.wav</Start>-->
+          <Loop>REAL\BLOCK\RealBlockAirVentIdleLoop3d01.wav</Loop>
+          <!--<End>REAL\BLOCK\RealBlockAirVentIdleEnd3d.wav</End>-->
+        </Wave>
+        <Wave Type="D3">
+          <!--<Start>REAL\BLOCK\RealBlockAirVentIdleStart3d.wav</Start>-->
+          <Loop>REAL\BLOCK\RealBlockAirVentIdleLoop3d02.wav</Loop>
+          <!--<End>REAL\BLOCK\RealBlockAirVentIdleEnd3d.wav</End>-->
+        </Wave>
+        <Wave Type="D3">
+          <!--<Start>REAL\BLOCK\RealBlockAirVentIdleStart3d.wav</Start>-->
+          <Loop>REAL\BLOCK\RealBlockAirVentIdleLoop3d02.wav</Loop>
+          <!--<End>REAL\BLOCK\RealBlockAirVentIdleEnd3d.wav</End>-->
         </Wave>
       </Waves>
     </Sound>

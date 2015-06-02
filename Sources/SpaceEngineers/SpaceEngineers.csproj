@@ -379,6 +379,10 @@
       <Project>{9f620aab-5008-4d91-8d8f-8be6cf26f926}</Project>
       <Name>SpaceEngineers.Game</Name>
     </ProjectReference>
+    <ProjectReference Include="..\VRage.Game\VRage.Game.csproj">
+      <Project>{4539b5f0-3316-40e6-b032-9fbcafaac5be}</Project>
+      <Name>VRage.Game</Name>
+    </ProjectReference>
     <ProjectReference Include="..\VRage.Render11\VRage.Render11.csproj">
       <Project>{a5a97aa5-e974-479e-bf93-1202393a4a06}</Project>
       <Name>VRage.Render11</Name>

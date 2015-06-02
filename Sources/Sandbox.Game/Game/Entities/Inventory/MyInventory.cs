@@ -17,6 +17,7 @@ using Sandbox.Game.Multiplayer;
 using Sandbox.Game.Entities;
 using Sandbox.Game.Entities.Character;
 using VRage;
+using VRage.ObjectBuilders;
 
 #endregion
 
@@ -731,7 +732,7 @@ namespace Sandbox.Game
 
         public MyObjectBuilder_Inventory GetObjectBuilder()
         {
-            var objBuilder = Sandbox.Common.ObjectBuilders.Serializer.MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_Inventory>();
+            var objBuilder = MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_Inventory>();
             objBuilder.Items.Clear();
 
             objBuilder.nextItemId = m_nextItemID;

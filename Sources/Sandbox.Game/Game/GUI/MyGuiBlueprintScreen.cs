@@ -4,7 +4,6 @@ using ParallelTasks;
 using Sandbox.Common.ObjectBuilders;
 using Sandbox.Common.ObjectBuilders.Definitions;
 using Sandbox.Common.ObjectBuilders.Gui;
-using Sandbox.Common.ObjectBuilders.Serializer;
 using Sandbox.Definitions;
 using Sandbox.Engine.Networking;
 using Sandbox.Game.Entities;
@@ -30,6 +29,7 @@ using VRageMath;
 using VRage.Library.Utils;
 using VRage.FileSystem;
 using Sandbox.Engine.Utils;
+using VRage.ObjectBuilders;
 #endregion
 
 

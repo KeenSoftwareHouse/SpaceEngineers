@@ -17,6 +17,7 @@ namespace VRageRender
         Vector3 m_translation;
         int m_lod;
         bool m_discardingOn;
+        BoundingBox m_localAabb;
 
         void IMyClipmapCell.UpdateMesh(MyRenderMessageUpdateClipmapCell msg)
         {
@@ -24,13 +25,16 @@ namespace VRageRender
 
             m_scale = msg.PositionScale;
             m_translation = msg.PositionOffset;
+            m_localAabb = msg.MeshAabb;
 
             var matrix = (Matrix)(Matrix.CreateScale(m_scale) * Matrix.CreateTranslation(m_translation) * m_worldMatrix);
 
-            m_actor.SetMatrix(ref matrix);
-            m_actor.GetRenderable().SetVoxelLod(m_lod);
+            m_actor.GetRenderable().m_voxelScale = m_scale;
+            m_actor.GetRenderable().m_voxelOffset = m_translation;
 
+            m_actor.SetMatrix(ref matrix);
             m_actor.SetAabb(msg.MeshAabb.Transform((Matrix)m_worldMatrix));
+            m_actor.GetRenderable().SetVoxelLod(m_lod);
 
             (m_actor.GetComponent(MyActorComponentEnum.Foliage) as MyFoliageComponent).InvalidateStreams();
             m_actor.MarkRenderDirty();
@@ -54,8 +58,9 @@ namespace VRageRender
         {
             m_worldMatrix = worldMatrix;
 
-            Matrix m = m_worldMatrix * Matrix.CreateScale(m_scale) * Matrix.CreateTranslation(m_translation);
+            Matrix m = Matrix.CreateScale(m_scale) * Matrix.CreateTranslation(m_translation) * m_worldMatrix;
             m_actor.SetMatrix(ref m);
+            m_actor.SetAabb(m_localAabb.Transform((Matrix)m_worldMatrix));
         }
 
         internal MyClipmapCellProxy(MyCellCoord cellCoord, ref VRageMath.Matrix worldMatrix)
@@ -106,6 +111,11 @@ namespace VRageRender
             var cell = new MyClipmapCellProxy(cellCoord, ref m);
             cell.SetVisibility(false);
             return cell;
+        }
+
+        internal void UpdateWorldMatrix(ref MatrixD worldMatrix)
+        {
+            m_clipmapBase.UpdateWorldMatrix(ref worldMatrix, true);
         }
 
         public void DeleteCell(IMyClipmapCell cell)

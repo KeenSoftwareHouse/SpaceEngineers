@@ -7,6 +7,8 @@ using Sandbox.Common;
 using Sandbox.Common.ObjectBuilders;
 using Sandbox.Common.Components;
 using VRage;
+using VRage.ObjectBuilders;
+using VRage.Components;
 
 namespace Sandbox.Game.Entities
 {

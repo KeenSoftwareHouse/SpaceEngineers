@@ -6,7 +6,7 @@ using System.Text;
 
 namespace Sandbox.Game.GameSystems
 {
-    interface IMyOxygenBlock : IMyConveyorEndpointBlock
+    public interface IMyOxygenBlock : IMyConveyorEndpointBlock
     {
         bool IsWorking();
     }

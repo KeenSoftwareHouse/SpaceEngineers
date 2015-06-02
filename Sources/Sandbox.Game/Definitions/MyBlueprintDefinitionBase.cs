@@ -7,6 +7,7 @@ using Sandbox.Game.Entities.Cube;
 using System.Collections.Generic;
 using VRage;
 using VRage.Utils;
+using VRage.ObjectBuilders;
 
 namespace Sandbox.Definitions
 {

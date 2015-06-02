@@ -67,8 +67,48 @@ namespace Sandbox.Game.Components
             }
         }
 
+
+        List<Havok.HkRigidBody> m_penetrations = new List<Havok.HkRigidBody>();
+
         public override bool DebugDraw()
         {
+            if (MyDebugDrawSettings.DEBUG_DRAW_FIXED_BLOCK_QUERIES)
+            {
+                foreach (var b in m_cubeGrid.GetBlocks())
+                {
+                    var geometryBox = b.FatBlock.GetGeometryLocalBox();
+                    //geometryBox.Inflate(0.5f);
+                    Vector3 halfExtents = geometryBox.Size / 2;
+
+                    Vector3D pos;
+                    b.ComputeWorldCenter(out pos);
+                    Matrix blockMatrix;
+                    b.Orientation.GetMatrix(out blockMatrix);
+                    var q = Quaternion.CreateFromRotationMatrix(blockMatrix);
+
+                    Sandbox.Engine.Physics.MyPhysics.GetPenetrationsBox(ref halfExtents, ref pos, ref q, m_penetrations, Sandbox.Engine.Physics.MyPhysics.CollideWithStaticLayer);
+                    bool isStatic = false;
+                    foreach (var p in m_penetrations)
+                    {
+                        if (p == null)
+                            continue;
+                        var e = p.UserObject as Sandbox.Engine.Physics.MyPhysicsBody;
+                        if (e != null && e.Entity != null && e.Entity is MyVoxelMap)
+                        {
+                            isStatic = true;
+                            break;
+                        }
+                    }
+
+                    m_penetrations.Clear();
+
+
+
+                    MyOrientedBoundingBoxD obb = new MyOrientedBoundingBoxD(pos, halfExtents, q);
+                    MyRenderProxy.DebugDrawOBB(obb, isStatic ? Color.Green : Color.Red, 0.1f, false, false);
+                }
+            }
+
             if (MyDebugDrawSettings.DEBUG_DRAW_GRID_NAMES || MyDebugDrawSettings.DEBUG_DRAW_GRID_CONTROL)
             {
                 string text = "";

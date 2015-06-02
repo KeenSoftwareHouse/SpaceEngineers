@@ -21,6 +21,7 @@ using Sandbox.ModAPI.Ingame;
 using Sandbox.Game.Localization;
 using VRage;
 using VRage.Utils;
+using VRage.ModAPI;
 
 namespace Sandbox.Game.Entities.Cube
 {

@@ -8,6 +8,7 @@ using VRageRender;
 using Sandbox.Graphics;
 using Sandbox.Game.Entities;
 using Sandbox.Common.Components;
+using VRage.Components;
 
 namespace Sandbox.Game.Components
 {
@@ -23,7 +24,7 @@ namespace Sandbox.Game.Components
         public override void OnAddedToContainer(MyComponentContainer container)
         {
             base.OnAddedToContainer(container);
-            m_sensor = Entity as MySensorBase;
+            m_sensor = Container.Entity as MySensorBase;
         }
         public override void Draw()
         {
@@ -31,11 +32,11 @@ namespace Sandbox.Game.Components
             {
                 SetHighlight();
 
-                var matrix = Entity.PositionComp.WorldMatrix;
+                var matrix = Container.Entity.PositionComp.WorldMatrix;
                 if (MySession.ControlledEntity == this)
                 {
                     Vector4 color = Color.Red.ToVector4();
-                    MySimpleObjectDraw.DrawLine(matrix.Translation, matrix.Translation + matrix.Forward * Entity.PositionComp.LocalVolume.Radius * 1.2f, null, ref color, 0.05f);
+                    MySimpleObjectDraw.DrawLine(matrix.Translation, matrix.Translation + matrix.Forward * Container.Entity.PositionComp.LocalVolume.Radius * 1.2f, null, ref color, 0.05f);
                 }
 
                 //if (this.Physics.RigidBody.CollisionShape.ShapeType == BroadphaseNativeType.BoxShape)

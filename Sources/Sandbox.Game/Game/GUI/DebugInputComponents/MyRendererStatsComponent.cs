@@ -1,6 +1,5 @@
 ﻿using Sandbox.Common;
 using Sandbox.Common.ObjectBuilders.Gui;
-using Sandbox.Common.ObjectBuilders.Serializer;
 using Sandbox.Definitions;
 using Sandbox.Engine.Utils;
 using Sandbox.Engine.Voxels;

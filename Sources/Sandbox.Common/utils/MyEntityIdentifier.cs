@@ -6,6 +6,7 @@ using VRage;
 using VRage.Utils;
 using VRage.Trace;
 using VRage.Library.Utils;
+using VRage.ModAPI;
 
 namespace Sandbox.Game.Entities
 {
