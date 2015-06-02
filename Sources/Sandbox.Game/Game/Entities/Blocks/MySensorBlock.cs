@@ -565,7 +565,7 @@ namespace Sandbox.Game.Entities.Blocks
                 if (item == null)
                     continue;
                 m_items.RemoveAt(i);
-                m_items.Insert(i, ToolbarItem.FromObject(item));
+                m_items.Insert(i, ToolbarItem.FromItem(item));
             }
             Toolbar.ItemChanged += Toolbar_ItemChanged;
 
@@ -715,7 +715,7 @@ namespace Sandbox.Game.Entities.Blocks
         {
             Debug.Assert(self == Toolbar);
 
-            var tItem = ToolbarItem.FromObject(self.GetItemAtIndex(index.ItemIndex));
+            var tItem = ToolbarItem.FromItem(self.GetItemAtIndex(index.ItemIndex));
             var oldItem = m_items[index.ItemIndex];
             if ((tItem.EntityID == 0 && oldItem.EntityID == 0 || (tItem.EntityID != 0 && oldItem.EntityID != 0 && tItem.Equals(oldItem))))
                 return;

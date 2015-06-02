@@ -265,7 +265,7 @@ namespace Sandbox.Game.Entities.Blocks
         {
             Debug.Assert(self == Toolbar);
 
-            var tItem = ToolbarItem.FromObject(self.GetItemAtIndex(index.ItemIndex));
+            var tItem = ToolbarItem.FromItem(self.GetItemAtIndex(index.ItemIndex));
             (SyncObject as MySyncTimerBlock).SendToolbarItemChanged(tItem, index.ItemIndex);
             
             if (m_shouldSetOtherToolbars)

@@ -297,7 +297,7 @@ namespace Sandbox.Game.Entities.Blocks
         {
             Debug.Assert(self == Toolbar);
             
-            var tItem = ToolbarItem.FromObject(self.GetItemAtIndex(index.ItemIndex));
+            var tItem = ToolbarItem.FromItem(self.GetItemAtIndex(index.ItemIndex));
             UpdateButtonEmissivity(index.ItemIndex);
             (SyncObject as MySyncButtonPanel).SendToolbarItemChanged(tItem, index.ItemIndex);
 
