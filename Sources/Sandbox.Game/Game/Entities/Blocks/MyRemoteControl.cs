@@ -41,40 +41,40 @@ namespace Sandbox.Game.Entities
     [MyCubeBlockType(typeof(MyObjectBuilder_RemoteControl))]
     class MyRemoteControl : MyShipController, IMyPowerConsumer, IMyUsableEntity, IMyRemoteControl
     {
-        [ProtoContract]
-        public class RemoteToolbarItem : IEqualityComparer<RemoteToolbarItem>
-        {
-            [ProtoMember]
-            public long EntityID;
-            [ProtoMember]
-            public string GroupName;
-            [ProtoMember]
-            public string Action;
-            [ProtoMember]
-            public List<MyObjectBuilder_ToolbarItemActionParameter> Parameters = new List<MyObjectBuilder_ToolbarItemActionParameter>();
+        //[ProtoContract]
+        //public class RemoteToolbarItem : IEqualityComparer<RemoteToolbarItem>
+        //{
+        //    [ProtoMember]
+        //    public long EntityID;
+        //    [ProtoMember]
+        //    public string GroupName;
+        //    [ProtoMember]
+        //    public string Action;
+        //    [ProtoMember]
+        //    public List<MyObjectBuilder_ToolbarItemActionParameter> Parameters = new List<MyObjectBuilder_ToolbarItemActionParameter>();
 
-            public bool Equals(RemoteToolbarItem x, RemoteToolbarItem y)
-            {
-                if (x.EntityID != y.EntityID || x.GroupName != y.GroupName || x.Action != y.Action)
-                    return false;
-                return true;
-            }
+        //    public bool Equals(RemoteToolbarItem x, RemoteToolbarItem y)
+        //    {
+        //        if (x.EntityID != y.EntityID || x.GroupName != y.GroupName || x.Action != y.Action)
+        //            return false;
+        //        return true;
+        //    }
 
-            public int GetHashCode(RemoteToolbarItem obj)
-            {
-                unchecked
-                {
-                    int result = obj.EntityID.GetHashCode();
-                    result = (result * 397) ^ obj.GroupName.GetHashCode();
-                    result = (result * 397) ^ obj.Action.GetHashCode();
-                    if (obj.Parameters != null)
-                    {
-                        result = (result * 397) ^ obj.Parameters.GetHashCode();
-                    }
-                    return result;
-                }
-            }
-        }
+        //    public int GetHashCode(RemoteToolbarItem obj)
+        //    {
+        //        unchecked
+        //        {
+        //            int result = obj.EntityID.GetHashCode();
+        //            result = (result * 397) ^ obj.GroupName.GetHashCode();
+        //            result = (result * 397) ^ obj.Action.GetHashCode();
+        //            if (obj.Parameters != null)
+        //            {
+        //                result = (result * 397) ^ obj.Parameters.GetHashCode();
+        //            }
+        //            return result;
+        //        }
+        //    }
+        //}
 
         public enum FlightMode : int
         {
@@ -290,7 +290,7 @@ namespace Sandbox.Game.Entities
             { Base6Directions.Direction.Up, Vector3D.Right },
             { Base6Directions.Direction.Down, Vector3D.Right }
         };
-        
+
 
         static MyRemoteControl()
         {
@@ -305,7 +305,7 @@ namespace Sandbox.Game.Entities
             }
             MyTerminalControlFactory.AddControl(controlBtn);
 
-            
+
             var autoPilotSeparator = new MyTerminalControlSeparator<MyRemoteControl>();
             MyTerminalControlFactory.AddControl(autoPilotSeparator);
 
@@ -1098,30 +1098,8 @@ namespace Sandbox.Game.Entities
         {
             if (m_selectedWaypoints.Count == 1)
             {
-                SyncObject.SendToolbarItemChanged(GetToolbarItem(self.GetItemAtIndex(index.ItemIndex)), index.ItemIndex, m_waypoints.IndexOf(m_selectedWaypoints[0]));
+                SyncObject.SendToolbarItemChanged(ToolbarItem.FromObject(self.GetItemAtIndex(index.ItemIndex)), index.ItemIndex, m_waypoints.IndexOf(m_selectedWaypoints[0]));
             }
-}
-
-        private RemoteToolbarItem GetToolbarItem(MyToolbarItem item)
-        {
-            var tItem = new RemoteToolbarItem();
-            tItem.EntityID = 0;
-            if (item is MyToolbarItemTerminalBlock)
-            {
-                var block = item.GetObjectBuilder() as MyObjectBuilder_ToolbarItemTerminalBlock;
-                tItem.EntityID = block.BlockEntityId;
-                tItem.Action = block.Action;
-                tItem.Parameters = block.Parameters;
-            }
-            else if (item is MyToolbarItemTerminalGroup)
-            {
-                var block = item.GetObjectBuilder() as MyObjectBuilder_ToolbarItemTerminalGroup;
-                tItem.EntityID = block.BlockEntityId;
-                tItem.Action = block.Action;
-                tItem.GroupName = block.GroupName;
-                tItem.Parameters = block.Parameters;
-            }
-            return tItem;
         }
         #endregion
 
@@ -1230,7 +1208,7 @@ namespace Sandbox.Game.Entities
                 UpdateText();
             }
             else
-            {   
+            {
                 m_currentWaypoint = m_waypoints[currentIndex];
                 m_startPosition = WorldMatrix.Translation;
 
@@ -1688,7 +1666,7 @@ namespace Sandbox.Game.Entities
             {
                 return false;
             }
-            
+
             if (entity is MyCockpit)
             {
                 return true;
@@ -2081,7 +2059,7 @@ namespace Sandbox.Game.Entities
                 public int WaypointIndex;
 
                 [ProtoMember]
-                public RemoteToolbarItem Item;
+                public ToolbarItem Item;
 
                 [ProtoMember]
                 public int Index;
@@ -2123,12 +2101,12 @@ namespace Sandbox.Game.Entities
                 MySyncLayer.RegisterEntityMessage<MySyncRemoteControl, SetDockingModeMsg>(OnSetDockingMode, MyMessagePermissions.Any);
                 MySyncLayer.RegisterEntityMessage<MySyncRemoteControl, ChangeFlightModeMsg>(OnChangeFlightMode, MyMessagePermissions.Any);
                 MySyncLayer.RegisterEntityMessage<MySyncRemoteControl, ChangeDirectionMsg>(OnChangeDirection, MyMessagePermissions.Any);
-                
+
                 MySyncLayer.RegisterEntityMessage<MySyncRemoteControl, RemoveWaypointsMsg>(OnRemoveWaypoints, MyMessagePermissions.Any);
                 MySyncLayer.RegisterEntityMessage<MySyncRemoteControl, MoveWaypointsUpMsg>(OnMoveWaypointsUp, MyMessagePermissions.Any);
                 MySyncLayer.RegisterEntityMessage<MySyncRemoteControl, MoveWaypointsDownMsg>(OnMoveWaypointsDown, MyMessagePermissions.Any);
                 MySyncLayer.RegisterEntityMessage<MySyncRemoteControl, AddWaypointsMsg>(OnAddWaypoints, MyMessagePermissions.Any);
-                
+
                 MySyncLayer.RegisterEntityMessage<MySyncRemoteControl, ChangeToolbarItemMsg>(OnToolbarItemChanged, MyMessagePermissions.Any);
 
                 MySyncLayer.RegisterEntityMessage<MySyncRemoteControl, ResetWaypointMsg>(OnResetWaypoint, MyMessagePermissions.Any);
@@ -2136,7 +2114,7 @@ namespace Sandbox.Game.Entities
             }
 
             private MyRemoteControl m_remoteControl;
-         
+
             public MySyncRemoteControl(MyRemoteControl remoteControl) :
                 base(remoteControl)
             {
@@ -2257,7 +2235,7 @@ namespace Sandbox.Game.Entities
                 m_syncing = true;
             }
 
-            public void SendToolbarItemChanged(RemoteToolbarItem item, int index, int waypointIndex)
+            public void SendToolbarItemChanged(ToolbarItem item, int index, int waypointIndex)
             {
                 if (m_syncing)
                     return;
@@ -2338,37 +2316,7 @@ namespace Sandbox.Game.Entities
                 sync.m_syncing = true;
                 MyToolbarItem item = null;
                 if (msg.Item.EntityID != 0)
-                {
-                    if (string.IsNullOrEmpty(msg.Item.GroupName))
-                    {
-                        MyTerminalBlock block;
-                        if (MyEntities.TryGetEntityById<MyTerminalBlock>(msg.Item.EntityID, out block))
-                        {
-                            var builder = MyToolbarItemFactory.TerminalBlockObjectBuilderFromBlock(block);
-                            builder.Action = msg.Item.Action;
-                            builder.Parameters = msg.Item.Parameters;
-                            item = MyToolbarItemFactory.CreateToolbarItem(builder);
-                        }
-                    }
-                    else
-                    {
-                        MyRemoteControl parent;
-                        if (MyEntities.TryGetEntityById<MyRemoteControl>(msg.Item.EntityID, out parent))
-                        {
-                            var grid = parent.CubeGrid;
-                            var groupName = msg.Item.GroupName;
-                            var group = grid.GridSystems.TerminalSystem.BlockGroups.Find((x) => x.Name.ToString() == groupName);
-                            if (group != null)
-                            {
-                                var builder = MyToolbarItemFactory.TerminalGroupObjectBuilderFromGroup(group);
-                                builder.Action = msg.Item.Action;
-                                builder.BlockEntityId = msg.Item.EntityID;
-                                builder.Parameters = msg.Item.Parameters;
-                                item = MyToolbarItemFactory.CreateToolbarItem(builder);
-                            }
-                        }
-                    }
-                }
+                    item = ToolbarItem.ToItemFor<MyRemoteControl>(msg.Item);
 
                 var waypoint = sync.m_remoteControl.m_waypoints[msg.WaypointIndex];
                 if (waypoint.Actions == null)
