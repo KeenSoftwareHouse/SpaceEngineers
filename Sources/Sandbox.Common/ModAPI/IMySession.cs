@@ -89,5 +89,7 @@ namespace Sandbox.ModAPI
         IMyGpsCollection GPS { get; }
         event Action OnSessionReady;
         event Action OnSessionLoading;
+        event Action<Sandbox.Common.MyUpdateOrder, Sandbox.Common.MySessionComponentBase> OnComponentUpdateStart;
+        event Action<Sandbox.Common.MyUpdateOrder, Sandbox.Common.MySessionComponentBase> OnComponentUpdateEnd;
     }
 }

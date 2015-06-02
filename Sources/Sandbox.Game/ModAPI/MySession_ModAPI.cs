@@ -423,5 +423,18 @@ namespace Sandbox.Game.World
             add { MySession.OnLoading += value; }
             remove { MySession.OnLoading -= value; }
         }
+
+        event Action<Sandbox.Common.MyUpdateOrder, Sandbox.Common.MySessionComponentBase> IMySession.OnComponentUpdateStart
+        {
+            add { MySession.OnComponentUpdateStarting += value; }
+            remove { MySession.OnComponentUpdateStarting -= value; }
+        }
+
+        event Action<Sandbox.Common.MyUpdateOrder, Sandbox.Common.MySessionComponentBase> IMySession.OnComponentUpdateEnd
+        {
+            add { MySession.OnComponentUpdateEnding += value; }
+            remove { MySession.OnComponentUpdateEnding -= value; }
+
+        }
     }
 }
