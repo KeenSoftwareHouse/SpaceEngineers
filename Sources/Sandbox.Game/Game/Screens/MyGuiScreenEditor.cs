@@ -28,7 +28,7 @@ namespace Sandbox.Game.Gui
         private static Vector2 m_editorWindowSize = new Vector2(1.0f, 0.9f);
         private static Vector2 m_editorDescSize = new Vector2(0.94f, 0.73f);
 
-        const string CODE_WRAPPER_BEFORE = "using System;\nusing System.Collections.Generic;\nusing VRageMath;\nusing VRage.Game;\nusing System.Text;\nusing Sandbox.ModAPI.Interfaces;\nusing Sandbox.ModAPI.Ingame;\npublic class Program\n{\n IMyGridTerminalSystem GridTerminalSystem; string Storage = \"\"; IMyProgrammableBlock Me; Action<string> Echo; TimeSpan ElapsedTime;\n";
+        const string CODE_WRAPPER_BEFORE = "using System;\nusing System.Collections.Generic;\nusing VRageMath;\nusing VRage.Game;\nusing System.Text;\nusing Sandbox.ModAPI.Interfaces;\nusing Sandbox.ModAPI.Ingame;\npublic class Program: MyGridProgram\n{\n";
         const string CODE_WRAPPER_AFTER = "\n}";
         private MyGuiControlButton m_openWorkshopButton;
         private MyGuiControlButton m_checkCodeButton;
