@@ -6471,4 +6471,7 @@ To connect to lasers not listed here you can connect to coordinates.</value>
   <data name="GuiScenarioTimeoutUnlimited" xml:space="preserve">
     <value>Unlimited</value>
   </data>
+  <data name="WorldSettings_GameScenario" xml:space="preserve">
+    <value>Scenario</value>
+  </data>
 </root>

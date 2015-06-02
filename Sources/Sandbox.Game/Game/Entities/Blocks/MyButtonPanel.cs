@@ -173,17 +173,6 @@ namespace Sandbox.Game.Entities.Blocks
 
         }
 
-        [ProtoContract]
-        struct ToolbarItem
-        {
-            [ProtoMember]
-            public long EntityID;
-            [ProtoMember]
-            public string GroupName;
-            [ProtoMember]
-            public string Action;
-        }
-
         private const string DETECTOR_NAME = "panel";
         private List<string> m_emissiveNames; // new string[] { "Emissive1", "Emissive2", "Emissive3", "Emissive4", "Emissive5", "Emissive6", "Emissive7", "Emissive8" };
         private bool m_anyoneCanUse;

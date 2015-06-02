@@ -33,7 +33,7 @@ namespace SpaceEngineers.Game.Players
 {
     [PreloadRequired]
     [MySessionComponentDescriptor(MyUpdateOrder.BeforeSimulation)]
-    public class MySpaceRespawnComponent : MyRespawnComponent
+    public class MySpaceRespawnComponent : MySessionComponentBase, IMyRespawnComponent
     {
         [ProtoContract]
         struct RespawnCooldownEntry
@@ -111,7 +111,7 @@ namespace SpaceEngineers.Game.Players
             Sync.Layer.SendMessageToServer(ref msg);
         }
 
-        public override void InitFromCheckpoint(MyObjectBuilder_Checkpoint checkpoint)
+        public void InitFromCheckpoint(MyObjectBuilder_Checkpoint checkpoint)
         {
             var cooldowns = checkpoint.RespawnCooldowns;
 
@@ -128,7 +128,7 @@ namespace SpaceEngineers.Game.Players
             }
         }
 
-        public override void SaveToCheckpoint(MyObjectBuilder_Checkpoint checkpoint)
+        public void SaveToCheckpoint(MyObjectBuilder_Checkpoint checkpoint)
         {
             var cooldowns = checkpoint.RespawnCooldowns;
 
@@ -399,7 +399,7 @@ namespace SpaceEngineers.Game.Players
             return false;
         }
 
-        public override bool HandleRespawnRequest(bool joinGame, bool newIdentity, long medicalRoomId, string respawnShipId, MyPlayer.PlayerId playerId, Vector3D? spawnPosition)
+        public bool HandleRespawnRequest(bool joinGame, bool newIdentity, long medicalRoomId, string respawnShipId, MyPlayer.PlayerId playerId, Vector3D? spawnPosition)
         {
             MyPlayer player = Sync.Players.TryGetPlayerById(playerId);
 

@@ -705,7 +705,6 @@
     <Compile Include="Game\SessionComponents\MySessionComponentVoxelHand.cs" />
     <Compile Include="Game\World\Generator\MyEncounterGenerator.cs" />
     <Compile Include="Game\World\IMyRespawnComponent.cs" />
-    <Compile Include="Game\World\MyRespawnComponent.cs" />
     <Compile Include="Game\World\Triggers\MyMissionTriggers.cs" />
     <Compile Include="Game\World\Triggers\MyTrigger.cs" />
     <Compile Include="Game\World\Triggers\MyTriggerPositionReached.cs" />

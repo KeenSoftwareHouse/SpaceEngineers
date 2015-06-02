@@ -10453,5 +10453,10 @@ namespace Sandbox.Game.Localization
         ///Unlimited
         ///</summary>
         public static readonly MyStringId GuiScenarioTimeoutUnlimited = MyStringId.GetOrCompute("GuiScenarioTimeoutUnlimited");
+
+        ///<summary>
+        ///Scenario
+        ///</summary>
+        public static readonly MyStringId WorldSettings_GameScenario = MyStringId.GetOrCompute("WorldSettings_GameScenario");
     }
 }

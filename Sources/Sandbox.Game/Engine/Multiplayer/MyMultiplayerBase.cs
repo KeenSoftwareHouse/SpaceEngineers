@@ -284,6 +284,12 @@ namespace Sandbox.Engine.Multiplayer
             private set;
         }
 
+        public abstract bool Scenario
+        {
+            get;
+            set;
+        }
+
         public abstract bool Battle
         {
             get;

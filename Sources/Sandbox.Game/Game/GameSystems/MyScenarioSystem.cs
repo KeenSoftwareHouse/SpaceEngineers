@@ -153,6 +153,7 @@ namespace Sandbox.Game.GameSystems
 
                 case MyState.Loaded:
                     MyGuiSandbox.AddScreen(new MyGuiScreenScenarioMpServer());
+                    MyMultiplayer.Static.Scenario = true;
                     m_gameState = MyState.JoinScreen;
                     break;
                 case MyState.JoinScreen:
