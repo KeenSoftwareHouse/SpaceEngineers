@@ -127,6 +127,7 @@
     <Compile Include="ModAPI\IMyGpsCollection.cs" />
     <Compile Include="ModAPI\IMyGridProgram.cs" />
     <Compile Include="ModAPI\IMyGyro.cs" />
+    <Compile Include="ModAPI\IMyLaserAntenna.cs" />
     <Compile Include="ModAPI\IMyMeteor.cs" />
     <Compile Include="InputRecording\MyInputRecording.cs" />
     <Compile Include="InputRecording\MyInputSnapshot.cs" />
