@@ -2,7 +2,7 @@
 using VRage.ObjectBuilders;
 using Sandbox.Common.ObjectBuilders.Definitions;
 using System.ComponentModel;
-using VRage.Entity;
+using VRage.ModAPI;
 
 namespace Sandbox.Common.ObjectBuilders
 {

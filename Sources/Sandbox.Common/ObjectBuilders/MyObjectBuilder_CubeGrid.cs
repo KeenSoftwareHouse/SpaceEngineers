@@ -6,7 +6,7 @@ using System.ComponentModel;
 using System;
 using VRage.ObjectBuilders;
 using VRage;
-using VRage.Entity;
+using VRage.ModAPI;
 
 namespace Sandbox.Common.ObjectBuilders
 {

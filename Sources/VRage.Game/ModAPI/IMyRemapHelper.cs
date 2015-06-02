@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace VRage.Entity
+namespace VRage.ModAPI
 {
     public interface IMyRemapHelper
     {

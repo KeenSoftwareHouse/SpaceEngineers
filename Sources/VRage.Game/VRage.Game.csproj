@@ -68,9 +68,8 @@
     <Compile Include="Components\MyPositionComponentBase.cs" />
     <Compile Include="Components\MyRenderComponentBase.cs" />
     <Compile Include="Components\MySyncComponentBase.cs" />
-    <Compile Include="Entity\MyBaseStructs.cs" />
     <Compile Include="ModAPI\IMyEntity.cs" />
-    <Compile Include="Entity\IMyRemapHelper.cs" />
+    <Compile Include="ModAPI\IMyRemapHelper.cs" />
     <Compile Include="ObjectBuilder\MyObjectBuilderSerializer.cs" />
     <Compile Include="ObjectBuilder\MyObjectBuilderType.cs" />
     <Compile Include="ObjectBuilder\MyObjectFactory.cs" />
@@ -81,6 +80,7 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Character\" />
+    <Folder Include="Entity\" />
     <Folder Include="Grid\" />
     <Folder Include="Inventory\" />
     <Folder Include="VoxelMap\" />
@@ -106,7 +106,6 @@
   </Target>
   <Target Name="AfterBuild" DependsOnTargets="AssignTargetPaths;Compile;ResolveKeySource" Inputs="$(MSBuildAllProjects);@(IntermediateAssembly)" Outputs="$(OutputPath)$(_SGenDllName)">
     <!-- Delete the file because I can't figure out how to force the SGen task. -->
-    
     <SGen BuildAssemblyName="$(TargetFileName)" BuildAssemblyPath="$(OutputPath)" References="@(ReferencePath)" ShouldGenerateSerializer="true" UseProxyTypes="false" KeyContainer="$(KeyContainerName)" KeyFile="$(KeyOriginatorFile)" DelaySign="$(DelaySign)" ToolPath="$(TargetFrameworkSDKToolsDirectory)" Platform="AnyCPU">
       <Output TaskParameter="SerializationAssembly" ItemName="SerializationAssembly" />
     </SGen>

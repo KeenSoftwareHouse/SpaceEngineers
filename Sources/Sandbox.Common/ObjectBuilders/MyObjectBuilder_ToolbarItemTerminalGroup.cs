@@ -1,6 +1,6 @@
 ﻿using VRage.ObjectBuilders;
 using ProtoBuf;
-using VRage.Entity;
+using VRage.ModAPI;
 
 namespace Sandbox.Common.ObjectBuilders
 {

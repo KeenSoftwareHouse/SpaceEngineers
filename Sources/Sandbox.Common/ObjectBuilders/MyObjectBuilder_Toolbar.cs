@@ -7,7 +7,7 @@ using ProtoBuf;
 using System.ComponentModel;
 using VRageMath;
 using VRage.ObjectBuilders;
-using VRage.Entity;
+using VRage.ModAPI;
 
 namespace Sandbox.Common.ObjectBuilders
 {

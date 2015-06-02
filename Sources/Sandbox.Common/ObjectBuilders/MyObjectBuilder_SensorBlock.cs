@@ -1,6 +1,6 @@
 ﻿using ProtoBuf;
 using VRage;
-using VRage.Entity;
+using VRage.ModAPI;
 using VRage.ObjectBuilders;
 
 

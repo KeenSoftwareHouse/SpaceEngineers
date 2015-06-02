@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using VRage.Serialization;
 using VRage.ObjectBuilders;
-using VRage.Entity;
+using VRage.ModAPI;
 
 namespace Sandbox.Common.ObjectBuilders
 {

@@ -8,7 +8,6 @@ using ProtoBuf;
 
 namespace VRage
 {
-    //  Must be struct because we don't want to provocate garbage collector when received in MW game-client 
     [ProtoContract]
     public struct MyPositionAndOrientation
     {
@@ -33,7 +32,6 @@ namespace VRage
             Up = up;
         }
 
-        // Optimized version
         public MyPositionAndOrientation(ref MatrixD matrix)
         {
             Position = matrix.Translation;
@@ -56,27 +54,5 @@ namespace VRage
         {
             return Position.ToString() + "; " + Forward.ToString() + "; " + Up.ToString();
         }
-
     }
-
-    [ProtoContract]
-    public struct MyOrientation
-    {
-        [ProtoMember, XmlAttribute]
-        public float Yaw;
-
-        [ProtoMember, XmlAttribute]
-        public float Pitch;
-        
-        [ProtoMember, XmlAttribute]
-        public float Roll;
-
-        public MyOrientation(float yaw, float pitch, float roll)
-        {
-            Yaw = yaw;
-            Pitch = pitch;
-            Roll = roll;
-        }
-    }
-
 }

@@ -8,7 +8,7 @@ using VRageMath;
 using System.Diagnostics;
 using VRage.ObjectBuilders;
 using VRage;
-using VRage.Entity;
+using VRage.ModAPI;
 
 namespace Sandbox.Common.ObjectBuilders
 {

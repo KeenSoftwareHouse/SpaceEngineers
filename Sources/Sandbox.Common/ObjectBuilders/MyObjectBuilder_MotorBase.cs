@@ -1,5 +1,5 @@
 ﻿using ProtoBuf;
-using VRage.Entity;
+using VRage.ModAPI;
 using VRage.ObjectBuilders;
 
 namespace Sandbox.Common.ObjectBuilders

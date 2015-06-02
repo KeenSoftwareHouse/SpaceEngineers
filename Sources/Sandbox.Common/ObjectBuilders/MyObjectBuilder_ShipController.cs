@@ -1,7 +1,7 @@
 ﻿using ProtoBuf;
 using Sandbox.Common.ObjectBuilders.Definitions;
 using System.ComponentModel;
-using VRage.Entity;
+using VRage.ModAPI;
 using VRage.ObjectBuilders;
 
 

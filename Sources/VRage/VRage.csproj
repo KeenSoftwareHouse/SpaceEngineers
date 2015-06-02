@@ -329,6 +329,8 @@
     <Compile Include="Render\MyBillboardViewProjection.cs" />
     <Compile Include="Render\MyTriangleBillboard.cs" />
     <Compile Include="MySpectator.cs" />
+    <Compile Include="Serialization\MyOrientation.cs" />
+    <Compile Include="Serialization\MyPositionAndOrientation.cs" />
     <Compile Include="Serialization\SerializableBoundingBoxD.cs" />
     <Compile Include="Serialization\SerializableBounds.cs" />
     <Compile Include="Serialization\SerializableQuaternion.cs" />

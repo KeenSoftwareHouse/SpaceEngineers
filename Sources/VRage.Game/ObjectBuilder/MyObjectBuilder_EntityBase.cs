@@ -1,7 +1,7 @@
 ﻿using System;
 using ProtoBuf;
 using VRageMath;
-using VRage.Entity;
+using VRage.ModAPI;
 
 namespace VRage.ObjectBuilders
 {
