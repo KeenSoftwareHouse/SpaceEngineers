@@ -13,7 +13,7 @@ namespace Sandbox.ModAPI.Ingame
         /// <summary>
         /// Retrieve list of upgrades from this block (r/o)
         /// </summary>
-        List<IMyUpgradeInfo> UpgradeList { get; }
+        void GetUpgradeList(out List<IMyUpgradeInfo> upgrades);
         /// <summary>
         /// Retrieve number of upgrade effects this block has (r/o)
         /// </summary>

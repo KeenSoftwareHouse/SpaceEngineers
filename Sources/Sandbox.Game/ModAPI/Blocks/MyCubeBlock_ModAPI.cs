@@ -228,16 +228,11 @@ namespace Sandbox.Game.Entities
             }
         }
 
-        Dictionary<string, float> ModAPI.Ingame.IMyUpgradableBlock.Upgrades
+        void ModAPI.Ingame.IMyUpgradableBlock.GetUpgrades(out Dictionary<string, float> upgrades)
         {
-            get
-            {
-                Dictionary<string, float> upgrades = new Dictionary<string, float>();
-                foreach (var value in UpgradeValues)
-                    upgrades.Add(value.Key, value.Value);
-
-                return upgrades;
-            }
+            upgrades = new Dictionary<string, float>();
+            foreach (var value in UpgradeValues)
+                upgrades.Add(value.Key, value.Value);
         }
     }
 }
