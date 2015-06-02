@@ -1098,7 +1098,7 @@ namespace Sandbox.Game.Entities
         {
             if (m_selectedWaypoints.Count == 1)
             {
-                SyncObject.SendToolbarItemChanged(ToolbarItem.FromObject(self.GetItemAtIndex(index.ItemIndex)), index.ItemIndex, m_waypoints.IndexOf(m_selectedWaypoints[0]));
+                SyncObject.SendToolbarItemChanged(ToolbarItem.FromItem(self.GetItemAtIndex(index.ItemIndex)), index.ItemIndex, m_waypoints.IndexOf(m_selectedWaypoints[0]));
             }
         }
         #endregion

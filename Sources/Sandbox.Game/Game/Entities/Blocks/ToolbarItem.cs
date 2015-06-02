@@ -9,7 +9,7 @@ namespace Sandbox.Game.Entities.Blocks
     [ProtoContract]
     internal struct ToolbarItem
     {
-        public static ToolbarItem FromObject(MyToolbarItem item)
+        public static ToolbarItem FromItem(MyToolbarItem item)
         {
             var tItem = new ToolbarItem();
             tItem.EntityID = 0;
