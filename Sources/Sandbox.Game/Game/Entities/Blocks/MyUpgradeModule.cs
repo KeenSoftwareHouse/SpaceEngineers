@@ -362,16 +362,11 @@ namespace Sandbox.Game.Entities.Blocks
             return count;
         }
 
-        List<ModAPI.Ingame.IMyUpgradeInfo> ModAPI.Ingame.IMyUpgradeModule.UpgradeList
+        void ModAPI.Ingame.IMyUpgradeModule.GetUpgradeList(out List<ModAPI.Ingame.IMyUpgradeInfo> upgradelist)
         {
-            get
-            {
-                List < ModAPI.Ingame.IMyUpgradeInfo > upgradelist = new List<ModAPI.Ingame.IMyUpgradeInfo>();
-                foreach (var value in m_upgrades)
-                    upgradelist.Add(value);
-
-                return upgradelist;
-            }
+            upgradelist = new List<ModAPI.Ingame.IMyUpgradeInfo>();
+            foreach (var value in m_upgrades)
+                upgradelist.Add(value);
         }
 
         uint ModAPI.Ingame.IMyUpgradeModule.UpgradeCount

@@ -11,9 +11,9 @@ namespace Sandbox.ModAPI.Ingame
     public interface IMyUpgradableBlock
     {
         /// <summary>
-        /// list of upgrades
+        /// get list of upgrades (r/o)
         /// </summary>
-        Dictionary<string, float> Upgrades { get; }
+        void GetUpgrades(out Dictionary<string, float> upgrades);
 
         /// <summary>
         /// number of upgrades applied
