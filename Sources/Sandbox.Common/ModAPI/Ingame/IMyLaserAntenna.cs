@@ -12,12 +12,9 @@ namespace Sandbox.ModAPI.Ingame
     public interface IMyLaserAntenna : IMyFunctionalBlock
     {
         /// <summary>
-        /// get target coordinates
+        /// get target coordinates (r/o)
         /// </summary>
-        Vector3D TargetCoords
-        {
-            get;
-        }
+        Vector3D TargetCoords { get; }
 
         /// <summary>
         /// Set coordinates of target
@@ -31,8 +28,13 @@ namespace Sandbox.ModAPI.Ingame
         void Connect();
 
         /// <summary>
-        /// Connection is permanent
+        /// Connection is permanent (r/o)
         /// </summary>
         bool IsPermanent { get; }
+
+        /// <summary>
+        /// Returns antenna block on other end (r/o) - requires LoS and ownership of other end
+        /// </summary>
+        IMyLaserAntenna OtherAntenna { get; }
     }
 }
