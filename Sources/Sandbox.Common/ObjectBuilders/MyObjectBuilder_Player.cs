@@ -3,10 +3,11 @@ using System;
 using VRageMath;
 using System.ComponentModel;
 using System.Collections.Generic;
-using VRage.Serialization;
-using Sandbox.Common.ObjectBuilders.VRageData;
 using System.Diagnostics;
 using System.Xml.Serialization;
+using VRage.ObjectBuilders;
+using VRage;
+using VRage.Serialization;
 
 namespace Sandbox.Common.ObjectBuilders
 {

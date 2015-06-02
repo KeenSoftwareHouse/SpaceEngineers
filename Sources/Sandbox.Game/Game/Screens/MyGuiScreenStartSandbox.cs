@@ -12,12 +12,11 @@ using Sandbox.Game.Gui;
 using Sandbox.Definitions;
 using Sandbox.Common.ObjectBuilders.Definitions;
 using System.Collections.Generic;
-using Sandbox.Common.ObjectBuilders.Serializer;
 using Sandbox.Game.Localization;
-using VRage;
 using VRage;
 using VRage.Utils;
 using VRage.Voxels;
+using VRage.ObjectBuilders;
 
 namespace Sandbox.Game.Gui
 {

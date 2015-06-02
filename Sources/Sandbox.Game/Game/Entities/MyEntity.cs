@@ -30,6 +30,9 @@ using Sandbox.Game.Entities.Character;
 using VRage;
 using Sandbox.Game.Components;
 using VRage;
+using VRage.Components;
+using VRage.ModAPI;
+using VRage.ObjectBuilders;
 
 #endregion
 
@@ -427,7 +430,7 @@ namespace Sandbox.Game.Entities
             }
         }
 
-        void Components_ComponentAdded(Type t, Sandbox.Common.Components.MyComponentBase c)
+        void Components_ComponentAdded(Type t, MyComponentBase c)
         {
             if (t == typeof(MyPhysicsComponentBase))
                 m_physics = c as MyPhysicsBody;
@@ -445,7 +448,7 @@ namespace Sandbox.Game.Entities
             }
         }
 
-        void Components_ComponentRemoved(Type t, Sandbox.Common.Components.MyComponentBase c)
+        void Components_ComponentRemoved(Type t, MyComponentBase c)
         {
             if (t == typeof(MyPhysicsComponentBase))
                 m_physics = null;

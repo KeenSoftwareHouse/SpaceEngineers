@@ -10,6 +10,8 @@ using Sandbox.Common.ObjectBuilders.VRageData;
 using Sandbox.Common.ObjectBuilders.AI;
 using VRageMath;
 using VRage.Data;
+using VRage.ObjectBuilders;
+using VRage;
 
 namespace Sandbox.Common.ObjectBuilders.Definitions
 {

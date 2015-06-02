@@ -6,21 +6,24 @@ using System.Xml.Serialization;
 using ProtoBuf;
 using VRageMath;
 
-namespace Sandbox.Common.ObjectBuilders.VRageData
+namespace VRage
 {
     [ProtoContract]
-    public struct SerializableVector2
+    public struct SerializableVector3
     {
         public float X;
         public float Y;
+        public float Z;
 
         public bool ShouldSerializeX() { return false; }
         public bool ShouldSerializeY() { return false; }
+        public bool ShouldSerializeZ() { return false; }
 
-        public SerializableVector2(float x, float y)
+        public SerializableVector3(float x, float y, float z)
         {
             this.X = x;
             this.Y = y;
+            this.Z = z;
         }
 
         [ProtoMember, XmlAttribute]
@@ -29,14 +32,19 @@ namespace Sandbox.Common.ObjectBuilders.VRageData
         [ProtoMember, XmlAttribute]
         public float y { get { return Y; } set { Y = value; } }
 
-        public static implicit operator Vector2(SerializableVector2 v)
+        [ProtoMember, XmlAttribute]
+        public float z { get { return Z; } set { Z = value; } }
+
+        public bool IsZero { get { return X == 0.0f && Y == 0.0f && Z == 0.0f; }  }
+
+        public static implicit operator Vector3(SerializableVector3 v)
         {
-            return new Vector2(v.X, v.Y);
+            return new Vector3(v.X, v.Y, v.Z);
         }
 
-        public static implicit operator SerializableVector2(Vector2 v)
+        public static implicit operator SerializableVector3(Vector3 v)
         {
-            return new SerializableVector2(v.X, v.Y);
+            return new SerializableVector3(v.X, v.Y, v.Z);
         }
     }
 }

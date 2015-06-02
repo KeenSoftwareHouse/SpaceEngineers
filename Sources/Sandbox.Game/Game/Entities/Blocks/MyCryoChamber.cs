@@ -17,6 +17,7 @@ using VRage.Import;
 using VRage.Utils;
 using VRageMath;
 using VRageRender;
+using VRage.ModAPI;
 
 namespace Sandbox.Game.Entities.Blocks
 {
@@ -86,7 +87,7 @@ namespace Sandbox.Game.Entities.Blocks
                 this.CalculateRequiredPowerInput);
             PowerReceiver.IsPoweredChanged += Receiver_IsPoweredChanged;
 
-            NeedsUpdate |= Common.MyEntityUpdateEnum.BEFORE_NEXT_FRAME;
+            NeedsUpdate |= MyEntityUpdateEnum.BEFORE_NEXT_FRAME;
         }
 
         private float CalculateRequiredPowerInput()

@@ -8,6 +8,7 @@ using VRageRender;
 using Sandbox.Graphics;
 using Sandbox.Game.Weapons;
 using Sandbox.Common.Components;
+using VRage.Components;
 
 namespace Sandbox.Game.Components
 {

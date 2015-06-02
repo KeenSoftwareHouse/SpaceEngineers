@@ -22,6 +22,7 @@ using VRage;
 using Sandbox.Engine.Utils;
 using VRageMath;
 using VRage.Utils;
+using VRage.ModAPI;
 
 namespace Sandbox.Game.Entities.Blocks
 {

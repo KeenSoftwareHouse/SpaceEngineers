@@ -13,6 +13,7 @@ using VRage.Utils;
 using Sandbox.Engine.Utils;
 using VRage;
 using VRage;
+using VRage.Components;
 
 namespace Sandbox.Game.Components
 {

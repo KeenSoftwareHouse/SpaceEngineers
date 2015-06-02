@@ -29,6 +29,8 @@ using SteamSDK;
 using ProtoBuf;
 using Sandbox.Game.Screens.Helpers;
 using System.Diagnostics;
+using VRage.ObjectBuilders;
+using VRage.ModAPI;
 
 namespace Sandbox.Game.Entities
 {
@@ -104,7 +106,7 @@ namespace Sandbox.Game.Entities
 
             public MyObjectBuilder_AutopilotWaypoint GetObjectBuilder()
             {
-                MyObjectBuilder_AutopilotWaypoint builder = Sandbox.Common.ObjectBuilders.Serializer.MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_AutopilotWaypoint>();
+                MyObjectBuilder_AutopilotWaypoint builder = MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_AutopilotWaypoint>();
                 builder.Coords = Coords;
                 builder.Name = Name;
 

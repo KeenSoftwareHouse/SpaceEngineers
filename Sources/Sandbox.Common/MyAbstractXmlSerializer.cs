@@ -1,5 +1,4 @@
 ﻿using Sandbox.Common.ObjectBuilders;
-using Sandbox.Common.ObjectBuilders.Serializer;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -9,6 +8,7 @@ using System.Xml;
 using System.Xml.Schema;
 using System.Xml.Serialization;
 using VRage.Generics;
+using VRage.ObjectBuilders;
 
 namespace Sandbox.Common
 {
@@ -227,7 +227,7 @@ namespace Sandbox.Common
 
             if (typeAttrib == null)
             {
-                typeAttrib = Sandbox.Common.ObjectBuilders.Serializer.MyObjectBuilderSerializer.GetSerializedName(typeof(TAbstractBase));
+                typeAttrib = MyObjectBuilderSerializer.GetSerializedName(typeof(TAbstractBase));
             }
 
             // Read the Data, Deserializing based on the (now known) concrete type.
@@ -236,7 +236,7 @@ namespace Sandbox.Common
                 ReaderPool.AllocateOrCreate(out customReader);
                 customReader.Init(typeAttrib, reader);
 
-                var serializer = Sandbox.Common.ObjectBuilders.Serializer.MyObjectBuilderSerializer.GetSerializer(typeAttrib);
+                var serializer = MyObjectBuilderSerializer.GetSerializer(typeAttrib);
                 this.Data = (TAbstractBase)serializer.Deserialize(customReader);
 
                 customReader.Release();
@@ -251,10 +251,10 @@ namespace Sandbox.Common
             {
                 CustomRootWriter customWriter;
                 WriterPool.AllocateOrCreate(out customWriter);
-                var derivedName = Sandbox.Common.ObjectBuilders.Serializer.MyObjectBuilderSerializer.GetSerializedName(type);
+                var derivedName = MyObjectBuilderSerializer.GetSerializedName(type);
                 customWriter.Init(derivedName, writer);
 
-                Sandbox.Common.ObjectBuilders.Serializer.MyObjectBuilderSerializer.GetSerializer(type).Serialize(customWriter, m_data);
+                MyObjectBuilderSerializer.GetSerializer(type).Serialize(customWriter, m_data);
 
                 customWriter.Release();
                 WriterPool.Deallocate(customWriter);

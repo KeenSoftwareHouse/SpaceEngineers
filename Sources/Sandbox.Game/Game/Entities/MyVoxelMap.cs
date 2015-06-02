@@ -18,6 +18,8 @@ using Sandbox.Engine.Utils;
 using VRage.Voxels;
 using VRage.Utils;
 using System;
+using VRage.ObjectBuilders;
+using VRage.Components;
 
 namespace Sandbox.Game.Entities
 {

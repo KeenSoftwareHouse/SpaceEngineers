@@ -1,10 +1,6 @@
 ﻿using ProtoBuf;
-using Sandbox.Common.ObjectBuilders.VRageData;
-using System;
-using System.Collections.Generic;
+using VRage.ObjectBuilders;
 using System.ComponentModel;
-using System.Linq;
-using System.Text;
 using VRage.Data;
 
 namespace Sandbox.Common.ObjectBuilders.Definitions

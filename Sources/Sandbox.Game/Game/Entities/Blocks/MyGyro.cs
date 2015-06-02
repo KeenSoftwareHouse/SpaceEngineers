@@ -19,6 +19,7 @@ using Sandbox.ModAPI;
 using Sandbox.Game.Localization;
 using VRage;
 using VRage.Utils;
+using VRage.ModAPI;
 
 #endregion
 

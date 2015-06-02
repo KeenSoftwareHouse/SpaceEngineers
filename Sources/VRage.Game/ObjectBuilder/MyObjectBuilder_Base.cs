@@ -1,33 +1,21 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel;
-using System.Diagnostics;
-using System.IO;
-using System.IO.Compression;
-using System.Reflection;
-using System.Runtime.InteropServices;
 using System.Xml.Serialization;
 using ProtoBuf;
-using ProtoBuf.Meta;
-using Sandbox.Common.ObjectBuilders.Definitions;
-using KeenSoftwareHouse.Library.IO;
-using VRage;
-using System.Xml;
 using VRage.Utils;
-using VRage.Plugins;
-using Sandbox.Common.ObjectBuilders.Serializer;
-using VRage.Library.Utils;
 
-namespace Sandbox.Common.ObjectBuilders
+namespace VRage.ObjectBuilders
 {
     public class MyObjectBuilderDefinitionAttribute : MyFactoryTagAttribute
     {
         Type ObsoleteBy;
+        public readonly string LegacyName;
 
-        public MyObjectBuilderDefinitionAttribute(Type obsoleteBy = null)
+        public MyObjectBuilderDefinitionAttribute(Type obsoleteBy = null, string LegacyName = null)
             : base(null)
         {
             ObsoleteBy = obsoleteBy;
+            this.LegacyName = LegacyName;
         }
     }
 
@@ -71,10 +59,9 @@ namespace Sandbox.Common.ObjectBuilders
 
         public MyObjectBuilder_Base Clone()
         {
-            return Sandbox.Common.ObjectBuilders.Serializer.MyObjectBuilderSerializer.Clone(this);
+            return MyObjectBuilderSerializer.Clone(this);
         }
 
         #endregion
-
     }
 }

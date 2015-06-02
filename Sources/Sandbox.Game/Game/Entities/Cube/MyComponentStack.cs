@@ -12,6 +12,7 @@ using Sandbox.Engine.Utils;
 using VRage;
 using Sandbox.Game.Multiplayer;
 using VRage.Library.Utils;
+using VRage.ObjectBuilders;
 
 namespace Sandbox.Game.Entities
 {
@@ -526,7 +527,7 @@ namespace Sandbox.Game.Entities
                     bool doDamage = damageItems && MyFakes.ENABLE_DAMAGED_COMPONENTS;
                     if (!damageItems || (doDamage && MyRandom.Instance.NextFloat() <= m_blockDefinition.Components[groupIndex].Definition.DropProbability))
                     {
-                        componentBuilder = Sandbox.Common.ObjectBuilders.Serializer.MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_Component>();
+                        componentBuilder = MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_Component>();
                         componentBuilder.SubtypeName = m_blockDefinition.Components[groupIndex].Definition.Id.SubtypeName;
                         if (doDamage)
                         {

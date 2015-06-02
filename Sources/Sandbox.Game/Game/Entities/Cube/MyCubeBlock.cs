@@ -31,6 +31,9 @@ using Sandbox.Game.Entities.UseObject;
 using Sandbox.Graphics.TransparentGeometry.Particles;
 using VRage.Collections;
 using VRage.Utils;
+using VRage.ModAPI;
+using VRage.ObjectBuilders;
+using VRage.Components;
 
 #endregion
 
@@ -282,7 +285,7 @@ namespace Sandbox.Game.Entities
         /// <summary>
         /// Called by constraint owner
         /// </summary>
-        protected virtual void OnConstraintAdded(GridLinkTypeEnum type, Sandbox.ModAPI.IMyEntity attachedEntity)
+        protected virtual void OnConstraintAdded(GridLinkTypeEnum type, IMyEntity attachedEntity)
         {
             var attachedGrid = attachedEntity as MyCubeGrid;
             if(attachedGrid != null)
@@ -295,7 +298,7 @@ namespace Sandbox.Game.Entities
         /// <summary>
         /// Called by constraint owner
         /// </summary>
-        protected virtual void OnConstraintRemoved(GridLinkTypeEnum type, Sandbox.ModAPI.IMyEntity detachedEntity)
+        protected virtual void OnConstraintRemoved(GridLinkTypeEnum type, IMyEntity detachedEntity)
         {
             var detachedGrid = detachedEntity as MyCubeGrid;
             if (detachedGrid != null)

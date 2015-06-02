@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using ProtoBuf;
+using VRage.ObjectBuilders;
 
 namespace Sandbox.Common.ObjectBuilders.Gui
 {

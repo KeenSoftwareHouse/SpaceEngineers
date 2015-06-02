@@ -30,6 +30,8 @@ using Sandbox.Common;
 using Sandbox.Game.Components;
 using Sandbox.ModAPI.Interfaces;
 using VRage.Utils;
+using VRage.ObjectBuilders;
+using VRage.ModAPI;
 
 namespace Sandbox.Game.Weapons
 {

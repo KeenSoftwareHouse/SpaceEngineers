@@ -24,6 +24,8 @@ using VRage.FileSystem;
 using VRage.Library.Utils;
 using VRage.Utils;
 using VRageMath;
+using VRage;
+using VRage.ModAPI;
 
 #endregion
 

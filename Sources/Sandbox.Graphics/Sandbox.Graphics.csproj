@@ -166,6 +166,10 @@
       <Project>{2C96F0AB-7962-4B73-A075-B0E0B09F6195}</Project>
       <Name>Sandbox.Common</Name>
     </ProjectReference>
+    <ProjectReference Include="..\VRage.Game\VRage.Game.csproj">
+      <Project>{4539b5f0-3316-40e6-b032-9fbcafaac5be}</Project>
+      <Name>VRage.Game</Name>
+    </ProjectReference>
     <ProjectReference Include="..\VRage.Input\VRage.Input.csproj">
       <Project>{f77d0a49-f0a1-4e8a-80c8-cbf1842bf2d4}</Project>
       <Name>VRage.Input</Name>

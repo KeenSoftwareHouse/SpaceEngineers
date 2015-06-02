@@ -1,6 +1,7 @@
 ﻿using ProtoBuf;
 using System;
 using VRageMath;
+using VRage.ObjectBuilders;
 
 namespace Sandbox.Common.ObjectBuilders.Gui
 {

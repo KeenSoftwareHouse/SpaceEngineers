@@ -3,10 +3,10 @@ using System.Xml.Serialization;
 using ProtoBuf;
 using Sandbox.Common.ObjectBuilders.Definitions;
 using System.ComponentModel;
-using Sandbox.Common.ObjectBuilders.Serializer;
 using System.Diagnostics;
 using VRage.Utils;
 using System.ComponentModel.DataAnnotations;
+using VRage.ObjectBuilders;
 
 namespace Sandbox.Common.ObjectBuilders
 {

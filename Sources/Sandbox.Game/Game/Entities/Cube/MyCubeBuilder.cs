@@ -34,6 +34,7 @@ using VRageMath;
 using VRageRender;
 using ModelId = System.Int32;
 using Sandbox.Game.Multiplayer;
+using VRage.ObjectBuilders;
 
 #endregion
 
@@ -3943,13 +3944,13 @@ namespace Sandbox.Game.Entities
                 character.SwitchToWeapon(null);
             }
 
-            var gridBuilder = Sandbox.Common.ObjectBuilders.Serializer.MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_CubeGrid>();
+            var gridBuilder = MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_CubeGrid>();
             gridBuilder.PositionAndOrientation = new MyPositionAndOrientation(Vector3.Zero, Vector3.Forward, Vector3.Up);
             gridBuilder.GridSizeEnum = MyCubeSize.Small;
             gridBuilder.IsStatic = isStatic;
             gridBuilder.PersistentFlags |= MyPersistentEntityFlags2.Enabled | MyPersistentEntityFlags2.InScene;
 
-            var blockBuilder = Sandbox.Common.ObjectBuilders.Serializer.MyObjectBuilderSerializer.CreateNewObject(blockDefinition.Id) as MyObjectBuilder_CubeBlock;
+            var blockBuilder = MyObjectBuilderSerializer.CreateNewObject(blockDefinition.Id) as MyObjectBuilder_CubeBlock;
             blockBuilder.Orientation = Quaternion.CreateFromForwardUp(Vector3I.Forward, Vector3I.Up);
             blockBuilder.ColorMaskHSV = new Vector3(0, -1, 0);
 
@@ -3982,7 +3983,7 @@ namespace Sandbox.Game.Entities
             //    character.SwitchToWeapon(null);
             //}
 
-            var gridBuilder = Sandbox.Common.ObjectBuilders.Serializer.MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_CubeGrid>();
+            var gridBuilder = MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_CubeGrid>();
             gridBuilder.PositionAndOrientation = new MyPositionAndOrientation(Vector3.Zero, rotationMatrix.Forward, rotationMatrix.Up);
             gridBuilder.IsStatic = isStatic;
             gridBuilder.PersistentFlags |= MyPersistentEntityFlags2.Enabled | MyPersistentEntityFlags2.InScene;
@@ -4017,7 +4018,7 @@ namespace Sandbox.Game.Entities
                     continue;
                 }
 
-                MyObjectBuilder_CubeBlock blockBuilder = Sandbox.Common.ObjectBuilders.Serializer.MyObjectBuilderSerializer.CreateNewObject(blockDefinition.Id) as MyObjectBuilder_CubeBlock;
+                MyObjectBuilder_CubeBlock blockBuilder = MyObjectBuilderSerializer.CreateNewObject(blockDefinition.Id) as MyObjectBuilder_CubeBlock;
                 blockBuilder.Orientation = Base6Directions.GetOrientation(multiBlockPartDefinition.Forward, multiBlockPartDefinition.Up);
                 blockBuilder.Min = multiBlockPartDefinition.Position;
                 blockBuilder.ColorMaskHSV = MyToolbar.ColorMaskHSV;
@@ -4056,14 +4057,14 @@ namespace Sandbox.Game.Entities
         /// </summary>
         public static MyCubeGrid SpawnStaticGrid(MyCubeBlockDefinition blockDefinition, MatrixD worldMatrix)
         {
-            var gridBuilder = Sandbox.Common.ObjectBuilders.Serializer.MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_CubeGrid>();
+            var gridBuilder = MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_CubeGrid>();
             gridBuilder.PositionAndOrientation = new MyPositionAndOrientation(worldMatrix.Translation, Vector3.Forward, Vector3.Up);
             gridBuilder.GridSizeEnum = blockDefinition.CubeSize;
             gridBuilder.IsStatic = true;
             gridBuilder.PersistentFlags |= MyPersistentEntityFlags2.Enabled | MyPersistentEntityFlags2.InScene;
 
             // Block must be placed on (0,0,0) coordinate
-            var blockBuilder = Sandbox.Common.ObjectBuilders.Serializer.MyObjectBuilderSerializer.CreateNewObject(blockDefinition.Id) as MyObjectBuilder_CubeBlock;
+            var blockBuilder = MyObjectBuilderSerializer.CreateNewObject(blockDefinition.Id) as MyObjectBuilder_CubeBlock;
             blockBuilder.Orientation = Quaternion.CreateFromForwardUp(Vector3I.Round(worldMatrix.Forward), Vector3I.Round(worldMatrix.Up));
             Vector3I sizeRotated = Vector3I.Abs(Vector3I.Round(Vector3D.TransformNormal((Vector3)blockDefinition.Size, worldMatrix)));
             blockBuilder.Min = sizeRotated / 2 - sizeRotated + Vector3I.One;
@@ -4103,7 +4104,7 @@ namespace Sandbox.Game.Entities
 
         public static MyCubeGrid SpawnDynamicGrid(MyCubeBlockDefinition blockDefinition, MatrixD worldMatrix, long entityId = 0)
         {
-            var gridBuilder = Sandbox.Common.ObjectBuilders.Serializer.MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_CubeGrid>();
+            var gridBuilder = MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_CubeGrid>();
             gridBuilder.PositionAndOrientation = new MyPositionAndOrientation(ref worldMatrix);
             gridBuilder.GridSizeEnum = blockDefinition.CubeSize;
             gridBuilder.IsStatic = false;
@@ -4111,7 +4112,7 @@ namespace Sandbox.Game.Entities
             gridBuilder.EntityId = entityId;
 
             // Block must be placed on (0,0,0) coordinate
-            var blockBuilder = Sandbox.Common.ObjectBuilders.Serializer.MyObjectBuilderSerializer.CreateNewObject(blockDefinition.Id) as MyObjectBuilder_CubeBlock;
+            var blockBuilder = MyObjectBuilderSerializer.CreateNewObject(blockDefinition.Id) as MyObjectBuilder_CubeBlock;
             blockBuilder.Orientation = Quaternion.CreateFromForwardUp(Vector3I.Forward, Vector3I.Up);
             blockBuilder.Min = blockDefinition.Size / 2 - blockDefinition.Size + Vector3I.One;
             

@@ -1,11 +1,12 @@
 ﻿using ProtoBuf;
 using Sandbox.Common.ObjectBuilders;
-using Sandbox.Common.ObjectBuilders.VRageData;
+using VRage.ObjectBuilders;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Xml.Serialization;
+using VRage;
 
 namespace Medieval.ObjectBuilders.Blocks
 {

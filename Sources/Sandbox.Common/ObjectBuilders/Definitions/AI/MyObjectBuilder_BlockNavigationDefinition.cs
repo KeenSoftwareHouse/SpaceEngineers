@@ -1,11 +1,8 @@
 ﻿using ProtoBuf;
 using Sandbox.Common.ObjectBuilders.Definitions;
-using Sandbox.Common.ObjectBuilders.VRageData;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Xml.Serialization;
+using VRage;
+using VRage.ObjectBuilders;
 using VRageMath;
 
 namespace Sandbox.Common.ObjectBuilders.AI

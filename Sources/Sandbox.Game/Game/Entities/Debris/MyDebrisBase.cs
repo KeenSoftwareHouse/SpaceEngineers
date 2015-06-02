@@ -11,6 +11,8 @@ using VRageMath;
 using Sandbox.Common;
 using Sandbox.Common.Components;
 using Sandbox.Game.Components;
+using VRage.Components;
+using VRage.ModAPI;
 namespace Sandbox.Game.Entities.Debris
 {
 
@@ -51,10 +53,10 @@ namespace Sandbox.Game.Entities.Debris
 
         public class MyDebrisPhysics : MyPhysicsBody
         {
-            private ModAPI.IMyEntity Entity1;
+            private IMyEntity Entity1;
             private RigidBodyFlag rigidBodyFlag;
 
-            public MyDebrisPhysics(ModAPI.IMyEntity Entity1, RigidBodyFlag rigidBodyFlag) 
+            public MyDebrisPhysics(IMyEntity Entity1, RigidBodyFlag rigidBodyFlag) 
                : base(Entity1, rigidBodyFlag)
             {
             }

@@ -1,6 +1,7 @@
 ﻿using ProtoBuf;
 using VRageMath;
 using System.Xml.Serialization;
+using VRage.ObjectBuilders;
 
 
 namespace Sandbox.Common.ObjectBuilders

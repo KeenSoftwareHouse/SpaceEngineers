@@ -4,6 +4,7 @@ using Sandbox.Engine.Voxels;
 using Sandbox.Game.Entities.Cube;
 using System;
 using System.Diagnostics;
+using VRage.Components;
 using VRage.Data;
 using VRage.Data.Audio;
 using VRage.Utils;

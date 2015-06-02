@@ -19,6 +19,7 @@ using Sandbox.Engine.Utils;
 using VRage;
 using Sandbox.Common;
 using VRage.Library.Utils;
+using VRage.ObjectBuilders;
 //using Sandbox.Game.Gui;
 
 namespace Sandbox.Game.Multiplayer

@@ -11,6 +11,7 @@ using VRage.Utils;
 using VRage.Library.Utils;
 using VRage.Data.Audio;
 using VRage;
+using VRage.ObjectBuilders;
 
 namespace Sandbox.Common.ObjectBuilders.Audio
 {

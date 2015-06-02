@@ -3,8 +3,10 @@ using ProtoBuf;
 using VRageMath;
 using System.Xml.Serialization;
 using System.ComponentModel;
-using Sandbox.Common.ObjectBuilders.VRageData;
 using System;
+using VRage.ObjectBuilders;
+using VRage;
+using VRage.Entity;
 
 namespace Sandbox.Common.ObjectBuilders
 {

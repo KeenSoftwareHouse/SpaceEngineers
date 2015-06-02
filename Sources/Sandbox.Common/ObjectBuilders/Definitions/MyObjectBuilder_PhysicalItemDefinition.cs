@@ -1,13 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using VRage.ObjectBuilders;
 using ProtoBuf;
 using VRageMath;
 using System.Xml.Serialization;
 using VRage.Data;
+using System.ComponentModel;
 
 namespace Sandbox.Common.ObjectBuilders.Definitions
 {

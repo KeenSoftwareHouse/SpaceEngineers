@@ -27,6 +27,7 @@ using Sandbox.Common;
 using Sandbox.Game.Entities.Blocks;
 using Sandbox.Definitions;
 using VRage.Utils;
+using VRage.ModAPI;
 
 #endregion
 
@@ -451,7 +452,7 @@ namespace Sandbox.Game.Entities.Cube
             UpdateEmissivity();
             UpdateMyStateText();
 
-            NeedsUpdate = Common.MyEntityUpdateEnum.EACH_FRAME | Common.MyEntityUpdateEnum.EACH_10TH_FRAME | Common.MyEntityUpdateEnum.EACH_100TH_FRAME;
+            NeedsUpdate = MyEntityUpdateEnum.EACH_FRAME | MyEntityUpdateEnum.EACH_10TH_FRAME | MyEntityUpdateEnum.EACH_100TH_FRAME;
         }
 
         public void OnReadyAction()

@@ -1,9 +1,8 @@
 ﻿
 using System;
 using VRageMath;
-using VRage.Utils;
 
-namespace Sandbox.Common
+namespace VRageMath
 {
     public static class MyMath
     {
@@ -110,7 +109,7 @@ namespace Sandbox.Common
             var dotProd = Vector3.Dot(a, b);
             var lenProd = a.Length() * b.Length();
             var divOperation = dotProd / lenProd;
-            if (MyUtils.IsZero(1.0f - divOperation))
+            if (Math.Abs(1.0f - divOperation) < 0.001f)
                 return 0;
             else
                 return (float)(Math.Acos(divOperation));

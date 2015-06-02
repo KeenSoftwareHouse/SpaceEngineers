@@ -10,6 +10,7 @@ using Sandbox.Common;
 using VRage;
 using ProfilerShort = VRage.ProfilerShort;
 using VRage.Utils;
+using VRage.Components;
 
 namespace Sandbox.Game.Components
 {

@@ -12,6 +12,7 @@ using Sandbox.Game.Entities.Cube;
 using Sandbox.Common;
 using VRageRender;
 using VRage.Utils;
+using VRage.Components;
 
 namespace Sandbox.Game.GameSystems
 {

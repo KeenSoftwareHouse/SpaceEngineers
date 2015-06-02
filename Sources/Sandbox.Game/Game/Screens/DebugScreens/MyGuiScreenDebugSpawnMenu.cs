@@ -1,7 +1,6 @@
 ﻿using ProtoBuf;
 using Sandbox.Common;
 using Sandbox.Common.ObjectBuilders;
-using Sandbox.Common.ObjectBuilders.Serializer;
 using Sandbox.Common.ObjectBuilders.Voxels;
 using Sandbox.Definitions;
 using Sandbox.Engine.Multiplayer;
@@ -28,6 +27,7 @@ using VRage.Voxels;
 using VRageMath;
 using VRage.Library.Utils;
 using VRage.FileSystem;
+using VRage.ObjectBuilders;
 
 namespace Sandbox.Game.Gui
 {
@@ -490,14 +490,14 @@ namespace Sandbox.Game.Gui
 
             MyFixedPoint amount = (MyFixedPoint)(float)m_amount;
 
-            var builder = (MyObjectBuilder_PhysicalObject)Sandbox.Common.ObjectBuilders.Serializer.MyObjectBuilderSerializer.CreateNewObject(itemId);
+            var builder = (MyObjectBuilder_PhysicalObject)MyObjectBuilderSerializer.CreateNewObject(itemId);
 
             if (builder is MyObjectBuilder_PhysicalGunObject || builder is Sandbox.Common.ObjectBuilders.Definitions.MyObjectBuilder_OxygenContainerObject)
                 amount = 1;
 
-            var obj = Sandbox.Common.ObjectBuilders.Serializer.MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_FloatingObject>();
+            var obj = MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_FloatingObject>();
             obj.PositionAndOrientation = MyPositionAndOrientation.Default;
-            obj.Item = Sandbox.Common.ObjectBuilders.Serializer.MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_InventoryItem>();
+            obj.Item = MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_InventoryItem>();
             obj.Item.Amount = amount;
             obj.Item.Content = builder;
 

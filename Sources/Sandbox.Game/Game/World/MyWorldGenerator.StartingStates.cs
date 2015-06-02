@@ -13,6 +13,9 @@ using Sandbox.Definitions;
 using Sandbox.Game.Multiplayer;
 using Sandbox.Game.Entities.Character;
 using System.Diagnostics;
+using VRage.ObjectBuilders;
+using VRage;
+using System.Reflection;
 
 namespace Sandbox.Game.World
 {
@@ -73,6 +76,7 @@ namespace Sandbox.Game.World
                 m_objectFactory = new MyObjectFactory<StartingStateTypeAttribute, MyWorldGeneratorStartingStateBase>();
                 m_objectFactory.RegisterFromCreatedObjectAssembly();
                 m_objectFactory.RegisterFromAssembly(MyPlugins.GameAssembly);
+                m_objectFactory.RegisterFromAssembly(Assembly.LoadFrom("Sandbox.Common.dll")); //TODO: Will be removed 
                 m_objectFactory.RegisterFromAssembly(MyPlugins.UserAssembly);
             }
 
@@ -119,7 +123,7 @@ namespace Sandbox.Game.World
                 characterOb.DampenersEnabled = DampenersEnabled;
 
                 if (characterOb.Inventory == null)
-                    characterOb.Inventory = Sandbox.Common.ObjectBuilders.Serializer.MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_Inventory>();
+                    characterOb.Inventory = MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_Inventory>();
                 FillInventoryWithDefaults(characterOb.Inventory, generatorArgs.Scenario);
 
                 var character = new MyCharacter();

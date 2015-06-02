@@ -6,7 +6,8 @@ using System.Text;
 using ProtoBuf;
 using Sandbox.Common.ObjectBuilders;
 using Sandbox.Common.ObjectBuilders.Definitions;
-using Sandbox.Common.ObjectBuilders.VRageData;
+using VRage.ObjectBuilders;
+using VRage;
 
 namespace Medieval.ObjectBuilders.Definitions
 {

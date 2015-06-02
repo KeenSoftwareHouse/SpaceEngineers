@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using VRageMath;
 
-namespace Sandbox.Common.ObjectBuilders.VRageData
+namespace VRage
 {
     [ProtoContract]
     public struct SerializableBoundingBoxD

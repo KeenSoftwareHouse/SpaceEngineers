@@ -42,6 +42,9 @@ using SteamSDK;
 using Sandbox.Game.SessionComponents;
 using Sandbox.Game.GameSystems;
 using Sandbox.Common.ModAPI;
+using VRage.ObjectBuilders;
+using VRage.Components;
+using VRage.ModAPI;
 
 #endregion
 
@@ -4916,7 +4919,7 @@ namespace Sandbox.Game.Entities.Character
                 if (gunEntity == null)
                 {
                     var handItemId = MyDefinitionManager.Static.TryGetHandItemForPhysicalItem(physicalGunObject.GetId()).Id;
-                    gunEntity = (MyObjectBuilder_EntityBase)Sandbox.Common.ObjectBuilders.Serializer.MyObjectBuilderSerializer.CreateNewObject(handItemId);
+                    gunEntity = (MyObjectBuilder_EntityBase)MyObjectBuilderSerializer.CreateNewObject(handItemId);
                 }
                 else
                 {
@@ -4978,14 +4981,14 @@ namespace Sandbox.Game.Entities.Character
                         var handItemDef = MyDefinitionManager.Static.TryGetHandItemForPhysicalItem(weaponDefinition.Value);
                         if (handItemDef != null)
                         {
-                            weaponEntityBuilder = (MyObjectBuilder_EntityBase)Sandbox.Common.ObjectBuilders.Serializer.MyObjectBuilderSerializer.CreateNewObject(handItemDef.Id);
+                            weaponEntityBuilder = (MyObjectBuilder_EntityBase)MyObjectBuilderSerializer.CreateNewObject(handItemDef.Id);
                             weaponEntityBuilder.EntityId = weaponEntityId;
                         }
                     }
                     else
                     {
                         if (weaponEntityBuilder == null)
-                            weaponEntityBuilder = (MyObjectBuilder_EntityBase)Sandbox.Common.ObjectBuilders.Serializer.MyObjectBuilderSerializer.CreateNewObject(weaponDefinition.Value.TypeId);
+                            weaponEntityBuilder = (MyObjectBuilder_EntityBase)MyObjectBuilderSerializer.CreateNewObject(weaponDefinition.Value.TypeId);
                         weaponEntityBuilder.EntityId = weaponEntityId;
                         if (WeaponTakesBuilderFromInventory(weaponDefinition))
                         {

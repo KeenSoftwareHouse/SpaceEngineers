@@ -22,6 +22,7 @@ using Sandbox.Graphics;
 using Sandbox.Definitions;
 using Sandbox.Game.GUI;
 using Sandbox.Game.Localization;
+using VRage.ObjectBuilders;
 
 #endregion
 

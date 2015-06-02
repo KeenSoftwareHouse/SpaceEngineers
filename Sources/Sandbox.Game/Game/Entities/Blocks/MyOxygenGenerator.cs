@@ -19,6 +19,7 @@ using System;
 using Sandbox.Engine.Multiplayer;
 using SteamSDK;
 using Sandbox.Engine.Utils;
+using VRage.ModAPI;
 
 namespace Sandbox.Game.Entities.Blocks
 {
@@ -185,7 +186,7 @@ namespace Sandbox.Game.Entities.Blocks
             InitializeConveyorEndpoint();
             m_useConveyorSystem = generatorBuilder.UseConveyorSystem;
 
-            NeedsUpdate = Common.MyEntityUpdateEnum.EACH_100TH_FRAME;
+            NeedsUpdate = MyEntityUpdateEnum.EACH_100TH_FRAME;
 
             m_inventory = new MyInventory(
                 BlockDefinition.InventoryMaxVolume,

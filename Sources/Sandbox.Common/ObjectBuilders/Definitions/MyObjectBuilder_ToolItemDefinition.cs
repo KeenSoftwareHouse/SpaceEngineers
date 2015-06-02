@@ -7,6 +7,7 @@ using System.Xml.Serialization;
 using Sandbox.Common.ObjectBuilders.Definitions;
 using Sandbox.Common.ObjectBuilders;
 using System.ComponentModel;
+using VRage.ObjectBuilders;
 
 namespace Medieval.ObjectBuilders.Definitions
 {

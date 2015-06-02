@@ -4,12 +4,9 @@ using System.Linq;
 using System.Text;
 using VRageMath;
 using VRageRender;
-using Sandbox.Engine;
-using Sandbox.Common.ObjectBuilders;
-using Sandbox.ModAPI;
 using VRage;
 
-namespace Sandbox.Common.Components
+namespace VRage.Components
 {
     public abstract class MyDebugRenderComponentBase
     {

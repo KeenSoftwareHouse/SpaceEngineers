@@ -5,6 +5,7 @@ using System.Text;
 using Sandbox.Game.GameSystems.Electricity;
 using Sandbox.Common.Components;
 using Sandbox.ModAPI;
+using VRage.ModAPI;
 
 namespace Sandbox.Game.Components
 {

@@ -4,6 +4,7 @@ using Sandbox.Common.ObjectBuilders.VRageData;
 using Sandbox.Engine.Utils;
 using Sandbox.Game.Localization;
 using Sandbox.Game.World;
+using VRage;
 using VRage.Library.Utils;
 using VRage.Utils;
 using VRage.Utils;

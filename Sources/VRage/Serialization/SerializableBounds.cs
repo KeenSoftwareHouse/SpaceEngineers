@@ -6,7 +6,7 @@ using System.Xml.Serialization;
 using ProtoBuf;
 using VRageMath;
 
-namespace Sandbox.Common.ObjectBuilders.VRageData
+namespace VRage
 {
     [ProtoContract]
     public struct SerializableBounds

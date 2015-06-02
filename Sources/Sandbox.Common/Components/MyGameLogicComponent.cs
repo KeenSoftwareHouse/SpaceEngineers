@@ -1,12 +1,12 @@
-﻿using Sandbox.Common.Components;
-using Sandbox.Common.ObjectBuilders;
-using Sandbox.ModAPI;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using VRage.Components;
+using VRage.ModAPI;
+using VRage.ObjectBuilders;
 
-namespace Sandbox.Common.Components
+namespace VRage.Components
 {
     public abstract class MyGameLogicComponent : MyComponentBase
     {

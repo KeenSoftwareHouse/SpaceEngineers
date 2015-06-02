@@ -7,8 +7,10 @@ using VRage.Serialization;
 using Sandbox.Common.ObjectBuilders.VRageData;
 using System.Diagnostics;
 using System.Xml.Serialization;
-using Sandbox.Common.ObjectBuilders.Serializer;
+using VRage.ObjectBuilders;
+using VRage;
 using Sandbox.Common.ObjectBuilders.Definitions;
+
 
 namespace Sandbox.Common.ObjectBuilders
 {

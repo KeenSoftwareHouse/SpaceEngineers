@@ -4,12 +4,12 @@ using System.Linq;
 using System.Text;
 using VRageMath;
 using VRageRender;
-using Sandbox.Engine;
-using Sandbox.Common.ObjectBuilders;
-using Sandbox.ModAPI;
 using VRage;
+using VRage.Components;
+using VRage.ObjectBuilders;
+using VRage.ModAPI;
 
-namespace Sandbox.Common.Components
+namespace VRage.Components
 {
     public abstract class MyRenderComponentBase : MyComponentBase
     {
@@ -106,7 +106,7 @@ namespace Sandbox.Common.Components
 
         public virtual void InvalidateRenderObjects(bool sortIntoCullobjects = false)
         {
-            var m = Entity.PositionComp.WorldMatrix;
+            var m = Entity.Components.Get<MyPositionComponentBase>().WorldMatrix;
             if ((Entity.Visible || Entity.CastShadows) && Entity.InScene && Entity.InvalidateOnMove)
             {
                 foreach (uint renderObjectID in m_renderObjectIDs)
@@ -167,7 +167,7 @@ namespace Sandbox.Common.Components
 
             if (visible)
             {
-                var hierarchyComponent = Entity.Hierarchy;
+                MyHierarchyComponentBase hierarchyComponent = Entity.Components.Get<MyHierarchyComponentBase>();
                 if (Visible && (hierarchyComponent.Parent == null || hierarchyComponent.Parent.Entity.Visible)/* && m_frustumCheckBeforeDrawEnabled*/)
                 {
                     if (CanBeAddedToRender())
@@ -192,7 +192,8 @@ namespace Sandbox.Common.Components
                 RemoveRenderObjects();
             }
 
-            foreach (var child in this.Entity.Hierarchy.Children)
+            MyHierarchyComponentBase hierarchy = Entity.Components.Get<MyHierarchyComponentBase>();
+            foreach (var child in hierarchy.Children)
             {
                 MyRenderComponentBase renderComponent = null;
                 if (child.CurrentContainer.TryGet(out renderComponent))
@@ -241,7 +242,8 @@ namespace Sandbox.Common.Components
                     VRageRender.MyRenderProxy.UpdateRenderObjectVisibility(m_renderObjectIDs[0], Visible, NearFlag);
                 }
 
-                foreach (var child in this.Entity.Hierarchy.Children)
+                MyHierarchyComponentBase hierarchy = Entity.Components.Get<MyHierarchyComponentBase>();
+                foreach (var child in hierarchy.Children)
                 {
                     MyRenderComponentBase renderComponent = null;
                     if (child.Entity.InScene && child.CurrentContainer.TryGet(out renderComponent))

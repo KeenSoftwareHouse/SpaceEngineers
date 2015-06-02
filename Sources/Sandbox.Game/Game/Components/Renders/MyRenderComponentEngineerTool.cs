@@ -10,6 +10,7 @@ using Sandbox.Game.Weapons;
 using Sandbox.Common.Components;
 using Sandbox.Common.ObjectBuilders;
 using Sandbox.Game.World;
+using VRage.Components;
 
 namespace Sandbox.Game.Components
 {

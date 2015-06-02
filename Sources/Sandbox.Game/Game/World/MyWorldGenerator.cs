@@ -1,5 +1,4 @@
 ﻿using Sandbox.Common.ObjectBuilders;
-using Sandbox.Common.ObjectBuilders.Serializer;
 using Sandbox.Common.ObjectBuilders.Voxels;
 using Sandbox.Definitions;
 using Sandbox.Engine.Utils;
@@ -25,6 +24,7 @@ using Sandbox.Game.Screens.Helpers;
 using VRage.Utils;
 using VRage.Library.Utils;
 using VRage.FileSystem;
+using VRage.ObjectBuilders;
 
 namespace Sandbox.Game.World
 {
@@ -149,7 +149,7 @@ namespace Sandbox.Game.World
 
                     MyObjectBuilder_CubeGrid result = null;
                     var fsPath = Path.Combine(MyFileSystem.ContentPath, prefabFile);
-                    Sandbox.Common.ObjectBuilders.Serializer.MyObjectBuilderSerializer.DeserializeXML<MyObjectBuilder_CubeGrid>(fsPath, out result);
+                    MyObjectBuilderSerializer.DeserializeXML<MyObjectBuilder_CubeGrid>(fsPath, out result);
 
                     if (result == null) continue;
 
@@ -176,7 +176,7 @@ namespace Sandbox.Game.World
                         MyObjectBuilder_Sector result = null;
 
                         var fsPath = Path.Combine(MyFileSystem.ContentPath, file);
-                        Sandbox.Common.ObjectBuilders.Serializer.MyObjectBuilderSerializer.DeserializeXML<MyObjectBuilder_Sector>(fsPath, out result);
+                        MyObjectBuilderSerializer.DeserializeXML<MyObjectBuilder_Sector>(fsPath, out result);
 
                         Debug.Assert(result != null, "Unloadable world: " + file);
                         foreach (var obj in result.SectorObjects)
@@ -242,7 +242,7 @@ namespace Sandbox.Game.World
 
         public static void InitInventoryWithDefaults(MyInventory inventory)
         {
-            var inventoryOb = Sandbox.Common.ObjectBuilders.Serializer.MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_Inventory>();
+            var inventoryOb = MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_Inventory>();
             FillInventoryWithDefaults(inventoryOb, MySession.Static.Scenario);
             inventory.Init(inventoryOb);
         }
@@ -297,9 +297,9 @@ namespace Sandbox.Game.World
                 {
                     foreach (var gun in guns)
                     {
-                        var inventoryItem = Sandbox.Common.ObjectBuilders.Serializer.MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_InventoryItem>();
+                        var inventoryItem = MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_InventoryItem>();
                         inventoryItem.Amount = 1;
-                        inventoryItem.Content = Sandbox.Common.ObjectBuilders.Serializer.MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_PhysicalGunObject>(gun.ToString());
+                        inventoryItem.Content = MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_PhysicalGunObject>(gun.ToString());
                         inventory.Items.Add(inventoryItem);
                     }
                 }
@@ -475,7 +475,7 @@ namespace Sandbox.Game.World
         {
             MyObjectBuilder_Sector sector;
             var fsPath = Path.Combine(MyFileSystem.ContentPath, GetObjectsPrefabPath(file));
-            Sandbox.Common.ObjectBuilders.Serializer.MyObjectBuilderSerializer.DeserializeXML<MyObjectBuilder_Sector>(fsPath, out sector);
+            MyObjectBuilderSerializer.DeserializeXML<MyObjectBuilder_Sector>(fsPath, out sector);
             foreach (var sectorObject in sector.SectorObjects)
                 sectorObject.EntityId = 0;
             return sector.SectorObjects;

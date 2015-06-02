@@ -10,6 +10,7 @@ using System.IO;
 using Sandbox.Common.ObjectBuilders.Audio;
 using VRage;
 using VRage.Library.Utils;
+using VRage.ObjectBuilders;
 
 namespace Sandbox.Definitions
 {

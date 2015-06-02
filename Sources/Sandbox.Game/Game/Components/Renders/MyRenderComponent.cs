@@ -20,6 +20,8 @@ using System.Threading;
 using Sandbox.Game.Entities;
 using Sandbox.Common.Components;
 using VRage.Import;
+using VRage.Components;
+using VRage.ModAPI;
 
 namespace Sandbox.Game.Components
 {

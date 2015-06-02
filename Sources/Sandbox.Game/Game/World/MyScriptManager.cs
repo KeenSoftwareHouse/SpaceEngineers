@@ -16,13 +16,27 @@ using System.Text;
 using VRage;
 using VRage.Utils;
 using VRage.Compiler;
-using VRage.Utils;
 using VRage.Library.Utils;
 using VRage.Serialization;
 using VRage.FileSystem;
+using VRage.Components;
+using VRage.ObjectBuilders;
 
 namespace Sandbox.Game.World
 {
+    [AttributeUsage(AttributeTargets.Class)]
+    public class MyEntityComponentDescriptor : System.Attribute
+    {
+        public Type EntityBuilderType;
+        public string[] EntityBuilderSubTypeNames;
+
+        public MyEntityComponentDescriptor(Type entityBuilderType, params string[] entityBuilderSubTypeNames)
+        {
+            EntityBuilderType = entityBuilderType;
+            EntityBuilderSubTypeNames = entityBuilderSubTypeNames;
+        }
+    }
+
     [MySessionComponentDescriptor(MyUpdateOrder.NoUpdate,1000,typeof(MyObjectBuilder_ScriptManager))]
     class MyScriptManager : MySessionComponentBase
     {

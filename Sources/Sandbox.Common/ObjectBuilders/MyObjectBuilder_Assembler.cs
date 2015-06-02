@@ -2,6 +2,7 @@
 using Sandbox.Common.ObjectBuilders.Definitions;
 using System.ComponentModel;
 using System.Xml.Serialization;
+using VRage.ObjectBuilders;
 
 namespace Sandbox.Common.ObjectBuilders
 {

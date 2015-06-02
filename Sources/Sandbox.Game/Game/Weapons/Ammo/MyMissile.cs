@@ -17,6 +17,7 @@ using Sandbox.ModAPI.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using VRage.Components;
 using VRage.Utils;
 using VRageMath;
 
@@ -153,7 +154,7 @@ namespace Sandbox.Game.Weapons
                         {
                             if (!m_collidedEntity.Physics.IsStatic)
                             {
-                                m_collidedEntity.Physics.AddForce(Engine.Physics.MyPhysicsForceType.APPLY_WORLD_IMPULSE_AND_WORLD_ANGULAR_IMPULSE,
+                                m_collidedEntity.Physics.AddForce(MyPhysicsForceType.APPLY_WORLD_IMPULSE_AND_WORLD_ANGULAR_IMPULSE,
                                     100 * Physics.LinearVelocity, m_collisionPoint, null);
                             }
                         }

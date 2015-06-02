@@ -27,6 +27,7 @@ using Sandbox.Game.GameSystems.Conveyors;
 using Sandbox.Game.GameSystems;
 using Sandbox.Game.Entities.Blocks;
 using VRage.Import;
+using VRage.ModAPI;
 
 namespace Sandbox.Game.Entities.Cube
 {

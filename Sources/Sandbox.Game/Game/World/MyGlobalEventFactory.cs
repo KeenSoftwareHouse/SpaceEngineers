@@ -7,6 +7,7 @@ using System.Diagnostics;
 using System.Reflection;
 using Sandbox.Common;
 using VRage.Plugins;
+using VRage.ObjectBuilders;
 
 namespace Sandbox.Game.World
 {

@@ -15,6 +15,7 @@ using Sandbox.Game.Localization;
 using VRage.Utils;
 using Sandbox.Game.GameSystems;
 using Sandbox.Game.GameSystems.Conveyors;
+using VRage.ModAPI;
 
 namespace Sandbox.Game.Entities.Blocks
 {

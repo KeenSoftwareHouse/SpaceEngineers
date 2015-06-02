@@ -25,6 +25,8 @@ using VRage.Library.Utils;
 using VRage.Utils;
 using VRageMath;
 using IMyModdingControllableEntity = Sandbox.ModAPI.Interfaces.IMyControllableEntity;
+using VRage.ObjectBuilders;
+using VRage.ModAPI;
 #endregion
 
 namespace Sandbox.Game.Entities

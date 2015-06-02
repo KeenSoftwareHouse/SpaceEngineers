@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Xml.Serialization;
 using VRage.Data.Audio;
+using VRage.ObjectBuilders;
 
 namespace Sandbox.Common.ObjectBuilders.Audio
 {

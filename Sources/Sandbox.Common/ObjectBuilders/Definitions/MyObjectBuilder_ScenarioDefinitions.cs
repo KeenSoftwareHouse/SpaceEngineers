@@ -5,7 +5,7 @@ using System.Text;
 using System.Xml.Serialization;
 using ProtoBuf;
 using Sandbox.Common.ObjectBuilders.Voxels;
-using Sandbox.Common.ObjectBuilders.VRageData;
+using VRage.ObjectBuilders;
 using VRageMath;
 
 namespace Sandbox.Common.ObjectBuilders.Definitions

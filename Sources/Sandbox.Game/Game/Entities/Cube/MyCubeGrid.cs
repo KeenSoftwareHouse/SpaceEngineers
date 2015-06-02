@@ -39,7 +39,6 @@ using System.Reflection;
 using VRage.Plugins;
 
 using Sandbox.Game.GameSystems.StructuralIntegrity;
-using Sandbox.Common.ObjectBuilders.Serializer;
 using Sandbox.Common.Components;
 using Sandbox.Game.Components;
 using VRage.Collections;
@@ -48,6 +47,9 @@ using Sandbox.Game.Localization;
 using Havok;
 using VRage.Library.Utils;
 using Sandbox.Common.ModAPI;
+using VRage.ObjectBuilders;
+using VRage.Components;
+using VRage.ModAPI;
 
 #endregion
 
@@ -509,7 +511,7 @@ namespace Sandbox.Game.Entities
 
         private static MyCubeGrid CreateForSplit(MyCubeGrid originalGrid, long newEntityId)
         {
-            var builder = Sandbox.Common.ObjectBuilders.Serializer.MyObjectBuilderSerializer.CreateNewObject(typeof(MyObjectBuilder_CubeGrid)) as MyObjectBuilder_CubeGrid;
+            var builder = MyObjectBuilderSerializer.CreateNewObject(typeof(MyObjectBuilder_CubeGrid)) as MyObjectBuilder_CubeGrid;
             builder.EntityId = newEntityId;
             builder.GridSizeEnum = originalGrid.GridSizeEnum;
             builder.IsStatic = originalGrid.IsStatic;
@@ -1065,7 +1067,7 @@ namespace Sandbox.Game.Entities
                 if (IsStatic == false)
                 {
                     Vector3 gravity = MyGravityProviderSystem.CalculateGravityInPointForGrid(PositionComp.GetPosition());
-                    Physics.AddForce(Engine.Physics.MyPhysicsForceType.APPLY_WORLD_FORCE, Physics.Mass * gravity, Physics.CenterOfMassWorld, null);
+                    Physics.AddForce(MyPhysicsForceType.APPLY_WORLD_FORCE, Physics.Mass * gravity, Physics.CenterOfMassWorld, null);
                 }
 
                 if (Physics.RigidBody2 != null)
@@ -1782,7 +1784,7 @@ namespace Sandbox.Game.Entities
             // Upgrading manually as ChangeType causes stack overflow in protobuf-net.
             if (block is MyObjectBuilder_Ladder)
             {
-                var passage = Sandbox.Common.ObjectBuilders.Serializer.MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_Passage>(block.SubtypeName);
+                var passage = MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_Passage>(block.SubtypeName);
 
                 passage.BlockOrientation = block.BlockOrientation;
                 passage.BuildPercent = block.BuildPercent;
@@ -5363,7 +5365,7 @@ namespace Sandbox.Game.Entities
         {
             MyCubeGrid m_grid;
 
-            public override void OnAddedToContainer(Common.Components.MyComponentContainer container)
+            public override void OnAddedToContainer(MyComponentContainer container)
             {
                 base.OnAddedToContainer(container);
                 m_grid = container.Entity as MyCubeGrid;

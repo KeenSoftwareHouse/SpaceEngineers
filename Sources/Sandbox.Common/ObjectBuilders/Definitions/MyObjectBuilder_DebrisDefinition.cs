@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using ProtoBuf;
 using VRage.Data;
+using VRage.ObjectBuilders;
 
 namespace Sandbox.Common.ObjectBuilders.Definitions
 {

@@ -1,12 +1,11 @@
-﻿using Sandbox.Common.ObjectBuilders.Definitions;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Reflection;
 using VRage.Plugins;
 using VRage.Reflection;
 
-namespace Sandbox.Common.ObjectBuilders
+namespace VRage.ObjectBuilders
 {
     public struct MyObjectBuilderType
     {
@@ -126,10 +125,12 @@ namespace Sandbox.Common.ObjectBuilders
             m_idByType = new Dictionary<MyObjectBuilderType,MyRuntimeObjectBuilderId>(200, MyObjectBuilderType.Comparer);
 
             MyObjectBuilderType.RegisterFromAssembly(Assembly.GetExecutingAssembly(), registerLegacyNames: true);
-            MyObjectBuilderType.RegisterLegacyName(typeof(MyObjectBuilder_GlobalEventDefinition), "EventDefinition");
-            MyObjectBuilderType.RegisterLegacyName(typeof(MyObjectBuilder_FactionCollection), "Factions");
+            
+            //MyObjectBuilderType.RegisterLegacyName(typeof(MyObjectBuilder_GlobalEventDefinition), "EventDefinition");
+            //MyObjectBuilderType.RegisterLegacyName(typeof(MyObjectBuilder_FactionCollection), "Factions");
 
             MyObjectBuilderType.RegisterFromAssembly(MyPlugins.GameAssembly, true);
+            MyObjectBuilderType.RegisterFromAssembly(Assembly.LoadFrom("Sandbox.Common.dll"), true); //TODO: Will be removed 
             MyObjectBuilderType.RegisterFromAssembly(MyPlugins.UserAssembly, true);
         }
 
@@ -154,7 +155,17 @@ namespace Sandbox.Common.ObjectBuilders
 
                     const string PREFIX = "MyObjectBuilder_";
                     if (registerLegacyNames && type.Name.StartsWith(PREFIX))
-                        m_typeByLegacyName.Add(type.Name.Substring(PREFIX.Length), myType);
+                        RegisterLegacyName(myType, type.Name.Substring(PREFIX.Length));
+
+                    var attrs = type.GetCustomAttributes(typeof(MyObjectBuilderDefinitionAttribute), true);
+                    if (attrs.Length > 0)
+                    {
+                        MyObjectBuilderDefinitionAttribute att = (MyObjectBuilderDefinitionAttribute)attrs[0];
+                        if (!string.IsNullOrEmpty(att.LegacyName))
+                        {
+                            RegisterLegacyName(myType, att.LegacyName);
+                        }
+                    }
                 }
             }
         }

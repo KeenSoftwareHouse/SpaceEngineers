@@ -5,6 +5,7 @@ using System.Xml.Serialization;
 using System;
 using System.Collections.Generic;
 using VRageMath;
+using VRage.ObjectBuilders;
 
 #endregion
 

@@ -39,8 +39,11 @@ using VRage;
 using VRage.Audio;
 using VRage.Collections;
 using VRage.Compiler;
+using VRage.Components;
 using VRage.FileSystem;
 using VRage.Input;
+using VRage.ModAPI;
+using VRage.ObjectBuilders;
 using VRage.Plugins;
 using VRage.Utils;
 using VRage.Win32;
@@ -1094,12 +1097,12 @@ namespace Sandbox
 
 
             IlChecker.AllowNamespaceOfTypeModAPI(typeof(Sandbox.Common.MySessionComponentBase));
-            IlChecker.AllowNamespaceOfTypeModAPI(typeof(Sandbox.Common.Components.MyComponentBase));
+            IlChecker.AllowNamespaceOfTypeModAPI(typeof(MyComponentBase));
 
-            IlChecker.AllowNamespaceOfTypeCommon(typeof(Sandbox.Common.ObjectBuilders.MyObjectBuilder_Base));
+            IlChecker.AllowNamespaceOfTypeCommon(typeof(MyObjectBuilder_Base));
             IlChecker.AllowNamespaceOfTypeModAPI(typeof(Sandbox.Common.ObjectBuilders.Voxels.MyObjectBuilder_VoxelMap));
-            IlChecker.AllowNamespaceOfTypeModAPI(typeof(Sandbox.Common.ObjectBuilders.Definitions.SerializableDefinitionId));
-            IlChecker.AllowNamespaceOfTypeModAPI(typeof(Sandbox.Common.ObjectBuilders.VRageData.SerializableVector3));
+            IlChecker.AllowNamespaceOfTypeModAPI(typeof(SerializableDefinitionId));
+            IlChecker.AllowNamespaceOfTypeModAPI(typeof(SerializableVector3));
 
             IlChecker.AllowNamespaceOfTypeModAPI(typeof(Sandbox.Definitions.MyDefinitionId));
             IlChecker.AllowNamespaceOfTypeModAPI(typeof(Sandbox.Definitions.MyDefinitionManager));
@@ -1113,11 +1116,11 @@ namespace Sandbox
             IlChecker.AllowNamespaceOfTypeModAPI(typeof(VRage.Utils.MyEventArgs));
             IlChecker.AllowNamespaceOfTypeModAPI(typeof(VRage.Library.Utils.MyGameTimer));
 
-            var serializerType = typeof(Sandbox.Common.ObjectBuilders.Serializer.MyObjectBuilderSerializer);
+            var serializerType = typeof(MyObjectBuilderSerializer);
             IlChecker.AllowedOperands[serializerType] = new List<MemberInfo>()
             {
                 serializerType.GetMethod("CreateNewObject", new Type[] {typeof(MyObjectBuilderType)}),
-                serializerType.GetMethod("CreateNewObject", new Type[] {typeof(Sandbox.Common.ObjectBuilders.Definitions.SerializableDefinitionId)}),
+                serializerType.GetMethod("CreateNewObject", new Type[] {typeof(SerializableDefinitionId)}),
                 serializerType.GetMethod("CreateNewObject", new Type[] {typeof(string)}),
                 serializerType.GetMethod("CreateNewObject", new Type[] {typeof(MyObjectBuilderType), typeof(string)}),
             };

@@ -6,6 +6,7 @@ using System.Text;
 using System.Xml.Serialization;
 using ProtoBuf;
 using VRage.Data;
+using VRage.ObjectBuilders;
 
 namespace Sandbox.Common.ObjectBuilders.Definitions
 {

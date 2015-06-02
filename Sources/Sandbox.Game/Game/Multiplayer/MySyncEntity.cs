@@ -18,11 +18,12 @@ using VRageMath.PackedVector;
 using VRage.Serialization;
 using Sandbox.Engine.Utils;
 using VRage;
+using VRage.Components;
 
 namespace Sandbox.Game.Multiplayer
 {
     [PreloadRequired]
-    public class MySyncEntity : Sandbox.Common.Components.MySyncComponentBase
+    public class MySyncEntity : MySyncComponentBase
     {
         [MessageId(10, P2PMessageEnum.Reliable)]
         [StructLayout(LayoutKind.Sequential, Pack = 1)]

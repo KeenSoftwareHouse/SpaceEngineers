@@ -1,10 +1,7 @@
 ﻿using ProtoBuf;
-using System;
-using System.Collections.Generic;
 using System.ComponentModel;
-using System.Linq;
-using System.Text;
 using System.Xml.Serialization;
+using VRage.ObjectBuilders;
 using VRageMath;
 
 namespace Sandbox.Common.ObjectBuilders.Definitions
@@ -18,13 +15,13 @@ namespace Sandbox.Common.ObjectBuilders.Definitions
         {
             [XmlAttribute]
             [ProtoMember]
-            public String SubtypeId;
+            public string SubtypeId;
 
             [ProtoMember]
             public Vector3 Position;
 
             [ProtoMember, DefaultValue("")]
-            public String BeaconText = "";
+            public string BeaconText = "";
 
             [ProtoMember, DefaultValue(10.0f)]
             public float Speed = 10.0f;
@@ -34,7 +31,7 @@ namespace Sandbox.Common.ObjectBuilders.Definitions
         {
             [XmlAttribute]
             [ProtoMember]
-            public String StorageName;
+            public string StorageName;
 
             [ProtoMember]
             public Vector3 Offset;

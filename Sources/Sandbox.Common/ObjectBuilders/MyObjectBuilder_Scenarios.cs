@@ -1,8 +1,8 @@
 ﻿using System.Xml.Serialization;
 using ProtoBuf;
-using Sandbox.Common.ObjectBuilders;
+using VRage.ObjectBuilders;
+using VRage;
 using Sandbox.Common.ObjectBuilders.Definitions;
-using Sandbox.Common.ObjectBuilders.VRageData;
 
 namespace Medieval.ObjectBuilders
 {

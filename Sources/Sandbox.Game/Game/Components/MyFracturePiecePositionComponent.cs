@@ -18,7 +18,7 @@ namespace Sandbox.Game.Components
             m_worldAABB.Max = m_worldMatrix.Translation;// +Vector3.One * m_localVolume.Radius;
             m_worldVolume.Center = m_worldMatrix.Translation;
             m_worldVolume.Radius = m_localVolume.Radius;
-            Entity.Render.InvalidateRenderObjects();
+            Entity.Components.Get<MyRenderComponent>().InvalidateRenderObjects();
         }
 
         protected override void UpdateChildren(object source)

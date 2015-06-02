@@ -20,6 +20,7 @@ using VRage.Utils;
 using Sandbox.Graphics.TransparentGeometry.Particles;
 using Sandbox.ModAPI.Ingame;
 using Sandbox.Engine.Utils;
+using VRage.ModAPI;
 
 namespace Sandbox.Game.Entities.Blocks
 {
@@ -103,7 +104,7 @@ namespace Sandbox.Game.Entities.Blocks
             m_isDepressurizing = builder.IsDepressurizing;
 
             InitializeConveyorEndpoint();
-            NeedsUpdate = Common.MyEntityUpdateEnum.EACH_10TH_FRAME | Common.MyEntityUpdateEnum.EACH_100TH_FRAME;
+            NeedsUpdate = MyEntityUpdateEnum.EACH_10TH_FRAME | MyEntityUpdateEnum.EACH_100TH_FRAME;
 
             PowerReceiver = new MyPowerReceiver(
                 MyConsumerGroupEnum.Factory,

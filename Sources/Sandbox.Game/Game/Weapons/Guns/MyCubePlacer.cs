@@ -37,7 +37,7 @@ namespace Sandbox.Game.Weapons
             : base(MyDefinitionManager.Static.TryGetHandItemDefinition(ref m_handItemDefId))
         {
             //new Vector3(0.0f, 0.18f, -0.15f)
-            //PhysicalObject = (MyObjectBuilder_PhysicalGunObject)Sandbox.Common.ObjectBuilders.Serializer.MyObjectBuilderSerializer.CreateNewObject(typeof(MyObjectBuilder_PhysicalGunObject), "CubePlacerItem");
+            //PhysicalObject = (MyObjectBuilder_PhysicalGunObject)MyObjectBuilderSerializer.CreateNewObject(typeof(MyObjectBuilder_PhysicalGunObject), "CubePlacerItem");
         }
 
         public override void Shoot(MyShootActionEnum action, Vector3 direction)

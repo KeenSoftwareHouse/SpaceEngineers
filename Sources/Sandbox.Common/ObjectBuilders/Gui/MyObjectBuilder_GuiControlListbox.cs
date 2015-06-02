@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using VRageMath;
+using VRage.ObjectBuilders;
 
 namespace Sandbox.Common.ObjectBuilders.Gui
 {

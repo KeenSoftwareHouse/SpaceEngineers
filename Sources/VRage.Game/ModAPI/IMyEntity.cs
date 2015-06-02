@@ -1,13 +1,13 @@
-﻿using Sandbox.Common;
-using Sandbox.Common.Components;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using VRage.Components;
+using VRage.ObjectBuilders;
 using VRage.Utils;
 
-namespace Sandbox.ModAPI
+namespace VRage.ModAPI
 {
     #region Enums
 
@@ -90,14 +90,23 @@ namespace Sandbox.ModAPI
         NeedsUpdateBeforeNextFrame = 1 << 17,
     }
 
+    [Flags]
+    public enum MyEntityUpdateEnum
+    {
+        NONE = 0,  //no update
+        EACH_FRAME = 1,  //each 0.016s, 60 FPS    
+        EACH_10TH_FRAME = 2,  //each 0.166s, 6 FPS
+        EACH_100TH_FRAME = 4,  //each 1.666s, 0.6 FPS
+
+        /// <summary>
+        /// Separate update performed once before any other updates are called.
+        /// </summary>
+        BEFORE_NEXT_FRAME = 8,
+    }
     #endregion
 
     public interface IMyEntity
     {
-       
-        //void AddChild(MyEntity child, bool preserveWorldPos = false, bool insertIntoSceneIfNeeded = true);
-        //void AddChildWithMatrix(MyEntity child, ref VRageMath.Matrix childLocalMatrix, bool insertIntoSceneIfNeeded = true);
-
         EntityFlags Flags { get; set; }
         long EntityId { get; set; }
         string Name { get; set; }
@@ -136,9 +145,9 @@ namespace Sandbox.ModAPI
         void GetTrianglesIntersectingSphere(ref VRageMath.BoundingSphereD sphere, VRageMath.Vector3? referenceNormalVector, float? maxAngle, System.Collections.Generic.List<MyTriangle_Vertex_Normals> retTriangles, int maxNeighbourTriangles);
         bool DoOverlapSphereTest(float sphereRadius, VRageMath.Vector3D spherePos);
 
-        Sandbox.Common.ObjectBuilders.MyObjectBuilder_EntityBase GetObjectBuilder(bool copy = false);
+        MyObjectBuilder_EntityBase GetObjectBuilder(bool copy = false);
         bool Save { get; set; }
-        Sandbox.Common.ObjectBuilders.MyPersistentEntityFlags2 PersistentFlags { get; set; }
+        MyPersistentEntityFlags2 PersistentFlags { get; set; }
 
         bool InScene { get; set; }
         bool InvalidateOnMove { get; }
@@ -174,14 +183,15 @@ namespace Sandbox.ModAPI
 
         void GetChildren(List<IMyEntity> children, Func<IMyEntity, bool> collect = null);
 
-        //Components wip 
         MyComponentContainer Components { get; }
         MyPhysicsComponentBase Physics { get; set; }
         MyPositionComponentBase PositionComp { get; set; }
         MyRenderComponentBase Render { get; set; }
-        MyGameLogicComponent GameLogic { get; set; }
+        MyComponentBase GameLogic { get; set; }
         MyHierarchyComponentBase Hierarchy { get; set; }
         MySyncComponentBase SyncObject { get; }
+
+
         void OnRemovedFromScene(object source);
         void OnAddedToScene(object source);
         void BeforeSave();
@@ -191,60 +201,6 @@ namespace Sandbox.ModAPI
         void DebugDraw();
         void DebugDrawInvalidTriangles();
         void EnableColorMaskForSubparts(bool enable);
-        void SetColorMaskForSubparts(VRageMath.Vector3 colorMaskHsv);
-
-        //missing dependencies
-        //MyEntityUpdateEnum NeedsUpdate { get; set; }
-        //System.Collections.Generic.List<Sandbox.Game.Gui.MyHudEntityParams> GetHudParams(bool allowBlink);
-        //bool GetIntersectionWithLine(ref VRageMath.Line line, out VRageMath.Vector3? v, bool useCollisionModel = true, Sandbox.Engine.Physics.IntersectionFlags flags = IntersectionFlags.ALL_TRIANGLES);
-
-        //Not needed for scripters?
-        //void Init(Sandbox.Common.ObjectBuilders.MyObjectBuilder_EntityBase objectBuilder);
-        //void Init(System.Text.StringBuilder displayName, string model, MyEntity parentObject, float? scale, string modelCollision = null);
-        //void InitBoxPhysics(Sandbox.Game.Utils.MyMaterialType materialType, Sandbox.Engine.Models.MyModel model, float mass, float angularDamping, ushort collisionLayer, Sandbox.Engine.Physics.RigidBodyFlag rbFlag);
-        //void InitBoxPhysics(Sandbox.Game.Utils.MyMaterialType materialType, VRageMath.Vector3 center, VRageMath.Vector3 size, float mass, float linearDamping, float angularDamping, ushort collisionLayer, Sandbox.Engine.Physics.RigidBodyFlag rbFlag);
-        //void InitCapsulePhysics(Sandbox.Game.Utils.MyMaterialType materialType, VRageMath.Vector3 vertexA, VRageMath.Vector3 vertexB, float radius, float mass, float linearDamping, float angularDamping, ushort collisionLayer, Sandbox.Engine.Physics.RigidBodyFlag rbFlag);
-        //void InitCharacterPhysics(Sandbox.Game.Utils.MyMaterialType materialType, VRageMath.Vector3 center, float characterWidth, float characterHeight, float crouchHeight, float ladderHeight, float headSize, float linearDamping, float angularDamping, ushort collisionLayer, Sandbox.Engine.Physics.RigidBodyFlag rbFlag, float mass);
-        //void InitDrawTechniques();
-        //void InitSpherePhysics(Sandbox.Game.Utils.MyMaterialType materialType, Sandbox.Engine.Models.MyModel model, float mass, float linearDamping, float angularDamping, ushort collisionLayer, Sandbox.Engine.Physics.RigidBodyFlag rbFlag);
-        //void InitSpherePhysics(Sandbox.Game.Utils.MyMaterialType materialType, VRageMath.Vector3 sphereCenter, float sphereRadius, float mass, float linearDamping, float angularDamping, ushort collisionLayer, Sandbox.Engine.Physics.RigidBodyFlag rbFlag);
-        //System.Collections.Generic.Dictionary<string, MyEntitySubpart> Subparts { get; }
-        //Sandbox.Game.Multiplayer.MySyncEntity SyncObject { get; }
-        //void RemoveChild(MyEntity child, bool preserveWorldPos = false);
-        //void OnMemberChanged(System.Reflection.MemberInfo memberInfo);
-        //void UpdateAABBHr();
-        //void UpdateAfterSimulation();
-        //void UpdateAfterSimulation10();
-        //void UpdateAfterSimulation100();
-        //void UpdateBeforeSimulation();
-        //void UpdateBeforeSimulation10();
-        //void UpdateBeforeSimulation100();
-        //void UpdateOnceBeforeFrame();
-        //void UpdatingStopped();
-        //Sandbox.Engine.Models.MyModel Model { get; }
-        //Sandbox.Engine.Models.MyModel ModelCollision { get; }
-        //void OnWorldPositionChanged(object source);
-        //void UpdateWorldMatrix(ref VRageMath.Matrix parentWorldMatrix, object source = null);
-        //void SetRenderObjectID(int index, uint ID);
-        //void ReleaseRenderObjectID(int index);
-        //uint[] RenderObjectIDs { get; }
-        //void ResizeRenderObjectArray(int newSize);
-        //void PrepareForDraw();
-        //void Link();
-        //bool IsRenderObjectAssigned(int index);
-        //void CreateSync();
-        //bool DebugDraw();
-        //void DebugDrawDeactivated();
-        //void DebugDrawInvalidTriangles();
-        //void DebugDrawPhysics();
-        //MyEntity.EntityFlags Flags { get; set; }
-        //void GetAllChildren(System.Collections.Generic.List<MyEntity> collectedResources);
-        //MyEntity GetBaseEntity();
-        //void GetChildrenRecursive(System.Collections.Generic.HashSet<MyEntity> result);
-        //void Draw();
-        //int GetRenderObjectID();
-        //void RaisePhysicsChanged();
-        //void RefreshModels(string model, string modelCollision);
-        //bool SyncFlag { get; set; }
+        void SetColorMaskForSubparts(VRageMath.Vector3 colorMaskHsv);  
     }
 }

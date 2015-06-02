@@ -5,6 +5,7 @@ using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using Sandbox.Common.ObjectBuilders;
+using VRage.ObjectBuilders;
 
 namespace Medieval.ObjectBuilders.Blocks
 {

@@ -1,12 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Linq;
-using System.Text;
-using System.Xml.Serialization;
+﻿using VRage.ObjectBuilders;
 using ProtoBuf;
-using Sandbox.Common.ObjectBuilders;
-using Sandbox.Common.ObjectBuilders.Definitions;
+using System.ComponentModel;
+using System.Xml.Serialization;
+
+
 namespace Sandbox.Common.ObjectBuilders.Definitions
 {
     [ProtoContract]

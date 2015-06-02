@@ -3,13 +3,14 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using VRage.ObjectBuilders;
 
 namespace Sandbox.Game.Entities
 {
     public partial class MyCubeBlock : IMyCubeBlock
     {
-        Sandbox.Common.ObjectBuilders.Definitions.SerializableDefinitionId Sandbox.ModAPI.IMyCubeBlock.BlockDefinition { get { return BlockDefinition.Id; } }
-        Sandbox.Common.ObjectBuilders.Definitions.SerializableDefinitionId Sandbox.ModAPI.Ingame.IMyCubeBlock.BlockDefinition { get { return BlockDefinition.Id; } }
+        SerializableDefinitionId Sandbox.ModAPI.IMyCubeBlock.BlockDefinition { get { return BlockDefinition.Id; } }
+        SerializableDefinitionId Sandbox.ModAPI.Ingame.IMyCubeBlock.BlockDefinition { get { return BlockDefinition.Id; } }
 
         public void Init(Common.ObjectBuilders.MyObjectBuilder_CubeBlock builder, IMyCubeGrid cubeGrid)
         {

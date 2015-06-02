@@ -6,6 +6,7 @@ using Sandbox.Common.ObjectBuilders;
 using Sandbox.Common.ObjectBuilders.Definitions;
 using VRageMath;
 using Sandbox.Game.World;
+using VRage;
 
 namespace Sandbox.Definitions
 {

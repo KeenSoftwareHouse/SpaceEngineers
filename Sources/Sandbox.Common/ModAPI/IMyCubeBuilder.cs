@@ -1,4 +1,5 @@
 ﻿using System;
+using VRage.ModAPI;
 namespace Sandbox.ModAPI
 {
     public interface IMyCubeBuilder

@@ -8,6 +8,7 @@ using Sandbox.Game.World;
 using Sandbox.Graphics.TransparentGeometry;
 using Sandbox.Game.Entities;
 using Sandbox.Common.Components;
+using VRage.Components;
 
 namespace Sandbox.Game.Components
 {

@@ -4,11 +4,9 @@ using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using System.Text;
-using Sandbox.Common.ObjectBuilders;
 using VRage.Collections;
-using Sandbox.Common.ObjectBuilders.Serializer;
 
-namespace Sandbox.Common
+namespace VRage.ObjectBuilders
 {
     public class MyObjectFactory<TAttribute, TCreatedObjectBase>
         where TAttribute : MyFactoryTagAttribute
@@ -104,7 +102,7 @@ namespace Sandbox.Common
                 return null;
 
             Debug.Assert(typeof(TObjectBuilder).IsAssignableFrom(attribute.ObjectBuilderType));
-            return Sandbox.Common.ObjectBuilders.Serializer.MyObjectBuilderSerializer.CreateNewObject(attribute.ObjectBuilderType) as TObjectBuilder;
+            return MyObjectBuilderSerializer.CreateNewObject(attribute.ObjectBuilderType) as TObjectBuilder;
         }
     }
 

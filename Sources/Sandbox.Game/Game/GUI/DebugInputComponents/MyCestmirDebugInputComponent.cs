@@ -21,6 +21,7 @@ using VRageMath;
 using Sandbox.ModAPI;
 using VRage.Library.Utils;
 using System.Linq;
+using VRage.ModAPI;
 
 namespace Sandbox.Game.Gui
 {
@@ -1090,7 +1091,7 @@ namespace Sandbox.Game.Gui
         private bool FindPath()
         {
             Vector3D? firstHit;
-            ModAPI.IMyEntity entity;
+            IMyEntity entity;
             Raycast(out firstHit, out entity);
 
             if (firstHit.HasValue)
@@ -1105,7 +1106,7 @@ namespace Sandbox.Game.Gui
         private bool FindBotPath()
         {
             Vector3D? firstHit;
-            ModAPI.IMyEntity entity;
+            IMyEntity entity;
             Raycast(out firstHit, out entity);
 
             if (firstHit.HasValue)
@@ -1192,7 +1193,7 @@ namespace Sandbox.Game.Gui
             return base.HandleInput();
         }
 
-        private static void Raycast(out Vector3D? firstHit, out ModAPI.IMyEntity entity)
+        private static void Raycast(out Vector3D? firstHit, out IMyEntity entity)
         {
             var cam = MySector.MainCamera;
             var hitList = new List<Sandbox.Engine.Physics.MyPhysics.HitInfo>();

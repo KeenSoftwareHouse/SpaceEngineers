@@ -4,10 +4,9 @@ using System.Reflection;
 using System;
 using System.Net;
 using System.Xml.Serialization;
-using Sandbox.Common.ObjectBuilders.VRageData;
 using ProtoBuf;
 
-namespace Sandbox.Common.ObjectBuilders
+namespace VRage
 {
     //  Must be struct because we don't want to provocate garbage collector when received in MW game-client 
     [ProtoContract]

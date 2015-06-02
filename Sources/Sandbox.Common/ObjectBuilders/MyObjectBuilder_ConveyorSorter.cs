@@ -1,8 +1,7 @@
 ﻿using ProtoBuf;
-using Sandbox.Common.ObjectBuilders.Definitions;
-using Sandbox.Definitions;
 using System.Collections.Generic;
 using System.ComponentModel;
+using VRage.ObjectBuilders;
 
 namespace Sandbox.Common.ObjectBuilders
 {

@@ -4,8 +4,8 @@ using Sandbox.Common.ObjectBuilders.VRageData;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Linq;
-using System.Text;
+using VRage;
+using VRage.ObjectBuilders;
 using VRageMath;
 
 namespace Sandbox.Common.ObjectBuilders
@@ -25,7 +25,7 @@ namespace Sandbox.Common.ObjectBuilders
             public bool Fixed;
         }
         [ProtoMember]
-        public List<SerializableDefinitionId> BlockDefinitions = new List<Common.ObjectBuilders.Definitions.SerializableDefinitionId>();
+        public List<SerializableDefinitionId> BlockDefinitions = new List<SerializableDefinitionId>();
 
         [ProtoMember]
         public List<ShapeB> Shapes = new List<ShapeB>();

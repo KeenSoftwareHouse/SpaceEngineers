@@ -34,6 +34,8 @@ using VRage.Import;
 using Sandbox.ModAPI.Ingame;
 using IMyDestroyableObject = Sandbox.ModAPI.Interfaces.IMyDestroyableObject;
 using Sandbox.Game.Localization;
+using VRage.ModAPI;
+using VRage.Components;
 
 #endregion
 

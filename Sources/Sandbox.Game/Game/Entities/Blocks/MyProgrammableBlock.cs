@@ -32,6 +32,7 @@ using Sandbox.Game.Screens.Helpers;
 using VRage;
 using VRage.Collections;
 using VRage.Library.Utils;
+using VRage.ModAPI;
 
 namespace Sandbox.Game.Entities.Blocks
 {

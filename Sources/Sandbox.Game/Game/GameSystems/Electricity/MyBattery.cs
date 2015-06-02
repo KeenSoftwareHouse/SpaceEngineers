@@ -13,6 +13,7 @@ using Sandbox.Game.World;
 using VRage.Trace;
 using VRageMath;
 using VRage.Utils;
+using VRage.ObjectBuilders;
 
 namespace Sandbox.Game.GameSystems.Electricity
 {
@@ -165,7 +166,7 @@ namespace Sandbox.Game.GameSystems.Electricity
 
         public MyObjectBuilder_Battery GetObjectBuilder()
         {
-            MyObjectBuilder_Battery builder = Sandbox.Common.ObjectBuilders.Serializer.MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_Battery>();
+            MyObjectBuilder_Battery builder = MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_Battery>();
             builder.ProducerEnabled = (this as IMyPowerProducer).Enabled;
             builder.CurrentCapacity = RemainingCapacity;
             return builder;

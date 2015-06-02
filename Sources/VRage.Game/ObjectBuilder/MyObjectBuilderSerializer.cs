@@ -1,6 +1,5 @@
 ﻿using KeenSoftwareHouse.Library.IO;
 using ProtoBuf.Meta;
-using Sandbox.Common.ObjectBuilders.Definitions;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -16,7 +15,7 @@ using VRage.Library.Utils;
 using VRage.Plugins;
 using VRage.Utils;
 
-namespace Sandbox.Common.ObjectBuilders.Serializer
+namespace VRage.ObjectBuilders
 {
     public class MyObjectBuilderSerializer
     {
@@ -43,12 +42,12 @@ namespace Sandbox.Common.ObjectBuilders.Serializer
             m_objectFactory = new MyObjectFactory<MyObjectBuilderDefinitionAttribute, MyObjectBuilder_Base>();
 
             m_objectFactory.RegisterFromAssembly(Assembly.GetExecutingAssembly());
+            m_objectFactory.RegisterFromAssembly(Assembly.LoadFrom("Sandbox.Common.dll")); //TODO: Will be removed 
             m_objectFactory.RegisterFromAssembly(MyPlugins.GameAssembly);
             m_objectFactory.RegisterFromAssembly(MyPlugins.UserAssembly);
 
             LoadSerializers();
         }
-
 
         #region Definitions
 
@@ -89,23 +88,22 @@ namespace Sandbox.Common.ObjectBuilders.Serializer
             }
         }
 
-        internal static XmlSerializer GetSerializer(Type type)
+        public static XmlSerializer GetSerializer(Type type)
         {
             return m_serializersByType[type];
         }
 
-        internal static string GetSerializedName(Type type)
+        public static string GetSerializedName(Type type)
         {
             return m_serializedNameByType[type];
         }
 
-        internal static XmlSerializer GetSerializer(string serializedName)
+        public static XmlSerializer GetSerializer(string serializedName)
         {
             return m_serializersBySerializedName[serializedName];
         }
 
         #endregion
-
 
         #region Serialization
 
@@ -168,26 +166,25 @@ namespace Sandbox.Common.ObjectBuilders.Serializer
                 MyLog.Default.WriteLine("Error: " + path + " failed to serialize.");
                 MyLog.Default.WriteLine(e.ToString());
 
-                if (!MyFinalBuildConstants.IS_OFFICIAL)
+#if DEBUG
+                var io = e as IOException;
+                if (io != null && io.IsFileLocked())
                 {
-                    var io = e as IOException;
-                    if (io != null && io.IsFileLocked())
+                    MyLog.Default.WriteLine("Files is locked during saving.");
+                    MyLog.Default.WriteLine("Xml file locks:");
+                    try
                     {
-                        MyLog.Default.WriteLine("Files is locked during saving.");
-                        MyLog.Default.WriteLine("Xml file locks:");
-                        try
+                        foreach (var p in Win32Processes.GetProcessesLockingFile(path))
                         {
-                            foreach (var p in Win32Processes.GetProcessesLockingFile(path))
-                            {
-                                MyLog.Default.WriteLine(p.ProcessName);
-                            }
-                        }
-                        catch (Exception e2)
-                        {
-                            MyLog.Default.WriteLine(e2);
+                            MyLog.Default.WriteLine(p.ProcessName);
                         }
                     }
+                    catch (Exception e2)
+                    {
+                        MyLog.Default.WriteLine(e2);
+                    }
                 }
+#endif                
 
                 sizeInBytes = 0;
 
@@ -291,7 +288,7 @@ namespace Sandbox.Common.ObjectBuilders.Serializer
                 Serializer.Serialize(ms, this);
                 ms.Position = 0;
 
-                var builder = Sandbox.Common.ObjectBuilders.Serializer.MyObjectBuilderSerializer.CreateNewObject(type, subtypeName);
+                var builder = MyObjectBuilderSerializer.CreateNewObject(type, subtypeName);
                 return (MyObjectBuilder_Base)Serializer.Deserialize(ms, builder, m_objectFactory.GetProducedType(type));
             }
         }

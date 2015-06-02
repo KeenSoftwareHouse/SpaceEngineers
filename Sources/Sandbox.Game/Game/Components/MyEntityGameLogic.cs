@@ -10,6 +10,8 @@ using System.Linq;
 using System.Text;
 using VRage;
 using VRage;
+using VRage.Components;
+using VRage.ObjectBuilders;
 using VRage.Utils;
 using VRageMath;
 

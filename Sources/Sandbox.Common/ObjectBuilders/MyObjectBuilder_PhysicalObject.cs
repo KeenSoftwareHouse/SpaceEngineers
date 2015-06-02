@@ -4,6 +4,7 @@ using System.ComponentModel;
 using VRage.Library.Utils;
 using VRage.Utils;
 using VRageMath;
+using VRage.ObjectBuilders;
 
 namespace Sandbox.Common.ObjectBuilders
 {

@@ -2,6 +2,8 @@
 using System.Diagnostics;
 using System.IO;
 using VRageMath;
+using VRage.ObjectBuilders;
+using VRage;
 
 namespace Sandbox.Common.ObjectBuilders.Voxels
 {

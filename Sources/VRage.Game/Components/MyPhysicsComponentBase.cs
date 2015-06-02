@@ -1,5 +1,4 @@
-﻿using Sandbox.Engine.Physics;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -7,12 +6,53 @@ using System.Text;
 using VRageMath;
 using VRageRender;
 using VRage.Utils;
-using Sandbox.ModAPI;
 using VRage;
 using VRage.Library.Utils;
+using VRage.Components;
+using VRage.ModAPI;
 
-namespace Sandbox.Common.Components
+namespace VRage.Components
 {
+    //////////////////////////////////////////////////////////////////////////
+    [Flags]
+    public enum RigidBodyFlag
+    {
+        RBF_DEFAULT = (0),      // Default flag
+        RBF_KINEMATIC = (1 << 1), // Rigid body is kinematic (has to be updated (matrix) per frame, velocity etc is then computed..)
+        RBF_STATIC = (1 << 2), // Rigid body is static
+        RBF_DISABLE_COLLISION_RESPONSE = (1 << 6), // Rigid body has no collision response        
+        RBF_DOUBLED_KINEMATIC = (1 << 7),
+        RBF_BULLET = (1 << 8),
+        RBF_DEBRIS = (1 << 9),
+        RBF_KEYFRAMED_REPORTING = (1 << 10),
+    }
+
+    public enum IntersectionFlags
+    {
+        DIRECT_TRIANGLES = 0x01,
+        FLIPPED_TRIANGLES = 0x02,
+
+        ALL_TRIANGLES = DIRECT_TRIANGLES | FLIPPED_TRIANGLES
+    }
+
+    /// <summary>
+    /// Force type applied to physic object.
+    /// </summary>
+    public enum MyPhysicsForceType : byte
+    {
+        /// <summary>
+        /// 
+        /// </summary>
+        APPLY_WORLD_IMPULSE_AND_WORLD_ANGULAR_IMPULSE,
+
+        /// <summary>
+        /// 
+        /// </summary>
+        ADD_BODY_FORCE_AND_BODY_TORQUE,
+
+        APPLY_WORLD_FORCE
+    }
+
     public abstract class MyPhysicsComponentBase : MyComponentBase
     {
         public static bool DebugDrawFlattenHierarchy = false;
@@ -245,8 +285,6 @@ namespace Sandbox.Common.Components
         /// Use something from Havok to detect this
         /// </summary>
         public bool IsPhantom;
-        private Vector3 m_lastLinearVelocity;
-        private Vector3 m_lastAngularVelocity;
         protected bool m_enabled;
 
         /// <summary>
@@ -318,16 +356,8 @@ namespace Sandbox.Common.Components
         /// </summary>
         public abstract void ForceActivate();
 
-        public virtual void UpdateAccelerations()
-        {
-            Vector3 delta = LinearVelocity - m_lastLinearVelocity;
-            m_lastLinearVelocity = LinearVelocity;
-            LinearAcceleration = delta / MyEngineConstants.UPDATE_STEP_SIZE_IN_SECONDS;
-
-            Vector3 deltaAng = AngularVelocity - m_lastAngularVelocity;
-            m_lastAngularVelocity = AngularVelocity;
-            AngularAcceleration = deltaAng / MyEngineConstants.UPDATE_STEP_SIZE_IN_SECONDS;
-        }
+        public abstract void UpdateAccelerations();
+        
 
         #endregion
 
@@ -338,48 +368,6 @@ namespace Sandbox.Common.Components
         public abstract bool HasRigidBody { get; }
 
         public abstract Vector3D CenterOfMassWorld { get; }
-
-        #endregion
-
-        #region Implementation of IMyNotifyContact
-        /*
-        /// <summary>
-        /// Called when [contact start].
-        /// </summary>
-        /// <param name="contactInfo">The contact info.</param>
-        public virtual void OnContactStart(MyContactEventInfo contactInfo)
-        {
-            // Notify entity(script) about contact.
-            this.Entity.NotifyContactStart(contactInfo);
-        }
-
-        /// <summary>
-        /// Called when [contact end].
-        /// </summary>
-        /// <param name="contactInfo">The contact info.</param>
-        public virtual void OnContactEnd(MyContactEventInfo contactInfo)
-        {
-            this.Entity.NotifyContactEnd(contactInfo);
-        }
-
-        /// <summary>
-        /// Called when [contact touch].
-        /// </summary>
-        /// <param name="contactInfo">The contact info.</param>
-        public virtual void OnContactTouch(MyContactEventInfo contactInfo)
-        {
-            this.Entity.NotifyContactTouch(contactInfo);
-        }
-
-        /// <summary>
-        /// Called when contact
-        /// </summary>
-        /// <param name="constraint"></param>
-        /// <returns>false if contact has to be refused</returns>
-        public virtual bool OnContact(ref MyRBSolverConstraint constraint)
-        {
-            return this.Entity.NotifyContact(ref constraint);
-        }    */
 
         #endregion
 

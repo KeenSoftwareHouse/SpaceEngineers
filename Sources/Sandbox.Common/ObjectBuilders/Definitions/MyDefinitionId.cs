@@ -7,6 +7,7 @@ using Sandbox.Definitions;
 using ProtoBuf;
 using VRage.Utils;
 using VRage.Library.Utils;
+using VRage.ObjectBuilders;
 
 namespace Sandbox.Definitions
 {

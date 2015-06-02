@@ -16,6 +16,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using VRage.Audio;
+using VRage.ModAPI;
 using VRageMath;
 
 namespace Sandbox.Game.Entities.Cube

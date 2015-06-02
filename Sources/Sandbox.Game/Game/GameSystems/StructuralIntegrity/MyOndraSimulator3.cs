@@ -11,6 +11,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using VRage;
+using VRage.Components;
 using VRage.Utils;
 using VRageMath;
 using VRageRender;
@@ -416,7 +417,7 @@ namespace Sandbox.Game.GameSystems.StructuralIntegrity
                 m_collidingEntities[info.CollidingEntity].FrameTime = m_frameCounter;
         }
 
-        void PositionComp_OnPositionChanged(Common.Components.MyPositionComponentBase obj)
+        void PositionComp_OnPositionChanged(MyPositionComponentBase obj)
         {
             if (m_collidingEntities.ContainsKey((MyEntity)obj.Entity))
             {

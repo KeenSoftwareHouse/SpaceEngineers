@@ -25,6 +25,7 @@ using VRage.Library.Utils;
 using Sandbox.Common.ObjectBuilders.Definitions;
 using System.IO;
 using VRage.FileSystem;
+using VRage.ModAPI;
 
 namespace Sandbox.Game.Entities.Blocks
 {
@@ -469,7 +470,7 @@ namespace Sandbox.Game.Entities.Blocks
 
             SetRotation(m_projectionRotation);
 
-            NeedsUpdate |= Common.MyEntityUpdateEnum.EACH_FRAME;
+            NeedsUpdate |= MyEntityUpdateEnum.EACH_FRAME;
         }
 
         public override MyObjectBuilder_CubeBlock GetObjectBuilderCubeBlock(bool copy = false)

@@ -1,8 +1,5 @@
 ﻿using ProtoBuf;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+using VRage.ObjectBuilders;
 using System.Xml.Serialization;
 using VRage.Data;
 
@@ -27,6 +24,6 @@ namespace Sandbox.Common.ObjectBuilders.Definitions
         public MyObjectBuilder_CubeGrid[] CubeGrids;
 
         [ProtoMember, ModdableContentFile(".sbc")]
-        public String PrefabPath;
+        public string PrefabPath;
     }
 }

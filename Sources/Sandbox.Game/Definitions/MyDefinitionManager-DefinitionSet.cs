@@ -3,6 +3,7 @@
 using Sandbox.Common.ObjectBuilders;
 using Sandbox.Common.ObjectBuilders.Definitions;
 using System.Collections.Generic;
+using VRage.ObjectBuilders;
 using VRageMath;
 
 

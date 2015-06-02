@@ -29,6 +29,8 @@ using VRageRender;
 using Sandbox.Game.Entities.Character;
 using Sandbox.Common.Components;
 using Sandbox.ModAPI;
+using VRage.Components;
+using VRage.ModAPI;
 
 namespace Sandbox.Game.Components
 {

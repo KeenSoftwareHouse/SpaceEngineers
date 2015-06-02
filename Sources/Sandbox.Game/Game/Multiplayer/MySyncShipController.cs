@@ -12,6 +12,7 @@ using VRageMath;
 using Sandbox.Game.AI;
 using ProtoBuf;
 using SteamSDK;
+using VRage;
 
 namespace Sandbox.Game.Multiplayer
 {

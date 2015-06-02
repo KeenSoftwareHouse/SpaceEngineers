@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using Sandbox.Common.ObjectBuilders;
 using System.Xml.Serialization;
+using VRage.ObjectBuilders;
 
 namespace Medieval.ObjectBuilders.Blocks
 {

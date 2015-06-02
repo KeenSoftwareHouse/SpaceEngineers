@@ -19,6 +19,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using VRage;
+using VRage.ModAPI;
 using VRage.Serialization;
 using VRage.Utils;
 using VRageMath;

@@ -3,10 +3,11 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
+using VRage.Components;
 using VRage.Utils;
 using VRageMath;
 
-namespace Sandbox.Common.Components
+namespace VRage.Components
 {
     public abstract class MyPositionComponentBase : MyComponentBase
     {

@@ -3,8 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using VRageMath;
+using VRage.Components;
+using VRage.ModAPI;
 
-namespace Sandbox.Common.Components
+namespace VRage.Components
 {
     public class MyHierarchyComponentBase : MyComponentBase
     {
@@ -45,37 +47,44 @@ namespace Sandbox.Common.Components
         /// </summary>
         /// <param name="child">The child.</param>
         /// <param name="preserveWorldPos">if set to <c>true</c> [preserve absolute position].</param>
-        public void AddChild(Sandbox.ModAPI.IMyEntity child, bool preserveWorldPos = false, bool insertIntoSceneIfNeeded = true)
+        public void AddChild(IMyEntity child, bool preserveWorldPos = false, bool insertIntoSceneIfNeeded = true)
         {
             //MyEntities.Remove(child);  // if it's already in the world, remove it
 
-            child.Hierarchy.Parent = this;
+            MyHierarchyComponentBase childHierarchy = child.Components.Get<MyHierarchyComponentBase>();
+            childHierarchy.Parent = this;
 
             if (preserveWorldPos)
             {
                 var tmpWorldMatrix = child.WorldMatrix;
 
-                this.Children.Add(child.Hierarchy);
+                this.Children.Add(childHierarchy);
 
                 child.WorldMatrix = tmpWorldMatrix;
             }
             else
             {
-                this.Children.Add(child.Hierarchy);
-                var m = Entity.PositionComp.WorldMatrix;
-                child.PositionComp.UpdateWorldMatrix(ref m);
+                this.Children.Add(childHierarchy);
+
+                MyPositionComponentBase positionComponent = Entity.Components.Get<MyPositionComponentBase>();
+                MyPositionComponentBase childPositionComponent = child.Components.Get<MyPositionComponentBase>();
+
+                var m = positionComponent.WorldMatrix;
+                childPositionComponent.UpdateWorldMatrix(ref m);
             }
 
             if (Entity.InScene && !child.InScene && insertIntoSceneIfNeeded)
                 child.OnAddedToScene(this.Entity);
         }
 
-        public void AddChildWithMatrix(Sandbox.ModAPI.IMyEntity child, ref Matrix childLocalMatrix, bool insertIntoSceneIfNeeded = true)
+        public void AddChildWithMatrix(IMyEntity child, ref Matrix childLocalMatrix, bool insertIntoSceneIfNeeded = true)
         {
-            child.Hierarchy.Parent = this;
+            MyHierarchyComponentBase childHierarchy = child.Components.Get<MyHierarchyComponentBase>();
 
-            Children.Add(child.Hierarchy);
-            child.WorldMatrix = (MatrixD)childLocalMatrix * Entity.PositionComp.WorldMatrix;
+            childHierarchy.Parent = this;
+
+            Children.Add(childHierarchy);
+            child.WorldMatrix = (MatrixD)childLocalMatrix * Entity.Components.Get<MyPositionComponentBase>().WorldMatrix;
 
             if (Entity.InScene && !child.InScene && insertIntoSceneIfNeeded)
                 child.OnAddedToScene(this);
@@ -86,28 +95,30 @@ namespace Sandbox.Common.Components
         /// </summary>
         /// <param name="child">The child.</param>
         /// <param name="preserveWorldPos">if set to <c>true</c> [preserve absolute position].</param>
-        public void RemoveChild(Sandbox.ModAPI.IMyEntity child, bool preserveWorldPos = false)
+        public void RemoveChild(IMyEntity child, bool preserveWorldPos = false)
         {
+            MyHierarchyComponentBase childHierarchy = child.Components.Get<MyHierarchyComponentBase>();
+
             if (preserveWorldPos)
             {
                 var tmpWorldMatrix = child.WorldMatrix;
 
-                this.Children.Remove(child.Hierarchy);
+                this.Children.Remove(childHierarchy);
 
                 child.WorldMatrix = tmpWorldMatrix;
             }
             else
             {
-                this.Children.Remove(child.Hierarchy);
+                this.Children.Remove(childHierarchy);
             }
 
-            child.Hierarchy.Parent = null;
+            childHierarchy.Parent = null;
 
             if (child.InScene)
                 child.OnRemovedFromScene(this);
         }
 
-        public void GetChildrenRecursive(HashSet<Sandbox.ModAPI.IMyEntity> result)
+        public void GetChildrenRecursive(HashSet<IMyEntity> result)
         {
             for (int i = 0; i < Children.Count; i++)
             {

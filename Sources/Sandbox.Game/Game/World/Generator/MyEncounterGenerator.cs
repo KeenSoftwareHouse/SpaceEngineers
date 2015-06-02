@@ -19,6 +19,8 @@ using VRage.Serialization;
 using VRageMath;
 using Sandbox.Game.World.Generator;
 using VRage.Library.Utils;
+using VRage.ModAPI;
+using VRage.Components;
 
 namespace Sandbox.Game.World.Generator
 {

@@ -2,6 +2,7 @@
 using ProtoBuf;
 using VRageMath;
 using VRage.Utils;
+using VRage.ObjectBuilders;
 
 namespace Sandbox.Common.ObjectBuilders
 {

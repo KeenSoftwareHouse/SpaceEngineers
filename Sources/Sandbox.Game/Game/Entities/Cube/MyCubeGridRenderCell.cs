@@ -21,6 +21,7 @@ using Sandbox.Game.Components;
 using VRage.Utils;
 using VRage;
 using VRage.Library.Utils;
+using VRage.ObjectBuilders;
 
 namespace Sandbox.Game.Entities.Cube
 {

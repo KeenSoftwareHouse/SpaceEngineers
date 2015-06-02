@@ -16,7 +16,10 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
+using VRage;
 using VRage.Audio;
+using VRage.ModAPI;
+using VRage.ObjectBuilders;
 using VRageMath;
 
 namespace Sandbox.Game.Entities.Cube
@@ -253,7 +256,7 @@ namespace Sandbox.Game.Entities.Cube
 
             var block = MyCubeGrid.CreateBlockObjectBuilder(definition, Vector3I.Zero, MyBlockOrientation.Identity, MyEntityIdentifier.AllocateId(), OwnerId, fullyBuilt: MySession.Static.CreativeMode);
 
-            var gridBuilder = Sandbox.Common.ObjectBuilders.Serializer.MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_CubeGrid>();
+            var gridBuilder = MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_CubeGrid>();
             gridBuilder.GridSizeEnum = gridSize;
             gridBuilder.IsStatic = false;
             gridBuilder.PositionAndOrientation = new MyPositionAndOrientation(matrix);

@@ -23,6 +23,7 @@ using VRage.Library.Utils;
 using Sandbox.Game.GameSystems;
 using Sandbox.Engine.Physics;
 using Sandbox.Common.ModAPI;
+using VRage.ObjectBuilders;
 
 namespace Sandbox.Game.Entities.Cube
 {
@@ -390,7 +391,7 @@ namespace Sandbox.Game.Entities.Cube
             }
             else
             {
-                builder = (MyObjectBuilder_CubeBlock)Sandbox.Common.ObjectBuilders.Serializer.MyObjectBuilderSerializer.CreateNewObject(BlockDefinition.Id);
+                builder = (MyObjectBuilder_CubeBlock)MyObjectBuilderSerializer.CreateNewObject(BlockDefinition.Id);
                 if (FatBlock != null)
                 {
                     builder.EntityId = FatBlock.EntityId;

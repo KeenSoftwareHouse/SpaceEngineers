@@ -19,6 +19,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using VRage;
+using VRage.Components;
 using VRage.Input;
 using VRage.Library.Utils;
 using VRageMath;
@@ -1047,7 +1048,7 @@ namespace Sandbox.Game.GameSystems
                         }
 
                         forceInfo.Direction.Normalize();
-                        entity.Physics.AddForce(Engine.Physics.MyPhysicsForceType.APPLY_WORLD_IMPULSE_AND_WORLD_ANGULAR_IMPULSE, forceInfo.Direction * forceInfo.Strength, entity.PositionComp.WorldMatrix.Translation, null);
+                        entity.Physics.AddForce(MyPhysicsForceType.APPLY_WORLD_IMPULSE_AND_WORLD_ANGULAR_IMPULSE, forceInfo.Direction * forceInfo.Strength, entity.PositionComp.WorldMatrix.Translation, null);
                     }
                 }
 

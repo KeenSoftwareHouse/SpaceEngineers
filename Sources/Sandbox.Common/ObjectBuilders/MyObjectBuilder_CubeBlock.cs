@@ -6,7 +6,9 @@ using Sandbox.Common.ObjectBuilders.VRageData;
 using VRage.Utils;
 using VRageMath;
 using System.Diagnostics;
-using Sandbox.Common.ObjectBuilders.Serializer;
+using VRage.ObjectBuilders;
+using VRage;
+using VRage.Entity;
 
 namespace Sandbox.Common.ObjectBuilders
 {
@@ -61,7 +63,7 @@ namespace Sandbox.Common.ObjectBuilders
 
         public static MyObjectBuilder_CubeBlock Upgrade(MyObjectBuilder_CubeBlock cubeBlock, MyObjectBuilderType newType, string newSubType)
         {
-            var upgraded = Sandbox.Common.ObjectBuilders.Serializer.MyObjectBuilderSerializer.CreateNewObject(newType, newSubType) as MyObjectBuilder_CubeBlock;
+            var upgraded = MyObjectBuilderSerializer.CreateNewObject(newType, newSubType) as MyObjectBuilder_CubeBlock;
             if (upgraded == null)
             {
                 Debug.Fail("Cannot upgrade cube block, upgraded block is not derived from " + typeof(MyObjectBuilder_CubeBlock).Name);

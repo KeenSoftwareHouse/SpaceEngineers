@@ -6,6 +6,8 @@ using System.Xml.Serialization;
 using ProtoBuf;
 using System.ComponentModel;
 using VRageMath;
+using VRage.ObjectBuilders;
+using VRage.Entity;
 
 namespace Sandbox.Common.ObjectBuilders
 {

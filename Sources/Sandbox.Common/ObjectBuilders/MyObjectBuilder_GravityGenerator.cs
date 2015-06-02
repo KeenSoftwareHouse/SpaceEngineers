@@ -1,9 +1,8 @@
 ﻿using System.Collections.Generic;
 using ProtoBuf;
-using VRageMath;
-using System.Xml.Serialization;
+using VRage.ObjectBuilders;
+using VRage;
 using System.ComponentModel;
-using Sandbox.Common.ObjectBuilders.VRageData;
 
 
 namespace Sandbox.Common.ObjectBuilders

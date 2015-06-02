@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using VRage.ObjectBuilders;
 using VRage.Serialization;
 
 namespace Sandbox.Common.ObjectBuilders
@@ -39,7 +40,7 @@ namespace Sandbox.Common.ObjectBuilders
     }
 
     [ProtoContract]
-    [MyObjectBuilderDefinition]
+    [MyObjectBuilderDefinition(LegacyName: "Factions")]
     public class MyObjectBuilder_FactionCollection : MyObjectBuilder_Base
     {
         [ProtoMember]

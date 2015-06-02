@@ -4,6 +4,8 @@ using Sandbox.Common.ObjectBuilders;
 using Sandbox.Common.ObjectBuilders.Definitions;
 using System;
 using System.Diagnostics;
+using VRage.ObjectBuilders;
+using VRage;
 
 namespace Sandbox.Common.ObjectBuilders
 {

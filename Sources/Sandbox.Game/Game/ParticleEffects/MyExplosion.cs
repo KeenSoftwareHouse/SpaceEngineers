@@ -26,6 +26,7 @@ using VRage.Audio;
 using VRage.Utils;
 using VRageMath;
 using VRageRender;
+using VRage.Components;
 
 #endregion
 

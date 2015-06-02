@@ -15,10 +15,10 @@ using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Xml.Serialization;
-
 using VRage;
 using VRage.Collections;
 using VRage.Compiler;
+using VRage.ObjectBuilders;
 using VRage.Serialization;
 using VRage.Trace;
 
@@ -554,7 +554,7 @@ namespace Sandbox.Engine.Multiplayer
                 checkpoint.WorkshopId = null;
                 checkpoint.CharacterToolbar = null;
                 ProfilerShort.Begin("SerializeXML");
-                Sandbox.Common.ObjectBuilders.Serializer.MyObjectBuilderSerializer.SerializeXML(m_worldSendStream, worldData, Sandbox.Common.ObjectBuilders.Serializer.MyObjectBuilderSerializer.XmlCompression.Gzip);
+                MyObjectBuilderSerializer.SerializeXML(m_worldSendStream, worldData, MyObjectBuilderSerializer.XmlCompression.Gzip);
                 ProfilerShort.BeginNextBlock("SendFlush");
                 SyncLayer.TransportLayer.SendFlush(sender);
                 ProfilerShort.End();

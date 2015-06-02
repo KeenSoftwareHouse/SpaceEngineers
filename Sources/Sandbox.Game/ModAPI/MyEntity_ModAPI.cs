@@ -4,12 +4,15 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using VRage;
+using VRage.Components;
+using VRage.ModAPI;
+using VRage.ObjectBuilders;
 using VRage.Utils;
 using VRageMath;
 
 namespace Sandbox.Game.Entities
 {
-    public partial class MyEntity :IMyEntity
+    public partial class MyEntity : IMyEntity
     {
         public EntityFlags Flags { get; set; }
         IMyEntity IMyEntity.Parent
@@ -113,7 +116,7 @@ namespace Sandbox.Game.Entities
             get { return Closed; }
         }
 
-        Common.Components.MyGameLogicComponent IMyEntity.GameLogic
+        MyComponentBase IMyEntity.GameLogic
         {
             get
             {
@@ -121,11 +124,11 @@ namespace Sandbox.Game.Entities
             }
             set
             {
-                GameLogic = value;
+                GameLogic = (MyGameLogicComponent)value;
             }
         }
 
-        Common.MyEntityUpdateEnum IMyEntity.NeedsUpdate
+        MyEntityUpdateEnum IMyEntity.NeedsUpdate
         {
             get
             {
@@ -307,7 +310,7 @@ namespace Sandbox.Game.Entities
             return DoOverlapSphereTest(sphereRadius, spherePos);
         }
 
-        Common.ObjectBuilders.MyObjectBuilder_EntityBase IMyEntity.GetObjectBuilder(bool copy)
+        MyObjectBuilder_EntityBase IMyEntity.GetObjectBuilder(bool copy)
         {
             return GetObjectBuilder(copy);
         }
@@ -324,7 +327,7 @@ namespace Sandbox.Game.Entities
             }
         }
 
-        Common.ObjectBuilders.MyPersistentEntityFlags2 IMyEntity.PersistentFlags
+        MyPersistentEntityFlags2 IMyEntity.PersistentFlags
         {
             get
             {

@@ -1,11 +1,9 @@
 ﻿using System;
 using ProtoBuf;
 using VRageMath;
+using VRage.Entity;
 
-//  Object builder is object that defines how to create instance of particular MyPhysObject**
-//  Every object builder class must implement parameter-less constructor (needed when loading objects)
-
-namespace Sandbox.Common.ObjectBuilders
+namespace VRage.ObjectBuilders
 {
     // Do not change numbers, these are saved in DB
     [Flags]

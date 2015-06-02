@@ -6,6 +6,7 @@ using Sandbox.ModAPI;
 using System;
 using System.Diagnostics;
 using VRage;
+using VRage.Components;
 using VRage.Voxels;
 using VRageMath;
 using VRageRender;

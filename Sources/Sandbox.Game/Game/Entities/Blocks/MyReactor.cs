@@ -31,6 +31,7 @@ using VRage;
 using Sandbox.Game.Localization;
 using VRage.Audio;
 using VRage.Utils;
+using VRage.ModAPI;
 
 namespace Sandbox.Game.Entities
 {

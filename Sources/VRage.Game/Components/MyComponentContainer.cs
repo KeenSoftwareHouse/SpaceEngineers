@@ -2,31 +2,31 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using VRage.ModAPI;
 using VRage.Utils;
 
-namespace Sandbox.Common.Components
+namespace VRage.Components
 {
     public class MyComponentContainer
     {
-        public Sandbox.ModAPI.IMyEntity Entity { get; private set; } //only temporary until the conversion to components is done
+        public IMyEntity Entity { get; private set; } //only temporary until the conversion to components is done
+
         public event Action<Type, MyComponentBase> ComponentAdded;
         public event Action<Type, MyComponentBase> ComponentRemoved;
 
         private Dictionary<Type, MyComponentBase> m_components = new Dictionary<Type, MyComponentBase>();
 
-		private static List<MyComponentBase> m_tmpComponentList = new List<MyComponentBase>();
-
-        public MyComponentContainer(Sandbox.ModAPI.IMyEntity entity)
+        public MyComponentContainer(IMyEntity entity)
         {
             Entity = entity;
         }
 
         public void Add<T>(MyComponentBase component) where T : MyComponentBase
         {
-#if DEBUG
-            using (Stats.Generic.Measure("ComponentContainer.Add", VRage.Stats.MyStatTypeEnum.Counter, 1000, numDecimals: 3))
-            using (Stats.Generic.Measure("ComponentContainer.AddMs", VRage.Stats.MyStatTypeEnum.Max, 1000, numDecimals: 3))
-#endif
+//#if DEBUG
+//            using (Stats.Generic.Measure("ComponentContainer.Add", VRage.Stats.MyStatTypeEnum.Counter, 1000, numDecimals: 3))
+//            using (Stats.Generic.Measure("ComponentContainer.AddMs", VRage.Stats.MyStatTypeEnum.Max, 1000, numDecimals: 3))
+//#endif
             {
                 Type t = typeof(T);
                 Remove<T>();
@@ -42,10 +42,10 @@ namespace Sandbox.Common.Components
 
         public void Remove<T>() where T : MyComponentBase
         {
-#if DEBUG
-            using (Stats.Generic.Measure("ComponentContainer.Remove", VRage.Stats.MyStatTypeEnum.Counter, 1000, numDecimals: 3))
-            using (Stats.Generic.Measure("ComponentContainer.RemoveMs", VRage.Stats.MyStatTypeEnum.Max, 1000, numDecimals: 3))
-#endif
+//#if DEBUG
+//            using (Stats.Generic.Measure("ComponentContainer.Remove", VRage.Stats.MyStatTypeEnum.Counter, 1000, numDecimals: 3))
+//            using (Stats.Generic.Measure("ComponentContainer.RemoveMs", VRage.Stats.MyStatTypeEnum.Max, 1000, numDecimals: 3))
+//#endif
             {
                 Type t = typeof(T);
                 MyComponentBase c;
@@ -61,10 +61,10 @@ namespace Sandbox.Common.Components
 
         public T Get<T>() where T : MyComponentBase
         {
-#if DEBUG
-            using (Stats.Generic.Measure("ComponentContainer.Get", VRage.Stats.MyStatTypeEnum.Counter, 1000, numDecimals: 3))
-            using (Stats.Generic.Measure("ComponentContainer.GetMs", VRage.Stats.MyStatTypeEnum.Max, 1000, numDecimals: 3))
-#endif
+//#if DEBUG
+//            using (Stats.Generic.Measure("ComponentContainer.Get", VRage.Stats.MyStatTypeEnum.Counter, 1000, numDecimals: 3))
+//            using (Stats.Generic.Measure("ComponentContainer.GetMs", VRage.Stats.MyStatTypeEnum.Max, 1000, numDecimals: 3))
+//#endif
             {
                 MyComponentBase c;
                 m_components.TryGetValue(typeof(T), out c);
@@ -97,27 +97,31 @@ namespace Sandbox.Common.Components
 
 		public void Clear()
 		{
-			try
-			{
-				foreach(var component in m_components)
-				{
-					m_tmpComponentList.Add(component.Value);
-				}
-				m_components.Clear();
+            if (m_components.Count > 0)
+            {
+                var tmpComponentList = new List<MyComponentBase>();
 
-				foreach(var component in m_tmpComponentList)
-				{
-					component.OnRemovedFromContainer(this);
-					var handle = ComponentRemoved;
-					if (handle != null) handle(component.GetType(), component);
-				}
-				
-			}
-			finally
-			{
-				m_tmpComponentList.Clear();
-			}
-			
+                try
+                {
+                    foreach (var component in m_components)
+                    {
+                        tmpComponentList.Add(component.Value);
+                    }
+                    m_components.Clear();
+
+                    foreach (var component in tmpComponentList)
+                    {
+                        component.OnRemovedFromContainer(this);
+                        var handle = ComponentRemoved;
+                        if (handle != null) handle(component.GetType(), component);
+                    }
+
+                }
+                finally
+                {
+                    tmpComponentList.Clear();
+                }
+            }
 		}
 	}
 }

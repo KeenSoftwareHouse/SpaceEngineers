@@ -117,18 +117,10 @@
     <Compile Include="AI\MyPeasantBotActionProxy.cs" />
     <Compile Include="Components\IMyNamedComponent.cs" />
     <Compile Include="Components\IMyUserInputComponent.cs" />
-    <Compile Include="Components\MyComponentContainer.cs" />
-    <Compile Include="Components\MyComponentBase.cs" />
-    <Compile Include="Components\MyDebugRenderComponentBase.cs" />
     <Compile Include="Components\MyGameLogicComponent.cs" />
-    <Compile Include="Components\MyHierarchyComponentBase.cs" />
     <Compile Include="Components\MyIngameScript.cs" />
-    <Compile Include="Components\MyPhysicsComponentBase.cs" />
-    <Compile Include="Components\MyPositionComponentBase.cs" />
-    <Compile Include="Components\MyRenderComponentBase.cs" />
     <Compile Include="Components\MySessionComponentBase.cs" />
     <Compile Include="Components\MySessionComponentMapping.cs" />
-    <Compile Include="Components\MySyncComponentBase.cs" />
     <Compile Include="ModAPI\IMyCamera.cs" />
     <Compile Include="ModAPI\IMyConfig.cs" />
     <Compile Include="ModAPI\IMyGps.cs" />
@@ -148,7 +140,6 @@
     <Compile Include="ModAPI\IMyCubeBuilder.cs" />
     <Compile Include="ModAPI\IMyCubeGrid.cs" />
     <Compile Include="ModAPI\IMyEntities.cs" />
-    <Compile Include="ModAPI\IMyEntity.cs" />
     <Compile Include="ModAPI\IMyFaction.cs" />
     <Compile Include="ModAPI\IMyFactionCollection.cs" />
     <Compile Include="ModAPI\IMyFloatingObject.cs" />
@@ -280,11 +271,8 @@
     <Compile Include="MyAbstractXmlSerializer.cs" />
     <Compile Include="MyDefinitionErrors.cs" />
     <Compile Include="MyEngineConstants.cs" />
-    <Compile Include="MyEntityUpdateEnum.cs" />
     <Compile Include="MyEnums.cs" />
     <Compile Include="MyFinalBuildConstants.cs" />
-    <Compile Include="Math\MyMath.cs" />
-    <Compile Include="MyObjectFactory.cs" />
     <Compile Include="MyMultiplayerWorldData.cs" />
     <Compile Include="Math\MyCuboid.cs" />
     <Compile Include="MyPlayerInfo.cs" />
@@ -474,7 +462,6 @@
     <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_WeaponItemDefinition.cs" />
     <Compile Include="ObjectBuilders\Gui\MyObjectBuilder_GuiCubeBlockCategories.cs" />
     <Compile Include="ObjectBuilders\MyObjectBuilder_Encounters.cs" />
-    <Compile Include="ObjectBuilders\MyObjectBuilderSerializer.cs" />
     <Compile Include="ObjectBuilders\MyObjectBuilder_ButtonPanel.cs" />
     <Compile Include="ObjectBuilders\MyObjectBuilder_CameraBlock.cs" />
     <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_CompositeBlueprintDefinition.cs" />
@@ -521,7 +508,6 @@
     <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_SpawnGroupDefinition.cs" />
     <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_GlobalEventDefinition.cs" />
     <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_VirtualMassDefinition.cs" />
-    <Compile Include="ObjectBuilders\IMyRemapHelper.cs" />
     <Compile Include="ObjectBuilders\MyObjectBuilder_AutopilotBase.cs" />
     <Compile Include="ObjectBuilders\MyObjectBuilder_BlockGroup.cs" />
     <Compile Include="ObjectBuilders\MyObjectBuilder_Collector.cs" />
@@ -568,7 +554,6 @@
     <Compile Include="ObjectBuilders\MyObjectBuilder_VirtualMass.cs" />
     <Compile Include="ObjectBuilders\MyObjectBuilder_Warhead.cs" />
     <Compile Include="ObjectBuilders\Definitions\MyBlockPosition.cs" />
-    <Compile Include="ObjectBuilders\Definitions\SerializableDefinitionId.cs" />
     <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_BlueprintDefinition.cs" />
     <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_MotorStatorDefinition.cs" />
     <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_VoxelMaterialDefinition.cs" />
@@ -576,7 +561,6 @@
     <Compile Include="ObjectBuilders\Gui\MyObjectBuilder_GuiControlGrid.cs" />
     <Compile Include="ObjectBuilders\Gui\MyObjectBuilder_GuiControlRadioButton.cs" />
     <Compile Include="ObjectBuilders\Gui\MyObjectBuilder_GuiControlSeparatorList.cs" />
-    <Compile Include="ObjectBuilders\MyBaseStructs.cs" />
     <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_AmmoMagazineDefinition.cs" />
     <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_AssemblerDefinition.cs" />
     <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_ComponentDefinition.cs" />
@@ -605,16 +589,11 @@
     <Compile Include="ObjectBuilders\MyObjectBuilder_DeviceBase.cs" />
     <Compile Include="ObjectBuilders\MyObjectBuilder_Wheel.cs" />
     <Compile Include="ObjectBuilders\MyObjectBuilder_World.cs" />
-    <Compile Include="ObjectBuilders\MyObjectBuilderType.cs" />
     <Compile Include="ObjectBuilders\MyObjectBuilder_SessionSettings.cs" />
     <Compile Include="ObjectBuilders\MyObjectBuilder_ShipWelder.cs" />
     <Compile Include="ObjectBuilders\MyObjectBuilder_ToolbarItemVoxelHand.cs" />
     <Compile Include="ObjectBuilders\VRageData\GameRelationAttribute.cs" />
-    <Compile Include="ObjectBuilders\VRageData\SerializableBoundingBoxD.cs" />
-    <Compile Include="ObjectBuilders\VRageData\SerializableVector3D.cs" />
     <Compile Include="ObjectBuilders\VRageData\SerializableBlockOrientation.cs" />
-    <Compile Include="ObjectBuilders\VRageData\SerializableBounds.cs" />
-    <Compile Include="ObjectBuilders\VRageData\SerializableVector2I.cs" />
     <Compile Include="ObjectBuilders\MyObjectBuilder_TransparentMaterial.cs" />
     <Compile Include="ObjectBuilders\MyObjectBuilder_Welder.cs" />
     <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_CargoContainerDefinition.cs" />
@@ -669,18 +648,9 @@
     <Compile Include="ObjectBuilders\MyObjectBuilder_Sector.cs" />
     <Compile Include="ObjectBuilders\MyObjectBuilder_Checkpoint.cs" />
     <Compile Include="ObjectBuilders\MyObjectBuilder_CubeGrid.cs" />
-    <Compile Include="ObjectBuilders\MyObjectBuilder_EntityBase.cs" />
-    <Compile Include="ObjectBuilders\MyObjectBuilder_Base.cs" />
     <Compile Include="ObjectBuilders\MyObjectbuilder_Ore.cs" />
     <Compile Include="ObjectBuilders\Voxels\MyObjectBuilder_VoxelMap.cs" />
     <Compile Include="ObjectBuilders\MyObjectBuilder_TransparentMaterials.cs" />
-    <Compile Include="ObjectBuilders\VRageData\SerializableQuaternion.cs" />
-    <Compile Include="ObjectBuilders\VRageData\SerializableVector2.cs" />
-    <Compile Include="ObjectBuilders\VRageData\SerializableVector3.cs" />
-    <Compile Include="ObjectBuilders\VRageData\SerializableVector3I.cs" />
-    <Compile Include="ObjectBuilders\VRageData\SerializableVector3UByte.cs" />
-    <Compile Include="Physics\MyPhysicsForceType.cs" />
-    <Compile Include="Physics\MyRigidBodyDefs.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="utils\MyEntityIdentifier.cs" />
   </ItemGroup>
@@ -717,6 +687,10 @@
     </BootstrapperPackage>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\VRage.Game\VRage.Game.csproj">
+      <Project>{4539b5f0-3316-40e6-b032-9fbcafaac5be}</Project>
+      <Name>VRage.Game</Name>
+    </ProjectReference>
     <ProjectReference Include="..\VRage.Library\VRage.Library.csproj">
       <Project>{26fe022e-42ab-40be-ba9d-97cbe34e7d99}</Project>
       <Name>VRage.Library</Name>

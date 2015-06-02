@@ -1,4 +1,5 @@
 ﻿using ProtoBuf;
+using VRage.ObjectBuilders;
 
 namespace Sandbox.Common.ObjectBuilders.Definitions
 {

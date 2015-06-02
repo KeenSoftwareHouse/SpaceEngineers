@@ -8,6 +8,8 @@ using System.Linq;
 using System.Text;
 using System.Xml.Serialization;
 using VRageMath;
+using VRage.ObjectBuilders;
+using VRage;
 
 namespace Sandbox.Common.ObjectBuilders
 {    

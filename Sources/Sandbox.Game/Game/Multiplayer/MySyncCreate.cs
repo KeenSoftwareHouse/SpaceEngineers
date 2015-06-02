@@ -1,6 +1,5 @@
 ﻿using ProtoBuf;
 using Sandbox.Common.ObjectBuilders;
-using Sandbox.Common.ObjectBuilders.Serializer;
 using Sandbox.Common.ObjectBuilders.VRageData;
 using Sandbox.Definitions;
 using Sandbox.Engine.Multiplayer;
@@ -13,6 +12,8 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
+using VRage;
+using VRage.ObjectBuilders;
 using VRageMath;
 
 namespace Sandbox.Game.Multiplayer
@@ -130,7 +131,7 @@ namespace Sandbox.Game.Multiplayer
                 MemoryStream stream = new MemoryStream(msg.ObjectBuilders, bytesOffset, msg.BuilderLengths[i]);
 
                 MyObjectBuilder_EntityBase entity;
-                if (Sandbox.Common.ObjectBuilders.Serializer.MyObjectBuilderSerializer.DeserializeGZippedXML(stream, out entity))
+                if (MyObjectBuilderSerializer.DeserializeGZippedXML(stream, out entity))
                 {
                     Debug.Assert(entity != null);
                     if (entity != null)
@@ -155,7 +156,7 @@ namespace Sandbox.Game.Multiplayer
                 MemoryStream stream = new MemoryStream(msg.CreateMessage.ObjectBuilders, bytesOffset, msg.CreateMessage.BuilderLengths[i]);
 
                 MyObjectBuilder_EntityBase entity;
-                if (Sandbox.Common.ObjectBuilders.Serializer.MyObjectBuilderSerializer.DeserializeGZippedXML(stream, out entity))
+                if (MyObjectBuilderSerializer.DeserializeGZippedXML(stream, out entity))
                 {
                     MySandboxGame.Log.WriteLine("CreateRelativeCompressedMsg: " + msg.CreateMessage.ObjectBuilders.GetType().Name.ToString() + " EntityID: " + entity.EntityId.ToString("X8"));
 
@@ -192,7 +193,7 @@ namespace Sandbox.Game.Multiplayer
             var msg = new CreateCompressedMsg();
 
             MemoryStream stream = new MemoryStream();
-            Sandbox.Common.ObjectBuilders.Serializer.MyObjectBuilderSerializer.SerializeXML(stream, (MyObjectBuilder_Base)entity, Sandbox.Common.ObjectBuilders.Serializer.MyObjectBuilderSerializer.XmlCompression.Gzip, typeof(MyObjectBuilder_EntityBase));
+            MyObjectBuilderSerializer.SerializeXML(stream, (MyObjectBuilder_Base)entity, MyObjectBuilderSerializer.XmlCompression.Gzip, typeof(MyObjectBuilder_EntityBase));
 
             Debug.Assert(stream.Length <= int.MaxValue);
             if (stream.Length > int.MaxValue)
@@ -215,7 +216,7 @@ namespace Sandbox.Game.Multiplayer
             MemoryStream stream = new MemoryStream();
             Matrix relativeMatrix = entity.PositionAndOrientation.Value.GetMatrix() * baseEntity.PositionComp.WorldMatrixNormalizedInv;
             entity.PositionAndOrientation = new MyPositionAndOrientation(relativeMatrix);
-            Sandbox.Common.ObjectBuilders.Serializer.MyObjectBuilderSerializer.SerializeXML(stream, (MyObjectBuilder_Base)entity, Sandbox.Common.ObjectBuilders.Serializer.MyObjectBuilderSerializer.XmlCompression.Gzip, typeof(MyObjectBuilder_EntityBase));
+            MyObjectBuilderSerializer.SerializeXML(stream, (MyObjectBuilder_Base)entity, MyObjectBuilderSerializer.XmlCompression.Gzip, typeof(MyObjectBuilder_EntityBase));
 
             Debug.Assert(stream.Length <= int.MaxValue);
             if (stream.Length > int.MaxValue)
@@ -244,7 +245,7 @@ namespace Sandbox.Game.Multiplayer
             long byteOffset = 0;
             foreach (var entity in entities)
             {
-                Sandbox.Common.ObjectBuilders.Serializer.MyObjectBuilderSerializer.SerializeXML(stream, (MyObjectBuilder_Base)entity, Sandbox.Common.ObjectBuilders.Serializer.MyObjectBuilderSerializer.XmlCompression.Gzip, typeof(MyObjectBuilder_EntityBase));
+                MyObjectBuilderSerializer.SerializeXML(stream, (MyObjectBuilder_Base)entity, MyObjectBuilderSerializer.XmlCompression.Gzip, typeof(MyObjectBuilder_EntityBase));
 
                 Debug.Assert(stream.Length <= int.MaxValue);
                 if (stream.Length > int.MaxValue)
@@ -338,7 +339,7 @@ namespace Sandbox.Game.Multiplayer
                 MemoryStream stream = new MemoryStream(msg.ObjectBuilders, bytesOffset, msg.BuilderLengths[i]);
 
                 MyObjectBuilder_EntityBase entity;
-                if (Sandbox.Common.ObjectBuilders.Serializer.MyObjectBuilderSerializer.DeserializeGZippedXML(stream, out entity))
+                if (MyObjectBuilderSerializer.DeserializeGZippedXML(stream, out entity))
                 {
                     MySandboxGame.Log.WriteLine("CreateCompressedMsg: " + msg.ObjectBuilders.GetType().Name.ToString() + " EntityID: " + entity.EntityId.ToString("X8"));
                     if (i == 0)

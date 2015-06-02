@@ -1,9 +1,8 @@
 ﻿using ProtoBuf;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+using VRage.ObjectBuilders;
 using VRageMath;
+using VRage.ObjectBuilders;
+using System.Collections.Generic;
 
 namespace Sandbox.Common.ObjectBuilders
 {
@@ -12,7 +11,7 @@ namespace Sandbox.Common.ObjectBuilders
     public class MyObjectBuilder_BlockGroup : MyObjectBuilder_Base
     {
         [ProtoMember]
-        public String Name;
+        public string Name;
 
         [ProtoMember]
         public List<Vector3I> Blocks = new List<Vector3I>();

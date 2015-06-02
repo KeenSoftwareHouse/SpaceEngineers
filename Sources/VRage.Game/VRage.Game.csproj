@@ -18,7 +18,7 @@
     <OutputPath>bin\x64\Debug\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <DebugType>full</DebugType>
-    <PlatformTarget>x64</PlatformTarget>
+    <PlatformTarget>AnyCPU</PlatformTarget>
     <ErrorReport>prompt</ErrorReport>
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
@@ -36,9 +36,10 @@
     <OutputPath>bin\x86\Debug\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <DebugType>full</DebugType>
-    <PlatformTarget>x86</PlatformTarget>
+    <PlatformTarget>AnyCPU</PlatformTarget>
     <ErrorReport>prompt</ErrorReport>
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <GenerateSerializationAssemblies>On</GenerateSerializationAssemblies>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x86'">
     <OutputPath>bin\x86\Release\</OutputPath>
@@ -59,22 +60,55 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Components\MyComponentBase.cs" />
+    <Compile Include="Components\MyComponentContainer.cs" />
+    <Compile Include="Components\MyDebugRenderComponentBase.cs" />
+    <Compile Include="Components\MyHierarchyComponentBase.cs" />
+    <Compile Include="Components\MyPhysicsComponentBase.cs" />
+    <Compile Include="Components\MyPositionComponentBase.cs" />
+    <Compile Include="Components\MyRenderComponentBase.cs" />
+    <Compile Include="Components\MySyncComponentBase.cs" />
+    <Compile Include="Entity\MyBaseStructs.cs" />
+    <Compile Include="ModAPI\IMyEntity.cs" />
+    <Compile Include="Entity\IMyRemapHelper.cs" />
+    <Compile Include="ObjectBuilder\MyObjectBuilderSerializer.cs" />
+    <Compile Include="ObjectBuilder\MyObjectBuilderType.cs" />
+    <Compile Include="ObjectBuilder\MyObjectFactory.cs" />
+    <Compile Include="ObjectBuilder\MyObjectBuilder_Base.cs" />
+    <Compile Include="ObjectBuilder\MyObjectBuilder_EntityBase.cs" />
+    <Compile Include="ObjectBuilder\SerializableDefinitionId.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Character\" />
-    <Folder Include="Entity\" />
     <Folder Include="Grid\" />
     <Folder Include="Inventory\" />
-    <Folder Include="ObjectBuilder\" />
     <Folder Include="VoxelMap\" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\VRage.Library\VRage.Library.csproj">
+      <Project>{26fe022e-42ab-40be-ba9d-97cbe34e7d99}</Project>
+      <Name>VRage.Library</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\VRage.Math\VRage.Math.csproj">
+      <Project>{40ce67d5-c89f-4a56-ae52-85db1bea07fe}</Project>
+      <Name>VRage.Math</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\VRage\VRage.csproj">
+      <Project>{1c814936-c9a7-4faf-b543-28f021d98b6c}</Project>
+      <Name>VRage</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
-       Other similar extension points exist, see Microsoft.Common.targets.
+       Other similar extension points exist, see Microsoft.Common.targets.  -->
   <Target Name="BeforeBuild">
   </Target>
-  <Target Name="AfterBuild">
+  <Target Name="AfterBuild" DependsOnTargets="AssignTargetPaths;Compile;ResolveKeySource" Inputs="$(MSBuildAllProjects);@(IntermediateAssembly)" Outputs="$(OutputPath)$(_SGenDllName)">
+    <!-- Delete the file because I can't figure out how to force the SGen task. -->
+    
+    <SGen BuildAssemblyName="$(TargetFileName)" BuildAssemblyPath="$(OutputPath)" References="@(ReferencePath)" ShouldGenerateSerializer="true" UseProxyTypes="false" KeyContainer="$(KeyContainerName)" KeyFile="$(KeyOriginatorFile)" DelaySign="$(DelaySign)" ToolPath="$(TargetFrameworkSDKToolsDirectory)" Platform="AnyCPU">
+      <Output TaskParameter="SerializationAssembly" ItemName="SerializationAssembly" />
+    </SGen>
   </Target>
-  -->
 </Project>

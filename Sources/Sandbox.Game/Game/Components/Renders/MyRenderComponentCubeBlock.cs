@@ -7,6 +7,7 @@ using Sandbox.Game.Entities;
 using Sandbox.Engine.Utils;
 using VRageRender;
 using System.Diagnostics;
+using VRage.Components;
 
 namespace Sandbox.Game.Components
 {
