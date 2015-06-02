@@ -42,7 +42,7 @@ namespace Sandbox.Game.Entities
     using VRage.ModAPI;
 
     [MyCubeBlockType(typeof(MyObjectBuilder_Thrust))]
-    class MyThrust : MyFunctionalBlock, IMyThrust
+    public class MyThrust : MyFunctionalBlock, IMyThrust
     {
         public struct FlameInfo
         {

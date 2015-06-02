@@ -17,7 +17,7 @@ using VRage;
 namespace Sandbox.Game.Multiplayer
 {
     [PreloadRequired]
-    class MySyncShipController : MySyncControllableEntity
+    public class MySyncShipController : MySyncControllableEntity
     {
         [MessageIdAttribute(2480, P2PMessageEnum.Reliable)]
         protected struct UpdatePilotRelativeEntryMsg : IEntityMessage

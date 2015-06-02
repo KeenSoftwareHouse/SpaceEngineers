@@ -674,7 +674,6 @@
     <Compile Include="Game\Screens\MyJoinGameHelper.cs" />
     <Compile Include="Game\Screens\MyGuiScreenCreateOrEditFaction.cs" />
     <Compile Include="Game\Screens\MyLoadingException.cs" />
-    <Compile Include="Game\Screens\Helpers\MySpaceControlMenuInitializer.cs" />
     <Compile Include="Game\Screens\Terminal\Controls\ITerminalValueControl.cs" />
     <Compile Include="Game\Screens\Terminal\Controls\MyTerminalControlCombobox.cs" />
     <Compile Include="Game\Screens\Terminal\Controls\MyTerminalValueControl.cs" />
@@ -859,7 +858,6 @@
     <Compile Include="Game\Entities\Blocks\MyMotorStator.cs" />
     <Compile Include="Game\Entities\MyFloatingObjects.cs" />
     <Compile Include="Game\Entities\Blocks\MyBeacon.cs" />
-    <Compile Include="Game\Entities\Cube\MyUseObjectInventory.cs" />
     <Compile Include="Game\Entities\Cube\MyUseObjectTerminal.cs" />
     <Compile Include="Game\Entities\Cube\MyEdgeInfo.cs" />
     <Compile Include="Game\Entities\Blocks\MyAssembler.cs" />

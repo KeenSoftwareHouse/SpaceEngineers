@@ -26,7 +26,7 @@ using VRage.ModAPI;
 namespace Sandbox.Game.Entities
 {
     [MyCubeBlockType(typeof(MyObjectBuilder_Gyro))]
-    class MyGyro : MyFunctionalBlock, IMyGyro
+    public class MyGyro : MyFunctionalBlock, IMyGyro
     {
         private MyGyroDefinition m_gyroDefinition;
         private int m_oldEmissiveState = -1;

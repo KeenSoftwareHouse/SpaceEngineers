@@ -1,5 +1,7 @@
 ﻿
 using Sandbox.Engine.Utils;
+using Sandbox.Game;
+using Sandbox.Game.Entities;
 using Sandbox.Game.Entities.Character;
 using Sandbox.Game.Gui;
 using Sandbox.Game.Localization;
@@ -9,7 +11,7 @@ using VRage.Input;
 using VRage.ModAPI;
 using VRageMath;
 
-namespace Sandbox.Game.Entities.Cube
+namespace SpaceEngineers.Game.Entities.UseObjects
 {
     [MyUseObject("inventory")]
     [MyUseObject("conveyor")]
@@ -61,7 +63,7 @@ namespace Sandbox.Game.Entities.Cube
         {
             var user = entity as MyCharacter;
             var relation = Block.GetUserRelationToOwner(user.ControllerInfo.ControllingIdentityId);
-            if (relation != Common.MyRelationsBetweenPlayerAndBlock.Owner && relation != Common.MyRelationsBetweenPlayerAndBlock.FactionShare)
+            if (relation != Sandbox.Common.MyRelationsBetweenPlayerAndBlock.Owner && relation != Sandbox.Common.MyRelationsBetweenPlayerAndBlock.FactionShare)
             {
                 if (user.ControllerInfo.IsLocallyHumanControlled())
                 {

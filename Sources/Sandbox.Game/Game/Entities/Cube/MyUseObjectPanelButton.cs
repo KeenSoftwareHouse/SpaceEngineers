@@ -17,7 +17,7 @@ using VRageMath;
 namespace Sandbox.Game.Entities.Cube
 {
     [MyUseObject("panel")]
-    class MyUseObjectPanelButton : IMyUseObject
+    public class MyUseObjectPanelButton : IMyUseObject
     {
         private readonly MyButtonPanel m_buttonPanel;
         private readonly Matrix m_localMatrix;

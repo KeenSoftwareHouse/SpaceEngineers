@@ -16,7 +16,7 @@ using VRage.Components;
 
 namespace Sandbox.Game.GameSystems
 {
-    class MyGridGyroSystem : IMyPowerConsumer
+    public class MyGridGyroSystem : IMyPowerConsumer
     {
         // Rotation limiter, larger number, more limited max rotation
         static readonly float INV_TENSOR_MAX_LIMIT = 125000;

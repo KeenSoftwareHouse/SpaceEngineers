@@ -29,7 +29,7 @@ using VRage.ModAPI;
 namespace Sandbox.Game.Entities
 {
     [MyCubeBlockType(typeof(MyObjectBuilder_Door))]
-    class MyDoor : MyFunctionalBlock, IMyPowerConsumer, ModAPI.IMyDoor
+    public class MyDoor : MyFunctionalBlock, IMyPowerConsumer, ModAPI.IMyDoor
     {
         private const float CLOSED_DISSASEMBLE_RATIO = 3.3f;
 

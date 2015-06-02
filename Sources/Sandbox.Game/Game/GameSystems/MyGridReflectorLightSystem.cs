@@ -13,7 +13,7 @@ using VRage;
 
 namespace Sandbox.Game.GameSystems
 {
-    class MyGridReflectorLightSystem
+    public class MyGridReflectorLightSystem
     {
         HashSet<MyReflectorLight> m_reflectors;
 

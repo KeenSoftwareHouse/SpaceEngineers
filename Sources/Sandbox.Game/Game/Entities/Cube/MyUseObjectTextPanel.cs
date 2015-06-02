@@ -12,7 +12,7 @@ using VRageMath;
 namespace Sandbox.Game.Entities.Cube
 {
     [MyUseObject("textpanel")]
-    class MyUseObjectTextPanel : IMyUseObject
+    public class MyUseObjectTextPanel : IMyUseObject
     {
         private MyTextPanel m_textPanel;
         private Matrix m_localMatrix;

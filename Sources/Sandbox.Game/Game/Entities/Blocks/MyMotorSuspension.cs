@@ -22,7 +22,7 @@ using VRageMath;
 namespace Sandbox.Game.Entities.Cube
 {
     [MyCubeBlockType(typeof(MyObjectBuilder_MotorSuspension))]
-    class MyMotorSuspension : MyMotorBase, IMyMotorSuspension
+    public class MyMotorSuspension : MyMotorBase, IMyMotorSuspension
     {
         private bool m_wasSteering;
         private const float m_returnStep = 0.01f;

@@ -32,13 +32,13 @@ using VRage.ModAPI;
 
 namespace Sandbox.Game.Entities
 {
-    enum ControllerPriority
+    public enum ControllerPriority
     {
         AutoPilot = 1,
         Primary = 2,
         Secondary = 3
     };
-    partial class MyShipController : MyTerminalBlock, IMyControllableEntity, IMyRechargeSocketOwner, IMyShipController
+    public partial class MyShipController : MyTerminalBlock, IMyControllableEntity, IMyRechargeSocketOwner, IMyShipController
     {
         #region Fields
         public MyGridGyroSystem GridGyroSystem;

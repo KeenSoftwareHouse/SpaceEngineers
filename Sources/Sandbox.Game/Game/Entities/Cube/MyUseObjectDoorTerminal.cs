@@ -12,7 +12,7 @@ using VRageMath;
 
 namespace Sandbox.Game.Entities.Cube
 {
-    class MyUseObjectDoorTerminal: IMyUseObject
+    public class MyUseObjectDoorTerminal: IMyUseObject
     {
         public readonly MyDoor Door;
         public readonly Matrix LocalMatrix;

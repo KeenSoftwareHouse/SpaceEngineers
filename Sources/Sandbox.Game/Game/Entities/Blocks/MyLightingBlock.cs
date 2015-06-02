@@ -27,7 +27,7 @@ using VRage.ModAPI;
 
 namespace Sandbox.Game.Entities.Blocks
 {
-    abstract class MyLightingBlock : MyFunctionalBlock, IMyPowerConsumer, IMyLightingBlock
+    public abstract class MyLightingBlock : MyFunctionalBlock, IMyPowerConsumer, IMyLightingBlock
     {
         private const int NUM_DECIMALS = 1;
         private float m_blinkIntervalSeconds;

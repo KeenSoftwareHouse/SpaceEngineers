@@ -24,7 +24,7 @@ using VRageMath;
 
 namespace Sandbox.Game.Entities.Cube
 {
-    abstract class MyMotorBase : MyFunctionalBlock, IMyPowerConsumer
+    public abstract class MyMotorBase : MyFunctionalBlock, IMyPowerConsumer
     {
         private static List<HkRigidBody> m_penetrations = new List<HkRigidBody>();
         private const string ROTOR_DUMMY_KEY = "electric_motor";
