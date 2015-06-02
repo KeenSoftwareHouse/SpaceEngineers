@@ -21,6 +21,7 @@ using Sandbox.ModAPI.Ingame;
 using Sandbox.Game.Localization;
 using VRage;
 using VRage.Utils;
+using VRage.ModAPI;
 
 #endregion
 
@@ -199,7 +200,7 @@ namespace Sandbox.Game.Entities.Cube
 
             ShowOnHUD = false;
 
-            NeedsUpdate = Common.MyEntityUpdateEnum.EACH_10TH_FRAME;
+            NeedsUpdate = MyEntityUpdateEnum.EACH_10TH_FRAME;
         }
 
         public override MyObjectBuilder_CubeBlock GetObjectBuilderCubeBlock(bool copy = false)

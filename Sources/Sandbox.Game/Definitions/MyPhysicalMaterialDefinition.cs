@@ -26,6 +26,7 @@ namespace Sandbox.Definitions
         public Dictionary<MyStringId, Dictionary<MyStringId, MySoundPair>> CollisionSounds = new Dictionary<MyStringId, Dictionary<MyStringId, MySoundPair>>();
         public Dictionary<MyStringId, MySoundPair> GeneralSounds = new Dictionary<MyStringId, MySoundPair>();
         public MyStringId InheritSoundsFrom = MyStringId.NullOrEmpty;
+        public string DamageDecal;
 
         protected override void Init(MyObjectBuilder_DefinitionBase builder)
         {
@@ -40,6 +41,7 @@ namespace Sandbox.Definitions
                 HorisontalFragility = materialBuilder.HorisontalFragility;
                 SupportMultiplier = materialBuilder.SupportMultiplier;
                 CollisionMultiplier = materialBuilder.CollisionMultiplier;
+                DamageDecal = materialBuilder.DamageDecal;
             }
             var soundBuilder = builder as MyObjectBuilder_MaterialSoundsDefinition;
             if(soundBuilder != null)

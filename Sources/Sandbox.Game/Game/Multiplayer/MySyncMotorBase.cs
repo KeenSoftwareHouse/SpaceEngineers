@@ -12,7 +12,7 @@ using System.Text;
 namespace Sandbox.Game.Multiplayer
 {
     [PreloadRequired]
-    class MySyncMotorBase : MySyncCubeBlock
+    public class MySyncMotorBase : MySyncCubeBlock
     {
         private MyMotorBase myMotorBase;
 

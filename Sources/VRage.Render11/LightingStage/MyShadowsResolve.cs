@@ -35,7 +35,7 @@ namespace VRageRender
                 MyGBuffer.Main.DepthStencil.m_SRV_stencil);
             RC.Context.ComputeShader.SetSampler(MyCommon.SHADOW_SAMPLER_SLOT, MyRender11.m_shadowmapSamplerState);
             RC.Context.ComputeShader.SetConstantBuffer(0, MyCommon.FrameConstants);
-            RC.Context.ComputeShader.SetConstantBuffer(2, MyShadows.m_csmConstants);
+            RC.Context.ComputeShader.SetConstantBuffer(4, MyShadows.m_csmConstants);
             RC.Context.ComputeShader.SetShaderResource(MyCommon.CASCADES_SM_SLOT, MyShadows.m_cascadeShadowmapArray.ShaderView);
 
             var kernel = ((Vector2)MyRender11.ViewportResolution + m_numthreads - 1) / m_numthreads;

@@ -17,7 +17,7 @@ namespace Sandbox.Game.GameSystems.Conveyors
     // |   o-->| Direction
     // |       |
     // '-------'
-    internal struct ConveyorLinePosition : IEquatable<ConveyorLinePosition>
+    public struct ConveyorLinePosition : IEquatable<ConveyorLinePosition>
     {
         public Vector3I LocalGridPosition;
 
@@ -86,7 +86,7 @@ namespace Sandbox.Game.GameSystems.Conveyors
         }
     }
 
-    struct ConveyorLineEnumerator : IEnumerator<MyConveyorLine>
+    public struct ConveyorLineEnumerator : IEnumerator<MyConveyorLine>
     {
         int index;
         private IMyConveyorEndpoint m_enumerated;
@@ -141,7 +141,7 @@ namespace Sandbox.Game.GameSystems.Conveyors
         }
     }
 
-    interface IMyConveyorEndpoint : IMyPathVertex<IMyConveyorEndpoint>
+    public interface IMyConveyorEndpoint : IMyPathVertex<IMyConveyorEndpoint>
     {
         /// <summary>
         /// Returns a connecting line for the given line position, or null, if no such line exists

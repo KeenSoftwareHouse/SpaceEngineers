@@ -1,28 +1,15 @@
-﻿using SharpDX;
-using SharpDX.Direct3D;
-using SharpDX.Direct3D11;
-using SharpDX.DXGI;
+﻿using SharpDX.Direct3D11;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using System.Text;
-using VRage.Generics;
-
+using VRage.Utils;
 using VRageMath;
 using VRageRender.Resources;
-using VRageRender.Vertex;
-using Buffer = SharpDX.Direct3D11.Buffer;
+using BoundingBox = VRageMath.BoundingBox;
 using Matrix = VRageMath.Matrix;
 using Vector3 = VRageMath.Vector3;
 using Vector4 = VRageMath.Vector4;
-using BoundingBox = VRageMath.BoundingBox;
-using BoundingFrustum = VRageMath.BoundingFrustum;
-using VRage.Collections;
-using System.Collections.Specialized;
-using System.Threading;
-using VRage.Library.Utils;
 
 
 namespace VRageRender
@@ -402,7 +389,7 @@ namespace VRageRender
                 //var instancing = m_owner.GetComponent(MyActorComponentEnum.Instancing) as MyInstancingComponent;
 
                 bool skinningEnabled = Skinnings.ContainsKey(entity);
-                var objectConstantsSize = sizeof(Matrix);
+                var objectConstantsSize = sizeof(MyObjectData);
 
                 if (skinningEnabled)
                 {
@@ -486,6 +473,8 @@ namespace VRageRender
         float m_objectDithering;
 
         internal int m_voxelLod;
+        internal Vector3 m_voxelScale;
+        internal Vector3 m_voxelOffset;
 
         //MyMesh m_mesh;
         MeshId Mesh;
@@ -508,6 +497,7 @@ namespace VRageRender
         bool m_lodBorder;
 
         bool m_isRenderedStandalone;
+        internal MyRenderableProxyFlags m_additionalFlags;
 
         internal Dictionary<MyEntityMaterialKey, MyModelProperties> ModelProperties;
 
@@ -563,6 +553,7 @@ namespace VRageRender
             m_lod = 0;
 
             m_voxelLod = -1;
+            m_additionalFlags = 0;
 
             ModelProperties = new Dictionary<MyEntityMaterialKey, MyModelProperties>();
         }
@@ -917,6 +908,8 @@ namespace VRageRender
                 lod.RenderableProxies[p].ObjectData.LocalMatrix = m_owner.WorldMatrix;
                 lod.RenderableProxies[p].ObjectData.Emissive = MyModelProperties.DefaultEmissivity;
                 lod.RenderableProxies[p].ObjectData.ColorMul = MyModelProperties.DefaultColorMul;
+                lod.RenderableProxies[p].ObjectData.VoxelScale = Vector3.One;
+                lod.RenderableProxies[p].ObjectData.VoxelOffset = Vector3.Zero;
 
                 lod.RenderableProxies[p].Mesh = lodMesh;
                 lod.RenderableProxies[p].DepthShaders = MyMaterialShaders.Get(
@@ -986,7 +979,7 @@ namespace VRageRender
                 lod.RenderableProxies[p].objectBuffer = MyCommon.GetObjectCB(objectConstantsSize);
                 lod.RenderableProxies[p].instanceCount = m_instanceCount;
                 lod.RenderableProxies[p].startInstance = m_startInstance;
-                lod.RenderableProxies[p].flags = MapTechniqueToRenderableFlags(technique);
+                lod.RenderableProxies[p].flags = MapTechniqueToRenderableFlags(technique) | m_additionalFlags;
                 lod.RenderableProxies[p].type = MapTechniqueToMaterialType(technique);
                 lod.RenderableProxies[p].Parent = this;
                 lod.RenderableProxies[p].Lod = lodNum;
@@ -1032,7 +1025,7 @@ namespace VRageRender
 
         internal unsafe void RebuildVoxelRenderProxies()
         {
-            var objectConstantsSize = sizeof(Matrix);
+            var objectConstantsSize = sizeof(MyObjectData);
 
             Debug.Assert(Mesh.Info.LodsNum == 1);
             m_lods = new MyRenderLod[1];
@@ -1064,6 +1057,8 @@ namespace VRageRender
                 var technique = partId.Info.MaterialTriple.IsMultimaterial() ? MyVoxelMesh.MULTI_MATERIAL_TAG : MyVoxelMesh.SINGLE_MATERIAL_TAG;
 
                 lod.RenderableProxies[p].ObjectData.LocalMatrix = m_owner.WorldMatrix;
+                lod.RenderableProxies[p].ObjectData.VoxelOffset = m_voxelOffset;
+                lod.RenderableProxies[p].ObjectData.VoxelScale = m_voxelScale;
 
                 lod.RenderableProxies[p].Mesh = lodMesh;
                 lod.RenderableProxies[p].DepthShaders = MyMaterialShaders.Get(
@@ -1100,7 +1095,7 @@ namespace VRageRender
                 lod.RenderableProxies[p].objectBuffer = MyCommon.GetObjectCB(objectConstantsSize);
                 lod.RenderableProxies[p].instanceCount = m_instanceCount;
                 lod.RenderableProxies[p].startInstance = m_startInstance;
-                lod.RenderableProxies[p].flags = MapTechniqueToRenderableFlags(technique);
+                lod.RenderableProxies[p].flags = MapTechniqueToRenderableFlags(technique) | m_additionalFlags;
                 lod.RenderableProxies[p].type = MapTechniqueToMaterialType(technique);
                 lod.RenderableProxies[p].Parent = this;
                 lod.RenderableProxies[p].Lod = 0;
@@ -1372,55 +1367,58 @@ namespace VRageRender
 
             var distance = CalculateViewerDistance();
 
-            if(m_lodTransitionState != 0)
+            if(distance.IsValid())
             {
-                float state = Math.Abs(distance - m_lodTransitionStartDistance) / m_lodTransitionVector;
-                state = (float)Math.Max(Math.Abs(m_lodTransitionState) + (float)MyRender11.TimeDelta.Seconds / LodTransitionTime, Math.Max(Math.Min(state, 1), 0));
-
-                m_lodTransitionState = Math.Sign(m_lodTransitionState) * state;
-
-                if(Math.Abs(m_lodTransitionState) > 1)
+                if (m_lodTransitionState != 0)
                 {
-                    m_lod = m_lodTransitionState > 0 ? m_lod + 1 : m_lod - 1;
-                    m_lodTransitionState = 0;
+                    float state = Math.Abs(distance - m_lodTransitionStartDistance) / (float)Math.Max(m_lodTransitionVector, 0.0001f);
+                    state = (float)Math.Max(Math.Abs(m_lodTransitionState) + (float)MyRender11.TimeDelta.Seconds / LodTransitionTime, Math.Max(Math.Min(state, 1), 0));
 
-                    SetProxiesForCurrentLod();
-                    SetLodShaders(m_lod, MyShaderUnifiedFlags.NONE);
-                }
+                    m_lodTransitionState = Math.Sign(m_lodTransitionState) * state;
 
-                UpdateProxiesCustomAlpha();
-            }
-            else
-            {
-                if(m_lodBorder)
-                {
-                    if (Math.Abs(distance - m_lods[m_lod].Distance) > GetLodTransitionBorder(m_lod))
+                    if (Math.Abs(m_lodTransitionState) > 1)
                     {
-                        m_lodBorder = false;
+                        m_lod = m_lodTransitionState > 0 ? m_lod + 1 : m_lod - 1;
+                        m_lodTransitionState = 0;
+
+                        SetProxiesForCurrentLod();
+                        SetLodShaders(m_lod, MyShaderUnifiedFlags.NONE);
                     }
+
+                    UpdateProxiesCustomAlpha();
                 }
                 else
                 {
-                    var lod = 0;
-                    for (int i = 0; i < m_lods.Length; i++)
+                    if (m_lodBorder)
                     {
-                        if (m_lods[i].Distance <= distance && ((i == m_lods.Length - 1) || distance < m_lods[i + 1].Distance))
+                        if (Math.Abs(distance - m_lods[m_lod].Distance) > GetLodTransitionBorder(m_lod))
                         {
-                            lod = i;
+                            m_lodBorder = false;
                         }
                     }
-
-                    if(lod != m_lod)
+                    else
                     {
-                        m_lodTransitionState = lod < m_lod ? -0.001f : 0.001f;
-                        m_lodTransitionStartDistance = distance;
-                        m_lodTransitionVector = GetLodTransitionBorder(m_lod) * 2;
-                        m_lodBorder = true;
+                        var lod = 0;
+                        for (int i = 0; i < m_lods.Length; i++)
+                        {
+                            if (m_lods[i].Distance <= distance && ((i == m_lods.Length - 1) || distance < m_lods[i + 1].Distance))
+                            {
+                                lod = i;
+                            }
+                        }
 
-                        SetProxiesForCurrentLod();
-                        UpdateProxiesCustomAlpha();
-                        SetLodShaders(m_lod, MyShaderUnifiedFlags.DITHERED);
-                        SetLodShaders(lod, MyShaderUnifiedFlags.DITHERED);
+                        if (lod != m_lod)
+                        {
+                            m_lodTransitionState = lod < m_lod ? -0.001f : 0.001f;
+                            m_lodTransitionStartDistance = distance;
+                            m_lodTransitionVector = GetLodTransitionBorder(m_lod) * 2;
+                            m_lodBorder = true;
+
+                            SetProxiesForCurrentLod();
+                            UpdateProxiesCustomAlpha();
+                            SetLodShaders(m_lod, MyShaderUnifiedFlags.DITHERED);
+                            SetLodShaders(lod, MyShaderUnifiedFlags.DITHERED);
+                        }
                     }
                 }
             }

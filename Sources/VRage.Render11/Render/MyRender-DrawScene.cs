@@ -72,7 +72,7 @@ namespace VRageRender
             MyEnvironment.InvViewAt0 = Matrix.Transpose(viewMatrixAt0);
             MyEnvironment.ViewProjectionAt0 = viewMatrixAt0 * complementaryProjection;
             MyEnvironment.InvViewProjectionAt0 = invProj * Matrix.Transpose(viewMatrixAt0);
-
+            message.CameraPosition.AssertIsValid();
             MyEnvironment.CameraPosition = message.CameraPosition;
             MyEnvironment.View = message.ViewMatrix;
             MyEnvironment.InvView = invView;
@@ -161,6 +161,7 @@ namespace VRageRender
 
             MyRender11.GetRenderProfiler().StartProfilingBlock("Render decals");
             MyGpuProfiler.IC_BeginBlock("Render decals");
+            MyRender11.CopyGbufferToScratch();
             MyScreenDecals.Draw();
             MyGpuProfiler.IC_EndBlock();
             MyRender11.GetRenderProfiler().EndProfilingBlock();

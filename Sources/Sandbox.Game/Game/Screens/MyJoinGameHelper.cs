@@ -177,6 +177,23 @@ namespace Sandbox.Game.Gui
             progress.ProgressCancelled += () => result.Cancel();
         }
 
+        public static void JoinScenarioGame(ulong lobbyId)
+        {
+            StringBuilder text = MyTexts.Get(MySpaceTexts.DialogTextJoiningBattleLobby);
+
+            MyGuiScreenProgress progress = new MyGuiScreenProgress(text, MySpaceTexts.Cancel);
+            MyGuiSandbox.AddScreen(progress);
+
+            progress.ProgressCancelled += () => MyGuiScreenMainMenu.ReturnToMainMenu();
+
+            MyLog.Default.WriteLine("Joining scenario lobby: " + lobbyId);
+
+            var result = MyMultiplayer.JoinLobby(lobbyId);
+            result.JoinDone += (joinResult, info, multiplayer) => OnJoinScenario(progress, joinResult, info, multiplayer);
+
+            progress.ProgressCancelled += () => result.Cancel();
+        }
+
         public static void OnJoin(MyGuiScreenProgress progress, Result joinResult, LobbyEnterInfo enterInfo, MyMultiplayerBase multiplayer)
         {
             // HACK: To hide multiplayer from ME
@@ -285,14 +302,11 @@ namespace Sandbox.Game.Gui
         {
             MyLog.Default.WriteLine(String.Format("Battle lobby join response: {0}, enter state: {1}", joinResult.ToString(), enterInfo.EnterState));
 
-            if (joinResult == Result.OK && enterInfo.EnterState == LobbyEnterResponseEnum.Success && multiplayer.GetOwner() != MySteam.UserId)
+            bool battleCanBeJoined = multiplayer.BattleCanBeJoined;
+            if (joinResult == Result.OK && enterInfo.EnterState == LobbyEnterResponseEnum.Success && multiplayer.GetOwner() != MySteam.UserId && battleCanBeJoined)
             {
                 // Create session with empty world
-                if (MySession.Static != null)
-                {
-                    MySession.Static.Unload();
-                    MySession.Static = null;
-                }
+                Debug.Assert(MySession.Static == null);
 
                 MySession.CreateWithEmptyWorld(multiplayer);
                 MySession.Static.Settings.Battle = true;
@@ -317,6 +331,51 @@ namespace Sandbox.Game.Gui
                 {
                     status = enterInfo.EnterState.ToString();
                 }
+                else if (!battleCanBeJoined)
+                {
+                    status = "Started battle cannot be joined";
+                }
+
+                OnJoinBattleFailed(progress, multiplayer, status);
+            }
+        }
+
+        public static void OnJoinScenario(MyGuiScreenProgress progress, Result joinResult, LobbyEnterInfo enterInfo, MyMultiplayerBase multiplayer)
+        {
+            MyLog.Default.WriteLine(String.Format("Lobby join response: {0}, enter state: {1}", joinResult.ToString(), enterInfo.EnterState));
+
+            if (joinResult == Result.OK && enterInfo.EnterState == LobbyEnterResponseEnum.Success && multiplayer.GetOwner() != MySteam.UserId)
+            {
+                // Create session with empty world
+                if (MySession.Static != null)
+                {
+                    MySession.Static.Unload();
+                    MySession.Static = null;
+                }
+
+                MySession.CreateWithEmptyWorld(multiplayer);
+                MySession.Static.Settings.Battle = true;
+
+                progress.CloseScreen();
+
+                MyLog.Default.WriteLine("Scenario lobby joined");
+
+                if (MyPerGameSettings.GUI.ScenarioLobbyClientScreen != null)
+                    MyGuiSandbox.AddScreen(MyGuiSandbox.CreateScreen(MyPerGameSettings.GUI.ScenarioLobbyClientScreen));
+                else
+                    Debug.Fail("No scenario lobby client screen");
+            }
+            else
+            {
+                string status = "ServerHasLeft";
+                if (joinResult != Result.OK)
+                {
+                    status = joinResult.ToString();
+                }
+                else if (enterInfo.EnterState != LobbyEnterResponseEnum.Success)
+                {
+                    status = enterInfo.EnterState.ToString();
+                }
 
                 OnJoinBattleFailed(progress, multiplayer, status);
             }
@@ -328,10 +387,12 @@ namespace Sandbox.Game.Gui
 
             MyGuiScreenProgress progress = new MyGuiScreenProgress(text, MySpaceTexts.Cancel);
             MyGuiSandbox.AddScreen(progress);
+            // Set focus to different control than Cancel button (because focused Cancel button can be unexpectedly pressed when sending a chat message - in case server has just started game).
+            progress.FocusedControl = progress.RotatingWheel;
 
             progress.ProgressCancelled += () =>
             {
-                MyGuiScreenMainMenu.ReturnToMainMenu();
+                MyGuiScreenMainMenu.UnloadAndExitToMenu();
             };
 
             DownloadWorld(progress, multiplayer);
@@ -353,10 +414,8 @@ namespace Sandbox.Game.Gui
 
         private static void OnJoinBattleFailed(MyGuiScreenProgress progress, MyMultiplayerBase multiplayer, string status)
         {
-            if (multiplayer != null)
-            {
-                multiplayer.Dispose();
-            }
+            MyGuiScreenMainMenu.UnloadAndExitToMenu();
+
             progress.Cancel();
             StringBuilder error = new StringBuilder();
             error.AppendFormat(MySpaceTexts.DialogTextJoinBattleLobbyFailed, status);

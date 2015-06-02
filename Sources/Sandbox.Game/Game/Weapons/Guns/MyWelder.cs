@@ -17,6 +17,7 @@ using System.Diagnostics;
 using System.Linq;
 using VRage.Input;
 using VRageMath;
+using VRage.ObjectBuilders;
 
 #endregion
 
@@ -68,7 +69,7 @@ namespace Sandbox.Game.Weapons
             SecondaryEffectId = MyParticleEffectsIDEnum.WelderSecondary;
             HasSecondaryEffect = false;
 
-            PhysicalObject = (MyObjectBuilder_PhysicalGunObject)Sandbox.Common.ObjectBuilders.Serializer.MyObjectBuilderSerializer.CreateNewObject(m_physicalItemId.TypeId, m_physicalItemId.SubtypeName);
+            PhysicalObject = (MyObjectBuilder_PhysicalGunObject)MyObjectBuilderSerializer.CreateNewObject(m_physicalItemId.TypeId, m_physicalItemId.SubtypeName);
         }
 
         public override void Init(MyObjectBuilder_EntityBase objectBuilder)
@@ -272,7 +273,7 @@ namespace Sandbox.Game.Weapons
                         }
                         else
                         {
-                            MyCubePlacer.OnMissingComponents(info.hitCube.BlockDefinition);
+                            MyBlockPlacerBase.OnMissingComponents(info.hitCube.BlockDefinition);
                         }
                     }
                 }

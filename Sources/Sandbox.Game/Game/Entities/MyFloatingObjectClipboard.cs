@@ -18,6 +18,9 @@ using VRageMath;
 using Sandbox.Game.GUI;
 using VRageRender;
 using Sandbox.Game.Entities.Cube;
+using VRage.ObjectBuilders;
+using VRage;
+using VRage.ModAPI;
 
 namespace Sandbox.Game.Entities
 {
@@ -67,6 +70,20 @@ namespace Sandbox.Game.Entities
         public List<MyFloatingObject> PreviewFloatingObjects
         {
             get { return m_previewFloatingObjects; }
+        }
+
+        bool m_enableStationRotation = false;
+        public bool EnableStationRotation
+        {
+            get
+            {
+                return m_enableStationRotation && MyFakes.ENABLE_STATION_ROTATION;
+            }
+
+            set
+            {
+                m_enableStationRotation = value;
+            }
         }
 
         public MyFloatingObjectClipboard(bool calculateVelocity = true)
@@ -303,7 +320,7 @@ namespace Sandbox.Game.Entities
                 floatingObject.NeedsUpdate = MyEntityUpdateEnum.NONE;
 
             foreach (var child in entity.Hierarchy.Children)
-                DisablePhysicsRecursively(child.Entity as MyEntity);
+                DisablePhysicsRecursively(child.Container.Entity as MyEntity);
         }
 
         public void Update()
@@ -347,7 +364,7 @@ namespace Sandbox.Game.Entities
                 MyPhysicsBody body = (MyPhysicsBody)hit.HkHitInfo.Body.UserObject;
                 if (body == null)
                     continue;
-                Sandbox.ModAPI.IMyEntity entity = body.Entity;
+                IMyEntity entity = body.Entity;
                 if (entity is MyVoxelMap || (entity is MyCubeGrid && entity.EntityId != m_previewFloatingObjects[0].EntityId))
                 {
                     float distSq = (float)(hit.Position - pasteMatrix.Translation).LengthSquared();
@@ -477,7 +494,7 @@ namespace Sandbox.Game.Entities
             if (entity != null)
             {
                 MyCubeGrid grid = entity as MyCubeGrid;
-                if (grid != null &&(!grid.IsStatic || MyFakes.ENABLE_STATION_ROTATION))
+                if (grid != null && (!grid.IsStatic || EnableStationRotation))
                 {
                     Vector3I gridSize = grid.Max - grid.Min + new Vector3I(1, 1, 1);
                     BoundingBoxD worldBox = new BoundingBoxD(-gridSize * grid.GridSize * 0.5f, gridSize * grid.GridSize * 0.5f);

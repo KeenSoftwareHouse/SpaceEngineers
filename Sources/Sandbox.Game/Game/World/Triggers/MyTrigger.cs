@@ -1,19 +1,19 @@
-﻿using Sandbox.Game.Entities.Character;
+﻿using Sandbox.Common.ObjectBuilders.Definitions;
+using Sandbox.Game.Entities.Character;
+using Sandbox.Game.Localization;
+using Sandbox.ModAPI;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using Sandbox.Common.ObjectBuilders.Definitions;
-using Sandbox.ModAPI;
-using VRage.Library.Utils;
-using Sandbox.Game.Localization;
+using VRage.Utils;
 
 namespace Sandbox.Game.World.Triggers
 {
     /*abstract*/ public class MyTrigger : ICloneable
     {
         protected bool m_IsTrue = false;
-        public bool IsTrue{get{return m_IsTrue;}}
+        public bool IsTrue{get{return m_IsTrue;} set{m_IsTrue=value;}}
 
         public string Message;
 
@@ -33,16 +33,10 @@ namespace Sandbox.Game.World.Triggers
         {
             return IsTrue;
         }
-        public virtual bool RaiseSignal(Signal signal, long? Id)
+        public virtual bool RaiseSignal(Signal signal)
         {
             return IsTrue;
         }
-
-        public void DisplayMessage(bool won)//"won" because trigger does not know if he is in winning or losing set
-        {
-            MyAPIGateway.Utilities.ShowNotification(Message, 3000, (won ? Sandbox.Common.MyFontEnum.Green : Sandbox.Common.MyFontEnum.Red));
-        }
-        
 
         //save/load
         public virtual void Init(MyObjectBuilder_Trigger ob)

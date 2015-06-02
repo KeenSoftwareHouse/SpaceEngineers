@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -13,15 +14,19 @@ namespace VRage.Network
         public abstract void Write(ref T value, BitStream s);
         public abstract bool Read(out T value, BitStream s);
 
-        private bool m_dirty;
-        public bool IsDirty { get { return m_dirty; } }
+        protected BitArray m_dirty = new BitArray(MyRakNetSyncLayer.MaxClients);
+        public bool IsDirty(int clientIndex)
+        {
+            Debug.Assert(clientIndex < m_dirty.Length);
+            return m_dirty[clientIndex];
+        }
 
         public bool IsDefault()
         {
             return m_value.Equals(default(T));
         }
 
-        private T m_value;
+        protected T m_value;
 
         private MySyncedClass m_parent;
 
@@ -33,7 +38,7 @@ namespace VRage.Network
 
         public void Invalidate()
         {
-            m_dirty = true;
+            m_dirty.SetAll(true);
             if (m_parent != null)
             {
                 m_parent.Invalidate();
@@ -79,21 +84,22 @@ namespace VRage.Network
             return m_value.GetHashCode();
         }
 
-        public void Serialize(BitStream bs)
+        public virtual void Serialize(BitStream bs, int clientIndex)
         {
             Debug.Assert(m_value != null);
             lock (this)
             {
-                bs.Write(m_dirty);
-                if (m_dirty)
+                var dirty = m_dirty[clientIndex];
+                bs.Write(dirty);
+                if (dirty)
                 {
                     Write(ref m_value, bs);
-                    m_dirty = false;
+                    m_dirty[clientIndex] = false;
                 }
             }
         }
 
-        public void Deserialize(BitStream bs)
+        public virtual void Deserialize(BitStream bs)
         {
             bool success;
 
@@ -111,7 +117,7 @@ namespace VRage.Network
             }
         }
 
-        public void SerializeDefault(BitStream bs)
+        public virtual void SerializeDefault(BitStream bs, int clientIndex = -1)
         {
             Debug.Assert(m_value != null);
             lock (this)
@@ -122,10 +128,20 @@ namespace VRage.Network
                 {
                     Write(ref m_value, bs);
                 }
+
+                if (clientIndex == -1)
+                {
+                    m_dirty.SetAll(false);
+                }
+                else
+                {
+                    Debug.Assert(clientIndex < m_dirty.Length);
+                    m_dirty[clientIndex] = false;
+                }
             }
         }
 
-        public void DeserializeDefault(BitStream bs)
+        public virtual void DeserializeDefault(BitStream bs)
         {
             bool success;
 

@@ -159,13 +159,19 @@ namespace Sandbox.Engine.Multiplayer
             set { m_viewDistance = value; }
         }
 
+        public override bool Scenario
+        {
+            get;
+            set;
+        }
+
         public override bool Battle
         {
             get;
             set;
         }
 
-        public override bool BattleStarted
+        public override bool BattleCanBeJoined
         {
             get;
             set;

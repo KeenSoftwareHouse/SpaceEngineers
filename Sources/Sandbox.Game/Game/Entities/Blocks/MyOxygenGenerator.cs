@@ -19,6 +19,7 @@ using System;
 using Sandbox.Engine.Multiplayer;
 using SteamSDK;
 using Sandbox.Engine.Utils;
+using VRage.ModAPI;
 
 namespace Sandbox.Game.Entities.Blocks
 {
@@ -185,7 +186,7 @@ namespace Sandbox.Game.Entities.Blocks
             InitializeConveyorEndpoint();
             m_useConveyorSystem = generatorBuilder.UseConveyorSystem;
 
-            NeedsUpdate = Common.MyEntityUpdateEnum.EACH_100TH_FRAME;
+            NeedsUpdate = MyEntityUpdateEnum.EACH_100TH_FRAME;
 
             m_inventory = new MyInventory(
                 BlockDefinition.InventoryMaxVolume,
@@ -287,7 +288,7 @@ namespace Sandbox.Game.Entities.Blocks
                 }
                 else if (m_soundEmitter.SoundId != BlockDefinition.IdleSound.SoundId)
                 {
-                    m_soundEmitter.PlaySound(BlockDefinition.IdleSound);
+                    m_soundEmitter.PlaySound(BlockDefinition.IdleSound, true);
                 }
             }
             else if (m_soundEmitter.IsPlaying)
@@ -364,6 +365,12 @@ namespace Sandbox.Game.Entities.Blocks
             {
                 CubeGrid.GridSystems.OxygenSystem.UnregisterOxygenBlock(this);
             }
+        }
+
+        protected override void Closing()
+        {
+            base.Closing();
+            m_soundEmitter.StopSound(true);
         }
 
         public override void UpdateVisual()

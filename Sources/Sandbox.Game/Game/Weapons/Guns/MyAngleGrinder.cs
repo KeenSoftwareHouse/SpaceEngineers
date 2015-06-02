@@ -13,6 +13,7 @@ using Sandbox.Game.Multiplayer;
 using Sandbox.Game.World;
 using System.Collections.Generic;
 using VRage.Input;
+using VRage.ObjectBuilders;
 using VRage.Utils;
 using VRageMath;
 
@@ -56,7 +57,7 @@ namespace Sandbox.Game.Weapons
 
             m_rotationSpeed = 0.0f;
 
-            PhysicalObject = (MyObjectBuilder_PhysicalGunObject)Sandbox.Common.ObjectBuilders.Serializer.MyObjectBuilderSerializer.CreateNewObject(m_physicalItemId);
+            PhysicalObject = (MyObjectBuilder_PhysicalGunObject)MyObjectBuilderSerializer.CreateNewObject(m_physicalItemId);
         }
 
         public override void Init(MyObjectBuilder_EntityBase objectBuilder)

@@ -18,11 +18,12 @@ using VRageMath.PackedVector;
 using VRage.Serialization;
 using Sandbox.Engine.Utils;
 using VRage;
+using VRage.Components;
 
 namespace Sandbox.Game.Multiplayer
 {
     [PreloadRequired]
-    public class MySyncEntity : Sandbox.Common.Components.MySyncComponentBase
+    public class MySyncEntity : MySyncComponentBase
     {
         [MessageId(10, P2PMessageEnum.Reliable)]
         [StructLayout(LayoutKind.Sequential, Pack = 1)]
@@ -145,15 +146,18 @@ namespace Sandbox.Game.Multiplayer
 
         public override void UpdatePosition()
         {
-            if (!IsResponsibleForUpdate)
+            if (Entity.SyncFlag)
             {
-                RequestPositionUpdate(); // Requests position update from owner, when moving entity is not updated by anyone
+                if (!IsResponsibleForUpdate)
+                {
+                    RequestPositionUpdate(); // Requests position update from owner, when moving entity is not updated by anyone
 
-                m_interpolator.CurrentMatrix = Entity.WorldMatrix;
-            }
-            else
-            {
-                SendPositionUpdate();
+                    m_interpolator.CurrentMatrix = Entity.WorldMatrix;
+                }
+                else
+                {
+                    SendPositionUpdate();
+                }
             }
         }
 

@@ -28,6 +28,7 @@ namespace VRageRender
         public float DistanceToSun; //in milions km
         public Quaternion BackgroundOrientation;
         public string SunMaterial;
+        public bool SunBillboardEnabled;
 
 	    public float DayTime; // 0:00 to 24:00, so 0.5 means day skybox is 1, 0(1) means night skybox is 1
         public bool ResetEyeAdaptation;

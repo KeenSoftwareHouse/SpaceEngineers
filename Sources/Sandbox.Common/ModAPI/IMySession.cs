@@ -88,5 +88,6 @@ namespace Sandbox.ModAPI
         IMyFactionCollection Factions { get;}
         IMyGpsCollection GPS { get; }
         event Action OnSessionReady;
+        event Action OnSessionLoading;
     }
 }

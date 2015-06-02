@@ -454,6 +454,13 @@ namespace Sandbox.Graphics.GUI
             PaddingSizePx = new Vector2(0f, 15f),
         };
 
+        public static readonly MyGuiPaddedTexture TEXTURE_VOICE_CHAT = new MyGuiPaddedTexture()
+        {
+            Texture = @"Textures\GUI\Icons\VoiceIcon.dds",
+            SizePx = new Vector2(128f, 128f),
+            PaddingSizePx = new Vector2(5f, 5f),
+        };
+
         public static readonly MyGuiCompositeTexture TEXTURE_SLIDER_RAIL = new MyGuiCompositeTexture()
         {
             LeftTop = new MyGuiSizedTexture()
@@ -679,6 +686,8 @@ namespace Sandbox.Graphics.GUI
         public const int TEXTBOX_MOVEMENT_DELAY = 100;
         //  Delay between we accept same key press (e.g. when user holds left key, or X key for a longer period)
         public const int TEXTBOX_CHANGE_DELAY = 500;
+        public const int TEXTBOX_INITIAL_THROTTLE_DELAY = 500;
+        public const int TEXTBOX_REPEAT_THROTTLE_DELAY = 50;
         public const string TEXTBOX_FALLBACK_CHARACTER = "#";
         public static readonly Vector2 TEXTBOX_TEXT_OFFSET = new Vector2(0.0075f, 0.005f);
 

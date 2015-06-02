@@ -1583,15 +1583,13 @@ namespace VRageRender
 
                 case MyRenderMessageEnum.SwitchRenderSettings:
                     {
+                        // Dx9 Only understands interpolation and render quality.
                         var rMessage = (MyRenderMessageSwitchRenderSettings)message;
-                        MyRenderProxy.Settings.EnableObjectInterpolation = rMessage.EnableInterpolation;
-                        MyRenderProxy.Settings.EnableCameraInterpolation = rMessage.EnableInterpolation;
-                        MyRenderProxy.RenderThread.SwitchQuality(rMessage.Quality);
+                        MyRenderProxy.Settings.EnableObjectInterpolation = rMessage.Settings.InterpolationEnabled;
+                        MyRenderProxy.Settings.EnableCameraInterpolation = rMessage.Settings.InterpolationEnabled;
+                        MyRenderProxy.RenderThread.SwitchQuality(rMessage.Settings.Dx9Quality);
                         break;
                     }
-
-                case MyRenderMessageEnum.SwitchRenderSettings1:
-                    break; // Dx9 currently doesn't support new message
 
                 case MyRenderMessageEnum.UnloadData:
                     {

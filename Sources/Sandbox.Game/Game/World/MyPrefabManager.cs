@@ -25,6 +25,7 @@ using VRage.Library.Utils;
 using VRage.FileSystem;
 using Sandbox.ModAPI;
 using Sandbox.Engine.Physics;
+using VRage.ObjectBuilders;
 
 namespace Sandbox.Game.World
 {
@@ -120,15 +121,15 @@ namespace Sandbox.Game.World
         {
             var fsPath = Path.Combine(MyFileSystem.ContentPath, Path.Combine("Data", "Prefabs", prefabName + ".sbc"));
 
-            var prefab = Sandbox.Common.ObjectBuilders.Serializer.MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_PrefabDefinition>();
+            var prefab = MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_PrefabDefinition>();
             prefab.Id = new MyDefinitionId(new MyObjectBuilderType(typeof(MyObjectBuilder_PrefabDefinition)), prefabName);
             prefab.CubeGrid = (MyObjectBuilder_CubeGrid)entity;
             
-            var definitions = Sandbox.Common.ObjectBuilders.Serializer.MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_Definitions>();
+            var definitions = MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_Definitions>();
             definitions.Prefabs = new MyObjectBuilder_PrefabDefinition[1];
             definitions.Prefabs[0] = prefab;
             
-            Sandbox.Common.ObjectBuilders.Serializer.MyObjectBuilderSerializer.SerializeXML(fsPath, false, definitions);
+            MyObjectBuilderSerializer.SerializeXML(fsPath, false, definitions);
         }
 
         public static void SavePrefab(string prefabName, List<MyObjectBuilder_CubeGrid> copiedPrefab)
@@ -140,15 +141,15 @@ namespace Sandbox.Game.World
 
         public static void SavePrefabToPath(string prefabName, string path, List<MyObjectBuilder_CubeGrid> copiedPrefab)
         {
-            var prefab = Sandbox.Common.ObjectBuilders.Serializer.MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_PrefabDefinition>();
+            var prefab = MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_PrefabDefinition>();
             prefab.Id = new MyDefinitionId(new MyObjectBuilderType(typeof(MyObjectBuilder_PrefabDefinition)), prefabName);
             prefab.CubeGrids = copiedPrefab.ToArray();
 
-            var definitions = Sandbox.Common.ObjectBuilders.Serializer.MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_Definitions>();
+            var definitions = MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_Definitions>();
             definitions.Prefabs = new MyObjectBuilder_PrefabDefinition[1];
             definitions.Prefabs[0] = prefab;
 
-            Sandbox.Common.ObjectBuilders.Serializer.MyObjectBuilderSerializer.SerializeXML(path, false, definitions);
+            MyObjectBuilderSerializer.SerializeXML(path, false, definitions);
         }
 
         public MyObjectBuilder_CubeGrid[] GetGridPrefab(string prefabName)

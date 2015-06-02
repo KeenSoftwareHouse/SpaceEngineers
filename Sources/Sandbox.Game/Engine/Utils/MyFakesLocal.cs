@@ -8,13 +8,11 @@ using VRageMath;
 
 namespace Sandbox.Engine.Utils
 {
-    [PreloadRequired]
-    static class MyFakesLocal
+    public static class MyFakesLocal
     {
         static MyFakesLocal()
         {
             // TODO: Set your fakes here, never commit this file
-            //MyFakes.QUICK_LAUNCH = null;          
         }
     }
 }

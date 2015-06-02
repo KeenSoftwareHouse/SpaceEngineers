@@ -26,11 +26,12 @@ using VRage.Utils;
 using VRage.Trace;
 using VRageMath;
 using Sandbox.Game.Screens.Terminal.Controls;
+using VRage.ModAPI;
 
 namespace Sandbox.Game.Entities.Blocks
 {
     [ProtoContract]
-    struct ToolbarItem : IEqualityComparer<ToolbarItem>
+    struct ToolbarItem
     {
         [ProtoMember]
         public long EntityID;
@@ -38,24 +39,6 @@ namespace Sandbox.Game.Entities.Blocks
         public string GroupName;
         [ProtoMember]
         public string Action;
-
-        public bool Equals(ToolbarItem x, ToolbarItem y)
-        {
-            if (x.EntityID != y.EntityID || x.GroupName != y.GroupName || x.Action != y.Action)
-                return false;
-            return true;
-        }
-
-        public int GetHashCode(ToolbarItem obj)
-        {
-            unchecked
-            {
-                int result = obj.EntityID.GetHashCode();
-                result = (result * 397) ^ obj.GroupName.GetHashCode();
-                result = (result * 397) ^ obj.Action.GetHashCode();
-                return result;
-            }
-        }
     }
 
     [Flags]

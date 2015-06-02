@@ -20,6 +20,8 @@ using VRage;
 using Sandbox.Game.GameSystems;
 using VRage.Utils;
 using Sandbox.ModAPI.Ingame;
+using VRage.ObjectBuilders;
+using VRage.ModAPI;
 
 namespace Sandbox.Game.Entities
 {
@@ -408,7 +410,7 @@ namespace Sandbox.Game.Entities
 
             SlimBlock.ComponentStack.IsFunctionalChanged += ComponentStack_IsFunctionalChanged;
 
-            NeedsUpdate |= Common.MyEntityUpdateEnum.EACH_100TH_FRAME | Common.MyEntityUpdateEnum.EACH_10TH_FRAME;
+            NeedsUpdate |= MyEntityUpdateEnum.EACH_100TH_FRAME | MyEntityUpdateEnum.EACH_10TH_FRAME;
 
             PowerReceiver = new MyPowerReceiver(
                 MyConsumerGroupEnum.Conveyors,

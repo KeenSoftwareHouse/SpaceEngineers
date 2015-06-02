@@ -20,6 +20,7 @@ using VRage.Utils;
 using VRage.Voxels;
 using VRageMath;
 using VRageRender;
+using VRage.ObjectBuilders;
 
 namespace Sandbox.Game.Weapons
 {
@@ -483,7 +484,7 @@ namespace Sandbox.Game.Weapons
             if (!onlyCheck)
             {
                 ProfilerShort.Begin("TryHarvestOreMaterial");
-                var oreObjBuilder = Sandbox.Common.ObjectBuilders.Serializer.MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_Ore>(material.MinedOre);
+                var oreObjBuilder = MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_Ore>(material.MinedOre);
                 float amountCubicMeters = (float)(((float)removedAmount / (float)MyVoxelConstants.VOXEL_CONTENT_FULL) * MyVoxelConstants.VOXEL_VOLUME_IN_METERS * VoxelHarvestRatio);
                 amountCubicMeters *= (float)material.MinedOreRatio;
 

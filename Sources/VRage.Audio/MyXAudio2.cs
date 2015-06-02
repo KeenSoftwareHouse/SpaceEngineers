@@ -50,6 +50,8 @@ namespace VRage.Audio
         bool m_musicOn;
         bool m_gameSoundsOn;
 
+        bool m_voiceChatEnabled;
+
         MyMusicState m_musicState;
         bool m_loopMusic;
 
@@ -510,6 +512,29 @@ namespace VRage.Audio
             }
         }
 
+        public bool EnableVoiceChat 
+        { 
+            get 
+            {
+                if (!m_canPlay)
+                    return false;
+                return m_voiceChatEnabled; 
+            } 
+            set 
+            {
+                if (!m_canPlay)
+                    return;
+                if (m_voiceChatEnabled != value)
+                {
+                    m_voiceChatEnabled = value;
+                    if (VoiceChatEnabled != null)
+                        VoiceChatEnabled(m_voiceChatEnabled);
+                }
+            } 
+        }
+
+        public event Action<bool> VoiceChatEnabled;
+
         public void Pause()
         {
             if (m_canPlay)
@@ -941,16 +966,25 @@ namespace VRage.Audio
         private void Update3DCuePosition(IMy3DSoundEmitter source)
         {
             MySoundData cue = m_cueBank.GetCue(source.SoundId);
-            if (cue == null)
+            if (cue == null && source.Sound == null && !source.Sound.IsBuffered)
                 return;
 
             var sourceVoice = source.Sound as MySourceVoice;
             if (sourceVoice == null)
                 return;
 
-            m_helperEmitter.UpdateValuesOmni(source.SourcePosition, source.Velocity, cue, m_deviceDetails.OutputFormat.Channels, source.CustomMaxDistance);
-            float maxDistance = source.CustomMaxDistance.HasValue ? source.CustomMaxDistance.Value : cue.MaxDistance;
-            m_x3dAudio.Apply3D(sourceVoice.Voice, m_listener, m_helperEmitter, source.SourceChannels, m_deviceDetails.OutputFormat.Channels, m_calculateFlags, maxDistance, source.Sound.FrequencyRatio);
+            if (!sourceVoice.IsBuffered)
+            {
+                m_helperEmitter.UpdateValuesOmni(source.SourcePosition, source.Velocity, cue, m_deviceDetails.OutputFormat.Channels, source.CustomMaxDistance);
+                float maxDistance = source.CustomMaxDistance.HasValue ? source.CustomMaxDistance.Value : cue.MaxDistance;
+                m_x3dAudio.Apply3D(sourceVoice.Voice, m_listener, m_helperEmitter, source.SourceChannels, m_deviceDetails.OutputFormat.Channels, m_calculateFlags, maxDistance, source.Sound.FrequencyRatio);
+            }
+            else
+            {
+                float maxDistance = source.CustomMaxDistance.Value;
+                m_helperEmitter.UpdateValuesOmni(source.SourcePosition, source.Velocity, maxDistance, m_deviceDetails.OutputFormat.Channels, MyCurveType.Linear);
+                m_x3dAudio.Apply3D(sourceVoice.Voice, m_listener, m_helperEmitter, source.SourceChannels, m_deviceDetails.OutputFormat.Channels, m_calculateFlags, maxDistance, sourceVoice.FrequencyRatio);     
+            }
         }
 
         private void StopUpdating3DCue(IMy3DSoundEmitter source)
@@ -984,50 +1018,6 @@ namespace VRage.Audio
                 return (distanceToSound <= source.CustomMaxDistance * source.CustomMaxDistance);
             else
                 return (distanceToSound <= cueDefinition.MaxDistance * cueDefinition.MaxDistance);
-        }
-
-        public IMySourceVoice PlayTestSound(MyStringId cue)
-        {
-            if (cue == MyStringId.NullOrEmpty)
-                return null;
-
-            MySoundData cueDefinition = m_cueBank.GetCue(cue);
-
-            //  If this computer can't play sound, we don't create cues
-            if (!m_canPlay)
-                return null;
-
-            if (m_cueBank == null)
-                return null;
-
-            MySourceVoice sound = m_cueBank.GetVoice(cue);
-            if (sound == null)
-                sound = m_cueBank.GetVoice(cue, MySoundDimensions.D3);
-            if (sound == null)
-                return null;
-
-            if (cueDefinition.PitchVariation != 0f)
-            {
-                float semitones = PitchVariation(cueDefinition);
-                sound.FrequencyRatio = SemitonesToFrequencyRatio(semitones);
-            }
-            else
-                sound.FrequencyRatio = 1f;
-
-            float volume = cueDefinition.Volume;
-            if (cueDefinition.VolumeVariation != 0f)
-            {
-                float variation = VolumeVariation(cueDefinition);
-                volume = MathHelper.Clamp(volume + variation, 0f, 1f);
-            }
-
-            sound.SetVolume(volume);
-            sound.SetOutputVoices(m_gameAudioVoiceDesc);
-
-            //  Play the cue
-            sound.Start(false);
-
-            return sound;
         }
 
         internal MySourceVoice PlaySound(MyStringId cueId, IMy3DSoundEmitter source = null, MySoundDimensions type = MySoundDimensions.D2, bool skipIntro = false, bool skipToEnd = false)
@@ -1120,6 +1110,33 @@ namespace VRage.Audio
         IMySourceVoice IMyAudio.GetSound(MyStringId cueId, IMy3DSoundEmitter source, MySoundDimensions type)
         {
             return GetSound(cueId, source, type);
+        }
+
+        IMySourceVoice IMyAudio.GetSound(IMy3DSoundEmitter source, int sampleRate, int channels, MySoundDimensions dimension)
+        {
+            if (!m_canPlay)
+                return null;
+
+            var waveFormat = new WaveFormat(sampleRate, channels);
+            source.SourceChannels = channels;
+            var sourceVoice = new MySourceVoice(m_audioEngine, waveFormat);
+
+            float volume = source.CustomVolume.HasValue ? source.CustomVolume.Value : 1;
+            float maxDistance = source.CustomMaxDistance.HasValue ? source.CustomMaxDistance.Value : 0;
+
+            sourceVoice.SetVolume(volume);
+
+            if (dimension == MySoundDimensions.D3)
+            {
+                m_helperEmitter.UpdateValuesOmni(source.SourcePosition, source.Velocity, maxDistance, m_deviceDetails.OutputFormat.Channels, MyCurveType.Linear);
+                m_x3dAudio.Apply3D(sourceVoice.Voice, m_listener, m_helperEmitter, source.SourceChannels, m_deviceDetails.OutputFormat.Channels, m_calculateFlags, maxDistance, sourceVoice.FrequencyRatio);
+                Update3DCuesState();
+                Add3DCueToUpdateList(source);
+
+                ++m_soundInstancesTotal3D;
+            }
+
+            return sourceVoice;
         }
 
         public void WriteDebugInfo(StringBuilder sb)

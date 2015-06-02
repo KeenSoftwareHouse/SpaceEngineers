@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Text;
 using VRage.Collections;
 using VRage.Data.Audio;
@@ -19,6 +20,8 @@ namespace VRage.Audio
         bool IMyAudio.GameSoundIsPaused { get { return true; } }
         bool IMyAudio.Mute { get { return true; } set { } }
         bool IMyAudio.MusicAllowed { get { return false; } set { } }
+        bool IMyAudio.EnableVoiceChat { get { return false; } set { } }
+        event Action<bool> IMyAudio.VoiceChatEnabled { add { } remove { } }
 
         List<MyStringId> IMyAudio.GetCategories() { return null; }
         MySoundData IMyAudio.GetCue(MyStringId cue) { return null; }
@@ -42,7 +45,6 @@ namespace VRage.Audio
         int IMyAudio.GetSoundInstancesTotal3D() { return 0; }
         void IMyAudio.StopUpdatingAll3DCues() { }
         bool IMyAudio.SourceIsCloseEnoughToPlaySound(IMy3DSoundEmitter source, MyStringId cueEnum) { return false; }
-        IMySourceVoice IMyAudio.PlayTestSound(MyStringId cue) { return null; }
         object IMyAudio.CalculateDspSettingsDebug(IMy3DSoundEmitter source) { return null; }
         void IMyAudio.WriteDebugInfo(StringBuilder sb) { }
         bool IMyAudio.IsLoopable(MyStringId cueId) { return false; }
@@ -51,5 +53,6 @@ namespace VRage.Audio
         IMySourceVoice IMyAudio.GetSound(MyStringId cue, IMy3DSoundEmitter source, MySoundDimensions type) { return null; }
         ListReader<IMy3DSoundEmitter> IMyAudio.Get3DSounds() { return null; }
         IMyAudioEffect IMyAudio.ApplyEffect(IMySourceVoice input, MyStringId effect, MyStringId[] cues, float? duration) { return null; }
+        IMySourceVoice IMyAudio.GetSound(IMy3DSoundEmitter source, int sampleRate, int channels, MySoundDimensions dimension) { return null; }
     }
 }

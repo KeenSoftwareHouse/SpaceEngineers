@@ -12,6 +12,7 @@ using Sandbox.Definitions;
 using VRage.Utils;
 using VRage.Utils;
 using VRage.Library.Utils;
+using VRage.ObjectBuilders;
 
 namespace Sandbox.Game.Multiplayer
 {
@@ -65,7 +66,7 @@ namespace Sandbox.Game.Multiplayer
 
                     MyRuntimeObjectBuilderId typeId;
                     BlitSerializer<MyRuntimeObjectBuilderId>.Default.Deserialize(source, out typeId);
-                    item.Content = (MyObjectBuilder_PhysicalObject)Sandbox.Common.ObjectBuilders.Serializer.MyObjectBuilderSerializer.CreateNewObject(
+                    item.Content = (MyObjectBuilder_PhysicalObject)MyObjectBuilderSerializer.CreateNewObject(
                         (MyDefinitionId)new DefinitionIdBlit(typeId, subtypeId));
 
                     item.Content.Flags = (MyItemFlags)flags;

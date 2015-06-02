@@ -10,7 +10,7 @@ using Sandbox.Engine.Utils;
 namespace Sandbox.Definitions
 {
     [MyDefinitionType(typeof(MyObjectBuilder_LightingBlockDefinition))]
-    class MyLightingBlockDefinition : MyCubeBlockDefinition
+    public class MyLightingBlockDefinition : MyCubeBlockDefinition
     {
         public MyBounds LightRadius;
         public MyBounds LightFalloff;

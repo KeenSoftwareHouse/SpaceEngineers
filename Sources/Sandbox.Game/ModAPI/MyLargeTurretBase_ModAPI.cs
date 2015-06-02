@@ -1,13 +1,13 @@
-﻿using System;
+﻿using Sandbox.Engine.Utils;
+using Sandbox.Game.Multiplayer;
+using Sandbox.ModAPI;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using VRage.ModAPI;
+using VRage.Utils;
 using VRageMath;
-using Sandbox.Game.Entities;
-using Sandbox.ModAPI;
-using Sandbox.Game.Multiplayer;
-using VRage.Library.Utils;
-using Sandbox.Engine.Utils;
 
 namespace Sandbox.Game.Weapons
 {

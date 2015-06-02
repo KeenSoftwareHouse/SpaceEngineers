@@ -11,6 +11,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using VRage;
+using VRage.Components;
 using VRage.Utils;
 using VRageMath;
 using VRageRender;
@@ -416,15 +417,15 @@ namespace Sandbox.Game.GameSystems.StructuralIntegrity
                 m_collidingEntities[info.CollidingEntity].FrameTime = m_frameCounter;
         }
 
-        void PositionComp_OnPositionChanged(Common.Components.MyPositionComponentBase obj)
+        void PositionComp_OnPositionChanged(MyPositionComponentBase obj)
         {
-            if (m_collidingEntities.ContainsKey((MyEntity)obj.Entity))
+            if (m_collidingEntities.ContainsKey((MyEntity)obj.Container.Entity))
             {
-                if (m_frameCounter - m_collidingEntities[(MyEntity)obj.Entity].FrameTime > 20)
+                if (m_frameCounter - m_collidingEntities[(MyEntity)obj.Container.Entity].FrameTime > 20)
                 { //Object not contacted with grid for 20 frames
                     obj.OnPositionChanged -= PositionComp_OnPositionChanged;
-                    DynamicWeights.Remove(m_collidingEntities[(MyEntity)obj.Entity].Position);
-                    m_collidingEntities.Remove((MyEntity)obj.Entity);
+                    DynamicWeights.Remove(m_collidingEntities[(MyEntity)obj.Container.Entity].Position);
+                    m_collidingEntities.Remove((MyEntity)obj.Container.Entity);
                     ForceRecalc = true;
                 }
             }

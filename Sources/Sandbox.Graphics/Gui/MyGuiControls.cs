@@ -7,6 +7,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using VRage.Collections;
+using VRage.ObjectBuilders;
 
 namespace Sandbox.Graphics.GUI
 {
@@ -51,7 +52,7 @@ namespace Sandbox.Graphics.GUI
 
         public MyObjectBuilder_GuiControls GetObjectBuilder()
         {
-            var objectBuilder = Sandbox.Common.ObjectBuilders.Serializer.MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_GuiControls>();
+            var objectBuilder = MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_GuiControls>();
             objectBuilder.Controls = new List<MyObjectBuilder_GuiControlBase>();
 
             foreach (var control in m_controlsByName)

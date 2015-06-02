@@ -4,6 +4,7 @@ using Sandbox.Game.Entities;
 using Sandbox.Game.Entities.Character;
 using Sandbox.Game.World;
 using System.Linq;
+using VRage.Game.Entity.UseObject;
 using VRage.Input;
 using VRage.Utils;
 using VRageMath;
