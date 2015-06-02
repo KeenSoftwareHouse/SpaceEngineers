@@ -334,7 +334,7 @@ namespace Sandbox.Game.Entities.Cube
 
             RemoveFirstQueueItemAnnounce(blueprintAmount);
         }
-
+				
         protected override float GetOperationalPowerConsumption()
         {
             return base.GetOperationalPowerConsumption() * (1f + UpgradeValues["Productivity"]) * (1f / UpgradeValues["PowerEfficiency"]);
