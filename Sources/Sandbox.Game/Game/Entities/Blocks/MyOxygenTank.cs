@@ -370,7 +370,7 @@ namespace Sandbox.Game.Entities.Blocks
             }
             else
             {
-                DetailedInfo.Append("Filled: " + (FilledRatio * 100f).ToString("F") + "%");
+                DetailedInfo.Append("Filled: " + (FilledRatio * 100f).ToString("F4") + "%");
             }
 
             RaisePropertiesChanged();
