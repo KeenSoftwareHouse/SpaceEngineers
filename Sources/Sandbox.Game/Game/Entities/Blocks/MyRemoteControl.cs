@@ -1081,7 +1081,7 @@ namespace Sandbox.Game.Entities
             velocity = Vector3D.Transform(velocity, invWorldRot);
 
             double angle = System.Math.Acos(Vector3D.Dot(targetDirection, WorldMatrix.Forward));
-            if (angle < 0.01)
+            if (angle <= 0.01)
             {
                 gyros.IsCourseEstablished = thrusters.IsCourseEstablished = true;
             }
@@ -1089,8 +1089,8 @@ namespace Sandbox.Game.Entities
             if (!gyros.IsCourseEstablished && !thrusters.IsCourseEstablished)
             {
                 // Prevent an unbalanced craft from bouncing back and forth excessively before stabilisers engage.
-                if (angle + 0.01 < m_maxAngle)
-                    m_maxAngle = angle + 0.01;
+                if (angle + 0.005 < m_maxAngle)
+                    m_maxAngle = angle + 0.005;
 
                 if (velocity.LengthSquared() > 1.0)
                 {
@@ -1101,7 +1101,7 @@ namespace Sandbox.Game.Entities
                 // If current deceleration is greater than last recorded one, then use the former.
                 // Otherwise take a weighed average to smooth changes in torque (important when rotating solely on thrusters).
                 if (deceleration.LengthSquared() < m_recordedAngularAcceleration.LengthSquared())
-                    deceleration = m_recordedAngularAcceleration * 0.8 + deceleration * 0.2;
+                    deceleration = m_recordedAngularAcceleration * 0.6 + deceleration * 0.4;
                 m_prevAngularVelocity         = angularVelocity;
                 m_recordedAngularAcceleration = deceleration;
                 double timeToStop        = angularVelocity.Length() /    deceleration.Length();
@@ -1121,8 +1121,8 @@ namespace Sandbox.Game.Entities
 
         private void UpdateThrust()
         {
-            const double ACCELERATION_THRESHOLD = 5.0;
-            const double COAST_THRESHOLD        = 3.0;
+            const double ACCELERATION_THRESHOLD = 3.0;
+            const double COAST_THRESHOLD        = 2.0;
             const double BRAKE_THRESHOLD        = 1.5;
             
             var thrustSystem = CubeGrid.GridSystems.ThrustSystem;
@@ -1157,8 +1157,11 @@ namespace Sandbox.Game.Entities
             Vector3D velocityToTarget = targetDirection * velocity.Dot(ref targetDirection);
             Vector3D velocity1 = perpendicularToTarget1 * velocity.Dot(ref perpendicularToTarget1);
             Vector3D velocity2 = perpendicularToTarget2 * velocity.Dot(ref perpendicularToTarget2);
+            Vector3D delta1    = perpendicularToTarget1 * delta.Dot(ref perpendicularToTarget1);
+            Vector3D delta2    = perpendicularToTarget2 * delta.Dot(ref perpendicularToTarget2);
 
             Vector3D velocityToCancel = velocity1 + velocity2;
+            delta -= delta1 + delta2;
 
             double timeToReachTarget = (delta.Length() / velocityToTarget.Length());
             double timeToStop = velocity.Length() * CubeGrid.Physics.Mass / brakeThrust.Length();
