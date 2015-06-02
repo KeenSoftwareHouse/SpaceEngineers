@@ -347,17 +347,24 @@ namespace VRageRender
                         }
                         
                     }
-
-                    var entity = MyComponents.GetEntity(rMessage.ID);
-                    if(entity != EntityId.NULL)
+                    else
                     {
-                        MyComponents.SetMatrix(entity, ref rMessage.WorldMatrix);
-                        if (rMessage.AABB.HasValue)
+                        if (MyClipmapFactory.ClipmapByID.ContainsKey(rMessage.ID))
                         {
-                            var aabb = rMessage.AABB.Value;
-                            MyComponents.SetAabb(entity, ref aabb);
+                            MyClipmapFactory.ClipmapByID[rMessage.ID].UpdateWorldMatrix(ref rMessage.WorldMatrix);
                         }
                     }
+
+                    //var entity = MyComponents.GetEntity(rMessage.ID);
+                    //if(entity != EntityId.NULL)
+                    //{
+                    //    MyComponents.SetMatrix(entity, ref rMessage.WorldMatrix);
+                    //    if (rMessage.AABB.HasValue)
+                    //    {
+                    //        var aabb = rMessage.AABB.Value;
+                    //        MyComponents.SetAabb(entity, ref aabb);
+                    //    }
+                    //}
 
                     break;
                 }

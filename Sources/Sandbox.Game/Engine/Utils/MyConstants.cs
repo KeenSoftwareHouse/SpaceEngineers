@@ -501,7 +501,7 @@ namespace Sandbox.Engine.Utils
         public const int MAX_GLOBAL_CHAT_HISTORY_COUNT = 100;
     }
 
-    static class MyOxygenConstants
+    public static class MyOxygenConstants
     {
         public const float OXYGEN_REGEN_PER_SECOND = 2000f;
     }

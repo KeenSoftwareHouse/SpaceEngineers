@@ -244,6 +244,7 @@ namespace Sandbox.Game.Entities
         private List<MyAutopilotWaypoint> m_waypoints;
         private MyAutopilotWaypoint m_currentWaypoint;
         private bool m_autoPilotEnabled;
+        private bool m_dockingModeEnabled;
         private FlightMode m_currentFlightMode;
         private bool m_patrolDirectionForward = true;
         private Vector3D m_startPosition;
@@ -296,6 +297,14 @@ namespace Sandbox.Game.Entities
             autoPilot.EnableToggleAction();
             autoPilot.EnableOnOffActions();
             MyTerminalControlFactory.AddControl(autoPilot);
+
+            var dockignMode = new MyTerminalControlOnOffSwitch<MyRemoteControl>("DockingMode", MySpaceTexts.BlockPropertyTitle_EnableDockingMode, MySpaceTexts.Blank);
+            dockignMode.Getter = (x) => x.m_dockingModeEnabled;
+            dockignMode.Setter = (x, v) => x.SetDockingMode(v);
+            dockignMode.Enabled = r => r.IsWorking;
+            dockignMode.EnableToggleAction();
+            dockignMode.EnableOnOffActions();
+            MyTerminalControlFactory.AddControl(dockignMode);
 
             var flightMode = new MyTerminalControlCombobox<MyRemoteControl>("FlightMode", MySpaceTexts.BlockPropertyTitle_FlightMode, MySpaceTexts.Blank);
             flightMode.ComboBoxContent = (x) => FillFlightModeCombo(x);
@@ -425,6 +434,7 @@ namespace Sandbox.Game.Entities
             PowerReceiver.Update();
 
             m_autoPilotEnabled = remoteOb.AutoPilotEnabled;
+            m_dockingModeEnabled = remoteOb.DockingModeEnabled;
             m_currentFlightMode = (FlightMode)remoteOb.FlightMode;
             m_currentDirection = (Base6Directions.Direction)remoteOb.Direction;
 
@@ -548,36 +558,52 @@ namespace Sandbox.Game.Entities
 
         private void OnSetAutoPilotEnabled(bool enabled)
         {
-            if (!enabled)
+            if (m_autoPilotEnabled != enabled)
             {
-                CubeGrid.GridSystems.ThrustSystem.AutoPilotThrust = Vector3.Zero;
-                CubeGrid.GridSystems.GyroSystem.ControlTorque = Vector3.Zero;
-
-                m_autoPilotEnabled = enabled;
-
-                var group = ControlGroup.GetGroup(CubeGrid);
-                if (group != null)
+                if (!enabled)
                 {
-                    group.GroupData.ControlSystem.RemoveControllerBlock(this);
-                }
-            }
-            else
-            {
-                if (m_previousControlledEntity == null)
-                {
+                    CubeGrid.GridSystems.ThrustSystem.AutoPilotThrust = Vector3.Zero;
+                    CubeGrid.GridSystems.GyroSystem.ControlTorque = Vector3.Zero;
+
                     m_autoPilotEnabled = enabled;
-                }
 
-                var group = ControlGroup.GetGroup(CubeGrid);
-                if (group != null)
+                    var group = ControlGroup.GetGroup(CubeGrid);
+                    if (group != null)
+                    {
+                        group.GroupData.ControlSystem.RemoveControllerBlock(this);
+                    }
+                }
+                else
                 {
-                    group.GroupData.ControlSystem.AddControllerBlock(this);
-                }
+                    if (m_previousControlledEntity == null)
+                    {
+                        m_autoPilotEnabled = enabled;
+                    }
 
-                ResetShipControls();
+                    var group = ControlGroup.GetGroup(CubeGrid);
+                    if (group != null)
+                    {
+                        group.GroupData.ControlSystem.AddControllerBlock(this);
+                    }
+
+                    ResetShipControls();
+                }
             }
 
             UpdateText();
+        }
+
+        private void SetDockingMode(bool enabled)
+        {
+            if (enabled != m_dockingModeEnabled)
+            {
+                SyncObject.SetDockingMode(enabled);
+            }
+        }
+
+        private void OnSetDockingMode(bool enabled)
+        {
+            m_dockingModeEnabled = enabled;
         }
 
         private List<IMyGps> m_selectedGpsLocations;
@@ -1036,12 +1062,12 @@ namespace Sandbox.Game.Entities
 
         private bool IsInStoppingDistance()
         {
-            double cubesErrorAllowed = 1;
+            double cubesErrorAllowed = 3;
             int currentIndex = m_waypoints.IndexOf(m_currentWaypoint);
 
-            if (m_currentFlightMode == FlightMode.OneWay && currentIndex == m_waypoints.Count - 1)
+            if (m_dockingModeEnabled || (m_currentFlightMode == FlightMode.OneWay && currentIndex == m_waypoints.Count - 1))
             {
-                cubesErrorAllowed = 0.5;
+                cubesErrorAllowed = 0.25;
             }
 
             return (WorldMatrix.Translation - m_currentWaypoint.Coords).LengthSquared() < CubeGrid.GridSize * CubeGrid.GridSize * cubesErrorAllowed * cubesErrorAllowed;
@@ -1188,12 +1214,26 @@ namespace Sandbox.Game.Entities
 
             if (double.IsNaN(timeToStop) || double.IsInfinity(timeToReachTarget) || timeToReachTarget > timeToStop)
             {
+                if (m_dockingModeEnabled)
+                {
+                    velocity /= 4.0;
+                }
                 gyros.ControlTorque = velocity;
             }
 
-            if (angle > 0.25)
+            if (m_dockingModeEnabled)
             {
-                return true;
+                if (angle > 0.05)
+                {
+                    return true;
+                }
+            }
+            else
+            {
+                if (angle > 0.25)
+                {
+                    return true;
+                }
             }
 
             return false;
@@ -1239,7 +1279,12 @@ namespace Sandbox.Game.Entities
             double timeToReachTarget = (delta.Length() / velocityToTarget.Length());
             double timeToStop = velocity.Length() * CubeGrid.Physics.Mass / brakeThrust.Length();
 
-            if (double.IsInfinity(timeToReachTarget) || double.IsNaN(timeToStop) || timeToReachTarget > timeToStop * 1.5)
+            if (m_dockingModeEnabled)
+            {
+                timeToStop *= 2.5f;
+            }
+
+            if (double.IsInfinity(timeToReachTarget) || double.IsNaN(timeToStop) || timeToReachTarget > timeToStop)
             {
                 thrustSystem.AutoPilotThrust = Vector3D.Transform(delta, invWorldRot) - Vector3D.Transform(velocityToCancel, invWorldRot);
                 thrustSystem.AutoPilotThrust.Normalize();
@@ -1346,6 +1391,7 @@ namespace Sandbox.Game.Entities
             }
 
             objectBuilder.AutoPilotEnabled = m_autoPilotEnabled;
+            objectBuilder.DockingModeEnabled = m_dockingModeEnabled;
             objectBuilder.FlightMode = (int)m_currentFlightMode;
             objectBuilder.Direction = (byte)m_currentDirection;
 
@@ -1844,6 +1890,15 @@ namespace Sandbox.Game.Entities
             }
 
             [MessageIdAttribute(2501, P2PMessageEnum.Reliable)]
+            protected struct SetDockingModeMsg : IEntityMessage
+            {
+                public long EntityId;
+                public long GetEntityId() { return EntityId; }
+
+                public BoolBlit Enabled;
+            }
+
+            [MessageIdAttribute(2502, P2PMessageEnum.Reliable)]
             protected struct ChangeFlightModeMsg : IEntityMessage
             {
                 public long EntityId;
@@ -1852,7 +1907,7 @@ namespace Sandbox.Game.Entities
                 public FlightMode NewFlightMode;
             }
 
-            [MessageIdAttribute(2502, P2PMessageEnum.Reliable)]
+            [MessageIdAttribute(2503, P2PMessageEnum.Reliable)]
             protected struct ChangeDirectionMsg : IEntityMessage
             {
                 public long EntityId;
@@ -1862,7 +1917,7 @@ namespace Sandbox.Game.Entities
             }
 
             [ProtoContract]
-            [MessageIdAttribute(2503, P2PMessageEnum.Reliable)]
+            [MessageIdAttribute(2504, P2PMessageEnum.Reliable)]
             protected struct RemoveWaypointsMsg : IEntityMessage
             {
                 [ProtoMember]
@@ -1874,7 +1929,7 @@ namespace Sandbox.Game.Entities
             }
 
             [ProtoContract]
-            [MessageIdAttribute(2504, P2PMessageEnum.Reliable)]
+            [MessageIdAttribute(2505, P2PMessageEnum.Reliable)]
             protected struct MoveWaypointsUpMsg : IEntityMessage
             {
                 [ProtoMember]
@@ -1886,7 +1941,7 @@ namespace Sandbox.Game.Entities
             }
 
             [ProtoContract]
-            [MessageIdAttribute(2505, P2PMessageEnum.Reliable)]
+            [MessageIdAttribute(2506, P2PMessageEnum.Reliable)]
             protected struct MoveWaypointsDownMsg : IEntityMessage
             {
                 [ProtoMember]
@@ -1898,7 +1953,7 @@ namespace Sandbox.Game.Entities
             }
 
             [ProtoContract]
-            [MessageIdAttribute(2506, P2PMessageEnum.Reliable)]
+            [MessageIdAttribute(2507, P2PMessageEnum.Reliable)]
             protected struct AddWaypointsMsg : IEntityMessage
             {
                 [ProtoMember]
@@ -1912,7 +1967,7 @@ namespace Sandbox.Game.Entities
             }
 
             [ProtoContract]
-            [MessageIdAttribute(2507, P2PMessageEnum.Reliable)]
+            [MessageIdAttribute(2508, P2PMessageEnum.Reliable)]
             protected struct ChangeToolbarItemMsg : IEntityMessage
             {
                 [ProtoMember]
@@ -1943,6 +1998,7 @@ namespace Sandbox.Game.Entities
             static MySyncRemoteControl()
             {
                 MySyncLayer.RegisterEntityMessage<MySyncRemoteControl, SetAutoPilotMsg>(OnSetAutoPilot, MyMessagePermissions.Any);
+                MySyncLayer.RegisterEntityMessage<MySyncRemoteControl, SetDockingModeMsg>(OnSetDockingMode, MyMessagePermissions.Any);
                 MySyncLayer.RegisterEntityMessage<MySyncRemoteControl, ChangeFlightModeMsg>(OnChangeFlightMode, MyMessagePermissions.Any);
                 MySyncLayer.RegisterEntityMessage<MySyncRemoteControl, ChangeDirectionMsg>(OnChangeDirection, MyMessagePermissions.Any);
                 
@@ -1965,6 +2021,16 @@ namespace Sandbox.Game.Entities
             public void SetAutoPilot(bool enabled)
             {
                 var msg = new SetAutoPilotMsg();
+                msg.EntityId = m_remoteControl.EntityId;
+
+                msg.Enabled = enabled;
+
+                Sync.Layer.SendMessageToAllAndSelf(ref msg);
+            }
+
+            public void SetDockingMode(bool enabled)
+            {
+                var msg = new SetDockingModeMsg();
                 msg.EntityId = m_remoteControl.EntityId;
 
                 msg.Enabled = enabled;
@@ -2083,6 +2149,11 @@ namespace Sandbox.Game.Entities
             private static void OnSetAutoPilot(MySyncRemoteControl sync, ref SetAutoPilotMsg msg, MyNetworkClient sender)
             {
                 sync.m_remoteControl.OnSetAutoPilotEnabled(msg.Enabled);
+            }
+
+            private static void OnSetDockingMode(MySyncRemoteControl sync, ref SetDockingModeMsg msg, MyNetworkClient sender)
+            {
+                sync.m_remoteControl.OnSetDockingMode(msg.Enabled);
             }
 
             private static void OnChangeFlightMode(MySyncRemoteControl sync, ref ChangeFlightModeMsg msg, MyNetworkClient sender)

@@ -9,7 +9,7 @@ using VRage.ModAPI;
 
 namespace Sandbox.Game.Components
 {
-    class MyDebugRenderComponentDrawPowerReciever : MyDebugRenderComponent
+    public class MyDebugRenderComponentDrawPowerReciever : MyDebugRenderComponent
     {
         private MyPowerReceiver m_powerReciever = null;
         private IMyEntity m_entity =null;

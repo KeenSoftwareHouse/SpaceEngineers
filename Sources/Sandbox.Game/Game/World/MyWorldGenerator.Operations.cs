@@ -31,8 +31,7 @@ namespace Sandbox.Game.World
         }
     }
 
-
-    static partial class MyWorldGenerator
+    public partial class MyWorldGenerator
     {
         #region Operation base and factory
 
@@ -42,7 +41,6 @@ namespace Sandbox.Game.World
                 : base(objectBuilderType)
             {
             }
-
         }
 
         public static class OperationFactory

@@ -147,6 +147,8 @@ namespace VRageRender
                 void* ptr = ((IntPtr)adapter.Description.DedicatedVideoMemory).ToPointer();
                 ulong vram = (ulong)ptr;
 
+                supportedDevice = supportedDevice && vram > 500000000;
+
                 var deviceDesc = String.Format("{0}, dev id: {1}, shared mem: {2}, Luid: {3}, rev: {4}, subsys id: {5}, vendor id: {6}",
                     adapter.Description.Description,
                     adapter.Description.DeviceId,

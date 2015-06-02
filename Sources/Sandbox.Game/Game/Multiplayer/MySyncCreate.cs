@@ -95,6 +95,9 @@ namespace Sandbox.Game.Multiplayer
             
             [ProtoMember]
             public bool Static;
+
+			[ProtoMember]
+			public ulong SenderSteamId;
         }
 
         static MySyncCreate()
@@ -389,6 +392,8 @@ namespace Sandbox.Game.Multiplayer
                 var definition = Definitions.MyDefinitionManager.Static.GetCubeBlockDefinition(msg.Definition);
                 MatrixD worldMatrix = MatrixD.CreateWorld(msg.Position, msg.Forward, msg.Up);
 
+				msg.SenderSteamId = sender.SteamUserId;
+
                 MyCubeGrid grid = null;
 
                 if (msg.Static)
@@ -402,9 +407,12 @@ namespace Sandbox.Game.Multiplayer
                     MySession.Static.SyncLayer.SendMessageToAll(ref msg);
                 }
 
-                if (grid != null && msg.Static)
+                if (grid != null)
                 {
-                    MyCubeBuilder.AfterStaticGridSpawn(grid);
+					if (msg.Static)
+						MyCubeBuilder.AfterStaticGridSpawn(grid, true);
+					else
+						MyCubeBuilder.AfterDynamicGridSpawn(grid, true);
                 }
             }
             else
@@ -415,8 +423,15 @@ namespace Sandbox.Game.Multiplayer
 
                 if (grid != null)
                 {
-                    if (grid.IsStatic)
-                        MyCubeBuilder.AfterStaticGridSpawn(grid);
+					bool localBuilder = false;
+					var player = MySession.LocalHumanPlayer;
+					if (player != null && msg.SenderSteamId == MySession.LocalHumanPlayer.Id.SteamId)
+						localBuilder = true;
+
+					if (grid.IsStatic)
+						MyCubeBuilder.AfterStaticGridSpawn(grid, localBuilder);
+					else
+						MyCubeBuilder.AfterDynamicGridSpawn(grid, localBuilder);
                 }
             }
         }

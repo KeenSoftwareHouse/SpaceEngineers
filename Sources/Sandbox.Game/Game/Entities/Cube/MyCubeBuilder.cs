@@ -4081,7 +4081,7 @@ namespace Sandbox.Game.Entities
             return grid;
         }
 
-        public static void AfterStaticGridSpawn(MyCubeGrid grid)
+        public static void AfterStaticGridSpawn(MyCubeGrid grid, bool localBuilder)
         {
             Debug.Assert(grid.IsStatic);
 
@@ -4097,6 +4097,11 @@ namespace Sandbox.Game.Entities
                 {
                     MyCubeGridSmallToLargeConnection.Static.AddBlockSmallToLargeConnection(block);
                 }
+
+				if (localBuilder && MySession.Static.SurvivalMode && !MySession.Static.SimpleSurvival)
+				{
+					TakeSpawnItemFromBuilder(block);
+				}
             }
             else
                 Debug.Fail("Block not created");
@@ -4122,19 +4127,52 @@ namespace Sandbox.Game.Entities
             {
                 blockBuilder.EntityId = entityId + 1;
             }
+
+			if (MySession.Static.SurvivalMode && !MySession.Static.SimpleSurvival)
+			{
+				blockBuilder.IntegrityPercent = MyComponentStack.MOUNT_THRESHOLD;
+				blockBuilder.BuildPercent = MyComponentStack.MOUNT_THRESHOLD;
+			}
             
-
             gridBuilder.CubeBlocks.Add(blockBuilder);
-
-
-
-
 
             MyCubeGrid grid = MyEntities.CreateFromObjectBuilderAndAdd(gridBuilder) as MyCubeGrid;
             
 
             return grid;
         }
+
+		public static void AfterDynamicGridSpawn(MyCubeGrid grid, bool localBuilder)
+		{
+			MySlimBlock block = grid.GetCubeBlock(Vector3I.Zero);
+			if (block != null)
+			{
+				if (localBuilder && MySession.Static.SurvivalMode && !MySession.Static.SimpleSurvival)
+				{
+					TakeSpawnItemFromBuilder(block);
+				}
+			}
+		}
+
+		private static void TakeSpawnItemFromBuilder(MySlimBlock block)
+		{
+			if (MyFakes.ENABLE_COMPOUND_BLOCKS && block.FatBlock is MyCompoundCubeBlock)
+			{
+				block = (block.FatBlock as MyCompoundCubeBlock).GetBlocks().First();
+			}
+
+			IMyComponentInventory inventory = null;
+			var character = MySession.LocalCharacter;
+
+			if (character != null)
+			{
+				inventory = character.GetAreaInventory();
+				if (inventory == null)
+					inventory = character.GetInventory();
+			}
+			if (inventory != null)
+				inventory.RemoveItemsOfType(1, block.BlockDefinition.Components[0].Definition.Id);
+		}
 
         #endregion
 

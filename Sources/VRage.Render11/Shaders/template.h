@@ -41,9 +41,14 @@ struct ObjectConstants
 
 	float3 color_mul; 	// mostly for emissive, default = 1
 	float emissive;		// default = 0
-
 	uint material_index; // 0-255 material id (mostly for brdf etc), we pack it in gbuffer!
 	uint material_flags;
+
+	float2 __padding0;
+	float3 voxel_offset;
+	float __padding1;
+	float3 voxel_scale;
+	float __padding2;
 
 #ifdef USE_SKINNING
 	matrix bone_matrix[60];

@@ -1,5 +1,6 @@
 ﻿using ProtoBuf;
 using Sandbox.Common;
+using Sandbox.Common.ObjectBuilders;
 using Sandbox.Definitions;
 using Sandbox.Engine.Multiplayer;
 using Sandbox.Engine.Networking;
@@ -23,11 +24,9 @@ using VRageRender;
 
 namespace Sandbox.Game.World
 {
-    [PreloadRequired]
-    [MySessionComponentDescriptor(MyUpdateOrder.BeforeSimulation)]
-    public class MyRespawnComponent : MySessionComponentBase, IMyRespawnComponent
+    public abstract class MyRespawnComponent : MySessionComponentBase, IMyRespawnComponent
     {
-        [ProtoContract]
+        /*[ProtoContract]
         struct RespawnCooldownEntry
         {
             [ProtoMember]
@@ -99,41 +98,9 @@ namespace Sandbox.Game.World
             var msg = new SyncCooldownRequestMessage();
 
             Sync.Layer.SendMessageToServer(ref msg);
-        }
+        }*/
 
-        public static void InitFromCheckpoint(List<Common.ObjectBuilders.MyObjectBuilder_Checkpoint.RespawnCooldownItem> list)
-        {
-            m_lastUpdate = MySandboxGame.TotalGamePlayTimeInMilliseconds;
-            m_globalRespawnTimesMs.Clear();
-
-            if (list == null) return;
-
-            foreach (var item in list)
-            {
-                var controllerId = new MyPlayer.PlayerId() { SteamId = item.PlayerSteamId, SerialId = item.PlayerSerialId };
-                var key = new RespawnKey() { ControllerId = controllerId, RespawnShipId = item.RespawnShipId };
-                m_globalRespawnTimesMs.Add(key, item.Cooldown + m_lastUpdate, immediate: true);
-            }
-        }
-
-        public static void SaveToCheckpoint(List<Common.ObjectBuilders.MyObjectBuilder_Checkpoint.RespawnCooldownItem> list)
-        {
-            foreach (var pair in m_globalRespawnTimesMs)
-            {
-                int cooldown = pair.Value - m_lastUpdate;
-                if (cooldown <= 0) continue;
-
-                var item = new Common.ObjectBuilders.MyObjectBuilder_Checkpoint.RespawnCooldownItem();
-                item.PlayerSteamId = pair.Key.ControllerId.SteamId;
-                item.PlayerSerialId = pair.Key.ControllerId.SerialId;
-                item.RespawnShipId = pair.Key.RespawnShipId;
-                item.Cooldown = cooldown;
-
-                list.Add(item);
-            }
-        }
-
-        public override void BeforeStart()
+        /*public override void BeforeStart()
         {
             base.BeforeStart();
 
@@ -250,7 +217,7 @@ namespace Sandbox.Game.World
             }
 
             #warning Fix the debug draw
-            /*if (MyFakes.DEBUG_DRAW_RESPAWN_SHIP_COUNTERS)
+            *//*if (MyFakes.DEBUG_DRAW_RESPAWN_SHIP_COUNTERS)
             {
                 StringBuilder sb = new StringBuilder();
 
@@ -278,7 +245,7 @@ namespace Sandbox.Game.World
                     }
                     y += 5.0f;
                 }
-            }*/
+            }*//*
         }
 
         private void UpdateRespawnTimes(int delta)
@@ -377,9 +344,11 @@ namespace Sandbox.Game.World
             }
 
             return false;
-        }
+        }*/
 
-        public bool HandleRespawnRequest(bool joinGame, bool newIdentity, long medicalRoomId, string respawnShipId, MyPlayer.PlayerId playerId, Vector3D? spawnPosition)
+        public abstract bool HandleRespawnRequest(bool joinGame, bool newIdentity, long medicalRoomId, string respawnShipId, MyPlayer.PlayerId playerId, Vector3D? spawnPosition);
+                
+        /*public bool HandleRespawnRequest(bool joinGame, bool newIdentity, long medicalRoomId, string respawnShipId, MyPlayer.PlayerId playerId, Vector3D? spawnPosition)
         {
             MyPlayer player = Sync.Players.TryGetPlayerById(playerId);
 
@@ -527,11 +496,31 @@ namespace Sandbox.Game.World
                 }
             }
             return closestMedicalRoom;
-        }
+        }*/
 
         public MyIdentity CreateNewIdentity(string identityName, MyPlayer.PlayerId playerId, string modelName)
         {
             return Sync.Players.CreateNewIdentity(identityName, "Default_Astronaut");
+        }
+
+        public virtual void InitFromCheckpoint(MyObjectBuilder_Checkpoint checkpoint)
+        {
+            throw new NotImplementedException();
+        }
+
+        public virtual void SaveToCheckpoint(MyObjectBuilder_Checkpoint checkpoint)
+        {
+            throw new NotImplementedException();
+        }
+
+        public virtual void AfterRemovePlayer(MyPlayer player)
+        {
+            throw new NotImplementedException();
+        }
+
+        public virtual void SetupCharacterDefault(MyPlayer player, MyWorldGenerator.Args args)
+        {
+            throw new NotImplementedException();
         }
     }
 }

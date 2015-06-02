@@ -20,7 +20,7 @@ namespace Sandbox.Game.Multiplayer
         long GetEntityId();
     }
 
-    static class EntityMessageExtensions
+    public static class EntityMessageExtensions
     {
         public static string GetEntityText(this IEntityMessage msg)
         {

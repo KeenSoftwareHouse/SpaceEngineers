@@ -10380,6 +10380,11 @@ namespace Sandbox.Game.Localization
         public static readonly MyStringId MessageBoxTextRestartNeededAfterRendererSwitch = MyStringId.GetOrCompute("MessageBoxTextRestartNeededAfterRendererSwitch");
 
         ///<summary>
+        ///Docking Mode
+        ///</summary>
+        public static readonly MyStringId BlockPropertyTitle_EnableDockingMode = MyStringId.GetOrCompute("BlockPropertyTitle_EnableDockingMode");
+
+        ///<summary>
         ///Forward Direction
         ///</summary>
         public static readonly MyStringId BlockPropertyTitle_ForwardDirection = MyStringId.GetOrCompute("BlockPropertyTitle_ForwardDirection");

@@ -8,12 +8,11 @@ using System.Linq;
 using System.Text;
 using VRage;
 using VRage.Algorithms;
-using VRage;
 using VRageMath;
 
 namespace Sandbox.Game.GameSystems.Conveyors
 {
-    class MyMultilineConveyorEndpoint : IMyConveyorEndpoint
+    public class MyMultilineConveyorEndpoint : IMyConveyorEndpoint
     {
         protected MyConveyorLine[] m_conveyorLines;
 

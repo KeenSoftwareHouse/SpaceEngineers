@@ -96,13 +96,13 @@ namespace Sandbox.Game.GameSystems
             return MathHelper.Lerp(PreviousOxygenAmount, targetOxygenAmount, t);
         }
 
-        internal float OxygenLevel(float gridSize)
+        public float OxygenLevel(float gridSize)
         {
             return OxygenAmount() / (gridSize * gridSize * gridSize);
         }
     }
 
-    class MyGridOxygenSystem
+    public class MyGridOxygenSystem
     {
         private struct MyDepressurizationForceInfo
         {

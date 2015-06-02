@@ -23,7 +23,7 @@ using VRage.ModAPI;
 namespace Sandbox.Game.Entities.Blocks
 {
     [MyCubeBlockType(typeof(MyObjectBuilder_CryoChamber))]
-    class MyCryoChamber : MyCockpit, IMyPowerConsumer
+    public class MyCryoChamber : MyCockpit, IMyPowerConsumer
     {
         private MatrixD m_characterDummy;
         private MatrixD m_cameraDummy;

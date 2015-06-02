@@ -152,9 +152,9 @@ namespace Sandbox.Game.Entities
         internal MyGridSkeleton Skeleton;
         public readonly BlockTypeCounter BlockCounter = new BlockTypeCounter();
 
-        internal MyCubeGridSystems GridSystems { get; private set; }
+        public MyCubeGridSystems GridSystems { get; private set; }
 
-        public Dictionary<Type, int> BlocksCounters = new Dictionary<Type, int>();
+        public Dictionary<MyObjectBuilderType, int> BlocksCounters = new Dictionary<MyObjectBuilderType, int>();
 
         internal new MySyncGrid SyncObject
         {
@@ -1487,8 +1487,9 @@ namespace Sandbox.Game.Entities
                 return false;
 
             // Grids with medbays are not trash
+            // CH: TODO: Ideally, this would somehow call SE-specific code to remove reference to medbays
             int medbayNum;
-            if (BlocksCounters.TryGetValue(typeof(MyMedicalRoom), out medbayNum) && medbayNum > 0)
+            if (BlocksCounters.TryGetValue(typeof(MyObjectBuilder_MedicalRoom), out medbayNum) && medbayNum > 0)
                 return false;
 
             // Other grids are trash when they are far enough
@@ -1910,11 +1911,13 @@ namespace Sandbox.Game.Entities
 
                 if (cubeBlock.FatBlock.Render.NeedsDrawFromParent)
                     m_blocksForDraw.Add(cubeBlock.FatBlock);
-                if (cubeBlock.FatBlock.GetType() != typeof(MyCubeBlock))
+
+                MyObjectBuilderType blockType = cubeBlock.BlockDefinition.Id.TypeId;
+                if (blockType != typeof(MyObjectBuilder_CubeBlock))
                 {
-                    if (!BlocksCounters.ContainsKey(cubeBlock.FatBlock.GetType()))
-                        BlocksCounters.Add(cubeBlock.FatBlock.GetType(), 0);
-                    BlocksCounters[cubeBlock.FatBlock.GetType()]++;
+                    if (!BlocksCounters.ContainsKey(blockType))
+                        BlocksCounters.Add(blockType, 0);
+                    BlocksCounters[blockType]++;
                 }
             }
 
@@ -2311,7 +2314,7 @@ namespace Sandbox.Game.Entities
             }
         }
 
-        private static MyInventory GetBuilderInventory(long builderId)
+        private static IMyComponentInventory GetBuilderInventory(long builderId)
         {
             if (MySession.Static.CreativeMode)
                 return null;
@@ -2325,7 +2328,10 @@ namespace Sandbox.Game.Entities
             var character = builderEntity as MyCharacter;
             if (character != null)
             {
-                return character.GetInventory();
+				IMyComponentInventory inventory = character.GetAreaInventory();
+				if (inventory == null)
+					inventory = character.GetInventory();
+                return inventory;
             }
             var shipWelder = builderEntity as MyShipWelder;
             if (shipWelder != null)
@@ -2604,7 +2610,7 @@ namespace Sandbox.Game.Entities
         /// <summary>
         /// Builds block without checking connectivity
         /// </summary>
-        private MySlimBlock BuildBlock(MyCubeBlockDefinition blockDefinition, Vector3 colorMaskHsv, Vector3I min, Quaternion orientation, long owner, long entityId, MyInventory inventory, MyObjectBuilder_CubeBlock blockObjectBuilder = null, bool updateVolume = true, bool testMerge = true)
+        private MySlimBlock BuildBlock(MyCubeBlockDefinition blockDefinition, Vector3 colorMaskHsv, Vector3I min, Quaternion orientation, long owner, long entityId, IMyComponentInventory inventory, MyObjectBuilder_CubeBlock blockObjectBuilder = null, bool updateVolume = true, bool testMerge = true)
         {
             ProfilerShort.Begin("BuildBlock");
             if (blockObjectBuilder == null)
@@ -2884,7 +2890,7 @@ namespace Sandbox.Game.Entities
             return m_cubeBlocks;
         }
 
-        internal MyFatBlockReader<T> GetFatBlocks<T>()
+        public MyFatBlockReader<T> GetFatBlocks<T>()
             where T : MyCubeBlock
         {
             return new MyFatBlockReader<T>(this);
@@ -3288,11 +3294,10 @@ namespace Sandbox.Game.Entities
             RemoveBlockEdges(block);
             ProfilerShort.End();
 
-
             if (block.FatBlock != null)
             {
-                if (BlocksCounters.ContainsKey(block.FatBlock.GetType()))
-                    BlocksCounters[block.FatBlock.GetType()]--;
+                if (BlocksCounters.ContainsKey(block.BlockDefinition.Id.TypeId))
+                    BlocksCounters[block.BlockDefinition.Id.TypeId]--;
                 ProfilerShort.Begin("Unregister");
                 GridSystems.UnregisterFromSystems(block.FatBlock);
                 ProfilerShort.End();
@@ -4352,11 +4357,13 @@ namespace Sandbox.Game.Entities
 
                 if (block.FatBlock.Render.NeedsDrawFromParent)
                     m_blocksForDraw.Add(block.FatBlock);
-                if (block.FatBlock.GetType() != typeof(MyCubeBlock))
+
+                MyObjectBuilderType blockType = block.BlockDefinition.Id.TypeId;
+                if (blockType != typeof(MyObjectBuilder_CubeBlock))
                 {
-                    if (!BlocksCounters.ContainsKey(block.FatBlock.GetType()))
-                        BlocksCounters.Add(block.FatBlock.GetType(), 0);
-                    BlocksCounters[block.FatBlock.GetType()]++;
+                    if (!BlocksCounters.ContainsKey(blockType))
+                        BlocksCounters.Add(blockType, 0);
+                    BlocksCounters[blockType]++;
                 }
                 ProfilerShort.End();
             }

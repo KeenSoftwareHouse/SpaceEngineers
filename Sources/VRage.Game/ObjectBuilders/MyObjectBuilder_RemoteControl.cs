@@ -29,6 +29,9 @@ namespace Sandbox.Common.ObjectBuilders
 
         [ProtoMember]
         public byte Direction = 0;
+
+        [ProtoMember]
+        public bool DockingModeEnabled = false;
         
         /// <summary>
         /// Obsolete. Use Waypoints instead.

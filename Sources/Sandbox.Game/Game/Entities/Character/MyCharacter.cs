@@ -2,21 +2,24 @@
 
 using Havok;
 using Sandbox.Common;
-using Sandbox.Common.Components;
+using Sandbox.Common.ModAPI;
 using Sandbox.Common.ObjectBuilders;
 using Sandbox.Common.ObjectBuilders.Definitions;
 using Sandbox.Definitions;
 using Sandbox.Engine.Models;
+using Sandbox.Engine.Multiplayer;
 using Sandbox.Engine.Physics;
 using Sandbox.Engine.Utils;
 using Sandbox.Game.Components;
 using Sandbox.Game.Entities.Cube;
+using Sandbox.Game.GameSystems;
 using Sandbox.Game.GameSystems.Electricity;
 using Sandbox.Game.Gui;
 using Sandbox.Game.GUI;
 using Sandbox.Game.Localization;
 using Sandbox.Game.Multiplayer;
 using Sandbox.Game.Screens.Helpers;
+using Sandbox.Game.SessionComponents;
 using Sandbox.Game.Weapons;
 using Sandbox.Game.World;
 using Sandbox.Graphics.GUI;
@@ -29,23 +32,17 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using VRage;
-using VRage;
+using VRage.Components;
+using VRage.FileSystem;
+using VRage.Game.Entity.UseObject;
 using VRage.Input;
+using VRage.Library.Utils;
+using VRage.ModAPI;
+using VRage.ObjectBuilders;
 using VRage.Utils;
 using VRageMath;
 using VRageRender;
 using IMyModdingControllableEntity = Sandbox.ModAPI.Interfaces.IMyControllableEntity;
-using VRage.Library.Utils;
-using VRage.FileSystem;
-using Sandbox.Engine.Multiplayer;
-using SteamSDK;
-using Sandbox.Game.SessionComponents;
-using Sandbox.Game.GameSystems;
-using Sandbox.Common.ModAPI;
-using VRage.ObjectBuilders;
-using VRage.Components;
-using VRage.Game.Entity.UseObject;
-using VRage.ModAPI;
 
 #endregion
 
@@ -292,6 +289,7 @@ namespace Sandbox.Game.Entities.Character
 
         string m_characterModel;
         MyInventory m_inventory;
+		MyAreaInventory m_areaInventory;
         MyBattery m_suitBattery;
         MyPowerDistributor m_suitPowerDistributor;
         List<MyInventoryItem> m_inventoryResults = new List<MyInventoryItem>();
@@ -1140,6 +1138,8 @@ namespace Sandbox.Game.Entities.Character
 
             if (collidingEntity == ManipulatedEntity) return DamageImpactEnum.NoDamage;
 
+            if (collidingBody.HasProperty(HkCharacterRigidBody.MANIPULATED_OBJECT)) return DamageImpactEnum.NoDamage;
+
             // Get the objects energies to calculate the damage - must be higher above treshold
             float objectEnergy = Math.Abs(value.SeparatingVelocity) * (MyPerGameSettings.Destruction ? MyDestructionHelper.MassFromHavok(collidingBody.Mass) : collidingBody.Mass);
 
@@ -1527,6 +1527,11 @@ namespace Sandbox.Game.Entities.Character
             return CharacterSounds[(int)CharacterSoundsEnum.NONE_SOUND];
         }
 
+		public void InitAreaInventory()
+		{
+			m_areaInventory = new MyAreaInventory(this);
+		}
+
         public void UpdateLightPower(bool chargeImmediatelly = false)
         {
             float oldPower = m_currentLightPower;
@@ -1598,6 +1603,14 @@ namespace Sandbox.Game.Entities.Character
                 RagdollMapper.SyncRigidBodiesTransforms(WorldMatrix);
             }
         }
+
+		public override void UpdateAfterSimulation10()
+		{
+			base.UpdateAfterSimulation10();
+
+			if (m_areaInventory != null)
+				m_areaInventory.Update(PositionComp.GetPosition());
+		}
 
         private void UpdateChat()
         {
@@ -4457,7 +4470,7 @@ namespace Sandbox.Game.Entities.Character
                     target = Vector3.Transform(m_bones[m_headBoneIndex].AbsoluteTransform.Translation, WorldMatrix);
                 }
                 MatrixD viewMatrix = MatrixD.CreateLookAt(camPosition, target, Vector3.Up);
-                return viewMatrix.IsValid() ? viewMatrix : m_lastCorrectSpectatorCamera;
+                return viewMatrix.IsValid() && viewMatrix != MatrixD.Zero ? viewMatrix : m_lastCorrectSpectatorCamera;
             }
 
             if (!m_isInFirstPersonView)
@@ -4474,7 +4487,7 @@ namespace Sandbox.Game.Entities.Character
                     else
                     {
                         m_switchBackToFirstPersonTimer = m_cameraSwitchDelay;
-                        return m_lastCorrectSpectatorCamera = MyThirdPersonSpectator.Static.GetViewMatrix();
+                        return MyThirdPersonSpectator.Static.GetViewMatrix();
                     }
                 }
                 else
@@ -4483,7 +4496,7 @@ namespace Sandbox.Game.Entities.Character
                     {
                        m_switchBackToFirstPersonTimer -= MyEngineConstants.UPDATE_STEP_SIZE_IN_SECONDS;
                        ForceFirstPersonCamera = false;
-                       return m_lastCorrectSpectatorCamera;
+                       return MyThirdPersonSpectator.Static.GetViewMatrix();
                     }
                     else
                     {
@@ -5908,6 +5921,11 @@ namespace Sandbox.Game.Entities.Character
             return m_inventory;
         }
 
+		public MyAreaInventory GetAreaInventory()
+		{
+			return m_areaInventory;
+		}
+
         public MyInventoryOwnerTypeEnum InventoryOwnerType
         {
             get { return MyInventoryOwnerTypeEnum.Character; }
@@ -5920,7 +5938,12 @@ namespace Sandbox.Game.Entities.Character
             Debug.Assert(m_inventory != null, "Inventory is null!");
             Debug.Assert(blockDefinition.Components.Length != 0, "Missing components!");
 
-            return (m_inventory.ContainItems(1, blockDefinition.Components[0].Definition.Id));
+			bool canStart = m_inventory.ContainItems(1, blockDefinition.Components[0].Definition.Id);
+
+			if (!canStart && m_areaInventory != null)
+				canStart = (m_areaInventory.GetItemAmount(blockDefinition.Components[0].Definition.Id) >= 1);
+
+            return canStart;
         }
 
         public bool CanStartConstruction(Dictionary<MyDefinitionId, int> constructionCost)
@@ -6800,7 +6823,7 @@ namespace Sandbox.Game.Entities.Character
 
         internal IMyControllableEntity CurrentRemoteControl { get; set; }
 
-        internal MyBattery SuitBattery
+        public MyBattery SuitBattery
         {
             get { return m_suitBattery; }
         }
@@ -6892,7 +6915,7 @@ namespace Sandbox.Game.Entities.Character
         /// <summary>
         /// This will just spawn new character, to take control, call respawn on player
         /// </summary>
-        internal static MyCharacter CreateCharacter(MatrixD worldMatrix, Vector3 velocity, string characterName, string model, Vector3? colorMask, bool findNearPos = true, bool AIMode = false, MyCockpit cockpit = null, bool useInventory = true)
+        public static MyCharacter CreateCharacter(MatrixD worldMatrix, Vector3 velocity, string characterName, string model, Vector3? colorMask, bool findNearPos = true, bool AIMode = false, MyCockpit cockpit = null, bool useInventory = true)
         {
             Vector3D? characterPos = null;
             if (findNearPos)

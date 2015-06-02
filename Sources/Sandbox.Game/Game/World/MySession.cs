@@ -1408,7 +1408,7 @@ namespace Sandbox.Game.World
             FixObsoleteStuff(sector);
             // =================================================================================================================
 
-            MyRespawnComponent.InitFromCheckpoint(checkpoint.RespawnCooldowns);
+            Sync.Players.RespawnComponent.InitFromCheckpoint(checkpoint);
 
             MyPlayer.PlayerId savingPlayer = new MyPlayer.PlayerId();
             MyPlayer.PlayerId? savingPlayerNullable = null;
@@ -2098,7 +2098,7 @@ namespace Sandbox.Game.World
 
             checkpoint.Identities = Sync.Players.SaveIdentities();
             checkpoint.RespawnCooldowns = new List<MyObjectBuilder_Checkpoint.RespawnCooldownItem>();
-            MyRespawnComponent.SaveToCheckpoint(checkpoint.RespawnCooldowns);
+            Sync.Players.RespawnComponent.SaveToCheckpoint(checkpoint);
             checkpoint.ControlledEntities = Sync.Players.SerializeControlledEntities();
 
             checkpoint.SpectatorPosition = new MyPositionAndOrientation(ref spectatorMatrix);

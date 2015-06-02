@@ -34,7 +34,7 @@ using VRage.ModAPI;
 namespace Sandbox.Game.Entities
 {
     [MyCubeBlockType(typeof(MyObjectBuilder_Cockpit))]
-    class MyCockpit : MyShipController, IMyCameraController, IMyUsableEntity, IMyCockpit, IMyOxygenConsumer, IMyConveyorEndpointBlock
+    public class MyCockpit : MyShipController, IMyCameraController, IMyUsableEntity, IMyCockpit, IMyOxygenConsumer, IMyConveyorEndpointBlock
     {
         #region Fields
         float DEFAULT_FPS_CAMERA_X_ANGLE = -10;

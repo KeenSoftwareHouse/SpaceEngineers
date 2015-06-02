@@ -389,7 +389,7 @@ namespace VRageRender
                 //var instancing = m_owner.GetComponent(MyActorComponentEnum.Instancing) as MyInstancingComponent;
 
                 bool skinningEnabled = Skinnings.ContainsKey(entity);
-                var objectConstantsSize = sizeof(Matrix);
+                var objectConstantsSize = sizeof(MyObjectData);
 
                 if (skinningEnabled)
                 {
@@ -473,6 +473,8 @@ namespace VRageRender
         float m_objectDithering;
 
         internal int m_voxelLod;
+        internal Vector3 m_voxelScale;
+        internal Vector3 m_voxelOffset;
 
         //MyMesh m_mesh;
         MeshId Mesh;
@@ -906,6 +908,8 @@ namespace VRageRender
                 lod.RenderableProxies[p].ObjectData.LocalMatrix = m_owner.WorldMatrix;
                 lod.RenderableProxies[p].ObjectData.Emissive = MyModelProperties.DefaultEmissivity;
                 lod.RenderableProxies[p].ObjectData.ColorMul = MyModelProperties.DefaultColorMul;
+                lod.RenderableProxies[p].ObjectData.VoxelScale = Vector3.One;
+                lod.RenderableProxies[p].ObjectData.VoxelOffset = Vector3.Zero;
 
                 lod.RenderableProxies[p].Mesh = lodMesh;
                 lod.RenderableProxies[p].DepthShaders = MyMaterialShaders.Get(
@@ -1021,7 +1025,7 @@ namespace VRageRender
 
         internal unsafe void RebuildVoxelRenderProxies()
         {
-            var objectConstantsSize = sizeof(Matrix);
+            var objectConstantsSize = sizeof(MyObjectData);
 
             Debug.Assert(Mesh.Info.LodsNum == 1);
             m_lods = new MyRenderLod[1];
@@ -1053,6 +1057,8 @@ namespace VRageRender
                 var technique = partId.Info.MaterialTriple.IsMultimaterial() ? MyVoxelMesh.MULTI_MATERIAL_TAG : MyVoxelMesh.SINGLE_MATERIAL_TAG;
 
                 lod.RenderableProxies[p].ObjectData.LocalMatrix = m_owner.WorldMatrix;
+                lod.RenderableProxies[p].ObjectData.VoxelOffset = m_voxelOffset;
+                lod.RenderableProxies[p].ObjectData.VoxelScale = m_voxelScale;
 
                 lod.RenderableProxies[p].Mesh = lodMesh;
                 lod.RenderableProxies[p].DepthShaders = MyMaterialShaders.Get(

@@ -17,7 +17,7 @@ using VRage.ObjectBuilders;
 
 namespace Sandbox.Game.GameSystems.Electricity
 {
-    class MyBattery : IMyPowerProducer, IMyPowerConsumer
+    public class MyBattery : IMyPowerProducer, IMyPowerConsumer
     {
         internal class Friend
         {

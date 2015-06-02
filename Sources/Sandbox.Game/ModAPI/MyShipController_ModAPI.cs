@@ -7,7 +7,7 @@ using VRage.ModAPI;
 
 namespace Sandbox.Game.Entities
 {
-    partial class MyShipController
+    public partial class MyShipController
     {
         IMyEntity ModAPI.Interfaces.IMyControllableEntity.Entity
         {
