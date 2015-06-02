@@ -151,7 +151,6 @@ namespace VRageRender
             
             MyTextures.OnSessionEnd();
             MyBigMeshTable.Table.OnSessionEnd();
-            MyScreenDecals.OnSessionEnd();
 
             //MyAssetsLoader.ClearMeshes();
         }

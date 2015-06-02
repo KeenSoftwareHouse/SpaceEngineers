@@ -258,7 +258,7 @@ namespace Sandbox.Game.Entities.Blocks
                 if (m_echoOutput.Length > 0)
                     retVal = m_echoOutput.ToString();
             }
-            catch (TargetInvocationException ex)
+            catch (Exception ex)
             {
                 // Since we just had an exception I'm not fussed about using old 
                 // fashioned string concatenation here. We'll still want the echo
@@ -266,13 +266,13 @@ namespace Sandbox.Game.Entities.Blocks
                 if (m_echoOutput.Length > 0)
                     retVal = m_echoOutput.ToString();
                 OnProgramTermination();
-                if (ex.InnerException is ScriptOutOfRangeException)
+                if (ex is ScriptOutOfRangeException)
                 {
                     retVal += MyTexts.GetString(MySpaceTexts.ProgrammableBlock_Exception_TooComplex);
                 }
                 else if (ex.InnerException != null)
                 {
-                    retVal += MyTexts.GetString(MySpaceTexts.ProgrammableBlock_Exception_ExceptionCaught) + ex.InnerException.Message;
+                    retVal += MyTexts.GetString(MySpaceTexts.ProgrammableBlock_Exception_ExceptionCaught) + ex.Message;
                 }
             }
             m_isRunning = false;

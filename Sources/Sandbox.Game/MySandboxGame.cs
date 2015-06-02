@@ -1097,7 +1097,7 @@ namespace Sandbox
             IlChecker.AllowNamespaceOfTypeModAPI(typeof(Sandbox.ModAPI.Interfaces.IMyCameraController));
             IlChecker.AllowNamespaceOfTypeModAPI(typeof(VRage.ModAPI.IMyEntity));
 
-            IlChecker.AllowNamespaceOfTypeModAPI(typeof(Sandbox.Common.ObjectBuilders.Definitions.EnvironmentItemsEntry));
+            IlChecker.AllowNamespaceOfTypeCommon(typeof(Sandbox.Common.ObjectBuilders.Definitions.EnvironmentItemsEntry));
             IlChecker.AllowNamespaceOfTypeModAPI(typeof(MyGameLogicComponent));
             IlChecker.AllowNamespaceOfTypeModAPI(typeof(VRage.Components.MyComponentBase));
             IlChecker.AllowNamespaceOfTypeModAPI(typeof(Sandbox.Common.MySessionComponentBase));

@@ -2991,7 +2991,11 @@ namespace Sandbox.Game.Entities.Character
             if (canMove || CanFly() || m_crouchingChanged)
             {
                 if (moveIndicator.LengthSquared() > 0)
+                {
                     moveIndicator = Vector3.Normalize(moveIndicator); //normalize movement speed
+
+                    //SyncObject.MoveAndRotate();
+                }
 
                 MyCharacterMovementEnum newMovementState = GetNewMovementState(ref moveIndicator, ref acceleration, sprint, walk, canMove);
 
