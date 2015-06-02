@@ -152,9 +152,13 @@ namespace Sandbox.Game.GameSystems
             {
 
                 case MyState.Loaded:
-                    MyGuiSandbox.AddScreen(new MyGuiScreenScenarioMpServer());
-                    MyMultiplayer.Static.Scenario = true;
-                    m_gameState = MyState.JoinScreen;
+                    if (MySession.Static.OnlineMode == MyOnlineModeEnum.OFFLINE || MyMultiplayer.Static != null)
+                    {
+                        if (MyMultiplayer.Static != null)
+                            MyMultiplayer.Static.Scenario = true;
+                        MyGuiSandbox.AddScreen(new MyGuiScreenScenarioMpServer());
+                        m_gameState = MyState.JoinScreen;
+                    }
                     break;
                 case MyState.JoinScreen:
                     break;

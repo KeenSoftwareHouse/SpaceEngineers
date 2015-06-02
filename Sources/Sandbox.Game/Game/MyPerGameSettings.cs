@@ -202,7 +202,7 @@ namespace Sandbox.Game
             EditWorldSettingsScreen = typeof(Sandbox.Game.Gui.MyGuiScreenWorldSettings),
             HelpScreen = typeof(Sandbox.Game.Gui.MyGuiScreenHelpSpace),
             VoxelMapEditingScreen = typeof(Sandbox.Game.Gui.MyGuiScreenDebugSpawnMenu),
-            //ScenarioLobbyClientScreen = typeof(Sandbox.Game.Gui.MyGuiScreenScenarioLobbyClient),
+            ScenarioLobbyClientScreen = typeof(Sandbox.Game.Screens.MyGuiScreenScenarioMpClient),
         };
         public static Type BotFactoryType = null;
         public static bool EnableAi = false;

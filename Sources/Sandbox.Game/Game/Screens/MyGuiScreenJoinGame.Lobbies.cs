@@ -123,15 +123,18 @@ namespace Sandbox.Game.Gui
                 return;
 
             Lobby selectedLobby = (Lobby)selectedRow.UserData;
-            bool isBattle = MyMultiplayerLobby.GetLobbyBattle(selectedLobby);
 
-            if (MyFakes.ENABLE_BATTLE_SYSTEM && isBattle)
+            if (MyMultiplayerLobby.GetLobbyScenario(selectedLobby))
             {
-                MyJoinGameHelper.JoinBattleGame(selectedLobby);
+                MyJoinGameHelper.JoinScenarioGame(selectedLobby);
             }
             else
             {
-                MyJoinGameHelper.JoinGame(selectedLobby);
+                bool isBattle = MyMultiplayerLobby.GetLobbyBattle(selectedLobby);
+                if (MyFakes.ENABLE_BATTLE_SYSTEM && isBattle)
+                    MyJoinGameHelper.JoinBattleGame(selectedLobby);
+                else
+                    MyJoinGameHelper.JoinGame(selectedLobby);
             }
         }
 

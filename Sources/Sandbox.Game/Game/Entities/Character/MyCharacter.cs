@@ -2085,7 +2085,7 @@ namespace Sandbox.Game.Entities.Character
             VRageRender.MyRenderProxy.GetRenderProfiler().EndProfilingBlock();
 
             VRageRender.MyRenderProxy.GetRenderProfiler().StartProfilingBlock("Simulate Ragdoll");
-            SimulateRagdoll();    // probably should be in UpdateDying, but changes the animation of the bones..
+            if (IsCameraNear) SimulateRagdoll();    // probably should be in UpdateDying, but changes the animation of the bones..
             VRageRender.MyRenderProxy.GetRenderProfiler().EndProfilingBlock();
             
         }

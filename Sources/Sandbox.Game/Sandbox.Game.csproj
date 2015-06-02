@@ -537,6 +537,7 @@
     <Compile Include="Game\GUI\MyGuiDetailScreen.cs" />
     <Compile Include="Game\GUI\MyGuiIngameScriptsPage.cs" />
     <Compile Include="Game\GUI\MyGuiScreenBotSettings.cs" />
+    <Compile Include="Game\Screens\MyGuiScreenScenarioMpClient.cs" />
     <Compile Include="Game\Screens\MyGuiScreenScenarioWaitForPlayers.cs" />
     <Compile Include="Game\GUI\MyHudCameraInfo.cs" />
     <Compile Include="Game\GUI\MyHudCameraOverlay.cs" />

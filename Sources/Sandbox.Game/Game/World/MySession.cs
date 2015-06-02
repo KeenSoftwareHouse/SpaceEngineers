@@ -486,6 +486,7 @@ namespace Sandbox.Game.World
             multiplayer.Mods = this.Mods;
             multiplayer.ViewDistance = this.Settings.ViewDistance;
             multiplayer.Battle = this.Battle;
+            multiplayer.Scenario = this.IsScenario;
 
             if (MySandboxGame.IsDedicated)
                 (multiplayer as MyDedicatedServer).SendGameTagsToSteam();

@@ -102,15 +102,15 @@ namespace Sandbox.Game.Multiplayer
             if (PrepareScenario != null)
                 PrepareScenario(msg.PreparationStartTime);
 
-            //MyJoinGameHelper.DownloadScenarioWorld(MyMultiplayer.Static);
-            //MyGuiScreenLoadSandbox.ScenarioWorldLoaded += MyGuiScreenLoadSandbox_ScenarioWorldLoaded;
+            MyJoinGameHelper.DownloadScenarioWorld(MyMultiplayer.Static);
+            MyGuiScreenLoadSandbox.ScenarioWorldLoaded += MyGuiScreenLoadSandbox_ScenarioWorldLoaded;
         }                    
 
         private static void MyGuiScreenLoadSandbox_ScenarioWorldLoaded()
         {
             Debug.Assert(!Sync.IsServer);
 
-            //MyGuiScreenLoadSandbox.ScenarioWorldLoaded -= MyGuiScreenLoadSandbox_ScenarioWorldLoaded;
+            MyGuiScreenLoadSandbox.ScenarioWorldLoaded -= MyGuiScreenLoadSandbox_ScenarioWorldLoaded;
 
             var msg = new PlayerReadyToStartScenarioMsg();
             msg.PlayerSteamId = MySteam.UserId;
