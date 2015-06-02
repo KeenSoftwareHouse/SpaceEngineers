@@ -20,6 +20,8 @@ using System.Threading;
 using Sandbox.Game.Entities;
 using Sandbox.Common.Components;
 using VRage.Import;
+using VRage.Components;
+using VRage.ModAPI;
 
 namespace Sandbox.Game.Components
 {
@@ -35,9 +37,9 @@ namespace Sandbox.Game.Components
 
             SetRenderObjectID(0, VRageRender.MyRenderProxy.CreateRenderEntity
                 (
-                 this.Entity.GetFriendlyName() + " " + this.Entity.EntityId.ToString(),
+                 Container.Entity.GetFriendlyName() + " " + Container.Entity.EntityId.ToString(),
                  m_model.AssetName,
-                 this.Entity.PositionComp.WorldMatrix,
+                 Container.Entity.PositionComp.WorldMatrix,
                  MyMeshDrawTechnique.MESH,
                  GetRenderFlags(),
                  GetRenderCullingOptions(),
@@ -73,7 +75,7 @@ namespace Sandbox.Game.Components
         {
             System.Diagnostics.Debug.Assert(m_renderObjectIDs[index] == VRageRender.MyRenderProxy.RENDER_ID_UNASSIGNED);
             m_renderObjectIDs[index] = ID;
-            MyEntities.AddRenderObjectToMap(ID, this.Entity);
+            MyEntities.AddRenderObjectToMap(ID, Container.Entity);
         }
 
         public override void ReleaseRenderObjectID(int index)
@@ -92,13 +94,13 @@ namespace Sandbox.Game.Components
         /// </summary>
         public override void Draw()
         {
-            var objToCameraSq = Vector3.DistanceSquared(MySector.MainCamera.Position, Entity.PositionComp.GetPosition());
+            var objToCameraSq = Vector3.DistanceSquared(MySector.MainCamera.Position, Container.Entity.PositionComp.GetPosition());
 
             //Disable glass for holograms (transparency < 0)
-            if (m_model != null && m_model.GlassData != null && objToCameraSq < Entity.MaxGlassDistSq && Transparency >= 0f)
+            if (m_model != null && m_model.GlassData != null && objToCameraSq < Container.Entity.MaxGlassDistSq && Transparency >= 0f)
             {
                 string mat;
-                var world = (Matrix)Entity.PositionComp.WorldMatrix;
+                var world = (Matrix)Container.Entity.PositionComp.WorldMatrix;
 
                 for (int i = 0; i < m_model.GlassData.TriCount; i++)
                 {
@@ -182,7 +184,7 @@ namespace Sandbox.Game.Components
 
         public override bool IsVisible()
         {
-            if (!MyEntities.IsVisible(this.Entity))
+            if (!MyEntities.IsVisible(Container.Entity))
             {
                 return false;
             }
@@ -192,7 +194,7 @@ namespace Sandbox.Game.Components
                 return false;
             }
 
-            if (!this.Entity.InScene)
+            if (!Container.Entity.InScene)
             {
                 return false;
             }
@@ -204,7 +206,7 @@ namespace Sandbox.Game.Components
         {
             get
             {
-                return ((Entity.Flags & EntityFlags.NeedsDraw) != 0);
+                return ((Container.Entity.Flags & EntityFlags.NeedsDraw) != 0);
             }
             set
             {
@@ -212,15 +214,15 @@ namespace Sandbox.Game.Components
 
                 if (hasChanged)                
                 {
-                    MyEntities.UnregisterForDraw(this.Entity);
-                    Entity.Flags &= ~EntityFlags.NeedsDraw;
+                    MyEntities.UnregisterForDraw(Container.Entity);
+                    Container.Entity.Flags &= ~EntityFlags.NeedsDraw;
 
                     if (value)
-                        Entity.Flags |= EntityFlags.NeedsDraw;
+                        Container.Entity.Flags |= EntityFlags.NeedsDraw;
 
-                    if (this.Entity.InScene)
+                    if (Container.Entity.InScene)
                     {
-                        MyEntities.RegisterForDraw(this.Entity);
+                        MyEntities.RegisterForDraw(Container.Entity);
                     }
                 }
             }

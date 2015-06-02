@@ -10,7 +10,6 @@ using System.Linq;
 using System.Text;
 using VRageMath;
 
-using VRage.Utils;
 using Sandbox.Game.Localization;
 using VRage;
 using VRage.Utils;

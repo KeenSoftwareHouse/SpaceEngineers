@@ -9,6 +9,7 @@ using Sandbox.Engine.Utils;
 using Sandbox.Game.AI;
 using Sandbox.Game.Entities.Character;
 using Sandbox.Game.Entities.Cube;
+using Sandbox.Game.Entities.UseObject;
 using Sandbox.Game.GameSystems;
 using Sandbox.Game.GameSystems.Conveyors;
 using Sandbox.Game.Gui;
@@ -24,13 +25,16 @@ using VRage.FileSystem;
 using VRage.Library.Utils;
 using VRage.Utils;
 using VRageMath;
+using VRage;
+using VRage.Game.Entity.UseObject;
+using VRage.ModAPI;
 
 #endregion
 
 namespace Sandbox.Game.Entities
 {
     [MyCubeBlockType(typeof(MyObjectBuilder_Cockpit))]
-    class MyCockpit : MyShipController, IMyCameraController, IMyUsableEntity, IMyCockpit, IMyOxygenConsumer, IMyConveyorEndpointBlock
+    public class MyCockpit : MyShipController, IMyCameraController, IMyUsableEntity, IMyCockpit, IMyOxygenConsumer, IMyConveyorEndpointBlock
     {
         #region Fields
         float DEFAULT_FPS_CAMERA_X_ANGLE = -10;

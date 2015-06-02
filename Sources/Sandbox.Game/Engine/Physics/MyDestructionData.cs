@@ -553,7 +553,7 @@ namespace Sandbox
                 }
             }
 
-            MyLog.Default.WriteLine("WARNING: " + modelDef.Id.SubtypeName + " has no physical material specified, trying to autodetect from name");
+            //MyLog.Default.WriteLine("WARNING: " + modelDef.Id.SubtypeName + " has no physical material specified, trying to autodetect from name");
 
 
             if (modelDef.Id.SubtypeName.Contains("Stone"))
@@ -572,7 +572,7 @@ namespace Sandbox
             }
 
 
-            MyLog.Default.WriteLine("WARNING: Unable to find proper physical material for " + modelDef.Id.SubtypeName + ", using Default");
+            //MyLog.Default.WriteLine("WARNING: Unable to find proper physical material for " + modelDef.Id.SubtypeName + ", using Default");
             return m_physicalMaterials["Default"];
         }
 

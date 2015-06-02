@@ -26,6 +26,7 @@ using VRage.Utils;
 using VRage.Trace;
 using VRageMath;
 using Sandbox.Game.Screens.Terminal.Controls;
+using VRage.ModAPI;
 
 namespace Sandbox.Game.Entities.Blocks
 {

@@ -10,6 +10,7 @@ using System;
 using System.Collections.Generic;
 using VRage;
 using VRage.Input;
+using VRage.ModAPI;
 using VRageMath;
 
 namespace Sandbox.Engine.Utils
@@ -103,7 +104,7 @@ namespace Sandbox.Engine.Utils
         Matrix m_orientationMatrix;
 
         List<MyPhysics.HitInfo> m_raycastList = new List<MyPhysics.HitInfo>();
-        HashSet<Sandbox.ModAPI.IMyEntity> m_raycastHashSet = new HashSet<Sandbox.ModAPI.IMyEntity>();
+        HashSet<IMyEntity> m_raycastHashSet = new HashSet<IMyEntity>();
         List<HkRigidBody> m_rigidList = new List<HkRigidBody>();
 
         bool m_saveSettings;

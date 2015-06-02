@@ -12,6 +12,7 @@ using Sandbox.Game.World;
 using Sandbox.Game.Gui;
 using Sandbox.ModAPI.Ingame;
 using Sandbox.Game.Localization;
+using VRage.ModAPI;
 
 namespace Sandbox.Game.Weapons
 {

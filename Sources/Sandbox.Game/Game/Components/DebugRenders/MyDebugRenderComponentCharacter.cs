@@ -94,98 +94,38 @@ namespace Sandbox.Game.Components
                     Color.White, 1f, true, MyGuiDrawAlignEnum.HORISONTAL_CENTER_AND_VERTICAL_CENTER);
             }
 
-            // return true;
-
-            /*
-            Matrix headMatrix = m_headMatrix * WorldMatrix;
-            VRageRender.MyRenderProxy.DebugDrawAxis(headMatrix, 2.4f, false);
-
-            VRageRender.MyRenderProxy.DebugDrawAxis(m_weaponDummyMatrix, 2.4f, false);
-
-            VRageRender.MyRenderProxy.DebugDrawAxis(Matrix.CreateWorld(headMatrix.Translation, Vector3.Forward, Vector3.Up), 2.4f, false);
-              */
-            //return true;
-
             m_simulatedBonesDebugDraw.Clear();
             m_simulatedBonesAbsoluteDebugDraw.Clear();
-            //Physics.CharacterProxy.GetPoseModelSpace(m_simulatedBonesDebugDraw);
-            //Physics.CharacterProxy.GetPoseLocalSpace(m_simulatedBones);
 
             if (MyDebugDrawSettings.DEBUG_DRAW_CHARACTER_BONES)
             {
-                if (MyFakes.USE_HAVOK_ANIMATION_HANDS)
+
+
+
+                for (int s = 0; s < m_character.Bones.Count; s++)
                 {
+                    MyCharacterBone bone2 = m_character.Bones[s];
+                    if (bone2.Parent == null)
+                        continue;
 
-                    for (int s = 0; s < m_simulatedBonesDebugDraw.Count; s++)
-                    {
-                        MyCharacterBone bone2 = m_character.Bones[s];
+                    bone2.ComputeAbsoluteTransform();
 
-                        Matrix absolute2 = m_simulatedBonesDebugDraw[s];// *bone2.BindTransform;
+                    var p2m = Matrix.CreateScale(0.1f) * bone2.AbsoluteTransform * m_character.PositionComp.WorldMatrix;
+                    Vector3 p2 = p2m.Translation;
 
-                        if (bone2.Parent == null)
-                        {
-                            m_simulatedBonesAbsoluteDebugDraw.Add(absolute2);
-                            continue;
-                        }
+                    MyCharacterBone bone1 = bone2.Parent;
+                    //bone1.Rotation = Quaternion.Identity;
+                    //bone1.Translation = Vector3.Zero;
 
+                    // bone1.ComputeAbsoluteTransform();
+                    Vector3 p1 = (bone1.AbsoluteTransform * m_character.PositionComp.WorldMatrix).Translation;
 
-                        MyCharacterBone bone1 = bone2.Parent;
+                    VRageRender.MyRenderProxy.DebugDrawLine3D(p1, p2, Color.White, Color.White, false);
 
-                        Matrix absolute1 = m_simulatedBonesAbsoluteDebugDraw[m_character.Bones.IndexOf(bone1)];
-                        //absolute2 = absolute2 * absolute1;
+                    Vector3 pCenter = (p1 + p2) * 0.5f;
+                    VRageRender.MyRenderProxy.DebugDrawText3D(pCenter, bone2.Name + " (" + s.ToString() + ")", Color.White, 0.5f, false);
 
-                        m_simulatedBonesAbsoluteDebugDraw.Add(absolute2);
-
-                        var p2m = absolute2 * m_character.PositionComp.WorldMatrix;
-                        Vector3 p2 = p2m.Translation;
-
-
-                        //bone1.Rotation = Quaternion.Identity;
-                        //bone1.Translation = Vector3.Zero;
-
-                        Vector3 p1 = (absolute1 * m_character.PositionComp.WorldMatrix).Translation;
-
-                        VRageRender.MyRenderProxy.DebugDrawLine3D(p1, p2, Color.White, Color.White, false);
-
-                        Vector3 pCenter = (p1 + p2) * 0.5f;
-                        VRageRender.MyRenderProxy.DebugDrawText3D(pCenter, bone2.Name + " (" + s.ToString() + ")", Color.White, 0.5f, false);
-
-                        VRageRender.MyRenderProxy.DebugDrawAxis(p2m, 0.5f, false);
-                    }
-                }
-                else
-                {
-
-                    for (int s = 0; s < m_character.Bones.Count; s++)
-                    {
-                        MyCharacterBone bone2 = m_character.Bones[s];
-                        if (bone2.Parent == null)
-                            continue;
-
-                        bone2.ComputeAbsoluteTransform();
-
-                        var p2m = Matrix.CreateScale(0.1f) *  bone2.AbsoluteTransform * m_character.PositionComp.WorldMatrix;
-                        Vector3 p2 = p2m.Translation;
-
-                        MyCharacterBone bone1 = bone2.Parent;
-                        //bone1.Rotation = Quaternion.Identity;
-                        //bone1.Translation = Vector3.Zero;
-
-                        // bone1.ComputeAbsoluteTransform();
-                        Vector3 p1 = (bone1.AbsoluteTransform * m_character.PositionComp.WorldMatrix).Translation;
-
-                        VRageRender.MyRenderProxy.DebugDrawLine3D(p1, p2, Color.White, Color.White, false);
-
-                        Vector3 pCenter = (p1 + p2) * 0.5f;
-                        VRageRender.MyRenderProxy.DebugDrawText3D(pCenter, bone2.Name + " (" + s.ToString() + ")", Color.White, 0.5f, false);
-
-                        VRageRender.MyRenderProxy.DebugDrawAxis(p2m, 0.1f, false);
-
-                        if (s == 0)
-                        {
-                            //  MyDebugDraw.DrawAxis((bone2.AbsoluteTransform * WorldMatrix), 1000, 1, false);
-                        }
-                    }
+                    VRageRender.MyRenderProxy.DebugDrawAxis(p2m, 0.1f, false);
                 }
             }
             return true;

@@ -25,6 +25,8 @@ using Sandbox.Common.Components;
 using VRageMath.Spatial;
 using Sandbox.Game;
 using Sandbox.ModAPI;
+using VRage.ModAPI;
+using VRage.Components;
 
 #endregion
 

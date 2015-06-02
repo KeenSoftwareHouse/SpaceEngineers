@@ -25,6 +25,7 @@ using VRage.Library.Utils;
 using Sandbox.Common.ObjectBuilders.Definitions;
 using System.IO;
 using VRage.FileSystem;
+using VRage.ModAPI;
 
 namespace Sandbox.Game.Entities.Blocks
 {
@@ -282,9 +283,9 @@ namespace Sandbox.Game.Entities.Blocks
                 SetTransparencyForSubparts(block, transparency);
             }
 
-            if (block != null && block.DetectorPhysics != null && block.DetectorPhysics.Enabled)
+            if (block != null && block.UseObjectsComponent != null && block.UseObjectsComponent.DetectorPhysics != null)
             {
-                block.DetectorPhysics.Enabled = false;
+                block.UseObjectsComponent.DetectorPhysics.Enabled = false;
             }
         }
 
@@ -469,7 +470,7 @@ namespace Sandbox.Game.Entities.Blocks
 
             SetRotation(m_projectionRotation);
 
-            NeedsUpdate |= Common.MyEntityUpdateEnum.EACH_FRAME;
+            NeedsUpdate |= MyEntityUpdateEnum.EACH_FRAME;
         }
 
         public override MyObjectBuilder_CubeBlock GetObjectBuilderCubeBlock(bool copy = false)

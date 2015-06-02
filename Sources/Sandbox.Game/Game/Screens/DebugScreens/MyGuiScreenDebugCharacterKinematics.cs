@@ -56,6 +56,8 @@ namespace Sandbox.Game.Screens.DebugScreens
             AddCaption("Character kinematics debug draw", Color.Yellow.ToVector4());
             AddShareFocusHint();
 
+            AddCheckBox("Enable permanent IK/Ragdoll simulation ", null, MemberHelper.GetMember(() => MyFakes.ENABLE_PERMANENT_SIMULATIONS_COMPUTATION));
+
             AddCheckBox("Draw IK Settings ", null, MemberHelper.GetMember(() => MyDebugDrawSettings.DEBUG_DRAW_CHARACTER_IK_SETTINGS));
             AddCheckBox("Draw ankle final position", null, MemberHelper.GetMember(() => MyDebugDrawSettings.DEBUG_DRAW_CHARACTER_IK_ANKLE_FINALPOS));
             AddCheckBox("Draw raycast lines and foot lines", null, MemberHelper.GetMember(() => MyDebugDrawSettings.DEBUG_DRAW_CHARACTER_IK_RAYCASTLINE));

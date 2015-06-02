@@ -14,6 +14,7 @@ using VRage;
 using VRage;
 using VRage.FileSystem;
 using VRage.Library.Utils;
+using VRage.ObjectBuilders;
 using VRage.Utils;
 using VRage.Utils;
 using VRageMath;
@@ -173,7 +174,7 @@ namespace Sandbox.Game.Gui
         {
             string modInfoPath = Path.Combine(m_localBlueprintFolder, m_selectedItem.ScriptName, "modinfo.sbmi");
             MyObjectBuilder_ModInfo modInfo;
-            if (File.Exists(modInfoPath) && Sandbox.Common.ObjectBuilders.Serializer.MyObjectBuilderSerializer.DeserializeXML(modInfoPath, out modInfo))
+            if (File.Exists(modInfoPath) && MyObjectBuilderSerializer.DeserializeXML(modInfoPath, out modInfo))
             {
                 m_selectedItem.PublishedItemId = modInfo.WorkshopId;
             }

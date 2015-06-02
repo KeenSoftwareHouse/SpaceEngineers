@@ -10,6 +10,7 @@ using Sandbox.Common;
 using VRage;
 using ProfilerShort = VRage.ProfilerShort;
 using VRage.Utils;
+using VRage.Components;
 
 namespace Sandbox.Game.Components
 {
@@ -35,7 +36,7 @@ namespace Sandbox.Game.Components
                 m_localAABB = value;
                 m_localVolume = BoundingSphere.CreateFromBoundingBox(m_localAABB);
                 UpdateWorldVolume();
-                Entity.UpdateGamePruningStructure();
+                Container.Entity.UpdateGamePruningStructure();
             }
         }
 
@@ -90,7 +91,7 @@ namespace Sandbox.Game.Components
         {
             get
             {
-                return SynchronizationEnabled && CurrentContainer.Get<MySyncComponentBase>() != null && m_syncObject != null;
+                return SynchronizationEnabled && Container.Get<MySyncComponentBase>() != null && m_syncObject != null;
             }
         }
 
@@ -112,7 +113,7 @@ namespace Sandbox.Game.Components
             ProfilerShort.End();
             MatrixD localMatrix;
 
-            if (this.CurrentContainer.Entity.Parent == null)
+            if (this.Container.Entity.Parent == null)
             {
                 m_previousParentWorldMatrix = this.m_worldMatrix;
                 this.m_worldMatrix = worldMatrix;
@@ -120,7 +121,7 @@ namespace Sandbox.Game.Components
             }
             else
             {
-               MatrixD matParentInv = MatrixD.Invert(this.CurrentContainer.Entity.Parent.WorldMatrix);
+               MatrixD matParentInv = MatrixD.Invert(this.Container.Entity.Parent.WorldMatrix);
                localMatrix = (Matrix)(worldMatrix * matParentInv);
             }
 
@@ -134,7 +135,7 @@ namespace Sandbox.Game.Components
                 ProfilerShort.BeginNextBlock("sync");
                 if (MyPerGameSettings.MultiplayerEnabled)
                 {
-                    if (this.CurrentContainer.Entity.InScene && source != m_syncObject && ShouldSync && this.CurrentContainer.Entity.Parent == null)
+                    if (this.Container.Entity.InScene && source != m_syncObject && ShouldSync && this.Container.Entity.Parent == null)
                     {
                         m_syncObject.UpdatePosition();
                     }
@@ -148,9 +149,9 @@ namespace Sandbox.Game.Components
         /// </summary>
         public override void UpdateWorldMatrix(object source = null)
         {
-            if (this.CurrentContainer.Entity.Parent != null)
+            if (this.Container.Entity.Parent != null)
             {
-                MatrixD parentWorldMatrix = this.CurrentContainer.Entity.Parent.WorldMatrix;
+                MatrixD parentWorldMatrix = this.Container.Entity.Parent.WorldMatrix;
                 UpdateWorldMatrix(ref parentWorldMatrix, source);
                 return;
             }
@@ -160,7 +161,7 @@ namespace Sandbox.Game.Components
             OnWorldPositionChanged(source);
 
             ProfilerShort.BeginNextBlock("Physics.Onchanged");
-            if (this.CurrentContainer.Entity.Physics != null && this.m_physics.Enabled && this.m_physics != source)
+            if (this.Container.Entity.Physics != null && this.m_physics.Enabled && this.m_physics != source)
             {
                 this.m_physics.OnWorldPositionChanged(source);
             }
@@ -206,7 +207,7 @@ namespace Sandbox.Game.Components
             }
             for (int i = 0; i < m_hierarchy.Children.Count; i++)
             {
-                m_hierarchy.Children[i].Entity.PositionComp.UpdateWorldMatrix(ref this.m_worldMatrix, source);
+                m_hierarchy.Children[i].Container.Entity.PositionComp.UpdateWorldMatrix(ref this.m_worldMatrix, source);
             }
         }
 
@@ -222,7 +223,7 @@ namespace Sandbox.Game.Components
             //bad, breaks rotating objects
             //if (oldWorldAABB.Contains(m_worldAABB) != ContainmentType.Contains)
             {   //New world AABB is not same as previous world AABB
-              Entity.Render.InvalidateRenderObjects();
+                Container.Entity.Render.InvalidateRenderObjects();
             }
         }
 
@@ -232,11 +233,11 @@ namespace Sandbox.Game.Components
         /// <param name="source">The source object that caused this event.</param>
         public override void OnWorldPositionChanged(object source)
         {
-            Debug.Assert(source != this && (Entity == null || source != Entity), "Recursion detected!");
+            Debug.Assert(source != this && (Container.Entity == null || source != Container.Entity), "Recursion detected!");
             ProfilerShort.Begin("Volume");
             UpdateWorldVolume();
             ProfilerShort.BeginNextBlock("Prunning.Move");
-            MyGamePruningStructure.Move(Entity as MyEntity);
+            MyGamePruningStructure.Move(Container.Entity as MyEntity);
 
             ProfilerShort.BeginNextBlock("Children");
             UpdateChildren(source);

@@ -3,6 +3,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using VRage.ModAPI;
+using VRage.ObjectBuilders;
 
 namespace Sandbox.ModAPI
 {
@@ -44,12 +46,12 @@ namespace Sandbox.ModAPI
                 MyEntities.Add(entity as MyEntity, insertIntoScene);
         }
 
-        IMyEntity IMyEntities.CreateFromObjectBuilder(Common.ObjectBuilders.MyObjectBuilder_EntityBase objectBuilder)
+        IMyEntity IMyEntities.CreateFromObjectBuilder(MyObjectBuilder_EntityBase objectBuilder)
         {
             return (IMyEntity)MyEntities.CreateFromObjectBuilder(objectBuilder);
         }
 
-        IMyEntity IMyEntities.CreateFromObjectBuilderAndAdd(Common.ObjectBuilders.MyObjectBuilder_EntityBase objectBuilder)
+        IMyEntity IMyEntities.CreateFromObjectBuilderAndAdd(MyObjectBuilder_EntityBase objectBuilder)
         {
             return (IMyEntity)MyEntities.CreateFromObjectBuilderAndAdd(objectBuilder);
         }
@@ -302,17 +304,17 @@ namespace Sandbox.ModAPI
             MyEntities.UnhideAllTypes();
         }
 
-        void IMyEntities.RemapObjectBuilderCollection(IEnumerable<Common.ObjectBuilders.MyObjectBuilder_EntityBase> objectBuilders)
+        void IMyEntities.RemapObjectBuilderCollection(IEnumerable<MyObjectBuilder_EntityBase> objectBuilders)
         {
             MyEntities.RemapObjectBuilderCollection(objectBuilders);
         }
 
-        void IMyEntities.RemapObjectBuilder(Common.ObjectBuilders.MyObjectBuilder_EntityBase objectBuilder)
+        void IMyEntities.RemapObjectBuilder(MyObjectBuilder_EntityBase objectBuilder)
         {
             MyEntities.RemapObjectBuilder(objectBuilder);
         }
 
-        IMyEntity IMyEntities.CreateFromObjectBuilderNoinit(Common.ObjectBuilders.MyObjectBuilder_EntityBase objectBuilder)
+        IMyEntity IMyEntities.CreateFromObjectBuilderNoinit(MyObjectBuilder_EntityBase objectBuilder)
         {
             return MyEntities.CreateFromObjectBuilderNoinit(objectBuilder);
         }

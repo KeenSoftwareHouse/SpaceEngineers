@@ -33,8 +33,8 @@ namespace Sandbox.Game.Components
         public override void InvalidateRenderObjects(bool sortIntoCullobjects = false)
         {
             // Update only cull object
-            var m = Entity.PositionComp.WorldMatrix;
-            if ((Entity.Visible || Entity.CastShadows) && Entity.InScene && Entity.InvalidateOnMove && m_renderObjectIDs.Length > 0)
+            var m = Container.Entity.PositionComp.WorldMatrix;
+            if ((Container.Entity.Visible || Container.Entity.CastShadows) && Container.Entity.InScene && Container.Entity.InvalidateOnMove && m_renderObjectIDs.Length > 0)
             {
                 VRageRender.MyRenderProxy.UpdateRenderObject(m_renderObjectIDs[0], ref m, sortIntoCullobjects);
             }
@@ -48,14 +48,14 @@ namespace Sandbox.Game.Components
             m_renderObjectIDs = new uint[Models.Count + 1];
 
             m_renderObjectIDs[0] = VRageRender.MyRenderProxy.RENDER_ID_UNASSIGNED;
-            SetRenderObjectID(0, MyRenderProxy.CreateManualCullObject(this.Entity.Name ?? "Fracture", this.Entity.PositionComp.WorldMatrix));
+            SetRenderObjectID(0, MyRenderProxy.CreateManualCullObject(Container.Entity.Name ?? "Fracture", Container.Entity.PositionComp.WorldMatrix));
 
             for (int i = 0; i < Models.Count; ++i)
             {
                 m_renderObjectIDs[i + 1] = VRageRender.MyRenderProxy.RENDER_ID_UNASSIGNED;
                 SetRenderObjectID(i + 1, MyRenderProxy.CreateRenderEntity
                 (
-                    "Fractured piece " + i.ToString() + " " + this.Entity.EntityId.ToString(),
+                    "Fractured piece " + i.ToString() + " " + Container.Entity.EntityId.ToString(),
                     Models[i].Name,
                     Models[i].LocalTransform,
                     MyMeshDrawTechnique.MESH,

@@ -483,7 +483,9 @@ namespace Sandbox.Graphics.GUI
 								m_componentLines[i].NumbersLabel.TextToDraw.Append(" / ").AppendInt32(info.AvailableAmount);
 						}
 						else
+						{
 							m_componentLines[i].NumbersLabel.TextToDraw.AppendInt32(info.TotalCount);
+						}
                         m_componentLines[i].NumbersLabel.Size = m_componentLines[i].NumbersLabel.GetTextSize();
                         m_componentLines[i].IconPanel.BorderEnabled = ShowCriticalComponent && BlockInfo.CriticalComponentIndex == i;
                         m_componentLines[i].RecalcTextSize();

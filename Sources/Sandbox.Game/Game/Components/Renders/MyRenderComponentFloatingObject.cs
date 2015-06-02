@@ -8,6 +8,7 @@ using VRageMath;
 using Sandbox.Game.Entities;
 using Sandbox.Common.Components;
 using VRage.Utils;
+using VRage.Components;
 
 namespace Sandbox.Game.Components
 {
@@ -18,7 +19,7 @@ namespace Sandbox.Game.Components
         public override void OnAddedToContainer(MyComponentContainer container)
         {
             base.OnAddedToContainer(container);
-            m_floatingObject = Entity as MyFloatingObject;
+            m_floatingObject = Container.Entity as MyFloatingObject;
         }
         public override void AddRenderObjects()
         {
@@ -36,7 +37,7 @@ namespace Sandbox.Game.Components
             SetRenderObjectID(0, MyRenderProxy.CreateRenderVoxelDebris(
                 "Voxel debris",
                 Model.AssetName,
-                (Matrix)Entity.PositionComp.WorldMatrix,
+                (Matrix)Container.Entity.PositionComp.WorldMatrix,
                 5,
                 8,
                 1.0f,

@@ -6,6 +6,7 @@ using Sandbox.ModAPI;
 using System;
 using System.Diagnostics;
 using VRage;
+using VRage.Components;
 using VRage.Voxels;
 using VRageMath;
 using VRageRender;
@@ -26,12 +27,12 @@ namespace Sandbox.Game.Components
         public override void OnAddedToContainer(MyComponentContainer container)
         {
             base.OnAddedToContainer(container);
-            m_voxelMap = Entity as IMyVoxelDrawable;
+            m_voxelMap = Container.Entity as IMyVoxelDrawable;
         }
 
         public override void AddRenderObjects()
         {
-            var minCorner = (Vector3D)(Entity as IMyVoxelDrawable).PositionLeftBottomCorner;
+            var minCorner = (Vector3D)(Container.Entity as IMyVoxelDrawable).PositionLeftBottomCorner;
             m_renderObjectIDs = new uint[] { MyRenderProxy.RENDER_ID_UNASSIGNED };
 
             Debug.Assert((m_voxelMap.Size % MyVoxelConstants.RENDER_CELL_SIZE_IN_VOXELS) == Vector3I.Zero);
@@ -56,7 +57,7 @@ namespace Sandbox.Game.Components
 
         public void UpdateCells()
         {
-            var worldMatrix = MatrixD.CreateTranslation((Entity as IMyVoxelDrawable).PositionLeftBottomCorner);
+            var worldMatrix = MatrixD.CreateTranslation((Container.Entity as IMyVoxelDrawable).PositionLeftBottomCorner);
             MyRenderProxy.UpdateRenderObject(m_renderObjectIDs[0], ref worldMatrix, sortIntoCulling: false);
         }
 

@@ -1040,7 +1040,7 @@ namespace Sandbox.Game.Multiplayer
                 if (PlayerRemoved != null)
                     PlayerRemoved(player.Id);
 
-                player.CloseRespawnShip();
+                RespawnComponent.AfterRemovePlayer(player);
 
                 var msg = new PlayerRemoveMsg();
                 msg.ClientSteamId = player.Id.SteamId;

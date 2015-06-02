@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
+using VRage;
 using VRageMath;
 
 namespace Sandbox.Game.World
@@ -97,6 +98,11 @@ namespace Sandbox.Game.World
             ColorMask = null;
         }
     
+        public void SetColorMask(Vector3 color) 
+        {
+            ColorMask = color;
+        }
+
         public void ChangeCharacter(MyCharacter character)
         {
             var oldCharacter = Character;

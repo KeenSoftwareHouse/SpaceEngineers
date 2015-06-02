@@ -2,6 +2,7 @@
 
 using Havok;
 using ParallelTasks;
+using Sandbox.Common.Components;
 using Sandbox.Common;
 using Sandbox.Common.ObjectBuilders;
 using Sandbox.Definitions;
@@ -39,8 +40,11 @@ using VRage;
 using VRage.Audio;
 using VRage.Collections;
 using VRage.Compiler;
+using VRage.Components;
 using VRage.FileSystem;
 using VRage.Input;
+using VRage.ModAPI;
+using VRage.ObjectBuilders;
 using VRage.Plugins;
 using VRage.Utils;
 using VRage.Win32;
@@ -1076,7 +1080,7 @@ namespace Sandbox
             Func<string, string> getPath = (x) => Path.Combine(MyFileSystem.ExePath, x);
             IlCompiler.Options = new System.CodeDom.Compiler.CompilerParameters(new string[] { "System.Xml.dll", getPath("Sandbox.Game.dll"),
                 getPath("Sandbox.Common.dll"), getPath("Sandbox.Graphics.dll"), getPath("VRage.dll"), //getPath("VRage.Data.dll"),
-                getPath("VRage.Library.dll"), getPath("VRage.Math.dll"), "System.Core.dll", "System.dll"/*, "Microsoft.CSharp.dll" */});
+                getPath("VRage.Library.dll"), getPath("VRage.Math.dll"), getPath("VRage.Game.dll"),"System.Core.dll", "System.dll"/*, "Microsoft.CSharp.dll" */});
             Log.DecreaseIndent();
             if (MyFakes.ENABLE_SCRIPTS_PDB)
                 IlCompiler.Options.CompilerOptions = string.Format("/debug {0}", IlCompiler.Options.CompilerOptions);
@@ -1087,19 +1091,23 @@ namespace Sandbox
             // Added by Ondrej
             IlChecker.AllowNamespaceOfTypeCommon(typeof(TerminalActionExtensions));
 
-
+            IlChecker.AllowNamespaceOfTypeModAPI(typeof(Sandbox.Common.ObjectBuilders.VRageData.SerializableBlockOrientation));
             IlChecker.AllowNamespaceOfTypeCommon(typeof(Sandbox.ModAPI.Ingame.IMyCubeBlock));
             IlChecker.AllowNamespaceOfTypeModAPI(typeof(Sandbox.ModAPI.IMySession));
             IlChecker.AllowNamespaceOfTypeModAPI(typeof(Sandbox.ModAPI.Interfaces.IMyCameraController));
+            IlChecker.AllowNamespaceOfTypeModAPI(typeof(VRage.ModAPI.IMyEntity));
 
-
+            IlChecker.AllowNamespaceOfTypeModAPI(typeof(Sandbox.Common.ObjectBuilders.Definitions.EnvironmentItemsEntry));
+            IlChecker.AllowNamespaceOfTypeModAPI(typeof(MyGameLogicComponent));
+            IlChecker.AllowNamespaceOfTypeModAPI(typeof(VRage.Components.MyComponentBase));
             IlChecker.AllowNamespaceOfTypeModAPI(typeof(Sandbox.Common.MySessionComponentBase));
-            IlChecker.AllowNamespaceOfTypeModAPI(typeof(Sandbox.Common.Components.MyComponentBase));
 
-            IlChecker.AllowNamespaceOfTypeCommon(typeof(Sandbox.Common.ObjectBuilders.MyObjectBuilder_Base));
+            
+            IlChecker.AllowNamespaceOfTypeCommon(typeof(MyObjectBuilder_Base));
+            IlChecker.AllowNamespaceOfTypeCommon(typeof(Sandbox.Common.ObjectBuilders.MyObjectBuilder_AirVent));
             IlChecker.AllowNamespaceOfTypeModAPI(typeof(Sandbox.Common.ObjectBuilders.Voxels.MyObjectBuilder_VoxelMap));
-            IlChecker.AllowNamespaceOfTypeModAPI(typeof(Sandbox.Common.ObjectBuilders.Definitions.SerializableDefinitionId));
-            IlChecker.AllowNamespaceOfTypeModAPI(typeof(Sandbox.Common.ObjectBuilders.VRageData.SerializableVector3));
+            IlChecker.AllowNamespaceOfTypeModAPI(typeof(SerializableDefinitionId));
+            IlChecker.AllowNamespaceOfTypeModAPI(typeof(SerializableVector3));
 
             IlChecker.AllowNamespaceOfTypeModAPI(typeof(Sandbox.Definitions.MyDefinitionId));
             IlChecker.AllowNamespaceOfTypeModAPI(typeof(Sandbox.Definitions.MyDefinitionManager));
@@ -1113,11 +1121,11 @@ namespace Sandbox
             IlChecker.AllowNamespaceOfTypeModAPI(typeof(VRage.Utils.MyEventArgs));
             IlChecker.AllowNamespaceOfTypeModAPI(typeof(VRage.Library.Utils.MyGameTimer));
 
-            var serializerType = typeof(Sandbox.Common.ObjectBuilders.Serializer.MyObjectBuilderSerializer);
+            var serializerType = typeof(MyObjectBuilderSerializer);
             IlChecker.AllowedOperands[serializerType] = new List<MemberInfo>()
             {
                 serializerType.GetMethod("CreateNewObject", new Type[] {typeof(MyObjectBuilderType)}),
-                serializerType.GetMethod("CreateNewObject", new Type[] {typeof(Sandbox.Common.ObjectBuilders.Definitions.SerializableDefinitionId)}),
+                serializerType.GetMethod("CreateNewObject", new Type[] {typeof(SerializableDefinitionId)}),
                 serializerType.GetMethod("CreateNewObject", new Type[] {typeof(string)}),
                 serializerType.GetMethod("CreateNewObject", new Type[] {typeof(MyObjectBuilderType), typeof(string)}),
             };

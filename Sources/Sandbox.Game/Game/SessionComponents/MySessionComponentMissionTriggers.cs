@@ -65,7 +65,7 @@ namespace Sandbox.Game.SessionComponents
                 MyMissionTriggers mtrig;
                 if (!MissionTriggers.TryGetValue(Id, out mtrig))
                 {
-                    Debug.Fail("Bad ID for UpdateLocal");
+                    //Debug.Fail("Bad ID for UpdateLocal");
                     return;
                 }
                 m_LocalMsgShown = mtrig.DisplayMsg();

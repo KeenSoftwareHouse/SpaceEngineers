@@ -5,6 +5,7 @@ using System.Text;
 using Sandbox.Game.Weapons;
 using VRageMath;
 using Sandbox.Common.Components;
+using VRage.Components;
 
 namespace Sandbox.Game.Components
 {
@@ -15,7 +16,7 @@ namespace Sandbox.Game.Components
         public override void OnAddedToContainer(MyComponentContainer container)
         {
             base.OnAddedToContainer(container);
-            m_rifleGun = Entity as MyAutomaticRifleGun;
+            m_rifleGun = Container.Entity as MyAutomaticRifleGun;
         }
 
         public override void Draw()
@@ -25,7 +26,7 @@ namespace Sandbox.Game.Components
             MyGunBase rifleBase = m_rifleGun.GunBase;
             if (deltaTime <= rifleBase.MuzzleFlashLifeSpan)
             {
-                MyParticleEffects.GenerateMuzzleFlashLocal(this.Entity, rifleBase.GetMuzzleLocalPosition(), Vector3.Forward, 0.2f, 0.3f);
+                MyParticleEffects.GenerateMuzzleFlashLocal(Container.Entity, rifleBase.GetMuzzleLocalPosition(), Vector3.Forward, 0.2f, 0.3f);
             }
         }
         #endregion
