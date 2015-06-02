@@ -30,17 +30,6 @@ using VRage.ModAPI;
 
 namespace Sandbox.Game.Entities.Blocks
 {
-    [ProtoContract]
-    struct ToolbarItem
-    {
-        [ProtoMember]
-        public long EntityID;
-        [ProtoMember]
-        public string GroupName;
-        [ProtoMember]
-        public string Action;
-    }
-
     [Flags]
     public enum MySensorFilterFlags : ushort
     {
@@ -576,7 +565,7 @@ namespace Sandbox.Game.Entities.Blocks
                 if (item == null)
                     continue;
                 m_items.RemoveAt(i);
-                m_items.Insert(i, GetToolbarItem(item));
+                m_items.Insert(i, ToolbarItem.FromObject(item));
             }
             Toolbar.ItemChanged += Toolbar_ItemChanged;
 
@@ -726,7 +715,7 @@ namespace Sandbox.Game.Entities.Blocks
         {
             Debug.Assert(self == Toolbar);
 
-            var tItem = GetToolbarItem(self.GetItemAtIndex(index.ItemIndex));
+            var tItem = ToolbarItem.FromObject(self.GetItemAtIndex(index.ItemIndex));
             var oldItem = m_items[index.ItemIndex];
             if ((tItem.EntityID == 0 && oldItem.EntityID == 0 || (tItem.EntityID != 0 && oldItem.EntityID != 0 && tItem.Equals(oldItem))))
                 return;
@@ -749,26 +738,6 @@ namespace Sandbox.Game.Entities.Blocks
                 }
                 m_shouldSetOtherToolbars = true;
             }
-        }
-
-        private ToolbarItem GetToolbarItem(MyToolbarItem item)
-        {
-            var tItem = new ToolbarItem();
-            tItem.EntityID = 0;
-            if (item is MyToolbarItemTerminalBlock)
-            {
-                var block = item.GetObjectBuilder() as MyObjectBuilder_ToolbarItemTerminalBlock;
-                tItem.EntityID = block.BlockEntityId;
-                tItem.Action = block.Action;
-            }
-            else if (item is MyToolbarItemTerminalGroup)
-            {
-                var block = item.GetObjectBuilder() as MyObjectBuilder_ToolbarItemTerminalGroup;
-                tItem.EntityID = block.BlockEntityId;
-                tItem.Action = block.Action;
-                tItem.GroupName = block.GroupName;
-            }
-            return tItem;
         }
 
         private void OnFirstEnter()
