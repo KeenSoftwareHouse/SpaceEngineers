@@ -199,6 +199,10 @@
       <Project>{ba24cf8d-109d-4728-be1d-ad13af824093}</Project>
       <Name>VRage.Dedicated</Name>
     </ProjectReference>
+    <ProjectReference Include="..\VRage.Game\VRage.Game.csproj">
+      <Project>{4539b5f0-3316-40e6-b032-9fbcafaac5be}</Project>
+      <Name>VRage.Game</Name>
+    </ProjectReference>
     <ProjectReference Include="..\VRage\VRage.csproj">
       <Project>{1C814936-C9A7-4FAF-B543-28F021D98B6C}</Project>
       <Name>VRage</Name>

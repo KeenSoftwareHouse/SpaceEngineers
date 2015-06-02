@@ -11,7 +11,6 @@ using System.ServiceProcess;
 using System.Text;
 using VRage.Utils;
 using System.Collections.Generic;
-using Sandbox.Common.ObjectBuilders.Serializer;
 using VRage.Library.Utils;
 using VRage.FileSystem;
 using Sandbox.Engine.Utils;
