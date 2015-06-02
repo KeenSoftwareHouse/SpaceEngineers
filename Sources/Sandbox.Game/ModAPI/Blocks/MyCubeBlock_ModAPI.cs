@@ -1,8 +1,10 @@
-﻿using Sandbox.ModAPI;
+﻿using Sandbox.Common.Components;
+using Sandbox.ModAPI;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using VRage.Components;
 using VRage.ObjectBuilders;
 
 namespace Sandbox.Game.Entities
@@ -198,12 +200,12 @@ namespace Sandbox.Game.Entities
 
         string IMyCubeBlock.RaycastDetectors(VRageMath.Vector3 worldFrom, VRageMath.Vector3 worldTo)
         {
-            return RaycastDetectors(worldFrom, worldTo);
+            return Components.Get<MyUseObjectsComponentBase>().RaycastDetectors(worldFrom, worldTo);
         }
 
         void IMyCubeBlock.ReloadDetectors(bool refreshNetworks)
         {
-            ReloadDetectors(refreshNetworks);
+            Components.Get<MyUseObjectsComponentBase>().LoadDetectorsFromModel();
         }
 
         void IMyCubeBlock.UpdateIsWorking()

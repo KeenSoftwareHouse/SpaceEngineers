@@ -283,9 +283,9 @@ namespace Sandbox.Game.Entities.Blocks
                 SetTransparencyForSubparts(block, transparency);
             }
 
-            if (block != null && block.DetectorPhysics != null && block.DetectorPhysics.Enabled)
+            if (block != null && block.UseObjectsComponent != null && block.UseObjectsComponent.DetectorPhysics != null)
             {
-                block.DetectorPhysics.Enabled = false;
+                block.UseObjectsComponent.DetectorPhysics.Enabled = false;
             }
         }
 

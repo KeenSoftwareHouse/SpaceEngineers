@@ -13,6 +13,7 @@ using VRageMath;
 using Sandbox.Common.ModAPI;
 using VRage.Components;
 using VRage.ObjectBuilders;
+using VRage;
 
 namespace Sandbox.Game.Entities
 {

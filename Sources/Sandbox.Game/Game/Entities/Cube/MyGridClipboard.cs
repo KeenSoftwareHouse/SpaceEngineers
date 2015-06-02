@@ -825,14 +825,14 @@ namespace Sandbox.Game.Entities.Cube
                 entity.Physics.Enabled = false;
 
             var block = entity as MyCubeBlock;
-            if (block != null && block.DetectorPhysics != null && block.DetectorPhysics.Enabled)
-                block.DetectorPhysics.Enabled = false;
+            if (block != null && block.UseObjectsComponent.DetectorPhysics != null && block.UseObjectsComponent.DetectorPhysics.Enabled)
+                block.UseObjectsComponent.DetectorPhysics.Enabled = false;
 
             if (block != null)
                 block.NeedsUpdate = MyEntityUpdateEnum.NONE;
 
             foreach (var child in entity.Hierarchy.Children)
-                DisablePhysicsRecursively(child.Entity as MyEntity);
+                DisablePhysicsRecursively(child.Container.Entity as MyEntity);
         }
 
         public virtual void Update()

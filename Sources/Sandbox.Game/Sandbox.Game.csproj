@@ -371,6 +371,7 @@
     <Compile Include="Game\Components\MyModelObj .cs" />
     <Compile Include="Game\Components\MyPositionComponent.cs" />
     <Compile Include="Game\Components\MyQuantizedBvhResult.cs" />
+    <Compile Include="Game\Components\MyUseObjectsComponent.cs" />
     <Compile Include="Game\Components\Renders\MyRenderComponentTextPanel.cs" />
     <Compile Include="Game\Components\Renders\MyRenderComponent.cs" />
     <Compile Include="Game\Components\Renders\MyRenderComponentAutomaticRifle.cs" />
@@ -495,7 +496,7 @@
     <Compile Include="Game\Entities\MyUpgradableBlockComponent.cs" />
     <Compile Include="Game\Entities\MyVoxelClipboard.cs" />
     <Compile Include="Game\Entities\MyVoxelMapExtensions.cs" />
-    <Compile Include="Game\Entities\UseObject\MyUseObjectFactory.cs" />
+    <Compile Include="Game\Entities\UseObject\IMyUsableEntity.cs" />
     <Compile Include="Game\GameSystems\Conveyors\MyAttachableConveyorEndpoint.cs" />
     <Compile Include="Game\Audio\MyGuiAudio.cs" />
     <Compile Include="Game\GameSystems\IMyOxygenBlock.cs" />
@@ -911,7 +912,6 @@
     <Compile Include="Game\Entities\Cube\MyCubeBlock.cs" />
     <Compile Include="Game\Entities\Cube\MyCube.cs" />
     <Compile Include="Game\Entities\Interfaces\IMyControllableEntity.cs" />
-    <Compile Include="Game\Entities\UseObject\IMyUseObject.cs" />
     <Compile Include="Game\Entities\MyEntityFactory.cs" />
     <Compile Include="Game\Entities\MySensor.cs" />
     <Compile Include="Game\GameSystems\Electricity\MyBattery.cs" />

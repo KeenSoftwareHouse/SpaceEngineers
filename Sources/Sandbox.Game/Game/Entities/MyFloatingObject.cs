@@ -27,9 +27,11 @@ using VRage.Utils;
 using VRageMath;
 using Sandbox.Game.GameSystems;
 using Sandbox.Common.ModAPI;
+using Sandbox.Game.Entities.UseObject;
 using VRage.ObjectBuilders;
 using VRage.ModAPI;
 using VRage.Components;
+using VRage.Game.Entity.UseObject;
 
 #endregion
 
@@ -245,8 +247,9 @@ namespace Sandbox.Game.Entities
             get { return UseActionEnum.Manipulate; }
         }
 
-        void IMyUseObject.Use(UseActionEnum actionEnum, MyCharacter user)
+        void IMyUseObject.Use(UseActionEnum actionEnum, IMyEntity entity)
         {
+            var user = entity as MyCharacter;
             if (!MarkedForClose)
             {
                 if (!MySession.Static.CreativeMode)

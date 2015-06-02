@@ -1,7 +1,6 @@
 ﻿using ProtoBuf;
 using VRage.ObjectBuilders;
 using VRageMath;
-using VRage.ObjectBuilders;
 using System.Collections.Generic;
 
 namespace Sandbox.Common.ObjectBuilders

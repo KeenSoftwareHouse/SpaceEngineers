@@ -16,7 +16,7 @@ namespace Sandbox.Game.Components
         public override void OnAddedToContainer(MyComponentContainer container)
         {
             base.OnAddedToContainer(container);
-            m_turretBase = Entity as MyLargeTurretBase;
+            m_turretBase = Container.Entity as MyLargeTurretBase;
         }
         public override void Draw()
         {

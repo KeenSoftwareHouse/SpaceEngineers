@@ -1,5 +1,6 @@
 ﻿using Sandbox.Common.ObjectBuilders;
 using System.Collections.Generic;
+using VRage;
 using VRage.ModAPI;
 
 namespace Sandbox.Game.Entities

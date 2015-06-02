@@ -189,7 +189,7 @@ namespace VRage.Components
         {
             get
             {
-                return CurrentContainer.Get<MySyncComponentBase>() != null;
+                return Container.Get<MySyncComponentBase>() != null;
             }
         }
 
@@ -208,14 +208,14 @@ namespace VRage.Components
 
             MatrixD localMatrix;
 
-            if (this.CurrentContainer.Entity.Parent == null)
+            if (this.Container.Entity.Parent == null)
             {
                 this.m_worldMatrix = worldMatrix;
                 localMatrix = worldMatrix;
             }
             else
             {
-                MatrixD matParentInv = MatrixD.Invert(this.CurrentContainer.Entity.Parent.WorldMatrix);
+                MatrixD matParentInv = MatrixD.Invert(this.Container.Entity.Parent.WorldMatrix);
                 localMatrix = worldMatrix * matParentInv;
             }
 
@@ -350,9 +350,9 @@ namespace VRage.Components
         /// </summary>
         public virtual void UpdateWorldMatrix(object source = null)
         {
-            if (this.CurrentContainer.Entity.Parent != null)
+            if (this.Container.Entity.Parent != null)
             {
-                MatrixD parentWorldMatrix = this.CurrentContainer.Entity.Parent.WorldMatrix;
+                MatrixD parentWorldMatrix = this.Container.Entity.Parent.WorldMatrix;
                 UpdateWorldMatrix(ref parentWorldMatrix, source);
 
                 return;
@@ -434,7 +434,7 @@ namespace VRage.Components
         /// <param name="source">The source object that caused this event.</param>
         public virtual void OnWorldPositionChanged(object source)
         {
-            Debug.Assert(source != this && (Entity == null || source != Entity), "Recursion detected!");
+            Debug.Assert(source != this && (Container.Entity == null || source != Container.Entity), "Recursion detected!");
 
             UpdateWorldVolume();
 
@@ -460,7 +460,7 @@ namespace VRage.Components
                         System.Diagnostics.Debug.Assert(!MyUtils.IsZero(m_scale.Value));
                         var worldMatrix = WorldMatrix;
 
-                        if (Entity.Parent == null)
+                        if (Container.Entity.Parent == null)
                         {
                             MyUtils.Normalize(ref worldMatrix, out worldMatrix);
                             WorldMatrix = Matrix.CreateScale(m_scale.Value) * worldMatrix;

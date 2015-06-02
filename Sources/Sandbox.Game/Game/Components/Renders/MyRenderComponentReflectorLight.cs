@@ -20,7 +20,7 @@ namespace Sandbox.Game.Components
         public override void OnAddedToContainer(MyComponentContainer container)
         {
             base.OnAddedToContainer(container);
-            m_reflectorLight = Entity as MyReflectorLight;
+            m_reflectorLight = Container.Entity as MyReflectorLight;
         }
         public override void Draw()
         {
@@ -34,10 +34,10 @@ namespace Sandbox.Game.Components
 
         private void DrawReflectorCone()
         {
-            var world = Entity.PositionComp.WorldMatrix;
+            var world = Container.Entity.PositionComp.WorldMatrix;
 
-            var toLocal = Entity.PositionComp.WorldMatrixNormalizedInv;
-            Vector3D position = Entity.PositionComp.GetPosition();
+            var toLocal = Container.Entity.PositionComp.WorldMatrixNormalizedInv;
+            Vector3D position = Container.Entity.PositionComp.GetPosition();
             Vector3D forwardVector = world.Forward;
             Vector3D leftVector = world.Left;
             Vector3D upVector = world.Up;

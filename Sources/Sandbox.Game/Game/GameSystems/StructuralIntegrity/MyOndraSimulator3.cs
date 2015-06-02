@@ -419,13 +419,13 @@ namespace Sandbox.Game.GameSystems.StructuralIntegrity
 
         void PositionComp_OnPositionChanged(MyPositionComponentBase obj)
         {
-            if (m_collidingEntities.ContainsKey((MyEntity)obj.Entity))
+            if (m_collidingEntities.ContainsKey((MyEntity)obj.Container.Entity))
             {
-                if (m_frameCounter - m_collidingEntities[(MyEntity)obj.Entity].FrameTime > 20)
+                if (m_frameCounter - m_collidingEntities[(MyEntity)obj.Container.Entity].FrameTime > 20)
                 { //Object not contacted with grid for 20 frames
                     obj.OnPositionChanged -= PositionComp_OnPositionChanged;
-                    DynamicWeights.Remove(m_collidingEntities[(MyEntity)obj.Entity].Position);
-                    m_collidingEntities.Remove((MyEntity)obj.Entity);
+                    DynamicWeights.Remove(m_collidingEntities[(MyEntity)obj.Container.Entity].Position);
+                    m_collidingEntities.Remove((MyEntity)obj.Container.Entity);
                     ForceRecalc = true;
                 }
             }

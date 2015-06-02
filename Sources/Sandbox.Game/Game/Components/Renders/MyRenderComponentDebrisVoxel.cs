@@ -27,7 +27,7 @@ namespace Sandbox.Game.Components
             SetRenderObjectID(0, MyRenderProxy.CreateRenderVoxelDebris(
                 "Voxel debris",
                 Model.AssetName,
-                (Matrix)Entity.PositionComp.WorldMatrix,
+                (Matrix)Container.Entity.PositionComp.WorldMatrix,
                 TexCoordOffset,
                 TexCoordScale,
                 1.0f,

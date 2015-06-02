@@ -227,10 +227,13 @@ namespace Sandbox.Game.Entities
 
         public void UpdateBuildIntegrityUp()
         {
-            bool oldFunctionalState = false;
-            oldFunctionalState = IsFunctional;
-            m_buildIntegrity = m_integrity;
-            CheckFunctionalState(oldFunctionalState);
+			if (m_buildIntegrity < m_integrity)
+			{
+				bool oldFunctionalState = false;
+				oldFunctionalState = IsFunctional;
+				m_buildIntegrity = m_integrity;
+				CheckFunctionalState(oldFunctionalState);
+			}
         }
 
         public void UpdateBuildIntegrityDown(float ratio)

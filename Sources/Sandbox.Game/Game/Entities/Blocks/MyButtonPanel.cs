@@ -1,5 +1,6 @@
 ﻿using ProtoBuf;
 using Sandbox.Common;
+using Sandbox.Common.Components;
 using Sandbox.Common.ObjectBuilders;
 using Sandbox.Definitions;
 using Sandbox.Engine.Multiplayer;
@@ -304,7 +305,7 @@ namespace Sandbox.Game.Entities.Blocks
 
             NeedsUpdate |= MyEntityUpdateEnum.BEFORE_NEXT_FRAME | MyEntityUpdateEnum.EACH_FRAME;
 
-            GetInteractiveObjects<MyUseObjectPanelButton>(m_buttonsUseObjects);
+            UseObjectsComponent.GetInteractiveObjects<MyUseObjectPanelButton>(m_buttonsUseObjects);
         }
 
         private void Receiver_IsPoweredChanged()
@@ -402,7 +403,7 @@ namespace Sandbox.Game.Entities.Blocks
             base.UpdateVisual();
             UpdateEmissivity();
             m_buttonsUseObjects.Clear();
-            GetInteractiveObjects<MyUseObjectPanelButton>(m_buttonsUseObjects);
+            UseObjectsComponent.GetInteractiveObjects<MyUseObjectPanelButton>(m_buttonsUseObjects);
         }
 
         void UpdateButtonEmissivity(int index)

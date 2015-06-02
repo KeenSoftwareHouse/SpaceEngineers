@@ -26,6 +26,7 @@ using Sandbox.ModAPI.Ingame;
 using Sandbox.Game.GameSystems.Conveyors;
 using Sandbox.Game.GameSystems;
 using Sandbox.Game.Entities.Blocks;
+using VRage.Game.Entity.UseObject;
 using VRage.Import;
 using VRage.ModAPI;
 

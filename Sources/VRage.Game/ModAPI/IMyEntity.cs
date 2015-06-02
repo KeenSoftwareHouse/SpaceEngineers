@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using VRage.Components;
 using VRage.ObjectBuilders;
 using VRage.Utils;
+using VRageMath;
 
 namespace VRage.ModAPI
 {
@@ -107,21 +108,47 @@ namespace VRage.ModAPI
 
     public interface IMyEntity
     {
+        //Components
+        MyComponentContainer Components { get; }
+        MyPhysicsComponentBase Physics { get; set; }
+        MyPositionComponentBase PositionComp { get; set; }
+        MyRenderComponentBase Render { get; set; }
+        MyComponentBase GameLogic { get; set; }
+        MyHierarchyComponentBase Hierarchy { get; set; }
+        MySyncComponentBase SyncObject { get; }
+
+
+        //Entity core
         EntityFlags Flags { get; set; }
         long EntityId { get; set; }
-        string Name { get; set; }
-        string DisplayName { get; set; }
+        string Name { get; set; }        
         string GetFriendlyName();
         void Close();
         bool MarkedForClose { get; }
         void Delete();
         bool Closed { get; }
+        MyObjectBuilder_EntityBase GetObjectBuilder(bool copy = false);
+        bool Save { get; set; }
+        MyPersistentEntityFlags2 PersistentFlags { get; set; }
+        event Action<IMyEntity> OnClose;
+        event Action<IMyEntity> OnClosing;
+        event Action<IMyEntity> OnMarkForClose;
+        void BeforeSave();
 
+
+        //Updating
         MyEntityUpdateEnum NeedsUpdate { get; set; }
 
+        //Hierarchy
         IMyEntity GetTopMostParent(Type type = null);
         IMyEntity Parent { get; }
+        Matrix LocalMatrix { get; set; }
+        void SetLocalMatrix(VRageMath.Matrix localMatrix, object source = null);
+        void GetChildren(List<IMyEntity> children, Func<IMyEntity, bool> collect = null);
 
+
+
+        //Render
         bool NearFlag { get; set; }
         bool CastShadows { get; set; }
         bool FastCastShadowResolve { get; set; }
@@ -134,36 +161,24 @@ namespace VRage.ModAPI
         bool ShadowBoxLod { get; set; }
         bool SkipIfTooSmall { get; set; }
         bool Visible { get; set; }
+        bool IsVisible();
+        void DebugDraw();
+        void DebugDrawInvalidTriangles();
+        void EnableColorMaskForSubparts(bool enable);
+        void SetColorMaskForSubparts(VRageMath.Vector3 colorMaskHsv);  
 
+
+        //Scene 
         float GetDistanceBetweenCameraAndBoundingSphere();
         float GetDistanceBetweenCameraAndPosition();
         float GetLargestDistanceBetweenCameraAndBoundingSphere();
         float GetSmallestDistanceBetweenCameraAndBoundingSphere();
-
-        VRageMath.Vector3? GetIntersectionWithLineAndBoundingSphere(ref VRageMath.LineD line, float boundingSphereRadiusMultiplier);
-        bool GetIntersectionWithSphere(ref VRageMath.BoundingSphereD sphere);
-        void GetTrianglesIntersectingSphere(ref VRageMath.BoundingSphereD sphere, VRageMath.Vector3? referenceNormalVector, float? maxAngle, System.Collections.Generic.List<MyTriangle_Vertex_Normals> retTriangles, int maxNeighbourTriangles);
-        bool DoOverlapSphereTest(float sphereRadius, VRageMath.Vector3D spherePos);
-
-        MyObjectBuilder_EntityBase GetObjectBuilder(bool copy = false);
-        bool Save { get; set; }
-        MyPersistentEntityFlags2 PersistentFlags { get; set; }
-
         bool InScene { get; set; }
+        void OnRemovedFromScene(object source);
+        void OnAddedToScene(object source);
         bool InvalidateOnMove { get; }
-        bool IsCCDForProjectiles { get; }
-        bool IsVisible();
-        bool IsVolumetric { get; }
-
-        VRageMath.MatrixD GetViewMatrix();
-        VRageMath.MatrixD GetWorldMatrixNormalizedInv();
-        VRageMath.BoundingBox LocalAABB { get; set; }
-        VRageMath.BoundingBox LocalAABBHr { get; }
-        VRageMath.Matrix LocalMatrix { get; set; }
-        VRageMath.BoundingSphere LocalVolume { get; set; }
-        VRageMath.Vector3 LocalVolumeOffset { get; set; }
-        VRageMath.Vector3 LocationForHudMarker { get; }
-        void SetLocalMatrix(VRageMath.Matrix localMatrix, object source = null);
+        MatrixD GetViewMatrix();
+        MatrixD GetWorldMatrixNormalizedInv();
         void SetWorldMatrix(VRageMath.MatrixD worldMatrix, object source = null);
         VRageMath.BoundingBoxD WorldAABB { get; }
         VRageMath.BoundingBoxD WorldAABBHr { get; }
@@ -172,35 +187,35 @@ namespace VRage.ModAPI
         VRageMath.MatrixD WorldMatrixNormalizedInv { get; }
         VRageMath.BoundingSphereD WorldVolume { get; }
         VRageMath.BoundingSphereD WorldVolumeHr { get; }
-
         VRageMath.Vector3D GetPosition();
         void SetPosition(VRageMath.Vector3D pos);
 
-        event Action<IMyEntity> OnClose;
-        event Action<IMyEntity> OnClosing;
-        event Action<IMyEntity> OnMarkForClose;
+
+
+        //Model 
+        Vector3? GetIntersectionWithLineAndBoundingSphere(ref LineD line, float boundingSphereRadiusMultiplier);
+        bool GetIntersectionWithSphere(ref BoundingSphereD sphere);
+        void GetTrianglesIntersectingSphere(ref BoundingSphereD sphere, Vector3? referenceNormalVector, float? maxAngle, System.Collections.Generic.List<MyTriangle_Vertex_Normals> retTriangles, int maxNeighbourTriangles);
+        bool DoOverlapSphereTest(float sphereRadius, Vector3D spherePos);
+        bool IsVolumetric { get; }        
+        BoundingBox LocalAABB { get; set; }
+        BoundingBox LocalAABBHr { get; }
+        BoundingSphere LocalVolume { get; set; }
+        Vector3 LocalVolumeOffset { get; set; }
+        
+
+        //Physics
         event Action<IMyEntity> OnPhysicsChanged;
-
-        void GetChildren(List<IMyEntity> children, Func<IMyEntity, bool> collect = null);
-
-        MyComponentContainer Components { get; }
-        MyPhysicsComponentBase Physics { get; set; }
-        MyPositionComponentBase PositionComp { get; set; }
-        MyRenderComponentBase Render { get; set; }
-        MyComponentBase GameLogic { get; set; }
-        MyHierarchyComponentBase Hierarchy { get; set; }
-        MySyncComponentBase SyncObject { get; }
-
-
-        void OnRemovedFromScene(object source);
-        void OnAddedToScene(object source);
-        void BeforeSave();
+       
+        
+        //Game related - remove asap
+        Vector3 LocationForHudMarker { get; }
+        bool IsCCDForProjectiles { get; }
         void AddToGamePruningStructure();
         void RemoveFromGamePruningStructure();
         void UpdateGamePruningStructure();
-        void DebugDraw();
-        void DebugDrawInvalidTriangles();
-        void EnableColorMaskForSubparts(bool enable);
-        void SetColorMaskForSubparts(VRageMath.Vector3 colorMaskHsv);  
+        string DisplayName { get; set; }
+     
+
     }
 }

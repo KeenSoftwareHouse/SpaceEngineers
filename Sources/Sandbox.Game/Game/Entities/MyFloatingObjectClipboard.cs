@@ -320,7 +320,7 @@ namespace Sandbox.Game.Entities
                 floatingObject.NeedsUpdate = MyEntityUpdateEnum.NONE;
 
             foreach (var child in entity.Hierarchy.Children)
-                DisablePhysicsRecursively(child.Entity as MyEntity);
+                DisablePhysicsRecursively(child.Container.Entity as MyEntity);
         }
 
         public void Update()

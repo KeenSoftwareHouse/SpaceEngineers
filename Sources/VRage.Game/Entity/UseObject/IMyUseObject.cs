@@ -1,13 +1,9 @@
-﻿using Sandbox.Game.Entities.Character;
-using Sandbox.Game.Gui;
-using System;
+﻿using System;
+using VRage.ModAPI;
+using VRage.Utils;
 using VRageMath;
 
-using VRage.Utils;
-using VRage.Utils;
-using VRage.Library.Utils;
-
-namespace Sandbox.Game.Entities
+namespace VRage.Game.Entity.UseObject
 {
     [Flags]
     public enum UseActionEnum
@@ -36,19 +32,6 @@ namespace Sandbox.Game.Entities
         public bool IsTextControlHint;
         public MyStringId? JoystickText;
         public object[] JoystickFormatParams;
-    }
-
-    /// <summary>
-    /// Simple interface for entities so they don't have to implement IMyUseObject.
-    /// </summary>
-    public interface IMyUsableEntity
-    {
-        /// <summary>
-        /// Test use on server and based on results sends success or failure
-        /// </summary>
-        UseActionResult CanUse(UseActionEnum actionEnum, IMyControllableEntity user);
-
-        void RemoveUsers(bool local);
     }
 
     public interface IMyUseObject
@@ -92,7 +75,7 @@ namespace Sandbox.Game.Entities
         /// Uses object by specified action
         /// Caller calls this method only on supported actions
         /// </summary>
-        void Use(UseActionEnum actionEnum, MyCharacter user);
+        void Use(UseActionEnum actionEnum, IMyEntity user);
 
         /// <summary>
         /// Gets action text
@@ -105,7 +88,7 @@ namespace Sandbox.Game.Entities
         void OnSelectionLost();
     }
 
-    static class UseObjectExtensions
+    public static class UseObjectExtensions
     {
         public static bool IsActionSupported(this IMyUseObject useObject, UseActionEnum action)
         {

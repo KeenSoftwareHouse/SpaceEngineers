@@ -15,6 +15,7 @@ using System;
 using Sandbox.Common.Components;
 using VRage.ModAPI;
 using VRage.Components;
+using VRage;
 
 
 namespace Sandbox.Game.Weapons

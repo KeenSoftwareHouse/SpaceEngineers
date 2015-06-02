@@ -1,11 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using VRage;
-using VRage.Utils;
 using VRageMath;
 
- 
-namespace Sandbox.Common
+
+namespace VRageMath
 {
     //  6 - 7  
     // /   /|
@@ -15,7 +14,7 @@ namespace Sandbox.Common
     //0 - 1                
     public class MyCuboidSide
     {
-        public MyPlane Plane = new MyPlane();
+        public Plane Plane = new Plane();
         public Line[] Lines = new Line[4];
 
         public MyCuboidSide()
@@ -28,8 +27,7 @@ namespace Sandbox.Common
 
         public void CreatePlaneFromLines()
         {
-            Plane.Normal = Vector3.Cross(Lines[1].Direction, Lines[0].Direction);
-            Plane.Point = Lines[0].From;
+            Plane = new Plane(Lines[0].From, Vector3.Cross(Lines[1].Direction, Lines[0].Direction));
         }
     }
 

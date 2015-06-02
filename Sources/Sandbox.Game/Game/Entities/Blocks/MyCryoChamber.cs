@@ -13,6 +13,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using VRage.Game.Entity.UseObject;
 using VRage.Import;
 using VRage.Utils;
 using VRageMath;

@@ -34,14 +34,14 @@ namespace Sandbox.Game.Components
         }
         public void ReleaseRenderTexture()
         {
-            MyRenderProxy.ReleaseRenderTexture(Entity.EntityId,RenderObjectIDs[0]);
+            MyRenderProxy.ReleaseRenderTexture(Container.Entity.EntityId, RenderObjectIDs[0]);
         }
         public override void ReleaseRenderObjectID(int index)
         {
             if (m_renderObjectIDs[index] != VRageRender.MyRenderProxy.RENDER_ID_UNASSIGNED)
             {
                 MyEntities.RemoveRenderObjectFromMap(m_renderObjectIDs[index]);
-                VRageRender.MyRenderProxy.ReleaseRenderTexture(Entity.EntityId,m_renderObjectIDs[index]);
+                VRageRender.MyRenderProxy.ReleaseRenderTexture(Container.Entity.EntityId, m_renderObjectIDs[index]);
                 VRageRender.MyRenderProxy.RemoveRenderObject(m_renderObjectIDs[index]);
                 m_renderObjectIDs[index] = VRageRender.MyRenderProxy.RENDER_ID_UNASSIGNED;
             }
@@ -49,7 +49,7 @@ namespace Sandbox.Game.Components
         override public void UpdateRenderEntity(Vector3 colorMaskHSV)
         {
             base.UpdateRenderEntity(colorMaskHSV);
-            (Entity as MyTextPanel).OnColorChanged();
+            (Container.Entity as MyTextPanel).OnColorChanged();
         }
         #endregion
     }

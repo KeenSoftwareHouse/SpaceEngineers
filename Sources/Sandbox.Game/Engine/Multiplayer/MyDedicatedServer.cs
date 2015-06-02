@@ -185,8 +185,15 @@ namespace Sandbox.Engine.Multiplayer
             get { return m_worldName; }
             set
             {
-                m_worldName = value;
-                SteamSDK.SteamServerAPI.Instance.GameServer.SetMapName(value);
+                if (string.IsNullOrEmpty(value))
+                {
+                    m_worldName = "noname";
+                }
+                else
+                {
+                    m_worldName = value;
+                }
+                SteamSDK.SteamServerAPI.Instance.GameServer.SetMapName(m_worldName);
             }
         }
 

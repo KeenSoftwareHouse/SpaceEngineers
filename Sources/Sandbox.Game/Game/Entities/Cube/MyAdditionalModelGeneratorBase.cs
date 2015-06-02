@@ -24,6 +24,7 @@ namespace Sandbox.Game.Entities.Cube
     using ModelId = System.Int32;
     using VRage.Utils;
     using VRage.Library.Utils;
+    using VRage;
 
     /// <summary>
     /// Base class for additional model geometry with common implementation.

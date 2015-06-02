@@ -217,7 +217,7 @@ namespace VRageRender
             base.Construct();
             Type = MyActorComponentEnum.GroupRoot;
 
-            m_children = null;
+            m_children = new List<MyActor>();
             m_dirtyPosition = false;
             m_dirtyTree = false;
             m_btreeProxy = -1;
@@ -266,8 +266,6 @@ namespace VRageRender
 
             child.GetGroupLeaf().m_parent = m_owner;
 
-            if (m_children == null)
-                m_children = new List<MyActor>();
             m_children.Add(child);
 
             if (child.m_relativeTransform == null)

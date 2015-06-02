@@ -285,7 +285,8 @@ namespace Sandbox.Game.Gui
         {
             MyLog.Default.WriteLine(String.Format("Battle lobby join response: {0}, enter state: {1}", joinResult.ToString(), enterInfo.EnterState));
 
-            if (joinResult == Result.OK && enterInfo.EnterState == LobbyEnterResponseEnum.Success && multiplayer.GetOwner() != MySteam.UserId)
+            bool battleCanBeJoined = multiplayer.BattleCanBeJoined;
+            if (joinResult == Result.OK && enterInfo.EnterState == LobbyEnterResponseEnum.Success && multiplayer.GetOwner() != MySteam.UserId && battleCanBeJoined)
             {
                 // Create session with empty world
                 Debug.Assert(MySession.Static == null);
@@ -312,6 +313,10 @@ namespace Sandbox.Game.Gui
                 else if (enterInfo.EnterState != LobbyEnterResponseEnum.Success)
                 {
                     status = enterInfo.EnterState.ToString();
+                }
+                else if (!battleCanBeJoined)
+                {
+                    status = "Started battle cannot be joined";
                 }
 
                 OnJoinBattleFailed(progress, multiplayer, status);
@@ -351,10 +356,8 @@ namespace Sandbox.Game.Gui
 
         private static void OnJoinBattleFailed(MyGuiScreenProgress progress, MyMultiplayerBase multiplayer, string status)
         {
-            if (multiplayer != null)
-            {
-                multiplayer.Dispose();
-            }
+            MyGuiScreenMainMenu.UnloadAndExitToMenu();
+
             progress.Cancel();
             StringBuilder error = new StringBuilder();
             error.AppendFormat(MySpaceTexts.DialogTextJoinBattleLobbyFailed, status);

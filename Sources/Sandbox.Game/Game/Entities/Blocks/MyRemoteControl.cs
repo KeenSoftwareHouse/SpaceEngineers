@@ -29,6 +29,8 @@ using SteamSDK;
 using ProtoBuf;
 using Sandbox.Game.Screens.Helpers;
 using System.Diagnostics;
+using Sandbox.Game.Entities.UseObject;
+using VRage.Game.Entity.UseObject;
 using VRage.ObjectBuilders;
 using VRage.ModAPI;
 

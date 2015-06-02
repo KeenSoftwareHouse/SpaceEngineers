@@ -42,7 +42,7 @@ namespace Sandbox.Game.Components
             }
             foreach (var child in this.m_entity.Hierarchy.Children)
             {
-                child.Entity.DebugDrawInvalidTriangles();
+                child.Container.Entity.DebugDrawInvalidTriangles();
             }
 
             if (m_entity.Render.GetModel() != null)

@@ -1199,7 +1199,7 @@ namespace Sandbox.Game.Entities
          {
             foreach (var c in childrens)
             {
-                var child = c.Entity;
+                var child = c.Container.Entity;
                 MyModel model = (child as MyEntity).Model;
                 if (null != model)
                 {

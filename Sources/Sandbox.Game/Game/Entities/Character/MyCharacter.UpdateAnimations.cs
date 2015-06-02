@@ -69,8 +69,6 @@ namespace Sandbox.Game.Entities.Character
     {
         #region Fields
 
-        static int MAX_BONES = 120;
-
         /// <summary>
         /// The model bones
         /// </summary>

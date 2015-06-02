@@ -1,14 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
+using System.IO;
 using System.Reflection;
-using System.Text;
+using VRage.FileSystem;
 using VRage.Import;
+using VRage.ModAPI;
 using VRage.Plugins;
-using VRageMath;
 
-namespace Sandbox.Game.Entities.UseObject
+namespace VRage.Game.Entity.UseObject
 {
     [AttributeUsage(AttributeTargets.Class, AllowMultiple = true, Inherited = false)]
     public class MyUseObjectAttribute : System.Attribute
@@ -22,7 +22,7 @@ namespace Sandbox.Game.Entities.UseObject
     }
 
     [PreloadRequired]
-    static class MyUseObjectFactory
+    public static class MyUseObjectFactory
     {
         private static Dictionary<string, Type> m_useObjectTypesByDummyName = new Dictionary<string, Type>(StringComparer.OrdinalIgnoreCase);
 
@@ -31,6 +31,7 @@ namespace Sandbox.Game.Entities.UseObject
             RegisterAssemblyTypes(Assembly.GetExecutingAssembly());
             RegisterAssemblyTypes(MyPlugins.GameAssembly);
             RegisterAssemblyTypes(MyPlugins.UserAssembly);
+            RegisterAssemblyTypes(Assembly.LoadFrom(Path.Combine(MyFileSystem.ExePath, "Sandbox.Game.dll")));
         }
 
         private static void RegisterAssemblyTypes(Assembly assembly)
@@ -67,7 +68,7 @@ namespace Sandbox.Game.Entities.UseObject
                 if (args.Length != 4)
                     continue;
 
-                if (args[0].ParameterType == typeof(MyCubeBlock) &&
+                if (args[0].ParameterType == typeof(IMyEntity) &&
                     args[1].ParameterType == typeof(string) &&
                     args[2].ParameterType == typeof(MyModelDummy) &&
                     args[3].ParameterType == typeof(int))
@@ -79,7 +80,7 @@ namespace Sandbox.Game.Entities.UseObject
             Debug.Fail(string.Format("No appropriate constructor defined for type {0}.", type.FullName));
         }
 
-        public static IMyUseObject CreateUseObject(string detectorName, MyCubeBlock owner, string dummyName, MyModelDummy dummyData, int shapeKey)
+        public static IMyUseObject CreateUseObject(string detectorName, IMyEntity owner, string dummyName, MyModelDummy dummyData, int shapeKey)
         {
             Type type;
             if (!m_useObjectTypesByDummyName.TryGetValue(detectorName, out type) || type == null)

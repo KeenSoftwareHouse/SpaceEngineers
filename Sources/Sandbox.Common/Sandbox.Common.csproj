@@ -274,7 +274,6 @@
     <Compile Include="MyEnums.cs" />
     <Compile Include="MyFinalBuildConstants.cs" />
     <Compile Include="MyMultiplayerWorldData.cs" />
-    <Compile Include="Math\MyCuboid.cs" />
     <Compile Include="MyPlayerInfo.cs" />
     <Compile Include="News\MyNews.cs" />
     <Compile Include="ObjectBuilders\AI\BehaviorTree\MyObjectBuilder_BehaviorControlBaseNode.cs" />
@@ -652,7 +651,6 @@
     <Compile Include="ObjectBuilders\Voxels\MyObjectBuilder_VoxelMap.cs" />
     <Compile Include="ObjectBuilders\MyObjectBuilder_TransparentMaterials.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="utils\MyEntityIdentifier.cs" />
   </ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include="Microsoft.Net.Client.3.5">

@@ -1,10 +1,12 @@
 ﻿
-using Sandbox.Engine.Utils;
-using Sandbox.Game.Entities.UseObject;
-using Sandbox.Game.Localization;
 using System.Diagnostics;
+using Sandbox.Engine.Utils;
+using Sandbox.Game.Entities.Character;
+using Sandbox.Game.Localization;
+using VRage.Game.Entity.UseObject;
 using VRage.Import;
 using VRage.Input;
+using VRage.ModAPI;
 using VRageMath;
 
 namespace Sandbox.Game.Entities.Cube
@@ -15,7 +17,7 @@ namespace Sandbox.Game.Entities.Cube
         private MyMedicalRoom m_medicalRoom;
         private Matrix m_localMatrix;
 
-        public MyUseObjectMedicalRoom(MyCubeBlock owner, string dummyName, MyModelDummy dummyData, int key)
+        public MyUseObjectMedicalRoom(IMyEntity owner, string dummyName, MyModelDummy dummyData, int key)
         {
             m_medicalRoom = (MyMedicalRoom)owner;
             m_localMatrix = dummyData.Matrix;
@@ -62,8 +64,9 @@ namespace Sandbox.Game.Entities.Cube
             get { return true; }
         }
 
-        void IMyUseObject.Use(UseActionEnum actionEnum, Character.MyCharacter user)
+        void IMyUseObject.Use(UseActionEnum actionEnum, IMyEntity entity)
         {
+            var user = entity as MyCharacter;
             m_medicalRoom.Use(actionEnum, user);
         }
 

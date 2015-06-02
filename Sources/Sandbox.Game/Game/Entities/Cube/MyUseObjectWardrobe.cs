@@ -1,13 +1,14 @@
 ﻿
 using Sandbox.Engine.Utils;
 using Sandbox.Game.Entities.Character;
-using Sandbox.Game.Entities.UseObject;
 using Sandbox.Game.Gui;
 using Sandbox.Game.Localization;
 using Sandbox.Game.Screens;
 using Sandbox.Graphics.GUI;
+using VRage.Game.Entity.UseObject;
 using VRage.Import;
 using VRage.Input;
+using VRage.ModAPI;
 using VRageMath;
 
 namespace Sandbox.Game.Entities.Cube
@@ -18,9 +19,9 @@ namespace Sandbox.Game.Entities.Cube
         public readonly MyCubeBlock Block;
         public readonly Matrix LocalMatrix;
 
-        public MyUseObjectWardrobe(MyCubeBlock owner, string dummyName, MyModelDummy dummyData, int key)
+        public MyUseObjectWardrobe(IMyEntity owner, string dummyName, MyModelDummy dummyData, int key)
         {
-            Block = owner;
+            Block = owner as MyCubeBlock;
             LocalMatrix = dummyData.Matrix;
         }
 
@@ -57,8 +58,9 @@ namespace Sandbox.Game.Entities.Cube
             get { return UseActionEnum.Manipulate; }
         }
 
-        void IMyUseObject.Use(UseActionEnum actionEnum, MyCharacter user)
+        void IMyUseObject.Use(UseActionEnum actionEnum, IMyEntity entity)
         {
+            var user = entity as MyCharacter;
             var relation = Block.GetUserRelationToOwner(user.ControllerInfo.ControllingIdentityId);
             if (relation != Common.MyRelationsBetweenPlayerAndBlock.Owner && relation != Common.MyRelationsBetweenPlayerAndBlock.FactionShare)
             {

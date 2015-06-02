@@ -21,7 +21,7 @@ namespace Sandbox.Game.Entities
         public static MyGameLogicComponent Create(ICollection<MyGameLogicComponent> logicComponents, MyEntity entity)
         {
             foreach (MyGameLogicComponent item in logicComponents)
-                item.CurrentContainer = entity.Components;
+                item.Container = entity.Components;
 
             switch (logicComponents.Count)
             {
@@ -125,5 +125,17 @@ namespace Sandbox.Game.Entities
             }
             return null;
         }
+
+        public override T GetAs<T>()
+        {
+            foreach (var component in m_logicComponents)
+            {
+                if (component is T)
+                {
+                    return component as T;
+                }
+            }
+            return null;
+        } 
     }
 }

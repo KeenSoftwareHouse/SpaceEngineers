@@ -66,7 +66,7 @@ namespace Sandbox.Game.Entities.Debris
         {
             protected override MyPhysicsComponentBase GetPhysics(RigidBodyFlag rigidBodyFlag)
             {
-                return new MyDebrisVoxelPhysics(Entity, rigidBodyFlag);
+                return new MyDebrisVoxelPhysics(Container.Entity, rigidBodyFlag);
             }
             /// <summary>
             /// Somewhat of a hack to add setting of default voxel material when calling base version of the method.
@@ -78,14 +78,14 @@ namespace Sandbox.Game.Entities.Debris
 
             public void Start(Vector3D position, Vector3D initialVelocity, float scale, MyVoxelMaterialDefinition mat)
             {
-                Components.MyRenderComponentDebrisVoxel voxelDebrisRender = Entity.Render as Components.MyRenderComponentDebrisVoxel;
+                Components.MyRenderComponentDebrisVoxel voxelDebrisRender = Container.Entity.Render as Components.MyRenderComponentDebrisVoxel;
 
                 voxelDebrisRender.TexCoordOffset = MyUtils.GetRandomFloat(5, 15);
                 voxelDebrisRender.TexCoordScale = MyUtils.GetRandomFloat(8, 12);
                 voxelDebrisRender.VoxelMaterialIndex = mat.Index;
                 base.Start(position, initialVelocity, scale);
-                Entity.Render.NeedsResolveCastShadow = true;
-                Entity.Render.FastCastShadowResolve = true;
+                Container.Entity.Render.NeedsResolveCastShadow = true;
+                Container.Entity.Render.FastCastShadowResolve = true;
             }
         }
     }

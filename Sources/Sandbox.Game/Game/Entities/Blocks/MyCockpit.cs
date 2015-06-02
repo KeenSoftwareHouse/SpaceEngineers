@@ -9,6 +9,7 @@ using Sandbox.Engine.Utils;
 using Sandbox.Game.AI;
 using Sandbox.Game.Entities.Character;
 using Sandbox.Game.Entities.Cube;
+using Sandbox.Game.Entities.UseObject;
 using Sandbox.Game.GameSystems;
 using Sandbox.Game.GameSystems.Conveyors;
 using Sandbox.Game.Gui;
@@ -25,6 +26,7 @@ using VRage.Library.Utils;
 using VRage.Utils;
 using VRageMath;
 using VRage;
+using VRage.Game.Entity.UseObject;
 using VRage.ModAPI;
 
 #endregion

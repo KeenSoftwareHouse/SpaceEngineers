@@ -135,7 +135,7 @@ namespace Sandbox.Game.Entities
         void entity_OnPositionChanged(MyPositionComponentBase entity)
         {
             DetectedEntityInfo info;
-            if (m_detectedEntities.TryGetValue(entity.Entity as MyEntity, out info))
+            if (m_detectedEntities.TryGetValue(entity.Container.Entity as MyEntity, out info))
             {
                 info.Moved = true;
             }

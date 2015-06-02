@@ -20,6 +20,7 @@ using Sandbox.ModAPI.Interfaces;
 using System.Diagnostics;
 using System.Text;
 using VRage;
+using VRage.Game.Entity.UseObject;
 using VRage.Input;
 using VRage.Library.Utils;
 using VRage.Utils;

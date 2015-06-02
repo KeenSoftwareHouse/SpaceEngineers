@@ -41,7 +41,7 @@ namespace VRage.Components
                 if (EnableColorMaskHsv)
                 {
                     UpdateRenderEntity(m_colorMaskHsv);
-                    Entity.EnableColorMaskForSubparts(value);
+                    Container.Entity.EnableColorMaskForSubparts(value);
                 }
             }
         }
@@ -55,7 +55,7 @@ namespace VRage.Components
                 if (EnableColorMaskHsv)
                 {
                     UpdateRenderEntity(m_colorMaskHsv);
-                    Entity.SetColorMaskForSubparts(value);
+                    Container.Entity.SetColorMaskForSubparts(value);
                 }
             }
         }
@@ -106,8 +106,8 @@ namespace VRage.Components
 
         public virtual void InvalidateRenderObjects(bool sortIntoCullobjects = false)
         {
-            var m = Entity.Components.Get<MyPositionComponentBase>().WorldMatrix;
-            if ((Entity.Visible || Entity.CastShadows) && Entity.InScene && Entity.InvalidateOnMove)
+            var m = Container.Get<MyPositionComponentBase>().WorldMatrix;
+            if ((Container.Entity.Visible || Container.Entity.CastShadows) && Container.Entity.InScene && Container.Entity.InvalidateOnMove)
             {
                 foreach (uint renderObjectID in m_renderObjectIDs)
                 {
@@ -126,25 +126,25 @@ namespace VRage.Components
         {
             get
             {
-                return (this.Entity.Flags & EntityFlags.Visible) != 0;
+                return (Container.Entity.Flags & EntityFlags.Visible) != 0;
             }
 
             set
             {
-                System.Diagnostics.Debug.Assert(!Entity.Closed, "Cannot change visibility, entity is closed");
+                System.Diagnostics.Debug.Assert(!Container.Entity.Closed, "Cannot change visibility, entity is closed");
 
-                EntityFlags oldValue = this.Entity.Flags;
+                EntityFlags oldValue = Container.Entity.Flags;
 
                 if (value)
                 {
-                    this.Entity.Flags = this.Entity.Flags | EntityFlags.Visible;
+                    Container.Entity.Flags = Container.Entity.Flags | EntityFlags.Visible;
                 }
                 else
                 {
-                    Entity.Flags = Entity.Flags & (~EntityFlags.Visible);
+                    Container.Entity.Flags = Container.Entity.Flags & (~EntityFlags.Visible);
                 }
 
-                if (oldValue != Entity.Flags)
+                if (oldValue != Container.Entity.Flags)
                 {
                     UpdateRenderObject(value);
                 }
@@ -162,13 +162,13 @@ namespace VRage.Components
             {
                 return;
             }
-            if (!Entity.InScene && visible)
+            if (!Container.Entity.InScene && visible)
                 return;
 
             if (visible)
             {
-                MyHierarchyComponentBase hierarchyComponent = Entity.Components.Get<MyHierarchyComponentBase>();
-                if (Visible && (hierarchyComponent.Parent == null || hierarchyComponent.Parent.Entity.Visible)/* && m_frustumCheckBeforeDrawEnabled*/)
+                MyHierarchyComponentBase hierarchyComponent = Container.Get<MyHierarchyComponentBase>();
+                if (Visible && (hierarchyComponent.Parent == null || hierarchyComponent.Parent.Container.Entity.Visible)/* && m_frustumCheckBeforeDrawEnabled*/)
                 {
                     if (CanBeAddedToRender())
                     {
@@ -192,11 +192,11 @@ namespace VRage.Components
                 RemoveRenderObjects();
             }
 
-            MyHierarchyComponentBase hierarchy = Entity.Components.Get<MyHierarchyComponentBase>();
+            MyHierarchyComponentBase hierarchy = Container.Get<MyHierarchyComponentBase>();
             foreach (var child in hierarchy.Children)
             {
                 MyRenderComponentBase renderComponent = null;
-                if (child.CurrentContainer.TryGet(out renderComponent))
+                if (child.Container.TryGet(out renderComponent))
                 {
                     renderComponent.UpdateRenderObject(visible);
                 }
@@ -207,7 +207,7 @@ namespace VRage.Components
         {
             foreach (uint id in m_renderObjectIDs)
             {
-                VRageRender.MyRenderProxy.UpdateRenderObjectVisibility(id, visible, this.Entity.NearFlag);
+                VRageRender.MyRenderProxy.UpdateRenderObjectVisibility(id, visible, Container.Entity.NearFlag);
             }
         }
 
@@ -223,16 +223,16 @@ namespace VRage.Components
         {
             get
             {
-                return (Entity.Flags & EntityFlags.Near) != 0;
+                return (Container.Entity.Flags & EntityFlags.Near) != 0;
             }
             set
             {
                 bool hasChanged = value != NearFlag;
 
                 if (value)
-                    Entity.Flags |= EntityFlags.Near;
+                    Container.Entity.Flags |= EntityFlags.Near;
                 else
-                    Entity.Flags &= ~EntityFlags.Near;
+                    Container.Entity.Flags &= ~EntityFlags.Near;
 
 
                 if (hasChanged)
@@ -242,11 +242,11 @@ namespace VRage.Components
                     VRageRender.MyRenderProxy.UpdateRenderObjectVisibility(m_renderObjectIDs[0], Visible, NearFlag);
                 }
 
-                MyHierarchyComponentBase hierarchy = Entity.Components.Get<MyHierarchyComponentBase>();
+                MyHierarchyComponentBase hierarchy = Container.Get<MyHierarchyComponentBase>();
                 foreach (var child in hierarchy.Children)
                 {
                     MyRenderComponentBase renderComponent = null;
-                    if (child.Entity.InScene && child.CurrentContainer.TryGet(out renderComponent))
+                    if (child.Container.Entity.InScene && child.Container.TryGet(out renderComponent))
                     {
                         renderComponent.NearFlag = value;
                     }
@@ -258,7 +258,7 @@ namespace VRage.Components
         {
             get
             {
-                return ((Entity.Flags & EntityFlags.NeedsDrawFromParent) != 0);
+                return ((Container.Entity.Flags & EntityFlags.NeedsDrawFromParent) != 0);
             }
             set
             {
@@ -266,10 +266,10 @@ namespace VRage.Components
 
                 if (hasChanged)
                 {
-                    Entity.Flags &= ~EntityFlags.NeedsDrawFromParent;
+                    Container.Entity.Flags &= ~EntityFlags.NeedsDrawFromParent;
 
                     if (value)
-                        Entity.Flags |= EntityFlags.NeedsDrawFromParent;
+                        Container.Entity.Flags |= EntityFlags.NeedsDrawFromParent;
                 }
             }
         }
@@ -297,17 +297,17 @@ namespace VRage.Components
         {
             get
             {
-                return (Entity.Flags & EntityFlags.NeedsResolveCastShadow) != 0;
+                return (Container.Entity.Flags & EntityFlags.NeedsResolveCastShadow) != 0;
             }
             set
             {
                 if (value)
                 {
-                    Entity.Flags |= EntityFlags.NeedsResolveCastShadow;
+                    Container.Entity.Flags |= EntityFlags.NeedsResolveCastShadow;
                 }
                 else
                 {
-                    Entity.Flags &= ~EntityFlags.NeedsResolveCastShadow;
+                    Container.Entity.Flags &= ~EntityFlags.NeedsResolveCastShadow;
                 }
             }
         }
@@ -316,17 +316,17 @@ namespace VRage.Components
         {
             get
             {
-                return (Entity.Flags & EntityFlags.FastCastShadowResolve) != 0;
+                return (Container.Entity.Flags & EntityFlags.FastCastShadowResolve) != 0;
             }
             set
             {
                 if (value)
                 {
-                    Entity.Flags |= EntityFlags.FastCastShadowResolve;
+                    Container.Entity.Flags |= EntityFlags.FastCastShadowResolve;
                 }
                 else
                 {
-                    Entity.Flags &= ~EntityFlags.FastCastShadowResolve;
+                    Container.Entity.Flags &= ~EntityFlags.FastCastShadowResolve;
                 }
             }
         }
@@ -335,17 +335,17 @@ namespace VRage.Components
         {
             get
             {
-                return (Entity.Flags & EntityFlags.SkipIfTooSmall) != 0;
+                return (Container.Entity.Flags & EntityFlags.SkipIfTooSmall) != 0;
             }
             set
             {
                 if (value)
                 {
-                    Entity.Flags |= EntityFlags.SkipIfTooSmall;
+                    Container.Entity.Flags |= EntityFlags.SkipIfTooSmall;
                 }
                 else
                 {
-                    Entity.Flags &= ~EntityFlags.SkipIfTooSmall;
+                    Container.Entity.Flags &= ~EntityFlags.SkipIfTooSmall;
                 }
             }
         }
@@ -354,17 +354,17 @@ namespace VRage.Components
         {
             get
             {
-                return (Entity.Flags & EntityFlags.ShadowBoxLod) != 0;
+                return (Container.Entity.Flags & EntityFlags.ShadowBoxLod) != 0;
             }
             set
             {
                 if (value)
                 {
-                    Entity.Flags |= EntityFlags.ShadowBoxLod;
+                    Container.Entity.Flags |= EntityFlags.ShadowBoxLod;
                 }
                 else
                 {
-                    Entity.Flags &= ~EntityFlags.ShadowBoxLod;
+                    Container.Entity.Flags &= ~EntityFlags.ShadowBoxLod;
                 }
             }
         }
@@ -406,7 +406,7 @@ namespace VRage.Components
         {
             get
             {
-                return ((Entity.Flags & EntityFlags.NeedsDraw) != 0);
+                return ((Container.Entity.Flags & EntityFlags.NeedsDraw) != 0);
             }
             set
             {
@@ -414,10 +414,10 @@ namespace VRage.Components
 
                 if (hasChanged)
                 {
-                    Entity.Flags &= ~EntityFlags.NeedsDraw;
+                    Container.Entity.Flags &= ~EntityFlags.NeedsDraw;
 
                     if (value)
-                        Entity.Flags |= EntityFlags.NeedsDraw;                  
+                        Container.Entity.Flags |= EntityFlags.NeedsDraw;                  
                 }
             }
         }

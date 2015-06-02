@@ -25,14 +25,14 @@ namespace Sandbox.Game.Components
         public override void OnAddedToContainer(MyComponentContainer container)
         {
             base.OnAddedToContainer(container);
-            m_thrust = Entity as MyThrust;
+            m_thrust = Container.Entity as MyThrust;
         }
         public override void Draw()
         {
             base.Draw();
             ProfilerShort.Begin("MyThrust.Draw()");
 
-            var worldToLocal = MatrixD.Invert(Entity.PositionComp.WorldMatrix);
+            var worldToLocal = MatrixD.Invert(Container.Entity.PositionComp.WorldMatrix);
 
             if (m_thrust.CanDraw())
             {
@@ -45,8 +45,8 @@ namespace Sandbox.Game.Components
                     {
                         continue;
                     }
-                    Vector3D forward = Vector3D.TransformNormal(f.Direction, Entity.PositionComp.WorldMatrix);
-                    var position = Vector3D.Transform(f.Position, Entity.PositionComp.WorldMatrix);
+                    Vector3D forward = Vector3D.TransformNormal(f.Direction, Container.Entity.PositionComp.WorldMatrix);
+                    var position = Vector3D.Transform(f.Position, Container.Entity.PositionComp.WorldMatrix);
 
                     float radius = m_thrust.ThrustRadiusRand * f.Radius;
                     float length = m_thrust.ThrustLengthRand * f.Radius;

@@ -1146,7 +1146,7 @@ namespace Sandbox.Game.Gui
             var ctrlEntity = MySession.ControlledEntity;
             if (ctrlEntity != null)
             {
-                var grid = ctrlEntity.Entity.Hierarchy.GetTopMostParent().Entity as MyCubeGrid;
+                var grid = ctrlEntity.Entity.Hierarchy.GetTopMostParent().Container.Entity as MyCubeGrid;
                 if (grid != null)
                 {
                     List<MyCubeBlock> blocks = new List<MyCubeBlock>();

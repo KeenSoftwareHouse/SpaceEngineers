@@ -44,6 +44,7 @@ using Sandbox.Game.GameSystems;
 using Sandbox.Common.ModAPI;
 using VRage.ObjectBuilders;
 using VRage.Components;
+using VRage.Game.Entity.UseObject;
 using VRage.ModAPI;
 
 #endregion
@@ -1951,7 +1952,11 @@ namespace Sandbox.Game.Entities.Character
 
                 if (block != null)
                 {
-                    interactive = block.GetInteractiveObject(h.HkHitInfo.GetShapeKey(0));
+                    var useObject = entity.Components.Get<MyUseObjectsComponentBase>();
+                    if (useObject != null)
+                    {
+                        interactive = useObject.GetInteractiveObject(h.HkHitInfo.GetShapeKey(0));
+                    }
                 }
 
                 if (UseObject != null && interactive != null && UseObject != interactive)
@@ -5037,7 +5042,7 @@ namespace Sandbox.Game.Entities.Character
             Render.UpdateShadowIgnoredObjects(parent);
             foreach (var child in parent.Hierarchy.Children)
             {
-                UpdateShadowIgnoredObjects(child.Entity as MyEntity);
+                UpdateShadowIgnoredObjects(child.Container.Entity as MyEntity);
             }
         }
 
@@ -7710,8 +7715,9 @@ namespace Sandbox.Game.Entities.Character
         /// Uses object by specified action
         /// Caller calls this method only on supported actions
         /// </summary>
-        void IMyUseObject.Use(UseActionEnum actionEnum, MyCharacter user)
+        void IMyUseObject.Use(UseActionEnum actionEnum, IMyEntity entity)
         {
+            var user = entity as MyCharacter;
             if (MyPerGameSettings.TerminalEnabled)
             {
                 MyGuiScreenTerminal.Show(MyTerminalPageEnum.Inventory, user, this);
@@ -8048,7 +8054,7 @@ namespace Sandbox.Game.Entities.Character
                             m_checkOutOfWorldCounter = 0;
                             return;
                         }
-                        var velocity = Entity.Physics.LinearVelocity;
+                        var velocity = Container.Entity.Physics.LinearVelocity;
                         bool clamp = false;
                         if(pos.X < min.X || pos.X > max.X)
                         {
@@ -8069,7 +8075,7 @@ namespace Sandbox.Game.Entities.Character
                         {
                             m_checkOutOfWorldCounter = 0; //set position will send us to this function again so dont check twice
                             SetPosition(Vector3.Clamp(pos, min, max));
-                            Entity.Physics.LinearVelocity = velocity;
+                            Container.Entity.Physics.LinearVelocity = velocity;
                         }
                         m_checkOutOfWorldCounter = CHECK_FREQUENCY; //recheck next frame
                     }

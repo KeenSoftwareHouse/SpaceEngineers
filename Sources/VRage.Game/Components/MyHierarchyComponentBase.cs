@@ -20,7 +20,7 @@ namespace VRage.Components
         {
             MyHierarchyComponentBase parent = this;
 
-            while (parent.Parent != null && (type == null || !parent.CurrentContainer.Contains(type)))
+            while (parent.Parent != null && (type == null || !parent.Container.Contains(type)))
             {
                 parent = parent.Parent;
             }
@@ -66,15 +66,15 @@ namespace VRage.Components
             {
                 this.Children.Add(childHierarchy);
 
-                MyPositionComponentBase positionComponent = Entity.Components.Get<MyPositionComponentBase>();
+                MyPositionComponentBase positionComponent = Container.Get<MyPositionComponentBase>();
                 MyPositionComponentBase childPositionComponent = child.Components.Get<MyPositionComponentBase>();
 
                 var m = positionComponent.WorldMatrix;
                 childPositionComponent.UpdateWorldMatrix(ref m);
             }
 
-            if (Entity.InScene && !child.InScene && insertIntoSceneIfNeeded)
-                child.OnAddedToScene(this.Entity);
+            if (Container.Entity.InScene && !child.InScene && insertIntoSceneIfNeeded)
+                child.OnAddedToScene(Container.Entity);
         }
 
         public void AddChildWithMatrix(IMyEntity child, ref Matrix childLocalMatrix, bool insertIntoSceneIfNeeded = true)
@@ -84,9 +84,9 @@ namespace VRage.Components
             childHierarchy.Parent = this;
 
             Children.Add(childHierarchy);
-            child.WorldMatrix = (MatrixD)childLocalMatrix * Entity.Components.Get<MyPositionComponentBase>().WorldMatrix;
+            child.WorldMatrix = (MatrixD)childLocalMatrix * Container.Get<MyPositionComponentBase>().WorldMatrix;
 
-            if (Entity.InScene && !child.InScene && insertIntoSceneIfNeeded)
+            if (Container.Entity.InScene && !child.InScene && insertIntoSceneIfNeeded)
                 child.OnAddedToScene(this);
         }
 
@@ -123,7 +123,7 @@ namespace VRage.Components
             for (int i = 0; i < Children.Count; i++)
             {
                 var entity = Children[i];
-                result.Add(entity.Entity);
+                result.Add(entity.Container.Entity);
                 entity.GetChildrenRecursive(result);
             }
         }

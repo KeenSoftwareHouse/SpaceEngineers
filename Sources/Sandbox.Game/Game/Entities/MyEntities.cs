@@ -1799,7 +1799,7 @@ namespace Sandbox.Game.Entities
 
                 foreach (var comp in components)
                 {
-                    var entity = comp.Entity;
+                    var entity = comp.Container.Entity;
                     if (entity.Save)
                     {
                         entity.BeforeSave();
