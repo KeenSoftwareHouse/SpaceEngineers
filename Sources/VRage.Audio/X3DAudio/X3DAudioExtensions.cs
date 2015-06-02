@@ -65,6 +65,19 @@ namespace VRage.Audio.X3DAudio
             emitter.InnerRadiusAngle = (channelsCount > 2) ? 0.5f * SharpDX.AngleSingle.RightAngle.Radians : 0f;
         }
 
+        internal static void UpdateValuesOmni(this Emitter emitter, Vector3 position, Vector3 velocity, float maxDistance, int channelsCount, MyCurveType volumeCurve)
+        {
+            emitter.Position = new SharpDX.Vector3(position.X, position.Y, position.Z);
+            emitter.Velocity = new SharpDX.Vector3(velocity.X, velocity.Y, velocity.Z);
+
+            emitter.DopplerScaler = 1f;
+            emitter.CurveDistanceScaler = maxDistance;
+            emitter.VolumeCurve = MyDistanceCurves.Curves[(int)volumeCurve];
+
+            emitter.InnerRadius = (channelsCount > 2) ? maxDistance : 0f;
+            emitter.InnerRadiusAngle = (channelsCount > 2) ? 0.5f * SharpDX.AngleSingle.RightAngle.Radians : 0f;
+        }
+
         internal static unsafe void SetOutputMatrix(this SourceVoice sourceVoice, Voice destionationVoice, int sourceChannels, int destinationChannels, float* matrix, int operationSet = 0)
         {
             IntPtr destPtr = destionationVoice != null ? destionationVoice.NativePointer : IntPtr.Zero;

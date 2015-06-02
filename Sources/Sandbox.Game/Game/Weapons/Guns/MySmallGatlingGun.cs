@@ -31,6 +31,8 @@ using Sandbox.ModAPI.Interfaces;
 using Sandbox.Game.Components;
 using Sandbox.ModAPI.Ingame;
 using Sandbox.Game.Localization;
+using VRage.ModAPI;
+using VRage.Components;
 
 namespace Sandbox.Game.Weapons
 {
@@ -414,7 +416,7 @@ namespace Sandbox.Game.Weapons
             if (BackkickForcePerSecond > 0)
             {
                 CubeGrid.Physics.AddForce(
-                    Engine.Physics.MyPhysicsForceType.APPLY_WORLD_IMPULSE_AND_WORLD_ANGULAR_IMPULSE,
+                    MyPhysicsForceType.APPLY_WORLD_IMPULSE_AND_WORLD_ANGULAR_IMPULSE,
                     -direction * BackkickForcePerSecond,
                     PositionComp.GetPosition(),
                     null);

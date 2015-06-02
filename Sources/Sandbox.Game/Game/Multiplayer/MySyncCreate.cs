@@ -1,9 +1,9 @@
 ﻿using ProtoBuf;
 using Sandbox.Common.ObjectBuilders;
-using Sandbox.Common.ObjectBuilders.Serializer;
 using Sandbox.Common.ObjectBuilders.VRageData;
 using Sandbox.Definitions;
 using Sandbox.Engine.Multiplayer;
+using Sandbox.Engine.Networking;
 using Sandbox.Game.Entities;
 using Sandbox.Game.World;
 using SteamSDK;
@@ -13,6 +13,8 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
+using VRage;
+using VRage.ObjectBuilders;
 using VRageMath;
 
 namespace Sandbox.Game.Multiplayer
@@ -94,6 +96,9 @@ namespace Sandbox.Game.Multiplayer
             
             [ProtoMember]
             public bool Static;
+
+			[ProtoMember]
+			public ulong SenderSteamId;
         }
 
         static MySyncCreate()
@@ -130,7 +135,7 @@ namespace Sandbox.Game.Multiplayer
                 MemoryStream stream = new MemoryStream(msg.ObjectBuilders, bytesOffset, msg.BuilderLengths[i]);
 
                 MyObjectBuilder_EntityBase entity;
-                if (Sandbox.Common.ObjectBuilders.Serializer.MyObjectBuilderSerializer.DeserializeGZippedXML(stream, out entity))
+                if (MyObjectBuilderSerializer.DeserializeGZippedXML(stream, out entity))
                 {
                     Debug.Assert(entity != null);
                     if (entity != null)
@@ -155,7 +160,7 @@ namespace Sandbox.Game.Multiplayer
                 MemoryStream stream = new MemoryStream(msg.CreateMessage.ObjectBuilders, bytesOffset, msg.CreateMessage.BuilderLengths[i]);
 
                 MyObjectBuilder_EntityBase entity;
-                if (Sandbox.Common.ObjectBuilders.Serializer.MyObjectBuilderSerializer.DeserializeGZippedXML(stream, out entity))
+                if (MyObjectBuilderSerializer.DeserializeGZippedXML(stream, out entity))
                 {
                     MySandboxGame.Log.WriteLine("CreateRelativeCompressedMsg: " + msg.CreateMessage.ObjectBuilders.GetType().Name.ToString() + " EntityID: " + entity.EntityId.ToString("X8"));
 
@@ -192,7 +197,7 @@ namespace Sandbox.Game.Multiplayer
             var msg = new CreateCompressedMsg();
 
             MemoryStream stream = new MemoryStream();
-            Sandbox.Common.ObjectBuilders.Serializer.MyObjectBuilderSerializer.SerializeXML(stream, (MyObjectBuilder_Base)entity, Sandbox.Common.ObjectBuilders.Serializer.MyObjectBuilderSerializer.XmlCompression.Gzip, typeof(MyObjectBuilder_EntityBase));
+            MyObjectBuilderSerializer.SerializeXML(stream, (MyObjectBuilder_Base)entity, MyObjectBuilderSerializer.XmlCompression.Gzip, typeof(MyObjectBuilder_EntityBase));
 
             Debug.Assert(stream.Length <= int.MaxValue);
             if (stream.Length > int.MaxValue)
@@ -215,7 +220,7 @@ namespace Sandbox.Game.Multiplayer
             MemoryStream stream = new MemoryStream();
             Matrix relativeMatrix = entity.PositionAndOrientation.Value.GetMatrix() * baseEntity.PositionComp.WorldMatrixNormalizedInv;
             entity.PositionAndOrientation = new MyPositionAndOrientation(relativeMatrix);
-            Sandbox.Common.ObjectBuilders.Serializer.MyObjectBuilderSerializer.SerializeXML(stream, (MyObjectBuilder_Base)entity, Sandbox.Common.ObjectBuilders.Serializer.MyObjectBuilderSerializer.XmlCompression.Gzip, typeof(MyObjectBuilder_EntityBase));
+            MyObjectBuilderSerializer.SerializeXML(stream, (MyObjectBuilder_Base)entity, MyObjectBuilderSerializer.XmlCompression.Gzip, typeof(MyObjectBuilder_EntityBase));
 
             Debug.Assert(stream.Length <= int.MaxValue);
             if (stream.Length > int.MaxValue)
@@ -244,7 +249,7 @@ namespace Sandbox.Game.Multiplayer
             long byteOffset = 0;
             foreach (var entity in entities)
             {
-                Sandbox.Common.ObjectBuilders.Serializer.MyObjectBuilderSerializer.SerializeXML(stream, (MyObjectBuilder_Base)entity, Sandbox.Common.ObjectBuilders.Serializer.MyObjectBuilderSerializer.XmlCompression.Gzip, typeof(MyObjectBuilder_EntityBase));
+                MyObjectBuilderSerializer.SerializeXML(stream, (MyObjectBuilder_Base)entity, MyObjectBuilderSerializer.XmlCompression.Gzip, typeof(MyObjectBuilder_EntityBase));
 
                 Debug.Assert(stream.Length <= int.MaxValue);
                 if (stream.Length > int.MaxValue)
@@ -338,7 +343,7 @@ namespace Sandbox.Game.Multiplayer
                 MemoryStream stream = new MemoryStream(msg.ObjectBuilders, bytesOffset, msg.BuilderLengths[i]);
 
                 MyObjectBuilder_EntityBase entity;
-                if (Sandbox.Common.ObjectBuilders.Serializer.MyObjectBuilderSerializer.DeserializeGZippedXML(stream, out entity))
+                if (MyObjectBuilderSerializer.DeserializeGZippedXML(stream, out entity))
                 {
                     MySandboxGame.Log.WriteLine("CreateCompressedMsg: " + msg.ObjectBuilders.GetType().Name.ToString() + " EntityID: " + entity.EntityId.ToString("X8"));
                     if (i == 0)
@@ -388,6 +393,8 @@ namespace Sandbox.Game.Multiplayer
                 var definition = Definitions.MyDefinitionManager.Static.GetCubeBlockDefinition(msg.Definition);
                 MatrixD worldMatrix = MatrixD.CreateWorld(msg.Position, msg.Forward, msg.Up);
 
+				msg.SenderSteamId = sender.SteamUserId;
+
                 MyCubeGrid grid = null;
 
                 if (msg.Static)
@@ -401,9 +408,12 @@ namespace Sandbox.Game.Multiplayer
                     MySession.Static.SyncLayer.SendMessageToAll(ref msg);
                 }
 
-                if (grid != null && msg.Static)
+                if (grid != null)
                 {
-                    MyCubeBuilder.AfterStaticGridSpawn(grid);
+					if (msg.Static)
+						MyCubeBuilder.AfterStaticGridSpawn(grid, true);
+					else
+						MyCubeBuilder.AfterDynamicGridSpawn(grid, true);
                 }
             }
             else
@@ -414,8 +424,15 @@ namespace Sandbox.Game.Multiplayer
 
                 if (grid != null)
                 {
-                    if (grid.IsStatic)
-                        MyCubeBuilder.AfterStaticGridSpawn(grid);
+					bool localBuilder = false;
+					var player = MySession.LocalHumanPlayer;
+					if (player != null && msg.SenderSteamId == MySteam.UserId)
+						localBuilder = true;
+
+					if (grid.IsStatic)
+						MyCubeBuilder.AfterStaticGridSpawn(grid, localBuilder);
+					else
+						MyCubeBuilder.AfterDynamicGridSpawn(grid, localBuilder);
                 }
             }
         }

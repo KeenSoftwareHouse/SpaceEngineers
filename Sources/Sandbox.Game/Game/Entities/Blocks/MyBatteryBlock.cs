@@ -35,6 +35,7 @@ namespace Sandbox.Game.Entities
     using Sandbox.Game.Localization;
     using VRage;
     using VRage.Utils;
+    using VRage.ModAPI;
 
     [MyCubeBlockType(typeof(MyObjectBuilder_BatteryBlock))]
     class MyBatteryBlock : MyFunctionalBlock, IMyPowerProducer, IMyPowerConsumer, Sandbox.ModAPI.Ingame.IMyBatteryBlock
@@ -486,6 +487,11 @@ namespace Sandbox.Game.Entities
                         MaxPowerOutputChanged(this);
                 }
             }
+        }
+
+        float ModAPI.Ingame.IMyPowerProducer.DefinedPowerOutput
+        {
+            get { return m_batteryBlockDefinition.MaxPowerOutput; }
         }
 
         public float CurrentPowerOutput

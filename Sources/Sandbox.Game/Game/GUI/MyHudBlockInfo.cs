@@ -20,6 +20,7 @@ namespace Sandbox.Game.Gui
             public int MountedCount;
             public int StockpileCount;
             public int TotalCount;
+			public int AvailableAmount;
 
             public int InstalledCount
             {

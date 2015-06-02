@@ -27,11 +27,11 @@ namespace Sandbox.Game.Screens.Helpers
         {
             var character = MySession.LocalCharacter;
 
+			MyDefinitionId weaponDefinition = new MyDefinitionId(typeof(MyObjectBuilder_CubePlacer));
             if (character != null)
             {
-                if (!(character.CurrentWeapon is MyCubePlacer))
+                if (!(character.CurrentWeapon != null && character.CurrentWeapon.DefinitionId == weaponDefinition))
                 {
-                    MyDefinitionId weaponDefinition = new MyDefinitionId(typeof(MyObjectBuilder_CubePlacer));
                     character.SwitchToWeapon(weaponDefinition);
                 }
                 

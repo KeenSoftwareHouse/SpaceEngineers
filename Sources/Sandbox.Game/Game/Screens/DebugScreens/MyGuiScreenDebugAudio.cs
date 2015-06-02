@@ -1,6 +1,5 @@
 ﻿using Sandbox.Common.ObjectBuilders.Audio;
 using Sandbox.Common.ObjectBuilders.Definitions;
-using Sandbox.Common.ObjectBuilders.Serializer;
 using Sandbox.Definitions;
 using Sandbox.Graphics.GUI;
 using System;
@@ -10,11 +9,11 @@ using System.Text;
 using VRage.Audio;
 using VRage.Utils;
 using VRage.Data.Audio;
-using VRage.Utils;
 using VRageMath;
 using VRage.Library.Utils;
 using VRage.FileSystem;
 using Sandbox.Game.Entities;
+using VRage.ObjectBuilders;
 
 namespace Sandbox.Game.Gui
 {

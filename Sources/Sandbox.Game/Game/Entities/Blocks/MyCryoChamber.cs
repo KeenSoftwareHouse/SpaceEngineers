@@ -13,15 +13,17 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using VRage.Game.Entity.UseObject;
 using VRage.Import;
 using VRage.Utils;
 using VRageMath;
 using VRageRender;
+using VRage.ModAPI;
 
 namespace Sandbox.Game.Entities.Blocks
 {
     [MyCubeBlockType(typeof(MyObjectBuilder_CryoChamber))]
-    class MyCryoChamber : MyCockpit, IMyPowerConsumer
+    public class MyCryoChamber : MyCockpit, IMyPowerConsumer
     {
         private MatrixD m_characterDummy;
         private MatrixD m_cameraDummy;
@@ -86,7 +88,7 @@ namespace Sandbox.Game.Entities.Blocks
                 this.CalculateRequiredPowerInput);
             PowerReceiver.IsPoweredChanged += Receiver_IsPoweredChanged;
 
-            NeedsUpdate |= Common.MyEntityUpdateEnum.BEFORE_NEXT_FRAME;
+            NeedsUpdate |= MyEntityUpdateEnum.BEFORE_NEXT_FRAME;
         }
 
         private float CalculateRequiredPowerInput()

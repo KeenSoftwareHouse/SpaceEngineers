@@ -126,8 +126,10 @@ namespace Sandbox.Game.Entities.Cube
 
         private const int MAX_DECALS_PER_CUBE = 10;
         private Dictionary<Vector3I, List<uint>> m_cubeDecals = new Dictionary<Vector3I, List<uint>>();
-        public void AddDecal(Vector3I cube, Vector3 position, Vector3 normal)
+        public void AddDecal(Vector3I cube, Vector3 position, Vector3 normal, string material)
         {
+            if (string.IsNullOrEmpty(material))
+                return;
             if (!m_cubeDecals.ContainsKey(cube))
                 m_cubeDecals[cube] = new List<uint>();
             if(m_cubeDecals[cube].Count > MAX_DECALS_PER_CUBE)
@@ -139,11 +141,11 @@ namespace Sandbox.Game.Entities.Cube
             var perp = Vector3.CalculatePerpendicularVector(normal);
             perp = new Vector3((new Quaternion(perp, 0) * q).ToVector4()); //rotate around normal
             var pos = MatrixD.CreateWorld(position, normal, perp);
-            var size = 1f + MyRandom.Instance.NextFloat(-0.35f,0.35f); //TODO: variable size?
+            var size = (1f + MyRandom.Instance.NextFloat(-0.35f,0.35f)) *1.5f; //TODO: variable size?
             float depth = 0.2f;
             pos = Matrix.CreateScale(new Vector3(size,size,depth)) * pos;
-            pos.Translation = pos.Translation + pos.Backward * depth;
-            var decalId = MyRenderProxy.CreateDecal(m_gridRender.GetRenderObjectID(), (Matrix)pos);
+            //pos.Translation = pos.Translation + pos.Backward * depth;
+            var decalId = MyRenderProxy.CreateDecal(m_gridRender.GetRenderObjectID(), (Matrix)pos, material);
             m_cubeDecals[cube].Add(decalId);
 
         }

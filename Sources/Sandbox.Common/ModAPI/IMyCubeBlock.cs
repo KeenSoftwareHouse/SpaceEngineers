@@ -1,12 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
+using VRage.ModAPI;
+using VRage.ObjectBuilders;
 using VRage.Utils;
+
 namespace Sandbox.ModAPI
 {
     public interface IMyCubeBlock : Ingame.IMyCubeBlock, IMyEntity
     {
         event Action<IMyCubeBlock> IsWorkingChanged;
-        Sandbox.Common.ObjectBuilders.Definitions.SerializableDefinitionId BlockDefinition { get; }
+        SerializableDefinitionId BlockDefinition { get; }
 
         /// <summary>
         /// 

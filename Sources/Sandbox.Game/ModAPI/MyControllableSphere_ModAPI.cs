@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using VRage.ModAPI;
 
 namespace Sandbox.Game.Entities
 {
@@ -13,7 +14,7 @@ namespace Sandbox.Game.Entities
         //    get { return ControllerInfo; }
         //}
 
-        ModAPI.IMyEntity ModAPI.Interfaces.IMyControllableEntity.Entity
+        IMyEntity ModAPI.Interfaces.IMyControllableEntity.Entity
         {
             get { return Entity; }
         }

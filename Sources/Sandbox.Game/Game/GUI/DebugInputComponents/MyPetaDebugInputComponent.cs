@@ -14,6 +14,7 @@ using Sandbox.Graphics;
 using System.Collections.Generic;
 using System.Linq;
 using VRage.Input;
+using VRage.ObjectBuilders;
 using VRage.Utils;
 using VRageMath;
 

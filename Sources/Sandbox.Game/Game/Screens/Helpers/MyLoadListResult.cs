@@ -35,17 +35,26 @@ namespace Sandbox.Game.Gui
         public List<Tuple<string, MyWorldInfo>> AvailableSaves = new List<Tuple<string, MyWorldInfo>>();
         public bool ContainsCorruptedWorlds;
 
-        public MyLoadListResult(bool missions=false)
+        public MyLoadListResult(bool missions = false, bool appendBattleMaps = false)
         {
-            Task = Parallel.Start(() => LoadListAsync(missions));
+            Task = Parallel.Start(() => LoadListAsync(missions, appendBattleMaps));
         }
 
-        private void LoadListAsync(bool missions)
+        private void LoadListAsync(bool missions, bool appendBattleMaps)
         {
             if (missions)
+            {
                 AvailableSaves = MyLocalCache.GetAvailableMissionInfos();
+            }
             else
+            {
                 AvailableSaves = MyLocalCache.GetAvailableWorldInfos();
+                if (appendBattleMaps) 
+                {
+                    var availableBattles = MyLocalCache.GetAvailableBattlesInfos();
+                    AvailableSaves.AddList(availableBattles);
+                }
+            }
             ContainsCorruptedWorlds = false;
 
             StringBuilder corruptedWorlds = new StringBuilder();

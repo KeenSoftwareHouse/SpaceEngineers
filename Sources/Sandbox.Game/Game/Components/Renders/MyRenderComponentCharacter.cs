@@ -29,6 +29,8 @@ using VRageRender;
 using Sandbox.Game.Entities.Character;
 using Sandbox.Common.Components;
 using Sandbox.ModAPI;
+using VRage.Components;
+using VRage.ModAPI;
 
 namespace Sandbox.Game.Components
 {
@@ -91,7 +93,7 @@ namespace Sandbox.Game.Components
         public override void OnAddedToContainer(MyComponentContainer container)
         {
             base.OnAddedToContainer(container);
-            m_character = Entity as MyCharacter;
+            m_character = Container.Entity as MyCharacter;
         }
 
         public override void AddRenderObjects()
@@ -106,9 +108,9 @@ namespace Sandbox.Game.Components
 
             SetRenderObjectID(0, VRageRender.MyRenderProxy.CreateRenderCharacter
                 (
-                 Entity.GetFriendlyName() + " " + Entity.EntityId.ToString(),
+                 Container.Entity.GetFriendlyName() + " " + Container.Entity.EntityId.ToString(),
                  m_model.AssetName,
-                 Entity.PositionComp.WorldMatrix,
+                 Container.Entity.PositionComp.WorldMatrix,
                  m_diffuseColor,
                  ColorMaskHsv,
                  GetRenderFlags()
@@ -337,11 +339,11 @@ namespace Sandbox.Game.Components
             {
                 float strength = 0;
                 Vector3D position = Vector3D.Zero;
-                var worldToLocal = MatrixD.Invert(Entity.PositionComp.WorldMatrix);
+                var worldToLocal = MatrixD.Invert(Container.Entity.PositionComp.WorldMatrix);
 
                 if (m_character.JetpackEnabled && m_character.IsJetpackPowered() && !m_character.IsInFirstPersonView)
                 {
-                    var thrustMatrix = (MatrixD)thrust.ThrustMatrix * Entity.PositionComp.WorldMatrix;
+                    var thrustMatrix = (MatrixD)thrust.ThrustMatrix * Container.Entity.PositionComp.WorldMatrix;
                     Vector3D forward = Vector3D.TransformNormal(thrust.Forward, thrustMatrix);
                     position = thrustMatrix.Translation;
                     position += forward * thrust.Offset;
@@ -349,7 +351,7 @@ namespace Sandbox.Game.Components
                     float flameScale = 0.05f;
                     if (updateCalled)
                         thrust.ThrustRadius = MyUtils.GetRandomFloat(0.9f, 1.1f) * flameScale;
-                    strength = Vector3.Dot(forward, -Entity.Physics.LinearAcceleration);
+                    strength = Vector3.Dot(forward, -Container.Entity.Physics.LinearAcceleration);
                     strength = MathHelper.Clamp(strength * 0.5f, 0.1f, 1f);
 
                     if (strength > 0 && thrust.ThrustRadius > 0)
@@ -386,7 +388,7 @@ namespace Sandbox.Game.Components
 
                         thrust.Light.Range = thrust.ThrustRadius * 7f + thrust.ThrustLength / 10;
 
-                        thrust.Light.Position = Vector3D.Transform(position, MatrixD.Invert(Entity.PositionComp.WorldMatrix));
+                        thrust.Light.Position = Vector3D.Transform(position, MatrixD.Invert(Container.Entity.PositionComp.WorldMatrix));
                         thrust.Light.ParentID = GetRenderObjectID();
 
                         thrust.Light.GlareOn = true;
@@ -442,8 +444,8 @@ namespace Sandbox.Game.Components
             };
 
             thrust.Light = MyLights.AddLight();
-            thrust.Light.ReflectorDirection = Entity.PositionComp.WorldMatrix.Forward;
-            thrust.Light.ReflectorUp = Entity.PositionComp.WorldMatrix.Up;
+            thrust.Light.ReflectorDirection = Container.Entity.PositionComp.WorldMatrix.Forward;
+            thrust.Light.ReflectorUp = Container.Entity.PositionComp.WorldMatrix.Up;
             thrust.Light.ReflectorRange = 1;
             thrust.Light.Color = thrustDefinition.ThrustColor;
             thrust.Light.Start(MyLight.LightTypeEnum.PointLight, 1);

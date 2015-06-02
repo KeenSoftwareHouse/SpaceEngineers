@@ -1,6 +1,7 @@
 ﻿#region Using
 
 using Sandbox.Game.Entities;
+using VRage.Game.Entity.UseObject;
 using VRageMath;
 
 

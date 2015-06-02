@@ -12,10 +12,8 @@ using VRageMath;
 using SteamSDK;
 using System.Diagnostics;
 using Sandbox.Game.Entities.Character;
-
 using Sandbox.Game.Gui;
 using SharpDX;
-using VRage.Utils;
 using VRage.Utils;
 using VRage.Audio;
 using VRage.Library.Utils;

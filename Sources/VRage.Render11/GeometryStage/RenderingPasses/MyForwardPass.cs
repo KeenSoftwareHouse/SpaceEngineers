@@ -37,6 +37,10 @@ namespace VRageRender
 
             Context.OutputMerger.SetTargets(DSV, RTV);
 
+            RC.SetCB(4, MyShadows.m_csmConstants);
+            RC.Context.PixelShader.SetSampler(MyCommon.SHADOW_SAMPLER_SLOT, MyRender11.m_shadowmapSamplerState);
+            RC.Context.PixelShader.SetShaderResource(60, MyShadows.m_cascadeShadowmapBackup.ShaderView);
+
             RC.SetDS(null);
         }
 

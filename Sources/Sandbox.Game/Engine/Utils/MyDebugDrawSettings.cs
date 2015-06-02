@@ -97,6 +97,7 @@ namespace Sandbox.Engine.Utils
         public static bool DEBUG_DRAW_BOTS = false;
         public static bool DEBUG_DRAW_OXYGEN = false;
         public static bool DEBUG_DRAW_ANIMALS = false;
+        public static bool DEBUG_DRAW_VOICE_CHAT = false;
 
         public static MyWEMDebugDrawMode DEBUG_DRAW_NAVMESHES = MyWEMDebugDrawMode.NONE;
         internal static MyVoxelDebugDrawMode DEBUG_DRAW_VOXELS_MODE = MyVoxelDebugDrawMode.None;
@@ -115,5 +116,6 @@ namespace Sandbox.Engine.Utils
         public static bool DEBUG_DRAW_CHARACTER_RAGDOLL_BONES_ORIGINAL_RIG = false;
         public static bool DEBUG_DRAW_CHARACTER_RAGDOLL_BONES_DESIRED = false;
         public static bool DEBUG_DRAW_BLOCK_INTEGRITY = false;
+        public static bool DEBUG_DRAW_FIXED_BLOCK_QUERIES = false;
     }
 }
