@@ -90,14 +90,6 @@ namespace SpaceEngineers.Game.Players
 
         private CachingDictionary<RespawnKey, int> m_globalRespawnTimesMs = new CachingDictionary<RespawnKey, int>();
 
-        public override bool IsRequiredByGame
-        {
-            get
-            {
-                return MyPerGameSettings.RespawnComponentType == typeof(MySpaceRespawnComponent);
-            }
-        }
-
         static MySpaceRespawnComponent()
         {
             MySyncLayer.RegisterMessage<SyncCooldownRequestMessage>(OnSyncCooldownRequest, MyMessagePermissions.ToServer);

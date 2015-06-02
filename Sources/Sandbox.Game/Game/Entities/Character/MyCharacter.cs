@@ -3776,7 +3776,14 @@ namespace Sandbox.Game.Entities.Character
             {
                 if (sprint)
                 {
-                    newMovementState = GetSprintState(ref moveIndicator);
+                    if (moveIndicator.X == 0)
+                    {
+                        newMovementState = GetSprintState(ref moveIndicator);
+                    }
+                    else
+                    {
+                        newMovementState = GetRunningState(ref moveIndicator);
+                    }
                 }
                 else
                     if (moving)

@@ -26,7 +26,7 @@ namespace System.Linq.Expressions
             else
             {
                 var info = (FieldInfo)member.Member;
-                return CreateGetter<T, TMember>(info);
+                return info.CreateGetter<T, TMember>();
             }
         }
         
@@ -47,24 +47,8 @@ namespace System.Linq.Expressions
             else
             {
                 var info = (FieldInfo)member.Member;
-                return CreateSetter<T, TMember>(info);
+                return info.CreateSetter<T, TMember>();
             }
-        }
-
-        public static Func<T, TMember> CreateGetter<T, TMember>(this FieldInfo info)
-        {
-            ParameterExpression objParm = Expression.Parameter(info.DeclaringType, "obj");
-            MemberExpression fieldExpr = Expression.Field(objParm, info.Name);
-            return Expression.Lambda<Func<T, TMember>>(fieldExpr, objParm).Compile();
-        }
-
-        public static Action<T, TMember> CreateSetter<T, TMember>(this FieldInfo info)
-        {
-            ParameterExpression objParm = Expression.Parameter(info.DeclaringType, "obj");
-            ParameterExpression valueParm = Expression.Parameter(info.FieldType, "value");
-            MemberExpression memberExpr = Expression.Field(objParm, info.Name);
-            Expression assignExpr = Expression.Assign(memberExpr, valueParm);
-            return Expression.Lambda<Action<T, TMember>>(assignExpr, objParm, valueParm).Compile();
         }
 
         public static Func<T, TProperty> CreateGetter<T, TProperty>(this PropertyInfo propertyInfo)

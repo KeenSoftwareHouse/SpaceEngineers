@@ -204,7 +204,6 @@ namespace Sandbox.Game
             VoxelMapEditingScreen = typeof(Sandbox.Game.Gui.MyGuiScreenDebugSpawnMenu),
             //ScenarioLobbyClientScreen = typeof(Sandbox.Game.Gui.MyGuiScreenScenarioLobbyClient),
         };
-        public static Type RespawnComponentType = null;
         public static Type BotFactoryType = null;
         public static bool EnableAi = false;
 

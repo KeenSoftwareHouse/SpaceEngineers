@@ -85,7 +85,6 @@ namespace SpaceEngineers.Game
             MyPerGameSettings.EnableAi = false;
 
             MyPerGameSettings.BotFactoryType = typeof(Sandbox.Game.AI.MySandboxBotFactory);
-            MyPerGameSettings.RespawnComponentType = typeof(SpaceEngineers.Game.Players.MySpaceRespawnComponent);
 
             MyPerGameSettings.ControlMenuInitializerType = typeof(MySpaceControlMenuInitializer);
 
