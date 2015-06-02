@@ -290,6 +290,7 @@
     <Compile Include="ObjectBuilders\MyObjectBuilder_Assembler.cs" />
     <Compile Include="ObjectBuilders\MyObjectBuilder_AutomaticRifle.cs" />
     <Compile Include="ObjectBuilders\MyObjectBuilder_AutopilotBase.cs" />
+    <Compile Include="ObjectBuilders\MyObjectBuilder_AutopilotClipboard.cs" />
     <Compile Include="ObjectBuilders\MyObjectBuilder_AutopilotWaypoint.cs" />
     <Compile Include="ObjectBuilders\MyObjectBuilder_Battery.cs" />
     <Compile Include="ObjectBuilders\MyObjectBuilder_BatteryBlock.cs" />

@@ -394,7 +394,7 @@ namespace Sandbox.Game.Entities
             otherWorldMatrix.Up = hitUp;
             otherWorldMatrix.Translation = hitPosition;
 
-            const double headPivotOffset = 0.6;
+            const float headPivotOffset = 1.5f;
 
             MatrixD headPivotWorldMatrix = ownerWorldHeadMatrix;
             headPivotWorldMatrix.Translation = ownerWorldHeadMatrix.Translation + headPivotOffset * ownerWorldHeadMatrix.Forward;
@@ -414,7 +414,7 @@ namespace Sandbox.Game.Entities
             {
                 // Player can hold large projectile (~222kg)
                 if ((GetRealMass(otherEntity.Physics) <= 230) || ((otherEntity is MyCharacter) && (otherEntity.Physics.Mass < 230)))
-                    data = CreateFixedConstraintData(ref m_otherLocalPivotMatrix);
+                    data = CreateFixedConstraintData(ref m_otherLocalPivotMatrix, headPivotOffset);
                 else
                     return;
 
@@ -435,7 +435,6 @@ namespace Sandbox.Game.Entities
                 }
             }
 
-            
 
             m_otherEntity = otherEntity;
             m_otherEntity.OnClosing += OtherEntity_OnClosing;
@@ -446,7 +445,7 @@ namespace Sandbox.Game.Entities
             m_otherMaxLinearVelocity = m_otherRigidBody.MaxLinearVelocity;
             m_otherMaxAngularVelocity = m_otherRigidBody.MaxAngularVelocity;
 
-            m_otherRigidBody.SetProperty(HkCharacterRigidBody.MANIPULATED_OBJECT, 0);
+            SetManipulated(m_otherEntity, true);
             if (state == MyState.HOLD)
             {
                 m_otherRigidBody.AngularDamping = TARGET_ANGULAR_DAMPING;
@@ -465,6 +464,10 @@ namespace Sandbox.Game.Entities
                         body.MaxAngularVelocity = (float)Math.PI;
                     }
                 }
+
+                const float holdingTransparency = 0.4f;
+                SetTransparent(otherEntity, holdingTransparency); //TODO jt: why it must be called twice?
+                SetTransparent(otherEntity, holdingTransparency);
             }
 
             m_constraint = new HkConstraint(m_otherRigidBody, Owner.VirtualPhysics.RigidBody, data);
@@ -487,12 +490,64 @@ namespace Sandbox.Game.Entities
             Owner.ManipulatedEntity = m_otherEntity;
         }
 
+        private void SetManipulated(MyEntity entity, bool value)
+        {
+            var otherBody = entity.Physics.RigidBody;
+            if(otherBody == null) return;
+            if (value)
+            {
+                otherBody.SetProperty(HkCharacterRigidBody.MANIPULATED_OBJECT, 0);
+                if(entity is MyCubeGrid)
+                {
+                    foreach(var b in (entity as MyCubeGrid).GetBlocks())
+                    {
+                        if (b.FatBlock == null) continue;
+                        var useObject = b.FatBlock.Components.Get<MyUseObjectsComponentBase>();
+                        if(useObject == null || useObject.DetectorPhysics == null) continue;
+                        (useObject.DetectorPhysics as MyPhysicsBody).RigidBody.SetProperty(HkCharacterRigidBody.MANIPULATED_OBJECT, 0);
+                    }
+                }
+            }
+            else
+            {
+                otherBody.RemoveProperty(HkCharacterRigidBody.MANIPULATED_OBJECT);
+                if (entity is MyCubeGrid)
+                {
+                    foreach (var b in (entity as MyCubeGrid).GetBlocks())
+                    {
+                        if (b.FatBlock == null) continue;
+                        var useObject = b.FatBlock.Components.Get<MyUseObjectsComponentBase>();
+                        if (useObject == null || useObject.DetectorPhysics == null) continue;
+                        (useObject.DetectorPhysics as MyPhysicsBody).RigidBody.RemoveProperty(HkCharacterRigidBody.MANIPULATED_OBJECT);
+                    }
+                }
+            }
+        }
+
+        private void SetTransparent(MyEntity entity, float dithering = 0)
+        {
+            if (entity is MyFracturedPiece)
+            {
+                foreach (var id in (entity as MyFracturedPiece).Render.RenderObjectIDs)
+                {
+                    VRageRender.MyRenderProxy.UpdateRenderEntity(id, null, null, dithering);
+                }
+                return;
+            }
+
+            foreach (var c in entity.Hierarchy.Children)
+            {
+                VRageRender.MyRenderProxy.UpdateRenderEntity((uint)c.Container.Entity.Render.GetRenderObjectID(), null, null, dithering);
+            }
+            VRageRender.MyRenderProxy.UpdateRenderEntity( (uint)entity.Render.GetRenderObjectID(), null, null, dithering);
+        }
+
         private static float GetRealMass(MyPhysicsBody physicsBody)
         {
             return MyDestructionHelper.MassFromHavok(physicsBody.Mass);
         }
 
-        private HkConstraintData CreateFixedConstraintData(ref Matrix otherLocalMatrix, float headDistance = 0.6f)
+        private HkConstraintData CreateFixedConstraintData(ref Matrix otherLocalMatrix, float headDistance)
         {
             m_fixedConstraintData = new HkFixedConstraintData();
             Matrix headPivotLocalMatrix;
@@ -592,13 +647,16 @@ namespace Sandbox.Game.Entities
             m_otherLocalPivotMatrix = Matrix.Zero;
             if (m_otherEntity != null)
             {
+                SetTransparent(m_otherEntity);
+                SetTransparent(m_otherEntity);
+
                 m_manipulatedEntitites.Remove(m_otherEntity);
 
                 m_otherEntity.SyncFlag = true;
 
                 if (m_otherEntity.Physics != null && m_otherRigidBody != null && !m_otherRigidBody.IsDisposed)
                 {
-                    m_otherRigidBody.RemoveProperty(HkCharacterRigidBody.MANIPULATED_OBJECT);
+                    SetManipulated(m_otherEntity, false);
                     m_otherRigidBody.AngularDamping = m_otherAngularDamping;
                     m_otherRigidBody.LinearDamping = m_otherLinearDamping;
                     m_otherRigidBody.Restitution = m_otherRestitution;
@@ -788,6 +846,11 @@ namespace Sandbox.Game.Entities
         private void OtherEntity_OnClosing(MyEntity obj)
         {
             StopManipulation();
+        }
+
+        public void StartManipulationSynced(MyState myState, MyEntity spawned, Vector3D position, ref MatrixD ownerWorldHeadMatrix)
+        {
+            SyncTool.StartManipulation(myState, spawned, position, ref ownerWorldHeadMatrix);
         }
     }
 }

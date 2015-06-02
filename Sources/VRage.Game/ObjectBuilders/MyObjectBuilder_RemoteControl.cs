@@ -20,7 +20,6 @@ namespace Sandbox.Common.ObjectBuilders
         [ProtoMember]
         public int FlightMode;
 
-
         [ProtoMember]
         public int CurrentWaypointIndex = -1;
 
@@ -56,6 +55,14 @@ namespace Sandbox.Common.ObjectBuilders
             base.Remap(remapHelper);
             if (AutoPilotToolbar != null)
                 AutoPilotToolbar.Remap(remapHelper);
+
+            if (Waypoints != null)
+            {
+                foreach (var waypoint in Waypoints)
+                {
+                    waypoint.Remap(remapHelper);
+                }
+            }
         }
     }
 }

@@ -10185,12 +10185,12 @@ namespace Sandbox.Game.Localization
         public static readonly MyStringId BlockPropertyTitle_Waypoints = MyStringId.GetOrCompute("BlockPropertyTitle_Waypoints");
 
         ///<summary>
-        ///Set an action to be done when autopilot reaches destination
+        ///Set actions to be done when autopilot reaches this waypoint
         ///</summary>
         public static readonly MyStringId BlockPropertyPopup_AutoPilotToolbarOpen = MyStringId.GetOrCompute("BlockPropertyPopup_AutoPilotToolbarOpen");
 
         ///<summary>
-        ///Setup Action
+        ///Setup Actions
         ///</summary>
         public static readonly MyStringId BlockPropertyTitle_AutoPilotToolbarOpen = MyStringId.GetOrCompute("BlockPropertyTitle_AutoPilotToolbarOpen");
 
@@ -10388,5 +10388,25 @@ namespace Sandbox.Game.Localization
         ///Forward Direction
         ///</summary>
         public static readonly MyStringId BlockPropertyTitle_ForwardDirection = MyStringId.GetOrCompute("BlockPropertyTitle_ForwardDirection");
+
+        ///<summary>
+        ///Copy
+        ///</summary>
+        public static readonly MyStringId BlockActionTitle_RemoteCopy = MyStringId.GetOrCompute("BlockActionTitle_RemoteCopy");
+
+        ///<summary>
+        ///Paste
+        ///</summary>
+        public static readonly MyStringId BlockActionTitle_RemotePaste = MyStringId.GetOrCompute("BlockActionTitle_RemotePaste");
+
+        ///<summary>
+        ///Reset waypoint
+        ///</summary>
+        public static readonly MyStringId BlockActionTitle_WaypointReset = MyStringId.GetOrCompute("BlockActionTitle_WaypointReset");
+
+        ///<summary>
+        ///Resets current waypoint to first position
+        ///</summary>
+        public static readonly MyStringId BlockActionTooltip_WaypointReset = MyStringId.GetOrCompute("BlockActionTooltip_WaypointReset");
     }
 }

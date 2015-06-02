@@ -98,6 +98,11 @@ namespace Sandbox.Game.World
             ColorMask = null;
         }
     
+        public void SetColorMask(Vector3 color) 
+        {
+            ColorMask = color;
+        }
+
         public void ChangeCharacter(MyCharacter character)
         {
             var oldCharacter = Character;

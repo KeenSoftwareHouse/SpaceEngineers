@@ -307,7 +307,6 @@ namespace VRageRender
                 {
                     var rMessage = (MyRenderMessageCreateScreenDecal)message;
 
-                    //rMessage.ParentID
                     MyScreenDecals.AddDecal(rMessage.ID, rMessage.ParentID, rMessage.LocalOBB, rMessage.DecalMaterial);
 
                     break;
@@ -925,6 +924,7 @@ namespace VRageRender
                   
                     var light = MyLights.Get(rMessage.ID);
 
+
                     if(light != LightId.NULL)
                     {
 
@@ -964,22 +964,19 @@ namespace VRageRender
                                 MyTextures.GetTexture(rMessage.ReflectorTexture, MyTextureEnum.CUSTOM));
                         }
 
-                        if(rMessage.GlareOn)
-                        {
-                            MyLights.UpdateGlare(light, new MyGlareDesc
-                                {
-                                    Enabled = rMessage.GlareOn,
-                                    Material = X.TEXT(rMessage.GlareMaterial),
-                                    Intensity = rMessage.GlareIntensity,
-                                    QuerySize = rMessage.GlareQuerySize,
-                                    Type = rMessage.GlareType,
-                                    Size = rMessage.GlareSize,
-                                    MaxDistance = rMessage.GlareMaxDistance,
-                                    Color = rMessage.Color,
-                                    Direction = rMessage.ReflectorDirection,
-                                    Range = rMessage.Range
-                                });
-                        }
+                        MyLights.UpdateGlare(light, new MyGlareDesc
+                            {
+                                Enabled = rMessage.GlareOn,
+                                Material = X.TEXT(rMessage.GlareMaterial),
+                                Intensity = rMessage.GlareIntensity,
+                                QuerySize = rMessage.GlareQuerySize,
+                                Type = rMessage.GlareType,
+                                Size = rMessage.GlareSize,
+                                MaxDistance = rMessage.GlareMaxDistance,
+                                Color = rMessage.Color,
+                                Direction = rMessage.ReflectorDirection,
+                                Range = rMessage.Range
+                            });
                     }
 
                     break;

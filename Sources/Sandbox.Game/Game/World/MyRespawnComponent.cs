@@ -505,22 +505,22 @@ namespace Sandbox.Game.World
 
         public virtual void InitFromCheckpoint(MyObjectBuilder_Checkpoint checkpoint)
         {
-            throw new NotImplementedException();
+            //throw new NotImplementedException();
         }
 
         public virtual void SaveToCheckpoint(MyObjectBuilder_Checkpoint checkpoint)
         {
-            throw new NotImplementedException();
+            //throw new NotImplementedException();
         }
 
         public virtual void AfterRemovePlayer(MyPlayer player)
         {
-            throw new NotImplementedException();
+            //throw new NotImplementedException();
         }
 
         public virtual void SetupCharacterDefault(MyPlayer player, MyWorldGenerator.Args args)
         {
-            throw new NotImplementedException();
+            //throw new NotImplementedException();
         }
     }
 }

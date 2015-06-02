@@ -288,7 +288,7 @@ namespace Sandbox.Game.Entities.Blocks
                 }
                 else if (m_soundEmitter.SoundId != BlockDefinition.IdleSound.SoundId)
                 {
-                    m_soundEmitter.PlaySound(BlockDefinition.IdleSound);
+                    m_soundEmitter.PlaySound(BlockDefinition.IdleSound, true);
                 }
             }
             else if (m_soundEmitter.IsPlaying)
@@ -365,6 +365,12 @@ namespace Sandbox.Game.Entities.Blocks
             {
                 CubeGrid.GridSystems.OxygenSystem.UnregisterOxygenBlock(this);
             }
+        }
+
+        protected override void Closing()
+        {
+            base.Closing();
+            m_soundEmitter.StopSound(true);
         }
 
         public override void UpdateVisual()

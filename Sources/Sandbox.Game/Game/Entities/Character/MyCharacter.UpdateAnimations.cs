@@ -1278,6 +1278,15 @@ namespace Sandbox.Game.Entities.Character
 
         #endregion
 
+        #region Properties
+
         public bool ResetWeaponAnimationState { get; set; }
+
+
+       
+
+        
+
+        #endregion
     }
 }

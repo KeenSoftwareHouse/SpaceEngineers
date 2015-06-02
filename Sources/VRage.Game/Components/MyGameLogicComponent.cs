@@ -6,8 +6,7 @@ using VRage.Components;
 using VRage.ModAPI;
 using VRage.ObjectBuilders;
 
-//this must be in sandbox.common namespace  when assembly is sanbox.common  becaose of script checking.
-namespace Sandbox.Common.Components
+namespace VRage.Components
 {
     public abstract class MyGameLogicComponent : MyComponentBase
     {

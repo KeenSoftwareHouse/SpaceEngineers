@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using VRage;
+using Sandbox.Common.Components;
 using VRage.Components;
 using VRage.ModAPI;
 using VRage.ObjectBuilders;

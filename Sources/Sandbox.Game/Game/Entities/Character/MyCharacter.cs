@@ -145,6 +145,10 @@ namespace Sandbox.Game.Entities.Character
     {
         #region Fields
 
+        float m_cameraDistance = 0.0f;
+
+        public const float CAMERA_NEAR_DISTANCE = 60.0f;   
+
         const float CHARACTER_GRAVITY_MULTIPLIER = 2.0f;
         const float CHARACTER_X_ROTATION_SPEED = 0.13f;
         const float CHARACTER_Y_ROTATION_SPEED = 0.0026f;
@@ -534,6 +538,15 @@ namespace Sandbox.Game.Entities.Character
         {
             get { return (MyRenderComponentCharacter)base.Render; }
             set { base.Render = value; }
+        }
+
+        public bool IsCameraNear
+        {
+            get
+            {
+                if (MyFakes.ENABLE_PERMANENT_SIMULATIONS_COMPUTATION) return true;
+                return Render.IsVisible() && m_cameraDistance <= CAMERA_NEAR_DISTANCE;
+            }
         }
 
         public MyRagdollMapper RagdollMapper;
@@ -1323,7 +1336,7 @@ namespace Sandbox.Game.Entities.Character
             if (MySession.Static == null)
                 return;
 
-            if (false)
+            if (MyFakes.ENABLE_SYNCED_CHARACTER_MOVE_AND_ROTATE)
             {
                 if (Sync.IsServer && ControllerInfo.Controller != null && ControllerInfo.IsRemotelyControlled())
                 {
@@ -1610,7 +1623,18 @@ namespace Sandbox.Game.Entities.Character
 
 			if (m_areaInventory != null)
 				m_areaInventory.Update(PositionComp.GetPosition());
+
+            UpdateCameraDistance();
 		}
+
+        private void UpdateCameraDistance()
+        {
+            MatrixD viewMatrix = MySession.Static.CameraController.GetViewMatrix();
+
+            Vector3 cameraLocation = MatrixD.Invert(viewMatrix).Translation;
+
+            m_cameraDistance = Vector3.Distance(cameraLocation,WorldMatrix.Translation);
+        }
 
         private void UpdateChat()
         {
@@ -2060,7 +2084,7 @@ namespace Sandbox.Game.Entities.Character
             if (m_characterDefinition.FeetIKEnabled && MyFakes.ENABLE_FOOT_IK && Physics.CharacterProxy != null)
             {
                 VRageRender.MyRenderProxy.GetRenderProfiler().StartProfilingBlock("Update Feet");
-                UpdateFeet();
+                if (IsCameraNear) UpdateFeet();
                 VRageRender.MyRenderProxy.GetRenderProfiler().EndProfilingBlock();
             }
 
@@ -2227,23 +2251,27 @@ namespace Sandbox.Game.Entities.Character
             VRageRender.MyRenderProxy.GetRenderProfiler().StartProfilingBlock("Update Bones To Ragdoll");
 
             RagdollMapper.UpdateRagdollAfterSimulation();
-            
-            RagdollMapper.UpdateCharacterPose( IsDead ? 1.0f : 0.1f, IsDead ? 1.0f : 0.0f);
 
-            RagdollMapper.DebugDraw(WorldMatrix);            
-                        
-            VRageRender.MyRenderProxy.GetRenderProfiler().EndProfilingBlock();
-
-            // save bone changes
-            VRageRender.MyRenderProxy.GetRenderProfiler().StartProfilingBlock("Save bones and pos update");
-
-            for (int i = 0; i < m_bones.Count; i++)
+            if (IsCameraNear)
             {
-                MyCharacterBone bone = m_bones[i];
-                m_boneRelativeTransforms[i] = bone.ComputeBoneTransform();                
-            }
 
-            VRageRender.MyRenderProxy.GetRenderProfiler().EndProfilingBlock();
+                RagdollMapper.UpdateCharacterPose(IsDead ? 1.0f : 0.1f, IsDead ? 1.0f : 0.0f);
+
+                RagdollMapper.DebugDraw(WorldMatrix);
+
+                VRageRender.MyRenderProxy.GetRenderProfiler().EndProfilingBlock();
+
+                // save bone changes
+                VRageRender.MyRenderProxy.GetRenderProfiler().StartProfilingBlock("Save bones and pos update");
+
+                for (int i = 0; i < m_bones.Count; i++)
+                {
+                    MyCharacterBone bone = m_bones[i];
+                    m_boneRelativeTransforms[i] = bone.ComputeBoneTransform();
+                }
+
+                VRageRender.MyRenderProxy.GetRenderProfiler().EndProfilingBlock();
+            }
         }
 
 

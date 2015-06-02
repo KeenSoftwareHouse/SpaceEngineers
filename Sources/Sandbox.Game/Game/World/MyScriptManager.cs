@@ -24,19 +24,6 @@ using VRage.ObjectBuilders;
 
 namespace Sandbox.Game.World
 {
-    [AttributeUsage(AttributeTargets.Class)]
-    public class MyEntityComponentDescriptor : System.Attribute
-    {
-        public Type EntityBuilderType;
-        public string[] EntityBuilderSubTypeNames;
-
-        public MyEntityComponentDescriptor(Type entityBuilderType, params string[] entityBuilderSubTypeNames)
-        {
-            EntityBuilderType = entityBuilderType;
-            EntityBuilderSubTypeNames = entityBuilderSubTypeNames;
-        }
-    }
-
     [MySessionComponentDescriptor(MyUpdateOrder.NoUpdate,1000,typeof(MyObjectBuilder_ScriptManager))]
     class MyScriptManager : MySessionComponentBase
     {
@@ -152,11 +139,11 @@ namespace Sandbox.Game.World
                         MyDefinitionErrors.Add(c, e.Message, ErrorSeverity.Error);
                     }
                 }
-                IlCompiler.CompileFile(assemblyName, m_cachedFiles.ToArray(), out assembly, m_errors);
+                IlCompiler.CompileFileModAPI(assemblyName, m_cachedFiles.ToArray(), out assembly, m_errors);
             }
             else
             {
-                IlCompiler.CompileFile(assemblyName, scriptFiles.ToArray(), out assembly, m_errors);
+                IlCompiler.CompileFileModAPI(assemblyName, scriptFiles.ToArray(), out assembly, m_errors);
             }
             if(assembly != null)
                 AddAssembly(MyStringId.GetOrCompute(assemblyName), assembly);

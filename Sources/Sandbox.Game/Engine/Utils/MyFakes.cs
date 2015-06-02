@@ -516,5 +516,9 @@ namespace Sandbox.Engine.Utils
         public static bool ENABLE_VOXEL_MAP_AABB_CORNER_TEST = false;
         
         public static bool ENABLE_RAGDOLL_DEACTIVATION = false;
+
+        public static bool ENABLE_PERMANENT_SIMULATIONS_COMPUTATION = true;
+        
+        public static bool ENABLE_SYNCED_CHARACTER_MOVE_AND_ROTATE = false;
     }
 }
