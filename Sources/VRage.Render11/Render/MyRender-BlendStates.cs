@@ -62,7 +62,7 @@ namespace VRageRender
             desc.IndependentBlendEnable = true;
             // color metal
             desc.RenderTarget[0].IsBlendEnabled = true;
-            desc.RenderTarget[0].RenderTargetWriteMask = ColorWriteMaskFlags.Red | ColorWriteMaskFlags.Green | ColorWriteMaskFlags.Blue;
+            desc.RenderTarget[0].RenderTargetWriteMask = ColorWriteMaskFlags.All;
             desc.RenderTarget[0].BlendOperation = BlendOperation.Add;
             desc.RenderTarget[0].AlphaBlendOperation = BlendOperation.Add;
             desc.RenderTarget[0].DestinationBlend = BlendOption.InverseBlendFactor;
@@ -81,8 +81,8 @@ namespace VRageRender
             // ao
             desc.RenderTarget[2].IsBlendEnabled = true;
             desc.RenderTarget[2].RenderTargetWriteMask = ColorWriteMaskFlags.Red;
-            desc.RenderTarget[2].BlendOperation = BlendOperation.ReverseSubtract;
-            desc.RenderTarget[2].AlphaBlendOperation = BlendOperation.ReverseSubtract;
+            desc.RenderTarget[2].BlendOperation = BlendOperation.Minimum;
+            desc.RenderTarget[2].AlphaBlendOperation = BlendOperation.Minimum;
             desc.RenderTarget[2].DestinationBlend = BlendOption.One;
             desc.RenderTarget[2].DestinationAlphaBlend = BlendOption.One;
             desc.RenderTarget[2].SourceBlend = BlendOption.InverseBlendFactor;

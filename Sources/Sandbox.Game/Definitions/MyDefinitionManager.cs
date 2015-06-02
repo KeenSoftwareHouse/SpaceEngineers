@@ -36,6 +36,7 @@ using VRage.Library.Utils;
 using Sandbox.Common.ObjectBuilders.AI;
 using Sandbox.Game.AI.Pathfinding;
 using VRage.FileSystem;
+using VRage.ObjectBuilders;
 
 #endregion
 
@@ -224,7 +225,7 @@ namespace Sandbox.Definitions
                 }
                 catch (Exception e)
                 {
-                    FailModLoading(context);
+                    FailModLoading(context, innerException: e);
                     return;
                 }
 
@@ -260,16 +261,16 @@ namespace Sandbox.Definitions
                         phases[i](builder.Item1, context, definitionSet, failOnDebug);
                     }
                 }
-                catch
+                catch (Exception e)
                 {
-                    FailModLoading(context, phase: i, phaseNum: phases.Length);
+                    FailModLoading(context, phase: i, phaseNum: phases.Length, innerException: e);
                     return;
                 }
                 MergeDefinitions();
             }
         }
 
-        private static void FailModLoading(MyModContext context, int phase = -1, int phaseNum = 0)
+        private static void FailModLoading(MyModContext context, int phase = -1, int phaseNum = 0, Exception innerException = null)
         {
             if (phase == -1)
                 MyDefinitionErrors.Add(context, "MOD SKIPPED, Cannot load definition file, see log for details", ErrorSeverity.Critical);
@@ -279,7 +280,7 @@ namespace Sandbox.Definitions
             if (context.IsBaseGame)
             {
                 // When original definition fails to load, return to main menu
-                throw new MyLoadingException(String.Format(MyTexts.GetString(MySpaceTexts.LoadingError_ModifiedOriginalContent), context.CurrentFile));
+                throw new MyLoadingException(String.Format(MyTexts.GetString(MySpaceTexts.LoadingError_ModifiedOriginalContent), context.CurrentFile), innerException);
             }
             else
             {
@@ -1016,7 +1017,7 @@ namespace Sandbox.Definitions
         private T Load<T>(string path) where T : MyObjectBuilder_Base
         {
             T result = null;
-            Sandbox.Common.ObjectBuilders.Serializer.MyObjectBuilderSerializer.DeserializeXML(path, out result);
+            MyObjectBuilderSerializer.DeserializeXML(path, out result);
             return result;
         }
 
@@ -1024,7 +1025,7 @@ namespace Sandbox.Definitions
         {
             string filePath = Path.Combine(dataPath, fileName);
             var path = Path.Combine(MyFileSystem.ContentPath, filePath);
-            Sandbox.Common.ObjectBuilders.Serializer.MyObjectBuilderSerializer.SerializeXML(path, false, builder);
+            MyObjectBuilderSerializer.SerializeXML(path, false, builder);
         }
 
         private static void InitAmmoMagazines(MyModContext context,
@@ -1280,6 +1281,8 @@ namespace Sandbox.Definitions
                 {
                     MyCubeBlockDefinition generatedBlock;
                     if (!TryGetCubeBlockDefinition(gen, out generatedBlock)) continue;
+                    if (generatedBlock.GeneratedBlockType == MyStringId.GetOrCompute("pillar"))
+                        continue;
                     generatedBlock.Components = block.Components;
                     generatedBlock.MaxIntegrity = block.MaxIntegrity;
                 }
@@ -1513,7 +1516,7 @@ namespace Sandbox.Definitions
 
         public void SaveHandItems()
         {
-            var objBuilder = Sandbox.Common.ObjectBuilders.Serializer.MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_Definitions>();
+            var objBuilder = MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_Definitions>();
             List<MyObjectBuilder_HandItemDefinition> defList = new List<MyObjectBuilder_HandItemDefinition>();
 
             foreach (var handDef in m_definitions.m_handItemsById.Values)
@@ -1799,7 +1802,7 @@ namespace Sandbox.Definitions
         {
             Type blockType = MyCubeBlockFactory.GetProducedType(cubeBlockDefinition.Id.TypeId);
 
-            MyObjectBuilder_CompositeBlueprintDefinition ob = Sandbox.Common.ObjectBuilders.Serializer.MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_CompositeBlueprintDefinition>();
+            MyObjectBuilder_CompositeBlueprintDefinition ob = MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_CompositeBlueprintDefinition>();
 
             ob.Id = new SerializableDefinitionId(typeof(MyObjectBuilder_BlueprintDefinition), cubeBlockDefinition.Id.ToString().Replace("MyObjectBuilder_", "")); /*blockType.Name.Substring(2) + "/" + cubeBlockDefinition.Id.SubtypeName*/
             
@@ -2692,7 +2695,7 @@ namespace Sandbox.Definitions
 
             foreach (var defPair in defs)
             {
-                var objBuilder = Sandbox.Common.ObjectBuilders.Serializer.MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_Definitions>();
+                var objBuilder = MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_Definitions>();
                 var defList = new List<MyObjectBuilder_DefinitionBase>();
 
                 foreach (var def in defPair.Value)
@@ -2704,7 +2707,7 @@ namespace Sandbox.Definitions
                 //TODO: Add here all needed properties
                 objBuilder.CubeBlocks = defList.OfType<MyObjectBuilder_CubeBlockDefinition>().ToArray();
                     
-                Sandbox.Common.ObjectBuilders.Serializer.MyObjectBuilderSerializer.SerializeXML(defPair.Key, false, objBuilder);
+                MyObjectBuilderSerializer.SerializeXML(defPair.Key, false, objBuilder);
             }                
         }
 

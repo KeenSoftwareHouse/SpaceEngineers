@@ -18,6 +18,7 @@ using SharpDX.Direct3D;
 using VRage.Utils;
 using VRage.Library.Utils;
 using VRage.FileSystem;
+using VRageMath;
 
 namespace VRageRender.Resources
 {
@@ -159,9 +160,9 @@ namespace VRageRender.Resources
                 }
             }
 
-            if(img != null)
-            {
-                
+            bool loaded = false;
+            if (img != null)
+            {         
                 int skipMipmaps = (Textures.Data[texId.Index].Type != MyTextureEnum.GUI && img.Description.MipLevels > 1) ? MyRender11.RenderSettings.TextureQuality.MipmapsToSkip(img.Description.Width, img.Description.Height) : 0;
 
                 int targetMipmaps = img.Description.MipLevels - skipMipmaps;
@@ -193,18 +194,28 @@ namespace VRageRender.Resources
                     OptionFlags = img.Description.Dimension == TextureDimension.TextureCube ? ResourceOptionFlags.TextureCube : ResourceOptionFlags.None
                 };
 
-                var resource = new Texture2D(MyRender11.Device, desc, mipmapsData);
-                Textures.Data[texId.Index].Resource = resource;
-                Textures.Data[texId.Index].Size = new Vector2(targetWidth, targetHeight);
-                Textures.Data[texId.Index].SkippedMipmaps = skipMipmaps;
-                Textures.Data[texId.Index].FileExists = true;
-                Views[texId.Index] = new ShaderResourceView(MyRender11.Device, resource);
-                resource.DebugName = path;
-                Views[texId.Index].DebugName = path;
+                try
+                {
+                    var resource = new Texture2D(MyRender11.Device, desc, mipmapsData);
 
-                img.Dispose();
+                    Textures.Data[texId.Index].Resource = resource;
+                    Textures.Data[texId.Index].Size = new Vector2(targetWidth, targetHeight);
+                    Textures.Data[texId.Index].SkippedMipmaps = skipMipmaps;
+                    Textures.Data[texId.Index].FileExists = true;
+                    Views[texId.Index] = new ShaderResourceView(MyRender11.Device, resource);
+                    resource.DebugName = path;
+                    Views[texId.Index].DebugName = path;
+
+                    img.Dispose();
+
+                    loaded = true;
+                }
+                catch (SharpDXException)
+                {
+
+                }
             }
-            else
+            if(!loaded)
             {
                 // set data to some crap
                 TexId replacingId = ZeroTexId;

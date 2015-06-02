@@ -9,7 +9,7 @@ using Sandbox.Game.Entities;
 
 namespace Sandbox.Game.GameSystems.Electricity
 {
-    class MyRechargeSocket
+    public class MyRechargeSocket
     {
         private MyPowerDistributor m_powerDistributor;
         private IMyPowerConsumer m_pluggedInConsumer;

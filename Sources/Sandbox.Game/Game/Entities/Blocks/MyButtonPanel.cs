@@ -1,5 +1,6 @@
 ﻿using ProtoBuf;
 using Sandbox.Common;
+using Sandbox.Common.Components;
 using Sandbox.Common.ObjectBuilders;
 using Sandbox.Definitions;
 using Sandbox.Engine.Multiplayer;
@@ -19,6 +20,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using VRage;
+using VRage.ModAPI;
 using VRage.Serialization;
 using VRage.Utils;
 using VRageMath;
@@ -171,35 +173,6 @@ namespace Sandbox.Game.Entities.Blocks
 
         }
 
-        [ProtoContract]
-        struct ToolbarItem : IEqualityComparer<ToolbarItem>
-        {
-            [ProtoMember]
-            public long EntityID;
-            [ProtoMember]
-            public string GroupName;
-            [ProtoMember]
-            public string Action;
-
-            public bool Equals(ToolbarItem x, ToolbarItem y)
-            {
-                if (x.EntityID != y.EntityID || x.GroupName != y.GroupName || x.Action != y.Action)
-                    return false;
-                return true;
-            }
-
-            public int GetHashCode(ToolbarItem obj)
-            {
-                unchecked
-                {
-                    int result = obj.EntityID.GetHashCode();
-                    result = (result * 397) ^ obj.GroupName.GetHashCode();
-                    result = (result * 397) ^ obj.Action.GetHashCode();
-                    return result;
-                }
-            }
-        }
-
         private const string DETECTOR_NAME = "panel";
         private List<string> m_emissiveNames; // new string[] { "Emissive1", "Emissive2", "Emissive3", "Emissive4", "Emissive5", "Emissive6", "Emissive7", "Emissive8" };
         private bool m_anyoneCanUse;
@@ -321,7 +294,7 @@ namespace Sandbox.Game.Entities.Blocks
 
             NeedsUpdate |= MyEntityUpdateEnum.BEFORE_NEXT_FRAME | MyEntityUpdateEnum.EACH_FRAME;
 
-            GetInteractiveObjects<MyUseObjectPanelButton>(m_buttonsUseObjects);
+            UseObjectsComponent.GetInteractiveObjects<MyUseObjectPanelButton>(m_buttonsUseObjects);
         }
 
         private void Receiver_IsPoweredChanged()
@@ -419,7 +392,7 @@ namespace Sandbox.Game.Entities.Blocks
             base.UpdateVisual();
             UpdateEmissivity();
             m_buttonsUseObjects.Clear();
-            GetInteractiveObjects<MyUseObjectPanelButton>(m_buttonsUseObjects);
+            UseObjectsComponent.GetInteractiveObjects<MyUseObjectPanelButton>(m_buttonsUseObjects);
         }
 
         void UpdateButtonEmissivity(int index)

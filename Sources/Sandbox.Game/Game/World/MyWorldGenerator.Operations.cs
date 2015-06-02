@@ -10,6 +10,9 @@ using VRageMath;
 using VRage.Plugins;
 using Sandbox.Engine.Utils;
 using System.Diagnostics;
+using VRage.ObjectBuilders;
+using VRage;
+using System.Reflection;
 
 namespace Sandbox.Game.World
 {
@@ -28,8 +31,7 @@ namespace Sandbox.Game.World
         }
     }
 
-
-    static partial class MyWorldGenerator
+    public partial class MyWorldGenerator
     {
         #region Operation base and factory
 
@@ -39,7 +41,6 @@ namespace Sandbox.Game.World
                 : base(objectBuilderType)
             {
             }
-
         }
 
         public static class OperationFactory
@@ -51,6 +52,7 @@ namespace Sandbox.Game.World
                 m_objectFactory = new MyObjectFactory<OperationTypeAttribute, MyWorldGeneratorOperationBase>();
                 m_objectFactory.RegisterFromCreatedObjectAssembly();
                 m_objectFactory.RegisterFromAssembly(MyPlugins.GameAssembly);
+                m_objectFactory.RegisterFromAssembly(Assembly.LoadFrom("Sandbox.Common.dll")); //TODO: Will be removed 
                 m_objectFactory.RegisterFromAssembly(MyPlugins.UserAssembly);
             }
 

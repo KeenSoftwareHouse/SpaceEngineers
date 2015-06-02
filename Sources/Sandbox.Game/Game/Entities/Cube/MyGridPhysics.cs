@@ -1,5 +1,6 @@
 ﻿using Havok;
 using Sandbox.Common;
+using Sandbox.Common.ModAPI;
 using Sandbox.Common.ObjectBuilders;
 using Sandbox.Common.ObjectBuilders.Definitions;
 using Sandbox.Definitions;
@@ -22,6 +23,8 @@ using VRage.Collections;
 using VRage.Utils;
 using VRageMath;
 using VRageRender;
+using VRage.Components;
+using VRage.ModAPI;
 
 namespace Sandbox.Game.Entities.Cube
 {
@@ -456,6 +459,9 @@ namespace Sandbox.Game.Entities.Cube
                 float dot1withNormal = speed1 > 0 ? Vector3.Dot(dir1, value.ContactPoint.Normal) : 0;
                 float dot2withNormal = speed2 > 0 ? Vector3.Dot(dir2, value.ContactPoint.Normal) : 0;
 
+                speed1 *= Math.Abs(dot1withNormal);
+                speed2 *= Math.Abs(dot2withNormal);
+
                 bool is1Static = mass1 == 0;
                 bool is2Static = mass2 == 0;
 
@@ -470,7 +476,7 @@ namespace Sandbox.Game.Entities.Cube
                 impact1 *= info.ImpulseMultiplier;
                 impact2 *= info.ImpulseMultiplier;
 
-                MyDestructionHelper.HitInfo hitInfo = new MyDestructionHelper.HitInfo();
+                MyHitInfo hitInfo = new MyHitInfo();
                 var hitPos = info.ContactPosition;
                 hitInfo.Normal = value.ContactPoint.Normal;
 
@@ -493,13 +499,20 @@ namespace Sandbox.Game.Entities.Cube
                         if (is2Static || impact1 / impact2 > 10)
                         {
                             hitInfo.Position = hitPos + 0.1f * hitInfo.Normal;
+                            impact1 -= mass1;
                             if (grid1 != null)
-                                grid1.DoDamage(impact1, hitInfo);
+                            {
+                                var blockPos = GetGridPosition(value, grid1, 0);
+                                grid1.DoDamage(impact1, hitInfo, blockPos);
+                            }
                             else
                                 MyDestructionHelper.TriggerDestruction(impact1, (MyPhysicsBody)entity1.Physics, info.ContactPosition, value.ContactPoint.Normal, maxDestructionRadius);
                             hitInfo.Position = hitPos - 0.1f * hitInfo.Normal;
                             if (grid2 != null)
-                                grid2.DoDamage(impact1, hitInfo);
+                            {
+                                var blockPos = GetGridPosition(value, grid2, 1);
+                                grid2.DoDamage(impact1, hitInfo, blockPos);
+                            }
                             else
                                 MyDestructionHelper.TriggerDestruction(impact1, (MyPhysicsBody)entity2.Physics, info.ContactPosition, value.ContactPoint.Normal, maxDestructionRadius);
 
@@ -516,19 +529,26 @@ namespace Sandbox.Game.Entities.Cube
                     impact2 *= Math.Abs(dot1withNormal); //respect angle of hit
 
                     if (impact2 > 2000 && speed2 > 2 && !is1Small ||
-                        (impact2 > 500 && speed1 > 10)) //must be fast enought to destroy fracture piece (projectile)
+                        (impact2 > 500 && speed2 > 10)) //must be fast enought to destroy fracture piece (projectile)
                     {  //2 is big hitting
 
                         if (is1Static || impact2 / impact1 > 10)
                         {
                             hitInfo.Position = hitPos + 0.1f * hitInfo.Normal;
+                            impact2 -= mass2;
                             if (grid1 != null)
-                                grid1.DoDamage(impact2, hitInfo);
+                            {
+                                var blockPos = GetGridPosition(value, grid1, 0);
+                                grid1.DoDamage(impact2, hitInfo, blockPos);
+                            }
                             else
                                 MyDestructionHelper.TriggerDestruction(impact2, (MyPhysicsBody)entity1.Physics, info.ContactPosition, value.ContactPoint.Normal, maxDestructionRadius);
                             hitInfo.Position = hitPos - 0.1f * hitInfo.Normal;
                             if (grid2 != null)
-                                grid2.DoDamage(impact2, hitInfo);
+                            {
+                                var blockPos = GetGridPosition(value, grid2, 1);
+                                grid2.DoDamage(impact2, hitInfo, blockPos);
+                            }
                             else
                                 MyDestructionHelper.TriggerDestruction(impact2, (MyPhysicsBody)entity2.Physics, info.ContactPosition, value.ContactPoint.Normal, maxDestructionRadius);
 
@@ -550,6 +570,13 @@ namespace Sandbox.Game.Entities.Cube
             }
 
             ProfilerShort.End();
+        }
+
+        private static Vector3 GetGridPosition(HkContactPointEvent value, MyCubeGrid grid, int body)
+        {
+            var position = value.ContactPoint.Position + (body == 0 ? 0.1f : -0.1f) * value.ContactPoint.Normal;
+            var local = Vector3.Transform(value.ContactPoint.Position, Matrix.Invert(value.Base.GetRigidBody(body).GetRigidBodyMatrix()));
+            return local;
         }
 
         private MyGridContactInfo ReduceVelocities(MyGridContactInfo info)
@@ -1525,6 +1552,7 @@ namespace Sandbox.Game.Entities.Cube
         {
             ProfilerShort.Begin("RecreateBody");
             bool wasfixed = RigidBody.IsFixedOrKeyframed;
+            var layer = RigidBody.Layer;
             if (false)//m_newBreakableBodies.Count == 1) //jn: keeps crashing now, putting aside for release
             {
                 ProfilerShort.Begin("NewReplace");
@@ -1534,6 +1562,7 @@ namespace Sandbox.Game.Entities.Cube
                 CloseRigidBody();
                 ProfilerShort.BeginNextBlock("2");
                 BreakableBody = m_newBreakableBodies[0];
+                Debug.Assert(RigidBody.Layer == layer, "New body has different layer!!");
                 RigidBody.UserObject = this;
                 RigidBody.ContactPointCallbackEnabled = true;
                 RigidBody.ContactSoundCallbackEnabled = true;
@@ -1619,6 +1648,7 @@ namespace Sandbox.Game.Entities.Cube
                     CloseRigidBody();
                     var s = (HkShape)m_shape;
                     CreateBody(ref s, null);
+                    RigidBody.Layer = layer;
                     RigidBody.ContactPointCallbackEnabled = true;
                     RigidBody.ContactSoundCallbackEnabled = true;
                     RigidBody.ContactPointCallback += RigidBody_ContactPointCallback_Destruction;

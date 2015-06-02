@@ -1,6 +1,7 @@
 ﻿using Havok;
 using Sandbox.Common;
 using Sandbox.Common.Components;
+using Sandbox.Common.ModAPI;
 using Sandbox.Common.ObjectBuilders;
 using Sandbox.Definitions;
 using Sandbox.Engine.Models;
@@ -16,7 +17,9 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using VRage;
+using VRage.Components;
 using VRage.Library.Utils;
+using VRage.ObjectBuilders;
 using VRageMath;
 
 namespace Sandbox.Game.Entities
@@ -419,7 +422,7 @@ namespace Sandbox.Game.Entities
             }
         }
 
-        public void DoDamage(float damage, Common.ObjectBuilders.Definitions.MyDamageType damageType, bool sync)
+        public void DoDamage(float damage, Common.ObjectBuilders.Definitions.MyDamageType damageType, bool sync, MyHitInfo? hitInfo)
         {
             if (Sync.IsServer)
             {

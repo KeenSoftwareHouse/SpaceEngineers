@@ -732,6 +732,10 @@ namespace Sandbox.Game.Lights
             m_positionDirty = true;
         }
 
+        public void MarkPropertiesDirty()
+        {
+            m_propertiesDirty = true;
+        }
 
         public bool IsPointLightInFrustum()
         {

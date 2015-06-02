@@ -22,6 +22,8 @@ using Sandbox.ModAPI.Interfaces;
 using VRage.Library.Utils;
 using Sandbox.Game.GameSystems;
 using Sandbox.Engine.Physics;
+using Sandbox.Common.ModAPI;
+using VRage.ObjectBuilders;
 
 namespace Sandbox.Game.Entities.Cube
 {
@@ -204,7 +206,7 @@ namespace Sandbox.Game.Entities.Cube
             }
         }
 
-        internal MyComponentStack ComponentStack
+        public MyComponentStack ComponentStack
         {
             get
             {
@@ -389,7 +391,7 @@ namespace Sandbox.Game.Entities.Cube
             }
             else
             {
-                builder = (MyObjectBuilder_CubeBlock)Sandbox.Common.ObjectBuilders.Serializer.MyObjectBuilderSerializer.CreateNewObject(BlockDefinition.Id);
+                builder = (MyObjectBuilder_CubeBlock)MyObjectBuilderSerializer.CreateNewObject(BlockDefinition.Id);
                 if (FatBlock != null)
                 {
                     builder.EntityId = FatBlock.EntityId;
@@ -579,7 +581,7 @@ namespace Sandbox.Game.Entities.Cube
             //return Position;
         }
 
-        public void MoveFirstItemToConstructionStockpile(MyInventory fromInventory)
+        public void MoveFirstItemToConstructionStockpile(IMyComponentInventory fromInventory)
         {
             if (MySession.Static.CreativeMode)
             {
@@ -616,9 +618,9 @@ namespace Sandbox.Game.Entities.Cube
             }
         }
 
-        public void MoveItemsToConstructionStockpile(MyInventory fromInventory)
+        public void MoveItemsToConstructionStockpile(IMyComponentInventory fromInventory)
         {
-            if (MySession.Static.CreativeMode)
+            if (MySession.Static.CreativeMode || MySession.Static.SimpleSurvival)
                 return;
 
             m_tmpComponents.Clear();
@@ -649,7 +651,7 @@ namespace Sandbox.Game.Entities.Cube
         /// Moves items with the given flags from the construction inventory to the character.
         /// If the flags are None, all items are moved.
         /// </summary>
-        public void MoveItemsFromConstructionStockpile(MyInventory toInventory, MyItemFlags flags = MyItemFlags.None)
+        public void MoveItemsFromConstructionStockpile(IMyComponentInventory toInventory, MyItemFlags flags = MyItemFlags.None)
         {
             if (m_stockpile == null) return;
 
@@ -674,7 +676,7 @@ namespace Sandbox.Game.Entities.Cube
             m_stockpile.ClearSyncList();
         }
 
-        public void MoveUnneededItemsFromConstructionStockpile(MyInventory toInventory)
+        public void MoveUnneededItemsFromConstructionStockpile(IMyComponentInventory toInventory)
         {
             if (m_stockpile == null) return;
 
@@ -696,7 +698,7 @@ namespace Sandbox.Game.Entities.Cube
             m_stockpile.ClearSyncList();
         }
 
-        public void ClearConstructionStockpile(MyInventory outputInventory)
+        public void ClearConstructionStockpile(IMyComponentInventory outputInventory)
         {
             if (!StockpileEmpty)
             {
@@ -883,27 +885,27 @@ namespace Sandbox.Game.Entities.Cube
             }
         }
 
-        void IMyDestroyableObject.DoDamage(float damage, MyDamageType damageType, bool sync)
+        void IMyDestroyableObject.DoDamage(float damage, MyDamageType damageType, bool sync, MyHitInfo? hitInfo)
         {
             if (sync)
             {
                 Debug.Assert(Sync.IsServer);
                 if (Sync.IsServer)
-                    MySyncHelper.DoDamageSynced(this, damage, damageType);
+                    MySyncHelper.DoDamageSynced(this, damage, damageType, hitInfo);
             }
             else
-                this.DoDamage(damage, damageType);
+                this.DoDamage(damage, damageType, hitInfo: hitInfo);
             return;
         }
 
-        public void DoDamage(float damage, MyDamageType damageType, bool addDirtyParts = true, MyDestructionHelper.HitInfo? hitInfo = null, bool createDecal = true)
+        public void DoDamage(float damage, MyDamageType damageType, bool addDirtyParts = true, MyHitInfo? hitInfo = null, bool createDecal = true)
         {
             if (!MySession.Static.DestructibleBlocks)
                 return;
 
             if(FatBlock is MyCompoundCubeBlock) //jn: TODO think of something better
             {
-                (FatBlock as MyCompoundCubeBlock).DoDamage(damage, damageType, addDirtyParts, hitInfo);
+                (FatBlock as MyCompoundCubeBlock).DoDamage(damage, damageType, hitInfo);
                 return;
             }
 
@@ -930,7 +932,8 @@ namespace Sandbox.Game.Entities.Cube
                     AccumulatedDamage = 0;
                     var gridPhysics = CubeGrid.Physics;
                     float maxDestructionRadius = CubeGrid.GridSizeEnum == MyCubeSize.Small ? 0.5f : 3;
-                    Sandbox.Engine.Physics.MyDestructionHelper.TriggerDestruction(damage, gridPhysics, hitInfo.Value.Position, hitInfo.Value.Normal, maxDestructionRadius);
+                    if(Sync.IsServer)
+                       Sandbox.Engine.Physics.MyDestructionHelper.TriggerDestruction(damage - m_componentStack.Integrity, gridPhysics, hitInfo.Value.Position, hitInfo.Value.Normal, maxDestructionRadius);
                 }
                 else
                 {
@@ -1038,8 +1041,9 @@ namespace Sandbox.Game.Entities.Cube
             }
         }
 
-        public void IncreaseMountLevel(float welderMountAmount, long welderOwnerPlayerId, MyInventory outputInventory = null, float maxAllowedBoneMovement = 0.0f, bool isHelping = false, MyOwnershipShareModeEnum sharing = MyOwnershipShareModeEnum.Faction)
+        public bool IncreaseMountLevel(float welderMountAmount, long welderOwnerPlayerId, MyInventory outputInventory = null, float maxAllowedBoneMovement = 0.0f, bool isHelping = false, MyOwnershipShareModeEnum sharing = MyOwnershipShareModeEnum.Faction)
         {
+			bool modelChanged = false;
             welderMountAmount *= BlockDefinition.IntegrityPointsPerSec;
             MySession.Static.PositiveIntegrityTotal += welderMountAmount;
 
@@ -1092,6 +1096,7 @@ namespace Sandbox.Game.Entities.Cube
             MyCubeGrid.MyIntegrityChangeEnum integrityChangeType = MyCubeGrid.MyIntegrityChangeEnum.Damage;
             if (BlockDefinition.ModelChangeIsNeeded(oldPercentage, m_componentStack.BuildRatio) || BlockDefinition.ModelChangeIsNeeded(m_componentStack.BuildRatio, oldPercentage))
             {
+				modelChanged = true;
                 if (FatBlock != null)
                 {
                     // this needs to be detected here because for cubes the following call to UpdateVisual() set FatBlock to null when the construction is complete
@@ -1131,6 +1136,8 @@ namespace Sandbox.Game.Entities.Cube
 
             if (maxAllowedBoneMovement != 0.0f)
                 FixBones(oldDamage, maxAllowedBoneMovement);
+
+			return modelChanged;
         }
 
         public void DecreaseMountLevel(float grinderAmount, MyInventory outputInventory)

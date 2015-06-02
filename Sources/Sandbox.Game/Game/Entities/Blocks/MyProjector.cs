@@ -25,6 +25,7 @@ using VRage.Library.Utils;
 using Sandbox.Common.ObjectBuilders.Definitions;
 using System.IO;
 using VRage.FileSystem;
+using VRage.ModAPI;
 
 namespace Sandbox.Game.Entities.Blocks
 {
@@ -122,7 +123,7 @@ namespace Sandbox.Game.Entities.Blocks
             keepProjectionToggle.Enabled = (b) => b.IsProjecting();
             MyTerminalControlFactory.AddControl(keepProjectionToggle);
 
-            //OnlyCanBuildBlock
+            //ShowOnlyBuildable
             var showOnlyBuildableBlockToggle = new MyTerminalControlCheckbox<MyProjector>("ShowOnlyBuildable", MySpaceTexts.ShowOnlyBuildableBlockToggle, MySpaceTexts.ShowOnlyBuildableTooltip);
             showOnlyBuildableBlockToggle.Getter = (x) => x.m_showOnlyBuildable;
             showOnlyBuildableBlockToggle.Setter = (x, v) =>
@@ -132,8 +133,8 @@ namespace Sandbox.Game.Entities.Blocks
             };
             showOnlyBuildableBlockToggle.Enabled = (b) => b.IsProjecting();
             MyTerminalControlFactory.AddControl(showOnlyBuildableBlockToggle);
-            //Position
 
+            //Position
             var offsetX = new MyTerminalControlSlider<MyProjector>("X", MySpaceTexts.BlockPropertyTitle_ProjectionOffsetX, MySpaceTexts.Blank);
             offsetX.SetLimits(-50, 50);
             offsetX.DefaultValue = 0;
@@ -282,9 +283,9 @@ namespace Sandbox.Game.Entities.Blocks
                 SetTransparencyForSubparts(block, transparency);
             }
 
-            if (block != null && block.DetectorPhysics != null && block.DetectorPhysics.Enabled)
+            if (block != null && block.UseObjectsComponent != null && block.UseObjectsComponent.DetectorPhysics != null)
             {
-                block.DetectorPhysics.Enabled = false;
+                block.UseObjectsComponent.DetectorPhysics.Enabled = false;
             }
         }
 
@@ -469,7 +470,7 @@ namespace Sandbox.Game.Entities.Blocks
 
             SetRotation(m_projectionRotation);
 
-            NeedsUpdate |= Common.MyEntityUpdateEnum.EACH_FRAME;
+            NeedsUpdate |= MyEntityUpdateEnum.EACH_FRAME;
         }
 
         public override MyObjectBuilder_CubeBlock GetObjectBuilderCubeBlock(bool copy = false)
@@ -505,6 +506,7 @@ namespace Sandbox.Game.Entities.Blocks
                     objectBuilder.ProjectedGrid = null;
                 }
             }
+            objectBuilder.ShowOnlyBuildable = m_showOnlyBuildable;
             return objectBuilder;
         }
 
@@ -525,6 +527,8 @@ namespace Sandbox.Game.Entities.Blocks
                 m_savedProjection = projectorBuilder.ProjectedGrid;
                 m_keepProjection = projectorBuilder.KeepProjection;
             }
+
+            m_showOnlyBuildable = projectorBuilder.ShowOnlyBuildable;
 
             PowerReceiver = new MyPowerReceiver(
                 MyConsumerGroupEnum.Utility,
@@ -818,7 +822,6 @@ namespace Sandbox.Game.Entities.Blocks
                         {
                             m_visibleBlocks.Add(projectedBlock);
                         }
-                     
                     }
                 }
             }
@@ -1119,7 +1122,7 @@ namespace Sandbox.Game.Entities.Blocks
             InitializeClipboard();
         }
 
-        internal void SetNewOffset(Vector3I positionOffset, Vector3I rotationOffset,bool onlyCanBuildBlock)
+        internal void SetNewOffset(Vector3I positionOffset, Vector3I rotationOffset, bool onlyCanBuildBlock)
         {
             m_clipboard.ResetGridOrientation();
 
@@ -1275,7 +1278,7 @@ namespace Sandbox.Game.Entities.Blocks
                 }
             }
 
-            public void SendNewOffset(Vector3I positionOffset, Vector3I rotationOffset,bool showOnlyBuildable)
+            public void SendNewOffset(Vector3I positionOffset, Vector3I rotationOffset, bool showOnlyBuildable)
             {
                 var msg = new OffsetMsg();
                 msg.EntityId = m_projector.EntityId;
@@ -1304,7 +1307,7 @@ namespace Sandbox.Game.Entities.Blocks
                 var projector = projectorEntity as MyProjector;
                 if (projector != null)
                 {
-                    projector.SetNewOffset(msg.PositionOffset, msg.RotationOffset,msg.showOnlyBuildable ==1);
+                    projector.SetNewOffset(msg.PositionOffset, msg.RotationOffset, msg.showOnlyBuildable == 1);
                     projector.m_shouldUpdateProjection = true;
                 }
             }

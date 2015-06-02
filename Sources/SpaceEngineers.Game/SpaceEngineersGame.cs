@@ -83,10 +83,8 @@ namespace SpaceEngineers.Game
             MyPerGameSettings.BallFriendlyPhysics = true;
 
             MyPerGameSettings.EnableAi = false;
-            
 
             MyPerGameSettings.BotFactoryType = typeof(Sandbox.Game.AI.MySandboxBotFactory);
-            MyPerGameSettings.RespawnComponentType = typeof(Sandbox.Game.World.MyRespawnComponent);
 
             MyPerGameSettings.ControlMenuInitializerType = typeof(MySpaceControlMenuInitializer);
 
@@ -102,6 +100,7 @@ namespace SpaceEngineers.Game
             //MyPerGameSettings.EnableRagdollModels = false;
             MyPerGameSettings.EnableRagdollInJetpack = true;
             //MyFakes.ENABLE_RAGDOLL_BONES_TRANSLATION = false;
+            MyFakes.ENABLE_RAGDOLL_CLIENT_SYNC = true;
 
             MyPerGameSettings.EnableKinematicMPCharacter = true;
 
@@ -129,18 +128,18 @@ namespace SpaceEngineers.Game
                 MyPostprocessSettingsWrapper.Settings.LuminanceExposure = 0;
                 MyPostprocessSettingsWrapper.Settings.BloomExposure = 0;
                 MyPostprocessSettingsWrapper.Settings.BloomMult = 0.1f;
-                MyPostprocessSettingsWrapper.Settings.EyeAdaptationTau = 6;
+                MyPostprocessSettingsWrapper.Settings.EyeAdaptationTau = 3;
                 MyPostprocessSettingsWrapper.Settings.MiddleGreyAt0 = 0.068f;
                 MyPostprocessSettingsWrapper.Settings.MiddleGreyCurveSharpness = 4.36f;
                 MyPostprocessSettingsWrapper.Settings.LogLumThreshold = -6.0f;
                 MyPostprocessSettingsWrapper.Settings.BlueShiftRapidness = 0;
                 MyPostprocessSettingsWrapper.Settings.BlueShiftScale = 0;
-                MyPostprocessSettingsWrapper.Settings.Tonemapping_A = 0.748f;
-                MyPostprocessSettingsWrapper.Settings.Tonemapping_B = 0.324f;
-                MyPostprocessSettingsWrapper.Settings.Tonemapping_C = 0.143f;
-                MyPostprocessSettingsWrapper.Settings.Tonemapping_D = 0.196f;
-                MyPostprocessSettingsWrapper.Settings.Tonemapping_E = 0.009f;
-                MyPostprocessSettingsWrapper.Settings.Tonemapping_F = 0.130f;
+                MyPostprocessSettingsWrapper.Settings.Tonemapping_A = 0.147f;
+                MyPostprocessSettingsWrapper.Settings.Tonemapping_B = 0.120f;
+                MyPostprocessSettingsWrapper.Settings.Tonemapping_C = 0.321f;
+                MyPostprocessSettingsWrapper.Settings.Tonemapping_D = 0.699f;
+                MyPostprocessSettingsWrapper.Settings.Tonemapping_E = 0.001f;
+                MyPostprocessSettingsWrapper.Settings.Tonemapping_F = 0.160f;
             }
 
             MyPerGameSettings.VoiceChatEnabled = false;

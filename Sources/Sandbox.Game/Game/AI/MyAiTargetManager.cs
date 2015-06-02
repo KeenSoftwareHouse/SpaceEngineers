@@ -14,6 +14,7 @@ using VRageMath;
 
 namespace Sandbox.Game.AI
 {
+	[PreloadRequired]
     [MySessionComponentDescriptor(MyUpdateOrder.AfterSimulation)]
     public class MyAiTargetManager : MySessionComponentBase
     {
@@ -321,7 +322,7 @@ namespace Sandbox.Game.AI
 
 		public override void LoadData()
         {
-			if(Sync.IsServer)
+			if (Sync.IsServer)
 			{
 				m_reservedEntities = new Dictionary<KeyValuePair<long, long>, ReservedEntityData>();
 				m_removeReservedEntities = new Queue<KeyValuePair<long, long>>();
@@ -337,17 +338,11 @@ namespace Sandbox.Game.AI
             MyEntities.OnEntityRemove -= OnEntityRemoved;
         }
 
-		public override void Simulate()
+		public override bool IsRequiredByGame
 		{
-			base.Simulate();
-
-			if (Sync.IsServer)
+			get
 			{
-				foreach (var entity in m_reservedEntities)
-				{
-					if (Stopwatch.GetTimestamp() > entity.Value.ReservationTimer)
-						m_removeReservedEntities.Enqueue(entity.Key);
-				}
+				return base.IsRequiredByGame && MyPerGameSettings.Game == GameEnum.ME_GAME;
 			}
 		}
 
@@ -357,6 +352,11 @@ namespace Sandbox.Game.AI
 
 			if (Sync.IsServer)
 			{
+				foreach (var entity in m_reservedEntities)
+				{
+					if (Stopwatch.GetTimestamp() > entity.Value.ReservationTimer)
+						m_removeReservedEntities.Enqueue(entity.Key);
+				}
 				foreach (var id in m_removeReservedEntities)
 				{
 					m_reservedEntities.Remove(id);

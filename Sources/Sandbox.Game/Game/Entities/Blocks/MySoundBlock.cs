@@ -21,6 +21,7 @@ using VRage.Utils;
 using VRage.Utils;
 using VRageMath;
 using VRage.Library.Utils;
+using VRage.ModAPI;
 
 
 namespace Sandbox.Game.Entities.Blocks
@@ -282,7 +283,7 @@ namespace Sandbox.Game.Entities.Blocks
         {  
             if (!IsLoopablePlaying)
             {
-                NeedsUpdate |= Common.MyEntityUpdateEnum.EACH_FRAME;
+                NeedsUpdate |= MyEntityUpdateEnum.EACH_FRAME;
 
                 m_startLoopTimeMs = Stopwatch.GetTimestamp();
                 m_soundEmitters[m_soundEmitterIndex].PlaySingleSound(m_soundPair, true);
@@ -350,7 +351,7 @@ namespace Sandbox.Game.Entities.Blocks
                 m_soundEmitters[i].StopSound(true);
             }
 
-            NeedsUpdate &= ~(Common.MyEntityUpdateEnum.EACH_FRAME);
+            NeedsUpdate &= ~(MyEntityUpdateEnum.EACH_FRAME);
             DetailedInfo.Clear();
 
             RaisePropertiesChanged();
@@ -360,7 +361,7 @@ namespace Sandbox.Game.Entities.Blocks
         {
             m_soundEmitters[m_soundEmitterIndex].StopSound(true);
 
-            NeedsUpdate &= ~(Common.MyEntityUpdateEnum.EACH_FRAME);
+            NeedsUpdate &= ~(MyEntityUpdateEnum.EACH_FRAME);
             DetailedInfo.Clear();
 
             RaisePropertiesChanged();

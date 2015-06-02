@@ -7,7 +7,7 @@ using System.Text;
 
 namespace Sandbox.Game.AI
 {
-    abstract class MyAutopilotBase
+    public abstract class MyAutopilotBase
     {
         protected MyShipController ShipController { private set; get; }
 

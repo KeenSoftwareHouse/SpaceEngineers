@@ -15,6 +15,8 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using VRage;
+using VRage.Components;
+using VRage.ObjectBuilders;
 using VRageMath;
 
 namespace Sandbox.Game.Entities.Cube

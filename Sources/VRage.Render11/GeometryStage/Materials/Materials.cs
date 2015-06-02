@@ -12,6 +12,7 @@ using VRage.Import;
 using VRage;
 using VRage.Library.Utils;
 using System.IO;
+using VRage.FileSystem;
 
 namespace VRageRender
 {
@@ -554,6 +555,7 @@ namespace VRageRender
             MaterialRkIndex.Clear();
             MaterialsPool.Clear();
             MaterialProxyIndex.Clear();
+            MaterialNameIndex.Clear();
 
             CreateCommonMaterials();
         }

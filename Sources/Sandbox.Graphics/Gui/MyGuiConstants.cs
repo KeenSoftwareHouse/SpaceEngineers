@@ -686,6 +686,8 @@ namespace Sandbox.Graphics.GUI
         public const int TEXTBOX_MOVEMENT_DELAY = 100;
         //  Delay between we accept same key press (e.g. when user holds left key, or X key for a longer period)
         public const int TEXTBOX_CHANGE_DELAY = 500;
+        public const int TEXTBOX_INITIAL_THROTTLE_DELAY = 500;
+        public const int TEXTBOX_REPEAT_THROTTLE_DELAY = 50;
         public const string TEXTBOX_FALLBACK_CHARACTER = "#";
         public static readonly Vector2 TEXTBOX_TEXT_OFFSET = new Vector2(0.0075f, 0.005f);
 

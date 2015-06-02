@@ -17,6 +17,7 @@ using Sandbox.Common.ObjectBuilders;
 using VRage;
 using Sandbox.Common.ObjectBuilders.Definitions;
 using Sandbox.Definitions;
+using VRage.ObjectBuilders;
 
 #endregion
 
@@ -420,7 +421,7 @@ namespace Sandbox.Game.Multiplayer
                     var objectBuilder = new MyObjectBuilder_FloatingObject();
                     objectBuilder.Item = new MyObjectBuilder_InventoryItem();
                     objectBuilder.Item.Amount = instance.Amount;
-                    objectBuilder.Item.Content = Sandbox.Common.ObjectBuilders.Serializer.MyObjectBuilderSerializer.CreateNewObject(((MyDefinitionId)floatingObject.TypeId).TypeId, ((MyDefinitionId)floatingObject.TypeId).SubtypeName);
+                    objectBuilder.Item.Content = MyObjectBuilderSerializer.CreateNewObject(((MyDefinitionId)floatingObject.TypeId).TypeId, ((MyDefinitionId)floatingObject.TypeId).SubtypeName);
                     objectBuilder.EntityId = instance.Location.EntityId;
                     objectBuilder.PositionAndOrientation = new MyPositionAndOrientation(instance.Location.Position, instance.Location.Forward, instance.Location.Up);
                     objectBuilder.PersistentFlags = MyPersistentEntityFlags2.InScene | MyPersistentEntityFlags2.Enabled | MyPersistentEntityFlags2.CastShadows;

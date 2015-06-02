@@ -4,7 +4,6 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using Havok;
-using Sandbox.Common.ObjectBuilders.Serializer;
 using Sandbox.Common;
 using Sandbox.Common.ObjectBuilders;
 using Sandbox.Definitions;
@@ -36,6 +35,8 @@ using Sandbox.Game.GameSystems.StructuralIntegrity;
 using VRage.Library.Utils;
 using VRage.Import;
 using MyFileSystem = VRage.FileSystem.MyFileSystem;
+using VRage.Components;
+using VRage.ObjectBuilders;
 
 namespace Sandbox.Game.Entities
 {
@@ -378,7 +379,7 @@ namespace Sandbox.Game.Entities
                 {
                     prevCount = validOffsets.Count;
 
-                    for (int i = 0; i < validOffsets.Count; i++)
+                    for (int i = validOffsets.Count - 1; i >= 0; i--)
                     {
                         Vector3I center = area.PosInGrid + validOffsets[i] * stepDir;
 
@@ -837,7 +838,7 @@ namespace Sandbox.Game.Entities
                     if (MyFileSystem.FileExists(file))
                     {
                         MyObjectBuilder_Definitions loadedPrefab = null;
-                        Sandbox.Common.ObjectBuilders.Serializer.MyObjectBuilderSerializer.DeserializeXML(file, out loadedPrefab);
+                        MyObjectBuilderSerializer.DeserializeXML(file, out loadedPrefab);
                         if (loadedPrefab.Prefabs[0].CubeGrids != null)
                         {
                             m_prefabs.Add(loadedPrefab.Prefabs[0].CubeGrids);
@@ -1198,7 +1199,7 @@ namespace Sandbox.Game.Entities
          {
             foreach (var c in childrens)
             {
-                var child = c.Entity;
+                var child = c.Container.Entity;
                 MyModel model = (child as MyEntity).Model;
                 if (null != model)
                 {
@@ -1874,7 +1875,7 @@ namespace Sandbox.Game.Entities
                 overlapState = Outside;
 
                 voxelMap = MySession.Static.VoxelMaps.GetVoxelMapWhoseBoundingBoxIntersectsBox(ref worldAabb, null);
-                if (voxelMap != null && voxelMap.IsAnyAabbCornerInside(worldAabb))
+                if (voxelMap != null && voxelMap.IsAnyAabbCornerInside(ref worldMatrix, localAabb))
                 {
                     overlapState = IntersectsOrInside;
                 }
@@ -1898,6 +1899,8 @@ namespace Sandbox.Game.Entities
                     Debug.Fail("Invalid branch.");
                     break;
             }
+
+            ProfilerShort.End();
 
             return testPassed;
         }
@@ -1998,7 +2001,7 @@ namespace Sandbox.Game.Entities
 
         internal static MyObjectBuilder_CubeBlock CreateBlockObjectBuilder(MyCubeBlockDefinition definition, Vector3I min, MyBlockOrientation orientation, long entityID, long owner, bool fullyBuilt)
         {
-            MyObjectBuilder_CubeBlock objectBuilder = (MyObjectBuilder_CubeBlock)Sandbox.Common.ObjectBuilders.Serializer.MyObjectBuilderSerializer.CreateNewObject(definition.Id);
+            MyObjectBuilder_CubeBlock objectBuilder = (MyObjectBuilder_CubeBlock)MyObjectBuilderSerializer.CreateNewObject(definition.Id);
             objectBuilder.BuildPercent = fullyBuilt ? 1 : MyComponentStack.MOUNT_THRESHOLD;
             objectBuilder.IntegrityPercent = fullyBuilt ? 1 : MyComponentStack.MOUNT_THRESHOLD;
             objectBuilder.EntityId = entityID;

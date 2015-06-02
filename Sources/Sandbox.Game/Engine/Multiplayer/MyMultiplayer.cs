@@ -44,7 +44,7 @@ namespace Sandbox.Engine.Multiplayer
         public const string GrinderMultiplierTag = "grinderMultiplier";
 
         public const string BattleTag = "battle";
-        public const string BattleStartedTag = "battleStarted";
+        public const string BattleCanBeJoinedTag = "battleCanBeJoined";
         public const string BattleFaction1MaxBlueprintPointsTag = "battleFaction1MaxBlueprintPoints";
         public const string BattleFaction2MaxBlueprintPointsTag = "battleFaction2MaxBlueprintPoints";
         public const string BattleFaction1BlueprintPointsTag = "battleFaction1BlueprintPoints";
@@ -57,6 +57,8 @@ namespace Sandbox.Engine.Multiplayer
         public const string BattleFaction1ReadyTag = "battleFaction1Ready";
         public const string BattleFaction2ReadyTag = "battleFaction2Ready";
         public const string BattleTimeLimitTag = "battleTimeLimit";
+
+        public const string ScenarioTag = "scenario";
 
         public static MyMultiplayerBase Static;
 

@@ -16,6 +16,7 @@ using System.Linq.Expressions;
 using VRageRender;
 using Sandbox.Game.GameSystems.Electricity;
 using System.Diagnostics;
+using VRage.ModAPI;
 
 namespace Sandbox.Game.Entities.Blocks
 {

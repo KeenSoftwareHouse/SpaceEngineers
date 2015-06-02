@@ -310,30 +310,15 @@ namespace Sandbox.Game.Entities
             if (intersectedBlock.FatBlock is MyCompoundCubeBlock)
             {
                 MyCompoundCubeBlock compoundBlock = intersectedBlock.FatBlock as MyCompoundCubeBlock;
-                ListReader<MySlimBlock> slimBlocksInCompound = compoundBlock.GetBlocks();
-                double distanceSquaredInCompound = double.MaxValue;
                 ushort? idInCompound = null;
-                for (int i = 0; i < slimBlocksInCompound.Count; ++i)
-                {
-                    MySlimBlock cmpSlimBlock = slimBlocksInCompound.ItemAt(i);
-                    MyIntersectionResultLineTriangleEx? intersectionTriResult;
-                    if (cmpSlimBlock.FatBlock.GetIntersectionWithLine(ref line, out intersectionTriResult) && intersectionTriResult != null)
-                    {
-                        Vector3D startToIntersection = intersectionTriResult.Value.IntersectionPointInWorldSpace - IntersectionStart;
-                        double instrDistanceSq = startToIntersection.LengthSquared();
-                        if (instrDistanceSq < distanceSquaredInCompound)
-                        {
-                            distanceSquaredInCompound = instrDistanceSq;
-                            idInCompound = compoundBlock.GetBlockId(cmpSlimBlock);
-                        }
-                    }
-                }
 
-                // If not intersecting with any internal block and there is only one then set the index to it
-                if (idInCompound == null && compoundBlock.GetBlocksCount() == 1)
-                {
+                ushort blockId;
+                MyIntersectionResultLineTriangleEx? triIntersection;
+
+                if (compoundBlock.GetIntersectionWithLine(ref line, out triIntersection, out blockId))
+                    idInCompound = blockId;
+                else if (compoundBlock.GetBlocksCount() == 1) // If not intersecting with any internal block and there is only one then set the index to it
                     idInCompound = compoundBlock.GetBlockId(compoundBlock.GetBlocks()[0]);
-                }
 
                 compoundBlockId = idInCompound;
             }

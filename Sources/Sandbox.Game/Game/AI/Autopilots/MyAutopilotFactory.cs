@@ -6,6 +6,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using Sandbox.Common;
+using VRage.ObjectBuilders;
 
 namespace Sandbox.Game.AI
 {
