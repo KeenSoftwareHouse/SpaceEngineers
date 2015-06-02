@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using MyUpgradeModuleInfo = Sandbox.Common.ObjectBuilders.Definitions.MyUpgradeModuleInfo;
 
 namespace Sandbox.ModAPI.Ingame
 {
@@ -11,9 +12,9 @@ namespace Sandbox.ModAPI.Ingame
     public interface IMyUpgradeModule
     {
         /// <summary>
-        /// Retrieve list of upgrades from this block (r/o)
+        /// Retrieve list of upgrades from this block (r/o), see <see cref='Sandbox.Common.ObjectBuilders.Definitions.MyUpgradeModuleInfo'>MyUpgradeModuleInfo</see> for details
         /// </summary>
-        void GetUpgradeList(out List<IMyUpgradeInfo> upgrades);
+        void GetUpgradeList(out List<MyUpgradeModuleInfo> upgrades);
         /// <summary>
         /// Retrieve number of upgrade effects this block has (r/o)
         /// </summary>

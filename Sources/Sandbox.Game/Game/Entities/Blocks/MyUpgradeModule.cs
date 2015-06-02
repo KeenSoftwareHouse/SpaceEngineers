@@ -238,7 +238,7 @@ namespace Sandbox.Game.Entities.Blocks
                 float val;
                 if (block.UpgradeValues.TryGetValue(upgrade.UpgradeType, out val))
                 {
-                    if (upgrade.ModifierType == ModAPI.Ingame.MyUpgradeModifierType.Additive)
+                    if (upgrade.ModifierType == MyUpgradeModifierType.Additive)
                     {
                         val -= upgrade.Modifier;
 
@@ -271,7 +271,7 @@ namespace Sandbox.Game.Entities.Blocks
                 float val;
                 if (block.UpgradeValues.TryGetValue(upgrade.UpgradeType, out val))
                 {
-                    if (upgrade.ModifierType == ModAPI.Ingame.MyUpgradeModifierType.Additive)
+                    if (upgrade.ModifierType == MyUpgradeModifierType.Additive)
                     {
                         val += upgrade.Modifier;
                     }
@@ -362,9 +362,9 @@ namespace Sandbox.Game.Entities.Blocks
             return count;
         }
 
-        void ModAPI.Ingame.IMyUpgradeModule.GetUpgradeList(out List<ModAPI.Ingame.IMyUpgradeInfo> upgradelist)
+        void ModAPI.Ingame.IMyUpgradeModule.GetUpgradeList(out List<MyUpgradeModuleInfo> upgradelist)
         {
-            upgradelist = new List<ModAPI.Ingame.IMyUpgradeInfo>();
+            upgradelist = new List<MyUpgradeModuleInfo>();
             foreach (var value in m_upgrades)
                 upgradelist.Add(value);
         }
