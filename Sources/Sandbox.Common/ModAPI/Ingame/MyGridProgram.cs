@@ -22,21 +22,26 @@ namespace Sandbox.ModAPI.Ingame
     public abstract class MyGridProgram : IMyGridProgram
     {
         private string m_storage = "";
-        private MethodInfo m_mainMethod = null;
-        private bool m_mainMethodSupportsArgument;
-        private object[] m_argumentArray;
+        private readonly Action<string> m_main;
 
         protected MyGridProgram()
         {
             // First try to get the main method with a string argument. If this fails, try to get one without.
             var type = this.GetType();
-            m_mainMethod = type.GetMethod("Main", BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance, null, new[] { typeof(string) }, null);
-            m_mainMethodSupportsArgument = m_mainMethod != null;
-
-            if (m_mainMethodSupportsArgument)
-                m_argumentArray = new object[1];
+            var mainMethod = type.GetMethod("Main", BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance, null, new[] {typeof(string)}, null);
+            if (mainMethod != null)
+            {
+                this.m_main = mainMethod.CreateDelegate<Action<string>>(this);
+            }
             else
-                m_mainMethod = type.GetMethod("Main", BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance);
+            {
+                mainMethod = type.GetMethod("Main", BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance, null, Type.EmptyTypes, null);
+                if (mainMethod != null)
+                {
+                    var mainWithoutArgument = mainMethod.CreateDelegate<Action>(this);
+                    this.m_main = arg => mainWithoutArgument();
+                }
+            }
         }
 
         /// <summary>
@@ -100,24 +105,14 @@ namespace Sandbox.ModAPI.Ingame
 
         bool IMyGridProgram.HasMainMethod
         {
-            get { return m_mainMethod != null; }
+            get { return this.m_main != null; }
         }
 
         void IMyGridProgram.Main(string argument)
         {
-            if (m_mainMethodSupportsArgument)
-            {
-                // Don't know if it's really necessary to predefine this argument array, I suspect not
-                // due to the cleverness of the compiler, but I do it this way just in case. 
-                // Obviously if programmable block execution becomes asynchronous at some point this 
-                // must be reworked, or the program must be blocked to avoid multiple simultaneous runs.
-                m_argumentArray[0] = argument ?? string.Empty;
-                m_mainMethod.Invoke(this, m_argumentArray);
-            }
-            else
-            {
-                m_mainMethod.Invoke(this, null);
-            }
+            if (m_main == null)
+                throw new InvalidOperationException("No Main method available");
+            m_main(argument ?? string.Empty);
         }
     }
 }
