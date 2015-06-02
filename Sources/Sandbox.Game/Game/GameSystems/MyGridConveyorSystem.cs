@@ -18,6 +18,7 @@ using VRage;
 using VRage.Utils;
 using VRageMath;
 using VRageRender;
+using VRage.ObjectBuilders;
 
 namespace Sandbox.Game.GameSystems
 {

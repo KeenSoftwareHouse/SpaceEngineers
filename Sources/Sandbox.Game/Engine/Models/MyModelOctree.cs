@@ -10,6 +10,8 @@ using Sandbox.Common;
 using VRage;
 using Sandbox.ModAPI;
 using VRage.Utils;
+using VRage.ModAPI;
+using VRage.Components;
 //  This octreee can be used with MyModel to optimize line intersections.
 //  The idea of octree is that we have root node that has eight child nodes (by splitting the parent to eight boxes).
 //  When building the octree, we check if triangleVertexes can fully fit inside of any child. If yes, we add it to that

@@ -17,6 +17,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using VRage;
+using VRage.ModAPI;
 using VRage.Utils;
 using VRageMath;
 
@@ -272,7 +273,7 @@ namespace Sandbox.Game.Entities.Blocks
         public void Stop()
         {
             IsCountingDown = false;
-            NeedsUpdate &= ~Common.MyEntityUpdateEnum.EACH_10TH_FRAME;
+            NeedsUpdate &= ~MyEntityUpdateEnum.EACH_10TH_FRAME;
             m_countdownMsCurrent = 0;
             UpdateEmissivity();
             DetailedInfo.Clear();
@@ -282,7 +283,7 @@ namespace Sandbox.Game.Entities.Blocks
         public void Start()
         {
             IsCountingDown = true;
-            NeedsUpdate |= Common.MyEntityUpdateEnum.EACH_10TH_FRAME;
+            NeedsUpdate |= MyEntityUpdateEnum.EACH_10TH_FRAME;
             m_countdownMsCurrent = m_countdownMsStart;
         }
 
@@ -334,14 +335,14 @@ namespace Sandbox.Game.Entities.Blocks
         {
             base.OnStartWorking();
             if(m_countdownMsCurrent != 0)
-                NeedsUpdate |= Common.MyEntityUpdateEnum.EACH_10TH_FRAME;
+                NeedsUpdate |= MyEntityUpdateEnum.EACH_10TH_FRAME;
             UpdateEmissivity();
         }
 
         protected override void OnStopWorking()
         {
             base.OnStopWorking();
-            NeedsUpdate &= ~Common.MyEntityUpdateEnum.EACH_10TH_FRAME;
+            NeedsUpdate &= ~MyEntityUpdateEnum.EACH_10TH_FRAME;
             UpdateEmissivity();
         }
 
@@ -361,11 +362,11 @@ namespace Sandbox.Game.Entities.Blocks
             Toolbar.Init(ob.Toolbar, this);
             Toolbar.ItemChanged += Toolbar_ItemChanged;
 
-            if (ob.JustTriggered) NeedsUpdate |= Common.MyEntityUpdateEnum.BEFORE_NEXT_FRAME;
+            if (ob.JustTriggered) NeedsUpdate |= MyEntityUpdateEnum.BEFORE_NEXT_FRAME;
             m_countdownMsStart = ob.Delay;
             m_countdownMsCurrent = ob.CurrentTime;
             if (m_countdownMsCurrent > 0)
-                NeedsUpdate |= Common.MyEntityUpdateEnum.EACH_10TH_FRAME;
+                NeedsUpdate |= MyEntityUpdateEnum.EACH_10TH_FRAME;
 
             PowerReceiver = new MyPowerReceiver(
                 MyConsumerGroupEnum.Utility,
@@ -385,7 +386,7 @@ namespace Sandbox.Game.Entities.Blocks
         {
             var ob = base.GetObjectBuilderCubeBlock(copy) as MyObjectBuilder_TimerBlock;
             ob.Toolbar = Toolbar.GetObjectBuilder();
-            ob.JustTriggered = NeedsUpdate.HasFlag(Common.MyEntityUpdateEnum.BEFORE_NEXT_FRAME);
+            ob.JustTriggered = NeedsUpdate.HasFlag(MyEntityUpdateEnum.BEFORE_NEXT_FRAME);
             ob.Delay = m_countdownMsStart;
             ob.CurrentTime = m_countdownMsCurrent;
             return ob;
@@ -432,9 +433,9 @@ namespace Sandbox.Game.Entities.Blocks
 
             if (m_countdownMsCurrent <= 0)
             {
-                NeedsUpdate &= ~Common.MyEntityUpdateEnum.EACH_10TH_FRAME;
+                NeedsUpdate &= ~MyEntityUpdateEnum.EACH_10TH_FRAME;
                 m_countdownMsCurrent = 0;
-                NeedsUpdate |= Common.MyEntityUpdateEnum.BEFORE_NEXT_FRAME;
+                NeedsUpdate |= MyEntityUpdateEnum.BEFORE_NEXT_FRAME;
             }
             DetailedInfo.Clear().AppendStringBuilder(MyTexts.Get(MySpaceTexts.BlockPropertyTitle_TimerToTrigger));
             MyValueFormatter.AppendTimeExact(m_countdownMsCurrent / 1000, DetailedInfo);
@@ -443,7 +444,7 @@ namespace Sandbox.Game.Entities.Blocks
 
         public void StopCountdown()
         {
-            NeedsUpdate &= ~Common.MyEntityUpdateEnum.EACH_10TH_FRAME;
+            NeedsUpdate &= ~MyEntityUpdateEnum.EACH_10TH_FRAME;
             m_countdownMsCurrent = 0;
             IsCountingDown = false;
             DetailedInfo.Clear();
@@ -460,7 +461,7 @@ namespace Sandbox.Game.Entities.Blocks
             obj.StopCountdown();
             if (Sync.IsServer)
             {
-                obj.NeedsUpdate |= Common.MyEntityUpdateEnum.BEFORE_NEXT_FRAME;
+                obj.NeedsUpdate |= MyEntityUpdateEnum.BEFORE_NEXT_FRAME;
             }
             else
             {
@@ -478,7 +479,7 @@ namespace Sandbox.Game.Entities.Blocks
             obj.StopCountdown();
             if (Sync.IsServer)
             {
-                obj.NeedsUpdate |= Common.MyEntityUpdateEnum.BEFORE_NEXT_FRAME;
+                obj.NeedsUpdate |= MyEntityUpdateEnum.BEFORE_NEXT_FRAME;
             }
             else
             {

@@ -10,7 +10,7 @@ using System.Text;
 namespace Sandbox.Game.Multiplayer
 {
     [PreloadRequired]
-    class MySyncMotorSuspension : MySyncMotorBase
+    public class MySyncMotorSuspension : MySyncMotorBase
     {
         [MessageId(224, P2PMessageEnum.Reliable)]
         struct SteeringMsg : IEntityMessage

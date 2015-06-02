@@ -4,6 +4,7 @@ using Sandbox.Common.Components;
 using Sandbox.Engine.Utils;
 using System;
 using System.Collections.Generic;
+using VRage.Components;
 using VRage.Utils;
 using VRageMath;
 

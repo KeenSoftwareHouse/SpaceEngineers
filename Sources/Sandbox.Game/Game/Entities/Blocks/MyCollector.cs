@@ -26,6 +26,8 @@ using Sandbox.Game.Screens.Terminal.Controls;
 using Sandbox.Common.Components;
 using Sandbox.ModAPI.Ingame;
 using Sandbox.Game.Localization;
+using VRage.ModAPI;
+using VRage.Components;
 
 namespace Sandbox.Game.Entities.Blocks
 {
@@ -184,7 +186,7 @@ namespace Sandbox.Game.Entities.Blocks
                     //else
                     {
                         var detectorShape = CreateFieldShape(halfExtents);
-                        Physics = new Engine.Physics.MyPhysicsBody(this, Engine.Physics.RigidBodyFlag.RBF_STATIC);
+                        Physics = new Engine.Physics.MyPhysicsBody(this, RigidBodyFlag.RBF_STATIC);
                         Physics.IsPhantom = true;
                         Physics.CreateFromCollisionObject(detectorShape, matrix.Translation, WorldMatrix, null, MyPhysics.CollectorCollisionLayer);
                         Physics.Enabled = true;//IsWorking;
@@ -256,7 +258,7 @@ namespace Sandbox.Game.Entities.Blocks
             }
         }
 
-        protected Sandbox.ModAPI.IMyEntity GetOtherEntity(ref HkContactPointEvent value)
+        protected IMyEntity GetOtherEntity(ref HkContactPointEvent value)
         {
             if (value.Base.BodyA.GetEntity() == this)
                 return value.Base.BodyB.GetEntity();

@@ -15,6 +15,7 @@ using System.Text;
 using VRage.Serialization;
 using Sandbox.ModAPI;
 using Sandbox.Engine.Networking;
+using VRage;
 
 namespace Sandbox.Game.Multiplayer
 {

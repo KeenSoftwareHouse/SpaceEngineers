@@ -8,8 +8,8 @@ using Sandbox.Game.Entities;
 using Sandbox.Game.Entities.Character;
 using Sandbox.Common;
 using Sandbox.Definitions;
-using Sandbox.Common.ObjectBuilders.Serializer;
 using System.Diagnostics;
+using VRage.ObjectBuilders;
 
 namespace Sandbox.Game.World
 {

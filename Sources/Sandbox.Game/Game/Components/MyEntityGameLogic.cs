@@ -9,7 +9,8 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using VRage;
-using VRage;
+using VRage.Components;
+using VRage.ObjectBuilders;
 using VRage.Utils;
 using VRageMath;
 
@@ -49,19 +50,19 @@ namespace Sandbox.Game.Components
                     MatrixD matrix = MatrixD.CreateWorld(posAndOrient.Position, posAndOrient.Forward, posAndOrient.Up);
                     MyUtils.AssertIsValid(matrix);
 
-                    Entity.PositionComp.SetWorldMatrix(matrix);
+                    Container.Entity.PositionComp.SetWorldMatrix(matrix);
                 }
                 // Do not copy EntityID if it gets overwritten later. It might
                 // belong to some existing entity that we're making copy of.
                 if (objectBuilder.EntityId != 0)
-                    Entity.EntityId = objectBuilder.EntityId;
-                Entity.Name = objectBuilder.Name;
-                Entity.Render.PersistentFlags = objectBuilder.PersistentFlags;
+                    Container.Entity.EntityId = objectBuilder.EntityId;
+                Container.Entity.Name = objectBuilder.Name;
+                Container.Entity.Render.PersistentFlags = objectBuilder.PersistentFlags;
             }
 
             AllocateEntityID();
 
-            Entity.InScene = false;
+            Container.Entity.InScene = false;
 
             MyEntities.SetEntityName(m_entity, false);
 
@@ -81,16 +82,16 @@ namespace Sandbox.Game.Components
                          string modelCollision = null)
         {
             ProfilerShort.Begin("MyEntity.Init(...models...)");
-            Entity.DisplayName = displayName != null ? displayName.ToString() : null;
+            Container.Entity.DisplayName = displayName != null ? displayName.ToString() : null;
 
             m_entity.RefreshModels(model, modelCollision);
 
             if (parentObject != null)
             {
-                parentObject.Hierarchy.AddChild(Entity, false, false);
+                parentObject.Hierarchy.AddChild(Container.Entity, false, false);
             }
 
-            Entity.PositionComp.Scale = scale;
+            Container.Entity.PositionComp.Scale = scale;
 
             AllocateEntityID();
             ProfilerShort.End();
@@ -99,28 +100,28 @@ namespace Sandbox.Game.Components
 
         private void AllocateEntityID()
         {
-            if (Entity.EntityId == 0 && MyEntityIdentifier.AllocationSuspended == false)
+            if (Container.Entity.EntityId == 0 && MyEntityIdentifier.AllocationSuspended == false)
             {
-                Entity.EntityId = MyEntityIdentifier.AllocateId();
+                Container.Entity.EntityId = MyEntityIdentifier.AllocateId();
             }
         }
 
         public override MyObjectBuilder_EntityBase GetObjectBuilder(bool copy = false)
         {
-            var objBuilder = MyEntityFactory.CreateObjectBuilder(Entity as MyEntity);
+            var objBuilder = MyEntityFactory.CreateObjectBuilder(Container.Entity as MyEntity);
 
             objBuilder.PositionAndOrientation = new MyPositionAndOrientation()
             {
-                Position = Entity.PositionComp.GetPosition(),
-                Up = (Vector3)Entity.WorldMatrix.Up,
-                Forward = (Vector3)Entity.WorldMatrix.Forward
+                Position = Container.Entity.PositionComp.GetPosition(),
+                Up = (Vector3)Container.Entity.WorldMatrix.Up,
+                Forward = (Vector3)Container.Entity.WorldMatrix.Forward
             };
 
-            objBuilder.EntityId = Entity.EntityId;
+            objBuilder.EntityId = Container.Entity.EntityId;
             Debug.Assert(objBuilder.EntityId != 0);
 
-            objBuilder.Name = Entity.Name;
-            objBuilder.PersistentFlags = Entity.Render.PersistentFlags;
+            objBuilder.Name = Container.Entity.Name;
+            objBuilder.PersistentFlags = Container.Entity.Render.PersistentFlags;
 
             return objBuilder;
         }
@@ -219,7 +220,7 @@ namespace Sandbox.Game.Components
                 MyHierarchyComponentBase compToRemove = m_entity.Hierarchy.Children[m_entity.Hierarchy.Children.Count - 1];
                 Debug.Assert(compToRemove.Parent != null, "Entity has no parent but is part of children collection");
 
-                compToRemove.Entity.Close();
+                compToRemove.Container.Entity.Close();
 
                 m_entity.Hierarchy.Children.Remove(compToRemove);
             }

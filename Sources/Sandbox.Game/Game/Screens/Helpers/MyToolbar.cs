@@ -19,6 +19,8 @@ using Sandbox.Game.GUI;
 using VRage;
 using Sandbox.Common.Components;
 using Sandbox.Game.SessionComponents;
+using VRage.Components;
+using VRage.ObjectBuilders;
 
 namespace Sandbox.Game.Screens.Helpers
 {
@@ -322,7 +324,7 @@ namespace Sandbox.Game.Screens.Helpers
 
         public MyObjectBuilder_Toolbar GetObjectBuilder()
         {
-            var objectBuilder = Sandbox.Common.ObjectBuilders.Serializer.MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_Toolbar>();
+            var objectBuilder = MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_Toolbar>();
 
             if (objectBuilder.Slots == null)
                 objectBuilder.Slots = new List<MyObjectBuilder_Toolbar.Slot>(m_items.Length);

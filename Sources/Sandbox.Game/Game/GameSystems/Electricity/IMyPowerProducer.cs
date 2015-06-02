@@ -8,7 +8,7 @@ namespace Sandbox.Game.GameSystems.Electricity
 {
     delegate void ProductionStateChangeDelegate(IMyPowerProducer stoppedProducer);
 
-    interface IMyPowerProducer : Sandbox.ModAPI.Ingame.IMyPowerProducer
+    public interface IMyPowerProducer : Sandbox.ModAPI.Ingame.IMyPowerProducer
     {
         MyProducerGroupEnum Group { get; }
 

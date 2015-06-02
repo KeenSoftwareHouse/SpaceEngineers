@@ -6,12 +6,15 @@ using System.Text;
 using ProtoBuf;
 using Sandbox.Common.ObjectBuilders;
 using Sandbox.Common.ObjectBuilders.Definitions;
-using Sandbox.Common.ObjectBuilders.Serializer;
 using Sandbox.Definitions;
 using Sandbox.Game.Entities.Cube;
 using VRage.Collections;
 using VRageMath;
 using Sandbox.Common.ModAPI;
+using VRage.Components;
+using VRage.ObjectBuilders;
+using VRage;
+using Sandbox.Common;
 
 namespace Sandbox.Game.Entities
 {
@@ -27,7 +30,7 @@ namespace Sandbox.Game.Entities
         {
             private MyCompoundCubeBlock m_block;
 
-            public override void OnAddedToContainer(Common.Components.MyComponentContainer container)
+            public override void OnAddedToContainer(MyComponentContainer container)
             {
                 base.OnAddedToContainer(container);
                 m_block = container.Entity as MyCompoundCubeBlock;
@@ -759,6 +762,36 @@ namespace Sandbox.Game.Entities
             {
                 block.Value.DoDamage(damage * (block.Value.MaxIntegrity / integrity), damageType, true, hitInfo, false);
             }
+        }
+
+        public bool GetIntersectionWithLine(ref LineD line, out MyIntersectionResultLineTriangleEx? t, out ushort blockId, IntersectionFlags flags = IntersectionFlags.ALL_TRIANGLES)
+        {
+            t = null;
+            blockId = 0;
+
+            double distanceSquaredInCompound = double.MaxValue;
+
+            bool foundIntersection = false;
+
+            foreach (var blockPair in m_blocks)
+            {
+                MySlimBlock cmpSlimBlock = blockPair.Value;
+                MyIntersectionResultLineTriangleEx? intersectionTriResult;
+                if (cmpSlimBlock.FatBlock.GetIntersectionWithLine(ref line, out intersectionTriResult) && intersectionTriResult != null)
+                {
+                    Vector3D startToIntersection = intersectionTriResult.Value.IntersectionPointInWorldSpace - line.From;
+                    double instrDistanceSq = startToIntersection.LengthSquared();
+                    if (instrDistanceSq < distanceSquaredInCompound)
+                    {
+                        distanceSquaredInCompound = instrDistanceSq;
+                        t = intersectionTriResult;
+                        blockId = blockPair.Key;
+                        foundIntersection = true;
+                    }
+                }
+            }
+
+            return foundIntersection;
         }
     }
 }

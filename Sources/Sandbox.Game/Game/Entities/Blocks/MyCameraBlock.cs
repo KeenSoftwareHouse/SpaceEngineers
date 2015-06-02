@@ -20,6 +20,7 @@ using System.Collections.Generic;
 using System.Text;
 using VRage;
 using VRage.Input;
+using VRage.ModAPI;
 using VRage.Utils;
 using VRageMath;
 

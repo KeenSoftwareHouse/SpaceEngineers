@@ -19,6 +19,7 @@ using Sandbox.Graphics;
 using Sandbox.Engine.Physics;
 using Sandbox.Common.Components;
 using Sandbox.Game.GameSystems.StructuralIntegrity;
+using VRage.Components;
 
 namespace Sandbox.Game.Components
 {
@@ -118,7 +119,7 @@ namespace Sandbox.Game.Components
         public override void OnAddedToContainer(MyComponentContainer container)
         {
             base.OnAddedToContainer(container);
-            m_grid = Entity as MyCubeGrid;
+            m_grid = Container.Entity as MyCubeGrid;
         }
         public override void Draw()
         {
@@ -132,10 +133,10 @@ namespace Sandbox.Game.Components
                 }
             }
 
-            if (MyCubeGrid.ShowCenterOfMass && !IsStatic && Entity.Physics != null && Entity.Physics.HasRigidBody)
+            if (MyCubeGrid.ShowCenterOfMass && !IsStatic && Container.Entity.Physics != null && Container.Entity.Physics.HasRigidBody)
             {
-                var matrix = Entity.Physics.GetWorldMatrix();
-                var center = Entity.Physics.CenterOfMassWorld;
+                var matrix = Container.Entity.Physics.GetWorldMatrix();
+                var center = Container.Entity.Physics.CenterOfMassWorld;
                 var cam = MySector.MainCamera.Position;
                 var dist = Vector3.Distance(cam, center);
                 bool draw = false;
@@ -169,7 +170,7 @@ namespace Sandbox.Game.Components
             }
             if (MyCubeGrid.ShowGridPivot)
             {
-                var matrix = Entity.WorldMatrix;
+                var matrix = Container.Entity.WorldMatrix;
                 var pos = matrix.Translation;
                 var cam = MySector.MainCamera.Position;
                 var dist = Vector3.Distance(cam, pos);
@@ -231,7 +232,7 @@ namespace Sandbox.Game.Components
 
         public override void AddRenderObjects()
         {
-            MyCubeGrid grid = Entity as MyCubeGrid;
+            MyCubeGrid grid = Container.Entity as MyCubeGrid;
             if (m_renderObjectIDs[0] != VRageRender.MyRenderProxy.RENDER_ID_UNASSIGNED)
                 return;
 

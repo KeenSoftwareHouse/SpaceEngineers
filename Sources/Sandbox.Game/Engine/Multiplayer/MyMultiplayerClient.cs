@@ -159,6 +159,12 @@ namespace Sandbox.Engine.Multiplayer
             set { m_viewDistance = value; }
         }
 
+        public override bool Scenario
+        {
+            get;
+            set;
+        }
+
         public override bool Battle
         {
             get;

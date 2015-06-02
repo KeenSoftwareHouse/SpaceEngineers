@@ -342,7 +342,7 @@ namespace Sandbox.Game.GameSystems
             }
         }
 
-        internal void ClearChatHistoryForPlayer(MyIdentity identity)
+        public void ClearChatHistoryForPlayer(MyIdentity identity)
         {
             MySession.Static.ChatHistory.Remove(identity.IdentityId);
 

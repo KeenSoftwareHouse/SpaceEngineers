@@ -1,5 +1,4 @@
 ﻿using Sandbox.Common.ObjectBuilders;
-using Sandbox.Common.ObjectBuilders.Serializer;
 using Sandbox.Engine.Utils;
 using Sandbox.Game.Entities;
 using Sandbox.Game.Multiplayer;
@@ -8,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using VRage.ObjectBuilders;
 using VRageMath;
 using VRageRender;
 
@@ -29,7 +29,7 @@ namespace Sandbox.Game.AI
 
         public override MyObjectBuilder_AutopilotBase GetObjectBuilder()
         {
-            MyObjectBuilder_SimpleAutopilot ob = Sandbox.Common.ObjectBuilders.Serializer.MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_SimpleAutopilot>();
+            MyObjectBuilder_SimpleAutopilot ob = MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_SimpleAutopilot>();
 
             ob.Destination = m_destination;
             ob.Direction = m_direction;

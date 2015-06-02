@@ -53,7 +53,5 @@ namespace Sandbox.ModAPI.Ingame
         /// Converts world coordinates to grid space cell coordinates
         /// </summary>
         VRageMath.Vector3I WorldToGridInteger(VRageMath.Vector3D coords);
-
-        string DisplayName { get; }
     }
 }

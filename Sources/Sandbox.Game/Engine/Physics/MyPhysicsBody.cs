@@ -40,13 +40,19 @@ namespace Sandbox.Engine.Physics
     using VRage.Library.Utils;
     using System;
     using Sandbox.Definitions;
+    using VRage.ModAPI;
+    using VRage.Components;
 
     /// <summary>
     /// Abstract engine physics body object.
     /// </summary>
-    public class MyPhysicsBody : Sandbox.Common.Components.MyPhysicsComponentBase, MyClusterTree.IMyActivationHandler
+    public class MyPhysicsBody : MyPhysicsComponentBase, MyClusterTree.IMyActivationHandler
     {
         public static bool HkGridShapeCellDebugDraw = false;
+
+        private Vector3 m_lastLinearVelocity;
+        private Vector3 m_lastAngularVelocity;
+
 
         #region Properties
 
@@ -344,7 +350,7 @@ namespace Sandbox.Engine.Physics
         /// Initializes a new instance of the <see cref="MyPhysicsBody"/> class.
         /// </summary>
         /// <param name="entity">The entity.</param>
-        public MyPhysicsBody(Sandbox.ModAPI.IMyEntity entity, RigidBodyFlag flags)
+        public MyPhysicsBody(IMyEntity entity, RigidBodyFlag flags)
         {
             //Debug.Assert(entity != null);           
             this.m_enabled = false;
@@ -2037,6 +2043,17 @@ false,
             MyPhysics.Clusters.ReorderClusters(Entity.PositionComp.WorldAABB, ClusterObjectID);
         }
 
+        public override void UpdateAccelerations()
+        {
+            Vector3 delta = LinearVelocity - m_lastLinearVelocity;
+            m_lastLinearVelocity = LinearVelocity;
+            LinearAcceleration = delta / MyEngineConstants.UPDATE_STEP_SIZE_IN_SECONDS;
+
+            Vector3 deltaAng = AngularVelocity - m_lastAngularVelocity;
+            m_lastAngularVelocity = AngularVelocity;
+            AngularAcceleration = deltaAng / MyEngineConstants.UPDATE_STEP_SIZE_IN_SECONDS;
+        }
+
         public HkRigidBody SwitchRigidBody(HkRigidBody newBody)
         {
             HkRigidBody old = RigidBody;
@@ -2084,9 +2101,11 @@ false,
 
             Ragdoll.GenerateRigidBodiesCollisionFilters(deadMode ? MyPhysics.CharacterCollisionLayer : MyPhysics.RagdollCollisionLayer, RagdollSystemGroupCollisionFilterID, firstRagdollSubID);
             
-            if (deadMode) Ragdoll.ResetToRigPose();
+            Ragdoll.ResetToRigPose();
 
-            Ragdoll.SetWorldMatrix(havokMatrix, true);
+            Ragdoll.SetWorldMatrix(havokMatrix);
+
+            Ragdoll.SetTransforms(havokMatrix, false);
 
             if (deadMode) Ragdoll.SetToDynamic();
             
@@ -2173,7 +2192,8 @@ false,
             world.Translation = WorldToCluster(world.Translation); 
             Debug.Assert(world.IsValid() && world != Matrix.Zero, "Ragdoll world matrix is invalid!");
             //Ragdoll.ResetToRigPose();
-            Ragdoll.SetWorldMatrix(world, true);
+            Ragdoll.SetWorldMatrix(world);
+            Ragdoll.SetTransforms(world, false);
             //foreach (var body in Ragdoll.RigidBodies)
             //{
             //    body.UserObject = this;
@@ -2250,6 +2270,7 @@ false,
 
         public bool ReactivateRagdoll { get; set; }
 
+       
         public bool SwitchToRagdollModeOnActivate { get; set; }
     }
 }

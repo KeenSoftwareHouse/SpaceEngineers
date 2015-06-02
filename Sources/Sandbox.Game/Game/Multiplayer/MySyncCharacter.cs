@@ -478,7 +478,19 @@ namespace Sandbox.Game.Multiplayer
                 sync.m_moveIndicator = msg.MoveIndicator;
                 sync.m_rotationIndicator = msg.RotationIndicator;
                 sync.m_movementFlags = msg.MovementFlags;
+
+                ((MyCharacter)sync.Entity).MoveAndRotate(sync.m_moveIndicator, new Vector2(sync.m_rotationIndicator.X, sync.m_rotationIndicator.Y), sync.m_rotationIndicator.Z, sync.m_movementFlags);
             }
+        }
+
+        public void MoveAndRotate(Vector3 moveIndicator, Vector3 rotationIndicator, MyCharacterMovementFlags movementFlags)
+        {
+            // ((MyCharacter)Entity).MoveAndRotate(m_moveIndicator, new Vector2(m_rotationIndicator.X, m_rotationIndicator.Y), m_rotationIndicator.Z, m_movementFlags);
+            CharacterInputMsg msg = new CharacterInputMsg();
+            msg.MoveIndicator = moveIndicator;
+            msg.RotationIndicator = rotationIndicator;
+            msg.MovementFlags = movementFlags;
+            Sync.Layer.SendMessageToAll(ref msg);
         }
 
         private static void OnHeadOrSpineChanged(MySyncCharacter sync, ref ChangeHeadOrSpineMsg msg, MyNetworkClient sender)
@@ -492,10 +504,7 @@ namespace Sandbox.Game.Multiplayer
             }
         }
 
-        public void MoveAndRotate()
-        {
-            ((MyCharacter)Entity).MoveAndRotate(m_moveIndicator, new Vector2(m_rotationIndicator.X, m_rotationIndicator.Y), m_rotationIndicator.Z, m_movementFlags);
-        }
+        
 
         #region Respawn 
 

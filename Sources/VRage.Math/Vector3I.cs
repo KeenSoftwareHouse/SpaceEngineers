@@ -36,7 +36,8 @@ namespace VRageMath
 
             public bool IsValid()
             {
-                return Current.Z <= m_end.Z && Current.X <= m_end.X && Current.Y <= m_end.Y;
+                Debug.Assert(Current.X <= m_end.X && Current.Y <= m_end.Y, "Invalid X and Y values in the Vector3I range iterator!");
+                return Current.Z <= m_end.Z;
             }
 
             public void GetNext(out Vector3I next)

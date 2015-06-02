@@ -24,6 +24,9 @@ using VRage;
 using VRage.Import;
 using VRage.Utils;
 using VRageMath;
+using VRage.ModAPI;
+using VRage.Components;
+using VRage.ObjectBuilders;
 
 namespace Sandbox.Game.Entities.Blocks
 {
@@ -681,7 +684,7 @@ namespace Sandbox.Game.Entities.Blocks
 
             var block = MyCubeGrid.CreateBlockObjectBuilder(definition, Vector3I.Zero, MyBlockOrientation.Identity, MyEntityIdentifier.AllocateId(), OwnerId, fullyBuilt: MySession.Static.CreativeMode);
 
-            var gridBuilder = Sandbox.Common.ObjectBuilders.Serializer.MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_CubeGrid>();
+            var gridBuilder = MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_CubeGrid>();
             gridBuilder.GridSizeEnum = gridSize;
             gridBuilder.IsStatic = false;
             gridBuilder.PositionAndOrientation = new MyPositionAndOrientation(matrix);

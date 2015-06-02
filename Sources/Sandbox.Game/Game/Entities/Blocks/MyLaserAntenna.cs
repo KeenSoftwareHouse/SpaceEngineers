@@ -27,6 +27,7 @@ using Sandbox.Common;
 using Sandbox.Game.Entities.Blocks;
 using Sandbox.Definitions;
 using VRage.Utils;
+using VRage.ModAPI;
 
 #endregion
 
@@ -478,7 +479,7 @@ namespace Sandbox.Game.Entities.Cube
             UpdateEmissivity();
             UpdateMyStateText();
 
-            NeedsUpdate = Common.MyEntityUpdateEnum.EACH_FRAME | Common.MyEntityUpdateEnum.EACH_10TH_FRAME | Common.MyEntityUpdateEnum.EACH_100TH_FRAME;
+            NeedsUpdate = MyEntityUpdateEnum.EACH_FRAME | MyEntityUpdateEnum.EACH_10TH_FRAME | MyEntityUpdateEnum.EACH_100TH_FRAME;
         }
 
         protected float NormalizeAngle(int angle)
@@ -729,7 +730,7 @@ namespace Sandbox.Game.Entities.Cube
                         || !IsInRange(target)
                         || !m_receiver.CanIUseIt(target.m_broadcaster, this.OwnerId)
                         || !target.m_receiver.CanIUseIt(m_broadcaster, target.OwnerId)
-                        || (m_needLineOfSight && !LosTest(target.HeadPos))//target will make other half of line in its update
+                        || !LosTest(target.HeadPos)//target will make other half of line in its update
                         )
                         sync.ShiftMode(StateEnum.contact_Rec);//other side MIA
                     else
@@ -1216,6 +1217,9 @@ namespace Sandbox.Game.Entities.Cube
         }
         protected bool LosTest(Vector3D target)
         {//LOS test from me to half of distance to target, with maximum
+            if (!m_needLineOfSight)
+                return true;
+
             if (Vector3D.DistanceSquared(HeadPos, target) > m_Max_LosDist * m_Max_LosDist * 4)
                 target = HeadPos + Vector3D.Normalize(target - HeadPos) * m_Max_LosDist;
             else

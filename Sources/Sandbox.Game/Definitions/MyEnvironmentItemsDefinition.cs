@@ -5,6 +5,7 @@ using Sandbox.Game.Entities.EnvironmentItems;
 using System.Collections.Generic;
 using System.Diagnostics;
 using VRage.Library.Utils;
+using VRage.ObjectBuilders;
 using VRage.Utils;
 
 
