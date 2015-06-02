@@ -475,7 +475,7 @@ namespace Sandbox.Engine.Utils
 
         public static bool SHOW_CURRENT_VOXEL_MAP_AABB_IN_VOXEL_HAND = true;
 
-        public static bool ENABLE_BATTLE_SYSTEM = false;
+        public static bool ENABLE_BATTLE_SYSTEM = true;
 
         public static bool ENABLE_DRAW_VOXEL_STORAGE_PLAYER_POSITION = false;
 

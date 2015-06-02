@@ -87,7 +87,7 @@ namespace VRageRender
             MyRender11.Log.WriteLine("Device name = " + info.DeviceName);
             MyRender11.Log.WriteLine("Description = " + info.Description);
             MyRender11.Log.WriteLine("DXGIAdapter id = " + info.AdapterDeviceId);
-            MyRender11.Log.WriteLine("SUPPORTED = " + info.IsSupported);
+            MyRender11.Log.WriteLine("SUPPORTED = " + info.IsDx11Supported);
             MyRender11.Log.WriteLine("VRAM = " + info.VRAM);
             MyRender11.Log.WriteLine("Multithreaded rendering supported = " + info.MultithreadedRenderingSupported);
         }
@@ -162,7 +162,7 @@ namespace VRageRender
                     Name = adapter.Description.Description,
                     DeviceName = adapter.Description.Description,
                     Description = deviceDesc,
-                    IsSupported = supportedDevice,
+                    IsDx11Supported = supportedDevice,
                     AdapterDeviceId = i,
 
                     Has512MBRam = vram > 500000000,

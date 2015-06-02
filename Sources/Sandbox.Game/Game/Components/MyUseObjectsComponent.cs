@@ -170,6 +170,6 @@ namespace Sandbox.Game.Components
             base.ClearPhysics();
 
             m_detectorPhysics = null;
-        }   
+        }
     }
 }

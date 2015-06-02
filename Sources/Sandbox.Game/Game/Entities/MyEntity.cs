@@ -38,7 +38,7 @@ using VRage.ObjectBuilders;
 
 namespace Sandbox.Game.Entities
 {
-    public abstract partial class MyEntity
+    public partial class MyEntity
     {
         #region Fields
 
@@ -403,7 +403,7 @@ namespace Sandbox.Game.Entities
         /// <summary>
         /// Initializes a new instance of the <see cref="MyEntity"/> class.
         /// </summary>
-        protected MyEntity(bool initComponents = true)
+        public MyEntity(bool initComponents = true)
         {
             Components = new MyComponentContainer(this);
             Components.ComponentAdded += Components_ComponentAdded;

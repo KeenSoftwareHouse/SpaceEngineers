@@ -62,5 +62,12 @@ namespace VRage.Components
                 DetectorPhysics.Close();
             }
         }
+
+        public override void OnRemovedFromContainer(MyComponentContainer container)
+        {
+            base.OnRemovedFromContainer(container);
+
+            ClearPhysics();
+        }
     }
 }

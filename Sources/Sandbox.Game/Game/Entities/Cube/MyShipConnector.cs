@@ -119,11 +119,13 @@ namespace Sandbox.Game.Entities.Cube
             var lockBtn = new MyTerminalControlButton<MyShipConnector>("Lock", MySpaceTexts.BlockActionTitle_Lock, MySpaceTexts.Blank, (b) => b.TryConnect());
             lockBtn.Enabled = (b) => b.IsWorking && b.InConstraint;
             lockBtn.Visible = (b) => b.m_connectorMode == Mode.Connector;
+            lockBtn.EnableAction();
             MyTerminalControlFactory.AddControl(lockBtn);
 
             var unlockBtn = new MyTerminalControlButton<MyShipConnector>("Unlock", MySpaceTexts.BlockActionTitle_Unlock, MySpaceTexts.Blank, (b) => b.TryDisconnect());
             unlockBtn.Enabled = (b) => b.IsWorking && b.InConstraint;
             unlockBtn.Visible = (b) => b.m_connectorMode == Mode.Connector;
+            unlockBtn.EnableAction();
             MyTerminalControlFactory.AddControl(unlockBtn);
 
             var title = MyTexts.Get(MySpaceTexts.BlockActionTitle_SwitchLock);

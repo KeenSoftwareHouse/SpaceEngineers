@@ -499,7 +499,7 @@ namespace Sandbox.Game.Entities
         public override void OnRemovedFromScene(object source)
         {
             base.OnRemovedFromScene(source);
-            if (UseObjectsComponent.DetectorPhysics != null)
+            if (UseObjectsComponent != null && UseObjectsComponent.DetectorPhysics != null)
                 UseObjectsComponent.DetectorPhysics.Deactivate();
         }
 
@@ -1091,7 +1091,7 @@ namespace Sandbox.Game.Entities
         virtual public BoundingBox GetGeometryLocalBox()
         {
             if (Model != null)
-                return Model.BoundingBox;
+                return Model.BoundingBox; //TODO pm: BB is centered on model center not block center
 
             return new BoundingBox(new Vector3(-CubeGrid.GridSize / 2), new Vector3(CubeGrid.GridSize / 2));
         }

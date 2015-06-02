@@ -27,6 +27,9 @@ namespace Sandbox.Common.ObjectBuilders
         [ProtoMember]
         public List<MyObjectBuilder_AutopilotWaypoint> Waypoints;
 
+        [ProtoMember]
+        public byte Direction = 0;
+        
         /// <summary>
         /// Obsolete. Use Waypoints instead.
         /// </summary>
