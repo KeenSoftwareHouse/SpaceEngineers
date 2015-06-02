@@ -164,6 +164,7 @@
     <Compile Include="ModAPI\IMySpaceBall.cs" />
     <Compile Include="ModAPI\IMyTerminalBlock.cs" />
     <Compile Include="ModAPI\IMyThrust.cs" />
+    <Compile Include="ModAPI\IMyUpgradableBlock.cs" />
     <Compile Include="ModAPI\IMyUpgradeModule.cs" />
     <Compile Include="ModAPI\IMyVirtualMass.cs" />
     <Compile Include="ModAPI\IMyUserInput.cs" />

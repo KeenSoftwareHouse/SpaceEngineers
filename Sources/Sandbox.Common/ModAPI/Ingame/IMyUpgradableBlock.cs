@@ -6,12 +6,13 @@ using System.Text;
 namespace Sandbox.ModAPI.Ingame
 {
     /// <summary>
-    /// interface to retrieve upgrade effects from block
+    /// interface to retrieve upgrade effects on block
     /// </summary>
     public interface IMyUpgradableBlock
     {
         /// <summary>
-        /// get list of upgrades (r/o)
+        /// get list of upgrades (r/o);
+        /// string - upgrade type, float - effect value as float (1 = 100%)
         /// </summary>
         void GetUpgrades(out Dictionary<string, float> upgrades);
 

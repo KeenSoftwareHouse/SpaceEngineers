@@ -112,7 +112,7 @@ namespace Sandbox.ModAPI.Ingame
         {
             if (m_main == null)
                 throw new InvalidOperationException("No Main method available");
-            m_main(argument ?? string.Empty);
+            m_main(argument ?? "");
         }
     }
 }
