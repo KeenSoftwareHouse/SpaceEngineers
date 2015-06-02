@@ -66,6 +66,7 @@ namespace Sandbox.Game.World
         {
             base.UnloadData();
             m_singleUseEmitterPool.Clear();
+            m_currentEmitters = 0;
         }
     }
 }

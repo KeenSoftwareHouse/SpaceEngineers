@@ -4,6 +4,7 @@ using Sandbox.Common.Components;
 using Sandbox.Engine.Utils;
 using System;
 using System.Collections.Generic;
+using VRage.Components;
 using VRage.Utils;
 using VRageMath;
 
@@ -17,6 +18,19 @@ namespace Sandbox.Game.Entities
 
         public abstract BoundingBoxD WorldAABB { get; }
         public MyStringId AreaType { get; private set; }
+
+        public static MyPlaceArea FromEntity(long entityId)
+        {
+            MyPlaceArea area = null;
+            MyEntity entity = null;
+            if (!MyEntities.TryGetEntityById(entityId, out entity))
+                return area;
+
+            if (entity.Components.TryGet<MyPlaceArea>(out area))
+                return area;
+            else
+                return null;
+        }
 
         public MyPlaceArea(MyStringId areaType)
         {

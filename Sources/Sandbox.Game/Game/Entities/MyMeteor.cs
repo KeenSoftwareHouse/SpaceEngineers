@@ -1,6 +1,7 @@
 ﻿using Havok;
 using Sandbox.Common;
 using Sandbox.Common.Components;
+using Sandbox.Common.ModAPI;
 using Sandbox.Common.ObjectBuilders;
 using Sandbox.Common.ObjectBuilders.Definitions;
 using Sandbox.Definitions;
@@ -20,11 +21,13 @@ using Sandbox.ModAPI.Interfaces;
 using System;
 using System.Linq;
 using System.Text;
-
 using VRage;
 using VRage.Utils;
 using VRageMath;
 using VRageRender;
+using VRage.Components;
+using VRage.ObjectBuilders;
+using VRage.ModAPI;
 
 namespace Sandbox.Game.Entities
 {
@@ -44,7 +47,7 @@ namespace Sandbox.Game.Entities
             Render = new MyRenderComponentDebrisVoxel();
         }
 
-        void Components_ComponentAdded(Type arg1, Common.Components.MyComponentBase arg2)
+        void Components_ComponentAdded(Type arg1, MyComponentBase arg2)
         {
             if (arg1 == typeof(MyGameLogicComponent))
                 m_logic = arg2 as MyMeteorGameLogic;
@@ -53,25 +56,25 @@ namespace Sandbox.Game.Entities
         #region Spawn
         public static MyEntity SpawnRandomSmall(Vector3 position, Vector3 direction)
         {
-            MyInventoryItem i = new MyInventoryItem(4 * (MyFixedPoint)MyUtils.GetRandomFloat(10f, 100f), Sandbox.Common.ObjectBuilders.Serializer.MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_Ore>("Stone"));
+            MyInventoryItem i = new MyInventoryItem(4 * (MyFixedPoint)MyUtils.GetRandomFloat(10f, 100f), MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_Ore>("Stone"));
             return Spawn(ref i, position, direction * (MIN_SPEED + MyUtils.GetRandomInt(MIN_SPEED / 2)));
         }
 
         public static MyEntity SpawnRandomLarge(Vector3 position, Vector3 direction)
         {
-            MyInventoryItem i = new MyInventoryItem(400 * (MyFixedPoint)MyUtils.GetRandomFloat(0f, 25f), Sandbox.Common.ObjectBuilders.Serializer.MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_Ore>("Stone"));
+            MyInventoryItem i = new MyInventoryItem(400 * (MyFixedPoint)MyUtils.GetRandomFloat(0f, 25f), MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_Ore>("Stone"));
             return Spawn(ref i, position, direction * (MIN_SPEED + MyUtils.GetRandomInt(MIN_SPEED / 2)));
         }
 
         public static MyEntity SpawnRandomStaticLarge(Vector3 position)
         {
-            MyInventoryItem i = new MyInventoryItem(400 * (MyFixedPoint)MyUtils.GetRandomFloat(0f, 25f), Sandbox.Common.ObjectBuilders.Serializer.MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_Ore>("Stone"));
+            MyInventoryItem i = new MyInventoryItem(400 * (MyFixedPoint)MyUtils.GetRandomFloat(0f, 25f), MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_Ore>("Stone"));
             return Spawn(ref i, position, Vector3.Zero);
         }
 
         public static MyEntity SpawnRandomStaticSmall(Vector3 position)
         {
-            MyInventoryItem i = new MyInventoryItem(4 * (MyFixedPoint)MyUtils.GetRandomFloat(0f, 100f), Sandbox.Common.ObjectBuilders.Serializer.MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_Ore>("Stone"));
+            MyInventoryItem i = new MyInventoryItem(4 * (MyFixedPoint)MyUtils.GetRandomFloat(0f, 100f), MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_Ore>("Stone"));
             return Spawn(ref i, position, Vector3.Zero);
         }
 
@@ -99,7 +102,7 @@ namespace Sandbox.Game.Entities
 
         private static MyObjectBuilder_Meteor PrepareBuilder(ref MyInventoryItem item)
         {
-            var meteorBuilder = Sandbox.Common.ObjectBuilders.Serializer.MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_Meteor>();
+            var meteorBuilder = MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_Meteor>();
             meteorBuilder.Item = item.GetObjectBuilder();
             meteorBuilder.PersistentFlags |= MyPersistentEntityFlags2.Enabled | MyPersistentEntityFlags2.InScene;
             return meteorBuilder;
@@ -116,9 +119,9 @@ namespace Sandbox.Game.Entities
             GameLogic.OnDestroy();
         }
 
-        public void DoDamage(float damage, MyDamageType damageType, bool sync)
+        public void DoDamage(float damage, MyDamageType damageType, bool sync, MyHitInfo? hitInfo)
         {
-            GameLogic.DoDamage(damage, damageType, sync);
+            GameLogic.DoDamage(damage, damageType, sync, hitInfo);
         }
 
         public float Integrity
@@ -143,7 +146,7 @@ namespace Sandbox.Game.Entities
 
         public class MyMeteorGameLogic : MyEntityGameLogic
         {
-            internal new MyMeteor Entity { get { return base.Entity as MyMeteor; } }
+            internal MyMeteor Entity { get { return Container.Entity as MyMeteor; } }
 
             public MyInventoryItem Item;
             public Definitions.MyVoxelMaterialDefinition VoxelMaterial { get; set; }
@@ -363,7 +366,7 @@ namespace Sandbox.Game.Entities
             {
                 if (this.MarkedForClose || !Entity.Physics.Enabled || m_closeAfterSimulation)
                     return;
-                Sandbox.ModAPI.IMyEntity other = GetOtherEntity(ref value.ContactPointEvent);
+                IMyEntity other = GetOtherEntity(ref value.ContactPointEvent);
                 if (Sync.IsServer)
                     if (other is MyCubeGrid && MySession.Static.DestructibleBlocks)
                     {
@@ -438,8 +441,16 @@ namespace Sandbox.Game.Entities
                     else
                         direction = Vector3.Normalize(Vector3.Reflect(Entity.Physics.LinearVelocity, value.ContactPointEvent.ContactPoint.Normal));
                     var material = VoxelMaterial;
-                    while (!material.IsRare)
+                    int tries = MyDefinitionManager.Static.GetVoxelMaterialDefinitions().Count() * 2; // max amount of tries
+                    while (!material.IsRare || !material.SpawnsFromMeteorites || material.MinVersion > MySession.Static.Settings.VoxelGeneratorVersion)
+                    {
+                        if (--tries < 0) // to prevent infinite loops in case all materials are disabled just use the meteorites' initial material
+                        {
+                            material = VoxelMaterial;
+                            break;
+                        }
                         material = MyDefinitionManager.Static.GetVoxelMaterialDefinitions().ElementAt(MyUtils.GetRandomInt(MyDefinitionManager.Static.GetVoxelMaterialDefinitions().Count() - 1));
+                    }
                     voxel.SyncObject.CreateVoxelMeteorCrater(sphere.Center, (float)sphere.Radius, -direction, material);
                     MyVoxelGenerator.MakeCrater(voxel, sphere, -direction, material);
                 }
@@ -482,7 +493,7 @@ namespace Sandbox.Game.Entities
             }
 
 
-            public void DoDamage(float damage, MyDamageType damageType, bool sync)
+            public void DoDamage(float damage, MyDamageType damageType, bool sync, MyHitInfo? hitInfo)
             {
                 if (sync)
                 {
@@ -511,7 +522,7 @@ namespace Sandbox.Game.Entities
                 get { return m_integrity; }
             }
 
-            protected Sandbox.ModAPI.IMyEntity GetOtherEntity(ref HkContactPointEvent value)
+            protected IMyEntity GetOtherEntity(ref HkContactPointEvent value)
             {
                 if (value.Base.BodyA.GetEntity() == Entity)
                     return value.Base.BodyB.GetEntity();

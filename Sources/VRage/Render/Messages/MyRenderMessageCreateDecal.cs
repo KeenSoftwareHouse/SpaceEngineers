@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ProtoBuf;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -45,11 +46,16 @@ namespace VRageRender
         ScreenDecalColor // affects color and metallness on alphatested surface
     }
 
+    [ProtoContract]
     public struct MyDecalMaterialDesc
     {
+        [ProtoMember]
         public MyScreenDecalType DecalType;
+        [ProtoMember]
         public string NormalmapTexture;
+        [ProtoMember]
         public string ColorMetalTexture;
+        [ProtoMember]
         public string AlphamaskTexture;
     }
 

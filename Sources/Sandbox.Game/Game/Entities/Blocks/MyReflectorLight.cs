@@ -25,7 +25,7 @@ using Sandbox.ModAPI.Ingame;
 namespace Sandbox.Game.Entities
 {
     [MyCubeBlockType(typeof(MyObjectBuilder_ReflectorLight))]
-    class MyReflectorLight : MyLightingBlock, IMyReflectorLight
+    public class MyReflectorLight : MyLightingBlock, IMyReflectorLight
     {
         private float GlareQuerySizeDef
         {
@@ -71,6 +71,19 @@ namespace Sandbox.Game.Entities
         public MyReflectorLight()
         {
             this.Render = new MyRenderComponentReflectorLight();
+        }
+
+        private static readonly Color COLOR_OFF  = new Color(30, 30, 30);
+        private bool m_wasWorking=true;
+        protected override void UpdateEmissivity(bool force=false)
+        {
+            if (m_wasWorking == (IsWorking && m_light.ReflectorOn) && !force)
+                return;
+            m_wasWorking = IsWorking && m_light.ReflectorOn;
+            if (m_wasWorking)
+                MyCubeBlock.UpdateEmissiveParts(Render.RenderObjectIDs[0], 1, Color, Color.White);
+            else
+                MyCubeBlock.UpdateEmissiveParts(Render.RenderObjectIDs[0], 0, COLOR_OFF, Color.White);
         }
     }
 }

@@ -5,6 +5,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using VRage.ModAPI;
+using VRage.ObjectBuilders;
 using VRageMath;
 
 namespace Sandbox.ModAPI
@@ -15,8 +17,8 @@ namespace Sandbox.ModAPI
         bool TryGetEntityByName(string name, out IMyEntity entity);
         bool EntityExists(string name);
         void AddEntity(IMyEntity entity, bool insertIntoScene = true);
-        IMyEntity CreateFromObjectBuilder(Common.ObjectBuilders.MyObjectBuilder_EntityBase objectBuilder);
-        IMyEntity CreateFromObjectBuilderAndAdd(Common.ObjectBuilders.MyObjectBuilder_EntityBase objectBuilder);
+        IMyEntity CreateFromObjectBuilder(MyObjectBuilder_EntityBase objectBuilder);
+        IMyEntity CreateFromObjectBuilderAndAdd(MyObjectBuilder_EntityBase objectBuilder);
         void RemoveEntity(IMyEntity entity);
 
         event Action<IMyEntity> OnEntityRemove;
@@ -49,9 +51,6 @@ namespace Sandbox.ModAPI
         IMyEntity GetEntityById(long entityId);
         bool EntityExists(long entityId);
         IMyEntity GetEntityByName(string name);
-        void SetTypeSelectable(Type type, bool selectable);
-        bool IsTypeSelectable(Type type);
-        bool IsSelectable(IMyEntity entity);
         void SetTypeHidden(Type type, bool hidden);
         bool IsTypeHidden(Type type);
         bool IsVisible(IMyEntity entity);

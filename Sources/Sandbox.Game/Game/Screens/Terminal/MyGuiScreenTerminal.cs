@@ -20,7 +20,7 @@ using VRageMath;
 
 namespace Sandbox.Game.Gui
 {
-    enum MyTerminalPageEnum
+    public enum MyTerminalPageEnum
     {
         Properties = -1,
         Inventory = 0,
@@ -31,7 +31,7 @@ namespace Sandbox.Game.Gui
         Gps = 6
     }
 
-    partial class MyGuiScreenTerminal : MyGuiScreenBase
+    public partial class MyGuiScreenTerminal : MyGuiScreenBase
     {
         public static event ScreenHandler ClosedCallback
         {
@@ -1860,7 +1860,7 @@ namespace Sandbox.Game.Gui
         #region Static
         private static MyGuiScreenTerminal m_instance;
 
-        internal static void Show(MyTerminalPageEnum page, MyCharacter user, MyEntity interactedEntity)
+        public static void Show(MyTerminalPageEnum page, MyCharacter user, MyEntity interactedEntity)
         {
             if (!MyPerGameSettings.TerminalEnabled)
                 return;

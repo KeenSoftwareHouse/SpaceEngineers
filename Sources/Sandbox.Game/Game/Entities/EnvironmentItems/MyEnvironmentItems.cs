@@ -6,7 +6,6 @@ using System.Diagnostics;
 using Havok;
 using Sandbox.Common;
 using Sandbox.Common.ObjectBuilders;
-using Sandbox.Common.ObjectBuilders.Serializer;
 using Sandbox.Definitions;
 using Sandbox.Engine.Models;
 using Sandbox.Engine.Physics;
@@ -26,6 +25,9 @@ using Sandbox.Game.Weapons;
 using Sandbox.Game.Components;
 using Medieval.ObjectBuilders;
 using Sandbox.Game.Multiplayer;
+using VRage.ObjectBuilders;
+using VRage.Components;
+using VRage.ModAPI;
 
 #endregion
 

@@ -29,6 +29,7 @@ using Sandbox.ModAPI.Ingame;
 using Sandbox.Game.Localization;
 using VRage;
 using Sandbox.Game.Entities.Interfaces;
+using VRage.ObjectBuilders;
 
 #endregion
 
@@ -745,7 +746,7 @@ namespace Sandbox.Game.Entities.Cube
 
             foreach (var res in blueprint.Results)
             {
-                MyObjectBuilder_PhysicalObject resOb = (MyObjectBuilder_PhysicalObject)Sandbox.Common.ObjectBuilders.Serializer.MyObjectBuilderSerializer.CreateNewObject(res.Id.TypeId, res.Id.SubtypeName);
+                MyObjectBuilder_PhysicalObject resOb = (MyObjectBuilder_PhysicalObject)MyObjectBuilderSerializer.CreateNewObject(res.Id.TypeId, res.Id.SubtypeName);
                 OutputInventory.AddItems(res.Amount, resOb);
             }
         }
@@ -763,7 +764,7 @@ namespace Sandbox.Game.Entities.Cube
             for (int i = 0; i < blueprint.Prerequisites.Length; ++i)
             {
                 var item = blueprint.Prerequisites[i];
-                var itemOb = (MyObjectBuilder_PhysicalObject)Sandbox.Common.ObjectBuilders.Serializer.MyObjectBuilderSerializer.CreateNewObject(item.Id.TypeId, item.Id.SubtypeName);
+                var itemOb = (MyObjectBuilder_PhysicalObject)MyObjectBuilderSerializer.CreateNewObject(item.Id.TypeId, item.Id.SubtypeName);
                 InputInventory.AddItems(item.Amount * amountMult, itemOb);
             }
         }

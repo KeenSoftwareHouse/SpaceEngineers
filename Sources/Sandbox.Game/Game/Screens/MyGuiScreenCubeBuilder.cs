@@ -1,8 +1,10 @@
 ﻿#region Using
 
 using Sandbox.Common.ObjectBuilders;
+using Sandbox.Common;
 using Sandbox.Definitions;
 using Sandbox.Game.Entities;
+using Sandbox.Game.Localization;
 using Sandbox.Game.Screens.Helpers;
 using Sandbox.Game.SessionComponents;
 using Sandbox.Game.World;
@@ -77,15 +79,37 @@ namespace Sandbox.Game.Gui
                 m_stationButton.Visible = false;
                 m_largeShipButton.Visible = false;
             }
-
-            m_blockInfoSmall = new MyGuiControlBlockInfo(false, false);
+			var style = new MyGuiControlBlockInfo.MyControlBlockInfoStyle()
+			{
+				BlockNameLabelFont = MyFontEnum.White,
+				EnableBlockTypeLabel = true,
+				ComponentsLabelText = MySpaceTexts.HudBlockInfo_Components,
+				ComponentsLabelFont = MyFontEnum.Blue,
+				InstalledRequiredLabelText = MySpaceTexts.HudBlockInfo_Installed_Required,
+				InstalledRequiredLabelFont = MyFontEnum.Blue,
+				RequiredLabelText = MySpaceTexts.HudBlockInfo_Required,
+				IntegrityLabelFont = MyFontEnum.White,
+				IntegrityBackgroundColor = new Vector4(78 / 255.0f, 116 / 255.0f, 137 / 255.0f, 1.0f),
+				IntegrityForegroundColor = new Vector4(0.5f, 0.1f, 0.1f, 1),
+				IntegrityForegroundColorOverCritical = new Vector4(118 / 255.0f, 166 / 255.0f, 192 / 255.0f, 1.0f),
+				LeftColumnBackgroundColor = new Vector4(46 / 255.0f, 76 / 255.0f, 94 / 255.0f, 1.0f),
+				TitleBackgroundColor = new Vector4(72 / 255.0f, 109 / 255.0f, 130 / 255.0f, 1.0f),
+				ComponentLineMissingFont = MyFontEnum.Red,
+				ComponentLineAllMountedFont = MyFontEnum.White,
+				ComponentLineAllInstalledFont = MyFontEnum.Blue,
+				ComponentLineDefaultFont = MyFontEnum.White,
+				ComponentLineDefaultColor = new Vector4(0.6f, 0.6f, 0.6f, 1f),
+				ShowAvailableComponents = false,
+				EnableBlockTypePanel = true,
+			};
+            m_blockInfoSmall = new MyGuiControlBlockInfo(style, false, false);
             m_blockInfoSmall.Visible = false;
             m_blockInfoSmall.IsActiveControl = false;
             m_blockInfoSmall.BlockInfo = new MyHudBlockInfo();
             m_blockInfoSmall.Position = new Vector2(0.28f, -0.04f);
             m_blockInfoSmall.OriginAlign = MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_TOP;
             Controls.Add(m_blockInfoSmall);
-            m_blockInfoLarge = new MyGuiControlBlockInfo(false, true);
+            m_blockInfoLarge = new MyGuiControlBlockInfo(style, false, true);
             m_blockInfoLarge.Visible = false;
             m_blockInfoLarge.IsActiveControl = false;
             m_blockInfoLarge.BlockInfo = new MyHudBlockInfo();

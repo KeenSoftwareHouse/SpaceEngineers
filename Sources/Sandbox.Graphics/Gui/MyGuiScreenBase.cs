@@ -10,6 +10,7 @@ using System.Text;
 using VRage;
 using VRage.Input;
 using VRage.Library.Utils;
+using VRage.ObjectBuilders;
 using VRage.Utils;
 using VRageMath;
 
@@ -179,7 +180,7 @@ namespace Sandbox.Graphics.GUI
 
         public MyObjectBuilder_GuiScreen GetObjectBuilder()
         {
-            var objectBuilder = Sandbox.Common.ObjectBuilders.Serializer.MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_GuiScreen>();
+            var objectBuilder = MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_GuiScreen>();
 
             objectBuilder.Controls = Controls.GetObjectBuilder();
             objectBuilder.BackgroundColor = m_backgroundColor;

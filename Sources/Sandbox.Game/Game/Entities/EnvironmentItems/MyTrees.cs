@@ -4,25 +4,23 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using Havok;
-using Medieval.ObjectBuilders;
-using Medieval.ObjectBuilders.Definitions;
 using Sandbox.Common.ObjectBuilders;
 using Sandbox.Definitions;
 using Sandbox.Game.Entities;
-using VRage.Utils;
-using VRageMath;
+using Sandbox.Common;
 using Sandbox.Engine.Models;
 using Sandbox.Engine.Physics;
 using Sandbox.Engine.Utils;
-using Sandbox.Common;
 using Sandbox.Game;
 using Sandbox.Game.Entities.EnvironmentItems;
-using VRage.Library.Utils;
 using Sandbox.Game.Multiplayer;
 using Sandbox;
 using Sandbox.Common.ObjectBuilders.Definitions;
-using Sandbox.Graphics.TransparentGeometry.Particles;
 using Sandbox.Game.World;
+using Sandbox.Graphics.TransparentGeometry.Particles;
+using VRage.Library.Utils;
+using VRageMath;
+using VRage.Utils;
 
 namespace Sandbox.Game.Entities.EnvironmentItems
 {
@@ -103,6 +101,13 @@ namespace Sandbox.Game.Entities.EnvironmentItems
 
             return;
         }
+
+		public static bool IsEntityFracturedTree(VRage.ModAPI.IMyEntity entity)
+		{
+			return (entity is MyFracturedPiece) && ((MyFracturedPiece)entity).OriginalBlocks != null && ((MyFracturedPiece)entity).OriginalBlocks.Count > 0
+				&& (((MyFracturedPiece)entity).OriginalBlocks[0].TypeId == typeof(MyObjectBuilder_Tree)
+				|| ((MyFracturedPiece)entity).OriginalBlocks[0].TypeId == typeof(MyObjectBuilder_DestroyableItem)) && ((MyFracturedPiece)entity).Physics != null;
+		}
 
         protected override void OnRemoveItem(int instanceId, ref Matrix matrix, MyStringId myStringId)
         {
@@ -264,17 +269,12 @@ namespace Sandbox.Game.Entities.EnvironmentItems
             int currentTime = MySandboxGame.TotalGamePlayTimeInMilliseconds;
             int maxDuration = (int)(MAX_TREE_CUT_DURATION * 1000);
 
-            int i = 0;
-            while (i < m_cutTreeInfos.Count)
+            for (int i = m_cutTreeInfos.Count - 1; i >= 0; i--)
             {
                 var info = m_cutTreeInfos[i];
                 if (currentTime - info.LastHit > maxDuration)
                 {
                     m_cutTreeInfos.RemoveAtFast(i);
-                }
-                else
-                {
-                    ++i;
                 }
             }
         }

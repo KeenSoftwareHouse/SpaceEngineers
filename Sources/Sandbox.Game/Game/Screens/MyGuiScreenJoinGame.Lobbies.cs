@@ -123,15 +123,18 @@ namespace Sandbox.Game.Gui
                 return;
 
             Lobby selectedLobby = (Lobby)selectedRow.UserData;
-            bool isBattle = MyMultiplayerLobby.GetLobbyBattle(selectedLobby);
 
-            if (MyFakes.ENABLE_BATTLE_SYSTEM && isBattle)
+            if (MyMultiplayerLobby.GetLobbyScenario(selectedLobby))
             {
-                MyJoinGameHelper.JoinBattleGame(selectedLobby);
+                MyJoinGameHelper.JoinScenarioGame(selectedLobby);
             }
             else
             {
-                MyJoinGameHelper.JoinGame(selectedLobby);
+                bool isBattle = MyMultiplayerLobby.GetLobbyBattle(selectedLobby);
+                if (MyFakes.ENABLE_BATTLE_SYSTEM && isBattle)
+                    MyJoinGameHelper.JoinBattleGame(selectedLobby);
+                else
+                    MyJoinGameHelper.JoinGame(selectedLobby);
             }
         }
 
@@ -273,21 +276,22 @@ namespace Sandbox.Game.Gui
                         var assembler = MyMultiplayerLobby.GetLobbyFloat(MyMultiplayer.AssemblerMultiplierTag, lobby, 1);
 
                         MyGameModeEnum gameMode = MyMultiplayerLobby.GetLobbyGameMode(lobby);
-
-                        switch (gameMode)
-                        {
-                            case MyGameModeEnum.Creative:
-                                m_gameTypeText.AppendStringBuilder(MyTexts.Get(MySpaceTexts.WorldSettings_GameModeCreative));
-                                break;
-                            case MyGameModeEnum.Survival:
-                                m_gameTypeText.AppendStringBuilder(MyTexts.Get(MySpaceTexts.WorldSettings_GameModeSurvival));
-                                m_gameTypeText.Append(String.Format(" {0}-{1}-{2}", inventory, assembler, refinery));
-                                break;
-
-                            default:
-                                Debug.Fail("Unknown game type");
-                                break;
-                        }
+                        if (MyMultiplayerLobby.GetLobbyScenario(lobby))
+                            m_gameTypeText.AppendStringBuilder(MyTexts.Get(MySpaceTexts.WorldSettings_GameScenario));
+                        else
+                            switch (gameMode)
+                            {
+                                case MyGameModeEnum.Creative:
+                                    m_gameTypeText.AppendStringBuilder(MyTexts.Get(MySpaceTexts.WorldSettings_GameModeCreative));
+                                    break;
+                                case MyGameModeEnum.Survival:
+                                    m_gameTypeText.AppendStringBuilder(MyTexts.Get(MySpaceTexts.WorldSettings_GameModeSurvival));
+                                    m_gameTypeText.Append(String.Format(" {0}-{1}-{2}", inventory, assembler, refinery));
+                                    break;
+                                default:    
+                                    Debug.Fail("Unknown game type");
+                                    break;
+                            }
 
                         m_gameTypeToolTip.AppendFormat(MyTexts.Get(MySpaceTexts.JoinGame_GameTypeToolTip_MultipliersFormat).ToString(), inventory, assembler, refinery);
 
@@ -311,8 +315,8 @@ namespace Sandbox.Game.Gui
                                 if (MyFakes.ENABLE_BATTLE_SYSTEM && isBattle)
                                 {
                                     // Cannot join already started battles
-                                    bool isBattleStarted = MyMultiplayerLobby.GetLobbyBattleStarted(lobby);
-                                    if (isBattleStarted)
+                                    bool battleCanBeJoined = MyMultiplayerLobby.GetLobbyBattleCanBeJoined(lobby);
+                                    if (!battleCanBeJoined)
                                         continue;
 
                                     m_gameTypeText.AppendStringBuilder(MyTexts.Get(MySpaceTexts.WorldSettings_Battle));

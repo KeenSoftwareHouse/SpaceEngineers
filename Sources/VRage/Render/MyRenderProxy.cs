@@ -2296,6 +2296,15 @@ namespace VRageRender
             EnqueueMessage(message);
         }
 
+        public static void RegisterDecals(List<string> names, List<MyDecalMaterialDesc> descriptions)
+        {
+            var message = MessagePool.Get<MyRenderMessageRegisterScreenDecalsMaterials>(MyRenderMessageEnum.RegisterDecalsMaterials);
+            message.MaterialsNames = names;
+            message.MaterialsDescriptions = descriptions;
+
+            EnqueueMessage(message);
+        }
+
         public static void HandleFocusMessage(MyWindowFocusMessage msg)
         {
             m_render.HandleFocusMessage(msg);

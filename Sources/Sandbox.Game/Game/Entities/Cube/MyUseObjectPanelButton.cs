@@ -1,30 +1,30 @@
 ﻿
+using System.Diagnostics;
 using Sandbox.Engine.Utils;
 using Sandbox.Game.Entities.Blocks;
-using Sandbox.Game.Entities.UseObject;
+using Sandbox.Game.Entities.Character;
 using Sandbox.Game.Gui;
 using Sandbox.Game.Localization;
 using Sandbox.Game.Screens.Helpers;
 using Sandbox.Graphics.GUI;
-using System;
-using System.Diagnostics;
-using VRage;
+using VRage.Game.Entity.UseObject;
 using VRage.Import;
 using VRage.Input;
+using VRage.ModAPI;
 using VRage.Utils;
 using VRageMath;
 
 namespace Sandbox.Game.Entities.Cube
 {
     [MyUseObject("panel")]
-    class MyUseObjectPanelButton : IMyUseObject
+    public class MyUseObjectPanelButton : IMyUseObject
     {
         private readonly MyButtonPanel m_buttonPanel;
         private readonly Matrix m_localMatrix;
         private int m_index;
         MyGps m_buttonDesc = null;
 
-        public MyUseObjectPanelButton(MyCubeBlock owner, string dummyName, MyModelDummy dummyData, int key)
+        public MyUseObjectPanelButton(IMyEntity owner, string dummyName, MyModelDummy dummyData, int key)
         {
             m_buttonPanel = owner as MyButtonPanel;
             m_localMatrix = dummyData.Matrix;
@@ -79,8 +79,9 @@ namespace Sandbox.Game.Entities.Cube
             get { return false; }
         }
 
-        public void Use(UseActionEnum actionEnum, Character.MyCharacter user)
+        public void Use(UseActionEnum actionEnum, IMyEntity entity)
         {
+            var user = entity as MyCharacter;
             switch(actionEnum)
             {
                 case UseActionEnum.Manipulate:

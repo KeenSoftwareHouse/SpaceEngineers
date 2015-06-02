@@ -329,6 +329,17 @@
     <Compile Include="Render\MyBillboardViewProjection.cs" />
     <Compile Include="Render\MyTriangleBillboard.cs" />
     <Compile Include="MySpectator.cs" />
+    <Compile Include="Serialization\MyOrientation.cs" />
+    <Compile Include="Serialization\MyPositionAndOrientation.cs" />
+    <Compile Include="Serialization\SerializableBoundingBoxD.cs" />
+    <Compile Include="Serialization\SerializableBounds.cs" />
+    <Compile Include="Serialization\SerializableQuaternion.cs" />
+    <Compile Include="Serialization\SerializableVector2.cs" />
+    <Compile Include="Serialization\SerializableVector2I.cs" />
+    <Compile Include="Serialization\SerializableVector3.cs" />
+    <Compile Include="Serialization\SerializableVector3D.cs" />
+    <Compile Include="Serialization\SerializableVector3I.cs" />
+    <Compile Include="Serialization\SerializableVector3UByte.cs" />
     <Compile Include="SpriteEnums.cs" />
     <Compile Include="Utils\MyPolygonBoolOps-Operations.cs" />
     <Compile Include="Utils\MyCopyDataStructures.cs" />

@@ -16,12 +16,11 @@ using VRage.Utils;
 using System.Diagnostics;
 using Sandbox.Common.ObjectBuilders;
 using VRage.Compression;
-using Sandbox.Common.ObjectBuilders.Serializer;
 using Sandbox.Game;
 using Sandbox.Game.Localization;
-using VRage.Utils;
 using VRage.Library.Utils;
 using VRage.FileSystem;
+using VRage.ObjectBuilders;
 
 namespace Sandbox.Engine.Networking
 {
@@ -124,7 +123,7 @@ namespace Sandbox.Engine.Networking
         {
             var modInfoPath = Path.Combine(MyFileSystem.ModsPath, localModFolder, "modinfo.sbmi");
             MyObjectBuilder_ModInfo modInfo;
-            if (File.Exists(modInfoPath) && Sandbox.Common.ObjectBuilders.Serializer.MyObjectBuilderSerializer.DeserializeXML(modInfoPath, out modInfo))
+            if (File.Exists(modInfoPath) && MyObjectBuilderSerializer.DeserializeXML(modInfoPath, out modInfo))
                 return modInfo.WorkshopId;
             return 0ul;
         }
@@ -133,7 +132,7 @@ namespace Sandbox.Engine.Networking
         {
             var modInfoPath = Path.Combine(MyFileSystem.ModsPath, localModFolder, "modinfo.sbmi");
             MyObjectBuilder_ModInfo modInfo;
-            if (File.Exists(modInfoPath) && Sandbox.Common.ObjectBuilders.Serializer.MyObjectBuilderSerializer.DeserializeXML(modInfoPath, out modInfo))
+            if (File.Exists(modInfoPath) && MyObjectBuilderSerializer.DeserializeXML(modInfoPath, out modInfo))
                 return modInfo.SteamIDOwner;
             return 0ul;
         }
@@ -1420,11 +1419,11 @@ namespace Sandbox.Engine.Networking
 
         public static bool GenerateModInfo(string modPath, ulong publishedFileId, ulong steamIDOwner)
         {
-            var modInfo = Sandbox.Common.ObjectBuilders.Serializer.MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_ModInfo>();
+            var modInfo = MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_ModInfo>();
             modInfo.WorkshopId = publishedFileId;
             modInfo.SteamIDOwner = steamIDOwner;
 
-            if (!Sandbox.Common.ObjectBuilders.Serializer.MyObjectBuilderSerializer.SerializeXML(Path.Combine(modPath, "modinfo.sbmi"), false, modInfo))
+            if (!MyObjectBuilderSerializer.SerializeXML(Path.Combine(modPath, "modinfo.sbmi"), false, modInfo))
             {
                 MySandboxGame.Log.WriteLine(string.Format("Error creating modinfo: workshopID={0}, mod='{1}'", publishedFileId, modPath));
                 return false;

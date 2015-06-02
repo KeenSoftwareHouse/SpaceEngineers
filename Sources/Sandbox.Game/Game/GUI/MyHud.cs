@@ -33,6 +33,7 @@ namespace Sandbox.Game.Gui
         public static MyHudCameraInfo CameraInfo = new MyHudCameraInfo();
         public static MyHudObjectiveLine ObjectiveLine = new MyHudObjectiveLine();
         public static MyHudNetgraph Netgraph = new MyHudNetgraph();
+        public static MyHudVoiceChat VoiceChat = new MyHudVoiceChat();
 
         private static int m_rotatingWheelVisibleCounter;
         public static bool RotatingWheelVisible
