@@ -12,12 +12,13 @@ using Sandbox.Game.Entities.Cube;
 using Sandbox.Common;
 using VRageRender;
 using VRage.Utils;
+using VRage.Components;
 
 using Sandbox.Game.Gui;
 
 namespace Sandbox.Game.GameSystems
 {
-    class MyGridGyroSystem : IMyPowerConsumer
+    public class MyGridGyroSystem : IMyPowerConsumer
     {
         // Rotation limiter, larger number, more limited max rotation
         static readonly float INV_TENSOR_MAX_LIMIT = 125000;

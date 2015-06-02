@@ -101,7 +101,7 @@ namespace Sandbox.Game.Decals
 
             foreach (var child in renderObject.Hierarchy.Children)
             {
-                RemoveModelDecals(child.Entity as MyEntity);
+                RemoveModelDecals(child.Container.Entity as MyEntity);
             }
         }
 

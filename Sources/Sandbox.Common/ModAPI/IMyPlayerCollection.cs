@@ -1,6 +1,8 @@
 ﻿using Sandbox.Common;
 using System;
 using System.Collections.Generic;
+using VRage.ModAPI;
+
 namespace Sandbox.ModAPI
 {
     public interface IMyPlayerCollection
@@ -12,7 +14,7 @@ namespace Sandbox.ModAPI
         void RemoveControlledEntity(IMyEntity entity);
         void TryExtendControl(ModAPI.Interfaces.IMyControllableEntity entityWithControl, IMyEntity entityGettingControl);
         bool TryReduceControl(ModAPI.Interfaces.IMyControllableEntity entityWhichKeepsControl, IMyEntity entityWhichLoosesControl);
-        void SetControlledEntity(ulong steamUserId, ModAPI.IMyEntity entity);
+        void SetControlledEntity(ulong steamUserId, IMyEntity entity);
         long Count { get; }
         IMyPlayer GetPlayerControllingEntity(IMyEntity entity);
         void GetAllIdentites(List<IMyIdentity> identities, Func<IMyIdentity, bool> collect = null);

@@ -2,6 +2,7 @@
 using Sandbox.Graphics.GUI;
 using System;
 using System.Text;
+using VRage.ObjectBuilders;
 using VRageMath;
 
 namespace Sandbox.Game.Screens.DebugScreens
@@ -35,7 +36,7 @@ namespace Sandbox.Game.Screens.DebugScreens
 
         private void DeleteItems(MyGuiControlButton sender)
         {
-            var treeType = Sandbox.Common.ObjectBuilders.MyObjectBuilderType.Parse("MyObjectBuilder_Trees");
+            var treeType = MyObjectBuilderType.Parse("MyObjectBuilder_Trees");
             var items = new System.Collections.Generic.HashSet<Sandbox.Game.Entities.MyEntity>();
 
             foreach (var entity in Sandbox.Game.Entities.MyEntities.GetEntities())

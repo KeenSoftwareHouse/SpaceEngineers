@@ -10185,12 +10185,12 @@ namespace Sandbox.Game.Localization
         public static readonly MyStringId BlockPropertyTitle_Waypoints = MyStringId.GetOrCompute("BlockPropertyTitle_Waypoints");
 
         ///<summary>
-        ///Set an action to be done when autopilot reaches destination
+        ///Set actions to be done when autopilot reaches this waypoint
         ///</summary>
         public static readonly MyStringId BlockPropertyPopup_AutoPilotToolbarOpen = MyStringId.GetOrCompute("BlockPropertyPopup_AutoPilotToolbarOpen");
 
         ///<summary>
-        ///Setup Action
+        ///Setup Actions
         ///</summary>
         public static readonly MyStringId BlockPropertyTitle_AutoPilotToolbarOpen = MyStringId.GetOrCompute("BlockPropertyTitle_AutoPilotToolbarOpen");
 
@@ -10378,5 +10378,85 @@ namespace Sandbox.Game.Localization
         ///Applied changes will be visible after restarting the game
         ///</summary>
         public static readonly MyStringId MessageBoxTextRestartNeededAfterRendererSwitch = MyStringId.GetOrCompute("MessageBoxTextRestartNeededAfterRendererSwitch");
+
+        ///<summary>
+        ///Player name
+        ///</summary>
+        public static readonly MyStringId GuiScenarioPlayerName = MyStringId.GetOrCompute("GuiScenarioPlayerName");
+
+        ///<summary>
+        ///Status
+        ///</summary>
+        public static readonly MyStringId GuiScenarioPlayerStatus = MyStringId.GetOrCompute("GuiScenarioPlayerStatus");
+
+        ///<summary>
+        ///Send
+        ///</summary>
+        public static readonly MyStringId GuiScenarioSend = MyStringId.GetOrCompute("GuiScenarioSend");
+
+        ///<summary>
+        ///Start
+        ///</summary>
+        public static readonly MyStringId GuiScenarioStart = MyStringId.GetOrCompute("GuiScenarioStart");
+
+        ///<summary>
+        ///Docking Mode
+        ///</summary>
+        public static readonly MyStringId BlockPropertyTitle_EnableDockingMode = MyStringId.GetOrCompute("BlockPropertyTitle_EnableDockingMode");
+
+        ///<summary>
+        ///Forward Direction
+        ///</summary>
+        public static readonly MyStringId BlockPropertyTitle_ForwardDirection = MyStringId.GetOrCompute("BlockPropertyTitle_ForwardDirection");
+
+        ///<summary>
+        ///Copy
+        ///</summary>
+        public static readonly MyStringId BlockActionTitle_RemoteCopy = MyStringId.GetOrCompute("BlockActionTitle_RemoteCopy");
+
+        ///<summary>
+        ///Paste
+        ///</summary>
+        public static readonly MyStringId BlockActionTitle_RemotePaste = MyStringId.GetOrCompute("BlockActionTitle_RemotePaste");
+
+        ///<summary>
+        ///Reset waypoint
+        ///</summary>
+        public static readonly MyStringId BlockActionTitle_WaypointReset = MyStringId.GetOrCompute("BlockActionTitle_WaypointReset");
+
+        ///<summary>
+        ///Resets current waypoint to first position
+        ///</summary>
+        public static readonly MyStringId BlockActionTooltip_WaypointReset = MyStringId.GetOrCompute("BlockActionTooltip_WaypointReset");
+
+        ///<summary>
+        ///Connection timeout:
+        ///</summary>
+        public static readonly MyStringId GuiScenarioTimeout = MyStringId.GetOrCompute("GuiScenarioTimeout");
+
+        ///<summary>
+        ///10 min
+        ///</summary>
+        public static readonly MyStringId GuiScenarioTimeout10min = MyStringId.GetOrCompute("GuiScenarioTimeout10min");
+
+        ///<summary>
+        ///3 min
+        ///</summary>
+        public static readonly MyStringId GuiScenarioTimeout3min = MyStringId.GetOrCompute("GuiScenarioTimeout3min");
+
+        ///<summary>
+        ///5 min
+        ///</summary>
+        public static readonly MyStringId GuiScenarioTimeout5min = MyStringId.GetOrCompute("GuiScenarioTimeout5min");
+
+        ///<summary>
+        ///Unlimited
+        ///</summary>
+        public static readonly MyStringId GuiScenarioTimeoutUnlimited = MyStringId.GetOrCompute("GuiScenarioTimeoutUnlimited");
+
+        ///<summary>
+        ///Scenario
+        ///</summary>
+        public static readonly MyStringId WorldSettings_GameScenario = MyStringId.GetOrCompute("WorldSettings_GameScenario");
     }
 }

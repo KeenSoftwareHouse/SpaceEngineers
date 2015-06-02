@@ -28,6 +28,7 @@ using Sandbox.Game.Localization;
 using VRage;
 using VRage.Utils;
 using VRage.Library.Utils;
+using VRage.ModAPI;
 
 namespace Sandbox.Game.Entities.Cube
 {
@@ -62,9 +63,9 @@ namespace Sandbox.Game.Entities.Cube
 
         LandingGearMode m_lockMode = LandingGearMode.Unlocked;
 
-        Action<Sandbox.ModAPI.IMyEntity> m_physicsChangedHandler;
+        Action<IMyEntity> m_physicsChangedHandler;
 
-        Sandbox.ModAPI.IMyEntity m_attachedTo;
+        IMyEntity m_attachedTo;
 
         private bool m_needsToRetryLock = false;
         private int m_autolockTimer = 0;
@@ -231,7 +232,7 @@ namespace Sandbox.Game.Entities.Cube
 
         public MyLandingGear()
         {
-            m_physicsChangedHandler = new Action<Sandbox.ModAPI.IMyEntity>(PhysicsChanged);
+            m_physicsChangedHandler = new Action<IMyEntity>(PhysicsChanged);
             m_soundEmitter = new MyEntity3DSoundEmitter(this);
         }
 
@@ -255,7 +256,7 @@ namespace Sandbox.Game.Entities.Cube
 
             SyncObject = new MySyncLandingGear(this);
 
-            Flags |= Sandbox.ModAPI.EntityFlags.NeedsUpdate10 | Sandbox.ModAPI.EntityFlags.NeedsUpdate;
+            Flags |= EntityFlags.NeedsUpdate10 | EntityFlags.NeedsUpdate;
             LoadDummies();
             SlimBlock.ComponentStack.IsFunctionalChanged += ComponentStack_IsFunctionalChanged;
             var builder = objectBuilder as MyObjectBuilder_LandingGear;
@@ -613,7 +614,7 @@ namespace Sandbox.Game.Entities.Cube
             if (handle != null) handle(false);
         }
 
-        void PhysicsChanged(Sandbox.ModAPI.IMyEntity entity)
+        void PhysicsChanged(IMyEntity entity)
         {
             if (entity.Physics == null)
             {
@@ -687,7 +688,7 @@ namespace Sandbox.Game.Entities.Cube
             remove { StateChanged -= value; }
         }
 
-        Sandbox.ModAPI.IMyEntity Sandbox.ModAPI.Ingame.IMyLandingGear.GetAttachedEntity()
+        IMyEntity Sandbox.ModAPI.Ingame.IMyLandingGear.GetAttachedEntity()
         {
             return m_attachedTo;
         }

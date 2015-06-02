@@ -14,6 +14,8 @@ using Sandbox.Game.World;
 using Sandbox.Graphics;
 using VRageMath;
 using VRageRender;
+using VRage.ModAPI;
+using VRage;
 
 namespace Sandbox.Game.Entities.Cube
 {
@@ -106,7 +108,7 @@ namespace Sandbox.Game.Entities.Cube
                 MyPhysicsBody body = (MyPhysicsBody)hit.HkHitInfo.Body.UserObject;
                 if (body == null)
                     continue;
-                Sandbox.ModAPI.IMyEntity entity = body.Entity;
+                IMyEntity entity = body.Entity;
                 if ((entity is MyVoxelMap) || (entity is MyCubeGrid && entity.EntityId != PreviewGrids[0].EntityId))
                 {
                     if (PreviewGrids[0].GridSizeEnum == MyCubeSize.Large && (entity is MyCubeGrid) && (entity as MyCubeGrid).GridSizeEnum == MyCubeSize.Small)

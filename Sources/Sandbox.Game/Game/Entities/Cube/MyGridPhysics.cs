@@ -23,6 +23,8 @@ using VRage.Collections;
 using VRage.Utils;
 using VRageMath;
 using VRageRender;
+using VRage.Components;
+using VRage.ModAPI;
 
 namespace Sandbox.Game.Entities.Cube
 {

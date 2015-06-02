@@ -8,6 +8,7 @@ using VRageRender;
 using Sandbox.Graphics;
 using Sandbox.Game.Weapons;
 using Sandbox.Common.Components;
+using VRage.Components;
 
 namespace Sandbox.Game.Components
 {
@@ -19,13 +20,13 @@ namespace Sandbox.Game.Components
         public override void OnAddedToContainer(MyComponentContainer container)
         {
             base.OnAddedToContainer(container);
-            m_invetoryItem = Entity as MyBaseInventoryItemEntity;
+            m_invetoryItem = Container.Entity as MyBaseInventoryItemEntity;
         }
         public override void Draw()
         {
             base.Draw();
 
-            Vector3 transformedPoint = Vector3.Transform(Entity.PositionComp.GetPosition(), MySector.MainCamera.ViewMatrix);
+            Vector3 transformedPoint = Vector3.Transform(Container.Entity.PositionComp.GetPosition(), MySector.MainCamera.ViewMatrix);
             Vector4 projectedPoint = Vector4.Transform(transformedPoint, MySector.MainCamera.ProjectionMatrix);
 
             if (transformedPoint.Z > 0)

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using VRage.ObjectBuilders;
 
 namespace Sandbox.ModAPI
 {
@@ -18,7 +19,7 @@ namespace Sandbox.ModAPI
 
         bool IsServerPlayer(IMyNetworkClient player);
 
-        void SendEntitiesCreated(List<Sandbox.Common.ObjectBuilders.MyObjectBuilder_EntityBase> objectBuilders);
+        void SendEntitiesCreated(List<MyObjectBuilder_EntityBase> objectBuilders);
 
         bool SendMessageToServer(ushort id,byte[] message,bool reliable = true);
         bool SendMessageToOthers(ushort id, byte[] message, bool reliable = true);

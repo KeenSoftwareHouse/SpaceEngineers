@@ -21,12 +21,13 @@ using Sandbox.Game.World;
 using Sandbox.Graphics;
 using Sandbox.Common;
 using VRage;
+using VRage.Components;
 
 using Sandbox.Game.Gui;
 
 namespace Sandbox.Game.GameSystems
 {
-    class MyGridThrustSystem : IMyPowerConsumer
+    public class MyGridThrustSystem : IMyPowerConsumer
     {
         private class DirectionComparer : IEqualityComparer<Vector3I>
         {
