@@ -32,12 +32,18 @@ namespace VRageRender
         internal Vector4 m_row2;
         internal Vector3 KeyColor;
         internal float CustomAlpha;
+        //
         internal Vector3 ColorMul;
         internal float Emissive;
         internal uint MaterialIndex;
         internal MyMaterialFlags MaterialFlags;
         internal float _padding0;
         internal float _padding1;
+        internal Vector3 VoxelOffset;
+        internal float _padding2;
+        internal Vector3 VoxelScale;
+        internal float _padding3;
+        //
         internal Matrix LocalMatrix
         {
             get
@@ -65,6 +71,36 @@ namespace VRageRender
             m_row0.W += v.X;
             m_row1.W += v.Y;
             m_row2.W += v.Z;
+        }
+    }
+
+    struct MyMatrix4x3
+    {
+        internal Vector4 m_row0;
+        internal Vector4 m_row1;
+        internal Vector4 m_row2;
+
+        internal Matrix Matrix4x4
+        {
+            get
+            {
+                var row0 = m_row0;
+                var row1 = m_row1;
+                var row2 = m_row2;
+
+                return new Matrix(
+                    row0.X, row1.X, row2.X, 0,
+                    row0.Y, row1.Y, row2.Y, 0,
+                    row0.Z, row1.Z, row2.Z, 0,
+                    row0.W, row1.W, row2.W, 1);
+
+            }
+            set
+            {
+                m_row0 = new Vector4(value.M11, value.M21, value.M31, value.M41);
+                m_row1 = new Vector4(value.M12, value.M22, value.M32, value.M42);
+                m_row2 = new Vector4(value.M13, value.M23, value.M33, value.M43);
+            }
         }
     }
 

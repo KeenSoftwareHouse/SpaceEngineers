@@ -22,6 +22,8 @@ using Sandbox.Graphics.GUI;
 using VRage;
 using Sandbox.Game.Localization;
 using Sandbox.Graphics;
+using VRage.ObjectBuilders;
+using VRage.ModAPI;
 
 namespace Sandbox.Game.Entities.Cube
 {
@@ -104,7 +106,7 @@ namespace Sandbox.Game.Entities.Cube
         }
 
         private static List<HkRigidBody> m_cacheRigidBodyList = new List<HkRigidBody>();
-        private static HashSet<Sandbox.ModAPI.IMyEntity> m_cacheEntitySet = new HashSet<Sandbox.ModAPI.IMyEntity>();
+        private static HashSet<IMyEntity> m_cacheEntitySet = new HashSet<IMyEntity>();
         private static List<MyObjectBuilder_EntityBase> m_tmpPastedBuilders = new List<MyObjectBuilder_EntityBase>();
 
         private List<MyObjectBuilder_CubeGrid> m_copiedGrids = new List<MyObjectBuilder_CubeGrid>();
@@ -141,7 +143,7 @@ namespace Sandbox.Game.Entities.Cube
         protected float m_closestHitDistSq = float.MaxValue;
         protected Vector3D m_hitPos = new Vector3(0.0f, 0.0f, 0.0f);
         protected Vector3 m_hitNormal = new Vector3(1.0f, 0.0f, 0.0f);
-        protected Sandbox.ModAPI.IMyEntity m_hitEntity = null;
+        protected IMyEntity m_hitEntity = null;
 
         protected bool m_visible = true;
         private bool m_allowSwitchCameraMode = true;
@@ -202,7 +204,7 @@ namespace Sandbox.Game.Entities.Cube
                     return false;
 
                 var gridSettings = m_settings.GetGridPlacementSettings(m_previewGrids[0]);
-                return gridSettings.EnablePreciseRotationWhenSnapped && MyFakes.ENABLE_STATION_ROTATION;
+                return gridSettings.EnablePreciseRotationWhenSnapped && EnableStationRotation;
             }
         }
 
@@ -223,12 +225,36 @@ namespace Sandbox.Game.Entities.Cube
         {
             get
             {
+                if (EnableStationRotation == true)
+                {
+                    return false;
+                }
+
+                foreach (var grid in m_previewGrids)
+                {
+                    if (grid.IsStatic)
+                        return true;
+                }
                 return false;
             }
         }
 
         protected bool EnableGridChangeToDynamic = MyFakes.ENABLE_GRID_CLIPBOARD_CHANGE_TO_DYNAMIC;
         private bool m_gridChangeToDynamicDisabled;
+
+        bool m_enableStationRotation = false;
+        public bool EnableStationRotation
+        {
+            get
+            {
+                return m_enableStationRotation && MyFakes.ENABLE_STATION_ROTATION;
+            }
+
+            set
+            {
+                m_enableStationRotation = value;
+            }
+        }
 
 
         public MyGridClipboard(MyPlacementSettings settings, bool calculateVelocity = true)
@@ -516,6 +542,7 @@ namespace Sandbox.Game.Entities.Cube
                 if (forceDynamicGrid)
                     gridBuilder.IsStatic = false;
 
+                var previousPos = gridBuilder.PositionAndOrientation;
                 gridBuilder.PositionAndOrientation = new MyPositionAndOrientation(m_previewGrids[i].WorldMatrix);
 
                 var pastedGrid = MyEntities.CreateFromObjectBuilder(gridBuilder) as MyCubeGrid;
@@ -798,14 +825,14 @@ namespace Sandbox.Game.Entities.Cube
                 entity.Physics.Enabled = false;
 
             var block = entity as MyCubeBlock;
-            if (block != null && block.DetectorPhysics != null && block.DetectorPhysics.Enabled)
-                block.DetectorPhysics.Enabled = false;
+            if (block != null && block.UseObjectsComponent.DetectorPhysics != null && block.UseObjectsComponent.DetectorPhysics.Enabled)
+                block.UseObjectsComponent.DetectorPhysics.Enabled = false;
 
             if (block != null)
                 block.NeedsUpdate = MyEntityUpdateEnum.NONE;
 
             foreach (var child in entity.Hierarchy.Children)
-                DisablePhysicsRecursively(child.Entity as MyEntity);
+                DisablePhysicsRecursively(child.Container.Entity as MyEntity);
         }
 
         public virtual void Update()
@@ -857,7 +884,7 @@ namespace Sandbox.Game.Entities.Cube
                 MyPhysicsBody body = (MyPhysicsBody)hit.HkHitInfo.Body.UserObject;
                 if (body == null)
                     continue;
-                Sandbox.ModAPI.IMyEntity entity = body.Entity;
+                IMyEntity entity = body.Entity;
                 if ((entity is MyVoxelMap) || (entity is MyCubeGrid && entity.EntityId != m_previewGrids[0].EntityId))
                 {
                     float distSq = (float)(hit.Position - pasteMatrix.Translation).LengthSquared();
@@ -997,9 +1024,17 @@ namespace Sandbox.Game.Entities.Cube
             {
                 double gridSize = m_previewGrids[0].GridSize;
                 if (m_settings.StaticGridAlignToCenter)
+                {
                     m_pastePosition = Vector3I.Round(m_pastePosition / gridSize) * gridSize;
+                }
                 else
+                {
                     m_pastePosition = Vector3I.Round(m_pastePosition / gridSize + 0.5) * gridSize - 0.5 * gridSize;
+                }
+
+                m_pasteDirForward = Vector3.Forward;
+                m_pasteDirUp = Vector3.Up;
+                m_pasteOrientationAngle = 0.0f;
             }
 
             if (MyDebugDrawSettings.DEBUG_DRAW_COPY_PASTE)
@@ -1258,7 +1293,7 @@ namespace Sandbox.Game.Entities.Cube
             if (entity != null)
             {
                 MyCubeGrid grid = entity as MyCubeGrid;
-                if (grid != null  && (!grid.IsStatic|| MyFakes.ENABLE_STATION_ROTATION))
+                if (grid != null && (!grid.IsStatic || EnableStationRotation))
                 {
                     Vector3I gridSize = grid.Max - grid.Min + new Vector3I(1, 1, 1);
                     BoundingBoxD worldBox = new BoundingBoxD(-gridSize * grid.GridSize * 0.5f, gridSize * grid.GridSize * 0.5f);

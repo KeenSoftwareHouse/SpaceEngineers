@@ -12,7 +12,7 @@ namespace VRageMath
     /// <summary>
     /// Defines a matrix.
     /// </summary>
-    [Serializable]
+    [ProtoBuf.ProtoContract, Serializable]    
     [StructLayout(LayoutKind.Explicit)]
     public struct Matrix : IEquatable<Matrix>
     {
@@ -34,81 +34,97 @@ namespace VRageMath
         /// Value at row 1 column 1 of the matrix.
         /// </summary>
         [FieldOffset(0)]
+        [ProtoBuf.ProtoMember]
         public float M11;
         /// <summary>
         /// Value at row 1 column 2 of the matrix.
         /// </summary>
         [FieldOffset(4)]
+        [ProtoBuf.ProtoMember]
         public float M12;
         /// <summary>
         /// Value at row 1 column 3 of the matrix.
         /// </summary>
         [FieldOffset(8)]
+        [ProtoBuf.ProtoMember]
         public float M13;
         /// <summary>
         /// Value at row 1 column 4 of the matrix.
         /// </summary>
         [FieldOffset(12)]
+        [ProtoBuf.ProtoMember]
         public float M14;
         /// <summary>
         /// Value at row 2 column 1 of the matrix.
         /// </summary>
         [FieldOffset(16)]
+        [ProtoBuf.ProtoMember]
         public float M21;
         /// <summary>
         /// Value at row 2 column 2 of the matrix.
         /// </summary>
         [FieldOffset(20)]
+        [ProtoBuf.ProtoMember]
         public float M22;
         /// <summary>
         /// Value at row 2 column 3 of the matrix.
         /// </summary>
         [FieldOffset(24)]
+        [ProtoBuf.ProtoMember]
         public float M23;
         /// <summary>
         /// Value at row 2 column 4 of the matrix.
         /// </summary>
         [FieldOffset(28)]
+        [ProtoBuf.ProtoMember]
         public float M24;
         /// <summary>
         /// Value at row 3 column 1 of the matrix.
         /// </summary>
         [FieldOffset(32)]
+        [ProtoBuf.ProtoMember]
         public float M31;
         /// <summary>
         /// Value at row 3 column 2 of the matrix.
         /// </summary>
         [FieldOffset(36)]
+        [ProtoBuf.ProtoMember]
         public float M32;
         /// <summary>
         /// Value at row 3 column 3 of the matrix.
         /// </summary>
         [FieldOffset(40)]
+        [ProtoBuf.ProtoMember]
         public float M33;
         /// <summary>
         /// Value at row 3 column 4 of the matrix.
         /// </summary>
         [FieldOffset(44)]
+        [ProtoBuf.ProtoMember]
         public float M34;
         /// <summary>
         /// Value at row 4 column 1 of the matrix.
         /// </summary>
         [FieldOffset(48)]
+        [ProtoBuf.ProtoMember]
         public float M41;
         /// <summary>
         /// Value at row 4 column 2 of the matrix.
         /// </summary>
         [FieldOffset(52)]
+        [ProtoBuf.ProtoMember]
         public float M42;
         /// <summary>
         /// Value at row 4 column 3 of the matrix.
         /// </summary>
         [FieldOffset(56)]
+        [ProtoBuf.ProtoMember]
         public float M43;
         /// <summary>
         /// Value at row 4 column 4 of the matrix.
         /// </summary>
         [FieldOffset(60)]
+        [ProtoBuf.ProtoMember]
         public float M44;
 
         /// <summary>

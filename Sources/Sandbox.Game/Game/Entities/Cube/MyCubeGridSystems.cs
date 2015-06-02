@@ -57,7 +57,7 @@ namespace Sandbox.Game.Entities.Cube
         /// <summary>
         /// Can be null if Oxygen option is disabled
         /// </summary>
-        internal MyGridOxygenSystem OxygenSystem { get; private set; }
+        public MyGridOxygenSystem OxygenSystem { get; private set; }
 
         private readonly MyCubeGrid m_cubeGrid;
         protected MyCubeGrid CubeGrid { get { return m_cubeGrid; } }

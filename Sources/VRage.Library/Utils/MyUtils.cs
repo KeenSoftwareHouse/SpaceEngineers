@@ -48,22 +48,5 @@ namespace VRage.Library.Utils
                 throw new InvalidOperationException("Type '" + typeof(T) + "' is not blittable", e);
             }
         }
-
-        public static int GetHash(string text, int seed = 0)
-        {
-            int hash = seed;
-            unchecked
-            {
-                if (text != null)
-                {
-                    foreach (char c in text)
-                    {
-                        hash = hash * 31 + c;
-                    }
-                }
-                return hash;
-            }
-        }
-
     }
 }

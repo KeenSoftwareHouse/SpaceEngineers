@@ -36,7 +36,7 @@ namespace Sandbox.Game.GameSystems.Electricity
         BatteryBlock,
     }
 
-    enum MyProducerGroupEnum
+    public enum MyProducerGroupEnum
     {
         SolarPanels,
         Battery,
@@ -51,7 +51,7 @@ namespace Sandbox.Game.GameSystems.Electricity
         NoPower
     }
 
-    class MyPowerDistributor
+    public class MyPowerDistributor
     {
         /// <summary>
         /// Some precomputed data for each priority group.

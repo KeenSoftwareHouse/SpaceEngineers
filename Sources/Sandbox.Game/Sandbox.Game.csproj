@@ -121,6 +121,7 @@
     <Compile Include="Definitions\MyAirtightHangarDoorDefinition.cs" />
     <Compile Include="Definitions\MyAnimalBotDefinition.cs" />
     <Compile Include="Definitions\MyAreaMarkerDefinition.cs" />
+    <Compile Include="Definitions\MyBattleDefinition.cs" />
     <Compile Include="Definitions\MyControllerSchemaDefinition.cs" />
     <Compile Include="Definitions\MyConveyorSorterDefinition.cs" />
     <Compile Include="Definitions\MyCryoChamberDefinition.cs" />
@@ -298,6 +299,7 @@
     <Compile Include="Game\AI\Logic\MyHumanoidBotLogic.cs" />
     <Compile Include="Game\AI\MyAgentBot.cs" />
     <Compile Include="Game\AI\MyAiTargetBase.cs" />
+    <Compile Include="Game\AI\MyAiTargetManager.cs" />
     <Compile Include="Game\AI\MyBehaviorAttributes.cs" />
     <Compile Include="Game\AI\Logic\MyBotLogic.cs" />
     <Compile Include="Game\AI\MyBotMemory.cs" />
@@ -369,6 +371,7 @@
     <Compile Include="Game\Components\MyModelObj .cs" />
     <Compile Include="Game\Components\MyPositionComponent.cs" />
     <Compile Include="Game\Components\MyQuantizedBvhResult.cs" />
+    <Compile Include="Game\Components\MyUseObjectsComponent.cs" />
     <Compile Include="Game\Components\Renders\MyRenderComponentTextPanel.cs" />
     <Compile Include="Game\Components\Renders\MyRenderComponent.cs" />
     <Compile Include="Game\Components\Renders\MyRenderComponentAutomaticRifle.cs" />
@@ -397,6 +400,7 @@
     <Compile Include="Game\Console\MyCommandScript.cs" />
     <Compile Include="Game\Entities\Blocks\MyAirtightDoorGeneric.cs" />
     <Compile Include="Game\Entities\Blocks\MyAirtightHangarDoor.cs" />
+    <Compile Include="Game\Entities\Blocks\MyCockpit.cs" />
     <Compile Include="Game\Entities\Blocks\MyConveyorSorter.cs" />
     <Compile Include="Game\Entities\Blocks\MyLaserAntenna.cs" />
     <Compile Include="Game\Entities\Blocks\MyLaserBroadcaster.cs" />
@@ -432,6 +436,11 @@
     <Compile Include="Game\Entities\Character\MyCharacterBreath.cs" />
     <Compile Include="Game\Entities\Character\MyChatHistory.cs" />
     <Compile Include="Game\Entities\Character\MyInverseKinematics.cs" />
+    <Compile Include="Game\Entities\Character\MySkinnedEntity.cs" />
+    <Compile Include="Game\Entities\Inventory\IMyComponentInventory.cs" />
+    <Compile Include="Game\Entities\Inventory\MyAreaInventory.cs" />
+    <Compile Include="Game\Entities\Inventory\MyAreaInventoryComponentBase.cs" />
+    <Compile Include="Game\Entities\MyCompositeGameLogicComponent.cs" />
     <Compile Include="Game\Entities\Cube\MyBlockGroupData.cs" />
     <Compile Include="Game\Entities\Cube\MyCubeBuilder-Draw.cs" />
     <Compile Include="Game\Entities\Cube\IMyGridOverlapTest.cs" />
@@ -456,7 +465,6 @@
     <Compile Include="Game\Entities\Cube\MyMultiBlockClipboard.cs" />
     <Compile Include="Game\Entities\Cube\MyProjectorClipboard.cs" />
     <Compile Include="Game\Entities\Cube\MyUseObjectCryoChamberDoor.cs" />
-    <Compile Include="Game\Entities\Cube\MyUseObjectMedicalRoom.cs" />
     <Compile Include="Game\Entities\Cube\MyUseObjectPanelButton.cs" />
     <Compile Include="Game\Entities\Cube\MyUseObjectTextPanel.cs" />
     <Compile Include="Game\Entities\EnvironmentItems\MyDestroyableItems.cs" />
@@ -475,6 +483,8 @@
     <Compile Include="Game\Entities\MyFloatingObjectClipboard.cs" />
     <Compile Include="Game\Entities\Cube\MyFracturedBlock.cs" />
     <Compile Include="Game\Entities\MyFracturedPiece.cs" />
+    <Compile Include="Game\Entities\MyItemsCollector.cs" />
+    <Compile Include="Game\Entities\MyManipulationTool.cs" />
     <Compile Include="Game\Entities\MyNullGameLogicComponent.cs" />
     <Compile Include="Engine\Voxels\IMyStorage.cs" />
     <Compile Include="Engine\Voxels\MyStorageBase.cs" />
@@ -491,19 +501,21 @@
     <Compile Include="Game\Entities\MyUpgradableBlockComponent.cs" />
     <Compile Include="Game\Entities\MyVoxelClipboard.cs" />
     <Compile Include="Game\Entities\MyVoxelMapExtensions.cs" />
-    <Compile Include="Game\Entities\UseObject\MyUseObjectFactory.cs" />
+    <Compile Include="Game\Entities\UseObject\IMyUsableEntity.cs" />
     <Compile Include="Game\GameSystems\Conveyors\MyAttachableConveyorEndpoint.cs" />
     <Compile Include="Game\Audio\MyGuiAudio.cs" />
     <Compile Include="Game\GameSystems\IMyOxygenBlock.cs" />
     <Compile Include="Game\GameSystems\IMyOxygenConsumer.cs" />
     <Compile Include="Game\GameSystems\IMyOxygenProducer.cs" />
     <Compile Include="Game\GameSystems\MyAntennaSystem.cs" />
+    <Compile Include="Engine\Utils\MyBattleHelper.cs" />
     <Compile Include="Game\GameSystems\MyChatSystem.cs" />
     <Compile Include="Game\GameSystems\MyFracturedPiecesManager.cs" />
     <Compile Include="Game\GameSystems\MyGravityProviderSystem.cs" />
     <Compile Include="Game\GameSystems\MyGridCameraSystem.cs" />
     <Compile Include="Game\GameSystems\MyGridOxygenSystem.cs" />
     <Compile Include="Game\GameSystems\MyOxygenProviderSystem.cs" />
+    <Compile Include="Game\GameSystems\MyScenarioSystem.cs" />
     <Compile Include="Game\GameSystems\StructuralIntegrity\MyAdvancedStaticSimulator.cs" />
     <Compile Include="Game\GameSystems\StructuralIntegrity\IMyIntegritySimulator.cs" />
     <Compile Include="Game\GameSystems\StructuralIntegrity\MyOndraSimulator.cs" />
@@ -525,6 +537,7 @@
     <Compile Include="Game\GUI\MyGuiDetailScreen.cs" />
     <Compile Include="Game\GUI\MyGuiIngameScriptsPage.cs" />
     <Compile Include="Game\GUI\MyGuiScreenBotSettings.cs" />
+    <Compile Include="Game\Screens\MyGuiScreenScenarioWaitForPlayers.cs" />
     <Compile Include="Game\GUI\MyHudCameraInfo.cs" />
     <Compile Include="Game\GUI\MyHudCameraOverlay.cs" />
     <Compile Include="Game\Console\MyCommandCharacter.cs" />
@@ -549,6 +562,7 @@
     <Compile Include="Game\GUI\MyHudSelectedObject.cs" />
     <Compile Include="Game\GUI\DebugInputComponents\MyCestmirDebugInputComponent.cs" />
     <Compile Include="Game\GUI\DebugInputComponents\MyOndraDebugIntegrity.cs" />
+    <Compile Include="Game\GUI\MyHudVoiceChat.cs" />
     <Compile Include="Game\GUI\MyHudWorldBorderChecker.cs" />
     <Compile Include="Game\Localization\MyKeysToString.cs" />
     <Compile Include="Game\Localization\MySpaceTexts.cs">
@@ -562,6 +576,9 @@
     <Compile Include="Game\Multiplayer\MySyncConveyorSorter.cs" />
     <Compile Include="Game\Multiplayer\MySyncCryoChamber.cs" />
     <Compile Include="Game\Multiplayer\MySyncLaserAntenna.cs" />
+    <Compile Include="Game\Multiplayer\MySyncManipulationTool.cs" />
+    <Compile Include="Game\Multiplayer\MySyncMissionTriggers.cs" />
+    <Compile Include="Game\Multiplayer\MySyncScenario.cs" />
     <Compile Include="Game\Multiplayer\MySyncSoundBlock.cs" />
     <Compile Include="Game\Multiplayer\MySyncSpaceBall.cs" />
     <Compile Include="Game\Multiplayer\MyCameraCollection.cs" />
@@ -588,7 +605,6 @@
     <Compile Include="Game\Entities\Cube\MyFunctionalBlock.cs" />
     <Compile Include="Game\Entities\Cube\MyGridLogicalGroupData.cs" />
     <Compile Include="Game\Entities\Cube\MyCubeGridGroups.cs" />
-    <Compile Include="Game\Entities\Cube\MyUseObjectWardrobe.cs" />
     <Compile Include="Game\Entities\IMySceneComponent.cs" />
     <Compile Include="Game\Entities\Interfaces\IMyMissileGunObject.cs" />
     <Compile Include="Game\Entities\Cube\MyGridPhysicalGroupData.cs" />
@@ -626,7 +642,10 @@
     <Compile Include="Game\Screens\MyGuiScreenJoinGame.Friends.cs" />
     <Compile Include="Game\Screens\MyGuiScreenJoinGame.History.cs" />
     <Compile Include="Game\Screens\MyGuiScreenMissionTriggers.cs" />
+    <Compile Include="Game\Screens\MyGuiScreenOptionsDisplay.cs" />
     <Compile Include="Game\Screens\MyGuiScreenScenario.cs" />
+    <Compile Include="Game\Screens\MyGuiScreenScenarioMpBase.cs" />
+    <Compile Include="Game\Screens\MyGuiScreenScenarioMpServer.cs" />
     <Compile Include="Game\Screens\MyGuiScreenTextPanel.cs" />
     <Compile Include="Game\Screens\MyGuiScreenToolbarConfigBase.cs" />
     <Compile Include="Game\Screens\DebugScreens\MyGuiScreenDebugEnvironment.cs" />
@@ -649,7 +668,6 @@
     <Compile Include="Game\Screens\DebugScreens\MyGuiScreenDebugRender4.cs" />
     <Compile Include="Game\Screens\MyGuiScreenHudBase.cs" />
     <Compile Include="Game\Screens\MyGuiScreenEditor.cs" />
-    <Compile Include="Game\Screens\MyGuiScreenMedicals.cs" />
     <Compile Include="Game\Screens\Helpers\MyGridColorHelper.cs" />
     <Compile Include="Game\Screens\MyGuiScreenMission.cs" />
     <Compile Include="Game\Screens\MyGuiScreenMods.cs" />
@@ -665,7 +683,6 @@
     <Compile Include="Game\Screens\MyJoinGameHelper.cs" />
     <Compile Include="Game\Screens\MyGuiScreenCreateOrEditFaction.cs" />
     <Compile Include="Game\Screens\MyLoadingException.cs" />
-    <Compile Include="Game\Screens\Helpers\MySpaceControlMenuInitializer.cs" />
     <Compile Include="Game\Screens\Terminal\Controls\ITerminalValueControl.cs" />
     <Compile Include="Game\Screens\Terminal\Controls\MyTerminalControlCombobox.cs" />
     <Compile Include="Game\Screens\Terminal\Controls\MyTerminalValueControl.cs" />
@@ -680,6 +697,8 @@
     <Compile Include="Game\SessionComponents\MySessionComponentMissionTriggers.cs" />
     <Compile Include="Game\SessionComponents\MyThrowerSessionComponent.cs" />
     <Compile Include="Game\Screens\Terminal\Controls\MyTerminalControlListbox.cs" />
+    <Compile Include="Game\VoiceChat\IMyVoiceChatLogic.cs" />
+    <Compile Include="Game\VoiceChat\MyVoiceChatSessionComponent.cs" />
     <Compile Include="Game\Weapons\Guns\MyUserControllableGun.cs" />
     <Compile Include="Game\World\Generator\MyCompositeShapeOreDeposit.cs" />
     <Compile Include="Game\World\Generator\MyCompositeShapes.cs" />
@@ -729,7 +748,6 @@
     <Compile Include="Game\World\MyEntityController.cs" />
     <Compile Include="Game\World\MyPlayer.cs" />
     <Compile Include="Game\World\MyIdentity.cs" />
-    <Compile Include="Game\World\MyRespawnComponent.cs" />
     <Compile Include="Game\World\MyScriptManager.cs" />
     <Compile Include="Game\World\MyWorldGenerator.StartingStates.cs" />
     <Compile Include="Game\Weapons\Guns\MyBlockPlacerBase.cs" />
@@ -771,7 +789,6 @@
     <Compile Include="Game\Weapons\Guns\MyLargeConveyorTurretBase.cs" />
     <Compile Include="Game\Weapons\Guns\MyShipToolBase.cs" />
     <Compile Include="Game\Weapons\Guns\MyShipWelder.cs" />
-    <Compile Include="Game\World\MyApril2014Event.cs" />
     <Compile Include="Game\Audio\MyEntity3DSoundEmitter.cs" />
     <Compile Include="Game\Entities\MyMeteor.cs" />
     <Compile Include="Game\Entities\MyMeteorShower.cs" />
@@ -848,7 +865,6 @@
     <Compile Include="Game\Entities\Blocks\MyMotorStator.cs" />
     <Compile Include="Game\Entities\MyFloatingObjects.cs" />
     <Compile Include="Game\Entities\Blocks\MyBeacon.cs" />
-    <Compile Include="Game\Entities\Cube\MyUseObjectInventory.cs" />
     <Compile Include="Game\Entities\Cube\MyUseObjectTerminal.cs" />
     <Compile Include="Game\Entities\Cube\MyEdgeInfo.cs" />
     <Compile Include="Game\Entities\Blocks\MyAssembler.cs" />
@@ -873,7 +889,6 @@
     <Compile Include="Game\Entities\Cube\MyGridShape.cs" />
     <Compile Include="Game\Entities\Cube\MyGridSkeleton.cs" />
     <Compile Include="Game\Entities\Blocks\MyLadder.cs" />
-    <Compile Include="Game\Entities\Blocks\MyMedicalRoom.cs" />
     <Compile Include="Game\Entities\Blocks\MyOreDetector.cs" />
     <Compile Include="Game\Entities\Blocks\MyRadioAntenna.cs" />
     <Compile Include="Game\Entities\Blocks\MyRefinery.cs" />
@@ -897,11 +912,9 @@
     <Compile Include="Game\Entities\MySensorBase.cs" />
     <Compile Include="Game\Entities\Blocks\MyGyro.cs" />
     <Compile Include="Game\Entities\Blocks\MyThrust.cs" />
-    <Compile Include="Game\Entities\Blocks\MyCockpit.cs" />
     <Compile Include="Game\Entities\Cube\MyCubeBlock.cs" />
     <Compile Include="Game\Entities\Cube\MyCube.cs" />
     <Compile Include="Game\Entities\Interfaces\IMyControllableEntity.cs" />
-    <Compile Include="Game\Entities\UseObject\IMyUseObject.cs" />
     <Compile Include="Game\Entities\MyEntityFactory.cs" />
     <Compile Include="Game\Entities\MySensor.cs" />
     <Compile Include="Game\GameSystems\Electricity\MyBattery.cs" />
@@ -938,7 +951,6 @@
     <Compile Include="Game\Screens\Terminal\MyTerminalControlPanel.cs" />
     <Compile Include="Game\Screens\Terminal\MyTerminalInventoryController.cs" />
     <Compile Include="Game\Screens\Terminal\MyTerminalProductionController.cs" />
-    <Compile Include="Game\Weapons\Guns\MyCubePlacer.cs" />
     <Compile Include="Game\World\MyAudioComponent.cs" />
     <Compile Include="Game\World\MyGlobalEventBase.cs" />
     <Compile Include="Game\World\MyGlobalEventFactory.cs" />
@@ -1099,11 +1111,9 @@
     <Compile Include="Game\Screens\MyGuiScreenIntroVideo.cs" />
     <Compile Include="Game\Screens\MyGuiScreenLoading.cs" />
     <Compile Include="Game\Screens\MyGuiScreenMainMenu.cs" />
-    <Compile Include="Game\Screens\MyGuiScreenOptionsSpace.cs" />
     <Compile Include="Game\Screens\MyGuiScreenOptionsAudio.cs" />
     <Compile Include="Game\Screens\MyGuiScreenOptionsControls.cs" />
     <Compile Include="Game\Screens\MyGuiScreenOptionsGame.cs" />
-    <Compile Include="Game\Screens\MyGuiScreenOptionsVideoSpace.cs" />
     <Compile Include="Game\Screens\MyGuiScreenProgressAsync.cs" />
     <Compile Include="Game\Screens\MyGuiScreenStartQuickLaunch.cs" />
     <Compile Include="Game\Lights\MyDirectionalLight.cs" />
@@ -1183,6 +1193,10 @@
     <ProjectReference Include="..\VRage.Audio\VRage.Audio.csproj">
       <Project>{f77d0a49-f011-4e8a-80c8-cbe1842bf2d4}</Project>
       <Name>VRage.Audio</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\VRage.Game\VRage.Game.csproj">
+      <Project>{4539b5f0-3316-40e6-b032-9fbcafaac5be}</Project>
+      <Name>VRage.Game</Name>
     </ProjectReference>
     <ProjectReference Include="..\VRage.Input\VRage.Input.csproj">
       <Project>{f77d0a49-f0a1-4e8a-80c8-cbf1842bf2d4}</Project>

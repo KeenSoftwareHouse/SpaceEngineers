@@ -17,6 +17,7 @@ using VRage.Import;
 using VRage.Utils;
 using VRage.Serialization;
 using VRageMath;
+using VRage.ObjectBuilders;
 
 namespace Sandbox.Game.Weapons
 {
@@ -92,7 +93,7 @@ namespace Sandbox.Game.Weapons
 
         public MyObjectBuilder_GunBase GetObjectBuilder()
         {
-            var gunBaseObjectBuilder = Sandbox.Common.ObjectBuilders.Serializer.MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_GunBase>();
+            var gunBaseObjectBuilder = MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_GunBase>();
             gunBaseObjectBuilder.CurrentAmmoMagazineName = CurrentAmmoMagazineId.SubtypeName;
             gunBaseObjectBuilder.RemainingAmmo = CurrentAmmo;
             gunBaseObjectBuilder.RemainingAmmosList = new List<MyObjectBuilder_GunBase.RemainingAmmoIns>();

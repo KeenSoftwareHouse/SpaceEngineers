@@ -61,5 +61,12 @@ namespace Sandbox.Game.World
             emitter.SoundId = MyStringId.NullOrEmpty;
             m_singleUseEmitterPool.Enqueue(emitter);
         }
+
+        protected override void UnloadData()
+        {
+            base.UnloadData();
+            m_singleUseEmitterPool.Clear();
+            m_currentEmitters = 0;
+        }
     }
 }

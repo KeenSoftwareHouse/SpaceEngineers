@@ -687,21 +687,21 @@ namespace Sandbox.Game.Entities.Character
 
             //var hit = MyPhysics.CastRay(castFrom, castTo, out position, out normal, Physics.CharacterProxy.CharacterCollisionFilter, true); 
 
-            LineD castLine = new LineD(castFrom, castTo);
-            var result = MyEntities.GetIntersectionWithLine(ref castLine, characterEntity, characterTool, true, false, true);
+            //LineD castLine = new LineD(castFrom, castTo);
+            //var result = MyEntities.GetIntersectionWithLine(ref castLine, characterEntity, characterTool, true, false, true);
 
-            if (result != null)
-            {
-                hit.Position = result.Value.IntersectionPointInWorldSpace;
-                hit.Normal = result.Value.NormalInWorldSpace;
-                gotHit = true;
-                if (MyDebugDrawSettings.ENABLE_DEBUG_DRAW && MyDebugDrawSettings.DEBUG_DRAW_CHARACTER_IK_RAYCASTHITS)
-                {
-                    VRageRender.MyRenderProxy.DebugDrawSphere(hit.Position, 0.02f, Color.Gray, 1, false);
-                    VRageRender.MyRenderProxy.DebugDrawText3D(hit.Position, "Entity Intersection hit", Color.Gray, 1, false);
-                }
+            //if (result != null)
+            //{
+            //    hit.Position = result.Value.IntersectionPointInWorldSpace;
+            //    hit.Normal = result.Value.NormalInWorldSpace;
+            //    gotHit = true;
+            //    if (MyDebugDrawSettings.ENABLE_DEBUG_DRAW && MyDebugDrawSettings.DEBUG_DRAW_CHARACTER_IK_RAYCASTHITS)
+            //    {
+            //        VRageRender.MyRenderProxy.DebugDrawSphere(hit.Position, 0.02f, Color.Gray, 1, false);
+            //        VRageRender.MyRenderProxy.DebugDrawText3D(hit.Position, "Entity Intersection hit", Color.Gray, 1, false);
+            //    }
 
-            }
+            //}
 
             if (MyDebugDrawSettings.ENABLE_DEBUG_DRAW && MyDebugDrawSettings.DEBUG_DRAW_CHARACTER_IK_RAYCASTLINE)
             {

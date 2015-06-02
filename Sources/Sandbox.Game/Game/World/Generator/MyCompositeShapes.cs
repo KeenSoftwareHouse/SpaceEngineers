@@ -399,7 +399,7 @@ namespace Sandbox.Game.World.Generator
                     // What to do when we (or mods) change the number of materials? Same seed will then produce different results.
                     foreach (var material in MyDefinitionManager.Static.GetVoxelMaterialDefinitions())
                     {
-                        if (material.MinVersion > version)
+                        if (!material.SpawnsInAsteroids || material.MinVersion > version) // filter out non-natural and version-incompatible materials
                             continue;
 
                         if (material.MinedOre == "Stone") // Surface
@@ -421,6 +421,9 @@ namespace Sandbox.Game.World.Generator
                         else
                             m_depositMaterials.Add(material);
                     }
+
+                    if (m_surfaceMaterials.Count == 0) // this can happen if all materials are disabled or set to not spawn in asteroids
+                        throw new Exception("There are no voxel materials allowed to spawn in asteroids!");
 
                     Action<List<MyVoxelMaterialDefinition>> shuffleMaterials = (list) =>
                     {

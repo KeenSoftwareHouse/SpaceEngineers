@@ -11,24 +11,25 @@ using System.ServiceProcess;
 using System.Text;
 using VRage.Utils;
 using System.Collections.Generic;
-using Sandbox.Common.ObjectBuilders.Serializer;
 using VRage.Library.Utils;
 using VRage.FileSystem;
 using Sandbox.Engine.Utils;
 using VRage.Plugins;
 using Sandbox.Game;
 using System.ComponentModel.DataAnnotations;
+using Sandbox.Game;
 
 namespace VRage.Dedicated
 {
     public partial class ConfigForm<T> : Form where T : MyObjectBuilder_SessionSettings, new()
     {
         public static Action OnReset;
-        public static Game GameAttributes;
+        public static Sandbox.Common.ObjectBuilders.Game GameAttributes;
         public static System.Drawing.Image LogoImage;
 
         IMyAsyncResult m_loadWorldsAsync;
         MyObjectBuilder_SessionSettings m_selectedSessionSettings;
+        bool m_canChangeStartType = false;
 
         public bool HasToExit { get; private set; }
 
@@ -91,6 +92,8 @@ namespace VRage.Dedicated
             serviceStatusValueLabel.Hide();
             restartServiceButton.Hide();
             stopServiceButton.Hide();
+
+            Text = MyPerServerSettings.GameName + " - Dedicated server configurator";
 
             if (m_isService)
             {
@@ -190,8 +193,6 @@ namespace VRage.Dedicated
                 }
             }
 
-            startTypeRadio_CheckedChanged(null, null);
-
             gamesListBox.Sorted = true;
         }
 
@@ -204,6 +205,9 @@ namespace VRage.Dedicated
                 FillWorldsList();
 
                 loadGameButton.Checked = !string.IsNullOrEmpty(MySandboxGame.ConfigDedicated.LoadWorld);
+                startGameButton.Checked = !loadGameButton.Checked;
+
+                m_canChangeStartType = true;
                 startTypeRadio_CheckedChanged(null, null);
             }
         }
@@ -239,6 +243,9 @@ namespace VRage.Dedicated
 
         private void startTypeRadio_CheckedChanged(object sender, EventArgs e)
         {
+            if (!m_canChangeStartType)
+                return;
+
             if (loadGameButton.Checked)
             {
                 if (gamesListBox.Items.Count > 0)
@@ -268,9 +275,7 @@ namespace VRage.Dedicated
                 newGameSettingsPanel.Enabled = true;
 
                 MySandboxGame.ConfigDedicated.Load();
-                
-                if (m_selectedSessionSettings == null) //error during load
-                    m_selectedSessionSettings = MySandboxGame.ConfigDedicated.SessionSettings;
+                m_selectedSessionSettings = MySandboxGame.ConfigDedicated.SessionSettings;
                 
                 //enable tool shake needs to be true for new world, but false for old saved worlds.                                
                 m_selectedSessionSettings.EnableToolShake = true;
@@ -319,7 +324,7 @@ namespace VRage.Dedicated
                 if (gameAttr.Length > 0)
                 {
                     var gameRel = ((GameRelationAttribute)gameAttr[0]).RelatedTo;
-                    if (gameRel != Game.Shared && gameRel != GameAttributes)
+                    if (gameRel != Sandbox.Common.ObjectBuilders.Game.Shared && gameRel != GameAttributes)
                         continue;
                 }
 

@@ -12,15 +12,17 @@ using Sandbox.Engine.Utils;
 using VRage;
 using Sandbox.Game.Multiplayer;
 using VRage.Library.Utils;
+using VRage.ObjectBuilders;
 
 namespace Sandbox.Game.Entities
 {
-    class MyComponentStack
+    public class MyComponentStack
     {
         public struct GroupInfo
         {
             public int MountedCount;
             public int TotalCount;
+			public int AvailableCount;
 
             /// <summary>
             /// Integrity of group, increases when mounting more components
@@ -225,10 +227,13 @@ namespace Sandbox.Game.Entities
 
         public void UpdateBuildIntegrityUp()
         {
-            bool oldFunctionalState = false;
-            oldFunctionalState = IsFunctional;
-            m_buildIntegrity = m_integrity;
-            CheckFunctionalState(oldFunctionalState);
+			if (m_buildIntegrity < m_integrity)
+			{
+				bool oldFunctionalState = false;
+				oldFunctionalState = IsFunctional;
+				m_buildIntegrity = m_integrity;
+				CheckFunctionalState(oldFunctionalState);
+			}
         }
 
         public void UpdateBuildIntegrityDown(float ratio)
@@ -525,7 +530,7 @@ namespace Sandbox.Game.Entities
                     bool doDamage = damageItems && MyFakes.ENABLE_DAMAGED_COMPONENTS;
                     if (!damageItems || (doDamage && MyRandom.Instance.NextFloat() <= m_blockDefinition.Components[groupIndex].Definition.DropProbability))
                     {
-                        componentBuilder = Sandbox.Common.ObjectBuilders.Serializer.MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_Component>();
+                        componentBuilder = MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_Component>();
                         componentBuilder.SubtypeName = m_blockDefinition.Components[groupIndex].Definition.Id.SubtypeName;
                         if (doDamage)
                         {
@@ -604,6 +609,7 @@ namespace Sandbox.Game.Entities
                 Component = component.Definition,
                 TotalCount = component.Count,
                 MountedCount = 0,
+				AvailableCount = 0,
                 Integrity = 0.0f,
                 MaxIntegrity = component.Count * component.Definition.MaxIntegrity,
             };

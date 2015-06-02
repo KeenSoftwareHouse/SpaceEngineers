@@ -94,8 +94,6 @@ void prepare_lights(
     #endif
 
 
-    //float2 test_tile = float2(100, 1000);
-
     float2 tile_scale = frame_.resolution / (float)(2 * NUMTHREADS);
 	float2 tile_bias = tile_scale - float2(GroupID.xy);
 
@@ -109,8 +107,8 @@ void prepare_lights(
     frustum_planes[1] = c4 + c1;
     frustum_planes[2] = c4 - c2;
     frustum_planes[3] = c4 + c2;
-    frustum_planes[4] = float4(0.0f, 0.0f,  -1.0f, tileNear);
-    frustum_planes[5] = float4(0.0f, 0.0f, 1.0f, -tileFar);
+    frustum_planes[4] = float4(0.0f, 0.0f, -1.0f,  tileNear);
+    frustum_planes[5] = float4(0.0f, 0.0f,  1.0f, -tileFar);
 
 	uint i;
     [unroll] for(i=0; i<6; i++) {
@@ -133,7 +131,7 @@ void prepare_lights(
         [branch] if (in_frustum) {
             uint listIndex;
             InterlockedAdd(sTileNumLights, 1, listIndex);
-            TileIndices[tileIndex * MAX_TILE_LIGHTS + listIndex] = index;
+            TileIndices[frame_.tiles_num + tileIndex * MAX_TILE_LIGHTS + listIndex] = index;
         }
     }
 

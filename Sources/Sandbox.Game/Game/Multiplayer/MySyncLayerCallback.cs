@@ -11,7 +11,7 @@ using VRage;
 using VRage.Trace;
 using Sandbox.Common.ObjectBuilders;
 using VRage.Compiler;
-using Sandbox.Common.ObjectBuilders.Serializer;
+using VRage.ObjectBuilders;
 
 namespace Sandbox.Game.Multiplayer
 {
@@ -20,7 +20,7 @@ namespace Sandbox.Game.Multiplayer
         long GetEntityId();
     }
 
-    static class EntityMessageExtensions
+    public static class EntityMessageExtensions
     {
         public static string GetEntityText(this IEntityMessage msg)
         {
@@ -61,7 +61,7 @@ namespace Sandbox.Game.Multiplayer
 
         class DefaultProtoSerializer<T>
         {
-            public static readonly ProtoSerializer<T> Default = new ProtoSerializer<T>(Sandbox.Common.ObjectBuilders.Serializer.MyObjectBuilderSerializer.Serializer);
+            public static readonly ProtoSerializer<T> Default = new ProtoSerializer<T>(MyObjectBuilderSerializer.Serializer);
         }
 
         class Registrator<TMsg> : IRegistrator

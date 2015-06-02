@@ -67,6 +67,8 @@ namespace Sandbox.Game.AI
             m_user = bot;
             m_bot = bot as MyAgentBot;
             m_currentTarget = MyAiTargetEnum.NO_TARGET;
+
+            MyAiTargetManager.Static.AddAiTarget(this);
         }
 
         public abstract void Init(MyObjectBuilder_AiTarget builder);
@@ -82,6 +84,7 @@ namespace Sandbox.Game.AI
 
         public virtual void Cleanup()
         {
+			MyAiTargetManager.Static.RemoveAiTarget(this);
         }
 
         public virtual void Update()

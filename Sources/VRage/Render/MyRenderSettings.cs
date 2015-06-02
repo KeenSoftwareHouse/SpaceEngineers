@@ -470,10 +470,16 @@ namespace VRageRender
     /// </summary>
     public struct MyRenderSettings1 : IEquatable<MyRenderSettings1>
     {
+        // Common
+        public bool InterpolationEnabled;
+
+        // DX9
+        public MyRenderQualityEnum Dx9Quality;
+
+        //Dx11; All new renderers should be designed with these in mind.
         public MyAntialiasingMode AntialiasingMode;
         public MyShadowsQuality ShadowQuality;
         public bool MultithreadingEnabled;
-        public bool InterpolationEnabled;
         public MyTextureQuality TextureQuality;
         public MyTextureAnisoFiltering AnisotropicFiltering;
         public MyFoliageDetails FoliageDetails;
@@ -485,10 +491,12 @@ namespace VRageRender
 
         public bool Equals(ref MyRenderSettings1 other)
         {
-            return AntialiasingMode == other.AntialiasingMode &&
+            return
+                InterpolationEnabled == other.InterpolationEnabled &&
+                Dx9Quality == other.Dx9Quality &&
+                AntialiasingMode == other.AntialiasingMode &&
                 ShadowQuality == other.ShadowQuality &&
                 MultithreadingEnabled == other.MultithreadingEnabled &&
-                InterpolationEnabled == other.InterpolationEnabled &&
                 TextureQuality == other.TextureQuality &&
                 AnisotropicFiltering == other.AnisotropicFiltering &&
                 FoliageDetails == other.FoliageDetails;

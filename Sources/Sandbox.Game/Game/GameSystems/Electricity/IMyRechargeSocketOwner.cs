@@ -5,7 +5,7 @@ using System.Text;
 
 namespace Sandbox.Game.GameSystems.Electricity
 {
-    interface IMyRechargeSocketOwner
+    public interface IMyRechargeSocketOwner
     {
         MyRechargeSocket RechargeSocket { get; }
     }

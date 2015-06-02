@@ -22,7 +22,6 @@ using VRageMath;
 using Sandbox.Game.GUI;
 using System.Drawing;
 using Sandbox.Game.World;
-using Sandbox.Common.ObjectBuilders.Serializer;
 using SteamSDK;
 using Sandbox.Game.Multiplayer;
 using Sandbox.Engine.Networking;
@@ -30,9 +29,9 @@ using Sandbox.Engine.Multiplayer;
 using ProtoBuf;
 using System.Diagnostics;
 using VRage.Compression;
-using VRage.Utils;
 using VRage.Library.Utils;
 using VRage.FileSystem;
+using VRage.ObjectBuilders;
 #endregion
 
 namespace Sandbox.Game.Gui
@@ -96,6 +95,7 @@ namespace Sandbox.Game.Gui
 
         public static string m_localBlueprintFolder = Path.Combine(MyFileSystem.UserDataPath, "Blueprints", "local");
         public static string m_workshopBlueprintFolder = Path.Combine(MyFileSystem.UserDataPath, "Blueprints", "workshop");
+        public static string m_defaultBlueprintFolder = Path.Combine(MyFileSystem.ContentPath, "Data", "Blueprints");
         public static readonly string m_workshopBlueprintSuffix = ".sbb";
 
         public MyGuiBlueprintScreenBase(Vector2 position, Vector2 size, Vector4 backgroundColor, bool isTopMostScreen) :

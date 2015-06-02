@@ -14,6 +14,7 @@ using Sandbox.Game.GameSystems.Conveyors;
 using VRage;
 using Sandbox.ModAPI.Ingame;
 using VRage.Library.Utils;
+using VRage.ObjectBuilders;
 
 namespace Sandbox.Game.Entities
 {
@@ -129,7 +130,7 @@ namespace Sandbox.Game.Entities
                     amount = MyFixedPoint.Min(m_inventory.ComputeAmountThatFits(item.DefinitionId), amount);
                     if (amount > 0)
                     {
-                        var inventoryItem = (MyObjectBuilder_PhysicalObject)Sandbox.Common.ObjectBuilders.Serializer.MyObjectBuilderSerializer.CreateNewObject(item.DefinitionId);
+                        var inventoryItem = (MyObjectBuilder_PhysicalObject)MyObjectBuilderSerializer.CreateNewObject(item.DefinitionId);
                         m_inventory.AddItems(amount, inventoryItem);
                     }
                 }

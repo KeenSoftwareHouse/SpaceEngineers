@@ -11,6 +11,7 @@ using Sandbox.Game.World;
 using Sandbox.Common.ObjectBuilders;
 using Sandbox.Game.Entities.Cube;
 using Sandbox.Game.Entities;
+using VRage.Components;
 
 namespace Sandbox.Game.Components
 {
