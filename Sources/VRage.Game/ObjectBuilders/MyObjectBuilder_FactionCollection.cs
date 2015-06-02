@@ -7,6 +7,15 @@ using System.Text;
 using VRage.ObjectBuilders;
 using VRage.Serialization;
 
+namespace Sandbox.Common
+{    public enum MyRelationsBetweenFactions
+    {
+        Neutral,
+        Enemies
+    }
+}
+
+
 namespace Sandbox.Common.ObjectBuilders
 {
     public enum MyOwnershipShareModeEnum
