@@ -25,6 +25,6 @@ namespace Sandbox.ModAPI.Ingame
         /// <summary>
         /// Power production is enabled
         /// </summary>
-        bool ProducerEnabled { get; }
+        bool ProductionEnabled { get; }
     }
 }
