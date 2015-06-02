@@ -159,6 +159,8 @@ namespace Sandbox.Game.World
         public MyEnvironmentHostilityEnum EnvironmentHostility { get { return Settings.EnvironmentHostility; } }
 
         public bool Battle { get { return Settings.Battle; } }
+
+        public bool IsScenario = false;
         // Attacker leader blueprints.
         public List<Tuple<string, MyBlueprintItemInfo>> BattleBlueprints;
 
@@ -1263,7 +1265,6 @@ namespace Sandbox.Game.World
             long hostObj = world.Checkpoint.ControlledObject;
             world.Checkpoint.ControlledObject = -1;
 
-            MyHud.Chat.RegisterChat(multiplayerSession);
             MySession.Static.Gpss.RegisterChat(multiplayerSession);
 
             MySession.Static.CameraController = MySpectatorCameraController.Static;

@@ -2101,9 +2101,11 @@ false,
 
             Ragdoll.GenerateRigidBodiesCollisionFilters(deadMode ? MyPhysics.CharacterCollisionLayer : MyPhysics.RagdollCollisionLayer, RagdollSystemGroupCollisionFilterID, firstRagdollSubID);
             
-            if (deadMode) Ragdoll.ResetToRigPose();
+            Ragdoll.ResetToRigPose();
 
-            Ragdoll.SetWorldMatrix(havokMatrix, true);
+            Ragdoll.SetWorldMatrix(havokMatrix);
+
+            Ragdoll.SetTransforms(havokMatrix, false);
 
             if (deadMode) Ragdoll.SetToDynamic();
             
@@ -2190,7 +2192,8 @@ false,
             world.Translation = WorldToCluster(world.Translation); 
             Debug.Assert(world.IsValid() && world != Matrix.Zero, "Ragdoll world matrix is invalid!");
             //Ragdoll.ResetToRigPose();
-            Ragdoll.SetWorldMatrix(world, true);
+            Ragdoll.SetWorldMatrix(world);
+            Ragdoll.SetTransforms(world, false);
             //foreach (var body in Ragdoll.RigidBodies)
             //{
             //    body.UserObject = this;

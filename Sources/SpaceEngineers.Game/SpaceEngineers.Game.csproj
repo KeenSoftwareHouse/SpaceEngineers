@@ -61,6 +61,7 @@
     <Compile Include="Entities\UseObjects\MyUseObjectInventory.cs" />
     <Compile Include="Entities\UseObjects\MyUseObjectMedicalRoom.cs" />
     <Compile Include="Entities\UseObjects\MyUseObjectWardrobe.cs" />
+	<Compile Include="Entities\Weapons\MyCubePlacer.cs" />
     <Compile Include="Entities\Blocks\MyMedicalRoom.cs" />
     <Compile Include="GUI\MyGuiScreenMedicals.cs" />
     <Compile Include="GUI\MyGuiScreenOptionsGraphics.cs" />

@@ -436,8 +436,10 @@
     <Compile Include="Game\Entities\Character\MyCharacterBreath.cs" />
     <Compile Include="Game\Entities\Character\MyChatHistory.cs" />
     <Compile Include="Game\Entities\Character\MyInverseKinematics.cs" />
+    <Compile Include="Game\Entities\Character\MySkinnedEntity.cs" />
     <Compile Include="Game\Entities\Inventory\IMyComponentInventory.cs" />
     <Compile Include="Game\Entities\Inventory\MyAreaInventory.cs" />
+    <Compile Include="Game\Entities\Inventory\MyAreaInventoryComponentBase.cs" />
     <Compile Include="Game\Entities\MyCompositeGameLogicComponent.cs" />
     <Compile Include="Game\Entities\Cube\MyBlockGroupData.cs" />
     <Compile Include="Game\Entities\Cube\MyCubeBuilder-Draw.cs" />
@@ -513,6 +515,7 @@
     <Compile Include="Game\GameSystems\MyGridCameraSystem.cs" />
     <Compile Include="Game\GameSystems\MyGridOxygenSystem.cs" />
     <Compile Include="Game\GameSystems\MyOxygenProviderSystem.cs" />
+    <Compile Include="Game\GameSystems\MyScenarioSystem.cs" />
     <Compile Include="Game\GameSystems\StructuralIntegrity\MyAdvancedStaticSimulator.cs" />
     <Compile Include="Game\GameSystems\StructuralIntegrity\IMyIntegritySimulator.cs" />
     <Compile Include="Game\GameSystems\StructuralIntegrity\MyOndraSimulator.cs" />
@@ -534,6 +537,7 @@
     <Compile Include="Game\GUI\MyGuiDetailScreen.cs" />
     <Compile Include="Game\GUI\MyGuiIngameScriptsPage.cs" />
     <Compile Include="Game\GUI\MyGuiScreenBotSettings.cs" />
+    <Compile Include="Game\Screens\MyGuiScreenScenarioWaitForPlayers.cs" />
     <Compile Include="Game\GUI\MyHudCameraInfo.cs" />
     <Compile Include="Game\GUI\MyHudCameraOverlay.cs" />
     <Compile Include="Game\Console\MyCommandCharacter.cs" />
@@ -574,6 +578,7 @@
     <Compile Include="Game\Multiplayer\MySyncLaserAntenna.cs" />
     <Compile Include="Game\Multiplayer\MySyncManipulationTool.cs" />
     <Compile Include="Game\Multiplayer\MySyncMissionTriggers.cs" />
+    <Compile Include="Game\Multiplayer\MySyncScenario.cs" />
     <Compile Include="Game\Multiplayer\MySyncSoundBlock.cs" />
     <Compile Include="Game\Multiplayer\MySyncSpaceBall.cs" />
     <Compile Include="Game\Multiplayer\MyCameraCollection.cs" />
@@ -639,6 +644,8 @@
     <Compile Include="Game\Screens\MyGuiScreenMissionTriggers.cs" />
     <Compile Include="Game\Screens\MyGuiScreenOptionsDisplay.cs" />
     <Compile Include="Game\Screens\MyGuiScreenScenario.cs" />
+    <Compile Include="Game\Screens\MyGuiScreenScenarioMpBase.cs" />
+    <Compile Include="Game\Screens\MyGuiScreenScenarioMpServer.cs" />
     <Compile Include="Game\Screens\MyGuiScreenTextPanel.cs" />
     <Compile Include="Game\Screens\MyGuiScreenToolbarConfigBase.cs" />
     <Compile Include="Game\Screens\DebugScreens\MyGuiScreenDebugEnvironment.cs" />
@@ -945,7 +952,6 @@
     <Compile Include="Game\Screens\Terminal\MyTerminalControlPanel.cs" />
     <Compile Include="Game\Screens\Terminal\MyTerminalInventoryController.cs" />
     <Compile Include="Game\Screens\Terminal\MyTerminalProductionController.cs" />
-    <Compile Include="Game\Weapons\Guns\MyCubePlacer.cs" />
     <Compile Include="Game\World\MyAudioComponent.cs" />
     <Compile Include="Game\World\MyGlobalEventBase.cs" />
     <Compile Include="Game\World\MyGlobalEventFactory.cs" />

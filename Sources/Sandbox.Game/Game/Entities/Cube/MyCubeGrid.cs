@@ -1542,17 +1542,11 @@ namespace Sandbox.Game.Entities
 
         public bool CanAddCubes(Vector3I min, Vector3I max)
         {
-            Vector3I current;
-            for (current.X = min.X; current.X <= max.X; current.X++)
+            Vector3I current = min;
+            for (var it = new Vector3I.RangeIterator(ref min, ref max); it.IsValid(); it.GetNext(out current))
             {
-                for (current.Y = min.Y; current.Y <= max.Y; current.Y++)
-                {
-                    for (current.Z = min.Z; current.Z <= max.Z; current.Z++)
-                    {
-                        if (m_cubes.ContainsKey(current))
-                            return false;
-                    }
-                }
+                if (m_cubes.ContainsKey(current))
+                    return false;
             }
             return true;
         }
@@ -1561,19 +1555,12 @@ namespace Sandbox.Game.Entities
         {
             if (MyFakes.ENABLE_COMPOUND_BLOCKS && definition != null)
             {
-                Vector3I current;
-                for (current.X = min.X; current.X <= max.X; current.X++)
+                Vector3I current = min;
+                for (var it = new Vector3I.RangeIterator(ref min, ref max); it.IsValid(); it.GetNext(out current))
                 {
-                    for (current.Y = min.Y; current.Y <= max.Y; current.Y++)
-                    {
-                        for (current.Z = min.Z; current.Z <= max.Z; current.Z++)
-                        {
-                            if (!CanAddCube(current, orientation, definition))
-                                return false;
-                        }
-                    }
+                    if (!CanAddCube(current, orientation, definition))
+                        return false;
                 }
-
                 return true;
             }
 
@@ -1684,38 +1671,26 @@ namespace Sandbox.Game.Entities
 
         public void SetBlockDirty(MySlimBlock cubeBlock)
         {
-            Vector3I temp = new Vector3I();
-            for (temp.X = cubeBlock.Min.X; temp.X <= cubeBlock.Max.X; temp.X++)
+            Vector3I cube = cubeBlock.Min;
+            for (var it = new Vector3I.RangeIterator(ref cubeBlock.Min, ref cubeBlock.Max); it.IsValid(); it.GetNext(out cube))
             {
-                for (temp.Y = cubeBlock.Min.Y; temp.Y <= cubeBlock.Max.Y; temp.Y++)
-                {
-                    for (temp.Z = cubeBlock.Min.Z; temp.Z <= cubeBlock.Max.Z; temp.Z++)
-                    {
-                        m_dirtyRegion.AddCube(temp);
-                    }
-                }
+                m_dirtyRegion.AddCube(cube);
             }
         }
 
         public void DebugDrawRange(Vector3I min, Vector3I max)
         {
-            Vector3I currentMin;
-            for (currentMin.X = min.X; currentMin.X <= max.X; currentMin.X++)
+            Vector3I currentMin = min;
+            for (var it = new Vector3I.RangeIterator(ref min, ref max); it.IsValid(); it.GetNext(out currentMin))
             {
-                for (currentMin.Y = min.Y; currentMin.Y <= max.Y; currentMin.Y++)
-                {
-                    for (currentMin.Z = min.Z; currentMin.Z <= max.Z; currentMin.Z++)
-                    {
-                        var currentMax = currentMin + 1;
+                var currentMax = currentMin + 1;
 
-                        var obb = new MyOrientedBoundingBoxD(
-                            currentMin * GridSize,
-                            new Vector3(0.5f * GridSize),
-                            Quaternion.Identity);
-                        obb.Transform(WorldMatrix);
-                        VRageRender.MyRenderProxy.DebugDrawOBB(obb, Color.White, 0.5f, true, false);
-                    }
-                }
+                var obb = new MyOrientedBoundingBoxD(
+                    currentMin * GridSize,
+                    new Vector3(0.5f * GridSize),
+                    Quaternion.Identity);
+                obb.Transform(WorldMatrix);
+                VRageRender.MyRenderProxy.DebugDrawOBB(obb, Color.White, 0.5f, true, false);
             }
         }
 
@@ -1939,14 +1914,11 @@ namespace Sandbox.Game.Entities
             Vector3I.TransformNormal(ref center, ref rotationMatrix, out rotatedCenter);
 
             bool blockAddSuccessfull = true;
-            Vector3I temp = new Vector3I();
-            for (temp.X = cubeBlock.Min.X; temp.X <= cubeBlock.Max.X; temp.X++)
-                for (temp.Y = cubeBlock.Min.Y; temp.Y <= cubeBlock.Max.Y; temp.Y++)
-                    for (temp.Z = cubeBlock.Min.Z; temp.Z <= cubeBlock.Max.Z; temp.Z++)
-                    {
-                        Vector3I intPos = temp;
-                        blockAddSuccessfull &= AddCube(cubeBlock, ref intPos, rotationMatrix, blockDefinition);
-                    }
+            Vector3I temp = cubeBlock.Min;
+            for (var it = new Vector3I.RangeIterator(ref cubeBlock.Min, ref cubeBlock.Max); it.IsValid(); it.GetNext(out temp))
+            {
+                blockAddSuccessfull &= AddCube(cubeBlock, ref temp, rotationMatrix, blockDefinition);
+            }
 
             Debug.Assert(blockAddSuccessfull, "Cannot add cube block!");
 
@@ -1958,24 +1930,19 @@ namespace Sandbox.Game.Entities
             float boneErrorSquared = MyGridSkeleton.GetMaxBoneError(GridSize);
             boneErrorSquared *= boneErrorSquared;
 
-            for (int i = 0; i <= Skeleton.BoneDensity; i++)
+            Vector3I boneMax = (cubeBlock.Min + Vector3I.One) * Skeleton.BoneDensity;
+            Vector3I bonePos = cubeBlock.Min * Skeleton.BoneDensity;
+            for (var it = new Vector3I.RangeIterator(ref bonePos, ref boneMax); it.IsValid(); it.GetNext(out bonePos))
             {
-                for (int j = 0; j <= Skeleton.BoneDensity; j++)
-                {
-                    for (int k = 0; k <= Skeleton.BoneDensity; k++)
-                    {
-                        Vector3I bonePos = cubeBlock.Min * Skeleton.BoneDensity + new Vector3I(i, j, k);
-                        Vector3 boneOffset = Skeleton.GetDefinitionOffsetWithNeighbours(cubeBlock.Min, bonePos, this);
+                Vector3 boneOffset = Skeleton.GetDefinitionOffsetWithNeighbours(cubeBlock.Min, bonePos, this);
 
-                        if (boneOffset.LengthSquared() < boneErrorSquared)
-                        {
-                            Skeleton.Bones.Remove(bonePos);
-                        }
-                        else
-                        {
-                            Skeleton.Bones[bonePos] = boneOffset;
-                        }
-                    }
+                if (boneOffset.LengthSquared() < boneErrorSquared)
+                {
+                    Skeleton.Bones.Remove(bonePos);
+                }
+                else
+                {
+                    Skeleton.Bones[bonePos] = boneOffset;
                 }
             }
 
@@ -2316,7 +2283,7 @@ namespace Sandbox.Game.Entities
 
         private static IMyComponentInventory GetBuilderInventory(long builderId)
         {
-            if (MySession.Static.CreativeMode)
+            if (MySession.Static.CreativeMode || MySession.Static.SimpleSurvival)
                 return null;
 
             MyEntity builderEntity;
@@ -2328,10 +2295,7 @@ namespace Sandbox.Game.Entities
             var character = builderEntity as MyCharacter;
             if (character != null)
             {
-				IMyComponentInventory inventory = character.GetAreaInventory();
-				if (inventory == null)
-					inventory = character.GetInventory();
-                return inventory;
+                return character.GetComponentInventory();
             }
             var shipWelder = builderEntity as MyShipWelder;
             if (shipWelder != null)

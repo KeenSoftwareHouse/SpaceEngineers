@@ -3,6 +3,7 @@ using Sandbox.Common.ObjectBuilders;
 using Sandbox.Common.ObjectBuilders.VRageData;
 using Sandbox.Definitions;
 using Sandbox.Engine.Multiplayer;
+using Sandbox.Engine.Networking;
 using Sandbox.Game.Entities;
 using Sandbox.Game.World;
 using SteamSDK;
@@ -425,7 +426,7 @@ namespace Sandbox.Game.Multiplayer
                 {
 					bool localBuilder = false;
 					var player = MySession.LocalHumanPlayer;
-					if (player != null && msg.SenderSteamId == MySession.LocalHumanPlayer.Id.SteamId)
+					if (player != null && msg.SenderSteamId == MySteam.UserId)
 						localBuilder = true;
 
 					if (grid.IsStatic)

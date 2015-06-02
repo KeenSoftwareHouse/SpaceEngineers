@@ -62,7 +62,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Character\MySkinnedEntity.cs" />
     <Compile Include="Components\MyComponentBase.cs" />
     <Compile Include="Components\MyComponentContainer.cs" />
     <Compile Include="Components\MyDebugRenderComponentBase.cs" />
@@ -462,6 +461,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <Folder Include="Character\" />
     <Folder Include="Grid\" />
     <Folder Include="Inventory\" />
     <Folder Include="VoxelMap\" />

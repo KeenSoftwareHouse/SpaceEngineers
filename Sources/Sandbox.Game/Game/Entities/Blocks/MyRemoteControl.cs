@@ -156,7 +156,7 @@ namespace Sandbox.Game.Entities
                 }
             }
 
-            public MyObjectBuilder_AutopilotWaypoint GetObjectBuilder(bool allowNullsInActionList)
+            public MyObjectBuilder_AutopilotWaypoint GetObjectBuilder()
             {
                 MyObjectBuilder_AutopilotWaypoint builder = MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_AutopilotWaypoint>();
                 builder.Coords = Coords;
@@ -175,26 +175,15 @@ namespace Sandbox.Game.Entities
 
                     if (actionExists)
                     {
-                        if (allowNullsInActionList)
+                        builder.Actions = new List<MyObjectBuilder_ToolbarItem>();
+                        builder.Indexes = new List<int>();
+                        for (int i = 0; i < Actions.Length; i++)
                         {
-                            builder.Actions = new List<MyObjectBuilder_ToolbarItem>(Actions.Length);
-                            foreach (var action in Actions)
+                            var action = Actions[i];
+                            if (action != null)
                             {
-                                builder.Actions.Add(action == null ? null : action.GetObjectBuilder());
-                            }
-                        }
-                        else
-                        {
-                            builder.Actions = new List<MyObjectBuilder_ToolbarItem>();
-                            builder.Indexes = new List<int>();
-                            for (int i = 0; i < Actions.Length; i++)
-                            {
-                                var action = Actions[i];
-                                if (action != null)
-                                {
-                                    builder.Actions.Add(action.GetObjectBuilder());
-                                    builder.Indexes.Add(i);
-                                }
+                                builder.Actions.Add(action.GetObjectBuilder());
+                                builder.Indexes.Add(i);
                             }
                         }
                     }
@@ -985,7 +974,7 @@ namespace Sandbox.Game.Entities
             m_clipboard.Waypoints = new List<MyObjectBuilder_AutopilotWaypoint>(m_waypoints.Count);
             foreach (var waypoint in m_waypoints)
             {
-                m_clipboard.Waypoints.Add(waypoint.GetObjectBuilder(false));
+                m_clipboard.Waypoints.Add(waypoint.GetObjectBuilder());
             }
             RaisePropertiesChanged();
         }
@@ -1513,7 +1502,7 @@ namespace Sandbox.Game.Entities
 
             foreach (var waypoint in m_waypoints)
             {
-                objectBuilder.Waypoints.Add(waypoint.GetObjectBuilder(true));
+                objectBuilder.Waypoints.Add(waypoint.GetObjectBuilder());
             }
 
             if (m_currentWaypoint != null)

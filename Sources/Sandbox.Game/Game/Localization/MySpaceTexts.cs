@@ -10380,6 +10380,26 @@ namespace Sandbox.Game.Localization
         public static readonly MyStringId MessageBoxTextRestartNeededAfterRendererSwitch = MyStringId.GetOrCompute("MessageBoxTextRestartNeededAfterRendererSwitch");
 
         ///<summary>
+        ///Player name
+        ///</summary>
+        public static readonly MyStringId GuiScenarioPlayerName = MyStringId.GetOrCompute("GuiScenarioPlayerName");
+
+        ///<summary>
+        ///Status
+        ///</summary>
+        public static readonly MyStringId GuiScenarioPlayerStatus = MyStringId.GetOrCompute("GuiScenarioPlayerStatus");
+
+        ///<summary>
+        ///Send
+        ///</summary>
+        public static readonly MyStringId GuiScenarioSend = MyStringId.GetOrCompute("GuiScenarioSend");
+
+        ///<summary>
+        ///Start
+        ///</summary>
+        public static readonly MyStringId GuiScenarioStart = MyStringId.GetOrCompute("GuiScenarioStart");
+
+        ///<summary>
         ///Docking Mode
         ///</summary>
         public static readonly MyStringId BlockPropertyTitle_EnableDockingMode = MyStringId.GetOrCompute("BlockPropertyTitle_EnableDockingMode");
@@ -10408,5 +10428,30 @@ namespace Sandbox.Game.Localization
         ///Resets current waypoint to first position
         ///</summary>
         public static readonly MyStringId BlockActionTooltip_WaypointReset = MyStringId.GetOrCompute("BlockActionTooltip_WaypointReset");
+
+        ///<summary>
+        ///Connection timeout:
+        ///</summary>
+        public static readonly MyStringId GuiScenarioTimeout = MyStringId.GetOrCompute("GuiScenarioTimeout");
+
+        ///<summary>
+        ///10 min
+        ///</summary>
+        public static readonly MyStringId GuiScenarioTimeout10min = MyStringId.GetOrCompute("GuiScenarioTimeout10min");
+
+        ///<summary>
+        ///3 min
+        ///</summary>
+        public static readonly MyStringId GuiScenarioTimeout3min = MyStringId.GetOrCompute("GuiScenarioTimeout3min");
+
+        ///<summary>
+        ///5 min
+        ///</summary>
+        public static readonly MyStringId GuiScenarioTimeout5min = MyStringId.GetOrCompute("GuiScenarioTimeout5min");
+
+        ///<summary>
+        ///Unlimited
+        ///</summary>
+        public static readonly MyStringId GuiScenarioTimeoutUnlimited = MyStringId.GetOrCompute("GuiScenarioTimeoutUnlimited");
     }
 }

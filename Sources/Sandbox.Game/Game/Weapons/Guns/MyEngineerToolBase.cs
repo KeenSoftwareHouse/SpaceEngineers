@@ -366,6 +366,19 @@ namespace Sandbox.Game.Weapons
             UpdateEffect();
             CheckEffectType();
 
+			if (Owner != null && Owner.ControllerInfo.IsLocallyHumanControlled())
+			{
+				if (MySession.Static.SurvivalMode && (MySession.GetCameraControllerEnum() != MyCameraControllerEnum.Spectator || MyFinalBuildConstants.IS_OFFICIAL))
+				{
+					var character = ((MyCharacter)this.CharacterInventory.Owner);
+					MyCubeBuilder.Static.MaxGridDistanceFrom = character.PositionComp.GetPosition() + character.WorldMatrix.Up * 1.8f;
+				}
+				else
+				{
+					MyCubeBuilder.Static.MaxGridDistanceFrom = null;
+				}
+			}
+
             //MyTrace.Watch("MyEngineerToolBase.RequiredPowerInput", RequiredPowerInput); 
         }
 

@@ -141,7 +141,7 @@ namespace Sandbox.Game.Entities.Character
     #endregion
 
     [MyEntityType(typeof(MyObjectBuilder_Character))]                                                                                                                                     //for dead bodies
-    public partial class MyCharacter : MyEntity, IMyCameraController, IMyControllableEntity, IMyInventoryOwner, IMyPowerConsumer, IMyComponentOwner<MyDataBroadcaster>, IMyComponentOwner<MyDataReceiver>, IMyUseObject, IMyDestroyableObject, Sandbox.ModAPI.IMyCharacter
+    public partial class MyCharacter : MySkinnedEntity, IMyCameraController, IMyControllableEntity, IMyInventoryOwner, IMyPowerConsumer, IMyComponentOwner<MyDataBroadcaster>, IMyComponentOwner<MyDataReceiver>, IMyUseObject, IMyDestroyableObject, Sandbox.ModAPI.IMyCharacter
     {
         #region Fields
 
@@ -254,10 +254,10 @@ namespace Sandbox.Game.Entities.Character
         Vector3 m_lastScatterPos;
 
 
-        ulong m_actualUpdateFrame = 0;
-        ulong m_actualDrawFrame = 0;
-        ulong m_transformedBonesFrame = 0;
-        bool m_characterBonesReady = false;
+        //ulong m_actualUpdateFrame = 0;
+        //ulong m_actualDrawFrame = 0;
+        //ulong m_transformedBonesFrame = 0;
+        //bool m_characterBonesReady = false;
 
         //0 head
         //1 body
@@ -293,7 +293,6 @@ namespace Sandbox.Game.Entities.Character
 
         string m_characterModel;
         MyInventory m_inventory;
-		MyAreaInventory m_areaInventory;
         MyBattery m_suitBattery;
         MyPowerDistributor m_suitPowerDistributor;
         List<MyInventoryItem> m_inventoryResults = new List<MyInventoryItem>();
@@ -351,9 +350,7 @@ namespace Sandbox.Game.Entities.Character
         Vector2? m_localHeadAnimationY = null;
 
         List<List<int>> m_bodyCapsuleBones = new List<List<int>>();
-
-        List<Matrix> m_simulatedBones = new List<Matrix>();
-
+         
         float m_currentRotationDelay = 0;
         float m_currentRotationSkipDelay = 0;
 
@@ -937,10 +934,10 @@ namespace Sandbox.Game.Entities.Character
 
         public void InitRagdollMapper()
         {
-            if (m_bones.Count == 0) return;
+            if (Bones.Count == 0) return;
             if (Physics == null || Physics.Ragdoll == null) return;
 
-            RagdollMapper = new MyRagdollMapper(this, m_bones);
+            RagdollMapper = new MyRagdollMapper(this, Bones);
 
             RagdollMapper.Init(Definition.RagdollBonesMappings);
         }
@@ -1053,7 +1050,7 @@ namespace Sandbox.Game.Entities.Character
             // Are bodies moving one to another? if not we do not apply damage
             if (value.SeparatingVelocity < 0)
             {
-                if (!ControllerInfo.IsLocallyControlled() && !Sync.IsServer) return;
+                if (!Sync.IsServer) return;
 
                 DamageImpactEnum damageImpact = DamageImpactEnum.NoDamage;
 
@@ -1166,7 +1163,7 @@ namespace Sandbox.Game.Entities.Character
 
         private void ApplyDamage(DamageImpactEnum damageImpact, MyDamageType myDamageType)
         {
-            if (!ControllerInfo.IsLocallyControlled() && !Sync.IsServer) return;
+            if (!Sync.IsServer) return;
 
             if (MyDebugDrawSettings.ENABLE_DEBUG_DRAW && MyDebugDrawSettings.DEBUG_DRAW_SHOW_DAMAGE)
             {
@@ -1199,7 +1196,12 @@ namespace Sandbox.Game.Entities.Character
         private DamageImpactEnum GetDamageFromFall(HkRigidBody collidingBody, MyEntity collidingEntity, ref HkContactPointEvent value)
         {
             //if (m_currentMovementState != MyCharacterMovementEnum.Falling || m_currentMovementState != MyCharacterMovementEnum.Jump) return DamageImpactEnum.NoDamage;
-            if (!collidingBody.IsFixed && collidingBody.Mass < Physics.Mass * 50) return DamageImpactEnum.NoDamage;
+            //if (!collidingBody.IsFixed && collidingBody.Mass < Physics.Mass * 50) return DamageImpactEnum.NoDamage;
+
+            bool falledOnEntity = Vector3.Dot(value.ContactPoint.Normal, Physics.HavokWorld.Gravity) <= 0.0f;
+
+            if (!falledOnEntity) return DamageImpactEnum.NoDamage; 
+
             if (Math.Abs(value.SeparatingVelocity) < MyPerGameSettings.CharacterDamageMinVelocity) return DamageImpactEnum.NoDamage;
 
             if (Math.Abs(value.SeparatingVelocity) > MyPerGameSettings.CharacterDamageDeadlyDamageVelocity) return DamageImpactEnum.DeadlyDamage;
@@ -1333,31 +1335,9 @@ namespace Sandbox.Game.Entities.Character
             base.UpdateBeforeSimulation();
 
             System.Diagnostics.Debug.Assert(MySession.Static != null);
+
             if (MySession.Static == null)
                 return;
-
-            if (MyFakes.ENABLE_SYNCED_CHARACTER_MOVE_AND_ROTATE)
-            {
-                if (Sync.IsServer && ControllerInfo.Controller != null && ControllerInfo.IsRemotelyControlled())
-                {
-                    SyncObject.MoveAndRotate();
-                }
-            }
-
-            if (ControllerInfo.Controller == null && (!AIMode && Sync.IsServer) && m_currentMovementState != MyCharacterMovementEnum.Sitting)
-            { //abandoned character
-                //TODO: Can happen when character is created and not assigned to controller yet (lag)
-                //If it happens, than by code below he is killed in fast moving spawn ship
-
-                //if (m_currentMovementState != MyCharacterMovementEnum.Died)
-                //{
-                //    if (m_currentMovementState != MyCharacterMovementEnum.Standing)
-                //        Stand();
-
-                //    if (Physics != null)
-                //        Physics.ClearSpeed();
-                //}
-            }
 
             m_actualUpdateFrame++;
 
@@ -1540,11 +1520,6 @@ namespace Sandbox.Game.Entities.Character
             return CharacterSounds[(int)CharacterSoundsEnum.NONE_SOUND];
         }
 
-		public void InitAreaInventory()
-		{
-			m_areaInventory = new MyAreaInventory(this);
-		}
-
         public void UpdateLightPower(bool chargeImmediatelly = false)
         {
             float oldPower = m_currentLightPower;
@@ -1620,9 +1595,6 @@ namespace Sandbox.Game.Entities.Character
 		public override void UpdateAfterSimulation10()
 		{
 			base.UpdateAfterSimulation10();
-
-			if (m_areaInventory != null)
-				m_areaInventory.Update(PositionComp.GetPosition());
 
             UpdateCameraDistance();
 		}
@@ -2122,6 +2094,7 @@ namespace Sandbox.Game.Entities.Character
         {
             if (IsDead) return;
             if (MySession.ControlledEntity != this) return;
+            if (!Physics.Enabled) DeactivateJetpackRagdoll();
             if (SwitchToJetpackRagdoll && !Physics.IsRagdollModeActive)
             {
                 ActivateJetpackRagdoll();
@@ -2153,7 +2126,7 @@ namespace Sandbox.Game.Entities.Character
 
             if (!RagdollMapper.IsKeyFramed && !RagdollMapper.IsPartiallySimulated) return;
 
-            RagdollMapper.UpateHavokWorldPosition();
+            RagdollMapper.UpdateRagdollPosition();
             RagdollMapper.UpdateRagdollPose();
             RagdollMapper.SetVelocities();
             
@@ -2222,8 +2195,23 @@ namespace Sandbox.Game.Entities.Character
 
             if (Physics.IsRagdollModeActive)
             {
-                RagdollMapper.ActivatePartialSimulation(simulatedBodies);                
+                RagdollMapper.ActivatePartialSimulation(simulatedBodies);        
             }
+
+            // This is hack, ragdoll in jetpack sometimes can't settle and simulation is broken, if we find another way how to avoid that, this can be disabled
+            if (!MyFakes.ENABLE_JETPACK_RAGDOLL_COLLISIONS)
+            {
+                foreach (var body in Physics.Ragdoll.RigidBodies)
+                {
+                    var info = HkGroupFilter.CalcFilterInfo(MyPhysics.RagdollCollisionLayer, 0, 0, 0);
+                    Physics.HavokWorld.DisableCollisionsBetween(MyPhysics.RagdollCollisionLayer, MyPhysics.RagdollCollisionLayer);
+                    body.SetCollisionFilterInfo(info);
+                    body.LinearVelocity = Vector3.Zero;
+                    body.AngularVelocity = Vector3.Zero;
+                }                
+            }
+
+            RagdollMapper.ResetRagdoll(WorldMatrix);
         }
 
         private void DeactivateJetpackRagdoll()
@@ -2235,7 +2223,8 @@ namespace Sandbox.Game.Entities.Character
 
             RagdollMapper.DeactivatePartialSimulation();
 
-            Physics.CloseRagdollMode();            
+            Physics.CloseRagdollMode();
+            Physics.Ragdoll.ResetToRigPose();
         }
 
         /// <summary>
@@ -2251,27 +2240,23 @@ namespace Sandbox.Game.Entities.Character
             VRageRender.MyRenderProxy.GetRenderProfiler().StartProfilingBlock("Update Bones To Ragdoll");
 
             RagdollMapper.UpdateRagdollAfterSimulation();
+            
+            RagdollMapper.UpdateCharacterPose( IsDead ? 1.0f : 0.1f, IsDead ? 1.0f : 0.0f);
 
-            if (IsCameraNear)
+            RagdollMapper.DebugDraw(WorldMatrix);            
+                        
+            VRageRender.MyRenderProxy.GetRenderProfiler().EndProfilingBlock();
+
+            // save bone changes
+            VRageRender.MyRenderProxy.GetRenderProfiler().StartProfilingBlock("Save bones and pos update");
+
+            for (int i = 0; i < Bones.Count; i++)
             {
-
-                RagdollMapper.UpdateCharacterPose(IsDead ? 1.0f : 0.1f, IsDead ? 1.0f : 0.0f);
-
-                RagdollMapper.DebugDraw(WorldMatrix);
-
-                VRageRender.MyRenderProxy.GetRenderProfiler().EndProfilingBlock();
-
-                // save bone changes
-                VRageRender.MyRenderProxy.GetRenderProfiler().StartProfilingBlock("Save bones and pos update");
-
-                for (int i = 0; i < m_bones.Count; i++)
-                {
-                    MyCharacterBone bone = m_bones[i];
-                    m_boneRelativeTransforms[i] = bone.ComputeBoneTransform();
-                }
-
-                VRageRender.MyRenderProxy.GetRenderProfiler().EndProfilingBlock();
+                MyCharacterBone bone = Bones[i];
+                m_boneRelativeTransforms[i] = bone.ComputeBoneTransform();                
             }
+
+            VRageRender.MyRenderProxy.GetRenderProfiler().EndProfilingBlock();
         }
 
 
@@ -2287,8 +2272,8 @@ namespace Sandbox.Game.Entities.Character
             {
                 MyFeetIKSettings feetDebugSettings;
                 m_characterDefinition.FeetIKSettings.TryGetValue(MyDebugDrawSettings.DEBUG_DRAW_CHARACTER_IK_MOVEMENT_STATE, out feetDebugSettings);
-                Matrix leftFootMatrix = m_bones[m_leftAnkleBone].AbsoluteTransform;
-                Matrix rightFootMatrix = m_bones[m_rightAnkleBone].AbsoluteTransform;
+                Matrix leftFootMatrix = Bones[m_leftAnkleBone].AbsoluteTransform;
+                Matrix rightFootMatrix = Bones[m_rightAnkleBone].AbsoluteTransform;
                 Vector3 upDirection = WorldMatrix.Up;
                 Vector3 leftFootGroundPosition = new Vector3(leftFootMatrix.Translation.X, 0, leftFootMatrix.Translation.Z);
                 Vector3 rightFootGroundPosition = new Vector3(rightFootMatrix.Translation.X, 0, rightFootMatrix.Translation.Z);
@@ -2851,8 +2836,8 @@ namespace Sandbox.Game.Entities.Character
 
             for (int i = 1; i < Model.Bones.Length; i++)
             {
-                Vector3D p1 = Vector3D.Transform(m_bones[i].Parent.AbsoluteTransform.Translation, m_helperMatrix * WorldMatrix);
-                Vector3D p2 = Vector3D.Transform(m_bones[i].AbsoluteTransform.Translation, m_helperMatrix * WorldMatrix);
+                Vector3D p1 = Vector3D.Transform(Bones[i].Parent.AbsoluteTransform.Translation, m_helperMatrix * WorldMatrix);
+                Vector3D p2 = Vector3D.Transform(Bones[i].AbsoluteTransform.Translation, m_helperMatrix * WorldMatrix);
 
                 m_actualWorldAABB.Include(ref p1);
                 m_actualWorldAABB.Include(ref p2);
@@ -4371,7 +4356,7 @@ namespace Sandbox.Game.Entities.Character
             }
         }
 
-        void UpdateTransformedBones()
+        void UpdateCapsuleBones()
         {
             if (m_bodyCapsuleBones == null) return;
             if (m_bodyCapsuleBones.Count == 0) return;
@@ -4380,8 +4365,8 @@ namespace Sandbox.Game.Entities.Character
             int i = 0;
             foreach (var boneList in m_bodyCapsuleBones)
             {
-                m_bodyCapsules[i].P0 = (m_bones[boneList.First()].AbsoluteTransform * WorldMatrix).Translation ;
-                m_bodyCapsules[i].P1 = (m_bones[boneList.Last()].AbsoluteTransform * WorldMatrix).Translation;
+                m_bodyCapsules[i].P0 = (Bones[boneList.First()].AbsoluteTransform * WorldMatrix).Translation;
+                m_bodyCapsules[i].P1 = (Bones[boneList.Last()].AbsoluteTransform * WorldMatrix).Translation;
                 Vector3 difference = m_bodyCapsules[i].P0 - m_bodyCapsules[i].P1;
                 m_bodyCapsules[i].Radius = difference.Length() * 0.3f;
 
@@ -4393,7 +4378,6 @@ namespace Sandbox.Game.Entities.Character
                 i++;
             }
             m_characterBonesReady = true;
-            m_transformedBonesFrame = m_actualUpdateFrame;
         }
         #endregion
 
@@ -4495,7 +4479,7 @@ namespace Sandbox.Game.Entities.Character
                 Vector3 target = WorldMatrix.Translation;
                 if (m_headBoneIndex != -1)
                 {
-                    target = Vector3.Transform(m_bones[m_headBoneIndex].AbsoluteTransform.Translation, WorldMatrix);
+                    target = Vector3.Transform(Bones[m_headBoneIndex].AbsoluteTransform.Translation, WorldMatrix);
                 }
                 MatrixD viewMatrix = MatrixD.CreateLookAt(camPosition, target, Vector3.Up);
                 return viewMatrix.IsValid() && viewMatrix != MatrixD.Zero ? viewMatrix : m_lastCorrectSpectatorCamera;
@@ -4558,7 +4542,7 @@ namespace Sandbox.Game.Entities.Character
 
             t = null;
 
-            UpdateTransformedBones();            
+            UpdateCapsuleBones();            
 
             if (m_characterBonesReady == false)
                 return false;
@@ -5949,9 +5933,23 @@ namespace Sandbox.Game.Entities.Character
             return m_inventory;
         }
 
-		public MyAreaInventory GetAreaInventory()
+        public IMyComponentInventory GetToolInventory()
 		{
-			return m_areaInventory;
+            IMyComponentInventory inventory = null;
+			MyAreaInventoryComponentBase component = null;
+			var weaponEntity = CurrentWeapon as MyEntity;
+			if(weaponEntity != null && weaponEntity.Components.TryGet<MyAreaInventoryComponentBase>(out component))
+				inventory = component.GetInventory();
+
+			return inventory;
+		}
+
+		public IMyComponentInventory GetComponentInventory()
+		{
+			IMyComponentInventory inventory = GetToolInventory();
+			if (inventory == null)
+				inventory = GetInventory();
+			return inventory;
 		}
 
         public MyInventoryOwnerTypeEnum InventoryOwnerType
@@ -5966,21 +5964,20 @@ namespace Sandbox.Game.Entities.Character
             Debug.Assert(m_inventory != null, "Inventory is null!");
             Debug.Assert(blockDefinition.Components.Length != 0, "Missing components!");
 
-			bool canStart = m_inventory.ContainItems(1, blockDefinition.Components[0].Definition.Id);
+			var inventory = GetComponentInventory();
+			if(inventory == null)
+				return false;
 
-			if (!canStart && m_areaInventory != null)
-				canStart = (m_areaInventory.GetItemAmount(blockDefinition.Components[0].Definition.Id) >= 1);
-
-            return canStart;
+			return (inventory.GetItemAmount(blockDefinition.Components[0].Definition.Id) >= 1);
         }
 
         public bool CanStartConstruction(Dictionary<MyDefinitionId, int> constructionCost)
         {
             Debug.Assert(m_inventory != null, "Inventory is null!");
-
+			var inventory = GetComponentInventory();
             foreach (var entry in constructionCost)
             {
-                if (!m_inventory.ContainItems(entry.Value, entry.Key)) return false;
+				if (inventory.GetItemAmount(entry.Key) < entry.Value) return false;
             }
             return true;
         }
@@ -7499,7 +7496,8 @@ namespace Sandbox.Game.Entities.Character
 
 
             Matrix spineMatrix = WorldMatrix;
-            if (m_bones.IsValidIndex(m_spineBone)) spineMatrix = m_bones[m_spineBone].AbsoluteTransform;
+            if (Bones.IsValidIndex(m_spineBone))
+                spineMatrix = Bones[m_spineBone].AbsoluteTransform;
 
 
             float middle = m_currentMovementState == MyCharacterMovementEnum.Sprinting ? runMedAmp : medAmp;
@@ -7539,13 +7537,13 @@ namespace Sandbox.Game.Entities.Character
 
             if (MyFakes.ENABLE_BONES_AND_ANIMATIONS_DEBUG)
             {
-                Debug.Assert(m_bones.IsValidIndex(m_weaponBone), "Warning! Weapon bone " + Definition.WeaponBone + " on model " + ModelName + " is missing.");
+                Debug.Assert(Bones.IsValidIndex(m_weaponBone), "Warning! Weapon bone " + Definition.WeaponBone + " on model " + ModelName + " is missing.");
             }
 
             MatrixD weaponFinalLocalAnim;
-            if (m_bones.IsValidIndex(m_weaponBone))
+            if (Bones.IsValidIndex(m_weaponBone))
             {
-                weaponFinalLocalAnim = m_relativeWeaponMatrix * m_bones[m_weaponBone].AbsoluteTransform * WorldMatrix;
+                weaponFinalLocalAnim = m_relativeWeaponMatrix * Bones[m_weaponBone].AbsoluteTransform * WorldMatrix;
             }
             else
             {
@@ -7571,7 +7569,7 @@ namespace Sandbox.Game.Entities.Character
 
         void UpdateLeftHandItemPosition()
         {
-            MatrixD leftHandItemMatrix = m_bones[m_leftHandItemBone].AbsoluteTransform * WorldMatrix;
+            MatrixD leftHandItemMatrix = Bones[m_leftHandItemBone].AbsoluteTransform * WorldMatrix;
             Vector3D up = leftHandItemMatrix.Up;
             leftHandItemMatrix.Up = leftHandItemMatrix.Forward;
             leftHandItemMatrix.Forward = up;
@@ -7585,9 +7583,9 @@ namespace Sandbox.Game.Entities.Character
             {
                 Matrix weaponWorld = ((MyEntity)m_currentWeapon).WorldMatrix;
                 Matrix handWorld;
-                if (m_bones.IsValidIndex(m_weaponBone))
+                if (Bones.IsValidIndex(m_weaponBone))
                 {
-                    handWorld = m_bones[m_weaponBone].AbsoluteTransform * WorldMatrix;
+                    handWorld = Bones[m_weaponBone].AbsoluteTransform * WorldMatrix;
                 }
                 else
                 {

@@ -28,7 +28,7 @@ using VRage.ObjectBuilders;
 
 namespace Sandbox.Game.Weapons
 {
-    abstract class MyBlockPlacerBase : MyEngineerToolBase
+    public abstract class MyBlockPlacerBase : MyEngineerToolBase
     {
         public static MyHudNotificationBase MissingComponentNotification =
              new MyHudNotification(MySpaceTexts.NotificationMissingComponentToPlaceBlockFormat, font: MyFontEnum.Red, priority: 1);

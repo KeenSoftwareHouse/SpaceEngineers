@@ -215,15 +215,16 @@ VertexShaderInterface __prepare_interface(__VertexInput input, uint sv_vertex_id
 	result.key_color = object_.key_color;
 	result.custom_alpha = object_.custom_alpha;
 
-#if defined(USE_CUBE_INSTANCING) || defined(USE_DEFORMED_CUBE_INSTANCING)
-	result.custom_alpha = __colormask.w * (__packed_bone7.w ? -1 : 1);
-#endif
-
 	result._local_matrix = local_matrix;
 	result._view_proj_matrix = view_proj;
 
 #ifdef PASS_OBJECT_VALUES_THROUGH_STAGES
 	result.key_color = __colormask.xyz;
+	result.custom_alpha = __colormask.w;
+#endif
+
+#if defined(USE_CUBE_INSTANCING) || defined(USE_DEFORMED_CUBE_INSTANCING)
+	result.custom_alpha = __colormask.w * (__packed_bone7.w ? -1 : 1) + object_.custom_alpha;
 #endif
 
 	return result;

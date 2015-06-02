@@ -273,7 +273,7 @@ namespace Sandbox.Game.Weapons
                         }
                         else
                         {
-                            MyCubePlacer.OnMissingComponents(info.hitCube.BlockDefinition);
+                            MyBlockPlacerBase.OnMissingComponents(info.hitCube.BlockDefinition);
                         }
                     }
                 }
