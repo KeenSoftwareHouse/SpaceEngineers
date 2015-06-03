@@ -14,6 +14,6 @@ namespace Sandbox.Common.ObjectBuilders.Definitions
         public float ExplosionRadius = 0.0f;
 
         [ProtoMember]
-        public float WarheadExplosionDamage;
+        public float WarheadExplosionDamage = 15000f;
     }
 }
