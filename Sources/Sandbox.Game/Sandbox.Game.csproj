@@ -438,7 +438,10 @@
     <Compile Include="Game\Entities\Character\MyCharacterBreath.cs" />
     <Compile Include="Game\Entities\Character\MyChatHistory.cs" />
     <Compile Include="Game\Entities\Character\MyInverseKinematics.cs" />
+<<<<<<< HEAD
     <Compile Include="Game\Entities\Character\MySkinnedEntity.cs" />
+=======
+>>>>>>> origin/Advanced-Door
     <Compile Include="Game\Entities\Cube\MyUseObjectAdvancedDoorTerminal.cs" />
     <Compile Include="Game\Entities\Inventory\IMyComponentInventory.cs" />
     <Compile Include="Game\Entities\Inventory\MyAreaInventory.cs" />
@@ -577,6 +580,7 @@
       <AutoGen>True</AutoGen>
     </Compile>
     <Compile Include="Game\Multiplayer\MyGpsCollection.cs" />
+    <Compile Include="Game\Multiplayer\MySyncAdvancedDoor.cs" />
     <Compile Include="Game\Multiplayer\MySyncAirtightDoorGeneric.cs" />
     <Compile Include="Game\Multiplayer\MySyncConveyorSorter.cs" />
     <Compile Include="Game\Multiplayer\MySyncCryoChamber.cs" />

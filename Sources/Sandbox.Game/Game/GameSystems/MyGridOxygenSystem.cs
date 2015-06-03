@@ -1207,7 +1207,11 @@ namespace Sandbox.Game.GameSystems
                         return true;
                     }
                 }
+<<<<<<< HEAD
                 else if (doorBlock is MyAirtightDoorGeneric)
+=======
+                else if(doorBlock is MyAirtightDoorGeneric)
+>>>>>>> origin/Advanced-Door
                 {
                     var hangarDoor = doorBlock as MyAirtightDoorGeneric;
                     if (hangarDoor.IsFullyClosed)

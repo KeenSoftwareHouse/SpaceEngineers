@@ -22,8 +22,11 @@ using Sandbox.Game.Screens;
 using Sandbox.Graphics.TransparentGeometry;
 using Sandbox.Game.Screens.Terminal.Controls;
 using VRage.Utils;
+<<<<<<< HEAD
 using VRage.Components;
 using VRage.ModAPI;
+=======
+>>>>>>> origin/Advanced-Door
 using Sandbox.Definitions;
 using Sandbox.Game.Localization;
 using Sandbox.Common.ObjectBuilders.Definitions;
@@ -31,7 +34,11 @@ using Sandbox.Common.ObjectBuilders.Definitions;
 namespace Sandbox.Game.Entities
 {
     [MyCubeBlockType(typeof(MyObjectBuilder_AdvancedDoor))]
+<<<<<<< HEAD
     public class MyAdvancedDoor : MyFunctionalBlock, IMyPowerConsumer, ModAPI.IMyDoor
+=======
+    class MyAdvancedDoor : MyFunctionalBlock, IMyPowerConsumer, ModAPI.IMyDoor
+>>>>>>> origin/Advanced-Door
     {
         private const float CLOSED_DISSASEMBLE_RATIO = 3.3f;
 
@@ -406,7 +413,11 @@ namespace Sandbox.Game.Entities
                     {
                         List<HkShape> shapes = subpart.ModelCollision.HavokCollisionShapes.ToList();
                         var listShape = new HkListShape(shapes.GetInternalArray(), shapes.Count, HkReferencePolicy.None);
+<<<<<<< HEAD
                         subpart.Physics = new Engine.Physics.MyPhysicsBody(subpart, RigidBodyFlag.RBF_DOUBLED_KINEMATIC | RigidBodyFlag.RBF_KINEMATIC);
+=======
+                        subpart.Physics = new Engine.Physics.MyPhysicsBody(subpart, Engine.Physics.RigidBodyFlag.RBF_DOUBLED_KINEMATIC | Engine.Physics.RigidBodyFlag.RBF_KINEMATIC);
+>>>>>>> origin/Advanced-Door
                         subpart.Physics.IsPhantom = false;
                         subpart.Physics.CreateFromCollisionObject((HkShape)listShape, Vector3.Zero, WorldMatrix, null, MyPhysics.KinematicDoubledCollisionLayer);
                         subpart.Physics.Enabled = true;
