@@ -10458,5 +10458,15 @@ namespace Sandbox.Game.Localization
         ///Scenario
         ///</summary>
         public static readonly MyStringId WorldSettings_GameScenario = MyStringId.GetOrCompute("WorldSettings_GameScenario");
+
+        ///<summary>
+        ///Destroy mode
+        ///</summary>
+        public static readonly MyStringId Drill_Destroy = MyStringId.GetOrCompute("Drill_Destroy");
+
+        ///<summary>
+        ///Drill works faster but collects no ore
+        ///</summary>
+        public static readonly MyStringId Drill_Destroy_Tooltip = MyStringId.GetOrCompute("Drill_Destroy_Tooltip");
     }
 }

@@ -6474,4 +6474,10 @@ To connect to lasers not listed here you can connect to coordinates.</value>
   <data name="WorldSettings_GameScenario" xml:space="preserve">
     <value>Scenario</value>
   </data>
+  <data name="Drill_Destroy" xml:space="preserve">
+    <value>Destroy mode</value>
+  </data>
+  <data name="Drill_Destroy_Tooltip" xml:space="preserve">
+    <value>Drill works faster but collects no ore</value>
+  </data>
 </root>
