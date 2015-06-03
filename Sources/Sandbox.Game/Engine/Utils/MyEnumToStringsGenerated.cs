@@ -1,5 +1,18 @@
 ﻿
 
+
+
+
+
+
+
+
+
+
+
+
+
+
 namespace Sandbox.Engine.Utils
 {
 
@@ -9,18 +22,31 @@ namespace Sandbox.Engine.Utils
 		
 		public static string[] HudTextures = new string[] 
 		{ 
-					"corner.png",
-					"crosshair.png",
-					"HudOre.png",
-					"Target_enemy.png",
-					"Target_friend.png",
-					"Target_neutral.png",
-					"Target_me.png",
-					"TargetTurret.png",
-					"DirectionIndicator.png",
-					"gravity_point_red.png",
-					"gravity_point_white.png",
-					"gravity_arrow.png",
-						};
+				
+	"corner.png",
+				
+	"crosshair.png",
+				
+	"HudOre.png",
+				
+	"Target_enemy.png",
+				
+	"Target_friend.png",
+				
+	"Target_neutral.png",
+				
+	"Target_me.png",
+				
+	"TargetTurret.png",
+				
+	"DirectionIndicator.png",
+				
+	"gravity_point_red.png",
+				
+	"gravity_point_white.png",
+				
+	"gravity_arrow.png",
+				
+		};
 	}
 }

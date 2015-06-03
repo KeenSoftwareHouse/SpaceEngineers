@@ -292,6 +292,20 @@ namespace Sandbox.Game.Entities
             return MyCubeGridGroups.Static.BreakLink(type, linkId, parent, child);
         }
 
+<<<<<<< HEAD
+=======
+        private IMyUseObject CreateInteractiveObject(string detectorName, string dummyName, MyModelDummy dummyData, int shapeKey)
+        {
+            // temporary hack until dummy for door terminal is renamed
+            if (this is MyDoor && detectorName == "terminal")
+                return new MyUseObjectDoorTerminal(this, dummyName, dummyData, shapeKey);
+            else if (this is MyAdvancedDoor && detectorName == "terminal")
+                return new MyUseObjectAdvancedDoorTerminal(this, dummyName, dummyData, shapeKey);
+
+            return MyUseObjectFactory.CreateUseObject(detectorName, this, dummyName, dummyData, shapeKey);
+        }
+
+>>>>>>> origin/Advanced-Door
         private static MethodDataIsConnectedTo m_methodDataIsConnectedTo;
 
         public virtual String DisplayNameText { get; protected set; }

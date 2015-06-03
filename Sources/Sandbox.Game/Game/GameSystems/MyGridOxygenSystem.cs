@@ -1175,22 +1175,46 @@ namespace Sandbox.Game.GameSystems
 
             if (block.FatBlock != null)
             {
-                var door = block.FatBlock as MyDoor;
-                if (door != null && !door.Open)
+                var doorBlock = block.FatBlock;
+
+                if (doorBlock is MyDoor)
                 {
-                    foreach (var mountPoint in block.BlockDefinition.MountPoints)
+                    var door = doorBlock as MyDoor;
+                    if (!door.Open)
                     {
-                        if (transformedNormal == mountPoint.Normal)
+                        foreach (var mountPoint in block.BlockDefinition.MountPoints)
                         {
-                            return false;
+                            if (transformedNormal == mountPoint.Normal)
+                            {
+                                return false;
+                            }
                         }
+                        return true;
                     }
-                    return true;
                 }
-                else
+                else if (doorBlock is MyAdvancedDoor)
                 {
-                    var hangarDoor = block.FatBlock as MyAirtightDoorGeneric;
-                    if (hangarDoor != null && hangarDoor.IsFullyClosed)
+                    var door = doorBlock as MyAdvancedDoor;
+                    if (door.FullyClosed)
+                    {
+                        foreach (var mountPoint in block.BlockDefinition.MountPoints)
+                        {
+                            if (transformedNormal == mountPoint.Normal)
+                            {
+                                return false;
+                            }
+                        }
+                        return true;
+                    }
+                }
+<<<<<<< HEAD
+                else if (doorBlock is MyAirtightDoorGeneric)
+=======
+                else if(doorBlock is MyAirtightDoorGeneric)
+>>>>>>> origin/Advanced-Door
+                {
+                    var hangarDoor = doorBlock as MyAirtightDoorGeneric;
+                    if (hangarDoor.IsFullyClosed)
                     {
                         if (transformedNormal == Vector3.Forward || transformedNormal == Vector3.Backward)
                         {
