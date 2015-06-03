@@ -201,6 +201,7 @@ namespace Sandbox.Game.Entities
         private Vector3D m_recordedAngularAcceleration;
         private Vector3D m_prevAngularVelocity;
         private double   m_maxAngle;
+        private bool     m_movementEnabled;
 
         public IMyControllableEntity PreviousControlledEntity
         {
@@ -611,7 +612,7 @@ namespace Sandbox.Game.Entities
                 if (!enabled)
                 {
                     CubeGrid.GridSystems.ThrustSystem.AutoPilotThrust = Vector3.Zero;
-                    CubeGrid.GridSystems.GyroSystem.ControlTorque = Vector3.Zero;
+                    CubeGrid.GridSystems.GyroSystem.ControlTorque = CubeGrid.GridSystems.ThrustSystem.ControlTorque = Vector3.Zero;
 
                     m_autoPilotEnabled = enabled;
 
@@ -1151,7 +1152,7 @@ namespace Sandbox.Game.Entities
 
                 if (m_currentWaypoint == null && m_waypoints.Count > 0)
                 {
-                    gyros.IsCourseEstablished = thrusters.IsCourseEstablished = false;
+                    gyros.IsCourseEstablished = thrusters.IsCourseEstablished = m_movementEnabled = false;
                     m_maxAngle        = m_dockingModeEnabled ? 0.05 : 0.25;
                     m_currentWaypoint = m_waypoints[0];
                     m_startPosition   = WorldMatrix.Translation;
@@ -1163,7 +1164,7 @@ namespace Sandbox.Game.Entities
                     gyros.IsAutopilotActive = thrusters.IsAutopilotActive = true;
                     if (IsInStoppingDistance())
                     {
-                        gyros.IsCourseEstablished = thrusters.IsCourseEstablished = false;
+                        gyros.IsCourseEstablished = thrusters.IsCourseEstablished = m_movementEnabled = false;
                         m_maxAngle = m_dockingModeEnabled ? 0.05 : 0.25;
                         AdvanceWaypoint();
                     }
@@ -1171,13 +1172,11 @@ namespace Sandbox.Game.Entities
                     if (Sync.IsServer && m_currentWaypoint != null && !IsInStoppingDistance())
                     {
                         if (!UpdateGyro())
-                        {
+                            m_movementEnabled = true;
+                        if (m_movementEnabled)
                             UpdateThrust();
-                        }
                         else
-                        {
-                            CubeGrid.GridSystems.ThrustSystem.AutoPilotThrust = Vector3.Zero;
-                        }
+                            thrusters.AutoPilotThrust = Vector3.Zero;
                     }
                 }
             }
@@ -1239,7 +1238,7 @@ namespace Sandbox.Game.Entities
                     {
                         currentIndex = 0;
 
-                        CubeGrid.GridSystems.GyroSystem.ControlTorque = Vector3.Zero;
+                        CubeGrid.GridSystems.GyroSystem.ControlTorque = CubeGrid.GridSystems.ThrustSystem.ControlTorque = Vector3.Zero;
                         CubeGrid.GridSystems.ThrustSystem.AutoPilotThrust = Vector3.Zero;
 
                         SetAutoPilotEnabled(false);
@@ -1312,7 +1311,7 @@ namespace Sandbox.Game.Entities
             Matrix invWorldRot = CubeGrid.PositionComp.WorldMatrixNormalizedInv.GetOrientation();
 
             Vector3D targetPos  = m_currentWaypoint.Coords;
-            Vector3D currentPos = WorldMatrix.Translation;
+            Vector3D currentPos = m_startPosition;
             Vector3D deltaPos   = targetPos - currentPos;
 
             Vector3D targetDirection = Vector3D.Normalize(deltaPos);
@@ -1351,7 +1350,7 @@ namespace Sandbox.Game.Entities
                 double timeToStop        = angularVelocity.Length() /    deceleration.Length();
                 double timeToReachTarget =                    angle / angularVelocity.Length();
 
-                if (double.IsNaN(timeToStop) || double.IsInfinity(timeToReachTarget) || timeToReachTarget > timeToStop)
+                if (double.IsNaN(timeToStop) || double.IsInfinity(timeToReachTarget) || timeToReachTarget > 1.5 * timeToStop)
                 {
                     if (m_dockingModeEnabled)
                         velocity /= 4.0;
@@ -1365,10 +1364,18 @@ namespace Sandbox.Game.Entities
             return angle > m_maxAngle && !gyros.IsCourseEstablished && !thrusters.IsCourseEstablished;
         }
 
+        private void CancelLateralMotion(ref Vector3 control, Vector3D lateralControl, Matrix invWorldRot)
+        {
+            var localVelocityToCancel = Vector3D.Transform(lateralControl, invWorldRot);
+
+            if (localVelocityToCancel != Vector3.Zero)
+                control -= (localVelocityToCancel.LengthSquared() > 1.0) ? Vector3D.Normalize(localVelocityToCancel) : localVelocityToCancel;
+        }
+
         private void UpdateThrust()
         {
-            const double ACCELERATION_THRESHOLD = 3.0;
-            const double COAST_THRESHOLD        = 2.0;
+            const double ACCELERATION_THRESHOLD = 5.0;
+            const double COAST_THRESHOLD        = 3.0;
             const double BRAKE_THRESHOLD        = 1.5;
             
             var thrustSystem = CubeGrid.GridSystems.ThrustSystem;
@@ -1384,14 +1391,15 @@ namespace Sandbox.Game.Entities
 
             Vector3D velocity = CubeGrid.Physics.LinearVelocity;
 
-            Vector3 localSpaceTargetDirection = Vector3.Transform(targetDirection, invWorldRot);
-            Vector3 localSpaceVelocity = Vector3.Transform(velocity, invWorldRot);
+            //Vector3D localSpaceTargetDirection = Vector3D.Transform(targetDirection, invWorldRot);
+            //Vector3D localSpaceVelocity = Vector3D.Transform(velocity, invWorldRot);
 
             thrustSystem.AutoPilotThrust = Vector3.Zero;
 
             Vector3 brakeThrust = thrustSystem.GetAutoPilotThrustForDirection(Vector3.Zero);
 
-            if (velocity.Length() > 3.0f && velocity.Dot(ref targetDirection) < 0)
+            double speed = velocity.Length();
+            if (speed > 1.0 && Vector3D.Dot(velocity, targetDirection) < speed / MathHelper.Sqrt2)      // Angle between target and velocity is greater than 45 degrees.
             {
                 //Going the wrong way
                 return;
@@ -1403,19 +1411,33 @@ namespace Sandbox.Game.Entities
             Vector3D velocityToTarget = targetDirection * velocity.Dot(ref targetDirection);
             Vector3D velocity1 = perpendicularToTarget1 * velocity.Dot(ref perpendicularToTarget1);
             Vector3D velocity2 = perpendicularToTarget2 * velocity.Dot(ref perpendicularToTarget2);
-            Vector3D delta1    = perpendicularToTarget1 *    delta.Dot(ref perpendicularToTarget1);
-            Vector3D delta2    = perpendicularToTarget2 *    delta.Dot(ref perpendicularToTarget2);
-
             Vector3D velocityToCancel = velocity1 + velocity2;
-            delta -= delta1 + delta2;
+
+            Vector3 lateralControl = Vector3.Zero;
+            if (velocityToCancel != Vector3.Zero)
+            {
+                Vector3 lateralThrust = thrustSystem.GetAutoPilotThrustForDirection(Vector3.Normalize(-velocityToCancel));
+
+                if (lateralThrust != Vector3.Zero)
+                {
+                    lateralControl = Vector3.Transform((-velocityToCancel) * CubeGrid.Physics.Mass / lateralThrust.Length(), invWorldRot);
+                    if (lateralControl.LengthSquared() > 0.01f)
+                        lateralControl.Normalize();
+                    else
+                        lateralControl *= 10.0f;
+                }
+            }
 
             double timeToReachTarget = (delta.Length() / velocityToTarget.Length());
             double timeToStop = velocity.Length() * CubeGrid.Physics.Mass / brakeThrust.Length();
 
+            Vector3D localSpaceDelta = Vector3D.Transform(delta, invWorldRot);
             if (double.IsInfinity(timeToReachTarget) || double.IsNaN(timeToStop))
             {
-                thrustSystem.AutoPilotThrust = Vector3D.Transform(delta, invWorldRot) - Vector3D.Transform(velocityToCancel, invWorldRot);
+                thrustSystem.AutoPilotThrust = localSpaceDelta;
                 thrustSystem.AutoPilotThrust.Normalize();
+                thrustSystem.AutoPilotThrust += lateralControl;
+                thrustSystem.AutoPilotThrust  = Vector3.Clamp(thrustSystem.AutoPilotThrust, -Vector3.One, Vector3.One);
             }
             else 
             {
@@ -1431,18 +1453,16 @@ namespace Sandbox.Game.Entities
                     m_autoPilotAccelerate = true;
                 if (m_autoPilotAccelerate)
                 {
-                    thrustSystem.AutoPilotThrust = Vector3D.Transform(delta, invWorldRot);
+                    thrustSystem.AutoPilotThrust = localSpaceDelta;
                     thrustSystem.AutoPilotThrust.Normalize();
-                    var localVelocityToCancel = Vector3D.Transform(velocityToCancel, invWorldRot);
-                    if (localVelocityToCancel != Vector3.Zero)
-                        thrustSystem.AutoPilotThrust -= (localVelocityToCancel.LengthSquared() > 0.01f) ? Vector3D.Normalize(localVelocityToCancel) : (localVelocityToCancel * 10.0f);
+                    thrustSystem.AutoPilotThrust += lateralControl;
+                    thrustSystem.AutoPilotThrust  = Vector3.Clamp(thrustSystem.AutoPilotThrust, -Vector3.One, Vector3.One);
                 }
                 else if (m_autoPilotCoast)
                 {
-                    thrustSystem.AutoPilotThrust = Vector3.Backward * 0.1f;     // Minimal reverse thrust for coasting.
-                    var localVelocityToCancel = Vector3D.Transform(velocityToCancel, invWorldRot);
-                    if (localVelocityToCancel != Vector3.Zero)
-                        thrustSystem.AutoPilotThrust -= (localVelocityToCancel.LengthSquared() > 0.01f) ? Vector3D.Normalize(localVelocityToCancel) : (localVelocityToCancel * 10.0f);
+                    thrustSystem.AutoPilotThrust  = Vector3.Backward * 0.1f;     // Minimal reverse thrust for coasting.
+                    thrustSystem.AutoPilotThrust += lateralControl;
+                    thrustSystem.AutoPilotThrust  = Vector3.Clamp(thrustSystem.AutoPilotThrust, -Vector3.One, Vector3.One);
                 }
             }
         }
