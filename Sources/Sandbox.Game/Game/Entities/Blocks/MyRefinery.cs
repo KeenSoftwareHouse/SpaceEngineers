@@ -313,5 +313,30 @@ namespace Sandbox.Game.Entities.Cube
         {
             return base.GetOperationalPowerConsumption() * (1f + UpgradeValues["Productivity"]) * (1f / UpgradeValues["PowerEfficiency"]);
         }
+
+        float IMyRefinery.Effectiveness
+        {
+            get
+            {
+                float evalue;
+                return UpgradeValues.TryGetValue("Effectiveness", out evalue) ? evalue : 1;
+            }
+        }
+        float IMyRefinery.Productivity
+        {
+            get
+            {
+                float evalue;
+                return UpgradeValues.TryGetValue("Productivity", out evalue) ? evalue : 1;
+            }
+        }
+        float IMyRefinery.PowerEfficiency
+        {
+            get
+            {
+                float evalue;
+                return UpgradeValues.TryGetValue("PowerEfficiency", out evalue) ? evalue : 1;
+            }
+        }
     }
 }
