@@ -651,7 +651,7 @@ namespace Sandbox.Game.AI
                 {
                     if (area.AreaType == AreaMarkerDefinition.Id.SubtypeId)
                     {
-                        area.Entity.Close();
+                        area.Container.Entity.Close();
                     }
                 }
                 m_tmpAreas.Clear();

@@ -16,10 +16,11 @@ using System.Text;
 using VRage;
 using VRage.Utils;
 using VRage.Compiler;
-using VRage.Utils;
 using VRage.Library.Utils;
 using VRage.Serialization;
 using VRage.FileSystem;
+using VRage.Components;
+using VRage.ObjectBuilders;
 
 namespace Sandbox.Game.World
 {
@@ -138,11 +139,11 @@ namespace Sandbox.Game.World
                         MyDefinitionErrors.Add(c, e.Message, ErrorSeverity.Error);
                     }
                 }
-                IlCompiler.CompileFile(assemblyName, m_cachedFiles.ToArray(), out assembly, m_errors);
+                IlCompiler.CompileFileModAPI(assemblyName, m_cachedFiles.ToArray(), out assembly, m_errors);
             }
             else
             {
-                IlCompiler.CompileFile(assemblyName, scriptFiles.ToArray(), out assembly, m_errors);
+                IlCompiler.CompileFileModAPI(assemblyName, scriptFiles.ToArray(), out assembly, m_errors);
             }
             if(assembly != null)
                 AddAssembly(MyStringId.GetOrCompute(assemblyName), assembly);

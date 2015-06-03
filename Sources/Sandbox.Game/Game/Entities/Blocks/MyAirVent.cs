@@ -20,6 +20,7 @@ using VRage.Utils;
 using Sandbox.Graphics.TransparentGeometry.Particles;
 using Sandbox.ModAPI.Ingame;
 using Sandbox.Engine.Utils;
+using VRage.ModAPI;
 
 namespace Sandbox.Game.Entities.Blocks
 {
@@ -103,7 +104,7 @@ namespace Sandbox.Game.Entities.Blocks
             m_isDepressurizing = builder.IsDepressurizing;
 
             InitializeConveyorEndpoint();
-            NeedsUpdate = Common.MyEntityUpdateEnum.EACH_10TH_FRAME | Common.MyEntityUpdateEnum.EACH_100TH_FRAME;
+            NeedsUpdate = MyEntityUpdateEnum.EACH_10TH_FRAME | MyEntityUpdateEnum.EACH_100TH_FRAME;
 
             PowerReceiver = new MyPowerReceiver(
                 MyConsumerGroupEnum.Factory,
@@ -188,7 +189,7 @@ namespace Sandbox.Game.Entities.Blocks
                 }
                 else if (m_soundEmitter.SoundId != BlockDefinition.IdleSound.SoundId)
                 {
-                    m_soundEmitter.PlaySound(BlockDefinition.IdleSound, false);
+                    m_soundEmitter.PlaySound(BlockDefinition.IdleSound, true, false);
                 }
             }
             else if (m_soundEmitter.IsPlaying)
@@ -403,6 +404,7 @@ namespace Sandbox.Game.Entities.Blocks
             {
                 m_effect.Stop();
             }
+            m_soundEmitter.StopSound(true);
         }
         #endregion
 

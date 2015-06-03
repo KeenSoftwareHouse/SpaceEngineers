@@ -27,6 +27,8 @@ using Sandbox.ModAPI;
 using Sandbox.Game.Entities.Interfaces;
 using Sandbox.ModAPI.Ingame;
 using Sandbox.Game.GameSystems;
+using VRage.ModAPI;
+using VRage.Components;
 namespace Sandbox.Game.Entities
 {
     abstract class MyGravityGeneratorBase : MyFunctionalBlock, IMyPowerConsumer, IMyGizmoDrawableObject, IMyGravityGeneratorBase, IMyGravityProvider
@@ -83,7 +85,7 @@ namespace Sandbox.Game.Entities
                 {
                 
                         var shape = CreateFieldShape();
-                        Physics = new Engine.Physics.MyPhysicsBody(this, Engine.Physics.RigidBodyFlag.RBF_KINEMATIC);
+                        Physics = new Engine.Physics.MyPhysicsBody(this, RigidBodyFlag.RBF_KINEMATIC);
                         Physics.IsPhantom = true;
                         Physics.CreateFromCollisionObject(shape, PositionComp.LocalVolume.Center, WorldMatrix, null, Sandbox.Engine.Physics.MyPhysics.GravityPhantomLayer);
                         shape.Base.RemoveReference();

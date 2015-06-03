@@ -54,6 +54,8 @@ namespace VRageRender
         public float Tonemapping_F;
         public float LogLumThreshold;
 
+        public float ForwardPassAmbient;
+
         public static MyPostprocessSettings DefaultGame()
         {
             return new MyPostprocessSettings
@@ -80,7 +82,9 @@ namespace VRageRender
                 Tonemapping_D = 0.20f,
                 Tonemapping_E = 0.01f,
                 Tonemapping_F = 0.30f,
-                LogLumThreshold = -16.0f
+                LogLumThreshold = -16.0f,
+
+                ForwardPassAmbient = 0.0f
             };
         }
 

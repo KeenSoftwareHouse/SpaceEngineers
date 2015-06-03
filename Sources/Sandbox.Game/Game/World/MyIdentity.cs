@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
+using VRage;
 using VRageMath;
 
 namespace Sandbox.Game.World
@@ -41,6 +42,9 @@ namespace Sandbox.Game.World
         public Vector3? ColorMask { get; private set; }
 
         public bool IsDead { get; private set; }
+
+        public event Action<MyCharacter, MyCharacter> CharacterChanged;
+
 
         private MyIdentity(string name, MyEntityIdentifier.ID_OBJECT_TYPE identityType, string model = null)
         {
@@ -94,8 +98,15 @@ namespace Sandbox.Game.World
             ColorMask = null;
         }
     
+        public void SetColorMask(Vector3 color) 
+        {
+            ColorMask = color;
+        }
+
         public void ChangeCharacter(MyCharacter character)
         {
+            var oldCharacter = Character;
+
             if (Character != null)
             {
                 Character.SyncObject.CharacterModelSwitched -= character_CharacterModelSwitched;
@@ -110,6 +121,9 @@ namespace Sandbox.Game.World
             SaveModelAndColorFromCharacter();
 
             IsDead = character.IsDead;
+
+            if (CharacterChanged != null)
+                CharacterChanged(oldCharacter, Character);
         }
 
         private void SaveModelAndColorFromCharacter()

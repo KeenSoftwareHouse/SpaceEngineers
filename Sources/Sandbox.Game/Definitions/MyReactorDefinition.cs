@@ -1,7 +1,6 @@
 ﻿
 using Sandbox.Common.ObjectBuilders;
 using Sandbox.Common.ObjectBuilders.Definitions;
-using Sandbox.Common.ObjectBuilders.Serializer;
 using Sandbox.Game;
 using Sandbox.Graphics.GUI;
 using System.Text;
@@ -10,6 +9,7 @@ using VRageMath;
 using System;
 using Sandbox.Engine.Utils;
 using VRage.Utils;
+using VRage.ObjectBuilders;
 
 namespace Sandbox.Definitions
 {
@@ -37,7 +37,7 @@ namespace Sandbox.Definitions
             FuelDefinition = MyDefinitionManager.Static.GetPhysicalItemDefinition(FuelId);
             MyDebug.AssertDebug(FuelDefinition != null);
 
-            FuelItem = Sandbox.Common.ObjectBuilders.Serializer.MyObjectBuilderSerializer.CreateNewObject(generatorBuilder.FuelId) as MyObjectBuilder_PhysicalObject;
+            FuelItem = MyObjectBuilderSerializer.CreateNewObject(generatorBuilder.FuelId) as MyObjectBuilder_PhysicalObject;
             MyDebug.AssertDebug(FuelItem != null);
 
             //StringBuilder constraintTooltip = new StringBuilder();

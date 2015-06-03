@@ -1,8 +1,8 @@
 ﻿using Sandbox.Common.ObjectBuilders;
-using Sandbox.Common.ObjectBuilders.Serializer;
 using Sandbox.Game.Entities;
 using System.Diagnostics;
 using VRage;
+using VRage.ObjectBuilders;
 using VRage.Utils;
 using VRageMath;
 
@@ -36,7 +36,7 @@ namespace Sandbox.Game
         {
             Debug.Assert(Amount > 0, "Getting object builder of inventory item with zero amount!");
 
-            var itemObjectBuilder = Sandbox.Common.ObjectBuilders.Serializer.MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_InventoryItem>();
+            var itemObjectBuilder = MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_InventoryItem>();
             itemObjectBuilder.Amount = Amount;
             itemObjectBuilder.PhysicalContent = Content;
             itemObjectBuilder.ItemId = ItemId;
@@ -73,14 +73,14 @@ namespace Sandbox.Game
             if(Content is MyObjectBuilder_BlockItem)
             {
                 var blockItem = Content as MyObjectBuilder_BlockItem;
-                var builder = Sandbox.Common.ObjectBuilders.Serializer.MyObjectBuilderSerializer.CreateNewObject(typeof(MyObjectBuilder_CubeGrid)) as MyObjectBuilder_CubeGrid;
+                var builder = MyObjectBuilderSerializer.CreateNewObject(typeof(MyObjectBuilder_CubeGrid)) as MyObjectBuilder_CubeGrid;
                 builder.EntityId = MyEntityIdentifier.AllocateId();
                 builder.GridSizeEnum = MyCubeSize.Small;
                 builder.IsStatic = false;
                 builder.PersistentFlags |= MyPersistentEntityFlags2.InScene | MyPersistentEntityFlags2.Enabled;
                 builder.PositionAndOrientation = new MyPositionAndOrientation(worldMatrix);
 
-                var block = Sandbox.Common.ObjectBuilders.Serializer.MyObjectBuilderSerializer.CreateNewObject(blockItem.BlockDefId) as MyObjectBuilder_CubeBlock;
+                var block = MyObjectBuilderSerializer.CreateNewObject(blockItem.BlockDefId) as MyObjectBuilder_CubeBlock;
                 builder.CubeBlocks.Add(block);
                 var newGrid = MyEntities.CreateFromObjectBuilder(builder) as MyCubeGrid;
                 MyEntities.Add(newGrid);

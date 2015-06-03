@@ -18,6 +18,10 @@ namespace VRage.Audio
         void Start(bool skipIntro, bool skipToEnd = false);
         void Stop(bool force = false);
 
+        void StartBuffered();
+        void SubmitBuffer(byte[] buffer, int size);
+        bool IsBuffered { get; }
+
         void Pause();
 
         bool IsPaused { get; }
@@ -27,5 +31,7 @@ namespace VRage.Audio
         void SetVolume(float value);
 
         float Volume { get; }
+
+        void Cleanup();
     }
 }

@@ -26,12 +26,10 @@ namespace System.Linq.Expressions
             else
             {
                 var info = (FieldInfo)member.Member;
-                ParameterExpression objParm = Expression.Parameter(info.DeclaringType, "obj");
-                MemberExpression fieldExpr = Expression.Field(objParm, info.Name);
-                return Expression.Lambda<Func<T, TMember>>(fieldExpr, objParm).Compile();
+                return info.CreateGetter<T, TMember>();
             }
         }
-
+        
         public static Action<T, TMember> CreateSetter<T, TMember>(this Expression<Func<T, TMember>> expression)
         {
             Debug.Assert(expression.Body is MemberExpression, "Expression is not property or field selector");
@@ -49,11 +47,7 @@ namespace System.Linq.Expressions
             else
             {
                 var info = (FieldInfo)member.Member;
-                ParameterExpression objParm = Expression.Parameter(info.DeclaringType, "obj");
-                ParameterExpression valueParm = Expression.Parameter(info.FieldType, "value");
-                MemberExpression memberExpr = Expression.Field(objParm, info.Name);
-                Expression assignExpr = Expression.Assign(memberExpr, valueParm);
-                return Expression.Lambda<Action<T, TMember>>(assignExpr, objParm, valueParm).Compile();
+                return info.CreateSetter<T, TMember>();
             }
         }
 

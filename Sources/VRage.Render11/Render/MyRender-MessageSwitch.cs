@@ -307,7 +307,6 @@ namespace VRageRender
                 {
                     var rMessage = (MyRenderMessageCreateScreenDecal)message;
 
-                    //rMessage.ParentID
                     MyScreenDecals.AddDecal(rMessage.ID, rMessage.ParentID, rMessage.LocalOBB, rMessage.DecalMaterial);
 
                     break;
@@ -347,17 +346,24 @@ namespace VRageRender
                         }
                         
                     }
-
-                    var entity = MyComponents.GetEntity(rMessage.ID);
-                    if(entity != EntityId.NULL)
+                    else
                     {
-                        MyComponents.SetMatrix(entity, ref rMessage.WorldMatrix);
-                        if (rMessage.AABB.HasValue)
+                        if (MyClipmapFactory.ClipmapByID.ContainsKey(rMessage.ID))
                         {
-                            var aabb = rMessage.AABB.Value;
-                            MyComponents.SetAabb(entity, ref aabb);
+                            MyClipmapFactory.ClipmapByID[rMessage.ID].UpdateWorldMatrix(ref rMessage.WorldMatrix);
                         }
                     }
+
+                    //var entity = MyComponents.GetEntity(rMessage.ID);
+                    //if(entity != EntityId.NULL)
+                    //{
+                    //    MyComponents.SetMatrix(entity, ref rMessage.WorldMatrix);
+                    //    if (rMessage.AABB.HasValue)
+                    //    {
+                    //        var aabb = rMessage.AABB.Value;
+                    //        MyComponents.SetAabb(entity, ref aabb);
+                    //    }
+                    //}
 
                     break;
                 }
@@ -918,6 +924,7 @@ namespace VRageRender
                   
                     var light = MyLights.Get(rMessage.ID);
 
+
                     if(light != LightId.NULL)
                     {
 
@@ -957,22 +964,19 @@ namespace VRageRender
                                 MyTextures.GetTexture(rMessage.ReflectorTexture, MyTextureEnum.CUSTOM));
                         }
 
-                        if(rMessage.GlareOn)
-                        {
-                            MyLights.UpdateGlare(light, new MyGlareDesc
-                                {
-                                    Enabled = rMessage.GlareOn,
-                                    Material = X.TEXT(rMessage.GlareMaterial),
-                                    Intensity = rMessage.GlareIntensity,
-                                    QuerySize = rMessage.GlareQuerySize,
-                                    Type = rMessage.GlareType,
-                                    Size = rMessage.GlareSize,
-                                    MaxDistance = rMessage.GlareMaxDistance,
-                                    Color = rMessage.Color,
-                                    Direction = rMessage.ReflectorDirection,
-                                    Range = rMessage.Range
-                                });
-                        }
+                        MyLights.UpdateGlare(light, new MyGlareDesc
+                            {
+                                Enabled = rMessage.GlareOn,
+                                Material = X.TEXT(rMessage.GlareMaterial),
+                                Intensity = rMessage.GlareIntensity,
+                                QuerySize = rMessage.GlareQuerySize,
+                                Type = rMessage.GlareType,
+                                Size = rMessage.GlareSize,
+                                MaxDistance = rMessage.GlareMaxDistance,
+                                Color = rMessage.Color,
+                                Direction = rMessage.ReflectorDirection,
+                                Range = rMessage.Range
+                            });
                     }
 
                     break;

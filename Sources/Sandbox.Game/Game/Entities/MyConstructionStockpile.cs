@@ -8,7 +8,7 @@ using System.Linq;
 using System.Text;
 using Sandbox.Definitions;
 using VRage;
-using Sandbox.Common.ObjectBuilders.Serializer;
+using VRage.ObjectBuilders;
 
 namespace Sandbox.Game.Entities
 {
@@ -27,7 +27,7 @@ namespace Sandbox.Game.Entities
         }
     }
 
-    class MyConstructionStockpile
+    public class MyConstructionStockpile
     {
         private List<MyStockpileItem> m_items = new List<MyStockpileItem>();
         private static List<MyStockpileItem> m_syncItems = new List<MyStockpileItem>();
@@ -38,10 +38,10 @@ namespace Sandbox.Game.Entities
         {
             MyObjectBuilder_ConstructionStockpile objectBuilder;
 
-            objectBuilder = Sandbox.Common.ObjectBuilders.Serializer.MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_ConstructionStockpile>();
+            objectBuilder = MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_ConstructionStockpile>();
             foreach (var item in m_items)
             {
-                var itemBuilder = Sandbox.Common.ObjectBuilders.Serializer.MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_StockpileItem>();
+                var itemBuilder = MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_StockpileItem>();
                 itemBuilder.Amount = item.Amount;
                 itemBuilder.PhysicalContent = item.Content;
                 objectBuilder.Items.Add(itemBuilder);
@@ -105,7 +105,7 @@ namespace Sandbox.Game.Entities
 
         public bool AddItems(int count, MyDefinitionId contentId, MyItemFlags flags = MyItemFlags.None)
         {
-            var componentBuilder = (MyObjectBuilder_PhysicalObject)Sandbox.Common.ObjectBuilders.Serializer.MyObjectBuilderSerializer.CreateNewObject(contentId);
+            var componentBuilder = (MyObjectBuilder_PhysicalObject)MyObjectBuilderSerializer.CreateNewObject(contentId);
 
             Debug.Assert(componentBuilder != null, "Could not cast object builder to physical object");
             if (componentBuilder == null) return false;

@@ -13,7 +13,7 @@ namespace Sandbox.Game.Entities
     /// <summary>
     /// Camera spring like binding with rigid body
     /// </summary>
-    class MyCameraSpring
+    public class MyCameraSpring
     {
         private MyPhysicsBody m_physics;
 

@@ -25,6 +25,9 @@ namespace VRageRender
         internal Vector3 Position;
         internal Vector3 PositionWithOffset;
         internal float ShadowsDistance;
+
+        internal Vector3 LocalPosition;
+        internal Vector3 LocalPositionWithOffset;
         
         internal int ParentGID;
         internal bool UsedInForward;
@@ -131,6 +134,7 @@ namespace VRageRender
 
 
         internal Vector3 Position { get { return MyLights.Lights.Data[Index].Position; } }
+        internal Vector3 LocalPosition { get { return MyLights.Lights.Data[Index].LocalPosition; } }
         internal Vector3 PositionWithOffset { get { return MyLights.Lights.Data[Index].PositionWithOffset; } }
         internal bool CastsShadows { get { return MyLights.Lights.Data[Index].CastsShadows; } }
         internal float ShadowDistance { get { return MyLights.Lights.Data[Index].ShadowsDistance; } }
@@ -244,6 +248,7 @@ namespace VRageRender
         {
             Lights.Data[light.Index] = info;
 
+            Lights.Data[light.Index].LocalPosition = info.Position;
             var position = info.Position;
             var gid = info.ParentGID;
             if (gid != -1 && MyIDTracker<MyActor>.FindByID((uint)gid) != null)
@@ -253,6 +258,7 @@ namespace VRageRender
             }
 
             Lights.Data[light.Index].Position = position;
+            //Lights.Data[light.Index].PositionWithOffset = position;
         }
 
         internal static void UpdatePointlight(LightId light, bool enabled, float range, Vector3 color, float falloff)
@@ -347,6 +353,19 @@ namespace VRageRender
 
         internal static void Update()
         {
+            // touch all lights again, because they don't get updated always when parent is
+            foreach (var light in IdIndex.Values)
+            {   
+                var position = light.LocalPosition;
+                var gid = light.ParentGID;
+                if (gid != -1 && MyIDTracker<MyActor>.FindByID((uint)gid) != null)
+                {
+                    var matrix = MyIDTracker<MyActor>.FindByID((uint)gid).WorldMatrix;
+                    Vector3.Transform(ref position, ref matrix, out position);
+                }
+                Lights.Data[light.Index].Position = position;
+            }
+
             if(DirtyPointlights.Count > 0)
             {
                 foreach(var id in DirtyPointlights)
@@ -408,6 +427,7 @@ namespace VRageRender
             data.Up = Spotlights[lid.Index].Up;
             data.ShadowsRange = Lights.Data[lid.Index].CastsShadows ? Lights.Data[lid.Index].ShadowsDistance : 0;
             data.Position = Lights.Data[lid.Index].Position - MyEnvironment.CameraPosition;
+
 
             float ratio = (float)Math.Sqrt(1 - data.ApertureCos * data.ApertureCos) / data.ApertureCos;
             float h = ratio * data.Range;

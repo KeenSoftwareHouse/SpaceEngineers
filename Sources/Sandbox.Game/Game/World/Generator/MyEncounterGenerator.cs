@@ -19,6 +19,8 @@ using VRage.Serialization;
 using VRageMath;
 using Sandbox.Game.World.Generator;
 using VRage.Library.Utils;
+using VRage.ModAPI;
+using VRage.Components;
 
 namespace Sandbox.Game.World.Generator
 {
@@ -271,10 +273,10 @@ namespace Sandbox.Game.World.Generator
 
         private static void OnCreatedEntityPositionChanged(MyPositionComponentBase obj)
         {
-            if (obj.Entity.Save == false)
+            if (obj.Container.Entity.Save == false)
             {
                 MyEncounterId id;
-                if (m_entityToEncounterConversion.TryGetValue(obj.Entity, out id))
+                if (m_entityToEncounterConversion.TryGetValue(obj.Container.Entity, out id))
                 {
                     Vector3D newPosition = obj.GetPosition();
                     if (Vector3D.Distance(id.PlacePosition, newPosition) > m_minDistanceToRecognizeMovement)

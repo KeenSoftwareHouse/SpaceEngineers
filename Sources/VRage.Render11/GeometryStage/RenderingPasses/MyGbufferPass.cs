@@ -32,12 +32,18 @@ namespace VRageRender
         internal Vector4 m_row2;
         internal Vector3 KeyColor;
         internal float CustomAlpha;
+        //
         internal Vector3 ColorMul;
         internal float Emissive;
         internal uint MaterialIndex;
         internal MyMaterialFlags MaterialFlags;
         internal float _padding0;
         internal float _padding1;
+        internal Vector3 VoxelOffset;
+        internal float _padding2;
+        internal Vector3 VoxelScale;
+        internal float _padding3;
+        //
         internal Matrix LocalMatrix
         {
             get

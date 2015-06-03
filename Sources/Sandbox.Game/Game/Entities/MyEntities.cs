@@ -29,6 +29,9 @@ using Sandbox.ModAPI;
 using Sandbox.Game.Weapons;
 using VRage.Win32;
 using VRage.Utils;
+using VRage.ModAPI;
+using VRage.ObjectBuilders;
+using VRage.Components;
 
 #endregion
 
@@ -329,15 +332,15 @@ namespace Sandbox.Game.Entities
 
         // Helper list for storing results of various operations, mostly used in intersections
         [ThreadStatic]
-        private static HashSet<Sandbox.ModAPI.IMyEntity> m_entityResultSet;
-        private static List<HashSet<Sandbox.ModAPI.IMyEntity>> m_entityResultSetCollection = new List<HashSet<Sandbox.ModAPI.IMyEntity>>();
-        static HashSet<Sandbox.ModAPI.IMyEntity> EntityResultSet
+        private static HashSet<IMyEntity> m_entityResultSet;
+        private static List<HashSet<IMyEntity>> m_entityResultSetCollection = new List<HashSet<IMyEntity>>();
+        static HashSet<IMyEntity> EntityResultSet
         {
             get
             {
                 if (m_entityResultSet == null)
                 {
-                    m_entityResultSet = new HashSet<Sandbox.ModAPI.IMyEntity>();
+                    m_entityResultSet = new HashSet<IMyEntity>();
                     lock (m_entityResultSetCollection)
                     {
                         m_entityResultSetCollection.Add(m_entityResultSet);
@@ -744,22 +747,22 @@ namespace Sandbox.Game.Entities
 
         public static void UnregisterForUpdate(MyEntity entity, bool immediate = false)
         {
-            if ((entity.Flags & Sandbox.ModAPI.EntityFlags.NeedsUpdateBeforeNextFrame) != 0)
+            if ((entity.Flags & EntityFlags.NeedsUpdateBeforeNextFrame) != 0)
             {
                 m_entitiesForUpdateOnce.Remove(entity, immediate);
             }
 
-            if ((entity.Flags & Sandbox.ModAPI.EntityFlags.NeedsUpdate) != 0)
+            if ((entity.Flags & EntityFlags.NeedsUpdate) != 0)
             {
                 m_entitiesForUpdate.Remove(entity, immediate);
             }
 
-            if ((entity.Flags & Sandbox.ModAPI.EntityFlags.NeedsUpdate10) != 0)
+            if ((entity.Flags & EntityFlags.NeedsUpdate10) != 0)
             {
                 m_entitiesForUpdate10.Remove(entity, immediate);
             }
 
-            if ((entity.Flags & Sandbox.ModAPI.EntityFlags.NeedsUpdate100) != 0)
+            if ((entity.Flags & EntityFlags.NeedsUpdate100) != 0)
             {
                 m_entitiesForUpdate100.Remove(entity, immediate);
             }
@@ -1297,34 +1300,6 @@ namespace Sandbox.Game.Entities
         #region Global visibility and selectability by entity types/groups
 
         /// <summary>
-        /// Types in this set and their subtypes won't be able to be selected.
-        /// </summary>
-        private static HashSet<Type> m_unselectableTypes = new HashSet<Type>();
-
-        public static void SetTypeSelectable(Type type, bool selectable)
-        {
-            if (selectable)
-                m_unselectableTypes.Remove(type);
-            else
-                m_unselectableTypes.Add(type);
-        }
-
-        public static bool IsTypeSelectable(Type type)
-        {
-            foreach (var unselectableType in m_unselectableTypes)
-                if (unselectableType.IsAssignableFrom(type))
-                    return false;
-            return !IsTypeHidden(type);  // hidden entities aren't selectable
-        }
-
-        public static bool IsSelectable(MyEntity entity)
-        {
-            // Didn't you want to override MyEntity.IsSelectable instead? Thought so.
-            return IsTypeSelectable(entity.GetType());
-        }
-
-
-        /// <summary>
         /// Types in this set and their subtypes will be temporarily invisible.
         /// </summary>
         private static HashSet<Type> m_hiddenTypes = new HashSet<Type>();
@@ -1633,7 +1608,7 @@ namespace Sandbox.Game.Entities
                     {
                         Forward = objectBuilder.PositionAndOrientation.Value.Forward,
                         Up = objectBuilder.PositionAndOrientation.Value.Up,
-                        Position = new Common.ObjectBuilders.VRageData.SerializableVector3D(
+                        Position = new SerializableVector3D(
                         objectBuilder.PositionAndOrientation.Value.Position + new Vector3D(1E9))
                     };
                 }
@@ -1824,7 +1799,7 @@ namespace Sandbox.Game.Entities
 
                 foreach (var comp in components)
                 {
-                    var entity = comp.Entity;
+                    var entity = comp.Container.Entity;
                     if (entity.Save)
                     {
                         entity.BeforeSave();

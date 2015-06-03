@@ -639,7 +639,7 @@ namespace VRageRender
             {
                 if (state == 0)
                 {
-                    position = MyEnvironment.CameraPosition + MyEnvironment.InvViewAt0.Forward * 1.5f + MyEnvironment.InvViewAt0.Up;
+                    position = MyEnvironment.CameraPosition + Vector3.UnitY * 4;
                 }
 
                 if (state < 6)
@@ -684,6 +684,8 @@ namespace VRageRender
                     MyEnvProbeProcessing.BuildMipmaps(workCubemap);
                     MyEnvProbeProcessing.Prefilter(workCubemap, workCubemapPrefiltered);
 
+                    //MyEnvironment.Sk
+
                     ++state;
 
                     if(state == 12)
@@ -716,6 +718,7 @@ namespace VRageRender
 
         internal static MyEnvProbe m_envProbe = MyEnvProbe.Create();
         static RwTexId m_cubemapDepth = RwTexId.NULL;
+
         internal static void UpdateEnvironmentProbes()
         {
             if (m_cubemapDepth == RwTexId.NULL)

@@ -179,8 +179,22 @@ namespace VRageRender
         {
             get
             {
-                var adapters = MyRender11.GetAdaptersList();
-                return adapters.Length > 0;
+                try
+                {
+                    var adapters = MyRender11.GetAdaptersList();
+
+                    foreach(var adapter in adapters) {
+                        if (adapter.IsDx11Supported)
+                        { 
+                            return true;
+                        }
+                    }
+                    return false;
+                }
+                catch
+                {
+                    return false;
+                }
             }
         }
 

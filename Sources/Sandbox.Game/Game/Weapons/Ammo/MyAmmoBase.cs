@@ -13,6 +13,9 @@ using Sandbox.Common.ObjectBuilders.Definitions;
 using Sandbox.Common;
 using System;
 using Sandbox.Common.Components;
+using VRage.ModAPI;
+using VRage.Components;
+using VRage;
 
 
 namespace Sandbox.Game.Weapons
@@ -191,7 +194,7 @@ namespace Sandbox.Game.Weapons
             TimeToActivate = null;
         }
 
-        protected Sandbox.ModAPI.IMyEntity GetOtherEntity(ref MyPhysics.MyContactPointEvent value)
+        protected IMyEntity GetOtherEntity(ref MyPhysics.MyContactPointEvent value)
         {
             if (value.ContactPointEvent.Base.BodyA.GetEntity() == this)
                 return value.ContactPointEvent.Base.BodyB.GetEntity();

@@ -7,6 +7,7 @@ using Sandbox.Game.Entities;
 using Sandbox.Engine.Utils;
 using VRageRender;
 using System.Diagnostics;
+using VRage.Components;
 
 namespace Sandbox.Game.Components
 {
@@ -18,7 +19,7 @@ namespace Sandbox.Game.Components
         public override void OnAddedToContainer(MyComponentContainer container)
         {
             base.OnAddedToContainer(container);
-            m_cubeBlock = Entity as MyCubeBlock;
+            m_cubeBlock = Container.Entity as MyCubeBlock;
         }
         public override void InvalidateRenderObjects(bool sortIntoCullobjects = false)
         {

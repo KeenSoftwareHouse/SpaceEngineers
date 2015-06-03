@@ -471,7 +471,7 @@ namespace VRageRender
             //context.VertexShader.Set(MyCommon.FullscreenShader.VertexShader);
             RC.SetPS(DirectionalEnvironmentLight_Pixel);
             RC.SetCB(1, m_sunlightConstants);
-            RC.SetCB(2, MyShadows.m_csmConstants);
+            RC.SetCB(4, MyShadows.m_csmConstants);
             RC.Context.PixelShader.SetSamplers(0, MyRender11.StandardSamplers);
             RC.Context.PixelShader.SetSampler(MyCommon.SHADOW_SAMPLER_SLOT, MyRender11.m_shadowmapSamplerState);
             RC.Context.PixelShader.SetShaderResource(MyCommon.CASCADES_SM_SLOT, MyShadows.m_cascadeShadowmapArray.ShaderView);
