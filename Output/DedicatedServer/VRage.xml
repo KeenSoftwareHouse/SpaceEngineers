@@ -1,0 +1,1657 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>VRage</name>
+    </assembly>
+    <members>
+        <member name="T:VRage.Animations.AnimationClip">
+            <summary>
+            An animation clip is a set of keyframes with associated bones.
+            </summary>
+        </member>
+        <member name="F:VRage.Animations.AnimationClip.bones">
+            <summary>
+            The bones for this animation
+            </summary>
+        </member>
+        <member name="F:VRage.Animations.AnimationClip.Name">
+            <summary>
+            Name of the animation clip
+            </summary>
+        </member>
+        <member name="F:VRage.Animations.AnimationClip.Duration">
+            <summary>
+            Duration of the animation clip
+            </summary>
+        </member>
+        <member name="P:VRage.Animations.AnimationClip.Bones">
+            <summary>
+            The bones for this animation clip with their keyframes
+            </summary>
+        </member>
+        <member name="T:VRage.Animations.AnimationClip.Keyframe">
+            <summary>
+            An Keyframe is a rotation and translation for a moment in time.
+            It would be easy to extend this to include scaling as well.
+            </summary>
+        </member>
+        <member name="T:VRage.Animations.AnimationClip.Bone">
+            <summary>
+            Keyframes are grouped per bone for an animation clip
+            </summary>
+        </member>
+        <member name="F:VRage.Animations.AnimationClip.Bone.m_name">
+            <summary>
+            Each bone has a name so we can associate it with a runtime model
+            </summary>
+        </member>
+        <member name="F:VRage.Animations.AnimationClip.Bone.m_keyframes">
+            <summary>
+            The keyframes for this bone
+            </summary>
+        </member>
+        <member name="P:VRage.Animations.AnimationClip.Bone.Name">
+            <summary>
+            The bone name for these keyframes
+            </summary>
+        </member>
+        <member name="P:VRage.Animations.AnimationClip.Bone.Keyframes">
+            <summary>
+            The keyframes for this bone
+            </summary>
+        </member>
+        <member name="T:VRage.Animations.ModelAnimations">
+            <summary>
+            Class that contains additional information attached to the model and
+            shared with the runtime.
+            </summary>
+        </member>
+        <member name="F:VRage.Animations.ModelAnimations.skeleton">
+            <summary>
+            The bone indices for the skeleton associated with any
+            skinned model.
+            </summary>
+        </member>
+        <member name="F:VRage.Animations.ModelAnimations.clips">
+            <summary>
+            Any associated animation clips
+            </summary>
+        </member>
+        <member name="P:VRage.Animations.ModelAnimations.Skeleton">
+            <summary>
+            The bone indices for the skeleton associated with any
+            skinned model.
+            </summary>
+        </member>
+        <member name="P:VRage.Animations.ModelAnimations.Clips">
+            <summary>
+            Animation clips associated with this model
+            </summary>
+        </member>
+        <member name="M:VRage.Audio.IMyAudio.ApplyEffect(VRage.Audio.IMySourceVoice,VRage.Utils.MyStringId,VRage.Utils.MyStringId[],System.Nullable{System.Single})">
+            <summary>
+            Creates effect on input emitter
+            </summary>
+            <param name="input">Emitter to work with</param>
+            <param name="effect"></param>
+            <param name="cues">additional cues if effect mixes them (ie. crossfade)</param>
+            <returns>effect output sound</returns>
+        </member>
+        <member name="T:VRage.Data.Audio.MyCurveType">
+            <summary>
+            Enumerator of available curve types
+            </summary>
+        </member>
+        <member name="T:VRage.WoodFractureSettings.Rotation">
+            How to rotate the splitting geometry
+        </member>
+        <member name="M:VRage.Import.ModelAutoRebuild.IsModelActual(System.String,System.String,System.String,System.String)">
+            <summary>
+            Checks whether that model file was build with current sources files. If current sources of this model - FBX, XML, HKT etc. were changed, this returns false.
+            </summary>
+            <param name="modelFile"></param>
+            <returns>true - if data hashes of source files are valid </returns>
+            <returns>false - if data has been changed</returns>
+        </member>
+        <member name="M:VRage.Import.MyModelExporter.#ctor(System.String)">
+            <summary>
+            c-tor
+            </summary>
+            <param name="filePath"></param>
+        </member>
+        <member name="M:VRage.Import.MyModelExporter.#ctor">
+            <summary>
+            c-tor
+            </summary>
+            <param name="filePath"></param>
+        </member>
+        <member name="M:VRage.Import.MyModelExporter.Dispose">
+            <summary>
+            Close
+            </summary>
+        </member>
+        <member name="M:VRage.Import.MyModelExporter.WriteTag(System.String)">
+            <summary>
+            WriteTag
+            </summary>
+            <param name="tagName"></param>
+        </member>
+        <member name="M:VRage.Import.MyModelExporter.WriteVector(VRageMath.Vector2)">
+            <summary>
+            WriteVector2
+            </summary>
+            <param name="vct"></param>
+        </member>
+        <member name="M:VRage.Import.MyModelExporter.WriteVector(VRageMath.Vector3)">
+            <summary>
+            WriteVector3
+            </summary>
+            <param name="vct"></param>
+        </member>
+        <member name="M:VRage.Import.MyModelExporter.WriteVector(VRageMath.Vector4)">
+            <summary>
+            WriteVector4
+            </summary>
+            <param name="vct"></param>
+        </member>
+        <member name="M:VRage.Import.MyModelExporter.WriteMatrix(VRageMath.Matrix)">
+            <summary>
+            WriteMatrix
+            </summary>
+            <param name="matrix"></param>
+        </member>
+        <member name="M:VRage.Import.MyModelExporter.WriteVector(VRageMath.Vector2I)">
+            <summary>
+            WriteVector2
+            </summary>
+            <param name="vct"></param>
+        </member>
+        <member name="M:VRage.Import.MyModelExporter.WriteVector(VRageMath.Vector3I)">
+            <summary>
+            WriteVector3
+            </summary>
+            <param name="vct"></param>
+        </member>
+        <member name="M:VRage.Import.MyModelExporter.WriteVector(VRageMath.Vector4I)">
+            <summary>
+            WriteVector4
+            </summary>
+            <param name="vct"></param>
+        </member>
+        <member name="M:VRage.Import.MyModelExporter.WriteByte4(VRageMath.PackedVector.Byte4)">
+            <summary>
+            Write Byte4
+            </summary>
+        </member>
+        <member name="M:VRage.Import.MyModelExporter.ExportData(System.String,VRageMath.Vector3[])">
+            <summary>
+            ExportData
+            </summary>
+            <param name="tagName"></param>
+            <param name="vctArray"></param>
+            <returns></returns>
+        </member>
+        <member name="M:VRage.Import.MyModelExporter.ExportData(System.String,VRageMath.Matrix[])">
+            <summary>
+            ExportData
+            </summary>
+            <param name="tagName"></param>
+            <param name="vctArray"></param>
+            <returns></returns>
+        </member>
+        <member name="M:VRage.Import.MyModelExporter.ExportData(System.String,VRageMath.Vector2[])">
+            <summary>
+            ExportData
+            </summary>
+            <param name="tagName"></param>
+            <param name="vctArray"></param>
+            <returns></returns>
+        </member>
+        <member name="M:VRage.Import.MyModelExporter.ExportData(System.String,VRageMath.Vector4[])">
+            <summary>
+            ExportData
+            </summary>
+            <param name="tagName"></param>
+            <param name="strArr"></param>
+            <returns></returns>
+        </member>
+        <member name="M:VRage.Import.MyModelExporter.ExportData(System.String,System.String[])">
+            <summary>
+            ExportData
+            </summary>
+            <param name="tagName"></param>
+            <param name="strArr"></param>
+            <returns></returns>
+        </member>
+        <member name="M:VRage.Import.MyModelExporter.ExportData(System.String,System.Int32[])">
+            <summary>
+            ExportData
+            </summary>
+            <param name="tagName"></param>
+            <param name="strArr"></param>
+            <returns></returns>
+        </member>
+        <member name="M:VRage.Import.MyModelExporter.ExportData(System.String,System.Byte[])">
+            <summary>
+            ExportData
+            </summary>
+            <param name="tagName"></param>
+            <param name="strArr"></param>
+            <returns></returns>
+        </member>
+        <member name="M:VRage.Import.MyModelExporter.ExportData(System.String,VRage.Import.MyModelInfo)">
+            <summary>
+            ExportData
+            </summary>
+            <param name="tagName"></param>
+            <param name="strArr"></param>
+            <returns></returns>
+        </member>
+        <member name="M:VRage.Import.MyModelExporter.ExportData(System.String,VRageMath.BoundingBox)">
+            <summary>
+            ExportData
+            </summary>
+            <param name="tagName"></param>
+            <param name="strArr"></param>
+            <returns></returns>
+        </member>
+        <member name="M:VRage.Import.MyModelExporter.ExportData(System.String,VRageMath.BoundingSphere)">
+            <summary>
+            ExportData
+            </summary>
+            <param name="tagName"></param>
+            <param name="strArr"></param>
+            <returns></returns>
+        </member>
+        <member name="M:VRage.Import.MyModelExporter.ExportData(System.String,System.Collections.Generic.Dictionary{System.String,VRageMath.Matrix})">
+            <summary>
+            ExportData
+            </summary>
+            <param name="tagName"></param>
+            <param name="dict"></param>
+            <returns></returns>
+        </member>
+        <member name="M:VRage.Import.MyModelExporter.ExportData(System.String,System.Collections.Generic.List{VRage.Import.MyMeshPartInfo})">
+            <summary>
+            ExportData
+            </summary>
+            <param name="tagName"></param>
+            <param name="dict"></param>
+            <returns></returns>
+        </member>
+        <member name="M:VRage.Import.MyModelExporter.ExportData(System.String,System.Collections.Generic.Dictionary{System.String,VRage.Import.MyModelDummy})">
+            <summary>
+            ExportData
+            </summary>
+            <param name="tagName"></param>
+            <param name="dict"></param>
+            <returns></returns>
+        </member>
+        <member name="M:VRage.Import.MyModelExporter.ExportFloat(System.String,System.Single)">
+            <summary>
+            ExportFloat
+            </summary>
+            <param name="tagName"></param>
+            <param name="value"></param>
+            <returns></returns>
+        </member>
+        <member name="M:VRage.Import.MyModelExporter.ExportBool(System.String,System.Boolean)">
+            <summary>
+            ExportFloat
+            </summary>
+            <param name="tagName"></param>
+            <param name="value"></param>
+            <returns></returns>
+        </member>
+        <member name="M:VRage.Import.MyModelExporter.WriteQuaternion(VRageMath.Quaternion)">
+            <summary>
+            WriteQuaternion
+            </summary>
+            <param name="vct"></param>
+        </member>
+        <member name="M:VRage.Input.MyControl.GetAnalogState">
+            <summary>
+            Return the analog state between 0 (not pressed at all) and 1 (fully pressed).
+            If a digital button is mapped to an analog control, it can return only 0 or 1.
+            </summary>
+        </member>
+        <member name="M:VRage.Input.MyControl.ToString">
+            <summary>
+            Causes allocation. Creates single string with list of assigned controls.
+            </summary>
+        </member>
+        <member name="M:VRage.Input.MyControl.ToStringBuilder(System.String)">
+            <summary>
+            Causes allocation. Creates single StringBuilder with list of assigned controls. Caller
+            takes ownership of returned StringBuilder (it is not stored internally).
+            </summary>
+        </member>
+        <member name="T:VRage.Input.MyKeys">
+            <summary>
+            Enumeration for virtual keys.
+            </summary>
+        </member>
+        <member name="M:VRage.MyCompilationSymbols.IsProfilerAttached">
+            <summary>
+            This is reliable, enforced by .NET documentation.
+            Without this environment variable, CLR won't attach profiler.
+            </summary>
+        </member>
+        <member name="T:VRage.Noise.MyModule">
+            <summary>
+            High quality noise module that combines properties of Value noise and gradient noise.
+            Value noise is used as input for gradient function. This leads to no artifacts or zero values at integer points.
+            It's so called Value-Gradient noise.
+            </summary>
+        </member>
+        <member name="P:VRageRender.IMyRenderMessage.MessageClass">
+            <summary>
+            Get message class
+            </summary>
+        </member>
+        <member name="P:VRageRender.IMyRenderMessage.MessageType">
+            <summary>
+            Gets message type
+            </summary>
+        </member>
+        <member name="T:VRageRender.MyRenderMessageSwitchRenderSettings">
+            <summary>
+            1 at the end is naming convention from DX, saying this is newer version (for Dx11 render).
+            </summary>
+        </member>
+        <member name="M:VRage.IMyBufferedInputSource.SwapBufferedTextInput(System.Collections.Generic.List{System.Char}@)">
+            <summary>
+            Swaps internal buffer with the one passed as argument. This swapping operation
+            must be implemented in a thread safe manner. Buffer passed into the function will
+            replaced by the internal buffer and returned in the same variable.
+            </summary>
+        </member>
+        <member name="M:VRage.IMyRenderWindow.OnModeChanged(VRageRender.MyWindowModeEnum,System.Int32,System.Int32)">
+            <summary>
+            Called by render when display mode has changed
+            </summary>
+        </member>
+        <member name="P:VRage.IMyRenderWindow.DrawEnabled">
+            <summary>
+            True when Present on device should be called (e.g. window not minimized)
+            </summary>
+        </member>
+        <member name="P:VRage.IMyRenderWindow.Handle">
+            <summary>
+            Target window handle
+            </summary>
+        </member>
+        <member name="M:VRage.MyGameRenderComponent.Start(VRage.Library.Utils.MyGameTimer,VRage.InitHandler,System.Nullable{VRageRender.MyRenderDeviceSettings},VRageRender.MyRenderQualityEnum)">
+            <summary>
+            Creates and starts render thread
+            </summary>
+        </member>
+        <member name="M:VRage.MyGameRenderComponent.Stop">
+            <summary>
+            Stops and clears render thread
+            </summary>
+        </member>
+        <member name="T:VRage.InitHandler">
+            <summary>
+            Initializes window on render thread and returns it's handle of window/control where to draw
+            </summary>
+        </member>
+        <member name="M:VRage.MyRenderThread.Exit">
+            <summary>
+            Signals the thread to exit and waits until it does so
+            </summary>
+        </member>
+        <member name="M:VRage.Generics.MySparseGrid`2.ClearCells">
+            <summary>
+            Clears cells, but keep them preallocated
+            </summary>
+        </member>
+        <member name="T:VRage.Generics.MyDynamicObjectPool`1">
+            <summary>
+            Dynamic object pool. It's allocate new instance when necessary.
+            </summary>
+            <typeparam name="T"></typeparam>
+        </member>
+        <member name="M:VRage.Generics.MyObjectsPool`1.AllocateOrCreate(`0@)">
+            <summary>
+            Returns true when new item was allocated
+            </summary>
+        </member>
+        <member name="T:VRage.Generics.MyWeightDictionary`1">
+            <summary>
+            Contains items of any type. Each item has weight (float value).
+            Allows to get item based on weight.
+            </summary>
+            <typeparam name="T">The item type</typeparam>
+        </member>
+        <member name="M:VRage.Generics.MyWeightDictionary`1.#ctor(System.Collections.Generic.Dictionary{`0,System.Single})">
+            <summary>
+            Initializes a new instance of the MyWeightDictionary class.
+            </summary>
+            <param name="data">Dictionary with items and weights.</param>
+        </member>
+        <member name="M:VRage.Generics.MyWeightDictionary`1.GetSum">
+            <summary>
+            Gets sum of weights.
+            </summary>
+            <returns>The sum of all weights.</returns>
+        </member>
+        <member name="M:VRage.Generics.MyWeightDictionary`1.GetItemByWeightNormalized(System.Single)">
+            <summary>
+            Gets item based on weight.
+            </summary>
+            <param name="weightNormalized">Weight, value from 0 to 1.</param>
+            <returns>The item.</returns>
+        </member>
+        <member name="M:VRage.Generics.MyWeightDictionary`1.GetItemByWeight(System.Single)">
+            <summary>
+            Gets item based on weight.
+            </summary>
+            <param name="weight">Weight, value from 0 to sum.</param>
+            <returns></returns>
+        </member>
+        <member name="M:VRage.Generics.MyWeightDictionary`1.GetRandomItem(System.Random)">
+            <summary>
+            Gets random item based on weight.
+            </summary>
+            <returns>The item.</returns>
+        </member>
+        <member name="T:VRage.Import.MyMaterialDescriptor">
+            <summary>
+            material params for export
+            </summary>
+        </member>
+        <member name="F:VRage.Import.MyMaterialDescriptor.ExtraData">
+            <summary>
+            Extra data (animation of holos)
+            </summary>
+        </member>
+        <member name="M:VRage.Import.MyMaterialDescriptor.#ctor(System.String)">
+            <summary>
+            c-tor
+            </summary>
+            <param name="materialName"></param>
+        </member>
+        <member name="M:VRage.Import.MyMaterialDescriptor.Write(System.IO.BinaryWriter)">
+            <summary>
+            Write to binary file
+            </summary>
+            <param name="writer"></param>
+            <returns></returns>
+        </member>
+        <member name="M:VRage.Import.MyModelImporter.ReadVector3(System.IO.BinaryReader)">
+            <summary>
+            Read Vector34
+            </summary>
+        </member>
+        <member name="M:VRage.Import.MyModelImporter.ReadHalfVector4(System.IO.BinaryReader)">
+            <summary>
+            Read HalfVector4
+            </summary>
+        </member>
+        <member name="M:VRage.Import.MyModelImporter.ReadHalfVector2(System.IO.BinaryReader)">
+            <summary>
+            Read HalfVector2
+            </summary>
+        </member>
+        <member name="M:VRage.Import.MyModelImporter.ReadByte4(System.IO.BinaryReader)">
+            <summary>
+            Read Byte4
+            </summary>
+        </member>
+        <member name="M:VRage.Import.MyModelImporter.ImportVector3(System.IO.BinaryReader)">
+            <summary>
+            ImportVector3
+            </summary>
+            <param name="reader"></param>
+            <returns></returns>
+        </member>
+        <member name="M:VRage.Import.MyModelImporter.ImportVector4(System.IO.BinaryReader)">
+            <summary>
+            ImportVector4
+            </summary>
+            <param name="reader"></param>
+            <returns></returns>
+        </member>
+        <member name="M:VRage.Import.MyModelImporter.ImportQuaternion(System.IO.BinaryReader)">
+            <summary>
+            ImportQuaternion
+            </summary>
+            <param name="reader"></param>
+            <returns></returns>
+        </member>
+        <member name="M:VRage.Import.MyModelImporter.ImportVector4Int(System.IO.BinaryReader)">
+            <summary>
+            ImportVector4Int
+            </summary>
+            <param name="reader"></param>
+            <returns></returns>
+        </member>
+        <member name="M:VRage.Import.MyModelImporter.ImportVector3Int(System.IO.BinaryReader)">
+            <summary>
+            ImportVector3Int
+            </summary>
+            <param name="reader"></param>
+            <returns></returns>
+        </member>
+        <member name="M:VRage.Import.MyModelImporter.ImportVector2(System.IO.BinaryReader)">
+            <summary>
+            ImportVector2
+            </summary>
+            <param name="reader"></param>
+            <returns></returns>
+        </member>
+        <member name="M:VRage.Import.MyModelImporter.ReadArrayOfHalfVector4(System.IO.BinaryReader)">
+            <summary>
+            Read array of HalfVector4
+            </summary>
+        </member>
+        <member name="M:VRage.Import.MyModelImporter.ReadArrayOfByte4(System.IO.BinaryReader)">
+            <summary>
+            Read array of Byte4
+            </summary>
+        </member>
+        <member name="M:VRage.Import.MyModelImporter.ReadArrayOfHalfVector2(System.IO.BinaryReader)">
+            <summary>
+            Read array of HalfVector2
+            </summary>
+        </member>
+        <member name="M:VRage.Import.MyModelImporter.ReadArrayOfVector3(System.IO.BinaryReader)">
+            <summary>
+            ReadArrayOfVector3
+            </summary>
+            <param name="br"></param>
+            <returns></returns>
+        </member>
+        <member name="M:VRage.Import.MyModelImporter.ReadArrayOfVector4(System.IO.BinaryReader)">
+            <summary>
+            ReadArrayOfVector4
+            </summary>
+            <param name="br"></param>
+            <returns></returns>
+        </member>
+        <member name="M:VRage.Import.MyModelImporter.ReadArrayOfVector4Int(System.IO.BinaryReader)">
+            <summary>
+            ReadArrayOfVector4
+            </summary>
+            <param name="br"></param>
+            <returns></returns>
+        </member>
+        <member name="M:VRage.Import.MyModelImporter.ReadArrayOfVector3Int(System.IO.BinaryReader)">
+            <summary>
+            ReadArrayOfVector3I
+            </summary>
+            <param name="br"></param>
+            <returns></returns>
+        </member>
+        <member name="M:VRage.Import.MyModelImporter.ReadArrayOfVector2(System.IO.BinaryReader)">
+            <summary>
+            ReadArrayOfVector2
+            </summary>
+            <param name="br"></param>
+            <returns></returns>
+        </member>
+        <member name="M:VRage.Import.MyModelImporter.ReadArrayOfString(System.IO.BinaryReader)">
+            <summary>
+            ReadArrayOfString
+            </summary>
+            <param name="reader"></param>
+            <returns></returns>
+        </member>
+        <member name="M:VRage.Import.MyModelImporter.ReadBoundingBox(System.IO.BinaryReader)">
+            <summary>
+            ReadBoundingBox
+            </summary>
+            <param name="reader"></param>
+            <returns></returns>
+        </member>
+        <member name="M:VRage.Import.MyModelImporter.ReadBoundingSphere(System.IO.BinaryReader)">
+            <summary>
+            ReadBoundingSphere
+            </summary>
+            <param name="reader"></param>
+            <returns></returns>
+        </member>
+        <member name="M:VRage.Import.MyModelImporter.ReadMatrix(System.IO.BinaryReader)">
+            <summary>
+            ReadMatrix
+            </summary>
+            <param name="reader"></param>
+            <returns></returns>
+        </member>
+        <member name="M:VRage.Import.MyModelImporter.ReadMeshParts(System.IO.BinaryReader,System.Int32)">
+            <summary>
+            ReadMeshParts
+            </summary>
+            <param name="reader"></param>
+            <returns></returns>
+        </member>
+        <member name="M:VRage.Import.MyModelImporter.ReadDummies(System.IO.BinaryReader)">
+            <summary>
+            ReadDummies
+            </summary>
+            <param name="reader"></param>
+            <returns></returns>
+        </member>
+        <member name="M:VRage.Import.MyModelImporter.ReadArrayOfInt(System.IO.BinaryReader)">
+            <summary>
+            ReadArrayOfInt
+            </summary>
+            <param name="reader"></param>
+            <returns></returns>
+        </member>
+        <member name="F:VRageRender.MyRenderMessageType.Draw">
+            <summary>
+            Draw message, skipped when processing multiple updates (only handled in last update before draw)
+            Draw sprite, debug draw...
+            </summary>
+        </member>
+        <member name="F:VRageRender.MyRenderMessageType.StateChangeOnce">
+            <summary>
+            State change which can be applied only once, not applied when rendering same frame second time or more
+            Add render object, remove render object...
+            </summary>
+        </member>
+        <member name="F:VRageRender.MyRenderMessageType.StateChangeEvery">
+            <summary>
+            State change which must be applied every time, even when drawing same frame multiple times
+            Move render object, other interpolation messages
+            </summary>
+        </member>
+        <member name="T:VRageRender.MyRenderMessageUpdateRenderEnvironment">
+            <summary>
+            The difference between environment and RenderSettings is that environment are game play values,
+            on the other hand render settings are render internal/debugging values
+            </summary>
+        </member>
+        <member name="T:VRage.Noise.Patterns.MyCylinders">
+            <summary>
+            Noise that outputs concentric cylinders.
+            Each cylinder extends infinitely along the y axis.
+            </summary>
+        </member>
+        <member name="T:VRage.Noise.Patterns.MyRing">
+            <summary>
+            Noise that outputs dounut-like ring
+            </summary>
+        </member>
+        <member name="T:VRage.Noise.Models.MyCylinder">
+            <summary>
+            Maps the output of a module onto a cylinder.
+            </summary>
+        </member>
+        <member name="T:VRage.Noise.Models.MySphere">
+            <summary>
+            Maps the output of a module onto a sphere.
+            </summary>
+        </member>
+        <member name="T:VRage.Noise.Modifiers.MyCurve">
+            <summary>
+            Maps the output value from a source module onto an arbitrary function curve.
+            </summary>
+        </member>
+        <member name="T:VRage.Noise.Modifiers.MyExponent">
+            <summary>
+            Maps the output value from a source module onto an exponential curve.
+            </summary>
+        </member>
+        <member name="T:VRage.Noise.Modifiers.MyAbs">
+            <summary>
+            Outputs the absolute value of the output value from a source module.
+            </summary>
+        </member>
+        <member name="T:VRage.Noise.Modifiers.MyInvert">
+            <summary>
+            Inverts the output value from a source module.
+            </summary>
+        </member>
+        <member name="T:VRage.Noise.Modifiers.MyClamp">
+            <summary>
+            Clamps the output value from a source module to a range of values.
+            </summary>
+        </member>
+        <member name="T:VRage.Noise.MyModuleFast">
+            <summary>
+            Faster version of MyModule.
+            This time we do not compute the gradient position directly but we're using gradient table lookup via permutation table.
+            This leads to more 'grid' result as the local min and max (like in Value noise) are always appearing at integer points.
+            </summary>
+        </member>
+        <member name="T:VRage.Noise.Patterns.MySpheres">
+            <summary>
+            Noise that outputs concentric spheres.
+            </summary>
+        </member>
+        <member name="T:VRage.MyMultipleEnabledEnum">
+            <summary>
+            Enumeration describing Enabled state of multiple objects.
+            </summary>
+        </member>
+        <member name="T:VRage.ProfilerShort">
+            <summary>
+            Helper class, "shortcuts" to profiler
+            </summary>
+        </member>
+        <member name="T:VRageRender.MyRenderStats">
+            <summary>
+            Draws statistics
+            </summary>
+        </member>
+        <member name="F:VRageRender.MyFont.REPLACEMENT_CHARACTER">
+            <summary>
+            Replacement character shown when we don't have something in our texture.
+            Normally, this would be \uFFFD, but BMFontGen refuses to generate it, so I put its glyph at \u25A1 (empty square)
+            </summary>
+        </member>
+        <member name="F:VRageRender.MyFont.Spacing">
+            <summary>
+            This is artificial spacing in between two characters (in pixels).
+            Using it we can make spaces wider or narrower
+            </summary>
+        </member>
+        <member name="F:VRageRender.MyFont.KernEnabled">
+            <summary>
+            Enable / disable kerning of adjacent character pairs.
+            </summary>
+        </member>
+        <member name="F:VRageRender.MyFont.Depth">
+            <summary>
+            The depth at which to draw the font
+            </summary>
+        </member>
+        <member name="M:VRageRender.MyFont.#ctor(System.String,System.Int32)">
+            <summary>
+            Create a new font from the info in the specified font descriptor (XML) file
+            </summary>
+        </member>
+        <member name="M:VRageRender.MyFont.LoadFontXML(System.Xml.XmlNodeList)">
+            <summary>
+            Load the font data from an XML font descriptor file
+            </summary>
+            <param name="xnl">XML node list containing the entire font descriptor file</param>
+        </member>
+        <member name="M:VRageRender.MyFont.LoadFontXML_font(System.Xml.XmlNodeList)">
+            <summary>
+            Load the data from the "font" node
+            </summary>
+            <param name="xnl">XML node list containing the "font" node's children</param>
+        </member>
+        <member name="M:VRageRender.MyFont.LoadFontXML_bitmaps(System.Xml.XmlNodeList)">
+            <summary>
+            Load the data from the "bitmaps" node
+            </summary>
+            <param name="xnl">XML node list containing the "bitmaps" node's children</param>
+        </member>
+        <member name="M:VRageRender.MyFont.LoadFontXML_glyphs(System.Xml.XmlNodeList)">
+            <summary>
+            Load the data from the "glyphs" node
+            </summary>
+            <param name="xnl">XML node list containing the "glyphs" node's children</param>
+        </member>
+        <member name="M:VRageRender.MyFont.LoadFontXML_kernpairs(System.Xml.XmlNodeList)">
+            <summary>
+            Load the data from the "kernpairs" node
+            </summary>
+            <param name="xnl">XML node list containing the "kernpairs" node's children</param>
+        </member>
+        <member name="M:VRageRender.MyFont.GetXMLAttribute(System.Xml.XmlNode,System.String)">
+            <summary>
+            Get the XML attribute value
+            </summary>
+            <param name="n">XML node</param>
+            <param name="strAttr">Attribute name</param>
+            <returns>Attribute value, or the empty string if the attribute doesn't exist</returns>
+        </member>
+        <member name="P:VRageRender.MyFont.Baseline">
+            <summary>
+            Distance from top of font to the baseline
+            </summary>
+        </member>
+        <member name="P:VRageRender.MyFont.LineHeight">
+            <summary>
+            Distance from top to bottom of the font
+            </summary>
+        </member>
+        <member name="T:VRageRender.MyFont.MyGlyphInfo">
+            <summary>
+             Info for each glyph in the font - where to find the glyph image and other properties
+            </summary>
+        </member>
+        <member name="T:VRageRender.MyFont.MyBitmapInfo">
+            <summary>
+            Info for each font bitmap
+            </summary>
+        </member>
+        <member name="F:VRageRender.MyRenderQualityProfile.ShadowCascadeLODTreshold">
+            <summary>
+            Determines last index of cascade, which will use LOD0 objects. Lower cascade index means
+            closer cascade to camera. Ie. 0 means all cascaded will use LOD1 models (worst shadow quality),
+            5 means best quality, because all cascades will use LOD0 objects (we have 4 cascades currently);
+            </summary>
+        </member>
+        <member name="F:VRageRender.MyRenderQualityProfile.ShadowMapCascadeSize">
+            <summary>
+            Size in pixels for one shadow map cascade (of 4 total). Be carefull, we are limited by 8192 in texture size on PC.
+            </summary>
+        </member>
+        <member name="F:VRageRender.MyRenderConstants.MAX_GPU_OCCLUSION_QUERY_DISTANCE">
+            <summary>
+            Maximum distance for which a light uses occlusion an occlusion query.
+            </summary>
+        </member>
+        <member name="M:VRageRender.MyRenderConstants.SwitchRenderQuality(VRageRender.MyRenderQualityEnum)">
+            <summary>
+            This should be called only from LoadContent
+            </summary>
+        </member>
+        <member name="T:VRageRender.MyMessagePool">
+            <summary>
+            TODO: This should use some better sync, it could introduce delays with current state
+            1) Use spin lock
+            2) Lock only queue, not whole dictionary
+            3) Test count first and when it's insufficient, create new message, both should be safe to do out of any lock
+            4) Custom consumer/producer non-locking (except resize) queue could be better (maybe overkill)
+            </summary>
+        </member>
+        <member name="T:VRageRender.RenderFlags">
+            <summary>
+            Entity flags.
+            </summary>
+        </member>
+        <member name="F:VRageRender.RenderFlags.SkipIfTooSmall">
+            <summary>
+            Skip the object in render if detected that it is too small
+            </summary>
+        </member>
+        <member name="F:VRageRender.RenderFlags.NeedsResolveCastShadow">
+            <summary>
+            Needs resolve cast shadows flag (done by parallel raycast to sun)
+            </summary>
+        </member>
+        <member name="F:VRageRender.RenderFlags.CastShadowsResolved">
+            <summary>
+            Tells if this object is visible from sun. If not, it does not casts shadows
+            </summary>
+        </member>
+        <member name="F:VRageRender.RenderFlags.FastCastShadowResolve">
+            <summary>
+            Casts only one raycast to determine shadow casting
+            </summary>
+        </member>
+        <member name="F:VRageRender.RenderFlags.Visible">
+            <summary>
+            Specifies whether draw this entity or not.
+            </summary>
+        </member>
+        <member name="F:VRageRender.RenderFlags.Near">
+            <summary>
+            Specifies whether entity is "near", near entities are cockpit and weapons, these entities are rendered in special way
+            </summary>
+        </member>
+        <member name="F:VRageRender.RenderFlags.CastShadows">
+            <summary>
+            Tells if this object should cast shadows
+            </summary>
+        </member>
+        <member name="F:VRageRender.RenderFlags.UseCustomDrawMatrix">
+            <summary>
+            Tells if this object should use PlayerHeadMatrix as matrix for draw
+            </summary>
+        </member>
+        <member name="F:VRageRender.RenderFlags.ShadowLodBox">
+            <summary>
+            Use local AABB box for shadow LOD
+            </summary>
+        </member>
+        <member name="T:VRageRender.LightTypeEnum">
+            <summary>
+            Light type, flags, could be combined
+            </summary>
+        </member>
+        <member name="F:VRageRender.Lights.MyGlareTypeEnum.Normal">
+            <summary>
+            This is the glare that is dependent on occlusion queries.
+            Physically, this phenomenon originates in the lens.
+            </summary>
+        </member>
+        <member name="F:VRageRender.Lights.MyGlareTypeEnum.Distant">
+            <summary>
+            This is the glare that you see even if the light itself is occluded.
+            It gives the impression of scattering in a medium (like fog).
+            </summary>
+        </member>
+        <member name="F:VRageRender.Lights.MyGlareTypeEnum.Directional">
+            <summary>
+            Like normal, but gets dimmed with camera vs. reflector angle
+            </summary>
+        </member>
+        <member name="T:VRageRender.Textures.TextureQuality">
+            <summary>
+            Reresent loading quality for textures.
+            This works only for dds textures with mipmaps. Other textures will retains their original properties.
+            </summary>
+        </member>
+        <member name="F:VRageRender.Textures.TextureQuality.Full">
+            <summary>
+            Full quality.
+            </summary>
+        </member>
+        <member name="F:VRageRender.Textures.TextureQuality.Half">
+            <summary>
+            1/2 quality.
+            </summary>
+        </member>
+        <member name="F:VRageRender.Textures.TextureQuality.OneFourth">
+            <summary>
+            1/4 quality
+            </summary>
+        </member>
+        <member name="F:VRageRender.Textures.TextureQuality.OneEighth">
+            <summary>
+            1/8 quality
+            </summary>
+        </member>
+        <member name="F:VRageRender.Textures.TextureQuality.OneSixteenth">
+            <summary>
+            1/16 quality
+            </summary>
+        </member>
+        <member name="T:VRageRender.Profiler.MyRenderProfiler">
+            <summary>
+            Provides profiling capability
+            </summary>
+            <remarks>
+            Non-locking way of render profiler is used. Each thread has it's own profiler is ThreadStatic variable.
+            Data for each profiling block are of two kinds: Immediate (current frame being profiled) and History (previous finished frames)
+            Start/End locking is not necessary, because Start/Stop uses only immediate data and nothing else uses it at the moment.
+            Commit is only other place which uses Immediate data, but it must be called from same thead, no racing condition.
+            Draw and Commit both uses History data, and both can be called from different thread, so there's lock.
+            This way everything runs with no waiting, unless Draw obtains lock in which case Commit wait for Draw to finish (Start/End is still exact).
+            
+            For threads which does not call commit (background workers, parallel tasks), mechanism which calls commit automatically after each top level End should be added.
+            This way each task will be one "frame" on display
+            </remarks>
+        </member>
+        <member name="T:VRageRender.MyRenderSettings">
+            <summary>
+            Settings for whole render. To make settings per draw, use RenderSetup
+            </summary>
+        </member>
+        <member name="T:VRageRender.MyAntialiasingMode">
+            <summary>
+            VRage.Render11 only.
+            </summary>
+        </member>
+        <member name="T:VRageRender.MyShadowsQuality">
+            <summary>
+            VRage.Render11 only.
+            </summary>
+        </member>
+        <member name="T:VRageRender.MyTextureQuality">
+            <summary>
+            VRage.Render11 only.
+            </summary>
+        </member>
+        <member name="T:VRageRender.MyTextureAnisoFiltering">
+            <summary>
+            VRage.Render11 only.
+            </summary>
+        </member>
+        <member name="T:VRageRender.MyRenderSettings1">
+            <summary>
+            Naming convention from DX. Newer version for Dx11 render.
+            Put only settings that player can control (either directly or indirectly) using options here.
+            Don't put debug crap here!
+            </summary>
+        </member>
+        <member name="P:VRageRender.MyVertexFormatVoxelSingleData2.MaterialAlphaIndex">
+            <summary>
+            For multimaterial vertex only
+            0, 1 or 2, indicates what material is on this vertex
+            </summary>
+        </member>
+        <member name="P:VRageRender.MyVertexFormatVoxelSingleData.MaterialAlphaIndex">
+            <summary>
+            For multimaterial vertex only
+            0, 1 or 2, indicates what material is on this vertex
+            </summary>
+        </member>
+        <member name="M:VRageRender.MyCubeInstanceData.ResetBones">
+            <summary>
+            Resets bones to zero and disables skinning
+            </summary>
+        </member>
+        <member name="P:VRageRender.MyCubeInstanceData.Translation">
+            <summary>
+            Gets translation, faster than getting local matrix
+            </summary>
+        </member>
+        <member name="T:VRageRender.SpriteScissorStack">
+            <summary>
+            Stores stack of scissor rectangles where top rectangle has already
+            been cut using all the rectangles below it, so that only one
+            rectangle is checked during scissor test.
+            </summary>
+        </member>
+        <member name="M:VRageRender.SpriteScissorStack.Cut(VRageMath.RectangleF@,VRageMath.RectangleF@)">
+            <summary>
+            Cuts the destination rectangle using top of the scissor stack.
+            Source rectangle is modified using scaled change of destination
+            as well.
+            </summary>
+        </member>
+        <member name="T:VRageRender.MySharedData">
+            <summary>
+            Data shared between render and update
+            </summary>
+        </member>
+        <member name="M:VRageRender.MySharedData.BeforeUpdate">
+            <summary>
+            Refresh data from render (visible objects, render messages)
+            </summary>
+        </member>
+        <member name="M:VRageRender.MyUpdateData.CommitUpdateFrame">
+            <summary>
+            Commits current frame as atomic operation and prepares new frame
+            </summary>
+        </member>
+        <member name="M:VRageRender.MyUpdateData.GetRenderFrame(System.Boolean@)">
+            <summary>
+            Gets next frame for rendering, can return null in case there's nothing for rendering (no update frame submitted).
+            When isPreFrame is true, don't handle draw messages, just process update messages and call method again.
+            Pre frame must release messages and must be returned.
+            Final frame is kept unmodified in queue, in case of slower update, so we can interpolate and draw frame again.
+            </summary>
+        </member>
+        <member name="M:VRageRender.MyUpdateData.ReturnPreFrame(VRageRender.MyUpdateFrame)">
+            <summary>
+            PreFrame must be empty in this place
+            </summary>
+        </member>
+        <member name="T:VRageRender.MyUpdateFrame">
+            <summary>
+            Contains data produced by update frame, sent to render in thread-safe manner
+            </summary>
+        </member>
+        <member name="T:VRageRender.VideoState">
+            <summary>
+            Describes the state of a video player
+            </summary>
+        </member>
+        <member name="P:VRageRender.IMyRender.IsSupported">
+            <summary>
+            Must be possible to query during startup before render thread and window is created.
+            </summary>
+        </member>
+        <member name="M:VRageRender.MyRenderProxy.ChangeModel(System.UInt32,System.Int32,System.String,System.Boolean)">
+            <summary>
+            New model should have similar size to previous model because of prunning structure recalculation
+            </summary>
+            <param name="id"></param>
+            <param name="LOD"></param>
+            <param name="model"></param>
+            <param name="useForShadow"></param>
+        </member>
+        <member name="T:VRageRender.Graphics.SpriteEffects">
+            <summary>
+            Defines sprite mirroring options.
+            </summary>
+            <remarks>
+            Description is taken from original XNA <a href='http://msdn.microsoft.com/en-us/library/VRageMath.graphics.spriteeffects.aspx'>SpriteEffects</a> class.
+            </remarks>
+        </member>
+        <member name="F:VRageRender.Graphics.SpriteEffects.None">
+            <summary>
+            No rotations specified.
+            </summary>
+        </member>
+        <member name="F:VRageRender.Graphics.SpriteEffects.FlipHorizontally">
+            <summary>
+            Rotate 180 degrees around the Y axis before rendering.
+            </summary>
+        </member>
+        <member name="F:VRageRender.Graphics.SpriteEffects.FlipVertically">
+            <summary>
+            Rotate 180 degrees around the X axis before rendering.
+            </summary>
+        </member>
+        <member name="F:VRageRender.Graphics.SpriteEffects.FlipBoth">
+            <summary>
+            Rotate 180 degress around both the X and Y axis before rendering.
+            </summary>
+        </member>
+        <member name="M:VRage.Utils.MyStringId.TryGet(System.Int32)">
+            <summary>
+            Think HARD before using this. Usually you should be able to use MyStringId as it is without conversion to int.
+            </summary>
+        </member>
+        <member name="T:VRage.Utils.MyUtils">
+            <summary>
+            MyFileSystemUtils
+            </summary>
+        </member>
+        <member name="M:VRage.Utils.MyUtils.CreateFolder(System.String)">
+            <summary>
+            Vytvori zadany adresar. Automaticky povytvara celu adresarovu strukturu, teda ak chcem vytvorit c:\volaco\opica
+            a c:\volaco zatial neexistuje, tak tato metoda ho vytvori.
+            </summary>
+            <param name="folderPath"></param>
+        </member>
+        <member name="M:VRage.Utils.MyUtils.GenerateQuad(VRageMath.MyQuadD@,VRageMath.Vector3D@,System.Single,System.Single,VRageMath.MatrixD@)">
+            <summary>
+            Generate oriented quad by matrix
+            </summary>
+        </member>
+        <member name="M:VRage.Utils.MyUtils.GetAngleBetweenVectors(VRageMath.Vector3,VRageMath.Vector3)">
+            <summary>
+            Calculating the Angle between two Vectors (return in radians).
+            </summary>
+        </member>
+        <member name="M:VRage.Utils.MyUtils.GetBillboardQuadOriented(VRageMath.MyQuadD@,VRageMath.Vector3D@,System.Single,System.Single,VRageMath.Vector3@,VRageMath.Vector3@)">
+            <summary>
+            This billboard isn't facing the camera. It's always oriented in specified direction. May be used as thrusts, or inner light of reflector.
+            </summary>
+        </member>
+        <member name="M:VRage.Utils.MyUtils.GetEdgeSphereCollision(VRageMath.Vector3D@,System.Single,VRageRender.MyTriangle_Vertexes@)">
+            <summary>
+            Returns intersection point between sphere and its edges. But only if there is intersection between sphere and one of the edges.
+            If sphere intersects somewhere inside the triangle, this method will not detect it.
+            </summary>
+        </member>
+        <member name="M:VRage.Utils.MyUtils.GetInsidePolygonForSphereCollision(VRageMath.Vector3D@,VRageRender.MyTriangle_Vertexes@)">
+            <summary>
+            Return true if point is inside the triangle.
+            </summary>
+        </member>
+        <member name="M:VRage.Utils.MyUtils.GetInsidePolygonForSphereCollision(VRageMath.Vector3@,VRageRender.MyTriangle_Vertexes@)">
+            <summary>
+            Return true if point is inside the triangle.
+            </summary>
+        </member>
+        <member name="M:VRage.Utils.MyUtils.GetLargestDistanceToSphere(VRageMath.Vector3D@,VRageMath.BoundingSphereD@)">
+            <summary>
+            Distance between "from" and opposite side of the "sphere". Always positive.
+            </summary>
+        </member>
+        <member name="M:VRage.Utils.MyUtils.GetLineBoundingBoxIntersection(VRageMath.Line@,VRageMath.BoundingBox@)">
+            <summary>
+            Calculates intersection between line and bounding box and if found, distance is returned. Otherwise null is returned.
+            </summary>
+        </member>
+        <member name="M:VRage.Utils.MyUtils.GetLineTriangleIntersection(VRageMath.Line@,VRageRender.MyTriangle_Vertexes@)">
+             <summary>
+             Checks whether a ray intersects a triangleVertexes. This uses the algorithm
+             developed by Tomas Moller and Ben Trumbore, which was published in the
+             Journal of Graphics Tools, pitch 2, "Fast, Minimum Storage Ray-Triangle
+             Intersection".
+            
+             This method is implemented using the pass-by-reference versions of the
+             XNA math functions. Using these overloads is generally not recommended,
+             because they make the code less readable than the normal pass-by-value
+             versions. This method can be called very frequently in a tight inner loop,
+             however, so in this particular case the performance benefits from passing
+             everything by reference outweigh the loss of readability.
+             </summary>
+        </member>
+        <member name="M:VRage.Utils.MyUtils.GetSmallestDistanceToSphere(VRageMath.Vector3D@,VRageMath.BoundingSphereD@)">
+            <summary>
+            Calculates distance from point 'from' to boundary of 'sphere'. If point is inside the sphere, distance will be negative.
+            </summary>
+        </member>
+        <member name="M:VRage.Utils.MyUtils.GetSpherePlaneIntersection(VRageMath.BoundingSphereD@,VRageMath.PlaneD@,System.Double@)">
+            <summary>
+            This tells if a sphere is BEHIND, in FRONT, or INTERSECTS a plane, also it's distance
+            </summary>
+        </member>
+        <member name="M:VRage.Utils.MyUtils.GetSpherePlaneIntersection(VRageMath.BoundingSphereD@,VRage.Utils.MyPlane@,System.Single@)">
+            <summary>
+            This tells if a sphere is BEHIND, in FRONT, or INTERSECTS a plane, also it's distance
+            </summary>
+        </member>
+        <member name="M:VRage.Utils.MyUtils.GetSphereTriangleIntersection(VRageMath.BoundingSphereD@,VRage.Utils.MyPlane@,VRageRender.MyTriangle_Vertexes@)">
+            <summary>
+            Method returns intersection point between sphere and triangle (which is defined by vertexes and plane).
+            If no intersection found, method returns null.
+            See below how intersection point can be calculated, because it's not so easy - for example sphere vs. triangle will 
+            hardly generate just intersection point... more like intersection area or something.
+            </summary>
+        </member>
+        <member name="M:VRage.Utils.MyUtils.GetSphereTriangleIntersection(VRageMath.BoundingSphereD@,VRageMath.PlaneD@,VRageRender.MyTriangle_Vertexes@)">
+            <summary>
+            Method returns intersection point between sphere and triangle (which is defined by vertexes and plane).
+            If no intersection found, method returns null.
+            See below how intersection point can be calculated, because it's not so easy - for example sphere vs. triangle will 
+            hardly generate just intersection point... more like intersection area or something.
+            </summary>
+        </member>
+        <member name="M:VRage.Utils.MyUtils.IsLineIntersectingBoundingSphere(VRageMath.LineD@,VRageMath.BoundingSphereD@)">
+            <summary>
+            Check intersection between line and bounding sphere
+            We don't use BoundingSphere.Contains(Ray ...) because ray doesn't have an end, but line does, so we need
+            to check if line really intersects the sphere.
+            </summary>
+        </member>
+        <member name="M:VRage.Utils.MyUtils.Normalize(VRageMath.Vector3)">
+            <summary>
+            Protected normalize with assert
+            </summary>
+            <param name="vec"></param>
+            <returns></returns>
+        </member>
+        <member name="M:VRage.Utils.MyUtils.Normalize(VRageMath.Vector3@,VRageMath.Vector3@)">
+            <summary>
+            Protected normalize with assert
+            </summary>
+            <param name="vec"></param>
+            <returns></returns>
+        </member>
+        <member name="M:VRage.Utils.MyUtils.Normalize(VRageMath.Matrix@,VRageMath.Matrix@)">
+            <summary>
+            Protected normalize with assert
+            </summary>
+            <param name="vec"></param>
+            <returns></returns>
+        </member>
+        <member name="F:VRage.Utils.MyUtils.DefaultNumberSuffix">
+            <summary>
+            Default number suffix, k = thousand, m = million, g/b = billion
+            </summary>
+        </member>
+        <member name="M:VRage.Utils.MyUtils.GetCoordAligned(VRageMath.Vector2,VRageMath.Vector2,VRage.Utils.MyGuiDrawAlignEnum)">
+            <summary>
+            Aligns rectangle, works in screen/texture/pixel coordinates, not normalized coordinates.
+            </summary>
+            <returns>Pixel coordinates for texture.</returns>
+        </member>
+        <member name="M:VRage.Utils.MyUtils.GetCoordAlignedFromCenter(VRageMath.Vector2,VRageMath.Vector2,VRage.Utils.MyGuiDrawAlignEnum)">
+            <summary>
+            Modifies input coordinate (in center) using alignment and
+            size of the rectangle. Result is at position inside rectangle
+            specified by alignment.
+            </summary>
+        </member>
+        <member name="M:VRage.Utils.MyUtils.GetCoordTopLeftFromAligned(VRageMath.Vector2,VRageMath.Vector2,VRage.Utils.MyGuiDrawAlignEnum)">
+            <summary>
+            Reverses effect of alignment to compute top-left corner coordinate.
+            </summary>
+        </member>
+        <member name="M:VRage.Utils.MyUtils.GetCoordTopLeftFromAligned(VRageMath.Vector2I,VRageMath.Vector2I,VRage.Utils.MyGuiDrawAlignEnum)">
+            <summary>
+            Reverses effect of alignment to compute top-left corner coordinate.
+            </summary>
+        </member>
+        <member name="M:VRage.Utils.MyUtils.GetCoordCenterFromAligned(VRageMath.Vector2,VRageMath.Vector2,VRage.Utils.MyGuiDrawAlignEnum)">
+            <summary>
+            Reverses effect of alignment to compute center coordinate.
+            </summary>
+        </member>
+        <member name="M:VRage.Utils.MyUtils.GetCoordAlignedFromRectangle(VRageMath.RectangleF@,VRage.Utils.MyGuiDrawAlignEnum)">
+            <summary>
+            Returns coordinate within given rectangle specified by draw align. Rectangle position should be
+            upper left corner. Conversion assumes that Y coordinates increase downwards.
+            </summary>
+        </member>
+        <member name="M:VRage.Utils.MyUtils.GetRandomVector3">
+            <summary>
+            Returns a uniformly-distributed random vector from inside of a box (-1,-1,-1), (1, 1, 1)
+            </summary>
+        </member>
+        <member name="M:VRage.Utils.MyUtils.GetRandomVector3D">
+            <summary>
+            Returns a uniformly-distributed random vector from inside of a box (-1,-1,-1), (1, 1, 1)
+            </summary>
+        </member>
+        <member name="M:VRage.Utils.MyUtils.GetRandomPosition(VRageMath.BoundingBox@)">
+            <summary>
+            Warning: Fast, but non-uniform distribution!
+            </summary>
+        </member>
+        <member name="M:VRage.Utils.MyUtils.GetRandomPosition(VRageMath.BoundingBoxD@)">
+            <summary>
+            Warning: Fast, but non-uniform distribution!
+            </summary>
+        </member>
+        <member name="M:VRage.Utils.MyUtils.GetRandomTimeSpan(System.TimeSpan,System.TimeSpan)">
+            <summary>
+            Returns a random TimeSpan between begin (inclusive) and end (exclusive).
+            </summary>
+        </member>
+        <member name="T:VRage.Utils.MyVector3ISet">
+            <summary>
+            A data structure for a set of Vector3I coordinates optimized for sets with high spatial coherence (hence the name)
+            </summary>
+        </member>
+        <member name="M:VRage.Utils.MyVector3ISet.Union(VRage.Utils.MyVector3ISet)">
+            <summary>
+            Makes a union of this set and the other set and saves it in this set
+            </summary>
+        </member>
+        <member name="P:VRage.Utils.MyVector3ISet.Timestamp">
+            <summary>
+            For detection of modification of the set during iteration. Every modifying operation on the set should increase the timestamp
+            </summary>
+        </member>
+        <member name="M:VRage.Utils.My5BitEncoding.#ctor">
+            <summary>
+            Initializes a new instance of the Encoding5Bit class.
+            Uses characters 0-9 and A-Z except (0,O,1,I).
+            </summary>
+        </member>
+        <member name="M:VRage.Utils.My5BitEncoding.#ctor(System.Char[])">
+            <summary>
+            Initializes a new instance of the Encoding5Bit class.
+            </summary>
+            <param name="characters">32 characters which will be used when encoding bytes to string.</param>
+        </member>
+        <member name="M:VRage.Utils.My5BitEncoding.Encode(System.Byte[])">
+            <summary>
+            Encodes data as 5bit string.
+            </summary>
+        </member>
+        <member name="M:VRage.Utils.My5BitEncoding.Decode(System.Char[])">
+            <summary>
+            Decodes 5bit string as bytes, not alligned characters may be lost.
+            Only decode strings encoded with Encode.
+            </summary>
+            <param name="encoded5BitText"></param>
+            <returns></returns>
+        </member>
+        <member name="M:VRage.Utils.MyDebug.AssertRelease(System.Boolean)">
+            <summary>
+            This "assert" is executed in DEBUG and RELEASE modes. Use it in code that that won't suffer from more work (e.g. loading), not in frequently used loops
+            </summary>
+            <param name="condition"></param>
+        </member>
+        <member name="M:VRage.Utils.MyDebug.AssertRelease(System.Boolean,System.String)">
+            <summary>
+            This "assert" is executed in DEBUG and RELEASE modes. Use it in code that that won't suffer from more work (e.g. loading), not in frequently used loops
+            </summary>
+            <param name="condition"></param>
+        </member>
+        <member name="M:VRage.Utils.MyDebug.AssertDebug(System.Boolean)">
+            <summary>
+            This "assert" is executed in DEBUG mode. Because people dont know how to use AssertRelease!
+            </summary>
+            <param name="condition"></param>
+        </member>
+        <member name="M:VRage.Utils.MyDebug.AssertDebug(System.Boolean,System.String)">
+            <summary>
+            This "assert" is executed in DEBUG mode. Because people dont know how to use AssertRelease!
+            </summary>
+            <param name="condition"></param>
+        </member>
+        <member name="M:VRage.Utils.MyDebug.IsValid(System.Single)">
+            <summary>
+            Returns true if float is valid
+            </summary>
+            <param name="f"></param>
+            <returns></returns>
+        </member>
+        <member name="M:VRage.Utils.MyDebug.IsValid(VRageMath.Vector3)">
+            <summary>
+            Returns true if Vector3 is valid
+            </summary>
+            <param name="vec"></param>
+            <returns></returns>
+        </member>
+        <member name="M:VRage.Utils.MyDebug.IsValid(VRageMath.Vector2)">
+            <summary>
+            Returns true if Vector2 is valid
+            </summary>
+            <param name="vec"></param>
+            <returns></returns>
+        </member>
+        <member name="M:VRage.Utils.MyDebug.IsValid(System.Nullable{VRageMath.Vector3})">
+            <summary>
+            Returns true if Vector3 is valid
+            </summary>
+            <param name="vec"></param>
+            <returns></returns>
+        </member>
+        <member name="M:VRage.Utils.MyDebug.AssertIsValid(VRageMath.Vector3)">
+            <summary>
+            Returns true if Vector3 is valid
+            </summary>
+            <param name="vec"></param>
+            <returns></returns>
+        </member>
+        <member name="M:VRage.Utils.MyDebug.AssertIsValid(System.Nullable{VRageMath.Vector3})">
+            <summary>
+            Returns true if Vector3 is valid
+            </summary>
+            <param name="vec"></param>
+            <returns></returns>
+        </member>
+        <member name="M:VRage.Utils.MyDebug.AssertIsValid(VRageMath.Vector2)">
+            <summary>
+            Returns true if Vector2 is valid
+            </summary>
+            <param name="vec"></param>
+            <returns></returns>
+        </member>
+        <member name="M:VRage.Utils.MyDebug.AssertIsValid(System.Single)">
+            <summary>
+            Returns true if float is valid
+            </summary>
+            <param name="f"></param>
+            <returns></returns>
+        </member>
+        <member name="T:VRage.Utils.MyEventSet">
+            <summary>
+            From http://www.wintellect.com/Resources CLR Via C# by Jeffrey Richter
+            </summary>
+        </member>
+        <member name="T:VRage.Utils.MyMessageBox">
+            <summary>
+            Custom message box
+            </summary>
+        </member>
+        <member name="M:VRage.Utils.MyEnumDuplicitiesTester.GetCompanyNameOfAssembly(System.Reflection.Assembly)">
+            <summary>
+            The company name of the calling assembly.
+            </summary>
+        </member>
+        <member name="M:VRage.Utils.MyWingedEdgeMesh.Copy">
+            <summary>
+            For testing purposes only! The copy is only a shallow copy (i.e. userdata is not copied)
+            </summary>
+        </member>
+        <member name="M:VRage.Utils.MyWingedEdgeMesh.MakeEdgeFace(System.Int32,System.Int32,System.Int32,System.Int32,System.Object,System.Int32@)">
+            <summary>
+            Creates a new face by closing the gap between vertices vert1 and vert2 by a new edge
+            </summary>
+            <param name="vert1">Point that will be shared by the new edge and edge1</param>
+            <param name="vert2">Point that will be shared by the new edge and edge2</param>
+            <param name="edge1">Predecessor of the new edge</param>
+            <param name="edge2">Successor of the new edge</param>
+            <param name="faceUserData">User data for the newly created face</param>
+        </member>
+        <member name="M:VRage.Utils.MyWingedEdgeMesh.MergeEdges(System.Int32,System.Int32)">
+            <summary>
+            Merges two edges together into one. These edges have to border on the edge of the mesh (i.e. face -1)
+            Note that this also merges the corresponding vertices!
+            </summary>
+            <param name="edge1">The edge that will be merged</param>
+            <param name="edge2">The edge that will be kept</param>
+        </member>
+        <member name="M:VRage.Utils.MyWingedEdgeMesh.ExtrudeTriangleFromEdge(VRageMath.Vector3@,System.Int32,System.Object,System.Int32@,System.Int32@)">
+            <summary>
+            Creates a new triangle by adding a vertex to an existing edge
+            </summary>
+            <param name="newVertex">Position of the new vertex</param>
+            <param name="edge">The edge from which we want to extrude</param>
+            <param name="faceUserData">User data that will be saved in the face</param>
+            <param name="newEdgeS">Index of the new edge that follows edge "edge" in the new triangle.</param>
+            <param name="newEdgeP">Index of the new edge that precedes edge "edge" in the new triangle.</param>
+            <returns></returns>
+        </member>
+        <member name="M:VRage.Utils.MyWingedEdgeMesh.MakeFace(System.Object,System.Int32)">
+            <summary>
+            Makes a face by filling in the empty edge loop incident to incidentEdge
+            </summary>
+            <param name="userData"></param>
+            <param name="incidentEdge"></param>
+            <returns></returns>
+        </member>
+        <member name="M:VRage.Utils.MyWingedEdgeMesh.SortFreeFaces">
+            <summary>
+            Sorts the list of free faces. This ensures that subsequent face allocations will return increasing sequence of face indices,
+            unless interrupted by face deallocation. This can be useful in some algorithms that rely on ordering of the face indices.
+            </summary>
+        </member>
+        <member name="M:VRage.Utils.MyWingedEdgeMesh.CheckFreeEntryConsistency">
+            <summary>
+            Checks for loops in the meshe's tables' freed entries
+            </summary>
+        </member>
+        <member name="M:VRage.Utils.MyWingedEdgeMesh.EdgeTableEntry.TryGetSharedVertex(VRage.Utils.MyWingedEdgeMesh.EdgeTableEntry@)">
+            <summary>
+            Returns -1 if there is no shared edge
+            </summary>
+        </member>
+        <member name="M:VRage.Utils.MyWingedEdgeMesh.EdgeTableEntry.VertexLeftFace(System.Int32)">
+            <summary>
+            Returns a face to the left when going towards the given vertex
+            </summary>
+        </member>
+        <member name="M:VRage.Utils.MyWingedEdgeMesh.EdgeTableEntry.VertexRightFace(System.Int32)">
+            <summary>
+            Returns a face to the right when going towards the given vertex
+            </summary>
+        </member>
+        <member name="M:VRage.Utils.MyWingedEdgeMesh.EdgeTableEntry.FaceSucc(System.Int32)">
+            <summary>
+            Returns the successor of this edge in the given face
+            </summary>
+        </member>
+        <member name="M:VRage.Utils.MyWingedEdgeMesh.EdgeTableEntry.SetFaceSucc(System.Int32,System.Int32)">
+            <summary>
+            Sets the successor of this edge in the given face
+            </summary>
+        </member>
+        <member name="M:VRage.Utils.MyWingedEdgeMesh.EdgeTableEntry.FacePred(System.Int32)">
+            <summary>
+            Returns the predecessor of this edge in the given face
+            </summary>
+        </member>
+        <member name="M:VRage.Utils.MyWingedEdgeMesh.EdgeTableEntry.SetFacePred(System.Int32,System.Int32)">
+            <summary>
+            Sets the predecessor of this edge in the given face
+            </summary>
+        </member>
+        <member name="M:VRage.Utils.MyWingedEdgeMesh.EdgeTableEntry.VertexSucc(System.Int32)">
+            <summary>
+            Gets the successor around the given vertex.
+            </summary>
+        </member>
+        <member name="M:VRage.Utils.MyWingedEdgeMesh.EdgeTableEntry.SetVertexSucc(System.Int32,System.Int32)">
+            <summary>
+            Sets the successor around the given vertex.
+            </summary>
+            <returns>The old successor value</returns>
+        </member>
+        <member name="M:VRage.Utils.MyWingedEdgeMesh.EdgeTableEntry.VertexPred(System.Int32)">
+            <summary>
+            Gets the predecessor around the given vertex
+            </summary>
+        </member>
+        <member name="M:VRage.Utils.MyWingedEdgeMesh.EdgeTableEntry.SetVertexPred(System.Int32,System.Int32)">
+            <summary>
+            Sets the predecessor around the given vertex.
+            </summary>
+            <returns>The old predecessor value</returns>
+        </member>
+        <member name="P:VRage.Utils.MyWingedEdgeMesh.EdgeTableEntry.NextFreeEntry">
+            <summary>
+            Only valid for empty (deallocated) table entries. In that case, it points to the next free table entry.
+            If this is -1, this entry is the last free entry.
+            </summary>
+        </member>
+        <member name="P:VRage.Utils.MyWingedEdgeMesh.VertexTableEntry.NextFreeEntry">
+            <summary>
+            Only valid for empty (deallocated) table entries. In that case, it points to the next free table entry.
+            If this is -1, this entry is the last free entry.
+            </summary>
+        </member>
+        <member name="P:VRage.Utils.MyWingedEdgeMesh.FaceTableEntry.NextFreeEntry">
+            <summary>
+            Only valid for empty (deallocated) table entries. In that case, it points to the next free table entry.
+            If this is -1, this entry is the last free entry.
+            </summary>
+        </member>
+        <member name="T:VRage.Utils.MyWingedEdgeMesh.Edge">
+            <summary>
+            Note: This is invalid after the mesh changes!
+            </summary>
+        </member>
+        <member name="T:VRage.Utils.MyWingedEdgeMesh.Face">
+            <summary>
+            Note: This is invalid after the mesh changes!
+            </summary>
+        </member>
+        <member name="T:VRage.Utils.MyWingedEdgeMesh.FaceEdgeEnumerator">
+            <summary>
+            Note: This is invalid after the mesh changes!
+            </summary>
+        </member>
+        <member name="T:VRage.Utils.MyWingedEdgeMesh.FaceVertexEnumerator">
+            <summary>
+            Note: This is invalid after the mesh changes!
+            </summary>
+        </member>
+        <member name="T:VRage.Utils.MyWingedEdgeMesh.EdgeEnumerator">
+            <summary>
+            Note: This is invalid after the mesh changes!
+            </summary>
+        </member>
+        <member name="T:VRage.Utils.MyBBSetSampler">
+            <summary>
+            This class allows for uniform generation of points from a set of bounding boxes.
+            
+            You start by constructing a bounding box from where the points will be sampled.
+            Then you can incrementally subtract bounding boxes and the resulting structure will allow you
+            to generate uniformly distributed points using the Sample() function.
+            </summary>
+        </member>
+        <member name="F:VRage.Voxels.MyCellCoord.Lod">
+            <summary>
+            0 is the most detailed.
+            </summary>
+        </member>
+        <member name="M:VRage.Voxels.MyClipmap.InvalidateRange(VRageMath.Vector3I,VRageMath.Vector3I)">
+            <param name="minCellLod0">Inclusive.</param>
+            <param name="maxCellLod0">Inclusive.</param>
+        </member>
+        <member name="F:VRage.Voxels.MyClipmap.LodLevel.m_fitsInFrustum">
+            <summary>
+            Indicator that LoD is too large to even render with current setttings.
+            </summary>
+        </member>
+        <member name="M:VRage.Voxels.MyClipmap.LodLevel.WasAncestorCellLoaded(VRage.Voxels.MyClipmap.LodLevel,VRage.Voxels.MyCellCoord@)">
+            <summary>
+            Checks ancestor nodes recursively. Typically, this checks at most 9 nodes or so (depending on settings).
+            </summary>
+        </member>
+        <member name="M:VRage.Voxels.MyClipmap.LodLevel.ChildrenWereLoaded(VRage.Voxels.MyClipmap.LodLevel,VRage.Voxels.MyCellCoord@)">
+            <summary>
+            Checks only immediate children (any deeper would take too long).
+            </summary>
+        </member>
+        <member name="F:VRage.Voxels.MyClipmap.RequestCollector.m_maxRequests">
+            <summary>
+            Sent requests + low priority requests are checked against this.
+            High priority requests should be sent even when they are over limit.
+            </summary>
+        </member>
+        <member name="M:VRage.Voxels.MyStorageDataCache.Resize(VRageMath.Vector3I,VRageMath.Vector3I)">
+            <param name="start">Inclusive.</param>
+            <param name="end">Inclusive.</param>
+        </member>
+        <member name="T:VRage.Voxels.MyVoxelCoordSystems">
+            <summary>
+            Functions for transforming to and from various coordinate systems in voxel maps and for computing bounding boxes of various types of cells.
+            Note that local and world positions are (and should be) always in the min-corner!
+            </summary>
+        </member>
+    </members>
+</doc>
