@@ -10378,5 +10378,10 @@ namespace Sandbox.Game.Localization
         ///Applied changes will be visible after restarting the game
         ///</summary>
         public static readonly MyStringId MessageBoxTextRestartNeededAfterRendererSwitch = MyStringId.GetOrCompute("MessageBoxTextRestartNeededAfterRendererSwitch");
+
+        ///<summary>
+        ///Show Symmetry Planes
+        ///</summary>
+        public static readonly MyStringId WorldSettings_ShowSymmetry = MyStringId.GetOrCompute("WorldSettings_ShowSymmetry");
     }
 }

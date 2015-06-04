@@ -56,7 +56,7 @@ namespace Sandbox.Game.Gui
         MyGuiControlCombobox m_onlineMode, m_environment, m_worldSizeCombo, m_soundModeCombo, m_spawnShipTimeCombo, m_viewDistanceCombo, m_physicsOptionsCombo;
         MyGuiControlCheckbox m_autoHealing, m_clientCanSave, m_enableCopyPaste, m_weaponsEnabled, m_showPlayerNamesOnHud, m_thrusterDamage, m_cargoShipsEnabled, m_enableSpectator,
                              m_trashRemoval, m_respawnShipDelete, m_resetOwnership, m_permanentDeath, m_destructibleBlocks, m_enableIngameScripts, m_enableToolShake, m_enableOxygen,
-                             m_enable3rdPersonCamera,m_enableEncounters;
+                             m_enable3rdPersonCamera, m_enableEncounters, m_enableShowSymmetry;
 
         MyGuiControlButton m_okButton, m_cancelButton, m_survivalModeButton, m_creativeModeButton, m_inventory_x1, m_inventory_x3, m_inventory_x10;
         MyGuiControlButton m_assembler_x1, m_assembler_x3, m_assembler_x10,
@@ -152,6 +152,7 @@ namespace Sandbox.Game.Gui
             var enableIngameScriptsLabel = MakeLabel(MySpaceTexts.WorldSettings_EnableIngameScripts);
             var enable3rdPersonCameraLabel = MakeLabel(MySpaceTexts.WorldSettings_Enable3rdPersonCamera);
             var enableEncountersLabel = MakeLabel(MySpaceTexts.WorldSettings_Encounters);
+            var enableShowSymmetryLabel = MakeLabel(MySpaceTexts.WorldSettings_ShowSymmetry);
             var enableToolShakeLabel = MakeLabel(MySpaceTexts.WorldSettings_EnableToolShake);
             var shipsEnabledLabel = MakeLabel(MySpaceTexts.WorldSettings_EnableCargoShips);
             var soundInSpaceLabel = MakeLabel(MySpaceTexts.WorldSettings_SoundInSpace);
@@ -189,6 +190,7 @@ namespace Sandbox.Game.Gui
             m_enableIngameScripts = new MyGuiControlCheckbox();
             m_enable3rdPersonCamera = new MyGuiControlCheckbox();
             m_enableEncounters = new MyGuiControlCheckbox();
+            m_enableShowSymmetry = new MyGuiControlCheckbox();
             m_enableToolShake = new MyGuiControlCheckbox();
             m_enableOxygen = new MyGuiControlCheckbox();
             m_enableOxygen.IsCheckedChanged = (x) =>
@@ -448,6 +450,9 @@ namespace Sandbox.Game.Gui
             parent.Controls.Add(oxygenLabel);
             parent.Controls.Add(m_enableOxygen);
 
+            parent.Controls.Add(enableShowSymmetryLabel);
+            parent.Controls.Add(m_enableShowSymmetry);
+
             parent.Controls.Add(respawnShipDeleteLabel);
             parent.Controls.Add(m_respawnShipDelete);
 
@@ -490,6 +495,10 @@ namespace Sandbox.Game.Gui
 
             oxygenLabel.Position = new Vector2(oxygenLabel.Position.X - labelSize / 2, oxygenLabel.Position.Y);
             m_enableOxygen.Position = new Vector2(m_enableOxygen.Position.X - labelSize / 2, m_enableOxygen.Position.Y);
+
+            enableShowSymmetryLabel.Position = new Vector2(enableShowSymmetryLabel.Position.X - labelSize / 2, enableShowSymmetryLabel.Position.Y);
+            m_enableShowSymmetry.Position = new Vector2(m_enableShowSymmetry.Position.X - labelSize / 2, m_enableShowSymmetry.Position.Y);
+
 
             //Middle column checkboxes
             respawnShipDeleteLabel.Position = new Vector2(rightColumnOffset - labelSize / 2, m_autoHealing.Position.Y);
@@ -822,6 +831,7 @@ namespace Sandbox.Game.Gui
             output.EnableIngameScripts = m_enableIngameScripts.IsChecked;
             output.Enable3rdPersonView = m_enable3rdPersonCamera.IsChecked;
             output.EnableEncounters = m_enableEncounters.IsChecked;
+            output.EnableShowSymmetry = m_enableShowSymmetry.IsChecked;
             output.EnableToolShake = m_enableToolShake.IsChecked;
             output.ShowPlayerNamesOnHud = m_showPlayerNamesOnHud.IsChecked;
             output.ThrusterDamage = m_thrusterDamage.IsChecked;
@@ -876,6 +886,7 @@ namespace Sandbox.Game.Gui
             m_permanentDeath.IsChecked = settings.PermanentDeath.Value;
             m_destructibleBlocks.IsChecked = settings.DestructibleBlocks;
             m_enableEncounters.IsChecked = settings.EnableEncounters;
+            m_enableShowSymmetry.IsChecked = settings.EnableShowSymmetry;
             m_enable3rdPersonCamera.IsChecked = settings.Enable3rdPersonView;
             m_enableIngameScripts.IsChecked = settings.EnableIngameScripts;
             m_enableToolShake.IsChecked = settings.EnableToolShake;
