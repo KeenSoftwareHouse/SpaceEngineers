@@ -130,7 +130,7 @@ namespace Sandbox.Game.Entities.Blocks
                 sync.m_syncing = true;
                 MyToolbarItem item = null;
                 if (msg.Item.EntityID != 0)
-                    item = ToolbarItem.ToItemFor<MyButtonPanel>(msg.Item);
+                    item = ToolbarItem.ToItem(msg.Item);
                 sync.m_panel.Toolbar.SetItemAtIndex(msg.Index, item);
                 sync.m_syncing = false;
             }

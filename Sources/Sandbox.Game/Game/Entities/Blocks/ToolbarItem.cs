@@ -9,6 +9,15 @@ namespace Sandbox.Game.Entities.Blocks
     [ProtoContract]
     internal struct ToolbarItem
     {
+        [ProtoMember]
+        public long EntityID;
+        [ProtoMember]
+        public string GroupName;
+        [ProtoMember]
+        public string Action;
+        [ProtoMember]
+        public List<MyObjectBuilder_ToolbarItemActionParameter> Parameters;
+
         public static ToolbarItem FromItem(MyToolbarItem item)
         {
             var tItem = new ToolbarItem();
@@ -32,13 +41,13 @@ namespace Sandbox.Game.Entities.Blocks
             return tItem;
         }
 
-        public static MyToolbarItem ToItemFor<T>(ToolbarItem msgItem) where T : MyCubeBlock
+        public static MyToolbarItem ToItem(ToolbarItem msgItem)
         {
             MyToolbarItem item = null;
             if (string.IsNullOrEmpty(msgItem.GroupName))
             {
                 MyTerminalBlock block;
-                if (MyEntities.TryGetEntityById<MyTerminalBlock>(msgItem.EntityID, out block))
+                if (MyEntities.TryGetEntityById(msgItem.EntityID, out block))
                 {
                     var builder = MyToolbarItemFactory.TerminalBlockObjectBuilderFromBlock(block);
                     builder.Action = msgItem.Action;
@@ -48,8 +57,8 @@ namespace Sandbox.Game.Entities.Blocks
             }
             else
             {
-                T parent;
-                if (MyEntities.TryGetEntityById<T>(msgItem.EntityID, out parent))
+                MyCubeBlock parent;
+                if (MyEntities.TryGetEntityById(msgItem.EntityID, out parent))
                 {
                     var grid = parent.CubeGrid;
                     var groupName = msgItem.GroupName;
@@ -66,11 +75,6 @@ namespace Sandbox.Game.Entities.Blocks
             }
             return item;
         }
-
-        [ProtoMember] public long EntityID;
-        [ProtoMember] public string GroupName;
-        [ProtoMember] public string Action;
-        [ProtoMember] public List<MyObjectBuilder_ToolbarItemActionParameter> Parameters;
 
         public bool ShouldSerializeParameters()
         {
