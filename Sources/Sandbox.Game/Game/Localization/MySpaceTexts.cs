@@ -10528,5 +10528,10 @@ namespace Sandbox.Game.Localization
         ///Target outside movement range
         ///</summary>
         public static readonly MyStringId LaserAntennaOutsideLimits = MyStringId.GetOrCompute("LaserAntennaOutsideLimits");
+
+        ///<summary>
+        ///Occupied by {0}
+        ///</summary>
+        public static readonly MyStringId BlockPropertiesText_CryoChamberOccupant = MyStringId.GetOrCompute("BlockPropertiesText_CryoChamberOccupant");
     }
 }

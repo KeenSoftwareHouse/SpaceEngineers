@@ -21,6 +21,7 @@ using VRageRender;
 using VRage.ModAPI;
 using Sandbox.Engine.Utils;
 using Sandbox.ModAPI.Ingame;
+using VRage;
 
 namespace Sandbox.Game.Entities.Blocks
 {
@@ -184,7 +185,7 @@ namespace Sandbox.Game.Entities.Blocks
             UpdateEmissivity(true);
 
             DetailedInfo.Clear();
-            DetailedInfo.AppendFormat("Occupied by {0}", GetOccupantInfo());
+            DetailedInfo.AppendFormat(MyTexts.GetString(MySpaceTexts.BlockPropertiesText_CryoChamberOccupant), GetOccupantInfo());
             RaisePropertiesChanged();
         }
 
