@@ -23,6 +23,11 @@ namespace Sandbox.Game.Entities.Cube
             get { return DetailedInfo.ToString(); }
         }
 
+        string ModAPI.Ingame.IMyTerminalBlock.CustomDetailedInfo
+        {
+            get { return CustomDetailedInfo.ToString(); }
+        }
+
         Action<MyTerminalBlock> GetDelegate(Action<ModAPI.IMyTerminalBlock> value)
         {
             return (Action<MyTerminalBlock>)Delegate.CreateDelegate(typeof(Action<MyTerminalBlock>), value.Target, value.Method);

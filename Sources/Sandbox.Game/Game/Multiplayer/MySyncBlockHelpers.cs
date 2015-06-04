@@ -76,6 +76,24 @@ namespace Sandbox.Game.Multiplayer
             }
         }
 
+        [MessageId(15283, P2PMessageEnum.Reliable)]
+        [ProtoContract]
+        struct ChangeCustomDetailedInfoMsg : IEntityMessage
+        {
+            [ProtoMember]
+            public long EntityId;
+
+            public long GetEntityId() { return EntityId; }
+
+            [ProtoMember]
+            public string CustomDetailedInfo;
+
+            public override string ToString()
+            {
+                return String.Format("{0}, {1}", this.GetType().Name, this.GetEntityText());
+            }
+        }
+
         static MySyncBlockHelpers()
         {
             MySyncLayer.RegisterMessage<EnableMsg>(EnableRequest, MyMessagePermissions.ToServer, MyTransportMessageEnum.Request);
@@ -89,6 +107,9 @@ namespace Sandbox.Game.Multiplayer
 
             MySyncLayer.RegisterMessage<ShowInTerminalMsg>(ShowInTerminalRequest, MyMessagePermissions.ToServer, MyTransportMessageEnum.Request);
             MySyncLayer.RegisterMessage<ShowInTerminalMsg>(ShowInTerminalSuccess, MyMessagePermissions.FromServer, MyTransportMessageEnum.Success);
+
+            MySyncLayer.RegisterMessage<ChangeCustomDetailedInfoMsg>(ChangeCustomDetailedInfoRequest, MyMessagePermissions.ToServer, MyTransportMessageEnum.Request);
+            MySyncLayer.RegisterMessage<ChangeCustomDetailedInfoMsg>(ChangeCustomDetailedInfoSuccess, MyMessagePermissions.FromServer, MyTransportMessageEnum.Success);
 
         }
 
@@ -202,6 +223,39 @@ namespace Sandbox.Game.Multiplayer
             if (GetBlock(msg.EntityId, out block))
             {
                 block.UpdateCustomName(msg.Name);
+            }
+        }
+
+        public static void SendChangeCustomDetailedInfoRequest(MyTerminalBlock block, string customDetailedInfo)
+        {
+            if (customDetailedInfo.CompareTo(block.CustomDetailedInfo.ToString()) != 0)
+            {
+                block.UpdateCustomDetailedInfo(customDetailedInfo);
+
+                var msg = new ChangeCustomDetailedInfoMsg();
+                msg.EntityId = block.EntityId;
+                msg.CustomDetailedInfo = customDetailedInfo; // Allocation will be either here or in deserialization...or messages would have to be pooled
+
+                Sync.Layer.SendMessageToServer(ref msg, MyTransportMessageEnum.Request);
+            }
+        }
+
+        static void ChangeCustomDetailedInfoRequest(ref ChangeCustomDetailedInfoMsg msg, MyNetworkClient sender)
+        {
+            MyTerminalBlock block;
+            if (GetBlock(msg.EntityId, out block))
+            {
+                block.UpdateCustomDetailedInfo(msg.CustomDetailedInfo);
+                Sync.Layer.SendMessageToAllButOne(ref msg, sender.SteamUserId, MyTransportMessageEnum.Success);
+            }
+        }
+
+        static void ChangeCustomDetailedInfoSuccess(ref ChangeCustomDetailedInfoMsg msg, MyNetworkClient sender)
+        {
+            MyTerminalBlock block;
+            if (GetBlock(msg.EntityId, out block))
+            {
+                block.UpdateCustomDetailedInfo(msg.CustomDetailedInfo);
             }
         }
 

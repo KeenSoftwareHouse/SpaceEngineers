@@ -11,11 +11,14 @@ namespace Sandbox.ModAPI.Ingame
         string CustomName { get; }
         string CustomNameWithFaction { get; }
         string DetailedInfo { get; }
+        string CustomDetailedInfo { get; }
         bool HasLocalPlayerAccess();
         bool HasPlayerAccess(long playerId);
         void RequestShowOnHUD(bool enable);
         void SetCustomName(string text);
         void SetCustomName(StringBuilder text);
+        void SetCustomDetailedInfo(string text);
+        void SetCustomDetailedInfo(StringBuilder text);
         bool ShowOnHUD { get; }
         void GetActions(List<Sandbox.ModAPI.Interfaces.ITerminalAction> resultList, Func<Sandbox.ModAPI.Interfaces.ITerminalAction, bool> collect = null);
         void SearchActionsOfName(string name,List<Sandbox.ModAPI.Interfaces.ITerminalAction> resultList, Func<Sandbox.ModAPI.Interfaces.ITerminalAction, bool> collect = null);

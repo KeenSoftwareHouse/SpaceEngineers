@@ -92,6 +92,7 @@ namespace Sandbox.Game.Entities.Cube
         /// Detailed text in terminal (on right side)
         /// </summary>
         public StringBuilder DetailedInfo { get; private set; }
+        public StringBuilder CustomDetailedInfo { get; private set; }
 
         public event Action<MyTerminalBlock> CustomNameChanged;
         public event Action<MyTerminalBlock> PropertiesChanged;
@@ -105,6 +106,7 @@ namespace Sandbox.Game.Entities.Cube
             CustomName = new StringBuilder();
             DetailedInfo = new StringBuilder();
             CustomNameWithFaction = new StringBuilder();
+            CustomDetailedInfo = new StringBuilder();
         }
         public override void Init(MyObjectBuilder_CubeBlock objectBuilder, MyCubeGrid cubeGrid)
         {
@@ -175,7 +177,23 @@ namespace Sandbox.Game.Entities.Cube
             if (handler != null) handler(this);
         }
 
-       
+        public void SetCustomDetailedInfo(string text)
+        {
+            MySyncBlockHelpers.SendChangeCustomDetailedInfoRequest(this, text);
+        }
+
+        public void SetCustomDetailedInfo(StringBuilder text)
+        {
+            MySyncBlockHelpers.SendChangeCustomDetailedInfoRequest(this, text.ToString());
+        }
+
+        public void UpdateCustomDetailedInfo(string text)
+        {
+            if (CustomDetailedInfo.CompareUpdate(text))
+            {
+                RaisePropertiesChanged();
+            }
+        }
 
         /// <summary>
         /// Call this when you change detailed info or other terminal properties
