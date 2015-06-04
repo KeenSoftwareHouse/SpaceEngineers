@@ -1,13 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
 using System.Text;
 using VRage.Profiler;
 using VRageMath;
 using VRageMath.PackedVector;
 using VRageRender.Vertex;
-
 
 namespace VRageRender.Profiler
 {

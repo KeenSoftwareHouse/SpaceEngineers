@@ -1,15 +1,11 @@
-﻿using SharpDX;
+﻿using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
-using VRageMath;
-using Rectangle = VRageMath.Rectangle;
-using Color = VRageMath.Color;
-using Vector2 = VRageMath.Vector2;
-using System;
-using VRageRender.Resources;
-using System.Diagnostics;
-using System.Collections.Concurrent;
 using System.Threading;
+using DShowNET;
+using SharpDX.DXGI;
+using VRageMath;
+using VRageRender.Resources;
 
 namespace VRageRender
 {
@@ -19,11 +15,11 @@ namespace VRageRender
         public static extern void CopyMemory(IntPtr dest, IntPtr src, uint count);
     }
 
-    class MyVideoPlayer : DShowNET.VideoPlayer
+    class MyVideoPlayer : VideoPlayer
     {
         RwTexId m_texture = RwTexId.NULL;
 
-        const SharpDX.DXGI.Format VideoFormat = SharpDX.DXGI.Format.B8G8R8A8_UNorm;
+        const Format VideoFormat = Format.B8G8R8A8_UNorm;
 
         public MyVideoPlayer(string filename)
             : base(filename)
@@ -35,7 +31,7 @@ namespace VRageRender
         {
             var mapping = MyMapping.MapDiscard(m_texture.Resource);
 
-            var lineSize = (uint)(SharpDX.DXGI.FormatHelper.SizeOfInBytes(VideoFormat) * VideoWidth);
+            var lineSize = (uint)(FormatHelper.SizeOfInBytes(VideoFormat) * VideoWidth);
             var rowPitch = mapping.dataBox.RowPitch;
 
             fixed(byte *ptr = frameData)
@@ -43,7 +39,7 @@ namespace VRageRender
                 for(int y=0; y<VideoHeight; y++)
                 {
                     var dst = new IntPtr((byte*)mapping.dataBox.DataPointer.ToPointer() + rowPitch * y);
-                    var src = new IntPtr((byte*)ptr + lineSize * y);
+                    var src = new IntPtr(ptr + lineSize * y);
                     MyMemory.CopyMemory(dst, src, lineSize);
                 }
             }
@@ -68,7 +64,7 @@ namespace VRageRender
             Rectangle src = new Rectangle(0, 0, VideoWidth, VideoHeight);
             var videoSize = new Vector2(VideoWidth, VideoHeight);
             float videoAspect = videoSize.X / videoSize.Y;
-            float rectAspect = (float)rect.Width / (float)rect.Height;
+            float rectAspect = rect.Width / (float)rect.Height;
 
             // Automatic decision based on ratios.
             if (fitMode == MyVideoRectangleFitMode.AutoFit)
@@ -81,7 +77,7 @@ namespace VRageRender
                     break;
 
                 case MyVideoRectangleFitMode.FitWidth:
-                    scaleRatio = (float)dst.Width / videoSize.X;
+                    scaleRatio = dst.Width / videoSize.X;
                     dst.Height = (int)(scaleRatio * videoSize.Y);
                     if (dst.Height > rect.Height)
                     {
@@ -94,7 +90,7 @@ namespace VRageRender
                     break;
 
                 case MyVideoRectangleFitMode.FitHeight:
-                    scaleRatio = (float)dst.Height / videoSize.Y;
+                    scaleRatio = dst.Height / videoSize.Y;
                     dst.Width = (int)(scaleRatio * videoSize.X);
                     if (dst.Width > rect.Width)
                     {
@@ -110,8 +106,8 @@ namespace VRageRender
             dst.Y = rect.Top + (rect.Height - dst.Height) / 2;
 
 
-            VRageMath.RectangleF destination = new VRageMath.RectangleF(dst.X, dst.Y, dst.Width, -dst.Height);
-            VRageMath.Rectangle? source = src;
+            RectangleF destination = new RectangleF(dst.X, dst.Y, dst.Width, -dst.Height);
+            Rectangle? source = src;
             Vector2 origin = new Vector2(src.Width / 2 * 0, src.Height);
             
             MySpritesRenderer.AddSingleSprite(m_texture.ShaderView, videoSize, Color.White, origin, Vector2.UnitX, source, destination);

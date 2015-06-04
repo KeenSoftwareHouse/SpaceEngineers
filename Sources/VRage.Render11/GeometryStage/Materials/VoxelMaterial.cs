@@ -1,30 +1,6 @@
-﻿using SharpDX;
-using SharpDX.Direct3D;
-using SharpDX.Direct3D11;
-using SharpDX.DXGI;
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using VRage.Generics;
-
+﻿using VRage.Utils;
 using VRageMath;
 using VRageRender.Resources;
-using VRageRender.Vertex;
-using Buffer = SharpDX.Direct3D11.Buffer;
-using Matrix = VRageMath.Matrix;
-using Vector2 = VRageMath.Vector2;
-using Vector3 = VRageMath.Vector3;
-using Vector4 = VRageMath.Vector4;
-using BoundingBox = VRageMath.BoundingBox;
-using BoundingFrustum = VRageMath.BoundingFrustum;
-using Color = VRageMath.Color;
-using SharpDX.D3DCompiler;
-using VRage.Utils;
-using VRage.Utils;
-using VRage.Library.Utils;
 
 namespace VRageRender
 {
@@ -107,8 +83,8 @@ namespace VRageRender
         internal float FoliageDensity;
         internal float FoliageScaleVariation;
 
-        internal bool HasFoliage { get { return FoliageArray_Texture != null; } }
-        internal Vector3 ScaleFactors { get { return new Vector3(1.0f / Near.TextureScale, 1.0f / Far1.TextureScale, 1.0f / Far2.TextureScale); } }
+        internal bool HasFoliage => FoliageArray_Texture != null;
+        internal Vector3 ScaleFactors => new Vector3(1.0f / Near.TextureScale, 1.0f / Far1.TextureScale, 1.0f / Far2.TextureScale);
     }
 
     struct MyVoxelMaterialTriple

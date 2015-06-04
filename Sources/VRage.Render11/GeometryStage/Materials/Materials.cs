@@ -1,18 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using VRage.Utils;
 using SharpDX.Direct3D11;
-using SharpDX.DXGI;
+using VRage;
+using VRage.Import;
+using VRage.Utils;
 using VRageMath;
 using VRageRender.Resources;
-using System.Diagnostics;
-using VRage.Import;
-using VRage;
-using VRage.Library.Utils;
-using System.IO;
-using VRage.FileSystem;
 
 namespace VRageRender
 {
@@ -32,7 +25,7 @@ namespace VRageRender
 
         internal static readonly MyMeshMaterialId NULL = new MyMeshMaterialId { Index = -1 };
 
-        internal MyMeshMaterialInfo Info { get { return MyMeshMaterials1.Table[Index]; } }
+        internal MyMeshMaterialInfo Info => MyMeshMaterials1.Table[Index];
     }
 
     struct MyMaterialProxyId
@@ -216,16 +209,16 @@ namespace VRageRender
                         Version = version,
                         SRVs = singleMaterial
                             ? 
-                                new ShaderResourceView[] 
+                                new[] 
                                 { 
                                     Table[triple.I0].Near.ColorMetalArray.ShaderView, Table[triple.I0].Far1.ColorMetalArray.ShaderView, Table[triple.I0].Far2.ColorMetalArray.ShaderView,
-                                    Table[triple.I0].Near.NormalGlossArray.ShaderView, Table[triple.I0].Far1.NormalGlossArray.ShaderView, Table[triple.I0].Far2.NormalGlossArray.ShaderView,
+                                    Table[triple.I0].Near.NormalGlossArray.ShaderView, Table[triple.I0].Far1.NormalGlossArray.ShaderView, Table[triple.I0].Far2.NormalGlossArray.ShaderView
                                 }
                             : 
                             (
                             triple.I2 == -1 
                                 ?
-                                new ShaderResourceView[] 
+                                new[] 
                                 { 
                                     Table[triple.I0].Near.ColorMetalArray.ShaderView, Table[triple.I0].Far1.ColorMetalArray.ShaderView, Table[triple.I0].Far2.ColorMetalArray.ShaderView,
                                     Table[triple.I1].Near.ColorMetalArray.ShaderView, Table[triple.I1].Far1.ColorMetalArray.ShaderView, Table[triple.I1].Far2.ColorMetalArray.ShaderView,
@@ -239,7 +232,7 @@ namespace VRageRender
                                     null, null, null
                                 }
                                 :
-                                new ShaderResourceView[] 
+                                new[] 
                                 { 
                                     Table[triple.I0].Near.ColorMetalArray.ShaderView, Table[triple.I0].Far1.ColorMetalArray.ShaderView, Table[triple.I0].Far2.ColorMetalArray.ShaderView,
                                     Table[triple.I1].Near.ColorMetalArray.ShaderView, Table[triple.I1].Far1.ColorMetalArray.ShaderView, Table[triple.I1].Far2.ColorMetalArray.ShaderView,
@@ -341,7 +334,7 @@ namespace VRageRender
         #region DATA
         static MyFreelist<MyMeshMaterialInfo> MaterialsPool = new MyFreelist<MyMeshMaterialInfo>(256);
 
-        internal static MyMeshMaterialInfo[] Table { get { return MaterialsPool.Data; } }
+        internal static MyMeshMaterialInfo[] Table => MaterialsPool.Data;
 
         static Dictionary<MyMeshMaterialId, MyMaterialProxyId> MaterialProxyIndex = new Dictionary<MyMeshMaterialId, MyMaterialProxyId>();
         internal static Dictionary<int, MyMeshMaterialId> MaterialRkIndex = new Dictionary<int, MyMeshMaterialId>();
@@ -356,7 +349,7 @@ namespace VRageRender
         internal static MyMeshMaterialId DebugMaterialId;
         internal static MyMeshMaterialId NullMaterialId;
 
-        static readonly HashSet<MyStringId> MERGABLE_MATERIAL_NAMES = new HashSet<MyStringId>() 
+        static readonly HashSet<MyStringId> MERGABLE_MATERIAL_NAMES = new HashSet<MyStringId>
         { 
             MyStringId.GetOrCompute("BlockSheet"), 
             MyStringId.GetOrCompute("CubesSheet"), 
@@ -435,7 +428,7 @@ namespace VRageRender
                 }
                 else if(assetFile != null)
                 {
-                    VRageRender.MyRender11.Log.WriteLine(String.Format("Asset {0} tries to overrwrite material {1} with different textures", assetFile, desc.Name.ToString()));
+                    MyRender11.Log.WriteLine(String.Format("Asset {0} tries to overrwrite material {1} with different textures", assetFile, desc.Name));
                 }
 
                 return id;

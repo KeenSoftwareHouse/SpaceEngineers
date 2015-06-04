@@ -1,27 +1,11 @@
-﻿using SharpDX;
-using SharpDX.Direct3D;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using SharpDX.Direct3D11;
 using SharpDX.DXGI;
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Text;
 using VRage.Generics;
-
 using VRageMath;
-using VRageRender.Resources;
-using VRageRender.Vertex;
 using Buffer = SharpDX.Direct3D11.Buffer;
-using Matrix = VRageMath.Matrix;
-using Vector3 = VRageMath.Vector3;
-using BoundingBox = VRageMath.BoundingBox;
-using BoundingFrustum = VRageMath.BoundingFrustum;
-using VRage.Collections;
-using System.Collections.Specialized;
-using System.Threading;
-
 
 namespace VRageRender
 {
@@ -138,7 +122,7 @@ namespace VRageRender
         OPAQUE = 0,
         FORWARD = 1,
         ALPHA_MASKED = 2,
-        TRANSPARENT = 3,
+        TRANSPARENT = 3
     }
 
     [Flags]
@@ -147,7 +131,7 @@ namespace VRageRender
         None = 0,
         DepthSkipTextures = 1,
         DisableFaceCulling = 2,
-        SkipInMainView = 4,
+        SkipInMainView = 4
     }
 
     // should NOT own any data!
@@ -171,7 +155,7 @@ namespace VRageRender
         internal int instanceCount;
         internal int startInstance;
 
-        internal bool InstancingEnabled { get { return Instancing != InstancingId.NULL; } }
+        internal bool InstancingEnabled => Instancing != InstancingId.NULL;
 
         internal Matrix[] skinningMatrices;
 

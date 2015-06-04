@@ -1,16 +1,20 @@
 ﻿
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Text;
+using SharpDX;
+using SharpDX.DXGI;
 using VRage;
-using VRage;
-using VRage.Utils;
 using VRageMath;
 using VRageRender.Profiler;
 using VRageRender.Resources;
 using VRageRender.Vertex;
+using BoundingBox = VRageMath.BoundingBox;
+using Matrix = VRageMath.Matrix;
+using Vector2 = VRageMath.Vector2;
+using Vector3 = VRageMath.Vector3;
+using Vector4 = VRageMath.Vector4;
 
 namespace VRageRender
 { 
@@ -18,7 +22,7 @@ namespace VRageRender
     {
         internal static float Saturate(float v)
         {
-            return (float) Math.Min(1, Math.Max(0, v));
+            return Math.Min(1, Math.Max(0, v));
         }
 
         internal static float Lerp(float a, float b, float x)
@@ -83,7 +87,7 @@ namespace VRageRender
 
                 case MyRenderMessageEnum.DrawScene:
                 {
-                    var rMessage = (IMyRenderMessage)message;
+                    var rMessage = message;
 
                     m_drawQueue.Enqueue(rMessage);
 
@@ -237,7 +241,7 @@ namespace VRageRender
                 {
                     var rMessage = (MyRenderMessageCreateRenderEntity)message;
 
-                    Matrix m = (Matrix)rMessage.WorldMatrix;
+                    Matrix m = rMessage.WorldMatrix;
 
                     var actor = MyActorFactory.CreateSceneObject();
                     if (rMessage.Model != null) 
@@ -287,7 +291,7 @@ namespace VRageRender
                 {
                     var rMessage = (MyRenderMessageCreateRenderVoxelDebris)message;
 
-                    Matrix m = (Matrix)rMessage.WorldMatrix;
+                    Matrix m = rMessage.WorldMatrix;
 
                     var actor = MyActorFactory.CreateSceneObject();
                     if (rMessage.Model != null)
@@ -338,7 +342,7 @@ namespace VRageRender
                     var actor = MyIDTracker<MyActor>.FindByID(rMessage.ID);
                     if (actor != null)
                     {
-                        Matrix m = (Matrix)rMessage.WorldMatrix;
+                        Matrix m = rMessage.WorldMatrix;
                         actor.SetMatrix(ref m);
                         if(rMessage.AABB.HasValue)
                         { 
@@ -507,7 +511,7 @@ namespace VRageRender
 
                     var actor = MyActorFactory.CreateGroup();
                     actor.SetID(rMessage.ID);
-                    Matrix m = (Matrix)rMessage.WorldMatrix;
+                    Matrix m = rMessage.WorldMatrix;
                     actor.SetMatrix(ref m);
 
                     break;
@@ -560,7 +564,7 @@ namespace VRageRender
                             out stream0, out stream1);
 
                         var indices = MyLineHelpers.GenerateIndices(stream0.Length);
-                        var sections = new MySectionInfo[] 
+                        var sections = new[] 
                         { 
                             new MySectionInfo { TriCount = indices.Length / 3, IndexStart = 0, MaterialName = "__ROPE_MATERIAL" } 
                         };
@@ -794,16 +798,16 @@ namespace VRageRender
                         RwTexId handle = r.ModelProperties[key].CustomRenderedTexture;
                         if (handle == RwTexId.NULL && MyModelProperties.CustomTextures < MyModelProperties.MaxCustomTextures)
                         {
-                           handle = MyRwTextures.CreateRenderTarget(rMessage.TextureResolution * rMessage.TextureAspectRatio, rMessage.TextureResolution, SharpDX.DXGI.Format.R8G8B8A8_UNorm_SRgb, true);
+                           handle = MyRwTextures.CreateRenderTarget(rMessage.TextureResolution * rMessage.TextureAspectRatio, rMessage.TextureResolution, Format.R8G8B8A8_UNorm_SRgb, true);
                            r.ModelProperties[key].CustomRenderedTexture = handle;
                            ++MyModelProperties.CustomTextures;
                         }
 
                         if (handle != RwTexId.NULL)
                         {
-                            var clearColor = new SharpDX.Color4(rMessage.BackgroundColor.PackedValue);
+                            var clearColor = new Color4(rMessage.BackgroundColor.PackedValue);
                             clearColor.Alpha = 0;
-                            MyRender11.ImmediateContext.ClearRenderTargetView(handle.Rtv, clearColor);
+                            ImmediateContext.ClearRenderTargetView(handle.Rtv, clearColor);
 
                             // my sprites renderer -> push state
                             MySpritesRenderer.PushState(new Vector2(rMessage.TextureResolution * rMessage.TextureAspectRatio, rMessage.TextureResolution));
@@ -819,7 +823,7 @@ namespace VRageRender
                             MySpritesRenderer.PopState();
                             
 
-                            MyRender11.ImmediateContext.GenerateMips(handle.ShaderView);
+                            ImmediateContext.GenerateMips(handle.ShaderView);
 
                             actor.MarkRenderDirty();
                         }
@@ -1028,7 +1032,7 @@ namespace VRageRender
                 {
                     var rMessage = (MyRenderMessageUpdateRenderEnvironment)message;
 
-                    MyEnvironment.DirectionalLightDir = VRageMath.Vector3.Normalize(rMessage.SunDirection);
+                    MyEnvironment.DirectionalLightDir = Vector3.Normalize(rMessage.SunDirection);
                     MyEnvironment.DirectionalLightIntensity = rMessage.SunIntensity * rMessage.SunColor.ToVector3();
                     MyEnvironment.DirectionalLightEnabled = rMessage.SunLightOn;
                     MyEnvironment.DayTime = (float)(rMessage.DayTime - Math.Truncate(rMessage.DayTime));
@@ -1280,7 +1284,7 @@ namespace VRageRender
 
                 case MyRenderMessageEnum.UnloadData:
                 {
-                    MyRender11.UnloadData();
+                    UnloadData();
                     break;
                 }
 

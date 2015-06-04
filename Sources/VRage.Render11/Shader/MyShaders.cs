@@ -3,19 +3,16 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Security.Cryptography;
 using System.Text;
+using System.Text.RegularExpressions;
+using System.Threading;
 using SharpDX;
 using SharpDX.D3DCompiler;
 using SharpDX.Direct3D11;
-using VRage.Utils;
-using VRageRender;
-using VRage.Generics;
-using System.Threading;
-using System.Security.Cryptography;
-using VRage.Utils;
-using VRage.Library.Utils;
 using VRage.FileSystem;
-using System.Text.RegularExpressions;
+using VRage.Utils;
+
 namespace VRageRender
 {
     static class MyShaderDefines
@@ -27,7 +24,7 @@ namespace VRageRender
 
             foreach(var macro in macros)
             {
-                m_builder.AppendFormat("#define {0}{1}", macro, System.Environment.NewLine);
+                m_builder.AppendFormat("#define {0}{1}", macro, Environment.NewLine);
             }
 
             return m_builder.ToString();
@@ -376,7 +373,7 @@ namespace VRageRender
             {
                 if (macro != null)
                 {
-                    m_strB.Value.AppendFormat("#define {0}{1}", macro, System.Environment.NewLine);
+                    m_strB.Value.AppendFormat("#define {0}{1}", macro, Environment.NewLine);
                 }
             }
 
@@ -577,11 +574,7 @@ namespace VRageRender
             {
                 return new FileStream(fullFileName, FileMode.Open, FileAccess.Read);
             }
-            else
-            {
-                return Stream.Null;
-            }
-            
+            return Stream.Null;
         }
 
         public void Dispose()
@@ -679,7 +672,7 @@ namespace VRageRender
             return MyShaders.GetVs(id);
         }
 
-        internal ShaderBytecodeId BytecodeId { get { return MyShaders.VertexShaders.Data[this.Index].Bytecode; } }
+        internal ShaderBytecodeId BytecodeId => MyShaders.VertexShaders.Data[Index].Bytecode;
     }
 
     struct PixelShaderId
@@ -764,7 +757,7 @@ namespace VRageRender
     {
         internal const string ShadersContentPath = "Shaders";
         internal const string UserCachePath = "ShaderCache";
-        static MD5 m_md5 = System.Security.Cryptography.MD5.Create(); 
+        static MD5 m_md5 = MD5.Create(); 
 
         static MyShaders()
         {
@@ -819,7 +812,7 @@ namespace VRageRender
                 builder.Append(ShaderBytecode.Preprocess(source, null, includes));
 
 
-                byte[] inputBytes = System.Text.Encoding.ASCII.GetBytes(builder.ToString());
+                byte[] inputBytes = Encoding.ASCII.GetBytes(builder.ToString());
                 byte[] hash = m_md5.ComputeHash(inputBytes);
 
                 builder.Clear();
@@ -846,7 +839,7 @@ namespace VRageRender
             var filename = Path.Combine(MyFileSystem.UserDataPath, UserCachePath, Path.GetFileName(key + ".cache"));
             if (File.Exists(filename))
             {
-                return System.IO.File.ReadAllBytes(filename);
+                return File.ReadAllBytes(filename);
             }
 
             return null;
@@ -916,13 +909,13 @@ namespace VRageRender
 
                 if(compilationResult.Message != null)
                 {
-                    Debug.WriteLine(String.Format("Compilation of shader {0}: {1}", name, compilationResult.Message));
+                    Debug.WriteLine("Compilation of shader {0}: {1}", name, compilationResult.Message);
                     ExtendedErrorMessage(source, compilationResult.Message);
                 }
 
                 if (compilationResult.Bytecode.Data.Length > 0)
                 {
-                    StoreInCache(key.ToString(), compilationResult.Bytecode.Data);
+                    StoreInCache(key, compilationResult.Bytecode.Data);
                 }
 
                 return compilationResult.Bytecode.Data;
@@ -935,7 +928,7 @@ namespace VRageRender
                 Debug.WriteLine(e);
                 ExtendedErrorMessage(source, e.Message);
             }
-            catch (System.IO.FileNotFoundException)
+            catch (FileNotFoundException)
             {
                 throw;
             }
@@ -960,7 +953,7 @@ namespace VRageRender
                     var offseted = line + i;
                     if (0 <= offseted && offseted < sourceLines.Count())
                     {
-                        Debug.WriteLine(String.Format("{0}: {1}", offseted + 1, sourceLines[offseted]));
+                        Debug.WriteLine("{0}: {1}", offseted + 1, sourceLines[offseted]);
                     }
                 }
             }
@@ -1106,7 +1099,7 @@ namespace VRageRender
             using (var reader = new StreamReader(Path.Combine(MyFileSystem.ContentPath, ShadersContentPath, info.File.ToString())))
             {
                 var compiled = Compile(MyRender11.GlobalShaderHeader + info.Header + reader.ReadToEnd(), info.Function.ToString(), info.Profile.Value(), info.Name, invalidateCache);
-                Bytecodes.Data[bytecode.Index].Bytecode = compiled != null ? compiled : Bytecodes.Data[bytecode.Index].Bytecode; 
+                Bytecodes.Data[bytecode.Index].Bytecode = compiled ?? Bytecodes.Data[bytecode.Index].Bytecode; 
 
                 if(Bytecodes.Data[bytecode.Index].Bytecode == null)
                 {

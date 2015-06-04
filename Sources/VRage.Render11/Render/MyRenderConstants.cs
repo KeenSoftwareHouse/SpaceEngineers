@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using SharpDX.DXGI;
+﻿using SharpDX.DXGI;
 using VRageMath;
 
 namespace VRageRender

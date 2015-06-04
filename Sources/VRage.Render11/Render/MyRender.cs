@@ -1,10 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
-using System.Linq;
 using System.Runtime.Serialization;
 using System.Text;
-using VRage;
 using VRage.FileSystem;
 using VRage.Library.Utils;
 using VRage.Utils;
@@ -23,11 +20,11 @@ namespace VRageRender
         {
             switch(value)
             {
-                case VRageRender.MyMsaaSamplesEnum.MSAA_2:
+                case MyMsaaSamplesEnum.MSAA_2:
                     return 2;
-                case VRageRender.MyMsaaSamplesEnum.MSAA_4:
+                case MyMsaaSamplesEnum.MSAA_4:
                     return 4;
-                case VRageRender.MyMsaaSamplesEnum.MSAA_8:
+                case MyMsaaSamplesEnum.MSAA_8:
                     return 8;
                 default:
                     return 1;
@@ -39,8 +36,8 @@ namespace VRageRender
     struct MyRenderQualityData
     {
         internal MyMsaaSamplesEnum m_msaaSettings;
-        internal bool IsMultisampled { get { return m_msaaSettings != MyMsaaSamplesEnum.None; } }
-        internal int MsaaSamplesNum { get { return m_msaaSettings.SamplesNum(); } }
+        internal bool IsMultisampled => m_msaaSettings != MyMsaaSamplesEnum.None;
+        internal int MsaaSamplesNum => m_msaaSettings.SamplesNum();
 
         internal int ShadowmapCascadeResolution;
 
@@ -57,8 +54,8 @@ namespace VRageRender
     {
         internal MyRenderQualityData Current { get; private set; }
 
-        internal bool m_rebuildShaders = false;
-        internal bool m_recreateRTs = false;
+        internal bool m_rebuildShaders;
+        internal bool m_recreateRTs;
         internal string m_shaderGlobalMacros = "";
         
         internal void Change(MyRenderQualityData renderQuality)
@@ -92,7 +89,7 @@ namespace VRageRender
         internal static MyTimeSpan CurrentDrawTime;
         internal static MyTimeSpan CurrentUpdateTime;
         internal static MyTimeSpan PreviousDrawTime;
-        internal static MyTimeSpan TimeDelta { get { return CurrentDrawTime - PreviousDrawTime; } }
+        internal static MyTimeSpan TimeDelta => CurrentDrawTime - PreviousDrawTime;
         internal static MySharedData SharedData = new MySharedData();
         internal static MyLog Log = new MyLog();
 
@@ -113,7 +110,7 @@ namespace VRageRender
         static MyRender11()
         {
             const string logName = "VRageRender-DirectX11.log";
-            Log.Init(logName, new System.Text.StringBuilder("Version unknown"));
+            Log.Init(logName, new StringBuilder("Version unknown"));
             Log.WriteLine("VRage renderer started");
         }
 
@@ -127,10 +124,7 @@ namespace VRageRender
             SharedData.RenderOutputMessageQueue.Enqueue(message);
         }
 
-        internal static MyMessageQueue OutputQueue
-        {
-            get { return SharedData.RenderOutputMessageQueue; }
-        }
+        internal static MyMessageQueue OutputQueue => SharedData.RenderOutputMessageQueue;
 
         // Profiling
         static MyRenderProfiler m_renderProfiler = new MyRenderProfilerDX11();

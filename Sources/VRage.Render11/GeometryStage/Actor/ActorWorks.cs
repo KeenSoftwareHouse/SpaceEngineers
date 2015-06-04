@@ -1,8 +1,4 @@
 ﻿using ParallelTasks;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 namespace VRageRender
 {
@@ -19,10 +15,7 @@ namespace VRageRender
             m_end = end;
         }
 
-        public WorkPriority Priority
-        {
-            get { return WorkPriority.Normal; }
-        }
+        public WorkPriority Priority => WorkPriority.Normal;
 
         public void DoWork()
         {
@@ -40,9 +33,6 @@ namespace VRageRender
             MyRender11.GetRenderProfiler().EndProfilingBlock();
         }
 
-        public WorkOptions Options
-        {
-            get { return Parallel.DefaultOptions; }
-        }
+        public WorkOptions Options => Parallel.DefaultOptions;
     }
 }

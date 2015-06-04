@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System.Collections.Generic;
 using VRage.Voxels;
 using VRageMath;
 
@@ -54,7 +51,7 @@ namespace VRageRender
             }
         }
 
-        void IMyClipmapCell.UpdateWorldMatrix(ref VRageMath.MatrixD worldMatrix, bool sortIntoCullObjects)
+        void IMyClipmapCell.UpdateWorldMatrix(ref MatrixD worldMatrix, bool sortIntoCullObjects)
         {
             m_worldMatrix = worldMatrix;
 
@@ -63,7 +60,7 @@ namespace VRageRender
             m_actor.SetAabb(m_localAabb.Transform((Matrix)m_worldMatrix));
         }
 
-        internal MyClipmapCellProxy(MyCellCoord cellCoord, ref VRageMath.Matrix worldMatrix)
+        internal MyClipmapCellProxy(MyCellCoord cellCoord, ref Matrix worldMatrix)
         {
             m_worldMatrix = worldMatrix;
 
@@ -97,7 +94,7 @@ namespace VRageRender
     class MyClipmapHandler : IMyClipmapCellHandler
     {
         private readonly MyClipmap m_clipmapBase;
-        internal MyClipmap Base { get { return m_clipmapBase; } }
+        internal MyClipmap Base => m_clipmapBase;
 
         internal MyClipmapHandler(uint id, MyClipmapScaleEnum scaleGroup, MatrixD worldMatrix, Vector3I sizeLod0)
         {
@@ -105,9 +102,9 @@ namespace VRageRender
             MyClipmap.AddToUpdate(MyEnvironment.CameraPosition, m_clipmapBase);
         }
 
-        public IMyClipmapCell CreateCell(MyClipmapScaleEnum scaleGroup, MyCellCoord cellCoord, ref VRageMath.MatrixD worldMatrix)
+        public IMyClipmapCell CreateCell(MyClipmapScaleEnum scaleGroup, MyCellCoord cellCoord, ref MatrixD worldMatrix)
         {
-            Matrix m = (Matrix)worldMatrix;
+            Matrix m = worldMatrix;
             var cell = new MyClipmapCellProxy(cellCoord, ref m);
             cell.SetVisibility(false);
             return cell;

@@ -1,15 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel.Design;
-using System.Linq;
-using System.Text;
-using SharpDX.DXGI;
-using System.Diagnostics;
-using SharpDX;
-using SharpDX.Direct3D11;
-using Device = SharpDX.Direct3D11.Device;
-using SharpDX.Direct3D;
 using System.Management;
+using SharpDX;
+using SharpDX.Direct3D;
+using SharpDX.Direct3D11;
+using SharpDX.DXGI;
+using Device = SharpDX.Direct3D11.Device;
 
 namespace VRageRender
 {
@@ -22,14 +18,10 @@ namespace VRageRender
         static Factory m_factory;
         static Factory GetFactory()
         {
-            if(m_factory == null)
-            {
-                m_factory = new Factory();
-            }
-            return m_factory;
+            return m_factory ?? (m_factory = new Factory());
         }
 
-        private static void LogInfoFromWMI()
+	    private static void LogInfoFromWMI()
         {
             try
             {
@@ -47,32 +39,32 @@ namespace VRageRender
                 //get collection of WMI objects
                 ManagementObjectCollection queryCollection = searcher.Get();
 
-                MyRender11.Log.WriteLine("WMI {");
-                MyRender11.Log.IncreaseIndent();
+                Log.WriteLine("WMI {");
+                Log.IncreaseIndent();
 
                 //enumerate the collection.
                 foreach (ManagementObject m in queryCollection)
                 {
-                    MyRender11.Log.WriteLine("{");
-                    MyRender11.Log.IncreaseIndent();
+                    Log.WriteLine("{");
+                    Log.IncreaseIndent();
 
-                    MyRender11.Log.WriteLine("Caption = " + m["Caption"]);
-                    MyRender11.Log.WriteLine("AdapterRam = " + m["AdapterRam"]);
-                    MyRender11.Log.WriteLine("DriverVersion = " + m["DriverVersion"]);
-                    MyRender11.Log.WriteLine("DriverDate = " + m["DriverDate"]);
-                    MyRender11.Log.WriteLine("Description = " + m["Description"]);
-                    MyRender11.Log.WriteLine("DeviceID = " + m["DeviceID"]);
-                    MyRender11.Log.WriteLine("Name = " + m["Name"]);
-                    MyRender11.Log.WriteLine("VideoProcessor = " + m["VideoProcessor"]);
-                    MyRender11.Log.WriteLine("VideoArchitecture = " + m["VideoArchitecture"]);
-                    MyRender11.Log.WriteLine("PNPDeviceID = " + m["PNPDeviceID"]);
-                    MyRender11.Log.WriteLine("InstalledDisplayDrivers = " + m["InstalledDisplayDrivers"]);
+                    Log.WriteLine("Caption = " + m["Caption"]);
+                    Log.WriteLine("AdapterRam = " + m["AdapterRam"]);
+                    Log.WriteLine("DriverVersion = " + m["DriverVersion"]);
+                    Log.WriteLine("DriverDate = " + m["DriverDate"]);
+                    Log.WriteLine("Description = " + m["Description"]);
+                    Log.WriteLine("DeviceID = " + m["DeviceID"]);
+                    Log.WriteLine("Name = " + m["Name"]);
+                    Log.WriteLine("VideoProcessor = " + m["VideoProcessor"]);
+                    Log.WriteLine("VideoArchitecture = " + m["VideoArchitecture"]);
+                    Log.WriteLine("PNPDeviceID = " + m["PNPDeviceID"]);
+                    Log.WriteLine("InstalledDisplayDrivers = " + m["InstalledDisplayDrivers"]);
 
-                    MyRender11.Log.DecreaseIndent();
-                    MyRender11.Log.WriteLine("}");
+                    Log.DecreaseIndent();
+                    Log.WriteLine("}");
                 }
-                MyRender11.Log.DecreaseIndent();
-                MyRender11.Log.WriteLine("}");
+                Log.DecreaseIndent();
+                Log.WriteLine("}");
             }
             catch
             {
@@ -81,36 +73,36 @@ namespace VRageRender
 
         static void LogAdapterInfoBegin(ref MyAdapterInfo info)
         {
-            MyRender11.Log.WriteLine("AdapterInfo = {");
-            MyRender11.Log.IncreaseIndent();
-            MyRender11.Log.WriteLine("Name = " + info.Name);
-            MyRender11.Log.WriteLine("Device name = " + info.DeviceName);
-            MyRender11.Log.WriteLine("Description = " + info.Description);
-            MyRender11.Log.WriteLine("DXGIAdapter id = " + info.AdapterDeviceId);
-            MyRender11.Log.WriteLine("SUPPORTED = " + info.IsDx11Supported);
-            MyRender11.Log.WriteLine("VRAM = " + info.VRAM);
-            MyRender11.Log.WriteLine("Priority = " + info.Priority);
-            MyRender11.Log.WriteLine("Fallback display modes = " + info.FallbackDisplayModes);
-            MyRender11.Log.WriteLine("Multithreaded rendering supported = " + info.MultithreadedRenderingSupported);
+            Log.WriteLine("AdapterInfo = {");
+            Log.IncreaseIndent();
+            Log.WriteLine("Name = " + info.Name);
+            Log.WriteLine("Device name = " + info.DeviceName);
+            Log.WriteLine("Description = " + info.Description);
+            Log.WriteLine("DXGIAdapter id = " + info.AdapterDeviceId);
+            Log.WriteLine("SUPPORTED = " + info.IsDx11Supported);
+            Log.WriteLine("VRAM = " + info.VRAM);
+            Log.WriteLine("Priority = " + info.Priority);
+            Log.WriteLine("Fallback display modes = " + info.FallbackDisplayModes);
+            Log.WriteLine("Multithreaded rendering supported = " + info.MultithreadedRenderingSupported);
         }
 
         static void LogAdapterInfoEnd()
         {
-            MyRender11.Log.DecreaseIndent();
-            MyRender11.Log.WriteLine("}");
+            Log.DecreaseIndent();
+            Log.WriteLine("}");
         }
 
         static void LogOutputDisplayModes(ref MyAdapterInfo info)
         {
-            MyRender11.Log.WriteLine("Display modes = {");
-            MyRender11.Log.IncreaseIndent();
-            MyRender11.Log.WriteLine("DXGIOutput id = " + info.OutputId);
+            Log.WriteLine("Display modes = {");
+            Log.IncreaseIndent();
+            Log.WriteLine("DXGIOutput id = " + info.OutputId);
             for(int i=0; i< info.SupportedDisplayModes.Length; i++)
             {
-                MyRender11.Log.WriteLine(info.SupportedDisplayModes[i].ToString());
+                Log.WriteLine(info.SupportedDisplayModes[i].ToString());
             }
-            MyRender11.Log.DecreaseIndent();
-            MyRender11.Log.WriteLine("}");
+            Log.DecreaseIndent();
+            Log.WriteLine("}");
         }
 
         static int VendorPriority(int vendorId)
@@ -186,7 +178,7 @@ namespace VRageRender
                     Priority = VendorPriority(adapter.Description.VendorId),
                     Has512MBRam = vram > 500000000,
                     HDRSupported = true,
-                    MaxTextureSize = SharpDX.Direct3D11.Texture2D.MaximumTexture2DSize,
+                    MaxTextureSize = Texture2D.MaximumTexture2DSize,
 
                     VRAM = vram,
                     MultithreadedRenderingSupported = supportsCommandLists
@@ -265,7 +257,7 @@ namespace VRageRender
                     {
                         // FALLBACK MODES
 
-                        MyDisplayMode[] fallbackDisplayModes = new MyDisplayMode[] {
+                        MyDisplayMode[] fallbackDisplayModes = {
                             new MyDisplayMode(640, 480, 60000, 1000),
                             new MyDisplayMode(720, 576, 60000, 1000),
                             new MyDisplayMode(800, 600, 60000, 1000),
@@ -285,7 +277,7 @@ namespace VRageRender
                             new MyDisplayMode(1680, 1200, 60000, 1000),
                             new MyDisplayMode(1680, 1050, 60000, 1000),
                             new MyDisplayMode(1920, 1080, 60000, 1000),
-                            new MyDisplayMode(1920, 1200, 60000, 1000),
+                            new MyDisplayMode(1920, 1200, 60000, 1000)
                         };
 
                         info.SupportedDisplayModes = fallbackDisplayModes;
@@ -310,14 +302,9 @@ namespace VRageRender
             return adaptersList.ToArray();
         }
 
-		internal unsafe static MyAdapterInfo[] GetAdaptersList()
+		internal static MyAdapterInfo[] GetAdaptersList()
 		{
-            if(m_adapterInfoList == null)
-            {
-                m_adapterInfoList = CreateAdaptersList();
-            }
-
-            return m_adapterInfoList;
+		    return m_adapterInfoList ?? (m_adapterInfoList = CreateAdaptersList());
 		}
 	}
 }

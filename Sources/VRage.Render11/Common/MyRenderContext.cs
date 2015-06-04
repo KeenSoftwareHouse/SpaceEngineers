@@ -1,26 +1,14 @@
-﻿using SharpDX;
-using SharpDX.Direct3D;
-using SharpDX.Direct3D11;
-using SharpDX.DXGI;
-using System;
-using System.Collections;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using System.Text;
-using VRage.Generics;
-
-using VRageMath;
-using VRageRender.Resources;
-using VRageRender.Vertex;
-using Buffer = SharpDX.Direct3D11.Buffer;
-using Matrix = VRageMath.Matrix;
-using Vector3 = VRageMath.Vector3;
-using BoundingBox = VRageMath.BoundingBox;
-using BoundingFrustum = VRageMath.BoundingFrustum;
+using SharpDX;
+using SharpDX.Direct3D11;
+using SharpDX.DXGI;
+using VRage;
 using VRage.Collections;
-using System.Collections.Specialized;
-using System.Threading;
+using Buffer = SharpDX.Direct3D11.Buffer;
+using MapFlags = SharpDX.Direct3D11.MapFlags;
 
 namespace VRageRender
 {
@@ -268,8 +256,8 @@ namespace VRageRender
         bool m_joined;
         internal CommandList m_commandList;
 
-        internal bool Joined { get { return m_joined; } }
-        internal bool OkToRelease { get { return m_finished == true && m_joined == true && ProfilingQueries.m_issued.Count == 0; } }
+        internal bool Joined => m_joined;
+        internal bool OkToRelease => m_finished && m_joined && ProfilingQueries.m_issued.Count == 0;
 
         public MyRenderContext()
         {
@@ -752,7 +740,7 @@ namespace VRageRender
             Context.End(query.m_query);
         }
 
-        [Conditional(VRage.ProfilerShort.Symbol)]
+        [Conditional(ProfilerShort.Symbol)]
         internal void BeginProfilingBlock(string tag)
         {
             var q = MyQueryFactory.CreateTimestampQuery();
@@ -769,7 +757,7 @@ namespace VRageRender
             }
         }
 
-        [Conditional(VRage.ProfilerShort.Symbol)]
+        [Conditional(ProfilerShort.Symbol)]
         internal void EndProfilingBlock()
         {
             var q = MyQueryFactory.CreateTimestampQuery();
@@ -856,7 +844,7 @@ namespace VRageRender
             {
                 State.m_constantsVersion[desc.CB] = desc.Version;
                 
-                var box = Context.MapSubresource((SharpDX.Direct3D11.Resource)desc.CB, 0, MapMode.WriteDiscard, SharpDX.Direct3D11.MapFlags.None);
+                var box = Context.MapSubresource(desc.CB, 0, MapMode.WriteDiscard, MapFlags.None);
                 // TODO: try with aligned memory
                 fixed(byte* ptr = desc.Data)
                 {

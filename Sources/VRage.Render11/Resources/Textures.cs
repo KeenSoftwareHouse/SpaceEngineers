@@ -3,22 +3,17 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Text;
-using SharpDX.Direct3D11;
-using VRage.Utils;
-using System.Reflection;
 using SharpDX;
-using SharpDX.Toolkit.Graphics;
-using Texture2D = SharpDX.Direct3D11.Texture2D;
-using Texture1D = SharpDX.Direct3D11.Texture1D;
-using Vector2 = VRageMath.Vector2;
-using Resource = SharpDX.Direct3D11.Resource;
-using SharpDX.DXGI;
 using SharpDX.Direct3D;
-using VRage.Utils;
-using VRage.Library.Utils;
+using SharpDX.Direct3D11;
+using SharpDX.DXGI;
+using SharpDX.Toolkit.Graphics;
 using VRage.FileSystem;
-using VRageMath;
+using VRage.Utils;
+using Resource = SharpDX.Direct3D11.Resource;
+using Texture1D = SharpDX.Direct3D11.Texture1D;
+using Texture2D = SharpDX.Direct3D11.Texture2D;
+using Vector2 = VRageMath.Vector2;
 
 namespace VRageRender.Resources
 {
@@ -194,7 +189,7 @@ namespace VRageRender.Resources
                     BindFlags = BindFlags.ShaderResource,
                     CpuAccessFlags = CpuAccessFlags.None,
                     Usage = ResourceUsage.Immutable,
-                    SampleDescription = new SharpDX.DXGI.SampleDescription { Count = 1, Quality = 0 },
+                    SampleDescription = new SampleDescription { Count = 1, Quality = 0 },
                     OptionFlags = img.Description.Dimension == TextureDimension.TextureCube ? ResourceOptionFlags.TextureCube : ResourceOptionFlags.None
                 };
 
@@ -431,7 +426,7 @@ namespace VRageRender.Resources
                 var desc = new Texture2DDescription();
                 desc.ArraySize = 1;
                 desc.BindFlags = BindFlags.ShaderResource;
-                desc.Format = SharpDX.DXGI.Format.R8G8B8A8_UNorm;
+                desc.Format = Format.R8G8B8A8_UNorm;
                 desc.Height = 1;
                 desc.Width = 1;
                 desc.Usage = ResourceUsage.Immutable;
@@ -461,7 +456,7 @@ namespace VRageRender.Resources
                 var desc = new Texture2DDescription();
                 desc.ArraySize = 6;
                 desc.BindFlags = BindFlags.ShaderResource;
-                desc.Format = SharpDX.DXGI.Format.R8G8B8A8_UNorm;
+                desc.Format = Format.R8G8B8A8_UNorm;
                 desc.Height = 1;
                 desc.Width = 1;
                 desc.Usage = ResourceUsage.Immutable;
@@ -483,7 +478,7 @@ namespace VRageRender.Resources
                 MissingCubeTexId = RegisterTexture("MISSING_CUBEMAP", null, MyTextureEnum.SYSTEM, new Texture2D(MyRender11.Device, desc, databox), new Vector2(1, 1));
             }
             {
-                byte[] ditherData = new byte[] {
+                byte[] ditherData = {
                     0, 32, 8, 40, 2, 34, 10, 42,
                     48, 16, 56, 24, 50, 18, 58, 26,
                     12, 44, 4, 36, 14, 46, 6, 38, 
@@ -499,7 +494,7 @@ namespace VRageRender.Resources
                 var desc = new Texture2DDescription();
                 desc.ArraySize = 1;
                 desc.BindFlags = BindFlags.ShaderResource;
-                desc.Format = SharpDX.DXGI.Format.R8_UNorm;
+                desc.Format = Format.R8_UNorm;
                 desc.Height = 8;
                 desc.Width = 8;
                 desc.Usage = ResourceUsage.Immutable;
@@ -619,7 +614,7 @@ namespace VRageRender.Resources
                 }
 
                 x.Stop();
-                Debug.WriteLine(String.Format("Loaded {0} textures in {1} s", texturesToLoad, x.Elapsed.TotalSeconds));
+                Debug.WriteLine("Loaded {0} textures in {1} s", texturesToLoad, x.Elapsed.TotalSeconds);
             }
         }
     }
@@ -649,17 +644,17 @@ namespace VRageRender.Resources
         internal static readonly RwTexId NULL = new RwTexId { Index = -1 };
 
 
-        internal Resource Resource { get { return MyRwTextures.GetResource(this); } }
-        internal ShaderResourceView ShaderView { get { return MyRwTextures.GetSrv(this); } }
+        internal Resource Resource => MyRwTextures.GetResource(this);
+        internal ShaderResourceView ShaderView => MyRwTextures.GetSrv(this);
         internal DepthStencilView SubresourceDsv(int subres) { return MyRwTextures.GetDsv(this, subres); }
         internal RenderTargetView SubresourceRtv(int subres) { return MyRwTextures.GetRtv(this, subres); }
         internal ShaderResourceView SubresourceSrv(int subres) { return MyRwTextures.GetSrv(this, subres); }
         internal ShaderResourceView SubresourceSrv(int array, int mipmap) { return MyRwTextures.GetSrv(this, mipmap + array * Description2d.MipLevels); }
-        internal UnorderedAccessView Uav { get { return MyRwTextures.GetUav(this); } }
+        internal UnorderedAccessView Uav => MyRwTextures.GetUav(this);
         internal UnorderedAccessView SubresourceUav(int array, int mipmap) { return MyRwTextures.GetUav(this, mipmap + array * Description2d.MipLevels); }
-        internal DepthStencilView Dsv { get { return MyRwTextures.GetDsv(this); } }
-        internal Texture2DDescription Description2d { get { return MyRwTextures.Textures.Data[Index].Description2D.Value; } }
-        internal RenderTargetView Rtv { get { return MyRwTextures.GetRtv(this); } }
+        internal DepthStencilView Dsv => MyRwTextures.GetDsv(this);
+        internal Texture2DDescription Description2d => MyRwTextures.Textures.Data[Index].Description2D.Value;
+        internal RenderTargetView Rtv => MyRwTextures.GetRtv(this);
     }
 
     struct MySubresourceId

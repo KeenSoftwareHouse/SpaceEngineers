@@ -1,27 +1,13 @@
-﻿using SharpDX;
+﻿using System;
+using System.Diagnostics;
+using System.Threading;
+using SharpDX;
 using SharpDX.Direct3D;
 using SharpDX.Direct3D11;
-using SharpDX.DXGI;
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using VRage.Generics;
-
-using VRageMath;
+using VRage;
 using VRageRender.Resources;
-using VRageRender.Vertex;
 using Buffer = SharpDX.Direct3D11.Buffer;
 using Matrix = VRageMath.Matrix;
-using Vector3 = VRageMath.Vector3;
-using BoundingBox = VRageMath.BoundingBox;
-using BoundingFrustum = VRageMath.BoundingFrustum;
-using VRage.Collections;
-using System.Collections.Specialized;
-using System.Threading;
-using ParallelTasks;
 
 namespace VRageRender
 {
@@ -93,7 +79,7 @@ namespace VRageRender
         internal string DebugName;
         #endregion
 
-        internal DeviceContext Context { get { return RC.Context; } }
+        internal DeviceContext Context => RC.Context;
         internal int ProcessingMask { get; set; }
 
         internal MyRenderContext RC
@@ -164,7 +150,7 @@ namespace VRageRender
             }
         }
 
-        [Conditional(VRage.ProfilerShort.Symbol)]
+        [Conditional(ProfilerShort.Symbol)]
         internal void FeedProfiler(ulong nextSortingKey)
         {
             int type = (int)MyRenderableComponent.ExtractTypeFromSortingKey(nextSortingKey);
@@ -225,7 +211,7 @@ namespace VRageRender
 
         internal virtual void End()
         {
-            if (VRage.MyCompilationSymbols.RenderProfiling)
+            if (MyCompilationSymbols.RenderProfiling)
             {
                 if (m_currentProfilingBlock_renderableType != -1)
                 {
@@ -249,7 +235,7 @@ namespace VRageRender
             {
                 fixed (void* ptr1 = &proxy.ObjectData)
                 {
-                    constantsChange = !SharpDX.Utilities.CompareMemory(new IntPtr(ptr0), new IntPtr(ptr1), sizeof(MyObjectData));
+                    constantsChange = !Utilities.CompareMemory(new IntPtr(ptr0), new IntPtr(ptr1), sizeof(MyObjectData));
                 }
             }
 
@@ -313,7 +299,7 @@ namespace VRageRender
 
         internal virtual MyRenderingPass Fork()
         {
-            var copied = (MyRenderingPass)this.MemberwiseClone();
+            var copied = (MyRenderingPass)MemberwiseClone();
 
             copied.Locals = null;
             copied.Stats = new MyPassStats();

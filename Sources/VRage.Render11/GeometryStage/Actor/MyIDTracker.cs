@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System.Collections.Generic;
 
 namespace VRageRender
 {
@@ -10,8 +7,8 @@ namespace VRageRender
         uint m_ID;
         T m_value;
 
-        internal uint ID { get { return m_ID; } }
-        internal T Value { get { return m_value; } }
+        internal uint ID => m_ID;
+        internal T Value => m_value;
 
         static Dictionary<uint, MyIDTracker<T>> m_dict = new Dictionary<uint, MyIDTracker<T>>();
 

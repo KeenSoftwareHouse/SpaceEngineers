@@ -1,16 +1,13 @@
-﻿using SharpDX;
-using SharpDX.Direct3D11;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
+using SharpDX;
+using SharpDX.Direct3D11;
 using VRage.FileSystem;
-using VRage.Library.Utils;
 using VRage.Utils;
-using VRage.Utils;
-
 
 namespace VRageRender
 {
@@ -30,9 +27,9 @@ namespace VRageRender
 
         internal static readonly MyMaterialShadersBundleId NULL = new MyMaterialShadersBundleId { Index = -1 };
 
-        internal InputLayout IL { get { return MyMaterialShaders.Bundles[Index].IL; } }
-        internal VertexShader VS { get { return MyMaterialShaders.Bundles[Index].VS; } }
-        internal PixelShader PS { get { return MyMaterialShaders.Bundles[Index].PS; } }
+        internal InputLayout IL => MyMaterialShaders.Bundles[Index].IL;
+        internal VertexShader VS => MyMaterialShaders.Bundles[Index].VS;
+        internal PixelShader PS => MyMaterialShaders.Bundles[Index].PS;
     }
 
     struct MyMaterialShadersInfo
@@ -41,7 +38,7 @@ namespace VRageRender
         internal MyStringId Pass;
         internal VertexLayoutId Layout;
         internal MyShaderUnifiedFlags Flags;
-        internal string Name { get { return String.Format("[{0}][{1}]_{2}", Pass.ToString(), Material.ToString(), Flags); } }
+        internal string Name => String.Format("[{0}][{1}]_{2}", Pass, Material, Flags);
     }
 
     struct MyMaterialShadersBundle
@@ -166,7 +163,7 @@ namespace VRageRender
                 Layout = vertexLayout,
                 Flags = flags
             };
-            Bundles[id.Index] = new MyMaterialShadersBundle { };
+            Bundles[id.Index] = new MyMaterialShadersBundle();
 
             InitBundle(id);
 
@@ -254,7 +251,7 @@ namespace VRageRender
             source.AppendLine();
             source.AppendLine(MaterialPassSources[info.Pass].VertexStageTemplate);
 
-            var vsName = String.Format("[{0}][{1}]_{2}_{3}", info.Pass.ToString(), info.Material.ToString(), "vs", info.Flags);
+            var vsName = String.Format("[{0}][{1}]_{2}_{3}", info.Pass, info.Material, "vs", info.Flags);
 
             var vsSource = source.ToString();
 
@@ -271,7 +268,7 @@ namespace VRageRender
             source.AppendLine(MaterialPassSources[info.Pass].PixelStageTemplate);
 
             
-            var psName = String.Format("[{0}][{1}]_{2}_{3}", info.Pass.ToString(), info.Material.ToString(), "ps", info.Flags);
+            var psName = String.Format("[{0}][{1}]_{2}_{3}", info.Pass, info.Material, "ps", info.Flags);
             var psSource = source.ToString();
 
 

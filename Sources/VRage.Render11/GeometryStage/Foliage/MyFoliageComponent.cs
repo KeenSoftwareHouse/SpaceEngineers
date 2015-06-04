@@ -1,22 +1,4 @@
-﻿using SharpDX;
-using SharpDX.Direct3D11;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using VRage.Collections;
-
-using VRageMath;
-using VRageRender.Resources;
-using Vector3 = VRageMath.Vector3;
-using Color = VRageMath.Color;
-using Matrix = VRageMath.Matrix;
-using BoundingFrustum = VRageMath.BoundingFrustum;
-using BoundingBox = VRageMath.BoundingBox;
-using BoundingSphere = VRageMath.BoundingSphere;
-using VRage.Generics;
-
-namespace VRageRender
+﻿namespace VRageRender
 {
 //    // per level lru cache
 //    class MyFoliageCacheLevel

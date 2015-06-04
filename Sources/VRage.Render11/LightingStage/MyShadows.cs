@@ -1,13 +1,11 @@
-﻿using VRageMath;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using SharpDX.Direct3D11;
-using VRageRender.Resources;
-using SharpDX.DXGI;
-using System;
-
 using SharpDX.Direct3D;
+using SharpDX.Direct3D11;
+using SharpDX.DXGI;
+using VRageMath;
+using VRageRender.Resources;
 
 namespace VRageRender
 {                     
@@ -20,7 +18,7 @@ namespace VRageRender
     partial class MyRender11
     {
         internal static bool UseComplementaryDepthBuffer = true;
-        internal static float DepthClearValue { get { return UseComplementaryDepthBuffer ? 0 : 1; } }
+        internal static float DepthClearValue => UseComplementaryDepthBuffer ? 0 : 1;
 
         internal static string GlobalShaderHeader = "";
     }
@@ -31,7 +29,7 @@ namespace VRageRender
         internal Matrix LocalToProjection;
         internal Vector3D WorldCameraOffsetPosition;
 
-        internal Matrix CurrentLocalToProjection { get { return Matrix.CreateTranslation(MyEnvironment.CameraPosition - WorldCameraOffsetPosition) * LocalToProjection; } }
+        internal Matrix CurrentLocalToProjection => Matrix.CreateTranslation(MyEnvironment.CameraPosition - WorldCameraOffsetPosition) * LocalToProjection;
     }
 
     class MyLightsCameraDistanceComparer : IComparer<LightId> {
@@ -70,7 +68,7 @@ namespace VRageRender
         internal static List<MyShadowmapQuery> m_shadowmapQueries = new List<MyShadowmapQuery>();
         internal static MyProjectionInfo [] m_cascadeInfo = new MyProjectionInfo[8];
 
-        internal static List<MyShadowmapQuery> ShadowmapList { get { return m_shadowmapQueries; } }
+        internal static List<MyShadowmapQuery> ShadowmapList => m_shadowmapQueries;
         internal static Vector3[] m_cornersCS;
 
         static InputLayoutId m_inputLayout;
@@ -111,7 +109,7 @@ namespace VRageRender
             m_cascadesBoundingsVertices = MyHwBuffers.CreateVertexBuffer(8 * 4, sizeof(Vector3), BindFlags.VertexBuffer, ResourceUsage.Dynamic);
             InitIB();
 
-            m_cornersCS = new Vector3[8] {
+            m_cornersCS = new[] {
                     new Vector3(-1, -1, 0),
                     new Vector3(-1, 1, 0),
                     new Vector3( 1, 1, 0),
@@ -216,7 +214,7 @@ namespace VRageRender
 
         static void PrepareCascades()
         {
-            MyImmediateRC.RC.Context.CopyResource(m_cascadeShadowmapArray.Resource, m_cascadeShadowmapBackup.Resource);
+            RC.Context.CopyResource(m_cascadeShadowmapArray.Resource, m_cascadeShadowmapBackup.Resource);
 
             bool stabilize = true;
 
@@ -246,7 +244,7 @@ namespace VRageRender
 
             Matrix[] cascadesMatrices = new Matrix[8];
 
-            var cascadeFrozen = MyRender11.Settings.FreezeCascade.Any(x => x == true);
+            var cascadeFrozen = MyRender11.Settings.FreezeCascade.Any(x => x);
             if (!cascadeFrozen)
             {
                 m_oldView = MyEnvironment.View;
@@ -265,12 +263,12 @@ namespace VRageRender
 
             float unitWidth = 1 / MyEnvironment.Projection.M11;
             float unitHeight = 1 / MyEnvironment.Projection.M22;
-            var vertices = new Vector3[]
+            var vertices = new[]
             {
                 new Vector3( -unitWidth, -unitHeight, -1), 
                 new Vector3( -unitWidth, unitHeight, -1), 
                 new Vector3( unitWidth, unitHeight, -1), 
-                new Vector3( unitWidth, -unitHeight, -1), 
+                new Vector3( unitWidth, -unitHeight, -1) 
             };
             var frustumVerticesWS = new Vector3[8];
 
@@ -334,7 +332,7 @@ namespace VRageRender
                 var offset = bSphere.Radius + cascadesNearClip + backOffset;
                 var shadowCameraPosWS = bSphere.Center + CascadeLightDirection[c] * (bSphere.Radius + cascadesNearClip);
 
-                var lightView = VRageMath.Matrix.CreateLookAt(shadowCameraPosWS, shadowCameraPosWS - CascadeLightDirection[c], Math.Abs(Vector3.UnitY.Dot(CascadeLightDirection[c])) < 0.99f ? Vector3.UnitY : Vector3.UnitX);
+                var lightView = Matrix.CreateLookAt(shadowCameraPosWS, shadowCameraPosWS - CascadeLightDirection[c], Math.Abs(Vector3.UnitY.Dot(CascadeLightDirection[c])) < 0.99f ? Vector3.UnitY : Vector3.UnitX);
 
                 Vector3 vMin = new Vector3(-bSphere.Radius, -bSphere.Radius, cascadesNearClip);
                 Vector3 vMax = new Vector3(bSphere.Radius, bSphere.Radius, offset + bSphere.Radius);
@@ -453,8 +451,7 @@ namespace VRageRender
 
         static unsafe void InitIB()
         {
-            ushort[] indices = new ushort[]
-            {
+            ushort[] indices = {
                 // 0 1 2 3
                 0, 1, 2, 0, 2, 3,
                 // 1 5 6 2
@@ -503,7 +500,7 @@ namespace VRageRender
             RC.SetVS(m_markVS);
             RC.SetPS(m_markPS);
 
-            var verticesCS = new Vector3[8] {
+            var verticesCS = new[] {
                     new Vector3(-1, -1, 0),
                     new Vector3(-1, 1, 0),
                     new Vector3( 1, 1, 0),

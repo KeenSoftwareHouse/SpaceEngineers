@@ -1,29 +1,11 @@
-﻿using SharpDX;
-using SharpDX.Direct3D;
-using SharpDX.Direct3D11;
-using SharpDX.DXGI;
-using System;
-using System.Collections;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using System.Text;
-using VRage.Generics;
-
-using VRageMath;
-using VRageRender.Resources;
-using VRageRender.Vertex;
-using Buffer = SharpDX.Direct3D11.Buffer;
-using Matrix = VRageMath.Matrix;
-using Vector3 = VRageMath.Vector3;
-using Vector4 = VRageMath.Vector4;
-using BoundingBox = VRageMath.BoundingBox;
-using BoundingFrustum = VRageMath.BoundingFrustum;
-using VRage.Collections;
-using System.Collections.Specialized;
-using System.Threading;
+using SharpDX;
+using SharpDX.Direct3D11;
 using VRageMath.PackedVector;
-
+using VRageRender.Vertex;
 
 namespace VRageRender
 {
@@ -44,9 +26,9 @@ namespace VRageRender
 
         internal static readonly InstancingId NULL = new InstancingId { Index = -1 };
 
-        internal MyInstancingInfo Info { get { return MyInstancing.Instancings.Data[Index]; } }
+        internal MyInstancingInfo Info => MyInstancing.Instancings.Data[Index];
 
-        internal VertexBufferId VB { get { return MyInstancing.Data[Index].VB; } }
+        internal VertexBufferId VB => MyInstancing.Data[Index].VB;
     }
 
     struct MyInstancingInfo
@@ -120,7 +102,7 @@ namespace VRageRender
         {
             RemoveResource(id);
             IdIndex.Remove(GID);
-            Instancings.Data[id.Index] = new MyInstancingInfo { };
+            Instancings.Data[id.Index] = new MyInstancingInfo();
             Instancings.Free(id.Index);            
         }
 
@@ -155,7 +137,7 @@ namespace VRageRender
             {
                 fixed (void* dst = Instancings.Data[id.Index].Data)
                 {
-                    SharpDX.Utilities.CopyMemory(new IntPtr(dst), new IntPtr(src), info.Stride * list.Length);
+                    Utilities.CopyMemory(new IntPtr(dst), new IntPtr(src), info.Stride * list.Length);
                 }
             }
 

@@ -1,30 +1,10 @@
-﻿using SharpDX;
+﻿using System;
+using System.Collections.Generic;
 using SharpDX.Direct3D;
 using SharpDX.Direct3D11;
-using SharpDX.DXGI;
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using VRage.Generics;
-
+using VRage.Voxels;
 using VRageMath;
 using VRageRender.Resources;
-using VRageRender.Vertex;
-using Buffer = SharpDX.Direct3D11.Buffer;
-using Matrix = VRageMath.Matrix;
-using Vector2 = VRageMath.Vector2;
-using Vector3 = VRageMath.Vector3;
-using Vector4 = VRageMath.Vector4;
-using BoundingBox = VRageMath.BoundingBox;
-using BoundingFrustum = VRageMath.BoundingFrustum;
-using VRage.Collections;
-using System.Collections.Specialized;
-using System.Threading;
-using VRage.Voxels;
-
 
 namespace VRageRender
 {
@@ -263,7 +243,7 @@ namespace VRageRender
             soElements[1].ComponentCount = 1;
             soElements[1].OutputSlot = 0;
 
-            var soStrides = new int[] { sizeof(Vector3) + sizeof(uint) };
+            var soStrides = new[] { sizeof(Vector3) + sizeof(uint) };
 
             m_gs = MyShaders.CreateGs("passes/foliage_streaming/geometry_stage.hlsl", "gs", "", new MyShaderStreamOutputInfo { Elements = soElements, Strides = soStrides, RasterizerStreams = GeometryShader.StreamOutputNoRasterizedStream });
 
@@ -423,7 +403,7 @@ namespace VRageRender
             foreach(var f in MyComponentFactory<MyFoliageComponent>.GetAll())
             {
                 if (f.m_owner.CalculateCameraDistance() < MyRender11.RenderSettings.FoliageDetails.GrassDrawDistance()
-                    && viewFrustum.Contains(f.m_owner.Aabb) != VRageMath.ContainmentType.Disjoint)
+                    && viewFrustum.Contains(f.m_owner.Aabb) != ContainmentType.Disjoint)
                 {
                     f.Render(m_instance);
                 }

@@ -1,25 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using SharpDX;
-using SharpDX.Direct3D;
-using SharpDX.Direct3D11;
-using VRageMath;
-using RectangleF = VRageMath.RectangleF;
-using Vector2 = VRageMath.Vector2;
-using Vector3 = VRageMath.Vector3;
-using Color = VRageMath.Color;
-using Matrix = VRageMath.Matrix;
-using BoundingSphere = VRageMath.BoundingSphere;
-using BoundingBox = VRageMath.BoundingBox;
-using BoundingFrustum = VRageMath.BoundingFrustum;
-using VRageRender.Vertex;
-using VRageMath.PackedVector;
-using VRage.Collections;
+﻿using System.Collections.Generic;
 using System.Diagnostics;
-
-
+using System.Threading;
+using SharpDX.Direct3D11;
+using VRage.Collections;
 
 namespace VRageRender
 {
@@ -107,8 +90,7 @@ namespace VRageRender
 
         internal MyOcclusionQuery()
         {
-            var desc = new QueryDescription();
-            desc.Type = QueryType.Occlusion;
+            var desc = new QueryDescription {Type = QueryType.Occlusion};
             m_query = new Query(MyRender11.Device, desc);
         }
 
@@ -133,14 +115,11 @@ namespace VRageRender
             {
                 return MyRender11.Context.GetData(m_query, AsynchronousFlags.DoNotFlush, out num);
             }
-            else
+            while (!MyRender11.Context.GetData(m_query, AsynchronousFlags.None, out num))
             {
-                while (!MyRender11.Context.GetData(m_query, AsynchronousFlags.None, out num))
-                {
-                    System.Threading.Thread.Sleep(1);
-                }
-                return true;
+                Thread.Sleep(1);
             }
+            return true;
         }
     }
 }

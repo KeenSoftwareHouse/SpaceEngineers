@@ -1,20 +1,9 @@
-﻿using SharpDX.Direct3D11;
-using SharpDX.DXGI;
-using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using System.Linq;
-using System.Text;
 using VRage.FileSystem;
-using VRage.Import;
-using VRage.Library.Utils;
-using VRage.Utils;
 using VRageMath;
-using VRageMath.PackedVector;
-using VRageRender.Resources;
 using VRageRender.Vertex;
-using Buffer = SharpDX.Direct3D11.Buffer;
 
 namespace VRageRender
 {
@@ -55,7 +44,7 @@ namespace VRageRender
         internal int Id;
         internal Dictionary<string, MyDrawSubmesh[]> Parts = new Dictionary<string, MyDrawSubmesh[]>();
         internal Dictionary<string, MySubmeshInfo[]> PartsMetadata = new Dictionary<string, MySubmeshInfo[]>(); // well, we need this too after all
-        internal int PartsNum { get { return Parts.Count; } }
+        internal int PartsNum => Parts.Count;
         internal BoundingBox? BoundingBox;
         internal BoundingSphere? BoundingSphere;
         internal bool IsAnimated { get; set; }
@@ -107,9 +96,9 @@ namespace VRageRender
 
         protected string m_name;
 
-        internal string Name { get { return m_name; } }
+        internal string Name => m_name;
         internal MyRenderLodInfo[] LODs;
-        internal MyAssetLoadingEnum LoadingStatus { get { return m_loadingStatus; } }
+        internal MyAssetLoadingEnum LoadingStatus => m_loadingStatus;
         internal bool IsAnimated { get; set; }
 
         protected MyAssetLoadingEnum m_loadingStatus;
@@ -140,10 +129,10 @@ namespace VRageRender
 
         internal void DebugWriteInfo()
         {
-            Debug.WriteLine(String.Format("Loaded mesh: {0}, lods: {1}, closest lod parts: {2}", m_name, LODs.Length, LODs[0].m_meshInfo.PartsNum));
+            Debug.WriteLine("Loaded mesh: {0}, lods: {1}, closest lod parts: {2}", m_name, LODs.Length, LODs[0].m_meshInfo.PartsNum);
             for (int i = 0; i < LODs.Length; i++)
             {
-                Debug.WriteLine(String.Format("\tlod {0} : V {1}, I {2}", i, LODs[i].m_meshInfo.VerticesNum, LODs[i].m_meshInfo.IndicesNum));
+                Debug.WriteLine("\tlod {0} : V {1}, I {2}", i, LODs[i].m_meshInfo.VerticesNum, LODs[i].m_meshInfo.IndicesNum);
             }
         }
     }

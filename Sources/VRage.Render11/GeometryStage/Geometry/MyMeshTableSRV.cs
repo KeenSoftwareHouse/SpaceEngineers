@@ -1,14 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using VRageMath;
-using VRageMath.PackedVector;
-using VRageRender.Resources;
-using VRageRender.Vertex;
-using SharpDX.Direct3D;
-using SharpDX.Direct3D11;
 using System.Diagnostics;
+using SharpDX;
+using SharpDX.DXGI;
+using VRageRender.Vertex;
 
 namespace VRageRender
 {
@@ -69,12 +64,12 @@ namespace VRageRender
         unsafe static readonly int Stride1 = sizeof(MyVertexFormatTexcoordNormalTangent);
         static readonly int IndexStride = sizeof(uint);
 
-        int m_indexPageSize = 0;
-        int m_pagesUsed = 0;
+        int m_indexPageSize;
+        int m_pagesUsed;
 
         Dictionary<MyMeshTableEntry, MyMeshTableSRV_Entry> m_table = new Dictionary<MyMeshTableEntry, MyMeshTableSRV_Entry>();
 
-        internal int PageSize { get { return m_indexPageSize; } }
+        internal int PageSize => m_indexPageSize;
 
         internal StructuredBufferId m_VB_positions = StructuredBufferId.NULL;
         internal StructuredBufferId m_VB_rest = StructuredBufferId.NULL;
@@ -130,7 +125,7 @@ namespace VRageRender
                 var indexOffset = m_indices;
 
                 var mesh = MyMeshes.GetLodMesh(model, 0);
-                Debug.Assert(mesh.Info.Data.IndicesFmt == SharpDX.DXGI.Format.R16_UInt);
+                Debug.Assert(mesh.Info.Data.IndicesFmt == Format.R16_UInt);
 
                 var meshInfo = mesh.Info;
                 var data = meshInfo.Data;
@@ -150,12 +145,12 @@ namespace VRageRender
                 fixed(byte* src = data.VertexStream0, dst_ = m_vertexStream0)
                 {
                     byte* dst = dst_ + data.Stride0 * vertexOffset;
-                    SharpDX.Utilities.CopyMemory(new IntPtr(dst), new IntPtr(src), data.Stride0 * meshInfo.VerticesNum);
+                    Utilities.CopyMemory(new IntPtr(dst), new IntPtr(src), data.Stride0 * meshInfo.VerticesNum);
                 }
                 fixed (byte* src = data.VertexStream1, dst_ = m_vertexStream1)
                 {
                     byte* dst = dst_ + data.Stride1 * vertexOffset;
-                    SharpDX.Utilities.CopyMemory(new IntPtr(dst), new IntPtr(src), data.Stride1 * meshInfo.VerticesNum);
+                    Utilities.CopyMemory(new IntPtr(dst), new IntPtr(src), data.Stride1 * meshInfo.VerticesNum);
                 }
 
                 fixed (void* dst = m_indexStream)

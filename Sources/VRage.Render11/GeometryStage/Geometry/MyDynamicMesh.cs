@@ -1,20 +1,6 @@
-﻿using SharpDX;
-using SharpDX.Direct3D11;
-using SharpDX.DXGI;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
-using VRage.Import;
-using VRage.Utils;
+﻿using System.Collections.Generic;
 using VRageMath;
-using VRageMath.PackedVector;
-using VRageRender.Resources;
 using VRageRender.Vertex;
-using Buffer = SharpDX.Direct3D11.Buffer;
-using Vector2 = VRageMath.Vector2;
-using Vector3 = VRageMath.Vector3;
 
 namespace VRageRender
 {
@@ -55,7 +41,7 @@ namespace VRageRender
             return indices.ToArray();
         }
 
-        internal static VRageMath.BoundingBoxD GetBoundingBox(ref Vector3D worldPointA, ref Vector3D worldPointB)
+        internal static BoundingBoxD GetBoundingBox(ref Vector3D worldPointA, ref Vector3D worldPointB)
         {
             var worldPosition = (worldPointA + worldPointB) * 0.5f;
             var pointA = worldPointA - worldPosition;
@@ -80,7 +66,7 @@ namespace VRageRender
 
             Vector3 lineTangent, normal, binormal;
             lineTangent = pointB - pointA;
-            VRageMath.Vector3.Normalize(ref lineTangent, out lineTangent);
+            Vector3.Normalize(ref lineTangent, out lineTangent);
             lineTangent.CalculatePerpendicularVector(out normal);
             Vector3.Cross(ref lineTangent, ref normal, out binormal);
 

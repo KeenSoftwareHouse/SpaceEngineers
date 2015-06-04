@@ -1,31 +1,6 @@
-﻿using SharpDX;
-using SharpDX.Direct3D;
-using SharpDX.Direct3D11;
-using SharpDX.DXGI;
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using VRage.Generics;
-
-using VRageMath;
-using VRageRender.Resources;
-using VRageRender.Vertex;
-using Buffer = SharpDX.Direct3D11.Buffer;
-using Matrix = VRageMath.Matrix;
-using Vector3 = VRageMath.Vector3;
-using BoundingBox = VRageMath.BoundingBox;
-using BoundingFrustum = VRageMath.BoundingFrustum;
-using VRage.Collections;
-using System.Collections.Specialized;
-using System.Threading;
-using VRage.FileSystem;
-using VRage.Utils;
+﻿using System.Collections.Generic;
 using System.IO;
-using SharpDX.D3DCompiler;
-using VRage.Library.Utils;
+using VRage.FileSystem;
 
 namespace VRageRender
 {

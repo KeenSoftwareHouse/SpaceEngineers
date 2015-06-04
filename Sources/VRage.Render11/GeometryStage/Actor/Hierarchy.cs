@@ -1,28 +1,7 @@
-﻿using SharpDX;
-using SharpDX.Direct3D;
-using SharpDX.Direct3D11;
-using SharpDX.DXGI;
-using System;
-using System.Collections;
+﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Text;
 using VRage.Generics;
-
 using VRageMath;
-using VRageRender.Resources;
-using VRageRender.Vertex;
-using Buffer = SharpDX.Direct3D11.Buffer;
-using Matrix = VRageMath.Matrix;
-using Vector3 = VRageMath.Vector3;
-using BoundingBox = VRageMath.BoundingBox;
-using BoundingFrustum = VRageMath.BoundingFrustum;
-using VRage.Collections;
-using System.Collections.Specialized;
-using System.Threading;
-using VRage.Utils;
-
 
 namespace VRageRender
 {
@@ -165,10 +144,10 @@ namespace VRageRender
             {
                 MaterialType = MyMaterialType.OPAQUE,
 
-                ObjectConstants = new MyConstantsPack { },
+                ObjectConstants = new MyConstantsPack(),
 
-                ObjectSRVs = new MySrvTable { StartSlot = MyCommon.INSTANCE_INDIRECTION, SRVs = m_mergeGroup.m_SRVs, BindFlag = MyBindFlag.BIND_VS, Version = this.GetHashCode() },
-                VertexData = new MyVertexDataProxy_2 { },
+                ObjectSRVs = new MySrvTable { StartSlot = MyCommon.INSTANCE_INDIRECTION, SRVs = m_mergeGroup.m_SRVs, BindFlag = MyBindFlag.BIND_VS, Version = GetHashCode() },
+                VertexData = new MyVertexDataProxy_2(),
 
                 DepthShaders = MyMaterialShaders.Get(X.TEXT("standard"), X.TEXT(MyGeometryRenderer.DEFAULT_DEPTH_PASS), MyVertexLayouts.Empty, MyShaderUnifiedFlags.USE_MERGE_INSTANCING | MyShaderUnifiedFlags.DEPTH_ONLY),
                 Shaders = MyMaterialShaders.Get(X.TEXT("standard"), X.TEXT(MyGeometryRenderer.DEFAULT_OPAQUE_PASS), MyVertexLayouts.Empty, MyShaderUnifiedFlags.USE_MERGE_INSTANCING),
@@ -176,11 +155,11 @@ namespace VRageRender
 
                 RenderFlags = MyRenderableProxyFlags.DepthSkipTextures,
 
-                Submeshes = new MyDrawSubmesh_2[] { new MyDrawSubmesh_2 { DrawCommand = MyDrawCommandEnum.Draw, Count = m_mergeGroup.VerticesNum, MaterialId = MyMeshMaterials1.GetProxyId(MyMeshMaterials1.MaterialRkIndex.Get(m_rootMaterialRK, MyMeshMaterialId.NULL)) } },
-                SubmeshesDepthOnly = new MyDrawSubmesh_2[] { new MyDrawSubmesh_2 { DrawCommand = MyDrawCommandEnum.Draw, Count = m_mergeGroup.VerticesNum, MaterialId = MyMeshMaterials1.GetProxyId(MyMeshMaterials1.MaterialRkIndex.Get(m_rootMaterialRK, MyMeshMaterialId.NULL)) } },
+                Submeshes = new[] { new MyDrawSubmesh_2 { DrawCommand = MyDrawCommandEnum.Draw, Count = m_mergeGroup.VerticesNum, MaterialId = MyMeshMaterials1.GetProxyId(MyMeshMaterials1.MaterialRkIndex.Get(m_rootMaterialRK, MyMeshMaterialId.NULL)) } },
+                SubmeshesDepthOnly = new[] { new MyDrawSubmesh_2 { DrawCommand = MyDrawCommandEnum.Draw, Count = m_mergeGroup.VerticesNum, MaterialId = MyMeshMaterials1.GetProxyId(MyMeshMaterials1.MaterialRkIndex.Get(m_rootMaterialRK, MyMeshMaterialId.NULL)) } },
 
                 InstanceCount = 0,
-                StartInstance = 0,
+                StartInstance = 0
             };
 
             key = 0;
@@ -420,10 +399,6 @@ namespace VRageRender
                 
                 //mergeGroupForMaterial.AddEntity(child, model);
                 //mergeGroupForMaterial.UpdateEntity(child);
-            }
-            else
-            {
-                //Debug.WriteLine(String.Format("Mesh {0}, material {1} is not mergable", mesh.Name, material));
             }
 
             m_dirtyTree = true;

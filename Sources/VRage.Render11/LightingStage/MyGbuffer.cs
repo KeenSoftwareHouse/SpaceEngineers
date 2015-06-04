@@ -1,12 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using Microsoft.SqlServer.Server;
+﻿using System.Collections.Generic;
 using SharpDX;
 using SharpDX.Direct3D11;
-using VRageRender.Resources;
-using Format = SharpDX.DXGI.Format;
+using SharpDX.DXGI;
 
 namespace VRageRender
 {
@@ -103,7 +98,7 @@ namespace VRageRender
             return (MyBindableResource)m_resources[(int)slot];
         }
 
-        internal MyDepthStencil DepthStencil { get { return m_resources[(int)MyGbufferSlot.DepthStencil] as MyDepthStencil; } }
+        internal MyDepthStencil DepthStencil => m_resources[(int)MyGbufferSlot.DepthStencil] as MyDepthStencil;
 
         internal void Clear()
         {

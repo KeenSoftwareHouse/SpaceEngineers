@@ -1,21 +1,4 @@
-﻿using SharpDX.Direct3D11;
-using SharpDX.DXGI;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.IO;
-using System.Linq;
-using System.Text;
-using VRage.Import;
-using VRage.Utils;
-using VRageMath;
-using VRageMath.PackedVector;
-using VRageRender.Resources;
-using VRageRender.Vertex;
-using Buffer = SharpDX.Direct3D11.Buffer;
-
-
-namespace VRageRender
+﻿namespace VRageRender
 {
     class MyDestructionMesh : MyMesh
     {

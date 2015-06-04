@@ -1,8 +1,4 @@
 ﻿using SharpDX.Direct3D11;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using VRageMath;
 using VRageRender.Resources;
 
@@ -39,7 +35,7 @@ namespace VRageRender
             RC.Context.PixelShader.SetSamplers(0, MyRender11.StandardSamplers);
             RC.Context.PixelShader.Set(m_ps);
 
-            MyScreenPass.DrawFullscreenQuad(new MyViewport(256, 256));
+            DrawFullscreenQuad(new MyViewport(256, 256));
 
             RC.Context.OutputMerger.SetTargets(null as RenderTargetView);
 
@@ -90,7 +86,7 @@ namespace VRageRender
                     uint samplesNum = i == 0 ? 1u : 64u;
 
                     var mapping = MyMapping.MapDiscard(MyCommon.GetObjectCB(32));
-                    mapping.stream.Write((uint)samplesNum);
+                    mapping.stream.Write(samplesNum);
                     mapping.stream.Write((uint)probeSide);
                     mapping.stream.Write((uint)mipSide);
                     mapping.stream.Write((uint) j);

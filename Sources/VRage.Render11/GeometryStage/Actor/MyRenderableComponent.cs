@@ -1,16 +1,11 @@
-﻿using SharpDX.Direct3D11;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using SharpDX.Direct3D11;
 using VRage.Utils;
 using VRageMath;
 using VRageRender.Resources;
-using BoundingBox = VRageMath.BoundingBox;
-using Matrix = VRageMath.Matrix;
-using Vector3 = VRageMath.Vector3;
-using Vector4 = VRageMath.Vector4;
-
 
 namespace VRageRender
 {
@@ -51,7 +46,7 @@ namespace VRageRender
     enum MyMaterialFlags : uint
     {
         NONE = 0,
-        RGB_COLORING = 1,
+        RGB_COLORING = 1
     }
 
     struct MyPerMaterialData
@@ -90,8 +85,7 @@ namespace VRageRender
             GetDrawMaterialIndex(GetPerMaterialDataIndex(ref defaultMat));
 
             // bump foliage material as 1 (important)
-            MyPerMaterialData foliageMat = new MyPerMaterialData();
-            foliageMat.Type = MyMaterialTypeEnum.FOLIAGE;
+            MyPerMaterialData foliageMat = new MyPerMaterialData {Type = MyMaterialTypeEnum.FOLIAGE};
             GetDrawMaterialIndex(GetPerMaterialDataIndex(ref foliageMat));
         }
 
@@ -446,7 +440,7 @@ namespace VRageRender
         internal static readonly float DefaultEmissivity = 0;
         internal static readonly Vector3 DefaultColorMul = Vector3.One;
         internal static readonly int MaxCustomTextures = 20;
-        internal static int CustomTextures = 0;
+        internal static int CustomTextures;
 
         internal float Emissivity = DefaultEmissivity;
         internal Vector3 ColorMul = DefaultColorMul;
@@ -509,7 +503,7 @@ namespace VRageRender
                 m_btreeProxy = -1;
             }
 
-            if(m_isRenderedStandalone != val && val == true)
+            if(m_isRenderedStandalone != val && val)
             {
                 m_owner.MarkRenderDirty();
             }
@@ -517,12 +511,12 @@ namespace VRageRender
             m_isRenderedStandalone = val;
         }
 
-        internal bool IsRendered { get { return m_isRenderedStandalone && m_owner.m_visible; } }
-        internal bool SkipProcessing { get { return m_btreeProxy == -1; } }
+        internal bool IsRendered => m_isRenderedStandalone && m_owner.m_visible;
+        internal bool SkipProcessing => m_btreeProxy == -1;
 
         #endregion
 
-        internal int CurrentLodNum { get { return m_lod; } }
+        internal int CurrentLodNum => m_lod;
 
         #region Memory
 
@@ -823,7 +817,7 @@ namespace VRageRender
             }
         }
 
-        internal unsafe void RebuildLodProxy(int lodNum,
+        internal void RebuildLodProxy(int lodNum,
             bool skinningEnabled, MySkinningComponent skinning, int objectConstantsSize)
         {
             var lod = m_lods[lodNum];
@@ -991,7 +985,7 @@ namespace VRageRender
                 My64BitValueHelper.SetBits(ref sortingKey, 50, 6, (ulong)lod.VertexShaderFlags);
                 My64BitValueHelper.SetBits(ref sortingKey, 44, 6, (ulong)lod.VertexLayout1.Index);
                 //My64BitValueHelper.SetBits(ref sortingKey, 34, 10, (ulong)m_mesh.GetSortingID(lodNum));
-                My64BitValueHelper.SetBits(ref sortingKey, 20, 14, (ulong)m_owner.ID);
+                My64BitValueHelper.SetBits(ref sortingKey, 20, 14, m_owner.ID);
 
 
                 lod.SortingKeys[p] = sortingKey;
@@ -1103,7 +1097,7 @@ namespace VRageRender
                 My64BitValueHelper.SetBits(ref sortingKey, 50, 6, (ulong)lod.VertexShaderFlags);
                 My64BitValueHelper.SetBits(ref sortingKey, 44, 6, (ulong)lod.VertexLayout1.Index);
                 //My64BitValueHelper.SetBits(ref sortingKey, 34, 10, (ulong)m_mesh.GetSortingID(lodNum));
-                My64BitValueHelper.SetBits(ref sortingKey, 20, 14, (ulong)m_owner.ID);
+                My64BitValueHelper.SetBits(ref sortingKey, 20, 14, m_owner.ID);
 
 
                 lod.SortingKeys[p] = sortingKey;
@@ -1364,8 +1358,8 @@ namespace VRageRender
             m_cullProxy.SortingKeys = !IsLodTransitionInProgress ? m_lods[m_lod].SortingKeys : m_renderableProxiesForLodTransition[LodTransitionProxyIndex].SortingKeys;
         }
 
-        bool IsLodTransitionInProgress { get { return m_lodTransitionState != 0; } }
-        int LodTransitionProxyIndex { get { return m_lodTransitionState > 0 ? m_lod  : m_lod - 1; } }
+        bool IsLodTransitionInProgress => m_lodTransitionState != 0;
+        int LodTransitionProxyIndex => m_lodTransitionState > 0 ? m_lod  : m_lod - 1;
 
         internal void UpdateLodState()
         {
@@ -1378,8 +1372,8 @@ namespace VRageRender
             {
                 if (m_lodTransitionState != 0)
                 {
-                    float state = Math.Abs(distance - m_lodTransitionStartDistance) / (float)Math.Max(m_lodTransitionVector, 0.0001f);
-                    state = (float)Math.Max(Math.Abs(m_lodTransitionState) + (float)MyRender11.TimeDelta.Seconds / LodTransitionTime, Math.Max(Math.Min(state, 1), 0));
+                    float state = Math.Abs(distance - m_lodTransitionStartDistance) / Math.Max(m_lodTransitionVector, 0.0001f);
+                    state = Math.Max(Math.Abs(m_lodTransitionState) + (float)MyRender11.TimeDelta.Seconds / LodTransitionTime, Math.Max(Math.Min(state, 1), 0));
 
                     m_lodTransitionState = Math.Sign(m_lodTransitionState) * state;
 

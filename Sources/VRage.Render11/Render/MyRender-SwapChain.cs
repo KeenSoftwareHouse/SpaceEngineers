@@ -1,17 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Security.Cryptography.X509Certificates;
-using System.Text;
+using System.Diagnostics;
 using SharpDX;
-using SharpDX.Direct3D11;
 using SharpDX.DXGI;
 using VRageMath;
 using VRageRender.Resources;
 using Resource = SharpDX.Direct3D11.Resource;
-using System.Diagnostics;
-
-using System.Timers;
+using Vector2 = VRageMath.Vector2;
 
 namespace VRageRender
 {
@@ -102,7 +97,7 @@ namespace VRageRender
     internal partial class MyRender11
     {
         internal static MyRenderSettings1 m_renderSettings;
-        internal static MyRenderSettings1 RenderSettings { get { return m_renderSettings; } }
+        internal static MyRenderSettings1 RenderSettings => m_renderSettings;
 
         internal static string ShaderMultisamplingDefine()
         {
@@ -120,7 +115,7 @@ namespace VRageRender
 
         internal static string ShaderMultisamplingHeader()
         {
-            return MyShaderHelpers.FormatMacros(MyRender11.ShaderMultisamplingDefine());
+            return MyShaderHelpers.FormatMacros(ShaderMultisamplingDefine());
         }
 
         internal static OnSettingsChangedDelegate m_settingsChangedListeners;
@@ -139,23 +134,23 @@ namespace VRageRender
 
         internal static void LogUpdateRenderSettings(ref MyRenderSettings1 v)
         {
-            MyRender11.Log.WriteLine("MyRenderSettings1 = {");
-            MyRender11.Log.IncreaseIndent();
-            MyRender11.Log.WriteLine("AntialiasingMode = " + v.AntialiasingMode);
-            MyRender11.Log.WriteLine("FoliageDetails = " + v.FoliageDetails);
-            MyRender11.Log.WriteLine("MultithreadingEnabled = " + v.MultithreadingEnabled);
-            MyRender11.Log.WriteLine("ShadowQuality = " + v.ShadowQuality);
-            MyRender11.Log.WriteLine("TextureQuality = " + v.TextureQuality);
-            MyRender11.Log.WriteLine("AnisotropicFiltering = " + v.AnisotropicFiltering);
-            MyRender11.Log.WriteLine("InterpolationEnabled = " + v.InterpolationEnabled);
-            MyRender11.Log.DecreaseIndent();
-            MyRender11.Log.WriteLine("}");
+            Log.WriteLine("MyRenderSettings1 = {");
+            Log.IncreaseIndent();
+            Log.WriteLine("AntialiasingMode = " + v.AntialiasingMode);
+            Log.WriteLine("FoliageDetails = " + v.FoliageDetails);
+            Log.WriteLine("MultithreadingEnabled = " + v.MultithreadingEnabled);
+            Log.WriteLine("ShadowQuality = " + v.ShadowQuality);
+            Log.WriteLine("TextureQuality = " + v.TextureQuality);
+            Log.WriteLine("AnisotropicFiltering = " + v.AnisotropicFiltering);
+            Log.WriteLine("InterpolationEnabled = " + v.InterpolationEnabled);
+            Log.DecreaseIndent();
+            Log.WriteLine("}");
         }
 
         internal static void UpdateRenderSettings(MyRenderSettings1 settings)
         {
-            MyRender11.Log.WriteLine("UpdateRenderSettings");
-            MyRender11.Log.IncreaseIndent();
+            Log.WriteLine("UpdateRenderSettings");
+            Log.IncreaseIndent();
 
             var prevSettings = m_renderSettings;
             m_renderSettings = settings;
@@ -172,7 +167,7 @@ namespace VRageRender
 
             if(settings.AntialiasingMode != prevSettings.AntialiasingMode)
             {
-                GlobalShaderHeader = MyShaderHelpers.FormatMacros(MyRender11.ShaderMultisamplingDefine(), MyRender11.FxaaEnabled ? "FXAA_ENABLED" : null);
+                GlobalShaderHeader = MyShaderHelpers.FormatMacros(ShaderMultisamplingDefine(), FxaaEnabled ? "FXAA_ENABLED" : null);
                 MyShaders.Recompile();
                 MyMaterialShaders.Recompile();
                 MyRenderableComponent.MarkAllDirty();
@@ -202,28 +197,28 @@ namespace VRageRender
 
             m_settingsChangedListeners();
 
-            MyRender11.Log.DecreaseIndent();
+            Log.DecreaseIndent();
         }
 
         // helpers
-        internal static bool MultisamplingEnabled { get { return RenderSettings.AntialiasingMode.IsMultisampled(); } }
-        internal static int MultisamplingSampleCount { get { return RenderSettings.AntialiasingMode.SamplesCount(); } }
-        internal static bool FxaaEnabled { get { return RenderSettings.AntialiasingMode == MyAntialiasingMode.FXAA; } }
+        internal static bool MultisamplingEnabled => RenderSettings.AntialiasingMode.IsMultisampled();
+        internal static int MultisamplingSampleCount => RenderSettings.AntialiasingMode.SamplesCount();
+        internal static bool FxaaEnabled => RenderSettings.AntialiasingMode == MyAntialiasingMode.FXAA;
 
         internal static bool CommandsListsSupported { get; set; }
 
-        internal static bool DeferredContextsEnabled { get { return !MyRender11.Settings.ForceImmediateContext && CommandsListsSupported; } }
-        internal static bool MultithreadedRenderingEnabled { get { return DeferredContextsEnabled && MyRender11.Settings.EnableParallelRendering && MyRender11.RenderSettings.MultithreadingEnabled; } }
-        internal static bool LoopObjectThenPass { get { return MyRender11.Settings.LoopObjectThenPass && DeferredContextsEnabled; } }
+        internal static bool DeferredContextsEnabled => !Settings.ForceImmediateContext && CommandsListsSupported;
+        internal static bool MultithreadedRenderingEnabled => DeferredContextsEnabled && Settings.EnableParallelRendering && RenderSettings.MultithreadingEnabled;
+        internal static bool LoopObjectThenPass => Settings.LoopObjectThenPass && DeferredContextsEnabled;
 
 
-        static SwapChain m_swapchain = null;
+        static SwapChain m_swapchain;
         internal static MyBackbuffer Backbuffer { get; private set; }
         internal static Vector2I m_resolution;
 
         private static void ResizeSwapchain(int width, int height)
         {
-            MyRender11.Context.ClearState();
+            Context.ClearState();
             if (Backbuffer != null)
             {
                 Backbuffer.Release();
@@ -236,12 +231,12 @@ namespace VRageRender
             CreateScreenResources();
         }
 
-        internal static bool m_profilingStarted = false;
+        internal static bool m_profilingStarted;
 
         const int PresentTimesStored = 5;
         internal static Queue<float> m_presentTimes = new Queue<float>();
         internal static Stopwatch m_presentTimer;
-        internal static int m_consecutivePresentFails = 0;
+        internal static int m_consecutivePresentFails;
 
         internal static void Present()
         {
@@ -249,7 +244,7 @@ namespace VRageRender
             {
                 if (m_screenshot.HasValue)
                 {
-                    if (m_screenshot.Value.SizeMult == VRageMath.Vector2.One)
+                    if (m_screenshot.Value.SizeMult == Vector2.One)
                     {
                         SaveScreenshotFromResource(Backbuffer.m_resource);
                     }
@@ -259,11 +254,11 @@ namespace VRageRender
                     }
                 }
 
-                MyRender11.GetRenderProfiler().StartProfilingBlock("Waiting for present");
+                GetRenderProfiler().StartProfilingBlock("Waiting for present");
 
                 try
                 {
-                    m_swapchain.Present(MyRender11.m_settings.VSync ? 1 : 0, 0);
+                    m_swapchain.Present(m_settings.VSync ? 1 : 0, 0);
                     m_consecutivePresentFails = 0;
 
                     if (m_presentTimer == null)
@@ -285,20 +280,20 @@ namespace VRageRender
                 }
                 catch(SharpDXException e)
                 {
-                    MyRender11.Log.WriteLine("Device removed - resetting device");
+                    Log.WriteLine("Device removed - resetting device");
                     HandleDeviceReset();
-                    MyRender11.Log.WriteLine("Device removed - resetting completed");
+                    Log.WriteLine("Device removed - resetting completed");
 
                     m_consecutivePresentFails++;
 
                     if (m_consecutivePresentFails == 5)
                     {
-                        MyRender11.Log.WriteLine("Present failed");
-                        MyRender11.Log.IncreaseIndent();
+                        Log.WriteLine("Present failed");
+                        Log.IncreaseIndent();
 
-                        if (e.Descriptor == SharpDX.DXGI.ResultCode.DeviceRemoved)
+                        if (e.Descriptor == ResultCode.DeviceRemoved)
                         {
-                            MyRender11.Log.WriteLine("Device removed: " + Device.DeviceRemovedReason);
+                            Log.WriteLine("Device removed: " + Device.DeviceRemovedReason);
                         }
 
                         var timings = "";
@@ -311,12 +306,12 @@ namespace VRageRender
                             }
                         }
 
-                        MyRender11.Log.WriteLine("Last present timings = [ " + timings + " ]");
-                        MyRender11.Log.DecreaseIndent();
+                        Log.WriteLine("Last present timings = [ " + timings + " ]");
+                        Log.DecreaseIndent();
                     }
                 }
 
-                MyRender11.GetRenderProfiler().EndProfilingBlock();
+                GetRenderProfiler().EndProfilingBlock();
 
                 if(m_profilingStarted)
                 {
@@ -381,7 +376,7 @@ namespace VRageRender
             }
         }
 
-        static ModeDescription? m_changeToFullscreen = null;
+        static ModeDescription? m_changeToFullscreen;
 
         static void TryChangeToFullscreen()
         {
@@ -403,9 +398,9 @@ namespace VRageRender
 
                     m_changeToFullscreen = null;
 
-                    MyRender11.Log.WriteLine("DXGI SetFullscreenState succeded");
+                    Log.WriteLine("DXGI SetFullscreenState succeded");
                 }
-                catch(SharpDX.SharpDXException e)
+                catch(SharpDXException e)
                 {
                     // there might be some fatal exception, or minor exception saying that windows is overlapped/has no mouse focus and going to fullscreen should be done later
                 }
@@ -422,15 +417,15 @@ namespace VRageRender
 
         internal static void LogSettings(ref MyRenderDeviceSettings settings)
         {
-            MyRender11.Log.WriteLine("MyRenderDeviceSettings = {");
-            MyRender11.Log.IncreaseIndent();
-            MyRender11.Log.WriteLine("Adapter id = " + settings.AdapterOrdinal);
-            MyRender11.Log.WriteLine("DXGIAdapter id = " + m_adapterInfoList[settings.AdapterOrdinal].AdapterDeviceId);
-            MyRender11.Log.WriteLine("DXGIOutput id = " + m_adapterInfoList[settings.AdapterOrdinal].OutputId);
-            MyRender11.Log.WriteLine(String.Format("Resolution = {0} x {1}", settings.BackBufferWidth, settings.BackBufferHeight));
-            MyRender11.Log.WriteLine("Window mode = " + settings.WindowMode);
-            MyRender11.Log.DecreaseIndent();
-            MyRender11.Log.WriteLine("}");
+            Log.WriteLine("MyRenderDeviceSettings = {");
+            Log.IncreaseIndent();
+            Log.WriteLine("Adapter id = " + settings.AdapterOrdinal);
+            Log.WriteLine("DXGIAdapter id = " + m_adapterInfoList[settings.AdapterOrdinal].AdapterDeviceId);
+            Log.WriteLine("DXGIOutput id = " + m_adapterInfoList[settings.AdapterOrdinal].OutputId);
+            Log.WriteLine(String.Format("Resolution = {0} x {1}", settings.BackBufferWidth, settings.BackBufferHeight));
+            Log.WriteLine("Window mode = " + settings.WindowMode);
+            Log.DecreaseIndent();
+            Log.WriteLine("}");
         }
 
         internal static void CheckAdapterChange(MyRenderDeviceSettings settings)
@@ -446,8 +441,8 @@ namespace VRageRender
 
         internal static void ApplySettings(MyRenderDeviceSettings settings)
         {
-            MyRender11.Log.WriteLine("ApplySettings");
-            MyRender11.Log.IncreaseIndent();
+            Log.WriteLine("ApplySettings");
+            Log.IncreaseIndent();
 
             //bool differentAdapter = m_adapterInfoList[m_settings.AdapterOrdinal].AdapterDeviceId != m_adapterInfoList[settings.AdapterOrdinal].AdapterDeviceId;
 
@@ -470,12 +465,12 @@ namespace VRageRender
             }
             catch(SharpDXException e)
             {
-                if (e.Descriptor == SharpDX.DXGI.ResultCode.DeviceRemoved && Device.DeviceRemovedReason == SharpDX.DXGI.ResultCode.DeviceRemoved)
+                if (e.Descriptor == ResultCode.DeviceRemoved && Device.DeviceRemovedReason == ResultCode.DeviceRemoved)
                 {
                     deviceRemoved = true;
-                    MyRender11.Log.WriteLine("Device removed - resetting device");
+                    Log.WriteLine("Device removed - resetting device");
                     HandleDeviceReset();
-                    MyRender11.Log.WriteLine("Device removed - resetting completed");
+                    Log.WriteLine("Device removed - resetting completed");
                 }
             }
 
@@ -535,7 +530,7 @@ namespace VRageRender
                 TryChangeToFullscreen();
             }
 
-            MyRender11.Log.DecreaseIndent();
+            Log.DecreaseIndent();
         }
 
         internal static Vector2I BackBufferResolution
@@ -547,14 +542,6 @@ namespace VRageRender
             private set {}
         }
 
-        internal static Vector2I ViewportResolution
-        {
-            get 
-            { 
-                return BackBufferResolution; 
-            }
-        }
-
-
+        internal static Vector2I ViewportResolution => BackBufferResolution;
     }
 }

@@ -1,31 +1,18 @@
-﻿using SharpDX;
-using SharpDX.Direct3D;
-using SharpDX.Direct3D11;
-using SharpDX.DXGI;
-using System;
-using System.Collections;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using VRage.Generics;
-
+using System.Runtime.InteropServices;
+using SharpDX;
+using SharpDX.Direct3D;
+using SharpDX.Direct3D11;
+using VRage.Utils;
 using VRageMath;
+using VRageRender.Lights;
 using VRageRender.Resources;
-using VRageRender.Vertex;
-using Resource = SharpDX.Direct3D11.Resource;
-using Buffer = SharpDX.Direct3D11.Buffer;
+using Color = VRageMath.Color;
 using Matrix = VRageMath.Matrix;
-using Vector2 = VRageMath.Vector2;
 using Vector3 = VRageMath.Vector3;
 using Vector4 = VRageMath.Vector4;
-using Color = VRageMath.Color;
-using BoundingBox = VRageMath.BoundingBox;
-using BoundingFrustum = VRageMath.BoundingFrustum;
-using MapFlags = SharpDX.Direct3D11.MapFlags;
-using System.Runtime.InteropServices;
-using VRageRender.Lights;
-using VRage.Utils;
 
 namespace VRageRender
 {
@@ -255,7 +242,7 @@ namespace VRageRender
             {
                 // distance falloff
                 float falloff = (distance - .5f * maxDistance) / (.5f * maxDistance);
-                falloff = (float)Math.Max(0, 1 - falloff);
+                falloff = Math.Max(0, 1 - falloff);
                 drawingRadius *= falloff;
                 alpha *= falloff;
             }
@@ -386,7 +373,7 @@ namespace VRageRender
             foreach(var id in VisibleSpotlights)
             {
                 var mapping = MyMapping.MapDiscard(cb);
-                mapping.stream.Write(MyLightRendering.Spotlights[index]);
+                mapping.stream.Write(Spotlights[index]);
                 mapping.Unmap();
 
                 RC.Context.PixelShader.SetShaderResource(13, MyTextures.GetView(MyLights.Spotlights[id.Index].ReflectorTexture));
@@ -407,7 +394,7 @@ namespace VRageRender
         internal static void Render()
         {
             MyGpuProfiler.IC_BeginBlock("Map lights to tiles");
-            MyLightRendering.PreparePointLights();
+            PreparePointLights();
             MyGpuProfiler.IC_EndBlock();
 
             RC.Context.InputAssembler.PrimitiveTopology = PrimitiveTopology.TriangleList;

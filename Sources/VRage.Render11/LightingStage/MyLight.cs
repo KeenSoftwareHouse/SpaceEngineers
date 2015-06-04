@@ -1,22 +1,10 @@
-﻿using System.Collections.Generic;
-using System.ComponentModel;
-using System.Diagnostics;
+﻿using System;
+using System.Collections.Generic;
 using System.Runtime.InteropServices;
-using VRageMath;
-using SharpDX;
-using Buffer = SharpDX.Direct3D11.Buffer;
-using Vector3 = VRageMath.Vector3;
-using Matrix = VRageMath.Matrix;
-using BoundingBox = VRageMath.BoundingBox;
-using Color = VRageMath.Color;
-using VRage.Generics;
-using SharpDX.Direct3D11;
-
-using System;
-using VRageRender.Resources;
 using VRage.Utils;
+using VRageMath;
 using VRageRender.Lights;
-using VRage.Library.Utils;
+using VRageRender.Resources;
 
 namespace VRageRender
 {
@@ -133,13 +121,13 @@ namespace VRageRender
         internal static readonly LightId NULL = new LightId { Index = -1 };
 
 
-        internal Vector3 Position { get { return MyLights.Lights.Data[Index].Position; } }
-        internal Vector3 LocalPosition { get { return MyLights.Lights.Data[Index].LocalPosition; } }
-        internal Vector3 PositionWithOffset { get { return MyLights.Lights.Data[Index].PositionWithOffset; } }
-        internal bool CastsShadows { get { return MyLights.Lights.Data[Index].CastsShadows; } }
-        internal float ShadowDistance { get { return MyLights.Lights.Data[Index].ShadowsDistance; } }
-        internal float ViewerDistanceSquared { get { return (float)(Position - MyEnvironment.CameraPosition).LengthSquared(); } }
-        internal int ParentGID { get { return MyLights.Lights.Data[Index].ParentGID; } }
+        internal Vector3 Position => MyLights.Lights.Data[Index].Position;
+        internal Vector3 LocalPosition => MyLights.Lights.Data[Index].LocalPosition;
+        internal Vector3 PositionWithOffset => MyLights.Lights.Data[Index].PositionWithOffset;
+        internal bool CastsShadows => MyLights.Lights.Data[Index].CastsShadows;
+        internal float ShadowDistance => MyLights.Lights.Data[Index].ShadowsDistance;
+        internal float ViewerDistanceSquared => (float)(Position - MyEnvironment.CameraPosition).LengthSquared();
+        internal int ParentGID => MyLights.Lights.Data[Index].ParentGID;
     }
 
     class MyLights
@@ -165,10 +153,7 @@ namespace VRageRender
         {
             var id = new LightId { Index = Lights.Allocate() };
 
-            Lights.Data[id.Index] = new MyLightInfo
-            {
-
-            };
+            Lights.Data[id.Index] = new MyLightInfo();
 
             MyArrayHelpers.Reserve(ref Pointlights, id.Index + 1);
             MyArrayHelpers.Reserve(ref Spotlights, id.Index + 1);
@@ -220,15 +205,12 @@ namespace VRageRender
             {
                 return bvh.AddProxy(ref aabb, lid, 0);
             }
-            else if(enabled && proxy != -1)
+            if(enabled && proxy != -1)
             {
                 bvh.MoveProxy(proxy, ref aabb, Vector3.Zero);
                 return proxy;
             }
-            else
-            {
-                bvh.RemoveProxy(proxy);
-            }
+            bvh.RemoveProxy(proxy);
 
             return -1;
         }
@@ -336,7 +318,7 @@ namespace VRageRender
                 }
 
                 desc.MaxDistance = (desc.MaxDistance > 0) 
-                    ? (float)Math.Min(MyRenderConstants.MAX_GPU_OCCLUSION_QUERY_DISTANCE, desc.MaxDistance)
+                    ? Math.Min(MyRenderConstants.MAX_GPU_OCCLUSION_QUERY_DISTANCE, desc.MaxDistance)
                     : MyRenderConstants.MAX_GPU_OCCLUSION_QUERY_DISTANCE;
 
                 Glares[light] = desc;

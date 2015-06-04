@@ -1,13 +1,8 @@
-﻿using SharpDX.D3DCompiler;
-using SharpDX.Direct3D11;
-using SharpDX.DXGI;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Text;
-
-using Buffer = SharpDX.Direct3D11.Buffer;
+using SharpDX.Direct3D11;
 
 namespace VRageRender
 {
@@ -109,9 +104,9 @@ namespace VRageRender
             return Index;
         }
 
-        internal InputElement[] Elements { get { return MyVertexLayouts.GetElements(this); } }
-        internal MyVertexLayoutInfo Info { get { return MyVertexLayouts.Layouts.Data[Index]; } }
-        internal bool HasBonesInfo { get { return MyVertexLayouts.Layouts.Data[Index].HasBonesInfo; } }
+        internal InputElement[] Elements => MyVertexLayouts.GetElements(this);
+        internal MyVertexLayoutInfo Info => MyVertexLayouts.Layouts.Data[Index];
+        internal bool HasBonesInfo => MyVertexLayouts.Layouts.Data[Index].HasBonesInfo;
     }
 
     struct MyVertexLayoutInfo
@@ -196,7 +191,7 @@ namespace VRageRender
                 Components = components,
                 Elements = elementsList.ToArray(),
                 SourceDataMove = sourceBuilder.ToString(),
-                SourceDeclarations = new StringBuilder().AppendFormat("struct __VertexInput {{ \n {0} \n }};", declarationBuilder.ToString()).ToString(),
+                SourceDeclarations = new StringBuilder().AppendFormat("struct __VertexInput {{ \n {0} \n }};", declarationBuilder).ToString(),
                 HasBonesInfo = components.Any(x => x.Type == MyVertexInputComponentType.BLEND_INDICES)
             };
 
@@ -216,8 +211,8 @@ namespace VRageRender
         internal string m_declarationsSrc;
         internal string m_transferSrc;
 
-        internal int Hash { get { return m_hash; } }
-        internal int ID { get { return m_id; } }
+        internal int Hash => m_hash;
+        internal int ID => m_id;
 
         static Dictionary<int, MyVertexInputLayout> m_cached = new Dictionary<int, MyVertexInputLayout>();
 
@@ -321,7 +316,7 @@ namespace VRageRender
                 m_mapComponent[component.Type].AddComponent(component, elementsList, semanticDict, declarationBuilder, sourceBuilder);
             }
 
-            m_declarationsSrc = new StringBuilder().AppendFormat("struct __VertexInput {{ \n {0} \n }};", declarationBuilder.ToString()).ToString();
+            m_declarationsSrc = new StringBuilder().AppendFormat("struct __VertexInput {{ \n {0} \n }};", declarationBuilder).ToString();
             m_transferSrc = sourceBuilder.ToString();
             m_elements = elementsList.ToArray();
         }

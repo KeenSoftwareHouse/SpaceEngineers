@@ -1,20 +1,13 @@
-﻿using SharpDX;
+﻿using System.Collections.Generic;
+using System.Diagnostics;
+using SharpDX;
 using SharpDX.Direct3D;
 using SharpDX.Direct3D11;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
-using VRageMath;
-using VRageRender.Resources;
 using VRageRender.Vertex;
-using Vector3 = VRageMath.Vector3;
+using BoundingFrustum = VRageMath.BoundingFrustum;
 using Color = VRageMath.Color;
 using Matrix = VRageMath.Matrix;
-using BoundingFrustum = VRageMath.BoundingFrustum;
-using BoundingBox = VRageMath.BoundingBox;
-using System.Diagnostics;
+using Vector3 = VRageMath.Vector3;
 
 namespace VRageRender
 {
@@ -46,7 +39,7 @@ namespace VRageRender
             m_inputLayout = MyShaders.CreateIL(m_vs.BytecodeId, MyVertexLayouts.GetLayout(MyVertexInputComponentType.POSITION3, MyVertexInputComponentType.COLOR4));
         }
 
-        static unsafe void CheckBufferSize(int requiredSize)
+        static void CheckBufferSize(int requiredSize)
         {
             if(m_currentBufferSize < requiredSize)
             {

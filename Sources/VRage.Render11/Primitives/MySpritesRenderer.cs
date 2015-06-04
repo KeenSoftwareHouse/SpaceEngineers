@@ -1,21 +1,13 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
+using System.Diagnostics;
 using System.Text;
-using SharpDX;
 using SharpDX.Direct3D;
 using SharpDX.Direct3D11;
-using VRageRender.Resources;
-using Buffer = SharpDX.Direct3D11.Buffer;
-using Rectangle = VRageMath.Rectangle;
-using RectangleF = VRageMath.RectangleF;
-using Vector2 = VRageMath.Vector2;
-using Color = VRageMath.Color;
-using VRageRender.Vertex;
+using VRage.Utils;
+using VRageMath;
 using VRageMath.PackedVector;
-using VRage;
-using VRage.Utils;
-using VRage.Utils;
-using System.Diagnostics;
+using VRageRender.Resources;
+using VRageRender.Vertex;
 
 namespace VRageRender
 {
@@ -62,7 +54,7 @@ namespace VRageRender
     class MySpritesRenderer : MyImmediateRC
     {
         static List<MySpritesContext> m_contextsStack = new List<MySpritesContext>();
-        static int m_currentStackTop = 0;
+        static int m_currentStackTop;
 
         //internal static SpriteScissorStack m_scissorStack = new SpriteScissorStack();
         //internal static List<MyVertexFormatSpritePositionTextureRotationColor> m_instances = new List<MyVertexFormatSpritePositionTextureRotationColor>();
@@ -118,7 +110,7 @@ namespace VRageRender
             --m_currentStackTop;
         }
 
-        static unsafe void CheckBufferSize(int requiredSize)
+        static void CheckBufferSize(int requiredSize)
         {
             if (m_currentBufferSize < requiredSize)
             {
@@ -313,7 +305,7 @@ namespace VRageRender
             //clipOffset += new Vector2(0.5f, -0.5f) * clipScale;
         }
 
-        internal static float DrawText(Vector2 screenCoord, StringBuilder text, VRageMath.Color color, float scale, MyGuiDrawAlignEnum align = MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_TOP)
+        internal static float DrawText(Vector2 screenCoord, StringBuilder text, Color color, float scale, MyGuiDrawAlignEnum align = MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_TOP)
         {
             var font = MyRender11.DebugFont;
 
@@ -324,7 +316,7 @@ namespace VRageRender
                 scale);
         }
 
-        internal static float DrawTextShadow(Vector2 screenCoord, StringBuilder text, VRageMath.Color color, float scale)
+        internal static float DrawTextShadow(Vector2 screenCoord, StringBuilder text, Color color, float scale)
         {
             return MyRender11.DebugFont.DrawString(
                 screenCoord,

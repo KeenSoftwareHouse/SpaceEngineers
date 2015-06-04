@@ -1,12 +1,7 @@
-﻿using SharpDX.D3DCompiler;
+﻿using System.Collections.Generic;
+using System.Text;
 using SharpDX.Direct3D11;
 using SharpDX.DXGI;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
-using Buffer = SharpDX.Direct3D11.Buffer;
 
 namespace VRageRender
 {

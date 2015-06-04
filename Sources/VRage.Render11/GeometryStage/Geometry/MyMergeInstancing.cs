@@ -1,24 +1,9 @@
-﻿using SharpDX;
-using SharpDX.Direct3D11;
-using SharpDX.DXGI;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.IO;
-using System.Linq;
-using System.Text;
-using VRage.Import;
-using VRage.Utils;
-
-using VRageMath;
-using VRageMath.PackedVector;
-using VRageRender.Resources;
-using VRageRender.Vertex;
-using Buffer = SharpDX.Direct3D11.Buffer;
-using Vector4 = VRageMath.Vector4;
+using SharpDX;
+using SharpDX.Direct3D11;
 using Matrix = VRageMath.Matrix;
-using BoundingBox = VRageMath.BoundingBox;
-using SharpDX.Direct3D;
+using Vector4 = VRageMath.Vector4;
 
 namespace VRageRender
 {
@@ -72,7 +57,7 @@ namespace VRageRender
         MyPackedPool<MyInstancingTableEntry> m_instancingTable = new MyPackedPool<MyInstancingTableEntry>(64);
         MyFreelist<MyPerInstanceData> m_perInstance = new MyFreelist<MyPerInstanceData>(16);
 
-        internal int VerticesNum { get { return m_meshTable.PageSize * m_instancingTable.Size; } }
+        internal int VerticesNum => m_meshTable.PageSize * m_instancingTable.Size;
 
         internal static void Init()
         {
