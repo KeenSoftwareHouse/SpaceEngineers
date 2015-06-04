@@ -16,5 +16,8 @@ namespace Sandbox.Common.ObjectBuilders
 
         [ProtoMember]
         public bool ShowInTerminal = true;
+
+        [ProtoMember]
+        public bool ShowInToolbarConfig = true;
     }
 }
