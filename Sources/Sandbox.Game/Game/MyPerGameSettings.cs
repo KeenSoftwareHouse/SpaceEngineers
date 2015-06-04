@@ -262,7 +262,6 @@ namespace Sandbox.Game
         public static bool ShowObfuscationStatus = true;
 
         public static bool EnableKinematicMPCharacter = false;
-        public static float RemotePlayerCollisionWidthScale = 1;
         public static bool EnablePerFrameCharacterSync = false;
 
         public static bool EnableRagdollInJetpack = false;

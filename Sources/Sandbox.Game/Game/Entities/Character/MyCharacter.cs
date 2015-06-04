@@ -7207,32 +7207,25 @@ namespace Sandbox.Game.Entities.Character
         }
 
 
-        bool m_isLocalPlayer = true;
-
         internal void UpdateCharacterPhysics(bool isLocalPlayer)
         {
             if (Physics != null && Physics.Enabled == false)
                 return;
 
             float offset = 2 * MyPerGameSettings.PhysicsConvexRadius + 0.03f; //compensation for convex radius
-            bool localPlayerChanged = isLocalPlayer != m_isLocalPlayer;
-            m_isLocalPlayer = isLocalPlayer;
-
 
             if (isLocalPlayer || !MyPerGameSettings.EnableKinematicMPCharacter)
             {
-                if (Physics == null || Physics.IsKinematic || localPlayerChanged)
+                if (Physics == null || Physics.IsKinematic)
                 {
                     if (Physics != null)
                         Physics.Close();
 
                     float widthScale = 1;
-                    if (!isLocalPlayer && !MyFakes.CHARACTER_SERVER_SYNC)
-                        widthScale = MyPerGameSettings.RemotePlayerCollisionWidthScale;
 
-                    this.InitCharacterPhysics(MyMaterialType.CHARACTER, PositionComp.LocalVolume.Center, CharacterWidth * Definition.CharacterCollisionScale * widthScale, CharacterHeight - CharacterWidth * Definition.CharacterCollisionScale * widthScale - offset,
-                    CrouchHeight - CharacterWidth * widthScale,
-                    LadderHeight - CharacterWidth * widthScale - offset,
+                    this.InitCharacterPhysics(MyMaterialType.CHARACTER, PositionComp.LocalVolume.Center, CharacterWidth * Definition.CharacterCollisionScale, CharacterHeight - CharacterWidth * Definition.CharacterCollisionScale  - offset,
+                    CrouchHeight - CharacterWidth,
+                    LadderHeight - CharacterWidth - offset,
                     Definition.CharacterHeadSize * Definition.CharacterCollisionScale,
                     Definition.CharacterHeadHeight,
                     0.7f, 0.7f, (ushort)MyPhysics.CharacterCollisionLayer, RigidBodyFlag.RBF_DEFAULT, Definition.Mass,
