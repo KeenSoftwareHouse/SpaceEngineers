@@ -162,7 +162,7 @@ namespace Sandbox.Game.Entities
         public override void Init(MyObjectBuilder_EntityBase objectBuilder)
         {
             m_manipulationDistance = 2.5f;
-            m_limitingLinearVelocity = 3f;
+            m_limitingLinearVelocity = 4f;
             m_handItemDefId = objectBuilder.GetId();
             m_physItemDef = MyDefinitionManager.Static.GetPhysicalItemForHandItem(m_handItemDefId);
             base.Init(objectBuilder);
@@ -439,8 +439,8 @@ namespace Sandbox.Game.Entities
             m_otherEntity = otherEntity;
             m_otherEntity.OnClosing += OtherEntity_OnClosing;
 
-            m_otherAngularDamping = m_otherRigidBody.AngularDamping;
-            m_otherLinearDamping = m_otherRigidBody.LinearDamping;
+            //m_otherAngularDamping = m_otherRigidBody.AngularDamping;
+            //m_otherLinearDamping = m_otherRigidBody.LinearDamping;
             m_otherRestitution = m_otherRigidBody.Restitution;
             m_otherMaxLinearVelocity = m_otherRigidBody.MaxLinearVelocity;
             m_otherMaxAngularVelocity = m_otherRigidBody.MaxAngularVelocity;
@@ -448,8 +448,8 @@ namespace Sandbox.Game.Entities
             SetManipulated(m_otherEntity, true);
             if (state == MyState.HOLD)
             {
-                m_otherRigidBody.AngularDamping = TARGET_ANGULAR_DAMPING;
-                m_otherRigidBody.LinearDamping = TARGET_LINEAR_DAMPING;
+                //m_otherRigidBody.AngularDamping = TARGET_ANGULAR_DAMPING;
+                //m_otherRigidBody.LinearDamping = TARGET_LINEAR_DAMPING;
                 m_otherRigidBody.Restitution = TARGET_RESTITUTION;
                 m_otherRigidBody.MaxLinearVelocity = m_limitingLinearVelocity;
                 m_otherRigidBody.MaxAngularVelocity = (float)Math.PI;
@@ -457,8 +457,8 @@ namespace Sandbox.Game.Entities
                 {
                     foreach (var body in m_otherEntity.Physics.Ragdoll.RigidBodies)
                     {
-                        body.AngularDamping = TARGET_ANGULAR_DAMPING;
-                        body.LinearDamping = TARGET_LINEAR_DAMPING;
+                        //body.AngularDamping = TARGET_ANGULAR_DAMPING;
+                        //body.LinearDamping = TARGET_LINEAR_DAMPING;
                         body.Restitution = TARGET_RESTITUTION;
                         body.MaxLinearVelocity = m_limitingLinearVelocity;
                         body.MaxAngularVelocity = (float)Math.PI;
@@ -657,8 +657,8 @@ namespace Sandbox.Game.Entities
                 if (m_otherEntity.Physics != null && m_otherRigidBody != null && !m_otherRigidBody.IsDisposed)
                 {
                     SetManipulated(m_otherEntity, false);
-                    m_otherRigidBody.AngularDamping = m_otherAngularDamping;
-                    m_otherRigidBody.LinearDamping = m_otherLinearDamping;
+                    //m_otherRigidBody.AngularDamping = m_otherAngularDamping;
+                    //m_otherRigidBody.LinearDamping = m_otherLinearDamping;
                     m_otherRigidBody.Restitution = m_otherRestitution;
                     m_otherRigidBody.MaxLinearVelocity = m_otherMaxLinearVelocity;
                     m_otherRigidBody.MaxAngularVelocity = m_otherMaxAngularVelocity;
@@ -715,8 +715,11 @@ namespace Sandbox.Game.Entities
 
                     m_constraintInitialized = true;
 
-                    m_otherRigidBody.MaxLinearVelocity = m_otherMaxLinearVelocity;
-                    m_otherRigidBody.MaxAngularVelocity = m_otherMaxAngularVelocity;
+                    if (!MyFakes.MANIPULATION_TOOL_VELOCITY_LIMIT)
+                    {
+                        m_otherRigidBody.MaxLinearVelocity = m_otherMaxLinearVelocity;
+                        m_otherRigidBody.MaxAngularVelocity = m_otherMaxAngularVelocity;
+                    }
 
                     if (m_fixedConstraintData != null)
                     {

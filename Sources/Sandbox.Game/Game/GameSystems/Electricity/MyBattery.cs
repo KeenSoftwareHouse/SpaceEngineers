@@ -49,6 +49,11 @@ namespace Sandbox.Game.GameSystems.Electricity
             get { return MyEnergyConstants.BATTERY_MAX_POWER_OUTPUT; }
         }
 
+        bool Sandbox.ModAPI.Ingame.IMyPowerProducer.ProductionEnabled
+        {
+            get { return HasCapacityRemaining; }
+        }
+
         float ModAPI.Ingame.IMyPowerProducer.DefinedPowerOutput
         {
             get { return MyEnergyConstants.BATTERY_MAX_POWER_OUTPUT; }

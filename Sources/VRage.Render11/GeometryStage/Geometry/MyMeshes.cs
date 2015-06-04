@@ -201,6 +201,12 @@ namespace VRageRender
         internal int Part;
     }
 
+    // fractures are the only asset existing over sessions (performance reasons) and some parts need to be recreated after they get dropped on session end (like material ids)
+    struct MyRuntimeMeshPersistentInfo
+    {
+        internal MySectionInfo[] Sections;
+    }
+
     static class MyMeshes
     {
         static Dictionary<MyStringId, MeshId> MeshNameIndex = new Dictionary<MyStringId, MeshId>();
@@ -218,6 +224,8 @@ namespace VRageRender
         static Dictionary<MyMeshPart, VoxelPartId> VoxelPartIndex = new Dictionary<MyMeshPart,VoxelPartId>();
 
 
+        static Dictionary<MeshId, MyRuntimeMeshPersistentInfo> InterSessionData = new Dictionary<MeshId, MyRuntimeMeshPersistentInfo>();
+        static HashSet<MeshId> InterSessionDirty = new HashSet<MeshId>();
 
         static HashSet<MeshId>[] State;
 
@@ -299,7 +307,16 @@ namespace VRageRender
         {
             if (RuntimeMeshNameIndex.ContainsKey(name))
             {
-                return RuntimeMeshNameIndex[name];
+                var id = RuntimeMeshNameIndex[name];
+
+                if(InterSessionDirty.Contains(id))
+                {
+                    RefreshMaterialIds(id);
+
+                    InterSessionDirty.Remove(id);
+                }
+
+                return id;
             }
 
             if(!MeshNameIndex.ContainsKey(name))
@@ -361,6 +378,10 @@ namespace VRageRender
                 if(!(fracture && KEEP_FRACTURES))
                 {
                     RemoveMesh(id);
+                }
+                else
+                {
+                    InterSessionDirty.Add(id);
                 }
             }
 
@@ -823,6 +844,18 @@ namespace VRageRender
             return id;
         }
 
+        internal static void RefreshMaterialIds(MeshId mesh)
+        {
+            var sections = InterSessionData[mesh].Sections;
+            var lod = LodMeshIndex[new MyLodMesh { Mesh = mesh, Lod = 0 }];
+
+            for (int i = 0; i < sections.Length; i++)
+            {
+                var part = PartIndex[new MyMeshPart { Mesh = mesh, Lod = 0, Part = i }];
+                Parts.Data[part.Index].Material = MyMeshMaterials1.GetMaterialId(sections[i].MaterialName);
+            }
+        }
+
         internal static void UpdateRuntimeMesh(
             MeshId mesh,
             ushort[] indices,
@@ -832,6 +865,8 @@ namespace VRageRender
             BoundingBox aabb)
         {
             // get mesh lod 0
+
+            InterSessionData[mesh] = new MyRuntimeMeshPersistentInfo { Sections = sections };
 
             var lod = LodMeshIndex[new MyLodMesh { Mesh = mesh, Lod = 0 }];
 

@@ -14,5 +14,10 @@ namespace Sandbox.Common.ObjectBuilders.Definitions
 
         [ProtoMember]
         public float IdlePowerConsumption = 0.001f;
+
+        [ProtoMember]
+        public string OutsideSound;
+        [ProtoMember]
+        public string InsideSound;
     }
 }

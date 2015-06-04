@@ -43,30 +43,52 @@ namespace Sandbox.Game.Weapons.Guns
             DetectionInfo value = new DetectionInfo();
             foreach (var hit in m_hits)
             {
-                if (hit.HkHitInfo.Body == null) continue;
-                var entity = hit.HkHitInfo.Body.GetEntity();
+				var hitInfo = hit.HkHitInfo;
+				if (hitInfo.Body == null) continue;
+				var entity = hitInfo.Body.GetEntity();
+
                 if (entity == null) continue;
                 var rootEntity = entity.GetTopMostParent();
                 if (!IgnoredEntities.Contains(rootEntity))
                 {
-                    Vector3D fixedDetectionPoint = hit.Position;
-                    if (rootEntity is MyCubeGrid)
+                    Vector3D detectionPoint = hit.Position;
+					
+					MyCubeGrid grid = rootEntity as MyCubeGrid;
+                    if (grid != null)
                     {
-                        MyCubeGrid grid = rootEntity as MyCubeGrid;
-                        if (grid.GridSizeEnum == Common.ObjectBuilders.MyCubeSize.Large)
-                            fixedDetectionPoint += hit.HkHitInfo.Normal * -0.08f;
-                        else
-                            fixedDetectionPoint += hit.HkHitInfo.Normal * -0.02f;
+						var rootShape = hitInfo.Body.GetShape();
+
+						if (rootShape.ShapeType == HkShapeType.List)	// Medieval
+						{
+							var listShape = (HkListShape)hitInfo.Body.GetShape();
+							var shape = listShape.GetChildByIndex(hitInfo.GetShapeKey(0));
+							Vector4 min4, max4;
+							shape.GetLocalAABB(0.05f, out min4, out max4);
+							Vector3 worldMin = Vector3.Transform(new Vector3(min4), grid.PositionComp.WorldMatrix);
+							Vector3 worldMax = Vector3.Transform(new Vector3(max4), grid.PositionComp.WorldMatrix);
+							var worldAABB = new BoundingBox(worldMin, worldMax);
+
+							detectionPoint = worldAABB.Center;
+						}
+						else
+						{
+							if (grid.GridSizeEnum == Common.ObjectBuilders.MyCubeSize.Large)
+								detectionPoint += hit.HkHitInfo.Normal * -0.08f;
+							else
+								detectionPoint += hit.HkHitInfo.Normal * -0.02f;
+						}
                     }
                     
                     if (m_entitiesInRange.TryGetValue(rootEntity.EntityId, out value))
                     {
-                        if (Vector3.DistanceSquared(value.DetectionPoint, m_origin) > Vector3.DistanceSquared(fixedDetectionPoint, m_origin))
-                            m_entitiesInRange[rootEntity.EntityId] = new DetectionInfo(rootEntity as MyEntity, fixedDetectionPoint);
+						var oldDistance = Vector3.DistanceSquared(value.DetectionPoint, m_origin);
+						var newDistance = Vector3.DistanceSquared(detectionPoint, m_origin);
+						if (oldDistance > newDistance)
+							m_entitiesInRange[rootEntity.EntityId] = new DetectionInfo(rootEntity as MyEntity, detectionPoint);
                     }
                     else
                     {
-                        m_entitiesInRange[rootEntity.EntityId] = new DetectionInfo(rootEntity as MyEntity, fixedDetectionPoint);
+                        m_entitiesInRange[rootEntity.EntityId] = new DetectionInfo(rootEntity as MyEntity, detectionPoint);
                     }
                 }
             }

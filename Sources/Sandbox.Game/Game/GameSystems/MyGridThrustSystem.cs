@@ -114,6 +114,8 @@ namespace Sandbox.Game.GameSystems
         /// </summary>
         public Vector3 AutoPilotThrust;
 
+        public bool AutopilotEnabled;
+
         public bool IsPowered
         {
             get { return PowerReceiver.IsPowered; }
@@ -160,7 +162,6 @@ namespace Sandbox.Game.GameSystems
         public Vector3 LocalAngularVelocity { get; private set; }
 
         public bool    RemoteControlOperational  { get; set; }
-        public bool    AutopilotActive           { get; set; }
         public bool    CourseEstablished         { get; set; }
         public bool    RotationalDampingDisabled { get; set; }
         public Vector3 AutopilotAngularDeviation { get; set; }
@@ -400,7 +401,7 @@ namespace Sandbox.Game.GameSystems
             // A quick'n'dirty way of making torque optional. Activating gyroscope override or losing all remote control blocks also disables RCS.
             if (   MySession.Static.ThrusterDamage && !gyros.IsGyroOverrideActive && RemoteControlOperational
                 && (   m_grid.Physics.AngularVelocity != Vector3.Zero || m_grid.Physics.LinearVelocity != Vector3.Zero 
-                    || ControlTorque != Vector3.Zero || AutopilotActive))
+                    || ControlTorque != Vector3.Zero || AutopilotEnabled))
             {
                 if (MyFakes.SLOWDOWN_FACTOR_THRUST_MULTIPLIER > 1.0f)
                 {
@@ -438,7 +439,7 @@ namespace Sandbox.Game.GameSystems
                     m_enableIntegral = true;
                 }
 
-                if (!AutopilotActive)
+                if (!AutopilotEnabled)
                 {
                     m_DesiredAngularVelocityStab = m_enableIntegral ? (m_DesiredAngularVelocityStab + LocalAngularVelocity * ANGULAR_STABILISATION) : Vector3.Zero;
                     CourseEstablished = false;    // Just in case.
@@ -493,7 +494,7 @@ namespace Sandbox.Game.GameSystems
                 thrustPositive = Vector3.Clamp(thrustPositive, Vector3.Zero, Vector3.One * MyConstants.MAX_THRUST);
                 thrustNegative = Vector3.Clamp(thrustNegative, Vector3.Zero, Vector3.One * MyConstants.MAX_THRUST);
             }
-            AutopilotActive = RotationalDampingDisabled = RemoteControlOperational = false;  // Needs to be done here and not in the remote control code, as there may be more than 1 RC block.
+            /*AutopilotEnabled =*/ RotationalDampingDisabled = RemoteControlOperational = false;  // Needs to be done here and not in the remote control code, as there may be more than 1 RC block.
 
             // When using joystick, there may be fractional values, not just 0 and 1.
             float requiredPower = 0;
@@ -547,7 +548,7 @@ namespace Sandbox.Game.GameSystems
         private void UpdateThrusts()
         {
             Vector3 thrust;
-            if (AutoPilotThrust != Vector3.Zero)
+            if (AutopilotEnabled)
             {
                 thrust = ComputeAiThrust(AutoPilotThrust);
             }
@@ -887,7 +888,7 @@ namespace Sandbox.Game.GameSystems
 
         private static bool IsOverridden(MyThrust thrust)
         {
-            return thrust.Enabled && thrust.IsFunctional && thrust.ThrustOverride > 0;
+            return thrust.Enabled && thrust.IsFunctional && thrust.ThrustOverride > 0 && !thrust.CubeGrid.GridSystems.ThrustSystem.AutopilotEnabled;
         }
 
         private static bool IsUsed(MyThrust thrust)

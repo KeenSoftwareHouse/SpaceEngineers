@@ -22,9 +22,9 @@ namespace Sandbox.Game.Components
         MyThrust m_thrust = null;
 
         #region overrides
-        public override void OnAddedToContainer(MyComponentContainer container)
+        public override void OnAddedToContainer()
         {
-            base.OnAddedToContainer(container);
+            base.OnAddedToContainer();
             m_thrust = Container.Entity as MyThrust;
         }
         public override void Draw()

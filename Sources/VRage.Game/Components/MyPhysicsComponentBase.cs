@@ -53,7 +53,7 @@ namespace VRage.Components
         APPLY_WORLD_FORCE
     }
 
-    public abstract class MyPhysicsComponentBase : MyComponentBase
+    public abstract class MyPhysicsComponentBase : MyEntityComponentBase
     {
         public static bool DebugDrawFlattenHierarchy = false;
 

@@ -13,9 +13,9 @@ namespace Sandbox.Game.Components
     {
         MyAutomaticRifleGun m_rifleGun;
         #region overrides
-        public override void OnAddedToContainer(MyComponentContainer container)
+        public override void OnAddedToContainer()
         {
-            base.OnAddedToContainer(container);
+            base.OnAddedToContainer();
             m_rifleGun = Container.Entity as MyAutomaticRifleGun;
         }
 

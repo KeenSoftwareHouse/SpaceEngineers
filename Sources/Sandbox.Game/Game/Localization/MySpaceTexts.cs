@@ -6170,6 +6170,56 @@ namespace Sandbox.Game.Localization
         public static readonly MyStringId BlockPropertyTitle_Motor_Height = MyStringId.GetOrCompute("BlockPropertyTitle_Motor_Height");
 
         ///<summary>
+        ///The maximum angle that the wheel will turn when steering
+        ///</summary>
+        public static readonly MyStringId BlockPropertyDescription_Motor_MaxSteerAngle = MyStringId.GetOrCompute("BlockPropertyDescription_Motor_MaxSteerAngle");
+
+        ///<summary>
+        ///Steering Angle
+        ///</summary>
+        public static readonly MyStringId BlockPropertyTitle_Motor_MaxSteerAngle = MyStringId.GetOrCompute("BlockPropertyTitle_Motor_MaxSteerAngle");
+
+        ///<summary>
+        ///The wheel turn speed.
+        ///</summary>
+        public static readonly MyStringId BlockPropertyDescription_Motor_SteerSpeed = MyStringId.GetOrCompute("BlockPropertyDescription_Motor_SteerSpeed");
+
+        ///<summary>
+        ///Steering Speed
+        ///</summary>
+        public static readonly MyStringId BlockPropertyTitle_Motor_SteerSpeed = MyStringId.GetOrCompute("BlockPropertyTitle_Motor_SteerSpeed");
+
+        ///<summary>
+        ///The wheel's return speed from turning.
+        ///</summary>
+        public static readonly MyStringId BlockPropertyDescription_Motor_SteerReturnSpeed = MyStringId.GetOrCompute("BlockPropertyDescription_Motor_SteerReturnSpeed");
+
+        ///<summary>
+        ///Steer Return Speed
+        ///</summary>
+        public static readonly MyStringId BlockPropertyTitle_Motor_SteerReturnSpeed = MyStringId.GetOrCompute("BlockPropertyTitle_Motor_SteerReturnSpeed");
+
+        ///<summary>
+        ///Invert the steering direction.
+        ///</summary>
+        public static readonly MyStringId BlockPropertyDescription_Motor_InvertSteer = MyStringId.GetOrCompute("BlockPropertyDescription_Motor_InvertSteer");
+
+        ///<summary>
+        ///Invert Steering
+        ///</summary>
+        public static readonly MyStringId BlockPropertyTitle_Motor_InvertSteer = MyStringId.GetOrCompute("BlockPropertyTitle_Motor_InvertSteer");
+
+        ///<summary>
+        ///Limits the suspension's travel height. Setting to 0% will effectively lock the suspension.
+        ///</summary>
+        public static readonly MyStringId BlockPropertyDescription_Motor_SuspensionTravel = MyStringId.GetOrCompute("BlockPropertyDescription_Motor_SuspensionTravel");
+
+        ///<summary>
+        ///Suspension Travel
+        ///</summary>
+        public static readonly MyStringId BlockPropertyTitle_Motor_SuspensionTravel = MyStringId.GetOrCompute("BlockPropertyTitle_Motor_SuspensionTravel");
+
+        ///<summary>
         ///Centered Window
         ///</summary>
         public static readonly MyStringId DisplayName_Block_VerticalCen = MyStringId.GetOrCompute("DisplayName_Block_VerticalCen");
@@ -9590,6 +9640,11 @@ namespace Sandbox.Game.Localization
         public static readonly MyStringId Terminal_ShowAllInTerminal = MyStringId.GetOrCompute("Terminal_ShowAllInTerminal");
 
         ///<summary>
+        ///Show block in toolbar config
+        ///</summary>
+        public static readonly MyStringId Terminal_ShowInToolbarConfig = MyStringId.GetOrCompute("Terminal_ShowInToolbarConfig");
+
+        ///<summary>
         ///Oxygen refilled from bottles.
         ///</summary>
         public static readonly MyStringId NotificationBottleRefill = MyStringId.GetOrCompute("NotificationBottleRefill");
@@ -9703,6 +9758,11 @@ namespace Sandbox.Game.Localization
         ///Show/hide current block in terminal
         ///</summary>
         public static readonly MyStringId Terminal_ShowInTerminalToolTip = MyStringId.GetOrCompute("Terminal_ShowInTerminalToolTip");
+
+        ///<summary>
+        ///Show/hide current block in toolbar config
+        ///</summary>
+        public static readonly MyStringId Terminal_ShowInToolbarConfigToolTip = MyStringId.GetOrCompute("Terminal_ShowInToolbarConfigToolTip");
 
         ///<summary>
         ///Helmet Off
@@ -10420,7 +10480,7 @@ namespace Sandbox.Game.Localization
         public static readonly MyStringId GuiScenarioStart = MyStringId.GetOrCompute("GuiScenarioStart");
 
         ///<summary>
-        ///Docking Mode
+        ///Precision Mode
         ///</summary>
         public static readonly MyStringId BlockPropertyTitle_EnableDockingMode = MyStringId.GetOrCompute("BlockPropertyTitle_EnableDockingMode");
 
@@ -10478,5 +10538,15 @@ namespace Sandbox.Game.Localization
         ///Scenario
         ///</summary>
         public static readonly MyStringId WorldSettings_GameScenario = MyStringId.GetOrCompute("WorldSettings_GameScenario");
+
+        ///<summary>
+        ///Cockpit is damaged
+        ///</summary>
+        public static readonly MyStringId Notification_CockpitIsDamaged = MyStringId.GetOrCompute("Notification_CockpitIsDamaged");
+
+        ///<summary>
+        ///Target outside movement range
+        ///</summary>
+        public static readonly MyStringId LaserAntennaOutsideLimits = MyStringId.GetOrCompute("LaserAntennaOutsideLimits");
     }
 }

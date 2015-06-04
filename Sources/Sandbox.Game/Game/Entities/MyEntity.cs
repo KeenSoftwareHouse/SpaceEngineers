@@ -42,7 +42,7 @@ namespace Sandbox.Game.Entities
     {
         #region Fields
 
-        public MyComponentContainer Components { get; private set; }
+        public MyEntityComponentContainer Components { get; private set; }
 
         public string Name;
 
@@ -405,7 +405,7 @@ namespace Sandbox.Game.Entities
         /// </summary>
         public MyEntity(bool initComponents = true)
         {
-            Components = new MyComponentContainer(this);
+            Components = new MyEntityComponentContainer(this);
             Components.ComponentAdded += Components_ComponentAdded;
             Components.ComponentRemoved += Components_ComponentRemoved;
 
@@ -430,7 +430,7 @@ namespace Sandbox.Game.Entities
             }
         }
 
-        void Components_ComponentAdded(Type t, MyComponentBase c)
+        void Components_ComponentAdded(Type t, MyEntityComponentBase c)
         {
             if (t == typeof(MyPhysicsComponentBase))
                 m_physics = c as MyPhysicsBody;
@@ -448,7 +448,7 @@ namespace Sandbox.Game.Entities
             }
         }
 
-        void Components_ComponentRemoved(Type t, MyComponentBase c)
+        void Components_ComponentRemoved(Type t, MyEntityComponentBase c)
         {
             if (t == typeof(MyPhysicsComponentBase))
                 m_physics = null;

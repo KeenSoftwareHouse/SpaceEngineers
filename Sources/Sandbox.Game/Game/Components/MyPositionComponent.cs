@@ -48,24 +48,24 @@ namespace Sandbox.Game.Components
 
         public static bool SynchronizationEnabled = true;
 
-        public override void OnAddedToContainer(MyComponentContainer container)
+        public override void OnAddedToContainer()
         {
-            base.OnAddedToContainer(container);
-            m_syncObject = container.Get<MySyncComponentBase>();
-            m_physics = container.Get<MyPhysicsComponentBase>();
-            m_hierarchy = container.Get<MyHierarchyComponentBase>();
-            container.ComponentAdded += container_ComponentAdded;
-            container.ComponentRemoved += container_ComponentRemoved;
+            base.OnAddedToContainer();
+            m_syncObject = Container.Get<MySyncComponentBase>();
+            m_physics = Container.Get<MyPhysicsComponentBase>();
+            m_hierarchy = Container.Get<MyHierarchyComponentBase>();
+            Container.ComponentAdded += container_ComponentAdded;
+            Container.ComponentRemoved += container_ComponentRemoved;
         }
 
-        public override void OnRemovedFromContainer(MyComponentContainer container)
+        public override void OnRemovedFromContainer()
         {
-            base.OnRemovedFromContainer(container);
-            container.ComponentAdded -= container_ComponentAdded;
-            container.ComponentRemoved -= container_ComponentRemoved;
+            base.OnRemovedFromContainer();
+            Container.ComponentAdded -= container_ComponentAdded;
+            Container.ComponentRemoved -= container_ComponentRemoved;
         }
 
-        void container_ComponentAdded(Type type, MyComponentBase comp)
+        void container_ComponentAdded(Type type, MyEntityComponentBase comp)
         {
             if (type == typeof(MySyncComponentBase))
                 m_syncObject = comp as MySyncComponentBase;
@@ -75,7 +75,7 @@ namespace Sandbox.Game.Components
                 m_hierarchy = comp as MyHierarchyComponentBase;
         }
 
-        void container_ComponentRemoved(Type type, MyComponentBase comp)
+        void container_ComponentRemoved(Type type, MyEntityComponentBase comp)
         {
             if (type == typeof(MySyncComponentBase))
                 m_syncObject = null;

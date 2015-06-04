@@ -9,7 +9,7 @@ using VRageMath;
 
 namespace VRage.Components
 {
-    public abstract class MyPositionComponentBase : MyComponentBase
+    public abstract class MyPositionComponentBase : MyEntityComponentBase
     {
         /// <summary>
         /// Internal world matrix of entity.

@@ -117,7 +117,7 @@ namespace Sandbox.Game.Entities
             get { return Closed; }
         }
 
-        MyComponentBase IMyEntity.GameLogic
+        MyEntityComponentBase IMyEntity.GameLogic
         {
             get
             {

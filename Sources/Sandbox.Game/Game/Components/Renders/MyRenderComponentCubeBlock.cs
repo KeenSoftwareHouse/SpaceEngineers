@@ -16,9 +16,9 @@ namespace Sandbox.Game.Components
         protected MyCubeBlock m_cubeBlock = null;
 
         #region overrides
-        public override void OnAddedToContainer(MyComponentContainer container)
+        public override void OnAddedToContainer()
         {
-            base.OnAddedToContainer(container);
+            base.OnAddedToContainer();
             m_cubeBlock = Container.Entity as MyCubeBlock;
         }
         public override void InvalidateRenderObjects(bool sortIntoCullobjects = false)

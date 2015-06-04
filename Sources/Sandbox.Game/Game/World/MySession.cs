@@ -160,7 +160,7 @@ namespace Sandbox.Game.World
 
         public bool Battle { get { return Settings.Battle; } }
 
-        public bool IsScenario = false;
+        public static bool IsScenario = false;
         // Attacker leader blueprints.
         public List<Tuple<string, MyBlueprintItemInfo>> BattleBlueprints;
 
@@ -486,6 +486,7 @@ namespace Sandbox.Game.World
             multiplayer.Mods = this.Mods;
             multiplayer.ViewDistance = this.Settings.ViewDistance;
             multiplayer.Battle = this.Battle;
+            multiplayer.Scenario = IsScenario;
 
             if (MySandboxGame.IsDedicated)
                 (multiplayer as MyDedicatedServer).SendGameTagsToSteam();
@@ -1417,8 +1418,9 @@ namespace Sandbox.Game.World
             if (reuseSavingPlayerIdentity) savingPlayerNullable = savingPlayer;
 
             // Identities have to be loaded before entities (because of ownership)
-            if (Sync.IsServer || !Battle)
+            if (Sync.IsServer || (!Battle && MyPerGameSettings.Game == GameEnum.ME_GAME) || (!IsScenario && MyPerGameSettings.Game == GameEnum.SE_GAME))
                 Sync.Players.LoadIdentities(checkpoint, savingPlayerNullable);
+
             Toolbars.LoadToolbars(checkpoint);
 
             if (!MyEntities.Load(sector.SectorObjects))
@@ -1426,7 +1428,7 @@ namespace Sandbox.Game.World
                 ShowLoadingError();
             }
 
-            if (checkpoint.Factions != null && (Sync.IsServer || !Battle))
+            if (checkpoint.Factions != null && (Sync.IsServer || (!Battle && MyPerGameSettings.Game == GameEnum.ME_GAME) || (!IsScenario && MyPerGameSettings.Game == GameEnum.SE_GAME)))
             {
                 MySession.Static.Factions.Init(checkpoint.Factions);
             }
@@ -1437,7 +1439,7 @@ namespace Sandbox.Game.World
             // MySpectator.Static.SpectatorCameraMovement = checkpoint.SpectatorCameraMovement;
             MySpectatorCameraController.Static.SetViewMatrix((MatrixD)Matrix.Invert(checkpoint.SpectatorPosition.GetMatrix()));
 
-            if (!Battle)
+            if ((!Battle && MyPerGameSettings.Game == GameEnum.ME_GAME) || (!IsScenario && MyPerGameSettings.Game == GameEnum.SE_GAME))
             {
                 Sync.Players.LoadConnectedPlayers(checkpoint, savingPlayerNullable);
                 Sync.Players.LoadControlledEntities(checkpoint.ControlledEntities, checkpoint.ControlledObject, savingPlayerNullable);

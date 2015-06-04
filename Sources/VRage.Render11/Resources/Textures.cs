@@ -136,9 +136,13 @@ namespace VRageRender.Resources
             string path;
             
             if (string.IsNullOrEmpty(contentPath))
+            {
                 path = Path.Combine(MyFileSystem.ContentPath, Textures.Data[texId.Index].Name);
+            }
             else
+            { 
                 path = Path.Combine(contentPath, Textures.Data[texId.Index].Name);
+            }
 
             Debug.Assert(Textures.Data[texId.Index].Resource == null);
             Debug.Assert(GetView(texId) == null, "Texture " + Textures.Data[texId.Index].Name + " in invalid state");
@@ -283,6 +287,20 @@ namespace VRageRender.Resources
             }
 
             var nameKey = nameId;
+
+            if(!string.IsNullOrEmpty(contentPath))
+            {
+                var fullPath = Path.Combine(contentPath, nameKey.ToString());
+                if (MyFileSystem.FileExists(fullPath))
+                {
+                    nameKey = X.TEXT(fullPath);
+                }
+                else // take file from main content
+                {
+                    contentPath = null;
+                }
+            }
+
             if (!NameIndex.ContainsKey(nameKey))
             {
                 //Debug.Assert(type != MyTextureEnum.SYSTEM);

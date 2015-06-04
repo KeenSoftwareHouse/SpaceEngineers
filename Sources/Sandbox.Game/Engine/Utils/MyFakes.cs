@@ -463,6 +463,7 @@ namespace Sandbox.Engine.Utils
 
         public static bool ME_MULTIPLAYER = true;
         public static bool ME_PLAYERS_SPAWN_NEAR_PLAYER = true;
+        public static bool CHARACTER_SERVER_SYNC = false;
         
 
         public static bool ALWAYS_NOON = false;
@@ -520,5 +521,12 @@ namespace Sandbox.Engine.Utils
         public static bool ENABLE_RAGDOLL_DEBUG = false;
         
         public static bool ENABLE_JETPACK_RAGDOLL_COLLISIONS = false;
+
+        public static bool NEW_CHARACTER_DAMAGE = false;
+
+        public static bool ENABLE_ADMIN_SPECTATOR_BUILDING = false;
+
+        public static bool MANIPULATION_TOOL_VELOCITY_LIMIT = false;
+
     }
 }

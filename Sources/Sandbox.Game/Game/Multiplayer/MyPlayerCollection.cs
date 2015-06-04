@@ -1543,7 +1543,7 @@ namespace Sandbox.Game.Multiplayer
 
             AddPlayer(playerId, newPlayer);
 
-            if (MyFakes.ENABLE_MISSION_TRIGGERS)
+            if (MyFakes.ENABLE_MISSION_TRIGGERS && MySessionComponentMission.Static!=null)
                 MySessionComponentMission.Static.TryCreateFromDefault(playerId);
 
             return newPlayer;

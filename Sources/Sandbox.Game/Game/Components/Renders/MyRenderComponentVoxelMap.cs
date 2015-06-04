@@ -24,9 +24,9 @@ namespace Sandbox.Game.Components
             get { return m_renderObjectIDs[0]; }
         }
 
-        public override void OnAddedToContainer(MyComponentContainer container)
+        public override void OnAddedToContainer()
         {
-            base.OnAddedToContainer(container);
+            base.OnAddedToContainer();
             m_voxelMap = Container.Entity as IMyVoxelDrawable;
         }
 
