@@ -985,7 +985,7 @@ namespace Sandbox.Game.Entities
             if (clipboard.Waypoints != null)
             {
                 m_waypoints = new List<MyAutopilotWaypoint>(clipboard.Waypoints.Count);
-                foreach (var waypoint in m_clipboard.Waypoints)
+                foreach (var waypoint in clipboard.Waypoints)
                 {
                     if (waypoint.Actions != null)
                     {
