@@ -184,8 +184,8 @@ namespace Sandbox.Game.Entities.Blocks
             UpdateEmissivity(true);
 
             DetailedInfo.Clear();
-            DetailedInfo.AppendFormat("Occupied by {0}", this.GetOccupantInfo());
-            this.RaisePropertiesChanged();
+            DetailedInfo.AppendFormat("Occupied by {0}", GetOccupantInfo());
+            RaisePropertiesChanged();
         }
 
         protected void OnCryoChamberControlAcquired(MyEntityController controller)
@@ -199,7 +199,7 @@ namespace Sandbox.Game.Entities.Blocks
             UpdateEmissivity(false);
 
             DetailedInfo.Clear();
-            this.RaisePropertiesChanged();
+            RaisePropertiesChanged();
         }
 
         public override void OnModelChange()
