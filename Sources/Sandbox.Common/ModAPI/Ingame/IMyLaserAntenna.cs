@@ -34,5 +34,10 @@ namespace Sandbox.ModAPI.Ingame
         /// Connection is permanent
         /// </summary>
         bool IsPermanent { get; }
+
+        /// <summary>
+        /// Target is outside movement limits of antenna
+        /// </summary>
+        bool IsOutsideLimits { get; }
     }
 }
