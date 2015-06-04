@@ -160,8 +160,6 @@ namespace VRageRender
                     adapterTestDevice.CheckThreadingSupport(out supportsConcurrentResources, out supportsCommandLists);
                 }
 
-//                void* ptr = ((IntPtr)adapter.Description.DedicatedVideoMemory).ToPointer();
-//                ulong vram = (ulong)ptr;
                 // DedicatedSystemMemory = bios or DVMT preallocated video memory, that cannot be used by OS - need retest on pc with only cpu/chipset based graphic
                 // DedicatedVideoMemory = discrete graphic video memory
                 // SharedSystemMemory = aditional video memory, that can be taken from OS RAM when needed
@@ -233,15 +231,15 @@ namespace VRageRender
 
                 if(supportedDevice)
                 {
-                    for(int j=0; j<factory.Adapters[i].Outputs.Length; j++)
+                    for(int j=0; j< adapter.Outputs.Length; j++)
                     {
-                        var output = factory.Adapters[i].Outputs[j];
+                        var output = adapter.Outputs[j];
 
                         info.Name = String.Format("{0} + {1}", adapter.Description.Description, output.Description.DeviceName);
                         info.OutputName = output.Description.DeviceName;
                         info.OutputId = j;
 
-                        var displayModeList = factory.Adapters[i].Outputs[j].GetDisplayModeList(MyRender11Constants.BACKBUFFER_FORMAT, DisplayModeEnumerationFlags.Interlaced);
+                        var displayModeList = output.GetDisplayModeList(MyRender11Constants.BACKBUFFER_FORMAT, DisplayModeEnumerationFlags.Interlaced);
                         var adapterDisplayModes = new MyDisplayMode[displayModeList.Length];
                         for (int k = 0; k < displayModeList.Length; k++)
                         {
