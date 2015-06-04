@@ -1479,7 +1479,7 @@ namespace Sandbox.Game.Entities.Character
             UpdateRagdoll();
             VRageRender.MyRenderProxy.GetRenderProfiler().EndProfilingBlock();
 
-            MyRenderProxy.DebugDrawText3D(WorldMatrix.Translation + WorldMatrix.Up * 2.0f, m_currentMovementState.ToString(), Color.Red, 1.0f, false);
+            //MyRenderProxy.DebugDrawText3D(WorldMatrix.Translation + WorldMatrix.Up * 2.0f, m_currentMovementState.ToString(), Color.Red, 1.0f, false);
         }
 
         private MySoundPair SelectSound()
