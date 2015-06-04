@@ -6483,4 +6483,7 @@ To connect to lasers not listed here you can connect to coordinates.</value>
   <data name="Notification_CockpitIsDamaged" xml:space="preserve">
     <value>Cockpit is damaged</value>
   </data>
+  <data name="LaserAntennaOutsideLimits" xml:space="preserve">
+    <value>Target outside movement range</value>
+  </data>
 </root>

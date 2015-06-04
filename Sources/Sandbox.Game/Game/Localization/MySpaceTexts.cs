@@ -10473,5 +10473,10 @@ namespace Sandbox.Game.Localization
         ///Cockpit is damaged
         ///</summary>
         public static readonly MyStringId Notification_CockpitIsDamaged = MyStringId.GetOrCompute("Notification_CockpitIsDamaged");
+
+        ///<summary>
+        ///Target outside movement range
+        ///</summary>
+        public static readonly MyStringId LaserAntennaOutsideLimits = MyStringId.GetOrCompute("LaserAntennaOutsideLimits");
     }
 }
