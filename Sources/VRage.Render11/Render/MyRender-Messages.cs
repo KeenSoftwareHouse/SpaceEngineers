@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using SharpDX.Direct3D11;
+﻿using System.Diagnostics;
 using System.Windows.Forms;
 
 namespace VRageRender
@@ -32,27 +27,27 @@ namespace VRageRender
 
                 if (isPreFrame)
                 {
-                    MyRender11.GetRenderProfiler().StartProfilingBlock("ProcessPreFrame");
+                    GetRenderProfiler().StartProfilingBlock("ProcessPreFrame");
 
                     ProcessPreFrame(frame);
 
-                    MyRender11.GetRenderProfiler().EndProfilingBlock();
+                    GetRenderProfiler().EndProfilingBlock();
 
                     SharedData.ReturnPreFrame(frame);
                 }
                 else
                 {
-                    MyRender11.GetRenderProfiler().StartProfilingBlock("ProcessRenderFrame");
+                    GetRenderProfiler().StartProfilingBlock("ProcessRenderFrame");
 
                     ProcessRenderFrame(frame);
 
-                    MyRender11.GetRenderProfiler().EndProfilingBlock();
+                    GetRenderProfiler().EndProfilingBlock();
 
-                    MyRender11.GetRenderProfiler().StartProfilingBlock("MyClipmapHandler.UpdateQueued");
+                    GetRenderProfiler().StartProfilingBlock("MyClipmapHandler.UpdateQueued");
 
                     MyClipmapHandler.UpdateQueued();
 
-                    MyRender11.GetRenderProfiler().EndProfilingBlock();
+                    GetRenderProfiler().EndProfilingBlock();
 
                     ok = false;
                 }

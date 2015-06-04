@@ -1,10 +1,7 @@
-﻿using SharpDX.Direct3D11;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using VRageMath;
+﻿using System;
+using SharpDX;
+using Vector2 = VRageMath.Vector2;
+using Vector4 = VRageMath.Vector4;
 
 namespace VRageRender
 {
@@ -38,13 +35,13 @@ namespace VRageRender
 
         const int NUM_SAMPLES = 8;
 
-        static void FillRandomVectors(SharpDX.DataStream stream)
+        static void FillRandomVectors(DataStream stream)
         {
             float maxTapMag = -1;
             for (uint i = 0; i < NUM_SAMPLES; i++)
             {
                 float curr = m_filterKernel[i].Length();
-                maxTapMag = (float)System.Math.Max(maxTapMag, curr);
+                maxTapMag = Math.Max(maxTapMag, curr);
             }
 
 
@@ -59,7 +56,7 @@ namespace VRageRender
                 occluderPoints[i].X = tapOffs.X;
                 occluderPoints[i].Y = tapOffs.Y;
                 occluderPoints[i].Z = 0;
-                occluderPoints[i].W = (float)System.Math.Sqrt(1 - tapOffs.X * tapOffs.X - tapOffs.Y * tapOffs.Y);
+                occluderPoints[i].W = (float)Math.Sqrt(1 - tapOffs.X * tapOffs.X - tapOffs.Y * tapOffs.Y);
 
                 rsum += occluderPoints[i].W;
 
@@ -91,7 +88,7 @@ namespace VRageRender
 
         internal static void Run(MyBindableResource dst, MyGBuffer gbuffer, MyBindableResource resolvedDepth)
         {
-            RC.Context.ClearRenderTargetView((dst as IRenderTargetBindable).RTV, new SharpDX.Color4(1, 1, 1, 1));
+            RC.Context.ClearRenderTargetView((dst as IRenderTargetBindable).RTV, new Color4(1, 1, 1, 1));
 
             var paramsCB = MyCommon.GetObjectCB(16 * (2 + NUM_SAMPLES * 2));
 
@@ -121,7 +118,7 @@ namespace VRageRender
 
         internal static void Init()
         {
-            MyRender11.RegisterSettingsChangedListener(new OnSettingsChangedDelegate(RecreateShadersForSettings));
+            MyRender11.RegisterSettingsChangedListener(RecreateShadersForSettings);
         }
     }
 }

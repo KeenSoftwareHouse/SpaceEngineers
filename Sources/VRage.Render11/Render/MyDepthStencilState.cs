@@ -1,8 +1,4 @@
 ﻿using SharpDX.Direct3D11;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 namespace VRageRender
 {
@@ -10,12 +6,14 @@ namespace VRageRender
     {
         static MyDepthStencilState()
         {
-            DepthStencilStateDescription desc = new DepthStencilStateDescription();
+            DepthStencilStateDescription desc = new DepthStencilStateDescription
+            {
+                DepthComparison = MyRender11.UseComplementaryDepthBuffer ? Comparison.Greater : Comparison.Less,
+                DepthWriteMask = DepthWriteMask.All,
+                IsDepthEnabled = true,
+                IsStencilEnabled = false
+            };
 
-            desc.DepthComparison = MyRender11.UseComplementaryDepthBuffer ? Comparison.Greater : Comparison.Less;
-            desc.DepthWriteMask = DepthWriteMask.All;
-            desc.IsDepthEnabled = true;
-            desc.IsStencilEnabled = false;
             DepthTestWrite = MyPipelineStates.CreateDepthStencil(desc);
 
             desc.DepthComparison = MyRender11.UseComplementaryDepthBuffer ? Comparison.Greater : Comparison.Less;
@@ -82,6 +80,6 @@ namespace VRageRender
         internal static DepthStencilId TestAAEdge;
         internal static DepthStencilId [] MarkIfInside;
 
-        internal static DepthStencilState DefaultDepthState { get { return MyRender11.UseComplementaryDepthBuffer ? (DepthStencilState)DepthTestWrite : null; } }
+        internal static DepthStencilState DefaultDepthState => MyRender11.UseComplementaryDepthBuffer ? (DepthStencilState)DepthTestWrite : null;
     }
 }

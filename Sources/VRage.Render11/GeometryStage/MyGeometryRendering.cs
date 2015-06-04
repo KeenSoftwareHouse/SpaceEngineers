@@ -1,31 +1,20 @@
-﻿using SharpDX;
-using SharpDX.Direct3D;
+﻿using System;
+using System.Collections.Generic;
+using System.Collections.Specialized;
+using System.Diagnostics;
+using ParallelTasks;
+using SharpDX;
 using SharpDX.Direct3D11;
 using SharpDX.DXGI;
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using VRage.Generics;
-
+using VRage.Library.Utils;
 using VRageMath;
 using VRageRender.Resources;
-using VRageRender.Vertex;
-using Buffer = SharpDX.Direct3D11.Buffer;
-using Resource = SharpDX.Direct3D11.Resource;
-using Matrix = VRageMath.Matrix;
-using Vector3 = VRageMath.Vector3;
 using BoundingBox = VRageMath.BoundingBox;
 using BoundingFrustum = VRageMath.BoundingFrustum;
-using Color = VRageMath.Color;
-using VRage.Collections;
-using System.Collections.Specialized;
-using System.Threading;
-using ParallelTasks;
-using VRage.Library.Utils;
-using System.IO;
+using Buffer = SharpDX.Direct3D11.Buffer;
+using ContainmentType = VRageMath.ContainmentType;
+using Matrix = VRageMath.Matrix;
+using Vector3 = VRageMath.Vector3;
 
 namespace VRageRender
 {
@@ -100,7 +89,7 @@ namespace VRageRender
     {
         internal MyFrustumCullQuery[] FrustumQuery = new MyFrustumCullQuery[32];
 
-        internal int Size { get { return m_reservedFrusta; } }
+        internal int Size => m_reservedFrusta;
         int m_reservedFrusta;
 
         internal MyCullQuery()
@@ -144,10 +133,7 @@ namespace VRageRender
             m_query = query;
         }
 
-        public WorkPriority Priority
-        {
-            get { return WorkPriority.Normal; }
-        }
+        public WorkPriority Priority => WorkPriority.Normal;
 
         public void DoWork()
         {
@@ -159,12 +145,12 @@ namespace VRageRender
             {
                 if (!MyRender11.Settings.DrawOnlyMergedMeshes)
                 {
-                    MyScene.RenderablesDBVH.OverlapAllFrustum<MyCullProxy>(ref frustum, m_query.List, m_query.IsInsideList,
+                    MyScene.RenderablesDBVH.OverlapAllFrustum(ref frustum, m_query.List, m_query.IsInsideList,
                         m_query.SmallObjects.Value.ProjectionDir, m_query.SmallObjects.Value.ProjectionFactor, m_query.SmallObjects.Value.SkipThreshhold,
                         0);
                 }
 
-                MyScene.GroupsDBVH.OverlapAllFrustum<MyCullProxy_2>(ref frustum, m_query.List2, m_query.IsInsideList2,
+                MyScene.GroupsDBVH.OverlapAllFrustum(ref frustum, m_query.List2, m_query.IsInsideList2,
                     m_query.SmallObjects.Value.ProjectionDir, m_query.SmallObjects.Value.ProjectionFactor, m_query.SmallObjects.Value.SkipThreshhold,
                     0);
             }
@@ -172,29 +158,26 @@ namespace VRageRender
             {
                 if (!MyRender11.Settings.DrawOnlyMergedMeshes)
                 {
-                    MyScene.RenderablesDBVH.OverlapAllFrustum<MyCullProxy>(ref frustum, m_query.List, m_query.IsInsideList, 0);
+                    MyScene.RenderablesDBVH.OverlapAllFrustum(ref frustum, m_query.List, m_query.IsInsideList, 0);
                 }
-                MyScene.GroupsDBVH.OverlapAllFrustum<MyCullProxy_2>(ref frustum, m_query.List2, m_query.IsInsideList2, 0);
+                MyScene.GroupsDBVH.OverlapAllFrustum(ref frustum, m_query.List2, m_query.IsInsideList2, 0);
             }
 
             MyRender11.GetRenderProfiler().EndProfilingBlock();
         }
 
-        public WorkOptions Options
-        {
-            get { return Parallel.DefaultOptions; }
-        }
+        public WorkOptions Options => Parallel.DefaultOptions;
     }
 
-    partial class MyGeometryRenderer
+    class MyGeometryRenderer
     {
         #region Resources
 
 
-        internal static DeviceContext Context { get { return MyRender11.ImmediateContext; } }
+        internal static DeviceContext Context => MyRender11.ImmediateContext;
         internal static ConstantsBufferId m_objectConstants;
 
-        internal static Buffer ObjectCB { get { return m_objectConstants; } }
+        internal static Buffer ObjectCB => m_objectConstants;
 
         internal static readonly string DEFAULT_OPAQUE_PASS = "gbuffer";
         internal static readonly string DEFAULT_DEPTH_PASS = "depth";
@@ -210,7 +193,7 @@ namespace VRageRender
         static Queue<CommandList> m_commandListQueue = new Queue<CommandList>();
         static List<MyRenderingPass> m_wavefront = new List<MyRenderingPass>();
 
-        static List<MyRenderingPass> Wavefront { get { return m_wavefront; } }
+        static List<MyRenderingPass> Wavefront => m_wavefront;
 
         static MyCullQuery m_cullQuery = new MyCullQuery();
 
@@ -240,7 +223,7 @@ namespace VRageRender
                         }
                     }
 
-                    if(MyEnvironment.ViewFrustum.Contains(bb) != VRageMath.ContainmentType.Disjoint)
+                    if(MyEnvironment.ViewFrustum.Contains(bb) != ContainmentType.Disjoint)
                     {
                         MyRenderProxy.VisibleObjectsWrite.Add(h.m_owner.ID);
                     }
@@ -654,7 +637,6 @@ namespace VRageRender
                     AddForwardCamera(ref localViewProj, ref viewProj, new MyViewport(0, 0, 256, 256), m_cubemapDepth.SubresourceDsv(faceId), workCubemap.SubresourceRtv(faceId));
 
                     ++state;
-                    return;
                 }
 
             }
@@ -692,8 +674,6 @@ namespace VRageRender
                     {
                         blendT0 = MyRender11.CurrentDrawTime;
                     }
-
-                    return;
                 }
             }
 

@@ -1,11 +1,8 @@
-﻿using ParallelTasks;
-using SharpDX.Direct3D11;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
-using System.Linq;
-using System.Text;
-using VRage.Collections;
+using ParallelTasks;
+using SharpDX.Direct3D11;
 
 namespace VRageRender
 {

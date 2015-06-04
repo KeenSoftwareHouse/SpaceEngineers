@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using VRage.Network;
-using VRageMath;
+﻿using VRage.Network;
 
 namespace Server
 {
@@ -12,11 +7,9 @@ namespace Server
     {
         public ulong EntityID;
 
-        [StateData]
-        public MySyncedVector3D Position;
+        [StateData] public MySyncedVector3D Position;
 
-        [StateData]
-        public MySyncedQuaternionNorm Orientation;
+        [StateData] public MySyncedQuaternionNorm Orientation;
 
         public Bar()
         {

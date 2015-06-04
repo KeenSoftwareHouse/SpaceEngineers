@@ -1,23 +1,11 @@
 ﻿using System;
-using SharpDX;
+using System.Collections.Generic;
 using SharpDX.Direct3D;
 using SharpDX.Direct3D11;
-using VRageRender.Resources;
-using VRageRender.Vertex;
-using Buffer = SharpDX.Direct3D11.Buffer;
-using Matrix = VRageMath.Matrix;
-using Rectangle = VRageMath.Rectangle;
-using RectangleF = VRageMath.RectangleF;
-using Vector2 = VRageMath.Vector2;
-using Vector3 = VRageMath.Vector3;
-using BoundingBox = VRageMath.BoundingBox;
-using BoundingSphere = VRageMath.BoundingSphere;
-using BoundingFrustum = VRageMath.BoundingFrustum;
-using Color = VRageMath.Color;
-using System.Collections.Generic;
-using VRageMath.PackedVector;
 using VRage.Generics;
-
+using VRageMath;
+using VRageMath.PackedVector;
+using VRageRender.Vertex;
 
 namespace VRageRender
 {
@@ -202,7 +190,7 @@ namespace VRageRender
             m_VB = MyHwBuffers.CreateVertexBuffer(m_currentBufferSize, sizeof(MyVertexFormatPositionColor), BindFlags.VertexBuffer, ResourceUsage.Dynamic);
         }
 
-        static unsafe void CheckBufferSize(int requiredSize)
+        static void CheckBufferSize(int requiredSize)
         {
             if (m_currentBufferSize < requiredSize)
             {
@@ -235,7 +223,7 @@ namespace VRageRender
             }
         }
 
-        internal static unsafe void Draw(MyBindableResource depth)
+        internal static void Draw(MyBindableResource depth)
         {
             RC.SetupScreenViewport();
             RC.Context.InputAssembler.PrimitiveTopology = PrimitiveTopology.LineList;

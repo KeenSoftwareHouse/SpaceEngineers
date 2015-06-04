@@ -1,10 +1,6 @@
-﻿using ParallelTasks;
-using SharpDX.Direct3D11;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using VRage.Collections;
+using ParallelTasks;
 
 namespace VRageRender
 {
@@ -19,18 +15,9 @@ namespace VRageRender
             throw new NotImplementedException();
         }
 
-        public WorkPriority Priority
-        {
-            get { return WorkPriority.Normal; }
-        }
+        public WorkPriority Priority => WorkPriority.Normal;
 
-        public WorkOptions Options
-        {
-            get
-            {
-                return Parallel.DefaultOptions;
-            }
-        }
+        public WorkOptions Options => Parallel.DefaultOptions;
 
         internal void AddDeferredContext(MyRenderContext rc)
         {
@@ -118,7 +105,7 @@ namespace VRageRender
     class MyRenderingWork_LoopPassThenObject : MyRenderingWork
     {
         internal List<MyRenderingWorkItem> m_subworks = new List<MyRenderingWorkItem>();
-        internal bool m_isDeferred = false;
+        internal bool m_isDeferred;
 
         internal MyRenderingWork_LoopPassThenObject(List<MyRenderingWorkItem> subworks)
         {

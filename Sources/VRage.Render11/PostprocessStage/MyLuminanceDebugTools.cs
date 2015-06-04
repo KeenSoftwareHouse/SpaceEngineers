@@ -1,10 +1,6 @@
 ﻿using SharpDX;
 using SharpDX.Direct3D11;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Text;
+using SharpDX.DXGI;
 using VRageMath;
 using VRageRender.Resources;
 
@@ -19,7 +15,7 @@ namespace VRageRender
 
         const int m_numthreads = 8;
 
-        internal static int NumThreads { get { return m_numthreads; } }
+        internal static int NumThreads => m_numthreads;
 
         internal static void Init()
         {
@@ -27,7 +23,7 @@ namespace VRageRender
             m_drawHistogram = MyShaders.CreatePs("data_visualization.hlsl", "display_histogram");
             m_drawTonemapping = MyShaders.CreatePs("data_visualization.hlsl", "display_tonemapping");
 
-            m_histogram = MyRwTextures.CreateUav1D(513, SharpDX.DXGI.Format.R32_UInt, "histogram");
+            m_histogram = MyRwTextures.CreateUav1D(513, Format.R32_UInt, "histogram");
         }
 
         internal static void CreateHistogram(ShaderResourceView texture, Vector2I resolution, int samples)

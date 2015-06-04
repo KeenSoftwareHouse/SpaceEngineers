@@ -1,24 +1,20 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Text;
+﻿using System.Diagnostics;
 
 namespace VRage.Network
 {
     public class MySyncedBool : MySyncedBase<bool>
     {
-        public sealed override void Write(ref bool value, BitStream s)
+        public override sealed void Write(ref bool value, BitStream s)
         {
             s.Write(value);
         }
 
-        public sealed override bool Read(out bool value, BitStream s)
+        public override sealed bool Read(out bool value, BitStream s)
         {
             return s.Read(out value);
         }
 
-        public sealed override void Serialize(BitStream bs, int clientIndex)
+        public override sealed void Serialize(BitStream bs, int clientIndex)
         {
             lock (this)
             {
@@ -26,7 +22,7 @@ namespace VRage.Network
             }
         }
 
-        public sealed override void Deserialize(BitStream bs)
+        public override sealed void Deserialize(BitStream bs)
         {
             lock (this)
             {
@@ -35,12 +31,12 @@ namespace VRage.Network
             }
         }
 
-        public sealed override void SerializeDefault(BitStream bs, int clientIndex = -1)
+        public override sealed void SerializeDefault(BitStream bs, int clientIndex = -1)
         {
             Serialize(bs, clientIndex);
         }
 
-        public sealed override void DeserializeDefault(BitStream bs)
+        public override sealed void DeserializeDefault(BitStream bs)
         {
             Deserialize(bs);
         }

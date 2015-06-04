@@ -1,9 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Text;
-using SharpDX.Direct3D11;
 using VRageMath;
 using VRageRender.Resources;
 

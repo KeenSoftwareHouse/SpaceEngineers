@@ -1,30 +1,17 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using SharpDX;
-using SharpDX.Direct3D;
+using System.Diagnostics;
+using System.Globalization;
+using System.IO;
 using SharpDX.Direct3D11;
+using SharpDX.DXGI;
+using VRage.FileSystem;
+using VRage.Generics;
+using VRage.Utils;
 using VRageMath;
-using RectangleF = VRageMath.RectangleF;
-using Vector2 = VRageMath.Vector2;
-using Vector3 = VRageMath.Vector3;
-using Color = VRageMath.Color;
-using Matrix = VRageMath.Matrix;
-using BoundingSphere = VRageMath.BoundingSphere;
-using BoundingBox = VRageMath.BoundingBox;
-using BoundingFrustum = VRageMath.BoundingFrustum;
-using Vector4 = VRageMath.Vector4;
-using VRageRender.Vertex;
 using VRageMath.PackedVector;
 using VRageRender.Resources;
-using VRage;
-using VRage.Utils;
-using System.IO;
-using VRage.Library.Utils;
-using VRage.Generics;
-using System.Diagnostics;
-using VRage.FileSystem;
+using VRageRender.Vertex;
 
 namespace VRageRender
 {
@@ -72,23 +59,25 @@ namespace VRageRender
                         if (line.Trim(' ').Length == 0)
                             continue;
 
-                        string[] parts = line.Split(new char[] { ' ', '\t', ',' }, StringSplitOptions.RemoveEmptyEntries);
+                        string[] parts = line.Split(new[] { ' ', '\t', ',' }, StringSplitOptions.RemoveEmptyEntries);
 
                         string name = parts[0];
                         string atlasName = parts[1];
 
                         Vector4 uv = new Vector4(
-                            Convert.ToSingle(parts[4], System.Globalization.CultureInfo.InvariantCulture),
-                            Convert.ToSingle(parts[5], System.Globalization.CultureInfo.InvariantCulture),
-                            Convert.ToSingle(parts[7], System.Globalization.CultureInfo.InvariantCulture),
-                            Convert.ToSingle(parts[8], System.Globalization.CultureInfo.InvariantCulture));
+                            Convert.ToSingle(parts[4], CultureInfo.InvariantCulture),
+                            Convert.ToSingle(parts[5], CultureInfo.InvariantCulture),
+                            Convert.ToSingle(parts[7], CultureInfo.InvariantCulture),
+                            Convert.ToSingle(parts[8], CultureInfo.InvariantCulture));
 
-                        name = textureDir + System.IO.Path.GetFileName(name);
+                        name = textureDir + Path.GetFileName(name);
                         var atlasTexture = textureDir + atlasName;
 
-                        var element = new MyTextureAtlasElement();
-                        element.TextureId = MyTextures.GetTexture(atlasTexture, MyTextureEnum.GUI, true);
-                        element.UvOffsetScale = uv;
+                        var element = new MyTextureAtlasElement
+                        {
+                            TextureId = MyTextures.GetTexture(atlasTexture, MyTextureEnum.GUI, true),
+                            UvOffsetScale = uv
+                        };
                         atlasDict[name] = element;
                     }
                 }
@@ -96,7 +85,7 @@ namespace VRageRender
             }
             catch (Exception e)
             {
-                MyLog.Default.WriteLine("Warning: " + e.ToString());
+                MyLog.Default.WriteLine("Warning: " + e);
             }
         }
     }
@@ -119,7 +108,7 @@ namespace VRageRender
             angle.AssertIsValid();
 
             MyQuadD quad;
-            if (MyUtils.GetBillboardQuadAdvancedRotated(out quad, origin, radius, angle, MyEnvironment.CameraPosition) != false)
+            if (MyUtils.GetBillboardQuadAdvancedRotated(out quad, origin, radius, angle, MyEnvironment.CameraPosition))
             {
                 MyBillboard billboard = SpawnBillboard();
                 if (billboard == null)
@@ -156,7 +145,7 @@ namespace VRageRender
             CreateBillboard(billboard, ref quad, material, ref color, ref origin);
         }
 
-        internal static void CreateBillboard(VRageRender.MyBillboard billboard, ref MyQuadD quad, string material, ref Color color, ref Vector3D origin,
+        internal static void CreateBillboard(MyBillboard billboard, ref MyQuadD quad, string material, ref Color color, ref Vector3D origin,
             string blendMaterial = "Test", float textureBlendRatio = 0, Vector2 uvOffset = new Vector2(), bool near = false, bool lowres = false, float reflectivity = 0)
         {
             Debug.Assert(material != null);
@@ -285,7 +274,7 @@ namespace VRageRender
             }
             fixed (uint* ptr = indices)
             {
-                m_IB = MyHwBuffers.CreateIndexBuffer(MaxBillboards * 6, SharpDX.DXGI.Format.R32_UInt, BindFlags.IndexBuffer, ResourceUsage.Immutable, new IntPtr(ptr));
+                m_IB = MyHwBuffers.CreateIndexBuffer(MaxBillboards * 6, Format.R32_UInt, BindFlags.IndexBuffer, ResourceUsage.Immutable, new IntPtr(ptr));
             }
         }
 
@@ -554,11 +543,11 @@ namespace VRageRender
                 var view = MyRenderProxy.BillboardsViewProjectionRead[i].View;
                 var projection = MyRenderProxy.BillboardsViewProjectionRead[i].Projection;
 
-                var scaleX = MyRenderProxy.BillboardsViewProjectionRead[i].Viewport.Width / (float)MyRender11.ViewportResolution.X;
-                var scaleY = MyRenderProxy.BillboardsViewProjectionRead[i].Viewport.Height / (float)MyRender11.ViewportResolution.Y;
-                var offsetX = MyRenderProxy.BillboardsViewProjectionRead[i].Viewport.OffsetX / (float)MyRender11.ViewportResolution.X;
+                var scaleX = MyRenderProxy.BillboardsViewProjectionRead[i].Viewport.Width / MyRender11.ViewportResolution.X;
+                var scaleY = MyRenderProxy.BillboardsViewProjectionRead[i].Viewport.Height / MyRender11.ViewportResolution.Y;
+                var offsetX = MyRenderProxy.BillboardsViewProjectionRead[i].Viewport.OffsetX / MyRender11.ViewportResolution.X;
                 var offsetY = (MyRender11.ViewportResolution.Y - MyRenderProxy.BillboardsViewProjectionRead[i].Viewport.OffsetY - MyRenderProxy.BillboardsViewProjectionRead[i].Viewport.Height)
-                    / (float)MyRender11.ViewportResolution.Y;
+                    / MyRender11.ViewportResolution.Y;
 
                 var viewportTransformation = new Matrix(
                     scaleX, 0, 0, 0,

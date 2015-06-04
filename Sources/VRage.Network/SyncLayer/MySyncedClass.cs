@@ -1,15 +1,14 @@
-﻿using System;
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using System.Text;
 
 namespace VRage.Network
 {
     public class MySyncedClass : IMySyncedValue
     {
         private int m_typeID = -1;
+
         internal int TypeID
         {
             get { return m_typeID; }
@@ -22,12 +21,14 @@ namespace VRage.Network
         }
 
         private MySyncedClass m_parent;
+
         public void SetParent(MySyncedClass parent)
         {
             m_parent = parent;
         }
 
         protected BitArray m_dirty = new BitArray(MyRakNetSyncLayer.MaxClients);
+
         public bool IsDirty(int clientIndex)
         {
             Debug.Assert(clientIndex < m_dirty.Length);
@@ -124,23 +125,7 @@ namespace VRage.Network
 
         public bool IsDefault()
         {
-            foreach (var sync in m_syncedVariables)
-            {
-                if (!sync.IsDefault())
-                {
-                    return false;
-                }
-            }
-
-            foreach (var sync in m_syncedClass)
-            {
-                if (!sync.IsDefault())
-                {
-                    return false;
-                }
-            }
-
-            return true;
+            return m_syncedVariables.All(sync => sync.IsDefault()) && m_syncedClass.All(sync => sync.IsDefault());
         }
 
         public void SerializeDefault(BitStream bs, int clientIndex = -1)

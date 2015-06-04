@@ -1,12 +1,7 @@
-﻿using SharpDX.Direct3D11;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
+﻿using System;
 using System.IO;
-using System.Linq;
-using System.Text;
+using SharpDX.Direct3D11;
 using VRage.FileSystem;
-using VRage.Library.Utils;
 using VRage.Utils;
 using VRageMath;
 

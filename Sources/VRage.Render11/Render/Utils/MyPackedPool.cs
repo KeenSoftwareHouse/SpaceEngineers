@@ -1,8 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
-using System.Text;
 
 namespace VRageRender
 {
@@ -93,7 +90,7 @@ namespace VRageRender
 
         private int m_sizeLimit;
 
-        internal int Capacity { get { return m_sizeLimit; } }
+        internal int Capacity => m_sizeLimit;
 
         public MyPackedIndexerDynamic(int startingSize)
         {
@@ -179,7 +176,7 @@ namespace VRageRender
 
         MyPackedIndexerDynamic m_indexer;
 
-        public int Size { get { return m_indexer.Size; } }
+        public int Size => m_indexer.Size;
 
         public MyPackedPool(int startingSize)
         {
@@ -187,7 +184,7 @@ namespace VRageRender
             m_entities = new T[startingSize];
         }
 
-        public T[] Data { get { return m_entities; } }
+        public T[] Data => m_entities;
 
         public T GetByHandle(MyPackedPoolHandle handle)
         {

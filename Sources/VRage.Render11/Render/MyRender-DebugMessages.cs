@@ -1,9 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
 using System.Text;
-using VRage;
 using VRageMath;
 
 namespace VRageRender
@@ -46,7 +43,7 @@ namespace VRageRender
                         {
                             MyRenderMessageDebugDrawLine2D message = (MyRenderMessageDebugDrawLine2D)debugDrawMessage;
 
-                            var matrix = message.Projection ?? Matrix.CreateOrthographicOffCenter(0, MyRender11.ViewportResolution.X, MyRender11.ViewportResolution.Y, 0, 0, -1);
+                            var matrix = message.Projection ?? Matrix.CreateOrthographicOffCenter(0, ViewportResolution.X, ViewportResolution.Y, 0, 0, -1);
 
                             if (!lines2D.CustomViewProjection.HasValue || (lines2D.CustomViewProjection.HasValue && lines2D.CustomViewProjection.Value != matrix))
                             {
@@ -73,11 +70,11 @@ namespace VRageRender
                             var minDepth = 
                                 message.ClipDistance.HasValue ? Vector3.Transform(new Vector3(0, 0, -message.ClipDistance.Value), MyEnvironment.Projection).Z : 0;
 
-                            var clipPosition = Vector3.Transform((Vector3)message.Position, ref MyEnvironment.ViewProjection);
+                            var clipPosition = Vector3.Transform(message.Position, ref MyEnvironment.ViewProjection);
                             clipPosition.X = clipPosition.X * 0.5f + 0.5f;
                             clipPosition.Y = clipPosition.Y * -0.5f + 0.5f;
 
-                            Debug.Assert(MyRender11.UseComplementaryDepthBuffer);
+                            Debug.Assert(UseComplementaryDepthBuffer);
 
                             if (clipPosition.Z > minDepth && clipPosition.Z < 1)
                             {
@@ -95,11 +92,11 @@ namespace VRageRender
                             var minDepth = 
                                 message.ClipDistance.HasValue ? Vector3.Transform(new Vector3(0, 0, -message.ClipDistance.Value), MyEnvironment.Projection).Z : 0;
 
-                            var clipPosition = Vector3.Transform((Vector3)message.Position, ref MyEnvironment.ViewProjection);
+                            var clipPosition = Vector3.Transform(message.Position, ref MyEnvironment.ViewProjection);
                             clipPosition.X = clipPosition.X * 0.5f + 0.5f;
                             clipPosition.Y = clipPosition.Y * -0.5f + 0.5f;
 
-                            Debug.Assert(MyRender11.UseComplementaryDepthBuffer);
+                            Debug.Assert(UseComplementaryDepthBuffer);
 
                             if (clipPosition.Z > minDepth && clipPosition.Z < 1)
                             {
@@ -173,7 +170,7 @@ namespace VRageRender
                             MyRenderMessageDebugDrawOBB message = (MyRenderMessageDebugDrawOBB)debugDrawMessage;
 
                             Vector3 [] corners = new Vector3[8];
-                            Matrix matrix = (Matrix)message.Matrix;
+                            Matrix matrix = message.Matrix;
                             new MyOrientedBoundingBox(ref matrix).GetCorners(corners, 0);
 
                             if(message.DepthRead)
@@ -277,7 +274,7 @@ namespace VRageRender
                         {
                             MyRenderMessageDebugDrawText3D message = (MyRenderMessageDebugDrawText3D)debugDrawMessage;
 
-                            Vector3 position = (Vector3)message.Coord;
+                            Vector3 position = message.Coord;
 
                             var worldToClip = MyEnvironment.ViewProjection;
                             if (message.CustomViewProjection != -1)
@@ -289,11 +286,11 @@ namespace VRageRender
 
                                 var i = message.CustomViewProjection;
 
-                                var scaleX = MyRenderProxy.BillboardsViewProjectionRead[i].Viewport.Width / (float)MyRender11.ViewportResolution.X;
-                                var scaleY = MyRenderProxy.BillboardsViewProjectionRead[i].Viewport.Height / (float)MyRender11.ViewportResolution.Y;
-                                var offsetX = MyRenderProxy.BillboardsViewProjectionRead[i].Viewport.OffsetX / (float)MyRender11.ViewportResolution.X;
-                                var offsetY = (MyRender11.ViewportResolution.Y - MyRenderProxy.BillboardsViewProjectionRead[i].Viewport.OffsetY - MyRenderProxy.BillboardsViewProjectionRead[i].Viewport.Height)
-                                    / (float)MyRender11.ViewportResolution.Y;
+                                var scaleX = MyRenderProxy.BillboardsViewProjectionRead[i].Viewport.Width / ViewportResolution.X;
+                                var scaleY = MyRenderProxy.BillboardsViewProjectionRead[i].Viewport.Height / ViewportResolution.Y;
+                                var offsetX = MyRenderProxy.BillboardsViewProjectionRead[i].Viewport.OffsetX / ViewportResolution.X;
+                                var offsetY = (ViewportResolution.Y - MyRenderProxy.BillboardsViewProjectionRead[i].Viewport.OffsetY - MyRenderProxy.BillboardsViewProjectionRead[i].Viewport.Height)
+                                    / ViewportResolution.Y;
 
                                 var viewportTransformation = new Matrix(
                                     scaleX, 0, 0, 0,
@@ -309,14 +306,14 @@ namespace VRageRender
                             clipPosition.X = clipPosition.X * 0.5f + 0.5f;
                             clipPosition.Y = clipPosition.Y * -0.5f + 0.5f;
 
-                            Debug.Assert(MyRender11.UseComplementaryDepthBuffer);
+                            Debug.Assert(UseComplementaryDepthBuffer);
 
                             var minDepth = 
                                 message.ClipDistance.HasValue ? Vector3.Transform(new Vector3(0, 0, -message.ClipDistance.Value), MyEnvironment.Projection).Z : 0;
 
                             if (clipPosition.Z > minDepth && clipPosition.Z < 1)
                             {
-                                MySpritesRenderer.DrawText(new Vector2(clipPosition.X, clipPosition.Y) * MyRender11.ViewportResolution,
+                                MySpritesRenderer.DrawText(new Vector2(clipPosition.X, clipPosition.Y) * ViewportResolution,
                                     new StringBuilder(message.Text), message.Color, message.Scale, message.Align);
                             }
 

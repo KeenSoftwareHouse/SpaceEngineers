@@ -1,27 +1,6 @@
-﻿using SharpDX;
-using SharpDX.Direct3D;
-using SharpDX.Direct3D11;
-using SharpDX.DXGI;
-using System;
-using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using VRage.Generics;
-
 using VRageMath;
-using VRageRender.Resources;
-using VRageRender.Vertex;
-using Buffer = SharpDX.Direct3D11.Buffer;
-using Matrix = VRageMath.Matrix;
-using Vector3 = VRageMath.Vector3;
-using BoundingBox = VRageMath.BoundingBox;
-using BoundingFrustum = VRageMath.BoundingFrustum;
-using VRage.Collections;
-using System.Collections.Specialized;
-using System.Threading;
-
 
 namespace VRageRender
 {
@@ -46,7 +25,7 @@ namespace VRageRender
         internal bool m_renderProxyDirty;
         internal bool m_visible;
 
-        internal bool RenderDirty { get { return m_renderProxyDirty; } }
+        internal bool RenderDirty => m_renderProxyDirty;
 
         MyIDTracker<MyActor> m_ID;
 
@@ -83,7 +62,7 @@ namespace VRageRender
             m_ID.Register(id, this);
         }
 
-        internal uint ID { get { return m_ID.ID; } }
+        internal uint ID => m_ID.ID;
 
         internal void MarkRenderDirty()
         {
@@ -181,7 +160,7 @@ namespace VRageRender
             return null;
         }
 
-        internal bool IsVisible { get { return m_visible && GetRenderable() != null; } }
+        internal bool IsVisible => m_visible && GetRenderable() != null;
 
         internal MyRenderableComponent GetRenderable()
         {

@@ -1,14 +1,15 @@
-﻿using SharpDX.Direct3D;
-using SharpDX.Direct3D11;
-using SharpDX.DXGI;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using System.Text;
+using SharpDX;
+using SharpDX.Direct3D;
+using SharpDX.Direct3D11;
+using SharpDX.DXGI;
 using VRage.Utils;
-using VRageMath;
 using VRageRender.Resources;
+using Matrix = VRageMath.Matrix;
+using Vector4 = VRageMath.Vector4;
 
 namespace VRageRender
 {
@@ -88,7 +89,7 @@ namespace VRageRender
                 //NormalmapTexture = MyTextures.GetTexture("Textures/decals/impact_1x5_ng.dds", MyTextureEnum.NORMALMAP_GLOSS),
                 NormalmapTexture = TexId.NULL,
                 ColorMetalTexture = MyTextures.GetTexture("Textures/decals/impact_1_cm.dds", MyTextureEnum.COLOR_METAL),
-                AlphamaskTexture = MyTextures.GetTexture("Textures/decals/impact_1_alphamask.dds", MyTextureEnum.ALPHAMASK),
+                AlphamaskTexture = MyTextures.GetTexture("Textures/decals/impact_1_alphamask.dds", MyTextureEnum.ALPHAMASK)
             };
         }
 
@@ -117,8 +118,7 @@ namespace VRageRender
 
         static unsafe void InitIB()
         {
-            ushort[] indices = new ushort[]
-            {
+            ushort[] indices = {
                 // 0 1 2 3
                 0, 1, 2, 0, 2, 3,
                 // 1 5 6 2
@@ -219,7 +219,7 @@ namespace VRageRender
                     DecalType = descriptions[i].DecalType,
                     NormalmapTexture = MyTextures.GetTexture(descriptions[i].NormalmapTexture, MyTextureEnum.NORMALMAP_GLOSS),
                     ColorMetalTexture = MyTextures.GetTexture(descriptions[i].ColorMetalTexture, MyTextureEnum.COLOR_METAL),
-                    AlphamaskTexture = MyTextures.GetTexture(descriptions[i].AlphamaskTexture, MyTextureEnum.ALPHAMASK),
+                    AlphamaskTexture = MyTextures.GetTexture(descriptions[i].AlphamaskTexture, MyTextureEnum.ALPHAMASK)
                 };
             }
         }
@@ -232,7 +232,7 @@ namespace VRageRender
             {
                 var decalCb = MyCommon.GetObjectCB(sizeof(MyDecalConstants) * MAX_DECALS);
 
-                var N = (int)(Math.Min(MAX_DECALS, m_matrices.Count));
+                var N = Math.Min(MAX_DECALS, m_matrices.Count);
                 var mapping = MyMapping.MapDiscard(decalCb);
                 for (int i = 0; i < N; ++i)
                 {
@@ -300,7 +300,7 @@ namespace VRageRender
 
                     decalType = matDesc.DecalType;
                     // factor 1 makes overwriting of gbuffer color & subtracting from ao
-                    RC.SetBS(MyRender11.BlendDecal, matDesc.DecalType == MyScreenDecalType.ScreenDecalBump ? new SharpDX.Color4(0) : SharpDX.Color4.White);
+                    RC.SetBS(MyRender11.BlendDecal, matDesc.DecalType == MyScreenDecalType.ScreenDecalBump ? new Color4(0) : Color4.White);
                     RC.Context.PixelShader.SetShaderResources(3, MyTextures.GetView(matDesc.AlphamaskTexture), MyTextures.GetView(matDesc.ColorMetalTexture), MyTextures.GetView(matDesc.NormalmapTexture));
                 }
 

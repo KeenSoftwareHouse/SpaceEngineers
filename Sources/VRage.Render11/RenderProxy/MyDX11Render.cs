@@ -1,13 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using SharpDX;
-using VRage;
+using VRage.Library.Utils;
 using VRageMath;
 using VRageRender.Profiler;
-using Vector2 = VRageMath.Vector2;
-using VRage.Library.Utils;
 
 namespace VRageRender
 {
@@ -18,8 +13,9 @@ namespace VRageRender
         public string RootDirectoryDebug { get { return MyRender11.RootDirectoryDebug; } set { MyRender11.RootDirectoryDebug = value; } }
 
 
-        public MyRenderSettings Settings { get { return MyRender11.Settings; } }
-        public MySharedData SharedData { get { return MyRender11.SharedData; } }
+        public MyRenderSettings Settings => MyRender11.Settings;
+        public MySharedData SharedData => MyRender11.SharedData;
+
         public MyTimeSpan CurrentDrawTime
         {
             get { return MyRender11.CurrentDrawTime; }
@@ -81,7 +77,7 @@ namespace VRageRender
             MyRender11.ClearBackbuffer(clearColor);
         }
 
-        public Vector2I BackBufferResolution { get { return MyRender11.BackBufferResolution; } }
+        public Vector2I BackBufferResolution => MyRender11.BackBufferResolution;
 
         public MyViewport MainViewport
         {
@@ -108,7 +104,7 @@ namespace VRageRender
         {
         }
 
-        public MyMessageQueue OutputQueue { get { return MyRender11.OutputQueue; } }
+        public MyMessageQueue OutputQueue => MyRender11.OutputQueue;
         public uint GlobalMessageCounter { get { return MyRender11.GlobalMessageCounter; } set { MyRender11.GlobalMessageCounter = value; } }
 
         public void EnqueueMessage(IMyRenderMessage message, bool limitMaxQueueSize)

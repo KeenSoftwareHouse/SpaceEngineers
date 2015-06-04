@@ -1,12 +1,9 @@
-﻿using SharpDX.Direct3D11;
-using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using System.Text;
 using System.Threading;
+using SharpDX.Direct3D11;
 using VRage;
-using VRage.Collections;
 using VRage.Library.Utils;
 
 namespace VRageRender
@@ -65,7 +62,7 @@ namespace VRageRender
     {
         static Queue<MyFrameProfiling> m_pooledFrames = new Queue<MyFrameProfiling>(MyQueryFactory.MaxFramesLag);
         static Queue<MyFrameProfiling> m_frames = new Queue<MyFrameProfiling>(MyQueryFactory.MaxFramesLag);
-        static MyFrameProfiling m_currentFrame = null;
+        static MyFrameProfiling m_currentFrame;
 
         static MyGpuProfiler()
         {
@@ -118,7 +115,7 @@ namespace VRageRender
             if (!disjoint.Disjoint)
             {
                 var freq = disjoint.Frequency;
-                double invFreq = 1.0 / (double)freq;
+                double invFreq = 1.0 / freq;
 
                 m_timestampStack.Clear();
 
@@ -129,7 +126,7 @@ namespace VRageRender
                     var q = frame.m_issued.Dequeue();
 
                     ulong timestamp;
-                    MyImmediateRC.RC.Context.GetData<ulong>(q.m_query, AsynchronousFlags.DoNotFlush, out timestamp);
+                    MyImmediateRC.RC.Context.GetData(q.m_query, AsynchronousFlags.DoNotFlush, out timestamp);
 
                     if (q.m_info == MyIssuedQueryEnum.BlockStart)
                     {
@@ -171,7 +168,7 @@ namespace VRageRender
             }
         }
 
-        [Conditional(VRage.ProfilerShort.Symbol)]
+        [Conditional(ProfilerShort.Symbol)]
         internal static void StartFrame()
         {
             if (m_pooledFrames.Count == 0)
@@ -189,7 +186,7 @@ namespace VRageRender
             IC_BeginBlock("Frame");
         }
 
-        [Conditional(VRage.ProfilerShort.Symbol)]
+        [Conditional(ProfilerShort.Symbol)]
         internal static void EndFrame()
         {
             if (m_currentFrame == null)
@@ -203,13 +200,13 @@ namespace VRageRender
             m_frames.Enqueue(m_currentFrame);
         }
 
-        [Conditional(VRage.ProfilerShort.Symbol)]
+        [Conditional(ProfilerShort.Symbol)]
         internal static void IC_BeginBlock(string tag)
         {
             MyImmediateRC.RC.BeginProfilingBlock(tag);
         }
 
-        [Conditional(VRage.ProfilerShort.Symbol)]
+        [Conditional(ProfilerShort.Symbol)]
         internal static void IC_EndBlock()
         {
             MyImmediateRC.RC.EndProfilingBlock();

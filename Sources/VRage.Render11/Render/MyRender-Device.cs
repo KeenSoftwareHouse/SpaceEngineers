@@ -1,24 +1,12 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Configuration;
 using System.Diagnostics;
-using System.Linq;
-using System.Net.NetworkInformation;
-using System.Runtime.InteropServices;
-using System.Security.Cryptography;
-using System.Text;
-using SharpDX;
-using SharpDX.Diagnostics;
+using System.Threading;
 using SharpDX.Direct3D;
-using SharpDX.DXGI;
 using SharpDX.Direct3D11;
-using VRageRender.Resources;
-using VRageRender.Vertex;
-using Device = SharpDX.Direct3D11.Device;
-using Vector2 = VRageMath.Vector2;
-using VRageMath;
+using SharpDX.DXGI;
 using VRage.Win32;
-
+using VRageMath;
+using Device = SharpDX.Direct3D11.Device;
 
 namespace VRageRender
 {
@@ -26,13 +14,13 @@ namespace VRageRender
     {
         internal static Device Device { get; private set; }
         internal static DeviceContext ImmediateContext { get; private set; }
-        internal static DeviceContext Context { get { return ImmediateContext; } }
+        internal static DeviceContext Context => ImmediateContext;
 
         static MyRenderDeviceSettings m_settings = new MyRenderDeviceSettings { AdapterOrdinal = -1 };
         static IntPtr m_windowHandle;
 
-        internal static Vector2 ResolutionF { get { return new Vector2(m_resolution.X, m_resolution.Y); } }
-        internal static Vector2I ResolutionI { get { return m_resolution; } }
+        internal static Vector2 ResolutionF => new Vector2(m_resolution.X, m_resolution.Y);
+        internal static Vector2I ResolutionI => m_resolution;
 
         static DeviceDebug DebugDevice { get; set; }
         static InfoQueue DebugInfoQueue { get; set; }
@@ -51,7 +39,7 @@ namespace VRageRender
         {
             using (var DebugInfoQueue = Device.QueryInterface<InfoQueue>())
             {
-                System.Threading.Thread t = System.Threading.Thread.CurrentThread;
+                Thread t = Thread.CurrentThread;
                 bool running = true;
 
                 Device.Disposing += (x, e) => { running = false; t.Join(); };
@@ -63,12 +51,12 @@ namespace VRageRender
                     {
                         var msg = DebugInfoQueue.GetMessage(i);
                         //string text = String.Format("D3D11 {0}: {1} [ {2} ERROR #{3}: {4} ]", FormatEnum(msg.Severity), msg.Description.Replace("\0", ""), FormatEnum(msg.Category), (int)msg.Id, FormatEnum(msg.Id));
-                        string text = String.Format("D3D11 {0}: {1} [ {2} ERROR #{3}: {4} ]", msg.Severity.ToString(), msg.Description.Replace("\0", ""), msg.Category.ToString(), (int)msg.Id, msg.Id.ToString());
-                        System.Diagnostics.Debug.Print(text);
-                        System.Diagnostics.Debug.WriteLine(String.Empty);
+                        string text = String.Format("D3D11 {0}: {1} [ {2} ERROR #{3}: {4} ]", msg.Severity, msg.Description.Replace("\0", ""), msg.Category, (int)msg.Id, msg.Id);
+                        Debug.Print(text);
+                        Debug.WriteLine(String.Empty);
                     }
                     DebugInfoQueue.ClearStoredMessages();
-                    System.Threading.Thread.Sleep(16);
+                    Thread.Sleep(16);
                 }
             }
         }
@@ -83,7 +71,7 @@ namespace VRageRender
             OnDeviceReset();
         }
 
-        static bool m_initialized = false;
+        static bool m_initialized;
 
         internal static MyRenderDeviceSettings CreateDevice(IntPtr windowHandle, MyRenderDeviceSettings? settingsToTry)
         {
@@ -119,7 +107,7 @@ namespace VRageRender
                 {
                     if(adapters[i].IsDx11Supported)
                     {
-                        bestPriority = (int)Math.Max(bestPriority, adapters[i].Priority);
+                        bestPriority = Math.Max(bestPriority, adapters[i].Priority);
                     }
                 }
 
@@ -139,13 +127,13 @@ namespace VRageRender
                 throw new MyRenderException("No supporting device detected!", MyRenderExceptionEnum.GpuNotSupported);
             }
 
-            var settings = settingsToTry ?? new MyRenderDeviceSettings()
+            var settings = settingsToTry ?? new MyRenderDeviceSettings
             {
                 AdapterOrdinal = adapterIndex,
                 BackBufferHeight = mode.dmPelsHeight,
                 BackBufferWidth = mode.dmPelsWidth,
                 WindowMode = MyWindowModeEnum.Fullscreen,
-                VSync = false,
+                VSync = false
             };
             m_settings = settings;
 
@@ -169,7 +157,7 @@ namespace VRageRender
                 DebugDevice = new DeviceDebug(Device);
                 DebugInfoQueue = DebugDevice.QueryInterface<InfoQueue>();
 
-                new System.Threading.Thread(ProcessDebugOutput).Start();
+                new Thread(ProcessDebugOutput).Start();
             }
 
             if(ImmediateContext != null)

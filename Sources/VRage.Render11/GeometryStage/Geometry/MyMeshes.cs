@@ -1,21 +1,21 @@
-﻿using SharpDX.Direct3D11;
-using SharpDX.DXGI;
-using System;
-using System.Collections;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Text;
+using SharpDX;
+using SharpDX.DXGI;
 using VRage;
+using VRage.FileSystem;
 using VRage.Import;
 using VRage.Utils;
 using VRage.Voxels;
 using VRageMath;
 using VRageMath.PackedVector;
 using VRageRender.Vertex;
-using VRage.Library.Utils;
-using VRage.FileSystem;
+using BoundingBox = VRageMath.BoundingBox;
+using BoundingSphere = VRageMath.BoundingSphere;
+using Vector4 = VRageMath.Vector4;
 
 namespace VRageRender
 {
@@ -35,7 +35,7 @@ namespace VRageRender
 
         internal static readonly MeshId NULL = new MeshId { Index = -1 };
 
-        internal MyMeshInfo Info { get { return MyMeshes.Meshes.Data[Index]; } }
+        internal MyMeshInfo Info => MyMeshes.Meshes.Data[Index];
     }
 
     struct LodMeshId
@@ -54,9 +54,9 @@ namespace VRageRender
 
         internal static readonly LodMeshId NULL = new LodMeshId { Index = -1 };
 
-        internal MyLodMeshInfo Info { get { return MyMeshes.Lods.Data[Index]; } }
-        internal MyMeshBuffers Buffers { get { return MyMeshes.LodMeshBuffers[Index]; } }
-        internal VertexLayoutId VertexLayout { get { return MyMeshes.Lods.Data[Index].Data.VertexLayout; } }
+        internal MyLodMeshInfo Info => MyMeshes.Lods.Data[Index];
+        internal MyMeshBuffers Buffers => MyMeshes.LodMeshBuffers[Index];
+        internal VertexLayoutId VertexLayout => MyMeshes.Lods.Data[Index].Data.VertexLayout;
     }
 
     struct MeshPartId
@@ -75,7 +75,7 @@ namespace VRageRender
 
         internal static readonly MeshPartId NULL = new MeshPartId { Index = -1 };
 
-        internal MyMeshPartInfo1 Info { get { return MyMeshes.Parts.Data[Index]; } }
+        internal MyMeshPartInfo1 Info => MyMeshes.Parts.Data[Index];
     }
 
     struct VoxelPartId
@@ -94,7 +94,7 @@ namespace VRageRender
 
         internal static readonly VoxelPartId NULL = new VoxelPartId { Index = -1 };
 
-        internal MyVoxelPartInfo1 Info { get { return MyMeshes.VoxelParts.Data[Index]; } }
+        internal MyVoxelPartInfo1 Info => MyMeshes.VoxelParts.Data[Index];
     }
 
     struct MyMeshPartInfo1
@@ -113,7 +113,7 @@ namespace VRageRender
         internal string Name;
         internal string FileName;
         internal int PartsNum;
-        internal bool HasBones { get { return Data.VertexLayout.Info.HasBonesInfo; } }
+        internal bool HasBones => Data.VertexLayout.Info.HasBonesInfo;
 
         internal int VerticesNum;
         internal int IndicesNum;
@@ -408,7 +408,7 @@ namespace VRageRender
         static LodMeshId NewLodMesh(MeshId mesh, int lod)
         {
             var id = new LodMeshId { Index = Lods.Allocate() };
-            Lods.Data[id.Index] = new MyLodMeshInfo { };
+            Lods.Data[id.Index] = new MyLodMeshInfo();
 
             LodMeshIndex[new MyLodMesh { Mesh = mesh, Lod = lod}] = id;
             MyArrayHelpers.Reserve(ref LodMeshBuffers, id.Index + 1);
@@ -420,7 +420,7 @@ namespace VRageRender
         static MeshPartId NewMeshPart(MeshId mesh, int lod, int part)
         {
             var id = new MeshPartId { Index = Parts.Allocate() };
-            Parts.Data[id.Index] = new MyMeshPartInfo1 { };
+            Parts.Data[id.Index] = new MyMeshPartInfo1();
 
             PartIndex[new MyMeshPart { Mesh = mesh, Lod = lod, Part = part}] = id;
 
@@ -456,7 +456,7 @@ namespace VRageRender
                 contentPath = file.Substring(0, file.ToLower().IndexOf("models"));
 
 
-            importer.ImportData(fsPath, new string[]
+            importer.ImportData(fsPath, new[]
             {
                 MyImporterConstants.TAG_VERTICES,
                 MyImporterConstants.TAG_BLENDINDICES,
@@ -724,7 +724,7 @@ namespace VRageRender
                     {
                         fixed (void* src = indices32)    
                         {
-                            SharpDX.Utilities.CopyMemory(new IntPtr(dst), new IntPtr(src), byteSize);
+                            Utilities.CopyMemory(new IntPtr(dst), new IntPtr(src), byteSize);
                         }
                     }
                 }
@@ -763,7 +763,7 @@ namespace VRageRender
                     {
                         fixed (void* src = vertices)
                         {
-                            SharpDX.Utilities.CopyMemory(new IntPtr(dst), new IntPtr(src), byteSize);
+                            Utilities.CopyMemory(new IntPtr(dst), new IntPtr(src), byteSize);
                         }
                     }
                     
@@ -922,7 +922,7 @@ namespace VRageRender
             {
                 fixed (void* src = indices)
                 {
-                    SharpDX.Utilities.CopyMemory(new IntPtr(dst), new IntPtr(src), byteSize);
+                    Utilities.CopyMemory(new IntPtr(dst), new IntPtr(src), byteSize);
                 }
             }
         }
@@ -937,7 +937,7 @@ namespace VRageRender
             {
                 fixed (void* src = vertices)
                 {
-                    SharpDX.Utilities.CopyMemory(new IntPtr(dst), new IntPtr(src), byteSize);
+                    Utilities.CopyMemory(new IntPtr(dst), new IntPtr(src), byteSize);
                 }
             }
         }
@@ -952,7 +952,7 @@ namespace VRageRender
             {
                 fixed (void* src = vertices)
                 {
-                    SharpDX.Utilities.CopyMemory(new IntPtr(dst), new IntPtr(src), byteSize);
+                    Utilities.CopyMemory(new IntPtr(dst), new IntPtr(src), byteSize);
                 }
             }
         }
@@ -975,7 +975,7 @@ namespace VRageRender
             {
                 fixed (void* src = vertices)
                 {
-                    SharpDX.Utilities.CopyMemory(new IntPtr(dst), new IntPtr(src), byteSize);
+                    Utilities.CopyMemory(new IntPtr(dst), new IntPtr(src), byteSize);
                 }
             }
         }
@@ -997,7 +997,7 @@ namespace VRageRender
             {
                 fixed (void* src = vertices)
                 {
-                    SharpDX.Utilities.CopyMemory(new IntPtr(dst), new IntPtr(src), byteSize);
+                    Utilities.CopyMemory(new IntPtr(dst), new IntPtr(src), byteSize);
                 }
             }
         }

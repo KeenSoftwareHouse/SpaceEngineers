@@ -1,8 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
-using System.Text;
 
 namespace VRageRender
 {
@@ -14,7 +11,7 @@ namespace VRageRender
         internal int m_nextFree;
 
         internal int Size { get; private set; }
-        internal int Capacity { get { return m_sizeLimit; } }
+        internal int Capacity => m_sizeLimit;
 
         public void Clear()
         {
@@ -36,7 +33,7 @@ namespace VRageRender
             Clear();
         }
 
-        public T[] Data { get { return m_entities; } }
+        public T[] Data => m_entities;
 
         public int Allocate()
         {

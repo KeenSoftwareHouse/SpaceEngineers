@@ -1,23 +1,15 @@
-﻿using SharpDX.Direct3D11;
-using SharpDX.DXGI;
-using System;
-using System.Collections;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Runtime.InteropServices;
-using System.Text;
+using SharpDX.Direct3D11;
+using SharpDX.DXGI;
 using VRage.FileSystem;
 using VRage.Import;
-using VRage.Library.Utils;
-using VRage.Utils;
 using VRageMath;
 using VRageMath.PackedVector;
-using VRageRender.Resources;
 using VRageRender.Vertex;
-using Buffer = SharpDX.Direct3D11.Buffer;
-
 
 namespace VRageRender
 {
@@ -54,7 +46,7 @@ namespace VRageRender
 
             if (!MyFileSystem.FileExists(fsPath))
             {
-                System.Diagnostics.Debug.Fail("Model " + assetName + " does not exists!");
+                Debug.Fail("Model " + assetName + " does not exists!");
 
                 return MyAssetsLoader.GetDebugMesh().LODs[0].m_meshInfo;
             }
@@ -67,7 +59,7 @@ namespace VRageRender
             try
             { 
 
-                importer.ImportData(fsPath, new string[]
+                importer.ImportData(fsPath, new[]
                     {
                         MyImporterConstants.TAG_VERTICES,
                         MyImporterConstants.TAG_BLENDINDICES,
@@ -80,13 +72,13 @@ namespace VRageRender
                         MyImporterConstants.TAG_MESH_PARTS,
                         MyImporterConstants.TAG_BOUNDING_BOX,
                         MyImporterConstants.TAG_BOUNDING_SPHERE,
-                        MyImporterConstants.TAG_LODS,
+                        MyImporterConstants.TAG_LODS
                     });
                 Dictionary<string, object> tagData = importer.GetTagData();
 
                 // extract data
                 var positions = (HalfVector4[])tagData[MyImporterConstants.TAG_VERTICES];
-                System.Diagnostics.Debug.Assert(positions.Length > 0);
+                Debug.Assert(positions.Length > 0);
                 var verticesNum = positions.Length;
                 var boneIndices = (Vector4I[])tagData[MyImporterConstants.TAG_BLENDINDICES];
                 var boneWeights = (Vector4[])tagData[MyImporterConstants.TAG_BLENDWEIGHTS];
@@ -467,7 +459,7 @@ namespace VRageRender
             var importer = new MyModelImporter();
             var fsPath = Path.IsPathRooted(assetName) ? assetName : Path.Combine(MyFileSystem.ContentPath, assetName);
 
-            importer.ImportData(fsPath, new string[] { MyImporterConstants.TAG_MESH_PARTS });
+            importer.ImportData(fsPath, new[] { MyImporterConstants.TAG_MESH_PARTS });
             Dictionary<string, object> tagData = importer.GetTagData();
 
             if (tagData.ContainsKey(MyImporterConstants.TAG_MESH_PARTS))

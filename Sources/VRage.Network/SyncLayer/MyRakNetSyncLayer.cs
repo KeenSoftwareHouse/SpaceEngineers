@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
-using System.Text;
 using System.Reflection;
 using VRage.Plugins;
 using VRage.Collections;
@@ -10,7 +8,7 @@ using VRage.Library.Utils;
 
 namespace VRage.Network
 {
-    class MyStateDataEntry : IComparable<MyStateDataEntry>
+    internal class MyStateDataEntry : IComparable<MyStateDataEntry>
     {
         public float Priority;
         public uint PacketID;
@@ -64,7 +62,7 @@ namespace VRage.Network
         private List<Type> m_idToType;
         private Dictionary<Type, int> m_typeToId;
 
-        public bool IsServer { get { return m_peer.IsServer; } }
+        public bool IsServer => m_peer.IsServer;
 
         public ListReader<Type> GetTypeTable()
         {
@@ -138,7 +136,7 @@ namespace VRage.Network
             Static = this;
         }
 
-        void m_peer_OnClientLeft(ulong steamID)
+        private void m_peer_OnClientLeft(ulong steamID)
         {
             Debug.Assert(m_perPlayerStateData.ContainsKey(steamID));
             m_perPlayerStateData.Remove(steamID);
@@ -151,7 +149,7 @@ namespace VRage.Network
             m_clientIndexToSteamID.Remove(clientIndex);
         }
 
-        void m_peer_OnClientJoined(ulong steamID)
+        private void m_peer_OnClientJoined(ulong steamID)
         {
             Debug.Assert(!m_perPlayerStateData.ContainsKey(steamID));
             var playerStateData = new List<MyStateDataEntry>();
@@ -261,7 +259,8 @@ namespace VRage.Network
         {
             foreach (var type in assembly.GetTypes())
             {
-                var attribute = Attribute.GetCustomAttribute(type, typeof(SynchronizedAttribute)) as SynchronizedAttribute;
+                var attribute =
+                    Attribute.GetCustomAttribute(type, typeof (SynchronizedAttribute)) as SynchronizedAttribute;
                 if (attribute != null)
                 {
                     m_idToType.Add(type);
@@ -300,14 +299,15 @@ namespace VRage.Network
             Debug.Assert(Static.m_peer is MyRakNetServer);
 
             BitStream bs = new BitStream(null);
-            bs.Write((byte)MessageIDEnum.SYNC_FIELD);
+            bs.Write((byte) MessageIDEnum.SYNC_FIELD);
             bs.WriteCompressed(networkID);
             sync.Serialize(bs, clientIndex);
 
             var steamID = Static.m_clientIndexToSteamID[clientIndex];
 
             // TODO:SK use UNRELIABLE_WITH_ACK_RECEIPT
-            var packetID = ((MyRakNetServer)Static.m_peer).SendMessage(bs, steamID, PacketPriorityEnum.LOW_PRIORITY, PacketReliabilityEnum.UNRELIABLE);
+            var packetID = ((MyRakNetServer) Static.m_peer).SendMessage(bs, steamID, PacketPriorityEnum.LOW_PRIORITY,
+                PacketReliabilityEnum.UNRELIABLE);
         }
 
         internal void ProcessSync(BitStream bs)
@@ -336,12 +336,13 @@ namespace VRage.Network
             Debug.Assert(Static.m_stateData.ContainsKey(networkID));
 
             BitStream bs = new BitStream(null);
-            bs.Write((byte)MessageIDEnum.REPLICATION_DESTROY);
+            bs.Write((byte) MessageIDEnum.REPLICATION_DESTROY);
             bs.WriteCompressed(networkID);
 
             Static.RemoveNetworkedObject(networkID, obj);
 
-            ((MyRakNetServer)Static.m_peer).BroadcastMessage(bs, PacketPriorityEnum.LOW_PRIORITY, PacketReliabilityEnum.RELIABLE);
+            ((MyRakNetServer) Static.m_peer).BroadcastMessage(bs, PacketPriorityEnum.LOW_PRIORITY,
+                PacketReliabilityEnum.RELIABLE);
         }
 
         private void AddNetworkedObject(uint networkID, object obj, MySyncedClass sync)
@@ -386,7 +387,7 @@ namespace VRage.Network
             uint networkID = Static.GetNetworkUniqueID();
 
             BitStream bs = new BitStream(null);
-            bs.Write((byte)MessageIDEnum.REPLICATION_CREATE);
+            bs.Write((byte) MessageIDEnum.REPLICATION_CREATE);
             bs.WriteCompressed(typeID); // TODO:SK better compression
             bs.WriteCompressed(networkID);
 
@@ -397,7 +398,8 @@ namespace VRage.Network
 
             sync.SerializeDefault(bs);
 
-            ((MyRakNetServer)Static.m_peer).BroadcastMessage(bs, PacketPriorityEnum.LOW_PRIORITY, PacketReliabilityEnum.RELIABLE);
+            ((MyRakNetServer) Static.m_peer).BroadcastMessage(bs, PacketPriorityEnum.LOW_PRIORITY,
+                PacketReliabilityEnum.RELIABLE);
         }
 
         private static SortedDictionary<int, object> tmpFields = new SortedDictionary<int, object>();
@@ -413,7 +415,7 @@ namespace VRage.Network
 
             Type baseType = type.BaseType;
 
-            if (baseType != null && baseType != typeof(object))
+            if (baseType != null && baseType != typeof (object))
             {
                 baseSync = GetSyncedClass(obj, baseType);
             }
@@ -457,7 +459,7 @@ namespace VRage.Network
                 }
                 foreach (var value in tmpFields.Values)
                 {
-                    sync.Add((IMySyncedValue)value);
+                    sync.Add((IMySyncedValue) value);
                 }
             }
             tmpFields.Clear();

@@ -1,11 +1,7 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using VRage.Generics;
-using VRage.Library.Utils;
-using VRage.Utils;
 using VRage.Utils;
 using VRageMath;
 
@@ -47,16 +43,15 @@ namespace VRageRender
 
             if (hi == 0)
                 return new Vector3(v, t, p);
-            else if (hi == 1)
+            if (hi == 1)
                 return new Vector3(q, v, p);
-            else if (hi == 2)
+            if (hi == 2)
                 return new Vector3(p, v, t);
-            else if (hi == 3)
+            if (hi == 3)
                 return new Vector3(p, q, v);
-            else if (hi == 4)
+            if (hi == 4)
                 return new Vector3(t, p, v);
-            else
-                return new Vector3(v, p, q);
+            return new Vector3(v, p, q);
         }
     }
 
@@ -100,17 +95,11 @@ namespace VRageRender
 
     public static class MyMatrixHelpers
     {
-        public static Matrix ClipspaceToTexture
-        {
-            get
-            {
-                return new Matrix(
-                  0.5f, 0.0f, 0.0f, 0.0f,
-                  0.0f, -0.5f, 0.0f, 0.0f,
-                  0.0f, 0.0f, 1.0f, 0.0f,
-                  0.5f, 0.5f, 0.0f, 1.0f);
-            }
-        }
+        public static Matrix ClipspaceToTexture => new Matrix(
+            0.5f, 0.0f, 0.0f, 0.0f,
+            0.0f, -0.5f, 0.0f, 0.0f,
+            0.0f, 0.0f, 1.0f, 0.0f,
+            0.5f, 0.5f, 0.0f, 1.0f);
     }
 
     class MyHashHelper

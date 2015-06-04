@@ -1,17 +1,11 @@
-﻿using SharpDX.Direct3D11;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Text;
-
-using VRageMath;
+﻿using System.Diagnostics;
+using SharpDX.Direct3D;
 
 namespace VRageRender
 {
     class MyImmediateRC
     {
-        internal static MyRenderContext RC { get { return MyRenderContextPool.Immediate; } }
+        internal static MyRenderContext RC => MyRenderContextPool.Immediate;
     }
 
     internal delegate void OnSettingsChangedDelegate();
@@ -36,7 +30,7 @@ namespace VRageRender
                 RC.Context.Rasterizer.SetViewport(0, 0, MyRender11.ViewportResolution.X, MyRender11.ViewportResolution.Y);
             }
 
-            RC.Context.InputAssembler.PrimitiveTopology = SharpDX.Direct3D.PrimitiveTopology.TriangleList;
+            RC.Context.InputAssembler.PrimitiveTopology = PrimitiveTopology.TriangleList;
             RC.SetIL(null);
             RC.SetVS(m_fullscreenQuadVS);
             RC.Context.Draw(3, 0);

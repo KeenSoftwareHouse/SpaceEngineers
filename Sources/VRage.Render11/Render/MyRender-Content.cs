@@ -1,24 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
-using System.Runtime.InteropServices;
-using System.Text;
-using SharpDX;
 using SharpDX.Direct3D11;
 using SharpDX.DXGI;
-
-using VRageMath;
 using VRageRender.Resources;
-using VRageRender.Vertex;
-using Buffer = SharpDX.Direct3D11.Buffer;
-using Matrix = VRageMath.Matrix;
 
 namespace VRageRender
 {
     partial class MyRender11
     {
-        internal static unsafe void InitSubsystems()
+        internal static void InitSubsystems()
         {
             InitializeBlendStates();
             InitializeRasterizerStates();
@@ -134,7 +124,7 @@ namespace VRageRender
             //MyDynamicMesh.RemoveAll();
 
 
-            MyRender11.Log.WriteLine("Unloading session data");
+            Log.WriteLine("Unloading session data");
 
             MyScene.RenderablesDBVH.Clear();
             MyScene.GroupsDBVH.Clear();
@@ -174,7 +164,7 @@ namespace VRageRender
 
         static SortedDictionary<int, MyRenderFont> m_fontsById = new SortedDictionary<int, MyRenderFont>();
         static MyRenderFont m_debugFont;
-        internal static MyRenderFont DebugFont { get { return m_debugFont; } }
+        internal static MyRenderFont DebugFont => m_debugFont;
 
         internal static void AddFont(int id, MyRenderFont font, bool isDebugFont)
         {

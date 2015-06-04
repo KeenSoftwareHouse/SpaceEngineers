@@ -1,24 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Text;
-using SharpDX;
 using SharpDX.Direct3D;
 using SharpDX.Direct3D11;
 using VRageMath;
-using RectangleF = VRageMath.RectangleF;
-using Vector2 = VRageMath.Vector2;
-using Vector3 = VRageMath.Vector3;
-using Color = VRageMath.Color;
-using Matrix = VRageMath.Matrix;
-using BoundingSphere = VRageMath.BoundingSphere;
-using BoundingBox = VRageMath.BoundingBox;
-using BoundingFrustum = VRageMath.BoundingFrustum;
-using Vector4 = VRageMath.Vector4;
-using Plane = VRageMath.Plane;
-using Ray = VRageMath.Ray;
 using VRageRender.Vertex;
-using VRageMath.PackedVector;
 
 namespace VRageRender
 {
@@ -283,15 +268,14 @@ namespace VRageRender
             }
         }
 
-        private static readonly Vector4[] LOD_COLORS = new Vector4[]
-        {
+        private static readonly Vector4[] LOD_COLORS = {
             new Vector4(1f, 0f, 0f, 1f),
             new Vector4(0f, 1f, 0f, 1f),
             new Vector4(0f, 0f, 1f, 1f),
             new Vector4(1f, 1f, 0f, 1f),
             new Vector4(1f, 0f, 1f, 1f),
             new Vector4(0f, 1f, 1f, 1f),
-            new Vector4(1f, 1f, 1f, 1f),
+            new Vector4(1f, 1f, 1f, 1f)
         };
 
         //internal static void BeginQuadRendering()

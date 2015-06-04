@@ -1,11 +1,4 @@
-﻿using SharpDX.Direct3D11;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using VRageRender.Resources;
-
-namespace VRageRender
+﻿namespace VRageRender
 {
     class MyCopyToRT : MyImmediateRC
     {

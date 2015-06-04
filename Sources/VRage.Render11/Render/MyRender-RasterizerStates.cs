@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Security.Cryptography;
-using System.Text;
-using SharpDX;
-using SharpDX.Direct3D11;
+﻿using SharpDX.Direct3D11;
 
 namespace VRageRender
 {
@@ -18,17 +12,19 @@ namespace VRageRender
         internal static RasterizerId m_nocullWireframeRasterizerState;
         internal static RasterizerId m_scissorTestRasterizerState;
 
-        static void InitializeRasterizerStates()
+        private static void InitializeRasterizerStates()
         {
             m_wireframeRasterizerState = MyPipelineStates.CreateRasterizerState(new RasterizerStateDescription
-                {
-                    FillMode = FillMode.Wireframe,
-                    CullMode = CullMode.Back
-                });
+            {
+                FillMode = FillMode.Wireframe,
+                CullMode = CullMode.Back
+            });
 
-            RasterizerStateDescription desc = new RasterizerStateDescription();
-            desc.FillMode = FillMode.Wireframe;
-            desc.CullMode = CullMode.Back;
+            RasterizerStateDescription desc = new RasterizerStateDescription
+            {
+                FillMode = FillMode.Wireframe,
+                CullMode = CullMode.Back
+            };
             m_wireframeRasterizerState = MyPipelineStates.CreateRasterizerState(desc);
 
             desc.FillMode = FillMode.Solid;
@@ -39,27 +35,33 @@ namespace VRageRender
             desc.CullMode = CullMode.None;
             m_nocullWireframeRasterizerState = MyPipelineStates.CreateRasterizerState(desc);
 
-            desc = new RasterizerStateDescription();
-            desc.FillMode = FillMode.Solid;
-            desc.CullMode = CullMode.Back;
-            desc.IsAntialiasedLineEnabled = true;
+            desc = new RasterizerStateDescription
+            {
+                FillMode = FillMode.Solid,
+                CullMode = CullMode.Back,
+                IsAntialiasedLineEnabled = true
+            };
             m_linesRasterizerState = MyPipelineStates.CreateRasterizerState(desc);
 
-            desc = new RasterizerStateDescription();
-            desc.FillMode = FillMode.Solid;
-            desc.CullMode = CullMode.None;
-            desc.IsFrontCounterClockwise = true;
-            desc.DepthBias = 25000;
-            desc.DepthBiasClamp = 2;
-            desc.SlopeScaledDepthBias = 2;
+            desc = new RasterizerStateDescription
+            {
+                FillMode = FillMode.Solid,
+                CullMode = CullMode.None,
+                IsFrontCounterClockwise = true,
+                DepthBias = 25000,
+                DepthBiasClamp = 2,
+                SlopeScaledDepthBias = 2
+            };
             m_cascadesRasterizerState = MyPipelineStates.CreateRasterizerState(desc);
 
-            desc = new RasterizerStateDescription();
-            desc.FillMode = FillMode.Solid;
-            desc.CullMode = CullMode.None;
-            desc.DepthBias = 0;
-            desc.DepthBiasClamp = 0;
-            desc.SlopeScaledDepthBias = 0;
+            desc = new RasterizerStateDescription
+            {
+                FillMode = FillMode.Solid,
+                CullMode = CullMode.None,
+                DepthBias = 0,
+                DepthBiasClamp = 0,
+                SlopeScaledDepthBias = 0
+            };
             m_shadowRasterizerState = MyPipelineStates.CreateRasterizerState(desc);
 
             desc.FillMode = FillMode.Solid;

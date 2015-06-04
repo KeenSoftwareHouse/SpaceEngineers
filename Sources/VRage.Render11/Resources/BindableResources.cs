@@ -1,18 +1,18 @@
-﻿using SharpDX.Direct3D;
-using SharpDX.Direct3D11;
-using SharpDX.DXGI;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
-using System.Text;
+using SharpDX.Direct3D;
+using SharpDX.Direct3D11;
+using SharpDX.DXGI;
 using VRageMath;
+using Buffer = SharpDX.Direct3D11.Buffer;
+using Resource = SharpDX.Direct3D11.Resource;
 
 namespace VRageRender
 {
     class MyHWResource
     {
-        internal SharpDX.Direct3D11.Resource m_resource;
+        internal Resource m_resource;
 
         internal virtual void Release()
         {
@@ -31,7 +31,7 @@ namespace VRageRender
 
     class MyBindableResource : MyHWResource
     {
-        internal static int AutoId = 0;
+        internal static int AutoId;
         internal static int GenerateId() { return AutoId++; }
         internal readonly int ResId;
 
@@ -47,7 +47,7 @@ namespace VRageRender
             return ResId;
         }
 
-        internal virtual SharpDX.Direct3D11.Resource GetHWResource()
+        internal virtual Resource GetHWResource()
         {
             return m_resource;
         }
@@ -57,12 +57,9 @@ namespace VRageRender
     {
         internal RenderTargetView m_RTV;
 
-        RenderTargetView IRenderTargetBindable.RTV
-        {
-            get { return m_RTV; }
-        }
+        RenderTargetView IRenderTargetBindable.RTV => m_RTV;
 
-        internal MyBackbuffer(SharpDX.Direct3D11.Resource swapChainBB)
+        internal MyBackbuffer(Resource swapChainBB)
         {
             m_resource = swapChainBB;
             m_RTV = new RenderTargetView(MyRender11.Device, swapChainBB);
@@ -90,15 +87,9 @@ namespace VRageRender
             m_owner = from;
         }
 
-        DepthStencilView IDepthStencilBindable.DSV
-        {
-            get { return m_owner.m_DSV_roDepth; }
-        }
+        DepthStencilView IDepthStencilBindable.DSV => m_owner.m_DSV_roDepth;
 
-        ShaderResourceView IShaderResourceBindable.SRV
-        {
-            get { return m_owner.m_SRV_depth; }
-        }
+        ShaderResourceView IShaderResourceBindable.SRV => m_owner.m_SRV_depth;
     }
 
     class MyStencilView : MyBindableResource, IDepthStencilBindable, IShaderResourceBindable
@@ -110,15 +101,9 @@ namespace VRageRender
             m_owner = from;
         }
 
-        DepthStencilView IDepthStencilBindable.DSV
-        {
-            get { return m_owner.m_DSV_roStencil; }
-        }
+        DepthStencilView IDepthStencilBindable.DSV => m_owner.m_DSV_roStencil;
 
-        ShaderResourceView IShaderResourceBindable.SRV
-        {
-            get { return m_owner.m_SRV_stencil; }
-        }
+        ShaderResourceView IShaderResourceBindable.SRV => m_owner.m_SRV_stencil;
     }
 
     class MyDepthStencil : MyBindableResource
@@ -138,8 +123,8 @@ namespace VRageRender
         MyDepthView m_depthSubresource;
         MyStencilView m_stencilSubresource;
 
-        internal MyBindableResource Depth { get { return m_depthSubresource; } }
-        internal MyBindableResource Stencil { get { return m_stencilSubresource; } }
+        internal MyBindableResource Depth => m_depthSubresource;
+        internal MyBindableResource Stencil => m_stencilSubresource;
 
         internal MyDepthStencil(int width, int height,
             int sampleCount, int sampleQuality)
@@ -150,22 +135,29 @@ namespace VRageRender
             m_depthSubresource = new MyDepthView(this);
             m_stencilSubresource = new MyStencilView(this);
 
-            Texture2DDescription desc = new Texture2DDescription();
-            desc.Width = width;
-            desc.Height = height;
-            desc.Format = Depth32F ? Format.R32G8X24_Typeless : Format.R24G8_Typeless;
-            desc.ArraySize = 1;
-            desc.MipLevels = 1;
-            desc.BindFlags = BindFlags.DepthStencil | BindFlags.ShaderResource;
-            desc.Usage = ResourceUsage.Default;
-            desc.CpuAccessFlags = 0;
-            desc.SampleDescription.Count = sampleCount;
-            desc.SampleDescription.Quality = sampleQuality;
-            desc.OptionFlags = 0;
+            Texture2DDescription desc = new Texture2DDescription
+            {
+                Width = width,
+                Height = height,
+                Format = Depth32F ? Format.R32G8X24_Typeless : Format.R24G8_Typeless,
+                ArraySize = 1,
+                MipLevels = 1,
+                BindFlags = BindFlags.DepthStencil | BindFlags.ShaderResource,
+                Usage = ResourceUsage.Default,
+                CpuAccessFlags = 0,
+                SampleDescription =
+                {
+                    Count = sampleCount,
+                    Quality = sampleQuality
+                },
+                OptionFlags = 0
+            };
             m_resource = new Texture2D(MyRender11.Device, desc);
 
-            DepthStencilViewDescription dsvDesc = new DepthStencilViewDescription();
-            dsvDesc.Format = Depth32F ? Format.D32_Float_S8X24_UInt : Format.D24_UNorm_S8_UInt;
+            DepthStencilViewDescription dsvDesc = new DepthStencilViewDescription
+            {
+                Format = Depth32F ? Format.D32_Float_S8X24_UInt : Format.D24_UNorm_S8_UInt
+            };
             if (sampleCount == 1)
             {
                 dsvDesc.Dimension = DepthStencilViewDimension.Texture2D;
@@ -286,15 +278,9 @@ namespace VRageRender
 
         internal Vector2I m_resolution;
 
-        ShaderResourceView IShaderResourceBindable.SRV
-        {
-            get { return m_SRV; }
-        }
+        ShaderResourceView IShaderResourceBindable.SRV => m_SRV;
 
-        UnorderedAccessView IUnorderedAccessBindable.UAV
-        {
-            get { return m_UAV; }
-        }
+        UnorderedAccessView IUnorderedAccessBindable.UAV => m_UAV;
 
         internal override void Release()
         {
@@ -382,15 +368,12 @@ namespace VRageRender
             return m_owner.GetSize();
         }
 
-        internal override SharpDX.Direct3D11.Resource GetHWResource()
+        internal override Resource GetHWResource()
         {
             return m_owner.GetHWResource();
         }
 
-        ShaderResourceView IShaderResourceBindable.SRV
-        {
-            get { return m_srv; }
-        }
+        ShaderResourceView IShaderResourceBindable.SRV => m_srv;
 
         internal override void Release()
         {
@@ -446,10 +429,7 @@ namespace VRageRender
             return m_owner.GetID();
         }
     
-        public UnorderedAccessView UAV
-        {
-	        get { return m_uav; }
-        }
+        public UnorderedAccessView UAV => m_uav;
     }
 
     class MyRtvView : MyBindableResource, IRenderTargetBindable
@@ -493,11 +473,8 @@ namespace VRageRender
             return m_owner.GetID();
         }
 
-        public RenderTargetView RTV
-        {
-	        get { return m_rtv; }
-        }
-}
+        public RenderTargetView RTV => m_rtv;
+    }
 
     class MyCustomTexture : MyBindableResource
     {
@@ -571,15 +548,9 @@ namespace VRageRender
 
         internal Vector2I m_resolution;
 
-        ShaderResourceView IShaderResourceBindable.SRV
-        {
-            get { return m_SRV; }
-        }
+        ShaderResourceView IShaderResourceBindable.SRV => m_SRV;
 
-        UnorderedAccessView IUnorderedAccessBindable.UAV
-        {
-            get { return m_UAV; }
-        }
+        UnorderedAccessView IUnorderedAccessBindable.UAV => m_UAV;
 
         internal override void Release()
         {
@@ -609,7 +580,7 @@ namespace VRageRender
             var bufferDesc = new BufferDescription(elements * stride, ResourceUsage.Default, BindFlags.ShaderResource | BindFlags.UnorderedAccess, 
                 CpuAccessFlags.None, ResourceOptionFlags.BufferStructured, stride);
 
-            m_resource = new SharpDX.Direct3D11.Buffer(MyRender11.Device, bufferDesc);
+            m_resource = new Buffer(MyRender11.Device, bufferDesc);
             m_UAV = new UnorderedAccessView(MyRender11.Device, m_resource);
             m_SRV = new ShaderResourceView(MyRender11.Device, m_resource);
         }
@@ -628,15 +599,9 @@ namespace VRageRender
             return new Vector3I(m_resolution.X, m_resolution.Y, 1);
         }
 
-        ShaderResourceView IShaderResourceBindable.SRV
-        {
-            get { return m_SRV; }
-        }
+        ShaderResourceView IShaderResourceBindable.SRV => m_SRV;
 
-        RenderTargetView IRenderTargetBindable.RTV
-        {
-            get { return m_RTV; }
-        }
+        RenderTargetView IRenderTargetBindable.RTV => m_RTV;
 
         internal override void Release()
         {

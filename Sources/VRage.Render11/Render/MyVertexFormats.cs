@@ -1,23 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Deployment.Internal;
-using System.Diagnostics;
-using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
-using System.Security.Cryptography.X509Certificates;
-using System.Text;
-using SharpDX;
-using SharpDX.D3DCompiler;
-using SharpDX.Direct3D11;
-using SharpDX.DXGI;
-using VRage.Import;
+﻿using VRage.Import;
 using VRageMath;
 using VRageMath.PackedVector;
-using Vector2 = VRageMath.Vector2;
-using Vector3 = VRageMath.Vector3;
-using Vector4 = VRageMath.Vector4;
-using Color = VRageMath.Color;
 
 namespace VRageRender.Vertex
 {
@@ -218,7 +201,7 @@ namespace VRageRender.Vertex
 
         public Vector3 Position
         {
-            get { return new Vector3(m_positionMaterials.X, m_positionMaterials.Y, m_positionMaterials.Z) / (float) ushort.MaxValue * 2.0f - 1.0f; }
+            get { return new Vector3(m_positionMaterials.X, m_positionMaterials.Y, m_positionMaterials.Z) / ushort.MaxValue * 2.0f - 1.0f; }
             set { m_positionMaterials.X = (ushort)((value.X * 0.5f + 0.5f) * ushort.MaxValue); m_positionMaterials.Y = (ushort)((value.Y * 0.5f + 0.5f) * ushort.MaxValue); m_positionMaterials.Z = (ushort)((value.Z * 0.5f + 0.5f) * ushort.MaxValue); }
         }
 
@@ -242,7 +225,7 @@ namespace VRageRender.Vertex
 
         public Vector3 PositionMorph
         {
-            get { return new Vector3(m_positionMaterialsMorph.X, m_positionMaterialsMorph.Y, m_positionMaterialsMorph.Z) / (float)ushort.MaxValue * 2.0f - 1.0f; }
+            get { return new Vector3(m_positionMaterialsMorph.X, m_positionMaterialsMorph.Y, m_positionMaterialsMorph.Z) / ushort.MaxValue * 2.0f - 1.0f; }
             set { m_positionMaterialsMorph.X = (ushort)((value.X * 0.5f + 0.5f) * ushort.MaxValue); m_positionMaterialsMorph.Y = (ushort)((value.Y * 0.5f + 0.5f) * ushort.MaxValue); m_positionMaterialsMorph.Z = (ushort)((value.Z * 0.5f + 0.5f) * ushort.MaxValue); }
         }
 

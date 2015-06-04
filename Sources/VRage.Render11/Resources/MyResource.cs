@@ -1,17 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
-using System.Security.Cryptography.X509Certificates;
-using System.Text;
-using SharpDX;
-using SharpDX.Direct3D;
 using SharpDX.Direct3D11;
 using SharpDX.DXGI;
 using VRageMath;
 using Buffer = SharpDX.Direct3D11.Buffer;
 using Resource = SharpDX.Direct3D11.Resource;
-using Vector2 = VRageMath.Vector2;
 
 namespace VRageRender.Resources
 {
@@ -19,8 +13,8 @@ namespace VRageRender.Resources
     {
         protected Resource m_resource;
 
-        internal Resource Resource { get { return m_resource; } }
-        internal Buffer Buffer { get { return (Buffer) m_resource; } }
+        internal Resource Resource => m_resource;
+        internal Buffer Buffer => (Buffer) m_resource;
 
         internal virtual void Dispose()
         {
@@ -40,8 +34,8 @@ namespace VRageRender.Resources
     class MyTextureArray : MyResource
     {
         internal ShaderResourceView ShaderView { get; set; }
-        internal Vector2 Size { get; private set; }
-        internal int ArrayLen { get; private set; }
+        internal Vector2 Size { get; }
+        internal int ArrayLen { get; }
 
         internal MyTextureArray()
         {
@@ -138,10 +132,10 @@ namespace VRageRender
 
 
         //
-        internal Buffer Buffer { get { return MyHwBuffers.GetVertexBuffer(this); } }
-        internal int Stride { get { return MyHwBuffers.GetVertexBufferStride(this); } }
-        internal int Capacity { get { return MyHwBuffers.GetVertexBufferCapacity(this); } }
-        internal int ByteSize { get { return MyHwBuffers.GetBufferDesc(this).SizeInBytes; } }
+        internal Buffer Buffer => MyHwBuffers.GetVertexBuffer(this);
+        internal int Stride => MyHwBuffers.GetVertexBufferStride(this);
+        internal int Capacity => MyHwBuffers.GetVertexBufferCapacity(this);
+        internal int ByteSize => MyHwBuffers.GetBufferDesc(this).SizeInBytes;
     }
 
     struct IndexBufferId
@@ -161,10 +155,10 @@ namespace VRageRender
         internal static readonly IndexBufferId NULL = new IndexBufferId { Index = -1 };
 
 
-        internal Buffer Buffer { get { return MyHwBuffers.GetIndexBuffer(this); } }
-        internal Format Format { get { return MyHwBuffers.GetIndexBufferFormat(this); } }
-        internal int Capacity { get { return MyHwBuffers.GetBufferDesc(this).SizeInBytes / FormatHelper.SizeOfInBytes(Format); } }
-        internal int ByteSize { get { return MyHwBuffers.GetBufferDesc(this).SizeInBytes; } }
+        internal Buffer Buffer => MyHwBuffers.GetIndexBuffer(this);
+        internal Format Format => MyHwBuffers.GetIndexBufferFormat(this);
+        internal int Capacity => MyHwBuffers.GetBufferDesc(this).SizeInBytes / FormatHelper.SizeOfInBytes(Format);
+        internal int ByteSize => MyHwBuffers.GetBufferDesc(this).SizeInBytes;
     }
 
     struct StructuredBufferId
@@ -184,10 +178,10 @@ namespace VRageRender
         internal static readonly StructuredBufferId NULL = new StructuredBufferId { Index = -1 };
 
 
-        internal Buffer Buffer { get { return MyHwBuffers.GetBuffer(this); } }
-        internal int Capacity { get { return MyHwBuffers.GetBufferDesc(this).SizeInBytes / MyHwBuffers.GetBufferDesc(this).StructureByteStride; } }
-        internal int ByteSize { get { return MyHwBuffers.GetBufferDesc(this).SizeInBytes; } }
-        internal ShaderResourceView Srv { get { return MyHwBuffers.GetView(this); } }
+        internal Buffer Buffer => MyHwBuffers.GetBuffer(this);
+        internal int Capacity => MyHwBuffers.GetBufferDesc(this).SizeInBytes / MyHwBuffers.GetBufferDesc(this).StructureByteStride;
+        internal int ByteSize => MyHwBuffers.GetBufferDesc(this).SizeInBytes;
+        internal ShaderResourceView Srv => MyHwBuffers.GetView(this);
     }
 
 
@@ -496,7 +490,7 @@ namespace VRageRender
             var id = new StructuredBufferId { Index = SBuffers.Allocate() };
             MyArrayHelpers.Reserve(ref SBuffersData, id.Index + 1);
             SBuffers.Data[id.Index] = new MyHwBufferDesc { Description = description, DebugName = debugName };
-            SBuffersData[id.Index] = new MyStructuredBufferData { };
+            SBuffersData[id.Index] = new MyStructuredBufferData();
 
             SbIndices.Add(id);
 

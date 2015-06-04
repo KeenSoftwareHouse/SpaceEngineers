@@ -1,10 +1,5 @@
-﻿using SharpDX.Direct3D11;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using VRageMath;
+﻿using SharpDX;
+using SharpDX.Direct3D11;
 
 namespace VRageRender
 {
@@ -16,7 +11,7 @@ namespace VRageRender
 
         const int m_numthreads = 8;
 
-        internal static int NumThreads { get { return m_numthreads; } }
+        internal static int NumThreads => m_numthreads;
 
         internal static void Init()
         {
@@ -66,7 +61,7 @@ namespace VRageRender
 
                 //might not be exactly correct if we skip this
                 var dirty = (i % 2 == 0) ? uav0 : uav1;
-                RC.Context.ClearUnorderedAccessView((dirty as IUnorderedAccessBindable).UAV, new SharpDX.Int4(0, 0, 0, 0));
+                RC.Context.ClearUnorderedAccessView((dirty as IUnorderedAccessBindable).UAV, new Int4(0, 0, 0, 0));
 
                 i++;
             }
