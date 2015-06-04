@@ -3722,6 +3722,10 @@ namespace Sandbox.Game.Entities
         private static void UpdateBlockInfoHud()
         {
             MyHud.BlockInfo.Visible = false;
+
+			if (MyFakes.ENABLE_SIMPLE_SURVIVAL)
+				return;
+
             var block = MyCubeBuilder.Static.HudBlockDefinition;
             if (block == null || !MyCubeBuilder.Static.IsActivated)
             {

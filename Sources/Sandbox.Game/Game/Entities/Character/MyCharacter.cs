@@ -7085,7 +7085,7 @@ namespace Sandbox.Game.Entities.Character
             if (colorMask.HasValue)
                 objectBuilder.ColorMaskHSV = colorMask.Value;
 
-            objectBuilder.JetpackEnabled = true;
+            objectBuilder.JetpackEnabled = MySession.Static.CreativeMode;
             objectBuilder.Battery = new MyObjectBuilder_Battery();
             objectBuilder.Battery.CurrentCapacity = 1;
             objectBuilder.AIMode = AIMode;
