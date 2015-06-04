@@ -165,8 +165,10 @@ namespace VRageRender
                 // DedicatedSystemMemory = bios or DVMT preallocated video memory, that cannot be used by OS - need retest on pc with only cpu/chipset based graphic
                 // DedicatedVideoMemory = discrete graphic video memory
                 // SharedSystemMemory = aditional video memory, that can be taken from OS RAM when needed
-                UInt32 vram = (UInt32)((IntPtr)(adapter.Description.DedicatedSystemMemory != 0 ? adapter.Description.DedicatedSystemMemory : adapter.Description.DedicatedVideoMemory));
-                UInt32 svram = (UInt32)((IntPtr)adapter.Description.SharedSystemMemory);
+                void * vramptr = ((IntPtr)(adapter.Description.DedicatedSystemMemory != 0 ? adapter.Description.DedicatedSystemMemory : adapter.Description.DedicatedVideoMemory)).ToPointer();
+                UInt64 vram = (UInt64)vramptr;
+                void * svramptr = ((IntPtr)adapter.Description.SharedSystemMemory).ToPointer();
+                UInt64 svram = (UInt64)svramptr;
 
                 // microsoft software renderer allocates 256MB shared memory, cpu integrated graphic on notebooks has 0 preallocated, all shared
                 supportedDevice = supportedDevice && (vram > 500000000 || svram > 500000000);
