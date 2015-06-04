@@ -33,6 +33,7 @@ namespace Sandbox.Game.GameSystems
 
         #region Fields
         public Vector3 ControlTorque;
+        public bool AutopilotEnabled;
 
         private MyCubeGrid m_grid;
         private HashSet<MyGyro> m_gyros;
@@ -84,7 +85,6 @@ namespace Sandbox.Game.GameSystems
         public Vector3 SlowdownTorque { get; private set; }
 
         public bool    RemoteControlOperational  { get; set; }
-        public bool    AutopilotActive           { get; set; }
         public bool    CourseEstablished         { get; set; }
         public bool    RotationalDampingDisabled { get; set; }
         public Vector3 AutopilotAngularDeviation { get; set; }
@@ -152,7 +152,7 @@ namespace Sandbox.Game.GameSystems
                         slowdownAngularAcceleration = -localAngularVelocity / MyEngineConstants.UPDATE_STEP_SIZE_IN_SECONDS;    // Original damping torque code.
                     else
                     {
-                        if (!AutopilotActive)
+                        if (!AutopilotEnabled)
                         {
                             m_gyroControlIntegral = m_enableIntegral ? (m_gyroControlIntegral + localAngularVelocity * I_COEFF) : Vector3.Zero;
                             CourseEstablished     = false;  // Just in case.
@@ -175,7 +175,7 @@ namespace Sandbox.Game.GameSystems
                         }
                         var angularAcceleration = (localAngularVelocity - m_prevAngularVelocity) / MyEngineConstants.UPDATE_STEP_SIZE_IN_SECONDS;
 
-                        if (AutopilotActive && !CourseEstablished && RotationalDampingDisabled)
+                        if (AutopilotEnabled && !CourseEstablished && RotationalDampingDisabled)
                             slowdownAngularAcceleration = Vector3.Zero;
                         else
                         {
@@ -183,7 +183,7 @@ namespace Sandbox.Game.GameSystems
                             if (RemoteControlOperational)
                                slowdownAngularAcceleration += m_gyroControlIntegral + D_COEFF * angularAcceleration;
                         }
-                        AutopilotActive = RotationalDampingDisabled = RemoteControlOperational = false;    // Needs to be done here and not in the remote control code, as there may be more than 1 RC block.
+                        /*AutopilotEnabled =*/ RotationalDampingDisabled = RemoteControlOperational = false;    // Needs to be done here and not in the remote control code, as there may be more than 1 RC block.
                     }
 
                     var invTensor = m_grid.Physics.RigidBody.InverseInertiaTensor;
@@ -371,7 +371,7 @@ namespace Sandbox.Game.GameSystems
             {
                 if (IsUsed(gyro))
                 {
-                    if (!gyro.GyroOverride)
+                    if (!gyro.GyroOverride || AutopilotEnabled)
                         MaxGyroForce += gyro.MaxGyroForce;
                     else
                     {
