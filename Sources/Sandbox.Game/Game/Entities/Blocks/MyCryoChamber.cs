@@ -19,6 +19,7 @@ using VRage.Utils;
 using VRageMath;
 using VRageRender;
 using VRage.ModAPI;
+using Sandbox.Engine.Utils;
 
 namespace Sandbox.Game.Entities.Blocks
 {
@@ -245,6 +246,11 @@ namespace Sandbox.Game.Entities.Blocks
             {
                 MyCubeBlock.UpdateEmissiveParts(Render.RenderObjectIDs[0], 0.0f, Color.Red, Color.White);
             }
+
+            if (MyFakes.ENABLE_OXYGEN_SOUNDS)
+            {
+                UpdateSound();
+            }
         }
 
         private bool IsPowered()
@@ -326,7 +332,42 @@ namespace Sandbox.Game.Entities.Blocks
                 }
                 //Pilot is killed by base in survival
             }
+
+            m_soundEmitter.StopSound(true);
         }
+
+        private bool IsLocalCharacterInside()
+        {
+            return MySession.LocalCharacter != null && MySession.LocalCharacter == Pilot;
+        }
+
+        private void UpdateSound()
+        {
+            if (IsWorking)
+            {
+                if (IsLocalCharacterInside())
+                {
+                    if (m_soundEmitter.SoundId != BlockDefinition.InsideSound.SoundId)
+                    {
+                        m_soundEmitter.PlaySound(BlockDefinition.InsideSound, true);
+                    }
+                }
+                else
+                {
+                    if (m_soundEmitter.SoundId != BlockDefinition.OutsideSound.SoundId)
+                    {
+                        m_soundEmitter.PlaySound(BlockDefinition.OutsideSound, true);
+                    }
+                }
+            }
+            else
+            {
+                m_soundEmitter.StopSound(true);
+            }
+
+            m_soundEmitter.Update();
+        }
+        
 
         public void CameraAttachedToChanged(IMyCameraController oldController, IMyCameraController newController)
         {

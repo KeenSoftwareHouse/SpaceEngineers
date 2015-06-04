@@ -457,7 +457,7 @@ namespace Sandbox.Game.Gui
 
             //online?
             checkpoint.Settings.OnlineMode=(MyOnlineModeEnum)m_onlineMode.GetSelectedKey();
-            //TODOcheckpoint.Settings.MaxPlayers=m_maxPlayersSlider.get
+            checkpoint.Settings.MaxPlayers = (short)m_maxPlayersSlider.Value;
 
             if (!MySession.IsCompatibleVersion(checkpoint))
             {

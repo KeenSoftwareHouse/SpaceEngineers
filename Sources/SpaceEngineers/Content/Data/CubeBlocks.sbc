@@ -15646,6 +15646,8 @@
       <IsPressurized>true</IsPressurized>
       <OxygenCapacity>1</OxygenCapacity>
       <IdlePowerConsumption>0.00003</IdlePowerConsumption>
+      <OutsideSound>ArcBlockCryoOut</OutsideSound>
+      <InsideSound>ArcBlockCryoIn</InsideSound>
       <EdgeType>Light</EdgeType>
       <DamageEffectId>214</DamageEffectId>
     </Definition>

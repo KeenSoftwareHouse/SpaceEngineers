@@ -146,7 +146,7 @@ namespace Sandbox.Game.Entities
 
         public class MyMeteorGameLogic : MyEntityGameLogic
         {
-            internal MyMeteor Entity { get { return Container.Entity as MyMeteor; } }
+            internal MyMeteor Entity { get { return Container != null ? Container.Entity as MyMeteor : null; } }
 
             public MyInventoryItem Item;
             public Definitions.MyVoxelMaterialDefinition VoxelMaterial { get; set; }
@@ -167,7 +167,7 @@ namespace Sandbox.Game.Entities
 
             public MyMeteorGameLogic()
             {
-                m_soundEmitter = new MyEntity3DSoundEmitter(Entity);
+                m_soundEmitter = new MyEntity3DSoundEmitter(null);
             }
 
             public override void Init(MyObjectBuilder_EntityBase objectBuilder)

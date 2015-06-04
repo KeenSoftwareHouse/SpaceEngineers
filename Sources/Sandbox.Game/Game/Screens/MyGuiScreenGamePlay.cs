@@ -715,7 +715,23 @@ namespace Sandbox.Game.Gui
                         MyThirdPersonSpectator.Static.UpdateZoom();
 
                     if (!MyInput.Static.IsGameControlPressed(MyControlsSpace.LOOKAROUND))
+                    {
+                                                
                         MySession.ControlledEntity.MoveAndRotate(moveIndicator, rotationIndicator, rollIndicator);
+                        
+                        if (MyFakes.CHARACTER_SERVER_SYNC)
+                        {
+                            foreach (var player in Sync.Players.GetOnlinePlayers())
+                            {
+                                if (MySession.ControlledEntity != player.Character)
+                                {
+                                    //Values are set inside method from sync object
+                                    if (player.Character != null)
+                                        player.Character.MoveAndRotate(Vector3.Zero, Vector2.Zero, 0);
+                                }
+                            }
+                        }
+                    }
                     else
                     {
                         MySession.ControlledEntity.MoveAndRotate(moveIndicator, Vector2.Zero, rollIndicator);
