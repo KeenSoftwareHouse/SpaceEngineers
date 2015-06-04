@@ -162,7 +162,7 @@ namespace Sandbox.Game.Entities
         public override void Init(MyObjectBuilder_EntityBase objectBuilder)
         {
             m_manipulationDistance = 2.5f;
-            m_limitingLinearVelocity = 3f;
+            m_limitingLinearVelocity = 4f;
             m_handItemDefId = objectBuilder.GetId();
             m_physItemDef = MyDefinitionManager.Static.GetPhysicalItemForHandItem(m_handItemDefId);
             base.Init(objectBuilder);
@@ -715,7 +715,7 @@ namespace Sandbox.Game.Entities
 
                     m_constraintInitialized = true;
 
-                    if (MyFakes.MANIPULATION_TOOL_VELOCITY_LIMIT)
+                    if (!MyFakes.MANIPULATION_TOOL_VELOCITY_LIMIT)
                     {
                         m_otherRigidBody.MaxLinearVelocity = m_otherMaxLinearVelocity;
                         m_otherRigidBody.MaxAngularVelocity = m_otherMaxAngularVelocity;
