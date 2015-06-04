@@ -118,6 +118,11 @@ namespace Sandbox.Game.Entities.Cube
         /// </summary>
         public StringBuilder DetailedInfo { get; private set; }
 
+        /// <summary>
+        /// Moddable part of detailed text in terminal.
+        /// </summary>
+        public StringBuilder CustomInfo { get; private set; }
+
         public event Action<MyTerminalBlock> CustomNameChanged;
         public event Action<MyTerminalBlock> PropertiesChanged;
         public event Action<MyTerminalBlock> OwnershipChanged;
@@ -125,19 +130,21 @@ namespace Sandbox.Game.Entities.Cube
         public event Action<MyTerminalBlock> ShowOnHUDChanged;
         public event Action<MyTerminalBlock> ShowInTerminalChanged;
         public event Action<MyTerminalBlock> ShowInToolbarConfigChanged;
+        public event Action<MyTerminalBlock, StringBuilder> AppendingCustomInfo;
 
         public MyTerminalBlock()
         {
             CustomName = new StringBuilder();
             DetailedInfo = new StringBuilder();
+            CustomInfo = new StringBuilder();
             CustomNameWithFaction = new StringBuilder();
         }
         public override void Init(MyObjectBuilder_CubeBlock objectBuilder, MyCubeGrid cubeGrid)
         {
             base.Init(objectBuilder, cubeGrid);
-            
+
             var ob = (MyObjectBuilder_TerminalBlock)objectBuilder;
-            
+
             if (ob.CustomName != null)
             {
                 CustomName.Clear().Append(ob.CustomName);
@@ -165,9 +172,18 @@ namespace Sandbox.Game.Entities.Cube
             return ob;
         }
 
+        public void RefreshCustomInfo()
+        {
+            var handler = AppendingCustomInfo;
+            if (handler != null)
+            {
+                handler(this, CustomInfo);
+            }
+        }
+
         public void SetCustomName(string text)
         {
-           MySyncBlockHelpers.SendChangeNameRequest(this, text);
+            MySyncBlockHelpers.SendChangeNameRequest(this, text);
         }
 
         public void UpdateCustomName(string text)
@@ -181,7 +197,7 @@ namespace Sandbox.Game.Entities.Cube
         }
         public void SetCustomName(StringBuilder text)
         {
-           MySyncBlockHelpers.SendChangeNameRequest(this,text);
+            MySyncBlockHelpers.SendChangeNameRequest(this, text);
         }
 
         public void UpdateCustomName(StringBuilder text)
@@ -203,7 +219,7 @@ namespace Sandbox.Game.Entities.Cube
             if (handler != null) handler(this);
         }
 
-       
+
 
         /// <summary>
         /// Call this when you change detailed info or other terminal properties
