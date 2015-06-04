@@ -38,7 +38,8 @@ namespace Sandbox.Game.Entities
         Primary = 2,
         Secondary = 3
     };
-    public partial class MyShipController : MyTerminalBlock, IMyControllableEntity, IMyRechargeSocketOwner, IMyShipController
+
+    public partial class MyShipController : MyTerminalBlock, IMyControllableEntity, IMyRechargeSocketOwner
     {
         #region Fields
         public MyGridGyroSystem GridGyroSystem;
@@ -1937,40 +1938,6 @@ namespace Sandbox.Game.Entities
         {
             get;
             set;
-        }
-
-        bool IMyShipController.IsUnderControl { get { return ControllerInfo.Controller != null; } }
-
-        bool IMyShipController.ControlWheels
-        {
-            get { return ControlWheels; }
-        }
-        bool IMyShipController.ControlThrusters
-        {
-            get { return ControlThrusters; }
-        }
-
-        bool IMyShipController.HandBrake
-        {
-            get
-            {
-                return CubeGrid.GridSystems.WheelSystem.HandBrake;
-            }
-        }
-        bool IMyShipController.DampenersOverride
-        {
-            get
-            {
-                if (GridThrustSystem == null)
-                {
-                    Debug.Fail("Alex Florea: Grid thrust system should not be null!");
-                    return false;
-                }
-                else
-                {
-                    return GridThrustSystem.DampenersEnabled;
-                }
-            }
         }
 
         void CubeGrid_OnGridSplit(MyCubeGrid grid1, MyCubeGrid grid2)

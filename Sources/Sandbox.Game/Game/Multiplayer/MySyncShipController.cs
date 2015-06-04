@@ -77,6 +77,24 @@ namespace Sandbox.Game.Multiplayer
             public BoolBlit SetMainCockpit;
         }
 
+        [MessageIdAttribute(2493, P2PMessageEnum.Reliable)]
+        [ProtoContract]
+        protected struct SendPilotNotificationMsg : IEntityMessage
+        {
+            [ProtoMember]
+            public long EntityId;
+            public long GetEntityId() { return EntityId; }
+
+            [ProtoMember]
+            public string message;
+
+            [ProtoMember]
+            public ushort displayTimeMs;
+
+            [ProtoMember]
+            public ushort font;
+        }
+
         static MySyncShipController()
         {
             MySyncLayer.RegisterEntityMessage<MySyncShipController, UpdatePilotRelativeEntryMsg>(UpdatePilotRelativeEntrySuccess, MyMessagePermissions.FromServer, MyTransportMessageEnum.Success);
@@ -85,6 +103,7 @@ namespace Sandbox.Game.Multiplayer
             MySyncLayer.RegisterEntityMessage<MySyncShipController, ControlThrustersMsg>(OnSetControlThrusters, MyMessagePermissions.Any);
             MySyncLayer.RegisterEntityMessage<MySyncShipController, ControlWheelsMsg>(OnSetControlWheels, MyMessagePermissions.Any);
             MySyncLayer.RegisterEntityMessage<MySyncShipController, SetMainCockpitMsg>(OnSetMainCockpit, MyMessagePermissions.Any);
+            MySyncLayer.RegisterEntityMessage<MySyncShipController, SendPilotNotificationMsg>(OnReceivedPilotNotification, MyMessagePermissions.Any);
         }
 
         private MyShipController m_shipController;
@@ -192,6 +211,26 @@ namespace Sandbox.Game.Multiplayer
         private static void OnSetMainCockpit(MySyncShipController sync, ref SetMainCockpitMsg msg, MyNetworkClient sender)
         {
             sync.m_shipController.IsMainCockpit = msg.SetMainCockpit;
+        }
+
+        internal void SendPilotNotification(MyPlayer sendTo, string message, ushort displayTimeMs, Sandbox.Common.MyFontEnum font)
+        {
+            var msg = new SendPilotNotificationMsg();
+            msg.EntityId = m_shipController.EntityId;
+            msg.message = message;
+            msg.displayTimeMs = displayTimeMs;
+            msg.font = (ushort)font;
+            MySession.Static.SyncLayer.SendMessage(ref msg, sendTo.Client.SteamUserId);
+        }
+
+        private static void OnReceivedPilotNotification(MySyncShipController sync, ref SendPilotNotificationMsg msg, MyNetworkClient sender)
+        {
+            var controller = sync.m_shipController;
+            Debug.Assert(controller.ControllerInfo.Controller != null, "Notification sent to an unmanned cockpit!");
+            Debug.Assert(controller.ControllerInfo.ControllingIdentityId == MySession.LocalPlayerId, "Notification was for you (local player) but you're not in the cockpit!");
+
+            if (controller.ControllerInfo.Controller != null && controller.ControllerInfo.ControllingIdentityId == MySession.LocalPlayerId)
+                controller.NotifyPilot(msg.message, msg.displayTimeMs, (Sandbox.Common.MyFontEnum)msg.font);
         }
     }
 }
