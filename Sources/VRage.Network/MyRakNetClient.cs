@@ -1,16 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
-using System.Net;
-using System.Text;
-using VRage.Utils;
 
 namespace VRage.Network
 {
     public class MyRakNetClient : MyRakNetPeer
     {
-        public override bool IsServer { get { return false; } }
+        public override bool IsServer => false;
         public override ulong ServerId { get; protected set; }
         public override ulong MySteamID { get; protected set; }
 
@@ -233,7 +229,7 @@ namespace VRage.Network
             BitStream bs = new BitStream(null);
             bs.Write((byte)MessageIDEnum.CLIENT_DATA);
             bs.Write((long)MySteamID);
-            bs.Write((int)Version);
+            bs.Write(Version);
             SendMessageToServer(bs, PacketPriorityEnum.IMMEDIATE_PRIORITY, PacketReliabilityEnum.RELIABLE);
         }
 

@@ -1,9 +1,6 @@
 ﻿using System;
 using System.Collections;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
-using System.Text;
 
 namespace VRage.Network
 {
@@ -15,6 +12,7 @@ namespace VRage.Network
         public abstract bool Read(out T value, BitStream s);
 
         protected BitArray m_dirty = new BitArray(MyRakNetSyncLayer.MaxClients);
+
         public bool IsDirty(int clientIndex)
         {
             Debug.Assert(clientIndex < m_dirty.Length);
@@ -76,7 +74,7 @@ namespace VRage.Network
 
         public override string ToString()
         {
-            return typeof(T) + ": " + m_value.ToString();
+            return typeof (T) + ": " + m_value.ToString();
         }
 
         public override int GetHashCode()

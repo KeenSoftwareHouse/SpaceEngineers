@@ -1,14 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
-using System.Text;
 
 namespace VRage.Network
 {
     public class MyRakNetServer : MyRakNetPeer
     {
-        public override bool IsServer { get { return true; } }
+        public override bool IsServer => true;
         public override ulong ServerId { get; protected set; }
         public override ulong MySteamID { get { return ServerId; } protected set { ServerId = value; } }
 
@@ -206,7 +204,7 @@ namespace VRage.Network
 
         public uint BroadcastMessage(BitStream data, PacketPriorityEnum priority = PacketPriorityEnum.LOW_PRIORITY, PacketReliabilityEnum reliability = PacketReliabilityEnum.UNRELIABLE, byte channel = 0, RakNetGUID? exclude = null)
         {
-            exclude = exclude.HasValue ? exclude.Value : RakNetGUID.UNASSIGNED_RAKNET_GUID;
+            exclude = exclude ?? RakNetGUID.UNASSIGNED_RAKNET_GUID;
             Debug.Assert(data.GetNumberOfBytesUsed() > 0, "no data");
             uint ret = m_peer.Send(data, priority, reliability, channel, exclude.Value, true);
             Debug.Assert(ret != 0, "bad input?");

@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
-using System.Text;
 using VRage.Collections;
 using VRage.Library.Utils;
 
@@ -124,7 +122,7 @@ namespace VRage.Network
 
             if (result == StartupResultEnum.RAKNET_STARTED)
             {
-                m_timerAction = new Action(ReceiveMessageInternal);
+                m_timerAction = ReceiveMessageInternal;
                 m_timer = new MyTimer(1, m_timerAction);
                 m_timer.Start();
             }

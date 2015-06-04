@@ -1,8 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Text;
 
 namespace VRage.Network
 {
@@ -11,7 +8,7 @@ namespace VRage.Network
     {
         public int Order { get; private set; }
 
-        public StateDataAttribute([CallerLineNumber]int order = 0)
+        public StateDataAttribute([CallerLineNumber] int order = 0)
         {
             Order = order;
         }
