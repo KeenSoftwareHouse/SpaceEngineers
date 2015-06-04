@@ -6355,6 +6355,26 @@ namespace Sandbox.Game.Localization
         public static readonly MyStringId BlockPropertyTitle_ThrustOverride = MyStringId.GetOrCompute("BlockPropertyTitle_ThrustOverride");
 
         ///<summary>
+        ///Allows this thruster to accelerate or slow down the ship
+        ///</summary>
+        public static readonly MyStringId BlockPropertyDescription_ThrustLinearMode = MyStringId.GetOrCompute("BlockPropertyDescription_ThrustLinearMode");
+
+        ///<summary>
+        ///Linear
+        ///</summary>
+        public static readonly MyStringId BlockPropertyTitle_ThrustLinearMode = MyStringId.GetOrCompute("BlockPropertyTitle_ThrustLinearMode");
+
+        ///<summary>
+        ///Allows this thruster to rotate the ship as long as an operational remote control bock is present
+        ///</summary>
+        public static readonly MyStringId BlockPropertyDescription_ThrustRotationalMode = MyStringId.GetOrCompute("BlockPropertyDescription_ThrustRotationalMode");
+
+        ///<summary>
+        ///Rotational
+        ///</summary>
+        public static readonly MyStringId BlockPropertyTitle_ThrustRotationalMode = MyStringId.GetOrCompute("BlockPropertyTitle_ThrustRotationalMode");
+
+        ///<summary>
         ///You have been kicked from the faction.
         ///</summary>
         public static readonly MyStringId MessageBoxTextYouHaveBeenKickedFromFaction = MyStringId.GetOrCompute("MessageBoxTextYouHaveBeenKickedFromFaction");

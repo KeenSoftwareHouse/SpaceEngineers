@@ -3993,6 +3993,18 @@ Respawn?</value>
   <data name="BlockPropertyTitle_ThrustOverride" xml:space="preserve">
     <value>Thrust override</value>
   </data>
+  <data name="BlockPropertyDescription_ThrustLinearMode" xml:space="preserve">
+    <value>Allows this thruster to accelerate or slow down the ship</value>
+  </data>
+  <data name="BlockPropertyTitle_ThrustLinearMode" xml:space="preserve">
+    <value>Linear</value>
+  </data>
+  <data name="BlockPropertyDescription_ThrustRotationalMode" xml:space="preserve">
+    <value>Allows this thruster to rotate the ship as long as an operational remote control bock is present</value>
+  </data>
+  <data name="BlockPropertyTitle_ThrustRotationalMode" xml:space="preserve">
+    <value>Rotational</value>
+  </data>
   <data name="MessageBoxTextYouHaveBeenKickedFromFaction" xml:space="preserve">
     <value>You have been kicked from the faction.</value>
   </data>

@@ -4,6 +4,7 @@ using Sandbox.Engine.Utils;
 using Sandbox.Game.Entities;
 using Sandbox.Game.GameSystems.Electricity;
 using Sandbox.Game.Multiplayer;
+using Sandbox.Game.World;
 using System;
 using System.Collections.Generic;
 
@@ -82,8 +83,10 @@ namespace Sandbox.Game.GameSystems
         public float   MaxGyroForce   { get; private set; }
         public Vector3 SlowdownTorque { get; private set; }
 
-        public bool    IsAutopilotActive         { get; set; }
-        public bool    IsCourseEstablished       { get; set; }
+        public bool    RemoteControlOperational  { get; set; }
+        public bool    AutopilotActive           { get; set; }
+        public bool    CourseEstablished         { get; set; }
+        public bool    RotationalDampingDisabled { get; set; }
         public Vector3 AutopilotAngularDeviation { get; set; }
 
         #endregion
@@ -142,31 +145,47 @@ namespace Sandbox.Game.GameSystems
                     // For some reason, calculating angular velocity inside MyGridGyroSystem.cs yields an incorrect value, causing gyroscopes to overcompensate.
                     Vector3 localAngularVelocity = m_grid.GridSystems.ThrustSystem.LocalAngularVelocity; 
 
-                    if (!IsAutopilotActive)
-                    {
-                        m_gyroControlIntegral = m_enableIntegral ? (m_gyroControlIntegral + localAngularVelocity * I_COEFF) : Vector3.Zero;
-                        IsCourseEstablished   = false;  // Just in case.
-                    }
-                    else if (IsCourseEstablished)
-                    {
-                        m_gyroControlIntegral = (-AutopilotAngularDeviation) * (I_COEFF * MyEngineConstants.UPDATE_STEPS_PER_SECOND);
-                        m_resetIntegral       = false;
-                    }
+                    float slowdown = (1 - MAX_SLOWDOWN) * (1 - PowerReceiver.SuppliedRatio) + MAX_SLOWDOWN;
+                    Vector3 slowdownAngularAcceleration;
+
+                    if (!MySession.Static.ThrusterDamage)
+                        slowdownAngularAcceleration = -localAngularVelocity / MyEngineConstants.UPDATE_STEP_SIZE_IN_SECONDS;    // Original damping torque code.
                     else
-                        m_gyroControlIntegral = Vector3.Zero;
-                    IsAutopilotActive = false;  // Needs to be done here and not in the remote control code, as there may be more than 1 RC block.
-
-                    // To prevent integral part from fighting the player input, force reset of integral portion 
-                    // when ship starts to spring back after releasing the controls.
-                    if (m_resetIntegral && Vector3.Dot(localAngularVelocity, m_AngularVelocityAtRelease) <= 0.0f)
                     {
-                        m_resetIntegral       = false;
-                        m_gyroControlIntegral = Vector3.Zero;
-                    }
-                    var angularAcceleration = (localAngularVelocity - m_prevAngularVelocity) / MyEngineConstants.UPDATE_STEP_SIZE_IN_SECONDS;
+                        if (!AutopilotActive)
+                        {
+                            m_gyroControlIntegral = m_enableIntegral ? (m_gyroControlIntegral + localAngularVelocity * I_COEFF) : Vector3.Zero;
+                            CourseEstablished     = false;  // Just in case.
+                        }
+                        else if (CourseEstablished)
+                        {
+                            m_gyroControlIntegral = (-AutopilotAngularDeviation) * (I_COEFF * MyEngineConstants.UPDATE_STEPS_PER_SECOND);
+                            m_enableIntegral      = true;
+                            m_resetIntegral       = false;
+                        }
+                        else
+                            m_gyroControlIntegral = Vector3.Zero;
 
-                    //float slowdown = (1 - MAX_SLOWDOWN) * (1 - PowerReceiver.SuppliedRatio) + MAX_SLOWDOWN;
-                    var slowdownAngularAcceleration = P_COEFF * localAngularVelocity + m_gyroControlIntegral + D_COEFF * angularAcceleration;
+                        // To prevent integral part from fighting the player input, force reset of integral portion 
+                        // when ship starts to spring back after releasing the controls.
+                        if (m_resetIntegral && Vector3.Dot(localAngularVelocity, m_AngularVelocityAtRelease) <= 0.0f)
+                        {
+                            m_resetIntegral       = false;
+                            m_gyroControlIntegral = Vector3.Zero;
+                        }
+                        var angularAcceleration = (localAngularVelocity - m_prevAngularVelocity) / MyEngineConstants.UPDATE_STEP_SIZE_IN_SECONDS;
+
+                        if (AutopilotActive && !CourseEstablished && RotationalDampingDisabled)
+                            slowdownAngularAcceleration = Vector3.Zero;
+                        else
+                        {
+                            slowdownAngularAcceleration = P_COEFF * localAngularVelocity;
+                            if (RemoteControlOperational)
+                               slowdownAngularAcceleration += m_gyroControlIntegral + D_COEFF * angularAcceleration;
+                        }
+                        AutopilotActive = RotationalDampingDisabled = RemoteControlOperational = false;    // Needs to be done here and not in the remote control code, as there may be more than 1 RC block.
+                    }
+
                     var invTensor = m_grid.Physics.RigidBody.InverseInertiaTensor;
                     invTensor.M44 = 1;
                     var minInvTensor = Math.Min(Math.Min(invTensor.M11, invTensor.M22), invTensor.M33);
@@ -182,10 +201,13 @@ namespace Sandbox.Game.GameSystems
                     {
                         m_grid.Physics.AddForce(MyPhysicsForceType.ADD_BODY_FORCE_AND_BODY_TORQUE, null, null, SlowdownTorque);
 
-                        // The following code severely interferes with PID logic and has been disabled.
-                        //var newVelocity = Vector3.Transform(m_grid.Physics.AngularVelocity, ref invWorldRot);
-                        //var maxDelta = Vector3.Abs(LocalAngularVelocity) * (1 - slowdown);
-                        //m_grid.Physics.AngularVelocity = Vector3.Transform(Vector3.Clamp(newVelocity, LocalAngularVelocity - maxDelta, LocalAngularVelocity + maxDelta), ref worldRot);
+                        if (!MySession.Static.ThrusterDamage)
+                        {
+                            // Original damping torque code.
+                            var newVelocity = Vector3.Transform(m_grid.Physics.AngularVelocity, ref invWorldRot);
+                            var maxDelta = Vector3.Abs(localAngularVelocity) * (1 - slowdown);
+                            m_grid.Physics.AngularVelocity = Vector3.Transform(Vector3.Clamp(newVelocity, localAngularVelocity - maxDelta, localAngularVelocity + maxDelta), ref worldRot);
+                        }
                     }
 
                     // Max rotation limiter
@@ -193,27 +215,30 @@ namespace Sandbox.Game.GameSystems
 
                     Torque = Vector3.Clamp(ControlTorque, -Vector3.One, Vector3.One) * MaxGyroForce / divider;
                     Torque *= PowerReceiver.SuppliedRatio;
-                    if (Torque.LengthSquared() <= 0.0001f)
+                    if (MySession.Static.ThrusterDamage)
                     {
-                        if (!m_enableIntegral && !m_resetIntegral)
+                        if (Torque.LengthSquared() <= 0.0001f)
                         {
-                            m_AngularVelocityAtRelease = localAngularVelocity;
-                            m_resetIntegral            = true;
+                            if (!m_enableIntegral && !m_resetIntegral)
+                            {
+                                m_AngularVelocityAtRelease = localAngularVelocity;
+                                m_resetIntegral            = true;
+                            }
+                            m_enableIntegral = true;
                         }
-                        m_enableIntegral = true;
+                        else
+                        {
+                            m_grid.Physics.AddForce(MyPhysicsForceType.ADD_BODY_FORCE_AND_BODY_TORQUE, null, null, Torque);
+                            // Disable integral part when player activates the rotation controls.
+                            m_enableIntegral = false;
+                        }
                     }
-                    else
+                    else if (Torque.LengthSquared() > 0.0001f)
                     {
-                        m_grid.Physics.AddForce(MyPhysicsForceType.ADD_BODY_FORCE_AND_BODY_TORQUE, null, null, Torque);
-
                         // Manually apply torque and use minimal component of inverted inertia tensor to make rotate same in all axes.
-                        // This code is not compatible with thruster torque and has been disabled as well.
-                        //var delta = Torque * new Vector3(minInvTensor) * MyEngineConstants.UPDATE_STEP_SIZE_IN_SECONDS;
-                        //var newAngularVelocity = LocalAngularVelocity + delta;
-                        //m_grid.Physics.AngularVelocity = Vector3.Transform(newAngularVelocity, ref worldRot);
-
-                        // Disable integral part when player activates the rotation controls.
-                        m_enableIntegral = false;
+                        var delta = Torque * new Vector3(minInvTensor) * MyEngineConstants.UPDATE_STEP_SIZE_IN_SECONDS;
+                        var newAngularVelocity = localAngularVelocity + delta;
+                        m_grid.Physics.AngularVelocity = Vector3.Transform(newAngularVelocity, ref worldRot);
                     }
 
                     const float stoppingVelocitySq = 0.0003f * 0.0003f;

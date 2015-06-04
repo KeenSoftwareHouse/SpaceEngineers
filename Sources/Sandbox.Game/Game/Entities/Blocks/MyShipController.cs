@@ -377,10 +377,10 @@ namespace Sandbox.Game.Entities
             if (GridThrustSystem != null)
             {
                 if (GridThrustSystem.ControlThrust != Vector3.Zero ||
-                    GridGyroSystem.ControlTorque != Vector3.Zero)
+                    GridGyroSystem.ControlTorque != Vector3.Zero || GridThrustSystem.ControlTorque != Vector3.Zero)
                 {
                     GridThrustSystem.ControlThrust = Vector3.Zero;
-                    GridGyroSystem.ControlTorque = Vector3.Zero;
+                    GridGyroSystem.ControlTorque   = GridThrustSystem.ControlTorque = Vector3.Zero;
                 }
 
                 // Need it every frame because of MP interpolation

@@ -201,7 +201,6 @@ namespace Sandbox.Game.Entities
         private Vector3D m_recordedAngularAcceleration;
         private Vector3D m_prevAngularVelocity;
         private double   m_maxAngle;
-        private bool     m_movementEnabled;
 
         public IMyControllableEntity PreviousControlledEntity
         {
@@ -1146,13 +1145,14 @@ namespace Sandbox.Game.Entities
             var gyros     = CubeGrid.GridSystems.GyroSystem;
             var thrusters = CubeGrid.GridSystems.ThrustSystem;
 
+            gyros.RemoteControlOperational = thrusters.RemoteControlOperational = IsWorking;
             if (IsWorking && m_autoPilotEnabled && CubeGrid.GridSystems.ControlSystem.GetShipController() == this)
             {
                 gyros.AutopilotAngularDeviation = thrusters.AutopilotAngularDeviation = Vector3.Zero;
 
                 if (m_currentWaypoint == null && m_waypoints.Count > 0)
                 {
-                    gyros.IsCourseEstablished = thrusters.IsCourseEstablished = m_movementEnabled = false;
+                    gyros.CourseEstablished = thrusters.CourseEstablished = false;
                     m_maxAngle        = m_dockingModeEnabled ? 0.05 : 0.25;
                     m_currentWaypoint = m_waypoints[0];
                     m_startPosition   = WorldMatrix.Translation;
@@ -1161,10 +1161,10 @@ namespace Sandbox.Game.Entities
 
                 if (m_currentWaypoint != null)
                 {
-                    gyros.IsAutopilotActive = thrusters.IsAutopilotActive = true;
+                    gyros.AutopilotActive = thrusters.AutopilotActive = true;
                     if (IsInStoppingDistance())
                     {
-                        gyros.IsCourseEstablished = thrusters.IsCourseEstablished = m_movementEnabled = false;
+                        gyros.CourseEstablished = thrusters.CourseEstablished = false;
                         m_maxAngle = m_dockingModeEnabled ? 0.05 : 0.25;
                         AdvanceWaypoint();
                     }
@@ -1172,8 +1172,6 @@ namespace Sandbox.Game.Entities
                     if (Sync.IsServer && m_currentWaypoint != null && !IsInStoppingDistance())
                     {
                         if (!UpdateGyro())
-                            m_movementEnabled = true;
-                        if (m_movementEnabled)
                             UpdateThrust();
                         else
                             thrusters.AutoPilotThrust = Vector3.Zero;
@@ -1327,9 +1325,9 @@ namespace Sandbox.Game.Entities
             //double angle = System.Math.Acos(Vector3D.Dot(targetDirection, WorldMatrix.Forward));
             double angle = System.Math.Acos(Vector3D.Dot(targetDirection, orientation.Forward));
             if (angle < 0.01)
-                gyros.IsCourseEstablished = thrusters.IsCourseEstablished = true;
+                gyros.CourseEstablished = thrusters.CourseEstablished = true;
 
-            if (!gyros.IsCourseEstablished && !thrusters.IsCourseEstablished)
+            if (!gyros.CourseEstablished && !thrusters.CourseEstablished)
             {
                 // Prevent an unbalanced craft from bouncing back and forth excessively before stabilisers engage.
                 if (angle + 0.005 < m_maxAngle)
@@ -1350,18 +1348,25 @@ namespace Sandbox.Game.Entities
                 double timeToStop        = angularVelocity.Length() /    deceleration.Length();
                 double timeToReachTarget =                    angle / angularVelocity.Length();
 
+                if (m_dockingModeEnabled)
+                    velocity /= 4.0;
                 if (double.IsNaN(timeToStop) || double.IsInfinity(timeToReachTarget) || timeToReachTarget > 1.5 * timeToStop)
                 {
-                    if (m_dockingModeEnabled)
-                        velocity /= 4.0;
                     gyros.ControlTorque = thrusters.ControlTorque = velocity;
+                }
+                else if (timeToReachTarget > timeToStop)
+                {
+                    if (MySession.Static.ThrusterDamage)
+                        gyros.RotationalDampingDisabled = thrusters.RotationalDampingDisabled = true;
+                    else
+                        gyros.ControlTorque = thrusters.ControlTorque = velocity;
                 }
             }
             if (velocity != Vector3.Zero)
                 velocity.Normalize();
             gyros.AutopilotAngularDeviation = thrusters.AutopilotAngularDeviation = velocity * angle;
 
-            return angle > m_maxAngle && !gyros.IsCourseEstablished && !thrusters.IsCourseEstablished;
+            return angle > m_maxAngle && !gyros.CourseEstablished && !thrusters.CourseEstablished;
         }
 
         private void CancelLateralMotion(ref Vector3 control, Vector3D lateralControl, Matrix invWorldRot)
@@ -1421,10 +1426,8 @@ namespace Sandbox.Game.Entities
                 if (lateralThrust != Vector3.Zero)
                 {
                     lateralControl = Vector3.Transform((-velocityToCancel) * CubeGrid.Physics.Mass / lateralThrust.Length(), invWorldRot);
-                    if (lateralControl.LengthSquared() > 0.01f)
+                    if (lateralControl.LengthSquared() > 1.0f)
                         lateralControl.Normalize();
-                    else
-                        lateralControl *= 10.0f;
                 }
             }
 
