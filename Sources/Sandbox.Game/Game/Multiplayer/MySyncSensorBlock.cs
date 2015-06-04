@@ -211,7 +211,7 @@ namespace Sandbox.Game.Multiplayer
             sync.m_syncing = true;
             MyToolbarItem item = null;
             if (msg.Item.EntityID != 0)
-                item = ToolbarItem.ToItemFor<MySensorBlock>(msg.Item);
+                item = ToolbarItem.ToItem(msg.Item);
             sync.m_block.Toolbar.SetItemAtIndex(msg.Index, item);
             sync.m_syncing = false;
         }
