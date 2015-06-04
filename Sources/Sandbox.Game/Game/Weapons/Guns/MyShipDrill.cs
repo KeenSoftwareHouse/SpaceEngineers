@@ -80,6 +80,14 @@ namespace Sandbox.Game.Weapons
                 MetalLoop = new MySoundPair("ToolShipDrillMetal"),
                 RockLoop = new MySoundPair("ToolShipDrillRock"),
             };
+
+            var shouldDestroy = new MyTerminalControlOnOffSwitch<MyShipDrill>("ShouldDestroy", MySpaceTexts.Drill_Destroy, MySpaceTexts.Drill_Destroy_Tooltip);
+            shouldDestroy.Getter = (x) => !x.m_wantsToCollect;
+            shouldDestroy.Setter = (x, v) => x.m_wantsToCollect = !x.m_wantsToCollect;
+            shouldDestroy.EnableToggleAction();
+            MyTerminalControlFactory.AddControl(shouldDestroy);
+
+
         }
 
         public MyCharacter Owner { get { return m_owner; } }
@@ -278,7 +286,7 @@ namespace Sandbox.Game.Weapons
                 return;
             m_drillFrameCountdown += MyDrillConstants.DRILL_UPDATE_INTERVAL_IN_FRAMES;
             m_drillBase.IgnoredEntities.Add(Parent);
-            if (m_drillBase.Drill(collectOre: Enabled || m_wantsToCollect, performCutout: true))
+            if (m_drillBase.Drill(collectOre: m_wantsToCollect, performCutout: true))
             {
                 foreach (var c in CubeGrid.GetBlocks())
                 {
@@ -370,6 +378,7 @@ namespace Sandbox.Game.Weapons
         public void EndShoot(MyShootActionEnum action)
         {
             m_wantsToDrill = false;
+            m_wantsToCollect = false;
             PowerReceiver.Update();
         }
 
@@ -520,6 +529,14 @@ namespace Sandbox.Game.Weapons
             get
             {
                 return (this as IMyInventoryOwner).UseConveyorSystem;
+            }
+        }
+
+        bool Sandbox.ModAPI.Ingame.IMyShipDrill.InDestroyMode
+        {
+            get
+            {
+                return !m_wantsToCollect;
             }
         }
 
