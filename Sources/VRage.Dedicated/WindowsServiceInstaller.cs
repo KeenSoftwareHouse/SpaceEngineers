@@ -5,16 +5,15 @@ using System.ServiceProcess;
 
 namespace VRage.Dedicated
 {
-    [RunInstaller(true)]
-    public class WindowsServiceInstaller : Installer
+    public class WindowsServiceInstallerBase : Installer
     {
-        ServiceInstaller m_serviceInstaller;
+        protected ServiceInstaller m_serviceInstaller;
 
         /// <summary>
         /// Public Constructor for WindowsServiceInstaller.
         /// - Put all of your Initialization code here.
         /// </summary>
-        public WindowsServiceInstaller()
+        public WindowsServiceInstallerBase()
         {
             ServiceProcessInstaller serviceProcessInstaller =
                                new ServiceProcessInstaller();
@@ -25,17 +24,9 @@ namespace VRage.Dedicated
             serviceProcessInstaller.Username = null;
             serviceProcessInstaller.Password = null;
 
-            //# Service Information
-            m_serviceInstaller.DisplayName = MyPerServerSettings.GameName + " dedicated server";
+            //# Service Information            
             m_serviceInstaller.StartType = ServiceStartMode.Automatic;
-
-            //# This must be identical to the WindowsService.ServiceBase name
-            //# set in the constructor of WindowsService.cs
-            m_serviceInstaller.ServiceName = m_serviceInstaller.DisplayName;
-            m_serviceInstaller.Description = MyPerServerSettings.GameDSDescription;
-
             this.Installers.Add(serviceProcessInstaller);
-            this.Installers.Add(m_serviceInstaller);
         }
 
         public override void Install(System.Collections.IDictionary stateSaver)

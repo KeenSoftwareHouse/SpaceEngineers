@@ -58,6 +58,10 @@ namespace Sandbox.Engine.Multiplayer
         public const string BattleFaction2ReadyTag = "battleFaction2Ready";
         public const string BattleTimeLimitTag = "battleTimeLimit";
 
+        public const string ScenarioTag = "scenario";
+        public const string ScenarioBriefingTag = "scenarioBriefing";
+        public const string ScenarioStartTimeTag = "scenarioStartTime";
+
         public static MyMultiplayerBase Static;
 
         public static MyMultiplayerHostResult HostLobby(LobbyTypeEnum lobbyType, int maxPlayers, MySyncLayer syncLayer)

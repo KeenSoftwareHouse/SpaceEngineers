@@ -128,6 +128,7 @@
     <Compile Include="DShow\VideoPlayer.cs" />
     <Compile Include="Extensions\DictionaryExtensions.cs" />
     <Compile Include="Extensions\DoubleExtensions.cs" />
+    <Compile Include="Extensions\FieldExtensions.cs" />
     <Compile Include="Extensions\FloatExtensions.cs" />
     <Compile Include="Extensions\HashSetExtensions.cs" />
     <Compile Include="Filesystem\IFileVerifier.cs" />

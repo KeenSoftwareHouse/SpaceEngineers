@@ -3,7 +3,6 @@
 using Sandbox.Common;
 using Sandbox.Common.Components;
 using Sandbox.Common.ObjectBuilders;
-using Sandbox.Common.ObjectBuilders.Serializer;
 using Sandbox.Definitions;
 using Sandbox.Engine.Multiplayer;
 using Sandbox.Engine.Networking;
@@ -45,6 +44,9 @@ using MyFileSystem = VRage.FileSystem.MyFileSystem;
 using Sandbox.Game.Entities.Blocks;
 using Sandbox.Game.SessionComponents;
 using System.Collections;
+using VRage.ModAPI;
+using VRage.ObjectBuilders;
+using VRage.Components;
 
 #endregion
 
@@ -157,6 +159,8 @@ namespace Sandbox.Game.World
         public MyEnvironmentHostilityEnum EnvironmentHostility { get { return Settings.EnvironmentHostility; } }
 
         public bool Battle { get { return Settings.Battle; } }
+
+        public static bool IsScenario = false;
         // Attacker leader blueprints.
         public List<Tuple<string, MyBlueprintItemInfo>> BattleBlueprints;
 
@@ -482,6 +486,7 @@ namespace Sandbox.Game.World
             multiplayer.Mods = this.Mods;
             multiplayer.ViewDistance = this.Settings.ViewDistance;
             multiplayer.Battle = this.Battle;
+            multiplayer.Scenario = IsScenario;
 
             if (MySandboxGame.IsDedicated)
                 (multiplayer as MyDedicatedServer).SendGameTagsToSteam();
@@ -1261,7 +1266,6 @@ namespace Sandbox.Game.World
             long hostObj = world.Checkpoint.ControlledObject;
             world.Checkpoint.ControlledObject = -1;
 
-            MyHud.Chat.RegisterChat(multiplayerSession);
             MySession.Static.Gpss.RegisterChat(multiplayerSession);
 
             MySession.Static.CameraController = MySpectatorCameraController.Static;
@@ -1406,7 +1410,7 @@ namespace Sandbox.Game.World
             FixObsoleteStuff(sector);
             // =================================================================================================================
 
-            MyRespawnComponent.InitFromCheckpoint(checkpoint.RespawnCooldowns);
+            Sync.Players.RespawnComponent.InitFromCheckpoint(checkpoint);
 
             MyPlayer.PlayerId savingPlayer = new MyPlayer.PlayerId();
             MyPlayer.PlayerId? savingPlayerNullable = null;
@@ -1414,8 +1418,9 @@ namespace Sandbox.Game.World
             if (reuseSavingPlayerIdentity) savingPlayerNullable = savingPlayer;
 
             // Identities have to be loaded before entities (because of ownership)
-            if (Sync.IsServer || !Battle)
+            if (Sync.IsServer || (!Battle && MyPerGameSettings.Game == GameEnum.ME_GAME) || (!IsScenario && MyPerGameSettings.Game == GameEnum.SE_GAME))
                 Sync.Players.LoadIdentities(checkpoint, savingPlayerNullable);
+
             Toolbars.LoadToolbars(checkpoint);
 
             if (!MyEntities.Load(sector.SectorObjects))
@@ -1423,7 +1428,7 @@ namespace Sandbox.Game.World
                 ShowLoadingError();
             }
 
-            if (checkpoint.Factions != null && (Sync.IsServer || !Battle))
+            if (checkpoint.Factions != null && (Sync.IsServer || (!Battle && MyPerGameSettings.Game == GameEnum.ME_GAME) || (!IsScenario && MyPerGameSettings.Game == GameEnum.SE_GAME)))
             {
                 MySession.Static.Factions.Init(checkpoint.Factions);
             }
@@ -1434,7 +1439,7 @@ namespace Sandbox.Game.World
             // MySpectator.Static.SpectatorCameraMovement = checkpoint.SpectatorCameraMovement;
             MySpectatorCameraController.Static.SetViewMatrix((MatrixD)Matrix.Invert(checkpoint.SpectatorPosition.GetMatrix()));
 
-            if (!Battle)
+            if ((!Battle && MyPerGameSettings.Game == GameEnum.ME_GAME) || (!IsScenario && MyPerGameSettings.Game == GameEnum.SE_GAME))
             {
                 Sync.Players.LoadConnectedPlayers(checkpoint, savingPlayerNullable);
                 Sync.Players.LoadControlledEntities(checkpoint.ControlledEntities, checkpoint.ControlledObject, savingPlayerNullable);
@@ -1545,7 +1550,7 @@ namespace Sandbox.Game.World
 
             MySandboxGame.Log.WriteLine("Checkpoint.CameraAttachedTo: " + checkpoint.CameraEntity);
 
-            Sandbox.ModAPI.IMyEntity cameraEntity = null;
+            IMyEntity cameraEntity = null;
             var cameraControllerToSet = checkpoint.CameraController;
             if (MySession.Static.Enable3RdPersonView == false && cameraControllerToSet == MyCameraControllerEnum.ThirdPersonSpectator)
             {
@@ -1788,7 +1793,7 @@ namespace Sandbox.Game.World
             return MyCameraControllerEnum.Spectator;
         }
 
-        public static void SetCameraController(MyCameraControllerEnum cameraControllerEnum, Sandbox.ModAPI.IMyEntity cameraEntity = null, Vector3D? position = null)
+        public static void SetCameraController(MyCameraControllerEnum cameraControllerEnum, IMyEntity cameraEntity = null, Vector3D? position = null)
         {
             //bool wasUserControlled = MySession.Static.CameraController != null ? MySession.Static.CameraController.AllowObjectControl() : false;
 
@@ -1857,7 +1862,7 @@ namespace Sandbox.Game.World
             //}
         }
 
-        public static void SetEntityCameraPosition(MyPlayer.PlayerId pid, Sandbox.ModAPI.IMyEntity cameraEntity)
+        public static void SetEntityCameraPosition(MyPlayer.PlayerId pid, IMyEntity cameraEntity)
         {
             if (MySession.LocalHumanPlayer == null || MySession.LocalHumanPlayer.Id != pid)
                 return;
@@ -2034,7 +2039,7 @@ namespace Sandbox.Game.World
             MyObjectBuilder_Sector sector = null;
 
             {
-                sector = Sandbox.Common.ObjectBuilders.Serializer.MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_Sector>();
+                sector = MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_Sector>();
                 sector.SectorObjects = MyEntities.Save();
 
                 sector.SectorEvents = MyGlobalEvents.GetObjectBuilder();
@@ -2061,7 +2066,7 @@ namespace Sandbox.Game.World
             MatrixD spectatorMatrix = MatrixD.Invert(MySpectatorCameraController.Static.GetViewMatrix());
             MyCameraControllerEnum cameraControllerEnum = GetCameraControllerEnum();
 
-            var checkpoint = Sandbox.Common.ObjectBuilders.Serializer.MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_Checkpoint>();
+            var checkpoint = MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_Checkpoint>();
 
             checkpoint.SessionName = saveName;
             checkpoint.Description = Description;
@@ -2096,7 +2101,7 @@ namespace Sandbox.Game.World
 
             checkpoint.Identities = Sync.Players.SaveIdentities();
             checkpoint.RespawnCooldowns = new List<MyObjectBuilder_Checkpoint.RespawnCooldownItem>();
-            MyRespawnComponent.SaveToCheckpoint(checkpoint.RespawnCooldowns);
+            Sync.Players.RespawnComponent.SaveToCheckpoint(checkpoint);
             checkpoint.ControlledEntities = Sync.Players.SerializeControlledEntities();
 
             checkpoint.SpectatorPosition = new MyPositionAndOrientation(ref spectatorMatrix);

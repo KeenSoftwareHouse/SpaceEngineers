@@ -17,6 +17,7 @@ namespace VRage.Plugins
         private static List<IPlugin> m_plugins = new List<IPlugin>();
         private static Assembly m_gamePluginAssembly;
         private static Assembly m_userPluginAssembly;
+        private static Assembly m_sandboxAssembly; //TO BE REMOVED
 
         // for detecting missing unload
         private static MyPlugins m_instance;
@@ -49,6 +50,15 @@ namespace VRage.Plugins
             }
         }
 
+        public static Assembly SandboxAssembly
+        {
+            get
+            {
+                Debug.Assert(Loaded || Assembly.GetEntryAssembly().FullName.StartsWith("sgen", StringComparison.InvariantCultureIgnoreCase));
+                return m_sandboxAssembly;
+            }
+        }
+
         public static void RegisterFromArgs(string[] args)
         {
             m_userPluginAssembly = null;
@@ -78,6 +88,13 @@ namespace VRage.Plugins
             Debug.Assert(m_gamePluginAssembly == null);
             if (gameAssemblyFile != null)
                 m_gamePluginAssembly = Assembly.LoadFrom(Path.Combine(MyFileSystem.ExePath, gameAssemblyFile));
+        }
+
+        public static void RegisterSandboxAssemblyFile(string sandboxAssemblyFile)
+        {
+            Debug.Assert(m_sandboxAssembly == null);
+            if (sandboxAssemblyFile != null)
+                m_sandboxAssembly = Assembly.LoadFrom(Path.Combine(MyFileSystem.ExePath, sandboxAssemblyFile));
         }
 
         public static void Load()

@@ -175,7 +175,7 @@ namespace VRageRender
                     //We require queries
                     adapterSupported &= QueriesSupported;
 
-                    infos[adapter].IsSupported = adapterSupported;
+                    infos[adapter].IsDx9Supported = adapterSupported;
                     infos[adapter].Has512MBRam = Has512AvailableVRAM;
 
                     isAnyGraphicsSupported |= adapterSupported;

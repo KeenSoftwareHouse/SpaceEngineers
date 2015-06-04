@@ -93,10 +93,6 @@ namespace Sandbox.Engine.Utils
 
         public static bool GAME_SAVES_COMPRESSED_BY_DEFAULT = false;
 
-        public static bool USE_HAVOK_ANIMATION_FOOT = false;
-        public static bool USE_HAVOK_ANIMATION_HANDS = false;
-        public static bool USE_HAVOK_ANIMATION_HEAD = false;
-
         public static bool RANDOM_CARGO_PLACEMENT = false;
 
         // Useful when making videos
@@ -467,6 +463,7 @@ namespace Sandbox.Engine.Utils
 
         public static bool ME_MULTIPLAYER = true;
         public static bool ME_PLAYERS_SPAWN_NEAR_PLAYER = true;
+        public static bool CHARACTER_SERVER_SYNC = false;
         
 
         public static bool ALWAYS_NOON = false;
@@ -516,5 +513,20 @@ namespace Sandbox.Engine.Utils
         public static bool ENABLE_VOXEL_MAP_AABB_CORNER_TEST = false;
         
         public static bool ENABLE_RAGDOLL_DEACTIVATION = false;
+
+        public static bool ENABLE_PERMANENT_SIMULATIONS_COMPUTATION = true;
+        
+        public static bool ENABLE_SYNCED_CHARACTER_MOVE_AND_ROTATE = false;
+        
+        public static bool ENABLE_RAGDOLL_DEBUG = false;
+        
+        public static bool ENABLE_JETPACK_RAGDOLL_COLLISIONS = false;
+
+        public static bool NEW_CHARACTER_DAMAGE = false;
+
+        public static bool ENABLE_ADMIN_SPECTATOR_BUILDING = false;
+
+        public static bool MANIPULATION_TOOL_VELOCITY_LIMIT = false;
+
     }
 }

@@ -1,12 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
+using VRage.ModAPI;
+using VRage.ObjectBuilders;
 using VRage.Utils;
+
 namespace Sandbox.ModAPI
 {
+    /// <summary>
+    /// base block interface, block can be affected by upgrade modules, and you can retrieve upgrade list from <see cref="IMyUpgradableBlock"/>
+    /// </summary>
     public interface IMyCubeBlock : Ingame.IMyCubeBlock, IMyEntity
     {
         event Action<IMyCubeBlock> IsWorkingChanged;
-        Sandbox.Common.ObjectBuilders.Definitions.SerializableDefinitionId BlockDefinition { get; }
+        SerializableDefinitionId BlockDefinition { get; }
 
         /// <summary>
         /// 

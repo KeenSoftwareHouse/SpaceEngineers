@@ -4,6 +4,7 @@ using Sandbox.Common.Components;
 using Sandbox.Engine.Utils;
 using System;
 using System.Collections.Generic;
+using VRage.Components;
 using VRage.Utils;
 using VRageMath;
 
@@ -11,7 +12,7 @@ using VRageMath;
 
 namespace Sandbox.Game.Entities
 {
-    public abstract class MyPlaceArea : MyComponentBase
+    public abstract class MyPlaceArea : MyEntityComponentBase
     {
         public int PlaceAreaProxyId = MyConstants.PRUNING_PROXY_ID_UNITIALIZED;
 
@@ -36,16 +37,16 @@ namespace Sandbox.Game.Entities
             AreaType = areaType;
         }
 
-        public override void OnAddedToContainer(MyComponentContainer container)
+        public override void OnAddedToContainer()
         {
-            base.OnAddedToContainer(container);
+            base.OnAddedToContainer();
             MyPlaceAreas.AddPlaceArea(this);
         }
 
-        public override void OnRemovedFromContainer(MyComponentContainer container)
+        public override void OnRemovedFromContainer()
         {
             MyPlaceAreas.RemovePlaceArea(this);
-            base.OnRemovedFromContainer(container);
+            base.OnRemovedFromContainer();
         }
 
 		public abstract double DistanceSqToPoint(Vector3D point);

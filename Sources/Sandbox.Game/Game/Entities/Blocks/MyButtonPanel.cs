@@ -1,5 +1,6 @@
 ﻿using ProtoBuf;
 using Sandbox.Common;
+using Sandbox.Common.Components;
 using Sandbox.Common.ObjectBuilders;
 using Sandbox.Definitions;
 using Sandbox.Engine.Multiplayer;
@@ -19,6 +20,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using VRage;
+using VRage.ModAPI;
 using VRage.Serialization;
 using VRage.Utils;
 using VRageMath;
@@ -127,34 +129,8 @@ namespace Sandbox.Game.Entities.Blocks
             {
                 sync.m_syncing = true;
                 MyToolbarItem item = null;
-                if(msg.Item.EntityID != 0)
-                    if (string.IsNullOrEmpty(msg.Item.GroupName))
-                    {
-                        MyTerminalBlock block;
-                        if(MyEntities.TryGetEntityById<MyTerminalBlock>(msg.Item.EntityID, out block))
-                        {
-                            var builder = MyToolbarItemFactory.TerminalBlockObjectBuilderFromBlock(block);
-                            builder.Action = msg.Item.Action;
-                            item = MyToolbarItemFactory.CreateToolbarItem(builder);
-                        }
-                    }
-                    else
-                    {
-                        MyButtonPanel parent;
-                        if (MyEntities.TryGetEntityById<MyButtonPanel>(msg.Item.EntityID, out parent))
-                        {
-                            var grid = parent.CubeGrid;
-                            var groupName = msg.Item.GroupName;
-                            var group = grid.GridSystems.TerminalSystem.BlockGroups.Find((x) => x.Name.ToString() == groupName);
-                            if (group != null)
-                            {
-                                var builder = MyToolbarItemFactory.TerminalGroupObjectBuilderFromGroup(group);
-                                builder.Action = msg.Item.Action;
-                                builder.BlockEntityId = msg.Item.EntityID;
-                                item = MyToolbarItemFactory.CreateToolbarItem(builder);
-                            }
-                        }
-                    }
+                if (msg.Item.EntityID != 0)
+                    item = ToolbarItem.ToItem(msg.Item);
                 sync.m_panel.Toolbar.SetItemAtIndex(msg.Index, item);
                 sync.m_syncing = false;
             }
@@ -169,17 +145,6 @@ namespace Sandbox.Game.Entities.Blocks
                 syncObject.m_panel.SetButtonName(msg.CustomName,msg.Index);
             }
 
-        }
-
-        [ProtoContract]
-        struct ToolbarItem
-        {
-            [ProtoMember]
-            public long EntityID;
-            [ProtoMember]
-            public string GroupName;
-            [ProtoMember]
-            public string Action;
         }
 
         private const string DETECTOR_NAME = "panel";
@@ -303,7 +268,7 @@ namespace Sandbox.Game.Entities.Blocks
 
             NeedsUpdate |= MyEntityUpdateEnum.BEFORE_NEXT_FRAME | MyEntityUpdateEnum.EACH_FRAME;
 
-            GetInteractiveObjects<MyUseObjectPanelButton>(m_buttonsUseObjects);
+            UseObjectsComponent.GetInteractiveObjects<MyUseObjectPanelButton>(m_buttonsUseObjects);
         }
 
         private void Receiver_IsPoweredChanged()
@@ -322,26 +287,6 @@ namespace Sandbox.Game.Entities.Blocks
             UpdateEmissivity();
         }
 
-        private ToolbarItem GetToolbarItem(MyToolbarItem item)
-        {
-            var tItem = new ToolbarItem();
-            tItem.EntityID = 0;
-            if (item is MyToolbarItemTerminalBlock)
-            {
-                var block = item.GetObjectBuilder() as MyObjectBuilder_ToolbarItemTerminalBlock;
-                tItem.EntityID = block.BlockEntityId;
-                tItem.Action = block.Action;
-            }
-            else if (item is MyToolbarItemTerminalGroup)
-            {
-                var block = item.GetObjectBuilder() as MyObjectBuilder_ToolbarItemTerminalGroup;
-                tItem.EntityID = block.BlockEntityId;
-                tItem.Action = block.Action;
-                tItem.GroupName = block.GroupName;
-            }
-            return tItem;
-        }
-
         public override void UpdateOnceBeforeFrame()
         {
             base.UpdateOnceBeforeFrame();
@@ -352,7 +297,7 @@ namespace Sandbox.Game.Entities.Blocks
         {
             Debug.Assert(self == Toolbar);
             
-            var tItem = GetToolbarItem(self.GetItemAtIndex(index.ItemIndex));
+            var tItem = ToolbarItem.FromItem(self.GetItemAtIndex(index.ItemIndex));
             UpdateButtonEmissivity(index.ItemIndex);
             (SyncObject as MySyncButtonPanel).SendToolbarItemChanged(tItem, index.ItemIndex);
 
@@ -401,7 +346,7 @@ namespace Sandbox.Game.Entities.Blocks
             base.UpdateVisual();
             UpdateEmissivity();
             m_buttonsUseObjects.Clear();
-            GetInteractiveObjects<MyUseObjectPanelButton>(m_buttonsUseObjects);
+            UseObjectsComponent.GetInteractiveObjects<MyUseObjectPanelButton>(m_buttonsUseObjects);
         }
 
         void UpdateButtonEmissivity(int index)

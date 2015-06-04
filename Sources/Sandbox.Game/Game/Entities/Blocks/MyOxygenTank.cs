@@ -18,6 +18,7 @@ using Sandbox.Game.World;
 using Sandbox.ModAPI.Ingame;
 using Sandbox.Game.GameSystems;
 using Sandbox.Common.ObjectBuilders.Definitions;
+using VRage.ModAPI;
 
 namespace Sandbox.Game.Entities.Blocks
 {
@@ -187,7 +188,7 @@ namespace Sandbox.Game.Entities.Blocks
 
             InitializeConveyorEndpoint();
 
-            NeedsUpdate = Common.MyEntityUpdateEnum.EACH_100TH_FRAME;
+            NeedsUpdate = MyEntityUpdateEnum.EACH_100TH_FRAME;
             m_inventory = new MyInventory(
                 BlockDefinition.InventoryMaxVolume,
                 BlockDefinition.InventorySize,
@@ -369,7 +370,7 @@ namespace Sandbox.Game.Entities.Blocks
             }
             else
             {
-                DetailedInfo.Append("Filled: " + (FilledRatio * 100f).ToString("F") + "%");
+                DetailedInfo.Append("Filled: " + (FilledRatio * 100f).ToString("F4") + "%");
             }
 
             RaisePropertiesChanged();

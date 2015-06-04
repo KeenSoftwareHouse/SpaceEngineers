@@ -30,6 +30,8 @@ using VRage.Utils;
 using VRageMath;
 using VRageRender;
 using MyGuiConstants = Sandbox.Graphics.GUI.MyGuiConstants;
+using VRage.ModAPI;
+using VRage.Components;
 
 namespace Sandbox.Game.Weapons
 {
@@ -187,7 +189,7 @@ namespace Sandbox.Game.Weapons
                     var sphereShape = new HkSphereShape(radius);
                     var detectorShape = new HkBvShape(sphereShape, phantom, HkReferencePolicy.TakeOwnership);
 
-                    Physics = new Engine.Physics.MyPhysicsBody(this, Engine.Physics.RigidBodyFlag.RBF_DEFAULT);
+                    Physics = new Engine.Physics.MyPhysicsBody(this, RigidBodyFlag.RBF_DEFAULT);
                     Physics.IsPhantom = true;
                     Physics.CreateFromCollisionObject(detectorShape, matrix.Translation, WorldMatrix, null, MyPhysics.ObjectDetectionCollisionLayer);
                     detectorShape.Base.RemoveReference();

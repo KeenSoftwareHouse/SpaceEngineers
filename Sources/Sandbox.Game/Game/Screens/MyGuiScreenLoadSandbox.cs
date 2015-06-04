@@ -42,6 +42,7 @@ namespace Sandbox.Game.Gui
 
         // Client has loaded world from server.
         public static event Action BattleWorldLoaded;
+        public static event Action ScenarioWorldLoaded;
 
 
         public MyGuiScreenLoadSandbox()
@@ -223,84 +224,90 @@ namespace Sandbox.Game.Gui
             var save = FindSave(row);
             if (save != null)
             {
-                if (MyFakes.XBOX_PREVIEW)
-                {
-                    MyGuiSandbox.Show(MySpaceTexts.MessageBoxTextErrorFeatureNotAvailableYet, MySpaceTexts.MessageBoxCaptionError);
-                    return;
-                }
-
-                MyStringId textQuestion, captionQuestion;
-                if (save.Item2.WorkshopId.HasValue)
-                {
-                    textQuestion = MySpaceTexts.MessageBoxTextDoYouWishToUpdateWorld;
-                    captionQuestion = MySpaceTexts.MessageBoxCaptionDoYouWishToUpdateWorld;
-                }
-                else
-                {
-                    textQuestion = MySpaceTexts.MessageBoxTextDoYouWishToPublishWorld;
-                    captionQuestion = MySpaceTexts.MessageBoxCaptionDoYouWishToPublishWorld;
-                }
-
-                MyGuiSandbox.AddScreen(MyGuiSandbox.CreateMessageBox(
-                    styleEnum: MyMessageBoxStyleEnum.Info,
-                    buttonType: MyMessageBoxButtonsType.YES_NO,
-                    messageText: MyTexts.Get(textQuestion),
-                    messageCaption: MyTexts.Get(captionQuestion),
-                    callback: delegate(MyGuiScreenMessageBox.ResultEnum val)
-                    {
-                        if (val == MyGuiScreenMessageBox.ResultEnum.YES)
-                        {
-                            Action<MyGuiScreenMessageBox.ResultEnum, string[]> onTagsChosen = delegate(MyGuiScreenMessageBox.ResultEnum tagsResult, string[] outTags)
-                            {
-                                if (tagsResult == MyGuiScreenMessageBox.ResultEnum.YES)
-                                {
-                                    MySteamWorkshop.PublishWorldAsync(save.Item1, save.Item2.SessionName, save.Item2.Description, save.Item2.WorkshopId, outTags, SteamSDK.PublishedFileVisibility.Public,
-                                        callbackOnFinished: delegate(bool success, Result result, ulong publishedFileId)
-                                        {
-                                            if (success)
-                                            {
-                                                ulong dummy;
-                                                var checkpoint = MyLocalCache.LoadCheckpoint(save.Item1, out dummy);
-                                                save.Item2.WorkshopId = publishedFileId;
-                                                checkpoint.WorkshopId = publishedFileId;
-                                                MyLocalCache.SaveCheckpoint(checkpoint, save.Item1);
-                                                MyGuiSandbox.AddScreen(MyGuiSandbox.CreateMessageBox(
-                                                    styleEnum: MyMessageBoxStyleEnum.Info,
-                                                    messageText: MyTexts.Get(MySpaceTexts.MessageBoxTextWorldPublished),
-                                                    messageCaption: MyTexts.Get(MySpaceTexts.MessageBoxCaptionWorldPublished),
-                                                    callback: (a) =>
-                                                    {
-                                                        MySteam.API.OpenOverlayUrl(string.Format("http://steamcommunity.com/sharedfiles/filedetails/?id={0}", publishedFileId));
-                                                    }));
-                                            }
-                                            else
-                                            {
-                                                MyStringId error;
-                                                switch (result)
-                                                {
-                                                    case Result.AccessDenied:
-                                                        error = MySpaceTexts.MessageBoxTextPublishFailed_AccessDenied;
-                                                        break;
-                                                    default:
-                                                        error = MySpaceTexts.MessageBoxTextWorldPublishFailed;
-                                                        break;
-                                                }
-
-                                                MyGuiSandbox.AddScreen(MyGuiSandbox.CreateMessageBox(
-                                                    messageText: MyTexts.Get(error),
-                                                    messageCaption: MyTexts.Get(MySpaceTexts.MessageBoxCaptionWorldPublishFailed)));
-                                            }
-                                        });
-                                }
-                            };
-
-                            if (MySteamWorkshop.WorldCategories.Length > 0)
-                                MyGuiSandbox.AddScreen(new MyGuiScreenWorkshopTags(MySteamWorkshop.WORKSHOP_WORLD_TAG, MySteamWorkshop.WorldCategories, null, onTagsChosen));
-                            else
-                                onTagsChosen(MyGuiScreenMessageBox.ResultEnum.YES, new string[] { MySteamWorkshop.WORKSHOP_WORLD_TAG });
-                        }
-                    }));
+                Publish(save.Item1, save.Item2);
             }
+        }
+
+        public static void Publish(string sessionPath, MyWorldInfo worlInfo)
+        {
+            if (MyFakes.XBOX_PREVIEW)
+            {
+                MyGuiSandbox.Show(MySpaceTexts.MessageBoxTextErrorFeatureNotAvailableYet, MySpaceTexts.MessageBoxCaptionError);
+                return;
+            }
+
+            MyStringId textQuestion, captionQuestion;
+            if (worlInfo.WorkshopId.HasValue)
+            {
+                textQuestion = MySpaceTexts.MessageBoxTextDoYouWishToUpdateWorld;
+                captionQuestion = MySpaceTexts.MessageBoxCaptionDoYouWishToUpdateWorld;
+            }
+            else
+            {
+                textQuestion = MySpaceTexts.MessageBoxTextDoYouWishToPublishWorld;
+                captionQuestion = MySpaceTexts.MessageBoxCaptionDoYouWishToPublishWorld;
+            }
+
+            MyGuiSandbox.AddScreen(MyGuiSandbox.CreateMessageBox(
+                styleEnum: MyMessageBoxStyleEnum.Info,
+                buttonType: MyMessageBoxButtonsType.YES_NO,
+                messageText: MyTexts.Get(textQuestion),
+                messageCaption: MyTexts.Get(captionQuestion),
+                callback: delegate(MyGuiScreenMessageBox.ResultEnum val)
+                {
+                    if (val == MyGuiScreenMessageBox.ResultEnum.YES)
+                    {
+                        Action<MyGuiScreenMessageBox.ResultEnum, string[]> onTagsChosen = delegate(MyGuiScreenMessageBox.ResultEnum tagsResult, string[] outTags)
+                        {
+                            if (tagsResult == MyGuiScreenMessageBox.ResultEnum.YES)
+                            {
+                                MySteamWorkshop.PublishWorldAsync(sessionPath, worlInfo.SessionName, worlInfo.Description, worlInfo.WorkshopId, outTags, SteamSDK.PublishedFileVisibility.Public,
+                                    callbackOnFinished: delegate(bool success, Result result, ulong publishedFileId)
+                                    {
+                                        if (success)
+                                        {
+                                            ulong dummy;
+                                            var checkpoint = MyLocalCache.LoadCheckpoint(sessionPath, out dummy);
+                                            worlInfo.WorkshopId = publishedFileId;
+                                            checkpoint.WorkshopId = publishedFileId;
+                                            MyLocalCache.SaveCheckpoint(checkpoint, sessionPath);
+                                            MyGuiSandbox.AddScreen(MyGuiSandbox.CreateMessageBox(
+                                                styleEnum: MyMessageBoxStyleEnum.Info,
+                                                messageText: MyTexts.Get(MySpaceTexts.MessageBoxTextWorldPublished),
+                                                messageCaption: MyTexts.Get(MySpaceTexts.MessageBoxCaptionWorldPublished),
+                                                callback: (a) =>
+                                                {
+                                                    MySteam.API.OpenOverlayUrl(string.Format("http://steamcommunity.com/sharedfiles/filedetails/?id={0}", publishedFileId));
+                                                }));
+                                        }
+                                        else
+                                        {
+                                            MyStringId error;
+                                            switch (result)
+                                            {
+                                                case Result.AccessDenied:
+                                                    error = MySpaceTexts.MessageBoxTextPublishFailed_AccessDenied;
+                                                    break;
+                                                default:
+                                                    error = MySpaceTexts.MessageBoxTextWorldPublishFailed;
+                                                    break;
+                                            }
+
+                                            MyGuiSandbox.AddScreen(MyGuiSandbox.CreateMessageBox(
+                                                messageText: MyTexts.Get(error),
+                                                messageCaption: MyTexts.Get(MySpaceTexts.MessageBoxCaptionWorldPublishFailed)));
+                                        }
+                                    });
+                            }
+                        };
+
+                        if (MySteamWorkshop.WorldCategories.Length > 0)
+                            MyGuiSandbox.AddScreen(new MyGuiScreenWorkshopTags(MySteamWorkshop.WORKSHOP_WORLD_TAG, MySteamWorkshop.WorldCategories, null, onTagsChosen));
+                        else
+                            onTagsChosen(MyGuiScreenMessageBox.ResultEnum.YES, new string[] { MySteamWorkshop.WORKSHOP_WORLD_TAG });
+                    }
+                }));
+
         }
 
         void OnTableItemSelected(MyGuiControlTable sender, MyGuiControlTable.EventArgs eventArgs)
@@ -339,6 +346,7 @@ namespace Sandbox.Game.Gui
         {
             MyLog.Default.WriteLine("LoadSession() - Start");
 
+            MySession.IsScenario = false;
             if (!MySteamWorkshop.CheckLocalModsAllowed(world.Checkpoint.Mods, false))
             {
                 MyGuiSandbox.AddScreen(MyGuiSandbox.CreateMessageBox(
@@ -380,6 +388,56 @@ namespace Sandbox.Game.Gui
                 onCancelledCallback: delegate()
                 {
                     multiplayerSession.Dispose();
+                });
+        }
+
+        public static void LoadMultiplayerScenarioWorld(MyObjectBuilder_World world, MyMultiplayerBase multiplayerSession)
+        {
+            Debug.Assert(MySession.Static != null);
+
+            MyLog.Default.WriteLine("LoadMultiplayerScenarioWorld() - Start");
+
+            MySession.IsScenario = true;
+            if (!MySteamWorkshop.CheckLocalModsAllowed(world.Checkpoint.Mods, false))
+            {
+                MyGuiSandbox.AddScreen(MyGuiSandbox.CreateMessageBox(
+                    messageCaption: MyTexts.Get(MySpaceTexts.MessageBoxCaptionError),
+                    messageText: MyTexts.Get(MySpaceTexts.DialogTextLocalModsDisabledInMultiplayer),
+                    buttonType: MyMessageBoxButtonsType.OK,
+                    callback: delegate(MyGuiScreenMessageBox.ResultEnum result) { MyGuiScreenMainMenu.ReturnToMainMenu(); }));
+                MyLog.Default.WriteLine("LoadMultiplayerScenarioWorld() - End");
+                return;
+            }
+
+            MySteamWorkshop.DownloadModsAsync(world.Checkpoint.Mods,
+                onFinishedCallback: delegate(bool success)
+                {
+                    if (success)
+                    {
+                        MyScreenManager.CloseAllScreensNowExcept(null);
+                        MyGuiSandbox.Update(MyEngineConstants.UPDATE_STEP_SIZE_IN_MILLISECONDS);
+
+                        MyGuiScreenGamePlay.StartLoading(delegate
+                        {
+                            MySession.Static.LoadMultiplayerWorld(world, multiplayerSession);
+                            Debug.Assert(MySession.IsScenario);
+                            if (ScenarioWorldLoaded != null)
+                                ScenarioWorldLoaded();
+                        });
+                    }
+                    else
+                    {
+                        MyGuiSandbox.AddScreen(MyGuiSandbox.CreateMessageBox(
+                            messageCaption: MyTexts.Get(MySpaceTexts.MessageBoxCaptionError),
+                            messageText: MyTexts.Get(MySpaceTexts.DialogTextDownloadModsFailed),
+                            buttonType: MyMessageBoxButtonsType.OK,
+                            callback: delegate(MyGuiScreenMessageBox.ResultEnum result) { MyGuiScreenMainMenu.ReturnToMainMenu(); }));
+                    }
+                    MyLog.Default.WriteLine("LoadMultiplayerScenarioWorld() - End");
+                },
+                onCancelledCallback: delegate()
+                {
+                    MyGuiScreenMainMenu.UnloadAndExitToMenu();
                 });
         }
 

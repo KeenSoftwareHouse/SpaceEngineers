@@ -13,7 +13,9 @@ using System.Linq;
 using System.Text;
 using VRage;
 using VRage;
+using VRage.Components;
 using VRage.Library.Utils;
+using VRage.ModAPI;
 using VRageMath;
 
 namespace Sandbox.Engine.Physics
@@ -99,7 +101,7 @@ namespace Sandbox.Engine.Physics
             ProfilerShort.Begin("CreateFracturePiece");
             var fracturedPiece = MyFracturedPiecesManager.Static.GetPieceFromPool(0);
             fracturedPiece.InitFromBreakableBody(b, worldMatrix, block);
-            fracturedPiece.NeedsUpdate |= Common.MyEntityUpdateEnum.BEFORE_NEXT_FRAME;
+            fracturedPiece.NeedsUpdate |= MyEntityUpdateEnum.BEFORE_NEXT_FRAME;
             //fracturedPiece.Physics.RigidBody.ContactPointCallbackDelay = 0;
             //fracturedPiece.Physics.RigidBody.ContactPointCallbackEnabled = true;
             ProfilerShort.End();
@@ -284,14 +286,14 @@ namespace Sandbox.Engine.Physics
                 fracturedPiece.CreateSync();
             }
             ProfilerShort.End();
-            fracturedPiece.NeedsUpdate |= Common.MyEntityUpdateEnum.BEFORE_NEXT_FRAME;
+            fracturedPiece.NeedsUpdate |= MyEntityUpdateEnum.BEFORE_NEXT_FRAME;
             //physicsBody.RigidBody.ContactPointCallbackDelay = 0;
             //physicsBody.RigidBody.ContactPointCallbackEnabled = true;
             fracturedPiece.Physics = physicsBody;
             //FixPosition(fracturedPiece);
             fracturedPiece.SetDataFromHavok(shape);
             ProfilerShort.Begin("AddToWorld");
-            fracturedPiece.NeedsUpdate |= Common.MyEntityUpdateEnum.BEFORE_NEXT_FRAME;
+            fracturedPiece.NeedsUpdate |= MyEntityUpdateEnum.BEFORE_NEXT_FRAME;
             MyEntities.Add(fracturedPiece);
             shape.RemoveReference();
             ProfilerShort.End();

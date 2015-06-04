@@ -5,6 +5,7 @@ using System.Text;
 using Sandbox.Game.Weapons;
 using Sandbox.Common.Components;
 using VRageMath;
+using VRage.Components;
 
 namespace Sandbox.Game.Components
 {
@@ -12,10 +13,10 @@ namespace Sandbox.Game.Components
     {
         MyLargeTurretBase m_turretBase = null;
         #region overrides
-        public override void OnAddedToContainer(MyComponentContainer container)
+        public override void OnAddedToContainer()
         {
-            base.OnAddedToContainer(container);
-            m_turretBase = Entity as MyLargeTurretBase;
+            base.OnAddedToContainer();
+            m_turretBase = Container.Entity as MyLargeTurretBase;
         }
         public override void Draw()
         {

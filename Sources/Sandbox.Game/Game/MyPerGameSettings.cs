@@ -4,6 +4,7 @@ using Sandbox.Engine.Voxels;
 using Sandbox.Game.Entities.Cube;
 using System;
 using System.Diagnostics;
+using VRage.Components;
 using VRage.Data;
 using VRage.Data.Audio;
 using VRage.Utils;
@@ -53,6 +54,7 @@ namespace Sandbox.Game
         public Type BattleScreen;
         public Type BattleBlueprintScreen;
         public Type BattleLobbyClientScreen;
+        public Type ScenarioLobbyClientScreen;
 
         public string[] MainMenuBackgroundVideos;
 
@@ -102,6 +104,7 @@ namespace Sandbox.Game
         public static MyPlacementSettings BuildingSettings;
         public static MyPlacementSettings PastingSettings;
         public static string GameModAssembly;
+        public static string SandboxAssembly = "Sandbox.Common.dll";
 
         public static bool SingleCluster = false;
         public static int LoadingScreenQuoteCount = 71;
@@ -200,8 +203,8 @@ namespace Sandbox.Game
             EditWorldSettingsScreen = typeof(Sandbox.Game.Gui.MyGuiScreenWorldSettings),
             HelpScreen = typeof(Sandbox.Game.Gui.MyGuiScreenHelpSpace),
             VoxelMapEditingScreen = typeof(Sandbox.Game.Gui.MyGuiScreenDebugSpawnMenu),
+            ScenarioLobbyClientScreen = typeof(Sandbox.Game.Screens.MyGuiScreenScenarioMpClient),
         };
-        public static Type RespawnComponentType = null;
         public static Type BotFactoryType = null;
         public static bool EnableAi = false;
 
@@ -215,7 +218,6 @@ namespace Sandbox.Game
 
         public static RigidBodyFlag LargeGridRBFlag = RigidBodyFlag.RBF_DOUBLED_KINEMATIC;
         public static RigidBodyFlag GridRBFlagOnClients = RigidBodyFlag.RBF_DEFAULT;
-        public static bool CharacterUpdatePositionPerFrame = false;
         public static RigidBodyFlag NetworkCharacterType = RigidBodyFlag.RBF_KINEMATIC;
         public static float NetworkCharacterScale = 1.0f;
         public static int NetworkCharacterCollisionLayer = MyPhysics.CharacterNetworkCollisionLayer;
@@ -226,7 +228,7 @@ namespace Sandbox.Game
         public static float CharacterDamageDeadlyDamageVelocity = 16.0f; // speed to cause deadly damage
         public static float CharacterDamageMediumDamageVelocity = 13.0f; // speed to cause mediun damage when character falls
         public static float CharacterDamageHitObjectMinMass = 200f;    // minimal weight of the object to cause damage when squeezing the character
-        public static float CharacterDamageHitObjectMinVelocity = 7.5f;   // minimal speed of object to cause damage to character 25 km/h ~ 7 m/s 
+        public static float CharacterDamageHitObjectMinVelocity = 8.5f;   // minimal speed of object to cause damage to character 25 km/h ~ 7 m/s 
         public static float CharacterDamageHitObjectMediumEnergy = 100; // energy of the colliding object with the character to cause the medium damage
         public static float CharacterDamageHitObjectSmallEnergy = 80;
         public static float CharacterDamageHitObjectCriticalEnergy = 200;
@@ -260,6 +262,7 @@ namespace Sandbox.Game
         public static bool ShowObfuscationStatus = true;
 
         public static bool EnableKinematicMPCharacter = false;
+        public static bool EnablePerFrameCharacterSync = false;
 
         public static bool EnableRagdollInJetpack = false;
 

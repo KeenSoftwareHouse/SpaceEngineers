@@ -18,6 +18,8 @@ using Sandbox.Engine.Utils;
 using Sandbox.Game.Gui;
 using Sandbox.Common.Components;
 using VRage.Voxels;
+using VRage.Components;
+using VRage.ObjectBuilders;
 
 
 #endregion
@@ -356,7 +358,7 @@ namespace Sandbox.Game.Entities
         {
             Debug.Assert(item.Amount > 0, "FloatObject item amount must be > 0");
 
-            var floatingBuilder = Sandbox.Common.ObjectBuilders.Serializer.MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_FloatingObject>();
+            var floatingBuilder = MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_FloatingObject>();
             floatingBuilder.Item = item.GetObjectBuilder();
             floatingBuilder.PersistentFlags |= MyPersistentEntityFlags2.Enabled | MyPersistentEntityFlags2.InScene;
             return floatingBuilder;
