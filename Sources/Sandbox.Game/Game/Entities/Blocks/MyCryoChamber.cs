@@ -20,11 +20,12 @@ using VRageMath;
 using VRageRender;
 using VRage.ModAPI;
 using Sandbox.Engine.Utils;
+using Sandbox.ModAPI.Ingame;
 
 namespace Sandbox.Game.Entities.Blocks
 {
     [MyCubeBlockType(typeof(MyObjectBuilder_CryoChamber))]
-    public class MyCryoChamber : MyCockpit, IMyPowerConsumer
+    public class MyCryoChamber : MyCockpit, IMyPowerConsumer, IMyCryoChamber
     {
         private MatrixD m_characterDummy;
         private MatrixD m_cameraDummy;
@@ -181,6 +182,10 @@ namespace Sandbox.Game.Entities.Blocks
 
             pilot.PositionComp.SetWorldMatrix(m_characterDummy * WorldMatrix);
             UpdateEmissivity(true);
+
+            DetailedInfo.Clear();
+            DetailedInfo.AppendFormat("Occupied by {0}", this.GetOccupantInfo());
+            this.RaisePropertiesChanged();
         }
 
         protected void OnCryoChamberControlAcquired(MyEntityController controller)
@@ -192,6 +197,9 @@ namespace Sandbox.Game.Entities.Blocks
         {
             m_currentPlayerId = null;
             UpdateEmissivity(false);
+
+            DetailedInfo.Clear();
+            this.RaisePropertiesChanged();
         }
 
         public override void OnModelChange()
@@ -430,6 +438,19 @@ namespace Sandbox.Game.Entities.Blocks
         internal void OnPlayerLoaded()
         {
             MySession.Static.CameraAttachedToChanged += CameraAttachedToChanged;
+        }
+
+        public bool IsOccupied { get { return m_pilot != null; }}
+        
+        public AstronautInfo GetOccupantInfo()
+        {
+            var pilot = m_pilot;
+            if (pilot == null)
+                return new AstronautInfo();
+            
+            return new AstronautInfo(
+                pilot.ControllerInfo.Controller != null ? pilot.ControllerInfo.Controller.Player.Identity.DisplayName : pilot.DisplayName,
+                pilot.GetFactionTag());
         }
     }
 }
