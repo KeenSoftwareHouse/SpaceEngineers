@@ -160,15 +160,22 @@ namespace VRageRender
                     adapterTestDevice.CheckThreadingSupport(out supportsConcurrentResources, out supportsCommandLists);
                 }
 
-                void* ptr = ((IntPtr)adapter.Description.DedicatedVideoMemory).ToPointer();
-                ulong vram = (ulong)ptr;
+                // DedicatedSystemMemory = bios or DVMT preallocated video memory, that cannot be used by OS - need retest on pc with only cpu/chipset based graphic
+                // DedicatedVideoMemory = discrete graphic video memory
+                // SharedSystemMemory = aditional video memory, that can be taken from OS RAM when needed
+                void * vramptr = ((IntPtr)(adapter.Description.DedicatedSystemMemory != 0 ? adapter.Description.DedicatedSystemMemory : adapter.Description.DedicatedVideoMemory)).ToPointer();
+                UInt64 vram = (UInt64)vramptr;
+                void * svramptr = ((IntPtr)adapter.Description.SharedSystemMemory).ToPointer();
+                UInt64 svram = (UInt64)svramptr;
 
-                supportedDevice = supportedDevice && vram > 500000000;
+                // microsoft software renderer allocates 256MB shared memory, cpu integrated graphic on notebooks has 0 preallocated, all shared
+                supportedDevice = supportedDevice && (vram > 500000000 || svram > 500000000);
 
-                var deviceDesc = String.Format("{0}, dev id: {1}, shared mem: {2}, Luid: {3}, rev: {4}, subsys id: {5}, vendor id: {6}",
+                var deviceDesc = String.Format("{0}, dev id: {1}, mem: {2}, shared mem: {3}, Luid: {4}, rev: {5}, subsys id: {6}, vendor id: {7}",
                     adapter.Description.Description,
                     adapter.Description.DeviceId,
                     vram,
+                    svram,
                     adapter.Description.Luid,
                     adapter.Description.Revision,
                     adapter.Description.SubsystemId,
@@ -182,21 +189,19 @@ namespace VRageRender
                     Description = deviceDesc,
                     IsDx11Supported = supportedDevice,
                     AdapterDeviceId = i,
-
                     Priority = VendorPriority(adapter.Description.VendorId),
-                    Has512MBRam = vram > 500000000,
                     HDRSupported = true,
                     MaxTextureSize = SharpDX.Direct3D11.Texture2D.MaximumTexture2DSize,
-
-                    VRAM = vram,
+                    VRAM = vram > 0 ? vram : svram,
+                    Has512MBRam = (vram > 500000000 || svram > 500000000),
                     MultithreadedRenderingSupported = supportsCommandLists
                 };
 
-                if(vram >= 2000000000)
+                if(info.VRAM >= 2000000000)
                 {
                     info.MaxTextureQualitySupported = MyTextureQuality.HIGH;
                 }
-                else if (vram >= 1000000000)
+                else if (info.VRAM >= 1000000000)
                 {
                     info.MaxTextureQualitySupported = MyTextureQuality.MEDIUM;
                 }
@@ -226,15 +231,15 @@ namespace VRageRender
 
                 if(supportedDevice)
                 {
-                    for(int j=0; j<factory.Adapters[i].Outputs.Length; j++)
+                    for(int j=0; j< adapter.Outputs.Length; j++)
                     {
-                        var output = factory.Adapters[i].Outputs[j];
+                        var output = adapter.Outputs[j];
 
                         info.Name = String.Format("{0} + {1}", adapter.Description.Description, output.Description.DeviceName);
                         info.OutputName = output.Description.DeviceName;
                         info.OutputId = j;
 
-                        var displayModeList = factory.Adapters[i].Outputs[j].GetDisplayModeList(MyRender11Constants.BACKBUFFER_FORMAT, DisplayModeEnumerationFlags.Interlaced);
+                        var displayModeList = output.GetDisplayModeList(MyRender11Constants.BACKBUFFER_FORMAT, DisplayModeEnumerationFlags.Interlaced);
                         var adapterDisplayModes = new MyDisplayMode[displayModeList.Length];
                         for (int k = 0; k < displayModeList.Length; k++)
                         {
