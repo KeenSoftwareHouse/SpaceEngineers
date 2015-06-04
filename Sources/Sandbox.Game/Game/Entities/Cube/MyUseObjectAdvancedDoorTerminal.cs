@@ -13,7 +13,7 @@ using VRage.ModAPI;
 
 namespace Sandbox.Game.Entities.Cube
 {
-    [MyUseObject("terminal")]
+    [MyUseObject("advdoor")]
     public class MyUseObjectAdvancedDoorTerminal: IMyUseObject
     {
         public readonly MyAdvancedDoor Door;
