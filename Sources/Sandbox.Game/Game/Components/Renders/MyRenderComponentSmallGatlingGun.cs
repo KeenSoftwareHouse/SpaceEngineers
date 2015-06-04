@@ -13,9 +13,9 @@ namespace Sandbox.Game.Components
     {
         MySmallGatlingGun m_gatlingGun = null;
         #region overrides
-        public override void OnAddedToContainer(MyComponentContainer container)
+        public override void OnAddedToContainer()
         {
-            base.OnAddedToContainer(container);
+            base.OnAddedToContainer();
             m_gatlingGun = Container.Entity as MySmallGatlingGun;
         }
         public override void Draw()

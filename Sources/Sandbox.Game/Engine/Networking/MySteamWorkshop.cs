@@ -1498,6 +1498,53 @@ namespace Sandbox.Engine.Networking
             return true;
         }
 
+        /// <summary>
+        /// Do NOT call this method from update thread.
+        /// </summary>
+        public static bool TryCreateBattleWorldInstanceBlocking(SubscribedItem world, string workshopBattleWorldsPath, out string sessionPath)
+        {
+            if (!Directory.Exists(m_workshopWorldsPath))
+                Directory.CreateDirectory(m_workshopWorldsPath);
+
+            string safeName = MyUtils.StripInvalidChars(world.Title);
+            sessionPath = null;
+
+            var localPackedWorldFullPath = Path.Combine(m_workshopWorldsPath, world.PublishedFileId + m_workshopWorldSuffix);
+
+            if (!MySteam.IsOnline)
+                return false;
+
+            if (!IsModUpToDateBlocking(localPackedWorldFullPath, world, true))
+            {
+                if (!DownloadItemBlocking(localPackedWorldFullPath, world.UGCHandle))
+                    return false;
+            }
+
+            if (!Directory.Exists(workshopBattleWorldsPath))
+                Directory.CreateDirectory(workshopBattleWorldsPath);
+
+            sessionPath = Path.Combine(workshopBattleWorldsPath, safeName);
+
+            // Find new non existing folder. The game folder name may be different from game name, so we have to
+            // make sure we don't overwrite another save
+            while (Directory.Exists(sessionPath))
+                sessionPath = Path.Combine(workshopBattleWorldsPath, safeName + MyUtils.GetRandomInt(int.MaxValue).ToString("########"));
+
+            MyZipArchive.ExtractToDirectory(localPackedWorldFullPath, sessionPath);
+
+            // Update some meta-data of the new world.
+            ulong checkPointSize;
+            var checkpoint = MyLocalCache.LoadCheckpoint(sessionPath, out checkPointSize);
+            checkpoint.SessionName = world.Title;
+            checkpoint.LastSaveTime = DateTime.Now;
+            checkpoint.WorkshopId = world.PublishedFileId;
+            MyLocalCache.SaveCheckpoint(checkpoint, sessionPath);
+            MyLocalCache.SaveLastLoadedTime(sessionPath, DateTime.Now);
+
+            return true;
+        }
+
+
         class CreateWorldResult : IMyAsyncResult
         {
             public Task Task

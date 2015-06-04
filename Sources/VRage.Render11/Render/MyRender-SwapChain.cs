@@ -490,7 +490,7 @@ namespace VRageRender
                 md.RefreshRate.Numerator = settings.RefreshRate;
                 md.RefreshRate.Denominator = 1000;
 
-                var list = m_adapterModes[m_settings.AdapterOrdinal];
+                var list = m_adapterModes.Get(m_settings.AdapterOrdinal);
                 if (list != null)
                 {
                     for (int i = 0; i < list.Length; i++)

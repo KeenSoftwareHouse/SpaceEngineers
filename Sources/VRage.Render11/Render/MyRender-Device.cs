@@ -113,20 +113,20 @@ namespace VRageRender
                 || !adapters[settingsToTry.Value.AdapterOrdinal].IsDx11Supported;
             if(adapterIndexNotValid)
             {
-                var maxVram = 0ul;
+                var bestPriority = -1000;
 
                 for(int i=0; i<adapters.Length; i++)
                 {
                     if(adapters[i].IsDx11Supported)
                     {
-                        maxVram = (ulong) Math.Max(maxVram, adapters[i].VRAM);
+                        bestPriority = (int)Math.Max(bestPriority, adapters[i].Priority);
                     }
                 }
 
                 // taking supporting adapter with most VRAM
                 for (int i = 0; i < adapters.Length; i++)
                 {
-                    if(adapters[i].IsDx11Supported && adapters[i].VRAM == maxVram)
+                    if(adapters[i].IsDx11Supported && adapters[i].Priority == bestPriority)
                     {
                         adapterIndex = i;
                         break;

@@ -1018,7 +1018,7 @@ namespace Sandbox.Game.Entities
             int frameDt = MySandboxGame.TotalGamePlayTimeInMilliseconds - m_lastInputHandleTime;
             m_lastInputHandleTime += frameDt;
 
-            bool disallowCockpitBuilding = MySession.ControlledEntity is MyCockpit && !DeveloperSpectatorIsBuilding;
+            bool disallowCockpitBuilding = MySession.ControlledEntity is MyCockpit && !SpectatorIsBuilding;
 
             // Don't allow cube builder when paused or when in cockpit and not in developer spectator mode
             if (MySandboxGame.IsPaused || disallowCockpitBuilding)
@@ -1067,7 +1067,7 @@ namespace Sandbox.Game.Entities
             }
 
             // When spectator active, building is instant
-            if (MySession.Static.CreativeMode || DeveloperSpectatorIsBuilding)
+            if (MySession.Static.CreativeMode || SpectatorIsBuilding)
             {
                 if (MySession.Static.EnableCopyPaste)
                 {
@@ -1763,7 +1763,7 @@ namespace Sandbox.Game.Entities
 
                 if (DynamicMode)
                 {
-                    if (MySession.Static.SurvivalMode && !DeveloperSpectatorIsBuilding && CurrentBlockDefinition != null)
+                    if (MySession.Static.SurvivalMode && !SpectatorIsBuilding && CurrentBlockDefinition != null)
                     {
                         float gridSize = MyDefinitionManager.Static.GetCubeSize(CurrentBlockDefinition.CubeSize);
                         float maxSize = MathHelper.Max(CurrentBlockDefinition.Size.X, CurrentBlockDefinition.Size.Y, CurrentBlockDefinition.Size.Z) * gridSize;
@@ -1824,7 +1824,7 @@ namespace Sandbox.Game.Entities
                     if (IntersectionDistance > MAX_BLOCK_BUILDING_DISTANCE)
                         IntersectionDistance = MAX_BLOCK_BUILDING_DISTANCE;
 
-                    if (MySession.Static.SurvivalMode && !DeveloperSpectatorIsBuilding)
+                    if (MySession.Static.SurvivalMode && !SpectatorIsBuilding)
                     {
                         float gridSize = MyDefinitionManager.Static.GetCubeSize(CurrentBlockDefinition.CubeSize);
                         BoundingBoxD localAABB = new BoundingBoxD(-CurrentBlockDefinition.Size * gridSize * 0.5f, CurrentBlockDefinition.Size * gridSize * 0.5f);
@@ -2074,7 +2074,7 @@ namespace Sandbox.Game.Entities
             var settings = CurrentBlockDefinition.CubeSize == MyCubeSize.Large ? MyPerGameSettings.PastingSettings.LargeGrid : MyPerGameSettings.PastingSettings.SmallGrid;
             MatrixD drawMatrix = gizmoSpace.m_worldMatrixAdd;
 
-            if (MySession.Static.SurvivalMode && !DeveloperSpectatorIsBuilding)
+            if (MySession.Static.SurvivalMode && !SpectatorIsBuilding)
             {
                 //MatrixD inverseDrawMatrix = MatrixD.Invert(drawMatrix);
                 //if (!MyCubeBuilderGizmo.DefaultGizmoCloseEnough(ref inverseDrawMatrix, localAABB, gridSize, IntersectionDistance) 
@@ -2200,7 +2200,7 @@ namespace Sandbox.Game.Entities
             gizmoSpace.m_buildAllowed &= gizmoSpace.m_showGizmoCube;
             gizmoSpace.m_worldMatrixAdd = drawMatrix;
 
-            if (MySession.Static.SurvivalMode && !DeveloperSpectatorIsBuilding)
+            if (MySession.Static.SurvivalMode && !SpectatorIsBuilding)
             {
                 BoundingBoxD gizmoBox = localAABB.Transform(ref drawMatrix);
 
@@ -2284,7 +2284,7 @@ namespace Sandbox.Game.Entities
                     }
 
                     // In survival, check whether you're close enough, and have enough materials or haven't built for long enough
-                    if (!PlacingSmallGridOnLargeStatic && MySession.Static.SurvivalMode && !DeveloperSpectatorIsBuilding)
+                    if (!PlacingSmallGridOnLargeStatic && MySession.Static.SurvivalMode && !SpectatorIsBuilding)
                     {
                         Vector3 localMin = (m_gizmo.SpaceDefault.m_min - new Vector3(0.5f)) * CurrentGrid.GridSize;
                         Vector3 localMax = (m_gizmo.SpaceDefault.m_max + new Vector3(0.5f)) * CurrentGrid.GridSize;
@@ -2314,7 +2314,7 @@ namespace Sandbox.Game.Entities
                     UpdateShowGizmoCube(gizmoSpace, CurrentGrid.GridSize);
 
                     // Disable building from cockpit
-                    if (MySession.ControlledEntity != null && MySession.ControlledEntity is MyCockpit && !DeveloperSpectatorIsBuilding)
+                    if (MySession.ControlledEntity != null && MySession.ControlledEntity is MyCockpit && !SpectatorIsBuilding)
                     {
                         gizmoSpace.m_showGizmoCube = false;
                         return;
@@ -2419,7 +2419,7 @@ namespace Sandbox.Game.Entities
 
                     if (PlacingSmallGridOnLargeStatic)
                     {
-                        if (MySession.Static.SurvivalMode && !DeveloperSpectatorIsBuilding)
+                        if (MySession.Static.SurvivalMode && !SpectatorIsBuilding)
                         {
                             MatrixD invDrawMatrix = Matrix.Invert(drawMatrix);
 

@@ -36,6 +36,7 @@ namespace Sandbox.Game.World
 
             RegisterEventTypesAndHandlers(Assembly.GetAssembly(typeof(MyGlobalEventBase)));
             RegisterEventTypesAndHandlers(MyPlugins.GameAssembly);
+            RegisterEventTypesAndHandlers(MyPlugins.SandboxAssembly);
         }
 
         private static void RegisterEventTypesAndHandlers(Assembly assembly)

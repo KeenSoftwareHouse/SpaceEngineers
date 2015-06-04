@@ -302,6 +302,12 @@ namespace Sandbox.Engine.Multiplayer
             set;
         }
 
+        public override string ScenarioBriefing
+        {
+            get;
+            set;
+        }
+
         public override bool Battle
         {
             get;

@@ -47,7 +47,7 @@ namespace Sandbox.Game.Entities
             Render = new MyRenderComponentDebrisVoxel();
         }
 
-        void Components_ComponentAdded(Type arg1, MyComponentBase arg2)
+        void Components_ComponentAdded(Type arg1, MyEntityComponentBase arg2)
         {
             if (arg1 == typeof(MyGameLogicComponent))
                 m_logic = arg2 as MyMeteorGameLogic;
@@ -258,10 +258,10 @@ namespace Sandbox.Game.Entities
                 return builder;
             }
 
-            public override void OnAddedToContainer(MyComponentContainer container)
+            public override void OnAddedToContainer()
             {
-                base.OnAddedToContainer(container);
-                m_soundEmitter.Entity = container.Entity as MyEntity;
+                base.OnAddedToContainer();
+                m_soundEmitter.Entity = Container.Entity as MyEntity;
             }
 
             public override void MarkForClose()

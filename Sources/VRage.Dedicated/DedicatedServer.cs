@@ -43,6 +43,7 @@ namespace VRage.Dedicated
             if (Environment.UserInteractive)
             {
                 MyPlugins.RegisterGameAssemblyFile(MyPerGameSettings.GameModAssembly);
+                MyPlugins.RegisterSandboxAssemblyFile(MyPerGameSettings.SandboxAssembly);
                 MyPlugins.RegisterFromArgs(args);
                 MyPlugins.Load();
                 ShowWindow(GetConsoleWindow(), SW_HIDE);

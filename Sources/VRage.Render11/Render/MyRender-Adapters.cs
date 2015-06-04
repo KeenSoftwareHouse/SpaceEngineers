@@ -89,6 +89,8 @@ namespace VRageRender
             MyRender11.Log.WriteLine("DXGIAdapter id = " + info.AdapterDeviceId);
             MyRender11.Log.WriteLine("SUPPORTED = " + info.IsDx11Supported);
             MyRender11.Log.WriteLine("VRAM = " + info.VRAM);
+            MyRender11.Log.WriteLine("Priority = " + info.Priority);
+            MyRender11.Log.WriteLine("Fallback display modes = " + info.FallbackDisplayModes);
             MyRender11.Log.WriteLine("Multithreaded rendering supported = " + info.MultithreadedRenderingSupported);
         }
 
@@ -109,6 +111,20 @@ namespace VRageRender
             }
             MyRender11.Log.DecreaseIndent();
             MyRender11.Log.WriteLine("}");
+        }
+
+        static int VendorPriority(int vendorId)
+        {
+            switch(vendorId)
+            {
+                case 4098: // amd
+                case 4318: // nvidia
+                    return 2;
+                case 32902: // intel
+                    return 1;
+                default:
+                    return 0;
+            }
         }
 
         unsafe static MyAdapterInfo[] CreateAdaptersList()
@@ -167,6 +183,7 @@ namespace VRageRender
                     IsDx11Supported = supportedDevice,
                     AdapterDeviceId = i,
 
+                    Priority = VendorPriority(adapter.Description.VendorId),
                     Has512MBRam = vram > 500000000,
                     HDRSupported = true,
                     MaxTextureSize = SharpDX.Direct3D11.Texture2D.MaximumTexture2DSize,
@@ -207,7 +224,7 @@ namespace VRageRender
 
                 LogAdapterInfoBegin(ref info);
 
-                if(supportedDevice && vram > 0)
+                if(supportedDevice)
                 {
                     for(int j=0; j<factory.Adapters[i].Outputs.Length; j++)
                     {
@@ -243,15 +260,44 @@ namespace VRageRender
 
                         LogOutputDisplayModes(ref info);
                     }
+
+                    if(info.SupportedDisplayModes == null)
+                    {
+                        // FALLBACK MODES
+
+                        MyDisplayMode[] fallbackDisplayModes = new MyDisplayMode[] {
+                            new MyDisplayMode(640, 480, 60000, 1000),
+                            new MyDisplayMode(720, 576, 60000, 1000),
+                            new MyDisplayMode(800, 600, 60000, 1000),
+                            new MyDisplayMode(1024, 768, 60000, 1000),
+                            new MyDisplayMode(1152, 864, 60000, 1000),
+                            new MyDisplayMode(1280, 720, 60000, 1000),
+                            new MyDisplayMode(1280, 768, 60000, 1000),
+                            new MyDisplayMode(1280, 800, 60000, 1000),
+                            new MyDisplayMode(1280, 960, 60000, 1000),
+                            new MyDisplayMode(1280, 1024, 60000, 1000),
+                            new MyDisplayMode(1360, 768, 60000, 1000),
+                            new MyDisplayMode(1360, 1024, 60000, 1000),
+                            new MyDisplayMode(1440, 900, 60000, 1000),
+                            new MyDisplayMode(1600, 900, 60000, 1000),
+                            new MyDisplayMode(1600, 1024, 60000, 1000),
+                            new MyDisplayMode(1600, 1200, 60000, 1000),
+                            new MyDisplayMode(1680, 1200, 60000, 1000),
+                            new MyDisplayMode(1680, 1050, 60000, 1000),
+                            new MyDisplayMode(1920, 1080, 60000, 1000),
+                            new MyDisplayMode(1920, 1200, 60000, 1000),
+                        };
+
+                        info.SupportedDisplayModes = fallbackDisplayModes;
+                        info.FallbackDisplayModes = true;
+                    }
                 }
-                /* nope, not supported
                 else
                 {
                     info.SupportedDisplayModes = new MyDisplayMode[0];
                     adaptersList.Add(info);
                     adapterIndex++;
                 }
-                */
                 LogAdapterInfoEnd();
 
                 if(adapterTestDevice != null)

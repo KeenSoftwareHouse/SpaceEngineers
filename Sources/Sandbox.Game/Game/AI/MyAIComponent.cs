@@ -332,9 +332,6 @@ namespace Sandbox.Game.AI
             }
             else
             {
-				if (MySession.Static.CreativeMode)
-					return Bots.GetCreatedBotCount() < BotFactory.MaximumBotPerPlayer * perPlayerBotMultiplier;
-
                 int botCount = 0;
                 var lookedPlayer = pid.SteamId;
                 var players = Sync.Players.GetAllPlayers();

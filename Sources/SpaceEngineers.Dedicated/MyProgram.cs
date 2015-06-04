@@ -4,6 +4,7 @@ using Sandbox.Common.ObjectBuilders;
 using Sandbox.Game;
 using SpaceEngineers.Game;
 using System;
+using System.ComponentModel;
 using VRage.Dedicated;
 
 #endregion
@@ -37,6 +38,23 @@ namespace SpaceEngineersDedicated
 
 
             DedicatedServer.Run<MyObjectBuilder_SessionSettings>(args);
+        }
+    }
+
+    [RunInstaller(true)]
+    public class WindowsServiceInstaller : WindowsServiceInstallerBase
+    {
+        public WindowsServiceInstaller()
+        {
+            SpaceEngineersGame.SetupPerGameSettings();
+
+            m_serviceInstaller.DisplayName = MyPerServerSettings.GameName + " dedicated server";
+            //# This must be identical to the WindowsService.ServiceBase name
+            //# set in the constructor of WindowsService.cs
+            m_serviceInstaller.ServiceName = m_serviceInstaller.DisplayName;
+            m_serviceInstaller.Description = MyPerServerSettings.GameDSDescription;
+
+            this.Installers.Add(m_serviceInstaller);
         }
     }
 }
