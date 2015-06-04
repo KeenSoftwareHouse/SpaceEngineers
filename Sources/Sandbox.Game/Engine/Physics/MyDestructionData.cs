@@ -71,7 +71,6 @@ namespace Sandbox
             Storage = new HkDestructionStorage(TemporaryWorld.DestructionWorld);
 
             // pre-fracture cube blocks
-            if (!MyFakes.LAZY_LOAD_DESTRUCTION)
             {
                 foreach (var groupName in MyDefinitionManager.Static.GetDefinitionPairNames())
                 {
@@ -111,7 +110,8 @@ namespace Sandbox
                         }
                     }
                 }
-                BlockShapePool.Preallocate();
+                if (!MyFakes.LAZY_LOAD_DESTRUCTION)
+                    BlockShapePool.Preallocate();
             }
 
             foreach (var enviroment in MyDefinitionManager.Static.GetEnvironmentItemDefinitions())

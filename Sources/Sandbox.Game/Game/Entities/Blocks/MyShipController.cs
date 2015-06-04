@@ -1543,6 +1543,8 @@ namespace Sandbox.Game.Entities
                     MyHud.Notifications.Add(MyNotificationSingletons.AccessDenied);
                 else if (actionResult == UseActionResult.Unpowered)
                     MyHud.Notifications.Add(new MyHudNotification(MySpaceTexts.BlockIsNotPowered, 2500, MyFontEnum.Red));
+                else if (actionResult == UseActionResult.CockpitDamaged)
+                    MyHud.Notifications.Add(new MyHudNotification(MySpaceTexts.Notification_CockpitIsDamaged, 2500, MyFontEnum.Red));
             }
         }
 

@@ -171,6 +171,12 @@ namespace Sandbox.Engine.Multiplayer
             set;
         }
 
+        public override DateTime ScenarioStartTime
+        {
+            get;
+            set;
+        }
+
         public override bool Battle
         {
             get;

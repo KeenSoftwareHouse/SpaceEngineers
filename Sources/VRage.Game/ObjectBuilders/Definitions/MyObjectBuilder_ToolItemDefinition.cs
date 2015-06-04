@@ -58,5 +58,8 @@ namespace Medieval.ObjectBuilders.Definitions
 		[ProtoMember, DefaultValue(0)]
 		public float BuildingEfficiency = 0;
 
+        [ProtoMember, DefaultValue(30)]
+        public float ToolDamage = 30;
+
     }
 }

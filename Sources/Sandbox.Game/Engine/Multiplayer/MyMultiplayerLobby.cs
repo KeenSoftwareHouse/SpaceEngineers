@@ -156,6 +156,12 @@ namespace Sandbox.Engine.Multiplayer
             set { Lobby.SetLobbyData(MyMultiplayer.ScenarioBriefingTag, value); }
         }
 
+        public override DateTime ScenarioStartTime
+        {
+            get { return GetLobbyDateTime(MyMultiplayer.ScenarioStartTimeTag, Lobby, DateTime.UtcNow); }
+            set { Lobby.SetLobbyData(MyMultiplayer.ScenarioStartTimeTag, value.ToString(CultureInfo.InvariantCulture)); }
+        }
+
         public override bool Battle
         {
             get { return GetLobbyBool(MyMultiplayer.BattleTag, Lobby, false); }
@@ -532,6 +538,15 @@ namespace Sandbox.Engine.Multiplayer
         {
             int val;
             if (int.TryParse(lobby.GetLobbyData(key), NumberStyles.Integer, CultureInfo.InvariantCulture, out val))
+                return val;
+            else
+                return defValue;
+        }
+
+        public static DateTime GetLobbyDateTime(string key, Lobby lobby, DateTime defValue)
+        {
+            DateTime val;
+            if (DateTime.TryParse(lobby.GetLobbyData(key), CultureInfo.InvariantCulture, DateTimeStyles.None, out val))
                 return val;
             else
                 return defValue;

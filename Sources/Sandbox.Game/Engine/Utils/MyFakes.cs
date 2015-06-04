@@ -526,5 +526,7 @@ namespace Sandbox.Engine.Utils
 
         public static bool ENABLE_ADMIN_SPECTATOR_BUILDING = false;
 
+        public static bool MANIPULATION_TOOL_VELOCITY_LIMIT = false;
+
     }
 }

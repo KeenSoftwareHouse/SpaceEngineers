@@ -57,7 +57,7 @@ namespace Sandbox.Game.GameSystems
             Loaded,
             JoinScreen,
             WaitingForClients,
-            Game,
+            Running,
         }
 
         private MyState m_gameState = MyState.Loaded;
@@ -122,7 +122,7 @@ namespace Sandbox.Game.GameSystems
                     }
                 }
             }
-            else if (m_gameState == MyState.Game)
+            else if (m_gameState == MyState.Running)
             {
                 MySyncScenario.StartScenarioRequest(steamId, ServerStartGameTime.Ticks);
             }
@@ -181,7 +181,7 @@ namespace Sandbox.Game.GameSystems
                         }
                     }
                     break;
-                case MyState.Game:
+                case MyState.Running:
                     break;
             }
         }
@@ -236,6 +236,7 @@ namespace Sandbox.Game.GameSystems
                 MyGuiSandbox.AddScreen(m_waitingScreen);
 
                 ServerPreparationStartTime = DateTime.UtcNow;
+                MyMultiplayer.Static.ScenarioStartTime = ServerPreparationStartTime;
                 MySyncScenario.PrepareScenarioFromLobby(ServerPreparationStartTime.Ticks);
             }
             else
@@ -256,7 +257,7 @@ namespace Sandbox.Game.GameSystems
                 MyGuiSandbox.RemoveScreen(m_waitingScreen);
                 m_waitingScreen = null;
             }
-            m_gameState = MyState.Game;
+            m_gameState = MyState.Running;
             m_startBattleTime = MySession.Static.ElapsedPlayTime;
         }
 

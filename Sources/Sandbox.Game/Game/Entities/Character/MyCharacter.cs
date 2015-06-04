@@ -1432,7 +1432,7 @@ namespace Sandbox.Game.Entities.Character
 
             PlaySound();
 
-            if (!IsDead && m_currentMovementState != MyCharacterMovementEnum.Sitting && (!ControllerInfo.IsRemotelyControlled() || (Sync.IsServer && false )))
+            if (!IsDead && m_currentMovementState != MyCharacterMovementEnum.Sitting && (!ControllerInfo.IsRemotelyControlled() || (MyFakes.CHARACTER_SERVER_SYNC)))
             {
                 if (Physics.CharacterProxy != null)
                     Physics.CharacterProxy.StepSimulation(MyEngineConstants.UPDATE_STEP_SIZE_IN_SECONDS);
@@ -1440,7 +1440,7 @@ namespace Sandbox.Game.Entities.Character
 
             m_currentAnimationChangeDelay += MyEngineConstants.UPDATE_STEP_SIZE_IN_SECONDS;
             m_currentRotationDelay -= MyEngineConstants.UPDATE_STEP_SIZE_IN_SECONDS;
-
+            
             if (m_useObjectNotification != null && !m_usingContinuously)
                 MyHud.Notifications.Add(m_useObjectNotification);
 
@@ -2396,7 +2396,7 @@ namespace Sandbox.Game.Entities.Character
 
         private void UpdateCharacterStateChange()
         {
-            if (!ControllerInfo.IsRemotelyControlled() || (Sync.IsServer && false))
+            if (!ControllerInfo.IsRemotelyControlled() || (MyFakes.CHARACTER_SERVER_SYNC))
             {
                 if (!IsDead && Physics.CharacterProxy != null && m_currentCharacterState != Physics.CharacterProxy.GetState())
                 {
@@ -2487,7 +2487,7 @@ namespace Sandbox.Game.Entities.Character
 
         private void UpdateFallAndSpine()
         {
-            if (!ControllerInfo.IsRemotelyControlled() || (Sync.IsServer && false))
+            if (!ControllerInfo.IsRemotelyControlled() || (MyFakes.CHARACTER_SERVER_SYNC))
             {
                 if (m_currentAutoenableJetpackDelay >= AUTO_ENABLE_JETPACK_INTERVAL)
                 {
@@ -2585,7 +2585,7 @@ namespace Sandbox.Game.Entities.Character
                 return;
 
             //if (!ControllerInfo.IsRemotelyControlled() || (Sync.IsServer && false))
-            if (ControllerInfo.IsLocallyControlled() && Physics.CharacterProxy != null)
+            if (ControllerInfo.IsLocallyControlled() && Physics.CharacterProxy != null || (MyFakes.CHARACTER_SERVER_SYNC))
             {
                 if (CanFly())
                 {
@@ -2690,7 +2690,7 @@ namespace Sandbox.Game.Entities.Character
             {
                 Physics.UpdateAccelerations();
             }
-            else if (Sync.IsServer && false)
+            else if (MyFakes.CHARACTER_SERVER_SYNC)
             {
                 Physics.UpdateAccelerations();
             } //otherwise OnPositionUpdate message it is updated
@@ -3032,6 +3032,17 @@ namespace Sandbox.Game.Entities.Character
 
             if (DebugMode)
                 return;
+            
+            if (MyFakes.CHARACTER_SERVER_SYNC && ControllerInfo.IsLocallyControlled())
+                SyncObject.MoveAndRotate(moveIndicator, new Vector3(rotationIndicator.X, rotationIndicator.Y, roll), movementFlags);
+
+            if (MyFakes.CHARACTER_SERVER_SYNC && ControllerInfo.IsRemotelyControlled())
+            {
+                moveIndicator = SyncObject.CachedMovementState.MoveIndicator;
+                rotationIndicator = new Vector2(SyncObject.CachedMovementState.RotationIndicator.X, SyncObject.CachedMovementState.RotationIndicator.Y);
+                roll = SyncObject.CachedMovementState.RotationIndicator.Z;
+                movementFlags = SyncObject.CachedMovementState.MovementFlags;
+            }
 
             //Died character
             if (Physics.CharacterProxy == null)
@@ -5429,7 +5440,7 @@ namespace Sandbox.Game.Entities.Character
 
             RecalculatePowerRequirement();
 
-            if (!ControllerInfo.IsLocallyControlled() && !fromInit && !Sync.IsServer)
+            if (!ControllerInfo.IsLocallyControlled() && !fromInit && !Sync.IsServer && !MyFakes.CHARACTER_SERVER_SYNC)
                 return;
 
             StopFalling();
@@ -7216,7 +7227,7 @@ namespace Sandbox.Game.Entities.Character
                         Physics.Close();
 
                     float widthScale = 1;
-                    if (!isLocalPlayer)
+                    if (!isLocalPlayer && !MyFakes.CHARACTER_SERVER_SYNC)
                         widthScale = MyPerGameSettings.RemotePlayerCollisionWidthScale;
 
                     this.InitCharacterPhysics(MyMaterialType.CHARACTER, PositionComp.LocalVolume.Center, CharacterWidth * Definition.CharacterCollisionScale * widthScale, CharacterHeight - CharacterWidth * Definition.CharacterCollisionScale * widthScale - offset,
@@ -7293,6 +7304,10 @@ namespace Sandbox.Game.Entities.Character
             result.SwitchAmmoMagazineSuccessHandler += SwitchAmmoMagazineSuccess;
             //result.ShootHandler += ShootSuccess;
             result.DoDamageHandler += DoDamageSuccess;
+
+            if (MyFakes.CHARACTER_SERVER_SYNC)
+                result.UpdatesOnlyOnServer = true;
+
             if (MyPerGameSettings.EnablePerFrameCharacterSync)
             {
                 result.DefaultUpdateCount = 0;
@@ -7305,7 +7320,7 @@ namespace Sandbox.Game.Entities.Character
         {
             if (!IsDead)
             {
-                if (!Sync.IsServer || true)
+                if (!MyFakes.CHARACTER_SERVER_SYNC)
                 {
                     SwitchAnimation(state);
                     SetCurrentMovementState(state, false);

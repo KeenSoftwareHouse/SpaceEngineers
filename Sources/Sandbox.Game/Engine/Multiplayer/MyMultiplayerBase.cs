@@ -296,6 +296,12 @@ namespace Sandbox.Engine.Multiplayer
             set;
         }
 
+        public abstract DateTime ScenarioStartTime
+        {
+            get;
+            set;
+        }
+
         public abstract bool Battle
         {
             get;

@@ -10468,5 +10468,10 @@ namespace Sandbox.Game.Localization
         ///Scenario
         ///</summary>
         public static readonly MyStringId WorldSettings_GameScenario = MyStringId.GetOrCompute("WorldSettings_GameScenario");
+
+        ///<summary>
+        ///Cockpit is damaged
+        ///</summary>
+        public static readonly MyStringId Notification_CockpitIsDamaged = MyStringId.GetOrCompute("Notification_CockpitIsDamaged");
     }
 }

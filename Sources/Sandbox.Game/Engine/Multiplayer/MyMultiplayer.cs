@@ -60,6 +60,7 @@ namespace Sandbox.Engine.Multiplayer
 
         public const string ScenarioTag = "scenario";
         public const string ScenarioBriefingTag = "scenarioBriefing";
+        public const string ScenarioStartTimeTag = "scenarioStartTime";
 
         public static MyMultiplayerBase Static;
 
