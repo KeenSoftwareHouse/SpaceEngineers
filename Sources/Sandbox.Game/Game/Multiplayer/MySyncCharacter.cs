@@ -452,9 +452,6 @@ namespace Sandbox.Game.Multiplayer
 
         public override void Tick()
         {
-            if (MyPerGameSettings.CharacterUpdatePositionPerFrame)
-                m_updateFrameCount = 1;
-
             base.Tick();
 
             if (!Entity.MarkedForClose && m_headDirty)

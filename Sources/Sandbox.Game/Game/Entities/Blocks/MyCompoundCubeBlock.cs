@@ -30,10 +30,10 @@ namespace Sandbox.Game.Entities
         {
             private MyCompoundCubeBlock m_block;
 
-            public override void OnAddedToContainer(MyComponentContainer container)
+            public override void OnAddedToContainer()
             {
-                base.OnAddedToContainer(container);
-                m_block = container.Entity as MyCompoundCubeBlock;
+                base.OnAddedToContainer();
+                m_block = Container.Entity as MyCompoundCubeBlock;
                 Debug.Assert(m_block != null);
             }
 
@@ -764,7 +764,7 @@ namespace Sandbox.Game.Entities
             }
         }
 
-        public bool GetIntersectionWithLine(ref LineD line, out MyIntersectionResultLineTriangleEx? t, out ushort blockId, IntersectionFlags flags = IntersectionFlags.ALL_TRIANGLES)
+        public bool GetIntersectionWithLine(ref LineD line, out MyIntersectionResultLineTriangleEx? t, out ushort blockId, IntersectionFlags flags = IntersectionFlags.ALL_TRIANGLES, bool checkZFight = false, bool ignoreGenerated = false)
         {
             t = null;
             blockId = 0;
@@ -776,6 +776,10 @@ namespace Sandbox.Game.Entities
             foreach (var blockPair in m_blocks)
             {
                 MySlimBlock cmpSlimBlock = blockPair.Value;
+
+				if (ignoreGenerated && cmpSlimBlock.BlockDefinition.IsGeneratedBlock)
+					continue;
+
                 MyIntersectionResultLineTriangleEx? intersectionTriResult;
                 if (cmpSlimBlock.FatBlock.GetIntersectionWithLine(ref line, out intersectionTriResult) && intersectionTriResult != null)
                 {
@@ -783,6 +787,9 @@ namespace Sandbox.Game.Entities
                     double instrDistanceSq = startToIntersection.LengthSquared();
                     if (instrDistanceSq < distanceSquaredInCompound)
                     {
+						if (checkZFight && distanceSquaredInCompound < instrDistanceSq + 0.001f)
+							continue;
+
                         distanceSquaredInCompound = instrDistanceSq;
                         t = intersectionTriResult;
                         blockId = blockPair.Key;

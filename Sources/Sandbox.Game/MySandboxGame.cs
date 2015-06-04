@@ -515,6 +515,7 @@ namespace Sandbox
         private void ParseArgs(string[] args)
         {
             MyPlugins.RegisterGameAssemblyFile(MyPerGameSettings.GameModAssembly);
+            MyPlugins.RegisterSandboxAssemblyFile(MyPerGameSettings.SandboxAssembly);
             MyPlugins.RegisterFromArgs(args);
             MyPlugins.Load();
 
@@ -907,6 +908,7 @@ namespace Sandbox
             {
                 // May be required to extend this to more assemblies than just current
                 PreloadTypesFrom(MyPlugins.GameAssembly);
+                PreloadTypesFrom(MyPlugins.SandboxAssembly);
                 PreloadTypesFrom(MyPlugins.UserAssembly);
                 ForceStaticCtor(typesToForceStaticCtor);
                 PreloadTypesFrom(typeof(MySandboxGame).Assembly);
@@ -1099,7 +1101,7 @@ namespace Sandbox
 
             IlChecker.AllowNamespaceOfTypeCommon(typeof(Sandbox.Common.ObjectBuilders.Definitions.EnvironmentItemsEntry));
             IlChecker.AllowNamespaceOfTypeModAPI(typeof(MyGameLogicComponent));
-            IlChecker.AllowNamespaceOfTypeModAPI(typeof(VRage.Components.MyComponentBase));
+            IlChecker.AllowNamespaceOfTypeModAPI(typeof(VRage.Components.IMyComponentBase));
             IlChecker.AllowNamespaceOfTypeModAPI(typeof(Sandbox.Common.MySessionComponentBase));
 
             

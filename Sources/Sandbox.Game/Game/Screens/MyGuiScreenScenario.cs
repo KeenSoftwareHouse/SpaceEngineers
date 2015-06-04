@@ -504,7 +504,7 @@ namespace Sandbox.Game.Gui
                         checkpoint.Settings.ProceduralSeed = MyRandom.Instance.Next();
 
                     MyGuiScreenGamePlay.StartLoading(delegate{  MySession.LoadMission(sessionPath, checkpoint, checkpointSizeInBytes, name, description);
-                                                                MySession.Static.IsScenario = true;
+                                                                MySession.IsScenario = true;
                                                             });
                 }
                 else

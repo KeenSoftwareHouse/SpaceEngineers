@@ -606,6 +606,16 @@ namespace Sandbox.Game.Entities
                     {
                         group.GroupData.ControlSystem.RemoveControllerBlock(this);
                     }
+
+                    if (CubeGrid.GridSystems.ControlSystem != null)
+                    {
+                        var shipController = CubeGrid.GridSystems.ControlSystem.GetShipController() as MyRemoteControl;
+                        if (shipController == null || !shipController.m_autoPilotEnabled)
+                        {
+                            SetAutopilot(false);
+                        }
+                    }
+
                 }
                 else
                 {
@@ -619,12 +629,27 @@ namespace Sandbox.Game.Entities
                     {
                         group.GroupData.ControlSystem.AddControllerBlock(this);
                     }
+                    SetAutopilot(true);
 
                     ResetShipControls();
                 }
             }
 
             UpdateText();
+        }
+
+        private void SetAutopilot(bool enabled)
+        {
+            if (CubeGrid.GridSystems.ThrustSystem != null)
+            {
+                CubeGrid.GridSystems.ThrustSystem.AutopilotEnabled = enabled;
+                CubeGrid.GridSystems.ThrustSystem.MarkDirty();
+            }
+            if (CubeGrid.GridSystems.GyroSystem != null)
+            {
+                CubeGrid.GridSystems.GyroSystem.AutopilotEnabled = enabled;
+                CubeGrid.GridSystems.GyroSystem.MarkDirty();
+            }
         }
 
         private void SetDockingMode(bool enabled)
@@ -1130,6 +1155,9 @@ namespace Sandbox.Game.Entities
         {
             if (IsWorking && m_autoPilotEnabled && CubeGrid.GridSystems.ControlSystem.GetShipController() == this)
             {
+                Debug.Assert(CubeGrid.GridSystems.ThrustSystem.AutopilotEnabled == true);
+                Debug.Assert(CubeGrid.GridSystems.GyroSystem.AutopilotEnabled == true);
+
                 if (m_currentWaypoint == null && m_waypoints.Count > 0)
                 {
                     m_currentWaypoint = m_waypoints[0];
@@ -1157,9 +1185,9 @@ namespace Sandbox.Game.Entities
                     }
                 }
             }
-            else if (!IsWorking && m_autoPilotEnabled)
+            else if (!IsWorking && m_autoPilotEnabled && Sync.IsServer)
             {
-                SetAutoPilotEnabled(false);
+                SyncObject.SetAutoPilot(false);
             }
         }
 
@@ -1397,25 +1425,6 @@ namespace Sandbox.Game.Entities
         private void ResetShipControls()
         {
             CubeGrid.GridSystems.ThrustSystem.DampenersEnabled = true;
-            foreach (var dir in Base6Directions.IntDirections)
-            {
-                var thrusters = CubeGrid.GridSystems.ThrustSystem.GetThrustersForDirection(dir);
-                foreach (var thruster in thrusters)
-                {
-                    if (thruster.ThrustOverride != 0f)
-                    {
-                        thruster.SetThrustOverride(0f);
-                    }
-                }
-            }
-
-            foreach (var gyro in CubeGrid.GridSystems.GyroSystem.Gyros)
-            {
-                if (gyro.GyroOverride)
-                {
-                    gyro.SetGyroOverride(false);
-                }
-            }
         }
         #endregion
 
@@ -1700,6 +1709,16 @@ namespace Sandbox.Game.Entities
         public void RequestControlFromLoad()
         {
             AcquireControl();
+        }
+
+        public override void OnRegisteredToGridSystems()
+        {
+            base.OnRegisteredToGridSystems();
+
+            if (m_autoPilotEnabled)
+            {
+                SetAutopilot(true);
+            }
         }
 
         public override void OnUnregisteredFromGridSystems()

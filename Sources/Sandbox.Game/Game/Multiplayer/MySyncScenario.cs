@@ -73,7 +73,7 @@ namespace Sandbox.Game.Multiplayer
             MySyncLayer.RegisterMessage<PlayerReadyToStartScenarioMsg>(OnPlayerReadyToStartScenario, MyMessagePermissions.FromServer, MyTransportMessageEnum.Success);
             MySyncLayer.RegisterMessage<StartScenarioMsg>(OnStartScenario, MyMessagePermissions.FromServer, MyTransportMessageEnum.Request);
             //MySyncLayer.RegisterMessage<EndScenarioMsg>(OnEndScenario, MyMessagePermissions.FromServer, MyTransportMessageEnum.Request);
-            MySyncLayer.RegisterMessage<SetTimeoutMsg>(OnSetTimeout, MyMessagePermissions.FromServer, MyTransportMessageEnum.Success);
+            MySyncLayer.RegisterMessage<SetTimeoutMsg>(OnSetTimeout, MyMessagePermissions.FromServer, MyTransportMessageEnum.Request);
         }
 
         /// <summary>

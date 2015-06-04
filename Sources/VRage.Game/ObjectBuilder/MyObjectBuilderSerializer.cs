@@ -42,7 +42,7 @@ namespace VRage.ObjectBuilders
             m_objectFactory = new MyObjectFactory<MyObjectBuilderDefinitionAttribute, MyObjectBuilder_Base>();
 
             m_objectFactory.RegisterFromAssembly(Assembly.GetExecutingAssembly());
-            m_objectFactory.RegisterFromAssembly(Assembly.LoadFrom("Sandbox.Common.dll")); //TODO: Will be removed 
+            m_objectFactory.RegisterFromAssembly(MyPlugins.SandboxAssembly); //TODO: Will be removed 
             m_objectFactory.RegisterFromAssembly(MyPlugins.GameAssembly);
             m_objectFactory.RegisterFromAssembly(MyPlugins.UserAssembly);
 

@@ -10400,7 +10400,7 @@ namespace Sandbox.Game.Localization
         public static readonly MyStringId GuiScenarioStart = MyStringId.GetOrCompute("GuiScenarioStart");
 
         ///<summary>
-        ///Docking Mode
+        ///Precision Mode
         ///</summary>
         public static readonly MyStringId BlockPropertyTitle_EnableDockingMode = MyStringId.GetOrCompute("BlockPropertyTitle_EnableDockingMode");
 

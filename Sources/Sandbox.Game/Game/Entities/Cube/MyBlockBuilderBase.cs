@@ -19,6 +19,7 @@ using VRage.Input;
 using VRage.Library.Utils;
 using VRage.Utils;
 using VRageMath;
+using Sandbox.Engine.Multiplayer;
 
 #endregion
 
@@ -65,7 +66,16 @@ namespace Sandbox.Game.Entities
 
         public abstract MyCubeBlockDefinition HudBlockDefinition { get; }
 
-        public static bool DeveloperSpectatorIsBuilding
+        private static bool AdminSpectatorIsBuilding
+        {
+            get
+            {
+                return MyFakes.ENABLE_ADMIN_SPECTATOR_BUILDING && MySession.GetCameraControllerEnum() == MyCameraControllerEnum.Spectator
+                    && MyMultiplayer.Static != null && MyMultiplayer.Static.IsAdmin(MySession.LocalHumanPlayer.Id.SteamId);
+            }
+        }
+
+        private static bool DeveloperSpectatorIsBuilding
         {
             get
             {
@@ -73,6 +83,16 @@ namespace Sandbox.Game.Entities
                     (!MyFinalBuildConstants.IS_OFFICIAL || !MySession.Static.SurvivalMode || MyInput.Static.ENABLE_DEVELOPER_KEYS);
             }
         }
+
+        public static bool SpectatorIsBuilding
+        {
+            get
+            {
+                return DeveloperSpectatorIsBuilding || AdminSpectatorIsBuilding;
+            }
+        }
+
+
 
         public static bool CameraControllerSpectator
         {

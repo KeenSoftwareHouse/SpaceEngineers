@@ -150,6 +150,12 @@ namespace Sandbox.Engine.Multiplayer
             set { Lobby.SetLobbyData(MyMultiplayer.ScenarioTag, value.ToString()); }
         }
 
+        public override string ScenarioBriefing
+        {
+            get { return Lobby.GetLobbyData(MyMultiplayer.ScenarioBriefingTag); }
+            set { Lobby.SetLobbyData(MyMultiplayer.ScenarioBriefingTag, value); }
+        }
+
         public override bool Battle
         {
             get { return GetLobbyBool(MyMultiplayer.BattleTag, Lobby, false); }
@@ -629,6 +635,11 @@ namespace Sandbox.Engine.Multiplayer
         public static bool GetLobbyScenario(Lobby lobby)
         {
             return GetLobbyBool(MyMultiplayer.ScenarioTag, lobby, false);
+        }
+
+        public static string GetLobbyScenarioBriefing(Lobby lobby)
+        {
+            return lobby.GetLobbyData(MyMultiplayer.ScenarioBriefingTag);
         }
 
         public static bool GetLobbyBattle(Lobby lobby)

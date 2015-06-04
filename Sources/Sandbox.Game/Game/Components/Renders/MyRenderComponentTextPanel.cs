@@ -15,9 +15,9 @@ namespace Sandbox.Game.Components
     {
         const string PANEL_MATERIAL_NAME = "ScreenArea";
         #region overrides
-        public override void OnAddedToContainer(MyComponentContainer container)
+        public override void OnAddedToContainer()
         {
-            base.OnAddedToContainer(container);
+            base.OnAddedToContainer();
         }
 
         public void ChangeTexture(string path)

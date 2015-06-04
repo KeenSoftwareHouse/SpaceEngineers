@@ -28,10 +28,10 @@ namespace Sandbox.Game.Components
         protected MyEntity m_entity;
         public MyGameLogicComponent GameLogic { get; set; }
 
-        public override void OnAddedToContainer(MyComponentContainer container)
+        public override void OnAddedToContainer()
         {
-            base.OnAddedToContainer(container);
-            m_entity = container.Entity as MyEntity;
+            base.OnAddedToContainer();
+            m_entity = Container.Entity as MyEntity;
         }
 
         public MyEntityGameLogic()

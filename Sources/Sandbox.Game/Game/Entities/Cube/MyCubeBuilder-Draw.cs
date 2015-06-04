@@ -180,7 +180,7 @@ namespace Sandbox.Game.Entities
                 }
             }
 
-            bool buildingDisabledByCockpit = MySession.ControlledEntity != null && MySession.ControlledEntity is MyCockpit && !DeveloperSpectatorIsBuilding;
+            bool buildingDisabledByCockpit = MySession.ControlledEntity != null && MySession.ControlledEntity is MyCockpit && !SpectatorIsBuilding;
             //bool buildingDisabledByCockpit = true;
             if (!buildingDisabledByCockpit)
             {

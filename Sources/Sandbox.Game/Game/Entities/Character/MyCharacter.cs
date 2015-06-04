@@ -999,13 +999,84 @@ namespace Sandbox.Game.Entities.Character
 
             // DAMAGE COMPUTATION TO THE CHARACTER
             // GET THE OTHER COLLIDING BODY AND COMPUTE DAMAGE BASED ON BODIES MASS AND VELOCITIES
-            if (MyPerGameSettings.EnableCharacterCollisionDamage)
+            if (MyPerGameSettings.EnableCharacterCollisionDamage && !MyFakes.NEW_CHARACTER_DAMAGE)
             {
-                CalculateDamageAfterCollision(ref value);               
+                CalculateDamageAfterCollision(ref value);
             }
-            // ORIGINAL DAMAGE COMPUTATION
+            //// ORIGINAL DAMAGE COMPUTATION
             else
             {
+                float impact = 0;
+
+                if (MyFakes.NEW_CHARACTER_DAMAGE)
+                {
+                    var normal = value.ContactPoint.Normal;
+                    MyEntity other = value.Base.BodyA.GetEntity() as MyEntity;
+
+                    HkRigidBody otherRb = value.Base.BodyA;
+                    if (other == this)
+                    {
+                        other = value.Base.BodyB.GetEntity() as MyEntity;
+                        otherRb = value.Base.BodyB;
+                        normal = -normal;
+                    }
+
+                    if (other is MyCharacter)
+                        return;
+                    var vel = Math.Abs(value.SeparatingVelocity);
+                    bool enoughSpeed = vel > 3;
+
+                    Vector3 velocity1 = Physics.LinearVelocity;
+                    Vector3 velocity2 = otherRb.GetVelocityAtPoint(value.ContactPoint.Position);
+
+                    float speed1 = Math.Max(velocity1.Length() - (MyFakes.ENABLE_CUSTOM_CHARACTER_IMPACT ? 12.6f : 17.0f), 0);//treshold for falling dmg
+                    float speed2 = velocity2.Length() - 2.0f;
+
+                    Vector3 dir1 = speed1 > 0 ? Vector3.Normalize(velocity1) : Vector3.Zero;
+                    Vector3 dir2 = speed2 > 0 ? Vector3.Normalize(velocity2) : Vector3.Zero;
+
+                    float dot1withNormal = speed1 > 0 ? Vector3.Dot(dir1, normal) : 0;
+                    float dot2withNormal = speed2 > 0 ? -Vector3.Dot(dir2, normal) : 0;
+
+                    speed1 *= dot1withNormal;
+                    speed2 *= dot2withNormal;
+
+                    vel = speed1 + speed2;
+
+                    float mass1 = MyDestructionHelper.MassFromHavok(Physics.Mass);
+                    float mass2 = MyDestructionHelper.MassFromHavok(other.Physics.Mass);
+
+                    float impact1 = (speed1 * speed1 * mass1) * 0.5f;
+                    float impact2 = (speed2 * speed2 * mass2) * 0.5f;
+
+
+
+                    float mass;
+                    if (Physics.Mass > other.Physics.Mass && !other.Physics.IsStatic)
+                    {
+                        mass = other.Physics.Mass;
+                        //impact = impact2;
+                    }
+                    else
+                    {
+                        mass = 70 / 25;// Physics.Mass;
+                        if (Physics.CharacterProxy.Supported && !other.Physics.IsStatic)
+                            mass += Math.Abs(Vector3.Dot(Vector3.Normalize(velocity2), Physics.CharacterProxy.SupportNormal)) * other.Physics.Mass / 10;
+                    }
+                    mass = MyDestructionHelper.MassFromHavok(mass);
+                    if (vel < 0)
+                    {
+                        return;
+                    }
+
+                    impact = (mass * vel * vel) / 2;
+                    if (speed2 > 2) //dont reduce pure fall damage
+                        impact -= 400;
+                    impact /= 10; //scaling damage
+                    if (impact < 1)
+                        return;
+                }
+
                 //int bodyId = value.Base.BodyA == Physics.CharacterProxy.GetRigidBody() ? 1 : 0;
                 // Ca
                 //uint shapeKey = value.GetShapeKey(bodyId);
@@ -1033,7 +1104,8 @@ namespace Sandbox.Game.Entities.Character
                         // 3 blocks - dead (17.0)
                         damageImpact = (Math.Abs(value.SeparatingVelocity) - 12.6f) * 25f;
                     }
-
+                    if(MyFakes.NEW_CHARACTER_DAMAGE)
+                        damageImpact = impact;
                     if (damageImpact > 0)
                     {
                         if (this.ControllerInfo.IsLocallyControlled() || Sync.IsServer)
@@ -1360,7 +1432,7 @@ namespace Sandbox.Game.Entities.Character
 
             PlaySound();
 
-            if (!IsDead && m_currentMovementState != MyCharacterMovementEnum.Sitting && (!ControllerInfo.IsRemotelyControlled() || (Sync.IsServer && false)))
+            if (!IsDead && m_currentMovementState != MyCharacterMovementEnum.Sitting && (!ControllerInfo.IsRemotelyControlled() || (Sync.IsServer && false )))
             {
                 if (Physics.CharacterProxy != null)
                     Physics.CharacterProxy.StepSimulation(MyEngineConstants.UPDATE_STEP_SIZE_IN_SECONDS);
@@ -2085,7 +2157,7 @@ namespace Sandbox.Game.Entities.Character
             VRageRender.MyRenderProxy.GetRenderProfiler().EndProfilingBlock();
 
             VRageRender.MyRenderProxy.GetRenderProfiler().StartProfilingBlock("Simulate Ragdoll");
-            if (IsCameraNear) SimulateRagdoll();    // probably should be in UpdateDying, but changes the animation of the bones..
+            SimulateRagdoll();    // probably should be in UpdateDying, but changes the animation of the bones..
             VRageRender.MyRenderProxy.GetRenderProfiler().EndProfilingBlock();
             
         }
@@ -2240,6 +2312,8 @@ namespace Sandbox.Game.Entities.Character
             VRageRender.MyRenderProxy.GetRenderProfiler().StartProfilingBlock("Update Bones To Ragdoll");
 
             RagdollMapper.UpdateRagdollAfterSimulation();
+
+            if (!IsCameraNear && !MyFakes.ENABLE_PERMANENT_SIMULATIONS_COMPUTATION) return;
             
             RagdollMapper.UpdateCharacterPose( IsDead ? 1.0f : 0.1f, IsDead ? 1.0f : 0.0f);
 
@@ -2985,9 +3059,7 @@ namespace Sandbox.Game.Entities.Character
             }
 
             float acceleration = 0;
-
-            MatrixD characterDirection = Physics.GetWorldMatrix().GetOrientation(); // characterProxy Matrix for vertical flying mode
-
+          
             if (canMove || CanFly() || m_crouchingChanged)
             {
                 if (moveIndicator.LengthSquared() > 0)
@@ -3061,6 +3133,7 @@ namespace Sandbox.Game.Entities.Character
 
                 if (Physics.CharacterProxy != null)
                 {
+
                     Physics.CharacterProxy.PosX = posx;
                     Physics.CharacterProxy.PosY = posy;
                 }
@@ -3200,19 +3273,10 @@ namespace Sandbox.Game.Entities.Character
 
                         rotationMatrix.Translation = (Vector3D)translationPhys;
 
-                        // If not in vertical flying mode, the character can be set immidiately
-                     //   if (!MyPerGameSettings.CharacterMovement.VerticalPositionFlyingOnly)
-                        {
-                            WorldMatrix = rotationMatrix;
+                        WorldMatrix = rotationMatrix;
 
-                            rotationMatrix.Translation = translationDraw;
-                            PositionComp.SetWorldMatrix(rotationMatrix, Physics);
-                        }
-                       // else
-                        {
-                            // otherwise just recalculate the Matrix for CharacterProxy
-                       //     characterDirection = characterDirection * Matrix.CreateRotationY(-rotationIndicator.Y * CHARACTER_Y_ROTATION_SPEED);
-                        }
+                        rotationMatrix.Translation = translationDraw;
+                        PositionComp.SetWorldMatrix(rotationMatrix, Physics);
                     }
                     else
                     {
@@ -7131,23 +7195,33 @@ namespace Sandbox.Game.Entities.Character
             MyHud.CharacterInfo.IsHelmetOn = !Definition.NeedsOxygen;
         }
 
+
+        bool m_isLocalPlayer = true;
+
         internal void UpdateCharacterPhysics(bool isLocalPlayer)
         {
             if (Physics != null && Physics.Enabled == false)
                 return;
 
             float offset = 2 * MyPerGameSettings.PhysicsConvexRadius + 0.03f; //compensation for convex radius
+            bool localPlayerChanged = isLocalPlayer != m_isLocalPlayer;
+            m_isLocalPlayer = isLocalPlayer;
 
-            if (isLocalPlayer || false == MyPerGameSettings.EnableKinematicMPCharacter)
+
+            if (isLocalPlayer || !MyPerGameSettings.EnableKinematicMPCharacter)
             {
-                if (Physics == null || Physics.IsKinematic)
+                if (Physics == null || Physics.IsKinematic || localPlayerChanged)
                 {
                     if (Physics != null)
                         Physics.Close();
 
-                    this.InitCharacterPhysics(MyMaterialType.CHARACTER, PositionComp.LocalVolume.Center, CharacterWidth * Definition.CharacterCollisionScale, CharacterHeight - CharacterWidth * Definition.CharacterCollisionScale - offset,
-                    CrouchHeight - CharacterWidth,
-                    LadderHeight - CharacterWidth - offset,
+                    float widthScale = 1;
+                    if (!isLocalPlayer)
+                        widthScale = MyPerGameSettings.RemotePlayerCollisionWidthScale;
+
+                    this.InitCharacterPhysics(MyMaterialType.CHARACTER, PositionComp.LocalVolume.Center, CharacterWidth * Definition.CharacterCollisionScale * widthScale, CharacterHeight - CharacterWidth * Definition.CharacterCollisionScale * widthScale - offset,
+                    CrouchHeight - CharacterWidth * widthScale,
+                    LadderHeight - CharacterWidth * widthScale - offset,
                     Definition.CharacterHeadSize * Definition.CharacterCollisionScale,
                     Definition.CharacterHeadHeight,
                     0.7f, 0.7f, (ushort)MyPhysics.CharacterCollisionLayer, RigidBodyFlag.RBF_DEFAULT, Definition.Mass,
@@ -7219,6 +7293,11 @@ namespace Sandbox.Game.Entities.Character
             result.SwitchAmmoMagazineSuccessHandler += SwitchAmmoMagazineSuccess;
             //result.ShootHandler += ShootSuccess;
             result.DoDamageHandler += DoDamageSuccess;
+            if (MyPerGameSettings.EnablePerFrameCharacterSync)
+            {
+                result.DefaultUpdateCount = 0;
+                result.ConstantMovementUpdateCount = 0;
+            }
             return result;
         }
 
@@ -7325,7 +7404,7 @@ namespace Sandbox.Game.Entities.Character
             m_breath.Update();
             var cueEnum = SelectSound();
 
-            if (cueEnum.SoundId == m_soundEmitter.SoundId)
+            if (cueEnum.Arcade == m_soundEmitter.SoundId || cueEnum.Realistic == m_soundEmitter.SoundId) //not nice
                 return;
             if (cueEnum == CharacterSounds[(int)CharacterSoundsEnum.JETPACK_RUN_SOUND])
             {

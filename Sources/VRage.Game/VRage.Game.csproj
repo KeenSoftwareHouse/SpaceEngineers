@@ -62,6 +62,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Components\MyEntityComponentContainer.cs" />
+    <Compile Include="Components\MyEntityComponentBase.cs" />
     <Compile Include="Components\MyComponentBase.cs" />
     <Compile Include="Components\MyComponentContainer.cs" />
     <Compile Include="Components\MyDebugRenderComponentBase.cs" />

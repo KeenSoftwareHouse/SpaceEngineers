@@ -6439,7 +6439,7 @@ To connect to lasers not listed here you can connect to coordinates.</value>
     <value>Start</value>
   </data>
   <data name="BlockPropertyTitle_EnableDockingMode" xml:space="preserve">
-    <value>Docking Mode</value>
+    <value>Precision Mode</value>
   </data>
   <data name="BlockPropertyTitle_ForwardDirection" xml:space="preserve">
     <value>Forward Direction</value>

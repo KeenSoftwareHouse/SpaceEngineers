@@ -6,37 +6,33 @@ using VRage.ModAPI;
 
 namespace VRage.Components
 {
-    [AttributeUsage(AttributeTargets.Class)]
-    public class MyEntityComponentDescriptor : System.Attribute
+    public interface IMyComponentBase
     {
-        public Type EntityBuilderType;
-        public string[] EntityBuilderSubTypeNames;
+        void SetContainer(IMyComponentContainer container);
 
-        public MyEntityComponentDescriptor(Type entityBuilderType, params string[] entityBuilderSubTypeNames)
-        {
-            EntityBuilderType = entityBuilderType;
-            EntityBuilderSubTypeNames = entityBuilderSubTypeNames;
-        }
+        void OnAddedToContainer();
+
+        void OnRemovedFromContainer();
     }
 
-    public abstract class MyComponentBase
+    public abstract class MyComponentBase<C> : IMyComponentBase where C : IMyComponentContainer
     {
-        //this is needed as compatibility 
-        [Obsolete("This property will be removed in future. Please use Container.Entity instead.")]
-        public IMyEntity Entity { get { return Container != null ? Container.Entity : null; } }  // to be obsolete once components are finished
-        public MyComponentContainer Container { get; set; }
+        public C Container { get; set; }
 
-        public virtual void OnAddedToContainer(MyComponentContainer container)
+        public void SetContainer(IMyComponentContainer container)
         {
-            Container = container;
+            Container = (C)container;
         }
 
-        public virtual void OnRemovedFromContainer(MyComponentContainer container)
+        public virtual void OnAddedToContainer()
         {
-            Container = null;
         }
 
-        public virtual T GetAs<T>() where T : MyComponentBase
+        public virtual void OnRemovedFromContainer()
+        {
+        }
+
+        public virtual T GetAs<T>() where T : MyComponentBase<C>
         {
             return this as T;
         }
