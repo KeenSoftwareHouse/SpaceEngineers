@@ -18067,7 +18067,11 @@
       <RequiredPowerInput>0.002</RequiredPowerInput>
       <MaxForceMagnitude>3.36E+07</MaxForceMagnitude>
       <RotorPart>RealWheel</RotorPart>
-      <SuspensionLimit>0.7</SuspensionLimit>
+      <!-- The max angle (radians) that steer angle slider can go to. -->
+      <MaxSteer>0.8</MaxSteer>
+      <!-- The max value that steering speed and steer return speed sliders can go. -->
+      <SteeringSpeed>0.1</SteeringSpeed>
+      <!-- Min/Max height sets the physical boundaries of the suspension as well as the height slider limits. -->
       <MinHeight>-1.5</MinHeight>
       <MaxHeight>1.3</MaxHeight>
       <DamageEffectId>212</DamageEffectId>
@@ -18113,7 +18117,6 @@
       <RequiredPowerInput>0.002</RequiredPowerInput>
       <MaxForceMagnitude>3.36E+07</MaxForceMagnitude>
       <RotorPart>RealWheel5x5</RotorPart>
-      <SuspensionLimit>2.5</SuspensionLimit>
       <MinHeight>-1.5</MinHeight>
       <MaxHeight>1.3</MaxHeight>
       <DamageEffectId>212</DamageEffectId>
@@ -18161,7 +18164,6 @@
       <RequiredPowerInput>0.002</RequiredPowerInput>
       <MaxForceMagnitude>3.36E+07</MaxForceMagnitude>
       <RotorPart>RealWheel1x1</RotorPart>
-      <SuspensionLimit>0.6</SuspensionLimit>
       <MinHeight>-1.5</MinHeight>
       <MaxHeight>1.3</MaxHeight>
       <PropulsionForce>700</PropulsionForce>
@@ -18209,7 +18211,6 @@
       <MaxForceMagnitude>3.36E+07</MaxForceMagnitude>
       <RotorPart>RealWheel</RotorPart>
       <PropulsionForce>200</PropulsionForce>
-      <SuspensionLimit>0.25</SuspensionLimit>
       <MinHeight>-0.32</MinHeight>
       <MaxHeight>0.26</MaxHeight>
       <DamageEffectId>212</DamageEffectId>
@@ -18254,7 +18255,6 @@
       <MaxForceMagnitude>3.36E+07</MaxForceMagnitude>
       <RotorPart>RealWheel5x5</RotorPart>
       <PropulsionForce>200</PropulsionForce>
-      <SuspensionLimit>0.5</SuspensionLimit>
       <MinHeight>-0.50</MinHeight>
       <MaxHeight>0.35</MaxHeight>
       <DamageEffectId>212</DamageEffectId>

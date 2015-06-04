@@ -6170,6 +6170,56 @@ namespace Sandbox.Game.Localization
         public static readonly MyStringId BlockPropertyTitle_Motor_Height = MyStringId.GetOrCompute("BlockPropertyTitle_Motor_Height");
 
         ///<summary>
+        ///The maximum angle that the wheel will turn when steering
+        ///</summary>
+        public static readonly MyStringId BlockPropertyDescription_Motor_MaxSteerAngle = MyStringId.GetOrCompute("BlockPropertyDescription_Motor_MaxSteerAngle");
+
+        ///<summary>
+        ///Steering Angle
+        ///</summary>
+        public static readonly MyStringId BlockPropertyTitle_Motor_MaxSteerAngle = MyStringId.GetOrCompute("BlockPropertyTitle_Motor_MaxSteerAngle");
+
+        ///<summary>
+        ///The wheel turn speed.
+        ///</summary>
+        public static readonly MyStringId BlockPropertyDescription_Motor_SteerSpeed = MyStringId.GetOrCompute("BlockPropertyDescription_Motor_SteerSpeed");
+
+        ///<summary>
+        ///Steering Speed
+        ///</summary>
+        public static readonly MyStringId BlockPropertyTitle_Motor_SteerSpeed = MyStringId.GetOrCompute("BlockPropertyTitle_Motor_SteerSpeed");
+
+        ///<summary>
+        ///The wheel's return speed from turning.
+        ///</summary>
+        public static readonly MyStringId BlockPropertyDescription_Motor_SteerReturnSpeed = MyStringId.GetOrCompute("BlockPropertyDescription_Motor_SteerReturnSpeed");
+
+        ///<summary>
+        ///Steer Return Speed
+        ///</summary>
+        public static readonly MyStringId BlockPropertyTitle_Motor_SteerReturnSpeed = MyStringId.GetOrCompute("BlockPropertyTitle_Motor_SteerReturnSpeed");
+
+        ///<summary>
+        ///Invert the steering direction.
+        ///</summary>
+        public static readonly MyStringId BlockPropertyDescription_Motor_InvertSteer = MyStringId.GetOrCompute("BlockPropertyDescription_Motor_InvertSteer");
+
+        ///<summary>
+        ///Invert Steering
+        ///</summary>
+        public static readonly MyStringId BlockPropertyTitle_Motor_InvertSteer = MyStringId.GetOrCompute("BlockPropertyTitle_Motor_InvertSteer");
+
+        ///<summary>
+        ///Limits the suspension's travel height. Setting to 0% will effectively lock the suspension.
+        ///</summary>
+        public static readonly MyStringId BlockPropertyDescription_Motor_SuspensionTravel = MyStringId.GetOrCompute("BlockPropertyDescription_Motor_SuspensionTravel");
+
+        ///<summary>
+        ///Suspension Travel
+        ///</summary>
+        public static readonly MyStringId BlockPropertyTitle_Motor_SuspensionTravel = MyStringId.GetOrCompute("BlockPropertyTitle_Motor_SuspensionTravel");
+
+        ///<summary>
         ///Centered Window
         ///</summary>
         public static readonly MyStringId DisplayName_Block_VerticalCen = MyStringId.GetOrCompute("DisplayName_Block_VerticalCen");
