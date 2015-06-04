@@ -11,64 +11,111 @@ namespace Sandbox.Common.ObjectBuilders
 {
     public enum MyCharacterModelEnum
     {
-        Soldier = 0,
-        Astronaut = 1,
-        Astronaut_Black = 2,
-        Astronaut_Blue = 3,
-        Astronaut_Green = 4,
-        Astronaut_Red = 5,
-        Astronaut_White = 6,
+        Soldier          = 0,
+        Astronaut        = 1,
+        Astronaut_Black  = 2,
+        Astronaut_Blue   = 3,
+        Astronaut_Green  = 4,
+        Astronaut_Red    = 5,
+        Astronaut_White  = 6,
         Astronaut_Yellow = 7,
     }
-
-    public enum MyCharacterMovementEnum
+    
+    public static class MyCharacterMovement
     {
-        Standing = 0,
+        public const ushort MovementTypeMask      = 0x000f; // 4 bits (0 - 3) for movement type should be enough even for the future
+        public const ushort MovementDirectionMask = 0x03f0; // 6 bits (4 - 9)
+        public const ushort MovementSpeedMask     = 0x0c00; // 2 bits (10 - 11)
+        public const ushort RotationMask          = 0x3000; // 2 bits (12 - 13)
 
-        Walking = 1,
-        BackWalking = 2,
-        WalkStrafingLeft = 3,
-        WalkStrafingRight = 4,
-        WalkingRightFront = 5,
-        WalkingRightBack = 6,
-        WalkingLeftFront = 7,
-        WalkingLeftBack = 8,
+        // The movement types are mutually exclusive - i.e. you cannot be sitting and crouching at the same time
+        public const ushort Standing   = 0;
+        public const ushort Sitting    = 1;
+        public const ushort Crouching  = 2;
+        public const ushort Flying     = 3;
+        public const ushort Falling    = 4;
+        public const ushort Jump       = 5;
+        public const ushort Died       = 6;
+        public const ushort Ladder     = 7;
 
-        Running = 9,
-        Backrunning = 10,
-        RunStrafingLeft = 11,
-        RunStrafingRight = 12,
-        RunningRightFront = 13,
-        RunningRightBack = 14,
-        RunningLeftFront = 15,
-        RunningLeftBack = 16,
+        // Movement direction
+        public const ushort NoDirection = 0;
+        public const ushort Forward     = 1 << 4;
+        public const ushort Backward    = 1 << 5;
+        public const ushort Left        = 1 << 6;
+        public const ushort Right       = 1 << 7;
+        public const ushort Up          = 1 << 8;
+        public const ushort Down        = 1 << 9;
 
-        Crouching = 17,
-        CrouchWalking = 18,
-        CrouchBackWalking = 19,
-        CrouchStrafingLeft = 20,
-        CrouchStrafingRight = 21,
-        CrouchWalkingRightFront = 22,
-        CrouchWalkingRightBack = 23,
-        CrouchWalkingLeftFront = 24,
-        CrouchWalkingLeftBack = 25,
+        // Movement speed
+        public const ushort NormalSpeed = 0;
+        public const ushort Fast        = 1 << 10;
+        public const ushort VeryFast    = 1 << 11;
 
-        Sprinting = 26,
-        Jump = 27,
+        // Rotation
+        public const ushort NotRotating   = 0;
+        public const ushort RotatingLeft  = 1 << 12;
+        public const ushort RotatingRight = 1 << 13;
 
-        Flying = 28,
-        Sitting = 29,
+        public static ushort GetMode(this MyCharacterMovementEnum value)
+        {
+            return (ushort)((ushort)value & MovementTypeMask);
+        }
 
-        LadderUp = 30,
-        LadderDown = 31,
+        public static ushort GetDirection(this MyCharacterMovementEnum value)
+        {
+            return (ushort)((ushort)value & MovementDirectionMask);
+        }
+    }
 
-        RotatingLeft = 32,
-        RotatingRight = 33,
-        CrouchRotatingLeft = 34,
-        CrouchRotatingRight = 35,
+    // This enum references constants in MyCharacterMovement to enable bitwise operations and at the same time prevent duplicate values in the enum
+    public enum MyCharacterMovementEnum : ushort
+    {
+        Standing   = MyCharacterMovement.Standing,
+        Sitting    = MyCharacterMovement.Sitting,
+        Crouching  = MyCharacterMovement.Crouching,
+        Flying     = MyCharacterMovement.Flying,
+        Falling    = MyCharacterMovement.Falling,
+        Jump       = MyCharacterMovement.Jump,
+        Died       = MyCharacterMovement.Died,
+        Ladder     = MyCharacterMovement.Ladder,
 
-        Falling = 36,
-        Died = 37,
+        RotatingLeft = MyCharacterMovement.RotatingLeft,
+        RotatingRight = MyCharacterMovement.RotatingRight,
+
+        Walking           = MyCharacterMovement.Forward,
+        BackWalking       = MyCharacterMovement.Backward,
+        WalkStrafingLeft  = MyCharacterMovement.Left,
+        WalkStrafingRight = MyCharacterMovement.Right,
+        WalkingRightFront = MyCharacterMovement.Right | MyCharacterMovement.Forward,
+        WalkingRightBack  = MyCharacterMovement.Right | MyCharacterMovement.Backward,
+        WalkingLeftFront  = MyCharacterMovement.Left | MyCharacterMovement.Forward,
+        WalkingLeftBack   = MyCharacterMovement.Left | MyCharacterMovement.Backward,
+
+        Running           = MyCharacterMovement.Forward | MyCharacterMovement.Fast,
+        Backrunning       = MyCharacterMovement.Backward | MyCharacterMovement.Fast,
+        RunStrafingLeft   = MyCharacterMovement.Left | MyCharacterMovement.Fast,
+        RunStrafingRight  = MyCharacterMovement.Right | MyCharacterMovement.Fast,
+        RunningRightFront = MyCharacterMovement.Right | MyCharacterMovement.Forward | MyCharacterMovement.Fast,
+        RunningRightBack  = MyCharacterMovement.Right | MyCharacterMovement.Backward | MyCharacterMovement.Fast,
+        RunningLeftFront  = MyCharacterMovement.Left | MyCharacterMovement.Forward | MyCharacterMovement.Fast,
+        RunningLeftBack   = MyCharacterMovement.Left | MyCharacterMovement.Backward | MyCharacterMovement.Fast,
+
+        CrouchWalking           = MyCharacterMovement.Forward | MyCharacterMovement.Crouching,
+        CrouchBackWalking       = MyCharacterMovement.Backward | MyCharacterMovement.Crouching,
+        CrouchStrafingLeft      = MyCharacterMovement.Left | MyCharacterMovement.Crouching,
+        CrouchStrafingRight     = MyCharacterMovement.Right | MyCharacterMovement.Crouching,
+        CrouchWalkingRightFront = MyCharacterMovement.Right | MyCharacterMovement.Forward | MyCharacterMovement.Crouching,
+        CrouchWalkingRightBack  = MyCharacterMovement.Right | MyCharacterMovement.Backward | MyCharacterMovement.Crouching,
+        CrouchWalkingLeftFront  = MyCharacterMovement.Left | MyCharacterMovement.Forward | MyCharacterMovement.Crouching,
+        CrouchWalkingLeftBack   = MyCharacterMovement.Left | MyCharacterMovement.Backward | MyCharacterMovement.Crouching,
+        CrouchRotatingLeft      = MyCharacterMovement.RotatingLeft | MyCharacterMovement.Crouching,
+        CrouchRotatingRight     = MyCharacterMovement.RotatingRight | MyCharacterMovement.Crouching,
+
+        Sprinting = MyCharacterMovement.Forward | MyCharacterMovement.VeryFast,
+
+        LadderUp   = MyCharacterMovement.Ladder | MyCharacterMovement.Up,
+        LadderDown = MyCharacterMovement.Ladder | MyCharacterMovement.Down,
     }
 
     [ProtoContract]

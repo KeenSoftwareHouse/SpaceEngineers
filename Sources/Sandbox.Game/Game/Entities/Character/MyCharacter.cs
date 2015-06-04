@@ -1475,10 +1475,11 @@ namespace Sandbox.Game.Entities.Character
                 Physics.AddForce(MyPhysicsForceType.APPLY_WORLD_FORCE, gravity * Definition.Mass, null, null);
             }
 
-
             VRageRender.MyRenderProxy.GetRenderProfiler().StartProfilingBlock("Update Ragdoll");
             UpdateRagdoll();
             VRageRender.MyRenderProxy.GetRenderProfiler().EndProfilingBlock();
+
+            MyRenderProxy.DebugDrawText3D(WorldMatrix.Translation + WorldMatrix.Up * 2.0f, m_currentMovementState.ToString(), Color.Red, 1.0f, false);
         }
 
         private MySoundPair SelectSound()
@@ -6437,7 +6438,7 @@ namespace Sandbox.Game.Entities.Character
 
         public bool IsCrouching
         {
-            get { return m_isCrouching; }
+            get { return m_currentMovementState.GetMode() == MyCharacterMovement.Crouching; }
         }
 
         public bool IsSprinting
