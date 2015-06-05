@@ -165,6 +165,9 @@ namespace Sandbox.Game.Entities
 
         private Vector3D m_prevAngularVelocity;
         private double   m_maxAngle;
+        private int      m_overshootCounter;
+        private int      m_rotDampingDisabledCounter;
+        private bool     m_increaseOvershootCounter;
 
         public IMyControllableEntity PreviousControlledEntity
         {
@@ -1123,9 +1126,10 @@ namespace Sandbox.Game.Entities
                 if (m_currentWaypoint == null && m_waypoints.Count > 0)
                 {
                     gyros.CourseEstablished = thrusters.CourseEstablished = false;
-                    m_maxAngle        = m_dockingModeEnabled ? 0.05 : 0.25;
-                    m_currentWaypoint = m_waypoints[0];
-                    m_startPosition   = WorldMatrix.Translation;
+                    m_maxAngle         = m_dockingModeEnabled ? 0.05 : 0.25;
+                    m_overshootCounter = 0;
+                    m_currentWaypoint  = m_waypoints[0];
+                    m_startPosition    = WorldMatrix.Translation;
                     UpdateText();
                 }
 
@@ -1135,7 +1139,8 @@ namespace Sandbox.Game.Entities
                     if (IsInStoppingDistance())
                     {
                         gyros.CourseEstablished = thrusters.CourseEstablished = false;
-                        m_maxAngle = m_dockingModeEnabled ? 0.05 : 0.25;
+                        m_maxAngle         = m_dockingModeEnabled ? 0.05 : 0.25;
+                        m_overshootCounter = 0;
                         AdvanceWaypoint();
                     }
 
@@ -1294,14 +1299,25 @@ namespace Sandbox.Game.Entities
 
             //double angle = System.Math.Acos(Vector3D.Dot(targetDirection, WorldMatrix.Forward));
             double angle = System.Math.Acos(Vector3D.Dot(targetDirection, orientation.Forward));
-            if (angle < 0.01)
+
+            // In case of a grossly unbalanced ship it is possible that minimum angle will never be reached. 
+            // To combat this, the autopilot will attempt a precise line-up no more than 5 times, 
+            // and should all these attempts fail, then normal stabilisers will immediately take over.
+            if (angle < 0.01 || m_overshootCounter >= 5)
                 gyros.CourseEstablished = thrusters.CourseEstablished = true;
+            else if (angle > m_maxAngle && m_increaseOvershootCounter)
+            {
+                ++m_overshootCounter;
+                m_increaseOvershootCounter = false;
+            }
 
             if (!gyros.CourseEstablished && !thrusters.CourseEstablished)
             {
                 // Prevent an unbalanced craft from bouncing back and forth excessively before stabilisers engage.
-                if (angle + 0.005 < m_maxAngle)
-                    m_maxAngle = angle + 0.005;
+                if (angle + 0.01 < m_maxAngle)
+                    m_maxAngle = angle + 0.01;
+                if (angle <= m_maxAngle)
+                    m_increaseOvershootCounter = true;
 
                 if (velocity.LengthSquared() > 1.0)
                 {
@@ -1321,10 +1337,13 @@ namespace Sandbox.Game.Entities
                 }
                 else if (timeToReachTarget > timeToStop)
                 {
-                    if (MySession.Static.ThrusterDamage)
+                    if (MySession.Static.ThrusterDamage && ++m_rotDampingDisabledCounter < MyEngineConstants.UPDATE_STEPS_PER_SECOND)
                         gyros.RotationalDampingDisabled = thrusters.RotationalDampingDisabled = true;
                     else
+                    {
                         gyros.ControlTorque = thrusters.ControlTorque = velocity;
+                        m_rotDampingDisabledCounter = 0;
+                    }
                 }
             }
             if (velocity != Vector3.Zero)
@@ -1361,7 +1380,8 @@ namespace Sandbox.Game.Entities
 
             Vector3D velocity = CubeGrid.Physics.LinearVelocity;
 
-            //Vector3D localSpaceTargetDirection = Vector3D.Transform(targetDirection, invWorldRot);
+            Vector3D localSpaceDelta           = Vector3D.Transform(delta, invWorldRot);
+            Vector3D localSpaceTargetDirection = Vector3D.Transform(targetDirection, invWorldRot);
             //Vector3D localSpaceVelocity = Vector3D.Transform(velocity, invWorldRot);
 
             thrustSystem.AutoPilotThrust = Vector3.Zero;
@@ -1399,7 +1419,6 @@ namespace Sandbox.Game.Entities
             double timeToReachTarget = (delta.Length() / velocityToTarget.Length());
             double timeToStop = velocity.Length() * CubeGrid.Physics.Mass / brakeThrust.Length();
 
-            Vector3D localSpaceDelta = Vector3D.Transform(delta, invWorldRot);
             if (double.IsInfinity(timeToReachTarget) || double.IsNaN(timeToStop))
             {
                 thrustSystem.AutoPilotThrust = localSpaceDelta;
@@ -1428,7 +1447,7 @@ namespace Sandbox.Game.Entities
                 }
                 else if (m_autoPilotCoast)
                 {
-                    thrustSystem.AutoPilotThrust  = Vector3.Backward * 0.1f;     // Minimal reverse thrust for coasting.
+                    thrustSystem.AutoPilotThrust  = localSpaceTargetDirection * (-0.1f);     // Minimal reverse thrust for coasting.
                     thrustSystem.AutoPilotThrust += lateralControl;
                     thrustSystem.AutoPilotThrust  = Vector3.Clamp(thrustSystem.AutoPilotThrust, -Vector3.One, Vector3.One);
                 }

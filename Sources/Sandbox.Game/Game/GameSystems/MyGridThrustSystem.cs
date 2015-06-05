@@ -263,7 +263,7 @@ namespace Sandbox.Game.GameSystems
         {
             ProfilerShort.Begin();
 
-            //MyHud.Notifications.Add(new MyHudNotificationDebug("ZzzZzz"));
+            //MyHud.Notifications.Add(new MyHudNotificationDebug("ZzzZzz", 20));
 
             if (m_thrustsChanged)
                 RecomputeThrustParameters();
