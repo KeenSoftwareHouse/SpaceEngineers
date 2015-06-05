@@ -72,7 +72,7 @@ namespace Sandbox.Game.Entities
 
         MyHudNotification m_noControlNotification;
 
-		protected virtual MyStringId LeaveNotificationHintText { get { return MySpaceTexts.NotificationHintLeaveCockpit; } }
+		protected virtual MyStringId LeaveNotificationHintText { get { return MySpaceTexts.NotificationHintLeaveCockpit; } }		
         protected bool m_enableFirstPerson = false;
         protected bool m_enableShipControl = true;
         public bool EnableShipControl { get { return m_enableShipControl; } }

@@ -64,6 +64,10 @@ namespace Sandbox.Game.Entities.Cube
                 OutputInventory.ContentsChanged += Inventory_ContentsChanged;
                 InputInventory.ContentsChanged += Inventory_ContentsChanged;
 
+            if (MySession.Static.Settings.EnableInventoryMass)
+                OutputInventory.ContentsChanged += Inventory_ContentsChanged;
+                InputInventory.ContentsChanged += Inventory_ContentsChanged;
+
             m_queueNeedsRebuild = true;
 
             UpgradeValues.Add("Productivity", 0f);

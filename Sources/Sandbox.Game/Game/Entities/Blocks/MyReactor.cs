@@ -110,15 +110,7 @@ namespace Sandbox.Game.Entities
         internal override float GetMass()
         {
             var mass = base.GetMass();
-<<<<<<< HEAD
-<<<<<<< HEAD
             if (MySession.Static.Settings.EnableInventoryMass)
-=======
-            if (MyPerGameSettings.InventoryMass)
->>>>>>> Add Inventory Mass
-=======
-            if (MySession.Static.Settings.EnableInventoryMass)
->>>>>>> Add Inventory Mass
                 return mass + (float)m_inventory.CurrentMass;
             else
                 return mass;

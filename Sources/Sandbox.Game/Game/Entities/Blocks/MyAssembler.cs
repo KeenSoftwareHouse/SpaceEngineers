@@ -329,7 +329,6 @@ namespace Sandbox.Game.Entities.Cube
                     x.SyncObject.RequestSlaveSwitch(v);
 
                 };
-				
 				slaveCheck.EnableAction();
                 MyTerminalControlFactory.AddControl(slaveCheck);
             }
