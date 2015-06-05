@@ -59,6 +59,8 @@ namespace Sandbox.Definitions
         // Ragdoll data
         public string RagdollDataFile;
         public Dictionary<string, string[]> RagdollBonesMappings = new Dictionary<string, string[]>();
+        public Dictionary<string, string[]> RagdollPartialSimulations = new Dictionary<string, string[]>();
+        
         public string RagdollRootBody;
 
         public Dictionary<MyCharacterMovementEnum, MyFeetIKSettings> FeetIKSettings;        
@@ -197,6 +199,11 @@ namespace Sandbox.Definitions
             if (builder.RagdollBonesMappings != null)
             {
                 RagdollBonesMappings = builder.RagdollBonesMappings.ToDictionary(x => x.Name, x => x.Bones.Split(' '));
+            }
+
+            if (builder.RagdollPartialSimulations != null)
+            {
+                RagdollPartialSimulations = builder.RagdollPartialSimulations.ToDictionary(x => x.Name, x => x.Bones.Split(' '));
             }
 
             Mass = builder.Mass;

@@ -123,7 +123,6 @@ namespace Sandbox.Game.Entities.Blocks
         #endregion
 
         #region Terminal properties
-
         static MyLightingBlock()
         {
             var lightColor = new MyTerminalControlColor<MyLightingBlock>("Color", MySpaceTexts.BlockPropertyTitle_LightColor);
@@ -196,6 +195,7 @@ namespace Sandbox.Game.Entities.Blocks
                     m_light.SpecularColor = value;
                     m_light.Color = value;
                     m_light.ReflectorColor = value;
+                    UpdateEmissivity(true);
                     RaisePropertiesChanged();
                 }
             }
@@ -248,6 +248,12 @@ namespace Sandbox.Game.Entities.Blocks
                 if (m_blinkIntervalSeconds != value)
                 {
                     m_blinkIntervalSeconds = (float)Math.Round(value, NUM_DECIMALS);
+                    if (m_blinkIntervalSeconds == 0.0f && Enabled)
+                    {
+                        m_light.ReflectorOn = true;
+                        m_light.GlareOn = true;
+                        m_light.LightOn = true;
+                    }
                     RaisePropertiesChanged();
                 }
             }
@@ -392,10 +398,10 @@ namespace Sandbox.Game.Entities.Blocks
 
                 UpdateIntensity();
             }
-
             UpdateLightBlink();
             UpdateLightPosition();
             UpdateLightProperties();
+            UpdateEmissivity(true);
         }
 
         private void UpdateIntensity()
@@ -441,6 +447,10 @@ namespace Sandbox.Game.Entities.Blocks
 
                 ProfilerShort.End();
             }
+        }
+
+        protected virtual void UpdateEmissivity(bool force=false)
+        {
         }
 
         protected override void OnEnabledChanged()
@@ -500,6 +510,7 @@ namespace Sandbox.Game.Entities.Blocks
             m_light.Position = Vector3D.Transform(m_lightWorldPosition, toLocal);
             m_light.ReflectorDirection = Vector3D.TransformNormal(WorldMatrix.Forward, toLocal);
             m_light.ReflectorUp = Vector3D.TransformNormal(WorldMatrix.Up, toLocal);
+            m_light.MarkPropertiesDirty();
             m_positionDirty = false;
 
             ProfilerShort.End();

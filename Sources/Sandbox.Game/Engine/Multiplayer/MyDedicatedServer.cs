@@ -295,7 +295,7 @@ namespace Sandbox.Engine.Multiplayer
             set;
         }
 
-        public override bool BattleStarted
+        public override bool BattleCanBeJoined
         {
             get;
             set;

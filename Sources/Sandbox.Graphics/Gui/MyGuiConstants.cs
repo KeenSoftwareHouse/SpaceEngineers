@@ -454,6 +454,13 @@ namespace Sandbox.Graphics.GUI
             PaddingSizePx = new Vector2(0f, 15f),
         };
 
+        public static readonly MyGuiPaddedTexture TEXTURE_VOICE_CHAT = new MyGuiPaddedTexture()
+        {
+            Texture = @"Textures\GUI\Icons\VoiceIcon.dds",
+            SizePx = new Vector2(128f, 128f),
+            PaddingSizePx = new Vector2(5f, 5f),
+        };
+
         public static readonly MyGuiCompositeTexture TEXTURE_SLIDER_RAIL = new MyGuiCompositeTexture()
         {
             LeftTop = new MyGuiSizedTexture()

@@ -1,6 +1,7 @@
 ﻿#region Using
 
 using Sandbox.Common;
+using Sandbox.Common.ModAPI;
 using Sandbox.Common.ObjectBuilders.Definitions;
 using Sandbox.Definitions;
 using Sandbox.Engine.Physics;
@@ -322,7 +323,7 @@ namespace Sandbox.Game.Weapons
             OnDestroy();
         }
 
-        void IMyDestroyableObject.DoDamage(float damage, MyDamageType damageType, bool sync)
+        void IMyDestroyableObject.DoDamage(float damage, MyDamageType damageType, bool sync, MyHitInfo? hitInfo)
         {
             DoDamage(damage, damageType, sync);
         }

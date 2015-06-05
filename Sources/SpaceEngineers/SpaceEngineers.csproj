@@ -202,6 +202,9 @@
     <Content Include="Content\Effects2\Voxels\MyEffectCube.fx" />
     <Content Include="Content\Effects2\Voxels\MyEffectVoxels.fx" />
     <Content Include="Content\Effects2\Voxels\MyEffectVoxelsDebris.fx" />
+    <Content Include="eula.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="GameThumbnail.png" />
     <Content Include="SpaceEngineers.ico">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
@@ -346,12 +349,15 @@
     <None Include="Content\Effects2\Voxels\MyEffectVoxelsClipping.fxh" />
     <None Include="Content\Effects2\Voxels\MyEffectVoxelsDebris.fxo" />
     <None Include="Content\Effects2\MyEffectWorldPosition.fxh" />
-    <None Include="steam_api64.dll">
+    <Content Include="steam_api64.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="steam_api.dll">
+    </Content>
+    <Content Include="steam_api.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
+    </Content>
+    <Content Include="PrepareScriptMod.bat">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <None Include="steam_appid.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

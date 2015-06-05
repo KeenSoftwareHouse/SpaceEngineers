@@ -16,7 +16,6 @@ using System.Xml;
 using VRage.Utils;
 using VRage.Plugins;
 using Sandbox.Common.ObjectBuilders.Serializer;
-using VRage.Utils;
 using VRage.Library.Utils;
 
 namespace Sandbox.Common.ObjectBuilders

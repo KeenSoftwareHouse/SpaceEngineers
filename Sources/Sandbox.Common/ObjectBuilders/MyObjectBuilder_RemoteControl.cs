@@ -1,5 +1,6 @@
 ﻿using ProtoBuf;
 using System.Collections.Generic;
+using System.ComponentModel;
 using VRageMath;
 
 namespace Sandbox.Common.ObjectBuilders
@@ -8,26 +9,39 @@ namespace Sandbox.Common.ObjectBuilders
     [MyObjectBuilderDefinition]
     public class MyObjectBuilder_RemoteControl : MyObjectBuilder_ShipController
     {
-        [ProtoMember(1)]
+        [ProtoMember]
         public long? PreviousControlledEntityId = null;
 
-        [ProtoMember(2)]
+        [ProtoMember]
         public bool AutoPilotEnabled;
 
-        [ProtoMember(3)]
+        [ProtoMember]
         public int FlightMode;
 
-        [ProtoMember(4)]
-        public List<Vector3D> Coords;
 
-        [ProtoMember(5)]
-        public List<string> Names;
-
-        [ProtoMember(6)]
+        [ProtoMember]
         public int CurrentWaypointIndex = -1;
 
-        [ProtoMember(7)]
-        public MyObjectBuilder_Toolbar AutoPilotToolbar;
+        [ProtoMember]
+        public List<MyObjectBuilder_AutopilotWaypoint> Waypoints;
+
+        /// <summary>
+        /// Obsolete. Use Waypoints instead.
+        /// </summary>
+        [ProtoMember, DefaultValue(null)]
+        public List<Vector3D> Coords = null;
+
+        /// <summary>
+        /// Obsolete. Use Waypoints instead.
+        /// </summary>
+        [ProtoMember, DefaultValue(null)]
+        public List<string> Names = null;
+
+        /// <summary>
+        /// Obsolete. Use Waypoints instead.
+        /// </summary>
+        [ProtoMember, DefaultValue(null)]
+        public MyObjectBuilder_Toolbar AutoPilotToolbar = null;
 
         public override void Remap(IMyRemapHelper remapHelper)
         {

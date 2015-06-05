@@ -11,17 +11,19 @@ namespace Sandbox.Common.Components
     public class MyEntityComponentDescriptor : System.Attribute
     {
         public Type EntityBuilderType;
+        public string[] EntityBuilderSubTypeNames;
 
-        public MyEntityComponentDescriptor(Type entityBuilderType)
+        public MyEntityComponentDescriptor(Type entityBuilderType, params string[] entityBuilderSubTypeNames)
         {
             EntityBuilderType = entityBuilderType;
+            EntityBuilderSubTypeNames = entityBuilderSubTypeNames;
         }
     }
 
     public abstract class MyComponentBase
     {
         public IMyEntity Entity { get { return CurrentContainer != null ? CurrentContainer.Entity : null; } }  // to be obsolete once components are finished
-        public MyComponentContainer CurrentContainer { get; private set; }
+        public MyComponentContainer CurrentContainer { get; set; }
 
         public virtual void OnAddedToContainer(MyComponentContainer container)
         {

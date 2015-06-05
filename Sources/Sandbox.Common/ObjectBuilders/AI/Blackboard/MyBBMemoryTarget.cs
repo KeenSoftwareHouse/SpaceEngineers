@@ -20,61 +20,58 @@ namespace Sandbox.Common.ObjectBuilders.AI
         public Vector3D? Position = null;
 
 		[ProtoMember]
-		public long? TreeId = null;
-
-		[ProtoMember]
-		public Vector3I? VoxelPosition = null;
+		public int? TreeId = null;
 
         public Vector3I BlockPosition { get { return Vector3I.Round(Position.Value); } }
+        public Vector3I VoxelPosition { get { return Vector3I.Round(Position.Value); } }
 
         public MyBBMemoryTarget()
         {
         }
 
-        public MyBBMemoryTarget(MyAiTargetEnum targetType, long entityId)							{ SetTargetEntity(targetType, entityId); }
-        public MyBBMemoryTarget(Vector3D position)													{ SetTargetPosition(position); }
-        public MyBBMemoryTarget(Vector3I blockPosition, long entityId)								{ SetTargetCube(blockPosition, entityId); }
-		public MyBBMemoryTarget(Vector3D position, long environmentId, long itemId)					{ SetTargetTree(position, environmentId, itemId); }
-		public MyBBMemoryTarget(Vector3D exactPosition, Vector3I voxelGridPosition, long entityId)	{ SetTargetVoxel(exactPosition, voxelGridPosition, entityId); }
-
-        public void SetTargetEntity(MyAiTargetEnum targetType, long entityId)
+        public static void SetTargetEntity(ref MyBBMemoryTarget target, MyAiTargetEnum targetType, long entityId, Vector3D? position = null)
         {
-            TargetType = targetType;
-            EntityId = entityId;
-			TreeId = null;
-            Position = null;
+            if (target == null) target = new MyBBMemoryTarget();
+            target.TargetType = targetType;
+            target.EntityId = entityId;
+            target.TreeId = null;
+            target.Position = position;
         }
 
-        public void SetTargetPosition(Vector3D position)
+        public static void SetTargetPosition(ref MyBBMemoryTarget target, Vector3D position)
         {
-            TargetType = MyAiTargetEnum.POSITION;
-            EntityId = null;
-			TreeId = null;
-            Position = position;
+            if (target == null) target = new MyBBMemoryTarget();
+            target.TargetType = MyAiTargetEnum.POSITION;
+            target.EntityId = null;
+            target.TreeId = null;
+            target.Position = position;
         }
 
-        public void SetTargetCube(Vector3I blockPosition, long entityId)
+        public static void SetTargetCube(ref MyBBMemoryTarget target, Vector3I blockPosition, long entityId)
         {
-            TargetType = MyAiTargetEnum.CUBE;
-            EntityId = entityId;
-			TreeId = null;
-            Position = new Vector3D(blockPosition);
+            if (target == null) target = new MyBBMemoryTarget();
+            target.TargetType = MyAiTargetEnum.CUBE;
+            target.EntityId = entityId;
+            target.TreeId = null;
+            target.Position = new Vector3D(blockPosition);
         }
 
-		public void SetTargetTree(Vector3D treePosition, long entityId, long treeId)
-		{
-			TargetType = MyAiTargetEnum.ENVIRONMENT_ITEM;
-			EntityId = entityId;
-			TreeId = treeId;
-			Position = treePosition;
-		}
+        public static void SetTargetVoxel(ref MyBBMemoryTarget target, Vector3I voxelPosition, long entityId)
+        {
+            if (target == null) target = new MyBBMemoryTarget();
+            target.TargetType = MyAiTargetEnum.VOXEL;
+            target.EntityId = entityId;
+            target.TreeId = null;
+            target.Position = new Vector3D(voxelPosition);
+        }
 
-		public void SetTargetVoxel(Vector3D exactPosition, Vector3I voxelGridPosition, long entityId)
-		{
-			TargetType = MyAiTargetEnum.VOXEL;
-			Position = exactPosition;
-			VoxelPosition = voxelGridPosition;
-			EntityId = entityId;
+        public static void SetTargetTree(ref MyBBMemoryTarget target, Vector3D treePosition, long entityId, int treeId)
+        {
+            if (target == null) target = new MyBBMemoryTarget();
+            target.TargetType = MyAiTargetEnum.ENVIRONMENT_ITEM;
+            target.EntityId = entityId;
+            target.TreeId = treeId;
+            target.Position = treePosition;
 		}
     }
 }

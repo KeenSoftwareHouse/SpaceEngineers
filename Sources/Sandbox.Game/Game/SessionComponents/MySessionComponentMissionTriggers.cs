@@ -14,44 +14,33 @@ using Sandbox.ModAPI;
 
 namespace Sandbox.Game.SessionComponents
 {
-    [MySessionComponentDescriptor(MyUpdateOrder.NoUpdate)]//.BeforeSimulation)]
+    [MySessionComponentDescriptor(MyUpdateOrder.BeforeSimulation)]
     public class MySessionComponentMission : MySessionComponentBase
     {
-        //public override void UpdateBeforeSimulation()
         public static MySessionComponentMission Static {get; private set;}
         public Dictionary<MyPlayer.PlayerId, MyMissionTriggers> MissionTriggers { get; private set; }
 
-        //first triggered on this local computer:
-        private string m_message=null;
-        private bool m_won;
-        private bool m_wasShown;
-
-        /*public bool Update(MyFaction faction, MyCharacter me)
+        protected bool m_someoneWon;
+        private int m_updateCount = 0;
+        public override void UpdateBeforeSimulation()
         {
-            bool res = false;
-            if (faction != null)
-                res = Update(faction.FactionId, me);
-            else
-                res = Update(me.EntityId, me);
-
-            return res;
-        }*/
-        /*public bool Update()
-        {
-            return false;
-        }*/
+            if (!Sync.IsServer)
+                return;
+            if (m_someoneWon)
+                if (++m_updateCount % 100 == 0)
+                    foreach (var triggers in MissionTriggers)
+                        triggers.Value.RaiseSignal(triggers.Key, Signal.OTHER_WON);
+        }
 
         public bool Update(MyPlayer.PlayerId Id, MyCharacter me)
         {
-            if (m_message != null && !m_wasShown)
-            {
-                MyAPIGateway.Utilities.ShowNotification(m_message, 60000, (m_won ? Sandbox.Common.MyFontEnum.Green : Sandbox.Common.MyFontEnum.Red));
-                m_wasShown = true;
-            }
+            //MySessionComponentMission.Static.TryCreateFromDefault(Id);
+
+            if (IsLocal(Id))
+                UpdateLocal(Id);
+
             if (!Sync.IsServer)
                 return false;
-
-            MySessionComponentMission.Static.TryCreateFromDefault(Id, false);
 
             MyMissionTriggers mtrig;
             if (!MissionTriggers.TryGetValue(Id, out mtrig))
@@ -63,14 +52,26 @@ namespace Sandbox.Game.SessionComponents
             if (!mtrig.Won)
                 mtrig.UpdateLose(me);
             else
-            {
-                foreach(var triggers in MissionTriggers)
-                    if (triggers.Key!=Id)//MyMissionTriggers.DefaultPlayerId)
-                        triggers.Value.RaiseSignal(Id, Signal.OTHER_WON);
-            }
+                m_someoneWon = true;
             return false;
         }
 
+        #region displaying win/lose message on local computer
+        private bool m_LocalMsgShown;
+        private void UpdateLocal(MyPlayer.PlayerId Id)
+        {
+            if (!m_LocalMsgShown)
+            {
+                MyMissionTriggers mtrig;
+                if (!MissionTriggers.TryGetValue(Id, out mtrig))
+                {
+                    Debug.Fail("Bad ID for UpdateLocal");
+                    return;
+                }
+                m_LocalMsgShown = mtrig.DisplayMsg();
+            }
+        }
+        #endregion
         #region network
         public void SetWon(MyPlayer.PlayerId Id, int index)
         {
@@ -80,11 +81,7 @@ namespace Sandbox.Game.SessionComponents
                 Debug.Fail("Bad ID for SetWon");
                 return;
             }
-            if (IsLocal(Id) && m_message == null)
-            {
-                m_message = mtrig.SetWon(index);
-                m_won = true;
-            }
+            mtrig.SetWon(index);
         }
         public void SetLost(MyPlayer.PlayerId Id, int index)
         {
@@ -94,21 +91,17 @@ namespace Sandbox.Game.SessionComponents
                 Debug.Fail("Bad ID for SetLost");
                 return;
             }
-            if (IsLocal(Id) && m_message == null)
-            {
-                m_message = mtrig.SetLost(index);
-                m_won = false;
-            }
+            mtrig.SetLost(index);
         }
         #endregion
         private bool IsLocal(MyPlayer.PlayerId Id)
         {
-            if (!MySandboxGame.IsDedicated && Id == MySession.LocalHumanPlayer.Id)
+            if (!MySandboxGame.IsDedicated && MySession.LocalHumanPlayer!=null && Id == MySession.LocalHumanPlayer.Id)
                 return true;
             return false;
         }
 
-        public void TryCreateFromDefault(MyPlayer.PlayerId newId, bool overwrite)
+        public void TryCreateFromDefault(MyPlayer.PlayerId newId, bool overwrite = false)
         {
             if (overwrite)
                 MissionTriggers.Remove(newId);
@@ -124,8 +117,6 @@ namespace Sandbox.Game.SessionComponents
                 //older save which does not have defaults set
                 return;
             mtrig.CopyTriggersFrom(source);
-            m_message = null;
-            m_wasShown = false;
         }
 
         public MySessionComponentMission()
@@ -138,8 +129,11 @@ namespace Sandbox.Game.SessionComponents
             MissionTriggers.Clear();
             if (obj!=null && obj.Triggers != null)
                 foreach (var trigger in obj.Triggers.Dictionary)
-                    MissionTriggers.Add(new MyPlayer.PlayerId(trigger.Key.stm,trigger.Key.ser), new MyMissionTriggers(trigger.Value));
-            //TODO save/load m_message, m_won, m_wasShown
+                {
+                    var id=new MyPlayer.PlayerId(trigger.Key.stm, trigger.Key.ser);
+                    var triggers = new MyMissionTriggers(trigger.Value);
+                    MissionTriggers.Add(id, triggers);
+                }
         }
 
         public MyObjectBuilder_SessionComponentMission GetObjectBuilder()

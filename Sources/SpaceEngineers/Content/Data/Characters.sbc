@@ -201,6 +201,17 @@
 			<Bones>SE_RigRibcage SE_RigRibcage</Bones>
 		</BoneSet>
 	  </RagdollBonesMappings>
+
+	  <RagdollPartialSimulations>
+		<BoneSet>
+			<Name>Jetpack</Name>
+			<Bones>Ragdoll_SE_rig_LUpperarm001 Ragdoll_SE_rig_LForearm001 Ragdoll_SE_rig_LPalm001 Ragdoll_SE_rig_RUpperarm001 Ragdoll_SE_rig_RForearm001 Ragdoll_SE_rig_RPalm001 Ragdoll_SE_rig_LThigh001 Ragdoll_SE_rig_LCalf001 Ragdoll_SE_rig_LFoot001 Ragdoll_SE_rig_RThigh001 Ragdoll_SE_rig_RCalf001 Ragdoll_SE_rig_RFoot001</Bones>
+		</BoneSet>
+		<BoneSet>
+			<Name>Jetpack_Weapon</Name>
+			<Bones>Ragdoll_SE_rig_LThigh001 Ragdoll_SE_rig_LCalf001 Ragdoll_SE_rig_LFoot001 Ragdoll_SE_rig_RThigh001 Ragdoll_SE_rig_RCalf001 Ragdoll_SE_rig_RFoot001</Bones>
+		</BoneSet>
+	  </RagdollPartialSimulations>
 	  
       <!-- for feet IK placement -->
       <FeetIKEnabled>false</FeetIKEnabled>
@@ -466,8 +477,18 @@
 			<Name>Ragdoll_SE_rig_Oxygentank_bone001</Name>
 			<Bones>SE_RigRibcage SE_RigRibcage</Bones>
 		</BoneSet>
-
 	  </RagdollBonesMappings>
+	  
+	  <RagdollPartialSimulations>
+		<BoneSet>
+			<Name>Jetpack</Name>
+			<Bones>Ragdoll_SE_rig_LUpperarm001 Ragdoll_SE_rig_LForearm001 Ragdoll_SE_rig_LPalm001 Ragdoll_SE_rig_RUpperarm001 Ragdoll_SE_rig_RForearm001 Ragdoll_SE_rig_RPalm001 Ragdoll_SE_rig_LThigh001 Ragdoll_SE_rig_LCalf001 Ragdoll_SE_rig_LFoot001 Ragdoll_SE_rig_RThigh001 Ragdoll_SE_rig_RCalf001 Ragdoll_SE_rig_RFoot001</Bones>
+		</BoneSet>
+		<BoneSet>
+			<Name>Jetpack_Weapon</Name>
+			<Bones>Ragdoll_SE_rig_LThigh001 Ragdoll_SE_rig_LCalf001 Ragdoll_SE_rig_LFoot001 Ragdoll_SE_rig_RThigh001 Ragdoll_SE_rig_RCalf001 Ragdoll_SE_rig_RFoot001</Bones>
+		</BoneSet>
+	  </RagdollPartialSimulations>
 	  
       <!-- for feet IK placement -->
       <FeetIKEnabled>false</FeetIKEnabled>

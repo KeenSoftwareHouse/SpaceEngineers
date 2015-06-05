@@ -5,18 +5,19 @@ SamplerComparisonState	ShadowmapSampler	: register( MERGE(s,SHADOW_SAMPLER_SLOT)
 const static int CASCADES_NUM = 4;
 const static int MAX_CASCADES = 7;
 
-Texture2DArray<float> CSM : register( MERGE(t,CASCADES_SM_SLOT) );
-
 struct CsmConstants {
 	matrix 	cascade_matrix[8];
 	float4 	split_dist[2];
 	float4 	cascade_scale[4]; 
 };
-
-cbuffer CSM : register ( b2 )
+cbuffer CSM : register ( b4 )
 {
 	CsmConstants csm_;	
 }
+
+#ifndef CUSTOM_CASCADE_SLOT
+Texture2DArray<float> CSM : register( MERGE(t,CASCADES_SM_SLOT) );
+#endif
 
 static const float cascade_size = 1024.f;
 static const float zbias = 0;//0.0015f;
@@ -123,4 +124,11 @@ float calculate_shadow_fast_particle(float3 world_pos, float depth)
 	float3 lpos = world_to_shadowmap(world_pos, csm_.cascade_matrix[c_id]);
 	lpos.z -= zbias;
 	return CSM.SampleCmpLevelZero(ShadowmapSampler, float3(lpos.xy, c_id), lpos.z);
+}
+
+float calculate_shadow_fast_aprox(float3 world_pos)
+{
+	float3 lpos = world_to_shadowmap(world_pos, csm_.cascade_matrix[0]);
+	lpos.z -= zbias;
+	return CSM.SampleCmpLevelZero(ShadowmapSampler, float3(lpos.xy, 0), lpos.z);	
 }

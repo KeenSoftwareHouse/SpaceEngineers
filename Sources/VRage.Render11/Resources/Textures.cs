@@ -18,6 +18,7 @@ using SharpDX.Direct3D;
 using VRage.Utils;
 using VRage.Library.Utils;
 using VRage.FileSystem;
+using VRageMath;
 
 namespace VRageRender.Resources
 {
@@ -159,9 +160,8 @@ namespace VRageRender.Resources
                 }
             }
 
-            if(img != null)
-            {
-                
+            if (img != null && MathHelper.IsPowerOfTwo(img.Description.Width) && MathHelper.IsPowerOfTwo(img.Description.Height))
+            {         
                 int skipMipmaps = (Textures.Data[texId.Index].Type != MyTextureEnum.GUI && img.Description.MipLevels > 1) ? MyRender11.RenderSettings.TextureQuality.MipmapsToSkip(img.Description.Width, img.Description.Height) : 0;
 
                 int targetMipmaps = img.Description.MipLevels - skipMipmaps;
@@ -242,7 +242,7 @@ namespace VRageRender.Resources
 
         internal static ShaderResourceView GetView(TexId tex)
         {
-            return Views[tex.Index];
+            return tex != TexId.NULL ? Views[tex.Index] : null;
         }
 
         internal static TexId GetTexture(string path, MyTextureEnum type, bool waitTillLoaded = false)

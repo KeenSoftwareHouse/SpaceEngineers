@@ -466,5 +466,9 @@ namespace Sandbox.Common.ObjectBuilders.Definitions
 
         [ProtoMember, DefaultValue(1)]
         public int BattlePoints = 1;
+
+        [ProtoMember, DefaultValue(0)]
+        public int MaxIntegrity = 0;
+
     }
 }

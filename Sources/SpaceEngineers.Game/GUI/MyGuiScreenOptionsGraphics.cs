@@ -306,9 +306,10 @@ namespace SpaceEngineers.Game.GUI
             RefreshPresetCombo(m_settingsNew.Render);
         }
 
+        /// <returns>Bool indicating a game restart is required</returns>
         private bool ReadSettingsFromControls(ref MyGraphicsSettings graphicsSettings)
         {
-            bool changed;
+            bool restartIsNeeded;
 
             {
                 MyGraphicsSettings read = new MyGraphicsSettings();
@@ -325,11 +326,11 @@ namespace SpaceEngineers.Game.GUI
                 read.Render.FoliageDetails        = (MyFoliageDetails)m_comboFoliageDetails.GetSelectedKey();
                 read.Render.Dx9Quality            = (MyRenderQualityEnum)m_comboDx9RenderQuality.GetSelectedKey();
 
-                changed = !read.Equals(ref graphicsSettings);
+                restartIsNeeded = read.GraphicsRenderer != graphicsSettings.GraphicsRenderer;
                 graphicsSettings = read;
             }
 
-            return changed;
+            return restartIsNeeded;
         }
 
         private void WriteSettingsToControls(MyGraphicsSettings graphicsSettings)
@@ -362,7 +363,13 @@ namespace SpaceEngineers.Game.GUI
         public void OnOkClick(MyGuiControlButton sender)
         {
             //  Update NEW settings
-            ReadSettingsFromControls(ref m_settingsNew);
+            if (ReadSettingsFromControls(ref m_settingsNew))
+            {
+                MyGuiSandbox.AddScreen(MyGuiSandbox.CreateMessageBox(
+                            buttonType: MyMessageBoxButtonsType.OK,
+                            messageText: MyTexts.Get(MySpaceTexts.MessageBoxTextRestartNeededAfterRendererSwitch),
+                            messageCaption: MyTexts.Get(MySpaceTexts.MessageBoxCaptionWarning)));
+            }
             MyVideoSettingsManager.Apply(m_settingsNew);
             MyVideoSettingsManager.SaveCurrentSettings();
             CloseScreen();

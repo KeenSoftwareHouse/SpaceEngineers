@@ -264,17 +264,12 @@ namespace Sandbox.Game.Entities.EnvironmentItems
             int currentTime = MySandboxGame.TotalGamePlayTimeInMilliseconds;
             int maxDuration = (int)(MAX_TREE_CUT_DURATION * 1000);
 
-            int i = 0;
-            while (i < m_cutTreeInfos.Count)
+            for (int i = m_cutTreeInfos.Count - 1; i >= 0; i--)
             {
                 var info = m_cutTreeInfos[i];
                 if (currentTime - info.LastHit > maxDuration)
                 {
                     m_cutTreeInfos.RemoveAtFast(i);
-                }
-                else
-                {
-                    ++i;
                 }
             }
         }
