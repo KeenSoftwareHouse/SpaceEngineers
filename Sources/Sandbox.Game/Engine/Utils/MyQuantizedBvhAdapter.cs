@@ -17,6 +17,8 @@ namespace Sandbox.Common
     using Sandbox.Graphics;
     using Sandbox.Common;
     using VRage.Utils;
+    using VRage.ModAPI;
+    using VRage.Components;
 
     public static class BulletXnaExtensions
     {

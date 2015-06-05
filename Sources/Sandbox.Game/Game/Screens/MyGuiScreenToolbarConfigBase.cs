@@ -25,6 +25,7 @@ using VRage;
 using VRage.FileSystem;
 using VRage.Input;
 using VRage.Library.Utils;
+using VRage.ObjectBuilders;
 using VRage.Utils;
 using VRageMath;
 
@@ -336,7 +337,7 @@ namespace Sandbox.Game.Gui
             var fsPath = Path.Combine(MyFileSystem.ContentPath, fileName);
 
             MyObjectBuilder_GuiScreen objectBuilder;
-            Sandbox.Common.ObjectBuilders.Serializer.MyObjectBuilderSerializer.DeserializeXML<MyObjectBuilder_GuiScreen>(fsPath, out objectBuilder);
+            MyObjectBuilderSerializer.DeserializeXML<MyObjectBuilder_GuiScreen>(fsPath, out objectBuilder);
 
             Init(objectBuilder);
 
@@ -678,18 +679,20 @@ namespace Sandbox.Game.Gui
                         AddWeaponDefinition(m_gridBlocks, definition);
                     }
                 }
-                AddAnimations(false, searchCondition);
 
-                AddVoxelHands(false, searchCondition);
+                if (MyPerGameSettings.EnableAi && MyFakes.ENABLE_BARBARIANS)
+                {
+                    AddAiCommandDefinitions(searchCondition);
+                    AddBotDefinitions(searchCondition);
+                    AddAreaMarkerDefinitions(searchCondition);
+                }
+
+                AddVoxelHands(searchCondition);
 
                 if (MyFakes.ENABLE_PREFAB_THROWER)
-                    AddPrefabThrowers(false, searchCondition);
+                    AddPrefabThrowers(searchCondition);
 
-                if (MyPerGameSettings.EnableAi && MyFakes.ENABLE_BARBARIANS && MySession.Static.CreativeMode)
-                {
-                    AddBotDefinitions(false, searchCondition);
-                    AddAiCommandDefinitions(false, searchCondition);
-                }
+                AddAnimations(false, searchCondition);
             }
             else
             {
@@ -704,17 +707,6 @@ namespace Sandbox.Game.Gui
                             AddTools(m_shipController, searchCondition);
                         }
                         AddAnimations(true, searchCondition);
-
-                        AddVoxelHands(true, searchCondition);
-
-                        if (MyFakes.ENABLE_PREFAB_THROWER)
-                            AddPrefabThrowers(true, searchCondition);
-
-                        if (MyPerGameSettings.EnableAi && MyFakes.ENABLE_BARBARIANS && MySession.Static.CreativeMode)
-                        {
-                            AddBotDefinitions(true, searchCondition);
-                            AddAiCommandDefinitions(true, searchCondition);
-                        }
                     }
                 }
             }
@@ -899,11 +891,11 @@ namespace Sandbox.Game.Gui
             }
         }
 
-        private void AddVoxelHands(bool shipController, IMySearchCondition searchCondition)
+        private void AddVoxelHands(IMySearchCondition searchCondition)
         {
             foreach (MyVoxelHandDefinition definition in MyDefinitionManager.Static.GetVoxelHandDefinitions())
             {
-                if (definition.Public && !shipController)
+                if (definition.Public)
                 {
                     if (searchCondition != null && !searchCondition.MatchesCondition(definition))
                         continue;
@@ -913,11 +905,11 @@ namespace Sandbox.Game.Gui
             }
         }
 
-        private void AddPrefabThrowers(bool shipController, IMySearchCondition searchCondition)
+        private void AddPrefabThrowers(IMySearchCondition searchCondition)
         {
             foreach (MyPrefabThrowerDefinition definition in MyDefinitionManager.Static.GetPrefabThrowerDefinitions())
             {
-                if ((definition.Public || MyFakes.ENABLE_NON_PUBLIC_BLOCKS) && !shipController)
+                if ((definition.Public || MyFakes.ENABLE_NON_PUBLIC_BLOCKS))
                 {
                     if (searchCondition != null && !searchCondition.MatchesCondition(definition))
                         continue;
@@ -926,11 +918,11 @@ namespace Sandbox.Game.Gui
             }
         }
 
-        private void AddBotDefinitions(bool shipController, IMySearchCondition searchCondition)
+        private void AddBotDefinitions(IMySearchCondition searchCondition)
         {
             foreach (MyBotDefinition definition in MyDefinitionManager.Static.GetDefinitionsOfType<MyBotDefinition>())
             {
-                if ((definition.Public || MyFakes.ENABLE_NON_PUBLIC_BLOCKS) && !shipController)
+                if ((definition.Public || MyFakes.ENABLE_NON_PUBLIC_BLOCKS) && (definition.AvailableInSurvival || MySession.Static.CreativeMode))
                 {
                     if (searchCondition != null && !searchCondition.MatchesCondition(definition))
                         continue;
@@ -940,11 +932,11 @@ namespace Sandbox.Game.Gui
             }
         }
 
-        private void AddAiCommandDefinitions(bool shipController, IMySearchCondition searchCondition)
+        private void AddAiCommandDefinitions(IMySearchCondition searchCondition)
         {
             foreach (MyAiCommandDefinition definition in MyDefinitionManager.Static.GetDefinitionsOfType<MyAiCommandDefinition>())
             {
-                if ((definition.Public || MyFakes.ENABLE_NON_PUBLIC_BLOCKS) && !shipController)
+                if (definition.Public || MyFakes.ENABLE_NON_PUBLIC_BLOCKS)
                 {
                     if (searchCondition != null && !searchCondition.MatchesCondition(definition))
                         continue;
@@ -954,44 +946,58 @@ namespace Sandbox.Game.Gui
             }
         }
 
+		private void AddAreaMarkerDefinitions(IMySearchCondition searchCondition)
+		{
+			foreach(MyAreaMarkerDefinition definition in MyDefinitionManager.Static.GetDefinitionsOfType<MyAreaMarkerDefinition>())
+			{
+				if(definition.Public || MyFakes.ENABLE_NON_PUBLIC_BLOCKS)
+				{
+					if (searchCondition != null && !searchCondition.MatchesCondition(definition))
+						continue;
+
+					AddToolbarItemDefinition<MyObjectBuilder_ToolbarItemAreaMarker>(m_gridBlocks, definition);
+				}
+			}
+		}
+
         void AddWeaponDefinition(MyGuiControlGrid grid, MyDefinitionBase definition)
         {
-            MyObjectBuilder_ToolbarItemWeapon weaponData = Sandbox.Common.ObjectBuilders.Serializer.MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_ToolbarItemWeapon>();
+            MyObjectBuilder_ToolbarItemWeapon weaponData = MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_ToolbarItemWeapon>();
             weaponData.DefinitionId = definition.Id;
             AddDefinition(grid, weaponData, definition);
         }
 
         void AddAnimationDefinition(MyGuiControlGrid grid, MyDefinitionBase definition)
         {
-            MyObjectBuilder_ToolbarItemAnimation animationData = Sandbox.Common.ObjectBuilders.Serializer.MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_ToolbarItemAnimation>();
+            MyObjectBuilder_ToolbarItemAnimation animationData = MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_ToolbarItemAnimation>();
             animationData.DefinitionId = definition.Id;
             AddDefinition(grid, animationData, definition);
         }
 
         void AddVoxelHandDefinition(MyGuiControlGrid grid, MyDefinitionBase definition)
         {
-            MyObjectBuilder_ToolbarItemVoxelHand handData = Sandbox.Common.ObjectBuilders.Serializer.MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_ToolbarItemVoxelHand>();
+            MyObjectBuilder_ToolbarItemVoxelHand handData = MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_ToolbarItemVoxelHand>();
             handData.DefinitionId = definition.Id;
             AddDefinition(grid, handData, definition);
         }
 
         private void AddPrefabThrowerDefinition(MyGuiControlGrid grid, MyPrefabThrowerDefinition definition)
         {
-            MyObjectBuilder_ToolbarItemPrefabThrower throwerData = Sandbox.Common.ObjectBuilders.Serializer.MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_ToolbarItemPrefabThrower>();
+            MyObjectBuilder_ToolbarItemPrefabThrower throwerData = MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_ToolbarItemPrefabThrower>();
             throwerData.DefinitionId = definition.Id;
             AddDefinition(grid, throwerData, definition);
         }
 
         private void AddBotDefinition(MyGuiControlGrid grid, MyBotDefinition definition)
         {
-            MyObjectBuilder_ToolbarItemBot agentData = Sandbox.Common.ObjectBuilders.Serializer.MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_ToolbarItemBot>();
+            MyObjectBuilder_ToolbarItemBot agentData = MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_ToolbarItemBot>();
             agentData.DefinitionId = definition.Id;
             AddDefinition(grid, agentData, definition);
         }
 
         private void AddToolbarItemDefinition<T>(MyGuiControlGrid grid, MyDefinitionBase definition) where T: MyObjectBuilder_ToolbarItemDefinition, new()
         {
-            T objectBuilder = Sandbox.Common.ObjectBuilders.Serializer.MyObjectBuilderSerializer.CreateNewObject<T>();
+            T objectBuilder = MyObjectBuilderSerializer.CreateNewObject<T>();
             objectBuilder.DefinitionId = definition.Id;
             AddDefinition(grid, objectBuilder, definition);
         }
@@ -1056,7 +1062,7 @@ namespace Sandbox.Game.Gui
                 int remainder = w % nCols;
                 if (remainder == 0) remainder = nCols;
                 for (int i = 0; i < 2 * nCols - remainder; i++)
-                    m_gridBlocks.SetItemAt(v++, new MyGuiControlGrid.Item(icon: "", toolTip: String.Empty, userData: new GridItemUserData() { ItemData = Sandbox.Common.ObjectBuilders.Serializer.MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_ToolbarItemEmpty>() }, enabled: false));
+                    m_gridBlocks.SetItemAt(v++, new MyGuiControlGrid.Item(icon: "", toolTip: String.Empty, userData: new GridItemUserData() { ItemData = MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_ToolbarItemEmpty>() }, enabled: false));
             }
         }
 
@@ -1080,6 +1086,10 @@ namespace Sandbox.Game.Gui
                     continue;
                 }
                 if ( searchCondition != null && searchCondition.MatchesCondition(block.BlockDefinition) == false && searchCondition.MatchesCondition(block.CustomName.ToString()) == false)
+                {
+                    continue;
+                }
+                if (block.ShowInToolbarConfig == false)
                 {
                     continue;
                 }

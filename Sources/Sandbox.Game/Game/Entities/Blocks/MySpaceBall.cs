@@ -23,13 +23,15 @@ using Sandbox.Game.Multiplayer;
 using Sandbox.ModAPI.Ingame;
 using Sandbox.Game.Localization;
 using VRage.Utils;
+using VRage.ModAPI;
+using VRage.Components;
 
 #endregion
 
 namespace Sandbox.Game.Entities
 {
     [MyCubeBlockType(typeof(MyObjectBuilder_SpaceBall))]
-    class MySpaceBall : MyFunctionalBlock, IMyVirtualMass, IMyComponentOwner<MyDataBroadcaster>, IMyComponentOwner<MyDataReceiver>
+    class MySpaceBall : MyFunctionalBlock, IMySpaceBall, IMyComponentOwner<MyDataBroadcaster>, IMyComponentOwner<MyDataReceiver>
     {
         #region Properties
 
@@ -148,6 +150,7 @@ namespace Sandbox.Game.Entities
             var enableBroadcast = new MyTerminalControlCheckbox<MySpaceBall>("EnableBroadCast", MySpaceTexts.Antenna_EnableBroadcast, MySpaceTexts.Antenna_EnableBroadcast);
             enableBroadcast.Getter = (x) => x.RadioBroadcaster.Enabled;
             enableBroadcast.Setter = (x, v) => x.SyncObject.SendChangeBroadcastRequest(v);
+            enableBroadcast.EnableAction();
             MyTerminalControlFactory.AddControl(enableBroadcast);
         }
 
@@ -232,7 +235,7 @@ namespace Sandbox.Game.Entities
 
                 var detectorShape = new HkSphereShape(CubeGrid.GridSize * 0.5f);
                 var massProperties = HkInertiaTensorComputer.ComputeSphereVolumeMassProperties(detectorShape.Radius, VirtualMass != 0 ? VirtualMass : 0.01f);
-                Physics = new Engine.Physics.MyPhysicsBody(this, Engine.Physics.RigidBodyFlag.RBF_KEYFRAMED_REPORTING);
+                Physics = new Engine.Physics.MyPhysicsBody(this, RigidBodyFlag.RBF_KEYFRAMED_REPORTING);
                 Physics.IsPhantom = false;
                 Physics.CreateFromCollisionObject(detectorShape, Vector3.Zero, WorldMatrix, massProperties, MyPhysics.VirtualMassLayer);
                 UpdateIsWorking();
@@ -339,6 +342,11 @@ namespace Sandbox.Game.Entities
         float IMyVirtualMass.VirtualMass
         {
             get { return GetMass(); }
+        }
+
+        bool IMySpaceBall.IsBroadcasting
+        {
+            get { return (m_radioBroadcaster == null) ? false : m_radioBroadcaster.Enabled; }
         }
     }
 }

@@ -19,29 +19,28 @@ namespace Sandbox.Game.Gui
         static readonly int MAX_MESSAGES_IN_CHAT = 10;
         static readonly int MAX_MESSAGE_TIME = 15000; //ms
 
-        public bool Visible { get; set; }
-
         public Queue<Tuple<string, string>> MessagesQueue = new Queue<Tuple<string, string>>();
-        public bool Dirty = true;
 
-        private int m_lastChatUpdate = int.MaxValue;
+        private int m_lastUpdateTime = int.MaxValue;
+
+        public int Timestamp { get; private set; }
 
         public MyHudChat()
         {
-            Visible = true;
+            Timestamp = 0;
         }
 
-        internal void RegisterChat(MyMultiplayerBase multiplayer)
+        public void RegisterChat(MyMultiplayerBase multiplayer)
         {
             multiplayer.ChatMessageReceived += Multiplayer_ChatMessageReceived;
         }
 
-        internal void UnregisterChat(MyMultiplayerBase multiplayer)
+        public void UnregisterChat(MyMultiplayerBase multiplayer)
         {
             multiplayer.ChatMessageReceived -= Multiplayer_ChatMessageReceived;
             MessagesQueue.Clear();
             
-            SetDirty();
+            UpdateTimestamp();
         }
 
         public void ShowMessage(string sender, string messageText)
@@ -51,7 +50,7 @@ namespace Sandbox.Game.Gui
             if (MessagesQueue.Count > MAX_MESSAGES_IN_CHAT)
                 MessagesQueue.Dequeue();
 
-            SetDirty();
+            UpdateTimestamp();
         }
 
         void Multiplayer_ChatMessageReceived(ulong steamUserId, string messageText, ChatEntryTypeEnum chatEntryType)
@@ -63,20 +62,20 @@ namespace Sandbox.Game.Gui
             }
         }
 
-        void SetDirty()
+        void UpdateTimestamp()
         {
-            Dirty = true;
-            m_lastChatUpdate = MySandboxGame.TotalGamePlayTimeInMilliseconds;
+            Timestamp++;
+            m_lastUpdateTime = MySandboxGame.TotalGamePlayTimeInMilliseconds;
         }
 
         public void Update()
         {
-            if (MySandboxGame.TotalGamePlayTimeInMilliseconds - m_lastChatUpdate > MAX_MESSAGE_TIME)
+            if (MySandboxGame.TotalGamePlayTimeInMilliseconds - m_lastUpdateTime > MAX_MESSAGE_TIME)
             {
                 if (MessagesQueue.Count > 0)
                 {
                     MessagesQueue.Dequeue();
-                    SetDirty();
+                    UpdateTimestamp();
                 }
             }
         }

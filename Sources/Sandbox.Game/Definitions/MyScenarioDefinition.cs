@@ -4,6 +4,7 @@ using Sandbox.Common.ObjectBuilders.VRageData;
 using Sandbox.Engine.Utils;
 using Sandbox.Game.Localization;
 using Sandbox.Game.World;
+using VRage;
 using VRage.Library.Utils;
 using VRage.Utils;
 using VRage.Utils;
@@ -15,13 +16,6 @@ namespace Sandbox.Definitions
     [MyDefinitionType(typeof(MyObjectBuilder_ScenarioDefinition))]
     public class MyScenarioDefinition : MyDefinitionBase
     {
-        public class MyBattleSettings
-        {
-            public BoundingBoxD[] AttackerSlots;
-            public BoundingBoxD DefenderSlot;
-            public long DefenderEntityId;
-        }
-
         public BoundingBoxD WorldBoundaries;
         public MyWorldGeneratorStartingStateBase[] PossiblePlayerStarts;
         public MyWorldGeneratorOperationBase[] WorldGeneratorOperations;
@@ -31,7 +25,7 @@ namespace Sandbox.Definitions
         public MyStringId[] CreativeModeWeapons;
         public MyStringId[] SurvivalModeWeapons;
         public MyObjectBuilder_Toolbar DefaultToolbar;
-        public MyBattleSettings Battle;
+        public MyStringId MainCharacterModel;
 
         protected override void Init(MyObjectBuilder_DefinitionBase builder)
         {
@@ -42,6 +36,7 @@ namespace Sandbox.Definitions
             AsteroidClustersOffset  = ob.AsteroidClusters.Offset;
             CentralClusterEnabled   = ob.AsteroidClusters.CentralCluster;
             DefaultToolbar = ob.DefaultToolbar;
+            MainCharacterModel = MyStringId.GetOrCompute(ob.MainCharacterModel);
 
             if (ob.PossibleStartingStates != null && ob.PossibleStartingStates.Length > 0)
             {
@@ -81,23 +76,6 @@ namespace Sandbox.Definitions
 
             WorldBoundaries.Min = ob.WorldBoundaries.Min;
             WorldBoundaries.Max = ob.WorldBoundaries.Max;
-
-            if (MyFakes.ENABLE_BATTLE_SYSTEM && ob.Battle != null)
-            {
-                Battle = new MyBattleSettings();
-
-                Battle.DefenderSlot = ob.Battle.DefenderSlot;
-                Battle.DefenderEntityId = ob.Battle.DefenderEntityId;
-
-                if (ob.Battle.AttackerSlots != null && ob.Battle.AttackerSlots.Length > 0)
-                {
-                    Battle.AttackerSlots = new BoundingBoxD[ob.Battle.AttackerSlots.Length];
-                    for (int i = 0; i < ob.Battle.AttackerSlots.Length; ++i)
-                    {
-                        Battle.AttackerSlots[i] = ob.Battle.AttackerSlots[i];
-                    }
-                }
-            }
         }
 
         public override MyObjectBuilder_DefinitionBase GetObjectBuilder()
@@ -108,6 +86,7 @@ namespace Sandbox.Definitions
             ob.AsteroidClusters.Offset         = AsteroidClustersOffset;
             ob.AsteroidClusters.CentralCluster = CentralClusterEnabled;
             ob.DefaultToolbar = DefaultToolbar;
+            ob.MainCharacterModel = MainCharacterModel.ToString();
 
             if (PossiblePlayerStarts != null && PossiblePlayerStarts.Length > 0)
             {
@@ -142,20 +121,6 @@ namespace Sandbox.Definitions
                 for (int i = 0; i < SurvivalModeWeapons.Length; ++i)
                 {
                     ob.SurvivalModeWeapons[i] = SurvivalModeWeapons[i].ToString();
-                }
-            }
-
-            if (MyFakes.ENABLE_BATTLE_SYSTEM && Battle != null)
-            {
-                ob.Battle = new Sandbox.Common.ObjectBuilders.Definitions.MyObjectBuilder_ScenarioDefinition.MyOBBattleSettings();
-
-                if (Battle.AttackerSlots != null && Battle.AttackerSlots.Length > 0)
-                {
-                    ob.Battle.AttackerSlots = new SerializableBoundingBoxD[Battle.AttackerSlots.Length];
-                    for (int i = 0; i < Battle.AttackerSlots.Length; ++i)
-                    {
-                        ob.Battle.AttackerSlots[i] = Battle.AttackerSlots[i];
-                    }
                 }
             }
 

@@ -21,6 +21,7 @@ using Sandbox.ModAPI.Ingame;
 using Sandbox.Game.Localization;
 using VRage;
 using VRage.Utils;
+using VRage.ModAPI;
 
 #endregion
 
@@ -126,6 +127,11 @@ namespace Sandbox.Game.Entities.Cube
             show.Setter = (x, v) => x.RequestShowInTerminal(v);
             MyTerminalControlFactory.AddControl(show);
 
+            var showConfig = new MyTerminalControlOnOffSwitch<MyRadioAntenna>("ShowInToolbarConfig", MySpaceTexts.Terminal_ShowInToolbarConfig, MySpaceTexts.Terminal_ShowInToolbarConfigToolTip);
+            showConfig.Getter = (x) => x.ShowInToolbarConfig;
+            showConfig.Setter = (x, v) => x.RequestShowInToolbarConfig(v);
+            MyTerminalControlFactory.AddControl(showConfig);
+
             var customName = new MyTerminalControlTextbox<MyRadioAntenna>("CustomName", MySpaceTexts.Name, MySpaceTexts.Blank);
             customName.Getter = (x) => x.CustomName;
             customName.Setter = (x, v) => MySyncBlockHelpers.SendChangeNameRequest(x, v);
@@ -149,11 +155,13 @@ namespace Sandbox.Game.Entities.Cube
             var enableBroadcast = new MyTerminalControlCheckbox<MyRadioAntenna>("EnableBroadCast", MySpaceTexts.Antenna_EnableBroadcast, MySpaceTexts.Antenna_EnableBroadcast);
             enableBroadcast.Getter = (x) => x.RadioBroadcaster.Enabled;
             enableBroadcast.Setter = (x, v) => x.RadioBroadcaster.SyncObject.SendChangeRadioAntennaRequest(x.RadioBroadcaster.BroadcastRadius, v);
+            enableBroadcast.EnableAction();
             MyTerminalControlFactory.AddControl(enableBroadcast);
 
             var showShipName = new MyTerminalControlCheckbox<MyRadioAntenna>("ShowShipName", MySpaceTexts.BlockPropertyTitle_ShowShipName, MySpaceTexts.BlockPropertyDescription_ShowShipName);
             showShipName.Getter = (x) => x.ShowShipName;
             showShipName.Setter = (x, v) => x.RadioBroadcaster.SyncObject.SendChangeRadioAntennaDisplayName(v);
+            showShipName.EnableAction();
             MyTerminalControlFactory.AddControl(showShipName);
 
         }
@@ -197,7 +205,7 @@ namespace Sandbox.Game.Entities.Cube
 
             ShowOnHUD = false;
 
-            NeedsUpdate = Common.MyEntityUpdateEnum.EACH_10TH_FRAME;
+            NeedsUpdate = MyEntityUpdateEnum.EACH_10TH_FRAME;
         }
 
         public override MyObjectBuilder_CubeBlock GetObjectBuilderCubeBlock(bool copy = false)
@@ -358,5 +366,15 @@ namespace Sandbox.Game.Entities.Cube
         {
             get { return GetRadius(); }
         }
+
+		bool IsBroadcasting()
+		{
+			return (m_radioBroadcaster != null) ? m_radioBroadcaster.WantsToBeEnabled : false;
+		}
+
+		bool IMyRadioAntenna.IsBroadcasting
+		{
+			get {  return IsBroadcasting(); }
+		}
     }
 }

@@ -35,7 +35,7 @@ namespace Sandbox.Game.Gui
         public List<Tuple<string, MyWorldInfo>> AvailableSaves = new List<Tuple<string, MyWorldInfo>>();
         public bool ContainsCorruptedWorlds;
 
-        public MyLoadListResult(bool missions=false)
+        public MyLoadListResult(bool missions = false)
         {
             Task = Parallel.Start(() => LoadListAsync(missions));
         }
@@ -46,6 +46,7 @@ namespace Sandbox.Game.Gui
                 AvailableSaves = MyLocalCache.GetAvailableMissionInfos();
             else
                 AvailableSaves = MyLocalCache.GetAvailableWorldInfos();
+
             ContainsCorruptedWorlds = false;
 
             StringBuilder corruptedWorlds = new StringBuilder();

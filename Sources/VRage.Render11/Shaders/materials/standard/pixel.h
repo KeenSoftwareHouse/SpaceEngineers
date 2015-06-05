@@ -22,7 +22,7 @@ float3 colorize_1(float3 texcolor, float3 hsvmask, float coloring) {
 	float3 hsv = rgb_to_hsv(lerp(1, coloringc, coloring) * texcolor);
 
 	hsv.x = 0;
-	float3 fhsv = hsv + hsvmask * float3(1,1,0.9); // magic
+	float3 fhsv = hsv + hsvmask * float3(1, 1, 0.5); // magic, matches colors from se better
 	fhsv.x = frac(fhsv.x);
 
 	float gray2 = 1 - saturate((hsvmask.y + 1.0f) / 0.1f);

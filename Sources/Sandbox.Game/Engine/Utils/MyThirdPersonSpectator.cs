@@ -3,12 +3,14 @@ using Sandbox.Common;
 using Sandbox.Engine.Physics;
 using Sandbox.Game;
 using Sandbox.Game.Entities;
+using Sandbox.Game.Entities.Character;
 using Sandbox.Game.World;
 using Sandbox.ModAPI.Interfaces;
 using System;
 using System.Collections.Generic;
 using VRage;
 using VRage.Input;
+using VRage.ModAPI;
 using VRageMath;
 
 namespace Sandbox.Engine.Utils
@@ -102,7 +104,7 @@ namespace Sandbox.Engine.Utils
         Matrix m_orientationMatrix;
 
         List<MyPhysics.HitInfo> m_raycastList = new List<MyPhysics.HitInfo>();
-        HashSet<Sandbox.ModAPI.IMyEntity> m_raycastHashSet = new HashSet<Sandbox.ModAPI.IMyEntity>();
+        HashSet<IMyEntity> m_raycastHashSet = new HashSet<IMyEntity>();
         List<HkRigidBody> m_rigidList = new List<HkRigidBody>();
 
         bool m_saveSettings;
@@ -159,6 +161,13 @@ namespace Sandbox.Engine.Utils
                 return;
 
             var headMatrix = controlledEntity.GetHeadMatrix(true);
+
+            if (controlledEntity is MyCharacter)
+            {
+                var character = controlledEntity as MyCharacter;
+                headMatrix = character.Get3rdBoneMatrix(true, true);
+            }
+
             m_targetOrientation = (Matrix)headMatrix.GetOrientation();
             m_target = headMatrix.Translation;
 
@@ -467,6 +476,27 @@ namespace Sandbox.Engine.Utils
             Vector3D center = Vector3D.Transform((Vector3D)localAABBHr.Center, topControlledEntity.WorldMatrix);
 
             var safeOBB = new MyOrientedBoundingBoxD(center, localAABBHr.HalfExtents, Quaternion.CreateFromRotationMatrix(topControlledEntity.WorldMatrix.GetOrientation()));
+            //VRageRender.MyRenderProxy.DebugDrawOBB(safeOBB, Vector3.One, 1, false, false);
+            //VRageRender.MyRenderProxy.DebugDrawAxis(topControlledEntity.WorldMatrix, 2, false);
+
+            bool camPosIsOk = HandleIntersection(topControlledEntity, safeOBB, topControlledEntity is Sandbox.Game.Entities.Character.MyCharacter, true, m_target, m_targetOrientation.Forward);
+
+            return camPosIsOk;
+        }
+
+        public bool IsCameraPositionOk(Matrix worldMatrix)
+        {
+            IMyCameraController cameraController = MySession.Static.CameraController;
+            if (cameraController == null)
+                return true;
+
+            MyEntity topControlledEntity = ((MyEntity)cameraController).GetTopMostParent();
+            if (topControlledEntity.Closed) return false;
+
+            var localAABBHr = topControlledEntity.PositionComp.LocalAABBHr;
+            Vector3D center = Vector3D.Transform((Vector3D)localAABBHr.Center, worldMatrix);
+
+            var safeOBB = new MyOrientedBoundingBoxD(center, localAABBHr.HalfExtents, Quaternion.CreateFromRotationMatrix(worldMatrix.GetOrientation()));
             //VRageRender.MyRenderProxy.DebugDrawOBB(safeOBB, Vector3.One, 1, false, false);
             //VRageRender.MyRenderProxy.DebugDrawAxis(topControlledEntity.WorldMatrix, 2, false);
 

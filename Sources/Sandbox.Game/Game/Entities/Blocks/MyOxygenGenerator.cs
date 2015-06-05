@@ -13,12 +13,13 @@ using VRage;
 using VRageMath;
 using System.Text;
 using VRage.Utils;
-using Sandbox.ModAPI.Ingame;
+using Sandbox.ModAPI;
 using Sandbox.Common.ObjectBuilders.Definitions;
 using System;
 using Sandbox.Engine.Multiplayer;
 using SteamSDK;
 using Sandbox.Engine.Utils;
+using VRage.ModAPI;
 
 namespace Sandbox.Game.Entities.Blocks
 {
@@ -185,7 +186,7 @@ namespace Sandbox.Game.Entities.Blocks
             InitializeConveyorEndpoint();
             m_useConveyorSystem = generatorBuilder.UseConveyorSystem;
 
-            NeedsUpdate = Common.MyEntityUpdateEnum.EACH_100TH_FRAME;
+            NeedsUpdate = MyEntityUpdateEnum.EACH_100TH_FRAME;
 
             m_inventory = new MyInventory(
                 BlockDefinition.InventoryMaxVolume,
@@ -287,7 +288,7 @@ namespace Sandbox.Game.Entities.Blocks
                 }
                 else if (m_soundEmitter.SoundId != BlockDefinition.IdleSound.SoundId)
                 {
-                    m_soundEmitter.PlaySound(BlockDefinition.IdleSound);
+                    m_soundEmitter.PlaySound(BlockDefinition.IdleSound, true);
                 }
             }
             else if (m_soundEmitter.IsPlaying)
@@ -310,8 +311,8 @@ namespace Sandbox.Game.Entities.Blocks
                 return 0;
             }
 
-            return (Enabled && IsFunctional) ? (m_isProducing) ? BlockDefinition.OperationalPowerConsumption
-                                                             : BlockDefinition.StandbyPowerConsumption
+            return (Enabled && IsFunctional) ? (m_isProducing) ? BlockDefinition.OperationalPowerConsumption * m_powerConsumptionMultiplier
+                                                             : BlockDefinition.StandbyPowerConsumption * m_powerConsumptionMultiplier
                                              : 0.0f;
         }
 
@@ -364,6 +365,12 @@ namespace Sandbox.Game.Entities.Blocks
             {
                 CubeGrid.GridSystems.OxygenSystem.UnregisterOxygenBlock(this);
             }
+        }
+
+        protected override void Closing()
+        {
+            base.Closing();
+            m_soundEmitter.StopSound(true);
         }
 
         public override void UpdateVisual()
@@ -504,7 +511,7 @@ namespace Sandbox.Game.Entities.Blocks
                 return 0f;
             }
 
-            float productionCapacity = BlockDefinition.OxygenProductionPerSecond * deltaTime;
+            float productionCapacity = BlockDefinition.OxygenProductionPerSecond * m_productionCapacityMultiplier * deltaTime;
 
             if (MySession.Static.CreativeMode)
             {
@@ -584,6 +591,46 @@ namespace Sandbox.Game.Entities.Blocks
             }
         }
         #endregion
+
+        private float m_productionCapacityMultiplier = 1f;
+        float Sandbox.ModAPI.IMyOxygenGenerator.ProductionCapacityMultiplier
+        {
+            get
+            {
+                return m_productionCapacityMultiplier;
+            }
+            set
+            {
+                m_productionCapacityMultiplier = value;
+                if (m_productionCapacityMultiplier < 0.01f)
+                {
+                    m_productionCapacityMultiplier = 0.01f;
+                }
+            }
+        }
+
+        private float m_powerConsumptionMultiplier = 1f;
+        float Sandbox.ModAPI.IMyOxygenGenerator.PowerConsumptionMultiplier
+        {
+            get
+            {
+                return m_powerConsumptionMultiplier;
+            }
+            set
+            {
+                m_powerConsumptionMultiplier = value;
+                if (m_powerConsumptionMultiplier < 0.01f)
+                {
+                    m_powerConsumptionMultiplier = 0.01f;
+                }
+
+                if (PowerReceiver != null)
+                {
+                    PowerReceiver.MaxRequiredInput = BlockDefinition.OperationalPowerConsumption * m_powerConsumptionMultiplier;
+                    PowerReceiver.Update();
+                }
+            }
+        }
 
         #region Sync
         protected override MySyncEntity OnCreateSync()

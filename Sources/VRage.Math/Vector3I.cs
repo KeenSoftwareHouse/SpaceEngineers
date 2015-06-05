@@ -36,7 +36,8 @@ namespace VRageMath
 
             public bool IsValid()
             {
-                return Current.Z <= m_end.Z && Current.X <= m_end.X && Current.Y <= m_end.Y;
+                Debug.Assert(Current.X <= m_end.X && Current.Y <= m_end.Y, "Invalid X and Y values in the Vector3I range iterator!");
+                return Current.Z <= m_end.Z;
             }
 
             public void GetNext(out Vector3I next)
@@ -93,11 +94,11 @@ namespace VRageMath
         public static Vector3I Forward = new Vector3I(0, 0, -1);
         public static Vector3I Backward = new Vector3I(0, 0, 1);
 
-        [ProtoBuf.ProtoMember(1)]
+        [ProtoBuf.ProtoMember]
         public int X;
-        [ProtoBuf.ProtoMember(2)]
+        [ProtoBuf.ProtoMember]
         public int Y;
-        [ProtoBuf.ProtoMember(3)]
+        [ProtoBuf.ProtoMember]
         public int Z;
         
         public Vector3I(int xyz)

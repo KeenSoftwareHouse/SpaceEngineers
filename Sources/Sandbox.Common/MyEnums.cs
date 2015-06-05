@@ -11,31 +11,10 @@ namespace Sandbox.Common
     public enum MyQuickLaunchType : byte
     {
         NEW_SANDBOX,
-        LAST_SANDBOX
+        LAST_SANDBOX,
+        SCENARIO_QUICKSTART
     }
 
-    public enum MyFontEnum
-    {
-        Debug, // First font will be used as debug by engine, so we put Debug font here.
-        Red,
-        Green,
-        Blue,
-        White,
-        DarkBlue,
-
-        UrlNormal,
-        UrlHighlight,
-        ErrorMessageBoxCaption,
-        ErrorMessageBoxText,
-        InfoMessageBoxCaption,
-        InfoMessageBoxText,
-        ScreenCaption,
-        GameCredits,
-        LoadingScreen,
-
-        BuildInfo,
-        BuildInfoHighlight,
-    }
 
     //  Material type of a physical object. This value determine sound of collision, decal type, explosion type, etc.
     public static class MyMaterialType
@@ -51,11 +30,7 @@ namespace Sandbox.Common
         public static MyStringId EXPBULLET = MyStringId.GetOrCompute("ExpBullet");
     }
 
-    public enum MyRelationsBetweenFactions
-    {
-        Neutral,
-        Enemies
-    }
+    
 
     public enum MyRelationsBetweenPlayerAndBlock
     {

@@ -143,16 +143,59 @@ namespace Sandbox.Engine.Multiplayer
             set { Lobby.SetLobbyData(MyMultiplayer.ViewDistanceTag, value.ToString()); }
         }
 
+
+        public override bool Scenario
+        {
+            get { return GetLobbyBool(MyMultiplayer.ScenarioTag, Lobby, false); }
+            set { Lobby.SetLobbyData(MyMultiplayer.ScenarioTag, value.ToString()); }
+        }
+
+        public override string ScenarioBriefing
+        {
+            get { return Lobby.GetLobbyData(MyMultiplayer.ScenarioBriefingTag); }
+            set { Lobby.SetLobbyData(MyMultiplayer.ScenarioBriefingTag, value); }
+        }
+
+        public override DateTime ScenarioStartTime
+        {
+            get { return GetLobbyDateTime(MyMultiplayer.ScenarioStartTimeTag, Lobby, DateTime.UtcNow); }
+            set { Lobby.SetLobbyData(MyMultiplayer.ScenarioStartTimeTag, value.ToString(CultureInfo.InvariantCulture)); }
+        }
+
         public override bool Battle
         {
             get { return GetLobbyBool(MyMultiplayer.BattleTag, Lobby, false); }
             set { Lobby.SetLobbyData(MyMultiplayer.BattleTag, value.ToString()); }
         }
 
-        public override int MaxBattleBlueprintPoints
+        public override bool BattleCanBeJoined
         {
-            get { return GetLobbyInt(MyMultiplayer.MaxBattleBlueprintPointsTag, Lobby, 0); }
-            set { Lobby.SetLobbyData(MyMultiplayer.MaxBattleBlueprintPointsTag, value.ToString()); }
+            get { return GetLobbyBool(MyMultiplayer.BattleCanBeJoinedTag, Lobby, false); }
+            set { Lobby.SetLobbyData(MyMultiplayer.BattleCanBeJoinedTag, value.ToString()); }
+        }
+
+        public override int BattleFaction1MaxBlueprintPoints
+        {
+            get { return GetLobbyInt(MyMultiplayer.BattleFaction1MaxBlueprintPointsTag, Lobby, 0); }
+            set { Lobby.SetLobbyData(MyMultiplayer.BattleFaction1MaxBlueprintPointsTag, value.ToString()); }
+        }
+
+        public override int BattleFaction2MaxBlueprintPoints
+        {
+            get { return GetLobbyInt(MyMultiplayer.BattleFaction2MaxBlueprintPointsTag, Lobby, 0); }
+            set { Lobby.SetLobbyData(MyMultiplayer.BattleFaction2MaxBlueprintPointsTag, value.ToString()); }
+        }
+
+        public override int BattleFaction1BlueprintPoints
+        {
+            get { return GetLobbyInt(MyMultiplayer.BattleFaction1BlueprintPointsTag, Lobby, 0); }
+            set { Lobby.SetLobbyData(MyMultiplayer.BattleFaction1BlueprintPointsTag, value.ToString()); }
+        }
+
+        public override int BattleFaction2BlueprintPoints
+        {
+            get { return GetLobbyInt(MyMultiplayer.BattleFaction2BlueprintPointsTag, Lobby, 0); }
+            set { Lobby.SetLobbyData(MyMultiplayer.BattleFaction2BlueprintPointsTag, value.ToString()); }
         }
 
         public override int BattleMapAttackerSlotsCount
@@ -196,6 +239,14 @@ namespace Sandbox.Engine.Multiplayer
             get { return GetLobbyBool(MyMultiplayer.BattleFaction2ReadyTag, Lobby, false); }
             set { Lobby.SetLobbyData(MyMultiplayer.BattleFaction2ReadyTag, value.ToString()); }
         }
+
+        public override int BattleTimeLimit
+        {
+            get { return GetLobbyInt(MyMultiplayer.BattleTimeLimitTag, Lobby, 0); }
+            set { Lobby.SetLobbyData(MyMultiplayer.BattleTimeLimitTag, value.ToString()); }
+        }
+
+        private bool m_serverDataValid;
 
 
         internal MyMultiplayerLobby(Lobby lobby, MySyncLayer syncLayer)
@@ -256,7 +307,9 @@ namespace Sandbox.Engine.Multiplayer
                 }
                 else
                 {
-                    RaiseClientLeft(changedUser, stateChange);
+                    // Kicked client can be already removed from Clients
+                    if (Sync.Clients == null || Sync.Clients.HasClient(changedUser))
+                        RaiseClientLeft(changedUser, stateChange);
 
                     if (changedUser == ServerId)
                     {
@@ -337,7 +390,16 @@ namespace Sandbox.Engine.Multiplayer
         public override void Tick()
         {
             base.Tick();
-           
+
+            // TODO: Hack for invisible battle games - sometimes values are not written to Lobby so we try it again here
+            if (!m_serverDataValid)
+            {
+                if (AppVersion == 0) 
+                    MySession.Static.StartServer(this);
+
+                m_serverDataValid = true;
+            }
+
             //var delta = TimeSpan.FromMilliseconds(SyncLayer.Interpolation.Timer.AverageDeltaMilliseconds);
             //Profiler.CustomValue("Average delta ", (float)delta.TotalMilliseconds + 10, delta + TimeSpan.FromMilliseconds(10));
 
@@ -481,6 +543,15 @@ namespace Sandbox.Engine.Multiplayer
                 return defValue;
         }
 
+        public static DateTime GetLobbyDateTime(string key, Lobby lobby, DateTime defValue)
+        {
+            DateTime val;
+            if (DateTime.TryParse(lobby.GetLobbyData(key), CultureInfo.InvariantCulture, DateTimeStyles.None, out val))
+                return val;
+            else
+                return defValue;
+        }
+
         public static long GetLobbyLong(string key, Lobby lobby, long defValue)
         {
             long val;
@@ -576,9 +647,24 @@ namespace Sandbox.Engine.Multiplayer
             return GetLobbyInt(MyMultiplayer.ViewDistanceTag, lobby, 20000);
         }
 
+        public static bool GetLobbyScenario(Lobby lobby)
+        {
+            return GetLobbyBool(MyMultiplayer.ScenarioTag, lobby, false);
+        }
+
+        public static string GetLobbyScenarioBriefing(Lobby lobby)
+        {
+            return lobby.GetLobbyData(MyMultiplayer.ScenarioBriefingTag);
+        }
+
         public static bool GetLobbyBattle(Lobby lobby)
         {
             return GetLobbyBool(MyMultiplayer.BattleTag, lobby, false);
+        }
+
+        public static bool GetLobbyBattleCanBeJoined(Lobby lobby)
+        {
+            return GetLobbyBool(MyMultiplayer.BattleCanBeJoinedTag, lobby, false);
         }
 
         public override string GetMemberName(ulong steamUserID)
@@ -588,6 +674,8 @@ namespace Sandbox.Engine.Multiplayer
 
         protected override void OnClientKick(ref MyControlKickClientMsg data, ulong kicked)
         {
+            RaiseClientKicked(data.KickedClient);
+
             if (data.KickedClient == MySteam.UserId)
             {
                 MyGuiScreenMainMenu.ReturnToMainMenu();

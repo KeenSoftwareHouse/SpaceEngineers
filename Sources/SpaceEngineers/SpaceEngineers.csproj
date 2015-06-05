@@ -202,6 +202,9 @@
     <Content Include="Content\Effects2\Voxels\MyEffectCube.fx" />
     <Content Include="Content\Effects2\Voxels\MyEffectVoxels.fx" />
     <Content Include="Content\Effects2\Voxels\MyEffectVoxelsDebris.fx" />
+    <Content Include="eula.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="GameThumbnail.png" />
     <Content Include="SpaceEngineers.ico">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
@@ -346,12 +349,15 @@
     <None Include="Content\Effects2\Voxels\MyEffectVoxelsClipping.fxh" />
     <None Include="Content\Effects2\Voxels\MyEffectVoxelsDebris.fxo" />
     <None Include="Content\Effects2\MyEffectWorldPosition.fxh" />
-    <None Include="steam_api64.dll">
+    <Content Include="steam_api64.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="steam_api.dll">
+    </Content>
+    <Content Include="steam_api.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
+    </Content>
+    <Content Include="PrepareScriptMod.bat">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <None Include="steam_appid.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
@@ -372,6 +378,10 @@
     <ProjectReference Include="..\SpaceEngineers.Game\SpaceEngineers.Game.csproj">
       <Project>{9f620aab-5008-4d91-8d8f-8be6cf26f926}</Project>
       <Name>SpaceEngineers.Game</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\VRage.Game\VRage.Game.csproj">
+      <Project>{4539b5f0-3316-40e6-b032-9fbcafaac5be}</Project>
+      <Name>VRage.Game</Name>
     </ProjectReference>
     <ProjectReference Include="..\VRage.Render11\VRage.Render11.csproj">
       <Project>{a5a97aa5-e974-479e-bf93-1202393a4a06}</Project>

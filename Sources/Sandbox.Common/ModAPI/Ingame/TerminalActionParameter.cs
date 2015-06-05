@@ -2,6 +2,7 @@ using System;
 using System.Globalization;
 using System.Reflection;
 using Sandbox.Common.ObjectBuilders;
+using VRage.ObjectBuilders;
 
 namespace Sandbox.ModAPI.Ingame
 {
@@ -120,7 +121,7 @@ namespace Sandbox.ModAPI.Ingame
     
         public MyObjectBuilder_ToolbarItemActionParameter GetObjectBuilder()
         {
-            var itemObjectBuilder = Sandbox.Common.ObjectBuilders.Serializer.MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_ToolbarItemActionParameter>();
+            var itemObjectBuilder = MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_ToolbarItemActionParameter>();
             itemObjectBuilder.TypeCode = TypeCode;
             itemObjectBuilder.Value = (this.Value == null) ? null : Convert.ToString(this.Value, CultureInfo.InvariantCulture);
             return itemObjectBuilder;

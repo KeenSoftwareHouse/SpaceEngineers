@@ -61,7 +61,7 @@ namespace Sandbox.Game.Multiplayer
             }
         }
 
-        internal static MyClientCollection Clients { get { return Layer == null ? null : Layer.Clients; } }
+        public static MyClientCollection Clients { get { return Layer == null ? null : Layer.Clients; } }
         public static MyPlayerCollection Players { get { return MySession.Static.Players; } }
         //public static MyPlayer Server { get { return Layer.Players[ServerId]; } }
         //public static MyPlayer Me { get { return Layer.Players[MyId]; } }

@@ -5,6 +5,7 @@ using System.Text;
 using Sandbox.Game.Weapons;
 using VRageMath;
 using Sandbox.Common.Components;
+using VRage.Components;
 
 namespace Sandbox.Game.Components
 {
@@ -12,10 +13,10 @@ namespace Sandbox.Game.Components
     {
         MySmallGatlingGun m_gatlingGun = null;
         #region overrides
-        public override void OnAddedToContainer(MyComponentContainer container)
+        public override void OnAddedToContainer()
         {
-            base.OnAddedToContainer(container);
-            m_gatlingGun = Entity as MySmallGatlingGun;
+            base.OnAddedToContainer();
+            m_gatlingGun = Container.Entity as MySmallGatlingGun;
         }
         public override void Draw()
         {

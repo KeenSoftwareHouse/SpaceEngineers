@@ -1,11 +1,11 @@
 ﻿using System.Text;
-using VRage.Library.Utils;
+using VRage.Utils;
 
 // This file has been generated. Do not edit it.
 namespace Sandbox.Game.Localization
 {
     [System.CodeDom.Compiler.GeneratedCode("Space Engineers Localization Generator Template", "1.0.0.0")]
-    internal static class MySpaceTexts
+    public static class MySpaceTexts
     {
         public static readonly MyStringId Blank = default(MyStringId);
 
@@ -6160,6 +6160,66 @@ namespace Sandbox.Game.Localization
         public static readonly MyStringId BlockPropertyTitle_Motor_Power = MyStringId.GetOrCompute("BlockPropertyTitle_Motor_Power");
 
         ///<summary>
+        ///Axle height offset from center
+        ///</summary>
+        public static readonly MyStringId BlockPropertyDescription_Motor_Height = MyStringId.GetOrCompute("BlockPropertyDescription_Motor_Height");
+
+        ///<summary>
+        ///Height Offset
+        ///</summary>
+        public static readonly MyStringId BlockPropertyTitle_Motor_Height = MyStringId.GetOrCompute("BlockPropertyTitle_Motor_Height");
+
+        ///<summary>
+        ///The maximum angle that the wheel will turn when steering
+        ///</summary>
+        public static readonly MyStringId BlockPropertyDescription_Motor_MaxSteerAngle = MyStringId.GetOrCompute("BlockPropertyDescription_Motor_MaxSteerAngle");
+
+        ///<summary>
+        ///Steering Angle
+        ///</summary>
+        public static readonly MyStringId BlockPropertyTitle_Motor_MaxSteerAngle = MyStringId.GetOrCompute("BlockPropertyTitle_Motor_MaxSteerAngle");
+
+        ///<summary>
+        ///The wheel turn speed.
+        ///</summary>
+        public static readonly MyStringId BlockPropertyDescription_Motor_SteerSpeed = MyStringId.GetOrCompute("BlockPropertyDescription_Motor_SteerSpeed");
+
+        ///<summary>
+        ///Steering Speed
+        ///</summary>
+        public static readonly MyStringId BlockPropertyTitle_Motor_SteerSpeed = MyStringId.GetOrCompute("BlockPropertyTitle_Motor_SteerSpeed");
+
+        ///<summary>
+        ///The wheel's return speed from turning.
+        ///</summary>
+        public static readonly MyStringId BlockPropertyDescription_Motor_SteerReturnSpeed = MyStringId.GetOrCompute("BlockPropertyDescription_Motor_SteerReturnSpeed");
+
+        ///<summary>
+        ///Steer Return Speed
+        ///</summary>
+        public static readonly MyStringId BlockPropertyTitle_Motor_SteerReturnSpeed = MyStringId.GetOrCompute("BlockPropertyTitle_Motor_SteerReturnSpeed");
+
+        ///<summary>
+        ///Invert the steering direction.
+        ///</summary>
+        public static readonly MyStringId BlockPropertyDescription_Motor_InvertSteer = MyStringId.GetOrCompute("BlockPropertyDescription_Motor_InvertSteer");
+
+        ///<summary>
+        ///Invert Steering
+        ///</summary>
+        public static readonly MyStringId BlockPropertyTitle_Motor_InvertSteer = MyStringId.GetOrCompute("BlockPropertyTitle_Motor_InvertSteer");
+
+        ///<summary>
+        ///Limits the suspension's travel height. Setting to 0% will effectively lock the suspension.
+        ///</summary>
+        public static readonly MyStringId BlockPropertyDescription_Motor_SuspensionTravel = MyStringId.GetOrCompute("BlockPropertyDescription_Motor_SuspensionTravel");
+
+        ///<summary>
+        ///Suspension Travel
+        ///</summary>
+        public static readonly MyStringId BlockPropertyTitle_Motor_SuspensionTravel = MyStringId.GetOrCompute("BlockPropertyTitle_Motor_SuspensionTravel");
+
+        ///<summary>
         ///Centered Window
         ///</summary>
         public static readonly MyStringId DisplayName_Block_VerticalCen = MyStringId.GetOrCompute("DisplayName_Block_VerticalCen");
@@ -7763,6 +7823,16 @@ namespace Sandbox.Game.Localization
         ///Keep projection after building is complete. Useful for automated building, but can degrade performance.
         ///</summary>
         public static readonly MyStringId KeepProjectionTooltip = MyStringId.GetOrCompute("KeepProjectionTooltip");
+
+        ///<summary>
+        ///Show Only Buildable
+        ///</summary>
+        public static readonly MyStringId ShowOnlyBuildableBlockToggle = MyStringId.GetOrCompute("ShowOnlyBuildableBlockToggle");
+
+        ///<summary>
+        ///Show Only Buildable
+        ///</summary>
+        public static readonly MyStringId ShowOnlyBuildableTooltip = MyStringId.GetOrCompute("ShowOnlyBuildableTooltip");
 
         ///<summary>
         ///Remove
@@ -9550,6 +9620,11 @@ namespace Sandbox.Game.Localization
         public static readonly MyStringId Terminal_ShowAllInTerminal = MyStringId.GetOrCompute("Terminal_ShowAllInTerminal");
 
         ///<summary>
+        ///Show block in toolbar config
+        ///</summary>
+        public static readonly MyStringId Terminal_ShowInToolbarConfig = MyStringId.GetOrCompute("Terminal_ShowInToolbarConfig");
+
+        ///<summary>
         ///Oxygen refilled from bottles.
         ///</summary>
         public static readonly MyStringId NotificationBottleRefill = MyStringId.GetOrCompute("NotificationBottleRefill");
@@ -9663,6 +9738,11 @@ namespace Sandbox.Game.Localization
         ///Show/hide current block in terminal
         ///</summary>
         public static readonly MyStringId Terminal_ShowInTerminalToolTip = MyStringId.GetOrCompute("Terminal_ShowInTerminalToolTip");
+
+        ///<summary>
+        ///Show/hide current block in toolbar config
+        ///</summary>
+        public static readonly MyStringId Terminal_ShowInToolbarConfigToolTip = MyStringId.GetOrCompute("Terminal_ShowInToolbarConfigToolTip");
 
         ///<summary>
         ///Helmet Off
@@ -10000,6 +10080,16 @@ namespace Sandbox.Game.Localization
         public static readonly MyStringId NotificationJoystickCompoundBuildingFormat = MyStringId.GetOrCompute("NotificationJoystickCompoundBuildingFormat");
 
         ///<summary>
+        ///Extend
+        ///</summary>
+        public static readonly MyStringId BlockActionTitle_Extend = MyStringId.GetOrCompute("BlockActionTitle_Extend");
+
+        ///<summary>
+        ///Retract
+        ///</summary>
+        public static readonly MyStringId BlockActionTitle_Retract = MyStringId.GetOrCompute("BlockActionTitle_Retract");
+
+        ///<summary>
         ///Press {0} to access control menu
         ///</summary>
         public static readonly MyStringId NotificationJoystickControlMenuFormat = MyStringId.GetOrCompute("NotificationJoystickControlMenuFormat");
@@ -10063,5 +10153,380 @@ namespace Sandbox.Game.Localization
         ///Access control menu to setup panel's buttons
         ///</summary>
         public static readonly MyStringId NotificationHintJoystickPressToOpenButtonPanel = MyStringId.GetOrCompute("NotificationHintJoystickPressToOpenButtonPanel");
+
+        ///<summary>
+        ///Access control menu to open inventory of {0}
+        ///</summary>
+        public static readonly MyStringId NotificationHintJoystickPressToOpenInventory = MyStringId.GetOrCompute("NotificationHintJoystickPressToOpenInventory");
+
+        ///<summary>
+        ///Press {0} to enter build mode
+        ///</summary>
+        public static readonly MyStringId NotificationHintPressToOpenBuildMode = MyStringId.GetOrCompute("NotificationHintPressToOpenBuildMode");
+
+        ///<summary>
+        ///Joining battle lobby
+        ///</summary>
+        public static readonly MyStringId DialogTextJoiningBattleLobby = MyStringId.GetOrCompute("DialogTextJoiningBattleLobby");
+
+        ///<summary>
+        ///Joining battle lobby failed, reason: {0}
+        ///</summary>
+        public static readonly MyStringId DialogTextJoinBattleLobbyFailed = MyStringId.GetOrCompute("DialogTextJoinBattleLobbyFailed");
+
+        ///<summary>
+        ///Press {0} to enter cryo chamber
+        ///</summary>
+        public static readonly MyStringId NotificationHintPressToEnterCryochamber = MyStringId.GetOrCompute("NotificationHintPressToEnterCryochamber");
+
+        ///<summary>
+        ///Press {0} to leave cryo chamber
+        ///</summary>
+        public static readonly MyStringId NotificationHintLeaveCryoChamber = MyStringId.GetOrCompute("NotificationHintLeaveCryoChamber");
+
+        ///<summary>
+        ///Old Scrap Metal
+        ///</summary>
+        public static readonly MyStringId DisplayName_Item_ScrapIngot = MyStringId.GetOrCompute("DisplayName_Item_ScrapIngot");
+
+        ///<summary>
+        ///Add
+        ///</summary>
+        public static readonly MyStringId BlockActionTitle_AddWaypoint = MyStringId.GetOrCompute("BlockActionTitle_AddWaypoint");
+
+        ///<summary>
+        ///Move Down
+        ///</summary>
+        public static readonly MyStringId BlockActionTitle_MoveWaypointDown = MyStringId.GetOrCompute("BlockActionTitle_MoveWaypointDown");
+
+        ///<summary>
+        ///Move Up
+        ///</summary>
+        public static readonly MyStringId BlockActionTitle_MoveWaypointUp = MyStringId.GetOrCompute("BlockActionTitle_MoveWaypointUp");
+
+        ///<summary>
+        ///Remove
+        ///</summary>
+        public static readonly MyStringId BlockActionTitle_RemoveWaypoint = MyStringId.GetOrCompute("BlockActionTitle_RemoveWaypoint");
+
+        ///<summary>
+        ///Autopilot
+        ///</summary>
+        public static readonly MyStringId BlockPropertyTitle_AutoPilot = MyStringId.GetOrCompute("BlockPropertyTitle_AutoPilot");
+
+        ///<summary>
+        ///Flight Mode
+        ///</summary>
+        public static readonly MyStringId BlockPropertyTitle_FlightMode = MyStringId.GetOrCompute("BlockPropertyTitle_FlightMode");
+
+        ///<summary>
+        ///Circle
+        ///</summary>
+        public static readonly MyStringId BlockPropertyTitle_FlightMode_Circle = MyStringId.GetOrCompute("BlockPropertyTitle_FlightMode_Circle");
+
+        ///<summary>
+        ///One Way
+        ///</summary>
+        public static readonly MyStringId BlockPropertyTitle_FlightMode_OneWay = MyStringId.GetOrCompute("BlockPropertyTitle_FlightMode_OneWay");
+
+        ///<summary>
+        ///Patrol
+        ///</summary>
+        public static readonly MyStringId BlockPropertyTitle_FlightMode_Patrol = MyStringId.GetOrCompute("BlockPropertyTitle_FlightMode_Patrol");
+
+        ///<summary>
+        ///GPS Locations
+        ///</summary>
+        public static readonly MyStringId BlockPropertyTitle_GpsLocations = MyStringId.GetOrCompute("BlockPropertyTitle_GpsLocations");
+
+        ///<summary>
+        ///Waypoints
+        ///</summary>
+        public static readonly MyStringId BlockPropertyTitle_Waypoints = MyStringId.GetOrCompute("BlockPropertyTitle_Waypoints");
+
+        ///<summary>
+        ///Set actions to be done when autopilot reaches this waypoint
+        ///</summary>
+        public static readonly MyStringId BlockPropertyPopup_AutoPilotToolbarOpen = MyStringId.GetOrCompute("BlockPropertyPopup_AutoPilotToolbarOpen");
+
+        ///<summary>
+        ///Setup Actions
+        ///</summary>
+        public static readonly MyStringId BlockPropertyTitle_AutoPilotToolbarOpen = MyStringId.GetOrCompute("BlockPropertyTitle_AutoPilotToolbarOpen");
+
+        ///<summary>
+        ///Autopilot enabled
+        ///</summary>
+        public static readonly MyStringId Notification_NoControlAutoPilot = MyStringId.GetOrCompute("Notification_NoControlAutoPilot");
+
+        ///<summary>
+        ///Physics
+        ///</summary>
+        public static readonly MyStringId WorldSettings_Physics = MyStringId.GetOrCompute("WorldSettings_Physics");
+
+        ///<summary>
+        ///Fast
+        ///</summary>
+        public static readonly MyStringId WorldSettings_Physics_Fast = MyStringId.GetOrCompute("WorldSettings_Physics_Fast");
+
+        ///<summary>
+        ///Normal
+        ///</summary>
+        public static readonly MyStringId WorldSettings_Physics_Normal = MyStringId.GetOrCompute("WorldSettings_Physics_Normal");
+
+        ///<summary>
+        ///Precise
+        ///</summary>
+        public static readonly MyStringId WorldSettings_Physics_Precise = MyStringId.GetOrCompute("WorldSettings_Physics_Precise");
+
+        ///<summary>
+        ///Higher settings improve simulation BUT directly affects performance.
+        ///</summary>
+        public static readonly MyStringId WorldSettings_Physics_Tooltip = MyStringId.GetOrCompute("WorldSettings_Physics_Tooltip");
+
+        ///<summary>
+        ///Graphics options
+        ///</summary>
+        public static readonly MyStringId ScreenCaptionGraphicsOptions = MyStringId.GetOrCompute("ScreenCaptionGraphicsOptions");
+
+        ///<summary>
+        ///Anisotropic filtering
+        ///</summary>
+        public static readonly MyStringId ScreenGraphicsOptions_AnisotropicFiltering = MyStringId.GetOrCompute("ScreenGraphicsOptions_AnisotropicFiltering");
+
+        ///<summary>
+        ///Off
+        ///</summary>
+        public static readonly MyStringId ScreenGraphicsOptions_AnisotropicFiltering_Off = MyStringId.GetOrCompute("ScreenGraphicsOptions_AnisotropicFiltering_Off");
+
+        ///<summary>
+        ///Anti-aliasing
+        ///</summary>
+        public static readonly MyStringId ScreenGraphicsOptions_AntiAliasing = MyStringId.GetOrCompute("ScreenGraphicsOptions_AntiAliasing");
+
+        ///<summary>
+        ///None
+        ///</summary>
+        public static readonly MyStringId ScreenGraphicsOptions_AntiAliasing_None = MyStringId.GetOrCompute("ScreenGraphicsOptions_AntiAliasing_None");
+
+        ///<summary>
+        ///Foliage details
+        ///</summary>
+        public static readonly MyStringId ScreenGraphicsOptions_FoliageDetails = MyStringId.GetOrCompute("ScreenGraphicsOptions_FoliageDetails");
+
+        ///<summary>
+        ///Disabled
+        ///</summary>
+        public static readonly MyStringId ScreenGraphicsOptions_FoliageDetails_Disabled = MyStringId.GetOrCompute("ScreenGraphicsOptions_FoliageDetails_Disabled");
+
+        ///<summary>
+        ///High
+        ///</summary>
+        public static readonly MyStringId ScreenGraphicsOptions_FoliageDetails_High = MyStringId.GetOrCompute("ScreenGraphicsOptions_FoliageDetails_High");
+
+        ///<summary>
+        ///Low
+        ///</summary>
+        public static readonly MyStringId ScreenGraphicsOptions_FoliageDetails_Low = MyStringId.GetOrCompute("ScreenGraphicsOptions_FoliageDetails_Low");
+
+        ///<summary>
+        ///Medium
+        ///</summary>
+        public static readonly MyStringId ScreenGraphicsOptions_FoliageDetails_Medium = MyStringId.GetOrCompute("ScreenGraphicsOptions_FoliageDetails_Medium");
+
+        ///<summary>
+        ///Multi-threaded rendering
+        ///</summary>
+        public static readonly MyStringId ScreenGraphicsOptions_MultiThreadedRendering = MyStringId.GetOrCompute("ScreenGraphicsOptions_MultiThreadedRendering");
+
+        ///<summary>
+        ///Quality preset
+        ///</summary>
+        public static readonly MyStringId ScreenGraphicsOptions_QualityPreset = MyStringId.GetOrCompute("ScreenGraphicsOptions_QualityPreset");
+
+        ///<summary>
+        ///Custom
+        ///</summary>
+        public static readonly MyStringId ScreenGraphicsOptions_QualityPreset_Custom = MyStringId.GetOrCompute("ScreenGraphicsOptions_QualityPreset_Custom");
+
+        ///<summary>
+        ///High
+        ///</summary>
+        public static readonly MyStringId ScreenGraphicsOptions_QualityPreset_High = MyStringId.GetOrCompute("ScreenGraphicsOptions_QualityPreset_High");
+
+        ///<summary>
+        ///Low
+        ///</summary>
+        public static readonly MyStringId ScreenGraphicsOptions_QualityPreset_Low = MyStringId.GetOrCompute("ScreenGraphicsOptions_QualityPreset_Low");
+
+        ///<summary>
+        ///Medium
+        ///</summary>
+        public static readonly MyStringId ScreenGraphicsOptions_QualityPreset_Medium = MyStringId.GetOrCompute("ScreenGraphicsOptions_QualityPreset_Medium");
+
+        ///<summary>
+        ///Renderer
+        ///</summary>
+        public static readonly MyStringId ScreenGraphicsOptions_Renderer = MyStringId.GetOrCompute("ScreenGraphicsOptions_Renderer");
+
+        ///<summary>
+        ///Shadow map resolution
+        ///</summary>
+        public static readonly MyStringId ScreenGraphicsOptions_ShadowMapResolution = MyStringId.GetOrCompute("ScreenGraphicsOptions_ShadowMapResolution");
+
+        ///<summary>
+        ///High
+        ///</summary>
+        public static readonly MyStringId ScreenGraphicsOptions_ShadowMapResolution_High = MyStringId.GetOrCompute("ScreenGraphicsOptions_ShadowMapResolution_High");
+
+        ///<summary>
+        ///Low
+        ///</summary>
+        public static readonly MyStringId ScreenGraphicsOptions_ShadowMapResolution_Low = MyStringId.GetOrCompute("ScreenGraphicsOptions_ShadowMapResolution_Low");
+
+        ///<summary>
+        ///Texture quality
+        ///</summary>
+        public static readonly MyStringId ScreenGraphicsOptions_TextureQuality = MyStringId.GetOrCompute("ScreenGraphicsOptions_TextureQuality");
+
+        ///<summary>
+        ///High
+        ///</summary>
+        public static readonly MyStringId ScreenGraphicsOptions_TextureQuality_High = MyStringId.GetOrCompute("ScreenGraphicsOptions_TextureQuality_High");
+
+        ///<summary>
+        ///Low
+        ///</summary>
+        public static readonly MyStringId ScreenGraphicsOptions_TextureQuality_Low = MyStringId.GetOrCompute("ScreenGraphicsOptions_TextureQuality_Low");
+
+        ///<summary>
+        ///Medium
+        ///</summary>
+        public static readonly MyStringId ScreenGraphicsOptions_TextureQuality_Medium = MyStringId.GetOrCompute("ScreenGraphicsOptions_TextureQuality_Medium");
+
+        ///<summary>
+        ///Changing the renderer requires restart of the game.
+        ///</summary>
+        public static readonly MyStringId ToolTipVideoOptionsRenderer = MyStringId.GetOrCompute("ToolTipVideoOptionsRenderer");
+
+        ///<summary>
+        ///Station rotation
+        ///</summary>
+        public static readonly MyStringId StationRotation_Static = MyStringId.GetOrCompute("StationRotation_Static");
+
+        ///<summary>
+        ///Enables rotation of station block
+        ///</summary>
+        public static readonly MyStringId StationRotation_Static_Desc = MyStringId.GetOrCompute("StationRotation_Static_Desc");
+
+        ///<summary>
+        ///Station rotation mode
+        ///</summary>
+        public static readonly MyStringId NotificationStationRotation = MyStringId.GetOrCompute("NotificationStationRotation");
+
+        ///<summary>
+        ///Push-to-talk voice chat
+        ///</summary>
+        public static readonly MyStringId ControlName_VoiceChat = MyStringId.GetOrCompute("ControlName_VoiceChat");
+
+        ///<summary>
+        ///Enable voice chat
+        ///</summary>
+        public static readonly MyStringId EnableVoiceChat = MyStringId.GetOrCompute("EnableVoiceChat");
+
+        ///<summary>
+        ///Applied changes will be visible after restarting the game
+        ///</summary>
+        public static readonly MyStringId MessageBoxTextRestartNeededAfterRendererSwitch = MyStringId.GetOrCompute("MessageBoxTextRestartNeededAfterRendererSwitch");
+
+        ///<summary>
+        ///Player name
+        ///</summary>
+        public static readonly MyStringId GuiScenarioPlayerName = MyStringId.GetOrCompute("GuiScenarioPlayerName");
+
+        ///<summary>
+        ///Status
+        ///</summary>
+        public static readonly MyStringId GuiScenarioPlayerStatus = MyStringId.GetOrCompute("GuiScenarioPlayerStatus");
+
+        ///<summary>
+        ///Send
+        ///</summary>
+        public static readonly MyStringId GuiScenarioSend = MyStringId.GetOrCompute("GuiScenarioSend");
+
+        ///<summary>
+        ///Start
+        ///</summary>
+        public static readonly MyStringId GuiScenarioStart = MyStringId.GetOrCompute("GuiScenarioStart");
+
+        ///<summary>
+        ///Precision Mode
+        ///</summary>
+        public static readonly MyStringId BlockPropertyTitle_EnableDockingMode = MyStringId.GetOrCompute("BlockPropertyTitle_EnableDockingMode");
+
+        ///<summary>
+        ///Forward Direction
+        ///</summary>
+        public static readonly MyStringId BlockPropertyTitle_ForwardDirection = MyStringId.GetOrCompute("BlockPropertyTitle_ForwardDirection");
+
+        ///<summary>
+        ///Copy
+        ///</summary>
+        public static readonly MyStringId BlockActionTitle_RemoteCopy = MyStringId.GetOrCompute("BlockActionTitle_RemoteCopy");
+
+        ///<summary>
+        ///Paste
+        ///</summary>
+        public static readonly MyStringId BlockActionTitle_RemotePaste = MyStringId.GetOrCompute("BlockActionTitle_RemotePaste");
+
+        ///<summary>
+        ///Reset waypoint
+        ///</summary>
+        public static readonly MyStringId BlockActionTitle_WaypointReset = MyStringId.GetOrCompute("BlockActionTitle_WaypointReset");
+
+        ///<summary>
+        ///Resets current waypoint to first position
+        ///</summary>
+        public static readonly MyStringId BlockActionTooltip_WaypointReset = MyStringId.GetOrCompute("BlockActionTooltip_WaypointReset");
+
+        ///<summary>
+        ///Connection timeout:
+        ///</summary>
+        public static readonly MyStringId GuiScenarioTimeout = MyStringId.GetOrCompute("GuiScenarioTimeout");
+
+        ///<summary>
+        ///10 min
+        ///</summary>
+        public static readonly MyStringId GuiScenarioTimeout10min = MyStringId.GetOrCompute("GuiScenarioTimeout10min");
+
+        ///<summary>
+        ///3 min
+        ///</summary>
+        public static readonly MyStringId GuiScenarioTimeout3min = MyStringId.GetOrCompute("GuiScenarioTimeout3min");
+
+        ///<summary>
+        ///5 min
+        ///</summary>
+        public static readonly MyStringId GuiScenarioTimeout5min = MyStringId.GetOrCompute("GuiScenarioTimeout5min");
+
+        ///<summary>
+        ///Unlimited
+        ///</summary>
+        public static readonly MyStringId GuiScenarioTimeoutUnlimited = MyStringId.GetOrCompute("GuiScenarioTimeoutUnlimited");
+
+        ///<summary>
+        ///Scenario
+        ///</summary>
+        public static readonly MyStringId WorldSettings_GameScenario = MyStringId.GetOrCompute("WorldSettings_GameScenario");
+
+        ///<summary>
+        ///Cockpit is damaged
+        ///</summary>
+        public static readonly MyStringId Notification_CockpitIsDamaged = MyStringId.GetOrCompute("Notification_CockpitIsDamaged");
+
+        ///<summary>
+        ///Target outside movement range
+        ///</summary>
+        public static readonly MyStringId LaserAntennaOutsideLimits = MyStringId.GetOrCompute("LaserAntennaOutsideLimits");
     }
 }

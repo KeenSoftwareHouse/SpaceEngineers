@@ -13,8 +13,8 @@ namespace VRageRender.RenderObjects
     {
         private static MyRenderMeshMaterial m_ropeMaterial = new MyRenderMeshMaterial(
             "Rope", "",
-            @"Textures\rope_de.dds",
-            @"Textures\rope_ns.dds", 0.0f, 0.0f, true,
+            @"Textures\Miscellaneous\rope_de.dds",
+            @"Textures\Miscellaneous\rope_ns.dds", 0.0f, 0.0f, true,
             Vector3.One, Vector3.Zero);
 
         private Vector3 m_pointA;
@@ -54,18 +54,9 @@ namespace VRageRender.RenderObjects
 
         internal void SetWorldPoints(ref Vector3D worldPointA, ref Vector3D worldPointB)
         {
-            if (true)
-            {
-                m_worldPosition = (worldPointA + worldPointB) * 0.5f;
-                m_pointA = (Vector3)(worldPointA - m_worldPosition);
-                m_pointB = (Vector3)(worldPointB - m_worldPosition);
-            }
-            else
-            {
-                m_worldPosition = Vector3D.Zero;
-                m_pointA = worldPointA;
-                m_pointB = worldPointB;
-            }
+            m_worldPosition = (worldPointA + worldPointB) * 0.5f;
+            m_pointA = (Vector3)(worldPointA - m_worldPosition);
+            m_pointB = (Vector3)(worldPointB - m_worldPosition);
             SetDirty();
 
             var length = (m_pointA - m_pointB).Length() * 10.0f;

@@ -12,10 +12,8 @@ using VRageMath;
 using SteamSDK;
 using System.Diagnostics;
 using Sandbox.Game.Entities.Character;
-
 using Sandbox.Game.Gui;
 using SharpDX;
-using VRage.Utils;
 using VRage.Utils;
 using VRage.Audio;
 using VRage.Library.Utils;
@@ -29,13 +27,13 @@ namespace Sandbox.Game.Multiplayer
         [ProtoContract]
         protected struct PlayMusicMsg 
         {
-            [ProtoMember(1)]
+            [ProtoMember]
             public MyStringId Transition;
 
-            [ProtoMember(2)]
+            [ProtoMember]
             public MyStringId Category;
 
-            [ProtoMember(3)]
+            [ProtoMember]
             public BoolBlit Loop;
         }
 

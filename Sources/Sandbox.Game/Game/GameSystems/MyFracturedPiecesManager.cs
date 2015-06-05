@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using Sandbox.Common;
+using Sandbox.Engine.Physics;
 using Sandbox.Engine.Utils;
 using Sandbox.Game.Entities;
 using Sandbox.Game.GameSystems.StructuralIntegrity;
@@ -11,7 +12,9 @@ using System.Diagnostics;
 using System;
 using Medieval.ObjectBuilders;
 using VRage.Library.Utils;
+using VRageMath;
 using Sandbox.Game.Multiplayer;
+using VRage.Components;
 
 namespace Sandbox.Game.GameSystems
 {
@@ -36,6 +39,8 @@ namespace Sandbox.Game.GameSystems
 
         HashSet<long> m_dbgCreated = new HashSet<long>();
         HashSet<long> m_dbgRemoved = new HashSet<long>();
+
+		List<HkRigidBody> m_rigidList = new List<HkRigidBody>();
 
         public override bool IsRequiredByGame
         {
@@ -336,6 +341,51 @@ namespace Sandbox.Game.GameSystems
             }
             return fp;
         }
+
+		public void GetFracturesInSphere(ref BoundingSphereD searchSphere, ref List<MyFracturedPiece> output)
+		{
+			var activeFractures = m_piecesTimesOfDeath.Keys;
+			
+			HkShape shape = new HkSphereShape((float)searchSphere.Radius);
+			try
+			{
+				MyPhysics.GetPenetrationsShape(shape, ref searchSphere.Center, ref Quaternion.Identity, m_rigidList, MyPhysics.NotCollideWithStaticLayer);
+			
+				foreach(var rigidBody in m_rigidList)
+				{
+					var physicsBody = rigidBody.UserObject as MyPhysicsBody;
+					if (physicsBody != null)
+					{
+						var fracture = physicsBody.Entity as MyFracturedPiece;
+						if (fracture != null)
+							output.Add(fracture);
+					}
+				}
+			}
+			finally
+			{
+				m_rigidList.Clear();
+				shape.RemoveReference();
+			}
+		}
+
+		public bool TryGetFractureById(long entityId, out MyFracturedPiece outFracture)
+		{
+			outFracture = null;
+			var activeFractures = m_piecesTimesOfDeath.Keys;
+
+			foreach(var fracture in activeFractures)
+			{
+				if (fracture.EntityId == entityId)
+				{
+					outFracture = fracture;
+					return true;
+				}
+			}
+
+
+			return false;
+		}
 
         //jn: TODO move to some more general position 
         private Queue<Bodies> m_bodyPool = new Queue<Bodies>();

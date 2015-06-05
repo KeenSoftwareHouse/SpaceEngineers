@@ -8,6 +8,7 @@ using Sandbox.Engine.Multiplayer;
 using SteamSDK;
 using Sandbox.Common.ObjectBuilders.Definitions;
 using Sandbox.Game.World;
+using VRage.ObjectBuilders;
 
 namespace Sandbox.Game.Multiplayer
 {
@@ -40,11 +41,11 @@ namespace Sandbox.Game.Multiplayer
         [MessageIdAttribute(6302, P2PMessageEnum.Reliable)]
         protected struct ListChangeIdMsg : IEntityMessage
         {
-            [ProtoMember(1)]
+            [ProtoMember]
             public long EntityId;
-            [ProtoMember(2)]
+            [ProtoMember]
             public bool Add;
-            [ProtoMember(3)]
+            [ProtoMember]
             public SerializableDefinitionId Id;
 
 

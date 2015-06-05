@@ -14,6 +14,7 @@ namespace Sandbox.Graphics.GUI
         private Vector2 m_parentTopLeft;
         private float[] m_prefixScanX;
         private float[] m_prefixScanY;
+        private const float BORDER = 0.005f;
 
         public int LastRow
         {
@@ -46,6 +47,17 @@ namespace Sandbox.Graphics.GUI
                 m_prefixScanX[i + 1] = m_prefixScanX[i] + widthNormalized;
             }
         }
+        public void SetColumnWidthsNormalized(params float[] widthsPx)
+        {
+            var size = m_parent.GetSize();
+            var sizeX = (size.HasValue ? size.Value.X : 1f);
+            float sum=0;
+            for (int i = 0; i < widthsPx.Length; i++)
+                sum+=widthsPx[i];
+            for (int i = 0; i < widthsPx.Length; i++)
+                widthsPx[i] *= MyGuiConstants.GUI_OPTIMAL_SIZE.X / sum * sizeX;
+            SetColumnWidths(widthsPx);
+        }
 
         public void SetRowHeights(params float[] heightsPx)
         {
@@ -60,6 +72,17 @@ namespace Sandbox.Graphics.GUI
                 m_prefixScanY[i + 1] = m_prefixScanY[i] + heightNormalized;
             }
         }
+        public void SetRowHeightsNormalized(params float[] heightsPx)
+        {
+            var size = m_parent.GetSize();
+            var sizeY = (size.HasValue ? size.Value.Y : 1f);
+            float sum = 0;
+            for (int i = 0; i < heightsPx.Length; i++)
+                sum += heightsPx[i];
+            for (int i = 0; i < heightsPx.Length; i++)
+                heightsPx[i] *= MyGuiConstants.GUI_OPTIMAL_SIZE.Y / sum * sizeY;
+            SetRowHeights(heightsPx);
+        }
 
         public void Add(MyGuiControlBase control, MyAlignH alignH, MyAlignV alignV, int row, int col, int rowSpan = 1, int colSpan = 1)
         {
@@ -72,6 +95,22 @@ namespace Sandbox.Graphics.GUI
             control.OriginAlign = (MyGuiDrawAlignEnum)(3 * (int)alignH + (int)alignV);
             m_parent.Controls.Add(control);
         }
+
+        public void AddWithSize(MyGuiControlBase control, MyAlignH alignH, MyAlignV alignV, int row, int col, int rowSpan = 1, int colSpan = 1)
+        {
+            var min = new Vector2(m_prefixScanX[col], m_prefixScanY[row]);
+            var max = new Vector2(m_prefixScanX[col + colSpan], m_prefixScanY[row + rowSpan]);
+            var size = max - min;
+            size.X -= BORDER + BORDER;
+            size.Y -= BORDER + BORDER;
+            control.Size = size;
+            control.Position = new Vector2(
+                min.X + size.X * 0.5f * (int)alignH + BORDER,
+                min.Y + size.Y * 0.5f * (int)alignV + BORDER);
+            control.OriginAlign = (MyGuiDrawAlignEnum)(3 * (int)alignH + (int)alignV);
+            m_parent.Controls.Add(control);
+        }
+
 
     }
 }

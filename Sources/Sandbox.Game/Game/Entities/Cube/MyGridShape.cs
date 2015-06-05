@@ -458,10 +458,14 @@ namespace Sandbox.Game.Entities.Cube
                 Vector3 halfExtents = geometryBox.Size / 2;
 
                 Vector3D pos;
-                b.ComputeWorldCenter(out pos);
+                b.ComputeScaledCenter(out pos);
+                pos += geometryBox.Center;
+                pos = Vector3D.Transform(pos, m_grid.WorldMatrix);
+
                 Matrix blockMatrix;
                 b.Orientation.GetMatrix(out blockMatrix);
-                q = Quaternion.CreateFromRotationMatrix(blockMatrix);
+                q = Quaternion.CreateFromRotationMatrix(blockMatrix * m_grid.WorldMatrix.GetOrientation());
+
                 Sandbox.Engine.Physics.MyPhysics.GetPenetrationsBox(ref halfExtents, ref pos, ref q, m_penetrations, Sandbox.Engine.Physics.MyPhysics.CollideWithStaticLayer);
                 counter++;
                 bool isStatic = false;
@@ -1116,8 +1120,11 @@ namespace Sandbox.Game.Entities.Cube
                 var position = m_grid.GridIntegerToWorld((pair.Value.GetTransform().Translation + pair.Value.CoM) / m_grid.GridSize);
                 if ((position - MySector.MainCamera.Position).Length() > 20)
                     continue;
-
-                var mass = m_grid.GetCubeBlock(pair.Key).GetMass();
+                var block = m_grid.GetCubeBlock(pair.Key);
+                if (block == null) continue;
+                float mass = block.GetMass();
+                if (block.FatBlock is MyFracturedBlock)
+                    mass = m_blocksShapes[block.Position].Shape.GetMass();
                 switch(Sandbox.Game.Gui.MyHonzaInputComponent.ShowRealBlockMass)
                 {
                     case Gui.MyHonzaInputComponent.ShownMassEnum.Real:

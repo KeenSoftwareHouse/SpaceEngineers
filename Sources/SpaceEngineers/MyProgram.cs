@@ -25,6 +25,7 @@ using VRage.Library.Utils;
 using VRage.FileSystem;
 using Sandbox;
 using SpaceEngineers.Game;
+using System.Runtime.CompilerServices;
 
 #endregion
 
@@ -81,7 +82,10 @@ namespace SpaceEngineers
 
             MyInitializer.InitCheckSum();
 
-            InitSplashScreen();
+            if (!args.Contains("-nosplash"))
+            {
+                InitSplashScreen();
+            }
 
             // This won't crash with BadFormatExpection when 64-bit game started as 32-bit process, it will show message
             // Will uncomment when it's possible to test it
@@ -113,28 +117,6 @@ namespace SpaceEngineers
                     var p = Process.Start(pi);
                 }
                 return;
-            }
-
-            MyFakes.ENABLE_DX11_RENDERER = false;
-
-            if (MyFakes.ENABLE_DX11_RENDERER)
-            {
-                
-
-                Sandbox.Graphics.Render.MyPostProcessVolumetricSSAO2.MinRadius = 0.095f;
-                Sandbox.Graphics.Render.MyPostProcessVolumetricSSAO2.MaxRadius = 4.16f;
-                Sandbox.Graphics.Render.MyPostProcessVolumetricSSAO2.RadiusGrowZScale = 1.007f;
-                Sandbox.Graphics.Render.MyPostProcessVolumetricSSAO2.Falloff = 3.08f;
-                Sandbox.Graphics.Render.MyPostProcessVolumetricSSAO2.Bias = 0.25f;
-                Sandbox.Graphics.Render.MyPostProcessVolumetricSSAO2.Contrast = 2.617f;
-                Sandbox.Graphics.Render.MyPostProcessVolumetricSSAO2.NormValue = 0.075f;
-
-                Sandbox.Graphics.Render.MyPostprocessSettingsWrapper.Settings.Brightness = 0;
-                Sandbox.Graphics.Render.MyPostprocessSettingsWrapper.Settings.Contrast = 0;
-                Sandbox.Graphics.Render.MyPostprocessSettingsWrapper.Settings.LuminanceExposure = 0;
-                Sandbox.Graphics.Render.MyPostprocessSettingsWrapper.Settings.BloomExposure = 0;
-                Sandbox.Graphics.Render.MyPostprocessSettingsWrapper.Settings.BloomMult = 0.1f;
-
             }
 
             if (MyFakes.DETECT_LEAKS)
@@ -172,13 +154,30 @@ namespace SpaceEngineers
                 {
                     renderer = new MyNullRender();
                 }
-                else if (!MyFakes.ENABLE_DX11_RENDERER)
-                {
-                    renderer = new MyDX9Render();
-                }
                 else if (MyFakes.ENABLE_DX11_RENDERER)
                 {
-                    renderer = new MyDX11Render();
+                    var rendererId = MySandboxGame.Config.GraphicsRenderer;
+                    if (rendererId.HasValue && rendererId.Value == SpaceEngineersGame.DirectX11RendererKey)
+                    {
+                        renderer = new MyDX11Render();
+                        if (!renderer.IsSupported)
+                        {
+                            MySandboxGame.Log.WriteLine("DirectX 11 renderer not supported. Reverting to DirectX 9.");
+                            renderer = null;
+                        }
+                    }
+
+                    if (renderer == null)
+                    {
+                        renderer = new MyDX9Render();
+                        rendererId = SpaceEngineersGame.DirectX9RendererKey;
+                    }
+
+                    MySandboxGame.Config.GraphicsRenderer = rendererId;
+                }
+                else
+                {
+                    renderer = new MyDX9Render();
                 }
 
                 VRageRender.MyRenderProxy.Initialize(renderer);

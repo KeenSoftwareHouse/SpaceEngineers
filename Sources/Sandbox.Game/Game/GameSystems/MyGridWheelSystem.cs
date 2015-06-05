@@ -12,7 +12,7 @@ using VRageMath;
 
 namespace Sandbox.Game.GameSystems
 {
-    class MyGridWheelSystem : IMyPowerConsumer
+    public class MyGridWheelSystem : IMyPowerConsumer
     {
         #region Fields
         public Vector3 AngularVelocity;

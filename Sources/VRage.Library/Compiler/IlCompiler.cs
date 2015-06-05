@@ -2,11 +2,13 @@
 using System;
 using System.CodeDom.Compiler;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
 using System.Text;
 using System.Threading;
+using VRage.FileSystem;
 
 namespace VRage.Compiler
 {
@@ -16,22 +18,60 @@ namespace VRage.Compiler
 
         private static CSharpCodeProvider m_cp = new CSharpCodeProvider();
         private static IlReader m_reader = new IlReader();
+        static Dictionary<string, string> m_compatibilityChanges = new Dictionary<string, string>() {
+        {"using VRage.Common.Voxels;", "" },
+        {"VRage.Common.Voxels.", "" },
+        {"Sandbox.ModAPI.IMyEntity","VRage.ModAPI.IMyEntity"},
+        {"Sandbox.Common.ObjectBuilders.MyObjectBuilder_EntityBase","VRage.ObjectBuilders.MyObjectBuilder_EntityBase"},
+        {"Sandbox.Common.MyEntityUpdateEnum","VRage.ModAPI.MyEntityUpdateEnum"},
+        {"using Sandbox.Common.ObjectBuilders.Serializer;",""},
+        {"Sandbox.Common.ObjectBuilders.Serializer.",""},
+        {"Sandbox.Common.MyMath","VRageMath.MyMath"},
+        {"Sandbox.Common.ObjectBuilders.VRageData.SerializableVector3I","VRage.SerializableVector3I"}};
+
         static IlCompiler()
         {
-            Options = new System.CodeDom.Compiler.CompilerParameters(new string[] { "System.Xml.dll", "Sandbox.Game.dll", "Sandbox.Common.dll", "Sandbox.Graphics.dll", "VRage.dll", "VRage.Library.dll", "VRage.Math.dll", "System.Core.dll", "System.dll"/*, "Microsoft.CSharp.dll" */});
+            Options = new System.CodeDom.Compiler.CompilerParameters(new string[] { "System.Xml.dll", "Sandbox.Game.dll", "Sandbox.Common.dll", "Sandbox.Graphics.dll", "VRage.dll", "VRage.Library.dll", "VRage.Math.dll","VRage.Game.dll", "System.Core.dll", "System.dll"/*, "Microsoft.CSharp.dll" */});
             Options.GenerateInMemory = true;
             //Options.IncludeDebugInformation = true;
         }
 
-        public static bool CompileFile(string assemblyName, string[] files, out Assembly assembly, List<string> errors)
+        public static string[] UpdateCompatibility(string[] files)
+        {
+            string[] sources = new string[files.Length];
+            for (int i = 0; i < files.Length; ++i)
+            {
+                using (Stream stream = MyFileSystem.OpenRead(files[i]))
+                {
+                    if (stream != null)
+                    {
+                        using (StreamReader sr = new StreamReader(stream))
+                        {
+                            string source = sr.ReadToEnd();
+                            source = source.Insert(0, "using VRage;\r\nusing VRage.Components;\r\nusing VRage.ObjectBuilders;\r\nusing VRage.ModAPI;\r\n");
+                            foreach (var value in m_compatibilityChanges)
+                            {
+                                source = source.Replace(value.Key,value.Value);
+                            }
+                            sources[i] = source;
+                        }
+                    }
+                }
+            }
+            return sources;
+        }
+
+        public static bool CompileFileModAPI(string assemblyName, string[] files, out Assembly assembly, List<string> errors)
         {
             assembly = null;
             Options.OutputAssembly = assemblyName;
             Options.GenerateInMemory = true;
-            var result = m_cp.CompileAssemblyFromFile(Options, files);
+            string[] sources = UpdateCompatibility(files);
+            var result = m_cp.CompileAssemblyFromSource(Options, sources);
             return CheckResultInternal(ref assembly, errors, result,false);
         }
-        public static bool CompileString(string assemblyName, string[] source, out Assembly assembly, List<string> errors)
+
+        public static bool CompileStringIngame(string assemblyName, string[] source, out Assembly assembly, List<string> errors)
         {
             assembly = null;
             Options.OutputAssembly = assemblyName;

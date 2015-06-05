@@ -6,7 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using VRage.Library.Utils;
+using VRage.Utils;
 
 namespace Sandbox.Game.World.Triggers
 {
@@ -22,9 +22,9 @@ namespace Sandbox.Game.World.Triggers
             return new MyTriggerSomeoneWon(this);
         }
 
-        public virtual bool RaiseSignal(Signal signal, long? Id)
+        public override bool RaiseSignal(Signal signal)
         {
-            if (signal == Signal.SOMEONE_WON)
+            if (signal == Signal.OTHER_WON)
                 m_IsTrue = true;
             return IsTrue;
         }

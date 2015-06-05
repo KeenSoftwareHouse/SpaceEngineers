@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -6,15 +7,26 @@ using System.Text;
 
 namespace VRage.Network
 {
+    // TODO:SK only for structs and have string special case?
+    // TODO:SK different locks
     public abstract class MySyncedBase<T> : IMySyncedValue, IEquatable<T>
     {
         public abstract void Write(ref T value, BitStream s);
         public abstract bool Read(out T value, BitStream s);
 
-        private bool m_dirty;
-        public bool IsDirty { get { return m_dirty; } }
+        protected BitArray m_dirty = new BitArray(MyRakNetSyncLayer.MaxClients);
+        public bool IsDirty(int clientIndex)
+        {
+            Debug.Assert(clientIndex < m_dirty.Length);
+            return m_dirty[clientIndex];
+        }
 
-        private T m_value;
+        public bool IsDefault()
+        {
+            return m_value.Equals(default(T));
+        }
+
+        protected T m_value;
 
         private MySyncedClass m_parent;
 
@@ -26,7 +38,7 @@ namespace VRage.Network
 
         public void Invalidate()
         {
-            m_dirty = true;
+            m_dirty.SetAll(true);
             if (m_parent != null)
             {
                 m_parent.Invalidate();
@@ -38,9 +50,11 @@ namespace VRage.Network
             return self.Get();
         }
 
-        //If you change the value of the returned class, you should call Invalidate() or Set() to make the new value synchronize
+        // Client is not supposed to modify the returned value
+        // Server should call Set() with the new value after changing it
         public T Get()
         {
+            Debug.Assert(m_value != null);
             lock (this)
             {
                 return m_value;
@@ -49,6 +63,7 @@ namespace VRage.Network
 
         public void Set(T value)
         {
+            Debug.Assert(value != null);
             lock (this)
             {
                 if (!value.Equals(m_value))
@@ -61,7 +76,7 @@ namespace VRage.Network
 
         public override string ToString()
         {
-            return m_value.GetType() + ": " + m_value.ToString();
+            return typeof(T) + ": " + m_value.ToString();
         }
 
         public override int GetHashCode()
@@ -69,20 +84,22 @@ namespace VRage.Network
             return m_value.GetHashCode();
         }
 
-        public void Serialize(BitStream bs)
+        public virtual void Serialize(BitStream bs, int clientIndex)
         {
+            Debug.Assert(m_value != null);
             lock (this)
             {
-                bs.Write(m_dirty);
-                if (m_dirty)
+                var dirty = m_dirty[clientIndex];
+                bs.Write(dirty);
+                if (dirty)
                 {
                     Write(ref m_value, bs);
-                    m_dirty = false;
+                    m_dirty[clientIndex] = false;
                 }
             }
         }
 
-        public void Deserialize(BitStream bs)
+        public virtual void Deserialize(BitStream bs)
         {
             bool success;
 
@@ -95,7 +112,49 @@ namespace VRage.Network
                 lock (this)
                 {
                     success = Read(out m_value, bs);
-                    Debug.Assert(success, "Failed to read synced int value");
+                    Debug.Assert(success, "Failed to read synced value");
+                }
+            }
+        }
+
+        public virtual void SerializeDefault(BitStream bs, int clientIndex = -1)
+        {
+            Debug.Assert(m_value != null);
+            lock (this)
+            {
+                bool isDefault = IsDefault();
+                bs.Write(!isDefault);
+                if (!isDefault)
+                {
+                    Write(ref m_value, bs);
+                }
+
+                if (clientIndex == -1)
+                {
+                    m_dirty.SetAll(false);
+                }
+                else
+                {
+                    Debug.Assert(clientIndex < m_dirty.Length);
+                    m_dirty[clientIndex] = false;
+                }
+            }
+        }
+
+        public virtual void DeserializeDefault(BitStream bs)
+        {
+            bool success;
+
+            bool isDefault;
+            success = bs.Read(out isDefault);
+            Debug.Assert(success, "Failed to read synced value defaultness");
+
+            if (!isDefault)
+            {
+                lock (this)
+                {
+                    success = Read(out m_value, bs);
+                    Debug.Assert(success, "Failed to read synced value");
                 }
             }
         }

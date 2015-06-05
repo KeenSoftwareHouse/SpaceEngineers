@@ -28,6 +28,7 @@ using Sandbox.Game.Localization;
 using VRage;
 using VRage.Library.Utils;
 using VRage.FileSystem;
+using VRage.ObjectBuilders;
 
 #endregion
 
@@ -242,7 +243,7 @@ namespace Sandbox.Game.Gui
             MyObjectBuilder_GuiScreen objectBuilder;
 
             var fsPath = Path.Combine(MyFileSystem.ContentPath, filepath);
-            Sandbox.Common.ObjectBuilders.Serializer.MyObjectBuilderSerializer.DeserializeXML<MyObjectBuilder_GuiScreen>(fsPath, out objectBuilder);
+            MyObjectBuilderSerializer.DeserializeXML<MyObjectBuilder_GuiScreen>(fsPath, out objectBuilder);
             Init(objectBuilder);
 
             m_joinGameTabs = Controls.GetControlByName("JoinGameTabs") as MyGuiControlTabControl;
@@ -415,7 +416,8 @@ namespace Sandbox.Game.Gui
             {
                 Position = m_blockSearch.Position + new Vector2(0.13f, 0f),
                 OriginAlign = MyGuiDrawAlignEnum.HORISONTAL_RIGHT_AND_VERTICAL_CENTER,
-                VisualStyle = MyGuiControlButtonStyleEnum.Close
+				VisualStyle = MyGuiControlButtonStyleEnum.Close,
+				ActivateOnMouseRelease = true
             };
             m_blockSearchClear.ButtonClicked += BlockSearchClear_ButtonClicked;
             page.Controls.Add(m_blockSearchClear);

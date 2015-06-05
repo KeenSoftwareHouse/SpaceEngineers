@@ -87,5 +87,7 @@ namespace Sandbox.ModAPI
         Sandbox.Common.ObjectBuilders.MyObjectBuilder_SessionSettings SessionSettings { get;}
         IMyFactionCollection Factions { get;}
         IMyGpsCollection GPS { get; }
+        event Action OnSessionReady;
+        event Action OnSessionLoading;
     }
 }

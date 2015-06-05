@@ -266,7 +266,7 @@ namespace Sandbox.Game.World.Generator
                                     balls[i] = new Vector3(random.NextFloat(-0.25f, 0.25f) * size,
                                         random.NextFloat(-0.25f, 0.25f) * size, random.NextFloat(-0.25f, 0.25f) * size);
                                     weights[i] = i < 6 ? 1f : -1f;
-                                }
+                    }
                                 var metaball = new MyCsgShapeMetaball(
                                     translation: new Vector3(halfStorageSize),
                                     radius: (random.NextFloat() * 0.1f + 0.2f) * size,
@@ -276,7 +276,7 @@ namespace Sandbox.Game.World.Generator
                                     deviationFrequency: random.NextFloat() * 0.8f + 0.2f,
                                     detailFrequency: random.NextFloat() * 0.6f + 0.4f);
                                 primaryShape = metaball;                            
-                            }
+                }
                             break;
                     }
                 }
@@ -536,31 +536,34 @@ namespace Sandbox.Game.World.Generator
                     else
                     {
                         // What to do when we (or mods) change the number of materials? Same seed will then produce different results.
-                        foreach (var material in MyDefinitionManager.Static.GetVoxelMaterialDefinitions())
-                        {
-                            if (material.MinVersion > version)
-                                continue;
+                    foreach (var material in MyDefinitionManager.Static.GetVoxelMaterialDefinitions())
+                    {
+                        if (!material.SpawnsInAsteroids || material.MinVersion > version) // filter out non-natural and version-incompatible materials
+                            continue;
 
-                            if (material.MinedOre == "Stone") // Surface
-                                m_surfaceMaterials.Add(material);
-                            else if (material.MinedOre == "Iron") // Core
-                                m_coreMaterials.Add(material);
-                            else if (material.MinedOre == "Uranium") // Uranium
-                            {
-                                // We want more uranium, by design
-                                m_depositMaterials.Add(material);
-                                m_depositMaterials.Add(material);
-                            }
-                            else if (material.MinedOre == "Ice")
-                            {
-                                // We also want more ice, by design
-                                m_depositMaterials.Add(material);
-                                m_depositMaterials.Add(material);
-                            }
-                            else
-                                m_depositMaterials.Add(material);
-                        }                        
+                        if (material.MinedOre == "Stone") // Surface
+                            m_surfaceMaterials.Add(material);
+                        else if (material.MinedOre == "Iron") // Core
+                            m_coreMaterials.Add(material);
+                        else if (material.MinedOre == "Uranium") // Uranium
+                        {
+                            // We want more uranium, by design
+                            m_depositMaterials.Add(material);
+                            m_depositMaterials.Add(material);
+                        }
+                        else if (material.MinedOre == "Ice")
+                        { 
+                            // We also want more ice, by design
+                            m_depositMaterials.Add(material);
+                            m_depositMaterials.Add(material);
+                        }
+                        else
+                            m_depositMaterials.Add(material);
                     }
+                    }
+
+                    if (m_surfaceMaterials.Count == 0) // this can happen if all materials are disabled or set to not spawn in asteroids
+                        throw new Exception("There are no voxel materials allowed to spawn in asteroids!");
 
                     Action<List<MyVoxelMaterialDefinition>> shuffleMaterials = (list) =>
                     {

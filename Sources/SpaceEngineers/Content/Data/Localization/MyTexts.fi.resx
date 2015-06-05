@@ -127,14 +127,6 @@
   <data name="MessageBoxTextAreYouSureYouWantToExit" xml:space="preserve">
     <value>Oletko varma, että haluat poistua?</value>
   </data>
-  <data name="AssignControlJoystick" xml:space="preserve">
-    <value>Ole hyvä ja paina jotain näppäintä
-sauva- tai peliohjaimessasi</value>
-  </data>
-  <data name="AssignControlJoystickAxis" xml:space="preserve">
-    <value>Ole hyvä ja liikuta analogista akselia 
-sauva-/peliohjaimessa</value>
-  </data>
   <data name="AssignControlKeyboard" xml:space="preserve">
     <value>Paina jotain näppäintä</value>
   </data>
@@ -1794,7 +1786,7 @@ Jos peli ei pyöri sujuvasti, pienennä resoluutiotasi.</value>
     <value>Paina {0} piilottaaksesi/näyttääksesi HUD-elementit.</value>
   </data>
   <data name="NotificationRotationFormat" xml:space="preserve">
-    <value>Paina {0}, {1}, {2}, {3}, {4}, {5} kääntääksesi.</value>
+    <value>Paina {0}, {1}, {2}, {3}, {4}, {5} kääntääksesi</value>
   </data>
   <data name="NotificationScreenFormat" xml:space="preserve">
     <value>Paina {0} konfiguroidaksesi työkalupalkkia tai luodaksesi uusia objekteja.</value>
@@ -3006,7 +2998,7 @@ Jalostamon nopeus {2}x</value>
     <value>Paina {0} vaihtaaksesi yhden/kaikkien aseiden välillä.</value>
   </data>
   <data name="BlockPropertyTitle_LargeTurretRadius" xml:space="preserve">
-    <value>Aiming radius</value>
+    <value>Tähtäysetäisyys</value>
   </data>
   <data name="ToolTipItemFilter_NATO_5p56x45mm" xml:space="preserve">
     <value>NATO 5.56x45 mm</value>
@@ -3116,6 +3108,9 @@ Jalostamon nopeus {2}x</value>
   </data>
   <data name="DialogAmount_SetValueCaption" xml:space="preserve">
     <value>Asetettava arvo</value>
+  </data>
+  <data name="DialogText_RunArgument" xml:space="preserve">
+    <value>Argumentti</value>
   </data>
   <data name="BlockPropertyTitle_LargeTurretTargetMissiles" xml:space="preserve">
     <value>Tähtää ohjuksiin</value>
@@ -3876,6 +3871,12 @@ Uudelleensynny?</value>
   <data name="BlockPropertyTitle_Motor_Power" xml:space="preserve">
     <value>Virta</value>
   </data>
+  <data name="BlockPropertyDescription_Motor_Height" xml:space="preserve">
+    <value>Axle height offset from center</value>
+  </data>
+  <data name="BlockPropertyTitle_Motor_Height" xml:space="preserve">
+    <value>Height Offset</value>
+  </data>
   <data name="DisplayName_Block_VerticalCen" xml:space="preserve">
     <value>Keskitetty ikkuna</value>
   </data>
@@ -4370,7 +4371,7 @@ Pelin uudelleen asentaminen ei riitä, sillä Steam ei poista tuntemattomia tied
     <value>Avaa työkalupalkin</value>
   </data>
   <data name="BlockPropertyTitle_SensorToolbarOpen" xml:space="preserve">
-    <value>Asenna toimenpiteet</value>
+    <value>Aseta toiminnot</value>
   </data>
   <data name="BlockPropertyTitle_SensorDetectFloatingObjects" xml:space="preserve">
     <value>Tunnista leijuvat kappaleet</value>
@@ -4427,7 +4428,7 @@ Pelin uudelleen asentaminen ei riitä, sillä Steam ei poista tuntemattomia tied
     <value>Ajastinkappale</value>
   </data>
   <data name="BlockPropertyTitle_TimerToolbarOpen" xml:space="preserve">
-    <value>Asenna toimenpiteet</value>
+    <value>Aseta toiminnot</value>
   </data>
   <data name="BlockPropertyTitle_TimerTrigger" xml:space="preserve">
     <value>Laukaise nyt</value>
@@ -4736,7 +4737,7 @@ Pelin uudelleen asentaminen ei riitä, sillä Steam ei poista tuntemattomia tied
     <value>Siemen (erilaiset siemenet ja säteet tuottavat erilaisia asteroideja)</value>
   </data>
   <data name="ScreenDebugSpawnMenu_ProceduralSize" xml:space="preserve">
-    <value>Asteroidin säde</value>
+    <value>Asteroidin koko</value>
   </data>
   <data name="ScreenDebugSpawnMenu_SelectAsteroidType" xml:space="preserve">
     <value>Valitse asteroidityyppi</value>
@@ -4842,6 +4843,12 @@ Pelin uudelleen asentaminen ei riitä, sillä Steam ei poista tuntemattomia tied
   </data>
   <data name="KeepProjectionTooltip" xml:space="preserve">
     <value>Säilytä heijastus kun rakennus on valmis. Hyödyllinen automaattiseen rakentamiseen, mutta saattaa heikentää suorituskykyä.</value>
+  </data>
+  <data name="ShowOnlyBuildableBlockToggle" xml:space="preserve">
+    <value>Show Only Buildable</value>
+  </data>
+  <data name="ShowOnlyBuildableTooltip" xml:space="preserve">
+    <value>Show Only Buildable</value>
   </data>
   <data name="RemoveProjectionButton" xml:space="preserve">
     <value>Poista</value>
@@ -5522,7 +5529,7 @@ Suuria näköetäisyyksiä ei suositella maailmoissa, joissa on korkea asteroidi
     <value>Valmiustila</value>
   </data>
   <data name="LaserAntennaCopyCoords" xml:space="preserve">
-    <value>Copy my coords</value>
+    <value>Kopioi koordinaattini</value>
   </data>
   <data name="LaserAntennaCopyCoordsHelp" xml:space="preserve">
     <value>Kopioi tämän antennin sijainti leikepöydälle</value>
@@ -5531,16 +5538,16 @@ Suuria näköetäisyyksiä ei suositella maailmoissa, joissa on korkea asteroidi
     <value>Valmiustila</value>
   </data>
   <data name="LaserAntennaConnectButton" xml:space="preserve">
-    <value>Connect to receiver</value>
+    <value>Yhdistä vastaanottimeen</value>
   </data>
   <data name="LaserAntennaConnectGPS" xml:space="preserve">
-    <value>Connect to coords</value>
+    <value>Yhdistä koordinaatteihin</value>
   </data>
   <data name="LaserAntennaSelectedCoords" xml:space="preserve">
     <value>Valitut GPS-koordinaatit</value>
   </data>
   <data name="LaserAntennaPasteGPS" xml:space="preserve">
-    <value>Paste coords</value>
+    <value>Liitä koordinaatit</value>
   </data>
   <data name="LaserAntennaReceiversList" xml:space="preserve">
     <value>Tunnetut vastaanottimet</value>
@@ -5751,135 +5758,714 @@ Haluatko jatkaa?</value>
     <value>Paina {0} tai {1} vaihtaaksesi vokselin materiaalia</value>
   </data>
   <data name="LaserAntennaReceiversListHelp" xml:space="preserve">
-    <value>These receivers are in radio range and can report their position.
-Their current state and target is in parentesis:
-idle   laser is idling
-&gt;&gt; laser is rotating towards other receiver or GPS coordinates
-?&gt;  searching for other laser at requested GPS coordinates
-~&gt; contacting other side of link (this includes waiting for other laser
-       to turn its face to me or futile effort to contact receiver
-       which is turned off or is not there any more)
-=&gt; connection is established
-To connect to lasers not listed here you can connect to coordinates.</value>
+    <value>Nämä vastaanottimet ovat radioetäisyydellä ja voivat ilmoittaa sijaintinsa.
+Niiden nykyinen tila ja kohde on sulkeissa:
+idle laser on valmiustilassa
+&gt;&gt; laser kääntyy kohti toista vastaanotinta tai GPS-koordinaatteja
+?&gt; etsitään toista laseria annetuissa koordinaateissa
+~&gt; otetaan yhteys linkin toiseen päähän (tähän sisältyy toisen laserin
+kääntyminen tätä kohti tai turha yritys yhdistää vastaanottimeen
+joka on pois päältä tai ei enää siellä)
+=&gt; yhteys muodostettu
+Yhdistääksesi lasereihin joita ei ole listattu tässä voit yhdistää koordinaatteihin.</value>
   </data>
   <data name="BlockPropertyTitle_LargeTurretEnableTurretIdleMovement" xml:space="preserve">
-    <value>Enable idle movement</value>
+    <value>Salli valmiustilan liikkuminen</value>
   </data>
   <data name="LaserAntennaCopyTargetCoords" xml:space="preserve">
-    <value>Copy target coords</value>
+    <value>Kopioi kohteen koordinaatit</value>
   </data>
   <data name="LaserAntennaCopyTargetCoordsHelp" xml:space="preserve">
-    <value>Copy target's current or last known position into clipboard</value>
+    <value>Kopioi kohteen nykyinen tai viimeksi tunnettu sijainti leikepöydälle</value>
   </data>
   <data name="BotSettingsScreen_EnableBotsDebugging" xml:space="preserve">
-    <value>Enable bots debugging</value>
+    <value>Salli bottien testaustila</value>
   </data>
   <data name="BotSettingsScreen_NextBot" xml:space="preserve">
-    <value>Next bot</value>
+    <value>Seuraava botti</value>
   </data>
   <data name="BotSettingsScreen_PreviousBot" xml:space="preserve">
-    <value>Previous bot</value>
+    <value>Edellinen botti</value>
   </data>
   <data name="BotSettingsScreen_Title" xml:space="preserve">
-    <value>Bots settings</value>
+    <value>Bottien asetukset</value>
   </data>
   <data name="BlockAction_ConveyorSorterBlacklist" xml:space="preserve">
-    <value>Blacklist</value>
+    <value>Mustalista</value>
   </data>
   <data name="BlockAction_ConveyorSorterWhitelist" xml:space="preserve">
-    <value>Whitelist</value>
+    <value>Sallittujen lista</value>
   </data>
   <data name="BlockPropertyTitle_ConveyorSorterFilterMode" xml:space="preserve">
-    <value>Filter Mode</value>
+    <value>Suodatintila</value>
   </data>
   <data name="DisplayName_Block_ConveyorSorter" xml:space="preserve">
-    <value>Conveyor Sorter</value>
+    <value>Kuljetinlajittelija</value>
   </data>
   <data name="LaserAntennaOnlyPerm" xml:space="preserve">
-    <value>Only receivers set to permanent connection found</value>
+    <value>Löydetään vain pysyvään yhteyteen asetetut vastaanottimet</value>
   </data>
   <data name="LaserAntennaPermanentCheckbox" xml:space="preserve">
-    <value>Permanent connection</value>
+    <value>Pysyvä yhteys</value>
   </data>
   <data name="BlockPropertyTitle_ConveyorSorterAdd" xml:space="preserve">
-    <value>Add</value>
+    <value>Lisää</value>
   </data>
   <data name="BlockPropertyTitle_ConveyorSorterCandidatesList" xml:space="preserve">
-    <value>Add new filter</value>
+    <value>Lisää suodatin</value>
   </data>
   <data name="BlockPropertyTitle_ConveyorSorterFilterItemsList" xml:space="preserve">
-    <value>Active filters</value>
+    <value>Aktiiviset suodattimet</value>
   </data>
   <data name="BlockPropertyTitle_ConveyorSorterFilterModeBlacklist" xml:space="preserve">
-    <value>Blacklist</value>
+    <value>Mustalista</value>
   </data>
   <data name="BlockPropertyTitle_ConveyorSorterFilterModeWhitelist" xml:space="preserve">
-    <value>Whitelist</value>
+    <value>Sallittujen lista</value>
   </data>
   <data name="BlockPropertyTitle_ConveyorSorterRemove" xml:space="preserve">
-    <value>Remove</value>
+    <value>Poista</value>
   </data>
   <data name="ScreenDebugOfficial_BotSettings" xml:space="preserve">
-    <value>Bots settings</value>
+    <value>Bottien asetukset</value>
   </data>
   <data name="DisplayName_Block_SmallConveyorSorter" xml:space="preserve">
-    <value>Small Conveyor Sorter</value>
+    <value>Pieni Kuljetinlajittelija</value>
   </data>
   <data name="DisplayName_ConvSorterTypes_Ammo" xml:space="preserve">
-    <value>*ammo*</value>
+    <value>*ammukset*</value>
   </data>
   <data name="DisplayName_ConvSorterTypes_Component" xml:space="preserve">
-    <value>*components*</value>
+    <value>*osat*</value>
   </data>
   <data name="DisplayName_ConvSorterTypes_HandTool" xml:space="preserve">
-    <value>*hand tools*</value>
+    <value>*käsityökalut*</value>
   </data>
   <data name="DisplayName_ConvSorterTypes_Ingot" xml:space="preserve">
-    <value>*ingots*</value>
+    <value>*harkot*</value>
   </data>
   <data name="DisplayName_ConvSorterTypes_Ore" xml:space="preserve">
-    <value>*ore*</value>
+    <value>*malmi*</value>
   </data>
   <data name="BlockPropertyDescription_Depressurize" xml:space="preserve">
-    <value>The vent will remove air from the room and store it in tanks</value>
+    <value>Kanava poistaa ilmaa huoneesta ja säilöö sen säiliöihin</value>
   </data>
   <data name="BlockPropertyDescription_Stockpile" xml:space="preserve">
-    <value>Stockpiling tanks will not get drained by air vents</value>
+    <value>Ilmakanavat eivät tyhjennä varastoivia säiliöitä</value>
   </data>
   <data name="BlockPropertyTitle_Depressurize" xml:space="preserve">
-    <value>Depressurize</value>
+    <value>Alenna painetta</value>
   </data>
   <data name="BlockPropertyTitle_Stockpile" xml:space="preserve">
-    <value>Stockpile</value>
+    <value>Varastoi</value>
   </data>
   <data name="DisplayName_Block_AirVent" xml:space="preserve">
-    <value>Air Vent</value>
+    <value>Ilmakanava</value>
   </data>
   <data name="DisplayName_Block_OxygenGenerator" xml:space="preserve">
-    <value>Oxygen Generator</value>
+    <value>Happigeneraattori</value>
   </data>
   <data name="DisplayName_Block_OxygenTank" xml:space="preserve">
-    <value>Oxygen Tank</value>
+    <value>Happisäiliö</value>
   </data>
   <data name="DisplayName_BlueprintClass_Ice" xml:space="preserve">
-    <value>Ice</value>
+    <value>Jää</value>
   </data>
   <data name="DisplayName_Item_Oxygen" xml:space="preserve">
-    <value>Oxygen</value>
+    <value>Happi</value>
   </data>
   <data name="MessageBoxTextAreYouSureEnableOxygen" xml:space="preserve">
-    <value>Are you sure you want to enable oxygen? Doing so will cause materials on untouched asteroids to change. This is irreversible.</value>
+    <value>Oletko varma että haluat aktivoida hapen? Jos teet niin, koskemattomien asteroidien raaka-aineet muuttuvat. Tätä ei voi peruuttaa.</value>
   </data>
   <data name="ToolTipWorldSettings_EnableOxygen" xml:space="preserve">
-    <value>Enable ice material, pressurization detection and oxygen generation and circulation</value>
+    <value>Aktivoi jäämateriaali, paineistuksen havaitseminen ja hapen luonti ja kierto</value>
   </data>
   <data name="World_Settings_EnableOxygen" xml:space="preserve">
-    <value>Enable oxygen</value>
+    <value>Aktivoi happi</value>
   </data>
   <data name="Terminal_DrainAll" xml:space="preserve">
-    <value>Drain All</value>
+    <value>Tyhjennä kaikki</value>
   </data>
   <data name="BlockOwner_TransferTo" xml:space="preserve">
-    <value>Transfer to:</value>
+    <value>Siirrä kohteeseen:</value>
+  </data>
+  <data name="DisplayName_Block_AirtightHangarDoor" xml:space="preserve">
+    <value>Ilmatiivis Hangaarinovi</value>
+  </data>
+  <data name="BlockPropertyTitle_LargeTurretTargetCharacters" xml:space="preserve">
+    <value>Tähtää hahmoihin</value>
+  </data>
+  <data name="BlockPropertyTitle_LargeTurretTargetLargeGrids" xml:space="preserve">
+    <value>Tähtää suuriin aluksiin</value>
+  </data>
+  <data name="BlockPropertyTitle_LargeTurretTargetSmallGrids" xml:space="preserve">
+    <value>Tähtää pieniin aluksiin</value>
+  </data>
+  <data name="BlockPropertyTitle_LargeTurretTargetStations" xml:space="preserve">
+    <value>Tähtää asemiin</value>
+  </data>
+  <data name="DisplayName_Item_OxygenBottle" xml:space="preserve">
+    <value>Happipullo</value>
+  </data>
+  <data name="DisplayName_BlueprintClass_OxygenBottles" xml:space="preserve">
+    <value>Happipullot</value>
+  </data>
+  <data name="DisplayName_Item_OxygenBottles" xml:space="preserve">
+    <value>Happipullot</value>
+  </data>
+  <data name="BlockPropertyTitle_Refill" xml:space="preserve">
+    <value>Täytä pullot</value>
+  </data>
+  <data name="ScreenDebugSpawnMenu_Planets" xml:space="preserve">
+    <value>Planeetat</value>
+  </data>
+  <data name="ScreenDebugSpawnMenu_CreateLayer" xml:space="preserve">
+    <value>Luo kerros</value>
+  </data>
+  <data name="ScreenDebugSpawnMenu_RemoveLayer" xml:space="preserve">
+    <value>Poista kerros</value>
+  </data>
+  <data name="BlockPropertyTitle_AutoRefill" xml:space="preserve">
+    <value>Automaattinen täyttö</value>
+  </data>
+  <data name="Terminal_ShowInTerminal" xml:space="preserve">
+    <value>Näytä kappale terminaalissa</value>
+  </data>
+  <data name="Terminal_ShowAllInTerminal" xml:space="preserve">
+    <value>Näytä piilotetut kappaleet</value>
+  </data>
+  <data name="NotificationBottleRefill" xml:space="preserve">
+    <value>Happi täydennetty pulloista.</value>
+  </data>
+  <data name="NotificationOxygenCritical" xml:space="preserve">
+    <value>Happi kriittinen.</value>
+  </data>
+  <data name="NotificationOxygenLow" xml:space="preserve">
+    <value>Happi vähissä.</value>
+  </data>
+  <data name="ScreenDebugSpawnMenu_PickPlanet" xml:space="preserve">
+    <value>Valitse muokattava planeetta</value>
+  </data>
+  <data name="buttonBrowseWorkshop" xml:space="preserve">
+    <value>Selaa Workshoppia</value>
+  </data>
+  <data name="buttonCreateNew" xml:space="preserve">
+    <value>Luo uusi</value>
+  </data>
+  <data name="buttonOpenInWorkshop" xml:space="preserve">
+    <value>Avaa Workshopissa</value>
+  </data>
+  <data name="buttonPublish" xml:space="preserve">
+    <value>Julkaise</value>
+  </data>
+  <data name="buttonRefresh" xml:space="preserve">
+    <value>Päivitä</value>
+  </data>
+  <data name="buttonRemove" xml:space="preserve">
+    <value>Poista</value>
+  </data>
+  <data name="Difficulty" xml:space="preserve">
+    <value>Vaikeustaso</value>
+  </data>
+  <data name="DifficultyEasy" xml:space="preserve">
+    <value>Helppo</value>
+  </data>
+  <data name="DifficultyHard" xml:space="preserve">
+    <value>Vaikea</value>
+  </data>
+  <data name="DifficultyNormal" xml:space="preserve">
+    <value>Normaali</value>
+  </data>
+  <data name="ScreenCaptionScenario" xml:space="preserve">
+    <value>Skenaario</value>
+  </data>
+  <data name="NotificationSuitEnergyCriticalNoDamage" xml:space="preserve">
+    <value>Varoitus: Puvun energiataso vaarallisen alhaalla.</value>
+  </data>
+  <data name="NotificationSuitEnergyLowNoDamage" xml:space="preserve">
+    <value>Puvun energia vähissä.</value>
+  </data>
+  <data name="ControlName_Helmet" xml:space="preserve">
+    <value>Kypärä päälle / pois</value>
+  </data>
+  <data name="NotificationNoHelmetVariation" xml:space="preserve">
+    <value>Tämän puvun kypärää ei voi ottaa pois.</value>
+  </data>
+  <data name="ReportBug" xml:space="preserve">
+    <value>Ilmoita virheestä</value>
+  </data>
+  <data name="HudInfoHelmet" xml:space="preserve">
+    <value>Kypärä</value>
+  </data>
+  <data name="ScreenDebugSpawnMenu_UpdatePlanet" xml:space="preserve">
+    <value>Päivitä planeetta</value>
+  </data>
+  <data name="Terminal_ShowInTerminalToolTip" xml:space="preserve">
+    <value>Näytä/piilota nykyinen kappale terminaalissa</value>
+  </data>
+  <data name="NotificationHelmetOff" xml:space="preserve">
+    <value>Kypärä pois</value>
+  </data>
+  <data name="NotificationHelmetOn" xml:space="preserve">
+    <value>Kypärä päälle</value>
+  </data>
+  <data name="BlockPropertiesText_MainCockpit" xml:space="preserve">
+    <value>Aluksen pääohjaamo</value>
+  </data>
+  <data name="TerminalControlPanel_Cockpit_MainCockpit" xml:space="preserve">
+    <value>Pääohjaamo</value>
+  </data>
+  <data name="NotificationHintNoAction" xml:space="preserve">
+    <value>Tyhjä</value>
+  </data>
+  <data name="BlockPropertyText_Button" xml:space="preserve">
+    <value>Painike</value>
+  </data>
+  <data name="BlockPropertyText_ButtonList" xml:space="preserve">
+    <value>Saatavilla olevat painikkeet</value>
+  </data>
+  <data name="BlockPropertyText_ButtonName" xml:space="preserve">
+    <value>Painikkeen nimi</value>
+  </data>
+  <data name="WorldSettings_Enable3rdPersonCamera" xml:space="preserve">
+    <value>Aktivoi kolmannen persoonan tila</value>
+  </data>
+  <data name="ControlName_ToolbarNextItem" xml:space="preserve">
+    <value>Seuraava työkalupalkin esine</value>
+  </data>
+  <data name="ControlName_ToolbarPreviousItem" xml:space="preserve">
+    <value>Edellinen työkalupalkin esine</value>
+  </data>
+  <data name="ControlTypeToolsOrWeapons2" xml:space="preserve">
+    <value>Työkalut / Aseet 2</value>
+  </data>
+  <data name="BlockPropertiesText_OxygenOutput" xml:space="preserve">
+    <value>Hapen tuotanto:</value>
+  </data>
+  <data name="DisplayName_Block_OxygenFarm" xml:space="preserve">
+    <value>Hapenkehitin</value>
+  </data>
+  <data name="WorldSettings_Encounters" xml:space="preserve">
+    <value>Satunnaiset kohtaamiset</value>
+  </data>
+  <data name="ControlName_BuildMode" xml:space="preserve">
+    <value>Rakennustila</value>
+  </data>
+  <data name="ScreenControlMenu_Title" xml:space="preserve">
+    <value>Ohjausvalikko</value>
+  </data>
+  <data name="TerminalTab_Info_EnemyAntennaRange" xml:space="preserve">
+    <value>Näytä vihollisantennien etäisyys</value>
+  </data>
+  <data name="TerminalTab_Info_FriendlyAntennaRange" xml:space="preserve">
+    <value>Näytä ystävällisten antennien etäisyys</value>
+  </data>
+  <data name="TerminalTab_Info_OwnedAntennaRange" xml:space="preserve">
+    <value>Näytä omistettujen antennien etäisyys</value>
+  </data>
+  <data name="ScreenButtonBattle" xml:space="preserve">
+    <value>Taistelu</value>
+  </data>
+  <data name="ControlName_ControlMenu" xml:space="preserve">
+    <value>Avaa ohjausvalikko</value>
+  </data>
+  <data name="DisplayName_Block_CryoChamber" xml:space="preserve">
+    <value>Kryokammio</value>
+  </data>
+  <data name="ControlMenuItemLabel_Lights" xml:space="preserve">
+    <value>Valot</value>
+  </data>
+  <data name="ControlMenuItemLabel_Terminal" xml:space="preserve">
+    <value>Näytä terminaali</value>
+  </data>
+  <data name="ControlMenuItemValue_Off" xml:space="preserve">
+    <value>Pois</value>
+  </data>
+  <data name="ControlMenuItemValue_On" xml:space="preserve">
+    <value>Päälle</value>
+  </data>
+  <data name="ControlMenuItemLabel_CameraMode" xml:space="preserve">
+    <value>Kameratila</value>
+  </data>
+  <data name="ControlMenuItemValue_FPP" xml:space="preserve">
+    <value>FPP</value>
+  </data>
+  <data name="ControlMenuItemValue_TPP" xml:space="preserve">
+    <value>TPP</value>
+  </data>
+  <data name="ControlName_MissionSettings" xml:space="preserve">
+    <value>Skenaarion asetukset</value>
+  </data>
+  <data name="MissionScreenCaption" xml:space="preserve">
+    <value>Skenaarion asetukset</value>
+  </data>
+  <data name="MissionTriggerOtherWon" xml:space="preserve">
+    <value>Toinen puoli voitti</value>
+  </data>
+  <data name="MissionTriggerReachPosition" xml:space="preserve">
+    <value>Tavoita GPS:n sijainti</value>
+  </data>
+  <data name="GuiTriggerCaptionPositionLeft" xml:space="preserve">
+    <value>Jätä GPS:n sijainti</value>
+  </data>
+  <data name="GuiTriggerCaptionPositionReached" xml:space="preserve">
+    <value>Tavoita GPS:n sijainti</value>
+  </data>
+  <data name="GuiTriggerCaptionSomeoneWon" xml:space="preserve">
+    <value>Joku voitti</value>
+  </data>
+  <data name="GuiTriggerMessage" xml:space="preserve">
+    <value>Viesti</value>
+  </data>
+  <data name="BlockIsNotPowered" xml:space="preserve">
+    <value>Kappaleella ei ole virtaa</value>
+  </data>
+  <data name="GuiMissionTriggersLostCondition" xml:space="preserve">
+    <value>Häviön edellytys:</value>
+  </data>
+  <data name="GuiMissionTriggersWinCondition" xml:space="preserve">
+    <value>Voiton edellytys:</value>
+  </data>
+  <data name="GuiTriggerPasteGps" xml:space="preserve">
+    <value>Liitä GPS</value>
+  </data>
+  <data name="GuiTriggerPositionRadius" xml:space="preserve">
+    <value>Säde</value>
+  </data>
+  <data name="TerminalControlPanel_RunArgument" xml:space="preserve">
+    <value>Argumentti</value>
+  </data>
+  <data name="ControlMenuItemLabel_Dampeners" xml:space="preserve">
+    <value>Vaimentimet</value>
+  </data>
+  <data name="TerminalControlPanel_RunArgument_ToolTip" xml:space="preserve">
+    <value>Argumentti joka annetaan koodillesi kun painat Suorita-painiketta</value>
+  </data>
+  <data name="ControlMenuItemLabel_Helmet" xml:space="preserve">
+    <value>Kypärä</value>
+  </data>
+  <data name="ControlMenuItemLabel_Jetpack" xml:space="preserve">
+    <value>Rakettireppu</value>
+  </data>
+  <data name="ControlMenuItemLabel_LandingGear" xml:space="preserve">
+    <value>Laskeutumisteline / liitin</value>
+  </data>
+  <data name="ControlMenuItemLabel_Reactors" xml:space="preserve">
+    <value>Reaktorit</value>
+  </data>
+  <data name="ControlMenuItemLabel_Thrusts" xml:space="preserve">
+    <value>Rakettimoottorit</value>
+  </data>
+  <data name="ControlMenuItemLabel_Broadcasting" xml:space="preserve">
+    <value>Lähetykset</value>
+  </data>
+  <data name="ControlMenuItemLabel_CommitSuicide" xml:space="preserve">
+    <value>Itsemurha</value>
+  </data>
+  <data name="ControlMenuItemLabel_QuickLoad" xml:space="preserve">
+    <value>Nopea lataus / uudelleenyhdistäminen</value>
+  </data>
+  <data name="ControlMenuItemLabel_ShowColorPicker" xml:space="preserve">
+    <value>Näytä värinvalitsin</value>
+  </data>
+  <data name="ControlMenuItemLabel_ShowTerminal" xml:space="preserve">
+    <value>Näytä terminaali</value>
+  </data>
+  <data name="ControlMenuItemLabel_ShowToolbarScreen" xml:space="preserve">
+    <value>Näytä työkalupalkin näyttö</value>
+  </data>
+  <data name="ControlMenuItemLabel_ToggleHud" xml:space="preserve">
+    <value>Vaihda HUD</value>
+  </data>
+  <data name="ControlMenuItemLabel_PauseGame" xml:space="preserve">
+    <value>Pysäytä peli</value>
+  </data>
+  <data name="MessageBoxTextErrorFeatureNotAvailableYet" xml:space="preserve">
+    <value>Ominaisuus ei vielä saatavilla</value>
+  </data>
+  <data name="NotificationMaximumNumberBots" xml:space="preserve">
+    <value>Bottien maksimimäärä saavutettu</value>
+  </data>
+  <data name="DisplayName_Block_EffectivenessModule" xml:space="preserve">
+    <value>Tehokkuusmoduuli</value>
+  </data>
+  <data name="DisplayName_Block_PowerEfficiencyModule" xml:space="preserve">
+    <value>Energiansäästömoduuli</value>
+  </data>
+  <data name="DisplayName_Block_ProductivityModule" xml:space="preserve">
+    <value>Tuottavuusmoduuli</value>
+  </data>
+  <data name="WorldSettings_Battle" xml:space="preserve">
+    <value>Taistelu</value>
+  </data>
+  <data name="Hud_BuildMode" xml:space="preserve">
+    <value>Rakennustila</value>
+  </data>
+  <data name="NotificationJoystickCompoundBuildingFormat" xml:space="preserve">
+    <value>Paina {0} vaihtaaksesi yhdistelmärakentamiseen</value>
+  </data>
+  <data name="BlockActionTitle_Extend" xml:space="preserve">
+    <value>Laajenna</value>
+  </data>
+  <data name="BlockActionTitle_Retract" xml:space="preserve">
+    <value>Vedä sisään</value>
+  </data>
+  <data name="NotificationJoystickControlMenuFormat" xml:space="preserve">
+    <value>Paina {0} avataksesi ohjausvalikon</value>
+  </data>
+  <data name="NotificationJoystickMenus" xml:space="preserve">
+    <value>Jos tarvit apua tai haluat muokata työkalupalkkia, avaa ohjausvalikko</value>
+  </data>
+  <data name="NotificationJoystickSlotEquipFormat" xml:space="preserve">
+    <value>Paina {0} tai {1} valitaksesi työkalupalkin paikkoja</value>
+  </data>
+  <data name="NotificationJoystickUnlimitedBuildingFormat" xml:space="preserve">
+    <value>Paina {0} lisätäksesi kappaleen, paina {1} poistaaksesi kappaleen</value>
+  </data>
+  <data name="NotificationJoystickVoxelMaterialFormat" xml:space="preserve">
+    <value>Paina {0} vaihtaaksesi vokselin materiaalia</value>
+  </data>
+  <data name="Notification_GameplayOptions" xml:space="preserve">
+    <value>Paina {0} muuttaaksesi pelattavuusasetuksia</value>
+  </data>
+  <data name="ControlMenuItemLabel_Wardrobe" xml:space="preserve">
+    <value>Muuta ulkonäköä</value>
+  </data>
+  <data name="NotificationHintJoystickPressToOpenControlPanel" xml:space="preserve">
+    <value>Avaa ohjausvalikko avataksesi kohteen {0} ohjauspaneelin</value>
+  </data>
+  <data name="NotificationHintJoystickPressToOpenTerminal" xml:space="preserve">
+    <value>Avaa ohjausvalikko avataksesi terminaalin</value>
+  </data>
+  <data name="ControlMenuItemLabel_OpenInventory" xml:space="preserve">
+    <value>Avaa tavaraluettelo</value>
+  </data>
+  <data name="ControlMenuItemLabel_SetupButtons" xml:space="preserve">
+    <value>Aseta painikkeet</value>
+  </data>
+  <data name="ControlMenuItemLabel_ShowControlPanel" xml:space="preserve">
+    <value>Näytä ohjauspaneeli</value>
+  </data>
+  <data name="NotificationHintJoystickPressToOpenButtonPanel" xml:space="preserve">
+    <value>Avaa ohjausvalikko asettaaksesi paneelin painikkeet</value>
+  </data>
+  <data name="NotificationHintJoystickPressToOpenInventory" xml:space="preserve">
+    <value>Avaa ohjausvalikko avataksesi kohteen {0} tavaraluettelon</value>
+  </data>
+  <data name="NotificationHintPressToOpenBuildMode" xml:space="preserve">
+    <value>Paina {0} siirtyäksesi rakennustilaan</value>
+  </data>
+  <data name="DialogTextJoiningBattleLobby" xml:space="preserve">
+    <value>Liitytään taisteluaulaan</value>
+  </data>
+  <data name="DialogTextJoinBattleLobbyFailed" xml:space="preserve">
+    <value>Taisteluaulaan liittyminen epäonnistui, syy: {0}</value>
+  </data>
+  <data name="NotificationHintPressToEnterCryochamber" xml:space="preserve">
+    <value>Paina {0} siirtyäksesi kryokammioon</value>
+  </data>
+  <data name="NotificationHintLeaveCryoChamber" xml:space="preserve">
+    <value>Paina {0} poistuaksesi kryokammiosta</value>
+  </data>
+  <data name="DisplayName_Item_ScrapIngot" xml:space="preserve">
+    <value>Vanha Romumetalli</value>
+  </data>
+  <data name="BlockActionTitle_AddWaypoint" xml:space="preserve">
+    <value>Lisää</value>
+  </data>
+  <data name="BlockActionTitle_MoveWaypointDown" xml:space="preserve">
+    <value>Liikuta alas</value>
+  </data>
+  <data name="BlockActionTitle_MoveWaypointUp" xml:space="preserve">
+    <value>Liikuta ylös</value>
+  </data>
+  <data name="BlockActionTitle_RemoveWaypoint" xml:space="preserve">
+    <value>Poista</value>
+  </data>
+  <data name="BlockPropertyTitle_AutoPilot" xml:space="preserve">
+    <value>Autopilotti</value>
+  </data>
+  <data name="BlockPropertyTitle_FlightMode" xml:space="preserve">
+    <value>Lentotila</value>
+  </data>
+  <data name="BlockPropertyTitle_FlightMode_Circle" xml:space="preserve">
+    <value>Ympyrä</value>
+  </data>
+  <data name="BlockPropertyTitle_FlightMode_OneWay" xml:space="preserve">
+    <value>Yksisuuntainen</value>
+  </data>
+  <data name="BlockPropertyTitle_FlightMode_Patrol" xml:space="preserve">
+    <value>Vartioi</value>
+  </data>
+  <data name="BlockPropertyTitle_GpsLocations" xml:space="preserve">
+    <value>GPS-sijainnit</value>
+  </data>
+  <data name="BlockPropertyTitle_Waypoints" xml:space="preserve">
+    <value>Välietapit</value>
+  </data>
+  <data name="BlockPropertyPopup_AutoPilotToolbarOpen" xml:space="preserve">
+    <value>Set actions to be done when autopilot reaches this waypoint</value>
+  </data>
+  <data name="BlockPropertyTitle_AutoPilotToolbarOpen" xml:space="preserve">
+    <value>Setup Actions</value>
+  </data>
+  <data name="Notification_NoControlAutoPilot" xml:space="preserve">
+    <value>Autopilotti päällä</value>
+  </data>
+  <data name="WorldSettings_Physics" xml:space="preserve">
+    <value>Fysiikka</value>
+  </data>
+  <data name="WorldSettings_Physics_Fast" xml:space="preserve">
+    <value>Nopea</value>
+  </data>
+  <data name="WorldSettings_Physics_Normal" xml:space="preserve">
+    <value>Normaali</value>
+  </data>
+  <data name="WorldSettings_Physics_Precise" xml:space="preserve">
+    <value>Tarkka</value>
+  </data>
+  <data name="WorldSettings_Physics_Tooltip" xml:space="preserve">
+    <value>Korkeammat asetukset parantavat simulaatiota MUTTA vaikuttavat suoraan suorituskykyyn.</value>
+  </data>
+  <data name="ScreenCaptionGraphicsOptions" xml:space="preserve">
+    <value>Grafiikka-asetukset</value>
+  </data>
+  <data name="ScreenGraphicsOptions_AnisotropicFiltering" xml:space="preserve">
+    <value>Anisotrooppinen suodattaminen</value>
+  </data>
+  <data name="ScreenGraphicsOptions_AnisotropicFiltering_Off" xml:space="preserve">
+    <value>Pois</value>
+  </data>
+  <data name="ScreenGraphicsOptions_AntiAliasing" xml:space="preserve">
+    <value>Anti-aliasing</value>
+  </data>
+  <data name="ScreenGraphicsOptions_AntiAliasing_None" xml:space="preserve">
+    <value>Ei mitään</value>
+  </data>
+  <data name="ScreenGraphicsOptions_FoliageDetails" xml:space="preserve">
+    <value>Lehtien yksityiskohdat</value>
+  </data>
+  <data name="ScreenGraphicsOptions_FoliageDetails_Disabled" xml:space="preserve">
+    <value>Ei käytössä</value>
+  </data>
+  <data name="ScreenGraphicsOptions_FoliageDetails_High" xml:space="preserve">
+    <value>Korkea</value>
+  </data>
+  <data name="ScreenGraphicsOptions_FoliageDetails_Low" xml:space="preserve">
+    <value>Matala</value>
+  </data>
+  <data name="ScreenGraphicsOptions_FoliageDetails_Medium" xml:space="preserve">
+    <value>Keskitaso</value>
+  </data>
+  <data name="ScreenGraphicsOptions_MultiThreadedRendering" xml:space="preserve">
+    <value>Monisäikeinen renderöinti</value>
+  </data>
+  <data name="ScreenGraphicsOptions_QualityPreset" xml:space="preserve">
+    <value>Laadun esiasetus</value>
+  </data>
+  <data name="ScreenGraphicsOptions_QualityPreset_Custom" xml:space="preserve">
+    <value>Mukautettu</value>
+  </data>
+  <data name="ScreenGraphicsOptions_QualityPreset_High" xml:space="preserve">
+    <value>Korkea</value>
+  </data>
+  <data name="ScreenGraphicsOptions_QualityPreset_Low" xml:space="preserve">
+    <value>Matala</value>
+  </data>
+  <data name="ScreenGraphicsOptions_QualityPreset_Medium" xml:space="preserve">
+    <value>Keskitaso</value>
+  </data>
+  <data name="ScreenGraphicsOptions_Renderer" xml:space="preserve">
+    <value>Renderöijä</value>
+  </data>
+  <data name="ScreenGraphicsOptions_ShadowMapResolution" xml:space="preserve">
+    <value>Varjokartan resoluutio</value>
+  </data>
+  <data name="ScreenGraphicsOptions_ShadowMapResolution_High" xml:space="preserve">
+    <value>Korkea</value>
+  </data>
+  <data name="ScreenGraphicsOptions_ShadowMapResolution_Low" xml:space="preserve">
+    <value>Matala</value>
+  </data>
+  <data name="ScreenGraphicsOptions_TextureQuality" xml:space="preserve">
+    <value>Tekstuurien laatu</value>
+  </data>
+  <data name="ScreenGraphicsOptions_TextureQuality_High" xml:space="preserve">
+    <value>Korkea</value>
+  </data>
+  <data name="ScreenGraphicsOptions_TextureQuality_Low" xml:space="preserve">
+    <value>Matala</value>
+  </data>
+  <data name="ScreenGraphicsOptions_TextureQuality_Medium" xml:space="preserve">
+    <value>Keskitaso</value>
+  </data>
+  <data name="ToolTipVideoOptionsRenderer" xml:space="preserve">
+    <value>Renderöijän vaihtaminen vaatii pelin uudelleenkäynnistämisen.</value>
+  </data>
+  <data name="StationRotation_Static" xml:space="preserve">
+    <value>Station rotation</value>
+  </data>
+  <data name="StationRotation_Static_Desc" xml:space="preserve">
+    <value>Enables rotation of station block</value>
+  </data>
+  <data name="NotificationStationRotation" xml:space="preserve">
+    <value>Station rotation mode</value>
+  </data>
+  <data name="ControlName_VoiceChat" xml:space="preserve">
+    <value>Push-to-talk voice chat</value>
+  </data>
+  <data name="EnableVoiceChat" xml:space="preserve">
+    <value>Enable voice chat</value>
+  </data>
+  <data name="MessageBoxTextRestartNeededAfterRendererSwitch" xml:space="preserve">
+    <value>Applied changes will be visible after restarting the game</value>
+  </data>
+  <data name="GuiScenarioPlayerName" xml:space="preserve">
+    <value>Player name</value>
+  </data>
+  <data name="GuiScenarioPlayerStatus" xml:space="preserve">
+    <value>Status</value>
+  </data>
+  <data name="GuiScenarioSend" xml:space="preserve">
+    <value>Send</value>
+  </data>
+  <data name="GuiScenarioStart" xml:space="preserve">
+    <value>Start</value>
+  </data>
+  <data name="BlockPropertyTitle_EnableDockingMode" xml:space="preserve">
+    <value>Precision Mode</value>
+  </data>
+  <data name="BlockPropertyTitle_ForwardDirection" xml:space="preserve">
+    <value>Forward Direction</value>
+  </data>
+  <data name="BlockActionTitle_RemoteCopy" xml:space="preserve">
+    <value>Copy</value>
+  </data>
+  <data name="BlockActionTitle_RemotePaste" xml:space="preserve">
+    <value>Paste</value>
+  </data>
+  <data name="BlockActionTitle_WaypointReset" xml:space="preserve">
+    <value>Reset waypoint</value>
+  </data>
+  <data name="BlockActionTooltip_WaypointReset" xml:space="preserve">
+    <value>Resets current waypoint to first position</value>
+  </data>
+  <data name="GuiScenarioTimeout" xml:space="preserve">
+    <value>Connection timeout:</value>
+  </data>
+  <data name="GuiScenarioTimeout10min" xml:space="preserve">
+    <value>10 min</value>
+  </data>
+  <data name="GuiScenarioTimeout3min" xml:space="preserve">
+    <value>3 min</value>
+  </data>
+  <data name="GuiScenarioTimeout5min" xml:space="preserve">
+    <value>5 min</value>
+  </data>
+  <data name="GuiScenarioTimeoutUnlimited" xml:space="preserve">
+    <value>Unlimited</value>
+  </data>
+  <data name="WorldSettings_GameScenario" xml:space="preserve">
+    <value>Scenario</value>
   </data>
 </root>

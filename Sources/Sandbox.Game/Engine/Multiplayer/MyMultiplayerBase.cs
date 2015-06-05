@@ -15,10 +15,10 @@ using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Xml.Serialization;
-
 using VRage;
 using VRage.Collections;
 using VRage.Compiler;
+using VRage.ObjectBuilders;
 using VRage.Serialization;
 using VRage.Trace;
 
@@ -284,13 +284,55 @@ namespace Sandbox.Engine.Multiplayer
             private set;
         }
 
+        public abstract bool Scenario
+        {
+            get;
+            set;
+        }
+
+        public abstract string ScenarioBriefing
+        {
+            get;
+            set;
+        }
+
+        public abstract DateTime ScenarioStartTime
+        {
+            get;
+            set;
+        }
+
         public abstract bool Battle
         {
             get;
             set;
         }
 
-        public abstract int MaxBattleBlueprintPoints
+        public abstract bool BattleCanBeJoined
+        {
+            get;
+            set;
+        }
+
+        public abstract int BattleFaction1MaxBlueprintPoints
+        {
+            get;
+            set;
+        }
+
+        public abstract int BattleFaction2MaxBlueprintPoints
+        {
+            get;
+            set;
+        }
+
+        public abstract int BattleFaction1BlueprintPoints
+        {
+            get;
+            set;
+        }
+
+        public abstract int BattleFaction2BlueprintPoints
         {
             get;
             set;
@@ -338,6 +380,12 @@ namespace Sandbox.Engine.Multiplayer
             set;
         }
 
+        public abstract int BattleTimeLimit
+        {
+            get;
+            set;
+        }
+
 
         #endregion
 
@@ -347,6 +395,8 @@ namespace Sandbox.Engine.Multiplayer
         public event Action<ulong, ChatMemberStateChangeEnum> ClientLeft;
         public event Action HostLeft;
         public event Action<ulong, string, ChatEntryTypeEnum> ChatMessageReceived;
+        public event Action<ulong> ClientKicked;
+
 
         internal MyMultiplayerBase(MySyncLayer syncLayer)
         {
@@ -522,7 +572,7 @@ namespace Sandbox.Engine.Multiplayer
                 checkpoint.WorkshopId = null;
                 checkpoint.CharacterToolbar = null;
                 ProfilerShort.Begin("SerializeXML");
-                Sandbox.Common.ObjectBuilders.Serializer.MyObjectBuilderSerializer.SerializeXML(m_worldSendStream, worldData, Sandbox.Common.ObjectBuilders.Serializer.MyObjectBuilderSerializer.XmlCompression.Gzip);
+                MyObjectBuilderSerializer.SerializeXML(m_worldSendStream, worldData, MyObjectBuilderSerializer.XmlCompression.Gzip);
                 ProfilerShort.BeginNextBlock("SendFlush");
                 SyncLayer.TransportLayer.SendFlush(sender);
                 ProfilerShort.End();
@@ -719,6 +769,13 @@ namespace Sandbox.Engine.Multiplayer
             var handler = ClientJoined;
             if (handler != null) 
                 handler(changedUser);
+        }
+
+        protected void RaiseClientKicked(ulong user)
+        {
+            var handler = ClientKicked;
+            if (handler != null)
+            handler(user);
         }
 
         public abstract ulong LobbyId

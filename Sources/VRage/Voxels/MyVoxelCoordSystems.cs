@@ -29,6 +29,11 @@ namespace VRage.Voxels
             Vector3I.Floor(ref tmp, out voxelCoord);
         }
 
+        public static void LocalPositionToVoxelCoord(ref Vector3D localPosition, out Vector3D voxelCoord)
+        {
+            voxelCoord = localPosition / MyVoxelConstants.VOXEL_SIZE_IN_METRES;
+        }
+
         public static void LocalPositionToGeometryCellCoord(ref Vector3D localPosition, out Vector3I geometryCellCoord)
         {
             Vector3D tmp = localPosition / MyVoxelConstants.GEOMETRY_CELL_SIZE_IN_METRES;

@@ -26,38 +26,10 @@ using VRage.Utils;
 using VRage.Trace;
 using VRageMath;
 using Sandbox.Game.Screens.Terminal.Controls;
+using VRage.ModAPI;
 
 namespace Sandbox.Game.Entities.Blocks
 {
-    [ProtoContract]
-    struct ToolbarItem : IEqualityComparer<ToolbarItem>
-    {
-        [ProtoMember(1)]
-        public long EntityID;
-        [ProtoMember(2)]
-        public string GroupName;
-        [ProtoMember(3)]
-        public string Action;
-
-        public bool Equals(ToolbarItem x, ToolbarItem y)
-        {
-            if (x.EntityID != y.EntityID || x.GroupName != y.GroupName || x.Action != y.Action)
-                return false;
-            return true;
-        }
-
-        public int GetHashCode(ToolbarItem obj)
-        {
-            unchecked
-            {
-                int result = obj.EntityID.GetHashCode();
-                result = (result * 397) ^ obj.GroupName.GetHashCode();
-                result = (result * 397) ^ obj.Action.GetHashCode();
-                return result;
-            }
-        }
-    }
-
     [Flags]
     public enum MySensorFilterFlags : ushort
     {
@@ -151,6 +123,11 @@ namespace Sandbox.Game.Entities.Blocks
                     UpdateField();
                 }
             }
+        }
+
+        public float MaxRange
+        {
+            get { return BlockDefinition.MaxRange; }
         }
 
         public MySensorFilterFlags Filters
@@ -337,7 +314,7 @@ namespace Sandbox.Game.Entities.Blocks
             MyTerminalControlFactory.AddControl(toolbarButton);
 
             var fieldWidthMin = new MyTerminalControlSlider<MySensorBlock>("Left", MySpaceTexts.BlockPropertyTitle_SensorFieldWidthMin, MySpaceTexts.BlockPropertyDescription_SensorFieldLeft);
-            fieldWidthMin.SetLimits(1, 50);
+            fieldWidthMin.SetLimits(block => 1, block => block.MaxRange);
             fieldWidthMin.DefaultValue = 5;
             fieldWidthMin.Getter = (x) => -x.m_fieldMin.X;
             fieldWidthMin.Setter = (x, v) =>
@@ -352,7 +329,7 @@ namespace Sandbox.Game.Entities.Blocks
             MyTerminalControlFactory.AddControl(fieldWidthMin);
 
             var fieldWidthMax = new MyTerminalControlSlider<MySensorBlock>("Right", MySpaceTexts.BlockPropertyTitle_SensorFieldWidthMax, MySpaceTexts.BlockPropertyDescription_SensorFieldRight);
-            fieldWidthMax.SetLimits(1, 50);
+            fieldWidthMax.SetLimits(block => 1, block => block.MaxRange);
             fieldWidthMax.DefaultValue = 5;
             fieldWidthMax.Getter = (x) => x.m_fieldMax.X;
             fieldWidthMax.Setter = (x, v) =>
@@ -368,7 +345,7 @@ namespace Sandbox.Game.Entities.Blocks
 
 
             var fieldHeightMin = new MyTerminalControlSlider<MySensorBlock>("Bottom", MySpaceTexts.BlockPropertyTitle_SensorFieldHeightMin, MySpaceTexts.BlockPropertyDescription_SensorFieldBottom);
-            fieldHeightMin.SetLimits(1, 50);
+            fieldHeightMin.SetLimits(block => 1, block => block.MaxRange);
             fieldHeightMin.DefaultValue = 5;
             fieldHeightMin.Getter = (x) => -x.m_fieldMin.Y;
             fieldHeightMin.Setter = (x, v) =>
@@ -383,7 +360,7 @@ namespace Sandbox.Game.Entities.Blocks
             MyTerminalControlFactory.AddControl(fieldHeightMin);
 
             var fieldHeightMax = new MyTerminalControlSlider<MySensorBlock>("Top", MySpaceTexts.BlockPropertyTitle_SensorFieldHeightMax, MySpaceTexts.BlockPropertyDescription_SensorFieldTop);
-            fieldHeightMax.SetLimits(1, 50);
+            fieldHeightMax.SetLimits(block => 1, block => block.MaxRange);
             fieldHeightMax.DefaultValue = 5;
             fieldHeightMax.Getter = (x) => x.m_fieldMax.Y;
             fieldHeightMax.Setter = (x, v) =>
@@ -398,7 +375,7 @@ namespace Sandbox.Game.Entities.Blocks
             MyTerminalControlFactory.AddControl(fieldHeightMax);
 
             var fieldDepthMax = new MyTerminalControlSlider<MySensorBlock>("Back", MySpaceTexts.BlockPropertyTitle_SensorFieldDepthMax, MySpaceTexts.BlockPropertyDescription_SensorFieldBack);
-            fieldDepthMax.SetLimits(1, 50);
+            fieldDepthMax.SetLimits(block => 1, block => block.MaxRange);
             fieldDepthMax.DefaultValue = 5;
             fieldDepthMax.Getter = (x) => x.m_fieldMax.Z;
             fieldDepthMax.Setter = (x, v) =>
@@ -413,7 +390,7 @@ namespace Sandbox.Game.Entities.Blocks
             MyTerminalControlFactory.AddControl(fieldDepthMax);
 
             var fieldDepthMin = new MyTerminalControlSlider<MySensorBlock>("Front", MySpaceTexts.BlockPropertyTitle_SensorFieldDepthMin, MySpaceTexts.BlockPropertyDescription_SensorFieldFront);
-            fieldDepthMin.SetLimits(1, 50);
+            fieldDepthMin.SetLimits(block => 1, block => block.MaxRange);
             fieldDepthMin.DefaultValue = 5;
             fieldDepthMin.Getter = (x) => -x.m_fieldMin.Z;
             fieldDepthMin.Setter = (x, v) =>
@@ -564,9 +541,9 @@ namespace Sandbox.Game.Entities.Blocks
             Toolbar.DrawNumbers = false;
 
             var builder = (MyObjectBuilder_SensorBlock)objectBuilder;
-
-            m_fieldMin = Vector3.Clamp(builder.FieldMin, new Vector3(-50.0f), -Vector3.One);
-            m_fieldMax = Vector3.Clamp(builder.FieldMax, Vector3.One, new Vector3(50.0f));
+            
+            m_fieldMin = Vector3.Clamp(builder.FieldMin, new Vector3(-MaxRange), -Vector3.One);
+            m_fieldMax = Vector3.Clamp(builder.FieldMax, Vector3.One, new Vector3(MaxRange));
 
             DetectPlayers = builder.DetectPlayers;
             DetectFloatingObjects = builder.DetectFloatingObjects;
@@ -588,7 +565,7 @@ namespace Sandbox.Game.Entities.Blocks
                 if (item == null)
                     continue;
                 m_items.RemoveAt(i);
-                m_items.Insert(i, GetToolbarItem(item));
+                m_items.Insert(i, ToolbarItem.FromItem(item));
             }
             Toolbar.ItemChanged += Toolbar_ItemChanged;
 
@@ -738,7 +715,7 @@ namespace Sandbox.Game.Entities.Blocks
         {
             Debug.Assert(self == Toolbar);
 
-            var tItem = GetToolbarItem(self.GetItemAtIndex(index.ItemIndex));
+            var tItem = ToolbarItem.FromItem(self.GetItemAtIndex(index.ItemIndex));
             var oldItem = m_items[index.ItemIndex];
             if ((tItem.EntityID == 0 && oldItem.EntityID == 0 || (tItem.EntityID != 0 && oldItem.EntityID != 0 && tItem.Equals(oldItem))))
                 return;
@@ -761,26 +738,6 @@ namespace Sandbox.Game.Entities.Blocks
                 }
                 m_shouldSetOtherToolbars = true;
             }
-        }
-
-        private ToolbarItem GetToolbarItem(MyToolbarItem item)
-        {
-            var tItem = new ToolbarItem();
-            tItem.EntityID = 0;
-            if (item is MyToolbarItemTerminalBlock)
-            {
-                var block = item.GetObjectBuilder() as MyObjectBuilder_ToolbarItemTerminalBlock;
-                tItem.EntityID = block.BlockEntityId;
-                tItem.Action = block.Action;
-            }
-            else if (item is MyToolbarItemTerminalGroup)
-            {
-                var block = item.GetObjectBuilder() as MyObjectBuilder_ToolbarItemTerminalGroup;
-                tItem.EntityID = block.BlockEntityId;
-                tItem.Action = block.Action;
-                tItem.GroupName = block.GroupName;
-            }
-            return tItem;
         }
 
         private void OnFirstEnter()

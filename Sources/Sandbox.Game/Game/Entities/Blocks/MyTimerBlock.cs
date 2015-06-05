@@ -17,6 +17,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using VRage;
+using VRage.ModAPI;
 using VRage.Utils;
 using VRageMath;
 
@@ -57,14 +58,14 @@ namespace Sandbox.Game.Entities.Blocks
             [MessageIdAttribute(2460, P2PMessageEnum.Reliable)]
             protected struct ChangeToolbarItemMsg : IEntityMessage
             {
-                [ProtoMember(1)]
+                [ProtoMember]
                 public long EntityId;
                 public long GetEntityId() { return EntityId; }
 
-                [ProtoMember(2)]
+                [ProtoMember]
                 public ToolbarItem Item;
 
-                [ProtoMember(3)]
+                [ProtoMember]
                 public int Index;
             }
 
@@ -90,34 +91,8 @@ namespace Sandbox.Game.Entities.Blocks
             {
                 sync.m_syncing = true;
                 MyToolbarItem item = null;
-                if(msg.Item.EntityID != 0)
-                    if (string.IsNullOrEmpty(msg.Item.GroupName))
-                    {
-                        MyTerminalBlock block;
-                        if(MyEntities.TryGetEntityById<MyTerminalBlock>(msg.Item.EntityID, out block))
-                        {
-                            var builder = MyToolbarItemFactory.TerminalBlockObjectBuilderFromBlock(block);
-                            builder.Action = msg.Item.Action;
-                            item = MyToolbarItemFactory.CreateToolbarItem(builder);
-                        }
-                    }
-                    else
-                    {
-                        MyTimerBlock parent;
-                        if (MyEntities.TryGetEntityById<MyTimerBlock>(msg.Item.EntityID, out parent))
-                        {
-                            var grid = parent.CubeGrid;
-                            var groupName = msg.Item.GroupName;
-                            var group = grid.GridSystems.TerminalSystem.BlockGroups.Find((x) => x.Name.ToString() == groupName);;
-                            if (group != null)
-                            {
-                                var builder = MyToolbarItemFactory.TerminalGroupObjectBuilderFromGroup(group);
-                                builder.Action = msg.Item.Action;
-                                builder.BlockEntityId = msg.Item.EntityID;
-                                item = MyToolbarItemFactory.CreateToolbarItem(builder);
-                            }
-                        }
-                    }
+                if (msg.Item.EntityID != 0)
+                    item = ToolbarItem.ToItem(msg.Item);
                 sync.m_timer.Toolbar.SetItemAtIndex(msg.Index, item);
                 sync.m_syncing = false;
                 if (Sync.IsServer)
@@ -272,7 +247,7 @@ namespace Sandbox.Game.Entities.Blocks
         public void Stop()
         {
             IsCountingDown = false;
-            NeedsUpdate &= ~Common.MyEntityUpdateEnum.EACH_10TH_FRAME;
+            NeedsUpdate &= ~MyEntityUpdateEnum.EACH_10TH_FRAME;
             m_countdownMsCurrent = 0;
             UpdateEmissivity();
             DetailedInfo.Clear();
@@ -282,7 +257,7 @@ namespace Sandbox.Game.Entities.Blocks
         public void Start()
         {
             IsCountingDown = true;
-            NeedsUpdate |= Common.MyEntityUpdateEnum.EACH_10TH_FRAME;
+            NeedsUpdate |= MyEntityUpdateEnum.EACH_10TH_FRAME;
             m_countdownMsCurrent = m_countdownMsStart;
         }
 
@@ -290,7 +265,7 @@ namespace Sandbox.Game.Entities.Blocks
         {
             Debug.Assert(self == Toolbar);
 
-            var tItem = GetToolbarItem(self.GetItemAtIndex(index.ItemIndex));
+            var tItem = ToolbarItem.FromItem(self.GetItemAtIndex(index.ItemIndex));
             (SyncObject as MySyncTimerBlock).SendToolbarItemChanged(tItem, index.ItemIndex);
             
             if (m_shouldSetOtherToolbars)
@@ -310,38 +285,18 @@ namespace Sandbox.Game.Entities.Blocks
             }
         }
 
-        private ToolbarItem GetToolbarItem(MyToolbarItem item)
-        {
-            var tItem = new ToolbarItem();
-            tItem.EntityID = 0;
-            if (item is MyToolbarItemTerminalBlock)
-            {
-                var block = item.GetObjectBuilder() as MyObjectBuilder_ToolbarItemTerminalBlock;
-                tItem.EntityID = block.BlockEntityId;
-                tItem.Action = block.Action;
-            }
-            else if (item is MyToolbarItemTerminalGroup)
-            {
-                var block = item.GetObjectBuilder() as MyObjectBuilder_ToolbarItemTerminalGroup;
-                tItem.EntityID = block.BlockEntityId;
-                tItem.Action = block.Action;
-                tItem.GroupName = block.GroupName;
-            }
-            return tItem;
-        }
-
         protected override void OnStartWorking()
         {
             base.OnStartWorking();
             if(m_countdownMsCurrent != 0)
-                NeedsUpdate |= Common.MyEntityUpdateEnum.EACH_10TH_FRAME;
+                NeedsUpdate |= MyEntityUpdateEnum.EACH_10TH_FRAME;
             UpdateEmissivity();
         }
 
         protected override void OnStopWorking()
         {
             base.OnStopWorking();
-            NeedsUpdate &= ~Common.MyEntityUpdateEnum.EACH_10TH_FRAME;
+            NeedsUpdate &= ~MyEntityUpdateEnum.EACH_10TH_FRAME;
             UpdateEmissivity();
         }
 
@@ -361,11 +316,11 @@ namespace Sandbox.Game.Entities.Blocks
             Toolbar.Init(ob.Toolbar, this);
             Toolbar.ItemChanged += Toolbar_ItemChanged;
 
-            if (ob.JustTriggered) NeedsUpdate |= Common.MyEntityUpdateEnum.BEFORE_NEXT_FRAME;
+            if (ob.JustTriggered) NeedsUpdate |= MyEntityUpdateEnum.BEFORE_NEXT_FRAME;
             m_countdownMsStart = ob.Delay;
             m_countdownMsCurrent = ob.CurrentTime;
             if (m_countdownMsCurrent > 0)
-                NeedsUpdate |= Common.MyEntityUpdateEnum.EACH_10TH_FRAME;
+                NeedsUpdate |= MyEntityUpdateEnum.EACH_10TH_FRAME;
 
             PowerReceiver = new MyPowerReceiver(
                 MyConsumerGroupEnum.Utility,
@@ -385,7 +340,7 @@ namespace Sandbox.Game.Entities.Blocks
         {
             var ob = base.GetObjectBuilderCubeBlock(copy) as MyObjectBuilder_TimerBlock;
             ob.Toolbar = Toolbar.GetObjectBuilder();
-            ob.JustTriggered = NeedsUpdate.HasFlag(Common.MyEntityUpdateEnum.BEFORE_NEXT_FRAME);
+            ob.JustTriggered = NeedsUpdate.HasFlag(MyEntityUpdateEnum.BEFORE_NEXT_FRAME);
             ob.Delay = m_countdownMsStart;
             ob.CurrentTime = m_countdownMsCurrent;
             return ob;
@@ -432,9 +387,9 @@ namespace Sandbox.Game.Entities.Blocks
 
             if (m_countdownMsCurrent <= 0)
             {
-                NeedsUpdate &= ~Common.MyEntityUpdateEnum.EACH_10TH_FRAME;
+                NeedsUpdate &= ~MyEntityUpdateEnum.EACH_10TH_FRAME;
                 m_countdownMsCurrent = 0;
-                NeedsUpdate |= Common.MyEntityUpdateEnum.BEFORE_NEXT_FRAME;
+                NeedsUpdate |= MyEntityUpdateEnum.BEFORE_NEXT_FRAME;
             }
             DetailedInfo.Clear().AppendStringBuilder(MyTexts.Get(MySpaceTexts.BlockPropertyTitle_TimerToTrigger));
             MyValueFormatter.AppendTimeExact(m_countdownMsCurrent / 1000, DetailedInfo);
@@ -443,7 +398,7 @@ namespace Sandbox.Game.Entities.Blocks
 
         public void StopCountdown()
         {
-            NeedsUpdate &= ~Common.MyEntityUpdateEnum.EACH_10TH_FRAME;
+            NeedsUpdate &= ~MyEntityUpdateEnum.EACH_10TH_FRAME;
             m_countdownMsCurrent = 0;
             IsCountingDown = false;
             DetailedInfo.Clear();
@@ -460,7 +415,7 @@ namespace Sandbox.Game.Entities.Blocks
             obj.StopCountdown();
             if (Sync.IsServer)
             {
-                obj.NeedsUpdate |= Common.MyEntityUpdateEnum.BEFORE_NEXT_FRAME;
+                obj.NeedsUpdate |= MyEntityUpdateEnum.BEFORE_NEXT_FRAME;
             }
             else
             {
@@ -478,7 +433,7 @@ namespace Sandbox.Game.Entities.Blocks
             obj.StopCountdown();
             if (Sync.IsServer)
             {
-                obj.NeedsUpdate |= Common.MyEntityUpdateEnum.BEFORE_NEXT_FRAME;
+                obj.NeedsUpdate |= MyEntityUpdateEnum.BEFORE_NEXT_FRAME;
             }
             else
             {

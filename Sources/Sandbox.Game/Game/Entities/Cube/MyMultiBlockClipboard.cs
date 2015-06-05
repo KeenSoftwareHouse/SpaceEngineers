@@ -15,6 +15,8 @@ using Sandbox.Game.World;
 using Sandbox.Graphics;
 using VRageMath;
 using VRageRender;
+using VRage.ObjectBuilders;
+using VRage;
 
 namespace Sandbox.Game.Entities.Cube
 {
@@ -129,7 +131,7 @@ namespace Sandbox.Game.Entities.Cube
 
         private static MyObjectBuilder_CubeGrid ConvertGridBuilderToStatic(MyObjectBuilder_CubeGrid originalGrid, MatrixD worldMatrix)
         {
-            var gridBuilder = Sandbox.Common.ObjectBuilders.Serializer.MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_CubeGrid>();
+            var gridBuilder = MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_CubeGrid>();
             gridBuilder.EntityId = originalGrid.EntityId;
             gridBuilder.PositionAndOrientation = new MyPositionAndOrientation(originalGrid.PositionAndOrientation.Value.Position, Vector3.Forward, Vector3.Up);
             gridBuilder.GridSizeEnum = originalGrid.GridSizeEnum;
@@ -254,7 +256,7 @@ namespace Sandbox.Game.Entities.Cube
             if (blockDefinition == null)
                 return null;
 
-            var blockBuilder = Sandbox.Common.ObjectBuilders.Serializer.MyObjectBuilderSerializer.CreateNewObject(defId) as MyObjectBuilder_CubeBlock;
+            var blockBuilder = MyObjectBuilderSerializer.CreateNewObject(defId) as MyObjectBuilder_CubeBlock;
             blockBuilder.EntityId = origBlock.EntityId;
             // Orientation quaternion is not setup in origblock
             MyBlockOrientation orientation = origBlock.BlockOrientation;
@@ -506,13 +508,18 @@ namespace Sandbox.Game.Entities.Cube
                 var grid = PreviewGrids[i];
                 var settings = m_settings.GetGridPlacementSettings(grid);
 
-                if (MySession.Static.SurvivalMode && !MyCubeBuilder.DeveloperSpectatorIsBuilding)
+                if (MySession.Static.SurvivalMode && !MyCubeBuilder.SpectatorIsBuilding)
                 {
+                    if (i == 0 && MyCubeBuilder.CameraControllerSpectator)
+                    {
+                        m_visible = false;
+                        return false;
+                    }
+
                     if (i == 0 && !MyCubeBuilder.Static.DynamicMode)
                     {
                         MatrixD invMatrix = grid.PositionComp.WorldMatrixNormalizedInv;
-                        if (!MyCubeBuilderGizmo.DefaultGizmoCloseEnough(ref invMatrix, (BoundingBoxD)grid.PositionComp.LocalAABB, grid.GridSize, MyCubeBuilder.Static.IntersectionDistance) 
-                            || MySession.GetCameraControllerEnum() == MyCameraControllerEnum.Spectator)
+                        if (!MyCubeBuilderGizmo.DefaultGizmoCloseEnough(ref invMatrix, (BoundingBoxD)grid.PositionComp.LocalAABB, grid.GridSize, MyCubeBuilder.Static.IntersectionDistance))
                         {
                             m_visible = false;
                             return false;

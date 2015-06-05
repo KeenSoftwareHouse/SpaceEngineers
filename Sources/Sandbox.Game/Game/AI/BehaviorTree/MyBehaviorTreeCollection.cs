@@ -1,6 +1,5 @@
 ﻿using Sandbox.Common.ObjectBuilders.AI;
 using Sandbox.Common.ObjectBuilders.Definitions;
-using Sandbox.Common.ObjectBuilders.Serializer;
 using Sandbox.Definitions;
 using Sandbox.Engine.Utils;
 using Sandbox.Game.Gui;
@@ -13,6 +12,7 @@ using System.Runtime.InteropServices;
 using System.Text;
 using VRage.FileSystem;
 using VRage.Library.Utils;
+using VRage.ObjectBuilders;
 using VRage.Utils;
 using VRage.Win32;
 
@@ -35,6 +35,7 @@ namespace Sandbox.Game.AI.BehaviorTree
         private void SendSelectedTreeForDebug(MyBehaviorTree behaviorTree)
         {
             DebugSelectedTreeHashSent = true;
+            DebugCurrentBehaviorTree = behaviorTree.BehaviorTreeName;
             var msg = new MyCopyDataStructures.SelectedTreeMsg() { BehaviorTreeName = behaviorTree.BehaviorTreeName };
             WinApi.SendMessage<MyCopyDataStructures.SelectedTreeMsg>(ref msg, m_toolWindowHandle);
            // WinApi.PostMessage(m_toolWindowHandle, MyWMCodes.BEHAVIOR_TOOL_SELECT_TREE, new IntPtr(behaviorTree.BehaviorTreeName.GetHashCode()), IntPtr.Zero);
@@ -127,6 +128,7 @@ namespace Sandbox.Game.AI.BehaviorTree
             }
         }
         public bool DebugBreakDebugging { get; set; }
+        public string DebugCurrentBehaviorTree { get; private set; }
 
         public MyBehaviorTreeCollection()
         {
@@ -157,7 +159,8 @@ namespace Sandbox.Game.AI.BehaviorTree
                         {
                             if (TryGetValidToolWindow(out m_toolWindowHandle))
                             {
-                                if (!DebugSelectedTreeHashSent || m_toolWindowHandle != DebugLastWindowHandle)
+                                if (!DebugSelectedTreeHashSent || m_toolWindowHandle != DebugLastWindowHandle
+                                    || DebugCurrentBehaviorTree != DebugBot.BehaviorTree.BehaviorTreeName)
                                     SendSelectedTreeForDebug(behaviorTree);
                                 SendDataToTool(data.Bot, data.Bot.BotMemory.CurrentTreeBotMemory);
                             }

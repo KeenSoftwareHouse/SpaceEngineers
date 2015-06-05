@@ -7,7 +7,7 @@ using System;
 using System.Xml;
 using System.Xml.Schema;
 using System.Xml.Serialization;
-using VRage.Library.Utils;
+using VRage.Utils;
 
 #endregion
 
@@ -16,7 +16,7 @@ namespace VRage.Generics
     [ProtoContract]
     public struct MyNamedEnum<T> : IXmlSerializable where T : struct, IConvertible
     {
-        [ProtoMember(1)]
+        [ProtoMember]
         [XmlIgnore]
         int m_enumInt;
 
@@ -50,7 +50,7 @@ namespace VRage.Generics
         {
             if (!Enum.TryParse<T>(s, out EnumType))
             {
-                EnumType = (T)Enum.ToObject(typeof(T), MyLibraryUtils.GetHash(s));
+                EnumType = (T)Enum.ToObject(typeof(T), MyUtils.GetHash(s));
             }
 
 #if SUPPORT_STRING_SAVE            

@@ -22,6 +22,9 @@ using VRage;
 using Sandbox.Engine.Utils;
 using VRageMath;
 using VRage.Utils;
+using Sandbox.ModAPI;
+using VRage.Game.Entity.UseObject;
+using VRage.ModAPI;
 
 namespace Sandbox.Game.Entities.Blocks
 {
@@ -807,11 +810,12 @@ namespace Sandbox.Game.Entities.Blocks
             return new MySyncTextPanel(this);
         }
 
-        public void Use(UseActionEnum actionEnum, MyCharacter user)
+        public void Use(UseActionEnum actionEnum, IMyEntity entity)
         {
             if (m_isOpen)
                 return;
 
+            var user = entity as MyCharacter;
             var relation = GetUserRelationToOwner(user.ControllerInfo.Controller.Player.Identity.IdentityId);
 
             if (OwnerId == 0)
@@ -823,8 +827,12 @@ namespace Sandbox.Game.Entities.Blocks
                 switch (relation)
                 {
                     case Common.MyRelationsBetweenPlayerAndBlock.Enemies:
-                    case Common.MyRelationsBetweenPlayerAndBlock.Neutral:
-                        OnEnemyUse(actionEnum, user);
+                    case Common.MyRelationsBetweenPlayerAndBlock.Neutral:	// HACK: relation is neutral if sharing is set to none and we would like to access a faction text panel text field
+						if (MySession.Static.Factions.TryGetPlayerFaction(user.ControllerInfo.Controller.Player.Identity.IdentityId) == MySession.Static.Factions.TryGetPlayerFaction(IDModule.Owner) && 
+							actionEnum == UseActionEnum.Manipulate && IsAccessibleForFaction)
+							OnFactionUse(actionEnum, user);
+						else
+							OnEnemyUse(actionEnum, user);
                         break;
                     case Common.MyRelationsBetweenPlayerAndBlock.FactionShare:
                         if (OwnerId == 0 && IsAccessibleForOnlyOwner)

@@ -25,6 +25,7 @@ using VRage.Trace;
 using VRageMath;
 using VRageRender;
 using PlayerId = Sandbox.Game.World.MyPlayer.PlayerId;
+using Sandbox.Game.SessionComponents;
 
 namespace Sandbox.Game.Multiplayer
 {
@@ -79,16 +80,16 @@ namespace Sandbox.Game.Multiplayer
         [MessageId(13, P2PMessageEnum.Reliable)]
         struct IdentityCreatedMsg
         {
-            [ProtoMember(1)]
+            [ProtoMember]
             public bool IsNPC;
 
-            [ProtoMember(2)]
+            [ProtoMember]
             public long IdentityId;
 
-            [ProtoMember(3)]
+            [ProtoMember]
             public string DisplayName;
 
-            [ProtoMember(4)]
+            [ProtoMember]
             public string Model;
         }
 
@@ -115,17 +116,17 @@ namespace Sandbox.Game.Multiplayer
         [ProtoContract]
         public struct RespawnMsg
         {
-            [ProtoMember(1)]
+            [ProtoMember]
             public bool JoinGame;
-            [ProtoMember(2)]
+            [ProtoMember]
             public bool NewIdentity;
-            [ProtoMember(3)]
+            [ProtoMember]
             public long MedicalRoom;
-            [ProtoMember(4)]
+            [ProtoMember]
             public string RespawnShipId;
-            [ProtoMember(5)]
+            [ProtoMember]
             public int PlayerSerialId;
-            [ProtoMember(6)]
+            [ProtoMember]
             public Vector3D? SpawnPosition;
         }
 
@@ -133,13 +134,13 @@ namespace Sandbox.Game.Multiplayer
         [ProtoContract]
         struct NewPlayerRequestMsg
         {
-            [ProtoMember(1)]
+            [ProtoMember]
             public ulong ClientSteamId;
-            [ProtoMember(2)]
+            [ProtoMember]
             public int PlayerSerialId;
-            [ProtoMember(3)]
+            [ProtoMember]
             public string DisplayName;
-            [ProtoMember(4)]
+            [ProtoMember]
             public string CharacterModel;
         }
 
@@ -161,13 +162,13 @@ namespace Sandbox.Game.Multiplayer
         [ProtoContract]
         struct PlayerCreatedMsg
         {
-            [ProtoMember(1)]
+            [ProtoMember]
             public ulong ClientSteamId;
-            [ProtoMember(2)]
+            [ProtoMember]
             public int PlayerSerialId;
-            [ProtoMember(3)]
+            [ProtoMember]
             public long IdentityId;
-            [ProtoMember(4)]
+            [ProtoMember]
             public string DisplayName;
         }
 
@@ -190,9 +191,9 @@ namespace Sandbox.Game.Multiplayer
         [ProtoContract]
         struct AllIdentitiesRequestMsg
         {
-            [ProtoMember(1)]
+            [ProtoMember]
             public ulong ClientSteamId;
-            [ProtoMember(2)]
+            [ProtoMember]
             public int PlayerSerialId;
         }
 
@@ -200,7 +201,7 @@ namespace Sandbox.Game.Multiplayer
         [ProtoContract]
         struct AllIdentitiesSuccessMsg
         {
-            [ProtoMember(1)]
+            [ProtoMember]
             public List<MyObjectBuilder_Identity> Identities;
         }
 
@@ -208,20 +209,20 @@ namespace Sandbox.Game.Multiplayer
         [ProtoContract]
         struct AllPlayersRequestMsg
         {
-            [ProtoMember(1)]
+            [ProtoMember]
             public ulong ClientSteamId;
-            [ProtoMember(2)]
+            [ProtoMember]
             public int PlayerSerialId;
         }
 
         [ProtoContract]
         struct AllPlayerData 
         {
-            [ProtoMember(1)]
+            [ProtoMember]
             public ulong SteamId;
-            [ProtoMember(2)]
+            [ProtoMember]
             public int SerialId;
-            [ProtoMember(3)]
+            [ProtoMember]
             public MyObjectBuilder_Player Player;
 
         }
@@ -230,7 +231,7 @@ namespace Sandbox.Game.Multiplayer
         [ProtoContract]
         struct AllPlayersSuccessMsg
         {
-            [ProtoMember(1)]
+            [ProtoMember]
             public List<AllPlayerData> Players;
         }
 
@@ -276,6 +277,8 @@ namespace Sandbox.Game.Multiplayer
         public event PlayerRequestDelegate PlayerRequesting;
 
         public event Action<bool, ulong> PlayersChanged;
+
+        public event Action<long> PlayerCharacterDied;
 
         #region Construction & (de)serialization
 
@@ -1037,7 +1040,7 @@ namespace Sandbox.Game.Multiplayer
                 if (PlayerRemoved != null)
                     PlayerRemoved(player.Id);
 
-                player.CloseRespawnShip();
+                RespawnComponent.AfterRemovePlayer(player);
 
                 var msg = new PlayerRemoveMsg();
                 msg.ClientSteamId = player.Id.SteamId;
@@ -1232,7 +1235,7 @@ namespace Sandbox.Game.Multiplayer
                 // This is case when player entered second cockpit (and first cockpit is controlled by someone)
                 TrySetControlledEntity(controller.Player.Id, entityGettingControl);
             }
-            else
+            else if (!(baseEntity is MyRemoteControl))
             {
                 Debug.Fail("'entityWithControl' is not controlled");
             }
@@ -1252,7 +1255,7 @@ namespace Sandbox.Game.Multiplayer
 
         public void ReduceControl(IMyControllableEntity baseEntity, MyEntity entityWhichLoosesControl)
         {
-            if (!TryReduceControl(baseEntity, entityWhichLoosesControl))
+            if (!TryReduceControl(baseEntity, entityWhichLoosesControl) && !(baseEntity is MyRemoteControl))
             {
                 Debug.Fail("Both entities must be controlled by same player");
             }
@@ -1262,7 +1265,7 @@ namespace Sandbox.Game.Multiplayer
         {
             MyPlayer.PlayerId playerId;
             bool success = m_controlledEntities.TryGetValue(baseEntity.Entity.EntityId, out playerId);
-            Debug.Assert(success, "Could not get the controller of the base entity!");
+            Debug.Assert(success || baseEntity is MyRemoteControl, "Could not get the controller of the base entity!");
             if (!success) return;
 
             foreach (var entry in m_controlledEntities)
@@ -1540,6 +1543,9 @@ namespace Sandbox.Game.Multiplayer
 
             AddPlayer(playerId, newPlayer);
 
+            if (MyFakes.ENABLE_MISSION_TRIGGERS && MySessionComponentMission.Static!=null)
+                MySessionComponentMission.Static.TryCreateFromDefault(playerId);
+
             return newPlayer;
         }
 
@@ -1698,6 +1704,17 @@ namespace Sandbox.Game.Multiplayer
             Debug.Assert(!m_players.ContainsKey(id), "Cannot remove identity of active player");
             if (m_players.ContainsKey(id))
                 return false;
+
+            MyIdentity identity;
+            if (m_allIdentities.TryGetValue(identityId, out identity))
+            {
+                identity.CharacterChanged -= Identity_CharacterChanged;
+                if (identity.Character != null)
+                {
+                    identity.Character.CharacterDied -= Character_CharacterDied;
+                }
+            }
+
             m_allIdentities.Remove(identityId);
             m_playerIdentityIds.Remove(id);
             return true;
@@ -1740,6 +1757,12 @@ namespace Sandbox.Game.Multiplayer
 
             m_allIdentities.Add(identity.IdentityId, identity);
 
+            identity.CharacterChanged += Identity_CharacterChanged;
+            if (identity.Character != null)
+            {
+                identity.Character.CharacterDied += Character_CharacterDied;
+            }
+
             if (Sync.IsServer)
             {
                 IdentityCreatedMsg msg = new IdentityCreatedMsg();
@@ -1750,6 +1773,21 @@ namespace Sandbox.Game.Multiplayer
 
                 Sync.Layer.SendMessageToAll(ref msg);
             }
+        }
+
+        void Character_CharacterDied(MyCharacter diedCharacter)
+        {
+            if (PlayerCharacterDied != null && diedCharacter != null && diedCharacter.ControllerInfo.ControllingIdentityId != 0)
+                PlayerCharacterDied(diedCharacter.ControllerInfo.ControllingIdentityId);
+        }
+
+        void Identity_CharacterChanged(MyCharacter oldCharacter, MyCharacter newCharacter)
+        {
+            if (oldCharacter != null)
+                oldCharacter.CharacterDied -= Character_CharacterDied;
+
+            if (newCharacter != null)
+                newCharacter.CharacterDied += Character_CharacterDied;
         }
 
         //private void LoadPlayerInternal(long identityId, ref PlayerId playerId, string playerName, bool obsolete = false)

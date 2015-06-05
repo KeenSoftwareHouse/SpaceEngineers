@@ -105,17 +105,21 @@ namespace Sandbox.Game.AI
             }
 
             Vector3D desiredForwardXZ = Vector3D.Reject(desiredForward, parentMatrix.Up);
-            Vector3D parentForward = parentMatrix.Forward;
-            Vector3D desiredForwardYZ = Vector3D.Reject(desiredForward, parentMatrix.Right);
             desiredForwardXZ.Normalize();
-            parentForward.Normalize();
-            desiredForwardYZ.Normalize();
-            parentForward.AssertIsValid();
-            desiredForwardYZ.AssertIsValid();
             desiredForwardXZ.AssertIsValid();
 
+            Vector3D desiredForwardYZ = Vector3D.Reject(desiredForward, parentMatrix.Right);
+            desiredForwardYZ.Normalize();
+            desiredForwardYZ.AssertIsValid();
+
+            /*Vector3D parentForward = parentMatrix.Forward;
+            parentForward.Normalize();
+            parentForward.AssertIsValid();
+
+            // Flip Z component of the parent forward, when the desiredForwardYZ Z component is oposite sign ???
+            // And it's not used...
             if (desiredForwardYZ.Z * parentForward.Z < 0)
-                parentForward.Z = -parentForward.Z;
+                parentForward.Z = -parentForward.Z;*/
             
             double angleY = 0;
             double angleX = 0;
@@ -133,8 +137,9 @@ namespace Sandbox.Game.AI
             if (det > 0) // rotate in correct direction
                 angleY = -angleY;
            
-            m_rotationHint.X = (float)angleY;
-            m_rotationHint.Y = (float)angleX; 
+            m_rotationHint.X = MathHelper.Clamp((float)angleY, -3.0f, 3.0f);
+            m_rotationHint.Y = MathHelper.Clamp((float)angleX, -3.0f, 3.0f);
+            Vector3D localDesiredForward = VRageMath.Vector3D.TransformNormal(desiredForward, VRageMath.MatrixD.Invert(parentMatrix));
         }
     }
 }

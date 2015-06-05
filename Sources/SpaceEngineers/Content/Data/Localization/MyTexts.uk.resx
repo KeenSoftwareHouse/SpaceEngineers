@@ -127,14 +127,6 @@
   <data name="MessageBoxTextAreYouSureYouWantToExit" xml:space="preserve">
     <value>Ви справді бажаєте вийти?</value>
   </data>
-  <data name="AssignControlJoystick" xml:space="preserve">
-    <value>Будь ласка, натисніть кнопку
-на вашому джойстику/ґеймпаді</value>
-  </data>
-  <data name="AssignControlJoystickAxis" xml:space="preserve">
-    <value>Будь ласка, пересуньте аналоґову
-вісь на джойстику/ґеймпаді</value>
-  </data>
   <data name="AssignControlKeyboard" xml:space="preserve">
     <value>Будь ласка, натисніть кпопку</value>
   </data>
@@ -3000,7 +2992,7 @@
     <value>Натисніть {0}, аби перемкнутися між режимами одна/вся зброя.</value>
   </data>
   <data name="BlockPropertyTitle_LargeTurretRadius" xml:space="preserve">
-    <value>Aiming radius</value>
+    <value>Радіус наведення</value>
   </data>
   <data name="ToolTipItemFilter_NATO_5p56x45mm" xml:space="preserve">
     <value>НАТО 5.56x45 мм</value>
@@ -3110,6 +3102,9 @@
   </data>
   <data name="DialogAmount_SetValueCaption" xml:space="preserve">
     <value>Поставити значення</value>
+  </data>
+  <data name="DialogText_RunArgument" xml:space="preserve">
+    <value>Аргумент</value>
   </data>
   <data name="BlockPropertyTitle_LargeTurretTargetMissiles" xml:space="preserve">
     <value>Цілитися у ракети</value>
@@ -3826,7 +3821,7 @@
     <value>Тяга</value>
   </data>
   <data name="BlockPropertyTitle_Motor_Steering" xml:space="preserve">
-    <value>Пілотування</value>
+    <value>Повертання</value>
   </data>
   <data name="NotificationClientCannotSave" xml:space="preserve">
     <value>На цьому сервері вимкнено зберігання клієнтами</value>
@@ -3869,6 +3864,12 @@
   </data>
   <data name="BlockPropertyTitle_Motor_Power" xml:space="preserve">
     <value>Потужність</value>
+  </data>
+  <data name="BlockPropertyDescription_Motor_Height" xml:space="preserve">
+    <value>Axle height offset from center</value>
+  </data>
+  <data name="BlockPropertyTitle_Motor_Height" xml:space="preserve">
+    <value>Height Offset</value>
   </data>
   <data name="DisplayName_Block_VerticalCen" xml:space="preserve">
     <value>Центроване Вікно</value>
@@ -4355,7 +4356,7 @@
     <value>Підірвати</value>
   </data>
   <data name="TerminalControlPanel_Warhead_SwitchTextArmed" xml:space="preserve">
-    <value>Озброєння</value>
+    <value>Озброєний</value>
   </data>
   <data name="TerminalControlPanel_Warhead_SwitchTextDisarmed" xml:space="preserve">
     <value>Без захисту</value>
@@ -4730,7 +4731,7 @@
     <value>Ключ (різні ключі та радіюси утворюють різні астероїди)</value>
   </data>
   <data name="ScreenDebugSpawnMenu_ProceduralSize" xml:space="preserve">
-    <value>Радіюс астероїда</value>
+    <value>Розмір астероїда</value>
   </data>
   <data name="ScreenDebugSpawnMenu_SelectAsteroidType" xml:space="preserve">
     <value>Оберіть тип астероїда</value>
@@ -4836,6 +4837,12 @@
   </data>
   <data name="KeepProjectionTooltip" xml:space="preserve">
     <value>Зберігати проєкцію після завершення будівництва. Корисно для автоматизованого будівництва, але може погіршувати продуктивність.</value>
+  </data>
+  <data name="ShowOnlyBuildableBlockToggle" xml:space="preserve">
+    <value>Show Only Buildable</value>
+  </data>
+  <data name="ShowOnlyBuildableTooltip" xml:space="preserve">
+    <value>Show Only Buildable</value>
   </data>
   <data name="RemoveProjectionButton" xml:space="preserve">
     <value>Вилучити</value>
@@ -5065,7 +5072,7 @@
     <value>Зберігає код в редакторі і повертає до терміналу</value>
   </data>
   <data name="ProgrammableBlock_Editor_BrowseWorkshop_Tooltip" xml:space="preserve">
-    <value>Відкриває  workshop, де Ви можете завантажити свій сценарій або підписатися  на сценарії іншого автора.</value>
+    <value>Відкриває  workshop, де ви можете завантажити свій сценарій або підписатися  на сценарії іншого автора.</value>
   </data>
   <data name="ProgrammableBlock_Editor_CheckCode" xml:space="preserve">
     <value>Перевірити код</value>
@@ -5516,7 +5523,7 @@
     <value>непрацюючий</value>
   </data>
   <data name="LaserAntennaCopyCoords" xml:space="preserve">
-    <value>Copy my coords</value>
+    <value>Скопіювати власні координати</value>
   </data>
   <data name="LaserAntennaCopyCoordsHelp" xml:space="preserve">
     <value>Копіювати позицію антени до буферу обміну </value>
@@ -5525,16 +5532,16 @@
     <value>Непрацюючий</value>
   </data>
   <data name="LaserAntennaConnectButton" xml:space="preserve">
-    <value>Connect to receiver</value>
+    <value>Під'єднатися до приймача</value>
   </data>
   <data name="LaserAntennaConnectGPS" xml:space="preserve">
-    <value>Connect to coords</value>
+    <value>З'єднання з координатами</value>
   </data>
   <data name="LaserAntennaSelectedCoords" xml:space="preserve">
     <value>Вибрані GPS координати</value>
   </data>
   <data name="LaserAntennaPasteGPS" xml:space="preserve">
-    <value>Paste coords</value>
+    <value>Вставити координати</value>
   </data>
   <data name="LaserAntennaReceiversList" xml:space="preserve">
     <value>Відомі приймачі</value>
@@ -5745,135 +5752,714 @@
     <value>Натисніть {0} або {1}, щоб змінити матеріал</value>
   </data>
   <data name="LaserAntennaReceiversListHelp" xml:space="preserve">
-    <value>These receivers are in radio range and can report their position.
-Their current state and target is in parentesis:
-idle   laser is idling
-&gt;&gt; laser is rotating towards other receiver or GPS coordinates
-?&gt;  searching for other laser at requested GPS coordinates
-~&gt; contacting other side of link (this includes waiting for other laser
-       to turn its face to me or futile effort to contact receiver
-       which is turned off or is not there any more)
-=&gt; connection is established
-To connect to lasers not listed here you can connect to coordinates.</value>
+    <value>Ці приймачі знаходяться в радіусі дії радіо та можуть передавати їхню позицію.
+Їхні поточні стан та ціль в дужках:
+простій лазеру на холостому ходу
+&gt;&gt; лазер повертається в сторону іншого приймача або GPS координат
+?&gt; пошук іншого лазера в заданих GPS координатах
+~&gt; З'єднання з іншою стороною лінії (в тому числі очікування іншого лазера
+на поворот в мою сторону або дареме зусилля звєязатись з приймачем,
+який вимкнено або якого більше немає)
+=&gt; з'єднання встановлено
+Для того, щоб з'єднатись з лазером, якого немає тут, ви можете з'єднатись з координатами.</value>
   </data>
   <data name="BlockPropertyTitle_LargeTurretEnableTurretIdleMovement" xml:space="preserve">
-    <value>Enable idle movement</value>
+    <value>Ввімкнути пасивний рух</value>
   </data>
   <data name="LaserAntennaCopyTargetCoords" xml:space="preserve">
-    <value>Copy target coords</value>
+    <value>Скопіювати координати цілі</value>
   </data>
   <data name="LaserAntennaCopyTargetCoordsHelp" xml:space="preserve">
-    <value>Copy target's current or last known position into clipboard</value>
+    <value>Скопіювати останню відому позицію цілі до буферу обміну</value>
   </data>
   <data name="BotSettingsScreen_EnableBotsDebugging" xml:space="preserve">
-    <value>Enable bots debugging</value>
+    <value>Ввімкнути налагодження ботів</value>
   </data>
   <data name="BotSettingsScreen_NextBot" xml:space="preserve">
-    <value>Next bot</value>
+    <value>Наступний бот</value>
   </data>
   <data name="BotSettingsScreen_PreviousBot" xml:space="preserve">
-    <value>Previous bot</value>
+    <value>Попередній бот</value>
   </data>
   <data name="BotSettingsScreen_Title" xml:space="preserve">
-    <value>Bots settings</value>
+    <value>Налаштування ботів</value>
   </data>
   <data name="BlockAction_ConveyorSorterBlacklist" xml:space="preserve">
-    <value>Blacklist</value>
+    <value>Чорний список</value>
   </data>
   <data name="BlockAction_ConveyorSorterWhitelist" xml:space="preserve">
-    <value>Whitelist</value>
+    <value>Білий список</value>
   </data>
   <data name="BlockPropertyTitle_ConveyorSorterFilterMode" xml:space="preserve">
-    <value>Filter Mode</value>
+    <value>Режим фільтрації</value>
   </data>
   <data name="DisplayName_Block_ConveyorSorter" xml:space="preserve">
-    <value>Conveyor Sorter</value>
+    <value>Сортувальник</value>
   </data>
   <data name="LaserAntennaOnlyPerm" xml:space="preserve">
-    <value>Only receivers set to permanent connection found</value>
+    <value>Знайдено лише приймачі, налагоджені на постійне з'єднання</value>
   </data>
   <data name="LaserAntennaPermanentCheckbox" xml:space="preserve">
-    <value>Permanent connection</value>
+    <value>Постійне з'єднання</value>
   </data>
   <data name="BlockPropertyTitle_ConveyorSorterAdd" xml:space="preserve">
-    <value>Add</value>
+    <value>Додати</value>
   </data>
   <data name="BlockPropertyTitle_ConveyorSorterCandidatesList" xml:space="preserve">
-    <value>Add new filter</value>
+    <value>Додати новий фільтр</value>
   </data>
   <data name="BlockPropertyTitle_ConveyorSorterFilterItemsList" xml:space="preserve">
-    <value>Active filters</value>
+    <value>Активні фільтри</value>
   </data>
   <data name="BlockPropertyTitle_ConveyorSorterFilterModeBlacklist" xml:space="preserve">
-    <value>Blacklist</value>
+    <value>Чорний список</value>
   </data>
   <data name="BlockPropertyTitle_ConveyorSorterFilterModeWhitelist" xml:space="preserve">
-    <value>Whitelist</value>
+    <value>Білий список</value>
   </data>
   <data name="BlockPropertyTitle_ConveyorSorterRemove" xml:space="preserve">
-    <value>Remove</value>
+    <value>Видалити</value>
   </data>
   <data name="ScreenDebugOfficial_BotSettings" xml:space="preserve">
-    <value>Bots settings</value>
+    <value>Налаштування ботів</value>
   </data>
   <data name="DisplayName_Block_SmallConveyorSorter" xml:space="preserve">
-    <value>Small Conveyor Sorter</value>
+    <value>Малий сортувальник</value>
   </data>
   <data name="DisplayName_ConvSorterTypes_Ammo" xml:space="preserve">
-    <value>*ammo*</value>
+    <value>Патрони</value>
   </data>
   <data name="DisplayName_ConvSorterTypes_Component" xml:space="preserve">
-    <value>*components*</value>
+    <value>Компоненти</value>
   </data>
   <data name="DisplayName_ConvSorterTypes_HandTool" xml:space="preserve">
-    <value>*hand tools*</value>
+    <value>Інструменти</value>
   </data>
   <data name="DisplayName_ConvSorterTypes_Ingot" xml:space="preserve">
-    <value>*ingots*</value>
+    <value>Злитки</value>
   </data>
   <data name="DisplayName_ConvSorterTypes_Ore" xml:space="preserve">
-    <value>*ore*</value>
+    <value>*руда*</value>
   </data>
   <data name="BlockPropertyDescription_Depressurize" xml:space="preserve">
-    <value>The vent will remove air from the room and store it in tanks</value>
+    <value>Вентиляція прибере повітря з приміщення та збереже його у баках</value>
   </data>
   <data name="BlockPropertyDescription_Stockpile" xml:space="preserve">
-    <value>Stockpiling tanks will not get drained by air vents</value>
+    <value>Накопичуючі баки не будуть осішені через вентиляційні отвори</value>
   </data>
   <data name="BlockPropertyTitle_Depressurize" xml:space="preserve">
-    <value>Depressurize</value>
+    <value>Розгерметизування</value>
   </data>
   <data name="BlockPropertyTitle_Stockpile" xml:space="preserve">
-    <value>Stockpile</value>
+    <value>Запас</value>
   </data>
   <data name="DisplayName_Block_AirVent" xml:space="preserve">
-    <value>Air Vent</value>
+    <value>Вентиляція </value>
   </data>
   <data name="DisplayName_Block_OxygenGenerator" xml:space="preserve">
-    <value>Oxygen Generator</value>
+    <value>Генератор кисню</value>
   </data>
   <data name="DisplayName_Block_OxygenTank" xml:space="preserve">
-    <value>Oxygen Tank</value>
+    <value>Кисневий бак</value>
   </data>
   <data name="DisplayName_BlueprintClass_Ice" xml:space="preserve">
-    <value>Ice</value>
+    <value>Лід</value>
   </data>
   <data name="DisplayName_Item_Oxygen" xml:space="preserve">
-    <value>Oxygen</value>
+    <value>Кисень</value>
   </data>
   <data name="MessageBoxTextAreYouSureEnableOxygen" xml:space="preserve">
-    <value>Are you sure you want to enable oxygen? Doing so will cause materials on untouched asteroids to change. This is irreversible.</value>
+    <value>Ви впевнені що хочете ввімкнути кисень? Ця дія призведе до змін матеріалів на недоторканих астероїдах. Ця дія незворотня.</value>
   </data>
   <data name="ToolTipWorldSettings_EnableOxygen" xml:space="preserve">
-    <value>Enable ice material, pressurization detection and oxygen generation and circulation</value>
+    <value>Ввімкнути льодовий матеріал, виявлення герметизації, генерацію та циркуляцію повітря</value>
   </data>
   <data name="World_Settings_EnableOxygen" xml:space="preserve">
-    <value>Enable oxygen</value>
+    <value>Включити повітря</value>
   </data>
   <data name="Terminal_DrainAll" xml:space="preserve">
-    <value>Drain All</value>
+    <value>Осушити все</value>
   </data>
   <data name="BlockOwner_TransferTo" xml:space="preserve">
-    <value>Transfer to:</value>
+    <value>Перемістити:</value>
+  </data>
+  <data name="DisplayName_Block_AirtightHangarDoor" xml:space="preserve">
+    <value>Герметичні ангарні двері</value>
+  </data>
+  <data name="BlockPropertyTitle_LargeTurretTargetCharacters" xml:space="preserve">
+    <value>Наведення на гравців</value>
+  </data>
+  <data name="BlockPropertyTitle_LargeTurretTargetLargeGrids" xml:space="preserve">
+    <value>Наведення на великі кораблі</value>
+  </data>
+  <data name="BlockPropertyTitle_LargeTurretTargetSmallGrids" xml:space="preserve">
+    <value>Наведення на малі кораблі</value>
+  </data>
+  <data name="BlockPropertyTitle_LargeTurretTargetStations" xml:space="preserve">
+    <value>Наведення на станції</value>
+  </data>
+  <data name="DisplayName_Item_OxygenBottle" xml:space="preserve">
+    <value>Пляшка з киснем</value>
+  </data>
+  <data name="DisplayName_BlueprintClass_OxygenBottles" xml:space="preserve">
+    <value>Пляшки з киснем</value>
+  </data>
+  <data name="DisplayName_Item_OxygenBottles" xml:space="preserve">
+    <value>Пляшки з киснем</value>
+  </data>
+  <data name="BlockPropertyTitle_Refill" xml:space="preserve">
+    <value>Заповнити пляшки</value>
+  </data>
+  <data name="ScreenDebugSpawnMenu_Planets" xml:space="preserve">
+    <value>Планети</value>
+  </data>
+  <data name="ScreenDebugSpawnMenu_CreateLayer" xml:space="preserve">
+    <value>Створити шар</value>
+  </data>
+  <data name="ScreenDebugSpawnMenu_RemoveLayer" xml:space="preserve">
+    <value>Видалити шар</value>
+  </data>
+  <data name="BlockPropertyTitle_AutoRefill" xml:space="preserve">
+    <value>Автозапонення</value>
+  </data>
+  <data name="Terminal_ShowInTerminal" xml:space="preserve">
+    <value>Показувати блок в терміналі</value>
+  </data>
+  <data name="Terminal_ShowAllInTerminal" xml:space="preserve">
+    <value>Показувати приховані блоки</value>
+  </data>
+  <data name="NotificationBottleRefill" xml:space="preserve">
+    <value>Кисень заповнено з пляшок</value>
+  </data>
+  <data name="NotificationOxygenCritical" xml:space="preserve">
+    <value>Кисень на критичному рівні.</value>
+  </data>
+  <data name="NotificationOxygenLow" xml:space="preserve">
+    <value>Низький рівень кисню.</value>
+  </data>
+  <data name="ScreenDebugSpawnMenu_PickPlanet" xml:space="preserve">
+    <value>Взяти планету на редагування</value>
+  </data>
+  <data name="buttonBrowseWorkshop" xml:space="preserve">
+    <value>Огляд Майстерні</value>
+  </data>
+  <data name="buttonCreateNew" xml:space="preserve">
+    <value>Створити новий</value>
+  </data>
+  <data name="buttonOpenInWorkshop" xml:space="preserve">
+    <value>Відкрити Майстерню</value>
+  </data>
+  <data name="buttonPublish" xml:space="preserve">
+    <value>Опублікувати</value>
+  </data>
+  <data name="buttonRefresh" xml:space="preserve">
+    <value>Оновити</value>
+  </data>
+  <data name="buttonRemove" xml:space="preserve">
+    <value>Прибрати</value>
+  </data>
+  <data name="Difficulty" xml:space="preserve">
+    <value>Рівень складності</value>
+  </data>
+  <data name="DifficultyEasy" xml:space="preserve">
+    <value>Легкий</value>
+  </data>
+  <data name="DifficultyHard" xml:space="preserve">
+    <value>Складний</value>
+  </data>
+  <data name="DifficultyNormal" xml:space="preserve">
+    <value>Нормально</value>
+  </data>
+  <data name="ScreenCaptionScenario" xml:space="preserve">
+    <value>Сценарій</value>
+  </data>
+  <data name="NotificationSuitEnergyCriticalNoDamage" xml:space="preserve">
+    <value>Попередження: енергія скафандру критично низька.</value>
+  </data>
+  <data name="NotificationSuitEnergyLowNoDamage" xml:space="preserve">
+    <value>Заряд скафандру низький.</value>
+  </data>
+  <data name="ControlName_Helmet" xml:space="preserve">
+    <value>Шолом є / немає</value>
+  </data>
+  <data name="NotificationNoHelmetVariation" xml:space="preserve">
+    <value>Неможливо зняти шолом на цьому скафандрі.</value>
+  </data>
+  <data name="ReportBug" xml:space="preserve">
+    <value>Доповісти про помилку</value>
+  </data>
+  <data name="HudInfoHelmet" xml:space="preserve">
+    <value>Шолом</value>
+  </data>
+  <data name="ScreenDebugSpawnMenu_UpdatePlanet" xml:space="preserve">
+    <value>Оновити планету</value>
+  </data>
+  <data name="Terminal_ShowInTerminalToolTip" xml:space="preserve">
+    <value>Показати/приховати поточний блок в терміналі</value>
+  </data>
+  <data name="NotificationHelmetOff" xml:space="preserve">
+    <value>Шолом знято</value>
+  </data>
+  <data name="NotificationHelmetOn" xml:space="preserve">
+    <value>Шолом вдягнено</value>
+  </data>
+  <data name="BlockPropertiesText_MainCockpit" xml:space="preserve">
+    <value>Головна кабіна корабля</value>
+  </data>
+  <data name="TerminalControlPanel_Cockpit_MainCockpit" xml:space="preserve">
+    <value>Коловна кабіна</value>
+  </data>
+  <data name="NotificationHintNoAction" xml:space="preserve">
+    <value>Пустий</value>
+  </data>
+  <data name="BlockPropertyText_Button" xml:space="preserve">
+    <value>Кнопка</value>
+  </data>
+  <data name="BlockPropertyText_ButtonList" xml:space="preserve">
+    <value>Доступні кнопки</value>
+  </data>
+  <data name="BlockPropertyText_ButtonName" xml:space="preserve">
+    <value>Ім'я кнопки</value>
+  </data>
+  <data name="WorldSettings_Enable3rdPersonCamera" xml:space="preserve">
+    <value>Ввімкнути вигляд від третьої пики</value>
+  </data>
+  <data name="ControlName_ToolbarNextItem" xml:space="preserve">
+    <value>Наступний предмет на панелі інструментів</value>
+  </data>
+  <data name="ControlName_ToolbarPreviousItem" xml:space="preserve">
+    <value>Попередній предмет на панелі інструментів</value>
+  </data>
+  <data name="ControlTypeToolsOrWeapons2" xml:space="preserve">
+    <value>Інструменти / Зброя 2</value>
+  </data>
+  <data name="BlockPropertiesText_OxygenOutput" xml:space="preserve">
+    <value>Віддача кисню:</value>
+  </data>
+  <data name="DisplayName_Block_OxygenFarm" xml:space="preserve">
+    <value>Киснева ферма</value>
+  </data>
+  <data name="WorldSettings_Encounters" xml:space="preserve">
+    <value>Випадкові зіткнення</value>
+  </data>
+  <data name="ControlName_BuildMode" xml:space="preserve">
+    <value>Режим побудови</value>
+  </data>
+  <data name="ScreenControlMenu_Title" xml:space="preserve">
+    <value>Меню управління</value>
+  </data>
+  <data name="TerminalTab_Info_EnemyAntennaRange" xml:space="preserve">
+    <value>Показувати дистанцію до ворожих антен</value>
+  </data>
+  <data name="TerminalTab_Info_FriendlyAntennaRange" xml:space="preserve">
+    <value>Показувати дистанцію для дружніх антен</value>
+  </data>
+  <data name="TerminalTab_Info_OwnedAntennaRange" xml:space="preserve">
+    <value>Показувати дистанцію до своїх антен</value>
+  </data>
+  <data name="ScreenButtonBattle" xml:space="preserve">
+    <value>Сутичка</value>
+  </data>
+  <data name="ControlName_ControlMenu" xml:space="preserve">
+    <value>Відкрити меню управління</value>
+  </data>
+  <data name="DisplayName_Block_CryoChamber" xml:space="preserve">
+    <value>Кріокамера</value>
+  </data>
+  <data name="ControlMenuItemLabel_Lights" xml:space="preserve">
+    <value>Ліхтарі</value>
+  </data>
+  <data name="ControlMenuItemLabel_Terminal" xml:space="preserve">
+    <value>Показувати термінал</value>
+  </data>
+  <data name="ControlMenuItemValue_Off" xml:space="preserve">
+    <value>Вимк.</value>
+  </data>
+  <data name="ControlMenuItemValue_On" xml:space="preserve">
+    <value>Увімк.</value>
+  </data>
+  <data name="ControlMenuItemLabel_CameraMode" xml:space="preserve">
+    <value>Режим камери</value>
+  </data>
+  <data name="ControlMenuItemValue_FPP" xml:space="preserve">
+    <value>FPP</value>
+  </data>
+  <data name="ControlMenuItemValue_TPP" xml:space="preserve">
+    <value>TPP</value>
+  </data>
+  <data name="ControlName_MissionSettings" xml:space="preserve">
+    <value>Налаштування сценарію</value>
+  </data>
+  <data name="MissionScreenCaption" xml:space="preserve">
+    <value>Налаштування сценарію</value>
+  </data>
+  <data name="MissionTriggerOtherWon" xml:space="preserve">
+    <value>Інша сторона перемогла</value>
+  </data>
+  <data name="MissionTriggerReachPosition" xml:space="preserve">
+    <value>Досягнути позиції GPS</value>
+  </data>
+  <data name="GuiTriggerCaptionPositionLeft" xml:space="preserve">
+    <value>Залишити позицію GPS</value>
+  </data>
+  <data name="GuiTriggerCaptionPositionReached" xml:space="preserve">
+    <value>Досягнути позиції GPS</value>
+  </data>
+  <data name="GuiTriggerCaptionSomeoneWon" xml:space="preserve">
+    <value>Хтось переміг</value>
+  </data>
+  <data name="GuiTriggerMessage" xml:space="preserve">
+    <value>Повідомлення</value>
+  </data>
+  <data name="BlockIsNotPowered" xml:space="preserve">
+    <value>Блок не має живлення</value>
+  </data>
+  <data name="GuiMissionTriggersLostCondition" xml:space="preserve">
+    <value>Умова поразки:</value>
+  </data>
+  <data name="GuiMissionTriggersWinCondition" xml:space="preserve">
+    <value>Умова перемоги:</value>
+  </data>
+  <data name="GuiTriggerPasteGps" xml:space="preserve">
+    <value>Вставити GPS</value>
+  </data>
+  <data name="GuiTriggerPositionRadius" xml:space="preserve">
+    <value>Радіус</value>
+  </data>
+  <data name="TerminalControlPanel_RunArgument" xml:space="preserve">
+    <value>Аргумент</value>
+  </data>
+  <data name="ControlMenuItemLabel_Dampeners" xml:space="preserve">
+    <value>Стабілізатори</value>
+  </data>
+  <data name="TerminalControlPanel_RunArgument_ToolTip" xml:space="preserve">
+    <value>Аргумент переданий коду при натиснені Запуску</value>
+  </data>
+  <data name="ControlMenuItemLabel_Helmet" xml:space="preserve">
+    <value>Шолом</value>
+  </data>
+  <data name="ControlMenuItemLabel_Jetpack" xml:space="preserve">
+    <value>Реактивний ранець</value>
+  </data>
+  <data name="ControlMenuItemLabel_LandingGear" xml:space="preserve">
+    <value>Посадкові шасі</value>
+  </data>
+  <data name="ControlMenuItemLabel_Reactors" xml:space="preserve">
+    <value>Реактори</value>
+  </data>
+  <data name="ControlMenuItemLabel_Thrusts" xml:space="preserve">
+    <value>Пришвидшувачі</value>
+  </data>
+  <data name="ControlMenuItemLabel_Broadcasting" xml:space="preserve">
+    <value>Радіомовлення</value>
+  </data>
+  <data name="ControlMenuItemLabel_CommitSuicide" xml:space="preserve">
+    <value>Самогубство</value>
+  </data>
+  <data name="ControlMenuItemLabel_QuickLoad" xml:space="preserve">
+    <value>Швидке завантаження/пере-підключення</value>
+  </data>
+  <data name="ControlMenuItemLabel_ShowColorPicker" xml:space="preserve">
+    <value>Показати вибір кольору</value>
+  </data>
+  <data name="ControlMenuItemLabel_ShowTerminal" xml:space="preserve">
+    <value>Показувати термінал</value>
+  </data>
+  <data name="ControlMenuItemLabel_ShowToolbarScreen" xml:space="preserve">
+    <value>Показати  панель інструментів</value>
+  </data>
+  <data name="ControlMenuItemLabel_ToggleHud" xml:space="preserve">
+    <value>Перемкнути інтерфейс</value>
+  </data>
+  <data name="ControlMenuItemLabel_PauseGame" xml:space="preserve">
+    <value>Призупинити гру</value>
+  </data>
+  <data name="MessageBoxTextErrorFeatureNotAvailableYet" xml:space="preserve">
+    <value>Функція наразі недоступна</value>
+  </data>
+  <data name="NotificationMaximumNumberBots" xml:space="preserve">
+    <value>Досягнута максимальна кількість ботів</value>
+  </data>
+  <data name="DisplayName_Block_EffectivenessModule" xml:space="preserve">
+    <value>Модуль ефективності</value>
+  </data>
+  <data name="DisplayName_Block_PowerEfficiencyModule" xml:space="preserve">
+    <value>Модуль енергоефективності </value>
+  </data>
+  <data name="DisplayName_Block_ProductivityModule" xml:space="preserve">
+    <value>Модуль продуктивності</value>
+  </data>
+  <data name="WorldSettings_Battle" xml:space="preserve">
+    <value>Сутичка</value>
+  </data>
+  <data name="Hud_BuildMode" xml:space="preserve">
+    <value>Режим побудови</value>
+  </data>
+  <data name="NotificationJoystickCompoundBuildingFormat" xml:space="preserve">
+    <value>Press {0} to toggle compound building</value>
+  </data>
+  <data name="BlockActionTitle_Extend" xml:space="preserve">
+    <value>Розширити</value>
+  </data>
+  <data name="BlockActionTitle_Retract" xml:space="preserve">
+    <value>Прибрати</value>
+  </data>
+  <data name="NotificationJoystickControlMenuFormat" xml:space="preserve">
+    <value>Натисніть {0}, аби відкрити головне меню</value>
+  </data>
+  <data name="NotificationJoystickMenus" xml:space="preserve">
+    <value>In order to show help or modify toolbar, open control menu</value>
+  </data>
+  <data name="NotificationJoystickSlotEquipFormat" xml:space="preserve">
+    <value>Натисніть {0} або {1}, для вибору комірок на панелі інструментів</value>
+  </data>
+  <data name="NotificationJoystickUnlimitedBuildingFormat" xml:space="preserve">
+    <value>Натисніть {0}, аби додати блок, також, натисніть {1}, аби його вилучити.</value>
+  </data>
+  <data name="NotificationJoystickVoxelMaterialFormat" xml:space="preserve">
+    <value>Натисніть {0}, щоб змінити матеріал</value>
+  </data>
+  <data name="Notification_GameplayOptions" xml:space="preserve">
+    <value>Press {0} to change Gameplay options</value>
+  </data>
+  <data name="ControlMenuItemLabel_Wardrobe" xml:space="preserve">
+    <value>Змінити зовнішній вигляд</value>
+  </data>
+  <data name="NotificationHintJoystickPressToOpenControlPanel" xml:space="preserve">
+    <value>Access control menu to open control panel of {0}</value>
+  </data>
+  <data name="NotificationHintJoystickPressToOpenTerminal" xml:space="preserve">
+    <value>Access control menu to open terminal</value>
+  </data>
+  <data name="ControlMenuItemLabel_OpenInventory" xml:space="preserve">
+    <value>Відкрити інвентар</value>
+  </data>
+  <data name="ControlMenuItemLabel_SetupButtons" xml:space="preserve">
+    <value>Налаштування кнопок</value>
+  </data>
+  <data name="ControlMenuItemLabel_ShowControlPanel" xml:space="preserve">
+    <value>Показати панель керування</value>
+  </data>
+  <data name="NotificationHintJoystickPressToOpenButtonPanel" xml:space="preserve">
+    <value>Access control menu to setup panel's buttons</value>
+  </data>
+  <data name="NotificationHintJoystickPressToOpenInventory" xml:space="preserve">
+    <value>Access control menu to open inventory of {0}</value>
+  </data>
+  <data name="NotificationHintPressToOpenBuildMode" xml:space="preserve">
+    <value>Натисніть {0}, аби перейти до режиму побудови</value>
+  </data>
+  <data name="DialogTextJoiningBattleLobby" xml:space="preserve">
+    <value>Приєднання до лобі поєдинку</value>
+  </data>
+  <data name="DialogTextJoinBattleLobbyFailed" xml:space="preserve">
+    <value>Не вдалося приєднатися лобі поєдинку, причина: {0}</value>
+  </data>
+  <data name="NotificationHintPressToEnterCryochamber" xml:space="preserve">
+    <value>Натисніть {0}, аби відкрити кріокамеру</value>
+  </data>
+  <data name="NotificationHintLeaveCryoChamber" xml:space="preserve">
+    <value>Натисніть {0}, аби залишити кріокамеру</value>
+  </data>
+  <data name="DisplayName_Item_ScrapIngot" xml:space="preserve">
+    <value>Старий металобрухт</value>
+  </data>
+  <data name="BlockActionTitle_AddWaypoint" xml:space="preserve">
+    <value>Додати</value>
+  </data>
+  <data name="BlockActionTitle_MoveWaypointDown" xml:space="preserve">
+    <value>Рух вниз</value>
+  </data>
+  <data name="BlockActionTitle_MoveWaypointUp" xml:space="preserve">
+    <value>Рух вгору</value>
+  </data>
+  <data name="BlockActionTitle_RemoveWaypoint" xml:space="preserve">
+    <value>Прибрати</value>
+  </data>
+  <data name="BlockPropertyTitle_AutoPilot" xml:space="preserve">
+    <value>Автопілот</value>
+  </data>
+  <data name="BlockPropertyTitle_FlightMode" xml:space="preserve">
+    <value>Режим польоту</value>
+  </data>
+  <data name="BlockPropertyTitle_FlightMode_Circle" xml:space="preserve">
+    <value>По колу</value>
+  </data>
+  <data name="BlockPropertyTitle_FlightMode_OneWay" xml:space="preserve">
+    <value>Один раз</value>
+  </data>
+  <data name="BlockPropertyTitle_FlightMode_Patrol" xml:space="preserve">
+    <value>Патрулювання</value>
+  </data>
+  <data name="BlockPropertyTitle_GpsLocations" xml:space="preserve">
+    <value>GPS кординати</value>
+  </data>
+  <data name="BlockPropertyTitle_Waypoints" xml:space="preserve">
+    <value>Точки руху</value>
+  </data>
+  <data name="BlockPropertyPopup_AutoPilotToolbarOpen" xml:space="preserve">
+    <value>Set actions to be done when autopilot reaches this waypoint</value>
+  </data>
+  <data name="BlockPropertyTitle_AutoPilotToolbarOpen" xml:space="preserve">
+    <value>Setup Actions</value>
+  </data>
+  <data name="Notification_NoControlAutoPilot" xml:space="preserve">
+    <value>Автопілот увімкнено</value>
+  </data>
+  <data name="WorldSettings_Physics" xml:space="preserve">
+    <value>Фізика</value>
+  </data>
+  <data name="WorldSettings_Physics_Fast" xml:space="preserve">
+    <value>Швидше</value>
+  </data>
+  <data name="WorldSettings_Physics_Normal" xml:space="preserve">
+    <value>Звичайна</value>
+  </data>
+  <data name="WorldSettings_Physics_Precise" xml:space="preserve">
+    <value>Детальна</value>
+  </data>
+  <data name="WorldSettings_Physics_Tooltip" xml:space="preserve">
+    <value>Higher settings improve simulation BUT directly affects performance.</value>
+  </data>
+  <data name="ScreenCaptionGraphicsOptions" xml:space="preserve">
+    <value>Графічні параметри</value>
+  </data>
+  <data name="ScreenGraphicsOptions_AnisotropicFiltering" xml:space="preserve">
+    <value>Анізотропне фільтрування</value>
+  </data>
+  <data name="ScreenGraphicsOptions_AnisotropicFiltering_Off" xml:space="preserve">
+    <value>Вимк.</value>
+  </data>
+  <data name="ScreenGraphicsOptions_AntiAliasing" xml:space="preserve">
+    <value>Згладжування</value>
+  </data>
+  <data name="ScreenGraphicsOptions_AntiAliasing_None" xml:space="preserve">
+    <value>Відсутнє</value>
+  </data>
+  <data name="ScreenGraphicsOptions_FoliageDetails" xml:space="preserve">
+    <value>Foliage details</value>
+  </data>
+  <data name="ScreenGraphicsOptions_FoliageDetails_Disabled" xml:space="preserve">
+    <value>Вимкнено</value>
+  </data>
+  <data name="ScreenGraphicsOptions_FoliageDetails_High" xml:space="preserve">
+    <value>Високі</value>
+  </data>
+  <data name="ScreenGraphicsOptions_FoliageDetails_Low" xml:space="preserve">
+    <value>Низькі</value>
+  </data>
+  <data name="ScreenGraphicsOptions_FoliageDetails_Medium" xml:space="preserve">
+    <value>Середні</value>
+  </data>
+  <data name="ScreenGraphicsOptions_MultiThreadedRendering" xml:space="preserve">
+    <value>Багатопотокове формування зображення</value>
+  </data>
+  <data name="ScreenGraphicsOptions_QualityPreset" xml:space="preserve">
+    <value>Quality preset</value>
+  </data>
+  <data name="ScreenGraphicsOptions_QualityPreset_Custom" xml:space="preserve">
+    <value>Свої</value>
+  </data>
+  <data name="ScreenGraphicsOptions_QualityPreset_High" xml:space="preserve">
+    <value>Високі</value>
+  </data>
+  <data name="ScreenGraphicsOptions_QualityPreset_Low" xml:space="preserve">
+    <value>Низькі</value>
+  </data>
+  <data name="ScreenGraphicsOptions_QualityPreset_Medium" xml:space="preserve">
+    <value>Середні</value>
+  </data>
+  <data name="ScreenGraphicsOptions_Renderer" xml:space="preserve">
+    <value>Рендерер</value>
+  </data>
+  <data name="ScreenGraphicsOptions_ShadowMapResolution" xml:space="preserve">
+    <value>Дозвіл карти тіней</value>
+  </data>
+  <data name="ScreenGraphicsOptions_ShadowMapResolution_High" xml:space="preserve">
+    <value>Високе</value>
+  </data>
+  <data name="ScreenGraphicsOptions_ShadowMapResolution_Low" xml:space="preserve">
+    <value>Низьке</value>
+  </data>
+  <data name="ScreenGraphicsOptions_TextureQuality" xml:space="preserve">
+    <value>Якість текстур</value>
+  </data>
+  <data name="ScreenGraphicsOptions_TextureQuality_High" xml:space="preserve">
+    <value>Висока</value>
+  </data>
+  <data name="ScreenGraphicsOptions_TextureQuality_Low" xml:space="preserve">
+    <value>Низька</value>
+  </data>
+  <data name="ScreenGraphicsOptions_TextureQuality_Medium" xml:space="preserve">
+    <value>Посередня</value>
+  </data>
+  <data name="ToolTipVideoOptionsRenderer" xml:space="preserve">
+    <value>Зміна параметрів візуалізації потрібен перезапуск гри</value>
+  </data>
+  <data name="StationRotation_Static" xml:space="preserve">
+    <value>Station rotation</value>
+  </data>
+  <data name="StationRotation_Static_Desc" xml:space="preserve">
+    <value>Enables rotation of station block</value>
+  </data>
+  <data name="NotificationStationRotation" xml:space="preserve">
+    <value>Station rotation mode</value>
+  </data>
+  <data name="ControlName_VoiceChat" xml:space="preserve">
+    <value>Push-to-talk voice chat</value>
+  </data>
+  <data name="EnableVoiceChat" xml:space="preserve">
+    <value>Enable voice chat</value>
+  </data>
+  <data name="MessageBoxTextRestartNeededAfterRendererSwitch" xml:space="preserve">
+    <value>Applied changes will be visible after restarting the game</value>
+  </data>
+  <data name="GuiScenarioPlayerName" xml:space="preserve">
+    <value>Player name</value>
+  </data>
+  <data name="GuiScenarioPlayerStatus" xml:space="preserve">
+    <value>Status</value>
+  </data>
+  <data name="GuiScenarioSend" xml:space="preserve">
+    <value>Send</value>
+  </data>
+  <data name="GuiScenarioStart" xml:space="preserve">
+    <value>Start</value>
+  </data>
+  <data name="BlockPropertyTitle_EnableDockingMode" xml:space="preserve">
+    <value>Precision Mode</value>
+  </data>
+  <data name="BlockPropertyTitle_ForwardDirection" xml:space="preserve">
+    <value>Forward Direction</value>
+  </data>
+  <data name="BlockActionTitle_RemoteCopy" xml:space="preserve">
+    <value>Copy</value>
+  </data>
+  <data name="BlockActionTitle_RemotePaste" xml:space="preserve">
+    <value>Paste</value>
+  </data>
+  <data name="BlockActionTitle_WaypointReset" xml:space="preserve">
+    <value>Reset waypoint</value>
+  </data>
+  <data name="BlockActionTooltip_WaypointReset" xml:space="preserve">
+    <value>Resets current waypoint to first position</value>
+  </data>
+  <data name="GuiScenarioTimeout" xml:space="preserve">
+    <value>Connection timeout:</value>
+  </data>
+  <data name="GuiScenarioTimeout10min" xml:space="preserve">
+    <value>10 min</value>
+  </data>
+  <data name="GuiScenarioTimeout3min" xml:space="preserve">
+    <value>3 min</value>
+  </data>
+  <data name="GuiScenarioTimeout5min" xml:space="preserve">
+    <value>5 min</value>
+  </data>
+  <data name="GuiScenarioTimeoutUnlimited" xml:space="preserve">
+    <value>Unlimited</value>
+  </data>
+  <data name="WorldSettings_GameScenario" xml:space="preserve">
+    <value>Scenario</value>
   </data>
 </root>

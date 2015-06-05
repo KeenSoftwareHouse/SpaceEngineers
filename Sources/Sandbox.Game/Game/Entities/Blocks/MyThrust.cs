@@ -39,9 +39,10 @@ namespace Sandbox.Game.Entities
     using Sandbox.Game.Localization;
     using Sandbox.ModAPI;
     using VRage.Audio;
+    using VRage.ModAPI;
 
     [MyCubeBlockType(typeof(MyObjectBuilder_Thrust))]
-    class MyThrust : MyFunctionalBlock, IMyThrust
+    public class MyThrust : MyFunctionalBlock, IMyThrust
     {
         public struct FlameInfo
         {
@@ -96,7 +97,7 @@ namespace Sandbox.Game.Entities
 
         private List<MyPhysics.HitInfo> m_gridRayCastLst;
         private List<HkRigidBody> m_flameCollisionsList;
-        private List<Sandbox.ModAPI.IMyEntity> m_damagedEntities;
+        private List<IMyEntity> m_damagedEntities;
 
         public bool IsPowered
         {
@@ -105,12 +106,12 @@ namespace Sandbox.Game.Entities
 
         public float MaxPowerConsumption
         {
-            get { return m_thrustDefinition.MaxPowerConsumption; }
+            get { return m_thrustDefinition.MaxPowerConsumption * m_powerConsumptionMultiplier; }
         }
 
         public float MinPowerConsumption
         {
-            get { return m_thrustDefinition.MinPowerConsumption; }
+            get { return m_thrustDefinition.MinPowerConsumption * m_powerConsumptionMultiplier; }
         }
 
         public float CurrentStrength { get; set; }
@@ -118,7 +119,18 @@ namespace Sandbox.Game.Entities
         /// <summary>
         /// Overridden thrust in Newtons
         /// </summary>
-        public float ThrustOverride { get; private set; }
+        private float m_thrustOverride;
+        public float ThrustOverride 
+        {
+            get
+            {
+                return m_thrustOverride * m_thrustMultiplier;
+            }
+            private set
+            {
+                m_thrustOverride = value;
+            }
+        }
 
         protected override bool CheckIsWorking()
         {
@@ -225,7 +237,7 @@ namespace Sandbox.Game.Entities
             Render.NeedsDrawFromParent = true;
             NeedsUpdate = MyEntityUpdateEnum.EACH_10TH_FRAME | MyEntityUpdateEnum.EACH_100TH_FRAME;
             m_flameCollisionsList = new List<HkRigidBody>();
-            m_damagedEntities = new List<Sandbox.ModAPI.IMyEntity>();
+            m_damagedEntities = new List<IMyEntity>();
             m_gridRayCastLst = new List<MyPhysics.HitInfo>();
             Render = new MyRenderComponentThrust();
             AddDebugRenderComponent(new MyDebugRenderComponentThrust(this));
@@ -273,6 +285,8 @@ namespace Sandbox.Game.Entities
 
             m_light.Start(MyLight.LightTypeEnum.PointLight, 1);
             SyncObject = new MySyncThruster(this);
+
+            UpdateDetailedInfo();
         }
 
         public override void OnRegisteredToGridSystems()
@@ -462,6 +476,19 @@ namespace Sandbox.Game.Entities
             }
         }
 
+        private void UpdateDetailedInfo()
+        {
+            DetailedInfo.Clear();
+            DetailedInfo.AppendStringBuilder(MyTexts.Get(MySpaceTexts.BlockPropertiesText_Type));
+            DetailedInfo.Append(BlockDefinition.DisplayNameText);
+            DetailedInfo.AppendFormat("\n");
+            DetailedInfo.AppendStringBuilder(MyTexts.Get(MySpaceTexts.BlockPropertiesText_MaxRequiredInput));
+            MyValueFormatter.AppendWorkInBestUnit(MaxPowerConsumption, DetailedInfo);
+            DetailedInfo.AppendFormat("\n");
+
+            RaisePropertiesChanged();
+        }
+
         private string GetDirectionString()
         {
             var cockpit = MySession.ControlledEntity as MyCockpit;
@@ -507,6 +534,30 @@ namespace Sandbox.Game.Entities
                 {
                     m_thrustSystem.MarkDirty();
                 }
+            }
+        }
+
+        private float m_powerConsumptionMultiplier = 1f;
+        float Sandbox.ModAPI.IMyThrust.PowerConsumptionMultiplier
+        {
+            get
+            {
+                return m_powerConsumptionMultiplier;
+            }
+            set
+            {
+                m_powerConsumptionMultiplier = value;
+                if (m_powerConsumptionMultiplier < 0.01f)
+                {
+                    m_powerConsumptionMultiplier = 0.01f;
+                }
+
+                if (m_thrustSystem != null)
+                {
+                    m_thrustSystem.MarkDirty();
+                }
+
+                UpdateDetailedInfo();
             }
         }
     }

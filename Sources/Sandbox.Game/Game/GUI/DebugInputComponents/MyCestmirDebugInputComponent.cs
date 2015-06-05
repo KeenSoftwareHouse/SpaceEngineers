@@ -21,6 +21,7 @@ using VRageMath;
 using Sandbox.ModAPI;
 using VRage.Library.Utils;
 using System.Linq;
+using VRage.ModAPI;
 
 namespace Sandbox.Game.Gui
 {
@@ -241,9 +242,10 @@ namespace Sandbox.Game.Gui
         {
             AddShortcut(MyKeys.NumPad0, true, false, false, false, () => "Add prefab...", AddPrefab);
             AddShortcut(MyKeys.NumPad2, true, false, false, false, () => "Copy target grid position to clipboard", CaptureGridPosition);
+            //AddShortcut(MyKeys.L, true, false, false, false, () => "Test", EmitTestAction);
             if (MyPerGameSettings.EnableAi)
             {
-                AddShortcut(MyKeys.L, true, false, false, false, () => "Test polygon intersection", Test2);
+                //AddShortcut(MyKeys.L, true, false, false, false, () => "Test polygon intersection", Test2);
 
                 AddShortcut(MyKeys.Multiply, true, false, false, false, () => "Next navmesh connection helper bin", NextBin);
                 AddShortcut(MyKeys.Divide, true, false, false, false, () => "Prev navmesh connection helper bin", PrevBin);
@@ -378,6 +380,14 @@ namespace Sandbox.Game.Gui
 
                 return 0;
             }
+        }
+
+        private bool EmitTestAction()
+        {
+            if (TestAction != null)
+                TestAction();
+
+            return true;
         }
 
         private bool Test()
@@ -602,9 +612,6 @@ namespace Sandbox.Game.Gui
 
                     }
                 }*/
-
-                if (TestAction != null)
-                    TestAction();
             }
             return true;
         }
@@ -1084,7 +1091,7 @@ namespace Sandbox.Game.Gui
         private bool FindPath()
         {
             Vector3D? firstHit;
-            ModAPI.IMyEntity entity;
+            IMyEntity entity;
             Raycast(out firstHit, out entity);
 
             if (firstHit.HasValue)
@@ -1099,7 +1106,7 @@ namespace Sandbox.Game.Gui
         private bool FindBotPath()
         {
             Vector3D? firstHit;
-            ModAPI.IMyEntity entity;
+            IMyEntity entity;
             Raycast(out firstHit, out entity);
 
             if (firstHit.HasValue)
@@ -1139,7 +1146,7 @@ namespace Sandbox.Game.Gui
             var ctrlEntity = MySession.ControlledEntity;
             if (ctrlEntity != null)
             {
-                var grid = ctrlEntity.Entity.Hierarchy.GetTopMostParent().Entity as MyCubeGrid;
+                var grid = ctrlEntity.Entity.Hierarchy.GetTopMostParent().Container.Entity as MyCubeGrid;
                 if (grid != null)
                 {
                     List<MyCubeBlock> blocks = new List<MyCubeBlock>();
@@ -1186,7 +1193,7 @@ namespace Sandbox.Game.Gui
             return base.HandleInput();
         }
 
-        private static void Raycast(out Vector3D? firstHit, out ModAPI.IMyEntity entity)
+        private static void Raycast(out Vector3D? firstHit, out IMyEntity entity)
         {
             var cam = MySector.MainCamera;
             var hitList = new List<Sandbox.Engine.Physics.MyPhysics.HitInfo>();

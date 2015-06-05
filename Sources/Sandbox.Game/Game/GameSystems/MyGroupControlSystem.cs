@@ -74,7 +74,7 @@ namespace Sandbox.Game.GameSystems
                 foreach (var grid in m_cubeGrids)
                 {
                     Debug.Assert(m_firstControlRecalculation || Sync.Players.GetControllingPlayer(grid) == null);
-                    Debug.Assert(m_currentShipController.ControllerInfo.Controller != null, "Trying to extend control from uncontrolled cockpit!");
+                    Debug.Assert(m_currentShipController.ControllerInfo.Controller != null || m_currentShipController is MyRemoteControl, "Trying to extend control from uncontrolled cockpit!");
 
                     Sync.Players.TryExtendControl(m_currentShipController, grid);
                 }
@@ -162,6 +162,11 @@ namespace Sandbox.Game.GameSystems
         public MyEntityController GetController()
         {
             return m_currentShipController == null ? null : m_currentShipController.ControllerInfo.Controller;
+        }
+
+        public MyShipController GetShipController()
+        {
+            return m_currentShipController;
         }
 
         public bool IsControlled

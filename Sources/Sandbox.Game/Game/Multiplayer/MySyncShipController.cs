@@ -12,11 +12,12 @@ using VRageMath;
 using Sandbox.Game.AI;
 using ProtoBuf;
 using SteamSDK;
+using VRage;
 
 namespace Sandbox.Game.Multiplayer
 {
     [PreloadRequired]
-    class MySyncShipController : MySyncControllableEntity
+    public class MySyncShipController : MySyncControllableEntity
     {
         [MessageIdAttribute(2480, P2PMessageEnum.Reliable)]
         protected struct UpdatePilotRelativeEntryMsg : IEntityMessage
@@ -40,11 +41,11 @@ namespace Sandbox.Game.Multiplayer
         [MessageIdAttribute(2487, P2PMessageEnum.Reliable)]
         protected struct AttachAutopilotMsg : IEntityMessage
         {
-            [ProtoMember(1)]
+            [ProtoMember]
             public long EntityId;
             public long GetEntityId() { return EntityId; }
 
-            [ProtoMember(2)]
+            [ProtoMember]
             public MyObjectBuilder_AutopilotBase Autopilot;
         }
 

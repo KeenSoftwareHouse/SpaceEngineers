@@ -30,8 +30,7 @@ namespace VRage.Network
         public event Action OnInvalidPassword;
         public event Action<List<ulong>> OnModListRecieved;
         public event Action OnAlreadyConnected;
-        public event Action<uint, uint, uint> OnWorldDownloadProgress;
-        public event Action<System.IO.MemoryStream> OnWorldRecieved;
+        public event Action<uint, uint, uint> OnStateDataDownloadProgress;
         public event Action OnDisconnectionNotification;
 
         private void RegisterHandlers()
@@ -44,7 +43,7 @@ namespace VRage.Network
 
             AddMessageHandler(MessageIDEnum.CONNECTION_REQUEST_ACCEPTED, SendClientData);
             AddMessageHandler(MessageIDEnum.SERVER_DATA, ServerData);
-            AddMessageHandler(MessageIDEnum.WORLD_DATA, WorldData);
+            AddMessageHandler(MessageIDEnum.STATE_DATA, StateData);
             AddMessageHandler(MessageIDEnum.DOWNLOAD_PROGRESS, DownloadProgress);
 
             AddMessageHandler(MessageIDEnum.REMOTE_CLIENT_CONNECTED, RemoteClientConnected);
@@ -59,6 +58,10 @@ namespace VRage.Network
             if (handler != null)
                 handler();
 
+            foreach (var guid in m_steamIDToGUID.Values)
+            {
+                guid.Delete();
+            }
             m_steamIDToGUID.Clear();
             m_GUIDToSteamID.Clear();
         }
@@ -105,24 +108,19 @@ namespace VRage.Network
             success = bs.Read(out msgID);
             Debug.Assert(success, "Failed to read message ID");
 
-            if ((MessageIDEnum)msgID == MessageIDEnum.WORLD_DATA)
+            if ((MessageIDEnum)msgID == MessageIDEnum.STATE_DATA)
             {
-                var handler = OnWorldDownloadProgress;
+                var handler = OnStateDataDownloadProgress;
                 if (handler != null)
                     handler(progress, total, partLength);
             }
         }
 
-        private void WorldData(Packet packet)
+        private void StateData(Packet packet)
         {
             m_peer.SetSplitMessageProgressInterval(0);
 
-            using (var worldStream = new System.IO.MemoryStream(packet.Data.GetData(), 1, (int)packet.Length - 1, false))
-            {
-                var handler = OnWorldRecieved;
-                if (handler != null)
-                    handler(worldStream);
-            }
+            MyRakNetSyncLayer.Static.DeserializeStateData(packet.Data);
 
             SendClientReady();
         }
@@ -164,8 +162,9 @@ namespace VRage.Network
             Debug.Assert(success, "Failed to read serverID");
             ServerId = (ulong)tmpLong;
 
-            m_steamIDToGUID[ServerId] = packet.GUID;
-            m_GUIDToSteamID[packet.GUID.G] = ServerId;
+            var guid = new RakNetGUID(packet.GUID);
+            m_steamIDToGUID.Add(ServerId, guid);
+            m_GUIDToSteamID.Add(guid.G, ServerId);
 
             RaiseOnClientJoined(ServerId);
 
@@ -197,14 +196,14 @@ namespace VRage.Network
 
             MyRakNetSyncLayer.Static.SetTypeTable(types);
 
-            SendWorldRequest();
+            SendStateDataRequest();
         }
 
-        private void SendWorldRequest()
+        private void SendStateDataRequest()
         {
             m_peer.SetSplitMessageProgressInterval(1); // MTU
             BitStream bs = new BitStream(null);
-            bs.Write((byte)MessageIDEnum.REQUEST_WORLD);
+            bs.Write((byte)MessageIDEnum.STATE_DATA_REQUEST);
             SendMessageToServer(bs, PacketPriorityEnum.IMMEDIATE_PRIORITY, PacketReliabilityEnum.RELIABLE);
         }
 

@@ -1,42 +1,56 @@
 ﻿#region Using
 
 using Sandbox.Common.Components;
-using Sandbox.Common.ObjectBuilders;
 using Sandbox.Engine.Utils;
-using Sandbox.Game.Components;
-using Sandbox.Game.Multiplayer;
-using Sandbox.Game.World;
 using System;
 using System.Collections.Generic;
+using VRage.Components;
+using VRage.Utils;
 using VRageMath;
 
 #endregion
 
 namespace Sandbox.Game.Entities
 {
-    [MyEntityType(typeof(MyObjectBuilder_PlaceArea))]
-    class MyPlaceArea : MyEntity
+    public abstract class MyPlaceArea : MyEntityComponentBase
     {
         public int PlaceAreaProxyId = MyConstants.PRUNING_PROXY_ID_UNITIALIZED;
 
-        public MyPlaceArea() 
-        {
-            this.PositionComp = new MyPositionComponent();
-            PositionComp.LocalMatrix = Matrix.Identity;
+        public abstract BoundingBoxD WorldAABB { get; }
+        public MyStringId AreaType { get; private set; }
 
-            AddDebugRenderComponent(new MyDebugRenderComponent(this));
+        public static MyPlaceArea FromEntity(long entityId)
+        {
+            MyPlaceArea area = null;
+            MyEntity entity = null;
+            if (!MyEntities.TryGetEntityById(entityId, out entity))
+                return area;
+
+            if (entity.Components.TryGet<MyPlaceArea>(out area))
+                return area;
+            else
+                return null;
         }
 
-        public override void OnAddedToScene(object source)
+        public MyPlaceArea(MyStringId areaType)
         {
-            base.OnAddedToScene(source);
+            AreaType = areaType;
+        }
+
+        public override void OnAddedToContainer()
+        {
+            base.OnAddedToContainer();
             MyPlaceAreas.AddPlaceArea(this);
         }
 
-        public override void OnRemovedFromScene(object source)
+        public override void OnRemovedFromContainer()
         {
             MyPlaceAreas.RemovePlaceArea(this);
-            base.OnRemovedFromScene(source);
+            base.OnRemovedFromContainer();
         }
+
+		public abstract double DistanceSqToPoint(Vector3D point);
+
+        public abstract bool TestPoint(Vector3D point);
     }
 }

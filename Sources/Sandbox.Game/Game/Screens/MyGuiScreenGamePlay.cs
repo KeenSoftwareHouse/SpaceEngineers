@@ -13,6 +13,7 @@ using Sandbox.Game.Multiplayer;
 using Sandbox.Game.Screens;
 using Sandbox.Game.Screens.Helpers;
 using Sandbox.Game.SessionComponents;
+using Sandbox.Game.VoiceChat;
 using Sandbox.Game.World;
 using Sandbox.Graphics;
 using Sandbox.Graphics.GUI;
@@ -183,7 +184,7 @@ namespace Sandbox.Game.Gui
         //  This method is called every update (but only if application has focus)
         public override void HandleUnhandledInput(bool receivedFocusInThisUpdate)
         {
-            if (MyInput.Static.ENABLE_DEVELOPER_KEYS || (MySession.Static != null && MySession.Static.Settings.EnableSpectator))
+            if (MyInput.Static.ENABLE_DEVELOPER_KEYS || (MySession.Static != null && MySession.Static.Settings.EnableSpectator) || (MyMultiplayer.Static != null && MySession.LocalHumanPlayer != null && MyMultiplayer.Static.IsAdmin(MySession.LocalHumanPlayer.Id.SteamId)))
             {
                 //Set camera to player
                 if (MyInput.Static.IsNewGameControlPressed(MyControlsSpace.SPECTATOR_NONE))
@@ -538,6 +539,18 @@ namespace Sandbox.Game.Gui
                         MyGuiSandbox.AddScreen(chatScreen);
                     }
                 }
+
+                if (MyPerGameSettings.VoiceChatEnabled)
+                {
+                    if (MyControllerHelper.IsControl(context, MyControlsSpace.VOICE_CHAT, MyControlStateType.NEW_PRESSED))
+                    {
+                        MyVoiceChatSessionComponent.Static.StartRecording();
+                    }
+                    else if (MyControllerHelper.IsControl(context, MyControlsSpace.VOICE_CHAT, MyControlStateType.NEW_RELEASED))
+                    {
+                        MyVoiceChatSessionComponent.Static.StopRecording();
+                    }
+                }
             }
 
             MoveAndRotatePlayerOrCamera();
@@ -702,7 +715,23 @@ namespace Sandbox.Game.Gui
                         MyThirdPersonSpectator.Static.UpdateZoom();
 
                     if (!MyInput.Static.IsGameControlPressed(MyControlsSpace.LOOKAROUND))
+                    {
+                                                
                         MySession.ControlledEntity.MoveAndRotate(moveIndicator, rotationIndicator, rollIndicator);
+                        
+                        if (MyFakes.CHARACTER_SERVER_SYNC)
+                        {
+                            foreach (var player in Sync.Players.GetOnlinePlayers())
+                            {
+                                if (MySession.ControlledEntity != player.Character)
+                                {
+                                    //Values are set inside method from sync object
+                                    if (player.Character != null)
+                                        player.Character.MoveAndRotate(Vector3.Zero, Vector2.Zero, 0);
+                                }
+                            }
+                        }
+                    }
                     else
                     {
                         MySession.ControlledEntity.MoveAndRotate(moveIndicator, Vector2.Zero, rollIndicator);
@@ -858,7 +887,17 @@ namespace Sandbox.Game.Gui
             //    VRageRender.MyRenderProxy.DebugDrawAxis(m, 1, false);
             //}
 
-            MySector.MainCamera.SetViewMatrix(MySession.Static.CameraController.GetViewMatrix());
+            MatrixD viewMatrix = MySession.Static.CameraController.GetViewMatrix();
+            if (viewMatrix.IsValid() && viewMatrix != MatrixD.Zero)            
+            {
+                MySector.MainCamera.SetViewMatrix(viewMatrix);
+            }
+            else
+            {
+                Debug.Fail("Camera matrix is invalid or zero!");
+            }
+
+            
 
             VRageRender.MyRenderProxy.UpdateGodRaysSettings(
                 MySector.GodRaysProperties.Enabled,
@@ -954,7 +993,8 @@ namespace Sandbox.Game.Gui
                 MySector.DistanceToSun,
                 MySector.SunProperties.SunMaterial,
                 MySector.DayTime,
-                MySector.ResetEyeAdaptation
+                MySector.ResetEyeAdaptation,
+                MyFakes.ENABLE_SUN_BILLBOARD
             );
             MySector.ResetEyeAdaptation = false;
             VRageRender.MyRenderProxy.UpdateEnvironmentMap();

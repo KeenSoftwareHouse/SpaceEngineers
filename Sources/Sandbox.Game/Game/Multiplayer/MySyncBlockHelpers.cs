@@ -47,12 +47,12 @@ namespace Sandbox.Game.Multiplayer
         [ProtoContract]
         struct ChangeNameMsg : IEntityMessage
         {
-            [ProtoMember(1)]
+            [ProtoMember]
             public long EntityId;
 
             public long GetEntityId() { return EntityId; }
 
-            [ProtoMember(2)]
+            [ProtoMember]
             public string Name;
 
             public override string ToString()
@@ -63,6 +63,22 @@ namespace Sandbox.Game.Multiplayer
 
         [MessageId(15273, P2PMessageEnum.Reliable)]
         struct ShowInTerminalMsg : IEntityMessage
+        {
+            public long EntityId;
+
+            public long GetEntityId() { return EntityId; }
+
+            public BoolBlit Show;
+
+            public override string ToString()
+            {
+                return String.Format("{0}, {1}", this.GetType().Name, this.GetEntityText());
+            }
+        }
+
+        // TODO: Find out a correct value for the message ID
+        [MessageId(15274, P2PMessageEnum.Reliable)]
+        struct ShowInToolbarConfigMsg : IEntityMessage
         {
             public long EntityId;
 
@@ -90,6 +106,8 @@ namespace Sandbox.Game.Multiplayer
             MySyncLayer.RegisterMessage<ShowInTerminalMsg>(ShowInTerminalRequest, MyMessagePermissions.ToServer, MyTransportMessageEnum.Request);
             MySyncLayer.RegisterMessage<ShowInTerminalMsg>(ShowInTerminalSuccess, MyMessagePermissions.FromServer, MyTransportMessageEnum.Success);
 
+            MySyncLayer.RegisterMessage<ShowInToolbarConfigMsg>(ShowInToolbarConfigRequest, MyMessagePermissions.ToServer, MyTransportMessageEnum.Request);
+            MySyncLayer.RegisterMessage<ShowInToolbarConfigMsg>(ShowInToolbarConfigSuccess, MyMessagePermissions.FromServer, MyTransportMessageEnum.Success);
         }
 
         static bool GetBlock<T>(long entityId, out T block)
@@ -229,6 +247,33 @@ namespace Sandbox.Game.Multiplayer
             if (GetBlock(msg.EntityId, out block))
             {
                 block.ShowInTerminal = msg.Show;
+            }
+        }
+
+        public static void SendShowInToolbarConfigRequest(MyTerminalBlock block, bool show)
+        {
+            var msg = new ShowInToolbarConfigMsg();
+            msg.EntityId = block.EntityId;
+            msg.Show = show;
+
+            Sync.Layer.SendMessageToServer(ref msg, MyTransportMessageEnum.Request);
+        }
+
+        static void ShowInToolbarConfigRequest(ref ShowInToolbarConfigMsg msg, MyNetworkClient sender)
+        {
+            MyTerminalBlock block;
+            if (GetBlock(msg.EntityId, out block))
+            {
+                Sync.Layer.SendMessageToAllAndSelf(ref msg, MyTransportMessageEnum.Success);
+            }
+        }
+
+        static void ShowInToolbarConfigSuccess(ref ShowInToolbarConfigMsg msg, MyNetworkClient sender)
+        {
+            MyTerminalBlock block;
+            if (GetBlock(msg.EntityId, out block))
+            {
+                block.ShowInToolbarConfig = msg.Show;
             }
         }
     }

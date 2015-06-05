@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using VRage.ObjectBuilders;
 
 namespace Sandbox.ModAPI
 { 
@@ -32,18 +33,18 @@ namespace Sandbox.ModAPI
             [MessageIdAttribute(16295, P2PMessageEnum.Reliable)]
             struct CustomModMsg
             {
-                [ProtoBuf.ProtoMember(1)]
+                [ProtoBuf.ProtoMember]
                 public ushort ModID;
-                [ProtoBuf.ProtoMember(2)]
+                [ProtoBuf.ProtoMember]
                 public byte[] Message;
             }
             [ProtoBuf.ProtoContract]
             [MessageIdAttribute(16296, P2PMessageEnum.Unreliable)]
             struct CustomModMsgUnreliable
             {
-                [ProtoBuf.ProtoMember(1)]
+                [ProtoBuf.ProtoMember]
                 public ushort ModID;
-                [ProtoBuf.ProtoMember(2)]
+                [ProtoBuf.ProtoMember]
                 public byte[] Message;
             }
 
@@ -207,7 +208,7 @@ namespace Sandbox.ModAPI
                 return false;
             }
 
-            public void SendEntitiesCreated(List<Sandbox.Common.ObjectBuilders.MyObjectBuilder_EntityBase> objectBuilders)
+            public void SendEntitiesCreated(List<MyObjectBuilder_EntityBase> objectBuilders)
             {
                 MySyncCreate.SendEntitiesCreated(objectBuilders);
             }

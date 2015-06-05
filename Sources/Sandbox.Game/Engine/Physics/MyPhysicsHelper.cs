@@ -6,7 +6,9 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
-using VRage.Library.Utils;
+using VRage.Components;
+using VRage.ModAPI;
+using VRage.Utils;
 using VRageMath;
 
 namespace Sandbox.Engine.Physics

@@ -18,12 +18,15 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
-
+using Sandbox.ModAPI.Ingame;
 using VRage;
 using VRage;
 using VRage.Import;
 using VRage.Utils;
 using VRageMath;
+using VRage.ModAPI;
+using VRage.Components;
+using VRage.ObjectBuilders;
 
 namespace Sandbox.Game.Entities.Blocks
 {
@@ -56,6 +59,33 @@ namespace Sandbox.Game.Entities.Blocks
         new public MyPistonBaseDefinition BlockDefinition { get { return (MyPistonBaseDefinition)base.BlockDefinition; } }
         new public MySyncPistonBase SyncObject { get { return (MySyncPistonBase)base.SyncObject; } }
 
+        public float CurrentPosition { get { return m_currentPos; } }
+
+        public PistonStatus Status
+        {
+            get
+            {
+                var minLimit = MinLimit;
+                var maxLimit = MaxLimit;
+                
+                if (m_velocity < 0)
+                {
+                    if (m_currentPos <= minLimit)
+                        return PistonStatus.Retracted;
+                    return PistonStatus.Retracting;
+                }
+                
+                if (m_velocity > 0)
+                {
+                    if (m_currentPos >= maxLimit)
+                        return PistonStatus.Extended;
+                    return PistonStatus.Extending;
+                }
+
+                return PistonStatus.Stopped;
+            }
+        }
+        
         public HkConstraint SafeConstraint
         {
             get
@@ -98,6 +128,14 @@ namespace Sandbox.Game.Entities.Blocks
             reverse.EnableAction(MyTerminalActionIcons.REVERSE);
             MyTerminalControlFactory.AddControl(reverse);
 
+            var extendAction = new MyTerminalAction<MyPistonBase>("Extend", MyTexts.Get(MySpaceTexts.BlockActionTitle_Extend), OnExtendApplied, null, MyTerminalActionIcons.REVERSE);
+            extendAction.Enabled = (b) => b.IsWorking == true && b.IsFunctional == true;
+            MyTerminalControlFactory.AddAction(extendAction);
+        
+            var retractAction = new MyTerminalAction<MyPistonBase>("Retract", MyTexts.Get(MySpaceTexts.BlockActionTitle_Retract), OnRetractApplied, null, MyTerminalActionIcons.REVERSE);
+            retractAction.Enabled = (b) => b.IsWorking == true && b.IsFunctional == true;
+            MyTerminalControlFactory.AddAction(retractAction);
+
             var velocity = new MyTerminalControlSlider<MyPistonBase>("Velocity", MySpaceTexts.BlockPropertyTitle_Velocity, MySpaceTexts.Blank);
             velocity.SetLimits((block) => -block.BlockDefinition.MaxVelocity, (block) => block.BlockDefinition.MaxVelocity);
             velocity.DefaultValue = -0.5f;
@@ -124,6 +162,20 @@ namespace Sandbox.Game.Entities.Blocks
             minDist.Writer = (x, res) => res.AppendDecimal(x.MinLimit, 1).Append("m");
             minDist.EnableActions();
             MyTerminalControlFactory.AddControl(minDist);
+        }
+
+        private static void OnExtendApplied(MyPistonBase piston)
+        {
+            if (piston.Velocity > 0)
+                return;
+            piston.SyncObject.SetVelocity(-piston.Velocity);
+        }
+
+        private static void OnRetractApplied(MyPistonBase piston)
+        {
+            if (piston.Velocity < 0)
+                return;
+            piston.SyncObject.SetVelocity(-piston.Velocity);
         }
 
         public override void Init(MyObjectBuilder_CubeBlock objectBuilder, MyCubeGrid cubeGrid)
@@ -632,7 +684,7 @@ namespace Sandbox.Game.Entities.Blocks
 
             var block = MyCubeGrid.CreateBlockObjectBuilder(definition, Vector3I.Zero, MyBlockOrientation.Identity, MyEntityIdentifier.AllocateId(), OwnerId, fullyBuilt: MySession.Static.CreativeMode);
 
-            var gridBuilder = Sandbox.Common.ObjectBuilders.Serializer.MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_CubeGrid>();
+            var gridBuilder = MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_CubeGrid>();
             gridBuilder.GridSizeEnum = gridSize;
             gridBuilder.IsStatic = false;
             gridBuilder.PositionAndOrientation = new MyPositionAndOrientation(matrix);

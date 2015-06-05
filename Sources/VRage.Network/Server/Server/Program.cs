@@ -39,6 +39,12 @@ namespace Server
 
             new MyRakNetSyncLayer().LoadData(m_server, typeof(Program).Assembly);
 
+            //for (ulong i = 1; i < 512; i++)
+            //{
+            //    var eek = new Foo();
+            //    MyRakNetSyncLayer.Replicate(eek);
+            //}
+
             //MySyncedClass mySyncedObject = new MySyncedClass();
             //MySyncedFloatSNorm F = new MySyncedFloatSNorm();
             //mySyncedObject.Add(F);
@@ -75,14 +81,14 @@ namespace Server
                         else if (cmd == "+")
                         {
                             foo = new Foo();
-                            foo.EntityID = 1;
-                            MyRakNetSyncLayer.Replicate(foo, foo.EntityID);
+                            foo.EntityID = 1337;
+                            MyRakNetSyncLayer.Replicate(foo);
                         }
                         else if (cmd == "-")
                         {
                             if (foo != null)
                             {
-                                MyRakNetSyncLayer.Destroy(foo.EntityID);
+                                MyRakNetSyncLayer.Destroy(foo);
                                 foo = null;
                             }
                         }
@@ -127,8 +133,8 @@ namespace Server
                 //I.Set((int)(stopWatch.ElapsedMilliseconds/10));
                 //V3.Set(new Vector3(F, F, F));
 
-                MyRakNetSyncLayer.Static.Update();
                 m_server.Update();
+                MyRakNetSyncLayer.Static.Update();
 
                 //Console.Out.WriteLine(m_server.GetStatsToString());
 
@@ -146,12 +152,12 @@ namespace Server
             server.OnClientLeft += server_OnClientLeft;
             server.OnClientReady += server_OnClientReady;
             server.OnConnectionLost += server_OnConnectionLost;
-            server.OnRequestWorld += server_OnRequestWorld;
+            server.OnRequestStateData += server_OnRequestStateData;
         }
 
-        static void server_OnRequestWorld(ulong steamID, BitStream bs)
+        static void server_OnRequestStateData(ulong steamID)
         {
-            Console.Out.WriteLine("RequestWorld {0}", steamID);
+            Console.Out.WriteLine("RequestStateData {0}", steamID);
         }
 
         static void server_OnConnectionLost(ulong steamID)

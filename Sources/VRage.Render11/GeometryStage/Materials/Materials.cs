@@ -12,6 +12,7 @@ using VRage.Import;
 using VRage;
 using VRage.Library.Utils;
 using System.IO;
+using VRage.FileSystem;
 
 namespace VRageRender
 {
@@ -378,7 +379,14 @@ namespace VRageRender
 
         internal static MyMaterialProxyId GetProxyId(MyMeshMaterialId id)
         {
-            return MaterialProxyIndex[id];
+            if (MaterialProxyIndex.ContainsKey(id))
+            {
+                return MaterialProxyIndex[id];
+            }
+
+            MyRender11.Log.WriteLine("MeshMaterialId missing");
+            
+            return MaterialProxyIndex[DebugMaterialId];
         }
 
         internal static int CalculateRK(ref MyMeshMaterialInfo desc)
@@ -398,7 +406,7 @@ namespace VRageRender
             return key;
         }
 
-        internal static MyMeshMaterialId GetMaterialId(ref MyMeshMaterialInfo desc)
+        internal static MyMeshMaterialId GetMaterialId(ref MyMeshMaterialInfo desc, string assetFile = null)
         {
             var rk = CalculateRK(ref desc);
 
@@ -421,7 +429,14 @@ namespace VRageRender
                     MergableRKs.Add(desc.RepresentationKey);
                 }
 
-                MaterialNameIndex[nameIndex] = id;
+                if(!MaterialNameIndex.ContainsKey(nameIndex))
+                {
+                    MaterialNameIndex[nameIndex] = id;
+                }
+                else if(assetFile != null)
+                {
+                    VRageRender.MyRender11.Log.WriteLine(String.Format("Asset {0} tries to overrwrite material {1} with different textures", assetFile, desc.Name.ToString()));
+                }
 
                 return id;
             }
@@ -445,7 +460,7 @@ namespace VRageRender
             return GetMaterialId(ref desc);
         }
 
-        internal static MyMeshMaterialId GetMaterialId(MyMaterialDescriptor importDesc, string contentPath)
+        internal static MyMeshMaterialId GetMaterialId(MyMaterialDescriptor importDesc, string contentPath, string assetFile = null)
         {
             MyMeshMaterialInfo desc;
             if(importDesc != null)
@@ -466,7 +481,7 @@ namespace VRageRender
                 return NullMaterialId;
             }
 
-            return GetMaterialId(ref desc);
+            return GetMaterialId(ref desc, assetFile);
         }
 
         internal static void Init()
@@ -540,6 +555,7 @@ namespace VRageRender
             MaterialRkIndex.Clear();
             MaterialsPool.Clear();
             MaterialProxyIndex.Clear();
+            MaterialNameIndex.Clear();
 
             CreateCommonMaterials();
         }

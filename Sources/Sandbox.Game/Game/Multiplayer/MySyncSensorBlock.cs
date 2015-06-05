@@ -69,14 +69,14 @@ namespace Sandbox.Game.Multiplayer
         [MessageIdAttribute(3144, P2PMessageEnum.Reliable)]
         protected struct ChangeMySensorToolbarItemMsg : IEntityMessage
         {
-            [ProtoMember(1)]
+            [ProtoMember]
             public long EntityId;
             public long GetEntityId() { return EntityId; }
 
-            [ProtoMember(2)]
+            [ProtoMember]
             public ToolbarItem Item;
 
-            [ProtoMember(3)]
+            [ProtoMember]
             public int Index;
 
             public override string ToString()
@@ -109,7 +109,7 @@ namespace Sandbox.Game.Multiplayer
         }
 
         public MySyncSensorBlock(MySensorBlock block)
-            :base(block)
+            : base(block)
         {
             m_block = block;
         }
@@ -211,34 +211,7 @@ namespace Sandbox.Game.Multiplayer
             sync.m_syncing = true;
             MyToolbarItem item = null;
             if (msg.Item.EntityID != 0)
-                if (string.IsNullOrEmpty(msg.Item.GroupName))
-                {
-                    MyTerminalBlock block;
-                    if (MyEntities.TryGetEntityById<MyTerminalBlock>(msg.Item.EntityID, out block))
-                    {
-                        var builder = MyToolbarItemFactory.TerminalBlockObjectBuilderFromBlock(block);
-                        builder.Action = msg.Item.Action;
-                        item = MyToolbarItemFactory.CreateToolbarItem(builder);
-                    }
-                }
-                else
-                {
-                    MySensorBlock parent;
-                    if (MyEntities.TryGetEntityById<MySensorBlock>(msg.Item.EntityID, out parent))
-                    {
-                        var grid = parent.CubeGrid;
-                        var groupName = msg.Item.GroupName;
-                        var group = grid.GridSystems.TerminalSystem.BlockGroups.Find((x) => x.Name.ToString() == groupName);
-                        if (group != null)
-                        {
-                            var builder = MyToolbarItemFactory.TerminalGroupObjectBuilderFromGroup(group);
-                            builder.Action = msg.Item.Action;
-                            builder.BlockEntityId = msg.Item.EntityID;
-                            item = MyToolbarItemFactory.CreateToolbarItem(builder);
-                        }
-                    }
-
-                }
+                item = ToolbarItem.ToItem(msg.Item);
             sync.m_block.Toolbar.SetItemAtIndex(msg.Index, item);
             sync.m_syncing = false;
         }

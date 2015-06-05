@@ -26,6 +26,7 @@ namespace Sandbox.Engine.Multiplayer
         public const int ControlChannel = 0;
         public const int WorldDownloadChannel = 1;
         public const int GameEventChannel = 2;
+        public const int VoiceChatChannel = 3;
 
         public const string HostNameTag = "host";
         public const string WorldNameTag = "world";
@@ -43,7 +44,11 @@ namespace Sandbox.Engine.Multiplayer
         public const string GrinderMultiplierTag = "grinderMultiplier";
 
         public const string BattleTag = "battle";
-        public const string MaxBattleBlueprintPointsTag = "maxBattleBlueprintpoints";
+        public const string BattleCanBeJoinedTag = "battleCanBeJoined";
+        public const string BattleFaction1MaxBlueprintPointsTag = "battleFaction1MaxBlueprintPoints";
+        public const string BattleFaction2MaxBlueprintPointsTag = "battleFaction2MaxBlueprintPoints";
+        public const string BattleFaction1BlueprintPointsTag = "battleFaction1BlueprintPoints";
+        public const string BattleFaction2BlueprintPointsTag = "battleFaction2BlueprintPoints";
         public const string BattleMapAttackerSlotsCountTag = "battleMapAttackerSlotsCount";
         public const string BattleFaction1IdTag = "battleFaction1Id";
         public const string BattleFaction2IdTag = "battleFaction2Id";
@@ -51,6 +56,11 @@ namespace Sandbox.Engine.Multiplayer
         public const string BattleFaction2SlotTag = "battleFaction2Slot";
         public const string BattleFaction1ReadyTag = "battleFaction1Ready";
         public const string BattleFaction2ReadyTag = "battleFaction2Ready";
+        public const string BattleTimeLimitTag = "battleTimeLimit";
+
+        public const string ScenarioTag = "scenario";
+        public const string ScenarioBriefingTag = "scenarioBriefing";
+        public const string ScenarioStartTimeTag = "scenarioStartTime";
 
         public static MyMultiplayerBase Static;
 

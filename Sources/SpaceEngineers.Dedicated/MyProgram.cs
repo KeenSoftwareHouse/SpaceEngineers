@@ -1,46 +1,20 @@
 #region Using
 
-using System;
-using System.Linq;
-using VRage.Utils;
-
-using System.IO;
-using System.Reflection;
-using Sandbox.Engine.Utils;
-using Sandbox.Common;
+using Sandbox.Common.ObjectBuilders;
 using Sandbox.Game;
-using Sandbox.Game.Entities.Cube;
-using VRage.Service;
-using DedicatedConfigurator;
-using System.Runtime.InteropServices;
-using Sandbox.Engine.Multiplayer;
-using System.Net;
-using VRageRender;
-using VRage.Plugins;
-using VRage.Library.Utils;
-using VRage.FileSystem;
 using SpaceEngineers.Game;
+using System;
+using System.ComponentModel;
+using System.Configuration.Install;
+using System.ServiceProcess;
 using VRage.Dedicated;
 
 #endregion
 
-namespace Sandbox.AppCode.App
+namespace SpaceEngineersDedicated
 {
     static class MyProgram
     {
-        [DllImport("kernel32.dll")]
-        static extern IntPtr GetConsoleWindow();
-
-        [DllImport("user32.dll")]
-        static extern bool ShowWindow(IntPtr hWnd, int nCmdShow);
-
-        const int SW_HIDE = 0;
-        const int SW_SHOW = 5;
-
-        static uint AppId = 244850;
-
-        static VRage.Win32.WinApi.ConsoleEventHandler consoleHandler;
-
         //  Main method
         [STAThread]
         static void Main(string[] args)
@@ -51,212 +25,80 @@ namespace Sandbox.AppCode.App
 
             MyPerServerSettings.GameName = MyPerGameSettings.GameName;
             MyPerServerSettings.GameNameSafe = MyPerGameSettings.GameNameSafe;
+            MyPerServerSettings.GameDSName = MyPerServerSettings.GameNameSafe + "Dedicated";
+            MyPerServerSettings.GameDSDescription = "Your place for space engineering, destruction and exploring.";
 
-            if (args.Contains("-report"))
+
+            MyPerServerSettings.AppId = 244850;
+
+            ConfigForm<MyObjectBuilder_SessionSettings>.LogoImage = SpaceEngineersDedicated.Properties.Resources.SpaceEngineersDSLogo;
+            ConfigForm<MyObjectBuilder_SessionSettings>.GameAttributes = Game.SpaceEngineers;
+            ConfigForm<MyObjectBuilder_SessionSettings>.OnReset = delegate
             {
-                if (args.Count() > 1)
-                    MyErrorReporter.ReportNotInteractive(args[1], "SEDS");
-                return;
-            }
-
-            Environment.SetEnvironmentVariable("SteamAppId", AppId.ToString());
-
-            //VRage.Win32.WinApi.AllocConsole();
-            //foreach (string s in args)
-            //{
-            //    Console.WriteLine(s.ToString());
-            //}
-
-            MySandboxGame.IsDedicated = true;
-
-            string customPath = null;
-
-            if (args.Contains("-ignorelastsession"))
-            {
-                MySandboxGame.IgnoreLastSession = true;
-            }
-
-            if (args.Contains("-maxPlayers"))
-            {
-                int index = args.ToList().IndexOf("-maxPlayers");
-                if (index + 1 < args.Length)
-                {
-                    string maxPlayersString = args[index + 1];
-                    int maxPlayers = 0;
-                    if (int.TryParse(maxPlayersString, out maxPlayers))
-                    {
-                        MyDedicatedServerOverrides.MaxPlayers = maxPlayers;
-                    }
-                }
-            }
-
-            if (args.Contains("-ip"))
-            {
-                int index = args.ToList().IndexOf("-ip");
-                if (index + 1 < args.Length)
-                {
-                    IPAddress.TryParse(args[index + 1], out MyDedicatedServerOverrides.IpAddress);
-                }
-            }
-
-            if (args.Contains("-port"))
-            {
-                int index = args.ToList().IndexOf("-port");
-                if (index + 1 < args.Length)
-                {
-                    string portString = args[index + 1];
-                    int port;
-                    if (int.TryParse(portString, out port))
-                    {
-                        MyDedicatedServerOverrides.Port = port;
-                    }
-                }
-            }
-
-            if (args.Contains("-path"))
-            {
-                int index = args.ToList().IndexOf("-path");
-                if (index + 1 < args.Length)
-                {
-                    string path = args[index+1];
-                    path = path.Trim('"');
-
-                    bool isAbsolutePath = false;
-                    if (path.Length > 1 && path[1] == ':')
-                        isAbsolutePath = true;
-
-                    if (isAbsolutePath)
-                    {
-                        if (!System.IO.Directory.Exists(path))
-                            return;
-                    }
-                    else
-                    {
-                        string dirname = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-                        path = Path.Combine(dirname, path);
-                        if (!System.IO.Directory.Exists(path))
-                            return;
-                    }
-
-                    customPath = path;
-                }
-                else                
-                    return;
-            }
-
-            if (args.Contains("-console"))
-            {
-                RunMain("Default", customPath, false);
-                return;
-            }
-
-            if (args.Contains("-noconsole"))
-            {
-                RunMain("Default", customPath, false, false);
-                return;
-            }
-
-            if (Environment.UserInteractive)
-            {
-                MyPlugins.RegisterFromArgs(args);
-                MyPlugins.Load();
-                ShowWindow(GetConsoleWindow(), SW_HIDE);
-                MyConfigurator.Start();
-                MyPlugins.Unload();
-                return;
-            }
-            else
-            {
-                MyServiceBase.Run(new WindowsService());
-                return;
-            }
-        }
-
-        internal static void RunMain(string instanceName, string customPath, bool isService, bool showConsole = true)
-        {
-            var tmp = (isService)
-                ? Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), "SpaceEngineersDedicated", instanceName)
-                : Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "SpaceEngineersDedicated");
-
-            var userDataPath = string.IsNullOrEmpty(customPath) ? tmp : customPath;
-
-            if (showConsole && Environment.UserInteractive)
-            {
-                MySandboxGame.IsConsoleVisible = true;
-                VRage.Win32.WinApi.AllocConsole();
-                consoleHandler += new VRage.Win32.WinApi.ConsoleEventHandler(Handler);
-                VRage.Win32.WinApi.SetConsoleCtrlHandler(consoleHandler, true);
-            }
-
-            VRage.Service.ExitListenerSTA.OnExit += delegate
-            {
-                if (MySandboxGame.Static != null)
-                    MySandboxGame.Static.Exit();
+                SpaceEngineersGame.SetupPerGameSettings();
             };
 
-            Console.WriteLine("Space engineers " + MyFinalBuildConstants.APP_VERSION_STRING);
-            Console.WriteLine(String.Format("Is official: {0} {1}", MyFinalBuildConstants.IS_OFFICIAL, (MyObfuscation.Enabled ? "[O]" : "[NO]")));
-            Console.WriteLine("Environment.Is64BitProcess: " + Environment.Is64BitProcess);
+
+            DedicatedServer.Run<MyObjectBuilder_SessionSettings>(args);
+        }
+    }
+
+    [RunInstaller(true)]
+    public class WindowsServiceInstaller : Installer
+    {
+        protected ServiceInstaller m_serviceInstaller;
+
+        /// <summary>
+        /// Public Constructor for WindowsServiceInstaller.
+        /// - Put all of your Initialization code here.
+        /// </summary>
+        public WindowsServiceInstaller()
+        {
+            SpaceEngineersGame.SetupPerGameSettings();
+
+            ServiceProcessInstaller serviceProcessInstaller =
+                               new ServiceProcessInstaller();
+            m_serviceInstaller = new ServiceInstaller();
+
+            //# Service Account Information
+            serviceProcessInstaller.Account = ServiceAccount.LocalSystem;
+            serviceProcessInstaller.Username = null;
+            serviceProcessInstaller.Password = null;
 
 
-            MyInitializer.InvokeBeforeRun(
-                AppId,
-                "SpaceEngineersDedicated",
-                userDataPath, DedicatedServer.AddDateToLog);
 
+            m_serviceInstaller.DisplayName = MyPerServerSettings.GameName + " dedicated server";
+            //# This must be identical to the WindowsService.ServiceBase name
+            //# set in the constructor of WindowsService.cs
+            m_serviceInstaller.ServiceName = m_serviceInstaller.DisplayName;
+            m_serviceInstaller.Description = MyPerServerSettings.GameDSDescription;
 
-            RunInternal();
+            this.Installers.Add(m_serviceInstaller);
 
-            MyInitializer.InvokeAfterRun();
+            //# Service Information            
+            m_serviceInstaller.StartType = ServiceStartMode.Automatic;
+            this.Installers.Add(serviceProcessInstaller);
         }
 
-        private static bool Handler(VRage.Win32.WinApi.CtrlType sig)
+        public override void Install(System.Collections.IDictionary stateSaver)
         {
-            switch (sig)
-            {
-                case VRage.Win32.WinApi.CtrlType.CTRL_SHUTDOWN_EVENT:
-                case VRage.Win32.WinApi.CtrlType.CTRL_CLOSE_EVENT:
-                    {
-                        MySandboxGame.Static.Exit();
-                        return false;
-                    }
-                    break;
-                default:
-                    break;
-            }
-            return true;
+            RetrieveServiceName();
+            base.Install(stateSaver);
         }
 
-        static void RunInternal()
+        public override void Uninstall(System.Collections.IDictionary savedState)
         {
-            MyFileSystem.InitUserSpecific(null);
+            RetrieveServiceName();
+            base.Uninstall(savedState);
+        }
 
-            VRageRender.MyRenderProxy.Initialize(MySandboxGame.IsDedicated ? (IMyRender) new MyNullRender() : new MyDX9Render());
-            VRageRender.MyRenderProxy.IS_OFFICIAL = MyFinalBuildConstants.IS_OFFICIAL;
-
-            using (MySteamService steamService = new MySteamService(MySandboxGame.IsDedicated, AppId))
+        private void RetrieveServiceName()
+        {
+            var serviceName = Context.Parameters["servicename"];
+            if (!string.IsNullOrEmpty(serviceName))
             {
-                if (!steamService.HasGameServer)
-                {
-                    MyLog.Default.WriteLineAndConsole("Steam service is not running! Please reinstall dedicated server.");
-                    return;
-                }
-
-                VRageGameServices services = new VRageGameServices(steamService);
-
-                using (MySandboxGame game = new MySandboxGame(services, new string[] { }))
-                {
-                    VRageRender.MyRenderProxy.GetRenderProfiler().EndProfilingBlock();
-                    VRageRender.MyRenderProxy.GetRenderProfiler().EndProfilingBlock();
-
-                    game.Run();
-                }
-
-                if (MySandboxGame.IsConsoleVisible)
-                {
-                    Console.WriteLine("Server stopped, press any key to close this window");
-                    Console.ReadKey(false);
-                }
+                this.m_serviceInstaller.ServiceName = serviceName;
+                this.m_serviceInstaller.DisplayName = serviceName;
             }
         }
     }

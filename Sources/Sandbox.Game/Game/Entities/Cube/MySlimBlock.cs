@@ -1,26 +1,25 @@
-﻿using Sandbox.Common.ObjectBuilders;
+﻿using Sandbox.Common.ModAPI;
+using Sandbox.Common.ObjectBuilders;
 using Sandbox.Common.ObjectBuilders.Definitions;
 using Sandbox.Definitions;
 using Sandbox.Engine.Utils;
+using Sandbox.Game.Entities.Character;
+using Sandbox.Game.GameSystems;
+using Sandbox.Game.GameSystems.StructuralIntegrity;
+using Sandbox.Game.Gui;
+using Sandbox.Game.Multiplayer;
 using Sandbox.Game.World;
+using Sandbox.Graphics.TransparentGeometry.Particles;
+using Sandbox.ModAPI.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using System.Text;
-using VRageMath;
-using Sandbox.Game.Weapons;
-using VRage.Utils;
-using Sandbox.Game.Entities.Character;
-using VRageRender;
-using Sandbox.Graphics.TransparentGeometry.Particles;
 using VRage;
-using Sandbox.Graphics;
-using Sandbox.Game.Multiplayer;
-using Sandbox.Game.GameSystems.StructuralIntegrity;
-using Sandbox.ModAPI.Interfaces;
 using VRage.Library.Utils;
-using Sandbox.Game.GameSystems;
+using VRage.ObjectBuilders;
+using VRage.Utils;
+using VRageMath;
 
 namespace Sandbox.Game.Entities.Cube
 {
@@ -203,7 +202,7 @@ namespace Sandbox.Game.Entities.Cube
             }
         }
 
-        internal MyComponentStack ComponentStack
+        public MyComponentStack ComponentStack
         {
             get
             {
@@ -388,10 +387,21 @@ namespace Sandbox.Game.Entities.Cube
             }
             else
             {
-                builder = (MyObjectBuilder_CubeBlock)Sandbox.Common.ObjectBuilders.Serializer.MyObjectBuilderSerializer.CreateNewObject(BlockDefinition.Id);
+                builder = (MyObjectBuilder_CubeBlock)MyObjectBuilderSerializer.CreateNewObject(BlockDefinition.Id);
                 if (FatBlock != null)
                 {
                     builder.EntityId = FatBlock.EntityId;
+
+                    // Set ownership in battles - actually don't know why "FatBlock.GetObjectBuilderCubeBlock(copy)" is not processed for default MyCubeBlock 
+                    // - see first if "if (FatBlock != null && FatBlock.GetType() != typeof(MyCubeBlock))"
+                    if (MyFakes.ENABLE_BATTLE_SYSTEM && MySession.Static.Battle)
+                    {
+                        if (FatBlock.IDModule != null)
+                        {
+                            builder.Owner = FatBlock.IDModule.Owner;
+                            builder.ShareMode = FatBlock.IDModule.ShareMode;
+                        }
+                    }
                 }
             }
 
@@ -567,7 +577,7 @@ namespace Sandbox.Game.Entities.Cube
             //return Position;
         }
 
-        public void MoveFirstItemToConstructionStockpile(MyInventory fromInventory)
+        public void MoveFirstItemToConstructionStockpile(IMyComponentInventory fromInventory)
         {
             if (MySession.Static.CreativeMode)
             {
@@ -604,9 +614,33 @@ namespace Sandbox.Game.Entities.Cube
             }
         }
 
-        public void MoveItemsToConstructionStockpile(MyInventory fromInventory)
+		public void FillConstructionStockpile()
+		{
+			if(!MySession.Static.CreativeMode)
+			{
+				EnsureConstructionStockpileExists();
+				bool stockpileChanged = false;
+
+				for (int i = 0; i < ComponentStack.GroupCount; i++)
+				{
+					var groupInfo = ComponentStack.GetGroupInfo(i);
+
+					var addAmount = groupInfo.TotalCount - groupInfo.MountedCount;
+
+					if (addAmount > 0)
+					{
+						m_stockpile.AddItems(addAmount, groupInfo.Component.Id);
+						stockpileChanged = true;
+					}
+				}
+				if(stockpileChanged)
+					CubeGrid.SyncObject.SendStockpileChanged(this, m_stockpile.GetSyncList());
+			}
+		}
+
+        public void MoveItemsToConstructionStockpile(IMyComponentInventory fromInventory)
         {
-            if (MySession.Static.CreativeMode)
+            if (MySession.Static.CreativeMode || MySession.Static.SimpleSurvival)
                 return;
 
             m_tmpComponents.Clear();
@@ -637,7 +671,7 @@ namespace Sandbox.Game.Entities.Cube
         /// Moves items with the given flags from the construction inventory to the character.
         /// If the flags are None, all items are moved.
         /// </summary>
-        public void MoveItemsFromConstructionStockpile(MyInventory toInventory, MyItemFlags flags = MyItemFlags.None)
+        public void MoveItemsFromConstructionStockpile(IMyComponentInventory toInventory, MyItemFlags flags = MyItemFlags.None)
         {
             if (m_stockpile == null) return;
 
@@ -662,7 +696,7 @@ namespace Sandbox.Game.Entities.Cube
             m_stockpile.ClearSyncList();
         }
 
-        public void MoveUnneededItemsFromConstructionStockpile(MyInventory toInventory)
+        public void MoveUnneededItemsFromConstructionStockpile(IMyComponentInventory toInventory)
         {
             if (m_stockpile == null) return;
 
@@ -684,7 +718,7 @@ namespace Sandbox.Game.Entities.Cube
             m_stockpile.ClearSyncList();
         }
 
-        public void ClearConstructionStockpile(MyInventory outputInventory)
+        public void ClearConstructionStockpile(IMyComponentInventory outputInventory)
         {
             if (!StockpileEmpty)
             {
@@ -871,26 +905,29 @@ namespace Sandbox.Game.Entities.Cube
             }
         }
 
-        void IMyDestroyableObject.DoDamage(float damage, MyDamageType damageType, bool sync)
+        void IMyDestroyableObject.DoDamage(float damage, MyDamageType damageType, bool sync, MyHitInfo? hitInfo)
         {
             if (sync)
             {
                 Debug.Assert(Sync.IsServer);
                 if (Sync.IsServer)
-                    MySyncHelper.DoDamageSynced(this, damage, damageType);
+                    MySyncHelper.DoDamageSynced(this, damage, damageType, hitInfo);
             }
             else
-                this.DoDamage(damage, damageType);
+                this.DoDamage(damage, damageType, hitInfo: hitInfo);
             return;
         }
 
-        /// <summary>
-        /// Returns true when block is destroyed
-        /// </summary>
-        public void DoDamage(float damage, MyDamageType damageType, bool addDirtyParts = true)
+        public void DoDamage(float damage, MyDamageType damageType, bool addDirtyParts = true, MyHitInfo? hitInfo = null, bool createDecal = true)
         {
             if (!MySession.Static.DestructibleBlocks)
                 return;
+
+            if(FatBlock is MyCompoundCubeBlock) //jn: TODO think of something better
+            {
+                (FatBlock as MyCompoundCubeBlock).DoDamage(damage, damageType, hitInfo);
+                return;
+            }
 
             damage *= DamageRatio; // Low-integrity blocks get more damage
             ProfilerShort.Begin("FatBlock.DoDamage");
@@ -910,12 +947,29 @@ namespace Sandbox.Game.Entities.Cube
             AccumulatedDamage += damage;
             if (m_componentStack.Integrity - AccumulatedDamage <= MyComponentStack.MOUNT_THRESHOLD)
             {
+                if (MyPerGameSettings.Destruction && hitInfo.HasValue)
+                {
+                    AccumulatedDamage = 0;
+                    var gridPhysics = CubeGrid.Physics;
+                    float maxDestructionRadius = CubeGrid.GridSizeEnum == MyCubeSize.Small ? 0.5f : 3;
+                    if(Sync.IsServer)
+                       Sandbox.Engine.Physics.MyDestructionHelper.TriggerDestruction(damage - m_componentStack.Integrity, gridPhysics, hitInfo.Value.Position, hitInfo.Value.Normal, maxDestructionRadius);
+                }
+                else
+                {
+                    ApplyAccumulatedDamage(addDirtyParts);
+                }
                 CubeGrid.RemoveFromDamageApplication(this);
-                ApplyAccumulatedDamage(addDirtyParts);
             }
             else
-                if (MyFakes.SHOW_DAMAGE_EFFECTS && FatBlock != null && BlockDefinition.RationEnoughForDamageEffect((Integrity-damage) / MaxIntegrity))
+            {
+                if (MyFakes.SHOW_DAMAGE_EFFECTS && FatBlock != null && BlockDefinition.RationEnoughForDamageEffect((Integrity - damage) / MaxIntegrity))
                     FatBlock.SetDamageEffect(true);
+
+                if (hitInfo.HasValue && createDecal)
+                    CubeGrid.RenderData.AddDecal(Position, Vector3D.Transform(hitInfo.Value.Position, CubeGrid.PositionComp.WorldMatrixInvScaled),
+                        Vector3D.TransformNormal(hitInfo.Value.Normal, CubeGrid.PositionComp.WorldMatrixInvScaled), BlockDefinition.PhysicalMaterial.DamageDecal);
+            }
 
             return;
         }
@@ -1007,8 +1061,9 @@ namespace Sandbox.Game.Entities.Cube
             }
         }
 
-        public void IncreaseMountLevel(float welderMountAmount, long welderOwnerPlayerId, MyInventory outputInventory = null, float maxAllowedBoneMovement = 0.0f, bool isHelping = false, MyOwnershipShareModeEnum sharing = MyOwnershipShareModeEnum.Faction)
+        public bool IncreaseMountLevel(float welderMountAmount, long welderOwnerPlayerId, IMyComponentInventory outputInventory = null, float maxAllowedBoneMovement = 0.0f, bool isHelping = false, MyOwnershipShareModeEnum sharing = MyOwnershipShareModeEnum.Faction)
         {
+			bool modelChanged = false;
             welderMountAmount *= BlockDefinition.IntegrityPointsPerSec;
             MySession.Static.PositiveIntegrityTotal += welderMountAmount;
 
@@ -1061,6 +1116,7 @@ namespace Sandbox.Game.Entities.Cube
             MyCubeGrid.MyIntegrityChangeEnum integrityChangeType = MyCubeGrid.MyIntegrityChangeEnum.Damage;
             if (BlockDefinition.ModelChangeIsNeeded(oldPercentage, m_componentStack.BuildRatio) || BlockDefinition.ModelChangeIsNeeded(m_componentStack.BuildRatio, oldPercentage))
             {
+				modelChanged = true;
                 if (FatBlock != null)
                 {
                     // this needs to be detected here because for cubes the following call to UpdateVisual() set FatBlock to null when the construction is complete
@@ -1100,9 +1156,11 @@ namespace Sandbox.Game.Entities.Cube
 
             if (maxAllowedBoneMovement != 0.0f)
                 FixBones(oldDamage, maxAllowedBoneMovement);
+
+			return modelChanged;
         }
 
-        public void DecreaseMountLevel(float grinderAmount, MyInventory outputInventory)
+        public void DecreaseMountLevel(float grinderAmount, IMyComponentInventory outputInventory)
         {
             if (FatBlock != null)
                 grinderAmount /= FatBlock.DisassembleRatio;
@@ -1513,5 +1571,51 @@ namespace Sandbox.Game.Entities.Cube
                 aabb = aabb.Transform(CubeGrid.WorldMatrix);
             }
         }
+
+		public static void SetBlockComponents(MyHudBlockInfo hudInfo, MySlimBlock block, IMyComponentInventory availableInventory = null)
+		{
+			hudInfo.Components.Clear();
+			for (int i = 0; i < block.ComponentStack.GroupCount; i++)
+			{
+				var groupInfo = block.ComponentStack.GetGroupInfo(i);
+				var componentInfo = new MyHudBlockInfo.ComponentInfo();
+				componentInfo.ComponentName = groupInfo.Component.DisplayNameText;
+				componentInfo.Icon = groupInfo.Component.Icon;
+				componentInfo.TotalCount = groupInfo.TotalCount;
+				componentInfo.MountedCount = groupInfo.MountedCount;
+				if (availableInventory != null)
+					componentInfo.AvailableAmount = (int)availableInventory.GetItemAmount(groupInfo.Component.Id);
+
+				hudInfo.Components.Add(componentInfo);
+			}
+
+			if (!block.StockpileEmpty)
+			{
+				// For each component
+				foreach (var comp in block.BlockDefinition.Components)
+				{
+					// Get amount in stockpile
+					int amount = block.GetConstructionStockpileItemAmount(comp.Definition.Id);
+
+					for (int i = 0; amount > 0 && i < hudInfo.Components.Count; i++)
+					{
+						if (block.ComponentStack.GetGroupInfo(i).Component == comp.Definition)
+						{
+							if (block.ComponentStack.IsFullyDismounted)
+							{
+								return;
+							}
+							// Distribute amount in stockpile from bottom to top
+							var info = hudInfo.Components[i];
+							int space = info.TotalCount - info.MountedCount;
+							int movedItems = Math.Min(space, amount);
+							info.StockpileCount = movedItems;
+							amount -= movedItems;
+							hudInfo.Components[i] = info;
+						}
+					}
+				}
+			}
+		}
     }
 }

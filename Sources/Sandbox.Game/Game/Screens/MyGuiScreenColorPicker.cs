@@ -236,7 +236,7 @@ namespace Sandbox.Game.Gui
         {
             MyToolbar.SetDefaultColors();
             Color c = Color.White;
-            for (int i = 0; i < 7; i++)
+            for (int i = 0; i < MyToolbar.ColorMaskSlotCount; i++)
                 m_colorPaletteControlsList[i].ColorMask = (prev(MyToolbar.m_colorMaskHSVSlots[i])).HSVtoColor().ToVector4();
             UpdateSliders(MyToolbar.ColorMaskHSV);
         }

@@ -10,6 +10,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using VRage.ModAPI;
 using VRageMath;
 
 namespace Sandbox.Game.Entities.Blocks
@@ -67,6 +68,11 @@ namespace Sandbox.Game.Entities.Blocks
             {
                 return m_open;
             }
+        }
+
+        public float OpenRatio
+        {
+            get { return m_currOpening; }
         }
 
         public bool IsFullyClosed //closed and airtight
@@ -231,6 +237,11 @@ namespace Sandbox.Game.Entities.Blocks
             {
                 StartSound(m_sound);
             }
+            else
+            {
+                m_soundEmitter.StopSound(false);
+            }
+
             base.UpdateBeforeSimulation();
             UpdateCurrentOpening();
 

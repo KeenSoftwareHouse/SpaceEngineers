@@ -20,6 +20,7 @@ using VRage.Utils;
 using Sandbox.Graphics.TransparentGeometry.Particles;
 using Sandbox.ModAPI.Ingame;
 using Sandbox.Engine.Utils;
+using VRage.ModAPI;
 
 namespace Sandbox.Game.Entities.Blocks
 {
@@ -35,7 +36,7 @@ namespace Sandbox.Game.Entities.Blocks
                 return dummy;
             }
         }
-        
+
         private bool m_isProducing;
         private bool m_producedSinceLastUpdate;
         private MyParticleEffect m_effect;
@@ -99,11 +100,11 @@ namespace Sandbox.Game.Entities.Blocks
             base.Init(objectBuilder, cubeGrid);
 
             var builder = (MyObjectBuilder_AirVent)objectBuilder;
-            
+
             m_isDepressurizing = builder.IsDepressurizing;
 
             InitializeConveyorEndpoint();
-            NeedsUpdate = Common.MyEntityUpdateEnum.EACH_10TH_FRAME | Common.MyEntityUpdateEnum.EACH_100TH_FRAME;
+            NeedsUpdate = MyEntityUpdateEnum.EACH_10TH_FRAME | MyEntityUpdateEnum.EACH_100TH_FRAME;
 
             PowerReceiver = new MyPowerReceiver(
                 MyConsumerGroupEnum.Factory,
@@ -188,7 +189,7 @@ namespace Sandbox.Game.Entities.Blocks
                 }
                 else if (m_soundEmitter.SoundId != BlockDefinition.IdleSound.SoundId)
                 {
-                    m_soundEmitter.PlaySound(BlockDefinition.IdleSound, false);
+                    m_soundEmitter.PlaySound(BlockDefinition.IdleSound, true, false);
                 }
             }
             else if (m_soundEmitter.IsPlaying)
@@ -403,6 +404,7 @@ namespace Sandbox.Game.Entities.Blocks
             {
                 m_effect.Stop();
             }
+            m_soundEmitter.StopSound(true);
         }
         #endregion
 
@@ -491,7 +493,7 @@ namespace Sandbox.Game.Entities.Blocks
         {
             if (!IsDepressurizing || !CanVent)
             {
-               return 0f; 
+                return 0f;
             }
 
             var oxygenBlock = GetOxygenBlock();
@@ -539,15 +541,27 @@ namespace Sandbox.Game.Entities.Blocks
         }
         #endregion
 
+        /// <summary>
+        /// Compatibility method
+        /// </summary>
         public bool IsPressurized()
         {
-            var oxygenBlock = GetOxygenBlock();
-            if (oxygenBlock.Room == null)
-            {
-                return false;
-            }
+            return CanPressurize;
+        }
 
-            return oxygenBlock.Room.IsPressurized;
+        public bool CanPressurize
+        {
+            get
+            {
+
+                var oxygenBlock = GetOxygenBlock();
+                if (oxygenBlock.Room == null)
+                {
+                    return false;
+                }
+
+                return oxygenBlock.Room.IsPressurized;
+            }
         }
         public float GetOxygenLevel()
         {

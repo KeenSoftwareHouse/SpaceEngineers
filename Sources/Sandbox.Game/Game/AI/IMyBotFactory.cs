@@ -12,7 +12,8 @@ namespace Sandbox.Game.AI
 {
     public interface IMyBotFactory
     {
-        int MaximumBotCount { get; }
+        int MaximumUncontrolledBotCount { get; }
+        int MaximumBotPerPlayer { get; }
         bool CanCreateBotOfType(string behaviorType, bool load);
         IMyBot CreateBot(MyPlayer player, MyObjectBuilder_Bot botBuilder, MyBotDefinition botDefinition);
         bool GetBotSpawnPosition(string behaviorType, out Vector3D spawnPosition);

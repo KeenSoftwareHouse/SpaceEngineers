@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using VRage.ModAPI;
 
 namespace Sandbox.ModAPI.Ingame
 {
@@ -10,6 +11,7 @@ namespace Sandbox.ModAPI.Ingame
         /// <summary>
         /// Param - active
         /// </summary>
+        float MaxRange { get; }
         float LeftExtend { get; }
         float RightExtend { get; }
         float TopExtend { get; }

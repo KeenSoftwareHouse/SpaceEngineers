@@ -16,6 +16,7 @@ using System.IO.Compression;
 using Sandbox.Common;
 using VRage.Library.Utils;
 using MyFileSystem = VRage.FileSystem.MyFileSystem;
+using VRage.ObjectBuilders;
 
 namespace Sandbox.Engine.Networking
 {
@@ -29,6 +30,7 @@ namespace Sandbox.Engine.Networking
         public static string LastSessionPath { get { return Path.Combine(MyFileSystem.SavesPath, LAST_SESSION_FILE); } }
         public static string ContentSessionsPath { get { return "Worlds"; } }
         public static string MissionSessionsPath { get { return "Missions"; } }
+        public static string OfficialBattlesPath { get { return Path.Combine(MyFileSystem.ContentPath, "Battles"); } }
 
         private static string GetSectorPath(string sessionPath, Vector3I sectorPosition)
         {
@@ -118,7 +120,7 @@ namespace Sandbox.Engine.Networking
                 return null;
 
             MyObjectBuilder_Checkpoint result = null;
-            Sandbox.Common.ObjectBuilders.Serializer.MyObjectBuilderSerializer.DeserializeXML(checkpointFile, out result, out sizeInBytes);
+            MyObjectBuilderSerializer.DeserializeXML(checkpointFile, out result, out sizeInBytes);
             if (result != null && string.IsNullOrEmpty(result.SessionName))
             {
                 result.SessionName = Path.GetFileNameWithoutExtension(checkpointFile);
@@ -134,10 +136,10 @@ namespace Sandbox.Engine.Networking
 
         private static MyObjectBuilder_Sector LoadSector(string path, out ulong sizeInBytes)
         {
-            MyObjectBuilder_Sector newSector = Sandbox.Common.ObjectBuilders.Serializer.MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_Sector>();
+            MyObjectBuilder_Sector newSector = MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_Sector>();
 
             MyObjectBuilder_Sector result;
-            Sandbox.Common.ObjectBuilders.Serializer.MyObjectBuilderSerializer.DeserializeXML<MyObjectBuilder_Sector>(path, out result, out sizeInBytes);
+            MyObjectBuilderSerializer.DeserializeXML<MyObjectBuilder_Sector>(path, out result, out sizeInBytes);
 
             if (result == null)
             {
@@ -150,7 +152,7 @@ namespace Sandbox.Engine.Networking
         public static bool SaveSector(MyObjectBuilder_Sector sector, string sessionPath, Vector3I sectorPosition, out ulong sizeInBytes)
         {
             var relativePath = GetSectorPath(sessionPath, sectorPosition);
-            return Sandbox.Common.ObjectBuilders.Serializer.MyObjectBuilderSerializer.SerializeXML(relativePath, MySandboxGame.Config.CompressSaveGames, sector, out sizeInBytes);
+            return MyObjectBuilderSerializer.SerializeXML(relativePath, MySandboxGame.Config.CompressSaveGames, sector, out sizeInBytes);
         }
 
         public static bool SaveCheckpoint(MyObjectBuilder_Checkpoint checkpoint, string sessionPath)
@@ -162,7 +164,7 @@ namespace Sandbox.Engine.Networking
         public static bool SaveCheckpoint(MyObjectBuilder_Checkpoint checkpoint, string sessionPath, out ulong sizeInBytes)
         {
             var checkpointFile = Path.Combine(sessionPath, CHECKPOINT_FILE);
-            return Sandbox.Common.ObjectBuilders.Serializer.MyObjectBuilderSerializer.SerializeXML(checkpointFile, MySandboxGame.Config.CompressSaveGames, checkpoint, out sizeInBytes);
+            return MyObjectBuilderSerializer.SerializeXML(checkpointFile, MySandboxGame.Config.CompressSaveGames, checkpoint, out sizeInBytes);
         }
 
         public static List<Tuple<string, MyWorldInfo>> GetAvailableWorldInfos()
@@ -184,6 +186,7 @@ namespace Sandbox.Engine.Networking
             MySandboxGame.Log.WriteLine("Loading available saves - END");
             return result;
         }
+
         public static List<Tuple<string, MyWorldInfo>> GetAvailableMissionInfos()
         {
             MySandboxGame.Log.WriteLine("Loading available mission - START");
@@ -196,7 +199,19 @@ namespace Sandbox.Engine.Networking
             return result;
         }
 
-        private static void GetWorldInfoFromDirectory(string path, List<Tuple<string, MyWorldInfo>> result)
+        public static List<Tuple<string, MyWorldInfo>> GetAvailableOfficialBattlesInfos()
+        {
+            MySandboxGame.Log.WriteLine("Loading available battles - START");
+            var result = new List<Tuple<string, MyWorldInfo>>();
+            using (MySandboxGame.Log.IndentUsing(LoggingOptions.ALL))
+            {
+                GetWorldInfoFromDirectory(OfficialBattlesPath, result);
+            }
+            MySandboxGame.Log.WriteLine("Loading available battles - END");
+            return result;
+        }
+
+        public static void GetWorldInfoFromDirectory(string path, List<Tuple<string, MyWorldInfo>> result)
         {
             bool dirExists = Directory.Exists(path);
             MySandboxGame.Log.WriteLine(string.Format("GetWorldInfoFromDirectory (Exists: {0}) '{1}'", dirExists, path));
@@ -225,7 +240,7 @@ namespace Sandbox.Engine.Networking
                 return null;
 
             MyObjectBuilder_LastSession lastSession = null;
-            Sandbox.Common.ObjectBuilders.Serializer.MyObjectBuilderSerializer.DeserializeXML(LastSessionPath, out lastSession);
+            MyObjectBuilderSerializer.DeserializeXML(LastSessionPath, out lastSession);
             if (lastSession == null)
                 return null;
 
@@ -244,7 +259,7 @@ namespace Sandbox.Engine.Networking
             if (MyFinalBuildConstants.IS_OFFICIAL)
                 return true;
 
-            MyObjectBuilder_LastSession lastSession = Sandbox.Common.ObjectBuilders.Serializer.MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_LastSession>();
+            MyObjectBuilder_LastSession lastSession = MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_LastSession>();
             if (sessionPath != null)
             {
                 lastSession.Path = sessionPath;
@@ -252,7 +267,7 @@ namespace Sandbox.Engine.Networking
             }
 
             ulong sizeInBytes;
-            return Sandbox.Common.ObjectBuilders.Serializer.MyObjectBuilderSerializer.SerializeXML(LastSessionPath, false, lastSession, out sizeInBytes);
+            return MyObjectBuilderSerializer.SerializeXML(LastSessionPath, false, lastSession, out sizeInBytes);
         }
 
         public static void ClearLastSessionInfo()
@@ -270,7 +285,7 @@ namespace Sandbox.Engine.Networking
             MyObjectBuilder_LastLoadedTimes builder = null;
             Dictionary<string, DateTime> times;
 
-            if (File.Exists(LastLoadedTimesPath) && Sandbox.Common.ObjectBuilders.Serializer.MyObjectBuilderSerializer.DeserializeXML(LastLoadedTimesPath, out builder))
+            if (File.Exists(LastLoadedTimesPath) && MyObjectBuilderSerializer.DeserializeXML(LastLoadedTimesPath, out builder))
                 times = builder.LastLoaded.Dictionary;
             else
                 times = new Dictionary<string, DateTime>(1);
@@ -278,22 +293,22 @@ namespace Sandbox.Engine.Networking
             times[sessionPath] = lastLoadedTime;
 
             if (builder == null)
-                builder = Sandbox.Common.ObjectBuilders.Serializer.MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_LastLoadedTimes>();
+                builder = MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_LastLoadedTimes>();
 
             if (builder.LastLoaded == null)
                 builder.LastLoaded = new SerializableDictionary<string, DateTime>(times);
             else
                 builder.LastLoaded.Dictionary = times;
 
-            return Sandbox.Common.ObjectBuilders.Serializer.MyObjectBuilderSerializer.SerializeXML(LastLoadedTimesPath, false, builder);
+            return MyObjectBuilderSerializer.SerializeXML(LastLoadedTimesPath, false, builder);
         }
 
         private static bool SaveLastLoadedTimes(Dictionary<string, DateTime> lastLoadedTimes)
         {
-            var builder = Sandbox.Common.ObjectBuilders.Serializer.MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_LastLoadedTimes>();
+            var builder = MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_LastLoadedTimes>();
             builder.LastLoaded = new SerializableDictionary<string, DateTime>(lastLoadedTimes);
             ulong sizeInBytes;
-            return Sandbox.Common.ObjectBuilders.Serializer.MyObjectBuilderSerializer.SerializeXML(LastLoadedTimesPath, false, builder, out sizeInBytes);
+            return MyObjectBuilderSerializer.SerializeXML(LastLoadedTimesPath, false, builder, out sizeInBytes);
         }
 
         /// <summary>
@@ -327,7 +342,7 @@ namespace Sandbox.Engine.Networking
             {
                 MyObjectBuilder_LastLoadedTimes builder;
 
-                if (Sandbox.Common.ObjectBuilders.Serializer.MyObjectBuilderSerializer.DeserializeXML(LastLoadedTimesPath, out builder))
+                if (MyObjectBuilderSerializer.DeserializeXML(LastLoadedTimesPath, out builder))
                 {
                     foreach (var pair in outputWorldInfos)
                     {

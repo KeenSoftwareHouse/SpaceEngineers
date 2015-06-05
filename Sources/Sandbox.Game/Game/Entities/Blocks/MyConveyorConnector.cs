@@ -16,6 +16,7 @@ using Sandbox.Definitions;
 using Sandbox.Game.Multiplayer;
 using Sandbox.Game.World;
 using Sandbox.Engine.Multiplayer;
+using VRage.ModAPI;
 
 namespace Sandbox.Game.Entities
 {

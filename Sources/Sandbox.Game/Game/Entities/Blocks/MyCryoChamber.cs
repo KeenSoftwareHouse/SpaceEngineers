@@ -1,26 +1,30 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using Sandbox.Common.ObjectBuilders;
+﻿using Sandbox.Common.ObjectBuilders;
 using Sandbox.Common.ObjectBuilders.Definitions;
 using Sandbox.Definitions;
 using Sandbox.Game.Entities.Character;
 using Sandbox.Game.Entities.Cube;
 using Sandbox.Game.GameSystems.Electricity;
 using Sandbox.Game.GUI;
+using Sandbox.Game.Localization;
 using Sandbox.Game.Multiplayer;
 using Sandbox.Game.World;
 using Sandbox.ModAPI.Interfaces;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using VRage.Game.Entity.UseObject;
 using VRage.Import;
+using VRage.Utils;
 using VRageMath;
 using VRageRender;
+using VRage.ModAPI;
+using Sandbox.Engine.Utils;
 
 namespace Sandbox.Game.Entities.Blocks
 {
     [MyCubeBlockType(typeof(MyObjectBuilder_CryoChamber))]
-    class MyCryoChamber : MyCockpit, IMyPowerConsumer
+    public class MyCryoChamber : MyCockpit, IMyPowerConsumer
     {
         private MatrixD m_characterDummy;
         private MatrixD m_cameraDummy;
@@ -46,6 +50,8 @@ namespace Sandbox.Game.Entities.Blocks
             get;
             protected set;
         }
+
+        protected override MyStringId LeaveNotificationHintText { get { return MySpaceTexts.NotificationHintLeaveCryoChamber; } }
 
         public MyCryoChamber()
         {
@@ -83,7 +89,7 @@ namespace Sandbox.Game.Entities.Blocks
                 this.CalculateRequiredPowerInput);
             PowerReceiver.IsPoweredChanged += Receiver_IsPoweredChanged;
 
-            NeedsUpdate |= Common.MyEntityUpdateEnum.BEFORE_NEXT_FRAME;
+            NeedsUpdate |= MyEntityUpdateEnum.BEFORE_NEXT_FRAME;
         }
 
         private float CalculateRequiredPowerInput()
@@ -240,6 +246,11 @@ namespace Sandbox.Game.Entities.Blocks
             {
                 MyCubeBlock.UpdateEmissiveParts(Render.RenderObjectIDs[0], 0.0f, Color.Red, Color.White);
             }
+
+            if (MyFakes.ENABLE_OXYGEN_SOUNDS)
+            {
+                UpdateSound();
+            }
         }
 
         private bool IsPowered()
@@ -321,7 +332,42 @@ namespace Sandbox.Game.Entities.Blocks
                 }
                 //Pilot is killed by base in survival
             }
+
+            m_soundEmitter.StopSound(true);
         }
+
+        private bool IsLocalCharacterInside()
+        {
+            return MySession.LocalCharacter != null && MySession.LocalCharacter == Pilot;
+        }
+
+        private void UpdateSound()
+        {
+            if (IsWorking)
+            {
+                if (IsLocalCharacterInside())
+                {
+                    if (m_soundEmitter.SoundId != BlockDefinition.InsideSound.SoundId)
+                    {
+                        m_soundEmitter.PlaySound(BlockDefinition.InsideSound, true);
+                    }
+                }
+                else
+                {
+                    if (m_soundEmitter.SoundId != BlockDefinition.OutsideSound.SoundId)
+                    {
+                        m_soundEmitter.PlaySound(BlockDefinition.OutsideSound, true);
+                    }
+                }
+            }
+            else
+            {
+                m_soundEmitter.StopSound(true);
+            }
+
+            m_soundEmitter.Update();
+        }
+        
 
         public void CameraAttachedToChanged(IMyCameraController oldController, IMyCameraController newController)
         {

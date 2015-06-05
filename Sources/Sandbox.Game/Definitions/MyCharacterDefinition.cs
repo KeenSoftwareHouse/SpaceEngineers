@@ -59,6 +59,8 @@ namespace Sandbox.Definitions
         // Ragdoll data
         public string RagdollDataFile;
         public Dictionary<string, string[]> RagdollBonesMappings = new Dictionary<string, string[]>();
+        public Dictionary<string, string[]> RagdollPartialSimulations = new Dictionary<string, string[]>();
+        
         public string RagdollRootBody;
 
         public Dictionary<MyCharacterMovementEnum, MyFeetIKSettings> FeetIKSettings;        
@@ -96,6 +98,10 @@ namespace Sandbox.Definitions
         public float CharacterHeadSize;
         public float CharacterHeadHeight;
         public float CharacterCollisionScale;
+
+        public float CharacterWidth;
+        public float CharacterHeight;
+        public float CharacterLength;
 
         protected override void Init(MyObjectBuilder_DefinitionBase objectBuilder)
         {
@@ -143,6 +149,7 @@ namespace Sandbox.Definitions
             DeathSoundName = builder.DeathSoundName;
             VisibleOnHud = builder.VisibleOnHud;
             RagdollRootBody = builder.RagdollRootBody;
+
 
             FeetIKSettings = new Dictionary<MyCharacterMovementEnum,MyFeetIKSettings>();
             if (builder.IKSettings != null)
@@ -194,6 +201,11 @@ namespace Sandbox.Definitions
                 RagdollBonesMappings = builder.RagdollBonesMappings.ToDictionary(x => x.Name, x => x.Bones.Split(' '));
             }
 
+            if (builder.RagdollPartialSimulations != null)
+            {
+                RagdollPartialSimulations = builder.RagdollPartialSimulations.ToDictionary(x => x.Name, x => x.Bones.Split(' '));
+            }
+
             Mass = builder.Mass;
             MaxHealth = builder.MaxHealth;
             OxygenCapacity = builder.OxygenCapacity;
@@ -219,6 +231,10 @@ namespace Sandbox.Definitions
             CharacterHeadSize = builder.CharacterHeadSize;
             CharacterHeadHeight = builder.CharacterHeadHeight;
             CharacterCollisionScale = builder.CharacterCollisionScale;
+
+            CharacterWidth = builder.CharacterWidth;
+            CharacterHeight = builder.CharacterHeight;
+            CharacterLength = builder.CharacterLength;
         }
 
         public override MyObjectBuilder_DefinitionBase GetObjectBuilder()
@@ -272,6 +288,11 @@ namespace Sandbox.Definitions
             ob.CharacterHeadSize = CharacterHeadSize;
             ob.CharacterHeadHeight = CharacterHeadHeight;
             ob.CharacterCollisionScale = CharacterCollisionScale;
+
+            ob.CharacterHeight = CharacterHeight;
+            ob.CharacterLength = CharacterLength;
+            ob.CharacterWidth = CharacterWidth;
+
             return ob;
         }
     }

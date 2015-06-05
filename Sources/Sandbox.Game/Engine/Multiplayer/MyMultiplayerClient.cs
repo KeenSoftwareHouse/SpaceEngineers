@@ -159,13 +159,55 @@ namespace Sandbox.Engine.Multiplayer
             set { m_viewDistance = value; }
         }
 
+        public override bool Scenario
+        {
+            get;
+            set;
+        }
+
+        public override string ScenarioBriefing
+        {
+            get;
+            set;
+        }
+
+        public override DateTime ScenarioStartTime
+        {
+            get;
+            set;
+        }
+
         public override bool Battle
         {
             get;
             set;
         }
 
-        public override int MaxBattleBlueprintPoints
+        public override bool BattleCanBeJoined
+        {
+            get;
+            set;
+        }
+
+        public override int BattleFaction1MaxBlueprintPoints
+        {
+            get;
+            set;
+        }
+
+        public override int BattleFaction2MaxBlueprintPoints
+        {
+            get;
+            set;
+        }
+
+        public override int BattleFaction1BlueprintPoints
+        {
+            get;
+            set;
+        }
+
+        public override int BattleFaction2BlueprintPoints
         {
             get;
             set;
@@ -208,6 +250,12 @@ namespace Sandbox.Engine.Multiplayer
         }
 
         public override bool BattleFaction2Ready
+        {
+            get;
+            set;
+        }
+
+        public override int BattleTimeLimit
         {
             get;
             set;

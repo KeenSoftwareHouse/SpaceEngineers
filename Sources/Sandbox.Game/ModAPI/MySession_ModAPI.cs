@@ -377,24 +377,24 @@ namespace Sandbox.Game.World
         }
 
         IMyPlayer IMySession.Player
-        { 
-            get { return LocalHumanPlayer; } 
+        {
+            get { return LocalHumanPlayer; }
         }
 
-        IMyControllableEntity IMySession.ControlledObject 
+        IMyControllableEntity IMySession.ControlledObject
         {
-            get { return ControlledEntity; } 
+            get { return ControlledEntity; }
         }
 
         Common.ObjectBuilders.MyObjectBuilder_SessionSettings IMySession.SessionSettings
         {
-            get { return Settings;}
+            get { return Settings; }
         }
 
 
         IMyFactionCollection IMySession.Factions
         {
-            get { return Factions;}
+            get { return Factions; }
         }
 
         IMyCamera IMySession.Camera
@@ -410,6 +410,18 @@ namespace Sandbox.Game.World
         IMyGpsCollection IMySession.GPS
         {
             get { return MySession.Static.Gpss; }
+        }
+
+        event Action IMySession.OnSessionReady
+        {
+            add { MySession.OnReady += value; }
+            remove { MySession.OnReady -= value; }
+        }
+
+        event Action IMySession.OnSessionLoading
+        {
+            add { MySession.OnLoading += value; }
+            remove { MySession.OnLoading -= value; }
         }
     }
 }

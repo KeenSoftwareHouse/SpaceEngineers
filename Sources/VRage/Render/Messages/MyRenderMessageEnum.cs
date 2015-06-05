@@ -95,6 +95,9 @@ namespace VRageRender
         DrawSecondaryCameraSprite,
 
         CreateDecal,
+        CreateScreenDecal,
+        RemoveDecal,
+        RegisterDecalsMaterials,
         HideDecals,
 
         UpdateCockpitGlass,
@@ -155,6 +158,5 @@ namespace VRageRender
         CreatedDeviceSettings, // Output
         SwitchDeviceSettings,
         SwitchRenderSettings,
-        SwitchRenderSettings1,
     }
 }

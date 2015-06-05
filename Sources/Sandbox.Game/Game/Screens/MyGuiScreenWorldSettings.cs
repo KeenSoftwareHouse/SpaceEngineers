@@ -21,12 +21,10 @@ using Sandbox.Engine.Multiplayer;
 using Sandbox.Game.Screens.Helpers;
 using System.Diagnostics;
 using VRage.Utils;
-using Sandbox.Common.ObjectBuilders.Serializer;
 using Sandbox.Game.Localization;
-using VRage;
-using VRage.Utils;
 using VRage.Voxels;
 using VRage.Library.Utils;
+using VRage.ObjectBuilders;
 
 #endregion
 

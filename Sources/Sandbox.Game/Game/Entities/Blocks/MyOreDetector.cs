@@ -12,6 +12,7 @@ using VRageMath;
 using Sandbox.Game.Components;
 using Sandbox.ModAPI.Ingame;
 using Sandbox.Game.Localization;
+using VRage.ModAPI;
 
 #endregion
 
@@ -44,6 +45,7 @@ namespace Sandbox.Game.Entities.Cube
             var broadcastUsingAntennas = new MyTerminalControlCheckbox<MyOreDetector>("BroadcastUsingAntennas", MySpaceTexts.BlockPropertyDescription_BroadcastUsingAntennas, MySpaceTexts.BlockPropertyDescription_BroadcastUsingAntennas);
             broadcastUsingAntennas.Getter = (x) => x.m_oreDetectorComponent.BroadcastUsingAntennas;
             broadcastUsingAntennas.Setter = (x, v) => x.SyncObject.SendChangeOreDetector(v);
+            broadcastUsingAntennas.EnableAction();
             MyTerminalControlFactory.AddControl(broadcastUsingAntennas);
         }
 

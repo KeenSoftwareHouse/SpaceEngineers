@@ -67,8 +67,51 @@ namespace Sandbox.Game.Components
             }
         }
 
+
+        List<Havok.HkRigidBody> m_penetrations = new List<Havok.HkRigidBody>();
+
         public override bool DebugDraw()
         {
+            if (MyDebugDrawSettings.DEBUG_DRAW_FIXED_BLOCK_QUERIES)
+            {
+                foreach (var b in m_cubeGrid.GetBlocks())
+                {
+                    var geometryBox = b.FatBlock.GetGeometryLocalBox();                    
+                    //geometryBox.Inflate(0.5f);
+                    Vector3 halfExtents = geometryBox.Size / 2;
+
+                    Vector3D pos;                    
+                    b.ComputeScaledCenter(out pos);
+                    pos += geometryBox.Center;                    
+                    pos = Vector3D.Transform(pos, m_cubeGrid.WorldMatrix);
+
+                    Matrix blockMatrix;
+                    b.Orientation.GetMatrix(out blockMatrix);
+                    var q = Quaternion.CreateFromRotationMatrix(blockMatrix * m_cubeGrid.WorldMatrix.GetOrientation());
+
+                    Sandbox.Engine.Physics.MyPhysics.GetPenetrationsBox(ref halfExtents, ref pos, ref q, m_penetrations, Sandbox.Engine.Physics.MyPhysics.CollideWithStaticLayer);
+                    bool isStatic = false;
+                    foreach (var p in m_penetrations)
+                    {
+                        if (p == null)
+                            continue;
+                        var e = p.UserObject as Sandbox.Engine.Physics.MyPhysicsBody;
+                        if (e != null && e.Entity != null && e.Entity is MyVoxelMap)
+                        {
+                            isStatic = true;
+                            break;
+                        }
+                    }
+
+                    m_penetrations.Clear();
+
+
+
+                    MyOrientedBoundingBoxD obb = new MyOrientedBoundingBoxD(pos, halfExtents, q);
+                    MyRenderProxy.DebugDrawOBB(obb, isStatic ? Color.Green : Color.Red, 0.1f, false, false);
+                }
+            }
+
             if (MyDebugDrawSettings.DEBUG_DRAW_GRID_NAMES || MyDebugDrawSettings.DEBUG_DRAW_GRID_CONTROL)
             {
                 string text = "";
@@ -174,13 +217,27 @@ namespace Sandbox.Game.Components
                 }
             }
 
-            foreach(var b in m_cubeGrid.GetBlocks())
+            if(MyDebugDrawSettings.DEBUG_DRAW_BLOCK_INTEGRITY)
             {
-                if(b.FatBlock is MyFracturedBlock)
-                {
-                    MyRenderProxy.DebugDrawText3D(m_cubeGrid.GridIntegerToWorld(b.Position), "F", Color.Red, 1, false);
-                }
+                if (MySector.MainCamera != null && (MySector.MainCamera.Position - m_cubeGrid.PositionComp.WorldVolume.Center).Length() < 16 +m_cubeGrid.PositionComp.WorldVolume.Radius)
+                    foreach (var cubeBlock in m_cubeGrid.CubeBlocks)
+                    {
+                        var pos = m_cubeGrid.GridIntegerToWorld(cubeBlock.Position);
+                        if (m_cubeGrid.GridSizeEnum == MyCubeSize.Large || (MySector.MainCamera != null && (MySector.MainCamera.Position - pos).LengthSquared() < 9))
+                        {
+                            float integrity = 0;
+                            if (cubeBlock.FatBlock is MyCompoundCubeBlock)
+                            {
+                                foreach (var b in (cubeBlock.FatBlock as MyCompoundCubeBlock).GetBlocks())
+                                    integrity += b.Integrity;
+                            }
+                            else
+                                integrity = cubeBlock.Integrity;
+                            MyRenderProxy.DebugDrawText3D(m_cubeGrid.GridIntegerToWorld(cubeBlock.Position), ((int)integrity).ToString(), Color.White, m_cubeGrid.GridSizeEnum == MyCubeSize.Large ? 0.65f : 0.5f, false);
+                        }
+                    }
             }
+
             return base.DebugDraw();
         }
 

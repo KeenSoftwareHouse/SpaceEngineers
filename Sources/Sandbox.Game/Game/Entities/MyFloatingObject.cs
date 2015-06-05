@@ -26,6 +26,12 @@ using VRage.Library.Utils;
 using VRage.Utils;
 using VRageMath;
 using Sandbox.Game.GameSystems;
+using Sandbox.Common.ModAPI;
+using Sandbox.Game.Entities.UseObject;
+using VRage.ObjectBuilders;
+using VRage.ModAPI;
+using VRage.Components;
+using VRage.Game.Entity.UseObject;
 
 #endregion
 
@@ -36,6 +42,7 @@ namespace Sandbox.Game.Entities
     {
         static MySoundPair TAKE_ITEM_SOUND = new MySoundPair("PlayTakeItem");
         static MyStringId m_explosives = MyStringId.GetOrCompute("Explosives");
+		static public MyObjectBuilder_Ore ScrapBuilder = MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_Ore>("Scrap");
 
         private StringBuilder m_displayedText = new StringBuilder();
 
@@ -87,7 +94,7 @@ namespace Sandbox.Game.Entities
 
             // DA: Consider using havok fields (buoyancy demo) for gravity of planets.
             Vector3 gravity = MyGravityProviderSystem.CalculateGravityInPointForGrid(PositionComp.GetPosition());
-            Physics.AddForce(Engine.Physics.MyPhysicsForceType.APPLY_WORLD_FORCE, Physics.Mass * gravity, Physics.CenterOfMassWorld, null);
+            Physics.AddForce(MyPhysicsForceType.APPLY_WORLD_FORCE, Physics.Mass * gravity, Physics.CenterOfMassWorld, null);
         }
 
         public override void OnAddedToScene(object source)
@@ -240,8 +247,9 @@ namespace Sandbox.Game.Entities
             get { return UseActionEnum.Manipulate; }
         }
 
-        void IMyUseObject.Use(UseActionEnum actionEnum, MyCharacter user)
+        void IMyUseObject.Use(UseActionEnum actionEnum, IMyEntity entity)
         {
+            var user = entity as MyCharacter;
             if (!MarkedForClose)
             {
                 if (!MySession.Static.CreativeMode)
@@ -264,6 +272,7 @@ namespace Sandbox.Game.Entities
                     MyAudio.Static.PlaySound(TAKE_ITEM_SOUND.SoundId);
                 //user.StartSecondarySound(TAKE_ITEM_SOUND);
                 user.GetInventory().TakeFloatingObject(this);
+                MyHud.Notifications.ReloadTexts();
             }
         }
 
@@ -381,7 +390,7 @@ namespace Sandbox.Game.Entities
 
                     if (MyFakes.ENABLE_SCRAP && Sync.IsServer)
                     {
-                        if (Item.Content.SubtypeName.Equals("Scrap"))
+                        if (Item.Content.SubtypeId == ScrapBuilder.SubtypeId)
                             return;
 
                         var contentDefinitionId = Item.Content.GetId();
@@ -389,7 +398,7 @@ namespace Sandbox.Game.Entities
                         {
                             var definition = MyDefinitionManager.Static.GetComponentDefinition((Item.Content as MyObjectBuilder_Component).GetId());
                             if (MyRandom.Instance.NextFloat() < definition.DropProbability)
-                                MyFloatingObjects.Spawn(new MyInventoryItem(Item.Amount * 0.8f, Sandbox.Common.ObjectBuilders.Serializer.MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_Ingot>("Scrap")), PositionComp.GetPosition(), WorldMatrix.Forward, WorldMatrix.Up);
+                                MyFloatingObjects.Spawn(new MyInventoryItem(Item.Amount * 0.8f, ScrapBuilder), PositionComp.GetPosition(), WorldMatrix.Forward, WorldMatrix.Up);
                         }
                     }
                 }
@@ -429,7 +438,7 @@ namespace Sandbox.Game.Entities
             OnDestroy();
         }
 
-        void IMyDestroyableObject.DoDamage(float damage, MyDamageType damageType, bool sync)
+        void IMyDestroyableObject.DoDamage(float damage, MyDamageType damageType, bool sync, MyHitInfo? hitInfo)
         {
             DoDamage(damage, damageType, sync);
         }

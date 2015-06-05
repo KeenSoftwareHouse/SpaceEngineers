@@ -24,6 +24,8 @@ using Sandbox.Game.GameSystems.Conveyors;
 using VRage;
 using SteamSDK;
 using Sandbox.Game.Localization;
+using VRage.ObjectBuilders;
+using VRage.ModAPI;
 
 namespace Sandbox.Game.Entities.Cube
 {
@@ -58,14 +60,14 @@ namespace Sandbox.Game.Entities.Cube
             [MessageId(2477, P2PMessageEnum.Reliable)]
             struct AddQueueItemMsg : IEntityMessage
             {
-                [ProtoMember(1)]
+                [ProtoMember]
                 public long ProductionEntityId;
                 public long GetEntityId() { return ProductionEntityId; }
-                [ProtoMember(2)]
+                [ProtoMember]
                 public SerializableDefinitionId Blueprint;
-                [ProtoMember(3)]
+                [ProtoMember]
                 public MyFixedPoint Amount;
-                [ProtoMember(4)]
+                [ProtoMember]
                 public int Idx;
             }
 

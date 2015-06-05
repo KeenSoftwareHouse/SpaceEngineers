@@ -275,6 +275,9 @@ namespace Sandbox.Definitions
 
         public MySoundPair PrimarySound;
 
+        public int BattlePoints;
+
+
         public override String DisplayNameText
         {
             get
@@ -329,6 +332,8 @@ namespace Sandbox.Definitions
             this.GeneratedBlockType    = MyStringId.GetOrCompute(ob.GeneratedBlockType != null ? ob.GeneratedBlockType.ToLower() : null);
             if (ob.DamageEffectId != 0)
                 this.DamageEffectID = ob.DamageEffectId;
+
+            this.BattlePoints = ob.BattlePoints;
 
             this.CompoundTemplates = ob.CompoundTemplates;
             Debug.Assert(this.CompoundTemplates == null || this.CompoundTemplates.Length > 0, "Wrong compound templates, array is empty");
@@ -424,10 +429,21 @@ namespace Sandbox.Definitions
 
                     Components[j] = tmp;
                 }
+
                 MaxIntegrity = integrity;
-                IntegrityPointsPerSec = integrity / ob.BuildTimeSeconds;
+
+                if (ob.MaxIntegrity != 0)
+                    MaxIntegrity = ob.MaxIntegrity;
+
+                IntegrityPointsPerSec = MaxIntegrity / ob.BuildTimeSeconds;
                 DisassembleRatio = ob.DisassembleRatio;
-                Mass = mass;
+                if(!MyPerGameSettings.Destruction)
+                    Mass = mass;
+            }
+            else
+            {
+                if (ob.MaxIntegrity != 0)
+                    MaxIntegrity = ob.MaxIntegrity;
             }
 
             CriticalIntegrityRatio = criticalIntegrity / MaxIntegrity;
@@ -519,6 +535,7 @@ namespace Sandbox.Definitions
             ob.DamageEffectId = this.DamageEffectID.HasValue ? this.DamageEffectID.Value : 0;
             ob.CompoundTemplates = this.CompoundTemplates;
             ob.Icon = Icon;
+            ob.BattlePoints = this.BattlePoints;
             //ob.SubBlockDefinitions = SubBlockDefinitions;
             //ob.BlockVariants = BlockVariants;
 

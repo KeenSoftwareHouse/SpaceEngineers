@@ -1,9 +1,15 @@
 ﻿using System;
+using VRage.ModAPI;
+using VRage.ObjectBuilders;
+
 namespace Sandbox.ModAPI.Ingame
 {
+    /// <summary>
+    /// Basic cube interface
+    /// </summary>
     public interface IMyCubeBlock : IMyEntity
     {
-        Sandbox.Common.ObjectBuilders.Definitions.SerializableDefinitionId BlockDefinition { get; }
+        SerializableDefinitionId BlockDefinition { get; }
 
         bool CheckConnectionAllowed { get; }
         IMyCubeGrid CubeGrid { get; }
@@ -17,6 +23,11 @@ namespace Sandbox.ModAPI.Ingame
         bool IsFunctional { get; }
         bool IsWorking { get; }
         VRageMath.Vector3I Max { get; }
+
+        /// <summary>
+        /// Block mass
+        /// </summary>
+        float Mass { get; }
         VRageMath.Vector3I Min { get; }
         int NumberInGrid { get; }
         VRageMath.MyBlockOrientation Orientation { get; }

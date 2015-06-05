@@ -33,6 +33,9 @@ using VRage.Utils;
 using Sandbox.ModAPI;
 using Sandbox.Game.World;
 using Sandbox.Game.Localization;
+using VRage;
+using VRage.ModAPI;
+using VRage.Components;
 
 namespace Sandbox.Game.Weapons
 {
@@ -173,7 +176,7 @@ namespace Sandbox.Game.Weapons
             PowerReceiver = new MyPowerReceiver(
                 MyConsumerGroupEnum.Defense,
                 false,
-                MyEnergyConstants.MAX_REQUIRED_POWER_SHIP_DRILL,
+                ComputeMaxRequiredPower(),
                 ComputeRequiredPower);
             PowerReceiver.IsPoweredChanged += Receiver_IsPoweredChanged;
             PowerReceiver.Update();
@@ -186,6 +189,8 @@ namespace Sandbox.Game.Weapons
             SlimBlock.ComponentStack.IsFunctionalChanged += ComponentStack_IsFunctionalChanged;
 
             m_useConveyorSystem = obDrill.UseConveyorSystem;
+
+            UpdateDetailedInfo();
         }
 
         void Receiver_IsPoweredChanged()
@@ -310,6 +315,19 @@ namespace Sandbox.Game.Weapons
             }
         }
 
+        private void UpdateDetailedInfo()
+        {
+            DetailedInfo.Clear();
+            DetailedInfo.AppendStringBuilder(MyTexts.Get(MySpaceTexts.BlockPropertiesText_Type));
+            DetailedInfo.Append(BlockDefinition.DisplayNameText);
+            DetailedInfo.AppendFormat("\n");
+            DetailedInfo.AppendStringBuilder(MyTexts.Get(MySpaceTexts.BlockPropertiesText_MaxRequiredInput));
+            MyValueFormatter.AppendWorkInBestUnit(PowerReceiver.MaxRequiredInput, DetailedInfo);
+            DetailedInfo.AppendFormat("\n");
+
+            RaisePropertiesChanged();
+        }
+
         public bool CanShoot(MyShootActionEnum action, long shooter, out MyGunStatusEnum status)
         {
             status = MyGunStatusEnum.OK;
@@ -426,6 +444,11 @@ namespace Sandbox.Game.Weapons
             return WorldMatrix.Forward * (m_blockLength-2) * m_cubeSideLength + WorldMatrix.Translation;
         }
 
+        private float ComputeMaxRequiredPower()
+        {
+            return MyEnergyConstants.MAX_REQUIRED_POWER_SHIP_DRILL * m_powerConsumptionMultiplier;
+        }
+
         private float ComputeRequiredPower()
         {
             return (IsFunctional && (Enabled || m_wantsToDrill)) ? PowerReceiver.MaxRequiredInput : 0f;
@@ -514,6 +537,31 @@ namespace Sandbox.Game.Weapons
                 {
                     m_drillBase.VoxelHarvestRatio = MyDrillConstants.VOXEL_HARVEST_RATIO * m_drillMultiplier;
                     m_drillBase.VoxelHarvestRatio = MathHelper.Clamp(m_drillBase.VoxelHarvestRatio, 0f, 1f);
+                }
+            }
+        }
+
+        private float m_powerConsumptionMultiplier = 1f;
+        float Sandbox.ModAPI.IMyShipDrill.PowerConsumptionMultiplier
+        {
+            get
+            {
+                return m_powerConsumptionMultiplier;
+            }
+            set
+            {
+                m_powerConsumptionMultiplier = value;
+                if (m_powerConsumptionMultiplier < 0.01f)
+                {
+                    m_powerConsumptionMultiplier = 0.01f;
+                }
+
+                if (PowerReceiver != null)
+                {
+                    PowerReceiver.MaxRequiredInput = ComputeMaxRequiredPower();
+                    PowerReceiver.Update();
+
+                    UpdateDetailedInfo();
                 }
             }
         }

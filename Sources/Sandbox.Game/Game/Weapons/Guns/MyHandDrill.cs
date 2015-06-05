@@ -18,6 +18,8 @@ using Sandbox.ModAPI.Interfaces;
 using System;
 using System.Diagnostics;
 using VRageMath;
+using VRage.ObjectBuilders;
+using VRage.ModAPI;
 
 #endregion
 
@@ -101,7 +103,7 @@ namespace Sandbox.Game.Weapons
         {
             NeedsUpdate = MyEntityUpdateEnum.EACH_FRAME;
 
-            PhysicalObject = Sandbox.Common.ObjectBuilders.Serializer.MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_PhysicalGunObject>("HandDrillItem");
+            PhysicalObject = MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_PhysicalGunObject>("HandDrillItem");
             m_physItemDef = MyDefinitionManager.Static.GetPhysicalItemDefinition(new MyDefinitionId(typeof(MyObjectBuilder_PhysicalGunObject), "HandDrillItem"));
             (PositionComp as MyPositionComponent).WorldPositionChanged = WorldPositionChanged;
         }
