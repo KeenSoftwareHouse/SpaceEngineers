@@ -61,6 +61,8 @@ namespace VRage.Input
         //  Return true if new key pressed right now. Don't care if it was pressed in previous update too.
         bool IsKeyPress(MyKeys key);
 
+        bool WasKeyPressed(MyKeys key);
+
         //  Return true if new key was pressed, that means this key was pressed now. During previous Update it wasn't pressed at all.
         bool IsNewKeyPressed(MyKeys key);
         
@@ -72,6 +74,8 @@ namespace VRage.Input
         #region Mouse Button States
 
         bool IsMousePressed(MyMouseButtonsEnum button);
+
+        bool WasMousePressed(MyMouseButtonsEnum button);
 
         bool IsMouseReleased(MyMouseButtonsEnum button);
 
@@ -166,6 +170,9 @@ namespace VRage.Input
         //  Check to see if a specific button on the joystick is pressed.
         bool IsJoystickButtonPressed(MyJoystickButtonsEnum button);
 
+        //  Check to see if a specific button on the joystick was pressed last update.
+        bool WasJoystickButtonPressed(MyJoystickButtonsEnum button);
+
         //  Check to see if a specific button on the joystick is currently pressed and was not pressed during the last update. 
         bool IsJoystickButtonNewPressed(MyJoystickButtonsEnum button);
 
@@ -183,6 +190,8 @@ namespace VRage.Input
 
         bool IsJoystickAxisPressed(MyJoystickAxesEnum axis);
 
+        bool WasJoystickAxisPressed(MyJoystickAxesEnum axis);
+        
         //  Check to see if a specific button on the joystick is currently pressed and was not pressed during the last update. 
         bool IsJoystickAxisNewPressed(MyJoystickAxesEnum axis);
 
@@ -264,6 +273,9 @@ namespace VRage.Input
 
         //  Check if an assigned control for game is currently pressed.
         bool IsGameControlPressed(MyStringId controlEnum);
+
+        //  Check if an assigned control for game was pressed last update
+        bool WasGameControlPressed(MyStringId controlEnum);
 
         //  Check if an assigned control for game is new pressed.
         bool IsNewGameControlReleased(MyStringId controlEnum);

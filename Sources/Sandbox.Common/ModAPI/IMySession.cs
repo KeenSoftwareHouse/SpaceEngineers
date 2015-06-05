@@ -89,5 +89,6 @@ namespace Sandbox.ModAPI
         IMyGpsCollection GPS { get; }
         event Action OnSessionReady;
         event Action OnSessionLoading;
+        IMyUserInput Input { get; }
     }
 }

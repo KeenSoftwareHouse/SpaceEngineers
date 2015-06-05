@@ -8,6 +8,7 @@ namespace VRage.Input
         NEW_PRESSED,
         PRESSED,
         NEW_RELEASED,
+        WAS_PRESSED
     }
 
     public enum MyControlType
@@ -61,6 +62,7 @@ namespace VRage.Input
             byte Code { get; }
             bool IsNewPressed();
             bool IsPressed();
+            bool WasPressed();
             bool IsNewReleased();
             float AnalogValue();
             char ControlCode();
@@ -108,6 +110,11 @@ namespace VRage.Input
                 return false;
             }
 
+            public bool WasPressed()
+            {
+                return false;
+            }
+
             public bool IsNewReleased()
             {
                 return false;
@@ -142,6 +149,11 @@ namespace VRage.Input
                 return MyInput.Static.IsJoystickAxisPressed(Axis);
             }
 
+            public bool WasPressed()
+            {
+                return MyInput.Static.WasJoystickAxisPressed(Axis);
+            }
+
             public bool IsNewReleased()
             {
                 return MyInput.Static.IsNewJoystickAxisReleased(Axis);
@@ -174,6 +186,11 @@ namespace VRage.Input
             public bool IsPressed()
             {
                 return MyInput.Static.IsJoystickButtonPressed(Button);
+            }
+
+            public bool WasPressed()
+            {
+                return MyInput.Static.WasJoystickButtonPressed(Button);
             }
 
             public bool IsNewReleased()
@@ -268,6 +285,8 @@ namespace VRage.Input
                     return MyInput.Static.IsNewGameControlReleased(stringId) || m_bindings[context][stringId].IsNewReleased();
                 case MyControlStateType.PRESSED:
                     return MyInput.Static.IsGameControlPressed(stringId) || m_bindings[context][stringId].IsPressed();
+                case MyControlStateType.WAS_PRESSED:
+                    return MyInput.Static.WasGameControlPressed(stringId) || m_bindings[context][stringId].WasPressed();
             }
 
             return false;
