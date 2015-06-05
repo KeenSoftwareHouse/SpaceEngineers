@@ -90,7 +90,6 @@ namespace VRageRender
             MyRender11.Log.WriteLine("SUPPORTED = " + info.IsDx11Supported);
             MyRender11.Log.WriteLine("VRAM = " + info.VRAM);
             MyRender11.Log.WriteLine("Priority = " + info.Priority);
-            MyRender11.Log.WriteLine("Fallback display modes = " + info.FallbackDisplayModes);
             MyRender11.Log.WriteLine("Multithreaded rendering supported = " + info.MultithreadedRenderingSupported);
         }
 
@@ -257,13 +256,9 @@ namespace VRageRender
 
                         info.SupportedDisplayModes = adapterDisplayModes;
                         info.CurrentDisplayMode = adapterDisplayModes[adapterDisplayModes.Length - 1];
-
-
-                        adaptersList.Add(info);
-                        m_adapterModes[adapterIndex] = displayModeList;
-                        adapterIndex++;
-
                         LogOutputDisplayModes(ref info);
+
+                        m_adapterModes[adapterIndex] = displayModeList;
                     }
 
                     if(info.SupportedDisplayModes == null)
@@ -300,9 +295,12 @@ namespace VRageRender
                 else
                 {
                     info.SupportedDisplayModes = new MyDisplayMode[0];
-                    adaptersList.Add(info);
-                    adapterIndex++;
                 }
+
+                MyRender11.Log.WriteLine("Fallback display modes = " + info.FallbackDisplayModes);
+
+                adaptersList.Add(info);
+                adapterIndex++;
                 LogAdapterInfoEnd();
 
                 if(adapterTestDevice != null)

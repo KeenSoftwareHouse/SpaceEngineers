@@ -57,6 +57,11 @@ namespace VRage.Components
     {
         public static bool DebugDrawFlattenHierarchy = false;
 
+        public override MyStringId Name
+        {
+            get { return DefaultNames.Physics; }
+        }
+
         #region Fields
 
 

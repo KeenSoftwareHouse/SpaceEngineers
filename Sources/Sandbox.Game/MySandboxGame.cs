@@ -1365,15 +1365,15 @@ namespace Sandbox
                         MySession.Static.HandleInput();
                     ProfilerShort.End();
                 }
-                else
-                if (MyFakes.CHARACTER_SERVER_SYNC)
+
+                if (MyFakes.CHARACTER_SERVER_SYNC && MySession.Static != null)
                 {
                     foreach (var player in Sync.Players.GetOnlinePlayers())
                     {
                         if (MySession.ControlledEntity != player.Character)
                         {
                             //Values are set inside method from sync object
-                            if (player.Character != null)
+                            if (player.Character != null && player.IsRemotePlayer())
                                 player.Character.MoveAndRotate(Vector3.Zero, Vector2.Zero, 0);
                         }
                     }
