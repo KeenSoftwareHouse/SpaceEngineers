@@ -444,7 +444,6 @@
     <Compile Include="Game\Entities\Inventory\IMyComponentInventory.cs" />
     <Compile Include="Game\Entities\Inventory\MyAreaInventory.cs" />
     <Compile Include="Game\Entities\Inventory\MyAreaInventoryComponentBase.cs" />
-    <Compile Include="Game\Entities\MyBattleAreaMarker.cs" />
     <Compile Include="Game\Entities\MyCompositeGameLogicComponent.cs" />
     <Compile Include="Game\Entities\Cube\MyBlockGroupData.cs" />
     <Compile Include="Game\Entities\Cube\MyCubeBuilder-Draw.cs" />

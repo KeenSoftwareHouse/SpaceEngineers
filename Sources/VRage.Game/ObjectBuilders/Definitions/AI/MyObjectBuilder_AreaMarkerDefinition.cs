@@ -26,5 +26,8 @@ namespace Sandbox.Common.ObjectBuilders.Definitions
 
         [ProtoMember]
         public SerializableVector3 MarkerPosition = new SerializableVector3(0.0f, 0.0f, 0.0f);
+
+		[ProtoMember]
+		public int MaxNumber = 1;
     }
 }

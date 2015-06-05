@@ -299,8 +299,11 @@ namespace VRageRender
 
                 MyRender11.Log.WriteLine("Fallback display modes = " + info.FallbackDisplayModes);
 
-                adaptersList.Add(info);
-                adapterIndex++;
+                if(supportedDevice)
+                {
+                    adaptersList.Add(info);
+                    adapterIndex++;
+                }
                 LogAdapterInfoEnd();
 
                 if(adapterTestDevice != null)

@@ -2,15 +2,12 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using VRage.Utils;
 using VRage.ModAPI;
 
 namespace VRage.Components
 {
     public interface IMyComponentBase
     {
-        MyStringId Name { get; }
-
         void SetContainer(IMyComponentContainer container);
 
         void OnAddedToContainer();
@@ -21,8 +18,6 @@ namespace VRage.Components
     public abstract class MyComponentBase<C> : IMyComponentBase where C : IMyComponentContainer
     {
         public C Container { get; set; }
-
-        public abstract MyStringId Name { get; }
 
         public void SetContainer(IMyComponentContainer container)
         {

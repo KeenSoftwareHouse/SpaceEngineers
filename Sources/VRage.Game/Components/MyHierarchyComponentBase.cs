@@ -5,18 +5,12 @@ using System.Text;
 using VRageMath;
 using VRage.Components;
 using VRage.ModAPI;
-using VRage.Utils;
 
 namespace VRage.Components
 {
     public class MyHierarchyComponentBase : MyEntityComponentBase
     {
         private List<MyHierarchyComponentBase> m_children = new List<MyHierarchyComponentBase>();
-
-        public override MyStringId Name
-        {
-            get { return DefaultNames.Hierarchy; }
-        }
 
         /// <summary>
         /// Return top most parent of this entity

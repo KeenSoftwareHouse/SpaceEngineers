@@ -1,6 +1,7 @@
 ﻿#region Using
 
 using Sandbox.Common;
+using Sandbox.Common.ObjectBuilders;
 using Sandbox.Definitions;
 using Sandbox.Engine.Physics;
 using Sandbox.Engine.Utils;
@@ -12,6 +13,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using VRage;
 using VRage.Input;
+using VRage.ObjectBuilders;
 using VRageMath;
 
 
@@ -27,7 +29,6 @@ namespace Sandbox.Game.Entities
         MyDynamicAABBTreeD m_aabbTree = new MyDynamicAABBTreeD(MyConstants.GAME_PRUNING_STRUCTURE_AABB_EXTENSION);
 
 		public static MyPlaceAreas Static;
-		private static List<MyPlaceArea> m_tmpAreas = new List<MyPlaceArea>();
 
 		public MyAreaMarkerDefinition AreaMarkerDefinition = null;
 
@@ -152,40 +153,18 @@ namespace Sandbox.Game.Entities
 				if (definition == null) return;
 
 				Vector3D position = closestValidHit.Value.Position;
-				
-				bool isAttacker = (definition.Id == MyBattleAreaMarker.AttackerSpawnDefId);
-				bool isDefender = (definition.Id == MyBattleAreaMarker.DefenderSpawnDefId);
-				if (!isAttacker)
-				{
-					m_tmpAreas.Clear();
-					MyPlaceAreas.Static.GetAllAreas(m_tmpAreas);
-
-					foreach (var area in m_tmpAreas)
-					{
-						if (area.AreaType == definition.Id.SubtypeId)
-						{
-							area.Container.Entity.Close();
-						}
-					}
-					m_tmpAreas.Clear();
-				}
 
 				var forward = Vector3D.Reject(cameraDir, Vector3D.Up);
 
 				if (Vector3D.IsZero(forward))
 					forward = Vector3D.Forward;
 
-				MyAreaMarker flag = null;
 				var positionAndOrientation = new MyPositionAndOrientation(position, Vector3D.Normalize(forward), Vector3D.Up);
 
-				if(isAttacker || isDefender)
-				{
-					uint battleSlot = 0;
-					MyBattleAreaMarker.GetNextBattleSlot(out battleSlot, isAttacker);
-					flag = new MyBattleAreaMarker(positionAndOrientation, definition, battleSlot);
-				}
-				else
-					flag = new MyAreaMarker(positionAndOrientation, definition);
+				MyObjectBuilder_AreaMarker objectBuilder = (MyObjectBuilder_AreaMarker)MyObjectBuilderSerializer.CreateNewObject(definition.Id); 
+				objectBuilder.PositionAndOrientation = positionAndOrientation;
+				MyAreaMarker flag = MyEntityFactory.CreateEntity<MyAreaMarker>(objectBuilder);
+				flag.Init(objectBuilder);
 
 				MyEntities.Add(flag);
 			}
