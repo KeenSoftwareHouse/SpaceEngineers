@@ -10528,5 +10528,9 @@ namespace Sandbox.Game.Localization
         ///Target outside movement range
         ///</summary>
         public static readonly MyStringId LaserAntennaOutsideLimits = MyStringId.GetOrCompute("LaserAntennaOutsideLimits");
+		
+        ///Enable inventory mass
+        ///</summary>
+        public static readonly MyStringId WorldSettings_InventoryMass = MyStringId.GetOrCompute("WorldSettings_InventoryMass");
     }
 }

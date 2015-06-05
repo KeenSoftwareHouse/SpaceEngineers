@@ -171,6 +171,8 @@ namespace Sandbox.Game.Weapons
             m_drillBase.OnWorldPositionChanged(WorldMatrix);
             m_wantsToDrill = false;
             m_wantsToCollect = false;
+            if (MyPerGameSettings.InventoryMass)
+                m_inventory.ContentsChanged += Inventory_ContentsChanged;
             AddDebugRenderComponent(new Components.MyDebugRenderCompomentDrawDrillBase(m_drillBase));
 
             PowerReceiver = new MyPowerReceiver(
@@ -191,6 +193,20 @@ namespace Sandbox.Game.Weapons
             m_useConveyorSystem = obDrill.UseConveyorSystem;
 
             UpdateDetailedInfo();
+        }
+
+        internal override float GetMass()
+        {
+            var mass = base.GetMass();
+            if (MySession.Static.Settings.EnableInventoryMass)
+                return mass + (float)m_inventory.CurrentMass;
+            else
+                return mass;
+        }
+
+        void Inventory_ContentsChanged(MyInventory obj)
+        {
+            CubeGrid.SetInventoryMassDirty();
         }
 
         void Receiver_IsPoweredChanged()
