@@ -14,6 +14,13 @@ namespace Sandbox.Game.Entities
 {
     public abstract class MyPlaceArea : MyEntityComponentBase
     {
+        public static MyStringId ComponentName = MyStringId.GetOrCompute("PlaceArea");
+
+        public override MyStringId Name
+        {
+            get { return ComponentName; }
+        }
+
         public int PlaceAreaProxyId = MyConstants.PRUNING_PROXY_ID_UNITIALIZED;
 
         public abstract BoundingBoxD WorldAABB { get; }
@@ -40,12 +47,12 @@ namespace Sandbox.Game.Entities
         public override void OnAddedToContainer()
         {
             base.OnAddedToContainer();
-            MyPlaceAreas.AddPlaceArea(this);
+			MyPlaceAreas.Static.AddPlaceArea(this);
         }
 
         public override void OnRemovedFromContainer()
         {
-            MyPlaceAreas.RemovePlaceArea(this);
+            MyPlaceAreas.Static.RemovePlaceArea(this);
             base.OnRemovedFromContainer();
         }
 

@@ -319,7 +319,7 @@ namespace Sandbox.Game.Entities
             MatrixD ownerWorldMatrix = Owner.GetHeadMatrix(false, true, false, true);
             Vector3 ownerWorldForward = ownerWorldMatrix.Forward;
 
-            Vector3 force = 650 * ownerWorldForward * MyFakes.SIMULATION_SPEED;
+            Vector3 force = 400 * ownerWorldForward * MyFakes.SIMULATION_SPEED;
             otherEntity.Physics.AddForce(MyPhysicsForceType.APPLY_WORLD_FORCE, force, null, null);
         }
 
@@ -413,7 +413,7 @@ namespace Sandbox.Game.Entities
             if (state == MyState.HOLD)
             {
                 // Player can hold large projectile (~222kg)
-                if ((GetRealMass(otherEntity.Physics) <= 230) || ((otherEntity is MyCharacter) && (otherEntity.Physics.Mass < 230)))
+                if ((GetRealMass(otherEntity.Physics) <= 210) || ((otherEntity is MyCharacter) && (otherEntity.Physics.Mass < 210)))
                     data = CreateFixedConstraintData(ref m_otherLocalPivotMatrix, headPivotOffset);
                 else
                     return;

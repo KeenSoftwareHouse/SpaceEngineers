@@ -24,9 +24,9 @@ using VRageRender;
 namespace Sandbox.Game.Entities
 {
     [MyEntityType(typeof(MyObjectBuilder_AreaMarker))]
-    class MyAreaMarker : MyEntity, IMyUseObject
+    public class MyAreaMarker : MyEntity, IMyUseObject
     {
-        MyAreaMarkerDefinition m_definition;
+        protected MyAreaMarkerDefinition m_definition;
 
         MatrixD m_localActivationMatrix;
 

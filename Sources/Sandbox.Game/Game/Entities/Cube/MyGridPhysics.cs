@@ -399,6 +399,9 @@ namespace Sandbox.Game.Entities.Cube
             var rigidBody1 = value.Base.BodyA;
             var rigidBody2 = value.Base.BodyB;
 
+            if (rigidBody1.HasProperty(HkCharacterRigidBody.MANIPULATED_OBJECT) || rigidBody2.HasProperty(HkCharacterRigidBody.MANIPULATED_OBJECT))
+                return;
+
             if (entity1 is MyFracturedPiece && entity2 is MyFracturedPiece)
                 return;
 

@@ -67,6 +67,7 @@ namespace Sandbox.Engine.Utils
         readonly string LAST_FRIEND_SECTOR_POSITION = "LastFriendSectorPosition";
         readonly string LAST_MY_SANDBOX_SECTOR = "LastMySandboxSector";
         readonly string NEED_SHOW_TUTORIAL_QUESTION = "NeedShowTutorialQuestion";
+        readonly string NEED_SHOW_BATTLE_TUTORIAL_QUESTION = "NeedShowBattleTutorialQuestion";
         readonly string DEBUG_INPUT_COMPONENTS = "DebugInputs";
         readonly string DEBUG_INPUT_COMPONENTS_INFO = "DebugComponentsInfo";
         readonly string MINIMAL_HUD = "MinimalHud";
@@ -160,6 +161,19 @@ namespace Sandbox.Engine.Utils
             set
             {
                 SetParameterValue(NEED_SHOW_TUTORIAL_QUESTION, value);
+            }
+        }
+
+        public bool NeedShowBattleTutorialQuestion
+        {
+            get
+            {
+                return MyUtils.GetBoolFromString(GetParameterValue(NEED_SHOW_BATTLE_TUTORIAL_QUESTION), true);
+            }
+
+            set
+            {
+                SetParameterValue(NEED_SHOW_BATTLE_TUTORIAL_QUESTION, value);
             }
         }
 

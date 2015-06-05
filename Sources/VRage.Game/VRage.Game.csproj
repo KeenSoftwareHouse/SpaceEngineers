@@ -289,6 +289,7 @@
     <Compile Include="ObjectBuilders\MyObjectBuilder_AirVent.cs" />
     <Compile Include="ObjectBuilders\MyObjectBuilder_AmmoMagazine.cs" />
     <Compile Include="ObjectBuilders\MyObjectBuilder_AngleGrinder.cs" />
+    <Compile Include="ObjectBuilders\MyObjectBuilder_BattleAreaMarker.cs" />
     <Compile Include="ObjectBuilders\MyObjectBuilder_AreaMarker.cs" />
     <Compile Include="ObjectBuilders\MyObjectBuilder_Assembler.cs" />
     <Compile Include="ObjectBuilders\MyObjectBuilder_AutomaticRifle.cs" />
