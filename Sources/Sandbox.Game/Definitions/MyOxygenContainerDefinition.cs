@@ -4,11 +4,12 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Sandbox.ModAPI.Ingame;
 
 namespace Sandbox.Definitions
 {
     [MyDefinitionType(typeof(MyObjectBuilder_OxygenContainerDefinition))]
-    public class MyOxygenContainerDefinition : MyPhysicalItemDefinition
+    public class MyOxygenContainerDefinition : MyPhysicalItemDefinition, IMyOxygenBottle
     {
         public float Capacity;
 
@@ -19,6 +20,14 @@ namespace Sandbox.Definitions
             var ob = builder as MyObjectBuilder_OxygenContainerDefinition;
 
             Capacity = ob.Capacity;
+        }
+
+        float Sandbox.ModAPI.Ingame.IMyOxygenBottle.OxygenLevel
+        {
+            get
+            {
+                return Capacity;
+            }
         }
     }
 }
