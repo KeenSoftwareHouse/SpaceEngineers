@@ -1088,25 +1088,37 @@ namespace VRageRender.Resources
         {
             if(Srvs.ContainsKey(id))
             {
-                Srvs[id].View.Dispose();
+                if (Srvs[id].View != null)
+                {
+                    Srvs[id].View.Dispose();
+                }
                 Srvs.Remove(id);
             }
 
             if (Uavs.ContainsKey(id))
             {
-                Uavs[id].View.Dispose();
+                if (Uavs[id].View != null)
+                {
+                    Uavs[id].View.Dispose();
+                }
                 Uavs.Remove(id);
             }
 
             if (Dsvs.ContainsKey(id))
             {
-                Dsvs[id].View.Dispose();
+                if (Dsvs[id].View != null)
+                {
+                    Dsvs[id].View.Dispose();
+                }
                 Dsvs.Remove(id);
             }
 
             if (Rtvs.ContainsKey(id))
             {
-                Rtvs[id].View.Dispose();
+                if (Rtvs[id].View != null)
+                {
+                    Rtvs[id].View.Dispose();
+                }
                 Rtvs.Remove(id);
             }
 
@@ -1164,8 +1176,11 @@ namespace VRageRender.Resources
                 SubresourceUavs.Remove(k);
             }
 
-            Textures.Data[id.Index].Resource.Dispose();
-            Textures.Data[id.Index].Resource = null;
+            if (Textures.Data[id.Index].Resource != null)
+            {
+                Textures.Data[id.Index].Resource.Dispose();
+                Textures.Data[id.Index].Resource = null;
+            }
 
             Textures.Free(id.Index);
         }
