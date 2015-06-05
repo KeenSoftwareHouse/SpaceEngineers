@@ -1736,6 +1736,19 @@ namespace VRageMath
                 default: SetDim((i % 3 + 3) % 3, value); break;  // reduce to 0..2
             }
         }
+
+        /// <summary>
+        /// Get the value of the Vector3, or a default value if any member value is NaN.
+        /// 
+        /// Used in Block definitions to make things a bit less hairy, and to standardize what a non-initialized value is.
+        /// </summary>
+        /// <param name="value">The value we wish to check.</param>
+        /// <param name="defaultValue">The value to return if NaN.</param>
+        /// <returns></returns>
+        public Vector3 GetOrDefault(Vector3 defaultValue)
+        {
+            return (float.IsNaN(X) && float.IsNaN(Y) && float.IsNaN(Z)) ? this : defaultValue;
+        }
     }
 
     public static class NullableVector3Extensions

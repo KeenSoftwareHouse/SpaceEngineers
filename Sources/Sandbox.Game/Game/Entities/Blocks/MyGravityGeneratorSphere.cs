@@ -36,7 +36,7 @@ using Sandbox.Game.GameSystems;
 namespace Sandbox.Game.Entities
 {
     [MyCubeBlockType(typeof(MyObjectBuilder_GravityGeneratorSphere))]
-    class MyGravityGeneratorSphere : MyGravityGeneratorBase, IMyPowerConsumer, IMyGravityGeneratorSphere
+    public class MyGravityGeneratorSphere : MyGravityGeneratorBase, IMyPowerConsumer, IMyGravityGeneratorSphere
     {
         private new MyGravityGeneratorSphereDefinition BlockDefinition
         {

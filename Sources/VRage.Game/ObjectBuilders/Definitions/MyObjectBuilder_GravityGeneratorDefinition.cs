@@ -1,5 +1,6 @@
 ﻿using VRage.ObjectBuilders;
 using ProtoBuf;
+using VRage;
 
 namespace Sandbox.Common.ObjectBuilders.Definitions
 {
@@ -9,5 +10,15 @@ namespace Sandbox.Common.ObjectBuilders.Definitions
     {
         [ProtoMember]
         public float RequiredPowerInput;
+
+        [ProtoMember]
+        public SerializableBoundedVector3 FieldSize = new SerializableBoundedVector3(
+            new SerializableVector3(0f, 0f, 0f),
+            new SerializableVector3(150f, 150f, 150f),
+            new SerializableVector3(150f, 150f, 150f)
+        );
+
+        [ProtoMember]
+        public SerializableBounds Gravity = new SerializableBounds(-1f, 1f, 1f);
     }
 }

@@ -211,7 +211,7 @@ namespace VRageMath
     }
 
     /// <summary>
-    /// Usefull Vector3 extensions
+    /// Useful Vector3 extensions
     /// </summary>
     public static class Vector3Extensions
     {
@@ -233,6 +233,34 @@ namespace VRageMath
     public static class BoundingBoxExtensions
     {
 
+    }
+
+    public static class FloatExtensions
+    {
+        /// <summary>
+        /// Used to check if a value deserialized by ObjectBuilders are initialized or left with the default value (NaN).
+        /// 
+        /// Used in Block definitions to make things a bit less hairy, and to standardize what a non-initialized value is.
+        /// </summary>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        public static bool IsUninitialized(this float value)
+        {
+            return float.IsNaN(value);
+        }
+
+        /// <summary>
+        /// If value is NaN, return defaultValue.
+        /// 
+        /// Used in Block definitions to make things a bit less hairy, and to standardize what a non-initialized value is.
+        /// </summary>
+        /// <param name="value"></param>
+        /// <param name="defaultValue"></param>
+        /// <returns></returns>
+        public static float GetOrDefault(this float value, float defaultValue)
+        {
+            return value.IsUninitialized() ? defaultValue : value;
+        }
     }
 
     public static class BoundingFrustumExtensions

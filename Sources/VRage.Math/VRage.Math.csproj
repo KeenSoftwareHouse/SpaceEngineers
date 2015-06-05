@@ -82,6 +82,7 @@
     <Compile Include="CapsuleD.cs" />
     <Compile Include="CompressedPositionOrientation.cs" />
     <Compile Include="IPhysicsMesh.cs" />
+    <Compile Include="MyBoundedVector3.cs" />
     <Compile Include="MyCuboid.cs" />
     <Compile Include="MyMath.cs" />
     <Compile Include="MyTransformD.cs" />

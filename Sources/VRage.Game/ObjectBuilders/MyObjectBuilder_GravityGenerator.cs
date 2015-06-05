@@ -15,11 +15,9 @@ namespace Sandbox.Common.ObjectBuilders
         //public bool Enabled = true;
 
         [ProtoMember]
-        public SerializableVector3 FieldSize = new SerializableVector3(150f, 150f, 150f);
+        public SerializableVector3 FieldSize = SerializableVector3.NotInitialized;
 
-        [ProtoMember, DefaultValue(9.81f)]
-        public float GravityAcceleration = 9.81f;
-
-
+        [ProtoMember]
+        public float GravityAcceleration = float.NaN; // NaN doesn't work in DefaultValue attribute for whatever reason, don't bother.
     }
 }
