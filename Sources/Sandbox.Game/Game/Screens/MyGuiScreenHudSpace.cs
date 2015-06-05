@@ -58,6 +58,10 @@ namespace Sandbox.Game.Gui
         public MyGuiScreenHudSpace()
             : base()
         {
+            // We want to control when elements and controls are rendered, so let's set the override flags
+            this.OverrideDrawElements = true;
+            this.OverrideDrawControls = true;
+
             RecreateControls(true);
 
             m_markerRender = new MyHudMarkerRender(this);
@@ -169,17 +173,6 @@ namespace Sandbox.Game.Gui
 
             m_toolbarControl.Visible = !MyHud.MinimalHud;
             
-            Vector2 position = new Vector2(0.99f, 0.8f);
-            position = ConvertHudToNormalizedGuiPosition(ref position);
-            if (MyVideoSettingsManager.IsTripleHead())
-                position.X += 1.0f;
-
-            // TODO: refactor this
-            m_blockInfo.Visible = MyHud.BlockInfo.Visible && !MyHud.MinimalHud;
-            m_blockInfo.BlockInfo = m_blockInfo.Visible ? MyHud.BlockInfo : null;
-            m_blockInfo.Position = position;
-            m_blockInfo.OriginAlign = MyGuiDrawAlignEnum.HORISONTAL_RIGHT_AND_VERTICAL_BOTTOM;
-
             m_rotatingWheelControl.Visible = MyHud.RotatingWheelVisible && !MyHud.MinimalHud;
 
             if (!base.Draw())
@@ -204,26 +197,8 @@ namespace Sandbox.Game.Gui
 
             m_buildModeLabel.Visible = !MyHud.MinimalHud && MyHud.IsBuildMode;
 
-            if (MyHud.ShipInfo.Visible && !MyHud.MinimalHud)
-                DrawShipInfo(MyHud.ShipInfo);
-
-            if (MyHud.CharacterInfo.Visible && !MyHud.MinimalHud)
-                DrawSuitInfo(MyHud.CharacterInfo);
-
             if (MyHud.ObjectiveLine.Visible && !MyHud.MinimalHud && MyFakes.ENABLE_OBJECTIVE_LINE)
                 DrawObjectiveLine(MyHud.ObjectiveLine);
-
-            MyHud.BlockInfo.Visible = false;
-            m_blockInfo.BlockInfo = null;
-
-            if (MyHud.GravityIndicator.Visible && !MyHud.MinimalHud)
-                DrawGravityIndicator(MyHud.GravityIndicator, MyHud.CharacterInfo);
-
-            if (MyHud.ConsumerGroupInfo.Visible && !MyHud.MinimalHud)
-                DrawPowerGroupInfo(MyHud.ConsumerGroupInfo);
-
-            if (MyHud.SelectedObjectHighlight.Visible && MyFakes.ENABLE_USE_OBJECT_HIGHLIGHT)
-                DrawSelectedObjectHighlight(m_atlas, GetTextureCoord(MyHudTexturesEnum.corner), MyHud.SelectedObjectHighlight);
 
             if (MyHud.LocationMarkers.Visible && !MyHud.MinimalHud)
                 m_markerRender.DrawLocationMarkers(MyHud.LocationMarkers);
@@ -236,6 +211,40 @@ namespace Sandbox.Game.Gui
 
             if (MyHud.OreMarkers.Visible && !MyHud.MinimalHud)
                 DrawOreMarkers(MyHud.OreMarkers);
+
+            Vector2 position = new Vector2(0.99f, 0.8f);
+            position = ConvertHudToNormalizedGuiPosition(ref position);
+            if (MyVideoSettingsManager.IsTripleHead())
+                position.X += 1.0f;
+
+            // TODO: refactor this
+            m_blockInfo.Visible = MyHud.BlockInfo.Visible && !MyHud.MinimalHud;
+            m_blockInfo.BlockInfo = m_blockInfo.Visible ? MyHud.BlockInfo : null;
+            m_blockInfo.Position = position;
+            m_blockInfo.OriginAlign = MyGuiDrawAlignEnum.HORISONTAL_RIGHT_AND_VERTICAL_BOTTOM;
+
+            // Now draw the screen elements and controls so they are above the screen markers
+            this.DrawElements();
+            this.DrawControls();
+
+            MyHud.BlockInfo.Visible = false;
+            m_blockInfo.BlockInfo = null;
+
+            // Now render other HUD elements
+            if (MyHud.GravityIndicator.Visible && !MyHud.MinimalHud)
+                DrawGravityIndicator(MyHud.GravityIndicator, MyHud.CharacterInfo);
+
+            if (MyHud.ShipInfo.Visible && !MyHud.MinimalHud)
+                DrawShipInfo(MyHud.ShipInfo);
+
+            if (MyHud.CharacterInfo.Visible && !MyHud.MinimalHud)
+                DrawSuitInfo(MyHud.CharacterInfo);
+
+            if (MyHud.ConsumerGroupInfo.Visible && !MyHud.MinimalHud)
+                DrawPowerGroupInfo(MyHud.ConsumerGroupInfo);
+
+            if (MyHud.SelectedObjectHighlight.Visible && MyFakes.ENABLE_USE_OBJECT_HIGHLIGHT)
+                DrawSelectedObjectHighlight(m_atlas, GetTextureCoord(MyHudTexturesEnum.corner), MyHud.SelectedObjectHighlight);
 
             if (MyHud.LargeTurretTargets.Visible && !MyHud.MinimalHud)
                 DrawLargeTurretTargets(MyHud.LargeTurretTargets);
@@ -255,6 +264,7 @@ namespace Sandbox.Game.Gui
             if (MyFakes.ENABLE_NETGRAPH && MyHud.IsNetgraphVisible)
                 DrawNetgraph(MyHud.Netgraph);
             ProfilerShort.End();
+
             //if (Sync.MultiplayerActive)
             DrawMultiplayerNotifications();
 

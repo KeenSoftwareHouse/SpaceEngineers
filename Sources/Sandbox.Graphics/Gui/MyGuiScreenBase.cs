@@ -136,6 +136,16 @@ namespace Sandbox.Graphics.GUI
 
         protected readonly MyGuiControls Elements;
 
+        /// <summary>
+        /// Used for when an inherited class wants to control when elements are rendered.  Useful for draw layering control.
+        /// </summary>
+        protected bool OverrideDrawElements;
+
+        /// <summary>
+        /// Used for when an inherited class wants to control when controls are rendered.  Useful for draw layering control.
+        /// </summary>
+        protected bool OverrideDrawControls;
+
         public Color BackgroundFadeColor
         {
             get
@@ -875,9 +885,26 @@ namespace Sandbox.Graphics.GUI
                 //}
             }
 
-            DrawElements(m_transitionAlpha);
-            DrawControls(m_transitionAlpha);
+            // Check if we should draw the screen elements or if an inherited class is taking care of that
+            if (this.OverrideDrawElements == false)
+            {
+                // We should handle the drawing
+                DrawElements(m_transitionAlpha);
+            }
+
+            // Check if we should draw the screen controls or if an inherited class is taking care of that
+            if (this.OverrideDrawControls == false)
+            {
+                // We should handle the drawing
+                DrawControls(m_transitionAlpha);
+            }
+
             return true;
+        }
+
+        protected void DrawElements()
+        {
+            this.DrawElements(m_transitionAlpha);
         }
 
         private void DrawElements(float transitionAlpha)
@@ -887,6 +914,11 @@ namespace Sandbox.Graphics.GUI
                 if (element.Visible)
                     element.Draw(transitionAlpha);
             }
+        }
+
+        protected void DrawControls()
+        {
+            this.DrawControls(m_transitionAlpha);
         }
 
         private void DrawControls(float transitionAlpha)
