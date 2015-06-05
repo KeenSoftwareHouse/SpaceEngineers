@@ -18,8 +18,8 @@ namespace VRage.Import
 		public bool Write(BinaryWriter writer)
 		{
             writer.Write(Distance);
-            writer.Write((Model != null) ? Model : "");
-            writer.Write((RenderQuality != null) ? RenderQuality : "");
+            writer.Write(Model ?? "");
+            writer.Write(RenderQuality ?? "");
 			return true;
 		}
 
