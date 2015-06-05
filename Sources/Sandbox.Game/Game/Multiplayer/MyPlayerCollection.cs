@@ -900,6 +900,7 @@ namespace Sandbox.Game.Multiplayer
 
         static void OnAllIdentitiesSuccess(ref AllIdentitiesSuccessMsg msg, MyNetworkClient sender)
         {
+            Sync.Players.m_allIdentities.Clear();
             Sync.Players.LoadIdentities(msg.Identities);
         }
 

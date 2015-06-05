@@ -81,6 +81,7 @@ namespace Sandbox.Game
                 builder.PositionAndOrientation = new MyPositionAndOrientation(worldMatrix);
 
                 var block = MyObjectBuilderSerializer.CreateNewObject(blockItem.BlockDefId) as MyObjectBuilder_CubeBlock;
+                block.EntityId = MyEntityIdentifier.AllocateId();
                 builder.CubeBlocks.Add(block);
                 var newGrid = MyEntities.CreateFromObjectBuilder(builder) as MyCubeGrid;
                 MyEntities.Add(newGrid);

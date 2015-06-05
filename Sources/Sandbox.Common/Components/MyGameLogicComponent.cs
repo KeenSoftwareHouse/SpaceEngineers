@@ -5,18 +5,12 @@ using System.Text;
 using VRage.Components;
 using VRage.ModAPI;
 using VRage.ObjectBuilders;
-using VRage.Utils;
 
 //this must be in sandbox.common namespace  when assembly is sanbox.common  becaose of script checking.
 namespace Sandbox.Common.Components
 {
     public abstract class MyGameLogicComponent : MyEntityComponentBase
     {
-        public override MyStringId Name
-        {
-            get { return DefaultNames.Logic; }
-        }
-
         public MyEntityUpdateEnum NeedsUpdate
         {
             get

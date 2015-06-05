@@ -8,7 +8,6 @@ using VRage;
 using VRage.Components;
 using VRage.ObjectBuilders;
 using VRage.ModAPI;
-using VRage.Utils;
 
 namespace VRage.Components
 {
@@ -26,11 +25,6 @@ namespace VRage.Components
         protected bool m_enableColorMaskHsv = false;
 
         protected Color m_diffuseColor = Color.White;  //diffuse color multiplier
-
-        public override MyStringId Name
-        {
-            get { return DefaultNames.Render; }
-        }
 
         /// <summary>
         /// Used by game to store model here. In game this is always of type MyModel.
@@ -164,17 +158,13 @@ namespace VRage.Components
 
         public void UpdateRenderObject(bool visible)
         {
-            if (false == Visible)
-            {
-                return;
-            }
             if (!Container.Entity.InScene && visible)
                 return;
 
             if (visible)
             {
                 MyHierarchyComponentBase hierarchyComponent = Container.Get<MyHierarchyComponentBase>();
-                if (Visible && (hierarchyComponent.Parent == null || hierarchyComponent.Parent.Container.Entity.Visible)/* && m_frustumCheckBeforeDrawEnabled*/)
+                if (Visible && (hierarchyComponent.Parent == null || hierarchyComponent.Parent.Container.Entity.Visible))
                 {
                     if (CanBeAddedToRender())
                     {

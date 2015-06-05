@@ -433,8 +433,10 @@ namespace VRageRender
             MyRender11.Log.WriteLine("}");
         }
 
-        internal static void CheckAdapterChange(MyRenderDeviceSettings settings)
+        internal static void CheckAdapterChange(ref MyRenderDeviceSettings settings)
         {
+            settings.AdapterOrdinal = ValidateAdapterIndex(settings.AdapterOrdinal);
+
             bool differentAdapter = m_adapterInfoList[m_settings.AdapterOrdinal].AdapterDeviceId != m_adapterInfoList[settings.AdapterOrdinal].AdapterDeviceId;
 
             if (differentAdapter)

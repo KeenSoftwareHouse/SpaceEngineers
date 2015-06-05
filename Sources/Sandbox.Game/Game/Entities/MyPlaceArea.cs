@@ -14,13 +14,6 @@ namespace Sandbox.Game.Entities
 {
     public abstract class MyPlaceArea : MyEntityComponentBase
     {
-        public static MyStringId ComponentName = MyStringId.GetOrCompute("PlaceArea");
-
-        public override MyStringId Name
-        {
-            get { return ComponentName; }
-        }
-
         public int PlaceAreaProxyId = MyConstants.PRUNING_PROXY_ID_UNITIALIZED;
 
         public abstract BoundingBoxD WorldAABB { get; }
