@@ -18,7 +18,15 @@ namespace Sandbox.Common.ObjectBuilders.Definitions
         public float RotationRate = MathHelper.Pi / 20000.0f;
         [ProtoMember]
         public float MaxRange = 40000;
-        [ProtoMember(6)]
+        [ProtoMember]
         public bool RequireLineOfSight = true;
+        [ProtoMember]
+        public int MinElevationDegrees = -180;
+        [ProtoMember]
+        public int MaxElevationDegrees = 180;
+        [ProtoMember]
+        public int MinAzimuthDegrees = -180;
+        [ProtoMember]
+        public int MaxAzimuthDegrees = 180;
     }
 }

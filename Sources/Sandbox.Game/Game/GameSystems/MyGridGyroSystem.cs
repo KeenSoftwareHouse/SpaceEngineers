@@ -25,6 +25,7 @@ namespace Sandbox.Game.GameSystems
 
         #region Fields
         public Vector3 ControlTorque;
+        public bool AutopilotEnabled;
 
         private MyCubeGrid m_grid;
         private HashSet<MyGyro> m_gyros;
@@ -279,7 +280,7 @@ namespace Sandbox.Game.GameSystems
             {
                 if (IsUsed(gyro))
                 {
-                    if (!gyro.GyroOverride)
+                    if (!gyro.GyroOverride || AutopilotEnabled)
                         m_maxGyroForce += gyro.MaxGyroForce;
                     else
                     {

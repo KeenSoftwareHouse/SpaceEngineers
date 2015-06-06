@@ -87,6 +87,8 @@ namespace Sandbox.Game.GameSystems
         /// </summary>
         public Vector3 AutoPilotThrust;
 
+        public bool AutopilotEnabled;
+
         public bool IsPowered
         {
             get { return PowerReceiver.IsPowered; }
@@ -381,7 +383,7 @@ namespace Sandbox.Game.GameSystems
         private void UpdateThrusts()
         {
             Vector3 thrust;
-            if (AutoPilotThrust != Vector3.Zero)
+            if (AutopilotEnabled)
             {
                 thrust = ComputeAiThrust(AutoPilotThrust);
             }
@@ -510,7 +512,7 @@ namespace Sandbox.Game.GameSystems
 
         private static bool IsOverridden(MyThrust thrust)
         {
-            return thrust.Enabled && thrust.IsFunctional && thrust.ThrustOverride > 0;
+            return thrust.Enabled && thrust.IsFunctional && thrust.ThrustOverride > 0 && !thrust.CubeGrid.GridSystems.ThrustSystem.AutopilotEnabled;
         }
 
         private static bool IsUsed(MyThrust thrust)

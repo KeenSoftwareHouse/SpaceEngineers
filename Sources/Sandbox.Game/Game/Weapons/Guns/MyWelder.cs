@@ -267,7 +267,7 @@ namespace Sandbox.Game.Weapons
                     var info = FindProjectedBlock();
                     if (info.raycastResult == MyProjector.BuildCheckResult.OK)
                     {
-                        if (MySession.Static.CreativeMode || MyBlockBuilderBase.DeveloperSpectatorIsBuilding || Owner.CanStartConstruction(info.hitCube.BlockDefinition))
+                        if (MySession.Static.CreativeMode || MyBlockBuilderBase.SpectatorIsBuilding || Owner.CanStartConstruction(info.hitCube.BlockDefinition))
                         {
                             info.cubeProjector.Build(info.hitCube, Owner.ControllerInfo.Controller.Player.Identity.IdentityId, Owner.EntityId);
                         }

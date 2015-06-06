@@ -57,7 +57,7 @@ namespace Sandbox.Game.GameSystems
             Loaded,
             JoinScreen,
             WaitingForClients,
-            Game,
+            Running,
         }
 
         private MyState m_gameState = MyState.Loaded;
@@ -122,7 +122,7 @@ namespace Sandbox.Game.GameSystems
                     }
                 }
             }
-            else if (m_gameState == MyState.Game)
+            else if (m_gameState == MyState.Running)
             {
                 MySyncScenario.StartScenarioRequest(steamId, ServerStartGameTime.Ticks);
             }
@@ -142,7 +142,7 @@ namespace Sandbox.Game.GameSystems
         {
             base.UpdateBeforeSimulation();
 
-            if (!MySession.Static.IsScenario)
+            if (!MySession.IsScenario)
                 return;
 
             if (!Sync.IsServer)
@@ -155,8 +155,14 @@ namespace Sandbox.Game.GameSystems
                     if (MySession.Static.OnlineMode == MyOnlineModeEnum.OFFLINE || MyMultiplayer.Static != null)
                     {
                         if (MyMultiplayer.Static != null)
+                        {
                             MyMultiplayer.Static.Scenario = true;
+                            MyMultiplayer.Static.ScenarioBriefing = MySession.Static.GetWorld().Checkpoint.Briefing;
+                        }
+                        MyGuiScreenScenarioMpServer guiscreen = new MyGuiScreenScenarioMpServer();
+                        guiscreen.Briefing = MySession.Static.GetWorld().Checkpoint.Briefing;
                         MyGuiSandbox.AddScreen(new MyGuiScreenScenarioMpServer());
+                        m_playersReadyForBattle.Add(MySteam.UserId);
                         m_gameState = MyState.JoinScreen;
                     }
                     break;
@@ -165,7 +171,7 @@ namespace Sandbox.Game.GameSystems
                 case MyState.WaitingForClients:
                     // Check timeout
                     TimeSpan currenTime = MySession.Static.ElapsedPlayTime;
-                    if (LoadTimeout>0 && currenTime - m_startBattlePreparationOnClients > TimeSpan.FromSeconds(LoadTimeout))
+                    if (AllPlayersReadyForBattle() || (LoadTimeout>0 && currenTime - m_startBattlePreparationOnClients > TimeSpan.FromSeconds(LoadTimeout)))
                     {
                         StartScenario();
                         foreach (var playerId in m_playersReadyForBattle)
@@ -175,7 +181,7 @@ namespace Sandbox.Game.GameSystems
                         }
                     }
                     break;
-                case MyState.Game:
+                case MyState.Running:
                     break;
             }
         }
@@ -230,6 +236,7 @@ namespace Sandbox.Game.GameSystems
                 MyGuiSandbox.AddScreen(m_waitingScreen);
 
                 ServerPreparationStartTime = DateTime.UtcNow;
+                MyMultiplayer.Static.ScenarioStartTime = ServerPreparationStartTime;
                 MySyncScenario.PrepareScenarioFromLobby(ServerPreparationStartTime.Ticks);
             }
             else
@@ -250,7 +257,7 @@ namespace Sandbox.Game.GameSystems
                 MyGuiSandbox.RemoveScreen(m_waitingScreen);
                 m_waitingScreen = null;
             }
-            m_gameState = MyState.Game;
+            m_gameState = MyState.Running;
             m_startBattleTime = MySession.Static.ElapsedPlayTime;
         }
 

@@ -281,9 +281,7 @@ namespace Sandbox.Game.Entities.Character
         bool m_isFalling = false;
         bool m_isFallingAnimationPlayed = false;
         float m_currentFallingTime = 0;
-        bool m_isCrouching = false;
         bool m_crouchAfterFall = false;
-        bool m_crouchingChanged = false;
 
         MyCharacterMovementFlags m_movementFlags;
         bool m_isFlying;
@@ -999,13 +997,84 @@ namespace Sandbox.Game.Entities.Character
 
             // DAMAGE COMPUTATION TO THE CHARACTER
             // GET THE OTHER COLLIDING BODY AND COMPUTE DAMAGE BASED ON BODIES MASS AND VELOCITIES
-            if (MyPerGameSettings.EnableCharacterCollisionDamage)
+            if (MyPerGameSettings.EnableCharacterCollisionDamage && !MyFakes.NEW_CHARACTER_DAMAGE)
             {
-                CalculateDamageAfterCollision(ref value);               
+                CalculateDamageAfterCollision(ref value);
             }
-            // ORIGINAL DAMAGE COMPUTATION
+            //// ORIGINAL DAMAGE COMPUTATION
             else
             {
+                float impact = 0;
+
+                if (MyFakes.NEW_CHARACTER_DAMAGE)
+                {
+                    var normal = value.ContactPoint.Normal;
+                    MyEntity other = value.Base.BodyA.GetEntity() as MyEntity;
+
+                    HkRigidBody otherRb = value.Base.BodyA;
+                    if (other == this)
+                    {
+                        other = value.Base.BodyB.GetEntity() as MyEntity;
+                        otherRb = value.Base.BodyB;
+                        normal = -normal;
+                    }
+
+                    if (other is MyCharacter)
+                        return;
+                    var vel = Math.Abs(value.SeparatingVelocity);
+                    bool enoughSpeed = vel > 3;
+
+                    Vector3 velocity1 = Physics.LinearVelocity;
+                    Vector3 velocity2 = otherRb.GetVelocityAtPoint(value.ContactPoint.Position);
+
+                    float speed1 = Math.Max(velocity1.Length() - (MyFakes.ENABLE_CUSTOM_CHARACTER_IMPACT ? 12.6f : 17.0f), 0);//treshold for falling dmg
+                    float speed2 = velocity2.Length() - 2.0f;
+
+                    Vector3 dir1 = speed1 > 0 ? Vector3.Normalize(velocity1) : Vector3.Zero;
+                    Vector3 dir2 = speed2 > 0 ? Vector3.Normalize(velocity2) : Vector3.Zero;
+
+                    float dot1withNormal = speed1 > 0 ? Vector3.Dot(dir1, normal) : 0;
+                    float dot2withNormal = speed2 > 0 ? -Vector3.Dot(dir2, normal) : 0;
+
+                    speed1 *= dot1withNormal;
+                    speed2 *= dot2withNormal;
+
+                    vel = speed1 + speed2;
+
+                    float mass1 = MyDestructionHelper.MassFromHavok(Physics.Mass);
+                    float mass2 = MyDestructionHelper.MassFromHavok(other.Physics.Mass);
+
+                    float impact1 = (speed1 * speed1 * mass1) * 0.5f;
+                    float impact2 = (speed2 * speed2 * mass2) * 0.5f;
+
+
+
+                    float mass;
+                    if (Physics.Mass > other.Physics.Mass && !other.Physics.IsStatic)
+                    {
+                        mass = other.Physics.Mass;
+                        //impact = impact2;
+                    }
+                    else
+                    {
+                        mass = 70 / 25;// Physics.Mass;
+                        if (Physics.CharacterProxy.Supported && !other.Physics.IsStatic)
+                            mass += Math.Abs(Vector3.Dot(Vector3.Normalize(velocity2), Physics.CharacterProxy.SupportNormal)) * other.Physics.Mass / 10;
+                    }
+                    mass = MyDestructionHelper.MassFromHavok(mass);
+                    if (vel < 0)
+                    {
+                        return;
+                    }
+
+                    impact = (mass * vel * vel) / 2;
+                    if (speed2 > 2) //dont reduce pure fall damage
+                        impact -= 400;
+                    impact /= 10; //scaling damage
+                    if (impact < 1)
+                        return;
+                }
+
                 //int bodyId = value.Base.BodyA == Physics.CharacterProxy.GetRigidBody() ? 1 : 0;
                 // Ca
                 //uint shapeKey = value.GetShapeKey(bodyId);
@@ -1033,7 +1102,8 @@ namespace Sandbox.Game.Entities.Character
                         // 3 blocks - dead (17.0)
                         damageImpact = (Math.Abs(value.SeparatingVelocity) - 12.6f) * 25f;
                     }
-
+                    if(MyFakes.NEW_CHARACTER_DAMAGE)
+                        damageImpact = impact;
                     if (damageImpact > 0)
                     {
                         if (this.ControllerInfo.IsLocallyControlled() || Sync.IsServer)
@@ -1360,7 +1430,7 @@ namespace Sandbox.Game.Entities.Character
 
             PlaySound();
 
-            if (!IsDead && m_currentMovementState != MyCharacterMovementEnum.Sitting && (!ControllerInfo.IsRemotelyControlled() || (Sync.IsServer && false)))
+            if (!IsDead && m_currentMovementState != MyCharacterMovementEnum.Sitting && (!ControllerInfo.IsRemotelyControlled() || (MyFakes.CHARACTER_SERVER_SYNC)))
             {
                 if (Physics.CharacterProxy != null)
                     Physics.CharacterProxy.StepSimulation(MyEngineConstants.UPDATE_STEP_SIZE_IN_SECONDS);
@@ -1368,7 +1438,7 @@ namespace Sandbox.Game.Entities.Character
 
             m_currentAnimationChangeDelay += MyEngineConstants.UPDATE_STEP_SIZE_IN_SECONDS;
             m_currentRotationDelay -= MyEngineConstants.UPDATE_STEP_SIZE_IN_SECONDS;
-
+            
             if (m_useObjectNotification != null && !m_usingContinuously)
                 MyHud.Notifications.Add(m_useObjectNotification);
 
@@ -1403,10 +1473,11 @@ namespace Sandbox.Game.Entities.Character
                 Physics.AddForce(MyPhysicsForceType.APPLY_WORLD_FORCE, gravity * Definition.Mass, null, null);
             }
 
-
             VRageRender.MyRenderProxy.GetRenderProfiler().StartProfilingBlock("Update Ragdoll");
             UpdateRagdoll();
             VRageRender.MyRenderProxy.GetRenderProfiler().EndProfilingBlock();
+
+            //MyRenderProxy.DebugDrawText3D(WorldMatrix.Translation + WorldMatrix.Up * 2.0f, m_currentMovementState.ToString(), Color.Red, 1.0f, false);
         }
 
         private MySoundPair SelectSound()
@@ -2085,7 +2156,7 @@ namespace Sandbox.Game.Entities.Character
             VRageRender.MyRenderProxy.GetRenderProfiler().EndProfilingBlock();
 
             VRageRender.MyRenderProxy.GetRenderProfiler().StartProfilingBlock("Simulate Ragdoll");
-            if (IsCameraNear) SimulateRagdoll();    // probably should be in UpdateDying, but changes the animation of the bones..
+            SimulateRagdoll();    // probably should be in UpdateDying, but changes the animation of the bones..
             VRageRender.MyRenderProxy.GetRenderProfiler().EndProfilingBlock();
             
         }
@@ -2240,6 +2311,8 @@ namespace Sandbox.Game.Entities.Character
             VRageRender.MyRenderProxy.GetRenderProfiler().StartProfilingBlock("Update Bones To Ragdoll");
 
             RagdollMapper.UpdateRagdollAfterSimulation();
+
+            if (!IsCameraNear && !MyFakes.ENABLE_PERMANENT_SIMULATIONS_COMPUTATION) return;
             
             RagdollMapper.UpdateCharacterPose( IsDead ? 1.0f : 0.1f, IsDead ? 1.0f : 0.0f);
 
@@ -2322,7 +2395,7 @@ namespace Sandbox.Game.Entities.Character
 
         private void UpdateCharacterStateChange()
         {
-            if (!ControllerInfo.IsRemotelyControlled() || (Sync.IsServer && false))
+            if (!ControllerInfo.IsRemotelyControlled() || (MyFakes.CHARACTER_SERVER_SYNC))
             {
                 if (!IsDead && Physics.CharacterProxy != null && m_currentCharacterState != Physics.CharacterProxy.GetState())
                 {
@@ -2403,7 +2476,7 @@ namespace Sandbox.Game.Entities.Character
                              m_currentMovementState == MyCharacterMovementEnum.RotatingRight ||
                              m_currentMovementState == MyCharacterMovementEnum.Died ? 5 : 100;
 
-                if (m_isCrouching)
+                if (WantsCrouch)
                     bobMax = 3;
 
                 while (m_bobQueue.Count > bobMax)
@@ -2413,7 +2486,7 @@ namespace Sandbox.Game.Entities.Character
 
         private void UpdateFallAndSpine()
         {
-            if (!ControllerInfo.IsRemotelyControlled() || (Sync.IsServer && false))
+            if (!ControllerInfo.IsRemotelyControlled() || (MyFakes.CHARACTER_SERVER_SYNC))
             {
                 if (m_currentAutoenableJetpackDelay >= AUTO_ENABLE_JETPACK_INTERVAL)
                 {
@@ -2511,7 +2584,7 @@ namespace Sandbox.Game.Entities.Character
                 return;
 
             //if (!ControllerInfo.IsRemotelyControlled() || (Sync.IsServer && false))
-            if (ControllerInfo.IsLocallyControlled() && Physics.CharacterProxy != null)
+            if (ControllerInfo.IsLocallyControlled() && Physics.CharacterProxy != null || (MyFakes.CHARACTER_SERVER_SYNC))
             {
                 if (CanFly())
                 {
@@ -2616,7 +2689,7 @@ namespace Sandbox.Game.Entities.Character
             {
                 Physics.UpdateAccelerations();
             }
-            else if (Sync.IsServer && false)
+            else if (MyFakes.CHARACTER_SERVER_SYNC)
             {
                 Physics.UpdateAccelerations();
             } //otherwise OnPositionUpdate message it is updated
@@ -2959,6 +3032,22 @@ namespace Sandbox.Game.Entities.Character
             if (DebugMode)
                 return;
 
+            bool movementsFlagsChanged = (m_movementFlags | movementFlags) != m_movementFlags;
+            m_movementFlags |= movementFlags;
+
+            if (MyFakes.CHARACTER_SERVER_SYNC && ControllerInfo.IsLocallyControlled())
+                SyncObject.MoveAndRotate(moveIndicator, new Vector3(rotationIndicator.X, rotationIndicator.Y, roll), m_movementFlags);
+
+            if (MyFakes.CHARACTER_SERVER_SYNC && ControllerInfo.IsRemotelyControlled())
+            {
+                moveIndicator = SyncObject.CachedMovementState.MoveIndicator;
+                rotationIndicator = new Vector2(SyncObject.CachedMovementState.RotationIndicator.X, SyncObject.CachedMovementState.RotationIndicator.Y);
+                roll = SyncObject.CachedMovementState.RotationIndicator.Z;
+
+                movementsFlagsChanged = m_movementFlags != SyncObject.CachedMovementState.MovementFlags;
+                m_movementFlags = SyncObject.CachedMovementState.MovementFlags;
+            }
+
             //Died character
             if (Physics.CharacterProxy == null)
             {
@@ -2968,8 +3057,6 @@ namespace Sandbox.Game.Entities.Character
             }
 
             m_moveAndRotateCounter++;
-
-            m_movementFlags |= movementFlags;
 
             float posx = 0, posy = 0;
 
@@ -2986,9 +3073,7 @@ namespace Sandbox.Game.Entities.Character
 
             float acceleration = 0;
 
-            MatrixD characterDirection = Physics.GetWorldMatrix().GetOrientation(); // characterProxy Matrix for vertical flying mode
-
-            if (canMove || CanFly() || m_crouchingChanged)
+            if (canMove || CanFly() || movementsFlagsChanged)
             {
                 if (moveIndicator.LengthSquared() > 0)
                 {
@@ -2997,7 +3082,7 @@ namespace Sandbox.Game.Entities.Character
                     //SyncObject.MoveAndRotate();
                 }
 
-                MyCharacterMovementEnum newMovementState = GetNewMovementState(ref moveIndicator, ref acceleration, sprint, walk, canMove);
+                MyCharacterMovementEnum newMovementState = GetNewMovementState(ref moveIndicator, ref acceleration, sprint, walk, canMove, movementsFlagsChanged);
 
                 SwitchAnimation(newMovementState);
 
@@ -3061,6 +3146,7 @@ namespace Sandbox.Game.Entities.Character
 
                 if (Physics.CharacterProxy != null)
                 {
+
                     Physics.CharacterProxy.PosX = posx;
                     Physics.CharacterProxy.PosY = posy;
                 }
@@ -3123,7 +3209,7 @@ namespace Sandbox.Game.Entities.Character
                             {
                                 if ((moveIndicator.X != 0 || moveIndicator.Z != 0))
                                 {
-                                    if (!m_isCrouching)
+                                    if (!WantsCrouch)
                                     {
                                         if (moveIndicator.Z < 0)
                                         {
@@ -3200,19 +3286,10 @@ namespace Sandbox.Game.Entities.Character
 
                         rotationMatrix.Translation = (Vector3D)translationPhys;
 
-                        // If not in vertical flying mode, the character can be set immidiately
-                     //   if (!MyPerGameSettings.CharacterMovement.VerticalPositionFlyingOnly)
-                        {
-                            WorldMatrix = rotationMatrix;
+                        WorldMatrix = rotationMatrix;
 
-                            rotationMatrix.Translation = translationDraw;
-                            PositionComp.SetWorldMatrix(rotationMatrix, Physics);
-                        }
-                       // else
-                        {
-                            // otherwise just recalculate the Matrix for CharacterProxy
-                       //     characterDirection = characterDirection * Matrix.CreateRotationY(-rotationIndicator.Y * CHARACTER_Y_ROTATION_SPEED);
-                        }
+                        rotationMatrix.Translation = translationDraw;
+                        PositionComp.SetWorldMatrix(rotationMatrix, Physics);
                     }
                     else
                     {
@@ -3232,7 +3309,7 @@ namespace Sandbox.Game.Entities.Character
                         (m_currentMovementState == MyCharacterMovementEnum.Standing || m_currentMovementState == MyCharacterMovementEnum.Crouching)
                         )
                     {
-                        if (m_isCrouching)
+                        if (WantsCrouch)
                         {
                             if (rotationIndicator.Y > 0)
                             {
@@ -3350,12 +3427,6 @@ namespace Sandbox.Game.Entities.Character
             WantsSprint = false;
             WantsFlyUp = false;
             WantsFlyDown = false;
-            m_crouchingChanged = false;
-
-            //MyTrace.Send(TraceWindow.Default, "PosX: " + posx.ToString() + " PosY: " + posy.ToString());
-            //MyTrace.Send(TraceWindow.Default, "Speed: " + Physics.CharacterProxy.LinearVelocity.Length().ToString());
-
-            //Physics.CharacterProxy.LinearVelocity = Physics.CharacterProxy.LinearVelocity * 4;
 
             // If vertical flying, we need to change the positon and orientation using our computed matrix for new CharacterProxy
             if (CanFly() && Definition.VerticalPositionFlyingOnly && Physics.CharacterProxy != null)
@@ -3373,11 +3444,6 @@ namespace Sandbox.Game.Entities.Character
 
             CalculateTransforms();
             CalculateDependentMatrices();
-
-
-            //m_contactPoints.Clear();
-
-            //UpdateLightPosition();
         }
 
         private void RotateHead(Vector2 rotationIndicator)
@@ -3762,7 +3828,7 @@ namespace Sandbox.Game.Entities.Character
             }
         }
 
-        MyCharacterMovementEnum GetNewMovementState(ref Vector3 moveIndicator, ref float acceleration, bool sprint, bool walk, bool canMove)
+        MyCharacterMovementEnum GetNewMovementState(ref Vector3 moveIndicator, ref float acceleration, bool sprint, bool walk, bool canMove, bool movementFlagsChanged)
         {
             MyCharacterMovementEnum newMovementState = m_currentMovementState;
 
@@ -3776,18 +3842,11 @@ namespace Sandbox.Game.Entities.Character
                 return MyCharacterMovementEnum.Flying;
 
             bool moving = ((moveIndicator.X != 0 || moveIndicator.Z != 0) && canMove);
-            if (moving || m_crouchingChanged)
+            if (moving || movementFlagsChanged)
             {
                 if (sprint)
                 {
-                    if (moveIndicator.X == 0)
-                    {
-                        newMovementState = GetSprintState(ref moveIndicator);
-                    }
-                    else
-                    {
-                        newMovementState = GetRunningState(ref moveIndicator);
-                    }
+                    newMovementState = GetSprintState(ref moveIndicator);
                 }
                 else
                     if (moving)
@@ -3852,7 +3911,7 @@ namespace Sandbox.Game.Entities.Character
 
                     case MyCharacterMovementEnum.Standing:
                         {
-                            if (m_isCrouching && !CanFly() && (m_currentRotationDelay <= 0))
+                            if (WantsCrouch && !CanFly() && (m_currentRotationDelay <= 0))
                                 newMovementState = GetIdleState();
 
                             break;
@@ -3860,7 +3919,7 @@ namespace Sandbox.Game.Entities.Character
 
                     case MyCharacterMovementEnum.Crouching:
                         {
-                            if (!m_isCrouching)
+                            if (!WantsCrouch)
                                 newMovementState = GetIdleState();
 
                             break;
@@ -4132,7 +4191,7 @@ namespace Sandbox.Game.Entities.Character
             {
                 if (moveIndicator.Z < 0)
                 {
-                    if (!m_isCrouching)
+                    if (!WantsCrouch)
                     {
                         return MyCharacterMovementEnum.Walking;
                     }
@@ -4143,7 +4202,7 @@ namespace Sandbox.Game.Entities.Character
                 }
                 else
                 {
-                    if (!m_isCrouching)
+                    if (!WantsCrouch)
                     {
                         return MyCharacterMovementEnum.BackWalking;
                     }
@@ -4157,7 +4216,7 @@ namespace Sandbox.Game.Entities.Character
             {
                 if (moveIndicator.X > 0)
                 {
-                    if (!m_isCrouching)
+                    if (!WantsCrouch)
                     {
                         return MyCharacterMovementEnum.WalkStrafingRight;
                     }
@@ -4168,7 +4227,7 @@ namespace Sandbox.Game.Entities.Character
                 }
                 else
                 {
-                    if (!m_isCrouching)
+                    if (!WantsCrouch)
                     {
                         return MyCharacterMovementEnum.WalkStrafingLeft;
                     }
@@ -4184,7 +4243,7 @@ namespace Sandbox.Game.Entities.Character
                 {
                     if (moveIndicator.Z < 0)
                     {
-                        if (!m_isCrouching)
+                        if (!WantsCrouch)
                         {
                             return MyCharacterMovementEnum.WalkingRightFront;
                         }
@@ -4195,7 +4254,7 @@ namespace Sandbox.Game.Entities.Character
                     }
                     else
                     {
-                        if (!m_isCrouching)
+                        if (!WantsCrouch)
                         {
                             return MyCharacterMovementEnum.WalkingRightBack;
                         }
@@ -4209,7 +4268,7 @@ namespace Sandbox.Game.Entities.Character
                 {
                     if (moveIndicator.Z < 0)
                     {
-                        if (!m_isCrouching)
+                        if (!WantsCrouch)
                         {
                             return MyCharacterMovementEnum.WalkingLeftFront;
                         }
@@ -4220,7 +4279,7 @@ namespace Sandbox.Game.Entities.Character
                     }
                     else
                     {
-                        if (!m_isCrouching)
+                        if (!WantsCrouch)
                         {
                             return MyCharacterMovementEnum.WalkingLeftBack;
                         }
@@ -4240,7 +4299,7 @@ namespace Sandbox.Game.Entities.Character
             {
                 if (moveIndicator.Z < 0)
                 {
-                    if (!m_isCrouching)
+                    if (!WantsCrouch)
                     {
                         return MyCharacterMovementEnum.Running;
                     }
@@ -4251,7 +4310,7 @@ namespace Sandbox.Game.Entities.Character
                 }
                 else
                 {
-                    if (!m_isCrouching)
+                    if (!WantsCrouch)
                     {
                         return MyCharacterMovementEnum.Backrunning;
                     }
@@ -4265,7 +4324,7 @@ namespace Sandbox.Game.Entities.Character
             {
                 if (moveIndicator.X > 0)
                 {
-                    if (!m_isCrouching)
+                    if (!WantsCrouch)
                     {
                         return MyCharacterMovementEnum.RunStrafingRight;
                     }
@@ -4276,7 +4335,7 @@ namespace Sandbox.Game.Entities.Character
                 }
                 else
                 {
-                    if (!m_isCrouching)
+                    if (!WantsCrouch)
                     {
                         return MyCharacterMovementEnum.RunStrafingLeft;
                     }
@@ -4292,7 +4351,7 @@ namespace Sandbox.Game.Entities.Character
                 {
                     if (moveIndicator.Z < 0)
                     {
-                        if (!m_isCrouching)
+                        if (!WantsCrouch)
                         {
                             return MyCharacterMovementEnum.RunningRightFront;
                         }
@@ -4303,7 +4362,7 @@ namespace Sandbox.Game.Entities.Character
                     }
                     else
                     {
-                        if (!m_isCrouching)
+                        if (!WantsCrouch)
                         {
                             return MyCharacterMovementEnum.RunningRightBack;
                         }
@@ -4317,7 +4376,7 @@ namespace Sandbox.Game.Entities.Character
                 {
                     if (moveIndicator.Z < 0)
                     {
-                        if (!m_isCrouching)
+                        if (!WantsCrouch)
                         {
                             return MyCharacterMovementEnum.RunningLeftFront;
                         }
@@ -4328,7 +4387,7 @@ namespace Sandbox.Game.Entities.Character
                     }
                     else
                     {
-                        if (!m_isCrouching)
+                        if (!WantsCrouch)
                         {
                             return MyCharacterMovementEnum.RunningLeftBack;
                         }
@@ -4343,21 +4402,22 @@ namespace Sandbox.Game.Entities.Character
             System.Diagnostics.Debug.Assert(false, "Non moving character cannot get here");
             return MyCharacterMovementEnum.Standing;
         }
+
         private MyCharacterMovementEnum GetSprintState(ref Vector3 moveIndicator)
         {
-            if (moveIndicator.Z < 0)
+            if (moveIndicator.X == 0 && moveIndicator.Z < 0)
             {
                 return MyCharacterMovementEnum.Sprinting;
             }
             else
             {
-                return GetWalkingState(ref moveIndicator);
-            }
+                return GetRunningState(ref moveIndicator);
+            }            
         }
 
         private MyCharacterMovementEnum GetIdleState()
         {
-            if (!m_isCrouching)
+            if (!WantsCrouch)
             {
                 return MyCharacterMovementEnum.Standing;
             }
@@ -5160,8 +5220,7 @@ namespace Sandbox.Game.Entities.Character
             {
                 if (!CanFly() && !m_isFalling)
                 {
-                    m_isCrouching = !m_isCrouching;
-                    m_crouchingChanged = true;
+                    WantsCrouch = !WantsCrouch;
                 }
             }
         }
@@ -5212,9 +5271,6 @@ namespace Sandbox.Game.Entities.Character
         public void GetOffLadder()
         {
             IsUsing = null;
-            //Physics.Enabled = true;
-            //Physics.Clear();
-            //m_headLocalXAngle = 0;
             SetHeadLocalYAngle(0);
             Physics.CharacterProxy.AtLadder = false;
             Physics.CharacterProxy.EnableLadderState(false);
@@ -5343,19 +5399,16 @@ namespace Sandbox.Game.Entities.Character
 
         public void EnableJetpack(bool enable, bool fromLoad = false, bool updateSync = true, bool fromInit = false)
         {
-            if (enable)
-            {
-                SwitchToJetpackRagdoll = true;
-            }
-            else
-            {
-                SwitchToJetpackRagdoll = false;
-            }
             if (m_currentMovementState == MyCharacterMovementEnum.Sitting)
                 return;
 
-            if (!m_characterDefinition.JetpackAvailable && !MyFakes.ENABLE_JETPACK_IN_SURVIVAL)
-                return;
+            if (!m_characterDefinition.JetpackAvailable)
+                enable = false;
+
+            if (MySession.Static.SurvivalMode && !MyFakes.ENABLE_JETPACK_IN_SURVIVAL)
+                enable = false;
+
+            SwitchToJetpackRagdoll = enable;
 
             bool valueChanged = m_jetpackEnabled != enable;
             m_jetpackEnabled = enable;
@@ -5365,7 +5418,7 @@ namespace Sandbox.Game.Entities.Character
 
             RecalculatePowerRequirement();
 
-            if (!ControllerInfo.IsLocallyControlled() && !fromInit && !Sync.IsServer)
+            if (!ControllerInfo.IsLocallyControlled() && !fromInit && !Sync.IsServer && !MyFakes.CHARACTER_SERVER_SYNC)
                 return;
 
             StopFalling();
@@ -5859,8 +5912,8 @@ namespace Sandbox.Game.Entities.Character
                     m_currentFallingTime = 0;
 
                 m_isFalling = true;
-                m_crouchAfterFall = m_isCrouching;
-                m_isCrouching = false;
+                m_crouchAfterFall = WantsCrouch;
+                WantsCrouch = false;
 
                 SetCurrentMovementState(MyCharacterMovementEnum.Falling);
             }
@@ -5889,7 +5942,7 @@ namespace Sandbox.Game.Entities.Character
             m_isFallingAnimationPlayed = false;
             m_currentFallingTime = 0;
             m_canJump = true;
-            m_isCrouching = m_crouchAfterFall;
+            WantsCrouch = m_crouchAfterFall;
             m_crouchAfterFall = false;
         }
 
@@ -6362,7 +6415,7 @@ namespace Sandbox.Game.Entities.Character
 
         public bool IsCrouching
         {
-            get { return m_isCrouching; }
+            get { return m_currentMovementState.GetMode() == MyCharacterMovement.Crouching; }
         }
 
         public bool IsSprinting
@@ -7010,7 +7063,7 @@ namespace Sandbox.Game.Entities.Character
             if (colorMask.HasValue)
                 objectBuilder.ColorMaskHSV = colorMask.Value;
 
-            objectBuilder.JetpackEnabled = true;
+            objectBuilder.JetpackEnabled = MySession.Static.CreativeMode;
             objectBuilder.Battery = new MyObjectBuilder_Battery();
             objectBuilder.Battery.CurrentCapacity = 1;
             objectBuilder.AIMode = AIMode;
@@ -7131,6 +7184,7 @@ namespace Sandbox.Game.Entities.Character
             MyHud.CharacterInfo.IsHelmetOn = !Definition.NeedsOxygen;
         }
 
+
         internal void UpdateCharacterPhysics(bool isLocalPlayer)
         {
             if (Physics != null && Physics.Enabled == false)
@@ -7138,14 +7192,16 @@ namespace Sandbox.Game.Entities.Character
 
             float offset = 2 * MyPerGameSettings.PhysicsConvexRadius + 0.03f; //compensation for convex radius
 
-            if (isLocalPlayer || false == MyPerGameSettings.EnableKinematicMPCharacter)
+            if (isLocalPlayer || !MyPerGameSettings.EnableKinematicMPCharacter)
             {
                 if (Physics == null || Physics.IsKinematic)
                 {
                     if (Physics != null)
                         Physics.Close();
 
-                    this.InitCharacterPhysics(MyMaterialType.CHARACTER, PositionComp.LocalVolume.Center, CharacterWidth * Definition.CharacterCollisionScale, CharacterHeight - CharacterWidth * Definition.CharacterCollisionScale - offset,
+                    float widthScale = 1;
+
+                    this.InitCharacterPhysics(MyMaterialType.CHARACTER, PositionComp.LocalVolume.Center, CharacterWidth * Definition.CharacterCollisionScale, CharacterHeight - CharacterWidth * Definition.CharacterCollisionScale  - offset,
                     CrouchHeight - CharacterWidth,
                     LadderHeight - CharacterWidth - offset,
                     Definition.CharacterHeadSize * Definition.CharacterCollisionScale,
@@ -7219,6 +7275,16 @@ namespace Sandbox.Game.Entities.Character
             result.SwitchAmmoMagazineSuccessHandler += SwitchAmmoMagazineSuccess;
             //result.ShootHandler += ShootSuccess;
             result.DoDamageHandler += DoDamageSuccess;
+
+            if (MyFakes.CHARACTER_SERVER_SYNC)
+                //result.UpdatesOnlyOnServer = true;
+                SyncFlag = false; //synced only through MoveAndRotate
+
+            if (MyPerGameSettings.EnablePerFrameCharacterSync)
+            {
+                result.DefaultUpdateCount = 0;
+                result.ConstantMovementUpdateCount = 0;
+            }
             return result;
         }
 
@@ -7226,7 +7292,7 @@ namespace Sandbox.Game.Entities.Character
         {
             if (!IsDead)
             {
-                if (!Sync.IsServer || true)
+                if (!MyFakes.CHARACTER_SERVER_SYNC)
                 {
                     SwitchAnimation(state);
                     SetCurrentMovementState(state, false);
@@ -7325,7 +7391,7 @@ namespace Sandbox.Game.Entities.Character
             m_breath.Update();
             var cueEnum = SelectSound();
 
-            if (cueEnum.SoundId == m_soundEmitter.SoundId)
+            if (cueEnum.Arcade == m_soundEmitter.SoundId || cueEnum.Realistic == m_soundEmitter.SoundId) //not nice
                 return;
             if (cueEnum == CharacterSounds[(int)CharacterSoundsEnum.JETPACK_RUN_SOUND])
             {

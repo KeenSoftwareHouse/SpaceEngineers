@@ -8,7 +8,7 @@ using VRageMath;
 
 namespace VRage.Components
 {
-    public abstract class MyUseObjectsComponentBase : MyComponentBase
+    public abstract class MyUseObjectsComponentBase : MyEntityComponentBase
     {
         protected Dictionary<string, List<Matrix>> m_detectors = new Dictionary<string, List<Matrix>>();
 
@@ -63,9 +63,9 @@ namespace VRage.Components
             }
         }
 
-        public override void OnRemovedFromContainer(MyComponentContainer container)
+        public override void OnRemovedFromContainer()
         {
-            base.OnRemovedFromContainer(container);
+            base.OnRemovedFromContainer();
 
             ClearPhysics();
         }

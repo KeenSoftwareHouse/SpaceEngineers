@@ -508,6 +508,8 @@ namespace Sandbox.Graphics.GUI
             // if listbox supports icons and mouse is over any item, then show item's value in tooltip
             if (m_mouseOverItem != null && m_mouseOverItem.ToolTip != null && m_mouseOverItem.ToolTip.ToolTips.Count > 0)
                 m_toolTip = m_mouseOverItem.ToolTip;
+            else
+                m_toolTip = null;
 
             base.ShowToolTip();
         }

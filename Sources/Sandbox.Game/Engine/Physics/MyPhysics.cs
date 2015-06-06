@@ -169,6 +169,7 @@ namespace Sandbox.Engine.Physics
             world.DisableCollisionsBetween(NoCollisionLayer, GravityPhantomLayer);
             world.DisableCollisionsBetween(NoCollisionLayer, ObjectDetectionCollisionLayer);
             world.DisableCollisionsBetween(NoCollisionLayer, VirtualMassLayer);
+            world.DisableCollisionsBetween(NoCollisionLayer, NoCollisionLayer);
 
             if (MyPerGameSettings.PhysicsNoCollisionLayerWithDefault)
                 world.DisableCollisionsBetween(NoCollisionLayer, 0);

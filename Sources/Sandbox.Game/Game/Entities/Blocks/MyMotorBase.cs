@@ -189,9 +189,9 @@ namespace Sandbox.Game.Entities.Cube
         {
             Debug.Assert(m_constraint == null);
 
-            CreateRotorGrid(out m_rotorGrid, out m_rotorBlock, builtBy);
             if (Sync.IsServer)
             {
+                CreateRotorGrid(out m_rotorGrid, out m_rotorBlock, builtBy);
                 //var world = WorldMatrix;
                 //var pos = Vector3.Transform(m_dummyPos, CubeGrid.WorldMatrix);
 

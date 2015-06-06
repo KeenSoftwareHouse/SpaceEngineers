@@ -17,7 +17,7 @@ namespace Sandbox.Game
         private Dictionary<MyDefinitionId, List<long>> m_componentLists = new Dictionary<MyDefinitionId, List<long>>();
 
 		IMyInventoryOwner m_owner;
-		public IMyInventoryOwner Owner { get { return m_owner; } }
+		public IMyInventoryOwner Owner { get { return m_owner; } set { m_owner = value; } }
 
 		public MyAreaInventory(IMyInventoryOwner owner)
 		{

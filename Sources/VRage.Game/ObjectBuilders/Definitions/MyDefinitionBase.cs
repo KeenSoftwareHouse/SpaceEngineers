@@ -129,6 +129,7 @@ namespace Sandbox.Definitions
                 m_definitionFactory = new MyObjectFactory<MyDefinitionTypeAttribute, MyDefinitionBase>();
                 m_definitionFactory.RegisterFromCreatedObjectAssembly();
                 m_definitionFactory.RegisterFromAssembly(MyPlugins.GameAssembly);
+                m_definitionFactory.RegisterFromAssembly(MyPlugins.SandboxAssembly);
                 m_definitionFactory.RegisterFromAssembly(MyPlugins.UserAssembly);
             }
             return m_definitionFactory;

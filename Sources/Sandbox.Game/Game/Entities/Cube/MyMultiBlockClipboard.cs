@@ -508,7 +508,7 @@ namespace Sandbox.Game.Entities.Cube
                 var grid = PreviewGrids[i];
                 var settings = m_settings.GetGridPlacementSettings(grid);
 
-                if (MySession.Static.SurvivalMode && !MyCubeBuilder.DeveloperSpectatorIsBuilding)
+                if (MySession.Static.SurvivalMode && !MyCubeBuilder.SpectatorIsBuilding)
                 {
                     if (i == 0 && MyCubeBuilder.CameraControllerSpectator)
                     {

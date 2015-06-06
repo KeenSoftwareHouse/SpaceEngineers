@@ -106,6 +106,7 @@ namespace Sandbox.Game.Gui
         {
             RegisterScreensFromAssembly(Assembly.GetExecutingAssembly());
             RegisterScreensFromAssembly(MyPlugins.GameAssembly);
+            RegisterScreensFromAssembly(MyPlugins.SandboxAssembly);
             RegisterScreensFromAssembly(MyPlugins.UserAssembly);
 
             s_developGroups.Add(s_debugInputGroup.Name, s_debugInputGroup);

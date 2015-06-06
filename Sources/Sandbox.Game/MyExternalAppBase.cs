@@ -186,6 +186,15 @@ namespace Sandbox.AppCode
             MyParticlesLibrary.Deserialize(file);
         }
 
+        public void FlushParticles()
+        {
+            List<int> ids = new List<int>(MyParticlesLibrary.GetParticleEffectsIDs());
+            foreach (var id in ids)
+           {
+               MyParticlesLibrary.RemoveParticleEffect(id);
+           }
+        }
+
         public void LoadDefinitions()
         {
             // this is needed for render materials to be loaded

@@ -93,6 +93,11 @@ namespace Sandbox.Graphics.TransparentGeometry.Particles
             return m_libraryEffects.Values;
         }
 
+        public static IEnumerable<int> GetParticleEffectsIDs()
+        {
+            return m_libraryEffects.Keys;
+        }
+
         #region Serialization
 
         static public void Serialize(string file)

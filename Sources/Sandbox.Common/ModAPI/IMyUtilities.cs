@@ -17,6 +17,18 @@ namespace Sandbox.ModAPI
         IMyConfigDedicated ConfigDedicated { get; }
         string GetTypeName(Type type);
         void ShowNotification(string message, int disappearTimeMs = 2000, Common.MyFontEnum font = Common.MyFontEnum.White);
+
+        /// <summary>
+        /// Create a notification object.
+        /// The object needs to have Show() called on it to be shown.
+        /// On top of that you can dynamically change the text, font and adjust the time to live.
+        /// </summary>
+        /// <param name="message"></param>
+        /// <param name="disappearTimeMs"></param>
+        /// <param name="font"></param>
+        /// <returns>The notification object.</returns>
+        IMyHudNotification CreateNotification(string message, int disappearTimeMs = 2000, Common.MyFontEnum font = Common.MyFontEnum.White);
+
         void ShowMessage(string sender, string messageText);
         void SendMessage(string messageText);
         event MessageEnteredDel MessageEntered;

@@ -9,7 +9,7 @@ using VRage.ObjectBuilders;
 //this must be in sandbox.common namespace  when assembly is sanbox.common  becaose of script checking.
 namespace Sandbox.Common.Components
 {
-    public abstract class MyGameLogicComponent : MyComponentBase
+    public abstract class MyGameLogicComponent : MyEntityComponentBase
     {
         public MyEntityUpdateEnum NeedsUpdate
         {

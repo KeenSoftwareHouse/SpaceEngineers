@@ -277,7 +277,19 @@ namespace Sandbox.Game.Gui
 
                         MyGameModeEnum gameMode = MyMultiplayerLobby.GetLobbyGameMode(lobby);
                         if (MyMultiplayerLobby.GetLobbyScenario(lobby))
+                        {
                             m_gameTypeText.AppendStringBuilder(MyTexts.Get(MySpaceTexts.WorldSettings_GameScenario));
+                            DateTime started=MyMultiplayerLobby.GetLobbyDateTime(MyMultiplayer.ScenarioStartTimeTag, lobby, DateTime.MinValue);
+                            if (started > DateTime.MinValue)
+                            {
+                                TimeSpan timeRunning = DateTime.UtcNow - started;
+                                var hrs=Math.Truncate(timeRunning.TotalHours);
+                                int mins=(int)((timeRunning.TotalHours-hrs)*60);
+                                m_gameTypeText.Append(" ").Append(hrs).Append(":").Append(mins.ToString("D2"));
+                            }
+                            else
+                                m_gameTypeText.Append(" Lobby");
+                        }
                         else
                             switch (gameMode)
                             {
@@ -288,7 +300,7 @@ namespace Sandbox.Game.Gui
                                     m_gameTypeText.AppendStringBuilder(MyTexts.Get(MySpaceTexts.WorldSettings_GameModeSurvival));
                                     m_gameTypeText.Append(String.Format(" {0}-{1}-{2}", inventory, assembler, refinery));
                                     break;
-                                default:    
+                                default:
                                     Debug.Fail("Unknown game type");
                                     break;
                             }

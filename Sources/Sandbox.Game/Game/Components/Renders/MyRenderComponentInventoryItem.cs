@@ -17,9 +17,9 @@ namespace Sandbox.Game.Components
         MyBaseInventoryItemEntity m_invetoryItem;
 
         #region overrides
-        public override void OnAddedToContainer(MyComponentContainer container)
+        public override void OnAddedToContainer()
         {
-            base.OnAddedToContainer(container);
+            base.OnAddedToContainer();
             m_invetoryItem = Container.Entity as MyBaseInventoryItemEntity;
         }
         public override void Draw()

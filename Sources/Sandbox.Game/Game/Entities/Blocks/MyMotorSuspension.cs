@@ -17,15 +17,15 @@ using System.Linq;
 using System.Text;
 using VRage.Audio;
 using VRage.ModAPI;
+using VRage.Utils;
 using VRageMath;
 
 namespace Sandbox.Game.Entities.Cube
 {
     [MyCubeBlockType(typeof(MyObjectBuilder_MotorSuspension))]
-    public class MyMotorSuspension : MyMotorBase, IMyMotorSuspension
+    public partial class MyMotorSuspension : MyMotorBase
     {
         private bool m_wasSteering;
-        private const float m_returnStep = 0.01f;
         private float m_steerAngle = 0;
         private bool m_steerInvert;
         private bool m_revolveInvert;
@@ -34,6 +34,7 @@ namespace Sandbox.Game.Entities.Cube
         private float m_strenth;
         private float m_friction;
         private float m_height;
+        private float m_suspensionTravel;
         private static List<HkRigidBody> m_tmpList = new List<HkRigidBody>();
         private static HashSet<MySlimBlock> m_tmpSet = new HashSet<MySlimBlock>();
         private bool m_wasAccelerating;
@@ -74,6 +75,7 @@ namespace Sandbox.Game.Entities.Cube
 
         public bool Brake
         {
+            get { return m_brake; }
             set
             {
                 m_brake = value;
@@ -117,7 +119,23 @@ namespace Sandbox.Game.Entities.Cube
             }
         }
 
-        public float SteerAngle { get { return m_steerAngle; } set { m_steerAngle = value; } }
+        public float SuspensionTravel
+        {
+            get { return m_suspensionTravel; }
+            set
+            {
+                m_suspensionTravel = MathHelper.Clamp(value, 0, 1);
+
+                if (m_constraint != null)
+                    Reattach();
+            }
+        }
+
+        public float MaxSteerAngle { get; set; }
+        public float SteerSpeed { get; set; }
+        public float SteerReturnSpeed { get; set; }
+        public bool InvertSteer { get; set; }
+        public float SteerAngle { get { return m_steerAngle; } set { m_steerAngle = value; } } // current steering angle
         public float Power { get; set; }
         public bool Steering { get; set; }
         public bool Propulsion { get; set; }
@@ -131,38 +149,52 @@ namespace Sandbox.Game.Entities.Cube
             steering.Getter = (x) => x.Steering;
             steering.Setter = (x, v) => x.SyncObject.ChangeSteering(v);
             steering.EnableAction();
+            steering.Enabled = (x) => x.m_constraint != null;
             MyTerminalControlFactory.AddControl(steering);
+
+            var maxSteerAngle = new MyTerminalControlSlider<MyMotorSuspension>("MaxSteerAngle", MySpaceTexts.BlockPropertyTitle_Motor_MaxSteerAngle, MySpaceTexts.BlockPropertyDescription_Motor_MaxSteerAngle);
+            maxSteerAngle.SetLimits((x) => 0, (x) => x.BlockDefinition.MaxSteer);
+            maxSteerAngle.DefaultValue = 0.45f;
+            maxSteerAngle.Getter = (x) => x.GetMaxSteerAngleForTerminal();
+            maxSteerAngle.Setter = (x, v) => x.SyncObject.ChangeSlider(MySyncMotorSuspension.SliderEnum.MaxSteerAngle, v);
+            maxSteerAngle.Writer = (x, res) => MyMotorStator.WriteAngle(x.GetMaxSteerAngleForTerminal(), res);
+            maxSteerAngle.EnableActionsWithReset();
+            maxSteerAngle.Enabled = (x) => x.m_constraint != null;
+            MyTerminalControlFactory.AddControl(maxSteerAngle);
+
+            var steerSpeed = new MyTerminalControlSlider<MyMotorSuspension>("SteerSpeed", MySpaceTexts.BlockPropertyTitle_Motor_SteerSpeed, MySpaceTexts.BlockPropertyDescription_Motor_SteerSpeed);
+            steerSpeed.SetLimits((x) => 0, (x) => x.BlockDefinition.SteeringSpeed * 100);
+            steerSpeed.DefaultValue = 2f;
+            steerSpeed.Getter = (x) => x.GetSteerSpeedForTerminal();
+            steerSpeed.Setter = (x, v) => x.SyncObject.ChangeSlider(MySyncMotorSuspension.SliderEnum.SteerSpeed, v / 100);
+            steerSpeed.Writer = (x, res) => MyValueFormatter.AppendTorqueInBestUnit(x.GetSteerSpeedForTerminal(), res);
+            steerSpeed.EnableActionsWithReset();
+            steerSpeed.Enabled = (x) => x.m_constraint != null;
+            MyTerminalControlFactory.AddControl(steerSpeed);
+
+            var steerReturnSpeed = new MyTerminalControlSlider<MyMotorSuspension>("SteerReturnSpeed", MySpaceTexts.BlockPropertyTitle_Motor_SteerReturnSpeed, MySpaceTexts.BlockPropertyDescription_Motor_SteerReturnSpeed);
+            steerReturnSpeed.SetLimits((x) => 0, (x) => x.BlockDefinition.SteeringSpeed * 100);
+            steerReturnSpeed.DefaultValue = 1f;
+            steerReturnSpeed.Getter = (x) => x.GetSteerReturnSpeedForTerminal();
+            steerReturnSpeed.Setter = (x, v) => x.SyncObject.ChangeSlider(MySyncMotorSuspension.SliderEnum.SteerReturnSpeed, v / 100);
+            steerReturnSpeed.Writer = (x, res) => MyValueFormatter.AppendTorqueInBestUnit(x.GetSteerReturnSpeedForTerminal(), res);
+            steerReturnSpeed.EnableActionsWithReset();
+            steerReturnSpeed.Enabled = (x) => x.m_constraint != null;
+            MyTerminalControlFactory.AddControl(steerReturnSpeed);
+
+            var invertSteer = new MyTerminalControlCheckbox<MyMotorSuspension>("InvertSteering", MySpaceTexts.BlockPropertyTitle_Motor_InvertSteer, MySpaceTexts.BlockPropertyDescription_Motor_InvertSteer);
+            invertSteer.Getter = (x) => x.InvertSteer;
+            invertSteer.Setter = (x, v) => x.SyncObject.ChangeSlider(MySyncMotorSuspension.SliderEnum.InvertSteer, (v ? 1 : 0));
+            invertSteer.EnableAction();
+            invertSteer.Enabled = (x) => x.m_constraint != null;
+            MyTerminalControlFactory.AddControl(invertSteer);
 
             var propulsion = new MyTerminalControlCheckbox<MyMotorSuspension>("Propulsion", MySpaceTexts.BlockPropertyTitle_Motor_Propulsion, MySpaceTexts.BlockPropertyDescription_Motor_Propulsion);
             propulsion.Getter = (x) => x.Propulsion;
             propulsion.Setter = (x, v) => x.SyncObject.ChangePropulsion(v);
             propulsion.EnableAction();
+            propulsion.Enabled = (x) => x.m_constraint != null;
             MyTerminalControlFactory.AddControl(propulsion);
-
-            var damping = new MyTerminalControlSlider<MyMotorSuspension>("Damping", MySpaceTexts.BlockPropertyTitle_Motor_Damping, MySpaceTexts.BlockPropertyTitle_Motor_Damping);
-            damping.SetLimits(0, 100);
-            damping.Getter = (x) => x.GetDampingForTerminal();
-            damping.Setter = (x, v) => x.SyncObject.ChangeDamping(v * 0.002f);
-            damping.Writer = (x, res) => res.AppendInt32((int)(x.Damping / 0.002f)).Append("%");
-            damping.EnableActions();
-            MyTerminalControlFactory.AddControl(damping);
-
-            var strength = new MyTerminalControlSlider<MyMotorSuspension>("Strength", MySpaceTexts.BlockPropertyTitle_Motor_Strength, MySpaceTexts.BlockPropertyTitle_Motor_Strength);
-            strength.SetLimits(0, 100);
-            strength.Getter = (x) => x.GetStrengthForTerminal();
-            strength.Setter = (x, v) => x.SyncObject.ChangeStrength(v * 0.002f);
-            strength.Writer = (x, res) => res.AppendInt32((int)(x.Strength / 0.002f)).Append("%");
-            strength.EnableActions();
-            MyTerminalControlFactory.AddControl(strength);
-
-            var friction = new MyTerminalControlSlider<MyMotorSuspension>("Friction", MySpaceTexts.BlockPropertyTitle_Motor_Friction, MySpaceTexts.BlockPropertyDescription_Motor_Friction);
-            friction.SetLimits(0, 100);
-            friction.DefaultValue = 150f / 800;
-            friction.Getter = (x) => x.GetFrictionForTerminal();
-            friction.Setter = (x, v) => x.SyncObject.ChangeFriction(v / 100);
-            friction.Writer = (x, res) => res.AppendInt32((int)(x.Friction * 100)).Append("%");
-            friction.EnableActions();
-            MyTerminalControlFactory.AddControl(friction);
 
             var power = new MyTerminalControlSlider<MyMotorSuspension>("Power", MySpaceTexts.BlockPropertyTitle_Motor_Power, MySpaceTexts.BlockPropertyDescription_Motor_Power);
             power.SetLimits(0, 100);
@@ -171,16 +203,56 @@ namespace Sandbox.Game.Entities.Cube
             power.Setter = (x, v) => x.SyncObject.ChangePower(v / 100);
             power.Writer = (x, res) => res.AppendInt32((int)(x.Power * 100)).Append("%");
             power.EnableActions();
+            power.Enabled = (x) => x.m_constraint != null;
             MyTerminalControlFactory.AddControl(power);
+
+            var friction = new MyTerminalControlSlider<MyMotorSuspension>("Friction", MySpaceTexts.BlockPropertyTitle_Motor_Friction, MySpaceTexts.BlockPropertyDescription_Motor_Friction);
+            friction.SetLimits(0, 100);
+            friction.DefaultValue = 150f / 800;
+            friction.Getter = (x) => x.GetFrictionForTerminal();
+            friction.Setter = (x, v) => x.SyncObject.ChangeFriction(v / 100);
+            friction.Writer = (x, res) => res.AppendInt32((int)(x.Friction * 100)).Append("%");
+            friction.EnableActions();
+            friction.Enabled = (x) => x.m_constraint != null;
+            MyTerminalControlFactory.AddControl(friction);
+
+            var damping = new MyTerminalControlSlider<MyMotorSuspension>("Damping", MySpaceTexts.BlockPropertyTitle_Motor_Damping, MySpaceTexts.BlockPropertyTitle_Motor_Damping);
+            damping.SetLimits(0, 100);
+            damping.Getter = (x) => x.GetDampingForTerminal();
+            damping.Setter = (x, v) => x.SyncObject.ChangeDamping(v * 0.002f);
+            damping.Writer = (x, res) => res.AppendInt32((int)(x.Damping / 0.002f)).Append("%");
+            damping.EnableActions();
+            damping.Enabled = (x) => x.m_constraint != null;
+            MyTerminalControlFactory.AddControl(damping);
+
+            var strength = new MyTerminalControlSlider<MyMotorSuspension>("Strength", MySpaceTexts.BlockPropertyTitle_Motor_Strength, MySpaceTexts.BlockPropertyTitle_Motor_Strength);
+            strength.SetLimits(0, 100);
+            strength.Getter = (x) => x.GetStrengthForTerminal();
+            strength.Setter = (x, v) => x.SyncObject.ChangeStrength(v * 0.002f);
+            strength.Writer = (x, res) => res.AppendInt32((int)(x.Strength / 0.002f)).Append("%");
+            strength.EnableActions();
+            strength.Enabled = (x) => x.m_constraint != null;
+            MyTerminalControlFactory.AddControl(strength);
 
             var height = new MyTerminalControlSlider<MyMotorSuspension>("Height", MySpaceTexts.BlockPropertyTitle_Motor_Height, MySpaceTexts.BlockPropertyDescription_Motor_Height);
             height.SetLimits((x) => x.BlockDefinition.MinHeight, (x) => x.BlockDefinition.MaxHeight);
             height.DefaultValue = 0;
             height.Getter = (x) => x.GetHeightForTerminal();
-            height.Setter = (x, v) => x.SyncObject.ChangeHeight(v);
-            height.Writer = (x, res) => res.AppendFormatedDecimal("", x.Height, 2, "m");
+            height.Setter = (x, v) => x.SyncObject.ChangeSlider(MySyncMotorSuspension.SliderEnum.Height, v);
+            height.Writer = (x, res) => MyValueFormatter.AppendDistanceInBestUnit(x.Height, res);
             height.EnableActionsWithReset();
+            height.Enabled = (x) => x.m_constraint != null;
             MyTerminalControlFactory.AddControl(height);
+
+            var travel = new MyTerminalControlSlider<MyMotorSuspension>("Travel", MySpaceTexts.BlockPropertyTitle_Motor_SuspensionTravel, MySpaceTexts.BlockPropertyDescription_Motor_SuspensionTravel);
+            travel.SetLimits(0, 100);
+            travel.DefaultValue = 100;
+            travel.Getter = (x) => x.GetSuspensionTravelForTerminal();
+            travel.Setter = (x, v) => x.SyncObject.ChangeSlider(MySyncMotorSuspension.SliderEnum.SuspensionTravel, v / 100.0f);
+            travel.Writer = (x, res) => res.AppendInt32((int)x.GetSuspensionTravelForTerminal()).Append("%");
+            travel.EnableActionsWithReset();
+            travel.Enabled = (x) => x.m_constraint != null;
+            MyTerminalControlFactory.AddControl(travel);
         }
 
 
@@ -206,6 +278,11 @@ namespace Sandbox.Game.Entities.Cube
             Friction = ob.Friction;
             Power = ob.Power;
             Height = ob.Height;
+            MaxSteerAngle = ob.MaxSteerAngle;
+            SteerSpeed = ob.SteerSpeed;
+            SteerReturnSpeed = ob.SteerReturnSpeed;
+            InvertSteer = ob.InvertSteer;
+            SuspensionTravel = ob.SuspensionTravel;
 
             NeedsUpdate |= MyEntityUpdateEnum.EACH_FRAME | MyEntityUpdateEnum.BEFORE_NEXT_FRAME;
             AddDebugRenderComponent(new Components.MyDebugRenderComponentMotorSuspension(this));
@@ -230,6 +307,11 @@ namespace Sandbox.Game.Entities.Cube
             ob.Friction = Friction;
             ob.Power = Power;
             ob.Height = Height;
+            ob.MaxSteerAngle = MaxSteerAngle;
+            ob.SteerSpeed = SteerSpeed;
+            ob.SteerReturnSpeed = SteerReturnSpeed;
+            ob.InvertSteer = InvertSteer;
+            ob.SuspensionTravel = SuspensionTravel;
             return ob;
         }
 
@@ -314,8 +396,9 @@ namespace Sandbox.Game.Entities.Cube
                 //but we have virtual mass blocks so real mass doesnt corespond to actual "weight" in game and varying gravity
                 data.SetSuspensionDamping(Damping);
                 data.SetSuspensionStrength(Strength);
-                data.SetSuspensionMaxLimit(BlockDefinition.SuspensionLimit - m_height); // keep the limit at the same level even when changing height
-                data.SetSuspensionMinLimit(-BlockDefinition.SuspensionLimit + m_height);
+                //Min/MaxHeight also define the limits of the suspension and SuspensionTravel lowers this limit
+                data.SetSuspensionMinLimit((BlockDefinition.MinHeight - m_height) * SuspensionTravel);
+                data.SetSuspensionMaxLimit((BlockDefinition.MaxHeight - m_height) * SuspensionTravel);
                 data.SetInBodySpace(ref posB, ref posA, ref axisB, ref axisA, ref suspensionAx, ref suspensionAx);
                 m_constraint = new HkConstraint(rotorBody, CubeGrid.Physics.RigidBody, data);
 
@@ -369,6 +452,7 @@ namespace Sandbox.Game.Entities.Cube
 
             return true;
         }
+
         internal void Forward()
         {
             Accelerate(BlockDefinition.PropulsionForce * Power, true);
@@ -397,12 +481,12 @@ namespace Sandbox.Game.Entities.Cube
 
         internal void Right()
         {
-            Steer(BlockDefinition.SteeringSpeed, true);
+            Steer(SteerSpeed, InvertSteer ? false : true);
         }
 
         internal void Left()
         {
-            Steer(BlockDefinition.SteeringSpeed, false);
+            Steer(SteerSpeed, InvertSteer ? true : false);
         }
 
         private void Steer(float step, bool toRight)
@@ -413,15 +497,14 @@ namespace Sandbox.Game.Entities.Cube
 
             if (m_steerInvert == toRight)
             {
-                if (m_steerAngle < BlockDefinition.MaxSteer)
+                if (m_steerAngle < MaxSteerAngle)
                     m_steerAngle += step;
             }
             else
             {
-                if (m_steerAngle > -BlockDefinition.MaxSteer)
+                if (m_steerAngle > -MaxSteerAngle)
                     m_steerAngle -= step;
             }
-
         }
 
         public override void UpdateBeforeSimulation()
@@ -432,11 +515,10 @@ namespace Sandbox.Game.Entities.Cube
             if ((player != null && player.IsLocalPlayer()) || (player == null && Sync.IsServer))
                 if (!m_wasSteering)
                 {
-                    if (Math.Abs(m_steerAngle) < 0.00001) m_steerAngle = 0;
-                    if (m_steerAngle < 0)
-                        m_steerAngle += m_returnStep;
-                    else if (m_steerAngle > 0)
-                        m_steerAngle -= m_returnStep;
+                    if (Math.Abs(m_steerAngle) < 0.00001)
+                        m_steerAngle = 0;
+                    if (m_steerAngle != 0 && SteerReturnSpeed > 0)
+                        m_steerAngle = (m_steerAngle > 0 ? Math.Max(m_steerAngle - SteerReturnSpeed, 0) : Math.Min(m_steerAngle + SteerReturnSpeed, 0));
                 }
             if(m_wasSteering || lastSteer != m_steerAngle)
                 SyncObject.UpdateSteer(m_steerAngle);
@@ -446,7 +528,6 @@ namespace Sandbox.Game.Entities.Cube
                 (m_constraint.ConstraintData as HkWheelConstraintData).SetSteeringAngle(m_steerAngle);
             UpdateSoundState();
             m_wasAccelerating = false;
-
         }
 
         protected override void UpdateSoundState()
@@ -471,10 +552,12 @@ namespace Sandbox.Game.Entities.Cube
                 m_soundEmitter.Sound.FrequencyRatio = MyAudio.Static.SemitonesToFrequencyRatio(semitones) * (m_wasAccelerating ? 1 : 0.95f);
             }
         }
+
         public float GetDampingForTerminal()
         {
             return Damping / 0.002f;
         }
+
         public float GetStrengthForTerminal()
         {
             return Strength / 0.002f;
@@ -495,12 +578,24 @@ namespace Sandbox.Game.Entities.Cube
             return Height;
         }
 
-        bool IMyMotorSuspension.Steering { get { return Steering; } }
-        bool IMyMotorSuspension.Propulsion { get { return Propulsion;} }
-        float IMyMotorSuspension.Damping { get { return GetDampingForTerminal() ;} }
-        float IMyMotorSuspension.Strength { get { return GetStrengthForTerminal(); } }
-        float IMyMotorSuspension.Friction { get { return GetFrictionForTerminal(); } }
-        float IMyMotorSuspension.Power { get { return GetPowerForTerminal();} }
-        float IMyMotorSuspension.Height { get { return GetHeightForTerminal(); } }
+        public float GetMaxSteerAngleForTerminal()
+        {
+            return MaxSteerAngle;
+        }
+
+        public float GetSteerSpeedForTerminal()
+        {
+            return SteerSpeed * 100;
+        }
+
+        public float GetSteerReturnSpeedForTerminal()
+        {
+            return SteerReturnSpeed * 100;
+        }
+
+        public float GetSuspensionTravelForTerminal()
+        {
+            return SuspensionTravel * 100;
+        }
     }
 }

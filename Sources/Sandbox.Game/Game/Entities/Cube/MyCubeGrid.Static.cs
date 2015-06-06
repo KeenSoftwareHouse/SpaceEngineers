@@ -2103,6 +2103,7 @@ namespace Sandbox.Game.Entities
         {
             Type result = typeof(MyCubeGridSystems);
             ChooseGridSystemsType(ref result, MyPlugins.GameAssembly);
+            ChooseGridSystemsType(ref result, MyPlugins.SandboxAssembly);
             ChooseGridSystemsType(ref result, MyPlugins.UserAssembly);
             return result;
         }

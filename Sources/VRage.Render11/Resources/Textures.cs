@@ -136,9 +136,13 @@ namespace VRageRender.Resources
             string path;
             
             if (string.IsNullOrEmpty(contentPath))
+            {
                 path = Path.Combine(MyFileSystem.ContentPath, Textures.Data[texId.Index].Name);
+            }
             else
+            { 
                 path = Path.Combine(contentPath, Textures.Data[texId.Index].Name);
+            }
 
             Debug.Assert(Textures.Data[texId.Index].Resource == null);
             Debug.Assert(GetView(texId) == null, "Texture " + Textures.Data[texId.Index].Name + " in invalid state");
@@ -283,6 +287,20 @@ namespace VRageRender.Resources
             }
 
             var nameKey = nameId;
+
+            if(!string.IsNullOrEmpty(contentPath))
+            {
+                var fullPath = Path.Combine(contentPath, nameKey.ToString());
+                if (MyFileSystem.FileExists(fullPath))
+                {
+                    nameKey = X.TEXT(fullPath);
+                }
+                else // take file from main content
+                {
+                    contentPath = null;
+                }
+            }
+
             if (!NameIndex.ContainsKey(nameKey))
             {
                 //Debug.Assert(type != MyTextureEnum.SYSTEM);
@@ -1070,25 +1088,37 @@ namespace VRageRender.Resources
         {
             if(Srvs.ContainsKey(id))
             {
-                Srvs[id].View.Dispose();
+                if (Srvs[id].View != null)
+                {
+                    Srvs[id].View.Dispose();
+                }
                 Srvs.Remove(id);
             }
 
             if (Uavs.ContainsKey(id))
             {
-                Uavs[id].View.Dispose();
+                if (Uavs[id].View != null)
+                {
+                    Uavs[id].View.Dispose();
+                }
                 Uavs.Remove(id);
             }
 
             if (Dsvs.ContainsKey(id))
             {
-                Dsvs[id].View.Dispose();
+                if (Dsvs[id].View != null)
+                {
+                    Dsvs[id].View.Dispose();
+                }
                 Dsvs.Remove(id);
             }
 
             if (Rtvs.ContainsKey(id))
             {
-                Rtvs[id].View.Dispose();
+                if (Rtvs[id].View != null)
+                {
+                    Rtvs[id].View.Dispose();
+                }
                 Rtvs.Remove(id);
             }
 
@@ -1146,8 +1176,11 @@ namespace VRageRender.Resources
                 SubresourceUavs.Remove(k);
             }
 
-            Textures.Data[id.Index].Resource.Dispose();
-            Textures.Data[id.Index].Resource = null;
+            if (Textures.Data[id.Index].Resource != null)
+            {
+                Textures.Data[id.Index].Resource.Dispose();
+                Textures.Data[id.Index].Resource = null;
+            }
 
             Textures.Free(id.Index);
         }

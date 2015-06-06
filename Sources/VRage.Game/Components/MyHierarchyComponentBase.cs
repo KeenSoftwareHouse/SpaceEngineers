@@ -8,7 +8,7 @@ using VRage.ModAPI;
 
 namespace VRage.Components
 {
-    public class MyHierarchyComponentBase : MyComponentBase
+    public class MyHierarchyComponentBase : MyEntityComponentBase
     {
         private List<MyHierarchyComponentBase> m_children = new List<MyHierarchyComponentBase>();
 

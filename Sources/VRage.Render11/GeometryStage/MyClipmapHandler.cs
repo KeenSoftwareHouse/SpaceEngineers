@@ -143,6 +143,7 @@ namespace VRageRender
 
         internal void RemoveFromUpdate()
         {
+            Base.UnloadContent();
             MyClipmap.RemoveFromUpdate(Base);
         }
     }

@@ -21,7 +21,7 @@ using VRage.ModAPI;
 namespace Sandbox.Game.Entities.Blocks
 {
     [MyCubeBlockType(typeof(MyObjectBuilder_UpgradeModule))]
-    class MyUpgradeModule : MyTerminalBlock
+    class MyUpgradeModule : MyFunctionalBlock, ModAPI.IMyUpgradeModule
     {
         private ConveyorLinePosition[] m_connectionPositions;
         private Dictionary<ConveyorLinePosition, MyCubeBlock> m_connectedBlocks;
@@ -360,6 +360,41 @@ namespace Sandbox.Game.Entities.Blocks
             }
 
             return count;
+        }
+
+        void ModAPI.Ingame.IMyUpgradeModule.GetUpgradeList(out List<MyUpgradeModuleInfo> upgradelist)
+        {
+            upgradelist = new List<MyUpgradeModuleInfo>();
+            foreach (var value in m_upgrades)
+                upgradelist.Add(value);
+        }
+
+        uint ModAPI.Ingame.IMyUpgradeModule.UpgradeCount
+        {
+            get
+            {
+                return (uint)m_upgrades.Count();
+            }
+        }
+
+        uint ModAPI.Ingame.IMyUpgradeModule.Connections
+        {
+            get
+            {
+                uint count = 0;
+                MyCubeBlock lastblock = null;
+                foreach (var value in m_connectedBlocks.Values)
+                {
+                    if (lastblock == value)
+                        continue;
+                    if (value != null)
+                    {
+                        count++;
+                        lastblock = value;
+                    }
+                }
+                return count;
+            }
         }
     }
 }

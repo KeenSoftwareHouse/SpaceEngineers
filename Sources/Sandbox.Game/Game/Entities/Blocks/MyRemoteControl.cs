@@ -41,41 +41,6 @@ namespace Sandbox.Game.Entities
     [MyCubeBlockType(typeof(MyObjectBuilder_RemoteControl))]
     class MyRemoteControl : MyShipController, IMyPowerConsumer, IMyUsableEntity, IMyRemoteControl
     {
-        [ProtoContract]
-        public class RemoteToolbarItem : IEqualityComparer<RemoteToolbarItem>
-        {
-            [ProtoMember]
-            public long EntityID;
-            [ProtoMember]
-            public string GroupName;
-            [ProtoMember]
-            public string Action;
-            [ProtoMember]
-            public List<MyObjectBuilder_ToolbarItemActionParameter> Parameters = new List<MyObjectBuilder_ToolbarItemActionParameter>();
-
-            public bool Equals(RemoteToolbarItem x, RemoteToolbarItem y)
-            {
-                if (x.EntityID != y.EntityID || x.GroupName != y.GroupName || x.Action != y.Action)
-                    return false;
-                return true;
-            }
-
-            public int GetHashCode(RemoteToolbarItem obj)
-            {
-                unchecked
-                {
-                    int result = obj.EntityID.GetHashCode();
-                    result = (result * 397) ^ obj.GroupName.GetHashCode();
-                    result = (result * 397) ^ obj.Action.GetHashCode();
-                    if (obj.Parameters != null)
-                    {
-                        result = (result * 397) ^ obj.Parameters.GetHashCode();
-                    }
-                    return result;
-                }
-            }
-        }
-
         public enum FlightMode : int
         {
             Patrol = 0,
@@ -606,6 +571,16 @@ namespace Sandbox.Game.Entities
                     {
                         group.GroupData.ControlSystem.RemoveControllerBlock(this);
                     }
+
+                    if (CubeGrid.GridSystems.ControlSystem != null)
+                    {
+                        var shipController = CubeGrid.GridSystems.ControlSystem.GetShipController() as MyRemoteControl;
+                        if (shipController == null || !shipController.m_autoPilotEnabled)
+                        {
+                            SetAutopilot(false);
+                        }
+                    }
+
                 }
                 else
                 {
@@ -619,12 +594,27 @@ namespace Sandbox.Game.Entities
                     {
                         group.GroupData.ControlSystem.AddControllerBlock(this);
                     }
+                    SetAutopilot(true);
 
                     ResetShipControls();
                 }
             }
 
             UpdateText();
+        }
+
+        private void SetAutopilot(bool enabled)
+        {
+            if (CubeGrid.GridSystems.ThrustSystem != null)
+            {
+                CubeGrid.GridSystems.ThrustSystem.AutopilotEnabled = enabled;
+                CubeGrid.GridSystems.ThrustSystem.MarkDirty();
+            }
+            if (CubeGrid.GridSystems.GyroSystem != null)
+            {
+                CubeGrid.GridSystems.GyroSystem.AutopilotEnabled = enabled;
+                CubeGrid.GridSystems.GyroSystem.MarkDirty();
+            }
         }
 
         private void SetDockingMode(bool enabled)
@@ -995,7 +985,7 @@ namespace Sandbox.Game.Entities
             if (clipboard.Waypoints != null)
             {
                 m_waypoints = new List<MyAutopilotWaypoint>(clipboard.Waypoints.Count);
-                foreach (var waypoint in m_clipboard.Waypoints)
+                foreach (var waypoint in clipboard.Waypoints)
                 {
                     if (waypoint.Actions != null)
                     {
@@ -1098,31 +1088,10 @@ namespace Sandbox.Game.Entities
         {
             if (m_selectedWaypoints.Count == 1)
             {
-                SyncObject.SendToolbarItemChanged(GetToolbarItem(self.GetItemAtIndex(index.ItemIndex)), index.ItemIndex, m_waypoints.IndexOf(m_selectedWaypoints[0]));
+                SyncObject.SendToolbarItemChanged(ToolbarItem.FromItem(self.GetItemAtIndex(index.ItemIndex)), index.ItemIndex, m_waypoints.IndexOf(m_selectedWaypoints[0]));
             }
-}
-
-        private RemoteToolbarItem GetToolbarItem(MyToolbarItem item)
-        {
-            var tItem = new RemoteToolbarItem();
-            tItem.EntityID = 0;
-            if (item is MyToolbarItemTerminalBlock)
-            {
-                var block = item.GetObjectBuilder() as MyObjectBuilder_ToolbarItemTerminalBlock;
-                tItem.EntityID = block.BlockEntityId;
-                tItem.Action = block.Action;
-                tItem.Parameters = block.Parameters;
-            }
-            else if (item is MyToolbarItemTerminalGroup)
-            {
-                var block = item.GetObjectBuilder() as MyObjectBuilder_ToolbarItemTerminalGroup;
-                tItem.EntityID = block.BlockEntityId;
-                tItem.Action = block.Action;
-                tItem.GroupName = block.GroupName;
-                tItem.Parameters = block.Parameters;
-            }
-            return tItem;
         }
+
         #endregion
 
         #region Autopilot Logic
@@ -1130,6 +1099,9 @@ namespace Sandbox.Game.Entities
         {
             if (IsWorking && m_autoPilotEnabled && CubeGrid.GridSystems.ControlSystem.GetShipController() == this)
             {
+                Debug.Assert(CubeGrid.GridSystems.ThrustSystem.AutopilotEnabled == true);
+                Debug.Assert(CubeGrid.GridSystems.GyroSystem.AutopilotEnabled == true);
+
                 if (m_currentWaypoint == null && m_waypoints.Count > 0)
                 {
                     m_currentWaypoint = m_waypoints[0];
@@ -1157,9 +1129,9 @@ namespace Sandbox.Game.Entities
                     }
                 }
             }
-            else if (!IsWorking && m_autoPilotEnabled)
+            else if (!IsWorking && m_autoPilotEnabled && Sync.IsServer)
             {
-                SetAutoPilotEnabled(false);
+                SyncObject.SetAutoPilot(false);
             }
         }
 
@@ -1397,25 +1369,6 @@ namespace Sandbox.Game.Entities
         private void ResetShipControls()
         {
             CubeGrid.GridSystems.ThrustSystem.DampenersEnabled = true;
-            foreach (var dir in Base6Directions.IntDirections)
-            {
-                var thrusters = CubeGrid.GridSystems.ThrustSystem.GetThrustersForDirection(dir);
-                foreach (var thruster in thrusters)
-                {
-                    if (thruster.ThrustOverride != 0f)
-                    {
-                        thruster.SetThrustOverride(0f);
-                    }
-                }
-            }
-
-            foreach (var gyro in CubeGrid.GridSystems.GyroSystem.Gyros)
-            {
-                if (gyro.GyroOverride)
-                {
-                    gyro.SetGyroOverride(false);
-                }
-            }
         }
         #endregion
 
@@ -1700,6 +1653,16 @@ namespace Sandbox.Game.Entities
         public void RequestControlFromLoad()
         {
             AcquireControl();
+        }
+
+        public override void OnRegisteredToGridSystems()
+        {
+            base.OnRegisteredToGridSystems();
+
+            if (m_autoPilotEnabled)
+            {
+                SetAutopilot(true);
+            }
         }
 
         public override void OnUnregisteredFromGridSystems()
@@ -2081,7 +2044,7 @@ namespace Sandbox.Game.Entities
                 public int WaypointIndex;
 
                 [ProtoMember]
-                public RemoteToolbarItem Item;
+                public ToolbarItem Item;
 
                 [ProtoMember]
                 public int Index;
@@ -2257,7 +2220,7 @@ namespace Sandbox.Game.Entities
                 m_syncing = true;
             }
 
-            public void SendToolbarItemChanged(RemoteToolbarItem item, int index, int waypointIndex)
+            public void SendToolbarItemChanged(ToolbarItem item, int index, int waypointIndex)
             {
                 if (m_syncing)
                     return;

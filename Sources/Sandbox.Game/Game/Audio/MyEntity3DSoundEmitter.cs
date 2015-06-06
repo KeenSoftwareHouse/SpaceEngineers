@@ -219,6 +219,7 @@ namespace Sandbox.Game.Entities
                 EmitterMethods[MethodsEnum.CanHear].Add((Func<bool>)IsOnSameGrid);
                 EmitterMethods[MethodsEnum.CanHear].Add((Func<bool>)IsControlledEntity);
                 EmitterMethods[MethodsEnum.CanHear].Add((Func<bool>)IsBeingWelded);
+                EmitterMethods[MethodsEnum.CanHear].Add((Func<bool>)IsInOxygen);
 
                 EmitterMethods[MethodsEnum.ShouldPlay2D].Add((Func<bool>)IsCurrentWeapon);
 
@@ -331,12 +332,23 @@ namespace Sandbox.Game.Entities
             return targetCube.FatBlock == cubeBlock;
         }
 
+        private bool IsInOxygen()
+        {
+            return (MySession.LocalCharacter != null && MySession.LocalCharacter.EnvironmentOxygenLevel > 0.1f);
+        }
+
         private MyStringId SelectCue(MySoundPair sound)
         {
-            //af:da:TODO: this.SourcePosition && listener.Position in pressurized room play arcade
             if (MySession.Static != null && MySession.Static.Settings.RealisticSound && MyFakes.ENABLE_NEW_SOUNDS)
             {
-                return sound.Realistic;
+                if (IsInOxygen())
+                {
+                    return sound.Arcade;
+                }
+                else
+                {
+                    return sound.Realistic;
+                }
             }
             else
                 return sound.Arcade;
@@ -345,7 +357,7 @@ namespace Sandbox.Game.Entities
         static MyStringId m_helmetEffect = MyStringId.GetOrCompute("LowPassHelmet");
         private MyStringId SelectEffect()
         {
-            if (false) //af:da:TODO: listener in pressurized room with helmet on -> lowPass
+            if (MyFakes.ENABLE_NEW_SOUNDS && MySession.LocalCharacter != null && !MySession.LocalCharacter.Definition.NeedsOxygen && IsInOxygen())
             {
                 return m_helmetEffect;
             }

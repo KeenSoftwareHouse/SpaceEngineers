@@ -52,7 +52,7 @@ namespace Sandbox.Game.World
                 m_objectFactory = new MyObjectFactory<OperationTypeAttribute, MyWorldGeneratorOperationBase>();
                 m_objectFactory.RegisterFromCreatedObjectAssembly();
                 m_objectFactory.RegisterFromAssembly(MyPlugins.GameAssembly);
-                m_objectFactory.RegisterFromAssembly(Assembly.LoadFrom("Sandbox.Common.dll")); //TODO: Will be removed 
+                m_objectFactory.RegisterFromAssembly(MyPlugins.SandboxAssembly); //TODO: Will be removed 
                 m_objectFactory.RegisterFromAssembly(MyPlugins.UserAssembly);
             }
 
