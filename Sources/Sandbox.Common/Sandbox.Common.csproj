@@ -279,7 +279,6 @@
     <Compile Include="Models\MyIntersectionResultLineTriangle.cs" />
     <Compile Include="Models\MyMesh.cs" />
     <Compile Include="Models\MyMeshMaterial.cs" />
-    <Compile Include="MyAbstractXmlSerializer.cs" />
     <Compile Include="MyControlWrapper.cs" />
     <Compile Include="MyDefinitionErrors.cs" />
     <Compile Include="MyEngineConstants.cs" />

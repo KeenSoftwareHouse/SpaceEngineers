@@ -216,7 +216,7 @@ namespace VRageRender.Resources
                 }
                 catch (SharpDXException)
                 {
-
+                    img.Dispose();
                 }
             }
             if(!loaded)
