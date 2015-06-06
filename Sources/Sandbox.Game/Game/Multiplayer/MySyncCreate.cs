@@ -20,11 +20,11 @@ using VRageMath;
 namespace Sandbox.Game.Multiplayer
 {
     [PreloadRequired]
-    static class MySyncCreate
+    public static class MySyncCreate
     {
         [ProtoContract]
         [MessageId(37, P2PMessageEnum.Reliable)]
-        struct CreateMsg
+        public struct CreateMsg
         {
             [ProtoMember]
             public MyObjectBuilder_EntityBase ObjectBuilder;
@@ -32,7 +32,7 @@ namespace Sandbox.Game.Multiplayer
 
         [ProtoContract]
         [MessageId(38, P2PMessageEnum.Reliable)]
-        struct CreateCompressedMsg
+        public struct CreateCompressedMsg
         {
             [ProtoMember]
             public byte[] ObjectBuilders;
@@ -43,7 +43,7 @@ namespace Sandbox.Game.Multiplayer
 
         [ProtoContract]
         [MessageId(11873, P2PMessageEnum.Reliable)]
-        struct MergingCopyPasteCompressedMsg
+        public struct MergingCopyPasteCompressedMsg
         {
             [ProtoMember]
             public CreateCompressedMsg CreateMessage;
@@ -63,7 +63,7 @@ namespace Sandbox.Game.Multiplayer
 
         [ProtoContract]
         [MessageId(11874, P2PMessageEnum.Reliable)]
-        struct CreateRelativeCompressedMsg
+        public struct CreateRelativeCompressedMsg
         {
             [ProtoMember]
             public CreateCompressedMsg CreateMessage;
@@ -77,7 +77,7 @@ namespace Sandbox.Game.Multiplayer
 
         [ProtoContract]
         [MessageId(11875, P2PMessageEnum.Reliable)]
-        struct SpawnGridMsg
+        public struct SpawnGridMsg
         {
             [ProtoMember]
             public MyObjectBuilder_CubeGrid Grid;

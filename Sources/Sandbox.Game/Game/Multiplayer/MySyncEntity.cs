@@ -93,7 +93,7 @@ namespace Sandbox.Game.Multiplayer
         }
 
         [MessageId(12, P2PMessageEnum.Reliable)]
-        protected struct ClosedMsg : IEntityMessage
+        public struct ClosedMsg : IEntityMessage
         {
             public long EntityId;
 

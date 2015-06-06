@@ -70,7 +70,7 @@ namespace Sandbox.Game.Multiplayer
         }
 
         [MessageId(9, P2PMessageEnum.Reliable)]
-        struct ControlReleasedMsg : IEntityMessage
+        public struct ControlReleasedMsg : IEntityMessage
         {
             public long EntityId;
             public long GetEntityId() { return EntityId; }
@@ -78,7 +78,7 @@ namespace Sandbox.Game.Multiplayer
 
         [ProtoContract]
         [MessageId(13, P2PMessageEnum.Reliable)]
-        struct IdentityCreatedMsg
+        public struct IdentityCreatedMsg
         {
             [ProtoMember]
             public bool IsNPC;
@@ -94,7 +94,7 @@ namespace Sandbox.Game.Multiplayer
         }
 
         [MessageId(20, P2PMessageEnum.Reliable)]
-        struct PlayerIdentityChangedMsg
+        public struct PlayerIdentityChangedMsg
         {
             public ulong ClientSteamId;
             public int PlayerSerialId;
@@ -104,7 +104,7 @@ namespace Sandbox.Game.Multiplayer
         // This is the only way to set the identity dead or alive - over the controller.
         // Uncontrolled identities should always be dead
         [MessageId(21, P2PMessageEnum.Reliable)]
-        struct SetPlayerDeadMsg
+        public struct SetPlayerDeadMsg
         {
             public ulong ClientSteamId;
             public int PlayerSerialId;
