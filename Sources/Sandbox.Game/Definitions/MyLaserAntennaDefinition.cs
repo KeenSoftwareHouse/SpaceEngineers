@@ -18,6 +18,10 @@ namespace Sandbox.Definitions
         public float MaxRange;
 
         public bool RequireLineOfSight;
+        public int MinElevationDegrees;
+        public int MaxElevationDegrees;
+        public int MinAzimuthDegrees;
+        public int MaxAzimuthDegrees;
 
         protected override void Init(MyObjectBuilder_DefinitionBase builder)
         {
@@ -31,6 +35,10 @@ namespace Sandbox.Definitions
             RotationRate=ob.RotationRate;
             MaxRange = ob.MaxRange;
             RequireLineOfSight = ob.RequireLineOfSight;
+            MinElevationDegrees = ob.MinElevationDegrees;
+            MaxElevationDegrees = ob.MaxElevationDegrees;
+            MinAzimuthDegrees = ob.MinAzimuthDegrees;
+            MaxAzimuthDegrees = ob.MaxAzimuthDegrees;
         }
     }
 }

@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using SystemTrace = System.Diagnostics.Trace;
 using VRage.Collections;
 using VRage.FileSystem;
 using VRage.Library.Utils;
@@ -17,6 +18,7 @@ namespace VRage.Plugins
         private static List<IPlugin> m_plugins = new List<IPlugin>();
         private static Assembly m_gamePluginAssembly;
         private static Assembly m_userPluginAssembly;
+        private static Assembly m_sandboxAssembly; //TO BE REMOVED
 
         // for detecting missing unload
         private static MyPlugins m_instance;
@@ -46,6 +48,15 @@ namespace VRage.Plugins
             {
                 Debug.Assert(Loaded || Assembly.GetEntryAssembly().FullName.StartsWith("sgen", StringComparison.InvariantCultureIgnoreCase));
                 return m_userPluginAssembly;
+            }
+        }
+
+        public static Assembly SandboxAssembly
+        {
+            get
+            {
+                Debug.Assert(Loaded || Assembly.GetEntryAssembly().FullName.StartsWith("sgen", StringComparison.InvariantCultureIgnoreCase));
+                return m_sandboxAssembly;
             }
         }
 
@@ -80,6 +91,13 @@ namespace VRage.Plugins
                 m_gamePluginAssembly = Assembly.LoadFrom(Path.Combine(MyFileSystem.ExePath, gameAssemblyFile));
         }
 
+        public static void RegisterSandboxAssemblyFile(string sandboxAssemblyFile)
+        {
+            Debug.Assert(m_sandboxAssembly == null);
+            if (sandboxAssemblyFile != null)
+                m_sandboxAssembly = Assembly.LoadFrom(Path.Combine(MyFileSystem.ExePath, sandboxAssemblyFile));
+        }
+
         public static void Load()
         {
             Debug.Assert(m_instance == null, "Loading plugins multiple times without unload!");
@@ -99,13 +117,14 @@ namespace VRage.Plugins
             {
                 try
                 {
-                    MyLog.Default.WriteLine("Creating instance of: " + pluginClass.FullName);
+                    //MyLog.Default.WriteLine("Creating instance of: " + pluginClass.FullName);
                     m_plugins.Add((IPlugin)Activator.CreateInstance(pluginClass));
                 }
                 catch (Exception e)
                 {
-                    MyLog.Default.WriteLine("Error instantiating plugin class: " + pluginClass);
-                    MyLog.Default.WriteLine(e);
+                    SystemTrace.Fail("Cannot create instance of '" + pluginClass.FullName + "': " + e.ToString());
+                    //MyLog.Default.WriteLine("Error instantiating plugin class: " + pluginClass);
+                    //MyLog.Default.WriteLine(e);
                 }
             }
         }

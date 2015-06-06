@@ -12,16 +12,13 @@ namespace Sandbox.Common.ObjectBuilders.Definitions
     public class MyObjectBuilder_MotorSuspensionDefinition : MyObjectBuilder_MotorStatorDefinition
     {
         [ProtoMember]
-        public float MaxSteer = 0.45f;
+        public float MaxSteer = 0.8f;
 
         [ProtoMember]
-        public float SteeringSpeed = 0.02f;
+        public float SteeringSpeed = 0.1f;
 
         [ProtoMember]
         public float PropulsionForce = 10000;
-
-        [ProtoMember]
-        public float SuspensionLimit = 0.1f;
 
         [ProtoMember]
         public float MinHeight = -0.32f;

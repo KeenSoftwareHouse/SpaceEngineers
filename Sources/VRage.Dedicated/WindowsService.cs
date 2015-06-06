@@ -13,7 +13,7 @@ using VRage.Service;
 
 namespace VRage.Dedicated
 {
-    class WindowsService : MyServiceBase
+    public class WindowsService : MyServiceBase
     {
         Thread MainThread;
         ManualResetEvent m_waitEvent = new ManualResetEvent(false);

@@ -38,7 +38,7 @@ namespace Sandbox.Game.Screens.Helpers
                 MyCubeBuilder.Static.ActivateBlockCreation(((MyCubeBlockDefinition)Definition).Id);
             }
 
-            if (MyCubeBuilder.DeveloperSpectatorIsBuilding)
+            if (MyCubeBuilder.SpectatorIsBuilding)
             {
                 MyCubeBuilder.Static.ActivateBlockCreation(((MyCubeBlockDefinition)Definition).Id);
                 if (!MyCubeBuilder.Static.IsActivated)

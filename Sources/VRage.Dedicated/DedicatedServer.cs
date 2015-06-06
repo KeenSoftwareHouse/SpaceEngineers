@@ -43,6 +43,7 @@ namespace VRage.Dedicated
             if (Environment.UserInteractive)
             {
                 MyPlugins.RegisterGameAssemblyFile(MyPerGameSettings.GameModAssembly);
+                MyPlugins.RegisterSandboxAssemblyFile(MyPerGameSettings.SandboxAssembly);
                 MyPlugins.RegisterFromArgs(args);
                 MyPlugins.Load();
                 ShowWindow(GetConsoleWindow(), SW_HIDE);
@@ -132,7 +133,7 @@ namespace VRage.Dedicated
 
                 VRageGameServices services = new VRageGameServices(steamService);
 
-                using (MySandboxGame game = new MySandboxGame(services, new string[] { }))
+                using (MySandboxGame game = new MySandboxGame(services, Environment.GetCommandLineArgs().Skip(1).ToArray()))
                 {
                     VRageRender.MyRenderProxy.GetRenderProfiler().EndProfilingBlock();
                     VRageRender.MyRenderProxy.GetRenderProfiler().EndProfilingBlock();

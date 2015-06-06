@@ -50,6 +50,7 @@ namespace Sandbox.Game.Components
             Assembly[] assemblies = new Assembly[] {
                 Assembly.GetExecutingAssembly(),
                 MyPlugins.GameAssembly,
+                MyPlugins.SandboxAssembly,
                 MyPlugins.UserAssembly,
             };
 
@@ -116,9 +117,9 @@ namespace Sandbox.Game.Components
         #endregion
 
         #region overrides
-        public override void OnAddedToContainer(MyComponentContainer container)
+        public override void OnAddedToContainer()
         {
-            base.OnAddedToContainer(container);
+            base.OnAddedToContainer();
             m_grid = Container.Entity as MyCubeGrid;
         }
         public override void Draw()

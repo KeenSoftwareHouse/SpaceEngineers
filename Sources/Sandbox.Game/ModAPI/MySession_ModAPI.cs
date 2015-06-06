@@ -412,6 +412,11 @@ namespace Sandbox.Game.World
             get { return MySession.Static.Gpss; }
         }
 
+        IMyUserInput IMySession.Input
+        {
+            get { return VRage.Input.MyInput.Static as IMyUserInput; }
+        }
+		
         event Action IMySession.OnSessionReady
         {
             add { MySession.OnReady += value; }

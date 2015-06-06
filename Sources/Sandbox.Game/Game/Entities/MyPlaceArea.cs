@@ -12,7 +12,7 @@ using VRageMath;
 
 namespace Sandbox.Game.Entities
 {
-    public abstract class MyPlaceArea : MyComponentBase
+    public abstract class MyPlaceArea : MyEntityComponentBase
     {
         public int PlaceAreaProxyId = MyConstants.PRUNING_PROXY_ID_UNITIALIZED;
 
@@ -37,16 +37,16 @@ namespace Sandbox.Game.Entities
             AreaType = areaType;
         }
 
-        public override void OnAddedToContainer(MyComponentContainer container)
+        public override void OnAddedToContainer()
         {
-            base.OnAddedToContainer(container);
-            MyPlaceAreas.AddPlaceArea(this);
+            base.OnAddedToContainer();
+			MyPlaceAreas.Static.AddPlaceArea(this);
         }
 
-        public override void OnRemovedFromContainer(MyComponentContainer container)
+        public override void OnRemovedFromContainer()
         {
-            MyPlaceAreas.RemovePlaceArea(this);
-            base.OnRemovedFromContainer(container);
+            MyPlaceAreas.Static.RemovePlaceArea(this);
+            base.OnRemovedFromContainer();
         }
 
 		public abstract double DistanceSqToPoint(Vector3D point);

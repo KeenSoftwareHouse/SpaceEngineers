@@ -7,7 +7,7 @@ using VRage.Components;
 
 namespace Sandbox.Game
 {
-	public abstract class MyAreaInventoryComponentBase : MyComponentBase
+    public abstract class MyAreaInventoryComponentBase : MyEntityComponentBase
 	{
         public abstract IMyComponentInventory GetInventory();
 	}
