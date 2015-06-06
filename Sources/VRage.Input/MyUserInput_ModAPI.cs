@@ -5,7 +5,7 @@ using System.Text;
 
 using Sandbox.ModAPI;
 using VRageMath;
-using VRage.Library.Utils;
+using VRage.Utils;
 
 namespace VRage.Input
 {
