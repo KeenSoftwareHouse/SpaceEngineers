@@ -40,6 +40,7 @@ namespace Sandbox.Definitions
         public bool NeedsOxygen;
         public float OxygenConsumption;
         public float PressureLevelForLowDamage;
+        public int SecondsBeforeOxygenLossDamage;
         public float DamageAmountAtZeroPressure;
         public float OxygenCapacity;
         public string HelmetVariation;
@@ -143,6 +144,7 @@ namespace Sandbox.Definitions
             NeedsOxygen = builder.NeedsOxygen;
             OxygenConsumption = builder.OxygenConsumption;
             PressureLevelForLowDamage = builder.PressureLevelForLowDamage;
+            SecondsBeforeOxygenLossDamage = builder.SecondsBeforeOxygenLossDamage;
             DamageAmountAtZeroPressure = builder.DamageAmountAtZeroPressure;
             RagdollDataFile = builder.RagdollDataFile;
             HelmetVariation = builder.HelmetVariation;
@@ -256,6 +258,7 @@ namespace Sandbox.Definitions
             ob.NeedsOxygen = NeedsOxygen;
             ob.OxygenConsumption = OxygenConsumption;
             ob.PressureLevelForLowDamage = PressureLevelForLowDamage;
+            ob.SecondsBeforeOxygenLossDamage = SecondsBeforeOxygenLossDamage;
             ob.DamageAmountAtZeroPressure = DamageAmountAtZeroPressure;
             ob.OxygenCapacity = OxygenCapacity;
             ob.HelmetVariation = HelmetVariation;

@@ -236,6 +236,9 @@ namespace Sandbox.Common.ObjectBuilders.Definitions
         public float PressureLevelForLowDamage = 0.5f;
 
         [ProtoMember]
+        public int SecondsBeforeOxygenLossDamage = 5;
+
+        [ProtoMember]
         public float DamageAmountAtZeroPressure = 7f;
 
         [ProtoMember]

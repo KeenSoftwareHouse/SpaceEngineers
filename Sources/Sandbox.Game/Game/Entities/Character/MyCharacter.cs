@@ -439,6 +439,7 @@ namespace Sandbox.Game.Entities.Character
         }
         private float m_oldSuitOxygenLevel;
         bool m_needsOxygen;
+        private int m_timeOxygenRanOut = 0;
 
         public static readonly float LOW_OXYGEN_RATIO = 0.2f;
         MyHudNotification m_lowOxygenNotification;
@@ -1899,6 +1900,21 @@ namespace Sandbox.Game.Entities.Character
                 }
             }
 
+            // Prevent damage from no pressure/oxygen for X Seconds (Definition.SecondsBeforeOxygenLossDamage)
+            if (!noOxygenDamage && !lowOxygenDamage)
+                m_timeOxygenRanOut = 0; // Reset timer if we have oxygen
+
+            if (noOxygenDamage || lowOxygenDamage)
+            {
+                // Set timer if not already set.
+                if (m_timeOxygenRanOut == 0)
+                    m_timeOxygenRanOut = MySandboxGame.TotalGamePlayTimeInMilliseconds;
+
+                // If less than X seconds past since we should take damage, disable damage 
+                if (MySandboxGame.TotalGamePlayTimeInMilliseconds-m_timeOxygenRanOut<Definition.SecondsBeforeOxygenLossDamage*1000)
+                    noOxygenDamage = lowOxygenDamage = false;
+            }
+            
             if (noOxygenDamage)
             {
                 DoDamage(Definition.DamageAmountAtZeroPressure, MyDamageType.Environment, true);
