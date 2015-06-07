@@ -1036,6 +1036,7 @@ namespace Sandbox
             MyGuiSandbox.LoadContent(new MyFontDescription[]
             {
                 new MyFontDescription { Id = MyFontEnum.Debug,          Path = @"Fonts\white_shadow\FontData.xml", IsDebug = true },
+                new MyFontDescription { Id = MyFontEnum.Yellow,         Path = @"Fonts\yellow\FontData.xml" },
                 new MyFontDescription { Id = MyFontEnum.Red,            Path = @"Fonts\red\FontData.xml" },
                 new MyFontDescription { Id = MyFontEnum.Green,          Path = @"Fonts\green\FontData.xml" },
                 new MyFontDescription { Id = MyFontEnum.Blue,           Path = @"Fonts\blue\FontData.xml" },
