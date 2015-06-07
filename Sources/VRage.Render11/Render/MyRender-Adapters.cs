@@ -137,7 +137,10 @@ namespace VRageRender
 
             LogInfoFromWMI();
 
-            for(int i=0; i<factory.Adapters.Length; i++)
+            MyDisplayMode[] fallbackDisplayModes = null;
+            ModeDescription[] fallbackDisplayModeList = null;
+
+            for (int i=0; i<factory.Adapters.Length; i++)
             {
                 var adapter = factory.Adapters[i];
                 Device adapterTestDevice = null;
@@ -237,59 +240,108 @@ namespace VRageRender
                         info.Name = String.Format("{0} + {1}", adapter.Description.Description, output.Description.DeviceName);
                         info.OutputName = output.Description.DeviceName;
                         info.OutputId = j;
+                        MyRender11.Log.WriteLine(String.Format("evaluating supported modes for {0} - {1}", info.Name, info.OutputName));
 
                         var displayModeList = output.GetDisplayModeList(MyRender11Constants.BACKBUFFER_FORMAT, DisplayModeEnumerationFlags.Interlaced);
-                        var adapterDisplayModes = new MyDisplayMode[displayModeList.Length];
-                        for (int k = 0; k < displayModeList.Length; k++)
+                        if (displayModeList != null && displayModeList.Length > 0)
                         {
-                            var displayMode = displayModeList[k];
+                            var adapterDisplayModes = new MyDisplayMode[displayModeList.Length];
+                            for (int k = 0; k < displayModeList.Length; k++)
+                            {
+                                var displayMode = displayModeList[k];
 
-                            adapterDisplayModes[k] = new MyDisplayMode 
-                            { 
-                                Height = displayMode.Height, 
-                                Width = displayMode.Width, 
-                                RefreshRate = displayMode.RefreshRate.Numerator, 
-                                RefreshRateDenominator = displayMode.RefreshRate.Denominator 
-                            }; 
+                                adapterDisplayModes[k] = new MyDisplayMode
+                                {
+                                    Height = displayMode.Height,
+                                    Width = displayMode.Width,
+                                    RefreshRate = displayMode.RefreshRate.Numerator,
+                                    RefreshRateDenominator = displayMode.RefreshRate.Denominator
+                                };
+                            }
+                            Array.Sort(adapterDisplayModes, m_refreshRatePriorityComparer);
+
+                            info.SupportedDisplayModes = adapterDisplayModes;
+                            info.CurrentDisplayMode = adapterDisplayModes[adapterDisplayModes.Length - 1];
+                            LogOutputDisplayModes(ref info);
+
+                            m_adapterModes[adapterIndex] = displayModeList;
+
+                            adaptersList.Add(info);
+                            adapterIndex++;
+
+                            // fill falback modes from first display
+                            if (fallbackDisplayModes == null)
+                                fallbackDisplayModes = adapterDisplayModes;
+                            if (fallbackDisplayModeList == null)
+                                fallbackDisplayModeList = displayModeList;
+
                         }
-                        Array.Sort(adapterDisplayModes, m_refreshRatePriorityComparer);
-
-                        info.SupportedDisplayModes = adapterDisplayModes;
-                        info.CurrentDisplayMode = adapterDisplayModes[adapterDisplayModes.Length - 1];
-                        LogOutputDisplayModes(ref info);
-
-                        m_adapterModes[adapterIndex] = displayModeList;
                     }
 
-                    if(info.SupportedDisplayModes == null)
+                    // switchable graphic might not report connected output device
+                    if (adapter.Outputs.Length == 0)
                     {
-                        // FALLBACK MODES
+                        // use predefined set, if it was not already filled
+                        if (fallbackDisplayModes == null || fallbackDisplayModeList == null)
+                        {
+                            fallbackDisplayModes = new MyDisplayMode[]
+                            {
+                                new MyDisplayMode(640, 480, 60000, 1000),
+                                new MyDisplayMode(720, 576, 60000, 1000),
+                                new MyDisplayMode(800, 600, 60000, 1000),
+                                new MyDisplayMode(1024, 768, 60000, 1000),
+                                new MyDisplayMode(1152, 864, 60000, 1000),
+                                new MyDisplayMode(1280, 720, 60000, 1000),
+                                new MyDisplayMode(1280, 768, 60000, 1000),
+                                new MyDisplayMode(1280, 800, 60000, 1000),
+                                new MyDisplayMode(1280, 960, 60000, 1000),
+                                new MyDisplayMode(1280, 1024, 60000, 1000),
+                                new MyDisplayMode(1360, 768, 60000, 1000),
+                                new MyDisplayMode(1360, 1024, 60000, 1000),
+                                new MyDisplayMode(1440, 900, 60000, 1000),
+                                new MyDisplayMode(1600, 900, 60000, 1000),
+                                new MyDisplayMode(1600, 1024, 60000, 1000),
+                                new MyDisplayMode(1600, 1200, 60000, 1000),
+                                new MyDisplayMode(1680, 1200, 60000, 1000),
+                                new MyDisplayMode(1680, 1050, 60000, 1000),
+                                new MyDisplayMode(1920, 1080, 60000, 1000),
+                                new MyDisplayMode(1920, 1200, 60000, 1000),
+                            };                            // FALLBACK MODES
 
-                        MyDisplayMode[] fallbackDisplayModes = new MyDisplayMode[] {
-                            new MyDisplayMode(640, 480, 60000, 1000),
-                            new MyDisplayMode(720, 576, 60000, 1000),
-                            new MyDisplayMode(800, 600, 60000, 1000),
-                            new MyDisplayMode(1024, 768, 60000, 1000),
-                            new MyDisplayMode(1152, 864, 60000, 1000),
-                            new MyDisplayMode(1280, 720, 60000, 1000),
-                            new MyDisplayMode(1280, 768, 60000, 1000),
-                            new MyDisplayMode(1280, 800, 60000, 1000),
-                            new MyDisplayMode(1280, 960, 60000, 1000),
-                            new MyDisplayMode(1280, 1024, 60000, 1000),
-                            new MyDisplayMode(1360, 768, 60000, 1000),
-                            new MyDisplayMode(1360, 1024, 60000, 1000),
-                            new MyDisplayMode(1440, 900, 60000, 1000),
-                            new MyDisplayMode(1600, 900, 60000, 1000),
-                            new MyDisplayMode(1600, 1024, 60000, 1000),
-                            new MyDisplayMode(1600, 1200, 60000, 1000),
-                            new MyDisplayMode(1680, 1200, 60000, 1000),
-                            new MyDisplayMode(1680, 1050, 60000, 1000),
-                            new MyDisplayMode(1920, 1080, 60000, 1000),
-                            new MyDisplayMode(1920, 1200, 60000, 1000),
-                        };
+                            fallbackDisplayModeList = new ModeDescription[]
+                            {
+                                new ModeDescription(640, 480, new Rational(60,1), MyRender11Constants.BACKBUFFER_FORMAT),
+                                new ModeDescription(720, 576, new Rational(60,1), MyRender11Constants.BACKBUFFER_FORMAT),
+                                new ModeDescription(800, 600, new Rational(60,1), MyRender11Constants.BACKBUFFER_FORMAT),
+                                new ModeDescription(1024, 768, new Rational(60,1), MyRender11Constants.BACKBUFFER_FORMAT),
+                                new ModeDescription(1152, 864, new Rational(60,1), MyRender11Constants.BACKBUFFER_FORMAT),
+                                new ModeDescription(1280, 720, new Rational(60,1), MyRender11Constants.BACKBUFFER_FORMAT),
+                                new ModeDescription(1280, 768, new Rational(60,1), MyRender11Constants.BACKBUFFER_FORMAT),
+                                new ModeDescription(1280, 800, new Rational(60,1), MyRender11Constants.BACKBUFFER_FORMAT),
+                                new ModeDescription(1280, 960, new Rational(60,1), MyRender11Constants.BACKBUFFER_FORMAT),
+                                new ModeDescription(1280, 1024, new Rational(60,1), MyRender11Constants.BACKBUFFER_FORMAT),
+                                new ModeDescription(1360, 768, new Rational(60,1), MyRender11Constants.BACKBUFFER_FORMAT),
+                                new ModeDescription(1360, 1024, new Rational(60,1), MyRender11Constants.BACKBUFFER_FORMAT),
+                                new ModeDescription(1440, 900, new Rational(60,1), MyRender11Constants.BACKBUFFER_FORMAT),
+                                new ModeDescription(1600, 900, new Rational(60,1), MyRender11Constants.BACKBUFFER_FORMAT),
+                                new ModeDescription(1600, 1024, new Rational(60,1), MyRender11Constants.BACKBUFFER_FORMAT),
+                                new ModeDescription(1600, 1200, new Rational(60,1), MyRender11Constants.BACKBUFFER_FORMAT),
+                                new ModeDescription(1680, 1200, new Rational(60,1), MyRender11Constants.BACKBUFFER_FORMAT),
+                                new ModeDescription(1680, 1050, new Rational(60,1), MyRender11Constants.BACKBUFFER_FORMAT),
+                                new ModeDescription(1920, 1080, new Rational(60,1), MyRender11Constants.BACKBUFFER_FORMAT),
+                                new ModeDescription(1920, 1200, new Rational(60,1), MyRender11Constants.BACKBUFFER_FORMAT),
+                            };
 
-                        info.SupportedDisplayModes = fallbackDisplayModes;
-                        info.FallbackDisplayModes = true;
+                            info.SupportedDisplayModes = fallbackDisplayModes;
+                            info.FallbackDisplayModes = true;
+
+                            LogOutputDisplayModes(ref info);
+
+                            m_adapterModes[adapterIndex] = fallbackDisplayModeList;
+
+                            adaptersList.Add(info);
+                            adapterIndex++;
+                        }
                     }
                 }
                 else
@@ -299,11 +351,6 @@ namespace VRageRender
 
                 MyRender11.Log.WriteLine("Fallback display modes = " + info.FallbackDisplayModes);
 
-                if(supportedDevice)
-                {
-                    adaptersList.Add(info);
-                    adapterIndex++;
-                }
                 LogAdapterInfoEnd();
 
                 if(adapterTestDevice != null)
