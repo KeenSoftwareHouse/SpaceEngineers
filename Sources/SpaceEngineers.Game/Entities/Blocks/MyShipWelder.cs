@@ -92,6 +92,13 @@ namespace SpaceEngineers.Game.Entities.Blocks
             m_wantHelpOthers = m_helpOthers = builder.HelpOthers;
         }
 
+        public override MyObjectBuilder_CubeBlock GetObjectBuilderCubeBlock(bool copy = false)
+        {
+            var builder = (MyObjectBuilder_ShipWelder)base.GetObjectBuilderCubeBlock(copy);
+            builder.HelpOthers = m_wantHelpOthers;
+            return builder;
+        }
+
         protected override bool Activate(HashSet<MySlimBlock> targets)
         {
             bool welding = false;
