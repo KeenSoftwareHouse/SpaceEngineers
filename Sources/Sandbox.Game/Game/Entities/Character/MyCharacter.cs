@@ -367,7 +367,8 @@ namespace Sandbox.Game.Entities.Character
 
         const float DISMISS_HEALTH = -50;
         float? m_health = null;
-        public static readonly float LOW_HEALTH_RATIO = 0.2f;
+        public static readonly float LOW_HEALTH_RATIO = 0.4f;
+        public static readonly float CRITICAL_HEALTH_RATIO = 0.2f;
 
         // 240 secs to full health
         const float AUTOHEAL_MAX = 0.7f;
@@ -443,6 +444,7 @@ namespace Sandbox.Game.Entities.Character
         bool m_needsOxygen;
 
         public static readonly float LOW_OXYGEN_RATIO = 0.2f;
+        public static readonly float CRITICAL_OXYGEN_RATIO = 0.1f;
         MyHudNotification m_lowOxygenNotification;
         MyHudNotification m_criticalOxygenNotification;
         MyHudNotification m_oxygenBottleRefillNotification;
@@ -815,8 +817,11 @@ namespace Sandbox.Game.Entities.Character
             m_oldSuitOxygenLevel = SuitOxygenLevel;
 
             m_oxygenBottleRefillNotification = new MyHudNotification(text: MySpaceTexts.NotificationBottleRefill, level: MyNotificationLevel.Important);
-            m_lowOxygenNotification = new MyHudNotification(text: MySpaceTexts.NotificationOxygenLow, font: MyFontEnum.Red, level: MyNotificationLevel.Important);
+
+            m_lowOxygenNotification = new MyHudNotification(text: MySpaceTexts.NotificationOxygenLow, font: MyFontEnum.Yellow, level: MyNotificationLevel.Important);
+
             m_criticalOxygenNotification = new MyHudNotification(text: MySpaceTexts.NotificationOxygenCritical, font: MyFontEnum.Red, level: MyNotificationLevel.Important);
+
             m_broadcastingNotification = new MyHudNotification();
             m_inertiaDampenersNotification = new MyHudNotification();
             m_jetpackToggleNotification = new MyHudNotification();
@@ -7103,7 +7108,21 @@ namespace Sandbox.Game.Entities.Character
         public void UpdateHudCharacterInfo()
         {
             MyHud.CharacterInfo.BatteryEnergy = 100 * SuitBattery.RemainingCapacity / MyEnergyConstants.BATTERY_MAX_CAPACITY;
-            MyHud.CharacterInfo.IsBatteryEnergyLow = SuitBattery.IsEnergyLow;
+            
+            if(SuitBattery.IsEnergyCritical)
+            {
+                 MyHud.CharacterInfo.IsBatteryEnergyCritical = SuitBattery.IsEnergyCritical;
+            }
+            else if (SuitBattery.IsEnergyLow )
+            {
+                MyHud.CharacterInfo.IsBatteryEnergyLow = SuitBattery.IsEnergyLow;
+                MyHud.CharacterInfo.IsBatteryEnergyCritical = false;
+            }
+            else
+            {
+                MyHud.CharacterInfo.IsBatteryEnergyLow = false;       
+            }
+
             MyHud.CharacterInfo.Speed = Physics.LinearVelocity.Length();
             MyHud.CharacterInfo.Mass = (int)((float)GetInventory().CurrentMass + Definition.Mass);
             MyHud.CharacterInfo.LightEnabled = LightEnabled;
@@ -7122,12 +7141,41 @@ namespace Sandbox.Game.Entities.Character
                     MyHud.CharacterInfo.State = MyHudCharacterStateEnum.Standing;
 
             MyHud.CharacterInfo.HealthRatio = HealthRatio;
-            MyHud.CharacterInfo.IsHealthLow = HealthRatio < LOW_HEALTH_RATIO;
+
+            if (MyHud.CharacterInfo.HealthRatio < CRITICAL_HEALTH_RATIO)
+            {
+                MyHud.CharacterInfo.IsHealthCritical = HealthRatio < CRITICAL_HEALTH_RATIO;
+            }
+
+            else if (MyHud.CharacterInfo.HealthRatio < LOW_HEALTH_RATIO)
+            {
+                MyHud.CharacterInfo.IsHealthLow = HealthRatio < LOW_HEALTH_RATIO;
+                MyHud.CharacterInfo.IsHealthCritical = false;
+            }
+            else
+            {
+                MyHud.CharacterInfo.IsHealthLow = false;
+            }
+                                  
             MyHud.CharacterInfo.InventoryVolume = GetInventory().CurrentVolume;
             MyHud.CharacterInfo.IsInventoryFull = ((float)GetInventory().CurrentVolume / (float)GetInventory().MaxVolume) > 0.95f;
             MyHud.CharacterInfo.BroadcastRange = RadioBroadcaster.BroadcastRadius;
             MyHud.CharacterInfo.OxygenLevel = SuitOxygenLevel;
-            MyHud.CharacterInfo.IsOxygenLevelLow = MyHud.CharacterInfo.OxygenLevel < LOW_OXYGEN_RATIO;
+
+            if (MyHud.CharacterInfo.OxygenLevel < CRITICAL_OXYGEN_RATIO)
+            {
+                MyHud.CharacterInfo.IsOxygenLevelCritical = MyHud.CharacterInfo.OxygenLevel < CRITICAL_OXYGEN_RATIO;
+            }
+            else if (MyHud.CharacterInfo.OxygenLevel < LOW_OXYGEN_RATIO)
+            {
+                MyHud.CharacterInfo.IsOxygenLevelLow = MyHud.CharacterInfo.OxygenLevel < LOW_OXYGEN_RATIO;
+                MyHud.CharacterInfo.IsOxygenLevelCritical = false;
+            }
+            else
+            {
+                MyHud.CharacterInfo.IsOxygenLevelLow = false;
+            }
+
             MyHud.CharacterInfo.IsHelmetOn = !Definition.NeedsOxygen;
         }
 

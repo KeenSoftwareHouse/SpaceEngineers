@@ -144,20 +144,8 @@ namespace Sandbox.Game.Gui
             }
         }
         private float m_batteryEnergy;
-
-        private bool m_isBatteryEnergyLow;
-        public bool IsBatteryEnergyLow
-        {
-            get { return m_isBatteryEnergyLow; }
-            set
-            {
-                if (m_isBatteryEnergyLow != value)
-                {
-                    m_isBatteryEnergyLow = value;
-                    m_needsRefresh = true;
-                }
-            }
-        }
+        public bool IsBatteryEnergyLow { get; set; }
+        public bool IsBatteryEnergyCritical { get; set; }
 
         private bool m_lightEnabled;
         public bool LightEnabled
@@ -187,19 +175,8 @@ namespace Sandbox.Game.Gui
             }
         }
 
-        private bool m_isOxygenLevelLow;
-        public bool IsOxygenLevelLow
-        {
-            get { return m_isOxygenLevelLow; }
-            set
-            {
-                if (m_isOxygenLevelLow != value)
-                {
-                    m_isOxygenLevelLow = value;
-                    m_needsRefresh = true;
-                }
-            }
-        }
+        public bool IsOxygenLevelCritical { get; set; }
+        public bool IsOxygenLevelLow { get; set; }
 
         private bool m_isHelmetOn;
         public bool IsHelmetOn
@@ -246,31 +223,14 @@ namespace Sandbox.Game.Gui
             }
         }
 
-
         public float BroadcastRange { get; set; }
-
         public MyFixedPoint InventoryVolume { get; set; }
-
         public bool IsInventoryFull { get; set; }
 
         //private float m_inventoryVolume;
-
         private float m_healthRatio;
-
-        private bool m_isHealthLow;
-        public bool IsHealthLow
-        {
-            get { return m_isHealthLow; }
-            set
-            {
-                if (m_isHealthLow != value)
-                {
-                    m_isHealthLow = value;
-                    m_needsRefresh = true;
-                }
-            }
-        }
-
+        public bool IsHealthLow { get; set; }
+        public bool IsHealthCritical { get; set; }
         public void Reload()
         {
             var items = m_data;
@@ -335,14 +295,48 @@ namespace Sandbox.Game.Gui
             energyItem.Value.Clear().AppendDecimal((float)Math.Round(BatteryEnergy, 1), 1).Append(" %");
             healthItem.Value.Clear().AppendDecimal(HealthRatio * 100f, 0).Append(" %");
             inventoryItem.Value.Clear().AppendDecimal((double)InventoryVolume * 1000, 0).Append(" l");
-            energyItem.NameFont = energyItem.ValueFont = IsBatteryEnergyLow ? (MyFontEnum?)MyFontEnum.Red : null;
-            healthItem.NameFont = healthItem.ValueFont = IsHealthLow ? (MyFontEnum?)MyFontEnum.Red : null;
+            energyItem.NameFont = energyItem.ValueFont = null;
+            healthItem.NameFont = healthItem.ValueFont = null;
+            oxygenItem.NameFont = oxygenItem.ValueFont = null;
+
+            if(IsBatteryEnergyCritical)
+            {
+             energyItem.NameFont = (MyFontEnum?)MyFontEnum.Red;
+             energyItem.ValueFont = (MyFontEnum?)MyFontEnum.Red;
+            }
+            else if (IsBatteryEnergyLow)
+            {
+                energyItem.NameFont = (MyFontEnum?)MyFontEnum.Yellow;
+                energyItem.ValueFont = (MyFontEnum?)MyFontEnum.Yellow;
+            }
+
+            if (IsHealthCritical)
+            {
+                healthItem.NameFont = (MyFontEnum?)MyFontEnum.Red;
+                healthItem.ValueFont = (MyFontEnum?)MyFontEnum.Red;
+            }
+            else if (IsHealthLow)
+            {
+                healthItem.NameFont = (MyFontEnum?)MyFontEnum.Yellow;
+                healthItem.ValueFont = (MyFontEnum?)MyFontEnum.Yellow;
+            }   
+            
             if (!MySession.Static.CreativeMode)
                 inventoryItem.NameFont = inventoryItem.ValueFont = IsInventoryFull ? (MyFontEnum?)MyFontEnum.Red : null;
 
             items[(int)LineEnum.BroadcastRange].Value.Clear().AppendDecimal(BroadcastRange, 0).Append(" m");
 
-            oxygenItem.NameFont = oxygenItem.ValueFont = IsOxygenLevelLow ? (MyFontEnum?)MyFontEnum.Red : null;
+            if (IsOxygenLevelCritical)
+            {
+                oxygenItem.NameFont = (MyFontEnum?)MyFontEnum.Red;
+                oxygenItem.ValueFont = (MyFontEnum?)MyFontEnum.Red;
+            }
+            else if (IsOxygenLevelLow)
+            {
+                oxygenItem.NameFont = (MyFontEnum?)MyFontEnum.Yellow;
+                oxygenItem.ValueFont = (MyFontEnum?)MyFontEnum.Yellow;
+            }
+
             oxygenItem.Visible = MySession.Static.Settings.EnableOxygen;
         }
 
