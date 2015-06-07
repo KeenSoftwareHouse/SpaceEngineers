@@ -242,7 +242,9 @@ namespace Sandbox.Game.Entities.Cube
                 {
                     hudParams[0].Text.Clear();
                     hudParams[0].Text.Append(CubeGrid.DisplayName);
-                    hudParams[0].Text.Append(" - ").Append(this.CustomName);
+
+                    if (this.CustomName.Length > 0)
+                        hudParams[0].Text.Append(" - ").Append(this.CustomName);
                 }
 
                 m_hudParams.AddList(hudParams);
