@@ -331,17 +331,17 @@ namespace VRageRender
                                 new ModeDescription(1920, 1080, new Rational(60,1), MyRender11Constants.BACKBUFFER_FORMAT),
                                 new ModeDescription(1920, 1200, new Rational(60,1), MyRender11Constants.BACKBUFFER_FORMAT),
                             };
-
-                            info.SupportedDisplayModes = fallbackDisplayModes;
-                            info.FallbackDisplayModes = true;
-
-                            LogOutputDisplayModes(ref info);
-
-                            m_adapterModes[adapterIndex] = fallbackDisplayModeList;
-
-                            adaptersList.Add(info);
-                            adapterIndex++;
                         }
+
+                        info.SupportedDisplayModes = fallbackDisplayModes;
+                        info.FallbackDisplayModes = true;
+
+                        LogOutputDisplayModes(ref info);
+
+                        m_adapterModes[adapterIndex] = fallbackDisplayModeList;
+
+                        adaptersList.Add(info);
+                        adapterIndex++;
                     }
                 }
                 else
