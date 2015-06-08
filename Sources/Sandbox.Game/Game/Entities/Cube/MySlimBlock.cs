@@ -193,12 +193,19 @@ namespace Sandbox.Game.Entities.Cube
                 return CubeGrid.Skeleton.IsDeformed(Position, 0.0f, CubeGrid, true);
             }
         }
-
+        private int m_lastTotalFrames = 0;
+        private float m_maxDeformation = 0;
         public float MaxDeformation
         {
             get
             {
-                return CubeGrid.Skeleton.MaxDeformation(Position, CubeGrid);
+
+                if (m_lastTotalFrames != MySandboxGame.Static.TotalFrames)
+                {
+                    m_lastTotalFrames = MySandboxGame.Static.TotalFrames;
+                    m_maxDeformation = CubeGrid.Skeleton.MaxDeformation(Position, CubeGrid);
+                }
+                return m_maxDeformation;
             }
         }
 

@@ -81,6 +81,7 @@ namespace Sandbox.Engine.Platform
         public Game()
         {
             IsActive = true;
+            TotalFrames = 0;
         }
 
         #endregion
@@ -104,6 +105,7 @@ namespace Sandbox.Engine.Platform
 
 	    public bool IsFirstUpdateDone { get { return isFirstUpdateDone; } }
 
+        public int TotalFrames { get; private set; }
 	    #endregion
 
         #region Public Methods and Operators
@@ -142,6 +144,7 @@ namespace Sandbox.Engine.Platform
 
         private void UpdateInternal()
         {
+            TotalFrames++;
             using (Stats.Generic.Measure("BeforeUpdate"))
             {
                 ProfilerShort.Begin("BeforeUpdate");

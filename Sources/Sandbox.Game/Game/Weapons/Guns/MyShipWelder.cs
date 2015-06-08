@@ -39,6 +39,7 @@ namespace Sandbox.Game.Weapons
         //Used for finding projection blocks
         List<MyWelder.ProjectionRaycastData> m_raycastData = new List<MyWelder.ProjectionRaycastData>();
         HashSet<MySlimBlock> m_projectedBlock = new HashSet<MySlimBlock>();
+        MyWelder.ProjectionRaycastData[] m_projectionRaycastData = new MyWelder.ProjectionRaycastData[0];
 
         MyParticleEffect m_particleEffect;
         MyLight m_effectLight;
@@ -71,6 +72,7 @@ namespace Sandbox.Game.Weapons
             base.Init(objectBuilder, cubeGrid);
 
             m_missingComponents = new Dictionary<string, int>();
+            this.NeedsUpdate |= VRage.ModAPI.MyEntityUpdateEnum.EACH_10TH_FRAME;
         }
 
         protected override bool Activate(HashSet<MySlimBlock> targets)
@@ -116,7 +118,7 @@ namespace Sandbox.Game.Weapons
                     block.MoveItemsToConstructionStockpile(Inventory);
 
                     // Allow welding only for blocks with deformations or unfinished/damaged blocks
-                    if (block.MaxDeformation > 0.0f || !block.IsFullIntegrity)
+                    if (!block.IsFullIntegrity || block.MaxDeformation > 0.0f)
                     {
                         float maxAllowedBoneMovement = WELDER_MAX_REPAIR_BONE_MOVEMENT_SPEED * MyShipGrinderConstants.GRINDER_COOLDOWN_IN_MILISECONDS * 0.001f;
                         block.IncreaseMountLevel(MySession.Static.WelderSpeedMultiplier * WELDER_AMOUNT_PER_SECOND * coefficient, OwnerId, Inventory, maxAllowedBoneMovement, m_helpOthers, IDModule.ShareMode);
@@ -137,12 +139,12 @@ namespace Sandbox.Game.Weapons
             if (!unweldedBlocksDetected && Sync.IsServer)
             {
                 //Try to build blocks for projections
-                var blocks = FindProjectedBlocks();
+               // var m_projectionRaycastData = FindProjectedBlocks();
 
                 //Try to acquire materials first, but only if it uses the conveyor system
                 if (UseConveyorSystem)
                 {
-                    foreach (var info in blocks)
+                    foreach (var info in m_projectionRaycastData)
                     {
                         var componentId = info.hitCube.BlockDefinition.Components[0].Definition.Id;
                         MyGridConveyorSystem.ItemPullRequest(this, Inventory, OwnerId, componentId, 1);
@@ -151,7 +153,7 @@ namespace Sandbox.Game.Weapons
 
                 var locations = new HashSet<MyCubeGrid.MyBlockLocation>();
 
-                foreach (var info in blocks)
+                foreach (var info in m_projectionRaycastData)
                 {
                     if (MySession.Static.CreativeMode || Inventory.ContainItems(1, info.hitCube.BlockDefinition.Components[0].Definition.Id))
                     {
@@ -302,5 +304,12 @@ namespace Sandbox.Game.Weapons
             else
                 m_soundEmitter.PlaySingleSound(IDLE_SOUND, true);
         }
+
+        public override void UpdateBeforeSimulation10()
+        {
+            base.UpdateBeforeSimulation10();
+            m_projectionRaycastData = FindProjectedBlocks();
+        }
+ 
     }
 }
