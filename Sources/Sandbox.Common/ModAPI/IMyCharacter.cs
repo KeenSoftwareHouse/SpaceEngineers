@@ -3,6 +3,7 @@ using Sandbox.ModAPI.Interfaces;
 
 using Sandbox.Common;
 using Sandbox.Common.ObjectBuilders;
+using Sandbox.Common.ObjectBuilders.Definitions;
 using Sandbox.ModAPI.Interfaces;
 using VRage.ModAPI;
 using VRageMath;
@@ -39,12 +40,12 @@ namespace Sandbox.ModAPI
 
         /// <summary>
         /// Damages the character.
-        /// NOTE: Will not kill the character if CanDie is false.
         /// </summary>
         /// <param name="damage">amount of damage applied.</param>
         /// <param name="damageType">type of damage applied.</param>
+        /// <param name="forceKill">ignores character's CanDie field.</param>
         /// <param name="sync">wether to synchronize this action with other players.</param>
-        void DoDamage(float damage, Sandbox.Common.ObjectBuilders.Definitions.MyDamageType damageType, bool sync = true);
+        void DoDamage(float damage, MyDamageType damageType, bool forceKill = true, bool sync = true);
 
         /// <summary>
         /// The total damage that this character received throughout their life.
@@ -53,10 +54,12 @@ namespace Sandbox.ModAPI
 
         /// <summary>
         /// Kills the player, action is synchronized.
-        /// NOTE: Will not work if CanDie is false.
         /// </summary>
-        /// <param name="ask">asks the player to suicide</param>
-        void Kill(bool ask = false);
+        /// <param name="ask">asks the player to suicide.</param>
+        /// <param name="damageType">type of damage to apply.</param>
+        /// <param name="forceKill">ignores character's CanDie field.</param>
+        /// <param name="sync">updates everybody else that the character died.</param>
+        void Kill(bool ask = false, MyDamageType damageType = MyDamageType.Suicide, bool forceKill = true, bool sync = true);
 
         bool IsDead { get; }
 

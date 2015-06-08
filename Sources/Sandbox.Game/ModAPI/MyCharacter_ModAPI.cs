@@ -32,9 +32,9 @@ namespace Sandbox.Game.Entities.Character
             m_health = health;
         }
 
-        void IMyCharacter.DoDamage(float damage, Sandbox.Common.ObjectBuilders.Definitions.MyDamageType damageType, bool sync)
+        void IMyCharacter.DoDamage(float damage, Sandbox.Common.ObjectBuilders.Definitions.MyDamageType damageType, bool forceKill, bool sync)
         {
-            DoDamage(damage, damageType, sync);
+            DoDamage(damage, damageType, sync, forceKill);
         }
 
         float IMyCharacter.AccumulatedDamage
@@ -42,7 +42,7 @@ namespace Sandbox.Game.Entities.Character
             get { return CharacterAccumulatedDamage; }
         }
 
-        public void Kill(bool ask)
+        public void Kill(bool ask, MyDamageType damageType, bool forceKill, bool sync)
         {
             if (ask)
             {
@@ -53,12 +53,12 @@ namespace Sandbox.Game.Entities.Character
                 focusedResult: MyGuiScreenMessageBox.ResultEnum.NO,
                 callback: delegate(MyGuiScreenMessageBox.ResultEnum retval)
                 {
-                    Kill(false);
+                    Kill(false, damageType, forceKill, sync);
                 }));
             }
             else
             {
-                DoDamage(MaxHealth + 1000, MyDamageType.Suicide, true);
+                DoDamage(MaxHealth + 1000, damageType, sync, forceKill);
             }
         }
 
