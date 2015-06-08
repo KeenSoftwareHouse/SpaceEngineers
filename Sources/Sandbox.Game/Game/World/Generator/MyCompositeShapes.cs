@@ -479,10 +479,33 @@ namespace Sandbox.Game.World.Generator
                     for (int i = 0; i < material.SpawnFrequencyWeight; i++)
                         m_coreMaterials.Add(material);
                 }
-                else // Deposit
+                else if (material.MaterialType == "Deposit")
                 {
                     for (int i = 0; i < material.SpawnFrequencyWeight; i++)
                         m_depositMaterials.Add(material);
+                }
+                else if (material.MaterialType == "Unspecified") // Backwards Compatibility
+                {
+                    if (material.MinedOre == "Stone") // Surface
+                    {
+                        material.MaterialType = "Surface";
+                        for (int i = 0; i < material.SpawnFrequencyWeight; i++)
+                            m_surfaceMaterials.Add(material);
+                    }
+                    else if (material.MinedOre == "Iron") // Core
+                    {
+                        material.MaterialType = "Core";
+                        for (int i = 0; i < material.SpawnFrequencyWeight; i++)
+                            m_coreMaterials.Add(material);
+                    }
+                    else // Deposit
+                    {
+                        material.MaterialType = "Deposit";
+                        if (material.MinedOre == "Uranium" || material.MinedOre == "Ice")
+                            material.SpawnFrequencyWeight = 2;
+                        for (int i = 0; i < material.SpawnFrequencyWeight; i++)
+                            m_depositMaterials.Add(material);
+                    }
                 }
             }
 

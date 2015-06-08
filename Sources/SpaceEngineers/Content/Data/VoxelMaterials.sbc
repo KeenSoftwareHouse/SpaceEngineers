@@ -411,7 +411,7 @@
       <SpawnsInAsteroids>true</SpawnsInAsteroids>
       <!-- True = gets detected by ore detector -->
       <IsRare>false</IsRare>
-      <!-- {Surface, Core, Deposit} how material is spawned in asteroids, default Deposit (even if undefined) -->
+      <!-- {Surface, Core, Deposit, Unspecified} how material is spawned in asteroids, default Unspecified (even if undefined) -->
       <MaterialType>Surface</MaterialType>
       <!-- Integer frequency of spawn in asteroids relative to all other materials of the same type, default 1 (even if undefined) -->
       <SpawnFrequencyWeight>1</SpawnFrequencyWeight>
