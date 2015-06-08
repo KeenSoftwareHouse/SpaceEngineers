@@ -56,7 +56,7 @@ namespace Sandbox.Game.Weapons
 
         // State variables
         private bool m_wantsToActivate;
-        private bool m_isActivated;
+        protected bool m_isActivated;
         private bool m_isActivatedOnSomething;
         protected int m_lastTimeActivate;
 

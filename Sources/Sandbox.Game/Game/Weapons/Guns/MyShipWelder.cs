@@ -308,7 +308,10 @@ namespace Sandbox.Game.Weapons
         public override void UpdateBeforeSimulation10()
         {
             base.UpdateBeforeSimulation10();
-            m_projectionRaycastData = FindProjectedBlocks();
+            if (m_isActivated)
+            {
+                m_projectionRaycastData = FindProjectedBlocks();
+            }   
         }
  
     }
