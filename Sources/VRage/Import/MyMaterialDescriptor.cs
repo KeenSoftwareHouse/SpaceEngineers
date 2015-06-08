@@ -53,19 +53,19 @@ namespace VRage.Import
         /// <returns></returns>
         public bool Write(BinaryWriter writer)
         {
-            writer.Write((MaterialName != null) ? MaterialName : "");
+            writer.Write(MaterialName ?? "");
             writer.Write(Textures.Count);
             foreach (var texture in Textures)
             {
                 writer.Write(texture.Key);
-                writer.Write(texture.Value == null ? "" : texture.Value);
+                writer.Write(texture.Value ?? "");
             }
 
             writer.Write(UserData.Count);
             foreach (var userData in UserData)
             {
                 writer.Write(userData.Key);
-                writer.Write(userData.Value == null ? "" : userData.Value);
+                writer.Write(userData.Value ?? "");
             }
 
             writer.Write(SpecularPower);
