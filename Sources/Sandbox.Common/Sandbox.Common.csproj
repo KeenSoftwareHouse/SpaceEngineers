@@ -163,6 +163,7 @@
     <Compile Include="ModAPI\IMyShipDrill.cs" />
     <Compile Include="ModAPI\IMyShipWelder.cs" />
     <Compile Include="ModAPI\IMySpaceBall.cs" />
+    <Compile Include="ModAPI\IMySuitBattery.cs" />
     <Compile Include="ModAPI\IMyTerminalBlock.cs" />
     <Compile Include="ModAPI\IMyThrust.cs" />
     <Compile Include="ModAPI\IMyUpgradableBlock.cs" />

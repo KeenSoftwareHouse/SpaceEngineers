@@ -1694,8 +1694,6 @@ namespace Sandbox.Game.Entities.Character
             m_cameraDistance = Vector3.Distance(cameraLocation,WorldMatrix.Translation);
         }
 
-      
-
         public void DrawHud(IMyCameraController camera, long playerId)
         {
             MyHud.Crosshair.Position = MyHudCrosshair.ScreenCenter;
@@ -2053,7 +2051,8 @@ namespace Sandbox.Game.Entities.Character
                 else if (!IsDead)
                 {
                     Vector3 gravity = MyGravityProviderSystem.CalculateGravityInPoint(PositionComp.WorldAABB.Center) + Physics.HavokWorld.Gravity;
-                    Physics.CharacterProxy.Gravity = gravity * CHARACTER_GRAVITY_MULTIPLIER;
+                    m_artificialGravity = gravity * CHARACTER_GRAVITY_MULTIPLIER;
+                    Physics.CharacterProxy.Gravity = m_artificialGravity;
 
                     if (!Physics.CharacterProxy.Up.IsValid())
                     {
@@ -4684,7 +4683,7 @@ namespace Sandbox.Game.Entities.Character
             }
         }
 
-        public void EnableJetpack(bool enable, bool fromLoad = false, bool updateSync = true, bool fromInit = false)
+        public void EnableJetpack(bool enable, bool fromLoad = false, bool updateSync = true, bool fromInit = false, bool notify = true)
         {
             if (m_currentMovementState == MyCharacterMovementEnum.Sitting)
                 return;
@@ -4723,7 +4722,7 @@ namespace Sandbox.Game.Entities.Character
             if (canUseJetpack)
                 IsUsing = null;
 
-            if (MySession.ControlledEntity == this && valueChanged)
+            if (notify && MySession.ControlledEntity == this && valueChanged)
             {
                 m_jetpackToggleNotification.Text = (noEnergy) ? MySpaceTexts.NotificationJetpackOffNoEnergy
                                                      : (canUseJetpack) ? MySpaceTexts.NotificationJetpackOn
@@ -5741,7 +5740,7 @@ namespace Sandbox.Game.Entities.Character
                 callback: delegate(MyGuiScreenMessageBox.ResultEnum retval)
                 {
                     if (retval == MyGuiScreenMessageBox.ResultEnum.YES)
-                        DoDamage(1000, MyDamageType.Suicide, true, this.EntityId);
+                        DoDamage(MaxHealth + 1000, MyDamageType.Suicide, true, this.EntityId);
                 }));
             }
         }
@@ -7455,14 +7454,6 @@ namespace Sandbox.Game.Entities.Character
                     return MySpaceBindingCreator.CX_CHARACTER; 
             }
         }
-
-        #region ModAPI
-        float IMyCharacter.EnvironmentOxygenLevel
-        {
-            get { return EnvironmentOxygenLevel; }
-        }
-
-        #endregion
 
         //public bool IsUseObjectOfType<T>()
         //{

@@ -35,6 +35,7 @@ namespace Sandbox.ModAPI.Interfaces
         void SwitchLeadingGears();
         void SwitchReactors();
         void SwitchHelmet();
+        void SwitchBroadcasting();
 
         bool EnabledThrusts { get; }
         bool EnabledDamping { get; }
