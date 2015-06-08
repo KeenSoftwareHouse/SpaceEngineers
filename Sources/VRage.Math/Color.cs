@@ -1952,6 +1952,21 @@ namespace VRageMath
             return this.packedValue.Equals(other.packedValue);
         }
 
+        /// <summary>
+        /// Retrieve a Color by name.
+        /// </summary>
+        /// <param name="colorName">Name of the color to retrieve.</param>
+        public static Color FromName(string colorName){
+            Type tpObj = typeof(Color);
+            System.Reflection.FieldInfo[] finfo = tpObj.GetFields();
+            foreach (System.Reflection.FieldInfo color in finfo){
+                if(color.Name == colorName){
+                    return (color as Color);
+                }
+            }
+            return null;
+        }
+
         public static implicit operator Color(Vector3 v)
         {
             return new Color(v.X, v.Y, v.Z, 1.0f);
