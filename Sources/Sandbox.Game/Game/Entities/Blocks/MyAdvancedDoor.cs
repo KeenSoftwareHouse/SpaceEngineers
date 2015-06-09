@@ -1,32 +1,24 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Text;
 using System.IO;
+using System.Linq;
+
+using Havok;
 
 using Sandbox.Common.ObjectBuilders;
-using Sandbox.Graphics.GUI;
-using Sandbox.Game.GameSystems.Electricity;
-using VRageMath;
+using Sandbox.Common.ObjectBuilders.Definitions;
+using Sandbox.Definitions;
+using Sandbox.Engine.Physics;
 using Sandbox.Engine.Utils;
 using Sandbox.Game.Entities.Cube;
-using Havok;
-using System.Reflection;
-using Sandbox.Common;
-using Sandbox.Engine.Physics;
-using Sandbox.Game.World;
-using Sandbox.Game.Multiplayer;
+using Sandbox.Game.GameSystems.Electricity;
 using Sandbox.Game.Gui;
-using Sandbox.Game.Screens;
-using Sandbox.Graphics.TransparentGeometry;
-using Sandbox.Game.Screens.Terminal.Controls;
-using VRage.Utils;
-using Sandbox.Definitions;
 using Sandbox.Game.Localization;
-using Sandbox.Common.ObjectBuilders.Definitions;
+using Sandbox.Game.Multiplayer;
+
 using VRage.Components;
 using VRage.ModAPI;
+using VRageMath;
 
 namespace Sandbox.Game.Entities
 {
@@ -39,6 +31,9 @@ namespace Sandbox.Game.Entities
         private float m_time; // timer for opening sequenz
         private float m_totalTime = 99999f; // holds the total time a Door needs to fully open, this will be set to m_time after the Door reaches FullyOpen the first time
         private bool m_stateChange = false;
+        private bool m_open;
+
+        private MySyncAdvancedDoor m_sync;
 
         private List<MyEntitySubpart> m_subparts = new List<MyEntitySubpart>();
         private List<int> m_subpartIDs = new List<int>();
@@ -51,13 +46,6 @@ namespace Sandbox.Game.Entities
         // temp matrices
         private Matrix[] transMat = new Matrix[1];
         private Matrix[] rotMat = new Matrix[1];
-
-        private int m_sequenceCount = 0;
-        private int m_subpartCount = 0;
-
-        private MySyncAdvancedDoor m_sync;
-
-        private bool m_open;
 
         public MyPowerReceiver PowerReceiver
         {
@@ -130,7 +118,7 @@ namespace Sandbox.Game.Entities
         {
             get
             {
-                return (m_currentOpening.FindAll(v => v > 0f).Count == 0);
+                return m_currentOpening.Sum() == 0f;
             }
         }
 
@@ -138,27 +126,15 @@ namespace Sandbox.Game.Entities
         {
             get
             {
-                for (int i = 0; i < m_currentOpening.Count; i++)
-                {
-                    if (m_openingSequence[i].MaxOpen != m_currentOpening[i])
-                    {
-                        return false;
-                    }
-                }
-                return true;
+                return m_currentOpening.Sum() == m_openingSequence.Sum(x => x.MaxOpen);
             }
         }
 
         public float OpenRatio
         {
-            get 
+            get
             {
-                for (int i = 0; i < m_currentOpening.Count; i++)
-                {
-                    if (m_currentOpening[i] > 0f)
-                        return m_currentOpening[i];
-                }
-                return 0f;
+                return m_currentOpening.Sum() / m_openingSequence.Sum(x => x.MaxOpen);
             }
         }
 
@@ -177,9 +153,9 @@ namespace Sandbox.Game.Entities
 
         private new MyAdvancedDoorDefinition BlockDefinition
         {
-            get 
-            { 
-                return (MyAdvancedDoorDefinition)base.BlockDefinition; 
+            get
+            {
+                return (MyAdvancedDoorDefinition)base.BlockDefinition;
             }
         }
 
@@ -210,12 +186,12 @@ namespace Sandbox.Game.Entities
 
             NeedsUpdate = MyEntityUpdateEnum.EACH_FRAME | MyEntityUpdateEnum.EACH_100TH_FRAME;
             m_lastUpdateTime = MySandboxGame.TotalGamePlayTimeInMilliseconds - 1;
-            
+
             UpdateCurrentOpening();
             UpdateDoorPosition();
 
             if (m_open)
-            {   
+            {
                 var handle = DoorStateChanged;
                 if (handle != null) handle(m_open);
             }
@@ -298,9 +274,6 @@ namespace Sandbox.Game.Entities
 
             m_subparts.Clear();
             m_subpartIDs.Clear();
-            m_currentOpening.Clear();
-            m_currentSpeed.Clear();
-            m_emitter.Clear();
             m_hingePosition.Clear();
             m_openingSequence.Clear();
 
@@ -331,17 +304,17 @@ namespace Sandbox.Game.Entities
 
             // get the sequence count from definition
             int openSequenzCount = ((MyAdvancedDoorDefinition)BlockDefinition).OpeningSequence.Length;
-            
+
             for (int i = 0; i < openSequenzCount; i++)
             {
-                if(!String.IsNullOrEmpty(((MyAdvancedDoorDefinition)BlockDefinition).OpeningSequence[i].IDs))
+                if (!String.IsNullOrEmpty(((MyAdvancedDoorDefinition)BlockDefinition).OpeningSequence[i].IDs))
                 {
                     // if one sequence should be applied for multiple subparts (i.e. <IDs>1-3,4,6,8,9</IDs>
                     // add copies to m_openingSequence List
 
                     // split by comma
                     string[] tmp1 = ((MyAdvancedDoorDefinition)BlockDefinition).OpeningSequence[i].IDs.Split(',');
-                    
+
                     for (int j = 0; j < tmp1.Length; j++)
                     {
                         // split by minus
@@ -349,7 +322,7 @@ namespace Sandbox.Game.Entities
 
                         if (tmp2.Length == 2)
                         {
-                            for(int k = Convert.ToInt32(tmp2[0]); k <= Convert.ToInt32(tmp2[1]); k++)
+                            for (int k = Convert.ToInt32(tmp2[0]); k <= Convert.ToInt32(tmp2[1]); k++)
                             {
                                 m_openingSequence.Add(((MyAdvancedDoorDefinition)BlockDefinition).OpeningSequence[i]);
                                 m_subpartIDs.Add(k);
@@ -371,9 +344,14 @@ namespace Sandbox.Game.Entities
 
             for (int i = 0; i < m_openingSequence.Count; i++)
             {
-                m_currentOpening.Add(0f);
-                m_currentSpeed.Add(0f);
-                m_emitter.Add(new MyEntity3DSoundEmitter(this));
+                if (m_currentOpening.Count < m_openingSequence.Count)
+                    m_currentOpening.Add(0f);
+
+                if (m_currentSpeed.Count < m_openingSequence.Count)
+                    m_currentSpeed.Add(0f);
+
+                if (m_emitter.Count < m_openingSequence.Count)
+                    m_emitter.Add(new MyEntity3DSoundEmitter(this));
 
                 // make sure maxOpen is always positive and invert accordingly
                 if (m_openingSequence[i].MaxOpen < 0f)
@@ -383,11 +361,8 @@ namespace Sandbox.Game.Entities
                 }
             }
 
-            m_sequenceCount = m_openingSequence.Count;
-            m_subpartCount = m_subparts.Count;
-
-            Array.Resize(ref transMat, m_subpartCount);
-            Array.Resize(ref rotMat, m_subpartCount);
+            Array.Resize(ref transMat, m_subparts.Count);
+            Array.Resize(ref rotMat, m_subparts.Count);
 
             UpdateDoorPosition();
 
@@ -474,7 +449,7 @@ namespace Sandbox.Game.Entities
             }
             else if (FullyOpen)
             {
-                if(m_totalTime != m_time)
+                if (m_totalTime != m_time)
                     m_totalTime = m_time;
 
                 m_time = m_totalTime;
@@ -504,7 +479,7 @@ namespace Sandbox.Game.Entities
                         soundName = m_openingSequence[i].CloseSound;
                     }
 
-                    if(!String.IsNullOrEmpty(soundName))
+                    if (!String.IsNullOrEmpty(soundName))
                         StartSound(i, new MySoundPair(soundName));
                 }
                 else
@@ -519,7 +494,7 @@ namespace Sandbox.Game.Entities
                 PowerReceiver.Update();
                 RaisePropertiesChanged();
                 if (!m_open)
-                {   
+                {
                     var handle = DoorStateChanged;
                     if (handle != null) handle(m_open);
                 }
@@ -555,13 +530,13 @@ namespace Sandbox.Game.Entities
                 for (int i = 0; i < m_openingSequence.Count; i++)
                 {
                     float delay = m_open ? m_openingSequence[i].OpenDelay : m_openingSequence[i].CloseDelay;
-                    
+
                     if ((m_open && m_time > delay) || (!m_open && m_time < m_totalTime - delay))
                     {
                         float deltaPos = m_currentSpeed[i] * timeDelta;
                         float maxOpen = m_openingSequence[i].MaxOpen;
 
-                        if(m_openingSequence[i].SequenceType == MyObjectBuilder_AdvancedDoorDefinition.Opening.Sequence.Linear)
+                        if (m_openingSequence[i].SequenceType == MyObjectBuilder_AdvancedDoorDefinition.Opening.Sequence.Linear)
                             m_currentOpening[i] = MathHelper.Clamp(m_currentOpening[i] + deltaPos, 0f, maxOpen);
                     }
                 }
@@ -573,13 +548,13 @@ namespace Sandbox.Game.Entities
             if (this.CubeGrid.Physics == null)
                 return;
 
-            for(int i = 0; i < m_subpartCount; i++)
+            for (int i = 0; i < m_subparts.Count; i++)
             {
                 transMat[i] = Matrix.Identity;
                 rotMat[i] = Matrix.Identity;
             }
 
-            for (int i = 0; i < m_sequenceCount; i++)
+            for (int i = 0; i < m_openingSequence.Count; i++)
             {
                 MyObjectBuilder_AdvancedDoorDefinition.Opening.MoveType moveType = m_openingSequence[i].Move;
                 float opening = m_currentOpening[i];
@@ -641,7 +616,7 @@ namespace Sandbox.Game.Entities
             }
 
             // combine matrices and apply to subparts
-            for (int i = 0; i < m_subpartCount; i++)
+            for (int i = 0; i < m_subparts.Count; i++)
             {
                 m_subparts[i].PositionComp.LocalMatrix = rotMat[i] * transMat[i];
             }
@@ -717,3 +692,4 @@ namespace Sandbox.Game.Entities
         }
     }
 }
+
