@@ -362,8 +362,11 @@ namespace Sandbox.Game.Entities.Blocks
             {
                 if (ShowTextOnScreen && IsInRange() == false)
                 {
-                    m_isOutofRange = true;
-                    ReleaseRenderTexture();
+                    if (!m_isOutofRange)
+                    {
+                        m_isOutofRange = true;
+                        ReleaseRenderTexture();
+                    }
                     return;
                 }
 

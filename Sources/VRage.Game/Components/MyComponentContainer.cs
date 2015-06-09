@@ -111,5 +111,21 @@ namespace VRage.Components
                 }
             }
 		}
+
+        public void OnAddedToScene()
+        {
+            foreach (var component in m_components)
+            {
+                component.Value.OnAddedToScene();
+            }
+        }
+
+        public void OnRemovedFromScene()
+        {
+            foreach (var component in m_components)
+            {
+                component.Value.OnRemovedFromScene();
+            }
+        }
 	}
 }

@@ -6,6 +6,7 @@ using Sandbox.Definitions;
 using Sandbox.Engine.Physics;
 using Sandbox.Engine.Utils;
 using Sandbox.Game.Gui;
+using Sandbox.Game.Multiplayer;
 using Sandbox.Game.Screens.Helpers;
 using Sandbox.Game.World;
 using Sandbox.Graphics.GUI;
@@ -161,12 +162,18 @@ namespace Sandbox.Game.Entities
 
 				var positionAndOrientation = new MyPositionAndOrientation(position, Vector3D.Normalize(forward), Vector3D.Up);
 
-				MyObjectBuilder_AreaMarker objectBuilder = (MyObjectBuilder_AreaMarker)MyObjectBuilderSerializer.CreateNewObject(definition.Id); 
+				MyObjectBuilder_AreaMarker objectBuilder = (MyObjectBuilder_AreaMarker)MyObjectBuilderSerializer.CreateNewObject(definition.Id);
 				objectBuilder.PositionAndOrientation = positionAndOrientation;
-				MyAreaMarker flag = MyEntityFactory.CreateEntity<MyAreaMarker>(objectBuilder);
-				flag.Init(objectBuilder);
 
-				MyEntities.Add(flag);
+				if (objectBuilder.IsSynced)
+					MySyncCreate.RequestEntityCreate(objectBuilder);
+				else
+				{
+					MyAreaMarker flag = MyEntityFactory.CreateEntity<MyAreaMarker>(objectBuilder);
+					flag.Init(objectBuilder);
+
+					MyEntities.Add(flag);
+				}
 			}
 		}
 

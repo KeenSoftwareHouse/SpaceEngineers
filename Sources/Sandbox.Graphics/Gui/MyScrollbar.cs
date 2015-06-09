@@ -5,7 +5,7 @@ using VRageMath;
 
 namespace Sandbox.Graphics.GUI
 {
-    abstract class MyScrollbar
+    public abstract class MyScrollbar
     {
         protected enum StateEnum
         {
@@ -134,7 +134,7 @@ namespace Sandbox.Graphics.GUI
 
     }
 
-    class MyVScrollbar : MyScrollbar
+    public class MyVScrollbar : MyScrollbar
     {
         private Vector2 m_dragClick;
 

@@ -346,7 +346,6 @@ namespace Sandbox.Game.Gui
         {
             MyLog.Default.WriteLine("LoadSession() - Start");
 
-            MySession.IsScenario = false;
             if (!MySteamWorkshop.CheckLocalModsAllowed(world.Checkpoint.Mods, false))
             {
                 MyGuiSandbox.AddScreen(MyGuiSandbox.CreateMessageBox(
@@ -397,7 +396,6 @@ namespace Sandbox.Game.Gui
 
             MyLog.Default.WriteLine("LoadMultiplayerScenarioWorld() - Start");
 
-            MySession.IsScenario = true;
             if (!MySteamWorkshop.CheckLocalModsAllowed(world.Checkpoint.Mods, false))
             {
                 MyGuiSandbox.AddScreen(MyGuiSandbox.CreateMessageBox(
@@ -420,7 +418,6 @@ namespace Sandbox.Game.Gui
                         MyGuiScreenGamePlay.StartLoading(delegate
                         {
                             MySession.Static.LoadMultiplayerWorld(world, multiplayerSession);
-                            Debug.Assert(MySession.IsScenario);
                             if (ScenarioWorldLoaded != null)
                                 ScenarioWorldLoaded();
                         });
