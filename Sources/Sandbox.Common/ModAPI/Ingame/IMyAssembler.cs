@@ -21,11 +21,12 @@ namespace Sandbox.ModAPI.Ingame
         /// <param name="itemType">type of item, i.e. 'MyObjectBuilder_Component'</param>
         /// <param name="subtypeName">Shortname of component, i.e. SteelPlate, Reactor, MetalGrid, etc.</param>
         /// <param name="amount">Quantity of specified item to add to queue</param>
+        /// <param name="index">Index/Position item should be added to queue<br />-1 (default) adds to the end of queue<br />0 is first slot, 1 is second slot etc.</param>
         /// <returns>
         /// true - item added successfully
         /// false - item not added - probably because itemType or subtypeName are invalid
         /// </returns>
-        bool AddQueueItem(string itemType, string subtypeName, int amount);
+        bool AddQueueItem(string itemType, string subtypeName, int amount, int index = -1);
 
         /// <summary>
         /// Retrieves the number of items in the assembler queue
@@ -36,16 +37,16 @@ namespace Sandbox.ModAPI.Ingame
         /// <summary>
         /// Retrieves an item at index
         /// </summary>
-        /// <param name="idx"></param>
+        /// <param name="index"></param>
         /// <returns>IMyAssemblerQueueItem with details of queued item. Returns null if index is not valid.
         /// </returns>
-        IMyAssemblerQueueItem GetQueueItemAt(int idx);
+        IMyAssemblerQueueItem GetQueueItemAt(int index);
 
         /// <summary>
         /// Removes a queue item at specific index
         /// </summary>
         /// <param name="idx"></param>
-        void RemoveQueueItemAt(int idx);
+        void RemoveQueueItemAt(int index);
 
         /// <summary>
         /// Removes all items in the assembler queue

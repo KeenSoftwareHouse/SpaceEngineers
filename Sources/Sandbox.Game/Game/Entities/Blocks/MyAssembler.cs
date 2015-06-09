@@ -1146,17 +1146,17 @@ namespace Sandbox.Game.Entities.Cube
 
         }
 
-        bool Sandbox.ModAPI.Ingame.IMyAssembler.AddQueueItem(string itemType, string subtypeName, int amount)
+        bool Sandbox.ModAPI.Ingame.IMyAssembler.AddQueueItem(string itemType, string subtypeName, int amount, int index)
         {
             MyObjectBuilderType iType;
-            if (amount < 1 || !MyObjectBuilderType.TryParse(itemType, out iType))
+            if (amount < 1 || (index>0 && !m_queue.IsValidIndex(index-1)) || !MyObjectBuilderType.TryParse(itemType, out iType))
                 return false;
 
             var blueprint = MyDefinitionManager.Static.TryGetBlueprintDefinitionByResultId(new MyDefinitionId(iType, subtypeName));
             if (blueprint == null || !CanUseBlueprint(blueprint))
                 return false;
 
-            InsertQueueItemRequest(-1, blueprint, (VRage.MyFixedPoint)amount);
+            InsertQueueItemRequest(index, blueprint, (VRage.MyFixedPoint)amount);
 
             return true;
         }
@@ -1171,16 +1171,16 @@ namespace Sandbox.Game.Entities.Cube
             ClearQueue();
         }
 
-        Sandbox.ModAPI.Ingame.IMyAssemblerQueueItem Sandbox.ModAPI.Ingame.IMyAssembler.GetQueueItemAt(int idx)
+        Sandbox.ModAPI.Ingame.IMyAssemblerQueueItem Sandbox.ModAPI.Ingame.IMyAssembler.GetQueueItemAt(int index)
         {
-            if (m_queue.IsValidIndex(idx))
-                return new MyAssemblerQueueItem(m_queue[idx]);
+            if (m_queue.IsValidIndex(index))
+                return new MyAssemblerQueueItem(m_queue[index]);
             return null;
         }
-        void Sandbox.ModAPI.Ingame.IMyAssembler.RemoveQueueItemAt(int idx)
+        void Sandbox.ModAPI.Ingame.IMyAssembler.RemoveQueueItemAt(int index)
         {
-            if (m_queue.IsValidIndex(idx))
-                RemoveQueueItemRequest(idx);
+            if (m_queue.IsValidIndex(index))
+                RemoveQueueItemRequest(index);
         }
 
         int Sandbox.ModAPI.Ingame.IMyAssembler.CountQueueItems(string itemType, string subtypeName)
