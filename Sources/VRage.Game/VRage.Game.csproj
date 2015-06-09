@@ -117,6 +117,7 @@
     <Compile Include="ObjectBuilders\Blocks\MyObjectBuilder_WheelBlock.cs" />
     <Compile Include="ObjectBuilders\Components\MyObjectBuilder_AIComponent.cs" />
     <Compile Include="ObjectBuilders\Components\MyObjectBuilder_BattleSystemComponent.cs" />
+    <Compile Include="ObjectBuilders\Components\MyObjectBuilder_FloraComponent.cs" />
     <Compile Include="ObjectBuilders\Components\MyObjectBuilder_ScriptManager.cs" />
     <Compile Include="ObjectBuilders\Components\MyObjectBuilder_SessionComponent.cs" />
     <Compile Include="ObjectBuilders\Components\MyObjectBuilder_WeatherComponent.cs" />
@@ -160,6 +161,7 @@
     <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_CompositeBlueprintDefinition.cs" />
     <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_CompoundBlockTemplateDefinition.cs" />
     <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_Configuration.cs" />
+    <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_ConsumableItemDefinition.cs" />
     <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_ContainerTypeDefinition.cs" />
     <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_ControllerSchemaDefinition.cs" />
     <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_ConveyorSorterDefinition.cs" />
@@ -313,6 +315,7 @@
     <Compile Include="ObjectBuilders\MyObjectBuilder_Component.cs" />
     <Compile Include="ObjectBuilders\MyObjectBuilder_CompoundCubeBlock.cs" />
     <Compile Include="ObjectBuilders\MyObjectBuilder_ConstructionStockpile.cs" />
+    <Compile Include="ObjectBuilders\MyObjectBuilder_ConsumableItem.cs" />
     <Compile Include="ObjectBuilders\MyObjectBuilder_ControlPanel.cs" />
     <Compile Include="ObjectBuilders\MyObjectBuilder_Conveyor.cs" />
     <Compile Include="ObjectBuilders\MyObjectBuilder_ConveyorConnector.cs" />
@@ -336,6 +339,7 @@
     <Compile Include="ObjectBuilders\MyObjectBuilder_ExtendedPistonBase.cs" />
     <Compile Include="ObjectBuilders\MyObjectBuilder_FactionCollection.cs" />
     <Compile Include="ObjectBuilders\MyObjectBuilder_FloatingObject.cs" />
+    <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_FloraElementDefinition.cs" />
     <Compile Include="ObjectBuilders\MyObjectBuilder_FracturedBlock.cs" />
     <Compile Include="ObjectBuilders\MyObjectBuilder_FracturedPiece.cs" />
     <Compile Include="ObjectBuilders\MyObjectBuilder_FunctionalBlock.cs" />

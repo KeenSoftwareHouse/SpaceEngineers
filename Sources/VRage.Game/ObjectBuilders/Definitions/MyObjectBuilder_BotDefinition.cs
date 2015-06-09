@@ -31,8 +31,5 @@ namespace Sandbox.Common.ObjectBuilders.Definitions
 
         [ProtoMember]
         public bool Commandable = false;
-
-        [ProtoMember(5)]
-        public bool AvailableInSurvival = false;
     }
 }

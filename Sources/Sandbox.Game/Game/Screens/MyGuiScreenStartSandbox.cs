@@ -17,6 +17,7 @@ using VRage;
 using VRage.Utils;
 using VRage.Voxels;
 using VRage.ObjectBuilders;
+using Sandbox.Engine.Networking;
 
 namespace Sandbox.Game.Gui
 {
@@ -172,24 +173,38 @@ namespace Sandbox.Game.Gui
 
         public void OnBattleClick(MyGuiControlButton sender)
         {
-            if (MyFakes.ENABLE_TUTORIAL_PROMPT && MySandboxGame.Config.NeedShowBattleTutorialQuestion)
+            if (MySteam.IsOnline)
             {
-                MyGuiSandbox.AddScreen(MyGuiSandbox.CreateMessageBox(buttonType: MyMessageBoxButtonsType.YES_NO,
-                    messageText: MyTexts.Get(MySpaceTexts.MessageBoxTextTutorialQuestion),
-                    messageCaption: MyTexts.Get(MySpaceTexts.MessageBoxCaptionVideoTutorial),
-                    callback: delegate(MyGuiScreenMessageBox.ResultEnum val)
-                    {
-                        if (val == MyGuiScreenMessageBox.ResultEnum.YES)
-                            MyGuiSandbox.OpenUrlWithFallback(MySteamConstants.URL_GUIDE_DEFAULT, "Steam Guide");
-                        else
-                            MyGuiSandbox.AddScreen(MyGuiSandbox.CreateScreen(MyPerGameSettings.GUI.BattleScreen));
-                    }));
+                if (MyFakes.ENABLE_TUTORIAL_PROMPT && MySandboxGame.Config.NeedShowBattleTutorialQuestion)
+                {
+                    MyGuiSandbox.AddScreen(MyGuiSandbox.CreateMessageBox(buttonType: MyMessageBoxButtonsType.YES_NO,
+                        messageText: MyTexts.Get(MySpaceTexts.MessageBoxTextTutorialQuestion),
+                        messageCaption: MyTexts.Get(MySpaceTexts.MessageBoxCaptionVideoTutorial),
+                        callback: delegate(MyGuiScreenMessageBox.ResultEnum val)
+                        {
+                            if (val == MyGuiScreenMessageBox.ResultEnum.YES)
+                                MyGuiSandbox.OpenUrlWithFallback(MySteamConstants.URL_GUIDE_DEFAULT, "Steam Guide");
+                            else
+                                MyGuiSandbox.AddScreen(MyGuiSandbox.CreateScreen(MyPerGameSettings.GUI.BattleScreen));
+                        }));
 
-                MySandboxGame.Config.NeedShowBattleTutorialQuestion = false;
-                MySandboxGame.Config.Save();
+                    MySandboxGame.Config.NeedShowBattleTutorialQuestion = false;
+                    MySandboxGame.Config.Save();
+                }
+                else
+                {
+                    MyGuiSandbox.AddScreen(MyGuiSandbox.CreateScreen(MyPerGameSettings.GUI.BattleScreen));
+                }
             }
             else
-                MyGuiSandbox.AddScreen(MyGuiSandbox.CreateScreen(MyPerGameSettings.GUI.BattleScreen));
+            {
+                MyGuiSandbox.AddScreen(MyGuiSandbox.CreateMessageBox(
+                    buttonType: MyMessageBoxButtonsType.OK,
+                    messageCaption: MyTexts.Get(MySpaceTexts.MessageBoxCaptionError),
+                    messageText: MyTexts.Get(MySpaceTexts.SteamIsOfflinePleaseRestart)
+                ));
+            }
+
         }
     }
 }

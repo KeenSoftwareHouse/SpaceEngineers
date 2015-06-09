@@ -42,6 +42,7 @@ namespace Sandbox.Game.Entities
 
         public MyAreaMarker()
         {
+			
         }
 
 		public MyAreaMarker(MyPositionAndOrientation positionAndOrientation, MyAreaMarkerDefinition definition)
@@ -84,7 +85,12 @@ namespace Sandbox.Game.Entities
 				}
 			}
 			if (m_definition.MaxNumber >= 0 && markerCount >= m_definition.MaxNumber)
-				firstFound.Container.Entity.Close();
+			{
+				if (SyncFlag)
+					firstFound.Entity.SyncObject.SendCloseRequest();
+				else
+					firstFound.Entity.Close();
+			}
 
 			m_tmpPlaceAreas.Clear();
 			

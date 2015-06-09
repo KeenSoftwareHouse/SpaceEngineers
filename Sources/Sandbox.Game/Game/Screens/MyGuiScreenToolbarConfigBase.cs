@@ -936,7 +936,7 @@ namespace Sandbox.Game.Gui
         {
             foreach (MyAiCommandDefinition definition in MyDefinitionManager.Static.GetDefinitionsOfType<MyAiCommandDefinition>())
             {
-                if (definition.Public || MyFakes.ENABLE_NON_PUBLIC_BLOCKS)
+				if ((definition.Public || MyFakes.ENABLE_NON_PUBLIC_BLOCKS) && (definition.AvailableInSurvival || MySession.Static.CreativeMode))
                 {
                     if (searchCondition != null && !searchCondition.MatchesCondition(definition))
                         continue;
@@ -950,7 +950,7 @@ namespace Sandbox.Game.Gui
 		{
 			foreach(MyAreaMarkerDefinition definition in MyDefinitionManager.Static.GetDefinitionsOfType<MyAreaMarkerDefinition>())
 			{
-				if(definition.Public || MyFakes.ENABLE_NON_PUBLIC_BLOCKS)
+				if ((definition.Public || MyFakes.ENABLE_NON_PUBLIC_BLOCKS) && (definition.AvailableInSurvival || MySession.Static.CreativeMode))
 				{
 					if (searchCondition != null && !searchCondition.MatchesCondition(definition))
 						continue;

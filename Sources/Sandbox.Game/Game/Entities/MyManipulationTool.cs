@@ -293,8 +293,6 @@ namespace Sandbox.Game.Entities
         public void OnControlReleased()
         {
             SyncTool.StopManipulation();
-
-            Owner = null;
         }
 
         public override void UpdateAfterSimulation()
@@ -592,7 +590,7 @@ namespace Sandbox.Game.Entities
 
         public void StopManipulation()
         {
-            if (m_state != MyState.NONE)
+            if (m_state != MyState.NONE && Owner != null)
             {
                 var characterMovementState = Owner.GetCurrentMovementState();
                 switch (characterMovementState)
@@ -622,9 +620,9 @@ namespace Sandbox.Game.Entities
                         Owner.PlayCharacterAnimation("Idle", true, MyPlayAnimationMode.Immediate | MyPlayAnimationMode.Play, 0.2f, 1f);
                         break;
                 }
-
-                m_state = MyState.NONE;
             }
+
+            m_state = MyState.NONE;
 
             if (m_constraint != null)
             {

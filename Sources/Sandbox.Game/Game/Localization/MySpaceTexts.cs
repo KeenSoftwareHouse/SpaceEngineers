@@ -10528,5 +10528,20 @@ namespace Sandbox.Game.Localization
         ///Target outside movement range
         ///</summary>
         public static readonly MyStringId LaserAntennaOutsideLimits = MyStringId.GetOrCompute("LaserAntennaOutsideLimits");
+
+        ///<summary>
+        ///Tonemapping
+        ///</summary>
+        public static readonly MyStringId ScreenGraphicsOptions_Tonemapping = MyStringId.GetOrCompute("ScreenGraphicsOptions_Tonemapping");
+
+        ///<summary>
+        ///Disable respawn ships
+        ///</summary>
+        public static readonly MyStringId WorldSettings_DisableRespawnShips = MyStringId.GetOrCompute("WorldSettings_DisableRespawnShips");
+
+        ///<summary>
+        ///Respawn in ships and suit is disabled. If no valid medical rooms exist, respawn won't be possible at all!
+        ///</summary>
+        public static readonly MyStringId ToolTipWorldSettings_DisableRespawnShips = MyStringId.GetOrCompute("ToolTipWorldSettings_DisableRespawnShips");
     }
 }
