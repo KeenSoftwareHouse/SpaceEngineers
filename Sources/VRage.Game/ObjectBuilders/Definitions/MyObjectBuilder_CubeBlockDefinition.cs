@@ -467,7 +467,7 @@ namespace Sandbox.Common.ObjectBuilders.Definitions
         public bool IsAirTight = false;
 
         [ProtoMember, DefaultValue(1)]
-        public int BattlePoints = 1;
+        public int Points = 1;
 
         [ProtoMember, DefaultValue(0)]
         public int MaxIntegrity = 0;

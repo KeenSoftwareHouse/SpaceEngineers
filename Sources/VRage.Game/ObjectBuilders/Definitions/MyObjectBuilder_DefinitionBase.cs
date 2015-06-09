@@ -28,5 +28,8 @@ namespace Sandbox.Common.ObjectBuilders.Definitions
 
         [ProtoMember, DefaultValue(true), XmlAttribute(AttributeName = "Enabled")]
         public bool Enabled = true;
+
+		[ProtoMember, DefaultValue(true)]
+		public bool AvailableInSurvival = true;
     }
 }

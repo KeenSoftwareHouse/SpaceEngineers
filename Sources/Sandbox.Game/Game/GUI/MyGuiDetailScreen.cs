@@ -82,7 +82,7 @@ namespace Sandbox.Game.Gui
 
         protected int GetNumberOfBattlePoints() 
         {
-            return (int)m_loadedPrefab.ShipBlueprints[0].BattlePoints;
+            return (int)m_loadedPrefab.ShipBlueprints[0].Points;
         }
 
         protected void RefreshTextField()
@@ -120,7 +120,7 @@ namespace Sandbox.Game.Gui
                 int battlePoints = GetNumberOfBattlePoints();
                 if (battlePoints != 0)
                 {
-                    m_textField.AppendText("Battle points: " + battlePoints);
+                    m_textField.AppendText("Castle siege points: " + battlePoints);
                     m_textField.AppendLine();
                 }
             }

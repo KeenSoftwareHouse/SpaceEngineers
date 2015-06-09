@@ -314,6 +314,12 @@ namespace Sandbox.Engine.Multiplayer
             set;
         }
 
+        public abstract ulong BattleWorldWorkshopId
+        {
+            get;
+            set;
+        }
+
         public abstract int BattleFaction1MaxBlueprintPoints
         {
             get;

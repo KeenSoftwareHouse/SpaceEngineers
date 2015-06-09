@@ -68,6 +68,8 @@ namespace Sandbox.Game.Screens.Helpers
 
         public override ChangeInfo Update(MyEntity owner, long playerID = 0)
         {
+            if (MyCubeBuilder.Static==null)
+                return ChangeInfo.None;
             var blockDefinition = MyCubeBuilder.Static.IsActivated ? MyCubeBuilder.Static.ToolbarBlockDefinition : null;
             WantsToBeSelected = (MyCubeBuilder.Static.BlockCreationIsActivated || MyCubeBuilder.Static.MultiBlockCreationIsActivated) && blockDefinition != null && blockDefinition.BlockPairName == (this.Definition as MyCubeBlockDefinition).BlockPairName;
             return ChangeInfo.None;

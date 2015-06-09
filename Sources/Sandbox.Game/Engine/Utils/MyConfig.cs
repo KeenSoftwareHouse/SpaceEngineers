@@ -83,6 +83,7 @@ namespace Sandbox.Engine.Utils
         readonly string ANTIALIASING_MODE = "AntialiasingMode";
         readonly string SHADOW_MAP_RESOLUTION = "ShadowMapResolution";
         readonly string MULTITHREADED_RENDERING = "MultithreadedRendering";
+        readonly string TONEMAPPING = "Tonemapping";
         readonly string TEXTURE_QUALITY = "TextureQuality";
         readonly string ANISOTROPIC_FILTERING = "AnisotropicFiltering";
         readonly string FOLIAGE_DETAILS = "FoliageDetails";
@@ -336,6 +337,18 @@ namespace Sandbox.Engine.Utils
                     SetParameterValue(MULTITHREADED_RENDERING, value.Value);
                 else
                     RemoveParameterValue(MULTITHREADED_RENDERING);
+            }
+        }
+
+        public bool? Tonemapping
+        {
+            get { return MyUtils.GetBoolFromString(GetParameterValue(TONEMAPPING)); }
+            set
+            {
+                if (value.HasValue)
+                    SetParameterValue(TONEMAPPING, value.Value);
+                else
+                    RemoveParameterValue(TONEMAPPING);
             }
         }
 

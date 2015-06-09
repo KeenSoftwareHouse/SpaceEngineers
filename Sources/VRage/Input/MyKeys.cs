@@ -4,55 +4,27 @@ using VRage.Utils;
 namespace VRage.Input
 {
     /// <summary>
-    /// Enumeration for virtual keys which also contains mouse buttons.
-    /// Some of them might not be usable in bindings, you need to check using IMyUserInput.IsKeyValid(key).
+    /// Enumeration for virtual keys.
     /// </summary>
     [DontCheck]
     [System.Reflection.Obfuscation(Feature = System.Reflection.Obfuscator.NoRename, Exclude = true)]
     public enum MyKeys : byte
     {
         None = 0x00, // Reserved for system use, never test whether it's pressed
-        /// <summary>
-        /// This is a mouse button.
-        /// </summary>
         LeftButton = 0x01,
-        /// <summary>
-        /// This is a mouse button.
-        /// </summary>
         RightButton = 0x02,
         Cancel = 0x03,
-        /// <summary>
-        /// This is a mouse button.
-        /// </summary>
         MiddleButton = 0x04,
-        /// <summary>
-        /// This is a mouse button.
-        /// </summary>
         ExtraButton1 = 0x05,
-        /// <summary>
-        /// This is a mouse button.
-        /// </summary>
         ExtraButton2 = 0x06,
         Back = 0x08,
         Tab = 0x09,
         Clear = 0x0C,
         Enter = 0x0D,
-        /// <summary>
-        /// Any shift key.
-        /// </summary>
         Shift = 0x10,
-        /// <summary>
-        /// Any ctrl key.
-        /// </summary>
         Control = 0x11,
-        /// <summary>
-        /// Any alt key.
-        /// </summary>
         Alt = 0x12,
         Pause = 0x13,
-        /// <summary>
-        /// Does not return the state, only when actually pressed.
-        /// </summary>
         CapsLock = 0x14,
         Kana = 0x15,
         Hangeul = 0x15,
@@ -162,13 +134,7 @@ namespace VRage.Input
         F22 = 0x85,
         F23 = 0x86,
         F24 = 0x87,
-        /// <summary>
-        /// Does not return the state, only when actually pressed.
-        /// </summary>
         NumLock = 0x90,
-        /// <summary>
-        /// Does not return the state, only when actually pressed.
-        /// </summary>
         ScrollLock = 0x91,
         NEC_Equal = 0x92,
         Fujitsu_Jisho = 0x92,

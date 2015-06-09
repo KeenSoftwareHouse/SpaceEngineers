@@ -110,12 +110,20 @@ namespace Sandbox.Game.Multiplayer
             MySyncLayer.RegisterMessage<SpawnGridMsg>(OnMessageSpawnGrid, MyMessagePermissions.Any, MyTransportMessageEnum.Request);
         }
 
+		public static void RequestEntityCreate(MyObjectBuilder_EntityBase entityBuilder)
+		{
+			var msg = new CreateMsg() { ObjectBuilder = entityBuilder, };
+			MySession.Static.SyncLayer.SendMessageToServer(ref msg, MyTransportMessageEnum.Request);
+		}
+
         static void OnMessage(ref CreateMsg msg, MyNetworkClient sender)
         {
             MySandboxGame.Log.WriteLine("CreateMsg: " + msg.ObjectBuilder.GetType().Name.ToString() + " EntityID: " + msg.ObjectBuilder.EntityId.ToString("X8"));
             MyEntities.CreateFromObjectBuilderAndAdd(msg.ObjectBuilder);
             MySandboxGame.Log.WriteLine("Status: Exists(" + MyEntities.EntityExists(msg.ObjectBuilder.EntityId) + ") InScene(" + ((msg.ObjectBuilder.PersistentFlags & MyPersistentEntityFlags2.InScene) == MyPersistentEntityFlags2.InScene) + ")");
-        }
+			if (Sync.IsServer)
+				MySession.Static.SyncLayer.SendMessageToAll(ref msg);
+		}
 
         static void OnMessageCompressed(ref CreateCompressedMsg msg, MyNetworkClient sender)
         {
