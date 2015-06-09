@@ -71,35 +71,6 @@ namespace VRage.Collections
             }
         }
 
-        public bool TryRead(TKey key, out TValue value)
-        {
-            using (m_lock.AcquireExclusiveUsing())
-            {
-                AssertConsistent();
-
-                try
-                {
-                    int cacheIndex;
-                    if (m_entryLookup.TryGetValue(key, out cacheIndex))
-                    {
-                        if (cacheIndex != m_first)
-                        {
-                            Remove(cacheIndex);
-                            AddFirst(cacheIndex);
-                        }
-                        value = m_cacheEntries[cacheIndex].Data;
-                        return true;
-                    }
-                    value = default(TValue);
-                    return false;
-                }
-                finally
-                {
-                    AssertConsistent();
-                }
-            }
-        }
-
         public void Write(TKey key, TValue value)
         {
             using (m_lock.AcquireExclusiveUsing())
@@ -117,11 +88,7 @@ namespace VRage.Collections
                     int swappedIndex = m_last;
 
                     RemoveLast();
-                    if (m_cacheEntries[swappedIndex].Key != null)
-                    {
-                        m_entryLookup.Remove(m_cacheEntries[swappedIndex].Key);
-                    }
-       
+                    m_entryLookup.Remove(m_cacheEntries[swappedIndex].Key);
 
                     m_cacheEntries[swappedIndex].Key = key;
                     m_cacheEntries[swappedIndex].Data = value;

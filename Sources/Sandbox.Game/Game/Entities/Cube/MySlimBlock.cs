@@ -37,7 +37,7 @@ namespace Sandbox.Game.Entities.Cube
         static Dictionary<string, int> m_tmpComponents = new Dictionary<string, int>();
         static List<MyStockpileItem> m_tmpItemList = new List<MyStockpileItem>();
         static List<Vector3I> m_tmpCubeNeighbours = new List<Vector3I>();
-        static LRUCache<MySlimBlock, float> m_maxDeformationCache = new LRUCache<MySlimBlock, float>(1024);
+        static Dictionary<MySlimBlock, float> m_maxDeformationCache = new Dictionary<MySlimBlock, float>();
 
         private float m_accumulatedDamage;
         public float AccumulatedDamage
@@ -201,10 +201,10 @@ namespace Sandbox.Game.Entities.Cube
             {
 
                 float maxDeformation;
-                if (!m_maxDeformationCache.TryRead(this, out maxDeformation))
+                if (!m_maxDeformationCache.TryGetValue(this, out maxDeformation))
                 {
                     maxDeformation = CubeGrid.Skeleton.MaxDeformation(Position, CubeGrid);
-                    m_maxDeformationCache.Write(this, maxDeformation);
+                    m_maxDeformationCache.Add(this, maxDeformation);
                 }
                 return maxDeformation;
             }
@@ -1666,7 +1666,7 @@ namespace Sandbox.Game.Entities.Cube
 
         public static void ClearMaxDeformationCache()
         {
-            m_maxDeformationCache.Reset();
+            m_maxDeformationCache.Clear();
         }
     }
 }
