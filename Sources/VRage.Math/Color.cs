@@ -13,7 +13,7 @@ namespace VRageMath
         [ProtoBuf.ProtoMember]
         private uint packedValue;
 
-        private static readonly Dictionary<String,Color> ColorsDictionary = new Dictionary<String, Color>()
+        private static readonly Dictionary<String,Color> ColorsDictionary = new Dictionary<String, Color>(StringComparer.CurrentCultureIgnoreCase)
         {
             {"AliceBlue",Color.AliceBlue},
             {"AntiqueWhite",Color.AntiqueWhite},
@@ -2104,12 +2104,9 @@ namespace VRageMath
         /// <returns>Returns the color wanted if exists otherwise returns black color</returns>
         public static Color FromName(string name)
         {
-            foreach (var color in ColorsDictionary)
+            if (ColorsDictionary.ContainsKey(name))
             {
-                if (String.Equals(color.Key, name, StringComparison.CurrentCultureIgnoreCase))
-                {
-                    return color.Value;
-                }
+                return ColorsDictionary[name];
             }
             return Color.Black;
         }
