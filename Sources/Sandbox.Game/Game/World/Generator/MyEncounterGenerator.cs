@@ -82,7 +82,7 @@ namespace Sandbox.Game.World.Generator
 
         public static bool PlaceEncounterToWorld(BoundingBoxD boundingVolume, int seed, MyAsteroidCellGenerator.MyObjectSeedType seedType)
         {
-            if (MySession.Static.Settings.EnableEncounters == false)
+            if (MySession.Static.Settings.EnableEncounters == false && MySession.Static.Settings.EnableHostileEncounters == false)
             {
                 return false;
             }
@@ -155,9 +155,19 @@ namespace Sandbox.Game.World.Generator
 
                 if (Sync.IsServer == true)
                 {
-                    for (int i = 0; i < m_randomEncounters.Count; ++i)
+                    if (MySession.Static.Settings.EnableHostileEncounters == false)
                     {
-                        SpawnEncouter(m_encountersId[i], m_placePositions[i], currentSpawnGroup, m_randomEncounters[i]);
+                        for (int i = 0; i < m_randomEncounters.Count; ++i)
+                        {
+                            SpawnEncouter(m_encountersId[i], m_placePositions[i], currentSpawnGroup, m_randomEncounters[i]);
+                        }
+                    }
+                    else
+                    {
+                        for (int i = 0; i < m_randomEncounters.Count; ++i)
+                        {
+                            SpawnEncouter(m_encountersId[i], m_placePositions[i], currentSpawnGroup, m_randomEncounters[i]);
+                        }
                     }
                 }
             }

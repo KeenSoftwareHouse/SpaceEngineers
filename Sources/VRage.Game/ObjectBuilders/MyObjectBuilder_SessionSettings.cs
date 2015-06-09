@@ -226,6 +226,11 @@ namespace Sandbox.Common.ObjectBuilders
         public bool EnableEncounters = true;
 
         [ProtoMember]
+        [Display(Name = "Enable hostile encounters")]
+        [GameRelationAttribute(Game.SpaceEngineers)]
+        public bool EnableHostileEncounters = false;
+
+        [ProtoMember]
         [GameRelationAttribute(Game.MedievalEngineers)]
         [Display(Name = "")]
         public bool Battle = false;
