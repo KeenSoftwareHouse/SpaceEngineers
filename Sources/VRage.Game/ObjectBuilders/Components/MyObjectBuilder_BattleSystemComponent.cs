@@ -11,7 +11,7 @@ namespace Sandbox.Common.ObjectBuilders
     public class MyObjectBuilder_BattleSystemComponent : MyObjectBuilder_SessionComponent
     {
         [ProtoMember]
-        public bool IsBattleMap;
+        public bool IsCastleSiegeMap;
 
         [ProtoMember]
         public ulong Points;

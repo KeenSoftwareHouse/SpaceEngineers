@@ -53,7 +53,7 @@ namespace Sandbox.Game.Entities
                 MyTrees trees = entity as MyTrees;
                 if (trees == null) continue;
 
-                trees.GetItemsInRadius(fromPosition, radius, m_tmpEnvItemList);
+                trees.GetPhysicalItemsInRadius(fromPosition, radius, m_tmpEnvItemList);
 
                 foreach (var tree in m_tmpEnvItemList)
                 {
@@ -91,7 +91,7 @@ namespace Sandbox.Game.Entities
                 if (trees == null) continue;
 
 				m_tmpEnvItemList.Clear();
-                trees.GetItemsInRadius(areaBoundingBox.Center, (float)areaBoundingBox.HalfExtents.Length(), m_tmpEnvItemList);
+                trees.GetPhysicalItemsInRadius(areaBoundingBox.Center, (float)areaBoundingBox.HalfExtents.Length(), m_tmpEnvItemList);
 
                 foreach (var tree in m_tmpEnvItemList)
                 {
@@ -470,7 +470,7 @@ namespace Sandbox.Game.Entities
                         continue;
 
                     m_tmpEnvItemList.Clear();
-                    trees.GetItemsInRadius(areaBoundingBox.Center, (float)areaBoundingBox.HalfExtents.Length(), m_tmpEnvItemList);
+                    trees.GetPhysicalItemsInRadius(areaBoundingBox.Center, (float)areaBoundingBox.HalfExtents.Length(), m_tmpEnvItemList);
                     foreach (var tree in m_tmpEnvItemList)
                     {
                         if (area.TestPoint(tree.Transform.Position))

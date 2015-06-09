@@ -687,6 +687,11 @@ namespace Sandbox.Game.Entities.Character
             CharacterWidth = m_characterDefinition.CharacterWidth;
 
             m_radioBroadcaster.WantsToBeEnabled = characterOb.EnableBroadcasting && Definition.VisibleOnHud;
+            if (MyFakes.ENABLE_BATTLE_SYSTEM && MySession.Static.Battle)
+            {
+                m_radioBroadcaster.Enabled = false;
+                m_radioBroadcaster.WantsToBeEnabled = false;
+            }
 
             Init(new StringBuilder(characterOb.DisplayName), m_characterDefinition.Model, null, null);
             Render.EnableColorMaskHsv = true;
@@ -2023,16 +2028,16 @@ namespace Sandbox.Game.Entities.Character
                 //We must take only closest hit (others are hidden behind)
                 var h = m_hits[index];
                 var entity = h.HkHitInfo.Body.GetEntity();
-                var block = entity as MyCubeBlock;
                 var interactive = entity as IMyUseObject;
 
                 // TODO: Uncomment to enforce that character must face object by front to activate it
                 //if (TestInteractionDirection(head.Forward, h.Position - GetPosition()))
                 //return;
 
-                if (block != null)
+                if (entity != null)
                 {
-                    var useObject = entity.Components.Get<MyUseObjectsComponentBase>();
+                    MyUseObjectsComponentBase useObject = null;
+                    entity.Components.TryGet<MyUseObjectsComponentBase>(out useObject);
                     if (useObject != null)
                     {
                         interactive = useObject.GetInteractiveObject(h.HkHitInfo.GetShapeKey(0));
@@ -2584,7 +2589,7 @@ namespace Sandbox.Game.Entities.Character
                 return;
 
             //if (!ControllerInfo.IsRemotelyControlled() || (Sync.IsServer && false))
-            if (ControllerInfo.IsLocallyControlled() && Physics.CharacterProxy != null || (MyFakes.CHARACTER_SERVER_SYNC))
+            if ((ControllerInfo.IsLocallyControlled() || MyFakes.CHARACTER_SERVER_SYNC) && Physics.CharacterProxy != null)
             {
                 if (CanFly())
                 {

@@ -140,21 +140,6 @@ namespace VRage.Input
             return pressed;
         }
 
-        public bool WasPressed()
-        {
-            if ((m_keyboardKey != MyKeys.None && MyInput.Static.WasKeyPressed(m_keyboardKey))
-            || (m_KeyboardKey2 != MyKeys.None && MyInput.Static.WasKeyPressed(m_KeyboardKey2))
-            || (m_mouseButton != MyMouseButtonsEnum.None && MyInput.Static.WasMousePressed(m_mouseButton))
-            //|| (m_joystickButton != MyJoystickButtonsEnum.None && MyInput.Static.WasJoystickButtonPressed(m_joystickButton))
-            //|| (m_joystickAxis != MyJoystickAxesEnum.None && MyInput.Static.WasJoystickAxisPressed(m_joystickAxis))
-            )
-            {
-                return true;
-            }
-
-            return false;
-        }
-
         public bool IsNewPressed()
         {
             bool pressed = false;
@@ -332,19 +317,23 @@ namespace VRage.Input
 
         public bool IsControlAssigned()
         {
-            return (m_keyboardKey != MyKeys.None || m_KeyboardKey2 != MyKeys.None || m_mouseButton != MyMouseButtonsEnum.None);
+            return (m_keyboardKey != MyKeys.None) ||
+                (m_mouseButton != MyMouseButtonsEnum.None);
         }
 
         public bool IsControlAssigned(MyGuiInputDeviceEnum deviceType)
         {
+            bool isAssigned = false;
             switch (deviceType)
             {
                 case MyGuiInputDeviceEnum.Keyboard:
-                    return m_keyboardKey != MyKeys.None || m_KeyboardKey2 != MyKeys.None;
+                    isAssigned = m_keyboardKey != MyKeys.None;
+                    break;
                 case MyGuiInputDeviceEnum.Mouse:
-                    return m_mouseButton != MyMouseButtonsEnum.None;
+                    isAssigned = m_mouseButton != MyMouseButtonsEnum.None;
+                    break;
             }
-            return false;
+            return isAssigned;
         }
 
         public void CopyFrom(MyControl other)

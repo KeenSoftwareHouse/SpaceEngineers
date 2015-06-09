@@ -423,10 +423,5 @@ namespace Sandbox.Game.World
             add { MySession.OnLoading += value; }
             remove { MySession.OnLoading -= value; }
         }
-
-        IMyUserInput IMySession.Input
-        {
-            get { return VRage.Input.MyInput.Static as IMyUserInput; }
-        }
     }
 }

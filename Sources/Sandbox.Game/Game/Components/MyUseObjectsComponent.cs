@@ -9,6 +9,7 @@ using VRage.Components;
 using VRage.Game.Entity.UseObject;
 using VRage.Import;
 using VRageMath;
+using System.Diagnostics;
 
 namespace Sandbox.Game.Components
 {
@@ -28,13 +29,14 @@ namespace Sandbox.Game.Components
 
         static readonly Vector3[] m_detectorVertices = new Vector3[BoundingBox.CornerCount];
         static readonly List<HkShape> m_shapes = new List<HkShape>();
-
+        
         private Dictionary<int, DetectorData> m_detectorInteractiveObjects = new Dictionary<int, DetectorData>();
 
         private MyPhysicsBody m_detectorPhysics;
         public override MyPhysicsComponentBase DetectorPhysics
         {
             get { return m_detectorPhysics; }
+            protected set { m_detectorPhysics = value as MyPhysicsBody; }
         }
 
         public override void LoadDetectorsFromModel()
@@ -87,7 +89,7 @@ namespace Sandbox.Game.Components
             return MyUseObjectFactory.CreateUseObject(detectorName, Container.Entity, dummyName, dummyData, shapeKey);
         }
 
-        private void AddDetector(string detectorName, string dummyName, MyModelDummy dummyData)
+        private int AddDetector(string detectorName, string dummyName, MyModelDummy dummyData)
         {
             List<Matrix> matrices;
             if (!m_detectors.TryGetValue(detectorName, out matrices))
@@ -103,14 +105,28 @@ namespace Sandbox.Game.Components
             {
                 m_detectorInteractiveObjects.Add(shapeKey, new DetectorData(interactiveObject, dummyData.Matrix));
             }
+
+            return shapeKey;
         }
 
-        public override void AddDetector(string name, Matrix dummyMatrix)
+        public override void RemoveDetector(int id)
+        {
+            if (!m_detectorInteractiveObjects.ContainsKey(id))
+            {
+                Debug.Assert(false, "Use object key not found");
+            }
+            else
+            {
+                m_detectorInteractiveObjects.Remove(id);
+            }
+        }
+
+        public override int AddDetector(string name, Matrix dummyMatrix)
         {
             var detectorName = name.ToLower();
             var dummyName = "detector_" + detectorName;
             MyModelDummy modelDummy = new MyModelDummy() { CustomData = null, Matrix = dummyMatrix };
-            AddDetector(detectorName, dummyName, modelDummy);
+            return AddDetector(detectorName, dummyName, modelDummy);
         }
 
         public override void RecreatePhysics()
@@ -163,13 +179,6 @@ namespace Sandbox.Game.Components
                 if (typeObj != null)
                     objects.Add(typeObj);
             }
-        }
-
-        public override void ClearPhysics()
-        {
-            base.ClearPhysics();
-
-            m_detectorPhysics = null;
         }
     }
 }

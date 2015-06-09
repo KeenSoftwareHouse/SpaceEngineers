@@ -85,6 +85,11 @@ namespace Sandbox.Game.Entities
             m_debugRenderers.Add(render);
         }
 
+        public void ClearDebugRenderComponents()
+        {
+            m_debugRenderers.Clear();
+        }
+
         //Rendering
         protected MyModel m_modelCollision;                       //  Collision model, used only for collisions
 
@@ -399,6 +404,11 @@ namespace Sandbox.Game.Entities
         #region Methods
 
         //public StackTrace CreationStack = new StackTrace(true);
+
+        public MyEntity()
+            : this(true)
+        {
+        }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="MyEntity"/> class.
@@ -828,6 +838,7 @@ namespace Sandbox.Game.Entities
             AddToGamePruningStructure();
             VRageRender.MyRenderProxy.GetRenderProfiler().EndProfilingBlock();
 
+            Components.OnAddedToScene();
 
             foreach (var child in Hierarchy.Children)
             {
@@ -854,6 +865,8 @@ namespace Sandbox.Game.Entities
                     child.Container.Entity.OnRemovedFromScene(source);
                 }
             }
+
+            Components.OnRemovedFromScene();
 
             MyEntities.UnregisterForUpdate(this);
             MyEntities.UnregisterForDraw(this);
@@ -899,6 +912,8 @@ namespace Sandbox.Game.Entities
         public virtual void Init(MyObjectBuilder_EntityBase objectBuilder)
         {
             ProfilerShort.Begin("MyEntity.Init(objectBuilder)");
+            MarkedForClose = false;
+            Closed = false;
             this.Render.PersistentFlags = MyPersistentEntityFlags2.CastShadows;
             if (objectBuilder != null)
             {
@@ -971,6 +986,8 @@ namespace Sandbox.Game.Entities
                          string modelCollision = null)
         {
             ProfilerShort.Begin("MyEntity.Init(...models...)");
+            MarkedForClose = false;
+            Closed = false;
             this.Render.PersistentFlags = MyPersistentEntityFlags2.CastShadows;
             this.DisplayName = displayName != null ? displayName.ToString() : null;
 
@@ -1134,6 +1151,8 @@ namespace Sandbox.Game.Entities
             CallAndClearOnClose();
 
 			Components.Clear();
+
+            ClearDebugRenderComponents();
 
             Closed = true;
         }

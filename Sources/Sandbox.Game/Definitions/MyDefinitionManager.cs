@@ -581,7 +581,7 @@ namespace Sandbox.Definitions
 
             if (objBuilder.ControllerSchemas != null)
             {
-                MySandboxGame.Log.WriteLine("Loading cutting definitions");
+                MySandboxGame.Log.WriteLine("Loading controller schemas definitions");
                 InitControllerSchemas(context, definitionSet.m_definitionsById, objBuilder.ControllerSchemas, failOnDebug);
             }
 
@@ -609,6 +609,13 @@ namespace Sandbox.Definitions
                 MySandboxGame.Log.WriteLine("Loading decal definitions");
                 Check(failOnDebug, "Decals", failOnDebug, WARNING_ON_REDEFINITION_MESSAGE);
                 InitDecals(context, objBuilder.Decals, failOnDebug);
+            }
+
+            if (objBuilder.FloraElements != null)
+            {
+                MySandboxGame.Log.WriteLine("Loading flora elements definitions");
+                Check(failOnDebug, "Flora", failOnDebug, WARNING_ON_REDEFINITION_MESSAGE);
+                InitGenericObjects(context, definitionSet.m_definitionsById, objBuilder.FloraElements, failOnDebug);
             }
         }
 

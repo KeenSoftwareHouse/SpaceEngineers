@@ -142,10 +142,13 @@ namespace Sandbox.Game.GameSystems
         {
             base.UpdateBeforeSimulation();
 
-            if (!MySession.IsScenario)
+            if (!MySession.Static.IsScenario)
                 return;
 
             if (!Sync.IsServer)
+                return;
+
+            if (!Sync.MultiplayerActive)
                 return;
 
             switch (m_gameState)
@@ -229,9 +232,6 @@ namespace Sandbox.Game.GameSystems
             var onlineMode = GetOnlineModeFromCurrentLobbyType();
             if (onlineMode == MyOnlineModeEnum.FRIENDS || onlineMode == MyOnlineModeEnum.PUBLIC)
             {
-                // Set battle started to lobby so the game will not be displayed in join games table.
-                //MyMultiplayer.Static.BattleStarted = true;
-
                 m_waitingScreen = new MyGuiScreenScenarioWaitForPlayers();
                 MyGuiSandbox.AddScreen(m_waitingScreen);
 
@@ -249,7 +249,6 @@ namespace Sandbox.Game.GameSystems
         {
             if (Sync.IsServer)
             {
-                //MyMultiplayer.Static.BattleStarted = true;
                 ServerStartGameTime = DateTime.UtcNow;
             }
             if (m_waitingScreen != null)
@@ -259,6 +258,7 @@ namespace Sandbox.Game.GameSystems
             }
             m_gameState = MyState.Running;
             m_startBattleTime = MySession.Static.ElapsedPlayTime;
+            MyPlayerCollection.RequestLocalRespawn();
         }
 
         internal static MyOnlineModeEnum GetOnlineModeFromCurrentLobbyType()
