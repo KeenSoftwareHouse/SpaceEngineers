@@ -16,6 +16,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using VRage;
+using VRage.Collections;
 using VRage.Library.Utils;
 using VRage.ObjectBuilders;
 using VRage.Utils;
@@ -36,6 +37,7 @@ namespace Sandbox.Game.Entities.Cube
         static Dictionary<string, int> m_tmpComponents = new Dictionary<string, int>();
         static List<MyStockpileItem> m_tmpItemList = new List<MyStockpileItem>();
         static List<Vector3I> m_tmpCubeNeighbours = new List<Vector3I>();
+        static LRUCache<MySlimBlock, float> m_maxDeformationCache = new LRUCache<MySlimBlock, float>(1024);
 
         private float m_accumulatedDamage;
         public float AccumulatedDamage
@@ -193,19 +195,18 @@ namespace Sandbox.Game.Entities.Cube
                 return CubeGrid.Skeleton.IsDeformed(Position, 0.0f, CubeGrid, true);
             }
         }
-        private int m_lastTotalFrames = 0;
-        private float m_maxDeformation = 0;
         public float MaxDeformation
         {
             get
             {
 
-                if (m_lastTotalFrames != MySandboxGame.Static.TotalFrames)
+                float maxDeformation;
+                if (!m_maxDeformationCache.TryRead(this, out maxDeformation))
                 {
-                    m_lastTotalFrames = MySandboxGame.Static.TotalFrames;
-                    m_maxDeformation = CubeGrid.Skeleton.MaxDeformation(Position, CubeGrid);
+                    maxDeformation = CubeGrid.Skeleton.MaxDeformation(Position, CubeGrid);
+                    m_maxDeformationCache.Write(this, maxDeformation);
                 }
-                return m_maxDeformation;
+                return maxDeformation;
             }
         }
 
@@ -1662,5 +1663,10 @@ namespace Sandbox.Game.Entities.Cube
 				}
 			}
 		}
+
+        public static void ClearMaxDeformationCache()
+        {
+            m_maxDeformationCache.Reset();
+        }
     }
 }
