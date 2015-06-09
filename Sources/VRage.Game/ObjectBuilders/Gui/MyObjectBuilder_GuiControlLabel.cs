@@ -9,6 +9,7 @@ namespace Sandbox.Common
     {
         Debug, // First font will be used as debug by engine, so we put Debug font here.
         Red,
+        Yellow,
         Green,
         Blue,
         White,
