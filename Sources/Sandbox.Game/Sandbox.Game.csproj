@@ -140,6 +140,7 @@
     <Compile Include="Definitions\MyAgentDefinition.cs" />
     <Compile Include="Definitions\MyAiCommandDefinition.cs" />
     <Compile Include="Definitions\MyBotDefinition.cs" />
+    <Compile Include="Definitions\MyShieldBlockDefinition.cs" />
     <Compile Include="Definitions\MyTextPanelDefinition.cs" />
     <Compile Include="Definitions\MyLCDTextureDefinition.cs" />
     <Compile Include="Definitions\BehaviorTree\MyBehaviorDefinition.cs" />
@@ -500,6 +501,7 @@
     <Compile Include="Engine\Voxels\MyVoxelVertex.cs" />
     <Compile Include="Game\Entities\MyPlaceAreas.cs" />
     <Compile Include="Game\Entities\MyPlaceArea.cs" />
+    <Compile Include="Game\Entities\Blocks\MyShieldBlock.cs" />
     <Compile Include="Game\Entities\MySolarGameLogicComponent.cs" />
     <Compile Include="Game\Entities\MySpherePlaceArea.cs" />
     <Compile Include="Game\Entities\MyUpgradableBlockComponent.cs" />

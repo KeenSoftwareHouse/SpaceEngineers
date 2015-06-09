@@ -159,6 +159,7 @@
     <Compile Include="ModAPI\IMyProductionBlock.cs" />
     <Compile Include="ModAPI\IMyReactor.cs" />
     <Compile Include="ModAPI\IMySensorBlock.cs" />
+    <Compile Include="ModAPI\IMyShieldBlock.cs" />
     <Compile Include="ModAPI\IMyShipDrill.cs" />
     <Compile Include="ModAPI\IMySpaceBall.cs" />
     <Compile Include="ModAPI\IMyTerminalBlock.cs" />
@@ -211,6 +212,7 @@
     <Compile Include="ModAPI\Ingame\IMyRefinery.cs" />
     <Compile Include="ModAPI\Ingame\IMyReflectorLight.cs" />
     <Compile Include="ModAPI\Ingame\IMyRemoteControl.cs" />
+    <Compile Include="ModAPI\Ingame\IMyShieldBlock.cs" />
     <Compile Include="ModAPI\Ingame\IMyShipConnector.cs" />
     <Compile Include="ModAPI\Ingame\IMyShipController.cs" />
     <Compile Include="ModAPI\Ingame\IMyShipDrill.cs" />

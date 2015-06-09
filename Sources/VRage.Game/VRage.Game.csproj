@@ -232,6 +232,7 @@
     <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_ScenarioDefinition.cs" />
     <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_ScenarioDefinitions.cs" />
     <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_SensorBlockDefinition.cs" />
+    <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_ShieldBlockDefinition.cs" />
     <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_ShipBlueprintDefinition.cs" />
     <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_ShipControllerDefinition.cs" />
     <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_ShipDrillDefinition.cs" />
@@ -408,6 +409,7 @@
     <Compile Include="ObjectBuilders\MyObjectBuilder_SensorBlock.cs" />
     <Compile Include="ObjectBuilders\MyObjectBuilder_SessionComponentMission.cs" />
     <Compile Include="ObjectBuilders\MyObjectBuilder_SessionSettings.cs" />
+    <Compile Include="ObjectBuilders\MyObjectBuilder_ShieldBlock.cs" />
     <Compile Include="ObjectBuilders\MyObjectBuilder_ShipConnector.cs" />
     <Compile Include="ObjectBuilders\MyObjectBuilder_ShipController.cs" />
     <Compile Include="ObjectBuilders\MyObjectBuilder_ShipGrinder.cs" />

@@ -6313,6 +6313,15 @@ To connect to lasers not listed here you can connect to coordinates.</value>
   <data name="DisplayName_Item_ScrapIngot" xml:space="preserve">
     <value>Old Scrap Metal</value>
   </data>
+  <data name="BlockPropertiesText_MaxShieldCapacity" xml:space="preserve">
+    <value>Max Shield Capacity:</value>
+  </data>
+  <data name="BlockPropertiesText_ShieldCapacity" xml:space="preserve">
+    <value>Shield Capacity:</value>
+  </data>
+  <data name="ShieldBlock" xml:space="preserve">
+    <value>Shield</value>
+  </data>
   <data name="BlockActionTitle_AddWaypoint" xml:space="preserve">
     <value>Add</value>
   </data>

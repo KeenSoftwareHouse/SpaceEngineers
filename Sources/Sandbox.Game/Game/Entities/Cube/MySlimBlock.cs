@@ -944,7 +944,7 @@ namespace Sandbox.Game.Entities.Cube
 
             MySession.Static.NegativeIntegrityTotal += damage;
 
-            AccumulatedDamage += damage;
+            AccumulatedDamage += Sandbox.Game.Entities.Blocks.MyShieldBlock.DoDamage( damage,damageType,this);
             if (m_componentStack.Integrity - AccumulatedDamage <= MyComponentStack.MOUNT_THRESHOLD)
             {
                 if (MyPerGameSettings.Destruction && hitInfo.HasValue)

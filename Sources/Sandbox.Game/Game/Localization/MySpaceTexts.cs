@@ -10190,6 +10190,21 @@ namespace Sandbox.Game.Localization
         public static readonly MyStringId DisplayName_Item_ScrapIngot = MyStringId.GetOrCompute("DisplayName_Item_ScrapIngot");
 
         ///<summary>
+        ///Max Shield Capacity:
+        ///</summary>
+        public static readonly MyStringId BlockPropertiesText_MaxShieldCapacity = MyStringId.GetOrCompute("BlockPropertiesText_MaxShieldCapacity");
+
+        ///<summary>
+        ///Shield Capacity:
+        ///</summary>
+        public static readonly MyStringId BlockPropertiesText_ShieldCapacity = MyStringId.GetOrCompute("BlockPropertiesText_ShieldCapacity");
+
+        ///<summary>
+        ///Shield
+        ///</summary>
+        public static readonly MyStringId ShieldBlock = MyStringId.GetOrCompute("ShieldBlock");
+
+        ///<summary>
         ///Add
         ///</summary>
         public static readonly MyStringId BlockActionTitle_AddWaypoint = MyStringId.GetOrCompute("BlockActionTitle_AddWaypoint");
