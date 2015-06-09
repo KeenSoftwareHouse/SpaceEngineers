@@ -412,6 +412,11 @@ namespace Sandbox.Game.World
             get { return MySession.Static.Gpss; }
         }
 
+        IMyUserInput IMySession.Input
+        {
+            get { return VRage.Input.MyInput.Static as IMyUserInput; }
+        }
+		
         event Action IMySession.OnSessionReady
         {
             add { MySession.OnReady += value; }
@@ -422,6 +427,19 @@ namespace Sandbox.Game.World
         {
             add { MySession.OnLoading += value; }
             remove { MySession.OnLoading -= value; }
+        }
+
+        event Action<Sandbox.Common.MyUpdateOrder, Sandbox.Common.MySessionComponentBase> IMySession.OnComponentUpdateStart
+        {
+            add { MySession.OnComponentUpdateStarting += value; }
+            remove { MySession.OnComponentUpdateStarting -= value; }
+        }
+
+        event Action<Sandbox.Common.MyUpdateOrder, Sandbox.Common.MySessionComponentBase> IMySession.OnComponentUpdateEnd
+        {
+            add { MySession.OnComponentUpdateEnding += value; }
+            remove { MySession.OnComponentUpdateEnding -= value; }
+
         }
     }
 }

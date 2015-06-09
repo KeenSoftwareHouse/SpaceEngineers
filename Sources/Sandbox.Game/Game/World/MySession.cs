@@ -317,6 +317,10 @@ namespace Sandbox.Game.World
 
         public static event Action OnReady;
 
+        public static event Action<Sandbox.Common.MyUpdateOrder, MySessionComponentBase> OnComponentUpdateStarting;
+
+        public static event Action<Sandbox.Common.MyUpdateOrder, MySessionComponentBase> OnComponentUpdateEnding;
+
         public MyEnvironmentHostilityEnum? PreviousEnvironmentHostility { get; set; }
 
         #endregion
@@ -735,12 +739,18 @@ namespace Sandbox.Game.World
             {
                 foreach (var component in components)
                 {
+                    if (OnComponentUpdateStarting != null)
+                        OnComponentUpdateStarting(MyUpdateOrder.BeforeSimulation, component);
+
                     ProfilerShort.Begin(component.ToString());
                     if (component.UpdatedBeforeInit() || MySandboxGame.IsGameReady)
                     {
                         component.UpdateBeforeSimulation();
                     }
                     ProfilerShort.End();
+
+                    if (OnComponentUpdateEnding != null)
+                        OnComponentUpdateEnding(MyUpdateOrder.BeforeSimulation, component);
                 }
             }
             ProfilerShort.End();
@@ -750,12 +760,18 @@ namespace Sandbox.Game.World
             {
                 foreach (var component in components)
                 {
+                    if (OnComponentUpdateStarting != null)
+                        OnComponentUpdateStarting(MyUpdateOrder.Simulation, component);
+
                     ProfilerShort.Begin(component.ToString());
                     if (component.UpdatedBeforeInit() || MySandboxGame.IsGameReady)
                     {
                         component.Simulate();
                     }
                     ProfilerShort.End();
+
+                    if (OnComponentUpdateEnding != null)
+                        OnComponentUpdateEnding(MyUpdateOrder.Simulation, component);
                 }
             }
             ProfilerShort.End();
@@ -765,12 +781,19 @@ namespace Sandbox.Game.World
             {
                 foreach (var component in components)
                 {
+                    if (OnComponentUpdateStarting != null)
+                        OnComponentUpdateStarting(MyUpdateOrder.AfterSimulation, component);
+
                     ProfilerShort.Begin(component.ToString());
                     if (component.UpdatedBeforeInit() || MySandboxGame.IsGameReady)
                     {
                         component.UpdateAfterSimulation();
                     }
                     ProfilerShort.End();
+
+                    if (OnComponentUpdateEnding != null)
+                        OnComponentUpdateEnding(MyUpdateOrder.AfterSimulation, component);
+
                 }
             }
             ProfilerShort.End();
