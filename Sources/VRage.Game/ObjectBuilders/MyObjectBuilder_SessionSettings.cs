@@ -228,7 +228,7 @@ namespace Sandbox.Common.ObjectBuilders
         [ProtoMember]
         [Display(Name = "Enable hostile encounters")]
         [GameRelationAttribute(Game.SpaceEngineers)]
-        public bool EnableHostileEncounters = false;
+        public bool EnableHostileEncounters = true;
 
         [ProtoMember]
         [GameRelationAttribute(Game.MedievalEngineers)]

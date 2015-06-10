@@ -17,6 +17,7 @@ namespace Sandbox.ModAPI
         TurnOffReactors = 1 << 5,
         DisableSave = 1 << 6,
         UseGridOrigin = 1 << 7,
+        HostileEncounter = 1 << 8,
     }
     
     public interface IMyPrefabManager
