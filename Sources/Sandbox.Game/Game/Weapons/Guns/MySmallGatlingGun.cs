@@ -148,6 +148,9 @@ namespace Sandbox.Game.Weapons
 
             m_ammoInventory.ContentsChanged += AmmoInventory_ContentsChanged;
 
+            if (MySession.Static.Settings.EnableInventoryMass)
+                m_ammoInventory.ContentsChanged += Inventory_ContentsChanged;
+
             GetBarrelAndMuzzle();
             //if (m_ammoPerShotConsumption == 0)
             //    m_ammoPerShotConsumption = (MyFixedPoint)((45.0f / (1000.0f / MyGatlingConstants.SHOT_INTERVAL_IN_MILISECONDS)) / m_gunBase.WeaponProperties.AmmoMagazineDefinition.Capacity);
@@ -157,6 +160,20 @@ namespace Sandbox.Game.Weapons
             PowerReceiver.IsPoweredChanged += Receiver_IsPoweredChanged;
             PowerReceiver.Update();
             AddDebugRenderComponent(new MyDebugRenderComponentDrawPowerReciever(PowerReceiver, this));
+        }
+
+        void Inventory_ContentsChanged(MyInventory obj)
+        {
+            CubeGrid.SetInventoryMassDirty();
+        }
+
+        internal override float GetMass()
+        {
+            var mass = base.GetMass();
+            if (MySession.Static.Settings.EnableInventoryMass)
+                return mass + (float)m_ammoInventory.CurrentMass;
+            else
+                return mass;
         }
 
         private void Receiver_IsPoweredChanged()

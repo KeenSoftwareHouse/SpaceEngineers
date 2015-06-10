@@ -6511,6 +6511,9 @@ To connect to lasers not listed here you can connect to coordinates.</value>
   <data name="WorldSettings_GameScenario" xml:space="preserve">
     <value>Scenario</value>
   </data>
+  <data name="WorldSettings_InventoryMass" xml:space="preserve">
+    <value>Enable inventory mass</value>
+  </data>
   <data name="Notification_CockpitIsDamaged" xml:space="preserve">
     <value>Cockpit is damaged</value>
   </data>
