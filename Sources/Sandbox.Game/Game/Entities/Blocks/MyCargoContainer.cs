@@ -75,7 +75,7 @@ namespace Sandbox.Game.Entities
             {
                 m_inventory.Init(cargoBuilder.Inventory);
             }
-            if(MyPerGameSettings.InventoryMass)
+            if(MySession.Static.Settings.EnableInventoryMass)
                 m_inventory.ContentsChanged += Inventory_ContentsChanged;
 
             m_conveyorEndpoint = new MyMultilineConveyorEndpoint(this);
@@ -104,7 +104,7 @@ namespace Sandbox.Game.Entities
         internal override float GetMass()
         {
             var mass = base.GetMass();
-            if (MyPerGameSettings.InventoryMass)
+            if (MySession.Static.Settings.EnableInventoryMass)
                 return mass + (float)m_inventory.CurrentMass;
             else 
                 return mass;

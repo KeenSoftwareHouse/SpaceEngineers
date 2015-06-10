@@ -56,7 +56,7 @@ namespace Sandbox.Game.Gui
         MyGuiControlCombobox m_onlineMode, m_environment, m_worldSizeCombo, m_soundModeCombo, m_spawnShipTimeCombo, m_viewDistanceCombo, m_physicsOptionsCombo;
         MyGuiControlCheckbox m_autoHealing, m_clientCanSave, m_enableCopyPaste, m_weaponsEnabled, m_showPlayerNamesOnHud, m_thrusterDamage, m_cargoShipsEnabled, m_enableSpectator,
                              m_trashRemoval, m_respawnShipDelete, m_resetOwnership, m_permanentDeath, m_destructibleBlocks, m_enableIngameScripts, m_enableToolShake, m_enableOxygen,
-                             m_enable3rdPersonCamera, m_enableEncounters, m_disableRespawnShips;
+                             m_enable3rdPersonCamera, m_enableEncounters, m_disableRespawnShips,m_enableInventoryMass;
 
         MyGuiControlButton m_okButton, m_cancelButton, m_survivalModeButton, m_creativeModeButton, m_inventory_x1, m_inventory_x3, m_inventory_x10;
         MyGuiControlButton m_assembler_x1, m_assembler_x3, m_assembler_x10,
@@ -174,6 +174,7 @@ namespace Sandbox.Game.Gui
             var spawnShipTimeLabel = MakeLabel(MySpaceTexts.WorldSettings_RespawnShipCooldown);
             var viewDistanceLabel = MakeLabel(MySpaceTexts.WorldSettings_ViewDistance);
             var physicsOptionLabel = MakeLabel(MySpaceTexts.WorldSettings_Physics);
+            var enableInventoryMassLabel = MakeLabel(MySpaceTexts.WorldSettings_InventoryMass);
 
             float width = 0.284375f + 0.025f;
 
@@ -190,6 +191,7 @@ namespace Sandbox.Game.Gui
             m_enableIngameScripts = new MyGuiControlCheckbox();
             m_enable3rdPersonCamera = new MyGuiControlCheckbox();
             m_enableEncounters = new MyGuiControlCheckbox();
+            m_enableInventoryMass = new MyGuiControlCheckbox();
             m_disableRespawnShips = new MyGuiControlCheckbox();
             m_enableToolShake = new MyGuiControlCheckbox();
             m_enableOxygen = new MyGuiControlCheckbox();
@@ -457,6 +459,9 @@ namespace Sandbox.Game.Gui
             parent.Controls.Add(respawnShipDeleteLabel);
             parent.Controls.Add(m_respawnShipDelete);
 
+            parent.Controls.Add(enableInventoryMassLabel);
+            parent.Controls.Add(m_enableInventoryMass);
+
             float labelSize = 0.21f;
 
             float MARGIN_TOP = 0.03f;
@@ -508,6 +513,7 @@ namespace Sandbox.Game.Gui
             showPlayerNamesOnHudLabel.Position = new Vector2(rightColumnOffset - labelSize / 2, m_enableCopyPasteLabel.Position.Y);
             m_showPlayerNamesOnHud.Position = new Vector2(rightColumnOffset + labelSize / 2, m_enableCopyPasteLabel.Position.Y);
 
+
             thrusterDamageLabel.Position = new Vector2(rightColumnOffset - labelSize / 2, clientCanSaveLabel.Position.Y);
             m_thrusterDamage.Position = new Vector2(rightColumnOffset + labelSize / 2, clientCanSaveLabel.Position.Y);
 
@@ -518,7 +524,11 @@ namespace Sandbox.Game.Gui
             enable3rdPersonCameraLabel.Position = new Vector2(rightColumnOffset - labelSize / 2, m_enableOxygen.Position.Y);
             m_enable3rdPersonCamera.Position = new Vector2(rightColumnOffset + labelSize / 2, m_enableOxygen.Position.Y);
 
-         
+
+			enableInventoryMassLabel.Position = new Vector2(rightColumnOffset - labelSize / 2, disableRespawnShipsLabel.Position.Y);
+            m_enableInventoryMass.Position = new Vector2(rightColumnOffset - labelSize / 2, m_disableRespawnShips.Position.Y);
+
+
 
             if (MyFakes.ENABLE_CARGO_SHIPS)
             {
@@ -842,6 +852,7 @@ namespace Sandbox.Game.Gui
                 output.VoxelGeneratorVersion = MyVoxelConstants.VOXEL_GENERATOR_MIN_ICE_VERSION;
             }
             output.RespawnShipDelete = m_respawnShipDelete.IsChecked;
+            output.EnableInventoryMass = m_enableInventoryMass.IsChecked;
             output.DisableRespawnShips = m_disableRespawnShips.IsChecked;
 
             output.MaxPlayers = (short)m_maxPlayersSlider.Value;
@@ -894,6 +905,7 @@ namespace Sandbox.Game.Gui
             m_weaponsEnabled.IsChecked = settings.WeaponsEnabled;
             m_trashRemoval.IsChecked = settings.RemoveTrash;
             m_enableOxygen.IsChecked = settings.EnableOxygen;
+            m_enableInventoryMass.IsChecked = settings.EnableInventoryMass;
             if (settings.VoxelGeneratorVersion < MyVoxelConstants.VOXEL_GENERATOR_MIN_ICE_VERSION)
             {
                 m_showWarningForOxygen = true;

@@ -65,6 +65,8 @@ namespace Sandbox.Game.Entities.Blocks
             m_inventory = new MyInventory(def.InventorySize.Volume, def.InventorySize, MyInventoryFlags.CanSend, this);
             m_inventory.Init(ob.Inventory);
             m_inventory.ContentsChanged += Inventory_ContentChangedCallback;
+			if (MySession.Static.Settings.EnableInventoryMass)
+				m_inventory.ContentsChanged += Inventory_ContentsChanged;
             if (Sync.IsServer && CubeGrid.CreatePhysics)
                 LoadDummies();
             PowerReceiver = new MyPowerReceiver(
@@ -80,6 +82,20 @@ namespace Sandbox.Game.Entities.Blocks
             base.EnabledChanged += UpdateReceiver;
 
             m_useConveyorSystem = ob.UseConveyorSystem;
+        }
+		
+		void Inventory_ContentsChanged(MyInventory obj)
+        {
+            CubeGrid.SetInventoryMassDirty();
+        }
+
+        internal override float GetMass()
+        {
+            var mass = base.GetMass();
+            if (MySession.Static.Settings.EnableInventoryMass)
+                return mass + (float)m_inventory.CurrentMass;
+            else
+                return mass;
         }
 
         void UpdateReceiver(MyTerminalBlock block)

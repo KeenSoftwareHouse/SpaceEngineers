@@ -243,6 +243,10 @@ namespace Sandbox.Common.ObjectBuilders
         [ProtoMember]
         public int PhysicsIterations = 4;
 
+        [ProtoMember]
+        [Display(Name = "Enable inventory mass")]
+        [GameRelationAttribute(Game.SpaceEngineers)]
+        public bool EnableInventoryMass = false;
 
         public void LogMembers(MyLog log, LoggingOptions options)
         {
