@@ -121,8 +121,6 @@
     <Compile Include="Components\MyIngameScript.cs" />
     <Compile Include="Components\MySessionComponentBase.cs" />
     <Compile Include="Components\MySessionComponentMapping.cs" />
-    <Compile Include="Components\MySyncComponentBase.cs" />
-    <Compile Include="ModAPI\IMyUpgradableBlock.cs" />
     <Compile Include="ModAPI\IMyCamera.cs" />
     <Compile Include="ModAPI\IMyConfig.cs" />
     <Compile Include="ModAPI\IMyGps.cs" />
@@ -236,7 +234,6 @@
     <Compile Include="ModAPI\Ingame\IMyWarhead.cs" />
     <Compile Include="ModAPI\IMyButtonPanel.cs" />
     <Compile Include="ModAPI\IMyShipMergeBlock.cs" />
-    <Compile Include="ModAPI\Ingame\IMyUpgradeModuleInfo.cs" />
     <Compile Include="ModAPI\Ingame\PistonStatus.cs" />
     <Compile Include="ModAPI\Ingame\MyGridProgram.cs" />
     <Compile Include="ModAPI\Ingame\TerminalActionParameter.cs" />

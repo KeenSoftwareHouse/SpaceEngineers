@@ -513,12 +513,13 @@ namespace Sandbox.Game.Gui
             showPlayerNamesOnHudLabel.Position = new Vector2(rightColumnOffset - labelSize / 2, m_enableCopyPasteLabel.Position.Y);
             m_showPlayerNamesOnHud.Position = new Vector2(rightColumnOffset + labelSize / 2, m_enableCopyPasteLabel.Position.Y);
 
+
             thrusterDamageLabel.Position = new Vector2(rightColumnOffset - labelSize / 2, clientCanSaveLabel.Position.Y);
             m_thrusterDamage.Position = new Vector2(rightColumnOffset + labelSize / 2, clientCanSaveLabel.Position.Y);
 
             enableIngameScriptsLabel.Position = new Vector2(rightColumnOffset - labelSize / 2, trashRemovalLabel.Position.Y);
             m_enableIngameScripts.Position = new Vector2(rightColumnOffset + labelSize / 2, m_trashRemoval.Position.Y);
-			
+
 
             enable3rdPersonCameraLabel.Position = new Vector2(rightColumnOffset - labelSize / 2, m_enableOxygen.Position.Y);
             m_enable3rdPersonCamera.Position = new Vector2(rightColumnOffset + labelSize / 2, m_enableOxygen.Position.Y);
