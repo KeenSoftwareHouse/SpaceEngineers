@@ -230,10 +230,19 @@ namespace Sandbox.Common.ObjectBuilders
         [GameRelationAttribute(Game.SpaceEngineers)]
         public bool EnableHostileEncounters = true;
 
+        [Display(Name = "Desable respawn ships")]
+        [GameRelationAttribute(Game.SpaceEngineers)]
+        public bool DisableRespawnShips = false;
+
         [ProtoMember]
         [GameRelationAttribute(Game.MedievalEngineers)]
         [Display(Name = "")]
         public bool Battle = false;
+
+        [ProtoMember]
+        [Display(Name = "Scenario")]
+        [GameRelationAttribute(Game.SpaceEngineers)]
+        public bool Scenario = false;
 
         [ProtoMember]
         public int PhysicsIterations = 4;
