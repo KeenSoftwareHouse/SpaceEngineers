@@ -525,7 +525,8 @@ namespace Sandbox.Game.Gui
 			
 			
 			enableInventoryMassLabel.Position = new Vector2(rightColumnOffset - labelSize / 2, disableRespawnShipsLabel.Position.Y);
-            m_enableInventoryMass.Position = new Vector2(rightColumnOffset - labelSize / 2, m_disableRespawnShips.Position.Y);
+            m_enableInventoryMass.Position = new Vector2(rightColumnOffset + labelSize / 2, m_disableRespawnShips.Position.Y);
+            m_enableInventoryMass.OriginAlign = MyGuiDrawAlignEnum.HORISONTAL_CENTER_AND_VERTICAL_CENTER;
 
          
 
