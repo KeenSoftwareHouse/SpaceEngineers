@@ -15,5 +15,12 @@ namespace Sandbox.Common.ObjectBuilders
 
         [ProtoMember]
         public bool IsCountingDown = false;
+
+        public override void SetupForProjector()
+        {
+            base.SetupForProjector();
+            IsCountingDown = false;
+            IsArmed = false;
+        }
     }
 }
