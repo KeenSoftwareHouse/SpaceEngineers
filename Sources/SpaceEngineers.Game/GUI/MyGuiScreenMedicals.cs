@@ -153,9 +153,11 @@ namespace SpaceEngineers.Game.GUI
             m_respawnsTable.Clear();
 
             RefreshMedicalRooms();
-            RefreshSpawnShips();
-
-            AddRespawnInSuit();
+            if (!MySession.Static.Settings.DisableRespawnShips)
+            {
+                RefreshSpawnShips();
+                AddRespawnInSuit();
+            }
 
             if (m_respawnsTable.RowsCount > 0)
             {
@@ -317,6 +319,8 @@ namespace SpaceEngineers.Game.GUI
                     RespawnShipImmediately(m_selectedRespawnShip.Id.SubtypeName);
             }
 
+            if (m_respawnsTable.RowsCount==0)
+                RefreshRespawnPoints();//because medical rooms are not powered when the map starts
             return retval;
         }
 

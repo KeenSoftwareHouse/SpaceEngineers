@@ -111,7 +111,7 @@ void write_shadow(
     	result /= PoissonSamplesNum;
     }
     else {
-    	result = CSM.SampleCmpLevelZero(ShadowmapSampler, float3(lpos.xy, c_id), lpos.z);
+    	result = CSM.SampleCmpLevelZero(ShadowmapSampler, float3(lpos.xy, c_id), lpos.z) + any(saturate(lpos.xy) != (lpos.xy));
     }
 
    	Output[Texel] = result;

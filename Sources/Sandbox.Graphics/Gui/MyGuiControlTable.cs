@@ -85,6 +85,7 @@ namespace Sandbox.Graphics.GUI
 
         private StyleDefinition m_styleDef;
         private MyVScrollbar m_scrollBar;
+        public MyVScrollbar ScrollBar { get { return m_scrollBar; } }
 
         /// <summary>
         /// Index computed from scrollbar.

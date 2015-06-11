@@ -38,12 +38,10 @@ namespace VRage.Input
         void IMyInput.GetPressedKeys(List<MyKeys> keys) { }
 
         bool IMyInput.IsKeyPress(MyKeys key) { return false; }
-        bool IMyInput.WasKeyPressed(MyKeys key) { return false; }
         bool IMyInput.IsNewKeyPressed(MyKeys key) { return false; }
         bool IMyInput.IsNewKeyReleased(MyKeys key) { return false; }
 
         bool IMyInput.IsMousePressed(MyMouseButtonsEnum button) { return false; }
-        bool IMyInput.WasMousePressed(MyMouseButtonsEnum button) { return false; }
         bool IMyInput.IsMouseReleased(MyMouseButtonsEnum button) { return false; }
         bool IMyInput.IsNewMousePressed(MyMouseButtonsEnum button) { return false; }
 
@@ -77,13 +75,11 @@ namespace VRage.Input
         bool IMyInput.WasXButton2MouseReleased() { return false; }
 
         bool IMyInput.IsJoystickButtonPressed(MyJoystickButtonsEnum button) { return false; }
-        bool IMyInput.WasJoystickButtonPressed(MyJoystickButtonsEnum button) { return false; }
         bool IMyInput.IsJoystickButtonNewPressed(MyJoystickButtonsEnum button) { return false; }
         bool IMyInput.IsNewJoystickButtonReleased(MyJoystickButtonsEnum button) { return false; }
 
         float IMyInput.GetJoystickAxisStateForGameplay(MyJoystickAxesEnum axis) { return 0; }
         bool IMyInput.IsJoystickAxisPressed(MyJoystickAxesEnum axis) { return false; }
-        bool IMyInput.WasJoystickAxisPressed(MyJoystickAxesEnum axis) { return false; }
         bool IMyInput.IsJoystickAxisNewPressed(MyJoystickAxesEnum axis) { return false; }
         bool IMyInput.IsNewJoystickAxisReleased(MyJoystickAxesEnum axis) { return false; }
         bool IMyInput.IsNewGameControlJoystickOnlyPressed(MyStringId controlId) { return false; }
@@ -133,7 +129,6 @@ namespace VRage.Input
 
         bool IMyInput.IsNewGameControlPressed(MyStringId controlEnum) { return false; }
         bool IMyInput.IsGameControlPressed(MyStringId controlEnum) { return false; }
-        bool IMyInput.WasGameControlPressed(MyStringId controlEnum) { return false; }
         bool IMyInput.IsNewGameControlReleased(MyStringId controlEnum) { return false; }
         float IMyInput.GetGameControlAnalogState(MyStringId controlEnum) { return 0; }
         bool IMyInput.IsGameControlReleased(MyStringId controlEnum) { return false; }

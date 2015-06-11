@@ -26,6 +26,7 @@ using VRageMath;
 using VRageRender;
 using PlayerId = Sandbox.Game.World.MyPlayer.PlayerId;
 using Sandbox.Game.SessionComponents;
+using Sandbox.Common.ObjectBuilders.Definitions;
 
 namespace Sandbox.Game.Multiplayer
 {
@@ -189,7 +190,7 @@ namespace Sandbox.Game.Multiplayer
 
         [MessageId(7351, P2PMessageEnum.Reliable)]
         [ProtoContract]
-        struct AllIdentitiesRequestMsg
+        struct All_Identities_Players_Factions_RequestMsg
         {
             [ProtoMember]
             public ulong ClientSteamId;
@@ -199,20 +200,14 @@ namespace Sandbox.Game.Multiplayer
 
         [MessageId(7352, P2PMessageEnum.Reliable)]
         [ProtoContract]
-        struct AllIdentitiesSuccessMsg
+        struct All_Identities_Players_Factions_SuccessMsg
         {
             [ProtoMember]
             public List<MyObjectBuilder_Identity> Identities;
-        }
-
-        [MessageId(7353, P2PMessageEnum.Reliable)]
-        [ProtoContract]
-        struct AllPlayersRequestMsg
-        {
             [ProtoMember]
-            public ulong ClientSteamId;
+            public List<AllPlayerData> Players;
             [ProtoMember]
-            public int PlayerSerialId;
+            public List<MyObjectBuilder_Faction> Factions;
         }
 
         [ProtoContract]
@@ -224,18 +219,9 @@ namespace Sandbox.Game.Multiplayer
             public int SerialId;
             [ProtoMember]
             public MyObjectBuilder_Player Player;
-
         }
 
-        [MessageId(7354, P2PMessageEnum.Reliable)]
-        [ProtoContract]
-        struct AllPlayersSuccessMsg
-        {
-            [ProtoMember]
-            public List<AllPlayerData> Players;
-        }
 
-        
         
         public delegate void RespawnRequestedDelegate(ref RespawnMsg respawnMsg, MyNetworkClient client);
 
@@ -303,10 +289,8 @@ namespace Sandbox.Game.Multiplayer
             MySyncLayer.RegisterMessage<IdentityRemoveMsg>(OnIdentityRemoveRequest, MyMessagePermissions.ToServer, MyTransportMessageEnum.Request);
             MySyncLayer.RegisterMessage<IdentityRemoveMsg>(OnIdentityRemoveSuccess, MyMessagePermissions.FromServer, MyTransportMessageEnum.Success);
 
-            MySyncLayer.RegisterMessage<AllIdentitiesRequestMsg>(OnAllIdentitiesRequest, MyMessagePermissions.ToServer, MyTransportMessageEnum.Request);
-            MySyncLayer.RegisterMessage<AllIdentitiesSuccessMsg>(OnAllIdentitiesSuccess, MyMessagePermissions.FromServer, MyTransportMessageEnum.Success);
-            MySyncLayer.RegisterMessage<AllPlayersRequestMsg>(OnAllPlayersRequest, MyMessagePermissions.ToServer, MyTransportMessageEnum.Request);
-            MySyncLayer.RegisterMessage<AllPlayersSuccessMsg>(OnAllPlayersSuccess, MyMessagePermissions.FromServer, MyTransportMessageEnum.Success);
+            MySyncLayer.RegisterMessage<All_Identities_Players_Factions_RequestMsg>(OnAll_Identities_Players_Factions_Request, MyMessagePermissions.ToServer, MyTransportMessageEnum.Request);
+            MySyncLayer.RegisterMessage<All_Identities_Players_Factions_SuccessMsg>(OnAll_Identities_Players_Factions_Success, MyMessagePermissions.FromServer, MyTransportMessageEnum.Success);
         }
 
         public MyPlayerCollection()
@@ -852,7 +836,8 @@ namespace Sandbox.Game.Multiplayer
             var playerId = new MyPlayer.PlayerId(msg.ClientSteamId, msg.PlayerSerialId);
             if (playerId == localHumanPlayerId && (!MyFakes.ENABLE_BATTLE_SYSTEM || !MySession.Static.Battle))
             {
-                MyPlayerCollection.RequestLocalRespawn();
+                if (!MySession.Static.IsScenario || MySession.Static.OnlineMode == MyOnlineModeEnum.OFFLINE)
+                    MyPlayerCollection.RequestLocalRespawn();
             }
 
             var handler = Sync.Players.NewPlayerRequestSucceeded;
@@ -890,31 +875,28 @@ namespace Sandbox.Game.Multiplayer
             Sync.Players.CreateNewPlayerInternal(identity, client, msg.DisplayName, ref playerId);
         }
 
-        static void OnAllIdentitiesRequest(ref AllIdentitiesRequestMsg msg, MyNetworkClient sender)
+        static void OnAll_Identities_Players_Factions_Request(ref All_Identities_Players_Factions_RequestMsg msg, MyNetworkClient sender)
         {
-            var response = new AllIdentitiesSuccessMsg();
+            var response = new All_Identities_Players_Factions_SuccessMsg();
             response.Identities = Sync.Players.SaveIdentities();
+            response.Players = Sync.Players.SavePlayers();
+            response.Factions = MySession.Static.Factions.SaveFactions();
 
             Sync.Layer.SendMessage(ref response, sender.SteamUserId, messageType: MyTransportMessageEnum.Success);
         }
 
-        static void OnAllIdentitiesSuccess(ref AllIdentitiesSuccessMsg msg, MyNetworkClient sender)
+        static void OnAll_Identities_Players_Factions_Success(ref All_Identities_Players_Factions_SuccessMsg msg, MyNetworkClient sender)
         {
             Sync.Players.m_allIdentities.Clear();
+            Sync.Players.m_npcIdentities.Clear();
             Sync.Players.LoadIdentities(msg.Identities);
-        }
 
-        static void OnAllPlayersRequest(ref AllPlayersRequestMsg msg, MyNetworkClient sender)
-        {
-            var response = new AllPlayersSuccessMsg();
-            response.Players = Sync.Players.SavePlayers();
-
-            Sync.Layer.SendMessage(ref response, sender.SteamUserId, messageType: MyTransportMessageEnum.Success);
-        }
-
-        static void OnAllPlayersSuccess(ref AllPlayersSuccessMsg msg, MyNetworkClient sender)
-        {
+            Sync.Players.m_players.Clear();
+            Sync.Players.m_controlledEntities.Clear();
+            Sync.Players.m_playerIdentityIds.Clear();
             Sync.Players.LoadPlayers(msg.Players);
+
+            MySession.Static.Factions.LoadFactions(msg.Factions, true);
         }
 
         static void OnPlayerRemoveRequest(ref PlayerRemoveMsg msg, MyNetworkClient sender)
@@ -1069,24 +1051,14 @@ namespace Sandbox.Game.Multiplayer
             return player;
         }
 
-        public void RequestAllIdentities()
+        public void RequestAll_Identities_Players_Factions()
         {
-            var msg = new AllIdentitiesRequestMsg();
+            var msg = new All_Identities_Players_Factions_RequestMsg();
             msg.ClientSteamId = MySteam.UserId;
             msg.PlayerSerialId = 0;
 
             Sync.Layer.SendMessageToServer(ref msg);
         }
-
-        public void RequestAllPlayers()
-        {
-            var msg = new AllPlayersRequestMsg();
-            msg.ClientSteamId = MySteam.UserId;
-            msg.PlayerSerialId = 0;
-
-            Sync.Layer.SendMessageToServer(ref msg);
-        }
-
 
         public bool TrySetControlledEntity(PlayerId id, MyEntity entity)
         {

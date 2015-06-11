@@ -2265,6 +2265,12 @@ false,
                     constraintData.MaximumAngularImpulse = 3.40282e28f;
                     constraintData.MaximumLinearImpulse = 3.40282e28f;
                 }
+                else if (constraint.ConstraintData is HkLimitedHingeConstraintData)
+                {
+                    var constraintData = constraint.ConstraintData as HkLimitedHingeConstraintData;
+                    constraintData.MaximumAngularImpulse = 3.40282e28f;
+                    constraintData.MaximumLinearImpulse = 3.40282e28f;
+                }
             }
         }
 

@@ -402,7 +402,7 @@ namespace Sandbox.Game.Entities.Blocks
             UpdateLightBlink();
             UpdateLightPosition();
             UpdateLightProperties();
-            UpdateEmissivity(true);
+            UpdateEmissivity(false);
         }
 
         private void UpdateIntensity()

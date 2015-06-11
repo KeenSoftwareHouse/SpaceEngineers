@@ -130,6 +130,20 @@ namespace VRageRender.Resources
             }
         }
 
+        static Format MakeSrgb(Format fmt)
+        {
+            switch(fmt)
+            {
+                case Format.R8G8B8A8_UNorm:
+                    return Format.R8G8B8A8_UNorm_SRgb;
+                case Format.B8G8R8A8_UNorm:
+                    return Format.B8G8R8A8_UNorm_SRgb;
+                case Format.B8G8R8X8_UNorm:
+                    return Format.B8G8R8X8_UNorm_SRgb;
+            }
+            return fmt;
+        }
+
         static void LoadTexture(TexId texId)
         {
             var contentPath = Textures.Data[texId.Index].ContentPath;
@@ -184,10 +198,14 @@ namespace VRageRender.Resources
                 var targetWidth = img.Description.Width >> skipMipmaps;
                 var targetHeight = img.Description.Height >> skipMipmaps;
 
+                bool overwriteFormatToSrgb = Textures.Data[texId.Index].Type == MyTextureEnum.COLOR_METAL &&
+                    !SharpDX.DXGI.FormatHelper.IsCompressed(img.Description.Format) &&
+                    !SharpDX.DXGI.FormatHelper.IsSRgb(img.Description.Format);
+
                 var desc = new Texture2DDescription
                 {
                     MipLevels = targetMipmaps,
-                    Format = img.Description.Format,
+                    Format = overwriteFormatToSrgb ? MakeSrgb(img.Description.Format) : img.Description.Format,
                     Height = targetHeight,
                     Width = targetWidth,
                     ArraySize = img.Description.ArraySize,

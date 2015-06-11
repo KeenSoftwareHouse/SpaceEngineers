@@ -30,7 +30,6 @@ namespace Sandbox.Engine.Networking
         public static string LastSessionPath { get { return Path.Combine(MyFileSystem.SavesPath, LAST_SESSION_FILE); } }
         public static string ContentSessionsPath { get { return "Worlds"; } }
         public static string MissionSessionsPath { get { return "Missions"; } }
-        public static string OfficialBattlesPath { get { return Path.Combine(MyFileSystem.ContentPath, "Battles"); } }
 
         private static string GetSectorPath(string sessionPath, Vector3I sectorPosition)
         {
@@ -196,18 +195,6 @@ namespace Sandbox.Engine.Networking
                 GetWorldInfoFromDirectory(Path.Combine(MyFileSystem.ContentPath, MissionSessionsPath), result);
             }
             MySandboxGame.Log.WriteLine("Loading available missions - END");
-            return result;
-        }
-
-        public static List<Tuple<string, MyWorldInfo>> GetAvailableOfficialBattlesInfos()
-        {
-            MySandboxGame.Log.WriteLine("Loading available battles - START");
-            var result = new List<Tuple<string, MyWorldInfo>>();
-            using (MySandboxGame.Log.IndentUsing(LoggingOptions.ALL))
-            {
-                GetWorldInfoFromDirectory(OfficialBattlesPath, result);
-            }
-            MySandboxGame.Log.WriteLine("Loading available battles - END");
             return result;
         }
 

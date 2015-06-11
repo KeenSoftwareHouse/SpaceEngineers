@@ -530,5 +530,7 @@ namespace Sandbox.Engine.Utils
 
         public static bool MANIPULATION_TOOL_VELOCITY_LIMIT = false;
 
+        public static bool ENABLE_GATHERING = false;
+
     }
 }
