@@ -796,7 +796,7 @@ namespace Sandbox.Engine.Physics
             // TODO: THIS DOESN'T WORK, UNFORTUNATELLY HAVOK DOESN'T DEACTIVATE THE RAGDOLL
             // SEEMS LIKE SOMETHING IS STILL INTERACTING - THIS COULD BE CAUSED BY CONSTRAINTS
             // WHICH DIDN'T SETTLED?
-            if (MyFakes.ENABLE_RAGDOLL_DEACTIVATION)
+            if (MyFakes.ENABLE_RAGDOLL_DEACTIVATION && m_character.IsDead)
             {
                 if ((DeactivationCounter <= 0) && Ragdoll.IsSimulationActive)
                 {   

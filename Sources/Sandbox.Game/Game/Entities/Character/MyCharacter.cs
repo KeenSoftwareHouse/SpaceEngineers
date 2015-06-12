@@ -281,9 +281,7 @@ namespace Sandbox.Game.Entities.Character
         bool m_isFalling = false;
         bool m_isFallingAnimationPlayed = false;
         float m_currentFallingTime = 0;
-        bool m_isCrouching = false;
         bool m_crouchAfterFall = false;
-        bool m_crouchingChanged = false;
 
         MyCharacterMovementFlags m_movementFlags;
         bool m_isFlying;
@@ -689,6 +687,11 @@ namespace Sandbox.Game.Entities.Character
             CharacterWidth = m_characterDefinition.CharacterWidth;
 
             m_radioBroadcaster.WantsToBeEnabled = characterOb.EnableBroadcasting && Definition.VisibleOnHud;
+            if (MyFakes.ENABLE_BATTLE_SYSTEM && MySession.Static.Battle)
+            {
+                m_radioBroadcaster.Enabled = false;
+                m_radioBroadcaster.WantsToBeEnabled = false;
+            }
 
             Init(new StringBuilder(characterOb.DisplayName), m_characterDefinition.Model, null, null);
             Render.EnableColorMaskHsv = true;
@@ -1475,10 +1478,11 @@ namespace Sandbox.Game.Entities.Character
                 Physics.AddForce(MyPhysicsForceType.APPLY_WORLD_FORCE, gravity * Definition.Mass, null, null);
             }
 
-
             VRageRender.MyRenderProxy.GetRenderProfiler().StartProfilingBlock("Update Ragdoll");
             UpdateRagdoll();
             VRageRender.MyRenderProxy.GetRenderProfiler().EndProfilingBlock();
+
+            //MyRenderProxy.DebugDrawText3D(WorldMatrix.Translation + WorldMatrix.Up * 2.0f, m_currentMovementState.ToString(), Color.Red, 1.0f, false);
         }
 
         private MySoundPair SelectSound()
@@ -2024,16 +2028,16 @@ namespace Sandbox.Game.Entities.Character
                 //We must take only closest hit (others are hidden behind)
                 var h = m_hits[index];
                 var entity = h.HkHitInfo.Body.GetEntity();
-                var block = entity as MyCubeBlock;
                 var interactive = entity as IMyUseObject;
 
                 // TODO: Uncomment to enforce that character must face object by front to activate it
                 //if (TestInteractionDirection(head.Forward, h.Position - GetPosition()))
                 //return;
 
-                if (block != null)
+                if (entity != null)
                 {
-                    var useObject = entity.Components.Get<MyUseObjectsComponentBase>();
+                    MyUseObjectsComponentBase useObject = null;
+                    entity.Components.TryGet<MyUseObjectsComponentBase>(out useObject);
                     if (useObject != null)
                     {
                         interactive = useObject.GetInteractiveObject(h.HkHitInfo.GetShapeKey(0));
@@ -2477,7 +2481,7 @@ namespace Sandbox.Game.Entities.Character
                              m_currentMovementState == MyCharacterMovementEnum.RotatingRight ||
                              m_currentMovementState == MyCharacterMovementEnum.Died ? 5 : 100;
 
-                if (m_isCrouching)
+                if (WantsCrouch)
                     bobMax = 3;
 
                 while (m_bobQueue.Count > bobMax)
@@ -2585,7 +2589,7 @@ namespace Sandbox.Game.Entities.Character
                 return;
 
             //if (!ControllerInfo.IsRemotelyControlled() || (Sync.IsServer && false))
-            if (ControllerInfo.IsLocallyControlled() && Physics.CharacterProxy != null || (MyFakes.CHARACTER_SERVER_SYNC))
+            if ((ControllerInfo.IsLocallyControlled() || MyFakes.CHARACTER_SERVER_SYNC) && Physics.CharacterProxy != null)
             {
                 if (CanFly())
                 {
@@ -3032,16 +3036,21 @@ namespace Sandbox.Game.Entities.Character
 
             if (DebugMode)
                 return;
-            
+
+            bool movementsFlagsChanged = (m_movementFlags | movementFlags) != m_movementFlags;
+            m_movementFlags |= movementFlags;
+
             if (MyFakes.CHARACTER_SERVER_SYNC && ControllerInfo.IsLocallyControlled())
-                SyncObject.MoveAndRotate(moveIndicator, new Vector3(rotationIndicator.X, rotationIndicator.Y, roll), movementFlags);
+                SyncObject.MoveAndRotate(moveIndicator, new Vector3(rotationIndicator.X, rotationIndicator.Y, roll), m_movementFlags);
 
             if (MyFakes.CHARACTER_SERVER_SYNC && ControllerInfo.IsRemotelyControlled())
             {
                 moveIndicator = SyncObject.CachedMovementState.MoveIndicator;
                 rotationIndicator = new Vector2(SyncObject.CachedMovementState.RotationIndicator.X, SyncObject.CachedMovementState.RotationIndicator.Y);
                 roll = SyncObject.CachedMovementState.RotationIndicator.Z;
-                movementFlags = SyncObject.CachedMovementState.MovementFlags;
+
+                movementsFlagsChanged = m_movementFlags != SyncObject.CachedMovementState.MovementFlags;
+                m_movementFlags = SyncObject.CachedMovementState.MovementFlags;
             }
 
             //Died character
@@ -3053,8 +3062,6 @@ namespace Sandbox.Game.Entities.Character
             }
 
             m_moveAndRotateCounter++;
-
-            m_movementFlags |= movementFlags;
 
             float posx = 0, posy = 0;
 
@@ -3070,8 +3077,8 @@ namespace Sandbox.Game.Entities.Character
             }
 
             float acceleration = 0;
-          
-            if (canMove || CanFly() || m_crouchingChanged)
+
+            if (canMove || CanFly() || movementsFlagsChanged)
             {
                 if (moveIndicator.LengthSquared() > 0)
                 {
@@ -3080,7 +3087,7 @@ namespace Sandbox.Game.Entities.Character
                     //SyncObject.MoveAndRotate();
                 }
 
-                MyCharacterMovementEnum newMovementState = GetNewMovementState(ref moveIndicator, ref acceleration, sprint, walk, canMove);
+                MyCharacterMovementEnum newMovementState = GetNewMovementState(ref moveIndicator, ref acceleration, sprint, walk, canMove, movementsFlagsChanged);
 
                 SwitchAnimation(newMovementState);
 
@@ -3207,7 +3214,7 @@ namespace Sandbox.Game.Entities.Character
                             {
                                 if ((moveIndicator.X != 0 || moveIndicator.Z != 0))
                                 {
-                                    if (!m_isCrouching)
+                                    if (!WantsCrouch)
                                     {
                                         if (moveIndicator.Z < 0)
                                         {
@@ -3307,7 +3314,7 @@ namespace Sandbox.Game.Entities.Character
                         (m_currentMovementState == MyCharacterMovementEnum.Standing || m_currentMovementState == MyCharacterMovementEnum.Crouching)
                         )
                     {
-                        if (m_isCrouching)
+                        if (WantsCrouch)
                         {
                             if (rotationIndicator.Y > 0)
                             {
@@ -3425,12 +3432,6 @@ namespace Sandbox.Game.Entities.Character
             WantsSprint = false;
             WantsFlyUp = false;
             WantsFlyDown = false;
-            m_crouchingChanged = false;
-
-            //MyTrace.Send(TraceWindow.Default, "PosX: " + posx.ToString() + " PosY: " + posy.ToString());
-            //MyTrace.Send(TraceWindow.Default, "Speed: " + Physics.CharacterProxy.LinearVelocity.Length().ToString());
-
-            //Physics.CharacterProxy.LinearVelocity = Physics.CharacterProxy.LinearVelocity * 4;
 
             // If vertical flying, we need to change the positon and orientation using our computed matrix for new CharacterProxy
             if (CanFly() && Definition.VerticalPositionFlyingOnly && Physics.CharacterProxy != null)
@@ -3448,11 +3449,6 @@ namespace Sandbox.Game.Entities.Character
 
             CalculateTransforms();
             CalculateDependentMatrices();
-
-
-            //m_contactPoints.Clear();
-
-            //UpdateLightPosition();
         }
 
         private void RotateHead(Vector2 rotationIndicator)
@@ -3837,7 +3833,7 @@ namespace Sandbox.Game.Entities.Character
             }
         }
 
-        MyCharacterMovementEnum GetNewMovementState(ref Vector3 moveIndicator, ref float acceleration, bool sprint, bool walk, bool canMove)
+        MyCharacterMovementEnum GetNewMovementState(ref Vector3 moveIndicator, ref float acceleration, bool sprint, bool walk, bool canMove, bool movementFlagsChanged)
         {
             MyCharacterMovementEnum newMovementState = m_currentMovementState;
 
@@ -3851,18 +3847,11 @@ namespace Sandbox.Game.Entities.Character
                 return MyCharacterMovementEnum.Flying;
 
             bool moving = ((moveIndicator.X != 0 || moveIndicator.Z != 0) && canMove);
-            if (moving || m_crouchingChanged)
+            if (moving || movementFlagsChanged)
             {
                 if (sprint)
                 {
-                    if (moveIndicator.X == 0)
-                    {
-                        newMovementState = GetSprintState(ref moveIndicator);
-                    }
-                    else
-                    {
-                        newMovementState = GetRunningState(ref moveIndicator);
-                    }
+                    newMovementState = GetSprintState(ref moveIndicator);
                 }
                 else
                     if (moving)
@@ -3927,7 +3916,7 @@ namespace Sandbox.Game.Entities.Character
 
                     case MyCharacterMovementEnum.Standing:
                         {
-                            if (m_isCrouching && !CanFly() && (m_currentRotationDelay <= 0))
+                            if (WantsCrouch && !CanFly() && (m_currentRotationDelay <= 0))
                                 newMovementState = GetIdleState();
 
                             break;
@@ -3935,7 +3924,7 @@ namespace Sandbox.Game.Entities.Character
 
                     case MyCharacterMovementEnum.Crouching:
                         {
-                            if (!m_isCrouching)
+                            if (!WantsCrouch)
                                 newMovementState = GetIdleState();
 
                             break;
@@ -4207,7 +4196,7 @@ namespace Sandbox.Game.Entities.Character
             {
                 if (moveIndicator.Z < 0)
                 {
-                    if (!m_isCrouching)
+                    if (!WantsCrouch)
                     {
                         return MyCharacterMovementEnum.Walking;
                     }
@@ -4218,7 +4207,7 @@ namespace Sandbox.Game.Entities.Character
                 }
                 else
                 {
-                    if (!m_isCrouching)
+                    if (!WantsCrouch)
                     {
                         return MyCharacterMovementEnum.BackWalking;
                     }
@@ -4232,7 +4221,7 @@ namespace Sandbox.Game.Entities.Character
             {
                 if (moveIndicator.X > 0)
                 {
-                    if (!m_isCrouching)
+                    if (!WantsCrouch)
                     {
                         return MyCharacterMovementEnum.WalkStrafingRight;
                     }
@@ -4243,7 +4232,7 @@ namespace Sandbox.Game.Entities.Character
                 }
                 else
                 {
-                    if (!m_isCrouching)
+                    if (!WantsCrouch)
                     {
                         return MyCharacterMovementEnum.WalkStrafingLeft;
                     }
@@ -4259,7 +4248,7 @@ namespace Sandbox.Game.Entities.Character
                 {
                     if (moveIndicator.Z < 0)
                     {
-                        if (!m_isCrouching)
+                        if (!WantsCrouch)
                         {
                             return MyCharacterMovementEnum.WalkingRightFront;
                         }
@@ -4270,7 +4259,7 @@ namespace Sandbox.Game.Entities.Character
                     }
                     else
                     {
-                        if (!m_isCrouching)
+                        if (!WantsCrouch)
                         {
                             return MyCharacterMovementEnum.WalkingRightBack;
                         }
@@ -4284,7 +4273,7 @@ namespace Sandbox.Game.Entities.Character
                 {
                     if (moveIndicator.Z < 0)
                     {
-                        if (!m_isCrouching)
+                        if (!WantsCrouch)
                         {
                             return MyCharacterMovementEnum.WalkingLeftFront;
                         }
@@ -4295,7 +4284,7 @@ namespace Sandbox.Game.Entities.Character
                     }
                     else
                     {
-                        if (!m_isCrouching)
+                        if (!WantsCrouch)
                         {
                             return MyCharacterMovementEnum.WalkingLeftBack;
                         }
@@ -4315,7 +4304,7 @@ namespace Sandbox.Game.Entities.Character
             {
                 if (moveIndicator.Z < 0)
                 {
-                    if (!m_isCrouching)
+                    if (!WantsCrouch)
                     {
                         return MyCharacterMovementEnum.Running;
                     }
@@ -4326,7 +4315,7 @@ namespace Sandbox.Game.Entities.Character
                 }
                 else
                 {
-                    if (!m_isCrouching)
+                    if (!WantsCrouch)
                     {
                         return MyCharacterMovementEnum.Backrunning;
                     }
@@ -4340,7 +4329,7 @@ namespace Sandbox.Game.Entities.Character
             {
                 if (moveIndicator.X > 0)
                 {
-                    if (!m_isCrouching)
+                    if (!WantsCrouch)
                     {
                         return MyCharacterMovementEnum.RunStrafingRight;
                     }
@@ -4351,7 +4340,7 @@ namespace Sandbox.Game.Entities.Character
                 }
                 else
                 {
-                    if (!m_isCrouching)
+                    if (!WantsCrouch)
                     {
                         return MyCharacterMovementEnum.RunStrafingLeft;
                     }
@@ -4367,7 +4356,7 @@ namespace Sandbox.Game.Entities.Character
                 {
                     if (moveIndicator.Z < 0)
                     {
-                        if (!m_isCrouching)
+                        if (!WantsCrouch)
                         {
                             return MyCharacterMovementEnum.RunningRightFront;
                         }
@@ -4378,7 +4367,7 @@ namespace Sandbox.Game.Entities.Character
                     }
                     else
                     {
-                        if (!m_isCrouching)
+                        if (!WantsCrouch)
                         {
                             return MyCharacterMovementEnum.RunningRightBack;
                         }
@@ -4392,7 +4381,7 @@ namespace Sandbox.Game.Entities.Character
                 {
                     if (moveIndicator.Z < 0)
                     {
-                        if (!m_isCrouching)
+                        if (!WantsCrouch)
                         {
                             return MyCharacterMovementEnum.RunningLeftFront;
                         }
@@ -4403,7 +4392,7 @@ namespace Sandbox.Game.Entities.Character
                     }
                     else
                     {
-                        if (!m_isCrouching)
+                        if (!WantsCrouch)
                         {
                             return MyCharacterMovementEnum.RunningLeftBack;
                         }
@@ -4418,21 +4407,22 @@ namespace Sandbox.Game.Entities.Character
             System.Diagnostics.Debug.Assert(false, "Non moving character cannot get here");
             return MyCharacterMovementEnum.Standing;
         }
+
         private MyCharacterMovementEnum GetSprintState(ref Vector3 moveIndicator)
         {
-            if (moveIndicator.Z < 0)
+            if (moveIndicator.X == 0 && moveIndicator.Z < 0)
             {
                 return MyCharacterMovementEnum.Sprinting;
             }
             else
             {
-                return GetWalkingState(ref moveIndicator);
-            }
+                return GetRunningState(ref moveIndicator);
+            }            
         }
 
         private MyCharacterMovementEnum GetIdleState()
         {
-            if (!m_isCrouching)
+            if (!WantsCrouch)
             {
                 return MyCharacterMovementEnum.Standing;
             }
@@ -5235,8 +5225,7 @@ namespace Sandbox.Game.Entities.Character
             {
                 if (!CanFly() && !m_isFalling)
                 {
-                    m_isCrouching = !m_isCrouching;
-                    m_crouchingChanged = true;
+                    WantsCrouch = !WantsCrouch;
                 }
             }
         }
@@ -5287,9 +5276,6 @@ namespace Sandbox.Game.Entities.Character
         public void GetOffLadder()
         {
             IsUsing = null;
-            //Physics.Enabled = true;
-            //Physics.Clear();
-            //m_headLocalXAngle = 0;
             SetHeadLocalYAngle(0);
             Physics.CharacterProxy.AtLadder = false;
             Physics.CharacterProxy.EnableLadderState(false);
@@ -5418,19 +5404,16 @@ namespace Sandbox.Game.Entities.Character
 
         public void EnableJetpack(bool enable, bool fromLoad = false, bool updateSync = true, bool fromInit = false)
         {
-            if (enable)
-            {
-                SwitchToJetpackRagdoll = true;
-            }
-            else
-            {
-                SwitchToJetpackRagdoll = false;
-            }
             if (m_currentMovementState == MyCharacterMovementEnum.Sitting)
                 return;
 
-            if (!m_characterDefinition.JetpackAvailable && !MyFakes.ENABLE_JETPACK_IN_SURVIVAL)
-                return;
+            if (!m_characterDefinition.JetpackAvailable)
+                enable = false;
+
+            if (MySession.Static.SurvivalMode && !MyFakes.ENABLE_JETPACK_IN_SURVIVAL)
+                enable = false;
+
+            SwitchToJetpackRagdoll = enable;
 
             bool valueChanged = m_jetpackEnabled != enable;
             m_jetpackEnabled = enable;
@@ -5934,8 +5917,8 @@ namespace Sandbox.Game.Entities.Character
                     m_currentFallingTime = 0;
 
                 m_isFalling = true;
-                m_crouchAfterFall = m_isCrouching;
-                m_isCrouching = false;
+                m_crouchAfterFall = WantsCrouch;
+                WantsCrouch = false;
 
                 SetCurrentMovementState(MyCharacterMovementEnum.Falling);
             }
@@ -5964,7 +5947,7 @@ namespace Sandbox.Game.Entities.Character
             m_isFallingAnimationPlayed = false;
             m_currentFallingTime = 0;
             m_canJump = true;
-            m_isCrouching = m_crouchAfterFall;
+            WantsCrouch = m_crouchAfterFall;
             m_crouchAfterFall = false;
         }
 
@@ -6437,7 +6420,7 @@ namespace Sandbox.Game.Entities.Character
 
         public bool IsCrouching
         {
-            get { return m_isCrouching; }
+            get { return m_currentMovementState.GetMode() == MyCharacterMovement.Crouching; }
         }
 
         public bool IsSprinting
@@ -7299,7 +7282,8 @@ namespace Sandbox.Game.Entities.Character
             result.DoDamageHandler += DoDamageSuccess;
 
             if (MyFakes.CHARACTER_SERVER_SYNC)
-                result.UpdatesOnlyOnServer = true;
+                //result.UpdatesOnlyOnServer = true;
+                SyncFlag = false; //synced only through MoveAndRotate
 
             if (MyPerGameSettings.EnablePerFrameCharacterSync)
             {

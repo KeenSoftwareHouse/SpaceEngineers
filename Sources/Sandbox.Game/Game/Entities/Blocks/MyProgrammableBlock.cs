@@ -270,7 +270,7 @@ namespace Sandbox.Game.Entities.Blocks
                 {
                     retVal += MyTexts.GetString(MySpaceTexts.ProgrammableBlock_Exception_TooComplex);
                 }
-                else if (ex.InnerException != null)
+                else
                 {
                     retVal += MyTexts.GetString(MySpaceTexts.ProgrammableBlock_Exception_ExceptionCaught) + ex.Message;
                 }

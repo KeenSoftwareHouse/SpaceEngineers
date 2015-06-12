@@ -422,9 +422,14 @@ namespace Sandbox.Game.Entities.Blocks
             }
         }
 
+        private Color m_prevEmissiveColor = Color.Black;
         private void SetEmissive(Color color)
         {
-            MyCubeBlock.UpdateEmissiveParts(Render.RenderObjectIDs[0], 1.0f, color, Color.White);
+            if (m_prevEmissiveColor != color)
+            {
+                MyCubeBlock.UpdateEmissiveParts(Render.RenderObjectIDs[0], 1.0f, m_prevEmissiveColor, Color.White);
+                m_prevEmissiveColor = color;
+            }
         }
         #endregion
 

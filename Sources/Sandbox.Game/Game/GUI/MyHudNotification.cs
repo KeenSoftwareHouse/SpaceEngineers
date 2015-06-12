@@ -6,6 +6,7 @@ using Sandbox.Engine.Utils;
 using Sandbox.Graphics.GUI;
 
 using Sandbox.Common;
+using Sandbox.ModAPI;
 using VRage;
 using Sandbox.Definitions;
 using Sandbox.Graphics;
@@ -33,10 +34,11 @@ namespace Sandbox.Game.Gui
         private object[] m_textFormatArguments = new object[20];
         private MyGuiDrawAlignEnum m_actualTextAlign;
         private int m_aliveTime;
-        private int m_lifespanMs;
         private string m_notificationText;
         private bool m_isTextDirty;
         #endregion
+
+        public int m_lifespanMs;
 
         public MyNotificationLevel Level = MyNotificationLevel.Normal;
 
@@ -44,7 +46,7 @@ namespace Sandbox.Game.Gui
 
         public readonly int Priority;
 
-        public readonly MyFontEnum Font;
+        public MyFontEnum Font;
 
         public bool Alive
         {
@@ -155,7 +157,7 @@ namespace Sandbox.Game.Gui
         { }
     }
 
-    public class MyHudNotification : MyHudNotificationBase
+    public partial class MyHudNotification : MyHudNotificationBase
     {
         private MyStringId m_originalText;
        

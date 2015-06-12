@@ -544,9 +544,6 @@ namespace Sandbox.Game.Entities
                 if (!newlyPressed)
                     return;
 
-                if (m_gizmo.RotationOptions != MyRotationOptionsEnum.None)
-                    MyGuiAudio.PlaySound(MyGuiSounds.HudRotateBlock);
-
                 angleDelta = (float)Math.PI / 2;
                 MatrixD currentMatrix = m_gizmo.SpaceDefault.m_localMatrixAdd;
                 MatrixD rotatedMatrix;
@@ -554,6 +551,9 @@ namespace Sandbox.Game.Entities
                 if (!CalculateBlockRotation(index, sign, ref currentMatrix, out rotatedMatrix, angleDelta, CurrentBlockDefinition != null ? CurrentBlockDefinition.Direction : MyBlockDirection.Both,
                     CurrentBlockDefinition != null ? CurrentBlockDefinition.Rotation : MyBlockRotation.Both))
                     return;
+
+                if (m_gizmo.RotationOptions != MyRotationOptionsEnum.None)
+                    MyGuiAudio.PlaySound(MyGuiSounds.HudRotateBlock);
 
                 m_gizmo.RotateAxis(ref rotatedMatrix);
             }

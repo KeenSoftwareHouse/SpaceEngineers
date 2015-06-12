@@ -563,10 +563,11 @@ namespace Sandbox.Game.Entities.Cube
                 //pastedGrid.PositionComp.SetWorldMatrix(m_previewGrids[i].WorldMatrix);
                 i++;
 
-                if (!pastedGrid.IsStatic)
+                if (!pastedGrid.IsStatic && (!MyFakes.ENABLE_BATTLE_SYSTEM || !MySession.Static.Battle))
                     pastedGrid.Physics.LinearVelocity = m_objectVelocity;
 
-                if (!pastedGrid.IsStatic && MySession.ControlledEntity != null && MySession.ControlledEntity.Entity.Physics != null && m_calculateVelocity)
+                if (!pastedGrid.IsStatic && MySession.ControlledEntity != null && MySession.ControlledEntity.Entity.Physics != null && m_calculateVelocity
+                    && (!MyFakes.ENABLE_BATTLE_SYSTEM || !MySession.Static.Battle))
                 {
                     pastedGrid.Physics.AngularVelocity = MySession.ControlledEntity.Entity.Physics.AngularVelocity;
                 }

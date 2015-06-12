@@ -204,7 +204,13 @@ namespace Sandbox.Graphics.GUI
             m_blockPropertiesLabel.Text.Clear();
             if (m_currentBlocks.Count() == 1)
             {
-                m_blockPropertiesLabel.Text.AppendStringBuilder(m_currentBlocks[0].DetailedInfo);
+                var block = m_currentBlocks[0];
+                m_blockPropertiesLabel.Text.AppendStringBuilder(block.DetailedInfo);
+                if(block.CustomInfo.Length > 0)
+                {
+                    m_blockPropertiesLabel.Text.TrimTrailingWhitespace().AppendLine();
+                    m_blockPropertiesLabel.Text.AppendStringBuilder(block.CustomInfo);
+                }
             }
             m_blockPropertiesLabel.RefreshText(false);
             ProfilerShort.End();

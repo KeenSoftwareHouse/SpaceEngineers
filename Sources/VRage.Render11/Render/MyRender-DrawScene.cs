@@ -265,7 +265,7 @@ namespace VRageRender
             }
 
             MyGpuProfiler.IC_BeginBlock("Tone mapping");
-            MyToneMapping.Run(tonemapped, MyGBuffer.Main.Get(MyGbufferSlot.LBuffer), avgLum, bloom, MyRender11.Settings.EnableTonemapping && Postprocess.EnableTonemapping);
+            MyToneMapping.Run(tonemapped, MyGBuffer.Main.Get(MyGbufferSlot.LBuffer), avgLum, bloom, MyRender11.Settings.EnableTonemapping && Postprocess.EnableTonemapping && MyRender11.RenderSettings.TonemappingEnabled);
             MyGpuProfiler.IC_EndBlock();
 
             MyBindableResource renderedImage;

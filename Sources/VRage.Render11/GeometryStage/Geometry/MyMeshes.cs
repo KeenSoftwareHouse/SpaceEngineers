@@ -356,6 +356,7 @@ namespace VRageRender
                     Parts.Free(part.Index);
                 }
 
+                Lods.Data[mesh.Index].Data = new MyMeshRawData();
                 Lods.Free(mesh.Index);
             }
 
@@ -1299,6 +1300,7 @@ namespace VRageRender
 
             ResizeVoxelParts(id, lod, 0);
             DisposeLodMeshBuffers(lod);
+            Lods.Data[lod.Index].Data = new MyMeshRawData();
             Lods.Free(lod.Index);
             Meshes.Free(id.Index);
 

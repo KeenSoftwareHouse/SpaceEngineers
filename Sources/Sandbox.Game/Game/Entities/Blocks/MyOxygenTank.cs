@@ -25,6 +25,10 @@ namespace Sandbox.Game.Entities.Blocks
     [MyCubeBlockType(typeof(MyObjectBuilder_OxygenTank))]
     class MyOxygenTank : MyFunctionalBlock, IMyPowerConsumer, IMyInventoryOwner, IMyOxygenBlock, IMyOxygenTank, IMyConveyorEndpointBlock
     {
+        private static string[] m_emissiveNames = { "Emissive1", "Emissive2", "Emissive3", "Emissive4" };
+        
+        private Color m_prevColor = Color.White;
+        private int m_prevFillCount = -1;
         private bool m_useConveyorSystem;
         private MyInventory m_inventory;
         private bool m_autoRefill;
@@ -376,37 +380,26 @@ namespace Sandbox.Game.Entities.Blocks
             RaisePropertiesChanged();
         }
 
+
         private void SetEmissive(Color color, float fill)
         {
-            if (Render.RenderObjectIDs[0] != VRageRender.MyRenderProxy.RENDER_ID_UNASSIGNED)
+            int fillCount = (int)(fill * m_emissiveNames.Length);
+
+            if (Render.RenderObjectIDs[0] != VRageRender.MyRenderProxy.RENDER_ID_UNASSIGNED && (color != m_prevColor || fillCount != m_prevFillCount))
             {
-                VRageRender.MyRenderProxy.UpdateModelProperties(Render.RenderObjectIDs[0], 0, null, -1, "Emissive1", null, color, null, null, 0);
-                if (fill > 0.25f)
+                for (int i = 0; i < m_emissiveNames.Length; i++)
                 {
-                    VRageRender.MyRenderProxy.UpdateModelProperties(Render.RenderObjectIDs[0], 0, null, -1, "Emissive2", null, color, null, null, 0);
+                    if (i <= fillCount)
+                    {
+                        VRageRender.MyRenderProxy.UpdateModelProperties(Render.RenderObjectIDs[0], 0, null, -1, m_emissiveNames[i], null, color, null, null, 0);
+                    }
+                    else
+                    {
+                        VRageRender.MyRenderProxy.UpdateModelProperties(Render.RenderObjectIDs[0], 0, null, -1, m_emissiveNames[i], null, Color.Black, null, null, 0);
+                    }
                 }
-                else
-                {
-                    VRageRender.MyRenderProxy.UpdateModelProperties(Render.RenderObjectIDs[0], 0, null, -1, "Emissive2", null, Color.Black, null, null, 0);
-                }
-
-                if (fill > 0.5f)
-                {
-                    VRageRender.MyRenderProxy.UpdateModelProperties(Render.RenderObjectIDs[0], 0, null, -1, "Emissive3", null, color, null, null, 0);
-                }
-                else
-                {
-                    VRageRender.MyRenderProxy.UpdateModelProperties(Render.RenderObjectIDs[0], 0, null, -1, "Emissive3", null, Color.Black, null, null, 0);
-                }
-
-                if (fill > 0.75f)
-                {
-                    VRageRender.MyRenderProxy.UpdateModelProperties(Render.RenderObjectIDs[0], 0, null, -1, "Emissive4", null, color, null, null, 0);
-                }
-                else
-                {
-                    VRageRender.MyRenderProxy.UpdateModelProperties(Render.RenderObjectIDs[0], 0, null, -1, "Emissive4", null, Color.Black, null, null, 0);
-                }
+                m_prevColor = color;
+                m_prevFillCount = fillCount;
             }
         }
 
