@@ -136,6 +136,9 @@ namespace Sandbox.Game.Entities.Cube
             MyTerminalControlFactory.AddControl(detonateButton);
         }
 
+        /// <summary>
+        /// indicates if loaded warhead is projection from blueprint or real warhead
+        /// </summary>
         public override void Init(MyObjectBuilder_CubeBlock objectBuilder, MyCubeGrid cubeGrid)
         {
             m_warheadDefinition = (MyWarheadDefinition)BlockDefinition;
@@ -145,6 +148,7 @@ namespace Sandbox.Game.Entities.Cube
 
             m_countdownMs = ob.CountdownMs;
             m_isArmed = ob.IsArmed;
+
             if (ob.IsCountingDown)
                 StartCountdown();
 
@@ -163,12 +167,28 @@ namespace Sandbox.Game.Entities.Cube
             return warheadBuilder;
         }
 
+        public override void UpdateForProjection()
+        {
+            base.UpdateForProjection();
+            bool wascountingdown = IsCountingDown;
+            /// stop countdown on projection to prevent "free" explosions
+            StopCountdown();
+            /// retain countdown state after disabling
+            IsCountingDown = wascountingdown;
+        }
+
         void MyWarhead_IsWorkingChanged(MyCubeBlock obj)
         {
             if (IsCountingDown && !IsWorking)
             {
                 StopCountdown();
             }
+            // restore countdown on finished block
+            if (IsWorking && IsCountingDown && !IsProjection)
+            {
+                StartCountdown();
+            }
+
             UpdateEmissivity();
         }
 

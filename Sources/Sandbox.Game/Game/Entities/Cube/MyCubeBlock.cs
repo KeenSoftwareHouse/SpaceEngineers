@@ -1132,6 +1132,24 @@ namespace Sandbox.Game.Entities
                 handler();
             }
         }
+
+        /// <summary>
+        /// indicates that block is only projection and not real entity
+        /// </summary>
+        public bool IsProjection
+        {
+            get
+            {
+                return SlimBlock.IsProjection;
+            }
+        }
+
+        /// <summary>
+        /// updates block, when projection is created, use this to remove adverse effects on projection, or disable unwanted functionality on projection
+        /// </summary>
+        public virtual void UpdateForProjection()
+        {
+        }
     }
 }
 
