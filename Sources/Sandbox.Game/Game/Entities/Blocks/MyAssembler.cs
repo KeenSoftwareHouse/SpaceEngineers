@@ -1196,6 +1196,16 @@ namespace Sandbox.Game.Entities.Cube
             return count;
         }
 
+        bool Sandbox.ModAPI.Ingame.IMyAssembler.MissingItems
+        {
+            get
+            {
+                if (!m_queue.IsValidIndex(0))
+                    return false;
+                return  CheckInventory(m_queue[0].Blueprint) == StateEnum.MissingItems;
+            }
+        }
+
         #endregion
 
         protected override float GetOperationalPowerConsumption()

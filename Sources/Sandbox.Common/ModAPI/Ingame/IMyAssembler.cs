@@ -61,7 +61,11 @@ namespace Sandbox.ModAPI.Ingame
         /// <returns>int - amount queued in total</returns>
         int CountQueueItems(string itemType, string subtypeName);
 
-
+        /// <summary>
+        /// True if assembler is unable to acquire components/items to process first in queue.
+        /// </summary>
+        bool MissingItems { get; }
+        
     }
 
     public interface IMyAssemblerQueueItem
