@@ -148,9 +148,7 @@ namespace Sandbox.Game.Entities.Cube
 
             m_countdownMs = ob.CountdownMs;
             m_isArmed = ob.IsArmed;
-
-            if (ob.IsCountingDown)
-                StartCountdown();
+            IsCountingDown = ob.IsCountingDown;
 
             this.IsWorkingChanged += MyWarhead_IsWorkingChanged;
         }
@@ -183,9 +181,9 @@ namespace Sandbox.Game.Entities.Cube
             {
                 StopCountdown();
             }
-            // restore countdown on finished block
-            if (IsWorking && IsCountingDown && !IsProjection)
+            else if (IsCountingDown && IsWorking && !IsProjection)
             {
+                IsCountingDown = false;
                 StartCountdown();
             }
 
@@ -439,13 +437,7 @@ namespace Sandbox.Game.Entities.Cube
         {
             base.OnAddedToScene(source);
 
-            if (IsCountingDown)
-            {
-                IsCountingDown = false;
-                StartCountdown();
-            }
-            else
-                UpdateEmissivity();
+            UpdateEmissivity();
         }
 
         public override void OnRemovedFromScene(object source)
