@@ -94,6 +94,7 @@ namespace Sandbox.Game.GameSystems
         private float   m_lastSuppliedPowerRatio;   // Used by autopilot to estimate thrust. Calling PowerReceiver.Update() more than once
                                                     // per tick results in buggy power usage.
         private bool?   m_lastRCSMode;  // Type is nullable to ensure that CoT is properly initialised at the session start.
+        private Vector3 m_prevSpeed;
 
         #endregion
 
@@ -163,7 +164,6 @@ namespace Sandbox.Game.GameSystems
 
         public bool    RemoteControlOperational  { get; set; }
         public bool    CourseEstablished         { get; set; }
-        public bool    RotationalDampingDisabled { get; set; }
         public Vector3 AutopilotAngularDeviation { get; set; }
 
         #endregion
@@ -281,7 +281,7 @@ namespace Sandbox.Game.GameSystems
             ProfilerShort.End();
         }
 
-        private Vector3 ComputeBaseThrust(Vector3 direction)
+        private Vector3 ComputeBaseThrust(Vector3 direction, bool includeSlowdown = true)
         {
             Matrix  invWorldRot     = m_grid.PositionComp.GetWorldMatrixNormalizedInv().GetOrientation();
             Vector3 localVelocity   = Vector3.Transform(m_grid.Physics.LinearVelocity, ref invWorldRot);
@@ -289,7 +289,7 @@ namespace Sandbox.Game.GameSystems
             Vector3 negativeControl = Vector3.Clamp(direction, -Vector3.One , Vector3.Zero);
             Vector3 slowdownControl = Vector3.Zero;
 
-            if (DampenersEnabled)
+            if (DampenersEnabled && includeSlowdown)
                 slowdownControl = Vector3.IsZeroVector(direction, 0.001f) * Vector3.IsZeroVector(m_totalThrustOverride);
 
             Vector3 thrust = negativeControl * m_maxNegativeLinearThrust + positiveControl * m_maxPositiveLinearThrust;
@@ -364,12 +364,12 @@ namespace Sandbox.Game.GameSystems
         private void UpdatePowerAndThrustStrength(ref Vector3 thrust, bool updateThrust)
         {
             const float ROTATION_LIMITER    = 5.0f;
-            const float STATIC_MODE_MAX_ACC = 0.5f;   // A threshold linear acceleration value, above which RCS will switch 
+            const float STATIC_MODE_MAX_ACC = 0.2f;   // A threshold linear acceleration value, above which RCS will switch 
                                                       // from stationary to accelerating mode.
                                                       // In stationary mode RCS employs 3 separate centres of thrust, one for each pair
                                                       // of opposite thruster sets in order to maximise turning rate.
                                                       // In accelerating mode centre of mass is used instead as a reference point.
-            const float LINEAR_INEFFICIENCY = 0.1f;  // A maximum relative force magnitude at which opposing thrusters are allowed 
+            const float LINEAR_INEFFICIENCY = 0.1f;   // A maximum relative force magnitude at which opposing thrusters are allowed 
                                                       // to push against each other when accelerating. Increasing this value will prioritise
                                                       // turning over linear acceleration, thus improving rotational responsiveness on 
                                                       // unbalanced designs at cost of producing undesired linear movement. Use a value 
@@ -398,18 +398,18 @@ namespace Sandbox.Game.GameSystems
                 ++m_COMUpdateCounter;
 
             LocalAngularVelocity = Vector3.Transform(m_grid.Physics.AngularVelocity, ref invWorldRot);
+            var linearVelocity   = m_grid.Physics.LinearVelocity;
             // A quick'n'dirty way of making torque optional. Activating gyroscope override or losing all remote control blocks also disables RCS.
             if (   MySession.Static.ThrusterDamage && !gyros.IsGyroOverrideActive && RemoteControlOperational
-                && (   m_grid.Physics.AngularVelocity != Vector3.Zero || m_grid.Physics.LinearVelocity != Vector3.Zero 
-                    || ControlTorque != Vector3.Zero || AutopilotEnabled))
+                && (LocalAngularVelocity != Vector3.Zero || linearVelocity != Vector3.Zero || ControlTorque != Vector3.Zero || AutopilotEnabled))
             {
                 if (MyFakes.SLOWDOWN_FACTOR_THRUST_MULTIPLIER > 1.0f)
                 {
-                    // Add a magic force that mimics TurboBrake of stock inertia dampeners. Not entirely accurate, but since it's magic, it's no huge deal.
+                    // Add a magic force that mimics TurboBrake of stock inertia dampeners. Not 100% accurate, but since it's magic, it's no huge deal.
                     adjustedThrust += thrust - thrustPositive * m_maxPositiveLinearThrust + thrustNegative * m_maxNegativeLinearThrust;
                 }
                 
-                bool useAcceleratingMode = adjustedThrust.Length() / m_grid.Physics.Mass > STATIC_MODE_MAX_ACC;
+                bool useAcceleratingMode = (linearVelocity - m_prevSpeed).Length() / MyEngineConstants.UPDATE_STEP_SIZE_IN_SECONDS > STATIC_MODE_MAX_ACC;
                 if (useAcceleratingMode != m_lastRCSMode)
                 {
                     if (useAcceleratingMode)
@@ -422,6 +422,7 @@ namespace Sandbox.Game.GameSystems
                     }
                 }
                 m_lastRCSMode = useAcceleratingMode;
+                m_prevSpeed   = linearVelocity;
 
                 LocalAngularVelocity = Vector3.Transform(m_grid.Physics.AngularVelocity, ref invWorldRot);
                 
@@ -453,8 +454,6 @@ namespace Sandbox.Game.GameSystems
                         m_DesiredAngularVelocityStab = (-AutopilotAngularDeviation) * (ANGULAR_STABILISATION * MyEngineConstants.UPDATE_STEPS_PER_SECOND);
                     m_resetIntegral = false;
                 }
-                else if (RotationalDampingDisabled)
-                    m_DesiredAngularVelocityStab = LocalAngularVelocity;
                 else 
                     m_DesiredAngularVelocityStab = Vector3.Zero;
 
@@ -494,7 +493,7 @@ namespace Sandbox.Game.GameSystems
                 thrustPositive = Vector3.Clamp(thrustPositive, Vector3.Zero, Vector3.One * MyConstants.MAX_THRUST);
                 thrustNegative = Vector3.Clamp(thrustNegative, Vector3.Zero, Vector3.One * MyConstants.MAX_THRUST);
             }
-            /*AutopilotEnabled =*/ RotationalDampingDisabled = RemoteControlOperational = false;  // Needs to be done here and not in the remote control code, as there may be more than 1 RC block.
+            RemoteControlOperational = false;  // Needs to be done here and not in the remote control code, as there may be more than 1 RC block.
 
             // When using joystick, there may be fractional values, not just 0 and 1.
             float requiredPower = 0;
@@ -524,9 +523,8 @@ namespace Sandbox.Game.GameSystems
         
         public Vector3 GetThrustForDirection(Vector3 direction)
         {
-            Vector3 thrust = ComputeBaseThrust(direction);
-            UpdatePowerAndThrustStrength(ref thrust, false);
-            thrust = ApplyThrustModifiers(thrust);
+            Vector3 thrust = ComputeBaseThrust(direction, false);
+            thrust = (thrust + m_totalThrustOverride) * (m_lastSuppliedPowerRatio * MyFakes.THRUST_FORCE_RATIO);
             return thrust;
         }
 
@@ -540,14 +538,17 @@ namespace Sandbox.Game.GameSystems
         public Vector3 GetAutoPilotThrustForDirection(Vector3 direction)
         {
             Vector3 thrust = ComputeAiThrust(direction);
-            UpdatePowerAndThrustStrength(ref thrust, false);
             thrust = (thrust + m_totalThrustOverride) * (m_lastSuppliedPowerRatio * MyFakes.THRUST_FORCE_RATIO);
             return thrust;
         }
 
         private void UpdateThrusts()
         {
-            Vector3 thrust;
+            // This autopilot implementation sets proper thrust vector by itself, so calling ComputeAiThrust() isn't necessary
+            // (and in certain cases, such as docking, actually harmful).
+            Vector3 thrust = ComputeBaseThrust(AutopilotEnabled ? AutoPilotThrust : ControlThrust);
+
+            /*
             if (AutopilotEnabled)
             {
                 thrust = ComputeAiThrust(AutoPilotThrust);
@@ -556,6 +557,8 @@ namespace Sandbox.Game.GameSystems
             {
                 thrust = ComputeBaseThrust(ControlThrust);
             }
+            */
+            
             UpdatePowerAndThrustStrength(ref thrust, true);
             thrust = ApplyThrustModifiers(thrust);
 
@@ -838,8 +841,8 @@ namespace Sandbox.Game.GameSystems
                 m_maxRequirementsByDirection[dir.Key] = maxRequiredPower;
             }
             MaxRequiredPowerInput += Math.Max(GetMaxRequirement(Vector3I.Forward), GetMaxRequirement(Vector3I.Backward));
-            MaxRequiredPowerInput += Math.Max(GetMaxRequirement(Vector3I.Left), GetMaxRequirement(Vector3I.Right));
-            MaxRequiredPowerInput += Math.Max(GetMaxRequirement(Vector3I.Up), GetMaxRequirement(Vector3I.Down));
+            MaxRequiredPowerInput += Math.Max(GetMaxRequirement(Vector3I.Left   ), GetMaxRequirement(Vector3I.Right   ));
+            MaxRequiredPowerInput += Math.Max(GetMaxRequirement(Vector3I.Up     ), GetMaxRequirement(Vector3I.Down    ));
 
             m_thrustsChanged = false;
             m_minPowerInputTotal = minRequiredPower;

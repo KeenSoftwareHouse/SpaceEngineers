@@ -64,13 +64,13 @@ namespace Sandbox.Game.Multiplayer
 
         public void SendLinearModeChangeRequest(bool linearModeOn)
         {
-            m_block.SetLinearMode(linearModeOn);
+            //m_block.SetLinearMode(linearModeOn);
 
             var msg = new ChangeThrustLinearModeMsg();
             msg.EntityId = m_block.EntityId;
             msg.linearModeOn = linearModeOn;
 
-            Sync.Layer.SendMessageToAll(ref msg, MyTransportMessageEnum.Success);
+            Sync.Layer.SendMessageToAllAndSelf(ref msg, MyTransportMessageEnum.Success);
         }
 
         static void OnLinearModeChange(ref ChangeThrustLinearModeMsg msg, MyNetworkClient sender)
@@ -93,13 +93,13 @@ namespace Sandbox.Game.Multiplayer
 
         public void SendRotationalModeChangeRequest(bool rotationalModeOn)
         {
-            m_block.SetRotationalMode(rotationalModeOn);
+            //m_block.SetRotationalMode(rotationalModeOn);
             
             var msg = new ChangeThrustRotationalModeMsg();
             msg.EntityId = m_block.EntityId;
             msg.rotationalModeOn = rotationalModeOn;
 
-            Sync.Layer.SendMessageToAll(ref msg, MyTransportMessageEnum.Success);
+            Sync.Layer.SendMessageToAllAndSelf(ref msg, MyTransportMessageEnum.Success);
         }
 
         static void OnRotationalModeChange(ref ChangeThrustRotationalModeMsg msg, MyNetworkClient sender)

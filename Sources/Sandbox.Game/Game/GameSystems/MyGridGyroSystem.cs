@@ -86,7 +86,6 @@ namespace Sandbox.Game.GameSystems
 
         public bool    RemoteControlOperational  { get; set; }
         public bool    CourseEstablished         { get; set; }
-        public bool    RotationalDampingDisabled { get; set; }
         public Vector3 AutopilotAngularDeviation { get; set; }
 
         #endregion
@@ -143,6 +142,7 @@ namespace Sandbox.Game.GameSystems
                     Matrix  invWorldRot = m_grid.PositionComp.GetWorldMatrixNormalizedInv().GetOrientation();
                     Matrix  worldRot    = m_grid.WorldMatrix.GetOrientation();
                     // For some reason, calculating angular velocity inside MyGridGyroSystem.cs yields an incorrect value, causing gyroscopes to overcompensate.
+                    // (Maybe because MyGridThrustSystem.UpdateBeforeSimulation() is called first?)
                     Vector3 localAngularVelocity = m_grid.GridSystems.ThrustSystem.LocalAngularVelocity; 
 
                     float slowdown = (1 - MAX_SLOWDOWN) * (1 - PowerReceiver.SuppliedRatio) + MAX_SLOWDOWN;
@@ -152,38 +152,35 @@ namespace Sandbox.Game.GameSystems
                         slowdownAngularAcceleration = -localAngularVelocity / MyEngineConstants.UPDATE_STEP_SIZE_IN_SECONDS;    // Original damping torque code.
                     else
                     {
-                        if (!AutopilotEnabled)
+                        slowdownAngularAcceleration = P_COEFF * localAngularVelocity;
+                        if (RemoteControlOperational)
                         {
-                            m_gyroControlIntegral = m_enableIntegral ? (m_gyroControlIntegral + localAngularVelocity * I_COEFF) : Vector3.Zero;
-                            CourseEstablished     = false;  // Just in case.
-                        }
-                        else if (CourseEstablished)
-                        {
-                            m_gyroControlIntegral = (-AutopilotAngularDeviation) * (I_COEFF * MyEngineConstants.UPDATE_STEPS_PER_SECOND);
-                            m_enableIntegral      = true;
-                            m_resetIntegral       = false;
-                        }
-                        else
-                            m_gyroControlIntegral = Vector3.Zero;
+                            if (!AutopilotEnabled)
+                            {
+                                m_gyroControlIntegral = m_enableIntegral ? (m_gyroControlIntegral + localAngularVelocity * I_COEFF) : Vector3.Zero;
+                                CourseEstablished     = false;  // Just in case.
+                            }
+                            else if (CourseEstablished)
+                            {
+                                m_gyroControlIntegral = (-AutopilotAngularDeviation) * (I_COEFF * MyEngineConstants.UPDATE_STEPS_PER_SECOND);
+                                m_enableIntegral      = true;
+                                m_resetIntegral       = false;
+                            }
+                            else
+                                m_gyroControlIntegral = Vector3.Zero;
 
-                        // To prevent integral part from fighting the player input, force reset of integral portion 
-                        // when ship starts to spring back after releasing the controls.
-                        if (m_resetIntegral && Vector3.Dot(localAngularVelocity, m_AngularVelocityAtRelease) <= 0.0f)
-                        {
-                            m_resetIntegral       = false;
-                            m_gyroControlIntegral = Vector3.Zero;
-                        }
-                        var angularAcceleration = (localAngularVelocity - m_prevAngularVelocity) / MyEngineConstants.UPDATE_STEP_SIZE_IN_SECONDS;
+                            // To prevent integral part from fighting the player input, force reset of integral portion 
+                            // when ship starts to spring back after releasing the controls.
+                            if (m_resetIntegral && Vector3.Dot(localAngularVelocity, m_AngularVelocityAtRelease) <= 0.0f)
+                            {
+                                m_resetIntegral       = false;
+                                m_gyroControlIntegral = Vector3.Zero;
+                            }
+                            var angularAcceleration = (localAngularVelocity - m_prevAngularVelocity) / MyEngineConstants.UPDATE_STEP_SIZE_IN_SECONDS;
 
-                        if (AutopilotEnabled && !CourseEstablished && RotationalDampingDisabled)
-                            slowdownAngularAcceleration = Vector3.Zero;
-                        else
-                        {
-                            slowdownAngularAcceleration = P_COEFF * localAngularVelocity;
-                            if (RemoteControlOperational)
-                               slowdownAngularAcceleration += m_gyroControlIntegral + D_COEFF * angularAcceleration;
+                            slowdownAngularAcceleration += m_gyroControlIntegral + D_COEFF * angularAcceleration;
                         }
-                        /*AutopilotEnabled =*/ RotationalDampingDisabled = RemoteControlOperational = false;    // Needs to be done here and not in the remote control code, as there may be more than 1 RC block.
+                        RemoteControlOperational = false;    // Needs to be done here and not in the remote control code, as there may be more than 1 RC block.
                     }
 
                     var invTensor = m_grid.Physics.RigidBody.InverseInertiaTensor;
