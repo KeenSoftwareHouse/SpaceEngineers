@@ -58,7 +58,7 @@ namespace Sandbox.Game.Gui
                              m_trashRemoval, m_respawnShipDelete, m_resetOwnership, m_permanentDeath, m_destructibleBlocks, m_enableIngameScripts, m_enableToolShake, m_enableOxygen,
                              m_enable3rdPersonCamera, m_enableEncounters, m_disableRespawnShips;
 
-        MyGuiControlButton m_okButton, m_cancelButton, m_survivalModeButton, m_creativeModeButton, m_inventory_x1, m_inventory_x3, m_inventory_x10;
+        MyGuiControlButton m_okButton, m_cancelButton, m_survivalModeButton, m_creativeModeButton, m_inventory_x1, m_inventory_x3, m_inventory_x10, m_encounters;
         MyGuiControlButton m_assembler_x1, m_assembler_x3, m_assembler_x10,
                            m_refinery_x1, m_refinery_x3, m_refinery_x10,
                            m_welder_half, m_welder_x1, m_welder_x2, m_welder_x5,
@@ -68,6 +68,14 @@ namespace Sandbox.Game.Gui
         MyGuiControlSlider m_maxFloatingObjectsSlider;
         int m_customWorldSize = 0;
         int m_customViewDistance = 20000;
+
+        MyObjectBuilder_Checkpoint m_checkpoint;
+        public MyObjectBuilder_Checkpoint Checkpoint
+        {
+            get { return m_checkpoint; }
+        }
+
+        internal MyGuiScreenEncounterSettings EncounterConfiguration;
 
         public string Password
         {
@@ -174,6 +182,7 @@ namespace Sandbox.Game.Gui
             var spawnShipTimeLabel = MakeLabel(MySpaceTexts.WorldSettings_RespawnShipCooldown);
             var viewDistanceLabel = MakeLabel(MySpaceTexts.WorldSettings_ViewDistance);
             var physicsOptionLabel = MakeLabel(MySpaceTexts.WorldSettings_Physics);
+            var encounterLabel = MakeLabel(MySpaceTexts.WorldSettings_EncountersConfiguration);
 
             float width = 0.284375f + 0.025f;
 
@@ -353,6 +362,9 @@ namespace Sandbox.Game.Gui
             m_physicsOptionsCombo.AddItem((int)MyPhysicsPerformanceEnum.Normal, MySpaceTexts.WorldSettings_Physics_Normal);
             m_physicsOptionsCombo.AddItem((int)MyPhysicsPerformanceEnum.Precise, MySpaceTexts.WorldSettings_Physics_Precise);
 
+            m_encounters = new MyGuiControlButton(visualStyle: MyGuiControlButtonStyleEnum.Small, highlightType: MyGuiControlHighlightType.WHEN_ACTIVE, text: MyTexts.Get(MySpaceTexts.WorldSettings_ConfigureLabel), onButtonClick: EncountersClicked);
+            m_encounters.SetToolTip(MySpaceTexts.ToolTipWorldSettingsEncounterConfiguration);
+
             m_autoHealing.SetToolTip(MyTexts.GetString(MySpaceTexts.ToolTipWorldSettingsAutoHealing));
             m_thrusterDamage.SetToolTip(MyTexts.GetString(MySpaceTexts.ToolTipWorldSettingsThrusterDamage));
             m_cargoShipsEnabled.SetToolTip(MyTexts.GetString(MySpaceTexts.ToolTipWorldSettingsEnableCargoShips));
@@ -374,7 +386,7 @@ namespace Sandbox.Game.Gui
             m_respawnShipDelete.SetToolTip(MyTexts.GetString(MySpaceTexts.TooltipWorldSettingsRespawnShipDelete));
             m_enableToolShake.SetToolTip(MyTexts.GetString(MySpaceTexts.ToolTipWorldSettings_ToolShake));
             m_enableOxygen.SetToolTip(MyTexts.GetString(MySpaceTexts.ToolTipWorldSettings_EnableOxygen));
-            m_disableRespawnShips.SetToolTip(MyTexts.GetString(MySpaceTexts.ToolTipWorldSettings_DisableRespawnShips));
+            m_disableRespawnShips.SetToolTip(MyTexts.GetString(MySpaceTexts.ToolTipWorldSettings_DisableRespawnShips));            
 
             // Add controls in pairs; label first, control second. They will be laid out automatically this way.
             parent.Controls.Add(gameTypeLabel);
@@ -412,6 +424,9 @@ namespace Sandbox.Game.Gui
 
             parent.Controls.Add(viewDistanceLabel);
             parent.Controls.Add(m_viewDistanceCombo);
+
+            parent.Controls.Add(encounterLabel);
+            parent.Controls.Add(m_encounters);
 
             if (MyFakes.ENABLE_NEW_SOUNDS)
             {
@@ -943,6 +958,15 @@ namespace Sandbox.Game.Gui
         private void SurvivalClicked(object sender)
         {
             UpdateSurvivalState(true);
+        }
+
+        private void EncountersClicked(object sender)
+        {
+            EncounterConfiguration = new MyGuiScreenEncounterSettings(this);
+            EncounterConfiguration.UpdateSurvivalState(GetGameMode() == MyGameModeEnum.Survival);
+            //EncounterConfiguration.OnOkButtonClicked += Advanced_OnOkButtonClicked;
+
+            MyGuiSandbox.AddScreen(EncounterConfiguration);
         }
 
         private void OnInventoryClick(object sender)
