@@ -83,10 +83,8 @@ namespace SpaceEngineers.Game
             MyPerGameSettings.BallFriendlyPhysics = true;
 
             MyPerGameSettings.EnableAi = false;
-            
 
             MyPerGameSettings.BotFactoryType = typeof(Sandbox.Game.AI.MySandboxBotFactory);
-            MyPerGameSettings.RespawnComponentType = typeof(Sandbox.Game.World.MyRespawnComponent);
 
             MyPerGameSettings.ControlMenuInitializerType = typeof(MySpaceControlMenuInitializer);
 

@@ -13,6 +13,8 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
+using VRage.Components;
+using VRage.ModAPI;
 using VRage.Utils;
 using VRageMath;
 using VRageRender;
@@ -156,7 +158,7 @@ namespace Sandbox.Game.Entities.Blocks
                     var world = MatrixD.Normalize(matrix) * this.WorldMatrix;
 
                     var detectorShape = CreateFieldShape(halfExtents);
-                    Physics = new Engine.Physics.MyPhysicsBody(this, Engine.Physics.RigidBodyFlag.RBF_STATIC);
+                    Physics = new Engine.Physics.MyPhysicsBody(this, RigidBodyFlag.RBF_STATIC);
                     Physics.IsPhantom = true;
                     Physics.CreateFromCollisionObject(detectorShape, matrix.Translation, world, null, MyPhysics.DefaultCollisionLayer);
                     Physics.Enabled = IsWorking;
@@ -689,7 +691,7 @@ namespace Sandbox.Game.Entities.Blocks
             }
         }
 
-        protected Sandbox.ModAPI.IMyEntity GetOtherEntity(ref HkContactPointEvent value)
+        protected IMyEntity GetOtherEntity(ref HkContactPointEvent value)
         {
             if (value.Base.BodyA.GetEntity() == this)
                 return value.Base.BodyB.GetEntity();

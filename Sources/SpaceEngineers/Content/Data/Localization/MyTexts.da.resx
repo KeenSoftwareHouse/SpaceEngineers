@@ -3867,6 +3867,12 @@ genopstå som en ny spiller! Genopstå?</value>
   <data name="BlockPropertyTitle_Motor_Power" xml:space="preserve">
     <value>Styrke</value>
   </data>
+  <data name="BlockPropertyDescription_Motor_Height" xml:space="preserve">
+    <value>Axle height offset from center</value>
+  </data>
+  <data name="BlockPropertyTitle_Motor_Height" xml:space="preserve">
+    <value>Height Offset</value>
+  </data>
   <data name="DisplayName_Block_VerticalCen" xml:space="preserve">
     <value>Centeret vindue</value>
   </data>
@@ -4833,6 +4839,12 @@ Geninstallere spillet er ikke nok, fordi Steam ikke sletter ukendte filer!</valu
   </data>
   <data name="KeepProjectionTooltip" xml:space="preserve">
     <value>Hold projektion, når bygningen er færdig. Nyttigt for automatiseret bygning, men kan forringe ydeevnen.</value>
+  </data>
+  <data name="ShowOnlyBuildableBlockToggle" xml:space="preserve">
+    <value>Show Only Buildable</value>
+  </data>
+  <data name="ShowOnlyBuildableTooltip" xml:space="preserve">
+    <value>Show Only Buildable</value>
   </data>
   <data name="RemoveProjectionButton" xml:space="preserve">
     <value>Fjern</value>
@@ -6288,10 +6300,10 @@ For at oprette forbindelse til lasere, der ikke er opført kan her du tilslutte 
     <value>Waypoints</value>
   </data>
   <data name="BlockPropertyPopup_AutoPilotToolbarOpen" xml:space="preserve">
-    <value>Set an action to be done when autopilot reaches destination</value>
+    <value>Set actions to be done when autopilot reaches this waypoint</value>
   </data>
   <data name="BlockPropertyTitle_AutoPilotToolbarOpen" xml:space="preserve">
-    <value>Setup Action</value>
+    <value>Setup Actions</value>
   </data>
   <data name="Notification_NoControlAutoPilot" xml:space="preserve">
     <value>Autopilot enabled</value>
@@ -6385,5 +6397,71 @@ For at oprette forbindelse til lasere, der ikke er opført kan her du tilslutte 
   </data>
   <data name="ToolTipVideoOptionsRenderer" xml:space="preserve">
     <value>Changing the renderer requires restart of the game.</value>
+  </data>
+  <data name="StationRotation_Static" xml:space="preserve">
+    <value>Station rotation</value>
+  </data>
+  <data name="StationRotation_Static_Desc" xml:space="preserve">
+    <value>Enables rotation of station block</value>
+  </data>
+  <data name="NotificationStationRotation" xml:space="preserve">
+    <value>Station rotation mode</value>
+  </data>
+  <data name="ControlName_VoiceChat" xml:space="preserve">
+    <value>Push-to-talk voice chat</value>
+  </data>
+  <data name="EnableVoiceChat" xml:space="preserve">
+    <value>Enable voice chat</value>
+  </data>
+  <data name="MessageBoxTextRestartNeededAfterRendererSwitch" xml:space="preserve">
+    <value>Applied changes will be visible after restarting the game</value>
+  </data>
+  <data name="GuiScenarioPlayerName" xml:space="preserve">
+    <value>Player name</value>
+  </data>
+  <data name="GuiScenarioPlayerStatus" xml:space="preserve">
+    <value>Status</value>
+  </data>
+  <data name="GuiScenarioSend" xml:space="preserve">
+    <value>Send</value>
+  </data>
+  <data name="GuiScenarioStart" xml:space="preserve">
+    <value>Start</value>
+  </data>
+  <data name="BlockPropertyTitle_EnableDockingMode" xml:space="preserve">
+    <value>Precision Mode</value>
+  </data>
+  <data name="BlockPropertyTitle_ForwardDirection" xml:space="preserve">
+    <value>Forward Direction</value>
+  </data>
+  <data name="BlockActionTitle_RemoteCopy" xml:space="preserve">
+    <value>Copy</value>
+  </data>
+  <data name="BlockActionTitle_RemotePaste" xml:space="preserve">
+    <value>Paste</value>
+  </data>
+  <data name="BlockActionTitle_WaypointReset" xml:space="preserve">
+    <value>Reset waypoint</value>
+  </data>
+  <data name="BlockActionTooltip_WaypointReset" xml:space="preserve">
+    <value>Resets current waypoint to first position</value>
+  </data>
+  <data name="GuiScenarioTimeout" xml:space="preserve">
+    <value>Connection timeout:</value>
+  </data>
+  <data name="GuiScenarioTimeout10min" xml:space="preserve">
+    <value>10 min</value>
+  </data>
+  <data name="GuiScenarioTimeout3min" xml:space="preserve">
+    <value>3 min</value>
+  </data>
+  <data name="GuiScenarioTimeout5min" xml:space="preserve">
+    <value>5 min</value>
+  </data>
+  <data name="GuiScenarioTimeoutUnlimited" xml:space="preserve">
+    <value>Unlimited</value>
+  </data>
+  <data name="WorldSettings_GameScenario" xml:space="preserve">
+    <value>Scenario</value>
   </data>
 </root>

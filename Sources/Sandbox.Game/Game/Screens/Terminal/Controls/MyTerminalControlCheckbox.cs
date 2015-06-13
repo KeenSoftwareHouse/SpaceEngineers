@@ -15,7 +15,7 @@ using VRage.Library.Utils;
 
 namespace Sandbox.Game.Gui
 {
-    class MyTerminalControlCheckbox<TBlock> : MyTerminalControl<TBlock>
+    class MyTerminalControlCheckbox<TBlock> : MyTerminalValueControl<TBlock, bool>
         where TBlock : MyTerminalBlock
     {
         Action<TBlock> m_action;
@@ -72,6 +72,16 @@ namespace Sandbox.Game.Gui
             Setter(block, !Getter(block));
         }
 
+        void CheckAction(TBlock block)
+        {
+            Setter(block, true);
+        }
+
+        void UncheckAction(TBlock block)
+        {
+            Setter(block, false);
+        }
+
         void Writer(TBlock block, StringBuilder result, StringBuilder onText, StringBuilder offText)
         {
             result.Append(Getter(block) ? onText : offText);
@@ -83,6 +93,31 @@ namespace Sandbox.Game.Gui
             Actions = new MyTerminalAction<TBlock>[] { action };
 
             return action;
+        }
+
+        public override bool GetValue(TBlock block)
+        {
+            return Getter(block);
+        }
+
+        public override void SetValue(TBlock block, bool value)
+        {
+            Setter(block, value);
+        }
+
+        public override bool GetDefaultValue(TBlock block)
+        {
+            return false;
+        }
+
+        public override bool GetMininum(TBlock block)
+        {
+            return false;
+        }
+
+        public override bool GetMaximum(TBlock block)
+        {
+            return true;
         }
     }
 }

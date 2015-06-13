@@ -17,7 +17,9 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using VRage;
+using VRage.Components;
 using VRage.Library.Utils;
+using VRage.ObjectBuilders;
 using VRageMath;
 
 namespace Sandbox.Game.Entities

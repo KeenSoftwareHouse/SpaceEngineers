@@ -67,7 +67,7 @@ namespace VRageRender
 
         public void ApplySettings(MyRenderDeviceSettings settings)
         {
-            MyRender11.CheckAdapterChange(settings);
+            MyRender11.CheckAdapterChange(ref settings);
             MyRender11.ApplySettings(settings);
         }
 
@@ -182,7 +182,14 @@ namespace VRageRender
                 try
                 {
                     var adapters = MyRender11.GetAdaptersList();
-                    return adapters.Length > 0;
+
+                    foreach(var adapter in adapters) {
+                        if (adapter.IsDx11Supported)
+                        { 
+                            return true;
+                        }
+                    }
+                    return false;
                 }
                 catch
                 {

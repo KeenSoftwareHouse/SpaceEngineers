@@ -488,6 +488,8 @@ namespace Sandbox.Engine.Physics
         }
 
         public bool Supported { get; private set; }
+
+        public Vector3 SupportNormal { get; private set; }
         public Vector3 GroundVelocity { get; private set; }
 
         #endregion
@@ -512,6 +514,7 @@ namespace Sandbox.Engine.Physics
                 CharacterRigidBody.StepSimulation(stepSizeInSeconds);
                 CharacterRigidBody.Elevate = Elevate;
                 Supported = CharacterRigidBody.Supported;
+                SupportNormal = CharacterRigidBody.SupportNormal;
                 GroundVelocity = CharacterRigidBody.GroundVelocity;
             }           
         }

@@ -144,6 +144,7 @@ namespace VRageRender
             MyRender11.Log.WriteLine("AntialiasingMode = " + v.AntialiasingMode);
             MyRender11.Log.WriteLine("FoliageDetails = " + v.FoliageDetails);
             MyRender11.Log.WriteLine("MultithreadingEnabled = " + v.MultithreadingEnabled);
+            MyRender11.Log.WriteLine("TonemappingEnabled = " + v.TonemappingEnabled);
             MyRender11.Log.WriteLine("ShadowQuality = " + v.ShadowQuality);
             MyRender11.Log.WriteLine("TextureQuality = " + v.TextureQuality);
             MyRender11.Log.WriteLine("AnisotropicFiltering = " + v.AnisotropicFiltering);
@@ -433,8 +434,10 @@ namespace VRageRender
             MyRender11.Log.WriteLine("}");
         }
 
-        internal static void CheckAdapterChange(MyRenderDeviceSettings settings)
+        internal static void CheckAdapterChange(ref MyRenderDeviceSettings settings)
         {
+            settings.AdapterOrdinal = ValidateAdapterIndex(settings.AdapterOrdinal);
+
             bool differentAdapter = m_adapterInfoList[m_settings.AdapterOrdinal].AdapterDeviceId != m_adapterInfoList[settings.AdapterOrdinal].AdapterDeviceId;
 
             if (differentAdapter)
@@ -490,7 +493,7 @@ namespace VRageRender
                 md.RefreshRate.Numerator = settings.RefreshRate;
                 md.RefreshRate.Denominator = 1000;
 
-                var list = m_adapterModes[m_settings.AdapterOrdinal];
+                var list = m_adapterModes.Get(m_settings.AdapterOrdinal);
                 if (list != null)
                 {
                     for (int i = 0; i < list.Length; i++)

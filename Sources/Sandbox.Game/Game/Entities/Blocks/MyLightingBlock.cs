@@ -23,10 +23,11 @@ using Sandbox.ModAPI.Ingame;
 using Sandbox.Game.Localization;
 using VRage;
 using VRage.Utils;
+using VRage.ModAPI;
 
 namespace Sandbox.Game.Entities.Blocks
 {
-    abstract class MyLightingBlock : MyFunctionalBlock, IMyPowerConsumer, IMyLightingBlock
+    public abstract class MyLightingBlock : MyFunctionalBlock, IMyPowerConsumer, IMyLightingBlock
     {
         private const int NUM_DECIMALS = 1;
         private float m_blinkIntervalSeconds;
@@ -401,7 +402,7 @@ namespace Sandbox.Game.Entities.Blocks
             UpdateLightBlink();
             UpdateLightPosition();
             UpdateLightProperties();
-            UpdateEmissivity(true);
+            UpdateEmissivity(false);
         }
 
         private void UpdateIntensity()

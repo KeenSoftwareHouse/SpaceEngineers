@@ -5,7 +5,7 @@ using System.Text;
 
 namespace Sandbox.Game.Entities.Cube
 {
-    struct MyFatBlockReader<TBlock> : IEnumerator<TBlock>
+    public struct MyFatBlockReader<TBlock> : IEnumerator<TBlock>
         where TBlock : MyCubeBlock
     {
         HashSet<MySlimBlock>.Enumerator m_enumerator;

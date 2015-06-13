@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using VRage;
+using VRage.Components;
 using VRageMath;
 
 namespace Sandbox.Game.Entities
@@ -29,13 +30,13 @@ namespace Sandbox.Game.Entities
         Dictionary<MyEntity, DetectedEntityInfo> m_detectedEntities = new Dictionary<MyEntity, DetectedEntityInfo>(new InstanceComparer<MyEntity>());
         List<MyEntity> m_deleteList = new List<MyEntity>();
 
-        Action<Common.Components.MyPositionComponentBase> m_entityPositionChanged;
+        Action<MyPositionComponentBase> m_entityPositionChanged;
         Action<MyEntity> m_entityClosed;
 
         public MySensorBase()
         {
             Save = false;
-            this.m_entityPositionChanged = new Action<Common.Components.MyPositionComponentBase>(entity_OnPositionChanged);
+            this.m_entityPositionChanged = new Action<MyPositionComponentBase>(entity_OnPositionChanged);
             this.m_entityClosed = new Action<MyEntity>(entity_OnClose);
         }
 
@@ -131,10 +132,10 @@ namespace Sandbox.Game.Entities
             }
         }
 
-        void entity_OnPositionChanged(Common.Components.MyPositionComponentBase entity)
+        void entity_OnPositionChanged(MyPositionComponentBase entity)
         {
             DetectedEntityInfo info;
-            if (m_detectedEntities.TryGetValue(entity.Entity as MyEntity, out info))
+            if (m_detectedEntities.TryGetValue(entity.Container.Entity as MyEntity, out info))
             {
                 info.Moved = true;
             }

@@ -18,11 +18,12 @@ using VRageMath.PackedVector;
 using VRage.Serialization;
 using Sandbox.Engine.Utils;
 using VRage;
+using VRage.Components;
 
 namespace Sandbox.Game.Multiplayer
 {
     [PreloadRequired]
-    public class MySyncEntity : Sandbox.Common.Components.MySyncComponentBase
+    public class MySyncEntity : MySyncComponentBase
     {
         [MessageId(10, P2PMessageEnum.Reliable)]
         [StructLayout(LayoutKind.Sequential, Pack = 1)]
@@ -122,15 +123,15 @@ namespace Sandbox.Game.Multiplayer
         }
 
         private static readonly uint m_sleepTimeForRequest = 60;
-        private static readonly byte m_defaultUpdateCount = 4;
-        private static readonly byte m_constantMovementUpdateCount = 20;
+        public byte DefaultUpdateCount = 4;
+        public byte ConstantMovementUpdateCount = 20;
 
-        protected byte m_updateFrameCount = m_constantMovementUpdateCount; // Update position once every x frames
+        protected byte m_updateFrameCount; // Update position once every x frames
         protected uint m_lastUpdateFrame = 0;
 
         private bool m_positionDirty = false;
 
-        public readonly MyEntity Entity;
+        public readonly new MyEntity Entity;
 
         public override bool UpdatesOnlyOnServer { get; set; }
 
@@ -141,6 +142,7 @@ namespace Sandbox.Game.Multiplayer
             Entity = entity;
             ResetUpdateTimer();
             UpdatesOnlyOnServer = false;
+            m_updateFrameCount = ConstantMovementUpdateCount;
         }
 
         public override void UpdatePosition()
@@ -184,16 +186,16 @@ namespace Sandbox.Game.Multiplayer
         private void SendPositionUpdate()
         {
             float epsilonSq = 0.05f * 0.05f;
-            if (m_updateFrameCount == m_constantMovementUpdateCount && (Entity.Physics == null
+            if (m_updateFrameCount == ConstantMovementUpdateCount && (Entity.Physics == null
                 || Entity.Physics.LinearAcceleration.LengthSquared() > epsilonSq
                 || Entity.Physics.AngularAcceleration.LengthSquared() > epsilonSq))
             {
-                m_updateFrameCount = m_defaultUpdateCount;
+                m_updateFrameCount = DefaultUpdateCount;
             }
 
-            if (MyMultiplayer.Static != null && MyMultiplayer.Static.FrameCounter - m_lastUpdateFrame > m_updateFrameCount)
+            if (MyMultiplayer.Static != null && MyMultiplayer.Static.FrameCounter - m_lastUpdateFrame >= m_updateFrameCount)
             {
-                m_updateFrameCount = m_constantMovementUpdateCount;
+                m_updateFrameCount = ConstantMovementUpdateCount;
 
                 // TODO: abstraction would be nice
                 var syncGrid = this as MySyncGrid;

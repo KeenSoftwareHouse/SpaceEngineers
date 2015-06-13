@@ -27,6 +27,11 @@ using VRage.Utils;
 using VRageMath;
 using Sandbox.Game.GameSystems;
 using Sandbox.Common.ModAPI;
+using Sandbox.Game.Entities.UseObject;
+using VRage.ObjectBuilders;
+using VRage.ModAPI;
+using VRage.Components;
+using VRage.Game.Entity.UseObject;
 
 #endregion
 
@@ -37,7 +42,7 @@ namespace Sandbox.Game.Entities
     {
         static MySoundPair TAKE_ITEM_SOUND = new MySoundPair("PlayTakeItem");
         static MyStringId m_explosives = MyStringId.GetOrCompute("Explosives");
-		static public MyObjectBuilder_Ore ScrapBuilder = Sandbox.Common.ObjectBuilders.Serializer.MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_Ore>("Scrap");
+		static public MyObjectBuilder_Ore ScrapBuilder = MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_Ore>("Scrap");
 
         private StringBuilder m_displayedText = new StringBuilder();
 
@@ -89,7 +94,7 @@ namespace Sandbox.Game.Entities
 
             // DA: Consider using havok fields (buoyancy demo) for gravity of planets.
             Vector3 gravity = MyGravityProviderSystem.CalculateGravityInPointForGrid(PositionComp.GetPosition());
-            Physics.AddForce(Engine.Physics.MyPhysicsForceType.APPLY_WORLD_FORCE, Physics.Mass * gravity, Physics.CenterOfMassWorld, null);
+            Physics.AddForce(MyPhysicsForceType.APPLY_WORLD_FORCE, Physics.Mass * gravity, Physics.CenterOfMassWorld, null);
         }
 
         public override void OnAddedToScene(object source)
@@ -242,8 +247,9 @@ namespace Sandbox.Game.Entities
             get { return UseActionEnum.Manipulate; }
         }
 
-        void IMyUseObject.Use(UseActionEnum actionEnum, MyCharacter user)
+        void IMyUseObject.Use(UseActionEnum actionEnum, IMyEntity entity)
         {
+            var user = entity as MyCharacter;
             if (!MarkedForClose)
             {
                 if (!MySession.Static.CreativeMode)

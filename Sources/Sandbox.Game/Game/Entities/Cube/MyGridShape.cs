@@ -458,10 +458,14 @@ namespace Sandbox.Game.Entities.Cube
                 Vector3 halfExtents = geometryBox.Size / 2;
 
                 Vector3D pos;
-                b.ComputeWorldCenter(out pos);
+                b.ComputeScaledCenter(out pos);
+                pos += geometryBox.Center;
+                pos = Vector3D.Transform(pos, m_grid.WorldMatrix);
+
                 Matrix blockMatrix;
                 b.Orientation.GetMatrix(out blockMatrix);
-                q = Quaternion.CreateFromRotationMatrix(blockMatrix);
+                q = Quaternion.CreateFromRotationMatrix(blockMatrix * m_grid.WorldMatrix.GetOrientation());
+
                 Sandbox.Engine.Physics.MyPhysics.GetPenetrationsBox(ref halfExtents, ref pos, ref q, m_penetrations, Sandbox.Engine.Physics.MyPhysics.CollideWithStaticLayer);
                 counter++;
                 bool isStatic = false;

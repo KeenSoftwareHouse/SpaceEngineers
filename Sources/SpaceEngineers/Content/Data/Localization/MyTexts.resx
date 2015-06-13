@@ -3881,6 +3881,37 @@ Respawn?</value>
   <data name="BlockPropertyTitle_Motor_Height" xml:space="preserve">
     <value>Height Offset</value>
   </data>
+  <data name="BlockPropertyDescription_Motor_MaxSteerAngle" xml:space="preserve">
+    <value>The maximum angle that the wheel will turn when steering</value>
+  </data>
+  <data name="BlockPropertyTitle_Motor_MaxSteerAngle" xml:space="preserve">
+    <value>Steering Angle</value>
+  </data>
+  <data name="BlockPropertyDescription_Motor_SteerSpeed" xml:space="preserve">
+    <value>The wheel turn speed.</value>
+  </data>
+  <data name="BlockPropertyTitle_Motor_SteerSpeed" xml:space="preserve">
+    <value>Steering Speed</value>
+  </data>
+  <data name="BlockPropertyDescription_Motor_SteerReturnSpeed" xml:space="preserve">
+    <value>The wheel's return speed from turning.</value>
+  </data>
+  <data name="BlockPropertyTitle_Motor_SteerReturnSpeed" xml:space="preserve">
+    <value>Steer Return Speed</value>
+  </data>
+  <data name="BlockPropertyDescription_Motor_InvertSteer" xml:space="preserve">
+    <value>Invert the steering direction.</value>
+  </data>
+  <data name="BlockPropertyTitle_Motor_InvertSteer" xml:space="preserve">
+    <value>Invert Steering</value>
+  </data>
+  <data name="BlockPropertyDescription_Motor_SuspensionTravel" xml:space="preserve">
+    <value>Limits the suspension's travel height.
+Setting to 0% will effectively lock the suspension.</value>
+  </data>
+  <data name="BlockPropertyTitle_Motor_SuspensionTravel" xml:space="preserve">
+    <value>Suspension Travel</value>
+  </data>
   <data name="DisplayName_Block_VerticalCen" xml:space="preserve">
     <value>Centered Window</value>
   </data>
@@ -5940,6 +5971,9 @@ To connect to lasers not listed here you can connect to coordinates.</value>
   <data name="Terminal_ShowAllInTerminal" xml:space="preserve">
     <value>Show hidden blocks</value>
   </data>
+  <data name="Terminal_ShowInToolbarConfig" xml:space="preserve">
+    <value>Show block in toolbar config</value>
+  </data>
   <data name="NotificationBottleRefill" xml:space="preserve">
     <value>Oxygen refilled from bottles.</value>
   </data>
@@ -6008,6 +6042,9 @@ To connect to lasers not listed here you can connect to coordinates.</value>
   </data>
   <data name="Terminal_ShowInTerminalToolTip" xml:space="preserve">
     <value>Show/hide current block in terminal</value>
+  </data>
+  <data name="Terminal_ShowInToolbarConfigToolTip" xml:space="preserve">
+    <value>Show/hide current block in toolbar config</value>
   </data>
   <data name="NotificationHelmetOff" xml:space="preserve">
     <value>Helmet Off</value>
@@ -6310,10 +6347,10 @@ To connect to lasers not listed here you can connect to coordinates.</value>
     <value>Waypoints</value>
   </data>
   <data name="BlockPropertyPopup_AutoPilotToolbarOpen" xml:space="preserve">
-    <value>Set an action to be done when autopilot reaches destination</value>
+    <value>Set actions to be done when autopilot reaches this waypoint</value>
   </data>
   <data name="BlockPropertyTitle_AutoPilotToolbarOpen" xml:space="preserve">
-    <value>Setup Action</value>
+    <value>Setup Actions</value>
   </data>
   <data name="Notification_NoControlAutoPilot" xml:space="preserve">
     <value>Autopilot enabled</value>
@@ -6425,5 +6462,68 @@ To connect to lasers not listed here you can connect to coordinates.</value>
   </data>
   <data name="MessageBoxTextRestartNeededAfterRendererSwitch" xml:space="preserve">
     <value>Applied changes will be visible after restarting the game</value>
+  </data>
+  <data name="GuiScenarioPlayerName" xml:space="preserve">
+    <value>Player name</value>
+  </data>
+  <data name="GuiScenarioPlayerStatus" xml:space="preserve">
+    <value>Status</value>
+  </data>
+  <data name="GuiScenarioSend" xml:space="preserve">
+    <value>Send</value>
+  </data>
+  <data name="GuiScenarioStart" xml:space="preserve">
+    <value>Start</value>
+  </data>
+  <data name="BlockPropertyTitle_EnableDockingMode" xml:space="preserve">
+    <value>Precision Mode</value>
+  </data>
+  <data name="BlockPropertyTitle_ForwardDirection" xml:space="preserve">
+    <value>Forward Direction</value>
+  </data>
+  <data name="BlockActionTitle_RemoteCopy" xml:space="preserve">
+    <value>Copy</value>
+  </data>
+  <data name="BlockActionTitle_RemotePaste" xml:space="preserve">
+    <value>Paste</value>
+  </data>
+  <data name="BlockActionTitle_WaypointReset" xml:space="preserve">
+    <value>Reset waypoint</value>
+  </data>
+  <data name="BlockActionTooltip_WaypointReset" xml:space="preserve">
+    <value>Resets current waypoint to first position</value>
+  </data>
+  <data name="GuiScenarioTimeout" xml:space="preserve">
+    <value>Connection timeout:</value>
+  </data>
+  <data name="GuiScenarioTimeout10min" xml:space="preserve">
+    <value>10 min</value>
+  </data>
+  <data name="GuiScenarioTimeout3min" xml:space="preserve">
+    <value>3 min</value>
+  </data>
+  <data name="GuiScenarioTimeout5min" xml:space="preserve">
+    <value>5 min</value>
+  </data>
+  <data name="GuiScenarioTimeoutUnlimited" xml:space="preserve">
+    <value>Unlimited</value>
+  </data>
+  <data name="WorldSettings_GameScenario" xml:space="preserve">
+    <value>Scenario</value>
+  </data>
+  <data name="Notification_CockpitIsDamaged" xml:space="preserve">
+    <value>Cockpit is damaged</value>
+  </data>
+  <data name="LaserAntennaOutsideLimits" xml:space="preserve">
+    <value>Target outside movement range</value>
+  </data>
+  <data name="ScreenGraphicsOptions_Tonemapping" xml:space="preserve">
+    <value>Tonemapping</value>
+  </data>
+  <data name="WorldSettings_DisableRespawnShips" xml:space="preserve">
+    <value>Disable respawn ships</value>
+  </data>
+  <data name="ToolTipWorldSettings_DisableRespawnShips" xml:space="preserve">
+    <value>Respawn in ships and suit is disabled. If no valid medical rooms exist, respawn won't be possible at all!</value>
   </data>
 </root>

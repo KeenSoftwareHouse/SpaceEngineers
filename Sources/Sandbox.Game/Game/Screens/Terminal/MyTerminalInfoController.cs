@@ -148,18 +148,19 @@ namespace Sandbox.Game.Gui
            
 
             int gravityCounter = 0;
-            if (m_grid.BlocksCounters.ContainsKey(typeof(MyGravityGenerator)))
-                gravityCounter = m_grid.BlocksCounters[typeof(MyGravityGenerator)];
+            if (m_grid.BlocksCounters.ContainsKey(typeof(MyObjectBuilder_GravityGenerator)))
+                gravityCounter = m_grid.BlocksCounters[typeof(MyObjectBuilder_GravityGenerator)];
             int massCounter = 0;
-            if (m_grid.BlocksCounters.ContainsKey(typeof(MyVirtualMass)))
-                massCounter = m_grid.BlocksCounters[typeof(MyVirtualMass)];
+            if (m_grid.BlocksCounters.ContainsKey(typeof(MyObjectBuilder_VirtualMass)))
+                massCounter = m_grid.BlocksCounters[typeof(MyObjectBuilder_VirtualMass)];
             int lightCounter = 0;
-            if (m_grid.BlocksCounters.ContainsKey(typeof(MyInteriorLight)))
-                lightCounter = m_grid.BlocksCounters[typeof(MyInteriorLight)];
+            if (m_grid.BlocksCounters.ContainsKey(typeof(MyObjectBuilder_InteriorLight)))
+                lightCounter = m_grid.BlocksCounters[typeof(MyObjectBuilder_InteriorLight)];
             var conveyorCounter = 0;
             foreach (var key in m_grid.BlocksCounters.Keys)
             {
-                if (typeof(IMyConveyorSegmentBlock).IsAssignableFrom(key) || typeof(IMyConveyorEndpointBlock).IsAssignableFrom(key))
+                Type blockType = MyCubeBlockFactory.GetProducedType(key);
+                if (typeof(IMyConveyorSegmentBlock).IsAssignableFrom(blockType) || typeof(IMyConveyorEndpointBlock).IsAssignableFrom(blockType))
                     conveyorCounter += m_grid.BlocksCounters[key];
             }
             int polygonCounter = 0;

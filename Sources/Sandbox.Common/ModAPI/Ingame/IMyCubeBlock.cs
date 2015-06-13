@@ -1,4 +1,7 @@
 ﻿using System;
+using VRage.ModAPI;
+using VRage.ObjectBuilders;
+
 namespace Sandbox.ModAPI.Ingame
 {
     /// <summary>
@@ -6,7 +9,7 @@ namespace Sandbox.ModAPI.Ingame
     /// </summary>
     public interface IMyCubeBlock : IMyEntity
     {
-        Sandbox.Common.ObjectBuilders.Definitions.SerializableDefinitionId BlockDefinition { get; }
+        SerializableDefinitionId BlockDefinition { get; }
 
         bool CheckConnectionAllowed { get; }
         IMyCubeGrid CubeGrid { get; }

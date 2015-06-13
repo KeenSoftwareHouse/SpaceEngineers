@@ -10,7 +10,7 @@ using System.Text;
 namespace Sandbox.Game.Multiplayer
 {
     [PreloadRequired]
-    class MySyncCubeBlock : MySyncEntity
+    public class MySyncCubeBlock : MySyncEntity
     {
         public MySyncCubeBlock(MyCubeBlock block)
             : base(block)

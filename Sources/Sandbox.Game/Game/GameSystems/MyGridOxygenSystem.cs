@@ -19,6 +19,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using VRage;
+using VRage.Components;
 using VRage.Input;
 using VRage.Library.Utils;
 using VRageMath;
@@ -95,13 +96,13 @@ namespace Sandbox.Game.GameSystems
             return MathHelper.Lerp(PreviousOxygenAmount, targetOxygenAmount, t);
         }
 
-        internal float OxygenLevel(float gridSize)
+        public float OxygenLevel(float gridSize)
         {
             return OxygenAmount() / (gridSize * gridSize * gridSize);
         }
     }
 
-    class MyGridOxygenSystem
+    public class MyGridOxygenSystem
     {
         private struct MyDepressurizationForceInfo
         {
@@ -1047,7 +1048,7 @@ namespace Sandbox.Game.GameSystems
                         }
 
                         forceInfo.Direction.Normalize();
-                        entity.Physics.AddForce(Engine.Physics.MyPhysicsForceType.APPLY_WORLD_IMPULSE_AND_WORLD_ANGULAR_IMPULSE, forceInfo.Direction * forceInfo.Strength, entity.PositionComp.WorldMatrix.Translation, null);
+                        entity.Physics.AddForce(MyPhysicsForceType.APPLY_WORLD_IMPULSE_AND_WORLD_ANGULAR_IMPULSE, forceInfo.Direction * forceInfo.Strength, entity.PositionComp.WorldMatrix.Translation, null);
                     }
                 }
 
@@ -1174,22 +1175,42 @@ namespace Sandbox.Game.GameSystems
 
             if (block.FatBlock != null)
             {
-                var door = block.FatBlock as MyDoor;
-                if (door != null && !door.Open)
+                var doorBlock = block.FatBlock;
+
+                if (doorBlock is MyDoor)
                 {
-                    foreach (var mountPoint in block.BlockDefinition.MountPoints)
+                    var door = doorBlock as MyDoor;
+                    if (!door.Open)
                     {
-                        if (transformedNormal == mountPoint.Normal)
+                        foreach (var mountPoint in block.BlockDefinition.MountPoints)
                         {
-                            return false;
+                            if (transformedNormal == mountPoint.Normal)
+                            {
+                                return false;
+                            }
                         }
+                        return true;
                     }
-                    return true;
                 }
-                else
+                else if (doorBlock is MyAdvancedDoor)
                 {
-                    var hangarDoor = block.FatBlock as MyAirtightDoorGeneric;
-                    if (hangarDoor != null && hangarDoor.IsFullyClosed)
+                    var door = doorBlock as MyAdvancedDoor;
+                    if (door.FullyClosed)
+                    {
+                        foreach (var mountPoint in block.BlockDefinition.MountPoints)
+                        {
+                            if (transformedNormal == mountPoint.Normal)
+                            {
+                                return false;
+                            }
+                        }
+                        return true;
+                    }
+                }
+                else if (doorBlock is MyAirtightDoorGeneric)
+                {
+                    var hangarDoor = doorBlock as MyAirtightDoorGeneric;
+                    if (hangarDoor.IsFullyClosed)
                     {
                         if (transformedNormal == Vector3.Forward || transformedNormal == Vector3.Backward)
                         {

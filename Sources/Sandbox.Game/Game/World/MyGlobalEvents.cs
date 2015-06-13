@@ -1,7 +1,6 @@
 ﻿using Sandbox.Common;
 using Sandbox.Common.ObjectBuilders;
 using Sandbox.Common.ObjectBuilders.Definitions;
-using Sandbox.Common.ObjectBuilders.Serializer;
 using Sandbox.Definitions;
 using Sandbox.Engine.Utils;
 using Sandbox.Game.Multiplayer;
@@ -11,6 +10,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using VRage;
+using VRage.ObjectBuilders;
 using VRageMath;
 using VRageRender;
 
@@ -61,7 +61,7 @@ namespace Sandbox.Game.World
 
         public static MyObjectBuilder_GlobalEvents GetObjectBuilder()
         {
-            MyObjectBuilder_GlobalEvents objectBuilder = Sandbox.Common.ObjectBuilders.Serializer.MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_GlobalEvents>();
+            MyObjectBuilder_GlobalEvents objectBuilder = MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_GlobalEvents>();
 
             foreach (var globalEvent in m_globalEvents)
             {

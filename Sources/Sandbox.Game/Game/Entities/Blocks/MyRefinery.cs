@@ -23,6 +23,7 @@ using VRage;
 using Sandbox.ModAPI.Ingame;
 using Sandbox.Game.Localization;
 using Sandbox.Game.Entities.Interfaces;
+using VRage.ObjectBuilders;
 
 namespace Sandbox.Game.Entities.Cube
 {
@@ -285,7 +286,7 @@ namespace Sandbox.Game.Entities.Cube
 
             foreach (var prerequisite in queueItem.Prerequisites)
             {
-                var obPrerequisite = (MyObjectBuilder_PhysicalObject)Sandbox.Common.ObjectBuilders.Serializer.MyObjectBuilderSerializer.CreateNewObject(prerequisite.Id);
+                var obPrerequisite = (MyObjectBuilder_PhysicalObject)MyObjectBuilderSerializer.CreateNewObject(prerequisite.Id);
                 var prerequisiteAmount = blueprintAmount * prerequisite.Amount;
                 InputInventory.RemoveItemsOfType(prerequisiteAmount, obPrerequisite);
             }
@@ -293,7 +294,7 @@ namespace Sandbox.Game.Entities.Cube
             foreach (var result in queueItem.Results)
             {
                 var resultId = result.Id;
-                var obResult = (MyObjectBuilder_PhysicalObject)Sandbox.Common.ObjectBuilders.Serializer.MyObjectBuilderSerializer.CreateNewObject(resultId);
+                var obResult = (MyObjectBuilder_PhysicalObject)MyObjectBuilderSerializer.CreateNewObject(resultId);
 
                 var conversionRatio = result.Amount * m_refineryDef.MaterialEfficiency * UpgradeValues["Effectiveness"];
                 if (conversionRatio > (MyFixedPoint)1.0f)

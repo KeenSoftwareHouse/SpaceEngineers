@@ -20,22 +20,25 @@ using Sandbox.ModAPI.Interfaces;
 using System.Diagnostics;
 using System.Text;
 using VRage;
+using VRage.Game.Entity.UseObject;
 using VRage.Input;
 using VRage.Library.Utils;
 using VRage.Utils;
 using VRageMath;
 using IMyModdingControllableEntity = Sandbox.ModAPI.Interfaces.IMyControllableEntity;
+using VRage.ObjectBuilders;
+using VRage.ModAPI;
 #endregion
 
 namespace Sandbox.Game.Entities
 {
-    enum ControllerPriority
+    public enum ControllerPriority
     {
         AutoPilot = 1,
         Primary = 2,
         Secondary = 3
     };
-    partial class MyShipController : MyTerminalBlock, IMyControllableEntity, IMyRechargeSocketOwner, IMyShipController
+    public partial class MyShipController : MyTerminalBlock, IMyControllableEntity, IMyRechargeSocketOwner, IMyShipController
     {
         #region Fields
         public MyGridGyroSystem GridGyroSystem;
@@ -1540,6 +1543,8 @@ namespace Sandbox.Game.Entities
                     MyHud.Notifications.Add(MyNotificationSingletons.AccessDenied);
                 else if (actionResult == UseActionResult.Unpowered)
                     MyHud.Notifications.Add(new MyHudNotification(MySpaceTexts.BlockIsNotPowered, 2500, MyFontEnum.Red));
+                else if (actionResult == UseActionResult.CockpitDamaged)
+                    MyHud.Notifications.Add(new MyHudNotification(MySpaceTexts.Notification_CockpitIsDamaged, 2500, MyFontEnum.Red));
             }
         }
 

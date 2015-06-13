@@ -6,6 +6,7 @@ using Havok;
 using Sandbox.Game.Entities;
 using System.Diagnostics;
 using Sandbox.Common.Components;
+using VRage.ModAPI;
 
 namespace Sandbox.Engine.Physics
 {
@@ -16,13 +17,13 @@ namespace Sandbox.Engine.Physics
             return (hkEntity != null) ? hkEntity.UserObject as MyPhysicsBody : null;
         }
 
-        public static Sandbox.ModAPI.IMyEntity GetEntity(this HkEntity hkEntity)
+        public static IMyEntity GetEntity(this HkEntity hkEntity)
         {
             var body = hkEntity.GetBody();
             return body != null ? body.Entity : null;
         }
 
-        public static Sandbox.ModAPI.IMyEntity GetOtherEntity(this HkContactPointEvent eventInfo, Sandbox.ModAPI.IMyEntity sourceEntity)
+        public static IMyEntity GetOtherEntity(this HkContactPointEvent eventInfo, IMyEntity sourceEntity)
         {
             var entityA = eventInfo.Base.BodyA.GetEntity();
             var entityB = eventInfo.Base.BodyB.GetEntity();

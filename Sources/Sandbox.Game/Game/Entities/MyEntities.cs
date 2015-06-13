@@ -29,6 +29,9 @@ using Sandbox.ModAPI;
 using Sandbox.Game.Weapons;
 using VRage.Win32;
 using VRage.Utils;
+using VRage.ModAPI;
+using VRage.ObjectBuilders;
+using VRage.Components;
 
 #endregion
 
@@ -83,6 +86,7 @@ namespace Sandbox.Game.Entities
         {
             MyEntityFactory.RegisterDescriptorsFromAssembly(Assembly.GetCallingAssembly());
             MyEntityFactory.RegisterDescriptorsFromAssembly(MyPlugins.GameAssembly);
+            MyEntityFactory.RegisterDescriptorsFromAssembly(MyPlugins.SandboxAssembly);
             MyEntityFactory.RegisterDescriptorsFromAssembly(MyPlugins.UserAssembly);
         }
 
@@ -329,15 +333,15 @@ namespace Sandbox.Game.Entities
 
         // Helper list for storing results of various operations, mostly used in intersections
         [ThreadStatic]
-        private static HashSet<Sandbox.ModAPI.IMyEntity> m_entityResultSet;
-        private static List<HashSet<Sandbox.ModAPI.IMyEntity>> m_entityResultSetCollection = new List<HashSet<Sandbox.ModAPI.IMyEntity>>();
-        static HashSet<Sandbox.ModAPI.IMyEntity> EntityResultSet
+        private static HashSet<IMyEntity> m_entityResultSet;
+        private static List<HashSet<IMyEntity>> m_entityResultSetCollection = new List<HashSet<IMyEntity>>();
+        static HashSet<IMyEntity> EntityResultSet
         {
             get
             {
                 if (m_entityResultSet == null)
                 {
-                    m_entityResultSet = new HashSet<Sandbox.ModAPI.IMyEntity>();
+                    m_entityResultSet = new HashSet<IMyEntity>();
                     lock (m_entityResultSetCollection)
                     {
                         m_entityResultSetCollection.Add(m_entityResultSet);
@@ -744,22 +748,22 @@ namespace Sandbox.Game.Entities
 
         public static void UnregisterForUpdate(MyEntity entity, bool immediate = false)
         {
-            if ((entity.Flags & Sandbox.ModAPI.EntityFlags.NeedsUpdateBeforeNextFrame) != 0)
+            if ((entity.Flags & EntityFlags.NeedsUpdateBeforeNextFrame) != 0)
             {
                 m_entitiesForUpdateOnce.Remove(entity, immediate);
             }
 
-            if ((entity.Flags & Sandbox.ModAPI.EntityFlags.NeedsUpdate) != 0)
+            if ((entity.Flags & EntityFlags.NeedsUpdate) != 0)
             {
                 m_entitiesForUpdate.Remove(entity, immediate);
             }
 
-            if ((entity.Flags & Sandbox.ModAPI.EntityFlags.NeedsUpdate10) != 0)
+            if ((entity.Flags & EntityFlags.NeedsUpdate10) != 0)
             {
                 m_entitiesForUpdate10.Remove(entity, immediate);
             }
 
-            if ((entity.Flags & Sandbox.ModAPI.EntityFlags.NeedsUpdate100) != 0)
+            if ((entity.Flags & EntityFlags.NeedsUpdate100) != 0)
             {
                 m_entitiesForUpdate100.Remove(entity, immediate);
             }
@@ -1605,7 +1609,7 @@ namespace Sandbox.Game.Entities
                     {
                         Forward = objectBuilder.PositionAndOrientation.Value.Forward,
                         Up = objectBuilder.PositionAndOrientation.Value.Up,
-                        Position = new Common.ObjectBuilders.VRageData.SerializableVector3D(
+                        Position = new SerializableVector3D(
                         objectBuilder.PositionAndOrientation.Value.Position + new Vector3D(1E9))
                     };
                 }
@@ -1796,7 +1800,7 @@ namespace Sandbox.Game.Entities
 
                 foreach (var comp in components)
                 {
-                    var entity = comp.Entity;
+                    var entity = comp.Container.Entity;
                     if (entity.Save)
                     {
                         entity.BeforeSave();

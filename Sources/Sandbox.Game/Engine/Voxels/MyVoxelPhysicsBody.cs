@@ -15,6 +15,8 @@ using Sandbox.ModAPI;
 using Sandbox.Game.Entities.Cube;
 using Sandbox.Game.Entities.Character;
 using VRage.Trace;
+using VRage.ModAPI;
+using VRage.Components;
 
 namespace Sandbox.Engine.Voxels
 {

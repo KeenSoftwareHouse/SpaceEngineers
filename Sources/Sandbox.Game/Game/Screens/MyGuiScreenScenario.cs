@@ -5,11 +5,13 @@ using Sandbox.Engine.Networking;
 using Sandbox.Engine.Utils;
 using Sandbox.Game.Gui;
 using Sandbox.Game.Localization;
+using Sandbox.Game.Screens;
 using Sandbox.Game.Screens.Helpers;
 using Sandbox.Game.World;
 using Sandbox.Graphics.GUI;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -195,7 +197,7 @@ namespace Sandbox.Game.Gui
 
             Controls.Add(onlineModeLabel);
             Controls.Add(m_onlineMode);
-            m_onlineMode.Enabled = false;
+            //m_onlineMode.Enabled = false;
             Controls.Add(m_maxPlayersLabel);
             Controls.Add(m_maxPlayersSlider);
 
@@ -342,19 +344,21 @@ namespace Sandbox.Game.Gui
                 MyGuiSandbox.AddScreen(messageBox);
                 return;
             }
-
-            LoadSandbox();
+            CloseScreen();
+            LoadSandbox(m_onlineMode.GetSelectedKey() != (int)MyOnlineModeEnum.OFFLINE);
         }
-        private void LoadSandbox()
+        private void LoadSandbox(bool MP)
         {
             MyLog.Default.WriteLine("LoadSandbox() - Start");
-
             var row = m_scenarioTable.SelectedRow;
             if (row != null)
             {
                 var save = FindSave(row);
                 if (save != null)
-                    LoadSingleplayerMission(save.Item1, m_nameTextbox.Text, m_descriptionTextbox.Text);
+                    //if (MP)
+                    //    LoadMultiplayerMission();
+                    //else
+                        LoadMission(save.Item1, m_nameTextbox.Text, m_descriptionTextbox.Text, MP);
             }
 
             MyLog.Default.WriteLine("LoadSandbox() - End");
@@ -443,13 +447,19 @@ namespace Sandbox.Game.Gui
             return entry;
         }
 
-        public static void LoadSingleplayerMission(string sessionPath, string name, string description)
+        public void LoadMission(string sessionPath, string name, string description, bool multiplayer)
         {
             MyLog.Default.WriteLine("LoadSession() - Start");
             MyLog.Default.WriteLine(sessionPath);
 
             ulong checkpointSizeInBytes;
             var checkpoint = MyLocalCache.LoadCheckpoint(sessionPath, out checkpointSizeInBytes);
+
+            //online?
+            checkpoint.Settings.OnlineMode=(MyOnlineModeEnum)m_onlineMode.GetSelectedKey();
+            checkpoint.Settings.MaxPlayers = (short)m_maxPlayersSlider.Value;
+            checkpoint.Settings.Scenario = true;
+            checkpoint.Settings.GameMode = MyGameModeEnum.Survival;
 
             if (!MySession.IsCompatibleVersion(checkpoint))
             {
@@ -495,7 +505,11 @@ namespace Sandbox.Game.Gui
                     if (checkpoint.Settings.ProceduralSeed==0)
                         checkpoint.Settings.ProceduralSeed = MyRandom.Instance.Next();
 
-                    MyGuiScreenGamePlay.StartLoading(delegate { MySession.LoadMission(sessionPath, checkpoint, checkpointSizeInBytes, name, description); });
+                    MyGuiScreenGamePlay.StartLoading(delegate
+                    {
+                        checkpoint.Settings.Scenario = true;
+                        MySession.LoadMission(sessionPath, checkpoint, checkpointSizeInBytes, name, description);
+                    });
                 }
                 else
                 {
