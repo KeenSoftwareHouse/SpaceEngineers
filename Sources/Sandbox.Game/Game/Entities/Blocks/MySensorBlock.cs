@@ -59,6 +59,8 @@ namespace Sandbox.Game.Entities.Blocks
         private const float m_maxGizmoDrawDistance = 200.0f;
         private BoundingBox m_gizmoBoundingBox = new BoundingBox();
 
+        private bool m_playProximitySound = true;
+
         private bool m_active = false;
         public bool IsActive
         {
@@ -134,6 +136,18 @@ namespace Sandbox.Game.Entities.Blocks
         {
             get;
             set;
+        }
+
+        public bool PlayProximitySound
+        {
+            get
+            {
+                return m_playProximitySound;
+            }
+            set
+            {                
+                m_playProximitySound = value;                
+            }
         }
 
         public bool DetectPlayers
@@ -407,6 +421,17 @@ namespace Sandbox.Game.Entities.Blocks
             var separatorFilters = new MyTerminalControlSeparator<MySensorBlock>();
             MyTerminalControlFactory.AddControl(separatorFilters);
 
+            var detectPlayProximitySoundSwitch = new MyTerminalControlOnOffSwitch<MySensorBlock>("Audible Proximity Alert", MySpaceTexts.BlockPropertyTitle_SensorPlaySound, MySpaceTexts.BlockPropertyTitle_SensorPlaySound);
+            detectPlayProximitySoundSwitch.Getter = (x) => x.PlayProximitySound;
+            detectPlayProximitySoundSwitch.Setter = (x, v) =>
+            {
+                x.PlayProximitySound = v;
+                (x.SyncObject as MySyncSensorBlock).SendChangeSensorPlaySoundRequest(x.PlayProximitySound);
+            };
+            detectPlayProximitySoundSwitch.EnableToggleAction(MyTerminalActionIcons.CHARACTER_TOGGLE);
+            detectPlayProximitySoundSwitch.EnableOnOffActions(MyTerminalActionIcons.CHARACTER_ON, MyTerminalActionIcons.CHARACTER_OFF);
+            MyTerminalControlFactory.AddControl(detectPlayProximitySoundSwitch);
+
             var detectPlayersSwitch = new MyTerminalControlOnOffSwitch<MySensorBlock>("Detect Players", MySpaceTexts.BlockPropertyTitle_SensorDetectPlayers, MySpaceTexts.BlockPropertyTitle_SensorDetectPlayers);
             detectPlayersSwitch.Getter = (x) => x.DetectPlayers;
             detectPlayersSwitch.Setter = (x, v) =>
@@ -545,6 +570,7 @@ namespace Sandbox.Game.Entities.Blocks
             m_fieldMin = Vector3.Clamp(builder.FieldMin, new Vector3(-MaxRange), -Vector3.One);
             m_fieldMax = Vector3.Clamp(builder.FieldMax, Vector3.One, new Vector3(MaxRange));
 
+            PlayProximitySound = builder.PlaySound;
             DetectPlayers = builder.DetectPlayers;
             DetectFloatingObjects = builder.DetectFloatingObjects;
             DetectSmallShips = builder.DetectSmallShips;
@@ -695,6 +721,7 @@ namespace Sandbox.Game.Entities.Blocks
             ob.FieldMin = FieldMin;
             ob.FieldMax = FieldMax;
 
+            ob.PlaySound = PlayProximitySound;
             ob.DetectPlayers = DetectPlayers;
             ob.DetectFloatingObjects = DetectFloatingObjects;
             ob.DetectSmallShips = DetectSmallShips;
@@ -745,7 +772,7 @@ namespace Sandbox.Game.Entities.Blocks
             UpdateEmissivity();
             Toolbar.UpdateItem(0);
             if (Sync.IsServer)
-                Toolbar.ActivateItemAtSlot(0);
+                Toolbar.ActivateItemAtSlot(0, false, PlayProximitySound);
         }
 
         private void OnLastLeave()
@@ -753,7 +780,7 @@ namespace Sandbox.Game.Entities.Blocks
             UpdateEmissivity();
             Toolbar.UpdateItem(1);
             if (Sync.IsServer)
-                Toolbar.ActivateItemAtSlot(1);
+                Toolbar.ActivateItemAtSlot(1, false, PlayProximitySound);
         }
 
         public bool ShouldDetectRelation(MyRelationsBetweenPlayerAndBlock relation)
@@ -1017,6 +1044,7 @@ namespace Sandbox.Game.Entities.Blocks
         float ModAPI.Ingame.IMySensorBlock.BottomExtend { get { return -m_fieldMin.Y; } }
         float ModAPI.Ingame.IMySensorBlock.FrontExtend { get { return -m_fieldMin.Z; } }
         float ModAPI.Ingame.IMySensorBlock.BackExtend { get { return m_fieldMax.Z; } }
+        bool ModAPI.Ingame.IMySensorBlock.PlayProximitySound { get { return PlayProximitySound; } }
         bool ModAPI.Ingame.IMySensorBlock.DetectPlayers { get { return DetectPlayers; } }
         bool ModAPI.Ingame.IMySensorBlock.DetectFloatingObjects { get { return DetectFloatingObjects; } }
         bool ModAPI.Ingame.IMySensorBlock.DetectSmallShips { get { return DetectSmallShips; } }

@@ -6526,4 +6526,7 @@ To connect to lasers not listed here you can connect to coordinates.</value>
   <data name="ToolTipWorldSettings_DisableRespawnShips" xml:space="preserve">
     <value>Respawn in ships and suit is disabled. If no valid medical rooms exist, respawn won't be possible at all!</value>
   </data>
+  <data name="BlockPropertyTitle_SensorPlaySound" xml:space="preserve">
+    <value>Audible Proximity Alert</value>
+  </data>
 </root>

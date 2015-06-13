@@ -10543,5 +10543,10 @@ namespace Sandbox.Game.Localization
         ///Respawn in ships and suit is disabled. If no valid medical rooms exist, respawn won't be possible at all!
         ///</summary>
         public static readonly MyStringId ToolTipWorldSettings_DisableRespawnShips = MyStringId.GetOrCompute("ToolTipWorldSettings_DisableRespawnShips");
+
+        ///<summary>
+        ///Audible Proximity Alert
+        ///</summary>
+        public static readonly MyStringId BlockPropertyTitle_SensorPlaySound = MyStringId.GetOrCompute("BlockPropertyTitle_SensorPlaySound");
     }
 }
