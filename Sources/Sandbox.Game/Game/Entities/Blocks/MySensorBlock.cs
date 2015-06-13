@@ -427,9 +427,7 @@ namespace Sandbox.Game.Entities.Blocks
             {
                 x.PlayProximitySound = v;
                 (x.SyncObject as MySyncSensorBlock).SendChangeSensorPlaySoundRequest(x.PlayProximitySound);
-            };
-            detectPlayProximitySoundSwitch.EnableToggleAction(MyTerminalActionIcons.CHARACTER_TOGGLE);
-            detectPlayProximitySoundSwitch.EnableOnOffActions(MyTerminalActionIcons.CHARACTER_ON, MyTerminalActionIcons.CHARACTER_OFF);
+            };                   
             MyTerminalControlFactory.AddControl(detectPlayProximitySoundSwitch);
 
             var detectPlayersSwitch = new MyTerminalControlOnOffSwitch<MySensorBlock>("Detect Players", MySpaceTexts.BlockPropertyTitle_SensorDetectPlayers, MySpaceTexts.BlockPropertyTitle_SensorDetectPlayers);
