@@ -19,6 +19,13 @@ namespace Sandbox.Graphics.GUI
         MyGuiControlLabel m_title;
         MyGuiControlLabel m_extraInfo;
         MyGuiControlBase m_propertyControl;
+        public MyGuiControlBase PropertyControl
+        {
+            get
+            {
+                return m_propertyControl;
+            }
+        }
 
         float titleHeight;
 

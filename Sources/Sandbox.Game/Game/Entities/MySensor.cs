@@ -11,6 +11,7 @@ using System.Diagnostics;
 using Sandbox.Graphics;
 using Sandbox.Common.ObjectBuilders;
 using Sandbox.Game.Components;
+using VRage.ObjectBuilders;
 
 namespace Sandbox.Game.Entities
 {

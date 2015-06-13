@@ -25,6 +25,7 @@ using Sandbox.Game.Gui;
 using Sandbox.Engine.Utils;
 using VRage;
 using Sandbox.Game.Localization;
+using VRage.ObjectBuilders;
 
 
 namespace Sandbox.Game.Multiplayer
@@ -444,7 +445,7 @@ namespace Sandbox.Game.Multiplayer
                 {
                     MyObjectBuilder_Gps bGps;
                     if (!checkpoint.Gps.Dictionary.TryGetValue(item.Key, out bGps))
-                        bGps = Sandbox.Common.ObjectBuilders.Serializer.MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_Gps>();
+                        bGps = MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_Gps>();
                     if (bGps.Entries == null)
                         bGps.Entries = new List<MyObjectBuilder_Gps.Entry>();
                     foreach (var gps in item.Value)

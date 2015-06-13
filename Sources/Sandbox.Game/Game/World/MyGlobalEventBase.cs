@@ -1,5 +1,4 @@
 ﻿using Sandbox.Common.ObjectBuilders;
-using Sandbox.Common.ObjectBuilders.Serializer;
 using Sandbox.Definitions;
 using Sandbox.Game.Entities;
 using System;
@@ -9,6 +8,7 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
 using VRage;
+using VRage.ObjectBuilders;
 using VRage.Utils;
 
 namespace Sandbox.Game.World
@@ -82,7 +82,7 @@ namespace Sandbox.Game.World
 
         public virtual MyObjectBuilder_GlobalEventBase GetObjectBuilder()
         {
-            var ob = Sandbox.Common.ObjectBuilders.Serializer.MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_GlobalEventBase>();
+            var ob = MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_GlobalEventBase>();
             ob.DefinitionId = Definition.Id;
             ob.ActivationTimeMs = ActivationTime.Ticks / TimeSpan.TicksPerMillisecond;
             ob.Enabled = Enabled;

@@ -18,6 +18,9 @@ using VRageMath;
 using Sandbox.Game.GUI;
 using VRageRender;
 using Sandbox.Game.Entities.Cube;
+using VRage.ObjectBuilders;
+using VRage;
+using VRage.ModAPI;
 
 namespace Sandbox.Game.Entities
 {
@@ -317,7 +320,7 @@ namespace Sandbox.Game.Entities
                 floatingObject.NeedsUpdate = MyEntityUpdateEnum.NONE;
 
             foreach (var child in entity.Hierarchy.Children)
-                DisablePhysicsRecursively(child.Entity as MyEntity);
+                DisablePhysicsRecursively(child.Container.Entity as MyEntity);
         }
 
         public void Update()
@@ -361,7 +364,7 @@ namespace Sandbox.Game.Entities
                 MyPhysicsBody body = (MyPhysicsBody)hit.HkHitInfo.Body.UserObject;
                 if (body == null)
                     continue;
-                Sandbox.ModAPI.IMyEntity entity = body.Entity;
+                IMyEntity entity = body.Entity;
                 if (entity is MyVoxelMap || (entity is MyCubeGrid && entity.EntityId != m_previewFloatingObjects[0].EntityId))
                 {
                     float distSq = (float)(hit.Position - pasteMatrix.Translation).LengthSquared();

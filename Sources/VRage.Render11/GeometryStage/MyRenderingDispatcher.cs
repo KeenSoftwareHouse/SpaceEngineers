@@ -103,6 +103,8 @@ namespace VRageRender
                 ConsumeWork(w, accumulator);
             }
 
+            m_workList.Clear();
+
             MyRender11.GetRenderProfiler().EndProfilingBlock();
         }
 

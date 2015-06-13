@@ -15,10 +15,10 @@ using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Xml.Serialization;
-
 using VRage;
 using VRage.Collections;
 using VRage.Compiler;
+using VRage.ObjectBuilders;
 using VRage.Serialization;
 using VRage.Trace;
 
@@ -284,13 +284,37 @@ namespace Sandbox.Engine.Multiplayer
             private set;
         }
 
+        public abstract bool Scenario
+        {
+            get;
+            set;
+        }
+
+        public abstract string ScenarioBriefing
+        {
+            get;
+            set;
+        }
+
+        public abstract DateTime ScenarioStartTime
+        {
+            get;
+            set;
+        }
+
         public abstract bool Battle
         {
             get;
             set;
         }
 
-        public abstract bool BattleStarted
+        public abstract bool BattleCanBeJoined
+        {
+            get;
+            set;
+        }
+
+        public abstract ulong BattleWorldWorkshopId
         {
             get;
             set;
@@ -554,7 +578,7 @@ namespace Sandbox.Engine.Multiplayer
                 checkpoint.WorkshopId = null;
                 checkpoint.CharacterToolbar = null;
                 ProfilerShort.Begin("SerializeXML");
-                Sandbox.Common.ObjectBuilders.Serializer.MyObjectBuilderSerializer.SerializeXML(m_worldSendStream, worldData, Sandbox.Common.ObjectBuilders.Serializer.MyObjectBuilderSerializer.XmlCompression.Gzip);
+                MyObjectBuilderSerializer.SerializeXML(m_worldSendStream, worldData, MyObjectBuilderSerializer.XmlCompression.Gzip);
                 ProfilerShort.BeginNextBlock("SendFlush");
                 SyncLayer.TransportLayer.SendFlush(sender);
                 ProfilerShort.End();

@@ -1,9 +1,7 @@
 ﻿using Havok;
 using Sandbox.Common;
 using Sandbox.Common.Components;
-
 using Sandbox.Common.ObjectBuilders;
-using Sandbox.Common.ObjectBuilders.Serializer;
 using Sandbox.Definitions;
 using Sandbox.Engine.Multiplayer;
 using Sandbox.Engine.Physics;
@@ -28,6 +26,8 @@ using System.Reflection;
 using System.Text;
 using VRage;
 using VRage;
+using VRage.Components;
+using VRage.ModAPI;
 using VRage.Utils;
 using VRageMath;
 using VRageRender;
@@ -94,7 +94,7 @@ namespace Sandbox.Game.Entities.Cube
             }
         }
 
-        private List<Sandbox.ModAPI.IMyEntity> m_detectedFloaters = new List<Sandbox.ModAPI.IMyEntity>();
+        private List<IMyEntity> m_detectedFloaters = new List<IMyEntity>();
         public MyPowerReceiver PowerReceiver
         {
             get { return m_receiver; }
@@ -119,11 +119,13 @@ namespace Sandbox.Game.Entities.Cube
             var lockBtn = new MyTerminalControlButton<MyShipConnector>("Lock", MySpaceTexts.BlockActionTitle_Lock, MySpaceTexts.Blank, (b) => b.TryConnect());
             lockBtn.Enabled = (b) => b.IsWorking && b.InConstraint;
             lockBtn.Visible = (b) => b.m_connectorMode == Mode.Connector;
+            lockBtn.EnableAction();
             MyTerminalControlFactory.AddControl(lockBtn);
 
             var unlockBtn = new MyTerminalControlButton<MyShipConnector>("Unlock", MySpaceTexts.BlockActionTitle_Unlock, MySpaceTexts.Blank, (b) => b.TryDisconnect());
             unlockBtn.Enabled = (b) => b.IsWorking && b.InConstraint;
             unlockBtn.Visible = (b) => b.m_connectorMode == Mode.Connector;
+            unlockBtn.EnableAction();
             MyTerminalControlFactory.AddControl(unlockBtn);
 
             var title = MyTexts.Get(MySpaceTexts.BlockActionTitle_SwitchLock);
@@ -388,13 +390,13 @@ namespace Sandbox.Game.Entities.Cube
                 var detectorShape = CreateDetectorShape(halfExtents, mode);
                 if (mode == Mode.Connector)
                 {
-                    physics = new Engine.Physics.MyPhysicsBody(this, Engine.Physics.RigidBodyFlag.RBF_BULLET);
+                    physics = new Engine.Physics.MyPhysicsBody(this, RigidBodyFlag.RBF_BULLET);
                     physics.IsPhantom = true;
                     physics.CreateFromCollisionObject(detectorShape, center, dummyLocal, null, MyPhysics.ObjectDetectionCollisionLayer);
                 }
                 else
                 {
-                    physics = new Engine.Physics.MyPhysicsBody(this, Engine.Physics.RigidBodyFlag.RBF_STATIC);
+                    physics = new Engine.Physics.MyPhysicsBody(this, RigidBodyFlag.RBF_STATIC);
                     physics.IsPhantom = true;
                     physics.CreateFromCollisionObject(detectorShape, center, dummyLocal, null, MyPhysics.CollectorCollisionLayer);
                 }
@@ -460,7 +462,7 @@ namespace Sandbox.Game.Entities.Cube
             m_detectedGrids.Add(other);
         }
 
-        protected Sandbox.ModAPI.IMyEntity GetOtherEntity(ref HkContactPointEvent value)
+        protected IMyEntity GetOtherEntity(ref HkContactPointEvent value)
         {
             if (value.Base.BodyA.GetEntity() == this)
                 return value.Base.BodyB.GetEntity();

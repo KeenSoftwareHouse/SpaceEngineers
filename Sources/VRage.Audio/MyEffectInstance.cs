@@ -199,6 +199,7 @@ namespace VRage.Audio
             m_ended = true;
             for (int i = 0; i < m_sounds.Count; i++)
             {
+                if (m_sounds[i].Sound == null || m_sounds[i].Sound.Voice == null) continue;
                 m_sounds[i].Sound.Voice.SetFilterParameters(m_defaultFilter, FINISHED_OP_SET);
                 if (i == m_effect.ResultEmitterIdx)
                     continue;

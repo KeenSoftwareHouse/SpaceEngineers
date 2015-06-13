@@ -67,7 +67,7 @@ namespace Sandbox.Common.AI
 		protected abstract MyBehaviorTreeState Condition_IsTreeCut([BTIn] ref MyBBMemoryTarget inTargetTree);
 
 		[MyBehaviorTreeAction("IsTreeFallingInArea", ReturnsRunning = false)]
-		protected abstract MyBehaviorTreeState Condition_IsTreeFallingInArea([BTParam] float radius);
+        protected abstract MyBehaviorTreeState Condition_IsTreeFallingInArea([BTParam] float radius, [BTOut] ref MyBBMemoryTarget outTarget);
 
 		[MyBehaviorTreeAction("AreTreeTrunksInArea", ReturnsRunning = false)]
 		protected abstract MyBehaviorTreeState Condition_AreTreeTrunksInArea([BTParam] float radius, [BTOut] ref MyBBMemoryTarget outTarget);

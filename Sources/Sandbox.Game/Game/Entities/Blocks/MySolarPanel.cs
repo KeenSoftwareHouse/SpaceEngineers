@@ -17,6 +17,7 @@ using Sandbox.Common;
 using VRage;
 using Sandbox.Game.Localization;
 using VRage.Utils;
+using VRage.ModAPI;
 
 namespace Sandbox.Game.Entities.Blocks
 {
@@ -73,6 +74,16 @@ namespace Sandbox.Game.Entities.Blocks
                         MaxPowerOutputChanged(this);
                 }
             }
+        }
+
+        bool Sandbox.ModAPI.Ingame.IMyPowerProducer.ProductionEnabled
+        {
+            get { return IsWorking && MaxPowerOutput > 0; }
+        }
+
+        float ModAPI.Ingame.IMyPowerProducer.DefinedPowerOutput
+        {
+            get { return m_solarPanelDefinition.MaxPowerOutput; }
         }
 
         private void UpdateDisplay()
@@ -147,7 +158,7 @@ namespace Sandbox.Game.Entities.Blocks
             }
         }
 
-       
+
 
         public override void UpdateBeforeSimulation100()
         {

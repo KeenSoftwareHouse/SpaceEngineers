@@ -13,6 +13,7 @@ using System.Text;
 using VRageMath;
 using Sandbox.ModAPI.Ingame;
 using Sandbox.Game.Localization;
+using VRage.ModAPI;
 
 namespace Sandbox.Game.Weapons
 {

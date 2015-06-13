@@ -1,6 +1,7 @@
 ﻿using Sandbox.Common;
 using Sandbox.Game.Entities;
 using System;
+using System.Diagnostics;
 using System.Runtime.CompilerServices;
 
 namespace Sandbox.Engine.Utils
@@ -92,10 +93,6 @@ namespace Sandbox.Engine.Utils
 
         public static bool GAME_SAVES_COMPRESSED_BY_DEFAULT = false;
 
-        public static bool USE_HAVOK_ANIMATION_FOOT = false;
-        public static bool USE_HAVOK_ANIMATION_HANDS = false;
-        public static bool USE_HAVOK_ANIMATION_HEAD = false;
-
         public static bool RANDOM_CARGO_PLACEMENT = false;
 
         // Useful when making videos
@@ -109,7 +106,7 @@ namespace Sandbox.Engine.Utils
 
         public static bool ENABLE_NEW_SOUNDS = false;
 
-        public static bool ENABLE_NON_PUBLIC_BLOCKS = false;
+        public static bool ENABLE_NON_PUBLIC_BLOCKS = true;
 
         public static bool ENABLE_COLOR_MASK_FOR_EVERYTHING = false;
 
@@ -174,7 +171,8 @@ namespace Sandbox.Engine.Utils
 
         public static bool ENABLE_CENTER_OF_MASS = true;
 
-        public static bool THROW_LOADING_ERRORS = false;
+        // With debugger attached, throw exceptions during loading.
+        public static bool THROW_LOADING_ERRORS = Debugger.IsAttached;
 
         public static bool ENABLE_VIDEO_PLAYER = true;
 
@@ -443,7 +441,7 @@ namespace Sandbox.Engine.Utils
 
         public static bool ENABLE_FOOT_IK = false;
 
-        public static bool ENABLE_JETPACK_IN_SURVIVAL = false;
+        public static bool ENABLE_JETPACK_IN_SURVIVAL = true;
         
         public static bool CHARACTER_TOOLS = true;
 
@@ -452,6 +450,8 @@ namespace Sandbox.Engine.Utils
         public static bool ENABLE_CHARACTER_VIRTUAL_PHYSICS = false;
 
         public static bool ENABLE_RAKNET = false;
+
+        public static bool ENABLE_MEDIEVAL_CHARACTER_DAMAGE = false;
 
         public static bool ENABLE_RAGDOLL_COLLISION_WITH_CHARACTER_BODY = true;
 
@@ -465,6 +465,7 @@ namespace Sandbox.Engine.Utils
 
         public static bool ME_MULTIPLAYER = true;
         public static bool ME_PLAYERS_SPAWN_NEAR_PLAYER = true;
+        public static bool CHARACTER_SERVER_SYNC = false;
         
 
         public static bool ALWAYS_NOON = false;
@@ -480,12 +481,12 @@ namespace Sandbox.Engine.Utils
         public static bool ENABLE_OXYGEN_SOUNDS = false;
 
         public static bool ENABLE_ROPE_UNWINDING_TORQUE = false;
-        public static bool ENABLE_LOCKABLE_ROPE_DRUM = false;
+        public static bool ENABLE_LOCKABLE_ROPE_DRUM = true;
 
         public static bool ENABLE_BONES_AND_ANIMATIONS_DEBUG = false;
 
         public static bool ENABLE_MISSION_TRIGGERS = false;
-        
+
         public static bool ENABLE_RAGDOLL_DEFAULT_PROPERTIES = false;
 
         public static bool XBOX_PREVIEW = false;
@@ -498,11 +499,38 @@ namespace Sandbox.Engine.Utils
 
         public static bool ENABLE_CONTROLLER_HINTS = true;
 
-        public static bool ENABLE_SUN_BILLBOARD = false;
+        public static bool ENABLE_SUN_BILLBOARD = true;
 
         public static bool ENABLE_PHYSICS_SETTINGS = false;
 
         // Enables blueprints in Data/Blueprints folder) to be visible in game.
         public static bool ENABLE_DEFAULT_BLUEPRINTS = false;
+
+        public static bool ENABLE_VOICE_CHAT_DEBUGGING = false;
+        
+        public static bool ENABLE_RAGDOLL_CLIENT_SYNC = false;
+
+        public static bool ENABLE_GENERATED_INTEGRITY_FIX = true; //forces generated blocks to have same stack and integrity as owner
+
+        public static bool ENABLE_VOXEL_MAP_AABB_CORNER_TEST = false;
+        
+        public static bool ENABLE_RAGDOLL_DEACTIVATION = false;
+
+        public static bool ENABLE_PERMANENT_SIMULATIONS_COMPUTATION = true;
+        
+        public static bool ENABLE_SYNCED_CHARACTER_MOVE_AND_ROTATE = false;
+        
+        public static bool ENABLE_RAGDOLL_DEBUG = false;
+        
+        public static bool ENABLE_JETPACK_RAGDOLL_COLLISIONS = false;
+
+        public static bool NEW_CHARACTER_DAMAGE = false;
+
+        public static bool ENABLE_ADMIN_SPECTATOR_BUILDING = false;
+
+        public static bool MANIPULATION_TOOL_VELOCITY_LIMIT = false;
+
+        public static bool ENABLE_GATHERING = false;
+
     }
 }

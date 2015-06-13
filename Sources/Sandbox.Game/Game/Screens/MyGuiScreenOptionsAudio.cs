@@ -21,12 +21,14 @@ namespace Sandbox.Game.Gui
         {
             public float GameVolume;
             public float MusicVolume;
-            public bool HudWarnings;
+            public bool HudWarnings;          
+            public bool EnableVoiceChat;
         }
 
         MyGuiControlSlider m_gameVolumeSlider;
         MyGuiControlSlider m_musicVolumeSlider;
         MyGuiControlCheckbox m_hudWarnings;
+        MyGuiControlCheckbox m_enableVoiceChat;
         MyGuiScreenOptionsAudioSettings m_settingsOld = new MyGuiScreenOptionsAudioSettings();
         MyGuiScreenOptionsAudioSettings m_settingsNew = new MyGuiScreenOptionsAudioSettings();
 
@@ -41,7 +43,7 @@ namespace Sandbox.Game.Gui
 
             var topLeft = m_size.Value * -0.5f;
             var topCenter = m_size.Value * new Vector2(0f, -0.5f);
-            var bottomCenter = m_size.Value * new Vector2(0f, 0.5f);
+            var bottomCenter = m_size.Value * new Vector2(0f, 0.6f);
 
             Vector2 controlsOriginLeft = topLeft + new Vector2(110f, 170f) / MyGuiConstants.GUI_OPTIMAL_SIZE;
             Vector2 controlsOriginRight = topCenter + new Vector2(-25f, 170f) / MyGuiConstants.GUI_OPTIMAL_SIZE;
@@ -83,6 +85,21 @@ namespace Sandbox.Game.Gui
             m_hudWarnings.IsCheckedChanged = HudWarningsChecked;
             Controls.Add(m_hudWarnings);
 
+            // Voice chat
+            if (MyPerGameSettings.VoiceChatEnabled)
+            {
+                Controls.Add(new MyGuiControlLabel(
+                    position: controlsOriginLeft + 3 * controlsDelta,
+                    text: MyTexts.GetString(MySpaceTexts.EnableVoiceChat),
+                    originAlign: MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_CENTER));
+            }
+            m_enableVoiceChat = new MyGuiControlCheckbox(
+                position: controlsOriginRight + 3 * controlsDelta,
+                originAlign: MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_CENTER);
+            m_enableVoiceChat.IsCheckedChanged = VoiceChatChecked;
+            if (MyPerGameSettings.VoiceChatEnabled)
+                Controls.Add(m_enableVoiceChat);
+
             //  Buttons OK and CANCEL
 
             var m_okButton = new MyGuiControlButton(
@@ -115,6 +132,11 @@ namespace Sandbox.Game.Gui
                 MyAudio.Static.ResumeGameSounds();
         }
 
+        private void VoiceChatChecked(MyGuiControlCheckbox checkbox)
+        {
+            m_settingsNew.EnableVoiceChat = checkbox.IsChecked;
+        }
+
         private void HudWarningsChecked(MyGuiControlCheckbox obj)
         {
             m_settingsNew.HudWarnings = obj.IsChecked;
@@ -130,6 +152,7 @@ namespace Sandbox.Game.Gui
             settings.GameVolume = MySandboxGame.Config.GameVolume;
             settings.MusicVolume = MySandboxGame.Config.MusicVolume;
             settings.HudWarnings = MySandboxGame.Config.HudWarnings;
+            settings.EnableVoiceChat = MySandboxGame.Config.EnableVoiceChat;
         }
 
         //void UpdateSettings(MyGuiScreenOptionsVideoSettings settings)
@@ -142,6 +165,7 @@ namespace Sandbox.Game.Gui
             m_gameVolumeSlider.Value = settings.GameVolume;
             m_musicVolumeSlider.Value = settings.MusicVolume;
             m_hudWarnings.IsChecked = settings.HudWarnings;
+            m_enableVoiceChat.IsChecked = settings.EnableVoiceChat;
         }
 
         void Save()
@@ -149,6 +173,7 @@ namespace Sandbox.Game.Gui
             MySandboxGame.Config.GameVolume = m_gameVolumeSlider.Value;
             MySandboxGame.Config.MusicVolume = m_musicVolumeSlider.Value;
             MySandboxGame.Config.HudWarnings = m_hudWarnings.IsChecked;
+            MySandboxGame.Config.EnableVoiceChat = m_enableVoiceChat.IsChecked;
             MySandboxGame.Config.Save();
         }
 
@@ -157,6 +182,7 @@ namespace Sandbox.Game.Gui
             MyAudio.Static.VolumeMusic = settings.MusicVolume;
             MyAudio.Static.VolumeGame = settings.GameVolume;
             MyAudio.Static.VolumeHud = settings.GameVolume;
+            MyAudio.Static.EnableVoiceChat = settings.EnableVoiceChat;
             MyGuiAudio.HudWarnings = settings.HudWarnings;
         }
 

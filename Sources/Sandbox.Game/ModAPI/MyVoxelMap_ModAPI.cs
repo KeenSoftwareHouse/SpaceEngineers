@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using VRage.ObjectBuilders;
 using VRage.Voxels;
 
 namespace Sandbox.Game.Entities
@@ -30,7 +31,7 @@ namespace Sandbox.Game.Entities
             return GetIntersectionWithSphere(ref sphere);
         }
 
-        Common.ObjectBuilders.MyObjectBuilder_EntityBase IMyVoxelMap.GetObjectBuilder(bool copy)
+        MyObjectBuilder_EntityBase IMyVoxelMap.GetObjectBuilder(bool copy)
         {
             return GetObjectBuilder(copy);
         }
@@ -47,7 +48,7 @@ namespace Sandbox.Game.Entities
             return result;
         }
 
-        void IMyVoxelMap.Init(Common.ObjectBuilders.MyObjectBuilder_EntityBase builder)
+        void IMyVoxelMap.Init(MyObjectBuilder_EntityBase builder)
         {
             Init(builder);
         }

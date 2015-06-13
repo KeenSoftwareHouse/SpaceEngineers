@@ -38,6 +38,27 @@ namespace Sandbox.Game.GameSystems
             }
         }
 
+        void IMyGridTerminalSystem.GetBlocks(List<IMyTerminalBlock> blocks)
+        {
+            blocks.Clear();
+            foreach (var block in m_blocks)
+            {
+                if (block.IsAccessibleForProgrammableBlock)
+                {
+                    blocks.Add(block);
+                }
+            }
+        }
+
+        void IMyGridTerminalSystem.GetBlockGroups(List<IMyBlockGroup> blockGroups)
+        {
+            blockGroups.Clear();
+            foreach (var group in BlockGroups)
+            {
+                blockGroups.Add(group);
+            }
+        }
+
         void IMyGridTerminalSystem.GetBlocksOfType<T>(List<IMyTerminalBlock> blocks, Func<IMyTerminalBlock, bool> collect = null)
         {
             blocks.Clear();

@@ -255,7 +255,7 @@ namespace Sandbox.Game.Screens.Helpers
 
         private MyToolbarType GetCurrentToolbarType()
         {
-            if (MyCubeBuilder.DeveloperSpectatorIsBuilding)
+            if (MyCubeBuilder.SpectatorIsBuilding)
             {
                 return MyToolbarType.Spectator;
             }

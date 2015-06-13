@@ -34,6 +34,10 @@ using VRage.Import;
 using Sandbox.ModAPI.Ingame;
 using IMyDestroyableObject = Sandbox.ModAPI.Interfaces.IMyDestroyableObject;
 using Sandbox.Game.Localization;
+using Sandbox.Game.Entities.UseObject;
+using VRage.ModAPI;
+using VRage.Components;
+using VRage.Game.Entity.UseObject;
 
 #endregion
 
@@ -1735,13 +1739,23 @@ namespace Sandbox.Game.Weapons
             Vector3D pos;
             Vector3 normal;
             var physTarget = MyPhysics.CastRay(from, to, out pos, out normal);
-            var hitEntity = physTarget != null ? ((MyPhysicsBody)physTarget.UserObject).Entity : null;
+
+            IMyEntity hitEntity = null;
+
+            if (physTarget != null)
+            {
+                System.Diagnostics.Debug.Assert(physTarget.UserObject != null);
+
+                if (physTarget.UserObject != null)
+                {
+                    hitEntity = ((MyPhysicsBody)physTarget.UserObject).Entity;
+                }
+            }
 
             //VRageRender.MyRenderProxy.DebugDrawLine3D(from, to, Color.White, Color.White, false);
 
             if (hitEntity == null || target == hitEntity || target.Parent == hitEntity || (target.Parent != null && target.Parent == hitEntity.Parent) || hitEntity is MyMissile || hitEntity is MyFloatingObject)
             {
-
                 return true;
             }
 

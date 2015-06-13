@@ -31,6 +31,7 @@ using VRage;
 using Sandbox.Game.Localization;
 using VRage.Audio;
 using VRage.Utils;
+using VRage.ModAPI;
 
 namespace Sandbox.Game.Entities
 {
@@ -295,6 +296,11 @@ namespace Sandbox.Game.Entities
             set { base.Enabled = value; }
         }
 
+        bool Sandbox.ModAPI.Ingame.IMyPowerProducer.ProductionEnabled
+        {
+            get { return IsWorking && MaxPowerOutput > 0; }
+        }
+
         public bool HasCapacityRemaining
         {
             get { return m_hasRemainingCapacity; }
@@ -322,6 +328,11 @@ namespace Sandbox.Game.Entities
                         MaxPowerOutputChanged(this);
                 }
             }
+        }
+
+        float ModAPI.Ingame.IMyPowerProducer.DefinedPowerOutput
+        {
+            get { return m_reactorDefinition.MaxPowerOutput; }
         }
 
         public float CurrentPowerOutput

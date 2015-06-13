@@ -10,6 +10,7 @@ using Sandbox.Game.World;
 using Sandbox.Game.Weapons;
 
 using Sandbox.ModAPI;
+using VRage.ModAPI;
 
 namespace Sandbox.Game
 {

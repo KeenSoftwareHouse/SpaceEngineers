@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using VRageMath;
 using Sandbox.ModAPI;
+using VRage.ModAPI;
 
 namespace Sandbox.ModAPI.Ingame
 {

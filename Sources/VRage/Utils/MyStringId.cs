@@ -21,7 +21,10 @@ namespace VRage.Utils
 
         public override string ToString()
         {
-            return m_stringById[this];
+            using (m_lock.AcquireSharedUsing())
+            {
+                return m_stringById[this];
+            }
         }
 
         public override int GetHashCode()
@@ -66,11 +69,13 @@ namespace VRage.Utils
         public static readonly IdComparerType Comparer = new IdComparerType();
         #endregion
 
+        private static readonly FastResourceLock m_lock;
         private static Dictionary<string, MyStringId> m_idByString;
         private static Dictionary<MyStringId, string> m_stringById;
 
         static MyStringId()
         {
+            m_lock = new FastResourceLock();
             m_idByString = new Dictionary<string, MyStringId>(50);
             m_stringById = new Dictionary<MyStringId, string>(50, Comparer);
 
@@ -83,15 +88,19 @@ namespace VRage.Utils
         public static MyStringId GetOrCompute(string str)
         {
             MyStringId result;
-            if (str == null)
+
+            using (m_lock.AcquireExclusiveUsing())
             {
-                result = NullOrEmpty;
-            }
-            else if (!m_idByString.TryGetValue(str, out result))
-            {
-                result = new MyStringId(MyUtils.GetHash(str, 0));
-                m_stringById.Add(result, str);
-                m_idByString.Add(str, result);
+                if (str == null)
+                {
+                    result = NullOrEmpty;
+                }
+                else if (!m_idByString.TryGetValue(str, out result))
+                {
+                    result = new MyStringId(MyUtils.GetHash(str, 0));
+                    m_stringById.Add(result, str);
+                    m_idByString.Add(str, result);
+                }
             }
 
             return result;
@@ -99,19 +108,28 @@ namespace VRage.Utils
 
         public static MyStringId Get(string str)
         {
-            return m_idByString[str];
+            using (m_lock.AcquireSharedUsing())
+            {
+                return m_idByString[str];
+            }
         }
 
         public static bool TryGet(string str, out MyStringId id)
         {
-            return m_idByString.TryGetValue(str, out id);
+            using (m_lock.AcquireSharedUsing())
+            {
+                return m_idByString.TryGetValue(str, out id);
+            }
         }
 
         public static MyStringId TryGet(string str)
         {
-            MyStringId id;
-            m_idByString.TryGetValue(str, out id);
-            return id;
+            using (m_lock.AcquireSharedUsing())
+            {
+                MyStringId id;
+                m_idByString.TryGetValue(str, out id);
+                return id;
+            }
         }
 
         /// <summary>
@@ -119,16 +137,22 @@ namespace VRage.Utils
         /// </summary>
         public static MyStringId TryGet(int id)
         {
-            MyStringId stringId = new MyStringId(id);
-            if (m_stringById.ContainsKey(stringId))
-                return stringId;
-            else
-                return MyStringId.NullOrEmpty;
+            using (m_lock.AcquireSharedUsing())
+            {
+                MyStringId stringId = new MyStringId(id);
+                if (m_stringById.ContainsKey(stringId))
+                    return stringId;
+                else
+                    return MyStringId.NullOrEmpty;
+            }
         }
 
         public static bool IsKnown(MyStringId id)
         {
-            return m_stringById.ContainsKey(id);
+            using (m_lock.AcquireSharedUsing())
+            {
+                return m_stringById.ContainsKey(id);
+            }
         }
     }
 }

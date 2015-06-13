@@ -143,16 +143,41 @@ namespace Sandbox.Engine.Multiplayer
             set { Lobby.SetLobbyData(MyMultiplayer.ViewDistanceTag, value.ToString()); }
         }
 
+
+        public override bool Scenario
+        {
+            get { return GetLobbyBool(MyMultiplayer.ScenarioTag, Lobby, false); }
+            set { Lobby.SetLobbyData(MyMultiplayer.ScenarioTag, value.ToString()); }
+        }
+
+        public override string ScenarioBriefing
+        {
+            get { return Lobby.GetLobbyData(MyMultiplayer.ScenarioBriefingTag); }
+            set { Lobby.SetLobbyData(MyMultiplayer.ScenarioBriefingTag, value??" "); }
+        }
+
+        public override DateTime ScenarioStartTime
+        {
+            get { return GetLobbyDateTime(MyMultiplayer.ScenarioStartTimeTag, Lobby, DateTime.MinValue); }
+            set { Lobby.SetLobbyData(MyMultiplayer.ScenarioStartTimeTag, value.ToString(CultureInfo.InvariantCulture)); }
+        }
+
         public override bool Battle
         {
             get { return GetLobbyBool(MyMultiplayer.BattleTag, Lobby, false); }
             set { Lobby.SetLobbyData(MyMultiplayer.BattleTag, value.ToString()); }
         }
 
-        public override bool BattleStarted
+        public override bool BattleCanBeJoined
         {
-            get { return GetLobbyBool(MyMultiplayer.BattleStartedTag, Lobby, false); }
-            set { Lobby.SetLobbyData(MyMultiplayer.BattleStartedTag, value.ToString()); }
+            get { return GetLobbyBool(MyMultiplayer.BattleCanBeJoinedTag, Lobby, false); }
+            set { Lobby.SetLobbyData(MyMultiplayer.BattleCanBeJoinedTag, value.ToString()); }
+        }
+
+        public override ulong BattleWorldWorkshopId
+        {
+            get { return GetLobbyULong(MyMultiplayer.BattleWorldWorkshopIdTag, Lobby, 0); }
+            set { Lobby.SetLobbyData(MyMultiplayer.BattleWorldWorkshopIdTag, value.ToString()); }
         }
 
         public override int BattleFaction1MaxBlueprintPoints
@@ -227,6 +252,8 @@ namespace Sandbox.Engine.Multiplayer
             set { Lobby.SetLobbyData(MyMultiplayer.BattleTimeLimitTag, value.ToString()); }
         }
 
+        private bool m_serverDataValid;
+
 
         internal MyMultiplayerLobby(Lobby lobby, MySyncLayer syncLayer)
             : base(syncLayer)
@@ -279,9 +306,17 @@ namespace Sandbox.Engine.Multiplayer
 
                     if (MySandboxGame.IsGameReady && changedUser != ServerId)
                     {
-                        var playerJoined = new MyHudNotification(MySpaceTexts.NotificationClientConnected, 5000, level: MyNotificationLevel.Important);
-                        playerJoined.SetTextFormatArguments(MySteam.API.Friends.GetPersonaName(changedUser));
-                        MyHud.Notifications.Add(playerJoined);
+                        // Player is able to connect to the battle which already started - player is then kicked and we do not want to show connected message in HUD.
+                        bool showMsg = true;
+                        if (MyFakes.ENABLE_BATTLE_SYSTEM && MySession.Static.Battle && !BattleCanBeJoined)
+                            showMsg = false;
+
+                        if (showMsg)
+                        {
+                            var playerJoined = new MyHudNotification(MySpaceTexts.NotificationClientConnected, 5000, level: MyNotificationLevel.Important);
+                            playerJoined.SetTextFormatArguments(MySteam.API.Friends.GetPersonaName(changedUser));
+                            MyHud.Notifications.Add(playerJoined);
+                        }
                     }
                 }
                 else
@@ -369,7 +404,16 @@ namespace Sandbox.Engine.Multiplayer
         public override void Tick()
         {
             base.Tick();
-           
+
+            // TODO: Hack for invisible battle games - sometimes values are not written to Lobby so we try it again here
+            if (!m_serverDataValid)
+            {
+                if (AppVersion == 0) 
+                    MySession.Static.StartServer(this);
+
+                m_serverDataValid = true;
+            }
+
             //var delta = TimeSpan.FromMilliseconds(SyncLayer.Interpolation.Timer.AverageDeltaMilliseconds);
             //Profiler.CustomValue("Average delta ", (float)delta.TotalMilliseconds + 10, delta + TimeSpan.FromMilliseconds(10));
 
@@ -513,10 +557,28 @@ namespace Sandbox.Engine.Multiplayer
                 return defValue;
         }
 
+        public static DateTime GetLobbyDateTime(string key, Lobby lobby, DateTime defValue)
+        {
+            DateTime val;
+            if (DateTime.TryParse(lobby.GetLobbyData(key), CultureInfo.InvariantCulture, DateTimeStyles.None, out val))
+                return val;
+            else
+                return defValue;
+        }
+
         public static long GetLobbyLong(string key, Lobby lobby, long defValue)
         {
             long val;
             if (long.TryParse(lobby.GetLobbyData(key), out val))
+                return val;
+            else
+                return defValue;
+        }
+
+        public static ulong GetLobbyULong(string key, Lobby lobby, ulong defValue)
+        {
+            ulong val;
+            if (ulong.TryParse(lobby.GetLobbyData(key), out val))
                 return val;
             else
                 return defValue;
@@ -608,14 +670,24 @@ namespace Sandbox.Engine.Multiplayer
             return GetLobbyInt(MyMultiplayer.ViewDistanceTag, lobby, 20000);
         }
 
+        public static bool GetLobbyScenario(Lobby lobby)
+        {
+            return GetLobbyBool(MyMultiplayer.ScenarioTag, lobby, false);
+        }
+
+        public static string GetLobbyScenarioBriefing(Lobby lobby)
+        {
+            return lobby.GetLobbyData(MyMultiplayer.ScenarioBriefingTag);
+        }
+
         public static bool GetLobbyBattle(Lobby lobby)
         {
             return GetLobbyBool(MyMultiplayer.BattleTag, lobby, false);
         }
 
-        public static bool GetLobbyBattleStarted(Lobby lobby)
+        public static bool GetLobbyBattleCanBeJoined(Lobby lobby)
         {
-            return GetLobbyBool(MyMultiplayer.BattleStartedTag, lobby, false);
+            return GetLobbyBool(MyMultiplayer.BattleCanBeJoinedTag, lobby, false);
         }
 
         public override string GetMemberName(ulong steamUserID)

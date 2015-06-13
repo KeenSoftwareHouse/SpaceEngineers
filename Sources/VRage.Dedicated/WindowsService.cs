@@ -13,7 +13,7 @@ using VRage.Service;
 
 namespace VRage.Dedicated
 {
-    class WindowsService : MyServiceBase
+    public class WindowsService : MyServiceBase
     {
         Thread MainThread;
         ManualResetEvent m_waitEvent = new ManualResetEvent(false);
@@ -65,7 +65,7 @@ namespace VRage.Dedicated
             MainThread.CurrentUICulture = CultureInfo.InvariantCulture;
             m_waitEvent.Reset();
             MainThread.Start(args);
-            MySandboxGame.OnSessionReady += delegate
+            MySession.OnLoading += delegate
             {
                 m_waitEvent.Set();
             };

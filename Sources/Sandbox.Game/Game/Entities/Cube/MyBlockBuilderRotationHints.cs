@@ -233,7 +233,7 @@ namespace Sandbox.Game.Entities.Cube
             string upControlName2 = MyInput.Static.GetGameControl(MyControlsSpace.CUBE_ROTATE_VERTICAL_NEGATIVE).GetControlButtonName(MyGuiInputDeviceEnum.Keyboard).ToString();
             string forwControlName1 = MyInput.Static.GetGameControl(MyControlsSpace.CUBE_ROTATE_ROLL_POSITIVE).GetControlButtonName(MyGuiInputDeviceEnum.Keyboard).ToString();
             string forwControlName2 = MyInput.Static.GetGameControl(MyControlsSpace.CUBE_ROTATE_ROLL_NEGATIVE).GetControlButtonName(MyGuiInputDeviceEnum.Keyboard).ToString();
-            // MW:TODO uncomment when directional analog textures are ready
+
             if (MyInput.Static.IsJoystickConnected())
             {
                 rightControlName1 = MyControllerHelper.GetCodeForControl(MySpaceBindingCreator.CX_BUILD_MODE, MyControlsSpace.CUBE_ROTATE_HORISONTAL_POSITIVE).ToString();

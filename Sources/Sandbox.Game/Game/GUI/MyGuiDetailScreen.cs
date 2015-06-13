@@ -82,7 +82,7 @@ namespace Sandbox.Game.Gui
 
         protected int GetNumberOfBattlePoints() 
         {
-            return (int)m_loadedPrefab.ShipBlueprints[0].BattlePoints;
+            return (int)m_loadedPrefab.ShipBlueprints[0].Points;
         }
 
         protected void RefreshTextField()
@@ -120,7 +120,7 @@ namespace Sandbox.Game.Gui
                 int battlePoints = GetNumberOfBattlePoints();
                 if (battlePoints != 0)
                 {
-                    m_textField.AppendText("Battle points: " + battlePoints);
+                    m_textField.AppendText("Castle siege points: " + battlePoints);
                     m_textField.AppendLine();
                 }
             }
@@ -618,66 +618,7 @@ namespace Sandbox.Game.Gui
 
         void OnPublish(MyGuiControlButton button)
         {
-            string file = Path.Combine(m_localBlueprintFolder, m_blueprintName);
-            string title = m_loadedPrefab.ShipBlueprints[0].CubeGrids[0].DisplayName;
-            string description = m_loadedPrefab.ShipBlueprints[0].Description;
-            ulong publishId = m_loadedPrefab.ShipBlueprints[0].WorkshopId;
-            MyGuiSandbox.AddScreen(MyGuiSandbox.CreateMessageBox(
-                styleEnum: MyMessageBoxStyleEnum.Info,
-                buttonType: MyMessageBoxButtonsType.YES_NO,
-                messageCaption: new StringBuilder("Publish"),
-                messageText: new StringBuilder("Do you want to publish this blueprint?"),
-                callback: delegate(MyGuiScreenMessageBox.ResultEnum val)
-                {
-                    if (val == MyGuiScreenMessageBox.ResultEnum.YES)
-                    {
-                        Action<MyGuiScreenMessageBox.ResultEnum, string[]> onTagsChosen = delegate(MyGuiScreenMessageBox.ResultEnum tagsResult, string[] outTags)
-                        {
-                            if (tagsResult == MyGuiScreenMessageBox.ResultEnum.YES)
-                            {
-                                MySteamWorkshop.PublishBlueprintAsync(file, title, description, publishId, outTags, SteamSDK.PublishedFileVisibility.Public,
-                                    callbackOnFinished: delegate(bool success, Result result, ulong publishedFileId)
-                                    {
-                                        if (success)
-                                        {
-                                            m_loadedPrefab.ShipBlueprints[0].WorkshopId = publishedFileId;
-                                            SavePrefabToFile(m_loadedPrefab, m_blueprintName, true);
-                                            MyGuiSandbox.AddScreen(MyGuiSandbox.CreateMessageBox(
-                                                styleEnum: MyMessageBoxStyleEnum.Info,
-                                                messageText: MyTexts.Get(MySpaceTexts.MessageBoxTextWorldPublished),
-                                                messageCaption: new StringBuilder("BLUEPRINT PUBLISHED"),
-                                                callback: (a) =>
-                                                {
-                                                    MySteam.API.OpenOverlayUrl(string.Format("http://steamcommunity.com/sharedfiles/filedetails/?id={0}", publishedFileId));
-                                                }));
-                                        }
-                                        else
-                                        {
-                                            MyStringId error;
-                                            switch (result)
-                                            {
-                                                case Result.AccessDenied:
-                                                    error = MySpaceTexts.MessageBoxTextPublishFailed_AccessDenied;
-                                                    break;
-                                                default:
-                                                    error = MySpaceTexts.MessageBoxTextWorldPublishFailed;
-                                                    break;
-                                            }
-
-                                            MyGuiSandbox.AddScreen(MyGuiSandbox.CreateMessageBox(
-                                                messageText: MyTexts.Get(error),
-                                                messageCaption: MyTexts.Get(MySpaceTexts.MessageBoxCaptionWorldPublishFailed)));
-                                        }
-                                    });
-                            }
-                        };
-
-                        if (MySteamWorkshop.BlueprintCategories.Length > 0)
-                            MyGuiSandbox.AddScreen(new MyGuiScreenWorkshopTags(MySteamWorkshop.WORKSHOP_BLUEPRINT_TAG, MySteamWorkshop.BlueprintCategories, null, onTagsChosen));
-                        else
-                            onTagsChosen(MyGuiScreenMessageBox.ResultEnum.YES, new string[] { MySteamWorkshop.WORKSHOP_BLUEPRINT_TAG });
-                    }
-                }));
+            Publish(m_loadedPrefab, m_blueprintName);
         }
 
         void OnOpenWorkshop(MyGuiControlButton button)

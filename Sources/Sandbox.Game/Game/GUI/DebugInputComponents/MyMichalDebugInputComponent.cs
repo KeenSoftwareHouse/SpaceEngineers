@@ -1,20 +1,17 @@
-﻿using ProtoBuf;
-using Sandbox.Common.ObjectBuilders;
-using Sandbox.Engine.Multiplayer;
+﻿using Sandbox.Common.ObjectBuilders;
 using Sandbox.Engine.Utils;
 using Sandbox.Game.AI;
 using Sandbox.Game.AI.BehaviorTree;
 using Sandbox.Game.Entities;
-using Sandbox.Game.Multiplayer;
 using Sandbox.Game.Screens.Helpers;
+using Sandbox.Game.VoiceChat;
 using Sandbox.Game.World;
 using Sandbox.Graphics;
-using Sandbox.Graphics.GUI;
 using System;
 using System.Collections.Generic;
-using VRage;
 using VRage.Input;
 using VRage.Library.Utils;
+using VRage.ObjectBuilders;
 using VRageMath;
 
 namespace Sandbox.Game.Gui
@@ -42,6 +39,8 @@ namespace Sandbox.Game.Gui
             }
 
             AddShortcut(MyKeys.NumPad0, true, false, false, false, () => "Debug draw", DebugDrawFunc);
+
+            AddShortcut(MyKeys.NumPad9, true, false, false, false, OnRecording, ToggleVoiceChat);
 
             if (MyPerGameSettings.Game == GameEnum.SE_GAME)
             {
@@ -319,7 +318,6 @@ namespace Sandbox.Game.Gui
 
                 var mousePosition = MyGuiManager.MouseCursorPosition;
                 VRageRender.MyRenderProxy.DebugDrawText2D(initVec, "Mouse coords: " + mousePosition.ToString(), Color.BlueViolet, 0.4f);
-
             }
         }
 
@@ -353,7 +351,7 @@ namespace Sandbox.Game.Gui
             var inv = Matrix.Invert(view);
 
             //MyInventoryItem item = new MyInventoryItem(100, 
-            var oreBuilder = Sandbox.Common.ObjectBuilders.Serializer.MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_Ore>("Stone");
+            var oreBuilder = MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_Ore>("Stone");
 			var scrapBuilder = MyFloatingObject.ScrapBuilder;
 
             for (int i = 1; i <= 25; i++)
@@ -392,6 +390,27 @@ namespace Sandbox.Game.Gui
         private string OnSelectBotForDebugMsg()
         {
             return string.Format("Auto select bot for debug: {0}", OnSelectDebugBot ? "TRUE" : "FALSE");
+        }
+
+        private string OnRecording()
+        {
+            if (MyVoiceChatSessionComponent.Static != null)
+                return string.Format("VoIP recording: {0}", (MyVoiceChatSessionComponent.Static.IsRecording ? "TRUE" : "FALSE"));
+            else
+                return string.Format("VoIP unavailable");
+        }
+
+        private bool ToggleVoiceChat()
+        {
+            if (MyVoiceChatSessionComponent.Static.IsRecording)
+            {
+                MyVoiceChatSessionComponent.Static.StopRecording();
+            }
+            else
+            {
+                MyVoiceChatSessionComponent.Static.StartRecording();
+            }
+            return true;
         }
 
         private bool NextHeadMatrix()

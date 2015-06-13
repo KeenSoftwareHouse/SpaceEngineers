@@ -12,6 +12,7 @@ using VRageRender;
 using Sandbox.Common;
 using VRage;
 using VRage.Utils;
+using VRage.Components;
 #endregion
 
 namespace Sandbox.Common
