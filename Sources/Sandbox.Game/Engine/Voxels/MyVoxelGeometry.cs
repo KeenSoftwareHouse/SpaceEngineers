@@ -13,6 +13,7 @@ using VRage.Voxels;
 using VRageMath;
 using VRageRender;
 using MyGridIntersection = Sandbox.Engine.Utils.MyGridIntersection;
+using VRage.Components;
 
 namespace Sandbox.Engine.Voxels
 {

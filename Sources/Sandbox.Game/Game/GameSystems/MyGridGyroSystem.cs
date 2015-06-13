@@ -12,10 +12,11 @@ using Sandbox.Game.Entities.Cube;
 using Sandbox.Common;
 using VRageRender;
 using VRage.Utils;
+using VRage.Components;
 
 namespace Sandbox.Game.GameSystems
 {
-    class MyGridGyroSystem : IMyPowerConsumer
+    public class MyGridGyroSystem : IMyPowerConsumer
     {
         // Rotation limiter, larger number, more limited max rotation
         static readonly float INV_TENSOR_MAX_LIMIT = 125000;
@@ -24,6 +25,7 @@ namespace Sandbox.Game.GameSystems
 
         #region Fields
         public Vector3 ControlTorque;
+        public bool AutopilotEnabled;
 
         private MyCubeGrid m_grid;
         private HashSet<MyGyro> m_gyros;
@@ -278,7 +280,7 @@ namespace Sandbox.Game.GameSystems
             {
                 if (IsUsed(gyro))
                 {
-                    if (!gyro.GyroOverride)
+                    if (!gyro.GyroOverride || AutopilotEnabled)
                         m_maxGyroForce += gyro.MaxGyroForce;
                     else
                     {

@@ -7,6 +7,7 @@ using Sandbox.Engine.Physics;
 using Sandbox.Game.Multiplayer;
 using Sandbox.Game.World;
 using Sandbox.ModAPI.Interfaces;
+using VRage.Components;
 using VRage.Utils;
 using VRageMath;
 

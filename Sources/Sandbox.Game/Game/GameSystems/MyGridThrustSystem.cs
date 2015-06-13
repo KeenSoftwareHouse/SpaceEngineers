@@ -18,10 +18,11 @@ using Sandbox.Game.Entities.Cube;
 using Sandbox.Graphics;
 using Sandbox.Common;
 using VRage;
+using VRage.Components;
 
 namespace Sandbox.Game.GameSystems
 {
-    class MyGridThrustSystem : IMyPowerConsumer
+    public class MyGridThrustSystem : IMyPowerConsumer
     {
         private class DirectionComparer : IEqualityComparer<Vector3I>
         {
@@ -85,6 +86,8 @@ namespace Sandbox.Game.GameSystems
         /// Thrust wanted by AutoPilot
         /// </summary>
         public Vector3 AutoPilotThrust;
+
+        public bool AutopilotEnabled;
 
         public bool IsPowered
         {
@@ -380,7 +383,7 @@ namespace Sandbox.Game.GameSystems
         private void UpdateThrusts()
         {
             Vector3 thrust;
-            if (AutoPilotThrust != Vector3.Zero)
+            if (AutopilotEnabled)
             {
                 thrust = ComputeAiThrust(AutoPilotThrust);
             }
@@ -509,7 +512,7 @@ namespace Sandbox.Game.GameSystems
 
         private static bool IsOverridden(MyThrust thrust)
         {
-            return thrust.Enabled && thrust.IsFunctional && thrust.ThrustOverride > 0;
+            return thrust.Enabled && thrust.IsFunctional && thrust.ThrustOverride > 0 && !thrust.CubeGrid.GridSystems.ThrustSystem.AutopilotEnabled;
         }
 
         private static bool IsUsed(MyThrust thrust)

@@ -1,4 +1,6 @@
-﻿using Sandbox.Common.ObjectBuilders.Definitions;
+﻿using ProtoBuf;
+using Sandbox.Common.ModAPI;
+using Sandbox.Common.ObjectBuilders.Definitions;
 using Sandbox.Engine.Multiplayer;
 using Sandbox.Game.Entities;
 using Sandbox.Game.Entities.Cube;
@@ -28,16 +30,25 @@ namespace Sandbox.Game.Multiplayer
             public MyDamageType Type;
         }
 
+        
         [MessageIdAttribute(13269, P2PMessageEnum.Reliable)]
+        [ProtoContract]
         struct DoDamageSlimBlockMsg
         {
+            [ProtoMember]
             public long GridEntityId;
 
+            [ProtoMember]
             public Vector3I Position;
 
+            [ProtoMember]
             public float Damage;
 
+            [ProtoMember]
             public MyDamageType Type;
+
+            [ProtoMember]
+            public MyHitInfo? HitInfo;
         }
 
         static MySyncHelper()
@@ -74,15 +85,16 @@ namespace Sandbox.Game.Multiplayer
             (ent as IMyDestroyableObject).DoDamage(msg.Damage, msg.Type, false);
         }
 
-        internal static void DoDamageSynced(MySlimBlock block, float damage, MyDamageType damageType)
+        internal static void DoDamageSynced(MySlimBlock block, float damage, MyDamageType damageType, MyHitInfo? hitInfo)
         {
             Debug.Assert(Sync.IsServer);
             var msg = new DoDamageSlimBlockMsg();
             msg.GridEntityId = block.CubeGrid.EntityId;
             msg.Position = block.Position;
             msg.Damage = damage;
+            msg.HitInfo = hitInfo;
 
-            block.DoDamage(damage, damageType);
+            block.DoDamage(damage, damageType, hitInfo: hitInfo);
             Sync.Layer.SendMessageToAll<DoDamageSlimBlockMsg>(ref msg);
         }
 
@@ -95,7 +107,7 @@ namespace Sandbox.Game.Multiplayer
             var block = grid.GetCubeBlock(msg.Position);
             if (block == null)
                 return;
-            block.DoDamage(msg.Damage, msg.Type);
+            block.DoDamage(msg.Damage, msg.Type, hitInfo: msg.HitInfo);
         }
 
     }

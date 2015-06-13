@@ -10,7 +10,7 @@ using System.Text;
 namespace Sandbox.Game.Multiplayer
 {
     [PreloadRequired]
-    class MySyncMotorSuspension : MySyncMotorBase
+    public class MySyncMotorSuspension : MySyncMotorBase
     {
         [MessageId(224, P2PMessageEnum.Reliable)]
         struct SteeringMsg : IEntityMessage
@@ -103,6 +103,30 @@ namespace Sandbox.Game.Multiplayer
             public float Steer;
         }
 
+        [MessageId(239, P2PMessageEnum.Reliable)]
+        struct UpdateSliderMsg : IEntityMessage
+        {
+            public long EntityId;
+
+            public long GetEntityId()
+            {
+                return EntityId;
+            }
+
+            public SliderEnum Slider;
+            public float Value;
+        }
+
+        public enum SliderEnum
+        {
+            Height,
+            MaxSteerAngle,
+            SteerSpeed,
+            SteerReturnSpeed,
+            InvertSteer,
+            SuspensionTravel
+        }
+
         static MySyncMotorSuspension()
         {
             MySyncLayer.RegisterEntityMessage<MySyncMotorSuspension, SteeringMsg>(OnChangeControllable, MyMessagePermissions.Any);
@@ -112,6 +136,7 @@ namespace Sandbox.Game.Multiplayer
             MySyncLayer.RegisterEntityMessage<MySyncMotorSuspension, FrictionMsg>(OnChangeFriction, MyMessagePermissions.Any);
             MySyncLayer.RegisterEntityMessage<MySyncMotorSuspension, PowerMsg>(OnChangePower, MyMessagePermissions.Any);
             MySyncLayer.RegisterEntityMessage<MySyncMotorSuspension, SteerMsg>(OnUpdateSteer, MyMessagePermissions.Any);
+            MySyncLayer.RegisterEntityMessage<MySyncMotorSuspension, UpdateSliderMsg>(OnUpdateSlider, MyMessagePermissions.Any);
         }
 
         public new MyMotorSuspension Entity
@@ -222,6 +247,41 @@ namespace Sandbox.Game.Multiplayer
         static void OnUpdateSteer(MySyncMotorSuspension sync, ref SteerMsg msg, MyNetworkClient sender)
         {
             sync.Entity.SteerAngle = msg.Steer;
+        }
+
+        internal void ChangeSlider(MySyncMotorSuspension.SliderEnum slider, float v)
+        {
+            var msg = new UpdateSliderMsg();
+            msg.EntityId = Entity.EntityId;
+            msg.Slider = slider;
+            msg.Value = v;
+
+            Sync.Layer.SendMessageToAllAndSelf(ref msg);
+        }
+
+        static void OnUpdateSlider(MySyncMotorSuspension sync, ref UpdateSliderMsg msg, MyNetworkClient sender)
+        {
+            switch (msg.Slider)
+            {
+                case SliderEnum.Height:
+                    sync.Entity.Height = msg.Value;
+                    break;
+                case SliderEnum.MaxSteerAngle:
+                    sync.Entity.MaxSteerAngle = msg.Value;
+                    break;
+                case SliderEnum.SteerSpeed:
+                    sync.Entity.SteerSpeed = msg.Value;
+                    break;
+                case SliderEnum.SteerReturnSpeed:
+                    sync.Entity.SteerReturnSpeed = msg.Value;
+                    break;
+                case SliderEnum.InvertSteer:
+                    sync.Entity.InvertSteer = msg.Value > 0;
+                    break;
+                case SliderEnum.SuspensionTravel:
+                    sync.Entity.SuspensionTravel = msg.Value;
+                    break;
+            }
         }
     }
 }

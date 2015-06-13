@@ -22,12 +22,13 @@ using Sandbox.Graphics;
 using Sandbox.Definitions;
 using Sandbox.Game.GUI;
 using Sandbox.Game.Localization;
+using VRage.ObjectBuilders;
 
 #endregion
 
 namespace Sandbox.Game.Weapons
 {
-    abstract class MyBlockPlacerBase : MyEngineerToolBase
+    public abstract class MyBlockPlacerBase : MyEngineerToolBase
     {
         public static MyHudNotificationBase MissingComponentNotification =
              new MyHudNotification(MySpaceTexts.NotificationMissingComponentToPlaceBlockFormat, font: MyFontEnum.Red, priority: 1);

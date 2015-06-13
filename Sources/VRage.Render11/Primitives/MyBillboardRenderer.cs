@@ -606,10 +606,10 @@ namespace VRageRender
             RC.SetRS(MyRender11.m_nocullRasterizerState);
             RC.BindRawSRV(104, m_SB.Srv);
             RC.BindSRV(1, depthRead);
-            RC.SetCB(3, MyCommon.GetObjectCB(sizeof(Matrix) * MaxCustomProjections));
+            RC.SetCB(2, MyCommon.GetObjectCB(sizeof(Matrix) * MaxCustomProjections));
             RC.SetDS(MyDepthStencilState.DefaultDepthState);
 
-            RC.SetCB(2, MyShadows.m_csmConstants);
+            RC.SetCB(4, MyShadows.m_csmConstants);
             RC.Context.VertexShader.SetSampler(MyCommon.SHADOW_SAMPLER_SLOT, MyRender11.m_shadowmapSamplerState);
             RC.Context.VertexShader.SetShaderResource(MyCommon.CASCADES_SM_SLOT, MyShadows.m_cascadeShadowmapArray.ShaderView);
             RC.Context.VertexShader.SetSamplers(0, MyRender11.StandardSamplers);

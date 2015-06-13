@@ -82,8 +82,8 @@ VertexShaderInterface __prepare_interface(__VertexInput input, uint sv_vertex_id
 	float3 __normal_morph = 0;
 	float3 __material_weights_morph = 0;
 	// skinning
-	uint4  __blend_indices;
-	float4 __blend_weights;
+	uint4  __blend_indices = 0;
+	float4 __blend_weights = 0;
 	// instancing
 	matrix __instance_matrix;
 	// cube instancing (deformation needs bones, processing need to be deferred to after loading all data from vertex!)
@@ -181,7 +181,7 @@ VertexShaderInterface __prepare_interface(__VertexInput input, uint sv_vertex_id
 #endif
 
 #ifdef USE_DEFORMED_CUBE_INSTANCING
-	__texcoord0 = __texcoord0 * 0.25 + float2(__packed_bone5.w, __packed_bone6.w);
+	__texcoord0 = __texcoord0 + float2(__packed_bone5.w, __packed_bone6.w);
 	__instance_matrix = construct_deformed_cube_instance_matrix(__packed_bone0, __packed_bone1, __packed_bone2, __packed_bone3, __packed_bone4, __packed_bone5, __packed_bone6, __packed_bone7, __cube_transformation, __blend_indices, __blend_weights);
 #endif
 
@@ -199,8 +199,9 @@ VertexShaderInterface __prepare_interface(__VertexInput input, uint sv_vertex_id
 	//result.position_scaled_untranslated = float4( mul(position_instance.xyz, (float3x3) local_matrix), 1);
 
 	// this is not precisely in local frame, can cause trouble with big worlds
-	result.position_scaled_untranslated = mul(position_instance.xyzw, (float4x4) local_matrix);
-	result.position_scaled_untranslated.xyz += frame_.world_offset.xyz;
+	result.position_scaled_untranslated.xyz = mul(position_instance.xyz, (float3x3) local_matrix);
+	result.position_scaled_untranslated.xyz += object_.voxel_offset;
+	result.position_scaled_untranslated.w = 1;
 
 	result.texcoord0 = __texcoord0;
 	result.material_weights = __material_weights;
@@ -214,15 +215,16 @@ VertexShaderInterface __prepare_interface(__VertexInput input, uint sv_vertex_id
 	result.key_color = object_.key_color;
 	result.custom_alpha = object_.custom_alpha;
 
-#if defined(USE_CUBE_INSTANCING) || defined(USE_DEFORMED_CUBE_INSTANCING)
-	result.custom_alpha = __colormask.w * (__packed_bone7.w ? -1 : 1);
-#endif
-
 	result._local_matrix = local_matrix;
 	result._view_proj_matrix = view_proj;
 
 #ifdef PASS_OBJECT_VALUES_THROUGH_STAGES
 	result.key_color = __colormask.xyz;
+	result.custom_alpha = __colormask.w;
+#endif
+
+#if defined(USE_CUBE_INSTANCING) || defined(USE_DEFORMED_CUBE_INSTANCING)
+	result.custom_alpha = __colormask.w * (__packed_bone7.w ? -1 : 1) + object_.custom_alpha;
 #endif
 
 	return result;

@@ -10,6 +10,7 @@ using Sandbox.Game.Weapons;
 using Sandbox.Common.Components;
 using Sandbox.Common.ObjectBuilders;
 using Sandbox.Game.World;
+using VRage.Components;
 
 namespace Sandbox.Game.Components
 {
@@ -18,10 +19,10 @@ namespace Sandbox.Game.Components
         MyEngineerToolBase m_tool;
 
         #region overrides
-        public override void OnAddedToContainer(MyComponentContainer container)
+        public override void OnAddedToContainer()
         {
-            base.OnAddedToContainer(container);
-            m_tool = Entity as MyEngineerToolBase;
+            base.OnAddedToContainer();
+            m_tool = Container.Entity as MyEngineerToolBase;
         }
         public override void Draw()
         {

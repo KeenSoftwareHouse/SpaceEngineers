@@ -152,6 +152,7 @@ namespace Sandbox.Graphics.GUI
                 var resultType = typeof(T);
                 createdType = resultType;
                 ChooseScreenType<T>(ref createdType, MyPlugins.GameAssembly);
+                ChooseScreenType<T>(ref createdType, MyPlugins.SandboxAssembly);
                 ChooseScreenType<T>(ref createdType, MyPlugins.UserAssembly);
                 m_createdScreenTypes[resultType] = createdType;
             }

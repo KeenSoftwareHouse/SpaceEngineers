@@ -98,6 +98,7 @@
     <Compile Include="Collections\MyConcurrentDeque.cs" />
     <Compile Include="Collections\MyDeque.cs" />
     <Compile Include="Collections\MyIntervalList.cs" />
+    <Compile Include="Collections\QueueReader.cs" />
     <Compile Include="Collections\UniqueListReader.cs" />
     <Compile Include="Collections\MyBinaryHeap.cs" />
     <Compile Include="Collections\MySinglyLinkedList.cs" />
@@ -128,6 +129,7 @@
     <Compile Include="DShow\VideoPlayer.cs" />
     <Compile Include="Extensions\DictionaryExtensions.cs" />
     <Compile Include="Extensions\DoubleExtensions.cs" />
+    <Compile Include="Extensions\FieldExtensions.cs" />
     <Compile Include="Extensions\FloatExtensions.cs" />
     <Compile Include="Extensions\HashSetExtensions.cs" />
     <Compile Include="Filesystem\IFileVerifier.cs" />

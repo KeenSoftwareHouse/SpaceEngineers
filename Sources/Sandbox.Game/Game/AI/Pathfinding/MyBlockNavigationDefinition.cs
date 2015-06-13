@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
+using VRage;
 using VRageMath;
 
 namespace Sandbox.Game.AI.Pathfinding
@@ -139,7 +140,7 @@ namespace Sandbox.Game.AI.Pathfinding
                     for (int r = 0; r < rMax; ++r)
                     {
                         var triangle = new MyObjectBuilder_BlockNavigationDefinition.Triangle();
-                        triangle.Points = new Common.ObjectBuilders.VRageData.SerializableVector3[3];
+                        triangle.Points = new SerializableVector3[3];
 
                         triangle.Points[0] = faceOrigin;
                         triangle.Points[1] = faceOrigin + rightVec;
@@ -147,7 +148,7 @@ namespace Sandbox.Game.AI.Pathfinding
                         ob.Triangles[i++] = triangle;
 
                         triangle = new MyObjectBuilder_BlockNavigationDefinition.Triangle();
-                        triangle.Points = new Common.ObjectBuilders.VRageData.SerializableVector3[3];
+                        triangle.Points = new SerializableVector3[3];
 
                         triangle.Points[0] = faceOrigin + rightVec;
                         triangle.Points[1] = faceOrigin + rightVec + upVec;

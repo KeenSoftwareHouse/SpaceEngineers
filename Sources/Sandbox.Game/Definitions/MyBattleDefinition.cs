@@ -11,7 +11,8 @@ namespace Sandbox.Definitions
     public class MyBattleDefinition : MyDefinitionBase
     {
         public MyObjectBuilder_Toolbar DefaultToolbar;
-        public MyDefinitionId[] SpawnBlocks; 
+        public MyDefinitionId[] SpawnBlocks;
+        public float DefenderEntityDamage;
 
         protected override void Init(MyObjectBuilder_DefinitionBase builder)
         {
@@ -19,6 +20,7 @@ namespace Sandbox.Definitions
             var ob = builder as MyObjectBuilder_BattleDefinition;
 
             DefaultToolbar = ob.DefaultToolbar;
+            DefenderEntityDamage = ob.DefenderEntityDamage;
 
             if (ob.SpawnBlocks != null && ob.SpawnBlocks.Length > 0)
             {
@@ -32,6 +34,7 @@ namespace Sandbox.Definitions
         public void Merge(MyBattleDefinition src)
         {
             DefaultToolbar = src.DefaultToolbar;
+            DefenderEntityDamage = src.DefenderEntityDamage;
 
             if (src.SpawnBlocks != null && src.SpawnBlocks.Length > 0)
             {

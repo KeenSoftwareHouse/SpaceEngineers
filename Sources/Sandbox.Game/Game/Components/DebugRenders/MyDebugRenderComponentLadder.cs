@@ -19,6 +19,7 @@ using System.Threading;
 
 using Sandbox.Common.Components;
 using Sandbox.Graphics;
+using VRage.ModAPI;
 
 namespace Sandbox.Game.Components
 {

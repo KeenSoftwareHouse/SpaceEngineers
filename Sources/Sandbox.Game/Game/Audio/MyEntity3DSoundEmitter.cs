@@ -219,6 +219,7 @@ namespace Sandbox.Game.Entities
                 EmitterMethods[MethodsEnum.CanHear].Add((Func<bool>)IsOnSameGrid);
                 EmitterMethods[MethodsEnum.CanHear].Add((Func<bool>)IsControlledEntity);
                 EmitterMethods[MethodsEnum.CanHear].Add((Func<bool>)IsBeingWelded);
+                EmitterMethods[MethodsEnum.CanHear].Add((Func<bool>)IsInOxygen);
 
                 EmitterMethods[MethodsEnum.ShouldPlay2D].Add((Func<bool>)IsCurrentWeapon);
 
@@ -331,12 +332,23 @@ namespace Sandbox.Game.Entities
             return targetCube.FatBlock == cubeBlock;
         }
 
+        private bool IsInOxygen()
+        {
+            return (MySession.LocalCharacter != null && MySession.LocalCharacter.EnvironmentOxygenLevel > 0.1f);
+        }
+
         private MyStringId SelectCue(MySoundPair sound)
         {
-            //af:da:TODO: this.SourcePosition && listener.Position in pressurized room play arcade
             if (MySession.Static != null && MySession.Static.Settings.RealisticSound && MyFakes.ENABLE_NEW_SOUNDS)
             {
-                return sound.Realistic;
+                if (IsInOxygen())
+                {
+                    return sound.Arcade;
+                }
+                else
+                {
+                    return sound.Realistic;
+                }
             }
             else
                 return sound.Arcade;
@@ -345,11 +357,25 @@ namespace Sandbox.Game.Entities
         static MyStringId m_helmetEffect = MyStringId.GetOrCompute("LowPassHelmet");
         private MyStringId SelectEffect()
         {
-            if (false) //af:da:TODO: listener in pressurized room with helmet on -> lowPass
+            if (MyFakes.ENABLE_NEW_SOUNDS && MySession.LocalCharacter != null && !MySession.LocalCharacter.Definition.NeedsOxygen && IsInOxygen())
             {
                 return m_helmetEffect;
             }
             return MyStringId.NullOrEmpty;
+        }
+
+        public void PlaySound(byte[] buffer, int size, int sampleRate, float volume = 1, float maxDistance = 0, MySoundDimensions dimension = MySoundDimensions.D3)
+        {
+            CustomMaxDistance = maxDistance;
+            CustomVolume = volume;
+            if (Sound == null)
+                Sound = MyAudio.Static.GetSound(this, sampleRate, 1, dimension);
+            if (Sound != null)
+            {
+                Sound.SubmitBuffer(buffer, size);
+                if (!Sound.IsPlaying)
+                    Sound.StartBuffered();
+            }
         }
 
         public void PlaySingleSound(MyStringId soundId, /*bool loop = false,*/ bool stopPrevious = false, bool skipIntro = false)
@@ -468,6 +494,15 @@ namespace Sandbox.Game.Entities
             foreach (var func in EmitterMethods[MethodsEnum.ShouldPlay2D])
                 retVal |= ((Func<bool>)func)();
             return retVal;
+        }
+
+        public void Cleanup()
+        {
+            if (Sound != null)
+            {
+                Sound.Cleanup();
+                Sound = null;
+            }
         }
 
         private void OnStopPlaying()

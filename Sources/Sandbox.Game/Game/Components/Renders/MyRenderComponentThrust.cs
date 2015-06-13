@@ -13,6 +13,7 @@ using VRage.Utils;
 using Sandbox.Engine.Utils;
 using VRage;
 using VRage;
+using VRage.Components;
 
 namespace Sandbox.Game.Components
 {
@@ -21,17 +22,17 @@ namespace Sandbox.Game.Components
         MyThrust m_thrust = null;
 
         #region overrides
-        public override void OnAddedToContainer(MyComponentContainer container)
+        public override void OnAddedToContainer()
         {
-            base.OnAddedToContainer(container);
-            m_thrust = Entity as MyThrust;
+            base.OnAddedToContainer();
+            m_thrust = Container.Entity as MyThrust;
         }
         public override void Draw()
         {
             base.Draw();
             ProfilerShort.Begin("MyThrust.Draw()");
 
-            var worldToLocal = MatrixD.Invert(Entity.PositionComp.WorldMatrix);
+            var worldToLocal = MatrixD.Invert(Container.Entity.PositionComp.WorldMatrix);
 
             if (m_thrust.CanDraw())
             {
@@ -44,8 +45,8 @@ namespace Sandbox.Game.Components
                     {
                         continue;
                     }
-                    Vector3D forward = Vector3D.TransformNormal(f.Direction, Entity.PositionComp.WorldMatrix);
-                    var position = Vector3D.Transform(f.Position, Entity.PositionComp.WorldMatrix);
+                    Vector3D forward = Vector3D.TransformNormal(f.Direction, Container.Entity.PositionComp.WorldMatrix);
+                    var position = Vector3D.Transform(f.Position, Container.Entity.PositionComp.WorldMatrix);
 
                     float radius = m_thrust.ThrustRadiusRand * f.Radius;
                     float length = m_thrust.ThrustLengthRand * f.Radius;

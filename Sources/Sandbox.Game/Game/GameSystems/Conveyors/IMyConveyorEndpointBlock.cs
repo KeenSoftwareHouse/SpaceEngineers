@@ -5,7 +5,7 @@ using System.Text;
 
 namespace Sandbox.Game.GameSystems.Conveyors
 {
-    interface IMyConveyorEndpointBlock
+    public interface IMyConveyorEndpointBlock
     {
         IMyConveyorEndpoint ConveyorEndpoint { get; }
         void InitializeConveyorEndpoint();

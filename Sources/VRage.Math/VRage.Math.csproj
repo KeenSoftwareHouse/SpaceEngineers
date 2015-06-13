@@ -82,6 +82,8 @@
     <Compile Include="CapsuleD.cs" />
     <Compile Include="CompressedPositionOrientation.cs" />
     <Compile Include="IPhysicsMesh.cs" />
+    <Compile Include="MyCuboid.cs" />
+    <Compile Include="MyMath.cs" />
     <Compile Include="MyTransformD.cs" />
     <Compile Include="QuaternionD.cs" />
     <Compile Include="Spatial\MyVector3Grid.cs" />

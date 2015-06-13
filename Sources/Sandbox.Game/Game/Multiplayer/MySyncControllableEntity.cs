@@ -19,12 +19,16 @@ using Sandbox.Engine.Utils;
 using VRage;
 using Sandbox.Common;
 using VRage.Library.Utils;
+using VRage.ObjectBuilders;
+using Sandbox.Game.Entities.UseObject;
+using VRage.Game.Entity.UseObject;
+
 //using Sandbox.Game.Gui;
 
 namespace Sandbox.Game.Multiplayer
 {
     [PreloadRequired]
-    class MySyncControllableEntity : MySyncEntity
+    public class MySyncControllableEntity : MySyncEntity
     {
         public delegate void SwitchToWeaponDelegate(MyDefinitionId? weapon, MyObjectBuilder_EntityBase weaponObjectBuilder, long weaponEntityId);
         public delegate void SwitchAmmoMagazineDelegate();

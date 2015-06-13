@@ -7,7 +7,7 @@ using System.Text;
 
 namespace Sandbox.Game.Gui
 {
-    static class HudBlockInfoExtensions
+    public static class HudBlockInfoExtensions
     {
         public static void LoadDefinition(this MyHudBlockInfo blockInfo, MyCubeBlockDefinition definition, bool merge = true)
         {

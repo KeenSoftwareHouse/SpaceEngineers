@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Sandbox.Game.GameSystems.Electricity
 {
-    interface IMyPowerConsumer
+    public interface IMyPowerConsumer
     {
         MyPowerReceiver PowerReceiver { get; }
     }

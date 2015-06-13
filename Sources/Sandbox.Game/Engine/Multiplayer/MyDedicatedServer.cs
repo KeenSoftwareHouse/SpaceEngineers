@@ -143,7 +143,7 @@ namespace Sandbox.Engine.Multiplayer
 
     #endregion
 
-    class MyDedicatedServer : MyMultiplayerBase
+    public class MyDedicatedServer : MyMultiplayerBase
     {
         #region Fields
 
@@ -185,8 +185,15 @@ namespace Sandbox.Engine.Multiplayer
             get { return m_worldName; }
             set
             {
-                m_worldName = value;
-                SteamSDK.SteamServerAPI.Instance.GameServer.SetMapName(value);
+                if (string.IsNullOrEmpty(value))
+                {
+                    m_worldName = "noname";
+                }
+                else
+                {
+                    m_worldName = value;
+                }
+                SteamSDK.SteamServerAPI.Instance.GameServer.SetMapName(m_worldName);
             }
         }
 
@@ -289,13 +296,37 @@ namespace Sandbox.Engine.Multiplayer
             set { m_viewDistance = value; }
         }
 
+        public override bool Scenario
+        {
+            get;
+            set;
+        }
+
+        public override string ScenarioBriefing
+        {
+            get;
+            set;
+        }
+
+        public override DateTime ScenarioStartTime
+        {
+            get;
+            set;
+        }
+
         public override bool Battle
         {
             get;
             set;
         }
 
-        public override bool BattleStarted
+        public override bool BattleCanBeJoined
+        {
+            get;
+            set;
+        }
+
+        public override ulong BattleWorldWorkshopId
         {
             get;
             set;

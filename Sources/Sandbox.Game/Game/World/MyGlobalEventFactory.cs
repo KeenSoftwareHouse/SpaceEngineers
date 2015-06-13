@@ -7,6 +7,7 @@ using System.Diagnostics;
 using System.Reflection;
 using Sandbox.Common;
 using VRage.Plugins;
+using VRage.ObjectBuilders;
 
 namespace Sandbox.Game.World
 {
@@ -35,6 +36,7 @@ namespace Sandbox.Game.World
 
             RegisterEventTypesAndHandlers(Assembly.GetAssembly(typeof(MyGlobalEventBase)));
             RegisterEventTypesAndHandlers(MyPlugins.GameAssembly);
+            RegisterEventTypesAndHandlers(MyPlugins.SandboxAssembly);
         }
 
         private static void RegisterEventTypesAndHandlers(Assembly assembly)

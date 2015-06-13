@@ -13,10 +13,11 @@ using Sandbox.Game.World;
 using VRage.Trace;
 using VRageMath;
 using VRage.Utils;
+using VRage.ObjectBuilders;
 
 namespace Sandbox.Game.GameSystems.Electricity
 {
-    class MyBattery : IMyPowerProducer, IMyPowerConsumer
+    public class MyBattery : IMyPowerProducer, IMyPowerConsumer
     {
         internal class Friend
         {
@@ -44,6 +45,16 @@ namespace Sandbox.Game.GameSystems.Electricity
         }
 
         public float MaxPowerOutput
+        {
+            get { return MyEnergyConstants.BATTERY_MAX_POWER_OUTPUT; }
+        }
+
+        bool Sandbox.ModAPI.Ingame.IMyPowerProducer.ProductionEnabled
+        {
+            get { return HasCapacityRemaining; }
+        }
+
+        float ModAPI.Ingame.IMyPowerProducer.DefinedPowerOutput
         {
             get { return MyEnergyConstants.BATTERY_MAX_POWER_OUTPUT; }
         }
@@ -160,7 +171,7 @@ namespace Sandbox.Game.GameSystems.Electricity
 
         public MyObjectBuilder_Battery GetObjectBuilder()
         {
-            MyObjectBuilder_Battery builder = Sandbox.Common.ObjectBuilders.Serializer.MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_Battery>();
+            MyObjectBuilder_Battery builder = MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_Battery>();
             builder.ProducerEnabled = (this as IMyPowerProducer).Enabled;
             builder.CurrentCapacity = RemainingCapacity;
             return builder;

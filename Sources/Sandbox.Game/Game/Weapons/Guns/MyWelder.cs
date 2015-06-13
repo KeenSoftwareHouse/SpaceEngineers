@@ -17,6 +17,7 @@ using System.Diagnostics;
 using System.Linq;
 using VRage.Input;
 using VRageMath;
+using VRage.ObjectBuilders;
 
 #endregion
 
@@ -68,7 +69,7 @@ namespace Sandbox.Game.Weapons
             SecondaryEffectId = MyParticleEffectsIDEnum.WelderSecondary;
             HasSecondaryEffect = false;
 
-            PhysicalObject = (MyObjectBuilder_PhysicalGunObject)Sandbox.Common.ObjectBuilders.Serializer.MyObjectBuilderSerializer.CreateNewObject(m_physicalItemId.TypeId, m_physicalItemId.SubtypeName);
+            PhysicalObject = (MyObjectBuilder_PhysicalGunObject)MyObjectBuilderSerializer.CreateNewObject(m_physicalItemId.TypeId, m_physicalItemId.SubtypeName);
         }
 
         public override void Init(MyObjectBuilder_EntityBase objectBuilder)
@@ -266,13 +267,13 @@ namespace Sandbox.Game.Weapons
                     var info = FindProjectedBlock();
                     if (info.raycastResult == MyProjector.BuildCheckResult.OK)
                     {
-                        if (MySession.Static.CreativeMode || MyBlockBuilderBase.DeveloperSpectatorIsBuilding || Owner.CanStartConstruction(info.hitCube.BlockDefinition))
+                        if (MySession.Static.CreativeMode || MyBlockBuilderBase.SpectatorIsBuilding || Owner.CanStartConstruction(info.hitCube.BlockDefinition))
                         {
                             info.cubeProjector.Build(info.hitCube, Owner.ControllerInfo.Controller.Player.Identity.IdentityId, Owner.EntityId);
                         }
                         else
                         {
-                            MyCubePlacer.OnMissingComponents(info.hitCube.BlockDefinition);
+                            MyBlockPlacerBase.OnMissingComponents(info.hitCube.BlockDefinition);
                         }
                     }
                 }

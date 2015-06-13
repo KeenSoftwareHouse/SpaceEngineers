@@ -15,6 +15,7 @@ using System.Text;
 using VRage.Serialization;
 using Sandbox.ModAPI;
 using Sandbox.Engine.Networking;
+using VRage;
 
 namespace Sandbox.Game.Multiplayer
 {
@@ -133,24 +134,6 @@ namespace Sandbox.Game.Multiplayer
             public BoolBlit AutoAcceptPeace;
         }
 
-        [MessageId(3321, P2PMessageEnum.Reliable)]
-        [ProtoContract]
-        struct AllFactionsRequestMsg
-        {
-            [ProtoMember]
-            public ulong ClientSteamId;
-            [ProtoMember]
-            public int PlayerSerialId;
-        }
-
-        [MessageId(3322, P2PMessageEnum.Reliable)]
-        [ProtoContract]
-        struct AllFactionsSuccessMsg
-        {
-            [ProtoMember]
-            public List<MyObjectBuilder_Faction> Factions;
-        }
-
 
         /// <summary>
         /// All factions in a game.
@@ -182,9 +165,6 @@ namespace Sandbox.Game.Multiplayer
 
             MySyncLayer.RegisterMessage<ChangeAutoAcceptMsg>(ChangeAutoAcceptRequest, MyMessagePermissions.ToServer, MyTransportMessageEnum.Request);
             MySyncLayer.RegisterMessage<ChangeAutoAcceptMsg>(ChangeAutoAcceptSuccess, MyMessagePermissions.FromServer, MyTransportMessageEnum.Success);
-
-            MySyncLayer.RegisterMessage<AllFactionsRequestMsg>(OnAllFactionsRequest, MyMessagePermissions.ToServer, MyTransportMessageEnum.Request);
-            MySyncLayer.RegisterMessage<AllFactionsSuccessMsg>(OnAllFactionsSuccess, MyMessagePermissions.FromServer, MyTransportMessageEnum.Success);
         }
 
         public bool FactionTagExists(string tag, IMyFaction doNotCheck = null)
@@ -527,29 +507,7 @@ namespace Sandbox.Game.Multiplayer
             }
         }
 
-        public void RequestAllFactions()
-        {
-            var msg = new AllFactionsRequestMsg();
-            msg.ClientSteamId = MySteam.UserId;
-            msg.PlayerSerialId = 0;
-
-            Sync.Layer.SendMessageToServer(ref msg);
-        }
-
-        static void OnAllFactionsRequest(ref AllFactionsRequestMsg msg, MyNetworkClient sender)
-        {
-            var response = new AllFactionsSuccessMsg();
-            response.Factions = MySession.Static.Factions.SaveFactions();
-
-            Sync.Layer.SendMessage(ref response, sender.SteamUserId, messageType: MyTransportMessageEnum.Success);
-        }
-
-        static void OnAllFactionsSuccess(ref AllFactionsSuccessMsg msg, MyNetworkClient sender)
-        {
-            MySession.Static.Factions.LoadFactions(msg.Factions);
-        }
-
-        private List<MyObjectBuilder_Faction> SaveFactions()
+        internal List<MyObjectBuilder_Faction> SaveFactions()
         {
             List<MyObjectBuilder_Faction> factionBuilders = new List<MyObjectBuilder_Faction>();
             foreach (var factionPair in m_factions)
@@ -561,8 +519,19 @@ namespace Sandbox.Game.Multiplayer
             return factionBuilders;
         }
 
-        private void LoadFactions(List<MyObjectBuilder_Faction> factionBuilders)
+        internal void LoadFactions(List<MyObjectBuilder_Faction> factionBuilders, bool removeOldData = true)
         {
+            if (removeOldData)
+            {
+                m_factions.Clear();
+                m_factionRequests.Clear();
+                m_relationsBetweenFactions.Clear();
+                m_playerFaction.Clear();
+            }
+
+            if (factionBuilders == null)
+                return;
+
             foreach (var builder in factionBuilders) 
             {
                 if (m_factions.ContainsKey(builder.FactionId))

@@ -5,7 +5,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using VRage;
-using VRage;
+using VRage.Components;
 using VRageMath;
 
 namespace Sandbox.Game.Components
@@ -18,7 +18,10 @@ namespace Sandbox.Game.Components
             m_worldAABB.Max = m_worldMatrix.Translation;// +Vector3.One * m_localVolume.Radius;
             m_worldVolume.Center = m_worldMatrix.Translation;
             m_worldVolume.Radius = m_localVolume.Radius;
-            Entity.Render.InvalidateRenderObjects();
+            var component = Container.Get<MyRenderComponentBase>();
+            Debug.Assert(component != null, "Missing render component!!");
+			if(component != null)
+				component.InvalidateRenderObjects();
         }
 
         protected override void UpdateChildren(object source)
@@ -28,7 +31,7 @@ namespace Sandbox.Game.Components
 
         public override void OnWorldPositionChanged(object source)
         {
-            Debug.Assert(source != this && (Entity == null || source != Entity), "Recursion detected!");
+            Debug.Assert(source != this && (Container.Entity == null || source != Container.Entity), "Recursion detected!");
             ProfilerShort.Begin("FP.Volume+InvalidateRender");
             UpdateWorldVolume();
             //ProfilerShort.BeginNextBlock("FP.Prunning.Move");

@@ -9,7 +9,7 @@ using VRageMath;
 namespace Sandbox.Definitions
 {
     [MyDefinitionType(typeof(MyObjectBuilder_ReflectorBlockDefinition))]
-    class MyReflectorBlockDefinition : MyLightingBlockDefinition
+    public class MyReflectorBlockDefinition : MyLightingBlockDefinition
     {
         public string ReflectorTexture;
 

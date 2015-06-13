@@ -11,14 +11,17 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using VRage;
+using VRage.ModAPI;
+using VRage.ObjectBuilders;
 using VRage.Utils;
 using VRage.Voxels;
 using VRageMath;
 
 namespace Sandbox.Game.Entities
 {
-    public class MyVoxelBase : MyEntity, IMyVoxelDrawable,IMyVoxelBase
-    {     
+    public abstract class MyVoxelBase : MyEntity, IMyVoxelDrawable, IMyVoxelBase
+    {
         protected Vector3I m_storageMin = new Vector3I(0, 0, 0);
         public Vector3I StorageMin
         {
@@ -183,10 +186,9 @@ namespace Sandbox.Game.Entities
             return 0.0f;
         }
 
-        public virtual bool IsAnyAabbCornerInside(BoundingBoxD worldAabb)
-        {
-            return false;
-        }
+        public abstract bool IsAnyAabbCornerInside(BoundingBoxD worldAabb);
+
+        public abstract bool IsAnyAabbCornerInside(ref MatrixD aabbWorldTransform, BoundingBoxD aabb);
 
         public virtual bool IsOverlapOverThreshold(BoundingBoxD worldAabb, float thresholdPercentage = 0.9f)
         {

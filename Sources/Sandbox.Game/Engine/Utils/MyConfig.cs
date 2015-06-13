@@ -67,6 +67,7 @@ namespace Sandbox.Engine.Utils
         readonly string LAST_FRIEND_SECTOR_POSITION = "LastFriendSectorPosition";
         readonly string LAST_MY_SANDBOX_SECTOR = "LastMySandboxSector";
         readonly string NEED_SHOW_TUTORIAL_QUESTION = "NeedShowTutorialQuestion";
+        readonly string NEED_SHOW_BATTLE_TUTORIAL_QUESTION = "NeedShowBattleTutorialQuestion";
         readonly string DEBUG_INPUT_COMPONENTS = "DebugInputs";
         readonly string DEBUG_INPUT_COMPONENTS_INFO = "DebugComponentsInfo";
         readonly string MINIMAL_HUD = "MinimalHud";
@@ -82,10 +83,12 @@ namespace Sandbox.Engine.Utils
         readonly string ANTIALIASING_MODE = "AntialiasingMode";
         readonly string SHADOW_MAP_RESOLUTION = "ShadowMapResolution";
         readonly string MULTITHREADED_RENDERING = "MultithreadedRendering";
+        readonly string TONEMAPPING = "Tonemapping";
         readonly string TEXTURE_QUALITY = "TextureQuality";
         readonly string ANISOTROPIC_FILTERING = "AnisotropicFiltering";
         readonly string FOLIAGE_DETAILS = "FoliageDetails";
         readonly string GRAPHICS_RENDERER = "GraphicsRenderer";
+        readonly string ENABLE_VOICE_CHAT = "VoiceChat";
 
         public MyConfig(string fileName)
             : base(fileName)
@@ -159,6 +162,19 @@ namespace Sandbox.Engine.Utils
             set
             {
                 SetParameterValue(NEED_SHOW_TUTORIAL_QUESTION, value);
+            }
+        }
+
+        public bool NeedShowBattleTutorialQuestion
+        {
+            get
+            {
+                return MyUtils.GetBoolFromString(GetParameterValue(NEED_SHOW_BATTLE_TUTORIAL_QUESTION), true);
+            }
+
+            set
+            {
+                SetParameterValue(NEED_SHOW_BATTLE_TUTORIAL_QUESTION, value);
             }
         }
 
@@ -321,6 +337,18 @@ namespace Sandbox.Engine.Utils
                     SetParameterValue(MULTITHREADED_RENDERING, value.Value);
                 else
                     RemoveParameterValue(MULTITHREADED_RENDERING);
+            }
+        }
+
+        public bool? Tonemapping
+        {
+            get { return MyUtils.GetBoolFromString(GetParameterValue(TONEMAPPING)); }
+            set
+            {
+                if (value.HasValue)
+                    SetParameterValue(TONEMAPPING, value.Value);
+                else
+                    RemoveParameterValue(TONEMAPPING);
             }
         }
 
@@ -708,6 +736,12 @@ namespace Sandbox.Engine.Utils
         {
             get { return MyUtils.GetBoolFromString(GetParameterValue(HUD_WARNINGS), true); }
             set { SetParameterValue(HUD_WARNINGS, value); }
+        }
+
+        public bool EnableVoiceChat
+        {
+            get { return MyUtils.GetBoolFromString(GetParameterValue(ENABLE_VOICE_CHAT), true); }
+            set { SetParameterValue(ENABLE_VOICE_CHAT, value); }
         }
 
         public MyStringId? GraphicsRenderer
