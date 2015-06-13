@@ -106,7 +106,7 @@ namespace Sandbox.Engine.Utils
 
         public static bool ENABLE_NEW_SOUNDS = false;
 
-        public static bool ENABLE_NON_PUBLIC_BLOCKS = false;
+        public static bool ENABLE_NON_PUBLIC_BLOCKS = true;
 
         public static bool ENABLE_COLOR_MASK_FOR_EVERYTHING = false;
 
@@ -441,7 +441,7 @@ namespace Sandbox.Engine.Utils
 
         public static bool ENABLE_FOOT_IK = false;
 
-        public static bool ENABLE_JETPACK_IN_SURVIVAL = false;
+        public static bool ENABLE_JETPACK_IN_SURVIVAL = true;
         
         public static bool CHARACTER_TOOLS = true;
 
@@ -450,6 +450,8 @@ namespace Sandbox.Engine.Utils
         public static bool ENABLE_CHARACTER_VIRTUAL_PHYSICS = false;
 
         public static bool ENABLE_RAKNET = false;
+
+        public static bool ENABLE_MEDIEVAL_CHARACTER_DAMAGE = false;
 
         public static bool ENABLE_RAGDOLL_COLLISION_WITH_CHARACTER_BODY = true;
 
@@ -484,7 +486,7 @@ namespace Sandbox.Engine.Utils
         public static bool ENABLE_BONES_AND_ANIMATIONS_DEBUG = false;
 
         public static bool ENABLE_MISSION_TRIGGERS = false;
-        
+
         public static bool ENABLE_RAGDOLL_DEFAULT_PROPERTIES = false;
 
         public static bool XBOX_PREVIEW = false;
@@ -527,6 +529,8 @@ namespace Sandbox.Engine.Utils
         public static bool ENABLE_ADMIN_SPECTATOR_BUILDING = false;
 
         public static bool MANIPULATION_TOOL_VELOCITY_LIMIT = false;
+
+        public static bool ENABLE_GATHERING = false;
 
     }
 }

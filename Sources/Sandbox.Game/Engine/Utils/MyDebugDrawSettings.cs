@@ -98,6 +98,7 @@ namespace Sandbox.Engine.Utils
         public static bool DEBUG_DRAW_OXYGEN = false;
         public static bool DEBUG_DRAW_ANIMALS = false;
         public static bool DEBUG_DRAW_VOICE_CHAT = false;
+        public static bool DEBUG_DRAW_FLORA = false;
 
         public static MyWEMDebugDrawMode DEBUG_DRAW_NAVMESHES = MyWEMDebugDrawMode.NONE;
         internal static MyVoxelDebugDrawMode DEBUG_DRAW_VOXELS_MODE = MyVoxelDebugDrawMode.None;

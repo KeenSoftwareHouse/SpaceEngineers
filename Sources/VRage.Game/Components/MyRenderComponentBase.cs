@@ -158,17 +158,13 @@ namespace VRage.Components
 
         public void UpdateRenderObject(bool visible)
         {
-            if (false == Visible)
-            {
-                return;
-            }
             if (!Container.Entity.InScene && visible)
                 return;
 
             if (visible)
             {
                 MyHierarchyComponentBase hierarchyComponent = Container.Get<MyHierarchyComponentBase>();
-                if (Visible && (hierarchyComponent.Parent == null || hierarchyComponent.Parent.Container.Entity.Visible)/* && m_frustumCheckBeforeDrawEnabled*/)
+                if (Visible && (hierarchyComponent.Parent == null || hierarchyComponent.Parent.Container.Entity.Visible))
                 {
                     if (CanBeAddedToRender())
                     {

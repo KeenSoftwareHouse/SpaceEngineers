@@ -102,7 +102,9 @@ namespace Sandbox.Engine.Platform
         /// </summary>
         public bool IsRunning { get; private set; }
 
-        #endregion
+	    public bool IsFirstUpdateDone { get { return isFirstUpdateDone; } }
+
+	    #endregion
 
         #region Public Methods and Operators
 

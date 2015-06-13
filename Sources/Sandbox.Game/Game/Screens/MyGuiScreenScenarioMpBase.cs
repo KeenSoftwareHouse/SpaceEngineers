@@ -50,7 +50,7 @@ namespace Sandbox.Game.Screens
         public string Briefing
         {
             set { m_descriptionBox.Text = new StringBuilder(value);
-            m_descriptionBox.Update();
+            //m_descriptionBox.RefreshText();
             }
         }
 
@@ -89,12 +89,7 @@ namespace Sandbox.Game.Screens
             m_descriptionBox = new MyGuiControlMultilineText(
                 position: new Vector2(0.0f, 0.0f),
                 size: new Vector2(1f, 1f),
-                backgroundColor: Color.Black,
-                //textScale: this.m_scale * textScale,
-                textAlign: MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_TOP,
-                textBoxAlign: MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_TOP,
-                selectable: false,
-                font: MyFontEnum.Blue);
+                selectable: false);
             briefing.Controls.Add(m_descriptionBox);
 
             m_connectedPlayers = new MyGuiControlTable();
@@ -273,6 +268,7 @@ namespace Sandbox.Game.Screens
             if (MyMultiplayer.Static == null || MySession.Static == null)
                 return;
 
+            m_kickPlayerButton.Enabled = CanKick();
             //IMyFaction playerFaction = MySession.Static.Factions.TryGetPlayerFaction(MySession.LocalPlayerId);
             UpdatePlayerList(m_connectedPlayers);
             //if (m_hostnameLabel.Text == null || m_hostnameLabel.Text.Length == 0)

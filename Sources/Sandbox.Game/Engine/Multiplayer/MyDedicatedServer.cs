@@ -143,7 +143,7 @@ namespace Sandbox.Engine.Multiplayer
 
     #endregion
 
-    class MyDedicatedServer : MyMultiplayerBase
+    public class MyDedicatedServer : MyMultiplayerBase
     {
         #region Fields
 
@@ -321,6 +321,12 @@ namespace Sandbox.Engine.Multiplayer
         }
 
         public override bool BattleCanBeJoined
+        {
+            get;
+            set;
+        }
+
+        public override ulong BattleWorldWorkshopId
         {
             get;
             set;

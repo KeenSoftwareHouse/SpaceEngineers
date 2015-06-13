@@ -221,5 +221,9 @@ namespace Sandbox.Common.ObjectBuilders.Definitions
         [XmlArrayItem("Decal")]
         [ProtoMember]
         public MyObjectBuilder_DecalDefinition[] Decals;
+
+        [XmlArrayItem("Definition")]
+        [ProtoMember]
+        public MyObjectBuilder_FloraElementDefinition[] FloraElements;
     }
 }

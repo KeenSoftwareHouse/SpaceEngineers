@@ -647,6 +647,7 @@ namespace VRageRender
                     var actor = MyIDTracker<MyActor>.FindByID(rMessage.ID);
                     if (actor != null)
                     {
+                        // careful, lod is ignored after all (properties apply to all lods)
                         var key = new MyEntityMaterialKey { LOD = rMessage.LOD, Material = X.TEXT(rMessage.MaterialName) };
 
                         if(rMessage.Enabled.HasValue)

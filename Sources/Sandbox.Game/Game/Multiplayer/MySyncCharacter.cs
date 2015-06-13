@@ -112,6 +112,7 @@ namespace Sandbox.Game.Multiplayer
             public long GetEntityId() { return CharacterEntityId; }
 
             public Quaternion Orientation;
+            public Vector3D Position;
 
             public ushort ClientFrameId;
 
@@ -488,17 +489,12 @@ namespace Sandbox.Game.Multiplayer
             sender.ClientFrameId = msg.ClientFrameId;
             sync.CachedMovementState = msg;
 
+            var matrix = MatrixD.CreateFromQuaternion(msg.Orientation);
+            matrix.Translation = msg.Position;
+            sync.Entity.WorldMatrix = matrix;
 
-            if (sync.Entity.GetCurrentMovementState() != MyCharacterMovementEnum.Sitting && !sync.Entity.IsDead)
-            {
-                // Set orientation
-                //var pos = sync.Entity.PositionComp.GetPosition();
-                //var m = Matrix.CreateFromQuaternion(msg.Orientation);
-                //m.Translation = pos;
-                //sync.Entity.WorldMatrix = m;
-
-                //((MyCharacter)sync.Entity).MoveAndRotate(msg.MoveIndicator, new Vector2(msg.RotationIndicator.X, msg.RotationIndicator.Y), msg.RotationIndicator.Z, msg.MovementFlags);
-            }
+            if (Sync.IsServer)
+                Sync.Layer.SendMessageToAllButOne(ref msg, sender.SteamUserId);            
         }
 
 
@@ -518,12 +514,14 @@ namespace Sandbox.Game.Multiplayer
                 msg.MoveIndicator = moveIndicator;
                 msg.RotationIndicator = rotationIndicator;
                 msg.MovementFlags = movementFlags;
+                msg.Orientation = Quaternion.CreateFromRotationMatrix(Entity.WorldMatrix);
+                msg.Position = Entity.WorldMatrix.Translation;
                 CachedMovementState = msg;
 
                 if (!Sync.IsServer)
                     Sync.Layer.SendMessageToServer(ref msg);
                 else
-                    Sync.Layer.SendMessageToAll(ref msg);
+                    Sync.Layer.SendMessageToAll(ref msg);            
             }
         }
 
