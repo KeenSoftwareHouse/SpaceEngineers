@@ -73,6 +73,8 @@ namespace Sandbox.Graphics.GUI
 
         //Fields
         protected float m_transitionAlpha;
+        protected float m_backgroundTransition;
+        protected float m_guiTransition;
         private MyGuiControls m_controls;
         protected Vector2 m_position;
         protected Color m_backgroundFadeColor;
@@ -158,7 +160,9 @@ namespace Sandbox.Graphics.GUI
             Vector4? backgroundColor = null,
             Vector2? size = null,
             bool isTopMostScreen = false,
-            string backgroundTexture = null)
+            string backgroundTexture = null, 
+            float backgroundTransition = 1.0f,
+            float guiTransition = 1.0f)
         {
             m_controls = new MyGuiControls(this);
             m_backgroundFadeColor = Color.White;
@@ -174,6 +178,8 @@ namespace Sandbox.Graphics.GUI
             m_backgroundTexture = backgroundTexture;
 
             Elements = new MyGuiControls(this);
+            m_backgroundTransition = backgroundTransition;
+            m_guiTransition = guiTransition;
             CreateCloseButton();
             SetDefaultCloseButtonOffset();
         }
@@ -854,6 +860,7 @@ namespace Sandbox.Graphics.GUI
         //  Returns true or false to let child implementation know if it has to run its own version of draw.
         public virtual bool Draw()
         {
+            float savedtransition = m_transitionAlpha;
             //  This is just background of the screen rectangle
             if ((m_backgroundColor.HasValue) && (m_size.HasValue))
             {
@@ -867,6 +874,7 @@ namespace Sandbox.Graphics.GUI
                     }
                 }
 
+                m_transitionAlpha = m_backgroundTransition;
                 MyGuiManager.DrawSpriteBatch(m_backgroundTexture, m_position, m_size.Value, ApplyTransitionAlpha(m_backgroundColor.Value), MyGuiDrawAlignEnum.HORISONTAL_CENTER_AND_VERTICAL_CENTER);
 
                 //if (MyFakes.DRAW_GUI_SCREEN_BORDERS && MyFinalBuildConstants.IS_DEBUG)
@@ -874,9 +882,10 @@ namespace Sandbox.Graphics.GUI
                 //    MyGuiManager2.DrawBorders(GetPositionAbsoluteTopLeft(), m_size.Value, Color.White, 1);
                 //}
             }
-
+            m_transitionAlpha = m_guiTransition;
             DrawElements(m_transitionAlpha);
             DrawControls(m_transitionAlpha);
+            m_transitionAlpha = savedtransition;
             return true;
         }
 

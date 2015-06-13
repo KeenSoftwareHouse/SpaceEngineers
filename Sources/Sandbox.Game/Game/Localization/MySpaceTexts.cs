@@ -4060,6 +4060,26 @@ namespace Sandbox.Game.Localization
         public static readonly MyStringId ToolTipGameOptionsShowPlayerNames = MyStringId.GetOrCompute("ToolTipGameOptionsShowPlayerNames");
 
         ///<summary>
+        ///UI transparency
+        ///</summary>
+        public static readonly MyStringId ScreenOptionsGame_UITransparency = MyStringId.GetOrCompute("ScreenOptionsGame_UITransparency");
+
+        ///<summary>
+        ///Change transparency of UI dialogs.
+        ///</summary>
+        public static readonly MyStringId ToolTipGameOptionsUITransparency = MyStringId.GetOrCompute("ToolTipGameOptionsUITransparency");
+
+        ///<summary>
+        ///UI background transparency
+        ///</summary>
+        public static readonly MyStringId ScreenOptionsGame_UIBkTransparency = MyStringId.GetOrCompute("ScreenOptionsGame_UIBkTransparency");
+
+        ///<summary>
+        ///Change transparency of UI dialogs background.
+        ///</summary>
+        public static readonly MyStringId ToolTipGameOptionsUIBkTransparency = MyStringId.GetOrCompute("ToolTipGameOptionsUIBkTransparency");
+
+        ///<summary>
         ///Drop item
         ///</summary>
         public static readonly MyStringId ToolTipTerminalInventory_ThrowOut = MyStringId.GetOrCompute("ToolTipTerminalInventory_ThrowOut");
