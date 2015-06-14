@@ -237,7 +237,7 @@ namespace Sandbox.Game.Entities
         private bool m_dockingModeEnabled;
         private FlightMode m_currentFlightMode;
         private bool m_patrolDirectionForward = true;
-        private Vector3D m_startPosition;
+        private Vector3D? m_startPosition;
 
         private static List<MyToolbar> m_openedToolbars;
         private static bool m_shouldSetOtherToolbars;
@@ -461,7 +461,7 @@ namespace Sandbox.Game.Entities
 
             if (m_autoPilotEnabled)
             {
-                m_startPosition = WorldMatrix.Translation;
+                m_startPosition = null;
             }
 
             if (remoteOb.Coords == null || remoteOb.Coords.Count == 0)
@@ -1152,7 +1152,7 @@ namespace Sandbox.Game.Entities
                     m_maxAngle           = INIT_ANGLE_NON_PRECISION;
                     m_overshootCounter   = 0;
                     m_currentWaypoint  = m_waypoints[0];
-                    m_startPosition    = WorldMatrix.Translation;
+                    m_startPosition    = null;
                     UpdateText();
                 }
 
@@ -1256,7 +1256,7 @@ namespace Sandbox.Game.Entities
             else
             {   
                 m_currentWaypoint = m_waypoints[currentIndex];
-                m_startPosition = (m_oldWaypoint == null) ? WorldMatrix.Translation : m_oldWaypoint.Coords;
+                m_startPosition = (m_oldWaypoint == null) ? null : ((Vector3D?) m_oldWaypoint.Coords);
 
                 if (m_currentWaypoint != m_oldWaypoint)
                 {
@@ -1313,7 +1313,7 @@ namespace Sandbox.Game.Entities
             Matrix invWorldRot = CubeGrid.PositionComp.WorldMatrixNormalizedInv.GetOrientation();
 
             Vector3D targetPos  = m_currentWaypoint.Coords;
-            Vector3D currentPos = m_startPosition;
+            Vector3D currentPos = m_startPosition ?? WorldMatrix.Translation;
             Vector3D deltaPos   = targetPos - currentPos;
 
             Vector3D targetDirection = Vector3D.Normalize(deltaPos);
@@ -1328,6 +1328,11 @@ namespace Sandbox.Game.Entities
             angularVelocity     = Vector3D.Transform(angularVelocity, invWorldRot);
 
             double angle = System.Math.Acos(Vector3D.Dot(targetDirection, orientation.Forward));
+
+            // Prevent the ship from going sideways in precision mode if the remote control block 
+            // is not co-located with ship's centre of mass.
+            if (m_startPosition == null && (!m_dockingModeEnabled || angle <= m_maxAngle))
+                m_startPosition = WorldMatrix.Translation;
 
             // In case of a grossly unbalanced ship it is possible that minimum angle will never be reached. 
             // To combat this, the autopilot will attempt a precise line-up no more than 5 times, 
@@ -1374,7 +1379,7 @@ namespace Sandbox.Game.Entities
                 if (double.IsNaN(timeToStop) || double.IsInfinity(timeToReachTarget) || timeToReachTarget > 2.0 * timeToStop)
                     control = angularOffsetVector;
                 if (m_dockingModeEnabled)
-                    control /= 3.0f;
+                    control /= 2.0f;
                 control -= 2.0 * angularVelocity;   // Overshoot protection.
                 if (control.LengthSquared() > 1.0)
                     control.Normalize();
@@ -1426,7 +1431,7 @@ namespace Sandbox.Game.Entities
             }
             */
 
-            Vector3D course = target - m_startPosition;
+            Vector3D course = target - (m_startPosition ?? WorldMatrix.Translation);
             course.Normalize();
             Vector3D perpendicularToCourse1 = Vector3D.CalculatePerpendicularVector(course);
             Vector3D perpendicularToCourse2 = Vector3D.Cross(course, perpendicularToCourse1);
