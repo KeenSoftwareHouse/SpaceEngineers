@@ -6526,4 +6526,16 @@ To connect to lasers not listed here you can connect to coordinates.</value>
   <data name="ToolTipWorldSettings_DisableRespawnShips" xml:space="preserve">
     <value>Respawn in ships and suit is disabled. If no valid medical rooms exist, respawn won't be possible at all!</value>
   </data>
+  <data name="BlockAction_DoorAutocloseDisabled" xml:space="preserve">
+    <value>Autoclose Disabled</value>
+  </data>
+  <data name="BlockAction_DoorAutocloseEnabled" xml:space="preserve">
+    <value>Autoclose Enabled</value>
+  </data>
+  <data name="BlockPropertiesText_DoorAutoclose" xml:space="preserve">
+    <value>Close automatically?</value>
+  </data>
+  <data name="BlockPropertiesText_DoorAutocloseInterval" xml:space="preserve">
+    <value>Autoclose Interval</value>
+  </data>
 </root>
