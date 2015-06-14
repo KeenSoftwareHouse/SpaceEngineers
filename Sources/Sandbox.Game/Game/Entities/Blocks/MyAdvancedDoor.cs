@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Diagnostics;
 
 using Havok;
 
@@ -18,6 +19,7 @@ using Sandbox.Game.Multiplayer;
 
 using VRage.Components;
 using VRage.ModAPI;
+using VRage.Utils;
 using VRageMath;
 
 namespace Sandbox.Game.Entities
@@ -32,6 +34,11 @@ namespace Sandbox.Game.Entities
         private float m_totalTime = 99999f; // holds the total time a Door needs to fully open, this will be set to m_time after the Door reaches FullyOpen the first time
         private bool m_stateChange = false;
         private bool m_open;
+
+        // Auto Close
+        private bool m_autoClose;
+        private float m_autoCloseInterval = 2f;
+        private float m_autoCloseTimer = 0f;
 
         private MySyncAdvancedDoor m_sync;
 
@@ -76,7 +83,7 @@ namespace Sandbox.Game.Entities
             m_hingePosition.Clear();
             m_openingSequence.Clear();
             m_open = false;
-
+            m_autoClose = false;
             m_sync = new MySyncAdvancedDoor(this);
         }
 
@@ -109,6 +116,44 @@ namespace Sandbox.Game.Entities
                 {
                     m_open = value;
                     OnStateChange();
+                    RaisePropertiesChanged();
+                }
+            }
+        }
+
+        public bool AutoClose
+        {
+            get
+            {
+                return m_autoClose;
+            }
+            set
+            {
+                m_autoCloseTimer = 0f;
+                m_autoClose = value;
+                RaisePropertiesChanged();
+            }
+        }
+
+        public MyBounds AutoCloseIntervalBounds
+        {
+            get
+            {
+                return BlockDefinition.AutocloseInterval;
+            }
+        }
+
+        public float AutoCloseInterval
+        {
+            get
+            {
+                return m_autoCloseInterval;
+            }
+            set
+            {
+                if (m_autoCloseInterval != value)
+                {
+                    m_autoCloseInterval = (float)Math.Round(value, 1);
                     RaisePropertiesChanged();
                 }
             }
@@ -161,6 +206,21 @@ namespace Sandbox.Game.Entities
 
         static MyAdvancedDoor()
         {
+            var autoClose = new MyTerminalControlCheckbox<MyAdvancedDoor>("Autoclose", MySpaceTexts.BlockPropertiesText_DoorAutoclose, MySpaceTexts.Blank, on: MySpaceTexts.BlockAction_DoorAutocloseEnabled, off: MySpaceTexts.BlockAction_DoorAutocloseDisabled);
+            autoClose.Getter = (x) => x.AutoClose;
+            autoClose.Setter = (x, v) => x.m_sync.SendChangeAutocloseRequest(v, x.OwnerId);
+            autoClose.EnableAction();
+            MyTerminalControlFactory.AddControl(autoClose);
+
+            var autoCloseInterval = new MyTerminalControlSlider<MyAdvancedDoor>("Autoclose Interval", MySpaceTexts.BlockPropertiesText_DoorAutocloseInterval, MySpaceTexts.Blank);
+            autoCloseInterval.SetLimits((x) => x.AutoCloseIntervalBounds.Min, (x) => x.AutoCloseIntervalBounds.Max);
+            autoCloseInterval.DefaultValueGetter = (x) => x.AutoCloseIntervalBounds.Default;
+            autoCloseInterval.Getter = (x) => x.AutoCloseInterval;
+            autoCloseInterval.Setter = (x, v) => x.m_sync.SendChangeAutocloseIntervalRequest(v);
+            autoCloseInterval.Writer = (x, result) => result.Append(MyValueFormatter.GetFormatedFloat(x.AutoCloseInterval, 1));
+            autoCloseInterval.EnableActions();
+            MyTerminalControlFactory.AddControl(autoCloseInterval);
+
             var open = new MyTerminalControlOnOffSwitch<MyAdvancedDoor>("Open", MySpaceTexts.Blank, on: MySpaceTexts.BlockAction_DoorOpen, off: MySpaceTexts.BlockAction_DoorClosed);
             open.Getter = (x) => x.Open;
             open.Setter = (x, v) => x.m_sync.SendChangeDoorRequest(v, x.OwnerId);
@@ -217,6 +277,8 @@ namespace Sandbox.Game.Entities
 
             var ob = (MyObjectBuilder_AdvancedDoor)builder;
             m_open = ob.Open;
+            AutoClose = ob.Autoclose;
+            AutoCloseInterval = ob.AutocloseInterval;
 
             PowerReceiver = new MyPowerReceiver(MyConsumerGroupEnum.Doors,
                 false,
@@ -293,7 +355,9 @@ namespace Sandbox.Game.Entities
                         VRage.Import.MyModelBone bone = foundPart.Model.Bones.First(b => !b.Name.Contains("Root"));
 
                         if (bone != null)
+                        {
                             m_hingePosition.Add(bone.Transform.Translation);
+                        }
                     }
                     else // ...otherwise get from definition
                     {
@@ -337,8 +401,7 @@ namespace Sandbox.Game.Entities
                 }
                 else
                 {
-                    m_openingSequence.Add(((MyAdvancedDoorDefinition)BlockDefinition).OpeningSequence[i]);
-                    m_subpartIDs.Add(((MyAdvancedDoorDefinition)BlockDefinition).OpeningSequence[i].ID);
+                    Debug.Assert(false, "IDs cannot be null or empty");
                 }
             }
 
@@ -372,19 +435,19 @@ namespace Sandbox.Game.Entities
                 return;
             }
 
-            foreach (MyEntitySubpart subpart in m_subparts)
+            for (int i = 0; i < m_subparts.Count; i++ )
             {
-                subpart.Physics = null;
-                if (subpart != null && subpart.Physics == null)
+                m_subparts[i].Physics = null;
+                if (m_subparts[i] != null && m_subparts[i].Physics == null && ((MyAdvancedDoorDefinition)BlockDefinition).Subparts[i].HasPhysics)
                 {
-                    if ((subpart.ModelCollision.HavokCollisionShapes != null) && (subpart.ModelCollision.HavokCollisionShapes.Length > 0))
+                    if ((m_subparts[i].ModelCollision.HavokCollisionShapes != null) && (m_subparts[i].ModelCollision.HavokCollisionShapes.Length > 0))
                     {
-                        List<HkShape> shapes = subpart.ModelCollision.HavokCollisionShapes.ToList();
+                        List<HkShape> shapes = m_subparts[i].ModelCollision.HavokCollisionShapes.ToList();
                         var listShape = new HkListShape(shapes.GetInternalArray(), shapes.Count, HkReferencePolicy.None);
-                        subpart.Physics = new Engine.Physics.MyPhysicsBody(subpart, RigidBodyFlag.RBF_DOUBLED_KINEMATIC | RigidBodyFlag.RBF_KINEMATIC);
-                        subpart.Physics.IsPhantom = false;
-                        subpart.Physics.CreateFromCollisionObject((HkShape)listShape, Vector3.Zero, WorldMatrix, null, MyPhysics.KinematicDoubledCollisionLayer);
-                        subpart.Physics.Enabled = true;
+                        m_subparts[i].Physics = new Engine.Physics.MyPhysicsBody(m_subparts[i], RigidBodyFlag.RBF_DOUBLED_KINEMATIC | RigidBodyFlag.RBF_KINEMATIC);
+                        m_subparts[i].Physics.IsPhantom = false;
+                        m_subparts[i].Physics.CreateFromCollisionObject((HkShape)listShape, Vector3.Zero, WorldMatrix, null, MyPhysics.KinematicDoubledCollisionLayer);
+                        m_subparts[i].Physics.Enabled = true;
                         listShape.Base.RemoveReference();
                     }
                 }
@@ -400,6 +463,8 @@ namespace Sandbox.Game.Entities
         {
             var ob = (MyObjectBuilder_AdvancedDoor)base.GetObjectBuilderCubeBlock(copy);
             ob.Open = m_open;
+            ob.Autoclose = AutoClose;
+            ob.AutocloseInterval = AutoCloseInterval;
             return ob;
         }
 
@@ -446,6 +511,7 @@ namespace Sandbox.Game.Entities
             if (FullyClosed)
             {
                 m_time = 0f;
+                m_autoCloseTimer = 0f;
             }
             else if (FullyOpen)
             {
@@ -453,6 +519,18 @@ namespace Sandbox.Game.Entities
                     m_totalTime = m_time;
 
                 m_time = m_totalTime;
+
+                if(AutoClose)
+                    m_autoCloseTimer += ((MySandboxGame.TotalGamePlayTimeInMilliseconds - m_lastUpdateTime) / 1000f);
+            }
+
+            if(AutoClose && FullyOpen)
+            {
+                if (m_autoCloseTimer >= m_autoCloseInterval)
+                {
+                    m_autoCloseTimer = 0f;
+                    SetOpenRequest(!Open, this.OwnerId);
+                }
             }
 
             for (int i = 0; i < m_openingSequence.Count; i++)
@@ -536,8 +614,7 @@ namespace Sandbox.Game.Entities
                         float deltaPos = m_currentSpeed[i] * timeDelta;
                         float maxOpen = m_openingSequence[i].MaxOpen;
 
-                        if (m_openingSequence[i].SequenceType == MyObjectBuilder_AdvancedDoorDefinition.Opening.Sequence.Linear)
-                            m_currentOpening[i] = MathHelper.Clamp(m_currentOpening[i] + deltaPos, 0f, maxOpen);
+                        m_currentOpening[i] = MathHelper.Clamp(m_currentOpening[i] + deltaPos, 0f, maxOpen);
                     }
                 }
             }
@@ -569,8 +646,7 @@ namespace Sandbox.Game.Entities
                 {
                     if (moveType == MyObjectBuilder_AdvancedDoorDefinition.Opening.MoveType.Slide)
                     {
-                        transMat[id] *=
-                            Matrix.CreateTranslation(m_openingSequence[i].SlideDirection * new Vector3(opening));
+                        transMat[id] *= Matrix.CreateTranslation(m_openingSequence[i].SlideDirection * new Vector3(opening));
                     }
                     else if (moveType == MyObjectBuilder_AdvancedDoorDefinition.Opening.MoveType.Rotate)
                     {
@@ -603,14 +679,17 @@ namespace Sandbox.Game.Entities
                                 Matrix.CreateTranslation(hingePos));
                     }
 
-                    if (m_subparts[id].Physics.LinearVelocity != this.CubeGrid.Physics.LinearVelocity)
+                    if (m_subparts[id].Physics != null)
                     {
-                        m_subparts[id].Physics.LinearVelocity = this.CubeGrid.Physics.LinearVelocity;
-                    }
+                        if (m_subparts[id].Physics.LinearVelocity != this.CubeGrid.Physics.LinearVelocity)
+                        {
+                            m_subparts[id].Physics.LinearVelocity = this.CubeGrid.Physics.LinearVelocity;
+                        }
 
-                    if (m_subparts[id].Physics.AngularVelocity != this.CubeGrid.Physics.AngularVelocity)
-                    {
-                        m_subparts[id].Physics.AngularVelocity = this.CubeGrid.Physics.AngularVelocity;
+                        if (m_subparts[id].Physics.AngularVelocity != this.CubeGrid.Physics.AngularVelocity)
+                        {
+                            m_subparts[id].Physics.AngularVelocity = this.CubeGrid.Physics.AngularVelocity;
+                        }
                     }
                 }
             }

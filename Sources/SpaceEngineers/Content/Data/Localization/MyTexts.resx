@@ -6517,4 +6517,16 @@ To connect to lasers not listed here you can connect to coordinates.</value>
   <data name="LaserAntennaOutsideLimits" xml:space="preserve">
     <value>Target outside movement range</value>
   </data>
+  <data name="BlockAction_DoorAutocloseDisabled" xml:space="preserve">
+    <value>Autoclose Disabled</value>
+  </data>
+  <data name="BlockAction_DoorAutocloseEnabled" xml:space="preserve">
+    <value>Autoclose Enabled</value>
+  </data>
+  <data name="BlockPropertiesText_DoorAutoclose" xml:space="preserve">
+    <value>Close automatically?</value>
+  </data>
+  <data name="BlockPropertiesText_DoorAutocloseInterval" xml:space="preserve">
+    <value>Autoclose Interval</value>
+  </data>
 </root>
