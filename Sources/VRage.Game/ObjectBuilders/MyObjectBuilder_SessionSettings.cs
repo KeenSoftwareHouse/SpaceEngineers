@@ -231,6 +231,11 @@ namespace Sandbox.Common.ObjectBuilders
         public bool DisableRespawnShips = false;
 
         [ProtoMember]
+        [Display(Name = "Max ships in spawn group")]
+        [GameRelationAttribute(Game.SpaceEngineers)]
+        public short MaxShipsInSpawnGroup = 2;
+
+        [ProtoMember]
         [GameRelationAttribute(Game.MedievalEngineers)]
         [Display(Name = "")]
         public bool Battle = false;

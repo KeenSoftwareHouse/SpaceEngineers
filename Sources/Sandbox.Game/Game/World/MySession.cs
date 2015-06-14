@@ -158,6 +158,8 @@ namespace Sandbox.Game.World
         public MyOnlineModeEnum OnlineMode { get { return Settings.OnlineMode; } }
         public MyEnvironmentHostilityEnum EnvironmentHostility { get { return Settings.EnvironmentHostility; } }
 
+        public short MaxShipsInSpawnGroup { get { return Settings.MaxShipsInSpawnGroup; } }
+
         public bool Battle { get { return Settings.Battle; } }
 
         public bool IsScenario { get { return Settings.Scenario; } }
@@ -487,6 +489,7 @@ namespace Sandbox.Game.World
             multiplayer.ViewDistance = this.Settings.ViewDistance;
             multiplayer.Battle = this.Battle;
             multiplayer.Scenario = IsScenario;
+            // multiplayer.MaxShipsInSpawnGroup = this.Settings.MaxShipsInSpawnGroup;
 
             if (MySandboxGame.IsDedicated)
                 (multiplayer as MyDedicatedServer).SendGameTagsToSteam();

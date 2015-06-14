@@ -312,6 +312,14 @@ namespace Sandbox.Common.ObjectBuilders
         }
         public bool ShouldSerializeCargoShipsEnabled() { return false; }
 
+        //[ProtoMember, DefaultValue(2)]
+        public short MaxShipsInSpawnGroup
+        {
+            get { Debug.Fail("Obsolete."); return Settings.MaxShipsInSpawnGroup; }
+            set { Settings.MaxShipsInSpawnGroup = value; }
+        }
+        public bool ShouldSerializeMaxShipsInSpawnGroup() { return false; }
+
         [ProtoMember]
         [XmlElement("Settings", Type = typeof(MyAbstractXmlSerializer<MyObjectBuilder_SessionSettings>))]
         public MyObjectBuilder_SessionSettings Settings = MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_SessionSettings>();

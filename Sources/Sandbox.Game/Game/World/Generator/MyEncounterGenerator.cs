@@ -112,7 +112,27 @@ namespace Sandbox.Game.World.Generator
                 m_randomEncounters.Clear();
                 m_placePositions.Clear();
                 m_encountersId.Clear();
-                int numEncoutersToPlace = seedType == MyAsteroidCellGenerator.MyObjectSeedType.EncounterMulti ? 2 : 1;
+
+                int numEncoutersToPlace = 1;
+
+                if (MySession.Static.Settings.MaxShipsInSpawnGroup == 1)
+                {
+                    numEncoutersToPlace = 1;
+                }
+                else
+                {
+                    if (MySession.Static.Settings.MaxShipsInSpawnGroup > 2)
+                    {
+                        var rnd = m_random.NextFloat(1.0f, MySession.Static.Settings.MaxShipsInSpawnGroup);
+
+                        numEncoutersToPlace = (int)Math.Round(rnd);
+                    }
+                    else
+                    {
+                        numEncoutersToPlace = seedType == MyAsteroidCellGenerator.MyObjectSeedType.EncounterMulti ? 2 : 1;
+                    }
+                }
+
                 List<MySpawnGroupDefinition> currentSpawnGroup = seedType == MyAsteroidCellGenerator.MyObjectSeedType.EncounterMulti ? m_spawnGroupsNoVoxels : m_spawnGroups;
 
                 for (int i = 0; i < numEncoutersToPlace; ++i)

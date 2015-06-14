@@ -6538,4 +6538,7 @@ To connect to lasers not listed here you can connect to coordinates.</value>
   <data name="WorldSettings_ConfigureLabel" xml:space="preserve">
     <value>Configure</value>
   </data>
+  <data name="WorldSettings_MaxNoShipsPerSpawnGroup" xml:space="preserve">
+    <value>Max # Ships In Spawn Group</value>
+  </data>
 </root>

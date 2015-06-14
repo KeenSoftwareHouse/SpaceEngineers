@@ -10563,5 +10563,10 @@ namespace Sandbox.Game.Localization
         ///Configure
         ///</summary>
         public static readonly MyStringId WorldSettings_ConfigureLabel = MyStringId.GetOrCompute("WorldSettings_ConfigureLabel");
+
+        ///<summary>
+        ///Max # Ships In Spawn Group
+        ///</summary>
+        public static readonly MyStringId WorldSettings_MaxNoShipsPerSpawnGroup = MyStringId.GetOrCompute("WorldSettings_MaxNoShipsPerSpawnGroup");
     }
 }
