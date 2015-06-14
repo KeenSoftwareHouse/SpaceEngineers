@@ -173,11 +173,30 @@ namespace Sandbox.Game.World.Generator
                     }
                 }
 
-                if (Sync.IsServer == true)
+                var ShipDamaged = MyRandom.Instance.Next(0, 100);
+
+                int howBadlyDamaged = 0;
+
+                if (ShipDamaged < 80)
                 {
-                    for (int i = 0; i < m_randomEncounters.Count; ++i)
+                    howBadlyDamaged = MyRandom.Instance.Next(1, 5);
+
+                    if (Sync.IsServer == true)
                     {
-                        SpawnEncouter(m_encountersId[i], m_placePositions[i], currentSpawnGroup, m_randomEncounters[i]);
+                        for (int i = 0; i < m_randomEncounters.Count; ++i)
+                        {
+                            SpawnEncouter(m_encountersId[i], m_placePositions[i], currentSpawnGroup, m_randomEncounters[i], howBadlyDamaged);
+                        }
+                    }
+                }
+                else
+                {
+                    if (Sync.IsServer == true)
+                    {
+                        for (int i = 0; i < m_randomEncounters.Count; ++i)
+                        {
+                            SpawnEncouter(m_encountersId[i], m_placePositions[i], currentSpawnGroup, m_randomEncounters[i]);
+                        }
                     }
                 }
             }
@@ -197,7 +216,7 @@ namespace Sandbox.Game.World.Generator
             return encouterBoundingBox;
         }
 
-        private static void SpawnEncouter(MyEncounterId encounterPosition, Vector3D placePosition, List<MySpawnGroupDefinition> candidates, int selectedEncounter)
+        private static void SpawnEncouter(MyEncounterId encounterPosition, Vector3D placePosition, List<MySpawnGroupDefinition> candidates, int selectedEncounter, int damageLevel = 0)
         {
             foreach (var selectedPrefab in candidates[selectedEncounter].Prefabs)
             {
@@ -225,6 +244,24 @@ namespace Sandbox.Game.World.Generator
                     direction = direction * Math.Cos(theta) + cosVec + sinVec;
 
                     upVector = Vector3D.CalculatePerpendicularVector(direction);
+                }
+                else
+                {
+                    switch (damageLevel)
+                    {
+                        case 1:
+                            spawningOptions |= Sandbox.ModAPI.SpawningOptions.Worn;
+                            break;
+                        case 2:
+                            spawningOptions |= Sandbox.ModAPI.SpawningOptions.LightlyDamaged;
+                            break;
+                        case 3:
+                            spawningOptions |= Sandbox.ModAPI.SpawningOptions.Damaged;
+                            break;
+                        case 4:
+                            spawningOptions |= Sandbox.ModAPI.SpawningOptions.HeavilyDamaged;
+                            break;
+                    }
                 }
                 spawningOptions |= Sandbox.ModAPI.SpawningOptions.DisableSave;
 

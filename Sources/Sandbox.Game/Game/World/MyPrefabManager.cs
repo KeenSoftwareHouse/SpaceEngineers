@@ -429,6 +429,35 @@ namespace Sandbox.Game.World
 
                 foreach (var grid in resultList)
                 {
+                    var howDamaged = 0;                    
+
+                    if (spawningOptions.HasFlag(SpawningOptions.Worn))
+                    {
+                        howDamaged = MyRandom.Instance.Next(0, 3);
+                    }
+                    else
+                    {
+                        if (spawningOptions.HasFlag(SpawningOptions.LightlyDamaged))
+                        {
+                            howDamaged = MyRandom.Instance.Next(3, 10);
+                        }
+                        else
+                        {
+                            if (spawningOptions.HasFlag(SpawningOptions.Damaged))
+                            {
+                                howDamaged = MyRandom.Instance.Next(10, 20);
+                            }
+                            else
+                            {
+                                if (spawningOptions.HasFlag(SpawningOptions.HeavilyDamaged))
+                                {
+                                    howDamaged = MyRandom.Instance.Next(20, 40);
+                                }
+                            }
+                        }
+                    }
+                    
+
                     grid.ClearSymmetries();
 
                     if (spawningOptions.HasFlag(SpawningOptions.DisableDampeners))
@@ -441,7 +470,7 @@ namespace Sandbox.Game.World
                         grid.Save = false;
                     }
                     if (needsToIterateThroughBlocks || spawningOptions.HasFlag(SpawningOptions.TurnOffReactors))
-                    {
+                    {                        
                         ProfilerShort.Begin("Iterate through blocks");
                         foreach (var block in grid.GetBlocks())
                         {
@@ -461,15 +490,53 @@ namespace Sandbox.Game.World
                                 MyBeacon beacon = block.FatBlock as MyBeacon;
                                 beacon.SetCustomName(beaconName);
                             }
+                            else if (block.FatBlock is MyReactor)
+                            {
+                                (block.FatBlock as MyReactor).Enabled = true;                                
+                            }
                             else if (spawningOptions.HasFlag(SpawningOptions.TurnOffReactors) && block.FatBlock is IMyPowerProducer)
                             {
-                                (block.FatBlock as IMyPowerProducer).Enabled = false;
+                                (block.FatBlock as IMyPowerProducer).Enabled = true;
                             }
                             if (setNeutralOwner && block.FatBlock != null && block.BlockDefinition.RatioEnoughForOwnership(block.BuildLevelRatio))
                             {
                                 block.FatBlock.ChangeOwner(owner, MyOwnershipShareModeEnum.None);
                             }
+
+                            if (howDamaged > 0)
+                            {
+                                var rnd = MyRandom.Instance.Next(0, 100);
+
+                                if (block.FatBlock is MyFunctionalBlock)
+                                {
+                                    if (!(block.FatBlock is MyReactor) && !(block.FatBlock is MyBeacon))
+                                    {
+                                        if (rnd < howDamaged)
+                                        {
+                                            block.DoDamage(block.Integrity / 2, MyDamageType.Explosion);
+                                        }
+                                    }
+                                }
+                                else
+                                {
+                                    if (rnd < howDamaged)
+                                    {
+                                        block.SetIntegrity(10.0f, 0.5f, MyCubeGrid.MyIntegrityChangeEnum.Damage, 0);
+                                    }
+                                }
+                            }
                         }
+
+                        if (howDamaged > 0)
+                        {
+                            var damagedBlocks = grid.GetBlocks().Where(a => a.Integrity < 70.0f).ToList();
+
+                            foreach (var damagedBlock in damagedBlocks)
+                            {
+                                damagedBlock.DoDamage(100.0f, MyDamageType.Weapon);
+                            }
+                        }
+
                         ProfilerShort.End();
                     }
                 }
