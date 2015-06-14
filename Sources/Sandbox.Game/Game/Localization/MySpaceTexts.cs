@@ -10543,5 +10543,25 @@ namespace Sandbox.Game.Localization
         ///Respawn in ships and suit is disabled. If no valid medical rooms exist, respawn won't be possible at all!
         ///</summary>
         public static readonly MyStringId ToolTipWorldSettings_DisableRespawnShips = MyStringId.GetOrCompute("ToolTipWorldSettings_DisableRespawnShips");
+
+        ///<summary>
+        ///Autoclose Disabled
+        ///</summary>
+        public static readonly MyStringId BlockAction_DoorAutocloseDisabled = MyStringId.GetOrCompute("BlockAction_DoorAutocloseDisabled");
+
+        ///<summary>
+        ///Autoclose Enabled
+        ///</summary>
+        public static readonly MyStringId BlockAction_DoorAutocloseEnabled = MyStringId.GetOrCompute("BlockAction_DoorAutocloseEnabled");
+
+        ///<summary>
+        ///Close automatically?
+        ///</summary>
+        public static readonly MyStringId BlockPropertiesText_DoorAutoclose = MyStringId.GetOrCompute("BlockPropertiesText_DoorAutoclose");
+
+        ///<summary>
+        ///Autoclose Interval
+        ///</summary>
+        public static readonly MyStringId BlockPropertiesText_DoorAutocloseInterval = MyStringId.GetOrCompute("BlockPropertiesText_DoorAutocloseInterval");
     }
 }
