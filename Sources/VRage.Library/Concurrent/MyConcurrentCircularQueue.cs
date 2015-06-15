@@ -16,8 +16,6 @@ namespace Concurrent
         private Sequence[] gatingSequences;
         private IWaitStrategy waitStrategy;
 
-
-
         public MyConcurrentCircularQueue()
             : this(128, new SleepingWaitStrategy())
         {

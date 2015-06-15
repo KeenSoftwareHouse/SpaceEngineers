@@ -238,7 +238,7 @@ namespace Sandbox.Engine.Networking
                 get;
                 private set;
             }
-
+            public bool isComplete = false;
             public ulong? PublishedFileId { get; private set; }
 
             public Action<bool, ulong> CallbackOnFinished { get; private set; }
@@ -250,10 +250,11 @@ namespace Sandbox.Engine.Networking
                 Concurrent.Concurrent.Start(() => 
                 {
                     PublishedFileId = DownloadUGCBlocking(publishedFileId);
+                    isComplete = true;
                 });           
             }
 
-            public bool IsCompleted { get { return this.Task.IsComplete; } }
+            public bool IsCompleted { get { return isComplete;/* this.Task.IsComplete; */} }
         }
 
         private static void endActionDownloadUGC(IMyAsyncResult iResult, MyGuiScreenProgressAsync screen)

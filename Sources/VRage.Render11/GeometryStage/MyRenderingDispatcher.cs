@@ -74,11 +74,11 @@ namespace VRageRender
 
                 int parallelStart = MyRender11.Settings.RenderThreadAsWorker ? 1 : 0;
 
-                //List<Task> tasks = new List<Task>();
+                List<Task> tasks = new List<Task>();
                 for (int i = parallelStart; i < N; i++)
                 {
-                    Concurrent.Concurrent.Start((m_workList[i]));
-                    //tasks.Add(Parallel.Start(m_workList[i]));
+                    //Concurrent.Concurrent.Start((m_workList[i]));
+                    tasks.Add(Parallel.Start(m_workList[i]));
                 }
 
                 if (MyRender11.Settings.RenderThreadAsWorker && m_workList.Count > 0)
@@ -86,10 +86,10 @@ namespace VRageRender
                     m_workList[0].DoWork();
                 }
                 
-               /* foreach (var task in tasks)
+               foreach (var task in tasks)
                 {
                     task.Wait();
-                }*/
+                }
             }
             else
             {

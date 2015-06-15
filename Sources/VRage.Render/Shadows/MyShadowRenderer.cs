@@ -37,7 +37,7 @@ namespace VRageRender.Shadows
     class MyShadowRenderer : MyShadowRendererBase, IWork
     {
         public static bool RespectCastShadowsFlags = false;
-        public static AtomicBoolean isComplete = new AtomicBoolean(false);
+        public static bool isComplete = false;
         #region Members
 
         public const int NumSplits = MyShadowConstants.NumSplits;
@@ -59,7 +59,7 @@ namespace VRageRender.Shadows
             }
         }
 
-        
+
 
         Vector3D[] m_frustumCornersVS = new Vector3D[8];
         Vector3D[] m_frustumCornersWS = new Vector3D[8];
@@ -88,7 +88,7 @@ namespace VRageRender.Shadows
         /// Event that occures when we want prepare shadows for draw
         /// </summary>
         public bool MultiThreaded = false;
-        //Task m_prepareForDrawTask;
+        Task m_prepareForDrawTask;
 
 
         #endregion
@@ -162,16 +162,16 @@ namespace VRageRender.Shadows
         {
             if (MultiThreaded)
             {
-                if (isComplete.ReadCompilerOnlyFence())
-                //if (m_prepareForDrawTask.IsComplete)
-                {
-                    isComplete.AtomicExchange(false);
-                    Concurrent.Concurrent.Start(() => { isComplete.AtomicExchange(true); }, this);
-                    //m_prepareForDrawTask = ParallelTasks.Parallel.Start(this);
-                }
+                if (isComplete)
+                    if (m_prepareForDrawTask.IsComplete)
+                    {
+                        isComplete = false;
+                        //Concurrent.Concurrent.Start(this);
+                        m_prepareForDrawTask = ParallelTasks.Parallel.Start(this);
+                    }
             }
         }
- 
+
         public void DoWork()
         {
             PrepareCascadesForDraw();
@@ -186,7 +186,7 @@ namespace VRageRender.Shadows
         {
             MyRender.GetRenderProfiler().StartProfilingBlock("WaitUntilPrepareForDrawCompleted");
 
-            //m_prepareForDrawTask.Wait();
+            m_prepareForDrawTask.Wait();
 
             MyRender.GetRenderProfiler().EndProfilingBlock();
         }
@@ -223,7 +223,7 @@ namespace VRageRender.Shadows
                 m_castingRenderObjectsUnique.Clear();
 
                 MyRender.GetRenderProfiler().StartProfilingBlock("OverlapAllBoundingBox");
-         
+
 
                 var castersBox = lightCamera.BoundingBox; //Cannot use unscaled - incorrect result because of different cascade viewport size
                 var castersFrustum = lightCamera.BoundingFrustum;//Cannot use unscaled - incorrect result because of different cascade viewport size
@@ -237,19 +237,19 @@ namespace VRageRender.Shadows
 
                 int c = 0;
                 int skipped = 0;
-                     
+
                 while (c < m_castingRenderObjects.Count)
                 {
-                    MyRenderObject renderObject = (MyRenderObject)m_castingRenderObjects[c];     
+                    MyRenderObject renderObject = (MyRenderObject)m_castingRenderObjects[c];
                     if (RespectCastShadowsFlags)
                     {
-                       // System.Diagnostics.Debug.Assert(!(entity is MyDummyPoint) && !(entity is AppCode.Game.Entities.WayPoints.MyWayPoint));
+                        // System.Diagnostics.Debug.Assert(!(entity is MyDummyPoint) && !(entity is AppCode.Game.Entities.WayPoints.MyWayPoint));
 
                         if ((renderObject.ShadowCastUpdateInterval > 0) && ((MyRender.RenderCounter % renderObject.ShadowCastUpdateInterval) == 0))
                         {
                             renderObject.NeedsResolveCastShadow = true;
                             //We have to leave last value, because true when not casting shadow make radiation to ship
-                           // renderObject.CastShadow = true;
+                            renderObject.CastShadows = true;
                         }
 
                         if (renderObject.NeedsResolveCastShadow)
@@ -257,21 +257,21 @@ namespace VRageRender.Shadows
                             if (renderObject.CastShadowJob == null)
                             {
                                 renderObject.CastShadowJob = new MyCastShadowJob(renderObject);
-                                Concurrent.Concurrent.Start(renderObject.CastShadowJob);
-                                //renderObject.CastShadowTask = ParallelTasks.Parallel.Start(renderObject.CastShadowJob);
+                                //Concurrent.Concurrent.Start(renderObject.CastShadowJob);
+                                renderObject.CastShadowTask = ParallelTasks.Parallel.Start(renderObject.CastShadowJob);
                             }
                             else
-                                //if (renderObject.CastShadowTask.IsComplete)
+                                if (renderObject.CastShadowTask.IsComplete)
                                 {
                                     renderObject.CastShadows = renderObject.CastShadowJob.VisibleFromSun;
-                                    //renderObject.CastShadowTask = new ParallelTasks.Task();
+                                    renderObject.CastShadowTask = new ParallelTasks.Task();
                                     renderObject.CastShadowJob = null;
                                     renderObject.NeedsResolveCastShadow = false;
 
                                     if (renderObject.CastShadows == false)
                                         HiddenResolvedObjects++;
                                 }
-                        } 
+                        }
 
                         if (!renderObject.NeedsResolveCastShadow && !renderObject.CastShadows)
                         {
@@ -287,27 +287,27 @@ namespace VRageRender.Shadows
                     else
                     {
                         renderObject.NeedsResolveCastShadow = true;
-                    }    
-                              
+                    }
+
                     if (!m_castingRenderObjectsUnique.Contains(renderObject))
                     {
                         m_castingRenderObjectsUnique.Add(renderObject);
 
                         if (frustumIndex < MyRenderConstants.RenderQualityProfile.ShadowCascadeLODTreshold)
                         {
-                           renderObject.GetRenderElementsForShadowmap(MyLodTypeEnum.LOD0, m_renderElementsForShadows, m_transparentRenderElementsForShadows);
+                            renderObject.GetRenderElementsForShadowmap(MyLodTypeEnum.LOD0, m_renderElementsForShadows, m_transparentRenderElementsForShadows);
                         }
                         else
                         {
-                           renderObject.GetRenderElementsForShadowmap(MyLodTypeEnum.LOD1, m_renderElementsForShadows, m_transparentRenderElementsForShadows);
+                            renderObject.GetRenderElementsForShadowmap(MyLodTypeEnum.LOD1, m_renderElementsForShadows, m_transparentRenderElementsForShadows);
                         }
                     }
 
                     c++;
-                }      
+                }
 
                 MyRender.GetRenderProfiler().EndProfilingBlock();
-                           
+
                 //Sorting VBs to minimize VB switches
                 m_renderElementsForShadows.Sort(m_shadowElementsComparer);
 
@@ -350,7 +350,7 @@ namespace VRageRender.Shadows
 
             // We'll use these clip planes to determine which split a pixel belongs to
             for (int i = 0; i < NumSplits; i++)
-            {            
+            {
                 m_lightClipPlanes[i].X = -m_splitDepths[i];
                 m_lightClipPlanes[i].Y = -m_splitDepths[i + 1];
 
@@ -419,7 +419,7 @@ namespace VRageRender.Shadows
             //   MyGuiManager.TakeScreenshot();
             MyRender.TakeScreenshot("ShadowMap", MyRender.GetRenderTarget(m_shadowRenderTarget), MyEffectScreenshot.ScreenshotTechniqueEnum.Color);
 
-          // Texture.ToFile(MyRender.GetRenderTarget(m_shadowRenderTarget), "c:\\test.dds", ImageFileFormat.Dds);
+            // Texture.ToFile(MyRender.GetRenderTarget(m_shadowRenderTarget), "c:\\test.dds", ImageFileFormat.Dds);
 
             MyRender.GetRenderProfiler().EndProfilingBlock();
         }
@@ -438,7 +438,7 @@ namespace VRageRender.Shadows
             MatrixD cameraMatrixAtZero = cameraMatrix;
             cameraMatrixAtZero.Translation = Vector3D.Zero;
 
-       
+
             for (int i = 0; i < 4; i++)
                 m_splitFrustumCornersVS[i] = m_frustumCornersVS[i + 4] * (minZ / mainCamera.FarClip);
 
@@ -481,7 +481,7 @@ namespace VRageRender.Shadows
             // We snap the camera to 1 pixel increments so that moving the camera does not cause the shadows to jitter.
             // This is a matter of integer dividing by the world space size of a texel
             var diagonalLength = (m_frustumCornersWS[0] - m_frustumCornersWS[6]).Length();
-                                                                                     
+
             //Make bigger box - ensure rotation and movement stabilization
             diagonalLength = MathHelper.GetNearestBiggerPowerOfTwo(diagonalLength);
 
@@ -555,7 +555,7 @@ namespace VRageRender.Shadows
 
             // Clear shadow map
             shadowMapEffect.SetTechnique(MyEffectShadowMap.ShadowTechnique.Clear);
-            
+
             MyRender.GetFullscreenQuad().Draw(shadowMapEffect);
 
             shadowMapEffect.SetViewProjMatrix((Matrix)m_lightCameras[splitIndex].ViewProjMatrixAtZero);
@@ -587,62 +587,62 @@ namespace VRageRender.Shadows
                 MyRender.GetRenderProfiler().EndProfilingBlock();
                 return;
             }
-                /*
-            Device device = MyRender.GraphicsDevice;
-            BlendState oldBlendState = BlendState.Current;
-            MyStateObjects.DisabledColorChannels_BlendState.Apply();
+            /*
+        Device device = MyRender.GraphicsDevice;
+        BlendState oldBlendState = BlendState.Current;
+        MyStateObjects.DisabledColorChannels_BlendState.Apply();
 
-            //generate and draw bounding box of our renderCell in occlusion query 
-            //device.BlendState = MyStateObjects.DisabledColorChannels_BlendState;
-            MyRender.SetRenderTarget(MyRender.GetRenderTarget(MyRenderTargets.Auxiliary0), null);
+        //generate and draw bounding box of our renderCell in occlusion query 
+        //device.BlendState = MyStateObjects.DisabledColorChannels_BlendState;
+        MyRender.SetRenderTarget(MyRender.GetRenderTarget(MyRenderTargets.Auxiliary0), null);
 
-            Vector3 campos = MyRenderCamera.Position;
+        Vector3 campos = MyRenderCamera.Position;
 
-            RasterizerState.CullNone.Apply();
+        RasterizerState.CullNone.Apply();
 
-            if (MyRenderConstants.RenderQualityProfile.ForwardRender)
-                DepthStencilState.DepthRead.Apply();
-            else
-                DepthStencilState.None.Apply();
+        if (MyRenderConstants.RenderQualityProfile.ForwardRender)
+            DepthStencilState.DepthRead.Apply();
+        else
+            DepthStencilState.None.Apply();
 
-            for (int i = 1; i < NumSplits; i++)
+        for (int i = 1; i < NumSplits; i++)
+        {
+            if (m_interleave[i]) continue;
+
+            MyPerformanceCounter.PerCameraDrawWrite.QueriesCount++;
+
+            var queryIssue = m_cascadeQueries[i];
+
+            if (queryIssue.OcclusionQueryIssued)
             {
-                if (m_interleave[i]) continue;
-
-                MyPerformanceCounter.PerCameraDrawWrite.QueriesCount++;
-
-                var queryIssue = m_cascadeQueries[i];
-
-                if (queryIssue.OcclusionQueryIssued)
+                if (queryIssue.OcclusionQuery.IsComplete)
                 {
-                    if (queryIssue.OcclusionQuery.IsComplete)
-                    {
-                        m_visibility[i] = queryIssue.OcclusionQuery.PixelCount > 0;
-                        queryIssue.OcclusionQueryIssued = false;
-                    }
-                    continue;
+                    m_visibility[i] = queryIssue.OcclusionQuery.PixelCount > 0;
+                    queryIssue.OcclusionQueryIssued = false;
                 }
-
-                queryIssue.OcclusionQueryIssued = true;
-
-                if (queryIssue.OcclusionQuery == null) 
-                    queryIssue.OcclusionQuery = new MyOcclusionQuery(device);
-
-                cameraFrustum.Matrix = m_lightCameras[i].CameraSubfrustum;
-
-                cameraFrustum.GetCorners(frustum);
-
-                var tmp = frustum[3];
-                frustum[3] = frustum[2];
-                frustum[2] = tmp;
-
-                queryIssue.OcclusionQuery.Begin();
-                MySimpleObjectDraw.OcclusionPlaneDraw(frustum);
-                queryIssue.OcclusionQuery.End();
+                continue;
             }
 
-            oldBlendState.Apply();
-                        */
+            queryIssue.OcclusionQueryIssued = true;
+
+            if (queryIssue.OcclusionQuery == null) 
+                queryIssue.OcclusionQuery = new MyOcclusionQuery(device);
+
+            cameraFrustum.Matrix = m_lightCameras[i].CameraSubfrustum;
+
+            cameraFrustum.GetCorners(frustum);
+
+            var tmp = frustum[3];
+            frustum[3] = frustum[2];
+            frustum[2] = tmp;
+
+            queryIssue.OcclusionQuery.Begin();
+            MySimpleObjectDraw.OcclusionPlaneDraw(frustum);
+            queryIssue.OcclusionQuery.End();
+        }
+
+        oldBlendState.Apply();
+                    */
             MyRender.GetRenderProfiler().EndProfilingBlock();
         }
 
@@ -679,7 +679,7 @@ namespace VRageRender.Shadows
         //Matrix mainCamera;
 
         public void DebugDraw()
-        {        
+        {
             return;
             //MyStateObjects.WireframeClockwiseRasterizerState.Apply();
             //for (int i = 0; i < NumSplits; i++)
@@ -698,7 +698,7 @@ namespace VRageRender.Shadows
             //}
 
             //return;
-                   
+
             //bool update = false;
 
             //if (MyRender.CurrentRenderSetup.CallerID.Value == MyRenderCallerEnum.Main)

@@ -37,40 +37,37 @@ namespace Sandbox.Graphics
                 //Assign our a loop to go through 360 degrees in intervals of our variable space
                 for (float alpha = 0; alpha <= limitAlpha; alpha += space)
                 {
-                    Concurrent.Concurrent.Start(() =>
-                        {
-                            //Start editing our vertex.
-                            vctTmp.X = (float)(radius * Math.Sin(MathHelper.ToRadians(alpha)) * Math.Sin(MathHelper.ToRadians(beta)));
-                            vctTmp.Y = (float)(radius * Math.Cos(MathHelper.ToRadians(alpha)) * Math.Sin(MathHelper.ToRadians(beta)));
-                            vctTmp.Z = (float)(radius * Math.Cos(MathHelper.ToRadians(beta)));
-                            m_tmpVectorBuffer.Add(vctTmp);
-                            //Then start working with the next vertex
-                            n++;
+                    //Start editing our vertex.
+                    vctTmp.X = (float)(radius * Math.Sin(MathHelper.ToRadians(alpha)) * Math.Sin(MathHelper.ToRadians(beta)));
+                    vctTmp.Y = (float)(radius * Math.Cos(MathHelper.ToRadians(alpha)) * Math.Sin(MathHelper.ToRadians(beta)));
+                    vctTmp.Z = (float)(radius * Math.Cos(MathHelper.ToRadians(beta)));
+                    m_tmpVectorBuffer.Add(vctTmp);
+                    //Then start working with the next vertex
+                    n++;
 
-                            //Then we do the same calculations as before, only adding the space variable
-                            //to the b values.
-                            vctTmp.X = (float)(radius * Math.Sin(MathHelper.ToRadians(alpha)) * Math.Sin(MathHelper.ToRadians(beta + space)));
-                            vctTmp.Y = (float)(radius * Math.Cos(MathHelper.ToRadians(alpha)) * Math.Sin(MathHelper.ToRadians(beta + space)));
-                            vctTmp.Z = (float)(radius * Math.Cos(MathHelper.ToRadians(beta + space)));
-                            m_tmpVectorBuffer.Add(vctTmp);
-                            n++;
+                    //Then we do the same calculations as before, only adding the space variable
+                    //to the b values.
+                    vctTmp.X = (float)(radius * Math.Sin(MathHelper.ToRadians(alpha)) * Math.Sin(MathHelper.ToRadians(beta + space)));
+                    vctTmp.Y = (float)(radius * Math.Cos(MathHelper.ToRadians(alpha)) * Math.Sin(MathHelper.ToRadians(beta + space)));
+                    vctTmp.Z = (float)(radius * Math.Cos(MathHelper.ToRadians(beta + space)));
+                    m_tmpVectorBuffer.Add(vctTmp);
+                    n++;
 
-                            //Then we do the same calculations as the first, only adding the space variable
-                            //to the a values.
-                            vctTmp.X = (float)(radius * Math.Sin(MathHelper.ToRadians(alpha + space)) * Math.Sin(MathHelper.ToRadians(beta)));
-                            vctTmp.Y = (float)(radius * Math.Cos(MathHelper.ToRadians(alpha + space)) * Math.Sin(MathHelper.ToRadians(beta)));
-                            vctTmp.Z = (float)(radius * Math.Cos(MathHelper.ToRadians(beta)));
-                            m_tmpVectorBuffer.Add(vctTmp);
-                            n++;
+                    //Then we do the same calculations as the first, only adding the space variable
+                    //to the a values.
+                    vctTmp.X = (float)(radius * Math.Sin(MathHelper.ToRadians(alpha + space)) * Math.Sin(MathHelper.ToRadians(beta)));
+                    vctTmp.Y = (float)(radius * Math.Cos(MathHelper.ToRadians(alpha + space)) * Math.Sin(MathHelper.ToRadians(beta)));
+                    vctTmp.Z = (float)(radius * Math.Cos(MathHelper.ToRadians(beta)));
+                    m_tmpVectorBuffer.Add(vctTmp);
+                    n++;
 
-                            //Then we do the same calculations as the first again, only adding the space variable
-                            //to both the b and the a values.
-                            vctTmp.X = (float)(radius * Math.Sin(MathHelper.ToRadians(alpha + space)) * Math.Sin(MathHelper.ToRadians(beta + space)));
-                            vctTmp.Y = (float)(radius * Math.Cos(MathHelper.ToRadians(alpha + space)) * Math.Sin(MathHelper.ToRadians(beta + space)));
-                            vctTmp.Z = (float)(radius * Math.Cos(MathHelper.ToRadians(beta + space)));
-                            m_tmpVectorBuffer.Add(vctTmp);
-                            n++;
-                        });
+                    //Then we do the same calculations as the first again, only adding the space variable
+                    //to both the b and the a values.
+                    vctTmp.X = (float)(radius * Math.Sin(MathHelper.ToRadians(alpha + space)) * Math.Sin(MathHelper.ToRadians(beta + space)));
+                    vctTmp.Y = (float)(radius * Math.Cos(MathHelper.ToRadians(alpha + space)) * Math.Sin(MathHelper.ToRadians(beta + space)));
+                    vctTmp.Z = (float)(radius * Math.Cos(MathHelper.ToRadians(beta + space)));
+                    m_tmpVectorBuffer.Add(vctTmp);
+                    n++;
                 }
             }
 

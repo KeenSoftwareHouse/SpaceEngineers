@@ -122,6 +122,7 @@
     <Compile Include="Compression\MyZipArchiveReflection.cs" />
     <Compile Include="Compression\MyZipFileInfo.cs" />
     <Compile Include="Concurrent\AlertException.cs" />
+    <Compile Include="Concurrent\BusySpinWaitStrategy.cs" />
     <Compile Include="Concurrent\Concurrent.cs" />
     <Compile Include="Concurrent\DaemonThread.cs" />
     <Compile Include="Concurrent\IExceptionHandler.cs" />

@@ -213,7 +213,7 @@ namespace Sandbox.Game.Gui
                 get;
                 private set;
             }
-            private bool isComplete;
+            private bool isComplete = false;
             /// <summary>
             /// List of worlds user is subscribed to, or null if there was an error
             /// during operation.

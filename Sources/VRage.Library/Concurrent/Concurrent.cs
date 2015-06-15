@@ -12,7 +12,7 @@ namespace Concurrent
     public static class Concurrent
     {
         private static readonly int MAX_NUMBER_OF_DAEMONS = 3;
-        private static readonly int MAX_NUMBER_OF_WORKERS = Environment.ProcessorCount;
+        private static readonly int MAX_NUMBER_OF_WORKERS = 2; // Environment.ProcessorCount;
         private static MyConcurrentCircularQueue<IWork> queue;
         private static ISequenceBarrier sequenceBarrier;
         private static TaskScheduler scheduler;
@@ -23,14 +23,14 @@ namespace Concurrent
         {
             Action doNothing = () => { };
             ActionWork preallocate = new ActionWork(doNothing);
-            queue = new MyConcurrentCircularQueue<IWork>(() => preallocate, 1024);
+            queue = new MyConcurrentCircularQueue<IWork>(() => preallocate, 1024, new BusySpinWaitStrategy());
             sequenceBarrier = queue.NewBarrier();
             queue.SetGatingSequences(new NoOperationTaskProcessor(queue).Sequence);
             TaskScheduler newScheduler;
 #if XBOX
                     newScheduler = new RoundRobinThreadAffinedTaskScheduler(4 , ProcessorAffinity);
 #else
-            newScheduler = new RoundRobinThreadAffinedTaskScheduler(Environment.ProcessorCount); //if there are background threads I feel like the number of worker threads should be constrained
+            newScheduler = new RoundRobinThreadAffinedTaskScheduler(MAX_NUMBER_OF_WORKERS); //if there are background threads I feel like the number of worker threads should be constrained
 #endif
             Interlocked.CompareExchange(ref scheduler, newScheduler, null);
         }

@@ -50,7 +50,7 @@ namespace Sandbox.Game.Gui
 
         //News
         MyGuiControlNews m_newsControl;
-        //Task m_downloadNewsTask;
+        Task m_downloadNewsTask;
         private bool isDownloadNewsComplete = false;
         MyNews m_news;
         XmlSerializer m_newsSerializer;
@@ -228,8 +228,8 @@ namespace Sandbox.Game.Gui
 
         private void DownloadNews()
         {
-            //m_downloadNewsTask = Parallel.Start(DownloadNewsAsync);
-            Concurrent.Concurrent.Start(DownloadNewsAsync, () => { isDownloadNewsComplete = true; });
+            m_downloadNewsTask = Parallel.Start(DownloadNewsAsync);
+            //Concurrent.Concurrent.Start(DownloadNewsAsync);
         }
 
         void DownloadNewsAsync()
@@ -658,8 +658,8 @@ namespace Sandbox.Game.Gui
             //MySandboxGame.GraphicsDeviceManager.DbgDumpLoadedResources(true);
             //MyTextureManager.DbgDumpLoadedTextures(true);
 
-            //if (m_downloadNewsTask.IsComplete && m_downloadedNewsFinished)
-            if (isDownloadNewsComplete && m_downloadedNewsFinished)
+            if (m_downloadNewsTask.IsComplete && m_downloadedNewsFinished)
+            //if (m_downloadedNewsFinished)
             {
                 if (m_downloadedNewsOK)
                 {

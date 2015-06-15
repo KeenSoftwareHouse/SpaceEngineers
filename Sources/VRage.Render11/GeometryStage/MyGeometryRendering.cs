@@ -364,13 +364,13 @@ namespace VRageRender
             //MyPerformanceCounter.PerCameraDraw11Write.RenderableObjectsNum = MyRenderablesBoundingTree.m_tree.CountLeaves(MyRenderablesBoundingTree.m_tree.GetRoot());
 
             MyRender11.GetRenderProfiler().StartProfilingBlock("CreateTasksAndWait");
-           // List<Task> tasks = new List<Task>();
+            List<Task> tasks = new List<Task>();
             for (int i = 1; i < m_cullQuery.Size; i++)
             {
                 m_cullQuery.FrustumQuery[i].List.Clear();
                 m_cullQuery.FrustumQuery[i].IsInsideList.Clear();
-                Concurrent.Concurrent.Start(new MyCullingWork(m_cullQuery.FrustumQuery[i]));
-                //tasks.Add(Parallel.Start(new MyCullingWork(m_cullQuery.FrustumQuery[i])));
+                //Concurrent.Concurrent.Start(new MyCullingWork(m_cullQuery.FrustumQuery[i]));
+                tasks.Add(Parallel.Start(new MyCullingWork(m_cullQuery.FrustumQuery[i])));
             }
 
             if(m_cullQuery.Size > 0)
@@ -380,10 +380,10 @@ namespace VRageRender
                 new MyCullingWork(m_cullQuery.FrustumQuery[0]).DoWork();
             }
 
-          //  foreach (var task in tasks)
-          //  {
-          //      task.Wait();
-           // }
+            foreach (var task in tasks)
+            {
+                task.Wait();
+            }
             MyRender11.GetRenderProfiler().EndProfilingBlock();
 
             //bool ok = false;

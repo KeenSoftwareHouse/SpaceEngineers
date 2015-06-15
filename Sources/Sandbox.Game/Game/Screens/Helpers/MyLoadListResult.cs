@@ -37,6 +37,7 @@ namespace Sandbox.Game.Gui
 
         public MyLoadListResult(bool missions = false, bool appendBattleMaps = false)
         {
+
             Task = Parallel.Start(() => LoadListAsync(missions, appendBattleMaps));
         }
 
