@@ -563,7 +563,6 @@ namespace Sandbox.Game.Entities.Cube
 
                             if (otherConnector.m_connectorMode == Mode.Connector && otherConnector.IsFunctional && otherConnector.Enabled && (otherPos - pos).LengthSquared() < 0.35f)
                             {
-                                MyHud.Notifications.Add(new MyHudNotificationDebug("Attach: " + CubeGrid.DisplayName));
                                 CreateConstraint(otherConnector);
                             }
                         }
@@ -583,7 +582,6 @@ namespace Sandbox.Game.Entities.Cube
             {
                 if (InConstraint && !Connected && (!IsFunctional || !Enabled || Enabled && !m_other.IsWorking))
                 {
-                    MyHud.Notifications.Add(new MyHudNotificationDebug("Detach: " + CubeGrid.DisplayName));
                     Detach();
                 }
             }
