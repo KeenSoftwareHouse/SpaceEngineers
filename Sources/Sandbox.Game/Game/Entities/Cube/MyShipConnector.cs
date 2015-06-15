@@ -561,8 +561,9 @@ namespace Sandbox.Game.Entities.Cube
                             var otherPos = otherConnector.ConstraintPositionWorld();
                             float len = (otherPos - pos).LengthSquared();
 
-                            if (otherConnector.m_connectorMode == Mode.Connector && otherConnector.IsFunctional && (otherPos - pos).LengthSquared() < 0.35f)
+                            if (otherConnector.m_connectorMode == Mode.Connector && otherConnector.IsFunctional && otherConnector.Enabled && (otherPos - pos).LengthSquared() < 0.35f)
                             {
+                                MyHud.Notifications.Add(new MyHudNotificationDebug("Attach: " + CubeGrid.DisplayName));
                                 CreateConstraint(otherConnector);
                             }
                         }
@@ -580,8 +581,9 @@ namespace Sandbox.Game.Entities.Cube
             }
             else if (Sync.IsServer && !IsWorking)
             {
-                if (InConstraint && !Connected)
+                if (InConstraint && !Connected && (!IsFunctional || !Enabled || Enabled && !m_other.IsWorking))
                 {
+                    MyHud.Notifications.Add(new MyHudNotificationDebug("Detach: " + CubeGrid.DisplayName));
                     Detach();
                 }
             }
@@ -694,7 +696,7 @@ namespace Sandbox.Game.Entities.Cube
                 var connector = block.FatBlock as MyShipConnector;
                 if (connector.InConstraint) continue;
                 if (connector == thisConnector) continue;
-                if (!connector.IsWorking) continue;
+                if (!connector.IsFunctional || !connector.Enabled) continue;
                 if (!connector.FriendlyWithBlock(thisConnector)) continue;
 
                 m_tmpBlockSet.Clear();
