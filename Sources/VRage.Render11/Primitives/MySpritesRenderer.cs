@@ -14,7 +14,6 @@ using VRageRender.Vertex;
 using VRageMath.PackedVector;
 using VRage;
 using VRage.Utils;
-using VRage.Utils;
 using System.Diagnostics;
 
 namespace VRageRender

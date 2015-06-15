@@ -207,13 +207,13 @@ namespace Sandbox.Game.Gui
 
         class LoadListResult : IMyAsyncResult
         {
-            public bool IsCompleted { get { return this.Task.IsComplete; } }
+            public bool IsCompleted { get { return isComplete; /*this.Task.IsComplete;*/ } }
             public Task Task
             {
                 get;
                 private set;
             }
-
+            private bool isComplete;
             /// <summary>
             /// List of worlds user is subscribed to, or null if there was an error
             /// during operation.
@@ -222,7 +222,10 @@ namespace Sandbox.Game.Gui
 
             public LoadListResult()
             {
-                Task = Parallel.Start(() => LoadListAsync(out SubscribedWorlds));
+                Task = Parallel.Start(() => {
+                    LoadListAsync(out SubscribedWorlds);
+                    isComplete = true;
+                });
             }
 
             void LoadListAsync(out List<MySteamWorkshop.SubscribedItem> list)

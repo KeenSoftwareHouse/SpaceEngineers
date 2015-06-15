@@ -620,7 +620,8 @@ namespace Sandbox.Game.Gui
 
         class LoadListResult : IMyAsyncResult
         {
-            public bool IsCompleted { get { return this.Task.IsComplete; } }
+            private bool complete;
+            public bool IsCompleted { get { return complete; /*this.Task.IsComplete;*/ } }
             public Task Task
             {
                 get;
@@ -636,7 +637,8 @@ namespace Sandbox.Game.Gui
 
             public LoadListResult(HashSet<ulong> ids)
             {
-                Task = Parallel.Start(() =>
+                Concurrent.Concurrent.Start(() =>
+                //Task = Parallel.Start(() =>
                 {
                     SubscribedMods = new List<MySteamWorkshop.SubscribedItem>(ids.Count);
                     WorldMods = new List<MySteamWorkshop.SubscribedItem>();
@@ -653,6 +655,7 @@ namespace Sandbox.Game.Gui
                         toGet.Remove(mod.PublishedFileId);
                     if (toGet.Count > 0)
                         MySteamWorkshop.GetItemsBlocking(WorldMods, toGet);
+                    complete = true;
                 });
             }
         }

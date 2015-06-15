@@ -9,7 +9,6 @@ using System.Text;
 using VRage.FileSystem;
 using VRage.Library.Utils;
 using VRage.Utils;
-using VRage.Utils;
 
 
 namespace VRageRender

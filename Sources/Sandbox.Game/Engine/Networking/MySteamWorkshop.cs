@@ -434,6 +434,7 @@ namespace Sandbox.Engine.Networking
         // HACK: internal class
         internal class PublishItemResult : IMyAsyncResult
         {
+            private bool isComplete = false;
             public Task Task
             {
                 get;
@@ -442,13 +443,15 @@ namespace Sandbox.Engine.Networking
 
             public PublishItemResult(string localFolder, string publishedTitle, string publishedDescription, ulong? publishedFileId, PublishedFileVisibility visibility, string[] tags, string[] ignoredExtensions)
             {
-                Task = Parallel.Start(() =>
+                //Task = Parallel.Start(() =>
+                Concurrent.Concurrent.Start(() => 
                 {
                     m_publishedFileId = PublishItemBlocking(localFolder, publishedTitle, publishedDescription, publishedFileId, visibility, tags, ignoredExtensions);
+                    isComplete = true;
                 });
             }
 
-            public bool IsCompleted { get { return this.Task.IsComplete; } }
+            public bool IsCompleted { get { return isComplete; /*this.Task.IsComplete;*/ } }
         }
         #endregion
 
@@ -863,13 +866,15 @@ namespace Sandbox.Engine.Networking
             }
 
             public Action<bool> callback;
-
+            private bool isComplete = false;
             public DownloadModsResult(List<MyObjectBuilder_Checkpoint.ModItem> mods, Action<bool> onFinishedCallback)
             {
                 callback = onFinishedCallback;
-                Task = Parallel.Start(() =>
+                Concurrent.Concurrent.Start(() => 
+                //Task = Parallel.Start(() =>
                 {
                     Success = DownloadWorldModsBlocking(mods);
+                    isComplete = true;
                 });
             }
 
@@ -877,7 +882,7 @@ namespace Sandbox.Engine.Networking
             {
                 get
                 {
-                    return this.Task.IsComplete;
+                    return isComplete;//this.Task.IsComplete;
                 }
             }
         }
@@ -1506,7 +1511,7 @@ namespace Sandbox.Engine.Networking
                 get;
                 private set;
             }
-
+            private bool isComplete = false;
             public bool Success
             {
                 get;
@@ -1524,13 +1529,15 @@ namespace Sandbox.Engine.Networking
             public CreateWorldResult(SubscribedItem world, Action<bool, string> callback)
             {
                 Callback = callback;
-                Task = Parallel.Start(() =>
+               // Task = Parallel.Start(() =>
+                Concurrent.Concurrent.Start(() => 
                 {
                     Success = TryCreateWorldInstanceBlocking(world, out m_createdSessionPath);
+                    isComplete = true;
                 });
             }
 
-            public bool IsCompleted { get { return this.Task.IsComplete; } }
+            public bool IsCompleted { get { return isComplete; } }// this.Task.IsComplete; } }
         }
 
         #endregion

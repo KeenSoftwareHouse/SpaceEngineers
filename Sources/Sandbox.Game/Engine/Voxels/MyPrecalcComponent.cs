@@ -59,9 +59,9 @@ namespace Sandbox.Engine.Voxels
 
         private static readonly List<List<JobCancelCommand>> CommandBuffers = new List<List<JobCancelCommand>>();
 
-        private static readonly MyConcurrentDeque<MyPrecalcJob> m_highPriorityJobs = new MyConcurrentDeque<MyPrecalcJob>();
-        private static readonly MyConcurrentDeque<MyPrecalcJob> m_lowPriorityJobs = new MyConcurrentDeque<MyPrecalcJob>();
-        private static readonly MyDynamicObjectPool<Work> m_workPool = new MyDynamicObjectPool<Work>(1);
+        //private static readonly MyConcurrentDeque<MyPrecalcJob> m_highPriorityJobs = new MyConcurrentDeque<MyPrecalcJob>();
+        //private static readonly MyConcurrentDeque<MyPrecalcJob> m_lowPriorityJobs = new MyConcurrentDeque<MyPrecalcJob>();
+       // private static readonly MyDynamicObjectPool<Work> m_workPool = new MyDynamicObjectPool<Work>(1);
         private static int m_worksInUse;
         private static MyPrecalcComponent m_instance;
 
@@ -79,18 +79,21 @@ namespace Sandbox.Engine.Voxels
 
         public static void EnqueueFront(MyPrecalcJob job, bool isHighPriority)
         {
-            if (isHighPriority)
-                m_highPriorityJobs.EnqueueFront(job);
+            Concurrent.Concurrent.Start(job);
+            /*if (isHighPriority)
+               
+                //m_highPriorityJobs.EnqueueFront(job);
             else
-                m_lowPriorityJobs.EnqueueFront(job);
+                m_lowPriorityJobs.EnqueueFront(job);*/
         }
 
         public static void EnqueueBack(MyPrecalcJob job, bool isHighPriority)
         {
-            if (isHighPriority)
+            Concurrent.Concurrent.Start(job);
+            /*if (isHighPriority)
                 m_highPriorityJobs.EnqueueBack(job);
             else
-                m_lowPriorityJobs.EnqueueBack(job);
+                m_lowPriorityJobs.EnqueueBack(job);*/
         }
 
         internal static void QueueJobCancel(MyWorkTracker<Vector3I, MyPrecalcJobPhysicsPrefetch> tracker, Vector3I id)
@@ -130,7 +133,7 @@ namespace Sandbox.Engine.Voxels
 
         public override void UpdateBeforeSimulation()
         {
-            if (m_highPriorityJobs.Count > 0)
+           /* if (m_highPriorityJobs.Count > 0)
             { // no upper bound on these, as there should be just a few high priority jobs
                 for (int i = 0; i < Parallel.Scheduler.ThreadCount; ++i)
                 {
@@ -138,6 +141,7 @@ namespace Sandbox.Engine.Voxels
                     work.Queue = m_highPriorityJobs;
                     work.Priority = WorkPriority.Low;
                     work.MaxPrecalcTime = (long)MyFakes.MAX_PRECALC_TIME_IN_MILLIS;
+
                     Parallel.Start(work, work.CompletionCallback);
                 }
             }
@@ -153,7 +157,7 @@ namespace Sandbox.Engine.Voxels
                     ++m_worksInUse;
                     Parallel.Start(work, work.CompletionCallback);
                 }
-            }
+            }*/
 
             foreach (var physics in PhysicsWithInvalidCells)
             {
@@ -161,16 +165,16 @@ namespace Sandbox.Engine.Voxels
             }
             PhysicsWithInvalidCells.Clear();
 
-            Stats.Generic.Write("Precalc jobs in queue (low)", m_lowPriorityJobs.Count, VRage.Stats.MyStatTypeEnum.CurrentValue, 100, 0);
-            Stats.Generic.Write("Precalc jobs in queue (high)", m_highPriorityJobs.Count, VRage.Stats.MyStatTypeEnum.CurrentValue, 100, 0);
+           // Stats.Generic.Write("Precalc jobs in queue (low)", m_lowPriorityJobs.Count, VRage.Stats.MyStatTypeEnum.CurrentValue, 100, 0);
+           // Stats.Generic.Write("Precalc jobs in queue (high)", m_highPriorityJobs.Count, VRage.Stats.MyStatTypeEnum.CurrentValue, 100, 0);
 
             if (!MySandboxGame.IsGameReady)
             {
-                var work = m_workPool.Allocate();
-                work.Queue = m_lowPriorityJobs;
-                work.MaxPrecalcTime = (long)MyFakes.MAX_PRECALC_TIME_IN_MILLIS;
-                (work as IWork).DoWork();
-                work.CompletionCallback();
+               // var work = m_workPool.Allocate();
+             //   work.Queue = m_lowPriorityJobs;
+             //   work.MaxPrecalcTime = (long)MyFakes.MAX_PRECALC_TIME_IN_MILLIS;
+            //    (work as IWork).DoWork();
+              //  work.CompletionCallback();
             }
 
             base.UpdateAfterSimulation();
@@ -193,8 +197,8 @@ namespace Sandbox.Engine.Voxels
 
         protected override void UnloadData()
         {
-            m_highPriorityJobs.Clear();
-            m_lowPriorityJobs.Clear();
+            //m_highPriorityJobs.Clear();
+            //m_lowPriorityJobs.Clear();
             m_instance = null;
         }
 
@@ -222,7 +226,7 @@ namespace Sandbox.Engine.Voxels
                 }
                 Queue = null;
                 m_finishedList.Clear();
-                m_workPool.Deallocate(this);
+                //m_workPool.Deallocate(this);
                 --m_worksInUse;
             }
 

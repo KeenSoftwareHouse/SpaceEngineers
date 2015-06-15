@@ -16,8 +16,6 @@ using VRage.Utils;
 
 using System.Diagnostics;
 using Sandbox.Engine.Utils;
-using VRage;
-using VRage.Utils;
 using VRage.Library.Utils;
 using VRage.FileSystem;
 

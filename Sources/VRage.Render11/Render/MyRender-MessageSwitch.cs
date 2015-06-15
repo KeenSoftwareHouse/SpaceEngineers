@@ -5,7 +5,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Text;
 using VRage;
-using VRage;
 using VRage.Utils;
 using VRageMath;
 using VRageRender.Profiler;

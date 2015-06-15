@@ -1196,13 +1196,13 @@
       <Project>{f77d0a49-f0a1-4e8a-80c8-cbf1842bf2d4}</Project>
       <Name>VRage.Input</Name>
     </ProjectReference>
+    <ProjectReference Include="..\VRage.Library\VRage.Library.csproj">
+      <Project>{26fe022e-42ab-40be-ba9d-97cbe34e7d99}</Project>
+      <Name>VRage.Library</Name>
+    </ProjectReference>
     <ProjectReference Include="..\VRage.Network\VRage.Network.csproj">
       <Project>{76080059-9756-4065-bce8-373e7150a8f7}</Project>
       <Name>VRage.Network</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\VRage.Library\VRage.Library.csproj">
-      <Project>{26FE022E-42AB-40BE-BA9D-97CBE34E7D99}</Project>
-      <Name>VRage.Library</Name>
     </ProjectReference>
     <ProjectReference Include="..\VRage.Math\VRage.Math.csproj">
       <Project>{40CE67D5-C89F-4A56-AE52-85DB1BEA07FE}</Project>

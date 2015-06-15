@@ -7,7 +7,7 @@ using System.Text;
 
 namespace Sandbox.Engine.Voxels
 {
-    public abstract class MyPrecalcJob
+    public abstract class MyPrecalcJob : IWork
     {
         public readonly Action OnCompleteDelegate;
 

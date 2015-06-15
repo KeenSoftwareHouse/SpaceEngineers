@@ -1,5 +1,6 @@
 ﻿#region Using
 
+using Atomic;
 using ParallelTasks;
 using Sandbox.Common;
 using System;
@@ -29,8 +30,7 @@ namespace Sandbox.Graphics.TransparentGeometry.Particles
         //private static readonly AutoResetEvent m_updateParticlesEvent;
         //private static volatile bool m_updateCompleted = true;
         private static bool MultithreadedPrepareForDraw = true;
-        static Task m_prepareForDrawTask;
-
+        //static Task m_prepareForDrawTask;
 
         #region Pools
 
@@ -204,8 +204,8 @@ namespace Sandbox.Graphics.TransparentGeometry.Particles
             if (MultithreadedUpdater)
             {
                 WaitUntilUpdateCompleted();
-
-                m_updaterTask = Parallel.Start(m_updateEffectsWork, null);
+                Concurrent.Concurrent.Start(m_updateEffectsWork);
+                //m_updaterTask = Parallel.Start(m_updateEffectsWork, null);
             }
             else
             {
@@ -232,7 +232,7 @@ namespace Sandbox.Graphics.TransparentGeometry.Particles
 
         public static void WaitUntilUpdateCompleted()
         {
-            m_updaterTask.Wait();
+            //m_updaterTask.Wait();
         }
 
         public static void PrepareForDraw()
@@ -241,7 +241,8 @@ namespace Sandbox.Graphics.TransparentGeometry.Particles
 
             if (MultithreadedPrepareForDraw)
             {
-                m_prepareForDrawTask = Parallel.Start(m_prepareEffectsWork);
+                Concurrent.Concurrent.Start(m_prepareEffectsWork);
+                //m_prepareForDrawTask = Parallel.Start(m_prepareEffectsWork);
 
                 //m_prepareForDrawCompleted = false;
                 //m_prepareForDrawEvent.Set();
@@ -264,7 +265,7 @@ namespace Sandbox.Graphics.TransparentGeometry.Particles
 
         private static void WaitUntilPrepareForDrawCompleted()
         {
-            m_prepareForDrawTask.Wait();
+           // m_prepareForDrawTask.Wait();
         }
 
 
@@ -273,7 +274,7 @@ namespace Sandbox.Graphics.TransparentGeometry.Particles
 
         public override void Draw()
         {
-            WaitUntilPrepareForDrawCompleted();
+            //WaitUntilPrepareForDrawCompleted();
 
             m_collectedBillboards.Clear();
             m_ParticlesTotal = 0;
@@ -305,7 +306,7 @@ namespace Sandbox.Graphics.TransparentGeometry.Particles
             //if (OnDraw != null)
             //  OnDraw(null, null);
 
-            System.Diagnostics.Debug.Assert(m_prepareForDrawTask.IsComplete);
+            //System.Diagnostics.Debug.Assert(m_prepareForDrawTask.IsComplete);
         }
 
 

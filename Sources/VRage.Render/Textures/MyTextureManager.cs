@@ -180,8 +180,8 @@ namespace VRageRender.Textures
         {
             m_loadingQueue.Enqueue(texture);
             //m_loadTextureEvent.Set();
-
-            ParallelTasks.Parallel.Start(LoadTextureInBackground);
+            Concurrent.Concurrent.Start(LoadTextureInBackground);
+            //ParallelTasks.Parallel.Start(LoadTextureInBackground);
         }
 
 

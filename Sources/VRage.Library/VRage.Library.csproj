@@ -81,6 +81,9 @@
     <Compile Include="Algorithms\MyPathfindingData.cs" />
     <Compile Include="Algorithms\MyUnionFind.cs" />
     <Compile Include="Algorithms\Partition.cs" />
+    <Compile Include="Atomic\AtomicBoolean.cs" />
+    <Compile Include="Atomic\AtomicPaddedLong.cs" />
+    <Compile Include="Atomic\AtomicUtils.cs" />
     <Compile Include="BulletXNA\BulletCollision\BoxCollision.cs" />
     <Compile Include="BulletXNA\BulletCollision\GImpactBvh.cs" />
     <Compile Include="BulletXNA\BulletCollision\GImpactQuantization.cs" />
@@ -118,6 +121,27 @@
     <Compile Include="Compression\MyZipArchive.cs" />
     <Compile Include="Compression\MyZipArchiveReflection.cs" />
     <Compile Include="Compression\MyZipFileInfo.cs" />
+    <Compile Include="Concurrent\AlertException.cs" />
+    <Compile Include="Concurrent\Concurrent.cs" />
+    <Compile Include="Concurrent\DaemonThread.cs" />
+    <Compile Include="Concurrent\IExceptionHandler.cs" />
+    <Compile Include="Concurrent\InsufficientCapacityException.cs" />
+    <Compile Include="Concurrent\ISequenceBarrier.cs" />
+    <Compile Include="Concurrent\ISequencer.cs" />
+    <Compile Include="Concurrent\ITaskProcessor.cs" />
+    <Compile Include="Concurrent\IWaitStrategy.cs" />
+    <Compile Include="Concurrent\MutableLong.cs" />
+    <Compile Include="Concurrent\MyConcurrentCircularQueue.cs" />
+    <Compile Include="Concurrent\NoCallbackExceptionHandler.cs" />
+    <Compile Include="Concurrent\NoOperationTaskProcessor.cs" />
+    <Compile Include="Concurrent\RoundRobinThreadAffinedTaskScheduler.cs" />
+    <Compile Include="Concurrent\WorkerPool.cs" />
+    <Compile Include="Concurrent\ProcessingSequenceBarrier.cs" />
+    <Compile Include="Concurrent\Sequence.cs" />
+    <Compile Include="Concurrent\SequenceGroup.cs" />
+    <Compile Include="Concurrent\SleepingWaitStrategy.cs" />
+    <Compile Include="Concurrent\Util.cs" />
+    <Compile Include="Concurrent\WorkProcessor.cs" />
     <Compile Include="Cryptography\MySHA256.cs" />
     <Compile Include="DShow\DsControl.cs" />
     <Compile Include="DShow\DsCore.cs" />
@@ -223,7 +247,9 @@
     <Compile Include="ParallelTasks\IWork.cs" />
     <Compile Include="ParallelTasks\IWorkScheduler.cs" />
     <Compile Include="ParallelTasks\LoopWork.cs" />
-    <Compile Include="ParallelTasks\Parallel.cs" />
+    <Compile Include="ParallelTasks\Parallel.cs">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="ParallelTasks\Pool.cs" />
     <Compile Include="ParallelTasks\Semaphore.cs" />
     <Compile Include="ParallelTasks\Singleton.cs" />

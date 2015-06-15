@@ -31,12 +31,13 @@ namespace VRageRender.Shadows
     using VRageRender.Textures;
     using VRageMath;
     using VRage.Utils;
+    using Atomic;
 
 
     class MyShadowRenderer : MyShadowRendererBase, IWork
     {
         public static bool RespectCastShadowsFlags = false;
-
+        public static AtomicBoolean isComplete = new AtomicBoolean(false);
         #region Members
 
         public const int NumSplits = MyShadowConstants.NumSplits;
@@ -87,7 +88,7 @@ namespace VRageRender.Shadows
         /// Event that occures when we want prepare shadows for draw
         /// </summary>
         public bool MultiThreaded = false;
-        Task m_prepareForDrawTask;
+        //Task m_prepareForDrawTask;
 
 
         #endregion
@@ -161,9 +162,12 @@ namespace VRageRender.Shadows
         {
             if (MultiThreaded)
             {
-                if (m_prepareForDrawTask.IsComplete)
+                if (isComplete.ReadCompilerOnlyFence())
+                //if (m_prepareForDrawTask.IsComplete)
                 {
-                    m_prepareForDrawTask = ParallelTasks.Parallel.Start(this);
+                    isComplete.AtomicExchange(false);
+                    Concurrent.Concurrent.Start(() => { isComplete.AtomicExchange(true); }, this);
+                    //m_prepareForDrawTask = ParallelTasks.Parallel.Start(this);
                 }
             }
         }
@@ -182,7 +186,7 @@ namespace VRageRender.Shadows
         {
             MyRender.GetRenderProfiler().StartProfilingBlock("WaitUntilPrepareForDrawCompleted");
 
-            m_prepareForDrawTask.Wait();
+            //m_prepareForDrawTask.Wait();
 
             MyRender.GetRenderProfiler().EndProfilingBlock();
         }
@@ -236,8 +240,7 @@ namespace VRageRender.Shadows
                      
                 while (c < m_castingRenderObjects.Count)
                 {
-                    MyRenderObject renderObject = (MyRenderObject)m_castingRenderObjects[c];
-
+                    MyRenderObject renderObject = (MyRenderObject)m_castingRenderObjects[c];     
                     if (RespectCastShadowsFlags)
                     {
                        // System.Diagnostics.Debug.Assert(!(entity is MyDummyPoint) && !(entity is AppCode.Game.Entities.WayPoints.MyWayPoint));
@@ -254,13 +257,14 @@ namespace VRageRender.Shadows
                             if (renderObject.CastShadowJob == null)
                             {
                                 renderObject.CastShadowJob = new MyCastShadowJob(renderObject);
-                                renderObject.CastShadowTask = ParallelTasks.Parallel.Start(renderObject.CastShadowJob);
+                                Concurrent.Concurrent.Start(renderObject.CastShadowJob);
+                                //renderObject.CastShadowTask = ParallelTasks.Parallel.Start(renderObject.CastShadowJob);
                             }
                             else
-                                if (renderObject.CastShadowTask.IsComplete)
+                                //if (renderObject.CastShadowTask.IsComplete)
                                 {
                                     renderObject.CastShadows = renderObject.CastShadowJob.VisibleFromSun;
-                                    renderObject.CastShadowTask = new ParallelTasks.Task();
+                                    //renderObject.CastShadowTask = new ParallelTasks.Task();
                                     renderObject.CastShadowJob = null;
                                     renderObject.NeedsResolveCastShadow = false;
 

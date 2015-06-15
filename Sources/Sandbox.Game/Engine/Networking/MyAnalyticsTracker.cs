@@ -95,25 +95,29 @@ namespace Sandbox.Engine.Networking
         public static void SendGameStart()
         {
             if (AnalyticsEnabled)
-                Parallel.Start(() => { SendGameStartInternal(); });
+                Concurrent.Concurrent.Start(() => { SendGameStartInternal(); });
+                //Parallel.Start(() => { SendGameStartInternal(); });
         }
 
         public static void SendGameEnd(string method, int totalTimeInSeconds)
         {
             if (AnalyticsEnabled)
-                Parallel.Start(() => { SendGameEndInternal(method, totalTimeInSeconds); });
+                Concurrent.Concurrent.Start(() => { SendGameEndInternal(method, totalTimeInSeconds); });
+                //Parallel.Start(() => { SendGameEndInternal(method, totalTimeInSeconds); });
         }
 
         public static void SendSessionStart(MyStartSessionStatistics sessionStatistics)
         {
             if (AnalyticsEnabled)
-                Parallel.Start(() => { SendSessionStartInternal(sessionStatistics); });
+                Concurrent.Concurrent.Start(() => { SendSessionStartInternal(sessionStatistics); });
+                //Parallel.Start(() => { SendSessionStartInternal(sessionStatistics); });
         }
 
         public static void SendSessionEnd(MyEndSessionStatistics sessionStatistics)
         {
             if (AnalyticsEnabled)
-                Parallel.Start(() => { SendSessionEndInternal(sessionStatistics); });
+                Concurrent.Concurrent.Start(() => { SendSessionEndInternal(sessionStatistics); });
+                //Parallel.Start(() => { SendSessionEndInternal(sessionStatistics); });
         }
 
         public static void ReportError(SeverityEnum severityEnum, Exception ex, bool async = true)
@@ -126,7 +130,8 @@ namespace Sandbox.Engine.Networking
                     message = (ex == null) ? "No exception specified." : ex.ToString(),
                 };
                 if (async)
-                    Parallel.Start(() => { ReportErrorInternal(data); });
+                       Concurrent.Concurrent.Start(() => { ReportErrorInternal(data); });
+                   // Parallel.Start(() => { ReportErrorInternal(data); });
                 else
                     ReportErrorInternal(data);
             }
@@ -142,7 +147,8 @@ namespace Sandbox.Engine.Networking
                     message = string.IsNullOrWhiteSpace(messageText) ? "No text specified." : messageText,
                 };
                 if (async)
-                    Parallel.Start(() => { ReportErrorInternal(data); });
+                    Concurrent.Concurrent.Start(() => { ReportErrorInternal(data); });
+                    //Parallel.Start(() => { ReportErrorInternal(data); });
                 else
                     ReportErrorInternal(data);
             }

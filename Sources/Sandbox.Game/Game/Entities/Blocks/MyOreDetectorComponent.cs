@@ -330,7 +330,9 @@ namespace Sandbox.Game.Entities.Cube
         {
             var job = m_instancePool.Allocate();
             job.m_args = args;
-            Parallel.Start(job, job.m_onComplete);
+            Concurrent.Concurrent.Start(job.m_onComplete, job);
+
+            //Parallel.Start(job, job.m_onComplete);
         }
 
         private void OnComplete()

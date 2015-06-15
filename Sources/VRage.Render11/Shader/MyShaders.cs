@@ -12,7 +12,6 @@ using VRageRender;
 using VRage.Generics;
 using System.Threading;
 using System.Security.Cryptography;
-using VRage.Utils;
 using VRage.Library.Utils;
 using VRage.FileSystem;
 using System.Text.RegularExpressions;

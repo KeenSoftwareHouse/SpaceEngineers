@@ -476,7 +476,8 @@ namespace Sandbox.Game.Gui
 
         void GetWorkshopBlueprints()
         {
-            Task = Parallel.Start(DownloadBlueprints);
+            Concurrent.Concurrent.Start(() => DownloadBlueprints());
+            //Task = Parallel.Start(DownloadBlueprints);
         }
 
         override public void RefreshBlueprintList(bool fromTask = false)

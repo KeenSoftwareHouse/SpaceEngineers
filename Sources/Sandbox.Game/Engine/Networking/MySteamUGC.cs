@@ -46,6 +46,7 @@ namespace Sandbox.Engine.Networking
                 private set;
             }
 
+            public bool isComplete = false;
             public ulong? PublishedFileId { get; private set; }
 
             public Action<bool, ulong?> CallbackOnFinished { get; private set; }
@@ -53,13 +54,15 @@ namespace Sandbox.Engine.Networking
             public PublishUGCResult(string localFolder, ulong? publishedFileId, PublishedFileVisibility visibility, string[] tags, Action<bool, ulong?> callbackOnFinished)
             {
                 CallbackOnFinished = callbackOnFinished;
-                Task = Parallel.Start(() =>
+                //Task = Parallel.Start(() =>
+                Concurrent.Concurrent.Start(() => 
                 {
                     PublishedFileId = PublishUGCBlocking(localFolder, publishedFileId, visibility, tags);
+                    isComplete = true;
                 });
             }
 
-            public bool IsCompleted { get { return this.Task.IsComplete; } }
+            public bool IsCompleted { get { return isComplete; /*this.Task.IsComplete; */} }
         }
 
         private static void endActionPublishUGC(IMyAsyncResult iResult, MyGuiScreenProgressAsync screen)
@@ -243,10 +246,11 @@ namespace Sandbox.Engine.Networking
             public DownloadUGCResult(ulong publishedFileId, Action<bool, ulong> callbackOnFinished)
             {
                 CallbackOnFinished = callbackOnFinished;
-                Task = Parallel.Start(() =>
+                 // Task = Parallel.Start(() =>
+                Concurrent.Concurrent.Start(() => 
                 {
                     PublishedFileId = DownloadUGCBlocking(publishedFileId);
-                });
+                });           
             }
 
             public bool IsCompleted { get { return this.Task.IsComplete; } }

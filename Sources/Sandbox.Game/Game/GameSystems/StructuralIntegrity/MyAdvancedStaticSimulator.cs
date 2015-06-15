@@ -235,8 +235,8 @@ namespace Sandbox.Game.GameSystems.StructuralIntegrity
             else
             {
                 m_needsRecalc = false;
-
-                Parallel.Start(() => 
+                Concurrent.Concurrent.Start(() => 
+                //Parallel.Start(() => 
                 { 
                     FindAndCaculateFromAdvancedStatic(m_simulatedData); 
                 },
