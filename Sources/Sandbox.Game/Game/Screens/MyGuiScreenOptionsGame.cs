@@ -208,7 +208,7 @@ namespace Sandbox.Game.Gui
                 OriginAlign = leftAlign
             };
             rowIndex++;
-            m_UITransparencySlider = new MyGuiControlSlider(toolTip: MyTexts.GetString(MySpaceTexts.ToolTipGameOptionsUITransparency), minValue: 0, maxValue: 1.0f, defaultValue: 1.0f)
+            m_UITransparencySlider = new MyGuiControlSlider(toolTip: MyTexts.GetString(MySpaceTexts.ToolTipGameOptionsUITransparency), minValue: 0.1f, maxValue: 1.0f, defaultValue: 1.0f)
             {
                 Position = controlsOriginRight + rowIndex * controlsDelta,
                 OriginAlign = rightAlign,
@@ -290,9 +290,15 @@ namespace Sandbox.Game.Gui
         private void sliderChanged(MyGuiControlSlider obj)
         {
             if (obj == m_UITransparencySlider)
+            {
                 m_settings.UITransparency = obj.Value;
+                m_guiTransition = obj.Value;
+            }
             else if (obj == m_UIBkTransparencySlider)
+            {
                 m_settings.UIBkTransparency = obj.Value;
+                m_backgroundTransition = obj.Value;
+            }
         }
 
         void m_buildingModeCombobox_ItemSelected()

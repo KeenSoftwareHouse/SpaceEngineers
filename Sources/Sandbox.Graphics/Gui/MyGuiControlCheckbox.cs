@@ -153,9 +153,9 @@ namespace Sandbox.Graphics.GUI
             VisualStyle = controlBuilder.VisualStyle;
         }
 
-        public override void Draw(float transitionAlpha)
+        public override void Draw(float transitionAlpha, float backgroundTransitionAlpha)
         {
-            base.Draw(transitionAlpha);
+            base.Draw(transitionAlpha, transitionAlpha);
             var iconTexture = (HasHighlight) ? m_icon.Highlight : m_icon.Normal;
             if (!string.IsNullOrEmpty(iconTexture))
             {

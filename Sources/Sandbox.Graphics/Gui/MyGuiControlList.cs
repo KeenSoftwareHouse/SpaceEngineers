@@ -130,17 +130,17 @@ namespace Sandbox.Graphics.GUI
         }
         #endregion
 
-        public override void Draw(float transitionAlpha)
+        public override void Draw(float transitionAlpha, float backgroundTransitionAlpha)
         {
             var topLeft = GetPositionAbsoluteTopLeft();
             m_styleDef.Texture.Draw(topLeft, Size,
-                ApplyColorMaskModifiers(ColorMask, Enabled, transitionAlpha));
+                ApplyColorMaskModifiers(ColorMask, Enabled, backgroundTransitionAlpha));
 
             var scissor = m_itemsRectangle;
             scissor.Position += topLeft;
             using (MyGuiManager.UsingScissorRectangle(ref scissor))
             {
-                base.Draw(transitionAlpha);
+                base.Draw(transitionAlpha, backgroundTransitionAlpha);
             }
 
             if (m_showScrollbar)

@@ -428,7 +428,7 @@ namespace Sandbox.Graphics.GUI
             }
         }
 
-        public override void Draw(float transitionAlpha)
+        public override void Draw(float transitionAlpha, float backgroundTransitionAlpha)
         {
             if (BlockInfo != null)
             {
@@ -504,7 +504,7 @@ namespace Sandbox.Graphics.GUI
                 m_blockIconPanel.BackgroundTexture = new MyGuiCompositeTexture(BlockInfo.BlockIcon);
             }
 
-            base.Draw(transitionAlpha);
+            base.Draw(transitionAlpha, backgroundTransitionAlpha);
         }
     }
 }

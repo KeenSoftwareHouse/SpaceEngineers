@@ -41,9 +41,9 @@ namespace Sandbox.Graphics.GUI
             base.Update();
         }
 
-        public override void Draw(float transitionAlpha)
+        public override void Draw(float transitionAlpha, float backgroundTransitionAlpha)
         {
-            base.Draw(transitionAlpha);
+            base.Draw(transitionAlpha, backgroundTransitionAlpha);
 
             Vector2 rotatingSize = MyGuiManager.GetNormalizedSize(new Vector2(256,256), m_wheelScale);
             Vector2 rotatingPosition = GetPositionAbsolute() + new Vector2(rotatingSize.X / 2.0f, rotatingSize.Y / 2.0f);
