@@ -22,7 +22,7 @@ using VRage.ObjectBuilders;
 
 namespace Sandbox.Game.GameSystems
 {
-    class MyGridConveyorSystem : IMyPowerConsumer
+    public class MyGridConveyorSystem : IMyPowerConsumer
     {
         private static readonly float CONVEYOR_SYSTEM_CONSUMPTION = 0.005f;
 

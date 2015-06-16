@@ -271,10 +271,7 @@ namespace Sandbox.Game.Entities.Cube
             }
 
             ComputeMax(BlockDefinition, Orientation, ref Min, out Max);
-
-            Matrix localMatrix;
-            Orientation.GetMatrix(out localMatrix);
-            Position = ComputePositionInGrid(ref localMatrix);
+            Position = ComputePositionInGrid(new MatrixI(Orientation), BlockDefinition, Min);
 
             UpdateShowParts();
 
@@ -565,16 +562,16 @@ namespace Sandbox.Game.Entities.Cube
             return FatBlock != null ? FatBlock.CalculateCurrentModel(out orientation) : BlockDefinition.Model;
         }
 
-        private Vector3I ComputePositionInGrid(ref Matrix localMatrix)
+        public static Vector3I ComputePositionInGrid(MatrixI localMatrix, MyCubeBlockDefinition blockDefinition, Vector3I min)
         {
-            var center = BlockDefinition.Center;
-            var sizeMinusOne = BlockDefinition.Size - 1;
+            var center = blockDefinition.Center;
+            var sizeMinusOne = blockDefinition.Size - 1;
             Vector3I rotatedBlockSize;
             Vector3I rotatedCenter;
             Vector3I.TransformNormal(ref sizeMinusOne, ref localMatrix, out rotatedBlockSize);
             Vector3I.TransformNormal(ref center, ref localMatrix, out rotatedCenter);
-            var trueSize = Max - Min;
-            var offsetCenter = rotatedCenter + Min;
+            var trueSize = Vector3I.Abs(rotatedBlockSize);
+            var offsetCenter = rotatedCenter + min;
 
             if (rotatedBlockSize.X != trueSize.X) offsetCenter.X += trueSize.X;
             if (rotatedBlockSize.Y != trueSize.Y) offsetCenter.Y += trueSize.Y;
@@ -938,6 +935,11 @@ namespace Sandbox.Game.Entities.Cube
             }
 
             damage *= DamageRatio; // Low-integrity blocks get more damage
+            if (MyPerGameSettings.Destruction)
+            {
+                damage *= DeformationRatio;
+            }
+
             ProfilerShort.Begin("FatBlock.DoDamage");
             try
             {
@@ -1168,8 +1170,9 @@ namespace Sandbox.Game.Entities.Cube
 			return modelChanged;
         }
 
-        public void DecreaseMountLevel(float grinderAmount, IMyComponentInventory outputInventory)
+        public bool DecreaseMountLevel(float grinderAmount, IMyComponentInventory outputInventory)
         {
+			bool modelChanged = false;
             if (FatBlock != null)
                 grinderAmount /= FatBlock.DisassembleRatio;
             else
@@ -1233,6 +1236,7 @@ namespace Sandbox.Game.Entities.Cube
             MyCubeGrid.MyIntegrityChangeEnum integrityChangeType = MyCubeGrid.MyIntegrityChangeEnum.Damage;
             if (modelChangeNeeded)
             {
+				modelChanged = true;
                 UpdateVisual();
 
                 if (FatBlock != null)
@@ -1262,6 +1266,7 @@ namespace Sandbox.Game.Entities.Cube
             }
 
             CubeGrid.SyncObject.SendIntegrityChanged(this, integrityChangeType, toolOwner);
+			return modelChanged;
         }
 
         /// <summary>
@@ -1556,9 +1561,9 @@ namespace Sandbox.Game.Entities.Cube
         {
             if (FatBlock != null)
                 return FatBlock.GetMass();
-
+            Matrix m;
             if (MyDestructionData.Static != null)
-                return MyDestructionData.Static.GetBlockMass(BlockDefinition);
+                return MyDestructionData.Static.GetBlockMass(CalculateCurrentModel(out m), BlockDefinition);
             return BlockDefinition.Mass;
         }
 

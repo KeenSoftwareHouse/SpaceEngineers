@@ -5,6 +5,7 @@ using Sandbox.Definitions;
 using Sandbox.Engine.Multiplayer;
 using Sandbox.Engine.Networking;
 using Sandbox.Game.Entities;
+using Sandbox.Game.GUI;
 using Sandbox.Game.World;
 using SteamSDK;
 using System;
@@ -20,7 +21,7 @@ using VRageMath;
 namespace Sandbox.Game.Multiplayer
 {
     [PreloadRequired]
-    static class MySyncCreate
+    public static class MySyncCreate
     {
         [ProtoContract]
         [MessageId(37, P2PMessageEnum.Reliable)]
@@ -34,6 +35,9 @@ namespace Sandbox.Game.Multiplayer
         [MessageId(38, P2PMessageEnum.Reliable)]
         struct CreateCompressedMsg
         {
+            [ProtoMember]
+            public int PlayerSerialId;
+
             [ProtoMember]
             public byte[] ObjectBuilders;
 
@@ -75,31 +79,20 @@ namespace Sandbox.Game.Multiplayer
             public SerializableVector3 RelativeVelocity;
         }
 
-        [ProtoContract]
         [MessageId(11875, P2PMessageEnum.Reliable)]
         struct SpawnGridMsg
         {
-            [ProtoMember]
-            public MyObjectBuilder_CubeGrid Grid;
-            
-            [ProtoMember]
+            public long BuilderEntityId;
             public DefinitionIdBlit Definition;
-            
-            [ProtoMember]
             public Vector3D Position;
-            
-            [ProtoMember]
             public Vector3 Forward;
-            
-            [ProtoMember]
             public Vector3 Up;
-            
-            [ProtoMember]
-            public bool Static;
-
-			[ProtoMember]
-			public ulong SenderSteamId;
+            public BoolBlit Static;
         }
+
+        [MessageId(11876, P2PMessageEnum.Reliable)]
+        struct SpawnGridReplyMsg
+        { }
 
         static MySyncCreate()
         {
@@ -107,15 +100,25 @@ namespace Sandbox.Game.Multiplayer
             MySyncLayer.RegisterMessage<CreateCompressedMsg>(OnMessageCompressed, MyMessagePermissions.Any, MyTransportMessageEnum.Request);
             MySyncLayer.RegisterMessage<MergingCopyPasteCompressedMsg>(OnMessageCompressedRequest, MyMessagePermissions.ToServer, MyTransportMessageEnum.Request);
             MySyncLayer.RegisterMessage<CreateRelativeCompressedMsg>(OnMessageRelativeCompressed, MyMessagePermissions.Any, MyTransportMessageEnum.Request);
-            MySyncLayer.RegisterMessage<SpawnGridMsg>(OnMessageSpawnGrid, MyMessagePermissions.Any, MyTransportMessageEnum.Request);
+            MySyncLayer.RegisterMessage<SpawnGridMsg>(OnMessageSpawnGrid, MyMessagePermissions.ToServer, MyTransportMessageEnum.Request);
+            MySyncLayer.RegisterMessage<SpawnGridReplyMsg>(OnMessageSpawnGridSuccess, MyMessagePermissions.FromServer, MyTransportMessageEnum.Success);
+            MySyncLayer.RegisterMessage<SpawnGridReplyMsg>(OnMessageSpawnGridFailure, MyMessagePermissions.FromServer, MyTransportMessageEnum.Failure);
         }
+
+		public static void RequestEntityCreate(MyObjectBuilder_EntityBase entityBuilder)
+		{
+			var msg = new CreateMsg() { ObjectBuilder = entityBuilder, };
+			MySession.Static.SyncLayer.SendMessageToServer(ref msg, MyTransportMessageEnum.Request);
+		}
 
         static void OnMessage(ref CreateMsg msg, MyNetworkClient sender)
         {
             MySandboxGame.Log.WriteLine("CreateMsg: " + msg.ObjectBuilder.GetType().Name.ToString() + " EntityID: " + msg.ObjectBuilder.EntityId.ToString("X8"));
             MyEntities.CreateFromObjectBuilderAndAdd(msg.ObjectBuilder);
             MySandboxGame.Log.WriteLine("Status: Exists(" + MyEntities.EntityExists(msg.ObjectBuilder.EntityId) + ") InScene(" + ((msg.ObjectBuilder.PersistentFlags & MyPersistentEntityFlags2.InScene) == MyPersistentEntityFlags2.InScene) + ")");
-        }
+			if (Sync.IsServer)
+				MySession.Static.SyncLayer.SendMessageToAll(ref msg);
+		}
 
         static void OnMessageCompressed(ref CreateCompressedMsg msg, MyNetworkClient sender)
         {
@@ -360,7 +363,7 @@ namespace Sandbox.Game.Multiplayer
         }
 
 
-        public static void RequestStaticGridSpawn(MyCubeBlockDefinition definition, MatrixD worldMatrix)
+        public static void RequestStaticGridSpawn(MyCubeBlockDefinition definition, MatrixD worldMatrix, long builderEntityId)
         {
             SpawnGridMsg msg = new SpawnGridMsg();
             
@@ -369,11 +372,12 @@ namespace Sandbox.Game.Multiplayer
             msg.Forward = worldMatrix.Forward;
             msg.Up = worldMatrix.Up;
             msg.Static = true;
+            msg.BuilderEntityId = builderEntityId;
 
             MySession.Static.SyncLayer.SendMessageToServer(ref msg);
         }
 
-        public static void RequestDynamicGridSpawn(MyCubeBlockDefinition definition, MatrixD worldMatrix)
+        public static void RequestDynamicGridSpawn(MyCubeBlockDefinition definition, MatrixD worldMatrix, long builderEntityId)
         {
             SpawnGridMsg msg = new SpawnGridMsg();
 
@@ -382,59 +386,41 @@ namespace Sandbox.Game.Multiplayer
             msg.Forward = worldMatrix.Forward;
             msg.Up = worldMatrix.Up;
             msg.Static = false;
+            msg.BuilderEntityId = builderEntityId;
 
             MySession.Static.SyncLayer.SendMessageToServer(ref msg);
         }
 
         static void OnMessageSpawnGrid(ref SpawnGridMsg msg, MyNetworkClient sender)
         {
-            if (Sync.IsServer)
-            {
-                var definition = Definitions.MyDefinitionManager.Static.GetCubeBlockDefinition(msg.Definition);
-                MatrixD worldMatrix = MatrixD.CreateWorld(msg.Position, msg.Forward, msg.Up);
+            Debug.Assert(MyCubeBuilder.BuildComponent != null, "The build component was not set in cube builder!");
 
-				msg.SenderSteamId = sender.SteamUserId;
+            MyEntity builder = null;
+            MyEntities.TryGetEntityById(msg.BuilderEntityId, out builder);
 
-                MyCubeGrid grid = null;
+            var definition = Definitions.MyDefinitionManager.Static.GetCubeBlockDefinition(msg.Definition);
+            MatrixD worldMatrix = MatrixD.CreateWorld(msg.Position, msg.Forward, msg.Up);
 
-                if (msg.Static)
-                    grid = MyCubeBuilder.SpawnStaticGrid(definition, worldMatrix);
-                else
-                    grid = MyCubeBuilder.SpawnDynamicGrid(definition, worldMatrix);
+            var reply = new SpawnGridReplyMsg();
 
-                if (grid != null)
-                {
-                    msg.Grid = grid.GetObjectBuilder() as MyObjectBuilder_CubeGrid;
-                    MySession.Static.SyncLayer.SendMessageToAll(ref msg);
-                }
+            MyCubeBuilder.BuildComponent.GetGridSpawnMaterials(definition, worldMatrix, msg.Static);
+            bool canSpawn = MyCubeBuilder.BuildComponent.HasBuildingMaterials(builder);
 
-                if (grid != null)
-                {
-					if (msg.Static)
-						MyCubeBuilder.AfterStaticGridSpawn(grid, true);
-					else
-						MyCubeBuilder.AfterDynamicGridSpawn(grid, true);
-                }
-            }
-            else
-            {
-                System.Diagnostics.Debug.Assert(msg.Grid != null, "Client must obtain complete grid from server");
+            MySession.Static.SyncLayer.SendMessage(ref reply, sender.SteamUserId, canSpawn ? MyTransportMessageEnum.Success : MyTransportMessageEnum.Failure);
 
-                MyCubeGrid grid = MyEntities.CreateFromObjectBuilderAndAdd(msg.Grid) as MyCubeGrid;
+            if (!canSpawn) return;
 
-                if (grid != null)
-                {
-					bool localBuilder = false;
-					var player = MySession.LocalHumanPlayer;
-					if (player != null && msg.SenderSteamId == MySteam.UserId)
-						localBuilder = true;
+            MyCubeBuilder.BuildComponent.SpawnGrid(definition, worldMatrix, builder, msg.Static);
+        }
 
-					if (grid.IsStatic)
-						MyCubeBuilder.AfterStaticGridSpawn(grid, localBuilder);
-					else
-						MyCubeBuilder.AfterDynamicGridSpawn(grid, localBuilder);
-                }
-            }
+        static void OnMessageSpawnGridFailure(ref SpawnGridReplyMsg msg, MyNetworkClient sender)
+        {
+            MyGuiAudio.PlaySound(MyGuiSounds.HudUnable);
+        }
+
+        static void OnMessageSpawnGridSuccess(ref SpawnGridReplyMsg msg, MyNetworkClient sender)
+        {
+            MyGuiAudio.PlaySound(MyGuiSounds.HudPlaceBlock);
         }
     }
 }

@@ -45,5 +45,11 @@ namespace Sandbox.Game.Entities.Cube
         /// </summary>
         void UpdateAfterGridSpawn(MySlimBlock block);
 
+        /// <summary>
+        /// Returns generating block which generated the given one.
+        /// </summary>
+        /// <param name="generatedBlock">Generated block</param>
+        /// <returns>Generating block or null.</returns>
+        MySlimBlock GetGeneratingBlock(MySlimBlock generatedBlock);
     }
 }

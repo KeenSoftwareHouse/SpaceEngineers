@@ -15,7 +15,7 @@ namespace Sandbox.Game.Entities.Cube
     {
         public Vector4 LocalOrthoMatrix;
         private Color m_packedColor;
-        public MyStringId EdgeModel;
+        public MyStringHash EdgeModel;
 
         // There is only one of 26 directions
         public Base27Directions.Direction PackedNormal0;
@@ -54,7 +54,7 @@ namespace Sandbox.Game.Entities.Cube
         {
         }
 
-        public MyEdgeInfo(ref Vector3 pos, ref Vector3I edgeDirection, ref Vector3 normal0, ref Vector3 normal1, ref Color color, MyStringId edgeModel)
+        public MyEdgeInfo(ref Vector3 pos, ref Vector3I edgeDirection, ref Vector3 normal0, ref Vector3 normal1, ref Color color, MyStringHash edgeModel)
         {
             var info = MyCubeGridDefinitions.EdgeOrientations[edgeDirection];
             Debug.Assert(info.EdgeType != MyCubeEdgeType.Hidden, "Hidden edge types are now allowed");

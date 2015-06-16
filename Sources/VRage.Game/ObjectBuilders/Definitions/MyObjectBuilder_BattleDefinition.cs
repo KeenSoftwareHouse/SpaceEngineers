@@ -24,5 +24,8 @@ namespace Sandbox.Common.ObjectBuilders.Definitions
         [ProtoMember, DefaultValue(0.067f)]
         public float DefenderEntityDamage = 0.067f;
 
+        [XmlArrayItem("Blueprint")]
+        [ProtoMember, DefaultValue(null)]
+        public string[] DefaultBlueprints = null;
     }
 }

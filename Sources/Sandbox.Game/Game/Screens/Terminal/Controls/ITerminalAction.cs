@@ -10,7 +10,7 @@ using VRage.Collections;
 
 namespace Sandbox.Game.Gui
 {
-    interface ITerminalAction : Sandbox.ModAPI.Interfaces.ITerminalAction
+    public interface ITerminalAction : Sandbox.ModAPI.Interfaces.ITerminalAction
     {
         new string Id { get; }
         new string Icon { get; }

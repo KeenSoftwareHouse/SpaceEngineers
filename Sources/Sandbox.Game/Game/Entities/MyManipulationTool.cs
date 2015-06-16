@@ -84,6 +84,7 @@ namespace Sandbox.Game.Entities
         #region Properties
 
         public MyObjectBuilder_PhysicalGunObject PhysicalObject { get; private set; }
+		public bool IsDeconstructor { get { return false; } }
 
         public bool IsShooting
         {
@@ -293,8 +294,6 @@ namespace Sandbox.Game.Entities
         public void OnControlReleased()
         {
             SyncTool.StopManipulation();
-
-            Owner = null;
         }
 
         public override void UpdateAfterSimulation()
@@ -420,9 +419,17 @@ namespace Sandbox.Game.Entities
 
                 if (otherEntity is MyCharacter)
                 {
-                    HkFixedConstraintData fcData = data as HkFixedConstraintData;
-                    fcData.MaximumAngularImpulse = 2.0f;
-                    fcData.MaximumLinearImpulse = 2.0f;
+                    if (MyFakes.MANIPULATION_TOOL_VELOCITY_LIMIT)
+                    {
+                        HkMalleableConstraintData mcData = data as HkMalleableConstraintData;
+                        mcData.Strength = 0.005f;
+                    }
+                    else
+                    {
+                        HkFixedConstraintData fcData = data as HkFixedConstraintData;
+                        fcData.MaximumAngularImpulse = 2.0f;
+                        fcData.MaximumLinearImpulse = 2.0f;
+                    }
                 }
             }
             else
@@ -553,11 +560,23 @@ namespace Sandbox.Game.Entities
             Matrix headPivotLocalMatrix;
             GetHeadPivotLocalMatrix(headDistance, out headPivotLocalMatrix);
             m_fixedConstraintData.SetInBodySpace(ref otherLocalMatrix, ref headPivotLocalMatrix);
-            m_fixedConstraintData.MaximumLinearImpulse = 0.005f; //7500 * MyDestructionHelper.MASS_REDUCTION_COEF * (MyEngineConstants.UPDATE_STEP_SIZE_IN_SECONDS * MyFakes.SIMULATION_SPEED);
-            m_fixedConstraintData.MaximumAngularImpulse = 0.005f; //7500 * MyDestructionHelper.MASS_REDUCTION_COEF * (MyEngineConstants.UPDATE_STEP_SIZE_IN_SECONDS * MyFakes.SIMULATION_SPEED);
+            if (MyFakes.MANIPULATION_TOOL_VELOCITY_LIMIT)
+            {
+                m_fixedConstraintData.MaximumLinearImpulse = 0.5f;
+                m_fixedConstraintData.MaximumAngularImpulse = 0.5f;
 
-            //data.SetSolvingMethod(HkSolvingMethod.MethodStabilized);
-            //data.SetInertiaStabilizationFactor(1);
+                HkMalleableConstraintData mcData = new HkMalleableConstraintData();
+                mcData.SetData(m_fixedConstraintData);
+                mcData.Strength = 0.0001f;
+                m_fixedConstraintData.Dispose();
+                return mcData;
+            }
+            else
+            {
+                m_fixedConstraintData.MaximumLinearImpulse = 0.005f; //7500 * MyDestructionHelper.MASS_REDUCTION_COEF * (MyEngineConstants.UPDATE_STEP_SIZE_IN_SECONDS * MyFakes.SIMULATION_SPEED);
+                m_fixedConstraintData.MaximumAngularImpulse = 0.005f; //7500 * MyDestructionHelper.MASS_REDUCTION_COEF * (MyEngineConstants.UPDATE_STEP_SIZE_IN_SECONDS * MyFakes.SIMULATION_SPEED);
+            }
+          
 
             return m_fixedConstraintData;
 
@@ -592,7 +611,7 @@ namespace Sandbox.Game.Entities
 
         public void StopManipulation()
         {
-            if (m_state != MyState.NONE)
+            if (m_state != MyState.NONE && Owner != null)
             {
                 var characterMovementState = Owner.GetCurrentMovementState();
                 switch (characterMovementState)
@@ -622,9 +641,9 @@ namespace Sandbox.Game.Entities
                         Owner.PlayCharacterAnimation("Idle", true, MyPlayAnimationMode.Immediate | MyPlayAnimationMode.Play, 0.2f, 1f);
                         break;
                 }
-
-                m_state = MyState.NONE;
             }
+
+            m_state = MyState.NONE;
 
             if (m_constraint != null)
             {
@@ -684,7 +703,7 @@ namespace Sandbox.Game.Entities
             if (m_state != MyState.NONE && SafeConstraint != null)
             {
                 const float fixedConstraintMaxValue = 15;
-                const float fixedConstraintMaxDistance = 1f;
+                float fixedConstraintMaxDistance = MyFakes.MANIPULATION_TOOL_VELOCITY_LIMIT ? 2f : 1f;
                 const float ballAndSocketMaxDistance = 2f;
 
                 MyTimeSpan constraintPrepareTime = MyTimeSpan.FromSeconds(1);
@@ -721,7 +740,7 @@ namespace Sandbox.Game.Entities
                         m_otherRigidBody.MaxAngularVelocity = m_otherMaxAngularVelocity;
                     }
 
-                    if (m_fixedConstraintData != null)
+                    if (m_fixedConstraintData != null && !MyFakes.MANIPULATION_TOOL_VELOCITY_LIMIT)
                     {
                         m_fixedConstraintData.MaximumAngularImpulse = fixedConstraintMaxValue;
                         m_fixedConstraintData.MaximumLinearImpulse = fixedConstraintMaxValue;
@@ -745,7 +764,7 @@ namespace Sandbox.Game.Entities
                 }
                 else
                 {
-                    if (m_fixedConstraintData != null)
+                    if (m_fixedConstraintData != null && !MyFakes.MANIPULATION_TOOL_VELOCITY_LIMIT)
                     {
                         float t = (float)(currentTimeDelta.Miliseconds / constraintPrepareTime.Miliseconds);
                         float value = t * fixedConstraintMaxValue;

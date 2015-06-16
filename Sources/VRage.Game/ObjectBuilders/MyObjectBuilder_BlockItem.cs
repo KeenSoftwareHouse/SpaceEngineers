@@ -17,7 +17,7 @@ namespace Sandbox.Common.ObjectBuilders
             return false;
         }
 
-        public override bool CanStack(MyObjectBuilderType typeId, MyStringId subtypeId, MyItemFlags flags)
+        public override bool CanStack(MyObjectBuilderType typeId, MyStringHash subtypeId, MyItemFlags flags)
         {
             return false;
         }

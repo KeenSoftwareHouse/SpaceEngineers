@@ -26,6 +26,7 @@ namespace Sandbox.Game.Entities.Blocks
     [MyCubeBlockType(typeof(MyObjectBuilder_OxygenGenerator))]
     class MyOxygenGenerator : MyFunctionalBlock, IMyPowerConsumer, IMyInventoryOwner, IMyOxygenProducer, IMyOxygenGenerator, IMyConveyorEndpointBlock
     {
+        private Color? m_prevEmissiveColor = null;
         private bool m_useConveyorSystem;
         private bool m_autoRefill;
         private MyInventory m_inventory;
@@ -424,7 +425,18 @@ namespace Sandbox.Game.Entities.Blocks
 
         private void SetEmissive(Color color)
         {
-            MyCubeBlock.UpdateEmissiveParts(Render.RenderObjectIDs[0], 1.0f, color, Color.White);
+            if (m_prevEmissiveColor != color)
+            {
+                MyCubeBlock.UpdateEmissiveParts(Render.RenderObjectIDs[0], 1.0f, color, Color.White);
+                m_prevEmissiveColor = color;
+            }
+        }
+
+        public override void OnModelChange()
+        {
+            base.OnModelChange();
+
+            m_prevEmissiveColor = null;
         }
         #endregion
 

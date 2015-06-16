@@ -62,6 +62,7 @@ namespace Sandbox.Game.World
         public DateTime LastLoadTime;
         public ulong? WorkshopId = null;
         public string Briefing;
+        public bool ScenarioEditMode = false;
     }
 
     /// <summary>
@@ -160,11 +161,12 @@ namespace Sandbox.Game.World
 
         public bool Battle { get { return Settings.Battle; } }
 
-        public static bool IsScenario = false;
+        public bool IsScenario { get { return Settings.Scenario; } }
         // Attacker leader blueprints.
         public List<Tuple<string, MyBlueprintItemInfo>> BattleBlueprints;
 
         public bool SimpleSurvival { get { return MyFakes.ENABLE_SIMPLE_SURVIVAL && SurvivalMode && !Battle; } }
+        public float CharacterLootingTime;
 
         public List<MyObjectBuilder_Checkpoint.ModItem> Mods;
         public MyScenarioDefinition Scenario;
@@ -242,6 +244,14 @@ namespace Sandbox.Game.World
             get
             {
                 return LocalHumanPlayer == null ? null : LocalHumanPlayer.Character;
+            }
+        }
+
+        public static long LocalCharacterEntityId
+        {
+            get
+            {
+                return LocalCharacter == null ? 0 : LocalCharacter.EntityId;
             }
         }
 
@@ -591,6 +601,7 @@ namespace Sandbox.Game.World
 
         public void LoadDataComponents(bool registerEvents = true)
         {
+            CharacterLootingTime = MyPerGameSettings.CharacterDefaultLootingCounter;
             RaiseOnLoading();
 
             if (registerEvents)
@@ -1224,9 +1235,7 @@ namespace Sandbox.Game.World
             MyLocalCache.ClearLastSessionInfo();
 
             // Sync clients, players and factions from server
-            MySession.Static.Players.RequestAllIdentities();
-            MySession.Static.Players.RequestAllPlayers();
-            MySession.Static.Factions.RequestAllFactions();
+            MySession.Static.Players.RequestAll_Identities_Players_Factions();
 
             // Player must be created for selection in factions.
             if (!MySandboxGame.IsDedicated && LocalHumanPlayer == null)
@@ -1415,7 +1424,8 @@ namespace Sandbox.Game.World
             MyPlayer.PlayerId savingPlayer = new MyPlayer.PlayerId();
             MyPlayer.PlayerId? savingPlayerNullable = null;
             bool reuseSavingPlayerIdentity = TryFindSavingPlayerId(checkpoint.ControlledEntities, checkpoint.ControlledObject, out savingPlayer);
-            if (reuseSavingPlayerIdentity) savingPlayerNullable = savingPlayer;
+            if (reuseSavingPlayerIdentity && !(IsScenario && Static.OnlineMode != MyOnlineModeEnum.OFFLINE))
+                savingPlayerNullable = savingPlayer;
 
             // Identities have to be loaded before entities (because of ownership)
             if (Sync.IsServer || (!Battle && MyPerGameSettings.Game == GameEnum.ME_GAME) || (!IsScenario && MyPerGameSettings.Game == GameEnum.SE_GAME))
@@ -1439,7 +1449,7 @@ namespace Sandbox.Game.World
             // MySpectator.Static.SpectatorCameraMovement = checkpoint.SpectatorCameraMovement;
             MySpectatorCameraController.Static.SetViewMatrix((MatrixD)Matrix.Invert(checkpoint.SpectatorPosition.GetMatrix()));
 
-            if ((!Battle && MyPerGameSettings.Game == GameEnum.ME_GAME) || (!IsScenario && MyPerGameSettings.Game == GameEnum.SE_GAME))
+            if ((!Battle && MyPerGameSettings.Game == GameEnum.ME_GAME) || ((!IsScenario || Static.OnlineMode == MyOnlineModeEnum.OFFLINE) && MyPerGameSettings.Game == GameEnum.SE_GAME))
             {
                 Sync.Players.LoadConnectedPlayers(checkpoint, savingPlayerNullable);
                 Sync.Players.LoadControlledEntities(checkpoint.ControlledEntities, checkpoint.ControlledObject, savingPlayerNullable);
@@ -1447,7 +1457,7 @@ namespace Sandbox.Game.World
             LoadCamera(checkpoint);
 
             //fix: saved in survival with dead player, changed to creative, loaded game, no character with no way to respawn
-            if (CreativeMode && !MySandboxGame.IsDedicated && LocalHumanPlayer != null && LocalHumanPlayer.Character.IsDead)
+            if (CreativeMode && !MySandboxGame.IsDedicated && LocalHumanPlayer != null && LocalHumanPlayer.Character!=null && LocalHumanPlayer.Character.IsDead)
                 MyPlayerCollection.RequestLocalRespawn();
 
             // Create the player if he/she does not exist (on clients and server)
@@ -1483,7 +1493,7 @@ namespace Sandbox.Game.World
             LoadChatHistory(checkpoint);
 
             if (MyFakes.ENABLE_MISSION_TRIGGERS)
-                MySessionComponentMission.Static.Load(checkpoint.MissionTriggers);
+                MySessionComponentMissionTriggers.Static.Load(checkpoint.MissionTriggers);
 
             MyEncounterGenerator.Load(sector.Encounters);
             VRageRender.MyRenderProxy.RebuildCullingStructure();
@@ -1707,6 +1717,7 @@ namespace Sandbox.Game.World
             if (!settings.PermanentDeath.HasValue) settings.PermanentDeath = true;
             settings.ViewDistance = MathHelper.Clamp(settings.ViewDistance, 1000, 50000);
             VRageRender.MyRenderProxy.Settings.NightMode = false;
+            if (MySandboxGame.IsDedicated) settings.Scenario = false;
         }
 
         private static void ShowLoadingError()
@@ -2091,7 +2102,7 @@ namespace Sandbox.Game.World
             Gpss.SaveGpss(checkpoint);
 
             if (MyFakes.ENABLE_MISSION_TRIGGERS)
-                checkpoint.MissionTriggers = MySessionComponentMission.Static.GetObjectBuilder();
+                checkpoint.MissionTriggers = MySessionComponentMissionTriggers.Static.GetObjectBuilder();
 
 
             if (MyFakes.SHOW_FACTIONS_GUI)

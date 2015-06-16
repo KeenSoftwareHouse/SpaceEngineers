@@ -35,7 +35,7 @@ using VRage.Components;
 
 namespace Sandbox.Game.Weapons
 {
-    abstract class MyShipToolBase : MyFunctionalBlock, IMyGunObject<MyToolBase>, IMyPowerConsumer, IMyInventoryOwner, IMyConveyorEndpointBlock, IMyShipToolBase
+    public abstract class MyShipToolBase : MyFunctionalBlock, IMyGunObject<MyToolBase>, IMyPowerConsumer, IMyInventoryOwner, IMyConveyorEndpointBlock, IMyShipToolBase
     {
         private MyInventory m_inventory;
         protected MyInventory Inventory
@@ -50,6 +50,7 @@ namespace Sandbox.Game.Weapons
         {
             return Inventory;
         }
+		public bool IsDeconstructor { get { return false; } }
 
         private MyMultilineConveyorEndpoint m_endpoint;
         private MyDefinitionId m_defId;

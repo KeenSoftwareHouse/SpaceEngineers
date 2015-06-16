@@ -234,7 +234,10 @@ namespace Sandbox.Game.Entities
         private Vector3D m_startPosition;
         private MyToolbar m_actionToolbar;
         private Base6Directions.Direction m_currentDirection = Base6Directions.Direction.Forward;
+
         private static MyObjectBuilder_AutopilotClipboard m_clipboard;
+        private static MyGuiControlListbox m_gpsGuiControl;
+        private static MyGuiControlListbox m_waypointGuiControl;
 
         private static Dictionary<Base6Directions.Direction, MyStringId> m_directionNames = new Dictionary<Base6Directions.Direction, MyStringId>()
         {
@@ -255,7 +258,6 @@ namespace Sandbox.Game.Entities
             { Base6Directions.Direction.Up, Vector3D.Right },
             { Base6Directions.Direction.Down, Vector3D.Right }
         };
-        
 
         static MyRemoteControl()
         {
@@ -305,6 +307,10 @@ namespace Sandbox.Game.Entities
             var waypointList = new MyTerminalControlListbox<MyRemoteControl>("WaypointList", MySpaceTexts.BlockPropertyTitle_Waypoints, MySpaceTexts.Blank, true);
             waypointList.ListContent = (x, list1, list2) => x.FillWaypointList(list1, list2);
             waypointList.ItemSelected = (x, y) => x.SelectWaypoint(y);
+            if (!MySandboxGame.IsDedicated)
+            {
+                m_waypointGuiControl = (MyGuiControlListbox)((MyGuiControlBlockProperty)waypointList.GetGuiControl()).PropertyControl;
+            }
             MyTerminalControlFactory.AddControl(waypointList);
 
 
@@ -365,6 +371,10 @@ namespace Sandbox.Game.Entities
             var gpsList = new MyTerminalControlListbox<MyRemoteControl>("GpsList", MySpaceTexts.BlockPropertyTitle_GpsLocations, MySpaceTexts.Blank, true);
             gpsList.ListContent = (x, list1, list2) => x.FillGpsList(list1, list2);
             gpsList.ItemSelected = (x, y) => x.SelectGps(y);
+            if (!MySandboxGame.IsDedicated)
+            {
+                m_gpsGuiControl = (MyGuiControlListbox)((MyGuiControlBlockProperty)gpsList.GetGuiControl()).PropertyControl;
+            }
             MyTerminalControlFactory.AddControl(gpsList);
 
             foreach (var direction in m_directionNames)
@@ -641,7 +651,7 @@ namespace Sandbox.Game.Entities
                     m_selectedGpsLocations.Add((IMyGps)item.UserData);
                 }
             }
-            RaisePropertiesChanged();
+            RaisePropertiesChangedRemote();
         }
 
         private List<MyAutopilotWaypoint> m_selectedWaypoints;
@@ -655,7 +665,7 @@ namespace Sandbox.Game.Entities
                     m_selectedWaypoints.Add((MyAutopilotWaypoint)item.UserData);
                 }
             }
-            RaisePropertiesChanged();
+            RaisePropertiesChangedRemote();
         }
 
         private void AddWaypoints()
@@ -686,7 +696,7 @@ namespace Sandbox.Game.Entities
             {
                 m_waypoints.Add(new MyAutopilotWaypoint(coords[i], names[i], this));
             }
-            RaisePropertiesChanged();
+            RaisePropertiesChangedRemote();
         }
 
         private bool CanMoveItemUp(int index)
@@ -738,7 +748,7 @@ namespace Sandbox.Game.Entities
                 Debug.Assert(indexes[i] > 0);
                 SwapWaypoints(indexes[i] - 1, indexes[i]);
             }
-            RaisePropertiesChanged();
+            RaisePropertiesChangedRemote();
         }
 
         private bool CanMoveItemDown(int index)
@@ -791,7 +801,7 @@ namespace Sandbox.Game.Entities
 
                 SwapWaypoints(index, index + 1);
             }
-            RaisePropertiesChanged();
+            RaisePropertiesChangedRemote();
         }
 
         private void SwapWaypoints(int index1, int index2)
@@ -838,7 +848,7 @@ namespace Sandbox.Game.Entities
             {
                 AdvanceWaypoint();
             }
-            RaisePropertiesChanged();
+            RaisePropertiesChangedRemote();
         }
 
         private void ChangeFlightMode(FlightMode flightMode)
@@ -852,7 +862,7 @@ namespace Sandbox.Game.Entities
         private void OnChangeFlightMode(FlightMode flightMode)
         {
             m_currentFlightMode = flightMode;
-            RaisePropertiesChanged();
+            RaisePropertiesChangedRemote();
         }
 
         private void ChangeDirection(Base6Directions.Direction direction)
@@ -866,7 +876,7 @@ namespace Sandbox.Game.Entities
         private void OnChangeDirection(Base6Directions.Direction direction)
         {
             m_currentDirection = direction;
-            RaisePropertiesChanged();
+            RaisePropertiesChangedRemote();
         }
 
         private bool CanAddWaypoints()
@@ -950,7 +960,7 @@ namespace Sandbox.Game.Entities
             {
                 m_currentWaypoint = m_waypoints[0];
                 m_patrolDirectionForward = true;
-                RaisePropertiesChanged();
+                RaisePropertiesChangedRemote();
             }
         }
 
@@ -966,7 +976,7 @@ namespace Sandbox.Game.Entities
             {
                 m_clipboard.Waypoints.Add(waypoint.GetObjectBuilder());
             }
-            RaisePropertiesChanged();
+            RaisePropertiesChangedRemote();
         }
 
         private void PasteAutopilotSetup()
@@ -1005,7 +1015,7 @@ namespace Sandbox.Game.Entities
 
             m_selectedWaypoints.Clear();
 
-            RaisePropertiesChanged();
+            RaisePropertiesChangedRemote();
         }
 
         private void FillGpsList(ICollection<MyGuiControlListbox.Item> gpsItemList, ICollection<MyGuiControlListbox.Item> selectedGpsItemList)
@@ -1092,6 +1102,20 @@ namespace Sandbox.Game.Entities
             }
         }
 
+        private void RaisePropertiesChangedRemote()
+        {
+            int gpsFirstVisibleRow = m_gpsGuiControl != null ? m_gpsGuiControl.FirstVisibleRow : 0;
+            int waypointFirstVisibleRow = m_waypointGuiControl != null ? m_waypointGuiControl.FirstVisibleRow : 0;
+            RaisePropertiesChanged();
+            if (m_gpsGuiControl != null && gpsFirstVisibleRow < m_gpsGuiControl.Items.Count)
+            {
+                m_gpsGuiControl.FirstVisibleRow = gpsFirstVisibleRow;
+            }
+            if (m_waypointGuiControl != null && waypointFirstVisibleRow < m_waypointGuiControl.Items.Count)
+            {
+                m_waypointGuiControl.FirstVisibleRow = waypointFirstVisibleRow;
+            }
+        }
         #endregion
 
         #region Autopilot Logic
@@ -1208,7 +1232,7 @@ namespace Sandbox.Game.Entities
 
                 if (m_currentWaypoint != m_oldWaypoint)
                 {
-                    if (Sync.IsServer && m_oldWaypoint.Actions != null)
+                    if (Sync.IsServer && m_oldWaypoint.Actions != null && m_autoPilotEnabled)
                     {
                         for (int i = 0; i < m_oldWaypoint.Actions.Length; i++)
                         {
@@ -1496,7 +1520,7 @@ namespace Sandbox.Game.Entities
                 DetailedInfo.Append("Coords: ");
                 DetailedInfo.Append(m_currentWaypoint.Coords);
             }
-            RaisePropertiesChanged();
+            RaisePropertiesChangedRemote();
         }
 
         protected override void ComponentStack_IsFunctionalChanged()
@@ -2339,7 +2363,7 @@ namespace Sandbox.Game.Entities
                     waypoint.InitActions();
                 }
                 waypoint.Actions[msg.Index] = item;
-                sync.m_remoteControl.RaisePropertiesChanged();
+                sync.m_remoteControl.RaisePropertiesChangedRemote();
                 sync.m_syncing = false;
             }
 

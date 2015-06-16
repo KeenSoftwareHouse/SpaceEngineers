@@ -221,5 +221,21 @@ namespace Sandbox.Common.ObjectBuilders.Definitions
         [XmlArrayItem("Decal")]
         [ProtoMember]
         public MyObjectBuilder_DecalDefinition[] Decals;
+
+        [XmlArrayItem("Definition")]
+        [ProtoMember]
+        public MyObjectBuilder_FloraElementDefinition[] FloraElements;
+
+		[XmlArrayItem("StatsDefinition")]
+		[ProtoMember]
+		public MyObjectBuilder_StatsDefinition[] StatsDefinitions;
+
+		[XmlArrayItem("Stat")]
+		[ProtoMember]
+		public MyObjectBuilder_EntityStatDefinition[] StatDefinitions;
+
+        [XmlArrayItem("Group")]
+        [ProtoMember]
+        public MyObjectBuilder_ComponentGroupDefinition[] ComponentGroups;
     }
 }

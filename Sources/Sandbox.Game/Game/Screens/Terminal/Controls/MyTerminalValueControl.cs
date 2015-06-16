@@ -8,7 +8,7 @@ using System.Text;
 
 namespace Sandbox.Game.Screens.Terminal.Controls
 {
-    abstract class MyTerminalValueControl<TBlock, TValue> : MyTerminalControl<TBlock>, ITerminalValueControl<TBlock, TValue>
+    public abstract class MyTerminalValueControl<TBlock, TValue> : MyTerminalControl<TBlock>, ITerminalValueControl<TBlock, TValue>
         where TBlock : MyTerminalBlock
     {
         public MyTerminalValueControl(string id)

@@ -8,7 +8,6 @@ namespace VRage.Input
         NEW_PRESSED,
         PRESSED,
         NEW_RELEASED,
-        WAS_PRESSED
     }
 
     public enum MyControlType
@@ -62,7 +61,6 @@ namespace VRage.Input
             byte Code { get; }
             bool IsNewPressed();
             bool IsPressed();
-            bool WasPressed();
             bool IsNewReleased();
             float AnalogValue();
             char ControlCode();
@@ -92,7 +90,7 @@ namespace VRage.Input
 
             public Context()
             {
-                Bindings = new Dictionary<MyStringId, IControl>();
+                Bindings = new Dictionary<MyStringId, IControl>(MyStringId.Comparer);
             }
         }
 
@@ -106,11 +104,6 @@ namespace VRage.Input
             }
 
             public bool IsPressed()
-            {
-                return false;
-            }
-
-            public bool WasPressed()
             {
                 return false;
             }
@@ -149,11 +142,6 @@ namespace VRage.Input
                 return MyInput.Static.IsJoystickAxisPressed(Axis);
             }
 
-            public bool WasPressed()
-            {
-                return MyInput.Static.WasJoystickAxisPressed(Axis);
-            }
-
             public bool IsNewReleased()
             {
                 return MyInput.Static.IsNewJoystickAxisReleased(Axis);
@@ -188,11 +176,6 @@ namespace VRage.Input
                 return MyInput.Static.IsJoystickButtonPressed(Button);
             }
 
-            public bool WasPressed()
-            {
-                return MyInput.Static.WasJoystickButtonPressed(Button);
-            }
-
             public bool IsNewReleased()
             {
                 return MyInput.Static.IsNewJoystickButtonReleased(Button);
@@ -210,7 +193,7 @@ namespace VRage.Input
         }
 
         private static EmptyControl m_nullControl = new EmptyControl();
-        private static Dictionary<MyStringId, Context> m_bindings = new Dictionary<MyStringId, Context>();
+        private static Dictionary<MyStringId, Context> m_bindings = new Dictionary<MyStringId, Context>(MyStringId.Comparer);
 
         static MyControllerHelper()
         {
@@ -285,8 +268,6 @@ namespace VRage.Input
                     return MyInput.Static.IsNewGameControlReleased(stringId) || m_bindings[context][stringId].IsNewReleased();
                 case MyControlStateType.PRESSED:
                     return MyInput.Static.IsGameControlPressed(stringId) || m_bindings[context][stringId].IsPressed();
-                case MyControlStateType.WAS_PRESSED:
-                    return MyInput.Static.WasGameControlPressed(stringId) || m_bindings[context][stringId].WasPressed();
             }
 
             return false;

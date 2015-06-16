@@ -50,6 +50,9 @@ namespace Sandbox.Game.Entities
         private float m_timeRemaining = 0;
         private bool m_isFull;
 
+        private Color m_prevEmissiveColor = Color.Black;
+        private int m_prevFillCount = -1;
+
         private new MySyncBatteryBlock SyncObject;
 
         protected override bool CheckIsWorking()
@@ -363,69 +366,55 @@ namespace Sandbox.Game.Entities
                 if (IsWorking)
                 {
 
-                    float percentage = (CurrentStoredPower / MaxStoredPower) * 100;
+                    float percentage = (CurrentStoredPower / MaxStoredPower);
 
-                    if (percentage >= 25)
+                    if (ProductionEnabled)
                     {
-                        if (ProductionEnabled)
-                            VRageRender.MyRenderProxy.UpdateModelProperties(Render.RenderObjectIDs[0], 0, null, -1, m_emissiveNames[0], null, Color.Green, null, null, 1);
-                        else
-                            VRageRender.MyRenderProxy.UpdateModelProperties(Render.RenderObjectIDs[0], 0, null, -1, m_emissiveNames[0], null, Color.SteelBlue, null, null, 1);
+                        SetEmissive(Color.Green, percentage);
                     }
                     else
                     {
-                        VRageRender.MyRenderProxy.UpdateModelProperties(Render.RenderObjectIDs[0], 0, null, -1, m_emissiveNames[0], null, Color.Black, null, null, 1);
+                        SetEmissive(Color.SteelBlue, percentage);
                     }
-                    if (percentage >= 50)
-                    {
-                        if (ProductionEnabled)
-                            VRageRender.MyRenderProxy.UpdateModelProperties(Render.RenderObjectIDs[0], 0, null, -1, m_emissiveNames[1], null, Color.Green, null, null, 1);
-                        else
-                            VRageRender.MyRenderProxy.UpdateModelProperties(Render.RenderObjectIDs[0], 0, null, -1, m_emissiveNames[1], null, Color.SteelBlue, null, null, 1);
-                    }
-                    else
-                    {
-                        VRageRender.MyRenderProxy.UpdateModelProperties(Render.RenderObjectIDs[0], 0, null, -1, m_emissiveNames[1], null, Color.Black, null, null, 1);
-                    }
-                    if (percentage >= 75)
-                    {
-                        if (ProductionEnabled)
-                            VRageRender.MyRenderProxy.UpdateModelProperties(Render.RenderObjectIDs[0], 0, null, -1, m_emissiveNames[2], null, Color.Green, null, null, 1);
-                        else
-                            VRageRender.MyRenderProxy.UpdateModelProperties(Render.RenderObjectIDs[0], 0, null, -1, m_emissiveNames[2], null, Color.SteelBlue, null, null, 1);
-                    }
-                    else
-                    {
-                        VRageRender.MyRenderProxy.UpdateModelProperties(Render.RenderObjectIDs[0], 0, null, -1, m_emissiveNames[2], null, Color.Black, null, null, 1);
-                    }
-                    if (percentage >= 100)
-                    {
-                        if (ProductionEnabled)
-                            VRageRender.MyRenderProxy.UpdateModelProperties(Render.RenderObjectIDs[0], 0, null, -1, m_emissiveNames[3], null, Color.Green, null, null, 1);
-                        else
-                            VRageRender.MyRenderProxy.UpdateModelProperties(Render.RenderObjectIDs[0], 0, null, -1, m_emissiveNames[3], null, Color.SteelBlue, null, null, 1);
-                    }
-                    else
-                    {
-                        VRageRender.MyRenderProxy.UpdateModelProperties(Render.RenderObjectIDs[0], 0, null, -1, m_emissiveNames[3], null, Color.Black, null, null, 1);
-                    }
-
                 }
                 else
                 {
-                    VRageRender.MyRenderProxy.UpdateModelProperties(Render.RenderObjectIDs[0], 0, null, -1, m_emissiveNames[0], null, Color.Red, null, null, 0);
-                    VRageRender.MyRenderProxy.UpdateModelProperties(Render.RenderObjectIDs[0], 0, null, -1, m_emissiveNames[1], null, Color.Black, null, null, 1);
-                    VRageRender.MyRenderProxy.UpdateModelProperties(Render.RenderObjectIDs[0], 0, null, -1, m_emissiveNames[2], null, Color.Black, null, null, 1);
-                    VRageRender.MyRenderProxy.UpdateModelProperties(Render.RenderObjectIDs[0], 0, null, -1, m_emissiveNames[3], null, Color.Black, null, null, 1);
+                    SetEmissive(Color.Red, 0.25f);
                 }
             }
             else
             {
-                VRageRender.MyRenderProxy.UpdateModelProperties(Render.RenderObjectIDs[0], 0, null, -1, m_emissiveNames[0], null, Color.Red, null, null, 0);
-                VRageRender.MyRenderProxy.UpdateModelProperties(Render.RenderObjectIDs[0], 0, null, -1, m_emissiveNames[1], null, Color.Red, null, null, 0);
-                VRageRender.MyRenderProxy.UpdateModelProperties(Render.RenderObjectIDs[0], 0, null, -1, m_emissiveNames[2], null, Color.Red, null, null, 0);
-                VRageRender.MyRenderProxy.UpdateModelProperties(Render.RenderObjectIDs[0], 0, null, -1, m_emissiveNames[3], null, Color.Red, null, null, 0);
+                SetEmissive(Color.Red, 1f);
             }
+        }
+
+        private void SetEmissive(Color color, float fill)
+        {
+            int fillCount = (int)(fill * m_emissiveNames.Length);
+
+            if (Render.RenderObjectIDs[0] != VRageRender.MyRenderProxy.RENDER_ID_UNASSIGNED && (color != m_prevEmissiveColor || fillCount != m_prevFillCount))
+            {
+                for (int i = 0; i < m_emissiveNames.Length; i++)
+                {
+                    if (i < fillCount)
+                    {
+                        VRageRender.MyRenderProxy.UpdateModelProperties(Render.RenderObjectIDs[0], 0, null, -1, m_emissiveNames[i], null, color, null, null, 1f);
+                    }
+                    else
+                    {
+                        VRageRender.MyRenderProxy.UpdateModelProperties(Render.RenderObjectIDs[0], 0, null, -1, m_emissiveNames[i], null, Color.Black, null, null, 0f);
+                    }
+                }
+                m_prevEmissiveColor = color;
+                m_prevFillCount = fillCount;
+            }
+        }
+
+        public override void OnModelChange()
+        {
+            base.OnModelChange();
+
+            m_prevFillCount = -1;
         }
 
         private float ComputeMaxPowerOutput()
