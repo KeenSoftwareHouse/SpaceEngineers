@@ -252,7 +252,7 @@ namespace Sandbox.Game.Gui
                 {
                     foreach (var definition in MyDefinitionManager.Static.GetVoxelMapStorageDefinitions())
                     {
-                        m_asteroidCombobox.AddItem((int)definition.Id.SubtypeId, definition.Id.SubtypeId);
+                        m_asteroidCombobox.AddItem((int)definition.Id.SubtypeId, definition.Id.SubtypeId.ToString());
                     }
                     m_asteroidCombobox.ItemSelected += OnAsteroidCombobox_ItemSelected;
                     m_asteroidCombobox.SortItemsByValueText();
@@ -931,7 +931,7 @@ namespace Sandbox.Game.Gui
             {
                 foreach (var definition in MyDefinitionManager.Static.GetVoxelMaterialDefinitions())
                 {
-                    m_oreCombobox.AddItem((int)definition.Id.SubtypeId, definition.Id.SubtypeId);
+                    m_oreCombobox.AddItem((int)definition.Id.SubtypeId, definition.Id.SubtypeId.ToString());
                 }
                 m_oreCombobox.ItemSelected += OnOreCombobox_ItemSelected;
                 m_oreCombobox.SortItemsByValueText();

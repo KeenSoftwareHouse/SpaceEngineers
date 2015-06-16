@@ -64,7 +64,7 @@ namespace Sandbox.Game.Entities.Cube
                 }
             }
 
-            public void Get(int index, out Color color, out MyStringId edgeModel, out Base27Directions.Direction normal0, out Base27Directions.Direction normal1)
+            public void Get(int index, out Color color, out MyStringHash edgeModel, out Base27Directions.Direction normal0, out Base27Directions.Direction normal1)
             {
                 fixed (uint* i = m_data)
                 fixed (byte* d = m_data2)
@@ -73,12 +73,12 @@ namespace Sandbox.Game.Entities.Cube
                     color = new Color(i[index]);
                     normal0 = (Base27Directions.Direction)color.A;
                     normal1 = (Base27Directions.Direction)d[index];
-                    edgeModel = MyStringId.TryGet(edges[index]);
-                    Debug.Assert(edges[index] == 0 || edgeModel != MyStringId.NullOrEmpty);
+                    edgeModel = MyStringHash.TryGet(edges[index]);
+                    Debug.Assert(edges[index] == 0 || edgeModel != MyStringHash.NullOrEmpty);
                 }
             }
 
-            public bool Set(int index, Color value, MyStringId edgeModel, Base27Directions.Direction normal0, Base27Directions.Direction normal1)
+            public bool Set(int index, Color value, MyStringHash edgeModel, Base27Directions.Direction normal0, Base27Directions.Direction normal1)
             {
                 fixed (uint* i = m_data)
                 fixed (byte* d = m_data2)
@@ -145,7 +145,7 @@ namespace Sandbox.Game.Entities.Cube
             m_data.EdgeType = edgeType;
         }
 
-        public bool AddInstance(Vector3 blockPos, Color color, MyStringId edgeModel, Base27Directions.Direction normal0, Base27Directions.Direction normal1)
+        public bool AddInstance(Vector3 blockPos, Color color, MyStringHash edgeModel, Base27Directions.Direction normal0, Base27Directions.Direction normal1)
         {
             return m_data.Set(GetIndex(ref blockPos), color, edgeModel, normal0, normal1);
         }
@@ -177,7 +177,7 @@ namespace Sandbox.Game.Entities.Cube
             }
         }
 
-        public bool GetNormalInfo(int index, out Color color, out MyStringId edgeModel, out Base27Directions.Direction normal0, out Base27Directions.Direction normal1)
+        public bool GetNormalInfo(int index, out Color color, out MyStringHash edgeModel, out Base27Directions.Direction normal0, out Base27Directions.Direction normal1)
         {
             m_data.Get(index, out color, out edgeModel, out normal0, out normal1);
             color.A = 0;

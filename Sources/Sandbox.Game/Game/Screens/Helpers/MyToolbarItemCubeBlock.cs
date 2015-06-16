@@ -71,7 +71,26 @@ namespace Sandbox.Game.Screens.Helpers
             if (MyCubeBuilder.Static==null)
                 return ChangeInfo.None;
             var blockDefinition = MyCubeBuilder.Static.IsActivated ? MyCubeBuilder.Static.ToolbarBlockDefinition : null;
-            WantsToBeSelected = (MyCubeBuilder.Static.BlockCreationIsActivated || MyCubeBuilder.Static.MultiBlockCreationIsActivated) && blockDefinition != null && blockDefinition.BlockPairName == (this.Definition as MyCubeBlockDefinition).BlockPairName;
+            if ((MyCubeBuilder.Static.BlockCreationIsActivated || MyCubeBuilder.Static.MultiBlockCreationIsActivated) && blockDefinition != null && (!MyFakes.ENABLE_BATTLE_SYSTEM || !MySession.Static.Battle))
+            {
+                var blockDef = (this.Definition as Sandbox.Definitions.MyCubeBlockDefinition);
+                if (blockDefinition.BlockPairName == blockDef.BlockPairName)
+                {
+                    WantsToBeSelected = true;
+                }
+                else if (blockDef.BlockStages != null && blockDef.BlockStages.Contains(blockDefinition.Id))
+                {
+                    WantsToBeSelected = true;
+                }
+                else
+                {
+                    WantsToBeSelected = false;
+                }
+            }
+            else
+            {
+                WantsToBeSelected = false;
+            }
             return ChangeInfo.None;
         }
     }

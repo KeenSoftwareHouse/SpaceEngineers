@@ -1227,6 +1227,9 @@ namespace Sandbox.Game.Gui
 
             if (!MyDebugDrawSettings.ENABLE_DEBUG_DRAW) return;
 
+            var bb = MyCubeBuilder.Static.GetBuildBoundingBox();
+            VRageRender.MyRenderProxy.DebugDrawOBB(bb, Color.Red, 0.25f, false, false);
+
             var src = MyScreenManager.GetScreenWithFocus();
 
             if (MyScreenManager.GetScreenWithFocus() == null || MyScreenManager.GetScreenWithFocus().DebugNamePath != "MyGuiScreenGamePlay") return;

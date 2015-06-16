@@ -26,6 +26,7 @@ using SteamSDK;
 using VRage;
 using Sandbox.Game.Localization;
 using VRage.Library.Utils;
+using VRage.Audio;
 
 #endregion
 
@@ -177,7 +178,7 @@ namespace Sandbox.Game.Multiplayer
             public long EntityId;
             public long GetEntityId() { return EntityId; }
 
-            public MyStringId SoundId;
+            public MyCueId SoundId;
 
             public override string ToString()
             {
@@ -565,7 +566,7 @@ namespace Sandbox.Game.Multiplayer
 
         #region Chat
         [ProtoContract]
-        [MessageId(7610, P2PMessageEnum.Reliable)]
+        [MessageId(7620, P2PMessageEnum.Reliable)]
         struct SendPlayerMessageMsg : IEntityMessage
         {
             [ProtoMember]
@@ -583,7 +584,7 @@ namespace Sandbox.Game.Multiplayer
         }
 
         [ProtoContract]
-        [MessageId(7611, P2PMessageEnum.Reliable)]
+        [MessageId(7621, P2PMessageEnum.Reliable)]
         struct SendNewFactionMessageMsg : IEntityMessage
         {
             [ProtoMember]
@@ -599,7 +600,7 @@ namespace Sandbox.Game.Multiplayer
         }
 
         [ProtoContract]
-        [MessageId(7613, P2PMessageEnum.Reliable)]
+        [MessageId(7623, P2PMessageEnum.Reliable)]
         struct ConfirmFactionMessageMsg : IEntityMessage
         {
             [ProtoMember]
@@ -621,7 +622,7 @@ namespace Sandbox.Game.Multiplayer
         }
 
         [ProtoContract]
-        [MessageId(7614, P2PMessageEnum.Reliable)]
+        [MessageId(7624, P2PMessageEnum.Reliable)]
         struct SendGlobalMessageMsg : IEntityMessage
         {
             [ProtoMember]
@@ -1024,7 +1025,7 @@ namespace Sandbox.Game.Multiplayer
             }
         }
 
-        internal void PlaySecondarySound(MyStringId soundId)
+        internal void PlaySecondarySound(MyCueId soundId)
         {
             var msg = new PlaySecondarySoundMsg()
             {

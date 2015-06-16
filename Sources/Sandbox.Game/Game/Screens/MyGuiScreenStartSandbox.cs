@@ -183,7 +183,7 @@ namespace Sandbox.Game.Gui
                         callback: delegate(MyGuiScreenMessageBox.ResultEnum val)
                         {
                             if (val == MyGuiScreenMessageBox.ResultEnum.YES)
-                                MyGuiSandbox.OpenUrlWithFallback(MySteamConstants.URL_GUIDE_DEFAULT, "Steam Guide");
+                                MyGuiSandbox.OpenUrlWithFallback(MySteamConstants.URL_GUIDE_BATTLE, "Steam Guide");
                             else
                                 MyGuiSandbox.AddScreen(MyGuiSandbox.CreateScreen(MyPerGameSettings.GUI.BattleScreen));
                         }));

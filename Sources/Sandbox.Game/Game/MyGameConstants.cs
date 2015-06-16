@@ -211,6 +211,7 @@ namespace Sandbox.Game
     {
         public const int GUI_DISPLAY_MAX_DECIMALS = 2;
         public const string GUI_DISPLAY_FORMAT = "N";
+        public const string GUI_DISPLAY_VOLUME_FORMAT = "N0";
     }
 
     public static class MyShipGrinderConstants

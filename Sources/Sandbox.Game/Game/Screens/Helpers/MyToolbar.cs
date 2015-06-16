@@ -428,6 +428,10 @@ namespace Sandbox.Game.Screens.Helpers
         {
             if (!m_items.IsValidIndex(i))
                 return;
+
+			var definitionItem = item as MyToolbarItemDefinition;
+			if (definitionItem != null && !definitionItem.Definition.AvailableInSurvival && MySession.Static.SurvivalMode)
+				return;
             
             if (item != null && !item.AllowedInToolbarType(m_toolbarType))
                 return;

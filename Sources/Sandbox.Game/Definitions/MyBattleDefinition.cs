@@ -13,6 +13,7 @@ namespace Sandbox.Definitions
         public MyObjectBuilder_Toolbar DefaultToolbar;
         public MyDefinitionId[] SpawnBlocks;
         public float DefenderEntityDamage;
+        public string[] DefaultBlueprints;
 
         protected override void Init(MyObjectBuilder_DefinitionBase builder)
         {
@@ -21,6 +22,7 @@ namespace Sandbox.Definitions
 
             DefaultToolbar = ob.DefaultToolbar;
             DefenderEntityDamage = ob.DefenderEntityDamage;
+            DefaultBlueprints = ob.DefaultBlueprints;
 
             if (ob.SpawnBlocks != null && ob.SpawnBlocks.Length > 0)
             {
@@ -35,6 +37,7 @@ namespace Sandbox.Definitions
         {
             DefaultToolbar = src.DefaultToolbar;
             DefenderEntityDamage = src.DefenderEntityDamage;
+            DefaultBlueprints = src.DefaultBlueprints;
 
             if (src.SpawnBlocks != null && src.SpawnBlocks.Length > 0)
             {

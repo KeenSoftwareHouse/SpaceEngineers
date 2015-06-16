@@ -153,9 +153,6 @@ namespace Sandbox.Game.Entities
             m_invGridWorldMatrix = CurrentGrid != null ? MatrixD.Invert(CurrentGrid.WorldMatrix) : MatrixD.Identity;
         }
 
-        public abstract bool CanStartConstruction(MyCharacter character);
-        public abstract bool AddConstruction(MyCharacter character);
-
         protected static void AddFastBuildModelWithSubparts(ref MatrixD matrix, List<MatrixD> matrices, List<string> models, MyCubeBlockDefinition blockDefinition)
         {
             if (string.IsNullOrEmpty(blockDefinition.Model))

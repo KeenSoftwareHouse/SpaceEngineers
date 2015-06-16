@@ -163,6 +163,7 @@ namespace Sandbox.Game.Entities
 				var positionAndOrientation = new MyPositionAndOrientation(position, Vector3D.Normalize(forward), Vector3D.Up);
 
 				MyObjectBuilder_AreaMarker objectBuilder = (MyObjectBuilder_AreaMarker)MyObjectBuilderSerializer.CreateNewObject(definition.Id);
+                objectBuilder.PersistentFlags = MyPersistentEntityFlags2.Enabled | MyPersistentEntityFlags2.InScene;
 				objectBuilder.PositionAndOrientation = positionAndOrientation;
 
 				if (objectBuilder.IsSynced)

@@ -302,13 +302,16 @@ namespace Sandbox.Engine.Multiplayer
                     MyTrace.Send(TraceWindow.Multiplayer, "Player entered");
                     Peer2Peer.AcceptSession(changedUser);
 
-                    RaiseClientJoined(changedUser);
+                    // When some clients connect at the same time then some of them can have already added clients 
+                    // (see function MySyncLayer.RegisterClientEvents which registers all Members in Lobby).
+                    if (Sync.Clients == null || !Sync.Clients.HasClient(changedUser))
+                        RaiseClientJoined(changedUser);
 
                     if (MySandboxGame.IsGameReady && changedUser != ServerId)
                     {
                         // Player is able to connect to the battle which already started - player is then kicked and we do not want to show connected message in HUD.
                         bool showMsg = true;
-                        if (MyFakes.ENABLE_BATTLE_SYSTEM && MySession.Static.Battle && !BattleCanBeJoined)
+                        if (MyFakes.ENABLE_BATTLE_SYSTEM && MySession.Static != null && MySession.Static.Battle && !BattleCanBeJoined)
                             showMsg = false;
 
                         if (showMsg)
@@ -688,6 +691,16 @@ namespace Sandbox.Engine.Multiplayer
         public static bool GetLobbyBattleCanBeJoined(Lobby lobby)
         {
             return GetLobbyBool(MyMultiplayer.BattleCanBeJoinedTag, lobby, false);
+        }
+
+        public static long GetLobbyBattleFaction1Id(Lobby lobby)
+        {
+            return GetLobbyLong(MyMultiplayer.BattleFaction1IdTag, lobby, 0);
+        }
+
+        public static long GetLobbyBattleFaction2Id(Lobby lobby)
+        {
+            return GetLobbyLong(MyMultiplayer.BattleFaction2IdTag, lobby, 0);
         }
 
         public override string GetMemberName(ulong steamUserID)

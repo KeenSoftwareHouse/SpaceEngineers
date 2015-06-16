@@ -209,7 +209,7 @@ void bloom_initial(
 	[unroll]
 	for(i=0; i< 4; i++) {
 		float3 color = float3(red[i], green[i], blue[i]);
-		result.xyz += exposed_color(color, frame_.luminance_exposure + frame_.bloom_exposure);
+		result.xyz += max(exposed_color(color, frame_.luminance_exposure + frame_.bloom_exposure), 0); // nans sometimes
 	}
 	
 	result /= 4.f;

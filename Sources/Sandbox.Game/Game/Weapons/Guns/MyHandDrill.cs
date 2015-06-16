@@ -69,6 +69,7 @@ namespace Sandbox.Game.Weapons
         }
 
         public MyCharacter Owner { get { return m_owner; } }
+		public bool IsDeconstructor { get { return false; } }
 
         public bool EnabledInWorldRules
         {
