@@ -454,7 +454,16 @@ namespace VRageRender
                     //    instancing.UpdateGeneric(rMessage.InstanceData, rMessage.Capacity);
                     //}
 
-                    MyInstancing.UpdateGeneric(MyInstancing.Get(rMessage.ID), rMessage.InstanceData, rMessage.Capacity);
+                    var handle = MyInstancing.Get(rMessage.ID);
+
+                    if (handle != InstancingId.NULL)
+                    {
+                        MyInstancing.UpdateGeneric(handle, rMessage.InstanceData, rMessage.Capacity);
+                    }
+                    else
+                    {
+                        Debug.Assert(handle != InstancingId.NULL, "No instance buffer with ID " + rMessage.ID);
+                    }
 
                     rMessage.InstanceData.Clear();
 
@@ -470,7 +479,17 @@ namespace VRageRender
                     //{
                     //    instancing.UpdateCube(rMessage.InstanceData, rMessage.Capacity);
                     //}
-                    MyInstancing.UpdateCube(MyInstancing.Get(rMessage.ID), rMessage.InstanceData, rMessage.Capacity);
+
+                    var handle = MyInstancing.Get(rMessage.ID);
+
+                    if (handle != InstancingId.NULL)
+                    {
+                        MyInstancing.UpdateCube(MyInstancing.Get(rMessage.ID), rMessage.InstanceData, rMessage.Capacity);
+                    }
+                    else
+                    {
+                        Debug.Assert(handle != InstancingId.NULL, "No instance buffer with ID " + rMessage.ID);
+                    }
 
                     rMessage.InstanceData.Clear();
 

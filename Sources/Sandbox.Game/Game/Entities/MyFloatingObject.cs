@@ -41,7 +41,7 @@ namespace Sandbox.Game.Entities
     public class MyFloatingObject : MyEntity, IMyUseObject, IMyUsableEntity, IMyDestroyableObject, IMyFloatingObject
     {
         static MySoundPair TAKE_ITEM_SOUND = new MySoundPair("PlayTakeItem");
-        static MyStringId m_explosives = MyStringId.GetOrCompute("Explosives");
+        static MyStringHash m_explosives = MyStringHash.GetOrCompute("Explosives");
 		static public MyObjectBuilder_Ore ScrapBuilder = MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_Ore>("Scrap");
 
         private StringBuilder m_displayedText = new StringBuilder();

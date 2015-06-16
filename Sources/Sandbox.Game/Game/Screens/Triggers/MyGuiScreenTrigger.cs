@@ -15,7 +15,7 @@ namespace Sandbox.Game.Screens.Triggers
     public class MyGuiScreenTrigger : MyGuiScreenBase
     {
         MyGuiControlLabel m_textboxName;
-        MyGuiControlTextbox m_textbox;
+        protected MyGuiControlTextbox m_textboxMessage;
         protected MyGuiControlButton m_okButton, m_cancelButton;
         protected MyTrigger m_trigger;
         protected readonly Vector2 MIDDLE_PART_ORIGIN=new Vector2(0,0.17f);//you can use this to put items into right place in the middle
@@ -33,13 +33,13 @@ namespace Sandbox.Game.Screens.Triggers
             m_itemPos.Y += m_textboxName.Size.Y + VERTICAL_OFFSET;
 
             m_trigger = trg;
-            m_textbox = new MyGuiControlTextbox(
+            m_textboxMessage = new MyGuiControlTextbox(
                 position: m_itemPos,
                 defaultText: trg.Message,
                 maxLength: 85);
-            m_itemPos.Y += m_textbox.Size.Y + VERTICAL_OFFSET + 0.2f;
+            m_itemPos.Y += m_textboxMessage.Size.Y + VERTICAL_OFFSET + 0.2f;
             //line to the left of textbox
-            m_textboxName.Position = m_textboxName.Position-new Vector2(m_textbox.Size.X / 2 , 0);
+            m_textboxName.Position = m_textboxName.Position-new Vector2(m_textboxMessage.Size.X / 2 , 0);
 
             Vector2 buttonOrigin = new Vector2(0f, Size.Value.Y * 0.4f);
             Vector2 buttonOffset = new Vector2(0.01f, 0f); 
@@ -57,7 +57,7 @@ namespace Sandbox.Game.Screens.Triggers
             m_cancelButton.Position = buttonOrigin + buttonOffset;
 
             Controls.Add(m_textboxName);
-            Controls.Add(m_textbox);
+            Controls.Add(m_textboxMessage);
             Controls.Add(m_okButton);
             Controls.Add(m_cancelButton);
         }
@@ -69,7 +69,7 @@ namespace Sandbox.Game.Screens.Triggers
 
         protected virtual void OnOkButtonClick(MyGuiControlButton sender)
         {
-            m_trigger.Message = m_textbox.Text;
+            m_trigger.Message = m_textboxMessage.Text;
             CloseScreen();
         }
 
@@ -91,6 +91,18 @@ namespace Sandbox.Game.Screens.Triggers
             }
             return val;
         }
-
+        protected int? StrToInt(string str)
+        {
+            int val;
+            try
+            {
+                val = int.Parse(str, System.Globalization.CultureInfo.InvariantCulture);
+            }
+            catch (Exception)
+            {
+                return null;
+            }
+            return val;
+        }
     }
 }

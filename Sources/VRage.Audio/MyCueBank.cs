@@ -79,11 +79,11 @@ namespace VRage.Audio
 
         XAudio2 m_audioEngine;
 
-        Dictionary<MyStringId, MySoundData> m_cues;
+        Dictionary<MyCueId, MySoundData> m_cues;
 
         MyWaveBank m_waveBank;
         Dictionary<MyWaveFormat, MySourceVoicePool> m_voicePools;
-        Dictionary<MyStringId,Dictionary<MyStringId, MyStringId>> m_musicTransitionCues;
+        Dictionary<MyStringId, Dictionary<MyStringId, MyCueId>> m_musicTransitionCues;
         List<MyStringId> m_categories;
 
         bool m_applyReverb;
@@ -97,7 +97,7 @@ namespace VRage.Audio
             m_audioEngine = audioEngine;
             if (cues.Count > 0)
             {
-                m_cues = new Dictionary<MyStringId, MySoundData>(cues.Count, MyStringId.Comparer);
+                m_cues = new Dictionary<MyCueId, MySoundData>(cues.Count, MyCueId.Comparer);
                 InitTransitionCues();
                 InitCues(cues);
                 InitCategories();
@@ -130,10 +130,10 @@ namespace VRage.Audio
             foreach (var cue in cues)
             {
                 Debug.Assert(m_cues.Where((v) => v.Value.SubtypeId == cue.SubtypeId).Count() == 0, "Cue with this name was already added.");
-                var id = cue.SubtypeId;
+                var id = new MyCueId(cue.SubtypeId);
                 m_cues[id] = cue;
                 if (cue.Category == MUSIC_CATEGORY)
-                    AddMusicCue(cue.MusicTrack.TransitionCategory, cue.MusicTrack.MusicCategory, cue.SubtypeId);
+                    AddMusicCue(cue.MusicTrack.TransitionCategory, cue.MusicTrack.MusicCategory, id);
             }
         }
 
@@ -177,7 +177,7 @@ namespace VRage.Audio
 
         private void InitTransitionCues()
         {
-            m_musicTransitionCues = new Dictionary<MyStringId, Dictionary<MyStringId,MyStringId>>();
+            m_musicTransitionCues = new Dictionary<MyStringId, Dictionary<MyStringId, MyCueId>>(MyStringId.Comparer);
         }
 
         private int GetNumberOfSounds()
@@ -185,13 +185,13 @@ namespace VRage.Audio
             return m_cues.Count;
         }
 
-        private void AddMusicCue(MyStringId musicTransition, MyStringId category, MyStringId cueEnum)
+        private void AddMusicCue(MyStringId musicTransition, MyStringId category, MyCueId cueId)
         {
             if (!m_musicTransitionCues.ContainsKey(musicTransition))
             {
-                m_musicTransitionCues[musicTransition] = new Dictionary<MyStringId, MyStringId>();
+                m_musicTransitionCues[musicTransition] = new Dictionary<MyStringId, MyCueId>(MyStringId.Comparer);
             }
-            m_musicTransitionCues[musicTransition].Add(category, cueEnum);
+            m_musicTransitionCues[musicTransition].Add(category, cueId);
         }
 
         public void Update()
@@ -252,22 +252,22 @@ namespace VRage.Audio
             return m_musicTransitionCues.ContainsKey(transitionEnum) && (category == MyStringId.NullOrEmpty || m_musicTransitionCues[transitionEnum].ContainsKey(category));
         }
 
-        public MyStringId GetTransitionCue(MyStringId transitionEnum, MyStringId category)
+        public MyCueId GetTransitionCue(MyStringId transitionEnum, MyStringId category)
         {
             return m_musicTransitionCues[transitionEnum][category];
         }
 
-        public MySoundData GetCue(MyStringId cue)
+        public MySoundData GetCue(MyCueId cueId)
         {
             //Debug.Assert(m_cues.ContainsKey(cue));
-            if (!m_cues.ContainsKey(cue) && cue != MyStringId.NullOrEmpty)
-                MyLog.Default.WriteLine("Cue was not found: " + cue, LoggingOptions.AUDIO);
+            if (!m_cues.ContainsKey(cueId) && cueId.Hash != MyStringHash.NullOrEmpty)
+                MyLog.Default.WriteLine("Cue was not found: " + cueId, LoggingOptions.AUDIO);
             MySoundData result = null;
-            m_cues.TryGetValue(cue, out result);
+            m_cues.TryGetValue(cueId, out result);
             return result;
         }
 
-        public Dictionary<MyStringId, MySoundData>.ValueCollection CueDefinitions { get { return m_cues.Values; } }
+        public Dictionary<MyCueId, MySoundData>.ValueCollection CueDefinitions { get { return m_cues.Values; } }
 
         public List<MyStringId> GetCategories()
         {
@@ -312,7 +312,7 @@ namespace VRage.Audio
             return null;
         }
 
-        internal MySourceVoice GetVoice(MyStringId hashedCue, MyInMemoryWave wave, CuePart part = CuePart.Start)
+        internal MySourceVoice GetVoice(MyCueId cueId, MyInMemoryWave wave, CuePart part = CuePart.Start)
         {
             MyWaveFormat myWaveFormat = new MyWaveFormat()
             {
@@ -326,7 +326,7 @@ namespace VRage.Audio
             if (voice == null)
                 return null;
             voice.Flush();
-            voice.SubmitSourceBuffer(hashedCue, wave, part);
+            voice.SubmitSourceBuffer(cueId, wave, part);
 
             if (m_applyReverb)
             {
@@ -340,9 +340,9 @@ namespace VRage.Audio
             return voice;
         }
 
-        internal MySourceVoice GetVoice(MyStringId hashedCue, MySoundDimensions type = MySoundDimensions.D2)
+        internal MySourceVoice GetVoice(MyCueId cueId, MySoundDimensions type = MySoundDimensions.D2)
         {
-            MySoundData cue = GetCue(hashedCue);
+            MySoundData cue = GetCue(cueId);
             if ((cue == null) || (cue.Waves == null) || (cue.Waves.Count == 0))
                 return null;
 
@@ -357,7 +357,7 @@ namespace VRage.Audio
             if (wave == null)
                 return null;
 
-            MySourceVoice voice = GetVoice(hashedCue, wave, part);
+            MySourceVoice voice = GetVoice(cueId, wave, part);
             if (voice == null)
                 return null;
 
@@ -368,18 +368,18 @@ namespace VRage.Audio
                 {
                     Debug.Assert(voice.Owner.WaveFormat.Encoding == wave.WaveFormat.Encoding);
                     if (voice.Owner.WaveFormat.Encoding == wave.WaveFormat.Encoding)
-                        voice.SubmitSourceBuffer(hashedCue, wave, CuePart.Loop);
+                        voice.SubmitSourceBuffer(cueId, wave, CuePart.Loop);
                     else
-                        MyLog.Default.WriteLine(string.Format("Inconsistent encodings: '{0}', got '{1}', expected '{2}', part = '{3}'", hashedCue, wave.WaveFormat.Encoding, voice.Owner.WaveFormat.Encoding, CuePart.Loop));
+                        MyLog.Default.WriteLine(string.Format("Inconsistent encodings: '{0}', got '{1}', expected '{2}', part = '{3}'", cueId, wave.WaveFormat.Encoding, voice.Owner.WaveFormat.Encoding, CuePart.Loop));
                 }
                 wave = GetWave(cue, type, waveNumber, CuePart.End);
                 if (wave != null)
                 {
                     Debug.Assert(voice.Owner.WaveFormat.Encoding == wave.WaveFormat.Encoding);
                     if (voice.Owner.WaveFormat.Encoding == wave.WaveFormat.Encoding)
-                        voice.SubmitSourceBuffer(hashedCue, wave, CuePart.End);
+                        voice.SubmitSourceBuffer(cueId, wave, CuePart.End);
                     else
-                        MyLog.Default.WriteLine(string.Format("Inconsistent encodings: '{0}', got '{1}', expected '{2}', part = '{3}'", hashedCue, wave.WaveFormat.Encoding, voice.Owner.WaveFormat.Encoding, CuePart.End));
+                        MyLog.Default.WriteLine(string.Format("Inconsistent encodings: '{0}', got '{1}', expected '{2}', part = '{3}'", cueId, wave.WaveFormat.Encoding, voice.Owner.WaveFormat.Encoding, CuePart.End));
                 }
             }
             return voice;

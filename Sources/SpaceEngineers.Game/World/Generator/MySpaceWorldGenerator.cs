@@ -121,30 +121,8 @@ namespace SpaceEngineers.Game.World.Generator
 
         static void MyWorldGenerator_AfterGenerate(ref MyWorldGenerator.Args args)
         {
-            AssignMedRoomsToServer();
-
             if (MyPerGameSettings.EnablePregeneratedAsteroidHack)
                 LoadPregeneratedAsteroids(ref args);
-        }
-
-        private static void AssignMedRoomsToServer()
-        {
-            if (MySession.LocalHumanPlayer == null) return;
-
-            List<MyCubeGrid> cubeGrids = MyEntities.GetEntities().OfType<MyCubeGrid>().ToList();
-
-            foreach (var grid in cubeGrids)
-            {
-                foreach (var slimBlock in grid.GetBlocks())
-                {
-                    MyMedicalRoom medicalRoom = slimBlock.FatBlock as MyMedicalRoom;
-                    if (medicalRoom != null)
-                    {
-                        medicalRoom.IDModule.Owner = MySession.LocalHumanPlayer.Identity.IdentityId;
-                        medicalRoom.IDModule.ShareMode = MyOwnershipShareModeEnum.Faction;
-                    }
-                }
-            }
         }
 
         // Backward compatibility method only used when the procedurally generated asteroids were not working

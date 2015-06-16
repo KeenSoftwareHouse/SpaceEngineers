@@ -11,6 +11,7 @@ using Sandbox.Game.World;
 using Sandbox.Graphics.GUI;
 using System;
 using VRage;
+using VRage.Audio;
 using VRage.Input;
 using VRage.Utils;
 using VRageMath;
@@ -118,7 +119,7 @@ namespace Sandbox.Game.Components
             }
         }
 
-        public void Throw(MyObjectBuilder_CubeGrid grid, Vector3D position, Vector3D linearVelocity, float mass, MyStringId throwSound)
+        public void Throw(MyObjectBuilder_CubeGrid grid, Vector3D position, Vector3D linearVelocity, float mass, MyCueId throwSound)
         {
             var entity = MyEntities.CreateFromObjectBuilder(grid);
             if (entity == null)
@@ -136,7 +137,7 @@ namespace Sandbox.Game.Components
 
             MyEntities.Add(entity);
 
-            if (throwSound != MyStringId.NullOrEmpty)
+            if (!throwSound.IsNull)
             {
                 var emitter = MyAudioComponent.TryGetSoundEmitter();
                 if (emitter != null)

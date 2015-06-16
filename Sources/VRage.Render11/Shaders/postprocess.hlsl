@@ -18,3 +18,6 @@ void copy(PostprocessVertex input, out float4 output : SV_Target0)
 	//#endif
 }
 
+void clear_alpha(PostprocessVertex input, out float4 output : SV_Target0) {
+	output = float4(0,0,0,1);
+}

@@ -6,6 +6,13 @@ using System.Text;
 
 namespace VRage.Utils
 {
+    /// <summary>
+    /// Generates unique IDs for strings. When used as key for hash tables (Dictionary or HashSet)
+    /// always pass in MyStringId.Comparer, otherwise lookups will allocate memory! Never serialize to network or disk!
+    /// 
+    /// IDs are created sequentially as they get requested so two IDs might be different between sessions or clients and
+    /// server. You can safely use ToString() as it will not allocate.
+    /// </summary>
     [ProtoBuf.ProtoContract]
     public struct MyStringId
     {
@@ -14,16 +21,16 @@ namespace VRage.Utils
         [ProtoBuf.ProtoMember]
         private readonly int m_id;
 
-        private MyStringId(int hash)
+        private MyStringId(int id)
         {
-            m_id = hash;
+            m_id = id;
         }
 
         public override string ToString()
         {
             using (m_lock.AcquireSharedUsing())
             {
-                return m_stringById[this];
+                return m_idToString[this];
             }
         }
 
@@ -70,19 +77,18 @@ namespace VRage.Utils
         #endregion
 
         private static readonly FastResourceLock m_lock;
-        private static Dictionary<string, MyStringId> m_idByString;
-        private static Dictionary<MyStringId, string> m_stringById;
+        private static Dictionary<string, MyStringId> m_stringToId;
+        private static Dictionary<MyStringId, string> m_idToString;
 
         static MyStringId()
         {
             m_lock = new FastResourceLock();
-            m_idByString = new Dictionary<string, MyStringId>(50);
-            m_stringById = new Dictionary<MyStringId, string>(50, Comparer);
+            m_stringToId = new Dictionary<string, MyStringId>(50);
+            m_idToString = new Dictionary<MyStringId, string>(50, Comparer);
 
             NullOrEmpty = GetOrCompute("");
             Debug.Assert(NullOrEmpty == default(MyStringId));
-            Debug.Assert(NullOrEmpty.m_id == MyUtils.GetHash(null, 0));
-            Debug.Assert(NullOrEmpty.m_id == MyUtils.GetHash("", 0));
+            Debug.Assert(NullOrEmpty.m_id == 0);
         }
 
         public static MyStringId GetOrCompute(string str)
@@ -95,11 +101,11 @@ namespace VRage.Utils
                 {
                     result = NullOrEmpty;
                 }
-                else if (!m_idByString.TryGetValue(str, out result))
+                else if (!m_stringToId.TryGetValue(str, out result))
                 {
-                    result = new MyStringId(MyUtils.GetHash(str, 0));
-                    m_stringById.Add(result, str);
-                    m_idByString.Add(str, result);
+                    result = new MyStringId(m_stringToId.Count);
+                    m_idToString.Add(result, str);
+                    m_stringToId.Add(str, result);
                 }
             }
 
@@ -110,7 +116,7 @@ namespace VRage.Utils
         {
             using (m_lock.AcquireSharedUsing())
             {
-                return m_idByString[str];
+                return m_stringToId[str];
             }
         }
 
@@ -118,7 +124,7 @@ namespace VRage.Utils
         {
             using (m_lock.AcquireSharedUsing())
             {
-                return m_idByString.TryGetValue(str, out id);
+                return m_stringToId.TryGetValue(str, out id);
             }
         }
 
@@ -127,23 +133,8 @@ namespace VRage.Utils
             using (m_lock.AcquireSharedUsing())
             {
                 MyStringId id;
-                m_idByString.TryGetValue(str, out id);
+                m_stringToId.TryGetValue(str, out id);
                 return id;
-            }
-        }
-
-        /// <summary>
-        /// Think HARD before using this. Usually you should be able to use MyStringId as it is without conversion to int.
-        /// </summary>
-        public static MyStringId TryGet(int id)
-        {
-            using (m_lock.AcquireSharedUsing())
-            {
-                MyStringId stringId = new MyStringId(id);
-                if (m_stringById.ContainsKey(stringId))
-                    return stringId;
-                else
-                    return MyStringId.NullOrEmpty;
             }
         }
 
@@ -151,7 +142,7 @@ namespace VRage.Utils
         {
             using (m_lock.AcquireSharedUsing())
             {
-                return m_stringById.ContainsKey(id);
+                return m_idToString.ContainsKey(id);
             }
         }
     }

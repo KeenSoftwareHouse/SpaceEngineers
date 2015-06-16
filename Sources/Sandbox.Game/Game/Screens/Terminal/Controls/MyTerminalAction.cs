@@ -12,7 +12,7 @@ using VRage.Collections;
 
 namespace Sandbox.Game.Gui
 {
-    partial class MyTerminalAction<TBlock> : ITerminalAction
+    public partial class MyTerminalAction<TBlock> : ITerminalAction
         where TBlock : MyTerminalBlock
     {
         private readonly string m_id;

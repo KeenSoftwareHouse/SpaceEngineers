@@ -99,11 +99,15 @@ namespace VRage
 
         public static explicit operator MyFixedPoint(float d)
         {
+            if ((d * Divider + 0.5f) >= (float) long.MaxValue) return MyFixedPoint.MaxValue;
+            if ((d * Divider + 0.5f) <= (float) long.MinValue) return MyFixedPoint.MinValue;
             return new MyFixedPoint((long)(d * Divider + 0.5f));
         }
 
         public static explicit operator MyFixedPoint(double d)
         {
+            if ((d * Divider + 0.5) >= (double) long.MaxValue) return MyFixedPoint.MaxValue;
+            if ((d * Divider + 0.5) <= (double) long.MinValue) return MyFixedPoint.MinValue;
             return new MyFixedPoint((long)(d * Divider + 0.5));
         }
 

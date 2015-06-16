@@ -11,7 +11,7 @@ using VRageMath;
 
 namespace Sandbox.Game.Entities.Cube
 {
-    class MyProjectorClipboard : MyGridClipboard
+    public class MyProjectorClipboard : MyGridClipboard
     {
         private MyProjector m_projector;
 
@@ -21,13 +21,19 @@ namespace Sandbox.Game.Entities.Cube
         {
             MyDebug.AssertDebug(projector != null);
             m_projector = projector;
+            m_calculateVelocity = false;
         }
 
-        protected override bool HasPreviewBBox
+        private bool m_hasPreviewBBox = false;
+        public override bool HasPreviewBBox
         {
             get
             {
-                return false;
+                return m_hasPreviewBBox;
+            }
+            set
+            {
+                m_hasPreviewBBox = value;
             }
         }
 
@@ -43,6 +49,11 @@ namespace Sandbox.Game.Entities.Cube
         {
             CopiedGrids.Clear();
             m_copiedGridOffsets.Clear();
+        }
+
+        protected override void TestBuildingMaterials()
+        {
+            m_characterHasEnoughMaterials = true;
         }
 
         public bool HasGridsLoaded()
@@ -70,21 +81,17 @@ namespace Sandbox.Game.Entities.Cube
             // Current position of the placed entity is either simple translation or
             // it can be calculated by raycast, if we want to snap to surfaces
             m_pastePosition = m_projector.WorldMatrix.Translation;
+        }
 
-            //if (AnyCopiedGridIsStatic)
-            //{
-            //    var gridSize = m_previewGrids[0].GridSize;
-            //    if (m_settings.StaticGridAlignToCenter)
-            //        m_pastePosition = Vector3I.Round(m_pastePosition / gridSize) * gridSize;
-            //    else
-            //        m_pastePosition = Vector3I.Round(m_pastePosition / gridSize + 0.5f) * gridSize - 0.5f * gridSize;
-            //}
+        protected override bool TestPlacement()
+        {
+            //Not needed for projector and causes performance problems
+            return true;
+        }
 
-            //if (MyFakes.DEBUG_DRAW_COPY_PASTE)
-            //{
-            //    MyRenderProxy.DebugDrawSphere(pasteMatrix.Translation + dragVectorGlobal, 0.15f, Color.Pink.ToVector3(), 1.0f, false);
-            //    MyRenderProxy.DebugDrawSphere(m_pastePosition, 0.15f, Color.Pink.ToVector3(), 1.0f, false);
-            //}
+        protected override MyEntity GetClipboardBuilder()
+        {
+            return null;
         }
 
         public void ResetGridOrientation()

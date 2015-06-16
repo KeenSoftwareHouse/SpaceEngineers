@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using VRageMath;
 using VRage.ObjectBuilders;
+using VRage.Data;
 
 namespace Medieval.ObjectBuilders.Definitions
 {
@@ -15,33 +16,43 @@ namespace Medieval.ObjectBuilders.Definitions
     public class MyObjectBuilder_Dx11VoxelMaterialDefinition : MyObjectBuilder_VoxelMaterialDefinition
     {
         [ProtoMember]
+        [ModdableContentFile("dds")]
         public string ColorMetalXZnY;
 
         [ProtoMember]
+        [ModdableContentFile("dds")]
         public string ColorMetalY;
 
         [ProtoMember]
+        [ModdableContentFile("dds")]
         public string NormalGlossXZnY;
 
         [ProtoMember]
+        [ModdableContentFile("dds")]
         public string NormalGlossY;
 
         [ProtoMember]
+        [ModdableContentFile("dds")]
         public string ExtXZnY;
 
         [ProtoMember]
+        [ModdableContentFile("dds")]
         public string ExtY;
 
         [ProtoMember]
+        [ModdableContentFile("dds")]
         public string ColorMetalXZnYFar1;
 
         [ProtoMember]
+        [ModdableContentFile("dds")]
         public string ColorMetalYFar1;
 
         [ProtoMember]
+        [ModdableContentFile("dds")]
         public string NormalGlossXZnYFar1;
 
         [ProtoMember]
+        [ModdableContentFile("dds")]
         public string NormalGlossYFar1;
 
         [ProtoMember]
@@ -51,15 +62,19 @@ namespace Medieval.ObjectBuilders.Definitions
         public float ScaleFar1 = 8f;
 
         [ProtoMember]
+        [ModdableContentFile("dds")]
         public string ExtXZnYFar1;
 
         [ProtoMember]
+        [ModdableContentFile("dds")]
         public string ExtYFar1;
 
         [ProtoMember]
+        [ModdableContentFile("dds")]
         public string FoliageTextureArray1 = null;
 
         [ProtoMember]
+        [ModdableContentFile("dds")]
         public string FoliageTextureArray2 = null;
 
         [ProtoMember]
@@ -78,21 +93,27 @@ namespace Medieval.ObjectBuilders.Definitions
         public byte BiomeValueMax;
 
         [ProtoMember]
+        [ModdableContentFile("dds")]
         public string ColorMetalXZnYFar2;
 
         [ProtoMember]
+        [ModdableContentFile("dds")]
         public string ColorMetalYFar2;
 
         [ProtoMember]
+        [ModdableContentFile("dds")]
         public string NormalGlossXZnYFar2;
 
         [ProtoMember]
+        [ModdableContentFile("dds")]
         public string NormalGlossYFar2;
 
         [ProtoMember]
+        [ModdableContentFile("dds")]
         public string ExtXZnYFar2;
 
         [ProtoMember]
+        [ModdableContentFile("dds")]
         public string ExtYFar2;
 
         [ProtoMember]

@@ -19,15 +19,15 @@ namespace Sandbox.Common
     //  Material type of a physical object. This value determine sound of collision, decal type, explosion type, etc.
     public static class MyMaterialType
     {
-        public static MyStringId ROCK = MyStringId.GetOrCompute("Rock");
-        public static MyStringId METAL = MyStringId.GetOrCompute("Metal");
-        public static MyStringId GLASS = MyStringId.GetOrCompute("Glass");
-        public static MyStringId SHIP = MyStringId.GetOrCompute("Ship");
-        public static MyStringId AMMO = MyStringId.GetOrCompute("Ammo");
-        public static MyStringId CHARACTER = MyStringId.GetOrCompute("Character");
-        public static MyStringId RIFLEBULLET = MyStringId.GetOrCompute("RifleBullet");
-        public static MyStringId GUNBULLET = MyStringId.GetOrCompute("GunBullet");
-        public static MyStringId EXPBULLET = MyStringId.GetOrCompute("ExpBullet");
+        public static MyStringHash ROCK        = MyStringHash.GetOrCompute("Rock");
+        public static MyStringHash METAL       = MyStringHash.GetOrCompute("Metal");
+        public static MyStringHash GLASS       = MyStringHash.GetOrCompute("Glass");
+        public static MyStringHash SHIP        = MyStringHash.GetOrCompute("Ship");
+        public static MyStringHash AMMO        = MyStringHash.GetOrCompute("Ammo");
+        public static MyStringHash CHARACTER   = MyStringHash.GetOrCompute("Character");
+        public static MyStringHash RIFLEBULLET = MyStringHash.GetOrCompute("RifleBullet");
+        public static MyStringHash GUNBULLET   = MyStringHash.GetOrCompute("GunBullet");
+        public static MyStringHash EXPBULLET   = MyStringHash.GetOrCompute("ExpBullet");
     }
 
     

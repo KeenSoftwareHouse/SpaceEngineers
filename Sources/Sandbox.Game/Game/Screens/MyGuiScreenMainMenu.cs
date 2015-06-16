@@ -339,8 +339,7 @@ namespace Sandbox.Game.Gui
 
         public static void ReturnToMainMenu()
         {
-            if (MyScreenManager.GetFirstScreenOfType<MyGuiScreenMainMenu>() == null)
-                UnloadAndExitToMenu();
+            UnloadAndExitToMenu();
         }
 
         public static void UnloadAndExitToMenu()
