@@ -6539,7 +6539,7 @@ To connect to lasers not listed here you can connect to coordinates.</value>
     <value>Configure</value>
   </data>
   <data name="WorldSettings_MaxNoShipsPerSpawnGroup" xml:space="preserve">
-    <value>Max # Ships In Spawn Group</value>
+    <value>Maximum ships in each encounter</value>
   </data>
   <data name="WorldSettings_MaxDamagedShipPercentage" xml:space="preserve">
     <value>% Chance of damaged ships</value>
@@ -6622,5 +6622,32 @@ If there is no chance of accessing a medical room, the game is over and you can 
   </data>
   <data name="BlockPropertyTitle_Projector_NumberOfProjections_Tooltip" xml:space="preserve">
     <value>The maximum number of projections this projector can build instantly</value>
+  </data>
+  <data name="WorldSettings_AntennaActiveLabel" xml:space="preserve">
+    <value>% of active antenna</value>
+  </data>
+  <data name="WorldSettings_AntennaMaxedLabel" xml:space="preserve">
+    <value>Antenna range set to maximum?</value>
+  </data>
+  <data name="WorldSettings_Damaged" xml:space="preserve">
+    <value>Damaged</value>
+  </data>
+  <data name="WorldSettings_DamagedEncounterLabel" xml:space="preserve">
+    <value>% of damaged encounters</value>
+  </data>
+  <data name="WorldSettings_HeavilyDamaged" xml:space="preserve">
+    <value>Heavily Damaged</value>
+  </data>
+  <data name="WorldSettings_HostileEncountersLabel" xml:space="preserve">
+    <value>% of hostile encounters</value>
+  </data>
+  <data name="WorldSettings_LightlyDamaged" xml:space="preserve">
+    <value>Lightly Damaged</value>
+  </data>
+  <data name="WorldSettings_NoDamage" xml:space="preserve">
+    <value>Perfect</value>
+  </data>
+  <data name="WorldSettings_Worn" xml:space="preserve">
+    <value>Almost New</value>
   </data>
 </root>

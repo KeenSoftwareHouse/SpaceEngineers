@@ -10565,7 +10565,7 @@ namespace Sandbox.Game.Localization
         public static readonly MyStringId WorldSettings_ConfigureLabel = MyStringId.GetOrCompute("WorldSettings_ConfigureLabel");
 
         ///<summary>
-        ///Max # Ships In Spawn Group
+        ///Maximum ships in each encounter
         ///</summary>
         public static readonly MyStringId WorldSettings_MaxNoShipsPerSpawnGroup = MyStringId.GetOrCompute("WorldSettings_MaxNoShipsPerSpawnGroup");
 
@@ -10698,5 +10698,50 @@ namespace Sandbox.Game.Localization
         ///The maximum number of projections this projector can build instantly
         ///</summary>
         public static readonly MyStringId BlockPropertyTitle_Projector_NumberOfProjections_Tooltip = MyStringId.GetOrCompute("BlockPropertyTitle_Projector_NumberOfProjections_Tooltip");
+
+        ///<summary>
+        ///% of active antenna
+        ///</summary>
+        public static readonly MyStringId WorldSettings_AntennaActiveLabel = MyStringId.GetOrCompute("WorldSettings_AntennaActiveLabel");
+
+        ///<summary>
+        ///Antenna range set to maximum?
+        ///</summary>
+        public static readonly MyStringId WorldSettings_AntennaMaxedLabel = MyStringId.GetOrCompute("WorldSettings_AntennaMaxedLabel");
+
+        ///<summary>
+        ///Damaged
+        ///</summary>
+        public static readonly MyStringId WorldSettings_Damaged = MyStringId.GetOrCompute("WorldSettings_Damaged");
+
+        ///<summary>
+        ///% of damaged encounters
+        ///</summary>
+        public static readonly MyStringId WorldSettings_DamagedEncounterLabel = MyStringId.GetOrCompute("WorldSettings_DamagedEncounterLabel");
+
+        ///<summary>
+        ///Heavily Damaged
+        ///</summary>
+        public static readonly MyStringId WorldSettings_HeavilyDamaged = MyStringId.GetOrCompute("WorldSettings_HeavilyDamaged");
+
+        ///<summary>
+        ///% of hostile encounters
+        ///</summary>
+        public static readonly MyStringId WorldSettings_HostileEncountersLabel = MyStringId.GetOrCompute("WorldSettings_HostileEncountersLabel");
+
+        ///<summary>
+        ///Lightly Damaged
+        ///</summary>
+        public static readonly MyStringId WorldSettings_LightlyDamaged = MyStringId.GetOrCompute("WorldSettings_LightlyDamaged");
+
+        ///<summary>
+        ///Perfect
+        ///</summary>
+        public static readonly MyStringId WorldSettings_NoDamage = MyStringId.GetOrCompute("WorldSettings_NoDamage");
+
+        ///<summary>
+        ///Almost New
+        ///</summary>
+        public static readonly MyStringId WorldSettings_Worn = MyStringId.GetOrCompute("WorldSettings_Worn");
     }
 }
