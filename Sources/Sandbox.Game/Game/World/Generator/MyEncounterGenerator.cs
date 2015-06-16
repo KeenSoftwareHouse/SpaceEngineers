@@ -177,9 +177,9 @@ namespace Sandbox.Game.World.Generator
 
                 int howBadlyDamaged = 0;
 
-                if (ShipDamaged < 80)
+                if (ShipDamaged < MySession.Static.Settings.MaxDamagedShipsPercentage)
                 {
-                    howBadlyDamaged = MyRandom.Instance.Next(1, 5);
+                    howBadlyDamaged = MyRandom.Instance.Next(1, MySession.Static.Settings.MaxDamagedShipsSeverity);
 
                     if (Sync.IsServer == true)
                     {

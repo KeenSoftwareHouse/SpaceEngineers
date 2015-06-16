@@ -236,6 +236,16 @@ namespace Sandbox.Common.ObjectBuilders
         public short MaxShipsInSpawnGroup = 2;
 
         [ProtoMember]
+        [Display(Name = "Max Damaged Ships Percentage")]
+        [GameRelationAttribute(Game.SpaceEngineers)]
+        public int MaxDamagedShipsPercentage = 0;
+
+        [ProtoMember]
+        [Display(Name = "Max Damaged Ship Severity")]
+        [GameRelationAttribute(Game.SpaceEngineers)]
+        public int MaxDamagedShipsSeverity = 1;  
+
+        [ProtoMember]
         [GameRelationAttribute(Game.MedievalEngineers)]
         [Display(Name = "")]
         public bool Battle = false;

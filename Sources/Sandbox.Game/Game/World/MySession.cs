@@ -159,6 +159,8 @@ namespace Sandbox.Game.World
         public MyEnvironmentHostilityEnum EnvironmentHostility { get { return Settings.EnvironmentHostility; } }
 
         public short MaxShipsInSpawnGroup { get { return Settings.MaxShipsInSpawnGroup; } }
+        public int MaxDamagedShipsPercentage { get { return Settings.MaxDamagedShipsPercentage; } }
+        public int MaxDamagedShipsSeverity { get { return Settings.MaxDamagedShipsSeverity; } }
 
         public bool Battle { get { return Settings.Battle; } }
 

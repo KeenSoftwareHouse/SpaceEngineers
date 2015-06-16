@@ -6541,4 +6541,10 @@ To connect to lasers not listed here you can connect to coordinates.</value>
   <data name="WorldSettings_MaxNoShipsPerSpawnGroup" xml:space="preserve">
     <value>Max # Ships In Spawn Group</value>
   </data>
+  <data name="WorldSettings_MaxDamagedShipPercentage" xml:space="preserve">
+    <value>% Chance of damaged ships</value>
+  </data>
+  <data name="WorldSettings_MaxDamagedShipsSeverity" xml:space="preserve">
+    <value>Maximum damage severity</value>
+  </data>
 </root>

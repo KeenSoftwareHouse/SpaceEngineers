@@ -318,6 +318,21 @@ namespace Sandbox.Common.ObjectBuilders
             get { Debug.Fail("Obsolete."); return Settings.MaxShipsInSpawnGroup; }
             set { Settings.MaxShipsInSpawnGroup = value; }
         }
+
+        ////[ProtoMember, DefaultValue(0)]
+        //public int MaxDamagedShipsPercentage
+        //{
+        //    get { return Settings.MaxDamagedShipsPercentage; }
+        //    set { Settings.MaxDamagedShipsPercentage = value; }
+        //}
+
+        ////[ProtoMember, DefaultValue(1)]
+        //public int MaxDamagedShipsSeverity
+        //{
+        //    get { return Settings.MaxDamagedShipsSeverity; }
+        //    set { Settings.MaxDamagedShipsSeverity = value; }
+        //}
+
         public bool ShouldSerializeMaxShipsInSpawnGroup() { return false; }
 
         [ProtoMember]

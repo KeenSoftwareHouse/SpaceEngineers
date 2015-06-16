@@ -23,7 +23,7 @@ namespace Sandbox.Game.Gui
         bool m_isConfirmed;
 
         MyGuiControlButton m_okButton, m_cancelButton, m_AppliedGloballyButton, m_RandomSettingsButton, m_BalancedSettingsButton;
-        MyGuiControlSlider m_maxNoShipsPerSpawnGroup;
+        MyGuiControlSlider m_maxNoShipsPerSpawnGroup, m_maxDamagedShipPercentage, m_maxDamagedShipsSeverity;
 
         internal MyGuiScreenEncounterSettings EncounterConfiguration;        
 
@@ -88,8 +88,9 @@ namespace Sandbox.Game.Gui
             float width = 0.284375f + 0.025f;
 
             var maxNoShipsLabel = MakeLabel(MySpaceTexts.WorldSettings_MaxNoShipsPerSpawnGroup);
+            var maxDamagedShipPercentageLabel = MakeLabel(MySpaceTexts.WorldSettings_MaxDamagedShipPercentage);
+            var maxDamagedShipsSeverityLabel = MakeLabel(MySpaceTexts.WorldSettings_MaxDamagedShipsSeverity);
             maxNoShipsLabel.Position = Vector2.Zero - new Vector2(0.3f, 0.4f);
-
 
             m_AppliedGloballyButton = new MyGuiControlButton(visualStyle: MyGuiControlButtonStyleEnum.Small, highlightType: MyGuiControlHighlightType.WHEN_ACTIVE, text: MyTexts.Get(MySpaceTexts.WorldSettings_GameModeCreative), onButtonClick: AppliedGloballyButtonClicked);
             m_AppliedGloballyButton.SetToolTip(MySpaceTexts.ToolTipWorldSettingsModeCreative);
@@ -108,19 +109,64 @@ namespace Sandbox.Game.Gui
                 intValue: true,
                 defaultValue: 2
                 );
+
+            m_maxDamagedShipPercentage = new MyGuiControlSlider(
+                position: Vector2.Zero - new Vector2(-0.1f, 0.3f),
+                width: 0.2f,
+                minValue: 0,
+                maxValue: 100,
+                labelText: new StringBuilder("{0}%").ToString(),
+                labelDecimalPlaces: 0,
+                labelSpaceWidth: 0.05f,
+                intValue: true,
+                defaultValue: 0
+                );
+
+            m_maxDamagedShipsSeverity = new MyGuiControlSlider(
+                position: Vector2.Zero - new Vector2(-0.1f, 0.2f),
+                width: 0.2f,
+                minValue: 1,
+                maxValue: 4,
+                labelText: new StringBuilder("{0}").ToString(),
+                labelDecimalPlaces: 0,
+                labelSpaceWidth: 0.05f,
+                intValue: true,
+                defaultValue: 1
+                );
             
             // Ok/Cancel
             m_okButton = new MyGuiControlButton(position: buttonsOrigin - new Vector2(0.01f, 0f), size: buttonSize, text: MyTexts.Get(MySpaceTexts.Ok), onButtonClick: OkButtonClicked, originAlign: MyGuiDrawAlignEnum.HORISONTAL_RIGHT_AND_VERTICAL_BOTTOM);
-            m_cancelButton = new MyGuiControlButton(position: buttonsOrigin + new Vector2(0.01f, 0f), size: buttonSize, text: MyTexts.Get(MySpaceTexts.Cancel), onButtonClick: CancelButtonClicked, originAlign: MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_BOTTOM);                     
+            m_cancelButton = new MyGuiControlButton(position: buttonsOrigin + new Vector2(0.01f, 0f), size: buttonSize, text: MyTexts.Get(MySpaceTexts.Cancel), onButtonClick: CancelButtonClicked, originAlign: MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_BOTTOM);
 
-            float labelSize = 0.21f;
+            float labelSize = 0.31f; // 0.21f;
 
             float MARGIN_TOP = 0.03f;
 
-            parent.Controls.Add(m_AppliedGloballyButton);
-
             parent.Controls.Add(maxNoShipsLabel);
             parent.Controls.Add(m_maxNoShipsPerSpawnGroup);
+            parent.Controls.Add(maxDamagedShipPercentageLabel);
+            parent.Controls.Add(m_maxDamagedShipPercentage);
+            parent.Controls.Add(maxDamagedShipsSeverityLabel);
+            parent.Controls.Add(m_maxDamagedShipsSeverity);
+
+            // Automatic layout.
+            Vector2 originL, originC;
+            Vector2 controlsDelta = new Vector2(0f, 0.052f);
+
+            originL = -m_size.Value / 2 + new Vector2(0.16f, MARGIN_TOP);
+            originC = originL + new Vector2(labelSize, 0f);
+            float rightColumnOffset = originC.X + maxNoShipsLabel.Size.X - labelSize - 0.017f; // 0.017f;
+
+            foreach (var control in parent.Controls)
+            {
+                control.OriginAlign = MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_CENTER;
+                if (control is MyGuiControlLabel)
+                    control.Position = originL + controlsDelta * numControls;
+                else
+                    control.Position = originC + controlsDelta * numControls++;
+            }
+
+            parent.Controls.Add(m_AppliedGloballyButton);           
 
             Controls.Add(m_okButton);
             Controls.Add(m_cancelButton);
@@ -178,11 +224,15 @@ namespace Sandbox.Game.Gui
         public void GetSettings(MyObjectBuilder_SessionSettings output)
         {
             output.MaxShipsInSpawnGroup = (short)m_maxNoShipsPerSpawnGroup.Value;
+            output.MaxDamagedShipsPercentage = (int)m_maxDamagedShipPercentage.Value;
+            output.MaxDamagedShipsSeverity = (int)m_maxDamagedShipsSeverity.Value - 1;
         }
 
         public void SetSettings(MyObjectBuilder_SessionSettings settings)
         {
             m_maxNoShipsPerSpawnGroup.Value = settings.MaxShipsInSpawnGroup;
+            m_maxDamagedShipPercentage.Value = settings.MaxDamagedShipsPercentage;
+            m_maxDamagedShipsSeverity.Value = settings.MaxDamagedShipsSeverity + 1;
         }
 
         public override string GetFriendlyName()

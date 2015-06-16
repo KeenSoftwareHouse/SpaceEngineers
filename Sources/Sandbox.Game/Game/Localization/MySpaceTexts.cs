@@ -10568,5 +10568,15 @@ namespace Sandbox.Game.Localization
         ///Max # Ships In Spawn Group
         ///</summary>
         public static readonly MyStringId WorldSettings_MaxNoShipsPerSpawnGroup = MyStringId.GetOrCompute("WorldSettings_MaxNoShipsPerSpawnGroup");
+
+        ///<summary>
+        ///% Chance of damaged ships
+        ///</summary>
+        public static readonly MyStringId WorldSettings_MaxDamagedShipPercentage = MyStringId.GetOrCompute("WorldSettings_MaxDamagedShipPercentage");
+
+        ///<summary>
+        ///Maximum damage severity
+        ///</summary>
+        public static readonly MyStringId WorldSettings_MaxDamagedShipsSeverity = MyStringId.GetOrCompute("WorldSettings_MaxDamagedShipsSeverity");
     }
 }
