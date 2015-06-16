@@ -377,7 +377,7 @@ namespace SpaceEngineers.Game.Entities.Blocks
                 Sync.Layer.SendMessageToAllAndSelf(ref msg);
             }
 
-            private static void OnHelpOthersChanged(MySyncShipWelder syncObject, ref ChangeHelperModeMsg message, World.MyNetworkClient sender)
+            private static void OnHelpOthersChanged(MySyncShipWelder syncObject, ref ChangeHelperModeMsg message, MyNetworkClient sender)
             {
                 syncObject.m_shipWelder.m_helpOthers = message.HelpOthers;
             }
