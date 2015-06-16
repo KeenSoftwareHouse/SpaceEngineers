@@ -10579,6 +10579,7 @@ namespace Sandbox.Game.Localization
         ///</summary>
         public static readonly MyStringId WorldSettings_MaxDamagedShipsSeverity = MyStringId.GetOrCompute("WorldSettings_MaxDamagedShipsSeverity");
 
+        ///<summary>
         ///PUBLISH SCENARIO
         ///</summary>
         public static readonly MyStringId MessageBoxCaptionDoYouWishToPublishScenario = MyStringId.GetOrCompute("MessageBoxCaptionDoYouWishToPublishScenario");

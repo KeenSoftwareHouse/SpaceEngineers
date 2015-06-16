@@ -6526,7 +6526,6 @@ To connect to lasers not listed here you can connect to coordinates.</value>
   <data name="ToolTipWorldSettings_DisableRespawnShips" xml:space="preserve">
     <value>Respawn in ships and suit is disabled. If no valid medical rooms exist, respawn won't be possible at all!</value>
   </data>
-<<<<<<< HEAD
   <data name="WorldSettings_EncountersConfiguration" xml:space="preserve">
     <value>Encounters</value>
   </data>
@@ -6547,7 +6546,7 @@ To connect to lasers not listed here you can connect to coordinates.</value>
   </data>
   <data name="WorldSettings_MaxDamagedShipsSeverity" xml:space="preserve">
     <value>Maximum damage severity</value>
-=======
+  </data>
   <data name="MessageBoxCaptionDoYouWishToPublishScenario" xml:space="preserve">
     <value>PUBLISH SCENARIO</value>
   </data>
@@ -6623,6 +6622,5 @@ If there is no chance of accessing a medical room, the game is over and you can 
   </data>
   <data name="BlockPropertyTitle_Projector_NumberOfProjections_Tooltip" xml:space="preserve">
     <value>The maximum number of projections this projector can build instantly</value>
->>>>>>> KeenSoftwareHouse/master
   </data>
 </root>
