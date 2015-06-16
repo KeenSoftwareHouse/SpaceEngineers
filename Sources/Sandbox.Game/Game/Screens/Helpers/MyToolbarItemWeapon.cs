@@ -16,10 +16,13 @@ using System.Diagnostics;
 namespace Sandbox.Game.Screens.Helpers
 {
     [MyToolbarItemDescriptor(typeof(MyObjectBuilder_ToolbarItemWeapon))]
-    class MyToolbarItemWeapon : MyToolbarItemDefinition
+    public class MyToolbarItemWeapon : MyToolbarItemDefinition
     {
         private int m_lastAmmoCount = -1;
         private bool m_needsWeaponSwitching = true;
+
+		private bool m_isDeconstructor = false;
+		public bool IsDeconstructor { get { return m_isDeconstructor; } }
 
         public MyToolbarItemWeapon() : base()
         {
@@ -29,8 +32,42 @@ namespace Sandbox.Game.Screens.Helpers
         {
             bool init = base.Init(data);
             ActivateOnClick = false;
+
+			var objectBuilder = data as MyObjectBuilder_ToolbarItemWeapon;
+			if (objectBuilder != null)
+			{
+				m_isDeconstructor = objectBuilder.IsDeconstructor;
+				if (m_isDeconstructor)
+				{
+					SetDisplayName(DisplayName.Append(" Deconstructor").ToString());
+					var split = Icon.Split(new char[] { '_' });	// MK: TODO: Change icon properly.
+					SetIcon(split[0] + "_Deconstruction.dds");
+				}
+			}
+
             return init;
         }
+
+		public override bool Equals(object obj)
+		{
+			bool returnValue = base.Equals(obj);
+
+			if(returnValue)
+			{
+				var otherObj = obj as MyToolbarItemWeapon;
+				if (otherObj != null && otherObj.m_isDeconstructor != m_isDeconstructor)
+					returnValue = false;
+			}
+			return returnValue;
+		}
+
+		public override MyObjectBuilder_ToolbarItem GetObjectBuilder()
+		{
+			var builder = (MyObjectBuilder_ToolbarItemWeapon)base.GetObjectBuilder();
+			builder.IsDeconstructor = m_isDeconstructor;
+
+			return builder;
+		}
 
         public override bool Activate()
         {
@@ -49,7 +86,7 @@ namespace Sandbox.Game.Screens.Helpers
             {
                 if (m_needsWeaponSwitching)
                 {
-                    controlledObject.SwitchToWeapon(Definition.Id);
+                    controlledObject.SwitchToWeapon(this);
                     WantsToBeActivated = false;
                 }
                 else
@@ -71,14 +108,14 @@ namespace Sandbox.Game.Screens.Helpers
             bool thisWeaponIsCurrent = false;
             bool shipHasThisWeapon = false;
             var character = MySession.LocalCharacter;
-            bool characterHasThisWeapon = character != null && (character.GetInventory().ContainItems(1, Definition.Id) || MyPerGameSettings.EnableWeaponWithoutInventory);
+            bool characterHasThisWeapon = character != null && (character.GetInventory().ContainItems(1, Definition.Id) || !character.WeaponTakesBuilderFromInventory(Definition.Id));
             ChangeInfo changed = ChangeInfo.None;
 
             if (characterHasThisWeapon)
             {
                 var currentWeapon = character.CurrentWeapon;
                 if (currentWeapon != null)
-                    thisWeaponIsCurrent = MyDefinitionManager.Static.GetPhysicalItemForHandItem(currentWeapon.DefinitionId).Id == Definition.Id;
+                    thisWeaponIsCurrent = (MyDefinitionManager.Static.GetPhysicalItemForHandItem(currentWeapon.DefinitionId).Id == Definition.Id) && (currentWeapon.IsDeconstructor == m_isDeconstructor);
                 if (thisWeaponIsCurrent && currentWeapon is MyAutomaticRifleGun)
                 {
                     int amount = character.CurrentWeapon.GetAmmunitionAmount();

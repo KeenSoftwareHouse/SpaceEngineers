@@ -290,7 +290,7 @@ namespace Sandbox.Game.Entities
         }
 
         #region Spawning
-        internal static MyEntity Spawn(MyInventoryItem item, Vector3D position, Vector3D forward, Vector3D up, MyPhysicsComponentBase motionInheritedFrom = null)
+        public static MyEntity Spawn(MyInventoryItem item, Vector3D position, Vector3D forward, Vector3D up, MyPhysicsComponentBase motionInheritedFrom = null)
         {
             return Spawn(item, MatrixD.CreateWorld(position, forward, up), motionInheritedFrom);
         }

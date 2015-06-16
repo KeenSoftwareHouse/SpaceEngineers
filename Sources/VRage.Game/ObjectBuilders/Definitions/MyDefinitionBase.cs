@@ -51,6 +51,8 @@ namespace Sandbox.Definitions
         /// </summary>
         public bool Public = true;
 
+		public bool AvailableInSurvival;
+
         /// <summary>
         /// Use this property when showing name in GUI instead of DisplayName. This takes into
         /// account more complex name construction.
@@ -92,6 +94,7 @@ namespace Sandbox.Definitions
             this.Id = builder.Id;
             this.Public = builder.Public;
             this.Enabled = builder.Enabled;
+			this.AvailableInSurvival = builder.AvailableInSurvival;
             this.Icon = builder.Icon;
 
             if (builder.DisplayName != null && builder.DisplayName.StartsWith("DisplayName_"))
@@ -129,6 +132,7 @@ namespace Sandbox.Definitions
                 m_definitionFactory = new MyObjectFactory<MyDefinitionTypeAttribute, MyDefinitionBase>();
                 m_definitionFactory.RegisterFromCreatedObjectAssembly();
                 m_definitionFactory.RegisterFromAssembly(MyPlugins.GameAssembly);
+                m_definitionFactory.RegisterFromAssembly(MyPlugins.SandboxAssembly);
                 m_definitionFactory.RegisterFromAssembly(MyPlugins.UserAssembly);
             }
             return m_definitionFactory;
@@ -143,6 +147,9 @@ namespace Sandbox.Definitions
             builder.DisplayName = (DisplayNameEnum.HasValue) ? DisplayNameEnum.Value.ToString() : DisplayNameString != null ? DisplayNameString.ToString() : null;
             builder.Icon        = Icon;
             builder.Public      = Public;
+			builder.Enabled		= Enabled;
+
+			builder.AvailableInSurvival = AvailableInSurvival;
 
             return builder;
         }

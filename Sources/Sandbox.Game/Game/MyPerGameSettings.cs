@@ -55,6 +55,7 @@ namespace Sandbox.Game
         public Type BattleBlueprintScreen;
         public Type BattleLobbyClientScreen;
         public Type ScenarioLobbyClientScreen;
+        public Type InventoryScreen;
 
         public string[] MainMenuBackgroundVideos;
 
@@ -104,6 +105,7 @@ namespace Sandbox.Game
         public static MyPlacementSettings BuildingSettings;
         public static MyPlacementSettings PastingSettings;
         public static string GameModAssembly;
+        public static string SandboxAssembly = "Sandbox.Common.dll";
 
         public static bool SingleCluster = false;
         public static int LoadingScreenQuoteCount = 71;
@@ -202,7 +204,7 @@ namespace Sandbox.Game
             EditWorldSettingsScreen = typeof(Sandbox.Game.Gui.MyGuiScreenWorldSettings),
             HelpScreen = typeof(Sandbox.Game.Gui.MyGuiScreenHelpSpace),
             VoxelMapEditingScreen = typeof(Sandbox.Game.Gui.MyGuiScreenDebugSpawnMenu),
-            //ScenarioLobbyClientScreen = typeof(Sandbox.Game.Gui.MyGuiScreenScenarioLobbyClient),
+            ScenarioLobbyClientScreen = typeof(Sandbox.Game.Screens.MyGuiScreenScenarioMpClient),
         };
         public static Type BotFactoryType = null;
         public static bool EnableAi = false;
@@ -217,7 +219,6 @@ namespace Sandbox.Game
 
         public static RigidBodyFlag LargeGridRBFlag = RigidBodyFlag.RBF_DOUBLED_KINEMATIC;
         public static RigidBodyFlag GridRBFlagOnClients = RigidBodyFlag.RBF_DEFAULT;
-        public static bool CharacterUpdatePositionPerFrame = false;
         public static RigidBodyFlag NetworkCharacterType = RigidBodyFlag.RBF_KINEMATIC;
         public static float NetworkCharacterScale = 1.0f;
         public static int NetworkCharacterCollisionLayer = MyPhysics.CharacterNetworkCollisionLayer;
@@ -262,6 +263,7 @@ namespace Sandbox.Game
         public static bool ShowObfuscationStatus = true;
 
         public static bool EnableKinematicMPCharacter = false;
+        public static bool EnablePerFrameCharacterSync = false;
 
         public static bool EnableRagdollInJetpack = false;
 

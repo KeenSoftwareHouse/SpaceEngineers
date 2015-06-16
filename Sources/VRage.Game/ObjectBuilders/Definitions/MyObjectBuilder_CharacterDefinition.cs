@@ -7,6 +7,7 @@ using VRageMath;
 using System.Xml.Serialization;
 using VRage.Data;
 using VRage.ObjectBuilders;
+using System.ComponentModel;
 
 namespace Sandbox.Common.ObjectBuilders.Definitions
 {
@@ -181,6 +182,9 @@ namespace Sandbox.Common.ObjectBuilders.Definitions
         [ProtoMember, XmlArrayItem("Mapping")]
         public MyMovementAnimationMapping[] AnimationMappings;
 
+		[ProtoMember]
+		public string Stats;
+
         [ProtoMember]
         public float Mass = 100f;
 
@@ -299,6 +303,8 @@ namespace Sandbox.Common.ObjectBuilders.Definitions
         [ProtoMember]
         public float CharacterLength = 1.0f;
 
+        [ProtoMember, DefaultValue(null)]
+        public MyObjectBuilder_InventoryDefinition Inventory; 
 
     }
 }

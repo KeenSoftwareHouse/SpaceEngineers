@@ -11,7 +11,7 @@ using VRage.ModAPI;
 
 namespace VRage.Components
 {
-    public abstract class MyRenderComponentBase : MyComponentBase
+    public abstract class MyRenderComponentBase : MyEntityComponentBase
     {
         public static readonly Vector3 OldRedToHSV = new Vector3(0, 0.0f, 0.05f);
         public static readonly Vector3 OldYellowToHSV = new Vector3(44 / 360f, -0.1f, 0.26f);
@@ -158,17 +158,13 @@ namespace VRage.Components
 
         public void UpdateRenderObject(bool visible)
         {
-            if (false == Visible)
-            {
-                return;
-            }
             if (!Container.Entity.InScene && visible)
                 return;
 
             if (visible)
             {
                 MyHierarchyComponentBase hierarchyComponent = Container.Get<MyHierarchyComponentBase>();
-                if (Visible && (hierarchyComponent.Parent == null || hierarchyComponent.Parent.Container.Entity.Visible)/* && m_frustumCheckBeforeDrawEnabled*/)
+                if (Visible && (hierarchyComponent.Parent == null || hierarchyComponent.Parent.Container.Entity.Visible))
                 {
                     if (CanBeAddedToRender())
                     {

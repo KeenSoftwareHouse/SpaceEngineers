@@ -109,7 +109,7 @@ namespace Sandbox.Game.Entities.EnvironmentItems
 				|| ((MyFracturedPiece)entity).OriginalBlocks[0].TypeId == typeof(MyObjectBuilder_DestroyableItem)) && ((MyFracturedPiece)entity).Physics != null;
 		}
 
-        protected override void OnRemoveItem(int instanceId, ref Matrix matrix, MyStringId myStringId)
+        protected override void OnRemoveItem(int instanceId, ref Matrix matrix, MyStringHash myStringId)
         {
             base.OnRemoveItem(instanceId, ref matrix, myStringId);
 

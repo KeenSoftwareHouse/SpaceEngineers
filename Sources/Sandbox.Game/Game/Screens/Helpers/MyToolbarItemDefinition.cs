@@ -18,7 +18,7 @@ namespace Sandbox.Game.Screens.Helpers
             WantsToBeActivated = true;
         }
 
-        public sealed override bool Equals(object obj)
+        public override bool Equals(object obj)
         {
             if (object.ReferenceEquals(this, obj))
                 return true;
@@ -32,7 +32,7 @@ namespace Sandbox.Game.Screens.Helpers
             return Definition.Id.GetHashCode();
         }
 
-        public sealed override MyObjectBuilder_ToolbarItem GetObjectBuilder()
+        public override MyObjectBuilder_ToolbarItem GetObjectBuilder()
         {
             //This can happen when using mods
             //Initially, the mod is used and an action is added to the toolbar. Later, the mod is removed, but the item is still present in the toolbar

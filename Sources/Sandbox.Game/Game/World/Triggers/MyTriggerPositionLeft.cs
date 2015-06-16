@@ -1,4 +1,5 @@
 ﻿using Sandbox.Common.ObjectBuilders.Definitions;
+using Sandbox.Game.Entities;
 using Sandbox.Game.Entities.Character;
 using Sandbox.Game.Localization;
 using Sandbox.Game.Screens.Triggers;
@@ -31,7 +32,7 @@ namespace Sandbox.Game.World.Triggers
             return new MyTriggerPositionLeft(this);
         }
 
-        public override bool Update(MyCharacter me)
+        public override bool Update(MyEntity me)
         {
             if (Vector3D.DistanceSquared(me.PositionComp.GetPosition(), TargetPos) > m_maxDistance2)
                 m_IsTrue = true;

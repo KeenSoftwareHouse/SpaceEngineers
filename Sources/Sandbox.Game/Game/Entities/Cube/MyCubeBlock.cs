@@ -490,17 +490,12 @@ namespace Sandbox.Game.Entities
         public override void OnAddedToScene(object source)
         {
             base.OnAddedToScene(source);
-            if (UseObjectsComponent.DetectorPhysics != null)
-                UseObjectsComponent.DetectorPhysics.Activate();
-
             UpdateIsWorking();
         }
 
         public override void OnRemovedFromScene(object source)
         {
             base.OnRemovedFromScene(source);
-            if (UseObjectsComponent != null && UseObjectsComponent.DetectorPhysics != null)
-                UseObjectsComponent.DetectorPhysics.Deactivate();
         }
 
         /// <summary>
@@ -562,6 +557,9 @@ namespace Sandbox.Game.Entities
             SetDamageEffect(false);
             //Moved to RemoveBlockInternal
             //CubeGrid.ChangeOwner(this, OwnerId, 0);
+
+            SlimBlock.ComponentStack.IsFunctionalChanged -= ComponentStack_IsFunctionalChanged;
+
             base.Closing();
         }
 
@@ -777,7 +775,7 @@ namespace Sandbox.Game.Entities
         }
 
 
-        internal void ChangeOwner(long owner, MyOwnershipShareModeEnum shareMode)
+        public void ChangeOwner(long owner, MyOwnershipShareModeEnum shareMode)
         {
             if (m_IDModule == null)
             {
@@ -921,9 +919,9 @@ namespace Sandbox.Game.Entities
                             Matrix subGridWorldMatrix = subBlockMatrix * PositionComp.LocalMatrix * CubeGrid.WorldMatrix;
 
                             //TODO: Try to find better way how to sync entity ID of subblocks..
-                            subgrid = MyCubeBuilder.SpawnDynamicGrid(subBlockDefinition, subGridWorldMatrix, EntityId + (SubBlocks.Count * 16) + 1);
+                            /*subgrid = MyCubeBuilder.SpawnDynamicGrid(subBlockDefinition, subGridWorldMatrix, EntityId + (SubBlocks.Count * 16) + 1);
                             if (subgrid != null)
-                                subblock = subgrid.GetCubeBlock(Vector3I.Zero);
+                                subblock = subgrid.GetCubeBlock(Vector3I.Zero);*/
                         }
 
                         if (subgrid == null)
@@ -1083,8 +1081,9 @@ namespace Sandbox.Game.Entities
 
         virtual internal float GetMass()
         {
+            Matrix m;
             if (MyDestructionData.Static != null)
-                return MyDestructionData.Static.GetBlockMass(BlockDefinition);
+                return MyDestructionData.Static.GetBlockMass(SlimBlock.CalculateCurrentModel(out m), BlockDefinition);
             return BlockDefinition.Mass;
         }
 

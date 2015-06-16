@@ -1078,6 +1078,9 @@ namespace Sandbox.Game.Entities
             if (m_pilot != null)
                 return UseActionResult.UsedBySomeoneElse;
 
+            if (!IsFunctional)
+                return UseActionResult.CockpitDamaged;
+
             long identityId = user.ControllerInfo.ControllingIdentityId;
             if (identityId != 0)
             {

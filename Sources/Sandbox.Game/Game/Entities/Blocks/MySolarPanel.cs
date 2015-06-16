@@ -76,6 +76,11 @@ namespace Sandbox.Game.Entities.Blocks
             }
         }
 
+        bool Sandbox.ModAPI.Ingame.IMyPowerProducer.ProductionEnabled
+        {
+            get { return IsWorking && MaxPowerOutput > 0; }
+        }
+
         float ModAPI.Ingame.IMyPowerProducer.DefinedPowerOutput
         {
             get { return m_solarPanelDefinition.MaxPowerOutput; }

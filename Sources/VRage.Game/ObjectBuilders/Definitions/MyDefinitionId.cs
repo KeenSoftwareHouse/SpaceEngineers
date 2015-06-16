@@ -38,7 +38,7 @@ namespace Sandbox.Definitions
         #endregion
 
         public readonly MyObjectBuilderType TypeId;
-        public readonly MyStringId SubtypeId;
+        public readonly MyStringHash SubtypeId;
 
         public string SubtypeName
         {
@@ -46,16 +46,16 @@ namespace Sandbox.Definitions
         }
 
         public MyDefinitionId(MyObjectBuilderType type) :
-            this(type, MyStringId.GetOrCompute(null))
+            this(type, MyStringHash.GetOrCompute(null))
         {
         }
 
         public MyDefinitionId(MyObjectBuilderType type, string subtypeName) :
-            this(type, MyStringId.GetOrCompute(subtypeName))
+            this(type, MyStringHash.GetOrCompute(subtypeName))
         {
         }
 
-        public MyDefinitionId(MyObjectBuilderType type, MyStringId subtypeId)
+        public MyDefinitionId(MyObjectBuilderType type, MyStringHash subtypeId)
         {
             TypeId = type;
             SubtypeId = subtypeId;
@@ -125,15 +125,15 @@ namespace Sandbox.Definitions
         [ProtoMember]
         public MyRuntimeObjectBuilderId TypeId;
         [ProtoMember]
-        public MyStringId SubtypeId;
+        public MyStringHash SubtypeId;
 
-        public DefinitionIdBlit(MyObjectBuilderType type, MyStringId subtypeId)
+        public DefinitionIdBlit(MyObjectBuilderType type, MyStringHash subtypeId)
         {
             TypeId = (MyRuntimeObjectBuilderId)type;
             SubtypeId = subtypeId;
         }
 
-        public DefinitionIdBlit(MyRuntimeObjectBuilderId typeId, MyStringId subtypeId)
+        public DefinitionIdBlit(MyRuntimeObjectBuilderId typeId, MyStringHash subtypeId)
         {
             TypeId = typeId;
             SubtypeId = subtypeId;
@@ -142,7 +142,7 @@ namespace Sandbox.Definitions
         public static implicit operator MyDefinitionId(DefinitionIdBlit id)
         {
             var type = (MyObjectBuilderType)id.TypeId;
-            Debug.Assert(MyStringId.IsKnown(id.SubtypeId));
+            Debug.Assert(MyStringHash.IsKnown(id.SubtypeId));
             return new MyDefinitionId(type, id.SubtypeId);
         }
 

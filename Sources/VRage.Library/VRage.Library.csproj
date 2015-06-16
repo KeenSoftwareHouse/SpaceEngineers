@@ -98,6 +98,7 @@
     <Compile Include="Collections\MyConcurrentDeque.cs" />
     <Compile Include="Collections\MyDeque.cs" />
     <Compile Include="Collections\MyIntervalList.cs" />
+    <Compile Include="Collections\QueueReader.cs" />
     <Compile Include="Collections\UniqueListReader.cs" />
     <Compile Include="Collections\MyBinaryHeap.cs" />
     <Compile Include="Collections\MySinglyLinkedList.cs" />

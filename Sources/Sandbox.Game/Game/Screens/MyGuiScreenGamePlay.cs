@@ -254,19 +254,22 @@ namespace Sandbox.Game.Gui
                 //Set camera to spectator
                 if (MyInput.Static.IsNewGameControlPressed(MyControlsSpace.SPECTATOR_FREE))
                 {
-                    if (MySession.GetCameraControllerEnum() != MyCameraControllerEnum.Spectator)
+                    if (!MyFakes.ENABLE_BATTLE_SYSTEM || !MySession.Static.Battle || Sync.IsServer)
                     {
-                        MySession.SetCameraController(MyCameraControllerEnum.Spectator);
-                    }
-                    else if (MyInput.Static.IsAnyShiftKeyPressed())
-                    {
-                        MyFakes.ENABLE_DEVELOPER_SPECTATOR_CONTROLS = !MyFakes.ENABLE_DEVELOPER_SPECTATOR_CONTROLS;
-                    }
+                        if (MySession.GetCameraControllerEnum() != MyCameraControllerEnum.Spectator)
+                        {
+                            MySession.SetCameraController(MyCameraControllerEnum.Spectator);
+                        }
+                        else if (MyInput.Static.IsAnyShiftKeyPressed())
+                        {
+                            MyFakes.ENABLE_DEVELOPER_SPECTATOR_CONTROLS = !MyFakes.ENABLE_DEVELOPER_SPECTATOR_CONTROLS;
+                        }
 
-                    if (MyInput.Static.IsAnyCtrlKeyPressed() && MySession.ControlledEntity != null)
-                    {
-                        MySpectator.Static.Position = (Vector3D)MySession.ControlledEntity.Entity.PositionComp.GetPosition() + MySpectator.Static.ThirdPersonCameraDelta;
-                        MySpectator.Static.Target = (Vector3D)MySession.ControlledEntity.Entity.PositionComp.GetPosition();
+                        if (MyInput.Static.IsAnyCtrlKeyPressed() && MySession.ControlledEntity != null)
+                        {
+                            MySpectator.Static.Position = (Vector3D)MySession.ControlledEntity.Entity.PositionComp.GetPosition() + MySpectator.Static.ThirdPersonCameraDelta;
+                            MySpectator.Static.Target = (Vector3D)MySession.ControlledEntity.Entity.PositionComp.GetPosition();
+                        }
                     }
                 }
 
@@ -362,7 +365,8 @@ namespace Sandbox.Game.Gui
 
             if (MyInput.Static.IsNewGameControlPressed(MyControlsSpace.MISSION_SETTINGS) && MyGuiScreenGamePlay.ActiveGameplayScreen == null 
                 && MyPerGameSettings.Game == Sandbox.Game.GameEnum.SE_GAME
-                && MyFakes.ENABLE_MISSION_TRIGGERS)
+                && MyFakes.ENABLE_MISSION_TRIGGERS
+                && MySession.Static.Settings.ScenarioEditMode)
                 {
                 MyGuiSandbox.AddScreen(new Sandbox.Game.Screens.MyGuiScreenMissionTriggers());
             }
@@ -558,40 +562,43 @@ namespace Sandbox.Game.Gui
             // Quick save or quick load.
             if (MyInput.Static.IsNewKeyPressed(MyKeys.F5))
             {
-                MyGuiAudio.PlaySound(MyGuiSounds.HudMouseClick);
-                var currentSession = MySession.Static.CurrentPath;
-
-                if (MyInput.Static.IsAnyShiftKeyPressed())
+                if (!MySession.Static.IsScenario)
                 {
-                    if (MySession.Static.ClientCanSave || Sync.IsServer)
+                    MyGuiAudio.PlaySound(MyGuiSounds.HudMouseClick);
+                    var currentSession = MySession.Static.CurrentPath;
+
+                    if (MyInput.Static.IsAnyShiftKeyPressed())
                     {
-                        if (!MyAsyncSaving.InProgress)
+                        if (MySession.Static.ClientCanSave || Sync.IsServer)
                         {
-                            var messageBox = MyGuiSandbox.CreateMessageBox(
-                                buttonType: MyMessageBoxButtonsType.YES_NO,
-                                messageText: MyTexts.Get(MySpaceTexts.MessageBoxTextAreYouSureYouWantToQuickSave),
-                                messageCaption: MyTexts.Get(MySpaceTexts.MessageBoxCaptionPleaseConfirm),
-                                callback: delegate(MyGuiScreenMessageBox.ResultEnum callbackReturn)
-                                {
-                                    if (callbackReturn == MyGuiScreenMessageBox.ResultEnum.YES)
-                                        MyAsyncSaving.Start(() => MySector.ResetEyeAdaptation = true);//black screen after save
-                                });
-                            messageBox.SkipTransition = true;
-                            messageBox.CloseBeforeCallback = true;
-                            MyGuiSandbox.AddScreen(messageBox);
+                            if (!MyAsyncSaving.InProgress)
+                            {
+                                var messageBox = MyGuiSandbox.CreateMessageBox(
+                                    buttonType: MyMessageBoxButtonsType.YES_NO,
+                                    messageText: MyTexts.Get(MySpaceTexts.MessageBoxTextAreYouSureYouWantToQuickSave),
+                                    messageCaption: MyTexts.Get(MySpaceTexts.MessageBoxCaptionPleaseConfirm),
+                                    callback: delegate(MyGuiScreenMessageBox.ResultEnum callbackReturn)
+                                    {
+                                        if (callbackReturn == MyGuiScreenMessageBox.ResultEnum.YES)
+                                            MyAsyncSaving.Start(() => MySector.ResetEyeAdaptation = true);//black screen after save
+                                    });
+                                messageBox.SkipTransition = true;
+                                messageBox.CloseBeforeCallback = true;
+                                MyGuiSandbox.AddScreen(messageBox);
+                            }
                         }
+                        else
+                            MyHud.Notifications.Add(MyNotificationSingletons.ClientCannotSave);
+                    }
+                    else if (Sync.IsServer)
+                    {
+                        ShowLoadMessageBox(currentSession);
                     }
                     else
-                        MyHud.Notifications.Add(MyNotificationSingletons.ClientCannotSave);
-                }
-                else if (Sync.IsServer)
-                {
-                    ShowLoadMessageBox(currentSession);
-                }
-                else
-                {
-                    // Is multiplayer client, reconnect
-                    ShowReconnectMessageBox();
+                    {
+                        // Is multiplayer client, reconnect
+                        ShowReconnectMessageBox();
+                    }
                 }
             }
 
@@ -715,7 +722,9 @@ namespace Sandbox.Game.Gui
                         MyThirdPersonSpectator.Static.UpdateZoom();
 
                     if (!MyInput.Static.IsGameControlPressed(MyControlsSpace.LOOKAROUND))
-                        MySession.ControlledEntity.MoveAndRotate(moveIndicator, rotationIndicator, rollIndicator);
+                    {
+                        MySession.ControlledEntity.MoveAndRotate(moveIndicator, rotationIndicator, rollIndicator);                   
+                    }
                     else
                     {
                         MySession.ControlledEntity.MoveAndRotate(moveIndicator, Vector2.Zero, rollIndicator);

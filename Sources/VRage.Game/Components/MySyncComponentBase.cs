@@ -7,7 +7,7 @@ using VRage.ObjectBuilders;
 
 namespace VRage.Components
 {
-    public abstract class MySyncComponentBase : MyComponentBase
+    public abstract class MySyncComponentBase : MyEntityComponentBase
     {
         public abstract void SendCloseRequest();
         public abstract void Tick();

@@ -7,51 +7,43 @@ using VRage.Utils;
 
 namespace VRage.Components
 {
-    public class MyComponentContainer
+
+    public interface IMyComponentContainer
     {
-        public IMyEntity Entity { get; private set; } //only temporary until the conversion to components is done
+    }
 
-        public event Action<Type, MyComponentBase> ComponentAdded;
-        public event Action<Type, MyComponentBase> ComponentRemoved;
+    public class MyComponentContainer<B> : IMyComponentContainer where B : IMyComponentBase 
+    {
+        public event Action<Type, B> ComponentAdded;
+        public event Action<Type, B> ComponentRemoved;
 
-        private Dictionary<Type, MyComponentBase> m_components = new Dictionary<Type, MyComponentBase>();
+        private Dictionary<Type, B> m_components = new Dictionary<Type, B>();
 
-        public MyComponentContainer(IMyEntity entity)
+        public void Add<T>(B component) where T : B
         {
-            Entity = entity;
-        }
-
-        public void Add<T>(MyComponentBase component) where T : MyComponentBase
-        {
-//#if DEBUG
-//            using (Stats.Generic.Measure("ComponentContainer.Add", VRage.Stats.MyStatTypeEnum.Counter, 1000, numDecimals: 3))
-//            using (Stats.Generic.Measure("ComponentContainer.AddMs", VRage.Stats.MyStatTypeEnum.Max, 1000, numDecimals: 3))
-//#endif
             {
                 Type t = typeof(T);
                 Remove<T>();
                 if (component != null)
                 {
                     m_components[t] = component;
-                    component.OnAddedToContainer(this);
+                    component.SetContainer(this);
+                    component.OnAddedToContainer();
                     var handle = ComponentAdded;
                     if (handle != null) handle(t, component);
                 }
             }
         }
 
-        public void Remove<T>() where T : MyComponentBase
+        public void Remove<T>() where T : B
         {
-//#if DEBUG
-//            using (Stats.Generic.Measure("ComponentContainer.Remove", VRage.Stats.MyStatTypeEnum.Counter, 1000, numDecimals: 3))
-//            using (Stats.Generic.Measure("ComponentContainer.RemoveMs", VRage.Stats.MyStatTypeEnum.Max, 1000, numDecimals: 3))
-//#endif
             {
                 Type t = typeof(T);
-                MyComponentBase c;
+                B c;
                 if (m_components.TryGetValue(t, out c))
                 {
-                    c.OnRemovedFromContainer(this);
+                    c.OnRemovedFromContainer();
+                    c.SetContainer(null);
                     m_components.Remove(t);
                     var handle = ComponentRemoved;
                     if (handle != null) handle(t, c);
@@ -59,24 +51,20 @@ namespace VRage.Components
             }
         }
 
-        public T Get<T>() where T : MyComponentBase
+        public T Get<T>() where T : B
         {
-//#if DEBUG
-//            using (Stats.Generic.Measure("ComponentContainer.Get", VRage.Stats.MyStatTypeEnum.Counter, 1000, numDecimals: 3))
-//            using (Stats.Generic.Measure("ComponentContainer.GetMs", VRage.Stats.MyStatTypeEnum.Max, 1000, numDecimals: 3))
-//#endif
             {
-                MyComponentBase c;
+                B c;
                 m_components.TryGetValue(typeof(T), out c);
-                return c as T;
+                return (T)c;
             }
         }
 
-        public bool TryGet<T>(out T component) where T : MyComponentBase
+        public bool TryGet<T>(out T component) where T : B
         {
-            MyComponentBase c;
+            B c;
             var retVal = m_components.TryGetValue(typeof(T), out c);
-            component = c as T;
+            component = (T)c;
             return retVal;
         }
 
@@ -99,7 +87,7 @@ namespace VRage.Components
 		{
             if (m_components.Count > 0)
             {
-                var tmpComponentList = new List<MyComponentBase>();
+                var tmpComponentList = new List<B>();
 
                 try
                 {
@@ -111,7 +99,7 @@ namespace VRage.Components
 
                     foreach (var component in tmpComponentList)
                     {
-                        component.OnRemovedFromContainer(this);
+                        component.OnRemovedFromContainer();
                         var handle = ComponentRemoved;
                         if (handle != null) handle(component.GetType(), component);
                     }
@@ -123,5 +111,21 @@ namespace VRage.Components
                 }
             }
 		}
+
+        public void OnAddedToScene()
+        {
+            foreach (var component in m_components)
+            {
+                component.Value.OnAddedToScene();
+            }
+        }
+
+        public void OnRemovedFromScene()
+        {
+            foreach (var component in m_components)
+            {
+                component.Value.OnRemovedFromScene();
+            }
+        }
 	}
 }

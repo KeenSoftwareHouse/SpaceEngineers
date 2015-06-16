@@ -42,6 +42,7 @@ namespace Sandbox.Game.Gui
 
         // Client has loaded world from server.
         public static event Action BattleWorldLoaded;
+        public static event Action ScenarioWorldLoaded;
 
 
         public MyGuiScreenLoadSandbox()
@@ -389,11 +390,64 @@ namespace Sandbox.Game.Gui
                 });
         }
 
-        public static void LoadMultiplayerBattleWorld(MyObjectBuilder_World world, MyMultiplayerBase multiplayerSession)
+        public static void LoadMultiplayerScenarioWorld(MyObjectBuilder_World world, MyMultiplayerBase multiplayerSession)
         {
             Debug.Assert(MySession.Static != null);
 
+            MyLog.Default.WriteLine("LoadMultiplayerScenarioWorld() - Start");
+
+            if (!MySteamWorkshop.CheckLocalModsAllowed(world.Checkpoint.Mods, false))
+            {
+                MyGuiSandbox.AddScreen(MyGuiSandbox.CreateMessageBox(
+                    messageCaption: MyTexts.Get(MySpaceTexts.MessageBoxCaptionError),
+                    messageText: MyTexts.Get(MySpaceTexts.DialogTextLocalModsDisabledInMultiplayer),
+                    buttonType: MyMessageBoxButtonsType.OK,
+                    callback: delegate(MyGuiScreenMessageBox.ResultEnum result) { MyGuiScreenMainMenu.ReturnToMainMenu(); }));
+                MyLog.Default.WriteLine("LoadMultiplayerScenarioWorld() - End");
+                return;
+            }
+
+            MySteamWorkshop.DownloadModsAsync(world.Checkpoint.Mods,
+                onFinishedCallback: delegate(bool success)
+                {
+                    if (success)
+                    {
+                        MyScreenManager.CloseAllScreensNowExcept(null);
+                        MyGuiSandbox.Update(MyEngineConstants.UPDATE_STEP_SIZE_IN_MILLISECONDS);
+
+                        MyGuiScreenGamePlay.StartLoading(delegate
+                        {
+                            MySession.Static.LoadMultiplayerWorld(world, multiplayerSession);
+                            if (ScenarioWorldLoaded != null)
+                                ScenarioWorldLoaded();
+                        });
+                    }
+                    else
+                    {
+                        MyGuiSandbox.AddScreen(MyGuiSandbox.CreateMessageBox(
+                            messageCaption: MyTexts.Get(MySpaceTexts.MessageBoxCaptionError),
+                            messageText: MyTexts.Get(MySpaceTexts.DialogTextDownloadModsFailed),
+                            buttonType: MyMessageBoxButtonsType.OK,
+                            callback: delegate(MyGuiScreenMessageBox.ResultEnum result) { MyGuiScreenMainMenu.ReturnToMainMenu(); }));
+                    }
+                    MyLog.Default.WriteLine("LoadMultiplayerScenarioWorld() - End");
+                },
+                onCancelledCallback: delegate()
+                {
+                    MyGuiScreenMainMenu.UnloadAndExitToMenu();
+                });
+        }
+
+        public static void LoadMultiplayerBattleWorld(MyObjectBuilder_World world, MyMultiplayerBase multiplayerSession)
+        {
             MyLog.Default.WriteLine("LoadMultiplayerBattleWorld() - Start");
+
+            Debug.Assert(MySession.Static != null);
+            if (MySession.Static == null)
+            {
+                MyGuiScreenMainMenu.UnloadAndExitToMenu();
+                return;
+            }
 
             if (!MySteamWorkshop.CheckLocalModsAllowed(world.Checkpoint.Mods, false))
             {

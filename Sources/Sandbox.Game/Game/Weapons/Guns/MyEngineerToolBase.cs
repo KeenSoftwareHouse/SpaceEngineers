@@ -39,6 +39,7 @@ namespace Sandbox.Game.Weapons
     {
         public static float GLARE_SIZE = 0.068f;
 
+		public bool IsDeconstructor { get { return false; } }
         public int ToolCooldownMs { get; private set; }
         public int EffectStopMs
         {
@@ -248,52 +249,6 @@ namespace Sandbox.Game.Weapons
             base.OnRemovedFromScene(source);
             StopSecondaryEffect();
             StopEffect();
-        }
-
-        protected void SetBlockComponents(MyHudBlockInfo hudInfo, MySlimBlock block)
-        {
-            hudInfo.Components.Clear();
-
-            for (int i = 0; i < block.ComponentStack.GroupCount; i++)
-            {
-                var info = block.ComponentStack.GetGroupInfo(i);
-                var component = new MyHudBlockInfo.ComponentInfo();
-                component.ComponentName = info.Component.DisplayNameText;
-                component.Icon = info.Component.Icon;
-                component.TotalCount = info.TotalCount;
-                component.MountedCount = info.MountedCount;
-
-                hudInfo.Components.Add(component);
-            }
-
-            if (!block.StockpileEmpty)
-            {
-                // For each component
-                foreach (var comp in block.BlockDefinition.Components)
-                {
-                    // Get amount in stockpile
-                    int amount = block.GetConstructionStockpileItemAmount(comp.Definition.Id);
-
-                    for (int i = 0; amount > 0 && i < hudInfo.Components.Count; i++)
-                    {
-                        if (block.ComponentStack.GetGroupInfo(i).Component == comp.Definition)
-                        {
-                            if (block.ComponentStack.IsFullyDismounted)
-                            {
-                                return;
-                            }
-                            // Distribute amount in stockpile from bottom to top
-                            var info = hudInfo.Components[i];
-                            int space = info.TotalCount - info.MountedCount;
-                            int movedItems = Math.Min(space, amount);
-                            info.StockpileCount = movedItems;
-                            amount -= movedItems;
-                            hudInfo.Components[i] = info;
-                        }
-                    }
-                    Debug.Assert(!Sync.IsServer || amount == 0, "There's more items in stockpile than necessary");
-                }
-            }
         }
 
         public override void UpdateAfterSimulation()
@@ -717,7 +672,7 @@ namespace Sandbox.Game.Weapons
             MyHud.BlockInfo.CriticalComponentIndex = block.BlockDefinition.CriticalGroup;
             MyHud.BlockInfo.OwnershipIntegrity = block.BlockDefinition.OwnershipIntegrityRatio;
 
-            SetBlockComponents(MyHud.BlockInfo, block);
+            MySlimBlock.SetBlockComponents(MyHud.BlockInfo, block);
 
             if (m_targetDistanceSq > m_toolActionDistance * m_toolActionDistance)
             {

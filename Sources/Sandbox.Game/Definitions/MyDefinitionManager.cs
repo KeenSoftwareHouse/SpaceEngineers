@@ -581,7 +581,7 @@ namespace Sandbox.Definitions
 
             if (objBuilder.ControllerSchemas != null)
             {
-                MySandboxGame.Log.WriteLine("Loading cutting definitions");
+                MySandboxGame.Log.WriteLine("Loading controller schemas definitions");
                 InitControllerSchemas(context, definitionSet.m_definitionsById, objBuilder.ControllerSchemas, failOnDebug);
             }
 
@@ -609,6 +609,34 @@ namespace Sandbox.Definitions
                 MySandboxGame.Log.WriteLine("Loading decal definitions");
                 Check(failOnDebug, "Decals", failOnDebug, WARNING_ON_REDEFINITION_MESSAGE);
                 InitDecals(context, objBuilder.Decals, failOnDebug);
+            }
+
+            if (objBuilder.FloraElements != null)
+            {
+                MySandboxGame.Log.WriteLine("Loading flora elements definitions");
+                Check(failOnDebug, "Flora", failOnDebug, WARNING_ON_REDEFINITION_MESSAGE);
+                InitGenericObjects(context, definitionSet.m_definitionsById, objBuilder.FloraElements, failOnDebug);
+            }
+
+			if (objBuilder.StatsDefinitions != null)
+			{
+				MySandboxGame.Log.WriteLine("Loading stats definitions");
+				Check(failOnDebug, "Stat", failOnDebug, WARNING_ON_REDEFINITION_MESSAGE);
+				InitGenericObjects(context, definitionSet.m_definitionsById, objBuilder.StatsDefinitions, failOnDebug);
+			}
+			if (objBuilder.StatDefinitions != null)
+			{
+				MySandboxGame.Log.WriteLine("Loading stats definitions");
+				Check(failOnDebug, "Stat", failOnDebug, WARNING_ON_REDEFINITION_MESSAGE);
+				InitGenericObjects(context, definitionSet.m_definitionsById, objBuilder.StatDefinitions, failOnDebug);
+			}
+
+
+            if (objBuilder.ComponentGroups != null)
+            {
+                MySandboxGame.Log.WriteLine("Loading component group definitions");
+                Check(failOnDebug, "Component groups", failOnDebug, WARNING_ON_REDEFINITION_MESSAGE);
+                InitComponentGroups(context, definitionSet.m_componentGroups, objBuilder.ComponentGroups, failOnDebug);
             }
         }
 
@@ -757,6 +785,7 @@ namespace Sandbox.Definitions
             CreateTransparentMaterials();
             InitVoxelMaterials();
             InitBlockGroups();
+            PostprocessComponentGroups();
             PostprocessBlueprints();
             AddEntriesToBlueprintClasses();
             AddEntriesToEnvironmentItemClasses();
@@ -826,6 +855,26 @@ namespace Sandbox.Definitions
                         StringBuilder sb = new StringBuilder("Weapon definition lacks ammo data properties for given ammo definition: ");
                         sb.Append(ammoDefinition.Id.SubtypeName);
                         MyDefinitionErrors.Add(weaponEntry.Context, sb.ToString(), ErrorSeverity.Critical);
+                    }
+                }
+            }
+        }
+
+        private void PostprocessComponentGroups()
+        {
+            foreach (var entry in m_definitions.m_componentGroups)
+            {
+                MyComponentGroupDefinition group = entry.Value;
+
+                group.Postprocess();
+                if (group.IsValid)
+                {
+                    int maxAmount = group.GetComponentNumber();
+
+                    for (int i = 1; i <= maxAmount; ++i)
+                    {
+                        MyComponentDefinition component = group.GetComponentDefinition(i);
+                        m_definitions.m_componentGroupMembers.Add(component.Id, new MyTuple<int, MyComponentGroupDefinition>(i, group));
                     }
                 }
             }
@@ -950,7 +999,7 @@ namespace Sandbox.Definitions
                 // We don't want to have to hide both the item's definition and it's class entry
                 if (itemDefinition == null) continue;
 
-                MyStringId subtypeId = MyStringId.GetOrCompute(entry.ItemSubtype);
+                var subtypeId = MyStringHash.GetOrCompute(entry.ItemSubtype);
                 itemsDefinition.AddItemDefinition(subtypeId);
             }
             m_definitions.m_environmentItemsEntries.Clear();
@@ -1758,6 +1807,17 @@ namespace Sandbox.Definitions
             }
         }
 
+        private static void InitComponentGroups(MyModContext context, DefinitionDictionary<MyComponentGroupDefinition> output, MyObjectBuilder_ComponentGroupDefinition[] objects, bool failOnDebug = true)
+        {
+            for (int i = 0; i < objects.Length; i++)
+            {
+                var definition = InitDefinition<MyComponentGroupDefinition>(context, objects[i]);
+
+                Check(!output.ContainsKey(definition.Id), definition.Id, failOnDebug);
+                output[definition.Id] = definition;
+            }
+        }
+
         public DictionaryValuesReader<string, MyCharacterDefinition> Characters
         {
             get { return new DictionaryValuesReader<string, MyCharacterDefinition>(m_definitions.m_characters); }
@@ -1771,7 +1831,7 @@ namespace Sandbox.Definitions
             return m_definitions.m_characterNames[index].Name;
         }
 
-        public MyAudioDefinition GetSoundDefinition(MyStringId subtypeId)
+        public MyAudioDefinition GetSoundDefinition(MyStringHash subtypeId)
         {
             return m_definitions.m_sounds[new MyDefinitionId(typeof(MyObjectBuilder_AudioDefinition), subtypeId)];
         }
@@ -2465,6 +2525,25 @@ namespace Sandbox.Definitions
             {
                 Debug.Fail("Definition is invalid, but cannot display error message because id.ToString() fails! Exception message: {0}", ex.Message);
             }
+        }
+
+        public MyComponentGroupDefinition GetComponentGroup(MyDefinitionId groupDefId)
+        {
+            MyComponentGroupDefinition group = null;
+            m_definitions.m_componentGroups.TryGetValue(groupDefId, out group);
+            return group;
+        }
+
+        public MyComponentGroupDefinition GetGroupForComponent(MyDefinitionId componentDefId, out int amount)
+        {
+            MyTuple<int, MyComponentGroupDefinition> result;
+            if (m_definitions.m_componentGroupMembers.TryGetValue(componentDefId, out result))
+            {
+                amount = result.Item1;
+                return result.Item2;
+            }
+            amount = 0;
+            return null;
         }
 
         #endregion

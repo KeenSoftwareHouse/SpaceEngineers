@@ -8,13 +8,14 @@ using VRageMath;
 
 namespace VRage.Components
 {
-    public abstract class MyUseObjectsComponentBase : MyComponentBase
+    public abstract class MyUseObjectsComponentBase : MyEntityComponentBase
     {
         protected Dictionary<string, List<Matrix>> m_detectors = new Dictionary<string, List<Matrix>>();
 
-        public abstract MyPhysicsComponentBase DetectorPhysics { get; }
+        public abstract MyPhysicsComponentBase DetectorPhysics { get; protected set; }
 
-        public abstract void AddDetector(string name, Matrix matrix);
+        public abstract int AddDetector(string name, Matrix matrix);
+        public abstract void RemoveDetector(int id);
         public abstract void RecreatePhysics();
         public abstract void LoadDetectorsFromModel();
 
@@ -63,11 +64,31 @@ namespace VRage.Components
             }
         }
 
-        public override void OnRemovedFromContainer(MyComponentContainer container)
+        public override void OnRemovedFromContainer()
         {
-            base.OnRemovedFromContainer(container);
+            base.OnRemovedFromContainer();
 
             ClearPhysics();
+        }
+
+        public override void OnAddedToScene()
+        {
+            base.OnAddedToScene();
+
+            if (DetectorPhysics != null)
+            {
+                DetectorPhysics.Activate();
+            }
+        }
+
+        public override void OnRemovedFromScene()
+        {
+            base.OnRemovedFromScene();
+
+            if (DetectorPhysics != null)
+            {
+                DetectorPhysics.Deactivate();
+            }
         }
     }
 }

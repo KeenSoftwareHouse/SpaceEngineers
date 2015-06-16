@@ -1313,13 +1313,21 @@ namespace Sandbox.Game.Entities
             }
         }
 
-        public void SwitchToWeapon(MyDefinitionId? weapon)
+        public void SwitchToWeapon(MyDefinitionId weapon)
         {
             if (m_enableShipControl)
             {
                 SwitchToWeaponInternal(weapon, true);
             }
         }
+
+		public void SwitchToWeapon(MyToolbarItemWeapon weapon)
+		{
+			if (m_enableShipControl)
+			{
+				SwitchToWeaponInternal(null, true);
+			}
+		}
 
         public void RequestUse(UseActionEnum actionEnum, MyCharacter user)
         {
@@ -1543,6 +1551,8 @@ namespace Sandbox.Game.Entities
                     MyHud.Notifications.Add(MyNotificationSingletons.AccessDenied);
                 else if (actionResult == UseActionResult.Unpowered)
                     MyHud.Notifications.Add(new MyHudNotification(MySpaceTexts.BlockIsNotPowered, 2500, MyFontEnum.Red));
+                else if (actionResult == UseActionResult.CockpitDamaged)
+                    MyHud.Notifications.Add(new MyHudNotification(MySpaceTexts.Notification_CockpitIsDamaged, 2500, MyFontEnum.Red));
             }
         }
 
@@ -1700,7 +1710,10 @@ namespace Sandbox.Game.Entities
                 if (m_singleWeaponMode != value)
                 {
                     m_singleWeaponMode = value;
-                    SwitchToWeapon(m_selectedGunId);
+					if (m_selectedGunId.HasValue)
+						SwitchToWeapon(m_selectedGunId.Value);
+					else
+						SwitchToWeapon(null);
                 }
             }
         }

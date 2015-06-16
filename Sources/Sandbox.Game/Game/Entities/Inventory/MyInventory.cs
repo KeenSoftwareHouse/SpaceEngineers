@@ -38,7 +38,8 @@ namespace Sandbox.Game
         List<MyInventoryItem> m_items = new List<MyInventoryItem>();
 
         //in m3 (1dm3 = 0.001m3, 1m3 = 1000dm3)
-        MyFixedPoint m_maxVolume = MyFixedPoint.MaxValue; //stored in dm3 because of floating errors
+        MyFixedPoint m_maxMass = MyFixedPoint.MaxValue;
+        MyFixedPoint m_maxVolume = MyFixedPoint.MaxValue; //stored in dm3 / litres because of floating errors
         MyFixedPoint m_currentVolume = 0;   //stored in dm3 because of floating errors
         MyFixedPoint m_currentMass = 0;
 
@@ -66,13 +67,19 @@ namespace Sandbox.Game
         #region Init
 
         public MyInventory(float maxVolume, Vector3 size, MyInventoryFlags flags, IMyInventoryOwner owner)
-            : this((MyFixedPoint)maxVolume, size, flags, owner)
+            : this((MyFixedPoint)maxVolume, MyFixedPoint.MaxValue, size, flags, owner)
         {
         }
 
-        public MyInventory(MyFixedPoint maxVolume, Vector3 size, MyInventoryFlags flags, IMyInventoryOwner owner)
+        public MyInventory(float maxVolume, float maxMass, Vector3 size, MyInventoryFlags flags, IMyInventoryOwner owner)
+            : this((MyFixedPoint)maxVolume,(MyFixedPoint)maxMass, size, flags, owner)
+        {
+        }
+
+        public MyInventory(MyFixedPoint maxVolume, MyFixedPoint maxMass, Vector3 size, MyInventoryFlags flags, IMyInventoryOwner owner)
         {
             m_maxVolume = MyPerGameSettings.ConstrainInventory() ? maxVolume * MySession.Static.InventoryMultiplier : MyFixedPoint.MaxValue;
+            m_maxMass = maxMass;
             m_size = size;
             m_flags = flags;
             m_owner = owner;
@@ -85,6 +92,11 @@ namespace Sandbox.Game
         #endregion
 
         #region Properties
+
+        public MyFixedPoint MaxMass // in kg
+        {
+            get { return m_maxMass; }
+        }
 
         public MyFixedPoint MaxVolume // in m3
         {
@@ -154,7 +166,7 @@ namespace Sandbox.Game
 
         public bool IsFull
         {
-            get { return m_currentVolume == m_maxVolume; }
+            get { return m_currentVolume >= m_maxVolume || m_currentMass >= m_maxMass ; }
         }
 
         #endregion
@@ -193,7 +205,7 @@ namespace Sandbox.Game
                 volume = (blockDef.Size * MyDefinitionManager.Static.GetCubeSize(blockDef.CubeSize)).Volume;
                 if (MyDestructionData.Static != null && Sync.IsServer)
                 {
-                    mass = MyDestructionData.Static.GetBlockMass(blockDef);
+                    mass = MyDestructionData.Static.GetBlockMass(blockDef.Model, blockDef);
                 }
                 else
                 {
@@ -211,8 +223,9 @@ namespace Sandbox.Game
             float volume, mass;
             if (!GetVolumeAndMass(ref contentId, out volume, out mass))
                 return 0;
-            var amountThatFits = (m_maxVolume - m_currentVolume) * (1.0f / volume);
-            amountThatFits = MyFixedPoint.Max(amountThatFits, 0); // In case we added more than we can carry using debug keys.
+            var amountThatFitsVolume = MyFixedPoint.Max((m_maxVolume - m_currentVolume) * (1.0f / volume),0);
+            var amountThatFitsMass = MyFixedPoint.Max((MyFixedPoint)(((float)m_maxMass - (float)m_currentMass) * (1.0f / (float)mass)), 0);
+            var amountThatFits = MyFixedPoint.Min(amountThatFitsVolume, amountThatFitsMass); 
 
             MyPhysicalItemDefinition physicalItemDefinition = null;
             MyDefinitionManager.Static.TryGetPhysicalItemDefinition(contentId, out physicalItemDefinition);
@@ -380,22 +393,23 @@ namespace Sandbox.Game
             }
             return false;
         }
-        public void AddItems(MyFixedPoint amount, MyObjectBuilder_PhysicalObject objectBuilder, int index = -1)
+        public bool AddItems(MyFixedPoint amount, MyObjectBuilder_PhysicalObject objectBuilder, int index = -1)
         {
-            if (amount == 0) return;
-            if (!CanItemsBeAdded(amount, objectBuilder.GetObjectId())) return;
+            if (amount == 0) return false;
+            if (!CanItemsBeAdded(amount, objectBuilder.GetObjectId())) return false;
 
             if (Sync.IsServer)
             {
                 if (MyPerGameSettings.ConstrainInventory())
                     AffectAddBySurvival(ref amount, objectBuilder);
                 if (amount == 0)
-                    return;
+                    return false;
                 AddItemsInternal(amount, objectBuilder, index);
                 SyncObject.SendAddItemsAnnounce(this, amount, objectBuilder, index);
             }
             else
                 SyncObject.SendAddItemsRequest(this, index, amount, objectBuilder);
+            return true;
         }
 
         private void AffectAddBySurvival(ref MyFixedPoint amount, MyObjectBuilder_PhysicalObject objectBuilder)
@@ -504,11 +518,12 @@ namespace Sandbox.Game
 
         public MyEntity RemoveItems(uint itemId, MyFixedPoint? amount = null, bool sendEvent = true, bool spawn = false, MatrixD? spawnPos = null)
         {
-            var am = amount.HasValue ? amount.Value : 0;
+            var item = GetItemByID(itemId);
+            var am = amount.HasValue ? amount.Value : (item.HasValue? item.Value.Amount : 1);
             MyEntity spawned = null;
             if (Sync.IsServer)
             {
-                var item = GetItemByID(itemId);
+                
                 if (item.HasValue && RemoveItemsInternal(itemId, am, sendEvent))
                 {
                     if (spawn)

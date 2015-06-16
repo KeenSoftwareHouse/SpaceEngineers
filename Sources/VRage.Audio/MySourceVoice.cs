@@ -13,7 +13,7 @@ namespace VRage.Audio
         public Action StoppedPlaying { get; set; }
         MySourceVoicePool m_owner;
         SourceVoice m_voice;
-        MyStringId m_cue;
+        MyCueId m_cueId;
         MyInMemoryWave[] m_loopBuffers = new MyInMemoryWave[3];
         float m_frequencyRatio = 1f;
         VoiceSendDescriptor[] m_currentDescriptor;
@@ -26,7 +26,7 @@ namespace VRage.Audio
         private bool m_buffered;
 
         public SourceVoice Voice { get { return m_voice; }}
-        public MyStringId CueEnum { get { return m_cue; } }
+        public MyCueId CueEnum { get { return m_cueId; } }
         public bool IsPlaying { get { return m_isPlaying; } }
         public bool IsPaused { get { return m_isPaused; } }
         public bool IsLoopable { get { return m_isLoopable; } }
@@ -75,7 +75,7 @@ namespace VRage.Audio
 
         public void Flush()
         {
-            m_cue = MyStringId.NullOrEmpty;
+            m_cueId = new MyCueId(MyStringHash.NullOrEmpty);
             m_voice.Stop();
             m_voice.FlushSourceBuffers();
             for (int i = 0; i < m_loopBuffers.Length; i++ )
@@ -86,10 +86,10 @@ namespace VRage.Audio
             m_currentDescriptor = null;
         }
 
-        internal void SubmitSourceBuffer(MyStringId cue, MyInMemoryWave wave, MyCueBank.CuePart part)
+        internal void SubmitSourceBuffer(MyCueId cueId, MyInMemoryWave wave, MyCueBank.CuePart part)
         {
             m_loopBuffers[(int)part] = wave;
-            m_cue = cue;
+            m_cueId = cueId;
             m_isLoopable |= (wave.Buffer.LoopCount > 0);
         }
 
@@ -217,7 +217,7 @@ namespace VRage.Audio
 
         public override string ToString()
         {
-            return string.Format(m_cue.ToString());
+            return string.Format(m_cueId.ToString());
         }
 
         internal void DestroyVoice()

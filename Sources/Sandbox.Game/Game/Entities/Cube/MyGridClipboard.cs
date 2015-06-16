@@ -153,11 +153,15 @@ namespace Sandbox.Game.Entities.Cube
         protected delegate void UpdateAfterPasteCallback(List<MyObjectBuilder_CubeGrid> pastedBuilders);
 
 
-        protected virtual bool HasPreviewBBox
+        public virtual bool HasPreviewBBox
         {
             get
             {
                 return true;
+            }
+            set
+            {
+
             }
         }
 
@@ -458,12 +462,12 @@ namespace Sandbox.Game.Entities.Cube
             m_copiedGridOffsets.Add(toCopy.WorldMatrix.Translation - m_copiedGrids[0].PositionAndOrientation.Value.Position);
         }
 
-        public virtual bool PasteGrid(MyInventory buildInventory = null, bool deactivate = true)
+        public virtual bool PasteGrid(IMyComponentInventory buildInventory = null, bool deactivate = true)
         {
             return PasteGridInternal(buildInventory, deactivate);
         }
 
-        protected bool PasteGridInternal(MyInventory buildInventory, bool deactivate, List<MyObjectBuilder_CubeGrid> pastedBuilders = null, List<MyCubeGrid> touchingGrids = null,
+        protected bool PasteGridInternal(IMyComponentInventory buildInventory, bool deactivate, List<MyObjectBuilder_CubeGrid> pastedBuilders = null, List<MyCubeGrid> touchingGrids = null,
             UpdateAfterPasteCallback updateAfterPasteCallback = null)
         {
             if (m_copiedGrids.Count == 0)
@@ -516,7 +520,7 @@ namespace Sandbox.Game.Entities.Cube
 
         }
 
-        private bool PasteInternal(MyInventory buildInventory, bool missingDefinitions, bool deactivate, List<MyObjectBuilder_CubeGrid> pastedBuilders = null, List<MyCubeGrid> touchingGrids = null,
+        private bool PasteInternal(IMyComponentInventory buildInventory, bool missingDefinitions, bool deactivate, List<MyObjectBuilder_CubeGrid> pastedBuilders = null, List<MyCubeGrid> touchingGrids = null,
             UpdateAfterPasteCallback updateAfterPasteCallback = null)
         {
             MyGuiAudio.PlaySound(MyGuiSounds.HudPlaceBlock);
@@ -534,7 +538,7 @@ namespace Sandbox.Game.Entities.Cube
             List<MyCubeGrid> pastedGrids = new List<MyCubeGrid>();
 
             foreach (var gridBuilder in m_copiedGrids)
-            {
+               {
                 gridBuilder.CreatePhysics = true;
                 gridBuilder.EnableSmallToLargeConnections = true;
                 bool savedStaticFlag = gridBuilder.IsStatic;
@@ -563,10 +567,11 @@ namespace Sandbox.Game.Entities.Cube
                 //pastedGrid.PositionComp.SetWorldMatrix(m_previewGrids[i].WorldMatrix);
                 i++;
 
-                if (!pastedGrid.IsStatic)
+                if (!pastedGrid.IsStatic && (!MyFakes.ENABLE_BATTLE_SYSTEM || !MySession.Static.Battle))
                     pastedGrid.Physics.LinearVelocity = m_objectVelocity;
 
-                if (!pastedGrid.IsStatic && MySession.ControlledEntity != null && MySession.ControlledEntity.Entity.Physics != null && m_calculateVelocity)
+                if (!pastedGrid.IsStatic && MySession.ControlledEntity != null && MySession.ControlledEntity.Entity.Physics != null && m_calculateVelocity
+                    && (!MyFakes.ENABLE_BATTLE_SYSTEM || !MySession.Static.Battle))
                 {
                     pastedGrid.Physics.AngularVelocity = MySession.ControlledEntity.Entity.Physics.AngularVelocity;
                 }
@@ -610,6 +615,7 @@ namespace Sandbox.Game.Entities.Cube
                 }
                 else
                 {
+                    //MySyncCreate.RequestEntitiesCreate(m_tmpPastedBuilders);
                     MySyncCreate.SendEntitiesCreated(m_tmpPastedBuilders);
                 }
             }
@@ -716,6 +722,17 @@ namespace Sandbox.Game.Entities.Cube
         private void SetGridFromBuilderInternal(MyObjectBuilder_CubeGrid grid, Vector3 offset)
         {
             Debug.Assert(grid.CubeBlocks.Count() > 0, "The grid does not contain any blocks");
+
+            foreach (var block in grid.CubeBlocks)
+            {
+                var defId = block.GetId();
+                MyCubeBlockDefinition blockDef = null;
+                MyDefinitionManager.Static.TryGetCubeBlockDefinition(defId, out blockDef);
+                if (blockDef == null) continue;
+                
+                MyCubeBuilder.BuildComponent.BeforeCreateBlock(blockDef, GetClipboardBuilder(), block);
+            }
+
             m_copiedGrids.Add(grid);
             m_copiedGridOffsets.Add(offset);
             RemovePilots(grid);
@@ -901,32 +918,24 @@ namespace Sandbox.Game.Entities.Cube
             m_raycastCollisionResults.Clear();
         }
 
-        protected void TestBuildingMaterials()
+        protected virtual void TestBuildingMaterials()
         {
-            if (MySession.Static.SurvivalMode)
-            {
-                var character = MySession.LocalCharacter;
-                if ((MyFinalBuildConstants.IS_OFFICIAL || MySession.GetCameraControllerEnum() != MyCameraControllerEnum.Spectator) && character != null && !character.CanStartConstruction(m_requiredBuildItems))
-                {
-                    m_characterHasEnoughMaterials = false;
-                }
-                else
-                {
-                    m_characterHasEnoughMaterials = true;
-                }
-            }
-            else
-            {
-                m_characterHasEnoughMaterials = true;
-            }
+            m_characterHasEnoughMaterials = EntityCanPaste(GetClipboardBuilder());
         }
 
-        public bool CharacterCanPaste(MyCharacter character)
+        protected virtual MyEntity GetClipboardBuilder()
         {
-            return character.CanStartConstruction(m_requiredBuildItems);
+            return MySession.LocalCharacter;
         }
 
-        private bool TestPlacement()
+        public bool EntityCanPaste(MyEntity pastingEntity)
+        {
+            if (m_copiedGrids.Count < 1) return false;
+            MyCubeBuilder.BuildComponent.GetGridSpawnMaterials(m_copiedGrids[0]);
+            return MyCubeBuilder.BuildComponent.HasBuildingMaterials(pastingEntity);
+        }
+
+        protected virtual bool TestPlacement()
         {
             bool forceDynamicGrid = IsForcedDynamic();
             m_gridChangeToDynamicDisabled = false;

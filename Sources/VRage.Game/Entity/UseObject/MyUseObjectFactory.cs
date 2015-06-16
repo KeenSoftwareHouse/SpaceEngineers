@@ -30,6 +30,7 @@ namespace VRage.Game.Entity.UseObject
         {
             RegisterAssemblyTypes(Assembly.GetExecutingAssembly());
             RegisterAssemblyTypes(MyPlugins.GameAssembly);
+            RegisterAssemblyTypes(MyPlugins.SandboxAssembly);
             RegisterAssemblyTypes(MyPlugins.UserAssembly);
             RegisterAssemblyTypes(Assembly.LoadFrom(Path.Combine(MyFileSystem.ExePath, "Sandbox.Game.dll")));
         }

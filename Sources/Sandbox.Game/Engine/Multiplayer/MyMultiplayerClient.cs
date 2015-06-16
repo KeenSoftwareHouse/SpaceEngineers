@@ -165,6 +165,18 @@ namespace Sandbox.Engine.Multiplayer
             set;
         }
 
+        public override string ScenarioBriefing
+        {
+            get;
+            set;
+        }
+
+        public override DateTime ScenarioStartTime
+        {
+            get;
+            set;
+        }
+
         public override bool Battle
         {
             get;
@@ -172,6 +184,12 @@ namespace Sandbox.Engine.Multiplayer
         }
 
         public override bool BattleCanBeJoined
+        {
+            get;
+            set;
+        }
+
+        public override ulong BattleWorldWorkshopId
         {
             get;
             set;

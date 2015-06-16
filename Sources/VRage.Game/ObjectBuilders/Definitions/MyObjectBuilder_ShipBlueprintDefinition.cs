@@ -15,6 +15,6 @@ namespace Sandbox.Common.ObjectBuilders.Definitions
         public ulong OwnerSteamId;
 
         [ProtoMember]
-        public ulong BattlePoints;
+        public ulong Points;
     }
 }

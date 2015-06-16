@@ -57,7 +57,7 @@ namespace Sandbox.Game.GameSystems
             Loaded,
             JoinScreen,
             WaitingForClients,
-            Game,
+            Running,
         }
 
         private MyState m_gameState = MyState.Loaded;
@@ -122,7 +122,7 @@ namespace Sandbox.Game.GameSystems
                     }
                 }
             }
-            else if (m_gameState == MyState.Game)
+            else if (m_gameState == MyState.Running)
             {
                 MySyncScenario.StartScenarioRequest(steamId, ServerStartGameTime.Ticks);
             }
@@ -137,7 +137,7 @@ namespace Sandbox.Game.GameSystems
             }
             return true;
         }
-
+        int m_bootUpCount = 0;
         public override void UpdateBeforeSimulation()
         {
             base.UpdateBeforeSimulation();
@@ -148,20 +148,50 @@ namespace Sandbox.Game.GameSystems
             if (!Sync.IsServer)
                 return;
 
+            if (MySession.Static.OnlineMode == MyOnlineModeEnum.OFFLINE)//!Sync.MultiplayerActive)
+                return;
+
             switch (m_gameState)
             {
-
                 case MyState.Loaded:
-                    MyGuiSandbox.AddScreen(new MyGuiScreenScenarioMpServer());
-                    MyMultiplayer.Static.Scenario = true;
-                    m_gameState = MyState.JoinScreen;
+                    if (MySession.Static.OnlineMode != MyOnlineModeEnum.OFFLINE && MyMultiplayer.Static == null)
+                    {
+                        m_bootUpCount++;
+                        if (m_bootUpCount > 10)//because MyMultiplayer.Static is initialized later than this part of game
+                        {
+                            //network start failure - trying to save what we can :-)
+                            MyPlayerCollection.RequestLocalRespawn();
+                            m_gameState = MyState.Running;
+                            return;
+                        }
+                    }
+                    if (MySandboxGame.IsDedicated)
+                    {
+                        ServerPreparationStartTime = DateTime.UtcNow;
+                        MyMultiplayer.Static.ScenarioStartTime = ServerPreparationStartTime;
+                        m_gameState = MyState.Running;
+                        return;
+                    }
+                    if (MySession.Static.OnlineMode == MyOnlineModeEnum.OFFLINE || MyMultiplayer.Static != null)
+                    {
+                        if (MyMultiplayer.Static != null)
+                        {
+                            MyMultiplayer.Static.Scenario = true;
+                            MyMultiplayer.Static.ScenarioBriefing = MySession.Static.GetWorld().Checkpoint.Briefing;
+                        }
+                        MyGuiScreenScenarioMpServer guiscreen = new MyGuiScreenScenarioMpServer();
+                        guiscreen.Briefing = MySession.Static.GetWorld().Checkpoint.Briefing;
+                        MyGuiSandbox.AddScreen(new MyGuiScreenScenarioMpServer());
+                        m_playersReadyForBattle.Add(MySteam.UserId);
+                        m_gameState = MyState.JoinScreen;
+                    }
                     break;
                 case MyState.JoinScreen:
                     break;
                 case MyState.WaitingForClients:
                     // Check timeout
                     TimeSpan currenTime = MySession.Static.ElapsedPlayTime;
-                    if (LoadTimeout>0 && currenTime - m_startBattlePreparationOnClients > TimeSpan.FromSeconds(LoadTimeout))
+                    if (AllPlayersReadyForBattle() || (LoadTimeout>0 && currenTime - m_startBattlePreparationOnClients > TimeSpan.FromSeconds(LoadTimeout)))
                     {
                         StartScenario();
                         foreach (var playerId in m_playersReadyForBattle)
@@ -171,7 +201,7 @@ namespace Sandbox.Game.GameSystems
                         }
                     }
                     break;
-                case MyState.Game:
+                case MyState.Running:
                     break;
             }
         }
@@ -217,15 +247,13 @@ namespace Sandbox.Game.GameSystems
             m_startBattlePreparationOnClients = MySession.Static.ElapsedPlayTime;
 
             var onlineMode = GetOnlineModeFromCurrentLobbyType();
-            if (onlineMode == MyOnlineModeEnum.FRIENDS || onlineMode == MyOnlineModeEnum.PUBLIC)
+            if (onlineMode != MyOnlineModeEnum.OFFLINE)
             {
-                // Set battle started to lobby so the game will not be displayed in join games table.
-                //MyMultiplayer.Static.BattleStarted = true;
-
                 m_waitingScreen = new MyGuiScreenScenarioWaitForPlayers();
                 MyGuiSandbox.AddScreen(m_waitingScreen);
 
                 ServerPreparationStartTime = DateTime.UtcNow;
+                MyMultiplayer.Static.ScenarioStartTime = ServerPreparationStartTime;
                 MySyncScenario.PrepareScenarioFromLobby(ServerPreparationStartTime.Ticks);
             }
             else
@@ -238,7 +266,6 @@ namespace Sandbox.Game.GameSystems
         {
             if (Sync.IsServer)
             {
-                //MyMultiplayer.Static.BattleStarted = true;
                 ServerStartGameTime = DateTime.UtcNow;
             }
             if (m_waitingScreen != null)
@@ -246,8 +273,9 @@ namespace Sandbox.Game.GameSystems
                 MyGuiSandbox.RemoveScreen(m_waitingScreen);
                 m_waitingScreen = null;
             }
-            m_gameState = MyState.Game;
+            m_gameState = MyState.Running;
             m_startBattleTime = MySession.Static.ElapsedPlayTime;
+            MyPlayerCollection.RequestLocalRespawn();
         }
 
         internal static MyOnlineModeEnum GetOnlineModeFromCurrentLobbyType()

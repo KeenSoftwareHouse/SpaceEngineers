@@ -53,7 +53,7 @@ namespace VRage.Components
         APPLY_WORLD_FORCE
     }
 
-    public abstract class MyPhysicsComponentBase : MyComponentBase
+    public abstract class MyPhysicsComponentBase : MyEntityComponentBase
     {
         public static bool DebugDrawFlattenHierarchy = false;
 
@@ -85,8 +85,8 @@ namespace VRage.Components
         /// <value>
         /// The type of the material.
         /// </value>
-        public MyStringId MaterialType { get; set; }
-        public virtual MyStringId GetMaterialAt(Vector3D worldPos) { return MaterialType; }
+        public MyStringHash MaterialType { get; set; }
+        public virtual MyStringHash GetMaterialAt(Vector3D worldPos) { return MaterialType; }
 
         /// <summary>
         /// Gets or sets a value indicating whether this <see cref="MyGameRigidBody"/> is static.

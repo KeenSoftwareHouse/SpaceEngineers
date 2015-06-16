@@ -76,15 +76,18 @@ namespace Sandbox.Game.Components
             {
                 foreach (var b in m_cubeGrid.GetBlocks())
                 {
-                    var geometryBox = b.FatBlock.GetGeometryLocalBox();
+                    var geometryBox = b.FatBlock.GetGeometryLocalBox();                    
                     //geometryBox.Inflate(0.5f);
                     Vector3 halfExtents = geometryBox.Size / 2;
 
-                    Vector3D pos;
-                    b.ComputeWorldCenter(out pos);
+                    Vector3D pos;                    
+                    b.ComputeScaledCenter(out pos);
+                    pos += geometryBox.Center;                    
+                    pos = Vector3D.Transform(pos, m_cubeGrid.WorldMatrix);
+
                     Matrix blockMatrix;
                     b.Orientation.GetMatrix(out blockMatrix);
-                    var q = Quaternion.CreateFromRotationMatrix(blockMatrix);
+                    var q = Quaternion.CreateFromRotationMatrix(blockMatrix * m_cubeGrid.WorldMatrix.GetOrientation());
 
                     Sandbox.Engine.Physics.MyPhysics.GetPenetrationsBox(ref halfExtents, ref pos, ref q, m_penetrations, Sandbox.Engine.Physics.MyPhysics.CollideWithStaticLayer);
                     bool isStatic = false;

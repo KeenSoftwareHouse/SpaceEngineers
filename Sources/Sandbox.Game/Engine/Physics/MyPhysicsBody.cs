@@ -1215,7 +1215,7 @@ namespace Sandbox.Engine.Physics
             MyPhysicalMaterialDefinition def = bDef.PhysicalMaterial;
 
             MySoundPair destructionCue;
-            if (def.GeneralSounds.TryGetValue(m_destructionSound, out destructionCue) && destructionCue.SoundId != MyStringId.NullOrEmpty)
+            if (def.GeneralSounds.TryGetValue(m_destructionSound, out destructionCue) && !destructionCue.SoundId.IsNull)
             {
                 var emmiter = MyAudioComponent.TryGetSoundEmitter();
                 if (emmiter == null)
@@ -1289,7 +1289,7 @@ namespace Sandbox.Engine.Physics
             cue = MyMaterialSoundsHelper.Static.GetCollisionCue(m_startCue, bodyA.GetMaterialAt(worldPos + value.ContactPoint.Normal * 0.1f), bodyB.GetMaterialAt(worldPos - value.ContactPoint.Normal * 0.1f));
             //cue = MyMaterialsConstants.GetCollisionCue(MyMaterialsConstants.MyMaterialCollisionType.Start, value.Base.BodyA.GetBody().MaterialType, value.Base.BodyB.GetBody().MaterialType);
 
-            if (cue.SoundId != MyStringId.NullOrEmpty)
+            if (!cue.SoundId.IsNull)
             {
                 MyEntity3DSoundEmitter emitter;
                 {
@@ -2262,6 +2262,12 @@ false,
                 else if (constraint.ConstraintData is HkHingeConstraintData)
                 {
                     var constraintData = constraint.ConstraintData as HkHingeConstraintData;
+                    constraintData.MaximumAngularImpulse = 3.40282e28f;
+                    constraintData.MaximumLinearImpulse = 3.40282e28f;
+                }
+                else if (constraint.ConstraintData is HkLimitedHingeConstraintData)
+                {
+                    var constraintData = constraint.ConstraintData as HkLimitedHingeConstraintData;
                     constraintData.MaximumAngularImpulse = 3.40282e28f;
                     constraintData.MaximumLinearImpulse = 3.40282e28f;
                 }

@@ -12,8 +12,9 @@ namespace Sandbox.Game.Entities
     {
         private float m_radiusSq;
         private float m_radius;
+		public float Radius { get { return m_radius; } }
 
-        public MySpherePlaceArea(float radius, MyStringId areaType)
+        public MySpherePlaceArea(float radius, MyStringHash areaType)
             : base(areaType)
         {
             m_radius = radius;

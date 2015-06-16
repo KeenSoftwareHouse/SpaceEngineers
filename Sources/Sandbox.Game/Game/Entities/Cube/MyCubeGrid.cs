@@ -1,55 +1,40 @@
 ﻿#region Using
 
+using Havok;
+using ProtoBuf;
+using Sandbox.Common;
+using Sandbox.Common.ModAPI;
+using Sandbox.Common.ObjectBuilders;
+using Sandbox.Common.ObjectBuilders.Definitions;
+using Sandbox.Definitions;
+using Sandbox.Engine.Physics;
+using Sandbox.Engine.Utils;
+using Sandbox.Game.Components;
+using Sandbox.Game.Entities.Character;
+using Sandbox.Game.Entities.Cube;
+using Sandbox.Game.GameSystems;
+using Sandbox.Game.GameSystems.StructuralIntegrity;
+using Sandbox.Game.GUI;
+using Sandbox.Game.Localization;
+using Sandbox.Game.Multiplayer;
+using Sandbox.Game.Weapons;
+using Sandbox.Game.World;
+using Sandbox.ModAPI.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using ProtoBuf;
-using Sandbox.Common;
-using Sandbox.Common.ObjectBuilders;
-using Sandbox.Common.ObjectBuilders.Definitions;
-using Sandbox.Definitions;
-using Sandbox.Engine.Models;
-using Sandbox.Engine.Physics;
-using Sandbox.Engine.Utils;
-using Sandbox.Game.Entities.Cube;
-using Sandbox.Game.Entities.Interfaces;
-using Sandbox.Game.GameSystems;
-using Sandbox.Game.GameSystems.Electricity;
-using Sandbox.Game.Multiplayer;
-using Sandbox.Game.Weapons;
-using Sandbox.Game.World;
+using System.Runtime.InteropServices;
+using System.Text;
 using VRage;
-using VRage;
-using VRage.Import;
+using VRage.Collections;
+using VRage.Components;
+using VRage.Library.Utils;
+using VRage.ModAPI;
+using VRage.ObjectBuilders;
 using VRage.Utils;
 using VRageMath;
 using VRageRender;
-
-using Sandbox.Game.GameSystems.Conveyors;
-using System.Text;
-using Sandbox.Common.ObjectBuilders.VRageData;
-using Sandbox.Graphics;
-using Sandbox.Game.GUI;
-using System.Runtime.InteropServices;
-using Sandbox.Game.Screens.Helpers;
-
-using Sandbox.Game.Entities.Character;
-using System.Reflection;
-using VRage.Plugins;
-
-using Sandbox.Game.GameSystems.StructuralIntegrity;
-using Sandbox.Common.Components;
-using Sandbox.Game.Components;
-using VRage.Collections;
-using Sandbox.ModAPI.Interfaces;
-using Sandbox.Game.Localization;
-using Havok;
-using VRage.Library.Utils;
-using Sandbox.Common.ModAPI;
-using VRage.ObjectBuilders;
-using VRage.Components;
-using VRage.ModAPI;
 
 #endregion
 
@@ -147,7 +132,7 @@ namespace Sandbox.Game.Entities
 
         private static List<MyCockpit> m_tmpOccupiedCockpits = new List<MyCockpit>();
 
-        internal List<IMyBlockAdditionalModelGenerator> AdditionalModelGenerators { get { return Render.AdditionalModelGenerators; } }
+        public List<IMyBlockAdditionalModelGenerator> AdditionalModelGenerators { get { return Render.AdditionalModelGenerators; } }
 
         internal MyGridSkeleton Skeleton;
         public readonly BlockTypeCounter BlockCounter = new BlockTypeCounter();
@@ -184,7 +169,7 @@ namespace Sandbox.Game.Entities
         private static List<MyObjectBuilder_BlockGroup> m_tmpBlockGroups = new List<MyObjectBuilder_BlockGroup>();
         internal MyCubeGridOwnershipManager m_ownershipManager;
 
-        internal Sandbox.Game.Entities.Blocks.MyProjector Projector;
+        public Sandbox.Game.Entities.Blocks.MyProjector Projector;
 
         /// <summary>
         /// players that have at least one block in cube grid
@@ -1981,21 +1966,6 @@ namespace Sandbox.Game.Entities
             return cubeBlock;
         }
 
-        /// <summary>
-        /// Builds single block
-        /// </summary>
-        internal MySlimBlock BuildBlock(MyCubeBlockDefinition blockDefinition, Vector3 colorMaskHsv, MyBlockLocation location, MyInventory inventory)
-        {
-            if (MyCubeGrid.CheckConnectivity(this, blockDefinition, ref location.Orientation, ref location.CenterPos))
-            {
-                var block = BuildBlock(blockDefinition, colorMaskHsv, location.Min, location.Orientation, location.Owner, location.EntityId, inventory);
-                if (block != null)
-                    block.PlayConstructionSound(MyIntegrityChangeEnum.ConstructionBegin);
-                return block;
-            }
-            return null;
-        }
-
         public MySlimBlock BuildGeneratedBlock(MyBlockLocation location, Vector3 colorMaskHsv)
         {
             MyDefinitionId blockDefinitionId = location.BlockDefinition;
@@ -2019,9 +1989,9 @@ namespace Sandbox.Game.Entities
         /// <summary>
         /// Builds many same blocks, used when building lines or planes.
         /// </summary>
-        public void BuildBlocks(Vector3 colorMaskHsv, HashSet<MyBlockLocation> locations)
+        public void BuildBlocks(Vector3 colorMaskHsv, HashSet<MyBlockLocation> locations, long builderEntityId)
         {
-            SyncObject.BuildBlocks(colorMaskHsv, locations);
+            SyncObject.BuildBlocks(colorMaskHsv, locations, builderEntityId);
         }
 
         /// <summary>
@@ -2207,7 +2177,7 @@ namespace Sandbox.Game.Entities
             }
         }
 
-        private void BuildBlocksSuccess(Vector3 colorMaskHsv, HashSet<MyBlockLocation> locations, HashSet<MyBlockLocation> resultBlocks)
+        private void BuildBlocksSuccess(Vector3 colorMaskHsv, HashSet<MyBlockLocation> locations, HashSet<MyBlockLocation> resultBlocks, MyEntity builder)
         {
             bool cubeProcessed = true;
             Debug.Assert(MySession.Static.CreativeMode || locations.Count <= 1, "Trying to build multiple blocks in survival.");
@@ -2230,11 +2200,16 @@ namespace Sandbox.Game.Entities
                         return;
                     }
 
-                    MyBlockOrientation ori = new MyBlockOrientation(ref orientation);
-                    if (CanPlaceBlock(location.Min, location.Max, ori, blockDefinition) && MyCubeGrid.CheckConnectivity(this, blockDefinition, ref orientation, ref center))
+                    var ori = new MyBlockOrientation(ref orientation);
+                    // If we are on the server, we perform various checks. Clients on the other hand just build the blocks
+                    if ( !Sync.IsServer ||
+                            (
+                                CanPlaceBlock(location.Min, location.Max, ori, blockDefinition) &&
+                                MyCubeGrid.CheckConnectivity(this, blockDefinition, ref orientation, ref center)
+                            )
+                        )
                     {
-                        var inv = GetBuilderInventory(location.BuilderEntityId);
-                        var block = BuildBlock(blockDefinition, colorMaskHsv, location.Min, orientation, location.Owner, location.EntityId, inv);
+                        var block = BuildBlock(blockDefinition, colorMaskHsv, location.Min, orientation, location.Owner, location.EntityId, builder);
 
                         if (block != null)
                         {
@@ -2250,7 +2225,7 @@ namespace Sandbox.Game.Entities
             }
         }
 
-        private void BuildBlockSuccess(Vector3 colorMaskHsv, MyBlockLocation location, MyObjectBuilder_CubeBlock objectBuilder, ref MyBlockLocation? resultBlock)
+        private void BuildBlockSuccess(Vector3 colorMaskHsv, MyBlockLocation location, MyObjectBuilder_CubeBlock objectBuilder, ref MyBlockLocation? resultBlock, MyEntity builder)
         {
             var orientation = location.Orientation;
             var center = location.CenterPos;
@@ -2264,10 +2239,10 @@ namespace Sandbox.Game.Entities
                 return;
             }
 
-            if (MyCubeGrid.CheckConnectivity(this, blockDefinition, ref orientation, ref center))
+            MyBlockOrientation ori = new MyBlockOrientation(ref location.Orientation);
+            if (CanPlaceBlock(location.Min, location.Max, ori, blockDefinition) && MyCubeGrid.CheckConnectivity(this, blockDefinition, ref orientation, ref center))
             {
-                var inv = GetBuilderInventory(location.BuilderEntityId);
-                var block = BuildBlock(blockDefinition, colorMaskHsv, location.Min, orientation, location.Owner, location.EntityId, inv, objectBuilder);
+                var block = BuildBlock(blockDefinition, colorMaskHsv, location.Min, orientation, location.Owner, location.EntityId, builder, objectBuilder);
 
                 if (block != null)
                 {
@@ -2279,31 +2254,6 @@ namespace Sandbox.Game.Entities
                     resultBlock = null;
                 }
             }
-        }
-
-        private static IMyComponentInventory GetBuilderInventory(long builderId)
-        {
-            if (MySession.Static.CreativeMode || MySession.Static.SimpleSurvival)
-                return null;
-
-            MyEntity builderEntity;
-            MyEntities.TryGetEntityById(builderId, out builderEntity);
-
-            Debug.Assert(builderEntity != null, "Entity that wasnt on server is trying to build.");
-            if (builderEntity == null) return null;
-
-            var character = builderEntity as MyCharacter;
-            if (character != null)
-            {
-                return character.GetComponentInventory();
-            }
-            var shipWelder = builderEntity as MyShipWelder;
-            if (shipWelder != null)
-            {
-                return shipWelder.GetInventory(0);
-            }
-            Debug.Fail("Only characters and ship welders can build blocks!");
-            return null;
         }
 
         private void AfterBuildBlocksSuccess(HashSet<MyCubeGrid.MyBlockLocation> builtBlocks)
@@ -2574,27 +2524,30 @@ namespace Sandbox.Game.Entities
         /// <summary>
         /// Builds block without checking connectivity
         /// </summary>
-        private MySlimBlock BuildBlock(MyCubeBlockDefinition blockDefinition, Vector3 colorMaskHsv, Vector3I min, Quaternion orientation, long owner, long entityId, IMyComponentInventory inventory, MyObjectBuilder_CubeBlock blockObjectBuilder = null, bool updateVolume = true, bool testMerge = true)
+        private MySlimBlock BuildBlock(MyCubeBlockDefinition blockDefinition, Vector3 colorMaskHsv, Vector3I min, Quaternion orientation, long owner, long entityId, MyEntity builderEntity, MyObjectBuilder_CubeBlock blockObjectBuilder = null, bool updateVolume = true, bool testMerge = true)
         {
             ProfilerShort.Begin("BuildBlock");
+
+            MyBlockOrientation blockOrientation = new MyBlockOrientation(ref orientation);
             if (blockObjectBuilder == null)
             {
-                blockObjectBuilder = MyCubeGrid.CreateBlockObjectBuilder(blockDefinition, min, new MyBlockOrientation(ref orientation), entityId, owner, fullyBuilt: inventory == null || MySession.Static.SimpleSurvival);
+                blockObjectBuilder = MyCubeGrid.CreateBlockObjectBuilder(blockDefinition, min, blockOrientation, entityId, owner, fullyBuilt: builderEntity == null || !MySession.Static.SurvivalMode);
                 blockObjectBuilder.ColorMaskHSV = colorMaskHsv;
             }
             else
             {
-                if (inventory != null && !MySession.Static.SimpleSurvival)
-                {
-                    blockObjectBuilder.BuildPercent = MyComponentStack.MOUNT_THRESHOLD;
-                    blockObjectBuilder.IntegrityPercent = MyComponentStack.MOUNT_THRESHOLD;
-                }
-
                 blockObjectBuilder.Min = min;
                 blockObjectBuilder.Orientation = orientation;
             }
+            MyCubeBuilder.BuildComponent.BeforeCreateBlock(blockDefinition, builderEntity, blockObjectBuilder);
 
             MySlimBlock block = null;
+
+            if (Sync.IsServer)
+            {
+                Vector3I position = MySlimBlock.ComputePositionInGrid(new MatrixI(blockOrientation), blockDefinition, min);
+                MyCubeBuilder.BuildComponent.GetBlockPlacementMaterials(blockDefinition, position, blockObjectBuilder.BlockOrientation, this);
+            }
 
             if (MyFakes.ENABLE_COMPOUND_BLOCKS && blockDefinition.CompoundTemplates != null && blockDefinition.CompoundTemplates.Length > 0)
             {
@@ -2645,13 +2598,13 @@ namespace Sandbox.Game.Entities
                 if(updateVolume)
                     block.CubeGrid.UpdateGridAABB();
 
-                if (Sync.IsServer && inventory != null)
-                {
-                    inventory.RemoveItemsOfType(1, blockDefinition.Components[0].Definition.Id);
-                }
-
                 if (MyFakes.ENABLE_SMALL_BLOCK_TO_LARGE_STATIC_CONNECTIONS && m_enableSmallToLargeConnections)
                     MyCubeGridSmallToLargeConnection.Static.AddBlockSmallToLargeConnection(block);
+
+                if (Sync.IsServer)
+                {
+                    MyCubeBuilder.BuildComponent.AfterBlockBuild(block, builderEntity);
+                }
             }
 
             ProfilerShort.End();
@@ -3850,7 +3803,7 @@ namespace Sandbox.Game.Entities
         /// Merges grids only when both are static
         /// Returns the merged grid (which does not necessarily have to be this grid)
         /// </summary>
-        internal MyCubeGrid DetectMerge(MySlimBlock block, MyCubeGrid ignore = null, List<MyEntity> nearEntities = null)
+        public MyCubeGrid DetectMerge(MySlimBlock block, MyCubeGrid ignore = null, List<MyEntity> nearEntities = null)
         {
             if (!this.IsStatic)
                 return null;
@@ -5179,10 +5132,7 @@ namespace Sandbox.Game.Entities
             [ProtoMember]
             public long Owner;
 
-            [ProtoMember]
-            public long BuilderEntityId;
-
-            public MyBlockLocation(MyDefinitionId blockDefinition, Vector3I min, Vector3I max, Vector3I center, Quaternion orientation, long entityId, long owner, long builder)
+            public MyBlockLocation(MyDefinitionId blockDefinition, Vector3I min, Vector3I max, Vector3I center, Quaternion orientation, long entityId, long owner)
             {
                 BlockDefinition = blockDefinition;
                 Min = min;
@@ -5191,7 +5141,6 @@ namespace Sandbox.Game.Entities
                 Orientation = orientation;
                 EntityId = entityId;
                 Owner = owner;
-                BuilderEntityId = builder;
             }
         }
 
@@ -5336,10 +5285,10 @@ namespace Sandbox.Game.Entities
         {
             MyCubeGrid m_grid;
 
-            public override void OnAddedToContainer(MyComponentContainer container)
+            public override void OnAddedToContainer()
             {
-                base.OnAddedToContainer(container);
-                m_grid = container.Entity as MyCubeGrid;
+                base.OnAddedToContainer();
+                m_grid = Container.Entity as MyCubeGrid;
             }
 
             public override BoundingBox LocalAABBHr
@@ -5450,6 +5399,22 @@ namespace Sandbox.Game.Entities
                     //    MySyncDestructions.EnableGenerators(this, enable);
                 }
             }
+        }
+
+        // Returns generating block (not compound block, but block inside) from generated one.
+        public MySlimBlock GetGeneratingBlock(MySlimBlock generatedBlock)
+        {
+			if (generatedBlock == null)
+				return null;
+
+            foreach (var generator in AdditionalModelGenerators) 
+            {
+                var generatingBlock = generator.GetGeneratingBlock(generatedBlock);
+                if (generatingBlock != null)
+                    return generatingBlock;
+            }
+
+            return null;
         }
     }
 }
