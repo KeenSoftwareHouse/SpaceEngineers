@@ -82,7 +82,7 @@ namespace Sandbox.Game.World.Generator
 
         public static bool PlaceEncounterToWorld(BoundingBoxD boundingVolume, int seed, MyAsteroidCellGenerator.MyObjectSeedType seedType)
         {
-            if (MySession.Static.Settings.EnableEncounters == false)
+            if (MySession.Static.Settings.EnableEncounters == false && MySession.Static.Settings.EnableHostileEncounters == false)
             {
                 return false;
             }
@@ -155,9 +155,25 @@ namespace Sandbox.Game.World.Generator
 
                 if (Sync.IsServer == true)
                 {
-                    for (int i = 0; i < m_randomEncounters.Count; ++i)
+                    if (MySession.Static.Settings.EnableHostileEncounters == false)
                     {
-                        SpawnEncouter(m_encountersId[i], m_placePositions[i], currentSpawnGroup, m_randomEncounters[i]);
+                        // Use the original spawning method
+                        for (int i = 0; i < m_randomEncounters.Count; ++i)
+                        {
+                            SpawnEncouter(m_encountersId[i], m_placePositions[i], currentSpawnGroup, m_randomEncounters[i]);
+                        }
+                    }
+                    else
+                    {
+                        // Setup a hostile NPC faction for the group
+                        string newNpcFactionName = "Hostile " + MyRandom.Instance.Next(1000, 9999);
+                        var newIdentity = Sync.Players.CreateNewIdentity(newNpcFactionName);
+                        var owner = newIdentity.IdentityId;
+
+                        for (int i = 0; i < m_randomEncounters.Count; ++i)
+                        {
+                            SpawnEncouter(m_encountersId[i], m_placePositions[i], currentSpawnGroup, m_randomEncounters[i], owner);
+                        }
                     }
                 }
             }
@@ -177,7 +193,7 @@ namespace Sandbox.Game.World.Generator
             return encouterBoundingBox;
         }
 
-        private static void SpawnEncouter(MyEncounterId encounterPosition, Vector3D placePosition, List<MySpawnGroupDefinition> candidates, int selectedEncounter)
+        private static void SpawnEncouter(MyEncounterId encounterPosition, Vector3D placePosition, List<MySpawnGroupDefinition> candidates, int selectedEncounter, long factionId = 0)
         {
             foreach (var selectedPrefab in candidates[selectedEncounter].Prefabs)
             {
@@ -185,27 +201,36 @@ namespace Sandbox.Game.World.Generator
                 Vector3D direction = Vector3D.Forward;
                 Vector3D upVector = Vector3D.Up;
 
-                var spawningOptions = Sandbox.ModAPI.SpawningOptions.TurnOffReactors;
-                if (selectedPrefab.Speed > 0.0f)
+                Sandbox.ModAPI.SpawningOptions spawningOptions;
+
+                if (factionId != 0)
                 {
-                    spawningOptions = Sandbox.ModAPI.SpawningOptions.RotateFirstCockpitTowardsDirection |
-                                     Sandbox.ModAPI.SpawningOptions.SpawnRandomCargo |
-                                     Sandbox.ModAPI.SpawningOptions.DisableDampeners;
-
-
-
-                    float centerArcRadius = (float)Math.Atan(MyNeutralShipSpawner.NEUTRAL_SHIP_FORBIDDEN_RADIUS / placePosition.Length());
-                    direction = -Vector3D.Normalize(placePosition);
-                    float theta = m_random.NextFloat(centerArcRadius, centerArcRadius + MyNeutralShipSpawner.NEUTRAL_SHIP_DIRECTION_SPREAD);
-                    float phi = m_random.NextFloat(0, 2 * MathHelper.Pi);
-                    Vector3D cosVec = Vector3D.CalculatePerpendicularVector(direction);
-                    Vector3D sinVec = Vector3D.Cross(direction, cosVec);
-                    cosVec *= (Math.Sin(theta) * Math.Cos(phi));
-                    sinVec *= (Math.Sin(theta) * Math.Sin(phi));
-                    direction = direction * Math.Cos(theta) + cosVec + sinVec;
-
-                    upVector = Vector3D.CalculatePerpendicularVector(direction);
+                    spawningOptions = Sandbox.ModAPI.SpawningOptions.HostileEncounter;
                 }
+                else
+                {
+                    spawningOptions = Sandbox.ModAPI.SpawningOptions.TurnOffReactors;
+
+                    if (selectedPrefab.Speed > 0.0f)
+                    {
+                        spawningOptions = Sandbox.ModAPI.SpawningOptions.RotateFirstCockpitTowardsDirection |
+                                         Sandbox.ModAPI.SpawningOptions.SpawnRandomCargo |
+                                         Sandbox.ModAPI.SpawningOptions.DisableDampeners;
+
+                        float centerArcRadius = (float)Math.Atan(MyNeutralShipSpawner.NEUTRAL_SHIP_FORBIDDEN_RADIUS / placePosition.Length());
+                        direction = -Vector3D.Normalize(placePosition);
+                        float theta = m_random.NextFloat(centerArcRadius, centerArcRadius + MyNeutralShipSpawner.NEUTRAL_SHIP_DIRECTION_SPREAD);
+                        float phi = m_random.NextFloat(0, 2 * MathHelper.Pi);
+                        Vector3D cosVec = Vector3D.CalculatePerpendicularVector(direction);
+                        Vector3D sinVec = Vector3D.Cross(direction, cosVec);
+                        cosVec *= (Math.Sin(theta) * Math.Cos(phi));
+                        sinVec *= (Math.Sin(theta) * Math.Sin(phi));
+                        direction = direction * Math.Cos(theta) + cosVec + sinVec;
+
+                        upVector = Vector3D.CalculatePerpendicularVector(direction);
+                    }
+                }
+
                 spawningOptions |= Sandbox.ModAPI.SpawningOptions.DisableSave;
 
                 var prefabDefinition = MyDefinitionManager.Static.GetPrefabDefinition(selectedPrefab.SubtypeId);
@@ -229,6 +254,13 @@ namespace Sandbox.Game.World.Generator
                    initialLinearVelocity: direction * selectedPrefab.Speed,
                    spawningOptions: spawningOptions,
                    updateSync: true);
+
+                foreach (var grid in m_createdGrids)
+                {
+                    grid.ChangeGridOwnership(factionId, MyOwnershipShareModeEnum.None);
+                }
+
+                m_createdGrids.Clear();
 
                 ProcessCreatedGrids(ref encounterPosition, selectedPrefab.Speed);
             }

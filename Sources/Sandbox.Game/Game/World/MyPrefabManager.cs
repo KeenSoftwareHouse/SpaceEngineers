@@ -6,6 +6,7 @@ using Sandbox.Engine.Utils;
 using Sandbox.Game.Entities;
 using Sandbox.Game.Entities.Cube;
 using Sandbox.Game.Multiplayer;
+using Sandbox.Game.Weapons;
 using Sandbox.Game.World;
 using System;
 using System.Collections.Generic;
@@ -440,37 +441,95 @@ namespace Sandbox.Game.World
                     {
                         grid.Save = false;
                     }
-                    if (needsToIterateThroughBlocks || spawningOptions.HasFlag(SpawningOptions.TurnOffReactors))
+
+                    if (!spawningOptions.HasFlag(SpawningOptions.HostileEncounter))
+                    {          
+                        // Cargo ships and Non-Hostile Encounter Ship Configuration
+                        if (needsToIterateThroughBlocks || spawningOptions.HasFlag(SpawningOptions.TurnOffReactors))
+                        {
+                            ProfilerShort.Begin("Iterate through blocks");
+                            foreach (var block in grid.GetBlocks())
+                            {
+                                if (block.FatBlock is MyCockpit && rotateToCockpit && firstCockpit == null)
+                                {
+                                    firstCockpit = (MyCockpit)block.FatBlock;
+                                }
+
+                                else if (block.FatBlock is MyCargoContainer && spawnCargo)
+                                {
+                                    MyCargoContainer container = block.FatBlock as MyCargoContainer;
+                                    container.SpawnRandomCargo();
+                                }
+
+                                else if (block.FatBlock is MyBeacon && beaconName != null)
+                                {
+                                    MyBeacon beacon = block.FatBlock as MyBeacon;
+                                    beacon.SetCustomName(beaconName);
+                                }
+                                else if (spawningOptions.HasFlag(SpawningOptions.TurnOffReactors) && block.FatBlock is IMyPowerProducer)
+                                {
+                                    (block.FatBlock as IMyPowerProducer).Enabled = false;
+                                }
+                                if (setNeutralOwner && block.FatBlock != null && block.BlockDefinition.RatioEnoughForOwnership(block.BuildLevelRatio))
+                                {
+                                    block.FatBlock.ChangeOwner(owner, MyOwnershipShareModeEnum.None);
+                                }
+                            }
+                            ProfilerShort.End();
+                        }
+                    }
+                    else
                     {
-                        ProfilerShort.Begin("Iterate through blocks");
+                        var antennaCounter = 0;
+
+                        // Hostile Encounter Ship Configuration
+                        ProfilerShort.Begin("Iterate through hostile blocks");
                         foreach (var block in grid.GetBlocks())
                         {
-                            if (block.FatBlock is MyCockpit && rotateToCockpit && firstCockpit == null)
-                            {
-                                firstCockpit = (MyCockpit)block.FatBlock;
-                            }
-
-                            else if (block.FatBlock is MyCargoContainer && spawnCargo)
-                            {
-                                MyCargoContainer container = block.FatBlock as MyCargoContainer;
-                                container.SpawnRandomCargo();
-                            }
-
-                            else if (block.FatBlock is MyBeacon && beaconName != null)
+                            if (block.FatBlock is MyBeacon && beaconName != null)
                             {
                                 MyBeacon beacon = block.FatBlock as MyBeacon;
                                 beacon.SetCustomName(beaconName);
                             }
-                            else if (spawningOptions.HasFlag(SpawningOptions.TurnOffReactors) && block.FatBlock is IMyPowerProducer)
+                            else if (block.FatBlock is IMyPowerProducer)
                             {
-                                (block.FatBlock as IMyPowerProducer).Enabled = false;
+                                // We've got the power.
+                                (block.FatBlock as IMyPowerProducer).Enabled = true;
                             }
-                            if (setNeutralOwner && block.FatBlock != null && block.BlockDefinition.RatioEnoughForOwnership(block.BuildLevelRatio))
+                            else if (block.FatBlock is MyRadioAntenna)
                             {
-                                block.FatBlock.ChangeOwner(owner, MyOwnershipShareModeEnum.None);
+                                if (antennaCounter == 0)
+                                {
+                                    // Players need to be able to find or avoid hostiles.  Can't do that unless they know where they are.
+                                    MyRadioAntenna antenna = block.FatBlock as MyRadioAntenna;
+                                    
+                                    antenna.Enabled = true;
+                                    antenna.SetCustomName("Hostile");
+                                    antenna.RadioBroadcaster.Enabled = true;
+
+                                    if (grid.GridSizeEnum == MyCubeSize.Large)
+                                    {
+                                        antenna.RadioBroadcaster.BroadcastRadius = 50000;
+                                    }
+                                    else
+                                    {
+                                        antenna.RadioBroadcaster.BroadcastRadius = 5000;
+                                    }
+
+                                    antennaCounter++;
+                                }
+                                else
+                                {
+                                    (block.FatBlock as MyRadioAntenna).Enabled = false;
+                                }
                             }
+                            else if (block.FatBlock is MyLargeTurretBase)
+                            {
+                                // They came for a fight, let's make sure they get one.
+                                (block.FatBlock as MyLargeTurretBase).Enabled = true;                                
+                            }                                
                         }
-                        ProfilerShort.End();
+                        ProfilerShort.End();                        
                     }
                 }
 

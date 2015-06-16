@@ -10530,6 +10530,16 @@ namespace Sandbox.Game.Localization
         public static readonly MyStringId LaserAntennaOutsideLimits = MyStringId.GetOrCompute("LaserAntennaOutsideLimits");
 
         ///<summary>
+        ///Hostile Encounters
+        ///</summary>
+        public static readonly MyStringId WorldSettings_HostileEncounters = MyStringId.GetOrCompute("WorldSettings_HostileEncounters");
+
+        ///<summary>
+        ///Enable hostile encounters
+        ///</summary>
+        public static readonly MyStringId ToolTipWorldSettingsEnableHostileEncounters = MyStringId.GetOrCompute("ToolTipWorldSettingsEnableHostileEncounters");
+
+        ///<summary>
         ///Tonemapping
         ///</summary>
         public static readonly MyStringId ScreenGraphicsOptions_Tonemapping = MyStringId.GetOrCompute("ScreenGraphicsOptions_Tonemapping");

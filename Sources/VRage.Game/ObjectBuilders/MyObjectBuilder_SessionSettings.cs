@@ -226,6 +226,10 @@ namespace Sandbox.Common.ObjectBuilders
         public bool EnableEncounters = true;
 
         [ProtoMember]
+        [Display(Name = "Enable hostile encounters")]
+        [GameRelationAttribute(Game.SpaceEngineers)]
+        public bool EnableHostileEncounters = true;
+
         [Display(Name = "Disable respawn ships")]
         [GameRelationAttribute(Game.SpaceEngineers)]
         public bool DisableRespawnShips = false;

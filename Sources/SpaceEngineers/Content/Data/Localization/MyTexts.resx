@@ -6517,6 +6517,12 @@ To connect to lasers not listed here you can connect to coordinates.</value>
   <data name="LaserAntennaOutsideLimits" xml:space="preserve">
     <value>Target outside movement range</value>
   </data>
+  <data name="WorldSettings_HostileEncounters" xml:space="preserve">
+    <value>Hostile Encounters</value>
+  </data>
+  <data name="ToolTipWorldSettingsEnableHostileEncounters" xml:space="preserve">
+    <value>Enable hostile encounters</value>
+  </data>
   <data name="ScreenGraphicsOptions_Tonemapping" xml:space="preserve">
     <value>Tonemapping</value>
   </data>
