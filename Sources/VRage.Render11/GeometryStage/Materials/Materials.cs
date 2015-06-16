@@ -91,28 +91,28 @@ namespace VRageRender
             {
                 // copy data :O
 
-                Table[i].Near.ColorMetalXZnY_Texture  = MyStringId.GetOrCompute(list[i].ColorMetalXZnY);
-                Table[i].Near.ColorMetalpY_Texture    = MyStringId.GetOrCompute(list[i].ColorMetalY);
-                Table[i].Near.NormalGlossXZnY_Texture = MyStringId.GetOrCompute(list[i].NormalGlossXZnY);
-                Table[i].Near.NormalGlosspY_Texture   = MyStringId.GetOrCompute(list[i].NormalGlossY);
-                Table[i].Near.ExtXZnY_Texture         = MyStringId.GetOrCompute(list[i].ExtXZnY);
-                Table[i].Near.ExtpY_Texture           = MyStringId.GetOrCompute(list[i].ExtY);
+                Table[i].Near.ColorMetalXZnY_Texture  = X.TEXT(list[i].ColorMetalXZnY);
+                Table[i].Near.ColorMetalpY_Texture    = X.TEXT(list[i].ColorMetalY);
+                Table[i].Near.NormalGlossXZnY_Texture = X.TEXT(list[i].NormalGlossXZnY);
+                Table[i].Near.NormalGlosspY_Texture   = X.TEXT(list[i].NormalGlossY);
+                Table[i].Near.ExtXZnY_Texture         = X.TEXT(list[i].ExtXZnY);
+                Table[i].Near.ExtpY_Texture           = X.TEXT(list[i].ExtY);
                 Table[i].Near.TextureScale = list[i].Scale;
 
-                Table[i].Far1.ColorMetalXZnY_Texture  = MyStringId.GetOrCompute(list[i].ColorMetalXZnYFar1);
-                Table[i].Far1.ColorMetalpY_Texture    = MyStringId.GetOrCompute(list[i].ColorMetalYFar1);
-                Table[i].Far1.NormalGlossXZnY_Texture = MyStringId.GetOrCompute(list[i].NormalGlossXZnYFar1);
-                Table[i].Far1.NormalGlosspY_Texture   = MyStringId.GetOrCompute(list[i].NormalGlossYFar1);
-                Table[i].Far1.ExtXZnY_Texture         = MyStringId.GetOrCompute(list[i].ExtXZnYFar1);
-                Table[i].Far1.ExtpY_Texture           = MyStringId.GetOrCompute(list[i].ExtYFar1);
+                Table[i].Far1.ColorMetalXZnY_Texture = X.TEXT(list[i].ColorMetalXZnYFar1);
+                Table[i].Far1.ColorMetalpY_Texture = X.TEXT(list[i].ColorMetalYFar1);
+                Table[i].Far1.NormalGlossXZnY_Texture = X.TEXT(list[i].NormalGlossXZnYFar1);
+                Table[i].Far1.NormalGlosspY_Texture = X.TEXT(list[i].NormalGlossYFar1);
+                Table[i].Far1.ExtXZnY_Texture = X.TEXT(list[i].ExtXZnYFar1);
+                Table[i].Far1.ExtpY_Texture = X.TEXT(list[i].ExtYFar1);
                 Table[i].Far1.TextureScale            = list[i].ScaleFar1;
 
-                Table[i].Far2.ColorMetalXZnY_Texture  = MyStringId.GetOrCompute(list[i].ColorMetalXZnYFar2);
-                Table[i].Far2.ColorMetalpY_Texture    = MyStringId.GetOrCompute(list[i].ColorMetalYFar2);
-                Table[i].Far2.NormalGlossXZnY_Texture = MyStringId.GetOrCompute(list[i].NormalGlossXZnYFar2);
-                Table[i].Far2.NormalGlosspY_Texture   = MyStringId.GetOrCompute(list[i].NormalGlossYFar2);
-                Table[i].Far2.ExtXZnY_Texture         = MyStringId.GetOrCompute(list[i].ExtXZnYFar2);
-                Table[i].Far2.ExtpY_Texture           = MyStringId.GetOrCompute(list[i].ExtYFar2);
+                Table[i].Far2.ColorMetalXZnY_Texture = X.TEXT(list[i].ColorMetalXZnYFar2);
+                Table[i].Far2.ColorMetalpY_Texture = X.TEXT(list[i].ColorMetalYFar2);
+                Table[i].Far2.NormalGlossXZnY_Texture = X.TEXT(list[i].NormalGlossXZnYFar2);
+                Table[i].Far2.NormalGlosspY_Texture = X.TEXT(list[i].NormalGlossYFar2);
+                Table[i].Far2.ExtXZnY_Texture = X.TEXT(list[i].ExtXZnYFar2);
+                Table[i].Far2.ExtpY_Texture = X.TEXT(list[i].ExtYFar2);
                 Table[i].Far2.TextureScale = list[i].ScaleFar2;
 
                 Table[i].FoliageArray_Texture = list[i].ExtensionTextureArray1;
@@ -346,7 +346,7 @@ namespace VRageRender
         static Dictionary<MyMeshMaterialId, MyMaterialProxyId> MaterialProxyIndex = new Dictionary<MyMeshMaterialId, MyMaterialProxyId>();
         internal static Dictionary<int, MyMeshMaterialId> MaterialRkIndex = new Dictionary<int, MyMeshMaterialId>();
 
-        static Dictionary<MyStringId, MyMeshMaterialId> MaterialNameIndex = new Dictionary<MyStringId, MyMeshMaterialId>(); // only for uniquely named materials! used by destruction models
+        static Dictionary<MyStringId, MyMeshMaterialId> MaterialNameIndex = new Dictionary<MyStringId, MyMeshMaterialId>(MyStringId.Comparer); // only for uniquely named materials! used by destruction models
 
         internal static HashSet<int> MergableRKs = new HashSet<int>();
 
@@ -356,15 +356,15 @@ namespace VRageRender
         internal static MyMeshMaterialId DebugMaterialId;
         internal static MyMeshMaterialId NullMaterialId;
 
-        static readonly HashSet<MyStringId> MERGABLE_MATERIAL_NAMES = new HashSet<MyStringId>() 
+        static readonly HashSet<MyStringId> MERGABLE_MATERIAL_NAMES = new HashSet<MyStringId>(MyStringId.Comparer) 
         { 
-            MyStringId.GetOrCompute("BlockSheet"), 
-            MyStringId.GetOrCompute("CubesSheet"), 
-            MyStringId.GetOrCompute("CubesMetalSheet"), 
-            MyStringId.GetOrCompute("RoofSheet"), 
-            MyStringId.GetOrCompute("StoneSheet"), 
-            MyStringId.GetOrCompute("House_Texture"), 
-            MyStringId.GetOrCompute("RoofSheetRound") 
+            X.TEXT("BlockSheet"), 
+            X.TEXT("CubesSheet"), 
+            X.TEXT("CubesMetalSheet"), 
+            X.TEXT("RoofSheet"), 
+            X.TEXT("StoneSheet"), 
+            X.TEXT("House_Texture"), 
+            X.TEXT("RoofSheetRound") 
         };        
 
         internal static bool IsMergable(MyMeshMaterialId matId)
@@ -374,7 +374,7 @@ namespace VRageRender
 
         internal static MyMeshMaterialId GetMaterialId(string name)
         {
-            return MaterialNameIndex.Get(MyStringId.GetOrCompute(name));
+            return MaterialNameIndex.Get(X.TEXT(name));
         }
 
         internal static MyMaterialProxyId GetProxyId(MyMeshMaterialId id)
@@ -451,9 +451,9 @@ namespace VRageRender
             {
                 Name = X.TEXT(name),
                 ContentPath = contentPath,
-                ColorMetal_Texture = MyStringId.GetOrCompute(colorMetalTexture),
-                NormalGloss_Texture = MyStringId.GetOrCompute(normalGlossTexture),
-                Extensions_Texture = MyStringId.GetOrCompute(extensionTexture),
+                ColorMetal_Texture = X.TEXT(colorMetalTexture),
+                NormalGloss_Texture = X.TEXT(normalGlossTexture),
+                Extensions_Texture = X.TEXT(extensionTexture),
                 Technique = technique
             };
 
@@ -469,10 +469,10 @@ namespace VRageRender
                 {
                     Name = X.TEXT(importDesc.MaterialName),
                     ContentPath = contentPath,
-                    ColorMetal_Texture = MyStringId.GetOrCompute(importDesc.Textures.Get("ColorMetalTexture", "")),
-                    NormalGloss_Texture = MyStringId.GetOrCompute(importDesc.Textures.Get("NormalGlossTexture", "")),
-                    Extensions_Texture = MyStringId.GetOrCompute(importDesc.Textures.Get("AddMapsTexture", "")),
-                    Alphamask_Texture = MyStringId.GetOrCompute(importDesc.Textures.Get("AlphamaskTexture", null)),
+                    ColorMetal_Texture = X.TEXT(importDesc.Textures.Get("ColorMetalTexture", "")),
+                    NormalGloss_Texture = X.TEXT(importDesc.Textures.Get("NormalGlossTexture", "")),
+                    Extensions_Texture = X.TEXT(importDesc.Textures.Get("AddMapsTexture", "")),
+                    Alphamask_Texture = X.TEXT(importDesc.Textures.Get("AlphamaskTexture", null)),
                     Technique = importDesc.Technique
                 };
             }
@@ -539,7 +539,7 @@ namespace VRageRender
             var debugMatDesc = new MyMeshMaterialInfo
             {
                 Name = X.TEXT("__DEBUG_MATERIAL"),
-                ColorMetal_Texture = MyRender11.DebugMode ? MyStringId.GetOrCompute("Pink") : MyStringId.NullOrEmpty,
+                ColorMetal_Texture = MyRender11.DebugMode ? X.TEXT("Pink") : MyStringId.NullOrEmpty,
                 NormalGloss_Texture = MyStringId.NullOrEmpty,
                 Extensions_Texture = MyStringId.NullOrEmpty,
                 Alphamask_Texture = MyStringId.NullOrEmpty,

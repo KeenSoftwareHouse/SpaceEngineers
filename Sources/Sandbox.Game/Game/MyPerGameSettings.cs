@@ -55,6 +55,7 @@ namespace Sandbox.Game
         public Type BattleBlueprintScreen;
         public Type BattleLobbyClientScreen;
         public Type ScenarioLobbyClientScreen;
+        public Type InventoryScreen;
 
         public string[] MainMenuBackgroundVideos;
 

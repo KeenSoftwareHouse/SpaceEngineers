@@ -32,9 +32,11 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using VRage;
+using VRage.Audio;
 using VRage.Components;
 using VRage.FileSystem;
 using VRage.Game.Entity.UseObject;
+using VRage.Game.ObjectBuilders;
 using VRage.Input;
 using VRage.Library.Utils;
 using VRage.ModAPI;
@@ -241,6 +243,7 @@ namespace Sandbox.Game.Entities.Character
         MyCharacterMovementEnum m_currentMovementState = MyCharacterMovementEnum.Standing;
         MyCharacterMovementEnum m_previousMovementState = MyCharacterMovementEnum.Standing;
         bool m_wasFlying = false;//bacause m_previousMovementState changes several times before reaching sound stage
+		public event CharacterMovementStateDelegate OnMovementStateChanged;
 
         public event Action<IMyHandheldGunObject<MyDeviceBase>> WeaponEquiped;
         IMyHandheldGunObject<MyDeviceBase> m_currentWeapon;
@@ -286,8 +289,9 @@ namespace Sandbox.Game.Entities.Character
         MyCharacterMovementFlags m_movementFlags;
         bool m_isFlying;
 
-        public static readonly float InventoryVolume = 0.4f;
-        static readonly Vector3 InventorySize = new Vector3(1.2f, 0.7f, 0.4f);
+        public static float InventoryVolume = 0.4f;
+        public static float InventoryMass = 1000000f;
+        static Vector3 InventorySize = new Vector3(1.2f, 0.7f, 0.4f);
 
         string m_characterModel;
         MyInventory m_inventory;
@@ -363,12 +367,7 @@ namespace Sandbox.Game.Entities.Character
         public float CurrentRespawnCounter { get { return m_currentRespawnCounter; } }
         MyHudNotification m_respawnNotification;
 
-        const float DISMISS_HEALTH = -50;
-        float? m_health = null;
-        public static readonly float LOW_HEALTH_RATIO = 0.2f;
-
-        // 240 secs to full health
-        const float AUTOHEAL_MAX = 0.7f;
+		MyStringHash manipulationToolId = MyStringHash.GetOrCompute("ManipulationTool");
 
         MyCameraControllerSettings m_storedCameraSettings;
 
@@ -445,6 +444,37 @@ namespace Sandbox.Game.Entities.Character
         MyHudNotification m_criticalOxygenNotification;
         MyHudNotification m_oxygenBottleRefillNotification;
         MyHudNotification m_helmetToggleNotification;
+
+		MyCharacterStatComponent m_stats;
+		public MyCharacterStatComponent StatComp { get { return m_stats; } set { Components.Add<MyCharacterStatComponent>(value); m_stats = value; } }
+
+		public static float LOW_HEALTH_RATIO { get { return MyCharacterStatComponent.LOW_HEALTH_RATIO; } }
+
+		int m_healthPassiveEffectId;
+
+		int m_staminaPassiveEffectId;
+
+		int m_foodPassiveEffectId;
+
+		public float Health
+		{
+			get { var health = StatComp.Health; return health != null ? health.Value : Definition.MaxHealth; }
+		}
+
+		public float MaxHealth
+		{
+			get { var health = StatComp.Health; return health != null ? health.MaxValue : Definition.MaxHealth; }
+		}
+
+		public float MinHealth
+		{
+			get { var health = StatComp.Health; return health != null ? health.MinValue : 0; }
+		}
+
+		public float HealthRatio
+		{
+			get { return Health / MaxHealth; }
+		}
 
         bool m_useAnimationForWeapon = false;
         Matrix m_relativeWeaponMatrix = Matrix.Identity;
@@ -625,6 +655,8 @@ namespace Sandbox.Game.Entities.Character
             PositionComp = new MyCharacterPosition();
             (PositionComp as MyPositionComponent).WorldPositionChanged = WorldPositionChanged;
             this.Render = new MyRenderComponentCharacter();
+			StatComp = new MyCharacterStatComponent();
+
             AddDebugRenderComponent(new MyDebugRenderComponentCharacter(this));
         }
 
@@ -722,8 +754,10 @@ namespace Sandbox.Game.Entities.Character
                 SwitchAnimation(MyCharacterMovementEnum.Died, false);
             }
 
-
-            m_inventory = new MyInventory(InventoryVolume, InventorySize, 0, this);
+            InventoryVolume = m_characterDefinition.InventoryVolume;
+            InventoryMass = m_characterDefinition.InventoryMass;
+            InventorySize = new Vector3(m_characterDefinition.InventorySizeX, m_characterDefinition.InventorySizeY, m_characterDefinition.InventorySizeZ);
+            m_inventory = new MyInventory(InventoryVolume, InventoryMass, InventorySize, 0, this);
             m_inventory.Init(characterOb.Inventory);
             m_inventory.ContentsChanged += inventory_OnContentsChanged;
             m_inventory.ContentsChanged += MyToolbarComponent.CurrentToolbar.CharacterInventory_OnContentsChanged;
@@ -776,18 +810,25 @@ namespace Sandbox.Game.Entities.Character
                 Physics.CharacterProxy.ContactPointCallback += RigidBody_ContactPointCallback;
             }
 
-            if (MySession.Static.SurvivalMode)
-                m_health = characterOb.Health;
-
             Render.UpdateLightProperties(m_currentLightPower);
 
             IsInFirstPersonView = characterOb.IsInFirstPersonView || MySession.Static.Settings.Enable3rdPersonView == false;
 
             MyToolbarComponent.CharacterToolbar.ItemChanged += Toolbar_ItemChanged;
 
-            m_breath = new MyCharacterBreath(this);
-            if (m_health!=null)
-                m_breath.SetHealth((float)m_health);
+			m_breath = new MyCharacterBreath(this);
+
+			if (m_stats != null)
+			{
+				MyStatsDefinition statsDefinition = null;
+				if(MyDefinitionManager.Static.TryGetDefinition(new MyDefinitionId(typeof(MyObjectBuilder_StatsDefinition), Definition.Stats), out statsDefinition))
+					m_stats.InitStats(statsDefinition);
+			}
+
+			var health = StatComp.Health;
+			if (health != null && characterOb.Health.HasValue)
+				health.Value = characterOb.Health.Value;
+			m_breath.ForceUpdate();
 
             System.Diagnostics.Debug.Assert(Health > 0 && m_currentLootingCounter <= 0 || m_currentLootingCounter > 0);
 
@@ -832,7 +873,6 @@ namespace Sandbox.Game.Entities.Character
             else
                 m_bodyCapsuleBones.Clear();
             InitSounds();
-
         }
 
         private void InitSounds()
@@ -956,7 +996,10 @@ namespace Sandbox.Game.Entities.Character
                     var defId = def.Definition.Id;
                     if (defId != null)
                     {
-                        MyToolBarCollection.RequestChangeSlotItem(MySession.LocalHumanPlayer.Id, index.ItemIndex, defId);
+						if (defId.TypeId != typeof(MyObjectBuilder_PhysicalGunObject))
+							MyToolBarCollection.RequestChangeSlotItem(MySession.LocalHumanPlayer.Id, index.ItemIndex, defId);
+						else
+							MyToolBarCollection.RequestChangeSlotItem(MySession.LocalHumanPlayer.Id, index.ItemIndex, item.GetObjectBuilder());
                     }
                 }
             }
@@ -1342,7 +1385,7 @@ namespace Sandbox.Game.Entities.Character
 
             objectBuilder.AutoenableJetpackDelay = m_currentAutoenableJetpackDelay;
 
-            objectBuilder.Health = m_health;
+            objectBuilder.Health = StatComp.Health != null ? StatComp.Health.Value : Definition.MaxHealth;
 
             objectBuilder.LootingCounter = m_currentLootingCounter;
             objectBuilder.DisplayName = DisplayName;
@@ -1659,8 +1702,6 @@ namespace Sandbox.Game.Entities.Character
 
             UpdateChat();
             UpdateOxygen();
-            if (MyFakes.ENABLE_MISSION_TRIGGERS)
-                UpdateMissionTriggers();
 
             if (Sync.IsServer && IsDead && MyFakes.ENABLE_RAGDOLL_CLIENT_SYNC)
             {
@@ -1922,12 +1963,6 @@ namespace Sandbox.Game.Entities.Character
         }
         #endregion
 
-        protected void UpdateMissionTriggers()
-        {
-            if (ControllerInfo.Controller!=null)
-                MySessionComponentMission.Static.Update(ControllerInfo.Controller.Player.Id, this);
-        }
-
         public void DrawHud(IMyCameraController camera, long playerId)
         {
             MyHud.Crosshair.Position = MyHudCrosshair.ScreenCenter;
@@ -2090,6 +2125,10 @@ namespace Sandbox.Game.Entities.Character
         {
             base.UpdateAfterSimulation();
 
+			VRageRender.MyRenderProxy.GetRenderProfiler().StartProfilingBlock("Update Stats");
+			UpdateStats();
+			VRageRender.MyRenderProxy.GetRenderProfiler().EndProfilingBlock();
+
             VRageRender.MyRenderProxy.GetRenderProfiler().StartProfilingBlock("Update diyng");
             UpdateDiyng();
             VRageRender.MyRenderProxy.GetRenderProfiler().EndProfilingBlock();
@@ -2155,16 +2194,16 @@ namespace Sandbox.Game.Entities.Character
             VRageRender.MyRenderProxy.GetRenderProfiler().StartProfilingBlock("Update IK Transitions");
             UpdateIKTransitions();
             VRageRender.MyRenderProxy.GetRenderProfiler().EndProfilingBlock();
-            
-            VRageRender.MyRenderProxy.GetRenderProfiler().StartProfilingBlock("Update Auto Healing");
-            UpdateAutohealing();
-            VRageRender.MyRenderProxy.GetRenderProfiler().EndProfilingBlock();
 
             VRageRender.MyRenderProxy.GetRenderProfiler().StartProfilingBlock("Simulate Ragdoll");
             SimulateRagdoll();    // probably should be in UpdateDying, but changes the animation of the bones..
             VRageRender.MyRenderProxy.GetRenderProfiler().EndProfilingBlock();
-            
         }
+
+		private void UpdateStats()
+		{
+			m_stats.Update();
+		}
 
         private void CheckRagdollSwitch()
         {
@@ -2387,17 +2426,6 @@ namespace Sandbox.Game.Entities.Character
             VRageRender.MyRenderProxy.GetRenderProfiler().EndProfilingBlock();
         }
 
-        private void UpdateAutohealing()
-        {
-            if (!IsDead && MySession.Static.AutoHealing)
-            {
-                if (m_health.HasValue && (m_health.Value < MaxHealth * AUTOHEAL_MAX))
-                {
-                    m_health = MathHelper.Clamp(m_health.Value + AutohealSpeed, 0, MaxHealth * AUTOHEAL_MAX);
-                }
-            }
-        }
-
         private void UpdateCharacterStateChange()
         {
             if (!ControllerInfo.IsRemotelyControlled() || (MyFakes.CHARACTER_SERVER_SYNC))
@@ -2413,6 +2441,13 @@ namespace Sandbox.Game.Entities.Character
         {
             if (m_currentRespawnCounter > 0)
             {
+                if (ControllerInfo.Controller != null && !MySessionComponentMissionTriggers.CanRespawn(this.ControllerInfo.Controller.Player.Id))
+                {
+                    if (m_respawnNotification != null)
+                        m_respawnNotification.m_lifespanMs = 0;
+                    m_currentRespawnCounter = -1;
+                }
+
                 m_currentRespawnCounter -= MyEngineConstants.UPDATE_STEP_SIZE_IN_SECONDS;
                 if (m_respawnNotification != null)
                     m_respawnNotification.SetTextFormatArguments((int)m_currentRespawnCounter);
@@ -3560,6 +3595,8 @@ namespace Sandbox.Game.Entities.Character
 
                 m_previousMovementState = m_currentMovementState;
                 m_currentMovementState = state;
+				if(OnMovementStateChanged != null)
+					OnMovementStateChanged(m_previousMovementState, m_currentMovementState);
 
                 if (updateSync && SyncObject != null)
                     SyncObject.ChangeMovementState(state);
@@ -4937,18 +4974,24 @@ namespace Sandbox.Game.Entities.Character
             return false;
         }
 
-        private bool WeaponTakesBuilderFromInventory(MyDefinitionId? weaponDefinition)
+        public bool WeaponTakesBuilderFromInventory(MyDefinitionId? weaponDefinition)
         {
             if (weaponDefinition == null) return false;
-            if (weaponDefinition.Value.TypeId == typeof(MyObjectBuilder_CubePlacer))
+            if (weaponDefinition.Value.TypeId == typeof(MyObjectBuilder_CubePlacer) ||
+				(weaponDefinition.Value.TypeId == typeof(MyObjectBuilder_PhysicalGunObject) && weaponDefinition.Value.SubtypeId == manipulationToolId))
                 return false;
             return !MyPerGameSettings.EnableWeaponWithoutInventory;
         }
 
-        public void SwitchToWeapon(MyDefinitionId? weaponDefinition)
+        public void SwitchToWeapon(MyDefinitionId weaponDefinition)
         {
             SwitchToWeapon(weaponDefinition, true);
         }
+
+		public void SwitchToWeapon(MyToolbarItemWeapon weapon)
+		{
+			SwitchToWeapon(weapon, true);
+		}
 
         public void SwitchAmmoMagazine()
         {
@@ -5040,6 +5083,58 @@ namespace Sandbox.Game.Entities.Character
             }
         }
 
+		public void SwitchToWeapon(MyToolbarItemWeapon weapon, bool sync = true)
+		{
+			MyDefinitionId? weaponDefinition = null;
+			if (weapon != null)
+				weaponDefinition = weapon.Definition.Id;
+			// CH:TODO: This part of code seems to do nothing
+			if (weaponDefinition.HasValue && m_rightHandItemBone == -1)
+				return;
+
+			if (WeaponTakesBuilderFromInventory(weaponDefinition))
+			{
+				var item = FindWeaponByDefinition(weaponDefinition.Value);
+				// This can pop-up after inventory truncation, which is OK. Uncomment for debugging
+				//Debug.Assert(item != null, "Character switched to a weapon not in the inventory");
+				if (item == null)
+					return;
+
+				Debug.Assert(item.Value.Content != null, "item.Value.Content was null in MyCharacter.SwitchToWeapon");
+				if (item.Value.Content == null)
+				{
+					MySandboxGame.Log.WriteLine("item.Value.Content was null in MyCharacter.SwitchToWeapon");
+					MySandboxGame.Log.WriteLine("item.Value = " + item.Value);
+					MySandboxGame.Log.WriteLine("weaponDefinition.Value = " + weaponDefinition);
+					return;
+				}
+
+				var physicalGunObject = item.Value.Content as MyObjectBuilder_PhysicalGunObject;
+				var gunEntity = physicalGunObject.GunEntity;
+				if (gunEntity == null)
+				{
+					var handItemId = MyDefinitionManager.Static.TryGetHandItemForPhysicalItem(physicalGunObject.GetId()).Id;
+					gunEntity = (MyObjectBuilder_EntityBase)MyObjectBuilderSerializer.CreateNewObject(handItemId);
+				}
+				else
+				{
+					gunEntity.EntityId = 0;
+				}
+				var handToolGun = gunEntity as MyObjectBuilder_HandTool;
+				if(handToolGun != null)
+				{
+					handToolGun.IsDeconstructor = weapon.IsDeconstructor;
+					SwitchToWeaponInternal(weaponDefinition, sync, true, handToolGun, 0);
+				}
+				else
+					SwitchToWeaponInternal(weaponDefinition, sync, true, gunEntity, 0);
+			}
+			else
+			{
+				SwitchToWeaponInternal(weaponDefinition, sync, true, null, 0);
+			}
+		}
+
         void SwitchToWeaponInternal(MyDefinitionId? weaponDefinition, bool updateSync, bool checkInventory, MyObjectBuilder_EntityBase gunBuilder, long weaponEntityId)
         {
             if (updateSync)
@@ -5082,7 +5177,7 @@ namespace Sandbox.Game.Entities.Character
                 }
                 else
                 {
-                    if (MyPerGameSettings.EnableWeaponWithoutInventory && weaponEntityBuilder == null && weaponDefinition.Value.TypeId == typeof(MyObjectBuilder_PhysicalGunObject))
+                    if (!WeaponTakesBuilderFromInventory(weaponDefinition) && weaponEntityBuilder == null && weaponDefinition.Value.TypeId == typeof(MyObjectBuilder_PhysicalGunObject))
                     {
                         var handItemDef = MyDefinitionManager.Static.TryGetHandItemForPhysicalItem(weaponDefinition.Value);
                         if (handItemDef != null)
@@ -5368,9 +5463,25 @@ namespace Sandbox.Game.Entities.Character
             if (m_currentMovementState != MyCharacterMovementEnum.Died)
             {
                 if (UseObject != null && UseObject.IsActionSupported(UseActionEnum.OpenInventory))
+                {
                     UseObject.Use(UseActionEnum.OpenInventory, this);
+                }
                 else if (MyPerGameSettings.TerminalEnabled)
+                {
                     MyGuiScreenTerminal.Show(MyTerminalPageEnum.Inventory, this, null);
+                }
+                else
+                {
+                    ShowCharacterInventory();
+                }
+            }
+        }
+
+        public void ShowCharacterInventory()
+        {
+            if (MyPerGameSettings.GUI.InventoryScreen != null)
+            {
+                MyGuiSandbox.AddScreen(MyGuiSandbox.CreateScreen(MyPerGameSettings.GUI.InventoryScreen, new List<MyInventory>() {m_inventory}));
             }
         }
 
@@ -5665,7 +5776,7 @@ namespace Sandbox.Game.Entities.Character
                 UpdateHudMarker();
             }
 
-            if (m_health <= 0)
+            if (Health <= MinHealth)
             {
                 m_dieAfterSimulation = true;
                 return;
@@ -6002,25 +6113,6 @@ namespace Sandbox.Game.Entities.Character
             return m_inventory;
         }
 
-        public IMyComponentInventory GetToolInventory()
-		{
-            IMyComponentInventory inventory = null;
-			MyAreaInventoryComponentBase component = null;
-			var weaponEntity = CurrentWeapon as MyEntity;
-			if(weaponEntity != null && weaponEntity.Components.TryGet<MyAreaInventoryComponentBase>(out component))
-				inventory = component.GetInventory();
-
-			return inventory;
-		}
-
-		public IMyComponentInventory GetComponentInventory()
-		{
-			IMyComponentInventory inventory = GetToolInventory();
-			if (inventory == null)
-				inventory = GetInventory();
-			return inventory;
-		}
-
         public MyInventoryOwnerTypeEnum InventoryOwnerType
         {
             get { return MyInventoryOwnerTypeEnum.Character; }
@@ -6033,7 +6125,7 @@ namespace Sandbox.Game.Entities.Character
             Debug.Assert(m_inventory != null, "Inventory is null!");
             Debug.Assert(blockDefinition.Components.Length != 0, "Missing components!");
 
-			var inventory = GetComponentInventory();
+			var inventory = MyCubeBuilder.BuildComponent.GetBuilderInventory(this);
 			if(inventory == null)
 				return false;
 
@@ -6043,7 +6135,7 @@ namespace Sandbox.Game.Entities.Character
         public bool CanStartConstruction(Dictionary<MyDefinitionId, int> constructionCost)
         {
             Debug.Assert(m_inventory != null, "Inventory is null!");
-			var inventory = GetComponentInventory();
+            var inventory = MyCubeBuilder.BuildComponent.GetBuilderInventory(this);
             foreach (var entry in constructionCost)
             {
 				if (inventory.GetItemAmount(entry.Key) < entry.Value) return false;
@@ -6552,43 +6644,28 @@ namespace Sandbox.Game.Entities.Character
                 return;
             }
 
+			var health = m_stats.Health;
 
-            if (!m_health.HasValue)
-                m_health = MaxHealth;
+			if (health == null)
+				return;
 
-            float oldHealth = m_health.Value;
-            m_health -= damage;
+            float oldHealth = Health;
+			health.Decrease(damage);
 
             if (!IsDead)
             {
                 PlayDamageSound(oldHealth);
-                m_breath.SetHealth((float)m_health);
+				m_breath.ForceUpdate();
             }
 
-            //Allow negative values to be able to remove character at all
             if (IsDead)
             {
-                //Removed because it is not synced
-                //if (m_health < DISMISS_HEALTH)
-                //{
-                //    if (this != MySession.ControlledObject)
-                //    {
-                //        MyParticleEffect explosionEffect = MyParticlesManager.CreateParticleEffect((int)MyParticleEffectsIDEnum.Smoke_DrillDust);
-                //        explosionEffect.WorldMatrix = Matrix.CreateTranslation(WorldAABB.Center);
-                //        explosionEffect.OnUpdate += explosionEffect_OnUpdate;
-                //        MarkForClose();
-                //    }
-                //    else
-                //    {
-                //        Visible = false;
-                //    }
-                //}
                 return;
             }
 
             Render.Damage();
 
-            if (m_health <= 0)
+			if (health.Value <= health.MinValue)
             {
                 m_dieAfterSimulation = true;
                 return;
@@ -6764,7 +6841,7 @@ namespace Sandbox.Game.Entities.Character
 
             StartRespawn(RespawnTime);
 
-            m_currentLootingCounter = MyPerGameSettings.CharacterDefaultLootingCounter ;
+            m_currentLootingCounter = MySession.Static.CharacterLootingTime;
 
             if (CharacterDied != null)
                 CharacterDied(this);
@@ -6772,6 +6849,16 @@ namespace Sandbox.Game.Entities.Character
 
         private void StartRespawn(float respawnTime)
         {
+            if (ControllerInfo.Controller != null && ControllerInfo.Controller.Player != null)
+            {
+                MySessionComponentMissionTriggers.PlayerDied(this.ControllerInfo.Controller.Player.Id);
+                if (!MySessionComponentMissionTriggers.CanRespawn(this.ControllerInfo.Controller.Player.Id))
+                {
+                    m_currentRespawnCounter = -1;
+                    return;
+                }
+            }
+
             if (this == MySession.ControlledEntity)
             {
                 MyGuiScreenTerminal.Hide();
@@ -7105,26 +7192,6 @@ namespace Sandbox.Game.Entities.Character
         private MyDefinitionId? m_autoswitch = null;
         public MyControllerInfo ControllerInfo { get { return m_info; } }
 
-        public float Health
-        {
-            get { return m_health.HasValue ? MathHelper.Clamp(m_health.Value, 0, MaxHealth) : MaxHealth; }
-        }
-
-        public float MaxHealth
-        {
-            get { return Definition.MaxHealth; }
-        }
-
-        public float HealthRatio
-        {
-            get { return Health / MaxHealth; }
-        }
-
-        public float AutohealSpeed
-        {
-            get { return MaxHealth / (240 * MyEngineConstants.UPDATE_STEPS_PER_SECOND); }
-        }
-
         public bool IsDead
         {
             get { return m_currentMovementState == MyCharacterMovementEnum.Died; }
@@ -7137,14 +7204,19 @@ namespace Sandbox.Game.Entities.Character
 
         public void AddHealth(float health)
         {
-            if (m_health.HasValue)
-            {
-                m_health = MathHelper.Clamp(m_health.Value + health, 0, MaxHealth);
-                m_breath.SetHealth((float)m_health);
-                if (m_health.Value == MaxHealth)
-                    m_health = null;
-            }
+			m_stats.AddHealth(health);
+			m_breath.ForceUpdate();
         }
+
+		public void AddStamina(float stamina)
+		{
+			m_stats.AddStamina(stamina);
+		}
+
+		public void AddFood(float food)
+		{
+			m_stats.AddFood(food);
+		}
 
         public void ShowOutOfAmmoNotification()
         {
@@ -7372,22 +7444,22 @@ namespace Sandbox.Game.Entities.Character
 
         public void StartSecondarySound(string cueName, bool sync = false)
         {
-            MyStringId cueId = MySoundPair.GetCueId(cueName);
+            var cueId = MySoundPair.GetCueId(cueName);
             StartSecondarySound(cueId, sync);
         }
 
-        public void StartSecondarySound(MyStringId cueStringId, bool sync = false)
+        public void StartSecondarySound(MyCueId cueId, bool sync = false)
         {
-            if (cueStringId == MyStringId.NullOrEmpty) return;
+            if (cueId.IsNull) return;
 
             if (!m_secondarySoundEmitter.IsPlaying)
             {
-                m_secondarySoundEmitter.PlaySound(cueStringId);
+                m_secondarySoundEmitter.PlaySound(cueId);
             }
 
             if (sync)
             {
-                SyncObject.PlaySecondarySound(cueStringId);
+                SyncObject.PlaySecondarySound(cueId);
             }
         }
 
@@ -7852,6 +7924,10 @@ namespace Sandbox.Game.Entities.Character
             if (MyPerGameSettings.TerminalEnabled)
             {
                 MyGuiScreenTerminal.Show(MyTerminalPageEnum.Inventory, user, this);
+            }
+            if (MyPerGameSettings.GUI.InventoryScreen != null && IsDead)
+            {
+                MyGuiSandbox.AddScreen(MyGuiSandbox.CreateScreen(MyPerGameSettings.GUI.InventoryScreen, new List<MyInventory>() { user.GetInventory(0), m_inventory }));
             }
         }
 

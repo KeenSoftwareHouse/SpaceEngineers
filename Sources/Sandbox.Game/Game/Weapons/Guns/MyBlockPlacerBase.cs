@@ -95,17 +95,11 @@ namespace Sandbox.Game.Weapons
                     return;
                 }
 
-                MyCharacter character = CharacterInventory.Owner as MyCharacter;
-                Debug.Assert(character != null, "Character inventory was not owned by a character");
-
-                if (character.ControllerInfo.IsRemotelyControlled())
-                    return;
-
                 // Must have first component to start building
-                if (MyCubeBuilder.Static.CanStartConstruction(character))
+                if (MyCubeBuilder.Static.CanStartConstruction(Owner))
                 {
                     bool placingGrid = MyCubeBuilder.Static.ShipCreationClipboard.IsActive;
-                    m_closeAfterBuild = MyCubeBuilder.Static.AddConstruction(character) && placingGrid;
+                    m_closeAfterBuild = MyCubeBuilder.Static.AddConstruction(Owner) && placingGrid;
                     return;
                 }
                 else

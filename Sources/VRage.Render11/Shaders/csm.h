@@ -115,7 +115,7 @@ float calculate_shadow_fast(float3 world_pos, uint stencil)
 	uint c_id = cascade_id_stencil(stencil);
 	float3 lpos = world_to_shadowmap(world_pos, csm_.cascade_matrix[c_id]);
 	lpos.z -= zbias;
-	return CSM.SampleCmpLevelZero(ShadowmapSampler, float3(lpos.xy, c_id), lpos.z);
+	return CSM.SampleCmpLevelZero(ShadowmapSampler, float3(lpos.xy, c_id), lpos.z) + any(lpos.xy != saturate(lpos.xy));
 }
 
 float calculate_shadow_fast_particle(float3 world_pos, float depth)

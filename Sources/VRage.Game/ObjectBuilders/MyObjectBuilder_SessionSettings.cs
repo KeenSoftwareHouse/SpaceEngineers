@@ -230,9 +230,14 @@ namespace Sandbox.Common.ObjectBuilders
         [GameRelationAttribute(Game.SpaceEngineers)]
         public bool EnableHostileEncounters = true;
 
-        [Display(Name = "Desable respawn ships")]
+        [Display(Name = "Disable respawn ships")]
         [GameRelationAttribute(Game.SpaceEngineers)]
         public bool DisableRespawnShips = false;
+
+        [ProtoMember]
+        [Display(Name = "Scenario edit mode")]
+        [GameRelationAttribute(Game.SpaceEngineers)]
+        public bool ScenarioEditMode = false;
 
         [ProtoMember]
         [GameRelationAttribute(Game.MedievalEngineers)]

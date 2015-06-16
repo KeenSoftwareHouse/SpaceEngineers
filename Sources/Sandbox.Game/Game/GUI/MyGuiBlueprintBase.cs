@@ -280,6 +280,9 @@ namespace Sandbox.Game.Gui
                 return null;
 
             var extracted = MyZipArchive.OpenOnFile(archive);
+            if (!extracted.FileExists("bp.sbc"))
+                return null;
+
             var stream = extracted.GetFile("bp.sbc").GetStream();
             
             if (stream == null)

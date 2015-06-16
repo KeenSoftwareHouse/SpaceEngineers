@@ -1,15 +1,9 @@
 ﻿using ProtoBuf;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Xml.Serialization;
-using Sandbox.Common.ObjectBuilders.Definitions;
-using Sandbox.Common.ObjectBuilders;
 using System.ComponentModel;
+using System.Xml.Serialization;
 using VRage.ObjectBuilders;
 
-namespace Medieval.ObjectBuilders.Definitions
+namespace Sandbox.Common.ObjectBuilders.Definitions
 {
     [ProtoContract]
     [MyObjectBuilderDefinition]
@@ -60,6 +54,5 @@ namespace Medieval.ObjectBuilders.Definitions
 
         [ProtoMember, DefaultValue(30)]
         public float ToolDamage = 30;
-
     }
 }

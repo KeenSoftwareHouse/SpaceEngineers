@@ -31,6 +31,7 @@
     <ErrorReport>prompt</ErrorReport>
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
     <GenerateSerializationAssemblies>Auto</GenerateSerializationAssemblies>
+    <DocumentationFile>bin\x64\Release\VRage.Game.XML</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x86'">
     <DebugSymbols>true</DebugSymbols>
@@ -50,6 +51,7 @@
     <PlatformTarget>x86</PlatformTarget>
     <ErrorReport>prompt</ErrorReport>
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <DocumentationFile>bin\x86\Release\VRage.Game.XML</DocumentationFile>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
@@ -158,6 +160,7 @@
     <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_CogWheelBlockDefinition.cs" />
     <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_CogWheelsBlockDefinition.cs" />
     <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_ComponentDefinition.cs" />
+    <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_ComponentGroupDefinition.cs" />
     <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_CompositeBlueprintDefinition.cs" />
     <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_CompoundBlockTemplateDefinition.cs" />
     <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_Configuration.cs" />
@@ -175,6 +178,7 @@
     <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_DoorDefinition.cs" />
     <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_Dx11VoxelMaterialDefinition.cs" />
     <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_EdgesDefinition.cs" />
+    <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_EntityStatDefinition.cs" />
     <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_EnvironmentDefinition.cs" />
     <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_EnvironmentItemDefinition.cs" />
     <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_EnvironmentItemsDefinition.cs" />
@@ -188,6 +192,7 @@
     <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_GyroDefinition.cs" />
     <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_HandItemDefinition.cs" />
     <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_HumanoidBotDefinition.cs" />
+    <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_InventoryDefinition.cs" />
     <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_LandingGearDefinition.cs" />
     <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_LargeTurretBaseDefinition.cs" />
     <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_LaserAntennaDefinition.cs" />
@@ -239,6 +244,7 @@
     <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_SoundCategoryDefinition.cs" />
     <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_SpaceBallDefinition.cs" />
     <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_SpawnGroupDefinition.cs" />
+    <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_StatsDefinition.cs" />
     <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_SwitchBlockDefinition.cs" />
     <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_TextPanelDefinition.cs" />
     <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_ThrustDefinition.cs" />
@@ -248,6 +254,7 @@
     <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_TreeCuttingDefinition.cs" />
     <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_TreeDefinition.cs" />
     <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_Trigger.cs" />
+    <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_TriggerLives.cs" />
     <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_TriggerPositionLeft.cs" />
     <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_TriggerPositionReached.cs" />
     <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_TriggerSomeoneWon.cs" />
@@ -334,6 +341,7 @@
     <Compile Include="ObjectBuilders\MyObjectBuilder_Door.cs" />
     <Compile Include="ObjectBuilders\MyObjectBuilder_Drill.cs" />
     <Compile Include="ObjectBuilders\MyObjectBuilder_Encounters.cs" />
+    <Compile Include="ObjectBuilders\MyObjectBuilder_EntityStat.cs" />
     <Compile Include="ObjectBuilders\MyObjectBuilder_Environment.cs" />
     <Compile Include="ObjectBuilders\MyObjectBuilder_EnvironmentItems.cs" />
     <Compile Include="ObjectBuilders\MyObjectBuilder_ExtendedPistonBase.cs" />
@@ -382,6 +390,7 @@
     <Compile Include="ObjectBuilders\MyObjectBuilder_MotorRotor.cs" />
     <Compile Include="ObjectBuilders\MyObjectBuilder_MotorStator.cs" />
     <Compile Include="ObjectBuilders\MyObjectBuilder_MotorSuspension.cs" />
+    <Compile Include="ObjectBuilders\MyObjectBuilder_EntityStatRegenEffect.cs" />
     <Compile Include="ObjectBuilders\MyObjectBuilder_MyProgrammableBlock.cs" />
     <Compile Include="ObjectBuilders\MyObjectbuilder_Ore.cs" />
     <Compile Include="ObjectBuilders\MyObjectBuilder_OreDetector.cs" />

@@ -389,6 +389,13 @@ namespace Sandbox.Game.Entities.Blocks
             }
         }
 
+        public override void OnModelChange()
+        {
+            base.OnModelChange();
+
+            m_prevFillCount = -1;
+        }
+
         protected override void Closing()
         {
             base.Closing();
