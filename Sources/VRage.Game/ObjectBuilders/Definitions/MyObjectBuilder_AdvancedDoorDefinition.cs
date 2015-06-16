@@ -26,11 +26,6 @@ namespace Sandbox.Common.ObjectBuilders.Definitions
                 Rotate
             }
 
-            public enum Sequence
-            {
-                Linear
-            }
-
             public enum Rotation
             {
                 X,
@@ -39,22 +34,14 @@ namespace Sandbox.Common.ObjectBuilders.Definitions
             }
 
             [ProtoMember]
-            public int ID = -1;
-
-            [ProtoMember]
             public string IDs = "";
 
             [ProtoMember]
             public MoveType Move = MoveType.Slide;
 
             [ProtoMember]
-            public Sequence SequenceType = Sequence.Linear;
-
-            // How fast opens this Subpart?
-            [ProtoMember]
             public float Speed = 1f;
 
-            // In what direction does this Subpart Move? (i.e. Up/Down/Left/Right)
             [ProtoMember]
             public SerializableVector3 SlideDirection = Vector3.Zero;
 
@@ -107,6 +94,9 @@ namespace Sandbox.Common.ObjectBuilders.Definitions
             /// </summary>
             [ProtoMember]
             public SerializableVector3? PivotPosition = null;
+
+            [ProtoMember]
+            public bool HasPhysics = true;
         }
 
         [ProtoMember]
@@ -120,5 +110,11 @@ namespace Sandbox.Common.ObjectBuilders.Definitions
 
         [ProtoMember]
         public float PowerConsumptionMoving;
+
+        [ProtoMember]
+        public bool Autoclose = false;
+
+        [ProtoMember]
+        public SerializableBounds AutocloseInterval = new SerializableBounds(1f, 10f, 2f);
     }
 }

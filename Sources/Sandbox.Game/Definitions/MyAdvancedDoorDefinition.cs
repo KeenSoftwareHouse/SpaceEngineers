@@ -13,6 +13,9 @@ namespace Sandbox.Definitions
         public float PowerConsumptionIdle;
         public float PowerConsumptionMoving;
 
+        public MyBounds AutocloseInterval;
+        public bool Autoclose;
+
         public MyObjectBuilder_AdvancedDoorDefinition.SubpartDefinition[] Subparts;
         public MyObjectBuilder_AdvancedDoorDefinition.Opening[] OpeningSequence;
 
@@ -25,6 +28,9 @@ namespace Sandbox.Definitions
 
             PowerConsumptionIdle = advancedDoorBuilder.PowerConsumptionIdle;
             PowerConsumptionMoving = advancedDoorBuilder.PowerConsumptionMoving;
+
+            AutocloseInterval = advancedDoorBuilder.AutocloseInterval;
+            Autoclose = advancedDoorBuilder.Autoclose;
 
             Subparts = advancedDoorBuilder.Subparts;
             OpeningSequence = advancedDoorBuilder.OpeningSequence;
