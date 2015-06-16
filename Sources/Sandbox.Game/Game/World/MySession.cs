@@ -1136,6 +1136,10 @@ namespace Sandbox.Game.World
 
             MyEntityIdentifier.Reset();
 
+            ProfilerShort.Begin("MyLoadModBlock.Static.LoadData");
+            MyLoadModBlock.Static.LoadData(checkpoint.Mods);
+            ProfilerShort.End();
+
             ulong sectorSizeInBytes;
             ProfilerShort.Begin("MyLocalCache.LoadSector");
             var sector = MyLocalCache.LoadSector(sessionPath, checkpoint.CurrentSector, out sectorSizeInBytes);
@@ -1149,6 +1153,7 @@ namespace Sandbox.Game.World
             }
 
             ulong voxelsSizeInBytes = GetVoxelsSizeInBytes(sessionPath);
+
 
             ProfilerShort.Begin("MyDefinitionManager.Static.LoadData");
             MyDefinitionManager.Static.LoadData(checkpoint.Mods);

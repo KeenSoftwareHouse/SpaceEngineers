@@ -941,7 +941,7 @@ namespace Sandbox
             MySandboxGame.Log.WriteLine("Preallocate - END");
         }
 
-        private static void PreloadTypesFrom(Assembly assembly)
+        public static void PreloadTypesFrom(Assembly assembly)
         {
             if (assembly != null)
                 ForceStaticCtor(assembly.GetTypes().Where(type => Attribute.IsDefined(type, typeof(PreloadRequiredAttribute))).ToArray());
@@ -1085,7 +1085,7 @@ namespace Sandbox
             Func<string, string> getPath = (x) => Path.Combine(MyFileSystem.ExePath, x);
             IlCompiler.Options = new System.CodeDom.Compiler.CompilerParameters(new string[] { "System.Xml.dll", getPath("Sandbox.Game.dll"),
                 getPath("Sandbox.Common.dll"), getPath("Sandbox.Graphics.dll"), getPath("VRage.dll"), //getPath("VRage.Data.dll"),
-                getPath("VRage.Library.dll"), getPath("VRage.Math.dll"), getPath("VRage.Game.dll"),"System.Core.dll", "System.dll"/*, "Microsoft.CSharp.dll" */});
+                getPath("VRage.Library.dll"), getPath("VRage.Math.dll"), getPath("VRage.Game.dll"),"System.Core.dll", "System.dll",getPath("SteamSDK.dll")/*, "Microsoft.CSharp.dll" */});
             Log.DecreaseIndent();
             if (MyFakes.ENABLE_SCRIPTS_PDB)
                 IlCompiler.Options.CompilerOptions = string.Format("/debug {0}", IlCompiler.Options.CompilerOptions);

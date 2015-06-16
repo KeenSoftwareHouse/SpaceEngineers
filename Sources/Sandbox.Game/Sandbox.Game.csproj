@@ -721,6 +721,7 @@
     <Compile Include="Game\World\Generator\MyEncounterGenerator.cs" />
     <Compile Include="Game\Entities\Cube\MyBuildComponentBase.cs" />
     <Compile Include="Game\World\IMyRespawnComponent.cs" />
+    <Compile Include="Game\World\MyLoadModBlock.cs" />
     <Compile Include="Game\World\Triggers\MyMissionTriggers.cs" />
     <Compile Include="Game\World\Triggers\MyTrigger.cs" />
     <Compile Include="Game\World\Triggers\MyTriggerLives.cs" />

@@ -35,6 +35,12 @@ namespace Sandbox.Game.Entities.Cube
             m_objectFactory.RegisterFromAssembly(MyPlugins.UserAssembly);
         }
 
+        public static void RegisterFromAssembly(Assembly assembly)
+       {
+           m_objectFactory.RegisterFromAssembly(assembly);
+       }
+
+
         public static object CreateCubeBlock(MyObjectBuilder_CubeBlock builder)
         {
             var obj = m_objectFactory.CreateInstance(builder.TypeId);

@@ -65,7 +65,7 @@ namespace VRage.Compiler
         {
             assembly = null;
             Options.OutputAssembly = assemblyName;
-            Options.GenerateInMemory = true;
+            Options.GenerateInMemory = false;
             string[] sources = UpdateCompatibility(files);
             var result = m_cp.CompileAssemblyFromSource(Options, sources);
             return CheckResultInternal(ref assembly, errors, result,false);

@@ -106,7 +106,7 @@ namespace Sandbox.Engine.Multiplayer
                 RegisterFromAssembly(MyPlugins.UserAssembly);            
         }
 
-        static void RegisterFromAssembly(Assembly assembly)
+        public static void RegisterFromAssembly(Assembly assembly)
         {
             foreach (var type in assembly.GetTypes())
             {
