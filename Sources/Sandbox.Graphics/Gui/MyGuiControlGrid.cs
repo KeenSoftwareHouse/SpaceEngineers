@@ -429,6 +429,9 @@ namespace Sandbox.Graphics.GUI
                 PrepareEventArgs(ref args, emptyIdx);
                 ItemChanged(this, args);
             }
+
+            // Recalculate row count
+            this.RowsCount = emptyIdx / this.m_columnsCount + 1;
         }
 
         public Item GetItemAt(int index)

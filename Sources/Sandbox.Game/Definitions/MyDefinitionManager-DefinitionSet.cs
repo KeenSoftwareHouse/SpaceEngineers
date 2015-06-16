@@ -202,7 +202,7 @@ namespace Sandbox.Definitions
                     }
                     else
                     {
-                        categoryDefinition.ItemIds.AddRange(classEntry.ItemIds);
+                        categoryDefinition.ItemIds.UnionWith(classEntry.ItemIds);
                     }
                 }
 

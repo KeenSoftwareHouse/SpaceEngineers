@@ -783,7 +783,7 @@ namespace Sandbox.Definitions
                     Public = true,
                     SearchBlocks = true,
                     ShowAnimations = false,
-                    ItemIds = new List<string>(),
+                    ItemIds = new HashSet<string>(),
                 };
 
                 foreach (var block in GetDefinitionPairNames())
