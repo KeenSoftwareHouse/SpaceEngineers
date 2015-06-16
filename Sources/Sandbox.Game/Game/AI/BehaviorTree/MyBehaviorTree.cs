@@ -26,7 +26,7 @@ namespace Sandbox.Game.AI.BehaviorTree
             public MyBehaviorTreeDesc()
             {
                 Nodes = new List<MyBehaviorTreeNode>(20);
-                ActionIds = new HashSet<MyStringId>();
+                ActionIds = new HashSet<MyStringId>(MyStringId.Comparer);
                 MemorableNodesCounter = 0;
             }
         }
@@ -41,7 +41,7 @@ namespace Sandbox.Game.AI.BehaviorTree
         private MyBehaviorDefinition m_behaviorDefinition;
         public MyBehaviorDefinition BehaviorDefinition { get { return m_behaviorDefinition; } }
         public string BehaviorTreeName { get { return m_behaviorDefinition.Id.SubtypeName; } }
-        public MyStringId BehaviorTreeId { get { return m_behaviorDefinition.Id.SubtypeId; } }
+        public MyStringHash BehaviorTreeId { get { return m_behaviorDefinition.Id.SubtypeId; } }
 
         public MyBehaviorTree(MyBehaviorDefinition def)
         {

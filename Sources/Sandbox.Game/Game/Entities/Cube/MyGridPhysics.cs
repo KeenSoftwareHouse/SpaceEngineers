@@ -1050,7 +1050,7 @@ namespace Sandbox.Game.Entities.Cube
             }
         }
 
-        public override MyStringId GetMaterialAt(Vector3D worldPos)
+        public override MyStringHash GetMaterialAt(Vector3D worldPos)
         {
             var pos = Vector3.Transform(worldPos, m_grid.PositionComp.WorldMatrixNormalizedInv) / m_grid.GridSize;
             Vector3I cubePos;
@@ -1061,7 +1061,7 @@ namespace Sandbox.Game.Entities.Cube
             if (cube.FatBlock is MyCompoundCubeBlock)
                 cube = (cube.FatBlock as MyCompoundCubeBlock).GetBlocks()[0];
             var blockMaterial = cube.BlockDefinition.PhysicalMaterial.Id.SubtypeId;
-            return blockMaterial != MyStringId.NullOrEmpty ? blockMaterial : base.GetMaterialAt(worldPos);
+            return blockMaterial != MyStringHash.NullOrEmpty ? blockMaterial : base.GetMaterialAt(worldPos);
         }
 
         /// <summary>
@@ -1422,7 +1422,7 @@ namespace Sandbox.Game.Entities.Cube
                 return;
 
             MySoundPair destructionCue;
-            if (def.GeneralSounds.TryGetValue(m_destructionSound, out destructionCue) && destructionCue.SoundId != MyStringId.NullOrEmpty)
+            if (def.GeneralSounds.TryGetValue(m_destructionSound, out destructionCue) && !destructionCue.SoundId.IsNull)
             {
                 var emmiter = MyAudioComponent.TryGetSoundEmitter();
                 if (emmiter == null)

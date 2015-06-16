@@ -109,6 +109,7 @@ namespace Sandbox.Game.Gui
             LocationMarkers.Clear();
             GpsMarkers.Clear();
             HackingMarkers.Clear();
+            ObjectiveLine.Clear();
             if (MyFakes.ENABLE_NETGRAPH)
             {
                 Netgraph.ClearNetgraph();

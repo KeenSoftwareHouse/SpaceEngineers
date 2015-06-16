@@ -296,6 +296,11 @@ namespace VRageRender
                             new MyDisplayMode(1920, 1200, 60000, 1000),
                         };
 
+                        info.OutputName = "FallbackOutput";
+                        info.Name = String.Format("{0}", adapter.Description.Description);
+                        info.OutputId = 0;
+                        info.CurrentDisplayMode = fallbackDisplayModes[fallbackDisplayModes.Length - 1];
+
                         info.SupportedDisplayModes = fallbackDisplayModes;
                         info.FallbackDisplayModes = true;
 

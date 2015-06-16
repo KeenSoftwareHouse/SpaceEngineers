@@ -533,8 +533,6 @@ namespace Sandbox.Game.Gui
             enable3rdPersonCameraLabel.Position = new Vector2(rightColumnOffset - labelSize / 2, m_enableOxygen.Position.Y);
             m_enable3rdPersonCamera.Position = new Vector2(rightColumnOffset + labelSize / 2, m_enableOxygen.Position.Y);
 
-         
-
             if (MyFakes.ENABLE_CARGO_SHIPS)
             {
                 parent.Controls.Add(shipsEnabledLabel);

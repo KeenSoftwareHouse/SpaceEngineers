@@ -226,7 +226,7 @@ namespace Sandbox.Common.ObjectBuilders
         public bool EnableEncounters = true;
 
         [ProtoMember]
-        [Display(Name = "Desable respawn ships")]
+        [Display(Name = "Disable respawn ships")]
         [GameRelationAttribute(Game.SpaceEngineers)]
         public bool DisableRespawnShips = false;
 
@@ -244,6 +244,10 @@ namespace Sandbox.Common.ObjectBuilders
         [Display(Name = "Max Damaged Ship Severity")]
         [GameRelationAttribute(Game.SpaceEngineers)]
         public int MaxDamagedShipsSeverity = 1;  
+
+        [Display(Name = "Scenario edit mode")]
+        [GameRelationAttribute(Game.SpaceEngineers)]
+        public bool ScenarioEditMode = false;
 
         [ProtoMember]
         [GameRelationAttribute(Game.MedievalEngineers)]

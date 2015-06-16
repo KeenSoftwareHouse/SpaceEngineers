@@ -721,6 +721,9 @@ namespace VRageRender
 
         internal static void UpdateEnvironmentProbes()
         {
+            if (MyRender11.IsIntelBrokenCubemapsWorkaround)
+                return;
+
             if (m_cubemapDepth == RwTexId.NULL)
             {
                 m_cubemapDepth = MyRwTextures.CreateShadowmapArray(256, 256, 6, Format.R24G8_Typeless, Format.D24_UNorm_S8_UInt, Format.R24_UNorm_X8_Typeless);
@@ -745,6 +748,9 @@ namespace VRageRender
 
         internal static void FinalizeEnvProbes()
         {
+            if (MyRender11.IsIntelBrokenCubemapsWorkaround)
+                return;
+
             if (m_envProbe.lastUpdateTime == MyTimeSpan.Zero)
             {
                 m_envProbe.ImmediateFiltering();

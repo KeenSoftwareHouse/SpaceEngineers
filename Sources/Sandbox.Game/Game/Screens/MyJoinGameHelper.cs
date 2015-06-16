@@ -319,8 +319,8 @@ namespace Sandbox.Game.Gui
         {
             MyLog.Default.WriteLine(String.Format("Battle lobby join response: {0}, enter state: {1}", joinResult.ToString(), enterInfo.EnterState));
 
-            bool battleCanBeJoined = multiplayer.BattleCanBeJoined;
-            if (joinResult == Result.OK && enterInfo.EnterState == LobbyEnterResponseEnum.Success && multiplayer.GetOwner() != MySteam.UserId && battleCanBeJoined)
+            bool battleCanBeJoined = multiplayer != null && multiplayer.BattleCanBeJoined;
+            if (joinResult == Result.OK && enterInfo.EnterState == LobbyEnterResponseEnum.Success && battleCanBeJoined && multiplayer.GetOwner() != MySteam.UserId)
             {
                 // Create session with empty world
                 Debug.Assert(MySession.Static == null);
@@ -371,7 +371,6 @@ namespace Sandbox.Game.Gui
                 }
 
                 MySession.CreateWithEmptyWorld(multiplayer);
-                MySession.Static.Settings.Battle = true;
 
                 progress.CloseScreen();
 

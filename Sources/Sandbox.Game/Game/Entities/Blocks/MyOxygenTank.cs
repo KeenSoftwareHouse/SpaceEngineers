@@ -403,6 +403,13 @@ namespace Sandbox.Game.Entities.Blocks
             }
         }
 
+        public override void OnModelChange()
+        {
+            base.OnModelChange();
+
+            m_prevFillCount = -1;
+        }
+
         #region Inventory
         public int InventoryCount
         {

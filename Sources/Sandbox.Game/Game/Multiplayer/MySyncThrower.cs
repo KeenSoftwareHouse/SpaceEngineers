@@ -10,6 +10,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using VRage.Audio;
 using VRage.Utils;
 using VRageMath;
 
@@ -33,7 +34,7 @@ namespace Sandbox.Game.Multiplayer
             [ProtoMember]
             public float Mass;
             [ProtoMember]
-            public MyStringId ThrowSound;
+            public MyCueId ThrowSound;
         }
 
 
@@ -43,7 +44,7 @@ namespace Sandbox.Game.Multiplayer
             MySyncLayer.RegisterMessage<ThrowMsg>(OnThrowMessageSuccess, MyMessagePermissions.FromServer, MyTransportMessageEnum.Success);
         }
 
-        public static void RequestThrow(MyObjectBuilder_CubeGrid grid, Vector3D position, Vector3D linearVelocity, float mass, MyStringId throwSound)
+        public static void RequestThrow(MyObjectBuilder_CubeGrid grid, Vector3D position, Vector3D linearVelocity, float mass, MyCueId throwSound)
         {
             ThrowMsg msg = new ThrowMsg();
             msg.Grid = grid;

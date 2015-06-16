@@ -345,11 +345,14 @@ namespace Sandbox.Game.Multiplayer
 
             FixTransferAmount(src, dst, srcItem, spawn, ref remove, ref amount);
 
-            if (remove != 0)
-                src.RemoveItems(itemId, remove);
-
             if (amount != 0)
-                dst.AddItems(amount, srcItem.Value.Content, destItemIndex);
+            {
+                if (dst.AddItems(amount, srcItem.Value.Content, destItemIndex))
+                {
+                    if (remove != 0)
+                        src.RemoveItems(itemId, remove);
+                }
+            }
         }
 
         private static void FixTransferAmount(MyInventory src, MyInventory dst, MyInventoryItem? srcItem, bool spawn, ref MyFixedPoint remove, ref MyFixedPoint add)

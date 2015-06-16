@@ -14,7 +14,7 @@ namespace VRage.Utils
     {
         // The private dictionary used to maintain EventKey -> Delegate mappings
         private readonly Dictionary<MyStringId, Delegate> m_events =
-            new Dictionary<MyStringId, Delegate>();
+            new Dictionary<MyStringId, Delegate>(MyStringId.Comparer);
 
         // Adds an EventKey -> Delegate mapping if it doesn't exist or 
         // combines a delegate to an existing EventKey

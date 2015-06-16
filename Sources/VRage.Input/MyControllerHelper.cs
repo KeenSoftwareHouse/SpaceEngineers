@@ -90,7 +90,7 @@ namespace VRage.Input
 
             public Context()
             {
-                Bindings = new Dictionary<MyStringId, IControl>();
+                Bindings = new Dictionary<MyStringId, IControl>(MyStringId.Comparer);
             }
         }
 
@@ -193,7 +193,7 @@ namespace VRage.Input
         }
 
         private static EmptyControl m_nullControl = new EmptyControl();
-        private static Dictionary<MyStringId, Context> m_bindings = new Dictionary<MyStringId, Context>();
+        private static Dictionary<MyStringId, Context> m_bindings = new Dictionary<MyStringId, Context>(MyStringId.Comparer);
 
         static MyControllerHelper()
         {

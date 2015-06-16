@@ -393,7 +393,7 @@ namespace Sandbox
                 MyGuiGameControlsHelpers.Add(MyControlsSpace.MISSION_SETTINGS, new MyGuiDescriptor(MySpaceTexts.ControlName_MissionSettings));
             MyGuiGameControlsHelpers.Add(MyControlsSpace.STATION_ROTATION, new MyGuiDescriptor(MySpaceTexts.StationRotation_Static, MySpaceTexts.StationRotation_Static_Desc));
 
-            Dictionary<MyStringId, MyControl> defaultGameControls = new Dictionary<MyStringId, MyControl>();
+            Dictionary<MyStringId, MyControl> defaultGameControls = new Dictionary<MyStringId, MyControl>(MyStringId.Comparer);
             AddDefaultGameControl(defaultGameControls, MyGuiControlTypeEnum.Navigation, MyControlsSpace.FORWARD, null, MyKeys.W);
             AddDefaultGameControl(defaultGameControls, MyGuiControlTypeEnum.Navigation, MyControlsSpace.BACKWARD, null, MyKeys.S);
             AddDefaultGameControl(defaultGameControls, MyGuiControlTypeEnum.Navigation, MyControlsSpace.STRAFE_LEFT, null, MyKeys.A);
@@ -497,6 +497,9 @@ namespace Sandbox
                 blueprintCategories: new MySteamWorkshop.Category[]
                 {
                     new MySteamWorkshop.Category { Id = "exploration", LocalizableName = MySpaceTexts.WorkshopTag_Exploration, },
+                },
+                scenarioCategories: new MySteamWorkshop.Category[]
+                {
                 });
         }
 
@@ -1103,11 +1106,14 @@ namespace Sandbox
             IlChecker.AllowNamespaceOfTypeModAPI(typeof(MyGameLogicComponent));
             IlChecker.AllowNamespaceOfTypeModAPI(typeof(VRage.Components.IMyComponentBase));
             IlChecker.AllowNamespaceOfTypeModAPI(typeof(Sandbox.Common.MySessionComponentBase));
-
             
             IlChecker.AllowNamespaceOfTypeCommon(typeof(MyObjectBuilder_Base));
             IlChecker.AllowNamespaceOfTypeCommon(typeof(Sandbox.Common.ObjectBuilders.MyObjectBuilder_AirVent));
             IlChecker.AllowNamespaceOfTypeModAPI(typeof(Sandbox.Common.ObjectBuilders.Voxels.MyObjectBuilder_VoxelMap));
+			IlChecker.AllowNamespaceOfTypeModAPI(typeof(MyStatLogic));
+			IlChecker.AllowNamespaceOfTypeModAPI(typeof(VRage.Game.ObjectBuilders.MyObjectBuilder_EntityStatRegenEffect));
+			IlChecker.AllowNamespaceOfTypeModAPI(typeof(Sandbox.Game.Entities.MyEntityStat));
+			
             IlChecker.AllowNamespaceOfTypeModAPI(typeof(SerializableDefinitionId));
             IlChecker.AllowNamespaceOfTypeModAPI(typeof(SerializableVector3));
 
@@ -1153,11 +1159,31 @@ namespace Sandbox
         void Matchmaking_LobbyJoinRequest(Lobby lobby, ulong invitedBy)
         {
             // Test whether player is not already in that lobby
-            if (MySession.Static != null && MyMultiplayer.Static != null && MyMultiplayer.Static.LobbyId == lobby.LobbyId)
+            if (!lobby.IsValid || (MySession.Static != null && MyMultiplayer.Static != null && MyMultiplayer.Static.LobbyId == lobby.LobbyId))
                 return;
 
             MyGuiScreenMainMenu.UnloadAndExitToMenu();
-            MyJoinGameHelper.JoinGame(lobby);
+
+            // Lobby sometimes gives default values.
+            var appVersion = MyMultiplayerLobby.GetLobbyAppVersion(lobby);
+            if (appVersion == 0)
+                return;
+
+            bool isBattle = MyMultiplayerLobby.GetLobbyBattle(lobby);
+            if (MyFakes.ENABLE_BATTLE_SYSTEM && isBattle)
+            {
+                bool canBeJoined = MyMultiplayerLobby.GetLobbyBattleCanBeJoined(lobby);
+                // Check also valid faction ids in battle lobby.
+                long faction1Id = MyMultiplayerLobby.GetLobbyBattleFaction1Id(lobby);
+                long faction2Id = MyMultiplayerLobby.GetLobbyBattleFaction2Id(lobby);
+
+                if (canBeJoined && faction1Id != 0 && faction2Id != 0)
+                    MyJoinGameHelper.JoinBattleGame(lobby);
+            }
+            else
+            {
+                MyJoinGameHelper.JoinGame(lobby);
+            }
         }
 
         void Matchmaking_ServerChangeRequest(string server, string password)

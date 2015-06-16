@@ -19,8 +19,9 @@ namespace Sandbox.Game.Utils
             public static MyStringId Start = MyStringId.GetOrCompute("Start");
         }
         public static MyMaterialSoundsHelper Static;
-        private Dictionary<MyStringId, Dictionary<MyStringId, Dictionary<MyStringId, MySoundPair>>> MaterialCues = new Dictionary<MyStringId, Dictionary<MyStringId, Dictionary<MyStringId, MySoundPair>>>();
-        private HashSet<MyStringId> m_loaded = new HashSet<MyStringId>();
+        private Dictionary<MyStringId, Dictionary<MyStringHash, Dictionary<MyStringHash, MySoundPair>>> MaterialCues =
+            new Dictionary<MyStringId, Dictionary<MyStringHash, Dictionary<MyStringHash, MySoundPair>>>(MyStringId.Comparer);
+        private HashSet<MyStringHash> m_loaded = new HashSet<MyStringHash>(MyStringHash.Comparer);
         public override void LoadData()
         {
             base.LoadData();
@@ -43,7 +44,7 @@ namespace Sandbox.Game.Utils
             var thisMaterial = material.Id.SubtypeId;
             if (!m_loaded.Add(thisMaterial))
                 return;
-            if (material.InheritSoundsFrom != MyStringId.NullOrEmpty)
+            if (material.InheritSoundsFrom != MyStringHash.NullOrEmpty)
             {
                 MyPhysicalMaterialDefinition def;
                 if (MyDefinitionManager.Static.TryGetDefinition<MyPhysicalMaterialDefinition>(new MyDefinitionId(typeof(MyObjectBuilder_PhysicalMaterialDefinition), material.InheritSoundsFrom), out def))
@@ -58,7 +59,7 @@ namespace Sandbox.Game.Utils
                 foreach (var type in MaterialCues.Keys)
                 {
                     if (!MaterialCues[type].ContainsKey(thisMaterial))
-                        MaterialCues[type][thisMaterial] = new Dictionary<MyStringId, MySoundPair>();
+                        MaterialCues[type][thisMaterial] = new Dictionary<MyStringHash, MySoundPair>(MyStringHash.Comparer);
                     MySoundPair selfCue =  null;
                     foreach (var pair in MaterialCues[type][material.InheritSoundsFrom])
                     {
@@ -89,16 +90,16 @@ namespace Sandbox.Game.Utils
             {
                 var type = materialSounds.Key;
                 if (!MaterialCues.ContainsKey(type))
-                    MaterialCues[type] = new Dictionary<MyStringId, Dictionary<MyStringId, MySoundPair>>();
+                    MaterialCues[type] = new Dictionary<MyStringHash, Dictionary<MyStringHash, MySoundPair>>(MyStringHash.Comparer);
                 if (!MaterialCues[type].ContainsKey(thisMaterial))
-                    MaterialCues[type][thisMaterial] = new Dictionary<MyStringId, MySoundPair>();
+                    MaterialCues[type][thisMaterial] = new Dictionary<MyStringHash, MySoundPair>(MyStringHash.Comparer);
                 foreach (var otherMaterial in materialSounds.Value)
                 {
                     MaterialCues[type][thisMaterial][otherMaterial.Key] = otherMaterial.Value;
 
                     //add the sound in oposite direction if not defined
                     if (!MaterialCues[type].ContainsKey(otherMaterial.Key))
-                        MaterialCues[type][otherMaterial.Key] = new Dictionary<MyStringId, MySoundPair>();
+                        MaterialCues[type][otherMaterial.Key] = new Dictionary<MyStringHash, MySoundPair>(MyStringHash.Comparer);
                     if (!MaterialCues[type][otherMaterial.Key].ContainsKey(thisMaterial))
                         MaterialCues[type][otherMaterial.Key][thisMaterial] = otherMaterial.Value;
                 }
@@ -111,12 +112,12 @@ namespace Sandbox.Game.Utils
             Static = null;
         }
 
-        public MySoundPair GetCollisionCue(MyStringId type, MyStringId materialType1, MyStringId materialType2)
+        public MySoundPair GetCollisionCue(MyStringId type, MyStringHash materialType1, MyStringHash materialType2)
         {
-            Dictionary<MyStringId, Dictionary<MyStringId, MySoundPair>> typeDic;
+            Dictionary<MyStringHash, Dictionary<MyStringHash, MySoundPair>> typeDic;
             if(MaterialCues.TryGetValue(type, out typeDic))
             {
-                Dictionary<MyStringId, MySoundPair> materialDic;
+                Dictionary<MyStringHash, MySoundPair> materialDic;
                 if(typeDic.TryGetValue(materialType1, out materialDic))
                 {
                     MySoundPair result;
