@@ -51,6 +51,7 @@ namespace Sandbox.Game.World.Generator
         private static readonly List<MyVoxelMaterialDefinition> m_surfaceMaterials = new List<MyVoxelMaterialDefinition>();
         private static readonly List<MyVoxelMaterialDefinition> m_depositMaterials = new List<MyVoxelMaterialDefinition>();
         private static readonly List<MyVoxelMaterialDefinition> m_coreMaterials = new List<MyVoxelMaterialDefinition>();
+        private static readonly List<MyVoxelMaterialDefinition> m_innerCoreMaterials = new List<MyVoxelMaterialDefinition>();
 
         /// <summary>
         /// Table of methods that take care of creation of asteroids and possibly other composite shapes.
@@ -61,6 +62,7 @@ namespace Sandbox.Game.World.Generator
             Generator0,
             Generator1,
             Generator2,
+            Generator3,
         };
 
         public static readonly MyCompositeShapeGeneratorPlanetDelegate[] PlanetGenerators = new MyCompositeShapeGeneratorPlanetDelegate[]
@@ -83,6 +85,12 @@ namespace Sandbox.Game.World.Generator
         {
             Generator(2, seed, size, out data);
         }
+
+        private static void Generator3(int seed, float size, out MyCompositeShapeGeneratedData data)
+        {
+            Generator(3, seed, size, out data);
+        }
+
         private static void PlanetGenerator0(ref MyCsgShapePlanetShapeAttributes shapeAttributes, ref MyCsgShapePlanetHillAttributes hillAttributes, ref MyCsgShapePlanetHillAttributes canyonAttributes, MyMaterialLayer[] materialLevels, out MyCompositeShapeGeneratedData data)
         {
             PlanetGenerator(ref shapeAttributes, ref hillAttributes, ref canyonAttributes, materialLevels, out data);
@@ -214,7 +222,11 @@ namespace Sandbox.Game.World.Generator
 
                 MyCsgShapeBase primaryShape;
                 { // determine primary shape
-                    var primaryType = random.Next() % 3;
+                    int primaryType;
+                    if (version >= 3)
+                        primaryType = random.Next() % 5;
+                    else
+                        primaryType = random.Next() % 3;
                     switch (primaryType)
                     {
                         case 0: //ShapeType.Torus
@@ -233,7 +245,7 @@ namespace Sandbox.Game.World.Generator
                             break;
 
                         case 1: //ShapeType.Sphere
-                        default:
+                        case 2:
                             {
                                 var sphere = new MyCsgSphere(
                                     translation: new Vector3(halfStorageSize),
@@ -243,6 +255,28 @@ namespace Sandbox.Game.World.Generator
                                     detailFrequency: random.NextFloat() * 0.6f + 0.4f);
                                 primaryShape = sphere;
                             }
+                            break;
+
+                        default: //ShapeType.Metaball
+                            {
+                                var balls = new Vector3[8];
+                                var weights = new float[8];
+                                for (int i = 0; i < balls.Length; i++)
+                                {
+                                    balls[i] = new Vector3(random.NextFloat(-0.25f, 0.25f) * size,
+                                        random.NextFloat(-0.25f, 0.25f) * size, random.NextFloat(-0.25f, 0.25f) * size);
+                                    weights[i] = i < 6 ? 1f : -1f;
+                    }
+                                var metaball = new MyCsgShapeMetaball(
+                                    translation: new Vector3(halfStorageSize),
+                                    radius: (random.NextFloat() * 0.1f + 0.2f) * size,
+                                    balls: balls,
+                                    weights: weights,
+                                    halfDeviation: (random.NextFloat() * 0.05f + 0.05f) * size + 1f,
+                                    deviationFrequency: random.NextFloat() * 0.8f + 0.2f,
+                                    detailFrequency: random.NextFloat() * 0.6f + 0.4f);
+                                primaryShape = metaball;                            
+                }
                             break;
                     }
                 }
@@ -397,6 +431,111 @@ namespace Sandbox.Game.World.Generator
 
                 { // generating materials
                     // What to do when we (or mods) change the number of materials? Same seed will then produce different results.
+
+                    float depositSizeMult = 1;
+                    if (version >= 3)
+                    {
+                        string surfaceMaterial = "Stone";
+                        string coreMaterial = "Iron";
+                        string innerCoreMaterial = null;
+                        int lightOreFrequency = 1;
+                        int mediumOreFrequency = 1;
+                        int heavyOreFrequency = 1;
+
+                        switch (random.Next(5))
+                        {
+                            // Class C.
+                            case 0:
+                                surfaceMaterial = "Ice";
+                                coreMaterial = "Stone";
+                                innerCoreMaterial = "Iron";
+                                lightOreFrequency = 2;
+                                mediumOreFrequency = 1;
+                                heavyOreFrequency = 1;
+                                break;
+
+                            // Class S.
+                            case 1:
+                                surfaceMaterial = "Stone";
+                                coreMaterial = "Iron";
+                                lightOreFrequency = 2;
+                                mediumOreFrequency = 2;
+                                heavyOreFrequency = 1;
+                                break;
+
+                            // Class M.
+                            case 2:
+                                surfaceMaterial = "Stone";
+                                coreMaterial = "Iron";
+                                innerCoreMaterial = "Nickel";
+                                lightOreFrequency = 0;
+                                mediumOreFrequency = 1;
+                                heavyOreFrequency = 1;
+                                break;
+
+                            // Class E.
+                            case 3:
+                                surfaceMaterial = "Stone";
+                                coreMaterial = "Stone";
+                                lightOreFrequency = 1;
+                                mediumOreFrequency = 1;
+                                heavyOreFrequency = 2;
+                                depositSizeMult = 1.25f;
+                                break;
+
+                            // Kuiper belt object.
+                            default:
+                                surfaceMaterial = "Ice";
+                                coreMaterial = "Ice";
+                                lightOreFrequency = 1;
+                                mediumOreFrequency = 1;
+                                heavyOreFrequency = 0;
+                                break;
+                        }
+
+                        foreach (var material in MyDefinitionManager.Static.GetVoxelMaterialDefinitions())
+                        {
+                            if (material.MinVersion > version)
+                                continue;
+
+                            if (material.MinedOre == surfaceMaterial)
+                                m_surfaceMaterials.Add(material);
+                            if (material.MinedOre == coreMaterial)
+                                m_coreMaterials.Add(material);
+                            if (innerCoreMaterial != null && material.MinedOre == innerCoreMaterial)
+                                m_innerCoreMaterials.Add(material);
+
+                            int frequency = 1;
+                            switch (material.MinedOre)
+                            {
+                                case "Stone":
+                                case "Ice":
+                                    frequency = 0;
+                                    break;
+                                case "Magnesium":
+                                case "Silicon":
+                                    frequency = lightOreFrequency;
+                                    break;
+                                case "Iron":
+                                case "Nickel":
+                                case "Cobalt":
+                                    frequency = mediumOreFrequency;
+                                    break;
+                                case "Uranium":
+                                    // We want more uranium, by design
+                                    frequency = heavyOreFrequency * 2;
+                                    break;
+                                default:
+                                    frequency = heavyOreFrequency;
+                                    break;
+                            }
+                            for (int i = 0; i < frequency; i++)
+                                m_depositMaterials.Add(material);
+                        }
+                    }
+                    else
+                    {
+                        // What to do when we (or mods) change the number of materials? Same seed will then produce different results.
                     foreach (var material in MyDefinitionManager.Static.GetVoxelMaterialDefinitions())
                     {
                         if (!material.SpawnsInAsteroids || material.MinVersion > version) // filter out non-natural and version-incompatible materials
@@ -420,6 +559,7 @@ namespace Sandbox.Game.World.Generator
                         }
                         else
                             m_depositMaterials.Add(material);
+                    }
                     }
 
                     if (m_surfaceMaterials.Count == 0) // this can happen if all materials are disabled or set to not spawn in asteroids
@@ -467,10 +607,11 @@ namespace Sandbox.Game.World.Generator
                         int depositCount = Math.Max((int)Math.Log(size), data.FilledShapes.Length);
                         data.Deposits = new MyCompositeShapeOreDeposit[depositCount];
 
-                        var depositSize = size / 10f;
+                        var depositSize = size * depositSizeMult / 10f;
 
                         int currentMaterial = 0;
-                        for (int i = 0; i < data.FilledShapes.Length; ++i)
+                        int depositIndex = 0;
+                        for (int i = 0; i < data.FilledShapes.Length && depositIndex < depositCount; ++i, ++depositIndex)
                         {
                             MyVoxelMaterialDefinition material;
                             if (i == 0)
@@ -481,21 +622,28 @@ namespace Sandbox.Game.World.Generator
                             {
                                 material = m_depositMaterials[currentMaterial++];
                             }
-                            data.Deposits[i] = new MyCompositeShapeOreDeposit(data.FilledShapes[i].DeepCopy(), material);
-                            data.Deposits[i].Shape.ShrinkTo(random.NextFloat() * 0.15f + 0.6f);
+                            data.Deposits[depositIndex] = new MyCompositeShapeOreDeposit(data.FilledShapes[i].DeepCopy(), material);
+                            data.Deposits[depositIndex].Shape.ShrinkTo(random.NextFloat() * 0.15f + 0.6f);
+                            if (i == 0 && m_innerCoreMaterials.Count > 0)
+                            {
+                                ++depositIndex;
+                                material = m_innerCoreMaterials[(int) random.Next() % m_innerCoreMaterials.Count];
+                                data.Deposits[depositIndex] = new MyCompositeShapeOreDeposit(data.FilledShapes[i].DeepCopy(), material);
+                                data.Deposits[depositIndex].Shape.ShrinkTo(random.NextFloat() * 0.15f + 0.4f);
+                            }
                             if (currentMaterial == m_depositMaterials.Count)
                             {
                                 currentMaterial = 0;
                                 shuffleMaterials(m_depositMaterials);
                             }
                         }
-                        for (int i = data.FilledShapes.Length; i < depositCount; ++i)
+                        for (; depositIndex < depositCount; ++depositIndex)
                         {
                             var center = CreateRandomPointInBox(random, size * 0.7f) + storageOffset + size * 0.15f;
                             var radius = random.NextFloat() * depositSize + 8f;
                             random.NextFloat();random.NextFloat();//backwards compatibility
                             MyCsgShapeBase shape = new MyCsgSphere(center, radius);
-                            data.Deposits[i] = new MyCompositeShapeOreDeposit(shape, m_depositMaterials[currentMaterial++]);
+                            data.Deposits[depositIndex] = new MyCompositeShapeOreDeposit(shape, m_depositMaterials[currentMaterial++]);
                             if (currentMaterial == m_depositMaterials.Count)
                             {
                                 currentMaterial = 0;
@@ -506,6 +654,7 @@ namespace Sandbox.Game.World.Generator
 
                     m_surfaceMaterials.Clear();
                     m_coreMaterials.Clear();
+                    m_innerCoreMaterials.Clear();
                     m_depositMaterials.Clear();
                 }
             }
