@@ -123,9 +123,7 @@ namespace Sandbox.Game.World.Generator
                 {
                     if (MySession.Static.Settings.MaxShipsInSpawnGroup > 2)
                     {
-                        var rnd = m_random.NextFloat(1.0f, MySession.Static.Settings.MaxShipsInSpawnGroup);
-
-                        numEncoutersToPlace = (int)Math.Round(rnd);
+                        numEncoutersToPlace = MyRandom.Instance.Next(1, MySession.Static.Settings.MaxShipsInSpawnGroup + 1);                        
                     }
                     else
                     {
@@ -173,32 +171,35 @@ namespace Sandbox.Game.World.Generator
                     }
                 }
 
-                var ShipDamaged = MyRandom.Instance.Next(0, 100);
+                var ShipsDamaged = MySession.Static.Settings.MaxDamagedShipsPercentage > 0 ? (MyRandom.Instance.Next(1, 101)) <= MySession.Static.Settings.MaxDamagedShipsPercentage : false;
+                var ShipsHostile = MySession.Static.Settings.MaxHostileEncountersPercentage > 0 ? (MyRandom.Instance.Next(1, 101)) <= MySession.Static.Settings.MaxHostileEncountersPercentage : false;
+                var AntennaOn = MySession.Static.Settings.AntennaOnPercentage > 0 ? (MyRandom.Instance.Next(1, 101)) <= MySession.Static.Settings.AntennaOnPercentage : false;
+                var ReactorsOn = MySession.Static.Settings.ReactorsOnPercentage > 0 ? (MyRandom.Instance.Next(1, 101)) <= MySession.Static.Settings.ReactorsOnPercentage : false; 
 
                 int howBadlyDamaged = 0;
-
-                if (ShipDamaged < MySession.Static.Settings.MaxDamagedShipsPercentage)
+                long owner = 0;
+                
+                if (ShipsDamaged)
                 {
-                    howBadlyDamaged = MyRandom.Instance.Next(1, MySession.Static.Settings.MaxDamagedShipsSeverity);
+                    howBadlyDamaged = MySession.Static.Settings.DamageAppliedGlobally ? MySession.Static.Settings.MaxDamagedShipsSeverity : MyRandom.Instance.Next(1, MySession.Static.Settings.MaxDamagedShipsSeverity + 1);                  
+                }
 
-                    if (Sync.IsServer == true)
+                if (ShipsHostile)
+                {
+                    // Setup a hostile NPC faction for the group
+                    string newNpcFactionName = "Hostile " + MyRandom.Instance.Next(1000, 9999);
+                    var newIdentity = Sync.Players.CreateNewIdentity(newNpcFactionName);
+                    owner = newIdentity.IdentityId;
+                }
+
+                if (Sync.IsServer == true)
+                {
+                    for (int i = 0; i < m_randomEncounters.Count; ++i)
                     {
-                        for (int i = 0; i < m_randomEncounters.Count; ++i)
-                        {
-                            SpawnEncouter(m_encountersId[i], m_placePositions[i], currentSpawnGroup, m_randomEncounters[i], howBadlyDamaged);
-                        }
+                        SpawnEncouter(m_encountersId[i], m_placePositions[i], currentSpawnGroup, m_randomEncounters[i], howBadlyDamaged, owner, AntennaOn, MySession.Static.Settings.AntennaRangeMaxedOut, ReactorsOn);
                     }
                 }
-                else
-                {
-                    if (Sync.IsServer == true)
-                    {
-                        for (int i = 0; i < m_randomEncounters.Count; ++i)
-                        {
-                            SpawnEncouter(m_encountersId[i], m_placePositions[i], currentSpawnGroup, m_randomEncounters[i]);
-                        }
-                    }
-                }
+               
             }
 
             return true;
@@ -216,22 +217,21 @@ namespace Sandbox.Game.World.Generator
             return encouterBoundingBox;
         }
 
-        private static void SpawnEncouter(MyEncounterId encounterPosition, Vector3D placePosition, List<MySpawnGroupDefinition> candidates, int selectedEncounter, int damageLevel = 0)
+        private static void SpawnEncouter(MyEncounterId encounterPosition, Vector3D placePosition, List<MySpawnGroupDefinition> candidates, int selectedEncounter, int damageLevel = 0, long factionId = 0, bool antennaOn = false, bool antennaMaxed = false, bool reactorsOn = false)
         {
             foreach (var selectedPrefab in candidates[selectedEncounter].Prefabs)
             {
                 m_createdGrids.Clear();
                 Vector3D direction = Vector3D.Forward;
                 Vector3D upVector = Vector3D.Up;
-
-                var spawningOptions = Sandbox.ModAPI.SpawningOptions.TurnOffReactors;
+                
+                Sandbox.ModAPI.SpawningOptions spawningOptions = Sandbox.ModAPI.SpawningOptions.None;
+                
                 if (selectedPrefab.Speed > 0.0f)
                 {
                     spawningOptions = Sandbox.ModAPI.SpawningOptions.RotateFirstCockpitTowardsDirection |
                                      Sandbox.ModAPI.SpawningOptions.SpawnRandomCargo |
                                      Sandbox.ModAPI.SpawningOptions.DisableDampeners;
-
-
 
                     float centerArcRadius = (float)Math.Atan(MyNeutralShipSpawner.NEUTRAL_SHIP_FORBIDDEN_RADIUS / placePosition.Length());
                     direction = -Vector3D.Normalize(placePosition);
@@ -247,6 +247,7 @@ namespace Sandbox.Game.World.Generator
                 }
                 else
                 {
+                    // It's an encounter ship
                     switch (damageLevel)
                     {
                         case 1:
@@ -261,8 +262,39 @@ namespace Sandbox.Game.World.Generator
                         case 4:
                             spawningOptions |= Sandbox.ModAPI.SpawningOptions.HeavilyDamaged;
                             break;
+                        default:
+                            break;
+                    }
+
+                    if (factionId > 0)
+                    {
+                        spawningOptions |= Sandbox.ModAPI.SpawningOptions.HostileEncounter; 
+                    }                    
+
+                    if (antennaOn)
+                    {
+                        spawningOptions |= Sandbox.ModAPI.SpawningOptions.AntennaOn; 
+                    }
+                    else
+                    {
+                        spawningOptions |= Sandbox.ModAPI.SpawningOptions.AntennaOff; 
+                    }
+
+                    if (antennaMaxed)
+                    {
+                        spawningOptions |= Sandbox.ModAPI.SpawningOptions.AntennaMaxed; 
+                    }
+
+                    if (reactorsOn)
+                    {
+                        spawningOptions |= Sandbox.ModAPI.SpawningOptions.TurnOnReactors;
+                    }
+                    else
+                    {
+                        spawningOptions |= Sandbox.ModAPI.SpawningOptions.TurnOffReactors;
                     }
                 }
+
                 spawningOptions |= Sandbox.ModAPI.SpawningOptions.DisableSave;
 
                 var prefabDefinition = MyDefinitionManager.Static.GetPrefabDefinition(selectedPrefab.SubtypeId);
@@ -286,6 +318,16 @@ namespace Sandbox.Game.World.Generator
                    initialLinearVelocity: direction * selectedPrefab.Speed,
                    spawningOptions: spawningOptions,
                    updateSync: true);
+
+                if (factionId > 0)
+                {
+                    foreach (var grid in m_createdGrids)
+                    {
+                        grid.ChangeGridOwnership(factionId, MyOwnershipShareModeEnum.None);
+                    }
+
+                    m_createdGrids.Clear();
+                }
 
                 ProcessCreatedGrids(ref encounterPosition, selectedPrefab.Speed);
             }

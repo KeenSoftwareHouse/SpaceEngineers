@@ -243,7 +243,32 @@ namespace Sandbox.Common.ObjectBuilders
         [ProtoMember]
         [Display(Name = "Max Damaged Ship Severity")]
         [GameRelationAttribute(Game.SpaceEngineers)]
-        public int MaxDamagedShipsSeverity = 1;  
+        public int MaxDamagedShipsSeverity = 0;
+
+        [ProtoMember]
+        [Display(Name = "Max Hostile Encounters")]
+        [GameRelationAttribute(Game.SpaceEngineers)]
+        public int MaxHostileEncountersPercentage = 0;
+
+        [ProtoMember]
+        [Display(Name = "Max Antenna Encounters")]
+        [GameRelationAttribute(Game.SpaceEngineers)]
+        public int AntennaOnPercentage = 0;
+
+        [ProtoMember]
+        [Display(Name = "Antenna Range Maxed Out")]
+        [GameRelationAttribute(Game.SpaceEngineers)]
+        public bool AntennaRangeMaxedOut = false;
+
+        [ProtoMember]
+        [Display(Name = "Max Reactors On Percentage")]
+        [GameRelationAttribute(Game.SpaceEngineers)]
+        public int ReactorsOnPercentage = 0;
+
+        [ProtoMember]
+        [Display(Name = "Apply Same Damage Level To All Encounters")]
+        [GameRelationAttribute(Game.SpaceEngineers)]
+        public bool DamageAppliedGlobally = false;
 
         [Display(Name = "Scenario edit mode")]
         [GameRelationAttribute(Game.SpaceEngineers)]

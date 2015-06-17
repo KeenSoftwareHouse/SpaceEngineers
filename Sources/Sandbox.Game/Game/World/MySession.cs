@@ -162,6 +162,11 @@ namespace Sandbox.Game.World
         public short MaxShipsInSpawnGroup { get { return Settings.MaxShipsInSpawnGroup; } }
         public int MaxDamagedShipsPercentage { get { return Settings.MaxDamagedShipsPercentage; } }
         public int MaxDamagedShipsSeverity { get { return Settings.MaxDamagedShipsSeverity; } }
+        public int MaxHostileEncountersPercentage { get { return Settings.MaxHostileEncountersPercentage; } }
+        public int AntennaOnPercentage { get { return Settings.AntennaOnPercentage; } }
+        public bool AntennaRangeMaxedOut { get { return Settings.AntennaRangeMaxedOut; } }
+        public int ReactorsOnPercentage { get { return Settings.ReactorsOnPercentage; } }
+        public bool DamageAppliedGlobally { get { return Settings.DamageAppliedGlobally; } }
 
         public bool Battle { get { return Settings.Battle; } }
 

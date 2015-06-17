@@ -10705,7 +10705,7 @@ namespace Sandbox.Game.Localization
         public static readonly MyStringId WorldSettings_AntennaActiveLabel = MyStringId.GetOrCompute("WorldSettings_AntennaActiveLabel");
 
         ///<summary>
-        ///Antenna range set to maximum?
+        ///Antenna range set to maximum
         ///</summary>
         public static readonly MyStringId WorldSettings_AntennaMaxedLabel = MyStringId.GetOrCompute("WorldSettings_AntennaMaxedLabel");
 
@@ -10743,5 +10743,15 @@ namespace Sandbox.Game.Localization
         ///Almost New
         ///</summary>
         public static readonly MyStringId WorldSettings_Worn = MyStringId.GetOrCompute("WorldSettings_Worn");
+
+        ///<summary>
+        ///Damage level applied universally
+        ///</summary>
+        public static readonly MyStringId WorldSettings_DamageAppliedGloballyLabel = MyStringId.GetOrCompute("WorldSettings_DamageAppliedGloballyLabel");
+
+        ///<summary>
+        ///% of active reactors
+        ///</summary>
+        public static readonly MyStringId WorldSettings_ReactorsOnLabel = MyStringId.GetOrCompute("WorldSettings_ReactorsOnLabel");
     }
 }

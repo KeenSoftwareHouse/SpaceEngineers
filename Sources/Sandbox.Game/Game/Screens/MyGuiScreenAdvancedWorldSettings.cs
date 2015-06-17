@@ -960,8 +960,7 @@ namespace Sandbox.Game.Gui
 
         private void EncountersClicked(object sender)
         {
-            EncounterConfiguration = new MyGuiScreenEncounterSettings(m_parent);
-            EncounterConfiguration.UpdateSurvivalState(GetGameMode() == MyGameModeEnum.Survival);
+            EncounterConfiguration = new MyGuiScreenEncounterSettings(m_parent);            
             EncounterConfiguration.OnOkButtonClicked += EncounterConfiguration_OnOkButtonClicked;
 
             MyGuiSandbox.AddScreen(EncounterConfiguration);            
@@ -969,11 +968,7 @@ namespace Sandbox.Game.Gui
 
         private void EncounterConfiguration_OnOkButtonClicked()
         {
-             
-            // Some of this screen's settings could depend on advanced settings
-            EncounterConfiguration.GetSettings(m_parent.Settings);
-            //AsteroidAmount = Advanced.AsteroidAmount;
-            // SetSettingsToControls();        
+            EncounterConfiguration.GetSettings(m_parent.Settings);        
         }
 
         private void OnInventoryClick(object sender)

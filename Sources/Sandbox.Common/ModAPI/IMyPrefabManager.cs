@@ -21,6 +21,11 @@ namespace Sandbox.ModAPI
         LightlyDamaged = 1 << 9,
         Damaged = 1 << 10,
         HeavilyDamaged = 1 << 11,
+        HostileEncounter = 1 << 12,
+        AntennaOn = 1 << 13,
+        AntennaMaxed = 1 << 14,
+        TurnOnReactors = 1 << 15,
+        AntennaOff = 1 << 16
     }
     
     public interface IMyPrefabManager

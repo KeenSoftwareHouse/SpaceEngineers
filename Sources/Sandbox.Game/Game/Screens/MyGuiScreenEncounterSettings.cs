@@ -23,9 +23,9 @@ namespace Sandbox.Game.Gui
         bool m_isConfirmed;
 
         MyGuiControlButton m_okButton, m_cancelButton, m_RandomSettingsButton, m_BalancedSettingsButton;
-        MyGuiControlSlider m_maxNoShipsPerSpawnGroup, m_maxDamagedShipPercentage, m_maxHostileEncountersPercentage, m_AntennaOnPercentage;
+        MyGuiControlSlider m_maxNoShipsPerSpawnGroup, m_maxDamagedShipPercentage, m_maxHostileEncountersPercentage, m_AntennaOnPercentage, m_ReactorsOnPercentage;
         MyGuiControlCombobox m_maxDamagedShipsSeverity;
-        MyGuiControlCheckbox m_antennaRangeMaxedOut;
+        MyGuiControlCheckbox m_antennaRangeMaxedOut, m_damageAppliedGlobally;
 
         internal MyGuiScreenEncounterSettings EncounterConfiguration;        
 
@@ -95,6 +95,8 @@ namespace Sandbox.Game.Gui
             var hostileEncountersLabel = MakeLabel(MySpaceTexts.WorldSettings_HostileEncountersLabel);
             var AntennaActiveLabel = MakeLabel(MySpaceTexts.WorldSettings_AntennaActiveLabel);
             var AntennaRangeMaxedLabel = MakeLabel(MySpaceTexts.WorldSettings_AntennaMaxedLabel);
+            var ReactorsOnPercentageLabel = MakeLabel(MySpaceTexts.WorldSettings_ReactorsOnLabel);
+            var DamageAppliedGloballyLabel = MakeLabel(MySpaceTexts.WorldSettings_DamageAppliedGloballyLabel);
 
             maxNoShipsLabel.Position = Vector2.Zero - new Vector2(0.3f, 0.4f);                   
 
@@ -142,6 +144,18 @@ namespace Sandbox.Game.Gui
             m_maxDamagedShipsSeverity.AddItem(3, MySpaceTexts.WorldSettings_Damaged);
             m_maxDamagedShipsSeverity.AddItem(4, MySpaceTexts.WorldSettings_HeavilyDamaged);
 
+            m_ReactorsOnPercentage = new MyGuiControlSlider(
+                position: Vector2.Zero - new Vector2(-0.1f, 0.3f),
+                width: 0.2f,
+                minValue: 0,
+                maxValue: 100,
+                labelText: new StringBuilder("{0}%").ToString(),
+                labelDecimalPlaces: 0,
+                labelSpaceWidth: 0.05f,
+                intValue: true,
+                defaultValue: 0
+                );
+
             m_AntennaOnPercentage = new MyGuiControlSlider(
                 position: Vector2.Zero - new Vector2(-0.1f, 0.3f),
                 width: 0.2f,
@@ -155,6 +169,8 @@ namespace Sandbox.Game.Gui
                 );
 
             m_antennaRangeMaxedOut = new MyGuiControlCheckbox();
+
+            m_damageAppliedGlobally = new MyGuiControlCheckbox();
 
             m_maxDamagedShipsSeverity.SetToolTip(MyTexts.GetString(MySpaceTexts.ToolTipWorldSettingsOnlineMode));
 
@@ -178,8 +194,14 @@ namespace Sandbox.Game.Gui
             parent.Controls.Add(maxDamagedShipsSeverityLabel);
             parent.Controls.Add(m_maxDamagedShipsSeverity);
 
+            parent.Controls.Add(DamageAppliedGloballyLabel);
+            parent.Controls.Add(m_damageAppliedGlobally);
+
+            parent.Controls.Add(ReactorsOnPercentageLabel);
+            parent.Controls.Add(m_ReactorsOnPercentage);
+
             parent.Controls.Add(AntennaActiveLabel);
-            parent.Controls.Add(m_AntennaOnPercentage);
+            parent.Controls.Add(m_AntennaOnPercentage);            
 
             parent.Controls.Add(AntennaRangeMaxedLabel);
             parent.Controls.Add(m_antennaRangeMaxedOut);
@@ -248,24 +270,30 @@ namespace Sandbox.Game.Gui
                 else if (btn != active && btn.Checked)
                     btn.Checked = false;
             }
-        }
-
-        public void UpdateSurvivalState(bool survivalEnabled)
-        {           
-        }       
+        }   
 
         public void GetSettings(MyObjectBuilder_SessionSettings output)
         {
             output.MaxShipsInSpawnGroup = (short)m_maxNoShipsPerSpawnGroup.Value;
+            output.MaxHostileEncountersPercentage = (int)m_maxHostileEncountersPercentage.Value;
             output.MaxDamagedShipsPercentage = (int)m_maxDamagedShipPercentage.Value;
             output.MaxDamagedShipsSeverity = (int)m_maxDamagedShipsSeverity.GetSelectedKey();
+            output.AntennaOnPercentage = (int)m_AntennaOnPercentage.Value;
+            output.AntennaRangeMaxedOut = (bool)m_antennaRangeMaxedOut.IsChecked;
+            output.ReactorsOnPercentage = (int)m_ReactorsOnPercentage.Value;
+            output.DamageAppliedGlobally = (bool)m_damageAppliedGlobally.IsChecked;
         }
 
         public void SetSettings(MyObjectBuilder_SessionSettings settings)
         {
             m_maxNoShipsPerSpawnGroup.Value = settings.MaxShipsInSpawnGroup;
             m_maxDamagedShipPercentage.Value = settings.MaxDamagedShipsPercentage;
-            m_maxDamagedShipsSeverity.SelectItemByIndex(settings.MaxDamagedShipsSeverity);                
+            m_maxDamagedShipsSeverity.SelectItemByIndex(settings.MaxDamagedShipsSeverity);
+            m_maxHostileEncountersPercentage.Value = settings.MaxHostileEncountersPercentage;
+            m_AntennaOnPercentage.Value = settings.AntennaOnPercentage;
+            m_antennaRangeMaxedOut.IsChecked = settings.AntennaRangeMaxedOut;
+            m_ReactorsOnPercentage.Value = settings.ReactorsOnPercentage;
+            m_damageAppliedGlobally.IsChecked = settings.DamageAppliedGlobally;
         }
 
         public override string GetFriendlyName()
@@ -289,12 +317,7 @@ namespace Sandbox.Game.Gui
 
             this.CloseScreen();
         }
-
-        private void AppliedGloballyButtonClicked(object sender)
-        {
-            UpdateSurvivalState(false);
-        }
-
+        
         public event System.Action OnOkButtonClicked;
     }
 }
