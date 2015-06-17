@@ -10745,7 +10745,7 @@ namespace Sandbox.Game.Localization
         public static readonly MyStringId WorldSettings_Worn = MyStringId.GetOrCompute("WorldSettings_Worn");
 
         ///<summary>
-        ///Damage level applied universally
+        ///Damage severity applied universally
         ///</summary>
         public static readonly MyStringId WorldSettings_DamageAppliedGloballyLabel = MyStringId.GetOrCompute("WorldSettings_DamageAppliedGloballyLabel");
 
@@ -10753,5 +10753,45 @@ namespace Sandbox.Game.Localization
         ///% of active reactors
         ///</summary>
         public static readonly MyStringId WorldSettings_ReactorsOnLabel = MyStringId.GetOrCompute("WorldSettings_ReactorsOnLabel");
+
+        ///<summary>
+        ///The % of ships groups that begin with their antennas on. Antenna will be actively turned off for the remainder.
+        ///</summary>
+        public static readonly MyStringId ToolTipEncounterSettingsAntennasOn = MyStringId.GetOrCompute("ToolTipEncounterSettingsAntennasOn");
+
+        ///<summary>
+        ///When enabled, all ships will use the maximum range of their antennas to broadcast their position.   Otherwise the default ship design values are used.
+        ///</summary>
+        public static readonly MyStringId ToolTipEncounterSettingsAntennasRangeMaxed = MyStringId.GetOrCompute("ToolTipEncounterSettingsAntennasRangeMaxed");
+
+        ///<summary>
+        ///When enabled, the same damage severity will be applied to all ships.   Otherwise the damage level will be chosen randomly,  using the severity as the maximum.
+        ///</summary>
+        public static readonly MyStringId ToolTipEncounterSettingsDamageAppliedGlobally = MyStringId.GetOrCompute("ToolTipEncounterSettingsDamageAppliedGlobally");
+
+        ///<summary>
+        ///The % of damaged ship groups in the game -  heavily damaged ships may be worthless for anything other than scrap.
+        ///</summary>
+        public static readonly MyStringId ToolTipEncounterSettingsDamagedShips = MyStringId.GetOrCompute("ToolTipEncounterSettingsDamagedShips");
+
+        ///<summary>
+        ///The level of damage that new ships will spawn with.   The highest levels may cause some ships to disintegrate entirely, leading to performance issues.
+        ///</summary>
+        public static readonly MyStringId ToolTipEncounterSettingsDamagedShipSeverity = MyStringId.GetOrCompute("ToolTipEncounterSettingsDamagedShipSeverity");
+
+        ///<summary>
+        ///The % of hostile ship groups in the game - hostile groups will open fire on you.
+        ///</summary>
+        public static readonly MyStringId ToolTipEncounterSettingsHostiles = MyStringId.GetOrCompute("ToolTipEncounterSettingsHostiles");
+
+        ///<summary>
+        ///The number of ships in each group - higher values can lead to performance issues.
+        ///</summary>
+        public static readonly MyStringId ToolTipEncounterSettingsNoShips = MyStringId.GetOrCompute("ToolTipEncounterSettingsNoShips");
+
+        ///<summary>
+        ///The % of ships groups that begin with their reactors on. Reactors will be actively disabled for the rest.
+        ///</summary>
+        public static readonly MyStringId ToolTipEncounterSettingsReactorsOn = MyStringId.GetOrCompute("ToolTipEncounterSettingsReactorsOn");
     }
 }

@@ -6,6 +6,7 @@ using Sandbox.Engine.Utils;
 using Sandbox.Game.Entities;
 using Sandbox.Game.Entities.Cube;
 using Sandbox.Game.Multiplayer;
+using Sandbox.Game.Weapons;
 using Sandbox.Game.World;
 using System;
 using System.Collections.Generic;
@@ -439,25 +440,25 @@ namespace Sandbox.Game.World
 
                     if (spawningOptions.HasFlag(SpawningOptions.Worn))
                     {
-                        howDamaged = MyRandom.Instance.Next(0, 4);
+                        howDamaged = MyRandom.Instance.Next(0, 3);
                     }
                     else
                     {
                         if (spawningOptions.HasFlag(SpawningOptions.LightlyDamaged))
                         {
-                            howDamaged = MyRandom.Instance.Next(4, 11);
+                            howDamaged = MyRandom.Instance.Next(3, 8);
                         }
                         else
                         {
                             if (spawningOptions.HasFlag(SpawningOptions.Damaged))
                             {
-                                howDamaged = MyRandom.Instance.Next(11, 26);
+                                howDamaged = MyRandom.Instance.Next(8, 13);
                             }
                             else
                             {
                                 if (spawningOptions.HasFlag(SpawningOptions.HeavilyDamaged))
                                 {
-                                    howDamaged = MyRandom.Instance.Next(26, 41);
+                                    howDamaged = MyRandom.Instance.Next(13, 20);
                                 }
                             }
                         }
@@ -509,6 +510,11 @@ namespace Sandbox.Game.World
                                 (block.FatBlock as MyReactor).Enabled = true;                                
                             }
 
+                            else if (block.FatBlock is MyLargeTurretBase && setHostileOwner)
+                            {                                
+                                (block.FatBlock as MyLargeTurretBase).Enabled = true;
+                            }  
+
                             else if (block.FatBlock is IMyPowerProducer)
                             {
                                 if (setReactorsOn)
@@ -529,7 +535,7 @@ namespace Sandbox.Game.World
 
                                     if (setHostileOwner)
                                     {
-                                        antenna.SetCustomName("Hostile");
+                                        antenna.SetCustomName("");
                                     }
 
                                     if (setAntennaOn)

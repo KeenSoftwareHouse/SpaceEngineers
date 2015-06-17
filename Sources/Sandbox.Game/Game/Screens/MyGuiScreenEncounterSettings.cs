@@ -98,7 +98,7 @@ namespace Sandbox.Game.Gui
             var ReactorsOnPercentageLabel = MakeLabel(MySpaceTexts.WorldSettings_ReactorsOnLabel);
             var DamageAppliedGloballyLabel = MakeLabel(MySpaceTexts.WorldSettings_DamageAppliedGloballyLabel);
 
-            maxNoShipsLabel.Position = Vector2.Zero - new Vector2(0.3f, 0.4f);                   
+            maxNoShipsLabel.Position = Vector2.Zero - new Vector2(0.3f, 0.4f);                 
 
             m_maxHostileEncountersPercentage = new MyGuiControlSlider(
                 position: Vector2.Zero - new Vector2(-0.1f, 0.4f),
@@ -112,17 +112,21 @@ namespace Sandbox.Game.Gui
                 defaultValue: 0
                 );
 
+            m_maxHostileEncountersPercentage.SetToolTip(MyTexts.GetString(MySpaceTexts.ToolTipEncounterSettingsHostiles));
+
             m_maxNoShipsPerSpawnGroup = new MyGuiControlSlider(
                 position: Vector2.Zero - new Vector2(-0.1f, 0.4f),
                 width: 0.2f,
                 minValue: 1,
-                maxValue: 10,
+                maxValue: 5,
                 labelText: new StringBuilder("{0}").ToString(),
                 labelDecimalPlaces: 0,
                 labelSpaceWidth: 0.05f,
                 intValue: true,
                 defaultValue: 2
                 );
+
+            m_maxNoShipsPerSpawnGroup.SetToolTip(MyTexts.GetString(MySpaceTexts.ToolTipEncounterSettingsNoShips));
 
             m_maxDamagedShipPercentage = new MyGuiControlSlider(
                 position: Vector2.Zero - new Vector2(-0.1f, 0.3f),
@@ -136,7 +140,10 @@ namespace Sandbox.Game.Gui
                 defaultValue: 0
                 );
 
+            m_maxDamagedShipPercentage.SetToolTip(MyTexts.GetString(MySpaceTexts.ToolTipEncounterSettingsDamagedShips));
+
             m_maxDamagedShipsSeverity = new MyGuiControlCombobox(size: new Vector2(width, 0.04f));
+            m_maxDamagedShipsSeverity.SetToolTip(MyTexts.GetString(MySpaceTexts.ToolTipEncounterSettingsDamagedShipSeverity));
 
             m_maxDamagedShipsSeverity.AddItem(0, MySpaceTexts.WorldSettings_NoDamage);
             m_maxDamagedShipsSeverity.AddItem(1, MySpaceTexts.WorldSettings_Worn);
@@ -156,6 +163,8 @@ namespace Sandbox.Game.Gui
                 defaultValue: 0
                 );
 
+            m_ReactorsOnPercentage.SetToolTip(MyTexts.GetString(MySpaceTexts.ToolTipEncounterSettingsReactorsOn));
+
             m_AntennaOnPercentage = new MyGuiControlSlider(
                 position: Vector2.Zero - new Vector2(-0.1f, 0.3f),
                 width: 0.2f,
@@ -168,12 +177,15 @@ namespace Sandbox.Game.Gui
                 defaultValue: 0
                 );
 
+            m_AntennaOnPercentage.SetToolTip(MyTexts.GetString(MySpaceTexts.ToolTipEncounterSettingsAntennasOn));
+
             m_antennaRangeMaxedOut = new MyGuiControlCheckbox();
+            m_antennaRangeMaxedOut.SetToolTip(MyTexts.GetString(MySpaceTexts.ToolTipEncounterSettingsAntennasRangeMaxed));
+
 
             m_damageAppliedGlobally = new MyGuiControlCheckbox();
-
-            m_maxDamagedShipsSeverity.SetToolTip(MyTexts.GetString(MySpaceTexts.ToolTipWorldSettingsOnlineMode));
-
+            m_damageAppliedGlobally.SetToolTip(MyTexts.GetString(MySpaceTexts.ToolTipEncounterSettingsDamageAppliedGlobally));
+            
             // Ok/Cancel
             m_okButton = new MyGuiControlButton(position: buttonsOrigin - new Vector2(0.01f, 0f), size: buttonSize, text: MyTexts.Get(MySpaceTexts.Ok), onButtonClick: OkButtonClicked, originAlign: MyGuiDrawAlignEnum.HORISONTAL_RIGHT_AND_VERTICAL_BOTTOM);
             m_cancelButton = new MyGuiControlButton(position: buttonsOrigin + new Vector2(0.01f, 0f), size: buttonSize, text: MyTexts.Get(MySpaceTexts.Cancel), onButtonClick: CancelButtonClicked, originAlign: MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_BOTTOM);
