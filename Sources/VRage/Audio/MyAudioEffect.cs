@@ -29,6 +29,6 @@ namespace VRage.Data.Audio
 
         public int ResultEmitterIdx;
         public List<List<SoundEffect>> SoundsEffects = new List<List<SoundEffect>>();
-        public MyStringId EffectId;
+        public MyStringHash EffectId;
     }
 }

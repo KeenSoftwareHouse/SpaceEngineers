@@ -264,7 +264,7 @@ namespace Sandbox.Game.Entities.Cube
         /// <summary>
         /// Adds small/large block static connections and creates links. Returns true if the block connects to any other block.
         /// </summary>
-        internal bool AddBlockSmallToLargeConnection(MySlimBlock block)
+        public bool AddBlockSmallToLargeConnection(MySlimBlock block)
         {
             if (!Sync.IsServer)
                 return false;
@@ -490,7 +490,7 @@ namespace Sandbox.Game.Entities.Cube
         /// Tests whether the given small grid connect to any large tatic block.
         /// </summary>
         /// <returns>true if small grid connects to a latge grid otherwise false</returns>
-        internal bool TestGridSmallToLargeConnection(MyCubeGrid smallGrid)
+        public bool TestGridSmallToLargeConnection(MyCubeGrid smallGrid)
         {
             Debug.Assert(smallGrid.GridSizeEnum == MyCubeSize.Small);
 

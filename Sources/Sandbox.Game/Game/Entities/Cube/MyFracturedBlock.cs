@@ -103,15 +103,31 @@ namespace Sandbox.Game.Entities.Cube
             foreach (var def in ob.BlockDefinitions)
             {
                 var blockDef = MyDefinitionManager.Static.GetCubeBlockDefinition(def);
-                if (MyModels.GetModelOnlyData(blockDef.Model).HavokBreakableShapes == null)
-                {
-                    MyDestructionData.Static.LoadModelDestruction(blockDef, false, Vector3.One);
-                }
-                var shape = MyModels.GetModelOnlyData(blockDef.Model).HavokBreakableShapes[0];
+
+                var model = blockDef.Model;
+                if (MyModels.GetModelOnlyData(model).HavokBreakableShapes == null)
+                    MyDestructionData.Static.LoadModelDestruction(model, blockDef, false, Vector3.One);
+                var shape = MyModels.GetModelOnlyData(model).HavokBreakableShapes[0];
                 var si = new HkdShapeInstanceInfo(shape, null, null);
                 lst.Add(si);
                 m_children.Add(si);
                 shape.GetChildren(m_children);
+                if(blockDef.BuildProgressModels != null)
+                {
+                    foreach(var progress in blockDef.BuildProgressModels)
+                    {
+                        model = progress.File;
+                        if (MyModels.GetModelOnlyData(model).HavokBreakableShapes == null)
+                            MyDestructionData.Static.LoadModelDestruction(model, blockDef, false, Vector3.One);
+                        shape = MyModels.GetModelOnlyData(model).HavokBreakableShapes[0];
+                        si = new HkdShapeInstanceInfo(shape, null, null);
+                        lst.Add(si);
+                        m_children.Add(si);
+                        shape.GetChildren(m_children);
+                    }
+                }
+
+
                 OriginalBlocks.Add(def);
             }
             foreach (var or in ob.BlockOrientations)

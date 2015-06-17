@@ -1,7 +1,7 @@
-﻿
-using Sandbox.Common.ObjectBuilders;
+﻿using Sandbox.Common.ObjectBuilders;
 using Sandbox.Definitions;
 using Sandbox.Engine.Utils;
+using Sandbox.Game;
 using Sandbox.Game.Entities;
 using Sandbox.Game.Entities.Blocks;
 using Sandbox.Game.Entities.Cube;
@@ -10,6 +10,7 @@ using Sandbox.Game.Gui;
 using Sandbox.Game.Lights;
 using Sandbox.Game.Localization;
 using Sandbox.Game.Multiplayer;
+using Sandbox.Game.Weapons;
 using Sandbox.Game.World;
 using Sandbox.Graphics.TransparentGeometry.Particles;
 using Sandbox.ModAPI.Ingame;
@@ -21,7 +22,7 @@ using VRage.Utils;
 using VRageMath;
 using VRageRender;
 
-namespace Sandbox.Game.Weapons
+namespace SpaceEngineers.Game.Entities.Blocks
 {
     [MyCubeBlockType(typeof(MyObjectBuilder_ShipWelder))]
     class MyShipWelder : MyShipToolBase, IMyShipWelder

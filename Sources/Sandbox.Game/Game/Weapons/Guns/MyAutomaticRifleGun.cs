@@ -45,6 +45,7 @@ namespace Sandbox.Game.Weapons
         private bool m_canZoom = true;
 
         public bool IsShooting { get; private set; }
+		public bool IsDeconstructor { get { return false; } }
 
         public int ShootDirectionUpdateTime
         {

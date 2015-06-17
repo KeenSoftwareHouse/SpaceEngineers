@@ -114,8 +114,8 @@ namespace VRageRender
             }
         }
 
-        static Dictionary<MyStringId, MyMaterialShaderInfo> MaterialSources = new Dictionary<MyStringId, MyMaterialShaderInfo>();
-        static Dictionary<MyStringId, MyMaterialPassInfo> MaterialPassSources = new Dictionary<MyStringId, MyMaterialPassInfo>();
+        static Dictionary<MyStringId, MyMaterialShaderInfo> MaterialSources = new Dictionary<MyStringId, MyMaterialShaderInfo>(MyStringId.Comparer);
+        static Dictionary<MyStringId, MyMaterialPassInfo> MaterialPassSources = new Dictionary<MyStringId, MyMaterialPassInfo>(MyStringId.Comparer);
 
         static Dictionary<int, MyMaterialShadersBundleId> HashIndex = new Dictionary<int,MyMaterialShadersBundleId>();
         static MyFreelist<MyMaterialShadersInfo> BundleInfo = new MyFreelist<MyMaterialShadersInfo>(64);

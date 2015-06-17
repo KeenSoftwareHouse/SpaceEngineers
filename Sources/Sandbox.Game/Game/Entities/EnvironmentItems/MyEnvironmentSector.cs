@@ -41,17 +41,19 @@ namespace Sandbox.Game.Entities.EnvironmentItems
 
         private class MyModelInstanceData
         {
-            public readonly MyStringId SubtypeId;
+            public readonly MyStringHash SubtypeId;
             public readonly MyInstanceFlagsEnum Flags = MyInstanceFlagsEnum.ShowLod1 | MyInstanceFlagsEnum.CastShadows | MyInstanceFlagsEnum.EnableColorMask;
             public readonly float MaxViewDistance = float.MaxValue;
             public readonly List<MySectorInstanceData> InstanceData = new List<MySectorInstanceData>();
             public readonly Queue<int> FreeInstances = new Queue<int>();
+            public readonly BoundingBox ModelBox;
 
-            public MyModelInstanceData(MyStringId subtypeId, MyInstanceFlagsEnum flags, float maxViewDistance)
+            public MyModelInstanceData(MyStringHash subtypeId, MyInstanceFlagsEnum flags, float maxViewDistance, BoundingBox modelBox)
             {
                 SubtypeId = subtypeId;
                 Flags = flags;
                 MaxViewDistance = maxViewDistance;
+                ModelBox = modelBox;
             }
 
             public int AddInstanceData(ref MySectorInstanceData instanceData)
@@ -78,10 +80,16 @@ namespace Sandbox.Game.Entities.EnvironmentItems
         private Dictionary<ModelId, MyRenderInstanceInfo> m_instanceInfo = new Dictionary<ModelId, MyRenderInstanceInfo>();
         private Dictionary<ModelId, uint> m_instanceGroupRenderObjects = new Dictionary<ModelId, uint>();
         private BoundingBox m_AABB = BoundingBox.CreateInvalid();
+        private bool m_invalidateAABB = false;
 
         public BoundingBox SectorBox
         {
-            get { return m_AABB; }
+            get 
+            {
+                if (m_invalidateAABB)
+                    m_AABB = GetSectorBoundingBox();
+                return m_AABB; 
+            }
         }
 
         private int m_sectorItemCount;
@@ -129,7 +137,7 @@ namespace Sandbox.Game.Entities.EnvironmentItems
         /// <param name="localMatrix">Local transformation matrix. Changed to internal matrix.</param>
         /// <param name="colorMaskHsv"></param>
         public int AddInstance(
-            MyStringId subtypeId, 
+            MyStringHash subtypeId, 
             ModelId modelId,
             int localId,
             ref Matrix localMatrix, 
@@ -141,7 +149,7 @@ namespace Sandbox.Game.Entities.EnvironmentItems
             MyModelInstanceData builderInstanceData;
             if (!m_instanceParts.TryGetValue(modelId, out builderInstanceData))
             {
-                builderInstanceData = new MyModelInstanceData(subtypeId, instanceFlags, maxViewDistance);
+                builderInstanceData = new MyModelInstanceData(subtypeId, instanceFlags, maxViewDistance, localAabb);
                 m_instanceParts.Add(modelId, builderInstanceData);
             }
 
@@ -181,6 +189,8 @@ namespace Sandbox.Game.Entities.EnvironmentItems
             instanceData.InstanceData[sectorInstanceId] = data;
 
             instanceData.FreeInstances.Enqueue(sectorInstanceId);
+
+            m_invalidateAABB = true;
 
             return true;
         }
@@ -223,12 +233,11 @@ namespace Sandbox.Game.Entities.EnvironmentItems
                 ModelId modelId = item.Key;
                 bool exists = m_instanceGroupRenderObjects.TryGetValue(item.Key, out renderObjectId);
                 bool hasAnyInstances = item.Value.InstanceCount > 0;
-                bool hasModel = true;
 
                 RenderFlags flags = item.Value.CastShadows ? RenderFlags.CastShadows : (RenderFlags)0;
                 flags |= RenderFlags.Visible;
 
-                if (!exists && hasAnyInstances && hasModel)
+                if (!exists && hasAnyInstances)
                 {
                     var model = MyModel.GetById(modelId);
 
@@ -305,7 +314,7 @@ namespace Sandbox.Game.Entities.EnvironmentItems
             }
         }
 
-        public void GetItemsInRadius(Matrix worldMatrix, Vector3 position, float radius, List<MyEnvironmentItems.ItemInfo> output)
+        internal void GetItemsInRadius(Matrix worldMatrix, Vector3 position, float radius, List<MyEnvironmentItems.ItemInfo> output)
         {
             double sqRadius = radius * radius;
             foreach (var part in m_instanceParts)
@@ -318,6 +327,35 @@ namespace Sandbox.Game.Entities.EnvironmentItems
                         output.Add(new MyEnvironmentItems.ItemInfo() { LocalId = item.LocalId, SubtypeId = part.Value.SubtypeId, Transform = new MyTransformD(itemWorldPosition) });
                 }
             }
+        }
+
+        internal void GetItems(Matrix worldMatrix, List<MyEnvironmentItems.ItemInfo> output)
+        {
+            foreach (var part in m_instanceParts)
+            {
+                var list = part.Value.InstanceData;
+                foreach (var item in list)
+                {
+                    var itemWorldPosition = Vector3.Transform(item.InstanceData.LocalMatrix.Translation, worldMatrix);
+                    output.Add(new MyEnvironmentItems.ItemInfo() { LocalId = item.LocalId, SubtypeId = part.Value.SubtypeId, Transform = new MyTransformD(itemWorldPosition) });
+                }
+            }
+        }
+
+        private BoundingBox GetSectorBoundingBox()
+        {
+            BoundingBox output = BoundingBox.CreateInvalid();
+            foreach (var modelData in m_instanceParts)
+            {
+                var modelBox = modelData.Value.ModelBox;
+                foreach (var instance in modelData.Value.InstanceData)
+                {
+                    var mat = instance.InstanceData.LocalMatrix;
+                    output.Include(modelBox.Transform(instance.InstanceData.LocalMatrix));
+                }
+            }
+
+            return output;
         }
 
     }

@@ -82,7 +82,7 @@ namespace Sandbox.Game.Gui
         private void LoadRandomVideo()
         {
             int index = MyUtils.GetRandomInt(0, m_videos.Length);
-            if (index > 0)
+            if (m_videos.Length > 0)
             {
                 m_currentVideo = m_videos[index];
             }

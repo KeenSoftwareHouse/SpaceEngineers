@@ -181,7 +181,7 @@ namespace Sandbox.Game.Weapons
             if (!isProjectileGroupKilled)
             {
                 MySurfaceImpactEnum surfaceImpact;
-                MyStringId materialType;
+                MyStringHash materialType;
                 GetSurfaceAndMaterial(entity, out surfaceImpact, out materialType);
 
                 PlayHitSound(materialType, entity, hitPosition);
@@ -262,7 +262,7 @@ namespace Sandbox.Game.Weapons
 
         }
 
-        private static void GetSurfaceAndMaterial(IMyEntity entity, out MySurfaceImpactEnum surfaceImpact, out MyStringId materialType)
+        private static void GetSurfaceAndMaterial(IMyEntity entity, out MySurfaceImpactEnum surfaceImpact, out MyStringHash materialType)
         {
             if (entity is MyVoxelMap)
             {
@@ -297,7 +297,7 @@ namespace Sandbox.Game.Weapons
             //}
         }
 
-        private void CreateDecal(MyStringId materialType)
+        private void CreateDecal(MyStringHash materialType)
         {
             //TODO Update decals for skinned objects
             //{
@@ -322,7 +322,7 @@ namespace Sandbox.Game.Weapons
             //}
         }
 
-        private void PlayHitSound(MyStringId materialType, IMyEntity entity, Vector3D position)
+        private void PlayHitSound(MyStringHash materialType, IMyEntity entity, Vector3D position)
         {
             if ((OwnerEntity == null) || !(OwnerEntity is MyWarhead)) // do not play bullet sound when coming from warheads
             {
@@ -336,7 +336,7 @@ namespace Sandbox.Game.Weapons
                 MyAutomaticRifleGun rifleGun = m_weapon as MyAutomaticRifleGun;
 
                 MySoundPair cueEnum = null;
-                MyStringId thisType;
+                MyStringHash thisType;
                 if (m_projectileAmmoDefinition.IsExplosive)
                     thisType = MyMaterialType.EXPBULLET;
                 else if (rifleGun != null && rifleGun.GunBase.IsAmmoProjectile)

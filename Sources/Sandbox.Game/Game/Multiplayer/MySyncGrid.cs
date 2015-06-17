@@ -33,9 +33,9 @@ namespace Sandbox.Game.Multiplayer
     delegate void RazeBlocksAreaRequestDelegate(ref Vector3I pos, ref Vector3UByte size);
     delegate void RazeBlocksAreaSuccessDelegate(ref Vector3I pos, ref Vector3UByte size, HashSet<Vector3UByte> resultFailList);
 
-    delegate void BuildBlocksDelegate(Vector3 colorMaskHsv, HashSet<MyCubeGrid.MyBlockLocation> locations, HashSet<MyCubeGrid.MyBlockLocation> resultBlocks);
+    delegate void BuildBlocksDelegate(Vector3 colorMaskHsv, HashSet<MyCubeGrid.MyBlockLocation> locations, HashSet<MyCubeGrid.MyBlockLocation> resultBlocks, MyEntity builder);
     delegate void AfterBuildBlocksDelegate(HashSet<MyCubeGrid.MyBlockLocation> builtBlocks);
-    delegate void BuildBlockDelegate(Vector3 colorMaskHsv, MyCubeGrid.MyBlockLocation location, MyObjectBuilder_CubeBlock objectBuilder, ref MyCubeGrid.MyBlockLocation? resultBlock);
+    delegate void BuildBlockDelegate(Vector3 colorMaskHsv, MyCubeGrid.MyBlockLocation location, MyObjectBuilder_CubeBlock objectBuilder, ref MyCubeGrid.MyBlockLocation? resultBlock, MyEntity builder);
     delegate void AfterBuildBlockDelegate(MyCubeGrid.MyBlockLocation builtBlock);
     delegate void RazeBlockDelegate(List<Vector3I> blocksToRemove, List<Vector3I> removedBlocks);
     delegate void RazeBlockInCompoundDelegate(List<Tuple<Vector3I, ushort>> blocksToRemove, List<Tuple<Vector3I, ushort>> removedBlocks);
@@ -65,6 +65,9 @@ namespace Sandbox.Game.Multiplayer
 
             [ProtoMember]
             public uint ColorMaskHsv;
+
+            [ProtoMember]
+            public long BuilderEntityId;
         }
 
         [MessageId(4711, P2PMessageEnum.Reliable)]
@@ -126,6 +129,9 @@ namespace Sandbox.Game.Multiplayer
 
             [ProtoMember]
             public MyObjectBuilder_CubeBlock BlockObjectBuilder;
+
+            [ProtoMember]
+            public long BuilderEntityId;
         }
 
         [MessageId(15, P2PMessageEnum.Reliable)]
@@ -658,9 +664,12 @@ namespace Sandbox.Game.Multiplayer
         private static void OnBuildBlockRequest(MySyncGrid sync, ref BuildBlockMsg msg, MyNetworkClient sender)
         {
             MyCubeGrid.MyBlockLocation? builtBlock = null;
-            
+
+            MyEntity builder = null;
+            MyEntities.TryGetEntityById(msg.BuilderEntityId, out builder);
+
             var buildHandler = sync.BlockBuilt;
-            if (buildHandler != null) buildHandler(ColorExtensions.UnpackHSVFromUint(msg.ColorMaskHsv), msg.Location, msg.BlockObjectBuilder, ref builtBlock);
+            if (buildHandler != null) buildHandler(ColorExtensions.UnpackHSVFromUint(msg.ColorMaskHsv), msg.Location, msg.BlockObjectBuilder, ref builtBlock, builder);
             
             if (Sync.IsServer)
             {
@@ -750,12 +759,13 @@ namespace Sandbox.Game.Multiplayer
             if (handler != null) handler(ref successMsg.Pos, ref successMsg.Size, successMsg.FailList);
         }
 
-        public void BuildBlocks(Vector3 colorMaskHsv, HashSet<MyCubeGrid.MyBlockLocation> locations)
+        public void BuildBlocks(Vector3 colorMaskHsv, HashSet<MyCubeGrid.MyBlockLocation> locations, long builderEntityId)
         {
             var msg = new BuildBlocksMsg();
             msg.GridEntityId = Entity.EntityId;
             msg.Locations = locations;
             msg.ColorMaskHsv = colorMaskHsv.PackHSVToUint();
+            msg.BuilderEntityId = builderEntityId;
             Sync.Layer.SendMessageToServer(ref msg);
         }
 
@@ -770,9 +780,16 @@ namespace Sandbox.Game.Multiplayer
             m_tmpBuildList.Clear();
             Debug.Assert(m_tmpBuildList != msg.Locations, "The build block message was received via loopback using the temporary build list. This causes erasing ot the message.");
 
+            MyEntity builder = null;
+            MyEntities.TryGetEntityById(msg.BuilderEntityId, out builder);
+
+            MyCubeBuilder.BuildComponent.GetBlocksPlacementMaterials(msg.Locations, sync.Entity);
+            if (!MyCubeBuilder.BuildComponent.HasBuildingMaterials(builder))
+                return;
+
             {
                 var handler = sync.BlocksBuilt;
-                if (handler != null) handler(ColorExtensions.UnpackHSVFromUint(msg.ColorMaskHsv), msg.Locations, m_tmpBuildList);
+                if (handler != null) handler(ColorExtensions.UnpackHSVFromUint(msg.ColorMaskHsv), msg.Locations, m_tmpBuildList, builder);
             }
 
             if (Sync.IsServer && m_tmpBuildList.Count > 0)

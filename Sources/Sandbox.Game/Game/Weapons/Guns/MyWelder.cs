@@ -24,7 +24,7 @@ using VRage.ObjectBuilders;
 namespace Sandbox.Game.Weapons
 {
     [MyEntityType(typeof(MyObjectBuilder_Welder))]
-    class MyWelder : MyEngineerToolBase
+    public class MyWelder : MyEngineerToolBase
     {
         private static MySoundPair IDLE_SOUND = new MySoundPair("ToolPlayWeldIdle");
         private static MySoundPair METAL_SOUND = new MySoundPair("ToolPlayWeldMetal");

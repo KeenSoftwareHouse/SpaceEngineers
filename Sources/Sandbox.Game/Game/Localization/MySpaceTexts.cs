@@ -9650,9 +9650,9 @@ namespace Sandbox.Game.Localization
         public static readonly MyStringId buttonBrowseWorkshop = MyStringId.GetOrCompute("buttonBrowseWorkshop");
 
         ///<summary>
-        ///Create new
+        ///Edit
         ///</summary>
-        public static readonly MyStringId buttonCreateNew = MyStringId.GetOrCompute("buttonCreateNew");
+        public static readonly MyStringId buttonEdit = MyStringId.GetOrCompute("buttonEdit");
 
         ///<summary>
         ///Open in Workshop
@@ -9915,7 +9915,7 @@ namespace Sandbox.Game.Localization
         public static readonly MyStringId MissionTriggerReachPosition = MyStringId.GetOrCompute("MissionTriggerReachPosition");
 
         ///<summary>
-        ///Leave GPS position
+        ///Leave game area
         ///</summary>
         public static readonly MyStringId GuiTriggerCaptionPositionLeft = MyStringId.GetOrCompute("GuiTriggerCaptionPositionLeft");
 
@@ -10543,5 +10543,125 @@ namespace Sandbox.Game.Localization
         ///Respawn in ships and suit is disabled. If no valid medical rooms exist, respawn won't be possible at all!
         ///</summary>
         public static readonly MyStringId ToolTipWorldSettings_DisableRespawnShips = MyStringId.GetOrCompute("ToolTipWorldSettings_DisableRespawnShips");
+
+        ///<summary>
+        ///PUBLISH SCENARIO
+        ///</summary>
+        public static readonly MyStringId MessageBoxCaptionDoYouWishToPublishScenario = MyStringId.GetOrCompute("MessageBoxCaptionDoYouWishToPublishScenario");
+
+        ///<summary>
+        ///UPDATE SCENARIO
+        ///</summary>
+        public static readonly MyStringId MessageBoxCaptionDoYouWishToUpdateScenario = MyStringId.GetOrCompute("MessageBoxCaptionDoYouWishToUpdateScenario");
+
+        ///<summary>
+        ///SCENARIO PUBLISHED
+        ///</summary>
+        public static readonly MyStringId MessageBoxCaptionScenarioPublished = MyStringId.GetOrCompute("MessageBoxCaptionScenarioPublished");
+
+        ///<summary>
+        ///PUBLISH FAILED
+        ///</summary>
+        public static readonly MyStringId MessageBoxCaptionScenarioPublishFailed = MyStringId.GetOrCompute("MessageBoxCaptionScenarioPublishFailed");
+
+        ///<summary>
+        ///Are you sure you want to upload and publish selected scenario on Steam Workshop? Note that by submitting this item, you agree to the workshop terms of service (see http://steamcommunity.com/sharedfiles/workshoplegalagreement).
+        ///</summary>
+        public static readonly MyStringId MessageBoxTextDoYouWishToPublishScenario = MyStringId.GetOrCompute("MessageBoxTextDoYouWishToPublishScenario");
+
+        ///<summary>
+        ///Are you sure you want to upload and overwrite selected scenario on Steam Workshop?
+        ///</summary>
+        public static readonly MyStringId MessageBoxTextDoYouWishToUpdateScenario = MyStringId.GetOrCompute("MessageBoxTextDoYouWishToUpdateScenario");
+
+        ///<summary>
+        ///Publish has been completed successfully. If you have Steam Overlay enabled, a page will open and you can edit attributes such as title, description or visibility (it is public by default).
+        ///</summary>
+        public static readonly MyStringId MessageBoxTextScenarioPublished = MyStringId.GetOrCompute("MessageBoxTextScenarioPublished");
+
+        ///<summary>
+        ///Failed to publish on Steam Workshop
+        ///</summary>
+        public static readonly MyStringId MessageBoxTextScenarioPublishFailed = MyStringId.GetOrCompute("MessageBoxTextScenarioPublishFailed");
+
+        ///<summary>
+        ///Allows additional ingame options for creating scenario. Also displays your saved game in scenario start screen.
+        ///</summary>
+        public static readonly MyStringId ToolTipWorldSettings_ScenarioEditMode = MyStringId.GetOrCompute("ToolTipWorldSettings_ScenarioEditMode");
+
+        ///<summary>
+        ///Scenario edit mode
+        ///</summary>
+        public static readonly MyStringId WorldSettings_ScenarioEditMode = MyStringId.GetOrCompute("WorldSettings_ScenarioEditMode");
+
+        ///<summary>
+        ///No respawn point is available!  Try the refresh button for any available Medical rooms. If there is no chance of accessing a medical room, the game is over and you can leave the game.
+        ///</summary>
+        public static readonly MyStringId ScreenMedicals_NoRespawnPossible = MyStringId.GetOrCompute("ScreenMedicals_NoRespawnPossible");
+
+        ///<summary>
+        ///Download failed, please try again later.
+        ///</summary>
+        public static readonly MyStringId MessageBoxTextWorkshopDownloadFailed = MyStringId.GetOrCompute("MessageBoxTextWorkshopDownloadFailed");
+
+        ///<summary>
+        ///Limited lives
+        ///</summary>
+        public static readonly MyStringId GuiTriggerCaptionLives = MyStringId.GetOrCompute("GuiTriggerCaptionLives");
+
+        ///<summary>
+        ///Lives
+        ///</summary>
+        public static readonly MyStringId GuiTriggersLives = MyStringId.GetOrCompute("GuiTriggersLives");
+
+        ///<summary>
+        ///Ownership Assignment
+        ///</summary>
+        public static readonly MyStringId MedicalRoom_ownershipAssignmentLabel = MyStringId.GetOrCompute("MedicalRoom_ownershipAssignmentLabel");
+
+        ///<summary>
+        ///Medical room's owner will be set to anyone who spawns in it as long as former ownership is set to nobody.
+        ///</summary>
+        public static readonly MyStringId MedicalRoom_ownershipAssignmentTooltip = MyStringId.GetOrCompute("MedicalRoom_ownershipAssignmentTooltip");
+
+        ///<summary>
+        ///Scenario settings:
+        ///</summary>
+        public static readonly MyStringId TerminalScenarioSettingsLabel = MyStringId.GetOrCompute("TerminalScenarioSettingsLabel");
+
+        ///<summary>
+        ///Spawn projection
+        ///</summary>
+        public static readonly MyStringId BlockPropertyTitle_ProjectionSpawn = MyStringId.GetOrCompute("BlockPropertyTitle_ProjectionSpawn");
+
+        ///<summary>
+        ///Number of blocks
+        ///</summary>
+        public static readonly MyStringId BlockPropertyTitle_Projector_BlocksPerProjection = MyStringId.GetOrCompute("BlockPropertyTitle_Projector_BlocksPerProjection");
+
+        ///<summary>
+        ///The maximum number of blocks a projection can have when building instantly
+        ///</summary>
+        public static readonly MyStringId BlockPropertyTitle_Projector_BlocksPerProjection_Tooltip = MyStringId.GetOrCompute("BlockPropertyTitle_Projector_BlocksPerProjection_Tooltip");
+
+        ///<summary>
+        ///Instant building
+        ///</summary>
+        public static readonly MyStringId BlockPropertyTitle_Projector_InstantBuilding = MyStringId.GetOrCompute("BlockPropertyTitle_Projector_InstantBuilding");
+
+        ///<summary>
+        ///Enable the projector to build the blueprint instantly, even in survival
+        ///</summary>
+        public static readonly MyStringId BlockPropertyTitle_Projector_InstantBuilding_Tooltip = MyStringId.GetOrCompute("BlockPropertyTitle_Projector_InstantBuilding_Tooltip");
+
+        ///<summary>
+        ///Number of projections
+        ///</summary>
+        public static readonly MyStringId BlockPropertyTitle_Projector_NumberOfProjections = MyStringId.GetOrCompute("BlockPropertyTitle_Projector_NumberOfProjections");
+
+        ///<summary>
+        ///The maximum number of projections this projector can build instantly
+        ///</summary>
+        public static readonly MyStringId BlockPropertyTitle_Projector_NumberOfProjections_Tooltip = MyStringId.GetOrCompute("BlockPropertyTitle_Projector_NumberOfProjections_Tooltip");
     }
 }
