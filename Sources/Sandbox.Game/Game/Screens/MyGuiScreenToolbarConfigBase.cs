@@ -185,6 +185,8 @@ namespace Sandbox.Game.Gui
         protected const string SHIP_GROUPS_NAME = "Groups";
         protected const string CHARACTER_ANIMATIONS_GROUP_NAME = "CharacterAnimations";
 
+		protected MyStringHash manipulationToolId = MyStringHash.GetOrCompute("ManipulationTool");
+
         protected string[] m_forcedCategoryOrder = new string[] { "ShipWeaponsTools", "WeaponsTools", "CharacterTools", CHARACTER_ANIMATIONS_GROUP_NAME, SHIP_GROUPS_NAME };
 
         protected MySearchByStringCondition m_nameSearchCondition = new MySearchByStringCondition();
@@ -670,7 +672,7 @@ namespace Sandbox.Game.Gui
                 var character = m_character;
                 foreach (MyDefinitionBase definition in MyDefinitionManager.Static.GetWeaponDefinitions())
                 {
-                    if (character.GetInventory().ContainItems(1, definition.Id) || MyPerGameSettings.EnableWeaponWithoutInventory)
+                    if (definition.Id.SubtypeId == manipulationToolId || (character.GetInventory().ContainItems(1, definition.Id) || MyPerGameSettings.EnableWeaponWithoutInventory))
                     {
                         if (null != searchCondition && false == searchCondition.MatchesCondition(definition))
                         {
@@ -732,6 +734,8 @@ namespace Sandbox.Game.Gui
         {
             if (!definition.Public && !MyFakes.ENABLE_NON_PUBLIC_BLOCKS)
                 return;
+			if (!definition.AvailableInSurvival && MySession.Static.SurvivalMode)
+				return;
 
             var gridItem = new MyGuiControlGrid.Item(
                 icon: definition.Icon,
@@ -745,6 +749,8 @@ namespace Sandbox.Game.Gui
         {
             if (!definition.Public && !MyFakes.ENABLE_NON_PUBLIC_BLOCKS)
                 return;
+			if (!definition.AvailableInSurvival && MySession.Static.SurvivalMode)
+				return;
 
             var gridItem = new MyGuiControlGrid.Item(
                 icon: definition.Icon,
@@ -848,6 +854,7 @@ namespace Sandbox.Game.Gui
         void AddCubeDefinition(MyGuiControlGrid grid, MyCubeBlockDefinitionGroup group, Vector2I position)
         {
             var anyDef = MyFakes.ENABLE_NON_PUBLIC_BLOCKS ? group.Any : group.AnyPublic;
+
             string subicon = null;
             if (anyDef.BlockStages != null && anyDef.BlockStages.Length > 0)
                 subicon = MyToolbarItemCubeBlock.VariantsAvailableSubicon;
@@ -961,11 +968,38 @@ namespace Sandbox.Game.Gui
 		}
 
         void AddWeaponDefinition(MyGuiControlGrid grid, MyDefinitionBase definition)
-        {
-            MyObjectBuilder_ToolbarItemWeapon weaponData = MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_ToolbarItemWeapon>();
-            weaponData.DefinitionId = definition.Id;
-            AddDefinition(grid, weaponData, definition);
-        }
+		{
+			if (!definition.Public && !MyFakes.ENABLE_NON_PUBLIC_BLOCKS)
+				return;
+			
+			{
+				MyObjectBuilder_ToolbarItemWeapon weaponData = MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_ToolbarItemWeapon>();
+				weaponData.DefinitionId = definition.Id;
+				weaponData.IsDeconstructor = false;
+
+				var gridItem = new MyGuiControlGrid.Item(
+					icon: definition.Icon,
+					toolTip: definition.DisplayNameText,
+					userData: new GridItemUserData() { ItemData = weaponData });
+
+				grid.Add(gridItem);
+			}
+
+			var toolItemDef = definition as MyPhysicalItemDefinition;
+			if (toolItemDef != null && toolItemDef.HasDeconstructor)
+			{
+				var weaponData = MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_ToolbarItemWeapon>();
+				weaponData.DefinitionId = definition.Id;
+				weaponData.IsDeconstructor = true;
+				var split = definition.Icon.Split(new char[] { '_' });	// MK: TODO: Change icon properly.
+				var gridItem = new MyGuiControlGrid.Item(
+				icon: split[0] + "_Deconstruction.dds",
+				toolTip: definition.DisplayNameText + " Deconstructor",
+				userData: new GridItemUserData() { ItemData = weaponData });
+
+				grid.Add(gridItem);
+			}
+		}
 
         void AddAnimationDefinition(MyGuiControlGrid grid, MyDefinitionBase definition)
         {

@@ -58,8 +58,8 @@ namespace Sandbox.Game.Multiplayer
                     MyStockpileItem item = new MyStockpileItem();
                     BlitSerializer<int>.Default.Deserialize(source, out item.Amount);
 
-                    MyStringId subtypeId;
-                    BlitSerializer<MyStringId>.Default.Deserialize(source, out subtypeId);
+                    MyStringHash subtypeId;
+                    BlitSerializer<MyStringHash>.Default.Deserialize(source, out subtypeId);
 
                     byte flags = 0;
                     BlitSerializer<byte>.Default.Deserialize(source, out flags);

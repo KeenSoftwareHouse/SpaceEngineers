@@ -81,7 +81,15 @@ namespace Sandbox
                         var model = MyModels.GetModelOnlyData(group.Large.Model);
                         bool isGenerated = group.Large.IsGeneratedBlock && (group.Large.GeneratedBlockType == GENERATED_BLOCK_TYPE_PILLAR);
                         if (!MyFakes.LAZY_LOAD_DESTRUCTION || (model != null && model.HavokBreakableShapes != null)) //reload materials
-                            LoadModelDestruction(group.Large, isGenerated, group.Large.Size * (MyDefinitionManager.Static.GetCubeSize(group.Large.CubeSize)));
+                            LoadModelDestruction(group.Large.Model, group.Large, isGenerated, group.Large.Size * (MyDefinitionManager.Static.GetCubeSize(group.Large.CubeSize)));
+                       foreach(var progress in group.Large.BuildProgressModels)
+                       {
+                           model = MyModels.GetModelOnlyData(progress.File);
+                           if (!MyFakes.LAZY_LOAD_DESTRUCTION || (model != null && model.HavokBreakableShapes != null)) //reload materials
+                               LoadModelDestruction(progress.File, group.Large, isGenerated, group.Large.Size * (MyDefinitionManager.Static.GetCubeSize(group.Large.CubeSize)));
+                       }
+                        
+                        
                         if (MyFakes.CHANGE_BLOCK_CONVEX_RADIUS)
                         {
                             if (model != null && model.HavokBreakableShapes != null)
@@ -98,7 +106,15 @@ namespace Sandbox
                         var model = MyModels.GetModelOnlyData(group.Small.Model);
                         bool isGenerated = group.Small.IsGeneratedBlock && (group.Small.GeneratedBlockType == GENERATED_BLOCK_TYPE_PILLAR);
                         if (!MyFakes.LAZY_LOAD_DESTRUCTION || (model != null && model.HavokBreakableShapes != null)) //reload materials
-                            LoadModelDestruction(group.Small, isGenerated, group.Small.Size * (MyDefinitionManager.Static.GetCubeSize(group.Small.CubeSize)));
+                            LoadModelDestruction(group.Small.Model, group.Small, isGenerated, group.Small.Size * (MyDefinitionManager.Static.GetCubeSize(group.Small.CubeSize)));
+
+                        foreach (var progress in group.Small.BuildProgressModels)
+                        {
+                            model = MyModels.GetModelOnlyData(progress.File);
+                            if (!MyFakes.LAZY_LOAD_DESTRUCTION || (model != null && model.HavokBreakableShapes != null)) //reload materials
+                                LoadModelDestruction(progress.File, group.Small, isGenerated, group.Large.Size * (MyDefinitionManager.Static.GetCubeSize(group.Large.CubeSize)));
+                        }
+
                         if (MyFakes.CHANGE_BLOCK_CONVEX_RADIUS)
                         {
                             if (model != null && model.HavokBreakableShapes != null)
@@ -116,7 +132,7 @@ namespace Sandbox
 
             foreach (var enviroment in MyDefinitionManager.Static.GetEnvironmentItemDefinitions())
             {
-                LoadModelDestruction(enviroment, false, Vector3.One, false, true);
+                LoadModelDestruction(enviroment.Model, enviroment, false, Vector3.One, false, true);
             }
         }
 
@@ -328,11 +344,14 @@ namespace Sandbox
             shape.RemoveReference();
         }
 
-        public void LoadModelDestruction(MyPhysicalModelDefinition modelDef, bool dontCreateFracturePieces, Vector3 defaultSize, bool destructionRequired = true, bool useShapeVolume = false)
+        public void LoadModelDestruction(string modelName, MyPhysicalModelDefinition modelDef, bool dontCreateFracturePieces, Vector3 defaultSize, bool destructionRequired = true, bool useShapeVolume = false)
         {
-            var model = MyModels.GetModelOnlyData(modelDef.Model);
+            var model = MyModels.GetModelOnlyData(modelName);
 
             var material = modelDef.PhysicalMaterial;
+
+            //var shapeName = modelDef.Id.SubtypeName;
+            var shapeName = modelName;
 
             if (model != null)
             {
@@ -358,7 +377,7 @@ namespace Sandbox
 
                         var physicsMesh = CreatePhysicsMesh(model);
 
-                        Storage.RegisterShapeWithGraphics(physicsMesh, model.HavokBreakableShapes[0], modelDef.Id.SubtypeName);
+                        Storage.RegisterShapeWithGraphics(physicsMesh, model.HavokBreakableShapes[0], shapeName);
 
                         string modPath = null;
 
@@ -434,7 +453,7 @@ namespace Sandbox
 
                     Storage.RegisterShape(
                                 bShape,
-                                modelDef.Id.SubtypeName
+                                shapeName
                             );
                 }
 
@@ -464,7 +483,7 @@ namespace Sandbox
                 DisableRefCountRec(bShape);
 
                 if (MyFakes.LAZY_LOAD_DESTRUCTION)
-                    BlockShapePool.AllocateForDefinition(modelDef, MyBlockShapePool.PREALLOCATE_COUNT);
+                    BlockShapePool.AllocateForDefinition(shapeName, modelDef, MyBlockShapePool.PREALLOCATE_COUNT);
             }
             else
             {
@@ -641,11 +660,11 @@ namespace Sandbox
             }
         }
 
-        public float GetBlockMass(MyCubeBlockDefinition def)
+        public float GetBlockMass(string model, MyCubeBlockDefinition def)
         {
-            var sh = BlockShapePool.GetBreakableShape(def);
+            var sh = BlockShapePool.GetBreakableShape(model, def);
             var mass = sh.GetMass();
-            BlockShapePool.EnqueShape(def.Id, sh);
+            BlockShapePool.EnqueShape(model, def.Id, sh);
             return mass;
         }
     }

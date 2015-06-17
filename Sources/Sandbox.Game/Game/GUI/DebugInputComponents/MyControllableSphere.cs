@@ -5,6 +5,7 @@ using Sandbox.Common.ObjectBuilders;
 using Sandbox.Definitions;
 using Sandbox.Engine.Physics;
 using Sandbox.Game.Multiplayer;
+using Sandbox.Game.Screens.Helpers;
 using Sandbox.Game.World;
 using Sandbox.ModAPI.Interfaces;
 using VRage.Components;
@@ -353,10 +354,15 @@ namespace Sandbox.Game.Entities
             return m;
         }
 
-        public void SwitchToWeapon(MyDefinitionId? weaponDefinition)
+        public void SwitchToWeapon(MyDefinitionId weaponDefinition)
         {
          
         }
+		public void SwitchToWeapon(MyToolbarItemWeapon weapon)
+		{
+
+		}
+
 
         public void SwitchAmmoMagazine()
         {

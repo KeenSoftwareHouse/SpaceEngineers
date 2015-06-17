@@ -3,6 +3,7 @@
 using Sandbox.Common.ObjectBuilders;
 using Sandbox.Common.ObjectBuilders.Definitions;
 using System.Collections.Generic;
+using VRage;
 using VRage.ObjectBuilders;
 using VRageMath;
 
@@ -14,6 +15,7 @@ namespace Sandbox.Definitions
     public partial class MyDefinitionManager
     {
         class DefinitionDictionary<V> : Dictionary<MyDefinitionId, V>
+            where V : MyDefinitionBase
         {
             public DefinitionDictionary(int capacity)
                 : base(capacity, MyDefinitionId.Comparer)
@@ -21,7 +23,7 @@ namespace Sandbox.Definitions
             }
 
             public void AddDefinitionSafe<T>(T definition, MyModContext context, string file)
-                where T : MyDefinitionBase, V
+                where T : V
             {
                 if (definition.Id.TypeId != MyObjectBuilderType.Invalid)
                 {
@@ -30,6 +32,17 @@ namespace Sandbox.Definitions
                 else
                 {
                     MyDefinitionErrors.Add(context, "Invalid definition id", ErrorSeverity.Error);
+                }
+            }
+
+            public void Merge(DefinitionDictionary<V> other)
+            {
+                foreach (var definition in other)
+                {
+                    if (definition.Value.Enabled)
+                        this[definition.Key] = definition.Value;
+                    else
+                        Remove(definition.Key);
                 }
             }
         }
@@ -99,6 +112,9 @@ namespace Sandbox.Definitions
                 m_characterNames = new List<MyCharacterName>(32);
 
                 m_battleDefinition = new MyBattleDefinition();
+
+                m_componentGroups = new DefinitionDictionary<MyComponentGroupDefinition>(4);
+                m_componentGroupMembers = new Dictionary<MyDefinitionId, MyTuple<int, MyComponentGroupDefinition>>();
             }
 
             public void OverrideBy(DefinitionSet definitionSet)
@@ -116,13 +132,7 @@ namespace Sandbox.Definitions
                         m_basePrefabNames[i] = definitionSet.m_basePrefabNames[i];
                 }
 
-                foreach (var definition in definitionSet.m_definitionsById)
-                {
-                    if (definition.Value.Enabled)
-                        m_definitionsById[definition.Key] = definition.Value;
-                    else
-                        m_definitionsById.Remove(definition.Key);
-                }
+                m_definitionsById.Merge(definitionSet.m_definitionsById);
 
                 foreach (var voxelMaterial in definitionSet.m_voxelMaterialsByName)
                 {
@@ -145,32 +155,10 @@ namespace Sandbox.Definitions
                     }
                 }
 
-                foreach (var blueprintsById in definitionSet.m_blueprintsById)
-                {
-                    if (blueprintsById.Value.Enabled)
-                        m_blueprintsById[blueprintsById.Key] = blueprintsById.Value;
-                    else
-                        m_blueprintsById.Remove(blueprintsById.Key);
-                }
-
+                m_blueprintsById.Merge(definitionSet.m_blueprintsById);
                 MergeDefinitionLists(m_spawnGroupDefinitions, definitionSet.m_spawnGroupDefinitions);
-
-                foreach (var containerTypeDefinition in definitionSet.m_containerTypeDefinitions)
-                {
-                    if (containerTypeDefinition.Value.Enabled)
-                        m_containerTypeDefinitions[containerTypeDefinition.Key] = containerTypeDefinition.Value;
-                    else
-                        m_containerTypeDefinitions.Remove(containerTypeDefinition.Key);
-                }
-
-                foreach (var handItem in definitionSet.m_handItemsById)
-                {
-                    if (handItem.Value.Enabled)
-                        m_handItemsById[handItem.Key] = handItem.Value;
-                    else
-                        m_handItemsById.Remove(handItem.Key);
-                }
-
+                m_containerTypeDefinitions.Merge(definitionSet.m_containerTypeDefinitions);
+                m_handItemsById.Merge(definitionSet.m_handItemsById);
                 MergeDefinitionLists(m_scenarioDefinitions, definitionSet.m_scenarioDefinitions);
 
                 foreach (var character in definitionSet.m_characters)
@@ -181,13 +169,7 @@ namespace Sandbox.Definitions
                         m_characters.Remove(character.Key);
                 }
 
-                foreach (var classDef in definitionSet.m_blueprintClasses)
-                {
-                    if (classDef.Value.Enabled)
-                        m_blueprintClasses[classDef.Key] = classDef.Value;
-                    else
-                        m_blueprintClasses.Remove(classDef.Key);
-                }
+                m_blueprintClasses.Merge(definitionSet.m_blueprintClasses);
 
                 foreach (var classEntry in definitionSet.m_categoryClasses)
                 {
@@ -220,13 +202,7 @@ namespace Sandbox.Definitions
                     }
                 }
 
-                foreach (var entry in definitionSet.m_blueprintsByResultId)
-                {
-                    if (entry.Value.Enabled)
-                        m_blueprintsByResultId[entry.Key] = entry.Value;
-                    else
-                        m_blueprintsByResultId.Remove(entry.Key);
-                }
+                m_blueprintsByResultId.Merge(definitionSet.m_blueprintsByResultId);
 
                 foreach (var classEntry in definitionSet.m_environmentItemsEntries)
                 {
@@ -287,26 +263,9 @@ namespace Sandbox.Definitions
                     m_sounds[soundDef.Key] = soundDef.Value;
                 }
 
-                foreach (var weaponDef in definitionSet.m_weaponDefinitionsById)
-                {
-                    if (weaponDef.Value.Enabled)
-                        m_weaponDefinitionsById[weaponDef.Key] = weaponDef.Value;
-                    else
-                        m_weaponDefinitionsById.Remove(weaponDef.Key);
-                }
-
-                foreach (var ammoDef in definitionSet.m_ammoDefinitionsById)
-                {
-                    if (ammoDef.Value.Enabled)
-                        m_ammoDefinitionsById[ammoDef.Key] = ammoDef.Value;
-                    else
-                        m_ammoDefinitionsById.Remove(ammoDef.Key);
-                }
-
-                foreach (var behaviorDef in definitionSet.m_behaviorDefinitions)
-                {
-                    m_behaviorDefinitions[behaviorDef.Key] = behaviorDef.Value;
-                }
+                m_weaponDefinitionsById.Merge(definitionSet.m_weaponDefinitionsById);
+                m_ammoDefinitionsById.Merge(definitionSet.m_ammoDefinitionsById);
+                m_behaviorDefinitions.Merge(definitionSet.m_behaviorDefinitions);
 
                 foreach (var voxelMapStorageDef in definitionSet.m_voxelMapStorages)
                 {
@@ -324,6 +283,7 @@ namespace Sandbox.Definitions
                         m_battleDefinition.Merge(definitionSet.m_battleDefinition);
                 }
 
+                m_componentGroups.Merge(definitionSet.m_componentGroups);
             }
 
             static void MergeDefinitionLists<T>(List<T> output, List<T> input) where T : MyDefinitionBase
@@ -410,6 +370,9 @@ namespace Sandbox.Definitions
             internal List<MyCharacterName> m_characterNames;
 
             internal MyBattleDefinition m_battleDefinition;
+
+            internal DefinitionDictionary<MyComponentGroupDefinition> m_componentGroups;
+            internal Dictionary<MyDefinitionId, MyTuple<int, MyComponentGroupDefinition>> m_componentGroupMembers;
         }
     }
 }
