@@ -788,7 +788,8 @@ namespace Sandbox.Game.Gui
         private void grid_ItemDragged(MyGuiControlGrid sender, MyGuiControlGrid.EventArgs eventArgs)
         {
             if (MyInput.Static.IsAnyShiftKeyPressed() ||
-                MyInput.Static.IsAnyCtrlKeyPressed())
+                MyInput.Static.IsAnyCtrlKeyPressed() ||
+                MyInput.Static.IsAnyAltKeyPressed())
                 return;
 
             StartDragging(MyDropHandleType.MouseRelease, sender, ref eventArgs);
@@ -797,7 +798,8 @@ namespace Sandbox.Game.Gui
         private void grid_ItemDoubleClicked(MyGuiControlGrid sender, MyGuiControlGrid.EventArgs eventArgs)
         {
             if (MyInput.Static.IsAnyShiftKeyPressed() ||
-                MyInput.Static.IsAnyCtrlKeyPressed())
+                MyInput.Static.IsAnyCtrlKeyPressed() ||
+                MyInput.Static.IsAnyAltKeyPressed())
                 return;
 
             var item = (MyInventoryItem)sender.GetItemAt(eventArgs.ItemIndex).UserData;
@@ -810,10 +812,11 @@ namespace Sandbox.Game.Gui
         {
             bool ctrlPressed = MyInput.Static.IsAnyCtrlKeyPressed();
             bool shiftPressed = MyInput.Static.IsAnyShiftKeyPressed();
-            if (ctrlPressed || shiftPressed)
+            bool altPressed = MyInput.Static.IsAnyAltKeyPressed();
+            if (ctrlPressed || shiftPressed || altPressed)
             {
                 var item = (MyInventoryItem)sender.GetItemAt(eventArgs.ItemIndex).UserData;
-                item.Amount = MyFixedPoint.Min((shiftPressed ? 100 : 1) * (ctrlPressed ? 10 : 1), item.Amount);
+                item.Amount = MyFixedPoint.Min((altPressed ? 1000 : 1) * (shiftPressed ? 100 : 1) * (ctrlPressed ? 10 : 1), item.Amount);
                 bool transfered = TransferToOppositeFirst(item);
                 RefreshSelectedInventoryItem();
                 //MyAudio.Static.PlayCue(transfered ? MySoundCuesEnum.HudMouseClick : MySoundCuesEnum.HudUnable);
