@@ -6687,4 +6687,40 @@ The highest levels may cause some ships to disintegrate entirely, leading to per
     <value>The % of ships groups that begin with their reactors on.
 Reactors will be actively disabled for the rest.</value>
   </data>
+  <data name="ToolTipEncounterSettings_AdventureMode" xml:space="preserve">
+    <value>You will never know for sure what's behind that asteroid. 
+Tread carefully.</value>
+  </data>
+  <data name="ToolTipEncounterSettings_PeaceMode" xml:space="preserve">
+    <value>A utopia of tranquility.  You have the keys to every ship.</value>
+  </data>
+  <data name="ToolTipEncounterSettings_RandomMode" xml:space="preserve">
+    <value>Surprise!  Random settings will be chosen 
+and this screen will close to preserve the mystery.</value>
+  </data>
+  <data name="ToolTipEncounterSettings_RuinsMode" xml:space="preserve">
+    <value>Civilisation has collapsed.  Was it self-annihilation, aliens or an angry AI? 
+Who knows?  But there's nothing left.</value>
+  </data>
+  <data name="ToolTipEncounterSettings_WarMode" xml:space="preserve">
+    <value>Everyone and everything is against you.  </value>
+  </data>
+  <data name="WorldSettings_AdventureMode" xml:space="preserve">
+    <value>Adventure</value>
+  </data>
+  <data name="WorldSettings_PeaceMode" xml:space="preserve">
+    <value>Peace</value>
+  </data>
+  <data name="WorldSettings_PresetValuesLabel" xml:space="preserve">
+    <value>Themed Presets</value>
+  </data>
+  <data name="WorldSettings_RandomMode" xml:space="preserve">
+    <value>Random</value>
+  </data>
+  <data name="WorldSettings_RuinsMode" xml:space="preserve">
+    <value>Ruins</value>
+  </data>
+  <data name="WorldSettings_WarMode" xml:space="preserve">
+    <value>War</value>
+  </data>
 </root>

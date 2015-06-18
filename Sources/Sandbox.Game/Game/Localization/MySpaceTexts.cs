@@ -10793,5 +10793,60 @@ namespace Sandbox.Game.Localization
         ///The % of ships groups that begin with their reactors on. Reactors will be actively disabled for the rest.
         ///</summary>
         public static readonly MyStringId ToolTipEncounterSettingsReactorsOn = MyStringId.GetOrCompute("ToolTipEncounterSettingsReactorsOn");
+
+        ///<summary>
+        ///You will never know for sure what's behind that asteroid.  Tread carefully.
+        ///</summary>
+        public static readonly MyStringId ToolTipEncounterSettings_AdventureMode = MyStringId.GetOrCompute("ToolTipEncounterSettings_AdventureMode");
+
+        ///<summary>
+        ///A utopia of tranquility.  You have the keys to every ship.
+        ///</summary>
+        public static readonly MyStringId ToolTipEncounterSettings_PeaceMode = MyStringId.GetOrCompute("ToolTipEncounterSettings_PeaceMode");
+
+        ///<summary>
+        ///Surprise!  Random settings will be chosen  and this screen will close to preserve the mystery.
+        ///</summary>
+        public static readonly MyStringId ToolTipEncounterSettings_RandomMode = MyStringId.GetOrCompute("ToolTipEncounterSettings_RandomMode");
+
+        ///<summary>
+        ///Civilisation has collapsed.  Was it self-annihilation, aliens or an angry AI?  Who knows?  But there's nothing left.
+        ///</summary>
+        public static readonly MyStringId ToolTipEncounterSettings_RuinsMode = MyStringId.GetOrCompute("ToolTipEncounterSettings_RuinsMode");
+
+        ///<summary>
+        ///Everyone and everything is against you.  
+        ///</summary>
+        public static readonly MyStringId ToolTipEncounterSettings_WarMode = MyStringId.GetOrCompute("ToolTipEncounterSettings_WarMode");
+
+        ///<summary>
+        ///Adventure
+        ///</summary>
+        public static readonly MyStringId WorldSettings_AdventureMode = MyStringId.GetOrCompute("WorldSettings_AdventureMode");
+
+        ///<summary>
+        ///Peace
+        ///</summary>
+        public static readonly MyStringId WorldSettings_PeaceMode = MyStringId.GetOrCompute("WorldSettings_PeaceMode");
+
+        ///<summary>
+        ///Themed Presets
+        ///</summary>
+        public static readonly MyStringId WorldSettings_PresetValuesLabel = MyStringId.GetOrCompute("WorldSettings_PresetValuesLabel");
+
+        ///<summary>
+        ///Random
+        ///</summary>
+        public static readonly MyStringId WorldSettings_RandomMode = MyStringId.GetOrCompute("WorldSettings_RandomMode");
+
+        ///<summary>
+        ///Ruins
+        ///</summary>
+        public static readonly MyStringId WorldSettings_RuinsMode = MyStringId.GetOrCompute("WorldSettings_RuinsMode");
+
+        ///<summary>
+        ///War
+        ///</summary>
+        public static readonly MyStringId WorldSettings_WarMode = MyStringId.GetOrCompute("WorldSettings_WarMode");
     }
 }

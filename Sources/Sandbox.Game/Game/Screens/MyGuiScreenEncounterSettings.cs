@@ -22,7 +22,7 @@ namespace Sandbox.Game.Gui
 
         bool m_isConfirmed;
 
-        MyGuiControlButton m_okButton, m_cancelButton, m_RandomSettingsButton, m_BalancedSettingsButton;
+        MyGuiControlButton m_okButton, m_cancelButton, m_peaceModeButton, m_adventureModeButton, m_warModeButton, m_postApocalypseMode, m_randomModeButton;
         MyGuiControlSlider m_maxNoShipsPerSpawnGroup, m_maxDamagedShipPercentage, m_maxHostileEncountersPercentage, m_AntennaOnPercentage, m_ReactorsOnPercentage;
         MyGuiControlCombobox m_maxDamagedShipsSeverity;
         MyGuiControlCheckbox m_antennaRangeMaxedOut, m_damageAppliedGlobally;
@@ -97,6 +97,7 @@ namespace Sandbox.Game.Gui
             var AntennaRangeMaxedLabel = MakeLabel(MySpaceTexts.WorldSettings_AntennaMaxedLabel);
             var ReactorsOnPercentageLabel = MakeLabel(MySpaceTexts.WorldSettings_ReactorsOnLabel);
             var DamageAppliedGloballyLabel = MakeLabel(MySpaceTexts.WorldSettings_DamageAppliedGloballyLabel);
+            var PresetLabel = MakeLabel(MySpaceTexts.WorldSettings_PresetValuesLabel);
 
             maxNoShipsLabel.Position = Vector2.Zero - new Vector2(0.3f, 0.4f);                 
 
@@ -190,9 +191,27 @@ namespace Sandbox.Game.Gui
             m_okButton = new MyGuiControlButton(position: buttonsOrigin - new Vector2(0.01f, 0f), size: buttonSize, text: MyTexts.Get(MySpaceTexts.Ok), onButtonClick: OkButtonClicked, originAlign: MyGuiDrawAlignEnum.HORISONTAL_RIGHT_AND_VERTICAL_BOTTOM);
             m_cancelButton = new MyGuiControlButton(position: buttonsOrigin + new Vector2(0.01f, 0f), size: buttonSize, text: MyTexts.Get(MySpaceTexts.Cancel), onButtonClick: CancelButtonClicked, originAlign: MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_BOTTOM);
 
+
+            
+            m_peaceModeButton = new MyGuiControlButton(visualStyle: MyGuiControlButtonStyleEnum.Small, highlightType: MyGuiControlHighlightType.WHEN_CURSOR_OVER, text: MyTexts.Get(MySpaceTexts.WorldSettings_PeaceMode), onButtonClick: PeaceButtonClicked);
+            m_peaceModeButton.SetToolTip(MySpaceTexts.ToolTipEncounterSettings_PeaceMode);
+
+            m_adventureModeButton = new MyGuiControlButton(visualStyle: MyGuiControlButtonStyleEnum.Small, highlightType: MyGuiControlHighlightType.WHEN_CURSOR_OVER, text: MyTexts.Get(MySpaceTexts.WorldSettings_AdventureMode), onButtonClick: AdventureButtonClicked);
+            m_adventureModeButton.SetToolTip(MySpaceTexts.ToolTipEncounterSettings_AdventureMode);
+
+            m_warModeButton = new MyGuiControlButton(visualStyle: MyGuiControlButtonStyleEnum.Small, highlightType: MyGuiControlHighlightType.WHEN_CURSOR_OVER, text: MyTexts.Get(MySpaceTexts.WorldSettings_WarMode), onButtonClick: WarButtonClicked);
+            m_warModeButton.SetToolTip(MySpaceTexts.ToolTipEncounterSettings_WarMode);
+
+            m_postApocalypseMode = new MyGuiControlButton(visualStyle: MyGuiControlButtonStyleEnum.Small, highlightType: MyGuiControlHighlightType.WHEN_CURSOR_OVER, text: MyTexts.Get(MySpaceTexts.WorldSettings_RuinsMode), onButtonClick: RuinsButtonClicked);
+            m_postApocalypseMode.SetToolTip(MySpaceTexts.ToolTipEncounterSettings_RuinsMode);
+
+            m_randomModeButton = new MyGuiControlButton(visualStyle: MyGuiControlButtonStyleEnum.Small, highlightType: MyGuiControlHighlightType.WHEN_CURSOR_OVER, text: MyTexts.Get(MySpaceTexts.WorldSettings_RandomMode), onButtonClick: RandomButtonClicked);
+            m_randomModeButton.SetToolTip(MySpaceTexts.ToolTipEncounterSettings_RandomMode);
+
+
             float labelSize = 0.31f; // 0.21f;
 
-            float MARGIN_TOP = 0.03f;
+            float MARGIN_TOP = 0.15f;
 
             parent.Controls.Add(maxNoShipsLabel);
             parent.Controls.Add(m_maxNoShipsPerSpawnGroup);
@@ -233,7 +252,25 @@ namespace Sandbox.Game.Gui
                     control.Position = originL + controlsDelta * numControls;
                 else
                     control.Position = originC + controlsDelta * numControls++;
-            }               
+            }
+
+            PresetLabel.Position = originL + controlsDelta + new Vector2(0.23f, -0.09f);
+            Controls.Add(PresetLabel);
+
+            m_peaceModeButton.Position = originL  + controlsDelta + new Vector2(0.02f, -0.03f);
+            Controls.Add(m_peaceModeButton);
+
+            m_adventureModeButton.Position = originL + controlsDelta + new Vector2(0.16f, -0.03f);
+            Controls.Add(m_adventureModeButton);
+
+            m_warModeButton.Position = originL + controlsDelta + new Vector2(0.30f, -0.03f);
+            Controls.Add(m_warModeButton);
+
+            m_postApocalypseMode.Position = originL + controlsDelta + new Vector2(0.44f, -0.03f);
+            Controls.Add(m_postApocalypseMode);
+
+            m_randomModeButton.Position = originL + controlsDelta + new Vector2(0.58f, -0.03f);
+            Controls.Add(m_randomModeButton);
 
             Controls.Add(m_okButton);
             Controls.Add(m_cancelButton);
@@ -311,6 +348,74 @@ namespace Sandbox.Game.Gui
         public override string GetFriendlyName()
         {
             return "MyGuiScreenEncounterSettings";
+        }
+
+
+        // m_peaceModeButton, m_adventureModeButton, m_warModeButton, m_postApocalypseMode, m_randomModeButton;
+
+
+        private void PeaceButtonClicked(object sender)
+        {
+            m_maxNoShipsPerSpawnGroup.Value = 2;
+            m_maxHostileEncountersPercentage.Value = 0;
+            m_maxDamagedShipPercentage.Value = 0;
+            m_maxDamagedShipsSeverity.SelectItemByIndex(0);
+            m_damageAppliedGlobally.IsChecked = false;
+            m_ReactorsOnPercentage.Value = 0;
+            m_AntennaOnPercentage.Value = 0;
+            m_antennaRangeMaxedOut.IsChecked = false;
+        }
+
+        private void AdventureButtonClicked(object sender)
+        {
+            m_maxNoShipsPerSpawnGroup.Value = 3;
+            m_maxHostileEncountersPercentage.Value = 50;
+            m_maxDamagedShipPercentage.Value = 50;
+            m_maxDamagedShipsSeverity.SelectItemByIndex(3);
+            m_damageAppliedGlobally.IsChecked = false;
+            m_ReactorsOnPercentage.Value = 50;
+            m_AntennaOnPercentage.Value = 50;
+            m_antennaRangeMaxedOut.IsChecked = false;
+        }
+
+        private void WarButtonClicked(object sender)
+        {
+            m_maxNoShipsPerSpawnGroup.Value = 5;
+            m_maxHostileEncountersPercentage.Value = 100;
+            m_maxDamagedShipPercentage.Value = 90;
+            m_maxDamagedShipsSeverity.SelectItemByIndex(4);
+            m_damageAppliedGlobally.IsChecked = false;
+            m_ReactorsOnPercentage.Value = 100;
+            m_AntennaOnPercentage.Value = 100;
+            m_antennaRangeMaxedOut.IsChecked = true;
+        }
+
+        private void RuinsButtonClicked(object sender)
+        {
+            m_maxNoShipsPerSpawnGroup.Value = 2;
+            m_maxHostileEncountersPercentage.Value = 80;
+            m_maxDamagedShipPercentage.Value = 100;
+            m_maxDamagedShipsSeverity.SelectItemByIndex(4);
+            m_damageAppliedGlobally.IsChecked = true;
+            m_ReactorsOnPercentage.Value = 80;
+            m_AntennaOnPercentage.Value = 80;
+            m_antennaRangeMaxedOut.IsChecked = false;            
+        }
+
+        private void RandomButtonClicked(object sender)
+        {
+            m_maxNoShipsPerSpawnGroup.Value = MyRandom.Instance.Next(0, 6); 
+            m_maxHostileEncountersPercentage.Value = MyRandom.Instance.Next(0, 101);
+            m_maxDamagedShipPercentage.Value = MyRandom.Instance.Next(0, 101);
+            m_maxDamagedShipsSeverity.SelectItemByIndex(MyRandom.Instance.Next(0, 5));
+
+            m_damageAppliedGlobally.IsChecked = MyRandom.Instance.Next(0, 2) == 1 ? true : false;
+            m_ReactorsOnPercentage.Value = MyRandom.Instance.Next(0, 101);
+            m_AntennaOnPercentage.Value = MyRandom.Instance.Next(0, 101);
+            m_antennaRangeMaxedOut.IsChecked = MyRandom.Instance.Next(0, 2) == 1 ? true : false;
+
+            OnOkButtonClicked();
+            CloseScreen();
         }
 
         private void CancelButtonClicked(object sender)
