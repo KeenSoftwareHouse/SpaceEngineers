@@ -118,5 +118,6 @@ namespace Sandbox.Engine.Utils
         public static bool DEBUG_DRAW_CHARACTER_RAGDOLL_BONES_DESIRED = false;
         public static bool DEBUG_DRAW_BLOCK_INTEGRITY = false;
         public static bool DEBUG_DRAW_FIXED_BLOCK_QUERIES = false;
+        public static bool DEBUG_DRAW_DRILLS = false;
     }
 }

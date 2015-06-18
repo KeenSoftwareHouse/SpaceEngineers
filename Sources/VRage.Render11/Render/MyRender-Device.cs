@@ -153,6 +153,7 @@ namespace VRageRender
                 BackBufferHeight = mode.dmPelsHeight,
                 BackBufferWidth = mode.dmPelsWidth,
                 WindowMode = MyWindowModeEnum.Fullscreen,
+                RefreshRate = 60000,
                 VSync = false,
             };
             m_settings = settings;

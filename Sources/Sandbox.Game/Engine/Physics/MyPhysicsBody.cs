@@ -1215,7 +1215,7 @@ namespace Sandbox.Engine.Physics
             MyPhysicalMaterialDefinition def = bDef.PhysicalMaterial;
 
             MySoundPair destructionCue;
-            if (def.GeneralSounds.TryGetValue(m_destructionSound, out destructionCue) && destructionCue.SoundId != MyStringId.NullOrEmpty)
+            if (def.GeneralSounds.TryGetValue(m_destructionSound, out destructionCue) && !destructionCue.SoundId.IsNull)
             {
                 var emmiter = MyAudioComponent.TryGetSoundEmitter();
                 if (emmiter == null)
@@ -1289,7 +1289,7 @@ namespace Sandbox.Engine.Physics
             cue = MyMaterialSoundsHelper.Static.GetCollisionCue(m_startCue, bodyA.GetMaterialAt(worldPos + value.ContactPoint.Normal * 0.1f), bodyB.GetMaterialAt(worldPos - value.ContactPoint.Normal * 0.1f));
             //cue = MyMaterialsConstants.GetCollisionCue(MyMaterialsConstants.MyMaterialCollisionType.Start, value.Base.BodyA.GetBody().MaterialType, value.Base.BodyB.GetBody().MaterialType);
 
-            if (cue.SoundId != MyStringId.NullOrEmpty)
+            if (!cue.SoundId.IsNull)
             {
                 MyEntity3DSoundEmitter emitter;
                 {
@@ -1677,6 +1677,22 @@ false,
             set { m_isStaticForCluster = value; }
         }
 
+        public Vector3 Gravity
+        {
+            get
+            {
+                if (!Enabled)
+                    return Vector3.Zero;
+
+                if (RigidBody != null)
+                    return this.RigidBody.Gravity;
+
+                if (CharacterProxy != null)
+                    return CharacterProxy.Gravity;
+
+                return Vector3.Zero;
+            }
+        }
         #endregion
 
         #region Implementation of IMyNotifyMotion

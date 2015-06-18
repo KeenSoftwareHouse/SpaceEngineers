@@ -91,7 +91,7 @@ namespace Sandbox.Graphics.GUI
             return IsActive();
         }
 
-        public override void Draw(float transitionAlpha)
+        public override void Draw(float transitionAlpha, float backgroundTransitionAlpha)
         {
             //base.Draw();
 
@@ -103,7 +103,7 @@ namespace Sandbox.Graphics.GUI
                     MyGuiManager.DrawSpriteBatch(MyGuiConstants.BLANK_TEXTURE,
                         MyGuiManager.MouseCursorPosition,
                         Size,
-                        ApplyColorMaskModifiers(ColorMask * new Color(50, 66, 70, 255).ToVector4(), true, transitionAlpha), MyGuiDrawAlignEnum.HORISONTAL_CENTER_AND_VERTICAL_CENTER);
+                        ApplyColorMaskModifiers(ColorMask * new Color(50, 66, 70, 255).ToVector4(), true, backgroundTransitionAlpha), MyGuiDrawAlignEnum.HORISONTAL_CENTER_AND_VERTICAL_CENTER);
                 }
 
                 Vector2 itemPosition = MyGuiManager.MouseCursorPosition - Size / 2.0f;

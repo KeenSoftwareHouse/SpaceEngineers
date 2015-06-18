@@ -35,7 +35,7 @@ namespace Sandbox.Engine.Voxels
         }
 
         public Vector3 PositionScale;
-        public Vector3 PositionOffset;
+        public Vector3D PositionOffset;
 
         void IMyIsoMesherOutputBuffer.Reserve(int vertexCount, int triangleCount)
         {

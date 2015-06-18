@@ -42,6 +42,9 @@ namespace Sandbox.Engine.Utils
             Debug.Assert(slimBlock.BlockDefinition.Points > 0);
             ulong pts = (ulong)(slimBlock.BlockDefinition.Points > 0 ? slimBlock.BlockDefinition.Points : 1);
 
+            if (slimBlock.BlockDefinition.IsGeneratedBlock)
+                pts = 0;
+
             // Get points from container items
             IMyInventoryOwner inventoryOwner = slimBlock.FatBlock as IMyInventoryOwner;
             if (inventoryOwner != null)
@@ -120,6 +123,9 @@ namespace Sandbox.Engine.Utils
                 Debug.Fail("No cube block definition found to get battle points");
                 return 0;
             }
+
+            if (definition.IsGeneratedBlock)
+                return 0;
 
             Debug.Assert(definition.Points > 0);
             return (ulong)(definition.Points > 0 ? definition.Points : 1);

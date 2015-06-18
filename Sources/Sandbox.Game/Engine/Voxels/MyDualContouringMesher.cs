@@ -105,9 +105,9 @@ namespace Sandbox.Engine.Voxels
                     vertexCells[i] += vertexCellOffset;
                 }
 
-                float numCellsHalf = 0.5f * (m_cache.Size3D.X - 3);
-                m_buffer.PositionOffset = (vertexCellOffset + numCellsHalf) * voxelSize;
-                m_buffer.PositionScale = new Vector3(numCellsHalf * voxelSize);
+                double numCellsHalf = 0.5 * (m_cache.Size3D.X - 3);
+                m_buffer.PositionOffset = ((Vector3D)vertexCellOffset + numCellsHalf) * (double)voxelSize;
+                m_buffer.PositionScale = new Vector3((float)(numCellsHalf * voxelSize));
             }
             ProfilerShort.End();
 

@@ -41,6 +41,7 @@ namespace VRage
             NPC = 4,         // Obsolete, use IDENTITY instead
             SPAWN_GROUP = 5, // Obsolete, use IDENTITY instead
             ASTEROID = 6,
+            PLANET = 7,
         }
 
         public enum ID_ALLOCATION_METHOD : byte

@@ -42,6 +42,7 @@ namespace SpaceEngineers.Game.GUI
         MyGuiControlTable m_respawnsTable;
         MyGuiControlButton m_respawnButton;
         MyGuiControlButton m_refreshButton;
+        MyGuiControlMultilineText m_noRespawnText;
 
         MyGuiControlMultilineText m_multilineRespawnWhenShipReady;
         MyRespawnShipDefinition m_selectedRespawnShip;
@@ -145,6 +146,15 @@ namespace SpaceEngineers.Game.GUI
                           );
             Controls.Add(m_refreshButton);
 
+            m_noRespawnText = new MyGuiControlMultilineText(
+                            position: new Vector2(-0.02f, -0.19f),
+                            size: new Vector2(0.32f, 0.5f),
+                            contents: MyTexts.Get(MySpaceTexts.ScreenMedicals_NoRespawnPossible),
+                            textAlign: MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_TOP,
+                            font: MyFontEnum.Red
+                            );
+            Controls.Add(m_noRespawnText);
+
             RefreshRespawnPoints();
         }
 
@@ -163,6 +173,12 @@ namespace SpaceEngineers.Game.GUI
             {
                 m_respawnsTable.SelectedRowIndex = 0;
                 OnTableItemSelected(null, new MyGuiControlTable.EventArgs());
+
+                m_noRespawnText.Visible = false;
+            }
+            else
+            {
+                m_noRespawnText.Visible = true;
             }
         }
 
@@ -302,11 +318,11 @@ namespace SpaceEngineers.Game.GUI
 
         public override bool Update(bool hasFocus)
         {
-            if (m_respawnsTable.RowsCount == 0 && State != MyGuiScreenState.CLOSING && MySession.LocalHumanPlayer != null)
+            /*if (m_respawnsTable.RowsCount == 0 && State != MyGuiScreenState.CLOSING && MySession.LocalHumanPlayer != null)
             {
                 MyPlayerCollection.RespawnRequest(joinGame: true, newPlayer: true, medicalId: 0, shipPrefabId: null);
                 CloseScreen();
-            }
+            }*/
 
             UpdateSpawnShipTimes();
             bool retval = base.Update(hasFocus);

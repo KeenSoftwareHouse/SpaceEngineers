@@ -403,6 +403,7 @@ namespace VRageRender
           CullingOptions cullingOptions,
           float atmosphereRadius,
           float planetRadius,
+          Vector3 atmosphereWavelengths,
           float dithering = 0,
           float maxViewDistance = float.MaxValue
           )
@@ -420,6 +421,7 @@ namespace VRageRender
             message.MaxViewDistance = maxViewDistance;
             message.AtmosphereRadius = atmosphereRadius;
             message.PlanetRadius = planetRadius;
+            message.AtmosphereWavelengths = atmosphereWavelengths;
 
             EnqueueMessage(message);
 
@@ -777,7 +779,8 @@ namespace VRageRender
             Vector3D position,
             float atmosphereRadius = 0.0f,
             float planetRadius = 0.0f,
-            bool hasAtmosphere = false)
+            bool hasAtmosphere = false,
+            Vector3? atmosphereWaveLenghts = null)
         {
             var message = MessagePool.Get<MyRenderMessageCreateClipmap>(MyRenderMessageEnum.CreateClipmap);
 
@@ -790,6 +793,7 @@ namespace VRageRender
             message.PlanetRadius = planetRadius;
             message.HasAtmosphere = hasAtmosphere;
             message.Position = position;
+            message.AtmosphereWaveLenghts = atmosphereWaveLenghts;
             EnqueueMessage(message);
 
             return clipmapId;
@@ -799,7 +803,7 @@ namespace VRageRender
             uint clipmapId,
             MyCellCoord cell,
             List<MyClipmapCellBatch> batches,
-            Vector3 positionOffset,
+            Vector3D positionOffset,
             Vector3 positionScale,
             BoundingBox meshAabb)
         {

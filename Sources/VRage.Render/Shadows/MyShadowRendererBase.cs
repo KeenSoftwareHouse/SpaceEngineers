@@ -140,6 +140,17 @@ namespace VRageRender.Shadows
                     effect.SetWorldMatrix((Matrix)renderElement.WorldMatrix);
                 }
 
+                if (voxelShadows)
+                {
+                    var voxelCell = renderElement.RenderObject as MyRenderVoxelCell;
+                    if (voxelCell != null)
+                    {
+                        MyRenderVoxelCell.EffectArgs args;
+                        voxelCell.GetEffectArgs(out args);
+                        effect.VoxelVertex.SetArgs(ref args);
+                    }
+                }
+
                 var skinMatrices = skinnedShadows ? ((MyRenderCharacter)renderElement.RenderObject).SkinMatrices : null;
                 if (skinMatrices != null)
                 {

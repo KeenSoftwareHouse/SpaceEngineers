@@ -40,7 +40,8 @@ namespace Sandbox.Game.Weapons
         protected int m_lastTimeShoot;        //  When was this gun last time shooting
 
         MyGunBase m_gunBase;
-       
+
+		public bool IsDeconstructor { get { return false; } }
         bool m_shoot = false;
         Vector3 m_shootDirection;
 

@@ -56,29 +56,29 @@ namespace Sandbox.Game.Entities
         #region Spawn
         public static MyEntity SpawnRandomSmall(Vector3 position, Vector3 direction)
         {
-            MyInventoryItem i = new MyInventoryItem(4 * (MyFixedPoint)MyUtils.GetRandomFloat(10f, 100f), MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_Ore>("Stone"));
+            MyPhysicalInventoryItem i = new MyPhysicalInventoryItem(4 * (MyFixedPoint)MyUtils.GetRandomFloat(10f, 100f), MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_Ore>("Stone"));
             return Spawn(ref i, position, direction * (MIN_SPEED + MyUtils.GetRandomInt(MIN_SPEED / 2)));
         }
 
         public static MyEntity SpawnRandomLarge(Vector3 position, Vector3 direction)
         {
-            MyInventoryItem i = new MyInventoryItem(400 * (MyFixedPoint)MyUtils.GetRandomFloat(0f, 25f), MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_Ore>("Stone"));
+            MyPhysicalInventoryItem i = new MyPhysicalInventoryItem(400 * (MyFixedPoint)MyUtils.GetRandomFloat(0f, 25f), MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_Ore>("Stone"));
             return Spawn(ref i, position, direction * (MIN_SPEED + MyUtils.GetRandomInt(MIN_SPEED / 2)));
         }
 
         public static MyEntity SpawnRandomStaticLarge(Vector3 position)
         {
-            MyInventoryItem i = new MyInventoryItem(400 * (MyFixedPoint)MyUtils.GetRandomFloat(0f, 25f), MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_Ore>("Stone"));
+            MyPhysicalInventoryItem i = new MyPhysicalInventoryItem(400 * (MyFixedPoint)MyUtils.GetRandomFloat(0f, 25f), MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_Ore>("Stone"));
             return Spawn(ref i, position, Vector3.Zero);
         }
 
         public static MyEntity SpawnRandomStaticSmall(Vector3 position)
         {
-            MyInventoryItem i = new MyInventoryItem(4 * (MyFixedPoint)MyUtils.GetRandomFloat(0f, 100f), MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_Ore>("Stone"));
+            MyPhysicalInventoryItem i = new MyPhysicalInventoryItem(4 * (MyFixedPoint)MyUtils.GetRandomFloat(0f, 100f), MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_Ore>("Stone"));
             return Spawn(ref i, position, Vector3.Zero);
         }
 
-        public static MyEntity Spawn(ref MyInventoryItem item, Vector3 position, Vector3 speed)
+        public static MyEntity Spawn(ref MyPhysicalInventoryItem item, Vector3 position, Vector3 speed)
         {
             var builder = PrepareBuilder(ref item);
             var meteorEntity = MyEntities.CreateFromObjectBuilder(builder);
@@ -100,7 +100,7 @@ namespace Sandbox.Game.Entities
             return meteorEntity;
         }
 
-        private static MyObjectBuilder_Meteor PrepareBuilder(ref MyInventoryItem item)
+        private static MyObjectBuilder_Meteor PrepareBuilder(ref MyPhysicalInventoryItem item)
         {
             var meteorBuilder = MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_Meteor>();
             meteorBuilder.Item = item.GetObjectBuilder();
@@ -148,7 +148,7 @@ namespace Sandbox.Game.Entities
         {
             internal MyMeteor Entity { get { return Container != null ? Container.Entity as MyMeteor : null; } }
 
-            public MyInventoryItem Item;
+            public MyPhysicalInventoryItem Item;
             public Definitions.MyVoxelMaterialDefinition VoxelMaterial { get; set; }
             private bool InParticleVisibleRange { get { return (MySector.MainCamera.Position - Entity.WorldMatrix.Translation).Length() < 2500; } }
             private StringBuilder m_textCache;
@@ -177,7 +177,7 @@ namespace Sandbox.Game.Entities
                 Entity.SyncObject.UpdatePosition();
 
                 var builder = (MyObjectBuilder_Meteor)objectBuilder;
-                Item = new MyInventoryItem(builder.Item);
+                Item = new MyPhysicalInventoryItem(builder.Item);
                 m_particleEffectId = MySession.Static.EnvironmentHostility == MyEnvironmentHostilityEnum.CATACLYSM_UNREAL ? (int)MyParticleEffectsIDEnum.MeteorTrail_FireAndSmoke : (int)MyParticleEffectsIDEnum.MeteorParticle;
                 InitInternal();
 
@@ -368,9 +368,13 @@ namespace Sandbox.Game.Entities
                     return;
                 IMyEntity other = GetOtherEntity(ref value.ContactPointEvent);
                 if (Sync.IsServer)
-                    if (other is MyCubeGrid && MySession.Static.DestructibleBlocks)
+                    if (other is MyCubeGrid)
                     {
-                        DestroyGrid(ref value, other as MyCubeGrid);
+                        var grid = other as MyCubeGrid;
+                        if (grid.BlocksDestructionEnabled)
+                        {
+                            DestroyGrid(ref value, grid);
+                        }
                     }
                     else if (other is MyCharacter)
                     {
@@ -451,7 +455,7 @@ namespace Sandbox.Game.Entities
                         }
                         material = MyDefinitionManager.Static.GetVoxelMaterialDefinitions().ElementAt(MyUtils.GetRandomInt(MyDefinitionManager.Static.GetVoxelMaterialDefinitions().Count() - 1));
                     }
-                    voxel.SyncObject.CreateVoxelMeteorCrater(sphere.Center, (float)sphere.Radius, -direction, material);
+                    voxel.GetSyncObject.CreateVoxelMeteorCrater(sphere.Center, (float)sphere.Radius, -direction, material);
                     MyVoxelGenerator.MakeCrater(voxel, sphere, -direction, material);
                 }
                 m_closeAfterSimulation = true;

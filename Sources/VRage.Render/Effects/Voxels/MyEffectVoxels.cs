@@ -8,8 +8,38 @@ namespace VRageRender.Effects
     using Matrix = VRageMath.Matrix;
     using System.Diagnostics;
 
+    struct MyEffectComponentVoxelVertex
+    {
+        readonly Effect m_effect;
+        readonly EffectHandle m_cellOffset;
+        readonly EffectHandle m_cellScale;
+        readonly EffectHandle m_cellRelativeCamera;
+        readonly EffectHandle m_bounds;
+        readonly EffectHandle m_morphDebug;
+
+        public MyEffectComponentVoxelVertex(Effect effect)
+        {
+            m_effect = effect;
+
+            m_cellOffset         = effect.GetParameter(null, "VoxelVertex_CellOffset");
+            m_cellScale          = effect.GetParameter(null, "VoxelVertex_CellScale");
+            m_cellRelativeCamera = effect.GetParameter(null, "VoxelVertex_CellRelativeCamera");
+            m_bounds             = effect.GetParameter(null, "VoxelVertex_Bounds");
+            m_morphDebug         = effect.GetParameter(null, "VoxelVertex_MorphDebug");
+        }
+
+        public void SetArgs(ref MyRenderVoxelCell.EffectArgs args)
+        {
+            m_effect.SetValue(m_cellOffset, args.CellOffset);
+            m_effect.SetValue(m_cellScale, args.CellScale);
+            m_effect.SetValue(m_cellRelativeCamera, args.CellRelativeCamera);
+            m_effect.SetValue(m_bounds, args.Bounds);
+            m_effect.SetValue(m_morphDebug, args.MorphDebug);
+        }
+    }
+
     class MyEffectVoxels : MyEffectVoxelsBase
-    {    
+    {
         readonly EffectHandle m_viewMatrix;
         readonly EffectHandle m_diffuseColor;
         
@@ -27,6 +57,8 @@ namespace VRageRender.Effects
 
         readonly EffectHandle m_hasAtmosphere;
 
+        public readonly MyEffectComponentVoxelVertex VoxelVertex;
+
         public MyEffectVoxels()
             : base("Effects2\\Voxels\\MyEffectVoxels")
         {
@@ -41,10 +73,12 @@ namespace VRageRender.Effects
             m_enableFog = m_D3DEffect.GetParameter(null, "EnableFog");
             m_ambientMinimumAndIntensity = m_D3DEffect.GetParameter(null, "AmbientMinimumAndIntensity");
             m_sunSpecularColor = m_D3DEffect.GetParameter(null, "LightSpecularColor");
-            
+
             m_positionToLefBottomOffset = m_D3DEffect.GetParameter(null, "PositionToLefBottomOffset");
 
             m_hasAtmosphere = m_D3DEffect.GetParameter(null, "HasAtmosphere");
+
+            VoxelVertex = new MyEffectComponentVoxelVertex(m_D3DEffect);
         }
 
         public void EnablePerVertexAmbient(bool bEnable)

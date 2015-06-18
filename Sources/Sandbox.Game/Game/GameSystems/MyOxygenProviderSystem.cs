@@ -23,7 +23,7 @@ namespace Sandbox.Game.GameSystems
                 }
             }
 
-            return resultOxygen;
+            return MathHelper.Saturate(resultOxygen);
         }
      
         public static void AddOxygenGenerator(IMyOxygenProvider gravityGenerator)

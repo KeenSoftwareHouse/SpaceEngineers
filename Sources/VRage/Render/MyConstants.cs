@@ -181,7 +181,7 @@ namespace VRageRender
                 LodClipmapRanges = new float[][]
                 { // base was 32f * 4f
                     new float[] { 100f, 300f, 800f, 2000f, 6000f, 18000f, 35000f, 100000f, },
-                    new float[] { 40f, 120f, 300f, 800f, 2400f, 5000f, },
+                    new float[] { 66f, },
                 },
 
                 // No need to set, env maps enabled only on high and extreme
@@ -259,7 +259,7 @@ namespace VRageRender
                 LodClipmapRanges = new float[][]
                 { // base was 32f * 2f
                     new float[] { 80f, 240f, 600f, 1600f, 4800f, 14000f, 35000f, 100000f, },
-                    new float[] { 40f, 120f, 300f, 800f, 2400f, 5000f, }, 
+                    new float[] { 66f, },
                 },
 
                 // No need to set, env maps enabled only on high and extreme
@@ -335,7 +335,7 @@ namespace VRageRender
                 LodClipmapRanges = new float[][]
                 { // base was 32f * 6f
                     new float[] { 120f, 360f, 900f, 2000f, 6000f, 18000f, 35000f, 100000f, },
-                    new float[] { 40f, 120f, 300f, 800f, 2400f, 5000f, }
+                    new float[] { 66f, },
                 },
 
                 EnvironmentLodTransitionDistance = 40,
@@ -410,7 +410,7 @@ namespace VRageRender
                 LodClipmapRanges = new float[][]
                 { // base was 32f * 8f
                     new float[] { 140f, 400f, 1000f, 2000f, 6000f, 18000f, 35000f, 100000f, },
-                    new float[] { 40f, 120f, 300f, 800f, 2400f, 5000f, },
+                    new float[] { 66f, },
                 },
 
                 EnvironmentLodTransitionDistance = 50,

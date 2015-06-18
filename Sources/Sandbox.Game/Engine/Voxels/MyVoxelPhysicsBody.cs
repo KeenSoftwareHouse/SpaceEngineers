@@ -29,7 +29,7 @@ namespace Sandbox.Engine.Voxels
         internal HashSet<Vector3I> InvalidCells = new HashSet<Vector3I>(Vector3I.Comparer);
         internal MyPrecalcJobPhysicsBatch RunningBatchTask;
 
-        public readonly MyVoxelMap m_voxelMap;
+        public readonly MyVoxelBase m_voxelMap;
         private bool m_needsShapeUpdate;
         private HkpAabbPhantom m_aabbPhantom;
         private readonly HashSet<IMyEntity> m_nearbyEntities = new HashSet<IMyEntity>();
@@ -45,8 +45,11 @@ namespace Sandbox.Engine.Voxels
 
         private readonly Vector3I m_cellsOffset = new Vector3I(0, 0, 0);
 
-        internal MyVoxelPhysicsBody(MyVoxelMap voxelMap): base(voxelMap, RigidBodyFlag.RBF_STATIC)
+        float m_phantomExtend = 0.0f;
+
+        internal MyVoxelPhysicsBody(MyVoxelBase voxelMap,float phantomExtend): base(voxelMap, RigidBodyFlag.RBF_STATIC)
         {
+            m_phantomExtend = phantomExtend;
             m_voxelMap = voxelMap;
             Vector3I storageSize = m_voxelMap.Size;
             Vector3I numCels = storageSize >> MyVoxelConstants.GEOMETRY_CELL_SIZE_IN_VOXELS_BITS;
@@ -168,17 +171,10 @@ namespace Sandbox.Engine.Voxels
                 {
                     InvalidCells.Add(tmpBuffer[i]);
                 }
-                if (RunningBatchTask != null)
+                if (RunningBatchTask == null && InvalidCells.Count != 0)
                 {
-                    RunningBatchTask.Cancel();
-                    foreach (var oldInvalidCell in RunningBatchTask.CellBatch)
-                    {
-                        InvalidCells.Add(oldInvalidCell);
-                    }
-                    RunningBatchTask = null;
-                }
-                if (InvalidCells.Count != 0)
                     MyPrecalcComponent.PhysicsWithInvalidCells.Add(this);
+                }
             }
 
             var cell = minCellChanged;
@@ -260,10 +256,10 @@ namespace Sandbox.Engine.Voxels
 
         private Vector3 ComputePredictionOffset(IMyEntity entity)
         {
-            return entity.Physics.LinearVelocity * 3.0f;
+            return entity.Physics.LinearVelocity  * 3.0f;
         }
 
-        internal new void DebugDraw()
+        public override void DebugDraw()
         {
             if (MyDebugDrawSettings.DEBUG_DRAW_VOXEL_PHYSICS_PREDICTION)
             {
@@ -316,6 +312,8 @@ namespace Sandbox.Engine.Voxels
                     shape.SetChild(coord.X, coord.Y, coord.Z, childShape, HkReferencePolicy.None);
                 }
                 m_needsShapeUpdate = true;
+                if (InvalidCells.Count != 0)
+                    MyPrecalcComponent.PhysicsWithInvalidCells.Add(this);
             }
         }
 
@@ -416,7 +414,7 @@ namespace Sandbox.Engine.Voxels
             {
                 var center = GetRigidBodyMatrix().Translation + m_voxelMap.SizeInMetresHalf;
                 var size = m_voxelMap.SizeInMetres;
-                size *= 3;
+                size *= m_phantomExtend;
                 m_aabbPhantom.Aabb = new BoundingBox(center - 0.5f * size, center + 0.5f * size);
                 MyTrace.Send(TraceWindow.Analytics, "AddPhantom-before");
                 HavokWorld.AddPhantom(m_aabbPhantom);

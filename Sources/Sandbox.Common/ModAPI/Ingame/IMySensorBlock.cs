@@ -19,6 +19,7 @@ namespace Sandbox.ModAPI.Ingame
         float FrontExtend { get; }
         float BackExtend { get; }
 
+        bool PlayProximitySound { get; }
         bool DetectPlayers { get; }
         bool DetectFloatingObjects { get; }
         bool DetectSmallShips { get; }

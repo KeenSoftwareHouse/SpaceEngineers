@@ -86,6 +86,8 @@ namespace Sandbox.Engine.Networking
                 var worldId      = root.Element("WorldID");
                 var workshopId   = root.Element("WorkshopId");
                 var briefing = root.Element("Briefing");
+                var settings = root.Element("Settings");
+                var scenarioEdit = settings != null ? root.Element("Settings").Element("ScenarioEditMode") : null;
 
                 worldInfo = new MyWorldInfo();
 
@@ -102,6 +104,8 @@ namespace Sandbox.Engine.Networking
                 }
                 if (briefing != null)
                     worldInfo.Briefing = briefing.Value;
+                if (scenarioEdit != null)
+                    bool.TryParse(scenarioEdit.Value, out worldInfo.ScenarioEditMode);
             }
             catch (Exception ex)
             {

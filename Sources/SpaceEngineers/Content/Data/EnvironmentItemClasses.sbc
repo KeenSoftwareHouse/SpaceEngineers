@@ -1,0 +1,58 @@
+<?xml version="1.0"?>
+<Definitions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <EnvironmentItemsDefinitions>
+    <Definition>
+      <Id>
+        <TypeId>MyObjectBuilder_Trees</TypeId>
+        <SubtypeId>Trees</SubtypeId>
+      </Id>
+      <Channel>3</Channel>
+      <MaxViewDistance>500</MaxViewDistance>
+      <SectorSize>150</SectorSize>
+      <PhysicalMaterial>Wood</PhysicalMaterial>
+      <ItemSize>20</ItemSize>
+    </Definition>    
+    
+    <Definition>
+      <Id>
+        <TypeId>MyObjectBuilder_Trees</TypeId>
+        <SubtypeId>TreesMedium</SubtypeId>
+      </Id>
+      <Channel>2</Channel>
+      <MaxViewDistance>100</MaxViewDistance>
+      <SectorSize>150</SectorSize>
+      <PhysicalMaterial>Wood</PhysicalMaterial>
+      <ItemSize>12</ItemSize>
+    </Definition>    
+    
+    <Definition>
+      <Id>
+        <TypeId>MyObjectBuilder_DestroyableItems</TypeId>
+        <SubtypeId>Bushes</SubtypeId>
+      </Id>
+      <Channel>1</Channel>
+      <MaxViewDistance>50</MaxViewDistance>
+      <SectorSize>150</SectorSize>
+      <PhysicalMaterial>Wood</PhysicalMaterial>
+      <ItemSize>8</ItemSize>
+    </Definition>    
+  </EnvironmentItemsDefinitions>
+  
+  <EnvironmentItemsEntries>
+    <Entry Type="MyObjectBuilder_Trees" Subtype="Trees" ItemSubtype="Tree02_v2" />
+    <Entry Type="MyObjectBuilder_Trees" Subtype="Trees" ItemSubtype="Tree03_v2" />
+    <Entry Type="MyObjectBuilder_Trees" Subtype="Trees" ItemSubtype="Tree04_v2" />
+    <Entry Type="MyObjectBuilder_Trees" Subtype="Trees" ItemSubtype="Tree05_v2" />
+    <Entry Type="MyObjectBuilder_Trees" Subtype="Trees" ItemSubtype="Tree06_v2" />
+    
+    <Entry Type="MyObjectBuilder_Trees" Subtype="TreesMedium" ItemSubtype="TreeMedium_4m" />
+    <Entry Type="MyObjectBuilder_Trees" Subtype="TreesMedium" ItemSubtype="TreeMedium_6m" />
+    <Entry Type="MyObjectBuilder_Trees" Subtype="TreesMedium" ItemSubtype="TreeMedium_8m" />
+    
+    <Entry Type="MyObjectBuilder_DestroyableItems" Subtype="Bushes" ItemSubtype="Small_tree_01" />
+    <Entry Type="MyObjectBuilder_DestroyableItems" Subtype="Bushes" ItemSubtype="Bigger_tree_01" />
+    <Entry Type="MyObjectBuilder_DestroyableItems" Subtype="Bushes" ItemSubtype="Bushes_01" />
+    <Entry Type="MyObjectBuilder_DestroyableItems" Subtype="Bushes" ItemSubtype="Mushrooms_01" />
+    
+  </EnvironmentItemsEntries>
+</Definitions>

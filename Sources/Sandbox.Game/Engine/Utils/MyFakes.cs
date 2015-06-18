@@ -106,7 +106,7 @@ namespace Sandbox.Engine.Utils
 
         public static bool ENABLE_NEW_SOUNDS = false;
 
-        public static bool ENABLE_NON_PUBLIC_BLOCKS = true;
+        public static bool ENABLE_NON_PUBLIC_BLOCKS = false;
 
         public static bool ENABLE_COLOR_MASK_FOR_EVERYTHING = false;
 
@@ -485,7 +485,7 @@ namespace Sandbox.Engine.Utils
 
         public static bool ENABLE_BONES_AND_ANIMATIONS_DEBUG = false;
 
-        public static bool ENABLE_MISSION_TRIGGERS = false;
+        public static bool ENABLE_MISSION_TRIGGERS = true;
 
         public static bool ENABLE_RAGDOLL_DEFAULT_PROPERTIES = false;
 
@@ -530,7 +530,14 @@ namespace Sandbox.Engine.Utils
 
         public static bool MANIPULATION_TOOL_VELOCITY_LIMIT = false;
 
-        public static bool ENABLE_GATHERING = false;
+        public static bool ENABLE_GATHERING = true;
+        
+        public static string QUICK_LAUNCH_SCENARIO = String.Empty;
 
+        public static bool ENABLE_DEBUG_DRAW_GENERATING_BLOCK = false;
+        
+        public static bool ENABLE_MEDIEVAL_INVENTORY = false;
+
+        public static bool ENABLE_PLANETS = false;
     }
 }

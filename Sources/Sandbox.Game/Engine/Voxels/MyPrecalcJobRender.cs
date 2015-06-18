@@ -48,7 +48,7 @@ namespace Sandbox.Engine.Voxels
         private Args m_args;
         private volatile bool m_isCancelled;
 
-        private Vector3 m_positionOffset;
+        private Vector3D m_positionOffset;
         private Vector3 m_positionScale;
         private BoundingBox m_localBoundingBox;
 
@@ -75,7 +75,7 @@ namespace Sandbox.Engine.Voxels
             job.m_args = args;
             args.RenderWorkTracker.Add(args.WorkId, job);
 
-            MyPrecalcComponent.EnqueueBack(job, job.m_args.IsHighPriority);
+            MyPrecalcComponent.EnqueueBack(job, false /*job.m_args.IsHighPriority*/);
         }
 
         public override void DoWork()
@@ -197,7 +197,7 @@ namespace Sandbox.Engine.Voxels
             MyIsoMesh highResMesh,
             MyIsoMesh lowResMesh,
             List<MyClipmapCellBatch> outBatches,
-            out Vector3 positionOffset,
+            out Vector3D positionOffset,
             out Vector3 positionScale,
             out BoundingBox localBoundingBox)
         {
@@ -225,7 +225,7 @@ namespace Sandbox.Engine.Voxels
                      */
                     Vector3 morphOffset, morphScale;
                     morphScale = lowResMesh.PositionScale / highResMesh.PositionScale;
-                    morphOffset = (lowResMesh.PositionOffset - highResMesh.PositionOffset) / highResMesh.PositionScale;
+                    morphOffset = (Vector3)(lowResMesh.PositionOffset - highResMesh.PositionOffset) / highResMesh.PositionScale;
                     for (int i = 0; i < lowResMesh.VerticesCount; ++i)
                     {
                         var vertex = new Vertex
@@ -490,7 +490,7 @@ namespace Sandbox.Engine.Voxels
             m_collisionList.Clear();
         }
 
-        private void ProcessVertex(MyIsoMesh mesh, int vertexIndex, ref BoundingBox localAabb, ref Vector3 positionScale, ref Vector3 positionOffset, out MyVoxelVertex vertex)
+        private void ProcessVertex(MyIsoMesh mesh, int vertexIndex, ref BoundingBox localAabb, ref Vector3 positionScale, ref Vector3D positionOffset, out MyVoxelVertex vertex)
         {
             vertex.Position = mesh.Positions[vertexIndex];
             vertex.Normal = mesh.Normals[vertexIndex];

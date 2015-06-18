@@ -87,9 +87,9 @@ namespace Sandbox.Graphics.GUI
             //base.OnRemoving();
         }
 
-        public override void Draw(float transitionAlpha)
+        public override void Draw(float transitionAlpha, float backgroundTransitionAlpha)
         {
-            base.Draw(transitionAlpha);
+            base.Draw(transitionAlpha, backgroundTransitionAlpha);
         }
 
         public override MyGuiControlBase HandleInput()

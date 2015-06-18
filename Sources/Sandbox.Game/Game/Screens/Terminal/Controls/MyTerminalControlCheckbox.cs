@@ -1,5 +1,4 @@
-﻿
-using Sandbox.Game.Entities.Cube;
+﻿using Sandbox.Game.Entities.Cube;
 using Sandbox.Graphics.GUI;
 using System;
 using System.Collections.Generic;
@@ -10,12 +9,11 @@ using Sandbox.Game.Screens.Terminal.Controls;
 using VRage.Utils;
 using Sandbox.Game.Localization;
 using VRage;
-using VRage.Utils;
 using VRage.Library.Utils;
 
 namespace Sandbox.Game.Gui
 {
-    class MyTerminalControlCheckbox<TBlock> : MyTerminalValueControl<TBlock, bool>
+    public class MyTerminalControlCheckbox<TBlock> : MyTerminalValueControl<TBlock, bool>
         where TBlock : MyTerminalBlock
     {
         Action<TBlock> m_action;

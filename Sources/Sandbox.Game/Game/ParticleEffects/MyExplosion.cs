@@ -379,7 +379,7 @@ namespace Sandbox.Game
 
             ApplyExplosionOnEntities(ref m_explosionInfo, entities);
 
-            if (((m_explosionInfo.ExplosionFlags & MyExplosionFlags.APPLY_DEFORMATION) == MyExplosionFlags.APPLY_DEFORMATION) && MySession.Static.DestructibleBlocks)
+            if (((m_explosionInfo.ExplosionFlags & MyExplosionFlags.APPLY_DEFORMATION) == MyExplosionFlags.APPLY_DEFORMATION))
             {
                 gridWasHit = ApplyExplosionOnGrid(ref m_explosionInfo, ref influenceExplosionSphere, entities);
             }
@@ -458,20 +458,18 @@ namespace Sandbox.Game
             ApplyExplosionOnVoxel(ref m_explosionInfo);
 
             var damageInfo = ApplyVolumetricExplosionOnGrid(ref m_explosionInfo, ref influenceExplosionSphere, entities);
-            if (MySession.Static.DestructibleBlocks)
+            if ((m_explosionInfo.ExplosionFlags & MyExplosionFlags.APPLY_DEFORMATION) == MyExplosionFlags.APPLY_DEFORMATION)
             {
-                if ((m_explosionInfo.ExplosionFlags & MyExplosionFlags.APPLY_DEFORMATION) == MyExplosionFlags.APPLY_DEFORMATION)
-                {
-                    damageInfo.ExplosionDamage.ComputeDamagedBlocks();
-                    gridWasHit = damageInfo.GridWasHit;
-                    ApplyVolumetriDamageToGrid(damageInfo);
-                }
+                damageInfo.ExplosionDamage.ComputeDamagedBlocks();
+                gridWasHit = damageInfo.GridWasHit;
+                ApplyVolumetriDamageToGrid(damageInfo);
             }
-            else
+
+            if (m_explosionInfo.HitEntity is MyWarhead)
             {
-                if (m_explosionInfo.HitEntity is MyWarhead)
+                var warhead = (m_explosionInfo.HitEntity as MyWarhead).SlimBlock;
+                if (!warhead.CubeGrid.BlocksDestructionEnabled)
                 {
-                    var warhead = (m_explosionInfo.HitEntity as MyWarhead).SlimBlock;
                     warhead.CubeGrid.RemoveDestroyedBlock(warhead);
                     foreach (var neighbour in warhead.Neighbours)
                     {
@@ -596,7 +594,7 @@ namespace Sandbox.Game
 
                     if (explosionInfo.HitEntity != null) // but not when we hit prefab
                     {
-                        createDebris &= explosionInfo.HitEntity is MyVoxelMap;
+                        createDebris &= explosionInfo.HitEntity is MyVoxelBase;
                     }
 
                     createDebris &= explosionInfo.CreateDebris && (createDebris || explosionInfo.ForceDebris);
@@ -604,7 +602,7 @@ namespace Sandbox.Game
                     CutOutVoxelMap((float)m_explosionSphere.Radius * explosionInfo.VoxelCutoutScale, explosionInfo.VoxelExplosionCenter, voxelMap, createDebris);
 
                     //Sync
-                    voxelMap.SyncObject.RequestVoxelCutoutSphere(explosionInfo.VoxelExplosionCenter, (float)m_explosionSphere.Radius * explosionInfo.VoxelCutoutScale, createDebris);
+                    voxelMap.GetSyncObject.RequestVoxelCutoutSphere(explosionInfo.VoxelExplosionCenter, (float)m_explosionSphere.Radius * explosionInfo.VoxelCutoutScale, createDebris);
                 }
                 VRageRender.MyRenderProxy.GetRenderProfiler().EndProfilingBlock();
             }
@@ -670,7 +668,7 @@ namespace Sandbox.Game
             foreach (var entity in entities)
             {
                 MyCubeGrid grid = entity as MyCubeGrid;
-                if (grid != null)
+                if (grid != null && grid.BlocksDestructionEnabled)
                 {
                     var detectionHalfSize = grid.GridSize / 2 / 1.25f;
                     var invWorldGrid = MatrixD.Invert(grid.WorldMatrix);
@@ -877,6 +875,9 @@ namespace Sandbox.Game
                 {
                     var cubeBlock = damagedBlock.Key;
                     if (cubeBlock.FatBlock != null && cubeBlock.FatBlock.MarkedForClose)
+                        continue;
+
+                    if (!cubeBlock.CubeGrid.BlocksDestructionEnabled)
                         continue;
 
                     if (cubeBlock.FatBlock == null && cubeBlock.Integrity / cubeBlock.DeformationRatio < damagedBlock.Value)
