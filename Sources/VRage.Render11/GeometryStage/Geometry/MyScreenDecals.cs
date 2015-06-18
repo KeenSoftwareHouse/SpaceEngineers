@@ -68,7 +68,7 @@ namespace VRageRender
         internal static Dictionary<uint, List<int>> EntityDecals = new Dictionary<uint, List<int>>();
         internal static MyFreelist<MyScreenDecal> Decals = new MyFreelist<MyScreenDecal>(1024);
 
-        internal static Dictionary<MyStringId, MyDecalMaterial> Materials = new Dictionary<MyStringId, MyDecalMaterial>();
+        internal static Dictionary<MyStringId, MyDecalMaterial> Materials = new Dictionary<MyStringId, MyDecalMaterial>(MyStringId.Comparer);
 
         public static MyScreenDecalComparer DecalsMaterialComparer = new MyScreenDecalComparer(Decals);
 
@@ -159,7 +159,7 @@ namespace VRageRender
             Decals.Data[handle].ID = ID;
             Decals.Data[handle].ParentID = ParentID;
             Decals.Data[handle].LocalOBB = localOBB;
-            Decals.Data[handle].Material = MyStringId.GetOrCompute(material);
+            Decals.Data[handle].Material = X.TEXT(material);
 
             IdIndex[ID] = handle;
             
@@ -215,7 +215,7 @@ namespace VRageRender
 
             for(int i=0; i<names.Count; ++i)
             {
-                Materials[MyStringId.GetOrCompute(names[i])] = new MyDecalMaterial { 
+                Materials[X.TEXT(names[i])] = new MyDecalMaterial { 
                     DecalType = descriptions[i].DecalType,
                     NormalmapTexture = MyTextures.GetTexture(descriptions[i].NormalmapTexture, MyTextureEnum.NORMALMAP_GLOSS),
                     ColorMetalTexture = MyTextures.GetTexture(descriptions[i].ColorMetalTexture, MyTextureEnum.COLOR_METAL),

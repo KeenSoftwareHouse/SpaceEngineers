@@ -1313,13 +1313,21 @@ namespace Sandbox.Game.Entities
             }
         }
 
-        public void SwitchToWeapon(MyDefinitionId? weapon)
+        public void SwitchToWeapon(MyDefinitionId weapon)
         {
             if (m_enableShipControl)
             {
                 SwitchToWeaponInternal(weapon, true);
             }
         }
+
+		public void SwitchToWeapon(MyToolbarItemWeapon weapon)
+		{
+			if (m_enableShipControl)
+			{
+				SwitchToWeaponInternal((weapon != null ? weapon.Definition.Id : (MyDefinitionId?)null), true);
+			}
+		}
 
         public void RequestUse(UseActionEnum actionEnum, MyCharacter user)
         {
@@ -1702,7 +1710,10 @@ namespace Sandbox.Game.Entities
                 if (m_singleWeaponMode != value)
                 {
                     m_singleWeaponMode = value;
-                    SwitchToWeapon(m_selectedGunId);
+					if (m_selectedGunId.HasValue)
+						SwitchToWeapon(m_selectedGunId.Value);
+					else
+						SwitchToWeapon(null);
                 }
             }
         }

@@ -101,7 +101,7 @@ namespace Sandbox.Game.Gui
         private MyGuiScreenTerminal() :
             base(position: new Vector2(0.5f, 0.5f),
                  backgroundColor: MyGuiConstants.SCREEN_BACKGROUND_COLOR,
-                 size: new Vector2(0.99f, 0.9f))
+                 size: new Vector2(0.99f, 0.9f), backgroundTransition: MySandboxGame.Config.UIBkTransparency, guiTransition: MySandboxGame.Config.UITransparency)
         {
             EnabledBackgroundFade = true;
             m_closeHandler = OnInteractedClose;
@@ -1129,6 +1129,16 @@ namespace Sandbox.Game.Gui
                 infoPage.Controls.Add(nameTextBox);
                 infoPage.Controls.Add(renameButton);
             }
+
+            var setDestructibleBlocksLabel = new MyGuiControlLabel(new Vector2(0.15f, 0.28f), text: MyTexts.GetString(MySpaceTexts.TerminalTab_Info_DestructibleBlocks));
+            setDestructibleBlocksLabel.OriginAlign = MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_CENTER;
+            setDestructibleBlocksLabel.Visible = MySession.Static.Settings.ScenarioEditMode || MySession.Static.IsScenario;
+            infoPage.Controls.Add(setDestructibleBlocksLabel);
+
+            var setDestructibleBlocksBtn = new MyGuiControlCheckbox(new Vector2(0.45f, setDestructibleBlocksLabel.Position.Y), toolTip: MyTexts.GetString(MySpaceTexts.TerminalTab_Info_DestructibleBlocks_Tooltip));
+            setDestructibleBlocksBtn.OriginAlign = MyGuiDrawAlignEnum.HORISONTAL_RIGHT_AND_VERTICAL_CENTER;
+            setDestructibleBlocksBtn.Name = "SetDestructibleBlocks";
+            infoPage.Controls.Add(setDestructibleBlocksBtn);
         }
 
 		private static bool OnAntennaSliderClicked(MyGuiControlSlider arg)

@@ -55,9 +55,9 @@ namespace Sandbox.Graphics.GUI
             return ob;
         }
 
-        public override void Draw(float transitionAlpha)
+        public override void Draw(float transitionAlpha, float backgroundTransitionAlpha)
         {
-            base.Draw(transitionAlpha);
+            base.Draw(transitionAlpha, backgroundTransitionAlpha);
 
             // draw progress bar
             var progressFillSize = Size * (new Vector2(Value, 1.0f));

@@ -18,16 +18,14 @@ namespace VRage.Audio
             MyDefinitionErrors.Add(definition.Context, message, ErrorSeverity.Error);
         };
 
-        public static MyStringId GetCueId(this IMyAudio self, string cueName)
+        public static MyCueId GetCueId(this IMyAudio self, string cueName)
         {
-            if (self == null)
-                return MyStringId.NullOrEmpty;
-
-            MyStringId id;
-            if (MyStringId.TryGet(cueName, out id))
-                return id;
-
-            return MyStringId.NullOrEmpty;
+            MyStringHash hash;
+            if (self == null || !MyStringHash.TryGet(cueName, out hash))
+            {
+                hash = MyStringHash.NullOrEmpty;
+            }
+            return new MyCueId(hash);
         }
 
         internal static ListReader<MySoundData> GetSoundDataFromDefinitions()

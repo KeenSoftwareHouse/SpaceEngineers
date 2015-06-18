@@ -1165,10 +1165,10 @@
       <Loopable>true</Loopable>
       <Waves>
         <Wave Type="D2">
-          <Loop>ARC\WEP\ArcWepPlayRifleShotLoop2d.wav</Loop>
+          <Loop>ARC\WEP\ArcWepPlayRifleShotLoop2d.xwm</Loop>
         </Wave>
         <Wave Type="D3">
-          <Loop>ARC\WEP\ArcWepPlayRifleShotLoop3d.wav</Loop>
+          <Loop>ARC\WEP\ArcWepPlayRifleShotLoop3d.xwm</Loop>
         </Wave>
       </Waves>
     </Sound>
@@ -1393,7 +1393,7 @@
         </Wave>
       </Waves>
     </Sound>
-    <Sound>
+    <!--<Sound>
       <Id>
         <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
         <SubtypeId>ArcWepShipMissileFly</SubtypeId>
@@ -1407,7 +1407,7 @@
           <Loop>ARC\WEP\ArcWepShipMissileFlyLoop3d.xwm</Loop>
         </Wave>
       </Waves>
-    </Sound>
+    </Sound>-->
     <Sound>
       <Id>
         <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
@@ -3319,28 +3319,6 @@
     <Sound>
       <Id>
         <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
-        <SubtypeId>RealImpPlayerPlayer</SubtypeId>
-      </Id>
-      <Category>R_IMP</Category>
-      <MaxDistance>100</MaxDistance>
-      <Waves>
-        <Wave Type="D3">
-          <Start>Real\IMP\RealImpPlayerMetal3d01.wav</Start>
-        </Wave>
-        <Wave Type="D3">
-          <Start>Real\IMP\RealImpPlayerMetal3d02.wav</Start>
-        </Wave>
-        <Wave Type="D3">
-          <Start>Real\IMP\RealImpPlayerMetal3d03.wav</Start>
-        </Wave>
-        <Wave Type="D3">
-          <Start>Real\IMP\RealImpPlayerMetal3d04.wav</Start>
-        </Wave>
-      </Waves>
-    </Sound>
-    <Sound>
-      <Id>
-        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
         <SubtypeId>RealImpPlayerRock</SubtypeId>
       </Id>
       <Category>R_IMP</Category>
@@ -3663,11 +3641,11 @@
           <Loop>ARC\BLOCK\ArcBlockGravityGenLoop3d01.wav</Loop>
           <End>ARC\BLOCK\ArcBlockGravityGenEnd3d.wav</End>
         </Wave>
-        <Wave Type="D2">
+        <!--<Wave Type="D2">
           <Start>ARC\BLOCK\ArcBlockGravityGenStart2d.xwm</Start>
           <Loop>ARC\BLOCK\ArcBlockGravityGenLoop2d.xwm</Loop>
           <End>ARC\BLOCK\ArcBlockGravityGenEnd2d.xwm</End>
-        </Wave>
+        </Wave>-->
       </Waves>
     </Sound>
     <Sound>
@@ -3707,11 +3685,11 @@
           <Loop>ARC\BLOCK\ArcBlockRafineryLoop3d.xwm</Loop>
           <End>ARC\BLOCK\ArcBlockRafineryEnd3d.xwm</End>
         </Wave>
-        <Wave Type="D2">
+        <!--<Wave Type="D2">
           <Start>ARC\BLOCK\ArcBlockRafineryStart2d.xwm</Start>
           <Loop>ARC\BLOCK\ArcBlockRafineryLoop2d.xwm</Loop>
           <End>ARC\BLOCK\ArcBlockRafineryEnd2d.xwm</End>
-        </Wave>
+        </Wave>-->
       </Waves>
     </Sound>
     <Sound>
@@ -3746,11 +3724,11 @@
           <Loop>ARC\BLOCK\ArcBlockAssemblerLoop3d.xwm</Loop>
           <End>ARC\BLOCK\ArcBlockAssemblerEnd3d.xwm</End>
         </Wave>
-        <Wave Type="D2">
+        <!--<Wave Type="D2">
           <Start>ARC\BLOCK\ArcBlockAssemblerStart2d.xwm</Start>
           <Loop>ARC\BLOCK\ArcBlockAssemblerLoop2d.xwm</Loop>
           <End>ARC\BLOCK\ArcBlockAssemblerEnd2d.xwm</End>
-        </Wave>
+        </Wave>-->
       </Waves>
     </Sound>
     <Sound>
@@ -3860,11 +3838,11 @@
           <Loop>ARC\BLOCK\ArcBlockReactorLrgLoop3d.xwm</Loop>
           <End>ARC\BLOCK\ArcBlockReactorLrgEnd3d.xwm</End>
         </Wave>
-        <Wave Type="D2">
+        <!--<Wave Type="D2">
           <Start>ARC\BLOCK\ArcBlockMedicalProgressStart2d.xwm</Start>
           <Loop>ARC\BLOCK\ArcBlockMedicalProgressLoop2d.xwm</Loop>
           <End>ARC\BLOCK\ArcBlockMedicalProgressEnd2d.xwm</End>
-        </Wave>
+        </Wave>-->
       </Waves>
     </Sound>
     <Sound>
@@ -4249,37 +4227,37 @@
     <Sound>
       <Id>
         <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
-        <SubtypeId>ArcBlockCockpitLrg</SubtypeId>
+        <SubtypeId>BlockCockpitLrg</SubtypeId>
       </Id>
       <Category>BLOCK</Category>
-      <MaxDistance>22.0248051</MaxDistance>
-      <Volume>0.845168</Volume>
+      <MaxDistance>22</MaxDistance>
+      <Volume>0.9</Volume>
       <Loopable>true</Loopable>
       <Waves>
         <Wave Type="D2">
-          <Loop>ARC\BLOCK\ArcBlockCockpitLrgLoop2d.xwm</Loop>
+          <Loop>ARC\BLOCK\BlockCockpitSmLoop2d.wav</Loop>
         </Wave>
-        <Wave Type="D3">
+        <!--<Wave Type="D3">
           <Loop>ARC\BLOCK\ArcBlockCockpitLrgLoop3d.xwm</Loop>
-        </Wave>
+        </Wave>-->
       </Waves>
     </Sound>
     <Sound>
       <Id>
         <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
-        <SubtypeId>ArcBlockCockpitSm</SubtypeId>
+        <SubtypeId>BlockCockpitSm</SubtypeId>
       </Id>
       <Category>BLOCK</Category>
-      <MaxDistance>22.0248051</MaxDistance>
-      <Volume>0.845168</Volume>
+      <MaxDistance>22</MaxDistance>
+      <Volume>0.9</Volume>
       <Loopable>true</Loopable>
       <Waves>
         <Wave Type="D2">
-          <Loop>ARC\BLOCK\ArcBlockCockpitSmLoop2d.xwm</Loop>
+          <Loop>ARC\BLOCK\BlockCockpitSmLoop2d.wav</Loop>
         </Wave>
-        <Wave Type="D3">
+        <!--<Wave Type="D3">
           <Loop>ARC\BLOCK\ArcBlockCockpitSmLoop3d.xwm</Loop>
-        </Wave>
+        </Wave>-->
       </Waves>
     </Sound>
     <Sound>
@@ -4563,7 +4541,7 @@
         <SubtypeId>SfxMeteorFly</SubtypeId>
       </Id>
       <Category>Sfx</Category>
-      <MaxDistance>500</MaxDistance>
+      <MaxDistance>50</MaxDistance>
       <Volume>0.2</Volume>
       <Loopable>true</Loopable>
       <Waves>
@@ -4770,14 +4748,85 @@
         </Wave>
       </Waves>
     </Sound>
+        <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>RealPlayHelmetD</SubtypeId>
+      </Id>
+      <Category>R_PLAY_BREATH</Category>
+      <MaxDistance>0</MaxDistance>
+      <Volume>0.8</Volume>
+      <Loopable>true</Loopable>
+      <Waves>
+        <Wave Type="D2">
+          <Loop>Real\PLAYER\RealPlayHelmetDLoop2d.wav</Loop>
+        </Wave>
+      </Waves>
+    </Sound>
+        <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>ArcPlayHelmetA</SubtypeId>
+      </Id>
+      <Category>R_PLAY_BREATH</Category>
+      <Volume>0.8</Volume>
+      <Loopable>true</Loopable>
+      <Waves>
+        <Wave Type="D2">
+          <Loop>Real\PLAYER\RealPlayHelmetALoop2d.wav</Loop>
+        </Wave>
+      </Waves>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>ArcPlayHelmetB</SubtypeId>
+      </Id>
+      <Category>R_PLAY_BREATH</Category>
+      <Volume>0.8</Volume>
+      <Loopable>true</Loopable>
+      <Waves>
+        <Wave Type="D2">
+          <Loop>Real\PLAYER\RealPlayHelmetBLoop2d.wav</Loop>
+        </Wave>
+      </Waves>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>ArcPlayHelmetC</SubtypeId>
+      </Id>
+      <Category>R_PLAY_BREATH</Category>
+      <Volume>0.8</Volume>
+      <Loopable>true</Loopable>
+      <Waves>
+        <Wave Type="D2">
+          <Loop>Real\PLAYER\RealPlayHelmetCLoop2d.wav</Loop>
+        </Wave>
+      </Waves>
+    </Sound>
+        <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>ArcPlayHelmetD</SubtypeId>
+      </Id>
+      <Category>R_PLAY_BREATH</Category>
+      <Volume>0.8</Volume>
+      <Loopable>true</Loopable>
+      <Waves>
+        <Wave Type="D2">
+          <Loop>Real\PLAYER\RealPlayHelmetDLoop2d.wav</Loop>
+        </Wave>
+      </Waves>
+    </Sound>
     <Sound>
       <Id>
         <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
         <SubtypeId>ArcBlockAirVentDepressurize</SubtypeId>
       </Id>
       <Category>Block</Category>
-      <MaxDistance>30</MaxDistance>
-      <Volume>0.4</Volume>
+      <MaxDistance>25</MaxDistance>
+      <Volume>0.8</Volume>
       <Loopable>true</Loopable>
       <Waves>
         <Wave Type="D3">
@@ -5148,6 +5197,32 @@
       <Waves>
         <Wave Type="D3">
           <Loop>Arc\BLOCK\ArcBlockModuleEfficiLoop3d.wav</Loop>
+        </Wave>
+      </Waves>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>HudOxyHigh</SubtypeId>
+      </Id>
+      <Category>HUD</Category>
+      <Volume>0.7</Volume>
+      <Waves>
+        <Wave Type="D2">
+          <Start>ARC\HUD\HudOxyHigh2d.wav</Start>
+        </Wave>
+      </Waves>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>HudOxyNone</SubtypeId>
+      </Id>
+      <Category>HUD</Category>
+      <Volume>0.7</Volume>
+      <Waves>
+        <Wave Type="D2">
+          <Start>ARC\HUD\HudOxyNone2d.wav</Start>
         </Wave>
       </Waves>
     </Sound>

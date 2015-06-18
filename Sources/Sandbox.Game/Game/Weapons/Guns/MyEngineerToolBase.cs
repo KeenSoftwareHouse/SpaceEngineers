@@ -39,6 +39,7 @@ namespace Sandbox.Game.Weapons
     {
         public static float GLARE_SIZE = 0.068f;
 
+		public bool IsDeconstructor { get { return false; } }
         public int ToolCooldownMs { get; private set; }
         public int EffectStopMs
         {

@@ -26,7 +26,6 @@ using Sandbox.Common.ObjectBuilders.Definitions;
 using VRage.Plugins;
 using System.Reflection;
 using Sandbox.Common.Components;
-using VRage;
 using Sandbox.Game.Entities;
 using VRage.Voxels;
 using Sandbox.Game.GameSystems.Electricity;
@@ -37,6 +36,7 @@ using VRage.Import;
 using MyFileSystem = VRage.FileSystem.MyFileSystem;
 using VRage.Components;
 using VRage.ObjectBuilders;
+using Sandbox.Game.Entities.Character;
 
 namespace Sandbox.Game.Entities
 {
@@ -1493,6 +1493,30 @@ namespace Sandbox.Game.Entities
             return TestPlacementAreaInternal(targetGrid, ref settings, null, null, ref localAabb, ignoredEntity, ref worldMatrix, out touchingGrid, dynamicBuildMode: dynamicBuildMode);
         }
 
+        public static bool TestPlacementAreaWithEntities(MyCubeGrid targetGrid, bool targetGridIsStatic, ref MyGridPlacementSettings settings, BoundingBoxD localAabb, bool dynamicBuildMode, MyEntity ignoredEntity = null)
+        {
+            ProfilerShort.Begin("Test start with entities");
+            var worldMatrix = targetGrid.WorldMatrix;
+
+            Vector3 halfExtents = localAabb.HalfExtents;
+            halfExtents += settings.SearchHalfExtentsDeltaAbsolute; //this works for SE
+            if (MyFakes.ENABLE_BLOCK_PLACING_IN_OCCUPIED_AREA)
+                halfExtents -= new Vector3D(GRID_PLACING_AREA_FIX_VALUE);
+            Vector3D translation = localAabb.Transform(ref worldMatrix).Center;
+            Quaternion quaternion = Quaternion.CreateFromRotationMatrix(worldMatrix);
+            quaternion.Normalize();
+            ProfilerShort.End();
+
+            ProfilerShort.Begin("get top most entities");
+
+            m_tmpResultList.Clear();
+            BoundingBoxD box = targetGrid.PositionComp.WorldAABB;
+            MyGamePruningStructure.GetAllTopMostEntitiesInBox<MyEntity>(ref box, m_tmpResultList);
+            ProfilerShort.End();
+
+            return TestPlacementAreaInternalWithEntities(targetGrid, targetGridIsStatic, ref settings, ref localAabb, ignoredEntity, ref worldMatrix, dynamicBuildMode: dynamicBuildMode);
+        }
+
         public static bool TestPlacementArea(MyCubeGrid targetGrid, bool targetGridIsStatic, ref MyGridPlacementSettings settings, BoundingBoxD localAabb, bool dynamicBuildMode, MyEntity ignoredEntity = null)
         {
             ProfilerShort.Begin("TestStart");
@@ -1508,6 +1532,7 @@ namespace Sandbox.Game.Entities
             ProfilerShort.End();
 
             ProfilerShort.Begin("Havok.GetPenetrationsBox");
+
             Debug.Assert(m_physicsBoxQueryList.Count == 0, "List not cleared");
             MyPhysics.GetPenetrationsBox(ref halfExtents, ref translation, ref quaternion, m_physicsBoxQueryList, MyPhysics.CharacterCollisionLayer);
             ProfilerShort.End();
@@ -1710,6 +1735,126 @@ namespace Sandbox.Game.Entities
                 ref settings, blockDefinition, blockOrientation, ref localAabb, ignoredEntity, ref worldMatrix, out touchingGrid, dynamicBuildMode: dynamicBuildMode);
         }
 
+        private static bool TestPlacementAreaInternalWithEntities(MyCubeGrid targetGrid,
+         bool targetGridIsStatic,
+         ref MyGridPlacementSettings settings,
+         ref BoundingBoxD localAabb,
+         MyEntity ignoredEntity,
+         ref MatrixD worldMatrix,
+         bool dynamicBuildMode = false)
+        {
+            ProfilerShort.Begin("TestPlacementAreaInternalWithEntities");
+
+            MyCubeGrid touchingGrid = null;
+
+            float gridSize = targetGrid.GridSize;
+            bool isStatic = targetGridIsStatic;
+
+            var worldAabb = localAabb.Transform(ref worldMatrix);
+
+            bool entityOverlap = false;
+            MyVoxelBase overlappedVoxelMap = null;
+            bool touchingStaticGrid = false;
+            foreach (var entity in m_tmpResultList)
+            {
+                if (ignoredEntity != null && (entity == ignoredEntity || entity.GetTopMostParent() == ignoredEntity))
+                    continue;
+
+                var body = entity.Physics;
+                if (body == null)
+                    continue;
+
+                var voxelMap = entity as MyVoxelBase;
+                if (voxelMap != null)
+                {
+                    overlappedVoxelMap = voxelMap;
+                    continue;
+                }
+
+                var grid = entity as MyCubeGrid;
+                if (grid != null)
+                {
+                    // Small on large (or large on small) always possible
+                    if (isStatic == grid.IsStatic && gridSize != grid.GridSize)
+                        continue;
+
+                    TestGridPlacement(ref settings, ref worldMatrix, ref touchingGrid, gridSize, isStatic, ref worldAabb, null, null, ref entityOverlap, ref touchingStaticGrid, grid);
+
+                    if (entityOverlap)
+                    {
+                        break;
+                    }
+                }
+                else
+                {
+                    var character = entity as MyCharacter;
+                    if (character != null && character.PositionComp.WorldAABB.Intersects(targetGrid.PositionComp.WorldAABB))
+                    {
+                        entityOverlap = true;
+                        break;
+                    }
+                }
+            }
+
+            m_tmpResultList.Clear();
+            ProfilerShort.End();
+
+            if (entityOverlap)
+                return false;
+
+            if (targetGrid.IsStatic)
+            {
+                return true;
+            }
+
+            foreach (var block in targetGrid.GetBlocks())
+            {
+                if (IsInVoxels(block,false))
+                    return false;
+            }
+            return true;
+        }
+
+        private static void TestGridPlacement(ref MyGridPlacementSettings settings, ref MatrixD worldMatrix, ref MyCubeGrid touchingGrid, float gridSize, bool isStatic, ref BoundingBoxD worldAabb, MyCubeBlockDefinition blockDefinition,
+           MyBlockOrientation? blockOrientation, ref bool entityOverlap, ref bool touchingStaticGrid, MyCubeGrid grid)
+        {
+            var invWorldMatrix = grid.PositionComp.WorldMatrixNormalizedInv;
+            var otherLocalAabb = worldAabb.Transform(ref invWorldMatrix);
+
+            var scaledMin = (otherLocalAabb.Min + gridSize / 2) / grid.GridSize;
+            var scaledMax = (otherLocalAabb.Max - gridSize / 2) / grid.GridSize;
+            var min = Vector3I.Round(scaledMin);
+            var max = Vector3I.Round(scaledMax);
+
+            MyBlockOrientation? gridBlockOrientation = null;
+            if (MyFakes.ENABLE_COMPOUND_BLOCKS && isStatic && grid.IsStatic && blockOrientation != null)
+            {
+                Matrix blockRotation;
+                blockOrientation.Value.GetMatrix(out blockRotation);
+                Matrix rotationInGrid = blockRotation * worldMatrix;
+                rotationInGrid = rotationInGrid * invWorldMatrix;
+                rotationInGrid.Translation = Vector3.Zero;
+
+                Base6Directions.Direction forwardDir = Base6Directions.GetForward(ref rotationInGrid);
+                Base6Directions.Direction upDir = Base6Directions.GetUp(ref rotationInGrid);
+                if (Base6Directions.IsValidBlockOrientation(forwardDir, upDir))
+                    gridBlockOrientation = new MyBlockOrientation(forwardDir, upDir);
+            }
+
+            if (!grid.CanAddCubes(min, max, gridBlockOrientation, blockDefinition))
+            {
+                entityOverlap = true;
+                return;
+            }
+
+            if (settings.CanAnchorToStaticGrid && grid.IsTouchingAnyNeighbor(min, max))
+            {
+                touchingStaticGrid = true;
+                if (touchingGrid == null)
+                    touchingGrid = grid;
+            }
+        }
+
         private static bool TestPlacementAreaInternal(MyCubeGrid targetGrid,
            bool targetGridIsStatic,
            ref MyGridPlacementSettings settings,
@@ -1746,7 +1891,7 @@ namespace Sandbox.Game.Entities
                 if (body != null && body.IsPhantom)
                     continue;
 
-                var voxelMap = entity as MyVoxelMap;
+                var voxelMap = entity as MyVoxelBase;
                 if (voxelMap != null)
                 {
                     overlappedVoxelMap = voxelMap;
@@ -1755,46 +1900,18 @@ namespace Sandbox.Game.Entities
 
                 var grid = entity as MyCubeGrid;
                 if (grid != null && ((isStatic && grid.IsStatic)
-                    || (MyFakes.ENABLE_DYNAMIC_SMALL_GRID_MERGING && !isStatic && !grid.IsStatic && blockDefinition!= null && blockDefinition.CubeSize == grid.GridSizeEnum)
+                    || (MyFakes.ENABLE_DYNAMIC_SMALL_GRID_MERGING && !isStatic && !grid.IsStatic && blockDefinition != null && blockDefinition.CubeSize == grid.GridSizeEnum)
                     || (MyFakes.ENABLE_BLOCK_PLACEMENT_ON_VOXEL && isStatic && grid.IsStatic && blockDefinition != null && blockDefinition.CubeSize == grid.GridSizeEnum)))
                 {
                     // Small on large (or large on small) always possible
                     if (isStatic == grid.IsStatic && gridSize != grid.GridSize)
                         continue;
 
-                    var invWorldMatrix = grid.PositionComp.WorldMatrixNormalizedInv;
-                    var otherLocalAabb = worldAabb.Transform(ref invWorldMatrix);
-
-					var scaledMin = (otherLocalAabb.Min + gridSize / 2) / grid.GridSize;
-                    var scaledMax = (otherLocalAabb.Max -  gridSize / 2) / grid.GridSize;    
-                    var min = Vector3I.Round(scaledMin);
-                    var max = Vector3I.Round(scaledMax);
-
-                    MyBlockOrientation? gridBlockOrientation = null;
-                    if (MyFakes.ENABLE_COMPOUND_BLOCKS && isStatic && grid.IsStatic && blockOrientation != null)
+                    TestGridPlacement(ref settings, ref worldMatrix, ref touchingGrid, gridSize, isStatic, ref worldAabb, blockDefinition, blockOrientation, ref entityOverlap, ref touchingStaticGrid, grid);
+                    if (entityOverlap)
                     {
-                        Matrix blockRotation;
-                        blockOrientation.Value.GetMatrix(out blockRotation);
-                        Matrix rotationInGrid = blockRotation * worldMatrix;
-                        rotationInGrid = rotationInGrid * invWorldMatrix;
-                        rotationInGrid.Translation = Vector3.Zero;
-
-                        gridBlockOrientation = new MyBlockOrientation(ref rotationInGrid);
-                    }
-
-                    if (!grid.CanAddCubes(min, max, gridBlockOrientation, blockDefinition))
-                    {
-                        entityOverlap = true;
                         break;
                     }
-
-                    if (settings.CanAnchorToStaticGrid && grid.IsTouchingAnyNeighbor(min, max))
-                    {
-                        touchingStaticGrid = true;
-                        if (touchingGrid == null)
-                            touchingGrid = grid;
-                    }
-
                     continue;
                 }
 
@@ -1802,55 +1919,44 @@ namespace Sandbox.Game.Entities
                 entityOverlap = true;
                 break;
             }
+            m_tmpResultList.Clear();
             m_physicsBoxQueryList.Clear();
             ProfilerShort.End();
 
             if (entityOverlap)
                 return false;
 
+            return TestVoxelOverlap(ref settings, ref localAabb, ref worldMatrix, ref worldAabb, ref overlappedVoxelMap, touchingStaticGrid);
+        }
+
+        private static bool TestVoxelOverlap(ref MyGridPlacementSettings settings, ref BoundingBoxD localAabb, ref MatrixD worldMatrix, ref BoundingBoxD worldAabb, ref MyVoxelBase overlappedVoxelMap, bool touchingStaticGrid)
+        {
             ProfilerShort.Begin("VoxelOverlap");
-            if (MyFakes.ENABLE_VOXEL_MAP_AABB_CORNER_TEST)
+            try
             {
-                return TestPlacementVoxelMapOverlap(overlappedVoxelMap, ref settings, ref localAabb, ref worldMatrix, touchingStaticGrid: touchingStaticGrid);
-            }
-            else
-            {
-                if (overlappedVoxelMap == null)
-                { // Havok only detects overlap with voxel map surface. This test will detect a voxel map even if we're fully inside it.
-                    //BoundingSphere sphere = new BoundingSphere(Vector3.Transform(targetGrid.LocalAABB.Center, worldMatrix), targetGrid.LocalAABB.Size.AbsMin() / 2.0f);
-                    //overlappedVoxelMap = MySession.Static.VoxelMaps.GetOverlappingWithSphere(ref sphere);
-
-                    //VRageRender.MyRenderProxy.DebugDrawAABB(worldAabb, Color.White, 1, 1, false);
-
-                    overlappedVoxelMap = MySession.Static.VoxelMaps.GetVoxelMapWhoseBoundingBoxIntersectsBox(ref worldAabb, null);
-                    if (overlappedVoxelMap != null)
-                    {
-                        //We have just test, if aabb is not completelly inside voxelmap
-                        if (!overlappedVoxelMap.IsOverlapOverThreshold(worldAabb))
-                            overlappedVoxelMap = null;
-
-                    }
-                    //using (m_tmpResultList.GetClearToken())
-                    //{
-                    //    MyGamePruningStructure.GetAllEntitiesInBox(ref worldAabb, m_tmpResultList);
-
-                    //    foreach (var entity in m_tmpResultList)
-                    //    {
-                    //        MyVoxelMap voxelMap = entity as MyVoxelMap;
-                    //        if (voxelMap != null)
-                    //        {
-                    //            if (voxelMap.DoOverlapSphereTest((float)localAabb.Size.AbsMin() / 2.0f, worldAabb.Center))
-                    //            {
-                    //                overlappedVoxelMap = voxelMap;
-                    //                break;
-                    //            }
-                    //        }
-                    //    }
-                    //}
+                if (MyFakes.ENABLE_VOXEL_MAP_AABB_CORNER_TEST)
+                {
+                    return TestPlacementVoxelMapOverlap(overlappedVoxelMap, ref settings, ref localAabb, ref worldMatrix, touchingStaticGrid: touchingStaticGrid);
                 }
-                ProfilerShort.End();
+                else
+                {
+                    if (overlappedVoxelMap == null)
+                    { // Havok only detects overlap with voxel map surface. This test will detect a voxel map even if we're fully inside it.
 
-                return TestPlacementVoxelMapPenetration(overlappedVoxelMap, ref settings, ref localAabb, ref worldMatrix, touchingStaticGrid: touchingStaticGrid);
+                        overlappedVoxelMap = MySession.Static.VoxelMaps.GetVoxelMapWhoseBoundingBoxIntersectsBox(ref worldAabb, null);
+                        if (overlappedVoxelMap != null)
+                        {
+                            //We have just test, if aabb is not completelly inside voxelmap
+                            if (!overlappedVoxelMap.IsOverlapOverThreshold(worldAabb))
+                                overlappedVoxelMap = null;
+                        }
+                    }
+                    return TestPlacementVoxelMapPenetration(overlappedVoxelMap, ref settings, ref localAabb, ref worldMatrix, touchingStaticGrid: touchingStaticGrid);
+                }
+            }
+            finally
+            {
+                ProfilerShort.End();
             }
         }
 
@@ -1868,21 +1974,14 @@ namespace Sandbox.Game.Entities
             const int IntersectsOrInside = 1;
             const int Outside = 2;
 
-            int overlapState = IntersectsOrInside;
+            int overlapState = Outside;
 
             if (voxelMap == null)
-            {
-                overlapState = Outside;
-
                 voxelMap = MySession.Static.VoxelMaps.GetVoxelMapWhoseBoundingBoxIntersectsBox(ref worldAabb, null);
-                if (voxelMap != null && voxelMap.IsAnyAabbCornerInside(ref worldMatrix, localAabb))
-                {
-                    overlapState = IntersectsOrInside;
-                }
-                else
-                {
-                    voxelMap = null;
-                }
+
+            if (voxelMap != null && voxelMap.IsAnyAabbCornerInside(ref worldMatrix, localAabb))
+            {
+                overlapState = IntersectsOrInside;
             }
 
             bool testPassed = true;
@@ -2137,10 +2236,10 @@ namespace Sandbox.Game.Entities
             return false;
         }
 
-        public static bool IsInVoxels(MySlimBlock block)
+        public static bool IsInVoxels(MySlimBlock block,bool checkForPhysics = true)
         {
-            if (block.CubeGrid.Physics == null)
-                return false;
+            if (block.CubeGrid.Physics == null && checkForPhysics)
+               return false;
 
             if (MyPerGameSettings.Destruction && block.CubeGrid.GridSizeEnum == Common.ObjectBuilders.MyCubeSize.Large)
                 return block.CubeGrid.Physics.Shape.BlocksConnectedToWorld.Contains(block.Position);
@@ -2160,10 +2259,10 @@ namespace Sandbox.Game.Entities
 
             List<MyEntity> entities = new List<MyEntity>(); // Fine for test
             MyGamePruningStructure.GetAllEntitiesInBox(ref worldAabb, entities);
-            MyVoxelMap overlappedVoxelMap = null;
+            MyVoxelBase overlappedVoxelMap = null;
             foreach (var entity in entities)
             {
-                var voxelMap = entity as MyVoxelMap;
+                var voxelMap = entity as MyVoxelBase;
                 if (voxelMap != null)
                 {
                     if (voxelMap.DoOverlapSphereTest(localAabb.Size.AbsMax() / 2.0f, worldAabb.Center))

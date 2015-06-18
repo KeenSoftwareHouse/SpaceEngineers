@@ -14,7 +14,7 @@ using VRageMath;
 
 namespace Sandbox.Game.Gui
 {
-    class MyTerminalControlSlider<TBlock> : MyTerminalValueControl<TBlock, float>
+    public class MyTerminalControlSlider<TBlock> : MyTerminalValueControl<TBlock, float>
         where TBlock : MyTerminalBlock
     {
         public delegate float FloatFunc(TBlock block, float val);

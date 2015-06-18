@@ -198,6 +198,11 @@ namespace Sandbox.Common.ObjectBuilders
         [GameRelationAttribute(Game.SpaceEngineers)]
         public int ViewDistance = 20000;
 
+		[ProtoMember]
+		[Display(Name = "Flora density")]
+		[GameRelationAttribute(Game.SpaceEngineers)]
+		public int FloraDensity = 20;
+
         [ProtoMember]
         [DefaultValue(false)]// must leave default value here because it fails to deserialize world if it finds old save where this was nullable (bleh)
         [Display(Name = "Enable tool shake")]
@@ -225,10 +230,35 @@ namespace Sandbox.Common.ObjectBuilders
         [GameRelationAttribute(Game.SpaceEngineers)]
         public bool EnableEncounters = true;
 
+		[ProtoMember]
+		[Display(Name = "Enable flora")]
+		[GameRelationAttribute(Game.SpaceEngineers)]
+		public bool EnableFlora = true;
+
+		[ProtoMember]
+		[Display(Name = "Enable Station Voxel Support")]
+		[GameRelationAttribute(Game.SpaceEngineers)]
+		public bool EnableStationVoxelSupport = false;
+
         [ProtoMember]
-        [Display(Name = "Desable respawn ships")]
+        [Display(Name = "Enable Planets")]
+        [GameRelationAttribute(Game.SpaceEngineers)]
+        public bool EnablePlanets = false;
+
+        [ProtoMember]
+        [Display(Name = "Enable Sun Rotation")]
+        [GameRelationAttribute(Game.SpaceEngineers)]
+        public bool EnableSunRotation = false;
+
+        [ProtoMember]
+        [Display(Name = "Disable respawn ships")]
         [GameRelationAttribute(Game.SpaceEngineers)]
         public bool DisableRespawnShips = false;
+
+        [ProtoMember]
+        [Display(Name = "Scenario edit mode")]
+        [GameRelationAttribute(Game.SpaceEngineers)]
+        public bool ScenarioEditMode = false;
 
         [ProtoMember]
         [GameRelationAttribute(Game.MedievalEngineers)]
@@ -241,8 +271,15 @@ namespace Sandbox.Common.ObjectBuilders
         public bool Scenario = false;
 
         [ProtoMember]
+        [Display(Name = "Can join running")]
+        [GameRelationAttribute(Game.SpaceEngineers)]
+        public bool CanJoinRunning = false;
+
+        [ProtoMember]
         public int PhysicsIterations = 4;
 
+        [ProtoMember]
+        public double SunRotationIntervalMinutes = 4*60; // 4 hours
 
         public void LogMembers(MyLog log, LoggingOptions options)
         {

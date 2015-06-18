@@ -83,6 +83,7 @@ namespace VRageRender
             
             MyEnvironment.NearClipping = message.NearPlane;
             MyEnvironment.FarClipping = message.FarPlane;
+            MyEnvironment.LargeDistanceFarClipping = message.FarPlane;
             MyEnvironment.FovY = message.FOV;
             MyEnvironment.ViewFrustum = new BoundingFrustum(MyEnvironment.ViewProjection);
         }
@@ -315,6 +316,7 @@ namespace VRageRender
             // uav3 stores final colors
             var surface = new MyRenderTarget(m_finalImage.GetSize().X, m_finalImage.GetSize().Y, SharpDX.DXGI.Format.R8G8B8A8_UNorm_SRgb, 1, 0);
             MyCopyToRT.Run(surface, m_finalImage);
+            MyCopyToRT.ClearAlpha(surface);
             SaveScreenshotFromResource(surface.m_resource);
             surface.Release();
 

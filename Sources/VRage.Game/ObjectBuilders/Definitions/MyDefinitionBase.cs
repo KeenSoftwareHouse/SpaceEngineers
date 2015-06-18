@@ -147,6 +147,7 @@ namespace Sandbox.Definitions
             builder.DisplayName = (DisplayNameEnum.HasValue) ? DisplayNameEnum.Value.ToString() : DisplayNameString != null ? DisplayNameString.ToString() : null;
             builder.Icon        = Icon;
             builder.Public      = Public;
+			builder.Enabled		= Enabled;
 
 			builder.AvailableInSurvival = AvailableInSurvival;
 

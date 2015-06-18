@@ -127,5 +127,28 @@ namespace VRage.Components
                 component.Value.OnRemovedFromScene();
             }
         }
+
+        public List<T> GetAll<T>() where T : B
+        {
+            List<T> list = new List<T>();
+            foreach (var component in m_components)
+            {
+                if (component.Value is T)
+                {
+                    list.Add((T)component.Value);
+                }
+            }
+            return list;
+        }
+
+        public List<B> GetAll()
+        {
+            List<B> list = new List<B>();
+            foreach (var component in m_components)
+            {
+                list.Add(component.Value);
+            }
+            return list;
+        }
 	}
 }

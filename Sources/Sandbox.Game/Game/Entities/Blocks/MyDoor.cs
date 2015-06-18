@@ -111,7 +111,7 @@ namespace Sandbox.Game.Entities
 
         public float OpenRatio
         {
-            get { return m_currOpening; }
+            get { return m_currOpening/MaxOpen; }
         }
 
         static MyDoor()

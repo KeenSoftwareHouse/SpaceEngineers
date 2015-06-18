@@ -127,12 +127,9 @@ namespace Sandbox.Game.Multiplayer
         static void AddRequest(ref AddMsg msg, MyNetworkClient sender)
         {
             Dictionary<int, MyGps> insList;
-            var result = MySession.Static.Gpss.m_playerGpss.TryGetValue(msg.IdentityId, out insList);
 
-            if (result != null)
-            {
+            if (MySession.Static.Gpss.m_playerGpss.TryGetValue(msg.IdentityId, out insList))
                 Sync.Layer.SendMessageToAllAndSelf(ref msg, MyTransportMessageEnum.Success);
-            }
         }
 
         static void AddSuccess(ref AddMsg msg, MyNetworkClient sender)

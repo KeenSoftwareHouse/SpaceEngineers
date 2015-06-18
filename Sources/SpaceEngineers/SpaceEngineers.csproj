@@ -145,63 +145,13 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Content\Data\Scripts\StatLogic\SpaceStatEffect.cs" />
     <Compile Include="MyProgram.cs" />
     <Compile Include="GUI\DebugScreens\MyGuiScreenDebugShipLargeProperties.cs" />
     <Compile Include="GUI\DebugScreens\MyGuiScreenDebugShipSmallProperties.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Content\Effects2\BackgroundCube\MyBackgroundBillboards.fx" />
-    <Content Include="Content\Effects2\BackgroundCube\MyBackgroundCube.fx" />
-    <Content Include="Content\Effects2\BackgroundCube\MyDistantImpostorEffect.fx" />
-    <Content Include="Content\Effects2\BackgroundCube\MyHudSectorBorder.fx" />
-    <Content Include="Content\Effects2\Decals\MyDecalEffect.fx" />
-    <Content Include="Content\Effects2\Fullscreen\MyEffectAmbientPrecalculation.fx" />
-    <Content Include="Content\Effects2\Fullscreen\MyEffectAntiAlias.fx" />
-    <Content Include="Content\Effects2\Fullscreen\MyEffectChromaticAberration.fx" />
-    <Content Include="Content\Effects2\Fullscreen\MyEffectClearGbuffer.fx" />
-    <Content Include="Content\Effects2\Fullscreen\MyEffectColorMapping.fx" />
-    <Content Include="Content\Effects2\Fullscreen\MyEffectContrast.fx" />
-    <Content Include="Content\Effects2\Fullscreen\MyEffectGaussianBlur.fx" />
-    <Content Include="Content\Effects2\Fullscreen\MyEffectGodRays.fx" />
-    <Content Include="Content\Effects2\Fullscreen\MyEffectLodTransition2.fx" />
-    <Content Include="Content\Effects2\Fullscreen\MyEffectScreenshot.fx" />
-    <Content Include="Content\Effects2\Fullscreen\MyEffectVignetting.fx" />
-    <Content Include="Content\Effects2\Fullscreen\MyEffectVolumetricFog.fx" />
-    <Content Include="Content\Effects2\HDR\MyEffectHDR.fx" />
-    <Content Include="Content\Effects2\HDR\MyEffectLuminance.fx" />
-    <Content Include="Content\Effects2\HDR\MyEffectScale.fx" />
-    <Content Include="Content\Effects2\HDR\MyEffectSunGlare.fx" />
-    <Content Include="Content\Effects2\HDR\MyEffectThreshold.fx" />
-    <Content Include="Content\Effects2\HUD\MyEffectCockpitGlass.fx" />
-    <Content Include="Content\Effects2\HUD\MyHudEffect.fx" />
-    <Content Include="Content\Effects2\HUD\MyHudRadarEffect.fx" />
-    <Content Include="Content\Effects2\Lights\MyEffectBlendLights.fx" />
-    <Content Include="Content\Effects2\Lights\MyEffectDirectionalLight.fx" />
-    <Content Include="Content\Effects2\Lights\MyEffectPointLight.fx" />
-    <Content Include="Content\Effects2\Models\MyEffectAtmosphere.fx" />
-    <Content Include="Content\Effects2\Models\MyEffectModelsDiffuse.fx" />
-    <Content Include="Content\Effects2\Models\MyEffectModelsDNS.fx" />
-    <Content Include="Content\Effects2\Models\MyEffectOcclusionQueryDraw.fx" />
-    <Content Include="Content\Effects2\Models\MyEffectRenderGizmo.fx" />
-    <Content Include="Content\Effects2\MyEffectLights.fx" />
-    <Content Include="Content\Effects2\MyEffectLodTransition.fx" />
-    <Content Include="Content\Effects2\MyEffectModelsDS.fx" />
-    <Content Include="Content\Effects2\Shadows\MyEffectShadowMap.fx" />
-    <Content Include="Content\Effects2\Shadows\MyEffectShadowOcclusion.fx" />
-    <Content Include="Content\Effects2\Sprites\SpriteEffect.fx" />
-    <Content Include="Content\Effects2\SSAO\MyEffectDownsampleDepthForSSAO.fx" />
-    <Content Include="Content\Effects2\SSAO\MyEffectSSAO.fx" />
-    <Content Include="Content\Effects2\SSAO\MyEffectSSAO2.fx" />
-    <Content Include="Content\Effects2\SSAO\MyEffectSSAO3.fx" />
-    <Content Include="Content\Effects2\SSAO\MyEffectSSAOBlur.fx" />
-    <Content Include="Content\Effects2\SSAO\MyEffectSSAOBlur2.fx" />
-    <Content Include="Content\Effects2\SSAO\MyEffectVolumetricSSAO.fx" />
-    <Content Include="Content\Effects2\SSAO\MyEffectVolumetricSSAO2.fx" />
-    <Content Include="Content\Effects2\TransparentGeometry\MyEffectTransparentGeometry.fx" />
-    <Content Include="Content\Effects2\Voxels\MyEffectCube.fx" />
-    <Content Include="Content\Effects2\Voxels\MyEffectVoxels.fx" />
-    <Content Include="Content\Effects2\Voxels\MyEffectVoxelsDebris.fx" />
     <Content Include="eula.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
@@ -298,57 +248,6 @@
     <None Include="Content\Data\Weapons.sbc">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Content\Effects2\BackgroundCube\MyBackgroundCube.fxo" />
-    <None Include="Content\Effects2\BackgroundCube\MyDistantImpostorEffect.fxo" />
-    <None Include="Content\Effects2\Decals\MyDecalEffect.fxo" />
-    <None Include="Content\Effects2\Fullscreen\MyEffectAmbientPrecalculation.fxo" />
-    <None Include="Content\Effects2\Fullscreen\MyEffectAntiAlias.fxo" />
-    <None Include="Content\Effects2\Fullscreen\MyEffectChromaticAberration.fxo" />
-    <None Include="Content\Effects2\Fullscreen\MyEffectClearGbuffer.fxo" />
-    <None Include="Content\Effects2\Fullscreen\MyEffectColorMapping.fxo" />
-    <None Include="Content\Effects2\Fullscreen\MyEffectContrast.fxo" />
-    <None Include="Content\Effects2\Fullscreen\MyEffectGaussianBlur.fxo" />
-    <None Include="Content\Effects2\Fullscreen\MyEffectGodRays.fxo" />
-    <None Include="Content\Effects2\Fullscreen\MyEffectScreenshot.fxo" />
-    <None Include="Content\Effects2\Fullscreen\MyEffectVignetting.fxo" />
-    <None Include="Content\Effects2\Fullscreen\MyEffectVolumetricFog.fxo" />
-    <None Include="Content\Effects2\HDR\MyEffectHDR.fxo" />
-    <None Include="Content\Effects2\HDR\MyEffectHDRBase.fxh" />
-    <None Include="Content\Effects2\HDR\MyEffectLuminance.fxo" />
-    <None Include="Content\Effects2\HDR\MyEffectScale.fxo" />
-    <None Include="Content\Effects2\HDR\MyEffectThreshold.fxo" />
-    <None Include="Content\Effects2\HUD\MyEffectCockpitGlass.fxo" />
-    <None Include="Content\Effects2\HUD\MyHudEffect.fxo" />
-    <None Include="Content\Effects2\HUD\MyHudRadarEffect.fxo" />
-    <None Include="Content\Effects2\Lights\MyEffectBlendLights.fxo" />
-    <None Include="Content\Effects2\Lights\MyEffectDirectionalLight.fxo" />
-    <None Include="Content\Effects2\Lights\MyEffectPointLight.fxo" />
-    <None Include="Content\Effects2\Models\MyEffectAtmosphere.fxo" />
-    <None Include="Content\Effects2\Models\MyEffectModelsDiffuse.fxo" />
-    <None Include="Content\Effects2\Models\MyEffectModelsDNS.fxo" />
-    <None Include="Content\Effects2\Models\MyEffectOcclusionQueryDraw.fxo" />
-    <None Include="Content\Effects2\Models\MyEffectRenderGizmo.fxo" />
-    <None Include="Content\Effects2\MyEffectAtmosphereBase.fxh" />
-    <None Include="Content\Effects2\MyEffectBase.fxh" />
-    <None Include="Content\Effects2\MyEffectDynamicLightingBase.fxh" />
-    <None Include="Content\Effects2\MyEffectInstanceBase.fxh" />
-    <None Include="Content\Effects2\MyEffectReflectorBase.fxh" />
-    <None Include="Content\Effects2\MyEffectShadowBase.fxh" />
-    <None Include="Content\Effects2\MyEffectSpotShadowBase.fxh" />
-    <None Include="Content\Effects2\MyPerlinNoise.fxh" />
-    <None Include="Content\Effects2\Shadows\MyEffectShadowMap.fxo" />
-    <None Include="Content\Effects2\Sprites\Macros.fxh" />
-    <None Include="Content\Effects2\Sprites\SpriteEffect.fxo" />
-    <None Include="Content\Effects2\SSAO\MyEffectDownsampleDepthForSSAO.fxo" />
-    <None Include="Content\Effects2\SSAO\MyEffectSSAO3.fxo" />
-    <None Include="Content\Effects2\SSAO\MyEffectSSAOBlur2.fxo" />
-    <None Include="Content\Effects2\SSAO\MyEffectVolumetricSSAO2.fxo" />
-    <None Include="Content\Effects2\TransparentGeometry\MyEffectTransparentGeometry.fxo" />
-    <None Include="Content\Effects2\Voxels\MyEffectVoxels.fxo" />
-    <None Include="Content\Effects2\Voxels\MyEffectVoxelsBase.fxh" />
-    <None Include="Content\Effects2\Voxels\MyEffectVoxelsClipping.fxh" />
-    <None Include="Content\Effects2\Voxels\MyEffectVoxelsDebris.fxo" />
-    <None Include="Content\Effects2\MyEffectWorldPosition.fxh" />
     <Content Include="steam_api64.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
@@ -432,44 +331,40 @@
   <ItemGroup>
     <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Content\Data\Scripts\" />
-    <Folder Include="Content\Effects2\Toolkit\" />
-  </ItemGroup>
+  <ItemGroup />
   <ImportGroup Label="PropertySheets">
     <Import Project="$(SolutionDir)\global.props" Condition="exists('$(SolutionDir)\global.props')" />
   </ImportGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
-  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
-       Other similar extension points exist, see Microsoft.Common.targets. -->
-  <!--
-  <ItemGroup>
-    <YourFilesToCopy Include="$(ProjectDir)Content\**\*.*" Exclude="$(ProjectDir)Content\VoxelMaps\*.bmp"/>
-  </ItemGroup>
-  -->
-  <ItemGroup>
-    <Redists86 Include="$(ProjectDir)Redists\x86\*.*" />
-    <Redists64 Include="$(ProjectDir)Redists\x64\*.*" />
-  </ItemGroup>
-  <ItemGroup>
-    <ContentSubdirs Include="$([System.IO.Directory]::GetDirectories(&quot;$(ContentPath)&quot;))" />
-  </ItemGroup>
+
   <Target Name="AfterBuild">
     <!-- Recreate content dir -->
     <RemoveDir Directories="$(OutDir)..\Content" ContinueOnError="true" />
     <MakeDir Directories="$(OutDir)..\Content" />
-    <!-- Link Data and Effects2 from original source (always from source location) -->
+
+    <!-- Link Effects and Shaders from Render projects to SpaceEngineers\Content dir -->
+    <Exec Command="mklink /J &quot;$(ProjectDir)Content\Shaders&quot; &quot;..\VRage.Render11\Shaders" IgnoreExitCode="true" />
+    <Exec Command="mklink /J &quot;$(ProjectDir)Content\Effects2&quot; &quot;..\VRage.Render\Effects2" IgnoreExitCode="true" />
+
+    <!-- Link Data and Effects from original source (always from source location) -->    
     <Exec Command="mklink /J &quot;$(OutDir)..\Content\Data&quot; &quot;$(ProjectDir)Content\Data&quot;" IgnoreExitCode="true" Condition="$(DataFromSources)==true" />
     <Exec Command="mklink /J &quot;$(OutDir)..\Content\Effects2&quot; &quot;$(ProjectDir)Content\Effects2&quot;" IgnoreExitCode="true" Condition="$(EffectsFromSources)==true" />
+    <Exec Command="mklink /J &quot;$(OutDir)..\Content\Shaders&quot; &quot;$(ProjectDir)Content\Shaders&quot;" IgnoreExitCode="true" Condition="$(EffectsFromSources)==true" />
+
     <!-- Link the rest of content subdirs (on GitHub, this is linked from Steam; on SVN this is linked from source location) -->
+    <ItemGroup>
+      <ContentSubdirs Include="$([System.IO.Directory]::GetDirectories(&quot;$(ContentPath)&quot;))" />
+    </ItemGroup>
     <Exec Command="mklink /J &quot;$(OutDir)..\Content\$([System.IO.Path]::GetFilename(%(ContentSubdirs.Identity)))&quot; &quot;%(ContentSubdirs.Identity)&quot;" IgnoreExitCode="true" />
-    <!-- Link shaders (this was added by JakubT?) -->
-    <Exec Command="mklink /J &quot;Content\Shaders&quot; &quot;..\VRage.Render11\Shaders" IgnoreExitCode="true" />
     <Exec Command="echo %time% Content copied" />
+
     <!-- Copy redists -->
+    <ItemGroup>
+      <Redists86 Include="$(ProjectDir)Redists\x86\*.*" />
+      <Redists64 Include="$(ProjectDir)Redists\x64\*.*" />
+    </ItemGroup>
     <Copy Condition="'$(Configuration)|$(Platform)' == 'Release Official|x86'" SourceFiles="@(Redists86)" DestinationFolder="$(OutDir)" />
     <Copy Condition="'$(Configuration)|$(Platform)' == 'Release Official|x64'" SourceFiles="@(Redists64)" DestinationFolder="$(OutDir)" />
   </Target>
-  <Target Name="BeforeBuild">
-  </Target>
+
 </Project>

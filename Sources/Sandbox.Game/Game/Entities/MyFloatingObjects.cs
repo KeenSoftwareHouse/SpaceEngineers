@@ -62,8 +62,7 @@ namespace Sandbox.Game.Entities
         private static SortedSet<MyFloatingObject> m_floatingItems = new SortedSet<MyFloatingObject>(m_comparer);
 
         //Sync
-        static Predicate<MyEntity> m_isVoxelMapPredicate = (x) => x is MyVoxelMap;
-        static List<MyEntity> m_tmpResultList = new List<MyEntity>();
+        static List<MyVoxelBase> m_tmpResultList = new List<MyVoxelBase>();
         static List<MyFloatingObject> m_synchronizedFloatingObjects = new List<MyFloatingObject>();
         static List<MyFloatingObject> m_floatingObjectsToSyncCreate = new List<MyFloatingObject>();
         static MyFloatingObjectsSynchronizationComparer m_synchronizationComparer = new MyFloatingObjectsSynchronizationComparer();
@@ -84,7 +83,7 @@ namespace Sandbox.Game.Entities
         static bool m_needReupdateNewObjects = false;
         static int m_checkObjectInsideVoxel = 0;
 
-        static List<Tuple<MyInventoryItem, BoundingBoxD>> m_itemsToSpawnNextUpdate = new List<Tuple<MyInventoryItem, BoundingBoxD>>();
+        static List<Tuple<MyPhysicalInventoryItem, BoundingBoxD>> m_itemsToSpawnNextUpdate = new List<Tuple<MyPhysicalInventoryItem, BoundingBoxD>>();
 
         #endregion
 
@@ -239,32 +238,33 @@ namespace Sandbox.Game.Entities
             {
                 var floatingObjectToCheck = m_synchronizedFloatingObjects[m_checkObjectInsideVoxel];
 
-                BoundingBoxD aabb = floatingObjectToCheck.PositionComp.WorldAABB;
+                var localAabb = (BoundingBoxD)floatingObjectToCheck.PositionComp.LocalAABB;
+                var worldMatrix = floatingObjectToCheck.PositionComp.WorldMatrix;
+                var worldAabb = floatingObjectToCheck.PositionComp.WorldAABB;
 
                 using (m_tmpResultList.GetClearToken())
                 {
-                    MyGamePruningStructure.GetAllEntitiesInBox(ref aabb, m_tmpResultList);
-                    MyVoxelMap voxelMap = m_tmpResultList.Find(m_isVoxelMapPredicate) as MyVoxelMap;
-                    if (voxelMap != null && !voxelMap.MarkedForClose)
+                    MyGamePruningStructure.GetAllVoxelMapsInBox(ref worldAabb, m_tmpResultList);
+                    //Debug.Assert(m_tmpResultList.Count == 1, "Voxel map AABBs shouldn't overlap!");
+                    foreach (var voxelMap in m_tmpResultList)
                     {
-                        float unused;
-                        var penetrationAmountNormalized = voxelMap.GetVoxelContentInBoundingBox_Obsolete(aabb, out unused);
-                        var penetrationVolume = penetrationAmountNormalized * MyVoxelConstants.VOXEL_VOLUME_IN_METERS;
-                        var penetrationRatio = penetrationVolume / aabb.Volume;
-                        if (penetrationRatio >= 1.0f)
+                        if (voxelMap != null && !voxelMap.MarkedForClose && !(voxelMap is MyVoxelPhysics))
                         {
-                            floatingObjectToCheck.NumberOfFramesInsideVoxel++;
-
-                            if (floatingObjectToCheck.NumberOfFramesInsideVoxel > MyFloatingObject.NUMBER_OF_FRAMES_INSIDE_VOXEL_TO_REMOVE)
+                            if (voxelMap.AreAllAabbCornersInside(ref worldMatrix, localAabb))
                             {
-                                //MyLog.Default.WriteLine("Floating object " + (floatingObjectToCheck.DisplayName != null ? floatingObjectToCheck.DisplayName : floatingObjectToCheck.ToString()) + " was removed because it was inside voxel.");
-                                if (Sync.IsServer)
-                                    RemoveFloatingObject(floatingObjectToCheck);
+                                floatingObjectToCheck.NumberOfFramesInsideVoxel++;
+
+                                if (floatingObjectToCheck.NumberOfFramesInsideVoxel > MyFloatingObject.NUMBER_OF_FRAMES_INSIDE_VOXEL_TO_REMOVE)
+                                {
+                                    //MyLog.Default.WriteLine("Floating object " + (floatingObjectToCheck.DisplayName != null ? floatingObjectToCheck.DisplayName : floatingObjectToCheck.ToString()) + " was removed because it was inside voxel.");
+                                    if (Sync.IsServer)
+                                        RemoveFloatingObject(floatingObjectToCheck);
+                                }
                             }
-                        }
-                        else
-                        {
-                            floatingObjectToCheck.NumberOfFramesInsideVoxel = 0;
+                            else
+                            {
+                                floatingObjectToCheck.NumberOfFramesInsideVoxel = 0;
+                            }
                         }
                     }
                 }
@@ -290,12 +290,12 @@ namespace Sandbox.Game.Entities
         }
 
         #region Spawning
-        public static MyEntity Spawn(MyInventoryItem item, Vector3D position, Vector3D forward, Vector3D up, MyPhysicsComponentBase motionInheritedFrom = null)
+        public static MyEntity Spawn(MyPhysicalInventoryItem item, Vector3D position, Vector3D forward, Vector3D up, MyPhysicsComponentBase motionInheritedFrom = null)
         {
             return Spawn(item, MatrixD.CreateWorld(position, forward, up), motionInheritedFrom);
         }
 
-        internal static MyEntity Spawn(MyInventoryItem item, MatrixD worldMatrix, MyPhysicsComponentBase motionInheritedFrom = null)
+        internal static MyEntity Spawn(MyPhysicalInventoryItem item, MatrixD worldMatrix, MyPhysicsComponentBase motionInheritedFrom = null)
         {
             var floatingBuilder = PrepareBuilder(ref item);
 
@@ -307,7 +307,7 @@ namespace Sandbox.Game.Entities
             return thrownEntity;
         }
 
-        internal static MyEntity Spawn(MyInventoryItem item, BoundingBoxD box, MyPhysicsComponentBase motionInheritedFrom = null)
+        internal static MyEntity Spawn(MyPhysicalInventoryItem item, BoundingBoxD box, MyPhysicsComponentBase motionInheritedFrom = null)
         {
             var floatingBuilder = PrepareBuilder(ref item);
             var thrownEntity = MyEntities.CreateFromObjectBuilder(floatingBuilder);
@@ -328,7 +328,7 @@ namespace Sandbox.Game.Entities
             return thrownEntity;
         }
 
-        public static MyEntity Spawn(MyInventoryItem item, BoundingSphereD sphere, MyPhysicsComponentBase motionInheritedFrom = null, MyVoxelMaterialDefinition voxelMaterial = null)
+        public static MyEntity Spawn(MyPhysicalInventoryItem item, BoundingSphereD sphere, MyPhysicsComponentBase motionInheritedFrom = null, MyVoxelMaterialDefinition voxelMaterial = null)
         {
             ProfilerShort.Begin("MyFloatingObjects.Spawn");
             var floatingBuilder = PrepareBuilder(ref item);
@@ -349,12 +349,12 @@ namespace Sandbox.Game.Entities
             return thrownEntity;
         }
 
-        public static void EnqueueInventoryItemSpawn(MyInventoryItem inventoryItem, BoundingBoxD boundingBox)
+        public static void EnqueueInventoryItemSpawn(MyPhysicalInventoryItem inventoryItem, BoundingBoxD boundingBox)
         {
             m_itemsToSpawnNextUpdate.Add(Tuple.Create(inventoryItem, boundingBox));
         }
 
-        private static MyObjectBuilder_FloatingObject PrepareBuilder(ref MyInventoryItem item)
+        private static MyObjectBuilder_FloatingObject PrepareBuilder(ref MyPhysicalInventoryItem item)
         {
             Debug.Assert(item.Amount > 0, "FloatObject item amount must be > 0");
 

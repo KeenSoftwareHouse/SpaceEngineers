@@ -12,13 +12,12 @@ namespace Sandbox.Game.Gui
 {
     class MyAsteroidsDebugInputComponent : MyDebugComponent
     {
-        private bool m_drawAsteroidSeeds = false;
-        private bool m_drawEncounterSeeds = false;
+        private bool m_drawSeeds = false;
         private bool m_drawTrackedEntities = false;
         private bool m_drawRadius = false;
         private bool m_drawDistance = false;
         private bool m_drawCells = false;
-        
+
         private List<MyCharacter> m_plys = new List<MyCharacter>();
 
         private float m_originalFarPlaneDisatance = -1;
@@ -28,18 +27,10 @@ namespace Sandbox.Game.Gui
         public MyAsteroidsDebugInputComponent()
         {
             AddShortcut(MyKeys.NumPad1, true, false, false, false,
-                () => "Debug draw procedural asteroid seeds: " + m_drawAsteroidSeeds,
+                () => "Debug draw procedural asteroid seeds: " + m_drawSeeds,
                 delegate
                 {
-                    m_drawAsteroidSeeds = !m_drawAsteroidSeeds;
-                    return true;
-                });
-
-            AddShortcut(MyKeys.NumPad2, true, false, false, false,
-                () => "Debug draw procedural encounter seeds: " + m_drawEncounterSeeds,
-                delegate
-                {
-                    m_drawEncounterSeeds = !m_drawEncounterSeeds;
+                    m_drawSeeds = !m_drawSeeds;
                     return true;
                 });
 
@@ -119,7 +110,7 @@ namespace Sandbox.Game.Gui
                 () => "Remove one spawned player: " + m_plys.Count,
                 delegate
                 {
-                    if(m_plys.Count == 0)
+                    if (m_plys.Count == 0)
                         return false;
                     var ply = m_plys[0];
                     m_plys.Remove(ply);
@@ -144,29 +135,20 @@ namespace Sandbox.Game.Gui
             if (MySector.MainCamera == null)
                 return;
 
-            int visibleCount = 0;
-            foreach (var voxelMap in MySession.Static.VoxelMaps.Instances)
-            {
-                if (MySector.MainCamera.IsInFrustum(voxelMap.PositionComp.WorldAABB))
-                {
-                    visibleCount++;
-                }
-            }
+            if (MyProceduralWorldGenerator.Static == null)
+                return;
 
-            MyAsteroidCellGenerator.Static.GetAll(m_tmpSeedsList);
+            MyProceduralWorldGenerator.Static.GetAll(m_tmpSeedsList);
             double max_distance = 20 * 1000;
             foreach (var seed in m_tmpSeedsList)
             {
-                if (!(m_drawAsteroidSeeds && seed.Type == MyAsteroidCellGenerator.MyObjectSeedType.Asteroid)
-                    && !(m_drawEncounterSeeds && seed.Type == MyAsteroidCellGenerator.MyObjectSeedType.EncounterAlone)
-                    && !(m_drawEncounterSeeds && seed.Type == MyAsteroidCellGenerator.MyObjectSeedType.EncounterSingle)
-                    && !(m_drawEncounterSeeds && seed.Type == MyAsteroidCellGenerator.MyObjectSeedType.EncounterMulti))
+                if (!m_drawSeeds)
                     continue;
 
                 var pos = seed.BoundingVolume.Center;
 
-                VRageRender.MyRenderProxy.DebugDrawSphere(pos, seed.Size / 2, seed.Type == MyAsteroidCellGenerator.MyObjectSeedType.Asteroid ? Color.Green : Color.Red, 1.0f, true);
-                if ((pos - MySector.MainCamera.Position).Length() < max_distance)
+                VRageRender.MyRenderProxy.DebugDrawSphere(pos, seed.Size / 2, seed.Type == MyObjectSeedType.Asteroid ? Color.Green : Color.Red, 1.0f, true);
+                //if ((pos - MySector.MainCamera.Position).Length() < max_distance)
                 {
                     if (m_drawRadius)
                     {
@@ -183,7 +165,7 @@ namespace Sandbox.Game.Gui
 
             if (m_drawTrackedEntities)
             {
-                foreach (var kv in MyAsteroidCellGenerator.Static.GetTrackedEntities())
+                foreach (var kv in MyProceduralWorldGenerator.Static.GetTrackedEntities())
                 {
                     VRageRender.MyRenderProxy.DebugDrawSphere(kv.Value.CurrentPosition, (float)(kv.Value.BoundingVolume.Radius), Color.White, 1.0f, true);
                 }
@@ -191,33 +173,17 @@ namespace Sandbox.Game.Gui
 
             if (m_drawCells)
             {
-                MyAsteroidCellGenerator.Static.GetAllCells(m_tmpCellsList);
+                MyProceduralWorldGenerator.Static.GetAllCells(m_tmpCellsList);
                 foreach (var cell in m_tmpCellsList)
                 {
                     VRageRender.MyRenderProxy.DebugDrawAABB(cell.BoundingVolume, Color.Blue, 1f, 1f, true);
                 }
             }
             m_tmpCellsList.Clear();
-
-            var drawPos = new Vector2(0, 32);
-            int row = 0;
-            VRageRender.MyRenderProxy.DebugDrawText2D(drawPos * row++, "Cells: " + MyAsteroidCellGenerator.Static.CellCount, Color.Yellow, 1.0f);
-            VRageRender.MyRenderProxy.DebugDrawText2D(drawPos * row++, "Asteroid Seeds: " + MyAsteroidCellGenerator.Static.AsteroidSeedCount, Color.Yellow, 1.0f);
-            VRageRender.MyRenderProxy.DebugDrawText2D(drawPos * row++, "Encounter Seeds: " + MyAsteroidCellGenerator.Static.EncounterSeedCount, Color.Yellow, 1.0f);
-            row++;
-            VRageRender.MyRenderProxy.DebugDrawText2D(drawPos * row++, "Asteroids: " + MyAsteroidCellGenerator.Static.AsteroidCount + " / " + MySession.Static.VoxelMaps.Instances.Count, Color.Yellow, 1.0f);
-            VRageRender.MyRenderProxy.DebugDrawText2D(drawPos * row++, "Visible: " + visibleCount, Color.Yellow, 1.0f);
-            row++;
-            VRageRender.MyRenderProxy.DebugDrawText2D(drawPos * row++, "Encounters: " + MyAsteroidCellGenerator.Static.EncounterCount, Color.Yellow, 1.0f);
-            VRageRender.MyRenderProxy.DebugDrawText2D(drawPos * row++, "Fake Players: " + m_plys.Count, Color.Yellow, 1.0f);
-            row++;
-            VRageRender.MyRenderProxy.DebugDrawText2D(drawPos * row++, "Tracked Entities: " + MyAsteroidCellGenerator.Static.GetTrackedEntities().Count(), Color.Yellow, 1.0f);
-
-            VRageRender.MyRenderProxy.DebugDrawSphere(Vector3D.Zero, 0, Color.White, 1f, true); // this is here just to fix some weird color issues with profiler
         }
 
-        List<MyAsteroidCellGenerator.MyObjectSeed> m_tmpSeedsList = new List<MyAsteroidCellGenerator.MyObjectSeed>();
-        List<MyAsteroidCellGenerator.MyProceduralCell> m_tmpCellsList = new List<MyAsteroidCellGenerator.MyProceduralCell>();
+        List<MyObjectSeed> m_tmpSeedsList = new List<MyObjectSeed>();
+        List<MyProceduralCell> m_tmpCellsList = new List<MyProceduralCell>();
 
         public override string GetName()
         {

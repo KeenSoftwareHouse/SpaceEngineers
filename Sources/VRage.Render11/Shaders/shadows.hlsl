@@ -140,7 +140,7 @@ void blur(uint3 dispatchThreadID : SV_DispatchThreadID) {
 			float sample = Shadow[Texel + float2(i, 0)];
 			#endif
 
-			result += sample * gaussian_weigth(i, 2);
+			result += sample * gaussian_weigth(i, 1.5);
 		}
 		#ifdef VERTICAL
 		result = pow(result, 2);

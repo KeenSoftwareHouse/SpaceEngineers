@@ -118,12 +118,12 @@ namespace Sandbox.Game.Entities.Cube
         /// </summary>
         private void ConnectSmallToLargeBlock(MySlimBlock smallBlock, MySlimBlock largeBlock)
         {
-            Debug.Assert(smallBlock.CubeGrid.GridSizeEnum == MyCubeSize.Small);
-            Debug.Assert(largeBlock.CubeGrid.GridSizeEnum == MyCubeSize.Large);
+            Debug.Assert(GetCubeSize(smallBlock) == MyCubeSize.Small);
+            Debug.Assert(GetCubeSize(largeBlock) == MyCubeSize.Large);
             Debug.Assert(!(smallBlock.FatBlock is MyCompoundCubeBlock));
             Debug.Assert(!(largeBlock.FatBlock is MyCompoundCubeBlock));
 
-            if (smallBlock.CubeGrid.GridSizeEnum != MyCubeSize.Small || largeBlock.CubeGrid.GridSizeEnum != MyCubeSize.Large
+            if (GetCubeSize(smallBlock) != MyCubeSize.Small || GetCubeSize(largeBlock) != MyCubeSize.Large
                 || (smallBlock.FatBlock is MyCompoundCubeBlock) || (largeBlock.FatBlock is MyCompoundCubeBlock))
                 return;
 
@@ -173,12 +173,14 @@ namespace Sandbox.Game.Entities.Cube
         /// </summary>
         private void DisconnectSmallToLargeBlock(MySlimBlock smallBlock, MyCubeGrid smallGrid, MySlimBlock largeBlock, MyCubeGrid largeGrid)
         {
+            Debug.Assert(GetCubeSize(smallBlock) == MyCubeSize.Small);
+            Debug.Assert(GetCubeSize(largeBlock) == MyCubeSize.Large);
             Debug.Assert(smallGrid.GridSizeEnum == MyCubeSize.Small);
             Debug.Assert(largeGrid.GridSizeEnum == MyCubeSize.Large);
             Debug.Assert(!(smallBlock.FatBlock is MyCompoundCubeBlock));
             Debug.Assert(!(largeBlock.FatBlock is MyCompoundCubeBlock));
 
-            if (smallBlock.CubeGrid.GridSizeEnum != MyCubeSize.Small || largeBlock.CubeGrid.GridSizeEnum != MyCubeSize.Large
+            if (GetCubeSize(smallBlock) != MyCubeSize.Small || GetCubeSize(largeBlock) != MyCubeSize.Large
                 || (smallBlock.FatBlock is MyCompoundCubeBlock) || (largeBlock.FatBlock is MyCompoundCubeBlock))
                 return;
 
@@ -264,7 +266,7 @@ namespace Sandbox.Game.Entities.Cube
         /// <summary>
         /// Adds small/large block static connections and creates links. Returns true if the block connects to any other block.
         /// </summary>
-        internal bool AddBlockSmallToLargeConnection(MySlimBlock block)
+        public bool AddBlockSmallToLargeConnection(MySlimBlock block)
         {
             if (!Sync.IsServer)
                 return false;
@@ -288,7 +290,7 @@ namespace Sandbox.Game.Entities.Cube
                 return retval;
             }
 
-            MyCubeSize searchCubeSize = block.BlockDefinition.CubeSize == MyCubeSize.Large ? MyCubeSize.Small : MyCubeSize.Large;
+            MyCubeSize searchCubeSize = GetCubeSize(block) == MyCubeSize.Large ? MyCubeSize.Small : MyCubeSize.Large;
             GetSurroundingBlocksFromStaticGrids(block, searchCubeSize, m_tmpBlocks);
 
             if (m_tmpBlocks.Count == 0)
@@ -300,11 +302,11 @@ namespace Sandbox.Game.Entities.Cube
             block.GetWorldBoundingBox(out blockAabb);
             blockAabb.Inflate(0.05);
 
-            if (block.BlockDefinition.CubeSize == MyCubeSize.Large)
+            if (GetCubeSize(block) == MyCubeSize.Large)
             {
                 foreach (var smallBlock in m_tmpBlocks)
                 {
-                    Debug.Assert(smallBlock.CubeGrid.GridSizeEnum == MyCubeSize.Small);
+                    Debug.Assert(GetCubeSize(smallBlock.SlimBlock) == MyCubeSize.Small);
 
                     BoundingBoxD smallAabb = smallBlock.PositionComp.WorldAABB;
 
@@ -320,11 +322,11 @@ namespace Sandbox.Game.Entities.Cube
             }
             else
             {
-                Debug.Assert(block.BlockDefinition.CubeSize == MyCubeSize.Small);
+                Debug.Assert(GetCubeSize(block) == MyCubeSize.Small);
 
                 foreach (var largeBlock in m_tmpBlocks)
                 {
-                    Debug.Assert(largeBlock.BlockDefinition.CubeSize == MyCubeSize.Large);
+                    Debug.Assert(GetCubeSize(largeBlock.SlimBlock) == MyCubeSize.Large);
 
                     BoundingBoxD largeAabb = largeBlock.PositionComp.WorldAABB;
 
@@ -367,7 +369,7 @@ namespace Sandbox.Game.Entities.Cube
             Debug.Assert(m_tmpGrids.Count == 0);
             m_tmpGrids.Clear();
 
-            if (block.BlockDefinition.CubeSize == MyCubeSize.Large)
+            if (GetCubeSize(block) == MyCubeSize.Large)
             {
                 RemoveChangedLargeBlockConnectionToSmallBlocks(block, m_tmpGrids);
 
@@ -382,7 +384,7 @@ namespace Sandbox.Game.Entities.Cube
             }
             else
             {
-                Debug.Assert(block.BlockDefinition.CubeSize == MyCubeSize.Small);
+                Debug.Assert(GetCubeSize(block) == MyCubeSize.Small);
 
                 var group = MyCubeGridGroups.Static.SmallToLargeBlockConnections.GetGroup(block);
                 if (group == null)
@@ -490,7 +492,7 @@ namespace Sandbox.Game.Entities.Cube
         /// Tests whether the given small grid connect to any large tatic block.
         /// </summary>
         /// <returns>true if small grid connects to a latge grid otherwise false</returns>
-        internal bool TestGridSmallToLargeConnection(MyCubeGrid smallGrid)
+        public bool TestGridSmallToLargeConnection(MyCubeGrid smallGrid)
         {
             Debug.Assert(smallGrid.GridSizeEnum == MyCubeSize.Small);
 
@@ -515,8 +517,8 @@ namespace Sandbox.Game.Entities.Cube
         /// <returns>true when connected</returns>
         private bool SmallBlockConnectsToLarge(MySlimBlock smallBlock, ref BoundingBoxD smallBlockWorldAabb, MySlimBlock largeBlock, ref BoundingBoxD largeBlockWorldAabb)
         {
-            Debug.Assert(smallBlock.BlockDefinition.CubeSize == MyCubeSize.Small);
-            Debug.Assert(largeBlock.BlockDefinition.CubeSize == MyCubeSize.Large);
+            Debug.Assert(GetCubeSize(smallBlock) == MyCubeSize.Small);
+            Debug.Assert(GetCubeSize(largeBlock) == MyCubeSize.Large);
             Debug.Assert(!(smallBlock.FatBlock is MyCompoundCubeBlock));
             Debug.Assert(!(largeBlock.FatBlock is MyCompoundCubeBlock));
 
@@ -602,7 +604,7 @@ namespace Sandbox.Game.Entities.Cube
         /// </summary>
         private void RemoveChangedLargeBlockConnectionToSmallBlocks(MySlimBlock block, HashSet<MyCubeGrid> outSmallGrids)
         {
-            Debug.Assert(block.CubeGrid.GridSizeEnum == MyCubeSize.Large);
+            Debug.Assert(GetCubeSize(block) == MyCubeSize.Large);
 
             var group = MyCubeGridGroups.Static.SmallToLargeBlockConnections.GetGroup(block);
             if (group == null)
@@ -857,6 +859,23 @@ namespace Sandbox.Game.Entities.Cube
 
             m_tmpGrids.Clear();
             m_tmpBlockConnections.Clear();
+        }
+
+        private static MyCubeSize GetCubeSize(MySlimBlock block)
+        {
+            if (block.CubeGrid != null)
+                return block.CubeGrid.GridSizeEnum;
+
+            // Fractured small blocks are in large fracture block!
+            MyFracturedBlock fractureBlock = block.FatBlock as MyFracturedBlock;
+            if (fractureBlock != null && fractureBlock.OriginalBlocks.Count > 0)
+            {
+                MyCubeBlockDefinition def;
+                if (MyDefinitionManager.Static.TryGetCubeBlockDefinition(fractureBlock.OriginalBlocks[0], out def))
+                    return def.CubeSize;
+            }
+
+            return block.BlockDefinition.CubeSize;
         }
 
     }

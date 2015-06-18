@@ -52,7 +52,15 @@ namespace Sandbox.Game.Entities.Character
             }
         }
 
-        public void SetHealth(float health)
+		public void ForceUpdate()
+		{
+			if (m_character == null)
+				return;
+
+			SetHealth(m_character.Health);
+		}
+
+        private void SetHealth(float health)
         {
             if (health<20)
                 //play heavy breath indefinitely
@@ -93,11 +101,11 @@ namespace Sandbox.Game.Entities.Character
             }
         }
 
-        private void PlaySound(MyStringId soundId)
+        private void PlaySound(MyCueId soundId)
         {
             if (m_sound != null && m_sound.IsPlaying)
             {
-                var effect = MyAudio.Static.ApplyEffect(m_sound, MyStringId.GetOrCompute("CrossFade"), new MyStringId[] { soundId }, 2000);
+                var effect = MyAudio.Static.ApplyEffect(m_sound, MyStringHash.GetOrCompute("CrossFade"), new MyCueId[] { soundId }, 2000);
                 m_sound = effect.OutputSound;
             }
             else

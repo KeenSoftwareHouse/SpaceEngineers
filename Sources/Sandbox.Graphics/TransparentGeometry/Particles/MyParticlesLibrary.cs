@@ -59,6 +59,11 @@ namespace Sandbox.Graphics.TransparentGeometry.Particles
             return m_libraryEffects.ContainsKey(ID);
         }
 
+        public static MyParticleEffect GetParticleEffect(int particleEffectID)
+        {
+            return m_libraryEffects[particleEffectID];
+        }
+
         public static void UpdateParticleEffectID(int ID)
         {
             MyParticleEffect effect;

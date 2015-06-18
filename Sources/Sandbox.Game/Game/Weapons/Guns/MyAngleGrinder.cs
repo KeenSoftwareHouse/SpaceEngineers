@@ -32,7 +32,7 @@ namespace Sandbox.Game.Weapons
         static readonly float GRINDER_ACCELERATION_RPMPS = 700f;
         static readonly float GRINDER_DECELERATION_RPMPS = 500f;
 
-        List<MyInventoryItem> m_tmpItemList = new List<MyInventoryItem>();
+        List<MyPhysicalInventoryItem> m_tmpItemList = new List<MyPhysicalInventoryItem>();
         Dictionary<int, int> m_tmpComponents = new Dictionary<int, int>();
 
         MyHudNotification m_grindingNotification;
@@ -159,7 +159,7 @@ namespace Sandbox.Game.Weapons
         private void Grind()
         {
             var block = GetTargetBlock();
-            if (block != null)
+            if (block != null && block.CubeGrid.BlocksDestructionEnabled)
             {
                 float hackMultiplier = 1.0f;
                 if (block.FatBlock != null && Owner != null && Owner.ControllerInfo.Controller != null && Owner.ControllerInfo.Controller.Player != null)

@@ -14,7 +14,7 @@ namespace VRageRender.Techniques
 
             if (lodType == MyLodTypeEnum.LOD_BACKGROUND)
             {
-                shader.ApplyMultimaterialFar();
+                shader.ApplyMultimaterialFar(MyRenderConstants.RenderQualityProfile.VoxelsRenderTechnique);
             }
             else
             {

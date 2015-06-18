@@ -209,8 +209,8 @@ namespace VRageRender
                                     {
                                         RasterizerState.CullClockwise.Apply();
                                     }
-                                }                                   
-                                else
+                                }
+                                else if(doubleSided == false)
                                 {
                                     currentRasterizer.Apply();
                                     BlendState.Opaque.Apply();

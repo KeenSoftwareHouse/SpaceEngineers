@@ -1,4 +1,5 @@
-﻿using Sandbox.Game.GameSystems;
+﻿using Sandbox.Engine.Multiplayer;
+using Sandbox.Game.GameSystems;
 using Sandbox.Game.Gui;
 using Sandbox.Game.Multiplayer;
 using Sandbox.Game.World;
@@ -17,10 +18,19 @@ namespace Sandbox.Game.Screens
         {
             Debug.Assert(Sync.IsServer);
         }
-
+        public override void RecreateControls(bool constructor)
+        {
+            base.RecreateControls(constructor);
+            //m_canJoinRunning.Enabled = true;
+            //m_canJoinRunning.IsChecked = MySession.Static.Settings.CanJoinRunning;
+        }
         protected override void OnStartClicked(MyGuiControlButton sender)
         {
             Debug.Assert(Sync.IsServer);
+
+            MySession.Static.Settings.CanJoinRunning = false;
+            if (!MySession.Static.Settings.CanJoinRunning)
+                MyMultiplayer.Static.SetLobbyType(SteamSDK.LobbyTypeEnum.Private);
             MyScenarioSystem.Static.PrepareForStart();
             CloseScreen();
         }

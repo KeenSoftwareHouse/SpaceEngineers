@@ -32,7 +32,6 @@ namespace VRageRender
 
         bool m_hasAtmosphere = false;
 
-
         public bool HasAtmosphere
         {
             get 
@@ -57,6 +56,16 @@ namespace VRageRender
             }
         }
 
+        Vector3 m_atmosphereWavelengths;
+
+        public Vector3 AtmosphereWavelengths
+        {
+            get
+            {
+                return m_atmosphereWavelengths;
+            }
+        }
+
         public bool IsInside(Vector3D cameraPos)
         {
             return GetRelativeCameraPos(cameraPos).Length() < AtmosphereRadius;
@@ -69,9 +78,10 @@ namespace VRageRender
 
         public int BackgroundProxyData { get { return m_backgroundProxyData; } set { m_backgroundProxyData = value; } }
 
-        public MyRenderVoxelCellBackground(MyCellCoord coord, ref MatrixD worldMatrix, Vector3D position, float atmoshpereRadius, float planetRadius, bool hasAtmosphere) :
+        public MyRenderVoxelCellBackground(MyCellCoord coord, ref MatrixD worldMatrix, Vector3D position, float atmoshpereRadius, float planetRadius, bool hasAtmosphere, Vector3 atmosphereWavelengths) :
             base(MyClipmapScaleEnum.Massive, coord, ref worldMatrix)
         {
+            m_atmosphereWavelengths = atmosphereWavelengths;
             m_atmosphereRadius = atmoshpereRadius;
             m_planetRadius = planetRadius;
             m_hasAtmosphere = hasAtmosphere;

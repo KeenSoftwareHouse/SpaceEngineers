@@ -89,7 +89,7 @@ namespace Sandbox.Game.Screens.DebugScreens
             AddCheckBox("Green background", MyRenderProxy.Settings, MemberHelper.GetMember(() => MyRenderProxy.Settings.ShowGreenBackground));
             m_currentPosition.Y += 0.01f;
 
-            AddSlider("Clipmap highest lod", MyClipmap.DebugClipmapMostDetailedLod, 0, 10, (slider) => MyClipmap.DebugClipmapMostDetailedLod = slider.Value);
+            AddSlider("Clipmap highest lod", MyClipmap.DebugClipmapMostDetailedLod, 0f, 15.9f, (slider) => MyClipmap.DebugClipmapMostDetailedLod = slider.Value);
             m_currentPosition.Y += 0.01f;
         }
 

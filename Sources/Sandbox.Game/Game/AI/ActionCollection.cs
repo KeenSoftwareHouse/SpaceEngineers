@@ -31,7 +31,7 @@ namespace Sandbox.Game.AI
             }
         }
 
-        private Dictionary<MyStringId, BotActionDesc> m_actions = new Dictionary<MyStringId, BotActionDesc>();
+        private Dictionary<MyStringId, BotActionDesc> m_actions = new Dictionary<MyStringId, BotActionDesc>(MyStringId.Comparer);
 
         public void AddInitAction(string actionName, Action<IMyBot> action)
         {

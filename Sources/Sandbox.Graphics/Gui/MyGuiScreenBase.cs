@@ -73,6 +73,8 @@ namespace Sandbox.Graphics.GUI
 
         //Fields
         protected float m_transitionAlpha;
+        protected float m_backgroundTransition;
+        protected float m_guiTransition;
         private MyGuiControls m_controls;
         protected Vector2 m_position;
         protected Color m_backgroundFadeColor;
@@ -158,7 +160,9 @@ namespace Sandbox.Graphics.GUI
             Vector4? backgroundColor = null,
             Vector2? size = null,
             bool isTopMostScreen = false,
-            string backgroundTexture = null)
+            string backgroundTexture = null, 
+            float backgroundTransition = 0.0f,
+            float guiTransition = 0.0f)
         {
             m_controls = new MyGuiControls(this);
             m_backgroundFadeColor = Color.White;
@@ -174,6 +178,8 @@ namespace Sandbox.Graphics.GUI
             m_backgroundTexture = backgroundTexture;
 
             Elements = new MyGuiControls(this);
+            m_backgroundTransition = backgroundTransition;
+            m_guiTransition = guiTransition;
             CreateCloseButton();
             SetDefaultCloseButtonOffset();
         }
@@ -867,29 +873,36 @@ namespace Sandbox.Graphics.GUI
                     }
                 }
 
-                MyGuiManager.DrawSpriteBatch(m_backgroundTexture, m_position, m_size.Value, ApplyTransitionAlpha(m_backgroundColor.Value), MyGuiDrawAlignEnum.HORISONTAL_CENTER_AND_VERTICAL_CENTER);
+                MyGuiManager.DrawSpriteBatch(m_backgroundTexture, m_position, m_size.Value, ApplyTransitionAlpha(m_backgroundColor.Value, m_guiTransition != 0 ? m_backgroundTransition : m_transitionAlpha), MyGuiDrawAlignEnum.HORISONTAL_CENTER_AND_VERTICAL_CENTER);
 
                 //if (MyFakes.DRAW_GUI_SCREEN_BORDERS && MyFinalBuildConstants.IS_DEBUG)
                 //{
                 //    MyGuiManager2.DrawBorders(GetPositionAbsoluteTopLeft(), m_size.Value, Color.White, 1);
                 //}
             }
-
-            DrawElements(m_transitionAlpha);
-            DrawControls(m_transitionAlpha);
+            if (m_guiTransition != 0)
+            {
+                DrawElements(m_guiTransition, m_backgroundTransition);
+                DrawControls(m_guiTransition, m_backgroundTransition);
+            }
+            else
+            {
+                DrawElements(m_transitionAlpha, m_transitionAlpha);
+                DrawControls(m_transitionAlpha, m_transitionAlpha);
+            }
             return true;
         }
 
-        private void DrawElements(float transitionAlpha)
+        private void DrawElements(float transitionAlpha, float backgroundTransitionAlpha)
         {
             foreach (var element in Elements)
             {
                 if (element.Visible)
-                    element.Draw(transitionAlpha);
+                    element.Draw(transitionAlpha, backgroundTransitionAlpha);
             }
         }
 
-        private void DrawControls(float transitionAlpha)
+        private void DrawControls(float transitionAlpha, float backgroundTransitionAlpha)
         {
             //  Then draw all screen controls, except opened combobox and drag and drop - must be drawn as last
             // foreach (MyGuiControlBase control in Controls.GetVisibleControls())  //dont use this - allocations
@@ -900,7 +913,7 @@ namespace Sandbox.Graphics.GUI
                 if (control != m_comboboxHandlingNow && control != m_listboxDragAndDropHandlingNow)
                 {
                     //if (MySandboxGame.IsPaused && !control.DrawWhilePaused) continue;
-                    control.Draw(transitionAlpha);
+                    control.Draw(transitionAlpha, backgroundTransitionAlpha);
                 }
             }
 
@@ -908,12 +921,12 @@ namespace Sandbox.Graphics.GUI
 
             if (m_comboboxHandlingNow != null)
             {
-                m_comboboxHandlingNow.Draw(transitionAlpha);
+                m_comboboxHandlingNow.Draw(transitionAlpha, backgroundTransitionAlpha);
             }
 
             if (m_listboxDragAndDropHandlingNow != null)
             {
-                m_listboxDragAndDropHandlingNow.Draw(transitionAlpha);
+                m_listboxDragAndDropHandlingNow.Draw(transitionAlpha, backgroundTransitionAlpha);
             }
 
             // draw tooltips only when screen has focus
@@ -1062,10 +1075,10 @@ namespace Sandbox.Graphics.GUI
         }
 
         //  Changes color according to transition alpha, this when opening the screen - it from 100% transparent to 100% opaque. When closing it's opposite.
-        protected Color ApplyTransitionAlpha(Vector4 color)
+        protected Color ApplyTransitionAlpha(Vector4 color, float transition)
         {
             Vector4 ret = color;
-            ret.W *= m_transitionAlpha;
+            ret.W *= transition;
             return new Color(ret);
         }
 

@@ -80,7 +80,7 @@ namespace Sandbox.Game.World.Generator
             return wasFound;
         }
 
-        public static bool PlaceEncounterToWorld(BoundingBoxD boundingVolume, int seed, MyAsteroidCellGenerator.MyObjectSeedType seedType)
+        public static bool PlaceEncounterToWorld(BoundingBoxD boundingVolume, int seed, MyObjectSeedType seedType)
         {
             if (MySession.Static.Settings.EnableEncounters == false)
             {
@@ -112,8 +112,8 @@ namespace Sandbox.Game.World.Generator
                 m_randomEncounters.Clear();
                 m_placePositions.Clear();
                 m_encountersId.Clear();
-                int numEncoutersToPlace = seedType == MyAsteroidCellGenerator.MyObjectSeedType.EncounterMulti ? 2 : 1;
-                List<MySpawnGroupDefinition> currentSpawnGroup = seedType == MyAsteroidCellGenerator.MyObjectSeedType.EncounterMulti ? m_spawnGroupsNoVoxels : m_spawnGroups;
+                int numEncoutersToPlace = seedType == MyObjectSeedType.EncounterMulti ? 2 : 1;
+                List<MySpawnGroupDefinition> currentSpawnGroup = seedType == MyObjectSeedType.EncounterMulti ? m_spawnGroupsNoVoxels : m_spawnGroups;
 
                 for (int i = 0; i < numEncoutersToPlace; ++i)
                 {
