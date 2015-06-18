@@ -410,6 +410,13 @@ namespace Sandbox.Game.Entities
             }
         }
 
+        public override void OnModelChange()
+        {
+            base.OnModelChange();
+
+            m_prevFillCount = -1;
+        }
+
         private float ComputeMaxPowerOutput()
         {
             return IsWorking && ProductionEnabled ? m_batteryBlockDefinition.MaxPowerOutput : 0f;

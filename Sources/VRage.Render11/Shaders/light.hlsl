@@ -73,9 +73,17 @@ static const float3 PCF_SHADOW_SAMPLES[] = {
 };
 static const float PCF_SAMPLES_NUM = 7;
 
-void spotlightFromProxy(float4 svPos : SV_Position, out float3 output : SV_Target0)
+void spotlightFromProxy(float4 svPos : SV_Position, out float3 output : SV_Target0
+#ifdef SAMPLE_FREQ_PASS
+	, uint sample_index : SV_SampleIndex
+#endif
+	)
 {
+#if !defined(MS_SAMPLE_COUNT) || defined(PIXEL_FREQ_PASS)
 	SurfaceInterface surface = read_gbuffer(svPos.xy);
+#else
+	SurfaceInterface surface = read_gbuffer(svPos.xy, sample_index);
+#endif
 
 	float3 L = Spotlight.position - surface.position;
 	float distance = length(L);
@@ -113,7 +121,7 @@ void spotlightFromProxy(float4 svPos : SV_Position, out float3 output : SV_Targe
 	}
 
 	float3 light_factor = shadow * falloff * attenuation * Spotlight.color * mask;
-	output =  light_factor * calculate_light(surface, L);
+	output = light_factor * calculate_light(surface, L);
 }
 
 void pointlights_tiled(PostprocessVertex vertex, uint instance_id : SV_InstanceID, out float3 output : SV_Target0

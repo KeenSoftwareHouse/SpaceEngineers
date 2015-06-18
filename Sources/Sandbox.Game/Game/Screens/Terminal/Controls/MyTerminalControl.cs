@@ -14,7 +14,7 @@ namespace Sandbox.Game.Gui
     /// Terminal control for specified block type.
     /// E.g. Torque slider for stator
     /// </summary>
-    abstract class MyTerminalControl<TBlock> : ITerminalControl
+    public abstract class MyTerminalControl<TBlock> : ITerminalControl
         where TBlock : MyTerminalBlock
     {
         public delegate void WriterDelegate(TBlock block, StringBuilder writeTo);

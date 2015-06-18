@@ -93,6 +93,7 @@
     <Compile Include="BulletXNA\LinearMath\UShortVector3.cs" />
     <Compile Include="BulletXNA\MathUtil.cs" />
     <Compile Include="Collections\CachingDictionary.cs" />
+    <Compile Include="Collections\CachingHashSet.cs" />
     <Compile Include="Collections\CachingList.cs" />
     <Compile Include="Collections\MyBinaryStructHeap.cs" />
     <Compile Include="Collections\MyConcurrentDeque.cs" />

@@ -7,9 +7,8 @@ using VRageMath;
 
 namespace Sandbox.Game.World.Generator
 {
-    interface IMyAsteroidFieldDensityFunction: IMyModule
+    public interface IMyAsteroidFieldDensityFunction: IMyModule
     {
-        bool ExistsInCell(ref Vector3I cellId);
-        double GetValue(ref Vector3D position);
+        bool ExistsInCell(ref BoundingBoxD bbox);
     }
 }

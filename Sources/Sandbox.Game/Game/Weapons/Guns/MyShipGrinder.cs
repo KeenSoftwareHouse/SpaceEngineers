@@ -32,7 +32,7 @@ namespace Sandbox.Game.Weapons
 
         const float RANDOM_IMPULSE_SCALE = 500.0f;
 
-        private static List<MyInventoryItem> m_tmpItemList = new List<MyInventoryItem>();
+        private static List<MyPhysicalInventoryItem> m_tmpItemList = new List<MyPhysicalInventoryItem>();
 
         bool m_wantsToShake = false;
         MyCubeGrid m_otherGrid = null;

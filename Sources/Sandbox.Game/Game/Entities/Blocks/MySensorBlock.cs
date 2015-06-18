@@ -854,7 +854,7 @@ namespace Sandbox.Game.Entities.Blocks
             var boundingBox = new BoundingBoxD(m_fieldMin, m_fieldMax).Translate(PositionComp.LocalVolume.Center).Transform(WorldMatrix.GetOrientation()).Translate(PositionComp.GetPosition());
 
             m_potentialPenetrations.Clear();
-            MyGamePruningStructure.GetAllSensableEntitiesInBox<MyEntity>(ref boundingBox, m_potentialPenetrations);
+            MyGamePruningStructure.GetAllTopMostEntitiesInBox<MyEntity>(ref boundingBox, m_potentialPenetrations);
 
             VRageRender.MyRenderProxy.GetRenderProfiler().StartProfilingBlock("Sensor Physics");
             LastDetectedEntity = null;

@@ -62,6 +62,7 @@ namespace Sandbox.Game.World
         public DateTime LastLoadTime;
         public ulong? WorkshopId = null;
         public string Briefing;
+        public bool ScenarioEditMode = false;
     }
 
     /// <summary>
@@ -145,6 +146,8 @@ namespace Sandbox.Game.World
         public bool Enable3RdPersonView { get { return Settings.Enable3rdPersonView; } }
         public bool EnableToolShake { get { return Settings.EnableToolShake; } }
         public bool ShowPlayerNamesOnHud { get { return Settings.ShowPlayerNamesOnHud; } }
+		public bool EnableStationVoxelSupport { get { return Settings.EnableStationVoxelSupport; } }
+		public bool EnableFlora { get { return Settings.EnableFlora; } }
         public bool ClientCanSave { get { return Settings.ClientCanSave; } }
         public short MaxPlayers { get { return Settings.MaxPlayers; } }
         public short MaxFloatingObjects { get { return Settings.MaxFloatingObjects; } }
@@ -165,6 +168,7 @@ namespace Sandbox.Game.World
         public List<Tuple<string, MyBlueprintItemInfo>> BattleBlueprints;
 
         public bool SimpleSurvival { get { return MyFakes.ENABLE_SIMPLE_SURVIVAL && SurvivalMode && !Battle; } }
+        public float CharacterLootingTime;
 
         public List<MyObjectBuilder_Checkpoint.ModItem> Mods;
         public MyScenarioDefinition Scenario;
@@ -242,6 +246,14 @@ namespace Sandbox.Game.World
             get
             {
                 return LocalHumanPlayer == null ? null : LocalHumanPlayer.Character;
+            }
+        }
+
+        public static long LocalCharacterEntityId
+        {
+            get
+            {
+                return LocalCharacter == null ? 0 : LocalCharacter.EntityId;
             }
         }
 
@@ -591,6 +603,7 @@ namespace Sandbox.Game.World
 
         public void LoadDataComponents(bool registerEvents = true)
         {
+            CharacterLootingTime = MyPerGameSettings.CharacterDefaultLootingCounter;
             RaiseOnLoading();
 
             if (registerEvents)
@@ -1482,7 +1495,7 @@ namespace Sandbox.Game.World
             LoadChatHistory(checkpoint);
 
             if (MyFakes.ENABLE_MISSION_TRIGGERS)
-                MySessionComponentMission.Static.Load(checkpoint.MissionTriggers);
+                MySessionComponentMissionTriggers.Static.Load(checkpoint.MissionTriggers);
 
             MyEncounterGenerator.Load(sector.Encounters);
             VRageRender.MyRenderProxy.RebuildCullingStructure();
@@ -1706,6 +1719,7 @@ namespace Sandbox.Game.World
             if (!settings.PermanentDeath.HasValue) settings.PermanentDeath = true;
             settings.ViewDistance = MathHelper.Clamp(settings.ViewDistance, 1000, 50000);
             VRageRender.MyRenderProxy.Settings.NightMode = false;
+            if (MySandboxGame.IsDedicated) settings.Scenario = false;
         }
 
         private static void ShowLoadingError()
@@ -2090,7 +2104,7 @@ namespace Sandbox.Game.World
             Gpss.SaveGpss(checkpoint);
 
             if (MyFakes.ENABLE_MISSION_TRIGGERS)
-                checkpoint.MissionTriggers = MySessionComponentMission.Static.GetObjectBuilder();
+                checkpoint.MissionTriggers = MySessionComponentMissionTriggers.Static.GetObjectBuilder();
 
 
             if (MyFakes.SHOW_FACTIONS_GUI)

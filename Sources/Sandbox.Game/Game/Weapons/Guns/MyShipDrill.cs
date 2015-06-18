@@ -64,6 +64,7 @@ namespace Sandbox.Game.Weapons
 
         private MyCharacter m_owner;
         private bool m_useConveyorSystem;
+		public bool IsDeconstructor { get { return false; } }
         private IMyConveyorEndpoint m_multilineConveyorEndpoint;
 
         static MyShipDrill()

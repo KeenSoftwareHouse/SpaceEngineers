@@ -614,10 +614,10 @@ namespace Sandbox.Game.Entities.Cube
             return BreakableShape;
         }
 
-        private static bool HasBreakableShape(MyCubeBlockDefinition block)
+        private static bool HasBreakableShape(string model, MyCubeBlockDefinition block)
         {
-            var model = MyModels.GetModelOnlyData(block.Model);
-            return model != null && model.HavokBreakableShapes != null && model.HavokBreakableShapes.Length > 0;
+            var modelData = MyModels.GetModelOnlyData(model);
+            return modelData != null && modelData.HavokBreakableShapes != null && modelData.HavokBreakableShapes.Length > 0;
         }
 
         /// <summary>
@@ -625,17 +625,17 @@ namespace Sandbox.Game.Entities.Cube
         /// </summary>
         /// <param name="block"></param>
         /// <returns>Cloned shape</returns>
-        private static HkdBreakableShape GetBreakableShape(MyCubeBlockDefinition block)
+        private static HkdBreakableShape GetBreakableShape(string model, MyCubeBlockDefinition block)
         {
             if (MyFakes.LAZY_LOAD_DESTRUCTION)
             {
-                var data = MyModels.GetModelOnlyData(block.Model);
+                var data = MyModels.GetModelOnlyData(model);
                 if (data.HavokBreakableShapes == null)
                 {
-                    MyDestructionData.Static.LoadModelDestruction(block, false, data.BoundingBoxSize);
+                    MyDestructionData.Static.LoadModelDestruction(model, block, false, data.BoundingBoxSize);
                 }
             }
-            return MyDestructionData.Static.BlockShapePool.GetBreakableShape(block);
+            return MyDestructionData.Static.BlockShapePool.GetBreakableShape(model, block);
         }
 
         List<HkShape> m_khpShapeList = new List<HkShape>();
@@ -663,10 +663,12 @@ namespace Sandbox.Game.Entities.Cube
                     ProfilerShort.Begin("SingleBlock");
                     var block = cb.GetBlocks()[0];
                     var defId = block.FatBlock.BlockDefinition;
-                    if (MyFakes.LAZY_LOAD_DESTRUCTION || HasBreakableShape(defId))
+                    Matrix m;
+                    var model = block.CalculateCurrentModel(out m);
+                    if (MyFakes.LAZY_LOAD_DESTRUCTION || HasBreakableShape(model, defId))
                     {
                         ProfilerShort.Begin("Clone");
-                        breakableShape = GetBreakableShape(defId);
+                        breakableShape = GetBreakableShape(model, defId);
                         ProfilerShort.End();
                     }
 
@@ -685,11 +687,13 @@ namespace Sandbox.Game.Entities.Cube
                         block.Orientation.GetMatrix(out compoundChildTransform);
                         compoundChildTransform.Translation = Vector3.Zero;
                         var blockDef = block.BlockDefinition;
-                        if (MyFakes.LAZY_LOAD_DESTRUCTION || HasBreakableShape(blockDef))
+                        Matrix m;
+                        var model = block.CalculateCurrentModel(out m);
+                        if (MyFakes.LAZY_LOAD_DESTRUCTION || HasBreakableShape(model, blockDef))
                         {
                             ProfilerShort.Begin("Clone");
 
-                            breakableShape = GetBreakableShape(blockDef);
+                            breakableShape = GetBreakableShape(model, blockDef);
                             breakableShape.UserObject |= (uint)HkdBreakableShape.Flags.FRACTURE_PIECE;
                             System.Diagnostics.Debug.Assert(breakableShape.IsValid(), "Invalid breakableShape");
 
@@ -752,6 +756,8 @@ namespace Sandbox.Game.Entities.Cube
                 ProfilerShort.Begin("SingleBlock");
                 b.Orientation.GetMatrix(out blockTransform);
                 blockTransform.Translation = b.FatBlock.PositionComp.LocalMatrix.Translation;
+                Matrix m;
+                var model = b.CalculateCurrentModel(out m);
                 if (b.FatBlock is MyFracturedBlock)
                 {
                     ProfilerShort.Begin("CloneFracture");
@@ -759,10 +765,10 @@ namespace Sandbox.Game.Entities.Cube
                     breakableShape.AddReference();
                     ProfilerShort.End();
                 }
-                else if (MyFakes.LAZY_LOAD_DESTRUCTION || HasBreakableShape(b.BlockDefinition))
+                else if (MyFakes.LAZY_LOAD_DESTRUCTION || HasBreakableShape(model, b.BlockDefinition))
                 {
                     ProfilerShort.Begin("Clone");
-                    breakableShape = GetBreakableShape(b.BlockDefinition);
+                    breakableShape = GetBreakableShape(model, b.BlockDefinition);
                     ProfilerShort.End();
                 }
                 ProfilerShort.End();

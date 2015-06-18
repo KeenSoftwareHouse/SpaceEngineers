@@ -307,7 +307,10 @@ namespace Sandbox.Game.Entities
             var waypointList = new MyTerminalControlListbox<MyRemoteControl>("WaypointList", MySpaceTexts.BlockPropertyTitle_Waypoints, MySpaceTexts.Blank, true);
             waypointList.ListContent = (x, list1, list2) => x.FillWaypointList(list1, list2);
             waypointList.ItemSelected = (x, y) => x.SelectWaypoint(y);
-            m_waypointGuiControl = (MyGuiControlListbox)((MyGuiControlBlockProperty)waypointList.GetGuiControl()).PropertyControl;
+            if (!MySandboxGame.IsDedicated)
+            {
+                m_waypointGuiControl = (MyGuiControlListbox)((MyGuiControlBlockProperty)waypointList.GetGuiControl()).PropertyControl;
+            }
             MyTerminalControlFactory.AddControl(waypointList);
 
 
@@ -368,7 +371,10 @@ namespace Sandbox.Game.Entities
             var gpsList = new MyTerminalControlListbox<MyRemoteControl>("GpsList", MySpaceTexts.BlockPropertyTitle_GpsLocations, MySpaceTexts.Blank, true);
             gpsList.ListContent = (x, list1, list2) => x.FillGpsList(list1, list2);
             gpsList.ItemSelected = (x, y) => x.SelectGps(y);
-            m_gpsGuiControl = (MyGuiControlListbox)((MyGuiControlBlockProperty)gpsList.GetGuiControl()).PropertyControl;
+            if (!MySandboxGame.IsDedicated)
+            {
+                m_gpsGuiControl = (MyGuiControlListbox)((MyGuiControlBlockProperty)gpsList.GetGuiControl()).PropertyControl;
+            }
             MyTerminalControlFactory.AddControl(gpsList);
 
             foreach (var direction in m_directionNames)
@@ -1098,14 +1104,14 @@ namespace Sandbox.Game.Entities
 
         private void RaisePropertiesChangedRemote()
         {
-            int gpsFirstVisibleRow = m_gpsGuiControl.FirstVisibleRow;
-            int waypointFirstVisibleRow = m_waypointGuiControl.FirstVisibleRow;
+            int gpsFirstVisibleRow = m_gpsGuiControl != null ? m_gpsGuiControl.FirstVisibleRow : 0;
+            int waypointFirstVisibleRow = m_waypointGuiControl != null ? m_waypointGuiControl.FirstVisibleRow : 0;
             RaisePropertiesChanged();
-            if (gpsFirstVisibleRow < m_gpsGuiControl.Items.Count)
+            if (m_gpsGuiControl != null && gpsFirstVisibleRow < m_gpsGuiControl.Items.Count)
             {
                 m_gpsGuiControl.FirstVisibleRow = gpsFirstVisibleRow;
             }
-            if (waypointFirstVisibleRow < m_waypointGuiControl.Items.Count)
+            if (m_waypointGuiControl != null && waypointFirstVisibleRow < m_waypointGuiControl.Items.Count)
             {
                 m_waypointGuiControl.FirstVisibleRow = waypointFirstVisibleRow;
             }

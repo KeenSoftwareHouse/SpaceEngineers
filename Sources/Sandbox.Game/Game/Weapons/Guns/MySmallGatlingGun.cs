@@ -52,6 +52,7 @@ namespace Sandbox.Game.Weapons
         public float MuzzleFlashLength { get { return  m_muzzleFlashLength;}}
         float m_muzzleFlashRadius;
         public float MuzzleFlashRadius{ get { return m_muzzleFlashRadius; } }
+		public bool IsDeconstructor { get { return false; } }
 
         //  When gun fires too much, we start generating smokes at the muzzle
         int m_smokeLastTime;

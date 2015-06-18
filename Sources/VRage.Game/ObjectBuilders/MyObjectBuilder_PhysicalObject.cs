@@ -28,7 +28,7 @@ namespace Sandbox.Common.ObjectBuilders
             return CanStack(a.TypeId, a.SubtypeId, a.Flags);
         }
 
-        public virtual bool CanStack(MyObjectBuilderType typeId, MyStringId subtypeId, MyItemFlags flags)
+        public virtual bool CanStack(MyObjectBuilderType typeId, MyStringHash subtypeId, MyItemFlags flags)
         {
             if (flags == Flags &&
                 typeId == TypeId &&

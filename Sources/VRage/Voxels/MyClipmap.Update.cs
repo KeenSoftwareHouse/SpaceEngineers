@@ -38,7 +38,7 @@ namespace VRage.Voxels
                 var lodRanges = m_lodRangeGroups[group];
                 lodRanges[0] = 0f;
                 int i = 1;
-                int copyStop = Math.Min(lodRanges.Length, lodDistances.Length + 1);
+                int copyStop = Math.Min(lodRanges.Length, lodDistances[group].Length + 1);
                 for (; i < copyStop; ++i)
                 {
                     lodRanges[i] = lodDistances[group][i - 1];

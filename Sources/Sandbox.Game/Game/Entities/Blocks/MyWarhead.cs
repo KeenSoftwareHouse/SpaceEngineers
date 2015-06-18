@@ -201,7 +201,7 @@ namespace Sandbox.Game.Entities.Cube
                 MyCubeBlock.UpdateEmissiveParts(Render.RenderObjectIDs[0], 0.0f, Color.Gray, Color.White);
         }
 
-        internal override void ContactPointCallback(ref MyGridContactInfo value)
+        public override void ContactPointCallback(ref MyGridContactInfo value)
         {
             base.ContactPointCallback(ref value);
 
@@ -210,7 +210,7 @@ namespace Sandbox.Game.Entities.Cube
 
             if (System.Math.Abs(value.Event.SeparatingVelocity) > 5 && IsFunctional)
             {
-                if (MySession.Static.DestructibleBlocks)
+                if (CubeGrid.BlocksDestructionEnabled)
                     Explode();
             }
         }

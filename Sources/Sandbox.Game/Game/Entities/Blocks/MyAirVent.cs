@@ -329,7 +329,9 @@ namespace Sandbox.Game.Entities.Blocks
                 {
                     if (oxygenBlock.Room != null)
                     {
-                        SetEmissive(Color.Yellow, oxygenBlock.OxygenLevel(CubeGrid.GridSize));
+                        float oxygenLevel = oxygenBlock.OxygenLevel(CubeGrid.GridSize);
+                        oxygenLevel = Math.Max(oxygenLevel, oxygenBlock.Room.EnvironmentOxygen);
+                        SetEmissive(Color.Yellow, oxygenLevel);
                     }
                 }
             }
@@ -387,6 +389,13 @@ namespace Sandbox.Game.Entities.Blocks
                 m_prevColor = color;
                 m_prevFillCount = fillCount;
             }
+        }
+
+        public override void OnModelChange()
+        {
+            base.OnModelChange();
+
+            m_prevFillCount = -1;
         }
 
         protected override void Closing()
@@ -490,19 +499,26 @@ namespace Sandbox.Game.Entities.Blocks
             }
 
             var oxygenBlock = GetOxygenBlock();
-            if (oxygenBlock.Room == null || !oxygenBlock.Room.IsPressurized)
+            if (oxygenBlock.Room == null)
             {
                 return 0f;
             }
 
-            float oxygenLeft = (float)oxygenBlock.Room.OxygenAmount;
-
-            if (oxygenLeft <= 0f)
+            if (oxygenBlock.Room.IsPressurized)
             {
-                oxygenLeft = 0f;
-            }
+                float oxygenLeft = (float)oxygenBlock.Room.OxygenAmount;
 
-            return Math.Min(oxygenLeft, BlockDefinition.VentilationCapacityPerSecond) * deltaTime;
+                if (oxygenLeft <= 0f)
+                {
+                    oxygenLeft = 0f;
+                }
+
+                return Math.Min(oxygenLeft, BlockDefinition.VentilationCapacityPerSecond) * deltaTime;
+            }
+            else
+            {
+                return BlockDefinition.VentilationCapacityPerSecond * MyOxygenProviderSystem.GetOxygenInPoint(WorldMatrix.Translation) * deltaTime;
+            }
         }
 
         void IMyOxygenProducer.Produce(float amount)
@@ -516,19 +532,28 @@ namespace Sandbox.Game.Entities.Blocks
             Debug.Assert(amount >= 0f);
 
             var oxygenBlock = GetOxygenBlock();
-            if (oxygenBlock.Room == null || !oxygenBlock.Room.IsPressurized)
+            if (oxygenBlock.Room == null)
             {
                 return;
             }
 
-            oxygenBlock.Room.OxygenAmount -= amount;
-            if (oxygenBlock.Room.OxygenAmount < 0f)
+            if (oxygenBlock.Room.IsPressurized)
             {
-                oxygenBlock.Room.OxygenAmount = 0f;
-            }
+                oxygenBlock.Room.OxygenAmount -= amount;
+                if (oxygenBlock.Room.OxygenAmount < 0f)
+                {
+                    oxygenBlock.Room.OxygenAmount = 0f;
+                }
 
-            if (amount > 0)
+                if (amount > 0)
+                {
+                    m_producedSinceLastUpdate = true;
+                }
+            }
+            else
             {
+                //Take from environment, nothing to do
+                Debug.Assert(MyOxygenProviderSystem.GetOxygenInPoint(WorldMatrix.Translation) > 0f);
                 m_producedSinceLastUpdate = true;
             }
         }
