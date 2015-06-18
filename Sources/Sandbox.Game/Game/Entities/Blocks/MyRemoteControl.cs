@@ -1126,7 +1126,7 @@ namespace Sandbox.Game.Entities
                 Debug.Assert(CubeGrid.GridSystems.ThrustSystem.AutopilotEnabled == true);
                 Debug.Assert(CubeGrid.GridSystems.GyroSystem.AutopilotEnabled == true);
 
-                if (m_currentWaypoint == null && m_waypoints.Count > 0)
+                if (m_waypoints.Count > 0 && (m_currentWaypoint == null || m_currentWaypoint == m_waypoints[0]))
                 {
                     m_currentWaypoint = m_waypoints[0];
                     m_startPosition = WorldMatrix.Translation;
