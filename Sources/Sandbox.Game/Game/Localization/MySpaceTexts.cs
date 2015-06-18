@@ -10625,6 +10625,10 @@ namespace Sandbox.Game.Localization
         public static readonly MyStringId ToolTipWorldSettings_DisableRespawnShips = MyStringId.GetOrCompute("ToolTipWorldSettings_DisableRespawnShips");
 
         ///<summary>
+        ///Audible Proximity Alert
+        ///</summary>
+        public static readonly MyStringId BlockPropertyTitle_SensorPlaySound = MyStringId.GetOrCompute("BlockPropertyTitle_SensorPlaySound");
+
         ///PUBLISH SCENARIO
         ///</summary>
         public static readonly MyStringId MessageBoxCaptionDoYouWishToPublishScenario = MyStringId.GetOrCompute("MessageBoxCaptionDoYouWishToPublishScenario");
