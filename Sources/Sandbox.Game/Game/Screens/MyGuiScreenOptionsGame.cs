@@ -24,6 +24,8 @@ namespace Sandbox.Game.Gui
             public bool DisableHeadbob;
             public bool CompressSaveGames;
             public bool ShowPlayerNamesOnHud;
+            public float UITransparency;
+            public float UIBkTransparency;
         }
 
         MyGuiControlCombobox m_languageCombobox;
@@ -34,12 +36,14 @@ namespace Sandbox.Game.Gui
         MyGuiControlCheckbox m_disableHeadbobCheckbox;
         MyGuiControlCheckbox m_compressSavesCheckbox;
         MyGuiControlCheckbox m_showPlayerNamesCheckbox;
+        MyGuiControlSlider m_UITransparencySlider;
+        MyGuiControlSlider m_UIBkTransparencySlider;
         private MyGuiControlButton m_localizationWebButton;
         private MyGuiControlLabel m_localizationWarningLabel;
         private OptionsGameSettings m_settings = new OptionsGameSettings();
 
         public MyGuiScreenOptionsGame()
-            : base(new Vector2(0.5f, 0.5f), MyGuiConstants.SCREEN_BACKGROUND_COLOR, size: new Vector2(0.51f, 0.7f))
+            : base(new Vector2(0.5f, 0.5f), MyGuiConstants.SCREEN_BACKGROUND_COLOR, size: new Vector2(0.51f, 0.9f), backgroundTransition: MySandboxGame.Config.UIBkTransparency, guiTransition: MySandboxGame.Config.UITransparency)
         {
             EnabledBackgroundFade = true;
 
@@ -197,6 +201,34 @@ namespace Sandbox.Game.Gui
             };
             m_showPlayerNamesCheckbox.IsCheckedChanged += checkboxChanged;
 
+            rowIndex++;
+            var UITransparencyLabel = new MyGuiControlLabel(text: MyTexts.GetString(MySpaceTexts.ScreenOptionsGame_UITransparency))
+            {
+                Position = controlsOriginLeft + rowIndex * controlsDelta,
+                OriginAlign = leftAlign
+            };
+            rowIndex++;
+            m_UITransparencySlider = new MyGuiControlSlider(toolTip: MyTexts.GetString(MySpaceTexts.ToolTipGameOptionsUITransparency), minValue: 0.1f, maxValue: 1.0f, defaultValue: 1.0f)
+            {
+                Position = controlsOriginRight + rowIndex * controlsDelta,
+                OriginAlign = rightAlign,
+            };
+            m_UITransparencySlider.ValueChanged += sliderChanged;
+
+            rowIndex++;
+            var UIBkTransparencyLabel = new MyGuiControlLabel(text: MyTexts.GetString(MySpaceTexts.ScreenOptionsGame_UIBkTransparency))
+            {
+                Position = controlsOriginLeft + rowIndex * controlsDelta,
+                OriginAlign = leftAlign
+            };
+            rowIndex++;
+            m_UIBkTransparencySlider = new MyGuiControlSlider(toolTip: MyTexts.GetString(MySpaceTexts.ToolTipGameOptionsUIBkTransparency), minValue: 0, maxValue: 1.0f, defaultValue: 1.0f)
+            {
+                Position = controlsOriginRight + rowIndex * controlsDelta,
+                OriginAlign = rightAlign,
+            };
+            m_UIBkTransparencySlider.ValueChanged += sliderChanged;
+
             //  Buttons OK and CANCEL
             var buttonOk = new MyGuiControlButton(text: MyTexts.Get(MySpaceTexts.Ok), onButtonClick: OnOkClick);
             var buttonCancel = new MyGuiControlButton(text: MyTexts.Get(MySpaceTexts.Cancel), onButtonClick: OnCancelClick);
@@ -225,6 +257,10 @@ namespace Sandbox.Game.Gui
             Controls.Add(m_compressSavesCheckbox);
             Controls.Add(showPlayerNamesOnHudLabel);
             Controls.Add(m_showPlayerNamesCheckbox);
+            Controls.Add(UITransparencyLabel);
+            Controls.Add(m_UITransparencySlider);
+            Controls.Add(UIBkTransparencyLabel);
+            Controls.Add(m_UIBkTransparencySlider);
             Controls.Add(buttonOk);
             Controls.Add(buttonCancel);
 
@@ -249,6 +285,20 @@ namespace Sandbox.Game.Gui
                 m_settings.CompressSaveGames = obj.IsChecked;
             else if (obj == m_showPlayerNamesCheckbox)
                 m_settings.ShowPlayerNamesOnHud = obj.IsChecked;
+        }
+
+        private void sliderChanged(MyGuiControlSlider obj)
+        {
+            if (obj == m_UITransparencySlider)
+            {
+                m_settings.UITransparency = obj.Value;
+                m_guiTransition = obj.Value;
+            }
+            else if (obj == m_UIBkTransparencySlider)
+            {
+                m_settings.UIBkTransparency = obj.Value;
+                m_backgroundTransition = obj.Value;
+            }
         }
 
         void m_buildingModeCombobox_ItemSelected()
@@ -307,6 +357,8 @@ namespace Sandbox.Game.Gui
                 m_disableHeadbobCheckbox.IsChecked = MySandboxGame.Config.DisableHeadbob;
                 m_compressSavesCheckbox.IsChecked = MySandboxGame.Config.CompressSaveGames;
                 m_showPlayerNamesCheckbox.IsChecked = MySandboxGame.Config.ShowPlayerNamesOnHud;
+                m_UITransparencySlider.Value = MySandboxGame.Config.UITransparency;
+                m_UIBkTransparencySlider.Value = MySandboxGame.Config.UIBkTransparency;
             }
             else
             {
@@ -318,6 +370,8 @@ namespace Sandbox.Game.Gui
                 m_disableHeadbobCheckbox.IsChecked = m_settings.DisableHeadbob;
                 m_compressSavesCheckbox.IsChecked = m_settings.CompressSaveGames;
                 m_showPlayerNamesCheckbox.IsChecked = m_settings.ShowPlayerNamesOnHud;
+                m_UITransparencySlider.Value = m_settings.UITransparency;
+                m_UIBkTransparencySlider.Value = m_settings.UIBkTransparency;
             }
         }
 
@@ -332,6 +386,8 @@ namespace Sandbox.Game.Gui
             MySandboxGame.Config.DisableHeadbob = m_disableHeadbobCheckbox.IsChecked;
             MySandboxGame.Config.CompressSaveGames = m_compressSavesCheckbox.IsChecked;
             MySandboxGame.Config.ShowPlayerNamesOnHud = m_showPlayerNamesCheckbox.IsChecked;
+            MySandboxGame.Config.UITransparency = m_UITransparencySlider.Value;
+            MySandboxGame.Config.UIBkTransparency = m_UIBkTransparencySlider.Value;
             MySandboxGame.Config.Save();
         }
 

@@ -101,7 +101,7 @@ namespace Sandbox.Game.Gui
         private MyGuiScreenTerminal() :
             base(position: new Vector2(0.5f, 0.5f),
                  backgroundColor: MyGuiConstants.SCREEN_BACKGROUND_COLOR,
-                 size: new Vector2(0.99f, 0.9f))
+                 size: new Vector2(0.99f, 0.9f), backgroundTransition: MySandboxGame.Config.UIBkTransparency, guiTransition: MySandboxGame.Config.UITransparency)
         {
             EnabledBackgroundFade = true;
             m_closeHandler = OnInteractedClose;

@@ -2598,6 +2598,18 @@ World size: {1}</value>
   <data name="ToolTipGameOptionsShowPlayerNames" xml:space="preserve">
     <value>Show player names above their characters. This feature must also be enabled in world settings.</value>
   </data>
+  <data name="ScreenOptionsGame_UITransparency" xml:space="preserve">
+    <value>UI transparency</value>
+  </data>
+  <data name="ToolTipGameOptionsUITransparency" xml:space="preserve">
+    <value>Change transparency of UI dialogs.</value>
+  </data>
+  <data name="ScreenOptionsGame_UIBkTransparency" xml:space="preserve">
+    <value>UI background transparency</value>
+  </data>
+  <data name="ToolTipGameOptionsUIBkTransparency" xml:space="preserve">
+    <value>Change transparency of UI dialogs background.</value>
+  </data>
   <data name="ToolTipTerminalInventory_ThrowOut" xml:space="preserve">
     <value>Drop item</value>
   </data>
