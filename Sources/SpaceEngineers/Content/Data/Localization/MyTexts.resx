@@ -6638,6 +6638,18 @@ If there is no chance of accessing a medical room, the game is over and you can 
   <data name="TerminalScenarioSettingsLabel" xml:space="preserve">
     <value>Scenario settings:</value>
   </data>
+  <data name="BlockAction_DoorAutocloseDisabled" xml:space="preserve">
+    <value>Autoclose Disabled</value>
+  </data>
+  <data name="BlockAction_DoorAutocloseEnabled" xml:space="preserve">
+    <value>Autoclose Enabled</value>
+  </data>
+  <data name="BlockPropertiesText_DoorAutoclose" xml:space="preserve">
+    <value>Close automatically?</value>
+  </data>
+  <data name="BlockPropertiesText_DoorAutocloseInterval" xml:space="preserve">
+    <value>Autoclose Interval</value>
+  </data>
   <data name="BlockPropertyTitle_ProjectionSpawn" xml:space="preserve">
     <value>Spawn projection</value>
   </data>
@@ -6659,6 +6671,7 @@ If there is no chance of accessing a medical room, the game is over and you can 
   <data name="BlockPropertyTitle_Projector_NumberOfProjections_Tooltip" xml:space="preserve">
     <value>The maximum number of projections this projector can build instantly</value>
   </data>
+<<<<<<< HEAD
 <<<<<<< HEAD
   <data name="HudScenarioInfoLivesLeft" xml:space="preserve">
     <value>Lives:</value>
@@ -6703,3 +6716,7 @@ If there is no chance of accessing a medical room, the game is over and you can 
     <value>Autoclose Interval</value>
   </data>
 </root>
+=======
+  
+</root>
+>>>>>>> Update MyTexts.resx
