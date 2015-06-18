@@ -64,4 +64,4 @@ This happens because repository is slightly ahead of content in Steam folder. De
 Where is the 64-bit version?
 ------------------------
 
-We're unable to provide 64-bit version of all 3rd party libraries because of licensing. We're working on this and trying to negotiate better a license which will allows us to do that.
+We're unable to provide 64-bit version of all 3rd party libraries because of licensing. We're working on this and trying to negotiate a better license which will allows us to do that.
