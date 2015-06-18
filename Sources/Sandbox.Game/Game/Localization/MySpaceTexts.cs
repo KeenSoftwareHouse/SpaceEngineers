@@ -10733,6 +10733,26 @@ namespace Sandbox.Game.Localization
         ///</summary>
         public static readonly MyStringId BlockPropertyTitle_Projector_BlocksPerProjection = MyStringId.GetOrCompute("BlockPropertyTitle_Projector_BlocksPerProjection");
 
+		///<summary>
+        ///Autoclose Disabled
+        ///</summary>
+        public static readonly MyStringId BlockAction_DoorAutocloseDisabled = MyStringId.GetOrCompute("BlockAction_DoorAutocloseDisabled");
+
+        ///<summary>
+        ///Autoclose Enabled
+        ///</summary>
+        public static readonly MyStringId BlockAction_DoorAutocloseEnabled = MyStringId.GetOrCompute("BlockAction_DoorAutocloseEnabled");
+
+        ///<summary>
+        ///Close automatically?
+        ///</summary>
+        public static readonly MyStringId BlockPropertiesText_DoorAutoclose = MyStringId.GetOrCompute("BlockPropertiesText_DoorAutoclose");
+
+        ///<summary>
+        ///Autoclose Interval
+        ///</summary>
+        public static readonly MyStringId BlockPropertiesText_DoorAutocloseInterval = MyStringId.GetOrCompute("BlockPropertiesText_DoorAutocloseInterval");
+
         ///<summary>
         ///The maximum number of blocks a projection can have when building instantly
         ///</summary>
@@ -10757,7 +10777,6 @@ namespace Sandbox.Game.Localization
         ///The maximum number of projections this projector can build instantly
         ///</summary>
         public static readonly MyStringId BlockPropertyTitle_Projector_NumberOfProjections_Tooltip = MyStringId.GetOrCompute("BlockPropertyTitle_Projector_NumberOfProjections_Tooltip");
-<<<<<<< HEAD
 
         ///<summary>
         ///Lives:
