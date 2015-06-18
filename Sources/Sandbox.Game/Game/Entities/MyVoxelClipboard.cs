@@ -49,11 +49,6 @@ namespace Sandbox.Game.Entities
             private set;
         }
 
-        public List<MyVoxelMap> PreviewVoxelMaps
-        {
-            get { return m_previewVoxelMaps; }
-        }
-
         private void Activate()
         {
             ChangeClipboardPreview(true);
@@ -313,7 +308,7 @@ namespace Sandbox.Game.Entities
                         foreach (var entity in m_tmpResultHashset)
                         {
                             //ignore asteroids
-                            if (entity is MyVoxelMap)
+                            if (entity is MyVoxelBase)
                             {
                                 continue;
                             }
@@ -365,10 +360,10 @@ namespace Sandbox.Game.Entities
                 return MySession.ControlledEntity.GetHeadMatrix(true);
             }
             else
-                {
+            {
                 return MySector.MainCamera.WorldMatrix;
-                    }
-                }
+            }
+        }
 
         #region Pasting transform control
 

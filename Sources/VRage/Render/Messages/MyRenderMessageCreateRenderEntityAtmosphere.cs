@@ -19,6 +19,7 @@ namespace VRageRender
         public float MaxViewDistance;
         public float AtmosphereRadius;
         public float PlanetRadius;
+        public Vector3 AtmosphereWavelengths;
 
         MyRenderMessageType IMyRenderMessage.MessageClass { get { return MyRenderMessageType.StateChangeOnce; } }
         MyRenderMessageEnum IMyRenderMessage.MessageType { get { return MyRenderMessageEnum.CreateRenderEntityAtmosphere; } }

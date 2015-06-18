@@ -94,6 +94,13 @@ namespace Sandbox.Game.Multiplayer
         struct SpawnGridReplyMsg
         { }
 
+        [MessageId(11877, P2PMessageEnum.Reliable)]
+        struct AfterGridCreatedMsg
+        {
+            public long BuilderEntityId;
+            public long GridEntityId;
+        }
+
         static MySyncCreate()
         {
             MySyncLayer.RegisterMessage<CreateMsg>(OnMessage, MyMessagePermissions.Any, MyTransportMessageEnum.Request);
@@ -103,6 +110,7 @@ namespace Sandbox.Game.Multiplayer
             MySyncLayer.RegisterMessage<SpawnGridMsg>(OnMessageSpawnGrid, MyMessagePermissions.ToServer, MyTransportMessageEnum.Request);
             MySyncLayer.RegisterMessage<SpawnGridReplyMsg>(OnMessageSpawnGridSuccess, MyMessagePermissions.FromServer, MyTransportMessageEnum.Success);
             MySyncLayer.RegisterMessage<SpawnGridReplyMsg>(OnMessageSpawnGridFailure, MyMessagePermissions.FromServer, MyTransportMessageEnum.Failure);
+            MySyncLayer.RegisterMessage<AfterGridCreatedMsg>(OnMessageAfterGridCreated, MyMessagePermissions.FromServer, MyTransportMessageEnum.Request);
         }
 
 		public static void RequestEntityCreate(MyObjectBuilder_EntityBase entityBuilder)
@@ -410,7 +418,7 @@ namespace Sandbox.Game.Multiplayer
 
             if (!canSpawn) return;
 
-            MyCubeBuilder.BuildComponent.SpawnGrid(definition, worldMatrix, builder, msg.Static);
+            MyCubeBuilder.SpawnGrid(definition, worldMatrix, builder, msg.Static);
         }
 
         static void OnMessageSpawnGridFailure(ref SpawnGridReplyMsg msg, MyNetworkClient sender)
@@ -422,5 +430,33 @@ namespace Sandbox.Game.Multiplayer
         {
             MyGuiAudio.PlaySound(MyGuiSounds.HudPlaceBlock);
         }
+
+        public static void SendAfterGridBuilt(long builderId, long gridId)
+        {
+            var msg = new AfterGridCreatedMsg();
+            msg.BuilderEntityId = builderId;
+            msg.GridEntityId = gridId;
+
+            MySession.Static.SyncLayer.SendMessageToAll(ref msg);
+        }
+
+        static void OnMessageAfterGridCreated(ref AfterGridCreatedMsg msg, MyNetworkClient sender)
+        {
+            MyEntity builder;
+            MyEntity gridEntity;
+            MyCubeGrid grid;
+            MyEntities.TryGetEntityById(msg.BuilderEntityId, out builder);
+            MyEntities.TryGetEntityById(msg.GridEntityId, out gridEntity);
+
+            grid = gridEntity as MyCubeGrid;
+            Debug.Assert(grid != null, "Could not find the grid entity!");
+            if (grid == null)
+            {
+                return;
+            }
+
+            MyCubeBuilder.AfterGridBuild(builder, grid);
+        }
+
     }
 }

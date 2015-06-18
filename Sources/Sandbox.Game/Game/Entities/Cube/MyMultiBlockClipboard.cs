@@ -563,6 +563,8 @@ namespace Sandbox.Game.Entities.Cube
                             Vector3 maxLocal = block.Max * PreviewGrids[i].GridSize + Vector3.Half * PreviewGrids[i].GridSize;
                             BoundingBoxD aabbLocal = new BoundingBoxD(minLocal, maxLocal);
                             retval = retval && MyCubeGrid.TestPlacementArea(grid, grid.IsStatic, ref settingsLocal, aabbLocal, true);
+                            if (!retval)
+                                break;
                         }
                     }
                 }

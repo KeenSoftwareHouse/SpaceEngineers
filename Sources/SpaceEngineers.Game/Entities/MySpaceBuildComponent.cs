@@ -76,7 +76,7 @@ namespace SpaceEngineers.Game.Entities
             if (inventory == null) return false;
 
             bool result = true;
-            foreach (var entry in RequiredMaterials)
+            foreach (var entry in m_materialList.RequiredMaterials)
             {
                 result &= inventory.GetItemAmount(entry.Key) >= entry.Value;
                 if (!result) break;
@@ -87,13 +87,13 @@ namespace SpaceEngineers.Game.Entities
         public override void GetGridSpawnMaterials(MyCubeBlockDefinition definition, MatrixD worldMatrix, bool isStatic)
         {
             ClearRequiredMaterials();
-            GetMaterialsSimple(definition, RequiredMaterials);
+            GetMaterialsSimple(definition, m_materialList);
         }
 
         public override void GetBlockPlacementMaterials(MyCubeBlockDefinition definition, Vector3I position, MyBlockOrientation orientation, MyCubeGrid grid)
         {
             ClearRequiredMaterials();
-            GetMaterialsSimple(definition, RequiredMaterials);
+            GetMaterialsSimple(definition, m_materialList);
         }
 
         public override void GetBlocksPlacementMaterials(HashSet<MyCubeGrid.MyBlockLocation> hashSet, MyCubeGrid grid)
@@ -102,7 +102,7 @@ namespace SpaceEngineers.Game.Entities
             foreach (var location in hashSet)
             {
                 var definition = MyDefinitionManager.Static.GetCubeBlockDefinition(location.BlockDefinition);
-                GetMaterialsSimple(definition, RequiredMaterials);
+                GetMaterialsSimple(definition, m_materialList);
             }
         }
 
@@ -112,21 +112,16 @@ namespace SpaceEngineers.Game.Entities
 
             foreach (var block in grid.CubeBlocks)
             {
-                MyComponentStack.GetMountedComponents(RequiredMaterials, block);
+                MyComponentStack.GetMountedComponents(m_materialList, block);
                 if (block.ConstructionStockpile != null)
                 {
                     foreach (var item in block.ConstructionStockpile.Items)
                     {
                         var itemId = item.PhysicalContent.GetId();
-                        int num = RequiredMaterials.GetValueOrDefault(itemId, 0);
-                        RequiredMaterials[itemId] = num + item.Amount;
+                        m_materialList.AddMaterial(itemId, item.Amount, addToDisplayList: false);
                     }
                 }
             }
-        }
-
-        public override void SpawnGrid(MyCubeBlockDefinition definition, MatrixD worldMatrix, MyEntity builder, bool isStatic)
-        {
         }
 
         public override void BeforeCreateBlock(MyCubeBlockDefinition definition, MyEntity builder, MyObjectBuilder_CubeBlock ob)
@@ -168,19 +163,16 @@ namespace SpaceEngineers.Game.Entities
 
         private void ClearRequiredMaterials()
         {
-            RequiredMaterials.Clear();
+            m_materialList.Clear();
         }
 
-        private static void GetMaterialsSimple(MyCubeBlockDefinition definition, Dictionary<MyDefinitionId, int> output)
+        private static void GetMaterialsSimple(MyCubeBlockDefinition definition, MyComponentList output)
         {
-            if (definition.Components == null || definition.Components.Length < 1) return;
-
-            var component = definition.Components[0];
-            int amount = 0;
-            output.TryGetValue(component.Definition.Id, out amount);
-
-            amount += 1;
-            output[component.Definition.Id] = amount;
+            for (int i = 0; i < definition.Components.Length; ++i)
+            {
+                var component = definition.Components[i];
+                output.AddMaterial(component.Definition.Id, component.Count, i == 0 ? 1 : 0);
+            }
             return;
         }
 
@@ -190,7 +182,7 @@ namespace SpaceEngineers.Game.Entities
             var inventory = GetBuilderInventory(builder);
             if (inventory == null) return;
 
-            foreach (var entry in RequiredMaterials)
+            foreach (var entry in m_materialList.RequiredMaterials)
             {
                 inventory.RemoveItemsOfType(entry.Value, entry.Key);
             }

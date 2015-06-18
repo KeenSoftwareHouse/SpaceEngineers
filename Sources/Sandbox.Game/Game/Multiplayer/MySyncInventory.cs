@@ -272,7 +272,7 @@ namespace Sandbox.Game.Multiplayer
         {
             if (destination == null)
             {
-                source.RemoveItems(itemId, amount);
+                source.RemoveItems(itemId, amount, true, spawn);
                 return;
             }
 
@@ -355,7 +355,7 @@ namespace Sandbox.Game.Multiplayer
             }
         }
 
-        private static void FixTransferAmount(MyInventory src, MyInventory dst, MyInventoryItem? srcItem, bool spawn, ref MyFixedPoint remove, ref MyFixedPoint add)
+        private static void FixTransferAmount(MyInventory src, MyInventory dst, MyPhysicalInventoryItem? srcItem, bool spawn, ref MyFixedPoint remove, ref MyFixedPoint add)
         {
             Debug.Assert(Sync.IsServer);
             if (srcItem.Value.Amount < remove)
@@ -373,7 +373,7 @@ namespace Sandbox.Game.Multiplayer
                     {
                         MyEntity e = (dst.Owner as MyEntity);
                         Matrix m = e.WorldMatrix;
-                        MyFloatingObjects.Spawn(new MyInventoryItem(remove - space, srcItem.Value.Content), e.PositionComp.GetPosition() + m.Forward + m.Up, m.Forward, m.Up, e.Physics);
+                        MyFloatingObjects.Spawn(new MyPhysicalInventoryItem(remove - space, srcItem.Value.Content), e.PositionComp.GetPosition() + m.Forward + m.Up, m.Forward, m.Up, e.Physics);
                     }
                     else
                     {

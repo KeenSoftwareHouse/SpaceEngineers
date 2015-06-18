@@ -105,7 +105,7 @@ float4 PixelShaderFunction_Sky(VertexShaderOutputWorldPosition input) :COLOR0
 	float3 outRayleigh = phaseRayleigh * colorRayleigh;
 	float3 outMie = phaseMie      * colorMie;
 
-	return  float4(outRayleigh + outMie,1);
+	return  float4(outRayleigh + outMie,0.9);
 }
 
 float4 PixelShaderFunction_Surface(VertexShaderOutputWorldPosition input) :COLOR0

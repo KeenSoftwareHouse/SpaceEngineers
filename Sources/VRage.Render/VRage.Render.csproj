@@ -164,7 +164,6 @@
     <Compile Include="Graphics\SpriteSortMode.cs" />
     <Compile Include="MyRender-DrawMessages.cs" />
     <Compile Include="MyRender.cs" />
-    <Compile Include="MyRenderConstants.cs" />
     <Compile Include="MyRenderStats.cs" />
     <Compile Include="MySortedElements.Comparers.cs" />
     <Compile Include="MySortedElements.cs" />
@@ -324,7 +323,7 @@
     <None Include="Effects2\TransparentGeometry\MyEffectTransparentGeometry.fxo" />
     <None Include="Effects2\Voxels\MyEffectVoxels.fxo" />
     <None Include="Effects2\Voxels\MyEffectVoxelsBase.fxh" />
-    <None Include="Effects2\Voxels\MyEffectVoxelsClipping.fxh" />
+    <None Include="Effects2\Voxels\MyEffectVoxelVertex.fxh" />
     <None Include="Effects2\Voxels\MyEffectVoxelsDebris.fxo" />
   </ItemGroup>
   <ItemGroup>

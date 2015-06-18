@@ -6310,6 +6310,9 @@ To connect to lasers not listed here you can connect to coordinates.</value>
   <data name="NotificationHintLeaveCryoChamber" xml:space="preserve">
     <value>Press {0} to leave cryo chamber</value>
   </data>
+  <data name="ScreenDebugSpawnMenu_SpawnFlora" xml:space="preserve">
+    <value>Spawn flora</value>
+  </data>
   <data name="DisplayName_Item_ScrapIngot" xml:space="preserve">
     <value>Old Scrap Metal</value>
   </data>
@@ -6511,11 +6514,44 @@ To connect to lasers not listed here you can connect to coordinates.</value>
   <data name="WorldSettings_GameScenario" xml:space="preserve">
     <value>Scenario</value>
   </data>
+  <data name="DisplayName_Item_Organic" xml:space="preserve">
+    <value>Organic</value>
+  </data>
+  <data name="IconSymbol_Organic" xml:space="preserve">
+    <value>Organic</value>
+  </data>
   <data name="Notification_CockpitIsDamaged" xml:space="preserve">
     <value>Cockpit is damaged</value>
   </data>
   <data name="LaserAntennaOutsideLimits" xml:space="preserve">
     <value>Target outside movement range</value>
+  </data>
+  <data name="ToolTipWorldSettings_EnableFlora" xml:space="preserve">
+    <value />
+  </data>
+  <data name="ToolTipWorldSettings_EnableStationVoxel" xml:space="preserve">
+    <value />
+  </data>
+  <data name="ToolTipWorldSettings_FloraDensity" xml:space="preserve">
+    <value />
+  </data>
+  <data name="WorldSettings_EnableFlora" xml:space="preserve">
+    <value>Enable Flora</value>
+  </data>
+  <data name="WorldSettings_EnableStationVoxel" xml:space="preserve">
+    <value>Station voxel support</value>
+  </data>
+  <data name="WorldSettings_FloraDensity" xml:space="preserve">
+    <value>Flora Density</value>
+  </data>
+  <data name="WorldSettings_FloraDensity_High" xml:space="preserve">
+    <value>High</value>
+  </data>
+  <data name="WorldSettings_FloraDensity_Low" xml:space="preserve">
+    <value>Low</value>
+  </data>
+  <data name="WorldSettings_FloraDensity_Medium" xml:space="preserve">
+    <value>Medium</value>
   </data>
   <data name="ScreenGraphicsOptions_Tonemapping" xml:space="preserve">
     <value>Tonemapping</value>
@@ -6563,6 +6599,12 @@ Also displays your saved game in scenario start screen.</value>
 Try the refresh button for any available Medical rooms.
 If there is no chance of accessing a medical room, the game is over and you can leave the game.</value>
   </data>
+  <data name="ToolTipWorldSettings_EnablePlanets" xml:space="preserve">
+    <value>Enable/disable spawning of planets in world</value>
+  </data>
+  <data name="WorldSettings_EnablePlanets" xml:space="preserve">
+    <value>Enable planets</value>
+  </data>
   <data name="MessageBoxTextWorkshopDownloadFailed" xml:space="preserve">
     <value>Download failed, please try again later.</value>
   </data>
@@ -6601,5 +6643,35 @@ If there is no chance of accessing a medical room, the game is over and you can 
   </data>
   <data name="BlockPropertyTitle_Projector_NumberOfProjections_Tooltip" xml:space="preserve">
     <value>The maximum number of projections this projector can build instantly</value>
+  </data>
+  <data name="HudScenarioInfoLivesLeft" xml:space="preserve">
+    <value>Lives:</value>
+  </data>
+  <data name="TerminalTab_Info_DestructibleBlocks" xml:space="preserve">
+    <value>Destructible blocks</value>
+  </data>
+  <data name="TerminalTab_Info_DestructibleBlocks_Tooltip" xml:space="preserve">
+    <value>Toogles destructible blocks only for this grid. If destructible blocks are disabled in world settings, this is ignored. Only available in scenarios.</value>
+  </data>
+  <data name="GuiScenarioCannotJoin" xml:space="preserve">
+    <value>Scenario is already running, cannot join game.</value>
+  </data>
+  <data name="GuiScenarioCannotJoinCaption" xml:space="preserve">
+    <value>CANNOT JOIN</value>
+  </data>
+  <data name="ScenarioSettings_CanJoinRunning" xml:space="preserve">
+    <value>Players can join when game is already running</value>
+  </data>
+  <data name="WorldSettings_EnableSunRotation" xml:space="preserve">
+    <value>Enable sun rotation</value>
+  </data>
+  <data name="SunRotationPeriod" xml:space="preserve">
+    <value>Day duration</value>
+  </data>
+  <data name="GuiTriggerCaptionAllOthersLost" xml:space="preserve">
+    <value>All others lost</value>
+  </data>
+  <data name="ScenarioSettings_CanJoinRunningShort" xml:space="preserve">
+    <value>Players can join running game</value>
   </data>
 </root>

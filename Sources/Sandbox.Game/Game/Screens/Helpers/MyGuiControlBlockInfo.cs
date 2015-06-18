@@ -369,6 +369,8 @@ namespace Sandbox.Graphics.GUI
 					m_componentsLabel.Position = m_blockNameLabel.Position + new Vector2(0, m_blockNameLabel.Size.Y) + offset;
 					m_blockNameLabel.Position = m_blockNameLabel.Position + offset;
 				}
+				else
+					m_componentsLabel.Position = rightColumn + new Vector2(0.006f, 0.076f * baseScale);
 
                 m_blockNameLabel.Size = new Vector2(Size.X / 2 - m_blockNameLabel.Position.X, m_blockNameLabel.Size.Y);
                 m_blockTypeLabel.Visible = false;

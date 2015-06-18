@@ -29,6 +29,18 @@ namespace Sandbox.Common.ObjectBuilders.Definitions
         [ProtoMember]
         public string ScrapWoodPrefab = null;
 
+		[ProtoMember]
+		public int ScrapWoodAmountMin = 5;
+
+		[ProtoMember]
+		public int ScrapWoodAmountMax = 7;
+
+		[ProtoMember]
+		public int CraftingScrapWoodAmountMin = 1;
+
+		[ProtoMember]
+		public int CraftingScrapWoodAmountMax = 3;
+
         [XmlArrayItem("CuttingPrefab")]
         [ProtoMember, DefaultValue(null)]
         public MyCuttingPrefab[] CuttingPrefabs = null;

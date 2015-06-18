@@ -505,5 +505,22 @@
       <Model>Models\Components\Sphere.mwm</Model>
       <IconSymbol>IconSymbol_Ice</IconSymbol>
     </PhysicalItem>
+    <PhysicalItem>
+      <Id>
+        <TypeId>Ore</TypeId>
+        <SubtypeId>Organic</SubtypeId>
+      </Id>
+      <DisplayName>DisplayName_Item_Organic</DisplayName>
+      <Icon>Textures\GUI\Icons\ore_biomass.dds</Icon>
+      <Size>
+        <X>0.07</X>
+        <Y>0.07</Y>
+        <Z>0.07</Z>
+      </Size>
+      <Mass>1</Mass>
+      <Volume>0.37</Volume>
+      <Model>Models\Components\Sphere.mwm</Model>
+      <IconSymbol>IconSymbol_Organic</IconSymbol>
+    </PhysicalItem>
   </PhysicalItems>
 </Definitions>

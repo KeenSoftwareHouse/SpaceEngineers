@@ -222,6 +222,7 @@
     <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_PhysicalMaterialDefinition.cs" />
     <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_PhysicalModelDefinition.cs" />
     <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_PistonBaseDefinition.cs" />
+    <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_PlanetDefinition.cs" />
     <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_PowerProducerDefinition.cs" />
     <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_PrefabDefinition.cs" />
     <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_PrefabThrowerDefinition.cs" />
@@ -254,6 +255,7 @@
     <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_TreeCuttingDefinition.cs" />
     <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_TreeDefinition.cs" />
     <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_Trigger.cs" />
+    <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_TriggerAllOthersLost.cs" />
     <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_TriggerLives.cs" />
     <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_TriggerPositionLeft.cs" />
     <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_TriggerPositionReached.cs" />
@@ -292,6 +294,7 @@
     <Compile Include="ObjectBuilders\Gui\MyObjectBuilder_GuiCubeBlockCategories.cs" />
     <Compile Include="ObjectBuilders\Gui\MyObjectBuilder_GuiScreen.cs" />
     <Compile Include="ObjectBuilders\MyCharacterName.cs" />
+    <Compile Include="ObjectBuilders\MyComponentBlockEntry.cs" />
     <Compile Include="ObjectBuilders\MyObjectBuilder_AdvancedDoor.cs" />
     <Compile Include="ObjectBuilders\MyObjectBuilder_AirtightDoorGeneric.cs" />
     <Compile Include="ObjectBuilders\MyObjectBuilder_AirtightHangarDoor.cs" />
@@ -466,6 +469,7 @@
     <Compile Include="ObjectBuilders\MyObjectBuilder_World.cs" />
     <Compile Include="ObjectBuilders\Obsolete\MyObjectBuilder_Bushes.cs" />
     <Compile Include="ObjectBuilders\Obsolete\MyObjectBuilder_TreesMedium.cs" />
+    <Compile Include="ObjectBuilders\Voxels\MyObjectBuilder_Planet.cs" />
     <Compile Include="ObjectBuilders\Voxels\MyObjectBuilder_VoxelMap.cs" />
     <Compile Include="ObjectBuilders\VRageData\GameRelationAttribute.cs" />
     <Compile Include="ObjectBuilders\VRageData\SerializableBlockOrientation.cs" />
