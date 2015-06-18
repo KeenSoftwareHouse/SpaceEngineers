@@ -446,6 +446,9 @@ namespace Sandbox.Definitions
                     MaxIntegrity = ob.MaxIntegrity;
             }
 
+            if (criticalIntegrity > MaxIntegrity)
+                criticalIntegrity = MaxIntegrity;
+
             CriticalIntegrityRatio = criticalIntegrity / MaxIntegrity;
             OwnershipIntegrityRatio = ownershipIntegrity / MaxIntegrity;
 

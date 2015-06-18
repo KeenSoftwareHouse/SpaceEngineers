@@ -8,7 +8,7 @@ using VRageMath;
 
 namespace Sandbox.Game.Entities.Cube
 {
-    struct MyGridContactInfo
+    public struct MyGridContactInfo
     {
         [Flags]
         enum ContactFlags

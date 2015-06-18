@@ -281,7 +281,7 @@ namespace Sandbox.Game.GameSystems
             ProfilerShort.End();
         }
 
-        private Vector3 ComputeBaseThrust(Vector3 direction, bool includeSlowdown = true)
+        private Vector3 ComputeBaseThrust(Vector3 direction)
         {
             Matrix  invWorldRot     = m_grid.PositionComp.GetWorldMatrixNormalizedInv().GetOrientation();
             Vector3 localVelocity   = Vector3.Transform(m_grid.Physics.LinearVelocity, ref invWorldRot);
@@ -289,7 +289,7 @@ namespace Sandbox.Game.GameSystems
             Vector3 negativeControl = Vector3.Clamp(direction, -Vector3.One , Vector3.Zero);
             Vector3 slowdownControl = Vector3.Zero;
 
-            if (DampenersEnabled && includeSlowdown)
+            if (DampenersEnabled)
                 slowdownControl = Vector3.IsZeroVector(direction, 0.001f) * Vector3.IsZeroVector(m_totalThrustOverride);
 
             Vector3 thrust = negativeControl * m_maxNegativeLinearThrust + positiveControl * m_maxPositiveLinearThrust;
@@ -303,45 +303,30 @@ namespace Sandbox.Game.GameSystems
             return thrust;
         }
 
-        public Vector3 ComputeAiThrust(Vector3 direction)
+        // The only difference between ComputeBaseThrust() and ComputeAiThrust() is that the latter takes gravity into account.
+        private Vector3 ComputeAiThrust(Vector3 direction, bool includeSlowdown, bool subtractGravity)
         {
-            Vector3 positiveControl = Vector3.Clamp(direction, Vector3.Zero, Vector3.One);
-            Vector3 negativeControl = Vector3.Clamp(direction, -Vector3.One, Vector3.Zero);
+            Matrix  invWorldRot     = m_grid.PositionComp.GetWorldMatrixNormalizedInv().GetOrientation();
+            Vector3 positiveControl = Vector3.Clamp(direction,  Vector3.Zero, Vector3.One );
+            Vector3 negativeControl = Vector3.Clamp(direction, -Vector3.One , Vector3.Zero);
 
-            Vector3 maxPositiveControl = m_maxPositiveLinearThrust * positiveControl;
-            Vector3 maxNegativeControl = m_maxNegativeLinearThrust * -negativeControl;
-            
-            float max = Math.Max(maxPositiveControl.Max(), maxNegativeControl.Max());
+            Vector3 localGravityForce = Vector3.Transform(m_grid.Physics.Gravity, ref invWorldRot) * m_grid.Physics.Mass;
+            Vector3 thrust = negativeControl * m_maxNegativeLinearThrust + positiveControl * m_maxPositiveLinearThrust - localGravityForce;
+            thrust = Vector3.Clamp(thrust, -m_maxNegativeLinearThrust, m_maxPositiveLinearThrust);
 
-            Vector3 thrust = Vector3.Zero;
-            if (max > 0.001f)
+            if (includeSlowdown)
             {
-                Vector3 optimalPositive = positiveControl * max;
-                Vector3 optimalNegative = -negativeControl * max;
+                const float STOPPING_TIME = 0.5f;
 
-                Vector3 optimalPositiveRatio = m_maxPositiveLinearThrust / optimalPositive;
-                Vector3 optimalNegativeRatio = m_maxNegativeLinearThrust / optimalNegative;
-
-                FlipNegativeInfinity(ref optimalPositiveRatio);
-                FlipNegativeInfinity(ref optimalNegativeRatio);
-
-                float min = Math.Min(optimalPositiveRatio.Min(), optimalNegativeRatio.Min());
-
-                if (min > 1.0f)
-                    min = 1.0f;
-
-                thrust = -optimalNegative * min + optimalPositive * min;
-                thrust = Vector3.Clamp(thrust, -m_maxNegativeLinearThrust, m_maxPositiveLinearThrust);
+                var localVelocity        = Vector3.Transform(m_grid.Physics.LinearVelocity, ref invWorldRot);
+                var slowdownControl      = Vector3.IsZeroVector(direction, 0.001f) * Vector3.IsZeroVector(m_totalThrustOverride);
+                var slowdownAcceleration = -localVelocity / STOPPING_TIME;
+                var slowdownThrust       = slowdownAcceleration * m_grid.Physics.Mass * slowdownControl;
+                thrust = Vector3.Clamp(thrust + slowdownThrust, -m_maxNegativeLinearThrust * MyFakes.SLOWDOWN_FACTOR_THRUST_MULTIPLIER, m_maxPositiveLinearThrust * MyFakes.SLOWDOWN_FACTOR_THRUST_MULTIPLIER);
             }
 
-            const float STOPPING_TIME = 0.5f;
-            Matrix invWorldRot = m_grid.PositionComp.GetWorldMatrixNormalizedInv().GetOrientation();
-            Vector3 localVelocity = Vector3.Transform(m_grid.Physics.LinearVelocity, ref invWorldRot);
-            Vector3 slowdownControl = Vector3.IsZeroVector(direction, 0.001f);
-            var slowdownAcceleration = -localVelocity / STOPPING_TIME;
-            var slowdownThrust = slowdownAcceleration * m_grid.Physics.Mass * slowdownControl;
-            thrust = Vector3.Clamp(thrust + slowdownThrust, -m_maxNegativeLinearThrust * MyFakes.SLOWDOWN_FACTOR_THRUST_MULTIPLIER, m_maxPositiveLinearThrust * MyFakes.SLOWDOWN_FACTOR_THRUST_MULTIPLIER);
-
+            if (subtractGravity)
+                thrust += localGravityForce;    // Used by remote control block to estimate acceleration in a gravity environemnt.
             return thrust;
         }
 
@@ -361,7 +346,7 @@ namespace Sandbox.Game.GameSystems
             return thrust;
         }
 
-        private void UpdatePowerAndThrustStrength(ref Vector3 thrust, bool updateThrust)
+        private void UpdatePowerAndThrustStrength(ref Vector3 thrust)
         {
             const float ROTATION_LIMITER    = 5.0f;
             const float STATIC_MODE_MAX_ACC = 0.2f;   // A threshold linear acceleration value, above which RCS will switch 
@@ -380,9 +365,6 @@ namespace Sandbox.Game.GameSystems
             Vector3 thrustNegative = -thrust / (m_maxNegativeLinearThrust + 0.0000001f);
             thrustPositive         = Vector3.Clamp(thrustPositive, Vector3.Zero, Vector3.One * MyConstants.MAX_THRUST);
             thrustNegative         = Vector3.Clamp(thrustNegative, Vector3.Zero, Vector3.One * MyConstants.MAX_THRUST);
-
-            if (!updateThrust)
-                return;
 
             var gyros = m_grid.GridSystems.GyroSystem;
             Vector3 adjustedThrust = Vector3.Zero;
@@ -523,7 +505,7 @@ namespace Sandbox.Game.GameSystems
         
         public Vector3 GetThrustForDirection(Vector3 direction)
         {
-            Vector3 thrust = ComputeBaseThrust(direction, false);
+            Vector3 thrust = ComputeBaseThrust(direction);
             thrust = (thrust + m_totalThrustOverride) * (m_lastSuppliedPowerRatio * MyFakes.THRUST_FORCE_RATIO);
             return thrust;
         }
@@ -535,31 +517,27 @@ namespace Sandbox.Game.GameSystems
             return thrustersForDirection;
         }
 
-        public Vector3 GetAutoPilotThrustForDirection(Vector3 direction)
+        public Vector3 GetAutoPilotThrustForDirection(Vector3 direction, bool includeSlowdown)
         {
-            Vector3 thrust = ComputeAiThrust(direction);
+            Vector3 thrust = ComputeAiThrust(direction, includeSlowdown, subtractGravity: true);
             thrust = (thrust + m_totalThrustOverride) * (m_lastSuppliedPowerRatio * MyFakes.THRUST_FORCE_RATIO);
             return thrust;
         }
 
         private void UpdateThrusts()
         {
-            // This autopilot implementation sets proper thrust vector by itself, so calling ComputeAiThrust() isn't necessary
-            // (and in certain cases, such as docking, actually harmful).
-            Vector3 thrust = ComputeBaseThrust(AutopilotEnabled ? AutoPilotThrust : ControlThrust);
+            Vector3 thrust;
 
-            /*
             if (AutopilotEnabled)
             {
-                thrust = ComputeAiThrust(AutoPilotThrust);
+                thrust = ComputeAiThrust(AutoPilotThrust, includeSlowdown: true, subtractGravity: false);
             }
             else
             {
                 thrust = ComputeBaseThrust(ControlThrust);
             }
-            */
             
-            UpdatePowerAndThrustStrength(ref thrust, true);
+            UpdatePowerAndThrustStrength(ref thrust);
             thrust = ApplyThrustModifiers(thrust);
 
             Thrust = thrust;

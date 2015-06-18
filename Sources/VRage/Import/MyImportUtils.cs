@@ -130,6 +130,10 @@ namespace VRage.Import
                 bRes = m_MaterialDesc.Read(reader, version);
 
                 bRes &= Enum.TryParse(m_MaterialDesc.Technique, out Technique);
+                if (m_MaterialDesc.Technique == "FOLIAGE")
+                {
+                    Technique = MyMeshDrawTechnique.ALPHA_MASKED;
+                }
             }
             else
             {

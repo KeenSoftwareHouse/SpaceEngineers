@@ -24,6 +24,11 @@ namespace Sandbox.Game.World.Generator
         {
             return m_material;
         }
+
+        public virtual bool SpawnsFlora()
+        {
+            return m_material.SpawnsFlora;
+        }
     }
 
     class MyCompositeLayeredOreDeposit : MyCompositeShapeOreDeposit
@@ -57,7 +62,7 @@ namespace Sandbox.Game.World.Generator
                 float heightEndDistance = m_materialLayers[i].HeightEndDeviation * noiseValue;
                 float angleEndDistance = m_materialLayers[i].AngleEndDeviation * noiseValue;
 
-                if (lenghtToCenter >= (m_materialLayers[i].StartHeight - lodSize - heightStartDistance) && (m_materialLayers[i].EndHeight + lodSize+heightEndDistance) >= lenghtToCenter &&
+                if (lenghtToCenter >= (m_materialLayers[i].StartHeight - lodSize - heightStartDistance) && (m_materialLayers[i].EndHeight +heightEndDistance) >= lenghtToCenter &&
                     angleToPole > m_materialLayers[i].StartAngle - angleStartDistance && m_materialLayers[i].EndAngle + angleEndDistance > angleToPole)
                 {
                     float distanceTolayer = Math.Abs(lenghtToCenter - m_materialLayers[i].StartHeight + heightStartDistance);
@@ -70,6 +75,18 @@ namespace Sandbox.Game.World.Generator
                 }
             }
             return nearestMaterial == -1 ? null : m_materialLayers[nearestMaterial].MaterialDefinition;
+        }
+
+        public override bool SpawnsFlora()
+        {
+            for (int i = 0; i < m_materialLayers.Length; ++i)
+            {
+                if (m_materialLayers[i].MaterialDefinition != null && m_materialLayers[i].MaterialDefinition.SpawnsFlora)
+                {
+                    return true;
+                }
+            }
+            return false;
         }
     }
 }

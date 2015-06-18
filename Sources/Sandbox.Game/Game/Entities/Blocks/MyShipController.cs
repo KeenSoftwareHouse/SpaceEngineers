@@ -1325,7 +1325,7 @@ namespace Sandbox.Game.Entities
 		{
 			if (m_enableShipControl)
 			{
-				SwitchToWeaponInternal(null, true);
+				SwitchToWeaponInternal((weapon != null ? weapon.Definition.Id : (MyDefinitionId?)null), true);
 			}
 		}
 

@@ -204,7 +204,7 @@ namespace VRageRender.Graphics
         public static readonly DepthStencilState DepthStencil_RenderNearPlanetSurfaceInAtmosphere = new DepthStencilState()
         {
             //  Depth buffer is not required when working with stencil only
-            DepthBufferEnable = true,
+            DepthBufferEnable = false,
             DepthBufferWriteEnable = false,
 
             //  Write color only where stencil enables it (where stencil value equals 1)

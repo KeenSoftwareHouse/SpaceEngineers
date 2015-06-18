@@ -40,6 +40,13 @@ namespace Sandbox.Game.Gui
             FIFTY_KM = 50000,
         }
 
+		public enum MyFloraDensityEnum
+		{
+			LOW = 10,
+			MEDIUM = 20,
+			HIGH = 30,
+		}
+
         public enum MySoundModeEnum
         {
             Arcade,
@@ -53,21 +60,25 @@ namespace Sandbox.Game.Gui
         bool m_showWarningForOxygen;
 
         MyGuiControlTextbox m_passwordTextbox;
-        MyGuiControlCombobox m_onlineMode, m_environment, m_worldSizeCombo, m_soundModeCombo, m_spawnShipTimeCombo, m_viewDistanceCombo, m_physicsOptionsCombo;
+        MyGuiControlCombobox m_onlineMode, m_environment, m_worldSizeCombo, m_soundModeCombo, m_spawnShipTimeCombo, m_viewDistanceCombo, m_physicsOptionsCombo, m_floraDensityCombo;
         MyGuiControlCheckbox m_autoHealing, m_clientCanSave, m_enableCopyPaste, m_weaponsEnabled, m_showPlayerNamesOnHud, m_thrusterDamage, m_cargoShipsEnabled, m_enableSpectator,
                              m_trashRemoval, m_respawnShipDelete, m_resetOwnership, m_permanentDeath, m_destructibleBlocks, m_enableIngameScripts, m_enableToolShake, m_enableOxygen,
-                             m_enable3rdPersonCamera, m_enableEncounters, m_disableRespawnShips;
+                             m_enable3rdPersonCamera, m_enableEncounters, m_disableRespawnShips, m_scenarioEditMode, m_enableFlora, m_stationVoxelSupport, m_enablePlanets,m_enableSunRotation;
 
         MyGuiControlButton m_okButton, m_cancelButton, m_survivalModeButton, m_creativeModeButton, m_inventory_x1, m_inventory_x3, m_inventory_x10;
         MyGuiControlButton m_assembler_x1, m_assembler_x3, m_assembler_x10,
                            m_refinery_x1, m_refinery_x3, m_refinery_x10,
                            m_welder_half, m_welder_x1, m_welder_x2, m_welder_x5,
                            m_grinder_half, m_grinder_x1, m_grinder_x2, m_grinder_x5;
-        MyGuiControlSlider m_maxPlayersSlider;
-        MyGuiControlLabel m_enableCopyPasteLabel, m_maxPlayersLabel, m_maxFloatingObjectsLabel;
+        MyGuiControlSlider m_maxPlayersSlider,m_sunRotationIntervalSlider;
+        MyGuiControlLabel m_enableCopyPasteLabel, m_maxPlayersLabel, m_maxFloatingObjectsLabel, m_sunRotationPeriod, m_sunRotationPeriodValue;
         MyGuiControlSlider m_maxFloatingObjectsSlider;
+        StringBuilder m_tempBuilder = new StringBuilder();
         int m_customWorldSize = 0;
         int m_customViewDistance = 20000;
+
+        const int MIN_DAY_TIME_MINUTES = 1;
+        const int MAX_DAY_TIME_MINUTES = 60 * 24;
 
         public string Password
         {
@@ -119,11 +130,17 @@ namespace Sandbox.Game.Gui
             BuildControls();
 
             LoadValues();
+
+            m_enablePlanets.IsChecked = m_parent.AsteroidAmount != 0;
+            m_enableFlora.IsChecked = m_parent.AsteroidAmount != 0;
+            m_enablePlanets.Enabled = m_parent.AsteroidAmount != 0;
+            m_floraDensityCombo.Enabled = m_parent.AsteroidAmount != 0;
+            m_enableFlora.Enabled = m_parent.AsteroidAmount != 0; ;
         }
 
         public void BuildControls()
         {
-            MyGuiControlParent parent = new MyGuiControlParent(size: new Vector2(Size.Value.X - 0.05f, Size.Value.Y));
+            MyGuiControlParent parent = new MyGuiControlParent(size: new Vector2(Size.Value.X - 0.05f, Size.Value.Y+0.15f));
             MyGuiControlScrollablePanel scrollPanel = new MyGuiControlScrollablePanel(parent);
             scrollPanel.ScrollbarVEnabled = true;
             scrollPanel.Size = new Vector2(Size.Value.X - 0.05f, 0.8f);
@@ -139,6 +156,8 @@ namespace Sandbox.Game.Gui
             var onlineModeLabel = MakeLabel(MySpaceTexts.WorldSettings_OnlineMode);
             m_maxPlayersLabel = MakeLabel(MySpaceTexts.MaxPlayers);
             m_maxFloatingObjectsLabel = MakeLabel(MySpaceTexts.MaxFloatingObjects);
+            m_sunRotationPeriod = MakeLabel(MySpaceTexts.SunRotationPeriod);
+            m_sunRotationPeriodValue = MakeLabel(MySpaceTexts.SunRotationPeriod); 
             var gameTypeLabel = MakeLabel(MySpaceTexts.WorldSettings_GameMode);
             var environmentLabel = MakeLabel(MySpaceTexts.WorldSettings_EnvironmentHostility);
             var gameStyleLabel = MakeLabel(MySpaceTexts.WorldSettings_GameStyle);
@@ -174,6 +193,11 @@ namespace Sandbox.Game.Gui
             var spawnShipTimeLabel = MakeLabel(MySpaceTexts.WorldSettings_RespawnShipCooldown);
             var viewDistanceLabel = MakeLabel(MySpaceTexts.WorldSettings_ViewDistance);
             var physicsOptionLabel = MakeLabel(MySpaceTexts.WorldSettings_Physics);
+			var floraDensityLabel = MakeLabel(MySpaceTexts.WorldSettings_FloraDensity);
+			var enableFloraLabel = MakeLabel(MySpaceTexts.WorldSettings_EnableFlora);
+			var enableStationVoxelLabel = MakeLabel(MySpaceTexts.WorldSettings_EnableStationVoxel);
+            var enablePlanetsLabel = MakeLabel(MySpaceTexts.WorldSettings_EnablePlanets);
+            var enableSunRotationLabel = MakeLabel(MySpaceTexts.WorldSettings_EnableSunRotation);
 
             float width = 0.284375f + 0.025f;
 
@@ -214,6 +238,25 @@ namespace Sandbox.Game.Gui
             m_enableCopyPaste = new MyGuiControlCheckbox();
             m_weaponsEnabled = new MyGuiControlCheckbox();
             m_showPlayerNamesOnHud = new MyGuiControlCheckbox();
+			m_enableFlora = new MyGuiControlCheckbox();
+            m_enablePlanets = new MyGuiControlCheckbox();
+            m_enableSunRotation = new MyGuiControlCheckbox();
+
+            m_enableSunRotation.IsCheckedChanged = (control) =>
+            {
+                m_sunRotationIntervalSlider.Enabled = control.IsChecked;
+                m_sunRotationPeriodValue.Visible = control.IsChecked;
+            };
+
+			m_enableFlora.IsCheckedChanged = (control) => m_floraDensityCombo.Enabled = control.IsChecked;
+            m_enablePlanets.IsCheckedChanged = (control) =>
+            {
+                m_floraDensityCombo.Enabled = control.IsChecked;
+                m_enableFlora.Enabled = control.IsChecked;
+            };
+
+           
+			m_stationVoxelSupport = new MyGuiControlCheckbox();
             m_maxPlayersSlider = new MyGuiControlSlider(
                 position: Vector2.Zero,
                 width: m_onlineMode.Size.X,
@@ -234,6 +277,7 @@ namespace Sandbox.Game.Gui
                 labelSpaceWidth: 0.05f,
                 intValue: true
                 );
+
             m_trashRemoval = new MyGuiControlCheckbox();
             m_respawnShipDelete = new MyGuiControlCheckbox();
             m_worldSizeCombo = new MyGuiControlCombobox(size: new Vector2(width, 0.04f));
@@ -241,6 +285,7 @@ namespace Sandbox.Game.Gui
             m_spawnShipTimeCombo = new MyGuiControlCombobox(size: new Vector2(width, 0.04f));
             m_viewDistanceCombo = new MyGuiControlCombobox(size: new Vector2(width, 0.04f));
             m_physicsOptionsCombo = new MyGuiControlCombobox(size: new Vector2(width, 0.04f));
+			m_floraDensityCombo = new MyGuiControlCombobox(size: new Vector2(width, 0.04f));
 
             // Ok/Cancel
             m_okButton = new MyGuiControlButton(position: buttonsOrigin - new Vector2(0.01f, 0f), size: buttonSize, text: MyTexts.Get(MySpaceTexts.Ok), onButtonClick: OkButtonClicked, originAlign: MyGuiDrawAlignEnum.HORISONTAL_RIGHT_AND_VERTICAL_BOTTOM);
@@ -353,6 +398,10 @@ namespace Sandbox.Game.Gui
             m_physicsOptionsCombo.AddItem((int)MyPhysicsPerformanceEnum.Normal, MySpaceTexts.WorldSettings_Physics_Normal);
             m_physicsOptionsCombo.AddItem((int)MyPhysicsPerformanceEnum.Precise, MySpaceTexts.WorldSettings_Physics_Precise);
 
+			m_floraDensityCombo.AddItem((int)MyFloraDensityEnum.LOW, MySpaceTexts.WorldSettings_FloraDensity_Low);
+			m_floraDensityCombo.AddItem((int)MyFloraDensityEnum.MEDIUM, MySpaceTexts.WorldSettings_FloraDensity_Medium);
+			m_floraDensityCombo.AddItem((int)MyFloraDensityEnum.HIGH, MySpaceTexts.WorldSettings_FloraDensity_High);
+
             m_autoHealing.SetToolTip(MyTexts.GetString(MySpaceTexts.ToolTipWorldSettingsAutoHealing));
             m_thrusterDamage.SetToolTip(MyTexts.GetString(MySpaceTexts.ToolTipWorldSettingsThrusterDamage));
             m_cargoShipsEnabled.SetToolTip(MyTexts.GetString(MySpaceTexts.ToolTipWorldSettingsEnableCargoShips));
@@ -374,6 +423,10 @@ namespace Sandbox.Game.Gui
             m_respawnShipDelete.SetToolTip(MyTexts.GetString(MySpaceTexts.TooltipWorldSettingsRespawnShipDelete));
             m_enableToolShake.SetToolTip(MyTexts.GetString(MySpaceTexts.ToolTipWorldSettings_ToolShake));
             m_enableOxygen.SetToolTip(MyTexts.GetString(MySpaceTexts.ToolTipWorldSettings_EnableOxygen));
+			m_floraDensityCombo.SetToolTip(MyTexts.GetString(MySpaceTexts.ToolTipWorldSettings_FloraDensity));
+			m_enableFlora.SetToolTip(MyTexts.GetString(MySpaceTexts.ToolTipWorldSettings_EnableFlora));
+            m_enablePlanets.SetToolTip(MyTexts.GetString(MySpaceTexts.ToolTipWorldSettings_EnablePlanets));
+			m_stationVoxelSupport.SetToolTip(MyTexts.GetString(MySpaceTexts.ToolTipWorldSettings_EnableStationVoxel));
             m_disableRespawnShips.SetToolTip(MyTexts.GetString(MySpaceTexts.ToolTipWorldSettings_DisableRespawnShips));
 
             // Add controls in pairs; label first, control second. They will be laid out automatically this way.
@@ -397,6 +450,7 @@ namespace Sandbox.Game.Gui
 
             parent.Controls.Add(m_maxFloatingObjectsLabel);
             parent.Controls.Add(m_maxFloatingObjectsSlider);
+
             if (!MyFakes.OCTOBER_RELEASE_HIDE_WORLD_PARAMS)
             {
                 parent.Controls.Add(passwordLabel);
@@ -425,6 +479,12 @@ namespace Sandbox.Game.Gui
                 parent.Controls.Add(m_physicsOptionsCombo);
             }
 
+            if (MyFakes.ENABLE_PLANETS)
+            {
+                parent.Controls.Add(floraDensityLabel);
+                parent.Controls.Add(m_floraDensityCombo);
+            }
+
             parent.Controls.Add(autoHealingLabel);
             parent.Controls.Add(m_autoHealing);
 
@@ -450,9 +510,15 @@ namespace Sandbox.Game.Gui
 
             parent.Controls.Add(oxygenLabel);
             parent.Controls.Add(m_enableOxygen);
-
+            
             parent.Controls.Add(disableRespawnShipsLabel);
             parent.Controls.Add(m_disableRespawnShips);
+
+            if (MyFakes.ENABLE_PLANETS)
+            {
+                parent.Controls.Add(enableFloraLabel);
+                parent.Controls.Add(m_enableFlora);
+            }
 
             parent.Controls.Add(respawnShipDeleteLabel);
             parent.Controls.Add(m_respawnShipDelete);
@@ -478,32 +544,63 @@ namespace Sandbox.Game.Gui
                     control.Position = originC + controlsDelta * numControls++;
             }
 
+
+            m_sunRotationIntervalSlider = new MyGuiControlSlider(
+                position: Vector2.Zero,
+                width: m_onlineMode.Size.X,
+                labelSpaceWidth: 0.05f);
+
+            m_sunRotationIntervalSlider.MinValue = 0;
+            m_sunRotationIntervalSlider.MaxValue = 1;
+            m_sunRotationIntervalSlider.DefaultValue = 0;
+
+            m_sunRotationIntervalSlider.ValueChanged += (MyGuiControlSlider s) =>
+            {
+                m_tempBuilder.Clear();
+                MyValueFormatter.AppendTimeInBestUnit(MathHelper.Clamp(MathHelper.InterpLog(s.Value, MIN_DAY_TIME_MINUTES, MAX_DAY_TIME_MINUTES), MIN_DAY_TIME_MINUTES, MAX_DAY_TIME_MINUTES) * 60, m_tempBuilder);
+                m_sunRotationPeriodValue.Text = m_tempBuilder.ToString();
+            };
+
+            m_sunRotationIntervalSlider.Position = new Vector2(m_sunRotationIntervalSlider.Position.X + 0.075f, autoHealingLabel.Position.Y);
+            m_sunRotationPeriodValue.Position = new Vector2(m_sunRotationIntervalSlider.Position.X +0.12f,m_sunRotationIntervalSlider.Position.Y);
+            m_sunRotationPeriod.Position = new Vector2(m_sunRotationIntervalSlider.Position.X - 0.365f, m_sunRotationIntervalSlider.Position.Y);
+
+            parent.Controls.Add(m_sunRotationPeriod);
+            parent.Controls.Add(m_sunRotationIntervalSlider);
+            parent.Controls.Add(m_sunRotationPeriodValue);
+
+            float buttonsOffset = 0.055f;
             //Left column checkboxes
-            autoHealingLabel.Position = new Vector2(autoHealingLabel.Position.X - labelSize / 2, autoHealingLabel.Position.Y);
-            m_autoHealing.Position = new Vector2(m_autoHealing.Position.X - labelSize / 2, m_autoHealing.Position.Y);
+            autoHealingLabel.Position = new Vector2(autoHealingLabel.Position.X - labelSize / 2, autoHealingLabel.Position.Y + buttonsOffset);
+            m_autoHealing.Position = new Vector2(m_autoHealing.Position.X - labelSize / 2, m_autoHealing.Position.Y + buttonsOffset);
 
-            m_enableCopyPasteLabel.Position = new Vector2(m_enableCopyPasteLabel.Position.X - labelSize / 2, m_enableCopyPasteLabel.Position.Y);
-            m_enableCopyPaste.Position = new Vector2(m_enableCopyPaste.Position.X - labelSize / 2, m_enableCopyPaste.Position.Y);
+            m_enableCopyPasteLabel.Position = new Vector2(m_enableCopyPasteLabel.Position.X - labelSize / 2, m_enableCopyPasteLabel.Position.Y + buttonsOffset);
+            m_enableCopyPaste.Position = new Vector2(m_enableCopyPaste.Position.X - labelSize / 2, m_enableCopyPaste.Position.Y + buttonsOffset);
 
-            clientCanSaveLabel.Position = new Vector2(clientCanSaveLabel.Position.X - labelSize / 2, clientCanSaveLabel.Position.Y);
-            m_clientCanSave.Position = new Vector2(m_clientCanSave.Position.X - labelSize / 2, m_clientCanSave.Position.Y);
+            clientCanSaveLabel.Position = new Vector2(clientCanSaveLabel.Position.X - labelSize / 2, clientCanSaveLabel.Position.Y + buttonsOffset);
+            m_clientCanSave.Position = new Vector2(m_clientCanSave.Position.X - labelSize / 2, m_clientCanSave.Position.Y + buttonsOffset);
 
-            enableWeaponsLabel.Position = new Vector2(enableWeaponsLabel.Position.X - labelSize / 2, enableWeaponsLabel.Position.Y);
-            m_weaponsEnabled.Position = new Vector2(m_weaponsEnabled.Position.X - labelSize / 2, m_weaponsEnabled.Position.Y);
+            enableWeaponsLabel.Position = new Vector2(enableWeaponsLabel.Position.X - labelSize / 2, enableWeaponsLabel.Position.Y + buttonsOffset);
+            m_weaponsEnabled.Position = new Vector2(m_weaponsEnabled.Position.X - labelSize / 2, m_weaponsEnabled.Position.Y + buttonsOffset);
 
-            trashRemovalLabel.Position = new Vector2(trashRemovalLabel.Position.X - labelSize / 2, trashRemovalLabel.Position.Y);
-            m_trashRemoval.Position = new Vector2(m_trashRemoval.Position.X - labelSize / 2, m_trashRemoval.Position.Y);
+            trashRemovalLabel.Position = new Vector2(trashRemovalLabel.Position.X - labelSize / 2, trashRemovalLabel.Position.Y + buttonsOffset);
+            m_trashRemoval.Position = new Vector2(m_trashRemoval.Position.X - labelSize / 2, m_trashRemoval.Position.Y + buttonsOffset);
 
-            oxygenLabel.Position = new Vector2(oxygenLabel.Position.X - labelSize / 2, oxygenLabel.Position.Y);
-            m_enableOxygen.Position = new Vector2(m_enableOxygen.Position.X - labelSize / 2, m_enableOxygen.Position.Y);
+            oxygenLabel.Position = new Vector2(oxygenLabel.Position.X - labelSize / 2, oxygenLabel.Position.Y + buttonsOffset);
+            m_enableOxygen.Position = new Vector2(m_enableOxygen.Position.X - labelSize / 2, m_enableOxygen.Position.Y + buttonsOffset);
 
-            disableRespawnShipsLabel.Position = new Vector2(disableRespawnShipsLabel.Position.X - labelSize / 2, disableRespawnShipsLabel.Position.Y);
-            m_disableRespawnShips.Position = new Vector2(m_disableRespawnShips.Position.X - labelSize / 2, m_disableRespawnShips.Position.Y);
 
-            //Middle column checkboxes
             respawnShipDeleteLabel.Position = new Vector2(rightColumnOffset - labelSize / 2, m_autoHealing.Position.Y);
             m_respawnShipDelete.Position = new Vector2(rightColumnOffset + labelSize / 2, m_autoHealing.Position.Y);
             m_respawnShipDelete.OriginAlign = MyGuiDrawAlignEnum.HORISONTAL_CENTER_AND_VERTICAL_CENTER;
+
+            disableRespawnShipsLabel.Position = new Vector2(disableRespawnShipsLabel.Position.X - labelSize / 2, disableRespawnShipsLabel.Position.Y + buttonsOffset);
+            m_disableRespawnShips.Position = new Vector2(m_disableRespawnShips.Position.X - labelSize / 2, m_disableRespawnShips.Position.Y + buttonsOffset);
+
+            enableFloraLabel.Position = new Vector2(enableFloraLabel.Position.X - labelSize / 2, enableFloraLabel.Position.Y + buttonsOffset);
+            m_enableFlora.Position = new Vector2(m_enableFlora.Position.X - labelSize / 2, m_enableFlora.Position.Y + buttonsOffset);
+
+            //Middle column checkboxes
 
             showPlayerNamesOnHudLabel.Position = new Vector2(rightColumnOffset - labelSize / 2, m_enableCopyPasteLabel.Position.Y);
             m_showPlayerNamesOnHud.Position = new Vector2(rightColumnOffset + labelSize / 2, m_enableCopyPasteLabel.Position.Y);
@@ -514,10 +611,15 @@ namespace Sandbox.Game.Gui
             enableIngameScriptsLabel.Position = new Vector2(rightColumnOffset - labelSize / 2, trashRemovalLabel.Position.Y);
             m_enableIngameScripts.Position = new Vector2(rightColumnOffset + labelSize / 2, m_trashRemoval.Position.Y);
 
-
             enable3rdPersonCameraLabel.Position = new Vector2(rightColumnOffset - labelSize / 2, m_enableOxygen.Position.Y);
             m_enable3rdPersonCamera.Position = new Vector2(rightColumnOffset + labelSize / 2, m_enableOxygen.Position.Y);
 
+            enableSunRotationLabel.Position = new Vector2(rightColumnOffset - labelSize / 2, m_disableRespawnShips.Position.Y);
+            m_enableSunRotation.Position = new Vector2(rightColumnOffset + labelSize / 2, m_disableRespawnShips.Position.Y);
+
+            enablePlanetsLabel.Position = new Vector2(rightColumnOffset - labelSize / 2, enableFloraLabel.Position.Y);
+            m_enablePlanets.Position = new Vector2(rightColumnOffset + labelSize / 2, m_enableFlora.Position.Y);
+         
             if (MyFakes.ENABLE_CARGO_SHIPS)
             {
                 parent.Controls.Add(shipsEnabledLabel);
@@ -544,6 +646,8 @@ namespace Sandbox.Game.Gui
             enableEncountersLabel.Position = new Vector2(rightColumnOffset + 0.75f * labelSize, enable3rdPersonCameraLabel.Position.Y);
             m_enableEncounters.Position = new Vector2(rightColumnOffset + labelSize + 0.75f * labelSize, m_enable3rdPersonCamera.Position.Y);
 
+            enableStationVoxelLabel.Position = new Vector2(rightColumnOffset + 0.75f * labelSize, enableSunRotationLabel.Position.Y);
+            m_stationVoxelSupport.Position = new Vector2(rightColumnOffset + labelSize + 0.75f * labelSize, m_enableSunRotation.Position.Y);
 
             parent.Controls.Add(showPlayerNamesOnHudLabel);
             parent.Controls.Add(m_showPlayerNamesOnHud);
@@ -578,6 +682,18 @@ namespace Sandbox.Game.Gui
             parent.Controls.Add(m_enableEncounters);
             parent.Controls.Add(enable3rdPersonCameraLabel);
             parent.Controls.Add(m_enable3rdPersonCamera);
+
+			parent.Controls.Add(enableStationVoxelLabel);
+			parent.Controls.Add(m_stationVoxelSupport);
+
+            if (MyFakes.ENABLE_PLANETS)
+            {
+                parent.Controls.Add(enablePlanetsLabel);
+                parent.Controls.Add(m_enablePlanets);
+            }
+
+            parent.Controls.Add(enableSunRotationLabel);
+            parent.Controls.Add(m_enableSunRotation);
 
             m_survivalModeButton.OriginAlign = MyGuiDrawAlignEnum.HORISONTAL_RIGHT_AND_VERTICAL_CENTER;
             m_survivalModeButton.Position = m_creativeModeButton.Position + new Vector2(m_onlineMode.Size.X, 0);
@@ -813,6 +929,21 @@ namespace Sandbox.Game.Gui
             }
         }
 
+		public int GetFloraDensity()
+		{
+			return (int)m_floraDensityCombo.GetSelectedKey();
+		}
+
+		private MyFloraDensityEnum FloraDensityEnumKey(int floraDensity)
+		{
+			var value = (MyFloraDensityEnum)floraDensity;
+			if (Enum.IsDefined(typeof(MyFloraDensityEnum), value))
+			{
+				return (MyFloraDensityEnum)floraDensity;
+			}
+			return MyFloraDensityEnum.LOW;
+		}
+
         public void GetSettings(MyObjectBuilder_SessionSettings output)
         {
             output.OnlineMode = (MyOnlineModeEnum)m_onlineMode.GetSelectedKey();
@@ -840,10 +971,15 @@ namespace Sandbox.Game.Gui
                 output.VoxelGeneratorVersion = MyVoxelConstants.VOXEL_GENERATOR_MIN_ICE_VERSION;
             }
             output.RespawnShipDelete = m_respawnShipDelete.IsChecked;
+			output.EnableFlora = m_enableFlora.IsChecked;
+			output.EnableStationVoxelSupport = m_stationVoxelSupport.IsChecked;
             output.DisableRespawnShips = m_disableRespawnShips.IsChecked;
+            output.EnablePlanets = m_enablePlanets.IsChecked;
+            output.EnableSunRotation = m_enableSunRotation.IsChecked;
 
             output.MaxPlayers = (short)m_maxPlayersSlider.Value;
             output.MaxFloatingObjects = (short)m_maxFloatingObjectsSlider.Value;
+            output.SunRotationIntervalMinutes = MathHelper.Clamp(MathHelper.InterpLog(m_sunRotationIntervalSlider.Value, MIN_DAY_TIME_MINUTES, MAX_DAY_TIME_MINUTES), MIN_DAY_TIME_MINUTES, MAX_DAY_TIME_MINUTES);
 
             output.AssemblerEfficiencyMultiplier = GetAssemblerMultiplier();
             output.AssemblerSpeedMultiplier = GetAssemblerMultiplier();
@@ -855,6 +991,7 @@ namespace Sandbox.Game.Gui
 
             output.WorldSizeKm = GetWorldSize();
             output.ViewDistance = GetViewDistance();
+			output.FloraDensity = GetFloraDensity();
             output.RealisticSound = ((MySoundModeEnum)m_soundModeCombo.GetSelectedKey() == MySoundModeEnum.Realistic);
 
             output.PhysicsIterations = (int)m_physicsOptionsCombo.GetSelectedKey();
@@ -869,6 +1006,7 @@ namespace Sandbox.Game.Gui
             m_worldSizeCombo.SelectItemByKey((int)WorldSizeEnumKey(settings.WorldSizeKm));
             m_spawnShipTimeCombo.SelectItemByKey((int)(settings.SpawnShipTimeMultiplier * 10));
             m_viewDistanceCombo.SelectItemByKey((int)ViewDistanceEnumKey(settings.ViewDistance));
+			m_floraDensityCombo.SelectItemByKey((int)FloraDensityEnumKey(settings.FloraDensity));
             m_soundModeCombo.SelectItemByKey(settings.RealisticSound ? (int)MySoundModeEnum.Realistic : (int)MySoundModeEnum.Arcade);
             if (m_physicsOptionsCombo.TryGetItemByKey(settings.PhysicsIterations) != null)
                 m_physicsOptionsCombo.SelectItemByKey(settings.PhysicsIterations);
@@ -898,7 +1036,18 @@ namespace Sandbox.Game.Gui
             }
             m_disableRespawnShips.IsChecked = settings.DisableRespawnShips;
             m_respawnShipDelete.IsChecked = settings.RespawnShipDelete;
+			m_enableFlora.IsChecked = settings.EnableFlora;
+			m_stationVoxelSupport.IsChecked = settings.EnableStationVoxelSupport;
+            m_enablePlanets.IsChecked = settings.EnablePlanets;
+            m_enableSunRotation.IsChecked = settings.EnableSunRotation;
 
+            m_sunRotationIntervalSlider.Enabled = m_enableSunRotation.IsChecked;
+            m_sunRotationPeriodValue.Visible = m_enableSunRotation.IsChecked;
+
+            m_enableFlora.Enabled = m_enablePlanets.IsChecked;
+            m_floraDensityCombo.Enabled = m_enablePlanets.IsChecked;
+
+            m_sunRotationIntervalSlider.Value = MathHelper.Clamp(MathHelper.InterpLogInv((float)settings.SunRotationIntervalMinutes, MIN_DAY_TIME_MINUTES, MAX_DAY_TIME_MINUTES), 0, 1);
             m_maxPlayersSlider.Value = settings.MaxPlayers;
             m_maxFloatingObjectsSlider.Value = settings.MaxFloatingObjects;
 

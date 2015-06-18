@@ -25,27 +25,43 @@ namespace Sandbox.Game.SessionComponents
         private int m_updateCount = 0;
         public override void UpdateBeforeSimulation()
         {
-            if (!Sync.IsServer)
-                return;
             m_updateCount++;
             if (m_updateCount % 10 == 0)
             {
+                UpdateLocal();
+                if (!Sync.IsServer)
+                    return;
+
+                int lostCount=0;
+                int totalCount=0;
                 foreach (MyPlayer player in MySession.Static.Players.GetOnlinePlayers())
                 {
                     if (player.Controller != null && player.Controller.ControlledEntity != null && player.Controller.ControlledEntity.Entity != null)
                     {
                         var entity = player.Controller.ControlledEntity.Entity;
-                        Update(player.Id, entity);
+                        if (Update(player.Id, entity))
+                            lostCount++;
+                        totalCount++;
                     }
                 }
 
+                //all others lost?
+                if (lostCount + 1 == totalCount && lostCount>0)
+                {
+                    foreach (MyPlayer player in MySession.Static.Players.GetOnlinePlayers())
+                        RaiseSignal(player.Id, Signal.ALL_OTHERS_LOST);
+                }
+
+                //someone else won?
                 if (m_someoneWon)
                     foreach (var triggers in MissionTriggers)
                         triggers.Value.RaiseSignal(triggers.Key, Signal.OTHER_WON);
+
+                
             }
         }
 
-        public bool Update(MyPlayer.PlayerId Id, MyEntity entity)
+        public bool Update(MyPlayer.PlayerId Id, MyEntity entity) //returns if lost
         {
             //MySessionComponentMission.Static.TryCreateFromDefault(Id);
 
@@ -66,17 +82,24 @@ namespace Sandbox.Game.SessionComponents
                 mtrig.UpdateLose(Id, entity);
             else
                 m_someoneWon = true;
-            return false;
+            return mtrig.Lost;
         }
 
         public static void PlayerDied(MyPlayer.PlayerId Id)
         {
-            if (!Sync.IsServer)
-                return;
+            //if (!Sync.IsServer) server still checks death count trigger "for real", but we need to know lives left on client to display it on screen
+            //    return;
+            RaiseSignal(Id,Signal.PLAYER_DIED);
+        }
+
+        public static void RaiseSignal(MyPlayer.PlayerId Id, Signal signal)
+        {
             MyMissionTriggers mtrig;
             if (!Static.MissionTriggers.TryGetValue(Id, out mtrig))
                 mtrig = Static.TryCreateFromDefault(Id, false);
-            mtrig.RaiseSignal(Id, Signal.PLAYER_DIED);
+            mtrig.RaiseSignal(Id, signal);
+            if (Static.IsLocal(Id))
+                Static.UpdateLocal(Id);
         }
 
         public static bool CanRespawn(MyPlayer.PlayerId Id)
@@ -92,6 +115,11 @@ namespace Sandbox.Game.SessionComponents
         }
 
         #region displaying win/lose message on local computer
+        private void UpdateLocal()
+        {
+            if (!MySandboxGame.IsDedicated && MySession.LocalHumanPlayer != null)
+                UpdateLocal(MySession.LocalHumanPlayer.Id);
+        }
         private void UpdateLocal(MyPlayer.PlayerId Id)
         {
             MyMissionTriggers mtrig;
@@ -102,6 +130,7 @@ namespace Sandbox.Game.SessionComponents
                 return;
             }
             mtrig.DisplayMsg();
+            mtrig.DisplayHints();
         }
         #endregion
         #region network

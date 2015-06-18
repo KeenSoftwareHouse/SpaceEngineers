@@ -45,7 +45,7 @@ namespace Sandbox.Game.Multiplayer
         public static void PlayerWon(MyPlayer.PlayerId id, int triggerIndex)
         {
             MySessionComponentMissionTriggers.Static.SetWon(id, triggerIndex);
-            if (!Sync.MultiplayerActive)
+            if (!Sync.MultiplayerActive || !MySession.Static.IsScenario)
                 return;
             WonMsg msg = new WonMsg();
             msg.index = triggerIndex;
@@ -61,7 +61,7 @@ namespace Sandbox.Game.Multiplayer
         public static void PlayerLost(MyPlayer.PlayerId id, int triggerIndex)
         {
             MySessionComponentMissionTriggers.Static.SetLost(id, triggerIndex);
-            if (!Sync.MultiplayerActive)
+            if (!Sync.MultiplayerActive || !MySession.Static.IsScenario)
                 return;
             LostMsg msg = new LostMsg();
             msg.index = triggerIndex;

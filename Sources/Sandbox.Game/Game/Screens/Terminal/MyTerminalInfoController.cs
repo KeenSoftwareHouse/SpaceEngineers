@@ -145,7 +145,11 @@ namespace Sandbox.Game.Gui
             if (!m_grid.IsStatic || m_grid.MarkedForClose)
                 convertBtn.Enabled = false;
 
-           
+            var setDestructibleBlocks = (MyGuiControlCheckbox)m_infoPage.Controls.GetControlByName("SetDestructibleBlocks");
+            setDestructibleBlocks.IsChecked = m_grid.DestructibleBlocks;
+            setDestructibleBlocks.Visible = MySession.Static.Settings.ScenarioEditMode || MySession.Static.IsScenario;
+            setDestructibleBlocks.Enabled = MySession.Static.Settings.ScenarioEditMode;
+            setDestructibleBlocks.IsCheckedChanged = setDestructibleBlocksBtn_IsCheckedChanged;
 
             int gravityCounter = 0;
             if (m_grid.BlocksCounters.ContainsKey(typeof(MyObjectBuilder_GravityGenerator)))
@@ -221,6 +225,10 @@ namespace Sandbox.Game.Gui
         void pivotBtn_IsCheckedChanged(MyGuiControlCheckbox obj)
         {
             MyCubeGrid.ShowGridPivot = obj.IsChecked;
+        }
+        void setDestructibleBlocksBtn_IsCheckedChanged(MyGuiControlCheckbox obj)
+        {
+            m_grid.SyncObject.SetDestructibleBlocks(obj.IsChecked);
         }
 
         void convertBtn_ButtonClicked(MyGuiControlButton obj)

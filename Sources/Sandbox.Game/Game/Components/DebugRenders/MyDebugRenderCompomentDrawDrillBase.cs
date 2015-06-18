@@ -19,7 +19,10 @@ namespace Sandbox.Game.Components
 
         public override bool DebugDraw()
         {
-            m_drillBase.DebugDraw();
+            if (MyDebugDrawSettings.DEBUG_DRAW_DRILLS)
+            {
+                m_drillBase.DebugDraw();
+            }
             return true;
         }
     }

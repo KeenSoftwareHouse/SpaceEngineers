@@ -74,14 +74,26 @@ namespace Sandbox.Game.Multiplayer
             [ProtoMember]
             public bool IsRunning;
 
+            [ProtoMember]
+            public bool CanJoin;
+
         }
 
-        internal static event Action<bool> InfoAnswer;
+        [MessageId(5406, P2PMessageEnum.Reliable)]
+        [ProtoContract]
+        struct SetJoinRunningMsg
+        {
+            [ProtoMember]
+            public bool CanJoin;
+        }
+
+        internal static event Action<bool, bool> InfoAnswer;
         internal static event Action<long> PrepareScenario;
         internal static event Action<ulong> PlayerReadyToStartScenario;
         internal static event Action ClientWorldLoaded;
         internal static event Action<long> StartScenario;
         internal static event Action<int> TimeoutReceived;
+        internal static event Action<bool> CanJoinRunningReceived;
         //internal static event Action<long, int> EndScenario;
         
         static MySyncScenario()
@@ -95,6 +107,7 @@ namespace Sandbox.Game.Multiplayer
             MySyncLayer.RegisterMessage<StartScenarioMsg>(OnStartScenario, MyMessagePermissions.FromServer, MyTransportMessageEnum.Request);
             //MySyncLayer.RegisterMessage<EndScenarioMsg>(OnEndScenario, MyMessagePermissions.FromServer, MyTransportMessageEnum.Request);
             MySyncLayer.RegisterMessage<SetTimeoutMsg>(OnSetTimeout, MyMessagePermissions.FromServer, MyTransportMessageEnum.Request);
+            MySyncLayer.RegisterMessage<SetJoinRunningMsg>(OnSetJoinRunning, MyMessagePermissions.FromServer, MyTransportMessageEnum.Request);
         }
 
         //client connected, asks for latest info (like if the game is already running and gui should be used accordingly)
@@ -107,13 +120,22 @@ namespace Sandbox.Game.Multiplayer
         {
             var answer = new AnswerInfoMsg();
             answer.IsRunning = MyMultiplayer.Static.ScenarioStartTime > DateTime.MinValue;
+            answer.CanJoin = !answer.IsRunning || MySession.Static.Settings.CanJoinRunning;
             Sync.Layer.SendMessage(ref answer, sender.SteamUserId);
+
+            var timeoutMsg = new SetTimeoutMsg();
+            timeoutMsg.Index = (int)MyGuiScreenScenarioMpBase.Static.TimeoutCombo.GetSelectedIndex();
+            Sync.Layer.SendMessage(ref timeoutMsg, sender.SteamUserId);
+
+            var outMsg = new SetJoinRunningMsg();
+            outMsg.CanJoin = MySession.Static.Settings.CanJoinRunning;
+            Sync.Layer.SendMessage(ref outMsg, sender.SteamUserId);
         }
 
         private static void OnAnswerInfo(ref AnswerInfoMsg msg, MyNetworkClient sender)
         {
             if (InfoAnswer != null)
-                InfoAnswer(msg.IsRunning);
+                InfoAnswer(msg.IsRunning, msg.CanJoin);
         }
 
         /// <summary>
@@ -222,6 +244,22 @@ namespace Sandbox.Game.Multiplayer
 
             if (TimeoutReceived != null)
                 TimeoutReceived(msg.Index);
+        }
+
+        public static void SetJoinRunning(bool canJoin)
+        {
+            Debug.Assert(Sync.IsServer);
+
+            var msg = new SetJoinRunningMsg();
+            msg.CanJoin = canJoin;
+            Sync.Layer.SendMessageToAll(ref msg);
+        }
+        private static void OnSetJoinRunning(ref SetJoinRunningMsg msg, MyNetworkClient sender)
+        {
+            Debug.Assert(!Sync.IsServer);
+
+            if (CanJoinRunningReceived != null)
+                CanJoinRunningReceived(msg.CanJoin);
         }
 
     }

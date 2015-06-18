@@ -260,14 +260,14 @@ namespace Sandbox.Graphics.GUI
 
         #endregion
 
-        public override void Draw(float transitionAlpha)
+        public override void Draw(float transitionAlpha, float backgroundTransitionAlpha)
         {
             if (!Visible)
                 return;
 
-            m_compositeBackground.Draw(GetPositionAbsoluteTopLeft(), Size, ApplyColorMaskModifiers(ColorMask, Enabled, transitionAlpha));
+            m_compositeBackground.Draw(GetPositionAbsoluteTopLeft(), Size, ApplyColorMaskModifiers(ColorMask, Enabled, backgroundTransitionAlpha));
 
-            base.Draw(transitionAlpha);
+            base.Draw(transitionAlpha, backgroundTransitionAlpha);
 
             var textAreaRelative = m_textAreaRelative;
             var textArea = textAreaRelative;

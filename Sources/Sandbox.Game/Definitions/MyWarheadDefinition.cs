@@ -8,6 +8,7 @@ namespace Sandbox.Definitions
     public class MyWarheadDefinition : MyCubeBlockDefinition
     {
         public float ExplosionRadius;
+        public float WarheadExplosionDamage;
 
         protected override void Init(MyObjectBuilder_DefinitionBase builder)
         {
@@ -15,6 +16,7 @@ namespace Sandbox.Definitions
 
             var warheadBuilder = (MyObjectBuilder_WarheadDefinition)builder;
             ExplosionRadius = warheadBuilder.ExplosionRadius;
+            WarheadExplosionDamage = warheadBuilder.WarheadExplosionDamage;
         }
     }
 }

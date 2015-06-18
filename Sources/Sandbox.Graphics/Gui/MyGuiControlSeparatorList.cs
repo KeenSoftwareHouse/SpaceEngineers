@@ -65,7 +65,7 @@ namespace Sandbox.Graphics.GUI
 
         #endregion
 
-        public override void Draw(float transitionAlpha)
+        public override void Draw(float transitionAlpha, float backgroundTransitionAlpha)
         {
             var center = GetPositionAbsoluteCenter();
 

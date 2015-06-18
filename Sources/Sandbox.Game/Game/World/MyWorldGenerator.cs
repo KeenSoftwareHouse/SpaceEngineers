@@ -23,6 +23,8 @@ using Sandbox.Game.Screens.Helpers;
 using VRage.Library.Utils;
 using VRage.FileSystem;
 using VRage.ObjectBuilders;
+using VRage.Collections;
+using Sandbox.Common.ObjectBuilders.Definitions;
 
 namespace Sandbox.Game.World
 {
@@ -239,6 +241,16 @@ namespace Sandbox.Game.World
             voxelMap.Init(storageName, storage, positionMinCorner);
             MyEntities.Add(voxelMap);
             return voxelMap;
+        }
+
+      
+        private static Vector3I FindBestOctreeSize(float radius)
+        {
+            int nodeRadius = MyVoxelConstants.RENDER_CELL_SIZE_IN_VOXELS;
+            while (nodeRadius < radius)
+                nodeRadius *= 2;
+            //nodeRadius *= 2;
+            return new Vector3I(nodeRadius, nodeRadius, nodeRadius);
         }
 
         public static void AddEntity(MyObjectBuilder_EntityBase entityBuilder)

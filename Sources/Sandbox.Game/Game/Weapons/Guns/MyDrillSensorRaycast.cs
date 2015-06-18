@@ -7,6 +7,8 @@ using Sandbox.Engine.Physics;
 using VRageMath;
 using VRageRender;
 using Sandbox.Game.Entities;
+using Sandbox.Game.Entities.Cube;
+using Sandbox.Engine.Utils;
 
 namespace Sandbox.Game.Weapons.Guns
 {
@@ -66,7 +68,7 @@ namespace Sandbox.Game.Weapons.Guns
 							shape.GetLocalAABB(0.05f, out min4, out max4);
 							Vector3 worldMin = Vector3.Transform(new Vector3(min4), grid.PositionComp.WorldMatrix);
 							Vector3 worldMax = Vector3.Transform(new Vector3(max4), grid.PositionComp.WorldMatrix);
-							var worldAABB = new BoundingBox(worldMin, worldMax);
+							var worldAABB = new BoundingBoxD(worldMin, worldMax);
 
 							detectionPoint = worldAABB.Center;
 						}

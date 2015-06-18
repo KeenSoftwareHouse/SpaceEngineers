@@ -12,5 +12,7 @@ namespace Sandbox.Common.ObjectBuilders.Definitions
         public int MaxIntegrity;
         [ProtoMember]
         public float DropProbability;
+		[ProtoMember]
+		public float DeconstructionEfficiency = 1.0f;
     }
 }

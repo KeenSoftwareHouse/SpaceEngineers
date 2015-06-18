@@ -14,6 +14,8 @@ float ScaleOverScaleDepth;
 bool IsInAtmosphere;
 
 float3 LightPosition;
+float3 InvWavelength;
+
 
 float ScaleFun(float fCos)
 {
@@ -21,16 +23,16 @@ float ScaleFun(float fCos)
 	return ScaleDepth * exp(-0.00287 + x*(0.459 + x*(3.83 + x*(-6.80 + x*5.25))));
 }
 
-const static float PI = 3.14159265359;
-const static float Kr = 0.004;
-const static float Km = 0.0005;
-const static float3 InvWavelength = float3(1 / 0.17850625, 1 / 0.10556001, 1 / 0.050906640625);
-const static float KrSun = 15;
+const static float PI = 3.14159f;
+const static float Kr = 0.0025f;
+const static float Km = 0.0010f;
+
+const static float KrSun = 30;
 const static float KrESun = Kr*KrSun;
 const static float KmESun = Km*KrSun;
 const static float Samples = 2;
-const static float NumSamples = 2;
-const static float g = -0.95;
+const static float NumSamples = 3;
+const static float g = -0.990f;
 const static float g2 = g*g;
 const static float Km4PI = Km * 4 * PI;
 const static float Kr4PI = Kr * 4 * PI;

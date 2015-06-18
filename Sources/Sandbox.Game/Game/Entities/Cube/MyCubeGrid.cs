@@ -165,6 +165,37 @@ namespace Sandbox.Game.Entities
         public bool YSymmetryOdd = false;
         public bool ZSymmetryOdd = false;
 
+        private bool m_destructibleBlocks;
+
+        // Used for UI & Sync
+        public bool DestructibleBlocks
+        {
+            get
+            {
+                return m_destructibleBlocks;
+            }
+            set
+            {
+                m_destructibleBlocks = value;
+            }
+        }
+
+        // Used to determine if blocks are destructible
+        public bool BlocksDestructionEnabled
+        {
+            get
+            {
+                if (MySession.Static.Settings.DestructibleBlocks)
+                {
+                    return m_destructibleBlocks;
+                }
+                else
+                {
+                    return false;
+                }
+            }
+        }
+
         internal List<MyBlockGroup> BlockGroups = new List<MyBlockGroup>();
         private static List<MyObjectBuilder_BlockGroup> m_tmpBlockGroups = new List<MyObjectBuilder_BlockGroup>();
         internal MyCubeGridOwnershipManager m_ownershipManager;
@@ -470,6 +501,8 @@ namespace Sandbox.Game.Entities
                 else
                     DisplayName = builder.DisplayName;
 
+                m_destructibleBlocks = builder.DestructibleBlocks;
+
                 if (MyFakes.ENABLE_TERMINAL_PROPERTIES)
                 {
                     m_ownershipManager = new MyCubeGridOwnershipManager();
@@ -560,7 +593,7 @@ namespace Sandbox.Game.Entities
             MyCubeGrid.MoveBlocks(originalGrid, newGrid, blocks, 0, blocks.Count);
             newGrid.RebuildGrid();
 
-            if (originalGrid.IsStatic && MyFakes.ENABLE_GRID_CLIPBOARD_CHANGE_TO_DYNAMIC)
+            if (originalGrid.IsStatic && MySession.Static.EnableStationVoxelSupport)
             {
                 newGrid.TestDynamic = true;
                 originalGrid.TestDynamic = true;
@@ -624,7 +657,7 @@ namespace Sandbox.Game.Entities
                 {
                     ProfilerShort.Begin("Update new grid shape");
                     newGrid.RebuildGrid();
-                    if (originalGrid.IsStatic && MyFakes.ENABLE_GRID_CLIPBOARD_CHANGE_TO_DYNAMIC)
+                    if (originalGrid.IsStatic && MySession.Static.EnableStationVoxelSupport)
                     {
                         newGrid.TestDynamic = true;
                         originalGrid.TestDynamic = true;
@@ -804,6 +837,7 @@ namespace Sandbox.Game.Entities
             }
 
             ob.DisplayName = DisplayName;
+            ob.DestructibleBlocks = DestructibleBlocks;
 
             GridSystems.GetObjectBuilder(ob);
         }
@@ -1041,7 +1075,7 @@ namespace Sandbox.Game.Entities
 
             DoLazyUpdates();
 
-            if (Physics != null)
+            if (Physics != null && Physics.Enabled)
             {
                 if (m_inventoryMassDirty)
                 {
@@ -1051,8 +1085,7 @@ namespace Sandbox.Game.Entities
 
                 if (IsStatic == false)
                 {
-                    Vector3 gravity = MyGravityProviderSystem.CalculateGravityInPointForGrid(PositionComp.GetPosition());
-                    Physics.AddForce(MyPhysicsForceType.APPLY_WORLD_FORCE, Physics.Mass * gravity, Physics.CenterOfMassWorld, null);
+                    Physics.RigidBody.Gravity = MyGravityProviderSystem.CalculateGravityInPointForGrid(PositionComp.GetPosition());
                 }
 
                 if (Physics.RigidBody2 != null)
@@ -2960,7 +2993,7 @@ namespace Sandbox.Game.Entities
 
         private float ApplyDestructionDeformationInternal(MySlimBlock block, bool sync, float damage = 1f)
         {
-            if (!MySession.Static.DestructibleBlocks)
+            if (!BlocksDestructionEnabled)
                 return 0;
 
             m_totalBoneDisplacement = 0.0f;
@@ -3144,9 +3177,14 @@ namespace Sandbox.Game.Entities
             }
         }
 
-        private void BlockIntegrityChanged(Vector3I pos, float buildIntegrity, float integrity, MyIntegrityChangeEnum integrityChangeType, long grinderOwner)
+		private void BlockIntegrityChanged(Vector3I pos, ushort subBlockId, float buildIntegrity, float integrity, MyIntegrityChangeEnum integrityChangeType, long grinderOwner)
         {
+			MyCompoundCubeBlock compoundBlock = null;
             var block = GetCubeBlock(pos);
+			if (block != null)
+				compoundBlock = block.FatBlock as MyCompoundCubeBlock;
+			if (compoundBlock != null)
+				block = compoundBlock.GetBlock(subBlockId);
             //Debug.Assert(block != null, "Attempting to change integrity of a non-existent block!");
 
             if (block != null)
@@ -3155,10 +3193,17 @@ namespace Sandbox.Game.Entities
             }
         }
 
-        private void BlockStockpileChanged(Vector3I pos, List<MyStockpileItem> items)
+        private void BlockStockpileChanged(Vector3I pos, ushort subBlockId, List<MyStockpileItem> items)
         {
             var block = GetCubeBlock(pos);
-            Debug.Assert(block != null, "Attempting to change stockpile of a non-existent block!");
+          
+			MyCompoundCubeBlock compoundBlock = null;
+			if (block != null)
+				compoundBlock = block.FatBlock as MyCompoundCubeBlock;
+			if (compoundBlock != null)
+				block = compoundBlock.GetBlock(subBlockId);
+
+			Debug.Assert(block != null, "Attempting to change stockpile of a non-existent block!");
 
             if (block != null)
             {

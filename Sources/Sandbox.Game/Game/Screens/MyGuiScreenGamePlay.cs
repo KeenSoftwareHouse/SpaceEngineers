@@ -306,20 +306,6 @@ namespace Sandbox.Game.Gui
             {
                 MyGuiAudio.PlaySound(MyGuiSounds.HudClick);
                 SwitchCamera();
-                //if (MySession.IsCameraControlledObject())
-                //{
-                //    //MySession.SetCameraController(MyCameraControllerEnum.ThirdPersonSpectator);
-                //    MySession.Static.CameraController.IsInFirstPersonView = true;
-                //}
-                //else
-                //{
-                //    MySession.Static.CameraController.IsInFirstPersonView = false;
-                //}
-                ////else if (MySession.GetCameraControllerEnum() == MyCameraControllerEnum.ThirdPersonSpectator)
-                ////{
-                ////    if (MySession.ControlledObject is IMyCameraController)
-                ////        MySession.SetCameraController(MyCameraControllerEnum.Entity, MySession.ControlledObject.Entity);
-                ////}
             }
 
             if (MyInput.Static.IsNewGameControlPressed(MyControlsSpace.HELP_SCREEN))
@@ -371,17 +357,13 @@ namespace Sandbox.Game.Gui
                 MyGuiSandbox.AddScreen(new Sandbox.Game.Screens.MyGuiScreenMissionTriggers());
             }
 
-            // HACK! Do NOT add anything that relies on use objects here!
-            // Letting certain use objects which are targeted handle any kind of events, circumventing all normal use object mechanisms.
-            // Only used by ropes (and it should stay that way).
-            var controlledCharacter = controlledObject as MyCharacter;
-            bool handledByUseObject = false;
-            if (controlledCharacter != null && controlledCharacter.UseObject != null)
-            {
-                handledByUseObject = controlledCharacter.UseObject.HandleInput();
-            }
-
             MyStringId context = controlledObject != null ? controlledObject.ControlContext : MySpaceBindingCreator.CX_BASE;
+
+            bool handledByUseObject = false;
+            if (MySession.ControlledEntity is VRage.Game.Entity.UseObject.IMyUseObject)
+            {
+                handledByUseObject = (MySession.ControlledEntity as VRage.Game.Entity.UseObject.IMyUseObject).HandleInput();
+            }
 
             if (controlledObject != null && !handledByUseObject)
             {
@@ -677,10 +659,6 @@ namespace Sandbox.Game.Gui
         //Game and editor shares this method
         public void MoveAndRotatePlayerOrCamera()
         {
-            // Don't move camera on screenshot
-            //if (MyGuiSandbox.GetScreenshot() != null)
-              //  return;
-
             MyCameraControllerEnum cce = MySession.GetCameraControllerEnum();
             bool movementAllowedInPause = cce == MyCameraControllerEnum.Spectator;
             bool rotationAllowedInPause = movementAllowedInPause ||
@@ -723,7 +701,7 @@ namespace Sandbox.Game.Gui
 
                     if (!MyInput.Static.IsGameControlPressed(MyControlsSpace.LOOKAROUND))
                     {
-                        MySession.ControlledEntity.MoveAndRotate(moveIndicator, rotationIndicator, rollIndicator);                   
+                        MySession.ControlledEntity.MoveAndRotate(moveIndicator, rotationIndicator, rollIndicator);
                     }
                     else
                     {
@@ -733,10 +711,6 @@ namespace Sandbox.Game.Gui
                     }
                 }
             }
-
-            //if (MyVideoModeManager.IsHardwareCursorUsed() && GetDrawMouseCursor() == false && !MySandboxGame.Static.IsMouseVisible)
-            //MyGuiInput.SetMouseToScreenCenter();
-
         }
 
         private static void SetCameraController()
@@ -968,8 +942,15 @@ namespace Sandbox.Game.Gui
                 MyPostProcessVolumetricSSAO2.Contrast
             );
 
+            Vector3 sunDirection = -MySector.DirectionToSunNormalized;
+            if (MySession.Static.Settings.EnableSunRotation)
+            {
+                double angle = 2.0*MathHelper.Pi * MySession.Static.ElapsedGameTime.TotalMinutes / MySession.Static.Settings.SunRotationIntervalMinutes;
+                sunDirection += new Vector3(Math.Cos(angle),0, Math.Sin(angle));
+            }
+
             VRageRender.MyRenderProxy.UpdateRenderEnvironment(
-                -MySector.DirectionToSunNormalized,
+                sunDirection,
                 MySector.SunProperties.SunDiffuse,
                 MySector.SunProperties.BackSunDiffuse,
                 MySector.SunProperties.SunSpecular,

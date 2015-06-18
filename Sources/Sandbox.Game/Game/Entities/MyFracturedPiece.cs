@@ -146,7 +146,7 @@ namespace Sandbox.Game.Entities
                 m_children.Add(si);
                 shape.GetChildren(m_children);
 
-                if (blockDef.BuildProgressModels != null)
+                if (blockDef != null && blockDef.BuildProgressModels != null)
                 {
                     foreach (var progress in blockDef.BuildProgressModels)
                     {

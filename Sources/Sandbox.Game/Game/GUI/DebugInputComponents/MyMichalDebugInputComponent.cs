@@ -353,13 +353,13 @@ namespace Sandbox.Game.Gui
             var view = MySession.Static.CameraController.GetViewMatrix();
             var inv = Matrix.Invert(view);
 
-            //MyInventoryItem item = new MyInventoryItem(100, 
+            //MyPhysicalInventoryItem item = new MyPhysicalInventoryItem(100, 
             var oreBuilder = MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_Ore>("Stone");
 			var scrapBuilder = MyFloatingObject.ScrapBuilder;
 
             for (int i = 1; i <= 25; i++)
             {
-                var item = new MyInventoryItem((MyRandom.Instance.Next() % 200) + 1, oreBuilder);
+                var item = new MyPhysicalInventoryItem((MyRandom.Instance.Next() % 200) + 1, oreBuilder);
                 var obj = MyFloatingObjects.Spawn(item, inv.Translation + inv.Forward * i * 1.0f, inv.Forward, inv.Up);
                 obj.Physics.LinearVelocity = inv.Forward * 50;
             }
@@ -368,7 +368,7 @@ namespace Sandbox.Game.Gui
             scrapPos.X += 10;
             for (int i = 1; i <= 25; i++)
             {
-                var item = new MyInventoryItem((MyRandom.Instance.Next() % 200) + 1, scrapBuilder);
+                var item = new MyPhysicalInventoryItem((MyRandom.Instance.Next() % 200) + 1, scrapBuilder);
                 var obj = MyFloatingObjects.Spawn(item, scrapPos + inv.Forward * i * 1.0f, inv.Forward, inv.Up);
                 obj.Physics.LinearVelocity = inv.Forward * 50;
             }

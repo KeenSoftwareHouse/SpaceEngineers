@@ -282,7 +282,7 @@ namespace Sandbox.AppCode.Game.TransparentGeometry
                         var grid = entity as MyCubeGrid;
                         var invMat = grid.PositionComp.GetWorldMatrixNormalizedInv();
 
-                        if (MySession.Static.DestructibleBlocks)
+                        if (grid.BlocksDestructionEnabled)
                             grid.Physics.ApplyDeformation(6f, 3f, 3f, Vector3.Transform(p, invMat), Vector3.Normalize(Vector3.Transform(m_directionFromSunNormalized, invMat)), MyDamageType.Environment);
 
                         //MyPhysics.HavokWorld.CastRay(l.From, l.To, m_hitLst);

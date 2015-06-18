@@ -1426,7 +1426,7 @@ namespace Sandbox.Game.Entities
 
             thrustSystem.AutoPilotThrust = Vector3.Zero;
 
-            Vector3 brakeThrust = thrustSystem.GetAutoPilotThrustForDirection(Vector3.Zero);
+            Vector3 brakeThrust = thrustSystem.GetAutoPilotThrustForDirection(Vector3.Zero, includeSlowdown: true);
 
             // This check is now handled by approach cone code.
             /* 
@@ -1457,8 +1457,8 @@ namespace Sandbox.Game.Entities
             Vector3 lateralControl = lateralOffset;
             if (lateralControl != Vector3.Zero)
                 lateralControl.Normalize();
-            double lateralAcceleration = thrustSystem.GetThrustForDirection( lateralControl).Length() / CubeGrid.Physics.Mass;
-            double lateralDeceleration = thrustSystem.GetThrustForDirection(-lateralControl).Length() / CubeGrid.Physics.Mass;
+            double lateralAcceleration = thrustSystem.GetAutoPilotThrustForDirection( lateralControl, includeSlowdown: false).Length() / CubeGrid.Physics.Mass;
+            double lateralDeceleration = thrustSystem.GetAutoPilotThrustForDirection(-lateralControl, includeSlowdown: false).Length() / CubeGrid.Physics.Mass;
             double lateralVelocityProjection = Vector3D.Dot(velocityToCancel, lateralControl);
 
             double timeToReachCourse = double.PositiveInfinity;

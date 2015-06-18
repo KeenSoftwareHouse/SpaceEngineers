@@ -12,6 +12,8 @@ using Sandbox.Engine.Physics;
 using Sandbox.Engine.Utils;
 using Sandbox.Game.Components;
 using Sandbox.Game.Entities.Cube;
+using Sandbox.Game.Entities.Interfaces;
+using Sandbox.Game.Entities.Inventory;
 using Sandbox.Game.GameSystems;
 using Sandbox.Game.GameSystems.Electricity;
 using Sandbox.Game.Gui;
@@ -142,8 +144,19 @@ namespace Sandbox.Game.Entities.Character
 
     #endregion
 
-    [MyEntityType(typeof(MyObjectBuilder_Character))]                                                                                                                                     //for dead bodies
-    public partial class MyCharacter : MySkinnedEntity, IMyCameraController, IMyControllableEntity, IMyInventoryOwner, IMyPowerConsumer, IMyComponentOwner<MyDataBroadcaster>, IMyComponentOwner<MyDataReceiver>, IMyUseObject, IMyDestroyableObject, Sandbox.ModAPI.IMyCharacter
+    [MyEntityType(typeof(MyObjectBuilder_Character))]                                                                                                                                     
+    public partial class MyCharacter : 
+        MySkinnedEntity, 
+        IMyComponentOwner<MyComponentInventoryAggregate>, 
+        IMyCameraController, 
+        IMyControllableEntity, 
+        IMyInventoryOwner, 
+        IMyPowerConsumer, 
+        IMyComponentOwner<MyDataBroadcaster>, 
+        IMyComponentOwner<MyDataReceiver>, 
+        IMyUseObject, 
+        IMyDestroyableObject, 
+        Sandbox.ModAPI.IMyCharacter
     {
         #region Fields
 
@@ -297,7 +310,7 @@ namespace Sandbox.Game.Entities.Character
         MyInventory m_inventory;
         MyBattery m_suitBattery;
         MyPowerDistributor m_suitPowerDistributor;
-        List<MyInventoryItem> m_inventoryResults = new List<MyInventoryItem>();
+        List<MyPhysicalInventoryItem> m_inventoryResults = new List<MyPhysicalInventoryItem>();
 
         bool m_dampenersEnabled = true;
         bool m_jetpackEnabled = false;
@@ -580,6 +593,27 @@ namespace Sandbox.Game.Entities.Character
 
         public event Action<MyCharacter> CharacterDied;
 
+        private MyComponentInventoryAggregate m_inventoryAggregate;
+        public MyComponentInventoryAggregate InventoryAggregate
+        {
+            get
+            {
+                return m_inventoryAggregate;
+            }
+            set 
+            {
+                if (m_inventoryAggregate == null)
+                {
+                    Components.Add<MyComponentInventoryAggregate>(value);
+                }
+                else
+                {
+                    Components.Remove<MyComponentInventoryAggregate>();
+                }
+                m_inventoryAggregate = value;
+            }
+        }
+
         #endregion
 
         #region Init
@@ -656,6 +690,12 @@ namespace Sandbox.Game.Entities.Character
             (PositionComp as MyPositionComponent).WorldPositionChanged = WorldPositionChanged;
             this.Render = new MyRenderComponentCharacter();
 			StatComp = new MyCharacterStatComponent();
+
+            // TODO: When this Inventory system is working well, remove it and use it as default for SE too
+            if (MyFakes.ENABLE_MEDIEVAL_INVENTORY)
+            {
+                InventoryAggregate = new MyComponentInventoryAggregate(this);
+            }
 
             AddDebugRenderComponent(new MyDebugRenderComponentCharacter(this));
         }
@@ -873,6 +913,8 @@ namespace Sandbox.Game.Entities.Character
             else
                 m_bodyCapsuleBones.Clear();
             InitSounds();
+
+            if (InventoryAggregate != null) InventoryAggregate.Init();
         }
 
         private void InitSounds()
@@ -1013,12 +1055,16 @@ namespace Sandbox.Game.Entities.Character
         {
             // Switch away from the weapon if we don't have it; Cube placer is an exception
             if (m_currentWeapon != null && m_currentWeapon.DefinitionId.TypeId != typeof(MyObjectBuilder_CubePlacer)
-                && !inventory.ContainItems(1, m_currentWeapon.PhysicalObject))
+                && inventory != null && !inventory.ContainItems(1, m_currentWeapon.PhysicalObject))
                 SwitchToWeapon(null);
         }
 
         void RigidBody_ContactPointCallback(ref HkContactPointEvent value)
         {
+            if (value.Base.BodyA.GetEntity() is MyCharacter && value.Base.BodyB.GetEntity() is MyCharacter)
+            {
+
+            }
             if (IsDead)
                 return;
 
@@ -1032,6 +1078,9 @@ namespace Sandbox.Game.Entities.Character
                 return;
 
             if (value.Base.BodyA.UserObject == null || value.Base.BodyB.UserObject == null)
+                return;
+
+            if (value.Base.BodyA.HasProperty(HkCharacterRigidBody.MANIPULATED_OBJECT) || value.Base.BodyB.HasProperty(HkCharacterRigidBody.MANIPULATED_OBJECT))
                 return;
 
             //MyCharacter charA = null;//((MyPhysicsBody)value.Base.BodyA.UserObject).Entity as MyCharacter;
@@ -1067,9 +1116,15 @@ namespace Sandbox.Game.Entities.Character
                         normal = -normal;
                     }
 
-                    if (other is MyCharacter)
-                        return;
+                    var otherChar = (other as MyCharacter);
+                    if (otherChar != null && !(other as MyCharacter).IsDead)
+                    {
+                        if (Physics.CharacterProxy.Supported && otherChar.Physics.CharacterProxy.Supported)
+                            return;
+                    }
+
                     var vel = Math.Abs(value.SeparatingVelocity);
+
                     bool enoughSpeed = vel > 3;
 
                     Vector3 velocity1 = Physics.LinearVelocity;
@@ -1094,7 +1149,6 @@ namespace Sandbox.Game.Entities.Character
 
                     float impact1 = (speed1 * speed1 * mass1) * 0.5f;
                     float impact2 = (speed2 * speed2 * mass2) * 0.5f;
-
 
 
                     float mass;
@@ -1713,6 +1767,18 @@ namespace Sandbox.Game.Entities.Character
 		{
 			base.UpdateAfterSimulation10();
 
+            if (MySession.ControlledEntity == this && !IsSitting && !IsDead)
+            {
+                RayCast(MySession.GetCameraControllerEnum() != MyCameraControllerEnum.ThirdPersonSpectator);
+            }
+            else
+            {
+                if (MySession.ControlledEntity == this)
+                {
+                    MyHud.SelectedObjectHighlight.Visible = false;
+                }
+            }
+
             UpdateCameraDistance();
 		}
 
@@ -1765,9 +1831,10 @@ namespace Sandbox.Game.Entities.Character
 
             // Try to find grids that might contain oxygen
             var entities = new List<MyEntity>();
-            MyGamePruningStructure.GetAllSensableEntitiesInBox<MyEntity>(ref m_actualWorldAABB, entities);
+            MyGamePruningStructure.GetAllTopMostEntitiesInBox<MyEntity>(ref m_actualWorldAABB, entities);
             bool lowOxygenDamage = true;
             bool noOxygenDamage = true;
+            bool isInEnvironment = true;
 
             EnvironmentOxygenLevel = MyOxygenProviderSystem.GetOxygenInPoint(PositionComp.GetPosition());
 
@@ -1811,6 +1878,7 @@ namespace Sandbox.Game.Entities.Character
                     }
                 }
                 EnvironmentOxygenLevel = cockpit.OxygenLevel;
+                isInEnvironment = false;
             }
             else
             {
@@ -1836,18 +1904,35 @@ namespace Sandbox.Game.Entities.Character
                                 }
                             }
 
-                            if (oxygenBlock.Room.OxygenAmount > Definition.OxygenConsumption)
+                            if (oxygenBlock.Room.IsPressurized)
                             {
-                                if (Definition.NeedsOxygen)
-                                {
-                                    noOxygenDamage = false;
-                                    oxygenBlock.PreviousOxygenAmount = oxygenBlock.OxygenAmount() - Definition.OxygenConsumption;
-                                    oxygenBlock.OxygenChangeTime = MySandboxGame.TotalGamePlayTimeInMilliseconds;
-                                    oxygenBlock.Room.OxygenAmount -= Definition.OxygenConsumption;
-                                }
                                 EnvironmentOxygenLevel = oxygenBlock.Room.OxygenLevel(grid.GridSize);
-                                break;
+                                if (oxygenBlock.Room.OxygenAmount > Definition.OxygenConsumption)
+                                {
+                                    if (Definition.NeedsOxygen)
+                                    {
+                                        noOxygenDamage = false;
+                                        oxygenBlock.PreviousOxygenAmount = oxygenBlock.OxygenAmount() - Definition.OxygenConsumption;
+                                        oxygenBlock.OxygenChangeTime = MySandboxGame.TotalGamePlayTimeInMilliseconds;
+                                        oxygenBlock.Room.OxygenAmount -= Definition.OxygenConsumption;
+                                    }
+                                    break;
+                                }
                             }
+                            else
+                            {
+                                EnvironmentOxygenLevel = oxygenBlock.Room.EnvironmentOxygen;
+                                if (EnvironmentOxygenLevel > Definition.OxygenConsumption)
+                                {
+                                    if (Definition.NeedsOxygen)
+                                    {
+                                        noOxygenDamage = false;
+                                    }
+                                    break;
+                                }
+                            }
+
+                            isInEnvironment = false;
                         }
                     }
                 }
@@ -1943,6 +2028,18 @@ namespace Sandbox.Game.Entities.Character
                     noOxygenDamage = false;
                     lowOxygenDamage = false;
                 }
+
+                if (isInEnvironment)
+                {
+                    if (EnvironmentOxygenLevel > Definition.PressureLevelForLowDamage)
+                    {
+                        lowOxygenDamage = false;
+                    }
+                    if (EnvironmentOxygenLevel > 0f)
+                    {
+                        noOxygenDamage = false;
+                    }
+                }
             }
 
             if (noOxygenDamage)
@@ -2016,7 +2113,7 @@ namespace Sandbox.Game.Entities.Character
             return null;
         }
 
-        public void RayCast(bool useHead)
+        void RayCast(bool useHead)
         {
             if (this == MySession.ControlledEntity)
                 MyHud.SelectedObjectHighlight.Visible = false;
@@ -2467,7 +2564,7 @@ namespace Sandbox.Game.Entities.Character
 
             if (m_currentLootingCounter > 0)
             {
-                m_currentLootingCounter -= MyEngineConstants.UPDATE_STEP_SIZE_IN_SECONDS;
+                //m_currentLootingCounter -= MyEngineConstants.UPDATE_STEP_SIZE_IN_SECONDS;
                 if (m_currentLootingCounter <= 0)
                 {
                     SyncObject.SendCloseRequest();
@@ -4951,9 +5048,9 @@ namespace Sandbox.Game.Entities.Character
         /// This method finds the given weapon in the character's inventory. The weapon type has to be supplied
         /// either as PhysicalGunObject od weapon entity (e.g. Welder, CubePlacer, etc...).
         /// </summary>
-        private MyInventoryItem? FindWeaponByDefinition(MyDefinitionId weaponDefinition)
+        private MyPhysicalInventoryItem? FindWeaponByDefinition(MyDefinitionId weaponDefinition)
         {
-            MyInventoryItem? item = null;
+            MyPhysicalInventoryItem? item = null;
             if (weaponDefinition.TypeId != typeof(MyObjectBuilder_PhysicalGunObject))
             {
                 var physicalItemId = MyDefinitionManager.Static.GetPhysicalItemForHandItem(weaponDefinition).Id;
@@ -5472,17 +5569,25 @@ namespace Sandbox.Game.Entities.Character
                 }
                 else
                 {
-                    ShowCharacterInventory();
+                    ShowAggregateInventoryScreen();
                 }
             }
         }
 
-        public void ShowCharacterInventory()
+        public MyGuiScreenBase ShowAggregateInventoryScreen()
         {
+            MyGuiScreenBase screen = null;
             if (MyPerGameSettings.GUI.InventoryScreen != null)
             {
-                MyGuiSandbox.AddScreen(MyGuiSandbox.CreateScreen(MyPerGameSettings.GUI.InventoryScreen, new List<MyInventory>() {m_inventory}));
+                var aggregateComponent = Components.Get<MyComponentInventoryAggregate>();
+                if (aggregateComponent != null)
+                {
+                    aggregateComponent.Init();
+                    screen = MyGuiSandbox.CreateScreen(MyPerGameSettings.GUI.InventoryScreen, aggregateComponent);
+                    MyGuiSandbox.AddScreen( screen );
+                }
             }
+            return screen;
         }
 
         public void ShowTerminal()
@@ -5762,6 +5867,8 @@ namespace Sandbox.Game.Entities.Character
                     MyHud.CharacterInfo.Show(null);
                     MyHud.OreMarkers.Visible = true;
                     MyHud.LargeTurretTargets.Visible = true;
+                    if (MySession.Static.IsScenario)
+                        MyHud.ScenarioInfo.Show(null);
                 }
 
                 //Enable features for local player
@@ -5885,7 +5992,6 @@ namespace Sandbox.Game.Entities.Character
                 m_suitBattery.OwnedByLocalPlayer = false;
                 MyHud.LargeTurretTargets.Visible = false;
                 MyHud.OreMarkers.Visible = false;
-
                 m_radioReceiver.Clear();
             }
             else
@@ -6806,7 +6912,7 @@ namespace Sandbox.Game.Entities.Character
 
             if (Sync.IsServer && m_currentWeapon != null && m_currentWeapon.PhysicalObject != null)
             {
-                var inventoryItem = new MyInventoryItem()
+                var inventoryItem = new MyPhysicalInventoryItem()
                 {
                     Amount = 1,
                     Content = m_currentWeapon.PhysicalObject,
@@ -6980,7 +7086,7 @@ namespace Sandbox.Game.Entities.Character
             get { return m_currentWeapon; }
         }
 
-        internal IMyUseObject UseObject
+        IMyUseObject UseObject
         {
             get { return m_interactiveObject; }
             set
@@ -7927,7 +8033,13 @@ namespace Sandbox.Game.Entities.Character
             }
             if (MyPerGameSettings.GUI.InventoryScreen != null && IsDead)
             {
-                MyGuiSandbox.AddScreen(MyGuiSandbox.CreateScreen(MyPerGameSettings.GUI.InventoryScreen, new List<MyInventory>() { user.GetInventory(0), m_inventory }));
+                // TODO: This should just open the screen of the character and not adding the the aggregate itself..
+                var otherAggregate = user.Components.Get<MyComponentInventoryAggregate>();
+                var aggregate = Components.Get<MyComponentInventoryAggregate>();
+                otherAggregate.AddChild(aggregate);
+                var screen = user.ShowAggregateInventoryScreen();
+                screen.Closed += delegate(MyGuiScreenBase source) { otherAggregate.RemoveChild(aggregate); };
+
             }
         }
 
@@ -8381,7 +8493,15 @@ namespace Sandbox.Game.Entities.Character
 
         internal MyCharacterBreath m_breath { get; set; }
 
-        bool IMyUseObject.HandleInput() { return false; }
+        bool IMyUseObject.HandleInput() 
+        {
+            if (UseObject != null)
+            {
+                return UseObject.HandleInput();
+            }
+
+            return false;
+        }
 
         public float CharacterAccumulatedDamage { get; set; }
 
@@ -8419,8 +8539,12 @@ namespace Sandbox.Game.Entities.Character
             return UseObject is T;
         }
 
-
-
         public MyEntity ManipulatedEntity;
+        
+        bool IMyComponentOwner<MyComponentInventoryAggregate>.GetComponent(out MyComponentInventoryAggregate component)
+        {
+            component = m_inventoryAggregate;
+            return m_inventoryAggregate != null;
+        }
     }
 }

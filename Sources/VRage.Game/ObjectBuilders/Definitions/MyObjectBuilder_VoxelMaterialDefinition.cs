@@ -69,5 +69,8 @@ namespace Sandbox.Common.ObjectBuilders.Definitions
 
         [ProtoMember]
         public bool SpawnsFromMeteorites = true;
+
+        [ProtoMember]
+        public bool SpawnsFlora = false;
     }
 }

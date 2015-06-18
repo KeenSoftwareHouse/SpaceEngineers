@@ -782,7 +782,7 @@ namespace Sandbox.Game.Entities.Cube
             BoundingBoxD boundingBox = new BoundingBoxD(CubeGrid.GridIntegerToWorld(Min), CubeGrid.GridIntegerToWorld(Max));
             foreach (var item in m_tmpItemList)
             {         
-                var spawnedEntity = MyFloatingObjects.Spawn(new MyInventoryItem(item.Amount, item.Content), boundingBox, CubeGrid.Physics);
+                var spawnedEntity = MyFloatingObjects.Spawn(new MyPhysicalInventoryItem(item.Amount, item.Content), boundingBox, CubeGrid.Physics);
                 if (spawnedEntity != null)
                 {
                     spawnedEntity.Physics.ApplyImpulse(
@@ -864,7 +864,7 @@ namespace Sandbox.Game.Entities.Cube
             var items = m_stockpile.GetItems();
             foreach (var item in items)
             {
-                var inventoryItem = new MyInventoryItem(item.Amount, item.Content);
+                var inventoryItem = new MyPhysicalInventoryItem(item.Amount, item.Content);
                 MyFloatingObjects.Spawn(inventoryItem, a, worldMat.Forward, worldMat.Up, CubeGrid.Physics);
             }
         }
@@ -917,7 +917,7 @@ namespace Sandbox.Game.Entities.Cube
 
         public void DoDamage(float damage, MyDamageType damageType, bool addDirtyParts = true, MyHitInfo? hitInfo = null, bool createDecal = true)
         {
-            if (!MySession.Static.DestructibleBlocks)
+            if (!CubeGrid.BlocksDestructionEnabled)
                 return;
 
             if(FatBlock is MyCompoundCubeBlock) //jn: TODO think of something better
@@ -1063,9 +1063,8 @@ namespace Sandbox.Game.Entities.Cube
             }
         }
 
-        public bool IncreaseMountLevel(float welderMountAmount, long welderOwnerPlayerId, IMyComponentInventory outputInventory = null, float maxAllowedBoneMovement = 0.0f, bool isHelping = false, MyOwnershipShareModeEnum sharing = MyOwnershipShareModeEnum.Faction)
+        public void IncreaseMountLevel(float welderMountAmount, long welderOwnerPlayerId, IMyComponentInventory outputInventory = null, float maxAllowedBoneMovement = 0.0f, bool isHelping = false, MyOwnershipShareModeEnum sharing = MyOwnershipShareModeEnum.Faction)
         {
-			bool modelChanged = false;
             welderMountAmount *= BlockDefinition.IntegrityPointsPerSec;
             MySession.Static.PositiveIntegrityTotal += welderMountAmount;
 
@@ -1097,6 +1096,7 @@ namespace Sandbox.Game.Entities.Cube
                 FatBlock.SetDamageEffect(false);
             }
 
+			bool removeDecals = false;
 
             if (m_stockpile != null)
             {
@@ -1113,12 +1113,13 @@ namespace Sandbox.Game.Entities.Cube
             if (m_componentStack.IsFullIntegrity)
             {
                 ReleaseConstructionStockpile();
+				removeDecals = true;
             }
 
             MyCubeGrid.MyIntegrityChangeEnum integrityChangeType = MyCubeGrid.MyIntegrityChangeEnum.Damage;
             if (BlockDefinition.ModelChangeIsNeeded(oldPercentage, m_componentStack.BuildRatio) || BlockDefinition.ModelChangeIsNeeded(m_componentStack.BuildRatio, oldPercentage))
             {
-				modelChanged = true;
+				removeDecals = true;
                 if (FatBlock != null)
                 {
                     // this needs to be detected here because for cubes the following call to UpdateVisual() set FatBlock to null when the construction is complete
@@ -1154,17 +1155,17 @@ namespace Sandbox.Game.Entities.Cube
             if (HasDeformation)
                 CubeGrid.SetBlockDirty(this);
 
+			if (removeDecals)
+				CubeGrid.RenderData.RemoveDecals(Position);
+
             CubeGrid.SyncObject.SendIntegrityChanged(this, integrityChangeType, 0);
 
             if (maxAllowedBoneMovement != 0.0f)
                 FixBones(oldDamage, maxAllowedBoneMovement);
-
-			return modelChanged;
         }
 
-        public bool DecreaseMountLevel(float grinderAmount, IMyComponentInventory outputInventory)
+        public void DecreaseMountLevel(float grinderAmount, IMyComponentInventory outputInventory)
         {
-			bool modelChanged = false;
             if (FatBlock != null)
                 grinderAmount /= FatBlock.DisassembleRatio;
             else
@@ -1228,7 +1229,6 @@ namespace Sandbox.Game.Entities.Cube
             MyCubeGrid.MyIntegrityChangeEnum integrityChangeType = MyCubeGrid.MyIntegrityChangeEnum.Damage;
             if (modelChangeNeeded)
             {
-				modelChanged = true;
                 UpdateVisual();
 
                 if (FatBlock != null)
@@ -1258,7 +1258,6 @@ namespace Sandbox.Game.Entities.Cube
             }
 
             CubeGrid.SyncObject.SendIntegrityChanged(this, integrityChangeType, toolOwner);
-			return modelChanged;
         }
 
         /// <summary>
@@ -1303,7 +1302,7 @@ namespace Sandbox.Game.Entities.Cube
         {
             Vector3 halfSize = new Vector3(CubeGrid.GridSize) / 2;
             BoundingBox blockBox = new BoundingBox(Min * CubeGrid.GridSize - halfSize, Max * CubeGrid.GridSize + halfSize);
-            if (FatBlock != null)
+            if (FatBlock != null && FatBlock.Model != null)
             {
                 BoundingBox fatBlockBoxLocal = new BoundingBox(FatBlock.Model.BoundingBox.Min, FatBlock.Model.BoundingBox.Max);
                 Matrix m;
@@ -1393,8 +1392,11 @@ namespace Sandbox.Game.Entities.Cube
                     FatBlock.SetDamageEffect(false);
             }
 
+			bool removeDecals = IsFullIntegrity;
+
             if (ModelChangeIsNeeded(m_componentStack.BuildRatio, oldRatio))
             {
+				removeDecals = true;
                 UpdateVisual();
 
                 if (integrityChangeType != MyCubeGrid.MyIntegrityChangeEnum.Damage)
@@ -1407,6 +1409,9 @@ namespace Sandbox.Game.Entities.Cube
                     CubeGrid.GridSystems.OxygenSystem.Pressurize();
                 }
             }
+			
+			if(removeDecals)
+				CubeGrid.RenderData.RemoveDecals(Position);
         }
 
         void UpdateHackingIndicator(float newRatio, float oldRatio, long grinderOwner)
@@ -1622,6 +1627,7 @@ namespace Sandbox.Game.Entities.Cube
 			{
 				var groupInfo = block.ComponentStack.GetGroupInfo(i);
 				var componentInfo = new MyHudBlockInfo.ComponentInfo();
+                componentInfo.DefinitionId = groupInfo.Component.Id;
 				componentInfo.ComponentName = groupInfo.Component.DisplayNameText;
 				componentInfo.Icon = groupInfo.Component.Icon;
 				componentInfo.TotalCount = groupInfo.TotalCount;
