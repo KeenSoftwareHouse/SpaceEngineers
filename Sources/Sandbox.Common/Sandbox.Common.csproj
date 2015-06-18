@@ -238,6 +238,7 @@
     <Compile Include="ModAPI\Ingame\MyGridProgram.cs" />
     <Compile Include="ModAPI\Ingame\TerminalActionParameter.cs" />
     <Compile Include="ModAPI\IMyHudNotification.cs" />
+    <Compile Include="ModAPI\IMyMotorSuspension.cs" />
     <Compile Include="ModAPI\Interfaces\IMyDestroyableObject.cs" />
     <Compile Include="ModAPI\IMyIdentity.cs" />
     <Compile Include="ModAPI\Interfaces\IMyInventoryOwner.cs" />
