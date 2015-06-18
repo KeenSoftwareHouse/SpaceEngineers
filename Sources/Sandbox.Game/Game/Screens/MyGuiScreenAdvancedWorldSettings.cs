@@ -619,11 +619,7 @@ namespace Sandbox.Game.Gui
 
             enable3rdPersonCameraLabel.Position = new Vector2(rightColumnOffset - labelSize / 2, m_enableOxygen.Position.Y);
             m_enable3rdPersonCamera.Position = new Vector2(rightColumnOffset + labelSize / 2, m_enableOxygen.Position.Y);
-			
-			
-			enableInventoryMassLabel.Position = new Vector2(rightColumnOffset - labelSize / 2, disableRespawnShipsLabel.Position.Y);
-            m_enableInventoryMass.Position = new Vector2(rightColumnOffset + labelSize / 2, m_disableRespawnShips.Position.Y);
-            m_enableInventoryMass.OriginAlign = MyGuiDrawAlignEnum.HORISONTAL_CENTER_AND_VERTICAL_CENTER;
+
 
             enableSunRotationLabel.Position = new Vector2(rightColumnOffset - labelSize / 2, m_disableRespawnShips.Position.Y);
             m_enableSunRotation.Position = new Vector2(rightColumnOffset + labelSize / 2, m_disableRespawnShips.Position.Y);
@@ -659,6 +655,10 @@ namespace Sandbox.Game.Gui
 
             enableStationVoxelLabel.Position = new Vector2(rightColumnOffset + 0.75f * labelSize, enableSunRotationLabel.Position.Y);
             m_stationVoxelSupport.Position = new Vector2(rightColumnOffset + labelSize + 0.75f * labelSize, m_enableSunRotation.Position.Y);
+
+            enableInventoryMassLabel.Position = new Vector2(rightColumnOffset + 0.75f * labelSize, enableFloraLabel.Position.Y);
+            m_enableInventoryMass.Position = new Vector2(rightColumnOffset + labelSize + 0.75f * labelSize, m_enableFlora.Position.Y);
+            m_enableInventoryMass.OriginAlign = MyGuiDrawAlignEnum.HORISONTAL_CENTER_AND_VERTICAL_CENTER;
 
             parent.Controls.Add(showPlayerNamesOnHudLabel);
             parent.Controls.Add(m_showPlayerNamesOnHud);
