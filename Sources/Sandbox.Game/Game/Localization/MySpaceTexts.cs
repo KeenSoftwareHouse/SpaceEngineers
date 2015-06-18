@@ -10807,5 +10807,25 @@ namespace Sandbox.Game.Localization
         ///Players can join running game
         ///</summary>
         public static readonly MyStringId ScenarioSettings_CanJoinRunningShort = MyStringId.GetOrCompute("ScenarioSettings_CanJoinRunningShort");
+		
+		///<summary>
+        ///Autoclose Disabled
+        ///</summary>
+        public static readonly MyStringId BlockAction_DoorAutocloseDisabled = MyStringId.GetOrCompute("BlockAction_DoorAutocloseDisabled");
+
+        ///<summary>
+        ///Autoclose Enabled
+        ///</summary>
+        public static readonly MyStringId BlockAction_DoorAutocloseEnabled = MyStringId.GetOrCompute("BlockAction_DoorAutocloseEnabled");
+
+        ///<summary>
+        ///Close automatically?
+        ///</summary>
+        public static readonly MyStringId BlockPropertiesText_DoorAutoclose = MyStringId.GetOrCompute("BlockPropertiesText_DoorAutoclose");
+
+        ///<summary>
+        ///Autoclose Interval
+        ///</summary>
+        public static readonly MyStringId BlockPropertiesText_DoorAutocloseInterval = MyStringId.GetOrCompute("BlockPropertiesText_DoorAutocloseInterval");
     }
 }
