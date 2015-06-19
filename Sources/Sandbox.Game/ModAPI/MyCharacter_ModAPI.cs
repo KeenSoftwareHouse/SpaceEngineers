@@ -23,13 +23,10 @@ namespace Sandbox.Game.Entities.Character
         {
             health = MathHelper.Clamp(health, 0, MaxHealth);
 
-            if (!m_health.HasValue)
-                m_health = MaxHealth;
-
-            if (sync && m_health.Value != health)
+            if (sync && StatComp.Health.Value != health)
                 SyncObject.UpdateStat(MySyncCharacter.UpdateStatEnum.HEALTH, health);
 
-            m_health = health;
+            StatComp.Health.Value = health;
         }
 
         void IMyCharacter.DoDamage(float damage, Sandbox.Common.ObjectBuilders.Definitions.MyDamageType damageType, bool forceKill, bool sync)

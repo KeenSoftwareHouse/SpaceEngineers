@@ -46,11 +46,6 @@ namespace Sandbox.ModAPI
         void SetHealth(float health, bool sync = true);
 
         /// <summary>
-        /// The rate at which the character automatically heals (if enabled by the server).
-        /// </summary>
-        float AutohealSpeed { get; }
-
-        /// <summary>
         /// Damages the character and kills them if the damage exceeds the current health.
         /// </summary>
         /// <param name="damage">amount of damage applied.</param>
