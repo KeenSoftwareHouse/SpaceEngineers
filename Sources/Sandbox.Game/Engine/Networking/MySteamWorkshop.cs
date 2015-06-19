@@ -1504,11 +1504,11 @@ namespace Sandbox.Engine.Networking
         #endregion
 
         #region Subscribed world instance creation
-        public static void CreateWorldInstanceAsync(SubscribedItem world, MyWorkshopPathInfo pathInfo, Action<bool, string> callbackOnFinished = null)
+        public static void CreateWorldInstanceAsync(SubscribedItem world, MyWorkshopPathInfo pathInfo, bool overwrite, Action<bool, string> callbackOnFinished = null)
         {
             MyGuiSandbox.AddScreen(new MyGuiScreenProgressAsync(MySpaceTexts.ProgressTextCreatingWorld,
                 null,
-                () => new CreateWorldResult(world, pathInfo, callbackOnFinished),
+                () => new CreateWorldResult(world, pathInfo, callbackOnFinished, overwrite),
                 endActionCreateWorldInstance));
         }
 
@@ -1527,7 +1527,7 @@ namespace Sandbox.Engine.Networking
         /// <summary>
         /// Do NOT call this method from update thread.
         /// </summary>
-        public static bool TryCreateWorldInstanceBlocking(SubscribedItem world, MyWorkshopPathInfo pathInfo, out string sessionPath)
+        public static bool TryCreateWorldInstanceBlocking(SubscribedItem world, MyWorkshopPathInfo pathInfo, out string sessionPath, bool overwrite)
         {
             if (!Directory.Exists(pathInfo.Path))
                 Directory.CreateDirectory(pathInfo.Path);
@@ -1548,6 +1548,10 @@ namespace Sandbox.Engine.Networking
 
             // Extract packaged world.
             sessionPath = MyLocalCache.GetSessionSavesPath(safeName, false, false);
+
+            //overwrite?
+            if (overwrite && Directory.Exists(sessionPath))
+                Directory.Delete(sessionPath, true);
 
             // Find new non existing folder. The game folder name may be different from game name, so we have to
             // make sure we don't overwrite another save
@@ -1637,12 +1641,12 @@ namespace Sandbox.Engine.Networking
                 private set;
             }
 
-            public CreateWorldResult(SubscribedItem world, MyWorkshopPathInfo pathInfo, Action<bool, string> callback)
+            public CreateWorldResult(SubscribedItem world, MyWorkshopPathInfo pathInfo, Action<bool, string> callback, bool overwrite)
             {
                 Callback = callback;
                 Task = Parallel.Start(() =>
                 {
-                    Success = TryCreateWorldInstanceBlocking(world, pathInfo, out m_createdSessionPath);
+                    Success = TryCreateWorldInstanceBlocking(world, pathInfo, out m_createdSessionPath, overwrite);
                 });
             }
 

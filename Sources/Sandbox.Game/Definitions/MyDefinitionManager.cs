@@ -641,9 +641,16 @@ namespace Sandbox.Definitions
                 InitGenericObjects(context, definitionSet.m_definitionsById, objBuilder.FloraElements, failOnDebug);
             }
 
+			if (objBuilder.StatGroupDefinitions != null)
+			{
+				MySandboxGame.Log.WriteLine("Loading stat group definitions");
+				Check(failOnDebug, "StatGroupDefinition", failOnDebug, WARNING_ON_REDEFINITION_MESSAGE);
+				InitGenericObjects(context, definitionSet.m_definitionsById, objBuilder.StatGroupDefinitions, failOnDebug);
+			}
+
 			if (objBuilder.StatDefinitions != null)
 			{
-				MySandboxGame.Log.WriteLine("Loading stats definitions");
+				MySandboxGame.Log.WriteLine("Loading stat definitions");
 				Check(failOnDebug, "Stat", failOnDebug, WARNING_ON_REDEFINITION_MESSAGE);
 				InitGenericObjects(context, definitionSet.m_definitionsById, objBuilder.StatDefinitions, failOnDebug);
 			}

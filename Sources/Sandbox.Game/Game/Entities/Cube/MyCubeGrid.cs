@@ -2006,9 +2006,9 @@ namespace Sandbox.Game.Entities
             return BuildBlock(blockDefinition, colorMaskHsv, location.Min, location.Orientation, location.Owner, location.EntityId, null);
         }
 
-        public void BuildBlock(Vector3 colorMaskHsv, MyBlockLocation location, MyObjectBuilder_CubeBlock blockObjectBuilder)
+        public void BuildBlock(Vector3 colorMaskHsv, MyBlockLocation location, MyObjectBuilder_CubeBlock blockObjectBuilder, long builderEntityId)
         {
-            SyncObject.BuildBlock(colorMaskHsv, location, blockObjectBuilder);
+            SyncObject.BuildBlock(colorMaskHsv, location, blockObjectBuilder, builderEntityId);
         }
 
         /// <summary>

@@ -131,11 +131,14 @@ namespace Sandbox.Game.Gui
 
             LoadValues();
 
-            m_enablePlanets.IsChecked = m_parent.AsteroidAmount != 0;
-            m_enableFlora.IsChecked = m_parent.AsteroidAmount != 0;
-            m_enablePlanets.Enabled = m_parent.AsteroidAmount != 0;
-            m_floraDensityCombo.Enabled = m_parent.AsteroidAmount != 0;
-            m_enableFlora.Enabled = m_parent.AsteroidAmount != 0; ;
+            if (m_parent.AsteroidAmount == 0)
+            {
+                m_enablePlanets.IsChecked = false;
+                m_enableFlora.IsChecked = false;
+                m_enablePlanets.Enabled = false;
+                m_floraDensityCombo.Enabled = false;
+                m_enableFlora.Enabled = false;
+            }
         }
 
         public void BuildControls()

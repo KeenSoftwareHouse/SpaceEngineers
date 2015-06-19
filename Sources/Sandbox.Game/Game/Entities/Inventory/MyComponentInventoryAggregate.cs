@@ -94,7 +94,7 @@ namespace Sandbox.Game.Entities.Inventory
         private List<IMyComponentInventory> GetComponentInventories()
         {
             List<IMyComponentInventory> inventories = new List<IMyComponentInventory>();
-            foreach (var component in m_entity.Components.GetAll())
+            foreach (var component in m_entity.Components)
             {
                 if (component is IMyComponentInventory && component != this)
                 {

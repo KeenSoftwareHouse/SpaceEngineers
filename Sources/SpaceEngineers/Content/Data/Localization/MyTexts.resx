@@ -6689,4 +6689,16 @@ If there is no chance of accessing a medical room, the game is over and you can 
   <data name="ScenarioSettings_CanJoinRunningShort" xml:space="preserve">
     <value>Players can join running game</value>
   </data>
+  <data name="GuiTriggerCaptionTimeLimit" xml:space="preserve">
+    <value>Time limit</value>
+  </data>
+  <data name="GuiTriggerTimeLimit" xml:space="preserve">
+    <value>Limit (in minutes)</value>
+  </data>
+  <data name="HudScenarioInfoTimeLeft" xml:space="preserve">
+    <value>Time left:</value>
+  </data>
+  <data name="MyGuiScreenTriggerTimeLimit" xml:space="preserve">
+    <value>Time limit</value>
+  </data>
 </root>

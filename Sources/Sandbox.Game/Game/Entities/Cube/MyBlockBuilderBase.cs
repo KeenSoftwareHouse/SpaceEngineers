@@ -107,7 +107,9 @@ namespace Sandbox.Game.Entities
         {
             get
             {
-                return MySector.MainCamera.Position;
+				var cameraController = MySession.GetCameraControllerEnum();
+				return (cameraController == MyCameraControllerEnum.Entity
+						|| cameraController == MyCameraControllerEnum.ThirdPersonSpectator) ? MySession.ControlledEntity.GetHeadMatrix(false).Translation : MySector.MainCamera.Position;
             }
         }
 

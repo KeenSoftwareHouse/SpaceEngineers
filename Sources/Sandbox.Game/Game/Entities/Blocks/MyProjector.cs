@@ -1397,7 +1397,7 @@ namespace Sandbox.Game.Entities.Blocks
             }
 
             objectBuilder.ConstructionInventory = null;
-            projectorGrid.BuildBlock(cubeBlock.ColorMaskHSV, location, objectBuilder);
+            projectorGrid.BuildBlock(cubeBlock.ColorMaskHSV, location, objectBuilder, builder);
             HideCube(cubeBlock);
         }
         #endregion

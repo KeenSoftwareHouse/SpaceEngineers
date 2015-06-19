@@ -10629,6 +10629,7 @@ namespace Sandbox.Game.Localization
         ///</summary>
         public static readonly MyStringId BlockPropertyTitle_SensorPlaySound = MyStringId.GetOrCompute("BlockPropertyTitle_SensorPlaySound");
 
+        ///<summary>
         ///PUBLISH SCENARIO
         ///</summary>
         public static readonly MyStringId MessageBoxCaptionDoYouWishToPublishScenario = MyStringId.GetOrCompute("MessageBoxCaptionDoYouWishToPublishScenario");
@@ -10807,5 +10808,25 @@ namespace Sandbox.Game.Localization
         ///Players can join running game
         ///</summary>
         public static readonly MyStringId ScenarioSettings_CanJoinRunningShort = MyStringId.GetOrCompute("ScenarioSettings_CanJoinRunningShort");
+
+        ///<summary>
+        ///Time limit
+        ///</summary>
+        public static readonly MyStringId GuiTriggerCaptionTimeLimit = MyStringId.GetOrCompute("GuiTriggerCaptionTimeLimit");
+
+        ///<summary>
+        ///Limit (in minutes)
+        ///</summary>
+        public static readonly MyStringId GuiTriggerTimeLimit = MyStringId.GetOrCompute("GuiTriggerTimeLimit");
+
+        ///<summary>
+        ///Time left:
+        ///</summary>
+        public static readonly MyStringId HudScenarioInfoTimeLeft = MyStringId.GetOrCompute("HudScenarioInfoTimeLeft");
+
+        ///<summary>
+        ///Time limit
+        ///</summary>
+        public static readonly MyStringId MyGuiScreenTriggerTimeLimit = MyStringId.GetOrCompute("MyGuiScreenTriggerTimeLimit");
     }
 }

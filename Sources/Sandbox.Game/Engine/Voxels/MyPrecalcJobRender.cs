@@ -16,7 +16,6 @@ using VRageRender;
 
 namespace Sandbox.Engine.Voxels
 {
-    // mk:TODO Reenable assert for morph target position fitting in normalized coordinate range.
     internal sealed class MyPrecalcJobRender : MyPrecalcJob
     {
         public struct Args
@@ -513,7 +512,7 @@ namespace Sandbox.Engine.Voxels
             localAabb.Include(vertex.PositionMorph * positionScale + positionOffset);
 
             Debug.Assert(vertex.Position.IsInsideInclusive(ref Vector3.MinusOne, ref Vector3.One));
-           // Debug.Assert(vertex.PositionMorph.IsInsideInclusive(ref Vector3.MinusOne, ref Vector3.One));
+            Debug.Assert(vertex.PositionMorph.IsInsideInclusive(ref Vector3.MinusOne, ref Vector3.One));
         }
 
         private void EndSingleMaterial(SingleMaterialHelper materialHelper, List<MyClipmapCellBatch> outBatches)
