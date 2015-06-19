@@ -666,13 +666,14 @@ namespace Sandbox.Game.Multiplayer
         //    }
         //}
 
-        public void BuildBlock(Vector3 colorMaskHsv, MyCubeGrid.MyBlockLocation location, MyObjectBuilder_CubeBlock blockObjectBuilder)
+        public void BuildBlock(Vector3 colorMaskHsv, MyCubeGrid.MyBlockLocation location, MyObjectBuilder_CubeBlock blockObjectBuilder, long builderEntityId)
         {
             var msg = new BuildBlockMsg();
             msg.GridEntityId = Entity.EntityId;
             msg.Location = location;
             msg.ColorMaskHsv = colorMaskHsv.PackHSVToUint();
             msg.BlockObjectBuilder = blockObjectBuilder;
+            msg.BuilderEntityId = builderEntityId;
             Sync.Layer.SendMessageToServer(ref msg);
         }
 

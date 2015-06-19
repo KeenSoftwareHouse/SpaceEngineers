@@ -149,6 +149,9 @@ namespace Sandbox.Engine.Voxels
             Vector3I minCellChangedVoxelMap, maxCellChangedVoxelMap;
             minCellChangedVoxelMap = minCellChanged - m_cellsOffset;
             maxCellChangedVoxelMap = maxCellChanged - m_cellsOffset;
+            var maxCell = m_voxelMap.Size - 1;
+            MyVoxelCoordSystems.VoxelCoordToGeometryCellCoord(ref maxCell, out maxCell);
+            Vector3I.Min(ref maxCellChangedVoxelMap, ref maxCell, out maxCellChangedVoxelMap);
 
             Debug.Assert(RigidBody != null, "RigidBody in voxel physics is null! This must not happen.");
             if (RigidBody != null)
@@ -177,11 +180,18 @@ namespace Sandbox.Engine.Voxels
                 }
             }
 
-            var cell = minCellChanged;
-            for (var it = new Vector3I.RangeIterator(ref minCellChanged, ref maxCellChanged);
-                it.IsValid(); it.GetNext(out cell))
+            if (minCellChangedVoxelMap == Vector3I.Zero && maxCellChangedVoxelMap == maxCell)
             {
-                m_workTracker.Cancel(cell);
+                m_workTracker.CancelAll();
+            }
+            else
+            {
+                var cell = minCellChanged;
+                for (var it = new Vector3I.RangeIterator(ref minCellChanged, ref maxCellChanged);
+                    it.IsValid(); it.GetNext(out cell))
+                {
+                    m_workTracker.Cancel(cell);
+                }
             }
 
             m_needsShapeUpdate = true;

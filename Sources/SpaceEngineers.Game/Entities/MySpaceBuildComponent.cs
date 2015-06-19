@@ -101,7 +101,11 @@ namespace SpaceEngineers.Game.Entities
             ClearRequiredMaterials();
             foreach (var location in hashSet)
             {
-                var definition = MyDefinitionManager.Static.GetCubeBlockDefinition(location.BlockDefinition);
+                MyCubeBlockDefinition definition = null;
+                if (!MyDefinitionManager.Static.TryGetCubeBlockDefinition(location.BlockDefinition, out definition))
+                {
+                    continue;
+                }
                 GetMaterialsSimple(definition, m_materialList);
             }
         }

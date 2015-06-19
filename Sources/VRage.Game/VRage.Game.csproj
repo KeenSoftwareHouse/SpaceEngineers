@@ -64,10 +64,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Components\MyEntityComponentContainer.cs" />
-    <Compile Include="Components\MyEntityComponentBase.cs" />
     <Compile Include="Components\MyComponentBase.cs" />
     <Compile Include="Components\MyComponentContainer.cs" />
+    <Compile Include="Components\MyEntityComponentContainer.cs" />
+    <Compile Include="Components\MyEntityComponentBase.cs" />
     <Compile Include="Components\MyDebugRenderComponentBase.cs" />
     <Compile Include="Components\MyHierarchyComponentBase.cs" />
     <Compile Include="Components\MyPhysicsComponentBase.cs" />
@@ -260,6 +260,7 @@
     <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_TriggerPositionLeft.cs" />
     <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_TriggerPositionReached.cs" />
     <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_TriggerSomeoneWon.cs" />
+    <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_TriggerTimeLimit.cs" />
     <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_UpgradeModuleDefinition.cs" />
     <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_VirtualMassDefinition.cs" />
     <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_VoxelHandDefinition.cs" />

@@ -167,28 +167,32 @@ namespace Sandbox.Game.Screens.Helpers
 
         private void AddUseObjectControl(MyCharacter character)
         {
-            if (character.IsUseObjectOfType<MyUseObjectDoorTerminal>()
-                || character.IsUseObjectOfType<MyUseObjectTerminal>()
-                || character.IsUseObjectOfType<MyUseObjectTextPanel>())
+            MyCharacterDetectorComponent detectorComponent = character.Components.Get<MyCharacterDetectorComponent>();
+            if (detectorComponent != null)
             {
-                m_terminalControlHelper.SetLabel(MySpaceTexts.ControlMenuItemLabel_ShowControlPanel);
-                m_controlMenu.AddItem(m_terminalControlHelper);
+                if (detectorComponent.UseObject is MyUseObjectDoorTerminal
+                    || detectorComponent.UseObject is MyUseObjectTerminal
+                    || detectorComponent.UseObject is MyUseObjectTextPanel)
+                {
+                    m_terminalControlHelper.SetLabel(MySpaceTexts.ControlMenuItemLabel_ShowControlPanel);
+                    m_controlMenu.AddItem(m_terminalControlHelper);
+                }
+                else if (detectorComponent.UseObject is MyUseObjectInventory)
+                {
+                    m_terminalControlHelper.SetLabel(MySpaceTexts.ControlMenuItemLabel_OpenInventory);
+                    m_controlMenu.AddItem(m_terminalControlHelper);
+                }
+                else if (detectorComponent.UseObject is MyUseObjectPanelButton)
+                {
+                    m_terminalControlHelper.SetLabel(MySpaceTexts.ControlMenuItemLabel_SetupButtons);
+                    m_controlMenu.AddItem(m_terminalControlHelper);
+                }
+                //else if (character.IsUseObjectOfType<MyUseObjectWardrobe>())
+                //{
+                //    m_terminalControlHelper.SetLabel(MySpaceTexts.ControlMenuItemLabel_Wardrobe);
+                //    m_controlMenu.AddItem(m_terminalControlHelper);
+                //}
             }
-            else if (character.IsUseObjectOfType<MyUseObjectInventory>())
-            {
-                m_terminalControlHelper.SetLabel(MySpaceTexts.ControlMenuItemLabel_OpenInventory);
-                m_controlMenu.AddItem(m_terminalControlHelper);
-            }
-            else if (character.IsUseObjectOfType<MyUseObjectPanelButton>())
-            {
-                m_terminalControlHelper.SetLabel(MySpaceTexts.ControlMenuItemLabel_SetupButtons);
-                m_controlMenu.AddItem(m_terminalControlHelper);
-            }
-            //else if (character.IsUseObjectOfType<MyUseObjectWardrobe>())
-            //{
-            //    m_terminalControlHelper.SetLabel(MySpaceTexts.ControlMenuItemLabel_Wardrobe);
-            //    m_controlMenu.AddItem(m_terminalControlHelper);
-            //}
         }
     }
 }

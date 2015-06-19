@@ -269,7 +269,15 @@ namespace Sandbox.Game.Entities
                 if (MySession.ControlledEntity == user)
                     MyAudio.Static.PlaySound(TAKE_ITEM_SOUND.SoundId);
                 //user.StartSecondarySound(TAKE_ITEM_SOUND);
-                user.GetInventory().TakeFloatingObject(this);
+                // MW:TODO HACK - remove after floating object is component OR when we have accessible inventories in ME
+                if (Item.Content.TypeId == typeof(MyObjectBuilder_ConsumableItem))
+                {
+                    var consumableDefinition = MyDefinitionManager.Static.GetDefinition(Item.Content.GetId()) as MyConsumableItemDefinition;
+                    user.StatComp.Consume(Item.Amount, consumableDefinition);
+                    MyFloatingObjects.RemoveFloatingObject(this);
+                }
+                else
+                    user.GetInventory().TakeFloatingObject(this);
                 MyHud.Notifications.ReloadTexts();
             }
         }
@@ -305,6 +313,11 @@ namespace Sandbox.Game.Entities
         UseActionResult IMyUsableEntity.CanUse(UseActionEnum actionEnum, IMyControllableEntity user)
         {
             return MarkedForClose ? UseActionResult.Closed : UseActionResult.OK; // When object is not collected, it's usable
+        }
+
+        bool IMyUseObject.PlayIndicatorSound
+        {
+            get { return false; }
         }
 
         public void DoDamage(float damage, MyDamageType damageType, bool sync)

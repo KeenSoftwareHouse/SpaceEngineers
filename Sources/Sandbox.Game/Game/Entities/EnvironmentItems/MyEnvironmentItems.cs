@@ -118,7 +118,7 @@ namespace Sandbox.Game.Entities.EnvironmentItems
         private bool m_batching = false;
         public bool IsBatching { get { return m_batching; } }
 
-        Vector3D m_offset = Vector3D.Zero;
+        public Action<Vector3D> OnElementRemoved;
 
         static MyEnvironmentItems()
         {
@@ -150,6 +150,7 @@ namespace Sandbox.Game.Entities.EnvironmentItems
             var builder = (MyObjectBuilder_EnvironmentItems)objectBuilder;
 
             MyDefinitionId defId = new MyDefinitionId(builder.TypeId, builder.SubtypeId);
+            CellsOffset = builder.CellsOffset;
 
             // Compatibility
             if (builder.SubtypeId == MyStringHash.NullOrEmpty)
@@ -226,6 +227,7 @@ namespace Sandbox.Game.Entities.EnvironmentItems
                 insertIndex++;
             }
 
+            builder.CellsOffset = CellsOffset;
             return builder;
         }
 
@@ -458,11 +460,9 @@ namespace Sandbox.Game.Entities.EnvironmentItems
                 HkMassProperties massProperties = new HkMassProperties();
                 MatrixD matrix = MatrixD.CreateTranslation(CellsOffset);
                 Physics.CreateFromCollisionObject((HkShape)sectorRootShape, Vector3.Zero, matrix, massProperties);
-                if (Sandbox.Game.MyPerGameSettings.Destruction)
-                {
-                    Physics.ContactPointCallback += Physics_ContactPointCallback;
-                    Physics.RigidBody.ContactPointCallbackEnabled = true;
-                }
+
+                Physics.ContactPointCallback += Physics_ContactPointCallback;
+                Physics.RigidBody.ContactPointCallbackEnabled = true;
 
                 sectorRootShape.Base.RemoveReference();
 
@@ -681,17 +681,14 @@ namespace Sandbox.Game.Entities.EnvironmentItems
 
         private void GetSectorsInRadius(Vector3D position, float radius, List<MyEnvironmentSector> sectors)
         {
-            if (this.Physics != null && this.Physics.RigidBody != null)
+            foreach (var sector in m_sectors)
             {
-                foreach (var sector in m_sectors)
+                if (sector.Value.IsValid)
                 {
-                    if (sector.Value.IsValid)
-                    {
-                        var sectorBox = sector.Value.SectorWorldBox;
-                        sectorBox.Inflate(radius);
-                        if (sectorBox.Contains(position) == ContainmentType.Contains)
-                            sectors.Add(sector.Value);
-                    }
+                    var sectorBox = sector.Value.SectorWorldBox;
+                    sectorBox.Inflate(radius);
+                    if (sectorBox.Contains(position) == ContainmentType.Contains)
+                        sectors.Add(sector.Value);
                 }
             }
         }
@@ -772,7 +769,7 @@ namespace Sandbox.Game.Entities.EnvironmentItems
             shape.EnableShapeKey(shapeKey, false);
 
             Matrix matrix = itemData.Transform.TransformMatrix;
-            var sectorId = MyEnvironmentSector.GetSectorId(matrix.Translation, Definition.SectorSize);
+            var sectorId = MyEnvironmentSector.GetSectorId(matrix.Translation - m_cellsOffset, Definition.SectorSize);
             var disabled = Sectors[sectorId].DisableInstance(itemData.SectorInstanceId, itemData.ModelId);
             Debug.Assert(disabled, "Env. item instance render not disabled");
             Sectors[sectorId].UpdateRenderInstanceData();
@@ -783,6 +780,12 @@ namespace Sandbox.Game.Entities.EnvironmentItems
             {
                 MySyncEnvironmentItems.RemoveEnvironmentItem(EntityId, itemInstanceId);
             }
+
+            if (OnElementRemoved != null)
+            {
+                OnElementRemoved(itemData.Transform.Position);
+            }
+ 
 
             return true;
         }
@@ -816,6 +819,8 @@ namespace Sandbox.Game.Entities.EnvironmentItems
         {
             if (ItemRemoved != null)
                 ItemRemoved(this, localId);
+
+
         }
 
         private bool DisableRenderInstanceIfInRadius(Vector3D center, double radiusSq, int itemInstanceId, bool hasPhysics = false)
@@ -887,7 +892,7 @@ namespace Sandbox.Game.Entities.EnvironmentItems
                 int itemInstanceId;
                 if (m_physicsShapeInstanceIdToLocalId.TryGetValue(physicsInstanceId, out itemInstanceId))
                 {
-                    DoDamage(1.0f, itemInstanceId, e.Position, -e.ContactPointEvent.ContactPoint.Normal);
+                    DoDamage(1.0f, itemInstanceId, e.Position, -e.ContactPointEvent.ContactPoint.Normal);               
                 }
             }
         }

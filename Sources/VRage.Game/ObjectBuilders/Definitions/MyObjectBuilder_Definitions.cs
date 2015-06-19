@@ -231,9 +231,9 @@ namespace Sandbox.Common.ObjectBuilders.Definitions
         [ProtoMember]
         public MyObjectBuilder_FloraElementDefinition[] FloraElements;
 
-		[XmlArrayItem("StatsDefinition")]
+		[XmlArrayItem("StatGroup")]
 		[ProtoMember]
-		public MyObjectBuilder_StatsDefinition[] StatsDefinitions;
+		public MyObjectBuilder_StatsDefinition[] StatGroupDefinitions;
 
 		[XmlArrayItem("Stat")]
 		[ProtoMember]
