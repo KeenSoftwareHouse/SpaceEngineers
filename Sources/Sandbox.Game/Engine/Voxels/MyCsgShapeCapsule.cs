@@ -64,6 +64,11 @@ namespace Sandbox.Engine.Voxels
             else if (signedDistance < -potentialHalfDeviation)
                 return -1f;
 
+            return SignedDistanceInternal(ref position, lodVoxelSize, macroModulator, detailModulator, ref signedDistance);
+        }
+
+        private float SignedDistanceInternal(ref Vector3 position, float lodVoxelSize, IMyModule macroModulator, IMyModule detailModulator, ref float signedDistance)
+        {
             if (m_enableModulation)
             {
                 Debug.Assert(m_deviationFrequency != 0f);
@@ -84,6 +89,16 @@ namespace Sandbox.Engine.Voxels
             }
 
             return signedDistance / lodVoxelSize;
+        }
+
+        internal override float SignedDistanceUnchecked(ref Vector3 position, float lodVoxelSize, IMyModule macroModulator, IMyModule detailModulator)
+        {
+            var pa = position - m_pointA;
+            var ba = m_pointB - m_pointA;
+            float h = MathHelper.Clamp(pa.Dot(ref ba) / ba.LengthSquared(), 0.0f, 1.0f);
+            float signedDistance = (pa - ba * h).Length() - m_radius;
+
+            return SignedDistanceInternal(ref position, lodVoxelSize, macroModulator, detailModulator, ref signedDistance);
         }
 
         internal override void DebugDraw(ref Vector3D worldTranslation, Color color)

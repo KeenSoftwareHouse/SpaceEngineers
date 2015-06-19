@@ -66,6 +66,11 @@ namespace Sandbox.Engine.Voxels
             if ((m_outerRadius + lodVoxelSize) < distance)
                 return 1f;
 
+            return SignedDistanceInternal(lodVoxelSize, macroModulator, detailModulator, ref localPosition, distance);
+        }
+
+        private float SignedDistanceInternal(float lodVoxelSize, IMyModule macroModulator, IMyModule detailModulator, ref Vector3 localPosition, float distance)
+        {
             float halfDeviationRatio;
             if (m_enableModulation)
             {
@@ -91,6 +96,15 @@ namespace Sandbox.Engine.Voxels
             return signedDistance / lodVoxelSize;
         }
 
+        internal override float SignedDistanceUnchecked(ref Vector3 position, float lodVoxelSize, IMyModule macroModulator, IMyModule detailModulator)
+        {
+            Vector3 localPosition = position - m_translation;
+
+            float distance = localPosition.Length();
+
+            return SignedDistanceInternal(lodVoxelSize, macroModulator, detailModulator, ref localPosition, distance);
+
+        }
         internal override void DebugDraw(ref Vector3D worldTranslation, Color color)
         {
             VRageRender.MyRenderProxy.DebugDrawSphere(worldTranslation + m_translation, m_radius, color.ToVector3(), alpha: 0.5f, depthRead: true, smooth: false);

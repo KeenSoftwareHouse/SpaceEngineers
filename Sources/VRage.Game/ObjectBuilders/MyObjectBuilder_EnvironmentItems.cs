@@ -6,6 +6,7 @@ using System;
 using System.Diagnostics;
 using VRage.ObjectBuilders;
 using VRage;
+using VRageMath;
 
 namespace Sandbox.Common.ObjectBuilders
 {
@@ -42,5 +43,8 @@ namespace Sandbox.Common.ObjectBuilders
         [XmlArrayItem("Item")]
         [ProtoMember]
         public MyOBEnvironmentItemData[] Items;
+
+        [ProtoMember]
+        public Vector3D CellsOffset;
     }
 }

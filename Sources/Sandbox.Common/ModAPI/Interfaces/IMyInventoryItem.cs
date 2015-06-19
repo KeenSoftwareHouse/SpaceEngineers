@@ -1,7 +1,9 @@
-﻿using System;
+﻿using Sandbox.Definitions;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using VRage.ObjectBuilders;
 
 namespace Sandbox.ModAPI.Interfaces
 {
@@ -13,7 +15,7 @@ namespace Sandbox.ModAPI.Interfaces
             set;
         }
 
-        Sandbox.Common.ObjectBuilders.MyObjectBuilder_PhysicalObject Content
+        MyObjectBuilder_Base Content
         {
             get;
             set;
@@ -25,5 +27,13 @@ namespace Sandbox.ModAPI.Interfaces
             set;
         }
 
+    }
+
+    public static class MyInventoryItemExtension
+    {
+        public static MyDefinitionId GetDefinitionId(this IMyInventoryItem self)
+        {
+            return new MyDefinitionId(self.Content.TypeId, self.Content.SubtypeId);
+        }
     }
 }

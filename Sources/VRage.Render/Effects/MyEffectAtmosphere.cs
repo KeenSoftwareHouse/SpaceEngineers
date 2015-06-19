@@ -80,6 +80,7 @@ namespace VRageRender.Effects
                 case MyEffectModelsDNSTechniqueEnum.Low:
                 case MyEffectModelsDNSTechniqueEnum.Normal:
                 case MyEffectModelsDNSTechniqueEnum.High:
+                case MyEffectModelsDNSTechniqueEnum.Extreme:
                     m_D3DEffect.Technique = m_normalTechnique;
                     break;                                                 
             }

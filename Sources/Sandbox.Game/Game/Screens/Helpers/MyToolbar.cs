@@ -549,7 +549,7 @@ namespace Sandbox.Game.Screens.Helpers
                 SetItemAtIndex(i, null);
         }
 
-        public void ActivateItemAtSlot(int slot, bool checkIfWantsToBeActivated = false)
+        public void ActivateItemAtSlot(int slot, bool checkIfWantsToBeActivated = false, bool playActivationSound = true)
         {
             if (!IsValidSlot(slot) && !IsHolsterSlot(slot))
                 return;
@@ -558,7 +558,10 @@ namespace Sandbox.Game.Screens.Helpers
             {
                 if (ActivateItemAtIndex(SlotToIndex(slot), checkIfWantsToBeActivated))
                 {
-                    MyGuiAudio.PlaySound(MyGuiSounds.HudClick);
+                    if (playActivationSound)
+                    {
+                        MyGuiAudio.PlaySound(MyGuiSounds.HudClick);
+                    }
                     if (SlotActivated != null)
                         SlotActivated(this, new SlotArgs { SlotNumber = slot });
                 }

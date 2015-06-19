@@ -43,8 +43,8 @@ namespace Sandbox.Game.Multiplayer
     delegate void RemoveBlockDelegate(List<Vector3I> blocksToRemove);
     delegate void MultipleStateDelegate(MyMultipleEnabledEnum enabled);
     delegate void PowerChangedStateDelegate(MyMultipleEnabledEnum enabled, long playerId);
-    delegate void BlockIntegrityChangedDelegate(Vector3I pos, float buildIntegrity, float integrity, MyCubeGrid.MyIntegrityChangeEnum integrityChangeType, long toolOwner);
-    delegate void BlockStockpileChangedDelegate(Vector3I pos, List<MyStockpileItem> diff);
+    delegate void BlockIntegrityChangedDelegate(Vector3I pos, ushort subBlockId, float buildIntegrity, float integrity, MyCubeGrid.MyIntegrityChangeEnum integrityChangeType, long toolOwner);
+    delegate void BlockStockpileChangedDelegate(Vector3I pos, ushort subBlockId, List<MyStockpileItem> diff);
 
     [PreloadRequired]
     partial class MySyncGrid : MySyncEntity
@@ -236,6 +236,7 @@ namespace Sandbox.Game.Multiplayer
             public float Integrity;
             public MyCubeGrid.MyIntegrityChangeEnum IntegrityChangeType;
             public long ToolOwner;
+			public ushort SubBlockId;
         }
 
         [ProtoContract]
@@ -245,6 +246,9 @@ namespace Sandbox.Game.Multiplayer
             [ProtoMember]
             public long GridEntityId;
             public long GetEntityId() { return GridEntityId; }
+
+			[ProtoMember]
+			public ushort SubBlockId;
 
             [ProtoMember]
             public Vector3I BlockPosition;
@@ -503,6 +507,15 @@ namespace Sandbox.Game.Multiplayer
             public List<Tuple<Vector3I, ushort>> LocationsAndIds;
         }
 
+        [MessageId(15283, P2PMessageEnum.Reliable)]
+        struct ChangeDestructibleBlocksMsg : IEntityMessage
+        {
+            public long GridEntityId;
+            public long GetEntityId() { return GridEntityId; }
+
+            public BoolBlit DestructionEnabled;
+        }
+
         static HashSet<MyCubeGrid.MyBlockLocation> m_tmpBuildList = new HashSet<MyCubeGrid.MyBlockLocation>();
 
         static List<Vector3I> m_tmpPositionListSend = new List<Vector3I>(1);
@@ -567,6 +580,8 @@ namespace Sandbox.Game.Multiplayer
             MySyncLayer.RegisterEntityMessage<MySyncGrid, CreateSplitMsg>(OnCreateSplit, MyMessagePermissions.FromServer);
             MySyncLayer.RegisterEntityMessage<MySyncGrid, RemoveSplitMsg>(OnRemoveSplit, MyMessagePermissions.FromServer);
             MySyncLayer.RegisterEntityMessage<MySyncGrid, CreateSplitsMsg>(OnCreateSplits, MyMessagePermissions.FromServer, MyTransportMessageEnum.Request, new MySyncGridSplitsSerializer());
+
+            MySyncLayer.RegisterEntityMessage<MySyncGrid, ChangeDestructibleBlocksMsg>(OnChangeDestructibleBlocks, MyMessagePermissions.Any);
         }
 
         public event BuildBlocksAreaRequestDelegate BlocksBuiltAreaRequest;
@@ -651,13 +666,14 @@ namespace Sandbox.Game.Multiplayer
         //    }
         //}
 
-        public void BuildBlock(Vector3 colorMaskHsv, MyCubeGrid.MyBlockLocation location, MyObjectBuilder_CubeBlock blockObjectBuilder)
+        public void BuildBlock(Vector3 colorMaskHsv, MyCubeGrid.MyBlockLocation location, MyObjectBuilder_CubeBlock blockObjectBuilder, long builderEntityId)
         {
             var msg = new BuildBlockMsg();
             msg.GridEntityId = Entity.EntityId;
             msg.Location = location;
             msg.ColorMaskHsv = colorMaskHsv.PackHSVToUint();
             msg.BlockObjectBuilder = blockObjectBuilder;
+            msg.BuilderEntityId = builderEntityId;
             Sync.Layer.SendMessageToServer(ref msg);
         }
 
@@ -1104,6 +1120,21 @@ namespace Sandbox.Game.Multiplayer
             sync.Entity.GridSystems.ThrustSystem.ControlThrust = msg.Thrust;
         }
 
+		private ushort GetSubBlockId(MySlimBlock slimBlock)
+		{
+			var block = slimBlock.CubeGrid.GetCubeBlock(slimBlock.Position);
+			MyCompoundCubeBlock compoundBlock = null;
+			if (block != null)
+				compoundBlock = block.FatBlock as MyCompoundCubeBlock;
+			if (compoundBlock != null)
+			{
+				var subBlockId = compoundBlock.GetBlockId(slimBlock);
+				return subBlockId ?? 0;
+			}
+
+			return 0;
+		}
+
         public void SendIntegrityChanged(MySlimBlock mySlimBlock, MyCubeGrid.MyIntegrityChangeEnum integrityChangeType, long toolOwner)
         {
             Debug.Assert(Sync.IsServer, "Other player than server is trying to send integrity changes");
@@ -1115,6 +1146,7 @@ namespace Sandbox.Game.Multiplayer
             msg.BlockPosition = mySlimBlock.Position;
             msg.IntegrityChangeType = integrityChangeType;
             msg.ToolOwner = toolOwner;
+			msg.SubBlockId = GetSubBlockId(mySlimBlock);
 
             Sync.Layer.SendMessageToAll(ref msg);
         }
@@ -1122,7 +1154,7 @@ namespace Sandbox.Game.Multiplayer
         private static void OnIntegrityChanged(MySyncGrid sync, ref IntegrityChangedMsg msg, MyNetworkClient sender)
         {
             if (sync.BlockIntegrityChanged != null)
-                sync.BlockIntegrityChanged(msg.BlockPosition, msg.BuildIntegrity, msg.Integrity, msg.IntegrityChangeType, msg.ToolOwner);
+                sync.BlockIntegrityChanged(msg.BlockPosition, msg.SubBlockId, msg.BuildIntegrity, msg.Integrity, msg.IntegrityChangeType, msg.ToolOwner);
         }
 
         public void SendStockpileChanged(MySlimBlock mySlimBlock, List<MyStockpileItem> list)
@@ -1134,8 +1166,8 @@ namespace Sandbox.Game.Multiplayer
             msg.GridEntityId = Entity.EntityId;
             msg.BlockPosition = mySlimBlock.Position;
             msg.Changes = list;
-
             Debug.Assert(list != null, "List of stockpile changes was null!");
+			msg.SubBlockId = GetSubBlockId(mySlimBlock);
 
             Sync.Layer.SendMessageToAll(ref msg);
         }
@@ -1143,7 +1175,7 @@ namespace Sandbox.Game.Multiplayer
         private static void OnStockpileChanged(MySyncGrid sync, ref StockpileChangedMsg msg, MyNetworkClient sender)
         {
             if (sync.BlockStockpileChanged != null)
-                sync.BlockStockpileChanged(msg.BlockPosition, msg.Changes);
+                sync.BlockStockpileChanged(msg.BlockPosition, msg.SubBlockId, msg.Changes);
         }
 
         public void RequestFillStockpile(Vector3I blockPosition, MyInventory fromInventory)
@@ -1587,6 +1619,21 @@ namespace Sandbox.Game.Multiplayer
                 MyCubeGrid.RemoveSplit(m_grid, m_tmpBlockListReceive, 0, m_tmpBlockListReceive.Count, sync: false);
                 m_tmpBlockListReceive.Clear();
             }
+        }
+
+        internal void SetDestructibleBlocks(bool destructionEnabled)
+        {
+            var msg = new ChangeDestructibleBlocksMsg();
+
+            msg.GridEntityId = Entity.EntityId;
+            msg.DestructionEnabled = destructionEnabled;
+
+            Sync.Layer.SendMessageToAllAndSelf(ref msg);
+        }
+
+        private static void OnChangeDestructibleBlocks(MySyncGrid syncObject, ref ChangeDestructibleBlocksMsg msg, MyNetworkClient sender)
+        {
+            syncObject.Entity.DestructibleBlocks = msg.DestructionEnabled;
         }
     }
 }

@@ -155,9 +155,9 @@ namespace Sandbox.Graphics.GUI
             return res;
         }
 
-        public override void Draw(float transitionAlpha)
+        public override void Draw(float transitionAlpha, float backgroundTransitionAlpha)
         {
-            base.Draw(transitionAlpha);
+            base.Draw(transitionAlpha, backgroundTransitionAlpha);
 
             var scrollbarMask = ApplyColorMaskModifiers(ColorMask, Enabled, transitionAlpha);
             if (m_scrollbarV != null)
@@ -175,13 +175,13 @@ namespace Sandbox.Graphics.GUI
             //DebugDraw();
         }
 
-        protected override void DrawElements(float transitionAlpha)
+        protected override void DrawElements(float transitionAlpha, float backgroundTransitionAlpha)
         {
             var scissor = m_scrolledArea;
             scissor.Position += GetPositionAbsoluteTopLeft();
             using (MyGuiManager.UsingScissorRectangle(ref scissor))
             {
-                base.DrawElements(transitionAlpha);
+                base.DrawElements(transitionAlpha, backgroundTransitionAlpha);
             }
         }
 

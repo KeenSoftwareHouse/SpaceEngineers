@@ -636,7 +636,7 @@ namespace Sandbox.Game.Entities.Cube
                 }
                 else
                 {
-                    var tmpItem = new MyInventoryItem(items[i].GetObjectBuilder());
+                    var tmpItem = new MyPhysicalInventoryItem(items[i].GetObjectBuilder());
                     tmpItem.Amount = itemAmount;
                     entity = MyFloatingObjects.Spawn(tmpItem, rndPos, PositionComp.WorldMatrix.Forward, PositionComp.WorldMatrix.Up, CubeGrid.Physics);
                     m_inventory.RemoveItems(items[i].ItemId, itemAmount);

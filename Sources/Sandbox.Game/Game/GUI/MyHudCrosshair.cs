@@ -60,6 +60,7 @@ namespace Sandbox.Game.Gui
         {
             ProfilerShort.Begin("GetTarget");
             ProfilerShort.Begin("CastRay");
+            return false;
             Vector3 normal;
             var body = MyPhysics.CastRay(from, to, out target, out normal);
             ProfilerShort.End();

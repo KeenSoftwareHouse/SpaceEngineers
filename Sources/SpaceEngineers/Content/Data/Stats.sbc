@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <Definitions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
-  <StatsDefinitions>
-    <StatsDefinition>
+  <StatGroupDefinitions>
+    <StatGroup>
       <Id>
         <TypeId>MyObjectBuilder_StatsDefinition</TypeId>
         <SubtypeId>SpaceCharacterStats</SubtypeId>
@@ -18,8 +18,8 @@
         <Script>SpaceStatEffect</Script>
       </Scripts>
       
-    </StatsDefinition>
-  </StatsDefinitions>
+    </StatGroup>
+  </StatGroupDefinitions>
 
   <StatDefinitions>
     <Stat xsi:type="MyObjectBuilder_EntityStatDefinition">

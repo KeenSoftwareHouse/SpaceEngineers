@@ -457,6 +457,9 @@ namespace Sandbox.Game.Gui
             m_scenarioTypesGroup.SelectByKey(0);
             m_settings = GetDefaultSettings();
             m_settings.EnableToolShake = true;
+            m_settings.EnablePlanets = MyFakes.ENABLE_PLANETS;
+            m_settings.EnableStationVoxelSupport = true;
+            m_settings.EnableSunRotation = true;
             m_settings.VoxelGeneratorVersion = MyVoxelConstants.VOXEL_GENERATOR_VERSION;
             m_settings.EnableOxygen = true;
             m_mods = new List<MyObjectBuilder_Checkpoint.ModItem>();

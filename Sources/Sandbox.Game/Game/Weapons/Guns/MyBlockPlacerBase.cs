@@ -95,6 +95,9 @@ namespace Sandbox.Game.Weapons
                     return;
                 }
 
+                if (!Owner.ControllerInfo.IsLocallyControlled())
+                    return;
+
                 // Must have first component to start building
                 if (MyCubeBuilder.Static.CanStartConstruction(Owner))
                 {

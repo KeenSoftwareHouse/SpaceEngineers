@@ -17,6 +17,7 @@ namespace VRageRender
         float m_atmosphereRadius = 0.0f;
         float m_planetRadius = 0.0f;
         bool m_hasAtmosphere = false;
+        Vector3? m_atmosphereWaveLengths = null;
 
         public MyRenderClipmap(MyRenderMessageCreateClipmap msg)
             : base(msg.ClipmapId, "Clipmap")
@@ -27,6 +28,7 @@ namespace VRageRender
             m_atmosphereRadius = msg.AtmosphereRadius;
             m_planetRadius = msg.PlanetRadius;
             m_hasAtmosphere = msg.HasAtmosphere;
+            m_atmosphereWaveLengths = msg.AtmosphereWaveLenghts;
         }
 
         public override void UpdateWorldAABB()
@@ -91,7 +93,7 @@ namespace VRageRender
                     return new MyRenderVoxelCell(scaleGroup, cellCoord, ref worldMatrix);
 
                 case MyClipmapScaleEnum.Massive:
-                    return new MyRenderVoxelCellBackground(cellCoord, ref worldMatrix, m_position, m_atmosphereRadius, m_planetRadius, m_hasAtmosphere);
+                    return new MyRenderVoxelCellBackground(cellCoord, ref worldMatrix, m_position, m_atmosphereRadius, m_planetRadius, m_hasAtmosphere,m_atmosphereWaveLengths.Value);
 
                 default:
                     throw new InvalidBranchException();

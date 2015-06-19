@@ -605,7 +605,7 @@ namespace Sandbox.Game.Gui
             }
             else if (m_inventoryGrid.MouseOverItem != null && CurrentAssemblerMode == AssemblerMode.Disassembling)
             {
-                var item = (MyInventoryItem)m_inventoryGrid.MouseOverItem.UserData;
+                var item = (MyPhysicalInventoryItem)m_inventoryGrid.MouseOverItem.UserData;
                 if (MyDefinitionManager.Static.HasBlueprint(item.Content.GetId()))
                 {
                     ShowBlueprintComponents(MyDefinitionManager.Static.GetBlueprintDefinition(item.Content.GetId()), 1);
@@ -749,7 +749,7 @@ namespace Sandbox.Game.Gui
             if (CurrentAssemblerMode == AssemblerMode.Assembling)
                 return;
 
-            var item = (MyInventoryItem)control.GetItemAt(args.ItemIndex).UserData;
+            var item = (MyPhysicalInventoryItem)control.GetItemAt(args.ItemIndex).UserData;
             var blueprint = MyDefinitionManager.Static.TryGetBlueprintDefinitionByResultId(item.Content.GetId());
             if (blueprint != null)
             {

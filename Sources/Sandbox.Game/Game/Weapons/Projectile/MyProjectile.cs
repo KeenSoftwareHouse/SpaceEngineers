@@ -232,10 +232,10 @@ namespace Sandbox.Game.Weapons
         {
             if (!Sync.IsServer)
                 return;
-            if (damagedEntity is MyCubeGrid && MySession.Static.DestructibleBlocks)
+            if (damagedEntity is MyCubeGrid)
             {
                 var grid = damagedEntity as MyCubeGrid;
-                if (grid.Physics != null && grid.Physics.Enabled)
+                if (grid.Physics != null && grid.Physics.Enabled && grid.BlocksDestructionEnabled)
                 {
                     bool causeDeformation = false;
                     Vector3I blockPos;

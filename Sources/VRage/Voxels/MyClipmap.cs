@@ -447,15 +447,15 @@ namespace VRage.Voxels
 
                     if (ChildrenWereLoaded(childLod, ref thisLodCell) || !AllSiblingsWereLoaded(ref thisLodCell))
                     {
-                            RemoveFromScene(entry.Key, data);
-                        }
-                        else
-                        {
-                            AddToScene(entry.Key, data);
-                        //data.Cell.PixelDiscardEnabled = false;
-                        }
+                        RemoveFromScene(entry.Key, data);
                     }
-                        }
+                    else
+                    {
+                        AddToScene(entry.Key, data);
+                        //data.Cell.PixelDiscardEnabled = false;
+                    }
+                }
+            }
 
             private void GetNearbyLodLevels(out LodLevel parentLod, out LodLevel childLod)
             {
