@@ -424,7 +424,8 @@ namespace Sandbox.Game.World
                 bool setReactorsOn = spawningOptions.HasFlag(SpawningOptions.TurnOnReactors);
                 bool setReactorsOff = spawningOptions.HasFlag(SpawningOptions.TurnOffReactors);
                 bool setAntennaMaxed = spawningOptions.HasFlag(SpawningOptions.AntennaMaxed);
-                bool needsToIterateThroughBlocks = spawnCargo || rotateToCockpit || setNeutralOwner || setHostileOwner || setAntennaOn || setAntennaOff || setReactorsOn || setReactorsOff || setAntennaMaxed || beaconName != null;
+                bool encounterFlags = setHostileOwner || setAntennaOn || setAntennaOff || setReactorsOn || setReactorsOff || setAntennaMaxed;
+                bool needsToIterateThroughBlocks = spawnCargo || rotateToCockpit || setNeutralOwner || encounterFlags || beaconName != null;
 
                 long owner = 0;
                 if (updateSync && spawningOptions.HasFlag(SpawningOptions.SetNeutralOwner) && resultList.Count != 0)
@@ -436,33 +437,7 @@ namespace Sandbox.Game.World
 
                 foreach (var grid in resultList)
                 {
-                    var howDamaged = 0;                    
-
-                    if (spawningOptions.HasFlag(SpawningOptions.Worn))
-                    {
-                        howDamaged = MyRandom.Instance.Next(0, 3);
-                    }
-                    else
-                    {
-                        if (spawningOptions.HasFlag(SpawningOptions.LightlyDamaged))
-                        {
-                            howDamaged = MyRandom.Instance.Next(3, 8);
-                        }
-                        else
-                        {
-                            if (spawningOptions.HasFlag(SpawningOptions.Damaged))
-                            {
-                                howDamaged = MyRandom.Instance.Next(8, 13);
-                            }
-                            else
-                            {
-                                if (spawningOptions.HasFlag(SpawningOptions.HeavilyDamaged))
-                                {
-                                    howDamaged = MyRandom.Instance.Next(13, 20);
-                                }
-                            }
-                        }
-                    }                    
+                    var howDamaged = getDamageChance(spawningOptions);                    
 
                     grid.ClearSymmetries();
 
@@ -474,136 +449,116 @@ namespace Sandbox.Game.World
                     if ((spawningOptions.HasFlag(SpawningOptions.DisableSave)))
                     {
                         grid.Save = false;
-                    }
-
-                    var antennaCounter = 0;
+                    }                    
 
                     if (needsToIterateThroughBlocks)
-                    {                        
+                    {
+                        var antennaFound = false;
+                        bool destroyed;
+
+                        List<MySlimBlock> toBeDamaged = new List<MySlimBlock>();
+                        List<MySlimBlock> toBeDestroyed = new List<MySlimBlock>();
+
                         ProfilerShort.Begin("Iterate through blocks");
                         foreach (var block in grid.GetBlocks())
                         {
-                            if (block.FatBlock is MyCockpit && rotateToCockpit && firstCockpit == null)
-                            {
-                                firstCockpit = (MyCockpit)block.FatBlock;
-                            }
+                            destroyed = false;
 
-                            else if (block.FatBlock is MyCargoContainer && spawnCargo)
+                            if(howDamaged > 0)
                             {
-                                MyCargoContainer container = block.FatBlock as MyCargoContainer;
-                                container.SpawnRandomCargo();
-                            }
+                                var rnd = MyRandom.Instance.Next(1, 101);
 
-                            else if (block.FatBlock is MyBeacon && beaconName != null)
-                            {
-                                MyBeacon beacon = block.FatBlock as MyBeacon;
-                                beacon.SetCustomName(beaconName);
-                                
-                                if (setAntennaOff)
+                                if (rnd < howDamaged)
                                 {
-                                    beacon.Enabled = false;
-                                }
-                            }
-
-                            else if (block.FatBlock is MyReactor)
-                            {
-                                (block.FatBlock as MyReactor).Enabled = true;                                
-                            }
-
-                            else if (block.FatBlock is MyLargeTurretBase && setHostileOwner)
-                            {                                
-                                (block.FatBlock as MyLargeTurretBase).Enabled = true;
-                            }  
-
-                            else if (block.FatBlock is IMyPowerProducer)
-                            {
-                                if (setReactorsOn)
-                                {
-                                    (block.FatBlock as IMyPowerProducer).Enabled = true;
-                                }
-                                else if (setReactorsOff)
-                                {
-                                    (block.FatBlock as IMyPowerProducer).Enabled = false;
-                                } 
-                            }
-
-                            else if (block.FatBlock is MyRadioAntenna)
-                            {
-                                if (antennaCounter == 0)
-                                {
-                                    MyRadioAntenna antenna = block.FatBlock as MyRadioAntenna;
-
-                                    if (setHostileOwner)
-                                    {
-                                        antenna.SetCustomName("");
+                                    if (block.FatBlock is MyFunctionalBlock)
+                                    {                                        
+                                        toBeDamaged.Add(block);                                       
                                     }
-
-                                    if (setAntennaOn)
+                                    else 
                                     {
-                                        antenna.Enabled = true;
-
-                                        antenna.RadioBroadcaster.Enabled = true;
-
-                                        if (setAntennaMaxed)
-                                        {
-                                            if (grid.GridSizeEnum == MyCubeSize.Large)
-                                            {
-                                                antenna.RadioBroadcaster.BroadcastRadius = 50000;
-                                            }
-                                            else
-                                            {
-                                                antenna.RadioBroadcaster.BroadcastRadius = 5000;
-                                            }
-                                        }
-
-                                        antennaCounter++;
-                                    }
-                                    else if (setAntennaOff)
-                                    {
-                                        antenna.Enabled = false;
+                                        toBeDestroyed.Add(block);
+                                        destroyed = true;
                                     }
                                 }
-                                else
-                                {
-                                    (block.FatBlock as MyRadioAntenna).Enabled = false;
-                                }
                             }
 
-                            if (setNeutralOwner && block.FatBlock != null && block.BlockDefinition.RatioEnoughForOwnership(block.BuildLevelRatio))
+                            if (!destroyed)
                             {
-                                block.FatBlock.ChangeOwner(owner, MyOwnershipShareModeEnum.None);
-                            }
-
-                            if (howDamaged > 0)
-                            {
-                                var rnd = MyRandom.Instance.Next(0, 100);
-
-                                if (block.FatBlock is MyFunctionalBlock)
+                                // Process the most frequent block types first to improve performance.
+                                if (block.FatBlock is IMyPowerProducer)
                                 {
-                                    if (!(block.FatBlock is MyReactor) && !(block.FatBlock is MyBeacon))
+                                    if (setReactorsOn)
                                     {
-                                        if (rnd < howDamaged)
-                                        {
-                                            block.DoDamage(block.Integrity / 2, MyDamageType.Explosion);
-                                        }
+                                        (block.FatBlock as IMyPowerProducer).Enabled = true;
                                     }
-                                }
-                                else if (rnd < howDamaged)
-                                {
-                                    block.SetIntegrity(10.0f, 0.5f, MyCubeGrid.MyIntegrityChangeEnum.Damage, 0);
+                                    else if (setReactorsOff)
+                                    {                                        
+                                        (block.FatBlock as IMyPowerProducer).Enabled = false;
+                                    }
                                 }                                
+
+                                else if (block.FatBlock is MyCargoContainer && spawnCargo)
+                                {
+                                    MyCargoContainer container = block.FatBlock as MyCargoContainer;
+                                    container.SpawnRandomCargo();
+                                }
+
+                                else if (block.FatBlock is MyLargeTurretBase && setHostileOwner)
+                                {
+                                    (block.FatBlock as MyLargeTurretBase).Enabled = true;
+                                }
+
+                                else if (block.FatBlock is MyBeacon && beaconName != null)
+                                {
+                                    MyBeacon beacon = block.FatBlock as MyBeacon;
+                                    beacon.SetCustomName(beaconName);
+
+                                    if (setAntennaOff)
+                                    {
+                                        beacon.Enabled = false;
+                                    }
+                                }                                
+
+                                else if (block.FatBlock is MyCockpit && rotateToCockpit && firstCockpit == null)
+                                {
+                                    firstCockpit = (MyCockpit)block.FatBlock;
+                                }
+
+                                else if (block.FatBlock is MyRadioAntenna)
+                                {
+                                    if (!antennaFound && !setAntennaOff && setAntennaOn)
+                                    {
+                                        SwitchOnAntenna(block.FatBlock as MyRadioAntenna, setAntennaMaxed, grid.GridSizeEnum == MyCubeSize.Large ? 50000 : 5000);
+                                        antennaFound = true;
+                                    }
+                                    else
+                                    {
+                                        if (setAntennaOff || antennaFound)
+                                        {
+                                            (block.FatBlock as MyRadioAntenna).Enabled = false;
+                                        }
+                                    }
+                                }
+
+                                if (setNeutralOwner && block.FatBlock != null && block.BlockDefinition.RatioEnoughForOwnership(block.BuildLevelRatio))
+                                {
+                                    block.FatBlock.ChangeOwner(owner, MyOwnershipShareModeEnum.None);
+                                }
                             }
                         }
 
                         if (howDamaged > 0)
-                        {
-                            var damagedBlocks = grid.GetBlocks().Where(a => a.Integrity < 70.0f).ToList();
-
-                            foreach (var damagedBlock in damagedBlocks)
+                        {     
+                            foreach (var damagedBlock in toBeDamaged)
                             {
-                                damagedBlock.DoDamage(100.0f, MyDamageType.Weapon);
+                                damagedBlock.DoDamage(damagedBlock.Integrity / 2, MyDamageType.Explosion);
                             }
-                        }
+
+                            foreach (var destroyedBlock in toBeDestroyed)
+                            {
+                                destroyedBlock.DoDamage(destroyedBlock.Integrity + 1.0f, MyDamageType.Weapon);
+                            }
+                        }                    
 
                         ProfilerShort.End();
                     }
@@ -642,6 +597,43 @@ namespace Sandbox.Game.World
                 {
                     MySyncPrefabManager.SendPrefabSpawned(prefabName, new MyPositionAndOrientation(position, forward, up), initialLinearVelocity, initialAngularVelocity, beaconName, spawningOptions, rngSeed);
                 }
+            }
+        }
+
+        private int getDamageChance(SpawningOptions spawningOptions)
+        {
+            if (spawningOptions.HasFlag(SpawningOptions.Worn))
+            {
+                return MyRandom.Instance.Next(1, 6); 
+            }
+
+            if (spawningOptions.HasFlag(SpawningOptions.LightlyDamaged))
+            {
+                return MyRandom.Instance.Next(6, 11);
+            }
+
+            if (spawningOptions.HasFlag(SpawningOptions.Damaged))
+            {
+                return MyRandom.Instance.Next(12, 16);  
+            }
+
+            if (spawningOptions.HasFlag(SpawningOptions.HeavilyDamaged))
+            {
+                return MyRandom.Instance.Next(16, 21); 
+            }
+
+            return 0;
+        }
+
+        private void SwitchOnAntenna(MyRadioAntenna antenna, bool setAntennaMaxed, int range)
+        {            
+            antenna.Enabled = true;
+            antenna.RadioBroadcaster.Enabled = true;
+            antenna.SetCustomName("");
+
+            if (setAntennaMaxed)
+            {
+                antenna.RadioBroadcaster.BroadcastRadius = range;
             }
         }
 
@@ -698,8 +690,6 @@ namespace Sandbox.Game.World
                 return false;
             }
             return true;
-        }
-
-
+        }  
     }
 }
