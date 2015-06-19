@@ -22,29 +22,41 @@ namespace Sandbox.ModAPI
 
         void Kill(object killData = null);
 
+        /// <summary>
+        /// Character's name.
+        /// </summary>
         string DisplayName { get; }
 
+        /// <summary>
+        /// Character's current health.
+        /// </summary>
         float Health { get; }
 
+        /// <summary>
+        /// Character's max reachable health (from the suit model definition).
+        /// </summary>
         float MaxHealth { get; }
 
         /// <summary>
         /// Sets the character's health, clamped between 0 and MaxHealth.
-        /// NOTE: Does not automatically kill the character.
+        /// NOTE: This does not kill the character if health is set to 0.
         /// </summary>
         /// <param name="health">the health to set, limited between 0 and MaxHealth.</param>
         /// <param name="sync">updates the server and other players with the change</param>
         void SetHealth(float health, bool sync = true);
 
+        /// <summary>
+        /// The rate at which the character automatically heals (if enabled by the server).
+        /// </summary>
         float AutohealSpeed { get; }
 
         /// <summary>
-        /// Damages the character.
+        /// Damages the character and kills them if the damage exceeds the current health.
         /// </summary>
         /// <param name="damage">amount of damage applied.</param>
         /// <param name="damageType">type of damage applied.</param>
         /// <param name="forceKill">ignores character's CanDie field.</param>
-        /// <param name="sync">wether to synchronize this action with other players.</param>
+        /// <param name="sync">send changes over the network to the server and other players.</param>
         void DoDamage(float damage, MyDamageType damageType, bool forceKill = true, bool sync = true);
 
         /// <summary>
@@ -53,16 +65,18 @@ namespace Sandbox.ModAPI
         float AccumulatedDamage { get; }
 
         /// <summary>
-        /// Kills the player, action is synchronized.
+        /// Kills the character by applying high damage.
         /// </summary>
         /// <param name="ask">asks the player to suicide.</param>
         /// <param name="damageType">type of damage to apply.</param>
         /// <param name="forceKill">ignores character's CanDie field.</param>
-        /// <param name="sync">updates everybody else that the character died.</param>
+        /// <param name="sync">send changes over the network to the server and other players.</param>
         void Kill(bool ask = false, MyDamageType damageType = MyDamageType.Suicide, bool forceKill = true, bool sync = true);
 
+        /// <summary>
+        /// If the character is dead.
+        /// </summary>
         bool IsDead { get; }
-
 
         /// <summary>
         /// Suit battery percent, 0 to 1.
@@ -70,10 +84,9 @@ namespace Sandbox.ModAPI
         float BatteryLevel { get; }
 
         /// <summary>
-        /// Suit's battery interface
+        /// Suit's battery interface.
         /// </summary>
         IMySuitBattery Battery { get; }
-
 
         /// <summary>
         /// Suit oxygen percent, 0 to 1.
@@ -81,20 +94,20 @@ namespace Sandbox.ModAPI
         float SuitOxygenLevel { get; }
 
         /// <summary>
-        /// Suit oxygen amount
+        /// Suit oxygen amount.
         /// </summary>
         float SuitOxygen { get; }
 
         /// <summary>
-        /// Suit oxygen capacity
+        /// Suit total oxygen capacity.
         /// </summary>
         float SuitMaxOxygen { get; }
 
         /// <summary>
-        /// Set the character's oxygen levels
+        /// Set the character's oxygen levels.
         /// </summary>
-        /// <param name="level">from 0.0 to 1.0</param>
-        /// <param name="sync">update server and other players with changes</param>
+        /// <param name="level">from 0.0 to 1.0.</param>
+        /// <param name="sync">send changes over the network to the server and other players.</param>
         void SetOxygenLevel(float level, bool sync = true);
 
         /// <summary>
@@ -108,6 +121,9 @@ namespace Sandbox.ModAPI
         /// </summary>
         bool SuitNeedsOxygen { get; }
 
+        /// <summary>
+        /// Character's current movement action.
+        /// </summary>
         MyCharacterMovementEnum CurrentMovement { get; }
 
         bool CanJump { get; }
@@ -124,17 +140,60 @@ namespace Sandbox.ModAPI
         float CurrentSpeed { get; }
         float CurrentJump { get; }
         
+        /// <summary>
+        /// If the character's lights are on or not.
+        /// </summary>
         bool LightEnabled { get; }
+
+        /// <summary>
+        /// Toggle the character's lights
+        /// </summary>
+        /// <param name="enable">set the state.</param>
+        /// <param name="sync">send changes over the network to the server and other players.</param>
         void SetLights(bool enable, bool sync = true);
 
+        /// <summary>
+        /// If the character's jetpack is on or not.
+        /// </summary>
         bool JetpackEnabled { get; }
+
+        /// <summary>
+        /// Toggle the character's jetpack.
+        /// </summary>
+        /// <param name="enable">set the state.</param>
+        /// <param name="notify">show the change notification on the HUD.</param>
+        /// <param name="sync">send changes over the network to the server and other players.</param>
         void SetJetpack(bool enable, bool notify = true, bool sync = true);
 
+        /// <summary>
+        /// If the character's jetpack has dampeners on or not.
+        /// </summary>
         bool DampenersEnabled { get; }
+
+        /// <summary>
+        /// Toggle the character's jetpack dampeners.
+        /// </summary>
+        /// <param name="enable">set the state.</param>
+        /// <param name="notify">show the change notification on the HUD.</param>
+        /// <param name="sync">send changes over the network to the server and other players.</param>
         void SetDampeners(bool enable, bool notify = true, bool sync = true);
 
+        /// <summary>
+        /// If the character has radio broadcasting enabled.
+        /// </summary>
         bool BroadcastingEnabled { get; }
+
+        /// <summary>
+        /// Character's broadcasting radius.
+        /// </summary>
         float BroadcastingRadius { get; }
+
+        /// <summary>
+        /// Toggle the character's radio broadcasting.
+        /// </summary>
+        /// <param name="enable">set the state.</param>
+        /// <param name="notify">show the change notification on the HUD.</param>
+        /// <param name="sync">send changes over the network to the server and other players.</param>
         void SetBroadcasting(bool enable, bool notify = true, bool sync = true);
 
         /// <summary>
@@ -150,7 +209,7 @@ namespace Sandbox.ModAPI
         Sandbox.Common.ObjectBuilders.MyToolbarType ToolbarType { get; }
 
         /// <summary>
-        /// Character's suit model name
+        /// Character's suit model name.
         /// </summary>
         string ModelName { get; }
 
@@ -162,15 +221,15 @@ namespace Sandbox.ModAPI
         /// <summary>
         /// Changes the model and color of the character.
         /// </summary>
-        /// <param name="model">the model name</param>
-        /// <param name="colorMaskHSV">the model color mask</param>
-        /// <param name="sync">send changes over network to other players</param>
+        /// <param name="model">the model name.</param>
+        /// <param name="colorMaskHSV">the model color mask.</param>
+        /// <param name="sync">send changes over the network to the server and other players.</param>
         void SetModelAndColor(string model, Vector3 colorMaskHSV, bool sync = true);
 
         /// <summary>
         /// Get the character's faction or null if they have no faction.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>faction or null.</returns>
         IMyFaction GetFaction();
 
         /// <summary>
@@ -183,6 +242,6 @@ namespace Sandbox.ModAPI
         /// </summary>
         IMyControllableEntity RemoteControlledEntity { get; }
 
-	event CharacterMovementStateDelegate OnMovementStateChanged;
+        event CharacterMovementStateDelegate OnMovementStateChanged;
     }
 }
