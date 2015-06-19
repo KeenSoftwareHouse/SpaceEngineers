@@ -225,6 +225,9 @@
     <Compile Include="Definitions\MyPlanetDefinition.cs" />
     <Compile Include="Definitions\VoxelHand\MyVoxelHandDefinition.cs" />
     <Compile Include="Engine\GUI\FunctionalBlocks\MyGuiControlGenericFunctionalBlock.cs" />
+    <Compile Include="Engine\Multiplayer\MyDedicatedServerBase.cs" />
+    <Compile Include="Engine\Multiplayer\MyDedicatedServerBattle.cs" />
+    <Compile Include="Engine\Multiplayer\MyMultiplayerBattleData.cs" />
     <Compile Include="Engine\MyInputExtensions.cs" />
     <Compile Include="Engine\Models\MyModelOctree.cs" />
     <Compile Include="Engine\Models\MyModelOctreeNode.cs" />
@@ -445,6 +448,9 @@
     <Compile Include="Game\Entities\Blocks\MyTimerBlock.cs" />
     <Compile Include="Game\Entities\Blocks\MyUpgradeModule.cs" />
     <Compile Include="Game\Entities\Blocks\ToolbarItem.cs" />
+    <Compile Include="Game\Entities\Character\Components\MyCharacterComponent.cs" />
+    <Compile Include="Game\Entities\Character\Components\MyCharacterDetectorComponent.cs" />
+    <Compile Include="Game\Entities\Character\Components\MyCharacterRaycastDetectorComponent.cs" />
     <Compile Include="Game\Entities\Character\MyCharacterBreath.cs" />
     <Compile Include="Game\Entities\Character\MyChatHistory.cs" />
     <Compile Include="Game\Entities\Character\MyInverseKinematics.cs" />
@@ -515,7 +521,7 @@
     <Compile Include="Game\Entities\MyPlaceAreas.cs" />
     <Compile Include="Game\Entities\MyPlaceArea.cs" />
     <Compile Include="Game\Entities\MyPlanet.cs" />
-    <Compile Include="Game\Entities\MyPlanetEnviromentSector.cs" />
+    <Compile Include="Game\Entities\MyPlanetEnvironmentSector.cs" />
     <Compile Include="Game\Entities\MySolarGameLogicComponent.cs" />
     <Compile Include="Game\Entities\MySpherePlaceArea.cs" />
     <Compile Include="Game\Entities\MyUpgradableBlockComponent.cs" />
@@ -721,6 +727,7 @@
     <Compile Include="Game\Screens\Triggers\MyGuiScreenTriggerPositionLeft.cs" />
     <Compile Include="Game\Screens\Triggers\MyGuiScreenTriggerPositionReached.cs" />
     <Compile Include="Game\Screens\Triggers\MyGuiScreenTriggerSomeoneWon.cs" />
+    <Compile Include="Game\Screens\Triggers\MyGuiScreenTriggerTimeLimit.cs" />
     <Compile Include="Game\SessionComponents\MySessionComponentArmorHand.cs" />
     <Compile Include="Game\Screens\Terminal\MyTerminalGpsController.cs" />
     <Compile Include="Game\SessionComponents\MySessionComponentMissionTriggers.cs" />
@@ -748,6 +755,7 @@
     <Compile Include="Game\World\Triggers\MyTriggerPositionReached.cs" />
     <Compile Include="Game\World\Triggers\MyTriggerPositionLeft.cs" />
     <Compile Include="Game\World\Triggers\MyTriggerSomeoneWon.cs" />
+    <Compile Include="Game\World\Triggers\MyTriggerTimeLimit.cs" />
     <Compile Include="ModAPI\Blocks\MyTextPanel_ModAPI.cs" />
     <Compile Include="ModAPI\MyMotorSuspension_ModAPI.cs" />
     <Compile Include="ModAPI\MyHudNotification_ModAPI.cs" />

@@ -99,9 +99,7 @@ namespace Sandbox.Engine.Voxels
                 var vertexCells = m_buffer.Cells.GetInternalArray();
                 for (int i = 0; i < m_buffer.VerticesCount; i++)
                 {
-                    var min = -Vector3.One;
-                    var max = Vector3.One;
-                 //   Debug.Assert(positions[i].IsInsideInclusive(ref min, ref max));
+                    Debug.Assert(positions[i].IsInsideInclusive(ref Vector3.MinusOne, ref Vector3.One));
                     vertexCells[i] += vertexCellOffset;
                 }
 

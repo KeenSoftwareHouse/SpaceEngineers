@@ -32,5 +32,8 @@ namespace Sandbox.Common.ObjectBuilders.Definitions
         [XmlArrayItem("Stat")]
         [ProtoMember]
         public StatValue[] Stats;
+
+        [ProtoMember]
+        public string EatingSound;
     }
 }

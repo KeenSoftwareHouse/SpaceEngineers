@@ -97,6 +97,7 @@ namespace Sandbox.Game.Screens
             m_descriptionBox = new MyGuiControlMultilineText(
                 position: new Vector2(0.0f, 0.0f),
                 size: new Vector2(1f, 1f),
+                textBoxAlign: MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_TOP,
                 selectable: false);
             briefing.Controls.Add(m_descriptionBox);
 

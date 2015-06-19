@@ -71,22 +71,6 @@ namespace Sandbox.Game.Entities.Character
         IronSight,
     }
 
-    enum MyLadderMovementStateEnum
-    {
-        NoLadder,
-        LadderCenter,
-        BetweenLadders,
-        HangingOnTop,
-        HangingOnBottom
-    }
-
-    enum MyLadderPathState
-    {
-        FreeSpace,
-        Ladder,
-        Blocked
-    }
-
     enum MyWalkingSurfaceType
     {
         None,
@@ -186,7 +170,6 @@ namespace Sandbox.Game.Entities.Character
         public static float CharacterWidth = 1.0f;
         public static float CharacterHeight = 1.80f;
         public static float CrouchHeight = 1.25f;
-        public static float LadderHeight = 1.85f;
 
         public static MyHudNotification OutOfAmmoNotification;
 
@@ -200,20 +183,16 @@ namespace Sandbox.Game.Entities.Character
         static readonly Vector3 ToolIronsightTranslation = new Vector3(0.0f, -0.21f, -0.25f);
         static readonly Vector3 WeaponClassicTranslation = new Vector3(0.1f, -0.18f, -0.22f);
 
+        List<MyPhysics.HitInfo> m_hits = new List<MyPhysics.HitInfo>();
+
         float m_currentSpeed = 0;
         float m_currentDecceleration = 0;
         float m_currentJump = 0;
         bool m_canJump = true;
         float m_currentWalkDelay = 0;
 
-        float m_currentLadderStep = 0;
-        Vector3 m_currentLadderMovement = Vector3.Zero;
-        bool m_stepOnLadder = false;
-
         float AUTO_ENABLE_JETPACK_INTERVAL = 1; //s
         float m_currentAutoenableJetpackDelay = 0;
-
-        List<MyPhysics.HitInfo> m_hits = new List<MyPhysics.HitInfo>();
 
         public bool DebugMode = false;
         public bool AIMode = false;
@@ -222,8 +201,6 @@ namespace Sandbox.Game.Entities.Character
         const float MaxHeadLocalXAngle = 85;
         const float MinHeadLocalYAngle = 0;
         const float MaxHeadLocalYAngle = 0;
-        const float MinHeadLadderLocalYAngle = -90;
-        const float MaxHeadLadderLocalYAngle = 90;
         float m_headLocalXAngle = 0;
         float m_headLocalYAngle = 0;
         int m_headBoneIndex = -1;
@@ -284,11 +261,8 @@ namespace Sandbox.Game.Entities.Character
         CapsuleD[] m_bodyCapsules = new CapsuleD[1];//new CapsuleD[10];
         MatrixD m_headMatrix = MatrixD.CreateTranslation(0, 1.65, 0);
 
-        IMyUseObject m_interactiveObject;
-        MyHudNotification m_useObjectNotification;
-        MyHudNotification m_pickupObjectNotification;
-        MyHudNotification m_showTerminalNotification;
-        MyHudNotification m_openInventoryNotification;
+        
+        MyHudNotification m_pickupObjectNotification;        
         MyHudNotification m_inertiaDampenersNotification;
         MyHudNotification m_broadcastingNotification;
         MyHudNotification m_jetpackToggleNotification;
@@ -317,7 +291,6 @@ namespace Sandbox.Game.Entities.Character
 
         MyEntity m_topGrid;
         MyEntity m_usingEntity;
-        bool m_usingContinuously;
 
         bool m_enableBag = true;
 
@@ -348,11 +321,6 @@ namespace Sandbox.Game.Entities.Character
 
         BoundingBoxD m_actualWorldAABB;
         BoundingBoxD m_aabb;
-
-        MyLadderMovementStateEnum m_ladderMovementState = MyLadderMovementStateEnum.NoLadder;
-        MyHudNotification m_ladderOffNotification;
-        MyHudNotification m_ladderUpDownNotification;
-        MyHudNotification m_ladderJumpOffNotification;
 
         //Needed to check relation between character and remote players when controlling a remote control
         private MyEntityController m_oldController;
@@ -698,6 +666,8 @@ namespace Sandbox.Game.Entities.Character
             }
 
             AddDebugRenderComponent(new MyDebugRenderComponentCharacter(this));
+
+            Components.Add<MyCharacterDetectorComponent>(new MyCharacterRaycastDetectorComponent());
         }
 
         /// <summary>
@@ -1432,7 +1402,6 @@ namespace Sandbox.Game.Entities.Character
             objectBuilder.DampenersEnabled = m_dampenersEnabled;
             objectBuilder.JetpackEnabled = m_jetpackEnabled;
             objectBuilder.LightEnabled = m_lightEnabled;
-            objectBuilder.UsingLadder = IsOnLadder ? IsUsing.EntityId : (long?)null;
             objectBuilder.HeadAngle = new Vector2(m_headLocalXAngle, m_headLocalYAngle);
 
             objectBuilder.LinearVelocity = Physics != null ? Physics.LinearVelocity : Vector3.Zero;
@@ -1541,11 +1510,6 @@ namespace Sandbox.Game.Entities.Character
             m_currentAnimationChangeDelay += MyEngineConstants.UPDATE_STEP_SIZE_IN_SECONDS;
             m_currentRotationDelay -= MyEngineConstants.UPDATE_STEP_SIZE_IN_SECONDS;
             
-            if (m_useObjectNotification != null && !m_usingContinuously)
-                MyHud.Notifications.Add(m_useObjectNotification);
-
-            m_usingContinuously = false;
-
             if (Sync.IsServer && !IsDead && m_currentMovementState != MyCharacterMovementEnum.Sitting && !MyEntities.IsInsideWorld((Vector3D)this.PositionComp.GetPosition()))
             {
                 if (MySession.Static.SurvivalMode)
@@ -1767,17 +1731,12 @@ namespace Sandbox.Game.Entities.Character
 		{
 			base.UpdateAfterSimulation10();
 
-            if (MySession.ControlledEntity == this && !IsSitting && !IsDead)
+            foreach (var component in Components)
             {
-                RayCast(MySession.GetCameraControllerEnum() != MyCameraControllerEnum.ThirdPersonSpectator);
+                if (component is MyCharacterComponent)
+                    ((MyCharacterComponent)component).UpdateAfterSimulation10();
             }
-            else
-            {
-                if (MySession.ControlledEntity == this)
-                {
-                    MyHud.SelectedObjectHighlight.Visible = false;
-                }
-            }
+
 
             UpdateCameraDistance();
 		}
@@ -2113,110 +2072,6 @@ namespace Sandbox.Game.Entities.Character
             return null;
         }
 
-        void RayCast(bool useHead)
-        {
-            if (this == MySession.ControlledEntity)
-                MyHud.SelectedObjectHighlight.Visible = false;
-
-            var head = GetHeadMatrix(false);
-            var headPos = head.Translation - (Vector3D)head.Forward * 0.3; // Move to center of head, we don't want eyes (in front of head)
-
-            Vector3D from;
-            Vector3D dir;
-
-            if (!useHead)
-            {
-                //Ondrej version
-                var cameraMatrix = MySector.MainCamera.WorldMatrix;
-                dir = cameraMatrix.Forward;
-                from = MyUtils.LinePlaneIntersection(headPos, (Vector3)dir, cameraMatrix.Translation, (Vector3)dir);
-            }
-            else
-            {
-                //Petr version
-                dir = head.Forward;
-                from = headPos;
-            }
-
-            Vector3D to = from + dir * MyConstants.DEFAULT_INTERACTIVE_DISTANCE;
-
-
-            //VRageRender.MyRenderProxy.DebugDrawLine3D(from, to, Color.Red, Color.Green, true);
-            //VRageRender.MyRenderProxy.DebugDrawSphere(headPos, 0.05f, Color.Red.ToVector3(), 1.0f, false);
-
-            MyPhysics.CastRay(from, to, m_hits);
-
-            bool hasInteractive = false;
-
-            int index = 0;
-            while (index < m_hits.Count && (m_hits[index].HkHitInfo.Body == null || m_hits[index].HkHitInfo.Body.UserObject == this.Physics
-                || (this.VirtualPhysics != null && m_hits[index].HkHitInfo.Body.UserObject == this.VirtualPhysics) || m_hits[index].HkHitInfo.Body.HasProperty(HkCharacterRigidBody.MANIPULATED_OBJECT))) // Skip invalid hits and self character
-            {
-                index++;
-            }
-
-            if (index < m_hits.Count)
-            {
-                //We must take only closest hit (others are hidden behind)
-                var h = m_hits[index];
-                var entity = h.HkHitInfo.Body.GetEntity();
-                var interactive = entity as IMyUseObject;
-
-                // TODO: Uncomment to enforce that character must face object by front to activate it
-                //if (TestInteractionDirection(head.Forward, h.Position - GetPosition()))
-                //return;
-
-                if (entity != null)
-                {
-                    MyUseObjectsComponentBase useObject = null;
-                    entity.Components.TryGet<MyUseObjectsComponentBase>(out useObject);
-                    if (useObject != null)
-                    {
-                        interactive = useObject.GetInteractiveObject(h.HkHitInfo.GetShapeKey(0));
-                    }
-                }
-
-                if (UseObject != null && interactive != null && UseObject != interactive)
-                {
-                    UseObject.OnSelectionLost();
-                }
-
-                if (interactive != null && interactive.SupportedActions != UseActionEnum.None && (Vector3D.Distance(from, (Vector3D)h.Position)) < interactive.InteractiveDistance && this == MySession.ControlledEntity)
-                {
-                    if (IsOnLadder)
-                    {
-                        UseObject = null;
-                        IsUsing = interactive as MyLadder;
-                    }
-                    else
-                    {
-                        MyHud.SelectedObjectHighlight.Visible = true;
-                        MyHud.SelectedObjectHighlight.InteractiveObject = interactive;
-                       
-                        UseObject = interactive;
-                    }
-
-                    hasInteractive = true;
-                }
-            }
-
-            if (!hasInteractive)
-            {
-                if (UseObject != null)
-                    UseObject.OnSelectionLost();
-
-                UseObject = null;
-            }
-
-            if (MyDebugDrawSettings.DEBUG_DRAW_COLLISION_PRIMITIVES || MyDebugDrawSettings.ENABLE_DEBUG_DRAW)
-            {
-                //VRageRender.MyRenderProxy.DebugDrawLine3D(from, to, Color.Red, Color.Green, true);
-                //if (target != null)
-                //{
-                //    VRageRender.MyRenderProxy.DebugDrawSphere(pos, 0.1f, Color.Red.ToVector3(), 0.5f);
-                //}
-            }
-        }
 
         public override void UpdateAfterSimulation()
         {
@@ -2236,8 +2091,8 @@ namespace Sandbox.Game.Entities.Character
             UpdateZeroMovement();
             VRageRender.MyRenderProxy.GetRenderProfiler().EndProfilingBlock();
 
-            VRageRender.MyRenderProxy.GetRenderProfiler().StartProfilingBlock("Update Shake And Ladder");
-            UpdateShakeAndLadder();
+            VRageRender.MyRenderProxy.GetRenderProfiler().StartProfilingBlock("Update Shake");
+            UpdateShake();
             VRageRender.MyRenderProxy.GetRenderProfiler().EndProfilingBlock();
 
             VRageRender.MyRenderProxy.GetRenderProfiler().StartProfilingBlock("Update physical movement");
@@ -2564,7 +2419,7 @@ namespace Sandbox.Game.Entities.Character
 
             if (m_currentLootingCounter > 0)
             {
-                //m_currentLootingCounter -= MyEngineConstants.UPDATE_STEP_SIZE_IN_SECONDS;
+                m_currentLootingCounter -= MyEngineConstants.UPDATE_STEP_SIZE_IN_SECONDS;
                 if (m_currentLootingCounter <= 0)
                 {
                     SyncObject.SendCloseRequest();
@@ -2645,7 +2500,7 @@ namespace Sandbox.Game.Entities.Character
                     }
                 }
 
-                if (!IsOnLadder && (!CanFly() || (CanFly() && (IsLocalHeadAnimationInProgress() || Definition.VerticalPositionFlyingOnly))) && !IsDead && !IsSitting)
+                if ((!CanFly() || (CanFly() && (IsLocalHeadAnimationInProgress() || Definition.VerticalPositionFlyingOnly))) && !IsDead && !IsSitting)
                 {
                     float spineRotation = MathHelper.Clamp(-m_headLocalXAngle, -45, MaxHeadLocalXAngle);
 
@@ -2659,7 +2514,7 @@ namespace Sandbox.Game.Entities.Character
                 else
                     SetSpineAdditionalRotation(Quaternion.CreateFromAxisAngle(Vector3.Backward, 0), Quaternion.CreateFromAxisAngle(Vector3.Backward, 0));
 
-                if (m_currentWeapon == null && !IsOnLadder && !IsDead && !CanFly() && !IsSitting)
+                if (m_currentWeapon == null && !IsDead && !CanFly() && !IsSitting)
                 {
                     if (m_headLocalXAngle < -11)
                     {
@@ -2735,13 +2590,6 @@ namespace Sandbox.Game.Entities.Character
                     {
                         Physics.CharacterProxy.LinearVelocity = Vector3.Zero;
                     }
-                }
-                else if (IsOnLadder)
-                {
-                    Physics.CharacterProxy.Gravity = Vector3.Zero;
-                    Physics.CharacterProxy.Forward = (Vector3)WorldMatrix.Forward;
-                    Physics.CharacterProxy.Up = (Vector3)WorldMatrix.Up;
-                    Physics.CharacterProxy.LinearVelocity = Vector3.Zero;
                 }
                 //Solve Y orientation and gravity only in non flying mode
                 else if (!IsDead)
@@ -2867,9 +2715,10 @@ namespace Sandbox.Game.Entities.Character
             }
         }
 
-        private void UpdateShakeAndLadder()
+        private void UpdateShake()
         {
-            if (MySession.LocalHumanPlayer == null) return;
+            if (MySession.LocalHumanPlayer == null) 
+                return;
 
             if (this == MySession.LocalHumanPlayer.Identity.Character)
             {
@@ -2880,8 +2729,6 @@ namespace Sandbox.Game.Entities.Character
                 }
 
                 UpdateHudCharacterInfo();
-
-                m_currentLadderStep -= MyEngineConstants.UPDATE_STEP_SIZE_IN_SECONDS;
 
                 if (
                     (m_currentMovementState == MyCharacterMovementEnum.Standing) ||
@@ -2908,77 +2755,6 @@ namespace Sandbox.Game.Entities.Character
                     if (m_localHeadAnimationY.HasValue)
                         SetHeadLocalYAngle(MathHelper.Lerp(m_localHeadAnimationY.Value.X, m_localHeadAnimationY.Value.Y, ratio));
                 }
-
-                if (m_stepOnLadder)
-                {
-                    if (m_currentLadderStep <= 0)
-                    {
-                        m_currentLadderStep = 2f;
-                        //No ladder animation for now
-                        //PlayCharacterAnimation(PlayerAnimationSet[m_currentMovementState == MyCharacterMovementEnum.LadderUp ? (int)MyAnimationEnum.LadderUp : (int)MyAnimationEnum.LadderDown], false, MyPlayAnimationMode.Immediate, 0.0f, 1);
-                    }
-
-                    var bottomLadderState = CheckBottomLadder(PositionComp.GetPosition(), ref m_currentLadderMovement);
-                    var topLadderState = CheckTopLadder(PositionComp.GetPosition(), ref m_currentLadderMovement);
-
-                    if (
-                        (m_currentMovementState == MyCharacterMovementEnum.LadderUp && topLadderState == MyLadderPathState.Ladder)
-                        ||
-                        (m_currentMovementState == MyCharacterMovementEnum.LadderDown && bottomLadderState == MyLadderPathState.Ladder))
-                    {
-
-                        PositionComp.SetPosition(PositionComp.GetPosition() + m_currentLadderMovement);
-
-                        var from = PositionComp.GetPosition() + WorldMatrix.Up * 0.4f - WorldMatrix.Forward * 0.5f;
-                        var to = from + WorldMatrix.Forward * 1.0f;
-
-
-                        MyLadder bottomLadder = null;
-                        MyPhysics.CastRay(from, to, m_hits);
-
-                        if (m_hits.Count > 0)
-                        {
-                            var h = m_hits[0];
-                            bottomLadder = h.HkHitInfo.Body != null ? h.HkHitInfo.Body.GetEntity() as MyLadder : null;
-                        }
-                        //VRageRender.MyRenderProxy.DebugDrawLine3D(from, to, Color.Red, Color.Green, false);
-
-                        from = PositionComp.GetPosition() + WorldMatrix.Up * 1.45f - WorldMatrix.Forward * 0.5f;
-                        to = from + WorldMatrix.Forward * 1.0f;
-
-
-                        MyLadder topLadder = null;
-                        MyPhysics.CastRay(from, to, m_hits);
-                        //VRageRender.MyRenderProxy.DebugDrawLine3D(from, to, Color.Red, Color.Green, false);
-                        if (m_hits.Count > 0)
-                        {
-                            var h = m_hits[0];
-                            topLadder = h.HkHitInfo.Body != null ? h.HkHitInfo.Body.GetEntity() as MyLadder : null;
-                        }
-
-                        bool isSameLadder = topLadder == bottomLadder && topLadder != null;
-
-                        if (isSameLadder)
-                            SetLadderMovementState(MyLadderMovementStateEnum.LadderCenter);
-                        else if (topLadder != bottomLadder)
-                            SetLadderMovementState(MyLadderMovementStateEnum.BetweenLadders);
-                    }
-                    else
-                        if (
-                           (m_currentMovementState == MyCharacterMovementEnum.LadderUp && topLadderState == MyLadderPathState.FreeSpace)
-                            //||
-                            //(m_currentMovementState == MyCharacterMovementEnum.LadderDown && bottomLadderState == MyLadderPathState.Ladder)
-                            )
-                        {
-                            GetOffLadderFromMovement();
-                        }
-                }
-
-                m_currentLadderStep -= MyEngineConstants.UPDATE_STEP_SIZE_IN_SECONDS;
-
-                if (m_currentLadderStep < 0)
-                    m_stepOnLadder = false;
-
             }
         }
 
@@ -3203,11 +2979,6 @@ namespace Sandbox.Game.Entities.Character
             bool canMove = !CanFly() && !((m_currentCharacterState == HkCharacterStateType.HK_CHARACTER_IN_AIR || (int)m_currentCharacterState == 5) && (m_currentJump <= 0)) && (m_currentMovementState != MyCharacterMovementEnum.Died);
             bool canRotate = (CanFly() || !((m_currentCharacterState == HkCharacterStateType.HK_CHARACTER_IN_AIR || (int)m_currentCharacterState == 5) && (m_currentJump <= 0))) && (m_currentMovementState != MyCharacterMovementEnum.Died);
 
-            if (IsOnLadder)
-            {
-                moveIndicator = ProceedLadderMovement(moveIndicator);
-            }
-
             float acceleration = 0;
 
             if (canMove || CanFly() || movementsFlagsChanged)
@@ -3330,10 +3101,10 @@ namespace Sandbox.Game.Entities.Character
                     {
                         MyCharacterMovementEnum afterJumpState = MyCharacterMovementEnum.Standing;
 
-                        if (!CanFly() && !IsOnLadder && ((Physics.CharacterProxy != null && Physics.CharacterProxy.GetState() == HkCharacterStateType.HK_CHARACTER_IN_AIR) || (Physics.CharacterProxy != null && (int)Physics.CharacterProxy.GetState() == 5)))
+                        if (!CanFly() && ((Physics.CharacterProxy != null && Physics.CharacterProxy.GetState() == HkCharacterStateType.HK_CHARACTER_IN_AIR) || (Physics.CharacterProxy != null && (int)Physics.CharacterProxy.GetState() == 5)))
                             StartFalling();
                         else
-                            if (CanFly() && !IsOnLadder && ((Physics.CharacterProxy != null && Physics.CharacterProxy.GetState() == HkCharacterStateType.HK_CHARACTER_IN_AIR) || (Physics.CharacterProxy != null && (int)Physics.CharacterProxy.GetState() == 5)))
+                            if (CanFly() && ((Physics.CharacterProxy != null && Physics.CharacterProxy.GetState() == HkCharacterStateType.HK_CHARACTER_IN_AIR) || (Physics.CharacterProxy != null && (int)Physics.CharacterProxy.GetState() == 5)))
                             {
                                 afterJumpState = MyCharacterMovementEnum.Flying;
                                 PlayCharacterAnimation("Jetpack", true, MyPlayAnimationMode.Immediate, 0.2f);
@@ -3403,14 +3174,6 @@ namespace Sandbox.Game.Entities.Character
                     Physics.CharacterProxy.Elevate = 0;
                 }
 
-            if (IsOnLadder)
-            {
-                RotateHead(rotationIndicator);
-            }
-            else
-            {
-                //MyTrace.Send(TraceWindow.Default, "rotationIndicator.Y: " + rotationIndicator.Y.ToString());
-
                 if (rotationIndicator.Y != 0 && (canRotate || m_isFalling || m_currentJump > 0))
                 {
                     if (CanFly())
@@ -3476,7 +3239,6 @@ namespace Sandbox.Game.Entities.Character
                         m_currentRotationDelay = 0.8f;
                         m_currentRotationSkipDelay = 0.1f;
                     }
-                }
                 else
                 {
                     m_currentRotationSkipDelay -= MyEngineConstants.UPDATE_STEP_SIZE_IN_SECONDS;
@@ -3592,9 +3354,6 @@ namespace Sandbox.Game.Entities.Character
             if (rotationIndicator.Y != 0)
             {
                 SetHeadLocalYAngle(m_headLocalYAngle - rotationIndicator.Y * sensitivity);
-
-                if (IsOnLadder)
-                    SetHeadLocalYAngle(MathHelper.Clamp(m_headLocalYAngle, MinHeadLadderLocalYAngle, MaxHeadLadderLocalYAngle));
             }
         }
 
@@ -4065,8 +3824,6 @@ namespace Sandbox.Game.Entities.Character
                         }
 
                     case MyCharacterMovementEnum.Flying:
-                    case MyCharacterMovementEnum.LadderUp:
-                    case MyCharacterMovementEnum.LadderDown:
                     case MyCharacterMovementEnum.Jump:
                         break;
 
@@ -4086,118 +3843,6 @@ namespace Sandbox.Game.Entities.Character
 
             return newMovementState;
         }
-
-        private Vector3 ProceedLadderMovement(Vector3 moveIndicator)
-        {
-            Vector3D position = PositionComp.GetPosition();
-            Vector3 movementDelta = Vector3.Zero;
-
-            if (moveIndicator.Z != 0)
-            {
-                float ladderSpeed = Definition.MaxWalkSpeed * MyEngineConstants.UPDATE_STEP_SIZE_IN_SECONDS;
-                Vector3 movementDeltaUp = (Vector3)WorldMatrix.Up * ladderSpeed;
-                Vector3 movementDeltaDown = (Vector3)WorldMatrix.Down * ladderSpeed;
-
-                //Check if ladder is in the hands
-                if (moveIndicator.Z < 0) //moving up
-                {
-                    movementDelta = movementDeltaUp;
-                }
-                if (moveIndicator.Z > 0) // moving down
-                {
-                    movementDelta = movementDeltaDown;
-                }
-
-                //Check top ladder
-                MyLadderPathState topCheckLadder = CheckTopLadder(position, ref movementDelta);
-
-                //Check bottom ladder
-                MyLadderPathState bottomCheckLadder = CheckBottomLadder(position, ref movementDelta);
-
-
-
-                bool allowMovement = false;
-
-                if (moveIndicator.Z < 0) //moving up
-                {
-                    allowMovement = (topCheckLadder == MyLadderPathState.Ladder);// || (topCheckLadder == MyLadderPathState.FreeSpace && bottomCheckLadder == MyLadderPathState.Ladder);
-                    SetCurrentMovementState(MyCharacterMovementEnum.LadderUp);
-                }
-                if (moveIndicator.Z > 0) // moving down
-                {
-                    allowMovement = (bottomCheckLadder == MyLadderPathState.Ladder);// || (bottomCheckLadder == MyLadderPathState.FreeSpace && topCheckLadder == MyLadderPathState.Ladder);
-                    SetCurrentMovementState(MyCharacterMovementEnum.LadderDown);
-                }
-
-                if (allowMovement)
-                {
-                    //SetPosition(position + movementDelta);
-                    m_stepOnLadder = true;
-                    m_currentLadderMovement = movementDelta;
-                }
-                else
-                {
-                    //We want go up but we cannot
-                    if (moveIndicator.Z < 0)
-                    {
-                        if (topCheckLadder == MyLadderPathState.FreeSpace)
-                        {
-                            GetOffLadderFromMovement();
-                        }
-                    }
-                    m_stepOnLadder = false;
-                }
-            }
-
-            return moveIndicator;
-        }
-
-        private void GetOffLadderFromMovement()
-        {
-            //use direction from character because ladder can have upside down orientation
-            //Move him forward otherwise he falls down through ladder
-            Vector3D topPosition = PositionComp.GetPosition();
-            if (IsUsing != null) //ladder destroyed?
-                topPosition = IsUsing.PositionComp.GetPosition() + WorldMatrix.Up * MyDefinitionManager.Static.GetCubeSize(MyCubeSize.Large) * 0.6f + WorldMatrix.Forward * 0.9f;
-            GetOffLadder();
-            PositionComp.SetPosition(topPosition);
-            PlayCharacterAnimation("Idle", true, MyPlayAnimationMode.Immediate, 0.1f);
-        }
-
-        private MyLadderPathState CheckTopLadder(Vector3D position, ref Vector3 movementDelta)
-        {
-            Vector3D from = position + movementDelta + WorldMatrix.Up * 1.75f - WorldMatrix.Forward * 0.2f;
-            Vector3D to = from + WorldMatrix.Up * 0.4f + WorldMatrix.Forward * 1.0f;
-            MyLadderPathState topCheckLadder = CheckLadder(ref movementDelta, ref from, ref to);
-            return topCheckLadder;
-        }
-
-        private MyLadderPathState CheckBottomLadder(Vector3D position, ref Vector3 movementDelta)
-        {
-            Vector3D from = position + WorldMatrix.Up * 0.2f + movementDelta - WorldMatrix.Forward * 0.2f;
-            Vector3D to = from + WorldMatrix.Down * 0.4f + WorldMatrix.Forward * 1.0f;
-            MyLadderPathState bottomCheckLadder = CheckLadder(ref movementDelta, ref from, ref to);
-            return bottomCheckLadder;
-        }
-
-        private MyLadderPathState CheckLadder(ref Vector3 movementDelta, ref Vector3D from, ref Vector3D to)
-        {
-            MyLadderPathState checkLadder = MyLadderPathState.FreeSpace;
-            MyPhysics.CastRay(from, to, m_hits);
-            //VRageRender.MyRenderProxy.DebugDrawLine3D(from, to, Color.Red, Color.Green, false);
-
-            if (m_hits.Count > 0)
-            {
-                var h = m_hits[0];
-                var ladder = h.HkHitInfo.Body != null ? h.HkHitInfo.Body.GetEntity() as MyLadder : null;
-                if (ladder != null)
-                    checkLadder = MyLadderPathState.Ladder;
-                else
-                    checkLadder = MyLadderPathState.Blocked;
-            }
-            return checkLadder;
-        }
-
 
         private void LimitMaxSpeed()
         {
@@ -4289,8 +3934,6 @@ namespace Sandbox.Game.Entities.Character
                 case MyCharacterMovementEnum.Standing:
                 case MyCharacterMovementEnum.Crouching:
                 case MyCharacterMovementEnum.Sitting:
-                case MyCharacterMovementEnum.LadderUp:
-                case MyCharacterMovementEnum.LadderDown:
                 case MyCharacterMovementEnum.RotatingLeft:
                 case MyCharacterMovementEnum.RotatingRight:
                 case MyCharacterMovementEnum.CrouchRotatingLeft:
@@ -5343,20 +4986,11 @@ namespace Sandbox.Game.Entities.Character
         {
             if (m_currentMovementState != MyCharacterMovementEnum.Died)
             {
-                if (IsOnLadder)
-                {
-                    if (CanGetOffLadder())
-                    {
-                        Vector3D safePosition = PositionComp.GetPosition() + IsUsing.WorldMatrix.Forward * 1.2f;
-                        GetOffLadder();
-                        PositionComp.SetPosition(safePosition);
-                    }
+                MyCharacterDetectorComponent detectorComponent = Components.Get<MyCharacterDetectorComponent>();
 
-                    return;
-                }
-                else if (UseObject != null && UseObject.IsActionSupported(UseActionEnum.Manipulate))
+                if (detectorComponent != null && detectorComponent.UseObject != null && detectorComponent.UseObject.IsActionSupported(UseActionEnum.Manipulate))
                 {
-                    if (!(UseObject is MyFloatingObject) || !MyFakes.ENABLE_NEW_SOUNDS)
+                    if (detectorComponent.UseObject.PlayIndicatorSound)
                     {
                         MyGuiAudio.PlaySound(MyGuiSounds.HudUse);
 
@@ -5364,53 +4998,43 @@ namespace Sandbox.Game.Entities.Character
                         m_soundEmitter.StopSound(true);
                     }
 
-                    UseObject.Use(UseActionEnum.Manipulate, this);
+                    detectorComponent.UseObject.Use(UseActionEnum.Manipulate, this);
                 }
             }
         }
 
         public void UseContinues()
         {
-            if (!IsOnLadder && UseObject != null && UseObject.IsActionSupported(UseActionEnum.Manipulate) && UseObject.ContinuousUsage)
+            MyCharacterDetectorComponent detectorComponent = Components.Get<MyCharacterDetectorComponent>();
+
+            if (detectorComponent != null && detectorComponent.UseObject != null && detectorComponent.UseObject.IsActionSupported(UseActionEnum.Manipulate) && detectorComponent.UseObject.ContinuousUsage)
             {
-                UseObject.Use(UseActionEnum.Manipulate, this);
-                MyHud.Notifications.Remove(m_useObjectNotification);
-                m_usingContinuously = true;
+                detectorComponent.UseObject.Use(UseActionEnum.Manipulate, this);
+                
             }
         }
 
         public void UseTerminal()
         {
-            if (UseObject != null && UseObject.IsActionSupported(UseActionEnum.OpenTerminal))
+            MyCharacterDetectorComponent detectorComponent = Components.Get<MyCharacterDetectorComponent>();
+
+            if (detectorComponent.UseObject != null && detectorComponent.UseObject.IsActionSupported(UseActionEnum.OpenTerminal))
             {
-                UseObject.Use(UseActionEnum.OpenTerminal, this);
+                detectorComponent.UseObject.Use(UseActionEnum.OpenTerminal, this);
+                detectorComponent.UseContinues();
             }
         }
 
         public void UseFinished()
         {
-            if (UseObject != null && UseObject.IsActionSupported(UseActionEnum.UseFinished))
+            MyCharacterDetectorComponent detectorComponent = Components.Get<MyCharacterDetectorComponent>();
+
+            if (detectorComponent.UseObject != null && detectorComponent.UseObject.IsActionSupported(UseActionEnum.UseFinished))
             {
-                UseObject.Use(UseActionEnum.UseFinished, this);
+                detectorComponent.UseObject.Use(UseActionEnum.UseFinished, this);
             }
         }
-
-        public void UseClose()
-        {
-            if (UseObject != null && UseObject.IsActionSupported(UseActionEnum.Close))
-            {
-                UseObject.Use(UseActionEnum.Close, this);
-            }
-        }
-
-        bool CanGetOffLadder()
-        {
-            return
-                (m_ladderMovementState == MyLadderMovementStateEnum.LadderCenter) ||
-                (m_ladderMovementState == MyLadderMovementStateEnum.HangingOnBottom) ||
-                (m_ladderMovementState == MyLadderMovementStateEnum.HangingOnTop);
-        }
-
+   
         public void Crouch()
         {
             if (m_currentMovementState != MyCharacterMovementEnum.Died)
@@ -5458,100 +5082,7 @@ namespace Sandbox.Game.Entities.Character
         {
             if (m_currentMovementState != MyCharacterMovementEnum.Died)
             {
-                if (IsOnLadder)
-                    GetOffLadder();
-
                 WantsJump = true;
-            }
-        }
-
-        public void GetOffLadder()
-        {
-            IsUsing = null;
-            SetHeadLocalYAngle(0);
-            Physics.CharacterProxy.AtLadder = false;
-            Physics.CharacterProxy.EnableLadderState(false);
-            m_currentLadderStep = 0;
-            m_stepOnLadder = false;
-
-            StartFalling();
-
-            SetLadderMovementState(MyLadderMovementStateEnum.NoLadder);
-
-            if (m_ladderUpDownNotification != null)
-            {
-                MyHud.Notifications.Remove(m_ladderUpDownNotification);
-                m_ladderUpDownNotification = null;
-            }
-
-            if (m_ladderJumpOffNotification != null)
-            {
-                MyHud.Notifications.Remove(m_ladderJumpOffNotification);
-                m_ladderJumpOffNotification = null;
-            }
-        }
-
-        internal void GetOnLadder(MyLadder ladder)
-        {
-            StopFalling();
-            SwitchToWeapon(null);
-
-            IsUsing = ladder;
-
-            EnableJetpack(false);
-
-            SetCurrentMovementState(MyCharacterMovementEnum.LadderUp);
-            //Physics.CharacterProxy.EnableFlyingState(true);
-            Physics.CharacterProxy.EnableLadderState(true);
-
-            MatrixD characterMatrix = IsUsing.WorldMatrix;
-
-            //Pick correct orientation of character (ladder can be positioned upside down)
-            var dot = Vector3D.Dot(WorldMatrix.Up, characterMatrix.Up);
-            if (dot < 0)
-            { //ladder is upside down
-                characterMatrix = characterMatrix * MatrixD.CreateFromAxisAngle(characterMatrix.Forward, MathHelper.Pi);
-            }
-
-            characterMatrix.Translation = Vector3D.Zero;
-            characterMatrix = characterMatrix * MatrixD.CreateFromAxisAngle(characterMatrix.Up, MathHelper.Pi);
-
-            Vector3D position = IsUsing.PositionComp.GetPosition() - characterMatrix.Up * MyDefinitionManager.Static.GetCubeSize(MyCubeSize.Large) / 2.0f;
-            position = position + characterMatrix.Up * 0.28f + characterMatrix.Forward * 0.22f;
-            characterMatrix.Translation = position;
-
-            Physics.CharacterProxy.ImmediateSetWorldTransform = true;
-            PositionComp.SetWorldMatrix(characterMatrix);
-            Physics.CharacterProxy.ImmediateSetWorldTransform = false;
-            Physics.ClearSpeed();
-
-            m_currentLadderStep = 0;
-
-            StopUpperAnimation(0);
-            //no ladder for now
-            //PlayCharacterAnimation(PlayerAnimationSet[(int)MyAnimationEnum.LadderUp], false, MyPlayAnimationMode.JustFirstFrame, 0.5f, 1);
-
-            SetLadderMovementState(MyLadderMovementStateEnum.LadderCenter);
-
-            if (m_ladderUpDownNotification == null)
-            {
-                m_ladderUpDownNotification = new MyHudNotification(MySpaceTexts.NotificationHintPressToClimbUpDown, 0);
-                m_ladderUpDownNotification.Level = MyNotificationLevel.Control;
-                m_ladderUpDownNotification.SetTextFormatArguments(MyInput.Static.GetGameControl(MyControlsSpace.FORWARD).GetControlButtonName(MyGuiInputDeviceEnum.Keyboard),
-                                                                  MyInput.Static.GetGameControl(MyControlsSpace.BACKWARD).GetControlButtonName(MyGuiInputDeviceEnum.Keyboard));
-                MyHud.Notifications.Add(m_ladderUpDownNotification);
-            }
-
-            if (m_ladderJumpOffNotification == null)
-            {
-                m_ladderJumpOffNotification = new MyHudNotification(MySpaceTexts.NotificationHintPressToJumpOffLadder, 0);
-                m_ladderJumpOffNotification.Level = MyNotificationLevel.Control;
-
-                // Adding text twice since some languages are not updated to new version where once is enough.
-                // It crashes when there are too few arguments, but it's OK to put more (they will be ignored).
-                var controlText = MyInput.Static.GetGameControl(MyControlsSpace.JUMP).GetControlButtonName(MyGuiInputDeviceEnum.Keyboard);
-                m_ladderJumpOffNotification.SetTextFormatArguments(controlText, controlText);
-                MyHud.Notifications.Add(m_ladderJumpOffNotification);
             }
         }
 
@@ -5559,9 +5090,11 @@ namespace Sandbox.Game.Entities.Character
         {
             if (m_currentMovementState != MyCharacterMovementEnum.Died)
             {
-                if (UseObject != null && UseObject.IsActionSupported(UseActionEnum.OpenInventory))
+                MyCharacterDetectorComponent detectorComponent = Components.Get<MyCharacterDetectorComponent>();
+
+                if (detectorComponent.UseObject != null && detectorComponent.UseObject.IsActionSupported(UseActionEnum.OpenInventory))
                 {
-                    UseObject.Use(UseActionEnum.OpenInventory, this);
+                    detectorComponent.UseObject.Use(UseActionEnum.OpenInventory, this);
                 }
                 else if (MyPerGameSettings.TerminalEnabled)
                 {
@@ -5594,8 +5127,10 @@ namespace Sandbox.Game.Entities.Character
         {
             if (m_currentMovementState != MyCharacterMovementEnum.Died)
             {
-                if (UseObject != null && UseObject.IsActionSupported(UseActionEnum.OpenTerminal))
-                    UseObject.Use(UseActionEnum.OpenTerminal, this);
+                MyCharacterDetectorComponent detectorComponent = Components.Get<MyCharacterDetectorComponent>();
+
+                if (detectorComponent.UseObject != null && detectorComponent.UseObject.IsActionSupported(UseActionEnum.OpenTerminal))
+                    detectorComponent.UseObject.Use(UseActionEnum.OpenTerminal, this);
                 else if (MyPerGameSettings.TerminalEnabled)
                     MyGuiScreenTerminal.Show(MyTerminalPageEnum.Inventory, this, null);
                 else if (MyPerGameSettings.GUI.GameplayOptionsScreen != null)
@@ -5673,7 +5208,7 @@ namespace Sandbox.Game.Entities.Character
                 if (m_currentMovementState != MyCharacterMovementEnum.Died)
                 {
                     //flying
-                    if (!CanFly() && !IsOnLadder && (Physics.CharacterProxy.GetState() == HkCharacterStateType.HK_CHARACTER_IN_AIR || (int)Physics.CharacterProxy.GetState() == 5))
+                    if (!CanFly() && (Physics.CharacterProxy.GetState() == HkCharacterStateType.HK_CHARACTER_IN_AIR || (int)Physics.CharacterProxy.GetState() == 5))
                         StartFalling();
                     else
                     {
@@ -5719,9 +5254,6 @@ namespace Sandbox.Game.Entities.Character
         {
             if (m_currentMovementState != MyCharacterMovementEnum.Died)
             {
-                if (IsOnLadder)
-                    GetOffLadder();
-
                 EnableDampeners(!m_dampenersEnabled, true);
 
                 m_inertiaDampenersNotification.Text = (m_dampenersEnabled ? MySpaceTexts.NotificationInertiaDampenersOn : MySpaceTexts.NotificationInertiaDampenersOff);
@@ -5774,7 +5306,7 @@ namespace Sandbox.Game.Entities.Character
 
         #region Sensor
 
-        void RemoveNotification(ref MyHudNotification notification)
+        public void RemoveNotification(ref MyHudNotification notification)
         {
             if (notification != null)
             {
@@ -5786,61 +5318,9 @@ namespace Sandbox.Game.Entities.Character
         void RemoveNotifications()
         {
             RemoveNotification(ref m_pickupObjectNotification);
-            RemoveNotification(ref m_useObjectNotification);
-            RemoveNotification(ref m_showTerminalNotification);
-            RemoveNotification(ref m_openInventoryNotification);
-            RemoveNotification(ref m_ladderOffNotification);
-            RemoveNotification(ref m_ladderUpDownNotification);
-            RemoveNotification(ref m_ladderJumpOffNotification);
             RemoveNotification(ref m_respawnNotification);
         }
 
-        void InteractiveObjectChanged(MySensor sender, IMyUseObject useObject)
-        {
-            if (MySession.ControlledEntity == this && !IsOnLadder)
-            {
-                GetNotification(useObject, UseActionEnum.Manipulate, ref m_useObjectNotification);
-                GetNotification(useObject, UseActionEnum.OpenTerminal, ref m_showTerminalNotification);
-                GetNotification(useObject, UseActionEnum.OpenInventory, ref m_openInventoryNotification);
-                var useText = m_useObjectNotification != null ? m_useObjectNotification.Text : MySpaceTexts.Blank;
-                var showText = m_showTerminalNotification != null ? m_showTerminalNotification.Text : MySpaceTexts.Blank;
-                var openText = m_openInventoryNotification != null ? m_openInventoryNotification.Text : MySpaceTexts.Blank;
-                if (useText != MySpaceTexts.Blank)
-                    MyHud.Notifications.Add(m_useObjectNotification);
-                if (showText != MySpaceTexts.Blank && showText != useText)
-                    MyHud.Notifications.Add(m_showTerminalNotification);
-                if (openText != MySpaceTexts.Blank && openText != showText && openText != useText)
-                    MyHud.Notifications.Add(m_openInventoryNotification);
-            }
-        }
-
-        void GetNotification(IMyUseObject useObject, UseActionEnum actionType, ref MyHudNotification notification)
-        {
-            if ((useObject.SupportedActions & actionType) != 0)
-            {
-                var actionInfo = useObject.GetActionInfo(actionType);
-                RemoveNotification(ref notification);
-                notification = new MyHudNotification(actionInfo.Text, 0, level: actionInfo.IsTextControlHint ? MyNotificationLevel.Control : MyNotificationLevel.Normal);
-                if (!MyInput.Static.IsJoystickConnected())
-                {
-                    notification.SetTextFormatArguments(actionInfo.FormatParams);
-                }
-                else
-                {
-                    if (actionInfo.JoystickText.HasValue)
-                        notification.Text = actionInfo.JoystickText.Value;
-                    if (actionInfo.JoystickFormatParams != null)
-                        notification.SetTextFormatArguments(actionInfo.JoystickFormatParams);
-                }
-            }
-        }
-
-        void InteractiveObjectRemoved(MySensor sender, IMyUseObject useObject)
-        {
-            RemoveNotification(ref m_useObjectNotification);
-            RemoveNotification(ref m_showTerminalNotification);
-            RemoveNotification(ref m_openInventoryNotification);
-        }
 
         internal void OnControlAcquired(MyEntityController controller)
         {
@@ -6101,7 +5581,7 @@ namespace Sandbox.Game.Entities.Character
         {
             if (m_currentMovementState != MyCharacterMovementEnum.Died)
             {
-                if (!CanFly() && !IsOnLadder)
+                if (!CanFly())
                 {
                     if (m_currentJump == 0 && (newState == HkCharacterStateType.HK_CHARACTER_IN_AIR) || ((int)newState == 5))
                     {
@@ -6185,9 +5665,6 @@ namespace Sandbox.Game.Entities.Character
 
         bool CanFly()
         {
-            if (IsOnLadder)
-                return false;
-
             if (!JetpackEnabled || !IsJetpackPowered())
                 return false;
 
@@ -6322,10 +5799,6 @@ namespace Sandbox.Game.Entities.Character
             set
             {
                 m_usingEntity = value;
-
-                //m_headLocalXAngle = 0;
-                //m_headLocalYAngle = 0;
-                //m_currentLadderStep = 0;
             }
         }
 
@@ -6342,9 +5815,6 @@ namespace Sandbox.Game.Entities.Character
 
         private void UnequipWeapon()
         {
-            if (IsOnLadder)
-                return;
-
             if (m_currentWeapon != null)
             {
                 // save weapon ammo amount in builder
@@ -6483,41 +5953,10 @@ namespace Sandbox.Game.Entities.Character
                 m_currentWeapon = null;
         }
 
-        public bool IsOnLadder
-        {
-            get { return IsUsing is MyLadder; }
-        }
-
         public float InteractiveDistance
         {
             get { return MyConstants.DEFAULT_INTERACTIVE_DISTANCE; }
         }
-
-        void SetLadderMovementState(MyLadderMovementStateEnum state)
-        {
-            m_ladderMovementState = state;
-
-            if (CanGetOffLadder())
-            {
-                if (m_ladderOffNotification == null)
-                {
-                    m_ladderOffNotification = new MyHudNotification(MySpaceTexts.NotificationHintPressToGetDownFromLadder, 0);
-                    m_ladderOffNotification.Level = MyNotificationLevel.Control;
-                    m_ladderOffNotification.SetTextFormatArguments(MyInput.Static.GetGameControl(MyControlsSpace.USE).GetControlButtonName(MyGuiInputDeviceEnum.Keyboard));
-                    MyHud.Notifications.Add(m_ladderOffNotification);
-                }
-            }
-            else
-            {
-                if (m_ladderOffNotification != null)
-                {
-                    MyHud.Notifications.Remove(m_ladderOffNotification);
-                    m_ladderOffNotification = null;
-                }
-            }
-
-        }
-
 
         #endregion
 
@@ -7086,28 +6525,6 @@ namespace Sandbox.Game.Entities.Character
             get { return m_currentWeapon; }
         }
 
-        IMyUseObject UseObject
-        {
-            get { return m_interactiveObject; }
-            set
-            {
-                bool changed = value != m_interactiveObject;
-
-                if (changed)
-                {
-                    if (m_interactiveObject != null)
-                    {
-                        UseClose();
-                        InteractiveObjectRemoved(null, m_interactiveObject);
-                    }
-                    if (value != null)
-                        InteractiveObjectChanged(null, value);
-
-                    m_interactiveObject = value;
-                }
-            }
-        }
-
         internal IMyControllableEntity CurrentRemoteControl { get; set; }
 
         public MyBattery SuitBattery
@@ -7386,7 +6803,7 @@ namespace Sandbox.Game.Entities.Character
 
                     this.InitCharacterPhysics(MyMaterialType.CHARACTER, PositionComp.LocalVolume.Center, CharacterWidth * Definition.CharacterCollisionScale, CharacterHeight - CharacterWidth * Definition.CharacterCollisionScale  - offset,
                     CrouchHeight - CharacterWidth,
-                    LadderHeight - CharacterWidth - offset,
+                    CharacterWidth - offset,
                     Definition.CharacterHeadSize * Definition.CharacterCollisionScale,
                     Definition.CharacterHeadHeight,
                     0.7f, 0.7f, (ushort)MyPhysics.CharacterCollisionLayer, RigidBodyFlag.RBF_DEFAULT, Definition.Mass,
@@ -7408,7 +6825,7 @@ namespace Sandbox.Game.Entities.Character
 
                     this.InitCharacterPhysics(MyMaterialType.CHARACTER, PositionComp.LocalVolume.Center, CharacterWidth * Definition.CharacterCollisionScale * scale, CharacterHeight - CharacterWidth * Definition.CharacterCollisionScale * scale - offset,
                     CrouchHeight - CharacterWidth,
-                    LadderHeight - CharacterWidth - offset,
+                    CharacterWidth - offset,
                     Definition.CharacterHeadSize * Definition.CharacterCollisionScale * scale,
                     Definition.CharacterHeadHeight,
                     0.7f, 0.7f, (ushort)layer, MyPerGameSettings.NetworkCharacterType, 0, //Mass is not scaled on purpose (collision over networks)
@@ -7569,7 +6986,7 @@ namespace Sandbox.Game.Entities.Character
             }
         }
 
-        public void PlaySound()
+        void PlaySound()
         {
             m_breath.Update();
             var cueEnum = SelectSound();
@@ -8061,6 +7478,11 @@ namespace Sandbox.Game.Entities.Character
 
         void IMyUseObject.OnSelectionLost() { }
 
+        bool IMyUseObject.PlayIndicatorSound
+        {
+            get { return true; }
+        }
+
         public void SwitchLeadingGears()
         {
         }
@@ -8495,9 +7917,11 @@ namespace Sandbox.Game.Entities.Character
 
         bool IMyUseObject.HandleInput() 
         {
-            if (UseObject != null)
+            MyCharacterDetectorComponent detectorComponent = Components.Get<MyCharacterDetectorComponent>();
+
+            if (detectorComponent != null && detectorComponent.UseObject != null)
             {
-                return UseObject.HandleInput();
+                return detectorComponent.UseObject.HandleInput();
             }
 
             return false;
@@ -8534,10 +7958,10 @@ namespace Sandbox.Game.Entities.Character
 
         public bool ResetJetpackRagdoll { get; set; }
 
-        public bool IsUseObjectOfType<T>()
-        {
-            return UseObject is T;
-        }
+        //public bool IsUseObjectOfType<T>()
+        //{
+        //    return UseObject is T;
+        //}
 
         public MyEntity ManipulatedEntity;
         

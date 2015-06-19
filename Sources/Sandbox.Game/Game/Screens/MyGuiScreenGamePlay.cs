@@ -947,6 +947,7 @@ namespace Sandbox.Game.Gui
             {
                 double angle = 2.0*MathHelper.Pi * MySession.Static.ElapsedGameTime.TotalMinutes / MySession.Static.Settings.SunRotationIntervalMinutes;
                 sunDirection += new Vector3(Math.Cos(angle),0, Math.Sin(angle));
+                sunDirection.Normalize();
             }
 
             VRageRender.MyRenderProxy.UpdateRenderEnvironment(
