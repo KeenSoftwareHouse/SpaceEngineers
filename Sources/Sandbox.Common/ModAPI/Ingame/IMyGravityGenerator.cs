@@ -10,6 +10,10 @@ namespace Sandbox.ModAPI.Ingame
         float FieldWidth { get; }
         float FieldHeight { get; }
         float FieldDepth { get; }
+
+        /// <summary>
+        /// The gravity in Gs, from -1 to 1.
+        /// </summary>
         float Gravity { get; }
     }
 }
