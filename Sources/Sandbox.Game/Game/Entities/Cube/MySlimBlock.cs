@@ -1666,5 +1666,21 @@ namespace Sandbox.Game.Entities.Cube
 				}
 			}
 		}
+
+        /// <summary>
+        /// indicates that block is projection, and not physical entity (for better checks inside block code)
+        /// </summary>
+        public bool IsProjection = false;
+
+        /// <summary>
+        /// this is called, when projection is created
+        /// </summary>
+        public void UpdateForProjection()
+        {
+            IsProjection = true;
+            /// call real block update
+            if (FatBlock != null)
+                FatBlock.UpdateForProjection();
+        }
     }
 }

@@ -136,6 +136,9 @@ namespace Sandbox.Game.Entities.Cube
             MyTerminalControlFactory.AddControl(detonateButton);
         }
 
+        /// <summary>
+        /// indicates if loaded warhead is projection from blueprint or real warhead
+        /// </summary>
         public override void Init(MyObjectBuilder_CubeBlock objectBuilder, MyCubeGrid cubeGrid)
         {
             m_warheadDefinition = (MyWarheadDefinition)BlockDefinition;
@@ -145,8 +148,7 @@ namespace Sandbox.Game.Entities.Cube
 
             m_countdownMs = ob.CountdownMs;
             m_isArmed = ob.IsArmed;
-            if (ob.IsCountingDown)
-                StartCountdown();
+            IsCountingDown = ob.IsCountingDown;
 
             this.IsWorkingChanged += MyWarhead_IsWorkingChanged;
         }
@@ -163,12 +165,28 @@ namespace Sandbox.Game.Entities.Cube
             return warheadBuilder;
         }
 
+        public override void UpdateForProjection()
+        {
+            base.UpdateForProjection();
+            bool wascountingdown = IsCountingDown;
+            /// stop countdown on projection to prevent "free" explosions
+            StopCountdown();
+            /// retain countdown state after disabling
+            IsCountingDown = wascountingdown;
+        }
+
         void MyWarhead_IsWorkingChanged(MyCubeBlock obj)
         {
             if (IsCountingDown && !IsWorking)
             {
                 StopCountdown();
             }
+            else if (IsCountingDown && IsWorking && !IsProjection)
+            {
+                IsCountingDown = false;
+                StartCountdown();
+            }
+
             UpdateEmissivity();
         }
 
@@ -419,13 +437,7 @@ namespace Sandbox.Game.Entities.Cube
         {
             base.OnAddedToScene(source);
 
-            if (IsCountingDown)
-            {
-                IsCountingDown = false;
-                StartCountdown();
-            }
-            else
-                UpdateEmissivity();
+            UpdateEmissivity();
         }
 
         public override void OnRemovedFromScene(object source)

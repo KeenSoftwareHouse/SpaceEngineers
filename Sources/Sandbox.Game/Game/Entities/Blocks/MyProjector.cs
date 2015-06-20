@@ -737,6 +737,7 @@ namespace Sandbox.Game.Entities.Blocks
 
             foreach (var projectedBlock in ProjectedGrid.CubeBlocks)
             {
+                projectedBlock.UpdateForProjection();
                 Vector3 worldPosition = ProjectedGrid.GridIntegerToWorld(projectedBlock.Position);
                 Vector3I realPosition = CubeGrid.WorldToGridInteger(worldPosition);
                 var realBlock = CubeGrid.GetCubeBlock(realPosition);
