@@ -69,7 +69,7 @@ namespace VRage.Dedicated
             else // Local / Console
             {
                 string[] cmdLine = Environment.GetCommandLineArgs();
-                Process.Start(cmdLine[0], ((cmdLine.Length > 1) ? cmdLine[1] : "" ) + " -console -ignorelastsession");
+                Process.Start(cmdLine[0], ((cmdLine.Length > 1) ? String.Join(" ", cmdLine, 1, cmdLine.Length - 1 ) : "") + " -console -ignorelastsession");
                 Close();
             }
         }
