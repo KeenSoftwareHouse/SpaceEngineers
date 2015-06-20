@@ -10828,5 +10828,10 @@ namespace Sandbox.Game.Localization
         ///Time limit
         ///</summary>
         public static readonly MyStringId MyGuiScreenTriggerTimeLimit = MyStringId.GetOrCompute("MyGuiScreenTriggerTimeLimit");
+
+        ///<summary>
+        ///ClearTarget
+        ///</summary>
+        public static readonly MyStringId MyDoorClearInterlockTarget = MyStringId.GetOrCompute("MyDoorClearInterlockTarget");
     }
 }

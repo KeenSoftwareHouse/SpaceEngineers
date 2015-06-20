@@ -27,6 +27,8 @@ namespace Sandbox.Game.Multiplayer
 
             public BoolBlit Open;
 
+            public long InterlockTargetId;
+
             public override string ToString()
             {
                 return String.Format("{0}, {1}", this.GetType().Name, this.GetEntityText());
@@ -52,8 +54,65 @@ namespace Sandbox.Game.Multiplayer
             msg.EntityId = m_block.EntityId;
             msg.PlayerId = identityId;
             msg.Open     = open;
+            msg.InterlockTargetId = m_block.InterlockTargetId ?? 0;
 
             Sync.Layer.SendMessageToServer(ref msg, MyTransportMessageEnum.Request);
+        }
+
+        public void PasteCoordinates(string clipboardText, long identityId)
+        {
+            StringBuilder termName = new StringBuilder();
+            Vector3D temp = new Vector3D();
+            if (MyGpsCollection.ParseOneGPS(clipboardText, termName, ref temp))
+            {
+                MyDoor targetDoor = m_block.CubeGrid.GetCubeBlock(new Vector3I(temp)).FatBlock as MyDoor;
+                if (targetDoor != null)
+                {
+                    var msg1 = new ChangeDoorMsg
+                    {
+                        EntityId = m_block.EntityId,
+                        PlayerId = identityId,
+                        Open = m_block.Open,
+                        InterlockTargetId = targetDoor.EntityId
+                    };
+                    Sync.Layer.SendMessageToServer(ref msg1, MyTransportMessageEnum.Request);
+
+                    var msg2 = new ChangeDoorMsg
+                    {
+                        EntityId = targetDoor.EntityId,
+                        PlayerId = targetDoor.OwnerId,
+                        Open = targetDoor.Open,
+                        InterlockTargetId = m_block.EntityId
+                    };
+                    Sync.Layer.SendMessageToServer(ref msg2, MyTransportMessageEnum.Request);
+
+                }
+            }
+        }
+        public void ClearTarget(long identityId)
+        {
+            var msg1 = new ChangeDoorMsg
+            {
+                EntityId = m_block.EntityId,
+                PlayerId = identityId,
+                Open = m_block.Open,
+                InterlockTargetId = -1
+            };
+
+            Sync.Layer.SendMessageToServer(ref msg1, MyTransportMessageEnum.Request);
+
+            if (m_block.InterlockTargetId.HasValue)
+            {
+                var msg2 = new ChangeDoorMsg
+                {
+                    EntityId = m_block.InterlockTargetId.Value,
+                    PlayerId = identityId,
+                    Open = m_block.Open,
+                    InterlockTargetId = -1
+                };
+
+                Sync.Layer.SendMessageToServer(ref msg2, MyTransportMessageEnum.Request);
+            }
         }
 
         static void ChangeDoorRequest(ref ChangeDoorMsg msg, MyNetworkClient sender)
@@ -84,11 +143,16 @@ namespace Sandbox.Game.Multiplayer
             if (block != null)
             {
                 block.Open = msg.Open;
+                block.InterlockTargetId = msg.InterlockTargetId;
             }
         }
 
         static void ChangeDoorFailure(ref ChangeDoorMsg msg, MyNetworkClient sender)
         {
         }
+
+
+
+     
     }
 }

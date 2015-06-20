@@ -12,6 +12,7 @@ using Sandbox.Engine.Utils;
 using Sandbox.Game.Entities.Cube;
 using Havok;
 using System.Reflection;
+using System.Threading;
 using Sandbox.Common;
 using Sandbox.Engine.Physics;
 using Sandbox.Game.World;
@@ -40,6 +41,35 @@ namespace Sandbox.Game.Entities
         private float m_currSpeed;
         private int m_lastUpdateTime;
 
+        private long? m_interlockTargetId;
+        public long? InterlockTargetId
+        {
+            get { return m_interlockTargetId; }
+            set
+            {
+                if (m_interlockTargetId == value) return;
+                if (value == 0) return;
+                m_interlockTargetId = value == -1 ? null : value;
+                if (m_interlockTargetId == EntityId)
+                {
+                    m_interlockTargetId = null;
+                }
+                if (!m_interlockTargetId.HasValue)
+                {
+                    m_termTargetName.Clear();
+                    UpdateVisual();
+                    return;
+                }
+                MyDoor targetDoor = GetDoorById(m_interlockTargetId.Value);
+                if (targetDoor == null) return;
+                m_termTargetName.Clear();
+                m_termTargetName.Append(targetDoor.DisplayNameText);
+                UpdateVisual();
+            }
+        }
+
+        StringBuilder m_termTargetName = new StringBuilder();
+
         private MyEntitySubpart m_leftSubpart = null;
         private MyEntitySubpart m_rightSubpart = null;
 
@@ -48,6 +78,9 @@ namespace Sandbox.Game.Entities
 
         public float MaxOpen = 1.2f;
 
+        private static readonly MyTerminalControlTextbox<MyDoor> TargetCoords;
+        private static readonly  MyTerminalControlButton<MyDoor> ClearTarget;
+        private static readonly MyTerminalControlButton<MyDoor> CopyTargetCoordsButton;
         public MyPowerReceiver PowerReceiver
         {
             get;
@@ -69,6 +102,7 @@ namespace Sandbox.Game.Entities
 
         public MyDoor()
         {
+            InterlockTargetId = null;
             m_open = false;
             m_currOpening = 0f;
             m_currSpeed = 0f;
@@ -78,6 +112,9 @@ namespace Sandbox.Game.Entities
         public override void UpdateVisual()
         {
             base.UpdateVisual();
+            TargetCoords.UpdateVisual();
+            ClearTarget.UpdateVisual();
+            CopyTargetCoordsButton.UpdateVisual();
             UpdateEmissivity();
         }
 
@@ -122,7 +159,85 @@ namespace Sandbox.Game.Entities
             open.EnableToggleAction();
             open.EnableOnOffActions();
             MyTerminalControlFactory.AddControl(open);
+
+
+            //--------------------------------------------------------------------------------------
+            MyTerminalControlFactory.AddControl(new MyTerminalControlSeparator<MyDoor>());
+
+            var copyCoordsButton = new MyTerminalControlButton<MyDoor>("CopyCoords", MySpaceTexts.LaserAntennaCopyCoords, MySpaceTexts.LaserAntennaCopyCoordsHelp,
+                delegate(MyDoor self)
+                {
+                    StringBuilder sanitizedName = new StringBuilder(self.DisplayNameText);
+                    sanitizedName.Replace(':', ' ');
+                    StringBuilder sb = new StringBuilder("GPS:", 256);
+                    sb.Append(sanitizedName); sb.Append(":");
+                    sb.Append(self.Position.X.ToString(System.Globalization.CultureInfo.InvariantCulture)); sb.Append(":");
+                    sb.Append(self.Position.Y.ToString(System.Globalization.CultureInfo.InvariantCulture)); sb.Append(":");
+                    sb.Append(self.Position.Z.ToString(System.Globalization.CultureInfo.InvariantCulture)); sb.Append(":");
+                    Thread thread = new Thread(() => System.Windows.Forms.Clipboard.SetText(sb.ToString()));
+                    thread.SetApartmentState(ApartmentState.STA);
+                    thread.Start();
+                    thread.Join();
+                });
+            MyTerminalControlFactory.AddControl(copyCoordsButton);
+
+            CopyTargetCoordsButton = new MyTerminalControlButton<MyDoor>("CopyTargetCoords", MySpaceTexts.LaserAntennaCopyTargetCoords, MySpaceTexts.LaserAntennaCopyTargetCoordsHelp,
+                delegate(MyDoor self)
+                {
+                    if (self.InterlockTargetId == null)
+                        return;
+                    MyDoor targetDoor = GetDoorById(self.InterlockTargetId.Value);
+                    if(targetDoor==null)
+                        return;
+                    StringBuilder sanitizedName = new StringBuilder(targetDoor.DisplayName.ToString());
+                    sanitizedName.Replace(':', ' ');
+                    StringBuilder sb = new StringBuilder("GPS:", 256);
+                    sb.Append(sanitizedName); sb.Append(":");
+                    sb.Append(targetDoor.Position.X.ToString(System.Globalization.CultureInfo.InvariantCulture)); sb.Append(":");
+                    sb.Append(targetDoor.Position.Y.ToString(System.Globalization.CultureInfo.InvariantCulture)); sb.Append(":");
+                    sb.Append(targetDoor.Position.Z.ToString(System.Globalization.CultureInfo.InvariantCulture)); sb.Append(":");
+                    Thread thread = new Thread(() => System.Windows.Forms.Clipboard.SetText(sb.ToString()));
+                    thread.SetApartmentState(ApartmentState.STA);
+                    thread.Start();
+                    thread.Join();
+
+                });
+            copyTargetCoordsButton.Enabled = (x) => x.InterlockTargetId != null;
+            MyTerminalControlFactory.AddControl(copyTargetCoordsButton);
+
+            var pasteTargetCoords = new MyTerminalControlButton<MyDoor>("PasteTargetCoords", MySpaceTexts.LaserAntennaPasteGPS, MySpaceTexts.Blank,
+                 delegate(MyDoor self)
+                 {
+                     string clipboardText = null;
+                     Thread thread = new Thread(() => clipboardText = System.Windows.Forms.Clipboard.GetText());
+                     thread.SetApartmentState(ApartmentState.STA);
+                     thread.Start();
+                     thread.Join();
+                     self.SyncObject.PasteCoordinates(clipboardText, self.OwnerId);
+                 });
+            //PasteGpsCoords.Enabled = (x) => x.P2PTargetCoords;
+            pasteTargetCoords.EnableAction();
+            MyTerminalControlFactory.AddControl(pasteTargetCoords);
+
+            TargetCoords = new MyTerminalControlTextbox<MyDoor>("TargetCoords", MySpaceTexts.LaserAntennaSelectedCoords, MySpaceTexts.Blank);
+            TargetCoords.Getter = (x) => x.m_termTargetName;
+            TargetCoords.Enabled = (x) => false;
+            MyTerminalControlFactory.AddControl(TargetCoords);
+
+            ClearTarget = new MyTerminalControlButton<MyDoor>("ClearTarget", MySpaceTexts.MyDoorClearInterlockTarget, MySpaceTexts.Blank,
+                delegate(MyDoor self)
+                {
+                    if (self.InterlockTargetId == null)
+                        return;
+                    self.SyncObject.ClearTarget(self.OwnerId);
+                });
+            ClearTarget.Enabled = (x) => x.InterlockTargetId != null;
+            ClearTarget.EnableAction();
+            MyTerminalControlFactory.AddControl(ClearTarget);
+
         }
+
+
 
         public void SetOpenRequest(bool open, long identityId)
         {
@@ -304,9 +419,32 @@ namespace Sandbox.Game.Entities
         {
             if (Enabled && PowerReceiver.IsPowered)
             {
-                float timeDelta = (MySandboxGame.TotalGamePlayTimeInMilliseconds - m_lastUpdateTime) / 1000f;
-                float deltaPos = m_currSpeed * timeDelta;
-                m_currOpening = MathHelper.Clamp(m_currOpening + deltaPos, 0f, MaxOpen);
+                bool flag = true;
+                if (this.InterlockTargetId.HasValue && m_currSpeed > 0.0)
+                {
+                    MyDoor interlockTargetDoor = GetDoorById(this.InterlockTargetId.Value);
+                    if (interlockTargetDoor != null)
+                    {
+                        if (interlockTargetDoor.Open)
+                        {
+                            interlockTargetDoor.SyncObject.SendChangeDoorRequest(false, interlockTargetDoor.OwnerId);
+                            flag = false;
+                        }
+                        else
+                        {
+                            if (interlockTargetDoor.OpenRatio > double.Epsilon)
+                            {
+                                flag = false;
+                            }
+                        }
+                    }
+                }
+                if(flag)
+                {
+                    float timeDelta = (MySandboxGame.TotalGamePlayTimeInMilliseconds - m_lastUpdateTime) / 1000f;
+                    float deltaPos = m_currSpeed * timeDelta;
+                    m_currOpening = MathHelper.Clamp(m_currOpening + deltaPos, 0f, MaxOpen);
+                }
             }
         }
 
@@ -370,10 +508,22 @@ namespace Sandbox.Game.Entities
         }
 
         event Action<bool> DoorStateChanged;
+ 
+   
         event Action<bool> Sandbox.ModAPI.IMyDoor.DoorStateChanged
         {
             add { DoorStateChanged += value; }
             remove { DoorStateChanged -= value; }
+        }
+
+        protected static MyDoor GetDoorById(long id)
+        {
+
+            MyEntity entity = null;
+            MyEntities.TryGetEntityById(id, out entity);
+            MyDoor laser = entity as MyDoor;
+            //System.Diagnostics.Debug.Assert(laser != null, "Laser is null");
+            return laser;
         }
     }
 }
