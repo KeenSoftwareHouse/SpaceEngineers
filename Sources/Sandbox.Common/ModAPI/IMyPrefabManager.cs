@@ -17,15 +17,15 @@ namespace Sandbox.ModAPI
         TurnOffReactors = 1 << 5,
         DisableSave = 1 << 6,
         UseGridOrigin = 1 << 7,
-        Worn = 1 << 8,
-        LightlyDamaged = 1 << 9,
-        Damaged = 1 << 10,
-        HeavilyDamaged = 1 << 11,
-        HostileEncounter = 1 << 12,
-        AntennaOn = 1 << 13,
-        AntennaMaxed = 1 << 14,
-        TurnOnReactors = 1 << 15,
-        AntennaOff = 1 << 16
+        HostileEncounter = 1 << 8,
+        AlmostNew = 1 << 9,
+        LightlyDamaged = 1 << 10,
+        Damaged = 1 << 11,
+        HeavilyDamaged = 1 << 12,        
+        TurnOnReactors = 1 << 13,
+        AntennaOn = 1 << 14,
+        AntennaOff = 1 << 15,
+        AntennaMaxed = 1 << 16,                
     }
     
     public interface IMyPrefabManager

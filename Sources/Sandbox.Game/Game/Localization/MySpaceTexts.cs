@@ -10735,7 +10735,7 @@ namespace Sandbox.Game.Localization
         public static readonly MyStringId WorldSettings_LightlyDamaged = MyStringId.GetOrCompute("WorldSettings_LightlyDamaged");
 
         ///<summary>
-        ///Perfect
+        ///No Damage
         ///</summary>
         public static readonly MyStringId WorldSettings_NoDamage = MyStringId.GetOrCompute("WorldSettings_NoDamage");
 
@@ -10810,7 +10810,7 @@ namespace Sandbox.Game.Localization
         public static readonly MyStringId ToolTipEncounterSettings_RandomMode = MyStringId.GetOrCompute("ToolTipEncounterSettings_RandomMode");
 
         ///<summary>
-        ///Civilisation has collapsed.  Was it self-annihilation, aliens or an angry AI?  Who knows?  But there's nothing left.
+        ///Civilisation has collapsed.  Was it self-annihilation, aliens or an angry AI?  Who knows?  There's no-one left to ask.
         ///</summary>
         public static readonly MyStringId ToolTipEncounterSettings_RuinsMode = MyStringId.GetOrCompute("ToolTipEncounterSettings_RuinsMode");
 

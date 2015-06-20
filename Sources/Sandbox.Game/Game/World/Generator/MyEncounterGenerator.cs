@@ -51,7 +51,7 @@ namespace Sandbox.Game.World.Generator
         public static bool RemoveEncounter(BoundingBoxD boundingVolume, int seed)
         {
             bool wasFound = false;
-            for (int i = 0; i < 2; ++i)
+            for (int i = 0; i < MySession.Static.Settings.MaxShipsInSpawnGroup; ++i)
             {
                 MyEncounterId encounter = new MyEncounterId(boundingVolume, seed,i);
                 if (true == m_savedEncounters.Contains(encounter))
@@ -113,22 +113,15 @@ namespace Sandbox.Game.World.Generator
                 m_placePositions.Clear();
                 m_encountersId.Clear();
 
-                int numEncoutersToPlace = 1;
-
-                if (MySession.Static.Settings.MaxShipsInSpawnGroup == 1)
+                int numEncoutersToPlace;
+                                
+                if (MySession.Static.Settings.MaxShipsInSpawnGroup > 2)
                 {
-                    numEncoutersToPlace = 1;
+                    numEncoutersToPlace = MyRandom.Instance.Next(1, MySession.Static.Settings.MaxShipsInSpawnGroup + 1);                        
                 }
                 else
                 {
-                    if (MySession.Static.Settings.MaxShipsInSpawnGroup > 2)
-                    {
-                        numEncoutersToPlace = MyRandom.Instance.Next(1, MySession.Static.Settings.MaxShipsInSpawnGroup + 1);                        
-                    }
-                    else
-                    {
-                        numEncoutersToPlace = seedType == MyAsteroidCellGenerator.MyObjectSeedType.EncounterMulti ? 2 : 1;
-                    }
+                    numEncoutersToPlace = seedType == MyAsteroidCellGenerator.MyObjectSeedType.EncounterMulti ? 2 : 1;
                 }
 
                 List<MySpawnGroupDefinition> currentSpawnGroup = seedType == MyAsteroidCellGenerator.MyObjectSeedType.EncounterMulti ? m_spawnGroupsNoVoxels : m_spawnGroups;
@@ -251,7 +244,7 @@ namespace Sandbox.Game.World.Generator
                     switch (damageLevel)
                     {
                         case 1:
-                            spawningOptions |= Sandbox.ModAPI.SpawningOptions.Worn;
+                            spawningOptions |= Sandbox.ModAPI.SpawningOptions.AlmostNew;
                             break;
                         case 2:
                             spawningOptions |= Sandbox.ModAPI.SpawningOptions.LightlyDamaged;
@@ -264,7 +257,7 @@ namespace Sandbox.Game.World.Generator
                             break;
                         default:
                             break;
-                    }
+                    }                    
 
                     if (factionId > 0)
                     {

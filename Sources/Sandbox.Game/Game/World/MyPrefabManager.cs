@@ -602,7 +602,7 @@ namespace Sandbox.Game.World
 
         private int getDamageChance(SpawningOptions spawningOptions)
         {
-            if (spawningOptions.HasFlag(SpawningOptions.Worn))
+            if (spawningOptions.HasFlag(SpawningOptions.AlmostNew))
             {
                 return MyRandom.Instance.Next(1, 6); 
             }

@@ -318,22 +318,63 @@ namespace Sandbox.Common.ObjectBuilders
             get { Debug.Fail("Obsolete."); return Settings.MaxShipsInSpawnGroup; }
             set { Settings.MaxShipsInSpawnGroup = value; }
         }
-
-        ////[ProtoMember, DefaultValue(0)]
-        //public int MaxDamagedShipsPercentage
-        //{
-        //    get { return Settings.MaxDamagedShipsPercentage; }
-        //    set { Settings.MaxDamagedShipsPercentage = value; }
-        //}
-
-        ////[ProtoMember, DefaultValue(1)]
-        //public int MaxDamagedShipsSeverity
-        //{
-        //    get { return Settings.MaxDamagedShipsSeverity; }
-        //    set { Settings.MaxDamagedShipsSeverity = value; }
-        //}
-
         public bool ShouldSerializeMaxShipsInSpawnGroup() { return false; }
+
+        //[ProtoMember, DefaultValue(0)]
+        public int MaxHostileEncountersPercentage
+        {
+            get { return Settings.MaxHostileEncountersPercentage; }
+            set { Settings.MaxHostileEncountersPercentage = value; }
+        }
+        public bool ShouldSerializeMaxHostileEncountersPercentage() { return false; }
+
+        //[ProtoMember, DefaultValue(0)]
+        public int MaxDamagedShipsPercentage
+        {
+            get { return Settings.MaxDamagedShipsPercentage; }
+            set { Settings.MaxDamagedShipsPercentage = value; }
+        }
+        public bool ShouldSerializeMaxDamagedShipsPercentage() { return false; }
+
+        //[ProtoMember, DefaultValue(0)]
+        public int MaxDamagedShipsSeverity
+        {
+            get { return Settings.MaxDamagedShipsSeverity; }
+            set { Settings.MaxDamagedShipsSeverity = value; }
+        }
+        public bool ShouldSerializeMaxDamagedShipsSeverity() { return false; }
+
+        //[ProtoMember, DefaultValue(false)]
+        public bool DamageAppliedGlobally
+        {
+            get { return Settings.DamageAppliedGlobally; }
+            set { Settings.DamageAppliedGlobally = value; }
+        }
+        public bool ShouldSerializeDamageAppliedGlobally() { return false; }
+
+        //[ProtoMember, DefaultValue(0)]
+        public int ReactorsOnPercentage
+        {
+            get { return Settings.ReactorsOnPercentage; }
+            set { Settings.ReactorsOnPercentage = value; }
+        }
+        public bool ShouldSerializeReactorsOnPercentage() { return false; }
+
+        //[ProtoMember, DefaultValue(0)]
+        public int AntennaOnPercentage
+        {
+            get { return Settings.AntennaOnPercentage; }
+            set { Settings.AntennaOnPercentage = value; }
+        }
+        public bool ShouldSerializeAntennaOnPercentage() { return false; }
+
+        //[ProtoMember, DefaultValue(false)]
+        public bool AntennaRangeMaxedOut
+        {
+            get { return Settings.AntennaRangeMaxedOut; }
+            set { Settings.AntennaRangeMaxedOut = value; }
+        }
+        public bool ShouldSerializeAntennaRangeMaxedOut() { return false; }
 
         [ProtoMember]
         [XmlElement("Settings", Type = typeof(MyAbstractXmlSerializer<MyObjectBuilder_SessionSettings>))]

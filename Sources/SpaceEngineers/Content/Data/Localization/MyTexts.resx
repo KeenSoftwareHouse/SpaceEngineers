@@ -6645,7 +6645,7 @@ If there is no chance of accessing a medical room, the game is over and you can 
     <value>Lightly Damaged</value>
   </data>
   <data name="WorldSettings_NoDamage" xml:space="preserve">
-    <value>Perfect</value>
+    <value>No Damage</value>
   </data>
   <data name="WorldSettings_Worn" xml:space="preserve">
     <value>Almost New</value>
@@ -6700,7 +6700,7 @@ and this screen will close to preserve the mystery.</value>
   </data>
   <data name="ToolTipEncounterSettings_RuinsMode" xml:space="preserve">
     <value>Civilisation has collapsed.  Was it self-annihilation, aliens or an angry AI? 
-Who knows?  But there's nothing left.</value>
+Who knows?  There's no-one left to ask.</value>
   </data>
   <data name="ToolTipEncounterSettings_WarMode" xml:space="preserve">
     <value>Everyone and everything is against you.  </value>
