@@ -202,8 +202,8 @@ namespace Sandbox.Game.Entities
                     thread.Join();
 
                 });
-            copyTargetCoordsButton.Enabled = (x) => x.InterlockTargetId != null;
-            MyTerminalControlFactory.AddControl(copyTargetCoordsButton);
+            CopyTargetCoordsButton.Enabled = (x) => x.InterlockTargetId != null;
+            MyTerminalControlFactory.AddControl(CopyTargetCoordsButton);
 
             var pasteTargetCoords = new MyTerminalControlButton<MyDoor>("PasteTargetCoords", MySpaceTexts.LaserAntennaPasteGPS, MySpaceTexts.Blank,
                  delegate(MyDoor self)
