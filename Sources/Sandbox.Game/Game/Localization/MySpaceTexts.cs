@@ -10828,5 +10828,15 @@ namespace Sandbox.Game.Localization
         ///Time limit
         ///</summary>
         public static readonly MyStringId MyGuiScreenTriggerTimeLimit = MyStringId.GetOrCompute("MyGuiScreenTriggerTimeLimit");
+
+        ///<summary>
+        ///The provided type does not implement {0}
+        ///</summary>
+        public static readonly MyStringId ProgrammableBlock_Exception_NotAGridProgram = MyStringId.GetOrCompute("ProgrammableBlock_Exception_NotAGridProgram");
+
+        ///<summary>
+        ///The constructor of a grid program cannot have any arguments.
+        ///</summary>
+        public static readonly MyStringId ProgrammableBlock_Exception_InvalidConstructor = MyStringId.GetOrCompute("ProgrammableBlock_Exception_InvalidConstructor");
     }
 }

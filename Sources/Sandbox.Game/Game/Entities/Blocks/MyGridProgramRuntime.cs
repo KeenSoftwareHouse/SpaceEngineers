@@ -109,7 +109,7 @@ namespace Sandbox.Game.Entities.Blocks
                 m_instance = FormatterServices.GetUninitializedObject(type) as IMyGridProgram;
                 if (m_instance == null)
                 {
-                    m_faultMessage = output = string.Format("The provided type does not implement {0}", typeof(IMyGridProgram).Name);
+                    m_faultMessage = output = string.Format(MyTexts.GetString(MySpaceTexts.ProgrammableBlock_Exception_NotAGridProgram), typeof(IMyGridProgram).Name);
                     return false;
                 }
 
@@ -119,7 +119,7 @@ namespace Sandbox.Game.Entities.Blocks
                 m_constructor = m_instance.GetType().GetConstructor(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic, null, Type.EmptyTypes, null);
                 if (m_constructor == null)
                 {
-                    m_faultMessage = output = "The grid program does not have a parameterless constructor.";
+                    m_faultMessage = output = MyTexts.GetString(MySpaceTexts.ProgrammableBlock_Exception_InvalidConstructor);
                     return false;
                 }
 
