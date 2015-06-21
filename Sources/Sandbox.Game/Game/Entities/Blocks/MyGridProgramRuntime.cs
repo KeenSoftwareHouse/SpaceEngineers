@@ -97,7 +97,7 @@ namespace Sandbox.Game.Entities.Blocks
             output = "";
             try
             {
-                // TODO: Will not be needed once proper constructor support is completed
+                // TODO: Is this needed now that the constructor is not called during instantiation?
                 IlInjector.RestartCountingInstructions(MAX_NUM_EXECUTED_INSTRUCTIONS);
 
                 // Save the current storage now, to make sure any preexisting program has a chance to store
