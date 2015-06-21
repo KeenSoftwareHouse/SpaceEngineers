@@ -297,6 +297,14 @@ namespace VRage.Input
         // Used for finding out whether joystick has been used last time. Otherwise, it returns false. 
         bool IsJoystickLastUsed { get; }
 
+        bool GetJoystickXInversion();
+
+        bool GetJoystickYInversion();
+
+        void SetJoystickXInversion(bool inverted);
+
+        void SetJoystickYInversion(bool inverted);
+
         // event which fires when you select joystick
         event Action<bool> JoystickConnected;
 

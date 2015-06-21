@@ -225,6 +225,16 @@ namespace Sandbox.Game.Localization
         public static readonly MyStringId JoystickButtonDown = MyStringId.GetOrCompute("JoystickButtonDown");
 
         ///<summary>
+        ///Invert Joystick X axis
+        ///</summary>
+        public static readonly MyStringId InvertJoystickX = MyStringId.GetOrCompute("InvertJoystickX");
+
+        ///<summary>
+        ///Invert Joystick Y axis
+        ///</summary>
+        public static readonly MyStringId InvertJoystickY = MyStringId.GetOrCompute("InvertJoystickY");
+
+        ///<summary>
         ///Joystick deadzone width
         ///</summary>
         public static readonly MyStringId JoystickDeadzone = MyStringId.GetOrCompute("JoystickDeadzone");

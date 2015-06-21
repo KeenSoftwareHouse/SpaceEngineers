@@ -51,6 +51,8 @@ namespace Sandbox.Game.Gui
         MyGuiControlSlider m_joystickDeadzoneSlider;
         MyGuiControlSlider m_joystickExponentSlider;
         MyGuiControlCombobox m_joystickCombobox;
+        MyGuiControlCheckbox m_invertJoystickXCheckbox;
+        MyGuiControlCheckbox m_invertJoystickYCheckbox;
 
         Vector2 m_controlsOriginLeft;
         Vector2 m_controlsOriginRight;
@@ -324,11 +326,15 @@ namespace Sandbox.Game.Gui
             if (MyFakes.ENABLE_JOYSTICK_SETTINGS)
             {
                 const float multiplierJoystick = 6.5f;
-                const float multiplierSensitivity = 8;
-                const float multiplierExponent = 9;
-                const float multiplierDeadzone = 10;
+                const float multiplierJoystickInvertX = 8;
+                const float multiplierJoystickInvertY = 9;
+                const float multiplierSensitivity = 10;
+                const float multiplierExponent = 11;
+                const float multiplierDeadzone = 12;
 
                 m_allControls[MyGuiControlTypeEnum.General].Add(MakeLabel(multiplierJoystick, MySpaceTexts.Joystick));
+                m_allControls[MyGuiControlTypeEnum.General].Add(MakeLabel(multiplierJoystickInvertX, MySpaceTexts.InvertJoystickX));
+                m_allControls[MyGuiControlTypeEnum.General].Add(MakeLabel(multiplierJoystickInvertY, MySpaceTexts.InvertJoystickY));
                 m_allControls[MyGuiControlTypeEnum.General].Add(MakeLabel(multiplierSensitivity, MySpaceTexts.JoystickSensitivity));
                 m_allControls[MyGuiControlTypeEnum.General].Add(MakeLabel(multiplierExponent, MySpaceTexts.JoystickExponent));
                 m_allControls[MyGuiControlTypeEnum.General].Add(MakeLabel(multiplierDeadzone, MySpaceTexts.JoystickDeadzone));
@@ -337,6 +343,18 @@ namespace Sandbox.Game.Gui
                 m_joystickCombobox.ItemSelected += OnSelectJoystick;
                 AddJoysticksToComboBox();
                 m_allControls[MyGuiControlTypeEnum.General].Add(m_joystickCombobox);
+
+                m_invertJoystickXCheckbox = new MyGuiControlCheckbox(
+                     position: m_controlsOriginRight + multiplierJoystickInvertX * MyGuiConstants.CONTROLS_DELTA,
+                     isChecked: MyInput.Static.GetJoystickXInversion(),
+                     originAlign: MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_CENTER);
+                m_allControls[MyGuiControlTypeEnum.General].Add(m_invertJoystickXCheckbox);
+
+                m_invertJoystickYCheckbox = new MyGuiControlCheckbox(
+                     position: m_controlsOriginRight + multiplierJoystickInvertY * MyGuiConstants.CONTROLS_DELTA,
+                     isChecked: MyInput.Static.GetJoystickYInversion(),
+                     originAlign: MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_CENTER);
+                m_allControls[MyGuiControlTypeEnum.General].Add(m_invertJoystickYCheckbox);
 
                 m_joystickSensitivitySlider = new MyGuiControlSlider(
                     position: m_controlsOriginRight + multiplierSensitivity * MyGuiConstants.CONTROLS_DELTA + new Vector2(MyGuiConstants.COMBOBOX_MEDIUM_SIZE.X / 2.0f, 0),
@@ -493,6 +511,8 @@ namespace Sandbox.Game.Gui
             if (MyFakes.ENABLE_JOYSTICK_SETTINGS)
             {
                 MyInput.Static.JoystickInstanceName = m_joystickCombobox.GetSelectedIndex() == 0 ? null : m_joystickCombobox.GetSelectedValue().ToString();
+                MyInput.Static.SetJoystickXInversion(m_invertJoystickXCheckbox.IsChecked);
+                MyInput.Static.SetJoystickYInversion(m_invertJoystickYCheckbox.IsChecked);
                 MyInput.Static.SetJoystickSensitivity(m_joystickSensitivitySlider.Value);
                 MyInput.Static.SetJoystickExponent(m_joystickExponentSlider.Value);
                 MyInput.Static.SetJoystickDeadzone(m_joystickDeadzoneSlider.Value);

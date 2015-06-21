@@ -87,6 +87,8 @@ namespace VRage.Input
                 }
             }
         }
+        bool m_joystickXIsInverted;
+        bool m_joystickYIsInverted;
         float m_joystickSensitivity;
         float m_joystickDeadzone;
         float m_joystickExponent;
@@ -94,6 +96,8 @@ namespace VRage.Input
         public bool IsMouseYInvertedDefault { get { return false; } }
         public float MouseSensitivityDefault { get { return 1.655f; } }
         public string JoystickInstanceNameDefault { get { return null; } }
+        public bool IsJoystickXInvertedDefault { get { return false; } }
+        public bool IsJoystickYInvertedDefault { get { return false; } }
         public float JoystickSensitivityDefault { get { return 2.0f; } }
         public float JoystickExponentDefault { get { return 2.0f; } }
         public float JoystickDeadzoneDefault { get { return 0.2f; } }
@@ -153,6 +157,8 @@ namespace VRage.Input
             m_mouseYIsInverted = IsMouseYInvertedDefault;
             m_mouseSensitivity = MouseSensitivityDefault;
             m_joystickInstanceName = JoystickInstanceNameDefault;
+            m_joystickXIsInverted = IsJoystickXInvertedDefault;
+            m_joystickYIsInverted = IsJoystickYInvertedDefault;
             m_joystickSensitivity = JoystickSensitivityDefault;
             m_joystickDeadzone = JoystickDeadzoneDefault;
             m_joystickExponent = JoystickExponentDefault;
@@ -1419,6 +1425,34 @@ namespace VRage.Input
             return GetJoystickAxisStateRaw(MyJoystickAxesEnum.Ypos);
         }
 
+        public MyJoystickAxesEnum GetInvertedJoystickModifiedAxis(MyJoystickAxesEnum axis)
+        {
+            if (m_joystickXIsInverted) // switch X axis if inverted
+            {
+                switch (axis)
+                {
+                    case MyJoystickAxesEnum.RotationXneg:
+                        axis = MyJoystickAxesEnum.RotationXpos;
+                        break;
+                    case MyJoystickAxesEnum.RotationXpos:
+                        axis = MyJoystickAxesEnum.RotationXneg;
+                        break;
+                }
+            }
+            if (m_joystickYIsInverted) // switch Y axis if inverted
+            {
+                switch (axis)
+                {
+                    case MyJoystickAxesEnum.RotationYneg:
+                        axis = MyJoystickAxesEnum.RotationYpos;
+                        break;
+                    case MyJoystickAxesEnum.RotationYpos:
+                        axis = MyJoystickAxesEnum.RotationYneg;
+                        break;
+                }
+            }
+            return axis;
+        }
 
         //  Find out how much a specific joystick half-axis is pressed.
         //  Return a number between 0 and 1 (taking deadzone, sensitivity and non-linearity into account).
@@ -1426,6 +1460,7 @@ namespace VRage.Input
         {
             if (m_joystickConnected && IsJoystickAxisSupported(axis))
             {
+                axis = GetInvertedJoystickModifiedAxis(axis);
                 // Input position scaled to (-1..1).
                 float position = ((float)GetJoystickAxisStateRaw(axis) - (float)MyJoystickConstants.CENTER_AXIS) / (float)MyJoystickConstants.CENTER_AXIS;
 
@@ -1473,6 +1508,7 @@ namespace VRage.Input
         {
             if (m_joystickConnected && IsJoystickAxisSupported(axis))
             {
+                axis = GetInvertedJoystickModifiedAxis(axis);
                 // Input position scaled to (-1..1).
                 float position = ((float)GetPreviousJoystickAxisStateRaw(axis) - (float)MyJoystickConstants.CENTER_AXIS) / (float)MyJoystickConstants.CENTER_AXIS;
 
@@ -1770,6 +1806,26 @@ namespace VRage.Input
         {
             get;
             set;
+        }
+
+        public bool GetJoystickXInversion()
+        {
+            return m_joystickXIsInverted;
+        }
+
+        public bool GetJoystickYInversion()
+        {
+            return m_joystickYIsInverted;
+        }
+
+        public void SetJoystickXInversion(bool inverted)
+        {
+            m_joystickXIsInverted = inverted;
+        }
+
+        public void SetJoystickYInversion(bool inverted)
+        {
+            m_joystickYIsInverted = inverted;
         }
 
         public event Action<bool> JoystickConnected;
@@ -2165,6 +2221,8 @@ namespace VRage.Input
             m_mouseSensitivity = MouseSensitivityDefault;
 
             m_joystickSensitivity = JoystickSensitivityDefault;
+            m_joystickXIsInverted = IsJoystickXInvertedDefault;
+            m_joystickYIsInverted = IsJoystickYInvertedDefault;
             m_joystickDeadzone = JoystickDeadzoneDefault;
             m_joystickExponent = JoystickExponentDefault;
             CloneControls(m_defaultGameControlsList, m_gameControlsList);
@@ -2179,6 +2237,8 @@ namespace VRage.Input
             controlsGeneral.Dictionary.Add("mouseYIsInverted", m_mouseYIsInverted.ToString());
             controlsGeneral.Dictionary.Add("mouseSensitivity", m_mouseSensitivity.ToString(System.Globalization.CultureInfo.InvariantCulture));
             controlsGeneral.Dictionary.Add("joystickInstanceName", m_joystickInstanceName);
+            controlsGeneral.Dictionary.Add("joystickXIsInverted", m_joystickXIsInverted.ToString());
+            controlsGeneral.Dictionary.Add("joystickYIsInverted", m_joystickYIsInverted.ToString());
             controlsGeneral.Dictionary.Add("joystickSensitivity", m_joystickSensitivity.ToString(System.Globalization.CultureInfo.InvariantCulture));
             controlsGeneral.Dictionary.Add("joystickExponent", m_joystickExponent.ToString(System.Globalization.CultureInfo.InvariantCulture));
             controlsGeneral.Dictionary.Add("joystickDeadzone", m_joystickDeadzone.ToString(System.Globalization.CultureInfo.InvariantCulture));
@@ -2217,6 +2277,8 @@ namespace VRage.Input
                 JoystickInstanceName = (string)controlsGeneral["joystickInstanceName"];
 
                 m_joystickSensitivity = float.Parse((string)controlsGeneral["joystickSensitivity"], System.Globalization.CultureInfo.InvariantCulture);
+                m_joystickXIsInverted = bool.Parse((string)controlsGeneral["joystickXIsInverted"]);
+                m_joystickYIsInverted = bool.Parse((string)controlsGeneral["joystickYIsInverted"]);
                 m_joystickExponent = float.Parse((string)controlsGeneral["joystickExponent"], System.Globalization.CultureInfo.InvariantCulture);
                 m_joystickDeadzone = float.Parse((string)controlsGeneral["joystickDeadzone"], System.Globalization.CultureInfo.InvariantCulture);
 
