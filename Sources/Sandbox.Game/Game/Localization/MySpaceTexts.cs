@@ -225,12 +225,12 @@ namespace Sandbox.Game.Localization
         public static readonly MyStringId JoystickButtonDown = MyStringId.GetOrCompute("JoystickButtonDown");
 
         ///<summary>
-        ///Invert Joystick X axis
+        ///Invert joystick X axis
         ///</summary>
         public static readonly MyStringId InvertJoystickX = MyStringId.GetOrCompute("InvertJoystickX");
 
         ///<summary>
-        ///Invert Joystick Y axis
+        ///Invert joystick Y axis
         ///</summary>
         public static readonly MyStringId InvertJoystickY = MyStringId.GetOrCompute("InvertJoystickY");
 
