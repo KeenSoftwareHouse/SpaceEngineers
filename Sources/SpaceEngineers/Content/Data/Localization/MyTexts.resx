@@ -6704,4 +6704,10 @@ If there is no chance of accessing a medical room, the game is over and you can 
   <data name="MyDoorClearInterlockTarget" xml:space="preserve">
     <value>ClearTarget</value>
   </data>
+  <data name="MyDoorDelayedOpen" xml:space="preserve">
+    <value>Delayed Open</value>
+  </data>
+  <data name="MyDoorSelectedCoords" xml:space="preserve">
+    <value>Interlock Door</value>
+  </data>
 </root>

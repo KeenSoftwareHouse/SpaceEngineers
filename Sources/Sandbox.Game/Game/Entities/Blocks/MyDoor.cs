@@ -56,14 +56,11 @@ namespace Sandbox.Game.Entities
                 }
                 if (!m_interlockTargetId.HasValue)
                 {
-                    m_termTargetName.Clear();
                     UpdateVisual();
                     return;
                 }
                 MyDoor targetDoor = GetDoorById(m_interlockTargetId.Value);
                 if (targetDoor == null) return;
-                m_termTargetName.Clear();
-                m_termTargetName.Append(targetDoor.DisplayNameText);
                 UpdateVisual();
             }
         }
@@ -75,12 +72,13 @@ namespace Sandbox.Game.Entities
 
         private new MySyncDoor SyncObject;
         private bool m_open;
-
+        public bool IsDelayedOpen { get; set; }
         public float MaxOpen = 1.2f;
 
         private static readonly MyTerminalControlTextbox<MyDoor> TargetCoords;
-        private static readonly  MyTerminalControlButton<MyDoor> ClearTarget;
+        private static readonly MyTerminalControlButton<MyDoor> ClearTarget;
         private static readonly MyTerminalControlButton<MyDoor> CopyTargetCoordsButton;
+        private static readonly MyTerminalControlCheckbox<MyDoor> DelayedOpen;
         public MyPowerReceiver PowerReceiver
         {
             get;
@@ -115,6 +113,7 @@ namespace Sandbox.Game.Entities
             TargetCoords.UpdateVisual();
             ClearTarget.UpdateVisual();
             CopyTargetCoordsButton.UpdateVisual();
+            DelayedOpen.UpdateVisual();
             UpdateEmissivity();
         }
 
@@ -219,8 +218,20 @@ namespace Sandbox.Game.Entities
             pasteTargetCoords.EnableAction();
             MyTerminalControlFactory.AddControl(pasteTargetCoords);
 
-            TargetCoords = new MyTerminalControlTextbox<MyDoor>("TargetCoords", MySpaceTexts.LaserAntennaSelectedCoords, MySpaceTexts.Blank);
-            TargetCoords.Getter = (x) => x.m_termTargetName;
+            TargetCoords = new MyTerminalControlTextbox<MyDoor>("TargetCoords", MySpaceTexts.MyDoorSelectedCoords, MySpaceTexts.Blank);
+            TargetCoords.Getter = (x) =>
+            {
+                x.m_termTargetName.Clear();
+                if (x.m_interlockTargetId.HasValue)
+                {
+                    MyDoor targetDoor = GetDoorById(x.m_interlockTargetId.Value);
+                    if (targetDoor != null)
+                    {
+                        x.m_termTargetName.Append(targetDoor.DisplayNameText);
+                    }
+                }
+                return x.m_termTargetName;
+            };
             TargetCoords.Enabled = (x) => false;
             MyTerminalControlFactory.AddControl(TargetCoords);
 
@@ -234,6 +245,18 @@ namespace Sandbox.Game.Entities
             ClearTarget.Enabled = (x) => x.InterlockTargetId != null;
             ClearTarget.EnableAction();
             MyTerminalControlFactory.AddControl(ClearTarget);
+
+
+            DelayedOpen = new MyTerminalControlCheckbox<MyDoor>("DelayedOpen", MySpaceTexts.MyDoorDelayedOpen, MySpaceTexts.Blank);
+            DelayedOpen.Enabled = (x) => x.InterlockTargetId != null;
+            DelayedOpen.Getter = (x) => x.IsDelayedOpen;
+            DelayedOpen.Setter = (x, v) =>
+            {
+                x.SyncObject.IsDelayedOpenChange(v,x.OwnerId);
+
+            };
+            DelayedOpen.EnableAction();
+            MyTerminalControlFactory.AddControl(DelayedOpen);
 
         }
 
@@ -279,6 +302,8 @@ namespace Sandbox.Game.Entities
             var ob = (MyObjectBuilder_Door)builder;
             m_open = ob.State;
             m_currOpening = ob.Opening;
+            m_interlockTargetId = ob.InterlockTargetId == -1 || ob.InterlockTargetId == 0 ? (long?)null : ob.InterlockTargetId;
+            IsDelayedOpen = ob.IsDelayedOpen;
 
             PowerReceiver = new MyPowerReceiver(MyConsumerGroupEnum.Doors,
                 false,
@@ -350,6 +375,8 @@ namespace Sandbox.Game.Entities
             var ob = (MyObjectBuilder_Door)base.GetObjectBuilderCubeBlock(copy);
             ob.State = Open;
             ob.Opening = m_currOpening;
+            ob.InterlockTargetId = InterlockTargetId ?? -1;
+            ob.IsDelayedOpen = IsDelayedOpen;
             ob.OpenSound = m_openSound.ToString();
             ob.CloseSound = m_closeSound.ToString();
             return ob;
@@ -439,6 +466,10 @@ namespace Sandbox.Game.Entities
                         }
                     }
                 }
+                if(! IsDelayedOpen)
+                {
+                    flag = true;
+                }
                 if(flag)
                 {
                     float timeDelta = (MySandboxGame.TotalGamePlayTimeInMilliseconds - m_lastUpdateTime) / 1000f;
@@ -508,6 +539,7 @@ namespace Sandbox.Game.Entities
         }
 
         event Action<bool> DoorStateChanged;
+
  
    
         event Action<bool> Sandbox.ModAPI.IMyDoor.DoorStateChanged

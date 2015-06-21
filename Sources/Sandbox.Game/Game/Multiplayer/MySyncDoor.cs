@@ -29,6 +29,8 @@ namespace Sandbox.Game.Multiplayer
 
             public long InterlockTargetId;
 
+            public BoolBlit IsDelayedOpen;
+
             public override string ToString()
             {
                 return String.Format("{0}, {1}", this.GetType().Name, this.GetEntityText());
@@ -55,6 +57,7 @@ namespace Sandbox.Game.Multiplayer
             msg.PlayerId = identityId;
             msg.Open     = open;
             msg.InterlockTargetId = m_block.InterlockTargetId ?? 0;
+            msg.IsDelayedOpen = m_block.IsDelayedOpen;
 
             Sync.Layer.SendMessageToServer(ref msg, MyTransportMessageEnum.Request);
         }
@@ -73,7 +76,8 @@ namespace Sandbox.Game.Multiplayer
                         EntityId = m_block.EntityId,
                         PlayerId = identityId,
                         Open = m_block.Open,
-                        InterlockTargetId = targetDoor.EntityId
+                        InterlockTargetId = targetDoor.EntityId,
+                        IsDelayedOpen = m_block.IsDelayedOpen
                     };
                     Sync.Layer.SendMessageToServer(ref msg1, MyTransportMessageEnum.Request);
 
@@ -82,7 +86,8 @@ namespace Sandbox.Game.Multiplayer
                         EntityId = targetDoor.EntityId,
                         PlayerId = targetDoor.OwnerId,
                         Open = targetDoor.Open,
-                        InterlockTargetId = m_block.EntityId
+                        InterlockTargetId = m_block.EntityId,
+                        IsDelayedOpen = targetDoor.IsDelayedOpen
                     };
                     Sync.Layer.SendMessageToServer(ref msg2, MyTransportMessageEnum.Request);
 
@@ -96,22 +101,64 @@ namespace Sandbox.Game.Multiplayer
                 EntityId = m_block.EntityId,
                 PlayerId = identityId,
                 Open = m_block.Open,
-                InterlockTargetId = -1
+                InterlockTargetId = -1,
+                IsDelayedOpen = false
             };
 
             Sync.Layer.SendMessageToServer(ref msg1, MyTransportMessageEnum.Request);
 
             if (m_block.InterlockTargetId.HasValue)
             {
-                var msg2 = new ChangeDoorMsg
+                MyEntity entity = null;
+                MyEntities.TryGetEntityById(m_block.InterlockTargetId.Value, out entity);
+                MyDoor targetDoor = entity as MyDoor;
+                if (targetDoor != null)
                 {
-                    EntityId = m_block.InterlockTargetId.Value,
-                    PlayerId = identityId,
-                    Open = m_block.Open,
-                    InterlockTargetId = -1
-                };
+                    var msg2 = new ChangeDoorMsg
+                    {
+                        EntityId = m_block.InterlockTargetId.Value,
+                        PlayerId = identityId,
+                        Open = targetDoor.Open,
+                        InterlockTargetId = -1,
+                        IsDelayedOpen = false
+                    };
 
-                Sync.Layer.SendMessageToServer(ref msg2, MyTransportMessageEnum.Request);
+                    Sync.Layer.SendMessageToServer(ref msg2, MyTransportMessageEnum.Request);
+                }
+            }
+        }
+
+        internal void IsDelayedOpenChange(bool delayedOpen, long identityId)
+        {
+            var msg1 = new ChangeDoorMsg
+            {
+                EntityId = m_block.EntityId,
+                PlayerId = identityId,
+                Open = m_block.Open,
+                InterlockTargetId = 0,
+                IsDelayedOpen = delayedOpen
+            };
+
+            Sync.Layer.SendMessageToServer(ref msg1, MyTransportMessageEnum.Request);
+
+            if (m_block.InterlockTargetId.HasValue)
+            {
+                MyEntity entity = null;
+                MyEntities.TryGetEntityById(m_block.InterlockTargetId.Value, out entity);
+                MyDoor targetDoor = entity as MyDoor;
+                if (targetDoor != null)
+                {
+                    var msg2 = new ChangeDoorMsg
+                    {
+                        EntityId = m_block.InterlockTargetId.Value,
+                        PlayerId = identityId,
+                        Open = targetDoor.Open,
+                        InterlockTargetId = 0,
+                        IsDelayedOpen = delayedOpen
+                    };
+
+                    Sync.Layer.SendMessageToServer(ref msg2, MyTransportMessageEnum.Request);
+                }
             }
         }
 
@@ -144,6 +191,7 @@ namespace Sandbox.Game.Multiplayer
             {
                 block.Open = msg.Open;
                 block.InterlockTargetId = msg.InterlockTargetId;
+                block.IsDelayedOpen = msg.IsDelayedOpen;
             }
         }
 
@@ -153,6 +201,8 @@ namespace Sandbox.Game.Multiplayer
 
 
 
-     
+
+
+   
     }
 }

@@ -10833,5 +10833,15 @@ namespace Sandbox.Game.Localization
         ///ClearTarget
         ///</summary>
         public static readonly MyStringId MyDoorClearInterlockTarget = MyStringId.GetOrCompute("MyDoorClearInterlockTarget");
+
+        ///<summary>
+        ///Delayed Open
+        ///</summary>
+        public static readonly MyStringId MyDoorDelayedOpen = MyStringId.GetOrCompute("MyDoorDelayedOpen");
+
+        ///<summary>
+        ///Interlock Door
+        ///</summary>
+        public static readonly MyStringId MyDoorSelectedCoords = MyStringId.GetOrCompute("MyDoorSelectedCoords");
     }
 }
