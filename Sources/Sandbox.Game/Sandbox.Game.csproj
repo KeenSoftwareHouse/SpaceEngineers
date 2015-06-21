@@ -416,6 +416,7 @@
     <Compile Include="Game\Entities\Blocks\MyAirtightHangarDoor.cs" />
     <Compile Include="Game\Entities\Blocks\MyCockpit.cs" />
     <Compile Include="Game\Entities\Blocks\MyConveyorSorter.cs" />
+    <Compile Include="Game\Entities\Blocks\MyGridProgramRuntime.cs" />
     <Compile Include="Game\Entities\Blocks\MyLaserAntenna.cs" />
     <Compile Include="Game\Entities\Blocks\MyLaserBroadcaster.cs" />
     <Compile Include="Game\Entities\Blocks\MyLaserReceiver.cs" />
