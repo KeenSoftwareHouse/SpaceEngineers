@@ -53,7 +53,6 @@ namespace Sandbox.Game.Entities.Blocks
         public bool AutoRefill
         {
             get { return m_autoRefill; }
-            set { m_autoRefill = value; }
         }
 
         public MyPowerReceiver PowerReceiver

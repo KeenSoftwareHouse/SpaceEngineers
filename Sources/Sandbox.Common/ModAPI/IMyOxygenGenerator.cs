@@ -8,12 +8,8 @@ namespace Sandbox.ModAPI
     /// <summary>
     /// Oxygen generator interface
     /// </summary>
-    public interface IMyOxygenGenerator : Ingame.IMyFunctionalBlock, IMyFunctionalBlock
+    public interface IMyOxygenGenerator : Ingame.IMyOxygenGenerator, IMyFunctionalBlock
     {
-        /// <summary>
-        /// Autorefill enabled
-        /// </summary>
-        bool AutoRefill { get; set; }
         /// <summary>
         /// Increase/decrese O2 produced
         /// </summary>
