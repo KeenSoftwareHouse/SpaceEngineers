@@ -117,11 +117,13 @@ namespace VRage.Plugins
             {
                 try
                 {
+                    // Log may not be available yet (DS?)
                     //MyLog.Default.WriteLine("Creating instance of: " + pluginClass.FullName);
                     m_plugins.Add((IPlugin)Activator.CreateInstance(pluginClass));
                 }
                 catch (Exception e)
                 {
+                    // Log may not be available yet (DS?)
                     SystemTrace.Fail("Cannot create instance of '" + pluginClass.FullName + "': " + e.ToString());
                     //MyLog.Default.WriteLine("Error instantiating plugin class: " + pluginClass);
                     //MyLog.Default.WriteLine(e);

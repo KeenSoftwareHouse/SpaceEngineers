@@ -85,7 +85,6 @@
     <Compile Include="MyKeyboardState.cs" />
     <Compile Include="MyKeyHasher.cs" />
     <Compile Include="MyMouseState.cs" />
-    <Compile Include="MyUserInput_ModAPI.cs" />
     <Compile Include="MyWindowsKeyboard.cs" />
     <Compile Include="MyWindowsMouse.cs" />
     <Compile Include="MyEnumsToStrings.cs" />
@@ -97,10 +96,6 @@
     <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Sandbox.Common\Sandbox.Common.csproj">
-      <Project>{2c96f0ab-7962-4b73-a075-b0e0b09f6195}</Project>
-      <Name>Sandbox.Common</Name>
-    </ProjectReference>
     <ProjectReference Include="..\VRage\VRage.csproj">
       <Project>{1C814936-C9A7-4FAF-B543-28F021D98B6C}</Project>
       <Name>VRage</Name>

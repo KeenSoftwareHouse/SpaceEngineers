@@ -10,10 +10,6 @@ namespace VRage.Voxels
     {
         public const string FILE_EXTENSION = ".vx2";
 
-        //  This is max number of cell contents (mixed cells).
-        // Decreased to 120K, 150K eat to much memory, best would be to decrease even more
-        public const int PREALLOCATED_CELL_CONTENTS_COUNT = 120000;
-
         //  This is the value that says if voxel is full or not (but only for marching cubes algorithm, not path-finding, etc)
         //  It's the middle of 0 and 255
         public const byte VOXEL_ISO_LEVEL = 127;

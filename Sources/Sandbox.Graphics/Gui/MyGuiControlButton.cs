@@ -353,9 +353,9 @@ namespace Sandbox.Graphics.GUI
                 ButtonClicked(this);
         }
 
-        public override void Draw(float transitionAlpha)
+        public override void Draw(float transitionAlpha, float backgroundTransitionAlpha)
         {
-            base.Draw(transitionAlpha);
+            base.Draw(transitionAlpha, transitionAlpha);
 
             bool isNotImplementedForbidenOrDisabled = !m_implementedFeature || !Enabled;
             Vector4 backgroundColor, textColor;

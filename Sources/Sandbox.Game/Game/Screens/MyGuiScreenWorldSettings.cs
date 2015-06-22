@@ -61,6 +61,8 @@ namespace Sandbox.Game.Gui
             }
         }
 
+        MyGuiControlCheckbox m_scenarioEditMode;
+
         private List<MyObjectBuilder_Checkpoint.ModItem> m_mods;
 
         /// Saved values of advanced screen that cannot be saved to MySessionSettings
@@ -164,7 +166,7 @@ namespace Sandbox.Game.Gui
         public static Vector2 CalcSize(MyObjectBuilder_Checkpoint checkpoint)
         {
             float width = checkpoint == null ? 0.9f : 0.65f;
-            float height = checkpoint == null ? 1.24f : 0.97f;
+            float height = checkpoint == null ? 1.24f : 1.00f;
             if (checkpoint != null)
                 height -= 0.05f;
             if (MyFakes.OCTOBER_RELEASE_HIDE_WORLD_PARAMS)
@@ -334,6 +336,12 @@ namespace Sandbox.Game.Gui
             Controls.Add(autoSaveLabel);
             Controls.Add(m_autoSave);
 
+            var scenarioEditModeLabel = MakeLabel(MySpaceTexts.WorldSettings_ScenarioEditMode);
+            m_scenarioEditMode = new MyGuiControlCheckbox();
+            m_scenarioEditMode.SetToolTip(MyTexts.GetString(MySpaceTexts.ToolTipWorldSettings_ScenarioEditMode));
+            Controls.Add(scenarioEditModeLabel);
+            Controls.Add(m_scenarioEditMode);
+
             if (MyFakes.ENABLE_WORKSHOP_MODS)
                 Controls.Add(mods);
 
@@ -449,6 +457,9 @@ namespace Sandbox.Game.Gui
             m_scenarioTypesGroup.SelectByKey(0);
             m_settings = GetDefaultSettings();
             m_settings.EnableToolShake = true;
+            m_settings.EnablePlanets = MyFakes.ENABLE_PLANETS;
+            m_settings.EnableStationVoxelSupport = true;
+            m_settings.EnableSunRotation = true;
             m_settings.VoxelGeneratorVersion = MyVoxelConstants.VOXEL_GENERATOR_VERSION;
             m_settings.EnableOxygen = true;
             m_mods = new List<MyObjectBuilder_Checkpoint.ModItem>();
@@ -681,6 +692,7 @@ namespace Sandbox.Game.Gui
             m_settings.MaxPlayers = (short)m_maxPlayersSlider.Value;
             m_settings.AutoSaveInMinutes = m_autoSave.IsChecked ? MyObjectBuilder_SessionSettings.DEFAULT_AUTOSAVE_IN_MINUTES : 0;
             m_settings.GameMode   = GetGameMode();
+            m_settings.ScenarioEditMode = m_scenarioEditMode.IsChecked;
         }
 
         protected virtual void SetSettingsToControls()
@@ -692,6 +704,7 @@ namespace Sandbox.Game.Gui
             m_autoSave.IsChecked     = m_settings.AutoSaveInMinutes > 0;
 
             UpdateSurvivalState(m_settings.GameMode == MyGameModeEnum.Survival);
+            m_scenarioEditMode.IsChecked = m_settings.ScenarioEditMode;
         }
 
         private string GetPassword()

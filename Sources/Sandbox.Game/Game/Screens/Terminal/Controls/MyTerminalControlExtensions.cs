@@ -9,11 +9,9 @@ using System.Text;
 using VRage;
 using VRage.Library.Utils;
 using VRage.Utils;
-using VRage.Utils;
-
 namespace Sandbox.Game.Gui
 {
-    static class MyTerminalControlExtensions
+    public static class MyTerminalControlExtensions
     {
         private static StringBuilder Combine(MyStringId prefix, MyStringId title)
         {

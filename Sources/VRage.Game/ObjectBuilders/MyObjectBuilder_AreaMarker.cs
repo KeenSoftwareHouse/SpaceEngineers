@@ -7,5 +7,6 @@ namespace Sandbox.Common.ObjectBuilders
     [MyObjectBuilderDefinition]
     public class MyObjectBuilder_AreaMarker : MyObjectBuilder_EntityBase
     {
+		public virtual bool IsSynced { get { return false; } }
     }
 }

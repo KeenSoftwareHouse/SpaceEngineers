@@ -14,8 +14,8 @@ namespace Sandbox.Definitions
     [MyDefinitionType(typeof(MyObjectBuilder_EnvironmentItemsDefinition))]
     public class MyEnvironmentItemsDefinition : MyDefinitionBase
     {
-        private HashSet<MyStringId> m_itemDefinitions;
-        private List<MyStringId> m_definitionList;
+        private HashSet<MyStringHash> m_itemDefinitions;
+        private List<MyStringHash> m_definitionList;
 
         private MyObjectBuilderType m_itemDefinitionType = MyObjectBuilderType.Invalid;
         public MyObjectBuilderType ItemDefinitionType { get { return m_itemDefinitionType; } }
@@ -28,7 +28,7 @@ namespace Sandbox.Definitions
         // You can imagine it as an average diameter of an item's bounding sphere
         public float ItemSize { get; private set; }
 
-        public MyStringId Material { get; private set; }
+        public MyStringHash Material { get; private set; }
 
         public int ItemDefinitionCount { get { return m_definitionList.Count; } }
 
@@ -39,8 +39,8 @@ namespace Sandbox.Definitions
             var ob = builder as MyObjectBuilder_EnvironmentItemsDefinition;
             MyDebug.AssertDebug(ob != null);
 
-            m_itemDefinitions = new HashSet<MyStringId>();
-            m_definitionList = new List<MyStringId>();
+            m_itemDefinitions = new HashSet<MyStringHash>(MyStringHash.Comparer);
+            m_definitionList = new List<MyStringHash>();
 
             System.Type classType = builder.Id.TypeId;
             var attribs = classType.GetCustomAttributes(typeof(MyEnvironmentItemsAttribute), inherit: false);
@@ -59,19 +59,19 @@ namespace Sandbox.Definitions
             MaxViewDistance = ob.MaxViewDistance;
             SectorSize = ob.SectorSize;
             ItemSize = ob.ItemSize;
-            Material = MyStringId.GetOrCompute(ob.PhysicalMaterial);
+            Material = MyStringHash.GetOrCompute(ob.PhysicalMaterial);
         }
 
-        public void AddItemDefinition(MyStringId definition)
+        public void AddItemDefinition(MyStringHash definition)
         {
-            System.Diagnostics.Debug.Assert(!m_itemDefinitions.Contains(definition));
+            Debug.Assert(!m_itemDefinitions.Contains(definition));
             if (m_itemDefinitions.Contains(definition)) return;
 
             m_itemDefinitions.Add(definition);
             m_definitionList.Add(definition);
         }
 
-        public MyEnvironmentItemDefinition GetItemDefinition(MyStringId subtypeId)
+        public MyEnvironmentItemDefinition GetItemDefinition(MyStringHash subtypeId)
         {
             MyEnvironmentItemDefinition retval = null;
 
@@ -98,7 +98,7 @@ namespace Sandbox.Definitions
             return GetItemDefinition(m_definitionList[index]);
         }
 
-        public bool ContainsItemDefinition(MyStringId subtypeId)
+        public bool ContainsItemDefinition(MyStringHash subtypeId)
         {
             return m_itemDefinitions.Contains(subtypeId);
         }

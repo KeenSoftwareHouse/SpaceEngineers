@@ -423,6 +423,7 @@ namespace Sandbox.Engine.Utils
     public static class MySteamConstants
     {
         public static string URL_GUIDE_DEFAULT              = "http://steamcommunity.com/sharedfiles/filedetails/?id=185301069#ig_bottom";
+        public static string URL_GUIDE_BATTLE               = URL_GUIDE_DEFAULT;
         public static string URL_HELP_MAIN_MENU             = URL_GUIDE_DEFAULT;
         public static string URL_HELP_TERMINAL_SCREEN       = URL_GUIDE_DEFAULT;
         public static string URL_HELP_ASSEMBLER_SCREEN      = URL_GUIDE_DEFAULT;
@@ -431,7 +432,8 @@ namespace Sandbox.Engine.Utils
         public static string URL_BROWSE_WORKSHOP_BLUEPRINTS = "http://steamcommunity.com/workshop/browse/?appid=244850&requiredtags%5B%5D=blueprint";
         public static string URL_BROWSE_WORKSHOP_INGAMESCRIPTS = "http://steamcommunity.com/workshop/browse/?appid=244850&requiredtags%5B%5D=ingamescript";
         public static string URL_BROWSE_WORKSHOP_INGAMESCRIPTS_HELP = "http://steamcommunity.com/sharedfiles/filedetails/?id=360966557";
-        public static string URL_WORKSHOP_VIEW_ITEM_FORMAT  = "http://steamcommunity.com/sharedfiles/filedetails/?id={0}";
+        public static string URL_BROWSE_WORKSHOP_SCENARIOS = "http://steamcommunity.com/workshop/browse/?appid=244850&requiredtags%5B%5D=scenario";
+        public static string URL_WORKSHOP_VIEW_ITEM_FORMAT = "http://steamcommunity.com/sharedfiles/filedetails/?id={0}";
         public static string URL_RECOMMEND_GAME             = "http://store.steampowered.com/recommended/recommendgame/244850";
     }
 

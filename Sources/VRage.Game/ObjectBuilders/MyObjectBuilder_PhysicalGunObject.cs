@@ -21,7 +21,7 @@ namespace Sandbox.Common.ObjectBuilders
             GunEntity = gunEntity;
         }
 
-        public override bool CanStack(MyObjectBuilderType type, MyStringId subtypeId, MyItemFlags flags)
+        public override bool CanStack(MyObjectBuilderType type, MyStringHash subtypeId, MyItemFlags flags)
         {
             return false; // weapons shouldn't stack
         }

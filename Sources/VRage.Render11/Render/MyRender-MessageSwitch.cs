@@ -454,7 +454,16 @@ namespace VRageRender
                     //    instancing.UpdateGeneric(rMessage.InstanceData, rMessage.Capacity);
                     //}
 
-                    MyInstancing.UpdateGeneric(MyInstancing.Get(rMessage.ID), rMessage.InstanceData, rMessage.Capacity);
+                    var handle = MyInstancing.Get(rMessage.ID);
+
+                    if (handle != InstancingId.NULL)
+                    {
+                        MyInstancing.UpdateGeneric(handle, rMessage.InstanceData, rMessage.Capacity);
+                    }
+                    else
+                    {
+                        Debug.Assert(handle != InstancingId.NULL, "No instance buffer with ID " + rMessage.ID);
+                    }
 
                     rMessage.InstanceData.Clear();
 
@@ -470,7 +479,17 @@ namespace VRageRender
                     //{
                     //    instancing.UpdateCube(rMessage.InstanceData, rMessage.Capacity);
                     //}
-                    MyInstancing.UpdateCube(MyInstancing.Get(rMessage.ID), rMessage.InstanceData, rMessage.Capacity);
+
+                    var handle = MyInstancing.Get(rMessage.ID);
+
+                    if (handle != InstancingId.NULL)
+                    {
+                        MyInstancing.UpdateCube(MyInstancing.Get(rMessage.ID), rMessage.InstanceData, rMessage.Capacity);
+                    }
+                    else
+                    {
+                        Debug.Assert(handle != InstancingId.NULL, "No instance buffer with ID " + rMessage.ID);
+                    }
 
                     rMessage.InstanceData.Clear();
 
@@ -647,6 +666,7 @@ namespace VRageRender
                     var actor = MyIDTracker<MyActor>.FindByID(rMessage.ID);
                     if (actor != null)
                     {
+                        // careful, lod is ignored after all (properties apply to all lods)
                         var key = new MyEntityMaterialKey { LOD = rMessage.LOD, Material = X.TEXT(rMessage.MaterialName) };
 
                         if(rMessage.Enabled.HasValue)

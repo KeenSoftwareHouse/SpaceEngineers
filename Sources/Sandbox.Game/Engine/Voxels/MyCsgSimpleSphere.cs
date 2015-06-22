@@ -50,8 +50,22 @@ namespace Sandbox.Engine.Voxels
             if ((m_radius + lodVoxelSize) < distance)
                 return 1f;
 
+            return SignedDistanceInternal(lodVoxelSize, distance);
+        }
+
+        private float SignedDistanceInternal(float lodVoxelSize, float distance)
+        {
             float signedDistance = distance - m_radius;
             return signedDistance / lodVoxelSize;
+        }
+
+        internal override float SignedDistanceUnchecked(ref Vector3 position, float lodVoxelSize, IMyModule macroModulator, IMyModule detailModulator)
+        {
+            Vector3 localPosition = position - m_translation;
+
+            float distance = localPosition.Length();
+
+            return SignedDistanceInternal(lodVoxelSize, distance);
         }
 
         internal override void DebugDraw(ref Vector3D worldTranslation, Color color)

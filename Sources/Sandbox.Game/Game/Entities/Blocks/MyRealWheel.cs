@@ -10,7 +10,7 @@ namespace Sandbox.Game.Entities.Blocks
     [MyCubeBlockType(typeof(MyObjectBuilder_RealWheel))]
     class MyRealWheel : MyMotorRotor
     {
-        internal override void ContactPointCallback(ref MyGridContactInfo value)
+        public override void ContactPointCallback(ref MyGridContactInfo value)
         {
             //return;
             var prop = value.Event.ContactProperties;

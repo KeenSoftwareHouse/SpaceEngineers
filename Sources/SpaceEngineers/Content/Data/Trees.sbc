@@ -1,0 +1,77 @@
+<?xml version="1.0"?>
+<Definitions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <EnvironmentItems>
+    <!--Version 02-->
+
+    <EnvironmentItem xsi:type="MyObjectBuilder_TreeDefinition">
+      <Id>
+        <TypeId>MyObjectBuilder_Tree</TypeId>
+        <SubtypeId>Tree02_v2</SubtypeId>
+      </Id>
+      <Model>Models\Environment\Trees\PineTree10m_v2.mwm</Model>
+      <Kind>Pine</Kind>
+      <Height>9.495</Height>
+      <Diameter>0.247</Diameter>
+      <BranchesStartHeight>2.342</BranchesStartHeight>
+      <StumpEndHeight>0.262</StumpEndHeight>
+      <PhysicalMaterial>Wood</PhysicalMaterial>
+    </EnvironmentItem>
+
+    <EnvironmentItem xsi:type="MyObjectBuilder_TreeDefinition">
+      <Id>
+        <TypeId>MyObjectBuilder_Tree</TypeId>
+        <SubtypeId>Tree03_v2</SubtypeId>
+      </Id>
+      <Model>Models\Environment\Trees\PineTree15m_v2.mwm</Model>
+      <Kind>Pine</Kind>
+      <Height>14.242</Height>
+      <Diameter>0.371</Diameter>
+      <BranchesStartHeight>5.302</BranchesStartHeight>
+      <StumpEndHeight>0.358</StumpEndHeight>
+      <PhysicalMaterial>Wood</PhysicalMaterial>
+    </EnvironmentItem>
+
+    <EnvironmentItem xsi:type="MyObjectBuilder_TreeDefinition">
+      <Id>
+        <TypeId>MyObjectBuilder_Tree</TypeId>
+        <SubtypeId>Tree04_v2</SubtypeId>
+      </Id>
+      <Model>Models\Environment\Trees\PineTree175m_v2.mwm</Model>
+      <Kind>Pine</Kind>
+      <Height>17.422</Height>
+      <Diameter>0.453</Diameter>
+      <BranchesStartHeight>10.689</BranchesStartHeight>
+      <StumpEndHeight>0.242</StumpEndHeight>
+      <PhysicalMaterial>Wood</PhysicalMaterial>
+    </EnvironmentItem>
+
+    <EnvironmentItem xsi:type="MyObjectBuilder_TreeDefinition">
+      <Id>
+        <TypeId>MyObjectBuilder_Tree</TypeId>
+        <SubtypeId>Tree05_v2</SubtypeId>
+      </Id>
+      <Model>Models\Environment\Trees\PineTree225m_v2.mwm</Model>
+      <Kind>Pine</Kind>
+      <Height>21.952</Height>
+      <Diameter>0.571</Diameter>
+      <BranchesStartHeight>5.351</BranchesStartHeight>
+      <StumpEndHeight>0.605</StumpEndHeight>
+      <PhysicalMaterial>Wood</PhysicalMaterial>
+    </EnvironmentItem>
+
+    <EnvironmentItem xsi:type="MyObjectBuilder_TreeDefinition">
+      <Id>
+        <TypeId>MyObjectBuilder_Tree</TypeId>
+        <SubtypeId>Tree06_v2</SubtypeId>
+      </Id>
+      <Model>Models\Environment\Trees\PineTree25m_v2.mwm</Model>
+      <Kind>Pine</Kind>
+      <Height>23.736</Height>
+      <Diameter>0.618</Diameter>
+      <BranchesStartHeight>7.588</BranchesStartHeight>
+      <StumpEndHeight>0.976</StumpEndHeight>
+      <PhysicalMaterial>Wood</PhysicalMaterial>
+    </EnvironmentItem>
+
+  </EnvironmentItems>
+</Definitions>

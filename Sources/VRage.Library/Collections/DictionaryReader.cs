@@ -26,6 +26,11 @@ namespace VRage.Collections
             return m_collection.ContainsKey(key);
         }
 
+        public bool TryGetValue(K key, out V value)
+        {
+            return m_collection.TryGetValue(key, out value);
+        }
+
         public int Count()
         {
             return m_collection.Count;

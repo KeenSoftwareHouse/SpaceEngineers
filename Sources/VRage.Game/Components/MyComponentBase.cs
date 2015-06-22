@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using VRage.ModAPI;
 
 namespace VRage.Components
 {
@@ -11,8 +10,10 @@ namespace VRage.Components
         void SetContainer(IMyComponentContainer container);
 
         void OnAddedToContainer();
-
         void OnRemovedFromContainer();
+
+        void OnAddedToScene();
+        void OnRemovedFromScene();
     }
 
     public abstract class MyComponentBase<C> : IMyComponentBase where C : IMyComponentContainer
@@ -35,6 +36,14 @@ namespace VRage.Components
         public virtual T GetAs<T>() where T : MyComponentBase<C>
         {
             return this as T;
+        }
+
+        public virtual void OnAddedToScene()
+        {
+        }
+
+        public virtual void OnRemovedFromScene()
+        {
         }
     }
 }

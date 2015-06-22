@@ -39,8 +39,11 @@ namespace Sandbox.Engine.Utils
 
         public static ulong GetBattlePoints(MySlimBlock slimBlock)
         {
-            Debug.Assert(slimBlock.BlockDefinition.BattlePoints > 0);
-            ulong pts = (ulong)(slimBlock.BlockDefinition.BattlePoints > 0 ? slimBlock.BlockDefinition.BattlePoints : 1);
+            Debug.Assert(slimBlock.BlockDefinition.Points > 0);
+            ulong pts = (ulong)(slimBlock.BlockDefinition.Points > 0 ? slimBlock.BlockDefinition.Points : 1);
+
+            if (slimBlock.BlockDefinition.IsGeneratedBlock)
+                pts = 0;
 
             // Get points from container items
             IMyInventoryOwner inventoryOwner = slimBlock.FatBlock as IMyInventoryOwner;
@@ -121,8 +124,11 @@ namespace Sandbox.Engine.Utils
                 return 0;
             }
 
-            Debug.Assert(definition.BattlePoints > 0);
-            return (ulong)(definition.BattlePoints > 0 ? definition.BattlePoints : 1);
+            if (definition.IsGeneratedBlock)
+                return 0;
+
+            Debug.Assert(definition.Points > 0);
+            return (ulong)(definition.Points > 0 ? definition.Points : 1);
         }
 
 

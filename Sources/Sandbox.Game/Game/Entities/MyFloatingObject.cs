@@ -41,12 +41,12 @@ namespace Sandbox.Game.Entities
     public class MyFloatingObject : MyEntity, IMyUseObject, IMyUsableEntity, IMyDestroyableObject, IMyFloatingObject
     {
         static MySoundPair TAKE_ITEM_SOUND = new MySoundPair("PlayTakeItem");
-        static MyStringId m_explosives = MyStringId.GetOrCompute("Explosives");
+        static MyStringHash m_explosives = MyStringHash.GetOrCompute("Explosives");
 		static public MyObjectBuilder_Ore ScrapBuilder = MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_Ore>("Scrap");
 
         private StringBuilder m_displayedText = new StringBuilder();
 
-        public MyInventoryItem Item;
+        public MyPhysicalInventoryItem Item;
 
         public MyVoxelMaterialDefinition VoxelMaterial;
         public long CreationTime;
@@ -77,11 +77,11 @@ namespace Sandbox.Game.Entities
             if (builder.Item.Amount <= 0)
             {
                 // I can only prevent creation of entity by throwing exception. This might cause crashes when thrown outside of MyEntities.CreateFromObjectBuilder().
-                throw new ArgumentOutOfRangeException("MyInventoryItem.Amount", string.Format("Creating floating object with invalid amount: {0}x '{1}'", builder.Item.Amount, builder.Item.Content.GetId()));
+                throw new ArgumentOutOfRangeException("MyPhysicalInventoryItem.Amount", string.Format("Creating floating object with invalid amount: {0}x '{1}'", builder.Item.Amount, builder.Item.Content.GetId()));
             }
             base.Init(objectBuilder);
 
-            this.Item = new MyInventoryItem(builder.Item);
+            this.Item = new MyPhysicalInventoryItem(builder.Item);
 
             InitInternal();
 
@@ -91,10 +91,8 @@ namespace Sandbox.Game.Entities
         public override void UpdateAfterSimulation()
         {
             base.UpdateAfterSimulation();
-
             // DA: Consider using havok fields (buoyancy demo) for gravity of planets.
-            Vector3 gravity = MyGravityProviderSystem.CalculateGravityInPointForGrid(PositionComp.GetPosition());
-            Physics.AddForce(MyPhysicsForceType.APPLY_WORLD_FORCE, Physics.Mass * gravity, Physics.CenterOfMassWorld, null);
+            Physics.RigidBody.Gravity = MyGravityProviderSystem.CalculateGravityInPointForGrid(PositionComp.GetPosition());
         }
 
         public override void OnAddedToScene(object source)
@@ -172,7 +170,7 @@ namespace Sandbox.Game.Entities
             FormatDisplayName(m_displayedText, Item);
         }
 
-        private void FormatDisplayName(StringBuilder outputBuffer, MyInventoryItem item)
+        private void FormatDisplayName(StringBuilder outputBuffer, MyPhysicalInventoryItem item)
         {
             var definition = MyDefinitionManager.Static.GetPhysicalItemDefinition(item.Content);
             outputBuffer.Clear().Append(definition.DisplayNameText);
@@ -271,7 +269,15 @@ namespace Sandbox.Game.Entities
                 if (MySession.ControlledEntity == user)
                     MyAudio.Static.PlaySound(TAKE_ITEM_SOUND.SoundId);
                 //user.StartSecondarySound(TAKE_ITEM_SOUND);
-                user.GetInventory().TakeFloatingObject(this);
+                // MW:TODO HACK - remove after floating object is component OR when we have accessible inventories in ME
+                if (Item.Content.TypeId == typeof(MyObjectBuilder_ConsumableItem))
+                {
+                    var consumableDefinition = MyDefinitionManager.Static.GetDefinition(Item.Content.GetId()) as MyConsumableItemDefinition;
+                    user.StatComp.Consume(Item.Amount, consumableDefinition);
+                    MyFloatingObjects.RemoveFloatingObject(this);
+                }
+                else
+                    user.GetInventory().TakeFloatingObject(this);
                 MyHud.Notifications.ReloadTexts();
             }
         }
@@ -307,6 +313,11 @@ namespace Sandbox.Game.Entities
         UseActionResult IMyUsableEntity.CanUse(UseActionEnum actionEnum, IMyControllableEntity user)
         {
             return MarkedForClose ? UseActionResult.Closed : UseActionResult.OK; // When object is not collected, it's usable
+        }
+
+        bool IMyUseObject.PlayIndicatorSound
+        {
+            get { return false; }
         }
 
         public void DoDamage(float damage, MyDamageType damageType, bool sync)
@@ -398,7 +409,7 @@ namespace Sandbox.Game.Entities
                         {
                             var definition = MyDefinitionManager.Static.GetComponentDefinition((Item.Content as MyObjectBuilder_Component).GetId());
                             if (MyRandom.Instance.NextFloat() < definition.DropProbability)
-                                MyFloatingObjects.Spawn(new MyInventoryItem(Item.Amount * 0.8f, ScrapBuilder), PositionComp.GetPosition(), WorldMatrix.Forward, WorldMatrix.Up);
+                                MyFloatingObjects.Spawn(new MyPhysicalInventoryItem(Item.Amount * 0.8f, ScrapBuilder), PositionComp.GetPosition(), WorldMatrix.Forward, WorldMatrix.Up);
                         }
                     }
                 }

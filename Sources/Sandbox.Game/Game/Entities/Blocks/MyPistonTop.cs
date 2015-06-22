@@ -77,7 +77,7 @@ namespace Sandbox.Game.Entities.Blocks
             base.OnRemovedByCubeBuilder();
         }
 
-        internal override void ContactPointCallback(ref MyGridContactInfo value)
+        public override void ContactPointCallback(ref MyGridContactInfo value)
         {
             base.ContactPointCallback(ref value);
             if (m_pistonBlock == null)

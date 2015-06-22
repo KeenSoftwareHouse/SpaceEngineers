@@ -97,6 +97,7 @@ namespace Sandbox.Game.Entities
             }
             else if (MultiBlockCreationIsActivated)
             {
+                m_multiBlockCreationClipboard.Update();
                 m_multiBlockCreationClipboard.CalculateRotationHints(m_rotationHints, false);
             }
 
@@ -114,6 +115,9 @@ namespace Sandbox.Game.Entities
 
                 if (MyFakes.ENABLE_DEBUG_DRAW_TEXTURE_NAMES)
                     DebugDrawModelTextures();
+
+                if (MyFakes.ENABLE_DEBUG_DRAW_GENERATING_BLOCK)
+                    DebugDrawGeneratingBlock();
 
                 if (MultiBlockCreationIsActivated)
                     UpdateBlockInfoHud();
@@ -281,6 +285,40 @@ namespace Sandbox.Game.Entities
 
             if (MyFakes.ENABLE_DEBUG_DRAW_TEXTURE_NAMES)
                 DebugDrawModelTextures();
+
+            if (MyFakes.ENABLE_DEBUG_DRAW_GENERATING_BLOCK)
+                DebugDrawGeneratingBlock();
+        }
+
+        private void DebugDrawGeneratingBlock()
+        {
+            LineD line = new LineD(IntersectionStart, IntersectionStart + IntersectionDirection * 200);
+            MyIntersectionResultLineTriangleEx? intersection = MyEntities.GetIntersectionWithLine(ref line, MySession.LocalCharacter, null);
+
+            if (intersection.HasValue && intersection.Value.Entity is MyCubeGrid)
+            {
+                MyCubeGrid grid = intersection.Value.Entity as MyCubeGrid;
+                MyIntersectionResultLineTriangleEx? t = null;
+                MySlimBlock block = null;
+                if (grid.GetIntersectionWithLine(ref line, out t, out block) && t.HasValue && block != null)
+                {
+                    if (block.BlockDefinition.IsGeneratedBlock)
+                        DebugDrawGeneratingBlock(block);
+                }
+            }
+        }
+
+        private void DebugDrawGeneratingBlock(MySlimBlock generatedBlock)
+        {
+            var generatingBlock = generatedBlock.CubeGrid.GetGeneratingBlock(generatedBlock);
+            if (generatingBlock != null)
+            {
+                VRageRender.MyRenderProxy.DebugDrawText2D(new Vector2(0, 0), "Generated SubTypeId: " + generatedBlock.BlockDefinition.Id.SubtypeName + " " + generatedBlock.Min.ToString() + " " + generatedBlock.Orientation.ToString(), Color.Yellow, 0.5f);
+                VRageRender.MyRenderProxy.DebugDrawText2D(new Vector2(0, 14), "Generating SubTypeId: " + generatingBlock.BlockDefinition.Id.SubtypeName + " " + generatingBlock.Min.ToString() + " " + generatingBlock.Orientation.ToString(), Color.Yellow, 0.5f);
+
+                Vector4 blue = new Vector4(Color.Blue.ToVector3() * 0.8f, 1);
+                MyCubeBuilder.DrawSemiTransparentBox(generatingBlock.CubeGrid, generatingBlock, Color.Blue, lineColor: blue);
+            }
         }
 
         private void DebugDrawModelTextures() 

@@ -900,10 +900,10 @@ namespace Sandbox.Graphics.GUI
         ///     c. draw the display items
         ///     d. disable stencil
         /// </summary>
-        public override void Draw(float transitionAlpha)
+        public override void Draw(float transitionAlpha, float backgroundTransitionAlpha)
         {
             // In case of listbox mode, before calling parent's draw, reset background color, because it will draw unwanted texture for first item in list(texture, that is used normally for closed combobox)
-            base.Draw(transitionAlpha);
+            base.Draw(transitionAlpha, transitionAlpha);
 
             if (m_selected != null)
                 DrawSelectedItemText(transitionAlpha);

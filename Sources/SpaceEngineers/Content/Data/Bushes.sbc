@@ -1,0 +1,73 @@
+<?xml version="1.0"?>
+<Definitions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <EnvironmentItems>
+    
+    <!--<EnvironmentItem xsi:type="MyObjectBuilder_BushDefinition">
+      <Id>
+        <TypeId>MyObjectBuilder_Bush</TypeId>
+        <SubtypeId>Bush01</SubtypeId>
+      </Id>
+      <Model>Models\Environment\Bushes\BushSimple.mwm</Model>
+      <Kind>WildRose</Kind>
+    </EnvironmentItem>-->
+
+    <EnvironmentItem xsi:type="MyObjectBuilder_EnvironmentItemDefinition">
+      <Id>
+        <TypeId>MyObjectBuilder_DestroyableItem</TypeId>
+        <SubtypeId>Small_tree_01</SubtypeId>
+      </Id>
+      <Model>Models\Environment\Bushes\Small_tree_LOD0.mwm</Model>
+      <PhysicalMaterial>Wood</PhysicalMaterial>
+    </EnvironmentItem>
+
+    <EnvironmentItem xsi:type="MyObjectBuilder_EnvironmentItemDefinition">
+      <Id>
+        <TypeId>MyObjectBuilder_DestroyableItem</TypeId>
+        <SubtypeId>Bigger_tree_01</SubtypeId>
+      </Id>
+      <Model>Models\Environment\Bushes\Bigger_tree_LOD0.mwm</Model>
+      <PhysicalMaterial>Wood</PhysicalMaterial>
+    </EnvironmentItem>
+
+    <EnvironmentItem xsi:type="MyObjectBuilder_EnvironmentItemDefinition">
+      <Id>
+        <TypeId>MyObjectBuilder_DestroyableItem</TypeId>
+        <SubtypeId>Fern_small</SubtypeId>
+      </Id>
+      <Model>Models\Environment\Bushes\Fern_small_LOD0.mwm</Model>
+    </EnvironmentItem>
+
+    <EnvironmentItem xsi:type="MyObjectBuilder_EnvironmentItemDefinition">
+      <Id>
+        <TypeId>MyObjectBuilder_DestroyableItem</TypeId>
+        <SubtypeId>Fern_big</SubtypeId>
+      </Id>
+      <Model>Models\Environment\Bushes\Fern_big_LOD0.mwm</Model>
+    </EnvironmentItem>
+
+    <EnvironmentItem xsi:type="MyObjectBuilder_EnvironmentItemDefinition">
+      <Id>
+        <TypeId>MyObjectBuilder_DestroyableItem</TypeId>
+        <SubtypeId>Bushes_01</SubtypeId>
+      </Id>
+      <Model>Models\Environment\Bushes\Bushes_01_LOD0.mwm</Model>
+    </EnvironmentItem>
+
+    <EnvironmentItem xsi:type="MyObjectBuilder_EnvironmentItemDefinition">
+      <Id>
+        <TypeId>MyObjectBuilder_DestroyableItem</TypeId>
+        <SubtypeId>Mushrooms_01</SubtypeId>
+      </Id>
+      <Model>Models\Environment\Bushes\Mushrooms_LOD0.mwm</Model>
+    </EnvironmentItem>
+
+    <EnvironmentItem xsi:type="MyObjectBuilder_EnvironmentItemDefinition">
+      <Id>
+        <TypeId>MyObjectBuilder_DestroyableItem</TypeId>
+        <SubtypeId>Backup</SubtypeId>
+      </Id>
+    </EnvironmentItem>
+    
+    
+  </EnvironmentItems>
+</Definitions>

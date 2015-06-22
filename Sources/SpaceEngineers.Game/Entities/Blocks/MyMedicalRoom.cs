@@ -33,6 +33,8 @@ using Sandbox.Game.Entities.Cube;
 using Sandbox.Game.Entities;
 using Sandbox.Game;
 using Sandbox;
+using Sandbox.Game.Localization;
+using Sandbox.Game.Screens.Terminal.Controls;
 
 namespace SpaceEngineers.Game.Entities.Blocks
 {
@@ -121,6 +123,8 @@ namespace SpaceEngineers.Game.Entities.Blocks
         private float m_requiredPowerInput;
         private new SyncClass SyncObject;
 
+        protected bool m_takeSpawneeOwnership = false;
+
         //obsolete, use IDModule
         private ulong SteamUserId { get; set; }
 
@@ -140,6 +144,22 @@ namespace SpaceEngineers.Game.Entities.Blocks
         protected override bool CheckIsWorking()
         {
             return PowerReceiver.IsPowered && base.CheckIsWorking();
+        }
+
+        static MyMedicalRoom()
+        {
+            //terminal:
+            var label = new MyTerminalControlLabel<MyMedicalRoom>("ScenarioControls", MySpaceTexts.TerminalScenarioSettingsLabel);
+            var ownershipCheckbox = new MyTerminalControlCheckbox<MyMedicalRoom>("TakeOwnership", MySpaceTexts.MedicalRoom_ownershipAssignmentLabel, MySpaceTexts.MedicalRoom_ownershipAssignmentTooltip);
+            ownershipCheckbox.Getter = (x) => x.m_takeSpawneeOwnership;
+            ownershipCheckbox.Setter = (x, val) =>
+            {
+                x.m_takeSpawneeOwnership = val;
+            };
+            ownershipCheckbox.Enabled = (x) => MySession.Static.Settings.ScenarioEditMode;
+            MyTerminalControlFactory.AddControl(label);
+            MyTerminalControlFactory.AddControl(ownershipCheckbox);
+
         }
 
         public MyMedicalRoom()
@@ -189,6 +209,8 @@ namespace SpaceEngineers.Game.Entities.Blocks
             }
             SteamUserId = 0;
 
+            m_takeSpawneeOwnership = (objectBuilder as MyObjectBuilder_MedicalRoom).TakeOwnership;
+
             SyncObject = new SyncClass(this);
 
             SlimBlock.ComponentStack.IsFunctionalChanged += ComponentStack_IsFunctionalChanged;
@@ -231,6 +253,7 @@ namespace SpaceEngineers.Game.Entities.Blocks
             builder.SteamUserId = SteamUserId;
             builder.IdleSound = m_idleSound.ToString();
             builder.ProgressSound = m_progressSound.ToString();
+            builder.TakeOwnership = m_takeSpawneeOwnership;
             return builder;
         }
 
@@ -439,6 +462,12 @@ namespace SpaceEngineers.Game.Entities.Blocks
             }
 
             m_user.SuitOxygenAmount += amount;
+        }
+
+        public void TryTakeSpawneeOwnership(MyPlayer player)
+        {
+            if (MySession.Static.IsScenario && m_takeSpawneeOwnership && Sync.IsServer && OwnerId == 0)
+                ChangeBlockOwnerRequest(player.Identity.IdentityId, MyOwnershipShareModeEnum.None);
         }
     }
 }

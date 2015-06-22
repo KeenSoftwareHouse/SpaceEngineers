@@ -275,7 +275,7 @@ namespace Sandbox.Definitions
 
         public MySoundPair PrimarySound;
 
-        public int BattlePoints;
+        public int Points;
 
 
         public override String DisplayNameText
@@ -333,7 +333,7 @@ namespace Sandbox.Definitions
             if (ob.DamageEffectId != 0)
                 this.DamageEffectID = ob.DamageEffectId;
 
-            this.BattlePoints = ob.BattlePoints;
+            this.Points = ob.Points;
 
             this.CompoundTemplates = ob.CompoundTemplates;
             Debug.Assert(this.CompoundTemplates == null || this.CompoundTemplates.Length > 0, "Wrong compound templates, array is empty");
@@ -446,6 +446,9 @@ namespace Sandbox.Definitions
                     MaxIntegrity = ob.MaxIntegrity;
             }
 
+            if (criticalIntegrity > MaxIntegrity)
+                criticalIntegrity = MaxIntegrity;
+
             CriticalIntegrityRatio = criticalIntegrity / MaxIntegrity;
             OwnershipIntegrityRatio = ownershipIntegrity / MaxIntegrity;
 
@@ -535,7 +538,7 @@ namespace Sandbox.Definitions
             ob.DamageEffectId = this.DamageEffectID.HasValue ? this.DamageEffectID.Value : 0;
             ob.CompoundTemplates = this.CompoundTemplates;
             ob.Icon = Icon;
-            ob.BattlePoints = this.BattlePoints;
+            ob.Points = this.Points;
             //ob.SubBlockDefinitions = SubBlockDefinitions;
             //ob.BlockVariants = BlockVariants;
 

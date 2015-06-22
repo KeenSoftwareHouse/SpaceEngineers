@@ -480,6 +480,7 @@ namespace VRageRender
         public MyAntialiasingMode AntialiasingMode;
         public MyShadowsQuality ShadowQuality;
         public bool MultithreadingEnabled;
+        public bool TonemappingEnabled;
         public MyTextureQuality TextureQuality;
         public MyTextureAnisoFiltering AnisotropicFiltering;
         public MyFoliageDetails FoliageDetails;
@@ -497,6 +498,7 @@ namespace VRageRender
                 AntialiasingMode == other.AntialiasingMode &&
                 ShadowQuality == other.ShadowQuality &&
                 MultithreadingEnabled == other.MultithreadingEnabled &&
+                TonemappingEnabled == other.TonemappingEnabled &&
                 TextureQuality == other.TextureQuality &&
                 AnisotropicFiltering == other.AnisotropicFiltering &&
                 FoliageDetails == other.FoliageDetails;

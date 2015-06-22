@@ -146,7 +146,7 @@ namespace VRage.Components
 
                 if (oldValue != Container.Entity.Flags)
                 {
-                    UpdateRenderObject(value);
+                    UpdateRenderObjectVisibilityIncludingChildren(value);
                 }
             }
         }
@@ -199,12 +199,27 @@ namespace VRage.Components
             }
         }
 
-        protected void UpdateRenderObjectVisibility(bool visible)
+        protected virtual void UpdateRenderObjectVisibility(bool visible)
         {
             foreach (uint id in m_renderObjectIDs)
             {
                 VRageRender.MyRenderProxy.UpdateRenderObjectVisibility(id, visible, Container.Entity.NearFlag);
             }
+        }
+
+        private void UpdateRenderObjectVisibilityIncludingChildren(bool visible)
+        {
+            UpdateRenderObjectVisibility(visible);
+
+            MyHierarchyComponentBase hierarchy = Container.Get<MyHierarchyComponentBase>();
+            foreach (var child in hierarchy.Children)
+            {
+                MyRenderComponentBase renderComponent = null;
+                if (child.Container.Entity.InScene && child.Container.TryGet(out renderComponent))
+                {
+                    renderComponent.UpdateRenderObjectVisibilityIncludingChildren(visible);
+                }
+            }    
         }
 
         public Color GetDiffuseColor() { return m_diffuseColor; }

@@ -1,0 +1,116 @@
+<?xml version="1.0"?>
+<Definitions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+<PlanetDefinitions>
+  
+  <PlanetDefinition>
+    <Id>
+      <TypeId>PlanetDefinition</TypeId>
+      <SubtypeId>Moon</SubtypeId>
+    </Id>
+    <Diameter Min ="8000" Max ="10000"/>
+    <Deviation Min ="0.003" Max ="0.003"/>
+    <StructureRatio Min ="0.1" Max ="2"/>
+    <NormalNoiseValue Min ="0.1"  Max="2"/>
+    <HasAtmosphere>false</HasAtmosphere>
+    <HostilityProbability>1.0</HostilityProbability>
+    <OrganicHeightEnd Min ="0" Max="0"/>
+    <MetalsHeightEndHostile Min="0.2" Max ="0.3"/>
+    <MetalsSpawnProbability Min ="0.8" Max ="1.0"/>
+    
+    <MetalsOreProbability>
+      <OreProbability Type="Iron" Min ="0.1" Max ="0.4"/>
+      <OreProbability Type="Nickel" Min ="0.05" Max ="0.1"/>
+      <OreProbability Type="Cobalt" Min ="0.05" Max ="0.1"/>
+      <OreProbability Type="Magnesium" Min ="0.05" Max ="0.1"/>
+      <OreProbability Type="Silicon" Min ="0.25" Max ="0.5"/>
+      <OreProbability Type="Silver" Min ="0.0" Max ="0.05"/>
+      <OreProbability Type="Gold" Min ="0.0" Max ="0.05"/>
+      <OreProbability Type="Platinum" Min ="0.0" Max ="0.05"/>
+      <OreProbability Type="Uranium" Min ="0.0" Max ="0.05"/>
+      <OreProbability Type="Ice" Min ="0.3" Max ="0.5"/>
+    </MetalsOreProbability> 
+    
+    <NumLayers Min ="5" Max="8"/>
+    
+    <HillParams>
+      <Treshold Min ="0.5" Max ="0.65"/>
+      <BlendSize Min ="0.4" Max ="0.6"/>
+      <SizeRatio Min = "3" Max ="6"/>
+      <Frequency Min = "1" Max ="2"/>
+      <NumNoises Min = "1" Max ="2"/>
+    </HillParams>
+    
+    <CanyonParams>
+      <Treshold Min ="-1" Max ="-0.5"/>
+      <BlendSize Min ="0" Max ="0.3"/>
+      <SizeRatio Min = "1" Max ="4"/>
+      <Frequency Min = "0.1" Max ="0.5"/>
+      <NumNoises Min = "1" Max ="1"/>
+    </CanyonParams>
+    
+  </PlanetDefinition>
+  
+  <PlanetDefinition>
+    <Id>
+      <TypeId>PlanetDefinition</TypeId>
+      <SubtypeId>Planet</SubtypeId>
+    </Id>
+    
+    <Diameter Min ="30000" Max ="50000"/>
+    <Deviation Min ="0.003" Max ="0.003"/>
+    <StructureRatio Min ="0.5" Max ="2"/>
+    <NormalNoiseValue Min ="0.1"  Max="0.15"/>
+    <HasAtmosphere>true</HasAtmosphere>
+    <HostilityProbability>0.6</HostilityProbability>
+    <OrganicHeightEnd Min ="0.4" Max="0.5"/>
+    <FloraMaterialSpawnProbability Min ="0.4" Max ="0.6"/>
+    <MetalsHeightEndHostile Min="0.3" Max ="0.4"/>
+    <MetalsSpawnProbability Min ="0.6" Max ="0.8"/>
+    
+    <MetalsOreProbability>
+      <OreProbability Type="Iron" Min ="0.1" Max ="0.4"/>
+      <OreProbability Type="Nickel" Min ="0.05" Max ="0.1"/>
+      <OreProbability Type="Cobalt" Min ="0.05" Max ="0.1"/>
+      <OreProbability Type="Magnesium" Min ="0.05" Max ="0.1"/>
+      <OreProbability Type="Silicon" Min ="0.25" Max ="0.5"/>
+      <OreProbability Type="Silver" Min ="0.0" Max ="0.05"/>
+      <OreProbability Type="Gold" Min ="0.0" Max ="0.05"/>
+      <OreProbability Type="Platinum" Min ="0.0" Max ="0.05"/>
+      <OreProbability Type="Uranium" Min ="0.0" Max ="0.05"/>
+      <OreProbability Type="Ice" Min ="0.3" Max ="0.5"/>     
+    </MetalsOreProbability>
+    
+    <NumLayers Min ="6" Max="8"/>
+    
+    <HillParams>
+      <Treshold Min ="0.5" Max ="0.6"/>
+      <BlendSize Min ="0.4" Max ="0.8"/>
+      <SizeRatio Min = "2" Max ="5"/>
+      <Frequency Min = "2" Max ="4"/>
+      <NumNoises Min = "2" Max ="3"/>
+    </HillParams>
+    
+    <CanyonParams>
+      <Treshold Min ="-1" Max ="-0.8"/>
+      <BlendSize Min ="0.5" Max ="0.8"/>
+      <SizeRatio Min = "1" Max ="2"/>
+      <Frequency Min = "0.1" Max ="0.5"/>
+      <NumNoises Min = "1" Max ="1"/>
+    </CanyonParams>
+    
+    <SouthPole>
+      <Probability>0.5</Probability>
+      <Angle Min = "0.8" Max = "0.9" />
+      <AngleDeviation Min = "0.1" Max = "0.2" />
+    </SouthPole>
+    
+    <NorthPole>
+      <Probability>0.5</Probability>
+      <Angle Min = "-0.9" Max = "-0.8" />
+      <AngleDeviation Min = "0.1" Max = "0.2" />
+    </NorthPole>
+  
+  </PlanetDefinition>
+  
+</PlanetDefinitions>
+</Definitions>

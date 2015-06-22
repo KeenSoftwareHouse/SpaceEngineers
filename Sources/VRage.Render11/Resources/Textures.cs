@@ -74,7 +74,7 @@ namespace VRageRender.Resources
 
     static class MyTextures
     {
-        static Dictionary<MyStringId, TexId> NameIndex = new Dictionary<MyStringId, TexId>();
+        static Dictionary<MyStringId, TexId> NameIndex = new Dictionary<MyStringId, TexId>(MyStringId.Comparer);
         internal static MyFreelist<MyTextureInfo> Textures = new MyFreelist<MyTextureInfo>(512);
         internal static ShaderResourceView[] Views = new ShaderResourceView[512];
 
@@ -87,6 +87,7 @@ namespace VRageRender.Resources
         internal static TexId Dithering8x8TexId;
         internal static TexId DebugPinkTexId;
         internal static TexId MissingCubeTexId;
+        internal static TexId IntelFallbackCubeTexId;
 
         internal static void Init()
         {
@@ -128,6 +129,20 @@ namespace VRageRender.Resources
             {
                 State[i].Remove(texId);
             }
+        }
+
+        static Format MakeSrgb(Format fmt)
+        {
+            switch(fmt)
+            {
+                case Format.R8G8B8A8_UNorm:
+                    return Format.R8G8B8A8_UNorm_SRgb;
+                case Format.B8G8R8A8_UNorm:
+                    return Format.B8G8R8A8_UNorm_SRgb;
+                case Format.B8G8R8X8_UNorm:
+                    return Format.B8G8R8X8_UNorm_SRgb;
+            }
+            return fmt;
         }
 
         static void LoadTexture(TexId texId)
@@ -184,10 +199,14 @@ namespace VRageRender.Resources
                 var targetWidth = img.Description.Width >> skipMipmaps;
                 var targetHeight = img.Description.Height >> skipMipmaps;
 
+                bool overwriteFormatToSrgb = Textures.Data[texId.Index].Type == MyTextureEnum.COLOR_METAL &&
+                    !SharpDX.DXGI.FormatHelper.IsCompressed(img.Description.Format) &&
+                    !SharpDX.DXGI.FormatHelper.IsSRgb(img.Description.Format);
+
                 var desc = new Texture2DDescription
                 {
                     MipLevels = targetMipmaps,
-                    Format = img.Description.Format,
+                    Format = overwriteFormatToSrgb ? MakeSrgb(img.Description.Format) : img.Description.Format,
                     Height = targetHeight,
                     Width = targetWidth,
                     ArraySize = img.Description.ArraySize,
@@ -216,7 +235,7 @@ namespace VRageRender.Resources
                 }
                 catch (SharpDXException)
                 {
-
+                    img.Dispose();
                 }
             }
             if(!loaded)
@@ -262,7 +281,7 @@ namespace VRageRender.Resources
 
         internal static TexId GetTexture(string path, MyTextureEnum type, bool waitTillLoaded = false)
         {
-            var nameKey = MyStringId.GetOrCompute(path);
+            var nameKey = X.TEXT(path);
             return GetTexture(nameKey, null, type, waitTillLoaded);
         }
 
@@ -359,7 +378,7 @@ namespace VRageRender.Resources
 
         internal static void UnloadTexture(string path)
         {
-            var nameKey = MyStringId.GetOrCompute(path);
+            var nameKey = X.TEXT(path);
             var texId = TexId.NULL;
             if (NameIndex.TryGetValue(nameKey, out texId))
                 UnloadResources(texId);
@@ -390,7 +409,7 @@ namespace VRageRender.Resources
 
         static TexId RegisterTexture(string name, string contentPath, MyTextureEnum type, Resource resource, Vector2 size)
         {
-            var nameKey = MyStringId.GetOrCompute(name);
+            var nameKey = X.TEXT(name);
             if (!NameIndex.ContainsKey(nameKey))
             {
                 var texId = NameIndex[nameKey] = new TexId { Index = Textures.Allocate() };
@@ -482,6 +501,33 @@ namespace VRageRender.Resources
 
                 MissingCubeTexId = RegisterTexture("MISSING_CUBEMAP", null, MyTextureEnum.SYSTEM, new Texture2D(MyRender11.Device, desc, databox), new Vector2(1, 1));
             }
+            {
+                var desc = new Texture2DDescription();
+                desc.ArraySize = 6;
+                desc.BindFlags = BindFlags.ShaderResource;
+                desc.Format = SharpDX.DXGI.Format.R8G8B8A8_UNorm;
+                desc.Height = 1;
+                desc.Width = 1;
+                desc.Usage = ResourceUsage.Immutable;
+                desc.MipLevels = 1;
+                desc.SampleDescription.Count = 1;
+                desc.SampleDescription.Quality = 0;
+                desc.OptionFlags = ResourceOptionFlags.TextureCube;
+
+                DataBox[] databox = new DataBox[6];
+                uint byteval = (uint)(0.2f * 255);
+                uint data = byteval | (byteval << 8) | (byteval << 16);
+                void* ptr = &data;
+
+                for (int i = 0; i < 6; i++)
+                {
+                    databox[i].DataPointer = new IntPtr(ptr);
+                    databox[i].RowPitch = 4;
+                }
+
+                IntelFallbackCubeTexId = RegisterTexture("INTEL_FALLBACK_CUBEMAP", null, MyTextureEnum.SYSTEM, new Texture2D(MyRender11.Device, desc, databox), new Vector2(1, 1));
+            }
+            
             {
                 byte[] ditherData = new byte[] {
                     0, 32, 8, 40, 2, 34, 10, 42,

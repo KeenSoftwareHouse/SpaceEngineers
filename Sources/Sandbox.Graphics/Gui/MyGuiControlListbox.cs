@@ -403,13 +403,13 @@ namespace Sandbox.Graphics.GUI
             return captureInput;
         }
 
-        public override void Draw(float transitionAlpha)
+        public override void Draw(float transitionAlpha, float backgroundTransitionAlpha)
         {
             Debug.Assert(m_visibleRowIndexOffset >= 0);
-            base.Draw(transitionAlpha);
+            base.Draw(transitionAlpha, backgroundTransitionAlpha);
             var positionTopLeft = GetPositionAbsoluteTopLeft();
 
-            m_styleDef.Texture.Draw(positionTopLeft, Size, ApplyColorMaskModifiers(ColorMask, Enabled, transitionAlpha));
+            m_styleDef.Texture.Draw(positionTopLeft, Size, ApplyColorMaskModifiers(ColorMask, Enabled, backgroundTransitionAlpha));
 
             var position = positionTopLeft + new Vector2(m_itemsRectangle.X, m_itemsRectangle.Y);
             int index = m_visibleRowIndexOffset;

@@ -21,6 +21,7 @@ using Sandbox.Graphics.TransparentGeometry.Particles;
 using VRage.Library.Utils;
 using VRageMath;
 using VRage.Utils;
+using VRage.ObjectBuilders;
 
 namespace Sandbox.Game.Entities.EnvironmentItems
 {
@@ -109,7 +110,7 @@ namespace Sandbox.Game.Entities.EnvironmentItems
 				|| ((MyFracturedPiece)entity).OriginalBlocks[0].TypeId == typeof(MyObjectBuilder_DestroyableItem)) && ((MyFracturedPiece)entity).Physics != null;
 		}
 
-        protected override void OnRemoveItem(int instanceId, ref Matrix matrix, MyStringId myStringId)
+        protected override void OnRemoveItem(int instanceId, ref Matrix matrix, MyStringHash myStringId)
         {
             base.OnRemoveItem(instanceId, ref matrix, myStringId);
 
@@ -168,7 +169,7 @@ namespace Sandbox.Game.Entities.EnvironmentItems
                     // Resolve stump - if we have 2 children bellow then move one to above list
                     if (childrenBelow.Count == 2)
                     {
-                        if (childrenBelow[0].CoM.Y < childrenBelow[1].CoM.Y && cutLocalYPosition < childrenBelow[1].CoM.Y + 1.25f) 
+                        if (childrenBelow[0].CoM.Y < childrenBelow[1].CoM.Y && cutLocalYPosition < childrenBelow[1].CoM.Y + 1.25f)
                         {
                             childrenAbove.Insert(0, childrenBelow[1]);
                             childrenBelow.RemoveAt(1);
@@ -194,7 +195,7 @@ namespace Sandbox.Game.Entities.EnvironmentItems
                         CreateFracturePiece(itemDefinition, breakableShape, world, hitNormal, childrenAbove, forceMultiplier, false);
 
                     m_childrenTmp.Clear();
-                }
+                }               
             }
         }
 
