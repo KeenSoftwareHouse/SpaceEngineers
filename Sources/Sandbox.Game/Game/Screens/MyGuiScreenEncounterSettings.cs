@@ -370,7 +370,7 @@ namespace Sandbox.Game.Gui
 
         private void RandomButtonClicked(object sender)
         {
-            m_maxNoShipsPerSpawnGroup.Value = MyRandom.Instance.Next(0, 6); 
+            m_maxNoShipsPerSpawnGroup.Value = MyRandom.Instance.Next(1, 6); 
             m_maxHostileEncountersPercentage.Value = MyRandom.Instance.Next(0, 101);
             m_maxDamagedShipPercentage.Value = MyRandom.Instance.Next(0, 101);
             m_maxDamagedShipsSeverity.SelectItemByIndex(MyRandom.Instance.Next(0, 5));
