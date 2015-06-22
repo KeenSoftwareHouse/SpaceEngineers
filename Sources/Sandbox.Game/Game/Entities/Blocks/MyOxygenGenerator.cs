@@ -29,7 +29,6 @@ namespace Sandbox.Game.Entities.Blocks
         private Color? m_prevEmissiveColor = null;
         private bool m_useConveyorSystem;
         private bool m_autoRefill;
-        private bool m_wantAutoRefill;
         private MyInventory m_inventory;
         private bool m_isProducing;
         private bool m_producedSinceLastUpdate;
@@ -54,14 +53,7 @@ namespace Sandbox.Game.Entities.Blocks
         public bool AutoRefill
         {
             get { return m_autoRefill; }
-            set
-            {
-                if (value != m_wantAutoRefill)
-                {
-                    m_wantAutoRefill = value;
-                    SyncObject.ChangeAutoRefill(value);
-                }
-            }
+            set { m_autoRefill = value; }
         }
 
         public MyPowerReceiver PowerReceiver
@@ -91,7 +83,7 @@ namespace Sandbox.Game.Entities.Blocks
 
             var autoRefill = new MyTerminalControlCheckbox<MyOxygenGenerator>("Auto-Refill", MySpaceTexts.BlockPropertyTitle_AutoRefill, MySpaceTexts.BlockPropertyTitle_AutoRefill);
             autoRefill.Getter = (x) => x.AutoRefill;
-            autoRefill.Setter = (x, v) => x.AutoRefill = v;
+            autoRefill.Setter = (x, v) => x.SyncObject.ChangeAutoRefill(v);
             autoRefill.EnableAction();
             MyTerminalControlFactory.AddControl(autoRefill);
         }
