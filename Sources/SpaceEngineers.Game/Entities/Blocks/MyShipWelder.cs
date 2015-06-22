@@ -33,7 +33,6 @@ namespace SpaceEngineers.Game.Entities.Blocks
         private static MySoundPair IDLE_SOUND = new MySoundPair("ToolLrgWeldIdle");
         private const MyParticleEffectsIDEnum PARTICLE_EFFECT = MyParticleEffectsIDEnum.Welder;
         private bool m_helpOthers = false;
-        private bool m_wantHelpOthers = false; // prevents sending multiple request for same value
 
         public static readonly float WELDER_AMOUNT_PER_SECOND = 2f;
         public static readonly float WELDER_MAX_REPAIR_BONE_MOVEMENT_SPEED = 0.6f;
@@ -53,7 +52,7 @@ namespace SpaceEngineers.Game.Entities.Blocks
             {
                 var helpOthersCheck = new MyTerminalControlCheckbox<MyShipWelder>("helpOthers", MySpaceTexts.ShipWelder_HelpOthers, MySpaceTexts.ShipWelder_HelpOthers);
                 helpOthersCheck.Getter = (x) => x.HelpOthers;
-                helpOthersCheck.Setter = (x, v) => x.HelpOthers = v;
+                helpOthersCheck.Setter = (x, v) => x.SyncObject.ChangeHelpOthersMode(v);
                 helpOthersCheck.EnableAction();
                 MyTerminalControlFactory.AddControl(helpOthersCheck);
             }
@@ -62,14 +61,6 @@ namespace SpaceEngineers.Game.Entities.Blocks
         public bool HelpOthers
         {
             get { return m_helpOthers; }
-            set
-            {
-                if (m_wantHelpOthers != value)
-                {
-                    m_wantHelpOthers = value;
-                    SyncObject.ChangeHelpOthersMode(value);
-                }
-            }
         }
 
         protected override bool CanInteractWithSelf
@@ -89,13 +80,13 @@ namespace SpaceEngineers.Game.Entities.Blocks
             m_missingComponents = new Dictionary<string, int>();
 
             var builder = (MyObjectBuilder_ShipWelder)objectBuilder;
-            m_wantHelpOthers = m_helpOthers = builder.HelpOthers;
+            m_helpOthers = builder.HelpOthers;
         }
 
         public override MyObjectBuilder_CubeBlock GetObjectBuilderCubeBlock(bool copy = false)
         {
             var builder = (MyObjectBuilder_ShipWelder)base.GetObjectBuilderCubeBlock(copy);
-            builder.HelpOthers = m_wantHelpOthers;
+            builder.HelpOthers = m_helpOthers;
             return builder;
         }
 

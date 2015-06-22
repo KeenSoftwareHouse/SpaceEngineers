@@ -10,9 +10,5 @@ namespace Sandbox.ModAPI
     /// </summary>
     public interface IMyShipWelder : Ingame.IMyShipWelder
     {
-        /// <summary>
-        /// True if welder is set to helper mode
-        /// </summary>
-        bool HelpOthers { get; set; }
     }
 }
