@@ -57,7 +57,7 @@ namespace VRage
         /// <summary>
         /// Used to determine if a serialized field was actually deserialized or left at default values.
         /// 
-        /// To use, set the desired field to SerializableVector3.NotInitialized in the <see cref="MyObjectBuilder_CubeBlock" />.
+        /// To use, set the desired field to SerializableVector3.NotInitialized in the cube block builder.
         /// </summary>
         public bool IsUninitialized 
         { 

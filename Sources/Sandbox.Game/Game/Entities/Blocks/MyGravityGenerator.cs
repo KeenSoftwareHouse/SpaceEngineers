@@ -177,7 +177,7 @@ namespace Sandbox.Game.Entities
                 (g) => g.MaxGravity // Max
             );
             gravityAcceleration.DefaultValueGetter = (g) => g.DefaultGravity;
-            gravityAcceleration.Getter = (x) => x.GravityAcceleration.GetOrDefault(x.DefaultGravity * MyGravityProviderSystem.G) / MyGravityProviderSystem.G;
+            gravityAcceleration.Getter = (x) => x.m_gravityAcceleration / MyGravityProviderSystem.G;
             gravityAcceleration.Setter = (x, v) => x.SyncObject.SendChangeGravityGeneratorRequest(ref x.m_fieldSize, v * MyGravityProviderSystem.G);
             gravityAcceleration.Writer = (x, result) => result.AppendDecimal(x.m_gravityAcceleration / MyGravityProviderSystem.G, 2).Append(" G");
             gravityAcceleration.EnableActions();

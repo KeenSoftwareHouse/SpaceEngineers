@@ -6,7 +6,7 @@ namespace Sandbox.Common.ObjectBuilders.Definitions
 {
     [ProtoContract]
     [MyObjectBuilderDefinition]
-    public class MyObjectBuilder_GravityGeneratorDefinition : MyObjectBuilder_CubeBlockDefinition
+    public class MyObjectBuilder_GravityGeneratorDefinition : MyObjectBuilder_GravityProviderDefinition
     {
         [ProtoMember]
         public float RequiredPowerInput;
@@ -17,8 +17,5 @@ namespace Sandbox.Common.ObjectBuilders.Definitions
             new SerializableVector3(150f, 150f, 150f),
             new SerializableVector3(150f, 150f, 150f)
         );
-
-        [ProtoMember]
-        public SerializableBounds Gravity = new SerializableBounds(-1f, 1f, 1f);
     }
 }

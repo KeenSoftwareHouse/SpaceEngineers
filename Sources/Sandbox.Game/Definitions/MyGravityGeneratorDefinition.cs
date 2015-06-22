@@ -8,11 +8,10 @@ using VRageMath;
 namespace Sandbox.Definitions
 {
     [MyDefinitionType(typeof(MyObjectBuilder_GravityGeneratorDefinition))]
-    public class MyGravityGeneratorDefinition : MyCubeBlockDefinition
+    public class MyGravityGeneratorDefinition : MyGravityProviderDefinition
     {
         public float RequiredPowerInput;
         public MyBoundedVector3 FieldSize;
-        public MyBounds Gravity;
         protected override void Init(MyObjectBuilder_DefinitionBase builder)
         {
             base.Init(builder);
@@ -21,7 +20,6 @@ namespace Sandbox.Definitions
             MyDebug.AssertDebug(obGenerator != null, "Initializing gravity generator definition using wrong object builder.");
             RequiredPowerInput = obGenerator.RequiredPowerInput;
             FieldSize = obGenerator.FieldSize;
-            Gravity = obGenerator.Gravity;
         }
     }
 }

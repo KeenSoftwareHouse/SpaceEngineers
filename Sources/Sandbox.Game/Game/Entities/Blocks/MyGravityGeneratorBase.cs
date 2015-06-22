@@ -43,10 +43,11 @@ namespace Sandbox.Game.Entities
         private object m_locker = new object();
 
         protected bool m_oldEmissiveState = false;
-        protected float? m_gravityAcceleration = MyGravityProviderSystem.G;
+        protected float m_gravityAcceleration = MyGravityProviderSystem.G;
         protected HashSet<IMyEntity> m_containedEntities = new HashSet<IMyEntity>();
 
-        public float? GravityAcceleration
+
+        public float GravityAcceleration
         {
             get { return m_gravityAcceleration; }
             set
@@ -59,6 +60,34 @@ namespace Sandbox.Game.Entities
                 }
             }
         }
+
+        private MyBounds m_GravityBounds;
+        /// <summary>
+        /// The Gravity Generator's maximum <see cref="Gravity"/>. 
+        /// </summary>
+        public float MaxGravity
+        {
+            get { return m_GravityBounds.Max; }
+        }
+
+        /// <summary>
+        /// The Gravity Generator's minimum <see cref="Gravity"/>. 
+        /// </summary>
+        public float MinGravity
+        {
+            get { return m_GravityBounds.Min; }
+        }
+
+        /// <summary>
+        /// The Gravity Generator's default <see cref="Gravity"/>. 
+        /// Must be within <see cref="MinGravity"/> and <see cref="MaxGravity"/>
+        /// </summary>
+        public float DefaultGravity
+        {
+            get { return m_GravityBounds.Default; }
+        }
+
+
 
         public MyPowerReceiver PowerReceiver
         {
@@ -96,6 +125,8 @@ namespace Sandbox.Game.Entities
                 // Blatantly stolen from MyReactor, which has the right idea.
                 // Ideally, ALL MyFunctionalBlocks should have configurable idle sounds from their def.
                 m_baseIdleSound = BlockDefinition.PrimarySound;
+
+                m_GravityBounds = (BlockDefinition as MyGravityProviderDefinition).Gravity;
 
                 SlimBlock.ComponentStack.IsFunctionalChanged += ComponentStack_IsFunctionalChanged;
             }
