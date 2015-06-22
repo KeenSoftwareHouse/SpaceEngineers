@@ -242,11 +242,15 @@ namespace VRageMath
         /// 
         /// Used in Block definitions to make things a bit less hairy, and to standardize what a non-initialized value is.
         /// </summary>
+        /// <remarks>
+        /// null and float.NaN are both indicators of being uninitialized. 
+        /// An older version used NaN, but the standard is to use null. Do not use NaN, it makes debugging a PITA.
+        /// </remarks>
         /// <param name="value"></param>
         /// <returns></returns>
-        public static bool IsUninitialized(this float value)
+        public static bool IsUninitialized(this float? value)
         {
-            return float.IsNaN(value);
+            return value == null || float.IsNaN((float)value);
         }
 
         /// <summary>
@@ -254,12 +258,16 @@ namespace VRageMath
         /// 
         /// Used in Block definitions to make things a bit less hairy, and to standardize what a non-initialized value is.
         /// </summary>
+        /// <remarks>
+        /// null and float.NaN are both indicators of being uninitialized. 
+        /// An older version used NaN, but the standard is to use null. Do not use NaN, it makes debugging a PITA.
+        /// </remarks>
         /// <param name="value"></param>
         /// <param name="defaultValue"></param>
         /// <returns></returns>
-        public static float GetOrDefault(this float value, float defaultValue)
+        public static float GetOrDefault(this float? value, float defaultValue)
         {
-            return value.IsUninitialized() ? defaultValue : value;
+            return value.IsUninitialized() ? defaultValue : (float)value;
         }
     }
 

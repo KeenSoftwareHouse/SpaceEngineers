@@ -43,10 +43,10 @@ namespace Sandbox.Game.Entities
         private object m_locker = new object();
 
         protected bool m_oldEmissiveState = false;
-        protected float m_gravityAcceleration = MyGravityProviderSystem.G;
+        protected float? m_gravityAcceleration = MyGravityProviderSystem.G;
         protected HashSet<IMyEntity> m_containedEntities = new HashSet<IMyEntity>();
 
-        public float GravityAcceleration
+        public float? GravityAcceleration
         {
             get { return m_gravityAcceleration; }
             set
