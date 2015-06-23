@@ -211,7 +211,7 @@ namespace VRageMath
     }
 
     /// <summary>
-    /// Usefull Vector3 extensions
+    /// Useful Vector3 extensions
     /// </summary>
     public static class Vector3Extensions
     {

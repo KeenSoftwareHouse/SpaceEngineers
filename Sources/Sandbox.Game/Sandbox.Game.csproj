@@ -133,6 +133,7 @@
     <Compile Include="Definitions\MyEntityStatDefinition.cs" />
     <Compile Include="Definitions\MyEnvironmentItemsDefinition.cs" />
     <Compile Include="Definitions\MyFloraElementDefinition.cs" />
+    <Compile Include="Definitions\MyGravityProviderDefinition.cs" />
     <Compile Include="Definitions\MyHumanoidBotDefinition.cs" />
     <Compile Include="Definitions\MyLaserAntennaDefinition.cs" />
     <Compile Include="Definitions\MyOxygenContainerDefinition.cs" />

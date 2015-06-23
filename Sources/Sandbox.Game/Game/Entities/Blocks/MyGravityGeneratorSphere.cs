@@ -36,7 +36,7 @@ using Sandbox.Game.GameSystems;
 namespace Sandbox.Game.Entities
 {
     [MyCubeBlockType(typeof(MyObjectBuilder_GravityGeneratorSphere))]
-    class MyGravityGeneratorSphere : MyGravityGeneratorBase, IMyPowerConsumer, IMyGravityGeneratorSphere
+    public class MyGravityGeneratorSphere : MyGravityGeneratorBase, IMyPowerConsumer, IMyGravityGeneratorSphere
     {
         private new MyGravityGeneratorSphereDefinition BlockDefinition
         {
@@ -109,8 +109,11 @@ namespace Sandbox.Game.Entities
                 MyTerminalControlFactory.AddControl(fieldRadius);
 
                 var gravityAcceleration = new MyTerminalControlSlider<MyGravityGeneratorSphere>("Gravity", MySpaceTexts.BlockPropertyTitle_GravityAcceleration, MySpaceTexts.BlockPropertyDescription_GravityAcceleration);
-                gravityAcceleration.SetLimits(-MyGravityProviderSystem.G, MyGravityProviderSystem.G);
-                gravityAcceleration.DefaultValue = MyGravityProviderSystem.G;
+                gravityAcceleration.SetLimits(
+                    (g) => g.MinGravity * MyGravityProviderSystem.G,
+                    (g) => g.MaxGravity * MyGravityProviderSystem.G
+                );
+                gravityAcceleration.DefaultValueGetter = (g) => g.DefaultGravity * MyGravityProviderSystem.G;
                 gravityAcceleration.Getter = (x) => x.GravityAcceleration;
                 gravityAcceleration.Setter = (x, v) => x.SyncObject.SendChangeGravityGeneratorRequest(x.m_radius, v);
                 gravityAcceleration.Writer = (x, result) => result.AppendDecimal(x.m_gravityAcceleration / MyGravityProviderSystem.G, 2).Append(" G");

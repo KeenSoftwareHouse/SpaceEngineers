@@ -31,7 +31,7 @@ using VRage.ModAPI;
 using VRage.Components;
 namespace Sandbox.Game.Entities
 {
-    abstract class MyGravityGeneratorBase : MyFunctionalBlock, IMyPowerConsumer, IMyGizmoDrawableObject, IMyGravityGeneratorBase, IMyGravityProvider
+    public abstract class MyGravityGeneratorBase : MyFunctionalBlock, IMyPowerConsumer, IMyGizmoDrawableObject, IMyGravityGeneratorBase, IMyGravityProvider
     {
         /// <summary>
         /// Gravitational acceleration on Earth.
@@ -46,6 +46,7 @@ namespace Sandbox.Game.Entities
         protected float m_gravityAcceleration = MyGravityProviderSystem.G;
         protected HashSet<IMyEntity> m_containedEntities = new HashSet<IMyEntity>();
 
+
         public float GravityAcceleration
         {
             get { return m_gravityAcceleration; }
@@ -59,6 +60,34 @@ namespace Sandbox.Game.Entities
                 }
             }
         }
+
+        private MyBounds m_GravityBounds;
+        /// <summary>
+        /// The Gravity Generator's maximum <see cref="Gravity"/>. 
+        /// </summary>
+        public float MaxGravity
+        {
+            get { return m_GravityBounds.Max; }
+        }
+
+        /// <summary>
+        /// The Gravity Generator's minimum <see cref="Gravity"/>. 
+        /// </summary>
+        public float MinGravity
+        {
+            get { return m_GravityBounds.Min; }
+        }
+
+        /// <summary>
+        /// The Gravity Generator's default <see cref="Gravity"/>. 
+        /// Must be within <see cref="MinGravity"/> and <see cref="MaxGravity"/>
+        /// </summary>
+        public float DefaultGravity
+        {
+            get { return m_GravityBounds.Default; }
+        }
+
+
 
         public MyPowerReceiver PowerReceiver
         {
@@ -93,6 +122,12 @@ namespace Sandbox.Game.Entities
                 }
                 NeedsUpdate |= MyEntityUpdateEnum.EACH_FRAME;
 
+                // Blatantly stolen from MyReactor, which has the right idea.
+                // Ideally, ALL MyFunctionalBlocks should have configurable idle sounds from their def.
+                m_baseIdleSound = BlockDefinition.PrimarySound;
+
+                m_GravityBounds = (BlockDefinition as MyGravityProviderDefinition).Gravity;
+
                 SlimBlock.ComponentStack.IsFunctionalChanged += ComponentStack_IsFunctionalChanged;
             }
         }
@@ -123,7 +158,6 @@ namespace Sandbox.Game.Entities
         public MyGravityGeneratorBase()
             : base()
         {
-            m_baseIdleSound.Init("BlockGravityGen");
         }
 
         public override void OnAddedToScene(object source)

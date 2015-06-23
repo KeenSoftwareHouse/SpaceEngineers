@@ -3,23 +3,19 @@ using ProtoBuf;
 using VRage.ObjectBuilders;
 using VRage;
 using System.ComponentModel;
+using VRage.Game.ObjectBuilders;
 
 
 namespace Sandbox.Common.ObjectBuilders
 {
     [ProtoContract]
     [MyObjectBuilderDefinition]
-    public class MyObjectBuilder_GravityGenerator : MyObjectBuilder_FunctionalBlock
+    public class MyObjectBuilder_GravityGenerator : MyObjectBuilder_GravityProvider
     {
         //[ProtoMember, DefaultValue(true)]
         //public bool Enabled = true;
 
         [ProtoMember]
-        public SerializableVector3 FieldSize = new SerializableVector3(150f, 150f, 150f);
-
-        [ProtoMember, DefaultValue(9.81f)]
-        public float GravityAcceleration = 9.81f;
-
-
+        public SerializableVector3 FieldSize = SerializableVector3.NotInitialized;
     }
 }

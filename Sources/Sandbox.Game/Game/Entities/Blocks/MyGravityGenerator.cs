@@ -37,7 +37,7 @@ using Sandbox.Game.GameSystems;
 namespace Sandbox.Game.Entities
 {
     [MyCubeBlockType(typeof(MyObjectBuilder_GravityGenerator))]
-    class MyGravityGenerator : MyGravityGeneratorBase, IMyPowerConsumer, IMyGravityGenerator
+    public class MyGravityGenerator : MyGravityGeneratorBase, IMyPowerConsumer, IMyGravityGenerator
     {
         private const int NUM_DECIMALS = 0;
         private new MyGravityGeneratorDefinition BlockDefinition
@@ -62,6 +62,56 @@ namespace Sandbox.Game.Entities
                 }
             }
         }
+
+        /// <summary>
+        /// The Gravity Generator's maximum allowable <see cref="FieldSize"/>.
+        /// </summary>
+        public Vector3 MaxFieldSize
+        {
+            get { return BlockDefinition.FieldSize.Max;  }
+        }
+
+        /// <summary>
+        /// The Gravity Generator's minimum allowable <see cref="FieldSize"/>.
+        /// </summary>
+        public Vector3 MinFieldSize
+        {
+            get { return BlockDefinition.FieldSize.Min; }
+        }
+
+        /// <summary>
+        /// The Gravity Generator's default <see cref="FieldSize"/>. 
+        /// Must be within <see cref="MinFieldSize"/> and <see cref="MaxFieldSize"/>.
+        /// </summary>
+        public Vector3 DefaultFieldSize
+        {
+            get { return BlockDefinition.FieldSize.Default; }
+        }
+
+        /// <summary>
+        /// The Gravity Generator's maximum <see cref="Gravity"/>. 
+        /// </summary>
+        public float MaxGravity
+        {
+            get { return BlockDefinition.Gravity.Max; }
+        }
+
+        /// <summary>
+        /// The Gravity Generator's minimum <see cref="Gravity"/>. 
+        /// </summary>
+        public float MinGravity
+        {
+            get { return BlockDefinition.Gravity.Min; }
+        }
+
+        /// <summary>
+        /// The Gravity Generator's default <see cref="Gravity"/>. 
+        /// Must be within <see cref="MinGravity"/> and <see cref="MaxGravity"/>
+        /// </summary>
+        public float DefaultGravity
+        {
+            get { return BlockDefinition.Gravity.Default; }
+        }
         
         public override BoundingBox? GetBoundingBox()  
         {
@@ -73,8 +123,11 @@ namespace Sandbox.Game.Entities
         static MyGravityGenerator()
         {
             var fieldWidth = new MyTerminalControlSlider<MyGravityGenerator>("Width", MySpaceTexts.BlockPropertyTitle_GravityFieldWidth, MySpaceTexts.BlockPropertyDescription_GravityFieldWidth);
-            fieldWidth.SetLimits(1, 150);
-            fieldWidth.DefaultValue = 150;
+            fieldWidth.SetLimits(
+                (g) => g.MinFieldSize.X, // Min
+                (g) => g.MaxFieldSize.X // Max
+            );
+            fieldWidth.DefaultValueGetter = (g) => g.DefaultFieldSize.X;
             fieldWidth.Getter = (x) => x.m_fieldSize.X;
             fieldWidth.Setter = (x, v) =>
             {
@@ -86,8 +139,11 @@ namespace Sandbox.Game.Entities
             MyTerminalControlFactory.AddControl(fieldWidth);
 
             var fieldHeight = new MyTerminalControlSlider<MyGravityGenerator>("Height", MySpaceTexts.BlockPropertyTitle_GravityFieldHeight, MySpaceTexts.BlockPropertyDescription_GravityFieldHeight);
-            fieldHeight.SetLimits(1, 150);
-            fieldHeight.DefaultValue = 150;
+            fieldHeight.SetLimits(
+                (g) => g.MinFieldSize.Y, // Min
+                (g) => g.MaxFieldSize.Y // Max
+            );
+            fieldHeight.DefaultValueGetter = (g) => g.DefaultFieldSize.Y;
             fieldHeight.Getter = (x) => x.m_fieldSize.Y;
             fieldHeight.Setter = (x, v) =>
             {
@@ -100,8 +156,11 @@ namespace Sandbox.Game.Entities
             MyTerminalControlFactory.AddControl(fieldHeight);
 
             var fieldDepth = new MyTerminalControlSlider<MyGravityGenerator>("Depth", MySpaceTexts.BlockPropertyTitle_GravityFieldDepth, MySpaceTexts.BlockPropertyDescription_GravityFieldDepth);
-            fieldDepth.SetLimits(1, 150);
-            fieldDepth.DefaultValue = 150;
+            fieldDepth.SetLimits(
+                (g) => g.MinFieldSize.Z, // Min
+                (g) => g.MaxFieldSize.Z // Max
+            );
+            fieldDepth.DefaultValueGetter = (g) => g.DefaultFieldSize.Z;
             fieldDepth.Getter = (x) => x.m_fieldSize.Z;
             fieldDepth.Setter = (x, v) =>
             {
@@ -113,9 +172,12 @@ namespace Sandbox.Game.Entities
             MyTerminalControlFactory.AddControl(fieldDepth);
 
             var gravityAcceleration = new MyTerminalControlSlider<MyGravityGenerator>("Gravity", MySpaceTexts.BlockPropertyTitle_GravityAcceleration, MySpaceTexts.BlockPropertyDescription_GravityAcceleration);
-            gravityAcceleration.SetLimits(-1, 1);
-            gravityAcceleration.DefaultValue = 1;
-            gravityAcceleration.Getter = (x) => x.GravityAcceleration / MyGravityProviderSystem.G;
+            gravityAcceleration.SetLimits(
+                (g) => g.MinGravity, // Min
+                (g) => g.MaxGravity // Max
+            );
+            gravityAcceleration.DefaultValueGetter = (g) => g.DefaultGravity;
+            gravityAcceleration.Getter = (x) => x.m_gravityAcceleration / MyGravityProviderSystem.G;
             gravityAcceleration.Setter = (x, v) => x.SyncObject.SendChangeGravityGeneratorRequest(ref x.m_fieldSize, v * MyGravityProviderSystem.G);
             gravityAcceleration.Writer = (x, result) => result.AppendDecimal(x.m_gravityAcceleration / MyGravityProviderSystem.G, 2).Append(" G");
             gravityAcceleration.EnableActions();
@@ -124,8 +186,10 @@ namespace Sandbox.Game.Entities
         public override void Init(MyObjectBuilder_CubeBlock objectBuilder, MyCubeGrid cubeGrid)
         {
             var builder = (MyObjectBuilder_GravityGenerator)objectBuilder;
-            m_fieldSize = builder.FieldSize;
-            m_gravityAcceleration = builder.GravityAcceleration;
+            m_fieldSize = Vector3.Clamp(builder.FieldSize.GetOrDefault(BlockDefinition.FieldSize.Default), BlockDefinition.FieldSize.Min, BlockDefinition.FieldSize.Max);
+            m_gravityAcceleration = MathHelper.Clamp(builder.GravityAcceleration.GetOrDefault(BlockDefinition.Gravity.Default * MyGravityProviderSystem.G),
+                BlockDefinition.Gravity.Min * MyGravityProviderSystem.G,
+                BlockDefinition.Gravity.Max * MyGravityProviderSystem.G);
 
             base.Init(objectBuilder, cubeGrid);
 

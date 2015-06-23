@@ -361,6 +361,8 @@
     <Compile Include="ObjectBuilders\MyObjectBuilder_Gps.cs" />
     <Compile Include="ObjectBuilders\MyObjectBuilder_GravityGenerator.cs" />
     <Compile Include="ObjectBuilders\MyObjectBuilder_GravityGeneratorSphere.cs" />
+    <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_GravityProviderDefinition.cs" />
+    <Compile Include="ObjectBuilders\MyObjectBuilder_GravityProvider.cs" />
     <Compile Include="ObjectBuilders\MyObjectBuilder_GunBase.cs" />
     <Compile Include="ObjectBuilders\MyObjectBuilder_Gyro.cs" />
     <Compile Include="ObjectBuilders\MyObjectBuilder_HandDrill.cs" />
