@@ -67,6 +67,18 @@ namespace Sandbox.Common.ObjectBuilders.Definitions
         public float Max = 0.0f;
     }
 
+    [ProtoContract]
+    public class MyAtmosphereColorShift
+    {
+        [ProtoMember]
+        public MyRangedValue R = new MyRangedValue();
+
+        [ProtoMember]
+        public MyRangedValue G = new MyRangedValue();
+
+        [ProtoMember]
+        public MyRangedValue B  = new MyRangedValue();
+    }
 
     [ProtoContract]
     [MyObjectBuilderDefinition]
@@ -118,8 +130,14 @@ namespace Sandbox.Common.ObjectBuilders.Definitions
         public MyRangedValue MetalsSpawnProbability = new MyRangedValue();
 
         [ProtoMember]
+        public MyRangedValue GravityFalloffPower = new MyRangedValue();
+
+        [ProtoMember]
         [XmlArrayItem("OreProbability")]
         public MyOreProbabilityRange[] MetalsOreProbability;
+
+        [ProtoMember]
+        public MyAtmosphereColorShift HostileAtmosphereColorShift = new MyAtmosphereColorShift();
 
     }
 

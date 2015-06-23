@@ -132,6 +132,7 @@
     <Compile Include="Definitions\MyEffectDefinition.cs" />
     <Compile Include="Definitions\MyEntityStatDefinition.cs" />
     <Compile Include="Definitions\MyEnvironmentItemsDefinition.cs" />
+    <Compile Include="Definitions\MyFloraElementDefinition.cs" />
     <Compile Include="Definitions\MyGravityProviderDefinition.cs" />
     <Compile Include="Definitions\MyHumanoidBotDefinition.cs" />
     <Compile Include="Definitions\MyLaserAntennaDefinition.cs" />
@@ -451,6 +452,7 @@
     <Compile Include="Game\Entities\Blocks\ToolbarItem.cs" />
     <Compile Include="Game\Entities\Character\Components\MyCharacterComponent.cs" />
     <Compile Include="Game\Entities\Character\Components\MyCharacterDetectorComponent.cs" />
+    <Compile Include="Game\Entities\Character\Components\MyCharacterShapecastDetectorComponent.cs" />
     <Compile Include="Game\Entities\Character\Components\MyCharacterRaycastDetectorComponent.cs" />
     <Compile Include="Game\Entities\Character\MyCharacterBreath.cs" />
     <Compile Include="Game\Entities\Character\MyChatHistory.cs" />

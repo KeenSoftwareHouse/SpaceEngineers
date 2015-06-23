@@ -896,5 +896,10 @@ namespace Sandbox.Game.Entities
         {
             SyncTool.StartManipulation(myState, spawned, position, ref ownerWorldHeadMatrix);
         }
+
+        public void StopManipulationSynced()
+        {
+            SyncTool.StopManipulation();
+        }
     }
 }

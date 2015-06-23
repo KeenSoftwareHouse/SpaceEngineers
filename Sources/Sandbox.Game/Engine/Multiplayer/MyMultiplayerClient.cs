@@ -50,6 +50,8 @@ namespace Sandbox.Engine.Multiplayer
         int m_membersLimit;
         string m_dataHash;
 
+        MyMultiplayerBattleData m_battleData = new MyMultiplayerBattleData();
+
         List<ulong> m_members = new List<ulong>();
         MemberCollection m_membersCollection;
 

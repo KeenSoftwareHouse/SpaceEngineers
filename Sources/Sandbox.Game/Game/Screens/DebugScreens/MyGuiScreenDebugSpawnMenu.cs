@@ -292,7 +292,7 @@ namespace Sandbox.Game.Gui
                     if (!definition.Public)
                         continue;
                     var physicalItemDef = definition as MyPhysicalItemDefinition;
-                    if (physicalItemDef == null)
+                    if (physicalItemDef == null || physicalItemDef.CanSpawnFromScreen == false)
                         continue;
 
                     int key = m_physicalItemDefinitions.Count;

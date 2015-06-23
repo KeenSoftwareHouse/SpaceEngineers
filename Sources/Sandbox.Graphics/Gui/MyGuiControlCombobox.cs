@@ -492,6 +492,10 @@ namespace Sandbox.Graphics.GUI
         //  Return value of selected item
         public StringBuilder GetSelectedValue()
         {
+            if (m_selected == null)
+            {
+                return null;
+            }
             return m_selected.Value;
         }
 
