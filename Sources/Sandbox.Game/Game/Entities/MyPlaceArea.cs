@@ -14,17 +14,10 @@ namespace Sandbox.Game.Entities
 {
     public abstract class MyPlaceArea : MyEntityComponentBase
     {
-        public static MyStringId ComponentName = MyStringId.GetOrCompute("PlaceArea");
-
-        public override MyStringId Name
-        {
-            get { return ComponentName; }
-        }
-
         public int PlaceAreaProxyId = MyConstants.PRUNING_PROXY_ID_UNITIALIZED;
 
         public abstract BoundingBoxD WorldAABB { get; }
-        public MyStringId AreaType { get; private set; }
+        public MyStringHash AreaType { get; private set; }
 
         public static MyPlaceArea FromEntity(long entityId)
         {
@@ -39,7 +32,7 @@ namespace Sandbox.Game.Entities
                 return null;
         }
 
-        public MyPlaceArea(MyStringId areaType)
+        public MyPlaceArea(MyStringHash areaType)
         {
             AreaType = areaType;
         }

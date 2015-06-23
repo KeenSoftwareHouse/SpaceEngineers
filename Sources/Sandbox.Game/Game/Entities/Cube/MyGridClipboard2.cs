@@ -166,7 +166,7 @@ namespace Sandbox.Game.Entities.Cube
             }
         }
 
-        public override bool PasteGrid(MyInventory buildInventory = null, bool deactivate = true) 
+        public override bool PasteGrid(IMyComponentInventory buildInventory = null, bool deactivate = true) 
         {
             if ((CopiedGrids.Count > 0) && !IsActive)
             {
@@ -205,7 +205,7 @@ namespace Sandbox.Game.Entities.Cube
             return result;
         }
 
-        private bool PasteGridsInDynamicMode(MyInventory buildInventory, bool deactivate)
+        private bool PasteGridsInDynamicMode(IMyComponentInventory buildInventory, bool deactivate)
         {
             bool result;
             // Remember static grid flag and set it to dynamic
@@ -225,7 +225,7 @@ namespace Sandbox.Game.Entities.Cube
             return result;
         }
 
-        private bool PasteGridsInStaticMode(MyInventory buildInventory, bool deactivate)
+        private bool PasteGridsInStaticMode(IMyComponentInventory buildInventory, bool deactivate)
         {
             MatrixD firstGridMatrix = GetFirstGridOrientationMatrix();
             MatrixD inverseFirstGridMatrix = Matrix.Invert(firstGridMatrix);

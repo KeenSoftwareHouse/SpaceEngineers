@@ -182,7 +182,6 @@ namespace Sandbox.Game.Components
                 MatrixD.Multiply(ref this.m_localMatrix, ref parentWorldMatrix, out this.m_worldMatrix);
                 m_previousParentWorldMatrix = parentWorldMatrix;
                 OnWorldPositionChanged(source);
-                UpdateChildren(source);
 
                 if (this.m_physics != null && this.m_physics.Enabled && this.m_physics != source)
                 {

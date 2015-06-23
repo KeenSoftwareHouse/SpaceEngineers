@@ -17,6 +17,15 @@ namespace VRageRender
 {
     class MyRenderVoxelCell : MyRenderObject, IMyClipmapCell
     {
+        public struct EffectArgs
+        {
+            public Vector3 CellOffset;
+            public Vector3 CellScale;
+            public Vector3 CellRelativeCamera;
+            public Vector2 Bounds;
+            public float MorphDebug;
+        }
+
         public static readonly Color[] LOD_COLORS = new Color[]
         {
             Color.Red,
@@ -37,8 +46,8 @@ namespace VRageRender
         private BoundingBox m_localAabb;
         private MatrixD m_worldMatrix;
 
-        private Vector3 m_offset;
-        private Vector3 m_scale;
+        private Vector3D m_cellOffset;
+        private Vector3 m_cellScale;
         private readonly MyClipmapScaleEnum m_scaleGroup;
 
         static MyRenderMeshMaterial m_fakeVoxelMaterial = new MyRenderMeshMaterial("VoxelMaterial", "", null, null, null);
@@ -110,19 +119,8 @@ namespace VRageRender
             {
                 renderElement.TriCount = batch.IndexCount / 3;
             }
-
-            {
-                var matrix = m_worldMatrix;
-                matrix.Right = (Vector3D)m_offset;
-                matrix.Up = (Vector3D)m_scale;
-                matrix.Backward = MyRenderCamera.Position - m_worldMatrix.Translation;
-                Vector2 lodBounds;
-                MyClipmap.ComputeLodViewBounds(m_scaleGroup, m_coord.Lod, out lodBounds.X, out lodBounds.Y);
-                matrix.M14 = lodBounds.X;
-                matrix.M24 = lodBounds.Y;
-                matrix.M34 = MathHelper.Clamp(MyClipmap.DebugClipmapMostDetailedLod - m_coord.Lod, 0f, 1f);
-                renderElement.WorldMatrix = matrix;
-            }
+            renderElement.WorldMatrix = m_worldMatrix;
+            renderElement.WorldMatrix.Translation += m_cellOffset;
             renderElement.VoxelBatch = batch;
         }
 
@@ -272,8 +270,8 @@ namespace VRageRender
         void IMyClipmapCell.UpdateMesh(MyRenderMessageUpdateClipmapCell msg)
         {
             Dispose();
-            m_offset = msg.PositionOffset;
-            m_scale = msg.PositionScale;
+            m_cellOffset = msg.PositionOffset;
+            m_cellScale = msg.PositionScale;
             m_localAabb = msg.MeshAabb;
             foreach (var batch in msg.Batches)
             {
@@ -291,6 +289,18 @@ namespace VRageRender
             SetDirty();
             UpdateWorldAABB();
             MyRender.UpdateRenderObject(this, sortIntoCullObjects);
+        }
+
+        internal void GetEffectArgs(out EffectArgs effectParams)
+        {
+            effectParams.CellOffset = (Vector3)m_cellOffset;
+            effectParams.CellScale = m_cellScale;
+            effectParams.CellRelativeCamera = (Vector3)(MyRenderCamera.Position - (m_worldMatrix.Translation + m_cellOffset));
+            effectParams.MorphDebug = MathHelper.Clamp(MyClipmap.DebugClipmapMostDetailedLod - m_coord.Lod, 0f, 1f);
+
+            Vector2 lodBounds;
+            MyClipmap.ComputeLodViewBounds(m_scaleGroup, m_coord.Lod, out lodBounds.X, out lodBounds.Y);
+            effectParams.Bounds = lodBounds;
         }
     }
 

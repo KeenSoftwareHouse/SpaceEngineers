@@ -56,6 +56,14 @@ namespace Sandbox.Game.Gui
             }
         }
 
+        /// <summary>
+        /// Sets first objective as active
+        /// </summary>
+        public void ResetObjectives()
+        {
+            m_currentObjective = 0;
+        }
+
         public List<string> Objectives 
         {
             get
@@ -67,6 +75,14 @@ namespace Sandbox.Game.Gui
             {
                 m_objectives = value;
             }
+        }
+
+        public void Clear()
+        {
+            m_missionTitle = "";
+            m_currentObjective = 0;
+            m_objectives.Clear();
+            Visible = false;
         }
     }
 }

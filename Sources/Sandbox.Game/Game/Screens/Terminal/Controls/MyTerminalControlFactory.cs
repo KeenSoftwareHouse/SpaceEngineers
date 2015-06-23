@@ -27,7 +27,7 @@ namespace Sandbox.Game.Gui
 
     delegate TerminalControl FactoryDelegate<in T>(T property, MyTerminalBlock[] blocks);
 
-    static class MyTerminalControlFactory
+    public static class MyTerminalControlFactory
     {
         class BlockData
         {

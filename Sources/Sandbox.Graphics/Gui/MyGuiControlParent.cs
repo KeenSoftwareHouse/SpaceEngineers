@@ -58,9 +58,9 @@ namespace Sandbox.Graphics.GUI
 
         #region Overriden methods
 
-        public override void Draw(float transitionAlpha)
+        public override void Draw(float transitionAlpha, float backgroundTransitionAlpha)
         {
-            base.Draw(transitionAlpha);
+            base.Draw(transitionAlpha, backgroundTransitionAlpha);
 
             foreach (MyGuiControlBase control in Controls.GetVisibleControls())
             {
@@ -69,7 +69,7 @@ namespace Sandbox.Graphics.GUI
                     continue;
                 }
 
-                control.Draw(transitionAlpha);
+                control.Draw(transitionAlpha, backgroundTransitionAlpha);
             }
         }
 

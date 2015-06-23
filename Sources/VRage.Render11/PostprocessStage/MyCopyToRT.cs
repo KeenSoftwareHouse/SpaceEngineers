@@ -10,10 +10,12 @@ namespace VRageRender
     class MyCopyToRT : MyImmediateRC
     {
         static PixelShaderId m_copyPs;
+        static PixelShaderId m_clearAlphaPs;
 
         internal static void Init()
         {
             m_copyPs = MyShaders.CreatePs("postprocess.hlsl", "copy");
+            m_clearAlphaPs = MyShaders.CreatePs("postprocess.hlsl", "clear_alpha");
         }
 
         internal static void Run(MyBindableResource destination, MyBindableResource source)
@@ -33,6 +35,22 @@ namespace VRageRender
             RC.BindSRV(0, source);
 
             MyScreenPass.DrawFullscreenQuad(new MyViewport(destination.GetSize().X, destination.GetSize().Y));
+        }
+
+        internal static void ClearAlpha(MyBindableResource destination)
+        {
+            var context = MyRender11.Context;
+
+            context.OutputMerger.BlendState = MyRender11.BlendAdditive;
+
+            context.InputAssembler.InputLayout = null;
+            context.PixelShader.Set(m_clearAlphaPs);
+
+            RC.BindDepthRT(null, DepthStencilAccess.ReadWrite, destination);
+
+            MyScreenPass.DrawFullscreenQuad(new MyViewport(destination.GetSize().X, destination.GetSize().Y));
+
+            context.OutputMerger.BlendState = null;
         }
     }
 

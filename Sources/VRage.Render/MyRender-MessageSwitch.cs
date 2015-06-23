@@ -163,7 +163,8 @@ namespace VRageRender
                             rMessage.Technique,
                             rMessage.Flags,
                             rMessage.AtmosphereRadius,
-                            rMessage.PlanetRadius
+                            rMessage.PlanetRadius,
+                            rMessage.AtmosphereWavelengths
                         );
                         ProfilerShort.End();
 
@@ -370,14 +371,17 @@ namespace VRageRender
                         //m_renderObjects.Remove(rMessage.ID);
 
                         MyManualCullableRenderObject manualCullObject = GetRenderObject(rMessage.CullObjectID) as MyManualCullableRenderObject;
-                        RemoveRenderObject(manualCullObject);
+                        if (manualCullObject != null)
+                        {
+                            RemoveRenderObject(manualCullObject);
 
-                        manualCullObject.AddRenderObject(renderObject, (MatrixD?)rMessage.ChildToParent);
+                            manualCullObject.AddRenderObject(renderObject, (MatrixD?)rMessage.ChildToParent);
 
-                        AddRenderObject(manualCullObject);
-
-
-
+                            AddRenderObject(manualCullObject);
+                        }
+                        else
+                        { 
+                        }
                         break;
                     }
 

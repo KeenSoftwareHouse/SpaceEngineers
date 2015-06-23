@@ -60,7 +60,7 @@ namespace Sandbox.Game.Gui
             foreach (var definition in MyDefinitionManager.Static.GetAllDefinitions())
             {
                 var physicalItemDef = definition as MyPhysicalItemDefinition;
-                if (physicalItemDef == null)
+                if (physicalItemDef == null || physicalItemDef.CanSpawnFromScreen == false)
                     continue;
 
                 int key = m_physicalItemDefinitions.Count;
@@ -336,7 +336,7 @@ namespace Sandbox.Game.Gui
                     if (!AddItems(inventory, component, overrideCheck, 1) && spawnNonfitting)
                     {
                         Matrix headMatrix = MySession.ControlledEntity.GetHeadMatrix(true);
-                        MyFloatingObjects.Spawn(new MyInventoryItem(1, component), headMatrix.Translation + headMatrix.Forward * 0.2f, headMatrix.Forward, headMatrix.Up, MySession.ControlledEntity.Entity.Physics);
+                        MyFloatingObjects.Spawn(new MyPhysicalInventoryItem(1, component), headMatrix.Translation + headMatrix.Forward * 0.2f, headMatrix.Forward, headMatrix.Up, MySession.ControlledEntity.Entity.Physics);
                     }
                 }
 
@@ -350,7 +350,7 @@ namespace Sandbox.Game.Gui
                         if (!AddItems(inventory, oreBuilder, overrideCheck, 1) && spawnNonfitting)
                         {
                             Matrix headMatrix = MySession.ControlledEntity.GetHeadMatrix(true);
-                            MyFloatingObjects.Spawn(new MyInventoryItem(1, oreBuilder), headMatrix.Translation + headMatrix.Forward * 0.2f, headMatrix.Forward, headMatrix.Up, MySession.ControlledEntity.Entity.Physics);
+                            MyFloatingObjects.Spawn(new MyPhysicalInventoryItem(1, oreBuilder), headMatrix.Translation + headMatrix.Forward * 0.2f, headMatrix.Forward, headMatrix.Up, MySession.ControlledEntity.Entity.Physics);
                         }
                     }
                 }

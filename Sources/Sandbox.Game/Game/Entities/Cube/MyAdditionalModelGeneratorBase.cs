@@ -228,6 +228,8 @@ namespace Sandbox.Game.Entities.Cube
             m_splitGridInfos.Clear();
         }
 
+        public abstract MySlimBlock GetGeneratingBlock(MySlimBlock generatedBlock);
+
         public abstract void OnAddedCube(MySlimBlock cube);
         public abstract void OnRemovedCube(MySlimBlock cube);
 
@@ -457,7 +459,7 @@ namespace Sandbox.Game.Entities.Cube
             {
                 loc.Orientation.GetQuaternion(out rotation);
                 MyCubeGrid.MyBlockLocation blockLocation = new MyCubeGrid.MyBlockLocation(
-                    loc.BlockDefinition.Id, loc.Position, loc.Position, loc.Position, rotation, MyEntityIdentifier.AllocateId(), MySession.LocalPlayerId, MySession.LocalCharacter != null ? MySession.LocalCharacter.EntityId : 0);
+                    loc.BlockDefinition.Id, loc.Position, loc.Position, loc.Position, rotation, MyEntityIdentifier.AllocateId(), MySession.LocalPlayerId);
 
                 locations.Add(blockLocation);
             }

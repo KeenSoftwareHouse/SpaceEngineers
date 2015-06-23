@@ -339,8 +339,7 @@ namespace Sandbox.Game.Gui
 
         public static void ReturnToMainMenu()
         {
-            if (MyScreenManager.GetFirstScreenOfType<MyGuiScreenMainMenu>() == null)
-                UnloadAndExitToMenu();
+            UnloadAndExitToMenu();
         }
 
         public static void UnloadAndExitToMenu()
@@ -470,7 +469,7 @@ namespace Sandbox.Game.Gui
                 case MyGuiScreenMessageBox.ResultEnum.YES:
                     MyAudio.Static.Mute = true;
                     MyAudio.Static.StopMusic();
-                    MyAsyncSaving.Start(callbackOnFinished: delegate() { UnloadAndExitToMenu(); });
+                    MyAsyncSaving.Start(callbackOnFinished: delegate() { MySandboxGame.Static.OnScreenshotTaken += UnloadAndExitAfterScreeshotWasTaken; });
                     break;
 
                 case MyGuiScreenMessageBox.ResultEnum.NO:
@@ -483,6 +482,12 @@ namespace Sandbox.Game.Gui
                     this.CanBeHidden = true;
                     break;
             }
+        }
+
+        private void UnloadAndExitAfterScreeshotWasTaken(object sender, EventArgs e)
+        {
+            MySandboxGame.Static.OnScreenshotTaken -= UnloadAndExitAfterScreeshotWasTaken;
+            UnloadAndExitToMenu();
         }
 
         private void OnClickCredits(MyGuiControlButton sender)

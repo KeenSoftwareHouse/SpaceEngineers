@@ -201,7 +201,7 @@ namespace Sandbox.Game.Entities.Cube
                 MyCubeBlock.UpdateEmissiveParts(Render.RenderObjectIDs[0], 0.0f, Color.Gray, Color.White);
         }
 
-        internal override void ContactPointCallback(ref MyGridContactInfo value)
+        public override void ContactPointCallback(ref MyGridContactInfo value)
         {
             base.ContactPointCallback(ref value);
 
@@ -210,7 +210,7 @@ namespace Sandbox.Game.Entities.Cube
 
             if (System.Math.Abs(value.Event.SeparatingVelocity) > 5 && IsFunctional)
             {
-                if (MySession.Static.DestructibleBlocks)
+                if (CubeGrid.BlocksDestructionEnabled)
                     Explode();
             }
         }
@@ -290,7 +290,7 @@ namespace Sandbox.Game.Entities.Cube
 
         public void Explode()
         {
-            if (m_isExploded || !MySession.Static.WeaponsEnabled)
+            if (m_isExploded || !MySession.Static.WeaponsEnabled || CubeGrid.Physics == null)
                 return;
 
             m_isExploded = true;
@@ -324,7 +324,7 @@ namespace Sandbox.Game.Entities.Cube
             {
                 PlayerDamage = 0,
                 //Damage = m_ammoProperties.Damage,
-                Damage = MyFakes.ENABLE_VOLUMETRIC_EXPLOSION ? 15000 : 5000,
+                Damage = MyFakes.ENABLE_VOLUMETRIC_EXPLOSION ? m_warheadDefinition.WarheadExplosionDamage : 5000,
                 ExplosionType = particleID,
                 ExplosionSphere = m_explosionFullSphere,
                 LifespanMiliseconds = MyExplosionsConstants.EXPLOSION_LIFESPAN,

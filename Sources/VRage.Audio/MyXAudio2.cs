@@ -97,9 +97,9 @@ namespace VRage.Audio
         event VolumeChangeHandler OnSetVolumeHud, OnSetVolumeGame, OnSetVolumeMusic;
 
 
-        Dictionary<MyStringId, MySoundData>.ValueCollection IMyAudio.CueDefinitions { get { return m_cueBank.CueDefinitions; } }
+        Dictionary<MyCueId, MySoundData>.ValueCollection IMyAudio.CueDefinitions { get { return m_cueBank.CueDefinitions; } }
         List<MyStringId> IMyAudio.GetCategories() { return m_cueBank.GetCategories(); }
-        MySoundData IMyAudio.GetCue(MyStringId cue) { return m_cueBank.GetCue(cue); }
+        MySoundData IMyAudio.GetCue(MyCueId cueId) { return m_cueBank.GetCue(cueId); }
 
         public MySoundData SoloCue { get; set; }
         public bool GameSoundIsPaused { get; private set; }
@@ -1003,12 +1003,12 @@ namespace VRage.Audio
             m_3Dsounds.Clear();
         }
 
-        public bool SourceIsCloseEnoughToPlaySound(IMy3DSoundEmitter source, MyStringId cue)
+        public bool SourceIsCloseEnoughToPlaySound(IMy3DSoundEmitter source, MyCueId cueId)
         {
-            if (m_cueBank == null || cue == MyStringId.NullOrEmpty)
+            if (m_cueBank == null || cueId.Hash == MyStringHash.NullOrEmpty)
                 return false;
 
-            MySoundData cueDefinition = m_cueBank.GetCue(cue);
+            MySoundData cueDefinition = m_cueBank.GetCue(cueId);
             if (cueDefinition == null)
                 return false;
 
@@ -1020,7 +1020,7 @@ namespace VRage.Audio
                 return (distanceToSound <= cueDefinition.MaxDistance * cueDefinition.MaxDistance);
         }
 
-        internal MySourceVoice PlaySound(MyStringId cueId, IMy3DSoundEmitter source = null, MySoundDimensions type = MySoundDimensions.D2, bool skipIntro = false, bool skipToEnd = false)
+        internal MySourceVoice PlaySound(MyCueId cueId, IMy3DSoundEmitter source = null, MySoundDimensions type = MySoundDimensions.D2, bool skipIntro = false, bool skipToEnd = false)
         {
             var sound = GetSound(cueId, source, type);
             if(sound != null)
@@ -1028,10 +1028,10 @@ namespace VRage.Audio
             return sound;
         }
 
-        internal MySourceVoice GetSound(MyStringId cueId, IMy3DSoundEmitter source = null, MySoundDimensions type = MySoundDimensions.D2)
+        internal MySourceVoice GetSound(MyCueId cueId, IMy3DSoundEmitter source = null, MySoundDimensions type = MySoundDimensions.D2)
         {
             //  If this computer can't play sound, we don't create cues
-            if (cueId == MyStringId.NullOrEmpty || !m_canPlay || m_cueBank == null)
+            if (cueId.Hash == MyStringHash.NullOrEmpty || !m_canPlay || m_cueBank == null)
                 return null;
 
             //  If this is one-time cue, we check if it is close enough to hear it and if not, we don't even play - this is for optimization only.
@@ -1102,12 +1102,12 @@ namespace VRage.Audio
             return sound;
         }
 
-        IMySourceVoice IMyAudio.PlaySound(MyStringId cueId, IMy3DSoundEmitter source, MySoundDimensions type, bool skipIntro, bool skipToEnd)
+        IMySourceVoice IMyAudio.PlaySound(MyCueId cueId, IMy3DSoundEmitter source, MySoundDimensions type, bool skipIntro, bool skipToEnd)
         {
             return PlaySound(cueId, source, type, skipIntro, skipToEnd);
         }
 
-        IMySourceVoice IMyAudio.GetSound(MyStringId cueId, IMy3DSoundEmitter source, MySoundDimensions type)
+        IMySourceVoice IMyAudio.GetSound(MyCueId cueId, IMy3DSoundEmitter source, MySoundDimensions type)
         {
             return GetSound(cueId, source, type);
         }
@@ -1145,9 +1145,9 @@ namespace VRage.Audio
                 m_cueBank.WriteDebugInfo(sb);
         }
 
-        public bool IsLoopable(MyStringId cueId)
+        public bool IsLoopable(MyCueId cueId)
         {
-            if (cueId == MyStringId.NullOrEmpty || m_cueBank == null)
+            if (cueId.Hash == MyStringHash.NullOrEmpty || m_cueBank == null)
                 return false;
             MySoundData cueDefinition = m_cueBank.GetCue(cueId);
             if (cueDefinition == null)
@@ -1162,15 +1162,15 @@ namespace VRage.Audio
         }
 
 
-        public IMyAudioEffect ApplyEffect(IMySourceVoice input, MyStringId effect, MyStringId[] cues = null, float? duration = null)
+        public IMyAudioEffect ApplyEffect(IMySourceVoice input, MyStringHash effect, MyCueId[] cueIds = null, float? duration = null)
         {
             if (m_effectBank == null)
                 return null;
             List<MySourceVoice> voices = new List<MySourceVoice>();
-            if(cues != null)
-                foreach(var cue in cues)
+            if(cueIds != null)
+                foreach(var cueId in cueIds)
                 {
-                    voices.Add(GetSound(cue));
+                    voices.Add(GetSound(cueId));
                 }
             return m_effectBank.CreateEffect(input, effect, voices.ToArray(), duration);
         }

@@ -57,7 +57,7 @@ namespace Sandbox.Game.AI
             if (m_player.Controller.ControlledEntity is MyCharacter) // when loaded player already controls entity
             {
                 var character = m_player.Controller.ControlledEntity as MyCharacter;
-                if (character.CurrentWeapon == null && StartingWeaponId.SubtypeId != MyStringId.NullOrEmpty)
+                if (character.CurrentWeapon == null && StartingWeaponId.SubtypeId != MyStringHash.NullOrEmpty)
                 {
                     AddItems(character);
                 }
@@ -96,7 +96,7 @@ namespace Sandbox.Game.AI
             {
                 var character = m_player.Controller.ControlledEntity as MyCharacter;
                 character.EnableJetpack(false);
-                if (StartingWeaponId.SubtypeId != MyStringId.NullOrEmpty)
+                if (StartingWeaponId.SubtypeId != MyStringHash.NullOrEmpty)
                 {
                     AddItems(newEntity as MyCharacter);
                 }

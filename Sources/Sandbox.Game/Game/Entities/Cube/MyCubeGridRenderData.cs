@@ -66,7 +66,7 @@ namespace Sandbox.Game.Entities.Cube
             var pos = (point0 + point1) * 0.5f;
             Vector3I direction = Vector3I.Round((point0 - point1) / m_gridRender.GridSize);
 
-            MyEdgeInfo info = new MyEdgeInfo(ref pos, ref direction, ref normal0, ref normal1, ref color, MyStringId.GetOrCompute(owner.BlockDefinition.EdgeType));
+            MyEdgeInfo info = new MyEdgeInfo(ref pos, ref direction, ref normal0, ref normal1, ref color, MyStringHash.GetOrCompute(owner.BlockDefinition.EdgeType));
             var cell = GetCell(pos);
             if (cell.AddEdgeInfo(hash, info, owner))
                 m_dirtyCells.Add(cell);

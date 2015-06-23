@@ -39,7 +39,7 @@ namespace SpaceEngineers.Game.GUI
                 AntialiasingMode = MyAntialiasingMode.NONE,
                 FoliageDetails = MyFoliageDetails.DISABLED,
                 ShadowQuality = MyShadowsQuality.LOW,
-                TextureQuality = MyTextureQuality.LOW,
+                TextureQuality = MyTextureQuality.LOW
             },
             new MyRenderSettings1 // Medium
             {
@@ -47,7 +47,7 @@ namespace SpaceEngineers.Game.GUI
                 AntialiasingMode = MyAntialiasingMode.FXAA,
                 FoliageDetails = MyFoliageDetails.MEDIUM,
                 ShadowQuality = MyShadowsQuality.LOW,
-                TextureQuality = MyTextureQuality.MEDIUM,
+                TextureQuality = MyTextureQuality.MEDIUM
             },
             new MyRenderSettings1 // High
             {
@@ -55,7 +55,7 @@ namespace SpaceEngineers.Game.GUI
                 AntialiasingMode = MyAntialiasingMode.FXAA,
                 FoliageDetails = MyFoliageDetails.HIGH,
                 ShadowQuality = MyShadowsQuality.HIGH,
-                TextureQuality = MyTextureQuality.HIGH,
+                TextureQuality = MyTextureQuality.HIGH
             },
         };
 
@@ -71,6 +71,7 @@ namespace SpaceEngineers.Game.GUI
         private MyGuiControlCheckbox m_checkboxHardwareCursor;
         private MyGuiControlCheckbox m_checkboxRenderInterpolation;
         private MyGuiControlCheckbox m_checkboxMultithreadedRender;
+        private MyGuiControlCheckbox m_checkboxTonemapping;
         private MyGuiControlCheckbox m_checkboxEnableDamageEffects;
 
         private MyGraphicsSettings m_settingsOld;
@@ -104,6 +105,7 @@ namespace SpaceEngineers.Game.GUI
             var labelAntiAliasing           = new MyGuiControlLabel(textScale: TEXT_SCALE, text: MyTexts.GetString(MySpaceTexts.ScreenGraphicsOptions_AntiAliasing));
             var labelShadowMapResolution    = new MyGuiControlLabel(textScale: TEXT_SCALE, text: MyTexts.GetString(MySpaceTexts.ScreenGraphicsOptions_ShadowMapResolution));
             var labelMultithreadedRendering = new MyGuiControlLabel(textScale: TEXT_SCALE, text: MyTexts.GetString(MySpaceTexts.ScreenGraphicsOptions_MultiThreadedRendering));
+            var labelTonemapping            = new MyGuiControlLabel(textScale: TEXT_SCALE, text: MyTexts.GetString(MySpaceTexts.ScreenGraphicsOptions_Tonemapping));
             var labelTextureQuality         = new MyGuiControlLabel(textScale: TEXT_SCALE, text: MyTexts.GetString(MySpaceTexts.ScreenGraphicsOptions_TextureQuality));
             var labelAnisotropicFiltering   = new MyGuiControlLabel(textScale: TEXT_SCALE, text: MyTexts.GetString(MySpaceTexts.ScreenGraphicsOptions_AnisotropicFiltering));
             var labelFoliageDetails         = new MyGuiControlLabel(textScale: TEXT_SCALE, text: MyTexts.GetString(MySpaceTexts.ScreenGraphicsOptions_FoliageDetails));
@@ -122,6 +124,7 @@ namespace SpaceEngineers.Game.GUI
             m_checkboxHardwareCursor      = new MyGuiControlCheckbox(toolTip: MyTexts.GetString(MySpaceTexts.ToolTipVideoOptionsHardwareCursor));
             m_checkboxRenderInterpolation = new MyGuiControlCheckbox(toolTip: MyTexts.GetString(MySpaceTexts.ToolTipVideoOptionRenderIterpolation));
             m_checkboxMultithreadedRender = new MyGuiControlCheckbox();
+            m_checkboxTonemapping         = new MyGuiControlCheckbox();
             m_checkboxEnableDamageEffects = new MyGuiControlCheckbox(toolTip: MyTexts.GetString(MySpaceTexts.ToolTipVideoOptionsEnableDamageEffects));
             m_sliderFov                   = new MyGuiControlSlider(toolTip: MyTexts.GetString(MySpaceTexts.ToolTipVideoOptionsFieldOfView),
                 labelText: new StringBuilder("{0}").ToString(),
@@ -213,6 +216,8 @@ namespace SpaceEngineers.Game.GUI
                 }
                 table.Add(labelMultithreadedRendering, hAlign, vAlign, row, leftCol);
                 table.Add(m_checkboxMultithreadedRender, hAlign, vAlign, row++, rightCol);
+                table.Add(labelTonemapping, hAlign, vAlign, row, leftCol);
+                table.Add(m_checkboxTonemapping, hAlign, vAlign, row++, rightCol);
             }
             else // Dx9 or nothing specified
             {
@@ -253,6 +258,7 @@ namespace SpaceEngineers.Game.GUI
                 m_checkboxHardwareCursor.IsCheckedChanged = onCheckboxChanged;
                 m_checkboxMultithreadedRender.IsCheckedChanged = onCheckboxChanged;
                 m_checkboxRenderInterpolation.IsCheckedChanged = onCheckboxChanged;
+                m_checkboxTonemapping.IsCheckedChanged = onCheckboxChanged;
                 m_checkboxEnableDamageEffects.IsCheckedChanged = onCheckboxChanged;
 
                 m_sliderFov.ValueChanged = (slider) => OnSettingsChanged();
@@ -293,6 +299,7 @@ namespace SpaceEngineers.Game.GUI
             var presetSettings = m_presets[(int)preset];
             presetSettings.MultithreadingEnabled = m_checkboxMultithreadedRender.IsChecked;
             presetSettings.InterpolationEnabled = m_checkboxRenderInterpolation.IsChecked;
+            presetSettings.TonemappingEnabled = m_checkboxTonemapping.IsChecked;
             m_settingsNew.Render = presetSettings;
             WriteSettingsToControls(m_settingsNew);
             MyVideoSettingsManager.Apply(m_settingsNew);
@@ -321,6 +328,7 @@ namespace SpaceEngineers.Game.GUI
                 read.Render.ShadowQuality         = (MyShadowsQuality)m_comboShadowMapResolution.GetSelectedKey();
                 read.Render.InterpolationEnabled  = m_checkboxRenderInterpolation.IsChecked;
                 read.Render.MultithreadingEnabled = m_checkboxMultithreadedRender.IsChecked;
+                read.Render.TonemappingEnabled    = m_checkboxTonemapping.IsChecked;
                 read.Render.TextureQuality        = (MyTextureQuality)m_comboTextureQuality.GetSelectedKey();
                 read.Render.AnisotropicFiltering  = (MyTextureAnisoFiltering)m_comboAnisotropicFiltering.GetSelectedKey();
                 read.Render.FoliageDetails        = (MyFoliageDetails)m_comboFoliageDetails.GetSelectedKey();
@@ -343,6 +351,7 @@ namespace SpaceEngineers.Game.GUI
             m_checkboxEnableDamageEffects.IsChecked = graphicsSettings.EnableDamageEffects;
             m_checkboxRenderInterpolation.IsChecked = graphicsSettings.Render.InterpolationEnabled;
             m_checkboxMultithreadedRender.IsChecked = graphicsSettings.Render.MultithreadingEnabled;
+            m_checkboxTonemapping.IsChecked = graphicsSettings.Render.TonemappingEnabled;
             m_comboAntialiasing.SelectItemByKey((long)graphicsSettings.Render.AntialiasingMode, sendEvent: false);
             m_comboShadowMapResolution.SelectItemByKey((long)graphicsSettings.Render.ShadowQuality, sendEvent: false);
             m_comboTextureQuality.SelectItemByKey((long)graphicsSettings.Render.TextureQuality, sendEvent: false);

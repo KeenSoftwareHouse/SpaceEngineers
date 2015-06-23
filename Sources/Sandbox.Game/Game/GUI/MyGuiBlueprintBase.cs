@@ -101,6 +101,7 @@ namespace Sandbox.Game.Gui
 
         public MyGuiBlueprintScreenBase(Vector2 position, Vector2 size, Vector4 backgroundColor, bool isTopMostScreen) :
             base(position, size, backgroundColor, isTopMostScreen)
+
         {
             m_localBlueprintFolder = Path.Combine(MyFileSystem.UserDataPath, "Blueprints", "local");
             m_workshopBlueprintFolder = Path.Combine(MyFileSystem.UserDataPath, "Blueprints", "workshop");
@@ -280,6 +281,9 @@ namespace Sandbox.Game.Gui
                 return null;
 
             var extracted = MyZipArchive.OpenOnFile(archive);
+            if (!extracted.FileExists("bp.sbc"))
+                return null;
+
             var stream = extracted.GetFile("bp.sbc").GetStream();
             
             if (stream == null)

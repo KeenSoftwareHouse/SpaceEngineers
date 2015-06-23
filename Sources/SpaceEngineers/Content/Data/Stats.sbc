@@ -1,0 +1,35 @@
+<?xml version="1.0"?>
+<Definitions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <StatGroupDefinitions>
+    <StatGroup>
+      <Id>
+        <TypeId>MyObjectBuilder_StatsDefinition</TypeId>
+        <SubtypeId>SpaceCharacterStats</SubtypeId>
+      </Id>
+      
+      <Stats>
+        <Stat>
+          <TypeId>MyObjectBuilder_EntityStat</TypeId>
+          <SubtypeId>Health</SubtypeId>
+        </Stat>
+      </Stats>
+      
+      <Scripts>
+        <Script>SpaceStatEffect</Script>
+      </Scripts>
+      
+    </StatGroup>
+  </StatGroupDefinitions>
+
+  <StatDefinitions>
+    <Stat xsi:type="MyObjectBuilder_EntityStatDefinition">
+      <Id>
+        <TypeId>MyObjectBuilder_EntityStat</TypeId>
+        <SubtypeId>Health</SubtypeId>
+      </Id>
+      <MinValue>0</MinValue>
+      <MaxValue>100</MaxValue>
+    </Stat>
+  </StatDefinitions>
+  
+</Definitions>

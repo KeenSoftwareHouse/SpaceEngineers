@@ -13,13 +13,11 @@ using Sandbox.Game.Screens.Terminal.Controls;
 using Sandbox.Game.Screens.Helpers;
 using VRage.Utils;
 using Sandbox.Game.Localization;
-using VRage;
-using VRage.Utils;
 using VRage.Library.Utils;
 
 namespace Sandbox.Game.Gui
 {
-    class MyTerminalControlOnOffSwitch<TBlock> : MyTerminalValueControl<TBlock, bool>
+    public class MyTerminalControlOnOffSwitch<TBlock> : MyTerminalValueControl<TBlock, bool>
         where TBlock : MyTerminalBlock
     {
         public delegate bool GetterDelegate(TBlock block);

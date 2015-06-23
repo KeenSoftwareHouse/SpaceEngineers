@@ -57,11 +57,6 @@ namespace VRage.Components
     {
         public static bool DebugDrawFlattenHierarchy = false;
 
-        public override MyStringId Name
-        {
-            get { return DefaultNames.Physics; }
-        }
-
         #region Fields
 
 
@@ -90,8 +85,8 @@ namespace VRage.Components
         /// <value>
         /// The type of the material.
         /// </value>
-        public MyStringId MaterialType { get; set; }
-        public virtual MyStringId GetMaterialAt(Vector3D worldPos) { return MaterialType; }
+        public MyStringHash MaterialType { get; set; }
+        public virtual MyStringHash GetMaterialAt(Vector3D worldPos) { return MaterialType; }
 
         /// <summary>
         /// Gets or sets a value indicating whether this <see cref="MyGameRigidBody"/> is static.

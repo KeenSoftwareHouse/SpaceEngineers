@@ -3,6 +3,8 @@
 using Sandbox.Common.ObjectBuilders;
 using Sandbox.Common.ObjectBuilders.Definitions;
 using System.Collections.Generic;
+using VRage;
+using VRage.Game.ObjectBuilders;
 using VRage.ObjectBuilders;
 using VRageMath;
 
@@ -14,6 +16,7 @@ namespace Sandbox.Definitions
     public partial class MyDefinitionManager
     {
         class DefinitionDictionary<V> : Dictionary<MyDefinitionId, V>
+            where V : MyDefinitionBase
         {
             public DefinitionDictionary(int capacity)
                 : base(capacity, MyDefinitionId.Comparer)
@@ -21,7 +24,7 @@ namespace Sandbox.Definitions
             }
 
             public void AddDefinitionSafe<T>(T definition, MyModContext context, string file)
-                where T : MyDefinitionBase, V
+                where T : V
             {
                 if (definition.Id.TypeId != MyObjectBuilderType.Invalid)
                 {
@@ -30,6 +33,17 @@ namespace Sandbox.Definitions
                 else
                 {
                     MyDefinitionErrors.Add(context, "Invalid definition id", ErrorSeverity.Error);
+                }
+            }
+
+            public void Merge(DefinitionDictionary<V> other)
+            {
+                foreach (var definition in other)
+                {
+                    if (definition.Value.Enabled)
+                        this[definition.Key] = definition.Value;
+                    else
+                        Remove(definition.Key);
                 }
             }
         }
@@ -85,6 +99,9 @@ namespace Sandbox.Definitions
                 m_blueprintsByResultId = new DefinitionDictionary<MyBlueprintDefinitionBase>(10);
 
                 m_environmentItemsEntries = new HashSet<EnvironmentItemsEntry>();
+                m_componentBlockEntries = new HashSet<MyComponentBlockEntry>();
+
+                m_componentBlocks = new HashSet<MyDefinitionId>();
 
                 m_categoryClasses = new List<MyGuiBlockCategoryDefinition>(25);
                 m_categories = new Dictionary<string, MyGuiBlockCategoryDefinition>(25);
@@ -99,6 +116,11 @@ namespace Sandbox.Definitions
                 m_characterNames = new List<MyCharacterName>(32);
 
                 m_battleDefinition = new MyBattleDefinition();
+
+                m_planetDefinitions = new DefinitionDictionary<MyPlanetDefinition>(5);
+
+                m_componentGroups = new DefinitionDictionary<MyComponentGroupDefinition>(4);
+                m_componentGroupMembers = new Dictionary<MyDefinitionId, MyTuple<int, MyComponentGroupDefinition>>();
             }
 
             public void OverrideBy(DefinitionSet definitionSet)
@@ -116,13 +138,7 @@ namespace Sandbox.Definitions
                         m_basePrefabNames[i] = definitionSet.m_basePrefabNames[i];
                 }
 
-                foreach (var definition in definitionSet.m_definitionsById)
-                {
-                    if (definition.Value.Enabled)
-                        m_definitionsById[definition.Key] = definition.Value;
-                    else
-                        m_definitionsById.Remove(definition.Key);
-                }
+                m_definitionsById.Merge(definitionSet.m_definitionsById);
 
                 foreach (var voxelMaterial in definitionSet.m_voxelMaterialsByName)
                 {
@@ -145,32 +161,10 @@ namespace Sandbox.Definitions
                     }
                 }
 
-                foreach (var blueprintsById in definitionSet.m_blueprintsById)
-                {
-                    if (blueprintsById.Value.Enabled)
-                        m_blueprintsById[blueprintsById.Key] = blueprintsById.Value;
-                    else
-                        m_blueprintsById.Remove(blueprintsById.Key);
-                }
-
+                m_blueprintsById.Merge(definitionSet.m_blueprintsById);
                 MergeDefinitionLists(m_spawnGroupDefinitions, definitionSet.m_spawnGroupDefinitions);
-
-                foreach (var containerTypeDefinition in definitionSet.m_containerTypeDefinitions)
-                {
-                    if (containerTypeDefinition.Value.Enabled)
-                        m_containerTypeDefinitions[containerTypeDefinition.Key] = containerTypeDefinition.Value;
-                    else
-                        m_containerTypeDefinitions.Remove(containerTypeDefinition.Key);
-                }
-
-                foreach (var handItem in definitionSet.m_handItemsById)
-                {
-                    if (handItem.Value.Enabled)
-                        m_handItemsById[handItem.Key] = handItem.Value;
-                    else
-                        m_handItemsById.Remove(handItem.Key);
-                }
-
+                m_containerTypeDefinitions.Merge(definitionSet.m_containerTypeDefinitions);
+                m_handItemsById.Merge(definitionSet.m_handItemsById);
                 MergeDefinitionLists(m_scenarioDefinitions, definitionSet.m_scenarioDefinitions);
 
                 foreach (var character in definitionSet.m_characters)
@@ -181,13 +175,7 @@ namespace Sandbox.Definitions
                         m_characters.Remove(character.Key);
                 }
 
-                foreach (var classDef in definitionSet.m_blueprintClasses)
-                {
-                    if (classDef.Value.Enabled)
-                        m_blueprintClasses[classDef.Key] = classDef.Value;
-                    else
-                        m_blueprintClasses.Remove(classDef.Key);
-                }
+                m_blueprintClasses.Merge(definitionSet.m_blueprintClasses);
 
                 foreach (var classEntry in definitionSet.m_categoryClasses)
                 {
@@ -220,13 +208,7 @@ namespace Sandbox.Definitions
                     }
                 }
 
-                foreach (var entry in definitionSet.m_blueprintsByResultId)
-                {
-                    if (entry.Value.Enabled)
-                        m_blueprintsByResultId[entry.Key] = entry.Value;
-                    else
-                        m_blueprintsByResultId.Remove(entry.Key);
-                }
+                m_blueprintsByResultId.Merge(definitionSet.m_blueprintsByResultId);
 
                 foreach (var classEntry in definitionSet.m_environmentItemsEntries)
                 {
@@ -234,12 +216,25 @@ namespace Sandbox.Definitions
                     {
                         if (classEntry.Enabled == false)
                             m_environmentItemsEntries.Remove(classEntry);
-
                     }
                     else
                     {
                         if (classEntry.Enabled == true)
                             m_environmentItemsEntries.Add(classEntry);
+                    }
+                }
+
+                foreach (var blockEntry in definitionSet.m_componentBlockEntries)
+                {
+                    if (m_componentBlockEntries.Contains(blockEntry))
+                    {
+                        if (blockEntry.Enabled == false)
+                            m_componentBlockEntries.Remove(blockEntry);
+                    }
+                    else
+                    {
+                        if (blockEntry.Enabled == true)
+                            m_componentBlockEntries.Add(blockEntry);
                     }
                 }
 
@@ -287,26 +282,9 @@ namespace Sandbox.Definitions
                     m_sounds[soundDef.Key] = soundDef.Value;
                 }
 
-                foreach (var weaponDef in definitionSet.m_weaponDefinitionsById)
-                {
-                    if (weaponDef.Value.Enabled)
-                        m_weaponDefinitionsById[weaponDef.Key] = weaponDef.Value;
-                    else
-                        m_weaponDefinitionsById.Remove(weaponDef.Key);
-                }
-
-                foreach (var ammoDef in definitionSet.m_ammoDefinitionsById)
-                {
-                    if (ammoDef.Value.Enabled)
-                        m_ammoDefinitionsById[ammoDef.Key] = ammoDef.Value;
-                    else
-                        m_ammoDefinitionsById.Remove(ammoDef.Key);
-                }
-
-                foreach (var behaviorDef in definitionSet.m_behaviorDefinitions)
-                {
-                    m_behaviorDefinitions[behaviorDef.Key] = behaviorDef.Value;
-                }
+                m_weaponDefinitionsById.Merge(definitionSet.m_weaponDefinitionsById);
+                m_ammoDefinitionsById.Merge(definitionSet.m_ammoDefinitionsById);
+                m_behaviorDefinitions.Merge(definitionSet.m_behaviorDefinitions);
 
                 foreach (var voxelMapStorageDef in definitionSet.m_voxelMapStorages)
                 {
@@ -324,6 +302,14 @@ namespace Sandbox.Definitions
                         m_battleDefinition.Merge(definitionSet.m_battleDefinition);
                 }
 
+                m_componentGroups.Merge(definitionSet.m_componentGroups);
+                foreach (var entry in definitionSet.m_planetDefinitions)
+                {
+                    if (entry.Value.Enabled)
+                        m_planetDefinitions[entry.Key] = entry.Value;
+                    else
+                        m_planetDefinitions.Remove(entry.Key);
+                }
             }
 
             static void MergeDefinitionLists<T>(List<T> output, List<T> input) where T : MyDefinitionBase
@@ -382,11 +368,12 @@ namespace Sandbox.Definitions
             internal List<MyGuiBlockCategoryDefinition> m_categoryClasses;
             internal Dictionary<string, MyGuiBlockCategoryDefinition> m_categories;
 
-            // Used only for loading the blueprint classes. When initialized, this should be null
+            // The following hashsets are used only for loading. When initialized, they should be cleared
             internal HashSet<BlueprintClassEntry> m_blueprintClassEntries;
-
-            // Ditto for environment items entries
             internal HashSet<EnvironmentItemsEntry> m_environmentItemsEntries;
+            internal HashSet<MyComponentBlockEntry> m_componentBlockEntries;
+
+            public HashSet<MyDefinitionId> m_componentBlocks;
 
             internal DefinitionDictionary<MyBlueprintDefinitionBase> m_blueprintsByResultId;
 
@@ -407,9 +394,16 @@ namespace Sandbox.Definitions
 
             public Dictionary<string, MyVoxelMapStorageDefinition> m_voxelMapStorages;
 
+            public readonly Dictionary<int, List<MyDefinitionId>> m_channelEnvironmentItemsDefs = new Dictionary<int, List<MyDefinitionId>>();
+
             internal List<MyCharacterName> m_characterNames;
 
             internal MyBattleDefinition m_battleDefinition;
+
+            internal DefinitionDictionary<MyPlanetDefinition> m_planetDefinitions;
+
+            internal DefinitionDictionary<MyComponentGroupDefinition> m_componentGroups;
+            internal Dictionary<MyDefinitionId, MyTuple<int, MyComponentGroupDefinition>> m_componentGroupMembers;
         }
     }
 }

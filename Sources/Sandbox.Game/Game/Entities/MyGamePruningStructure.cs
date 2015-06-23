@@ -14,26 +14,19 @@ namespace Sandbox.Game.Entities
         // A tree for each query type.
         // If you query for a specific type, consider adding a new QueryFlag and AABBTree (so that you don't have to filter the result afterwards).
         static MyDynamicAABBTreeD m_aabbTree;
-        static MyDynamicAABBTreeD m_targetsTree;
-        static MyDynamicAABBTreeD m_sensableTree; //sensor block
+        static MyDynamicAABBTreeD m_topMostEntitiesTree;
         static MyDynamicAABBTreeD m_voxelMapsTree;
 
-        static List<Type> TargetTypes = new List<Type>() 
+        static List<Type> TopMostEntitiesTypes = new List<Type>() 
         { 
+            typeof(MyPlanet),
             typeof(MyMeteor), 
             typeof(Sandbox.Game.Entities.Character.MyCharacter), 
             typeof(MyCubeGrid),
             typeof(Sandbox.Game.Weapons.MyMissile), 
-            typeof(MyFloatingObject), 
-        };
-
-        static List<Type> SensableTypes = new List<Type>() 
-        { 
             typeof(MyVoxelMap),
-            typeof(Character.MyCharacter),
-            typeof(MyCubeGrid),
             typeof(MyFloatingObject),
-        };
+        };       
 
         static MyGamePruningStructure()
         {
@@ -45,26 +38,11 @@ namespace Sandbox.Game.Entities
             return m_aabbTree;
         }
 
-        public static MyDynamicAABBTreeD GetTargetsPrunningStructure()
-        {
-            return m_targetsTree;
-        }
-
-        public static MyDynamicAABBTreeD GetSensablePrunningStructure()
-        {
-            return m_sensableTree;
-        }
-
-        public static MyDynamicAABBTreeD GetAsteroidsPrunningStructure()
-        {
-            return m_voxelMapsTree;
-        }
-
+      
         static void Init()
         {
             m_aabbTree = new MyDynamicAABBTreeD(MyConstants.GAME_PRUNING_STRUCTURE_AABB_EXTENSION);
-            m_targetsTree = new MyDynamicAABBTreeD(MyConstants.GAME_PRUNING_STRUCTURE_AABB_EXTENSION);
-            m_sensableTree = new MyDynamicAABBTreeD(MyConstants.GAME_PRUNING_STRUCTURE_AABB_EXTENSION);
+            m_topMostEntitiesTree = new MyDynamicAABBTreeD(MyConstants.GAME_PRUNING_STRUCTURE_AABB_EXTENSION);
             m_voxelMapsTree = new MyDynamicAABBTreeD(MyConstants.GAME_PRUNING_STRUCTURE_AABB_EXTENSION);
         }
 
@@ -88,38 +66,14 @@ namespace Sandbox.Game.Entities
             BoundingBoxD bbox = GetEntityAABB(entity);
             if (bbox.Size == Vector3D.Zero) return;  // don't add entities with zero bounding boxes
 
-            entity.GamePruningProxyId = m_aabbTree.AddProxy(ref bbox, entity, 0);
-
-            bool isTarget = false;
-            if (MyFakes.SHOW_FACTIONS_GUI)
+            entity.GamePruningProxyId = m_aabbTree.AddProxy(ref bbox, entity, 0);         
+                          
+            if(TopMostEntitiesTypes.Contains(entity.GetType()))
             {
-                var moduleOwner = entity as IMyComponentOwner<MyIDModule>;
-                MyIDModule module;
-                if (moduleOwner != null && moduleOwner.GetComponent(out module))
-                {
-                    isTarget = true;
-                }
-            }
-            foreach (var targetType in TargetTypes)
-            {
-                if (targetType == entity.GetType())
-                {
-                    isTarget = true;
-                    break;
-                }
+                entity.TopMostPruningProxyId = m_topMostEntitiesTree.AddProxy(ref bbox, entity, 0);
             }
 
-            if (isTarget)
-            {
-                entity.TargetPruningProxyId = m_targetsTree.AddProxy(ref bbox, entity, 0);
-            }
-
-            if (SensableTypes.Contains(entity.GetType()))
-            {
-                entity.SensablePruningProxyId = m_sensableTree.AddProxy(ref bbox, entity, 0);
-            }
-            
-            var voxelMap = entity as MyVoxelMap;
+            var voxelMap = entity as MyVoxelBase;
             if (voxelMap != null)
             {
                 voxelMap.VoxelMapPruningProxyId = m_voxelMapsTree.AddProxy(ref bbox, entity, 0);
@@ -132,25 +86,20 @@ namespace Sandbox.Game.Entities
             {
                 m_aabbTree.RemoveProxy(entity.GamePruningProxyId);
                 entity.GamePruningProxyId = MyConstants.PRUNING_PROXY_ID_UNITIALIZED;
-            }
+            }                      
+       
 
-            if (entity.TargetPruningProxyId != MyConstants.PRUNING_PROXY_ID_UNITIALIZED)
-            {
-                m_targetsTree.RemoveProxy(entity.TargetPruningProxyId);
-                entity.TargetPruningProxyId = MyConstants.PRUNING_PROXY_ID_UNITIALIZED;
-            }
-
-            if (entity.SensablePruningProxyId != MyConstants.PRUNING_PROXY_ID_UNITIALIZED)
-            {
-                m_sensableTree.RemoveProxy(entity.SensablePruningProxyId);
-                entity.SensablePruningProxyId = MyConstants.PRUNING_PROXY_ID_UNITIALIZED;
-            }
-            
-            var voxelMap = entity as MyVoxelMap;
+            var voxelMap = entity as MyVoxelBase;
             if (voxelMap != null && voxelMap.VoxelMapPruningProxyId != MyConstants.PRUNING_PROXY_ID_UNITIALIZED)
             {
                 m_voxelMapsTree.RemoveProxy(voxelMap.VoxelMapPruningProxyId);
                 voxelMap.VoxelMapPruningProxyId = MyConstants.PRUNING_PROXY_ID_UNITIALIZED;
+            }
+
+            if (entity.TopMostPruningProxyId != MyConstants.PRUNING_PROXY_ID_UNITIALIZED)
+            {
+                m_topMostEntitiesTree.RemoveProxy(entity.TopMostPruningProxyId);
+                entity.TopMostPruningProxyId = MyConstants.PRUNING_PROXY_ID_UNITIALIZED;
             }
         }
 
@@ -158,9 +107,8 @@ namespace Sandbox.Game.Entities
         {
             Init();
             m_aabbTree.Clear();
-            m_targetsTree.Clear();
-            m_sensableTree.Clear();
             m_voxelMapsTree.Clear();
+            m_topMostEntitiesTree.Clear();
         }
 
         public static void Move(MyEntity entity)
@@ -177,20 +125,15 @@ namespace Sandbox.Game.Entities
 
                 m_aabbTree.MoveProxy(entity.GamePruningProxyId, ref bbox, Vector3D.Zero);
 
-                if (entity.TargetPruningProxyId != MyConstants.PRUNING_PROXY_ID_UNITIALIZED)
-                {
-                    m_targetsTree.MoveProxy(entity.TargetPruningProxyId, ref bbox, Vector3D.Zero);
-                }
-
-                if (entity.SensablePruningProxyId != MyConstants.PRUNING_PROXY_ID_UNITIALIZED)
-                {
-                    m_sensableTree.MoveProxy(entity.SensablePruningProxyId, ref bbox, Vector3D.Zero);
-                }
-
-                var voxelMap = entity as MyVoxelMap;
+                var voxelMap = entity as MyVoxelBase;
                 if (voxelMap != null)
                 {
                     m_voxelMapsTree.MoveProxy(voxelMap.VoxelMapPruningProxyId, ref bbox, Vector3D.Zero);
+                }
+    
+                if (entity.TopMostPruningProxyId != MyConstants.PRUNING_PROXY_ID_UNITIALIZED)
+                {
+                    m_topMostEntitiesTree.MoveProxy(entity.TopMostPruningProxyId, ref bbox, Vector3D.Zero);
                 }
             }
         }
@@ -202,17 +145,17 @@ namespace Sandbox.Game.Entities
             VRageRender.MyRenderProxy.GetRenderProfiler().EndProfilingBlock();
         }
 
-        public static void GetAllSensableEntitiesInBox<T>(ref BoundingBoxD box, List<T> result)
+        public static void GetAllTopMostEntitiesInBox<T>(ref BoundingBoxD box, List<T> result)
         {
             VRageRender.MyRenderProxy.GetRenderProfiler().StartProfilingBlock("MyGamePruningStructure::GetAllSensableEntitiesInBox");
-            m_sensableTree.OverlapAllBoundingBox<T>(ref box, result, 0, false);
+            m_topMostEntitiesTree.OverlapAllBoundingBox<T>(ref box, result, 0, false);
             VRageRender.MyRenderProxy.GetRenderProfiler().EndProfilingBlock();
         }
 
-        public static void GetAllVoxelMapsInBox(ref BoundingBoxD box, List<MyVoxelMap> result)
+        public static void GetAllVoxelMapsInBox(ref BoundingBoxD box, List<MyVoxelBase> result)
         {
             VRageRender.MyRenderProxy.GetRenderProfiler().StartProfilingBlock("MyGamePruningStructure::GetAllVoxelMapsInBox");
-            m_voxelMapsTree.OverlapAllBoundingBox<MyVoxelMap>(ref box, result, 0, false);
+            m_voxelMapsTree.OverlapAllBoundingBox<MyVoxelBase>(ref box, result, 0, false);
             VRageRender.MyRenderProxy.GetRenderProfiler().EndProfilingBlock();
         }
 
@@ -229,11 +172,11 @@ namespace Sandbox.Game.Entities
             m_voxelMapsTree.OverlapAllBoundingSphere<MyVoxelBase>(ref sphere, result, false);
             VRageRender.MyRenderProxy.GetRenderProfiler().EndProfilingBlock();
         }
-
+    
         public static void GetAllTargetsInSphere<T>(ref BoundingSphereD sphere, List<T> result)
         {
             VRageRender.MyRenderProxy.GetRenderProfiler().StartProfilingBlock("MyGamePruningStructure::GetAllTargetsInSphere");
-            m_targetsTree.OverlapAllBoundingSphere<T>(ref sphere, result, false);
+            m_topMostEntitiesTree.OverlapAllBoundingSphere<T>(ref sphere, result, false);
             VRageRender.MyRenderProxy.GetRenderProfiler().EndProfilingBlock();
         }
 

@@ -144,20 +144,41 @@ namespace Sandbox.Game.Gui
 
             multiplayer.SendPlayerData(MySteam.UserName);
 
-            StringBuilder text = MyTexts.Get(MySpaceTexts.DialogTextJoiningWorld);
+            string gamemode = server.GetGameTagByPrefix("gamemode");
+            if (MyFakes.ENABLE_BATTLE_SYSTEM && gamemode == "B")
+            {
+                StringBuilder text = MyTexts.Get(MySpaceTexts.DialogTextJoiningBattleLobby);
 
-            MyGuiScreenProgress progress = new MyGuiScreenProgress(text, MySpaceTexts.Cancel);
-            MyGuiSandbox.AddScreen(progress);
-            progress.ProgressCancelled += () =>
+                MyGuiScreenProgress progress = new MyGuiScreenProgress(text, MySpaceTexts.Cancel);
+                MyGuiSandbox.AddScreen(progress);
+                progress.ProgressCancelled += () =>
                 {
                     multiplayer.Dispose();
                     MyGuiScreenMainMenu.ReturnToMainMenu();
                 };
 
-            multiplayer.OnJoin += delegate
+                multiplayer.OnJoin += delegate
+                {
+                    MyJoinGameHelper.OnJoinBattle(progress, SteamSDK.Result.OK, new LobbyEnterInfo() { EnterState = LobbyEnterResponseEnum.Success }, multiplayer);
+                };
+            }
+            else
             {
-                MyJoinGameHelper.OnJoin(progress, SteamSDK.Result.OK, new LobbyEnterInfo() { EnterState = LobbyEnterResponseEnum.Success }, multiplayer);
-            };
+                StringBuilder text = MyTexts.Get(MySpaceTexts.DialogTextJoiningWorld);
+
+                MyGuiScreenProgress progress = new MyGuiScreenProgress(text, MySpaceTexts.Cancel);
+                MyGuiSandbox.AddScreen(progress);
+                progress.ProgressCancelled += () =>
+                {
+                    multiplayer.Dispose();
+                    MyGuiScreenMainMenu.ReturnToMainMenu();
+                };
+
+                multiplayer.OnJoin += delegate
+                {
+                    MyJoinGameHelper.OnJoin(progress, SteamSDK.Result.OK, new LobbyEnterInfo() { EnterState = LobbyEnterResponseEnum.Success }, multiplayer);
+                };
+            }
         }
 
         public static void JoinGame(ulong lobbyId)
@@ -319,8 +340,8 @@ namespace Sandbox.Game.Gui
         {
             MyLog.Default.WriteLine(String.Format("Battle lobby join response: {0}, enter state: {1}", joinResult.ToString(), enterInfo.EnterState));
 
-            bool battleCanBeJoined = multiplayer.BattleCanBeJoined;
-            if (joinResult == Result.OK && enterInfo.EnterState == LobbyEnterResponseEnum.Success && multiplayer.GetOwner() != MySteam.UserId && battleCanBeJoined)
+            bool battleCanBeJoined = multiplayer != null && multiplayer.BattleCanBeJoined;
+            if (joinResult == Result.OK && enterInfo.EnterState == LobbyEnterResponseEnum.Success && battleCanBeJoined && multiplayer.GetOwner() != MySteam.UserId)
             {
                 // Create session with empty world
                 Debug.Assert(MySession.Static == null);
@@ -371,7 +392,6 @@ namespace Sandbox.Game.Gui
                 }
 
                 MySession.CreateWithEmptyWorld(multiplayer);
-                MySession.Static.Settings.Battle = true;
 
                 progress.CloseScreen();
 

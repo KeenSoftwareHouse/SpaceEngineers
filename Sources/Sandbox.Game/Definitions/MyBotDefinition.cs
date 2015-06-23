@@ -14,7 +14,6 @@ namespace Sandbox.Definitions
         public string BehaviorSubtype;
         public MyDefinitionId TypeDefinitionId;
         public bool Commandable;
-        public bool AvailableInSurvival;
 
         protected override void Init(MyObjectBuilder_DefinitionBase builder)
         {
@@ -29,7 +28,6 @@ namespace Sandbox.Definitions
             else
                 this.BehaviorSubtype = ob.BehaviorSubtype;
             Commandable = ob.Commandable;
-            AvailableInSurvival = ob.AvailableInSurvival;
         }
     }
 }

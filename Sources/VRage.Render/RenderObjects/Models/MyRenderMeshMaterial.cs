@@ -251,7 +251,7 @@ namespace VRageRender
             else
                 baseName = m_diffuseName.Substring(0, m_diffuseName.Length - ext.Length);
 
-            m_diffuseName = baseName + meMatch;
+            m_diffuseName = baseName + deMatch;
             DiffuseTexture = MyTextureManager.GetTexture<MyTexture2D>(m_diffuseName, m_contentDir, CheckTexture, loadingMode);
             if (DiffuseTexture == null)
             {
@@ -260,7 +260,7 @@ namespace VRageRender
             }
             if (DiffuseTexture == null)
             {
-                m_diffuseName = baseName + deMatch;
+                m_diffuseName = baseName + meMatch;
                 DiffuseTexture = MyTextureManager.GetTexture<MyTexture2D>(m_diffuseName, m_contentDir, CheckTexture, loadingMode);
             }
 

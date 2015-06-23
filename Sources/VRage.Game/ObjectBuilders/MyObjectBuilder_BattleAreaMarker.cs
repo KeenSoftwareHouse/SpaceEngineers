@@ -9,5 +9,7 @@ namespace Sandbox.Common.ObjectBuilders
     {
 		[ProtoMember]
 		public uint BattleSlot = 0;
+
+		public override bool IsSynced { get { return true; } }
     }
 }
