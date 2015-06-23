@@ -30,5 +30,11 @@ namespace Sandbox.Engine.Voxels
         void DebugDraw(ref MatrixD worldMatrix);
 
         void ReindexMaterials(Dictionary<byte, byte> oldToNewIndexMap);
+
+        float GetDistanceToPoint(ref Vector3D localPos);
+
+        bool IsMaterialAtPositionSpawningFlora(ref Vector3D localPos);
+
+        bool HasMaterialSpawningFlora();
     }
 }

@@ -45,6 +45,15 @@ namespace Sandbox.Game.Entities.Cube
             }
         }
 
+        private bool m_projectionCanBePlaced;
+        protected override bool CanBePlaced
+        {
+            get
+            {
+                return m_projectionCanBePlaced;
+            }
+        }
+
         public void Clear()
         {
             CopiedGrids.Clear();
@@ -64,6 +73,8 @@ namespace Sandbox.Game.Entities.Cube
         public void ProcessCubeGrid(MyObjectBuilder_CubeGrid gridBuilder)
         {
             gridBuilder.IsStatic = false;
+            // To prevent exploits
+            gridBuilder.DestructibleBlocks = false;
             foreach (var block in gridBuilder.CubeBlocks)
             {
                 var functionalBlock = block as MyObjectBuilder_FunctionalBlock;
@@ -87,6 +98,13 @@ namespace Sandbox.Game.Entities.Cube
         {
             //Not needed for projector and causes performance problems
             return true;
+        }
+
+        //Called on demand, not every frame
+        public bool ActuallyTestPlacement()
+        {
+            m_projectionCanBePlaced = base.TestPlacement();
+            return m_projectionCanBePlaced;
         }
 
         protected override MyEntity GetClipboardBuilder()

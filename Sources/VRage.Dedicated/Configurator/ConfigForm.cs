@@ -68,7 +68,7 @@ namespace VRage.Dedicated
             }
             else // Local / Console
             {
-                string[] cmdLine = Environment.CommandLine.Split(null as string[], 2, StringSplitOptions.RemoveEmptyEntries);
+                string[] cmdLine = Environment.GetCommandLineArgs();
                 Process.Start(cmdLine[0], ((cmdLine.Length > 1) ? cmdLine[1] : "" ) + " -console -ignorelastsession");
                 Close();
             }
@@ -277,9 +277,14 @@ namespace VRage.Dedicated
 
                 MySandboxGame.ConfigDedicated.Load();
                 m_selectedSessionSettings = MySandboxGame.ConfigDedicated.SessionSettings;
-                
+
                 //enable tool shake needs to be true for new world, but false for old saved worlds.                                
                 m_selectedSessionSettings.EnableToolShake = true;
+
+                m_selectedSessionSettings.EnablePlanets = MyFakes.ENABLE_PLANETS;
+                m_selectedSessionSettings.EnableSunRotation = true;
+                m_selectedSessionSettings.EnableStationVoxelSupport = true;
+
             }
 
             FillSessionSettingsItems();

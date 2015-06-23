@@ -18,7 +18,7 @@ namespace Sandbox.Game.World.Triggers
     {
         NONE=0,
         OTHER_WON,
-        //ALL_OTHERS_LOST,
+        ALL_OTHERS_LOST,
         PLAYER_DIED,
         //BLOCK_DESTROYED
     };
@@ -108,6 +108,7 @@ namespace Sandbox.Game.World.Triggers
             {
                 case Signal.OTHER_WON:
                 case Signal.PLAYER_DIED:
+                case Signal.ALL_OTHERS_LOST:
                     for (int i = 0; i < m_winTriggers.Count; i++)
                     {
                         var trigger = m_winTriggers[i];
@@ -134,6 +135,14 @@ namespace Sandbox.Game.World.Triggers
                     break;
             }
             return false;
+        }
+
+        public void DisplayHints()
+        {
+            for (int i = 0; i < m_winTriggers.Count; i++)
+                m_winTriggers[i].DisplayHints();
+            for (int i = 0; i < m_loseTriggers.Count; i++)
+                m_loseTriggers[i].DisplayHints();
         }
 
         public MyMissionTriggers(MyObjectBuilder_MissionTriggers builder)

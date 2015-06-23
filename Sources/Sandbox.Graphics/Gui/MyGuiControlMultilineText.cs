@@ -331,9 +331,9 @@ namespace Sandbox.Graphics.GUI
             }
         }
 
-        public override void Draw(float transitionAlpha)
+        public override void Draw(float transitionAlpha, float backgroundTransitionAlpha)
         {
-            base.Draw(transitionAlpha);
+            base.Draw(transitionAlpha, backgroundTransitionAlpha);
             var textArea = new MyRectangle2D(Vector2.Zero, Size);
             textArea.LeftTop += GetPositionAbsoluteTopLeft();
             Vector2 carriageOffset = GetCarriageOffset(CarriagePositionIndex);
@@ -347,7 +347,7 @@ namespace Sandbox.Graphics.GUI
 
             using (MyGuiManager.UsingScissorRectangle(ref scissor))
             {
-                DrawSelectionBackgrounds(textArea, transitionAlpha);
+                DrawSelectionBackgrounds(textArea, backgroundTransitionAlpha);
                 DrawText(m_scrollbar.Value);
 
 

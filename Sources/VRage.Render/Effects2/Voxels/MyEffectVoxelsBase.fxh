@@ -61,25 +61,25 @@ sampler TextureDiffuseForAxisXZSampler[3] =
 {
 	sampler_state
 	{
-		texture = <TextureDiffuseForAxisXZ> ; 
-		mipfilter = LINEAR; 
-		AddressU = WRAP; 
+		texture = <TextureDiffuseForAxisXZ> ;
+		mipfilter = LINEAR;
+		AddressU = WRAP;
 		AddressV = WRAP;
 	},
 
 	sampler_state
 	{
-		texture = <TextureDiffuseForAxisXZ2> ; 
-		mipfilter = LINEAR; 
-		AddressU = WRAP; 
+		texture = <TextureDiffuseForAxisXZ2> ;
+		mipfilter = LINEAR;
+		AddressU = WRAP;
 		AddressV = WRAP;
 	},
 
 	sampler_state
 	{
-		texture = <TextureDiffuseForAxisXZ3> ; 
-		mipfilter = LINEAR; 
-		AddressU = WRAP; 
+		texture = <TextureDiffuseForAxisXZ3> ;
+		mipfilter = LINEAR;
+		AddressU = WRAP;
 		AddressV = WRAP;
 	}
 };
@@ -88,25 +88,25 @@ sampler TextureDiffuseForAxisYSampler[3] =
 {
 	sampler_state
 	{
-		texture = <TextureDiffuseForAxisY> ; 
-		mipfilter = LINEAR; 
-		AddressU = WRAP; 
+		texture = <TextureDiffuseForAxisY> ;
+		mipfilter = LINEAR;
+		AddressU = WRAP;
 		AddressV = WRAP;
 	},
 
 	sampler_state
 	{
-		texture = <TextureDiffuseForAxisY2> ; 
-		mipfilter = LINEAR; 
-		AddressU = WRAP; 
+		texture = <TextureDiffuseForAxisY2> ;
+		mipfilter = LINEAR;
+		AddressU = WRAP;
 		AddressV = WRAP;
 	},
 
 	sampler_state
 	{
-		texture = <TextureDiffuseForAxisY3> ; 
-		mipfilter = LINEAR; 
-		AddressU = WRAP; 
+		texture = <TextureDiffuseForAxisY3> ;
+		mipfilter = LINEAR;
+		AddressU = WRAP;
 		AddressV = WRAP;
 	}
 };
@@ -115,52 +115,52 @@ sampler TextureNormalMapForAxisXZSampler[3] =
 {
 	sampler_state
 	{
-		texture = <TextureNormalMapForAxisXZ> ; 
-		mipfilter = LINEAR; 
-		AddressU = WRAP; 
+		texture = <TextureNormalMapForAxisXZ> ;
+		mipfilter = LINEAR;
+		AddressU = WRAP;
 		AddressV = WRAP;
 	},
 
 	sampler_state
 	{
-		texture = <TextureNormalMapForAxisXZ2> ; 
-		mipfilter = LINEAR; 
-		AddressU = WRAP; 
+		texture = <TextureNormalMapForAxisXZ2> ;
+		mipfilter = LINEAR;
+		AddressU = WRAP;
 		AddressV = WRAP;
 	},
 
 	sampler_state
 	{
-		texture = <TextureNormalMapForAxisXZ3> ; 
-		mipfilter = LINEAR; 
-		AddressU = WRAP; 
+		texture = <TextureNormalMapForAxisXZ3> ;
+		mipfilter = LINEAR;
+		AddressU = WRAP;
 		AddressV = WRAP;
 	}
 };
 
 sampler TextureNormalMapForAxisYSampler[3] =
-{ 
+{
 	sampler_state
 	{
-		texture = <TextureNormalMapForAxisY> ; 
-		mipfilter = LINEAR; 
-		AddressU = WRAP; 
+		texture = <TextureNormalMapForAxisY> ;
+		mipfilter = LINEAR;
+		AddressU = WRAP;
 		AddressV = WRAP;
 	},
 
 	sampler_state
 	{
-		texture = <TextureNormalMapForAxisY2> ; 
-		mipfilter = LINEAR; 
-		AddressU = WRAP; 
+		texture = <TextureNormalMapForAxisY2> ;
+		mipfilter = LINEAR;
+		AddressU = WRAP;
 		AddressV = WRAP;
 	},
 
 	sampler_state
 	{
-		texture = <TextureNormalMapForAxisY3> ; 
-		mipfilter = LINEAR; 
-		AddressU = WRAP; 
+		texture = <TextureNormalMapForAxisY3> ;
+		mipfilter = LINEAR;
+		AddressU = WRAP;
 		AddressV = WRAP;
 	}
 };
@@ -174,8 +174,8 @@ float3 GetTriplanarWeights(float3 normal)
 {
 	float3 axisWeights;
 	axisWeights = (abs(normal.xyz) - 0.2) * 7;
-	axisWeights = pow(axisWeights, 2.0);	
-	axisWeights /= (axisWeights.x + axisWeights.y + axisWeights.z).xxx;	
+	axisWeights = pow(axisWeights, 2.0);
+	axisWeights /= (axisWeights.x + axisWeights.y + axisWeights.z).xxx;
 	return axisWeights;
 }
 
@@ -185,16 +185,16 @@ float3 GetTriplanarWeights(float3 normal)
 
 void GetTextureForRenderQualityLow(int materialIndex, float2 uvForAxis, out float4 diffuseTexture)
 {
-    diffuseTexture = 
-		tex2D(TextureDiffuseForAxisXZSampler[materialIndex], uvForAxis); 
+    diffuseTexture =
+		tex2D(TextureDiffuseForAxisXZSampler[materialIndex], uvForAxis);
 }
 
 void GetTextureForRenderQualityNormal(int materialIndex, float2 uvForAxisX, float2 uvForAxisY, float2 uvForAxisZ, float3 triplanarWeights, out float4 diffuseTexture)
 {
-    diffuseTexture = 
-		tex2D(TextureDiffuseForAxisXZSampler[materialIndex], uvForAxisX) * triplanarWeights.x + 
-		tex2D(TextureDiffuseForAxisYSampler[materialIndex], uvForAxisY) * triplanarWeights.y + 
-		tex2D(TextureDiffuseForAxisXZSampler[materialIndex], uvForAxisZ) * triplanarWeights.z; 
+    diffuseTexture =
+		tex2D(TextureDiffuseForAxisXZSampler[materialIndex], uvForAxisX) * triplanarWeights.x +
+		tex2D(TextureDiffuseForAxisYSampler[materialIndex], uvForAxisY) * triplanarWeights.y +
+		tex2D(TextureDiffuseForAxisXZSampler[materialIndex], uvForAxisZ) * triplanarWeights.z;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -202,13 +202,13 @@ void GetTextureForRenderQualityNormal(int materialIndex, float2 uvForAxisX, floa
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 void GetTextureForRenderQualityHighOrExtreme(
-	int materialIndex, float2 uvForAxisX, float2 uvForAxisY, float2 uvForAxisZ, float3 normal, float3 triplanarWeights, 
+	int materialIndex, float2 uvForAxisX, float2 uvForAxisY, float2 uvForAxisZ, float3 normal, float3 triplanarWeights,
 	out float4 diffuseTexture, out float4 normalNew)
 {
-    diffuseTexture = 
-		tex2D(TextureDiffuseForAxisXZSampler[materialIndex], uvForAxisX) * triplanarWeights.x + 
-		tex2D(TextureDiffuseForAxisYSampler[materialIndex], uvForAxisY) * triplanarWeights.y + 
-		tex2D(TextureDiffuseForAxisXZSampler[materialIndex], uvForAxisZ) * triplanarWeights.z; 
+    diffuseTexture =
+		tex2D(TextureDiffuseForAxisXZSampler[materialIndex], uvForAxisX) * triplanarWeights.x +
+		tex2D(TextureDiffuseForAxisYSampler[materialIndex], uvForAxisY) * triplanarWeights.y +
+		tex2D(TextureDiffuseForAxisXZSampler[materialIndex], uvForAxisZ) * triplanarWeights.z;
 
     ////////////////////////////////////////////////////////////////////////////////////
     //	This is trick like hell. We don't do trasnformation of normal from texture to world space
@@ -223,24 +223,24 @@ void GetTextureForRenderQualityHighOrExtreme(
 	float4 encodedNormalX = tex2D(TextureNormalMapForAxisXZSampler[materialIndex], uvForAxisX);
     float3 normalForAxisX = GetNormalVectorFromDDS(encodedNormalX).zyx;
     normalForAxisX.x *= sign(normal.x);
-    
+
     //	Normal for axis Y
 	float4 encodedNormalY = tex2D(TextureNormalMapForAxisYSampler[materialIndex], uvForAxisY);
     float3 normalForAxisY = GetNormalVectorFromDDS(encodedNormalY).xzy;
     normalForAxisY.y *= sign(normal.y);
-    
+
     //	Normal for axis Z
 	float4 encodedNormalZ = tex2D(TextureNormalMapForAxisXZSampler[materialIndex], uvForAxisZ);
     float3 normalForAxisZ = GetNormalVectorFromDDS(encodedNormalZ).yxz;
     normalForAxisZ.z *= sign(normal.z);
-    
+
     //	Blend normals using triplanar weights
-    normalNew = float4( 
-		normalForAxisX * triplanarWeights.x + 
-		normalForAxisY * triplanarWeights.y + 
+    normalNew = float4(
+		normalForAxisX * triplanarWeights.x +
+		normalForAxisY * triplanarWeights.y +
 		normalForAxisZ * triplanarWeights.z, 1.0f);
 
- 											  
+
  #if 1
 	//	We don't need to normalize because it works even without it - I haven't noticed any problems
     normalNew.xyz = normalize(normalNew);
@@ -254,7 +254,7 @@ void GetTextureForRenderQualityHighOrExtreme(
 	// removes low-frequency surface details and substitutes it with tangent space normal swizzled to worldspace
 	//
 
-	normalNew.xyz = normalize(normal + normalNew * 2);	
+	normalNew.xyz = normalize(normal + normalNew * 2);
 
 #endif
 
@@ -262,11 +262,11 @@ void GetTextureForRenderQualityHighOrExtreme(
 
 	//emissivity
 	//we read from w component because normals in our DDS are encoded as RGBA
-	normalNew.w = 
-		encodedNormalX.w * triplanarWeights.x + 
-		encodedNormalY.w * triplanarWeights.y + 
+	normalNew.w =
+		encodedNormalX.w * triplanarWeights.x +
+		encodedNormalY.w * triplanarWeights.y +
 		encodedNormalZ.w * triplanarWeights.z;
-} 
+}
 
 float GetNearScaleIndex(float distance)
 {
@@ -284,10 +284,10 @@ float GetNearScaleIndex(float distance)
 //	Triplanar rendering
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-VoxelPixelData GetPixelData(int materialIndex, float3 worldPositionForTextureCoords, float3 triplanarWeights, float3 normal, float viewDistance, float specularIntensity, float specularPower, float perVertexAmbient, uniform int renderQuality)
+VoxelPixelData GetPixelData(int materialIndex, float3 localPosition, float3 triplanarWeights, float3 normal, float viewDistance, float specularIntensity, float specularPower, float perVertexAmbient, uniform int renderQuality)
 {
-	//	Vertex normal vector	
-    normal = normalize(normal);	
+	//	Vertex normal vector
+    normal = normalize(normal);
 
 	float4 diffuseTextureNear;
 	float4 diffuseTextureFar;
@@ -304,10 +304,10 @@ VoxelPixelData GetPixelData(int materialIndex, float3 worldPositionForTextureCoo
 	//	Voxel 'texture scale by distance' trick (this is not about LOD at all)
 	float interpolatorForTextureByDistance = saturate((viewDistance - SCALE_NEAR) / (SCALE_FAR - SCALE_NEAR));
 
-	float3 texCoordNear = worldPositionForTextureCoords.xyz / SCALE_NEAR;
-	float3 texCoordFar = worldPositionForTextureCoords.xyz / SCALE_FAR;
+	float3 texCoordNear = localPosition.xyz / SCALE_NEAR;
+	float3 texCoordFar = localPosition.xyz / SCALE_FAR;
 
-	//	Near texture		
+	//	Near texture
 	float2 uvForAxisX_Near = texCoordNear.zy;
 	float2 uvForAxisY_Near = texCoordNear.xz;
 	float2 uvForAxisZ_Near = texCoordNear.xy;
@@ -333,7 +333,7 @@ VoxelPixelData GetPixelData(int materialIndex, float3 worldPositionForTextureCoo
 
 		//	Combine near and far textures
 	diffuseTexture = lerp(diffuseTextureNear, diffuseTextureFar, interpolatorForTextureByDistance);
-		
+
 	if (renderQuality != RENDER_QUALITY_LOW)
 	{
 		float highAmbientStart = 2000;
@@ -347,22 +347,22 @@ VoxelPixelData GetPixelData(int materialIndex, float3 worldPositionForTextureCoo
 	ret.Normal = normal;
 	ret.DiffuseTexture = diffuseTexture;
 	ret.SpecularIntensity = specularIntensity;
-	ret.SpecularPower = specularPower;	
+	ret.SpecularPower = specularPower;
 	return ret;
 }
 
-MyGbufferPixelShaderOutput GetTriplanarPixel(int materialIndex, float3 worldPositionForTextureCoords, float3 triplanarWeights, float3 normal, float viewDistance, float specularIntensity, float specularPower, float perVertexAmbient, uniform int renderQuality)
+MyGbufferPixelShaderOutput GetTriplanarPixel(int materialIndex, float3 localPosition, float3 triplanarWeights, float3 normal, float viewDistance, float specularIntensity, float specularPower, float perVertexAmbient, uniform int renderQuality)
 {
-	VoxelPixelData pixelData = GetPixelData(materialIndex, worldPositionForTextureCoords,  triplanarWeights,  normal,  viewDistance,  specularIntensity,  specularPower,  perVertexAmbient, renderQuality);
+	VoxelPixelData pixelData = GetPixelData(materialIndex, localPosition,  triplanarWeights,  normal,  viewDistance,  specularIntensity,  specularPower,  perVertexAmbient, renderQuality);
 	//	Output into MRT
 	MyGbufferPixelShaderOutput output = GetGbufferPixelShaderOutput(pixelData.Normal, pixelData.DiffuseTexture.rgb, pixelData.SpecularIntensity / SPECULAR_INTENSITY_RATIO, pixelData.SpecularPower / SPECULAR_POWER_RATIO, viewDistance);
 	output.DepthAndEmissivity.a = pixelData.DiffuseTexture.w;
 	return output;
 }
 
-VoxelPixelData GetTriplanarPixelFar(int materialIndex, float3 worldPositionForTextureCoords, float3 triplanarWeights, float3 normal, float viewDistance, float specularIntensity, float specularPower, float perVertexAmbient, uniform int renderQuality)
+VoxelPixelData GetTriplanarPixelFar(int materialIndex, float3 localPosition, float3 triplanarWeights, float3 normal, float viewDistance, float specularIntensity, float specularPower, float perVertexAmbient, uniform int renderQuality)
 {
-	VoxelPixelData  pixelData = GetPixelData(materialIndex, worldPositionForTextureCoords,  triplanarWeights,  normal,  viewDistance,  specularIntensity,  specularPower,  perVertexAmbient, renderQuality);
+	VoxelPixelData  pixelData = GetPixelData(materialIndex, localPosition,  triplanarWeights,  normal,  viewDistance,  specularIntensity,  specularPower,  perVertexAmbient, renderQuality);
 	return pixelData;
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -381,7 +381,7 @@ struct VertexShaderOutput
 {
     float4 Position : POSITION0;
     float ViewDistance : TEXCOORD0;
-	float3 WorldPositionForTextureCoords : TEXCOORD1;
+	float3 CellRelativePosition : TEXCOORD1;
     float3 Normal : TEXCOORD2;
     float3 TriplanarWeights : TEXCOORD3;
 	float Ambient: TEXCOORD4;
@@ -440,7 +440,7 @@ struct VertexShaderOutput_Multimaterial
     MagFilter[10] = LINEAR; \
     MinFilter[11] = LINEAR; \
     MagFilter[11] = LINEAR; \
-  
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //
 //	Macro for texture quality HIGH and EXTREME

@@ -1,8 +1,8 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using VRage.ModAPI;
 using VRage.Utils;
 
 namespace VRage.Components
@@ -12,7 +12,13 @@ namespace VRage.Components
     {
     }
 
-    public class MyComponentContainer<B> : IMyComponentContainer where B : IMyComponentBase 
+    public interface IMyComponentAggregate<ComponentBase> where ComponentBase : IMyComponentBase
+    {
+        void AddComponent(IMyComponentBase component);
+        void RemoveComponent(IMyComponentBase component);
+    }
+
+    public class MyComponentContainer<B> : IMyComponentContainer/*, IEnumerable<B>*/ where B : IMyComponentBase
     {
         public event Action<Type, B> ComponentAdded;
         public event Action<Type, B> ComponentRemoved;
@@ -23,6 +29,31 @@ namespace VRage.Components
         {
             {
                 Type t = typeof(T);
+
+                T containedComponent;
+                if (TryGet<T>(out containedComponent))
+                {
+                    if (containedComponent is IMyComponentAggregate<T>)
+                    {
+                        (containedComponent as IMyComponentAggregate<T>).AddComponent(component);
+                        return;
+                    }
+                    else if (component is IMyComponentAggregate<T>)
+                    {
+                        Remove<T>();
+                        (component as IMyComponentAggregate<T>).AddComponent(containedComponent);
+                        m_components[t] = component;
+                        component.SetContainer(this);
+                        component.OnAddedToContainer();
+                        var handle = ComponentAdded;
+                        if (handle != null)
+                        {
+                            handle(t, component);
+                        }
+                        return;
+                    }
+                }
+
                 Remove<T>();
                 if (component != null)
                 {
@@ -30,8 +61,11 @@ namespace VRage.Components
                     component.SetContainer(this);
                     component.OnAddedToContainer();
                     var handle = ComponentAdded;
-                    if (handle != null) handle(t, component);
-                }
+                    if (handle != null)
+                    {
+                        handle(t, component);
+                    }
+                }                
             }
         }
 
@@ -127,5 +161,20 @@ namespace VRage.Components
                 component.Value.OnRemovedFromScene();
             }
         }
+
+        public Dictionary<Type, B>.ValueCollection.Enumerator GetEnumerator()
+        {
+            return m_components.Values.GetEnumerator();
+        }
+
+        //IEnumerator IEnumerable.GetEnumerator()
+        //{
+        //    return GetEnumerator();
+        //}
+
+        //IEnumerator<B> IEnumerable<B>.GetEnumerator()
+        //{
+        //    return GetEnumerator();
+        //}
 	}
 }

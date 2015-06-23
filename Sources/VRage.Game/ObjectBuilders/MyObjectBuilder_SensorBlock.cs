@@ -26,6 +26,9 @@ namespace Sandbox.Common.ObjectBuilders
         }
 
         [ProtoMember]
+        public bool PlaySound = true;
+
+        [ProtoMember]
         public bool DetectPlayers = true;
 
         [ProtoMember]

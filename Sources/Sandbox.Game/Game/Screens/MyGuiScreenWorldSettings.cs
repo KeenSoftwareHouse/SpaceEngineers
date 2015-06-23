@@ -43,6 +43,15 @@ namespace Sandbox.Game.Gui
             ProceduralHigh = -3,
         }
 
+        public enum MyFloraDensityEnum
+        {
+            NONE = 0,
+            LOW = 10,
+            MEDIUM = 20,
+            HIGH = 30,
+            EXTREME = 40,
+        }
+
         public static MyGuiScreenWorldSettings Static;
         internal MyGuiScreenAdvancedWorldSettings Advanced;
         internal MyGuiScreenMods ModsScreen;
@@ -127,11 +136,11 @@ namespace Sandbox.Game.Gui
         }
 
         MyGuiControlTextbox m_nameTextbox, m_descriptionTextbox;
-        MyGuiControlCombobox m_onlineMode, m_environment, m_asteroidAmountCombo;
+        MyGuiControlCombobox m_onlineMode, m_environment, m_asteroidAmountCombo, m_floraDensityCombo;
         MyGuiControlButton m_okButton, m_cancelButton, m_survivalModeButton, m_creativeModeButton;
         MyGuiControlSlider m_maxPlayersSlider;
-        MyGuiControlLabel m_maxPlayersLabel, m_asteroidAmountLabel;
-        MyGuiControlCheckbox m_autoSave;
+        MyGuiControlLabel m_maxPlayersLabel, m_asteroidAmountLabel,m_floraDensityLabel;
+        MyGuiControlCheckbox m_autoSave, m_enablePlanets;
 
         MyGuiControlList m_scenarioTypesList;
         MyGuiControlRadioButtonGroup m_scenarioTypesGroup;
@@ -330,6 +339,22 @@ namespace Sandbox.Game.Gui
                 Controls.Add(m_asteroidAmountCombo);
             }
 
+            if (MyFakes.ENABLE_PLANETS && m_isNewGame)
+            {
+                m_floraDensityLabel = MakeLabel(MySpaceTexts.WorldSettings_FloraDensity);
+                m_floraDensityCombo = new MyGuiControlCombobox(size: new Vector2(width, 0.04f));
+
+                m_floraDensityCombo.AddItem((int)MyFloraDensityEnum.NONE, MySpaceTexts.WorldSettings_FloraDensity_None);
+                m_floraDensityCombo.AddItem((int)MyFloraDensityEnum.LOW, MySpaceTexts.WorldSettings_FloraDensity_Low);
+                m_floraDensityCombo.AddItem((int)MyFloraDensityEnum.MEDIUM, MySpaceTexts.WorldSettings_FloraDensity_Medium);
+                m_floraDensityCombo.AddItem((int)MyFloraDensityEnum.HIGH, MySpaceTexts.WorldSettings_FloraDensity_High);
+                m_floraDensityCombo.AddItem((int)MyFloraDensityEnum.EXTREME, MySpaceTexts.WorldSettings_FloraDensity_Extreme);
+
+                m_floraDensityCombo.SetToolTip(MyTexts.GetString(MySpaceTexts.ToolTipWorldSettings_FloraDensity));
+                Controls.Add(m_floraDensityLabel);
+                Controls.Add(m_floraDensityCombo);
+            }
+
             var autoSaveLabel = MakeLabel(MySpaceTexts.WorldSettings_AutoSave);
             m_autoSave = new MyGuiControlCheckbox();
             m_autoSave.SetToolTip(new StringBuilder().AppendFormat(MySpaceTexts.ToolTipWorldSettingsAutoSave, MyObjectBuilder_SessionSettings.DEFAULT_AUTOSAVE_IN_MINUTES).ToString());
@@ -341,6 +366,15 @@ namespace Sandbox.Game.Gui
             m_scenarioEditMode.SetToolTip(MyTexts.GetString(MySpaceTexts.ToolTipWorldSettings_ScenarioEditMode));
             Controls.Add(scenarioEditModeLabel);
             Controls.Add(m_scenarioEditMode);
+
+            if (MyFakes.ENABLE_PLANETS && m_isNewGame)
+            {
+                var enablePlanetsLabel = MakeLabel(MySpaceTexts.WorldSettings_EnablePlanets);
+                m_enablePlanets = new MyGuiControlCheckbox();
+                m_enablePlanets.SetToolTip(MySpaceTexts.ToolTipWorldSettings_EnablePlanets);
+                Controls.Add(enablePlanetsLabel);
+                Controls.Add(m_enablePlanets);
+            }
 
             if (MyFakes.ENABLE_WORKSHOP_MODS)
                 Controls.Add(mods);
@@ -457,6 +491,9 @@ namespace Sandbox.Game.Gui
             m_scenarioTypesGroup.SelectByKey(0);
             m_settings = GetDefaultSettings();
             m_settings.EnableToolShake = true;
+            m_settings.EnablePlanets = MyFakes.ENABLE_PLANETS;
+            m_settings.EnableStationVoxelSupport = true;
+            m_settings.EnableSunRotation = true;
             m_settings.VoxelGeneratorVersion = MyVoxelConstants.VOXEL_GENERATOR_VERSION;
             m_settings.EnableOxygen = true;
             m_mods = new List<MyObjectBuilder_Checkpoint.ModItem>();
@@ -560,10 +597,39 @@ namespace Sandbox.Game.Gui
                     if (Environment.Is64BitProcess)
                         m_asteroidAmountCombo.AddItem((int)AsteroidAmountEnum.ProceduralHigh, MySpaceTexts.WorldSettings_AsteroidAmountProceduralHigh);
                 }
+
+                if (m_enablePlanets != null)
+                {
+                    m_enablePlanets.IsChecked = true;
+                    m_enablePlanets.Enabled = true;
+                }
+
+                if (m_floraDensityCombo != null)
+                {
+                    m_floraDensityCombo.Enabled = true;
+                    m_floraDensityCombo.SelectItemByKey((int)FloraDensityEnumKey(20));
+                }
             }
             else
             {
                 m_asteroidAmountCombo.AddItem((int)AsteroidAmountEnum.None, MySpaceTexts.WorldSettings_AsteroidAmountNone);
+
+                if (m_enablePlanets != null)
+                {
+                    m_enablePlanets.IsChecked = false;
+                    m_enablePlanets.Enabled = false;
+                }
+
+                if (m_floraDensityLabel != null)
+                {
+                    m_floraDensityLabel.Enabled = true;
+                }
+
+                if (m_floraDensityCombo != null)
+                {
+                     m_floraDensityCombo.Enabled = false;
+                     m_floraDensityCombo.SelectItemByKey((int)FloraDensityEnumKey(0));
+                }            
             }
 
             // Try to preserve selection, but if not possible, select the first value
@@ -683,13 +749,20 @@ namespace Sandbox.Game.Gui
         protected virtual void GetSettingsFromControls()
         {
             m_settings.OnlineMode = (MyOnlineModeEnum)m_onlineMode.GetSelectedKey();
-            if (m_checkpoint != null)
+            if (m_checkpoint != null)           
                 m_checkpoint.PreviousEnvironmentHostility = m_settings.EnvironmentHostility;
             m_settings.EnvironmentHostility = (MyEnvironmentHostilityEnum)m_environment.GetSelectedKey();
             m_settings.MaxPlayers = (short)m_maxPlayersSlider.Value;
             m_settings.AutoSaveInMinutes = m_autoSave.IsChecked ? MyObjectBuilder_SessionSettings.DEFAULT_AUTOSAVE_IN_MINUTES : 0;
             m_settings.GameMode   = GetGameMode();
             m_settings.ScenarioEditMode = m_scenarioEditMode.IsChecked;
+            
+            if (m_isNewGame)
+            {
+                m_settings.EnablePlanets = m_enablePlanets.IsChecked;
+                m_settings.FloraDensity = GetFloraDensity();
+                m_settings.EnableFlora = m_settings.FloraDensity > 0;
+            }
         }
 
         protected virtual void SetSettingsToControls()
@@ -702,6 +775,11 @@ namespace Sandbox.Game.Gui
 
             UpdateSurvivalState(m_settings.GameMode == MyGameModeEnum.Survival);
             m_scenarioEditMode.IsChecked = m_settings.ScenarioEditMode;
+            if (m_isNewGame)
+            {
+                m_enablePlanets.IsChecked = m_settings.EnablePlanets;
+                m_floraDensityCombo.SelectItemByKey((int)FloraDensityEnumKey(m_settings.FloraDensity));
+            }
         }
 
         private string GetPassword()
@@ -797,6 +875,21 @@ namespace Sandbox.Game.Gui
                 }
                 MyLog.Default.WriteLine("StartNewSandbox - End");
             });
+        }
+
+        public int GetFloraDensity()
+        {
+            return (int)m_floraDensityCombo.GetSelectedKey();
+        }
+
+        private MyFloraDensityEnum FloraDensityEnumKey(int floraDensity)
+        {
+            var value = (MyFloraDensityEnum)floraDensity;
+            if (Enum.IsDefined(typeof(MyFloraDensityEnum), value))
+            {
+                return (MyFloraDensityEnum)floraDensity;
+            }
+            return MyFloraDensityEnum.LOW;
         }
     }
 }

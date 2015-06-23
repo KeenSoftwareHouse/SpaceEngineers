@@ -216,9 +216,9 @@ namespace Sandbox.Game.Gui
                 var view = MySession.Static.CameraController.GetViewMatrix();
                 var inv = Matrix.Invert(view);
 
-                //MyInventoryItem item = new MyInventoryItem(100, 
+                //MyPhysicalInventoryItem item = new MyPhysicalInventoryItem(100, 
                 var oreBuilder = MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_Ore>("Stone");
-                var item = new MyInventoryItem(1, oreBuilder);
+                var item = new MyPhysicalInventoryItem(1, oreBuilder);
                 var obj = MyFloatingObjects.Spawn(item, inv.Translation + inv.Forward * 1.0f, inv.Forward, inv.Up);
                 obj.Physics.LinearVelocity = inv.Forward * 50;
             }

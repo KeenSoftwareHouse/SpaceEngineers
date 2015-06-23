@@ -252,9 +252,9 @@ namespace Sandbox.Graphics.GUI
             return ret;
         }
 
-        public override void Draw(float transitionAlpha)
+        public override void Draw(float transitionAlpha, float backgroundTransitionAlpha)
         {
-            base.Draw(transitionAlpha);
+            base.Draw(transitionAlpha, backgroundTransitionAlpha);
 
             m_railTexture.Draw(
                 GetPositionAbsoluteTopLeft(),
@@ -262,7 +262,7 @@ namespace Sandbox.Graphics.GUI
                 ApplyColorMaskModifiers(ColorMask, Enabled, transitionAlpha),
                 textureScale: DebugScale);
             DrawThumb(transitionAlpha);
-            m_label.Draw(transitionAlpha);
+            m_label.Draw(transitionAlpha, backgroundTransitionAlpha);
         }
 
         protected override void OnSizeChanged()

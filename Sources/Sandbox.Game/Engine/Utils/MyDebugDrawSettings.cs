@@ -99,6 +99,10 @@ namespace Sandbox.Engine.Utils
         public static bool DEBUG_DRAW_ANIMALS = false;
         public static bool DEBUG_DRAW_VOICE_CHAT = false;
         public static bool DEBUG_DRAW_FLORA = false;
+        public static bool DEBUG_DRAW_FLORA_SPAWN_INFO = false;
+        public static bool DEBUG_DRAW_FLORA_REGROW_INFO = false;
+        public static bool DEBUG_DRAW_FLORA_BOXES = false;
+        public static bool DEBUG_DRAW_FLORA_SPAWNED_ITEMS = false;
 
         public static MyWEMDebugDrawMode DEBUG_DRAW_NAVMESHES = MyWEMDebugDrawMode.NONE;
         internal static MyVoxelDebugDrawMode DEBUG_DRAW_VOXELS_MODE = MyVoxelDebugDrawMode.None;
@@ -118,5 +122,6 @@ namespace Sandbox.Engine.Utils
         public static bool DEBUG_DRAW_CHARACTER_RAGDOLL_BONES_DESIRED = false;
         public static bool DEBUG_DRAW_BLOCK_INTEGRITY = false;
         public static bool DEBUG_DRAW_FIXED_BLOCK_QUERIES = false;
+        public static bool DEBUG_DRAW_DRILLS = false;
     }
 }

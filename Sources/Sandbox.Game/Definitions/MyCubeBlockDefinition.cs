@@ -433,7 +433,10 @@ namespace Sandbox.Definitions
                 MaxIntegrity = integrity;
 
                 if (ob.MaxIntegrity != 0)
+                {
+                    criticalIntegrity = ob.MaxIntegrity * criticalIntegrity / MaxIntegrity;
                     MaxIntegrity = ob.MaxIntegrity;
+                }
 
                 IntegrityPointsPerSec = MaxIntegrity / ob.BuildTimeSeconds;
                 DisassembleRatio = ob.DisassembleRatio;

@@ -25,6 +25,7 @@ namespace Sandbox.Game.Multiplayer
             void ISerializer<StockpileChangedMsg>.Serialize(VRage.ByteStream destination, ref StockpileChangedMsg data)
             {
                 BlitSerializer<long>.Default.Serialize(destination, ref data.GridEntityId);
+				BlitSerializer<ushort>.Default.Serialize(destination, ref data.SubBlockId);
                 BlitSerializer<Vector3I>.Default.Serialize(destination, ref data.BlockPosition);
 
                 Debug.Assert(data.Changes.Count() <= 255, "Too many component types in a block stockpile");
@@ -47,6 +48,7 @@ namespace Sandbox.Game.Multiplayer
             void ISerializer<StockpileChangedMsg>.Deserialize(VRage.ByteStream source, out StockpileChangedMsg data)
             {
                 BlitSerializer<long>.Default.Deserialize(source, out data.GridEntityId);
+				BlitSerializer<ushort>.Default.Deserialize(source, out data.SubBlockId);
                 BlitSerializer<Vector3I>.Default.Deserialize(source, out data.BlockPosition);
 
                 byte size = 0;

@@ -21,5 +21,14 @@ namespace Sandbox.Common.ObjectBuilders.Definitions
 
         [ProtoMember]
         public string AddMapsTexture;
+
+        [ProtoMember]
+        public string AttachSound;
+
+        [ProtoMember]
+        public string DetachSound;
+
+        [ProtoMember]
+        public string WindingSound;
     }
 }

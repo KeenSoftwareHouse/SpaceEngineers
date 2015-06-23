@@ -146,6 +146,8 @@ namespace Sandbox.Game.World
         public bool Enable3RdPersonView { get { return Settings.Enable3rdPersonView; } }
         public bool EnableToolShake { get { return Settings.EnableToolShake; } }
         public bool ShowPlayerNamesOnHud { get { return Settings.ShowPlayerNamesOnHud; } }
+		public bool EnableStationVoxelSupport { get { return Settings.EnableStationVoxelSupport; } }
+		public bool EnableFlora { get { return Settings.EnableFlora; } }
         public bool ClientCanSave { get { return Settings.ClientCanSave; } }
         public short MaxPlayers { get { return Settings.MaxPlayers; } }
         public short MaxFloatingObjects { get { return Settings.MaxFloatingObjects; } }

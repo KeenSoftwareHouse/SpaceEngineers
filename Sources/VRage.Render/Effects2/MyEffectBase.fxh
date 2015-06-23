@@ -144,9 +144,9 @@ bool IsDepthBackground(float depth)
 
 inline float4 EncodeFloatRGBA(float v)
 {
-	if (v > 0.9999)
+	if (v > 0.99999f)
 	{
-		v = 0.9999;
+		discard;
 	}
 	//float4 enc = float4(1.0, 255.0, 65025.0, 160581375.0) * v;
 	float4 enc = float4(1.0, 255.0, 65025.0, 0.0) * v;

@@ -4230,16 +4230,16 @@
         <SubtypeId>BlockCockpitLrg</SubtypeId>
       </Id>
       <Category>BLOCK</Category>
-      <MaxDistance>22.0248051</MaxDistance>
-      <Volume>0.845168</Volume>
+      <MaxDistance>22</MaxDistance>
+      <Volume>0.9</Volume>
       <Loopable>true</Loopable>
       <Waves>
         <Wave Type="D2">
-          <Loop>ARC\BLOCK\ArcBlockCockpitLrgLoop2d.xwm</Loop>
+          <Loop>ARC\BLOCK\BlockCockpitSmLoop2d.wav</Loop>
         </Wave>
-        <Wave Type="D3">
+        <!--<Wave Type="D3">
           <Loop>ARC\BLOCK\ArcBlockCockpitLrgLoop3d.xwm</Loop>
-        </Wave>
+        </Wave>-->
       </Waves>
     </Sound>
     <Sound>
@@ -4248,16 +4248,16 @@
         <SubtypeId>BlockCockpitSm</SubtypeId>
       </Id>
       <Category>BLOCK</Category>
-      <MaxDistance>22.0248051</MaxDistance>
-      <Volume>0.845168</Volume>
+      <MaxDistance>22</MaxDistance>
+      <Volume>0.9</Volume>
       <Loopable>true</Loopable>
       <Waves>
         <Wave Type="D2">
-          <Loop>ARC\BLOCK\ArcBlockCockpitSmLoop2d.xwm</Loop>
+          <Loop>ARC\BLOCK\BlockCockpitSmLoop2d.wav</Loop>
         </Wave>
-        <Wave Type="D3">
+        <!--<Wave Type="D3">
           <Loop>ARC\BLOCK\ArcBlockCockpitSmLoop3d.xwm</Loop>
-        </Wave>
+        </Wave>-->
       </Waves>
     </Sound>
     <Sound>
@@ -4759,7 +4759,7 @@
       <Loopable>true</Loopable>
       <Waves>
         <Wave Type="D2">
-          <Loop>Real\PLAYER\RealPlayHelmetCLoop2d.wav</Loop>
+          <Loop>Real\PLAYER\RealPlayHelmetDLoop2d.wav</Loop>
         </Wave>
       </Waves>
     </Sound>
@@ -4815,7 +4815,7 @@
       <Loopable>true</Loopable>
       <Waves>
         <Wave Type="D2">
-          <Loop>Real\PLAYER\RealPlayHelmetCLoop2d.wav</Loop>
+          <Loop>Real\PLAYER\RealPlayHelmetDLoop2d.wav</Loop>
         </Wave>
       </Waves>
     </Sound>

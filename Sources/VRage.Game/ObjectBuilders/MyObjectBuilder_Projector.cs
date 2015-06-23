@@ -22,9 +22,9 @@ namespace Sandbox.Common.ObjectBuilders
         [ProtoMember]
         public bool InstantBuildingEnabled = false;
         [ProtoMember]
-        public int MaxNumberOfProjections = 0;
+        public int MaxNumberOfProjections = 5;
         [ProtoMember]
-        public int MaxNumberOfBlocks = 0;
+        public int MaxNumberOfBlocks = 200;
         [ProtoMember]
         public int ProjectionsRemaining = 0;
 

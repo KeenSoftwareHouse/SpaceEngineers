@@ -501,7 +501,7 @@ namespace Sandbox.Engine.Voxels
             var shape = voxelShape as MyShape;
             if (map != null && shape != null)
             {
-                shape.SendPaintRequest(map.SyncObject, materialIdx);
+                shape.SendPaintRequest(map.GetSyncObject, materialIdx);
             }
         }
 
@@ -511,7 +511,7 @@ namespace Sandbox.Engine.Voxels
             var shape = voxelShape as MyShape;
             if (map != null && shape != null)
             {
-                shape.SendFillRequest(map.SyncObject, materialIdx);
+                shape.SendFillRequest(map.GetSyncObject, materialIdx);
             }
         }
 
@@ -521,7 +521,7 @@ namespace Sandbox.Engine.Voxels
             var shape = voxelShape as MyShape;
             if (map != null && shape != null)
             {
-                shape.SendCutOutRequest(map.SyncObject);
+                shape.SendCutOutRequest(map.GetSyncObject);
             }
         }
 
@@ -541,7 +541,7 @@ namespace Sandbox.Engine.Voxels
 
             var bbox = shape.GetWorldBoundaries();
             Vector3I minCorner, maxCorner;
-            ComputeShapeBounds(ref bbox, voxelMap.PositionLeftBottomCorner, voxelMap.Storage.Size, out minCorner, out maxCorner);
+            ComputeShapeBounds(voxelMap,ref bbox, voxelMap.PositionLeftBottomCorner, voxelMap.Storage.Size, out minCorner, out maxCorner);
 
             var cacheMin = minCorner - 1;
             var cacheMax = maxCorner + 1;
@@ -568,7 +568,7 @@ namespace Sandbox.Engine.Voxels
                     continue;
 
                 Vector3D vpos;
-                MyVoxelCoordSystems.VoxelCoordToWorldPosition(voxelMap.PositionLeftBottomCorner, ref it.Current, out vpos);
+                MyVoxelCoordSystems.VoxelCoordToWorldPosition(voxelMap.PositionLeftBottomCorner - (Vector3)voxelMap.StorageMin, ref it.Current, out vpos);
                 var volume = shape.GetVolume(ref vpos);
 
                 if (volume == 0f) // if there is no intersection
@@ -610,7 +610,7 @@ namespace Sandbox.Engine.Voxels
 
             if (removedSum > 0 && updateSync && Sync.IsServer)
             {
-                shape.SendDrillCutOutRequest(voxelMap.SyncObject);
+                shape.SendDrillCutOutRequest(voxelMap.GetSyncObject);
             }
 
             voxelsCountInPercent = (originalSum > 0f) ? (float)removedSum / (float)originalSum : 0f;
@@ -861,12 +861,14 @@ namespace Sandbox.Engine.Voxels
             ProfilerShort.End();
         }
 
-        private static void ComputeShapeBounds(
+        private static void ComputeShapeBounds(MyVoxelBase voxelMap,
             ref BoundingBoxD shapeAabb, Vector3D voxelMapMinCorner, Vector3I storageSize,
             out Vector3I voxelMin, out Vector3I voxelMax)
         {
             MyVoxelCoordSystems.WorldPositionToVoxelCoord(voxelMapMinCorner, ref shapeAabb.Min, out voxelMin);
             MyVoxelCoordSystems.WorldPositionToVoxelCoord(voxelMapMinCorner, ref shapeAabb.Max, out voxelMax);
+            voxelMin += voxelMap.StorageMin;
+            voxelMax += voxelMap.StorageMin;
             voxelMax += 1;
             storageSize -= 1;
             Vector3I.Clamp(ref voxelMin, ref Vector3I.Zero, ref storageSize, out voxelMin);
@@ -877,10 +879,8 @@ namespace Sandbox.Engine.Voxels
         {
             {
                 var bbox = shape.GetWorldBoundaries();
-                ComputeShapeBounds(ref bbox, voxelMap.PositionLeftBottomCorner, voxelMap.Storage.Size, out minCorner, out maxCorner);
+                ComputeShapeBounds(voxelMap,ref bbox, voxelMap.PositionLeftBottomCorner, voxelMap.Storage.Size, out minCorner, out maxCorner);
             }
-            minCorner += voxelMap.StorageMin;
-            maxCorner += voxelMap.StorageMin;
             numCells = new Vector3I((maxCorner.X - minCorner.X) / CELL_SIZE, (maxCorner.Y - minCorner.Y) / CELL_SIZE, (maxCorner.Z - minCorner.Z) / CELL_SIZE);
         }
 

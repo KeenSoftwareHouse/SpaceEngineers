@@ -265,10 +265,10 @@ namespace Sandbox.Graphics.GUI
             if (m_itemsList.Position.Y + m_itemsList.Size.Y >= 1) m_itemsList.Position = new Vector2(m_itemsList.Position.X, 1.0f - m_itemsList.Size.Y);
         }
 
-        public override void Draw(float transitionAlpha)
+        public override void Draw(float transitionAlpha, float backgroundTransitionAlpha)
         {
-            base.Draw(transitionAlpha);
-            m_itemsList.Draw(transitionAlpha);
+            base.Draw(transitionAlpha, backgroundTransitionAlpha);
+            m_itemsList.Draw(transitionAlpha, backgroundTransitionAlpha);
         }
 
         private bool IsEnoughDelay(MyContextMenuKeys key, int forcedDelay)
