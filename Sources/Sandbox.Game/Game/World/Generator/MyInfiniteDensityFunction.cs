@@ -6,26 +6,22 @@ using VRage;
 using VRage.Library.Utils;
 using VRage.Noise;
 using VRage.Noise.Modifiers;
+using VRageMath;
 
 namespace Sandbox.Game.World.Generator
 {
-    class MyAsteroidInfiniteDensityFunction : IMyAsteroidFieldDensityFunction
+    class MyInfiniteDensityFunction : IMyAsteroidFieldDensityFunction
     {
         private IMyModule noise;
 
-        public MyAsteroidInfiniteDensityFunction(MyRandom random, double frequency)
+        public MyInfiniteDensityFunction(MyRandom random, double frequency)
         {
             noise = new MySimplexFast(random.Next(), frequency);
         }
 
-        public bool ExistsInCell(ref VRageMath.Vector3I cellId)
+        public bool ExistsInCell(ref BoundingBoxD bbox)
         {
             return true;
-        }
-
-        public double GetValue(ref VRageMath.Vector3D position)
-        {
-            return noise.GetValue(position.X, position.Y, position.Z);
         }
 
         public double GetValue(double x)

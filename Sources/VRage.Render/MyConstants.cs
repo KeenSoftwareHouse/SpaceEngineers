@@ -4,13 +4,6 @@ using VRage.Utils;
 
 namespace VRageRender
 {
-    //  Objects in the background sphere (aka skysphere)
-    static class MyBgrCubeConsts
-    {
-        public static readonly Vector3 JUPITER_POSITION = new Vector3(-778f, 0.0f, 155.6f);
-        public static readonly Vector3 MARS_POSITION = new Vector3(-182, 0, 114);
-    }
-
     static class MyLightsConstants
     {
         //  This number tells us how many light can be enabled during drawing using one effect. 

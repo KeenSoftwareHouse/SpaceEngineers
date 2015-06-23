@@ -8,7 +8,7 @@ using VRageMath;
 
 namespace Sandbox.Game
 {
-    public partial struct MyInventoryItem
+    public partial struct MyPhysicalInventoryItem
     {
         public MyFixedPoint Amount;
 
@@ -16,7 +16,7 @@ namespace Sandbox.Game
 
         public uint ItemId;
 
-        public MyInventoryItem(MyFixedPoint amount, MyObjectBuilder_PhysicalObject content)
+        public MyPhysicalInventoryItem(MyFixedPoint amount, MyObjectBuilder_PhysicalObject content)
         {
             Debug.Assert(amount > 0, "Creating inventory item with zero amount!");
             ItemId = 0;
@@ -24,7 +24,7 @@ namespace Sandbox.Game
             Content = content;
         }
 
-        public MyInventoryItem(MyObjectBuilder_InventoryItem item)
+        public MyPhysicalInventoryItem(MyObjectBuilder_InventoryItem item)
         {
             Debug.Assert(item.Amount > 0, "Creating inventory item with zero amount!");
             ItemId = 0;
@@ -89,7 +89,7 @@ namespace Sandbox.Game
                 return newGrid;
             }
             else
-                return MyFloatingObjects.Spawn(new MyInventoryItem(amount, Content),worldMatrix, owner != null ? owner.Physics : null);
+                return MyFloatingObjects.Spawn(new MyPhysicalInventoryItem(amount, Content),worldMatrix, owner != null ? owner.Physics : null);
         }
     }
 }
