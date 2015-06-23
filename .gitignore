@@ -1,3 +1,7 @@
+# Assorted backup files.
+*.bak
+
+# Original SE .gitignore
 **/*.suo
 **/bin/x64
 **/bin/x86
