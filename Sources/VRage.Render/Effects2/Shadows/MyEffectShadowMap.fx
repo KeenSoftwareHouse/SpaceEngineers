@@ -3,13 +3,13 @@
 
 float4x4	WorldMatrix;
 
-#include "../Voxels/MyEffectVoxelsClipping.fxh"
+#include "../Voxels/MyEffectVoxelVertex.fxh"
 
 float4x4	ViewProjMatrix;
 float2		ShadowTermHalfPixel;
 float3		FrustumCornersVS[4];
-float2		HalfPixel;						   
- 
+float2		HalfPixel;
+
 float4x4 Bones[SKINNED_EFFECT_MAX_BONES];
 
 float		Dithering = 0;
@@ -19,29 +19,29 @@ float2		TextureDitheringSize;
 texture DepthTexture;
 sampler2D DepthTextureSampler = sampler_state
 {
-    Texture = <DepthTexture>; 
+    Texture = <DepthTexture>;
     MinFilter = POINT;
     MagFilter = POINT;
     MipFilter = none;
 };
 
 Texture TextureDithering;
-sampler TextureDitheringSampler = sampler_state 
-{ 
-	texture = <TextureDithering> ; 
-	mipfilter = NONE; 
-	magfilter = POINT; 
+sampler TextureDitheringSampler = sampler_state
+{
+	texture = <TextureDithering> ;
+	mipfilter = NONE;
+	magfilter = POINT;
 	minfilter = POINT;
-	AddressU = WRAP; 
+	AddressU = WRAP;
 	AddressV = WRAP;
 };
 
 float4 ComputeShadowMapValue(in float2 in_vDepthCS, in float2 in_vTex, in float in_dither)
 {
 	// Negate and divide by distance to far clip (so that depth is in range [0,1])
-	float fDepth = in_vDepthCS.x / in_vDepthCS.y;			
+	float fDepth = in_vDepthCS.x / in_vDepthCS.y;
 	//fDepth = -log2(fDepth) / 10;
-		
+
 	// Use ordered dithering, store numbers in constant buffer, it won't require texture anymore
 	// http://en.wikipedia.org/wiki/Ordered_dithering
 	if(in_dither > 0)
@@ -67,8 +67,8 @@ float4 ComputeShadowMapValue(in float2 in_vDepthCS, in float2 in_vTex, in float 
 #ifdef COLOR_SHADOW_MAP_FORMAT
 	return EncodeFloatRGBAPrecise(fDepth);
 #else
-    return float4(fDepth, 0, 0, 0); 
-#endif	
+    return float4(fDepth, 0, 0, 0);
+#endif
 }
 
 void GenerateShadowMapVS_Base(in float4 in_vPositionOS, in float4x4 worldMatrix, out float4 out_vPositionCS, out float2 out_vDepthCS, out float2 out_vTex, out float out_dither)
@@ -135,12 +135,11 @@ void GenerateVoxelShadowMapVS(	in float4 in_vPositionOS	: POSITION,
 	float4 Position;
 	{
 		// Unpack voxel position
-		VoxelVertex_NormalizedToLocalPosition(in_vPositionOS.xyz);
-		VoxelVertex_NormalizedToLocalPosition(in_vPositionMorphOS.xyz);
-		float morph = VoxelVertex_ComputeMorphParameter(in_vPositionOS.xyz);
-		float3 tmp = lerp(in_vPositionOS.xyz, in_vPositionMorphOS.xyz, morph);
-		VoxelVertex_LocalToWorldPosition(tmp);
-		Position = float4(tmp, 1);
+		float3 cellRelativeA = VoxelVertex_NormalizedToCellRelativePosition(in_vPositionOS.xyz);
+		float3 cellRelativeB = VoxelVertex_NormalizedToCellRelativePosition(in_vPositionMorphOS.xyz);
+		float morph = VoxelVertex_ComputeMorphParameter(cellRelativeA);
+		float3 cellRelative = lerp(cellRelativeA, cellRelativeB, morph);
+		Position = float4(VoxelVertex_CellRelativeToWorldPosition(cellRelative), 1);
 	}
 
 	out_vPositionCS = mul(Position, ViewProjMatrix);
@@ -163,10 +162,10 @@ void GenerateShadowMapVS_Skinned(	in float4 in_vPositionOS	: POSITION,
 							out float4 out_vPositionCS	: POSITION,
 							out float2 out_vDepthCS		: TEXCOORD0,
 							out float2 out_vTex		: TEXCOORD1,
-							out float out_dither : TEXCOORD2) 
+							out float out_dither : TEXCOORD2)
 {
 	float4x4 world = 0;
-	
+
     for (int i = 0; i < 4; i++)
     {
         world += Bones[Indices[i]] * Weights[i];
@@ -184,7 +183,7 @@ float4 GenerateShadowMapPS(in float2 in_vDepthCS : TEXCOORD0, in float2 in_vTex 
 // Vertex shader for rendering the full-screen quad used for calculating
 // the shadow occlusion factor.
 void ShadowTermVS (	in float3 in_vPositionOS				: POSITION,
-					in float3 in_vTexCoordAndCornerIndex	: TEXCOORD0,		
+					in float3 in_vTexCoordAndCornerIndex	: TEXCOORD0,
 					out float4 out_vPositionCS				: POSITION,
 					out float2 out_vTexCoord				: TEXCOORD0,
 					out float3 out_vFrustumCornerVS			: TEXCOORD1	)
@@ -194,11 +193,11 @@ void ShadowTermVS (	in float3 in_vPositionOS				: POSITION,
 	out_vPositionCS.y = in_vPositionOS.y + ShadowTermHalfPixel.y;
 	out_vPositionCS.z = in_vPositionOS.z;
 	out_vPositionCS.w = 1.0f;
-	
+
 	// Pass along the texture coordiante and the position of the frustum corner
 	out_vTexCoord = in_vTexCoordAndCornerIndex.xy + HalfPixel;
 	out_vFrustumCornerVS = FrustumCornersVS[in_vTexCoordAndCornerIndex.z];
-}	
+}
 
 // Pixel shader for computing the shadow occlusion factor
 float4 ShadowTermPS(	in float2 in_vTexCoord			: TEXCOORD0,
@@ -208,18 +207,18 @@ float4 ShadowTermPS(	in float2 in_vTexCoord			: TEXCOORD0,
 /*
 	NOT USED
 	float fSceneDepth = DecodeFloatRGBA(tex2D(DepthTextureSampler,in_vTexCoord)) * FAR_PLANE_DISTANCE;
-	
+
 	float4 vPositionVS = float4(normalize(in_vFrustumCornerVS) * fSceneDepth, 1);
-	
+
 	float diff = 0;
 	float3 fShadowTerm1 = GetShadowTermFromPosition(vPositionVS, vPositionVS.z, iFilterSize, 0, diff);
 
 	float blendDiff = vPositionVS.z / -10.0f;
 	float testDepth = vPositionVS.z - blendDiff;
-	
+
 	float3 fShadowTerm2 = GetShadowTermFromPosition(vPositionVS, testDepth, iFilterSize, 0, diff);
 	float blend = saturate(diff / blendDiff);
-		
+
 	return float4( fShadowTerm1 * (1 - blend) + fShadowTerm2 * blend, 1);
 	*/
 	return float4(0,0,0, 1);
@@ -303,7 +302,7 @@ technique CreateShadowTerm2x2PCF
 		CullMode = NONE;
 
         VertexShader = compile vs_3_0 ShadowTermVS();
-        PixelShader = compile ps_3_0 ShadowTermPS(2);	
+        PixelShader = compile ps_3_0 ShadowTermPS(2);
     }
 }
 
@@ -317,7 +316,7 @@ technique CreateShadowTerm3x3PCF
 		CullMode = NONE;
 
         VertexShader = compile vs_3_0 ShadowTermVS();
-        PixelShader = compile ps_3_0 ShadowTermPS(3);	
+        PixelShader = compile ps_3_0 ShadowTermPS(3);
     }
 }
 
@@ -331,7 +330,7 @@ technique CreateShadowTerm5x5PCF
 		CullMode = NONE;
 
         VertexShader = compile vs_3_0 ShadowTermVS();
-        PixelShader = compile ps_3_0 ShadowTermPS(5);	
+        PixelShader = compile ps_3_0 ShadowTermPS(5);
     }
 }
 
@@ -345,7 +344,7 @@ technique CreateShadowTerm7x7PCF
 		CullMode = NONE;
 
         VertexShader = compile vs_3_0 ShadowTermVS();
-        PixelShader = compile ps_3_0 ShadowTermPS(7);	
+        PixelShader = compile ps_3_0 ShadowTermPS(7);
     }
 }
 

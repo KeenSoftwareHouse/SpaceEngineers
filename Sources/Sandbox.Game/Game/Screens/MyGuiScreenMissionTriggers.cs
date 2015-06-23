@@ -1,4 +1,5 @@
 ﻿using Sandbox.Common.ObjectBuilders.Gui;
+using Sandbox.Game.Gui;
 using Sandbox.Game.Localization;
 using Sandbox.Game.SessionComponents;
 using Sandbox.Game.World;
@@ -19,11 +20,7 @@ namespace Sandbox.Game.Screens
 {
     class MyGuiScreenMissionTriggers : MyGuiScreenBase
     {
-        /*static MyGuiScreenMissionTriggers()
-        {
-
-        }*/
-        MyGuiControlButton m_okButton, m_cancelButton;
+        MyGuiControlButton m_okButton, m_cancelButton, m_advancedButton;
         MyGuiControlCombobox[] m_winCombo = new MyGuiControlCombobox[6];
         MyGuiControlCombobox[] m_loseCombo = new MyGuiControlCombobox[6];
 
@@ -31,6 +28,8 @@ namespace Sandbox.Game.Screens
         MyGuiControlButton[] m_winButton = new MyGuiControlButton[6];
         MyTrigger[] m_loseTrigger = new MyTrigger[6];
         MyGuiControlButton[] m_loseButton = new MyGuiControlButton[6];
+
+        MyGuiScreenAdvancedScenarioSettings m_advanced;
 
         static List<Type> m_triggerTypes;
         static MyGuiScreenMissionTriggers()
@@ -64,6 +63,9 @@ namespace Sandbox.Game.Screens
                 onButtonClick: OnCancelButtonClick, originAlign: MyGuiDrawAlignEnum.HORISONTAL_RIGHT_AND_VERTICAL_BOTTOM);
             Controls.Add(m_okButton);
             Controls.Add(m_cancelButton);
+            m_advancedButton = new MyGuiControlButton(position: new Vector2(0.38f, -0.15f), size: buttonSize, text: MyTexts.Get(MySpaceTexts.WorldSettings_Advanced),
+                onButtonClick: OnAdvancedButtonClick, originAlign: MyGuiDrawAlignEnum.HORISONTAL_RIGHT_AND_VERTICAL_BOTTOM);
+            //Controls.Add(m_advancedButton); disabled for now - joining into running game is not finished
 
             buttonSize = new Vector2(0.05f,0.05f);
             Vector2 pos = new Vector2(0.15f, -0.05f);
@@ -252,6 +254,12 @@ namespace Sandbox.Game.Screens
             //modified values are forgotten
             CloseScreen();
         }
+        private void OnAdvancedButtonClick(object sender)
+        {
+            m_advanced = new MyGuiScreenAdvancedScenarioSettings(this);
+            MyGuiSandbox.AddScreen(m_advanced);
+        }
+
         private void SaveData()
         {
             //delete everyone else's triggers, they will be copied from defaults as needed

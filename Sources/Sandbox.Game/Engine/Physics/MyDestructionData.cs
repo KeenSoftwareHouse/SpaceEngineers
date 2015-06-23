@@ -78,13 +78,20 @@ namespace Sandbox
 
                     if (group.Large != null)
                     {
-                        var model = MyModels.GetModelOnlyData(group.Large.Model);
+                        var model = MyModels.GetModel(group.Large.Model);
+                        if (model == null)
+                            continue;
+
                         bool isGenerated = group.Large.IsGeneratedBlock && (group.Large.GeneratedBlockType == GENERATED_BLOCK_TYPE_PILLAR);
                         if (!MyFakes.LAZY_LOAD_DESTRUCTION || (model != null && model.HavokBreakableShapes != null)) //reload materials
                             LoadModelDestruction(group.Large.Model, group.Large, isGenerated, group.Large.Size * (MyDefinitionManager.Static.GetCubeSize(group.Large.CubeSize)));
+                       
                        foreach(var progress in group.Large.BuildProgressModels)
                        {
-                           model = MyModels.GetModelOnlyData(progress.File);
+                           model = MyModels.GetModel(progress.File);
+                           if (model == null)
+                               continue;
+
                            if (!MyFakes.LAZY_LOAD_DESTRUCTION || (model != null && model.HavokBreakableShapes != null)) //reload materials
                                LoadModelDestruction(progress.File, group.Large, isGenerated, group.Large.Size * (MyDefinitionManager.Static.GetCubeSize(group.Large.CubeSize)));
                        }
@@ -103,14 +110,18 @@ namespace Sandbox
 
                     if (group.Small != null)
                     {
-                        var model = MyModels.GetModelOnlyData(group.Small.Model);
+                        var model = MyModels.GetModel(group.Small.Model);
+                        if (model == null)
+                            continue;
                         bool isGenerated = group.Small.IsGeneratedBlock && (group.Small.GeneratedBlockType == GENERATED_BLOCK_TYPE_PILLAR);
                         if (!MyFakes.LAZY_LOAD_DESTRUCTION || (model != null && model.HavokBreakableShapes != null)) //reload materials
                             LoadModelDestruction(group.Small.Model, group.Small, isGenerated, group.Small.Size * (MyDefinitionManager.Static.GetCubeSize(group.Small.CubeSize)));
 
                         foreach (var progress in group.Small.BuildProgressModels)
                         {
-                            model = MyModels.GetModelOnlyData(progress.File);
+                            model = MyModels.GetModel(progress.File);
+                            if (model == null)
+                                continue;
                             if (!MyFakes.LAZY_LOAD_DESTRUCTION || (model != null && model.HavokBreakableShapes != null)) //reload materials
                                 LoadModelDestruction(progress.File, group.Small, isGenerated, group.Large.Size * (MyDefinitionManager.Static.GetCubeSize(group.Large.CubeSize)));
                         }

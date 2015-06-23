@@ -86,7 +86,8 @@ namespace Sandbox.Engine.Networking
                 var worldId      = root.Element("WorldID");
                 var workshopId   = root.Element("WorkshopId");
                 var briefing = root.Element("Briefing");
-                var scenarioEdit = root.Element("Settings").Element("ScenarioEditMode");
+                var settings = root.Element("Settings");
+                var scenarioEdit = settings != null ? root.Element("Settings").Element("ScenarioEditMode") : null;
 
                 worldInfo = new MyWorldInfo();
 

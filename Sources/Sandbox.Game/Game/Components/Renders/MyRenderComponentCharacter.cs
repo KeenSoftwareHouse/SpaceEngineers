@@ -158,33 +158,14 @@ namespace Sandbox.Game.Components
         public override void Draw()
         {
             base.Draw();
-            if (MySession.ControlledEntity == m_character && !m_character.IsSitting && !m_character.IsDead)
-            {
-                m_character.RayCast(MySession.GetCameraControllerEnum() != MyCameraControllerEnum.ThirdPersonSpectator);
-            }
-            else
-            {
-                if (m_character == MySession.ControlledEntity)
-                {
-                    MyHud.SelectedObjectHighlight.Visible = false;
-                }
-            }
-            //VRageRender.MyRenderProxy.DebugDrawOBB(safeObbWithCollisionExtents, Vector3.One, 1.0f, false, false);
-
-            //CalculateTransforms();
-            //CalculateDependentMatrices();
-
-            //MySector.MainCamera.SetViewMatrix(MySession.Static.CameraController.GetViewMatrix());
 
             UpdateCharacterSkeleton();
 
             VRageRender.MyRenderProxy.SetCharacterTransforms(RenderObjectIDs[0], m_character.BoneRelativeTransforms);
 
-            //VRageRender.MyRenderProxy.AddSwappableObject(this);
-
             Matrix headMatrix = m_character.GetHeadMatrix(false);
-            //UpdateLightPosition();
 
+            
             Vector3 position = m_light.Position;
             Vector3 forwardVector = m_light.ReflectorDirection;
             Vector3 leftVector = headMatrix.Left;

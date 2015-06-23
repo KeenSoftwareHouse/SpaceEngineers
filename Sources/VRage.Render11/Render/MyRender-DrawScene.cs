@@ -83,6 +83,7 @@ namespace VRageRender
             
             MyEnvironment.NearClipping = message.NearPlane;
             MyEnvironment.FarClipping = message.FarPlane;
+            MyEnvironment.LargeDistanceFarClipping = message.FarPlane;
             MyEnvironment.FovY = message.FOV;
             MyEnvironment.ViewFrustum = new BoundingFrustum(MyEnvironment.ViewProjection);
         }

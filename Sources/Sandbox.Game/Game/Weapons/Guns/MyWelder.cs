@@ -150,6 +150,7 @@ namespace Sandbox.Game.Weapons
             {
                 var info = block.ComponentStack.GetGroupInfo(i);
                 var component = new MyHudBlockInfo.ComponentInfo();
+                component.DefinitionId = info.Component.Id;
                 component.ComponentName = info.Component.DisplayNameText;
                 component.Icon = info.Component.Icon;
                 component.TotalCount = info.TotalCount;

@@ -150,6 +150,7 @@ namespace Sandbox
         }
 
         public event EventHandler OnGameLoaded;
+        public event EventHandler OnScreenshotTaken;
 
         #endregion
 
@@ -1645,6 +1646,11 @@ namespace Sandbox
                                 if (rMessage.Success)
                                     screenshotNotification.SetTextFormatArguments(System.IO.Path.GetFileName(rMessage.Filename));
                                 MyHud.Notifications.Add(screenshotNotification);
+                            }
+
+                            if (MySandboxGame.Static != null && MySandboxGame.Static.OnScreenshotTaken != null)
+                            {
+                                MySandboxGame.Static.OnScreenshotTaken(MySandboxGame.Static, null);
                             }
                             break;
                         }

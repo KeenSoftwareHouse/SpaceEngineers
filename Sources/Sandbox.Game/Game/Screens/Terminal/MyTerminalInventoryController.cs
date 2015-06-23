@@ -60,7 +60,7 @@ namespace Sandbox.Game.Gui
 
         MyGuiControlInventoryOwner m_focusedOwnerControl;
         MyGuiControlGrid m_focusedGridControl;
-        MyInventoryItem? m_selectedInventoryItem;
+        MyPhysicalInventoryItem? m_selectedInventoryItem;
         MyInventory m_selectedInventory;
 
         bool m_leftShowsGrid;
@@ -325,7 +325,7 @@ namespace Sandbox.Game.Gui
         private void DisableInvalidWhileDragging()
         {
             var draggingItem = m_dragAndDropInfo.Grid.GetItemAt(m_dragAndDropInfo.ItemIndex);
-            var invItem = (MyInventoryItem)draggingItem.UserData;
+            var invItem = (MyPhysicalInventoryItem)draggingItem.UserData;
             var srcInventory = (MyInventory)m_dragAndDropInfo.Grid.UserData;
             DisableUnacceptingInventoryControls(invItem, m_leftOwnersControl);
             DisableUnacceptingInventoryControls(invItem, m_rightOwnersControl);
@@ -333,7 +333,7 @@ namespace Sandbox.Game.Gui
             DisableUnreachableInventoryControls(srcInventory, invItem, m_rightOwnersControl);
         }
 
-        private void DisableUnacceptingInventoryControls(MyInventoryItem item, MyGuiControlList list)
+        private void DisableUnacceptingInventoryControls(MyPhysicalInventoryItem item, MyGuiControlList list)
         {
             foreach (var control in list.Controls.GetVisibleControls())
             {
@@ -361,7 +361,7 @@ namespace Sandbox.Game.Gui
             return endpoint.CubeBlock is IMyInventoryOwner || endpoint.CubeBlock == m_interactedEndpointBlock;
         }
 
-        private void DisableUnreachableInventoryControls(MyInventory srcInventory, MyInventoryItem item, MyGuiControlList list)
+        private void DisableUnreachableInventoryControls(MyInventory srcInventory, MyPhysicalInventoryItem item, MyGuiControlList list)
         {
             bool fromUser = srcInventory.Owner == m_userAsOwner;
             bool fromInteracted = srcInventory.Owner == m_interactedAsOwner;
@@ -511,7 +511,7 @@ namespace Sandbox.Game.Gui
             listControl.InitControls(inventoryControlList);
         }
 
-        private void ShowAmountTransferDialog(MyInventoryItem inventoryItem, Action<float> onConfirmed)
+        private void ShowAmountTransferDialog(MyPhysicalInventoryItem inventoryItem, Action<float> onConfirmed)
         {
             var amount = inventoryItem.Amount;
             var obType = inventoryItem.Content.TypeId;
@@ -528,7 +528,7 @@ namespace Sandbox.Game.Gui
             MyGuiSandbox.AddScreen(dialog);
         }
 
-        private bool TransferToOppositeFirst(MyInventoryItem item)
+        private bool TransferToOppositeFirst(MyPhysicalInventoryItem item)
         {
             var srcControl = m_focusedOwnerControl;
             var otherInventoriesControl = (srcControl.Owner == m_leftOwnersControl) ? m_rightOwnersControl : m_leftOwnersControl;
@@ -611,7 +611,7 @@ namespace Sandbox.Game.Gui
             {
                 m_selectedInventory = (MyInventory)m_focusedGridControl.UserData;
                 var selectedItem = m_focusedGridControl.SelectedItem;
-                m_selectedInventoryItem = (selectedItem != null) ? (MyInventoryItem?)selectedItem.UserData
+                m_selectedInventoryItem = (selectedItem != null) ? (MyPhysicalInventoryItem?)selectedItem.UserData
                                                                  : null;
             }
             else
@@ -800,7 +800,7 @@ namespace Sandbox.Game.Gui
                 MyInput.Static.IsAnyCtrlKeyPressed())
                 return;
 
-            var item = (MyInventoryItem)sender.GetItemAt(eventArgs.ItemIndex).UserData;
+            var item = (MyPhysicalInventoryItem)sender.GetItemAt(eventArgs.ItemIndex).UserData;
             bool transfered = TransferToOppositeFirst(item);
             RefreshSelectedInventoryItem();
             //MyAudio.Static.PlayCue(transfered ? MySoundCuesEnum.HudMouseClick : MySoundCuesEnum.HudUnable);
@@ -812,7 +812,7 @@ namespace Sandbox.Game.Gui
             bool shiftPressed = MyInput.Static.IsAnyShiftKeyPressed();
             if (ctrlPressed || shiftPressed)
             {
-                var item = (MyInventoryItem)sender.GetItemAt(eventArgs.ItemIndex).UserData;
+                var item = (MyPhysicalInventoryItem)sender.GetItemAt(eventArgs.ItemIndex).UserData;
                 item.Amount = MyFixedPoint.Min((shiftPressed ? 100 : 1) * (ctrlPressed ? 10 : 1), item.Amount);
                 bool transfered = TransferToOppositeFirst(item);
                 RefreshSelectedInventoryItem();
@@ -826,7 +826,7 @@ namespace Sandbox.Game.Gui
             {
                 MyGuiAudio.PlaySound(MyGuiSounds.HudMouseClick);
 
-                MyInventoryItem inventoryItem = (MyInventoryItem)eventArgs.Item.UserData;
+                MyPhysicalInventoryItem inventoryItem = (MyPhysicalInventoryItem)eventArgs.Item.UserData;
 
                 var srcGrid = eventArgs.DragFrom.Grid;
                 var dstGrid = eventArgs.DropTo.Grid;
@@ -902,7 +902,7 @@ namespace Sandbox.Game.Gui
             m_controlsDisabledWhileDragged.Clear();
         }
 
-        private static void CorrectItemAmount(ref MyInventoryItem dragItem)
+        private static void CorrectItemAmount(ref MyPhysicalInventoryItem dragItem)
         {
             var obType = dragItem.Content.TypeId;
         }

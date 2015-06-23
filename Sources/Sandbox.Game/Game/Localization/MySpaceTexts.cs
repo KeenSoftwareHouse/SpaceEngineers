@@ -4060,6 +4060,26 @@ namespace Sandbox.Game.Localization
         public static readonly MyStringId ToolTipGameOptionsShowPlayerNames = MyStringId.GetOrCompute("ToolTipGameOptionsShowPlayerNames");
 
         ///<summary>
+        ///UI transparency
+        ///</summary>
+        public static readonly MyStringId ScreenOptionsGame_UITransparency = MyStringId.GetOrCompute("ScreenOptionsGame_UITransparency");
+
+        ///<summary>
+        ///Change transparency of UI dialogs.
+        ///</summary>
+        public static readonly MyStringId ToolTipGameOptionsUITransparency = MyStringId.GetOrCompute("ToolTipGameOptionsUITransparency");
+
+        ///<summary>
+        ///UI background transparency
+        ///</summary>
+        public static readonly MyStringId ScreenOptionsGame_UIBkTransparency = MyStringId.GetOrCompute("ScreenOptionsGame_UIBkTransparency");
+
+        ///<summary>
+        ///Change transparency of UI dialogs background.
+        ///</summary>
+        public static readonly MyStringId ToolTipGameOptionsUIBkTransparency = MyStringId.GetOrCompute("ToolTipGameOptionsUIBkTransparency");
+
+        ///<summary>
         ///Drop item
         ///</summary>
         public static readonly MyStringId ToolTipTerminalInventory_ThrowOut = MyStringId.GetOrCompute("ToolTipTerminalInventory_ThrowOut");
@@ -10185,6 +10205,11 @@ namespace Sandbox.Game.Localization
         public static readonly MyStringId NotificationHintLeaveCryoChamber = MyStringId.GetOrCompute("NotificationHintLeaveCryoChamber");
 
         ///<summary>
+        ///Spawn flora
+        ///</summary>
+        public static readonly MyStringId ScreenDebugSpawnMenu_SpawnFlora = MyStringId.GetOrCompute("ScreenDebugSpawnMenu_SpawnFlora");
+
+        ///<summary>
         ///Old Scrap Metal
         ///</summary>
         public static readonly MyStringId DisplayName_Item_ScrapIngot = MyStringId.GetOrCompute("DisplayName_Item_ScrapIngot");
@@ -10520,6 +10545,16 @@ namespace Sandbox.Game.Localization
         public static readonly MyStringId WorldSettings_GameScenario = MyStringId.GetOrCompute("WorldSettings_GameScenario");
 
         ///<summary>
+        ///Organic
+        ///</summary>
+        public static readonly MyStringId DisplayName_Item_Organic = MyStringId.GetOrCompute("DisplayName_Item_Organic");
+
+        ///<summary>
+        ///Organic
+        ///</summary>
+        public static readonly MyStringId IconSymbol_Organic = MyStringId.GetOrCompute("IconSymbol_Organic");
+
+        ///<summary>
         ///Cockpit is damaged
         ///</summary>
         public static readonly MyStringId Notification_CockpitIsDamaged = MyStringId.GetOrCompute("Notification_CockpitIsDamaged");
@@ -10528,6 +10563,51 @@ namespace Sandbox.Game.Localization
         ///Target outside movement range
         ///</summary>
         public static readonly MyStringId LaserAntennaOutsideLimits = MyStringId.GetOrCompute("LaserAntennaOutsideLimits");
+
+        ///<summary>
+        ///
+        ///</summary>
+        public static readonly MyStringId ToolTipWorldSettings_EnableFlora = MyStringId.GetOrCompute("ToolTipWorldSettings_EnableFlora");
+
+        ///<summary>
+        ///
+        ///</summary>
+        public static readonly MyStringId ToolTipWorldSettings_EnableStationVoxel = MyStringId.GetOrCompute("ToolTipWorldSettings_EnableStationVoxel");
+
+        ///<summary>
+        ///
+        ///</summary>
+        public static readonly MyStringId ToolTipWorldSettings_FloraDensity = MyStringId.GetOrCompute("ToolTipWorldSettings_FloraDensity");
+
+        ///<summary>
+        ///Enable Flora
+        ///</summary>
+        public static readonly MyStringId WorldSettings_EnableFlora = MyStringId.GetOrCompute("WorldSettings_EnableFlora");
+
+        ///<summary>
+        ///Station voxel support
+        ///</summary>
+        public static readonly MyStringId WorldSettings_EnableStationVoxel = MyStringId.GetOrCompute("WorldSettings_EnableStationVoxel");
+
+        ///<summary>
+        ///Flora Density
+        ///</summary>
+        public static readonly MyStringId WorldSettings_FloraDensity = MyStringId.GetOrCompute("WorldSettings_FloraDensity");
+
+        ///<summary>
+        ///High
+        ///</summary>
+        public static readonly MyStringId WorldSettings_FloraDensity_High = MyStringId.GetOrCompute("WorldSettings_FloraDensity_High");
+
+        ///<summary>
+        ///Low
+        ///</summary>
+        public static readonly MyStringId WorldSettings_FloraDensity_Low = MyStringId.GetOrCompute("WorldSettings_FloraDensity_Low");
+
+        ///<summary>
+        ///Medium
+        ///</summary>
+        public static readonly MyStringId WorldSettings_FloraDensity_Medium = MyStringId.GetOrCompute("WorldSettings_FloraDensity_Medium");
 
         ///<summary>
         ///Tonemapping
@@ -10543,6 +10623,11 @@ namespace Sandbox.Game.Localization
         ///Respawn in ships and suit is disabled. If no valid medical rooms exist, respawn won't be possible at all!
         ///</summary>
         public static readonly MyStringId ToolTipWorldSettings_DisableRespawnShips = MyStringId.GetOrCompute("ToolTipWorldSettings_DisableRespawnShips");
+
+        ///<summary>
+        ///Audible Proximity Alert
+        ///</summary>
+        public static readonly MyStringId BlockPropertyTitle_SensorPlaySound = MyStringId.GetOrCompute("BlockPropertyTitle_SensorPlaySound");
 
         ///<summary>
         ///PUBLISH SCENARIO
@@ -10598,6 +10683,16 @@ namespace Sandbox.Game.Localization
         ///No respawn point is available!  Try the refresh button for any available Medical rooms. If there is no chance of accessing a medical room, the game is over and you can leave the game.
         ///</summary>
         public static readonly MyStringId ScreenMedicals_NoRespawnPossible = MyStringId.GetOrCompute("ScreenMedicals_NoRespawnPossible");
+
+        ///<summary>
+        ///Enable/disable spawning of planets in world
+        ///</summary>
+        public static readonly MyStringId ToolTipWorldSettings_EnablePlanets = MyStringId.GetOrCompute("ToolTipWorldSettings_EnablePlanets");
+
+        ///<summary>
+        ///Enable planets
+        ///</summary>
+        public static readonly MyStringId WorldSettings_EnablePlanets = MyStringId.GetOrCompute("WorldSettings_EnablePlanets");
 
         ///<summary>
         ///Download failed, please try again later.
@@ -10663,5 +10758,115 @@ namespace Sandbox.Game.Localization
         ///The maximum number of projections this projector can build instantly
         ///</summary>
         public static readonly MyStringId BlockPropertyTitle_Projector_NumberOfProjections_Tooltip = MyStringId.GetOrCompute("BlockPropertyTitle_Projector_NumberOfProjections_Tooltip");
+
+        ///<summary>
+        ///Lives:
+        ///</summary>
+        public static readonly MyStringId HudScenarioInfoLivesLeft = MyStringId.GetOrCompute("HudScenarioInfoLivesLeft");
+
+        ///<summary>
+        ///Destructible blocks
+        ///</summary>
+        public static readonly MyStringId TerminalTab_Info_DestructibleBlocks = MyStringId.GetOrCompute("TerminalTab_Info_DestructibleBlocks");
+
+        ///<summary>
+        ///Toogles destructible blocks only for this grid. If destructible blocks are disabled in world settings, this is ignored. Only available in scenarios.
+        ///</summary>
+        public static readonly MyStringId TerminalTab_Info_DestructibleBlocks_Tooltip = MyStringId.GetOrCompute("TerminalTab_Info_DestructibleBlocks_Tooltip");
+
+        ///<summary>
+        ///Scenario is already running, cannot join game.
+        ///</summary>
+        public static readonly MyStringId GuiScenarioCannotJoin = MyStringId.GetOrCompute("GuiScenarioCannotJoin");
+
+        ///<summary>
+        ///CANNOT JOIN
+        ///</summary>
+        public static readonly MyStringId GuiScenarioCannotJoinCaption = MyStringId.GetOrCompute("GuiScenarioCannotJoinCaption");
+
+        ///<summary>
+        ///Players can join when game is already running
+        ///</summary>
+        public static readonly MyStringId ScenarioSettings_CanJoinRunning = MyStringId.GetOrCompute("ScenarioSettings_CanJoinRunning");
+
+        ///<summary>
+        ///Enable sun rotation
+        ///</summary>
+        public static readonly MyStringId WorldSettings_EnableSunRotation = MyStringId.GetOrCompute("WorldSettings_EnableSunRotation");
+
+        ///<summary>
+        ///Day duration
+        ///</summary>
+        public static readonly MyStringId SunRotationPeriod = MyStringId.GetOrCompute("SunRotationPeriod");
+
+        ///<summary>
+        ///All others lost
+        ///</summary>
+        public static readonly MyStringId GuiTriggerCaptionAllOthersLost = MyStringId.GetOrCompute("GuiTriggerCaptionAllOthersLost");
+
+        ///<summary>
+        ///Players can join running game
+        ///</summary>
+        public static readonly MyStringId ScenarioSettings_CanJoinRunningShort = MyStringId.GetOrCompute("ScenarioSettings_CanJoinRunningShort");
+
+        ///<summary>
+        ///Time limit
+        ///</summary>
+        public static readonly MyStringId GuiTriggerCaptionTimeLimit = MyStringId.GetOrCompute("GuiTriggerCaptionTimeLimit");
+
+        ///<summary>
+        ///Limit (in minutes)
+        ///</summary>
+        public static readonly MyStringId GuiTriggerTimeLimit = MyStringId.GetOrCompute("GuiTriggerTimeLimit");
+
+        ///<summary>
+        ///Time left:
+        ///</summary>
+        public static readonly MyStringId HudScenarioInfoTimeLeft = MyStringId.GetOrCompute("HudScenarioInfoTimeLeft");
+
+        ///<summary>
+        ///Time limit
+        ///</summary>
+        public static readonly MyStringId MyGuiScreenTriggerTimeLimit = MyStringId.GetOrCompute("MyGuiScreenTriggerTimeLimit");
+
+        ///<summary>
+        ///Extreme
+        ///</summary>
+        public static readonly MyStringId WorldSettings_FloraDensity_Extreme = MyStringId.GetOrCompute("WorldSettings_FloraDensity_Extreme");
+
+        ///<summary>
+        ///None
+        ///</summary>
+        public static readonly MyStringId WorldSettings_FloraDensity_None = MyStringId.GetOrCompute("WorldSettings_FloraDensity_None");
+
+        ///<summary>
+        ///If this is turned off, characters won't be able to use jetpacks at all.
+        ///</summary>
+        public static readonly MyStringId ToolTipWorldSettings_EnableJetpack = MyStringId.GetOrCompute("ToolTipWorldSettings_EnableJetpack");
+
+        ///<summary>
+        ///If this is turned off, characters won't spawn with any tools in their inventory.
+        ///</summary>
+        public static readonly MyStringId ToolTipWorldSettings_SpawnWithTools = MyStringId.GetOrCompute("ToolTipWorldSettings_SpawnWithTools");
+
+        ///<summary>
+        ///Enable jetpack
+        ///</summary>
+        public static readonly MyStringId WorldSettings_EnableJetpack = MyStringId.GetOrCompute("WorldSettings_EnableJetpack");
+
+        ///<summary>
+        ///Spawn with tools
+        ///</summary>
+        public static readonly MyStringId WorldSettings_SpawnWithTools = MyStringId.GetOrCompute("WorldSettings_SpawnWithTools");
+
+        ///<summary>
+        ///All blocks from the spawned ship will have the same ownership settings as this projector.
+        ///</summary>
+        public static readonly MyStringId BlockPropertiesTooltip_Projector_GetOwnership = MyStringId.GetOrCompute("BlockPropertiesTooltip_Projector_GetOwnership");
+
+        ///<summary>
+        ///Ownership from projector
+        ///</summary>
+        public static readonly MyStringId BlockPropertyTitle_Projector_GetOwnership = MyStringId.GetOrCompute("BlockPropertyTitle_Projector_GetOwnership");
     }
 }

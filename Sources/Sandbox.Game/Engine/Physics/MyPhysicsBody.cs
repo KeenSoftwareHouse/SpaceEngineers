@@ -1677,6 +1677,22 @@ false,
             set { m_isStaticForCluster = value; }
         }
 
+        public Vector3 Gravity
+        {
+            get
+            {
+                if (!Enabled)
+                    return Vector3.Zero;
+
+                if (RigidBody != null)
+                    return this.RigidBody.Gravity;
+
+                if (CharacterProxy != null)
+                    return CharacterProxy.Gravity;
+
+                return Vector3.Zero;
+            }
+        }
         #endregion
 
         #region Implementation of IMyNotifyMotion

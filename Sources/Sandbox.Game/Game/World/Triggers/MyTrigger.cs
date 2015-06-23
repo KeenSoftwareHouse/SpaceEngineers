@@ -38,6 +38,7 @@ namespace Sandbox.Game.World.Triggers
         {
             return IsTrue;
         }
+        public virtual void DisplayHints(){}//call this only for triggers belonging to local computer!
 
         //save/load
         public virtual void Init(MyObjectBuilder_Trigger ob)

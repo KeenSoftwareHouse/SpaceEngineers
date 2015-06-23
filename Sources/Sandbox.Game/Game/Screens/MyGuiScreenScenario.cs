@@ -389,10 +389,18 @@ namespace Sandbox.Game.Gui
                     if (save.Item1 == WORKSHOP_PATH_TAG)
                     {
                         var scenario = FindWorkshopScenario(save.Item2.WorkshopId.Value);
-                        MySteamWorkshop.CreateWorldInstanceAsync(scenario, MySteamWorkshop.MyWorkshopPathInfo.CreateScenarioInfo(), delegate(bool success, string sessionPath)
+                        MySteamWorkshop.CreateWorldInstanceAsync(scenario, MySteamWorkshop.MyWorkshopPathInfo.CreateScenarioInfo(), true, delegate(bool success, string sessionPath)
                         {
                             if (success)
+                            {
+                                //add briefing from workshop description
+                                ulong dummy;
+                                var checkpoint = MyLocalCache.LoadCheckpoint(sessionPath, out dummy);
+                                checkpoint.Briefing = save.Item2.Briefing;
+                                MyLocalCache.SaveCheckpoint(checkpoint, sessionPath);
+
                                 LoadMission(sessionPath, m_nameTextbox.Text, m_descriptionTextbox.Text, MP);
+                            }
                             else
                                 MyGuiSandbox.AddScreen(MyGuiSandbox.CreateMessageBox(
                                             messageText: MyTexts.Get(MySpaceTexts.MessageBoxTextWorkshopDownloadFailed),

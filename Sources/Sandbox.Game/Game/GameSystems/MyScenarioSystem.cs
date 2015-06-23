@@ -149,6 +149,11 @@ namespace Sandbox.Game.GameSystems
                 return;
 
             if (MySession.Static.OnlineMode == MyOnlineModeEnum.OFFLINE)//!Sync.MultiplayerActive)
+                if (m_gameState == MyState.Loaded)
+                {
+                    m_gameState = MyState.Running;
+                    ServerStartGameTime = DateTime.UtcNow;
+                }
                 return;
 
             switch (m_gameState)
@@ -181,7 +186,7 @@ namespace Sandbox.Game.GameSystems
                         }
                         MyGuiScreenScenarioMpServer guiscreen = new MyGuiScreenScenarioMpServer();
                         guiscreen.Briefing = MySession.Static.GetWorld().Checkpoint.Briefing;
-                        MyGuiSandbox.AddScreen(new MyGuiScreenScenarioMpServer());
+                        MyGuiSandbox.AddScreen(guiscreen);
                         m_playersReadyForBattle.Add(MySteam.UserId);
                         m_gameState = MyState.JoinScreen;
                     }

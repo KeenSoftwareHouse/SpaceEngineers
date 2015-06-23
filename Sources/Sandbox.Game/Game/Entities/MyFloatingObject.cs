@@ -46,7 +46,7 @@ namespace Sandbox.Game.Entities
 
         private StringBuilder m_displayedText = new StringBuilder();
 
-        public MyInventoryItem Item;
+        public MyPhysicalInventoryItem Item;
 
         public MyVoxelMaterialDefinition VoxelMaterial;
         public long CreationTime;
@@ -77,11 +77,11 @@ namespace Sandbox.Game.Entities
             if (builder.Item.Amount <= 0)
             {
                 // I can only prevent creation of entity by throwing exception. This might cause crashes when thrown outside of MyEntities.CreateFromObjectBuilder().
-                throw new ArgumentOutOfRangeException("MyInventoryItem.Amount", string.Format("Creating floating object with invalid amount: {0}x '{1}'", builder.Item.Amount, builder.Item.Content.GetId()));
+                throw new ArgumentOutOfRangeException("MyPhysicalInventoryItem.Amount", string.Format("Creating floating object with invalid amount: {0}x '{1}'", builder.Item.Amount, builder.Item.Content.GetId()));
             }
             base.Init(objectBuilder);
 
-            this.Item = new MyInventoryItem(builder.Item);
+            this.Item = new MyPhysicalInventoryItem(builder.Item);
 
             InitInternal();
 
@@ -91,10 +91,8 @@ namespace Sandbox.Game.Entities
         public override void UpdateAfterSimulation()
         {
             base.UpdateAfterSimulation();
-
             // DA: Consider using havok fields (buoyancy demo) for gravity of planets.
-            Vector3 gravity = MyGravityProviderSystem.CalculateGravityInPointForGrid(PositionComp.GetPosition());
-            Physics.AddForce(MyPhysicsForceType.APPLY_WORLD_FORCE, Physics.Mass * gravity, Physics.CenterOfMassWorld, null);
+            Physics.RigidBody.Gravity = MyGravityProviderSystem.CalculateGravityInPointForGrid(PositionComp.GetPosition());
         }
 
         public override void OnAddedToScene(object source)
@@ -154,16 +152,29 @@ namespace Sandbox.Game.Entities
             var massProperties = new HkMassProperties();
             HkShape shape = GetPhysicsShape(physicalItem.Mass * (float)Item.Amount, scale, out massProperties);
             var scaleMatrix = Matrix.CreateScale(scale);
-            HkConvexTransformShape transform = new HkConvexTransformShape((HkConvexShape)shape, ref scaleMatrix, HkReferencePolicy.None);
+
             if (Physics != null)
                 Physics.Close();
             Physics = new MyPhysicsBody(this, RigidBodyFlag.RBF_DEBRIS);
-            Physics.CreateFromCollisionObject(transform, Vector3.Zero, MatrixD.Identity, massProperties, MyPhysics.FloatingObjectCollisionLayer);
-            Physics.MaterialType = VoxelMaterial != null ? MyMaterialType.ROCK : MyMaterialType.METAL;
 
-            Physics.Enabled = true;
-            transform.Base.RemoveReference();
+            if (VoxelMaterial != null)
+            {
+                HkConvexTransformShape transform = new HkConvexTransformShape((HkConvexShape)shape, ref scaleMatrix, HkReferencePolicy.None);
+        
+                Physics.CreateFromCollisionObject(transform, Vector3.Zero, MatrixD.Identity, massProperties, MyPhysics.FloatingObjectCollisionLayer);
+               
+                Physics.Enabled = true;
+                transform.Base.RemoveReference();
+            }
+            else
+            {
+                Physics.CreateFromCollisionObject(shape, Vector3.Zero, MatrixD.Identity, massProperties, MyPhysics.FloatingObjectCollisionLayer);
+                Physics.Enabled = true;
+            }
+
+            Physics.MaterialType = VoxelMaterial != null ? MyMaterialType.ROCK : MyMaterialType.METAL;
             Physics.PlayCollisionCueEnabled = true;
+
             NeedsUpdate = MyEntityUpdateEnum.EACH_FRAME;
         }
 
@@ -172,7 +183,7 @@ namespace Sandbox.Game.Entities
             FormatDisplayName(m_displayedText, Item);
         }
 
-        private void FormatDisplayName(StringBuilder outputBuffer, MyInventoryItem item)
+        private void FormatDisplayName(StringBuilder outputBuffer, MyPhysicalInventoryItem item)
         {
             var definition = MyDefinitionManager.Static.GetPhysicalItemDefinition(item.Content);
             outputBuffer.Clear().Append(definition.DisplayNameText);
@@ -207,6 +218,7 @@ namespace Sandbox.Game.Entities
             {
                 shapeType = HkShapeType.Box;
                 massProperties = HkInertiaTensorComputer.ComputeBoxVolumeMassProperties(halfExtents, mass);
+                massProperties.CenterOfMass = Model.BoundingBox.Center;
             }
 
             return MyDebris.Static.GetDebrisShape(Model, SimpleShape ? shapeType : HkShapeType.ConvexVertices);
@@ -271,7 +283,15 @@ namespace Sandbox.Game.Entities
                 if (MySession.ControlledEntity == user)
                     MyAudio.Static.PlaySound(TAKE_ITEM_SOUND.SoundId);
                 //user.StartSecondarySound(TAKE_ITEM_SOUND);
-                user.GetInventory().TakeFloatingObject(this);
+                // MW:TODO HACK - remove after floating object is component OR when we have accessible inventories in ME
+                if (Item.Content.TypeId == typeof(MyObjectBuilder_ConsumableItem))
+                {
+                    var consumableDefinition = MyDefinitionManager.Static.GetDefinition(Item.Content.GetId()) as MyConsumableItemDefinition;
+                    user.StatComp.Consume(Item.Amount, consumableDefinition);
+                    MyFloatingObjects.RemoveFloatingObject(this);
+                }
+                else
+                    user.GetInventory().TakeFloatingObject(this);
                 MyHud.Notifications.ReloadTexts();
             }
         }
@@ -307,6 +327,11 @@ namespace Sandbox.Game.Entities
         UseActionResult IMyUsableEntity.CanUse(UseActionEnum actionEnum, IMyControllableEntity user)
         {
             return MarkedForClose ? UseActionResult.Closed : UseActionResult.OK; // When object is not collected, it's usable
+        }
+
+        bool IMyUseObject.PlayIndicatorSound
+        {
+            get { return false; }
         }
 
         public void DoDamage(float damage, MyDamageType damageType, bool sync)
@@ -398,7 +423,7 @@ namespace Sandbox.Game.Entities
                         {
                             var definition = MyDefinitionManager.Static.GetComponentDefinition((Item.Content as MyObjectBuilder_Component).GetId());
                             if (MyRandom.Instance.NextFloat() < definition.DropProbability)
-                                MyFloatingObjects.Spawn(new MyInventoryItem(Item.Amount * 0.8f, ScrapBuilder), PositionComp.GetPosition(), WorldMatrix.Forward, WorldMatrix.Up);
+                                MyFloatingObjects.Spawn(new MyPhysicalInventoryItem(Item.Amount * 0.8f, ScrapBuilder), PositionComp.GetPosition(), WorldMatrix.Forward, WorldMatrix.Up);
                         }
                     }
                 }

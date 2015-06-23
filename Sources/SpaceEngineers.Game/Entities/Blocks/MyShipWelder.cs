@@ -1,5 +1,6 @@
 ﻿using Sandbox.Common.ObjectBuilders;
 using Sandbox.Definitions;
+using Sandbox.Engine.Multiplayer;
 using Sandbox.Engine.Utils;
 using Sandbox.Game;
 using Sandbox.Game.Entities;
@@ -13,7 +14,8 @@ using Sandbox.Game.Multiplayer;
 using Sandbox.Game.Weapons;
 using Sandbox.Game.World;
 using Sandbox.Graphics.TransparentGeometry.Particles;
-using Sandbox.ModAPI.Ingame;
+using Sandbox.ModAPI;
+using SteamSDK;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -50,14 +52,16 @@ namespace SpaceEngineers.Game.Entities.Blocks
             if (MyFakes.ENABLE_WELDER_HELP_OTHERS)
             {
                 var helpOthersCheck = new MyTerminalControlCheckbox<MyShipWelder>("helpOthers", MySpaceTexts.ShipWelder_HelpOthers, MySpaceTexts.ShipWelder_HelpOthers);
-                helpOthersCheck.Getter = (x) => x.m_helpOthers;
-                helpOthersCheck.Setter = (x, v) =>
-                {
-                    x.m_helpOthers = v;
-                };
+                helpOthersCheck.Getter = (x) => x.HelpOthers;
+                helpOthersCheck.Setter = (x, v) => x.SyncObject.ChangeHelpOthersMode(v);
                 helpOthersCheck.EnableAction();
                 MyTerminalControlFactory.AddControl(helpOthersCheck);
             }
+        }
+
+        public bool HelpOthers
+        {
+            get { return m_helpOthers; }
         }
 
         protected override bool CanInteractWithSelf
@@ -70,10 +74,22 @@ namespace SpaceEngineers.Game.Entities.Blocks
 
         public override void Init(MyObjectBuilder_CubeBlock objectBuilder, MyCubeGrid cubeGrid)
         {
+            SyncFlag = true;
+
             base.Init(objectBuilder, cubeGrid);
 
             m_missingComponents = new Dictionary<string, int>();
             this.NeedsUpdate |= VRage.ModAPI.MyEntityUpdateEnum.EACH_10TH_FRAME;
+
+            var builder = (MyObjectBuilder_ShipWelder)objectBuilder;
+            m_helpOthers = builder.HelpOthers;
+        }
+
+        public override MyObjectBuilder_CubeBlock GetObjectBuilderCubeBlock(bool copy = false)
+        {
+            var builder = (MyObjectBuilder_ShipWelder)base.GetObjectBuilderCubeBlock(copy);
+            builder.HelpOthers = m_helpOthers;
+            return builder;
         }
 
         protected override bool Activate(HashSet<MySlimBlock> targets)
@@ -312,8 +328,65 @@ namespace SpaceEngineers.Game.Entities.Blocks
             if (m_isActivated)
             {
                 m_projectionRaycastData = FindProjectedBlocks();
-            }   
+            }
         }
+
+        #region Sync
+        protected override MySyncEntity OnCreateSync()
+        {
+            return new MySyncShipWelder(this);
+        }
+
+        internal new MySyncShipWelder SyncObject
+        {
+            get
+            {
+                return (MySyncShipWelder)base.SyncObject;
+            }
+        }
+
+        [PreloadRequired]
+        internal class MySyncShipWelder : MySyncEntity
+        {
+            [MessageIdAttribute(8300, P2PMessageEnum.Reliable)]
+            protected struct ChangeHelperModeMsg : IEntityMessage
+            {
+                public long EntityId;
+                public long GetEntityId() { return EntityId; }
+
+                public BoolBlit HelpOthers;
+            }
+
+            private MyShipWelder m_shipWelder;
+
+            static MySyncShipWelder()
+            {
+                MySyncLayer.RegisterEntityMessage<MySyncShipWelder, ChangeHelperModeMsg>(OnHelpOthersChanged, MyMessagePermissions.Any);
+            }
+
+            public MySyncShipWelder(MyShipWelder shipWelder)
+                : base(shipWelder)
+            {
+                m_shipWelder = shipWelder;
+            }
+
+            public void ChangeHelpOthersMode(bool newHelperMode)
+            {
+                var msg = new ChangeHelperModeMsg();
+                msg.EntityId = m_shipWelder.EntityId;
+                msg.HelpOthers = newHelperMode;
+
+                Sync.Layer.SendMessageToAllAndSelf(ref msg);
+            }
+
+            private static void OnHelpOthersChanged(MySyncShipWelder syncObject, ref ChangeHelperModeMsg message, MyNetworkClient sender)
+            {
+                syncObject.m_shipWelder.m_helpOthers = message.HelpOthers;
+            }
+        }
+        #endregion
+
+   
  
     }
 }

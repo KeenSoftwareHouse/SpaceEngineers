@@ -4,6 +4,7 @@ using Sandbox.Common.ObjectBuilders;
 using Sandbox.Common.ObjectBuilders.Definitions;
 using System.Collections.Generic;
 using VRage;
+using VRage.Game.ObjectBuilders;
 using VRage.ObjectBuilders;
 using VRageMath;
 
@@ -98,6 +99,9 @@ namespace Sandbox.Definitions
                 m_blueprintsByResultId = new DefinitionDictionary<MyBlueprintDefinitionBase>(10);
 
                 m_environmentItemsEntries = new HashSet<EnvironmentItemsEntry>();
+                m_componentBlockEntries = new HashSet<MyComponentBlockEntry>();
+
+                m_componentBlocks = new HashSet<MyDefinitionId>();
 
                 m_categoryClasses = new List<MyGuiBlockCategoryDefinition>(25);
                 m_categories = new Dictionary<string, MyGuiBlockCategoryDefinition>(25);
@@ -112,6 +116,8 @@ namespace Sandbox.Definitions
                 m_characterNames = new List<MyCharacterName>(32);
 
                 m_battleDefinition = new MyBattleDefinition();
+
+                m_planetDefinitions = new DefinitionDictionary<MyPlanetDefinition>(5);
 
                 m_componentGroups = new DefinitionDictionary<MyComponentGroupDefinition>(4);
                 m_componentGroupMembers = new Dictionary<MyDefinitionId, MyTuple<int, MyComponentGroupDefinition>>();
@@ -210,12 +216,25 @@ namespace Sandbox.Definitions
                     {
                         if (classEntry.Enabled == false)
                             m_environmentItemsEntries.Remove(classEntry);
-
                     }
                     else
                     {
                         if (classEntry.Enabled == true)
                             m_environmentItemsEntries.Add(classEntry);
+                    }
+                }
+
+                foreach (var blockEntry in definitionSet.m_componentBlockEntries)
+                {
+                    if (m_componentBlockEntries.Contains(blockEntry))
+                    {
+                        if (blockEntry.Enabled == false)
+                            m_componentBlockEntries.Remove(blockEntry);
+                    }
+                    else
+                    {
+                        if (blockEntry.Enabled == true)
+                            m_componentBlockEntries.Add(blockEntry);
                     }
                 }
 
@@ -284,6 +303,13 @@ namespace Sandbox.Definitions
                 }
 
                 m_componentGroups.Merge(definitionSet.m_componentGroups);
+                foreach (var entry in definitionSet.m_planetDefinitions)
+                {
+                    if (entry.Value.Enabled)
+                        m_planetDefinitions[entry.Key] = entry.Value;
+                    else
+                        m_planetDefinitions.Remove(entry.Key);
+                }
             }
 
             static void MergeDefinitionLists<T>(List<T> output, List<T> input) where T : MyDefinitionBase
@@ -342,11 +368,12 @@ namespace Sandbox.Definitions
             internal List<MyGuiBlockCategoryDefinition> m_categoryClasses;
             internal Dictionary<string, MyGuiBlockCategoryDefinition> m_categories;
 
-            // Used only for loading the blueprint classes. When initialized, this should be null
+            // The following hashsets are used only for loading. When initialized, they should be cleared
             internal HashSet<BlueprintClassEntry> m_blueprintClassEntries;
-
-            // Ditto for environment items entries
             internal HashSet<EnvironmentItemsEntry> m_environmentItemsEntries;
+            internal HashSet<MyComponentBlockEntry> m_componentBlockEntries;
+
+            public HashSet<MyDefinitionId> m_componentBlocks;
 
             internal DefinitionDictionary<MyBlueprintDefinitionBase> m_blueprintsByResultId;
 
@@ -367,9 +394,13 @@ namespace Sandbox.Definitions
 
             public Dictionary<string, MyVoxelMapStorageDefinition> m_voxelMapStorages;
 
+            public readonly Dictionary<int, List<MyDefinitionId>> m_channelEnvironmentItemsDefs = new Dictionary<int, List<MyDefinitionId>>();
+
             internal List<MyCharacterName> m_characterNames;
 
             internal MyBattleDefinition m_battleDefinition;
+
+            internal DefinitionDictionary<MyPlanetDefinition> m_planetDefinitions;
 
             internal DefinitionDictionary<MyComponentGroupDefinition> m_componentGroups;
             internal Dictionary<MyDefinitionId, MyTuple<int, MyComponentGroupDefinition>> m_componentGroupMembers;

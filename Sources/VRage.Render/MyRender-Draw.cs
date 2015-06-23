@@ -932,7 +932,6 @@ namespace VRageRender
         internal static void DrawScene_BackgroundObjects(MyLodTypeEnum currentLodDrawPass)
         {
             GetRenderProfiler().StartProfilingBlock(MyEnum<MyLodTypeEnum>.GetName(currentLodDrawPass));
-            GraphicsDevice.Clear(ClearFlags.ZBuffer, new ColorBGRA(1.0f, 0, 0, 1), 1, 0);
             m_currentLodDrawPass = currentLodDrawPass;
             SetDeviceViewport(MyRenderCamera.Viewport);
             BlendState.Opaque.Apply();

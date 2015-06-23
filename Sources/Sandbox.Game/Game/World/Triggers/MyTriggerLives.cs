@@ -1,4 +1,5 @@
 ﻿using Sandbox.Common.ObjectBuilders.Definitions;
+using Sandbox.Game.Gui;
 using Sandbox.Game.Localization;
 using Sandbox.Game.Screens.Triggers;
 using Sandbox.Graphics.GUI;
@@ -38,6 +39,12 @@ namespace Sandbox.Game.World.Triggers
                     m_IsTrue = true;
             }
             return IsTrue;
+        }
+
+        public override void DisplayHints()
+        {
+            if (MySession.Static.IsScenario)
+                MyHud.ScenarioInfo.LivesLeft = LivesLeft;
         }
 
         //OB:

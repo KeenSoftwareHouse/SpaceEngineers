@@ -27,7 +27,7 @@ namespace Sandbox.Game.Entities.Blocks
                 Stator.UpdateIsWorking();
         }
 
-        internal override void ContactPointCallback(ref MyGridContactInfo value)
+        public override void ContactPointCallback(ref MyGridContactInfo value)
         {
             //return;
             var prop = value.Event.ContactProperties;

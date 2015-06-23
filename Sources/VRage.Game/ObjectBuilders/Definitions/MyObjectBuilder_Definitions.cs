@@ -9,6 +9,7 @@ using System.Linq;
 using System.Text;
 using System.Xml.Serialization;
 using VRage.ObjectBuilders;
+using VRage.Game.ObjectBuilders;
 
 namespace Sandbox.Common.ObjectBuilders.Definitions
 {
@@ -222,13 +223,17 @@ namespace Sandbox.Common.ObjectBuilders.Definitions
         [ProtoMember]
         public MyObjectBuilder_DecalDefinition[] Decals;
 
+        [XmlArrayItem("PlanetDefinition")]
+        [ProtoMember]
+        public MyObjectBuilder_PlanetDefinition[] PlanetDefinitions;
+
         [XmlArrayItem("Definition")]
         [ProtoMember]
         public MyObjectBuilder_FloraElementDefinition[] FloraElements;
 
-		[XmlArrayItem("StatsDefinition")]
+		[XmlArrayItem("StatGroup")]
 		[ProtoMember]
-		public MyObjectBuilder_StatsDefinition[] StatsDefinitions;
+		public MyObjectBuilder_StatsDefinition[] StatGroupDefinitions;
 
 		[XmlArrayItem("Stat")]
 		[ProtoMember]
@@ -237,5 +242,9 @@ namespace Sandbox.Common.ObjectBuilders.Definitions
         [XmlArrayItem("Group")]
         [ProtoMember]
         public MyObjectBuilder_ComponentGroupDefinition[] ComponentGroups;
+
+        [XmlArrayItem("Block")]
+        [ProtoMember]
+        public MyComponentBlockEntry[] ComponentBlocks;
     }
 }
