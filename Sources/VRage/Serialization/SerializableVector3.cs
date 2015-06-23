@@ -17,17 +17,17 @@ namespace VRage
         /// </summary>
         /// <seealso cref="IsUninitialized"/>
         /// <seealso cref="GetOrDefault"/>
-        public readonly static SerializableVector3 NotInitialized = new SerializableVector3(null, null, null);
+        public readonly static SerializableVector3 NotInitialized = new SerializableVector3(float.NaN, float.NaN, float.NaN);
 
-        public float? X;
-        public float? Y;
-        public float? Z;
+        public float X;
+        public float Y;
+        public float Z;
 
         public bool ShouldSerializeX() { return false; }
         public bool ShouldSerializeY() { return false; }
         public bool ShouldSerializeZ() { return false; }
 
-        public SerializableVector3(float? x, float? y, float? z)
+        public SerializableVector3(float x, float y, float z)
         {
             this.X = x;
             this.Y = y;
@@ -36,19 +36,19 @@ namespace VRage
 
         [ProtoMember, XmlAttribute]
         public float x { 
-            get { return (float)X; } 
+            get { return X; } 
             set { X = value; } 
         }
 
         [ProtoMember, XmlAttribute]
         public float y {
-            get { return (float)Y; } 
+            get { return Y; } 
             set { Y = value; } 
         }
 
         [ProtoMember, XmlAttribute]
         public float z {
-            get { return (float)Z; } 
+            get { return Z; } 
             set { Z = value; }
         }
 
@@ -63,18 +63,8 @@ namespace VRage
         { 
             get 
             {
-                return isNaNOrNull(X) && isNaNOrNull(Y) && isNaNOrNull(Z); 
+                return float.IsNaN(X) && float.IsNaN(Y) && float.IsNaN(Z); 
             } 
-        }
-
-        /// <summary>
-        /// Determines if a value is null (unserialized) or NaN (invalid/backwards-compat for older version that used NaN for initialization checking)
-        /// </summary>
-        /// <param name="x"></param>
-        /// <returns></returns>
-        public static bool isNaNOrNull(float? x)
-        {
-            return x == null || float.IsNaN((float)x);
         }
 
         /// <summary>
@@ -84,7 +74,7 @@ namespace VRage
         /// <returns></returns>
         public Vector3 GetOrDefault(Vector3 defaultValue)
         {
-            return IsUninitialized ? (Vector3)this : defaultValue;
+            return !IsUninitialized ? (Vector3)this : defaultValue;
         }
 
         public static implicit operator Vector3(SerializableVector3 v)

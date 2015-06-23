@@ -8,6 +8,6 @@ namespace Sandbox.Common.ObjectBuilders
     public class MyObjectBuilder_GravityProvider : MyObjectBuilder_FunctionalBlock
     {
         [ProtoMember]
-        public float? GravityAcceleration = null;
+        public float GravityAcceleration = float.NaN; // NaN is used as an initialization check in MyGravityGenerator.Init(), then replaced with the default value.
     }
 }
