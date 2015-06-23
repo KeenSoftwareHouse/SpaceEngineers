@@ -142,6 +142,7 @@ namespace Sandbox.Engine.Platform
 
         private void UpdateInternal()
         {
+            Sandbox.Game.Entities.Cube.MySlimBlock.ClearMaxDeformationCache();
             using (Stats.Generic.Measure("BeforeUpdate"))
             {
                 ProfilerShort.Begin("BeforeUpdate");
