@@ -87,6 +87,8 @@ namespace VRage.Game.Entity.UseObject
         bool HandleInput();
 
         void OnSelectionLost();
+
+        bool PlayIndicatorSound { get; }
     }
 
     public static class UseObjectExtensions

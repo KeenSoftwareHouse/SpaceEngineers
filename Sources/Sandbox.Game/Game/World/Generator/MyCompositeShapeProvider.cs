@@ -10,6 +10,7 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
 using VRage;
+using VRage.Collections;
 using VRage.Noise;
 using VRage.Noise.Combiners;
 using VRage.Voxels;
@@ -111,7 +112,7 @@ namespace Sandbox.Game.World.Generator
         }
 
         // Do NOT use! Work in progress which is likely to change, breaking all saves that use this.
-        private static MyCompositeShapeProvider CreatePlanetShape(int generatorEntry,
+        public static MyCompositeShapeProvider CreatePlanetShape(int generatorEntry,
             ref MyCsgShapePlanetShapeAttributes shapeAttributes,
             ref MyCsgShapePlanetHillAttributes hillAttributes,
             ref MyCsgShapePlanetHillAttributes canyonAttributes,
@@ -121,7 +122,7 @@ namespace Sandbox.Game.World.Generator
             result.m_state.Version = CURRENT_VERSION;
             result.m_state.Generator = generatorEntry;
             result.m_state.Seed = shapeAttributes.Seed;
-            result.m_state.Size = shapeAttributes.Radius;
+            result.m_state.Size = shapeAttributes.Diameter;
             result.m_state.IsPlanet = 1;
             result.m_materialLayers = materialLevels;
             result.m_shapeAttributes = shapeAttributes;
@@ -363,13 +364,13 @@ namespace Sandbox.Game.World.Generator
                     {
                         stream.WriteNoAlloc(m_materialLayers[i].StartHeight);
                         stream.WriteNoAlloc(m_materialLayers[i].EndHeight);
-                        stream.WriteNoAlloc(m_materialLayers[i].MaterialName);
                         stream.WriteNoAlloc(m_materialLayers[i].StartAngle);
                         stream.WriteNoAlloc(m_materialLayers[i].EndAngle);
                         stream.WriteNoAlloc(m_materialLayers[i].HeightStartDeviation);
                         stream.WriteNoAlloc(m_materialLayers[i].AngleStartDeviation);
                         stream.WriteNoAlloc(m_materialLayers[i].HeightEndDeviation);
                         stream.WriteNoAlloc(m_materialLayers[i].AngleEndDeviation);
+                        stream.WriteNoAlloc(m_materialLayers[i].MaterialDefinition.Id.SubtypeName);
                     }
                 }
                 else
@@ -382,7 +383,7 @@ namespace Sandbox.Game.World.Generator
                 stream.WriteNoAlloc(m_shapeAttributes.NoiseFrequency);
                 stream.WriteNoAlloc(m_shapeAttributes.DeviationScale);
                 stream.WriteNoAlloc(m_shapeAttributes.NormalNoiseFrequency);
-                stream.WriteNoAlloc(m_shapeAttributes.LayerDeviationNoiseFreqeuncy);
+                stream.WriteNoAlloc(m_shapeAttributes.LayerDeviationNoiseFrequency);
                 stream.WriteNoAlloc(m_shapeAttributes.LayerDeviationSeed);
 
                 stream.WriteNoAlloc(m_hillAttributes.BlendTreshold);
@@ -431,13 +432,13 @@ namespace Sandbox.Game.World.Generator
                     m_materialLayers[i] = new MyMaterialLayer();
                     m_materialLayers[i].StartHeight = stream.ReadFloat();
                     m_materialLayers[i].EndHeight = stream.ReadFloat();
-                    m_materialLayers[i].MaterialName = stream.ReadString();
                     m_materialLayers[i].StartAngle = stream.ReadFloat();
                     m_materialLayers[i].EndAngle = stream.ReadFloat();
                     m_materialLayers[i].HeightStartDeviation = stream.ReadFloat();
                     m_materialLayers[i].AngleStartDeviation = stream.ReadFloat();
                     m_materialLayers[i].HeightEndDeviation = stream.ReadFloat();
                     m_materialLayers[i].AngleEndDeviation = stream.ReadFloat();
+                    m_materialLayers[i].MaterialDefinition = MyDefinitionManager.Static.GetVoxelMaterialDefinition(stream.ReadString());
                 }
 
                 m_shapeAttributes.Seed = stream.ReadInt32();
@@ -445,8 +446,9 @@ namespace Sandbox.Game.World.Generator
                 m_shapeAttributes.NoiseFrequency = stream.ReadFloat();
                 m_shapeAttributes.DeviationScale = stream.ReadFloat();
                 m_shapeAttributes.NormalNoiseFrequency = stream.ReadFloat();
-                m_shapeAttributes.LayerDeviationNoiseFreqeuncy = stream.ReadFloat();
+                m_shapeAttributes.LayerDeviationNoiseFrequency = stream.ReadFloat();
                 m_shapeAttributes.LayerDeviationSeed = stream.ReadInt32();
+                m_shapeAttributes.Diameter = m_shapeAttributes.Radius * 2.0f;
 
                 m_hillAttributes.BlendTreshold = stream.ReadFloat();
                 m_hillAttributes.Treshold = stream.ReadFloat();
@@ -507,6 +509,40 @@ namespace Sandbox.Game.World.Generator
             // as even with the same seed I will get different results.
             // Ignoring for now.
         }
-        
+
+        public float GetDistanceToPoint(ref Vector3D localPosition)
+        {
+            float nearest = float.MaxValue;
+            Vector3 localFloat = (Vector3)localPosition;
+            for (int i = 0; i < m_data.FilledShapes.Length; ++i)
+            {
+                float current = m_data.FilledShapes[i].SignedDistanceUnchecked(ref localFloat, 1, m_data.MacroModule, m_data.DetailModule);
+                if (current < nearest)
+                {
+                    nearest = current;
+                }
+            }
+
+            return nearest;
+        }
+
+        public bool IsMaterialAtPositionSpawningFlora(ref Vector3D localPosition)
+        {
+            Vector3 localFloat = (Vector3)localPosition;
+            var materialDef = m_data.Deposits[0].GetMaterialForPosition(ref localFloat, 1);
+            return materialDef == null ?  m_data.DefaultMaterial.SpawnsFlora : materialDef.SpawnsFlora;
+        }
+
+        public bool HasMaterialSpawningFlora()
+        {
+            foreach (var deposit in m_data.Deposits)
+            {
+                if (deposit.SpawnsFlora())
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
     }
 }

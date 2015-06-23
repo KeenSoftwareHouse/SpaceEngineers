@@ -148,7 +148,7 @@ namespace Sandbox.Game.Gui
             var world = (MySteamWorkshop.SubscribedItem)selectedRow.UserData;
             if (world == null)
                 return;
-            MySteamWorkshop.CreateWorldInstanceAsync(world, delegate(bool success, string sessionPath)
+            MySteamWorkshop.CreateWorldInstanceAsync(world, MySteamWorkshop.MyWorkshopPathInfo.CreateWorldInfo(), false, delegate(bool success, string sessionPath)
             {
                 if (success)
                     MyGuiScreenLoadSandbox.LoadSingleplayerSession(sessionPath);

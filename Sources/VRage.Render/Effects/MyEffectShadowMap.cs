@@ -54,6 +54,8 @@ namespace VRageRender.Effects
 
         readonly EffectHandle m_clearTechnique;
 
+        public readonly MyEffectComponentVoxelVertex VoxelVertex;
+
         public MyEffectShadowMap()
             : base("Effects2\\Shadows\\MyEffectShadowMap")
         {
@@ -75,6 +77,7 @@ namespace VRageRender.Effects
             m_ditheringTexture = m_D3DEffect.GetParameter(null, "TextureDithering");
             m_ditheringTextureSize = m_D3DEffect.GetParameter(null, "TextureDitheringSize");
 
+            VoxelVertex = new MyEffectComponentVoxelVertex(m_D3DEffect);
 
             m_createShadowTerm2x2 = m_D3DEffect.GetTechnique("CreateShadowTerm2x2PCF");
             m_createShadowTerm3x3 = m_D3DEffect.GetTechnique("CreateShadowTerm3x3PCF");

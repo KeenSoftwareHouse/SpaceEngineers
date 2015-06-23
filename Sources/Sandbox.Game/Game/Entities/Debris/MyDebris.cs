@@ -108,6 +108,13 @@ namespace Sandbox.Game.Entities.Debris
 
         HkShape CreateShape(MyModel model, HkShapeType shapeType)
         {
+            if (model.HavokCollisionShapes != null && model.HavokCollisionShapes.Length > 0)
+            {
+                HkShape sh = model.HavokCollisionShapes[0];
+                sh.AddReference();
+                return sh;          
+            }
+
             switch(shapeType)
             {
                 case HkShapeType.Box:

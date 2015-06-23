@@ -11,6 +11,7 @@
       <RightGlare>GlareHeadlight</RightGlare>
       <LightGlareSize>0.02</LightGlareSize>
       <Skeleton>Humanoid</Skeleton>
+      <Stats>SpaceCharacterStats</Stats>
 	  
 	  
 		<!-- CHARACTER CONTROL -->
@@ -291,6 +292,8 @@
       <RightLightBone></RightLightBone>
       <LightGlareSize>0.02</LightGlareSize>
       <Skeleton>Humanoid</Skeleton>
+
+      <Stats>SpaceCharacterStats</Stats>
 				
 		<!-- CHARACTER CONTROL -->
 		<UseOnlyWalking>false</UseOnlyWalking>

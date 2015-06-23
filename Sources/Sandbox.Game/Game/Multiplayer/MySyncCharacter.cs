@@ -26,6 +26,7 @@ using SteamSDK;
 using VRage;
 using Sandbox.Game.Localization;
 using VRage.Library.Utils;
+using VRage.Audio;
 
 #endregion
 
@@ -112,6 +113,7 @@ namespace Sandbox.Game.Multiplayer
             public long GetEntityId() { return CharacterEntityId; }
 
             public Quaternion Orientation;
+            public Vector3D Position;
 
             public ushort ClientFrameId;
 
@@ -176,7 +178,7 @@ namespace Sandbox.Game.Multiplayer
             public long EntityId;
             public long GetEntityId() { return EntityId; }
 
-            public MyStringId SoundId;
+            public MyCueId SoundId;
 
             public override string ToString()
             {
@@ -488,17 +490,12 @@ namespace Sandbox.Game.Multiplayer
             sender.ClientFrameId = msg.ClientFrameId;
             sync.CachedMovementState = msg;
 
+            var matrix = MatrixD.CreateFromQuaternion(msg.Orientation);
+            matrix.Translation = msg.Position;
+            sync.Entity.WorldMatrix = matrix;
 
-            if (sync.Entity.GetCurrentMovementState() != MyCharacterMovementEnum.Sitting && !sync.Entity.IsDead)
-            {
-                // Set orientation
-                //var pos = sync.Entity.PositionComp.GetPosition();
-                //var m = Matrix.CreateFromQuaternion(msg.Orientation);
-                //m.Translation = pos;
-                //sync.Entity.WorldMatrix = m;
-
-                //((MyCharacter)sync.Entity).MoveAndRotate(msg.MoveIndicator, new Vector2(msg.RotationIndicator.X, msg.RotationIndicator.Y), msg.RotationIndicator.Z, msg.MovementFlags);
-            }
+            if (Sync.IsServer)
+                Sync.Layer.SendMessageToAllButOne(ref msg, sender.SteamUserId);            
         }
 
 
@@ -518,12 +515,14 @@ namespace Sandbox.Game.Multiplayer
                 msg.MoveIndicator = moveIndicator;
                 msg.RotationIndicator = rotationIndicator;
                 msg.MovementFlags = movementFlags;
+                msg.Orientation = Quaternion.CreateFromRotationMatrix(Entity.WorldMatrix);
+                msg.Position = Entity.WorldMatrix.Translation;
                 CachedMovementState = msg;
 
                 if (!Sync.IsServer)
                     Sync.Layer.SendMessageToServer(ref msg);
                 else
-                    Sync.Layer.SendMessageToAll(ref msg);
+                    Sync.Layer.SendMessageToAll(ref msg);            
             }
         }
 
@@ -567,7 +566,7 @@ namespace Sandbox.Game.Multiplayer
 
         #region Chat
         [ProtoContract]
-        [MessageId(7610, P2PMessageEnum.Reliable)]
+        [MessageId(7620, P2PMessageEnum.Reliable)]
         struct SendPlayerMessageMsg : IEntityMessage
         {
             [ProtoMember]
@@ -585,7 +584,7 @@ namespace Sandbox.Game.Multiplayer
         }
 
         [ProtoContract]
-        [MessageId(7611, P2PMessageEnum.Reliable)]
+        [MessageId(7621, P2PMessageEnum.Reliable)]
         struct SendNewFactionMessageMsg : IEntityMessage
         {
             [ProtoMember]
@@ -601,7 +600,7 @@ namespace Sandbox.Game.Multiplayer
         }
 
         [ProtoContract]
-        [MessageId(7613, P2PMessageEnum.Reliable)]
+        [MessageId(7623, P2PMessageEnum.Reliable)]
         struct ConfirmFactionMessageMsg : IEntityMessage
         {
             [ProtoMember]
@@ -623,7 +622,7 @@ namespace Sandbox.Game.Multiplayer
         }
 
         [ProtoContract]
-        [MessageId(7614, P2PMessageEnum.Reliable)]
+        [MessageId(7624, P2PMessageEnum.Reliable)]
         struct SendGlobalMessageMsg : IEntityMessage
         {
             [ProtoMember]
@@ -1026,7 +1025,7 @@ namespace Sandbox.Game.Multiplayer
             }
         }
 
-        internal void PlaySecondarySound(MyStringId soundId)
+        internal void PlaySecondarySound(MyCueId soundId)
         {
             var msg = new PlaySecondarySoundMsg()
             {

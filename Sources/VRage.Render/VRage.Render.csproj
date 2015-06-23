@@ -164,7 +164,6 @@
     <Compile Include="Graphics\SpriteSortMode.cs" />
     <Compile Include="MyRender-DrawMessages.cs" />
     <Compile Include="MyRender.cs" />
-    <Compile Include="MyRenderConstants.cs" />
     <Compile Include="MyRenderStats.cs" />
     <Compile Include="MySortedElements.Comparers.cs" />
     <Compile Include="MySortedElements.cs" />
@@ -274,7 +273,115 @@
       <Name>VRage.Math</Name>
     </ProjectReference>
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <None Include="Effects2\BackgroundCube\MyBackgroundCube.fxo" />
+    <None Include="Effects2\BackgroundCube\MyDistantImpostorEffect.fxo" />
+    <None Include="Effects2\Decals\MyDecalEffect.fxo" />
+    <None Include="Effects2\Fullscreen\MyEffectAmbientPrecalculation.fxo" />
+    <None Include="Effects2\Fullscreen\MyEffectAntiAlias.fxo" />
+    <None Include="Effects2\Fullscreen\MyEffectChromaticAberration.fxo" />
+    <None Include="Effects2\Fullscreen\MyEffectClearGbuffer.fxo" />
+    <None Include="Effects2\Fullscreen\MyEffectColorMapping.fxo" />
+    <None Include="Effects2\Fullscreen\MyEffectContrast.fxo" />
+    <None Include="Effects2\Fullscreen\MyEffectGaussianBlur.fxo" />
+    <None Include="Effects2\Fullscreen\MyEffectGodRays.fxo" />
+    <None Include="Effects2\Fullscreen\MyEffectScreenshot.fxo" />
+    <None Include="Effects2\Fullscreen\MyEffectVignetting.fxo" />
+    <None Include="Effects2\Fullscreen\MyEffectVolumetricFog.fxo" />
+    <None Include="Effects2\HDR\MyEffectHDR.fxo" />
+    <None Include="Effects2\HDR\MyEffectHDRBase.fxh" />
+    <None Include="Effects2\HDR\MyEffectLuminance.fxo" />
+    <None Include="Effects2\HDR\MyEffectScale.fxo" />
+    <None Include="Effects2\HDR\MyEffectThreshold.fxo" />
+    <None Include="Effects2\HUD\MyEffectCockpitGlass.fxo" />
+    <None Include="Effects2\HUD\MyHudEffect.fxo" />
+    <None Include="Effects2\HUD\MyHudRadarEffect.fxo" />
+    <None Include="Effects2\Lights\MyEffectBlendLights.fxo" />
+    <None Include="Effects2\Lights\MyEffectDirectionalLight.fxo" />
+    <None Include="Effects2\Lights\MyEffectPointLight.fxo" />
+    <None Include="Effects2\Models\MyEffectAtmosphere.fxo" />
+    <None Include="Effects2\Models\MyEffectModelsDiffuse.fxo" />
+    <None Include="Effects2\Models\MyEffectModelsDNS.fxo" />
+    <None Include="Effects2\Models\MyEffectOcclusionQueryDraw.fxo" />
+    <None Include="Effects2\Models\MyEffectRenderGizmo.fxo" />
+    <None Include="Effects2\MyEffectAtmosphereBase.fxh" />
+    <None Include="Effects2\MyEffectBase.fxh" />
+    <None Include="Effects2\MyEffectDynamicLightingBase.fxh" />
+    <None Include="Effects2\MyEffectInstanceBase.fxh" />
+    <None Include="Effects2\MyEffectReflectorBase.fxh" />
+    <None Include="Effects2\MyEffectShadowBase.fxh" />
+    <None Include="Effects2\MyEffectSpotShadowBase.fxh" />
+    <None Include="Effects2\MyEffectWorldPosition.fxh" />
+    <None Include="Effects2\MyPerlinNoise.fxh" />
+    <None Include="Effects2\Shadows\MyEffectShadowMap.fxo" />
+    <None Include="Effects2\Sprites\Macros.fxh" />
+    <None Include="Effects2\Sprites\SpriteEffect.fxo" />
+    <None Include="Effects2\SSAO\MyEffectDownsampleDepthForSSAO.fxo" />
+    <None Include="Effects2\SSAO\MyEffectSSAO3.fxo" />
+    <None Include="Effects2\SSAO\MyEffectSSAOBlur2.fxo" />
+    <None Include="Effects2\SSAO\MyEffectVolumetricSSAO2.fxo" />
+    <None Include="Effects2\TransparentGeometry\MyEffectTransparentGeometry.fxo" />
+    <None Include="Effects2\Voxels\MyEffectVoxels.fxo" />
+    <None Include="Effects2\Voxels\MyEffectVoxelsBase.fxh" />
+    <None Include="Effects2\Voxels\MyEffectVoxelVertex.fxh" />
+    <None Include="Effects2\Voxels\MyEffectVoxelsDebris.fxo" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Effects2\BackgroundCube\MyBackgroundBillboards.fx" />
+    <Content Include="Effects2\BackgroundCube\MyBackgroundCube.fx" />
+    <Content Include="Effects2\BackgroundCube\MyDistantImpostorEffect.fx" />
+    <Content Include="Effects2\BackgroundCube\MyHudSectorBorder.fx" />
+    <Content Include="Effects2\Decals\MyDecalEffect.fx" />
+    <Content Include="Effects2\Fullscreen\MyEffectAmbientPrecalculation.fx" />
+    <Content Include="Effects2\Fullscreen\MyEffectAntiAlias.fx" />
+    <Content Include="Effects2\Fullscreen\MyEffectChromaticAberration.fx" />
+    <Content Include="Effects2\Fullscreen\MyEffectClearGbuffer.fx" />
+    <Content Include="Effects2\Fullscreen\MyEffectColorMapping.fx" />
+    <Content Include="Effects2\Fullscreen\MyEffectContrast.fx" />
+    <Content Include="Effects2\Fullscreen\MyEffectGaussianBlur.fx" />
+    <Content Include="Effects2\Fullscreen\MyEffectGodRays.fx" />
+    <Content Include="Effects2\Fullscreen\MyEffectLodTransition2.fx" />
+    <Content Include="Effects2\Fullscreen\MyEffectScreenshot.fx" />
+    <Content Include="Effects2\Fullscreen\MyEffectVignetting.fx" />
+    <Content Include="Effects2\Fullscreen\MyEffectVolumetricFog.fx" />
+    <Content Include="Effects2\HDR\MyEffectHDR.fx" />
+    <Content Include="Effects2\HDR\MyEffectLuminance.fx" />
+    <Content Include="Effects2\HDR\MyEffectScale.fx" />
+    <Content Include="Effects2\HDR\MyEffectSunGlare.fx" />
+    <Content Include="Effects2\HDR\MyEffectThreshold.fx" />
+    <Content Include="Effects2\HUD\MyEffectCockpitGlass.fx" />
+    <Content Include="Effects2\HUD\MyHudEffect.fx" />
+    <Content Include="Effects2\HUD\MyHudRadarEffect.fx" />
+    <Content Include="Effects2\Lights\MyEffectBlendLights.fx" />
+    <Content Include="Effects2\Lights\MyEffectDirectionalLight.fx" />
+    <Content Include="Effects2\Lights\MyEffectPointLight.fx" />
+    <Content Include="Effects2\Models\MyEffectAtmosphere.fx" />
+    <Content Include="Effects2\Models\MyEffectModelsDiffuse.fx" />
+    <Content Include="Effects2\Models\MyEffectModelsDNS.fx" />
+    <Content Include="Effects2\Models\MyEffectOcclusionQueryDraw.fx" />
+    <Content Include="Effects2\Models\MyEffectRenderGizmo.fx" />
+    <Content Include="Effects2\MyEffectLights.fx" />
+    <Content Include="Effects2\MyEffectLodTransition.fx" />
+    <Content Include="Effects2\MyEffectModelsDS.fx" />
+    <Content Include="Effects2\Shadows\MyEffectShadowMap.fx" />
+    <Content Include="Effects2\Shadows\MyEffectShadowOcclusion.fx" />
+    <Content Include="Effects2\Sprites\SpriteEffect.fx" />
+    <Content Include="Effects2\SSAO\MyEffectDownsampleDepthForSSAO.fx" />
+    <Content Include="Effects2\SSAO\MyEffectSSAO.fx" />
+    <Content Include="Effects2\SSAO\MyEffectSSAO2.fx" />
+    <Content Include="Effects2\SSAO\MyEffectSSAO3.fx" />
+    <Content Include="Effects2\SSAO\MyEffectSSAOBlur.fx" />
+    <Content Include="Effects2\SSAO\MyEffectSSAOBlur2.fx" />
+    <Content Include="Effects2\SSAO\MyEffectVolumetricSSAO.fx" />
+    <Content Include="Effects2\SSAO\MyEffectVolumetricSSAO2.fx" />
+    <Content Include="Effects2\TransparentGeometry\MyEffectTransparentGeometry.fx" />
+    <Content Include="Effects2\Voxels\MyEffectCube.fx" />
+    <Content Include="Effects2\Voxels\MyEffectVoxels.fx" />
+    <Content Include="Effects2\Voxels\MyEffectVoxelsDebris.fx" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Effects2\Toolkit\" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

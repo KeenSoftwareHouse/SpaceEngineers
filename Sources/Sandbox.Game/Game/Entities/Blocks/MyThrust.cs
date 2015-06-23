@@ -384,8 +384,14 @@ namespace Sandbox.Game.Entities
 
                         if (entity is IMyDestroyableObject)
                             (entity as IMyDestroyableObject).DoDamage(flameInfo.Radius * m_thrustDefinition.FlameDamage * 10, MyDamageType.Environment, true);
-                        else if (entity is MyCubeGrid && MySession.Static.DestructibleBlocks)
-                            DamageGrid(flameInfo, l, entity as MyCubeGrid);
+                        else if (entity is MyCubeGrid)
+                        {
+                            var grid = entity as MyCubeGrid;
+                            if (grid.BlocksDestructionEnabled)
+                            {
+                                DamageGrid(flameInfo, l, grid);
+                            }
+                        }
                     }
                     m_damagedEntities.Clear();
                     m_flameCollisionsList.Clear();

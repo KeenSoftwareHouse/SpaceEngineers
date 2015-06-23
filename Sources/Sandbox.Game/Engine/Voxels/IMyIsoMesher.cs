@@ -3,6 +3,7 @@ using VRage.Voxels;
 using VRage.Native;
 using VRageMath;
 using VRageRender;
+using System.Diagnostics;
 
 namespace Sandbox.Engine.Voxels
 {
@@ -35,7 +36,7 @@ namespace Sandbox.Engine.Voxels
         }
 
         public Vector3 PositionScale;
-        public Vector3 PositionOffset;
+        public Vector3D PositionOffset;
 
         void IMyIsoMesherOutputBuffer.Reserve(int vertexCount, int triangleCount)
         {
@@ -63,6 +64,7 @@ namespace Sandbox.Engine.Voxels
 
         void IMyIsoMesherOutputBuffer.WriteVertex(ref Vector3I cell, ref Vector3 position, ref Vector3 normal, byte material)
         {
+            Debug.Assert(position.IsInsideInclusive(ref Vector3.MinusOne, ref Vector3.One));
             Positions.Add(position);
             Normals.Add(normal);
             Materials.Add(material);

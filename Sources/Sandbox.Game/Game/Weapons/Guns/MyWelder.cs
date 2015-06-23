@@ -24,7 +24,7 @@ using VRage.ObjectBuilders;
 namespace Sandbox.Game.Weapons
 {
     [MyEntityType(typeof(MyObjectBuilder_Welder))]
-    class MyWelder : MyEngineerToolBase
+    public class MyWelder : MyEngineerToolBase
     {
         private static MySoundPair IDLE_SOUND = new MySoundPair("ToolPlayWeldIdle");
         private static MySoundPair METAL_SOUND = new MySoundPair("ToolPlayWeldMetal");
@@ -150,6 +150,7 @@ namespace Sandbox.Game.Weapons
             {
                 var info = block.ComponentStack.GetGroupInfo(i);
                 var component = new MyHudBlockInfo.ComponentInfo();
+                component.DefinitionId = info.Component.Id;
                 component.ComponentName = info.Component.DisplayNameText;
                 component.Icon = info.Component.Icon;
                 component.TotalCount = info.TotalCount;

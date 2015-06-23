@@ -5,7 +5,7 @@ using Sandbox.Common.ObjectBuilders;
 using Sandbox.Common.ObjectBuilders.Definitions;
 
 
-namespace Medieval.ObjectBuilders.Definitions
+namespace VRage.ObjectBuilders.Definitions
 {
     [ProtoContract]
     [MyObjectBuilderDefinition]

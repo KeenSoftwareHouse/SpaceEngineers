@@ -24,7 +24,7 @@ namespace Sandbox.Game.AI.BehaviorTree
         public MyPerTreeBotMemory()
         {
             m_nodesMemory = new List<MyBehaviorTreeNodeMemory>(20);
-            m_blackboardMemory = new Dictionary<MyStringId, MyBBMemoryValue>(20);
+            m_blackboardMemory = new Dictionary<MyStringId, MyBBMemoryValue>(20, MyStringId.Comparer);
         }
 
         public void AddNodeMemory(MyBehaviorTreeNodeMemory nodeMemory)

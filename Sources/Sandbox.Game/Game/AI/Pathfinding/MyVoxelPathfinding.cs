@@ -17,7 +17,7 @@ namespace Sandbox.Game.AI.Pathfinding
     {
         public struct CellId
         {
-            public MyVoxelMap VoxelMap;
+            public MyVoxelBase VoxelMap;
             public Vector3I Pos;
 
             public override bool Equals(object obj)
@@ -38,10 +38,10 @@ namespace Sandbox.Game.AI.Pathfinding
         private int m_updateCtr;
         private const int UPDATE_PERIOD = 5;
 
-        private Dictionary<MyVoxelMap, MyVoxelNavigationMesh> m_navigationMeshes;
+        private Dictionary<MyVoxelBase, MyVoxelNavigationMesh> m_navigationMeshes;
 
         private List<Vector3D> m_tmpUpdatePositions;
-        private List<MyVoxelMap> m_tmpVoxelMaps;
+        private List<MyVoxelBase> m_tmpVoxelMaps;
         private List<MyVoxelNavigationMesh> m_tmpNavmeshes;
 
         private MyNavmeshCoordinator m_coordinator;
@@ -52,9 +52,9 @@ namespace Sandbox.Game.AI.Pathfinding
         {
             MyEntities.OnEntityAdd += MyEntities_OnEntityAdd;
 
-            m_navigationMeshes = new Dictionary<MyVoxelMap, MyVoxelNavigationMesh>();
+            m_navigationMeshes = new Dictionary<MyVoxelBase, MyVoxelNavigationMesh>();
             m_tmpUpdatePositions = new List<Vector3D>(8);
-            m_tmpVoxelMaps = new List<MyVoxelMap>();
+            m_tmpVoxelMaps = new List<MyVoxelBase>();
             m_tmpNavmeshes = new List<MyVoxelNavigationMesh>();
             m_coordinator = coordinator;
             coordinator.SetVoxelPathfinding(this);

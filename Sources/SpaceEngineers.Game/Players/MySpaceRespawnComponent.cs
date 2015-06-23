@@ -28,6 +28,7 @@ using VRage.Library.Utils;
 using VRage.Utils;
 using VRageMath;
 using VRageRender;
+using Sandbox.Game.SessionComponents;
 
 namespace SpaceEngineers.Game.Players
 {
@@ -398,6 +399,9 @@ namespace SpaceEngineers.Game.Players
             bool spawnAsNewPlayer = newIdentity || player == null;
             Debug.Assert(player == null || player.Identity != null, "Respawning player has no identity!");
 
+            if (!MySessionComponentMissionTriggers.CanRespawn(playerId))
+                return false;
+
             Vector3D currentPosition = Vector3D.Zero;
             if (player != null && player.Character != null) currentPosition = player.Character.PositionComp.GetPosition();
 
@@ -470,6 +474,7 @@ namespace SpaceEngineers.Game.Players
             {
                 Matrix matrix = medical.GetSpawnPosition();
                 player.SpawnAt(matrix, medical.Parent.Physics.LinearVelocity, false);
+                medical.TryTakeSpawneeOwnership(player);
             }
             else if (joiningGame)
             {

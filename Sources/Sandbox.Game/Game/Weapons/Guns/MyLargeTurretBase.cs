@@ -1,43 +1,36 @@
 ﻿#region Using
-using System;
 using Sandbox.Common;
-
 using Sandbox.Common.ObjectBuilders;
 using Sandbox.Common.ObjectBuilders.Definitions;
+using Sandbox.Definitions;
 using Sandbox.Engine.Physics;
 using Sandbox.Engine.Utils;
-using Sandbox.Game.Debugging;
 using Sandbox.Game.Entities;
+using Sandbox.Game.Entities.Blocks;
 using Sandbox.Game.Entities.Character;
 using Sandbox.Game.Entities.Cube;
+using Sandbox.Game.Entities.UseObject;
+using Sandbox.Game.GameSystems;
 using Sandbox.Game.GameSystems.Electricity;
 using Sandbox.Game.Gui;
-using Sandbox.Game.Screens;
+using Sandbox.Game.GUI;
+using Sandbox.Game.Localization;
+using Sandbox.Game.Multiplayer;
+using Sandbox.Game.Screens.Helpers;
+using Sandbox.Game.Screens.Terminal.Controls;
 using Sandbox.Game.World;
 using Sandbox.Graphics;
-using VRage.Utils;
-using VRageMath;
-using Sandbox.Definitions;
+using System;
 using System.Collections.Generic;
 using System.Text;
-using Sandbox.Graphics.GUI;
-using System.Reflection;
-using Sandbox.Game.Multiplayer;
-using Sandbox.Game.Entities.Blocks;
-using Sandbox.Game.Screens.Terminal.Controls;
-using Sandbox.ModAPI;
-
-using Sandbox.Game.GameSystems;
-using Sandbox.Game.GUI;
-using IMyCameraController = Sandbox.ModAPI.Interfaces.IMyCameraController;
-using VRage.Import;
-using Sandbox.ModAPI.Ingame;
-using IMyDestroyableObject = Sandbox.ModAPI.Interfaces.IMyDestroyableObject;
-using Sandbox.Game.Localization;
-using Sandbox.Game.Entities.UseObject;
-using VRage.ModAPI;
 using VRage.Components;
 using VRage.Game.Entity.UseObject;
+using VRage.Import;
+using VRage.ModAPI;
+using VRage.Utils;
+using VRageMath;
+using IMyCameraController = Sandbox.ModAPI.Interfaces.IMyCameraController;
+using IMyDestroyableObject = Sandbox.ModAPI.Interfaces.IMyDestroyableObject;
 
 #endregion
 
@@ -65,6 +58,7 @@ namespace Sandbox.Game.Weapons
 
             Vector3D GetPredictedTargetPosition(IMyEntity entity);
         }
+		public bool IsDeconstructor { get { return false; } }
 
         class MyTargetPredictionType : IMyPredicionType
         {
@@ -1243,7 +1237,7 @@ namespace Sandbox.Game.Weapons
             m_laserLength = m_searchingRange;
             Havok.HkRigidBody entity=null;
             if (!MySandboxGame.IsDedicated)
-                entity = MyPhysics.CastRay(from, to, out m_hitPosition, out normal);
+            //    entity = MyPhysics.CastRay(from, to, out m_hitPosition, out normal);
             if (entity == null)
                 m_hitPosition = to;
             else
@@ -2945,10 +2939,15 @@ namespace Sandbox.Game.Weapons
             get { return false; }
         }
 
-        public void SwitchToWeapon(MyDefinitionId? weaponDefinition)
+        public void SwitchToWeapon(MyDefinitionId weaponDefinition)
         {
 
         }
+
+		public void SwitchToWeapon(MyToolbarItemWeapon weapon)
+		{
+		}
+
         public bool CanSwitchToWeapon(MyDefinitionId? weaponDefinition)
         {
             return false;

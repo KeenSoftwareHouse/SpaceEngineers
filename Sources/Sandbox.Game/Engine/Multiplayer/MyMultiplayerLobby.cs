@@ -153,12 +153,12 @@ namespace Sandbox.Engine.Multiplayer
         public override string ScenarioBriefing
         {
             get { return Lobby.GetLobbyData(MyMultiplayer.ScenarioBriefingTag); }
-            set { Lobby.SetLobbyData(MyMultiplayer.ScenarioBriefingTag, value); }
+            set { Lobby.SetLobbyData(MyMultiplayer.ScenarioBriefingTag, value??" "); }
         }
 
         public override DateTime ScenarioStartTime
         {
-            get { return GetLobbyDateTime(MyMultiplayer.ScenarioStartTimeTag, Lobby, DateTime.UtcNow); }
+            get { return GetLobbyDateTime(MyMultiplayer.ScenarioStartTimeTag, Lobby, DateTime.MinValue); }
             set { Lobby.SetLobbyData(MyMultiplayer.ScenarioStartTimeTag, value.ToString(CultureInfo.InvariantCulture)); }
         }
 
@@ -172,6 +172,12 @@ namespace Sandbox.Engine.Multiplayer
         {
             get { return GetLobbyBool(MyMultiplayer.BattleCanBeJoinedTag, Lobby, false); }
             set { Lobby.SetLobbyData(MyMultiplayer.BattleCanBeJoinedTag, value.ToString()); }
+        }
+
+        public override ulong BattleWorldWorkshopId
+        {
+            get { return GetLobbyULong(MyMultiplayer.BattleWorldWorkshopIdTag, Lobby, 0); }
+            set { Lobby.SetLobbyData(MyMultiplayer.BattleWorldWorkshopIdTag, value.ToString()); }
         }
 
         public override int BattleFaction1MaxBlueprintPoints
@@ -296,13 +302,24 @@ namespace Sandbox.Engine.Multiplayer
                     MyTrace.Send(TraceWindow.Multiplayer, "Player entered");
                     Peer2Peer.AcceptSession(changedUser);
 
-                    RaiseClientJoined(changedUser);
+                    // When some clients connect at the same time then some of them can have already added clients 
+                    // (see function MySyncLayer.RegisterClientEvents which registers all Members in Lobby).
+                    if (Sync.Clients == null || !Sync.Clients.HasClient(changedUser))
+                        RaiseClientJoined(changedUser);
 
                     if (MySandboxGame.IsGameReady && changedUser != ServerId)
                     {
-                        var playerJoined = new MyHudNotification(MySpaceTexts.NotificationClientConnected, 5000, level: MyNotificationLevel.Important);
-                        playerJoined.SetTextFormatArguments(MySteam.API.Friends.GetPersonaName(changedUser));
-                        MyHud.Notifications.Add(playerJoined);
+                        // Player is able to connect to the battle which already started - player is then kicked and we do not want to show connected message in HUD.
+                        bool showMsg = true;
+                        if (MyFakes.ENABLE_BATTLE_SYSTEM && MySession.Static != null && MySession.Static.Battle && !BattleCanBeJoined)
+                            showMsg = false;
+
+                        if (showMsg)
+                        {
+                            var playerJoined = new MyHudNotification(MySpaceTexts.NotificationClientConnected, 5000, level: MyNotificationLevel.Important);
+                            playerJoined.SetTextFormatArguments(MySteam.API.Friends.GetPersonaName(changedUser));
+                            MyHud.Notifications.Add(playerJoined);
+                        }
                     }
                 }
                 else
@@ -561,6 +578,15 @@ namespace Sandbox.Engine.Multiplayer
                 return defValue;
         }
 
+        public static ulong GetLobbyULong(string key, Lobby lobby, ulong defValue)
+        {
+            ulong val;
+            if (ulong.TryParse(lobby.GetLobbyData(key), out val))
+                return val;
+            else
+                return defValue;
+        }
+
         public static bool GetLobbyBool(string key, Lobby lobby, bool defValue)
         {
             bool val;
@@ -665,6 +691,16 @@ namespace Sandbox.Engine.Multiplayer
         public static bool GetLobbyBattleCanBeJoined(Lobby lobby)
         {
             return GetLobbyBool(MyMultiplayer.BattleCanBeJoinedTag, lobby, false);
+        }
+
+        public static long GetLobbyBattleFaction1Id(Lobby lobby)
+        {
+            return GetLobbyLong(MyMultiplayer.BattleFaction1IdTag, lobby, 0);
+        }
+
+        public static long GetLobbyBattleFaction2Id(Lobby lobby)
+        {
+            return GetLobbyLong(MyMultiplayer.BattleFaction2IdTag, lobby, 0);
         }
 
         public override string GetMemberName(ulong steamUserID)

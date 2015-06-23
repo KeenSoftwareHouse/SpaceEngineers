@@ -281,7 +281,7 @@ namespace Sandbox.Game.Entities.Cube
             UpdateEmissivity();
         }
 
-        internal override void ContactPointCallback(ref MyGridContactInfo info)
+        public override void ContactPointCallback(ref MyGridContactInfo info)
         {
             if (info.CollidingEntity != null && m_attachedTo == info.CollidingEntity)
             {

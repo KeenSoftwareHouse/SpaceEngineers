@@ -111,7 +111,7 @@ void write_shadow(
     	result /= PoissonSamplesNum;
     }
     else {
-    	result = CSM.SampleCmpLevelZero(ShadowmapSampler, float3(lpos.xy, c_id), lpos.z);
+    	result = CSM.SampleCmpLevelZero(ShadowmapSampler, float3(lpos.xy, c_id), lpos.z) + any(saturate(lpos.xy) != (lpos.xy));
     }
 
    	Output[Texel] = result;
@@ -140,7 +140,7 @@ void blur(uint3 dispatchThreadID : SV_DispatchThreadID) {
 			float sample = Shadow[Texel + float2(i, 0)];
 			#endif
 
-			result += sample * gaussian_weigth(i, 2);
+			result += sample * gaussian_weigth(i, 1.5);
 		}
 		#ifdef VERTICAL
 		result = pow(result, 2);

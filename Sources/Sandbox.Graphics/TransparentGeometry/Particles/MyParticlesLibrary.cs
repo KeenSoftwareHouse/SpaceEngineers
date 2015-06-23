@@ -59,6 +59,11 @@ namespace Sandbox.Graphics.TransparentGeometry.Particles
             return m_libraryEffects.ContainsKey(ID);
         }
 
+        public static MyParticleEffect GetParticleEffect(int particleEffectID)
+        {
+            return m_libraryEffects[particleEffectID];
+        }
+
         public static void UpdateParticleEffectID(int ID)
         {
             MyParticleEffect effect;
@@ -91,6 +96,11 @@ namespace Sandbox.Graphics.TransparentGeometry.Particles
         public static IEnumerable<MyParticleEffect> GetParticleEffects()
         {
             return m_libraryEffects.Values;
+        }
+
+        public static IEnumerable<int> GetParticleEffectsIDs()
+        {
+            return m_libraryEffects.Keys;
         }
 
         #region Serialization

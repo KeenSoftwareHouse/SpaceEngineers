@@ -73,6 +73,8 @@ namespace Sandbox.Graphics.GUI
 
         //Fields
         protected float m_transitionAlpha;
+        protected float m_backgroundTransition;
+        protected float m_guiTransition;
         private MyGuiControls m_controls;
         protected Vector2 m_position;
         protected Color m_backgroundFadeColor;
@@ -136,7 +138,7 @@ namespace Sandbox.Graphics.GUI
 
         protected readonly MyGuiControls Elements;
 
-        /// <summary>
+		/// <summary>
         /// Used for when an inherited class wants to control when elements are rendered.  Useful for draw layering control.
         /// </summary>
         protected bool OverrideDrawElements;
@@ -168,7 +170,9 @@ namespace Sandbox.Graphics.GUI
             Vector4? backgroundColor = null,
             Vector2? size = null,
             bool isTopMostScreen = false,
-            string backgroundTexture = null)
+            string backgroundTexture = null, 
+            float backgroundTransition = 0.0f,
+            float guiTransition = 0.0f)
         {
             m_controls = new MyGuiControls(this);
             m_backgroundFadeColor = Color.White;
@@ -184,6 +188,8 @@ namespace Sandbox.Graphics.GUI
             m_backgroundTexture = backgroundTexture;
 
             Elements = new MyGuiControls(this);
+            m_backgroundTransition = backgroundTransition;
+            m_guiTransition = guiTransition;
             CreateCloseButton();
             SetDefaultCloseButtonOffset();
         }
@@ -877,7 +883,7 @@ namespace Sandbox.Graphics.GUI
                     }
                 }
 
-                MyGuiManager.DrawSpriteBatch(m_backgroundTexture, m_position, m_size.Value, ApplyTransitionAlpha(m_backgroundColor.Value), MyGuiDrawAlignEnum.HORISONTAL_CENTER_AND_VERTICAL_CENTER);
+                MyGuiManager.DrawSpriteBatch(m_backgroundTexture, m_position, m_size.Value, ApplyTransitionAlpha(m_backgroundColor.Value, m_guiTransition != 0 ? m_backgroundTransition : m_transitionAlpha), MyGuiDrawAlignEnum.HORISONTAL_CENTER_AND_VERTICAL_CENTER);
 
                 //if (MyFakes.DRAW_GUI_SCREEN_BORDERS && MyFinalBuildConstants.IS_DEBUG)
                 //{
@@ -885,43 +891,43 @@ namespace Sandbox.Graphics.GUI
                 //}
             }
 
-            // Check if we should draw the screen elements or if an inherited class is taking care of that
+	        // Check if we should draw the screen elements or if an inherited class is taking care of that
             if (this.OverrideDrawElements == false)
             {
                 // We should handle the drawing
-                DrawElements(m_transitionAlpha);
-            }
+				this.DrawElements(m_guiTransition != 0 ? m_guiTransition : m_transitionAlpha, m_guiTransition != 0 ? m_backgroundTransition : m_transitionAlpha);
+	        }
 
-            // Check if we should draw the screen controls or if an inherited class is taking care of that
-            if (this.OverrideDrawControls == false)
-            {
-                // We should handle the drawing
-                DrawControls(m_transitionAlpha);
-            }
+			// Check if we should draw the screen controls or if an inherited class is taking care of that
+	        if (this.OverrideDrawControls == false)
+	        {
+		        // We should handle the drawing
+				this.DrawControls(m_guiTransition != 0 ? m_guiTransition : m_transitionAlpha, m_guiTransition != 0 ? m_backgroundTransition : m_transitionAlpha);
+	        }
 
-            return true;
+	        return true;
         }
 
-        protected void DrawElements()
+		protected void DrawElements()
         {
-            this.DrawElements(m_transitionAlpha);
+            this.DrawElements(m_guiTransition == 0 ? m_transitionAlpha : m_guiTransition, m_guiTransition == 0 ? m_transitionAlpha : m_backgroundTransition);
         }
 
-        private void DrawElements(float transitionAlpha)
+        private void DrawElements(float transitionAlpha, float backgroundTransitionAlpha)
         {
             foreach (var element in Elements)
             {
                 if (element.Visible)
-                    element.Draw(transitionAlpha);
+                    element.Draw(transitionAlpha, backgroundTransitionAlpha);
             }
         }
 
-        protected void DrawControls()
-        {
-            this.DrawControls(m_transitionAlpha);
-        }
+		protected void DrawControls()
+		{
+			this.DrawControls(m_guiTransition == 0 ? m_transitionAlpha : m_guiTransition, m_guiTransition == 0 ? m_transitionAlpha : m_backgroundTransition);
+		}
 
-        private void DrawControls(float transitionAlpha)
+        private void DrawControls(float transitionAlpha, float backgroundTransitionAlpha)
         {
             //  Then draw all screen controls, except opened combobox and drag and drop - must be drawn as last
             // foreach (MyGuiControlBase control in Controls.GetVisibleControls())  //dont use this - allocations
@@ -932,7 +938,7 @@ namespace Sandbox.Graphics.GUI
                 if (control != m_comboboxHandlingNow && control != m_listboxDragAndDropHandlingNow)
                 {
                     //if (MySandboxGame.IsPaused && !control.DrawWhilePaused) continue;
-                    control.Draw(transitionAlpha);
+                    control.Draw(transitionAlpha, backgroundTransitionAlpha);
                 }
             }
 
@@ -940,12 +946,12 @@ namespace Sandbox.Graphics.GUI
 
             if (m_comboboxHandlingNow != null)
             {
-                m_comboboxHandlingNow.Draw(transitionAlpha);
+                m_comboboxHandlingNow.Draw(transitionAlpha, backgroundTransitionAlpha);
             }
 
             if (m_listboxDragAndDropHandlingNow != null)
             {
-                m_listboxDragAndDropHandlingNow.Draw(transitionAlpha);
+                m_listboxDragAndDropHandlingNow.Draw(transitionAlpha, backgroundTransitionAlpha);
             }
 
             // draw tooltips only when screen has focus
@@ -1094,10 +1100,10 @@ namespace Sandbox.Graphics.GUI
         }
 
         //  Changes color according to transition alpha, this when opening the screen - it from 100% transparent to 100% opaque. When closing it's opposite.
-        protected Color ApplyTransitionAlpha(Vector4 color)
+        protected Color ApplyTransitionAlpha(Vector4 color, float transition)
         {
             Vector4 ret = color;
-            ret.W *= m_transitionAlpha;
+            ret.W *= transition;
             return new Color(ret);
         }
 
