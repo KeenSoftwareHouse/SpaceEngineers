@@ -23,7 +23,6 @@ namespace Sandbox.Engine.Multiplayer
             public string Value;
         }
 
-
         private readonly Dictionary<MyStringHash, string> m_mapKeyToValue = new Dictionary<MyStringHash, string>(MyStringHash.Comparer);
 
         private static readonly MyStringHash BattleCanBeJoinedTagHash = MyStringHash.GetOrCompute(MyMultiplayer.BattleCanBeJoinedTag);
@@ -223,6 +222,27 @@ namespace Sandbox.Engine.Multiplayer
             return defValue;
         }
 
+        public void LoadData(List<KeyValueDataMsg> keyValueList)
+        {
+            foreach (var keyValue in keyValueList)
+            {
+                m_mapKeyToValue[keyValue.Key] = keyValue.Value;
+            }
+        }
+
+        public List<KeyValueDataMsg> SaveData()
+        {
+            List<KeyValueDataMsg> keyValueList = new List<KeyValueDataMsg>();
+            foreach (var pair in m_mapKeyToValue)
+            {
+                KeyValueDataMsg keyValue = new KeyValueDataMsg();
+                keyValue.Key = pair.Key;
+                keyValue.Value = pair.Value;
+                keyValueList.Add(keyValue);
+            }
+
+            return keyValueList;
+        }
 
     }
 }

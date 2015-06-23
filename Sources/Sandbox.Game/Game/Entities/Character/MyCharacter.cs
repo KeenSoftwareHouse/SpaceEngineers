@@ -5158,6 +5158,9 @@ namespace Sandbox.Game.Entities.Character
             if (m_currentMovementState == MyCharacterMovementEnum.Sitting)
                 return;
 
+            if (!MySession.Static.Settings.EnableJetpack)
+                enable = false;
+
             if (!m_characterDefinition.JetpackAvailable)
                 enable = false;
 

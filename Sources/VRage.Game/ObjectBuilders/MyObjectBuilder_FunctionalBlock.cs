@@ -14,12 +14,5 @@ namespace Sandbox.Common.ObjectBuilders
     {
         [ProtoMember]
         public bool Enabled = true; // Can by overriden by subclasses in constructor, which is why there is no attribute DefaultValue.
-
-        public override void SetupForProjector()
-        {
-            base.SetupForProjector();
-
-            Enabled = false;
-        }
     }
 }

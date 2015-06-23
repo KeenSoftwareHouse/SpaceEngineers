@@ -144,20 +144,41 @@ namespace Sandbox.Game.Gui
 
             multiplayer.SendPlayerData(MySteam.UserName);
 
-            StringBuilder text = MyTexts.Get(MySpaceTexts.DialogTextJoiningWorld);
+            string gamemode = server.GetGameTagByPrefix("gamemode");
+            if (MyFakes.ENABLE_BATTLE_SYSTEM && gamemode == "B")
+            {
+                StringBuilder text = MyTexts.Get(MySpaceTexts.DialogTextJoiningBattleLobby);
 
-            MyGuiScreenProgress progress = new MyGuiScreenProgress(text, MySpaceTexts.Cancel);
-            MyGuiSandbox.AddScreen(progress);
-            progress.ProgressCancelled += () =>
+                MyGuiScreenProgress progress = new MyGuiScreenProgress(text, MySpaceTexts.Cancel);
+                MyGuiSandbox.AddScreen(progress);
+                progress.ProgressCancelled += () =>
                 {
                     multiplayer.Dispose();
                     MyGuiScreenMainMenu.ReturnToMainMenu();
                 };
 
-            multiplayer.OnJoin += delegate
+                multiplayer.OnJoin += delegate
+                {
+                    MyJoinGameHelper.OnJoinBattle(progress, SteamSDK.Result.OK, new LobbyEnterInfo() { EnterState = LobbyEnterResponseEnum.Success }, multiplayer);
+                };
+            }
+            else
             {
-                MyJoinGameHelper.OnJoin(progress, SteamSDK.Result.OK, new LobbyEnterInfo() { EnterState = LobbyEnterResponseEnum.Success }, multiplayer);
-            };
+                StringBuilder text = MyTexts.Get(MySpaceTexts.DialogTextJoiningWorld);
+
+                MyGuiScreenProgress progress = new MyGuiScreenProgress(text, MySpaceTexts.Cancel);
+                MyGuiSandbox.AddScreen(progress);
+                progress.ProgressCancelled += () =>
+                {
+                    multiplayer.Dispose();
+                    MyGuiScreenMainMenu.ReturnToMainMenu();
+                };
+
+                multiplayer.OnJoin += delegate
+                {
+                    MyJoinGameHelper.OnJoin(progress, SteamSDK.Result.OK, new LobbyEnterInfo() { EnterState = LobbyEnterResponseEnum.Success }, multiplayer);
+                };
+            }
         }
 
         public static void JoinGame(ulong lobbyId)

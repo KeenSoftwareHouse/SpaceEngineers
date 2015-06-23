@@ -605,5 +605,10 @@ namespace Sandbox.Graphics.GUI
             m_internalArea.Size = Size - padding.SizeChange;
             Size = size;
         }
+
+        public void SetStyle(StyleDefinition buttonStyle)
+        {
+            m_styleDef = buttonStyle;
+        }
     }
 }

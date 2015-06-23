@@ -391,7 +391,7 @@ namespace Sandbox.Game.Multiplayer
 
             MyMultiplayer.Static.RegisterForTick(this);
 
-            Debug.Assert(Entity.PositionComp != null, "Entity doesn't not have position in world matrix");
+            Debug.Assert(Entity.PositionComp != null, "Entity doesn't not have position component");
             if (Entity.PositionComp != null)
                 Entity.PositionComp.SetWorldMatrix(m_interpolator.TargetMatrix, this);
 
