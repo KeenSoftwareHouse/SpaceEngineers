@@ -16,6 +16,16 @@ namespace Sandbox.Graphics.GUI
         private float[] m_prefixScanY;
         private const float BORDER = 0.005f;
 
+        public Vector2 GetCellSize(int row, int col, int colSpan = 1, int rowSpan = 1)
+        {
+            var min = new Vector2(m_prefixScanX[col], m_prefixScanY[row]);
+            var max = new Vector2(m_prefixScanX[col + colSpan], m_prefixScanY[row + rowSpan]);
+            var size = max - min;
+            size.X -= BORDER + BORDER;
+            size.Y -= BORDER + BORDER;
+            return size;
+        }
+
         public int LastRow
         {
             get { return (m_prefixScanY != null) ? m_prefixScanY.Length - 2 : 0; }

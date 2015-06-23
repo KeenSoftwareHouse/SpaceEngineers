@@ -10830,6 +10830,46 @@ namespace Sandbox.Game.Localization
         public static readonly MyStringId MyGuiScreenTriggerTimeLimit = MyStringId.GetOrCompute("MyGuiScreenTriggerTimeLimit");
 
         ///<summary>
+        ///Extreme
+        ///</summary>
+        public static readonly MyStringId WorldSettings_FloraDensity_Extreme = MyStringId.GetOrCompute("WorldSettings_FloraDensity_Extreme");
+
+        ///<summary>
+        ///None
+        ///</summary>
+        public static readonly MyStringId WorldSettings_FloraDensity_None = MyStringId.GetOrCompute("WorldSettings_FloraDensity_None");
+
+        ///<summary>
+        ///If this is turned off, characters won't be able to use jetpacks at all.
+        ///</summary>
+        public static readonly MyStringId ToolTipWorldSettings_EnableJetpack = MyStringId.GetOrCompute("ToolTipWorldSettings_EnableJetpack");
+
+        ///<summary>
+        ///If this is turned off, characters won't spawn with any tools in their inventory.
+        ///</summary>
+        public static readonly MyStringId ToolTipWorldSettings_SpawnWithTools = MyStringId.GetOrCompute("ToolTipWorldSettings_SpawnWithTools");
+
+        ///<summary>
+        ///Enable jetpack
+        ///</summary>
+        public static readonly MyStringId WorldSettings_EnableJetpack = MyStringId.GetOrCompute("WorldSettings_EnableJetpack");
+
+        ///<summary>
+        ///Spawn with tools
+        ///</summary>
+        public static readonly MyStringId WorldSettings_SpawnWithTools = MyStringId.GetOrCompute("WorldSettings_SpawnWithTools");
+
+        ///<summary>
+        ///All blocks from the spawned ship will have the same ownership settings as this projector.
+        ///</summary>
+        public static readonly MyStringId BlockPropertiesTooltip_Projector_GetOwnership = MyStringId.GetOrCompute("BlockPropertiesTooltip_Projector_GetOwnership");
+
+        ///<summary>
+        ///Ownership from projector
+        ///</summary>
+        public static readonly MyStringId BlockPropertyTitle_Projector_GetOwnership = MyStringId.GetOrCompute("BlockPropertyTitle_Projector_GetOwnership");
+
+        ///<summary>
         ///ClearTarget
         ///</summary>
         public static readonly MyStringId MyDoorClearInterlockTarget = MyStringId.GetOrCompute("MyDoorClearInterlockTarget");

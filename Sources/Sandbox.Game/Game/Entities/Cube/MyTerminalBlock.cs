@@ -174,6 +174,7 @@ namespace Sandbox.Game.Entities.Cube
 
         public void RefreshCustomInfo()
         {
+            CustomInfo.Clear();
             var handler = AppendingCustomInfo;
             if (handler != null)
             {

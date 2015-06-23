@@ -254,6 +254,7 @@
     <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_TransparentMaterialDefinition.cs" />
     <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_TreeCuttingDefinition.cs" />
     <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_TreeDefinition.cs" />
+    <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_TreeObject.cs" />
     <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_Trigger.cs" />
     <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_TriggerAllOthersLost.cs" />
     <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_TriggerLives.cs" />

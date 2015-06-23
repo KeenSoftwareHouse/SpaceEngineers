@@ -6701,6 +6701,30 @@ If there is no chance of accessing a medical room, the game is over and you can 
   <data name="MyGuiScreenTriggerTimeLimit" xml:space="preserve">
     <value>Time limit</value>
   </data>
+  <data name="WorldSettings_FloraDensity_Extreme" xml:space="preserve">
+    <value>Extreme</value>
+  </data>
+  <data name="WorldSettings_FloraDensity_None" xml:space="preserve">
+    <value>None</value>
+  </data>
+  <data name="ToolTipWorldSettings_EnableJetpack" xml:space="preserve">
+    <value>If this is turned off, characters won't be able to use jetpacks at all.</value>
+  </data>
+  <data name="ToolTipWorldSettings_SpawnWithTools" xml:space="preserve">
+    <value>If this is turned off, characters won't spawn with any tools in their inventory.</value>
+  </data>
+  <data name="WorldSettings_EnableJetpack" xml:space="preserve">
+    <value>Enable jetpack</value>
+  </data>
+  <data name="WorldSettings_SpawnWithTools" xml:space="preserve">
+    <value>Spawn with tools</value>
+  </data>
+  <data name="BlockPropertiesTooltip_Projector_GetOwnership" xml:space="preserve">
+    <value>All blocks from the spawned ship will have the same ownership settings as this projector.</value>
+  </data>
+  <data name="BlockPropertyTitle_Projector_GetOwnership" xml:space="preserve">
+    <value>Ownership from projector</value>
+  </data>
   <data name="MyDoorClearInterlockTarget" xml:space="preserve">
     <value>ClearTarget</value>
   </data>
