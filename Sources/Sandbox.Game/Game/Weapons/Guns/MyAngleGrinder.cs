@@ -159,7 +159,7 @@ namespace Sandbox.Game.Weapons
         private void Grind()
         {
             var block = GetTargetBlock();
-            if (block != null && block.CubeGrid.BlocksDestructionEnabled)
+            if (block != null)
             {
                 float hackMultiplier = 1.0f;
                 if (block.FatBlock != null && Owner != null && Owner.ControllerInfo.Controller != null && Owner.ControllerInfo.Controller.Player != null)

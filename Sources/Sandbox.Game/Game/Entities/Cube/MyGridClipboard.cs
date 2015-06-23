@@ -820,14 +820,30 @@ namespace Sandbox.Game.Entities.Cube
             {
                 foreach (var block in grid.CubeBlocks)
                 {
-                    MyComponentStack.GetMountedComponents(m_buildComponents, block);
-                    if (block.ConstructionStockpile != null)
-                    foreach (var item in block.ConstructionStockpile.Items)
+                    var compound = block as MyObjectBuilder_CompoundCubeBlock;
+                    if (compound != null)
                     {
-                        m_buildComponents.AddMaterial(item.PhysicalContent.GetId(), item.Amount, addToDisplayList: false);
+                        foreach (var subblock in compound.Blocks)
+                        {
+                            AddSingleBlockRequirements(subblock);
+                        }
+                    }
+                    else
+                    {
+                        AddSingleBlockRequirements(block);
                     }
                 }
             }
+        }
+
+        private void AddSingleBlockRequirements(MyObjectBuilder_CubeBlock block)
+        {
+            MyComponentStack.GetMountedComponents(m_buildComponents, block);
+            if (block.ConstructionStockpile != null)
+                foreach (var item in block.ConstructionStockpile.Items)
+                {
+                    m_buildComponents.AddMaterial(item.PhysicalContent.GetId(), item.Amount, addToDisplayList: false);
+                }
         }
 
         protected virtual float Transparency

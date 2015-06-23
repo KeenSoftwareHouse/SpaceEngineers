@@ -18,6 +18,7 @@ namespace Sandbox.Game.Gui
     {
         private enum LineEnum
         {
+            TimeLeft,
             LivesLeft,
         }
 
@@ -30,6 +31,35 @@ namespace Sandbox.Game.Gui
                 if (m_livesLeft != value)
                 {
                     m_livesLeft = value;
+                    m_needsRefresh = true;
+                    Visible = true;
+                }
+            }
+        }
+
+        private int m_timeLeftMin = -1;
+        private int m_timeLeftSec = -1;
+        public int TimeLeftMin
+        {
+            get { return m_timeLeftMin; }
+            set
+            {
+                if (m_timeLeftMin != value)
+                {
+                    m_timeLeftMin = value;
+                    m_needsRefresh = true;
+                    Visible = true;
+                }
+            }
+        }
+        public int TimeLeftSec
+        {
+            get { return m_timeLeftSec; }
+            set
+            {
+                if (m_timeLeftSec != value)
+                {
+                    m_timeLeftSec = value;
                     m_needsRefresh = true;
                     Visible = true;
                 }
@@ -54,7 +84,9 @@ namespace Sandbox.Game.Gui
         {
             var items = m_data;
             items[(int)LineEnum.LivesLeft].Name.Clear().AppendStringBuilder(MyTexts.Get(MySpaceTexts.HudScenarioInfoLivesLeft));
+            items[(int)LineEnum.TimeLeft].Name.Clear().AppendStringBuilder(MyTexts.Get(MySpaceTexts.HudScenarioInfoTimeLeft));
             m_livesLeft = -1;
+            m_timeLeftMin = -1;
             m_needsRefresh = true;
         }
 
@@ -68,6 +100,15 @@ namespace Sandbox.Game.Gui
             }
             else
                 Data[(int)LineEnum.LivesLeft].Visible=false;
+
+            if (TimeLeftMin>0 || TimeLeftSec>=0)
+            {
+                Data[(int)LineEnum.TimeLeft].Value.Clear().AppendInt32(TimeLeftMin).Append(":").AppendFormat("{0:D2}",TimeLeftSec);
+                Data[(int)LineEnum.TimeLeft].Visible = true;
+            }
+            else
+                Data[(int)LineEnum.TimeLeft].Visible = false;
+
 
             if (Data.GetVisibleCount() == 0)
                 Visible = false;

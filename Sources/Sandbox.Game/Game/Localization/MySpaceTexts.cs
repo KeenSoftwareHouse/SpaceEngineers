@@ -4060,6 +4060,26 @@ namespace Sandbox.Game.Localization
         public static readonly MyStringId ToolTipGameOptionsShowPlayerNames = MyStringId.GetOrCompute("ToolTipGameOptionsShowPlayerNames");
 
         ///<summary>
+        ///UI transparency
+        ///</summary>
+        public static readonly MyStringId ScreenOptionsGame_UITransparency = MyStringId.GetOrCompute("ScreenOptionsGame_UITransparency");
+
+        ///<summary>
+        ///Change transparency of UI dialogs.
+        ///</summary>
+        public static readonly MyStringId ToolTipGameOptionsUITransparency = MyStringId.GetOrCompute("ToolTipGameOptionsUITransparency");
+
+        ///<summary>
+        ///UI background transparency
+        ///</summary>
+        public static readonly MyStringId ScreenOptionsGame_UIBkTransparency = MyStringId.GetOrCompute("ScreenOptionsGame_UIBkTransparency");
+
+        ///<summary>
+        ///Change transparency of UI dialogs background.
+        ///</summary>
+        public static readonly MyStringId ToolTipGameOptionsUIBkTransparency = MyStringId.GetOrCompute("ToolTipGameOptionsUIBkTransparency");
+
+        ///<summary>
         ///Drop item
         ///</summary>
         public static readonly MyStringId ToolTipTerminalInventory_ThrowOut = MyStringId.GetOrCompute("ToolTipTerminalInventory_ThrowOut");
@@ -10609,6 +10629,11 @@ namespace Sandbox.Game.Localization
         public static readonly MyStringId ToolTipWorldSettings_DisableRespawnShips = MyStringId.GetOrCompute("ToolTipWorldSettings_DisableRespawnShips");
 
         ///<summary>
+        ///Audible Proximity Alert
+        ///</summary>
+        public static readonly MyStringId BlockPropertyTitle_SensorPlaySound = MyStringId.GetOrCompute("BlockPropertyTitle_SensorPlaySound");
+
+        ///<summary>
         ///PUBLISH SCENARIO
         ///</summary>
         public static readonly MyStringId MessageBoxCaptionDoYouWishToPublishScenario = MyStringId.GetOrCompute("MessageBoxCaptionDoYouWishToPublishScenario");
@@ -10787,5 +10812,65 @@ namespace Sandbox.Game.Localization
         ///Players can join running game
         ///</summary>
         public static readonly MyStringId ScenarioSettings_CanJoinRunningShort = MyStringId.GetOrCompute("ScenarioSettings_CanJoinRunningShort");
+
+        ///<summary>
+        ///Time limit
+        ///</summary>
+        public static readonly MyStringId GuiTriggerCaptionTimeLimit = MyStringId.GetOrCompute("GuiTriggerCaptionTimeLimit");
+
+        ///<summary>
+        ///Limit (in minutes)
+        ///</summary>
+        public static readonly MyStringId GuiTriggerTimeLimit = MyStringId.GetOrCompute("GuiTriggerTimeLimit");
+
+        ///<summary>
+        ///Time left:
+        ///</summary>
+        public static readonly MyStringId HudScenarioInfoTimeLeft = MyStringId.GetOrCompute("HudScenarioInfoTimeLeft");
+
+        ///<summary>
+        ///Time limit
+        ///</summary>
+        public static readonly MyStringId MyGuiScreenTriggerTimeLimit = MyStringId.GetOrCompute("MyGuiScreenTriggerTimeLimit");
+
+        ///<summary>
+        ///Extreme
+        ///</summary>
+        public static readonly MyStringId WorldSettings_FloraDensity_Extreme = MyStringId.GetOrCompute("WorldSettings_FloraDensity_Extreme");
+
+        ///<summary>
+        ///None
+        ///</summary>
+        public static readonly MyStringId WorldSettings_FloraDensity_None = MyStringId.GetOrCompute("WorldSettings_FloraDensity_None");
+
+        ///<summary>
+        ///If this is turned off, characters won't be able to use jetpacks at all.
+        ///</summary>
+        public static readonly MyStringId ToolTipWorldSettings_EnableJetpack = MyStringId.GetOrCompute("ToolTipWorldSettings_EnableJetpack");
+
+        ///<summary>
+        ///If this is turned off, characters won't spawn with any tools in their inventory.
+        ///</summary>
+        public static readonly MyStringId ToolTipWorldSettings_SpawnWithTools = MyStringId.GetOrCompute("ToolTipWorldSettings_SpawnWithTools");
+
+        ///<summary>
+        ///Enable jetpack
+        ///</summary>
+        public static readonly MyStringId WorldSettings_EnableJetpack = MyStringId.GetOrCompute("WorldSettings_EnableJetpack");
+
+        ///<summary>
+        ///Spawn with tools
+        ///</summary>
+        public static readonly MyStringId WorldSettings_SpawnWithTools = MyStringId.GetOrCompute("WorldSettings_SpawnWithTools");
+
+        ///<summary>
+        ///All blocks from the spawned ship will have the same ownership settings as this projector.
+        ///</summary>
+        public static readonly MyStringId BlockPropertiesTooltip_Projector_GetOwnership = MyStringId.GetOrCompute("BlockPropertiesTooltip_Projector_GetOwnership");
+
+        ///<summary>
+        ///Ownership from projector
+        ///</summary>
+        public static readonly MyStringId BlockPropertyTitle_Projector_GetOwnership = MyStringId.GetOrCompute("BlockPropertyTitle_Projector_GetOwnership");
     }
 }

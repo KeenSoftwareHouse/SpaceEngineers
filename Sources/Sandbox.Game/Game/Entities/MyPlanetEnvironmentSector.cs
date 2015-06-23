@@ -1,4 +1,5 @@
-﻿using Sandbox.Definitions;
+﻿using Sandbox.Common.ObjectBuilders;
+using Sandbox.Definitions;
 using Sandbox.Game.Entities.EnvironmentItems;
 using Sandbox.Game.World;
 using System;
@@ -7,6 +8,7 @@ using System.Linq;
 using System.Text;
 using VRage;
 using VRage.Library.Utils;
+using VRage.ObjectBuilders;
 using VRage.Utils;
 using VRage.Voxels;
 using VRageMath;
@@ -14,7 +16,7 @@ using VRageRender;
 
 namespace Sandbox.Game.Entities
 {
-    class MyPlanetEnviromentSector
+    class MyPlanetEnvironmentSector
     {
         const int NUM_PLACE_ITERATION = 4;
 
@@ -25,20 +27,23 @@ namespace Sandbox.Game.Entities
                switch (MySession.Static.Settings.FloraDensity)
                {
                    case 10:
-                       return 250;
-                       break;
-                   case 20:
                        return 500;
                        break;
-                   case 30:
+                   case 20:
                        return 750;
+                       break;
+                   case 30:
+                       return 1000;
+                       break;
+                   case 40:
+                       return 1500;
                        break;
                }
                return 0;
             }
         }
 
-        bool m_closed = false;
+        bool m_saved = false;
         MyPlanet m_planet;
         int m_cellHashCode;
         public const int SECTOR_SIZE_METERS = 512;
@@ -54,7 +59,7 @@ namespace Sandbox.Game.Entities
 
         private Dictionary<MyStringHash, MyEnvironmentItems.MyEnvironmentItemsSpawnData> m_spawners;
 
-        public MyPlanetEnviromentSector()
+        public MyPlanetEnvironmentSector()
         { 
         }
 
@@ -111,6 +116,7 @@ namespace Sandbox.Game.Entities
                         m_spawners[itemClass.Id.SubtypeId] = MyEnvironmentItems.BeginSpawn(itemClass);
                         m_spawners[itemClass.Id.SubtypeId].EnvironmentItems.Save = false;
                         m_spawners[itemClass.Id.SubtypeId].EnvironmentItems.CellsOffset = m_planet.PositionLeftBottomCorner;
+                        m_spawners[itemClass.Id.SubtypeId].EnvironmentItems.ItemRemoved += OnSectorItemRemoved;
                     }
 
                     ProfilerShort.End();
@@ -173,6 +179,20 @@ namespace Sandbox.Game.Entities
             m_spawners = null;
             m_planet = null;
             HasGraphics = false;
+        }
+
+        void OnSectorItemRemoved(MyEnvironmentItems item , int value)
+        {          
+            foreach (var spawner in m_spawners)
+            {
+                spawner.Value.EnvironmentItems.Save = true;
+            }
+
+            if (m_saved == false)
+            {
+                m_planet.OnEnviromentSectorItemRemoved(m_pos);
+                m_saved = true;
+            }               
         }
     }
 }

@@ -219,11 +219,19 @@ namespace Sandbox.ModAPI
 
         /// <summary>
         /// Get all values changed by upgrade modules
+        /// Should only be used as read-only
         /// </summary>
         Dictionary<string, float> UpgradeValues
         {
             get;
         }
+
+        /// <summary>
+        /// Preferred way of registering a block for upgrades
+        /// Adding directly to the dictionary can have unintended consequences
+        /// when multiple mods are involved.
+        /// </summary>
+        void AddUpgradeValue(string upgrade, float defaultValue);
 
         /// <summary>
         /// Event called when upgrade values are changed

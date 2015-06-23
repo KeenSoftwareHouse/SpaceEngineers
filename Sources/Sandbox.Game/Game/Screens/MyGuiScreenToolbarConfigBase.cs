@@ -223,7 +223,7 @@ namespace Sandbox.Game.Gui
         #region constructros + overrides
 
         public MyGuiScreenToolbarConfigBase(int scrollOffset = 0, MyCubeBlock owner = null)
-            : base(new Vector2(0.5f, 0.5f), MyGuiConstants.SCREEN_BACKGROUND_COLOR)
+            : base(new Vector2(0.5f, 0.5f), MyGuiConstants.SCREEN_BACKGROUND_COLOR, backgroundTransition: MySandboxGame.Config.UIBkTransparency, guiTransition: MySandboxGame.Config.UITransparency)
         {
             MySandboxGame.Log.WriteLine("MyGuiScreenCubeBuilder.ctor START");
 

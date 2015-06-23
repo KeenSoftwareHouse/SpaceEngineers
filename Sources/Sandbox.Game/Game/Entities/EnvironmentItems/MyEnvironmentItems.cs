@@ -115,10 +115,11 @@ namespace Sandbox.Game.Entities.EnvironmentItems
 
         private List<AddItemData> m_batchedAddItems = new List<AddItemData>();
         private List<ModifyItemData> m_batchedModifyItems = new List<ModifyItemData>();
-        private bool m_batching = false;
-        public bool IsBatching { get { return m_batching; } }
+        private float m_batchTime = 0;
+        private const float BATCH_DEFAULT_TIME = 10; // s
+        public bool IsBatching { get { return m_batchTime > 0; } }
+        public float BatchTime { get { return m_batchTime; } }
 
-        Vector3D m_offset = Vector3D.Zero;
 
         static MyEnvironmentItems()
         {
@@ -150,6 +151,7 @@ namespace Sandbox.Game.Entities.EnvironmentItems
             var builder = (MyObjectBuilder_EnvironmentItems)objectBuilder;
 
             MyDefinitionId defId = new MyDefinitionId(builder.TypeId, builder.SubtypeId);
+            CellsOffset = builder.CellsOffset;
 
             // Compatibility
             if (builder.SubtypeId == MyStringHash.NullOrEmpty)
@@ -206,6 +208,9 @@ namespace Sandbox.Game.Entities.EnvironmentItems
             var builder = (MyObjectBuilder_EnvironmentItems)base.GetObjectBuilder(copy);
             builder.SubtypeName = this.Definition.Id.SubtypeName;
 
+            if (IsBatching)
+                EndBatch(true);
+
             int numEnabled = 0;
             foreach (var itemsData in m_itemsData)
             {
@@ -225,6 +230,8 @@ namespace Sandbox.Game.Entities.EnvironmentItems
                 builder.Items[insertIndex].PositionAndOrientation = new MyPositionAndOrientation(itemsData.Value.Transform.TransformMatrix);
                 insertIndex++;
             }
+
+            builder.CellsOffset = CellsOffset;
 
             return builder;
         }
@@ -458,11 +465,9 @@ namespace Sandbox.Game.Entities.EnvironmentItems
                 HkMassProperties massProperties = new HkMassProperties();
                 MatrixD matrix = MatrixD.CreateTranslation(CellsOffset);
                 Physics.CreateFromCollisionObject((HkShape)sectorRootShape, Vector3.Zero, matrix, massProperties);
-                if (Sandbox.Game.MyPerGameSettings.Destruction)
-                {
-                    Physics.ContactPointCallback += Physics_ContactPointCallback;
-                    Physics.RigidBody.ContactPointCallbackEnabled = true;
-                }
+
+                Physics.ContactPointCallback += Physics_ContactPointCallback;
+                Physics.RigidBody.ContactPointCallbackEnabled = true;
 
                 sectorRootShape.Base.RemoveReference();
 
@@ -477,15 +482,15 @@ namespace Sandbox.Game.Entities.EnvironmentItems
 
         public void BeginBatch(bool sync)
         {
-            Debug.Assert(!m_batching);
-            m_batching = true;
+            Debug.Assert(!IsBatching);
+            m_batchTime = BATCH_DEFAULT_TIME;
             if (sync)
                 MySyncEnvironmentItems.SendBeginBatchAddMessage(EntityId);
         }
 
         public void BatchAddItem(Vector3D position, MyStringHash subtypeId, int modelId, bool sync)
         {
-            Debug.Assert(m_batching);
+            Debug.Assert(IsBatching);
             Debug.Assert(m_definition.ContainsItemDefinition(subtypeId));
             if (!m_definition.ContainsItemDefinition(subtypeId)) return;
 
@@ -497,7 +502,7 @@ namespace Sandbox.Game.Entities.EnvironmentItems
 
         public void BatchModifyItem(int localId, int modelId, bool sync)
         {
-            Debug.Assert(m_batching);
+            Debug.Assert(IsBatching);
             Debug.Assert(m_itemsData.ContainsKey(localId));
             if (!m_itemsData.ContainsKey(localId)) return;
 
@@ -509,8 +514,7 @@ namespace Sandbox.Game.Entities.EnvironmentItems
 
         public void EndBatch(bool sync)
         {
-            Debug.Assert(m_batching);
-            m_batching = false;
+            m_batchTime = 0;
 
             if (m_batchedAddItems.Count > 0 || m_batchedModifyItems.Count > 0)
                 ProcessBatch();
@@ -681,17 +685,14 @@ namespace Sandbox.Game.Entities.EnvironmentItems
 
         private void GetSectorsInRadius(Vector3D position, float radius, List<MyEnvironmentSector> sectors)
         {
-            if (this.Physics != null && this.Physics.RigidBody != null)
+            foreach (var sector in m_sectors)
             {
-                foreach (var sector in m_sectors)
+                if (sector.Value.IsValid)
                 {
-                    if (sector.Value.IsValid)
-                    {
-                        var sectorBox = sector.Value.SectorWorldBox;
-                        sectorBox.Inflate(radius);
-                        if (sectorBox.Contains(position) == ContainmentType.Contains)
-                            sectors.Add(sector.Value);
-                    }
+                    var sectorBox = sector.Value.SectorWorldBox;
+                    sectorBox.Inflate(radius);
+                    if (sectorBox.Contains(position) == ContainmentType.Contains)
+                        sectors.Add(sector.Value);
                 }
             }
         }
@@ -772,7 +773,7 @@ namespace Sandbox.Game.Entities.EnvironmentItems
             shape.EnableShapeKey(shapeKey, false);
 
             Matrix matrix = itemData.Transform.TransformMatrix;
-            var sectorId = MyEnvironmentSector.GetSectorId(matrix.Translation, Definition.SectorSize);
+            var sectorId = MyEnvironmentSector.GetSectorId(matrix.Translation - m_cellsOffset, Definition.SectorSize);
             var disabled = Sectors[sectorId].DisableInstance(itemData.SectorInstanceId, itemData.ModelId);
             Debug.Assert(disabled, "Env. item instance render not disabled");
             Sectors[sectorId].UpdateRenderInstanceData();
@@ -783,7 +784,6 @@ namespace Sandbox.Game.Entities.EnvironmentItems
             {
                 MySyncEnvironmentItems.RemoveEnvironmentItem(EntityId, itemInstanceId);
             }
-
             return true;
         }
 
@@ -859,7 +859,7 @@ namespace Sandbox.Game.Entities.EnvironmentItems
             var vel = Math.Abs(e.ContactPointEvent.SeparatingVelocity);
             var other = e.ContactPointEvent.GetOtherEntity(this);
 
-            if (other == null || other.Physics == null) return;
+            if (other == null || other.Physics == null || other is MyFloatingObject) return;
 
             float otherMass = MyDestructionHelper.MassFromHavok(other.Physics.Mass);
 
@@ -887,7 +887,7 @@ namespace Sandbox.Game.Entities.EnvironmentItems
                 int itemInstanceId;
                 if (m_physicsShapeInstanceIdToLocalId.TryGetValue(physicsInstanceId, out itemInstanceId))
                 {
-                    DoDamage(1.0f, itemInstanceId, e.Position, -e.ContactPointEvent.ContactPoint.Normal);
+                    DoDamage(1.0f, itemInstanceId, e.Position, -e.ContactPointEvent.ContactPoint.Normal);               
                 }
             }
         }
@@ -1009,6 +1009,15 @@ namespace Sandbox.Game.Entities.EnvironmentItems
             if (MyDebugDrawSettings.ENABLE_DEBUG_DRAW && MyDebugDrawSettings.DEBUG_DRAW_ENVIRONMENT_ITEMS)
             {
                 DebugDraw();
+            }
+
+            if (Sync.IsServer && IsBatching)
+            {
+                m_batchTime -= MyEngineConstants.UPDATE_STEP_SIZE_IN_SECONDS;
+                if (m_batchTime <= 0)
+                {
+                    EndBatch(true);
+                }
             }
         }
 

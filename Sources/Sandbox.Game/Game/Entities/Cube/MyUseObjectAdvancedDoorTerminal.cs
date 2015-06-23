@@ -125,5 +125,10 @@ namespace Sandbox.Game.Entities.Cube
         bool IMyUseObject.HandleInput() { return false; }
 
         void IMyUseObject.OnSelectionLost() { }
+
+        bool IMyUseObject.PlayIndicatorSound
+        {
+            get { return true; }
+        }
     }
 }

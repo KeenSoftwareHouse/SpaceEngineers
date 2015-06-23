@@ -130,7 +130,7 @@ namespace Sandbox.Graphics.GUI
                 font: font);
         }
 
-        public override void Draw(float transitionAlpha)
+        public override void Draw(float transitionAlpha, float backgroundTransitionAlpha)
         {
             var position = GetPositionAbsoluteTopRight();
             var size = new Vector2(m_BSlider.Size.X, m_textLabel.Size.Y);
@@ -140,7 +140,7 @@ namespace Sandbox.Graphics.GUI
                 size,
                 ApplyColorMaskModifiers(m_color.ToVector4(), true, transitionAlpha),
                 MyGuiDrawAlignEnum.HORISONTAL_RIGHT_AND_VERTICAL_TOP);
-            base.Draw(transitionAlpha);
+            base.Draw(transitionAlpha, backgroundTransitionAlpha);
 
             position.X -= size.X;
             MyGuiManager.DrawBorders(position, size, Color.White, BorderSize);

@@ -290,7 +290,7 @@ namespace Sandbox.Game.Entities.Cube
 
         public void Explode()
         {
-            if (m_isExploded || !MySession.Static.WeaponsEnabled)
+            if (m_isExploded || !MySession.Static.WeaponsEnabled || CubeGrid.Physics == null)
                 return;
 
             m_isExploded = true;
@@ -324,7 +324,7 @@ namespace Sandbox.Game.Entities.Cube
             {
                 PlayerDamage = 0,
                 //Damage = m_ammoProperties.Damage,
-                Damage = MyFakes.ENABLE_VOLUMETRIC_EXPLOSION ? 15000 : 5000,
+                Damage = MyFakes.ENABLE_VOLUMETRIC_EXPLOSION ? m_warheadDefinition.WarheadExplosionDamage : 5000,
                 ExplosionType = particleID,
                 ExplosionSphere = m_explosionFullSphere,
                 LifespanMiliseconds = MyExplosionsConstants.EXPLOSION_LIFESPAN,

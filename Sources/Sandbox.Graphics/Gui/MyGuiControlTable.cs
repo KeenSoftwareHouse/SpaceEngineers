@@ -442,14 +442,14 @@ namespace Sandbox.Graphics.GUI
                 m_scrollBar.Value = selectedIdx;
         }
 
-        public override void Draw(float transitionAlpha)
+        public override void Draw(float transitionAlpha, float backgroundTransitionAlpha)
         {
-            base.Draw(transitionAlpha);
+            base.Draw(transitionAlpha, backgroundTransitionAlpha);
 
             var position = GetPositionAbsoluteTopLeft();
             float height = RowHeight * (VisibleRowsCount + 1); // One row is taken up by the header of the table.
             m_styleDef.Texture.Draw(position, Size,
-                ApplyColorMaskModifiers(ColorMask, Enabled, transitionAlpha));
+                ApplyColorMaskModifiers(ColorMask, Enabled, backgroundTransitionAlpha));
 
             if (HeaderVisible)
                 DrawHeader(transitionAlpha);

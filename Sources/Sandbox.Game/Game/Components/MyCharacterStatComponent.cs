@@ -114,6 +114,10 @@ namespace Sandbox.Game.Components
 					stat.AddEffect(regenEffect);
 				}
 			}
+
+            // MW:TODO change/remove when there is syncing of consuming items
+            if (Entity is MyCharacter)
+                (Entity as MyCharacter).StartSecondarySound(definition.EatingSound, true);
 		}
 
 		public bool TryGetStat(MyStringHash statId, out MyEntityStat outStat)

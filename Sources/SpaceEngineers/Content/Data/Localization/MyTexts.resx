@@ -2598,6 +2598,18 @@ World size: {1}</value>
   <data name="ToolTipGameOptionsShowPlayerNames" xml:space="preserve">
     <value>Show player names above their characters. This feature must also be enabled in world settings.</value>
   </data>
+  <data name="ScreenOptionsGame_UITransparency" xml:space="preserve">
+    <value>UI transparency</value>
+  </data>
+  <data name="ToolTipGameOptionsUITransparency" xml:space="preserve">
+    <value>Change transparency of UI dialogs.</value>
+  </data>
+  <data name="ScreenOptionsGame_UIBkTransparency" xml:space="preserve">
+    <value>UI background transparency</value>
+  </data>
+  <data name="ToolTipGameOptionsUIBkTransparency" xml:space="preserve">
+    <value>Change transparency of UI dialogs background.</value>
+  </data>
   <data name="ToolTipTerminalInventory_ThrowOut" xml:space="preserve">
     <value>Drop item</value>
   </data>
@@ -6565,6 +6577,9 @@ To connect to lasers not listed here you can connect to coordinates.</value>
   <data name="ToolTipWorldSettings_DisableRespawnShips" xml:space="preserve">
     <value>Respawn in ships and suit is disabled. If no valid medical rooms exist, respawn won't be possible at all!</value>
   </data>
+  <data name="BlockPropertyTitle_SensorPlaySound" xml:space="preserve">
+    <value>Audible Proximity Alert</value>
+  </data>
   <data name="MessageBoxCaptionDoYouWishToPublishScenario" xml:space="preserve">
     <value>PUBLISH SCENARIO</value>
   </data>
@@ -6676,5 +6691,41 @@ If there is no chance of accessing a medical room, the game is over and you can 
   </data>
   <data name="ScenarioSettings_CanJoinRunningShort" xml:space="preserve">
     <value>Players can join running game</value>
+  </data>
+  <data name="GuiTriggerCaptionTimeLimit" xml:space="preserve">
+    <value>Time limit</value>
+  </data>
+  <data name="GuiTriggerTimeLimit" xml:space="preserve">
+    <value>Limit (in minutes)</value>
+  </data>
+  <data name="HudScenarioInfoTimeLeft" xml:space="preserve">
+    <value>Time left:</value>
+  </data>
+  <data name="MyGuiScreenTriggerTimeLimit" xml:space="preserve">
+    <value>Time limit</value>
+  </data>
+  <data name="WorldSettings_FloraDensity_Extreme" xml:space="preserve">
+    <value>Extreme</value>
+  </data>
+  <data name="WorldSettings_FloraDensity_None" xml:space="preserve">
+    <value>None</value>
+  </data>
+  <data name="ToolTipWorldSettings_EnableJetpack" xml:space="preserve">
+    <value>If this is turned off, characters won't be able to use jetpacks at all.</value>
+  </data>
+  <data name="ToolTipWorldSettings_SpawnWithTools" xml:space="preserve">
+    <value>If this is turned off, characters won't spawn with any tools in their inventory.</value>
+  </data>
+  <data name="WorldSettings_EnableJetpack" xml:space="preserve">
+    <value>Enable jetpack</value>
+  </data>
+  <data name="WorldSettings_SpawnWithTools" xml:space="preserve">
+    <value>Spawn with tools</value>
+  </data>
+  <data name="BlockPropertiesTooltip_Projector_GetOwnership" xml:space="preserve">
+    <value>All blocks from the spawned ship will have the same ownership settings as this projector.</value>
+  </data>
+  <data name="BlockPropertyTitle_Projector_GetOwnership" xml:space="preserve">
+    <value>Ownership from projector</value>
   </data>
 </root>

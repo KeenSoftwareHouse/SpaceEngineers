@@ -40,13 +40,7 @@ namespace Sandbox.Game.Gui
             FIFTY_KM = 50000,
         }
 
-		public enum MyFloraDensityEnum
-		{
-			LOW = 10,
-			MEDIUM = 20,
-			HIGH = 30,
-		}
-
+		
         public enum MySoundModeEnum
         {
             Arcade,
@@ -60,11 +54,11 @@ namespace Sandbox.Game.Gui
         bool m_showWarningForOxygen;
 
         MyGuiControlTextbox m_passwordTextbox;
-        MyGuiControlCombobox m_onlineMode, m_environment, m_worldSizeCombo, m_soundModeCombo, m_spawnShipTimeCombo, m_viewDistanceCombo, m_physicsOptionsCombo, m_floraDensityCombo;
+        MyGuiControlCombobox m_onlineMode, m_environment, m_worldSizeCombo, m_soundModeCombo, m_spawnShipTimeCombo, m_viewDistanceCombo, m_physicsOptionsCombo;
         MyGuiControlCheckbox m_autoHealing, m_clientCanSave, m_enableCopyPaste, m_weaponsEnabled, m_showPlayerNamesOnHud, m_thrusterDamage, m_cargoShipsEnabled, m_enableSpectator,
                              m_trashRemoval, m_respawnShipDelete, m_resetOwnership, m_permanentDeath, m_destructibleBlocks, m_enableIngameScripts, m_enableToolShake, m_enableOxygen,
-                             m_enable3rdPersonCamera, m_enableEncounters, m_disableRespawnShips, m_scenarioEditMode, m_enableFlora, m_stationVoxelSupport, m_enablePlanets,m_enableSunRotation,
-                             m_enableInventoryMass;
+                             m_enable3rdPersonCamera, m_enableEncounters, m_disableRespawnShips, m_scenarioEditMode, m_stationVoxelSupport, m_enableSunRotation, m_enableJetpack, 
+                             m_spawnWithTools, m_enableInventoryMass;
 
         MyGuiControlButton m_okButton, m_cancelButton, m_survivalModeButton, m_creativeModeButton, m_inventory_x1, m_inventory_x3, m_inventory_x10;
         MyGuiControlButton m_assembler_x1, m_assembler_x3, m_assembler_x10,
@@ -131,12 +125,6 @@ namespace Sandbox.Game.Gui
             BuildControls();
 
             LoadValues();
-
-            m_enablePlanets.IsChecked = m_parent.AsteroidAmount != 0;
-            m_enableFlora.IsChecked = m_parent.AsteroidAmount != 0;
-            m_enablePlanets.Enabled = m_parent.AsteroidAmount != 0;
-            m_floraDensityCombo.Enabled = m_parent.AsteroidAmount != 0;
-            m_enableFlora.Enabled = m_parent.AsteroidAmount != 0; ;
         }
 
         public void BuildControls()
@@ -195,11 +183,12 @@ namespace Sandbox.Game.Gui
             var viewDistanceLabel = MakeLabel(MySpaceTexts.WorldSettings_ViewDistance);
             var physicsOptionLabel = MakeLabel(MySpaceTexts.WorldSettings_Physics);
             var enableInventoryMassLabel = MakeLabel(MySpaceTexts.WorldSettings_InventoryMass);
-            var floraDensityLabel = MakeLabel(MySpaceTexts.WorldSettings_FloraDensity);
-			var enableFloraLabel = MakeLabel(MySpaceTexts.WorldSettings_EnableFlora);
+			
             var enableStationVoxelLabel = MakeLabel(MySpaceTexts.WorldSettings_EnableStationVoxel);
-            var enablePlanetsLabel = MakeLabel(MySpaceTexts.WorldSettings_EnablePlanets);
             var enableSunRotationLabel = MakeLabel(MySpaceTexts.WorldSettings_EnableSunRotation);
+
+            var enableJetpackLabel = MakeLabel(MySpaceTexts.WorldSettings_EnableJetpack);
+            var spawnWithToolsLabel = MakeLabel(MySpaceTexts.WorldSettings_SpawnWithTools);
 
             float width = 0.284375f + 0.025f;
 
@@ -240,9 +229,7 @@ namespace Sandbox.Game.Gui
             m_clientCanSave = new MyGuiControlCheckbox();
             m_enableCopyPaste = new MyGuiControlCheckbox();
             m_weaponsEnabled = new MyGuiControlCheckbox();
-            m_showPlayerNamesOnHud = new MyGuiControlCheckbox();
-			m_enableFlora = new MyGuiControlCheckbox();
-            m_enablePlanets = new MyGuiControlCheckbox();
+            m_showPlayerNamesOnHud = new MyGuiControlCheckbox();			
             m_enableSunRotation = new MyGuiControlCheckbox();
 
             m_enableSunRotation.IsCheckedChanged = (control) =>
@@ -251,14 +238,9 @@ namespace Sandbox.Game.Gui
                 m_sunRotationPeriodValue.Visible = control.IsChecked;
             };
 
-			m_enableFlora.IsCheckedChanged = (control) => m_floraDensityCombo.Enabled = control.IsChecked;
-            m_enablePlanets.IsCheckedChanged = (control) =>
-            {
-                m_floraDensityCombo.Enabled = control.IsChecked;
-                m_enableFlora.Enabled = control.IsChecked;
-            };
+            m_enableJetpack = new MyGuiControlCheckbox();
+            m_spawnWithTools = new MyGuiControlCheckbox();
 
-           
 			m_stationVoxelSupport = new MyGuiControlCheckbox();
             m_maxPlayersSlider = new MyGuiControlSlider(
                 position: Vector2.Zero,
@@ -288,7 +270,7 @@ namespace Sandbox.Game.Gui
             m_spawnShipTimeCombo = new MyGuiControlCombobox(size: new Vector2(width, 0.04f));
             m_viewDistanceCombo = new MyGuiControlCombobox(size: new Vector2(width, 0.04f));
             m_physicsOptionsCombo = new MyGuiControlCombobox(size: new Vector2(width, 0.04f));
-			m_floraDensityCombo = new MyGuiControlCombobox(size: new Vector2(width, 0.04f));
+			
 
             // Ok/Cancel
             m_okButton = new MyGuiControlButton(position: buttonsOrigin - new Vector2(0.01f, 0f), size: buttonSize, text: MyTexts.Get(MySpaceTexts.Ok), onButtonClick: OkButtonClicked, originAlign: MyGuiDrawAlignEnum.HORISONTAL_RIGHT_AND_VERTICAL_BOTTOM);
@@ -401,10 +383,7 @@ namespace Sandbox.Game.Gui
             m_physicsOptionsCombo.AddItem((int)MyPhysicsPerformanceEnum.Normal, MySpaceTexts.WorldSettings_Physics_Normal);
             m_physicsOptionsCombo.AddItem((int)MyPhysicsPerformanceEnum.Precise, MySpaceTexts.WorldSettings_Physics_Precise);
 
-			m_floraDensityCombo.AddItem((int)MyFloraDensityEnum.LOW, MySpaceTexts.WorldSettings_FloraDensity_Low);
-			m_floraDensityCombo.AddItem((int)MyFloraDensityEnum.MEDIUM, MySpaceTexts.WorldSettings_FloraDensity_Medium);
-			m_floraDensityCombo.AddItem((int)MyFloraDensityEnum.HIGH, MySpaceTexts.WorldSettings_FloraDensity_High);
-
+			
             m_autoHealing.SetToolTip(MyTexts.GetString(MySpaceTexts.ToolTipWorldSettingsAutoHealing));
             m_thrusterDamage.SetToolTip(MyTexts.GetString(MySpaceTexts.ToolTipWorldSettingsThrusterDamage));
             m_cargoShipsEnabled.SetToolTip(MyTexts.GetString(MySpaceTexts.ToolTipWorldSettingsEnableCargoShips));
@@ -426,9 +405,9 @@ namespace Sandbox.Game.Gui
             m_respawnShipDelete.SetToolTip(MyTexts.GetString(MySpaceTexts.TooltipWorldSettingsRespawnShipDelete));
             m_enableToolShake.SetToolTip(MyTexts.GetString(MySpaceTexts.ToolTipWorldSettings_ToolShake));
             m_enableOxygen.SetToolTip(MyTexts.GetString(MySpaceTexts.ToolTipWorldSettings_EnableOxygen));
-			m_floraDensityCombo.SetToolTip(MyTexts.GetString(MySpaceTexts.ToolTipWorldSettings_FloraDensity));
-			m_enableFlora.SetToolTip(MyTexts.GetString(MySpaceTexts.ToolTipWorldSettings_EnableFlora));
-            m_enablePlanets.SetToolTip(MyTexts.GetString(MySpaceTexts.ToolTipWorldSettings_EnablePlanets));
+            m_enableJetpack.SetToolTip(MyTexts.GetString(MySpaceTexts.ToolTipWorldSettings_EnableJetpack));
+            m_spawnWithTools.SetToolTip(MyTexts.GetString(MySpaceTexts.ToolTipWorldSettings_SpawnWithTools));
+			
 			m_stationVoxelSupport.SetToolTip(MyTexts.GetString(MySpaceTexts.ToolTipWorldSettings_EnableStationVoxel));
             m_disableRespawnShips.SetToolTip(MyTexts.GetString(MySpaceTexts.ToolTipWorldSettings_DisableRespawnShips));
 
@@ -482,12 +461,6 @@ namespace Sandbox.Game.Gui
                 parent.Controls.Add(m_physicsOptionsCombo);
             }
 
-            if (MyFakes.ENABLE_PLANETS)
-            {
-                parent.Controls.Add(floraDensityLabel);
-                parent.Controls.Add(m_floraDensityCombo);
-            }
-
             parent.Controls.Add(autoHealingLabel);
             parent.Controls.Add(m_autoHealing);
 
@@ -517,11 +490,8 @@ namespace Sandbox.Game.Gui
             parent.Controls.Add(disableRespawnShipsLabel);
             parent.Controls.Add(m_disableRespawnShips);
 
-            if (MyFakes.ENABLE_PLANETS)
-            {
-                parent.Controls.Add(enableFloraLabel);
-                parent.Controls.Add(m_enableFlora);
-            }
+            parent.Controls.Add(enableJetpackLabel);
+            parent.Controls.Add(m_enableJetpack);
 
             parent.Controls.Add(respawnShipDeleteLabel);
             parent.Controls.Add(m_respawnShipDelete);
@@ -603,8 +573,8 @@ namespace Sandbox.Game.Gui
             disableRespawnShipsLabel.Position = new Vector2(disableRespawnShipsLabel.Position.X - labelSize / 2, disableRespawnShipsLabel.Position.Y + buttonsOffset);
             m_disableRespawnShips.Position = new Vector2(m_disableRespawnShips.Position.X - labelSize / 2, m_disableRespawnShips.Position.Y + buttonsOffset);
 
-            enableFloraLabel.Position = new Vector2(enableFloraLabel.Position.X - labelSize / 2, enableFloraLabel.Position.Y + buttonsOffset);
-            m_enableFlora.Position = new Vector2(m_enableFlora.Position.X - labelSize / 2, m_enableFlora.Position.Y + buttonsOffset);
+            enableJetpackLabel.Position = new Vector2(enableJetpackLabel.Position.X - labelSize / 2, enableJetpackLabel.Position.Y + buttonsOffset);
+            m_enableJetpack.Position = new Vector2(m_enableJetpack.Position.X - labelSize / 2, m_enableJetpack.Position.Y + buttonsOffset);
 
             //Middle column checkboxes
 
@@ -624,9 +594,9 @@ namespace Sandbox.Game.Gui
             enableSunRotationLabel.Position = new Vector2(rightColumnOffset - labelSize / 2, m_disableRespawnShips.Position.Y);
             m_enableSunRotation.Position = new Vector2(rightColumnOffset + labelSize / 2, m_disableRespawnShips.Position.Y);
 
-            enablePlanetsLabel.Position = new Vector2(rightColumnOffset - labelSize / 2, enableFloraLabel.Position.Y);
-            m_enablePlanets.Position = new Vector2(rightColumnOffset + labelSize / 2, m_enableFlora.Position.Y);
-         
+            spawnWithToolsLabel.Position = new Vector2(rightColumnOffset - labelSize / 2, m_enableJetpack.Position.Y);
+            m_spawnWithTools.Position = new Vector2(rightColumnOffset + labelSize / 2, m_enableJetpack.Position.Y);
+
             if (MyFakes.ENABLE_CARGO_SHIPS)
             {
                 parent.Controls.Add(shipsEnabledLabel);
@@ -697,14 +667,11 @@ namespace Sandbox.Game.Gui
 			parent.Controls.Add(enableStationVoxelLabel);
 			parent.Controls.Add(m_stationVoxelSupport);
 
-            if (MyFakes.ENABLE_PLANETS)
-            {
-                parent.Controls.Add(enablePlanetsLabel);
-                parent.Controls.Add(m_enablePlanets);
-            }
-
             parent.Controls.Add(enableSunRotationLabel);
             parent.Controls.Add(m_enableSunRotation);
+
+            parent.Controls.Add(spawnWithToolsLabel);
+            parent.Controls.Add(m_spawnWithTools);
 
             m_survivalModeButton.OriginAlign = MyGuiDrawAlignEnum.HORISONTAL_RIGHT_AND_VERTICAL_CENTER;
             m_survivalModeButton.Position = m_creativeModeButton.Position + new Vector2(m_onlineMode.Size.X, 0);
@@ -940,20 +907,8 @@ namespace Sandbox.Game.Gui
             }
         }
 
-		public int GetFloraDensity()
-		{
-			return (int)m_floraDensityCombo.GetSelectedKey();
-		}
 
-		private MyFloraDensityEnum FloraDensityEnumKey(int floraDensity)
-		{
-			var value = (MyFloraDensityEnum)floraDensity;
-			if (Enum.IsDefined(typeof(MyFloraDensityEnum), value))
-			{
-				return (MyFloraDensityEnum)floraDensity;
-			}
-			return MyFloraDensityEnum.LOW;
-		}
+		
 
         public void GetSettings(MyObjectBuilder_SessionSettings output)
         {
@@ -983,11 +938,12 @@ namespace Sandbox.Game.Gui
             }
             output.RespawnShipDelete = m_respawnShipDelete.IsChecked;
             output.EnableInventoryMass = m_enableInventoryMass.IsChecked;
-			output.EnableFlora = m_enableFlora.IsChecked;
+
             output.EnableStationVoxelSupport = m_stationVoxelSupport.IsChecked;
             output.DisableRespawnShips = m_disableRespawnShips.IsChecked;
-            output.EnablePlanets = m_enablePlanets.IsChecked;
             output.EnableSunRotation = m_enableSunRotation.IsChecked;
+            output.EnableJetpack = m_enableJetpack.IsChecked;
+            output.SpawnWithTools = m_spawnWithTools.IsChecked;
 
             output.MaxPlayers = (short)m_maxPlayersSlider.Value;
             output.MaxFloatingObjects = (short)m_maxFloatingObjectsSlider.Value;
@@ -1003,7 +959,7 @@ namespace Sandbox.Game.Gui
 
             output.WorldSizeKm = GetWorldSize();
             output.ViewDistance = GetViewDistance();
-			output.FloraDensity = GetFloraDensity();
+
             output.RealisticSound = ((MySoundModeEnum)m_soundModeCombo.GetSelectedKey() == MySoundModeEnum.Realistic);
 
             output.PhysicsIterations = (int)m_physicsOptionsCombo.GetSelectedKey();
@@ -1018,7 +974,6 @@ namespace Sandbox.Game.Gui
             m_worldSizeCombo.SelectItemByKey((int)WorldSizeEnumKey(settings.WorldSizeKm));
             m_spawnShipTimeCombo.SelectItemByKey((int)(settings.SpawnShipTimeMultiplier * 10));
             m_viewDistanceCombo.SelectItemByKey((int)ViewDistanceEnumKey(settings.ViewDistance));
-			m_floraDensityCombo.SelectItemByKey((int)FloraDensityEnumKey(settings.FloraDensity));
             m_soundModeCombo.SelectItemByKey(settings.RealisticSound ? (int)MySoundModeEnum.Realistic : (int)MySoundModeEnum.Arcade);
             if (m_physicsOptionsCombo.TryGetItemByKey(settings.PhysicsIterations) != null)
                 m_physicsOptionsCombo.SelectItemByKey(settings.PhysicsIterations);
@@ -1049,16 +1004,14 @@ namespace Sandbox.Game.Gui
             }
             m_disableRespawnShips.IsChecked = settings.DisableRespawnShips;
             m_respawnShipDelete.IsChecked = settings.RespawnShipDelete;
-			m_enableFlora.IsChecked = settings.EnableFlora;
 			m_stationVoxelSupport.IsChecked = settings.EnableStationVoxelSupport;
-            m_enablePlanets.IsChecked = settings.EnablePlanets;
             m_enableSunRotation.IsChecked = settings.EnableSunRotation;
+
+            m_enableJetpack.IsChecked = settings.EnableJetpack;
+            m_spawnWithTools.IsChecked = settings.SpawnWithTools;
 
             m_sunRotationIntervalSlider.Enabled = m_enableSunRotation.IsChecked;
             m_sunRotationPeriodValue.Visible = m_enableSunRotation.IsChecked;
-
-            m_enableFlora.Enabled = m_enablePlanets.IsChecked;
-            m_floraDensityCombo.Enabled = m_enablePlanets.IsChecked;
 
             m_sunRotationIntervalSlider.Value = MathHelper.Clamp(MathHelper.InterpLogInv((float)settings.SunRotationIntervalMinutes, MIN_DAY_TIME_MINUTES, MAX_DAY_TIME_MINUTES), 0, 1);
             m_maxPlayersSlider.Value = settings.MaxPlayers;
