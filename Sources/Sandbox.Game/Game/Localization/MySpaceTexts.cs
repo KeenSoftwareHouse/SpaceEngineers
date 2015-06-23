@@ -10549,6 +10549,7 @@ namespace Sandbox.Game.Localization
         ///</summary>
         public static readonly MyStringId WorldSettings_InventoryMass = MyStringId.GetOrCompute("WorldSettings_InventoryMass");
 
+        ///<summary>
         ///Organic
         ///</summary>
         public static readonly MyStringId DisplayName_Item_Organic = MyStringId.GetOrCompute("DisplayName_Item_Organic");

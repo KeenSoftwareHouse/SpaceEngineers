@@ -133,7 +133,9 @@ namespace Sandbox.Game.Weapons
             m_gunBase.Init(ob.GunBase, BlockDefinition, this);
 
             m_ammoInventory.ContentsChanged += m_ammoInventory_ContentsChanged;
-            m_ammoInventory.ContentsChanged += Inventory_ContentsChanged;
+
+            if (MySession.Static.Settings.EnableInventoryMass)
+                m_ammoInventory.ContentsChanged += Inventory_ContentsChanged;
 
             PowerReceiver = new MyPowerReceiver(
                 MyConsumerGroupEnum.Defense, 
