@@ -27,6 +27,7 @@ using VRage.ModAPI;
 using VRage.Game;
 using VRage.ObjectBuilders;
 using VRage.Components;
+using System.Diagnostics;
 
 
 namespace Sandbox.Game.Entities
@@ -34,9 +35,8 @@ namespace Sandbox.Game.Entities
     [MyEntityType(typeof(MyObjectBuilder_Planet))]
     public class MyPlanet : MyVoxelBase, IMyGravityProvider, IMyOxygenProvider
     {
-        const float GRAVITY_AT_CORE = 4.0f;
         const int PHYSICS_SECTOR_SIZE_METERS = 2048;
-        const float DEFAULT_GRAVITY_RADIUS_KM = 50.0f;
+        const float DEFAULT_GRAVITY_RADIUS_KM = 25.0f;
         const int ENVIROMENT_EXTEND = 1;
         const int ENVIROMENT_EXTEND_KEEP =  2*ENVIROMENT_EXTEND;
 
@@ -134,6 +134,8 @@ namespace Sandbox.Game.Entities
             }
         }
 
+        float m_gravityFalloff;
+
         public override void Init(MyObjectBuilder_EntityBase builder)
         {        
             ProfilerShort.Begin("base init");
@@ -163,13 +165,14 @@ namespace Sandbox.Game.Entities
             m_savedEnviromentSectors = ob.SavedEnviromentSectors;
 
             Init(StorageName, MyStorageBase.Load(ob.StorageName), ob.PositionAndOrientation.Value.Position, ob.Radius, ob.AtmosphereRadius, 
-                ob.MaximumHillRadius, ob.MinimumSurfaceRadius, ob.HasAtmosphere, ob.AtmosphereWavelengths,ob.MaximumOxygen);
+                ob.MaximumHillRadius, ob.MinimumSurfaceRadius, ob.HasAtmosphere, ob.AtmosphereWavelengths,ob.MaximumOxygen,ob.GravityFalloff);
 
             ProfilerShort.End();
         }
 
-        public void Init(string storageName, IMyStorage storage, Vector3D positionMinCorner, float averagePlanetRadius, float atmosphereRadius, float maximumHillRadius, float minimumSurfaceRadius, bool hasAtmosphere, Vector3 atmosphereWavelengths,float maxOxygen)
+        public void Init(string storageName, IMyStorage storage, Vector3D positionMinCorner, float averagePlanetRadius, float atmosphereRadius, float maximumHillRadius, float minimumSurfaceRadius, bool hasAtmosphere, Vector3 atmosphereWavelengths,float maxOxygen,float gravityFalloff)
         {
+            m_gravityFalloff = gravityFalloff;
             m_maximumOxygen = maxOxygen;
             m_atmosphereWavelengths = atmosphereWavelengths;
             m_hasSpawningMaterial = storage.DataProvider.HasMaterialSpawningFlora();
@@ -231,6 +234,12 @@ namespace Sandbox.Game.Entities
 
         public void GenerateFloraGraphics(Vector3D pos)
         {
+            Debug.Assert(m_planetEnvironmentSectors != null, "null environment sector");
+            if (m_planetEnvironmentSectors == null)
+            {
+                return;
+            }
+
             Vector3D gravity = GetWorldGravityNormalized(ref pos);
             Vector3D perpedincular = MyUtils.GetRandomPerpendicularVector(ref gravity);
             Vector3D third = Vector3D.Cross(gravity, perpedincular);
@@ -404,17 +413,24 @@ namespace Sandbox.Game.Entities
         {
             Vector3 direction = GetWorldGravityNormalized(ref worldPoint);
 
-            double distance = (WorldMatrix.Translation - worldPoint).Length();
+            double distanceToCenter = (WorldMatrix.Translation - worldPoint).Length();
             float attenuation = 1.0f;
 
-            if (distance > m_maximumHillRadius )
+            if (distanceToCenter > m_maximumHillRadius)
             {
-                double distanceToRadius = m_planetRadius / (m_planetRadius + distance);
-                attenuation = (float)(GRAVITY_AT_CORE * distanceToRadius * distanceToRadius);
+                distanceToCenter -= m_maximumHillRadius;
+                double distanceToRadius = m_planetRadius / (m_planetRadius + distanceToCenter);
+                attenuation = (float)Math.Pow(distanceToRadius,m_gravityFalloff);
+            }
+            else if (distanceToCenter < m_minimumSurfaceRadius)
+            {
+                double distanceToRadius = m_planetRadius / (m_planetRadius + distanceToCenter);
+                attenuation = (float)(1.0- distanceToRadius);
             }
 
             float planetScale = m_planetRadius / (DEFAULT_GRAVITY_RADIUS_KM * 1000.0f);
-            return direction * MyGravityProviderSystem.G * attenuation * planetScale;
+            float gravityMultiplier = attenuation * planetScale;
+            return direction * MyGravityProviderSystem.G * (gravityMultiplier >= 0.05f ? gravityMultiplier : 0.0f);
         }
 
         public Vector3 GetWorldGravityNormalized(ref Vector3D worldPoint)
@@ -611,6 +627,7 @@ namespace Sandbox.Game.Entities
             planetBuilder.AtmosphereWavelengths = m_atmosphereWavelengths;
             planetBuilder.MaximumOxygen = m_maximumOxygen;
             planetBuilder.SavedEnviromentSectors = m_savedEnviromentSectors;
+            planetBuilder.GravityFalloff = m_gravityFalloff;
             return planetBuilder;
         }
       

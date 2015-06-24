@@ -192,7 +192,7 @@ namespace Sandbox.Game.World
             else
                 inventory.Items.Clear();
 
-            if (scenario != null)
+            if (scenario != null && MySession.Static.Settings.SpawnWithTools)
             {
                 MyStringId[] guns;
                 if (MySession.Static.CreativeMode)

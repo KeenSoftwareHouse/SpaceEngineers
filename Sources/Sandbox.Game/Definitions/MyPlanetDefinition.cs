@@ -41,6 +41,10 @@ namespace Sandbox.Definitions
 
         public MyOreProbabilityRange[] MetalsOreProbability;
 
+        public MyRangedValue GravityFalloffPower;
+
+        public MyAtmosphereColorShift HostileAtmosphereColorShift;
+
         protected override void Init(MyObjectBuilder_DefinitionBase builder)
         {
             base.Init(builder);
@@ -69,6 +73,10 @@ namespace Sandbox.Definitions
             OrganicHeightEnd = ob.OrganicHeightEnd;
 
             MetalsOreProbability =  ob.MetalsOreProbability;
+
+            GravityFalloffPower = ob.GravityFalloffPower;
+
+            HostileAtmosphereColorShift = ob.HostileAtmosphereColorShift;
         }
     }
 }

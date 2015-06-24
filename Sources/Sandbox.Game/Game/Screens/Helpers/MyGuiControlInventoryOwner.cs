@@ -274,7 +274,7 @@ namespace Sandbox.Game.Screens.Helpers
             AttachOwner(owner);
         }
 
-        private void inventory_OnContentsChanged(MyInventory obj)
+        private void inventory_OnContentsChanged(IMyComponentInventory obj)
         {
             RefreshInventoryContents();
             if (InventoryContentsChanged != null)

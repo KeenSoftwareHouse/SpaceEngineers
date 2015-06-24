@@ -52,7 +52,7 @@ using IMyModdingControllableEntity = Sandbox.ModAPI.Interfaces.IMyControllableEn
 
 namespace Sandbox.Game.Entities.Character
 {
-    public class MyCharacterRaycastDetectorComponent : MyCharacterDetectorComponent
+    public class MyCharacterShapecastDetectorComponent : MyCharacterDetectorComponent
     {
         List<MyPhysics.HitInfo> m_hits = new List<MyPhysics.HitInfo>();
 
