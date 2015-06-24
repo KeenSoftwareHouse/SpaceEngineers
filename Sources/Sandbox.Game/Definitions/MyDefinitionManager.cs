@@ -20,6 +20,7 @@ using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Xml;
+using System.Xml.Linq;
 
 using VRage;
 using VRage.Collections;
@@ -132,9 +133,73 @@ namespace Sandbox.Definitions
             MySandboxGame.Log.WriteLine("MyDefinitionManager.LoadScenarios() - END");
         }
 
+        public List<MyPrefabProfileDefinition> GetEncounterProfiles(string filePath)
+        {
+            var result = new List<MyPrefabProfileDefinition>(); 
+                
+            XDocument xdoc = XDocument.Load(filePath);
+            XNamespace ns = "http://www.w3.org/2001/XMLSchema-instance";
+ 
+            var Prefabs = xdoc.Descendants("Prefab");
+ 
+            foreach (var prefab in Prefabs)
+            {
+                var newPrefab = new MyPrefabProfileDefinition();
+ 
+                var id = prefab.Element("Id");
+ 
+                if (id != null)
+                {
+                    newPrefab.Name = id.Element("SubtypeId").Value;
+                }
+ 
+                var GridSizes = prefab.Descendants("GridSizeEnum");
+ 
+                var largestGridSize = "Small";
+                foreach (var GridSize in GridSizes)
+                {
+                    if (GridSize.Value != "Small")
+                    {
+                        largestGridSize = GridSize.Value;
+                    }
+                }
+ 
+                newPrefab.GridSize = largestGridSize;
+                       
+                var blocks = prefab.Descendants("MyObjectBuilder_CubeBlock");
+ 
+                var blockTypesPresent = new SortedDictionary<string, int>();
+ 
+                foreach (var block in blocks)
+                {
+                    int count;
+ 
+                    var blockType = block.Attribute(ns + "type");
+                    if (blockType != null)
+                    {
+                        if (!blockTypesPresent.TryGetValue(blockType.Value, out count))
+                        {
+                            blockTypesPresent.Add(blockType.Value, 1);
+                        }
+                        else
+                        {
+                            blockTypesPresent[blockType.Value]++;
+                        }
+                    } 
+                }
+ 
+                newPrefab.BlocksCount = blocks.Count();
+ 
+                newPrefab.BlocksTypes = blockTypesPresent;
+                result.Add(newPrefab);
+            } 
+ 
+            return result;
+        }
+
         public void LoadDefinitionsOnly(List<MyObjectBuilder_Checkpoint.ModItem> mods)
         {
-            MySandboxGame.Log.WriteLine("MyDefinitionManager.LoadData() - START");
+            MySandboxGame.Log.WriteLine("MyDefinitionManager.LoadDefinitionsOnly() - START");
 
             UnloadData();
 
@@ -166,7 +231,7 @@ namespace Sandbox.Definitions
                     }
                 }
             }
-            MySandboxGame.Log.WriteLine("MyDefinitionManager.LoadData() - END");
+            MySandboxGame.Log.WriteLine("MyDefinitionManager.LoadDefinitionsOnly() - END");
         }
 
         private void LoadPrefabDefinitions(MyModContext context, DefinitionSet definitionSet, bool failOnDebug = true)

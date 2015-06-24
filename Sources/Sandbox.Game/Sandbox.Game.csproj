@@ -144,6 +144,7 @@
     <Compile Include="Definitions\MyAgentDefinition.cs" />
     <Compile Include="Definitions\MyAiCommandDefinition.cs" />
     <Compile Include="Definitions\MyBotDefinition.cs" />
+    <Compile Include="Definitions\MyPrefabProfileDefinition.cs" />
     <Compile Include="Definitions\MyStatsDefinition.cs" />
     <Compile Include="Definitions\MyTextPanelDefinition.cs" />
     <Compile Include="Definitions\MyLCDTextureDefinition.cs" />

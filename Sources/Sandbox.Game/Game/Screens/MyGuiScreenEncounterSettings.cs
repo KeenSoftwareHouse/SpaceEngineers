@@ -222,12 +222,18 @@ namespace Sandbox.Game.Gui
             // m_ShipsAvailable.Size = new Vector2(m_size.Value.X * 0.4375f, 1.25f);
             m_ShipsAvailable.Size = new Vector2(m_size.Value.X * 0.7f, 1.25f);
             m_ShipsAvailable.OriginAlign = MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_TOP;
-            m_ShipsAvailable.ColumnsCount = 2;
+            m_ShipsAvailable.ColumnsCount = 5;
 
             // m_ShipsAvailable.ItemSelected += OnTableItemSelected;
             // m_ShipsAvailable.ItemDoubleClicked += OnTableItemConfirmedOrDoubleClick;
             // m_ShipsAvailable.ItemConfirmed += OnTableItemConfirmedOrDoubleClick;
-            m_ShipsAvailable.SetCustomColumnWidths(new float[] { 0.5f, 0.5f });
+            m_ShipsAvailable.SetColumnName(0, new StringBuilder("Active"));
+            m_ShipsAvailable.SetColumnName(1, new StringBuilder("Name"));
+            m_ShipsAvailable.SetColumnName(2, new StringBuilder("Size"));
+            m_ShipsAvailable.SetColumnName(3, new StringBuilder("Blocks"));
+            m_ShipsAvailable.SetColumnName(4, new StringBuilder("Turrets"));
+
+            m_ShipsAvailable.SetCustomColumnWidths(new float[] { 0.1f, 0.55f, 0.1f, 0.15f, 0.15f });
             m_ShipsAvailable.SetColumnComparison(1, (a, b) => (a.Text).CompareToIgnoreCase(b.Text));
             float labelSize = 0.31f;
 
@@ -419,10 +425,6 @@ namespace Sandbox.Game.Gui
 
             MyDefinitionManager.Static.LoadDefinitionsOnly(mods);
 
-            //var prefabDefinition = MyDefinitionManager.Static.GetPrefabDefinition(prefab.SubtypeId); 
-
-            //MyDefinitionManager.Static.ReloadPrefabsFromFile(prefabDefinition.PrefabPath);
-
             var allSpawnGroups = MyDefinitionManager.Static.GetSpawnGroupDefinitions();
 
             foreach (var spawnGroup in allSpawnGroups)
@@ -431,33 +433,104 @@ namespace Sandbox.Game.Gui
 
                 if (spawnGroup.IsEncounter)
                 {
-                    if (spawnGroup.Voxels.Count == 0)
+                    //if (spawnGroup.Voxels.Count == 0)
                         foreach (var prefab in spawnGroup.Prefabs)
                         {
                             var prefabDefinition = MyDefinitionManager.Static.GetPrefabDefinition(prefab.SubtypeId);
 
-                            if (prefabDefinition.CubeGrids == null)
+                            List<MyPrefabProfileDefinition> encounterProfile = MyDefinitionManager.Static.GetEncounterProfiles(prefabDefinition.PrefabPath);                              
+                            
+                            var firstPrefab = encounterProfile[0];
+
+                            var turrets = 0;
+
+                            var interiorTurrets = 0;
+                            var gatlingTurrets = 0;
+                            var missileTurrets = 0;
+
+                            var blockToolTip = new StringBuilder();
+
+                            foreach(var blockType in firstPrefab.BlocksTypes)
                             {
-                                MyDefinitionManager.Static.ReloadPrefabsFromFile(prefabDefinition.PrefabPath);
-                                prefabDefinition = MyDefinitionManager.Static.GetPrefabDefinition(prefab.SubtypeId);
+                                var blockTypeName = blockType.Key.ToLower();
+
+                                var readableBlockTypeName = blockType.Key.Substring(16, blockType.Key.Length - 16);
+
+                                if (blockTypeName.Contains("turret"))
+                                {
+                                    turrets += blockType.Value;
+
+                                    if (blockTypeName.Contains("missile"))
+                                    {
+                                        missileTurrets += blockType.Value;
+                                    }
+
+                                    if (blockTypeName.Contains("interior"))
+                                    {
+                                        interiorTurrets += blockType.Value;
+                                    }
+
+                                    if (blockTypeName.Contains("gatling"))
+                                    {
+                                        gatlingTurrets += blockType.Value;
+                                    }
+                                }
+
+                                blockToolTip.Append(string.Format("{0}: {1} \n", BreakUpName(readableBlockTypeName), blockType.Value));
                             }
-                            MyObjectBuilder_CubeGrid[] gridObs = prefabDefinition.CubeGrids;
 
-                            //if (gridObs.Count() != 0)
-                            //{
+                            var gridSize = spawnGroup.Voxels.Count == 0 ? firstPrefab.GridSize : "Base";
 
-                            //}
+                            var turretToolTip = new StringBuilder();
+                            turretToolTip.Append(string.Format("Interior: {0} \n", interiorTurrets));
+                            turretToolTip.Append(string.Format("Gatling: {0} \n", gatlingTurrets));
+                            turretToolTip.Append(string.Format("Missile: {0}", missileTurrets));
 
                             if (matchesSelectionFilter)
                             {
                                 var row = new MyGuiControlTable.Row();
-                                row.AddCell(new MyGuiControlTable.Cell(text: gridObs[0].CubeBlocks.Count.ToString(), toolTip: "Test ToolTip 1"));
-                                row.AddCell(new MyGuiControlTable.Cell(text: prefab.SubtypeId, toolTip: "Test ToolTip 2"));
+                                row.AddCell(new MyGuiControlTable.Cell(text: "Yes", toolTip: "Test ToolTip 2"));
+                                row.AddCell(new MyGuiControlTable.Cell(text: prefab.SubtypeId.Replace("_", " "), toolTip: "Test ToolTip 2"));
+                                row.AddCell(new MyGuiControlTable.Cell(text: gridSize, toolTip: "Test ToolTip 1"));
+                                row.AddCell(new MyGuiControlTable.Cell(text: firstPrefab.BlocksCount.ToString(), toolTip: blockToolTip.ToString()));
+                                row.AddCell(new MyGuiControlTable.Cell(text: turrets.ToString(), toolTip: turretToolTip.ToString()));                              
+                                
                                 m_ShipsAvailable.Add(row);
                             }
                         }
                 }
             }
+
+            MyDefinitionManager.Static.UnloadData();
+        }
+
+        private string BreakUpName(string inputString)
+        {
+            var result = "";
+            var firstUpperFound = false;
+
+            foreach(char character in inputString)
+            {
+                if(char.IsUpper(character))
+                {
+                    if(firstUpperFound)
+                    {
+                        result += " ";                        
+                    }
+                    else
+                    {
+                        firstUpperFound = true;
+                    }
+
+                    result += character;
+                }
+                else
+                {
+                    result += character;
+                }
+            }
+
+            return result;
         }
 
         private void CancelButtonClicked(object sender)
