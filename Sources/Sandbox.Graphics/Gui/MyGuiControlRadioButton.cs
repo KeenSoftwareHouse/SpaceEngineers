@@ -305,7 +305,7 @@ namespace Sandbox.Graphics.GUI
 
         public override void Draw(float transitionAlpha, float backgroundTransitionAlpha)
         {
-            base.Draw(transitionAlpha, backgroundTransitionAlpha);
+            base.Draw(transitionAlpha, transitionAlpha);
 
             Vector2 topLeft = Vector2.Zero;
             if (Icon.HasValue || (Text != null && Text.Length > 0))
