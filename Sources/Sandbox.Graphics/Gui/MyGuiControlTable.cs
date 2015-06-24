@@ -880,7 +880,7 @@ namespace Sandbox.Graphics.GUI
 
         public class Cell
         {
-            public readonly StringBuilder Text;
+            public StringBuilder Text;
             public readonly object UserData;
             public readonly MyToolTips ToolTip;
             public readonly MyGuiHighlightTexture? Icon;

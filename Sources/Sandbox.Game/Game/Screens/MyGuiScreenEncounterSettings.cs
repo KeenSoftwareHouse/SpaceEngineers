@@ -38,6 +38,8 @@ namespace Sandbox.Game.Gui
         MyGuiControlCheckbox m_antennaRangeMaxedOut, m_damageAppliedGlobally;
         MyGuiControlTable m_ShipsAvailable;
 
+        private MyGuiControlTable.Row m_selectedRow;
+
         public bool IsConfirmed
         {
             get
@@ -224,7 +226,7 @@ namespace Sandbox.Game.Gui
             m_ShipsAvailable.OriginAlign = MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_TOP;
             m_ShipsAvailable.ColumnsCount = 5;
 
-            // m_ShipsAvailable.ItemSelected += OnTableItemSelected;
+            m_ShipsAvailable.ItemSelected += OnTableItemSelected;
             // m_ShipsAvailable.ItemDoubleClicked += OnTableItemConfirmedOrDoubleClick;
             // m_ShipsAvailable.ItemConfirmed += OnTableItemConfirmedOrDoubleClick;
             m_ShipsAvailable.SetColumnName(0, new StringBuilder("Active"));
@@ -234,7 +236,12 @@ namespace Sandbox.Game.Gui
             m_ShipsAvailable.SetColumnName(4, new StringBuilder("Turrets"));
 
             m_ShipsAvailable.SetCustomColumnWidths(new float[] { 0.1f, 0.55f, 0.1f, 0.15f, 0.15f });
+            m_ShipsAvailable.SetColumnComparison(0, (a, b) => (a.Text).CompareToIgnoreCase(b.Text));
             m_ShipsAvailable.SetColumnComparison(1, (a, b) => (a.Text).CompareToIgnoreCase(b.Text));
+            m_ShipsAvailable.SetColumnComparison(2, (a, b) => (a.Text).CompareToIgnoreCase(b.Text));
+            m_ShipsAvailable.SetColumnComparison(3, (a, b) => int.Parse(a.Text.ToString()).CompareTo(int.Parse(b.Text.ToString())));
+            m_ShipsAvailable.SetColumnComparison(4, (a, b) => int.Parse(a.Text.ToString()).CompareTo(int.Parse(b.Text.ToString())));            
+
             float labelSize = 0.31f;
 
             float MARGIN_TOP = 0.15f;
@@ -479,7 +486,27 @@ namespace Sandbox.Game.Gui
                                 blockToolTip.Append(string.Format("{0}: {1} \n", BreakUpName(readableBlockTypeName), blockType.Value));
                             }
 
-                            var gridSize = spawnGroup.Voxels.Count == 0 ? firstPrefab.GridSize : "Base";
+                            var gridSize = "";
+                            var gridSizeToolTip = "";
+
+                            if (spawnGroup.Voxels.Count != 0)
+                            {
+                                gridSize = "Base";
+                                gridSizeToolTip = "Asteroid Base";
+                            }
+                            else
+                            {
+                                if (firstPrefab.GridSize.ToLower() == "large")
+                                {
+                                    gridSize = "Large";
+                                    gridSizeToolTip = "Large Ship";
+                                }
+                                else
+                                {
+                                    gridSize = "Small";
+                                    gridSizeToolTip = "Small Ship";
+                                }
+                            }
 
                             var turretToolTip = new StringBuilder();
                             turretToolTip.Append(string.Format("Interior: {0} \n", interiorTurrets));
@@ -489,9 +516,9 @@ namespace Sandbox.Game.Gui
                             if (matchesSelectionFilter)
                             {
                                 var row = new MyGuiControlTable.Row();
-                                row.AddCell(new MyGuiControlTable.Cell(text: "Yes", toolTip: "Test ToolTip 2"));
-                                row.AddCell(new MyGuiControlTable.Cell(text: prefab.SubtypeId.Replace("_", " "), toolTip: "Test ToolTip 2"));
-                                row.AddCell(new MyGuiControlTable.Cell(text: gridSize, toolTip: "Test ToolTip 1"));
+                                row.AddCell(new MyGuiControlTable.Cell(text: "Yes", toolTip: "Will be used in game"));
+                                row.AddCell(new MyGuiControlTable.Cell(text: prefab.SubtypeId.Replace("_", " "), toolTip: "The name of the ship or station"));
+                                row.AddCell(new MyGuiControlTable.Cell(text: gridSize, toolTip: gridSizeToolTip));
                                 row.AddCell(new MyGuiControlTable.Cell(text: firstPrefab.BlocksCount.ToString(), toolTip: blockToolTip.ToString()));
                                 row.AddCell(new MyGuiControlTable.Cell(text: turrets.ToString(), toolTip: turretToolTip.ToString()));                              
                                 
@@ -531,6 +558,23 @@ namespace Sandbox.Game.Gui
             }
 
             return result;
+        }
+
+        private void OnTableItemSelected(MyGuiControlTable sender, MyGuiControlTable.EventArgs eventArgs)
+        {
+            m_selectedRow = sender.SelectedRow;
+
+            if (!(m_selectedRow == null))
+            {
+                if (m_selectedRow.GetCell(0).Text.ToString() == "Yes")
+                {
+                    m_selectedRow.GetCell(0).Text = new StringBuilder("No");
+                }
+                else
+                {
+                    m_selectedRow.GetCell(0).Text = new StringBuilder("Yes");
+                }
+            }
         }
 
         private void CancelButtonClicked(object sender)
