@@ -483,7 +483,7 @@ namespace Sandbox.Game.Entities
                     Physics.AngularVelocity = builder.AngularVelocity;
                     if (!IsStatic)
                         Physics.Shape.BlocksConnectedToWorld.Clear();
-                    if(MyPerGameSettings.InventoryMass)
+                    if (MySession.Static.Settings.EnableInventoryMass)
                         m_inventoryMassDirty = true;
                 }
 

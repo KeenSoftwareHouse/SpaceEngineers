@@ -328,9 +328,9 @@ namespace Sandbox.Game.Entities.Cube
                 OutputInventory.AddItems(resultAmount, obResult);
 				
                 if(MySession.Static.Settings.EnableInventoryMass)
-				{
-					OutputInventory.ContentsChanged += Inventory_ContentsChanged;
-				}
+                {
+                    OutputInventory.ContentsChanged += Inventory_ContentsChanged;
+                }
             }
 
             RemoveFirstQueueItemAnnounce(blueprintAmount);

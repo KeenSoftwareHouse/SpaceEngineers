@@ -358,8 +358,8 @@ namespace Sandbox.Game.Entities.Cube
             if (Sync.IsServer)
                 OutputInventory.ContentsChanged += OutputInventory_ContentsChanged;
                 if (MySession.Static.Settings.EnableInventoryMass)
-					OutputInventory.ContentsChanged += Inventory_ContentsChanged;
-					InputInventory.ContentsChanged += Inventory_ContentsChanged;
+                    OutputInventory.ContentsChanged += Inventory_ContentsChanged;
+                    InputInventory.ContentsChanged += Inventory_ContentsChanged;
 
             bool removed = InputInventory.FilterItemsUsingConstraint();
             Debug.Assert(!removed, "Inventory filter removed items which were present in the object builder.");
