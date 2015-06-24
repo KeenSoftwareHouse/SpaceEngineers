@@ -17,4 +17,4 @@ Since this is actually a commercial project, Keen has some requirements before y
 ## Getting it Working
 
 * [Windows (using Chocolatey NuGet)](https://github.com/N3X15/SpaceEngineers-CE/wiki/Install-Windows-Choco)
-* [Configuring Build Environment](https://github.com/N3X15/SpaceEngineers-CE/wiki/Initial-setup)
+* [Configuring Build Environment](https://github.com/N3X15/SpaceEngineers-CE/wiki/Configure-Build-Environment)
