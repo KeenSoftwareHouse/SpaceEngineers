@@ -1,10 +1,12 @@
 ﻿
 using Sandbox.Common.ObjectBuilders;
 using Sandbox.Common.ObjectBuilders.Gui;
+using Sandbox.Definitions;
 using Sandbox.Engine.Utils;
 using Sandbox.Game.Localization;
 using Sandbox.Graphics.GUI;
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Text;
 using VRage;
@@ -30,10 +32,11 @@ namespace Sandbox.Game.Gui
         bool m_isNewGame;
         bool m_isConfirmed;
 
-        MyGuiControlButton m_okButton, m_cancelButton, m_peaceModeButton, m_adventureModeButton, m_warModeButton, m_ruinsModeButton, m_randomModeButton;
+        MyGuiControlButton m_okButton, m_cancelButton, m_peaceModeButton, m_adventureModeButton, m_warModeButton, m_ruinsModeButton, m_randomModeButton, m_viewShipsButton;
         MyGuiControlSlider m_maxNoShipsPerSpawnGroup, m_maxDamagedShipPercentage, m_maxHostileEncountersPercentage, m_antennaOnPercentage, m_reactorsOnPercentage;
         MyGuiControlCombobox m_maxDamagedShipsSeverity;
         MyGuiControlCheckbox m_antennaRangeMaxedOut, m_damageAppliedGlobally;
+        MyGuiControlTable m_ShipsAvailable;
 
         public bool IsConfirmed
         {
@@ -81,7 +84,7 @@ namespace Sandbox.Game.Gui
         {
             MyGuiControlParent parent = new MyGuiControlParent(size: new Vector2(Size.Value.X - 0.05f, Size.Value.Y));
             MyGuiControlScrollablePanel scrollPanel = new MyGuiControlScrollablePanel(parent);
-            scrollPanel.ScrollbarVEnabled = false;
+            scrollPanel.ScrollbarVEnabled = true;
             scrollPanel.Size = new Vector2(Size.Value.X - 0.05f, 0.8f);
 
             Vector2 buttonSize = MyGuiConstants.BACK_BUTTON_SIZE;
@@ -102,6 +105,7 @@ namespace Sandbox.Game.Gui
             var reactorsOnPercentageLabel = MakeLabel(MySpaceTexts.WorldSettings_ReactorsOnLabel);
             var damageAppliedGloballyLabel = MakeLabel(MySpaceTexts.WorldSettings_DamageAppliedGloballyLabel);
             var presetLabel = MakeLabel(MySpaceTexts.WorldSettings_PresetValuesLabel);
+            var viewShipsLabel = MakeLabel(MySpaceTexts.WorldSettings_PresetValuesLabel);
 
             // Setup settings controls
             m_maxNoShipsPerSpawnGroup = new MyGuiControlSlider(
@@ -209,6 +213,22 @@ namespace Sandbox.Game.Gui
             m_randomModeButton = new MyGuiControlButton(visualStyle: MyGuiControlButtonStyleEnum.Small, highlightType: MyGuiControlHighlightType.WHEN_CURSOR_OVER, text: MyTexts.Get(MySpaceTexts.WorldSettings_RandomMode), onButtonClick: RandomButtonClicked);
             m_randomModeButton.SetToolTip(MySpaceTexts.ToolTipEncounterSettings_RandomMode);
 
+            m_viewShipsButton = new MyGuiControlButton(visualStyle: MyGuiControlButtonStyleEnum.Small, highlightType: MyGuiControlHighlightType.WHEN_CURSOR_OVER, text: MyTexts.Get(MySpaceTexts.WorldSettings_RandomMode), onButtonClick: ViewShipsClicked);
+            m_viewShipsButton.SetToolTip(MySpaceTexts.ToolTipEncounterSettings_RandomMode);   
+
+            m_ShipsAvailable = new MyGuiControlTable();
+            m_ShipsAvailable.Position = Vector2.Zero - new Vector2(-0.0f, 0.0f);
+            m_ShipsAvailable.VisibleRowsCount = 10;
+            // m_ShipsAvailable.Size = new Vector2(m_size.Value.X * 0.4375f, 1.25f);
+            m_ShipsAvailable.Size = new Vector2(m_size.Value.X * 0.7f, 1.25f);
+            m_ShipsAvailable.OriginAlign = MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_TOP;
+            m_ShipsAvailable.ColumnsCount = 2;
+
+            // m_ShipsAvailable.ItemSelected += OnTableItemSelected;
+            // m_ShipsAvailable.ItemDoubleClicked += OnTableItemConfirmedOrDoubleClick;
+            // m_ShipsAvailable.ItemConfirmed += OnTableItemConfirmedOrDoubleClick;
+            m_ShipsAvailable.SetCustomColumnWidths(new float[] { 0.5f, 0.5f });
+            m_ShipsAvailable.SetColumnComparison(1, (a, b) => (a.Text).CompareToIgnoreCase(b.Text));
             float labelSize = 0.31f;
 
             float MARGIN_TOP = 0.15f;
@@ -238,6 +258,9 @@ namespace Sandbox.Game.Gui
             parent.Controls.Add(antennaRangeMaxedLabel);
             parent.Controls.Add(m_antennaRangeMaxedOut);
 
+            parent.Controls.Add(viewShipsLabel);
+            parent.Controls.Add(m_viewShipsButton);
+
             // Automatic layout - position all controls added up to this point.
             Vector2 originL, originC;
             Vector2 controlsDelta = new Vector2(0f, 0.052f);
@@ -254,6 +277,9 @@ namespace Sandbox.Game.Gui
                 else
                     control.Position = originC + controlsDelta * numControls++;
             }
+
+            m_ShipsAvailable.Position = originL + controlsDelta * numControls;
+            parent.Controls.Add(m_ShipsAvailable);
 
             // The following controls need to be positioned manually.
             presetLabel.Position = originL + controlsDelta + new Vector2(0.23f, -0.09f);
@@ -382,6 +408,56 @@ namespace Sandbox.Game.Gui
 
             OnOkButtonClicked();
             CloseScreen();
+        }
+
+
+        private void ViewShipsClicked(object sender)
+        {
+            MyDefinitionManager.Static.UnloadData();
+
+            var mods = new List<MyObjectBuilder_Checkpoint.ModItem>(0);
+
+            MyDefinitionManager.Static.LoadDefinitionsOnly(mods);
+
+            //var prefabDefinition = MyDefinitionManager.Static.GetPrefabDefinition(prefab.SubtypeId); 
+
+            //MyDefinitionManager.Static.ReloadPrefabsFromFile(prefabDefinition.PrefabPath);
+
+            var allSpawnGroups = MyDefinitionManager.Static.GetSpawnGroupDefinitions();
+
+            foreach (var spawnGroup in allSpawnGroups)
+            {
+                var matchesSelectionFilter = true;
+
+                if (spawnGroup.IsEncounter)
+                {
+                    if (spawnGroup.Voxels.Count == 0)
+                        foreach (var prefab in spawnGroup.Prefabs)
+                        {
+                            var prefabDefinition = MyDefinitionManager.Static.GetPrefabDefinition(prefab.SubtypeId);
+
+                            if (prefabDefinition.CubeGrids == null)
+                            {
+                                MyDefinitionManager.Static.ReloadPrefabsFromFile(prefabDefinition.PrefabPath);
+                                prefabDefinition = MyDefinitionManager.Static.GetPrefabDefinition(prefab.SubtypeId);
+                            }
+                            MyObjectBuilder_CubeGrid[] gridObs = prefabDefinition.CubeGrids;
+
+                            //if (gridObs.Count() != 0)
+                            //{
+
+                            //}
+
+                            if (matchesSelectionFilter)
+                            {
+                                var row = new MyGuiControlTable.Row();
+                                row.AddCell(new MyGuiControlTable.Cell(text: gridObs[0].CubeBlocks.Count.ToString(), toolTip: "Test ToolTip 1"));
+                                row.AddCell(new MyGuiControlTable.Cell(text: prefab.SubtypeId, toolTip: "Test ToolTip 2"));
+                                m_ShipsAvailable.Add(row);
+                            }
+                        }
+                }
+            }
         }
 
         private void CancelButtonClicked(object sender)
