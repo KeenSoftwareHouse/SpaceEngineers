@@ -263,6 +263,7 @@ namespace Sandbox.Game
 
         public bool ContainItems(MyFixedPoint amount, MyObjectBuilder_PhysicalObject ob)
         {
+            if (ob == null) return false;
             return ContainItems(amount, ob.GetObjectId());
         }
 

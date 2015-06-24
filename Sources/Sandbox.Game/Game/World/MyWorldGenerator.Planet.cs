@@ -67,15 +67,23 @@ namespace Sandbox.Game.World
 
                         IMyStorage storage = new MyOctreeStorage(MyCompositeShapeProvider.CreatePlanetShape(0, ref shapeAttributes, ref hillAttributes, ref canyonAttributes, materialLayers), FindBestOctreeSize(size));
 
-                        float redAtmosphereShift = isHostile ? random.NextFloat(-0.15f, -0.05f) : 0;
-                        float greenAtmosphereShift = isHostile ? random.NextFloat(-0.15f, -0.05f) : 0;
-                        float blueAtmosphereShift = isHostile ? random.NextFloat(-0.15f, -0.05f) : 0;
+                        float redAtmosphereShift = isHostile ? random.NextFloat(planetDefinition.HostileAtmosphereColorShift.R.Min, planetDefinition.HostileAtmosphereColorShift.R.Max) : 0;
+                        float greenAtmosphereShift = isHostile ? random.NextFloat(planetDefinition.HostileAtmosphereColorShift.G.Min, planetDefinition.HostileAtmosphereColorShift.G.Max) : 0;
+                        float blueAtmosphereShift = isHostile ? random.NextFloat(planetDefinition.HostileAtmosphereColorShift.B.Min, planetDefinition.HostileAtmosphereColorShift.B.Max) : 0;
 
                         Vector3 atmosphereWavelengths = new Vector3(0.650f + redAtmosphereShift, 0.570f + greenAtmosphereShift, 0.475f + blueAtmosphereShift);
+
+                        atmosphereWavelengths.X = MathHelper.Clamp(atmosphereWavelengths.X, 0.1f, 1.0f);
+                        atmosphereWavelengths.Y = MathHelper.Clamp(atmosphereWavelengths.Y, 0.1f, 1.0f);
+                        atmosphereWavelengths.Z = MathHelper.Clamp(atmosphereWavelengths.Z, 0.1f, 1.0f);
+
+                        float gravityFalloff = random.NextFloat(planetDefinition.GravityFalloffPower.Min, planetDefinition.GravityFalloffPower.Max);
+
                         var voxelMap = new MyPlanet();
                         voxelMap.EntityId = entityId;
+
                         voxelMap.Init(storageName, storage, positionMinCorner, averagePlanetRadius, atmosphereRadius,
-                            averagePlanetRadius + hillHalfDeviation, minPlanetRadius, planetDefinition.HasAtmosphere, atmosphereWavelengths, isHostile ? 0.0f : 1.0f);
+                            averagePlanetRadius + hillHalfDeviation, minPlanetRadius, planetDefinition.HasAtmosphere, atmosphereWavelengths, isHostile ? 0.0f : 1.0f, gravityFalloff);
                         MyEntities.Add(voxelMap);
                         return voxelMap;
                     }

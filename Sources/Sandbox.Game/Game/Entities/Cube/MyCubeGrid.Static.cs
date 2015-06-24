@@ -1807,12 +1807,7 @@ namespace Sandbox.Game.Entities
                 return true;
             }
 
-            foreach (var block in targetGrid.GetBlocks())
-            {
-                if (IsInVoxels(block,false))
-                    return false;
-            }
-            return true;
+            return TestVoxelOverlap(ref settings, ref localAabb, ref worldMatrix, ref worldAabb, ref overlappedVoxelMap, touchingStaticGrid);
         }
 
         private static void TestGridPlacement(ref MyGridPlacementSettings settings, ref MatrixD worldMatrix, ref MyCubeGrid touchingGrid, float gridSize, bool isStatic, ref BoundingBoxD worldAabb, MyCubeBlockDefinition blockDefinition,

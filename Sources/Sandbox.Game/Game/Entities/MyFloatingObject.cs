@@ -152,16 +152,29 @@ namespace Sandbox.Game.Entities
             var massProperties = new HkMassProperties();
             HkShape shape = GetPhysicsShape(physicalItem.Mass * (float)Item.Amount, scale, out massProperties);
             var scaleMatrix = Matrix.CreateScale(scale);
-            HkConvexTransformShape transform = new HkConvexTransformShape((HkConvexShape)shape, ref scaleMatrix, HkReferencePolicy.None);
+
             if (Physics != null)
                 Physics.Close();
             Physics = new MyPhysicsBody(this, RigidBodyFlag.RBF_DEBRIS);
-            Physics.CreateFromCollisionObject(transform, Vector3.Zero, MatrixD.Identity, massProperties, MyPhysics.FloatingObjectCollisionLayer);
-            Physics.MaterialType = VoxelMaterial != null ? MyMaterialType.ROCK : MyMaterialType.METAL;
 
-            Physics.Enabled = true;
-            transform.Base.RemoveReference();
+            if (VoxelMaterial != null)
+            {
+                HkConvexTransformShape transform = new HkConvexTransformShape((HkConvexShape)shape, ref scaleMatrix, HkReferencePolicy.None);
+        
+                Physics.CreateFromCollisionObject(transform, Vector3.Zero, MatrixD.Identity, massProperties, MyPhysics.FloatingObjectCollisionLayer);
+               
+                Physics.Enabled = true;
+                transform.Base.RemoveReference();
+            }
+            else
+            {
+                Physics.CreateFromCollisionObject(shape, Vector3.Zero, MatrixD.Identity, massProperties, MyPhysics.FloatingObjectCollisionLayer);
+                Physics.Enabled = true;
+            }
+
+            Physics.MaterialType = VoxelMaterial != null ? MyMaterialType.ROCK : MyMaterialType.METAL;
             Physics.PlayCollisionCueEnabled = true;
+
             NeedsUpdate = MyEntityUpdateEnum.EACH_FRAME;
         }
 
@@ -205,6 +218,7 @@ namespace Sandbox.Game.Entities
             {
                 shapeType = HkShapeType.Box;
                 massProperties = HkInertiaTensorComputer.ComputeBoxVolumeMassProperties(halfExtents, mass);
+                massProperties.CenterOfMass = Model.BoundingBox.Center;
             }
 
             return MyDebris.Static.GetDebrisShape(Model, SimpleShape ? shapeType : HkShapeType.ConvexVertices);
