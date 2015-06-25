@@ -429,7 +429,10 @@ namespace Sandbox.Game.Entities
                             block.DoDamage(30 * m_thrustDefinition.FlameDamage, MyDamageType.Environment, attackerId:EntityId);
                     var areaPlanar = 0.5f * flameInfo.Radius * CubeGrid.GridSize;
                     var areaVertical = 0.5f * CubeGrid.GridSize;
-                    grid.Physics.ApplyDeformation(m_thrustDefinition.FlameDamage, areaPlanar, areaVertical, gridPos, gridDir, MyDamageType.Environment, CubeGrid.GridSizeEnum == MyCubeSize.Small ? 0.1f : 0);
+
+                    float damage = block.RaiseBeforeDamageApplied(m_thrustDefinition.FlameDamage, MyDamageType.Environment, EntityId);
+                    if(damage > 0f)
+                        grid.Physics.ApplyDeformation(m_thrustDefinition.FlameDamage, areaPlanar, areaVertical, gridPos, gridDir, MyDamageType.Environment, CubeGrid.GridSizeEnum == MyCubeSize.Small ? 0.1f : 0);
                 }
             }
         }

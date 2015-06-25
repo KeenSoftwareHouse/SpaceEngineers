@@ -562,9 +562,7 @@ namespace Sandbox.Game.Entities.Character
         public event Action<MyCharacter> CharacterDied;
 
         public event Action<float, MyDamageType, long> OnDestroyed;
-
         public event BeforeDamageApplied OnBeforeDamageApplied;
-
         public event Action<float, MyDamageType, long> OnAfterDamageApplied;
 
         private MyComponentInventoryAggregate m_inventoryAggregate;

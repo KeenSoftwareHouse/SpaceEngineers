@@ -244,8 +244,12 @@ namespace Sandbox.Game.Weapons
                     var block = grid.GetCubeBlock(blockPos);
                     if (block != null)
                     {
-                        (block as IMyDestroyableObject).DoDamage(m_projectileAmmoDefinition.ProjectileMassDamage, MyDamageType.Bullet, true, attackerId: m_weapon != null ? m_weapon.EntityId : 0);
-                        if (block.FatBlock == null)
+                        // We need to see if we're mitigating damage on this block since this may cause deformation, and we need to stop that if no damage is applied
+                        float damage = block.RaiseBeforeDamageApplied(m_projectileAmmoDefinition.ProjectileMassDamage, MyDamageType.Bullet, attackerId: m_weapon != null ? m_weapon.EntityId : 0);
+                        if(damage >= 0f)
+                            (block as IMyDestroyableObject).DoDamage(m_projectileAmmoDefinition.ProjectileMassDamage, MyDamageType.Bullet, true, attackerId: m_weapon != null ? m_weapon.EntityId : 0);
+
+                        if (block.FatBlock == null && damage >= 0f)
                             causeDeformation = true;
                     }
                     if (causeDeformation)

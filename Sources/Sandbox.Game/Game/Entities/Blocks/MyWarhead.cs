@@ -676,11 +676,11 @@ namespace Sandbox.Game.Entities.Cube
 
                 if (damage > 0)
                 {
-                    OnDestroy();
-
                     // Redundent, but let's be consistent
                     if (OnAfterDamageApplied != null)
                         OnAfterDamageApplied(damage, damageType, attackerId);
+
+                    OnDestroy();
 
                     if (OnDestroyed != null)
                         OnDestroyed(damage, damageType, attackerId);

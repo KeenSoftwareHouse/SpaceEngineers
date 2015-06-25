@@ -2996,6 +2996,11 @@ namespace Sandbox.Game.Entities
             if (!BlocksDestructionEnabled)
                 return 0;
 
+            // If damage is modified and no damage is applied, no deformation should be applied.
+            damage = block.RaiseBeforeDamageApplied(damage, MyDamageType.Deformation, attackerId);
+            if(damage <= 0f)
+                return 0;
+
             m_totalBoneDisplacement = 0.0f;
 
             // TODO: Optimization. Cache bone changes (moves) and apply them only at the end

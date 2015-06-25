@@ -956,12 +956,14 @@ namespace Sandbox.Game.Entities.Cube
             }
             finally { ProfilerShort.End(); }
 
-            MySession.Static.NegativeIntegrityTotal += damage;
-
+            // This may get double raised on blocks that can take deformation, as we use this to check for damage before deformation.  I don't want to remove this
+            // in case someone wants deformation but no damage.
             if (OnBeforeDamageApplied != null)
                 damage = OnBeforeDamageApplied(damage, damageType, attackerId);
 
+            MySession.Static.NegativeIntegrityTotal += damage;
             AccumulatedDamage += damage;
+
             if (m_componentStack.Integrity - AccumulatedDamage <= MyComponentStack.MOUNT_THRESHOLD)
             {
                 if (MyPerGameSettings.Destruction && hitInfo.HasValue)
@@ -1643,6 +1645,14 @@ namespace Sandbox.Game.Entities.Cube
                 aabb = new BoundingBoxD(Min * gridSize - gridSize / 2, Max * gridSize + gridSize / 2);
                 aabb = aabb.Transform(CubeGrid.WorldMatrix);
             }
+        }
+
+        public float RaiseBeforeDamageApplied(float damage, MyDamageType damageType, long attackerId)
+        {
+            if (OnBeforeDamageApplied != null)
+                return OnBeforeDamageApplied(damage, damageType, attackerId);
+            else
+                return damage;
         }
 
 		public static void SetBlockComponents(MyHudBlockInfo hudInfo, MySlimBlock block, IMyComponentInventory availableInventory = null)
