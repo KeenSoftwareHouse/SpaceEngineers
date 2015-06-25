@@ -37,6 +37,10 @@ namespace Sandbox.Game.Entities
         private static readonly int MAX_TRAJECTORY_LENGTH = 10000;
         private static readonly int MIN_SPEED = 100;
 
+        public event Action<float, MyDamageType, long> OnDestroyed;
+        public event BeforeDamageApplied OnBeforeDamageApplied;
+        public event Action<float, MyDamageType, long> OnAfterDamageApplied;
+
         MyMeteorGameLogic m_logic;
         public new MyMeteorGameLogic GameLogic { get { return m_logic; } set { base.GameLogic = value; } }
 
@@ -119,9 +123,9 @@ namespace Sandbox.Game.Entities
             GameLogic.OnDestroy();
         }
 
-        public void DoDamage(float damage, MyDamageType damageType, bool sync, MyHitInfo? hitInfo)
+        public void DoDamage(float damage, MyDamageType damageType, bool sync, MyHitInfo? hitInfo, long attackerId)
         {
-            GameLogic.DoDamage(damage, damageType, sync, hitInfo);
+            GameLogic.DoDamage(damage, damageType, sync, hitInfo, attackerId);
         }
 
         public float Integrity
@@ -138,7 +142,7 @@ namespace Sandbox.Game.Entities
 
 
 
-
+        // So much room for activities
 
 
 
@@ -379,11 +383,11 @@ namespace Sandbox.Game.Entities
                     }
                     else if (other is MyCharacter)
                     {
-                        (other as MyCharacter).DoDamage(50 * Entity.PositionComp.Scale.Value, MyDamageType.Environment, true);
+                        (other as MyCharacter).DoDamage(50 * Entity.PositionComp.Scale.Value, MyDamageType.Environment, true, Entity.EntityId);
                     }
                     else if (other is MyFloatingObject)
                     {
-                        (other as MyFloatingObject).DoDamage(100 * Entity.PositionComp.Scale.Value, MyDamageType.Deformation, true);
+                        (other as MyFloatingObject).DoDamage(100 * Entity.PositionComp.Scale.Value, MyDamageType.Deformation, true, Entity.EntityId);
                     }
                     else if (other is MyMeteor)
                     {
@@ -499,20 +503,30 @@ namespace Sandbox.Game.Entities
             }
 
 
-            public void DoDamage(float damage, MyDamageType damageType, bool sync, MyHitInfo? hitInfo)
+            public void DoDamage(float damage, MyDamageType damageType, bool sync, MyHitInfo? hitInfo, long attackerId)
             {
                 if (sync)
                 {
                     if (Sync.IsServer)
-                        MySyncHelper.DoDamageSynced(Entity, damage, damageType);
+                        MySyncHelper.DoDamageSynced(Entity, damage, damageType, attackerId);
                 }
                 else
                 {
+                    if (Entity.OnBeforeDamageApplied != null)
+                        damage = Entity.OnBeforeDamageApplied(damage, damageType, attackerId);
+
                     m_integrity -= damage;
+
+                    if (Entity.OnAfterDamageApplied != null)
+                        Entity.OnAfterDamageApplied(damage, damageType, attackerId);
 
                     if (m_integrity <= 0)
                     {
                         m_closeAfterSimulation = true;
+
+                        if (Entity.OnDestroyed != null)
+                            Entity.OnDestroyed(damage, damageType, attackerId);
+
                         return;
                     }
                 }

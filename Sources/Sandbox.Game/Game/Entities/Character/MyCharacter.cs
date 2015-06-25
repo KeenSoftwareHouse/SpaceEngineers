@@ -561,6 +561,12 @@ namespace Sandbox.Game.Entities.Character
 
         public event Action<MyCharacter> CharacterDied;
 
+        public event Action<float, MyDamageType, long> OnDestroyed;
+
+        public event BeforeDamageApplied OnBeforeDamageApplied;
+
+        public event Action<float, MyDamageType, long> OnAfterDamageApplied;
+
         private MyComponentInventoryAggregate m_inventoryAggregate;
         public MyComponentInventoryAggregate InventoryAggregate
         {
@@ -1513,7 +1519,7 @@ namespace Sandbox.Game.Entities.Character
             if (Sync.IsServer && !IsDead && m_currentMovementState != MyCharacterMovementEnum.Sitting && !MyEntities.IsInsideWorld((Vector3D)this.PositionComp.GetPosition()))
             {
                 if (MySession.Static.SurvivalMode)
-                    DoDamage(1000, MyDamageType.Suicide, true);
+                    DoDamage(1000, MyDamageType.Suicide, true, EntityId);
             }
 
             if (MyFakes.ENABLE_CHARACTER_VIRTUAL_PHYSICS && VirtualPhysics != null)
@@ -6179,16 +6185,19 @@ namespace Sandbox.Game.Entities.Character
             //NeedsUpdate = MyEntityUpdateEnum.EACH_FRAME | MyEntityUpdateEnum.EACH_10TH_FRAME | MyEntityUpdateEnum.EACH_100TH_FRAME;
         }
 
-        public void DoDamage(float damage, MyDamageType damageType, bool updateSync)
+        public void DoDamage(float damage, MyDamageType damageType, bool updateSync, long attackerId = 0)
         {
             if (!CharacterCanDie && !(damageType == MyDamageType.Suicide && MyPerGameSettings.CharacterSuicideEnabled))
                 return;
+
+            if (OnBeforeDamageApplied != null)
+                damage = OnBeforeDamageApplied(damage, damageType, attackerId);
 
             CharacterAccumulatedDamage += damage;
 
             if (updateSync)
             {
-                MySyncHelper.DoDamageSynced(this, damage, damageType);
+                MySyncHelper.DoDamageSynced(this, damage, damageType, attackerId);
                 return;
             }
 
@@ -6198,7 +6207,10 @@ namespace Sandbox.Game.Entities.Character
 				return;
 
             float oldHealth = Health;
-			health.Decrease(damage);
+            health.Decrease(damage);
+
+            if (OnAfterDamageApplied != null)
+                OnAfterDamageApplied(damage, damageType, attackerId);
 
             if (!IsDead)
             {
@@ -6215,6 +6227,9 @@ namespace Sandbox.Game.Entities.Character
 
 			if (health.Value <= health.MinValue)
             {
+                if (OnDestroyed != null)
+                    OnDestroyed(damage, damageType, attackerId);
+
                 m_dieAfterSimulation = true;
                 return;
             }
@@ -6244,7 +6259,7 @@ namespace Sandbox.Game.Entities.Character
                 callback: delegate(MyGuiScreenMessageBox.ResultEnum retval)
                 {
                     if (retval == MyGuiScreenMessageBox.ResultEnum.YES)
-                        DoDamage(1000, MyDamageType.Suicide, true);
+                        DoDamage(1000, MyDamageType.Suicide, true, this.EntityId);
                 }));
             }
         }
@@ -6962,9 +6977,9 @@ namespace Sandbox.Game.Entities.Character
             }            
         }
 
-        void DoDamageSuccess(float damage, MyDamageType damageType)
+        void DoDamageSuccess(float damage, MyDamageType damageType, long attackerId)
         {
-            DoDamage(damage, damageType, false);
+            DoDamage(damage, damageType, false, attackerId);
         }
         #endregion
 
@@ -7756,9 +7771,9 @@ namespace Sandbox.Game.Entities.Character
             OnDestroy();
         }
 
-        void IMyDestroyableObject.DoDamage(float damage, MyDamageType damageType, bool sync, MyHitInfo? hitInfo)
+        void IMyDestroyableObject.DoDamage(float damage, MyDamageType damageType, bool sync, MyHitInfo? hitInfo, long attackerId)
         {
-            DoDamage(damage, damageType, sync);
+            DoDamage(damage, damageType, sync, attackerId);
         }
 
         float IMyDestroyableObject.Integrity

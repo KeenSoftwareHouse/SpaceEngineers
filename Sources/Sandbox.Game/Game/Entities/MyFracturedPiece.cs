@@ -38,6 +38,10 @@ namespace Sandbox.Game.Entities
 
         public HitInfo InitialHit;
 
+        public event Action<float, Common.ObjectBuilders.Definitions.MyDamageType, long> OnDestroyed;
+        public event BeforeDamageApplied OnBeforeDamageApplied;
+        public event Action<float, Common.ObjectBuilders.Definitions.MyDamageType, long> OnAfterDamageApplied;
+
         private static List<HkdShapeInstanceInfo> m_tmpInfos = new List<HkdShapeInstanceInfo>();
 
         private float m_hitPoints;
@@ -439,14 +443,24 @@ namespace Sandbox.Game.Entities
             }
         }
 
-        public void DoDamage(float damage, Common.ObjectBuilders.Definitions.MyDamageType damageType, bool sync, MyHitInfo? hitInfo)
+        public void DoDamage(float damage, Common.ObjectBuilders.Definitions.MyDamageType damageType, bool sync, MyHitInfo? hitInfo, long attackerId)
         {
             if (Sync.IsServer)
             {
+                if (OnBeforeDamageApplied != null)
+                    damage = OnBeforeDamageApplied(damage, damageType, attackerId);
+
                 m_hitPoints -= damage;
+
+                if (OnAfterDamageApplied != null)
+                    OnAfterDamageApplied(damage, damageType, attackerId);
+
                 if (m_hitPoints <= 0)
                 {
                     MyFracturedPiecesManager.Static.RemoveFracturePiece(this, 2);
+
+                    if (OnDestroyed != null)
+                        OnDestroyed(damage, damageType, attackerId);
                 }
             }
         }

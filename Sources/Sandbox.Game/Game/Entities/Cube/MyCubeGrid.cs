@@ -2959,7 +2959,7 @@ namespace Sandbox.Game.Entities
             RaisePhysicsChanged();
         }
 
-        public void DoDamage(float damage, MyHitInfo hitInfo, Vector3? localPos = null)
+        public void DoDamage(float damage, MyHitInfo hitInfo, Vector3? localPos = null, long attackerId = 0)
         {
             Debug.Assert(Sync.IsServer);
             Vector3I cubePos;
@@ -2972,26 +2972,26 @@ namespace Sandbox.Game.Entities
             //Debug.Assert(cube != null, "Cannot find block for damage!");
             if (cube != null)
             {
-                ApplyDestructionDeformation(cube, damage, hitInfo);
+                ApplyDestructionDeformation(cube, damage, hitInfo, attackerId);
             }
         }
 
-        public void ApplyDestructionDeformation(MySlimBlock block, float damage = 1f, MyHitInfo? hitInfo = null)
+        public void ApplyDestructionDeformation(MySlimBlock block, float damage = 1f, MyHitInfo? hitInfo = null, long attackerId = 0)
         {
             if (MyPerGameSettings.Destruction)
             {
                 Debug.Assert(hitInfo.HasValue, "Destruction needs additional info");
-                (block as IMyDestroyableObject).DoDamage(damage, MyDamageType.Unknown, true, hitInfo);
+                (block as IMyDestroyableObject).DoDamage(damage, MyDamageType.Unknown, true, hitInfo, attackerId);
             }
             else
             {
                 Debug.Assert(Sandbox.Game.Multiplayer.Sync.IsServer, "ApplyDestructionDeformation is supposed to be only server method");
                 SyncObject.EnqueueDestructionDeformationBlock(block.Position);
-                ApplyDestructionDeformationInternal(block, true, damage);
+                ApplyDestructionDeformationInternal(block, true, damage, attackerId);
             }
         }
 
-        private float ApplyDestructionDeformationInternal(MySlimBlock block, bool sync, float damage = 1f)
+        private float ApplyDestructionDeformationInternal(MySlimBlock block, bool sync, float damage = 1f, long attackerId = 0)
         {
             if (!BlocksDestructionEnabled)
                 return 0;
@@ -3051,7 +3051,7 @@ namespace Sandbox.Game.Entities
 
             if (sync)
             {
-                (block as IMyDestroyableObject).DoDamage(m_totalBoneDisplacement * GridSize * 10.0f * damage, MyDamageType.Deformation, true);
+                (block as IMyDestroyableObject).DoDamage(m_totalBoneDisplacement * GridSize * 10.0f * damage, MyDamageType.Deformation, true, attackerId: attackerId);
             }
             return m_totalBoneDisplacement;
         }

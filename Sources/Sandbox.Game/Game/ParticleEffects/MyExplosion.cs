@@ -426,7 +426,7 @@ namespace Sandbox.Game
                                 var character = entity as Sandbox.Game.Entities.Character.MyCharacter;
                                 if (character != null && !(character.IsUsing is MyCockpit))
                                 {
-                                    character.DoDamage(m_explosionInfo.Damage * m_explosionForceSlices[s].Y, MyDamageType.Explosion, true);
+                                    character.DoDamage(m_explosionInfo.Damage * m_explosionForceSlices[s].Y, MyDamageType.Explosion, true, m_explosionInfo.OwnerEntity != null ? m_explosionInfo.OwnerEntity.EntityId : 0);
                                 }
 
                                 var ammoBase = entity as MyAmmoBase;
@@ -499,7 +499,7 @@ namespace Sandbox.Game
                 if (damage == 0)
                     continue;
                 var destroyableObj = entity as IMyDestroyableObject;
-                destroyableObj.DoDamage(damage, MyDamageType.Explosion, true);
+                destroyableObj.DoDamage(damage, MyDamageType.Explosion, true, attackerId: m_explosionInfo.OwnerEntity != null ? m_explosionInfo.OwnerEntity.EntityId : 0);
             }
         }
 

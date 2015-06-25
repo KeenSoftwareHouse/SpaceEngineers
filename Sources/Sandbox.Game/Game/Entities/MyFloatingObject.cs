@@ -60,6 +60,10 @@ namespace Sandbox.Game.Entities
 
         public bool WasRemovedFromWorld { get; set; }
 
+        public event Action<float, MyDamageType, long> OnDestroyed;
+        public event BeforeDamageApplied OnBeforeDamageApplied;
+        public event Action<float, MyDamageType, long> OnAfterDamageApplied;
+
         public int NumberOfFramesInsideVoxel = 0;
         public const int NUMBER_OF_FRAMES_INSIDE_VOXEL_TO_REMOVE = 5;
 
@@ -334,7 +338,7 @@ namespace Sandbox.Game.Entities
             get { return false; }
         }
 
-        public void DoDamage(float damage, MyDamageType damageType, bool sync)
+        public void DoDamage(float damage, MyDamageType damageType, bool sync, long attackerId)
         {
             if (MarkedForClose)
                 return;
@@ -345,11 +349,13 @@ namespace Sandbox.Game.Entities
                     return;
                 else
                 {
-                    MySyncHelper.DoDamageSynced(this, damage, damageType);
+                    MySyncHelper.DoDamageSynced(this, damage, damageType, attackerId);
                     return;
                 }
             }
 
+            if (OnBeforeDamageApplied != null)
+                damage = OnBeforeDamageApplied(damage, damageType, attackerId);
 
             var typeId = Item.Content.TypeId;
             if (typeId == typeof(MyObjectBuilder_Ore) ||
@@ -375,6 +381,9 @@ namespace Sandbox.Game.Entities
             else
             {
                 m_health -= (10 + 90 * DamageMultiplier) * damage;
+
+                if (OnAfterDamageApplied != null)
+                    OnAfterDamageApplied(damage, damageType, attackerId);
 
                 if (m_health < 0)
                 {
@@ -426,6 +435,9 @@ namespace Sandbox.Game.Entities
                                 MyFloatingObjects.Spawn(new MyPhysicalInventoryItem(Item.Amount * 0.8f, ScrapBuilder), PositionComp.GetPosition(), WorldMatrix.Forward, WorldMatrix.Up);
                         }
                     }
+
+                    if(OnDestroyed != null)
+                        OnDestroyed(damage, damageType, attackerId);
                 }
             }
 
@@ -463,9 +475,9 @@ namespace Sandbox.Game.Entities
             OnDestroy();
         }
 
-        void IMyDestroyableObject.DoDamage(float damage, MyDamageType damageType, bool sync, MyHitInfo? hitInfo)
+        void IMyDestroyableObject.DoDamage(float damage, MyDamageType damageType, bool sync, MyHitInfo? hitInfo, long attackerId)
         {
-            DoDamage(damage, damageType, sync);
+            DoDamage(damage, damageType, sync, attackerId);
         }
 
         float IMyDestroyableObject.Integrity

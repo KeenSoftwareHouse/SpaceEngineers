@@ -232,6 +232,7 @@ namespace Sandbox.Game.Weapons
         {
             if (!Sync.IsServer)
                 return;
+
             if (damagedEntity is MyCubeGrid)
             {
                 var grid = damagedEntity as MyCubeGrid;
@@ -243,7 +244,7 @@ namespace Sandbox.Game.Weapons
                     var block = grid.GetCubeBlock(blockPos);
                     if (block != null)
                     {
-                        (block as IMyDestroyableObject).DoDamage(m_projectileAmmoDefinition.ProjectileMassDamage, MyDamageType.Bullet, true);
+                        (block as IMyDestroyableObject).DoDamage(m_projectileAmmoDefinition.ProjectileMassDamage, MyDamageType.Bullet, true, attackerId: m_weapon != null ? m_weapon.EntityId : 0);
                         if (block.FatBlock == null)
                             causeDeformation = true;
                     }
@@ -252,7 +253,7 @@ namespace Sandbox.Game.Weapons
                 }
             }
             else if (damagedEntity is IMyDestroyableObject)
-                (damagedEntity as IMyDestroyableObject).DoDamage(m_projectileAmmoDefinition.ProjectileMassDamage, MyDamageType.Bullet, true);
+                (damagedEntity as IMyDestroyableObject).DoDamage(m_projectileAmmoDefinition.ProjectileMassDamage, MyDamageType.Bullet, true, attackerId: m_weapon != null ? m_weapon.EntityId : 0);
 
             //Handle damage ?? some WIP code by Ondrej
             //MyEntity damagedObject = entity;

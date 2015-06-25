@@ -36,7 +36,11 @@ namespace Sandbox.Game.Weapons
         private MyEntity m_collidedEntity;
         Vector3D? m_collisionPoint;
         long m_owner;
-        private float m_smokeEffectOffsetMultiplier = 0.4f; 
+        private float m_smokeEffectOffsetMultiplier = 0.4f;
+
+        public event Action<float, MyDamageType, long> OnDestroyed;
+        public event BeforeDamageApplied OnBeforeDamageApplied;
+        public event Action<float, MyDamageType, long> OnAfterDamageApplied;
 
         private MyEntity3DSoundEmitter m_soundEmitter;
 
@@ -301,15 +305,20 @@ namespace Sandbox.Game.Weapons
         {
         }
 
-        public void DoDamage(float damage, MyDamageType damageType, bool sync)
+        public void DoDamage(float damage, MyDamageType damageType, bool sync, long attackerId)
         {
             if (sync)
             {
                 if (Sync.IsServer)
-                    MySyncHelper.DoDamageSynced(this, damage, damageType);
+                    MySyncHelper.DoDamageSynced(this, damage, damageType, attackerId);
             }
             else
+            {
+                if (OnDestroyed != null)
+                    OnDestroyed(damage, damageType, attackerId);
+
                 Explode();
+            }
         }
 
         public float Integrity { get { return 1; } }
@@ -324,9 +333,9 @@ namespace Sandbox.Game.Weapons
             OnDestroy();
         }
 
-        void IMyDestroyableObject.DoDamage(float damage, MyDamageType damageType, bool sync, MyHitInfo? hitInfo)
+        void IMyDestroyableObject.DoDamage(float damage, MyDamageType damageType, bool sync, MyHitInfo? hitInfo, long attackerId)
         {
-            DoDamage(damage, damageType, sync);
+            DoDamage(damage, damageType, sync, attackerId);
         }
 
         float IMyDestroyableObject.Integrity

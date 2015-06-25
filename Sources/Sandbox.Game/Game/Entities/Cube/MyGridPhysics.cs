@@ -506,7 +506,7 @@ namespace Sandbox.Game.Entities.Cube
                             if (grid1 != null)
                             {
                                 var blockPos = GetGridPosition(value, grid1, 0);
-                                grid1.DoDamage(impact1, hitInfo, blockPos);
+                                grid1.DoDamage(impact1, hitInfo, blockPos, grid2 != null ? grid2.EntityId : 0);
                             }
                             else
                                 MyDestructionHelper.TriggerDestruction(impact1, (MyPhysicsBody)entity1.Physics, info.ContactPosition, value.ContactPoint.Normal, maxDestructionRadius);
@@ -514,7 +514,7 @@ namespace Sandbox.Game.Entities.Cube
                             if (grid2 != null)
                             {
                                 var blockPos = GetGridPosition(value, grid2, 1);
-                                grid2.DoDamage(impact1, hitInfo, blockPos);
+                                grid2.DoDamage(impact1, hitInfo, blockPos, grid1 != null ? grid1.EntityId : 0);
                             }
                             else
                                 MyDestructionHelper.TriggerDestruction(impact1, (MyPhysicsBody)entity2.Physics, info.ContactPosition, value.ContactPoint.Normal, maxDestructionRadius);
@@ -542,7 +542,7 @@ namespace Sandbox.Game.Entities.Cube
                             if (grid1 != null)
                             {
                                 var blockPos = GetGridPosition(value, grid1, 0);
-                                grid1.DoDamage(impact2, hitInfo, blockPos);
+                                grid1.DoDamage(impact2, hitInfo, blockPos, grid2 != null ? grid2.EntityId : 0);
                             }
                             else
                                 MyDestructionHelper.TriggerDestruction(impact2, (MyPhysicsBody)entity1.Physics, info.ContactPosition, value.ContactPoint.Normal, maxDestructionRadius);
@@ -550,7 +550,7 @@ namespace Sandbox.Game.Entities.Cube
                             if (grid2 != null)
                             {
                                 var blockPos = GetGridPosition(value, grid2, 1);
-                                grid2.DoDamage(impact2, hitInfo, blockPos);
+                                grid2.DoDamage(impact2, hitInfo, blockPos, grid1 != null ? grid1.EntityId : 0);
                             }
                             else
                                 MyDestructionHelper.TriggerDestruction(impact2, (MyPhysicsBody)entity2.Physics, info.ContactPosition, value.ContactPoint.Normal, maxDestructionRadius);

@@ -212,6 +212,18 @@ namespace Sandbox.Game.Entities.Cube
 
         public event Action<MySlimBlock, MyCubeGrid> CubeGridChanged;
 
+        public event Action<float, MyDamageType, long> OnDestroyed;
+
+        public event BeforeDamageApplied OnBeforeDamageApplied;
+
+        public event Action<float, MyDamageType, long> OnAfterDamageApplied;
+
+        public float m_lastDamage = 0f;
+
+        public long m_lastAttackerId = 0;
+
+        public MyDamageType m_lastDamageType = MyDamageType.Unknown;
+
         // Unique identifier
         public int UniqueId 
         {
@@ -902,27 +914,27 @@ namespace Sandbox.Game.Entities.Cube
             }
         }
 
-        void IMyDestroyableObject.DoDamage(float damage, MyDamageType damageType, bool sync, MyHitInfo? hitInfo)
+        void IMyDestroyableObject.DoDamage(float damage, MyDamageType damageType, bool sync, MyHitInfo? hitInfo, long attackerId)
         {
             if (sync)
             {
                 Debug.Assert(Sync.IsServer);
                 if (Sync.IsServer)
-                    MySyncHelper.DoDamageSynced(this, damage, damageType, hitInfo);
+                    MySyncHelper.DoDamageSynced(this, damage, damageType, hitInfo, attackerId);
             }
             else
-                this.DoDamage(damage, damageType, hitInfo: hitInfo);
+                this.DoDamage(damage, damageType, hitInfo: hitInfo, attackerId: attackerId);
             return;
         }
 
-        public void DoDamage(float damage, MyDamageType damageType, bool addDirtyParts = true, MyHitInfo? hitInfo = null, bool createDecal = true)
+        public void DoDamage(float damage, MyDamageType damageType, bool addDirtyParts = true, MyHitInfo? hitInfo = null, bool createDecal = true, long attackerId = 0)
         {
             if (!CubeGrid.BlocksDestructionEnabled)
                 return;
 
             if(FatBlock is MyCompoundCubeBlock) //jn: TODO think of something better
             {
-                (FatBlock as MyCompoundCubeBlock).DoDamage(damage, damageType, hitInfo);
+                (FatBlock as MyCompoundCubeBlock).DoDamage(damage, damageType, hitInfo, attackerId);
                 return;
             }
 
@@ -939,12 +951,15 @@ namespace Sandbox.Game.Entities.Cube
                 {
                     var destroyable = FatBlock as IMyDestroyableObject;
                     if (destroyable != null)
-                        destroyable.DoDamage(damage, damageType, false);
+                        destroyable.DoDamage(damage, damageType, false, attackerId: attackerId);
                 }
             }
             finally { ProfilerShort.End(); }
 
             MySession.Static.NegativeIntegrityTotal += damage;
+
+            if (OnBeforeDamageApplied != null)
+                damage = OnBeforeDamageApplied(damage, damageType, attackerId);
 
             AccumulatedDamage += damage;
             if (m_componentStack.Integrity - AccumulatedDamage <= MyComponentStack.MOUNT_THRESHOLD)
@@ -955,7 +970,7 @@ namespace Sandbox.Game.Entities.Cube
                     var gridPhysics = CubeGrid.Physics;
                     float maxDestructionRadius = CubeGrid.GridSizeEnum == MyCubeSize.Small ? 0.5f : 3;
                     if(Sync.IsServer)
-                       Sandbox.Engine.Physics.MyDestructionHelper.TriggerDestruction(damage - m_componentStack.Integrity, gridPhysics, hitInfo.Value.Position, hitInfo.Value.Normal, maxDestructionRadius);
+                        Sandbox.Engine.Physics.MyDestructionHelper.TriggerDestruction(damage - m_componentStack.Integrity, gridPhysics, hitInfo.Value.Position, hitInfo.Value.Normal, maxDestructionRadius);
                 }
                 else
                 {
@@ -972,6 +987,13 @@ namespace Sandbox.Game.Entities.Cube
                     CubeGrid.RenderData.AddDecal(Position, Vector3D.Transform(hitInfo.Value.Position, CubeGrid.PositionComp.WorldMatrixInvScaled),
                         Vector3D.TransformNormal(hitInfo.Value.Normal, CubeGrid.PositionComp.WorldMatrixInvScaled), BlockDefinition.PhysicalMaterial.DamageDecal);
             }
+
+            if (OnAfterDamageApplied != null)
+                OnAfterDamageApplied(damage, damageType, attackerId);
+
+            m_lastDamage = damage;
+            m_lastAttackerId = attackerId;
+            m_lastDamageType = damageType;
 
             return;
         }
@@ -1023,6 +1045,9 @@ namespace Sandbox.Game.Entities.Cube
                 {
                     CubeGrid.Physics.AddDirtyBlock(this);
                 }
+
+                if (OnDestroyed != null)
+                    OnDestroyed(m_lastDamage, m_lastDamageType, m_lastAttackerId);
             }
 
             ProfilerShort.End();

@@ -364,7 +364,7 @@ namespace Sandbox.Game.Weapons
                 }
                 if (character != null && Sync.IsServer)
                 {
-                    character.DoDamage(20, MyDamageType.Drill, true);
+                    character.DoDamage(20, MyDamageType.Drill, true, attackerId: EntityId);
                 }
             }
 

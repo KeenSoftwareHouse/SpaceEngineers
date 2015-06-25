@@ -52,6 +52,10 @@ namespace Sandbox.Game.Entities.Cube
         int m_warheadsInsideCount = 0;
         List<MyEntity> m_entitiesInShrinkenSphere = new List<MyEntity>();
 
+        public event Action<float, MyDamageType, long> OnDestroyed;
+        public event BeforeDamageApplied OnBeforeDamageApplied;
+        public event Action<float, MyDamageType, long> OnAfterDamageApplied;
+
         private bool m_countdownEmissivityColor;
 
         private int m_countdownMs;
@@ -651,7 +655,7 @@ namespace Sandbox.Game.Entities.Cube
             OnDestroy();
         }
 
-        void IMyDestroyableObject.DoDamage(float damage, MyDamageType damageType, bool sync, MyHitInfo? hitInfo)
+        void IMyDestroyableObject.DoDamage(float damage, MyDamageType damageType, bool sync, MyHitInfo? hitInfo, long attackerId)
         {
             if (MarkedToExplode || (!MySession.Static.DestructibleBlocks))
                 return;
@@ -661,13 +665,26 @@ namespace Sandbox.Game.Entities.Cube
             if (sync)
             {
                 if (Sync.IsServer)
-                    MySyncHelper.DoDamageSynced(this, damage, damageType);
+                    MySyncHelper.DoDamageSynced(this, damage, damageType, attackerId);
             }
             else
             {
+                if (OnBeforeDamageApplied != null)
+                    damage = OnBeforeDamageApplied(damage, damageType, attackerId);
+
                 m_damageType = damageType;
+
                 if (damage > 0)
+                {
                     OnDestroy();
+
+                    // Redundent, but let's be consistent
+                    if (OnAfterDamageApplied != null)
+                        OnAfterDamageApplied(damage, damageType, attackerId);
+
+                    if (OnDestroyed != null)
+                        OnDestroyed(damage, damageType, attackerId);
+                }
             }
             return;
         }

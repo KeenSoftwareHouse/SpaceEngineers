@@ -224,7 +224,7 @@ namespace Sandbox.Game.Weapons
                                     invOwn.GetInventory(0).TakeFloatingObject(flObj);
                                 }
                                 else
-                                    (entity as MyFloatingObject).DoDamage(70, MyDamageType.Drill, true);
+                                    (entity as MyFloatingObject).DoDamage(70, MyDamageType.Drill, true, attackerId: m_drillEntity.Parent != null ? m_drillEntity.Parent.EntityId : 0);
                             }
                             drillingSuccess = true;
                         }
@@ -238,7 +238,7 @@ namespace Sandbox.Game.Weapons
                         {
                             //MyRenderProxy.DebugDrawSphere(sphere.Center, sphere.Radius, Color.Green.ToVector3(), 1, true);
                             if (Sync.IsServer)
-                                character.DoDamage(20, MyDamageType.Drill, true);
+                                character.DoDamage(20, MyDamageType.Drill, true, attackerId: m_drillEntity.Parent != null ? m_drillEntity.Parent.EntityId : 0);
                             drillingSuccess = true;
                         }
                         else
@@ -249,7 +249,7 @@ namespace Sandbox.Game.Weapons
                             {
                                 //MyRenderProxy.DebugDrawSphere(sphere.Center, sphere.Radius, Color.Green.ToVector3(), 1, true);
                                 if (Sync.IsServer)
-                                    character.DoDamage(20, MyDamageType.Drill, true);
+                                    character.DoDamage(20, MyDamageType.Drill, true, attackerId: m_drillEntity.Parent != null ? m_drillEntity.Parent.EntityId : 0);
                                 drillingSuccess = true;
                             }
                         }
@@ -402,7 +402,7 @@ namespace Sandbox.Game.Weapons
                 if (block != null && block is IMyDestroyableObject && block.CubeGrid.BlocksDestructionEnabled)
                 {
                     var destroyable = (block as IMyDestroyableObject);
-                    destroyable.DoDamage(60, MyDamageType.Drill, Sync.IsServer);
+                    destroyable.DoDamage(60, MyDamageType.Drill, Sync.IsServer, attackerId: m_drillEntity.Parent != null ? m_drillEntity.Parent.EntityId : 0);
                     createDebris = grid.Physics.ApplyDeformation(0.25f, 1.5f, 2f, gridLocalTarget, Vector3.Normalize(gridLocalPos - gridLocalPosCenter), MyDamageType.Drill);
                 }
             }

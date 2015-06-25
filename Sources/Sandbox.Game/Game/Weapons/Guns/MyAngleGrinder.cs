@@ -181,7 +181,7 @@ namespace Sandbox.Game.Weapons
 
             var targetDestroyable = GetTargetDestroyable();
             if (targetDestroyable != null && Sync.IsServer)
-                targetDestroyable.DoDamage(20, MyDamageType.Drill, true);
+                targetDestroyable.DoDamage(20, MyDamageType.Drill, true, attackerId: Owner != null ? Owner.EntityId : 0);
         }
 
         protected override void StartLoopSound(bool effect)
