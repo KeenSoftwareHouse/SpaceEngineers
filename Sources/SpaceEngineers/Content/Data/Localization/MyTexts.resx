@@ -6725,4 +6725,12 @@ If there is no chance of accessing a medical room, the game is over and you can 
   <data name="BlockPropertyTitle_Projector_GetOwnership" xml:space="preserve">
     <value>Ownership from projector</value>
   </data>
+  <data name="ProgressTextCheckingModsFormatted" xml:space="preserve">
+    <value>Checking mods: {0}/{1}</value>
+    <comment>SECE mod download progress UI</comment>
+  </data>
+  <data name="ProgressTextDownloadingModsFormatted" xml:space="preserve">
+    <value>Downloading mods: {0}/{1}</value>
+    <comment>SECE mod download progress UI</comment>
+  </data>
 </root>

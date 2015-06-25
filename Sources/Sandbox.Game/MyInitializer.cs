@@ -79,6 +79,7 @@ namespace Sandbox
             MySandboxGame.IsPirated = !isSteamPath && !manifestPresent;
 
             MySandboxGame.Log.Init(logName.ToString(), MyFinalBuildConstants.APP_VERSION_STRING);
+            MySandboxGame.Log.WriteLine("NOTE: Space Engineers: Community Edition build");
             MySandboxGame.Log.WriteLine("Steam build: Always true");
             MySandboxGame.Log.WriteLine(string.Format("Is official: {0} {1}{2}{3}",
                 MyFinalBuildConstants.IS_OFFICIAL,
