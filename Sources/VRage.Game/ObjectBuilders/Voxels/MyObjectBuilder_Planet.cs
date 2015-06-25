@@ -36,5 +36,8 @@ namespace Sandbox.Common.ObjectBuilders.Voxels
         [ProtoMember]
         public List<Vector3I> SavedEnviromentSectors;
 
+        [ProtoMember]
+        public float GravityFalloff;
+
     }
 }

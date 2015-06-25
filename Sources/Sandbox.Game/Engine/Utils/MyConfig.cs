@@ -736,13 +736,13 @@ namespace Sandbox.Engine.Utils
 
         public float UITransparency
         {
-            get { return MyUtils.GetFloatFromString(GetParameterValue(UI_TRANSPARENCY), 1.0f); }
+            get { return MyUtils.GetFloatFromString(GetParameterValue(UI_TRANSPARENCY), 0.0f); }
             set { SetParameterValue(UI_TRANSPARENCY, value); }
         }
 
         public float UIBkTransparency
         {
-            get { return MyUtils.GetFloatFromString(GetParameterValue(UI_BK_TRANSPARENCY), 1.0f); }
+            get { return MyUtils.GetFloatFromString(GetParameterValue(UI_BK_TRANSPARENCY), 0.0f); }
             set { SetParameterValue(UI_BK_TRANSPARENCY, value); }
         }
 

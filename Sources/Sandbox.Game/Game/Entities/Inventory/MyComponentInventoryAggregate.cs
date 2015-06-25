@@ -9,151 +9,343 @@ using System.Text;
 using VRage;
 using VRage.Components;
 using VRage.ObjectBuilders;
-using Sandbox.Game.Entities.Inventory;
+
 namespace Sandbox.Game.Entities.Inventory
 {
     /// <summary>
-    /// This class is a aggregate of all component inventories on the character. This is intended to be used for buildng and crafting.
+    /// This class implements basic functionality for the interface IMyInventoryAggregate. Use it as base class only if the basic functionallity is enough.
     /// </summary>
-    public class MyComponentInventoryAggregate : MyEntityComponentBase, IMyInventoryAggregate
-    {
+    public class MyComponentInventoryAggregate : MyEntityComponentBase, IMyInventoryAggregate//VRage.Components.IMyComponentAggregate<MyComponentInventoryBase>
+    {         
         #region Fields
 
-        private MyEntity m_entity;
+        private  IMyInventoryOwner m_owner;
 
         private List<IMyInventoryAggregate> m_children = new List<IMyInventoryAggregate>();
 
         private List<IMyComponentInventory> m_attachedInventories = new List<IMyComponentInventory>();
 
-        private MyInventoryAggregateBase m_aggregate;
-
         #endregion
 
         #region Events
 
-        public event Action<IMyComponentInventory> ContentsChanged
+        public event Action<IMyComponentInventory> ContentsChanged;
+
+        public event Action<IMyComponentInventory, IMyInventoryOwner> OwnerChanged;
+
+
+        private void OnContentsChanged(IMyComponentInventory inventory)
         {
-            add { m_aggregate.ContentsChanged += value; }
-            remove { m_aggregate.ContentsChanged -= value; }
+            if (ContentsChanged != null)
+            {
+                ContentsChanged(inventory);
+            }
         }
 
-        public event Action<IMyComponentInventory, IMyInventoryOwner> OwnerChanged
+        private void OnOwnerChanged(IMyComponentInventory inventory, IMyInventoryOwner owner)
         {
-            add { m_aggregate.OwnerChanged += value; }
-            remove { m_aggregate.OwnerChanged -= value; }
+            if (OwnerChanged != null)
+            {
+                OwnerChanged(inventory, owner);
+            }
         }
 
         #endregion
 
         #region Properties
 
-        public IMyInventoryOwner Owner { get { return m_aggregate.Owner; } }
+        //TODO: This will be removed in future
+        public IMyInventoryOwner Owner
+        {
+            get { return m_owner; }
+        }
 
-        public List<IMyComponentInventory> OwnerInventories { get { return m_aggregate.OwnerInventories; } }
+        /// <summary>
+        /// If the owner is MyComponentInventoryBaseOwner, return all ComponentInventories, otherwise return the first inventory
+        /// </summary>
+        public List<IMyComponentInventory> OwnerInventories
+        {
+            get
+            {
+                List<IMyComponentInventory> list = new List<IMyComponentInventory>();
 
-        public List<IMyComponentInventory> Inventories { get { return m_aggregate.Inventories; } }
+                // list.AddList(GetAllCompontentInventories()); -- this is not working now
 
-        public MyFixedPoint CurrentMass { get { return m_aggregate.CurrentMass; } }
+                for (int i = 0; i < Owner.InventoryCount; ++i)
+                {
+                    if (!list.Contains(Owner.GetInventory(i)))
+                    {
+                        list.Add(Owner.GetInventory(i));
+                    }
+                }                
 
-        public MyFixedPoint MaxMass { get { return m_aggregate.MaxMass; } }
+                foreach (var child in m_children)
+                {
+                    list = list.Union(child.OwnerInventories).ToList();
+                }
 
-        public MyFixedPoint CurrentVolume { get { return m_aggregate.CurrentVolume; } }
+                return list;
+            }
+        }
 
-        public MyFixedPoint MaxVolume { get { return m_aggregate.MaxVolume; } }
+        /// <summary>
+        /// Returns list of all inventories, including inventories from children aggregates
+        /// </summary>
+        public List<IMyComponentInventory> Inventories
+        {
+            get
+            {
+                List<IMyComponentInventory> inventories = new List<IMyComponentInventory>();
+                foreach (var child in m_children)
+                {
+                    inventories = inventories.Union(child.Inventories).ToList();
+                }
+                inventories = inventories.Union(OwnerInventories).ToList();
+                inventories = inventories.Union(m_attachedInventories).ToList();
+                return inventories;
+            }
+        }
 
-        public VRage.Utils.MyStringId InventoryName { get { return m_aggregate.InventoryName; } } // TODO: Consider returning another name
+        public MyFixedPoint CurrentMass
+        {
+            get
+            {
+                float mass = 0;
+                foreach (var inventory in Inventories)
+                {
+                    mass += (float)inventory.CurrentMass;
+                }
+                return (MyFixedPoint)mass;
+            }
+        }
+
+        public MyFixedPoint MaxMass
+        {
+            get
+            {
+                float mass = 0;
+                foreach (var inventory in Inventories)
+                {
+                    mass += (float)inventory.MaxMass;
+                }
+                return (MyFixedPoint)mass;
+            }
+        }
+
+        public MyFixedPoint CurrentVolume
+        {
+            get
+            {
+                float volume = 0;
+                foreach (var inventory in Inventories)
+                {
+                    volume += (float)inventory.CurrentVolume;
+                }
+                return (MyFixedPoint)volume;
+            }
+        }
+
+        public MyFixedPoint MaxVolume
+        {
+            get
+            {
+                float volume = 0;
+                foreach (var inventory in Inventories)
+                {
+                    volume += (float)inventory.MaxVolume;
+                }
+                return (MyFixedPoint)volume;
+            }
+        }
+
+        public VRage.Utils.MyStringId InventoryName
+        {
+            get { return VRage.Utils.MyStringId.GetOrCompute("InventoryAggregate"); }
+        }
 
         #endregion
 
-        #region Constructor & Init
+        #region De/Constructor & Init
 
-        public MyComponentInventoryAggregate(MyEntity entity) 
+        public MyComponentInventoryAggregate(IMyInventoryOwner owner) 
         {
-            //TODO: This should be removed in the future, this is not necessary, when we know how to get the inventory owner 
-            Debug.Assert(entity is IMyInventoryOwner, "Entity must implement IMyInventoryOwner interface");
-            m_aggregate = new MyInventoryAggregateBase(entity as IMyInventoryOwner);
-            m_entity = entity;                        
+            //TODO: This should be removed in the future, this is not necessary
+            m_owner = owner;                                   
         }
 
-        public void Init(bool registerComponentInventories = true)
+        // Register callbacks
+        public void Init()
         {
-            if (registerComponentInventories)
+            foreach (var inventory in Inventories)
             {
-                var otherInventories = GetComponentInventories();
-                foreach (var inventory in otherInventories)
-                {
-                    AddInventory(inventory);
-                }
+                inventory.OwnerChanged += OnOwnerChanged;
+                inventory.ContentsChanged += OnContentsChanged;
             }
-            // TODO: Any other inicialization?
-            m_aggregate.Init();
+        }
+
+        // Detach callbacks
+        public void DetachCallbacks()
+        {
+            foreach (var inventory in Inventories)
+            {
+                inventory.OwnerChanged -= OnOwnerChanged;
+                inventory.ContentsChanged -= OnContentsChanged;
+            }
+        }
+
+        ~MyComponentInventoryAggregate()
+        {
+            DetachCallbacks();
         }
 
         #endregion
 
-        private List<IMyComponentInventory> GetComponentInventories()
+        
+        virtual public MyFixedPoint ComputeAmountThatFits(MyDefinitionId contentId)
         {
-            List<IMyComponentInventory> inventories = new List<IMyComponentInventory>();
-            foreach (var component in m_entity.Components)
+            float amount = 0;
+            foreach (var inventory in OwnerInventories)
             {
-                if (component is IMyComponentInventory && component != this)
+                amount += (float)inventory.ComputeAmountThatFits(contentId);
+            }
+            return (MyFixedPoint)amount;
+        }
+
+        virtual public MyFixedPoint GetItemAmount(MyDefinitionId contentId, MyItemFlags flags = MyItemFlags.None)
+        {
+            float amount = 0;
+            foreach (var inventory in OwnerInventories)
+            {
+                amount += (float)inventory.GetItemAmount(contentId, flags);
+            }
+            return (MyFixedPoint) amount;
+        }
+
+        virtual public bool AddItems(MyFixedPoint amount, MyObjectBuilder_Base objectBuilder, int index = -1)
+        {
+            var maxAmount = ComputeAmountThatFits(objectBuilder.GetId());
+            var restAmount = amount;
+            if (amount <= maxAmount)
+            {
+                foreach (var inventory in Inventories)
                 {
-                    inventories.Add(component as IMyComponentInventory);
+                    var availableSpace = inventory.ComputeAmountThatFits(objectBuilder.GetId());
+                    if (availableSpace > restAmount)
+                    {
+                        availableSpace = restAmount;
+                    }
+                    if (inventory.AddItems(availableSpace, objectBuilder))
+                    {
+                        restAmount -= availableSpace;
+                    }
                 }
             }
-            return inventories;
+            return restAmount == 0;
         }
 
-
-        public MyFixedPoint GetItemAmount(MyDefinitionId contentId, MyItemFlags flags = MyItemFlags.None)
+        virtual public void RemoveItemsOfType(MyFixedPoint amount, MyDefinitionId contentId, MyItemFlags flags = MyItemFlags.None, bool spawn = false)
         {
-            return m_aggregate.GetItemAmount(contentId, flags);
+            var restAmount = amount;
+            foreach (var inventory in Inventories)
+            {
+                var contains = inventory.GetItemAmount( contentId, flags);
+                if (contains > restAmount)
+                {
+                    contains = restAmount;
+                }
+                if (contains > 0) inventory.RemoveItemsOfType(contains, contentId, flags, spawn);
+                restAmount -= contains;
+            }
         }
 
-        public bool AddItems(MyFixedPoint amount, MyObjectBuilder_Base objectBuilder, int index = -1)
+        virtual public List<ModAPI.Interfaces.IMyInventoryItem> GetItems()
         {
-            return m_aggregate.AddItems(amount, objectBuilder, index);
+            List<ModAPI.Interfaces.IMyInventoryItem> items = new List<ModAPI.Interfaces.IMyInventoryItem>();
+            foreach (var inventory in Inventories)
+            {
+                items.AddList(inventory.GetItems());
+            }
+            return items;
         }
 
-        public void RemoveItemsOfType(MyFixedPoint amount, MyDefinitionId contentId, MyItemFlags flags = MyItemFlags.None, bool spawn = false)
+        virtual public IMyComponentInventory GetInventoryTypeId(VRage.Utils.MyStringId id)
         {
-            m_aggregate.RemoveItemsOfType(amount, contentId, flags, spawn);
+            foreach (var inventory in Inventories)
+            {
+                if (inventory.InventoryName == id) return inventory;
+            }
+            return null;
         }
 
-        public List<ModAPI.Interfaces.IMyInventoryItem> GetItems()
-        {
-            return m_aggregate.GetItems();
-        }
-
-        public IMyComponentInventory GetInventoryTypeId(VRage.Utils.MyStringId id)
-        {
-            return m_aggregate.GetInventoryTypeId(id);
-        }
-
-        public void AddChild(IMyInventoryAggregate child)
+        /// <summary>
+        /// Use this to add children aggregates - basically on character should be only two, CharacterInventoryAggregate and AreInventoryAggregate
+        /// </summary>
+        /// <param name="child">some child m_aggregate</param>
+        virtual public void AddChild(IMyInventoryAggregate child)
         {
             Debug.Assert(child != this, "Cannot add itself!");
-            m_aggregate.AddChild(child);
+            m_children.Add(child);
+            child.OwnerChanged += OnOwnerChanged;
+            child.ContentsChanged += OnContentsChanged;
         }
 
-        public void RemoveChild(IMyInventoryAggregate child)
+        /// <summary>
+        /// Use this to remove children m_aggregate, usually you want to remove only AreaInventoryAggregate from dead character
+        /// </summary>
+        /// <param name="child">some child m_aggregate implementation</param>
+        virtual public void RemoveChild(IMyInventoryAggregate child)
         {
-            m_aggregate.RemoveChild(child);
+            child.ContentsChanged -= OnContentsChanged;
+            child.OwnerChanged -= OnOwnerChanged;
+            m_children.Remove(child);
+
         }
 
-        public void AddInventory(IMyComponentInventory inventory)
+        virtual public void AddInventory(IMyComponentInventory inventory)
         {
-            m_aggregate.AddInventory(inventory);
+            //TODO: Consider adding inventories to the children aggregates
+            m_attachedInventories.Add(inventory);
         }
 
-        public void RemoveInventory(IMyComponentInventory inventory)
+        virtual public void RemoveInventory(IMyComponentInventory inventory)
         {
-            m_aggregate.RemoveInventory(inventory);
+            foreach (var child in m_children)
+            {
+                if (child.Inventories.Contains(inventory))
+                {
+                    child.RemoveInventory(inventory);
+                    return;
+                }
+            }
+            m_attachedInventories.Remove(inventory);
         }
-        
-        public MyFixedPoint ComputeAmountThatFits(MyDefinitionId contentId)
-        {
-            return m_aggregate.ComputeAmountThatFits(contentId);
-        }
+
+        //private List<MyComponentInventoryBase> GetComponentInventories()
+        //{
+        //    List<MyComponentInventoryBase> inventories = new List<MyComponentInventoryBase>();
+        //    foreach (var component in m_entity.Components)
+        //    {
+        //        if (component is MyComponentInventoryBase && component != this)
+        //        {
+        //            inventories.Add(component as MyComponentInventoryBase);
+        //        }
+        //    }
+        //    return inventories;
+        //}
+
+        //public void Init(bool registerComponentInventories = true)
+        //{
+        //    if (registerComponentInventories)
+        //    {
+        //        var otherInventories = GetComponentInventories();
+        //        foreach (var inventory in otherInventories)
+        //        {
+        //            AddInventory(inventory);
+        //        }
+        //    }
+        //    // TODO: Any other inicialization?
+        //    m_aggregate.Init();
+        //}
+
     }
 }

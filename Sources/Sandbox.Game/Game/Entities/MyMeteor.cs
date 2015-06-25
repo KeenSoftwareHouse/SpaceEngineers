@@ -368,6 +368,7 @@ namespace Sandbox.Game.Entities
                     return;
                 IMyEntity other = GetOtherEntity(ref value.ContactPointEvent);
                 if (Sync.IsServer)
+                {
                     if (other is MyCubeGrid)
                     {
                         var grid = other as MyCubeGrid;
@@ -378,7 +379,7 @@ namespace Sandbox.Game.Entities
                     }
                     else if (other is MyCharacter)
                     {
-                        (other as MyCharacter).DoDamage(50 * Entity.PositionComp.Scale.Value,  MyDamageType.Environment, true);
+                        (other as MyCharacter).DoDamage(50 * Entity.PositionComp.Scale.Value, MyDamageType.Environment, true);
                     }
                     else if (other is MyFloatingObject)
                     {
@@ -389,8 +390,9 @@ namespace Sandbox.Game.Entities
                         m_closeAfterSimulation = true;
                         (other.GameLogic as MyMeteorGameLogic).m_closeAfterSimulation = true;
                     }
+                }
 
-                if (other is MyVoxelMap)
+                if (other is MyVoxelBase)
                 {
                     CreateCrater(value, other as MyVoxelMap);
                 }

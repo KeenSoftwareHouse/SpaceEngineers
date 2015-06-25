@@ -391,10 +391,13 @@ namespace Sandbox.Game.Multiplayer
 
             MyMultiplayer.Static.RegisterForTick(this);
 
-            Entity.PositionComp.SetWorldMatrix(m_interpolator.TargetMatrix, this);
+            Debug.Assert(Entity.PositionComp != null, "Entity doesn't not have position component");
+            if (Entity.PositionComp != null)
+                Entity.PositionComp.SetWorldMatrix(m_interpolator.TargetMatrix, this);
+
             if (msg.LinearVelocity.ToVector3() == Vector3.Zero
                 && msg.AngularVelocity.ToVector3() == Vector3.Zero)
-                if (Entity.Physics.RigidBody != null && Entity.Physics.RigidBody.IsAddedToWorld) Entity.Physics.RigidBody.Deactivate();
+                if (Entity.Physics != null && Entity.Physics.RigidBody != null && Entity.Physics.RigidBody.IsAddedToWorld) Entity.Physics.RigidBody.Deactivate();
 
             if (Entity.Physics != null)
             {

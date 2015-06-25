@@ -783,5 +783,10 @@ namespace Sandbox.Graphics.GUI
             if (ItemsSelected != null)
                 ItemsSelected(this);
         }
+
+        public void ClearItems()
+        {
+            Items.Clear();
+        }
     }
 }
