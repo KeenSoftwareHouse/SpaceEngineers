@@ -5267,6 +5267,8 @@ namespace Sandbox.Game.Entities
             ProfilerShort.Begin("MoveBlocksAndClose");
             from.MarkedForClose = true;
 
+            MySandboxGame.Log.WriteLine(String.Format("MoveBlocksAndClose from {0} to {1}", from.EntityId, to.EntityId));
+
             if (disableBlockGenerators)
             {
                 from.EnableGenerators(false, true);
