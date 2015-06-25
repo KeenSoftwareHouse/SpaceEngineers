@@ -123,6 +123,11 @@ namespace Sandbox.Game.Screens.Helpers
                         originAlign: MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_TOP));
                 }
             }
+
+            public override void Draw(float transitionAlpha, float backgroundTransitionAlpha)
+            {
+                base.Draw(transitionAlpha, transitionAlpha);
+            }
         }
 
         internal class ComponentControl : MyGuiControlBase
