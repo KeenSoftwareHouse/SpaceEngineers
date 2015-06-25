@@ -10868,5 +10868,15 @@ namespace Sandbox.Game.Localization
         ///Ownership from projector
         ///</summary>
         public static readonly MyStringId BlockPropertyTitle_Projector_GetOwnership = MyStringId.GetOrCompute("BlockPropertyTitle_Projector_GetOwnership");
+
+        ///<summary>
+        ///Checking mods: {0}/{1}
+        ///</summary>
+        public static readonly MyStringId ProgressTextCheckingModsFormatted = MyStringId.GetOrCompute("ProgressTextCheckingModsFormatted");
+
+        ///<summary>
+        ///Downloading mods: {0}/{1}
+        ///</summary>
+        public static readonly MyStringId ProgressTextDownloadingModsFormatted = MyStringId.GetOrCompute("ProgressTextDownloadingModsFormatted");
     }
 }

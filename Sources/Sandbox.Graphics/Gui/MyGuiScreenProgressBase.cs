@@ -10,7 +10,7 @@ namespace Sandbox.Graphics.GUI
     {
         bool m_controlsCreated = false;
         bool m_loaded = false;
-        MyStringId m_progressText;
+        protected MyStringId m_progressText;
         MyStringId? m_cancelText;
         protected MyGuiControlLabel m_progressTextLabel;
         protected MyGuiControlRotatingWheel m_rotatingWheel;

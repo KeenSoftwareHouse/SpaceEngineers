@@ -160,6 +160,7 @@ namespace VRage
             if (!m_strings.TryGetValue(id, out result))
             {
                 result = id.ToString();
+                MyLog.Default.WriteLineAndConsole(string.Format("Missing localization text: {0}", id.ToString()));
                 //Debug.Fail(string.Format("Missing text for localization. Id: {0}", id.ToString()));
             }
 
@@ -215,6 +216,8 @@ namespace VRage
         {
             if (!File.Exists(resourceFile))
                 return;
+
+            MyLog.Default.WriteLine(string.Format("Loading {0}", resourceFile));
 
             using (var stream = MyFileSystem.OpenRead(resourceFile))
             using (var reader = new ResXResourceReader(stream))

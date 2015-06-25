@@ -569,6 +569,7 @@
     <Compile Include="Game\GUI\MyGuiScreenBotSettings.cs" />
     <Compile Include="Game\Multiplayer\MySyncAdvancedDoor.cs" />
     <Compile Include="Game\Multiplayer\MySyncEnvironmentItems.cs" />
+    <Compile Include="Game\Screens\CEGuiScreenUGCDownloadProgress.cs" />
     <Compile Include="Game\Screens\MyGuiScreenAdvancedScenarioSettings.cs" />
     <Compile Include="Game\Screens\MyGuiScreenScenarioMpClient.cs" />
     <Compile Include="Game\Screens\MyGuiScreenScenarioWaitForPlayers.cs" />

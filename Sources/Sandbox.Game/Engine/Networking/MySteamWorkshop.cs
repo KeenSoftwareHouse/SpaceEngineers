@@ -582,7 +582,7 @@ namespace Sandbox.Engine.Networking
                 MySandboxGame.Log.WriteLine("MySteamWorkshop.GetSubscribedModsBlocking - END");
             }
         }
-        public static bool GetItemsBlocking(List<SubscribedItem> results, IEnumerable<ulong> publishedFileIds)
+        public static bool GetItemsBlocking(List<SubscribedItem> results, IEnumerable<ulong> publishedFileIds, Action<ulong,ulong> onProgressCallback=null)
         {
             MySandboxGame.Log.WriteLine(string.Format("MySteamWorkshop.GetItemsBlocking: getting {0} items", publishedFileIds.Count()));
             results.Clear();
@@ -591,6 +591,7 @@ namespace Sandbox.Engine.Networking
                 return true;
 
             Dictionary<ulong, SubscribedItem> resultsByPublishedId = new Dictionary<ulong, SubscribedItem>(publishedFileIds.Count());
+
             using (ManualResetEvent mrEvent = new ManualResetEvent(false))
             {
                 foreach (var id in publishedFileIds)
@@ -634,10 +635,18 @@ namespace Sandbox.Engine.Networking
                     }
                 };
 
+                ulong idx = 0;
                 foreach (var resultEntry in resultsByPublishedId)
                 {
+                    idx++;
                     if (!MySteam.IsOnline)
                         return false;
+
+                    if (onProgressCallback != null)
+                    {
+                        m_asyncDownloadScreen.SetText(MySpaceTexts.ProgressTextCheckingModsFormatted, DownloadUnits.Discrete);
+                        onProgressCallback(idx, (ulong)resultsByPublishedId.Count);
+                    }
 
                     MySandboxGame.Log.WriteLine(string.Format("Querying details of file " + resultEntry.Value.PublishedFileId));
                     MySteam.API.RemoteStorage.GetPublishedFileDetails(resultEntry.Value.PublishedFileId, 0, onGetDetailsCallResult);
@@ -841,12 +850,12 @@ namespace Sandbox.Engine.Networking
 
         #region Download
 
-        private static MyGuiScreenProgressAsync m_asyncDownloadScreen;
+        private static CEGuiScreenUGCDownloadProgress m_asyncDownloadScreen;
 
         /// <summary>
         /// Do NOT call this method from update thread.
         /// </summary>
-        private static bool DownloadItemBlocking(string localFullPath, ulong UGCHandle)
+        private static bool DownloadItemBlocking(string localFullPath, ulong UGCHandle, Action<ulong,ulong> onProgressCallback=null)
         {
             if (m_stop)
                 return false;
@@ -879,12 +888,18 @@ namespace Sandbox.Engine.Networking
             if (!downloadSuccess)
                 return false;
 
+            ulong totalBytesRead = 0;
             using (var fs = new FileStream(localFullPath, FileMode.Create, FileAccess.Write))
             {
                 for (uint offset = 0; offset < downloadSizeInBytes; offset += (uint)m_bufferSize)
                 {
                     int bytesRead = MySteam.API.RemoteStorage.UGCRead(UGCHandle, buffer, m_bufferSize, offset);
                     fs.Write(buffer, 0, bytesRead);
+                    totalBytesRead += (ulong)bytesRead;
+                    if (onProgressCallback != null)
+                    {
+                        m_asyncDownloadScreen.SetText(MySpaceTexts.ProgressTextDownloadingModsFormatted, DownloadUnits.Bytes,totalBytesRead, (ulong)downloadSizeInBytes);
+                    }
                 }
             }
 
@@ -902,9 +917,9 @@ namespace Sandbox.Engine.Networking
             if (!Directory.Exists(m_workshopModsPath))
                 Directory.CreateDirectory(m_workshopModsPath);
 
-            m_asyncDownloadScreen = new MyGuiScreenProgressAsync(MySpaceTexts.ProgressTextCheckingMods,
+            m_asyncDownloadScreen = new CEGuiScreenUGCDownloadProgress(MySpaceTexts.ProgressTextCheckingModsFormatted,
                 MySpaceTexts.Cancel,
-                () => new DownloadModsResult(mods, onFinishedCallback),
+                (Action<ulong, ulong> onProgress) => new DownloadModsResult(mods, onFinishedCallback, onProgress),
                 endActionDownloadMods);
 
             m_asyncDownloadScreen.ProgressCancelled += () =>
@@ -917,7 +932,7 @@ namespace Sandbox.Engine.Networking
             MyGuiSandbox.AddScreen(m_asyncDownloadScreen);
         }
 
-        class DownloadModsResult : IMyAsyncResult
+        internal class DownloadModsResult : IMyAsyncResult
         {
             public bool Success
             {
@@ -932,13 +947,15 @@ namespace Sandbox.Engine.Networking
             }
 
             public Action<bool> callback;
+            public Action<ulong,ulong> progress_callback;
 
-            public DownloadModsResult(List<MyObjectBuilder_Checkpoint.ModItem> mods, Action<bool> onFinishedCallback)
+            public DownloadModsResult(List<MyObjectBuilder_Checkpoint.ModItem> mods, Action<bool> onFinishedCallback, Action<ulong,ulong> onDownloadProgress=null)
             {
                 callback = onFinishedCallback;
+                progress_callback = onDownloadProgress;
                 Task = Parallel.Start(() =>
                 {
-                    Success = DownloadWorldModsBlocking(mods);
+                    Success = DownloadWorldModsBlocking(mods,progress_callback);
                 });
             }
 
@@ -951,7 +968,7 @@ namespace Sandbox.Engine.Networking
             }
         }
 
-        static void endActionDownloadMods(IMyAsyncResult iResult, MyGuiScreenProgressAsync screen)
+        static void endActionDownloadMods(IMyAsyncResult iResult, CEGuiScreenUGCDownloadProgress screen)
         {
             screen.CloseScreen();
 
@@ -967,10 +984,14 @@ namespace Sandbox.Engine.Networking
         /// <summary>
         /// Do NOT call this method from update thread.
         /// </summary>
-        public static bool DownloadModsBlocking(List<SubscribedItem> mods)
+        public static bool DownloadModsBlocking(List<SubscribedItem> mods, Action<ulong, ulong> onProgressCallback)
         {
-            foreach (var mod in mods)
+            for(var i = 0; i < mods.Count; i++)
             {
+                var mod = mods[i];
+
+                m_asyncDownloadScreen.SetText(MySpaceTexts.ProgressTextCheckingModsFormatted,DownloadUnits.Discrete,(ulong)(i+1), (ulong)mods.Count);
+
                 if (!MySteam.IsOnline)
                     return false;
 
@@ -981,7 +1002,7 @@ namespace Sandbox.Engine.Networking
 
                 if (!IsModUpToDateBlocking(localPackedModFullPath, mod, true))
                 {
-                    if (!DownloadItemBlocking(localPackedModFullPath, mod.UGCHandle))
+                    if (!DownloadItemBlocking(localPackedModFullPath, mod.UGCHandle, onProgressCallback))
                     {
                         return false;
                     }
@@ -1048,7 +1069,7 @@ namespace Sandbox.Engine.Networking
             }
             return true;
         }
-        public static bool DownloadModFromURLStream(string url, ulong publishedFileId, Action<bool> callback)
+        public static bool DownloadModFromURLStream(string url, ulong publishedFileId, Action<bool> callback, Action<ulong> onProgressCallback)
         {
             uint handle = HTTP.CreateHTTPRequest(HTTPMethod.GET, url);
             if (handle == 0)
@@ -1068,16 +1089,24 @@ namespace Sandbox.Engine.Networking
 
             var fs = File.OpenWrite(localPackedModFullPath);
 
+            ulong totalSize = 0;
             DataReceived onDataRecieved = delegate(HTTPRequestDataReceived data)
             {
                 if (data.ContextValue != publishedFileId)
                     return;
 
+                totalSize += data.BytesReceived;
+                if (onProgressCallback != null)
+                {
+                    m_asyncDownloadScreen.SetText(MySpaceTexts.ProgressTextDownloadingModsFormatted, DownloadUnits.Bytes);
+                    onProgressCallback(totalSize);
+                }
+
                 var buffer = new byte[data.BytesReceived];
                 HTTP.GetHTTPStreamingResponseBodyData(data.Request, data.Offset, buffer, data.BytesReceived);
                 fs.Write(buffer, 0, (int)data.BytesReceived);
             };
-
+            
             HTTP.DataReceived += onDataRecieved;
 
             if (!HTTP.SendHTTPRequestAndStreamResponse(handle, delegate(bool ioFailure, HTTPRequestCompleted data)
@@ -1103,7 +1132,7 @@ namespace Sandbox.Engine.Networking
             return true;
         }
 
-        public static bool DownloadModFromURL(string url, ulong publishedFileId, Action<bool> callback)
+        public static bool DownloadModFromURL(string url, ulong publishedFileId, Action<bool> callback, Action<ulong> onProgressCallback)
         {
             uint handle = HTTP.CreateHTTPRequest(HTTPMethod.GET, url);
             if (handle == 0)
@@ -1124,6 +1153,8 @@ namespace Sandbox.Engine.Networking
                             try
                             {
                                 File.WriteAllBytes(localPackedModFullPath, bodyData);
+                                if (onProgressCallback != null)
+                                    onProgressCallback(dataSize);
                                 success = true;
                                 MySandboxGame.Log.WriteLine(string.Format("HTTP: Downloaded mod publishedFileId = {0}, size = {1} bytes to: '{2}' from: '{3}'", publishedFileId, dataSize, localPackedModFullPath, url));
                             }
@@ -1152,19 +1183,31 @@ namespace Sandbox.Engine.Networking
             return true;
         }
 
+        struct ModDLInfo
+        {
+            public ulong publishedFileId;
+            public long fileSize;
+            public string url;
+            public string title;
+            public uint timeUpdated;
+        }
+
 
         //dont even try to understand the following function
 
         /// <summary>
         /// Do NOT call this method from update thread.
         /// </summary>
-        public static bool DownloadWorldModsBlocking(List<MyObjectBuilder_Checkpoint.ModItem> mods)
+        public static bool DownloadWorldModsBlocking(List<MyObjectBuilder_Checkpoint.ModItem> mods, Action<ulong, ulong> onProgressCallback = null)
         {
             if (!MyFakes.ENABLE_WORKSHOP_MODS)
                 return true;
 
             MySandboxGame.Log.WriteLine("Downloading world mods - START");
             MySandboxGame.Log.IncreaseIndent();
+
+            // First, we determine how much crap there is to download.
+            ulong totalSize = 0;
 
             m_stop = false;
 
@@ -1255,26 +1298,28 @@ namespace Sandbox.Engine.Networking
 
                                     var processed = new List<ulong>(publishedFileIds.Count());
 
+                                    var allModData = new List<ModDLInfo>();
                                     for (int i = 0; i < publishedFileIds.Count(); ++i)
                                     {
                                         mrEvent.Reset();
 
+                                        ModDLInfo mdi = new ModDLInfo();
                                         reader.ReadToFollowing("publishedfileid");
-                                        ulong publishedFileId = Convert.ToUInt64(reader.ReadElementContentAsString());
+                                        mdi.publishedFileId = Convert.ToUInt64(reader.ReadElementContentAsString());
 
-                                        if (processed.Contains(publishedFileId))
+                                        if (processed.Contains(mdi.publishedFileId))
                                         {
-                                            MySandboxGame.Log.WriteLineAndConsole(string.Format("Duplicate mod: id = {0}", publishedFileId));
+                                            MySandboxGame.Log.WriteLineAndConsole(string.Format("Duplicate mod: id = {0}", mdi.publishedFileId));
                                             continue;
                                         }
-                                        processed.Add(publishedFileId);
+                                        processed.Add(mdi.publishedFileId);
 
                                         reader.ReadToFollowing("result");
                                         Result itemResult = (Result)reader.ReadElementContentAsInt();
 
                                         if (itemResult != Result.OK)
                                         {
-                                            MySandboxGame.Log.WriteLineAndConsole(string.Format("Failed to download mod: id = {0}, result = {1}", publishedFileId, itemResult));
+                                            MySandboxGame.Log.WriteLineAndConsole(string.Format("Failed to download mod: id = {0}, result = {1}", mdi.publishedFileId, itemResult));
                                             result = false;
                                             continue;
                                         }
@@ -1283,52 +1328,65 @@ namespace Sandbox.Engine.Networking
                                         int appid = reader.ReadElementContentAsInt();
                                         if (appid != MySteam.AppId)
                                         {
-                                            MySandboxGame.Log.WriteLineAndConsole(string.Format("Failed to download mod: id = {0}, wrong appid, got {1}, expected {2}", publishedFileId, appid, MySteam.AppId));
+                                            MySandboxGame.Log.WriteLineAndConsole(string.Format("Failed to download mod: id = {0}, wrong appid, got {1}, expected {2}", mdi.publishedFileId, appid, MySteam.AppId));
                                             result = false;
                                             continue;
                                         }
 
                                         reader.ReadToFollowing("file_size");
-                                        long fileSize = reader.ReadElementContentAsLong();
+                                        mdi.fileSize = reader.ReadElementContentAsLong();
+                                        totalSize += (ulong)mdi.fileSize; // Add to total file size.
 
                                         reader.ReadToFollowing("file_url");
-                                        string url = reader.ReadElementContentAsString();
+                                        mdi.url = reader.ReadElementContentAsString();
 
                                         reader.ReadToFollowing("title");
-                                        string title = reader.ReadElementContentAsString();
+                                        mdi.title = reader.ReadElementContentAsString();
 
                                         for (int j = 0; j < array.Length; ++j)
                                         {
-                                            if (array[j].PublishedFileId == publishedFileId)
+                                            if (array[j].PublishedFileId == mdi.publishedFileId)
                                             {
-                                                array[j].FriendlyName = title;
+                                                array[j].FriendlyName = mdi.title;
                                                 break;
                                             }
                                         }
 
                                         reader.ReadToFollowing("time_updated");
-                                        uint timeUpdated = (uint)reader.ReadElementContentAsLong();
+                                        mdi.timeUpdated = (uint)reader.ReadElementContentAsLong();
 
-                                        var mod = new SubscribedItem() { Title = title, PublishedFileId = publishedFileId, TimeUpdated = timeUpdated };
+                                        allModData.Add(mdi);
+                                    }
 
-                                        if (IsModUpToDateBlocking(Path.Combine(MyFileSystem.ModsPath, publishedFileId.ToString() + ".sbm"), mod, false, fileSize))
+                                    MySandboxGame.Log.WriteLine(string.Format("SECE: Final total mod download size: {0}B",totalSize));
+                                    ulong totalDLed = 0;
+
+                                    foreach(var mdi in allModData) {
+                                        var mod = new SubscribedItem() { Title = mdi.title, PublishedFileId = mdi.publishedFileId, TimeUpdated = mdi.timeUpdated };
+
+                                        if (IsModUpToDateBlocking(Path.Combine(MyFileSystem.ModsPath, mdi.publishedFileId.ToString() + ".sbm"), mod, false, mdi.fileSize))
                                         {
-                                            MySandboxGame.Log.WriteLineAndConsole(string.Format("Up to date mod:  id = {0}", publishedFileId));
+                                            MySandboxGame.Log.WriteLineAndConsole(string.Format("Up to date mod:  id = {0}", mdi.publishedFileId));
                                             continue;
                                         }
 
-                                        MySandboxGame.Log.WriteLineAndConsole(string.Format("Downloading mod: id = {0}, size = {1,8:0.000} MiB", publishedFileId, (double)fileSize / 1024f / 1024f));
+                                        MySandboxGame.Log.WriteLineAndConsole(string.Format("Downloading mod: id = {0}, size = {1,8:0.000} MiB", mdi.publishedFileId, (double)mdi.fileSize / 1024f / 1024f));
 
-                                        if (fileSize > 10 * 1024 * 1024) // WTF Steam
+                                        Action<ulong> onDLProgress = delegate(ulong bytesDownloaded) {
+                                            totalDLed += bytesDownloaded; 
+                                            m_asyncDownloadScreen.SetText(MySpaceTexts.ProgressTextDownloadingModsFormatted, DownloadUnits.Bytes);
+                                            onProgressCallback(totalDLed, totalSize);
+                                        };
+                                        if (mdi.fileSize > 10 * 1024 * 1024) // WTF Steam
                                         {
-                                            if (!DownloadModFromURLStream(url, publishedFileId, delegate(bool success)
+                                            if (!DownloadModFromURLStream(mdi.url, mdi.publishedFileId, delegate(bool success)
                                             {
                                                 if (!success)
                                                 {
-                                                    MySandboxGame.Log.WriteLineAndConsole(string.Format("Could not download mod: id = {0}, url = {1}", publishedFileId, url));
+                                                    MySandboxGame.Log.WriteLineAndConsole(string.Format("Could not download mod: id = {0}, url = {1}", mdi.publishedFileId, mdi.url));
                                                 }
                                                 mrEvent.Set();
-                                            }))
+                                            },onDLProgress))
                                             {
                                                 result = false;
                                                 break;
@@ -1336,14 +1394,14 @@ namespace Sandbox.Engine.Networking
                                         }
                                         else
                                         {
-                                            if (!DownloadModFromURL(url, publishedFileId, delegate(bool success)
+                                            if (!DownloadModFromURL(mdi.url, mdi.publishedFileId, delegate(bool success)
                                             {
                                                 if (!success)
                                                 {
-                                                    MySandboxGame.Log.WriteLineAndConsole(string.Format("Could not download mod: id = {0}, url = {1}", publishedFileId, url));
+                                                    MySandboxGame.Log.WriteLineAndConsole(string.Format("Could not download mod: id = {0}, url = {1}", mdi.publishedFileId, mdi.url));
                                                 }
                                                 mrEvent.Set();
-                                            }))
+                                            }, onDLProgress))
                                             {
                                                 result = false;
                                                 break;
@@ -1379,7 +1437,7 @@ namespace Sandbox.Engine.Networking
                 {
                     var toGet = new List<SubscribedItem>(publishedFileIds.Count);
 
-                    if (!GetItemsBlocking(toGet, publishedFileIds))
+                    if (!GetItemsBlocking(toGet, publishedFileIds, onProgressCallback))
                     {
                         MySandboxGame.Log.WriteLine("Could not obtain workshop item details");
                         result = false;
@@ -1391,9 +1449,8 @@ namespace Sandbox.Engine.Networking
                     }
                     else
                     {
-                        m_asyncDownloadScreen.ProgressText = MySpaceTexts.ProgressTextDownloadingMods;
 
-                        if (!DownloadModsBlocking(toGet))
+                        if (!DownloadModsBlocking(toGet,onProgressCallback))
                         {
                             MySandboxGame.Log.WriteLine("Downloading mods failed");
                             result = false;

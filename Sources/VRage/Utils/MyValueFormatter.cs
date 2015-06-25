@@ -189,6 +189,24 @@ namespace VRage.Utils
             output.Append(' ').Append(unitNames[i]);
         }
 
+        public static void AppendFormattedValueInBestUnit(long value, string[] unitNames, long[] unitMultipliers, int[] unitDecimalDigits, StringBuilder output)
+        {
+            Debug.Assert(unitNames.Length == unitDecimalDigits.Length);
+
+            var absValue = Math.Abs(value);
+            int i = 1;
+            for (; i < unitMultipliers.Length; ++i)
+            {
+                if (absValue < unitMultipliers[i])
+                    break;
+            }
+
+            --i; // move back to the best unit
+            float f = value / unitMultipliers[i];
+            output.AppendDecimal(Math.Round(f, unitDecimalDigits[i]), unitDecimalDigits[i]);
+            output.Append(' ').Append(unitNames[i]);
+        }
+
         private static readonly string[] m_genericUnitNames = new string[] { "", "k", "M", "G", "T" };
         private static readonly float[] m_genericUnitMultipliers = new float[] { 1f, 1000f, 1000000f, 1000000000f, 1000000000000f };
         private static readonly int[] m_genericUnitDigits = new int[] { 1, 1, 1, 1, 1 };
@@ -248,6 +266,14 @@ namespace VRage.Utils
         public static void AppendWeightInBestUnit(float weightInKG, StringBuilder output)
         {
             AppendFormattedValueInBestUnit(weightInKG, m_weightUnitNames, m_weightUnitMultipliers, m_weightUnitDigits, output);
+        }
+
+        private static readonly string[] m_dataSizeUnitNames = new string[] { "B", "KB", "MB" };
+        private static readonly long[] m_dataSizeUnitMultipliers = new long[] { 1L, 1024L, 1024 * 1024L, 1024 * 1024 * 1024L };
+        private static readonly int[] m_dataSizeUnitDigits = new int[] { 1, 1, 1 };
+        public static void AppendDataSizeInBestUnit(long sizeInBytes, StringBuilder output)
+        {
+            AppendFormattedValueInBestUnit(sizeInBytes, m_dataSizeUnitNames, m_dataSizeUnitMultipliers, m_dataSizeUnitDigits, output);
         }
 
         public static void AppendTimeExact(int timeInSeconds, StringBuilder output)
