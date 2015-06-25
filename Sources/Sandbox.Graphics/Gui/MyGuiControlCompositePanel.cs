@@ -46,7 +46,7 @@ namespace Sandbox.Graphics.GUI
 
         public override void Draw(float transitionAlpha, float backgroundTransitionAlpha)
         {
-            BackgroundTexture.Draw(GetPositionAbsoluteTopLeft(), Size, ApplyColorMaskModifiers(ColorMask, Enabled, backgroundTransitionAlpha));
+            BackgroundTexture.Draw(GetPositionAbsoluteTopLeft(), Size, ApplyColorMaskModifiers(ColorMask, Enabled, transitionAlpha), ApplyColorMaskModifiers(ColorMask, Enabled, backgroundTransitionAlpha));
             DrawBorder(transitionAlpha);
         }
 

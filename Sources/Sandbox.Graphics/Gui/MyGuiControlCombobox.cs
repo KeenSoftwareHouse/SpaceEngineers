@@ -970,7 +970,7 @@ namespace Sandbox.Graphics.GUI
             Vector2 dropdownSize = Vector2.Clamp(new Vector2(Size.X, itemsHeight + minSize.Y), minSize, maxSize);
             var topLeft = GetPositionAbsoluteTopLeft();
             m_styleDef.DropDownTexture.Draw(topLeft + m_openedArea.Position, dropdownSize,
-                ApplyColorMaskModifiers(ColorMask, Enabled, transitionAlpha));
+                ApplyColorMaskModifiers(ColorMask, Enabled, transitionAlpha), ApplyColorMaskModifiers(ColorMask, Enabled, transitionAlpha));
 
             // Scissor to cut off items that overflow dropdown area.
             var scissor         = m_openedItemArea;

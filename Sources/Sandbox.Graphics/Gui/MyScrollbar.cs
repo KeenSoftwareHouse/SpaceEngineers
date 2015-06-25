@@ -173,14 +173,14 @@ namespace Sandbox.Graphics.GUI
             }
 
             var leftTopPosition = OwnerControl.GetPositionAbsoluteCenter() + Position;
-            m_backgroundTexture.Draw(leftTopPosition, Size, colorMask);
+            m_backgroundTexture.Draw(leftTopPosition, Size, colorMask, colorMask);
 
             if (CanScroll())
             {
                 var carretPosition = GetCarretPosition();
                 Texture.Draw(leftTopPosition + carretPosition,
                     CaretSize,
-                    colorMask);
+                    colorMask, colorMask);
             }
         }
 
@@ -280,13 +280,14 @@ namespace Sandbox.Graphics.GUI
             }
 
             var leftTopPosition = OwnerControl.GetPositionAbsoluteCenter() + Position;
-            m_backgroundTexture.Draw(leftTopPosition, Size, colorMask);
+            m_backgroundTexture.Draw(leftTopPosition, Size, colorMask, colorMask);
 
             if (CanScroll())
             {
                 var carretPosition = GetCarretPosition();
                 Texture.Draw(leftTopPosition + carretPosition,
                     CaretSize,
+                    colorMask, 
                     colorMask,
                     ScrollBarScale);
             }

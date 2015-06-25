@@ -134,6 +134,7 @@ namespace Sandbox.Graphics.GUI
         {
             var topLeft = GetPositionAbsoluteTopLeft();
             m_styleDef.Texture.Draw(topLeft, Size,
+                ApplyColorMaskModifiers(ColorMask, Enabled, transitionAlpha),
                 ApplyColorMaskModifiers(ColorMask, Enabled, backgroundTransitionAlpha));
 
             var scissor = m_itemsRectangle;

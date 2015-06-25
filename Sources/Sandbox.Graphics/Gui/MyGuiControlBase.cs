@@ -603,17 +603,17 @@ namespace Sandbox.Graphics.GUI
 
         public virtual void Draw(float transitionAlpha, float backgroundTransitionAlpha)
         {
-            DrawBackground(backgroundTransitionAlpha);
+            DrawBackground(transitionAlpha, backgroundTransitionAlpha);
             DrawElements(transitionAlpha, backgroundTransitionAlpha);
             DrawBorder(transitionAlpha);
         }
 
-        protected void DrawBackground(float transitionAlpha)
+        protected void DrawBackground(float transitionAlpha, float backgroundTransitionAlpha)
         {
             // Draw background texture if there is one and background is not completely transparent.
             if (BackgroundTexture != null && ColorMask.W > 0.0f)
             {
-                BackgroundTexture.Draw(GetPositionAbsoluteTopLeft(), Size, ApplyColorMaskModifiers(ColorMask, Enabled, transitionAlpha));
+                BackgroundTexture.Draw(GetPositionAbsoluteTopLeft(), Size, ApplyColorMaskModifiers(ColorMask, Enabled, transitionAlpha), ApplyColorMaskModifiers(ColorMask, Enabled, backgroundTransitionAlpha));
             }
         }
 

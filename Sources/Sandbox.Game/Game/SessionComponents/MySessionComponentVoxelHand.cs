@@ -457,7 +457,7 @@ namespace Sandbox.Game.SessionComponents
             var pos = new Vector2(0.5525f,0.84f);
             var size = new Vector2(0.05f, 0.05f);
 
-            m_texture.Draw(pos, size, Color.White);
+            m_texture.Draw(pos, size, Color.White, Color.White);
             MyGuiManager.DrawBorders(pos, size, Color.White, 1);
             
             pos.X += 0.06f;

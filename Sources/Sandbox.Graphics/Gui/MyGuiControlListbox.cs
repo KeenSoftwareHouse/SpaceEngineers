@@ -408,7 +408,7 @@ namespace Sandbox.Graphics.GUI
             base.Draw(transitionAlpha, backgroundTransitionAlpha);
             var positionTopLeft = GetPositionAbsoluteTopLeft();
 
-            m_styleDef.Texture.Draw(positionTopLeft, Size, ApplyColorMaskModifiers(ColorMask, Enabled, backgroundTransitionAlpha));
+            m_styleDef.Texture.Draw(positionTopLeft, Size, ApplyColorMaskModifiers(ColorMask, Enabled, transitionAlpha), ApplyColorMaskModifiers(ColorMask, Enabled, backgroundTransitionAlpha));
 
             var position = positionTopLeft + new Vector2(m_itemsRectangle.X, m_itemsRectangle.Y);
             int index = m_visibleRowIndexOffset;

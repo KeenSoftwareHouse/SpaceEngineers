@@ -260,6 +260,7 @@ namespace Sandbox.Graphics.GUI
                 GetPositionAbsoluteTopLeft(),
                 Size - new Vector2(m_labelSpaceWidth, 0f),
                 ApplyColorMaskModifiers(ColorMask, Enabled, transitionAlpha),
+                ApplyColorMaskModifiers(ColorMask, Enabled, backgroundTransitionAlpha),
                 textureScale: DebugScale);
             DrawThumb(transitionAlpha);
             m_label.Draw(transitionAlpha, backgroundTransitionAlpha);
