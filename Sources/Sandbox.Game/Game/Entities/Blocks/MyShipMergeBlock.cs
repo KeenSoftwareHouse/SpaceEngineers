@@ -508,26 +508,10 @@ namespace Sandbox.Game.Entities.Blocks
                             return;
                         }
 
-                        MySandboxGame.Log.WriteLine("Starting merge process from Grid " + this.CubeGrid.EntityId);
-
-                        // the below code in the server-side logic
-                        //   if (mergedGrid == null) ...
-                        // decides which grid merges into which depending on size/staticness.
-                        // Since we don't know at this moment which grid is being merged,
-                        // a BeforeMerge call could correspond to either.
-                        // We should either raise a different event for each side
-                        // or at least raise the same event for both
-
                         var handle = BeforeMerge;
-                        if (handle != null) {
-                            MySandboxGame.Log.WriteLine("Running BeforeMerge for Grid " + this.CubeGrid.EntityId);
-                            BeforeMerge();
-                        }
+                        if (handle != null) BeforeMerge();
                         handle = m_other.BeforeMerge;
-                        if (handle != null) {
-                            MySandboxGame.Log.WriteLine("Running BeforeMerge for other Grid " + m_other.CubeGrid.EntityId);
-                            m_other.BeforeMerge();
-                        }
+                        if (handle != null) m_other.BeforeMerge();
 
                         if (Sync.IsServer)
                         {
@@ -541,7 +525,6 @@ namespace Sandbox.Game.Entities.Blocks
                             MyCubeGrid mergedGrid = this.CubeGrid.MergeGrid_MergeBlock(m_other.CubeGrid, gridOffset);
                             if (mergedGrid == null)
                             {
-                                MySandboxGame.Log.WriteLine("merged in this grid instead");
                                 mergedGrid = m_other.CubeGrid.MergeGrid_MergeBlock(this.CubeGrid, otherGridOffset);
                             }
                             Debug.Assert(mergedGrid != null);
