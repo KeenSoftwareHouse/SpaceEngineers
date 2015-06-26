@@ -23,15 +23,16 @@ namespace Sandbox.Game.Gui
         bool m_isNewGame;
         bool m_isConfirmed;
 
-        MyGuiControlButton m_okButton, m_cancelButton, m_peaceModeButton, m_adventureModeButton, m_warModeButton, m_ruinsModeButton, m_randomModeButton, m_viewShipsButton;
-        MyGuiControlSlider m_maxNoShipsPerSpawnGroup, m_maxDamagedShipPercentage, m_maxHostileEncountersPercentage, m_antennaOnPercentage, m_reactorsOnPercentage;
-        MyGuiControlCombobox m_maxDamagedShipsSeverity;
-        MyGuiControlCheckbox m_antennaRangeMaxedOut, m_damageAppliedGlobally;
+        MyGuiControlButton m_okButton, m_cancelButton, m_resetButton, m_applyFilterButton;
+        MyGuiControlSlider m_maxBlocks, m_maxTurrets;
+        MyGuiControlCheckbox m_includeLargeShips, m_includeSmallShips, m_includeBases, m_excludeLargeShips, m_excludeSmallShips, m_excludeBases;
+
         MyGuiControlTable m_ShipsAvailable;
 
         private MyGuiControlTable.Row m_selectedRow;
 
-        public List<MyGuiControlTable.Row> m_shipsAvailable;
+        public List<MyGuiControlTable.Row> m_shipsAvailableMaster;
+        public List<MyGuiControlTable.Row> m_shipsAvailableTemporary;
 
         public bool IsConfirmed
         {
@@ -53,7 +54,8 @@ namespace Sandbox.Game.Gui
             m_isNewGame = (parent.Checkpoint == null);
             m_isConfirmed = false;
 
-            m_shipsAvailable = shipsAvailable;
+            m_shipsAvailableMaster = shipsAvailable;
+            m_shipsAvailableTemporary = shipsAvailable;
 
             RecreateControls(true);
 
@@ -64,7 +66,7 @@ namespace Sandbox.Game.Gui
 
         private void fillShipsAvailableTable()
         {
-            foreach (var row in m_shipsAvailable)
+            foreach (var row in m_shipsAvailableMaster)
             {
                 m_ShipsAvailable.Add(row);
             }
@@ -102,20 +104,91 @@ namespace Sandbox.Game.Gui
             int numControls = 0;
 
             // Labels
-
             float severityComboBoxWidth = 0.2f;
-            var maxNoShipsLabel = MakeLabel(MySpaceTexts.WorldSettings_MaxNoShipsPerSpawnGroup);
+            var maxBlocksLabel = MakeLabel(MySpaceTexts.WorldSettings_MaxBlocksLabel);
+            var maxTurretsLabel = MakeLabel(MySpaceTexts.WorldSettings_MaxTurretsLabel);
+            var EncounterTypesAllowedLabel = MakeLabel(MySpaceTexts.WorldSettings_EncounterTypesAllowedLabel);
+            var LargeShipLabel = MakeLabel(MySpaceTexts.WorldSettings_EncounterLargeShipLabel);
+            var SmallShipLabel = MakeLabel(MySpaceTexts.WorldSettings_EncounterSmallShipLabel);
+            var BaseShipLabel = MakeLabel(MySpaceTexts.WorldSettings_EncounterBaseShipLabel);
+            var IncludeLabel = MakeLabel(MySpaceTexts.WorldSettings_EncounterIncludeLabel);
+            var ExcludeLabel = MakeLabel(MySpaceTexts.WorldSettings_EncounterExcludeLabel);
+            var FilterLabel = MakeLabel(MySpaceTexts.WorldSettings_EncounterFilterLabel);
             
             // Setup settings controls
-                               
-            
+            m_resetButton = new MyGuiControlButton(position: buttonsOrigin - new Vector2(0.01f, 0f), size: buttonSize, text: MyTexts.Get(MySpaceTexts.WorldSettings_EncounterResetButton), onButtonClick: OkButtonClicked, originAlign: MyGuiDrawAlignEnum.HORISONTAL_RIGHT_AND_VERTICAL_BOTTOM);
+
+            m_applyFilterButton = new MyGuiControlButton(position: buttonsOrigin - new Vector2(0.01f, 0f), size: buttonSize, text: MyTexts.Get(MySpaceTexts.WorldSettings_EncounterApplyButton), onButtonClick: OkButtonClicked, originAlign: MyGuiDrawAlignEnum.HORISONTAL_RIGHT_AND_VERTICAL_BOTTOM);
+
+            m_includeLargeShips = new MyGuiControlCheckbox();
+            m_includeLargeShips.SetToolTip(MyTexts.GetString(MySpaceTexts.ToolTipEncounterSettingsAntennasRangeMaxed));
+
+            m_includeSmallShips = new MyGuiControlCheckbox();
+            m_includeSmallShips.SetToolTip(MyTexts.GetString(MySpaceTexts.ToolTipEncounterSettingsAntennasRangeMaxed));
+
+            m_includeBases = new MyGuiControlCheckbox();
+            m_includeBases.SetToolTip(MyTexts.GetString(MySpaceTexts.ToolTipEncounterSettingsAntennasRangeMaxed));
+
+            m_excludeLargeShips = new MyGuiControlCheckbox();
+            m_excludeLargeShips.SetToolTip(MyTexts.GetString(MySpaceTexts.ToolTipEncounterSettingsAntennasRangeMaxed));
+
+            m_excludeSmallShips = new MyGuiControlCheckbox();
+            m_excludeSmallShips.SetToolTip(MyTexts.GetString(MySpaceTexts.ToolTipEncounterSettingsAntennasRangeMaxed));
+
+            m_excludeBases = new MyGuiControlCheckbox();
+            m_excludeBases.SetToolTip(MyTexts.GetString(MySpaceTexts.ToolTipEncounterSettingsAntennasRangeMaxed));
+
+            var maxBlocks = 0;
+            foreach (var row in m_shipsAvailableMaster)
+            {
+                var thisShipsBlockCount = int.Parse(row.GetCell(3).Text.ToString());
+                if (thisShipsBlockCount > maxBlocks)
+                {
+                    maxBlocks = thisShipsBlockCount;
+                }
+            }
+
+            m_maxBlocks = new MyGuiControlSlider(
+               position: Vector2.Zero - new Vector2(-0.1f, 0.3f),
+               width: 0.2f,
+               minValue: 0,
+               maxValue: maxBlocks,
+               labelText: new StringBuilder("{0}").ToString(),
+               labelDecimalPlaces: 0,
+               labelSpaceWidth: 0.05f,
+               intValue: true,
+               defaultValue: maxBlocks
+               );
+
+            var maxTurrets = 0;
+            foreach (var row in m_shipsAvailableMaster)
+            {
+                var thisShipsTurretCount = int.Parse(row.GetCell(4).Text.ToString());
+                if (thisShipsTurretCount > maxTurrets)
+                {
+                    maxTurrets = thisShipsTurretCount;
+                }
+            }
+
+            m_maxTurrets = new MyGuiControlSlider(
+               position: Vector2.Zero - new Vector2(-0.1f, 0.3f),
+               width: 0.2f,
+               minValue: 0,
+               maxValue: maxTurrets,
+               labelText: new StringBuilder("{0}").ToString(),
+               labelDecimalPlaces: 0,
+               labelSpaceWidth: 0.05f,
+               intValue: true,
+               defaultValue: maxTurrets
+               );
+
             // Ok-Cancel Buttons
             m_okButton = new MyGuiControlButton(position: buttonsOrigin - new Vector2(0.01f, 0f), size: buttonSize, text: MyTexts.Get(MySpaceTexts.Ok), onButtonClick: OkButtonClicked, originAlign: MyGuiDrawAlignEnum.HORISONTAL_RIGHT_AND_VERTICAL_BOTTOM);
             m_cancelButton = new MyGuiControlButton(position: buttonsOrigin + new Vector2(0.01f, 0f), size: buttonSize, text: MyTexts.Get(MySpaceTexts.Cancel), onButtonClick: CancelButtonClicked, originAlign: MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_BOTTOM);
             
             m_ShipsAvailable = new MyGuiControlTable();
             m_ShipsAvailable.Position = Vector2.Zero - new Vector2(-0.0f, 0.0f);
-            m_ShipsAvailable.VisibleRowsCount = 15;
+            m_ShipsAvailable.VisibleRowsCount = 12;
             // m_ShipsAvailable.Size = new Vector2(m_size.Value.X * 0.4375f, 1.25f);
             m_ShipsAvailable.Size = new Vector2(m_size.Value.X * 0.7f, 1.25f);
             m_ShipsAvailable.OriginAlign = MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_TOP;
@@ -139,17 +212,28 @@ namespace Sandbox.Game.Gui
 
             float labelSize = 0.31f;
 
-            float MARGIN_TOP = 0.15f;
+            float MARGIN_TOP = 0.05f;
 
             // Controls that will be automatically positioned
-              
+            
+            
+            parent.Controls.Add(m_includeLargeShips);
+            parent.Controls.Add(m_includeSmallShips);
+            parent.Controls.Add(m_includeBases);
+
+            parent.Controls.Add(maxBlocksLabel);
+            parent.Controls.Add(m_maxBlocks);
+
+            parent.Controls.Add(maxTurretsLabel);
+            parent.Controls.Add(m_maxTurrets);
+
             // Automatic layout - position all controls added up to this point.
             Vector2 originL, originC;
             Vector2 controlsDelta = new Vector2(0f, 0.052f);
 
             originL = -m_size.Value / 2 + new Vector2(0.16f, MARGIN_TOP);
             originC = originL + new Vector2(labelSize, 0f);
-            float rightColumnOffset = originC.X + maxNoShipsLabel.Size.X - labelSize - 0.017f; 
+            float rightColumnOffset = originC.X + m_maxTurrets.Size.X - labelSize - 0.017f; 
 
             foreach (var control in parent.Controls)
             {
@@ -159,6 +243,34 @@ namespace Sandbox.Game.Gui
                 else
                     control.Position = originC + controlsDelta * numControls++;
             }
+
+            m_includeLargeShips.Position = m_includeLargeShips.Position + new Vector2(0.025f, 0.0f);
+            m_includeSmallShips.Position = m_includeSmallShips.Position + new Vector2(0.025f, 0.0f);
+            m_includeBases.Position = m_includeBases.Position + new Vector2(0.025f, 0.0f);
+
+            EncounterTypesAllowedLabel.Position = originL - new Vector2(0f, 0.034f);
+            parent.Controls.Add(EncounterTypesAllowedLabel);
+
+            m_excludeLargeShips.Position = m_includeLargeShips.Position + new Vector2(0.09f, 0.0f);
+            m_excludeSmallShips.Position = m_includeSmallShips.Position + new Vector2(0.09f, 0.0f);
+            m_excludeBases.Position = m_includeBases.Position + new Vector2(0.09f, 0.0f);
+
+            IncludeLabel.Position = new Vector2(m_includeLargeShips.Position.X - 0.01f, EncounterTypesAllowedLabel.Position.Y);
+            parent.Controls.Add(IncludeLabel);
+            ExcludeLabel.Position = new Vector2(m_excludeLargeShips.Position.X - 0.03f, EncounterTypesAllowedLabel.Position.Y);
+            parent.Controls.Add(ExcludeLabel);
+
+            parent.Controls.Add(m_excludeLargeShips);
+            parent.Controls.Add(m_excludeSmallShips);
+            parent.Controls.Add(m_excludeBases);
+
+            LargeShipLabel.Position = m_includeLargeShips.Position - new Vector2(0.3f, 0.0f);
+            SmallShipLabel.Position = m_includeSmallShips.Position - new Vector2(0.3f, 0.0f);
+            BaseShipLabel.Position = m_includeBases.Position - new Vector2(0.3f, 0.0f);
+
+            parent.Controls.Add(LargeShipLabel);
+            parent.Controls.Add(SmallShipLabel);
+            parent.Controls.Add(BaseShipLabel);
 
             m_ShipsAvailable.Position = originL + controlsDelta * numControls;
             parent.Controls.Add(m_ShipsAvailable);

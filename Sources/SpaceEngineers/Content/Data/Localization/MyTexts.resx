@@ -6861,6 +6861,39 @@ Set at 50% for an even mix of small and large ships.</value>
   <data name="WorldSettings_AllowArmedLargeShipsLabel" xml:space="preserve">
     <value>Large ships must be armed</value>
   </data>
+  <data name="WorldSettings_EncounterApplyButton" xml:space="preserve">
+    <value>Apply</value>
+  </data>
+  <data name="WorldSettings_EncounterBaseShipLabel" xml:space="preserve">
+    <value>Asteroid Bases</value>
+  </data>
+  <data name="WorldSettings_EncounterExcludeLabel" xml:space="preserve">
+    <value>Exclude</value>
+  </data>
+  <data name="WorldSettings_EncounterFilterLabel" xml:space="preserve">
+    <value>Filter</value>
+  </data>
+  <data name="WorldSettings_EncounterIncludeLabel" xml:space="preserve">
+    <value>Include</value>
+  </data>
+  <data name="WorldSettings_EncounterLargeShipLabel" xml:space="preserve">
+    <value>Large Ships</value>
+  </data>
+  <data name="WorldSettings_EncounterResetButton" xml:space="preserve">
+    <value>Reset</value>
+  </data>
+  <data name="WorldSettings_EncounterSmallShipLabel" xml:space="preserve">
+    <value>Small Ships</value>
+  </data>
+  <data name="WorldSettings_EncounterTypesAllowedLabel" xml:space="preserve">
+    <value>Encounter Types Allowed</value>
+  </data>
+  <data name="WorldSettings_MaxBlocksLabel" xml:space="preserve">
+    <value>Maximum Blocks</value>
+  </data>
+  <data name="WorldSettings_MaxTurretsLabel" xml:space="preserve">
+    <value>Maximum Turrets</value>
+  </data>
   <data name="WorldSettings_ShipSelector" xml:space="preserve">
     <value>Ships Available</value>
   </data>

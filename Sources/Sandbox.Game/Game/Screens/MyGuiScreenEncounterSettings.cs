@@ -384,6 +384,8 @@ namespace Sandbox.Game.Gui
             m_reactorsOnPercentage.Value = 0;
             m_antennaOnPercentage.Value = 0;
             m_antennaRangeMaxedOut.IsChecked = false;
+            m_smallToLargeShipRatio.Value = 50;
+            m_allowArmedLargeShipsOnly.IsChecked = false;     
         }
 
         private void AdventureButtonClicked(object sender)
@@ -396,6 +398,8 @@ namespace Sandbox.Game.Gui
             m_reactorsOnPercentage.Value = 50;
             m_antennaOnPercentage.Value = 50;
             m_antennaRangeMaxedOut.IsChecked = false;
+            m_smallToLargeShipRatio.Value = 50;
+            m_allowArmedLargeShipsOnly.IsChecked = false;
         }
 
         private void WarButtonClicked(object sender)
@@ -408,6 +412,8 @@ namespace Sandbox.Game.Gui
             m_reactorsOnPercentage.Value = 100;
             m_antennaOnPercentage.Value = 100;
             m_antennaRangeMaxedOut.IsChecked = true;
+            m_smallToLargeShipRatio.Value = 90;
+            m_allowArmedLargeShipsOnly.IsChecked = true;
         }
 
         private void RuinsButtonClicked(object sender)
@@ -419,7 +425,9 @@ namespace Sandbox.Game.Gui
             m_damageAppliedGlobally.IsChecked = true;
             m_reactorsOnPercentage.Value = 80;
             m_antennaOnPercentage.Value = 80;
-            m_antennaRangeMaxedOut.IsChecked = false;            
+            m_antennaRangeMaxedOut.IsChecked = false;
+            m_smallToLargeShipRatio.Value = 50;
+            m_allowArmedLargeShipsOnly.IsChecked = false;
         }
 
         private void RandomButtonClicked(object sender)
@@ -433,6 +441,9 @@ namespace Sandbox.Game.Gui
             m_reactorsOnPercentage.Value = MyRandom.Instance.Next(0, 101);
             m_antennaOnPercentage.Value = MyRandom.Instance.Next(0, 101);
             m_antennaRangeMaxedOut.IsChecked = MyRandom.Instance.Next(0, 2) == 1 ? true : false;
+
+            m_smallToLargeShipRatio.Value = MyRandom.Instance.Next(0, 101); ;
+            m_allowArmedLargeShipsOnly.IsChecked = MyRandom.Instance.Next(0, 2) == 1 ? true : false; 
 
             OnOkButtonClicked();
             CloseScreen();
