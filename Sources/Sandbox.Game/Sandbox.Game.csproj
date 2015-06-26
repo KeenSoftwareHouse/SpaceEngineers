@@ -144,6 +144,7 @@
     <Compile Include="Definitions\MyAgentDefinition.cs" />
     <Compile Include="Definitions\MyAiCommandDefinition.cs" />
     <Compile Include="Definitions\MyBotDefinition.cs" />
+    <Compile Include="Definitions\MyPlanetPrefabDefinition.cs" />
     <Compile Include="Definitions\MyStatsDefinition.cs" />
     <Compile Include="Definitions\MyTextPanelDefinition.cs" />
     <Compile Include="Definitions\MyLCDTextureDefinition.cs" />
@@ -223,7 +224,7 @@
     <Compile Include="Definitions\MyWeaponBlockDefinition.cs" />
     <Compile Include="Definitions\MyWeaponDefinition.cs" />
     <Compile Include="Definitions\MyWeaponItemDefinition.cs" />
-    <Compile Include="Definitions\MyPlanetDefinition.cs" />
+    <Compile Include="Definitions\MyPlanetGeneratorDefinition.cs" />
     <Compile Include="Definitions\VoxelHand\MyVoxelHandDefinition.cs" />
     <Compile Include="Engine\GUI\FunctionalBlocks\MyGuiControlGenericFunctionalBlock.cs" />
     <Compile Include="Engine\Multiplayer\MyDedicatedServerBase.cs" />
@@ -417,6 +418,7 @@
     <Compile Include="Game\Entities\Blocks\MyAirtightHangarDoor.cs" />
     <Compile Include="Game\Entities\Blocks\MyCockpit.cs" />
     <Compile Include="Game\Entities\Blocks\MyConveyorSorter.cs" />
+    <Compile Include="Game\Entities\Blocks\MyScenarioBuildingBlock.cs" />
     <Compile Include="Game\Entities\Blocks\MyLaserAntenna.cs" />
     <Compile Include="Game\Entities\Blocks\MyLaserBroadcaster.cs" />
     <Compile Include="Game\Entities\Blocks\MyLaserReceiver.cs" />
@@ -459,11 +461,9 @@
     <Compile Include="Game\Entities\Character\MySkinnedEntity.cs" />
     <Compile Include="Game\Entities\Cube\MyComponentList.cs" />
     <Compile Include="Game\Entities\Cube\MyUseObjectAdvancedDoorTerminal.cs" />
-    <Compile Include="Game\Entities\Interfaces\IMyComponentInventory.cs" />
-    <Compile Include="Game\Entities\Interfaces\IMyInventoryAggregate.cs" />
-    <Compile Include="Game\Entities\Inventory\MyComponentInventoryAggregate.cs" />
-    <Compile Include="Game\Entities\Inventory\MyInventory.ComponentInventory.cs" />
-    <Compile Include="Game\Entities\Inventory\MyInventoryAggregateBase.cs" />
+    <Compile Include="Game\Entities\Interfaces\IMyInventoryItemAdapter.cs" />
+    <Compile Include="Game\Entities\Inventory\MyInventoryAggregate.cs" />
+    <Compile Include="Game\Entities\Inventory\MyInventoryBase.cs" />
     <Compile Include="Game\Entities\MyCompositeGameLogicComponent.cs" />
     <Compile Include="Game\Entities\Cube\MyBlockGroupData.cs" />
     <Compile Include="Game\Entities\Cube\MyCubeBuilder-Draw.cs" />
@@ -724,6 +724,7 @@
     <Compile Include="Game\Screens\Terminal\MyTerminalChatController.cs" />
     <Compile Include="Game\Screens\Triggers\MyGuiScreenTrigger.cs" />
     <Compile Include="Game\Screens\Triggers\MyGuiScreenTriggerAllOthersLost.cs" />
+    <Compile Include="Game\Screens\Triggers\MyGuiScreenTriggerBlockDestroyed.cs" />
     <Compile Include="Game\Screens\Triggers\MyGuiScreenTriggerLives.cs" />
     <Compile Include="Game\Screens\Triggers\MyGuiScreenTriggerPosition.cs" />
     <Compile Include="Game\Screens\Triggers\MyGuiScreenTriggerPositionLeft.cs" />
@@ -738,6 +739,7 @@
     <Compile Include="Game\VoiceChat\IMyVoiceChatLogic.cs" />
     <Compile Include="Game\VoiceChat\MyVoiceChatSessionComponent.cs" />
     <Compile Include="Game\Weapons\Guns\MyUserControllableGun.cs" />
+    <Compile Include="Game\World\Generator\MyCompositeOrePlanetDeposit.cs" />
     <Compile Include="Game\World\Generator\MyCompositeShapeOreDeposit.cs" />
     <Compile Include="Game\World\Generator\MyCompositeShapes.cs" />
     <Compile Include="Game\SessionComponents\MySessionComponentVoxelHand.cs" />
@@ -753,6 +755,7 @@
     <Compile Include="Game\World\Triggers\MyMissionTriggers.cs" />
     <Compile Include="Game\World\Triggers\MyTrigger.cs" />
     <Compile Include="Game\World\Triggers\MyTriggerAllOthersLost.cs" />
+    <Compile Include="Game\World\Triggers\MyTriggerBlockDestroyed.cs" />
     <Compile Include="Game\World\Triggers\MyTriggerLives.cs" />
     <Compile Include="Game\World\Triggers\MyTriggerPositionReached.cs" />
     <Compile Include="Game\World\Triggers\MyTriggerPositionLeft.cs" />

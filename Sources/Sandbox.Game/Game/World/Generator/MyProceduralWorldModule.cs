@@ -102,7 +102,7 @@ namespace Sandbox.Game.World.Generator
             m_densityFunctionsFilled.Remove(func);
         }
 
-        protected void AddDensityFunctionRemoved(IMyAsteroidFieldDensityFunction func)
+        public void AddDensityFunctionRemoved(IMyAsteroidFieldDensityFunction func)
         {
             m_densityFunctionsRemoved.Add(func);
         }
@@ -340,16 +340,7 @@ namespace Sandbox.Game.World.Generator
             }
             m_tempProceduralCellsList.Clear();
         }
-
-        protected Vector3D GetRandomDirection(MyRandom random)
-        {
-            double phi = random.NextDouble() * 2.0 * Math.PI;
-            double z = random.NextDouble() * 2.0 - 1.0;
-            double root = Math.Sqrt(1.0 - z * z);
-
-            return new Vector3D(root * Math.Cos(phi), root * Math.Sin(phi), z);
-        }
-
+     
         internal void GetAllCells(List<MyProceduralCell> list)
         {
             m_cellsTree.GetAll(list, false);

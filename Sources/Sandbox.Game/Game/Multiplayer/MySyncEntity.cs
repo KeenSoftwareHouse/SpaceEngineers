@@ -395,10 +395,6 @@ namespace Sandbox.Game.Multiplayer
             if (Entity.PositionComp != null)
                 Entity.PositionComp.SetWorldMatrix(m_interpolator.TargetMatrix, this);
 
-            if (msg.LinearVelocity.ToVector3() == Vector3.Zero
-                && msg.AngularVelocity.ToVector3() == Vector3.Zero)
-                if (Entity.Physics != null && Entity.Physics.RigidBody != null && Entity.Physics.RigidBody.IsAddedToWorld) Entity.Physics.RigidBody.Deactivate();
-
             if (Entity.Physics != null)
             {
                 Entity.Physics.LinearVelocity = msg.LinearVelocity;
@@ -413,6 +409,11 @@ namespace Sandbox.Game.Multiplayer
                 }
 
                 Entity.Physics.UpdateAccelerations();
+
+                if(!Entity.Physics.IsMoving && Entity.Physics.RigidBody != null && Entity.Physics.RigidBody.IsAddedToWorld)
+                {
+                    Entity.Physics.RigidBody.Deactivate();
+                }
             }
         }
 

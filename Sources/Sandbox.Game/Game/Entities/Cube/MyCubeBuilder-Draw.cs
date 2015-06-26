@@ -451,7 +451,7 @@ namespace Sandbox.Game.Entities
 
         public static void DrawMountPoints(float cubeSize, MyCubeBlockDefinition def, ref MatrixD drawMatrix)
         {
-            var mountPoints = def.MountPoints;
+            var mountPoints = def.GetBuildProgressModelMountPoints(1.0f);
             if (mountPoints == null)
                 return;
 
@@ -586,6 +586,7 @@ namespace Sandbox.Game.Entities
                 mountPoint.Normal = new Vector3I(direction);
                 mountPoint.Start = (aabb.Min + new Vector3(centerOffset)) / gridSize;
                 mountPoint.End = (aabb.Max + new Vector3(centerOffset)) / gridSize;
+				mountPoint.Enabled = true;
                 //because it didnt work if shape wasnt realy near the edge
                 var zExt = Vector3.Abs(direction) * mountPoint.Start;
                 bool add = zExt.AbsMax() > 0.5f;

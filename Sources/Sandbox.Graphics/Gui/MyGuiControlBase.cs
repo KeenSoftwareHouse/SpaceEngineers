@@ -291,6 +291,33 @@ namespace Sandbox.Graphics.GUI
                 }
             }
         }
+
+        public float PositionY
+        {
+            get { return m_position.Y; }
+            set
+            {
+                if (m_position.Y != value)
+                {
+                    m_position.Y = value;
+                    OnPositionChanged();
+                }
+            }
+        }
+
+        public float PositionX
+        {
+            get { return m_position.X; }
+            set
+            {
+                if (m_position.X != value)
+                {
+                    m_position.X = value;
+                    OnPositionChanged();
+                }
+            }
+        }
+
         private Vector2 m_position;
 
         /// <summary>

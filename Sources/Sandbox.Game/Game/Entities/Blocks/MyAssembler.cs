@@ -934,7 +934,7 @@ namespace Sandbox.Game.Entities.Cube
             }
         }
 
-        private void OutputInventory_ContentsChanged(MyInventory inventory)
+        private void OutputInventory_ContentsChanged(MyInventoryBase inventory)
         {
             if (DisassembleEnabled && RepeatEnabled && Sync.IsServer)
                 RebuildQueueInRepeatDisassembling();

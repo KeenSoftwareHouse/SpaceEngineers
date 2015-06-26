@@ -258,7 +258,7 @@ namespace Sandbox.Common.ObjectBuilders
         public bool DisableRespawnShips = false;
 
         [ProtoMember]
-        [Display(Name = "Scenario edit mode")]
+        [Display(Name = "")]
         [GameRelationAttribute(Game.SpaceEngineers)]
         public bool ScenarioEditMode = false;
 
@@ -268,12 +268,12 @@ namespace Sandbox.Common.ObjectBuilders
         public bool Battle = false;
 
         [ProtoMember]
-        [Display(Name = "Scenario")]
+        [Display(Name = "")]
         [GameRelationAttribute(Game.SpaceEngineers)]
         public bool Scenario = false;
 
         [ProtoMember]
-        [Display(Name = "Can join running")]
+        [Display(Name = "")]
         [GameRelationAttribute(Game.SpaceEngineers)]
         public bool CanJoinRunning = false;
 
