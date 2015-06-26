@@ -331,5 +331,87 @@
         <StartingState xsi:type="Transform" JetpackEnabled="true" DampenersEnabled="true" />
       </PossibleStartingStates>
     </ScenarioDefinition>
-  </Scenarios>
+    <ScenarioDefinition>
+      <Id>
+        <TypeId>ScenarioDefinition</TypeId>
+        <SubtypeId>Planet</SubtypeId>
+      </Id>
+      <DisplayName>DisplayName_Scenario_Planet</DisplayName>
+      <Description>Description_Scenario_Planet</Description>
+      <Icon>Textures\GUI\Icons\scenarios\PreviewEmptyWorld.dds</Icon>
+      <AsteroidClusters Enabled="true" />
+      <CreativeModeWeapons>
+        <Weapon>AngleGrinderItem</Weapon>
+        <Weapon>AutomaticRifleItem</Weapon>
+        <Weapon>HandDrillItem</Weapon>
+        <Weapon>WelderItem</Weapon>
+      </CreativeModeWeapons>
+      <SurvivalModeWeapons>
+        <Weapon>AngleGrinderItem</Weapon>
+        <Weapon>HandDrillItem</Weapon>
+        <Weapon>WelderItem</Weapon>
+      </SurvivalModeWeapons>
+      <PossibleStartingStates>
+      <StartingState xsi:type="Transform" JetpackEnabled="true" DampenersEnabled="true">
+        <Transform>
+          <Position x="16645.311872003316" y="32388.794622388748" z="14136.587825442359" />
+          <Forward x="-0.449505031" y="-0.797060549" z="0.4032862" />
+          <Up x="-0.653642654" y="-0.0142257074" z="-0.756669641" />
+        </Transform>
+      </StartingState>
+        </PossibleStartingStates>
+      <WorldGeneratorOperations>
+        <Operation xsi:type="AddPlanetPrefab" PrefabFile="Planet1" Name="RedShipCrashed"/> 
+        <Operation xsi:type="AddShipPrefab" PrefabFile="Fighter2">
+          <Transform>
+              <Position x="16613.223512170553" y="32333.253986326126" z="14161.549301768348" />
+              <Forward x="-0.489987135" y="-0.8015769" z="0.342617959" />
+              <Up x="-0.622662246" y="0.0467580669" z="-0.781092465" />
+          </Transform>
+        </Operation>
+      </WorldGeneratorOperations>
+    </ScenarioDefinition>
+    <ScenarioDefinition>
+      <Id>
+        <TypeId>ScenarioDefinition</TypeId>
+        <SubtypeId>2Planets</SubtypeId>
+      </Id>
+      <DisplayName>DisplayName_Scenario_2Planets</DisplayName>
+      <Description>Description_Scenario_2Planets</Description>
+      <Icon>Textures\GUI\Icons\scenarios\2Planets.dds</Icon>
+      <AsteroidClusters Enabled="true" />
+      <CreativeModeWeapons>
+        <Weapon>AngleGrinderItem</Weapon>
+        <Weapon>AutomaticRifleItem</Weapon>
+        <Weapon>HandDrillItem</Weapon>
+        <Weapon>WelderItem</Weapon>
+      </CreativeModeWeapons>
+      <SurvivalModeWeapons>
+        <Weapon>AngleGrinderItem</Weapon>
+        <Weapon>HandDrillItem</Weapon>
+        <Weapon>WelderItem</Weapon>
+      </SurvivalModeWeapons>
+      <PossibleStartingStates>
+      <StartingState xsi:type="Transform" JetpackEnabled="false" DampenersEnabled="true">
+        <Transform>
+          <Position x="11081.2114269507" y="32198.393937796835" z="20446.86816305446" />
+          <Forward x="-0.45068568" y="-0.379716516" z="0.807897151" />
+          <Up x="-0.868705153" y="-0.0217921566" z="-0.4948499" />
+        </Transform>
+      </StartingState>
+    </PossibleStartingStates>
+    <WorldGeneratorOperations>
+      <Operation xsi:type="AddPlanetPrefab" PrefabFile="Planet1" Name="RedShipCrashed"/>
+      <Operation xsi:type="AddPlanetPrefab" PrefabFile="Planet2" Name="RedShipCrashed"/>
+      <Operation xsi:type="AddShipPrefab" PrefabFile="Fighter2">
+        <Transform>
+         <Position x="11075.5708019507" y="32198.676469535116" z="20451.20654196071" />
+        <Forward x="-0.3965575" y="-0.597108364" z="0.6972831" />
+        <Up x="-0.903461039" y="0.119156681" z="-0.411776483" />
+        </Transform>
+      </Operation>
+
+    </WorldGeneratorOperations>
+  </ScenarioDefinition>
+</Scenarios>
 </ScenarioDefinitions>

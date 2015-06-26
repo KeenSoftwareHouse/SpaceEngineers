@@ -122,7 +122,7 @@ namespace Sandbox.Game.Entities.Character
 
         void InteractiveObjectChanged()
         {
-            if (MySession.ControlledEntity == this)
+            if (MySession.ControlledEntity == this.Character && UseObject != null)
             {
                 GetNotification(UseObject, UseActionEnum.Manipulate, ref m_useObjectNotification);
                 GetNotification(UseObject, UseActionEnum.OpenTerminal, ref m_showTerminalNotification);

@@ -16,7 +16,7 @@ namespace Sandbox.Game.World.Generator
         private const int PLANET_SIZE_MIN = 30 * 1000;
         private const int PLANET_SIZE_MAX = 50 * 1000;
 
-        private const int MOONS_MAX = 2;
+        private const int MOONS_MAX = 3;
 
         private const int MOON_SIZE_MIN = 8 * 1000;
         private const int MOON_SIZE_MAX = 10 * 1000;
@@ -30,7 +30,7 @@ namespace Sandbox.Game.World.Generator
 
         private const double GRAVITY_SIZE_MULTIPLIER = 2.0;
 
-        private const double OBJECT_SEED_RADIUS = PLANET_SIZE_MAX / 2.0 * GRAVITY_SIZE_MULTIPLIER + 2 * (MOON_SIZE_MAX / 2.0 * GRAVITY_SIZE_MULTIPLIER + 2 * MOON_DISTANCE_MAX);
+        public const double OBJECT_SEED_RADIUS = PLANET_SIZE_MAX / 2.0 * GRAVITY_SIZE_MULTIPLIER + 2 * (MOON_SIZE_MAX / 2.0 * GRAVITY_SIZE_MULTIPLIER + 2 * MOON_DISTANCE_MAX);
 
         public MyProceduralPlanetCellGenerator(int seed, double density, MyProceduralWorldModule parent = null)
             : base(512 * 1000, 100, seed, ((density + 1) / 5) - 1, parent)
@@ -108,7 +108,7 @@ namespace Sandbox.Game.World.Generator
 
                     for (int i = 0; i < MOONS_MAX; ++i)
                     {
-                        var direction = GetRandomDirection(random);
+                        var direction = MyProceduralWorldGenerator.GetRandomDirection(random);
                         var size = MathHelper.Lerp(MOON_SIZE_MIN, MOON_SIZE_MAX, random.NextDouble());
                         var distance = MathHelper.Lerp(MOON_DISTANCE_MIN, MOON_DISTANCE_MAX, random.NextDouble());
                         var position = objectSeed.BoundingVolume.Center + direction * (size + objectSeed.BoundingVolume.HalfExtents.Length() * 2 + distance);

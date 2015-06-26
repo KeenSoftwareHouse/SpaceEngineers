@@ -39,5 +39,8 @@ namespace Sandbox.Common.ObjectBuilders.Voxels
         [ProtoMember]
         public float GravityFalloff;
 
+        [ProtoMember]
+        public bool MarkAreaEmpty;
+
     }
 }

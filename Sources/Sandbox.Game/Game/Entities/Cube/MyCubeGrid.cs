@@ -1834,7 +1834,9 @@ namespace Sandbox.Game.Entities
         private bool CanAddBlock(MyBlockLocation location)
         {
             var blockDefinition = MyDefinitionManager.Static.GetCubeBlockDefinition(location.BlockDefinition);
-            if (!MyCubeGrid.CheckConnectivity(this, blockDefinition, ref location.Orientation, ref location.CenterPos)) return false;
+			var mountPoints = blockDefinition.GetBuildProgressModelMountPoints(MyComponentStack.NewBlockIntegrity);
+            if (!MyCubeGrid.CheckConnectivity(this, blockDefinition, mountPoints, ref location.Orientation, ref location.CenterPos))
+				return false;
 
             Vector3I min = location.Min, max;
             MyBlockOrientation ori = new MyBlockOrientation(ref location.Orientation);
@@ -2234,11 +2236,12 @@ namespace Sandbox.Game.Entities
                     }
 
                     var ori = new MyBlockOrientation(ref orientation);
+					var mountPoints = blockDefinition.GetBuildProgressModelMountPoints(MyComponentStack.NewBlockIntegrity);
                     // If we are on the server, we perform various checks. Clients on the other hand just build the blocks
                     if ( !Sync.IsServer ||
                             (
                                 CanPlaceBlock(location.Min, location.Max, ori, blockDefinition) &&
-                                MyCubeGrid.CheckConnectivity(this, blockDefinition, ref orientation, ref center)
+                                MyCubeGrid.CheckConnectivity(this, blockDefinition, mountPoints, ref orientation, ref center)
                             )
                         )
                     {
@@ -2273,7 +2276,9 @@ namespace Sandbox.Game.Entities
             }
 
             MyBlockOrientation ori = new MyBlockOrientation(ref location.Orientation);
-            if (CanPlaceBlock(location.Min, location.Max, ori, blockDefinition) && MyCubeGrid.CheckConnectivity(this, blockDefinition, ref orientation, ref center))
+			var mountPoints = blockDefinition.GetBuildProgressModelMountPoints(MyComponentStack.NewBlockIntegrity);
+            if (CanPlaceBlock(location.Min, location.Max, ori, blockDefinition)
+				&& MyCubeGrid.CheckConnectivity(this, blockDefinition, mountPoints, ref orientation, ref center))
             {
                 var block = BuildBlock(blockDefinition, colorMaskHsv, location.Min, orientation, location.Owner, location.EntityId, builder, objectBuilder);
 
@@ -2521,6 +2526,43 @@ namespace Sandbox.Game.Entities
 
             m_dirtyRegion.AddCubeRegion(min, max);
             Physics.AddDirtyArea(min, max);
+        }
+
+        public void RazeGeneratedBlocks(List<MySlimBlock> generatedBlocks)
+        {
+            m_tmpRazeList.Clear();
+            m_tmpLocations.Clear();
+
+            foreach (var generatedBlock in generatedBlocks)
+            {
+                Debug.Assert(generatedBlock.BlockDefinition.IsGeneratedBlock);
+                var parentBlock = GetCubeBlock(generatedBlock.Position);
+
+                if (parentBlock != null)
+                {
+                    if (parentBlock.FatBlock is MyCompoundCubeBlock)
+                    {
+                        MyCompoundCubeBlock cb = parentBlock.FatBlock as MyCompoundCubeBlock;
+                        ushort? blockId = cb.GetBlockId(generatedBlock);
+                        Debug.Assert(blockId != null);
+                        if (blockId != null)
+                            m_tmpRazeList.Add(new Tuple<Vector3I, ushort>(generatedBlock.Position, blockId.Value));
+                    }
+                    else
+                    {
+                        m_tmpLocations.Add(generatedBlock.Position);
+                    }
+                }
+            }
+
+            if (m_tmpLocations.Count > 0)
+                RazeGeneratedBlocks(m_tmpLocations);
+
+            if (m_tmpRazeList.Count > 0)
+                RazeGeneratedBlocksInCompoundBlock(m_tmpRazeList);
+
+            m_tmpRazeList.Clear();
+            m_tmpLocations.Clear();
         }
 
         public void ColorBlocks(Vector3I min, Vector3I max, Vector3 newHSV, bool playSound)
@@ -3438,6 +3480,8 @@ namespace Sandbox.Game.Entities
                     {
                         RemoveBlockEdges(block);
                     }
+
+                    block.UpdateMaxDeformation();
                 }
                 if (block != null && block.FatBlock != null)
                 {
@@ -3909,7 +3953,8 @@ namespace Sandbox.Game.Entities
             var blockPosInSecondGrid = block.Position - gridOffset;
             Quaternion blockOrientation;
             block.Orientation.GetQuaternion(out blockOrientation);
-            return CheckConnectivity(gridToMerge, block.BlockDefinition, ref blockOrientation, ref blockPosInSecondGrid);
+			var mountPoints = block.BlockDefinition.GetBuildProgressModelMountPoints(block.BuildLevelRatio);
+            return CheckConnectivity(gridToMerge, block.BlockDefinition, mountPoints, ref blockOrientation, ref blockPosInSecondGrid);
         }
 
         public MatrixI CalculateMergeTransform(MyCubeGrid gridToMerge, Vector3I gridOffset)
@@ -5460,6 +5505,102 @@ namespace Sandbox.Game.Entities
             }
 
             return null;
+        }
+
+        private static readonly Vector3I[] m_tmpBlockSurroundingOffsets = new Vector3I[]
+        {
+            new Vector3I(0, 0, 0),
+            new Vector3I(1, 0, 0),
+            new Vector3I(-1, 0, 0),
+            new Vector3I(0, 0, 1),
+            new Vector3I(0, 0, -1),
+            new Vector3I(1, 0, 1),
+            new Vector3I(-1, 0, 1),
+            new Vector3I(1, 0, -1),
+            new Vector3I(-1, 0, -1),
+
+            new Vector3I(0, 1, 0),
+            new Vector3I(1, 1, 0),
+            new Vector3I(-1, 1, 0),
+            new Vector3I(0, 1, 1),
+            new Vector3I(0, 1, -1),
+            new Vector3I(1, 1, 1),
+            new Vector3I(-1, 1, 1),
+            new Vector3I(1, 1, -1),
+            new Vector3I(-1, 1, -1),
+
+            new Vector3I(0, -1, 0),
+            new Vector3I(1, -1, 0),
+            new Vector3I(-1, -1, 0),
+            new Vector3I(0, -1, 1),
+            new Vector3I(0, -1, -1),
+            new Vector3I(1, -1, 1),
+            new Vector3I(-1, -1, 1),
+            new Vector3I(1, -1, -1),
+            new Vector3I(-1, -1, -1),
+        };
+
+        private static readonly List<MySlimBlock> m_tmpSlimBlocks = new List<MySlimBlock>();
+
+        /// <summary>
+        /// Returns array of generated blocks from given generating block. 
+        /// </summary>
+        public void GetGeneratedBlocks(MySlimBlock generatingBlock, List<MySlimBlock> outGeneratedBlocks)
+        {
+            Debug.Assert(!(generatingBlock.FatBlock is MyCompoundCubeBlock));
+
+            outGeneratedBlocks.Clear();
+
+            if (generatingBlock == null || (generatingBlock.FatBlock is MyCompoundCubeBlock))
+                return;
+
+            if (generatingBlock.BlockDefinition.IsGeneratedBlock || generatingBlock.BlockDefinition.GeneratedBlockDefinitions == null 
+                || generatingBlock.BlockDefinition.GeneratedBlockDefinitions.Length == 0)
+                return;
+
+            foreach (var offset in m_tmpBlockSurroundingOffsets) 
+            {
+                var surroundingBlock = generatingBlock.CubeGrid.GetCubeBlock(generatingBlock.Position + offset);
+                if (surroundingBlock == null || surroundingBlock == generatingBlock)
+                    continue;
+
+                if (surroundingBlock.FatBlock is MyCompoundCubeBlock)
+                {
+                    var compoundBlock = surroundingBlock.FatBlock as MyCompoundCubeBlock;
+                    m_tmpSlimBlocks.Clear();
+
+                    foreach (var blockInCompound in compoundBlock.GetBlocks(m_tmpSlimBlocks))
+                    {
+                        if (blockInCompound == generatingBlock || !blockInCompound.BlockDefinition.IsGeneratedBlock)
+                            continue;
+
+                        foreach (var generator in AdditionalModelGenerators)
+                        {
+                            var localGeneratingBlock = generator.GetGeneratingBlock(blockInCompound);
+                            if (generatingBlock != localGeneratingBlock)
+                                continue;
+
+                            outGeneratedBlocks.Add(blockInCompound);
+                        }
+
+                    }
+                }
+                else
+                {
+                    if (!surroundingBlock.BlockDefinition.IsGeneratedBlock)
+                        continue;
+
+                    foreach (var generator in AdditionalModelGenerators)
+                    {
+                        var localGeneratingBlock = generator.GetGeneratingBlock(surroundingBlock);
+                        if (generatingBlock != localGeneratingBlock)
+                            continue;
+
+                        outGeneratedBlocks.Add(surroundingBlock);
+                    }
+                }
+            }
+
         }
     }
 }

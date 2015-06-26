@@ -50,11 +50,6 @@ namespace Sandbox.Game.AI.BehaviorTree
             return obj;
         }
 
-        public static MyObjectBuilder_BehaviorTreeNode CreateObjectBuilder(MyBehaviorTreeNode cubeBlock)
-        {
-            return m_objectFactory.CreateObjectBuilder<MyObjectBuilder_BehaviorTreeNode>(cubeBlock);
-        }
-
         public static Type GetProducedType(MyObjectBuilderType objectBuilderType)
         {
             return m_objectFactory.GetProducedType(objectBuilderType);

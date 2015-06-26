@@ -578,7 +578,7 @@ namespace Sandbox.Game.Gui
                 pos = MySession.LocalHumanPlayer.GetPosition();
             }
 
-            var previewVoxelMap = MyWorldGenerator.AddPlanet(storageNameBase, MySession.LocalHumanPlayer.GetPosition(), seed, size, MyRandom.Instance.NextLong());
+            MyWorldGenerator.AddPlanet(storageNameBase, MySession.LocalHumanPlayer.GetPosition(), seed, size, MyRandom.Instance.NextLong());
         }
 
         private static String MakeStorageName(String storageNameBase)

@@ -123,7 +123,7 @@ namespace VRageRender
 
     class MyDepthStencil : MyBindableResource
     {
-        const bool Depth32F = false;
+        const bool Depth32F = true;
 
         internal ShaderResourceView m_SRV_depth;
         internal ShaderResourceView m_SRV_stencil;

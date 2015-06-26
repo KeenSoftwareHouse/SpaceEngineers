@@ -22,7 +22,7 @@ namespace Sandbox.Game.Screens.Triggers
         protected const float VERTICAL_OFFSET = 0.01f;
 
         public MyGuiScreenTrigger(MyTrigger trg, Vector2 size)
-            : base(size, MyGuiConstants.SCREEN_BACKGROUND_COLOR, size)
+            : base(null, MyGuiConstants.SCREEN_BACKGROUND_COLOR, size)
         {
             Vector2 m_itemPos=new Vector2();
             m_itemPos.Y = - size.Y / 2 + 0.1f;

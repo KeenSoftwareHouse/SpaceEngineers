@@ -33,7 +33,6 @@ namespace Sandbox.ModAPI.Interfaces
             get;
         }
 
-
         bool IsItemAt(int position);
 
         bool CanItemsBeAdded(VRage.MyFixedPoint amount, SerializableDefinitionId contentId);

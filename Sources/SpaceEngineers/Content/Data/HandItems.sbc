@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<Definitions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+<Definitions xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <HandItems>
     <HandItem>
       <Id>
@@ -40,15 +40,15 @@
         <Z>-0.22</Z>
       </ItemPosition>
       <ItemWalkingOrientation>
-        <X>-0.211535022</X>
-        <Y>0.101317354</Y>
-        <Z>0.09810663</Z>
-        <W>0.967141569</W>
+        <X>0.03635861</X>
+        <Y>-0.07427699</Y>
+        <Z>0.0164107047</Z>
+        <W>0.9964395</W>
       </ItemWalkingOrientation>
       <ItemWalkingPosition>
-        <X>0.0130094308</X>
-        <Y>-0.172015056</Y>
-        <Z>-0.07950281</Z>
+        <X>0.14792788</X>
+        <Y>-0.0542416573</Y>
+        <Z>-0.10355103</Z>
       </ItemWalkingPosition>
       <BlendTime>1</BlendTime>
       <XAmplitudeOffset>-0.455334216</XAmplitudeOffset>
@@ -59,15 +59,15 @@
       <ZAmplitudeScale>0</ZAmplitudeScale>
       <RunMultiplier>3.22636747</RunMultiplier>
       <ItemWalkingOrientation3rd>
-        <X>-0.224992588</X>
-        <Y>0.363799334</Y>
-        <Z>-0.176646665</Z>
-        <W>0.886467338</W>
+        <X>0.120745391</X>
+        <Y>0.04014123</Y>
+        <Z>0.01575381</Z>
+        <W>0.9917465</W>
       </ItemWalkingOrientation3rd>
       <ItemWalkingPosition3rd>
-        <X>0.0246537924</X>
-        <Y>-0.290927768</Y>
-        <Z>-0.03944838</Z>
+        <X>0.14792788</X>
+        <Y>0.0295847654</Y>
+        <Z>-0.13806808</Z>
       </ItemWalkingPosition3rd>
       <AmplitudeMultiplier3rd>1.21696043</AmplitudeMultiplier3rd>
       <ItemOrientation3rd>
@@ -140,7 +140,7 @@
         <SubtypeId />
       </Id>
       <LeftHandOrientation>
-        <X>-0.707107961</X>
+        <X>-0.7071079</X>
         <Y>-3.9056124E-07</Y>
         <Z>-1.6858759E-07</Z>
         <W>0.7071056</W>
@@ -151,9 +151,9 @@
         <Z>-0.06793878</Z>
       </LeftHandPosition>
       <RightHandOrientation>
-        <X>-0.404110253</X>
-        <Y>-0.455361873</Y>
-        <Z>-0.5956749</Z>
+        <X>-0.404110372</X>
+        <Y>-0.455362</Y>
+        <Z>-0.595675</Z>
         <W>0.523938656</W>
       </RightHandOrientation>
       <RightHandPosition>
@@ -274,9 +274,9 @@
         <SubtypeId />
       </Id>
       <LeftHandOrientation>
-        <X>-0.309815735</X>
-        <Y>-0.591285467</Y>
-        <Z>0.492289633</Z>
+        <X>-0.309815675</X>
+        <Y>-0.5912853</Y>
+        <Z>0.492289543</Z>
         <W>0.558611453</W>
       </LeftHandOrientation>
       <LeftHandPosition>
@@ -287,8 +287,8 @@
       <RightHandOrientation>
         <X>0.929755</X>
         <Y>-0.07520178</Y>
-        <Z>0.360117018</Z>
-        <W>0.0147031583</W>
+        <Z>0.360117048</Z>
+        <W>0.01470316</W>
       </RightHandOrientation>
       <RightHandPosition>
         <X>0.12327373</X>
@@ -326,10 +326,10 @@
       <ZAmplitudeScale>0</ZAmplitudeScale>
       <RunMultiplier>1.80977166</RunMultiplier>
       <ItemWalkingOrientation3rd>
-        <X>0.611004353</X>
-        <Y>0.384372324</Y>
-        <Z>0.287985623</Z>
-        <W>0.629282</W>
+        <X>0.6110043</X>
+        <Y>0.3843723</Y>
+        <Z>0.2879856</Z>
+        <W>0.629282057</W>
       </ItemWalkingOrientation3rd>
       <ItemWalkingPosition3rd>
         <X>-0.0862925053</X>
@@ -338,10 +338,10 @@
       </ItemWalkingPosition3rd>
       <AmplitudeMultiplier3rd>0.1740625</AmplitudeMultiplier3rd>
       <ItemOrientation3rd>
-        <X>0.593253434</X>
-        <Y>0.347188175</Y>
-        <Z>0.322974443</Z>
-        <W>0.650536954</W>
+        <X>0.5932535</X>
+        <Y>0.3471882</Y>
+        <Z>0.322974473</Z>
+        <W>0.6505369</W>
       </ItemOrientation3rd>
       <ItemPosition3rd>
         <X>0.0295847654</X>
@@ -361,7 +361,7 @@
         <Z>-0.272847</Z>
       </ItemShootPosition>
       <ItemShootOrientation3rd>
-        <X>0.122474626</X>
+        <X>0.122474618</X>
         <Y>0.231690854</Y>
         <Z>0.4901255</Z>
         <W>0.831322</W>
@@ -418,9 +418,9 @@
         <Z>0.207100153</Z>
       </LeftHandPosition>
       <RightHandOrientation>
-        <X>-0.472021818</X>
-        <Y>-0.471283019</Y>
-        <Z>-0.5155096</Z>
+        <X>-0.472021937</X>
+        <Y>-0.4712831</Y>
+        <Z>-0.5155097</Z>
         <W>0.5379009</W>
       </RightHandOrientation>
       <RightHandPosition>
@@ -460,7 +460,7 @@
       <RunMultiplier>1.27547634</RunMultiplier>
       <ItemWalkingOrientation3rd>
         <X>0</X>
-        <Y>0.106683992</Y>
+        <Y>0.106684</Y>
         <Z>0</Z>
         <W>0.994293</W>
       </ItemWalkingOrientation3rd>
@@ -540,7 +540,7 @@
         <SubtypeId />
       </Id>
       <LeftHandOrientation>
-        <X>0.317969561</X>
+        <X>0.317969531</X>
         <Y>0.45080924</Y>
         <Z>0.3129707</Z>
         <W>0.773120761</W>

@@ -193,7 +193,7 @@ namespace Sandbox.Game.Weapons
             UpdateIsWorking();
         }
 
-        void m_ammoInventory_ContentsChanged(MyInventory obj)
+        void m_ammoInventory_ContentsChanged(MyInventoryBase obj)
         {
             m_gunBase.RefreshAmmunitionAmount();
         }
@@ -296,7 +296,7 @@ namespace Sandbox.Game.Weapons
             {
                 var matrix = m_gunBase.GetMuzzleWorldMatrix();
                 var from = matrix.Translation;
-                var to = from + 1000 * matrix.Forward;
+                var to = from + 50 * matrix.Forward;
 
                 Vector3D target = Vector3D.Zero;
                 if (MyHudCrosshair.GetTarget(from, to, ref target))
