@@ -21,10 +21,13 @@ namespace Sandbox.Game.World
 
         public DictionaryReader<MyDefinitionId, int> TotalMaterials { get { return m_materialList.TotalMaterials; } }
 
-        public abstract IMyComponentInventory GetBuilderInventory(long entityId);
-        public abstract IMyComponentInventory GetBuilderInventory(MyEntity builder);
+        public abstract MyInventoryBase GetBuilderInventory(long entityId);
+        public abstract MyInventoryBase GetBuilderInventory(MyEntity builder);
 
         public abstract bool HasBuildingMaterials(MyEntity builder);
+
+        // CH: TODO: This is here just temporarily. We should move it to a better place later
+        public virtual void AfterCharacterCreate(MyCharacter character) { }
 
         // Convention: All these functions will erase the RequiredMaterials first thing when they're called
         public abstract void GetGridSpawnMaterials(MyCubeBlockDefinition definition, MatrixD worldMatrix, bool isStatic);

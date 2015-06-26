@@ -47,7 +47,7 @@ namespace Sandbox.Game.Entities
             Render = new MyRenderComponentDebrisVoxel();
         }
 
-        void Components_ComponentAdded(Type arg1, MyEntityComponentBase arg2)
+        void Components_ComponentAdded(Type arg1, MyComponentBase arg2)
         {
             if (arg1 == typeof(MyGameLogicComponent))
                 m_logic = arg2 as MyMeteorGameLogic;
@@ -368,6 +368,7 @@ namespace Sandbox.Game.Entities
                     return;
                 IMyEntity other = GetOtherEntity(ref value.ContactPointEvent);
                 if (Sync.IsServer)
+                {
                     if (other is MyCubeGrid)
                     {
                         var grid = other as MyCubeGrid;
@@ -378,7 +379,7 @@ namespace Sandbox.Game.Entities
                     }
                     else if (other is MyCharacter)
                     {
-                        (other as MyCharacter).DoDamage(50 * Entity.PositionComp.Scale.Value,  MyDamageType.Environment, true);
+                        (other as MyCharacter).DoDamage(50 * Entity.PositionComp.Scale.Value, MyDamageType.Environment, true);
                     }
                     else if (other is MyFloatingObject)
                     {
@@ -389,10 +390,11 @@ namespace Sandbox.Game.Entities
                         m_closeAfterSimulation = true;
                         (other.GameLogic as MyMeteorGameLogic).m_closeAfterSimulation = true;
                     }
+                }
 
-                if (other is MyVoxelMap)
+                if (other is MyVoxelBase)
                 {
-                    CreateCrater(value, other as MyVoxelMap);
+                    CreateCrater(value, other as MyVoxelBase);
                 }
 
             }
@@ -422,7 +424,7 @@ namespace Sandbox.Game.Entities
                 PlayExplosionSound();
             }
 
-            private void CreateCrater(MyPhysics.MyContactPointEvent value, MyVoxelMap voxel)
+            private void CreateCrater(MyPhysics.MyContactPointEvent value, MyVoxelBase voxel)
             {
                 if (Math.Abs(Vector3.Normalize(-Entity.WorldMatrix.Forward).Dot(value.ContactPointEvent.ContactPoint.Normal)) < 0.1)
                 {

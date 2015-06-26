@@ -134,9 +134,9 @@ namespace Sandbox.Game.Entities.Cube
 
         public void Dispose()
         {
-            foreach(var connnList in m_connections.Values)
+            foreach (var connnList in m_connections.Values)
             {
-                foreach(var c in connnList)
+                foreach (var c in connnList)
                 {
                     c.RemoveReference();
                 }
@@ -398,7 +398,7 @@ namespace Sandbox.Game.Entities.Cube
             lst.Add(dirty + Vector3I.Right);
             lst.Add(dirty + Vector3I.Forward);
             lst.Add(dirty + Vector3I.Backward);
-            foreach(var v in lst)
+            foreach (var v in lst)
             {
                 if (m_connections.ContainsKey(v))
                 {
@@ -519,7 +519,7 @@ namespace Sandbox.Game.Entities.Cube
                         m_penetrations.Clear();
                     }
                     m_shapeInfosList2.Clear();
-                    if(isStatic)
+                    if (isStatic)
                         BlocksConnectedToWorld.Add(b.Position);
                 }
             }
@@ -588,13 +588,13 @@ namespace Sandbox.Game.Entities.Cube
             {
                 BreakableShape.SetStrenghtRecursively(Sandbox.MyDestructionConstants.STRENGTH, 0.7f);
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 MyLog.Default.WriteLine(e);
                 MyLog.Default.WriteLine("BS Valid: " + BreakableShape.IsValid());
                 MyLog.Default.WriteLine("BS Child count: " + BreakableShape.GetChildrenCount());
                 MyLog.Default.WriteLine("Grid shapes: " + m_shapeInfosList.Count);
-                foreach(var child in m_shapeInfosList)
+                foreach (var child in m_shapeInfosList)
                 {
                     if (!child.Shape.IsValid())
                         MyLog.Default.WriteLine("Invalid child!");
@@ -649,7 +649,7 @@ namespace Sandbox.Game.Entities.Cube
                 ProfilerShort.End();
                 return null;
             }
-            
+
             HkdBreakableShape breakableShape;
             Matrix compoundChildTransform = Matrix.Identity;
 
@@ -682,7 +682,7 @@ namespace Sandbox.Game.Entities.Cube
 
                     float mass = 0;
                     ProfilerShort.Begin("GetBlocks");
-                    foreach(var block in cb.GetBlocks())
+                    foreach (var block in cb.GetBlocks())
                     {
                         block.Orientation.GetMatrix(out compoundChildTransform);
                         compoundChildTransform.Translation = Vector3.Zero;
@@ -863,7 +863,7 @@ namespace Sandbox.Game.Entities.Cube
             //    }
             //}
             ProfilerShort.End();
-            
+
             ProfilerShort.CustomValue("ConnectionCount", i, null);
         }
 
@@ -921,7 +921,7 @@ namespace Sandbox.Game.Entities.Cube
             for (int i = 0; i < m_shapeInfosList2.Count; i++)
             {
                 var child = m_shapeInfosList2[i];
-                
+
                 ProfilerShort.Begin("Transform");
                 Matrix m = child.GetTransform();
                 var dynParent = child.DynamicParent;
@@ -935,7 +935,7 @@ namespace Sandbox.Game.Entities.Cube
                 Vector4 min, max;
                 child.Shape.GetShape().GetLocalAABB(0.1f, out min, out max);
                 ProfilerShort.BeginNextBlock("Check1");
-                var childPos =  posB + Vector3.Transform(new Vector3(min), m);
+                var childPos = posB + Vector3.Transform(new Vector3(min), m);
                 if (((posA - childPos) * dir).AbsMax() > 1.35f/*m_grid.GridSize*/)
                 {
                     ProfilerShort.BeginNextBlock("Check2");
@@ -951,7 +951,7 @@ namespace Sandbox.Game.Entities.Cube
                 anyConnection = true;
                 //end of strange line
 
-                var toChild = CreateConnection(shapeA.Shape, child.Shape, posA,posB + Vector3.Transform(child.CoM, m));//blockB.Position * m_grid.GridSize);
+                var toChild = CreateConnection(shapeA.Shape, child.Shape, posA, posB + Vector3.Transform(child.CoM, m));//blockB.Position * m_grid.GridSize);
                 blockConnections.Add(toChild);
                 ProfilerShort.BeginNextBlock("DynParent");
                 child.GetChildren(m_shapeInfosList2);
@@ -1059,12 +1059,12 @@ namespace Sandbox.Game.Entities.Cube
                 return;
             ProfilerShort.Begin("GridShape.UpdateMassFromInv");
             Debug.Assert(BreakableShape.IsValid(), "This routine works with breakable shape mass properties.");
-            foreach(var block in blocks)
+            foreach (var block in blocks)
             {
                 var owner = block.FatBlock as IMyInventoryOwner;
                 if (owner == null) continue;
                 float mass = 0;
-                for(int i = 0; i < owner.InventoryCount; i++)
+                for (int i = 0; i < owner.InventoryCount; i++)
                 {
                     mass += (float)owner.GetInventory(i).CurrentMass;
                 }
@@ -1080,7 +1080,7 @@ namespace Sandbox.Game.Entities.Cube
             var mp = HkInertiaTensorComputer.CombineMassProperties(m_tmpElements);
             m_tmpElements.Clear();
             rb.RigidBody.SetMassProperties(ref mp);
-            if(!rb.RigidBody.IsActive)
+            if (!rb.RigidBody.IsActive)
                 rb.RigidBody.Activate();
             ProfilerShort.End();
         }
@@ -1131,7 +1131,7 @@ namespace Sandbox.Game.Entities.Cube
                 float mass = block.GetMass();
                 if (block.FatBlock is MyFracturedBlock)
                     mass = m_blocksShapes[block.Position].Shape.GetMass();
-                switch(Sandbox.Game.Gui.MyHonzaInputComponent.ShowRealBlockMass)
+                switch (Sandbox.Game.Gui.MyHonzaInputComponent.ShowRealBlockMass)
                 {
                     case Gui.MyHonzaInputComponent.ShownMassEnum.Real:
                         mass = MyDestructionHelper.MassFromHavok(mass);

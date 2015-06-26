@@ -1,4 +1,5 @@
 ﻿using ProtoBuf;
+using System.ComponentModel;
 using VRage.ObjectBuilders;
 
 namespace Sandbox.Common.ObjectBuilders
@@ -7,5 +8,7 @@ namespace Sandbox.Common.ObjectBuilders
     [MyObjectBuilderDefinition]
     public class MyObjectBuilder_ShipWelder : MyObjectBuilder_ShipToolBase
     {
+        [ProtoMember, DefaultValue(false)]
+        public bool HelpOthers = false;
     }
 }

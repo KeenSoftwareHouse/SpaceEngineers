@@ -10848,5 +10848,110 @@ namespace Sandbox.Game.Localization
         ///Time limit
         ///</summary>
         public static readonly MyStringId MyGuiScreenTriggerTimeLimit = MyStringId.GetOrCompute("MyGuiScreenTriggerTimeLimit");
+
+        ///<summary>
+        ///Extreme
+        ///</summary>
+        public static readonly MyStringId WorldSettings_FloraDensity_Extreme = MyStringId.GetOrCompute("WorldSettings_FloraDensity_Extreme");
+
+        ///<summary>
+        ///None
+        ///</summary>
+        public static readonly MyStringId WorldSettings_FloraDensity_None = MyStringId.GetOrCompute("WorldSettings_FloraDensity_None");
+
+        ///<summary>
+        ///If this is turned off, characters won't be able to use jetpacks at all.
+        ///</summary>
+        public static readonly MyStringId ToolTipWorldSettings_EnableJetpack = MyStringId.GetOrCompute("ToolTipWorldSettings_EnableJetpack");
+
+        ///<summary>
+        ///If this is turned off, characters won't spawn with any tools in their inventory.
+        ///</summary>
+        public static readonly MyStringId ToolTipWorldSettings_SpawnWithTools = MyStringId.GetOrCompute("ToolTipWorldSettings_SpawnWithTools");
+
+        ///<summary>
+        ///Enable jetpack
+        ///</summary>
+        public static readonly MyStringId WorldSettings_EnableJetpack = MyStringId.GetOrCompute("WorldSettings_EnableJetpack");
+
+        ///<summary>
+        ///Spawn with tools
+        ///</summary>
+        public static readonly MyStringId WorldSettings_SpawnWithTools = MyStringId.GetOrCompute("WorldSettings_SpawnWithTools");
+
+        ///<summary>
+        ///All blocks from the spawned ship will have the same ownership settings as this projector.
+        ///</summary>
+        public static readonly MyStringId BlockPropertiesTooltip_Projector_GetOwnership = MyStringId.GetOrCompute("BlockPropertiesTooltip_Projector_GetOwnership");
+
+        ///<summary>
+        ///Ownership from projector
+        ///</summary>
+        public static readonly MyStringId BlockPropertyTitle_Projector_GetOwnership = MyStringId.GetOrCompute("BlockPropertyTitle_Projector_GetOwnership");
+
+        ///<summary>
+        ///Block name
+        ///</summary>
+        public static readonly MyStringId GuiTriggerBlockDestroyed_ColumnName = MyStringId.GetOrCompute("GuiTriggerBlockDestroyed_ColumnName");
+
+        ///<summary>
+        ///Block destroyed
+        ///</summary>
+        public static readonly MyStringId GuiTriggerCaptionBlockDestroyed = MyStringId.GetOrCompute("GuiTriggerCaptionBlockDestroyed");
+
+        ///<summary>
+        ///Add blocks
+        ///</summary>
+        public static readonly MyStringId GuiTriggerPasteBlocks = MyStringId.GetOrCompute("GuiTriggerPasteBlocks");
+
+        ///<summary>
+        ///Block destroyed
+        ///</summary>
+        public static readonly MyStringId MyGuiScreenTriggerBlockDestroyed = MyStringId.GetOrCompute("MyGuiScreenTriggerBlockDestroyed");
+
+        ///<summary>
+        ///Message after each block is destroyed
+        ///</summary>
+        public static readonly MyStringId GuiTriggerBlockDestroyedSingleMessage = MyStringId.GetOrCompute("GuiTriggerBlockDestroyedSingleMessage");
+
+        ///<summary>
+        ///Delete
+        ///</summary>
+        public static readonly MyStringId GuiTriggerDeleteBlocks = MyStringId.GetOrCompute("GuiTriggerDeleteBlocks");
+
+        ///<summary>
+        ///Adds blocks copied through button at the end of block terminal screen.
+        ///</summary>
+        public static readonly MyStringId GuiTriggerPasteBlocksTooltip = MyStringId.GetOrCompute("GuiTriggerPasteBlocksTooltip");
+
+        ///<summary>
+        ///Copy block IDs
+        ///</summary>
+        public static readonly MyStringId GuiScenarioEdit_CopyIds = MyStringId.GetOrCompute("GuiScenarioEdit_CopyIds");
+
+        ///<summary>
+        ///You can then paste them into "Block destroyed" trigger
+        ///</summary>
+        public static readonly MyStringId GuiScenarioEdit_CopyIdsTooltip = MyStringId.GetOrCompute("GuiScenarioEdit_CopyIdsTooltip");
+
+        ///<summary>
+        ///2 habitable planets near each other
+        ///</summary>
+        public static readonly MyStringId Description_Scenario_2Planets = MyStringId.GetOrCompute("Description_Scenario_2Planets");
+
+        ///<summary>
+        ///World with one habitable planet 
+        ///</summary>
+        public static readonly MyStringId Description_Scenario_Planet = MyStringId.GetOrCompute("Description_Scenario_Planet");
+
+        ///<summary>
+        ///2 planets
+        ///</summary>
+        public static readonly MyStringId DisplayName_Scenario_2Planets = MyStringId.GetOrCompute("DisplayName_Scenario_2Planets");
+
+        ///<summary>
+        ///Habitable planet
+        ///</summary>
+        public static readonly MyStringId DisplayName_Scenario_Planet = MyStringId.GetOrCompute("DisplayName_Scenario_Planet");
     }
 }

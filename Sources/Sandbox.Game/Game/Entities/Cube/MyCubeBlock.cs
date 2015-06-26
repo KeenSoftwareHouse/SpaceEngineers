@@ -441,6 +441,10 @@ namespace Sandbox.Game.Entities
                 }
             }
 
+            if (MyPerGameSettings.ComponentSaving && builder.ComponentContainer != null)
+            {
+                Components.Deserialize(builder.ComponentContainer);
+            }
 
             base.Init(null);
             base.Render.PersistentFlags |= MyPersistentEntityFlags2.CastShadows;
@@ -482,6 +486,11 @@ namespace Sandbox.Game.Entities
                         ++counter;
                     }
                 }
+            }
+
+            if (MyPerGameSettings.ComponentSaving)
+            {
+                builder.ComponentContainer = Components.Serialize();
             }
 
             return builder;
@@ -1122,6 +1131,22 @@ namespace Sandbox.Game.Entities
                 return m_upgradeValues;
             }
         }
+        public void AddUpgradeValue(string name, float defaultValue)
+        {
+            float previousDefault;
+            if (UpgradeValues.TryGetValue(name, out previousDefault))
+            {
+                if (previousDefault != defaultValue)
+                {
+                    VRage.Utils.MyLog.Default.WriteLine("ERROR while adding upgraded block " + DisplayNameText.ToString() + ". Duplicate with different default value found!");
+                }
+            }
+            else
+            {
+                UpgradeValues.Add(name, defaultValue);
+            }
+        }
+
         public event Action OnUpgradeValuesChanged;
         public void CommitUpgradeValues()
         {

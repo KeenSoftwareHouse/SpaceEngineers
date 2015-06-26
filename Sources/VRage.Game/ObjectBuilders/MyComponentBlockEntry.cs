@@ -19,20 +19,15 @@ namespace VRage.Game.ObjectBuilders
         [XmlAttribute]
         public string Subtype;
 
+        /// <summary>
+        /// Whether the given block should be used when spawning the component which it contains
+        /// </summary>
+        [ProtoMember]
+        [XmlAttribute]
+        public bool Main = true;
+
         [ProtoMember, DefaultValue(true)]
         [XmlAttribute]
         public bool Enabled = true;
-
-        public override bool Equals(object other)
-        {
-            var otherItem = other as MyComponentBlockEntry;
-            return otherItem != null && otherItem.Type.Equals(this.Type)
-                && otherItem.Subtype.Equals(this.Subtype);
-        }
-
-        public override int GetHashCode()
-        {
-            return (Type.GetHashCode() * 1572869) ^ Subtype.GetHashCode();
-        }
     }
 }

@@ -573,7 +573,10 @@ namespace Sandbox.Engine.Physics
             if (!IsPartiallySimulated) return;
             if (Ragdoll == null) return;
 
-            Ragdoll.Deactivate();
+            if (Ragdoll.IsAddedToWorld)
+            {
+                Ragdoll.Deactivate();
+            }
 
             m_keyframedBodies.Clear();
             m_dynamicBodies.Clear();

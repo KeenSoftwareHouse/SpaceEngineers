@@ -23,7 +23,6 @@ namespace Sandbox.Engine.Multiplayer
             public string Value;
         }
 
-
         private readonly Dictionary<MyStringHash, string> m_mapKeyToValue = new Dictionary<MyStringHash, string>(MyStringHash.Comparer);
 
         private static readonly MyStringHash BattleCanBeJoinedTagHash = MyStringHash.GetOrCompute(MyMultiplayer.BattleCanBeJoinedTag);
@@ -125,24 +124,24 @@ namespace Sandbox.Engine.Multiplayer
             set { KeyValueChangedRequest(BattleTimeLimitTagHash, value.ToString()); }
         }
 
-
         public MyMultiplayerBattleData()
         {
-            MySyncLayer.RegisterMessage<KeyValueDataMsg>(OnKeyValueChanged, MyMessagePermissions.Any, MyTransportMessageEnum.Request);
+            //RKTODO - commented out, use MyMultiplayerBase.RegisterControlMessage instead
+            //MySyncLayer.RegisterMessage<KeyValueDataMsg>(OnKeyValueChanged, MyMessagePermissions.Any, MyTransportMessageEnum.Request);
         }
 
         private static void KeyValueChangedRequest(MyStringHash key, string value)
         {
-            var msg = new KeyValueDataMsg();
-            msg.Key = key;
-            msg.Value = value;
+            //var msg = new KeyValueDataMsg();
+            //msg.Key = key;
+            //msg.Value = value;
 
-            Sync.Layer.SendMessageToAllAndSelf(ref msg);
+            //Sync.Layer.SendMessageToAllAndSelf(ref msg);
         }
 
         private void OnKeyValueChanged(ref KeyValueDataMsg msg, MyNetworkClient sender)
         {
-            m_mapKeyToValue[msg.Key] = msg.Value;
+            //m_mapKeyToValue[msg.Key] = msg.Value;
         }
 
         private float GetFloatValue(MyStringHash key, float defValue)
@@ -223,6 +222,27 @@ namespace Sandbox.Engine.Multiplayer
             return defValue;
         }
 
+        public void LoadData(List<KeyValueDataMsg> keyValueList)
+        {
+            foreach (var keyValue in keyValueList)
+            {
+                m_mapKeyToValue[keyValue.Key] = keyValue.Value;
+            }
+        }
+
+        public List<KeyValueDataMsg> SaveData()
+        {
+            List<KeyValueDataMsg> keyValueList = new List<KeyValueDataMsg>();
+            foreach (var pair in m_mapKeyToValue)
+            {
+                KeyValueDataMsg keyValue = new KeyValueDataMsg();
+                keyValue.Key = pair.Key;
+                keyValue.Value = pair.Value;
+                keyValueList.Add(keyValue);
+            }
+
+            return keyValueList;
+        }
 
     }
 }

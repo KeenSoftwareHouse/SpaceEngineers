@@ -2,8 +2,8 @@
 
 using Havok;
 using ParallelTasks;
-using Sandbox.Common.Components;
 using Sandbox.Common;
+using Sandbox.Common.Components;
 using Sandbox.Common.ObjectBuilders;
 using Sandbox.Definitions;
 using Sandbox.Engine.Multiplayer;
@@ -40,7 +40,6 @@ using VRage;
 using VRage.Audio;
 using VRage.Collections;
 using VRage.Compiler;
-using VRage.Components;
 using VRage.FileSystem;
 using VRage.Input;
 using VRage.ModAPI;
@@ -150,6 +149,7 @@ namespace Sandbox
         }
 
         public event EventHandler OnGameLoaded;
+        public event EventHandler OnScreenshotTaken;
 
         #endregion
 
@@ -519,6 +519,7 @@ namespace Sandbox
         {
             MyPlugins.RegisterGameAssemblyFile(MyPerGameSettings.GameModAssembly);
             MyPlugins.RegisterSandboxAssemblyFile(MyPerGameSettings.SandboxAssembly);
+            MyPlugins.RegisterSandboxGameAssemblyFile(MyPerGameSettings.SandboxGameAssembly);
             MyPlugins.RegisterFromArgs(args);
             MyPlugins.Load();
 
@@ -781,7 +782,7 @@ namespace Sandbox
             {
                 form.Icon = new System.Drawing.Icon(Path.Combine(MyFileSystem.ExePath, MyPerGameSettings.GameIcon));
             }
-            catch (System.IO.FileNotFoundException e)
+            catch (System.IO.FileNotFoundException)
             {
                 form.Icon = null;
             }
@@ -1106,14 +1107,14 @@ namespace Sandbox
             IlChecker.AllowNamespaceOfTypeModAPI(typeof(MyGameLogicComponent));
             IlChecker.AllowNamespaceOfTypeModAPI(typeof(VRage.Components.IMyComponentBase));
             IlChecker.AllowNamespaceOfTypeModAPI(typeof(Sandbox.Common.MySessionComponentBase));
-            
+
             IlChecker.AllowNamespaceOfTypeCommon(typeof(MyObjectBuilder_Base));
             IlChecker.AllowNamespaceOfTypeCommon(typeof(Sandbox.Common.ObjectBuilders.MyObjectBuilder_AirVent));
             IlChecker.AllowNamespaceOfTypeModAPI(typeof(Sandbox.Common.ObjectBuilders.Voxels.MyObjectBuilder_VoxelMap));
-			IlChecker.AllowNamespaceOfTypeModAPI(typeof(MyStatLogic));
-			IlChecker.AllowNamespaceOfTypeModAPI(typeof(VRage.Game.ObjectBuilders.MyObjectBuilder_EntityStatRegenEffect));
-			IlChecker.AllowNamespaceOfTypeModAPI(typeof(Sandbox.Game.Entities.MyEntityStat));
-			
+            IlChecker.AllowNamespaceOfTypeModAPI(typeof(MyStatLogic));
+            IlChecker.AllowNamespaceOfTypeModAPI(typeof(VRage.Game.ObjectBuilders.MyObjectBuilder_EntityStatRegenEffect));
+            IlChecker.AllowNamespaceOfTypeModAPI(typeof(Sandbox.Game.Entities.MyEntityStat));
+
             IlChecker.AllowNamespaceOfTypeModAPI(typeof(SerializableDefinitionId));
             IlChecker.AllowNamespaceOfTypeModAPI(typeof(SerializableVector3));
 
@@ -1164,26 +1165,7 @@ namespace Sandbox
 
             MyGuiScreenMainMenu.UnloadAndExitToMenu();
 
-            // Lobby sometimes gives default values.
-            var appVersion = MyMultiplayerLobby.GetLobbyAppVersion(lobby);
-            if (appVersion == 0)
-                return;
-
-            bool isBattle = MyMultiplayerLobby.GetLobbyBattle(lobby);
-            if (MyFakes.ENABLE_BATTLE_SYSTEM && isBattle)
-            {
-                bool canBeJoined = MyMultiplayerLobby.GetLobbyBattleCanBeJoined(lobby);
-                // Check also valid faction ids in battle lobby.
-                long faction1Id = MyMultiplayerLobby.GetLobbyBattleFaction1Id(lobby);
-                long faction2Id = MyMultiplayerLobby.GetLobbyBattleFaction2Id(lobby);
-
-                if (canBeJoined && faction1Id != 0 && faction2Id != 0)
-                    MyJoinGameHelper.JoinBattleGame(lobby);
-            }
-            else
-            {
-                MyJoinGameHelper.JoinGame(lobby);
-            }
+            MyJoinGameHelper.JoinGame(lobby);
         }
 
         void Matchmaking_ServerChangeRequest(string server, string password)
@@ -1645,6 +1627,11 @@ namespace Sandbox
                                 if (rMessage.Success)
                                     screenshotNotification.SetTextFormatArguments(System.IO.Path.GetFileName(rMessage.Filename));
                                 MyHud.Notifications.Add(screenshotNotification);
+                            }
+
+                            if (MySandboxGame.Static != null && MySandboxGame.Static.OnScreenshotTaken != null)
+                            {
+                                MySandboxGame.Static.OnScreenshotTaken(MySandboxGame.Static, null);
                             }
                             break;
                         }

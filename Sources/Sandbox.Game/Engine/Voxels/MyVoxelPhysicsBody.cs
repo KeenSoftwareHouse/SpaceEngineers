@@ -65,7 +65,7 @@ namespace Sandbox.Engine.Voxels
                 });
             shape.SetShapeRequestHandler(RequestShapeBlocking);
 
-            CreateFromCollisionObject(shape, -m_voxelMap.SizeInMetresHalf, m_voxelMap.WorldMatrix, collisionFilter: MyPhysics.StaticCollisionLayer);
+            CreateFromCollisionObject(shape, -m_voxelMap.SizeInMetresHalf, m_voxelMap.WorldMatrix, collisionFilter: MyPhysics.VoxelCollisionLayer);
             shape.Base.RemoveReference();
 
             if (ENABLE_AABB_PHANTOM)

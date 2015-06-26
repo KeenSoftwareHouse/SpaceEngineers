@@ -307,6 +307,7 @@ namespace Sandbox.Game.Entities.Cube
                     var mp = new MyCubeBlockDefinition.MountPoint();
                     mp.Start = bb.Min;
                     mp.End = bb.Max;
+					mp.Enabled = true;
                     var start = mp.Start * absDir / (blockBB.HalfExtents * 2) - absDir * 0.04f;
                     var end = mp.End * absDir / (blockBB.HalfExtents * 2) + absDir * 0.04f;
                     bool add = false;
@@ -365,17 +366,21 @@ namespace Sandbox.Game.Entities.Cube
                 m_mpCache.AddRange((other.FatBlock as MyFracturedBlock).MountPoints);
             else
             {
-                if(other != null && other.FatBlock is MyCompoundCubeBlock)
-                {
-                    var lst = new List<MyCubeBlockDefinition.MountPoint>();
-                    foreach(var b in (other.FatBlock as MyCompoundCubeBlock).GetBlocks())
-                    {
-                        MyCubeGrid.TransformMountPoints(lst, b.BlockDefinition, ref b.Orientation);
-                        m_mpCache.AddRange(lst);
-                    }
-                }
-                else
-                    MyCubeGrid.TransformMountPoints(m_mpCache, def, ref or);
+				if (other != null && other.FatBlock is MyCompoundCubeBlock)
+				{
+					var lst = new List<MyCubeBlockDefinition.MountPoint>();
+					foreach (var b in (other.FatBlock as MyCompoundCubeBlock).GetBlocks())
+					{
+						var mountPoints = b.BlockDefinition.GetBuildProgressModelMountPoints(b.BuildLevelRatio);
+						MyCubeGrid.TransformMountPoints(lst, b.BlockDefinition, mountPoints, ref b.Orientation);
+						m_mpCache.AddRange(lst);
+					}
+				}
+				else if(other != null)
+				{
+					var mountPoints = def.GetBuildProgressModelMountPoints(other.BuildLevelRatio);
+					MyCubeGrid.TransformMountPoints(m_mpCache, def, mountPoints, ref or);
+				}
             }
             return MyCubeGrid.CheckMountPointsForSide(MountPoints, ref SlimBlock.Orientation, ref position, BlockDefinition.Id, ref faceNormal, m_mpCache,
                 ref or, ref otherPos, def.Id);

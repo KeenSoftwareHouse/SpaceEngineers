@@ -12,6 +12,35 @@ using SteamSDK;
 
 namespace Sandbox.Engine.Multiplayer
 {
+    [ProtoBuf.ProtoContract]
+    [MessageId(13873, P2PMessageEnum.Reliable)]
+    public struct ServerBattleDataMsg
+    {
+        [ProtoBuf.ProtoMember]
+        public string WorldName;
+
+        [ProtoBuf.ProtoMember]
+        public MyGameModeEnum GameMode;
+
+        [ProtoBuf.ProtoMember]
+        public string HostName;
+
+        [ProtoBuf.ProtoMember]
+        public ulong WorldSize;
+
+        [ProtoBuf.ProtoMember]
+        public int AppVersion;
+
+        [ProtoBuf.ProtoMember]
+        public int MembersLimit;
+
+        [ProtoBuf.ProtoMember]
+        public string DataHash;
+
+        [ProtoBuf.ProtoMember]
+        public List<MyMultiplayerBattleData.KeyValueDataMsg> BattleData;
+    }
+
     public class MyDedicatedServerBattle : MyDedicatedServerBase
     {
         private MyMultiplayerBattleData m_battleData = new MyMultiplayerBattleData();
@@ -72,86 +101,86 @@ namespace Sandbox.Engine.Multiplayer
 
         public override bool BattleCanBeJoined
         {
-            get;
-            set;
+            get { return m_battleData.BattleCanBeJoined; }
+            set { m_battleData.BattleCanBeJoined = value; }
         }
 
         public override ulong BattleWorldWorkshopId
         {
-            get;
-            set;
+            get { return m_battleData.BattleWorldWorkshopId; }
+            set { m_battleData.BattleWorldWorkshopId = value; }
         }
 
         public override int BattleFaction1MaxBlueprintPoints
         {
-            get;
-            set;
+            get { return m_battleData.BattleFaction1MaxBlueprintPoints; }
+            set { m_battleData.BattleFaction1MaxBlueprintPoints = value; }
         }
 
         public override int BattleFaction2MaxBlueprintPoints
         {
-            get;
-            set;
+            get { return m_battleData.BattleFaction2MaxBlueprintPoints; }
+            set { m_battleData.BattleFaction2MaxBlueprintPoints = value; }
         }
 
         public override int BattleFaction1BlueprintPoints
         {
-            get;
-            set;
+            get { return m_battleData.BattleFaction1BlueprintPoints; }
+            set { m_battleData.BattleFaction1BlueprintPoints = value; }
         }
 
         public override int BattleFaction2BlueprintPoints
         {
-            get;
-            set;
+            get { return m_battleData.BattleFaction2BlueprintPoints; }
+            set { m_battleData.BattleFaction2BlueprintPoints = value; }
         }
 
         public override int BattleMapAttackerSlotsCount
         {
-            get;
-            set;
+            get { return m_battleData.BattleMapAttackerSlotsCount; }
+            set { m_battleData.BattleMapAttackerSlotsCount = value; }
         }
 
         public override long BattleFaction1Id
         {
-            get;
-            set;
+            get { return m_battleData.BattleFaction1Id; }
+            set { m_battleData.BattleFaction1Id = value; }
         }
 
         public override long BattleFaction2Id
         {
-            get;
-            set;
+            get { return m_battleData.BattleFaction2Id; }
+            set { m_battleData.BattleFaction2Id = value; }
         }
 
         public override int BattleFaction1Slot
         {
-            get;
-            set;
+            get { return m_battleData.BattleFaction1Slot; }
+            set { m_battleData.BattleFaction1Slot = value; }
         }
 
         public override int BattleFaction2Slot
         {
-            get;
-            set;
+            get { return m_battleData.BattleFaction2Slot; }
+            set { m_battleData.BattleFaction2Slot = value; }
         }
 
         public override bool BattleFaction1Ready
         {
-            get;
-            set;
+            get { return m_battleData.BattleFaction1Ready; }
+            set { m_battleData.BattleFaction1Ready = value; }
         }
 
         public override bool BattleFaction2Ready
         {
-            get;
-            set;
+            get { return m_battleData.BattleFaction2Ready; }
+            set { m_battleData.BattleFaction2Ready = value; }
         }
 
         public override int BattleTimeLimit
         {
-            get;
-            set;
+            get { return m_battleData.BattleTimeLimit; }
+            set { m_battleData.BattleTimeLimit = value; }
         }
 
 
@@ -163,30 +192,20 @@ namespace Sandbox.Engine.Multiplayer
             RegisterControlMessage<JoinResultMsg>(MyControlMessageEnum.JoinResult, OnJoinResult);
 
             Initialize(serverEndpoint);
+
+            GameMode = MyGameModeEnum.Survival;
         }
 
         internal override void SendGameTagsToSteam()
         {
-            //RKTODO
             if (SteamSDK.SteamServerAPI.Instance != null)
             {
                 var serverName = MySandboxGame.ConfigDedicated.ServerName.Replace(":", "a58").Replace(";", "a59");
 
+                Debug.Assert(GameMode == MyGameModeEnum.Survival);
+
                 var gamemode = new StringBuilder();
-
-                switch (GameMode)
-                {
-                    case MyGameModeEnum.Survival:
-                        gamemode.Append(String.Format("S{0}-{1}-{2}", (int)InventoryMultiplier, (int)AssemblerMultiplier, (int)RefineryMultiplier));
-                        break;
-                    case MyGameModeEnum.Creative:
-                        gamemode.Append("C");
-                        break;
-
-                    default:
-                        Debug.Fail("Unknown game type");
-                        break;
-                }
+                gamemode.Append("B");
 
                 SteamSDK.SteamServerAPI.Instance.GameServer.SetGameTags(
                     "groupId" + m_groupId.ToString() +
@@ -200,7 +219,17 @@ namespace Sandbox.Engine.Multiplayer
 
         protected override void SendServerData()
         {
-            //RKTODO
+            ServerBattleDataMsg msg = new ServerBattleDataMsg();
+            msg.WorldName = m_worldName;
+            msg.GameMode = m_gameMode;
+            msg.HostName = m_hostName;
+            msg.WorldSize = m_worldSize;
+            msg.AppVersion = m_appVersion;
+            msg.MembersLimit = m_membersLimit;
+            msg.DataHash = m_dataHash;
+            msg.BattleData = m_battleData.SaveData();
+
+            SendControlMessageToAll(ref msg);
         }
 
         void OnChatMessage(ref ChatMsg msg, ulong sender)

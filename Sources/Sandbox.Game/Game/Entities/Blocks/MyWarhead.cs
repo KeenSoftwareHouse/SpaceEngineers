@@ -290,7 +290,7 @@ namespace Sandbox.Game.Entities.Cube
 
         public void Explode()
         {
-            if (m_isExploded || !MySession.Static.WeaponsEnabled)
+            if (m_isExploded || !MySession.Static.WeaponsEnabled || CubeGrid.Physics == null)
                 return;
 
             m_isExploded = true;

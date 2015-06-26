@@ -292,7 +292,7 @@ namespace Sandbox.Game.Gui
                     if (!definition.Public)
                         continue;
                     var physicalItemDef = definition as MyPhysicalItemDefinition;
-                    if (physicalItemDef == null)
+                    if (physicalItemDef == null || physicalItemDef.CanSpawnFromScreen == false)
                         continue;
 
                     int key = m_physicalItemDefinitions.Count;
@@ -578,7 +578,7 @@ namespace Sandbox.Game.Gui
                 pos = MySession.LocalHumanPlayer.GetPosition();
             }
 
-            var previewVoxelMap = MyWorldGenerator.AddPlanet(storageNameBase, MySession.LocalHumanPlayer.GetPosition(), seed, size, MyRandom.Instance.NextLong());
+            MyWorldGenerator.AddPlanet(storageNameBase, MySession.LocalHumanPlayer.GetPosition(), seed, size, MyRandom.Instance.NextLong());
         }
 
         private static String MakeStorageName(String storageNameBase)

@@ -64,8 +64,11 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Components\IMyComponentAggregate.cs" />
     <Compile Include="Components\MyComponentBase.cs" />
     <Compile Include="Components\MyComponentContainer.cs" />
+    <Compile Include="Components\MyComponentFactory.cs" />
+    <Compile Include="Components\MyComponentTypeFactory.cs" />
     <Compile Include="Components\MyEntityComponentContainer.cs" />
     <Compile Include="Components\MyEntityComponentBase.cs" />
     <Compile Include="Components\MyDebugRenderComponentBase.cs" />
@@ -117,6 +120,12 @@
     <Compile Include="ObjectBuilders\Blocks\MyObjectBuilder_SwitchBlock.cs" />
     <Compile Include="ObjectBuilders\Blocks\MyObjectBuilder_TorsionSpringBlock.cs" />
     <Compile Include="ObjectBuilders\Blocks\MyObjectBuilder_WheelBlock.cs" />
+    <Compile Include="ObjectBuilders\ComponentSystem\MyObjectBuilder_AreaInventory.cs" />
+    <Compile Include="ObjectBuilders\ComponentSystem\MyObjectBuilder_AreaInventoryAggregate.cs" />
+    <Compile Include="ObjectBuilders\ComponentSystem\MyObjectBuilder_ComponentBase.cs" />
+    <Compile Include="ObjectBuilders\ComponentSystem\MyObjectBuilder_ComponentContainer.cs" />
+    <Compile Include="ObjectBuilders\ComponentSystem\MyObjectBuilder_InventoryAggregate.cs" />
+    <Compile Include="ObjectBuilders\ComponentSystem\MyObjectBuilder_InventoryBase.cs" />
     <Compile Include="ObjectBuilders\Components\MyObjectBuilder_AIComponent.cs" />
     <Compile Include="ObjectBuilders\Components\MyObjectBuilder_BattleSystemComponent.cs" />
     <Compile Include="ObjectBuilders\Components\MyObjectBuilder_FloraComponent.cs" />
@@ -222,7 +231,8 @@
     <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_PhysicalMaterialDefinition.cs" />
     <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_PhysicalModelDefinition.cs" />
     <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_PistonBaseDefinition.cs" />
-    <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_PlanetDefinition.cs" />
+    <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_PlanetGeneratorDefinition.cs" />
+    <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_PlanetPrefabDefinition.cs" />
     <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_PowerProducerDefinition.cs" />
     <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_PrefabDefinition.cs" />
     <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_PrefabThrowerDefinition.cs" />
@@ -254,8 +264,10 @@
     <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_TransparentMaterialDefinition.cs" />
     <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_TreeCuttingDefinition.cs" />
     <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_TreeDefinition.cs" />
+    <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_TreeObject.cs" />
     <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_Trigger.cs" />
     <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_TriggerAllOthersLost.cs" />
+    <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_TriggerBlockDestroyed.cs" />
     <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_TriggerLives.cs" />
     <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_TriggerPositionLeft.cs" />
     <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_TriggerPositionReached.cs" />

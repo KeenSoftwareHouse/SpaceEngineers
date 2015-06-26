@@ -345,6 +345,11 @@ namespace Sandbox.Game.Gui
                 gamemodeSB.Append(MyTexts.Get(MySpaceTexts.WorldSettings_GameModeCreative));
                 gamemodeToolTipSB.AppendStringBuilder(MyTexts.Get(MySpaceTexts.WorldSettings_GameModeCreative));
             }
+            else if (gamemode == "B")
+            {
+                gamemodeSB.Append(MyTexts.Get(MySpaceTexts.WorldSettings_Battle));
+                gamemodeToolTipSB.AppendStringBuilder(MyTexts.Get(MySpaceTexts.WorldSettings_Battle));
+            }
             else if(!string.IsNullOrWhiteSpace(gamemode))
             {
                 var multipliers = gamemode.Substring(1);

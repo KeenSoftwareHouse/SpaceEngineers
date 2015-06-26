@@ -117,6 +117,8 @@ namespace Sandbox.Game.Multiplayer
             MySyncLayer.RegisterMessage<ChangeMySensorMaxMsg>(ChangeSensorMaxSuccess, MyMessagePermissions.Any, MyTransportMessageEnum.Success);
             MySyncLayer.RegisterMessage<ChangeMySensorFiltersMsg>(ChangeSensorFiltersSuccess, MyMessagePermissions.Any, MyTransportMessageEnum.Success);
             MySyncLayer.RegisterMessage<ChangeMySensorActivityMsg>(ChangeSensorIsActiveSuccess, MyMessagePermissions.FromServer, MyTransportMessageEnum.Success);
+            MySyncLayer.RegisterMessage<ChangeMySensorPlaySoundMsg>(ChangeSensorPlaySoundSuccess, MyMessagePermissions.Any, MyTransportMessageEnum.Success);
+
 
             MySyncLayer.RegisterEntityMessage<MySyncSensorBlock, ChangeMySensorToolbarItemMsg>(OnToolbarItemChanged, MyMessagePermissions.Any);
         }
@@ -236,6 +238,17 @@ namespace Sandbox.Game.Multiplayer
                 item = ToolbarItem.ToItem(msg.Item);
             sync.m_block.Toolbar.SetItemAtIndex(msg.Index, item);
             sync.m_syncing = false;
+        }
+
+        static void ChangeSensorPlaySoundSuccess(ref ChangeMySensorPlaySoundMsg msg, MyNetworkClient sender)
+        {
+            MyEntity entity;
+            MyEntities.TryGetEntityById(msg.EntityId, out entity);
+            var block = entity as MySensorBlock;
+            if (block != null)
+            {
+                block.PlayProximitySound = msg.PlaySound;
+            }
         }
     }
 }

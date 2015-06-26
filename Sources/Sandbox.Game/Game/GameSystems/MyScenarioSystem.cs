@@ -149,12 +149,14 @@ namespace Sandbox.Game.GameSystems
                 return;
 
             if (MySession.Static.OnlineMode == MyOnlineModeEnum.OFFLINE)//!Sync.MultiplayerActive)
+            {
                 if (m_gameState == MyState.Loaded)
                 {
                     m_gameState = MyState.Running;
                     ServerStartGameTime = DateTime.UtcNow;
                 }
                 return;
+            }
 
             switch (m_gameState)
             {
