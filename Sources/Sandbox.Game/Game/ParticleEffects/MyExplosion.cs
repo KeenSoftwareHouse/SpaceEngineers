@@ -518,7 +518,7 @@ namespace Sandbox.Game
                         if (explosionDamageInfo.ExplosionDamage.DamagedBlocks.ContainsKey(cockpit.SlimBlock))
                         {
                             float damageRemaining = explosionDamageInfo.ExplosionDamage.DamageRemaining[cockpit.SlimBlock].DamageRemaining;
-                            character.DoDamage(damageRemaining, MyDamageType.Explosion, true);
+                            character.DoDamage(damageRemaining, MyDamageType.Explosion, true, attackerId: m_explosionInfo.OwnerEntity != null ? m_explosionInfo.OwnerEntity.EntityId : 0);
                         }
                         continue;
                     }
@@ -574,7 +574,7 @@ namespace Sandbox.Game
                 
                 var destroyableObj = entity as IMyDestroyableObject;
 
-                destroyableObj.DoDamage(damage, MyDamageType.Explosion, true);
+                destroyableObj.DoDamage(damage, MyDamageType.Explosion, true, attackerId: m_explosionInfo.OwnerEntity != null ? m_explosionInfo.OwnerEntity.EntityId : 0);
             }
         }
 
@@ -893,7 +893,7 @@ namespace Sandbox.Game
                         if (cubeBlock.FatBlock != null)
                         {
                             damage *= 7f;
-                        }
+                        }// FIXME
                         (cubeBlock as IMyDestroyableObject).DoDamage(damage, MyDamageType.Explosion, true);
                         if (!cubeBlock.IsDestroyed)
                         {

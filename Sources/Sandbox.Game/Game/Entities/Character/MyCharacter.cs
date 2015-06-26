@@ -561,9 +561,9 @@ namespace Sandbox.Game.Entities.Character
 
         public event Action<MyCharacter> CharacterDied;
 
-        public event Action<float, MyDamageType, long> OnDestroyed;
+        public event Action<object, float, MyDamageType, long> OnDestroyed;
         public event BeforeDamageApplied OnBeforeDamageApplied;
-        public event Action<float, MyDamageType, long> OnAfterDamageApplied;
+        public event Action<object, float, MyDamageType, long> OnAfterDamageApplied;
 
         private MyComponentInventoryAggregate m_inventoryAggregate;
         public MyComponentInventoryAggregate InventoryAggregate
@@ -6189,7 +6189,7 @@ namespace Sandbox.Game.Entities.Character
                 return;
 
             if (OnBeforeDamageApplied != null)
-                damage = OnBeforeDamageApplied(damage, damageType, attackerId);
+                damage = OnBeforeDamageApplied(this, damage, damageType, attackerId);
 
             CharacterAccumulatedDamage += damage;
 
@@ -6208,7 +6208,7 @@ namespace Sandbox.Game.Entities.Character
             health.Decrease(damage);
 
             if (OnAfterDamageApplied != null)
-                OnAfterDamageApplied(damage, damageType, attackerId);
+                OnAfterDamageApplied(this, damage, damageType, attackerId);
 
             if (!IsDead)
             {
@@ -6226,7 +6226,7 @@ namespace Sandbox.Game.Entities.Character
 			if (health.Value <= health.MinValue)
             {
                 if (OnDestroyed != null)
-                    OnDestroyed(damage, damageType, attackerId);
+                    OnDestroyed(this, damage, damageType, attackerId);
 
                 m_dieAfterSimulation = true;
                 return;

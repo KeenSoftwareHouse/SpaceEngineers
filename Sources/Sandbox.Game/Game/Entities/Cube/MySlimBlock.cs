@@ -212,11 +212,9 @@ namespace Sandbox.Game.Entities.Cube
 
         public event Action<MySlimBlock, MyCubeGrid> CubeGridChanged;
 
-        public event Action<float, MyDamageType, long> OnDestroyed;
-
+        public event Action<object, float, MyDamageType, long> OnDestroyed;
         public event BeforeDamageApplied OnBeforeDamageApplied;
-
-        public event Action<float, MyDamageType, long> OnAfterDamageApplied;
+        public event Action<object, float, MyDamageType, long> OnAfterDamageApplied;
 
         public float m_lastDamage = 0f;
 
@@ -959,7 +957,7 @@ namespace Sandbox.Game.Entities.Cube
             // This may get double raised on blocks that can take deformation, as we use this to check for damage before deformation.  I don't want to remove this
             // in case someone wants deformation but no damage.
             if (OnBeforeDamageApplied != null)
-                damage = OnBeforeDamageApplied(damage, damageType, attackerId);
+                damage = OnBeforeDamageApplied(this, damage, damageType, attackerId);
 
             MySession.Static.NegativeIntegrityTotal += damage;
             AccumulatedDamage += damage;
@@ -991,7 +989,7 @@ namespace Sandbox.Game.Entities.Cube
             }
 
             if (OnAfterDamageApplied != null)
-                OnAfterDamageApplied(damage, damageType, attackerId);
+                OnAfterDamageApplied(this, damage, damageType, attackerId);
 
             m_lastDamage = damage;
             m_lastAttackerId = attackerId;
@@ -1049,7 +1047,7 @@ namespace Sandbox.Game.Entities.Cube
                 }
 
                 if (OnDestroyed != null)
-                    OnDestroyed(m_lastDamage, m_lastDamageType, m_lastAttackerId);
+                    OnDestroyed(this, m_lastDamage, m_lastDamageType, m_lastAttackerId);
             }
 
             ProfilerShort.End();
@@ -1650,9 +1648,21 @@ namespace Sandbox.Game.Entities.Cube
         public float RaiseBeforeDamageApplied(float damage, MyDamageType damageType, long attackerId)
         {
             if (OnBeforeDamageApplied != null)
-                return OnBeforeDamageApplied(damage, damageType, attackerId);
+                return OnBeforeDamageApplied(this, damage, damageType, attackerId);
             else
                 return damage;
+        }
+
+        public void RaiseAfterDamageApplied(float damage, MyDamageType damageType, long attackerId)
+        {
+            if (OnAfterDamageApplied != null)
+                OnAfterDamageApplied(this, damage, damageType, attackerId);
+        }
+
+        public void RaiseDestroyed(float damage, MyDamageType damageType, long attackerId)
+        {
+            if (OnDestroyed != null)
+                OnDestroyed(this, damage, damageType, attackerId);
         }
 
 		public static void SetBlockComponents(MyHudBlockInfo hudInfo, MySlimBlock block, IMyComponentInventory availableInventory = null)

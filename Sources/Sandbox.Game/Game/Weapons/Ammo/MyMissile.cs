@@ -38,9 +38,9 @@ namespace Sandbox.Game.Weapons
         long m_owner;
         private float m_smokeEffectOffsetMultiplier = 0.4f;
 
-        public event Action<float, MyDamageType, long> OnDestroyed;
+        public event Action<object, float, MyDamageType, long> OnDestroyed;
         public event BeforeDamageApplied OnBeforeDamageApplied;
-        public event Action<float, MyDamageType, long> OnAfterDamageApplied;
+        public event Action<object, float, MyDamageType, long> OnAfterDamageApplied;
 
         private MyEntity3DSoundEmitter m_soundEmitter;
 
@@ -128,6 +128,10 @@ namespace Sandbox.Game.Weapons
                         float radius = m_missileAmmoDefinition.MissileExplosionRadius;
                         BoundingSphereD explosionSphere = new BoundingSphereD(m_collisionPoint.HasValue ? m_collisionPoint.Value : PositionComp.GetPosition(), radius);
 
+                        MyEntity ownerEntity = null;
+                        //MyEntities.TryGetEntityById(m_owner, out ownerEntity);
+                        MyEntities.TryGetEntity(m_owner, out ownerEntity);
+
                         //  Call main explosion starter
                         MyExplosionInfo info = new MyExplosionInfo()
                         {
@@ -140,7 +144,7 @@ namespace Sandbox.Game.Weapons
                             CascadeLevel = CascadedExplosionLevel,
                             HitEntity = m_collidedEntity,
                             ParticleScale = 0.2f,
-                            OwnerEntity = null,
+                            OwnerEntity = ownerEntity,
 
                             Direction = WorldMatrix.Forward,
                             VoxelExplosionCenter = explosionSphere.Center + radius * WorldMatrix.Forward * 0.25f,
@@ -315,7 +319,7 @@ namespace Sandbox.Game.Weapons
             else
             {
                 if (OnDestroyed != null)
-                    OnDestroyed(damage, damageType, attackerId);
+                    OnDestroyed(this, damage, damageType, attackerId);
 
                 Explode();
             }

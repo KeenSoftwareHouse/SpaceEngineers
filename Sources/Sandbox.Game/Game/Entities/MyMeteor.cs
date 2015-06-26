@@ -37,9 +37,9 @@ namespace Sandbox.Game.Entities
         private static readonly int MAX_TRAJECTORY_LENGTH = 10000;
         private static readonly int MIN_SPEED = 100;
 
-        public event Action<float, MyDamageType, long> OnDestroyed;
+        public event Action<object, float, MyDamageType, long> OnDestroyed;
         public event BeforeDamageApplied OnBeforeDamageApplied;
-        public event Action<float, MyDamageType, long> OnAfterDamageApplied;
+        public event Action<object, float, MyDamageType, long> OnAfterDamageApplied;
 
         MyMeteorGameLogic m_logic;
         public new MyMeteorGameLogic GameLogic { get { return m_logic; } set { base.GameLogic = value; } }
@@ -513,19 +513,19 @@ namespace Sandbox.Game.Entities
                 else
                 {
                     if (Entity.OnBeforeDamageApplied != null)
-                        damage = Entity.OnBeforeDamageApplied(damage, damageType, attackerId);
+                        damage = Entity.OnBeforeDamageApplied(Entity, damage, damageType, attackerId);
 
                     m_integrity -= damage;
 
                     if (Entity.OnAfterDamageApplied != null)
-                        Entity.OnAfterDamageApplied(damage, damageType, attackerId);
+                        Entity.OnAfterDamageApplied(Entity, damage, damageType, attackerId);
 
                     if (m_integrity <= 0)
                     {
                         m_closeAfterSimulation = true;
 
                         if (Entity.OnDestroyed != null)
-                            Entity.OnDestroyed(damage, damageType, attackerId);
+                            Entity.OnDestroyed(Entity, damage, damageType, attackerId);
 
                         return;
                     }

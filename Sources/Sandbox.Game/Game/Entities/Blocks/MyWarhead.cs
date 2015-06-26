@@ -52,9 +52,9 @@ namespace Sandbox.Game.Entities.Cube
         int m_warheadsInsideCount = 0;
         List<MyEntity> m_entitiesInShrinkenSphere = new List<MyEntity>();
 
-        public event Action<float, MyDamageType, long> OnDestroyed;
+        public event Action<object, float, MyDamageType, long> OnDestroyed;
         public event BeforeDamageApplied OnBeforeDamageApplied;
-        public event Action<float, MyDamageType, long> OnAfterDamageApplied;
+        public event Action<object, float, MyDamageType, long> OnAfterDamageApplied;
 
         private bool m_countdownEmissivityColor;
 
@@ -670,7 +670,7 @@ namespace Sandbox.Game.Entities.Cube
             else
             {
                 if (OnBeforeDamageApplied != null)
-                    damage = OnBeforeDamageApplied(damage, damageType, attackerId);
+                    damage = OnBeforeDamageApplied(this, damage, damageType, attackerId);
 
                 m_damageType = damageType;
 
@@ -678,12 +678,12 @@ namespace Sandbox.Game.Entities.Cube
                 {
                     // Redundent, but let's be consistent
                     if (OnAfterDamageApplied != null)
-                        OnAfterDamageApplied(damage, damageType, attackerId);
+                        OnAfterDamageApplied(this, damage, damageType, attackerId);
 
                     OnDestroy();
 
                     if (OnDestroyed != null)
-                        OnDestroyed(damage, damageType, attackerId);
+                        OnDestroyed(this, damage, damageType, attackerId);
                 }
             }
             return;

@@ -60,9 +60,9 @@ namespace Sandbox.Game.Entities
 
         public bool WasRemovedFromWorld { get; set; }
 
-        public event Action<float, MyDamageType, long> OnDestroyed;
+        public event Action<object, float, MyDamageType, long> OnDestroyed;
         public event BeforeDamageApplied OnBeforeDamageApplied;
-        public event Action<float, MyDamageType, long> OnAfterDamageApplied;
+        public event Action<object, float, MyDamageType, long> OnAfterDamageApplied;
 
         public int NumberOfFramesInsideVoxel = 0;
         public const int NUMBER_OF_FRAMES_INSIDE_VOXEL_TO_REMOVE = 5;
@@ -355,7 +355,7 @@ namespace Sandbox.Game.Entities
             }
 
             if (OnBeforeDamageApplied != null)
-                damage = OnBeforeDamageApplied(damage, damageType, attackerId);
+                damage = OnBeforeDamageApplied(this, damage, damageType, attackerId);
 
             var typeId = Item.Content.TypeId;
             if (typeId == typeof(MyObjectBuilder_Ore) ||
@@ -383,7 +383,7 @@ namespace Sandbox.Game.Entities
                 m_health -= (10 + 90 * DamageMultiplier) * damage;
 
                 if (OnAfterDamageApplied != null)
-                    OnAfterDamageApplied(damage, damageType, attackerId);
+                    OnAfterDamageApplied(this, damage, damageType, attackerId);
 
                 if (m_health < 0)
                 {
@@ -437,7 +437,7 @@ namespace Sandbox.Game.Entities
                     }
 
                     if(OnDestroyed != null)
-                        OnDestroyed(damage, damageType, attackerId);
+                        OnDestroyed(this, damage, damageType, attackerId);
                 }
             }
 
