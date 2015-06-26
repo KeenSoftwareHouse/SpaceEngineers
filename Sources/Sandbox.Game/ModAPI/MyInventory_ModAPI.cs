@@ -147,7 +147,6 @@ namespace Sandbox.Game
             get { return CurrentVolume; }
         }
 
-
         ModAPI.Interfaces.IMyInventoryOwner Sandbox.ModAPI.Interfaces.IMyInventory.Owner
         {
             get { return Owner; }

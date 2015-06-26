@@ -70,16 +70,21 @@ namespace VRageRender
 
                             var scale = 0.125f;
 
-                            var minDepth = 
-                                message.ClipDistance.HasValue ? Vector3.Transform(new Vector3(0, 0, -message.ClipDistance.Value), MyEnvironment.Projection).Z : 0;
+                            var borderDepth = MyRender11.UseComplementaryDepthBuffer ? 0.0f : 1.0f;
+                            borderDepth = message.ClipDistance.HasValue ? Vector3.Transform(new Vector3(0, 0, -message.ClipDistance.Value), MyEnvironment.Projection).Z : borderDepth;
 
                             var clipPosition = Vector3.Transform((Vector3)message.Position, ref MyEnvironment.ViewProjection);
                             clipPosition.X = clipPosition.X * 0.5f + 0.5f;
                             clipPosition.Y = clipPosition.Y * -0.5f + 0.5f;
 
-                            Debug.Assert(MyRender11.UseComplementaryDepthBuffer);
+                            //Debug.Assert(MyRender11.UseComplementaryDepthBuffer);
 
-                            if (clipPosition.Z > minDepth && clipPosition.Z < 1)
+                            bool drawCondition = 
+                                MyRender11.UseComplementaryDepthBuffer 
+                                ? clipPosition.Z > borderDepth && clipPosition.Z < 1
+                                : clipPosition.Z < borderDepth && clipPosition.Z > 0;
+
+                            if (drawCondition)
                             {
                                 batch.Add(message.Position + Vector3.UnitX * scale, message.Position - Vector3.UnitX * scale, message.Color);
                                 batch.Add(message.Position + Vector3.UnitY * scale, message.Position - Vector3.UnitY * scale, message.Color);
@@ -92,16 +97,19 @@ namespace VRageRender
                         {
                             MyRenderMessageDebugDrawSphere message = (MyRenderMessageDebugDrawSphere)debugDrawMessage;
 
-                            var minDepth = 
-                                message.ClipDistance.HasValue ? Vector3.Transform(new Vector3(0, 0, -message.ClipDistance.Value), MyEnvironment.Projection).Z : 0;
+                            var borderDepth = MyRender11.UseComplementaryDepthBuffer ? 0.0f : 1.0f;
+                            borderDepth = message.ClipDistance.HasValue ? Vector3.Transform(new Vector3(0, 0, -message.ClipDistance.Value), MyEnvironment.Projection).Z : borderDepth;
 
                             var clipPosition = Vector3.Transform((Vector3)message.Position, ref MyEnvironment.ViewProjection);
                             clipPosition.X = clipPosition.X * 0.5f + 0.5f;
                             clipPosition.Y = clipPosition.Y * -0.5f + 0.5f;
 
-                            Debug.Assert(MyRender11.UseComplementaryDepthBuffer);
+                            bool drawCondition =
+                                MyRender11.UseComplementaryDepthBuffer
+                                ? clipPosition.Z > borderDepth && clipPosition.Z < 1
+                                : clipPosition.Z < borderDepth && clipPosition.Z > 0;
 
-                            if (clipPosition.Z > minDepth && clipPosition.Z < 1)
+                            if (drawCondition)
                             {
                                 var batch = message.DepthRead ? linesBatch : noDepthLinesBatch;
 
@@ -309,12 +317,15 @@ namespace VRageRender
                             clipPosition.X = clipPosition.X * 0.5f + 0.5f;
                             clipPosition.Y = clipPosition.Y * -0.5f + 0.5f;
 
-                            Debug.Assert(MyRender11.UseComplementaryDepthBuffer);
+                            var borderDepth = MyRender11.UseComplementaryDepthBuffer ? 0.0f : 1.0f;
+                            borderDepth = message.ClipDistance.HasValue ? Vector3.Transform(new Vector3(0, 0, -message.ClipDistance.Value), MyEnvironment.Projection).Z : borderDepth;
 
-                            var minDepth = 
-                                message.ClipDistance.HasValue ? Vector3.Transform(new Vector3(0, 0, -message.ClipDistance.Value), MyEnvironment.Projection).Z : 0;
+                            bool drawCondition =
+                                MyRender11.UseComplementaryDepthBuffer
+                                ? clipPosition.Z > borderDepth && clipPosition.Z < 1
+                                : clipPosition.Z < borderDepth && clipPosition.Z > 0;
 
-                            if (clipPosition.Z > minDepth && clipPosition.Z < 1)
+                            if (drawCondition)
                             {
                                 MySpritesRenderer.DrawText(new Vector2(clipPosition.X, clipPosition.Y) * MyRender11.ViewportResolution,
                                     new StringBuilder(message.Text), message.Color, message.Scale, message.Align);

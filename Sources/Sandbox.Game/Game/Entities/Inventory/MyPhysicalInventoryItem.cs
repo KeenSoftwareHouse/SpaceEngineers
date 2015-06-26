@@ -70,23 +70,31 @@ namespace Sandbox.Game
 
         public MyEntity Spawn(MyFixedPoint amount, MatrixD worldMatrix, MyEntity owner = null)
         {
-            if(Content is MyObjectBuilder_BlockItem)
+            if (Content is MyObjectBuilder_BlockItem)
             {
+                Debug.Assert(MyFixedPoint.IsIntegral(amount), "Spawning fractional number of grids!");
+
                 var blockItem = Content as MyObjectBuilder_BlockItem;
                 var builder = MyObjectBuilderSerializer.CreateNewObject(typeof(MyObjectBuilder_CubeGrid)) as MyObjectBuilder_CubeGrid;
-                builder.EntityId = MyEntityIdentifier.AllocateId();
                 builder.GridSizeEnum = MyCubeSize.Small;
                 builder.IsStatic = false;
                 builder.PersistentFlags |= MyPersistentEntityFlags2.InScene | MyPersistentEntityFlags2.Enabled;
                 builder.PositionAndOrientation = new MyPositionAndOrientation(worldMatrix);
 
                 var block = MyObjectBuilderSerializer.CreateNewObject(blockItem.BlockDefId) as MyObjectBuilder_CubeBlock;
-                block.EntityId = MyEntityIdentifier.AllocateId();
                 builder.CubeBlocks.Add(block);
-                var newGrid = MyEntities.CreateFromObjectBuilder(builder) as MyCubeGrid;
-                MyEntities.Add(newGrid);
-                Sandbox.Game.Multiplayer.MySyncCreate.SendEntityCreated(builder);
-                return newGrid;
+
+                MyCubeGrid firstGrid = null;
+                for (int i = 0; i < amount; ++i)
+                {
+                    builder.EntityId = MyEntityIdentifier.AllocateId();
+                    block.EntityId = MyEntityIdentifier.AllocateId();
+                    MyCubeGrid newGrid = MyEntities.CreateFromObjectBuilder(builder) as MyCubeGrid;
+                    firstGrid = firstGrid ?? newGrid;
+                    MyEntities.Add(newGrid);
+                    Sandbox.Game.Multiplayer.MySyncCreate.SendEntityCreated(builder);
+                }
+                return firstGrid;
             }
             else
                 return MyFloatingObjects.Spawn(new MyPhysicalInventoryItem(amount, Content),worldMatrix, owner != null ? owner.Physics : null);

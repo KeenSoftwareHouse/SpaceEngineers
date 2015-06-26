@@ -103,8 +103,8 @@ namespace Sandbox.Engine.Voxels
             float distance = localPosition.Length();
 
             return SignedDistanceInternal(lodVoxelSize, macroModulator, detailModulator, ref localPosition, distance);
-
         }
+
         internal override void DebugDraw(ref Vector3D worldTranslation, Color color)
         {
             VRageRender.MyRenderProxy.DebugDrawSphere(worldTranslation + m_translation, m_radius, color.ToVector3(), alpha: 0.5f, depthRead: true, smooth: false);

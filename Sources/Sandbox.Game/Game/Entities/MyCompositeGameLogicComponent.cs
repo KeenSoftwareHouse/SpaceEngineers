@@ -20,8 +20,9 @@ namespace Sandbox.Game.Entities
 
         public static MyGameLogicComponent Create(ICollection<MyGameLogicComponent> logicComponents, MyEntity entity)
         {
-            foreach (MyGameLogicComponent item in logicComponents)
-                item.Container = entity.Components;
+            // CH: TODO
+            /*foreach (MyGameLogicComponent item in logicComponents)
+                item.Container = entity.Components;*/
 
             switch (logicComponents.Count)
             {

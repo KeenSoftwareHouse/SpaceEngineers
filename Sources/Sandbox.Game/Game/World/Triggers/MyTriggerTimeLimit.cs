@@ -60,8 +60,9 @@ namespace Sandbox.Game.World.Triggers
 
         public override bool Update(MyEntity me)
         {
-            if (m_limit <= DateTime.UtcNow - MyScenarioSystem.Static.ServerStartGameTime)
-                m_IsTrue = true;
+            if (MySession.Static.IsScenario)
+                if (m_limit <= DateTime.UtcNow - MyScenarioSystem.Static.ServerStartGameTime)
+                    m_IsTrue = true;
             return IsTrue;
         }
         //OB:

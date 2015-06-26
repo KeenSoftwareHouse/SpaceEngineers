@@ -147,14 +147,14 @@ namespace Sandbox.Game.Components
 			return m_stats.Remove(statId);
 		}
 
-		public override void OnRemovedFromContainer()
+		public override void OnBeforeRemovedFromContainer()
 		{
 			foreach(var script in m_scripts)
 			{
 				script.Close();
 			}
 
-			base.OnRemovedFromContainer();
+			base.OnBeforeRemovedFromContainer();
 		}
 
 		public bool AddHealth(float amount)

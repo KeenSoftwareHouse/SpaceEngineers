@@ -712,14 +712,14 @@ namespace Sandbox.Game.Gui
             RefreshProgress();
         }
 
-        void InputInventory_ContentsChanged(MyInventory obj)
+        void InputInventory_ContentsChanged(MyInventoryBase obj)
         {
             if (CurrentAssemblerMode == AssemblerMode.Assembling)
                 RefreshBlueprintGridColors();
             RefreshMaterialsPreview();
         }
 
-        void OutputInventory_ContentsChanged(MyInventory obj)
+        void OutputInventory_ContentsChanged(MyInventoryBase obj)
         {
             RefreshInventory();
             RefreshMaterialsPreview();

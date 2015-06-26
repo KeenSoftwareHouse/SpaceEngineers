@@ -166,7 +166,7 @@ namespace Sandbox.Game.Entities.Cube
             }
         }
 
-        public override bool PasteGrid(IMyComponentInventory buildInventory = null, bool deactivate = true) 
+        public override bool PasteGrid(MyInventoryBase buildInventory = null, bool deactivate = true) 
         {
             if ((CopiedGrids.Count > 0) && !IsActive)
             {
@@ -205,7 +205,7 @@ namespace Sandbox.Game.Entities.Cube
             return result;
         }
 
-        private bool PasteGridsInDynamicMode(IMyComponentInventory buildInventory, bool deactivate)
+        private bool PasteGridsInDynamicMode(MyInventoryBase buildInventory, bool deactivate)
         {
             bool result;
             // Remember static grid flag and set it to dynamic
@@ -225,7 +225,7 @@ namespace Sandbox.Game.Entities.Cube
             return result;
         }
 
-        private bool PasteGridsInStaticMode(IMyComponentInventory buildInventory, bool deactivate)
+        private bool PasteGridsInStaticMode(MyInventoryBase buildInventory, bool deactivate)
         {
             MatrixD firstGridMatrix = GetFirstGridOrientationMatrix();
             MatrixD inverseFirstGridMatrix = Matrix.Invert(firstGridMatrix);
@@ -952,8 +952,8 @@ namespace Sandbox.Game.Entities.Cube
             MyBlockOrientation blockOrientation = new MyBlockOrientation(Base6Directions.GetDirection(forward), Base6Directions.GetDirection(up));
             Quaternion rotation;
             blockOrientation.GetQuaternion(out rotation);
-
-            return MyCubeGrid.CheckConnectivity(hitGrid, block.BlockDefinition, ref rotation, ref position);
+			var blockDefinition = block.BlockDefinition;
+            return MyCubeGrid.CheckConnectivity(hitGrid, blockDefinition, blockDefinition.GetBuildProgressModelMountPoints(block.BuildLevelRatio), ref rotation, ref position);
         }
 
         protected static bool TestBlockPlacementOnGrid(MySlimBlock block, ref MatrixI transform, ref MyGridPlacementSettings settings, MyCubeGrid hitGrid)

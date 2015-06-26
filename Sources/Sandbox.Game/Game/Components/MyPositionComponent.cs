@@ -58,9 +58,9 @@ namespace Sandbox.Game.Components
             Container.ComponentRemoved += container_ComponentRemoved;
         }
 
-        public override void OnRemovedFromContainer()
+        public override void OnBeforeRemovedFromContainer()
         {
-            base.OnRemovedFromContainer();
+            base.OnBeforeRemovedFromContainer();
             Container.ComponentAdded -= container_ComponentAdded;
             Container.ComponentRemoved -= container_ComponentRemoved;
         }

@@ -322,7 +322,7 @@ namespace Sandbox.Game.Entities.Blocks
                                              : 0.0f;
         }
 
-        void m_inventory_ContentsChanged(MyInventory obj)
+        void m_inventory_ContentsChanged(MyInventoryBase obj)
         {
             RaisePropertiesChanged();
         }
