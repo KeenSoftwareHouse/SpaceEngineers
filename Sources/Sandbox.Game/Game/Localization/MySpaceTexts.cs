@@ -11055,6 +11055,16 @@ namespace Sandbox.Game.Localization
         public static readonly MyStringId BlockPropertyTitle_Projector_GetOwnership = MyStringId.GetOrCompute("BlockPropertyTitle_Projector_GetOwnership");
 
         ///<summary>
+        ///Not Enough Ships Selected.
+        ///</summary>
+        public static readonly MyStringId MessageBoxCaptionNotEnoughShips = MyStringId.GetOrCompute("MessageBoxCaptionNotEnoughShips");
+
+        ///<summary>
+        ///You don't have any active encounter ships selected.  Please ensure that there is at least one active ship in the list.
+        ///</summary>
+        public static readonly MyStringId MessageBoxTextNotEnoughEncounterShipsSelected = MyStringId.GetOrCompute("MessageBoxTextNotEnoughEncounterShipsSelected");
+
+        ///<summary>
         ///Encounter Ship Selection
         ///</summary>
         public static readonly MyStringId ScreenCaptionEncounterShipSelection = MyStringId.GetOrCompute("ScreenCaptionEncounterShipSelection");
@@ -11075,7 +11085,7 @@ namespace Sandbox.Game.Localization
         public static readonly MyStringId WorldSettings_AllowArmedLargeShipsLabel = MyStringId.GetOrCompute("WorldSettings_AllowArmedLargeShipsLabel");
 
         ///<summary>
-        ///Apply
+        ///Apply Filters
         ///</summary>
         public static readonly MyStringId WorldSettings_EncounterApplyButton = MyStringId.GetOrCompute("WorldSettings_EncounterApplyButton");
 

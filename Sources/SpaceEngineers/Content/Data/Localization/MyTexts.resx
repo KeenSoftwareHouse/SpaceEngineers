@@ -6846,6 +6846,13 @@ Who knows?  There's no-one left to ask.</value>
   <data name="BlockPropertyTitle_Projector_GetOwnership" xml:space="preserve">
     <value>Ownership from projector</value>
   </data>
+  <data name="MessageBoxCaptionNotEnoughShips" xml:space="preserve">
+    <value>Not Enough Ships Selected.</value>
+  </data>
+  <data name="MessageBoxTextNotEnoughEncounterShipsSelected" xml:space="preserve">
+    <value>You don't have any active encounter ships selected. 
+Please ensure that there is at least one active ship in the list.</value>
+  </data>
   <data name="ScreenCaptionEncounterShipSelection" xml:space="preserve">
     <value>Encounter Ship Selection</value>
   </data>
@@ -6862,7 +6869,7 @@ Set at 50% for an even mix of small and large ships.</value>
     <value>Large ships must be armed</value>
   </data>
   <data name="WorldSettings_EncounterApplyButton" xml:space="preserve">
-    <value>Apply</value>
+    <value>Apply Filters</value>
   </data>
   <data name="WorldSettings_EncounterBaseShipLabel" xml:space="preserve">
     <value>Asteroid Bases</value>
