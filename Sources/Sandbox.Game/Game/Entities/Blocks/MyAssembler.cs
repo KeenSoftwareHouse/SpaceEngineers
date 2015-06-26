@@ -701,9 +701,9 @@ namespace Sandbox.Game.Entities.Cube
                     IsProducing = false;
                     return;
                 }
+                var remainingTime = calculateBlueprintProductionTime(currentBlueprint) - CurrentProgress * calculateBlueprintProductionTime(currentBlueprint);
 
-                CurrentProgress += timeDelta / calculateBlueprintProductionTime(currentBlueprint);
-                if (CurrentProgress > 1.0f)
+                if (timeDelta >= remainingTime)
                 {
                     if (Sync.IsServer || !MyFakes.ENABLE_PRODUCTION_SYNC)
                     {
@@ -718,12 +718,13 @@ namespace Sandbox.Game.Entities.Cube
 
                         RemoveFirstQueueItemAnnounce(1);
                     }
-                    timeDelta = (int)((m_currentProgress - 1.0f) * calculateBlueprintProductionTime(currentBlueprint));
+                    timeDelta -= (int)Math.Ceiling(remainingTime);
                     CurrentProgress = 0;
                     firstQueueItem = null;
                 }
                 else
                 {
+                    CurrentProgress += timeDelta / calculateBlueprintProductionTime(currentBlueprint);
                     timeDelta = 0;
                 }
             }
