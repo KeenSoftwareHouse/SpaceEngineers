@@ -424,7 +424,7 @@ namespace Sandbox.Game.Entities
             m_damageEffect = null;
         }*/
 
-        void inventory_ContentsChanged(MyInventory obj)
+        void inventory_ContentsChanged(MyInventoryBase obj)
         {
             var before = IsWorking;
             RefreshRemainingCapacity();

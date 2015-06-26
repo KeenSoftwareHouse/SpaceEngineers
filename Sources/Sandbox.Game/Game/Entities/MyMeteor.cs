@@ -51,7 +51,7 @@ namespace Sandbox.Game.Entities
             Render = new MyRenderComponentDebrisVoxel();
         }
 
-        void Components_ComponentAdded(Type arg1, MyEntityComponentBase arg2)
+        void Components_ComponentAdded(Type arg1, MyComponentBase arg2)
         {
             if (arg1 == typeof(MyGameLogicComponent))
                 m_logic = arg2 as MyMeteorGameLogic;
@@ -398,7 +398,7 @@ namespace Sandbox.Game.Entities
 
                 if (other is MyVoxelBase)
                 {
-                    CreateCrater(value, other as MyVoxelMap);
+                    CreateCrater(value, other as MyVoxelBase);
                 }
 
             }
@@ -428,7 +428,7 @@ namespace Sandbox.Game.Entities
                 PlayExplosionSound();
             }
 
-            private void CreateCrater(MyPhysics.MyContactPointEvent value, MyVoxelMap voxel)
+            private void CreateCrater(MyPhysics.MyContactPointEvent value, MyVoxelBase voxel)
             {
                 if (Math.Abs(Vector3.Normalize(-Entity.WorldMatrix.Forward).Dot(value.ContactPointEvent.ContactPoint.Normal)) < 0.1)
                 {

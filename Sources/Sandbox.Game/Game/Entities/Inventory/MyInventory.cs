@@ -18,21 +18,17 @@ using Sandbox.Game.Entities;
 using Sandbox.Game.Entities.Character;
 using VRage;
 using VRage.ObjectBuilders;
+using VRage.Components;
+using Sandbox.ModAPI.Interfaces;
+using Sandbox.Common.ObjectBuilders.ComponentSystem;
 
 #endregion
 
 namespace Sandbox.Game
 {
-    [Flags]
-    public enum MyInventoryFlags
+    [MyComponentBuilder(typeof(MyObjectBuilder_Inventory))]
+    public partial class MyInventory : MyInventoryBase
     {
-        CanReceive = 1,
-        CanSend = 2
-    }
-
-    public partial class MyInventory
-    {
-
         #region Fields
 
         List<MyPhysicalInventoryItem> m_items = new List<MyPhysicalInventoryItem>();
@@ -48,6 +44,7 @@ namespace Sandbox.Game
 
         MyInventoryFlags m_flags;
 
+        // CH: TODO: Remove this!
         IMyInventoryOwner m_owner;
 
         static MySyncInventory SyncObject;
@@ -65,6 +62,11 @@ namespace Sandbox.Game
         #endregion
 
         #region Init
+
+        public MyInventory()
+            : this(MyFixedPoint.MaxValue, MyFixedPoint.MaxValue, Vector3.Zero, 0, null)
+        {
+        }
 
         public MyInventory(float maxVolume, Vector3 size, MyInventoryFlags flags, IMyInventoryOwner owner)
             : this((MyFixedPoint)maxVolume, MyFixedPoint.MaxValue, size, flags, owner)
@@ -88,24 +90,27 @@ namespace Sandbox.Game
 
             SyncObject = new MySyncInventory();
 
-            ContentsChanged += OnContentsChanged;
+            //ContentsChanged += OnContentsChanged;
         }
 
         #endregion
 
         #region Properties
 
-        public MyFixedPoint MaxMass // in kg
+        // CH: TODO: Assign various names
+        public override MyStringId InventoryId { get { return MyStringId.GetOrCompute("Inventory"); } }
+
+        public override MyFixedPoint MaxMass // in kg
         {
             get { return m_maxMass; }
         }
 
-        public MyFixedPoint MaxVolume // in m3
+        public override MyFixedPoint MaxVolume // in m3
         {
             get { return m_maxVolume; }
         }
 
-        public MyFixedPoint CurrentVolume // in m3
+        public override MyFixedPoint CurrentVolume // in m3
         {
             get { return m_currentVolume; }
         }
@@ -119,7 +124,7 @@ namespace Sandbox.Game
             }
         }
 
-        public MyFixedPoint CurrentMass
+        public override MyFixedPoint CurrentMass
         {
             get { return m_currentMass; }
         }
@@ -142,6 +147,13 @@ namespace Sandbox.Game
         public IMyInventoryOwner Owner
         {
             get { return m_owner; }
+            set 
+            {
+                if (m_owner == null)
+                    m_owner = value;
+                else
+                    Debug.Assert(false, "Owner of the inventory is already set");
+            }
         }
 
         public byte InventoryIdx
@@ -218,7 +230,7 @@ namespace Sandbox.Game
             return false;
         }
 
-        public MyFixedPoint ComputeAmountThatFits(MyDefinitionId contentId)
+        public override MyFixedPoint ComputeAmountThatFits(MyDefinitionId contentId)
         {
             if (!MyPerGameSettings.ConstrainInventory())
                 return MyFixedPoint.MaxValue;
@@ -267,7 +279,7 @@ namespace Sandbox.Game
             return ContainItems(amount, ob.GetObjectId());
         }
 
-        public MyFixedPoint GetItemAmount(MyDefinitionId contentId, MyItemFlags flags = MyItemFlags.None)
+        public override MyFixedPoint GetItemAmount(MyDefinitionId contentId, MyItemFlags flags = MyItemFlags.None)
         {
             MyFixedPoint amount = 0;
             foreach (var item in m_items)
@@ -396,7 +408,7 @@ namespace Sandbox.Game
             }
             return false;
         }
-        public bool AddItems(MyFixedPoint amount, MyObjectBuilder_Base objectBuilder, int index = -1)
+        public override bool AddItems(MyFixedPoint amount, MyObjectBuilder_Base objectBuilder, int index = -1)
         {
             Debug.Assert(objectBuilder is MyObjectBuilder_PhysicalObject, "This type of inventory can't add other types than PhysicalObjects!");
             MyObjectBuilder_PhysicalObject physicalObjectBuilder = objectBuilder as MyObjectBuilder_PhysicalObject;
@@ -500,8 +512,7 @@ namespace Sandbox.Game
 
             VerifyIntegrity();
 
-            if (ContentsChanged != null)
-                ContentsChanged(this);
+            OnContentsChanged();
         }
 
         public void RemoveItemsOfType(MyFixedPoint amount, MyObjectBuilder_PhysicalObject objectBuilder, bool spawn = false)
@@ -509,7 +520,7 @@ namespace Sandbox.Game
             TransferOrRemove(this, amount, objectBuilder.GetObjectId(), objectBuilder.Flags, null, spawn);
         }
 
-        public void RemoveItemsOfType(MyFixedPoint amount, MyDefinitionId contentId, MyItemFlags flags = MyItemFlags.None, bool spawn = false)
+        public override void RemoveItemsOfType(MyFixedPoint amount, MyDefinitionId contentId, MyItemFlags flags = MyItemFlags.None, bool spawn = false)
         {
             TransferOrRemove(this, amount, contentId, flags, null, spawn);
         }
@@ -532,7 +543,6 @@ namespace Sandbox.Game
             MyEntity spawned = null;
             if (Sync.IsServer)
             {
-                
                 if (item.HasValue && RemoveItemsInternal(itemId, am, sendEvent))
                 {
                     if (spawn)
@@ -575,14 +585,12 @@ namespace Sandbox.Game
 
             RefreshVolumeAndMass();
 
-            if (sendEvent && ContentsChanged != null)
-                ContentsChanged(this);
+            if (sendEvent)
+                OnContentsChanged();
             return true;
         }
 
-
-
-        public List<MyPhysicalInventoryItem> GetItems()
+        public override List<MyPhysicalInventoryItem> GetItems()
         {
             return m_items;
         }
@@ -740,8 +748,8 @@ namespace Sandbox.Game
                 }
             }
 
-            if (somethingRemoved && ContentsChanged != null)
-                ContentsChanged(this);
+            if (somethingRemoved)
+                OnContentsChanged();
 
             return somethingRemoved;
         }
@@ -759,6 +767,11 @@ namespace Sandbox.Game
             var objBuilder = MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_Inventory>();
             objBuilder.Items.Clear();
 
+            objBuilder.Mass = m_maxMass;
+            objBuilder.Volume = m_maxVolume;
+            objBuilder.Size = m_size;
+            objBuilder.InventoryFlags = m_flags;
+
             objBuilder.nextItemId = m_nextItemID;
 
             foreach (var item in m_items)
@@ -773,6 +786,16 @@ namespace Sandbox.Game
 
             if (objectBuilder == null)
                 return;
+
+            if (objectBuilder.Mass.HasValue)
+                m_maxMass = objectBuilder.Mass.Value;
+            if (objectBuilder.Volume.HasValue)
+                m_maxVolume = objectBuilder.Volume.Value;
+            if (objectBuilder.Size.HasValue)
+                m_size = objectBuilder.Size.Value;
+            if (objectBuilder.InventoryFlags.HasValue)
+                m_flags = objectBuilder.InventoryFlags.Value;
+
             if (!Sync.IsServer)
                 m_nextItemID = objectBuilder.nextItemId;
             else
@@ -818,11 +841,18 @@ namespace Sandbox.Game
             VerifyIntegrity();
         }
 
-        #endregion
+        public override MyObjectBuilder_ComponentBase Serialize()
+        {
+            return GetObjectBuilder();
+        }
 
-        public event Action<MyInventory> ContentsChanged;
-        public event Action<IMyComponentInventory, IMyInventoryOwner> OwnerChanged;
-        private Action<IMyComponentInventory> ComponentContentsChanged;
+        public override void Deserialize(MyObjectBuilder_ComponentBase builder)
+        {
+            var ob = builder as MyObjectBuilder_Inventory;
+            Init(ob);
+        }
+
+        #endregion
 
         private void RefreshVolumeAndMass()
         {
@@ -865,9 +895,7 @@ namespace Sandbox.Game
         public void UpdateOxygenAmount()
         {
             RefreshVolumeAndMass();
-
-            if (ContentsChanged != null)
-                ContentsChanged(this);
+            OnContentsChanged();
         }
 
         internal void SyncOxygenContainerLevel(uint itemId, float level)

@@ -55,7 +55,9 @@ namespace Sandbox.Engine.Physics
             public MyEntity Entity;
             //public StackTrace dbgTrace;
         }
+        // Layer that doesn't collide with static grids and voxels
 		public const int NotCollideWithStaticLayer = 12;
+        // Static grids
         public const int StaticCollisionLayer = 13;
         public const int CollideWithStaticLayer = 14;
         public const int DefaultCollisionLayer = 15;
@@ -76,7 +78,7 @@ namespace Sandbox.Engine.Physics
         public const int CollectorCollisionLayer = 26;
 
         public const int AmmoLayer = 27;
-
+        public const int VoxelCollisionLayer = 28;
         public const int ExplosionRaycastLayer = 29;
         public const int CollisionLayerWithoutCharacter = 30;
 
@@ -132,12 +134,15 @@ namespace Sandbox.Engine.Physics
             world.DisableCollisionsBetween(DynamicDoubledCollisionLayer, CharacterNetworkCollisionLayer);
 
 			world.DisableCollisionsBetween(NotCollideWithStaticLayer, StaticCollisionLayer);
+            world.DisableCollisionsBetween(NotCollideWithStaticLayer, VoxelCollisionLayer);
 
             world.DisableCollisionsBetween(KinematicDoubledCollisionLayer, DefaultCollisionLayer);
             world.DisableCollisionsBetween(KinematicDoubledCollisionLayer, StaticCollisionLayer);
+            world.DisableCollisionsBetween(KinematicDoubledCollisionLayer, VoxelCollisionLayer);
             //world.DisableCollisionsBetween(KinematicDoubledCollisionLayer, AmmoLayer);
 
             world.DisableCollisionsBetween(GravityPhantomLayer, StaticCollisionLayer);
+            world.DisableCollisionsBetween(GravityPhantomLayer, VoxelCollisionLayer);
             world.DisableCollisionsBetween(GravityPhantomLayer, DefaultCollisionLayer);
             world.DisableCollisionsBetween(GravityPhantomLayer, DynamicDoubledCollisionLayer);
             world.DisableCollisionsBetween(GravityPhantomLayer, KinematicDoubledCollisionLayer);
@@ -147,6 +152,7 @@ namespace Sandbox.Engine.Physics
             //world.DisableCollisionsBetween(GravityPhantomLayer, AmmoLayer);
 
             world.DisableCollisionsBetween(VirtualMassLayer, StaticCollisionLayer);
+            world.DisableCollisionsBetween(VirtualMassLayer, VoxelCollisionLayer);
             world.DisableCollisionsBetween(VirtualMassLayer, DefaultCollisionLayer);
             world.DisableCollisionsBetween(VirtualMassLayer, CharacterCollisionLayer);
             world.DisableCollisionsBetween(VirtualMassLayer, CharacterNetworkCollisionLayer);
@@ -159,6 +165,7 @@ namespace Sandbox.Engine.Physics
             //world.DisableCollisionsBetween(VirtualMassLayer, AmmoLayer);
 
             world.DisableCollisionsBetween(NoCollisionLayer, StaticCollisionLayer);
+            world.DisableCollisionsBetween(NoCollisionLayer, VoxelCollisionLayer);
             world.DisableCollisionsBetween(NoCollisionLayer, DefaultCollisionLayer);
             world.DisableCollisionsBetween(NoCollisionLayer, CharacterCollisionLayer);
             world.DisableCollisionsBetween(NoCollisionLayer, CharacterNetworkCollisionLayer);
@@ -178,6 +185,7 @@ namespace Sandbox.Engine.Physics
             world.DisableCollisionsBetween(ObjectDetectionCollisionLayer, ObjectDetectionCollisionLayer);
 
             world.DisableCollisionsBetween(CollectorCollisionLayer, StaticCollisionLayer);
+            world.DisableCollisionsBetween(CollectorCollisionLayer, VoxelCollisionLayer);
             world.DisableCollisionsBetween(CollectorCollisionLayer, DefaultCollisionLayer);
             world.DisableCollisionsBetween(CollectorCollisionLayer, CharacterCollisionLayer);
             world.DisableCollisionsBetween(CollectorCollisionLayer, CharacterNetworkCollisionLayer);
@@ -193,6 +201,7 @@ namespace Sandbox.Engine.Physics
             {
                 world.DisableCollisionsBetween(DefaultCollisionLayer, CharacterNetworkCollisionLayer);
                 world.DisableCollisionsBetween(StaticCollisionLayer, CharacterNetworkCollisionLayer);
+                world.DisableCollisionsBetween(VoxelCollisionLayer, CharacterNetworkCollisionLayer);
             }
 
             if (!MyFakes.ENABLE_CHARACTER_AND_DEBRIS_COLLISIONS)
@@ -201,7 +210,8 @@ namespace Sandbox.Engine.Physics
                 world.DisableCollisionsBetween(DebrisCollisionLayer, CharacterNetworkCollisionLayer);
             }
 
-            //Disable collisions with anything but ships, stations and voxels
+            //Disable collisions with anything but ships and stations
+            world.DisableCollisionsBetween(ExplosionRaycastLayer, VoxelCollisionLayer);
             world.DisableCollisionsBetween(ExplosionRaycastLayer, CharacterCollisionLayer);
             world.DisableCollisionsBetween(ExplosionRaycastLayer, NoCollisionLayer);
             world.DisableCollisionsBetween(ExplosionRaycastLayer, DebrisCollisionLayer);
@@ -233,6 +243,7 @@ namespace Sandbox.Engine.Physics
 
             // TODO: This should be removed, when ragdoll won't need to be simulated on separate layer when partial simulation is enabled
             world.DisableCollisionsBetween(RagdollCollisionLayer, StaticCollisionLayer);
+            world.DisableCollisionsBetween(RagdollCollisionLayer, VoxelCollisionLayer);
             world.DisableCollisionsBetween(RagdollCollisionLayer, DefaultCollisionLayer);
             world.DisableCollisionsBetween(RagdollCollisionLayer, CharacterCollisionLayer);
             world.DisableCollisionsBetween(RagdollCollisionLayer, CharacterNetworkCollisionLayer);
@@ -970,6 +981,42 @@ namespace Sandbox.Engine.Physics
             HkContactBodyData cpd = result.Value;
             cpd.HitPosition += world.AABB.Center;
             return cpd;
+        }
+
+
+        static List<HkContactBodyData?> m_resultShapeCasts = new List<HkContactBodyData?>();
+
+        public static bool CastShapeReturnContactBodyDatas(Vector3D to, HkShape shape, ref MatrixD transform, uint collisionFilter, float extraPenetration, List<HkContactBodyData> result, bool ignoreConvexShape = true)
+        {
+            m_resultWorlds.Clear();
+            Clusters.Intersects(to, m_resultWorlds);
+
+            if (m_resultWorlds.Count == 0)
+                return false;
+
+            var world = m_resultWorlds[0];
+
+            Matrix transformF = transform;
+            transformF.Translation = (Vector3)(transform.Translation - world.AABB.Center);
+
+            Vector3 toF = (Vector3)(to - world.AABB.Center);
+
+            m_resultShapeCasts.Clear();
+
+            if (((HkWorld)world.UserData).CastShapeReturnContactBodyDatas(toF, shape, ref transformF, collisionFilter, extraPenetration, m_resultShapeCasts))
+            {
+                foreach (var res in m_resultShapeCasts)
+                {
+                    HkContactBodyData cpd = res.Value;
+                    cpd.HitPosition += world.AABB.Center;
+                    result.Add(cpd);
+                }
+
+                return true;
+            }
+            
+         
+            return false;
         }
 
 

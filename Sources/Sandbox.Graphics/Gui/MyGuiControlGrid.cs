@@ -280,6 +280,12 @@ namespace Sandbox.Graphics.GUI
         #endregion
 
         #region Properties
+
+        public Vector2 ItemStep
+        {
+            get { return m_itemStep; }
+        }
+
         public int ColumnsCount
         {
             get { return m_columnsCount; }

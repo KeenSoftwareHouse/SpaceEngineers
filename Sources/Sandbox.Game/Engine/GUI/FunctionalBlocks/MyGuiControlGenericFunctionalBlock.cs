@@ -20,6 +20,8 @@ using VRage;
 using Sandbox.Game.Localization;
 using VRage.Utils;
 using VRage.Library.Utils;
+using Sandbox.Game.SessionComponents;
+using Sandbox.Game.Entities.Blocks;
 
 namespace Sandbox.Graphics.GUI
 {
@@ -216,6 +218,7 @@ namespace Sandbox.Graphics.GUI
             ProfilerShort.End();
         }
 
+        MyScenarioBuildingBlock dummy = new MyScenarioBuildingBlock();
         private void RecreateBlockControls()
         {
             m_currentControls.Clear();
@@ -232,6 +235,14 @@ namespace Sandbox.Graphics.GUI
                         m_tmpControlDictionary.TryGetValue(control, out num);
                         m_tmpControlDictionary[control] = num + (control.IsVisible(block) ? 1 : 0);
                     }
+                }
+
+                if (MySession.Static.Settings.ScenarioEditMode && MyFakes.ENABLE_NEW_TRIGGERS)
+                {
+                    var scenarioType = typeof(MyTerminalBlock);
+                    var c = MyTerminalControlFactory.GetControls(scenarioType);
+                    foreach (var control in c)
+                        m_tmpControlDictionary[control] = m_currentBlocks.Count();
                 }
 
                 int blockCount = m_currentBlocks.Length;

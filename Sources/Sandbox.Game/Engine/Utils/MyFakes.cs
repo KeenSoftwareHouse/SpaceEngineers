@@ -539,5 +539,11 @@ namespace Sandbox.Engine.Utils
         public static bool ENABLE_MEDIEVAL_INVENTORY = false;
 
         public static bool ENABLE_PLANETS = false;
+
+        public static bool ENABLE_NEW_TRIGGERS = false;
+
+        public static bool ENABLE_USE_OBJECT_CORNERS = true;
+        
+        public static bool ENABLE_PLANETS_JETPACK_LIMIT = false;
     }
 }

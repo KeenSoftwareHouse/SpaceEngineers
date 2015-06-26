@@ -643,6 +643,8 @@ namespace Sandbox.Game.Entities.Blocks
             m_instantBuildingEnabled = projectorBuilder.InstantBuildingEnabled;
             m_maxNumberOfProjections = projectorBuilder.MaxNumberOfProjections;
             m_maxNumberOfBlocksPerProjection = projectorBuilder.MaxNumberOfBlocks;
+            m_getOwnershipFromProjector = projectorBuilder.GetOwnershipFromProjector;
+
             m_projectionsRemaining = MathHelper.Clamp(projectorBuilder.ProjectionsRemaining, 0, m_maxNumberOfProjections);
 
             PowerReceiver = new MyPowerReceiver(
@@ -730,6 +732,7 @@ namespace Sandbox.Game.Entities.Blocks
             objectBuilder.MaxNumberOfProjections = m_maxNumberOfProjections;
             objectBuilder.MaxNumberOfBlocks = m_maxNumberOfBlocksPerProjection;
             objectBuilder.ProjectionsRemaining = m_projectionsRemaining;
+            objectBuilder.GetOwnershipFromProjector = m_getOwnershipFromProjector;
 
             return objectBuilder;
         }
@@ -1343,34 +1346,38 @@ namespace Sandbox.Game.Entities.Blocks
             MyGridPlacementSettings settings = new MyGridPlacementSettings();
             settings.Mode = MyGridPlacementSettings.SnapMode.OneFreeAxis;
 
-            bool canBuild = true;
-            if (checkHavokIntersections)
+			var mountPoints = projectedBlock.BlockDefinition.GetBuildProgressModelMountPoints(1.0f);
+			bool isConnected = MyCubeGrid.CheckConnectivity(this.CubeGrid, projectedBlock.BlockDefinition, mountPoints,
+															ref blockOrientationQuat, ref blockPos);
+            if (isConnected)
             {
-                canBuild = MyCubeGrid.TestPlacementAreaCube(CubeGrid, ref settings, projectedMin, projectedMax, blockOrientation, projectedBlock.BlockDefinition, CubeGrid);
-            }
-
-            bool isConnected = MyCubeGrid.CheckConnectivity(this.CubeGrid, projectedBlock.BlockDefinition, ref blockOrientationQuat, ref blockPos);
-
-            if (!canBuild)
-            {
-                return BuildCheckResult.IntersectedWithSomethingElse;
-            }
-            else
-            {
-                if (isConnected)
+                if (CubeGrid.GetCubeBlock(blockPos) == null)
                 {
-                    if (CubeGrid.GetCubeBlock(blockPos) == null)
+                    if (checkHavokIntersections)
                     {
-                        return BuildCheckResult.OK;
+                        if (MyCubeGrid.TestPlacementAreaCube(CubeGrid, ref settings, projectedMin, projectedMax, blockOrientation, projectedBlock.BlockDefinition, CubeGrid))
+                        {
+                            return BuildCheckResult.OK;
+                        }
+                        else
+                        {
+                            return BuildCheckResult.IntersectedWithSomethingElse;
+                        }
                     }
                     else
                     {
-                        return BuildCheckResult.AlreadyBuilt;
+                        return BuildCheckResult.OK;
                     }
                 }
+                else
+                {
+                    return BuildCheckResult.AlreadyBuilt;
+                }
             }
-
-            return BuildCheckResult.NotConnected;
+            else
+            {
+                return BuildCheckResult.NotConnected;
+            }
         }
 
         public void Build(MySlimBlock cubeBlock, long owner, long builder)
@@ -1899,7 +1906,7 @@ namespace Sandbox.Game.Entities.Blocks
                 var msg = new SetGetOwnershipMsg();
                 msg.EntityId = m_projector.EntityId;
                 msg.GetOwnership = getOwnership;
-                Sync.Layer.SendMessageToServer(ref msg);
+                Sync.Layer.SendMessageToAllAndSelf(ref msg);
             }
 
             private static void OnSetGetOwnership(ref SetGetOwnershipMsg msg, MyNetworkClient sender)

@@ -287,15 +287,8 @@ namespace Sandbox.Game.Entities
                 if (MySession.ControlledEntity == user)
                     MyAudio.Static.PlaySound(TAKE_ITEM_SOUND.SoundId);
                 //user.StartSecondarySound(TAKE_ITEM_SOUND);
-                // MW:TODO HACK - remove after floating object is component OR when we have accessible inventories in ME
-                if (Item.Content.TypeId == typeof(MyObjectBuilder_ConsumableItem))
-                {
-                    var consumableDefinition = MyDefinitionManager.Static.GetDefinition(Item.Content.GetId()) as MyConsumableItemDefinition;
-                    user.StatComp.Consume(Item.Amount, consumableDefinition);
-                    MyFloatingObjects.RemoveFloatingObject(this);
-                }
-                else
-                    user.GetInventory().TakeFloatingObject(this);
+
+                user.GetInventory().TakeFloatingObject(this);
                 MyHud.Notifications.ReloadTexts();
             }
         }
