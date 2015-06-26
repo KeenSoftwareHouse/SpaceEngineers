@@ -32,13 +32,16 @@ namespace Sandbox.Game.Gui
         bool m_isNewGame;
         bool m_isConfirmed;
 
-        MyGuiControlButton m_okButton, m_cancelButton, m_peaceModeButton, m_adventureModeButton, m_warModeButton, m_ruinsModeButton, m_randomModeButton, m_viewShipsButton;
-        MyGuiControlSlider m_maxNoShipsPerSpawnGroup, m_maxDamagedShipPercentage, m_maxHostileEncountersPercentage, m_antennaOnPercentage, m_reactorsOnPercentage;
+        MyGuiControlButton m_okButton, m_cancelButton, m_peaceModeButton, m_adventureModeButton, m_warModeButton, m_ruinsModeButton, m_randomModeButton, m_viewShipsButton, m_shipSelectorButton;
+        MyGuiControlSlider m_maxNoShipsPerSpawnGroup, m_maxDamagedShipPercentage, m_maxHostileEncountersPercentage, m_antennaOnPercentage, m_reactorsOnPercentage, m_smallToLargeShipRatio;
         MyGuiControlCombobox m_maxDamagedShipsSeverity;
-        MyGuiControlCheckbox m_antennaRangeMaxedOut, m_damageAppliedGlobally;
-        MyGuiControlTable m_ShipsAvailable;
+        MyGuiControlCheckbox m_antennaRangeMaxedOut, m_damageAppliedGlobally;        
 
         private MyGuiControlTable.Row m_selectedRow;
+
+        internal MyGuiScreenEncounterShipSelector EncounterShipSelection;
+
+        List<MyGuiControlTable.Row> ShipsAvailable = new List<MyGuiControlTable.Row>();
 
         public bool IsConfirmed
         {
@@ -80,13 +83,15 @@ namespace Sandbox.Game.Gui
             BuildControls();
 
             LoadValues();
+
+            GetAvailableShips();
         }
 
         public void BuildControls()
         {
             MyGuiControlParent parent = new MyGuiControlParent(size: new Vector2(Size.Value.X - 0.05f, Size.Value.Y));
             MyGuiControlScrollablePanel scrollPanel = new MyGuiControlScrollablePanel(parent);
-            scrollPanel.ScrollbarVEnabled = true;
+            scrollPanel.ScrollbarVEnabled = false;
             scrollPanel.Size = new Vector2(Size.Value.X - 0.05f, 0.8f);
 
             Vector2 buttonSize = MyGuiConstants.BACK_BUTTON_SIZE;
@@ -106,8 +111,7 @@ namespace Sandbox.Game.Gui
             var antennaRangeMaxedLabel = MakeLabel(MySpaceTexts.WorldSettings_AntennaMaxedLabel);
             var reactorsOnPercentageLabel = MakeLabel(MySpaceTexts.WorldSettings_ReactorsOnLabel);
             var damageAppliedGloballyLabel = MakeLabel(MySpaceTexts.WorldSettings_DamageAppliedGloballyLabel);
-            var presetLabel = MakeLabel(MySpaceTexts.WorldSettings_PresetValuesLabel);
-            var viewShipsLabel = MakeLabel(MySpaceTexts.WorldSettings_PresetValuesLabel);
+            var presetLabel = MakeLabel(MySpaceTexts.WorldSettings_PresetValuesLabel);                 
 
             // Setup settings controls
             m_maxNoShipsPerSpawnGroup = new MyGuiControlSlider(
@@ -215,32 +219,8 @@ namespace Sandbox.Game.Gui
             m_randomModeButton = new MyGuiControlButton(visualStyle: MyGuiControlButtonStyleEnum.Small, highlightType: MyGuiControlHighlightType.WHEN_CURSOR_OVER, text: MyTexts.Get(MySpaceTexts.WorldSettings_RandomMode), onButtonClick: RandomButtonClicked);
             m_randomModeButton.SetToolTip(MySpaceTexts.ToolTipEncounterSettings_RandomMode);
 
-            m_viewShipsButton = new MyGuiControlButton(visualStyle: MyGuiControlButtonStyleEnum.Small, highlightType: MyGuiControlHighlightType.WHEN_CURSOR_OVER, text: MyTexts.Get(MySpaceTexts.WorldSettings_RandomMode), onButtonClick: ViewShipsClicked);
-            m_viewShipsButton.SetToolTip(MySpaceTexts.ToolTipEncounterSettings_RandomMode);   
-
-            m_ShipsAvailable = new MyGuiControlTable();
-            m_ShipsAvailable.Position = Vector2.Zero - new Vector2(-0.0f, 0.0f);
-            m_ShipsAvailable.VisibleRowsCount = 10;
-            // m_ShipsAvailable.Size = new Vector2(m_size.Value.X * 0.4375f, 1.25f);
-            m_ShipsAvailable.Size = new Vector2(m_size.Value.X * 0.7f, 1.25f);
-            m_ShipsAvailable.OriginAlign = MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_TOP;
-            m_ShipsAvailable.ColumnsCount = 5;
-
-            m_ShipsAvailable.ItemSelected += OnTableItemSelected;
-            // m_ShipsAvailable.ItemDoubleClicked += OnTableItemConfirmedOrDoubleClick;
-            // m_ShipsAvailable.ItemConfirmed += OnTableItemConfirmedOrDoubleClick;
-            m_ShipsAvailable.SetColumnName(0, new StringBuilder("Active"));
-            m_ShipsAvailable.SetColumnName(1, new StringBuilder("Name"));
-            m_ShipsAvailable.SetColumnName(2, new StringBuilder("Size"));
-            m_ShipsAvailable.SetColumnName(3, new StringBuilder("Blocks"));
-            m_ShipsAvailable.SetColumnName(4, new StringBuilder("Turrets"));
-
-            m_ShipsAvailable.SetCustomColumnWidths(new float[] { 0.1f, 0.55f, 0.1f, 0.15f, 0.15f });            
-            m_ShipsAvailable.SetColumnComparison(0, (a, b) => (a.Text).CompareToIgnoreCase(b.Text));
-            m_ShipsAvailable.SetColumnComparison(1, (a, b) => (a.Text).CompareToIgnoreCase(b.Text));
-            m_ShipsAvailable.SetColumnComparison(2, (a, b) => (a.Text).CompareToIgnoreCase(b.Text));
-            m_ShipsAvailable.SetColumnComparison(3, (a, b) => int.Parse(a.Text.ToString()).CompareTo(int.Parse(b.Text.ToString())));
-            m_ShipsAvailable.SetColumnComparison(4, (a, b) => int.Parse(a.Text.ToString()).CompareTo(int.Parse(b.Text.ToString())));            
+            m_shipSelectorButton = new MyGuiControlButton(visualStyle: MyGuiControlButtonStyleEnum.Small, highlightType: MyGuiControlHighlightType.WHEN_CURSOR_OVER, text: MyTexts.Get(MySpaceTexts.WorldSettings_ShipSelector), onButtonClick: ShipSelectorButtonClicked);
+            m_shipSelectorButton.SetToolTip(MySpaceTexts.ToolTipEncounterSettings_RandomMode);   
 
             float labelSize = 0.31f;
 
@@ -270,10 +250,7 @@ namespace Sandbox.Game.Gui
 
             parent.Controls.Add(antennaRangeMaxedLabel);
             parent.Controls.Add(m_antennaRangeMaxedOut);
-
-            parent.Controls.Add(viewShipsLabel);
-            parent.Controls.Add(m_viewShipsButton);
-
+            
             // Automatic layout - position all controls added up to this point.
             Vector2 originL, originC;
             Vector2 controlsDelta = new Vector2(0f, 0.052f);
@@ -291,9 +268,9 @@ namespace Sandbox.Game.Gui
                     control.Position = originC + controlsDelta * numControls++;
             }
 
-            m_ShipsAvailable.Position = originL + controlsDelta * numControls;
-            parent.Controls.Add(m_ShipsAvailable);
-
+            m_shipSelectorButton.Position = originL + controlsDelta * numControls++;
+            parent.Controls.Add(m_shipSelectorButton);
+            
             // The following controls need to be positioned manually.
             presetLabel.Position = originL + controlsDelta + new Vector2(0.23f, -0.09f);
             Controls.Add(presetLabel);
@@ -341,12 +318,12 @@ namespace Sandbox.Game.Gui
             output.AntennaOnPercentage = (int)m_antennaOnPercentage.Value;
             output.AntennaRangeMaxedOut = (bool)m_antennaRangeMaxedOut.IsChecked;
 
-            for (var counter = 0; counter < m_ShipsAvailable.RowsCount; counter++ )
+            foreach (var row in ShipsAvailable)
             {
-                var shipExclude = m_ShipsAvailable.GetRow(counter).GetCell(0).Text.ToString() == "No";
+                var shipExclude = row.GetCell(0).Text.ToString() == "No";
                 if (shipExclude)
                 {
-                    output.ShipExcluded.Add(m_ShipsAvailable.GetRow(counter).UserData.ToString());
+                    output.ShipExcluded.Add(row.UserData.ToString());
                 }
             }
         }
@@ -432,8 +409,15 @@ namespace Sandbox.Game.Gui
             CloseScreen();
         }
 
+        private void ShipSelectorButtonClicked(object sender)
+        {
+            EncounterShipSelection = new MyGuiScreenEncounterShipSelector(m_parent, ShipsAvailable);
+            // EncounterShipSelection.OnOkButtonClicked += EncounterShipSelection_OnOkButtonClicked;
 
-        private void ViewShipsClicked(object sender)
+            MyGuiSandbox.AddScreen(EncounterShipSelection);
+        }
+
+        private void GetAvailableShips()
         {
             MyDefinitionManager.Static.UnloadData();
 
@@ -530,8 +514,8 @@ namespace Sandbox.Game.Gui
                                 row.AddCell(new MyGuiControlTable.Cell(text: gridSize, toolTip: gridSizeToolTip));
                                 row.AddCell(new MyGuiControlTable.Cell(text: firstPrefab.BlocksCount.ToString(), toolTip: blockToolTip.ToString()));
                                 row.AddCell(new MyGuiControlTable.Cell(text: turrets.ToString(), toolTip: turretToolTip.ToString()));
-                                
-                                m_ShipsAvailable.Add(row);
+
+                                ShipsAvailable.Add(row);
                             }
                         }
                 }

@@ -6779,7 +6779,7 @@ Who knows?  There's no-one left to ask.</value>
   </data>
   <data name="WorldSettings_WarMode" xml:space="preserve">
     <value>War</value>
-  </data>    
+  </data>
   <data name="HudScenarioInfoLivesLeft" xml:space="preserve">
     <value>Lives:</value>
   </data>
@@ -6845,5 +6845,11 @@ Who knows?  There's no-one left to ask.</value>
   </data>
   <data name="BlockPropertyTitle_Projector_GetOwnership" xml:space="preserve">
     <value>Ownership from projector</value>
+  </data>
+  <data name="ScreenCaptionEncounterShipSelection" xml:space="preserve">
+    <value>Encounter Ship Selection</value>
+  </data>
+  <data name="WorldSettings_ShipSelector" xml:space="preserve">
+    <value>Ships Available</value>
   </data>
 </root>

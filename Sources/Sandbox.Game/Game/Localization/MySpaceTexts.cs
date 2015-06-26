@@ -11053,5 +11053,15 @@ namespace Sandbox.Game.Localization
         ///Ownership from projector
         ///</summary>
         public static readonly MyStringId BlockPropertyTitle_Projector_GetOwnership = MyStringId.GetOrCompute("BlockPropertyTitle_Projector_GetOwnership");
+
+        ///<summary>
+        ///Encounter Ship Selection
+        ///</summary>
+        public static readonly MyStringId ScreenCaptionEncounterShipSelection = MyStringId.GetOrCompute("ScreenCaptionEncounterShipSelection");
+
+        ///<summary>
+        ///Ships Available
+        ///</summary>
+        public static readonly MyStringId WorldSettings_ShipSelector = MyStringId.GetOrCompute("WorldSettings_ShipSelector");
     }
 }
