@@ -156,7 +156,7 @@ namespace Sandbox.Game.Weapons
             NeedsUpdate |= MyEntityUpdateEnum.EACH_100TH_FRAME;
         }
 
-        void Inventory_ContentsChanged(MyInventory obj)
+        void Inventory_ContentsChanged(MyInventoryBase obj)
         {
             CubeGrid.SetInventoryMassDirty();
         }

@@ -663,7 +663,7 @@ namespace Sandbox.Game.Weapons
             m_previousIdleRotationState = builder.PreviousIdleRotationState;
         }
 
-        void Inventory_ContentsChanged(MyInventory obj)
+        void Inventory_ContentsChanged(MyInventoryBase obj)
         {
             CubeGrid.SetInventoryMassDirty();
         }

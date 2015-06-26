@@ -163,7 +163,7 @@ namespace Sandbox.Game.Weapons
             AddDebugRenderComponent(new MyDebugRenderComponentDrawPowerReciever(PowerReceiver, this));
         }
 
-        void Inventory_ContentsChanged(MyInventory obj)
+        void Inventory_ContentsChanged(MyInventoryBase obj)
         {
             CubeGrid.SetInventoryMassDirty();
         }

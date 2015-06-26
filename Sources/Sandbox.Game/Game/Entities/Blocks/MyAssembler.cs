@@ -414,7 +414,7 @@ namespace Sandbox.Game.Entities.Cube
                 return mass;
         }
 
-        void Inventory_ContentsChanged(MyInventory obj)
+        void Inventory_ContentsChanged(MyInventoryBase obj)
         {
             CubeGrid.SetInventoryMassDirty();
         }

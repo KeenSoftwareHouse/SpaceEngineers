@@ -84,7 +84,7 @@ namespace Sandbox.Game.Entities.Blocks
             m_useConveyorSystem = ob.UseConveyorSystem;
         }
 		
-        void Inventory_ContentsChanged(MyInventory obj)
+        void Inventory_ContentsChanged(MyInventoryBase obj)
         {
             CubeGrid.SetInventoryMassDirty();
         }
