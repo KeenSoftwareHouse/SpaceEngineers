@@ -96,16 +96,16 @@ namespace Sandbox.Game.World.Generator
                 var allSpawnGroups = MyDefinitionManager.Static.GetSpawnGroupDefinitions();
                 foreach (var spawnGroup in allSpawnGroups)
                 {
-                    if (spawnGroup.IsEncounter)
-                    {
-                        m_spawnGroups.Add(spawnGroup);
-                        if (spawnGroup.Voxels.Count == 0)
+                        if (spawnGroup.IsEncounter)
                         {
-                            m_spawnGroupsNoVoxels.Add(spawnGroup);
+                            m_spawnGroups.Add(spawnGroup);
+                            if (spawnGroup.Voxels.Count == 0)
+                            {
+                                m_spawnGroupsNoVoxels.Add(spawnGroup);
+                            }
                         }
-                    }
                 }
-            }
+            }           
 
             if (m_spawnGroups.Count > 0)
             {
@@ -133,7 +133,18 @@ namespace Sandbox.Game.World.Generator
                     {
                         continue;
                     }
-                    m_randomEncounters.Add(PickRandomEncounter(currentSpawnGroup));
+
+                    var shipFound = false;
+                    
+                    while (!shipFound)
+                    {
+                        var pickedShip = PickRandomEncounter(currentSpawnGroup);
+                        if (!MySession.Static.Settings.ShipExcluded.Contains(currentSpawnGroup[pickedShip].Prefabs[0].SubtypeId))
+                        {
+                            shipFound = true;
+                            m_randomEncounters.Add(pickedShip);
+                        }
+                    }
                     Vector3D newPosition = placePosition + (i == 0 ? -1 : 1) * GetEncounterBoundingBox(currentSpawnGroup[m_randomEncounters[m_randomEncounters.Count - 1]]).HalfExtents;
                     Vector3D savedPosition = Vector3D.Zero;
                     if (true == m_movedOnlyEncounters.Dictionary.TryGetValue(encounterPosition, out savedPosition))

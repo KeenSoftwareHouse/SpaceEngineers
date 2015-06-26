@@ -235,7 +235,7 @@ namespace Sandbox.Game.Gui
             m_ShipsAvailable.SetColumnName(3, new StringBuilder("Blocks"));
             m_ShipsAvailable.SetColumnName(4, new StringBuilder("Turrets"));
 
-            m_ShipsAvailable.SetCustomColumnWidths(new float[] { 0.1f, 0.55f, 0.1f, 0.15f, 0.15f });
+            m_ShipsAvailable.SetCustomColumnWidths(new float[] { 0.1f, 0.55f, 0.1f, 0.15f, 0.15f });            
             m_ShipsAvailable.SetColumnComparison(0, (a, b) => (a.Text).CompareToIgnoreCase(b.Text));
             m_ShipsAvailable.SetColumnComparison(1, (a, b) => (a.Text).CompareToIgnoreCase(b.Text));
             m_ShipsAvailable.SetColumnComparison(2, (a, b) => (a.Text).CompareToIgnoreCase(b.Text));
@@ -339,7 +339,16 @@ namespace Sandbox.Game.Gui
             output.DamageAppliedGlobally = (bool)m_damageAppliedGlobally.IsChecked;
             output.ReactorsOnPercentage = (int)m_reactorsOnPercentage.Value;
             output.AntennaOnPercentage = (int)m_antennaOnPercentage.Value;
-            output.AntennaRangeMaxedOut = (bool)m_antennaRangeMaxedOut.IsChecked;          
+            output.AntennaRangeMaxedOut = (bool)m_antennaRangeMaxedOut.IsChecked;
+
+            for (var counter = 0; counter < m_ShipsAvailable.RowsCount; counter++ )
+            {
+                var shipExclude = m_ShipsAvailable.GetRow(counter).GetCell(0).Text.ToString() == "No";
+                if (shipExclude)
+                {
+                    output.ShipExcluded.Add(m_ShipsAvailable.GetRow(counter).UserData.ToString());
+                }
+            }
         }
 
         public void SetSettings(MyObjectBuilder_SessionSettings settings)
@@ -515,12 +524,12 @@ namespace Sandbox.Game.Gui
 
                             if (matchesSelectionFilter)
                             {
-                                var row = new MyGuiControlTable.Row();
+                                var row = new MyGuiControlTable.Row(prefab.SubtypeId);                                
                                 row.AddCell(new MyGuiControlTable.Cell(text: "Yes", toolTip: "Will be used in game"));
                                 row.AddCell(new MyGuiControlTable.Cell(text: prefab.SubtypeId.Replace("_", " "), toolTip: "The name of the ship or station"));
                                 row.AddCell(new MyGuiControlTable.Cell(text: gridSize, toolTip: gridSizeToolTip));
                                 row.AddCell(new MyGuiControlTable.Cell(text: firstPrefab.BlocksCount.ToString(), toolTip: blockToolTip.ToString()));
-                                row.AddCell(new MyGuiControlTable.Cell(text: turrets.ToString(), toolTip: turretToolTip.ToString()));                              
+                                row.AddCell(new MyGuiControlTable.Cell(text: turrets.ToString(), toolTip: turretToolTip.ToString()));
                                 
                                 m_ShipsAvailable.Add(row);
                             }

@@ -2,6 +2,7 @@
 using System.Xml.Serialization;
 using ProtoBuf;
 using Sandbox.Common.ObjectBuilders.Definitions;
+using Sandbox.Definitions;
 using System.ComponentModel;
 using System.Diagnostics;
 using VRage.Utils;
@@ -333,6 +334,11 @@ namespace Sandbox.Common.ObjectBuilders
         [Display(Name = "Spawn with tools")]
         [GameRelationAttribute(Game.SpaceEngineers)]
         public bool SpawnWithTools = true;
+
+        [ProtoMember]
+        [Display(Name = "Ships To Avoid Using")]
+        [GameRelationAttribute(Game.SpaceEngineers)]
+        public List<string> ShipExcluded = new List<string>();
 
         public void LogMembers(MyLog log, LoggingOptions options)
         {

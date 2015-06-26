@@ -376,6 +376,14 @@ namespace Sandbox.Common.ObjectBuilders
         }
         public bool ShouldSerializeAntennaRangeMaxedOut() { return false; }
 
+        //[ProtoMember]
+        public List<string> ShipExcluded
+        {
+            get { return Settings.ShipExcluded; }
+            set { Settings.ShipExcluded = value; }
+        }
+        public bool ShouldSerializeShipExcluded() { return false; }
+
         [ProtoMember]
         [XmlElement("Settings", Type = typeof(MyAbstractXmlSerializer<MyObjectBuilder_SessionSettings>))]
         public MyObjectBuilder_SessionSettings Settings = MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_SessionSettings>();
