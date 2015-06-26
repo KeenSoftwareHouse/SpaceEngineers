@@ -32,10 +32,10 @@ namespace Sandbox.Game.Gui
         bool m_isNewGame;
         bool m_isConfirmed;
 
-        MyGuiControlButton m_okButton, m_cancelButton, m_peaceModeButton, m_adventureModeButton, m_warModeButton, m_ruinsModeButton, m_randomModeButton, m_viewShipsButton, m_shipSelectorButton;
+        MyGuiControlButton m_okButton, m_cancelButton, m_peaceModeButton, m_adventureModeButton, m_warModeButton, m_ruinsModeButton, m_randomModeButton, m_shipSelectorButton;
         MyGuiControlSlider m_maxNoShipsPerSpawnGroup, m_maxDamagedShipPercentage, m_maxHostileEncountersPercentage, m_antennaOnPercentage, m_reactorsOnPercentage, m_smallToLargeShipRatio;
         MyGuiControlCombobox m_maxDamagedShipsSeverity;
-        MyGuiControlCheckbox m_antennaRangeMaxedOut, m_damageAppliedGlobally;        
+        MyGuiControlCheckbox m_antennaRangeMaxedOut, m_damageAppliedGlobally, m_allowArmedLargeShipsOnly;        
 
         private MyGuiControlTable.Row m_selectedRow;
 
@@ -111,6 +111,8 @@ namespace Sandbox.Game.Gui
             var antennaRangeMaxedLabel = MakeLabel(MySpaceTexts.WorldSettings_AntennaMaxedLabel);
             var reactorsOnPercentageLabel = MakeLabel(MySpaceTexts.WorldSettings_ReactorsOnLabel);
             var damageAppliedGloballyLabel = MakeLabel(MySpaceTexts.WorldSettings_DamageAppliedGloballyLabel);
+            var smallToLargeShipRatioLabel = MakeLabel(MySpaceTexts.WorldSettings_SmallToLargeShipRatioLabel);
+            var allowArmedLargeShipsOnlyLabel = MakeLabel(MySpaceTexts.WorldSettings_AllowArmedLargeShipsLabel);
             var presetLabel = MakeLabel(MySpaceTexts.WorldSettings_PresetValuesLabel);                 
 
             // Setup settings controls
@@ -196,9 +198,26 @@ namespace Sandbox.Game.Gui
 
             m_antennaOnPercentage.SetToolTip(MyTexts.GetString(MySpaceTexts.ToolTipEncounterSettingsAntennasOn));
 
+            m_smallToLargeShipRatio = new MyGuiControlSlider(
+                position: Vector2.Zero - new Vector2(-0.1f, 0.3f),
+                width: 0.2f,
+                minValue: 0,
+                maxValue: 100,
+                labelText: new StringBuilder("{0}%").ToString(),
+                labelDecimalPlaces: 0,
+                labelSpaceWidth: 0.05f,
+                intValue: true,
+                defaultValue: 50
+                );
+
+            m_smallToLargeShipRatio.SetToolTip(MyTexts.GetString(MySpaceTexts.ToolTipEncounterSettingsSmallToLargeShipRatio));
+
             m_antennaRangeMaxedOut = new MyGuiControlCheckbox();
-            m_antennaRangeMaxedOut.SetToolTip(MyTexts.GetString(MySpaceTexts.ToolTipEncounterSettingsAntennasRangeMaxed));                      
-            
+            m_antennaRangeMaxedOut.SetToolTip(MyTexts.GetString(MySpaceTexts.ToolTipEncounterSettingsAntennasRangeMaxed));
+
+            m_allowArmedLargeShipsOnly = new MyGuiControlCheckbox();
+            m_allowArmedLargeShipsOnly.SetToolTip(MyTexts.GetString(MySpaceTexts.ToolTipEncounterSettingsArmedLargeShipsOnly));      
+
             // Ok-Cancel Buttons
             m_okButton = new MyGuiControlButton(position: buttonsOrigin - new Vector2(0.01f, 0f), size: buttonSize, text: MyTexts.Get(MySpaceTexts.Ok), onButtonClick: OkButtonClicked, originAlign: MyGuiDrawAlignEnum.HORISONTAL_RIGHT_AND_VERTICAL_BOTTOM);
             m_cancelButton = new MyGuiControlButton(position: buttonsOrigin + new Vector2(0.01f, 0f), size: buttonSize, text: MyTexts.Get(MySpaceTexts.Cancel), onButtonClick: CancelButtonClicked, originAlign: MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_BOTTOM);
@@ -250,6 +269,12 @@ namespace Sandbox.Game.Gui
 
             parent.Controls.Add(antennaRangeMaxedLabel);
             parent.Controls.Add(m_antennaRangeMaxedOut);
+
+            parent.Controls.Add(smallToLargeShipRatioLabel);
+            parent.Controls.Add(m_smallToLargeShipRatio);
+
+            parent.Controls.Add(allowArmedLargeShipsOnlyLabel);
+            parent.Controls.Add(m_allowArmedLargeShipsOnly);
             
             // Automatic layout - position all controls added up to this point.
             Vector2 originL, originC;
@@ -317,6 +342,8 @@ namespace Sandbox.Game.Gui
             output.ReactorsOnPercentage = (int)m_reactorsOnPercentage.Value;
             output.AntennaOnPercentage = (int)m_antennaOnPercentage.Value;
             output.AntennaRangeMaxedOut = (bool)m_antennaRangeMaxedOut.IsChecked;
+            output.SmallToLargeShipRatio = (int)m_smallToLargeShipRatio.Value;
+            output.AllowArmedLargeShipsOnly = (bool)m_allowArmedLargeShipsOnly.IsChecked;
 
             foreach (var row in ShipsAvailable)
             {
@@ -337,7 +364,9 @@ namespace Sandbox.Game.Gui
             m_damageAppliedGlobally.IsChecked = settings.DamageAppliedGlobally;
             m_reactorsOnPercentage.Value = settings.ReactorsOnPercentage;
             m_antennaOnPercentage.Value = settings.AntennaOnPercentage;
-            m_antennaRangeMaxedOut.IsChecked = settings.AntennaRangeMaxedOut;                        
+            m_antennaRangeMaxedOut.IsChecked = settings.AntennaRangeMaxedOut;
+            m_smallToLargeShipRatio.Value = settings.SmallToLargeShipRatio;
+            m_allowArmedLargeShipsOnly.IsChecked = settings.AllowArmedLargeShipsOnly;           
         }
 
         public override string GetFriendlyName()

@@ -11060,8 +11060,28 @@ namespace Sandbox.Game.Localization
         public static readonly MyStringId ScreenCaptionEncounterShipSelection = MyStringId.GetOrCompute("ScreenCaptionEncounterShipSelection");
 
         ///<summary>
+        ///Set this to guarantee that only large ships, with turrets, are available for encounters.   This does not affect small ship selection in any way.
+        ///</summary>
+        public static readonly MyStringId ToolTipEncounterSettingsArmedLargeShipsOnly = MyStringId.GetOrCompute("ToolTipEncounterSettingsArmedLargeShipsOnly");
+
+        ///<summary>
+        ///Ratio of small to large ships used for encounters.   Set at 50% for an even mix of small and large ships.
+        ///</summary>
+        public static readonly MyStringId ToolTipEncounterSettingsSmallToLargeShipRatio = MyStringId.GetOrCompute("ToolTipEncounterSettingsSmallToLargeShipRatio");
+
+        ///<summary>
+        ///Large ships must be armed
+        ///</summary>
+        public static readonly MyStringId WorldSettings_AllowArmedLargeShipsLabel = MyStringId.GetOrCompute("WorldSettings_AllowArmedLargeShipsLabel");
+
+        ///<summary>
         ///Ships Available
         ///</summary>
         public static readonly MyStringId WorldSettings_ShipSelector = MyStringId.GetOrCompute("WorldSettings_ShipSelector");
+
+        ///<summary>
+        ///% of large ships
+        ///</summary>
+        public static readonly MyStringId WorldSettings_SmallToLargeShipRatioLabel = MyStringId.GetOrCompute("WorldSettings_SmallToLargeShipRatioLabel");
     }
 }

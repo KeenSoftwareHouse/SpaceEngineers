@@ -289,6 +289,16 @@ namespace Sandbox.Common.ObjectBuilders
         public bool AntennaRangeMaxedOut = false;
 
         [ProtoMember]
+        [Display(Name = "Small To Large Ship Ratio")]
+        [GameRelationAttribute(Game.SpaceEngineers)]
+        public int SmallToLargeShipRatio = 50;
+
+        [ProtoMember]
+        [Display(Name = "Allow armed large ships only")]
+        [GameRelationAttribute(Game.SpaceEngineers)]
+        public bool AllowArmedLargeShipsOnly = false;
+
+        [ProtoMember]
         [Display(Name = "Max Reactors On Percentage")]
         [GameRelationAttribute(Game.SpaceEngineers)]
         public int ReactorsOnPercentage = 0;

@@ -6849,7 +6849,22 @@ Who knows?  There's no-one left to ask.</value>
   <data name="ScreenCaptionEncounterShipSelection" xml:space="preserve">
     <value>Encounter Ship Selection</value>
   </data>
+  <data name="ToolTipEncounterSettingsArmedLargeShipsOnly" xml:space="preserve">
+    <value>Set this to guarantee that only large ships, with turrets,
+are available for encounters.  
+This does not affect small ship selection in any way.</value>
+  </data>
+  <data name="ToolTipEncounterSettingsSmallToLargeShipRatio" xml:space="preserve">
+    <value>Ratio of small to large ships used for encounters.  
+Set at 50% for an even mix of small and large ships.</value>
+  </data>
+  <data name="WorldSettings_AllowArmedLargeShipsLabel" xml:space="preserve">
+    <value>Large ships must be armed</value>
+  </data>
   <data name="WorldSettings_ShipSelector" xml:space="preserve">
     <value>Ships Available</value>
+  </data>
+  <data name="WorldSettings_SmallToLargeShipRatioLabel" xml:space="preserve">
+    <value>% of large ships</value>
   </data>
 </root>

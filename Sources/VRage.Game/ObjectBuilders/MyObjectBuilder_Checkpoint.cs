@@ -376,6 +376,22 @@ namespace Sandbox.Common.ObjectBuilders
         }
         public bool ShouldSerializeAntennaRangeMaxedOut() { return false; }
 
+        //[ProtoMember, DefaultValue(50)]
+        public int SmallToLargeShipRatio
+        {
+            get { return Settings.SmallToLargeShipRatio; }
+            set { Settings.SmallToLargeShipRatio = value; }
+        }
+        public bool ShouldSerializeSmallToLargeShipRatio() { return false; }
+
+        //[ProtoMember, DefaultValue(false)]
+        public bool AllowArmedLargeShipsOnly
+        {
+            get { return Settings.AllowArmedLargeShipsOnly; }
+            set { Settings.AllowArmedLargeShipsOnly = value; }
+        }
+        public bool ShouldSerializeAllowArmedLargeShipsOnly() { return false; }
+
         //[ProtoMember]
         public List<string> ShipExcluded
         {
