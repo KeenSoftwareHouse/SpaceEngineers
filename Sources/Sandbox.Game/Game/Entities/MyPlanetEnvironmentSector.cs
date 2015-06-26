@@ -27,13 +27,16 @@ namespace Sandbox.Game.Entities
                switch (MySession.Static.Settings.FloraDensity)
                {
                    case 10:
-                       return 250;
-                       break;
-                   case 20:
                        return 500;
                        break;
-                   case 30:
+                   case 20:
                        return 750;
+                       break;
+                   case 30:
+                       return 1000;
+                       break;
+                   case 40:
+                       return 1500;
                        break;
                }
                return 0;
@@ -113,7 +116,7 @@ namespace Sandbox.Game.Entities
                         m_spawners[itemClass.Id.SubtypeId] = MyEnvironmentItems.BeginSpawn(itemClass);
                         m_spawners[itemClass.Id.SubtypeId].EnvironmentItems.Save = false;
                         m_spawners[itemClass.Id.SubtypeId].EnvironmentItems.CellsOffset = m_planet.PositionLeftBottomCorner;
-                        m_spawners[itemClass.Id.SubtypeId].EnvironmentItems.OnElementRemoved += OnSectorItemRemoved;
+                        m_spawners[itemClass.Id.SubtypeId].EnvironmentItems.ItemRemoved += OnSectorItemRemoved;
                     }
 
                     ProfilerShort.End();
@@ -178,9 +181,8 @@ namespace Sandbox.Game.Entities
             HasGraphics = false;
         }
 
-        void OnSectorItemRemoved(Vector3D pos)
-        {
-            
+        void OnSectorItemRemoved(MyEnvironmentItems item , MyEnvironmentItems.ItemInfo value)
+        {          
             foreach (var spawner in m_spawners)
             {
                 spawner.Value.EnvironmentItems.Save = true;
@@ -190,20 +192,7 @@ namespace Sandbox.Game.Entities
             {
                 m_planet.OnEnviromentSectorItemRemoved(m_pos);
                 m_saved = true;
-            }
-
-            MyObjectBuilder_FloatingObject floatingBuilder = new MyObjectBuilder_FloatingObject();
-            floatingBuilder.Item = new MyObjectBuilder_InventoryItem() { Amount = 1, Content = new MyObjectBuilder_PhysicalGunObject() {SubtypeName = "WelderItem" } };
-            floatingBuilder.PersistentFlags = MyPersistentEntityFlags2.InScene; // Very important
-            Vector3D gravity = -m_planet.GetWorldGravityNormalized(ref pos);
-            floatingBuilder.PositionAndOrientation = new MyPositionAndOrientation()
-            {
-                Position = pos + 0.5*gravity,
-                Up = (Vector3)gravity,
-                Forward = (Vector3)MyUtils.GetRandomPerpendicularVector(ref gravity),
-            };
-
-            MyEntities.CreateFromObjectBuilderAndAdd(floatingBuilder);
+            }               
         }
     }
 }

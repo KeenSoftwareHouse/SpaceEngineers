@@ -96,6 +96,7 @@ namespace Sandbox.Game.Entities
         //Space query structure
         public int GamePruningProxyId = MyConstants.PRUNING_PROXY_ID_UNITIALIZED;
         public int TopMostPruningProxyId = MyConstants.PRUNING_PROXY_ID_UNITIALIZED;
+        public int TargetPruningProxyId = MyConstants.PRUNING_PROXY_ID_UNITIALIZED;
 
         #endregion
 
@@ -937,6 +938,9 @@ namespace Sandbox.Game.Entities
                     this.EntityId = objectBuilder.EntityId;
                 this.Name = objectBuilder.Name;
                 this.Render.PersistentFlags = objectBuilder.PersistentFlags;
+
+                if (MyPerGameSettings.ComponentSaving && objectBuilder.ComponentContainer != null)
+                    this.Components.Deserialize(objectBuilder.ComponentContainer);
             }
 
             AllocateEntityID();
@@ -1227,6 +1231,9 @@ namespace Sandbox.Game.Entities
 
                 objBuilder.Name = this.Name;
                 objBuilder.PersistentFlags = Render.PersistentFlags;
+
+                if (MyPerGameSettings.ComponentSaving)
+                    objBuilder.ComponentContainer = Components.Serialize();
             }
             return objBuilder;
         }

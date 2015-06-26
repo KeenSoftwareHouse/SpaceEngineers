@@ -50,6 +50,11 @@ namespace Sandbox.Game.Entities.Blocks
             }
         }
 
+        public bool AutoRefill
+        {
+            get { return m_autoRefill; }
+        }
+
         public MyPowerReceiver PowerReceiver
         {
             get;
@@ -76,8 +81,8 @@ namespace Sandbox.Game.Entities.Blocks
             MyTerminalControlFactory.AddControl(refillButton);
 
             var autoRefill = new MyTerminalControlCheckbox<MyOxygenGenerator>("Auto-Refill", MySpaceTexts.BlockPropertyTitle_AutoRefill, MySpaceTexts.BlockPropertyTitle_AutoRefill);
-            autoRefill.Getter = (x) => x.m_autoRefill;
-            autoRefill.Setter = (x, v) => x.m_autoRefill = v;
+            autoRefill.Getter = (x) => x.AutoRefill;
+            autoRefill.Setter = (x, v) => x.SyncObject.ChangeAutoRefill(v);
             autoRefill.EnableAction();
             MyTerminalControlFactory.AddControl(autoRefill);
         }
@@ -317,7 +322,7 @@ namespace Sandbox.Game.Entities.Blocks
                                              : 0.0f;
         }
 
-        void m_inventory_ContentsChanged(MyInventory obj)
+        void m_inventory_ContentsChanged(MyInventoryBase obj)
         {
             RaisePropertiesChanged();
         }

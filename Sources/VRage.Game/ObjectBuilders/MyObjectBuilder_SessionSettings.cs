@@ -250,13 +250,15 @@ namespace Sandbox.Common.ObjectBuilders
         [GameRelationAttribute(Game.SpaceEngineers)]
         public bool EnableSunRotation = false;
 
+        // Should have been named "EnableRespawnShips" to avoid a negative
+        // but it's alread public now
         [ProtoMember]
         [Display(Name = "Disable respawn ships")]
         [GameRelationAttribute(Game.SpaceEngineers)]
         public bool DisableRespawnShips = false;
 
         [ProtoMember]
-        [Display(Name = "Scenario edit mode")]
+        [Display(Name = "")]
         [GameRelationAttribute(Game.SpaceEngineers)]
         public bool ScenarioEditMode = false;
 
@@ -266,12 +268,12 @@ namespace Sandbox.Common.ObjectBuilders
         public bool Battle = false;
 
         [ProtoMember]
-        [Display(Name = "Scenario")]
+        [Display(Name = "")]
         [GameRelationAttribute(Game.SpaceEngineers)]
         public bool Scenario = false;
 
         [ProtoMember]
-        [Display(Name = "Can join running")]
+        [Display(Name = "")]
         [GameRelationAttribute(Game.SpaceEngineers)]
         public bool CanJoinRunning = false;
 
@@ -279,7 +281,19 @@ namespace Sandbox.Common.ObjectBuilders
         public int PhysicsIterations = 4;
 
         [ProtoMember]
-        public double SunRotationIntervalMinutes = 4*60; // 4 hours
+        [Display(Name = "Sun rotation interval")]
+        [GameRelationAttribute(Game.SpaceEngineers)]
+        public double SunRotationIntervalMinutes = 4 * 60; // 4 hours
+
+        [ProtoMember]
+        [Display(Name = "Enable jetpack")]
+        [GameRelationAttribute(Game.SpaceEngineers)]
+        public bool EnableJetpack = true;
+
+        [ProtoMember]
+        [Display(Name = "Spawn with tools")]
+        [GameRelationAttribute(Game.SpaceEngineers)]
+        public bool SpawnWithTools = true;
 
         public void LogMembers(MyLog log, LoggingOptions options)
         {

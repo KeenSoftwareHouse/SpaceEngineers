@@ -45,7 +45,7 @@ namespace Sandbox.Game.Entities.Debris
             GameLogic = new MyDebrisBaseLogic();
         }
 
-        void Components_ComponentAdded(Type arg1, IMyComponentBase arg2)
+        void Components_ComponentAdded(Type arg1, MyComponentBase arg2)
         {
             if (arg1 == typeof(MyGameLogicComponent))
                 m_debrisLogic = arg2 as MyDebrisBaseLogic;

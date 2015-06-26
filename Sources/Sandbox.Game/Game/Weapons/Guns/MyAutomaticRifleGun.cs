@@ -346,7 +346,7 @@ namespace Sandbox.Game.Weapons
             m_gunBase.RefreshAmmunitionAmount();
         }
 
-        void MyAutomaticRifleGun_ContentsChanged(MyInventory obj)
+        void MyAutomaticRifleGun_ContentsChanged(MyInventoryBase obj)
         {
             m_gunBase.RefreshAmmunitionAmount();
         }

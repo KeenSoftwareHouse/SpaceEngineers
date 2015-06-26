@@ -1,4 +1,5 @@
 ﻿using Sandbox.Common.ObjectBuilders.Gui;
+using Sandbox.Engine.Utils;
 using Sandbox.Game.Gui;
 using Sandbox.Game.Localization;
 using Sandbox.Game.SessionComponents;
@@ -45,7 +46,10 @@ namespace Sandbox.Game.Screens
 
         public static List<Type> GetTriggerTypes()
         {
-            return Assembly.GetCallingAssembly().GetTypes().Where(type => type.IsSubclassOf(typeof(MyTrigger))).ToList();
+            return Assembly.GetCallingAssembly().GetTypes().Where(type => type.IsSubclassOf(typeof(MyTrigger)) 
+                                                                          && (MyFakes.ENABLE_NEW_TRIGGERS || (type!=typeof(MyTriggerTimeLimit)
+                                                                                                              && type!=typeof(MyTriggerBlockDestroyed))
+                                                                          )).ToList();
         }
 
         public override void RecreateControls(bool constructor)

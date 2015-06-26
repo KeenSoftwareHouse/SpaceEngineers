@@ -189,7 +189,9 @@
       <SubType>Designer</SubType>
     </None>
     <None Include="Content\Data\MaterialSounds.sbc" />
-    <None Include="Content\Data\PhysicalItems.sbc" />
+    <None Include="Content\Data\PhysicalItems.sbc">
+      <SubType>Designer</SubType>
+    </None>
     <None Include="Content\Data\PhysicalMaterials.sbc" />
     <None Include="Content\Data\Prefabs\Base1.sbc" />
     <None Include="Content\Data\Prefabs\Base4.sbc" />
@@ -232,7 +234,9 @@
     <None Include="Content\Data\Prefabs\Trade2.sbc" />
     <None Include="Content\Data\Prefabs\Trade3.sbc" />
     <None Include="Content\Data\RespawnShips.sbc" />
-    <None Include="Content\Data\Scenarios.sbx" />
+    <None Include="Content\Data\Scenarios.sbx">
+      <SubType>Designer</SubType>
+    </None>
     <None Include="Content\Data\Screens\CubeBuilder.gsc" />
     <None Include="Content\Data\Screens\CubeBuilderBar.gsc" />
     <None Include="Content\Data\Screens\DialogAmount.gsc" />
@@ -336,28 +340,23 @@
     <Import Project="$(SolutionDir)\global.props" Condition="exists('$(SolutionDir)\global.props')" />
   </ImportGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
-
   <Target Name="AfterBuild">
     <!-- Recreate content dir -->
     <RemoveDir Directories="$(OutDir)..\Content" ContinueOnError="true" />
     <MakeDir Directories="$(OutDir)..\Content" />
-
     <!-- Link Effects and Shaders from Render projects to SpaceEngineers\Content dir -->
     <Exec Command="mklink /J &quot;$(ProjectDir)Content\Shaders&quot; &quot;..\VRage.Render11\Shaders" IgnoreExitCode="true" />
     <Exec Command="mklink /J &quot;$(ProjectDir)Content\Effects2&quot; &quot;..\VRage.Render\Effects2" IgnoreExitCode="true" />
-
-    <!-- Link Data and Effects from original source (always from source location) -->    
+    <!-- Link Data and Effects from original source (always from source location) -->
     <Exec Command="mklink /J &quot;$(OutDir)..\Content\Data&quot; &quot;$(ProjectDir)Content\Data&quot;" IgnoreExitCode="true" Condition="$(DataFromSources)==true" />
     <Exec Command="mklink /J &quot;$(OutDir)..\Content\Effects2&quot; &quot;$(ProjectDir)Content\Effects2&quot;" IgnoreExitCode="true" Condition="$(EffectsFromSources)==true" />
     <Exec Command="mklink /J &quot;$(OutDir)..\Content\Shaders&quot; &quot;$(ProjectDir)Content\Shaders&quot;" IgnoreExitCode="true" Condition="$(EffectsFromSources)==true" />
-
     <!-- Link the rest of content subdirs (on GitHub, this is linked from Steam; on SVN this is linked from source location) -->
     <ItemGroup>
       <ContentSubdirs Include="$([System.IO.Directory]::GetDirectories(&quot;$(ContentPath)&quot;))" />
     </ItemGroup>
     <Exec Command="mklink /J &quot;$(OutDir)..\Content\$([System.IO.Path]::GetFilename(%(ContentSubdirs.Identity)))&quot; &quot;%(ContentSubdirs.Identity)&quot;" IgnoreExitCode="true" />
     <Exec Command="echo %time% Content copied" />
-
     <!-- Copy redists -->
     <ItemGroup>
       <Redists86 Include="$(ProjectDir)Redists\x86\*.*" />
@@ -366,5 +365,4 @@
     <Copy Condition="'$(Configuration)|$(Platform)' == 'Release Official|x86'" SourceFiles="@(Redists86)" DestinationFolder="$(OutDir)" />
     <Copy Condition="'$(Configuration)|$(Platform)' == 'Release Official|x64'" SourceFiles="@(Redists64)" DestinationFolder="$(OutDir)" />
   </Target>
-
 </Project>

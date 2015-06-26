@@ -77,6 +77,8 @@ namespace Sandbox.Game.Entities
             PULL
         }
         private MyState m_state = MyState.NONE;
+        public MyState State { get { return m_state; } }
+
         private HkRigidBody m_otherRigidBody;
         private HkMassChangerUtil m_massChange;
 
@@ -895,6 +897,11 @@ namespace Sandbox.Game.Entities
         public void StartManipulationSynced(MyState myState, MyEntity spawned, Vector3D position, ref MatrixD ownerWorldHeadMatrix)
         {
             SyncTool.StartManipulation(myState, spawned, position, ref ownerWorldHeadMatrix);
+        }
+
+        public void StopManipulationSynced()
+        {
+            SyncTool.StopManipulation();
         }
     }
 }
