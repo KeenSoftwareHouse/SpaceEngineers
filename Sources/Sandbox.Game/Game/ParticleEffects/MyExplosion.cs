@@ -371,6 +371,7 @@ namespace Sandbox.Game
             VRageRender.MyRenderProxy.GetRenderProfiler().EndProfilingBlock();
         }
 
+        // Doesn't get called anymore?
         private bool ApplyExplosion(ref MyExplosionInfo m_explosionInfo, ref BoundingSphereD influenceExplosionSphere, List<MyEntity> entities)
         {
             bool gridWasHit = false;
@@ -462,7 +463,7 @@ namespace Sandbox.Game
             {
                 damageInfo.ExplosionDamage.ComputeDamagedBlocks();
                 gridWasHit = damageInfo.GridWasHit;
-                ApplyVolumetriDamageToGrid(damageInfo);
+                ApplyVolumetriDamageToGrid(damageInfo, m_explosionInfo.OwnerEntity != null ? m_explosionInfo.OwnerEntity.EntityId : 0);
             }
 
             if (m_explosionInfo.HitEntity is MyWarhead)
@@ -484,6 +485,7 @@ namespace Sandbox.Game
             return gridWasHit;
         }
 
+        // Doesn't get called anymore?
         private void ApplyExplosionOnEntities(ref MyExplosionInfo m_explosionInfo,List<MyEntity> entities)
         {
             Debug.Assert(Sync.IsServer);
@@ -573,7 +575,6 @@ namespace Sandbox.Game
                     continue;
                 
                 var destroyableObj = entity as IMyDestroyableObject;
-
                 destroyableObj.DoDamage(damage, MyDamageType.Explosion, true, attackerId: m_explosionInfo.OwnerEntity != null ? m_explosionInfo.OwnerEntity.EntityId : 0);
             }
         }
@@ -659,6 +660,7 @@ namespace Sandbox.Game
             }
         }
 
+        // Doesn't get called anymore?
         bool ApplyExplosionOnGrid(ref MyExplosionInfo explosionInfo, ref BoundingSphereD sphere, List<MyEntity> entities)
         {
             Debug.Assert(Sandbox.Game.Multiplayer.Sync.IsServer, "This is supposed to be only server method");
@@ -849,7 +851,7 @@ namespace Sandbox.Game
             return damageInfo;
         }
 
-        private void ApplyVolumetriDamageToGrid(MyDamageInfo damageInfo)
+        private void ApplyVolumetriDamageToGrid(MyDamageInfo damageInfo, long attackerId)
         {
             var damagedBlocks = damageInfo.ExplosionDamage.DamagedBlocks;
             var explodedBlocks = damageInfo.AffectedCubeBlocks;
@@ -880,7 +882,12 @@ namespace Sandbox.Game
                     if (!cubeBlock.CubeGrid.BlocksDestructionEnabled)
                         continue;
 
-                    if (cubeBlock.FatBlock == null && cubeBlock.Integrity / cubeBlock.DeformationRatio < damagedBlock.Value)
+                    if (!cubeBlock.RaiseBeforeDeformationApplied(attackerId))
+                        continue;
+
+                    // Allow mods to modify damage.  This will cause a double call.  Once here and once in the DoDamage, but only real way to do a check here
+                    float checkDamage = cubeBlock.RaiseBeforeDamageApplied(damagedBlock.Value, MyDamageType.Explosion, attackerId);
+                    if (cubeBlock.FatBlock == null && cubeBlock.Integrity / cubeBlock.DeformationRatio < checkDamage)
                     {
                         VRageRender.MyRenderProxy.GetRenderProfiler().StartProfilingBlock("RemoveBlock");
                         cubeBlock.CubeGrid.RemoveDestroyedBlock(cubeBlock);
@@ -893,7 +900,7 @@ namespace Sandbox.Game
                         if (cubeBlock.FatBlock != null)
                         {
                             damage *= 7f;
-                        }// FIXME
+                        }
                         (cubeBlock as IMyDestroyableObject).DoDamage(damage, MyDamageType.Explosion, true);
                         if (!cubeBlock.IsDestroyed)
                         {

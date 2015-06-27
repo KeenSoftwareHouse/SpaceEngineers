@@ -216,6 +216,7 @@ namespace Sandbox.Game.Entities.Cube
 
         public event Action<object, float, MyDamageType, long> OnDestroyed;
         public event BeforeDamageApplied OnBeforeDamageApplied;
+        public event BeforeDeformationApplied OnBeforeDeformationApplied; 
         public event Action<object, float, MyDamageType, long> OnAfterDamageApplied;
 
         public float m_lastDamage = 0f;
@@ -969,11 +970,7 @@ namespace Sandbox.Game.Entities.Cube
             }
             finally { ProfilerShort.End(); }
 
-            // This may get double raised on blocks that can take deformation, as we use this to check for damage before deformation.  I don't want to remove this
-            // in case someone wants deformation but no damage.
-            if (OnBeforeDamageApplied != null)
-                damage = OnBeforeDamageApplied(this, damage, damageType, attackerId);
-
+            damage = RaiseBeforeDamageApplied(damage, damageType, attackerId);
             MySession.Static.NegativeIntegrityTotal += damage;
             AccumulatedDamage += damage;
 
@@ -1003,8 +1000,7 @@ namespace Sandbox.Game.Entities.Cube
                         Vector3D.TransformNormal(hitInfo.Value.Normal, CubeGrid.PositionComp.WorldMatrixInvScaled), BlockDefinition.PhysicalMaterial.DamageDecal);
             }
 
-            if (OnAfterDamageApplied != null)
-                OnAfterDamageApplied(this, damage, damageType, attackerId);
+            RaiseAfterDamageApplied(damage, damageType, attackerId);
 
             m_lastDamage = damage;
             m_lastAttackerId = attackerId;
@@ -1061,8 +1057,7 @@ namespace Sandbox.Game.Entities.Cube
                     CubeGrid.Physics.AddDirtyBlock(this);
                 }
 
-                if (OnDestroyed != null)
-                    OnDestroyed(this, m_lastDamage, m_lastDamageType, m_lastAttackerId);
+                RaiseDestroyed(m_lastDamage, m_lastDamageType, m_lastAttackerId);
             }
 
             ProfilerShort.End();
@@ -1683,7 +1678,7 @@ namespace Sandbox.Game.Entities.Cube
             }
         }
 
-        public float RaiseBeforeDamageApplied(float damage, MyDamageType damageType, long attackerId)
+        public float RaiseBeforeDamageApplied(float damage, MyDamageType damageType, long attackerId, bool testOnly = false)
         {
             if (OnBeforeDamageApplied != null)
                 return OnBeforeDamageApplied(this, damage, damageType, attackerId);
@@ -1703,7 +1698,39 @@ namespace Sandbox.Game.Entities.Cube
                 OnDestroyed(this, damage, damageType, attackerId);
         }
 
-		public static void SetBlockComponents(MyHudBlockInfo hudInfo, MySlimBlock block, IMyComponentInventory availableInventory = null)
+        public bool RaiseBeforeDeformationApplied(long attackerId)
+        {
+            if (OnBeforeDeformationApplied != null)
+                return OnBeforeDeformationApplied(this, attackerId);
+            else
+                return true;
+        }
+
+        event Action<object, float, MyDamageType, long> IMyDestroyableObject.OnDestroyed
+        {
+            add { OnDestroyed += value; }
+            remove { OnDestroyed -= value; }
+        }
+
+        event BeforeDamageApplied IMyDestroyableObject.OnBeforeDamageApplied
+        {
+            add { OnBeforeDamageApplied += value; }
+            remove { OnBeforeDamageApplied -= value; }
+        }
+
+        event BeforeDeformationApplied IMyDestroyableObject.OnBeforeDeformationApplied
+        {
+            add { OnBeforeDeformationApplied += value; }
+            remove { OnBeforeDeformationApplied -= value; }
+        }
+
+        event Action<object, float, MyDamageType, long> IMyDestroyableObject.OnAfterDamageApplied
+        {
+            add { OnAfterDamageApplied += value; }
+            remove { OnAfterDamageApplied -= value; }
+        }
+
+        public static void SetBlockComponents(MyHudBlockInfo hudInfo, MySlimBlock block, MyInventoryBase availableInventory = null)
 		{
 			hudInfo.Components.Clear();
 			for (int i = 0; i < block.ComponentStack.GroupCount; i++)

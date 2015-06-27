@@ -39,6 +39,7 @@ namespace Sandbox.Game.Entities
 
         public event Action<object, float, MyDamageType, long> OnDestroyed;
         public event BeforeDamageApplied OnBeforeDamageApplied;
+        public event BeforeDeformationApplied OnBeforeDeformationApplied;
         public event Action<object, float, MyDamageType, long> OnAfterDamageApplied;
 
         MyMeteorGameLogic m_logic;
@@ -133,6 +134,29 @@ namespace Sandbox.Game.Entities
             get { return GameLogic.Integrity; }
         }
 
+        event Action<object, float, MyDamageType, long> IMyDestroyableObject.OnDestroyed
+        {
+            add { OnDestroyed += value; }
+            remove { OnDestroyed -= value; }
+        }
+
+        event BeforeDamageApplied IMyDestroyableObject.OnBeforeDamageApplied
+        {
+            add { OnBeforeDamageApplied += value; }
+            remove { OnBeforeDamageApplied -= value; }
+        }
+
+        event BeforeDeformationApplied IMyDestroyableObject.OnBeforeDeformationApplied
+        {
+            add { OnBeforeDeformationApplied += value; }
+            remove { OnBeforeDeformationApplied -= value; }
+        }
+
+        event Action<object, float, MyDamageType, long> IMyDestroyableObject.OnAfterDamageApplied
+        {
+            add { OnAfterDamageApplied += value; }
+            remove { OnAfterDamageApplied -= value; }
+        }
 
         public override MyObjectBuilder_EntityBase GetObjectBuilder(bool copy = false)
         {
@@ -382,7 +406,7 @@ namespace Sandbox.Game.Entities
                         }
                     }
                     else if (other is MyCharacter)
-                    {
+                    {                        
                         (other as MyCharacter).DoDamage(50 * Entity.PositionComp.Scale.Value, MyDamageType.Environment, true, Entity.EntityId);
                     }
                     else if (other is MyFloatingObject)

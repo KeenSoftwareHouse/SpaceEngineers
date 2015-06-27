@@ -3038,9 +3038,8 @@ namespace Sandbox.Game.Entities
             if (!BlocksDestructionEnabled)
                 return 0;
 
-            // If damage is modified and no damage is applied, no deformation should be applied.
-            damage = block.RaiseBeforeDamageApplied(damage, MyDamageType.Deformation, attackerId);
-            if(damage <= 0f)
+            // Allow mods to stop deformation
+            if(!block.RaiseBeforeDeformationApplied(attackerId))
                 return 0;
 
             m_totalBoneDisplacement = 0.0f;
@@ -3098,7 +3097,9 @@ namespace Sandbox.Game.Entities
 
             if (sync)
             {
-                (block as IMyDestroyableObject).DoDamage(m_totalBoneDisplacement * GridSize * 10.0f * damage, MyDamageType.Deformation, true, attackerId: attackerId);
+                damage = block.RaiseBeforeDamageApplied(m_totalBoneDisplacement * GridSize * 10.0f * damage, MyDamageType.Deformation, attackerId);
+                if(damage > 0f)
+                    (block as IMyDestroyableObject).DoDamage(damage, MyDamageType.Deformation, true, attackerId: attackerId);
             }
             return m_totalBoneDisplacement;
         }

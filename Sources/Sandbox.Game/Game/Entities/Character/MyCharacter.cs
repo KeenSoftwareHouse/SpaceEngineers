@@ -559,17 +559,17 @@ namespace Sandbox.Game.Entities.Character
 
         public event Action<object, float, MyDamageType, long> OnDestroyed;
         public event BeforeDamageApplied OnBeforeDamageApplied;
+        public event BeforeDeformationApplied OnBeforeDeformationApplied;
         public event Action<object, float, MyDamageType, long> OnAfterDamageApplied;
 
-        private MyComponentInventoryAggregate m_inventoryAggregate;
-        public MyComponentInventoryAggregate InventoryAggregate
+        public MyInventoryAggregate InventoryAggregate
         {
             get
             {
                 var aggregate = Components.Get<MyInventoryBase>() as MyInventoryAggregate;
                 return aggregate;
             }
-            set 
+            set
             {
                 if (Components.Has<MyInventoryBase>())
                 {
@@ -1205,7 +1205,11 @@ namespace Sandbox.Game.Entities.Character
                     {
                         if (this.ControllerInfo.IsLocallyControlled() || Sync.IsServer)
                         {
-                            DoDamage(damageImpact, MyDamageType.Environment, true);
+                            IMyEntity other = value.Base.BodyA.GetEntity();
+                            if (other == this)
+                                other = value.Base.BodyB.GetEntity();
+
+                            DoDamage(damageImpact, MyDamageType.Environment, true, other != null ? other.EntityId : 0);
                         }
                     }
                 }
@@ -6213,7 +6217,7 @@ namespace Sandbox.Game.Entities.Character
             if (!CharacterCanDie && !(damageType == MyDamageType.Suicide && MyPerGameSettings.CharacterSuicideEnabled))
                 return;
 
-            if (OnBeforeDamageApplied != null)
+            if (OnBeforeDamageApplied != null && !m_dieAfterSimulation)
                 damage = OnBeforeDamageApplied(this, damage, damageType, attackerId);
 
             CharacterAccumulatedDamage += damage;
@@ -6232,7 +6236,7 @@ namespace Sandbox.Game.Entities.Character
             float oldHealth = Health;
             health.Decrease(damage);
 
-            if (OnAfterDamageApplied != null)
+            if (OnAfterDamageApplied != null && !m_dieAfterSimulation)
                 OnAfterDamageApplied(this, damage, damageType, attackerId);
 
             if (!IsDead)
@@ -6250,7 +6254,7 @@ namespace Sandbox.Game.Entities.Character
 
 			if (health.Value <= health.MinValue)
             {
-                if (OnDestroyed != null)
+                if (OnDestroyed != null && !m_dieAfterSimulation)
                     OnDestroyed(this, damage, damageType, attackerId);
 
                 m_dieAfterSimulation = true;
@@ -7988,6 +7992,31 @@ namespace Sandbox.Game.Entities.Character
         {
             get { return EnvironmentOxygenLevel; }
         }
+
+        event Action<object, float, MyDamageType, long> IMyDestroyableObject.OnDestroyed
+        {
+            add { OnDestroyed += value; }
+            remove { OnDestroyed -= value; }
+        }
+
+        event BeforeDamageApplied IMyDestroyableObject.OnBeforeDamageApplied
+        {
+            add { OnBeforeDamageApplied += value; }
+            remove { OnBeforeDamageApplied -= value; }
+        }
+
+        event BeforeDeformationApplied IMyDestroyableObject.OnBeforeDeformationApplied
+        {
+            add { OnBeforeDeformationApplied += value; }
+            remove { OnBeforeDeformationApplied -= value; }
+        }
+
+        event Action<object, float, MyDamageType, long> IMyDestroyableObject.OnAfterDamageApplied
+        {
+            add { OnAfterDamageApplied += value; }
+            remove { OnAfterDamageApplied -= value; }
+        }
+
         #endregion
 
         public bool SwitchToJetpackRagdoll { get; set; }

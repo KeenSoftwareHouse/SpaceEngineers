@@ -62,6 +62,7 @@ namespace Sandbox.Game.Entities
 
         public event Action<object, float, MyDamageType, long> OnDestroyed;
         public event BeforeDamageApplied OnBeforeDamageApplied;
+        public event BeforeDeformationApplied OnBeforeDeformationApplied;
         public event Action<object, float, MyDamageType, long> OnAfterDamageApplied;
 
         public int NumberOfFramesInsideVoxel = 0;
@@ -476,6 +477,30 @@ namespace Sandbox.Game.Entities
         float IMyDestroyableObject.Integrity
         {
             get { return Integrity; }
+        }
+
+        event Action<object, float, MyDamageType, long> IMyDestroyableObject.OnDestroyed
+        {
+            add { OnDestroyed += value; }
+            remove { OnDestroyed -= value; }
+        }
+
+        event BeforeDamageApplied IMyDestroyableObject.OnBeforeDamageApplied
+        {
+            add { OnBeforeDamageApplied += value; }
+            remove { OnBeforeDamageApplied -= value; }
+        }
+
+        event BeforeDeformationApplied IMyDestroyableObject.OnBeforeDeformationApplied
+        {
+            add { OnBeforeDeformationApplied += value; }
+            remove { OnBeforeDeformationApplied -= value; }
+        }
+
+        event Action<object, float, MyDamageType, long> IMyDestroyableObject.OnAfterDamageApplied
+        {
+            add { OnAfterDamageApplied += value; }
+            remove { OnAfterDamageApplied -= value; }
         }
 
         bool IMyUseObject.HandleInput() { return false; }

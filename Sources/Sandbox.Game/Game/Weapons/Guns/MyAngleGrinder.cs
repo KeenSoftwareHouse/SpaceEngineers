@@ -175,7 +175,7 @@ namespace Sandbox.Game.Weapons
 
                 if (block.IsFullyDismounted)
                 {
-                    block.RaiseDestroyed(GrinderAmount * hackMultiplier, MyDamageType.Grind, Parent != null ? Parent.EntityId : 0);
+                    block.RaiseDestroyed(GrinderAmount * hackMultiplier, MyDamageType.Grind, attackerId: Owner != null ? Owner.EntityId : 0);
                     block.SpawnConstructionStockpile();
                     block.CubeGrid.RazeBlock(block.Min);
                 }

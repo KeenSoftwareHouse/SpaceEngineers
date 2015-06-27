@@ -244,20 +244,16 @@ namespace Sandbox.Game.Weapons
                     var block = grid.GetCubeBlock(blockPos);
                     if (block != null)
                     {
-                        // We need to see if we're mitigating damage on this block since this may cause deformation, and we need to stop that if no damage is applied
-                        float damage = block.RaiseBeforeDamageApplied(m_projectileAmmoDefinition.ProjectileMassDamage, MyDamageType.Bullet, attackerId: m_weapon != null ? m_weapon.EntityId : 0);
-                        if(damage >= 0f)
-                            (block as IMyDestroyableObject).DoDamage(m_projectileAmmoDefinition.ProjectileMassDamage, MyDamageType.Bullet, true, attackerId: m_weapon != null ? m_weapon.EntityId : 0);
-
-                        if (block.FatBlock == null && damage >= 0f)
-                            causeDeformation = true;
+                        (block as IMyDestroyableObject).DoDamage(m_projectileAmmoDefinition.ProjectileMassDamage, MyDamageType.Bullet, true, attackerId: m_weapon != null ? GetSubpartOwner(m_weapon).EntityId : 0);
+                        if (block.FatBlock == null)
+                            causeDeformation = block.RaiseBeforeDeformationApplied(attackerId: m_weapon != null ? m_weapon.EntityId : 0);
                     }
                     if (causeDeformation)
                         ApllyDeformationCubeGrid(hitPosition, grid);
                 }
             }
             else if (damagedEntity is IMyDestroyableObject)
-                (damagedEntity as IMyDestroyableObject).DoDamage(m_projectileAmmoDefinition.ProjectileMassDamage, MyDamageType.Bullet, true, attackerId: m_weapon != null ? m_weapon.EntityId : 0);
+                (damagedEntity as IMyDestroyableObject).DoDamage(m_projectileAmmoDefinition.ProjectileMassDamage, MyDamageType.Bullet, true, attackerId: m_weapon != null ? GetSubpartOwner(m_weapon).EntityId : 0);
 
             //Handle damage ?? some WIP code by Ondrej
             //MyEntity damagedObject = entity;
@@ -265,6 +261,24 @@ namespace Sandbox.Game.Weapons
             //if (MyMultiplayerGameplay.IsRunning)
             //    MyMultiplayerGameplay.Static.ProjectileHit(damagedObject, intersectionValue.IntersectionPointInWorldSpace, this.m_directionNormalized, MyAmmoConstants.FindAmmo(m_ammoProperties), this.OwnerEntity);
 
+        }
+
+        private MyEntity GetSubpartOwner(MyEntity entity)
+        {
+            if (entity == null)
+                return null;
+
+            if (!(entity is MyEntitySubpart))
+                return entity;
+
+            MyEntity result = entity;
+            while (result is MyEntitySubpart && result != null)
+                result = result.Parent;
+
+            if (result == null)
+                return entity;
+            else
+                return result;
         }
 
         private static void GetSurfaceAndMaterial(IMyEntity entity, out MySurfaceImpactEnum surfaceImpact, out MyStringHash materialType)

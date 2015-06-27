@@ -54,6 +54,7 @@ namespace Sandbox.Game.Entities.Cube
 
         public event Action<object, float, MyDamageType, long> OnDestroyed;
         public event BeforeDamageApplied OnBeforeDamageApplied;
+        public event BeforeDeformationApplied OnBeforeDeformationApplied;
         public event Action<object, float, MyDamageType, long> OnAfterDamageApplied;
 
         private bool m_countdownEmissivityColor;
@@ -693,7 +694,31 @@ namespace Sandbox.Game.Entities.Cube
         {
             get { return 1; }
         }
-      
+
+        event Action<object, float, MyDamageType, long> IMyDestroyableObject.OnDestroyed
+        {
+            add { OnDestroyed += value; }
+            remove { OnDestroyed -= value; }
+        }
+
+        event BeforeDamageApplied IMyDestroyableObject.OnBeforeDamageApplied
+        {
+            add { OnBeforeDamageApplied += value; }
+            remove { OnBeforeDamageApplied -= value; }
+        }
+
+        event BeforeDeformationApplied IMyDestroyableObject.OnBeforeDeformationApplied
+        {
+            add { OnBeforeDeformationApplied += value; }
+            remove { OnBeforeDeformationApplied -= value; }
+        }
+
+        event Action<object, float, MyDamageType, long> IMyDestroyableObject.OnAfterDamageApplied
+        {
+            add { OnAfterDamageApplied += value; }
+            remove { OnAfterDamageApplied -= value; }
+        }
+
         public float DetonationTime { get { return Math.Max(m_countdownMs, 1000) / 1000; } }
         bool IMyWarhead.IsCountingDown { get { return IsCountingDown; } }
         float IMyWarhead.DetonationTime { get { return DetonationTime; } }

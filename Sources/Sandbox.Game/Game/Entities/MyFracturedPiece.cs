@@ -12,6 +12,7 @@ using Sandbox.Game.Entities.Cube;
 using Sandbox.Game.GameSystems;
 using Sandbox.Game.Multiplayer;
 using Sandbox.ModAPI.Interfaces;
+using Sandbox.Common.ObjectBuilders.Definitions;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -40,6 +41,7 @@ namespace Sandbox.Game.Entities
 
         public event Action<object, float, Common.ObjectBuilders.Definitions.MyDamageType, long> OnDestroyed;
         public event BeforeDamageApplied OnBeforeDamageApplied;
+        public event BeforeDeformationApplied OnBeforeDeformationApplied;
         public event Action<object, float, Common.ObjectBuilders.Definitions.MyDamageType, long> OnAfterDamageApplied;
 
         private static List<HkdShapeInstanceInfo> m_tmpInfos = new List<HkdShapeInstanceInfo>();
@@ -463,6 +465,30 @@ namespace Sandbox.Game.Entities
                         OnDestroyed(this, damage, damageType, attackerId);
                 }
             }
+        }
+
+        event Action<object, float, MyDamageType, long> IMyDestroyableObject.OnDestroyed
+        {
+            add { OnDestroyed += value; }
+            remove { OnDestroyed -= value; }
+        }
+
+        event BeforeDamageApplied IMyDestroyableObject.OnBeforeDamageApplied
+        {
+            add { OnBeforeDamageApplied += value; }
+            remove { OnBeforeDamageApplied -= value; }
+        }
+
+        event BeforeDeformationApplied IMyDestroyableObject.OnBeforeDeformationApplied
+        {
+            add { OnBeforeDeformationApplied += value; }
+            remove { OnBeforeDeformationApplied -= value; }
+        }
+
+        event Action<object, float, MyDamageType, long> IMyDestroyableObject.OnAfterDamageApplied
+        {
+            add { OnAfterDamageApplied += value; }
+            remove { OnAfterDamageApplied -= value; }
         }
 
         public float Integrity
