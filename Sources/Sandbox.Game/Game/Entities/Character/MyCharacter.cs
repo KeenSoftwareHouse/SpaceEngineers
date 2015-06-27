@@ -130,8 +130,7 @@ namespace Sandbox.Game.Entities.Character
 
     [MyEntityType(typeof(MyObjectBuilder_Character))]                                                                                                                                     
     public partial class MyCharacter : 
-        MySkinnedEntity, 
-        IMyComponentOwner<MyComponentInventoryAggregate>, 
+        MySkinnedEntity,
         IMyCameraController, 
         IMyControllableEntity, 
         IMyInventoryOwner, 
@@ -246,7 +245,6 @@ namespace Sandbox.Game.Entities.Character
         Vector3 m_currentScatterPos;
         Vector3 m_lastScatterPos;
 
-
         //ulong m_actualUpdateFrame = 0;
         //ulong m_actualDrawFrame = 0;
         //ulong m_transformedBonesFrame = 0;
@@ -261,7 +259,6 @@ namespace Sandbox.Game.Entities.Character
         CapsuleD[] m_bodyCapsules = new CapsuleD[1];//new CapsuleD[10];
         MatrixD m_headMatrix = MatrixD.CreateTranslation(0, 1.65, 0);
 
-        
         MyHudNotification m_pickupObjectNotification;        
         MyHudNotification m_inertiaDampenersNotification;
         MyHudNotification m_broadcastingNotification;
@@ -284,7 +281,6 @@ namespace Sandbox.Game.Entities.Character
         MyInventory m_inventory;
         MyBattery m_suitBattery;
         MyPowerDistributor m_suitPowerDistributor;
-        List<MyPhysicalInventoryItem> m_inventoryResults = new List<MyPhysicalInventoryItem>();
 
         bool m_dampenersEnabled = true;
         bool m_jetpackEnabled = false;
@@ -561,24 +557,20 @@ namespace Sandbox.Game.Entities.Character
 
         public event Action<MyCharacter> CharacterDied;
 
-        private MyComponentInventoryAggregate m_inventoryAggregate;
-        public MyComponentInventoryAggregate InventoryAggregate
+        public MyInventoryAggregate InventoryAggregate
         {
             get
             {
-                return m_inventoryAggregate;
+                var aggregate = Components.Get<MyInventoryBase>() as MyInventoryAggregate;
+                return aggregate;
             }
             set 
             {
-                if (m_inventoryAggregate == null)
+                if (Components.Has<MyInventoryBase>())
                 {
-                    Components.Add<MyComponentInventoryAggregate>(value);
+                    Components.Remove<MyInventoryBase>();
                 }
-                else
-                {
-                    Components.Remove<MyComponentInventoryAggregate>();
-                }
-                m_inventoryAggregate = value;
+                Components.Add<MyInventoryBase>(value);
             }
         }
 
@@ -659,15 +651,14 @@ namespace Sandbox.Game.Entities.Character
             this.Render = new MyRenderComponentCharacter();
 			StatComp = new MyCharacterStatComponent();
 
-            // TODO: When this Inventory system is working well, remove it and use it as default for SE too
-            if (MyFakes.ENABLE_MEDIEVAL_INVENTORY)
-            {
-                InventoryAggregate = new MyComponentInventoryAggregate(this);
-            }
-
             AddDebugRenderComponent(new MyDebugRenderComponentCharacter(this));
 
-            Components.Add<MyCharacterDetectorComponent>(new MyCharacterRaycastDetectorComponent());
+            if (MyPerGameSettings.CharacterDetectionComponent != null)
+                Components.Add<MyCharacterDetectorComponent>((MyCharacterDetectorComponent)Activator.CreateInstance(MyPerGameSettings.CharacterDetectionComponent));
+            else
+                Components.Add<MyCharacterDetectorComponent>(new MyCharacterRaycastDetectorComponent());
+
+            //Components.Add<MyCharacterDetectorComponent>(new MyCharacterShapecastDetectorComponent());
         }
 
         /// <summary>
@@ -764,13 +755,7 @@ namespace Sandbox.Game.Entities.Character
                 SwitchAnimation(MyCharacterMovementEnum.Died, false);
             }
 
-            InventoryVolume = m_characterDefinition.InventoryVolume;
-            InventoryMass = m_characterDefinition.InventoryMass;
-            InventorySize = new Vector3(m_characterDefinition.InventorySizeX, m_characterDefinition.InventorySizeY, m_characterDefinition.InventorySizeZ);
-            m_inventory = new MyInventory(InventoryVolume, InventoryMass, InventorySize, 0, this);
-            m_inventory.Init(characterOb.Inventory);
-            m_inventory.ContentsChanged += inventory_OnContentsChanged;
-            m_inventory.ContentsChanged += MyToolbarComponent.CurrentToolbar.CharacterInventory_OnContentsChanged;
+            InitInventory(characterOb);
 
             Physics.Enabled = true;
 
@@ -885,6 +870,41 @@ namespace Sandbox.Game.Entities.Character
             InitSounds();
 
             if (InventoryAggregate != null) InventoryAggregate.Init();
+        }
+
+        private void InitInventory(MyObjectBuilder_Character characterOb)
+        {
+            bool inventoryAlreadyExists = false;
+
+            if (MyPerGameSettings.ComponentSaving && MyFakes.ENABLE_MEDIEVAL_INVENTORY && InventoryAggregate != null)
+            {
+                foreach (var comp in InventoryAggregate.ChildList.Reader)
+                {
+                    if (comp.GetType() == typeof(MyInventory))
+                    {
+                        inventoryAlreadyExists = true;
+                        m_inventory = comp as MyInventory;
+                        m_inventory.Owner = this;
+                        break;
+                    }
+                }
+            }
+
+            if (!inventoryAlreadyExists)
+            {
+                InventoryVolume = m_characterDefinition.InventoryVolume;
+                InventoryMass = m_characterDefinition.InventoryMass;
+                InventorySize = new Vector3(m_characterDefinition.InventorySizeX, m_characterDefinition.InventorySizeY, m_characterDefinition.InventorySizeZ);
+                m_inventory = new MyInventory(InventoryVolume, InventoryMass, InventorySize, 0, this);
+                m_inventory.Init(characterOb.Inventory);
+                m_inventory.ContentsChanged += inventory_OnContentsChanged;
+                m_inventory.ContentsChanged += MyToolbarComponent.CurrentToolbar.CharacterInventory_OnContentsChanged;
+                MyCubeBuilder.BuildComponent.AfterCharacterCreate(this);
+                if (MyFakes.ENABLE_MEDIEVAL_INVENTORY && InventoryAggregate != null)
+                {
+                    InventoryAggregate.AddComponent(m_inventory);
+                }
+            }
         }
 
         private void InitSounds()
@@ -1021,11 +1041,11 @@ namespace Sandbox.Game.Entities.Character
             }
         }
 
-        void inventory_OnContentsChanged(MyInventory inventory)
+        void inventory_OnContentsChanged(MyInventoryBase inventory)
         {
             // Switch away from the weapon if we don't have it; Cube placer is an exception
-            if (m_currentWeapon != null && m_currentWeapon.DefinitionId.TypeId != typeof(MyObjectBuilder_CubePlacer)
-                && inventory != null && !inventory.ContainItems(1, m_currentWeapon.PhysicalObject))
+            if (m_currentWeapon != null && WeaponTakesBuilderFromInventory(m_currentWeapon.DefinitionId)
+                && inventory != null && inventory is MyInventory && !(inventory as MyInventory).ContainItems(1, m_currentWeapon.PhysicalObject))
                 SwitchToWeapon(null);
         }
 
@@ -1393,7 +1413,9 @@ namespace Sandbox.Game.Entities.Character
 
             objectBuilder.CharacterModel = m_characterModel;
             objectBuilder.ColorMaskHSV = ColorMask;
-            objectBuilder.Inventory = m_inventory.GetObjectBuilder();
+
+            if (!MyPerGameSettings.ComponentSaving)
+                objectBuilder.Inventory = m_inventory.GetObjectBuilder();
 
             if (m_currentWeapon != null)
                 objectBuilder.HandWeapon = ((MyEntity)m_currentWeapon).GetObjectBuilder();
@@ -2590,6 +2612,12 @@ namespace Sandbox.Game.Entities.Character
                     {
                         Physics.CharacterProxy.LinearVelocity = Vector3.Zero;
                     }
+
+                    // On planets limit the jetpack strength
+                    if (MyFakes.ENABLE_PLANETS_JETPACK_LIMIT)
+                    {
+                        LimitJetpackVelocity();
+                    }
                 }
                 //Solve Y orientation and gravity only in non flying mode
                 else if (!IsDead)
@@ -3168,77 +3196,75 @@ namespace Sandbox.Game.Entities.Character
                     }
                 }
             }
-            else
-                if (Physics.CharacterProxy != null)
+            else if (Physics.CharacterProxy != null)
+            {
+                Physics.CharacterProxy.Elevate = 0;
+            }
+
+            if (rotationIndicator.Y != 0 && (canRotate || m_isFalling || m_currentJump > 0))
+            {
+                if (CanFly())
                 {
-                    Physics.CharacterProxy.Elevate = 0;
+                    MatrixD rotationMatrix = WorldMatrix.GetOrientation();
+                    Vector3D translationDraw = WorldMatrix.Translation;
+                    Vector3D translationPhys = Physics.GetWorldMatrix().Translation;
+
+                    rotationMatrix = rotationMatrix * MatrixD.CreateFromAxisAngle(WorldMatrix.Up, -rotationIndicator.Y * CHARACTER_Y_ROTATION_SPEED);
+
+                    rotationMatrix.Translation = (Vector3D)translationPhys;
+
+                    WorldMatrix = rotationMatrix;
+
+                    rotationMatrix.Translation = translationDraw;
+                    PositionComp.SetWorldMatrix(rotationMatrix, Physics);
+                }
+                else
+                {
+                    var rotationMatrix = Matrix.CreateRotationY(-rotationIndicator.Y * CHARACTER_Y_ROTATION_SPEED);
+                    var characterMatrix = Matrix.CreateWorld(Physics.CharacterProxy.Position, Physics.CharacterProxy.Forward, Physics.CharacterProxy.Up);
+
+                    characterMatrix = rotationMatrix * characterMatrix;
+
+                    Physics.CharacterProxy.Forward = characterMatrix.Forward;
+                    Physics.CharacterProxy.Up = characterMatrix.Up;
                 }
 
-                if (rotationIndicator.Y != 0 && (canRotate || m_isFalling || m_currentJump > 0))
+                const float ANGLE_FOR_ROTATION_ANIMATION = 20;
+
+                if ((Math.Abs(rotationIndicator.Y) > ANGLE_FOR_ROTATION_ANIMATION) && m_currentRotationDelay <= 0 &&
+                    (m_currentMovementState == MyCharacterMovementEnum.Standing || m_currentMovementState == MyCharacterMovementEnum.Crouching)
+                    )
                 {
-                    if (CanFly())
+                    if (WantsCrouch)
                     {
-                        MatrixD rotationMatrix = WorldMatrix.GetOrientation();
-                        Vector3D translationDraw = WorldMatrix.Translation;
-                        Vector3D translationPhys = Physics.GetWorldMatrix().Translation;
-
-                        rotationMatrix = rotationMatrix * MatrixD.CreateFromAxisAngle(WorldMatrix.Up, -rotationIndicator.Y * CHARACTER_Y_ROTATION_SPEED);
-
-                        rotationMatrix.Translation = (Vector3D)translationPhys;
-
-                        WorldMatrix = rotationMatrix;
-
-                        rotationMatrix.Translation = translationDraw;
-                        PositionComp.SetWorldMatrix(rotationMatrix, Physics);
-                    }
-                    else
-                    {
-                        var rotationMatrix = Matrix.CreateRotationY(-rotationIndicator.Y * CHARACTER_Y_ROTATION_SPEED);
-                        var characterMatrix = Matrix.CreateWorld(Physics.CharacterProxy.Position, Physics.CharacterProxy.Forward, Physics.CharacterProxy.Up);
-
-                        characterMatrix = rotationMatrix * characterMatrix;
-
-                        Physics.CharacterProxy.Forward = characterMatrix.Forward;
-                        Physics.CharacterProxy.Up = characterMatrix.Up;
-                    }
-
-
-                    const float ANGLE_FOR_ROTATION_ANIMATION = 20;
-
-                    if ((Math.Abs(rotationIndicator.Y) > ANGLE_FOR_ROTATION_ANIMATION) && m_currentRotationDelay <= 0 &&
-                        (m_currentMovementState == MyCharacterMovementEnum.Standing || m_currentMovementState == MyCharacterMovementEnum.Crouching)
-                        )
-                    {
-                        if (WantsCrouch)
+                        if (rotationIndicator.Y > 0)
                         {
-                            if (rotationIndicator.Y > 0)
-                            {
-                                SwitchAnimation(MyCharacterMovementEnum.CrouchRotatingRight);
-                                SetCurrentMovementState(MyCharacterMovementEnum.CrouchRotatingRight);
-                            }
-                            else
-                            {
-                                SetCurrentMovementState(MyCharacterMovementEnum.CrouchRotatingLeft);
-                                SwitchAnimation(MyCharacterMovementEnum.CrouchRotatingLeft);
-                            }
+                            SwitchAnimation(MyCharacterMovementEnum.CrouchRotatingRight);
+                            SetCurrentMovementState(MyCharacterMovementEnum.CrouchRotatingRight);
                         }
                         else
                         {
-                            if (rotationIndicator.Y > 0)
-                            {
-                                SwitchAnimation(MyCharacterMovementEnum.RotatingRight);
-                                SetCurrentMovementState(MyCharacterMovementEnum.RotatingRight);
-                            }
-                            else
-                            {
-                                SwitchAnimation(MyCharacterMovementEnum.RotatingLeft);
-                                SetCurrentMovementState(MyCharacterMovementEnum.RotatingLeft);
-                            }
+                            SetCurrentMovementState(MyCharacterMovementEnum.CrouchRotatingLeft);
+                            SwitchAnimation(MyCharacterMovementEnum.CrouchRotatingLeft);
                         }
-
-                        m_currentRotationDelay = 0.8f;
-                        m_currentRotationSkipDelay = 0.1f;
                     }
+                    else
+                    {
+                        if (rotationIndicator.Y > 0)
+                        {
+                            SwitchAnimation(MyCharacterMovementEnum.RotatingRight);
+                            SetCurrentMovementState(MyCharacterMovementEnum.RotatingRight);
+                        }
+                        else
+                        {
+                            SwitchAnimation(MyCharacterMovementEnum.RotatingLeft);
+                            SetCurrentMovementState(MyCharacterMovementEnum.RotatingLeft);
+                        }
+                    }
+
+                    m_currentRotationDelay = 0.8f;
+                    m_currentRotationSkipDelay = 0.1f;
+                }
                 else
                 {
                     m_currentRotationSkipDelay -= MyEngineConstants.UPDATE_STEP_SIZE_IN_SECONDS;
@@ -3247,51 +3273,50 @@ namespace Sandbox.Game.Entities.Character
                         m_currentRotationDelay = 0.0f;
                     }
                 }
+            }
 
-                if (rotationIndicator.X != 0)
+            if (rotationIndicator.X != 0)
+            {
+                if (!CanFly())
                 {
-                    if (!CanFly())
+                    if (((m_currentMovementState == MyCharacterMovementEnum.Died) && !m_isInFirstPerson)
+                        ||
+                        (m_currentMovementState != MyCharacterMovementEnum.Died))
                     {
-                        if (((m_currentMovementState == MyCharacterMovementEnum.Died) && !m_isInFirstPerson)
-                            ||
-                            (m_currentMovementState != MyCharacterMovementEnum.Died))
+                        SetHeadLocalXAngle(MathHelper.Clamp(m_headLocalXAngle - rotationIndicator.X * CHARACTER_X_ROTATION_SPEED, MinHeadLocalXAngle, MaxHeadLocalXAngle));
+                        CalculateDependentMatrices();
+
+                        int headBone = IsInFirstPersonView ? m_headBoneIndex : m_camera3rdBoneIndex;
+
+                        if (headBone != -1)
                         {
-                            SetHeadLocalXAngle(MathHelper.Clamp(m_headLocalXAngle - rotationIndicator.X * CHARACTER_X_ROTATION_SPEED, MinHeadLocalXAngle, MaxHeadLocalXAngle));
-                            CalculateDependentMatrices();
-
-                            int headBone = IsInFirstPersonView ? m_headBoneIndex : m_camera3rdBoneIndex;
-
-                            if (headBone != -1)
-                            {
-                                m_bobQueue.Clear();
-                                m_bobQueue.Enqueue(BoneTransforms[headBone].Translation);
-                            }
+                            m_bobQueue.Clear();
+                            m_bobQueue.Enqueue(BoneTransforms[headBone].Translation);
                         }
                     }
+                }
+                else if (canRotate)
+                {
+                    MatrixD rotationMatrix = WorldMatrix.GetOrientation();
+                    Vector3D translation = WorldMatrix.Translation + WorldMatrix.Up;
+
+                    if (Definition.VerticalPositionFlyingOnly)
+                    {
+                        SetHeadLocalXAngle(MathHelper.Clamp(m_headLocalXAngle - rotationIndicator.X * CHARACTER_X_ROTATION_SPEED, MinHeadLocalXAngle, MaxHeadLocalXAngle));
+                    }
                     else
-                        if (canRotate)
-                        {
-                            MatrixD rotationMatrix = WorldMatrix.GetOrientation();
-                            Vector3D translation = WorldMatrix.Translation + WorldMatrix.Up;
+                    {
+                        rotationMatrix = rotationMatrix * MatrixD.CreateFromAxisAngle(WorldMatrix.Right, rotationIndicator.X * -0.002f);
+                    }
 
-                            if (Definition.VerticalPositionFlyingOnly)
-                            {
-                                SetHeadLocalXAngle(MathHelper.Clamp(m_headLocalXAngle - rotationIndicator.X * CHARACTER_X_ROTATION_SPEED, MinHeadLocalXAngle, MaxHeadLocalXAngle));
-                            }
-                            else
-                            {
-                                rotationMatrix = rotationMatrix * MatrixD.CreateFromAxisAngle(WorldMatrix.Right, rotationIndicator.X * -0.002f);
-                            }
+                    rotationMatrix.Translation = translation - rotationMatrix.Up;
 
-                            rotationMatrix.Translation = translation - rotationMatrix.Up;
-
-                            //Enable if we want limit character rotation in collisions
-                            //if (m_shapeContactPoints.Count < 2)
-                            {
-                                WorldMatrix = rotationMatrix;
-                                m_shapeContactPoints.Clear();
-                            }
-                        }
+                    //Enable if we want limit character rotation in collisions
+                    //if (m_shapeContactPoints.Count < 2)
+                    {
+                        WorldMatrix = rotationMatrix;
+                        m_shapeContactPoints.Clear();
+                    }
                 }
             }
 
@@ -4913,7 +4938,6 @@ namespace Sandbox.Game.Entities.Character
                         weaponEntityBuilder = gun.PhysicalObject.GunEntity;
                         EquipWeapon(gun);
                     }
-                    m_inventoryResults.Clear();
                 }
                 else
                 {
@@ -5107,17 +5131,17 @@ namespace Sandbox.Game.Entities.Character
             }
         }
 
-        public MyGuiScreenBase ShowAggregateInventoryScreen()
+        public MyGuiScreenBase ShowAggregateInventoryScreen(MyInventoryBase rightSelectedInventory = null)
         {
             MyGuiScreenBase screen = null;
             if (MyPerGameSettings.GUI.InventoryScreen != null)
             {
-                var aggregateComponent = Components.Get<MyComponentInventoryAggregate>();
-                if (aggregateComponent != null)
+                if (InventoryAggregate != null)
                 {
-                    aggregateComponent.Init();
-                    screen = MyGuiSandbox.CreateScreen(MyPerGameSettings.GUI.InventoryScreen, aggregateComponent);
+                    InventoryAggregate.Init();
+                    screen = MyGuiSandbox.CreateScreen(MyPerGameSettings.GUI.InventoryScreen, InventoryAggregate, rightSelectedInventory);
                     MyGuiSandbox.AddScreen( screen );
+                    screen.Closed += (scr) => { InventoryAggregate.DetachCallbacks(); };
                 }
             }
             return screen;
@@ -7452,14 +7476,9 @@ namespace Sandbox.Game.Entities.Character
                 MyGuiScreenTerminal.Show(MyTerminalPageEnum.Inventory, user, this);
             }
             if (MyPerGameSettings.GUI.InventoryScreen != null && IsDead)
-            {
-                // TODO: This should just open the screen of the character and not adding the the aggregate itself..
-                var otherAggregate = user.Components.Get<MyComponentInventoryAggregate>();
-                var aggregate = Components.Get<MyComponentInventoryAggregate>();
-                otherAggregate.AddChild(aggregate);
-                var screen = user.ShowAggregateInventoryScreen();
-                screen.Closed += delegate(MyGuiScreenBase source) { otherAggregate.RemoveChild(aggregate); };
-
+            {               
+                var inventory = Components.Get<MyInventoryAggregate>();
+                var screen = user.ShowAggregateInventoryScreen(inventory);               
             }
         }
 
@@ -7967,11 +7986,15 @@ namespace Sandbox.Game.Entities.Character
         //}
 
         public MyEntity ManipulatedEntity;
-        
-        bool IMyComponentOwner<MyComponentInventoryAggregate>.GetComponent(out MyComponentInventoryAggregate component)
+
+        private void LimitJetpackVelocity()
         {
-            component = m_inventoryAggregate;
-            return m_inventoryAggregate != null;
+            var planetGravity = MyGravityProviderSystem.CalculateGravityInPoint(PositionComp.WorldAABB.Center);           
+           
+            if (planetGravity != Vector3.Zero)
+            {
+                Physics.CharacterProxy.Gravity = planetGravity * CHARACTER_GRAVITY_MULTIPLIER;                
+            }
         }
     }
 }

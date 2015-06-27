@@ -281,9 +281,9 @@ namespace VRage.Dedicated
                 //enable tool shake needs to be true for new world, but false for old saved worlds.                                
                 m_selectedSessionSettings.EnableToolShake = true;
 
-                m_selectedSessionSettings.EnablePlanets = MyFakes.ENABLE_PLANETS;
-                m_selectedSessionSettings.EnableSunRotation = true;
-                m_selectedSessionSettings.EnableStationVoxelSupport = true;
+                m_selectedSessionSettings.EnablePlanets = (MyPerGameSettings.Game == GameEnum.SE_GAME) && MyFakes.ENABLE_PLANETS; 
+                m_selectedSessionSettings.EnableSunRotation = MyPerGameSettings.Game == GameEnum.SE_GAME;
+                m_selectedSessionSettings.EnableStationVoxelSupport  = MyPerGameSettings.Game == GameEnum.SE_GAME;
 
             }
 

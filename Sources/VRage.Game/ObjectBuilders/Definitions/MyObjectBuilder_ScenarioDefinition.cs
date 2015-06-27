@@ -176,6 +176,17 @@ namespace Sandbox.Common.ObjectBuilders.Definitions
 
     }
 
+    [MyObjectBuilderDefinition]
+    [XmlType("AddPlanetPrefab")]
+    public class MyObjectBuilder_WorldGeneratorOperation_AddPlanetPrefab : MyObjectBuilder_WorldGeneratorOperation
+    {
+        [ProtoMember, XmlAttribute]
+        public string PrefabFile;
+
+        [ProtoMember, XmlAttribute]
+        public string Name;
+    }
+
 
 
 

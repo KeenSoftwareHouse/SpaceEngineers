@@ -44,7 +44,7 @@ namespace Sandbox.Game.Multiplayer
             public long EntityId;
             public Vector3D Position;
             public MyStringHash SubtypeId;
-            public int ModelId;
+            public int LocalModelId;
         }
 
         [MessageId(3257, P2PMessageEnum.Reliable)]
@@ -52,7 +52,7 @@ namespace Sandbox.Game.Multiplayer
         {
             public long EntityId;
             public int LocalId;
-            public int ModelLocalId;
+            public int LocalModelId;
         }
 
         [MessageId(3258, P2PMessageEnum.Reliable)]
@@ -133,14 +133,14 @@ namespace Sandbox.Game.Multiplayer
             }
         }
 
-        public static void SendBatchAddItemMessage(long entityId, Vector3D position, MyStringHash subtypeId, int modelId)
+        public static void SendBatchAddItemMessage(long entityId, Vector3D position, MyStringHash subtypeId, int localModelId)
         {
             var msg = new BatchAddItemMsg()
             {
                 EntityId = entityId,
                 Position = position,
                 SubtypeId = subtypeId,
-                ModelId = modelId,
+                LocalModelId = localModelId,
             };
 
             Sync.Layer.SendMessageToAllButOne(ref msg, MySteam.UserId, MyTransportMessageEnum.Request);
@@ -152,17 +152,17 @@ namespace Sandbox.Game.Multiplayer
             MyEnvironmentItems entity;
             if (MyEntities.TryGetEntityById<MyEnvironmentItems>(msg.EntityId, out entity))
             {
-                entity.BatchAddItem(msg.Position, msg.SubtypeId, msg.ModelId, false);
+                entity.BatchAddItem(msg.Position, msg.SubtypeId, msg.LocalModelId, false);
             }
         }
 
-        public static void SendBatchModifyItemMessage(long entityId, int localId, int modelLocalId)
+        public static void SendBatchModifyItemMessage(long entityId, int localId, int localModelId)
         {
             var msg = new BatchModifyItemMsg()
             {
                 EntityId = entityId,
                 LocalId = localId,
-                ModelLocalId = modelLocalId,
+                LocalModelId = localModelId,
             };
 
             Sync.Layer.SendMessageToAllButOne(ref msg, MySteam.UserId, MyTransportMessageEnum.Request);
@@ -174,7 +174,7 @@ namespace Sandbox.Game.Multiplayer
             MyEnvironmentItems entity;
             if (MyEntities.TryGetEntityById<MyEnvironmentItems>(msg.EntityId, out entity))
             {
-                entity.BatchModifyItem(msg.LocalId, msg.ModelLocalId, false);
+                entity.BatchModifyItem(msg.LocalId, msg.LocalModelId, false);
             }
         }
 

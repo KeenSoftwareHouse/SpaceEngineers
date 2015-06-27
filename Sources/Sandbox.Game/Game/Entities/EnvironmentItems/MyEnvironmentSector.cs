@@ -97,6 +97,7 @@ namespace Sandbox.Game.Entities.EnvironmentItems
                 if (m_invalidateAABB)
                 {
                     Debug.Assert(IsValid);
+                    m_invalidateAABB = false;
                     m_AABB = GetSectorBoundingBox();
                 }
                 return m_AABB; 

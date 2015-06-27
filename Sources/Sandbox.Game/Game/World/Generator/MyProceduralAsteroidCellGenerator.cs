@@ -233,7 +233,7 @@ namespace Sandbox.Game.World.Generator
 
                     for (int i = 0; i < OBJECT_MAX_IN_CLUSTER; ++i)
                     {
-                        var direction = GetRandomDirection(random);
+                        var direction = MyProceduralWorldGenerator.GetRandomDirection(random);
                         var size = GetClusterObjectSize(random.NextDouble());
                         var distance = MathHelper.Lerp(OBJECT_MIN_DISTANCE_CLUSTER, OBJECT_MAX_DISTANCE_CLUSTER, random.NextDouble());
                         var clusterObjectPosition = objectSeed.BoundingVolume.Center + direction * (size + objectSeed.BoundingVolume.HalfExtents.Length() * 2 + distance);

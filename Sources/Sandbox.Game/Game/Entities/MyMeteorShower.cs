@@ -269,7 +269,11 @@ namespace Sandbox.Game.Entities
         public static TimeSpan CalculateShowerTime(MyEnvironmentHostilityEnum newHostility, MyEnvironmentHostilityEnum oldHostility, TimeSpan oldTime)
         {
             double timeInMinutes = oldTime.TotalMinutes;
-            double normalizedTime = timeInMinutes / GetMaxActivationTime(oldHostility);
+            double normalizedTime = 1.0;
+            if (oldHostility != MyEnvironmentHostilityEnum.SAFE)
+            {
+                normalizedTime = timeInMinutes / GetMaxActivationTime(oldHostility);
+            }
             timeInMinutes = normalizedTime * GetMaxActivationTime(newHostility);         
             return TimeSpan.FromMinutes(timeInMinutes);
         }

@@ -2,6 +2,8 @@
 using ProtoBuf;
 using VRageMath;
 using VRage.ModAPI;
+using Sandbox.Common.ObjectBuilders.ComponentSystem;
+using System.ComponentModel;
 
 namespace VRage.ObjectBuilders
 {
@@ -35,6 +37,14 @@ namespace VRage.ObjectBuilders
         public bool ShouldSerializePositionAndOrientation()
         {
             return PositionAndOrientation.HasValue;
+        }
+
+        [ProtoMember, DefaultValue(null)]
+        public MyObjectBuilder_ComponentContainer ComponentContainer = null;
+
+        public bool ShouldSerializeComponentContainer()
+        {
+            return ComponentContainer != null && ComponentContainer.Components != null && ComponentContainer.Components.Length > 0;
         }
 
         /// <summary>

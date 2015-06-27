@@ -146,7 +146,7 @@ namespace Sandbox.Game.World
         public bool Enable3RdPersonView { get { return Settings.Enable3rdPersonView; } }
         public bool EnableToolShake { get { return Settings.EnableToolShake; } }
         public bool ShowPlayerNamesOnHud { get { return Settings.ShowPlayerNamesOnHud; } }
-		public bool EnableStationVoxelSupport { get { return Settings.EnableStationVoxelSupport; } }
+        public bool EnableStationVoxelSupport { get { return Settings.EnableStationVoxelSupport && MyPerGameSettings.Game == GameEnum.SE_GAME; } }
 		public bool EnableFlora { get { return Settings.EnableFlora; } }
         public bool ClientCanSave { get { return Settings.ClientCanSave; } }
         public short MaxPlayers { get { return Settings.MaxPlayers; } }
@@ -316,6 +316,9 @@ namespace Sandbox.Game.World
         }
 
         public ulong WorldSizeInBytes = 0; //Approximate
+
+        private int m_gameplayFrameCounter = 0; // Only gets updated when the game is not paused
+        public int GameplayFrameCounter { get { return m_gameplayFrameCounter; } }
 
         const int FRAMES_TO_CONSIDER_READY = 10;
         int m_framesToReady;
@@ -903,6 +906,7 @@ namespace Sandbox.Game.World
                 if (Sync.MultiplayerActive && !Sync.IsServer)
                     CheckMultiplayerStatus();
 
+                m_gameplayFrameCounter++;
             }
             // In pause, the only thing that needs update in the session is the character and third person spectator.
             // This is a terrible hack and should be done more systematically

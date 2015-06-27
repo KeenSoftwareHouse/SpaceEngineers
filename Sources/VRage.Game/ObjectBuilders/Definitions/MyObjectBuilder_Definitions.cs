@@ -223,9 +223,9 @@ namespace Sandbox.Common.ObjectBuilders.Definitions
         [ProtoMember]
         public MyObjectBuilder_DecalDefinition[] Decals;
 
-        [XmlArrayItem("PlanetDefinition")]
+        [XmlArrayItem("PlanetGeneratorDefinition")]
         [ProtoMember]
-        public MyObjectBuilder_PlanetDefinition[] PlanetDefinitions;
+        public MyObjectBuilder_PlanetGeneratorDefinition[] PlanetGeneratorDefinitions;
 
         [XmlArrayItem("Definition")]
         [ProtoMember]
@@ -246,5 +246,9 @@ namespace Sandbox.Common.ObjectBuilders.Definitions
         [XmlArrayItem("Block")]
         [ProtoMember]
         public MyComponentBlockEntry[] ComponentBlocks;
+
+        [XmlArrayItem("PlanetPrefab")]
+        [ProtoMember]
+        public MyObjectBuilder_PlanetPrefabDefinition[] PlanetPrefabs;
     }
 }
