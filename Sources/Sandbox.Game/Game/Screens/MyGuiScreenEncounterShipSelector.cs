@@ -145,21 +145,27 @@ namespace Sandbox.Game.Gui
 
             m_includeLargeShips = new MyGuiControlCheckbox();
             m_includeLargeShips.SetToolTip(MyTexts.GetString(MySpaceTexts.ToolTipEncounterSettingsAntennasRangeMaxed));
+            m_includeLargeShips.IsCheckedChanged += onIncludeLargeShipsIsCheckedChanged;
 
             m_includeSmallShips = new MyGuiControlCheckbox();
             m_includeSmallShips.SetToolTip(MyTexts.GetString(MySpaceTexts.ToolTipEncounterSettingsAntennasRangeMaxed));
+            m_includeSmallShips.IsCheckedChanged += onincludeSmallShipsIsCheckedChanged;
 
             m_includeBases = new MyGuiControlCheckbox();
             m_includeBases.SetToolTip(MyTexts.GetString(MySpaceTexts.ToolTipEncounterSettingsAntennasRangeMaxed));
+            m_includeBases.IsCheckedChanged += onincludeBasesIsCheckedChanged;
 
             m_excludeLargeShips = new MyGuiControlCheckbox();
             m_excludeLargeShips.SetToolTip(MyTexts.GetString(MySpaceTexts.ToolTipEncounterSettingsAntennasRangeMaxed));
+            m_excludeLargeShips.IsCheckedChanged += onexcludeLargeShipsIsCheckedChanged;
 
             m_excludeSmallShips = new MyGuiControlCheckbox();
             m_excludeSmallShips.SetToolTip(MyTexts.GetString(MySpaceTexts.ToolTipEncounterSettingsAntennasRangeMaxed));
+            m_excludeSmallShips.IsCheckedChanged += onexcludeSmallShipsIsCheckedChanged;
 
             m_excludeBases = new MyGuiControlCheckbox();
             m_excludeBases.SetToolTip(MyTexts.GetString(MySpaceTexts.ToolTipEncounterSettingsAntennasRangeMaxed));
+            m_excludeBases.IsCheckedChanged += onexcludeBasesIsCheckedChanged;
 
             var maxBlocks = 0;
             var minBlocks = 9999999;
@@ -311,6 +317,54 @@ namespace Sandbox.Game.Gui
 
             Controls.Add(scrollPanel);
             CloseButtonEnabled = true;
+        }
+
+        private void onexcludeBasesIsCheckedChanged(MyGuiControlCheckbox obj)
+        {
+            if (obj.IsChecked)
+            {
+                m_includeBases.IsChecked = false;
+            }
+        }
+
+        private void onexcludeSmallShipsIsCheckedChanged(MyGuiControlCheckbox obj)
+        {
+            if (obj.IsChecked)
+            {
+                m_includeSmallShips.IsChecked = false;
+            }
+        }
+
+        private void onexcludeLargeShipsIsCheckedChanged(MyGuiControlCheckbox obj)
+        {
+            if (obj.IsChecked)
+            {
+                m_includeLargeShips.IsChecked = false;
+            }
+        }
+
+        private void onincludeBasesIsCheckedChanged(MyGuiControlCheckbox obj)
+        {
+            if (obj.IsChecked)
+            {
+                m_excludeBases.IsChecked = false;
+            }
+        }
+
+        private void onincludeSmallShipsIsCheckedChanged(MyGuiControlCheckbox obj)
+        {
+            if (obj.IsChecked)
+            {
+                m_excludeSmallShips.IsChecked = false;
+            }
+        }
+
+        private void onIncludeLargeShipsIsCheckedChanged(MyGuiControlCheckbox obj)
+        {
+            if (obj.IsChecked)
+            {
+                m_excludeLargeShips.IsChecked = false;
+            }
         }
 
         private MyGuiControlLabel MakeLabel(MyStringId textEnum)
