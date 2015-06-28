@@ -142,14 +142,17 @@ namespace Sandbox.Game.Gui
             m_includeLargeShips = new MyGuiControlCheckbox();
             m_includeLargeShips.SetToolTip(MyTexts.GetString(MySpaceTexts.ToolTipEncounterSettingsAntennasRangeMaxed));
             m_includeLargeShips.IsChecked = true;
+            m_includeLargeShips.SetToolTip(MySpaceTexts.ToolTipEncounterSettings_IncludeLargeShipsInFilter);
 
             m_includeSmallShips = new MyGuiControlCheckbox();
             m_includeSmallShips.SetToolTip(MyTexts.GetString(MySpaceTexts.ToolTipEncounterSettingsAntennasRangeMaxed));
             m_includeSmallShips.IsChecked = true;
+            m_includeSmallShips.SetToolTip(MySpaceTexts.ToolTipEncounterSettings_IncludeSmallShipsInFilter);
 
             m_includeBases = new MyGuiControlCheckbox();
             m_includeBases.SetToolTip(MyTexts.GetString(MySpaceTexts.ToolTipEncounterSettingsAntennasRangeMaxed));
             m_includeBases.IsChecked = true;
+            m_includeBases.SetToolTip(MySpaceTexts.ToolTipEncounterSettings_IncludeBasesInFilter);
 
             var maxBlocks = 0;
             
@@ -173,7 +176,7 @@ namespace Sandbox.Game.Gui
                intValue: true,
                defaultValue: maxBlocks
                );
-
+            m_maxBlocks.SetToolTip(MySpaceTexts.ToolTipEncounterSettings_MaxBlocksFilter);
             m_maxBlocks.ValueChanged += onMaxBlocksValueChanged;
 
             var maxTurrets = 0;
@@ -197,7 +200,7 @@ namespace Sandbox.Game.Gui
                intValue: true,
                defaultValue: maxTurrets
                );
-
+            m_maxTurrets.SetToolTip(MySpaceTexts.ToolTipEncounterSettings_MaxTurretsFilter);
             m_maxTurrets.ValueChanged += onMaxTurretsValueChanged;
 
             // Ok-Cancel Buttons
@@ -211,12 +214,12 @@ namespace Sandbox.Game.Gui
             m_ShipsAvailableTable.OriginAlign = MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_TOP;
             m_ShipsAvailableTable.ColumnsCount = 5;
 
-            m_ShipsAvailableTable.ItemSelected += OnTableItemSelected;            
-            m_ShipsAvailableTable.SetColumnName(0, new StringBuilder("Active"));
-            m_ShipsAvailableTable.SetColumnName(1, new StringBuilder("Name"));
-            m_ShipsAvailableTable.SetColumnName(2, new StringBuilder("Size"));
-            m_ShipsAvailableTable.SetColumnName(3, new StringBuilder("Blocks"));
-            m_ShipsAvailableTable.SetColumnName(4, new StringBuilder("Turrets"));
+            m_ShipsAvailableTable.ItemSelected += OnTableItemSelected;
+            m_ShipsAvailableTable.SetColumnName(0, new StringBuilder(MyTexts.GetString(MySpaceTexts.WorldSettings_Encounter_TableActiveColumnName)));
+            m_ShipsAvailableTable.SetColumnName(1, new StringBuilder(MyTexts.GetString(MySpaceTexts.WorldSettings_Encounter_TableNameColumnName)));
+            m_ShipsAvailableTable.SetColumnName(2, new StringBuilder(MyTexts.GetString(MySpaceTexts.WorldSettings_Encounter_TableSizeColumnName)));
+            m_ShipsAvailableTable.SetColumnName(3, new StringBuilder(MyTexts.GetString(MySpaceTexts.WorldSettings_Encounter_TableBlocksColumnName)));
+            m_ShipsAvailableTable.SetColumnName(4, new StringBuilder(MyTexts.GetString(MySpaceTexts.WorldSettings_Encounter_TableTurretsColumnName)));
 
             m_ShipsAvailableTable.SetCustomColumnWidths(new float[] { 0.1f, 0.55f, 0.1f, 0.15f, 0.15f });            
             m_ShipsAvailableTable.SetColumnComparison(0, (a, b) => (a.Text).CompareToIgnoreCase(b.Text));
@@ -308,11 +311,11 @@ namespace Sandbox.Game.Gui
                 {
                     if (includeEncounter == true)
                     {
-                        row.GetCell(0).Text = new StringBuilder("Yes");
+                        row.GetCell(0).Text = new StringBuilder(MyTexts.GetString(MySpaceTexts.WorldSettings_Encounter_Yes));
                     }
                     else
                     {
-                        row.GetCell(0).Text = new StringBuilder("No");
+                        row.GetCell(0).Text = new StringBuilder(MyTexts.GetString(MySpaceTexts.WorldSettings_Encounter_No));
                     }
                 }
 
@@ -332,18 +335,18 @@ namespace Sandbox.Game.Gui
         private bool? IncludeEncounter(MyGuiControlTable.Row row)
         {            
             var includeIt = false;
-           
-            if (m_includeSmallShips.IsChecked && row.GetCell(2).Text.ToString() == "Small")
+
+            if (m_includeSmallShips.IsChecked && row.GetCell(2).Text.ToString() == MyTexts.GetString(MySpaceTexts.WorldSettings_GridSmallShipType))
             {
                 includeIt = true;
             }
 
-            if (m_includeLargeShips.IsChecked && row.GetCell(2).Text.ToString() == "Large")
+            if (m_includeLargeShips.IsChecked && row.GetCell(2).Text.ToString() == MyTexts.GetString(MySpaceTexts.WorldSettings_GridLargeShipType))
             {
                 includeIt = true;
             }
 
-            if (m_includeBases.IsChecked && row.GetCell(2).Text.ToString() == "Base")
+            if (m_includeBases.IsChecked && row.GetCell(2).Text.ToString() == MyTexts.GetString(MySpaceTexts.WorldSettings_GridBaseType))
             {
                 includeIt = true;
             }
@@ -406,13 +409,13 @@ namespace Sandbox.Game.Gui
 
             if (!(m_selectedRow == null))
             {
-                if (m_selectedRow.GetCell(0).Text.ToString() == "Yes")
+                if (m_selectedRow.GetCell(0).Text.ToString() == MyTexts.GetString(MySpaceTexts.WorldSettings_Encounter_Yes))
                 {
-                    m_selectedRow.GetCell(0).Text = new StringBuilder("No");
+                    m_selectedRow.GetCell(0).Text = new StringBuilder(MyTexts.GetString(MySpaceTexts.WorldSettings_Encounter_No));
                 }
                 else
                 {
-                    m_selectedRow.GetCell(0).Text = new StringBuilder("Yes");
+                    m_selectedRow.GetCell(0).Text = new StringBuilder(MyTexts.GetString(MySpaceTexts.WorldSettings_Encounter_Yes));
                 }
 
                 foreach (var row in m_shipsAvailableTemporary)
@@ -436,7 +439,7 @@ namespace Sandbox.Game.Gui
 
             foreach (var row in m_shipsAvailableTemporary)
             {
-                if (row.GetCell(0).Text.ToString() == new StringBuilder("Yes").ToString())
+                if (row.GetCell(0).Text.ToString() == new StringBuilder(MyTexts.GetString(MySpaceTexts.WorldSettings_Encounter_Yes)).ToString())
                 {
                     totalYes++;
                 }

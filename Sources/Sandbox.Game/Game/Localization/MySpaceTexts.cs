@@ -11065,7 +11065,7 @@ namespace Sandbox.Game.Localization
         public static readonly MyStringId MessageBoxTextNotEnoughEncounterShipsSelected = MyStringId.GetOrCompute("MessageBoxTextNotEnoughEncounterShipsSelected");
 
         ///<summary>
-        ///Encounter Ship Selection
+        ///Encounter Selection
         ///</summary>
         public static readonly MyStringId ScreenCaptionEncounterShipSelection = MyStringId.GetOrCompute("ScreenCaptionEncounterShipSelection");
 
@@ -11115,7 +11115,7 @@ namespace Sandbox.Game.Localization
         public static readonly MyStringId WorldSettings_MaxTurretsLabel = MyStringId.GetOrCompute("WorldSettings_MaxTurretsLabel");
 
         ///<summary>
-        ///Ships Available
+        ///Select Encounters
         ///</summary>
         public static readonly MyStringId WorldSettings_ShipSelector = MyStringId.GetOrCompute("WorldSettings_ShipSelector");
 
@@ -11123,5 +11123,130 @@ namespace Sandbox.Game.Localization
         ///% of large ships
         ///</summary>
         public static readonly MyStringId WorldSettings_SmallToLargeShipRatioLabel = MyStringId.GetOrCompute("WorldSettings_SmallToLargeShipRatioLabel");
+
+        ///<summary>
+        ///There aren't enough ships availble for encounters.  Please use the 'Encounter Selection' screen to add at least one.
+        ///</summary>
+        public static readonly MyStringId MessageBoxCaptionNotEnoughShipsInSelection = MyStringId.GetOrCompute("MessageBoxCaptionNotEnoughShipsInSelection");
+
+        ///<summary>
+        ///Asteroid Base
+        ///</summary>
+        public static readonly MyStringId ToolTipEncounterSettings_AsteroidBaseLabel = MyStringId.GetOrCompute("ToolTipEncounterSettings_AsteroidBaseLabel");
+
+        ///<summary>
+        ///Fine tune the selection of ships that are available as candidates for encounters within your game.
+        ///</summary>
+        public static readonly MyStringId ToolTipEncounterSettings_EncounterSelection = MyStringId.GetOrCompute("ToolTipEncounterSettings_EncounterSelection");
+
+        ///<summary>
+        ///Gatling
+        ///</summary>
+        public static readonly MyStringId ToolTipEncounterSettings_GatlingTurretLabel = MyStringId.GetOrCompute("ToolTipEncounterSettings_GatlingTurretLabel");
+
+        ///<summary>
+        ///Sliders will affect base selection candidates.
+        ///</summary>
+        public static readonly MyStringId ToolTipEncounterSettings_IncludeBasesInFilter = MyStringId.GetOrCompute("ToolTipEncounterSettings_IncludeBasesInFilter");
+
+        ///<summary>
+        ///Sliders will affect large ship selection candidates.
+        ///</summary>
+        public static readonly MyStringId ToolTipEncounterSettings_IncludeLargeShipsInFilter = MyStringId.GetOrCompute("ToolTipEncounterSettings_IncludeLargeShipsInFilter");
+
+        ///<summary>
+        ///Sliders will affect small ship selection candidates.
+        ///</summary>
+        public static readonly MyStringId ToolTipEncounterSettings_IncludeSmallShipsInFilter = MyStringId.GetOrCompute("ToolTipEncounterSettings_IncludeSmallShipsInFilter");
+
+        ///<summary>
+        ///Interior
+        ///</summary>
+        public static readonly MyStringId ToolTipEncounterSettings_InteriorTurretLabel = MyStringId.GetOrCompute("ToolTipEncounterSettings_InteriorTurretLabel");
+
+        ///<summary>
+        ///Large Ship
+        ///</summary>
+        public static readonly MyStringId ToolTipEncounterSettings_LargeShipLabel = MyStringId.GetOrCompute("ToolTipEncounterSettings_LargeShipLabel");
+
+        ///<summary>
+        ///Maximum number of blocks allowed for an encounter candidate.
+        ///</summary>
+        public static readonly MyStringId ToolTipEncounterSettings_MaxBlocksFilter = MyStringId.GetOrCompute("ToolTipEncounterSettings_MaxBlocksFilter");
+
+        ///<summary>
+        ///Maximum number of turrets allowed for an encounter candidate.
+        ///</summary>
+        public static readonly MyStringId ToolTipEncounterSettings_MaxTurretsFilter = MyStringId.GetOrCompute("ToolTipEncounterSettings_MaxTurretsFilter");
+
+        ///<summary>
+        ///Missile
+        ///</summary>
+        public static readonly MyStringId ToolTipEncounterSettings_MissileTurretLabel = MyStringId.GetOrCompute("ToolTipEncounterSettings_MissileTurretLabel");
+
+        ///<summary>
+        ///Small Ship
+        ///</summary>
+        public static readonly MyStringId ToolTipEncounterSettings_SmallShipLabel = MyStringId.GetOrCompute("ToolTipEncounterSettings_SmallShipLabel");
+
+        ///<summary>
+        ///Whether the encounter candidate will be available in your game.
+        ///</summary>
+        public static readonly MyStringId ToolTipEncounterSettings_TableActiveColumn = MyStringId.GetOrCompute("ToolTipEncounterSettings_TableActiveColumn");
+
+        ///<summary>
+        ///Click to activate/deactivate the cadidate encounter in your game.
+        ///</summary>
+        public static readonly MyStringId ToolTipEncounterSettings_TableNameColumn = MyStringId.GetOrCompute("ToolTipEncounterSettings_TableNameColumn");
+
+        ///<summary>
+        ///No
+        ///</summary>
+        public static readonly MyStringId WorldSettings_Encounter_No = MyStringId.GetOrCompute("WorldSettings_Encounter_No");
+
+        ///<summary>
+        ///Active
+        ///</summary>
+        public static readonly MyStringId WorldSettings_Encounter_TableActiveColumnName = MyStringId.GetOrCompute("WorldSettings_Encounter_TableActiveColumnName");
+
+        ///<summary>
+        ///Blocks
+        ///</summary>
+        public static readonly MyStringId WorldSettings_Encounter_TableBlocksColumnName = MyStringId.GetOrCompute("WorldSettings_Encounter_TableBlocksColumnName");
+
+        ///<summary>
+        ///Name
+        ///</summary>
+        public static readonly MyStringId WorldSettings_Encounter_TableNameColumnName = MyStringId.GetOrCompute("WorldSettings_Encounter_TableNameColumnName");
+
+        ///<summary>
+        ///Size
+        ///</summary>
+        public static readonly MyStringId WorldSettings_Encounter_TableSizeColumnName = MyStringId.GetOrCompute("WorldSettings_Encounter_TableSizeColumnName");
+
+        ///<summary>
+        ///Turrets
+        ///</summary>
+        public static readonly MyStringId WorldSettings_Encounter_TableTurretsColumnName = MyStringId.GetOrCompute("WorldSettings_Encounter_TableTurretsColumnName");
+
+        ///<summary>
+        ///Yes
+        ///</summary>
+        public static readonly MyStringId WorldSettings_Encounter_Yes = MyStringId.GetOrCompute("WorldSettings_Encounter_Yes");
+
+        ///<summary>
+        ///Base
+        ///</summary>
+        public static readonly MyStringId WorldSettings_GridBaseType = MyStringId.GetOrCompute("WorldSettings_GridBaseType");
+
+        ///<summary>
+        ///Large
+        ///</summary>
+        public static readonly MyStringId WorldSettings_GridLargeShipType = MyStringId.GetOrCompute("WorldSettings_GridLargeShipType");
+
+        ///<summary>
+        ///Small
+        ///</summary>
+        public static readonly MyStringId WorldSettings_GridSmallShipType = MyStringId.GetOrCompute("WorldSettings_GridSmallShipType");
     }
 }

@@ -6854,7 +6854,7 @@ Who knows?  There's no-one left to ask.</value>
 Please ensure that there is at least one active ship in the list.</value>
   </data>
   <data name="ScreenCaptionEncounterShipSelection" xml:space="preserve">
-    <value>Encounter Ship Selection</value>
+    <value>Encounter Selection</value>
   </data>
   <data name="ToolTipEncounterSettingsArmedLargeShipsOnly" xml:space="preserve">
     <value>Set this to guarantee that only large ships, with turrets,
@@ -6887,9 +6887,89 @@ Set at 50% for an even mix of small and large ships.</value>
     <value>Maximum Turrets</value>
   </data>
   <data name="WorldSettings_ShipSelector" xml:space="preserve">
-    <value>Ships Available</value>
+    <value>Select Encounters</value>
   </data>
   <data name="WorldSettings_SmallToLargeShipRatioLabel" xml:space="preserve">
     <value>% of large ships</value>
+  </data>
+  <data name="MessageBoxCaptionNotEnoughShipsInSelection" xml:space="preserve">
+    <value>There aren't enough ships availble for encounters.  Please use the 'Encounter Selection' screen to add at least one.</value>
+  </data>
+  <data name="ToolTipEncounterSettings_AsteroidBaseLabel" xml:space="preserve">
+    <value>Asteroid Base</value>
+  </data>
+  <data name="ToolTipEncounterSettings_EncounterSelection" xml:space="preserve">
+    <value>Fine tune the selection of ships that are available
+as candidates for encounters within your game.</value>
+  </data>
+  <data name="ToolTipEncounterSettings_GatlingTurretLabel" xml:space="preserve">
+    <value>Gatling</value>
+  </data>
+  <data name="ToolTipEncounterSettings_IncludeBasesInFilter" xml:space="preserve">
+    <value>Sliders will affect base selection candidates.</value>
+  </data>
+  <data name="ToolTipEncounterSettings_IncludeLargeShipsInFilter" xml:space="preserve">
+    <value>Sliders will affect large ship selection candidates.</value>
+  </data>
+  <data name="ToolTipEncounterSettings_IncludeSmallShipsInFilter" xml:space="preserve">
+    <value>Sliders will affect small ship selection candidates.</value>
+  </data>
+  <data name="ToolTipEncounterSettings_InteriorTurretLabel" xml:space="preserve">
+    <value>Interior</value>
+  </data>
+  <data name="ToolTipEncounterSettings_LargeShipLabel" xml:space="preserve">
+    <value>Large Ship</value>
+  </data>
+  <data name="ToolTipEncounterSettings_MaxBlocksFilter" xml:space="preserve">
+    <value>Maximum number of blocks allowed
+for an encounter candidate.</value>
+  </data>
+  <data name="ToolTipEncounterSettings_MaxTurretsFilter" xml:space="preserve">
+    <value>Maximum number of turrets allowed
+for an encounter candidate.</value>
+  </data>
+  <data name="ToolTipEncounterSettings_MissileTurretLabel" xml:space="preserve">
+    <value>Missile</value>
+  </data>
+  <data name="ToolTipEncounterSettings_SmallShipLabel" xml:space="preserve">
+    <value>Small Ship</value>
+  </data>
+  <data name="ToolTipEncounterSettings_TableActiveColumn" xml:space="preserve">
+    <value>Whether the encounter candidate will be
+available in your game.</value>
+  </data>
+  <data name="ToolTipEncounterSettings_TableNameColumn" xml:space="preserve">
+    <value>Click to activate/deactivate the cadidate
+encounter in your game.</value>
+  </data>
+  <data name="WorldSettings_Encounter_No" xml:space="preserve">
+    <value>No</value>
+  </data>
+  <data name="WorldSettings_Encounter_TableActiveColumnName" xml:space="preserve">
+    <value>Active</value>
+  </data>
+  <data name="WorldSettings_Encounter_TableBlocksColumnName" xml:space="preserve">
+    <value>Blocks</value>
+  </data>
+  <data name="WorldSettings_Encounter_TableNameColumnName" xml:space="preserve">
+    <value>Name</value>
+  </data>
+  <data name="WorldSettings_Encounter_TableSizeColumnName" xml:space="preserve">
+    <value>Size</value>
+  </data>
+  <data name="WorldSettings_Encounter_TableTurretsColumnName" xml:space="preserve">
+    <value>Turrets</value>
+  </data>
+  <data name="WorldSettings_Encounter_Yes" xml:space="preserve">
+    <value>Yes</value>
+  </data>
+  <data name="WorldSettings_GridBaseType" xml:space="preserve">
+    <value>Base</value>
+  </data>
+  <data name="WorldSettings_GridLargeShipType" xml:space="preserve">
+    <value>Large</value>
+  </data>
+  <data name="WorldSettings_GridSmallShipType" xml:space="preserve">
+    <value>Small</value>
   </data>
 </root>

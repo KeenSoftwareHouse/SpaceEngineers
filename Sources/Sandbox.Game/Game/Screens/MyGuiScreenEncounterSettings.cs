@@ -245,8 +245,8 @@ namespace Sandbox.Game.Gui
             m_randomModeButton = new MyGuiControlButton(visualStyle: MyGuiControlButtonStyleEnum.Small, highlightType: MyGuiControlHighlightType.WHEN_CURSOR_OVER, text: MyTexts.Get(MySpaceTexts.WorldSettings_RandomMode), onButtonClick: RandomButtonClicked);
             m_randomModeButton.SetToolTip(MySpaceTexts.ToolTipEncounterSettings_RandomMode);
 
-            m_shipSelectorButton = new MyGuiControlButton(visualStyle: MyGuiControlButtonStyleEnum.Small, highlightType: MyGuiControlHighlightType.WHEN_CURSOR_OVER, text: MyTexts.Get(MySpaceTexts.WorldSettings_ShipSelector), onButtonClick: ShipSelectorButtonClicked);
-            m_shipSelectorButton.SetToolTip(MySpaceTexts.ToolTipEncounterSettings_RandomMode);   
+            m_shipSelectorButton = new MyGuiControlButton(highlightType: MyGuiControlHighlightType.WHEN_CURSOR_OVER, text: MyTexts.Get(MySpaceTexts.WorldSettings_ShipSelector), onButtonClick: ShipSelectorButtonClicked);
+            m_shipSelectorButton.SetToolTip(MySpaceTexts.ToolTipEncounterSettings_EncounterSelection);   
 
             float labelSize = 0.31f;
 
@@ -298,10 +298,7 @@ namespace Sandbox.Game.Gui
                     control.Position = originL + controlsDelta * numControls;
                 else
                     control.Position = originC + controlsDelta * numControls++;
-            }
-
-            m_shipSelectorButton.Position = originC + controlsDelta * numControls++;
-            parent.Controls.Add(m_shipSelectorButton);
+            }                       
             
             // The following controls need to be positioned manually.
             presetLabel.Position = originL + controlsDelta + new Vector2(0.23f, -0.09f);
@@ -321,6 +318,9 @@ namespace Sandbox.Game.Gui
 
             m_randomModeButton.Position = originL + controlsDelta + new Vector2(0.58f, -0.03f);
             Controls.Add(m_randomModeButton);
+
+            m_shipSelectorButton.Position = m_okButton.Position - new Vector2(0.4f, 0.027f);
+            Controls.Add(m_shipSelectorButton);
 
             Controls.Add(m_okButton);
             Controls.Add(m_cancelButton);
@@ -399,7 +399,7 @@ namespace Sandbox.Game.Gui
 
             foreach (var row in ShipsAvailableMaster)
             {
-                var shipExclude = row.GetCell(0).Text.ToString() == "No";
+                var shipExclude = row.GetCell(0).Text.ToString() == MyTexts.GetString(MySpaceTexts.WorldSettings_Encounter_No);
                 if (shipExclude)
                 {
                     output.ShipExcluded.Add(row.UserData.ToString());
@@ -427,7 +427,7 @@ namespace Sandbox.Game.Gui
                 {
                     if(row.UserData.ToString() == excludedShip.ToString())
                     {
-                        row.GetCell(0).Text = new StringBuilder("No");
+                        row.GetCell(0).Text = new StringBuilder(MyTexts.GetString(MySpaceTexts.WorldSettings_Encounter_No));
                     }
                 }
             }
@@ -564,9 +564,9 @@ namespace Sandbox.Game.Gui
                     newRow.AddCell(new MyGuiControlTable.Cell(text: row.GetCell(4).Text, toolTip: row.GetCell(4).ToolTip.ToolTips[0].Text.ToString()));
                     ShipsAvailableHolderForArmedLargeShips.Add(newRow);
 
-                    if ((row.GetCell(2).Text.ToString() == "Large") && (int.Parse(row.GetCell(4).Text.ToString()) == 0))
+                    if ((row.GetCell(2).Text.ToString() == MyTexts.GetString(MySpaceTexts.WorldSettings_GridLargeShipType)) && (int.Parse(row.GetCell(4).Text.ToString()) == 0))
                     {
-                        row.GetCell(0).Text = new StringBuilder("No");
+                        row.GetCell(0).Text = new StringBuilder(MyTexts.GetString(MySpaceTexts.WorldSettings_Encounter_No));
                     }
                 }
             }
@@ -653,33 +653,33 @@ namespace Sandbox.Game.Gui
 
                             if (spawnGroup.Voxels.Count != 0)
                             {
-                                gridSize = "Base";
-                                gridSizeToolTip = "Asteroid Base";
+                                gridSize = MyTexts.GetString(MySpaceTexts.WorldSettings_GridBaseType);
+                                gridSizeToolTip = MyTexts.GetString(MySpaceTexts.ToolTipEncounterSettings_AsteroidBaseLabel);
                             }
                             else
                             {
                                 if (firstPrefab.GridSize.ToLower() == "large")
                                 {
-                                    gridSize = "Large";
-                                    gridSizeToolTip = "Large Ship";
+                                    gridSize = MyTexts.GetString(MySpaceTexts.WorldSettings_GridLargeShipType);
+                                    gridSizeToolTip = MyTexts.GetString(MySpaceTexts.ToolTipEncounterSettings_LargeShipLabel);
                                 }
                                 else
                                 {
-                                    gridSize = "Small";
-                                    gridSizeToolTip = "Small Ship";
+                                    gridSize = MyTexts.GetString(MySpaceTexts.WorldSettings_GridSmallShipType);
+                                    gridSizeToolTip = MyTexts.GetString(MySpaceTexts.ToolTipEncounterSettings_SmallShipLabel);
                                 }
                             }
 
                             var turretToolTip = new StringBuilder();
-                            turretToolTip.Append(string.Format("Interior: {0} \n", interiorTurrets));
-                            turretToolTip.Append(string.Format("Gatling: {0} \n", gatlingTurrets));
-                            turretToolTip.Append(string.Format("Missile: {0}", missileTurrets));
+                            turretToolTip.Append(string.Format("{0}: {1} \n", MyTexts.GetString(MySpaceTexts.ToolTipEncounterSettings_InteriorTurretLabel), interiorTurrets));
+                            turretToolTip.Append(string.Format("{0}: {1} \n", MyTexts.GetString(MySpaceTexts.ToolTipEncounterSettings_GatlingTurretLabel), gatlingTurrets));
+                            turretToolTip.Append(string.Format("{0}: {1}", MyTexts.GetString(MySpaceTexts.ToolTipEncounterSettings_MissileTurretLabel), missileTurrets));
 
                             if (matchesSelectionFilter)
                             {
-                                var row = new MyGuiControlTable.Row(prefab.SubtypeId);                                
-                                row.AddCell(new MyGuiControlTable.Cell(text: "Yes", toolTip: "Will be used in game"));
-                                row.AddCell(new MyGuiControlTable.Cell(text: prefab.SubtypeId.Replace("_", " "), toolTip: "The name of the ship or station"));
+                                var row = new MyGuiControlTable.Row(prefab.SubtypeId);
+                                row.AddCell(new MyGuiControlTable.Cell(text: MyTexts.GetString(MySpaceTexts.WorldSettings_Encounter_Yes), toolTip: MyTexts.GetString(MySpaceTexts.ToolTipEncounterSettings_TableActiveColumn)));
+                                row.AddCell(new MyGuiControlTable.Cell(text: prefab.SubtypeId.Replace("_", " "), toolTip: MyTexts.GetString(MySpaceTexts.ToolTipEncounterSettings_TableNameColumn)));
                                 row.AddCell(new MyGuiControlTable.Cell(text: gridSize, toolTip: gridSizeToolTip));
                                 row.AddCell(new MyGuiControlTable.Cell(text: firstPrefab.BlocksCount.ToString(), toolTip: blockToolTip.ToString()));
                                 row.AddCell(new MyGuiControlTable.Cell(text: turrets.ToString(), toolTip: turretToolTip.ToString()));
@@ -687,8 +687,8 @@ namespace Sandbox.Game.Gui
                                 ShipsAvailableMaster.Add(row);
 
                                 var rowtemp = new MyGuiControlTable.Row(prefab.SubtypeId);
-                                row.AddCell(new MyGuiControlTable.Cell(text: "Yes", toolTip: "Will be used in game"));
-                                row.AddCell(new MyGuiControlTable.Cell(text: prefab.SubtypeId.Replace("_", " "), toolTip: "The name of the ship or station"));
+                                row.AddCell(new MyGuiControlTable.Cell(text: MyTexts.GetString(MySpaceTexts.WorldSettings_Encounter_Yes), toolTip: MyTexts.GetString(MySpaceTexts.ToolTipEncounterSettings_TableActiveColumn)));
+                                row.AddCell(new MyGuiControlTable.Cell(text: prefab.SubtypeId.Replace("_", " "), toolTip: MyTexts.GetString(MySpaceTexts.ToolTipEncounterSettings_TableNameColumn)));
                                 row.AddCell(new MyGuiControlTable.Cell(text: gridSize, toolTip: gridSizeToolTip));
                                 row.AddCell(new MyGuiControlTable.Cell(text: firstPrefab.BlocksCount.ToString(), toolTip: blockToolTip.ToString()));
                                 row.AddCell(new MyGuiControlTable.Cell(text: turrets.ToString(), toolTip: turretToolTip.ToString()));
@@ -737,13 +737,13 @@ namespace Sandbox.Game.Gui
 
             if (!(m_selectedRow == null))
             {
-                if (m_selectedRow.GetCell(0).Text.ToString() == "Yes")
+                if (m_selectedRow.GetCell(0).Text.ToString() == MyTexts.GetString(MySpaceTexts.WorldSettings_Encounter_Yes))
                 {
-                    m_selectedRow.GetCell(0).Text = new StringBuilder("No");
+                    m_selectedRow.GetCell(0).Text = new StringBuilder(MyTexts.GetString(MySpaceTexts.WorldSettings_Encounter_No));
                 }
                 else
                 {
-                    m_selectedRow.GetCell(0).Text = new StringBuilder("Yes");
+                    m_selectedRow.GetCell(0).Text = new StringBuilder(MyTexts.GetString(MySpaceTexts.WorldSettings_Encounter_Yes));
                 }
             }
         }
@@ -755,27 +755,48 @@ namespace Sandbox.Game.Gui
 
         private void OkButtonClicked(object sender)
         {
-            ShipsAvailableMaster.Clear();
+            var totalYes = 0;
 
             foreach (var row in ShipsAvailableTemporary)
             {
-                var newRow = new MyGuiControlTable.Row(row.UserData);
-                newRow.AddCell(new MyGuiControlTable.Cell(text: row.GetCell(0).Text, toolTip: row.GetCell(0).ToolTip.ToolTips[0].Text.ToString()));
-                newRow.AddCell(new MyGuiControlTable.Cell(text: row.GetCell(1).Text, toolTip: row.GetCell(1).ToolTip.ToolTips[0].Text.ToString()));
-                newRow.AddCell(new MyGuiControlTable.Cell(text: row.GetCell(2).Text, toolTip: row.GetCell(2).ToolTip.ToolTips[0].Text.ToString()));
-                newRow.AddCell(new MyGuiControlTable.Cell(text: row.GetCell(3).Text, toolTip: row.GetCell(3).ToolTip.ToolTips[0].Text.ToString()));
-                newRow.AddCell(new MyGuiControlTable.Cell(text: row.GetCell(4).Text, toolTip: row.GetCell(4).ToolTip.ToolTips[0].Text.ToString()));
-                ShipsAvailableMaster.Add(newRow);
+                if (row.GetCell(0).Text.ToString() == new StringBuilder(MyTexts.GetString(MySpaceTexts.WorldSettings_Encounter_Yes)).ToString())
+                {
+                    totalYes++;
+                }
             }
 
-            m_isConfirmed = true;
-
-            if (OnOkButtonClicked != null)
+            if (totalYes > 0)
             {
-                OnOkButtonClicked();
-            }
+                ShipsAvailableMaster.Clear();
 
-            this.CloseScreen();
+                foreach (var row in ShipsAvailableTemporary)
+                {
+                    var newRow = new MyGuiControlTable.Row(row.UserData);
+                    newRow.AddCell(new MyGuiControlTable.Cell(text: row.GetCell(0).Text, toolTip: row.GetCell(0).ToolTip.ToolTips[0].Text.ToString()));
+                    newRow.AddCell(new MyGuiControlTable.Cell(text: row.GetCell(1).Text, toolTip: row.GetCell(1).ToolTip.ToolTips[0].Text.ToString()));
+                    newRow.AddCell(new MyGuiControlTable.Cell(text: row.GetCell(2).Text, toolTip: row.GetCell(2).ToolTip.ToolTips[0].Text.ToString()));
+                    newRow.AddCell(new MyGuiControlTable.Cell(text: row.GetCell(3).Text, toolTip: row.GetCell(3).ToolTip.ToolTips[0].Text.ToString()));
+                    newRow.AddCell(new MyGuiControlTable.Cell(text: row.GetCell(4).Text, toolTip: row.GetCell(4).ToolTip.ToolTips[0].Text.ToString()));
+                    ShipsAvailableMaster.Add(newRow);
+                }
+
+                m_isConfirmed = true;
+
+                if (OnOkButtonClicked != null)
+                {
+                    OnOkButtonClicked();
+                }
+
+                this.CloseScreen();
+            }
+            else
+            {
+                MyGuiSandbox.AddScreen(MyGuiSandbox.CreateMessageBox(
+                                    buttonType: MyMessageBoxButtonsType.OK,
+                                    messageText: MyTexts.Get(MySpaceTexts.MessageBoxTextNotEnoughEncounterShipsSelected),
+                                    messageCaption: MyTexts.Get(MySpaceTexts.MessageBoxCaptionNotEnoughShips)
+                                    ));
+            }
         }
         
         public event System.Action OnOkButtonClicked;
