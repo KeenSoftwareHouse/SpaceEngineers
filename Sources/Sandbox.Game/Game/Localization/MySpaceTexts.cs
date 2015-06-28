@@ -11085,29 +11085,9 @@ namespace Sandbox.Game.Localization
         public static readonly MyStringId WorldSettings_AllowArmedLargeShipsLabel = MyStringId.GetOrCompute("WorldSettings_AllowArmedLargeShipsLabel");
 
         ///<summary>
-        ///Apply Filters
-        ///</summary>
-        public static readonly MyStringId WorldSettings_EncounterApplyButton = MyStringId.GetOrCompute("WorldSettings_EncounterApplyButton");
-
-        ///<summary>
         ///Asteroid Bases
         ///</summary>
         public static readonly MyStringId WorldSettings_EncounterBaseShipLabel = MyStringId.GetOrCompute("WorldSettings_EncounterBaseShipLabel");
-
-        ///<summary>
-        ///Exclude
-        ///</summary>
-        public static readonly MyStringId WorldSettings_EncounterExcludeLabel = MyStringId.GetOrCompute("WorldSettings_EncounterExcludeLabel");
-
-        ///<summary>
-        ///Filter
-        ///</summary>
-        public static readonly MyStringId WorldSettings_EncounterFilterLabel = MyStringId.GetOrCompute("WorldSettings_EncounterFilterLabel");
-
-        ///<summary>
-        ///Include
-        ///</summary>
-        public static readonly MyStringId WorldSettings_EncounterIncludeLabel = MyStringId.GetOrCompute("WorldSettings_EncounterIncludeLabel");
 
         ///<summary>
         ///Large Ships
@@ -11115,19 +11095,14 @@ namespace Sandbox.Game.Localization
         public static readonly MyStringId WorldSettings_EncounterLargeShipLabel = MyStringId.GetOrCompute("WorldSettings_EncounterLargeShipLabel");
 
         ///<summary>
-        ///Reset
-        ///</summary>
-        public static readonly MyStringId WorldSettings_EncounterResetButton = MyStringId.GetOrCompute("WorldSettings_EncounterResetButton");
-
-        ///<summary>
         ///Small Ships
         ///</summary>
         public static readonly MyStringId WorldSettings_EncounterSmallShipLabel = MyStringId.GetOrCompute("WorldSettings_EncounterSmallShipLabel");
 
         ///<summary>
-        ///Encounter Types Allowed
+        ///Sliders affect..
         ///</summary>
-        public static readonly MyStringId WorldSettings_EncounterTypesAllowedLabel = MyStringId.GetOrCompute("WorldSettings_EncounterTypesAllowedLabel");
+        public static readonly MyStringId WorldSettings_EncounterSlidersAffectLabel = MyStringId.GetOrCompute("WorldSettings_EncounterSlidersAffectLabel");
 
         ///<summary>
         ///Maximum Blocks
