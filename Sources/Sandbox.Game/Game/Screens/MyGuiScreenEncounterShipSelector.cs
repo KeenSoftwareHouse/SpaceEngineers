@@ -432,22 +432,7 @@ namespace Sandbox.Game.Gui
         }
 
         private void applyFiltersButtonClicked(object sender)
-        { 
-           if (m_includeLargeShips.IsChecked && m_excludeLargeShips.IsChecked)
-           {
-               m_excludeLargeShips.IsChecked = false;
-           }
-
-           if (m_includeSmallShips.IsChecked && m_excludeSmallShips.IsChecked)
-           {
-               m_excludeSmallShips.IsChecked = false;
-           }
-
-           if (m_includeBases.IsChecked && m_excludeBases.IsChecked)
-           {
-               m_excludeBases.IsChecked = false;
-           }
-
+        {            
            m_ShipsAvailableTable.Clear();
 
             foreach (var row in m_shipsAvailableTemporary)

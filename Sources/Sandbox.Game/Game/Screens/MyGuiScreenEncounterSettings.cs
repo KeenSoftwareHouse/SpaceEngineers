@@ -31,6 +31,7 @@ namespace Sandbox.Game.Gui
         MyGuiScreenWorldSettings m_parent;
         bool m_isNewGame;
         bool m_isConfirmed;
+        float m_damageSliderLastValue, m_AntennaOnLastValue;
 
         MyGuiControlButton m_okButton, m_cancelButton, m_peaceModeButton, m_adventureModeButton, m_warModeButton, m_ruinsModeButton, m_randomModeButton, m_shipSelectorButton;
         MyGuiControlSlider m_maxNoShipsPerSpawnGroup, m_maxDamagedShipPercentage, m_maxHostileEncountersPercentage, m_antennaOnPercentage, m_reactorsOnPercentage, m_smallToLargeShipRatio;
@@ -159,6 +160,8 @@ namespace Sandbox.Game.Gui
                 );
 
             m_maxDamagedShipPercentage.SetToolTip(MyTexts.GetString(MySpaceTexts.ToolTipEncounterSettingsDamagedShips));
+            m_maxDamagedShipPercentage.ValueChanged += onDamagedShipValueChanged;
+
 
             m_maxDamagedShipsSeverity = new MyGuiControlCombobox(size: new Vector2(severityComboBoxWidth, 0.04f));
             m_maxDamagedShipsSeverity.SetToolTip(MyTexts.GetString(MySpaceTexts.ToolTipEncounterSettingsDamagedShipSeverity));
@@ -199,6 +202,7 @@ namespace Sandbox.Game.Gui
                 );
 
             m_antennaOnPercentage.SetToolTip(MyTexts.GetString(MySpaceTexts.ToolTipEncounterSettingsAntennasOn));
+            m_antennaOnPercentage.ValueChanged += onAntennaOnValueChanged;
 
             m_smallToLargeShipRatio = new MyGuiControlSlider(
                 position: Vector2.Zero - new Vector2(-0.1f, 0.3f),
@@ -325,6 +329,49 @@ namespace Sandbox.Game.Gui
             CloseButtonEnabled = true;
         }
 
+        private void onAntennaOnValueChanged(MyGuiControlSlider obj)
+        {
+            if (obj.Value > 0.0f && m_AntennaOnLastValue == 0.0f)
+            {              
+                m_antennaRangeMaxedOut.Enabled = true;                
+            }
+            else
+            {
+                if (obj.Value == 0.0f)
+                {
+                   
+                    m_antennaRangeMaxedOut.IsChecked = false;
+                    m_antennaRangeMaxedOut.Enabled = false;
+                }
+            }
+
+            m_AntennaOnLastValue = obj.Value;
+        }
+
+        private void onDamagedShipValueChanged(MyGuiControlSlider obj)
+        {
+            if (obj.Value > 0.0f && m_damageSliderLastValue == 0.0f)
+            {
+                m_maxDamagedShipsSeverity.SelectItemByIndex(1);
+                m_maxDamagedShipsSeverity.Enabled = true;
+                m_damageAppliedGlobally.Enabled = true;
+                m_damageAppliedGlobally.IsChecked = false;                
+            }
+            else
+            {
+                if (obj.Value == 0.0f)
+                {
+                    m_maxDamagedShipsSeverity.SelectItemByIndex(0);
+                    m_damageAppliedGlobally.IsChecked = true;
+
+                    m_maxDamagedShipsSeverity.Enabled = false;
+                    m_damageAppliedGlobally.Enabled = false;
+                }
+            }
+
+            m_damageSliderLastValue = obj.Value;
+        }
+
         private MyGuiControlLabel MakeLabel(MyStringId textEnum)
         {
             return new MyGuiControlLabel(text: MyTexts.GetString(textEnum), originAlign: MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_CENTER);
@@ -373,6 +420,7 @@ namespace Sandbox.Game.Gui
             m_smallToLargeShipRatio.Value = settings.SmallToLargeShipRatio;
             m_allowArmedLargeShipsOnly.IsChecked = settings.AllowArmedLargeShipsOnly;
 
+
             foreach (var excludedShip in settings.ShipExcluded)
             {
                 foreach (var row in ShipsAvailableTemporary)
@@ -383,6 +431,26 @@ namespace Sandbox.Game.Gui
                     }
                 }
             }
+
+            // Setup the controls correctly when damaged ships aren't wanted
+            if (m_maxDamagedShipPercentage.Value == 0.0f)
+            {
+                m_maxDamagedShipsSeverity.SelectItemByIndex(0);
+                m_damageAppliedGlobally.IsChecked = true;
+
+                m_maxDamagedShipsSeverity.Enabled = false;
+                m_damageAppliedGlobally.Enabled = false;
+            }
+
+            m_damageSliderLastValue = m_maxDamagedShipPercentage.Value;
+
+            if (m_AntennaOnLastValue == 0.0f)
+            {
+                m_antennaRangeMaxedOut.IsChecked = false;
+                m_antennaRangeMaxedOut.Enabled = false;
+            }
+
+            m_AntennaOnLastValue = m_antennaOnPercentage.Value;
         }
 
         public override string GetFriendlyName()
