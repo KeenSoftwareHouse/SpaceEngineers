@@ -217,7 +217,7 @@ namespace Sandbox.Game.Screens.Helpers
             m_labelPages.Position = new Vector2(m_bottomPanel.Position.X - m_bottomPanel.Size.X + 2f*spacing,
                                                 m_buttonPrev.Position.Y);
 
-            m_textNewsEntry.Size = new Vector2(posXRight - posXLeft, (m_buttonNext.Position.Y - m_textNewsEntry.Position.Y));
+            m_textNewsEntry.Size = new Vector2(posXRight - posXLeft, (m_buttonNext.Position.Y - m_buttonNext.Size.Y - m_textNewsEntry.Position.Y));
 
             m_textError.Size = Size - 2f * padding;
             m_bottomPanel.Size = new Vector2(0.125f, m_buttonPrev.Size.Y + 0.015f);
