@@ -43,6 +43,7 @@ namespace Sandbox.Game.Gui
 
         List<MyGuiControlTable.Row> ShipsAvailableMaster = new List<MyGuiControlTable.Row>();
         List<MyGuiControlTable.Row> ShipsAvailableTemporary = new List<MyGuiControlTable.Row>();
+        List<MyGuiControlTable.Row> ShipsAvailableHolderForArmedLargeShips = new List<MyGuiControlTable.Row>();
 
         public bool IsConfirmed
         {
@@ -217,7 +218,8 @@ namespace Sandbox.Game.Gui
             m_antennaRangeMaxedOut.SetToolTip(MyTexts.GetString(MySpaceTexts.ToolTipEncounterSettingsAntennasRangeMaxed));
 
             m_allowArmedLargeShipsOnly = new MyGuiControlCheckbox();
-            m_allowArmedLargeShipsOnly.SetToolTip(MyTexts.GetString(MySpaceTexts.ToolTipEncounterSettingsArmedLargeShipsOnly));      
+            m_allowArmedLargeShipsOnly.SetToolTip(MyTexts.GetString(MySpaceTexts.ToolTipEncounterSettingsArmedLargeShipsOnly));
+            m_allowArmedLargeShipsOnly.IsCheckedChanged += onArmedLargeShipsOnlyIsCheckedChanged;
 
             // Ok-Cancel Buttons
             m_okButton = new MyGuiControlButton(position: buttonsOrigin - new Vector2(0.01f, 0f), size: buttonSize, text: MyTexts.Get(MySpaceTexts.Ok), onButtonClick: OkButtonClicked, originAlign: MyGuiDrawAlignEnum.HORISONTAL_RIGHT_AND_VERTICAL_BOTTOM);
@@ -478,6 +480,45 @@ namespace Sandbox.Game.Gui
             EncounterShipSelection.GetAvailableShipsSettings(ShipsAvailableTemporary);
         }
 
+        private void onArmedLargeShipsOnlyIsCheckedChanged(MyGuiControlCheckbox sender)
+        {
+            if (sender.IsChecked)
+            {
+                ShipsAvailableHolderForArmedLargeShips.Clear();
+
+                foreach (var row in ShipsAvailableTemporary)
+                {
+                    var newRow = new MyGuiControlTable.Row(row.UserData);
+                    newRow.AddCell(new MyGuiControlTable.Cell(text: row.GetCell(0).Text, toolTip: row.GetCell(0).ToolTip.ToolTips[0].Text.ToString()));
+                    newRow.AddCell(new MyGuiControlTable.Cell(text: row.GetCell(1).Text, toolTip: row.GetCell(1).ToolTip.ToolTips[0].Text.ToString()));
+                    newRow.AddCell(new MyGuiControlTable.Cell(text: row.GetCell(2).Text, toolTip: row.GetCell(2).ToolTip.ToolTips[0].Text.ToString()));
+                    newRow.AddCell(new MyGuiControlTable.Cell(text: row.GetCell(3).Text, toolTip: row.GetCell(3).ToolTip.ToolTips[0].Text.ToString()));
+                    newRow.AddCell(new MyGuiControlTable.Cell(text: row.GetCell(4).Text, toolTip: row.GetCell(4).ToolTip.ToolTips[0].Text.ToString()));
+                    ShipsAvailableHolderForArmedLargeShips.Add(newRow);
+
+                    if ((row.GetCell(2).Text.ToString() == "Large") && (int.Parse(row.GetCell(4).Text.ToString()) == 0))
+                    {
+                        row.GetCell(0).Text = new StringBuilder("No");
+                    }
+                }
+            }
+            else
+            {
+                ShipsAvailableTemporary.Clear();
+
+                foreach (var row in ShipsAvailableHolderForArmedLargeShips)
+                {
+                    var newRow = new MyGuiControlTable.Row(row.UserData);
+                    newRow.AddCell(new MyGuiControlTable.Cell(text: row.GetCell(0).Text, toolTip: row.GetCell(0).ToolTip.ToolTips[0].Text.ToString()));
+                    newRow.AddCell(new MyGuiControlTable.Cell(text: row.GetCell(1).Text, toolTip: row.GetCell(1).ToolTip.ToolTips[0].Text.ToString()));
+                    newRow.AddCell(new MyGuiControlTable.Cell(text: row.GetCell(2).Text, toolTip: row.GetCell(2).ToolTip.ToolTips[0].Text.ToString()));
+                    newRow.AddCell(new MyGuiControlTable.Cell(text: row.GetCell(3).Text, toolTip: row.GetCell(3).ToolTip.ToolTips[0].Text.ToString()));
+                    newRow.AddCell(new MyGuiControlTable.Cell(text: row.GetCell(4).Text, toolTip: row.GetCell(4).ToolTip.ToolTips[0].Text.ToString()));
+                    ShipsAvailableTemporary.Add(newRow);
+                }
+            }
+        }
+
         private void GetAvailableShips()
         {
             MyDefinitionManager.Static.UnloadData();
@@ -493,8 +534,7 @@ namespace Sandbox.Game.Gui
                 var matchesSelectionFilter = true;
 
                 if (spawnGroup.IsEncounter)
-                {
-                    //if (spawnGroup.Voxels.Count == 0)
+                {                   
                         foreach (var prefab in spawnGroup.Prefabs)
                         {
                             var prefabDefinition = MyDefinitionManager.Static.GetPrefabDefinition(prefab.SubtypeId);
@@ -652,11 +692,11 @@ namespace Sandbox.Game.Gui
             foreach (var row in ShipsAvailableTemporary)
             {
                 var newRow = new MyGuiControlTable.Row(row.UserData);
-                newRow.AddCell(new MyGuiControlTable.Cell(text: row.GetCell(0).Text, toolTip: row.GetCell(0).ToolTip.ToString()));
-                newRow.AddCell(new MyGuiControlTable.Cell(text: row.GetCell(1).Text, toolTip: row.GetCell(1).ToolTip.ToString()));
-                newRow.AddCell(new MyGuiControlTable.Cell(text: row.GetCell(2).Text, toolTip: row.GetCell(2).ToolTip.ToString()));
-                newRow.AddCell(new MyGuiControlTable.Cell(text: row.GetCell(3).Text, toolTip: row.GetCell(3).ToolTip.ToString()));
-                newRow.AddCell(new MyGuiControlTable.Cell(text: row.GetCell(4).Text, toolTip: row.GetCell(4).ToolTip.ToString()));
+                newRow.AddCell(new MyGuiControlTable.Cell(text: row.GetCell(0).Text, toolTip: row.GetCell(0).ToolTip.ToolTips[0].Text.ToString()));
+                newRow.AddCell(new MyGuiControlTable.Cell(text: row.GetCell(1).Text, toolTip: row.GetCell(1).ToolTip.ToolTips[0].Text.ToString()));
+                newRow.AddCell(new MyGuiControlTable.Cell(text: row.GetCell(2).Text, toolTip: row.GetCell(2).ToolTip.ToolTips[0].Text.ToString()));
+                newRow.AddCell(new MyGuiControlTable.Cell(text: row.GetCell(3).Text, toolTip: row.GetCell(3).ToolTip.ToolTips[0].Text.ToString()));
+                newRow.AddCell(new MyGuiControlTable.Cell(text: row.GetCell(4).Text, toolTip: row.GetCell(4).ToolTip.ToolTips[0].Text.ToString()));
                 ShipsAvailableMaster.Add(newRow);
             }
 

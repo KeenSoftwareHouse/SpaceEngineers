@@ -57,22 +57,22 @@ namespace Sandbox.Game.Gui
             foreach (var row in shipsAvailable)
             {
                 var newRow = new MyGuiControlTable.Row(row.UserData);
-                newRow.AddCell(new MyGuiControlTable.Cell(text: row.GetCell(0).Text, toolTip: row.GetCell(0).ToolTip.ToString()));
-                newRow.AddCell(new MyGuiControlTable.Cell(text: row.GetCell(1).Text, toolTip: row.GetCell(1).ToolTip.ToString()));
-                newRow.AddCell(new MyGuiControlTable.Cell(text: row.GetCell(2).Text, toolTip: row.GetCell(2).ToolTip.ToString()));
-                newRow.AddCell(new MyGuiControlTable.Cell(text: row.GetCell(3).Text, toolTip: row.GetCell(3).ToolTip.ToString()));
-                newRow.AddCell(new MyGuiControlTable.Cell(text: row.GetCell(4).Text, toolTip: row.GetCell(4).ToolTip.ToString()));
+                newRow.AddCell(new MyGuiControlTable.Cell(text: row.GetCell(0).Text, toolTip: row.GetCell(0).ToolTip.ToolTips[0].Text.ToString()));
+                newRow.AddCell(new MyGuiControlTable.Cell(text: row.GetCell(1).Text, toolTip: row.GetCell(1).ToolTip.ToolTips[0].Text.ToString()));
+                newRow.AddCell(new MyGuiControlTable.Cell(text: row.GetCell(2).Text, toolTip: row.GetCell(2).ToolTip.ToolTips[0].Text.ToString()));
+                newRow.AddCell(new MyGuiControlTable.Cell(text: row.GetCell(3).Text, toolTip: row.GetCell(3).ToolTip.ToolTips[0].Text.ToString()));
+                newRow.AddCell(new MyGuiControlTable.Cell(text: row.GetCell(4).Text, toolTip: row.GetCell(4).ToolTip.ToolTips[0].Text.ToString()));
                 m_shipsAvailableMaster.Add(newRow);
             }
 
             foreach (var row in m_shipsAvailableMaster)
             {
                 var newRow = new MyGuiControlTable.Row(row.UserData);
-                newRow.AddCell(new MyGuiControlTable.Cell(text: row.GetCell(0).Text, toolTip: row.GetCell(0).ToolTip.ToString()));
-                newRow.AddCell(new MyGuiControlTable.Cell(text: row.GetCell(1).Text, toolTip: row.GetCell(1).ToolTip.ToString()));
-                newRow.AddCell(new MyGuiControlTable.Cell(text: row.GetCell(2).Text, toolTip: row.GetCell(2).ToolTip.ToString()));
-                newRow.AddCell(new MyGuiControlTable.Cell(text: row.GetCell(3).Text, toolTip: row.GetCell(3).ToolTip.ToString()));
-                newRow.AddCell(new MyGuiControlTable.Cell(text: row.GetCell(4).Text, toolTip: row.GetCell(4).ToolTip.ToString()));
+                newRow.AddCell(new MyGuiControlTable.Cell(text: row.GetCell(0).Text, toolTip: row.GetCell(0).ToolTip.ToolTips[0].Text.ToString()));
+                newRow.AddCell(new MyGuiControlTable.Cell(text: row.GetCell(1).Text, toolTip: row.GetCell(1).ToolTip.ToolTips[0].Text.ToString()));
+                newRow.AddCell(new MyGuiControlTable.Cell(text: row.GetCell(2).Text, toolTip: row.GetCell(2).ToolTip.ToolTips[0].Text.ToString()));
+                newRow.AddCell(new MyGuiControlTable.Cell(text: row.GetCell(3).Text, toolTip: row.GetCell(3).ToolTip.ToolTips[0].Text.ToString()));
+                newRow.AddCell(new MyGuiControlTable.Cell(text: row.GetCell(4).Text, toolTip: row.GetCell(4).ToolTip.ToolTips[0].Text.ToString()));
                 m_shipsAvailableTemporary.Add(newRow);
             }
             
@@ -87,7 +87,13 @@ namespace Sandbox.Game.Gui
         {
             foreach (var row in m_shipsAvailableMaster)
             {
-                m_ShipsAvailableTable.Add(row);
+                var newRow = new MyGuiControlTable.Row(row.UserData);
+                newRow.AddCell(new MyGuiControlTable.Cell(text: row.GetCell(0).Text, toolTip: row.GetCell(0).ToolTip.ToolTips[0].Text.ToString()));
+                newRow.AddCell(new MyGuiControlTable.Cell(text: row.GetCell(1).Text, toolTip: row.GetCell(1).ToolTip.ToolTips[0].Text.ToString()));
+                newRow.AddCell(new MyGuiControlTable.Cell(text: row.GetCell(2).Text, toolTip: row.GetCell(2).ToolTip.ToolTips[0].Text.ToString()));
+                newRow.AddCell(new MyGuiControlTable.Cell(text: row.GetCell(3).Text, toolTip: row.GetCell(3).ToolTip.ToolTips[0].Text.ToString()));
+                newRow.AddCell(new MyGuiControlTable.Cell(text: row.GetCell(4).Text, toolTip: row.GetCell(4).ToolTip.ToolTips[0].Text.ToString()));
+                m_ShipsAvailableTable.Add(newRow);
             }
         }
 
@@ -326,11 +332,11 @@ namespace Sandbox.Game.Gui
             foreach (var row in m_shipsAvailableMaster)
             {
                 var newRow = new MyGuiControlTable.Row(row.UserData);
-                newRow.AddCell(new MyGuiControlTable.Cell(text: row.GetCell(0).Text, toolTip: row.GetCell(0).ToolTip.ToString()));
-                newRow.AddCell(new MyGuiControlTable.Cell(text: row.GetCell(1).Text, toolTip: row.GetCell(1).ToolTip.ToString()));
-                newRow.AddCell(new MyGuiControlTable.Cell(text: row.GetCell(2).Text, toolTip: row.GetCell(2).ToolTip.ToString()));
-                newRow.AddCell(new MyGuiControlTable.Cell(text: row.GetCell(3).Text, toolTip: row.GetCell(3).ToolTip.ToString()));
-                newRow.AddCell(new MyGuiControlTable.Cell(text: row.GetCell(4).Text, toolTip: row.GetCell(4).ToolTip.ToString()));
+                newRow.AddCell(new MyGuiControlTable.Cell(text: row.GetCell(0).Text, toolTip: row.GetCell(0).ToolTip.ToolTips[0].Text.ToString()));
+                newRow.AddCell(new MyGuiControlTable.Cell(text: row.GetCell(1).Text, toolTip: row.GetCell(1).ToolTip.ToolTips[0].Text.ToString()));
+                newRow.AddCell(new MyGuiControlTable.Cell(text: row.GetCell(2).Text, toolTip: row.GetCell(2).ToolTip.ToolTips[0].Text.ToString()));
+                newRow.AddCell(new MyGuiControlTable.Cell(text: row.GetCell(3).Text, toolTip: row.GetCell(3).ToolTip.ToolTips[0].Text.ToString()));
+                newRow.AddCell(new MyGuiControlTable.Cell(text: row.GetCell(4).Text, toolTip: row.GetCell(4).ToolTip.ToolTips[0].Text.ToString()));
                 output.Add(newRow);
             }
         }
@@ -473,11 +479,11 @@ namespace Sandbox.Game.Gui
                 foreach (var row in m_shipsAvailableTemporary)
                 {
                     var newRow = new MyGuiControlTable.Row(row.UserData);
-                    newRow.AddCell(new MyGuiControlTable.Cell(text: row.GetCell(0).Text, toolTip: row.GetCell(0).ToolTip.ToString()));
-                    newRow.AddCell(new MyGuiControlTable.Cell(text: row.GetCell(1).Text, toolTip: row.GetCell(1).ToolTip.ToString()));
-                    newRow.AddCell(new MyGuiControlTable.Cell(text: row.GetCell(2).Text, toolTip: row.GetCell(2).ToolTip.ToString()));
-                    newRow.AddCell(new MyGuiControlTable.Cell(text: row.GetCell(3).Text, toolTip: row.GetCell(3).ToolTip.ToString()));
-                    newRow.AddCell(new MyGuiControlTable.Cell(text: row.GetCell(4).Text, toolTip: row.GetCell(4).ToolTip.ToString()));
+                    newRow.AddCell(new MyGuiControlTable.Cell(text: row.GetCell(0).Text, toolTip: row.GetCell(0).ToolTip.ToolTips[0].Text.ToString()));
+                    newRow.AddCell(new MyGuiControlTable.Cell(text: row.GetCell(1).Text, toolTip: row.GetCell(1).ToolTip.ToolTips[0].Text.ToString()));
+                    newRow.AddCell(new MyGuiControlTable.Cell(text: row.GetCell(2).Text, toolTip: row.GetCell(2).ToolTip.ToolTips[0].Text.ToString()));
+                    newRow.AddCell(new MyGuiControlTable.Cell(text: row.GetCell(3).Text, toolTip: row.GetCell(3).ToolTip.ToolTips[0].Text.ToString()));
+                    newRow.AddCell(new MyGuiControlTable.Cell(text: row.GetCell(4).Text, toolTip: row.GetCell(4).ToolTip.ToolTips[0].Text.ToString()));
                     m_shipsAvailableMaster.Add(newRow);
                 }
 
