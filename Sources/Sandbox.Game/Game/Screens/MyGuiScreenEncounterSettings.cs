@@ -41,7 +41,8 @@ namespace Sandbox.Game.Gui
 
         internal MyGuiScreenEncounterShipSelector EncounterShipSelection;
 
-        List<MyGuiControlTable.Row> ShipsAvailable = new List<MyGuiControlTable.Row>();
+        List<MyGuiControlTable.Row> ShipsAvailableMaster = new List<MyGuiControlTable.Row>();
+        List<MyGuiControlTable.Row> ShipsAvailableTemporary = new List<MyGuiControlTable.Row>();
 
         public bool IsConfirmed
         {
@@ -82,9 +83,9 @@ namespace Sandbox.Game.Gui
 
             BuildControls();
 
-            LoadValues();
-
             GetAvailableShips();
+
+            LoadValues();            
         }
 
         public void BuildControls()
@@ -293,7 +294,7 @@ namespace Sandbox.Game.Gui
                     control.Position = originC + controlsDelta * numControls++;
             }
 
-            m_shipSelectorButton.Position = originL + controlsDelta * numControls++;
+            m_shipSelectorButton.Position = originC + controlsDelta * numControls++;
             parent.Controls.Add(m_shipSelectorButton);
             
             // The following controls need to be positioned manually.
@@ -345,7 +346,9 @@ namespace Sandbox.Game.Gui
             output.SmallToLargeShipRatio = (int)m_smallToLargeShipRatio.Value;
             output.AllowArmedLargeShipsOnly = (bool)m_allowArmedLargeShipsOnly.IsChecked;
 
-            foreach (var row in ShipsAvailable)
+            output.ShipExcluded.Clear();
+
+            foreach (var row in ShipsAvailableMaster)
             {
                 var shipExclude = row.GetCell(0).Text.ToString() == "No";
                 if (shipExclude)
@@ -366,7 +369,18 @@ namespace Sandbox.Game.Gui
             m_antennaOnPercentage.Value = settings.AntennaOnPercentage;
             m_antennaRangeMaxedOut.IsChecked = settings.AntennaRangeMaxedOut;
             m_smallToLargeShipRatio.Value = settings.SmallToLargeShipRatio;
-            m_allowArmedLargeShipsOnly.IsChecked = settings.AllowArmedLargeShipsOnly;           
+            m_allowArmedLargeShipsOnly.IsChecked = settings.AllowArmedLargeShipsOnly;
+
+            foreach (var excludedShip in settings.ShipExcluded)
+            {
+                foreach (var row in ShipsAvailableTemporary)
+                {
+                    if(row.UserData.ToString() == excludedShip.ToString())
+                    {
+                        row.GetCell(0).Text = new StringBuilder("No");
+                    }
+                }
+            }
         }
 
         public override string GetFriendlyName()
@@ -451,10 +465,17 @@ namespace Sandbox.Game.Gui
 
         private void ShipSelectorButtonClicked(object sender)
         {
-            EncounterShipSelection = new MyGuiScreenEncounterShipSelector(m_parent, ShipsAvailable);
-            // EncounterShipSelection.OnOkButtonClicked += EncounterShipSelection_OnOkButtonClicked;
+            EncounterShipSelection = new MyGuiScreenEncounterShipSelector(m_parent, ShipsAvailableTemporary);
+            EncounterShipSelection.OnOkButtonClicked += EncounterShipSelection_OnOkButtonClicked;
 
             MyGuiSandbox.AddScreen(EncounterShipSelection);
+        }
+
+        private void EncounterShipSelection_OnOkButtonClicked()
+        {
+            ShipsAvailableTemporary.Clear();
+
+            EncounterShipSelection.GetAvailableShipsSettings(ShipsAvailableTemporary);
         }
 
         private void GetAvailableShips()
@@ -555,7 +576,16 @@ namespace Sandbox.Game.Gui
                                 row.AddCell(new MyGuiControlTable.Cell(text: firstPrefab.BlocksCount.ToString(), toolTip: blockToolTip.ToString()));
                                 row.AddCell(new MyGuiControlTable.Cell(text: turrets.ToString(), toolTip: turretToolTip.ToString()));
 
-                                ShipsAvailable.Add(row);
+                                ShipsAvailableMaster.Add(row);
+
+                                var rowtemp = new MyGuiControlTable.Row(prefab.SubtypeId);
+                                row.AddCell(new MyGuiControlTable.Cell(text: "Yes", toolTip: "Will be used in game"));
+                                row.AddCell(new MyGuiControlTable.Cell(text: prefab.SubtypeId.Replace("_", " "), toolTip: "The name of the ship or station"));
+                                row.AddCell(new MyGuiControlTable.Cell(text: gridSize, toolTip: gridSizeToolTip));
+                                row.AddCell(new MyGuiControlTable.Cell(text: firstPrefab.BlocksCount.ToString(), toolTip: blockToolTip.ToString()));
+                                row.AddCell(new MyGuiControlTable.Cell(text: turrets.ToString(), toolTip: turretToolTip.ToString()));
+
+                                ShipsAvailableTemporary.Add(row);
                             }
                         }
                 }
@@ -617,6 +647,19 @@ namespace Sandbox.Game.Gui
 
         private void OkButtonClicked(object sender)
         {
+            ShipsAvailableMaster.Clear();
+
+            foreach (var row in ShipsAvailableTemporary)
+            {
+                var newRow = new MyGuiControlTable.Row(row.UserData);
+                newRow.AddCell(new MyGuiControlTable.Cell(text: row.GetCell(0).Text, toolTip: row.GetCell(0).ToolTip.ToString()));
+                newRow.AddCell(new MyGuiControlTable.Cell(text: row.GetCell(1).Text, toolTip: row.GetCell(1).ToolTip.ToString()));
+                newRow.AddCell(new MyGuiControlTable.Cell(text: row.GetCell(2).Text, toolTip: row.GetCell(2).ToolTip.ToString()));
+                newRow.AddCell(new MyGuiControlTable.Cell(text: row.GetCell(3).Text, toolTip: row.GetCell(3).ToolTip.ToString()));
+                newRow.AddCell(new MyGuiControlTable.Cell(text: row.GetCell(4).Text, toolTip: row.GetCell(4).ToolTip.ToString()));
+                ShipsAvailableMaster.Add(newRow);
+            }
+
             m_isConfirmed = true;
 
             if (OnOkButtonClicked != null)

@@ -31,8 +31,8 @@ namespace Sandbox.Game.Gui
 
         private MyGuiControlTable.Row m_selectedRow;
 
-        public List<MyGuiControlTable.Row> m_shipsAvailableMaster;
-        public List<MyGuiControlTable.Row> m_shipsAvailableTemporary;
+        public List<MyGuiControlTable.Row> m_shipsAvailableMaster = new List<MyGuiControlTable.Row>();
+        public List<MyGuiControlTable.Row> m_shipsAvailableTemporary = new List<MyGuiControlTable.Row>();
 
         public bool IsConfirmed
         {
@@ -54,9 +54,28 @@ namespace Sandbox.Game.Gui
             m_isNewGame = (parent.Checkpoint == null);
             m_isConfirmed = false;
 
-            m_shipsAvailableMaster = shipsAvailable;
-            m_shipsAvailableTemporary = shipsAvailable;
+            foreach (var row in shipsAvailable)
+            {
+                var newRow = new MyGuiControlTable.Row(row.UserData);
+                newRow.AddCell(new MyGuiControlTable.Cell(text: row.GetCell(0).Text, toolTip: row.GetCell(0).ToolTip.ToString()));
+                newRow.AddCell(new MyGuiControlTable.Cell(text: row.GetCell(1).Text, toolTip: row.GetCell(1).ToolTip.ToString()));
+                newRow.AddCell(new MyGuiControlTable.Cell(text: row.GetCell(2).Text, toolTip: row.GetCell(2).ToolTip.ToString()));
+                newRow.AddCell(new MyGuiControlTable.Cell(text: row.GetCell(3).Text, toolTip: row.GetCell(3).ToolTip.ToString()));
+                newRow.AddCell(new MyGuiControlTable.Cell(text: row.GetCell(4).Text, toolTip: row.GetCell(4).ToolTip.ToString()));
+                m_shipsAvailableMaster.Add(newRow);
+            }
 
+            foreach (var row in m_shipsAvailableMaster)
+            {
+                var newRow = new MyGuiControlTable.Row(row.UserData);
+                newRow.AddCell(new MyGuiControlTable.Cell(text: row.GetCell(0).Text, toolTip: row.GetCell(0).ToolTip.ToString()));
+                newRow.AddCell(new MyGuiControlTable.Cell(text: row.GetCell(1).Text, toolTip: row.GetCell(1).ToolTip.ToString()));
+                newRow.AddCell(new MyGuiControlTable.Cell(text: row.GetCell(2).Text, toolTip: row.GetCell(2).ToolTip.ToString()));
+                newRow.AddCell(new MyGuiControlTable.Cell(text: row.GetCell(3).Text, toolTip: row.GetCell(3).ToolTip.ToString()));
+                newRow.AddCell(new MyGuiControlTable.Cell(text: row.GetCell(4).Text, toolTip: row.GetCell(4).ToolTip.ToString()));
+                m_shipsAvailableTemporary.Add(newRow);
+            }
+            
             RecreateControls(true);
 
             fillShipsAvailableTable();
@@ -299,14 +318,20 @@ namespace Sandbox.Game.Gui
         }
 
         public void GetSettings(MyObjectBuilder_SessionSettings output)
+        {            
+        }
+
+        public void GetAvailableShipsSettings(List<MyGuiControlTable.Row> output)
         {
-            for (var counter = 0; counter < m_ShipsAvailableTable.RowsCount; counter++ )
+            foreach (var row in m_shipsAvailableMaster)
             {
-                var shipExclude = m_ShipsAvailableTable.GetRow(counter).GetCell(0).Text.ToString() == "No";
-                if (shipExclude)
-                {
-                    output.ShipExcluded.Add(m_ShipsAvailableTable.GetRow(counter).UserData.ToString());
-                }
+                var newRow = new MyGuiControlTable.Row(row.UserData);
+                newRow.AddCell(new MyGuiControlTable.Cell(text: row.GetCell(0).Text, toolTip: row.GetCell(0).ToolTip.ToString()));
+                newRow.AddCell(new MyGuiControlTable.Cell(text: row.GetCell(1).Text, toolTip: row.GetCell(1).ToolTip.ToString()));
+                newRow.AddCell(new MyGuiControlTable.Cell(text: row.GetCell(2).Text, toolTip: row.GetCell(2).ToolTip.ToString()));
+                newRow.AddCell(new MyGuiControlTable.Cell(text: row.GetCell(3).Text, toolTip: row.GetCell(3).ToolTip.ToString()));
+                newRow.AddCell(new MyGuiControlTable.Cell(text: row.GetCell(4).Text, toolTip: row.GetCell(4).ToolTip.ToString()));
+                output.Add(newRow);
             }
         }
 
@@ -317,142 +342,6 @@ namespace Sandbox.Game.Gui
         public override string GetFriendlyName()
         {
             return "MyGuiScreenEncounterShipSelector";
-        }
-
-        private void ViewShipsClicked(object sender)
-        {
-            MyDefinitionManager.Static.UnloadData();
-
-            var mods = new List<MyObjectBuilder_Checkpoint.ModItem>(0);
-
-            MyDefinitionManager.Static.LoadDefinitionsOnly(mods);
-
-            var allSpawnGroups = MyDefinitionManager.Static.GetSpawnGroupDefinitions();
-
-            foreach (var spawnGroup in allSpawnGroups)
-            {
-                var matchesSelectionFilter = true;
-
-                if (spawnGroup.IsEncounter)
-                {
-                    //if (spawnGroup.Voxels.Count == 0)
-                        foreach (var prefab in spawnGroup.Prefabs)
-                        {
-                            var prefabDefinition = MyDefinitionManager.Static.GetPrefabDefinition(prefab.SubtypeId);
-
-                            List<MyPrefabProfileDefinition> encounterProfile = MyDefinitionManager.Static.GetEncounterProfiles(prefabDefinition.PrefabPath);                              
-                            
-                            var firstPrefab = encounterProfile[0];
-
-                            var turrets = 0;
-
-                            var interiorTurrets = 0;
-                            var gatlingTurrets = 0;
-                            var missileTurrets = 0;
-
-                            var blockToolTip = new StringBuilder();
-
-                            foreach(var blockType in firstPrefab.BlocksTypes)
-                            {
-                                var blockTypeName = blockType.Key.ToLower();
-
-                                var readableBlockTypeName = blockType.Key.Substring(16, blockType.Key.Length - 16);
-
-                                if (blockTypeName.Contains("turret"))
-                                {
-                                    turrets += blockType.Value;
-
-                                    if (blockTypeName.Contains("missile"))
-                                    {
-                                        missileTurrets += blockType.Value;
-                                    }
-
-                                    if (blockTypeName.Contains("interior"))
-                                    {
-                                        interiorTurrets += blockType.Value;
-                                    }
-
-                                    if (blockTypeName.Contains("gatling"))
-                                    {
-                                        gatlingTurrets += blockType.Value;
-                                    }
-                                }
-
-                                blockToolTip.Append(string.Format("{0}: {1} \n", BreakUpName(readableBlockTypeName), blockType.Value));
-                            }
-
-                            var gridSize = "";
-                            var gridSizeToolTip = "";
-
-                            if (spawnGroup.Voxels.Count != 0)
-                            {
-                                gridSize = "Base";
-                                gridSizeToolTip = "Asteroid Base";
-                            }
-                            else
-                            {
-                                if (firstPrefab.GridSize.ToLower() == "large")
-                                {
-                                    gridSize = "Large";
-                                    gridSizeToolTip = "Large Ship";
-                                }
-                                else
-                                {
-                                    gridSize = "Small";
-                                    gridSizeToolTip = "Small Ship";
-                                }
-                            }
-
-                            var turretToolTip = new StringBuilder();
-                            turretToolTip.Append(string.Format("Interior: {0} \n", interiorTurrets));
-                            turretToolTip.Append(string.Format("Gatling: {0} \n", gatlingTurrets));
-                            turretToolTip.Append(string.Format("Missile: {0}", missileTurrets));
-
-                            if (matchesSelectionFilter)
-                            {
-                                var row = new MyGuiControlTable.Row(prefab.SubtypeId);                                
-                                row.AddCell(new MyGuiControlTable.Cell(text: "Yes", toolTip: "Will be used in game"));
-                                row.AddCell(new MyGuiControlTable.Cell(text: prefab.SubtypeId.Replace("_", " "), toolTip: "The name of the ship or station"));
-                                row.AddCell(new MyGuiControlTable.Cell(text: gridSize, toolTip: gridSizeToolTip));
-                                row.AddCell(new MyGuiControlTable.Cell(text: firstPrefab.BlocksCount.ToString(), toolTip: blockToolTip.ToString()));
-                                row.AddCell(new MyGuiControlTable.Cell(text: turrets.ToString(), toolTip: turretToolTip.ToString()));
-                                
-                                m_ShipsAvailableTable.Add(row);
-                            }
-                        }
-                }
-            }
-
-            MyDefinitionManager.Static.UnloadData();
-        }
-
-        private string BreakUpName(string inputString)
-        {
-            var result = "";
-            var firstUpperFound = false;
-
-            foreach(char character in inputString)
-            {
-                if(char.IsUpper(character))
-                {
-                    if(firstUpperFound)
-                    {
-                        result += " ";                        
-                    }
-                    else
-                    {
-                        firstUpperFound = true;
-                    }
-
-                    result += character;
-                }
-                else
-                {
-                    result += character;
-                }
-            }
-
-            return result;
         }
 
         private void OnTableItemSelected(MyGuiControlTable sender, MyGuiControlTable.EventArgs eventArgs)
@@ -469,13 +358,21 @@ namespace Sandbox.Game.Gui
                 {
                     m_selectedRow.GetCell(0).Text = new StringBuilder("Yes");
                 }
+
+                foreach (var row in m_shipsAvailableTemporary)
+                {
+                    if (row.UserData == m_selectedRow.UserData)
+                    {
+                        row.GetCell(0).Text = m_selectedRow.GetCell(0).Text;
+                    }
+                }
             }
+
+
         }
 
         private void applyFiltersButtonClicked(object sender)
-        {
-           
-
+        { 
            if (m_includeLargeShips.IsChecked && m_excludeLargeShips.IsChecked)
            {
                m_excludeLargeShips.IsChecked = false;
@@ -571,6 +468,19 @@ namespace Sandbox.Game.Gui
 
             if (totalYes > 0)
             {
+                m_shipsAvailableMaster.Clear();
+
+                foreach (var row in m_shipsAvailableTemporary)
+                {
+                    var newRow = new MyGuiControlTable.Row(row.UserData);
+                    newRow.AddCell(new MyGuiControlTable.Cell(text: row.GetCell(0).Text, toolTip: row.GetCell(0).ToolTip.ToString()));
+                    newRow.AddCell(new MyGuiControlTable.Cell(text: row.GetCell(1).Text, toolTip: row.GetCell(1).ToolTip.ToString()));
+                    newRow.AddCell(new MyGuiControlTable.Cell(text: row.GetCell(2).Text, toolTip: row.GetCell(2).ToolTip.ToString()));
+                    newRow.AddCell(new MyGuiControlTable.Cell(text: row.GetCell(3).Text, toolTip: row.GetCell(3).ToolTip.ToString()));
+                    newRow.AddCell(new MyGuiControlTable.Cell(text: row.GetCell(4).Text, toolTip: row.GetCell(4).ToolTip.ToString()));
+                    m_shipsAvailableMaster.Add(newRow);
+                }
+
                 m_isConfirmed = true;
 
                 if (OnOkButtonClicked != null)
