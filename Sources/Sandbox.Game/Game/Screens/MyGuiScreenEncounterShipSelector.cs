@@ -298,13 +298,15 @@ namespace Sandbox.Game.Gui
 
         private void ProcessEncounterRows()
         {
-            m_ShipsAvailableTable.Clear();
-
             foreach (var row in m_shipsAvailableTemporary)
             {
-                if (IncludeEncounter(row) != null)
+                var includeEncounter = IncludeEncounter(row);
+
+                var oldValue = row.GetCell(0).Text.ToString();
+
+                if (includeEncounter != null)
                 {
-                    if (IncludeEncounter(row) == true)
+                    if (includeEncounter == true)
                     {
                         row.GetCell(0).Text = new StringBuilder("Yes");
                     }
@@ -314,7 +316,16 @@ namespace Sandbox.Game.Gui
                     }
                 }
 
-                m_ShipsAvailableTable.Add(row);
+                if (oldValue != row.GetCell(0).Text.ToString())
+                {
+                    for (var tableRow = 0; tableRow < m_ShipsAvailableTable.RowsCount; tableRow++)
+                    {
+                        if (m_ShipsAvailableTable.GetRow(tableRow).UserData == row.UserData)
+                        {
+                            m_ShipsAvailableTable.GetRow(tableRow).GetCell(0).Text = row.GetCell(0).Text;
+                        }
+                    }
+                }
             }
         }
 
