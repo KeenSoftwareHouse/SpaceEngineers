@@ -166,16 +166,16 @@ namespace Sandbox.Game.Weapons
                         hackMultiplier = MySession.Static.HackSpeedMultiplier;
                 }
 
-                float damage = block.RaiseBeforeDamageApplied(GrinderAmount, MyDamageType.Grind, Parent != null ? Parent.EntityId : 0);
+                float damage = block.RaiseBeforeDamageApplied(GrinderAmount, MyDamageType.Grind, attackerId: Owner != null ? Owner.EntityId : 0);
 
-                block.DecreaseMountLevel(GrinderAmount * hackMultiplier, CharacterInventory);
+                block.DecreaseMountLevel(damage * hackMultiplier, CharacterInventory);
                 block.MoveItemsFromConstructionStockpile(CharacterInventory);
 
-                block.RaiseAfterDamageApplied(GrinderAmount * hackMultiplier, MyDamageType.Deformation, Parent != null ? Parent.EntityId : 0);
+                block.RaiseAfterDamageApplied(damage * hackMultiplier, MyDamageType.Grind, attackerId: Owner != null ? Owner.EntityId : 0);
 
                 if (block.IsFullyDismounted)
                 {
-                    block.RaiseDestroyed(GrinderAmount * hackMultiplier, MyDamageType.Grind, attackerId: Owner != null ? Owner.EntityId : 0);
+                    block.RaiseDestroyed(damage * hackMultiplier, MyDamageType.Grind, attackerId: Owner != null ? Owner.EntityId : 0);
                     block.SpawnConstructionStockpile();
                     block.CubeGrid.RazeBlock(block.Min);
                 }
@@ -183,7 +183,7 @@ namespace Sandbox.Game.Weapons
 
             var targetDestroyable = GetTargetDestroyable();
             if (targetDestroyable != null && Sync.IsServer)
-                targetDestroyable.DoDamage(20, MyDamageType.Drill, true, attackerId: Owner != null ? Owner.EntityId : 0);
+                targetDestroyable.DoDamage(20, MyDamageType.Grind, true, attackerId: Owner != null ? Owner.EntityId : 0);
         }
 
         protected override void StartLoopSound(bool effect)

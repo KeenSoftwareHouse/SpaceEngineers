@@ -7,6 +7,7 @@ using Sandbox.Game.GameSystems;
 using Sandbox.Game.Lights;
 using Sandbox.Game.Multiplayer;
 using Sandbox.Game.World;
+using Sandbox.Common.ObjectBuilders.Definitions;
 using Sandbox.Graphics.TransparentGeometry.Particles;
 using Sandbox.ModAPI.Ingame;
 using System;
@@ -61,13 +62,18 @@ namespace Sandbox.Game.Weapons
                 foreach (var block in targets)
                 {
                     m_otherGrid = block.CubeGrid;
-                    block.DecreaseMountLevel(MySession.Static.GrinderSpeedMultiplier * MyShipGrinderConstants.GRINDER_AMOUNT_PER_SECOND * coefficient, Inventory);
+
+                    float damage = block.RaiseBeforeDamageApplied(MySession.Static.GrinderSpeedMultiplier * MyShipGrinderConstants.GRINDER_AMOUNT_PER_SECOND * coefficient, MyDamageType.Grind, EntityId);
+
+                    block.DecreaseMountLevel(damage, Inventory);
                     block.MoveItemsFromConstructionStockpile(Inventory);
-                   
+
+                    block.RaiseAfterDamageApplied(damage, MyDamageType.Grind, EntityId);
                     
                     if (block.IsFullyDismounted)
                     {
                         if (block.FatBlock is IMyInventoryOwner) EmptyBlockInventories(block.FatBlock as IMyInventoryOwner);
+                        block.RaiseDestroyed(damage, MyDamageType.Grind, attackerId: EntityId);
                         block.SpawnConstructionStockpile();
                         block.CubeGrid.RazeBlock(block.Min);
                     }
