@@ -134,17 +134,15 @@ namespace Sandbox.Game.World.Generator
                         continue;
                     }
 
-                    var shipFound = false;
-                    
-                    while (!shipFound)
+                    if (MySession.Static.Settings.ShipExcluded.Count > 0)
                     {
-                        var pickedShip = PickRandomEncounter(currentSpawnGroup);
-                        if (!MySession.Static.Settings.ShipExcluded.Contains(currentSpawnGroup[pickedShip].Prefabs[0].SubtypeId))
-                        {
-                            shipFound = true;
-                            m_randomEncounters.Add(pickedShip);
-                        }
+                        m_randomEncounters.Add(PickRandomEncounterFromFilteredList(currentSpawnGroup, MySession.Static.ShipExcluded));
                     }
+                    else
+                    {
+                        m_randomEncounters.Add(PickRandomEncounter(currentSpawnGroup));
+                    }
+
                     Vector3D newPosition = placePosition + (i == 0 ? -1 : 1) * GetEncounterBoundingBox(currentSpawnGroup[m_randomEncounters[m_randomEncounters.Count - 1]]).HalfExtents;
                     Vector3D savedPosition = Vector3D.Zero;
                     if (true == m_movedOnlyEncounters.Dictionary.TryGetValue(encounterPosition, out savedPosition))
@@ -361,6 +359,59 @@ namespace Sandbox.Game.World.Generator
             if (selectedEncounter >= m_spawnGroupCumulativeFrequencies.Count())
                 selectedEncounter = m_spawnGroupCumulativeFrequencies.Count() - 1;
             return selectedEncounter;
+        }
+
+        private static int PickRandomEncounterFromFilteredList(List<MySpawnGroupDefinition> candidates, List<string> filterList)
+        {
+            var filteredCandidates = new Dictionary<int, int>();
+
+            m_spawnGroupTotalFrequencies = 0.0f;
+            m_spawnGroupCumulativeFrequencies.Clear();
+
+            var mappedPos = 0;
+
+            for (var candidate = 0; candidate < candidates.Count(); candidate++)
+            {
+                var candidatePos = -1;
+
+                for (var filteredShip = 0; filteredShip < filterList.Count(); filteredShip++)
+                {
+                    if (filterList[filteredShip] ==  candidates[candidate].Prefabs[0].SubtypeId)
+                    {
+                        candidatePos = filteredShip;
+                        break;
+                    }
+                }
+
+                if (candidatePos == -1)
+                {
+                    filteredCandidates.Add(mappedPos++, candidate);
+                    m_spawnGroupTotalFrequencies += candidates[candidate].Frequency;
+                    m_spawnGroupCumulativeFrequencies.Add(m_spawnGroupTotalFrequencies);
+                }
+            }
+
+            float rnd = m_random.NextFloat(0.0f, m_spawnGroupTotalFrequencies);
+            int selectedEncounter = 0;
+            while (selectedEncounter < m_spawnGroupCumulativeFrequencies.Count())
+            {
+                if (rnd <= m_spawnGroupCumulativeFrequencies[selectedEncounter])
+                    break;
+
+                ++selectedEncounter;
+            }
+
+            if (selectedEncounter >= m_spawnGroupCumulativeFrequencies.Count())
+                selectedEncounter = m_spawnGroupCumulativeFrequencies.Count() - 1;
+
+            int randomEncounter;
+
+            if (filteredCandidates.TryGetValue(selectedEncounter, out randomEncounter))
+            {
+                return randomEncounter;
+            }
+
+            return 0;
         }
 
         private static void ProcessCreatedGrids(ref MyEncounterId encounterPosition,  float prefabSpeed)
