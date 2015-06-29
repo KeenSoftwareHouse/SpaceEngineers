@@ -407,7 +407,7 @@ namespace Sandbox.Game.Gui
                     output.ShipExcluded.Add(row.UserData.ToString());
                 }
 
-                if(row.GetCell(2).Text.ToString() == "Small")
+                if (row.GetCell(2).Text.ToString() == MyTexts.GetString(MySpaceTexts.ToolTipEncounterSettings_SmallShipLabel))
                 {
                     output.SmallEncounters.Add(row.UserData.ToString());
                 }
@@ -634,6 +634,9 @@ namespace Sandbox.Game.Gui
                             {
                                 var blockTypeName = blockType.Key.ToLower();
 
+                                // For the time being, this is a stand in for using space texts.
+                                // Uses the definition file to generate tooltip enumerations of the blocks
+                                // Unsure whether definition files are localised.
                                 var readableBlockTypeName = blockType.Key.Substring(16, blockType.Key.Length - 16);
 
                                 if (blockTypeName.Contains("turret"))

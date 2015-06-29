@@ -128,8 +128,7 @@ namespace Sandbox.Game.Gui
 
             int numControls = 0;
 
-            // Labels
-            float severityComboBoxWidth = 0.2f;
+            // Labels            
             var maxBlocksLabel = MakeLabel(MySpaceTexts.WorldSettings_MaxBlocksLabel);
             var maxTurretsLabel = MakeLabel(MySpaceTexts.WorldSettings_MaxTurretsLabel);
             var EncounterSlidersAffectLabel = MakeLabel(MySpaceTexts.WorldSettings_EncounterSlidersAffectLabel);
