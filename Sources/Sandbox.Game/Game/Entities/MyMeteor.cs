@@ -122,6 +122,12 @@ namespace Sandbox.Game.Entities
         public void OnDestroy()
         {
             GameLogic.OnDestroy();
+
+            // Remove event subscribers
+            OnDestroyed = null;
+            OnBeforeDamageApplied = null;
+            OnBeforeDeformationApplied = null;
+            OnAfterDamageApplied = null;
         }
 
         public void DoDamage(float damage, MyDamageType damageType, bool sync, MyHitInfo? hitInfo, long attackerId)
@@ -537,7 +543,7 @@ namespace Sandbox.Game.Entities
                 else
                 {
                     if (Entity.OnBeforeDamageApplied != null)
-                        damage = Entity.OnBeforeDamageApplied(Entity, damage, damageType, attackerId);
+                        Entity.OnBeforeDamageApplied(Entity, ref damage, damageType, attackerId);
 
                     m_integrity -= damage;
 

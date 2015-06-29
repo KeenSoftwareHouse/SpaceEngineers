@@ -882,11 +882,9 @@ namespace Sandbox.Game
                     if (!cubeBlock.CubeGrid.BlocksDestructionEnabled)
                         continue;
 
-                    if (!cubeBlock.RaiseBeforeDeformationApplied(attackerId))
-                        continue;
-
                     // Allow mods to modify damage.  This will cause a double call.  Once here and once in the DoDamage, but only real way to do a check here
-                    float checkDamage = cubeBlock.RaiseBeforeDamageApplied(damagedBlock.Value, MyDamageType.Explosion, attackerId);
+                    float checkDamage = damagedBlock.Value;
+                    cubeBlock.RaiseBeforeDamageApplied(ref checkDamage, MyDamageType.Explosion, attackerId);
                     if (cubeBlock.FatBlock == null && cubeBlock.Integrity / cubeBlock.DeformationRatio < checkDamage)
                     {
                         VRageRender.MyRenderProxy.GetRenderProfiler().StartProfilingBlock("RemoveBlock");

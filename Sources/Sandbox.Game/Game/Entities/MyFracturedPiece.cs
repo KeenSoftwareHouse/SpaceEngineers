@@ -443,6 +443,12 @@ namespace Sandbox.Game.Entities
             {
                 MyFracturedPiecesManager.Static.RemoveFracturePiece(this, 2);
             }
+
+            // Remove event subscribers
+            OnDestroyed = null;
+            OnBeforeDamageApplied = null;
+            OnBeforeDeformationApplied = null;
+            OnAfterDamageApplied = null;
         }
 
         public void DoDamage(float damage, Common.ObjectBuilders.Definitions.MyDamageType damageType, bool sync, MyHitInfo? hitInfo, long attackerId)
@@ -450,7 +456,7 @@ namespace Sandbox.Game.Entities
             if (Sync.IsServer)
             {
                 if (OnBeforeDamageApplied != null)
-                    damage = OnBeforeDamageApplied(this, damage, damageType, attackerId);
+                    OnBeforeDamageApplied(this, ref damage, damageType, attackerId);
 
                 m_hitPoints -= damage;
 

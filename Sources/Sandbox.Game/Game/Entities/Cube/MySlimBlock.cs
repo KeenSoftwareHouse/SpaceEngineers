@@ -970,7 +970,7 @@ namespace Sandbox.Game.Entities.Cube
             }
             finally { ProfilerShort.End(); }
 
-            damage = RaiseBeforeDamageApplied(damage, damageType, attackerId);
+            RaiseBeforeDamageApplied(ref damage, damageType, attackerId);
             MySession.Static.NegativeIntegrityTotal += damage;
             AccumulatedDamage += damage;
 
@@ -1634,6 +1634,13 @@ namespace Sandbox.Game.Entities.Cube
             }
             CubeGrid.RemoveFromDamageApplication(this);
             AccumulatedDamage = 0;
+
+            // Remove event subscribers
+            OnDestroyed = null;
+            OnBeforeDamageApplied = null;
+            OnBeforeDeformationApplied = null;
+            OnAfterDamageApplied = null;
+
         }
 
         float IMyDestroyableObject.Integrity
@@ -1678,12 +1685,10 @@ namespace Sandbox.Game.Entities.Cube
             }
         }
 
-        public float RaiseBeforeDamageApplied(float damage, MyDamageType damageType, long attackerId, bool testOnly = false)
+        public void RaiseBeforeDamageApplied(ref float damage, MyDamageType damageType, long attackerId, bool testOnly = false)
         {
             if (OnBeforeDamageApplied != null)
-                return OnBeforeDamageApplied(this, damage, damageType, attackerId);
-            else
-                return damage;
+                OnBeforeDamageApplied(this, ref damage, damageType, attackerId);
         }
 
         public void RaiseAfterDamageApplied(float damage, MyDamageType damageType, long attackerId)
@@ -1698,12 +1703,10 @@ namespace Sandbox.Game.Entities.Cube
                 OnDestroyed(this, damage, damageType, attackerId);
         }
 
-        public bool RaiseBeforeDeformationApplied(long attackerId)
+        public void RaiseBeforeDeformationApplied(ref bool allowDeformation, long attackerId)
         {
             if (OnBeforeDeformationApplied != null)
-                return OnBeforeDeformationApplied(this, attackerId);
-            else
-                return true;
+                OnBeforeDeformationApplied(this, ref allowDeformation, attackerId);
         }
 
         event Action<object, float, MyDamageType, long> IMyDestroyableObject.OnDestroyed

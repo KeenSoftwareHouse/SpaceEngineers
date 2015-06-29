@@ -349,7 +349,7 @@ namespace Sandbox.Game.Entities
             }
 
             if (OnBeforeDamageApplied != null)
-                damage = OnBeforeDamageApplied(this, damage, damageType, attackerId);
+                OnBeforeDamageApplied(this, ref damage, damageType, attackerId);
 
             var typeId = Item.Content.TypeId;
             if (typeId == typeof(MyObjectBuilder_Ore) ||
@@ -457,7 +457,13 @@ namespace Sandbox.Game.Entities
         }
 
         public void OnDestroy()
-        { }
+        {
+            // Remove event subscribers
+            OnDestroyed = null;
+            OnBeforeDamageApplied = null;
+            OnBeforeDeformationApplied = null;
+            OnAfterDamageApplied = null;
+        }
 
         public float Integrity
         {

@@ -308,6 +308,11 @@ namespace Sandbox.Game.Weapons
 
         public void OnDestroy()
         {
+            // Remove event subscribers
+            OnDestroyed = null;
+            OnBeforeDamageApplied = null;
+            OnBeforeDeformationApplied = null;
+            OnAfterDamageApplied = null;
         }
 
         public void DoDamage(float damage, MyDamageType damageType, bool sync, long attackerId)

@@ -246,8 +246,9 @@ namespace Sandbox.Game.Weapons
                     {
                         (block as IMyDestroyableObject).DoDamage(m_projectileAmmoDefinition.ProjectileMassDamage, MyDamageType.Bullet, true, attackerId: m_weapon != null ? GetSubpartOwner(m_weapon).EntityId : 0);
                         if (block.FatBlock == null)
-                            causeDeformation = block.RaiseBeforeDeformationApplied(attackerId: m_weapon != null ? m_weapon.EntityId : 0);
+                            causeDeformation = true;
                     }
+
                     if (causeDeformation)
                         ApllyDeformationCubeGrid(hitPosition, grid);
                 }

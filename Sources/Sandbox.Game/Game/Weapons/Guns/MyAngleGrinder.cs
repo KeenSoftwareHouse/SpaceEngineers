@@ -166,7 +166,8 @@ namespace Sandbox.Game.Weapons
                         hackMultiplier = MySession.Static.HackSpeedMultiplier;
                 }
 
-                float damage = block.RaiseBeforeDamageApplied(GrinderAmount, MyDamageType.Grind, attackerId: Owner != null ? Owner.EntityId : 0);
+                float damage = GrinderAmount;
+                block.RaiseBeforeDamageApplied(ref damage, MyDamageType.Grind, attackerId: Owner != null ? Owner.EntityId : 0);
 
                 block.DecreaseMountLevel(damage * hackMultiplier, CharacterInventory);
                 block.MoveItemsFromConstructionStockpile(CharacterInventory);

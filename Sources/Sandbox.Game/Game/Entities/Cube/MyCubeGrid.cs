@@ -3038,10 +3038,12 @@ namespace Sandbox.Game.Entities
             if (!BlocksDestructionEnabled)
                 return 0;
 
-            // Allow mods to stop deformation
-            if(!block.RaiseBeforeDeformationApplied(attackerId))
+            bool allowDeformation = true;
+            block.RaiseBeforeDeformationApplied(ref allowDeformation, attackerId);
+            if (!allowDeformation)
                 return 0;
 
+            // Allow mods to stop deformation
             m_totalBoneDisplacement = 0.0f;
 
             // TODO: Optimization. Cache bone changes (moves) and apply them only at the end
@@ -3097,9 +3099,10 @@ namespace Sandbox.Game.Entities
 
             if (sync)
             {
-                damage = block.RaiseBeforeDamageApplied(m_totalBoneDisplacement * GridSize * 10.0f * damage, MyDamageType.Deformation, attackerId);
-                if(damage > 0f)
-                    (block as IMyDestroyableObject).DoDamage(damage, MyDamageType.Deformation, true, attackerId: attackerId);
+                float damageAmount = m_totalBoneDisplacement * GridSize * 10.0f * damage;
+                block.RaiseBeforeDamageApplied(ref damageAmount, MyDamageType.Deformation, attackerId);
+                if (damageAmount > 0f)
+                    (block as IMyDestroyableObject).DoDamage(damageAmount, MyDamageType.Deformation, true, attackerId: attackerId);
             }
             return m_totalBoneDisplacement;
         }

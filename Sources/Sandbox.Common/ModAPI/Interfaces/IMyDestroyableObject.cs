@@ -16,14 +16,14 @@ namespace Sandbox.ModAPI.Interfaces
     /// <param name="damageType">Type of damage being applied</param>
     /// <param name="attackerId">The entity ID of the attacker</param>
     /// <returns>Modified damage.  Return damage parameter if damage is not modified.</returns>
-    public delegate float BeforeDamageApplied(object target, float damage, MyDamageType damageType, long attackerId);
+    public delegate void BeforeDamageApplied(object target, ref float damage, MyDamageType damageType, long attackerId);
     /// <summary>
     /// This delegate is used to handle deformations before they are applied to an object.
     /// </summary>
     /// <param name="target">The object that is being deformed</param>
     /// <param name="attackerId">The entity that is causing the deformation</param>
     /// <returns>true if deformation should happen, false if not</returns>
-    public delegate bool BeforeDeformationApplied(object target, long attackerId);
+    public delegate void BeforeDeformationApplied(object target, ref bool allowDeformation, long attackerId);
 
     public interface IMyDestroyableObject
     {

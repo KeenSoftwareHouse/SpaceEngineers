@@ -671,7 +671,7 @@ namespace Sandbox.Game.Entities.Cube
             else
             {
                 if (OnBeforeDamageApplied != null)
-                    damage = OnBeforeDamageApplied(this, damage, damageType, attackerId);
+                    OnBeforeDamageApplied(this, ref damage, damageType, attackerId);
 
                 m_damageType = damageType;
 

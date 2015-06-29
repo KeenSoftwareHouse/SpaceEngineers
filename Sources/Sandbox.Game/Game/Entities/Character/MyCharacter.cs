@@ -6218,7 +6218,7 @@ namespace Sandbox.Game.Entities.Character
                 return;
 
             if (OnBeforeDamageApplied != null && !m_dieAfterSimulation)
-                damage = OnBeforeDamageApplied(this, damage, damageType, attackerId);
+                OnBeforeDamageApplied(this, ref damage, damageType, attackerId);
 
             CharacterAccumulatedDamage += damage;
 
@@ -7536,6 +7536,12 @@ namespace Sandbox.Game.Entities.Character
         public void OnDestroy()
         {
             Die();
+
+            // Remove event subscribers
+            OnDestroyed = null;
+            OnBeforeDamageApplied = null;
+            OnBeforeDeformationApplied = null;
+            OnAfterDamageApplied = null;
         }
 
         public float Integrity

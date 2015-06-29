@@ -838,8 +838,9 @@ namespace Sandbox.Game.Entities.Cube
                                 var block = m_grid.GetCubeBlock(offset);
                                 if (block != null)
                                 {
-                                    // Check if thos block can be deformed / destroyed.  For mods
-                                    if (!block.RaiseBeforeDeformationApplied(attackerId))
+                                    bool allowDeformation = true;
+                                    block.RaiseBeforeDeformationApplied(ref allowDeformation, attackerId);
+                                    if (!allowDeformation)
                                         continue;
 
                                     minDeformationRatio = Math.Min(minDeformationRatio, block.DeformationRatio);
@@ -893,8 +894,13 @@ namespace Sandbox.Game.Entities.Cube
                 Vector3I offset;
                 foreach (var b in m_tmpBoneList)                
                 {
+                    if (b.Value != null)
+                        continue;
+
                     // Check to see if this block can be deformed.  For mods
-                    if (b.Value != null && !b.Value.RaiseBeforeDeformationApplied(attackerId))
+                    bool allowDeformation = true;
+                    b.Value.RaiseBeforeDeformationApplied(ref allowDeformation, attackerId);
+                    if (!allowDeformation)
                         continue;
 
                     var boneIndex = b.Key;

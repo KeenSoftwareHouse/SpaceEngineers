@@ -63,7 +63,8 @@ namespace Sandbox.Game.Weapons
                 {
                     m_otherGrid = block.CubeGrid;
 
-                    float damage = block.RaiseBeforeDamageApplied(MySession.Static.GrinderSpeedMultiplier * MyShipGrinderConstants.GRINDER_AMOUNT_PER_SECOND * coefficient, MyDamageType.Grind, EntityId);
+                    float damage = MySession.Static.GrinderSpeedMultiplier * MyShipGrinderConstants.GRINDER_AMOUNT_PER_SECOND * coefficient;
+                    block.RaiseBeforeDamageApplied(ref damage, MyDamageType.Grind, EntityId);
 
                     block.DecreaseMountLevel(damage, Inventory);
                     block.MoveItemsFromConstructionStockpile(Inventory);
