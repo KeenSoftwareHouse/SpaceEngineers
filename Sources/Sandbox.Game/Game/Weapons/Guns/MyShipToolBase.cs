@@ -369,7 +369,7 @@ namespace Sandbox.Game.Weapons
                 }
                 if (character != null && Sync.IsServer)
                 {
-                    character.DoDamage(20, MyDamageType.Drill, true, attackerId: EntityId);
+                    character.DoDamage(20, this is IMyShipGrinder ? MyDamageType.Grind : MyDamageType.Drill, true, attackerId: EntityId);
                 }
             }
 

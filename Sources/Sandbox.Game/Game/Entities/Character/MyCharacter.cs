@@ -6217,9 +6217,7 @@ namespace Sandbox.Game.Entities.Character
             if (!CharacterCanDie && !(damageType == MyDamageType.Suicide && MyPerGameSettings.CharacterSuicideEnabled))
                 return;
 
-            if (OnBeforeDamageApplied != null && !m_dieAfterSimulation)
-                OnBeforeDamageApplied(this, ref damage, damageType, attackerId);
-
+            // ???? Is this for debug?
             CharacterAccumulatedDamage += damage;
 
             if (updateSync)
@@ -6228,7 +6226,10 @@ namespace Sandbox.Game.Entities.Character
                 return;
             }
 
-			var health = m_stats.Health;
+            if (OnBeforeDamageApplied != null && !m_dieAfterSimulation)
+                OnBeforeDamageApplied(this, ref damage, damageType, attackerId);
+
+            var health = m_stats.Health;
 
 			if (health == null)
 				return;

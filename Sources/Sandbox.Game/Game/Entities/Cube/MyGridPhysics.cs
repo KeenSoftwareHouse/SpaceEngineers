@@ -894,14 +894,14 @@ namespace Sandbox.Game.Entities.Cube
                 Vector3I offset;
                 foreach (var b in m_tmpBoneList)                
                 {
-                    if (b.Value != null)
-                        continue;
-
                     // Check to see if this block can be deformed.  For mods
-                    bool allowDeformation = true;
-                    b.Value.RaiseBeforeDeformationApplied(ref allowDeformation, attackerId);
-                    if (!allowDeformation)
-                        continue;
+                    if (b.Value != null)
+                    {
+                        bool allowDeformation = true;
+                        b.Value.RaiseBeforeDeformationApplied(ref allowDeformation, attackerId);
+                        if (!allowDeformation)
+                            continue;
+                    }
 
                     var boneIndex = b.Key;
                     offset = boneIndex - gridPos * m_grid.Skeleton.BoneDensity;
