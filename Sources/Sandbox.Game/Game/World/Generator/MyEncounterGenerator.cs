@@ -113,8 +113,8 @@ namespace Sandbox.Game.World.Generator
                 m_placePositions.Clear();
                 m_encountersId.Clear();
 
-                int numEncoutersToPlace;
-                                
+                int numEncoutersToPlace;                
+
                 if (MySession.Static.Settings.MaxShipsInSpawnGroup > 2)
                 {
                     numEncoutersToPlace = MyRandom.Instance.Next(1, MySession.Static.Settings.MaxShipsInSpawnGroup + 1);                        
@@ -134,9 +134,44 @@ namespace Sandbox.Game.World.Generator
                         continue;
                     }
 
-                    if (MySession.Static.Settings.ShipExcluded.Count > 0)
+                    var invalidShipList = new List<string>();
+
+                    // Get list of specifically excluded ships
+                    foreach (var invalidShip in MySession.Static.ShipExcluded)
                     {
-                        m_randomEncounters.Add(PickRandomEncounterFromFilteredList(currentSpawnGroup, MySession.Static.ShipExcluded));
+                        invalidShipList.Add(invalidShip);
+                    }
+
+                    // Decide whether this is going to be a large or small ship depending on the options chosen at beginning of game
+                    var IsSmallShip = (MyRandom.Instance.Next(1, 101)) > MySession.Static.Settings.SmallToLargeShipRatio;
+
+                    if (IsSmallShip)
+                    {
+                        // It's a small ship so we need to add large ships/bases to the exclusion list
+                        foreach(var encounter in MySession.Static.Settings.LargeEncounters)
+                        {
+                            if (!invalidShipList.Contains(encounter))
+                            {
+                                invalidShipList.Add(encounter);
+                            }
+                            
+                        }                        
+                    }
+                    else
+                    {
+                        // It's a large ship, so we need to add small ships to the exclusion list.
+                        foreach (var encounter in MySession.Static.Settings.SmallEncounters)
+                        {
+                            if (!invalidShipList.Contains(encounter))
+                            {
+                                invalidShipList.Add(encounter);
+                            }
+                        }  
+                    }
+
+                    if (invalidShipList.Count > 0)
+                    {
+                        m_randomEncounters.Add(PickRandomEncounterFromFilteredList(currentSpawnGroup, invalidShipList));
                     }
                     else
                     {

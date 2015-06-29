@@ -170,6 +170,8 @@ namespace Sandbox.Game.World
         public int AntennaOnPercentage { get { return Settings.AntennaOnPercentage; } }
         public bool AntennaRangeMaxedOut { get { return Settings.AntennaRangeMaxedOut; } }
         public List<string> ShipExcluded { get { return Settings.ShipExcluded; } }
+        public List<string> LargeEncounters { get { return Settings.LargeEncounters; } }
+        public List<string> SmallEncounters { get { return Settings.SmallEncounters; } }
         public int SmallToLargeShipRatio { get { return Settings.SmallToLargeShipRatio; } }
         public bool AllowArmedLargeShipsOnly { get { return Settings.AllowArmedLargeShipsOnly; } }
 

@@ -350,6 +350,16 @@ namespace Sandbox.Common.ObjectBuilders
         [GameRelationAttribute(Game.SpaceEngineers)]
         public List<string> ShipExcluded = new List<string>();
 
+        [ProtoMember]
+        [Display(Name = "Large Encounters")]
+        [GameRelationAttribute(Game.SpaceEngineers)]
+        public new List<string> LargeEncounters = new List<string>();
+
+        [ProtoMember]
+        [Display(Name = "Small Encounters")]
+        [GameRelationAttribute(Game.SpaceEngineers)]
+        public new List<string> SmallEncounters = new List<string>();
+
         public void LogMembers(MyLog log, LoggingOptions options)
         {
             log.WriteLine("Settings:");

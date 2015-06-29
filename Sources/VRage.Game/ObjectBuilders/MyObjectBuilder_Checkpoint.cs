@@ -400,6 +400,22 @@ namespace Sandbox.Common.ObjectBuilders
         }
         public bool ShouldSerializeShipExcluded() { return false; }
 
+        //[ProtoMember]
+        public List<string> LargeEncounters
+        {
+            get { return Settings.LargeEncounters; }
+            set { Settings.LargeEncounters = value; }
+        }
+        public bool ShouldSerializeLargeEncounters() { return false; }
+
+        //[ProtoMember]
+        public List<string> SmallEncounters
+        {
+            get { return Settings.SmallEncounters; }
+            set { Settings.SmallEncounters = value; }
+        }
+        public bool ShouldSerializeSmallEncounters() { return false; }
+
         [ProtoMember]
         [XmlElement("Settings", Type = typeof(MyAbstractXmlSerializer<MyObjectBuilder_SessionSettings>))]
         public MyObjectBuilder_SessionSettings Settings = MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_SessionSettings>();

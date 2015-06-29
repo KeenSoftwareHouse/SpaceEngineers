@@ -396,6 +396,8 @@ namespace Sandbox.Game.Gui
             output.AllowArmedLargeShipsOnly = (bool)m_allowArmedLargeShipsOnly.IsChecked;
 
             output.ShipExcluded.Clear();
+            output.SmallEncounters.Clear();
+            output.LargeEncounters.Clear();
 
             foreach (var row in ShipsAvailableMaster)
             {
@@ -404,7 +406,16 @@ namespace Sandbox.Game.Gui
                 {
                     output.ShipExcluded.Add(row.UserData.ToString());
                 }
-            }
+
+                if(row.GetCell(2).Text.ToString() == "Small")
+                {
+                    output.SmallEncounters.Add(row.UserData.ToString());
+                }
+                else
+                {
+                    output.LargeEncounters.Add(row.UserData.ToString());
+                }                
+            }  
         }
 
         public void SetSettings(MyObjectBuilder_SessionSettings settings)
