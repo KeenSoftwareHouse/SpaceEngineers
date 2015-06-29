@@ -97,10 +97,14 @@ namespace VRage.ObjectBuilders
 
         public TObjectBuilder CreateObjectBuilder<TObjectBuilder>(TCreatedObjectBase instance) where TObjectBuilder : MyObjectBuilder_Base
         {
-            TAttribute attribute;
-            if (!m_attributesByProducedType.TryGetValue(instance.GetType(), out attribute))
-                return null;
+            return CreateObjectBuilder<TObjectBuilder>(instance.GetType());
+        }
 
+        public TObjectBuilder CreateObjectBuilder<TObjectBuilder>(Type instanceType) where TObjectBuilder : MyObjectBuilder_Base
+        {
+            TAttribute attribute;
+            if (!m_attributesByProducedType.TryGetValue(instanceType, out attribute))
+                return null;
             Debug.Assert(typeof(TObjectBuilder).IsAssignableFrom(attribute.ObjectBuilderType));
             return MyObjectBuilderSerializer.CreateNewObject(attribute.ObjectBuilderType) as TObjectBuilder;
         }

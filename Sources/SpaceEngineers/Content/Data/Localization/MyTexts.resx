@@ -6972,4 +6972,43 @@ encounter in your game.</value>
   <data name="WorldSettings_GridSmallShipType" xml:space="preserve">
     <value>Small</value>
   </data>
+  <data name="GuiTriggerBlockDestroyed_ColumnName" xml:space="preserve">
+    <value>Block name</value>
+  </data>
+  <data name="GuiTriggerCaptionBlockDestroyed" xml:space="preserve">
+    <value>Block destroyed</value>
+  </data>
+  <data name="GuiTriggerPasteBlocks" xml:space="preserve">
+    <value>Add blocks</value>
+  </data>
+  <data name="MyGuiScreenTriggerBlockDestroyed" xml:space="preserve">
+    <value>Block destroyed</value>
+  </data>
+  <data name="GuiTriggerBlockDestroyedSingleMessage" xml:space="preserve">
+    <value>Message after each block is destroyed</value>
+  </data>
+  <data name="GuiTriggerDeleteBlocks" xml:space="preserve">
+    <value>Delete</value>
+  </data>
+  <data name="GuiTriggerPasteBlocksTooltip" xml:space="preserve">
+    <value>Adds blocks copied through button at the end of block terminal screen.</value>
+  </data>
+  <data name="GuiScenarioEdit_CopyIds" xml:space="preserve">
+    <value>Copy block IDs</value>
+  </data>
+  <data name="GuiScenarioEdit_CopyIdsTooltip" xml:space="preserve">
+    <value>You can then paste them into "Block destroyed" trigger</value>
+  </data>
+  <data name="Description_Scenario_2Planets" xml:space="preserve">
+    <value>2 habitable planets near each other</value>
+  </data>
+  <data name="Description_Scenario_Planet" xml:space="preserve">
+    <value>World with one habitable planet </value>
+  </data>
+  <data name="DisplayName_Scenario_2Planets" xml:space="preserve">
+    <value>2 planets</value>
+  </data>
+  <data name="DisplayName_Scenario_Planet" xml:space="preserve">
+    <value>Habitable planet</value>
+  </data>
 </root>

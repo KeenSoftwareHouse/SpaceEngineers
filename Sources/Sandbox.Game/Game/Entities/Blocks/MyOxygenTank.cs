@@ -268,7 +268,7 @@ namespace Sandbox.Game.Entities.Blocks
                                              : 0.0f;
         }
 
-        void m_inventory_ContentsChanged(MyInventory obj)
+        void m_inventory_ContentsChanged(MyInventoryBase obj)
         {
             RaisePropertiesChanged();
         }
@@ -467,6 +467,11 @@ namespace Sandbox.Game.Entities.Blocks
 
         internal void Fill(float amount)
         {
+            if (amount == 0f)
+            {
+                return;
+            }
+
             FilledRatio += amount / Capacity;
             FilledRatio = Math.Min(1f, FilledRatio);
 
@@ -489,6 +494,11 @@ namespace Sandbox.Game.Entities.Blocks
 
         internal void Drain(float amount)
         {
+            if (amount == 0f)
+            {
+                return;
+            }
+
             Debug.Assert(!IsStockpiling, "Stockpiling tank should not be drained");
             FilledRatio -= amount / Capacity;
             FilledRatio = Math.Max(0f, FilledRatio);

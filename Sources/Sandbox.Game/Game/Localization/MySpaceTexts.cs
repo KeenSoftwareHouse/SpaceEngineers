@@ -11248,5 +11248,70 @@ namespace Sandbox.Game.Localization
         ///Small
         ///</summary>
         public static readonly MyStringId WorldSettings_GridSmallShipType = MyStringId.GetOrCompute("WorldSettings_GridSmallShipType");
+
+        ///<summary>
+        ///Block name
+        ///</summary>
+        public static readonly MyStringId GuiTriggerBlockDestroyed_ColumnName = MyStringId.GetOrCompute("GuiTriggerBlockDestroyed_ColumnName");
+
+        ///<summary>
+        ///Block destroyed
+        ///</summary>
+        public static readonly MyStringId GuiTriggerCaptionBlockDestroyed = MyStringId.GetOrCompute("GuiTriggerCaptionBlockDestroyed");
+
+        ///<summary>
+        ///Add blocks
+        ///</summary>
+        public static readonly MyStringId GuiTriggerPasteBlocks = MyStringId.GetOrCompute("GuiTriggerPasteBlocks");
+
+        ///<summary>
+        ///Block destroyed
+        ///</summary>
+        public static readonly MyStringId MyGuiScreenTriggerBlockDestroyed = MyStringId.GetOrCompute("MyGuiScreenTriggerBlockDestroyed");
+
+        ///<summary>
+        ///Message after each block is destroyed
+        ///</summary>
+        public static readonly MyStringId GuiTriggerBlockDestroyedSingleMessage = MyStringId.GetOrCompute("GuiTriggerBlockDestroyedSingleMessage");
+
+        ///<summary>
+        ///Delete
+        ///</summary>
+        public static readonly MyStringId GuiTriggerDeleteBlocks = MyStringId.GetOrCompute("GuiTriggerDeleteBlocks");
+
+        ///<summary>
+        ///Adds blocks copied through button at the end of block terminal screen.
+        ///</summary>
+        public static readonly MyStringId GuiTriggerPasteBlocksTooltip = MyStringId.GetOrCompute("GuiTriggerPasteBlocksTooltip");
+
+        ///<summary>
+        ///Copy block IDs
+        ///</summary>
+        public static readonly MyStringId GuiScenarioEdit_CopyIds = MyStringId.GetOrCompute("GuiScenarioEdit_CopyIds");
+
+        ///<summary>
+        ///You can then paste them into "Block destroyed" trigger
+        ///</summary>
+        public static readonly MyStringId GuiScenarioEdit_CopyIdsTooltip = MyStringId.GetOrCompute("GuiScenarioEdit_CopyIdsTooltip");
+
+        ///<summary>
+        ///2 habitable planets near each other
+        ///</summary>
+        public static readonly MyStringId Description_Scenario_2Planets = MyStringId.GetOrCompute("Description_Scenario_2Planets");
+
+        ///<summary>
+        ///World with one habitable planet 
+        ///</summary>
+        public static readonly MyStringId Description_Scenario_Planet = MyStringId.GetOrCompute("Description_Scenario_Planet");
+
+        ///<summary>
+        ///2 planets
+        ///</summary>
+        public static readonly MyStringId DisplayName_Scenario_2Planets = MyStringId.GetOrCompute("DisplayName_Scenario_2Planets");
+
+        ///<summary>
+        ///Habitable planet
+        ///</summary>
+        public static readonly MyStringId DisplayName_Scenario_Planet = MyStringId.GetOrCompute("DisplayName_Scenario_Planet");
     }
 }

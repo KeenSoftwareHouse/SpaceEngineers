@@ -8,7 +8,6 @@ namespace Sandbox.ModAPI
 {
     public interface IMyInventory : Sandbox.ModAPI.Interfaces.IMyInventory
     {
-
         bool Empty();
 
         void Clear(bool sync = true);
@@ -22,6 +21,5 @@ namespace Sandbox.ModAPI
 
         bool TransferItemTo(Sandbox.ModAPI.Interfaces.IMyInventory dst, int sourceItemIndex, int? targetItemIndex = null, bool? stackIfPossible = null, VRage.MyFixedPoint? amount = null, bool checkConnection = true);
         bool TransferItemFrom(Sandbox.ModAPI.Interfaces.IMyInventory sourceInventory, int sourceItemIndex, int? targetItemIndex = null, bool? stackIfPossible = null, VRage.MyFixedPoint? amount = null, bool checkConnection = true);
-
     }
 }

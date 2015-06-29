@@ -791,11 +791,11 @@ namespace Sandbox.Definitions
                 InitDecals(context, objBuilder.Decals, failOnDebug);
             }
 
-            if (objBuilder.PlanetDefinitions != null)
+            if (objBuilder.PlanetGeneratorDefinitions != null)
             {
                 MySandboxGame.Log.WriteLine("Loading battle definition");
                 Check(failOnDebug, "Battle", failOnDebug, WARNING_ON_REDEFINITION_MESSAGE);
-                InitPlanetDefinitions(context, ref definitionSet.m_planetDefinitions, objBuilder.PlanetDefinitions, failOnDebug);
+                InitPlanetGeneratorDefinitions(context, ref definitionSet.m_planetGeneratorDefinitions, objBuilder.PlanetGeneratorDefinitions, failOnDebug);
             }
 
             if (objBuilder.FloraElements != null)
@@ -830,6 +830,13 @@ namespace Sandbox.Definitions
             {
                 MySandboxGame.Log.WriteLine("Loading component block definitions");
                 InitComponentBlocks(context, definitionSet.m_componentBlockEntries, objBuilder.ComponentBlocks, failOnDebug);
+            }
+
+            if (objBuilder.PlanetPrefabs != null)
+            {
+                MySandboxGame.Log.WriteLine("Loading flora elements definitions");
+                Check(failOnDebug, "Flora", failOnDebug, WARNING_ON_REDEFINITION_MESSAGE);
+                InitPlanetPrefabDefinitions(context,ref definitionSet.m_planetPrefabDefinitions, objBuilder.PlanetPrefabs, failOnDebug);
             }
         }
 
@@ -1082,7 +1089,7 @@ namespace Sandbox.Definitions
 
                 var type = MyObjectBuilderType.Parse(entry.Type);
                 MyDefinitionId blockDefinitionId = new MyDefinitionId(type, entry.Subtype);
-                m_definitions.m_componentBlocks.Add(blockDefinitionId);
+                m_definitions.m_componentBlocks.Add(blockDefinitionId, entry.Main);
             }
 
             m_definitions.m_componentBlockEntries.Clear();
@@ -2016,11 +2023,11 @@ namespace Sandbox.Definitions
             }
         }
 
-        private void InitPlanetDefinitions(MyModContext context, ref DefinitionDictionary<MyPlanetDefinition> m_planetDefinitions, MyObjectBuilder_PlanetDefinition[] planets, bool failOnDebug)
+        private void InitPlanetGeneratorDefinitions(MyModContext context, ref DefinitionDictionary<MyPlanetGeneratorDefinition> m_planetDefinitions, MyObjectBuilder_PlanetGeneratorDefinition[] planets, bool failOnDebug)
         {
             foreach (var planet in planets)
             {
-                var planetDefinition = InitDefinition<MyPlanetDefinition>(context, planet);
+                var planetDefinition = InitDefinition<MyPlanetGeneratorDefinition>(context, planet);
                 var id = planetDefinition.Id;
                 if (planetDefinition.Enabled)
                 {
@@ -2055,9 +2062,34 @@ namespace Sandbox.Definitions
             }
         }
 
+        private void InitPlanetPrefabDefinitions(MyModContext context, ref DefinitionDictionary<MyPlanetPrefabDefinition> m_planetDefinitions, MyObjectBuilder_PlanetPrefabDefinition[] planets, bool failOnDebug)
+        {
+            foreach (var planet in planets)
+            {
+                var planetDefinition = InitDefinition<MyPlanetPrefabDefinition>(context, planet);
+                var id = planetDefinition.Id;
+                if (planetDefinition.Enabled)
+                {
+                    m_planetDefinitions[id] = planetDefinition;
+                }
+                else
+                {
+                    m_planetDefinitions.Remove(id);
+                }
+
+            }
+        }
+
         public bool IsComponentBlock(MyDefinitionId blockDefinitionId)
         {
-            return m_definitions.m_componentBlocks.Contains(blockDefinitionId);
+            return m_definitions.m_componentBlocks.ContainsKey(blockDefinitionId);
+        }
+
+        public bool IsMainComponentBlock(MyDefinitionId blockDefinitionId)
+        {
+            bool retval = false;
+            m_definitions.m_componentBlocks.TryGetValue(blockDefinitionId, out retval);
+            return retval;
         }
 
         public DictionaryValuesReader<string, MyCharacterDefinition> Characters
@@ -2796,10 +2828,16 @@ namespace Sandbox.Definitions
             }
         }
 
-        public DictionaryValuesReader<MyDefinitionId, MyPlanetDefinition> GetPlanetsDefinitions()
+        public DictionaryValuesReader<MyDefinitionId, MyPlanetGeneratorDefinition> GetPlanetsGeneratorsDefinitions()
         {
-            return new DictionaryValuesReader<MyDefinitionId, MyPlanetDefinition>(m_definitions.m_planetDefinitions);
+            return new DictionaryValuesReader<MyDefinitionId, MyPlanetGeneratorDefinition>(m_definitions.m_planetGeneratorDefinitions);
         }
+
+        public DictionaryValuesReader<MyDefinitionId, MyPlanetPrefabDefinition> GetPlanetsPrefabsDefinitions()
+        {
+            return new DictionaryValuesReader<MyDefinitionId, MyPlanetPrefabDefinition>(m_definitions.m_planetPrefabDefinitions);
+        }
+
         public MyComponentGroupDefinition GetComponentGroup(MyDefinitionId groupDefId)
         {
             MyComponentGroupDefinition group = null;

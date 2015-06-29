@@ -1,6 +1,9 @@
-﻿using System;
+﻿using Sandbox.Definitions;
+using Sandbox.Game.World.Generator;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Text;
 using VRage.Library.Utils;
@@ -9,6 +12,86 @@ using VRageMath;
 
 namespace Sandbox.Engine.Voxels
 {
+    public struct MyCsgShapePlanetMaterialAttributes
+    {
+        public MyMaterialLayer[] Layers;
+        public MyOreProbability[] OreProbabilities;
+
+        public float OreStartDepth;
+        public float OreEndDepth;
+
+        public void WriteTo(Stream stream)
+        {
+            if (Layers != null)
+            {
+                stream.WriteNoAlloc(Layers.Length);
+                for (int i = 0; i < Layers.Length; ++i)
+                {
+                    stream.WriteNoAlloc(Layers[i].StartHeight);
+                    stream.WriteNoAlloc(Layers[i].EndHeight);
+                    stream.WriteNoAlloc(Layers[i].StartAngle);
+                    stream.WriteNoAlloc(Layers[i].EndAngle);
+                    stream.WriteNoAlloc(Layers[i].HeightStartDeviation);
+                    stream.WriteNoAlloc(Layers[i].AngleStartDeviation);
+                    stream.WriteNoAlloc(Layers[i].HeightEndDeviation);
+                    stream.WriteNoAlloc(Layers[i].AngleEndDeviation);
+                    stream.WriteNoAlloc(Layers[i].MaterialDefinition.Id.SubtypeName);
+                }
+            }
+            else
+            {
+                stream.WriteNoAlloc((int)0);
+            }
+
+            if (OreProbabilities != null)
+            {
+                stream.WriteNoAlloc(OreProbabilities.Length);
+                for (int i = 0; i < OreProbabilities.Length; ++i)
+                {
+                    stream.WriteNoAlloc(OreProbabilities[i].CummulativeProbability);
+                    stream.WriteNoAlloc(OreProbabilities[i].OreName);
+                }
+            }
+            else
+            {
+                stream.WriteNoAlloc((int)0);
+            }
+
+            stream.WriteNoAlloc(OreStartDepth);
+            stream.WriteNoAlloc(OreEndDepth);
+        }
+        public void ReadFrom(Stream stream)
+        {
+            int numMaterials = stream.ReadInt32();
+            Layers = new MyMaterialLayer[numMaterials];
+            for (int i = 0; i < numMaterials; ++i)
+            {
+                Layers[i] = new MyMaterialLayer();
+                Layers[i].StartHeight = stream.ReadFloat();
+                Layers[i].EndHeight = stream.ReadFloat();
+                Layers[i].StartAngle = stream.ReadFloat();
+                Layers[i].EndAngle = stream.ReadFloat();
+                Layers[i].HeightStartDeviation = stream.ReadFloat();
+                Layers[i].AngleStartDeviation = stream.ReadFloat();
+                Layers[i].HeightEndDeviation = stream.ReadFloat();
+                Layers[i].AngleEndDeviation = stream.ReadFloat();
+                Layers[i].MaterialDefinition = MyDefinitionManager.Static.GetVoxelMaterialDefinition(stream.ReadString());
+            }
+
+            int numOreProbabilities = stream.ReadInt32();
+            OreProbabilities = new MyOreProbability[numOreProbabilities];
+            for (int i = 0; i < numOreProbabilities; ++i)
+            {
+                OreProbabilities[i] = new MyOreProbability();
+                OreProbabilities[i].CummulativeProbability = stream.ReadFloat();
+                OreProbabilities[i].OreName = stream.ReadString();
+            }
+
+            OreStartDepth = stream.ReadFloat();
+            OreEndDepth = stream.ReadFloat();
+        }
+    }
+
     public struct MyCsgShapePlanetShapeAttributes
     {
         public float NoiseFrequency;
@@ -19,6 +102,28 @@ namespace Sandbox.Engine.Voxels
         public float NormalNoiseFrequency;
         public float LayerDeviationNoiseFrequency;
         public int LayerDeviationSeed;
+
+        public void WriteTo(Stream stream)
+        {
+            stream.WriteNoAlloc(Seed);
+            stream.WriteNoAlloc(Radius);
+            stream.WriteNoAlloc(NoiseFrequency);
+            stream.WriteNoAlloc(DeviationScale);
+            stream.WriteNoAlloc(NormalNoiseFrequency);
+            stream.WriteNoAlloc(LayerDeviationNoiseFrequency);
+            stream.WriteNoAlloc(LayerDeviationSeed);
+        }
+        public void ReadFrom(Stream stream)
+        {
+            Seed = stream.ReadInt32();
+            Radius = stream.ReadFloat();
+            NoiseFrequency = stream.ReadFloat();
+            DeviationScale = stream.ReadFloat();
+            NormalNoiseFrequency = stream.ReadFloat();
+            LayerDeviationNoiseFrequency = stream.ReadFloat();
+            LayerDeviationSeed = stream.ReadInt32();
+            Diameter = Radius * 2.0f;
+        }
     }
 
     public struct MyCsgShapePlanetHillAttributes
@@ -28,6 +133,25 @@ namespace Sandbox.Engine.Voxels
         public float SizeRatio;
         public float Frequency;
         public int NumNoises;
+
+
+        public void WriteTo(Stream stream)
+        {
+            stream.WriteNoAlloc(BlendTreshold);
+            stream.WriteNoAlloc(Treshold);
+            stream.WriteNoAlloc(SizeRatio);
+            stream.WriteNoAlloc(NumNoises);
+            stream.WriteNoAlloc(Frequency);
+        }
+
+        public void ReadFrom(Stream stream)
+        {
+            BlendTreshold = stream.ReadFloat();
+            Treshold = stream.ReadFloat();
+            SizeRatio = stream.ReadFloat();
+            NumNoises = stream.ReadInt32();
+            Frequency = stream.ReadFloat();
+        }
     }
 
     class MyCsgShapePlanet : MyCsgShapeBase
@@ -56,6 +180,7 @@ namespace Sandbox.Engine.Voxels
 
         public MyCsgShapePlanet(Vector3 translation, ref MyCsgShapePlanetShapeAttributes shapeAttributes, ref MyCsgShapePlanetHillAttributes hillAttributes, ref MyCsgShapePlanetHillAttributes canyonAttributes, float deviationFrequency = 0, float detailFrequency = 0)
         {
+            m_detailSize = 1.0f;
             m_translation = translation;
             m_shapeAttributes = shapeAttributes;
             m_hillAttributes = hillAttributes;
@@ -110,10 +235,10 @@ namespace Sandbox.Engine.Voxels
             if ((m_outerRadius + lodVoxelSize) < distance)
                 return 1f;
 
-            return SignedDistanceInternal(lodVoxelSize, macroModulator, ref localPosition, distance);
+            return SignedDistanceInternal(lodVoxelSize, macroModulator,detailModulator, ref localPosition, distance);
         }
 
-        private float SignedDistanceInternal(float lodVoxelSize, IMyModule macroModulator, ref Vector3 localPosition, float distance)
+        private float SignedDistanceInternal(float lodVoxelSize, IMyModule macroModulator, IMyModule detailModulator, ref Vector3 localPosition, float distance)
         {
             float signedDistance = distance - m_shapeAttributes.Radius;
 
@@ -156,9 +281,13 @@ namespace Sandbox.Engine.Voxels
             }
 
             if (changed == false)
-            {
+            { 
                 signedDistance -= terrainValue * m_halfDeviation;
             }
+
+            normalizer = m_detailFrequency * m_shapeAttributes.Radius / distance;
+            tmp = localPosition * normalizer;
+            signedDistance -= m_detailSize * (float)detailModulator.GetValue(tmp.X, tmp.Y, tmp.Z);
 
             return signedDistance / lodVoxelSize;
         }
@@ -168,7 +297,7 @@ namespace Sandbox.Engine.Voxels
             Vector3 localPosition = position - m_translation;
             float distance = localPosition.Length();
 
-            return SignedDistanceInternal(lodVoxelSize, macroModulator, ref localPosition, distance);
+            return SignedDistanceInternal(lodVoxelSize, macroModulator,detailModulator, ref localPosition, distance);
         }
 
         internal override void DebugDraw(ref Vector3D worldTranslation, Color color)

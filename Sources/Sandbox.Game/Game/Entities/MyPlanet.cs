@@ -28,10 +28,31 @@ using VRage.Game;
 using VRage.ObjectBuilders;
 using VRage.Components;
 using System.Diagnostics;
+using Sandbox.Engine.Utils;
 
 
 namespace Sandbox.Game.Entities
 {
+    public class PlanetsNotEnabledException : System.Exception
+    { 
+    }
+
+    public struct MyPlanetInitArguments
+    {
+        public string StorageName;
+        public IMyStorage Storage;
+        public Vector3D PositionMinCorner;
+        public float AveragePlanetRadius;
+        public float AtmosphereRadius;
+        public float MaximumHillRadius;
+        public float MinimumSurfaceRadius;
+        public bool HasAtmosphere;
+        public Vector3 AtmosphereWavelengths;
+        public float MaxOxygen;
+        public float GravityFalloff;
+        public bool MarkAreaEmpty;
+    }
+
     [MyEntityType(typeof(MyObjectBuilder_Planet))]
     public class MyPlanet : MyVoxelBase, IMyGravityProvider, IMyOxygenProvider
     {
@@ -75,38 +96,31 @@ namespace Sandbox.Game.Entities
             }
         }
 
-        float m_planetRadius = 0.0f;
-        float m_atmosphereRadius = 0.0f;
-        float m_minimumSurfaceRadius = 0.0f;
-        float m_maximumHillRadius = 0.0f;
+        MyPlanetInitArguments m_planetInitValues;
 
-        Vector3 m_atmosphereWavelengths;
         public Vector3 AtmosphereWavelengths
         {
             get 
             {
-                return m_atmosphereWavelengths;
+                return m_planetInitValues.AtmosphereWavelengths;
             }
         }
 
-        bool m_hasAtmosphere = false;
         bool m_hasSpawningMaterial = false;
-
-        float m_maximumOxygen = 0.0f;
 
         public MyPlanet()
         {
             (PositionComp as MyPositionComponent).WorldPositionChanged = WorldPositionChanged;
 
             Render = new MyRenderComponentPlanet();
-            AddDebugRenderComponent(new MyDebugRenderComponentPlanet(this));
+            AddDebugRenderComponent(new MyDebugRenderComponentVoxelMap(this));
         }
 
         public float MinimumSurfaceRadius 
         {
             get 
             {
-                return m_minimumSurfaceRadius;
+                return m_planetInitValues.MinimumSurfaceRadius;
             }
         }
 
@@ -114,7 +128,7 @@ namespace Sandbox.Game.Entities
         {
             get
             {
-                return m_atmosphereRadius;
+                return m_planetInitValues.AtmosphereRadius;
             }
         }
 
@@ -122,7 +136,7 @@ namespace Sandbox.Game.Entities
         {
             get
             {
-                return m_hasAtmosphere;
+                return m_planetInitValues.HasAtmosphere;
             }
         }
 
@@ -130,14 +144,17 @@ namespace Sandbox.Game.Entities
         {
             get 
             {
-                return m_hasAtmosphere && MySession.Static.Settings.EnableFlora && m_hasSpawningMaterial;
+                return m_planetInitValues.HasAtmosphere && MySession.Static.Settings.EnableFlora && m_hasSpawningMaterial;
             }
         }
 
-        float m_gravityFalloff;
-
         public override void Init(MyObjectBuilder_EntityBase builder)
-        {        
+        {   
+            if(MyFakes.ENABLE_PLANETS == false)
+            {
+                throw new PlanetsNotEnabledException();
+            }
+
             ProfilerShort.Begin("base init");
 
             SyncFlag = true;
@@ -164,25 +181,35 @@ namespace Sandbox.Game.Entities
 
             m_savedEnviromentSectors = ob.SavedEnviromentSectors;
 
-            Init(StorageName, MyStorageBase.Load(ob.StorageName), ob.PositionAndOrientation.Value.Position, ob.Radius, ob.AtmosphereRadius, 
-                ob.MaximumHillRadius, ob.MinimumSurfaceRadius, ob.HasAtmosphere, ob.AtmosphereWavelengths,ob.MaximumOxygen,ob.GravityFalloff);
+            m_planetInitValues.StorageName = StorageName;
+            m_planetInitValues.Storage = MyStorageBase.Load(ob.StorageName);
+            m_planetInitValues.PositionMinCorner = ob.PositionAndOrientation.Value.Position;
+            m_planetInitValues.AveragePlanetRadius = ob.Radius;
+            m_planetInitValues.AtmosphereRadius = ob.AtmosphereRadius;
+            m_planetInitValues.MaximumHillRadius = ob.MaximumHillRadius;
+            m_planetInitValues.MinimumSurfaceRadius = ob.MinimumSurfaceRadius;
+            m_planetInitValues.HasAtmosphere = ob.HasAtmosphere;
+            m_planetInitValues.AtmosphereWavelengths = ob.AtmosphereWavelengths;
+            m_planetInitValues.MaxOxygen = ob.MaximumOxygen;
+            m_planetInitValues.GravityFalloff = ob.GravityFalloff;
+            m_planetInitValues.MarkAreaEmpty = ob.MarkAreaEmpty;
+
+            Init(m_planetInitValues);
 
             ProfilerShort.End();
         }
 
-        public void Init(string storageName, IMyStorage storage, Vector3D positionMinCorner, float averagePlanetRadius, float atmosphereRadius, float maximumHillRadius, float minimumSurfaceRadius, bool hasAtmosphere, Vector3 atmosphereWavelengths,float maxOxygen,float gravityFalloff)
+        public void Init(MyPlanetInitArguments arguments)
         {
-            m_gravityFalloff = gravityFalloff;
-            m_maximumOxygen = maxOxygen;
-            m_atmosphereWavelengths = atmosphereWavelengths;
-            m_hasSpawningMaterial = storage.DataProvider.HasMaterialSpawningFlora();
-            m_maximumHillRadius = maximumHillRadius;
-            m_minimumSurfaceRadius = minimumSurfaceRadius;
-            m_planetRadius = averagePlanetRadius;
-            m_atmosphereRadius = atmosphereRadius;
-            m_hasAtmosphere = hasAtmosphere;
+            if (MyFakes.ENABLE_PLANETS == false)
+            {
+                throw new PlanetsNotEnabledException();
+            }
 
-            base.Init(storageName,storage,positionMinCorner);
+            m_planetInitValues = arguments;
+            m_hasSpawningMaterial = arguments.Storage.DataProvider.HasMaterialSpawningFlora();
+
+            base.Init(m_planetInitValues.StorageName, m_planetInitValues.Storage, m_planetInitValues.PositionMinCorner);
 
             NeedsUpdate |= MyEntityUpdateEnum.EACH_100TH_FRAME | MyEntityUpdateEnum.BEFORE_NEXT_FRAME;
 
@@ -195,16 +222,21 @@ namespace Sandbox.Game.Entities
                 Physics = null;
             }
 
-            Vector3I storageSize = storage.Size;
+            Vector3I storageSize = m_planetInitValues.Storage.Size;
             m_numCells = new Vector3I(storageSize.X / PHYSICS_SECTOR_SIZE_METERS, storageSize.Y / PHYSICS_SECTOR_SIZE_METERS, storageSize.Z / PHYSICS_SECTOR_SIZE_METERS);
          
             m_numCells -= 1;
 
-           StorageName = storageName;
-           m_storageMax = storage.Size;
+           StorageName = m_planetInitValues.StorageName;
+           m_storageMax = m_planetInitValues.Storage.Size;
           
            MyGravityProviderSystem.AddPlanet(this);
            MyOxygenProviderSystem.AddOxygenGenerator(this);
+
+           if (m_planetInitValues.MarkAreaEmpty)
+            {
+                MyProceduralWorldGenerator.Static.MarkEmptyArea(PositionComp.GetPosition());
+            }
 
         }
 
@@ -224,7 +256,7 @@ namespace Sandbox.Game.Entities
         {
             Vector3D planetRelativePos = (pos - this.PositionComp.GetPosition());
             double distanceToCenter = planetRelativePos.Length();
-            double distanceToAtmosphere = m_atmosphereRadius - distanceToCenter;
+            double distanceToAtmosphere = m_planetInitValues.AtmosphereRadius - distanceToCenter;
 
             pos -= gravity * distanceToAtmosphere;
             pos -= PositionLeftBottomCorner;
@@ -416,19 +448,19 @@ namespace Sandbox.Game.Entities
             double distanceToCenter = (WorldMatrix.Translation - worldPoint).Length();
             float attenuation = 1.0f;
 
-            if (distanceToCenter > m_maximumHillRadius)
+            if (distanceToCenter > m_planetInitValues.MaximumHillRadius)
             {
-                distanceToCenter -= m_maximumHillRadius;
-                double distanceToRadius = m_planetRadius / (m_planetRadius + distanceToCenter);
-                attenuation = (float)Math.Pow(distanceToRadius,m_gravityFalloff);
+                distanceToCenter -= m_planetInitValues.MaximumHillRadius;
+                double distanceToRadius = m_planetInitValues.AveragePlanetRadius / (m_planetInitValues.AveragePlanetRadius + distanceToCenter);
+                attenuation = (float)Math.Pow(distanceToRadius, m_planetInitValues.GravityFalloff);
             }
-            else if (distanceToCenter < m_minimumSurfaceRadius)
+            else if (distanceToCenter < m_planetInitValues.MinimumSurfaceRadius)
             {
-                double distanceToRadius = m_planetRadius / (m_planetRadius + distanceToCenter);
+                double distanceToRadius = m_planetInitValues.AveragePlanetRadius / (m_planetInitValues.AveragePlanetRadius + distanceToCenter);
                 attenuation = (float)(1.0- distanceToRadius);
             }
 
-            float planetScale = m_planetRadius / (DEFAULT_GRAVITY_RADIUS_KM * 1000.0f);
+            float planetScale = m_planetInitValues.AveragePlanetRadius / (DEFAULT_GRAVITY_RADIUS_KM * 1000.0f);
             float gravityMultiplier = attenuation * planetScale;
             return direction * MyGravityProviderSystem.G * (gravityMultiplier >= 0.05f ? gravityMultiplier : 0.0f);
         }
@@ -442,7 +474,7 @@ namespace Sandbox.Game.Entities
 
         public bool IsPositionInRange(Vector3D worldPoint)
         {
-            return (WorldMatrix.Translation - worldPoint).Length() < 2.0f*m_planetRadius;
+            return (WorldMatrix.Translation - worldPoint).Length() < 2.0f * m_planetInitValues.AveragePlanetRadius;
         }
 
         public Vector3 GetWorldGravityGrid(Vector3D worldPoint)
@@ -619,26 +651,27 @@ namespace Sandbox.Game.Entities
         {
             MyObjectBuilder_Planet planetBuilder = (MyObjectBuilder_Planet)base.GetObjectBuilder(copy);
 
-            planetBuilder.Radius = m_planetRadius;
-            planetBuilder.HasAtmosphere = m_hasAtmosphere;
-            planetBuilder.AtmosphereRadius = m_atmosphereRadius;
-            planetBuilder.MinimumSurfaceRadius = m_minimumSurfaceRadius;
-            planetBuilder.MaximumHillRadius = m_maximumHillRadius;
-            planetBuilder.AtmosphereWavelengths = m_atmosphereWavelengths;
-            planetBuilder.MaximumOxygen = m_maximumOxygen;
+            planetBuilder.Radius = m_planetInitValues.AtmosphereRadius;
+            planetBuilder.HasAtmosphere = m_planetInitValues.HasAtmosphere;
+            planetBuilder.AtmosphereRadius = m_planetInitValues.AtmosphereRadius;
+            planetBuilder.MinimumSurfaceRadius = m_planetInitValues.MinimumSurfaceRadius;
+            planetBuilder.MaximumHillRadius = m_planetInitValues.MaximumHillRadius;
+            planetBuilder.AtmosphereWavelengths = m_planetInitValues.AtmosphereWavelengths;
+            planetBuilder.MaximumOxygen = m_planetInitValues.MaxOxygen;
             planetBuilder.SavedEnviromentSectors = m_savedEnviromentSectors;
-            planetBuilder.GravityFalloff = m_gravityFalloff;
+            planetBuilder.GravityFalloff = m_planetInitValues.GravityFalloff;
+            planetBuilder.MarkAreaEmpty = m_planetInitValues.MarkAreaEmpty;
             return planetBuilder;
         }
       
         public float GetOxygenForPosition(Vector3D worldPoint)
         {
-            if (m_hasAtmosphere == false)
+            if (m_planetInitValues.HasAtmosphere == false)
             {
                 return 0;
             }
-            float distanceFromSurface =(float) ((WorldMatrix.Translation - worldPoint).Length() - m_planetRadius);
-            return m_maximumOxygen*(1.0f-MathHelper.Saturate(distanceFromSurface / (m_atmosphereRadius - m_planetRadius)));
+            float distanceFromSurface = (float)((WorldMatrix.Translation - worldPoint).Length() - m_planetInitValues.AveragePlanetRadius);
+            return m_planetInitValues.MaxOxygen * (1.0f - MathHelper.Saturate(distanceFromSurface / (m_planetInitValues.AtmosphereRadius - m_planetInitValues.AveragePlanetRadius)));
         }
 
         override public MyClipmapScaleEnum ScaleGroup

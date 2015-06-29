@@ -77,6 +77,8 @@ namespace Sandbox.Game.Entities
             PULL
         }
         private MyState m_state = MyState.NONE;
+        public MyState State { get { return m_state; } }
+
         private HkRigidBody m_otherRigidBody;
         private HkMassChangerUtil m_massChange;
 

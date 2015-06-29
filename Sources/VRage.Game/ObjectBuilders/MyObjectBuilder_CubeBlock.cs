@@ -9,6 +9,7 @@ using System.Diagnostics;
 using VRage.ObjectBuilders;
 using VRage;
 using VRage.ModAPI;
+using Sandbox.Common.ObjectBuilders.ComponentSystem;
 
 namespace Sandbox.Common.ObjectBuilders
 {
@@ -117,6 +118,13 @@ namespace Sandbox.Common.ObjectBuilders
         [XmlArrayItem("SubBlock")]
         [ProtoMember]
         public MySubBlockId[] SubBlocks;
+
+        [ProtoMember, DefaultValue(null)]
+        public MyObjectBuilder_ComponentContainer ComponentContainer = null;
+        public bool ShouldSerializeComponentContainer()
+        {
+            return ComponentContainer != null && ComponentContainer.Components != null && ComponentContainer.Components.Length > 0;
+        }
 
 
         public virtual void Remap(IMyRemapHelper remapHelper)

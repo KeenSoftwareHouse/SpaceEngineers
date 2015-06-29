@@ -181,7 +181,7 @@ namespace Sandbox.Game.Entities
             HasGraphics = false;
         }
 
-        void OnSectorItemRemoved(MyEnvironmentItems item , int value)
+        void OnSectorItemRemoved(MyEnvironmentItems item , MyEnvironmentItems.ItemInfo value)
         {          
             foreach (var spawner in m_spawners)
             {

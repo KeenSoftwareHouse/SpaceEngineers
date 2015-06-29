@@ -287,7 +287,7 @@ namespace Sandbox.Graphics.GUI
 
         public void RemoveSelectedRow()
         {
-            if (SelectedRowIndex.HasValue)
+            if (SelectedRowIndex.HasValue && SelectedRowIndex.Value<m_rows.Count)
             {
                 m_rows.RemoveAt(SelectedRowIndex.Value);
 

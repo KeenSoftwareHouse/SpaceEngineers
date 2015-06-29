@@ -383,5 +383,24 @@ namespace Sandbox.Game.World.Generator
         {
             return true;
         }
+
+        public static Vector3D GetRandomDirection(MyRandom random)
+        {
+            double phi = random.NextDouble() * 2.0 * Math.PI;
+            double z = random.NextDouble() * 2.0 - 1.0;
+            double root = Math.Sqrt(1.0 - z * z);
+
+            return new Vector3D(root * Math.Cos(phi), root * Math.Sin(phi), z);
+        }
+
+        public void MarkEmptyArea(Vector3D pos)
+        {
+            MySphereDensityFunction func = new MySphereDensityFunction(pos, MyProceduralPlanetCellGenerator.OBJECT_SEED_RADIUS, MyProceduralPlanetCellGenerator.OBJECT_SEED_RADIUS);
+            foreach(var module in m_modules)
+            {
+                module.AddDensityFunctionRemoved(func);
+            }
+        }
+
     }
 }

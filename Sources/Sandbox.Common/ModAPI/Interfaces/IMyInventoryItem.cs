@@ -1,4 +1,5 @@
-﻿using Sandbox.Definitions;
+﻿using Sandbox.Common.ObjectBuilders;
+using Sandbox.Definitions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -26,14 +27,21 @@ namespace Sandbox.ModAPI.Interfaces
             get;
             set;
         }
-
     }
 
     public static class MyInventoryItemExtension
     {
         public static MyDefinitionId GetDefinitionId(this IMyInventoryItem self)
         {
-            return new MyDefinitionId(self.Content.TypeId, self.Content.SubtypeId);
+            var physicalObject = self.Content as MyObjectBuilder_PhysicalObject;
+            if (physicalObject != null)
+            {
+                return physicalObject.GetObjectId();
+            }
+            else
+            {
+                return new MyDefinitionId(self.Content.TypeId, self.Content.SubtypeId);
+            }
         }
     }
 }
