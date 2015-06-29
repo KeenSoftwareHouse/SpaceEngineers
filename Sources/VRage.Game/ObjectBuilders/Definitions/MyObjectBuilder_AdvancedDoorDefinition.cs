@@ -26,11 +26,6 @@ namespace Sandbox.Common.ObjectBuilders.Definitions
                 Rotate
             }
 
-            public enum Sequence
-            {
-                Linear
-            }
-
             public enum Rotation
             {
                 X,
@@ -39,16 +34,10 @@ namespace Sandbox.Common.ObjectBuilders.Definitions
             }
 
             [ProtoMember]
-            public int ID = -1;
-
-            [ProtoMember]
             public string IDs = "";
 
             [ProtoMember]
             public MoveType Move = MoveType.Slide;
-
-            [ProtoMember]
-            public Sequence SequenceType = Sequence.Linear;
 
             // How fast opens this Subpart?
             [ProtoMember]
