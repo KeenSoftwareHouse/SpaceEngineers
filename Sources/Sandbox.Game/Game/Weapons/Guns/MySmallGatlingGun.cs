@@ -406,7 +406,7 @@ namespace Sandbox.Game.Weapons
 
             m_gunBase.Shoot(Parent.Physics.LinearVelocity);
 
-            if (!MySession.Static.CreativeMode)
+            if (Sync.IsServer && !MySession.Static.CreativeMode)
             {
                 m_gunBase.ConsumeAmmo();        
             }
