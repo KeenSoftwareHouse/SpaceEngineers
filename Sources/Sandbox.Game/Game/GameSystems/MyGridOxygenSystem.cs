@@ -22,6 +22,7 @@ using VRage;
 using VRage.Components;
 using VRage.Input;
 using VRage.Library.Utils;
+using VRage.Utils;
 using VRageMath;
 using VRageRender;
 
@@ -539,6 +540,8 @@ namespace Sandbox.Game.GameSystems
                 }
             }
 
+            var consumerList = new List<IMyOxygenConsumer>();
+            var producerList = new List<IMyOxygenProducer>();
             foreach (var group in groups)
             {
                 if ((group.Consumers.Count == 0 || group.Producers.Count == 0) && group.Tanks.Count == 0)
@@ -546,80 +549,98 @@ namespace Sandbox.Game.GameSystems
                     continue;
                 }
 
+                // Randomize the order that consumers and producers are processed so that usage will balance
+                // out over time. (While making sure to maintain priority ordering requirements.)
+                consumerList.Clear();
+                foreach (var prioLevel in group.Consumers)
+                {
+                    int start = consumerList.Count;
+                    consumerList.AddList(prioLevel.Value);
+
+                    //Shuffle order of items just added
+                    for (int i = start; i < consumerList.Count - 1; ++i)
+                    {
+                        int j = MyUtils.GetRandomInt(i, consumerList.Count);
+                        var tmp = consumerList[i];
+                        consumerList[i] = consumerList[j];
+                        consumerList[j] = tmp;
+                    }
+                }
+                producerList.Clear();
+                foreach (var prioLevel in group.Producers)
+                {
+                    int start = producerList.Count;
+                    producerList.AddList(prioLevel.Value);
+
+                    for (int i = start; i < producerList.Count - 1; ++i)
+                    {
+                        int j = MyUtils.GetRandomInt(i, producerList.Count);
+                        var tmp = producerList[i];
+                        producerList[i] = producerList[j];
+                        producerList[j] = tmp;
+                    }
+                }
+
                 // Step through consumers and producers one-by-one,
                 //   transferring production to consumers in turn and as-needed
                 // Note that, as a safety precaution, we take care to call each consumer/producer/tank's
                 //   consume/produce functions exactly once, since the interfaces' documention does not indicate
                 //   whether multiple or 0 calls per update is acceptable (exactly one call must necessarily be safe).
-                bool producersLeft = false;
-                var producerListIter = group.Producers.GetEnumerator();
-                List<IMyOxygenProducer>.Enumerator producerIter = new List<IMyOxygenProducer>.Enumerator();
+                var producerIter = producerList.GetEnumerator();
+                bool producersLeft = producerIter.MoveNext();
                 float prodUsed = 0;
-                if (producerListIter.MoveNext())
-                {
-                    producerIter = producerListIter.Current.Value.GetEnumerator();
-                    producersLeft = producerIter.MoveNext();
-                }
 
                 var tankIter = group.NonStockpilingTanks.GetEnumerator();
                 bool tanksLeft = tankIter.MoveNext();
                 float tankUsed = 0;
 
-                foreach (var consumerList in group.Consumers)
+                foreach (var consumer in consumerList)
                 {
-                    foreach (var consumer in consumerList.Value)
+                    float need = consumer.ConsumptionNeed(deltaTime);
+                    float have=0;
+
+                    while (producersLeft && have < need)
                     {
-                        float need = consumer.ConsumptionNeed(deltaTime);
-                        float have=0;
+                        //Get production each time because it may change as consumers are satisfied
+                        float prodCapacity = producerIter.Current.ProductionCapacity(deltaTime);
+                        Debug.Assert(prodUsed <= prodCapacity, "Used more oxygen than the producer could provide");
 
-                        while (producersLeft && have < need)
+                        float use = Math.Min(need - have, prodCapacity - prodUsed);
+                        have += use;
+                        prodUsed += use;
+
+                        if (prodUsed >= prodCapacity)
                         {
-                            //Get production each time because it may change as consumers are satisfied
-                            float prodCapacity = producerIter.Current.ProductionCapacity(deltaTime);
-                            Debug.Assert(prodUsed <= prodCapacity, "Used more oxygen than the producer could provide");
+                            //Finalize current production
+                            producerIter.Current.Produce(prodCapacity);
 
-                            float use = Math.Min(need - have, prodCapacity - prodUsed);
-                            have += use;
-                            prodUsed += use;
-
-                            if (prodUsed >= prodCapacity)
-                            {
-                                //Finalize current production
-                                producerIter.Current.Produce(prodCapacity);
-
-                                //Have exhausted current producer, move to next
-                                producersLeft = producerIter.MoveNext();
-                                if (!producersLeft && producerListIter.MoveNext())
-                                {
-                                    producerIter = producerListIter.Current.Value.GetEnumerator();
-                                    producersLeft = producerIter.MoveNext();
-                                }
-                                prodUsed = 0.0f;
-                            }
+                            //Have exhausted current producer, move to next
+                            producersLeft = producerIter.MoveNext();
+                            prodUsed = 0.0f;
                         }
-                        while (tanksLeft && have < need)
-                        {
-                            //Note we don't bother balancing usage here, since tank levels are re-balanced later
-                            //  anyways
-                            float tankAmount = tankIter.Current.Capacity * tankIter.Current.FilledRatio;
-
-                            float use = Math.Min(need - have, tankAmount - tankUsed);
-                            have += use;
-                            tankUsed += use;
-
-                            if (tankUsed >= tankAmount)
-                            {
-                                //Finalize current tank usage
-                                tankIter.Current.Drain(tankAmount);
-
-                                //Have exhausted current tank, move to next
-                                tanksLeft = tankIter.MoveNext();
-                                tankUsed = 0.0f;
-                            }
-                        }
-
-                        consumer.Consume(have);
                     }
+                    while (tanksLeft && have < need)
+                    {
+                        //Note we don't bother balancing usage here, since tank levels are re-balanced later
+                        //  anyways
+                        float tankAmount = tankIter.Current.Capacity * tankIter.Current.FilledRatio;
+
+                        float use = Math.Min(need - have, tankAmount - tankUsed);
+                        have += use;
+                        tankUsed += use;
+
+                        if (tankUsed >= tankAmount)
+                        {
+                            //Finalize current tank usage
+                            tankIter.Current.Drain(tankAmount);
+
+                            //Have exhausted current tank, move to next
+                            tanksLeft = tankIter.MoveNext();
+                            tankUsed = 0.0f;
+                        }
+                    }
+
+                    consumer.Consume(have);
                 }
                 if(tankUsed>0)
                 {   //Finalize last tank usage (if any)
@@ -650,11 +671,6 @@ namespace Sandbox.Game.GameSystems
 
                                 //Have exhausted current producer, move to next
                                 producersLeft = producerIter.MoveNext();
-                                if (!producersLeft && producerListIter.MoveNext())
-                                {
-                                    producerIter = producerListIter.Current.Value.GetEnumerator();
-                                    producersLeft = producerIter.MoveNext();
-                                }
                                 prodUsed = 0.0f;
                             }
                         }
@@ -666,11 +682,6 @@ namespace Sandbox.Game.GameSystems
                 {   //Still more excess production, finish off
                     producerIter.Current.Produce(prodUsed);
                     producersLeft = producerIter.MoveNext();
-                    if (!producersLeft && producerListIter.MoveNext())
-                    {
-                        producerIter = producerListIter.Current.Value.GetEnumerator();
-                        producersLeft = producerIter.MoveNext();
-                    }
                     prodUsed = 0.0f;
                 }
 
