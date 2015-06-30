@@ -10,5 +10,11 @@ namespace Sandbox.Common.ObjectBuilders
     {
         [ProtoMember, DefaultValue(false)]
         public bool Open = false;
+
+        [ProtoMember, DefaultValue(2f)]
+        public float AutocloseInterval = 2f;
+
+        [ProtoMember, DefaultValue(false)]
+        public bool Autoclose = false;
     }
 }
