@@ -347,6 +347,9 @@ namespace Sandbox.Game.Weapons
 
         public bool HasEnoughAmmunition()
         {
+            if (WeaponProperties.AmmoMagazineDefinition.Capacity == 0)
+                return true;
+
             if (CurrentAmmo < AMMO_PER_SHOOT) // so far it is always one bullet per shot. If anything, WeaponDefinition has to be extended.
             {
                 return m_user.AmmoInventory.GetItemAmount(CurrentAmmoMagazineId) > 0;
@@ -356,6 +359,9 @@ namespace Sandbox.Game.Weapons
 
         public void ConsumeAmmo()
         {
+            if (WeaponProperties.AmmoMagazineDefinition.Capacity == 0)
+                return;
+
             CurrentAmmo -= AMMO_PER_SHOOT;
             if (CurrentAmmo == -1)
             {
