@@ -545,128 +545,133 @@ namespace Sandbox.Game.GameSystems
                 {
                     continue;
                 }
-                float consumption = 0f;
-                float production = 0f;
 
-                //TODO(AF) better way to get max priority?
-                float[] consumptionPerPriorityLevels = group.Consumers.Count == 0 ? null : new float[group.Consumers.Last().Key + 1];
-
-                foreach (var consumerList in group.Consumers.Values)
+                // Step through consumers and producers one-by-one,
+                //   transferring production to consumers in turn and as-needed
+                // Note that, as a safety precaution, we take care to call each consumer/producer/tank's
+                //   consume/produce functions exactly once, since the interfaces' documention does not indicate
+                //   whether multiple or 0 calls per update is acceptable (exactly one call must necessarily be safe).
+                bool producersLeft = false;
+                var producerListIter = group.Producers.GetEnumerator();
+                List<IMyOxygenProducer>.Enumerator producerIter = new List<IMyOxygenProducer>.Enumerator();
+                float prodUsed = 0;
+                if (producerListIter.MoveNext())
                 {
-                    foreach (var consumer in consumerList)
-                    {
-                        float c = consumer.ConsumptionNeed(deltaTime);
-                        consumption += c;
-                        consumptionPerPriorityLevels[consumer.GetPriority()] += c;
-                    }
+                    producerIter = producerListIter.Current.Value.GetEnumerator();
+                    producersLeft = producerIter.MoveNext();
                 }
 
-                foreach (var producerList in group.Producers.Values)
+                var tankIter = group.NonStockpilingTanks.GetEnumerator();
+                bool tanksLeft = tankIter.MoveNext();
+                float tankUsed = 0;
+
+                foreach (var consumerList in group.Consumers)
                 {
-                    foreach (var producer in producerList)
+                    foreach (var consumer in consumerList.Value)
                     {
-                        production += producer.ProductionCapacity(deltaTime);
-                    }
-                }
+                        float need = consumer.ConsumptionNeed(deltaTime);
+                        float have=0;
 
-                if (production > consumption)
-                {
-                    float productionLeft = production - consumption;
-
-                    int remainingTanks = group.Tanks.Count;
-                    foreach (var tank in group.Tanks)
-                    {
-                        float portion = productionLeft / remainingTanks;
-                        float capacityLeft = tank.Capacity * (1f - tank.FilledRatio);
-
-                        float portionForTank = Math.Min(portion, capacityLeft);
-
-                        tank.Fill(portionForTank);
-
-                        remainingTanks--;
-                        productionLeft -= portionForTank;
-                    }
-
-                    foreach (var consumerList in group.Consumers)
-                    {
-                        foreach (var consumer in consumerList.Value)
+                        while (producersLeft && have < need)
                         {
-                            consumer.Consume(consumer.ConsumptionNeed(deltaTime));
-                        }
-                    }
+                            //Get production each time because it may change as consumers are satisfied
+                            float prodCapacity = producerIter.Current.ProductionCapacity(deltaTime);
+                            Debug.Assert(prodUsed <= prodCapacity, "Used more oxygen than the producer could provide");
 
-                    float toGenerate = production - productionLeft;
-                    foreach (var producerList in group.Producers)
-                    {
-                        foreach (var producer in producerList.Value)
-                        {
-                            float maxProduction = producer.ProductionCapacity(deltaTime);
-                            if (maxProduction > 0f)
+                            float use = Math.Min(need - have, prodCapacity - prodUsed);
+                            have += use;
+                            prodUsed += use;
+
+                            if (prodUsed >= prodCapacity)
                             {
-                                if (toGenerate < maxProduction)
+                                //Finalize current production
+                                producerIter.Current.Produce(prodCapacity);
+
+                                //Have exhausted current producer, move to next
+                                producersLeft = producerIter.MoveNext();
+                                if (!producersLeft && producerListIter.MoveNext())
                                 {
-                                    producer.Produce(toGenerate);
-                                    toGenerate = 0f;
-                                    break;
+                                    producerIter = producerListIter.Current.Value.GetEnumerator();
+                                    producersLeft = producerIter.MoveNext();
                                 }
-                                else
-                                {
-                                    producer.Produce(maxProduction);
-                                    toGenerate -= maxProduction;
-                                }
+                                prodUsed = 0.0f;
+                            }
+                        }
+                        while (tanksLeft && have < need)
+                        {
+                            //Note we don't bother balancing usage here, since tank levels are re-balanced later
+                            //  anyways
+                            float tankAmount = tankIter.Current.Capacity * tankIter.Current.FilledRatio;
+
+                            float use = Math.Min(need - have, tankAmount - tankUsed);
+                            have += use;
+                            tankUsed += use;
+
+                            if (tankUsed >= tankAmount)
+                            {
+                                //Finalize current tank usage
+                                tankIter.Current.Drain(tankAmount);
+
+                                //Have exhausted current tank, move to next
+                                tanksLeft = tankIter.MoveNext();
+                                tankUsed = 0.0f;
                             }
                         }
 
-
-                        if (toGenerate <= 0f)
-                        {
-                            break;
-                        }
+                        consumer.Consume(have);
                     }
                 }
-                else
-                {
-                    float originalConsumption = consumption;
-                    
-                    consumption -= production;
-                    int remainingTanks = group.NonStockpilingTanks.Count;
-
-                    foreach (var tank in group.NonStockpilingTanks)
+                if(tankUsed>0)
+                {   //Finalize last tank usage (if any)
+                    tankIter.Current.Drain(tankUsed);
+                    tankUsed = 0;
+                }
+                if(producersLeft)
+                {   //Excess production capacity, divert to tanks
+                    foreach (var tank in group.Tanks)
                     {
-                        float portion = consumption / remainingTanks;
-                        float oxygenLeft = tank.Capacity * tank.FilledRatio;
+                        float need = tank.Capacity * (1f - tank.FilledRatio);
+                        float have = 0;
 
-                        float portionForTank = Math.Min(portion, oxygenLeft);
-                        tank.Drain(portionForTank);
-                        remainingTanks--;
-                        production += portionForTank;
+                        while (producersLeft && have < need)
+                        {
+                            //Get production each time because it may change as consumers are satisfied
+                            float prodCapacity = producerIter.Current.ProductionCapacity(deltaTime);
+                            Debug.Assert(prodUsed <= prodCapacity, "Used more oxygen than the producer could provide");
+
+                            float use = Math.Min(need - have, prodCapacity - prodUsed);
+                            have += use;
+                            prodUsed += use;
+
+                            if (prodUsed >= prodCapacity)
+                            {
+                                //Finalize current production
+                                producerIter.Current.Produce(prodCapacity);
+
+                                //Have exhausted current producer, move to next
+                                producersLeft = producerIter.MoveNext();
+                                if (!producersLeft && producerListIter.MoveNext())
+                                {
+                                    producerIter = producerListIter.Current.Value.GetEnumerator();
+                                    producersLeft = producerIter.MoveNext();
+                                }
+                                prodUsed = 0.0f;
+                            }
+                        }
+
+                        tank.Fill(have);
                     }
-
-                    foreach (var producerList in group.Producers)
+                }
+                while(producersLeft)
+                {   //Still more excess production, finish off
+                    producerIter.Current.Produce(prodUsed);
+                    producersLeft = producerIter.MoveNext();
+                    if (!producersLeft && producerListIter.MoveNext())
                     {
-                        foreach (var producer in producerList.Value)
-                        {
-                            producer.Produce(producer.ProductionCapacity(deltaTime));
-                        }
+                        producerIter = producerListIter.Current.Value.GetEnumerator();
+                        producersLeft = producerIter.MoveNext();
                     }
-
-                    float originalProduction = production;
-
-                    foreach (var consumerList in group.Consumers)
-                    {
-                        if (production <= 0f)
-                        {
-                            break;
-                        }
-
-                        float priorityConsumption = Math.Min(production, consumptionPerPriorityLevels[consumerList.Key]);
-                        production -= priorityConsumption;
-                        foreach (var consumer in consumerList.Value)
-                        {
-                            float c = priorityConsumption / consumerList.Value.Count;
-                            consumer.Consume(c);
-                        }
-                    }
+                    prodUsed = 0.0f;
                 }
 
                 //Balance tanks
