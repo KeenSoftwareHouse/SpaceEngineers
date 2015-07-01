@@ -407,7 +407,7 @@ namespace Sandbox.Game.Gui
                     output.ShipExcluded.Add(row.UserData.ToString());
                 }
 
-                if (row.GetCell(2).Text.ToString() == MyTexts.GetString(MySpaceTexts.ToolTipEncounterSettings_SmallShipLabel))
+                if (row.GetCell(2).Text.ToString() == MyTexts.GetString(MySpaceTexts.WorldSettings_GridSmallShipType))
                 {
                     output.SmallEncounters.Add(row.UserData.ToString());
                 }
