@@ -124,24 +124,24 @@ namespace Sandbox.Engine.Multiplayer
             set { KeyValueChangedRequest(BattleTimeLimitTagHash, value.ToString()); }
         }
 
-
         public MyMultiplayerBattleData()
         {
-            MySyncLayer.RegisterMessage<KeyValueDataMsg>(OnKeyValueChanged, MyMessagePermissions.Any, MyTransportMessageEnum.Request);
+            //RKTODO - commented out, use MyMultiplayerBase.RegisterControlMessage instead
+            //MySyncLayer.RegisterMessage<KeyValueDataMsg>(OnKeyValueChanged, MyMessagePermissions.Any, MyTransportMessageEnum.Request);
         }
 
         private static void KeyValueChangedRequest(MyStringHash key, string value)
         {
-            var msg = new KeyValueDataMsg();
-            msg.Key = key;
-            msg.Value = value;
+            //var msg = new KeyValueDataMsg();
+            //msg.Key = key;
+            //msg.Value = value;
 
-            Sync.Layer.SendMessageToAllAndSelf(ref msg);
+            //Sync.Layer.SendMessageToAllAndSelf(ref msg);
         }
 
         private void OnKeyValueChanged(ref KeyValueDataMsg msg, MyNetworkClient sender)
         {
-            m_mapKeyToValue[msg.Key] = msg.Value;
+            //m_mapKeyToValue[msg.Key] = msg.Value;
         }
 
         private float GetFloatValue(MyStringHash key, float defValue)

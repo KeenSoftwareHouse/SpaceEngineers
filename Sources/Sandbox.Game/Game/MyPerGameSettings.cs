@@ -106,6 +106,7 @@ namespace Sandbox.Game
         public static MyPlacementSettings PastingSettings;
         public static string GameModAssembly;
         public static string SandboxAssembly = "Sandbox.Common.dll";
+        public static string SandboxGameAssembly = "Sandbox.Game.dll";
 
         public static bool SingleCluster = false;
         public static int LoadingScreenQuoteCount = 71;
@@ -252,8 +253,8 @@ namespace Sandbox.Game
         
         public static bool SwitchToSpectatorCameraAfterDeath = false;
         public static bool SimplePlayerNames = false;
+        public static Type CharacterDetectionComponent;
 
-        public static bool DisableIntersectionOnUnsopportedCharacters = false;
         public static string BugReportUrl = "https://steamcommunity.com/openid/login?openid.ns=http%3A%2F%2Fspecs.openid.net%2Fauth%2F2.0&openid.mode=checkid_setup&openid.return_to=http%3A%2F%2Fforums.keenswh.com%2Fregister%2Fsteam%3Fredirect%3Dhttp%253A%252F%252Fforums.keenswh.com%252Fforums%252Fbug-reports.326950%252F&openid.realm=http%3A%2F%2Fforums.keenswh.com&openid.identity=http%3A%2F%2Fspecs.openid.net%2Fauth%2F2.0%2Fidentifier_select&openid.claimed_id=http%3A%2F%2Fspecs.openid.net%2Fauth%2F2.0%2Fidentifier_select";
 
         public static bool EnableScenarios = false;
@@ -268,6 +269,7 @@ namespace Sandbox.Game
         public static bool EnableRagdollInJetpack = false;
 
         public static bool InventoryMass = false;
+        public static bool ComponentSaving = false;
 
         public static bool EnableCharacterCollisionDamage = false;
         public static MyStringId DefaultGraphicsRenderer;

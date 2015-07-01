@@ -54,8 +54,8 @@ namespace Sandbox.Game.Entities.Character
 {
     public class MyCharacterShapecastDetectorComponent : MyCharacterDetectorComponent
     {
-        List<MyPhysics.HitInfo> m_hits = new List<MyPhysics.HitInfo>();
-
+        const float SHAPE_RADIUS = 0.1f;
+        List<HkContactBodyData> m_hits = new List<HkContactBodyData>();
         protected override void DoDetection(bool useHead)
         {
             if (Character == MySession.ControlledEntity)
@@ -83,55 +83,62 @@ namespace Sandbox.Game.Entities.Character
 
             Vector3D to = from + dir * MyConstants.DEFAULT_INTERACTIVE_DISTANCE;
 
+            MatrixD matrix = MatrixD.CreateTranslation(from);
+            HkShape shape = new HkSphereShape(SHAPE_RADIUS);
+            IMyEntity hitEntity = null;
+            int shapeKey = -1;
+            Vector3D hitPosition = Vector3D.Zero;
+            m_hits.Clear();
 
-            //VRageRender.MyRenderProxy.DebugDrawLine3D(from, to, Color.Red, Color.Green, true);
-            //VRageRender.MyRenderProxy.DebugDrawSphere(headPos, 0.05f, Color.Red.ToVector3(), 1.0f, false);
+            try
+            {
+                MyPhysics.CastShapeReturnContactBodyDatas(to, shape, ref matrix, 0, 0f, m_hits);
 
-            MyPhysics.CastRay(from, to, m_hits);
+                int index = 0;
+                while (index < m_hits.Count && (m_hits[index].Body == null || m_hits[index].Body.UserObject == Character.Physics
+                    || (Character.VirtualPhysics != null && m_hits[index].Body.UserObject == Character.VirtualPhysics) || m_hits[index].Body.HasProperty(HkCharacterRigidBody.MANIPULATED_OBJECT))) // Skip invalid hits and self character
+                {
+                    index++;
+                }
+
+                if (index < m_hits.Count)
+                {
+                    hitEntity = m_hits[index].Body.GetEntity();
+                    shapeKey = m_hits[index].ShapeKey;
+                    hitPosition = m_hits[index].HitPosition;
+                }
+            }
+            finally
+            {
+                shape.RemoveReference();
+            }
 
             bool hasInteractive = false;
 
-            int index = 0;
-            while (index < m_hits.Count && (m_hits[index].HkHitInfo.Body == null || m_hits[index].HkHitInfo.Body.UserObject == Character.Physics
-                || (Character.VirtualPhysics != null && m_hits[index].HkHitInfo.Body.UserObject == Character.VirtualPhysics) || m_hits[index].HkHitInfo.Body.HasProperty(HkCharacterRigidBody.MANIPULATED_OBJECT))) // Skip invalid hits and self character
+            var interactive = hitEntity as IMyUseObject;
+
+            if (hitEntity != null)
             {
-                index++;
+                MyUseObjectsComponentBase useObject = null;
+                hitEntity.Components.TryGet<MyUseObjectsComponentBase>(out useObject);
+                if (useObject != null)
+                {
+                    interactive = useObject.GetInteractiveObject(shapeKey);
+                }
             }
 
-            if (index < m_hits.Count)
+            if (UseObject != null && interactive != null && UseObject != interactive)
             {
-                //We must take only closest hit (others are hidden behind)
-                var h = m_hits[index];
-                var entity = h.HkHitInfo.Body.GetEntity();
-                var interactive = entity as IMyUseObject;
+                UseObject.OnSelectionLost();
+            }
 
-                // TODO: Uncomment to enforce that character must face object by front to activate it
-                //if (TestInteractionDirection(head.Forward, h.Position - GetPosition()))
-                //return;
+            if (interactive != null && interactive.SupportedActions != UseActionEnum.None && (Vector3D.Distance(from, hitPosition)) < interactive.InteractiveDistance && Character == MySession.ControlledEntity)
+            {
+                MyHud.SelectedObjectHighlight.Visible = true;
+                MyHud.SelectedObjectHighlight.InteractiveObject = interactive;
 
-                if (entity != null)
-                {
-                    MyUseObjectsComponentBase useObject = null;
-                    entity.Components.TryGet<MyUseObjectsComponentBase>(out useObject);
-                    if (useObject != null)
-                    {
-                        interactive = useObject.GetInteractiveObject(h.HkHitInfo.GetShapeKey(0));
-                    }
-                }
-
-                if (UseObject != null && interactive != null && UseObject != interactive)
-                {
-                    UseObject.OnSelectionLost();
-                }
-
-                if (interactive != null && interactive.SupportedActions != UseActionEnum.None && (Vector3D.Distance(from, (Vector3D)h.Position)) < interactive.InteractiveDistance && Character == MySession.ControlledEntity)
-                {
-                    MyHud.SelectedObjectHighlight.Visible = true;
-                    MyHud.SelectedObjectHighlight.InteractiveObject = interactive;
-
-                    UseObject = interactive;
-                    hasInteractive = true;
-                }
+                UseObject = interactive;
+                hasInteractive = true;
             }
 
             if (!hasInteractive)

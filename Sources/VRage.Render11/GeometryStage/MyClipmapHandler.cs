@@ -17,6 +17,8 @@ namespace VRageRender
         Vector3 m_translation;
         int m_lod;
         bool m_discardingOn;
+        internal MyClipmapScaleEnum ScaleGroup;
+
         BoundingBox m_localAabb;
 
         void IMyClipmapCell.UpdateMesh(MyRenderMessageUpdateClipmapCell msg)
@@ -34,7 +36,7 @@ namespace VRageRender
 
             m_actor.SetMatrix(ref matrix);
             m_actor.SetAabb(msg.MeshAabb.Transform((Matrix)m_worldMatrix));
-            m_actor.GetRenderable().SetVoxelLod(m_lod);
+            m_actor.GetRenderable().SetVoxelLod(m_lod, ScaleGroup);
 
             (m_actor.GetComponent(MyActorComponentEnum.Foliage) as MyFoliageComponent).InvalidateStreams();
             m_actor.MarkRenderDirty();
@@ -50,7 +52,7 @@ namespace VRageRender
             {
                 m_discardingOn = value;
                 //m_actor.MarkRenderDirty();
-                m_actor.GetRenderable().SetVoxelLod(m_lod);
+                m_actor.GetRenderable().SetVoxelLod(m_lod, ScaleGroup);
             }
         }
 
@@ -110,6 +112,7 @@ namespace VRageRender
             Matrix m = (Matrix)worldMatrix;
             var cell = new MyClipmapCellProxy(cellCoord, ref m);
             cell.SetVisibility(false);
+            cell.ScaleGroup = scaleGroup;
             return cell;
         }
 

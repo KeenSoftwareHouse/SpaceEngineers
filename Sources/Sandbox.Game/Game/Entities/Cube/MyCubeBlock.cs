@@ -441,6 +441,10 @@ namespace Sandbox.Game.Entities
                 }
             }
 
+            if (MyPerGameSettings.ComponentSaving && builder.ComponentContainer != null)
+            {
+                Components.Deserialize(builder.ComponentContainer);
+            }
 
             base.Init(null);
             base.Render.PersistentFlags |= MyPersistentEntityFlags2.CastShadows;
@@ -482,6 +486,11 @@ namespace Sandbox.Game.Entities
                         ++counter;
                     }
                 }
+            }
+
+            if (MyPerGameSettings.ComponentSaving)
+            {
+                builder.ComponentContainer = Components.Serialize();
             }
 
             return builder;
