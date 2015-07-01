@@ -20,6 +20,7 @@ using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Xml;
+using System.Xml.Linq;
 
 using VRage;
 using VRage.Collections;
@@ -132,6 +133,167 @@ namespace Sandbox.Definitions
             MySandboxGame.Log.WriteLine("MyDefinitionManager.LoadScenarios() - END");
         }
 
+        public List<MyPrefabProfileDefinition> GetEncounterProfiles(string filePath)
+        {
+            var result = new List<MyPrefabProfileDefinition>(); 
+                
+            XDocument xdoc = XDocument.Load(filePath);
+            XNamespace ns = "http://www.w3.org/2001/XMLSchema-instance";
+ 
+            var Prefabs = xdoc.Descendants("Prefab");
+ 
+            foreach (var prefab in Prefabs)
+            {
+                var newPrefab = new MyPrefabProfileDefinition();
+ 
+                var id = prefab.Element("Id");
+ 
+                if (id != null)
+                {
+                    newPrefab.Name = id.Element("SubtypeId").Value;
+                }
+ 
+                var GridSizes = prefab.Descendants("GridSizeEnum");
+ 
+                var largestGridSize = "Small";
+                foreach (var GridSize in GridSizes)
+                {
+                    if (GridSize.Value != "Small")
+                    {
+                        largestGridSize = GridSize.Value;
+                    }
+                }
+ 
+                newPrefab.GridSize = largestGridSize;
+                       
+                var blocks = prefab.Descendants("MyObjectBuilder_CubeBlock");
+ 
+                var blockTypesPresent = new SortedDictionary<string, int>();
+ 
+                foreach (var block in blocks)
+                {
+                    int count;
+ 
+                    var blockType = block.Attribute(ns + "type");
+                    if (blockType != null)
+                    {
+                        if (!blockTypesPresent.TryGetValue(blockType.Value, out count))
+                        {
+                            blockTypesPresent.Add(blockType.Value, 1);
+                        }
+                        else
+                        {
+                            blockTypesPresent[blockType.Value]++;
+                        }
+                    } 
+                }
+ 
+                newPrefab.BlocksCount = blocks.Count();
+ 
+                newPrefab.BlocksTypes = blockTypesPresent;
+                result.Add(newPrefab);
+            } 
+ 
+            return result;
+        }
+
+        public void LoadDefinitionsOnly(List<MyObjectBuilder_Checkpoint.ModItem> mods)
+        {
+            MySandboxGame.Log.WriteLine("MyDefinitionManager.LoadDefinitionsOnly() - START");
+
+            UnloadData();
+
+            using (MySandboxGame.Log.IndentUsing(LoggingOptions.NONE))
+            {
+                //Load base definitions
+                if (!m_modDefinitionSets.ContainsKey(""))
+                    m_modDefinitionSets.Add("", new DefinitionSet());
+                var baseDefinitionSet = m_modDefinitionSets[""];
+                LoadPrefabDefinitions(MyModContext.BaseGame, baseDefinitionSet);
+
+                MySandboxGame.Log.WriteLine(string.Format("List of used mods ({0}) - START", mods.Count));
+                MySandboxGame.Log.IncreaseIndent();
+                foreach (var mod in mods)
+                    MySandboxGame.Log.WriteLine(string.Format("Id = {0}, Filename = '{1}', Name = '{2}'", mod.PublishedFileId, mod.Name, mod.FriendlyName));
+                MySandboxGame.Log.DecreaseIndent();
+                MySandboxGame.Log.WriteLine("List of used mods - END");
+
+                foreach (var mod in mods)
+                {
+                    MyModContext context = new MyModContext();
+                    context.Init(mod);
+
+                    if (!m_modDefinitionSets.ContainsKey(context.ModPath))
+                    {
+                        var definitionSet = new DefinitionSet();
+                        m_modDefinitionSets.Add(context.ModPath, definitionSet);
+                        LoadDefinitions(context, definitionSet);
+                    }
+                }
+            }
+            MySandboxGame.Log.WriteLine("MyDefinitionManager.LoadDefinitionsOnly() - END");
+        }
+
+        private void LoadPrefabDefinitions(MyModContext context, DefinitionSet definitionSet, bool failOnDebug = true)
+        {
+            if (!MyFileSystem.DirectoryExists(context.ModPathData))
+                return;
+
+            var definitionsBuilders = new List<Tuple<MyObjectBuilder_Definitions, string>>(30);
+            foreach (var file in MyFileSystem.GetFiles(context.ModPathData, "*.sbc", VRage.FileSystem.MySearchOption.AllDirectories))
+            {
+                context.CurrentFile = file;
+
+                MyDataIntegrityChecker.HashInFile(file);
+                MyObjectBuilder_Definitions builder = null;
+                try
+                {
+                    builder = CheckPrefabs(file);
+                }
+                catch (Exception e)
+                {
+                    FailModLoading(context, innerException: e);
+                    return;
+                }
+
+                if (builder == null)
+                {
+                    builder = Load<MyObjectBuilder_Definitions>(file);
+                }
+
+                if (builder == null)
+                {
+                    FailModLoading(context);
+                    return;
+                }
+                definitionsBuilders.Add(new Tuple<MyObjectBuilder_Definitions, string>(builder, file));
+            }
+
+            var phases = new Action<MyObjectBuilder_Definitions, MyModContext, DefinitionSet, bool>[]
+            {               
+                LoadPhase4,
+                LoadPhase5
+            };
+
+            for (int i = 0; i < phases.Length; i++)
+            {
+                try
+                {
+                    foreach (var builder in definitionsBuilders)
+                    {
+                        context.CurrentFile = builder.Item2;
+                        phases[i](builder.Item1, context, definitionSet, failOnDebug);
+                    }
+                }
+                catch (Exception e)
+                {
+                    FailModLoading(context, phase: i, phaseNum: phases.Length, innerException: e);
+                    return;
+                }
+                MergeDefinitions();
+            }
+        }
+
         public void LoadData(List<MyObjectBuilder_Checkpoint.ModItem> mods)
         {
             MySandboxGame.Log.WriteLine("MyDefinitionManager.LoadData() - START");
@@ -222,6 +384,8 @@ namespace Sandbox.Definitions
                 model.UnloadData();
             }
         }
+
+
 
         private void LoadDefinitions(MyModContext context, DefinitionSet definitionSet, bool failOnDebug = true)
         {

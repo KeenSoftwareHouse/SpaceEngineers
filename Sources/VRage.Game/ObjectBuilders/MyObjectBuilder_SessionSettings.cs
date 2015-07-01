@@ -2,6 +2,7 @@
 using System.Xml.Serialization;
 using ProtoBuf;
 using Sandbox.Common.ObjectBuilders.Definitions;
+using Sandbox.Definitions;
 using System.ComponentModel;
 using System.Diagnostics;
 using VRage.Utils;
@@ -258,6 +259,55 @@ namespace Sandbox.Common.ObjectBuilders
         public bool DisableRespawnShips = false;
 
         [ProtoMember]
+        [Display(Name = "Max ships in spawn group")]
+        [GameRelationAttribute(Game.SpaceEngineers)]
+        public short MaxShipsInSpawnGroup = 2;
+
+        [ProtoMember]
+        [Display(Name = "Max Damaged Ships Percentage")]
+        [GameRelationAttribute(Game.SpaceEngineers)]
+        public int MaxDamagedShipsPercentage = 0;
+
+        [ProtoMember]
+        [Display(Name = "Max Damaged Ship Severity")]
+        [GameRelationAttribute(Game.SpaceEngineers)]
+        public int MaxDamagedShipsSeverity = 0;
+
+        [ProtoMember]
+        [Display(Name = "Max Hostile Encounters")]
+        [GameRelationAttribute(Game.SpaceEngineers)]
+        public int MaxHostileEncountersPercentage = 0;
+
+        [ProtoMember]
+        [Display(Name = "Max Antenna Encounters")]
+        [GameRelationAttribute(Game.SpaceEngineers)]
+        public int AntennaOnPercentage = 0;
+
+        [ProtoMember]
+        [Display(Name = "Antenna Range Maxed Out")]
+        [GameRelationAttribute(Game.SpaceEngineers)]
+        public bool AntennaRangeMaxedOut = false;
+
+        [ProtoMember]
+        [Display(Name = "Small To Large Ship Ratio")]
+        [GameRelationAttribute(Game.SpaceEngineers)]
+        public int SmallToLargeShipRatio = 50;
+
+        [ProtoMember]
+        [Display(Name = "Allow armed large ships only")]
+        [GameRelationAttribute(Game.SpaceEngineers)]
+        public bool AllowArmedLargeShipsOnly = false;
+
+        [ProtoMember]
+        [Display(Name = "Max Reactors On Percentage")]
+        [GameRelationAttribute(Game.SpaceEngineers)]
+        public int ReactorsOnPercentage = 0;
+
+        [ProtoMember]
+        [Display(Name = "Apply Same Damage Level To All Encounters")]
+        [GameRelationAttribute(Game.SpaceEngineers)]
+        public bool DamageAppliedGlobally = false;
+
         [Display(Name = "")]
         [GameRelationAttribute(Game.SpaceEngineers)]
         public bool ScenarioEditMode = false;
@@ -294,6 +344,21 @@ namespace Sandbox.Common.ObjectBuilders
         [Display(Name = "Spawn with tools")]
         [GameRelationAttribute(Game.SpaceEngineers)]
         public bool SpawnWithTools = true;
+
+        [ProtoMember]
+        [Display(Name = "Ships To Avoid Using")]
+        [GameRelationAttribute(Game.SpaceEngineers)]
+        public List<string> ShipExcluded = new List<string>();
+
+        [ProtoMember]
+        [Display(Name = "Large Encounters")]
+        [GameRelationAttribute(Game.SpaceEngineers)]
+        public new List<string> LargeEncounters = new List<string>();
+
+        [ProtoMember]
+        [Display(Name = "Small Encounters")]
+        [GameRelationAttribute(Game.SpaceEngineers)]
+        public new List<string> SmallEncounters = new List<string>();
 
         public void LogMembers(MyLog log, LoggingOptions options)
         {

@@ -60,7 +60,7 @@ namespace Sandbox.Game.Gui
                              m_enable3rdPersonCamera, m_enableEncounters, m_disableRespawnShips, m_scenarioEditMode, m_stationVoxelSupport, m_enableSunRotation, m_enableJetpack, 
                              m_spawnWithTools;
 
-        MyGuiControlButton m_okButton, m_cancelButton, m_survivalModeButton, m_creativeModeButton, m_inventory_x1, m_inventory_x3, m_inventory_x10;
+        MyGuiControlButton m_okButton, m_cancelButton, m_survivalModeButton, m_creativeModeButton, m_inventory_x1, m_inventory_x3, m_inventory_x10, m_encounters;
         MyGuiControlButton m_assembler_x1, m_assembler_x3, m_assembler_x10,
                            m_refinery_x1, m_refinery_x3, m_refinery_x10,
                            m_welder_half, m_welder_x1, m_welder_x2, m_welder_x5,
@@ -71,6 +71,14 @@ namespace Sandbox.Game.Gui
         StringBuilder m_tempBuilder = new StringBuilder();
         int m_customWorldSize = 0;
         int m_customViewDistance = 20000;
+
+        MyObjectBuilder_Checkpoint m_checkpoint;
+        public MyObjectBuilder_Checkpoint Checkpoint
+        {
+            get { return m_checkpoint; }
+        }
+
+        internal MyGuiScreenEncounterSettings EncounterConfiguration;
 
         const int MIN_DAY_TIME_MINUTES = 1;
         const int MAX_DAY_TIME_MINUTES = 60 * 24;
@@ -182,8 +190,11 @@ namespace Sandbox.Game.Gui
             var spawnShipTimeLabel = MakeLabel(MySpaceTexts.WorldSettings_RespawnShipCooldown);
             var viewDistanceLabel = MakeLabel(MySpaceTexts.WorldSettings_ViewDistance);
             var physicsOptionLabel = MakeLabel(MySpaceTexts.WorldSettings_Physics);
+
+            var encounterLabel = MakeLabel(MySpaceTexts.WorldSettings_EncountersConfiguration);
+
 			
-			var enableStationVoxelLabel = MakeLabel(MySpaceTexts.WorldSettings_EnableStationVoxel);
+	    var enableStationVoxelLabel = MakeLabel(MySpaceTexts.WorldSettings_EnableStationVoxel);
             var enableSunRotationLabel = MakeLabel(MySpaceTexts.WorldSettings_EnableSunRotation);
 
             var enableJetpackLabel = MakeLabel(MySpaceTexts.WorldSettings_EnableJetpack);
@@ -381,7 +392,9 @@ namespace Sandbox.Game.Gui
             m_physicsOptionsCombo.AddItem((int)MyPhysicsPerformanceEnum.Normal, MySpaceTexts.WorldSettings_Physics_Normal);
             m_physicsOptionsCombo.AddItem((int)MyPhysicsPerformanceEnum.Precise, MySpaceTexts.WorldSettings_Physics_Precise);
 
-			
+            m_encounters = new MyGuiControlButton(visualStyle: MyGuiControlButtonStyleEnum.Small, highlightType: MyGuiControlHighlightType.WHEN_ACTIVE, text: MyTexts.Get(MySpaceTexts.WorldSettings_ConfigureLabel), onButtonClick: EncountersClicked);
+            m_encounters.SetToolTip(MySpaceTexts.ToolTipWorldSettingsEncounterConfiguration);
+
             m_autoHealing.SetToolTip(MyTexts.GetString(MySpaceTexts.ToolTipWorldSettingsAutoHealing));
             m_thrusterDamage.SetToolTip(MyTexts.GetString(MySpaceTexts.ToolTipWorldSettingsThrusterDamage));
             m_cargoShipsEnabled.SetToolTip(MyTexts.GetString(MySpaceTexts.ToolTipWorldSettingsEnableCargoShips));
@@ -403,10 +416,11 @@ namespace Sandbox.Game.Gui
             m_respawnShipDelete.SetToolTip(MyTexts.GetString(MySpaceTexts.TooltipWorldSettingsRespawnShipDelete));
             m_enableToolShake.SetToolTip(MyTexts.GetString(MySpaceTexts.ToolTipWorldSettings_ToolShake));
             m_enableOxygen.SetToolTip(MyTexts.GetString(MySpaceTexts.ToolTipWorldSettings_EnableOxygen));
+            m_disableRespawnShips.SetToolTip(MyTexts.GetString(MySpaceTexts.ToolTipWorldSettings_DisableRespawnShips));            
             m_enableJetpack.SetToolTip(MyTexts.GetString(MySpaceTexts.ToolTipWorldSettings_EnableJetpack));
             m_spawnWithTools.SetToolTip(MyTexts.GetString(MySpaceTexts.ToolTipWorldSettings_SpawnWithTools));
 			
-			m_stationVoxelSupport.SetToolTip(MyTexts.GetString(MySpaceTexts.ToolTipWorldSettings_EnableStationVoxel));
+	    m_stationVoxelSupport.SetToolTip(MyTexts.GetString(MySpaceTexts.ToolTipWorldSettings_EnableStationVoxel));
             m_disableRespawnShips.SetToolTip(MyTexts.GetString(MySpaceTexts.ToolTipWorldSettings_DisableRespawnShips));
 
             // Add controls in pairs; label first, control second. They will be laid out automatically this way.
@@ -446,6 +460,9 @@ namespace Sandbox.Game.Gui
 
             parent.Controls.Add(viewDistanceLabel);
             parent.Controls.Add(m_viewDistanceCombo);
+
+            parent.Controls.Add(encounterLabel);
+            parent.Controls.Add(m_encounters);
 
             if (MyFakes.ENABLE_NEW_SOUNDS)
             {
@@ -1044,6 +1061,19 @@ namespace Sandbox.Game.Gui
         private void SurvivalClicked(object sender)
         {
             UpdateSurvivalState(true);
+        }
+
+        private void EncountersClicked(object sender)
+        {
+            EncounterConfiguration = new MyGuiScreenEncounterSettings(m_parent);            
+            EncounterConfiguration.OnOkButtonClicked += EncounterConfiguration_OnOkButtonClicked;
+
+            MyGuiSandbox.AddScreen(EncounterConfiguration);            
+        }
+
+        private void EncounterConfiguration_OnOkButtonClicked()
+        {
+            EncounterConfiguration.GetSettings(m_parent.Settings);        
         }
 
         private void OnInventoryClick(object sender)

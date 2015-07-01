@@ -6574,6 +6574,27 @@ To connect to lasers not listed here you can connect to coordinates.</value>
   <data name="ToolTipWorldSettings_DisableRespawnShips" xml:space="preserve">
     <value>Respawn in ships and suit is disabled. If no valid medical rooms exist, respawn won't be possible at all!</value>
   </data>
+  <data name="WorldSettings_EncountersConfiguration" xml:space="preserve">
+    <value>Encounters</value>
+  </data>
+  <data name="ScreenCaptionEncountersConfiguration" xml:space="preserve">
+    <value>Encounter Configuration</value>
+  </data>
+  <data name="ToolTipWorldSettingsEncounterConfiguration" xml:space="preserve">
+    <value>Configure exploration encounter settings</value>
+  </data>
+  <data name="WorldSettings_ConfigureLabel" xml:space="preserve">
+    <value>Configure</value>
+  </data>
+  <data name="WorldSettings_MaxNoShipsPerSpawnGroup" xml:space="preserve">
+    <value>Maximum ships in each encounter</value>
+  </data>
+  <data name="WorldSettings_MaxDamagedShipPercentage" xml:space="preserve">
+    <value>% Chance of damaged ships</value>
+  </data>
+  <data name="WorldSettings_MaxDamagedShipsSeverity" xml:space="preserve">
+    <value>Maximum damage severity</value>
+  </data>
   <data name="BlockPropertyTitle_SensorPlaySound" xml:space="preserve">
     <value>Audible Proximity Alert</value>
   </data>
@@ -6659,6 +6680,106 @@ If there is no chance of accessing a medical room, the game is over and you can 
   <data name="BlockPropertyTitle_Projector_NumberOfProjections_Tooltip" xml:space="preserve">
     <value>The maximum number of projections this projector can build instantly</value>
   </data>
+  <data name="WorldSettings_AntennaActiveLabel" xml:space="preserve">
+    <value>% of active antenna</value>
+  </data>
+  <data name="WorldSettings_AntennaMaxedLabel" xml:space="preserve">
+    <value>Antenna range set to maximum</value>
+  </data>
+  <data name="WorldSettings_Damaged" xml:space="preserve">
+    <value>Damaged</value>
+  </data>
+  <data name="WorldSettings_DamagedEncounterLabel" xml:space="preserve">
+    <value>% of damaged encounters</value>
+  </data>
+  <data name="WorldSettings_HeavilyDamaged" xml:space="preserve">
+    <value>Heavily Damaged</value>
+  </data>
+  <data name="WorldSettings_HostileEncountersLabel" xml:space="preserve">
+    <value>% of hostile encounters</value>
+  </data>
+  <data name="WorldSettings_LightlyDamaged" xml:space="preserve">
+    <value>Lightly Damaged</value>
+  </data>
+  <data name="WorldSettings_NoDamage" xml:space="preserve">
+    <value>No Damage</value>
+  </data>
+  <data name="WorldSettings_Worn" xml:space="preserve">
+    <value>Almost New</value>
+  </data>
+  <data name="WorldSettings_DamageAppliedGloballyLabel" xml:space="preserve">
+    <value>Damage severity applied universally</value>
+  </data>
+  <data name="WorldSettings_ReactorsOnLabel" xml:space="preserve">
+    <value>% of active reactors</value>
+  </data>
+  <data name="ToolTipEncounterSettingsAntennasOn" xml:space="preserve">
+    <value>The % of ships groups that begin with their antennas on.
+Antenna will be actively turned off for the remainder.</value>
+  </data>
+  <data name="ToolTipEncounterSettingsAntennasRangeMaxed" xml:space="preserve">
+    <value>When enabled, all ships will use the maximum range of their antennas to broadcast their position. 
+ Otherwise the default ship design values are used.</value>
+  </data>
+  <data name="ToolTipEncounterSettingsDamageAppliedGlobally" xml:space="preserve">
+    <value>When enabled, the same damage severity will be applied to all ships.  
+Otherwise the damage level will be chosen randomly, 
+using the severity as the maximum.</value>
+  </data>
+  <data name="ToolTipEncounterSettingsDamagedShips" xml:space="preserve">
+    <value>The % of damaged ship groups in the game - 
+heavily damaged ships may be worthless for anything other than scrap.</value>
+  </data>
+  <data name="ToolTipEncounterSettingsDamagedShipSeverity" xml:space="preserve">
+    <value>The level of damage that new ships will spawn with.  
+The highest levels may cause some ships to disintegrate entirely, leading to performance issues.</value>
+  </data>
+  <data name="ToolTipEncounterSettingsHostiles" xml:space="preserve">
+    <value>The % of hostile ship groups in the game - hostile groups will open fire on you.</value>
+  </data>
+  <data name="ToolTipEncounterSettingsNoShips" xml:space="preserve">
+    <value>The number of ships in each group - higher values can lead to performance issues.</value>
+  </data>
+  <data name="ToolTipEncounterSettingsReactorsOn" xml:space="preserve">
+    <value>The % of ships groups that begin with their reactors on.
+Reactors will be actively disabled for the rest.</value>
+  </data>
+  <data name="ToolTipEncounterSettings_AdventureMode" xml:space="preserve">
+    <value>You will never know for sure what's behind that asteroid. 
+Tread carefully.</value>
+  </data>
+  <data name="ToolTipEncounterSettings_PeaceMode" xml:space="preserve">
+    <value>A utopia of tranquility.  You have the keys to every ship.</value>
+  </data>
+  <data name="ToolTipEncounterSettings_RandomMode" xml:space="preserve">
+    <value>Surprise!  Random settings will be chosen 
+and this screen will close to preserve the mystery.</value>
+  </data>
+  <data name="ToolTipEncounterSettings_RuinsMode" xml:space="preserve">
+    <value>Civilisation has collapsed.  Was it self-annihilation, aliens or an angry AI? 
+Who knows?  There's no-one left to ask.</value>
+  </data>
+  <data name="ToolTipEncounterSettings_WarMode" xml:space="preserve">
+    <value>Everyone and everything is against you.  </value>
+  </data>
+  <data name="WorldSettings_AdventureMode" xml:space="preserve">
+    <value>Adventure</value>
+  </data>
+  <data name="WorldSettings_PeaceMode" xml:space="preserve">
+    <value>Peace</value>
+  </data>
+  <data name="WorldSettings_PresetValuesLabel" xml:space="preserve">
+    <value>Themed Presets</value>
+  </data>
+  <data name="WorldSettings_RandomMode" xml:space="preserve">
+    <value>Random</value>
+  </data>
+  <data name="WorldSettings_RuinsMode" xml:space="preserve">
+    <value>Ruins</value>
+  </data>
+  <data name="WorldSettings_WarMode" xml:space="preserve">
+    <value>War</value>
+  </data>
   <data name="HudScenarioInfoLivesLeft" xml:space="preserve">
     <value>Lives:</value>
   </data>
@@ -6724,6 +6845,132 @@ If there is no chance of accessing a medical room, the game is over and you can 
   </data>
   <data name="BlockPropertyTitle_Projector_GetOwnership" xml:space="preserve">
     <value>Ownership from projector</value>
+  </data>
+  <data name="MessageBoxCaptionNotEnoughShips" xml:space="preserve">
+    <value>Not Enough Ships Selected.</value>
+  </data>
+  <data name="MessageBoxTextNotEnoughEncounterShipsSelected" xml:space="preserve">
+    <value>You don't have any active encounter ships selected. 
+Please ensure that there is at least one active ship in the list.</value>
+  </data>
+  <data name="ScreenCaptionEncounterShipSelection" xml:space="preserve">
+    <value>Encounter Selection</value>
+  </data>
+  <data name="ToolTipEncounterSettingsArmedLargeShipsOnly" xml:space="preserve">
+    <value>Set this to guarantee that only large ships, with turrets,
+are available for encounters.  
+This does not affect small ship selection in any way.</value>
+  </data>
+  <data name="ToolTipEncounterSettingsSmallToLargeShipRatio" xml:space="preserve">
+    <value>Ratio of small to large ships used for encounters.  
+Set at 50% for an even mix of small and large ships.</value>
+  </data>
+  <data name="WorldSettings_AllowArmedLargeShipsLabel" xml:space="preserve">
+    <value>Large ships must be armed</value>
+  </data>
+  <data name="WorldSettings_EncounterBaseShipLabel" xml:space="preserve">
+    <value>Asteroid Bases</value>
+  </data>
+  <data name="WorldSettings_EncounterLargeShipLabel" xml:space="preserve">
+    <value>Large Ships</value>
+  </data>
+  <data name="WorldSettings_EncounterSmallShipLabel" xml:space="preserve">
+    <value>Small Ships</value>
+  </data>
+  <data name="WorldSettings_EncounterSlidersAffectLabel" xml:space="preserve">
+    <value>Sliders affect..</value>
+  </data>
+  <data name="WorldSettings_MaxBlocksLabel" xml:space="preserve">
+    <value>Maximum Blocks</value>
+  </data>
+  <data name="WorldSettings_MaxTurretsLabel" xml:space="preserve">
+    <value>Maximum Turrets</value>
+  </data>
+  <data name="WorldSettings_ShipSelector" xml:space="preserve">
+    <value>Select Encounters</value>
+  </data>
+  <data name="WorldSettings_SmallToLargeShipRatioLabel" xml:space="preserve">
+    <value>% of large ships</value>
+  </data>
+  <data name="MessageBoxCaptionNotEnoughShipsInSelection" xml:space="preserve">
+    <value>There aren't enough ships availble for encounters.  Please use the 'Encounter Selection' screen to add at least one.</value>
+  </data>
+  <data name="ToolTipEncounterSettings_AsteroidBaseLabel" xml:space="preserve">
+    <value>Asteroid Base</value>
+  </data>
+  <data name="ToolTipEncounterSettings_EncounterSelection" xml:space="preserve">
+    <value>Fine tune the selection of ships that are available
+as candidates for encounters within your game.</value>
+  </data>
+  <data name="ToolTipEncounterSettings_GatlingTurretLabel" xml:space="preserve">
+    <value>Gatling</value>
+  </data>
+  <data name="ToolTipEncounterSettings_IncludeBasesInFilter" xml:space="preserve">
+    <value>Sliders will affect base selection candidates.</value>
+  </data>
+  <data name="ToolTipEncounterSettings_IncludeLargeShipsInFilter" xml:space="preserve">
+    <value>Sliders will affect large ship selection candidates.</value>
+  </data>
+  <data name="ToolTipEncounterSettings_IncludeSmallShipsInFilter" xml:space="preserve">
+    <value>Sliders will affect small ship selection candidates.</value>
+  </data>
+  <data name="ToolTipEncounterSettings_InteriorTurretLabel" xml:space="preserve">
+    <value>Interior</value>
+  </data>
+  <data name="ToolTipEncounterSettings_LargeShipLabel" xml:space="preserve">
+    <value>Large Ship</value>
+  </data>
+  <data name="ToolTipEncounterSettings_MaxBlocksFilter" xml:space="preserve">
+    <value>Maximum number of blocks allowed
+for an encounter candidate.</value>
+  </data>
+  <data name="ToolTipEncounterSettings_MaxTurretsFilter" xml:space="preserve">
+    <value>Maximum number of turrets allowed
+for an encounter candidate.</value>
+  </data>
+  <data name="ToolTipEncounterSettings_MissileTurretLabel" xml:space="preserve">
+    <value>Missile</value>
+  </data>
+  <data name="ToolTipEncounterSettings_SmallShipLabel" xml:space="preserve">
+    <value>Small Ship</value>
+  </data>
+  <data name="ToolTipEncounterSettings_TableActiveColumn" xml:space="preserve">
+    <value>Whether the encounter candidate will be
+available in your game.</value>
+  </data>
+  <data name="ToolTipEncounterSettings_TableNameColumn" xml:space="preserve">
+    <value>Click to activate/deactivate the cadidate
+encounter in your game.</value>
+  </data>
+  <data name="WorldSettings_Encounter_No" xml:space="preserve">
+    <value>No</value>
+  </data>
+  <data name="WorldSettings_Encounter_TableActiveColumnName" xml:space="preserve">
+    <value>Active</value>
+  </data>
+  <data name="WorldSettings_Encounter_TableBlocksColumnName" xml:space="preserve">
+    <value>Blocks</value>
+  </data>
+  <data name="WorldSettings_Encounter_TableNameColumnName" xml:space="preserve">
+    <value>Name</value>
+  </data>
+  <data name="WorldSettings_Encounter_TableSizeColumnName" xml:space="preserve">
+    <value>Size</value>
+  </data>
+  <data name="WorldSettings_Encounter_TableTurretsColumnName" xml:space="preserve">
+    <value>Turrets</value>
+  </data>
+  <data name="WorldSettings_Encounter_Yes" xml:space="preserve">
+    <value>Yes</value>
+  </data>
+  <data name="WorldSettings_GridBaseType" xml:space="preserve">
+    <value>Base</value>
+  </data>
+  <data name="WorldSettings_GridLargeShipType" xml:space="preserve">
+    <value>Large</value>
+  </data>
+  <data name="WorldSettings_GridSmallShipType" xml:space="preserve">
+    <value>Small</value>
   </data>
   <data name="GuiTriggerBlockDestroyed_ColumnName" xml:space="preserve">
     <value>Block name</value>

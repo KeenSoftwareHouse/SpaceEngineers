@@ -51,7 +51,7 @@ namespace Sandbox.Game.World.Generator
         public static bool RemoveEncounter(BoundingBoxD boundingVolume, int seed)
         {
             bool wasFound = false;
-            for (int i = 0; i < 2; ++i)
+            for (int i = 0; i < MySession.Static.Settings.MaxShipsInSpawnGroup; ++i)
             {
                 MyEncounterId encounter = new MyEncounterId(boundingVolume, seed,i);
                 if (true == m_savedEncounters.Contains(encounter))
@@ -96,23 +96,34 @@ namespace Sandbox.Game.World.Generator
                 var allSpawnGroups = MyDefinitionManager.Static.GetSpawnGroupDefinitions();
                 foreach (var spawnGroup in allSpawnGroups)
                 {
-                    if (spawnGroup.IsEncounter)
-                    {
-                        m_spawnGroups.Add(spawnGroup);
-                        if (spawnGroup.Voxels.Count == 0)
+                        if (spawnGroup.IsEncounter)
                         {
-                            m_spawnGroupsNoVoxels.Add(spawnGroup);
+                            m_spawnGroups.Add(spawnGroup);
+                            if (spawnGroup.Voxels.Count == 0)
+                            {
+                                m_spawnGroupsNoVoxels.Add(spawnGroup);
+                            }
                         }
-                    }
                 }
-            }
+            }           
 
             if (m_spawnGroups.Count > 0)
             {
                 m_randomEncounters.Clear();
                 m_placePositions.Clear();
                 m_encountersId.Clear();
-                int numEncoutersToPlace = seedType == MyObjectSeedType.EncounterMulti ? 2 : 1;
+
+                int numEncoutersToPlace;                
+
+                if (MySession.Static.Settings.MaxShipsInSpawnGroup > 2)
+                {
+                    numEncoutersToPlace = MyRandom.Instance.Next(1, MySession.Static.Settings.MaxShipsInSpawnGroup + 1);                        
+                }
+                else
+                {
+                    numEncoutersToPlace = seedType == MyObjectSeedType.EncounterMulti ? 2 : 1;
+                }
+
                 List<MySpawnGroupDefinition> currentSpawnGroup = seedType == MyObjectSeedType.EncounterMulti ? m_spawnGroupsNoVoxels : m_spawnGroups;
 
                 for (int i = 0; i < numEncoutersToPlace; ++i)
@@ -122,7 +133,51 @@ namespace Sandbox.Game.World.Generator
                     {
                         continue;
                     }
-                    m_randomEncounters.Add(PickRandomEncounter(currentSpawnGroup));
+
+                    var invalidShipList = new List<string>();
+
+                    // Get list of specifically excluded ships
+                    foreach (var invalidShip in MySession.Static.ShipExcluded)
+                    {
+                        invalidShipList.Add(invalidShip);
+                    }
+
+                    // Decide whether this is going to be a large or small ship depending on the options chosen at beginning of game
+                    var IsSmallShip = (MyRandom.Instance.Next(1, 101)) > MySession.Static.Settings.SmallToLargeShipRatio;
+
+                    if (IsSmallShip)
+                    {
+                        // It's a small ship so we need to add large ships/bases to the exclusion list
+                        foreach(var encounter in MySession.Static.Settings.LargeEncounters)
+                        {
+                            if (!invalidShipList.Contains(encounter))
+                            {
+                                invalidShipList.Add(encounter);
+                            }
+                            
+                        }                        
+                    }
+                    else
+                    {
+                        // It's a large ship, so we need to add small ships to the exclusion list.
+                        foreach (var encounter in MySession.Static.Settings.SmallEncounters)
+                        {
+                            if (!invalidShipList.Contains(encounter))
+                            {
+                                invalidShipList.Add(encounter);
+                            }
+                        }  
+                    }
+
+                    if (invalidShipList.Count > 0)
+                    {
+                        m_randomEncounters.Add(PickRandomEncounterFromFilteredList(currentSpawnGroup, invalidShipList));
+                    }
+                    else
+                    {
+                        m_randomEncounters.Add(PickRandomEncounter(currentSpawnGroup));
+                    }
+
                     Vector3D newPosition = placePosition + (i == 0 ? -1 : 1) * GetEncounterBoundingBox(currentSpawnGroup[m_randomEncounters[m_randomEncounters.Count - 1]]).HalfExtents;
                     Vector3D savedPosition = Vector3D.Zero;
                     if (true == m_movedOnlyEncounters.Dictionary.TryGetValue(encounterPosition, out savedPosition))
@@ -153,13 +208,35 @@ namespace Sandbox.Game.World.Generator
                     }
                 }
 
+                var ShipsDamaged = MySession.Static.Settings.MaxDamagedShipsPercentage > 0 ? (MyRandom.Instance.Next(1, 101)) <= MySession.Static.Settings.MaxDamagedShipsPercentage : false;
+                var ShipsHostile = MySession.Static.Settings.MaxHostileEncountersPercentage > 0 ? (MyRandom.Instance.Next(1, 101)) <= MySession.Static.Settings.MaxHostileEncountersPercentage : false;
+                var AntennaOn = MySession.Static.Settings.AntennaOnPercentage > 0 ? (MyRandom.Instance.Next(1, 101)) <= MySession.Static.Settings.AntennaOnPercentage : false;
+                var ReactorsOn = MySession.Static.Settings.ReactorsOnPercentage > 0 ? (MyRandom.Instance.Next(1, 101)) <= MySession.Static.Settings.ReactorsOnPercentage : false; 
+
+                int howBadlyDamaged = 0;
+                long owner = 0;
+                
+                if (ShipsDamaged)
+                {
+                    howBadlyDamaged = MySession.Static.Settings.DamageAppliedGlobally ? MySession.Static.Settings.MaxDamagedShipsSeverity : MyRandom.Instance.Next(1, MySession.Static.Settings.MaxDamagedShipsSeverity + 1);                  
+                }
+
+                if (ShipsHostile)
+                {
+                    // Setup a hostile NPC faction for the group
+                    string newNpcFactionName = "Hostile " + MyRandom.Instance.Next(1000, 9999);
+                    var newIdentity = Sync.Players.CreateNewIdentity(newNpcFactionName);
+                    owner = newIdentity.IdentityId;
+                }
+
                 if (Sync.IsServer == true)
                 {
                     for (int i = 0; i < m_randomEncounters.Count; ++i)
                     {
-                        SpawnEncouter(m_encountersId[i], m_placePositions[i], currentSpawnGroup, m_randomEncounters[i]);
+                        SpawnEncouter(m_encountersId[i], m_placePositions[i], currentSpawnGroup, m_randomEncounters[i], howBadlyDamaged, owner, AntennaOn, MySession.Static.Settings.AntennaRangeMaxedOut, ReactorsOn);
                     }
                 }
+               
             }
 
             return true;
@@ -177,22 +254,21 @@ namespace Sandbox.Game.World.Generator
             return encouterBoundingBox;
         }
 
-        private static void SpawnEncouter(MyEncounterId encounterPosition, Vector3D placePosition, List<MySpawnGroupDefinition> candidates, int selectedEncounter)
+        private static void SpawnEncouter(MyEncounterId encounterPosition, Vector3D placePosition, List<MySpawnGroupDefinition> candidates, int selectedEncounter, int damageLevel = 0, long factionId = 0, bool antennaOn = false, bool antennaMaxed = false, bool reactorsOn = false)
         {
             foreach (var selectedPrefab in candidates[selectedEncounter].Prefabs)
             {
                 m_createdGrids.Clear();
                 Vector3D direction = Vector3D.Forward;
                 Vector3D upVector = Vector3D.Up;
-
-                var spawningOptions = Sandbox.ModAPI.SpawningOptions.TurnOffReactors;
+                
+                Sandbox.ModAPI.SpawningOptions spawningOptions = Sandbox.ModAPI.SpawningOptions.None;
+                
                 if (selectedPrefab.Speed > 0.0f)
                 {
                     spawningOptions = Sandbox.ModAPI.SpawningOptions.RotateFirstCockpitTowardsDirection |
                                      Sandbox.ModAPI.SpawningOptions.SpawnRandomCargo |
                                      Sandbox.ModAPI.SpawningOptions.DisableDampeners;
-
-
 
                     float centerArcRadius = (float)Math.Atan(MyNeutralShipSpawner.NEUTRAL_SHIP_FORBIDDEN_RADIUS / placePosition.Length());
                     direction = -Vector3D.Normalize(placePosition);
@@ -206,6 +282,56 @@ namespace Sandbox.Game.World.Generator
 
                     upVector = Vector3D.CalculatePerpendicularVector(direction);
                 }
+                else
+                {
+                    // It's an encounter ship
+                    switch (damageLevel)
+                    {
+                        case 1:
+                            spawningOptions |= Sandbox.ModAPI.SpawningOptions.AlmostNew;
+                            break;
+                        case 2:
+                            spawningOptions |= Sandbox.ModAPI.SpawningOptions.LightlyDamaged;
+                            break;
+                        case 3:
+                            spawningOptions |= Sandbox.ModAPI.SpawningOptions.Damaged;
+                            break;
+                        case 4:
+                            spawningOptions |= Sandbox.ModAPI.SpawningOptions.HeavilyDamaged;
+                            break;
+                        default:
+                            break;
+                    }                    
+
+                    if (factionId > 0)
+                    {
+                        spawningOptions |= Sandbox.ModAPI.SpawningOptions.HostileEncounter; 
+                    }                    
+
+                    if (antennaOn)
+                    {
+                        spawningOptions |= Sandbox.ModAPI.SpawningOptions.AntennaOn; 
+                    }
+                    else
+                    {
+                        spawningOptions |= Sandbox.ModAPI.SpawningOptions.AntennaOff; 
+                    }
+
+                    if (antennaMaxed)
+                    {
+                        spawningOptions |= Sandbox.ModAPI.SpawningOptions.AntennaMaxed; 
+                    }
+
+                    if (reactorsOn)
+                    {
+                        spawningOptions |= Sandbox.ModAPI.SpawningOptions.TurnOnReactors;
+                    }
+                    else
+                    {
+                        spawningOptions |= Sandbox.ModAPI.SpawningOptions.TurnOffReactors;
+                    }
+                }
+
                 spawningOptions |= Sandbox.ModAPI.SpawningOptions.DisableSave;
 
                 var prefabDefinition = MyDefinitionManager.Static.GetPrefabDefinition(selectedPrefab.SubtypeId);
@@ -229,6 +355,16 @@ namespace Sandbox.Game.World.Generator
                    initialLinearVelocity: direction * selectedPrefab.Speed,
                    spawningOptions: spawningOptions,
                    updateSync: true);
+
+                if (factionId > 0)
+                {
+                    foreach (var grid in m_createdGrids)
+                    {
+                        grid.ChangeGridOwnership(factionId, MyOwnershipShareModeEnum.None);
+                    }
+
+                    m_createdGrids.Clear();
+                }
 
                 ProcessCreatedGrids(ref encounterPosition, selectedPrefab.Speed);
             }
@@ -258,6 +394,59 @@ namespace Sandbox.Game.World.Generator
             if (selectedEncounter >= m_spawnGroupCumulativeFrequencies.Count())
                 selectedEncounter = m_spawnGroupCumulativeFrequencies.Count() - 1;
             return selectedEncounter;
+        }
+
+        private static int PickRandomEncounterFromFilteredList(List<MySpawnGroupDefinition> candidates, List<string> filterList)
+        {
+            var filteredCandidates = new Dictionary<int, int>();
+
+            m_spawnGroupTotalFrequencies = 0.0f;
+            m_spawnGroupCumulativeFrequencies.Clear();
+
+            var mappedPos = 0;
+
+            for (var candidate = 0; candidate < candidates.Count(); candidate++)
+            {
+                var candidatePos = -1;
+
+                for (var filteredShip = 0; filteredShip < filterList.Count(); filteredShip++)
+                {
+                    if (filterList[filteredShip] ==  candidates[candidate].Prefabs[0].SubtypeId)
+                    {
+                        candidatePos = filteredShip;
+                        break;
+                    }
+                }
+
+                if (candidatePos == -1)
+                {
+                    filteredCandidates.Add(mappedPos++, candidate);
+                    m_spawnGroupTotalFrequencies += candidates[candidate].Frequency;
+                    m_spawnGroupCumulativeFrequencies.Add(m_spawnGroupTotalFrequencies);
+                }
+            }
+
+            float rnd = m_random.NextFloat(0.0f, m_spawnGroupTotalFrequencies);
+            int selectedEncounter = 0;
+            while (selectedEncounter < m_spawnGroupCumulativeFrequencies.Count())
+            {
+                if (rnd <= m_spawnGroupCumulativeFrequencies[selectedEncounter])
+                    break;
+
+                ++selectedEncounter;
+            }
+
+            if (selectedEncounter >= m_spawnGroupCumulativeFrequencies.Count())
+                selectedEncounter = m_spawnGroupCumulativeFrequencies.Count() - 1;
+
+            int randomEncounter;
+
+            if (filteredCandidates.TryGetValue(selectedEncounter, out randomEncounter))
+            {
+                return randomEncounter;
+            }
+
+            return 0;
         }
 
         private static void ProcessCreatedGrids(ref MyEncounterId encounterPosition,  float prefabSpeed)

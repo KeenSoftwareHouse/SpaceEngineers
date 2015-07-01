@@ -312,6 +312,110 @@ namespace Sandbox.Common.ObjectBuilders
         }
         public bool ShouldSerializeCargoShipsEnabled() { return false; }
 
+        //[ProtoMember, DefaultValue(2)]
+        public short MaxShipsInSpawnGroup
+        {
+            get { Debug.Fail("Obsolete."); return Settings.MaxShipsInSpawnGroup; }
+            set { Settings.MaxShipsInSpawnGroup = value; }
+        }
+        public bool ShouldSerializeMaxShipsInSpawnGroup() { return false; }
+
+        //[ProtoMember, DefaultValue(0)]
+        public int MaxHostileEncountersPercentage
+        {
+            get { return Settings.MaxHostileEncountersPercentage; }
+            set { Settings.MaxHostileEncountersPercentage = value; }
+        }
+        public bool ShouldSerializeMaxHostileEncountersPercentage() { return false; }
+
+        //[ProtoMember, DefaultValue(0)]
+        public int MaxDamagedShipsPercentage
+        {
+            get { return Settings.MaxDamagedShipsPercentage; }
+            set { Settings.MaxDamagedShipsPercentage = value; }
+        }
+        public bool ShouldSerializeMaxDamagedShipsPercentage() { return false; }
+
+        //[ProtoMember, DefaultValue(0)]
+        public int MaxDamagedShipsSeverity
+        {
+            get { return Settings.MaxDamagedShipsSeverity; }
+            set { Settings.MaxDamagedShipsSeverity = value; }
+        }
+        public bool ShouldSerializeMaxDamagedShipsSeverity() { return false; }
+
+        //[ProtoMember, DefaultValue(false)]
+        public bool DamageAppliedGlobally
+        {
+            get { return Settings.DamageAppliedGlobally; }
+            set { Settings.DamageAppliedGlobally = value; }
+        }
+        public bool ShouldSerializeDamageAppliedGlobally() { return false; }
+
+        //[ProtoMember, DefaultValue(0)]
+        public int ReactorsOnPercentage
+        {
+            get { return Settings.ReactorsOnPercentage; }
+            set { Settings.ReactorsOnPercentage = value; }
+        }
+        public bool ShouldSerializeReactorsOnPercentage() { return false; }
+
+        //[ProtoMember, DefaultValue(0)]
+        public int AntennaOnPercentage
+        {
+            get { return Settings.AntennaOnPercentage; }
+            set { Settings.AntennaOnPercentage = value; }
+        }
+        public bool ShouldSerializeAntennaOnPercentage() { return false; }
+
+        //[ProtoMember, DefaultValue(false)]
+        public bool AntennaRangeMaxedOut
+        {
+            get { return Settings.AntennaRangeMaxedOut; }
+            set { Settings.AntennaRangeMaxedOut = value; }
+        }
+        public bool ShouldSerializeAntennaRangeMaxedOut() { return false; }
+
+        //[ProtoMember, DefaultValue(50)]
+        public int SmallToLargeShipRatio
+        {
+            get { return Settings.SmallToLargeShipRatio; }
+            set { Settings.SmallToLargeShipRatio = value; }
+        }
+        public bool ShouldSerializeSmallToLargeShipRatio() { return false; }
+
+        //[ProtoMember, DefaultValue(false)]
+        public bool AllowArmedLargeShipsOnly
+        {
+            get { return Settings.AllowArmedLargeShipsOnly; }
+            set { Settings.AllowArmedLargeShipsOnly = value; }
+        }
+        public bool ShouldSerializeAllowArmedLargeShipsOnly() { return false; }
+
+        //[ProtoMember]
+        public List<string> ShipExcluded
+        {
+            get { return Settings.ShipExcluded; }
+            set { Settings.ShipExcluded = value; }
+        }
+        public bool ShouldSerializeShipExcluded() { return false; }
+
+        //[ProtoMember]
+        public List<string> LargeEncounters
+        {
+            get { return Settings.LargeEncounters; }
+            set { Settings.LargeEncounters = value; }
+        }
+        public bool ShouldSerializeLargeEncounters() { return false; }
+
+        //[ProtoMember]
+        public List<string> SmallEncounters
+        {
+            get { return Settings.SmallEncounters; }
+            set { Settings.SmallEncounters = value; }
+        }
+        public bool ShouldSerializeSmallEncounters() { return false; }
+
         [ProtoMember]
         [XmlElement("Settings", Type = typeof(MyAbstractXmlSerializer<MyObjectBuilder_SessionSettings>))]
         public MyObjectBuilder_SessionSettings Settings = MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_SessionSettings>();
