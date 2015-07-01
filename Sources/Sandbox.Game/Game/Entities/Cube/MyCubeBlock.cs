@@ -47,6 +47,11 @@ namespace Sandbox.Game.Entities
             }
         }
 
+        public virtual bool CanChangeOwnership
+        {
+            get { return false; }
+        }
+
         public long OwnerId
         {
             get
