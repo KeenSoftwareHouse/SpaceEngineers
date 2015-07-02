@@ -109,5 +109,8 @@ namespace VRage.Game
 
         [ProtoMember]
         public float PropellerMaxVisibleDistance = 20f;
+
+		[ProtoMember]
+        public bool EnableFlameColoring = false;
     }
 }

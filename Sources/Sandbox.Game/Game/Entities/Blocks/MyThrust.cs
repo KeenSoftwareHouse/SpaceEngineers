@@ -232,6 +232,8 @@ namespace Sandbox.Game.Entities
             var thrustFlameColor = new MyTerminalControlColor<MyThrust>("Color", MyStringId.GetOrCompute("Flame Color"));
             thrustFlameColor.Getter = (x) => x.ThrustColor;
             thrustFlameColor.Setter = (x, v) => x.SyncObject.SendChangeFlameColorRequest(v);
+            thrustFlameColor.Enabled = (x) => x.m_thrustDefinition.EnableFlameColoring;
+            thrustFlameColor.Visible = (x) => x.m_thrustDefinition.EnableFlameColoring;
             MyTerminalControlFactory.AddControl(thrustFlameColor);
         }
 
