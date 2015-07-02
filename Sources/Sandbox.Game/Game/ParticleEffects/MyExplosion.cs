@@ -16,7 +16,9 @@ using Sandbox.Game.Multiplayer;
 using Sandbox.Game.Weapons;
 using Sandbox.Game.Weapons.Guns;
 using Sandbox.Game.World;
+using Sandbox.Game.GameSystems;
 using Sandbox.Graphics.TransparentGeometry.Particles;
+using Sandbox.ModAPI;
 using Sandbox.ModAPI.Interfaces;
 using System;
 using System.Collections.Generic;
@@ -883,9 +885,11 @@ namespace Sandbox.Game
                         continue;
 
                     // Allow mods to modify damage.  This will cause a double call.  Once here and once in the DoDamage, but only real way to do a check here
-                    float checkDamage = damagedBlock.Value;
-                    cubeBlock.RaiseBeforeDamageApplied(ref checkDamage, MyDamageType.Explosion, attackerId);
-                    if (cubeBlock.FatBlock == null && cubeBlock.Integrity / cubeBlock.DeformationRatio < checkDamage)
+                    MyDamageInformation checkInfo = new MyDamageInformation(false, damagedBlock.Value, MyDamageType.Explosion, attackerId);
+                    if (cubeBlock.UseDamageSystem)
+                        MyDamageSystem.Static.RaiseBeforeDamageApplied(cubeBlock, ref checkInfo);
+
+                    if (cubeBlock.FatBlock == null && cubeBlock.Integrity / cubeBlock.DeformationRatio < checkInfo.Amount)
                     {
                         VRageRender.MyRenderProxy.GetRenderProfiler().StartProfilingBlock("RemoveBlock");
                         cubeBlock.CubeGrid.RemoveDestroyedBlock(cubeBlock);

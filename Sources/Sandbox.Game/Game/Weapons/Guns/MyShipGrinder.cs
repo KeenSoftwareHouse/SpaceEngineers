@@ -10,6 +10,7 @@ using Sandbox.Game.World;
 using Sandbox.Common.ObjectBuilders.Definitions;
 using Sandbox.Graphics.TransparentGeometry.Particles;
 using Sandbox.ModAPI.Ingame;
+using Sandbox.ModAPI;
 using System;
 using System.Collections.Generic;
 using VRage.Utils;
@@ -64,17 +65,24 @@ namespace Sandbox.Game.Weapons
                     m_otherGrid = block.CubeGrid;
 
                     float damage = MySession.Static.GrinderSpeedMultiplier * MyShipGrinderConstants.GRINDER_AMOUNT_PER_SECOND * coefficient;
-                    block.RaiseBeforeDamageApplied(ref damage, MyDamageType.Grind, EntityId);
+                    MyDamageInformation damageInfo = new MyDamageInformation(false, damage, MyDamageType.Grind, EntityId);
 
-                    block.DecreaseMountLevel(damage, Inventory);
+                    if (block.UseDamageSystem)
+                        MyDamageSystem.Static.RaiseBeforeDamageApplied(block, ref damageInfo);
+
+                    block.DecreaseMountLevel(damageInfo.Amount, Inventory);
                     block.MoveItemsFromConstructionStockpile(Inventory);
 
-                    block.RaiseAfterDamageApplied(damage, MyDamageType.Grind, EntityId);
+                    if (block.UseDamageSystem)
+                        MyDamageSystem.Static.RaiseAfterDamageApplied(block, damageInfo);
                     
                     if (block.IsFullyDismounted)
                     {
                         if (block.FatBlock is IMyInventoryOwner) EmptyBlockInventories(block.FatBlock as IMyInventoryOwner);
-                        block.RaiseDestroyed(damage, MyDamageType.Grind, attackerId: EntityId);
+
+                        if(block.UseDamageSystem)
+                            MyDamageSystem.Static.RaiseDestroyed(block, damageInfo);
+
                         block.SpawnConstructionStockpile();
                         block.CubeGrid.RazeBlock(block.Min);
                     }

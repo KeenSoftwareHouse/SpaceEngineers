@@ -60,11 +60,6 @@ namespace Sandbox.Game.Entities
 
         public bool WasRemovedFromWorld { get; set; }
 
-        public event Action<object, float, MyDamageType, long> OnDestroyed;
-        public event BeforeDamageApplied OnBeforeDamageApplied;
-        public event BeforeDeformationApplied OnBeforeDeformationApplied;
-        public event Action<object, float, MyDamageType, long> OnAfterDamageApplied;
-
         public int NumberOfFramesInsideVoxel = 0;
         public const int NUMBER_OF_FRAMES_INSIDE_VOXEL_TO_REMOVE = 5;
 
@@ -91,6 +86,8 @@ namespace Sandbox.Game.Entities
             InitInternal();
 
             NeedsUpdate |= MyEntityUpdateEnum.EACH_FRAME;
+
+            UseDamageSystem = true;
         }
 
         public override void UpdateAfterSimulation()
@@ -348,8 +345,9 @@ namespace Sandbox.Game.Entities
                 }
             }
 
-            if (OnBeforeDamageApplied != null)
-                OnBeforeDamageApplied(this, ref damage, damageType, attackerId);
+            MyDamageInformation damageinfo = new MyDamageInformation(false, damage, damageType, attackerId);
+            if(UseDamageSystem)
+                MyDamageSystem.Static.RaiseBeforeDamageApplied(this, ref damageinfo);
 
             var typeId = Item.Content.TypeId;
             if (typeId == typeof(MyObjectBuilder_Ore) ||
@@ -369,15 +367,15 @@ namespace Sandbox.Game.Entities
                 else
                 {
                     if (Sync.IsServer)
-                        MyFloatingObjects.RemoveFloatingObject(this, (MyFixedPoint)damage);
+                        MyFloatingObjects.RemoveFloatingObject(this, (MyFixedPoint)damageinfo.Amount);
                 }
             }
             else
             {
-                m_health -= (10 + 90 * DamageMultiplier) * damage;
+                m_health -= (10 + 90 * DamageMultiplier) * damageinfo.Amount;
 
-                if (OnAfterDamageApplied != null)
-                    OnAfterDamageApplied(this, damage, damageType, attackerId);
+                if(UseDamageSystem)
+                    MyDamageSystem.Static.RaiseAfterDamageApplied(this, damageinfo);
 
                 if (m_health < 0)
                 {
@@ -430,8 +428,8 @@ namespace Sandbox.Game.Entities
                         }
                     }
 
-                    if(OnDestroyed != null)
-                        OnDestroyed(this, damage, damageType, attackerId);
+                    if(UseDamageSystem)
+                        MyDamageSystem.Static.RaiseDestroyed(this, damageinfo);
                 }
             }
 
@@ -458,17 +456,14 @@ namespace Sandbox.Game.Entities
 
         public void OnDestroy()
         {
-            // Remove event subscribers
-            OnDestroyed = null;
-            OnBeforeDamageApplied = null;
-            OnBeforeDeformationApplied = null;
-            OnAfterDamageApplied = null;
         }
 
         public float Integrity
         {
             get { return m_health; }
         }
+
+        public bool UseDamageSystem { get; private set; }
 
         void IMyDestroyableObject.OnDestroy()
         {
@@ -485,28 +480,9 @@ namespace Sandbox.Game.Entities
             get { return Integrity; }
         }
 
-        event Action<object, float, MyDamageType, long> IMyDestroyableObject.OnDestroyed
+        bool IMyDestroyableObject.UseDamageSystem
         {
-            add { OnDestroyed += value; }
-            remove { OnDestroyed -= value; }
-        }
-
-        event BeforeDamageApplied IMyDestroyableObject.OnBeforeDamageApplied
-        {
-            add { OnBeforeDamageApplied += value; }
-            remove { OnBeforeDamageApplied -= value; }
-        }
-
-        event BeforeDeformationApplied IMyDestroyableObject.OnBeforeDeformationApplied
-        {
-            add { OnBeforeDeformationApplied += value; }
-            remove { OnBeforeDeformationApplied -= value; }
-        }
-
-        event Action<object, float, MyDamageType, long> IMyDestroyableObject.OnAfterDamageApplied
-        {
-            add { OnAfterDamageApplied += value; }
-            remove { OnAfterDamageApplied -= value; }
+            get { return UseDamageSystem; }
         }
 
         bool IMyUseObject.HandleInput() { return false; }

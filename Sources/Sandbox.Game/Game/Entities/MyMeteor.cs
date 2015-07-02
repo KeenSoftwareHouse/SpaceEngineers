@@ -16,6 +16,7 @@ using Sandbox.Game.Multiplayer;
 using Sandbox.Game.Weapons;
 using Sandbox.Game.World;
 using Sandbox.Graphics.TransparentGeometry.Particles;
+using Sandbox.Game.GameSystems;
 using Sandbox.ModAPI;
 using Sandbox.ModAPI.Interfaces;
 using System;
@@ -36,11 +37,6 @@ namespace Sandbox.Game.Entities
     {
         private static readonly int MAX_TRAJECTORY_LENGTH = 10000;
         private static readonly int MIN_SPEED = 100;
-
-        public event Action<object, float, MyDamageType, long> OnDestroyed;
-        public event BeforeDamageApplied OnBeforeDamageApplied;
-        public event BeforeDeformationApplied OnBeforeDeformationApplied;
-        public event Action<object, float, MyDamageType, long> OnAfterDamageApplied;
 
         MyMeteorGameLogic m_logic;
         public new MyMeteorGameLogic GameLogic { get { return m_logic; } set { base.GameLogic = value; } }
@@ -122,12 +118,7 @@ namespace Sandbox.Game.Entities
         public void OnDestroy()
         {
             GameLogic.OnDestroy();
-
-            // Remove event subscribers
-            OnDestroyed = null;
-            OnBeforeDamageApplied = null;
-            OnBeforeDeformationApplied = null;
-            OnAfterDamageApplied = null;
+            
         }
 
         public void DoDamage(float damage, MyDamageType damageType, bool sync, MyHitInfo? hitInfo, long attackerId)
@@ -140,37 +131,15 @@ namespace Sandbox.Game.Entities
             get { return GameLogic.Integrity; }
         }
 
-        event Action<object, float, MyDamageType, long> IMyDestroyableObject.OnDestroyed
+        private bool m_hasModifiableDamage;
+        public bool UseDamageSystem
         {
-            add { OnDestroyed += value; }
-            remove { OnDestroyed -= value; }
+            get { return m_hasModifiableDamage; }
         }
-
-        event BeforeDamageApplied IMyDestroyableObject.OnBeforeDamageApplied
-        {
-            add { OnBeforeDamageApplied += value; }
-            remove { OnBeforeDamageApplied -= value; }
-        }
-
-        event BeforeDeformationApplied IMyDestroyableObject.OnBeforeDeformationApplied
-        {
-            add { OnBeforeDeformationApplied += value; }
-            remove { OnBeforeDeformationApplied -= value; }
-        }
-
-        event Action<object, float, MyDamageType, long> IMyDestroyableObject.OnAfterDamageApplied
-        {
-            add { OnAfterDamageApplied += value; }
-            remove { OnAfterDamageApplied -= value; }
-        }
-
         public override MyObjectBuilder_EntityBase GetObjectBuilder(bool copy = false)
         {
             return GameLogic.GetObjectBuilder(false);
         }
-
-
-
 
         // So much room for activities
 
@@ -217,7 +186,7 @@ namespace Sandbox.Game.Entities
 
                 Entity.Physics.LinearVelocity = builder.LinearVelocity;
                 Entity.Physics.AngularVelocity = builder.AngularVelocity;
-
+                
                 m_integrity = builder.Integrity;
             }
 
@@ -542,20 +511,22 @@ namespace Sandbox.Game.Entities
                 }
                 else
                 {
-                    if (Entity.OnBeforeDamageApplied != null)
-                        Entity.OnBeforeDamageApplied(Entity, ref damage, damageType, attackerId);
+                    MyDamageInformation info = new MyDamageInformation(false, damage, damageType, attackerId);
 
-                    m_integrity -= damage;
+                    if (Entity.UseDamageSystem)
+                        MyDamageSystem.Static.RaiseBeforeDamageApplied(Entity, ref info);
 
-                    if (Entity.OnAfterDamageApplied != null)
-                        Entity.OnAfterDamageApplied(Entity, damage, damageType, attackerId);
+                    m_integrity -= info.Amount;
+
+                    if (Entity.UseDamageSystem)
+                        MyDamageSystem.Static.RaiseAfterDamageApplied(Entity, info);
 
                     if (m_integrity <= 0)
                     {
                         m_closeAfterSimulation = true;
 
-                        if (Entity.OnDestroyed != null)
-                            Entity.OnDestroyed(Entity, damage, damageType, attackerId);
+                        if (Entity.UseDamageSystem)
+                            MyDamageSystem.Static.RaiseDestroyed(Entity, info);
 
                         return;
                     }

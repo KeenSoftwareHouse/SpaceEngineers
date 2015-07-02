@@ -557,11 +557,6 @@ namespace Sandbox.Game.Entities.Character
 
         public event Action<MyCharacter> CharacterDied;
 
-        public event Action<object, float, MyDamageType, long> OnDestroyed;
-        public event BeforeDamageApplied OnBeforeDamageApplied;
-        public event BeforeDeformationApplied OnBeforeDeformationApplied;
-        public event Action<object, float, MyDamageType, long> OnAfterDamageApplied;
-
         public MyInventoryAggregate InventoryAggregate
         {
             get
@@ -875,6 +870,8 @@ namespace Sandbox.Game.Entities.Character
             InitSounds();
 
             if (InventoryAggregate != null) InventoryAggregate.Init();
+
+            UseDamageSystem = true;
         }
 
         private void InitInventory(MyObjectBuilder_Character characterOb)
@@ -6226,8 +6223,9 @@ namespace Sandbox.Game.Entities.Character
                 return;
             }
 
-            if (OnBeforeDamageApplied != null && !m_dieAfterSimulation)
-                OnBeforeDamageApplied(this, ref damage, damageType, attackerId);
+            MyDamageInformation damageInfo = new MyDamageInformation(false, damage, damageType, attackerId);
+            if (UseDamageSystem && !m_dieAfterSimulation)
+                MyDamageSystem.Static.RaiseBeforeDamageApplied(this, ref damageInfo);
 
             var health = m_stats.Health;
 
@@ -6237,8 +6235,8 @@ namespace Sandbox.Game.Entities.Character
             float oldHealth = Health;
             health.Decrease(damage);
 
-            if (OnAfterDamageApplied != null && !m_dieAfterSimulation)
-                OnAfterDamageApplied(this, damage, damageType, attackerId);
+            if (UseDamageSystem && !m_dieAfterSimulation)
+                MyDamageSystem.Static.RaiseAfterDamageApplied(this, damageInfo);
 
             if (!IsDead)
             {
@@ -6255,8 +6253,8 @@ namespace Sandbox.Game.Entities.Character
 
 			if (health.Value <= health.MinValue)
             {
-                if (OnDestroyed != null && !m_dieAfterSimulation)
-                    OnDestroyed(this, damage, damageType, attackerId);
+                if (UseDamageSystem && !m_dieAfterSimulation)
+                    MyDamageSystem.Static.RaiseDestroyed(this, damageInfo);
 
                 m_dieAfterSimulation = true;
                 return;
@@ -7537,13 +7535,9 @@ namespace Sandbox.Game.Entities.Character
         public void OnDestroy()
         {
             Die();
-
-            // Remove event subscribers
-            OnDestroyed = null;
-            OnBeforeDamageApplied = null;
-            OnBeforeDeformationApplied = null;
-            OnAfterDamageApplied = null;
         }
+
+        public bool UseDamageSystem { get; private set; }
 
         public float Integrity
         {
@@ -7998,30 +7992,6 @@ namespace Sandbox.Game.Entities.Character
         float IMyCharacter.EnvironmentOxygenLevel
         {
             get { return EnvironmentOxygenLevel; }
-        }
-
-        event Action<object, float, MyDamageType, long> IMyDestroyableObject.OnDestroyed
-        {
-            add { OnDestroyed += value; }
-            remove { OnDestroyed -= value; }
-        }
-
-        event BeforeDamageApplied IMyDestroyableObject.OnBeforeDamageApplied
-        {
-            add { OnBeforeDamageApplied += value; }
-            remove { OnBeforeDamageApplied -= value; }
-        }
-
-        event BeforeDeformationApplied IMyDestroyableObject.OnBeforeDeformationApplied
-        {
-            add { OnBeforeDeformationApplied += value; }
-            remove { OnBeforeDeformationApplied -= value; }
-        }
-
-        event Action<object, float, MyDamageType, long> IMyDestroyableObject.OnAfterDamageApplied
-        {
-            add { OnAfterDamageApplied += value; }
-            remove { OnAfterDamageApplied -= value; }
         }
 
         #endregion

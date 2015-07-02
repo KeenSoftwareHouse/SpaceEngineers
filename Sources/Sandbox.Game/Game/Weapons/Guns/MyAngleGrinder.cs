@@ -11,6 +11,8 @@ using Sandbox.Game.Gui;
 using Sandbox.Game.Localization;
 using Sandbox.Game.Multiplayer;
 using Sandbox.Game.World;
+using Sandbox.Game.GameSystems;
+using Sandbox.ModAPI;
 using System.Collections.Generic;
 using VRage.Input;
 using VRage.ObjectBuilders;
@@ -167,16 +169,22 @@ namespace Sandbox.Game.Weapons
                 }
 
                 float damage = GrinderAmount;
-                block.RaiseBeforeDamageApplied(ref damage, MyDamageType.Grind, attackerId: Owner != null ? Owner.EntityId : 0);
+                MyDamageInformation damageInfo = new MyDamageInformation(false, damage * hackMultiplier, MyDamageType.Grind, EntityId);
 
-                block.DecreaseMountLevel(damage * hackMultiplier, CharacterInventory);
+                if (block.UseDamageSystem)
+                    MyDamageSystem.Static.RaiseBeforeDamageApplied(block, ref damageInfo);
+
+                block.DecreaseMountLevel(damageInfo.Amount, CharacterInventory);
                 block.MoveItemsFromConstructionStockpile(CharacterInventory);
 
-                block.RaiseAfterDamageApplied(damage * hackMultiplier, MyDamageType.Grind, attackerId: Owner != null ? Owner.EntityId : 0);
-
+                if (block.UseDamageSystem)
+                    MyDamageSystem.Static.RaiseAfterDamageApplied(block, damageInfo);
+                    
                 if (block.IsFullyDismounted)
                 {
-                    block.RaiseDestroyed(damage * hackMultiplier, MyDamageType.Grind, attackerId: Owner != null ? Owner.EntityId : 0);
+                    if (block.UseDamageSystem)
+                        MyDamageSystem.Static.RaiseDestroyed(block, damageInfo);
+
                     block.SpawnConstructionStockpile();
                     block.CubeGrid.RazeBlock(block.Min);
                 }

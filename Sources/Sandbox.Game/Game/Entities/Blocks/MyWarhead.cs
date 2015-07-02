@@ -15,6 +15,7 @@ using Sandbox.Engine.Physics;
 using Sandbox.Engine.Utils;
 using Sandbox.Game.Debugging;
 using Sandbox.Game.GameSystems.Electricity;
+using Sandbox.Game.GameSystems;
 
 using VRage.Utils;
 using VRage.Trace;
@@ -27,6 +28,7 @@ using Sandbox.Game.Gui;
 using Sandbox.Engine.Multiplayer;
 using Sandbox.Common.ObjectBuilders.Definitions;
 using SteamSDK;
+using Sandbox.ModAPI;
 using Sandbox.ModAPI.Ingame;
 using Sandbox.ModAPI.Interfaces;
 using Sandbox.Game.Localization;
@@ -51,11 +53,6 @@ namespace Sandbox.Game.Entities.Cube
         bool m_marked = false;
         int m_warheadsInsideCount = 0;
         List<MyEntity> m_entitiesInShrinkenSphere = new List<MyEntity>();
-
-        public event Action<object, float, MyDamageType, long> OnDestroyed;
-        public event BeforeDamageApplied OnBeforeDamageApplied;
-        public event BeforeDeformationApplied OnBeforeDeformationApplied;
-        public event Action<object, float, MyDamageType, long> OnAfterDamageApplied;
 
         private bool m_countdownEmissivityColor;
 
@@ -154,6 +151,8 @@ namespace Sandbox.Game.Entities.Cube
                 StartCountdown();
 
             this.IsWorkingChanged += MyWarhead_IsWorkingChanged;
+
+            UseDamageSystem = true;
         }
 
         public override MyObjectBuilder_CubeBlock GetObjectBuilderCubeBlock(bool copy = false)
@@ -451,6 +450,8 @@ namespace Sandbox.Game.Entities.Cube
             MyWarheads.AddWarhead(this);
         }
 
+        public bool UseDamageSystem { get; private set; }
+
         //public float Integrity
         //{
         //    get { return 1; }
@@ -670,21 +671,21 @@ namespace Sandbox.Game.Entities.Cube
             }
             else
             {
-                if (OnBeforeDamageApplied != null)
-                    OnBeforeDamageApplied(this, ref damage, damageType, attackerId);
+                MyDamageInformation damageInfo = new MyDamageInformation(false, damage, damageType, attackerId);
+                if (UseDamageSystem)
+                    MyDamageSystem.Static.RaiseBeforeDamageApplied(this, ref damageInfo);
 
                 m_damageType = damageType;
 
-                if (damage > 0)
+                if (damageInfo.Amount > 0)
                 {
-                    // Redundent, but let's be consistent
-                    if (OnAfterDamageApplied != null)
-                        OnAfterDamageApplied(this, damage, damageType, attackerId);
+                    if (UseDamageSystem)
+                        MyDamageSystem.Static.RaiseAfterDamageApplied(this, damageInfo);
 
                     OnDestroy();
 
-                    if (OnDestroyed != null)
-                        OnDestroyed(this, damage, damageType, attackerId);
+                    if (UseDamageSystem)
+                        MyDamageSystem.Static.RaiseDestroyed(this, damageInfo);
                 }
             }
             return;
@@ -695,28 +696,9 @@ namespace Sandbox.Game.Entities.Cube
             get { return 1; }
         }
 
-        event Action<object, float, MyDamageType, long> IMyDestroyableObject.OnDestroyed
+        bool IMyDestroyableObject.UseDamageSystem
         {
-            add { OnDestroyed += value; }
-            remove { OnDestroyed -= value; }
-        }
-
-        event BeforeDamageApplied IMyDestroyableObject.OnBeforeDamageApplied
-        {
-            add { OnBeforeDamageApplied += value; }
-            remove { OnBeforeDamageApplied -= value; }
-        }
-
-        event BeforeDeformationApplied IMyDestroyableObject.OnBeforeDeformationApplied
-        {
-            add { OnBeforeDeformationApplied += value; }
-            remove { OnBeforeDeformationApplied -= value; }
-        }
-
-        event Action<object, float, MyDamageType, long> IMyDestroyableObject.OnAfterDamageApplied
-        {
-            add { OnAfterDamageApplied += value; }
-            remove { OnAfterDamageApplied -= value; }
+            get { return UseDamageSystem; }
         }
 
         public float DetonationTime { get { return Math.Max(m_countdownMs, 1000) / 1000; } }

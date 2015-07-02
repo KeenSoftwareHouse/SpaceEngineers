@@ -10,6 +10,7 @@ using Sandbox.Game.Gui;
 using Sandbox.Game.Multiplayer;
 using Sandbox.Game.World;
 using Sandbox.Graphics.TransparentGeometry.Particles;
+using Sandbox.ModAPI;
 using Sandbox.ModAPI.Interfaces;
 using System;
 using System.Collections.Generic;
@@ -140,6 +141,8 @@ namespace Sandbox.Game.Entities.Cube
             }
         }
 
+        public bool UseDamageSystem { get; private set; }
+
         public float Integrity
         {
             get
@@ -214,11 +217,6 @@ namespace Sandbox.Game.Entities.Cube
 
         public event Action<MySlimBlock, MyCubeGrid> CubeGridChanged;
 
-        public event Action<object, float, MyDamageType, long> OnDestroyed;
-        public event BeforeDamageApplied OnBeforeDamageApplied;
-        public event BeforeDeformationApplied OnBeforeDeformationApplied; 
-        public event Action<object, float, MyDamageType, long> OnAfterDamageApplied;
-
         public float m_lastDamage = 0f;
 
         public long m_lastAttackerId = 0;
@@ -237,6 +235,7 @@ namespace Sandbox.Game.Entities.Cube
         {
             m_soundEmitter = new MyEntity3DSoundEmitter(null);
             UniqueId = MyRandom.Instance.Next();
+            UseDamageSystem = true;
         }
 
         public void Init(MyObjectBuilder_CubeBlock objectBuilder, MyCubeGrid cubeGrid, MyCubeBlock fatBlock)
@@ -970,9 +969,12 @@ namespace Sandbox.Game.Entities.Cube
             }
             finally { ProfilerShort.End(); }
 
-            RaiseBeforeDamageApplied(ref damage, damageType, attackerId);
-            MySession.Static.NegativeIntegrityTotal += damage;
-            AccumulatedDamage += damage;
+            MyDamageInformation damageInfo = new MyDamageInformation(false, damage, damageType, attackerId);
+            if (UseDamageSystem)
+                MyDamageSystem.Static.RaiseBeforeDamageApplied(this, ref damageInfo);
+
+            MySession.Static.NegativeIntegrityTotal += damageInfo.Amount;
+            AccumulatedDamage += damageInfo.Amount;
 
             if (m_componentStack.Integrity - AccumulatedDamage <= MyComponentStack.MOUNT_THRESHOLD)
             {
@@ -982,7 +984,7 @@ namespace Sandbox.Game.Entities.Cube
                     var gridPhysics = CubeGrid.Physics;
                     float maxDestructionRadius = CubeGrid.GridSizeEnum == MyCubeSize.Small ? 0.5f : 3;
                     if(Sync.IsServer)
-                        Sandbox.Engine.Physics.MyDestructionHelper.TriggerDestruction(damage - m_componentStack.Integrity, gridPhysics, hitInfo.Value.Position, hitInfo.Value.Normal, maxDestructionRadius);
+                        Sandbox.Engine.Physics.MyDestructionHelper.TriggerDestruction(damageInfo.Amount - m_componentStack.Integrity, gridPhysics, hitInfo.Value.Position, hitInfo.Value.Normal, maxDestructionRadius);
                 }
                 else
                 {
@@ -1000,7 +1002,8 @@ namespace Sandbox.Game.Entities.Cube
                         Vector3D.TransformNormal(hitInfo.Value.Normal, CubeGrid.PositionComp.WorldMatrixInvScaled), BlockDefinition.PhysicalMaterial.DamageDecal);
             }
 
-            RaiseAfterDamageApplied(damage, damageType, attackerId);
+            if (UseDamageSystem)
+                MyDamageSystem.Static.RaiseAfterDamageApplied(this, damageInfo);
 
             m_lastDamage = damage;
             m_lastAttackerId = attackerId;
@@ -1057,7 +1060,8 @@ namespace Sandbox.Game.Entities.Cube
                     CubeGrid.Physics.AddDirtyBlock(this);
                 }
 
-                RaiseDestroyed(m_lastDamage, m_lastDamageType, m_lastAttackerId);
+                if (UseDamageSystem)
+                    MyDamageSystem.Static.RaiseDestroyed(this, new MyDamageInformation(false, m_lastDamage, m_lastDamageType, m_lastAttackerId));
             }
 
             ProfilerShort.End();
@@ -1635,12 +1639,6 @@ namespace Sandbox.Game.Entities.Cube
             CubeGrid.RemoveFromDamageApplication(this);
             AccumulatedDamage = 0;
 
-            // Remove event subscribers
-            OnDestroyed = null;
-            OnBeforeDamageApplied = null;
-            OnBeforeDeformationApplied = null;
-            OnAfterDamageApplied = null;
-
         }
 
         float IMyDestroyableObject.Integrity
@@ -1683,54 +1681,6 @@ namespace Sandbox.Game.Entities.Cube
                 aabb = new BoundingBoxD(Min * gridSize - gridSize / 2, Max * gridSize + gridSize / 2);
                 aabb = aabb.Transform(CubeGrid.WorldMatrix);
             }
-        }
-
-        public void RaiseBeforeDamageApplied(ref float damage, MyDamageType damageType, long attackerId, bool testOnly = false)
-        {
-            if (OnBeforeDamageApplied != null)
-                OnBeforeDamageApplied(this, ref damage, damageType, attackerId);
-        }
-
-        public void RaiseAfterDamageApplied(float damage, MyDamageType damageType, long attackerId)
-        {
-            if (OnAfterDamageApplied != null)
-                OnAfterDamageApplied(this, damage, damageType, attackerId);
-        }
-
-        public void RaiseDestroyed(float damage, MyDamageType damageType, long attackerId)
-        {
-            if (OnDestroyed != null)
-                OnDestroyed(this, damage, damageType, attackerId);
-        }
-
-        public void RaiseBeforeDeformationApplied(ref bool allowDeformation, long attackerId)
-        {
-            if (OnBeforeDeformationApplied != null)
-                OnBeforeDeformationApplied(this, ref allowDeformation, attackerId);
-        }
-
-        event Action<object, float, MyDamageType, long> IMyDestroyableObject.OnDestroyed
-        {
-            add { OnDestroyed += value; }
-            remove { OnDestroyed -= value; }
-        }
-
-        event BeforeDamageApplied IMyDestroyableObject.OnBeforeDamageApplied
-        {
-            add { OnBeforeDamageApplied += value; }
-            remove { OnBeforeDamageApplied -= value; }
-        }
-
-        event BeforeDeformationApplied IMyDestroyableObject.OnBeforeDeformationApplied
-        {
-            add { OnBeforeDeformationApplied += value; }
-            remove { OnBeforeDeformationApplied -= value; }
-        }
-
-        event Action<object, float, MyDamageType, long> IMyDestroyableObject.OnAfterDamageApplied
-        {
-            add { OnAfterDamageApplied += value; }
-            remove { OnAfterDamageApplied -= value; }
         }
 
         public static void SetBlockComponents(MyHudBlockInfo hudInfo, MySlimBlock block, MyInventoryBase availableInventory = null)

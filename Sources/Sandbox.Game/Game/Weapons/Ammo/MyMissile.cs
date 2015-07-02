@@ -12,7 +12,9 @@ using Sandbox.Game.Entities.Character;
 using Sandbox.Game.Lights;
 using Sandbox.Game.Multiplayer;
 using Sandbox.Game.World;
+using Sandbox.Game.GameSystems;
 using Sandbox.Graphics.TransparentGeometry.Particles;
+using Sandbox.ModAPI;
 using Sandbox.ModAPI.Interfaces;
 using System;
 using System.Collections.Generic;
@@ -38,11 +40,6 @@ namespace Sandbox.Game.Weapons
         long m_owner;
         private float m_smokeEffectOffsetMultiplier = 0.4f;
 
-        public event Action<object, float, MyDamageType, long> OnDestroyed;
-        public event BeforeDamageApplied OnBeforeDamageApplied;
-        public event BeforeDeformationApplied OnBeforeDeformationApplied;
-        public event Action<object, float, MyDamageType, long> OnAfterDamageApplied;
-
         private MyEntity3DSoundEmitter m_soundEmitter;
 
         public MyMissile()
@@ -64,6 +61,7 @@ namespace Sandbox.Game.Weapons
             m_missileAmmoDefinition = weaponProperties.GetCurrentAmmoDefinitionAs<MyMissileAmmoDefinition>();
             Init(weaponProperties, m_missileAmmoDefinition.MissileModelName, false, true, true);
             m_canByAffectedByExplosionForce = false;
+            UseDamageSystem = true;
         }
 
         //  This method realy initiates/starts the missile
@@ -308,11 +306,6 @@ namespace Sandbox.Game.Weapons
 
         public void OnDestroy()
         {
-            // Remove event subscribers
-            OnDestroyed = null;
-            OnBeforeDamageApplied = null;
-            OnBeforeDeformationApplied = null;
-            OnAfterDamageApplied = null;
         }
 
         public void DoDamage(float damage, MyDamageType damageType, bool sync, long attackerId)
@@ -324,14 +317,16 @@ namespace Sandbox.Game.Weapons
             }
             else
             {
-                if (OnDestroyed != null)
-                    OnDestroyed(this, damage, damageType, attackerId);
+                if (UseDamageSystem)
+                    MyDamageSystem.Static.RaiseDestroyed(this, new MyDamageInformation(false, damage, damageType, attackerId));
 
                 Explode();
             }
         }
 
         public float Integrity { get { return 1; } }
+
+        public bool UseDamageSystem { get; private set; }
 
         public long Owner
         {
@@ -353,28 +348,9 @@ namespace Sandbox.Game.Weapons
             get { return Integrity; }
         }
 
-        event Action<object, float, MyDamageType, long> IMyDestroyableObject.OnDestroyed
+        bool IMyDestroyableObject.UseDamageSystem
         {
-            add { OnDestroyed += value; }
-            remove { OnDestroyed -= value; }
-        }
-
-        event BeforeDamageApplied IMyDestroyableObject.OnBeforeDamageApplied
-        {
-            add { OnBeforeDamageApplied += value; }
-            remove { OnBeforeDamageApplied -= value; }
-        }
-
-        event BeforeDeformationApplied IMyDestroyableObject.OnBeforeDeformationApplied
-        {
-            add { OnBeforeDeformationApplied += value; }
-            remove { OnBeforeDeformationApplied -= value; }
-        }
-
-        event Action<object, float, MyDamageType, long> IMyDestroyableObject.OnAfterDamageApplied
-        {
-            add { OnAfterDamageApplied += value; }
-            remove { OnAfterDamageApplied -= value; }
+            get { return UseDamageSystem; }
         }
     }
 }

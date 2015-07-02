@@ -19,6 +19,7 @@ using Sandbox.Game.Localization;
 using Sandbox.Game.Multiplayer;
 using Sandbox.Game.Weapons;
 using Sandbox.Game.World;
+using Sandbox.ModAPI;
 using Sandbox.ModAPI.Interfaces;
 using System;
 using System.Collections.Generic;
@@ -3038,12 +3039,15 @@ namespace Sandbox.Game.Entities
             if (!BlocksDestructionEnabled)
                 return 0;
 
-            bool allowDeformation = true;
-            block.RaiseBeforeDeformationApplied(ref allowDeformation, attackerId);
-            if (!allowDeformation)
-                return 0;
-
             // Allow mods to stop deformation
+            if (block.UseDamageSystem)
+            {
+                MyDamageInformation damageInfo = new MyDamageInformation(true, 1f, MyDamageType.Deformation, attackerId);
+                MyDamageSystem.Static.RaiseBeforeDamageApplied(block, ref damageInfo);
+
+                if (damageInfo.Amount == 0f)
+                    return 0;
+            }
             m_totalBoneDisplacement = 0.0f;
 
             // TODO: Optimization. Cache bone changes (moves) and apply them only at the end
@@ -3100,9 +3104,13 @@ namespace Sandbox.Game.Entities
             if (sync)
             {
                 float damageAmount = m_totalBoneDisplacement * GridSize * 10.0f * damage;
-                block.RaiseBeforeDamageApplied(ref damageAmount, MyDamageType.Deformation, attackerId);
+
+                MyDamageInformation damageInfo = new MyDamageInformation(false, damageAmount, MyDamageType.Deformation, attackerId);
+                if (block.UseDamageSystem)
+                    MyDamageSystem.Static.RaiseBeforeDamageApplied(block, ref damageInfo);
+
                 if (damageAmount > 0f)
-                    (block as IMyDestroyableObject).DoDamage(damageAmount, MyDamageType.Deformation, true, attackerId: attackerId);
+                    (block as IMyDestroyableObject).DoDamage(damageInfo.Amount, MyDamageType.Deformation, true, attackerId: attackerId);
             }
             return m_totalBoneDisplacement;
         }

@@ -11,6 +11,7 @@ using Sandbox.Game.Components;
 using Sandbox.Game.Entities.Cube;
 using Sandbox.Game.GameSystems;
 using Sandbox.Game.Multiplayer;
+using Sandbox.ModAPI;
 using Sandbox.ModAPI.Interfaces;
 using Sandbox.Common.ObjectBuilders.Definitions;
 using System;
@@ -39,11 +40,6 @@ namespace Sandbox.Game.Entities
 
         public HitInfo InitialHit;
 
-        public event Action<object, float, Common.ObjectBuilders.Definitions.MyDamageType, long> OnDestroyed;
-        public event BeforeDamageApplied OnBeforeDamageApplied;
-        public event BeforeDeformationApplied OnBeforeDeformationApplied;
-        public event Action<object, float, Common.ObjectBuilders.Definitions.MyDamageType, long> OnAfterDamageApplied;
-
         private static List<HkdShapeInstanceInfo> m_tmpInfos = new List<HkdShapeInstanceInfo>();
 
         private float m_hitPoints;
@@ -60,6 +56,7 @@ namespace Sandbox.Game.Entities
             base.Render.NeedsDraw = true;
             base.Render.PersistentFlags = MyPersistentEntityFlags2.Enabled;
             AddDebugRenderComponent(new MyFracturedPieceDebugDraw(this));
+            UseDamageSystem = false;
         }
 
         public List<MyDefinitionId> OriginalBlocks = new List<MyDefinitionId>();
@@ -443,58 +440,29 @@ namespace Sandbox.Game.Entities
             {
                 MyFracturedPiecesManager.Static.RemoveFracturePiece(this, 2);
             }
-
-            // Remove event subscribers
-            OnDestroyed = null;
-            OnBeforeDamageApplied = null;
-            OnBeforeDeformationApplied = null;
-            OnAfterDamageApplied = null;
         }
 
         public void DoDamage(float damage, Common.ObjectBuilders.Definitions.MyDamageType damageType, bool sync, MyHitInfo? hitInfo, long attackerId)
         {
             if (Sync.IsServer)
             {
-                if (OnBeforeDamageApplied != null)
-                    OnBeforeDamageApplied(this, ref damage, damageType, attackerId);
+                MyDamageInformation info = new MyDamageInformation(false, damage, damageType, attackerId);
+                if (UseDamageSystem)
+                    MyDamageSystem.Static.RaiseBeforeDamageApplied(this, ref info);
 
-                m_hitPoints -= damage;
+                m_hitPoints -= info.Amount;
 
-                if (OnAfterDamageApplied != null)
-                    OnAfterDamageApplied(this, damage, damageType, attackerId);
+                if (UseDamageSystem)
+                    MyDamageSystem.Static.RaiseAfterDamageApplied(this, info);
 
                 if (m_hitPoints <= 0)
                 {
                     MyFracturedPiecesManager.Static.RemoveFracturePiece(this, 2);
 
-                    if (OnDestroyed != null)
-                        OnDestroyed(this, damage, damageType, attackerId);
+                    if (UseDamageSystem)
+                        MyDamageSystem.Static.RaiseDestroyed(this, info);
                 }
             }
-        }
-
-        event Action<object, float, MyDamageType, long> IMyDestroyableObject.OnDestroyed
-        {
-            add { OnDestroyed += value; }
-            remove { OnDestroyed -= value; }
-        }
-
-        event BeforeDamageApplied IMyDestroyableObject.OnBeforeDamageApplied
-        {
-            add { OnBeforeDamageApplied += value; }
-            remove { OnBeforeDamageApplied -= value; }
-        }
-
-        event BeforeDeformationApplied IMyDestroyableObject.OnBeforeDeformationApplied
-        {
-            add { OnBeforeDeformationApplied += value; }
-            remove { OnBeforeDeformationApplied -= value; }
-        }
-
-        event Action<object, float, MyDamageType, long> IMyDestroyableObject.OnAfterDamageApplied
-        {
-            add { OnAfterDamageApplied += value; }
-            remove { OnAfterDamageApplied -= value; }
         }
 
         public float Integrity
@@ -502,5 +470,6 @@ namespace Sandbox.Game.Entities
             get { return m_hitPoints; }
         }
 
+        public bool UseDamageSystem { get; private set; }
     }
 }

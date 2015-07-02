@@ -839,8 +839,11 @@ namespace Sandbox.Game.Entities.Cube
                                 if (block != null)
                                 {
                                     bool allowDeformation = true;
-                                    block.RaiseBeforeDeformationApplied(ref allowDeformation, attackerId);
-                                    if (!allowDeformation)
+                                    MyDamageInformation damageInfo = new MyDamageInformation(true, 1f, MyDamageType.Deformation, attackerId);
+                                    if (block.UseDamageSystem)
+                                        MyDamageSystem.Static.RaiseBeforeDamageApplied(block, ref damageInfo);
+
+                                    if (damageInfo.Amount == 0f)
                                         continue;
 
                                     minDeformationRatio = Math.Min(minDeformationRatio, block.DeformationRatio);
@@ -897,9 +900,11 @@ namespace Sandbox.Game.Entities.Cube
                     // Check to see if this block can be deformed.  For mods
                     if (b.Value != null)
                     {
-                        bool allowDeformation = true;
-                        b.Value.RaiseBeforeDeformationApplied(ref allowDeformation, attackerId);
-                        if (!allowDeformation)
+                        MyDamageInformation damageInfo = new MyDamageInformation(true, 1f, MyDamageType.Deformation, attackerId);
+                        if (b.Value.UseDamageSystem)
+                            MyDamageSystem.Static.RaiseBeforeDamageApplied(b.Value, ref damageInfo);
+
+                        if(damageInfo.Amount == 0f)
                             continue;
                     }
 
