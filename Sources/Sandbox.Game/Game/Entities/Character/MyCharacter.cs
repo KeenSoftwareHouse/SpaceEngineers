@@ -2031,11 +2031,11 @@ namespace Sandbox.Game.Entities.Character
 
             if (noOxygenDamage)
             {
-                DoDamage(Definition.DamageAmountAtZeroPressure, MyDamageType.Environment, true);
+                DoDamage(Definition.DamageAmountAtZeroPressure, MyDamageType.LowPressure, true);
             }
             else if (lowOxygenDamage)
             {
-                DoDamage(1f, MyDamageType.Environment, true);
+                DoDamage(1f, MyDamageType.Asphyxia, true);
             }
 
             SyncObject.UpdateOxygen(SuitOxygenAmount);

@@ -36,7 +36,9 @@ namespace Sandbox.Common.ObjectBuilders.Definitions
         Fire,
         Squeez,
         Grind,
-        Weld
+        Weld,
+        Asphyxia,
+        LowPressure
     }
 
     public enum MyCustomHitMaterialMethodType
