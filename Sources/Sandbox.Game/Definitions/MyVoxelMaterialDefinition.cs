@@ -20,6 +20,7 @@ namespace Sandbox.Definitions
         public int MinVersion;
         public bool SpawnsInAsteroids;
         public bool SpawnsFromMeteorites;
+        public bool SpawnsFlora;
 
         public string DiffuseXZ;
         public string NormalXZ;
@@ -27,6 +28,7 @@ namespace Sandbox.Definitions
         public string NormalY;
         public float SpecularPower;
         public float SpecularShininess;
+
 
         /// <summary>
         /// Value generated at runtime to ensure correctness. Do not serialize or deserialize.
@@ -72,6 +74,7 @@ namespace Sandbox.Definitions
             this.SpecularPower          = builder.SpecularPower;
             this.SpecularShininess      = builder.SpecularShininess;
             this.MinVersion             = builder.MinVersion;
+            this.SpawnsFlora            = builder.SpawnsFlora;
         }
 
         public override MyObjectBuilder_DefinitionBase GetObjectBuilder()
@@ -91,6 +94,7 @@ namespace Sandbox.Definitions
             ob.NormalY                  = this.NormalY;
             ob.SpecularPower            = this.SpecularPower;
             ob.SpecularShininess        = this.SpecularShininess;
+            ob.SpawnsFlora              = this.SpawnsFlora;
 
             return ob;
         }

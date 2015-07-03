@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using VRage.Utils;
+using VRage.Voxels;
 using VRageMath;
 using VRageRender.Resources;
 using BoundingBox = VRageMath.BoundingBox;
@@ -741,9 +742,9 @@ namespace VRageRender
             }
         }
 
-        internal void SetVoxelLod(int lod)
+        internal void SetVoxelLod(int lod, MyClipmapScaleEnum scaleEnum)
         {
-            m_voxelLod = lod;
+            m_voxelLod = lod + ((scaleEnum == MyClipmapScaleEnum.Massive) ? 8 : 0);
 
             //Debug.Assert(m_cullProxy.Proxies != null);
 

@@ -225,6 +225,22 @@ namespace Sandbox.Game.Entities
             protected set;
         }
 
+        private MyAutopilotWaypoint CurrentWaypoint
+        {
+            get
+            {
+                return m_currentWaypoint;
+            }
+            set
+            {
+                m_currentWaypoint = value;
+                if (m_currentWaypoint != null)
+                {
+                    m_startPosition = WorldMatrix.Translation;
+                }
+            }
+        }
+
         private List<MyAutopilotWaypoint> m_waypoints;
         private MyAutopilotWaypoint m_currentWaypoint;
         private bool m_autoPilotEnabled;
@@ -307,7 +323,10 @@ namespace Sandbox.Game.Entities
             var waypointList = new MyTerminalControlListbox<MyRemoteControl>("WaypointList", MySpaceTexts.BlockPropertyTitle_Waypoints, MySpaceTexts.Blank, true);
             waypointList.ListContent = (x, list1, list2) => x.FillWaypointList(list1, list2);
             waypointList.ItemSelected = (x, y) => x.SelectWaypoint(y);
-            m_waypointGuiControl = (MyGuiControlListbox)((MyGuiControlBlockProperty)waypointList.GetGuiControl()).PropertyControl;
+            if (!MySandboxGame.IsDedicated)
+            {
+                m_waypointGuiControl = (MyGuiControlListbox)((MyGuiControlBlockProperty)waypointList.GetGuiControl()).PropertyControl;
+            }
             MyTerminalControlFactory.AddControl(waypointList);
 
 
@@ -368,7 +387,10 @@ namespace Sandbox.Game.Entities
             var gpsList = new MyTerminalControlListbox<MyRemoteControl>("GpsList", MySpaceTexts.BlockPropertyTitle_GpsLocations, MySpaceTexts.Blank, true);
             gpsList.ListContent = (x, list1, list2) => x.FillGpsList(list1, list2);
             gpsList.ItemSelected = (x, y) => x.SelectGps(y);
-            m_gpsGuiControl = (MyGuiControlListbox)((MyGuiControlBlockProperty)gpsList.GetGuiControl()).PropertyControl;
+            if (!MySandboxGame.IsDedicated)
+            {
+                m_gpsGuiControl = (MyGuiControlListbox)((MyGuiControlBlockProperty)gpsList.GetGuiControl()).PropertyControl;
+            }
             MyTerminalControlFactory.AddControl(gpsList);
 
             foreach (var direction in m_directionNames)
@@ -441,17 +463,12 @@ namespace Sandbox.Game.Entities
             m_currentFlightMode = (FlightMode)remoteOb.FlightMode;
             m_currentDirection = (Base6Directions.Direction)remoteOb.Direction;
 
-            if (m_autoPilotEnabled)
-            {
-                m_startPosition = WorldMatrix.Translation;
-            }
-
             if (remoteOb.Coords == null || remoteOb.Coords.Count == 0)
             {
                 if (remoteOb.Waypoints == null)
                 {
                     m_waypoints = new List<MyAutopilotWaypoint>();
-                    m_currentWaypoint = null;
+                    CurrentWaypoint = null;
                 }
                 else
                 {
@@ -478,11 +495,11 @@ namespace Sandbox.Game.Entities
 
             if (remoteOb.CurrentWaypointIndex == -1 || remoteOb.CurrentWaypointIndex >= m_waypoints.Count)
             {
-                m_currentWaypoint = null;
+                CurrentWaypoint = null;
             }
             else
             {
-                m_currentWaypoint = m_waypoints[remoteOb.CurrentWaypointIndex];
+                CurrentWaypoint = m_waypoints[remoteOb.CurrentWaypointIndex];
             }
 
             m_actionToolbar = new MyToolbar(MyToolbarType.ButtonPanel, pageCount: 1);
@@ -833,7 +850,7 @@ namespace Sandbox.Game.Entities
                 var waypoint = m_waypoints[indexes[i]];
                 m_waypoints.Remove(waypoint);
 
-                if (m_currentWaypoint == waypoint)
+                if (CurrentWaypoint == waypoint)
                 {
                     currentWaypointRemoved = true;
                 }
@@ -952,7 +969,7 @@ namespace Sandbox.Game.Entities
         {
             if (m_waypoints.Count > 0)
             {
-                m_currentWaypoint = m_waypoints[0];
+                CurrentWaypoint = m_waypoints[0];
                 m_patrolDirectionForward = true;
                 RaisePropertiesChangedRemote();
             }
@@ -1098,14 +1115,14 @@ namespace Sandbox.Game.Entities
 
         private void RaisePropertiesChangedRemote()
         {
-            int gpsFirstVisibleRow = m_gpsGuiControl.FirstVisibleRow;
-            int waypointFirstVisibleRow = m_waypointGuiControl.FirstVisibleRow;
+            int gpsFirstVisibleRow = m_gpsGuiControl != null ? m_gpsGuiControl.FirstVisibleRow : 0;
+            int waypointFirstVisibleRow = m_waypointGuiControl != null ? m_waypointGuiControl.FirstVisibleRow : 0;
             RaisePropertiesChanged();
-            if (gpsFirstVisibleRow < m_gpsGuiControl.Items.Count)
+            if (m_gpsGuiControl != null && gpsFirstVisibleRow < m_gpsGuiControl.Items.Count)
             {
                 m_gpsGuiControl.FirstVisibleRow = gpsFirstVisibleRow;
             }
-            if (waypointFirstVisibleRow < m_waypointGuiControl.Items.Count)
+            if (m_waypointGuiControl != null && waypointFirstVisibleRow < m_waypointGuiControl.Items.Count)
             {
                 m_waypointGuiControl.FirstVisibleRow = waypointFirstVisibleRow;
             }
@@ -1120,21 +1137,20 @@ namespace Sandbox.Game.Entities
                 Debug.Assert(CubeGrid.GridSystems.ThrustSystem.AutopilotEnabled == true);
                 Debug.Assert(CubeGrid.GridSystems.GyroSystem.AutopilotEnabled == true);
 
-                if (m_currentWaypoint == null && m_waypoints.Count > 0)
+                if (CurrentWaypoint == null && m_waypoints.Count > 0)
                 {
-                    m_currentWaypoint = m_waypoints[0];
-                    m_startPosition = WorldMatrix.Translation;
+                    CurrentWaypoint = m_waypoints[0];
                     UpdateText();
                 }
 
-                if (m_currentWaypoint != null)
+                if (CurrentWaypoint != null)
                 {
                     if (IsInStoppingDistance())
                     {
                         AdvanceWaypoint();
                     }
 
-                    if (Sync.IsServer && m_currentWaypoint != null && !IsInStoppingDistance())
+                    if (Sync.IsServer && CurrentWaypoint != null && !IsInStoppingDistance())
                     {
                         if (!UpdateGyro())
                         {
@@ -1156,20 +1172,20 @@ namespace Sandbox.Game.Entities
         private bool IsInStoppingDistance()
         {
             double cubesErrorAllowed = 3;
-            int currentIndex = m_waypoints.IndexOf(m_currentWaypoint);
+            int currentIndex = m_waypoints.IndexOf(CurrentWaypoint);
 
             if (m_dockingModeEnabled || (m_currentFlightMode == FlightMode.OneWay && currentIndex == m_waypoints.Count - 1))
             {
                 cubesErrorAllowed = 0.25;
             }
 
-            return (WorldMatrix.Translation - m_currentWaypoint.Coords).LengthSquared() < CubeGrid.GridSize * CubeGrid.GridSize * cubesErrorAllowed * cubesErrorAllowed;
+            return (WorldMatrix.Translation - CurrentWaypoint.Coords).LengthSquared() < CubeGrid.GridSize * CubeGrid.GridSize * cubesErrorAllowed * cubesErrorAllowed;
         }
 
         private void AdvanceWaypoint()
         {
-            int currentIndex = m_waypoints.IndexOf(m_currentWaypoint);
-            var m_oldWaypoint = m_currentWaypoint;
+            int currentIndex = m_waypoints.IndexOf(CurrentWaypoint);
+            var m_oldWaypoint = CurrentWaypoint;
 
             if (m_waypoints.Count > 0)
             {
@@ -1215,16 +1231,15 @@ namespace Sandbox.Game.Entities
 
             if (currentIndex < 0 || currentIndex >= m_waypoints.Count)
             {
-                m_currentWaypoint = null;
+                CurrentWaypoint = null;
                 SetAutoPilotEnabled(false);
                 UpdateText();
             }
             else
-            {   
-                m_currentWaypoint = m_waypoints[currentIndex];
-                m_startPosition = WorldMatrix.Translation;
+            {
+                CurrentWaypoint = m_waypoints[currentIndex];
 
-                if (m_currentWaypoint != m_oldWaypoint)
+                if (CurrentWaypoint != m_oldWaypoint)
                 {
                     if (Sync.IsServer && m_oldWaypoint.Actions != null && m_autoPilotEnabled)
                     {
@@ -1276,7 +1291,7 @@ namespace Sandbox.Game.Entities
             var orientation = GetOrientation();
             Matrix invWorldRot = CubeGrid.PositionComp.WorldMatrixNormalizedInv.GetOrientation();
 
-            Vector3D targetPos = m_currentWaypoint.Coords;
+            Vector3D targetPos = CurrentWaypoint.Coords;
             Vector3D currentPos = m_startPosition;
             Vector3D deltaPos = targetPos - currentPos;
 
@@ -1338,7 +1353,7 @@ namespace Sandbox.Game.Entities
             thrustSystem.AutoPilotThrust = Vector3.Zero;
             Matrix invWorldRot = CubeGrid.PositionComp.WorldMatrixNormalizedInv.GetOrientation();
 
-            Vector3D target = m_currentWaypoint.Coords;
+            Vector3D target = CurrentWaypoint.Coords;
             Vector3D current = WorldMatrix.Translation;
             Vector3D delta = target - current;
 
@@ -1476,9 +1491,9 @@ namespace Sandbox.Game.Entities
                 objectBuilder.Waypoints.Add(waypoint.GetObjectBuilder());
             }
 
-            if (m_currentWaypoint != null)
+            if (CurrentWaypoint != null)
             {
-                objectBuilder.CurrentWaypointIndex = m_waypoints.IndexOf(m_currentWaypoint);
+                objectBuilder.CurrentWaypointIndex = m_waypoints.IndexOf(CurrentWaypoint);
             }
             else
             {
@@ -1504,15 +1519,15 @@ namespace Sandbox.Game.Entities
             DetailedInfo.AppendStringBuilder(MyTexts.Get(MySpaceTexts.BlockPropertiesText_MaxRequiredInput));
             MyValueFormatter.AppendWorkInBestUnit(m_powerNeeded, DetailedInfo);
 
-            if (m_autoPilotEnabled && m_currentWaypoint != null)
+            if (m_autoPilotEnabled && CurrentWaypoint != null)
             {
                 DetailedInfo.Append("\n");
                 DetailedInfo.Append("Current waypoint: ");
-                DetailedInfo.Append(m_currentWaypoint.Name);
+                DetailedInfo.Append(CurrentWaypoint.Name);
 
                 DetailedInfo.Append("\n");
                 DetailedInfo.Append("Coords: ");
-                DetailedInfo.Append(m_currentWaypoint.Coords);
+                DetailedInfo.Append(CurrentWaypoint.Coords);
             }
             RaisePropertiesChangedRemote();
         }

@@ -112,7 +112,7 @@ namespace Sandbox.Game.AI.BehaviorTree
 
         public static readonly string DEFAULT_EXTENSION = ".sbc";
 
-        private Dictionary<MyStringId, BTData> m_BTDataByName;
+        private Dictionary<MyStringHash, BTData> m_BTDataByName;
 
         public bool DebugSelectedTreeHashSent { get; private set; }
         public IntPtr DebugLastWindowHandle { get; private set; }
@@ -132,7 +132,7 @@ namespace Sandbox.Game.AI.BehaviorTree
 
         public MyBehaviorTreeCollection()
         {
-            m_BTDataByName = new Dictionary<MyStringId, BTData>();
+            m_BTDataByName = new Dictionary<MyStringHash, BTData>(MyStringHash.Comparer);
             DebugIsCurrentTreeVerified = false;
 
             foreach (var behavior in MyDefinitionManager.Static.GetBehaviorDefinitions())
@@ -172,9 +172,9 @@ namespace Sandbox.Game.AI.BehaviorTree
 
         public bool AssignBotToBehaviorTree(string behaviorName, IMyBot bot)
         {
-            MyStringId treeId = MyStringId.TryGet(behaviorName);
+            var treeId = MyStringHash.TryGet(behaviorName);
             Debug.Assert(m_BTDataByName.ContainsKey(treeId), "The given tree does not exist in the collection.");
-            if (treeId == MyStringId.NullOrEmpty || !m_BTDataByName.ContainsKey(treeId))
+            if (treeId == MyStringHash.NullOrEmpty || !m_BTDataByName.ContainsKey(treeId))
                 return false;
             else
                 return AssignBotToBehaviorTree(m_BTDataByName[treeId].BehaviorTree, bot);
@@ -258,16 +258,16 @@ namespace Sandbox.Game.AI.BehaviorTree
             }
         }
 
-        public bool HasBehavior(MyStringId id)
+        public bool HasBehavior(MyStringHash id)
         {
             return m_BTDataByName.ContainsKey(id);
         }
 
         public bool TryGetBehaviorTreeByName(string name, out MyBehaviorTree behaviorTree)
         {
-            MyStringId stringId = MyStringId.NullOrEmpty;
-            MyStringId.TryGet(name, out stringId);
-            if (stringId != MyStringId.NullOrEmpty && m_BTDataByName.ContainsKey(stringId))
+            MyStringHash stringId;
+            MyStringHash.TryGet(name, out stringId);
+            if (stringId != MyStringHash.NullOrEmpty && m_BTDataByName.ContainsKey(stringId))
             {
                 behaviorTree = m_BTDataByName[stringId].BehaviorTree;
                 return behaviorTree != null;

@@ -45,6 +45,7 @@ namespace Sandbox.Game.Weapons
         private bool m_canZoom = true;
 
         public bool IsShooting { get; private set; }
+		public bool IsDeconstructor { get { return false; } }
 
         public int ShootDirectionUpdateTime
         {
@@ -345,7 +346,7 @@ namespace Sandbox.Game.Weapons
             m_gunBase.RefreshAmmunitionAmount();
         }
 
-        void MyAutomaticRifleGun_ContentsChanged(MyInventory obj)
+        void MyAutomaticRifleGun_ContentsChanged(MyInventoryBase obj)
         {
             m_gunBase.RefreshAmmunitionAmount();
         }

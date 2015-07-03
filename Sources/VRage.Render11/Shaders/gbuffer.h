@@ -112,6 +112,7 @@ bool gbuffer_edgedetect(uint2 screencoord)
 	float depth = read_gbuffer(screencoord).native_depth;
 	float4 depth1;
 	float4 depth2;
+
 	[unroll]
 	for(i=0;i<4;i++)
 	{
@@ -127,6 +128,7 @@ bool gbuffer_edgedetect(uint2 screencoord)
 	float4 depthr = step(mind * 100, maxd);
 
 	float3 normal = read_gbuffer(screencoord).N;
+
 	float4 normal1;
 	float4 normal2;
 	[unroll]
@@ -136,16 +138,34 @@ bool gbuffer_edgedetect(uint2 screencoord)
 		normal2[i] = dot(normal, read_gbuffer(screencoord + screen_offset_3x3[i+4]).N);
 	}
 	normal1 = abs(normal2-normal1);
-	float4 normalr = step(0.4, normal1);
+	float4 normalr = step(0.3, normal1);
 	normalr = max(normalr, depthr);
 
-	return dot(normalr, 0.25) * (!coverage_all(read_gbuffer(screencoord).coverage));
+	//return dot(normalr, 0.25) * (!coverage_all(read_gbuffer(screencoord).coverage));
 
+	float depthMin = depth;
+	float depthMax = depth;
+	uint coverage = read_gbuffer(screencoord).coverage;
+	float3 N = read_gbuffer(screencoord).N;
+	float3 N1 = N;
 #ifdef MS_SAMPLE_COUNT
-	for(i=0; i<MS_SAMPLE_COUNT; i++) {
-		depth = min(depth, read_gbuffer(screencoord, i).native_depth);
+	[unroll]
+	for(i=1; i<MS_SAMPLE_COUNT; i++) {
+
+		if(coverage & (1 << i)) {
+			depthMin = min(depthMin, read_gbuffer(screencoord, i).native_depth);
+			depthMax = max(depthMax, read_gbuffer(screencoord, i).native_depth);
+
+			float3 sampleN = read_gbuffer(screencoord, i).N;
+			if(dot(sampleN, N) < dot(N, N1)) {
+				N1 = sampleN;
+			}
+		}
 	}
 #endif
+	bool covered = coverage_all(coverage) || (depthMax == 0);
+	
+	return !covered && dot(normalr, 0.25);
 
-	return !coverage_all(read_gbuffer(screencoord).coverage) && depth < 1;
+	//return !coverage_all(read_gbuffer(screencoord).coverage) && (depthMax > 0);
 }

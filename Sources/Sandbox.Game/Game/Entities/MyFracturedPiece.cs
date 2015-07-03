@@ -129,20 +129,37 @@ namespace Sandbox.Game.Entities
                 MyPhysicalModelDefinition mdef;
                 if (MyDefinitionManager.Static.TryGetDefinition<MyPhysicalModelDefinition>(def, out mdef))
                     model = mdef.Model;
+                MyCubeBlockDefinition blockDef = null;
+                MyDefinitionManager.Static.TryGetDefinition<MyCubeBlockDefinition>(def, out blockDef);
 
                 if (model == null)
                 {
                     Debug.Fail("Fracture piece Definition not found");
                     continue;
                 }
+
+                model = mdef.Model;
                 if (MyModels.GetModelOnlyData(model).HavokBreakableShapes == null)
-                {
-                    MyDestructionData.Static.LoadModelDestruction(mdef, false, Vector3.One);
-                }
+                    MyDestructionData.Static.LoadModelDestruction(model, mdef, false, Vector3.One);
                 var shape = MyModels.GetModelOnlyData(model).HavokBreakableShapes[0];
                 var si = new HkdShapeInstanceInfo(shape, null, null);
                 m_children.Add(si);
                 shape.GetChildren(m_children);
+
+                if (blockDef != null && blockDef.BuildProgressModels != null)
+                {
+                    foreach (var progress in blockDef.BuildProgressModels)
+                    {
+                        model = progress.File;
+                        if (MyModels.GetModelOnlyData(model).HavokBreakableShapes == null)
+                            MyDestructionData.Static.LoadModelDestruction(model, blockDef, false, Vector3.One);
+                        shape = MyModels.GetModelOnlyData(model).HavokBreakableShapes[0];
+                        si = new HkdShapeInstanceInfo(shape, null, null);
+                        m_children.Add(si);
+                        shape.GetChildren(m_children);
+                    }
+                }
+
                 OriginalBlocks.Add(def);
             }
             m_shapes.AddRange(ob.Shapes);

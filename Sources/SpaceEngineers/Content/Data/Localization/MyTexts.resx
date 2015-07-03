@@ -2598,6 +2598,18 @@ World size: {1}</value>
   <data name="ToolTipGameOptionsShowPlayerNames" xml:space="preserve">
     <value>Show player names above their characters. This feature must also be enabled in world settings.</value>
   </data>
+  <data name="ScreenOptionsGame_UITransparency" xml:space="preserve">
+    <value>UI transparency</value>
+  </data>
+  <data name="ToolTipGameOptionsUITransparency" xml:space="preserve">
+    <value>Change transparency of UI dialogs.</value>
+  </data>
+  <data name="ScreenOptionsGame_UIBkTransparency" xml:space="preserve">
+    <value>UI background transparency</value>
+  </data>
+  <data name="ToolTipGameOptionsUIBkTransparency" xml:space="preserve">
+    <value>Change transparency of UI dialogs background.</value>
+  </data>
   <data name="ToolTipTerminalInventory_ThrowOut" xml:space="preserve">
     <value>Drop item</value>
   </data>
@@ -5989,8 +6001,8 @@ To connect to lasers not listed here you can connect to coordinates.</value>
   <data name="buttonBrowseWorkshop" xml:space="preserve">
     <value>Browse Workshop</value>
   </data>
-  <data name="buttonCreateNew" xml:space="preserve">
-    <value>Create new</value>
+  <data name="buttonEdit" xml:space="preserve">
+    <value>Edit</value>
   </data>
   <data name="buttonOpenInWorkshop" xml:space="preserve">
     <value>Open in Workshop</value>
@@ -6149,7 +6161,7 @@ To connect to lasers not listed here you can connect to coordinates.</value>
     <value>Reach GPS position</value>
   </data>
   <data name="GuiTriggerCaptionPositionLeft" xml:space="preserve">
-    <value>Leave GPS position</value>
+    <value>Leave game area</value>
   </data>
   <data name="GuiTriggerCaptionPositionReached" xml:space="preserve">
     <value>Reach GPS position</value>
@@ -6309,6 +6321,9 @@ To connect to lasers not listed here you can connect to coordinates.</value>
   </data>
   <data name="NotificationHintLeaveCryoChamber" xml:space="preserve">
     <value>Press {0} to leave cryo chamber</value>
+  </data>
+  <data name="ScreenDebugSpawnMenu_SpawnFlora" xml:space="preserve">
+    <value>Spawn flora</value>
   </data>
   <data name="DisplayName_Item_ScrapIngot" xml:space="preserve">
     <value>Old Scrap Metal</value>
@@ -6511,11 +6526,44 @@ To connect to lasers not listed here you can connect to coordinates.</value>
   <data name="WorldSettings_GameScenario" xml:space="preserve">
     <value>Scenario</value>
   </data>
+  <data name="DisplayName_Item_Organic" xml:space="preserve">
+    <value>Organic</value>
+  </data>
+  <data name="IconSymbol_Organic" xml:space="preserve">
+    <value>Organic</value>
+  </data>
   <data name="Notification_CockpitIsDamaged" xml:space="preserve">
     <value>Cockpit is damaged</value>
   </data>
   <data name="LaserAntennaOutsideLimits" xml:space="preserve">
     <value>Target outside movement range</value>
+  </data>
+  <data name="ToolTipWorldSettings_EnableFlora" xml:space="preserve">
+    <value />
+  </data>
+  <data name="ToolTipWorldSettings_EnableStationVoxel" xml:space="preserve">
+    <value />
+  </data>
+  <data name="ToolTipWorldSettings_FloraDensity" xml:space="preserve">
+    <value />
+  </data>
+  <data name="WorldSettings_EnableFlora" xml:space="preserve">
+    <value>Enable Flora</value>
+  </data>
+  <data name="WorldSettings_EnableStationVoxel" xml:space="preserve">
+    <value>Station voxel support</value>
+  </data>
+  <data name="WorldSettings_FloraDensity" xml:space="preserve">
+    <value>Flora Density</value>
+  </data>
+  <data name="WorldSettings_FloraDensity_High" xml:space="preserve">
+    <value>High</value>
+  </data>
+  <data name="WorldSettings_FloraDensity_Low" xml:space="preserve">
+    <value>Low</value>
+  </data>
+  <data name="WorldSettings_FloraDensity_Medium" xml:space="preserve">
+    <value>Medium</value>
   </data>
   <data name="ScreenGraphicsOptions_Tonemapping" xml:space="preserve">
     <value>Tonemapping</value>
@@ -6525,5 +6573,195 @@ To connect to lasers not listed here you can connect to coordinates.</value>
   </data>
   <data name="ToolTipWorldSettings_DisableRespawnShips" xml:space="preserve">
     <value>Respawn in ships and suit is disabled. If no valid medical rooms exist, respawn won't be possible at all!</value>
+  </data>
+  <data name="BlockPropertyTitle_SensorPlaySound" xml:space="preserve">
+    <value>Audible Proximity Alert</value>
+  </data>
+  <data name="MessageBoxCaptionDoYouWishToPublishScenario" xml:space="preserve">
+    <value>PUBLISH SCENARIO</value>
+  </data>
+  <data name="MessageBoxCaptionDoYouWishToUpdateScenario" xml:space="preserve">
+    <value>UPDATE SCENARIO</value>
+  </data>
+  <data name="MessageBoxCaptionScenarioPublished" xml:space="preserve">
+    <value>SCENARIO PUBLISHED</value>
+  </data>
+  <data name="MessageBoxCaptionScenarioPublishFailed" xml:space="preserve">
+    <value>PUBLISH FAILED</value>
+  </data>
+  <data name="MessageBoxTextDoYouWishToPublishScenario" xml:space="preserve">
+    <value>Are you sure you want to upload and publish selected scenario on Steam Workshop?
+Note that by submitting this item, you agree to the workshop terms of service (see http://steamcommunity.com/sharedfiles/workshoplegalagreement).</value>
+  </data>
+  <data name="MessageBoxTextDoYouWishToUpdateScenario" xml:space="preserve">
+    <value>Are you sure you want to upload and overwrite selected scenario on Steam Workshop?</value>
+  </data>
+  <data name="MessageBoxTextScenarioPublished" xml:space="preserve">
+    <value>Publish has been completed successfully. If you have Steam Overlay enabled, a page will open and you can edit attributes such as title, description or visibility (it is public by default).</value>
+  </data>
+  <data name="MessageBoxTextScenarioPublishFailed" xml:space="preserve">
+    <value>Failed to publish on Steam Workshop</value>
+  </data>
+  <data name="ToolTipWorldSettings_ScenarioEditMode" xml:space="preserve">
+    <value>Allows additional ingame options for creating scenario.
+Also displays your saved game in scenario start screen.</value>
+  </data>
+  <data name="WorldSettings_ScenarioEditMode" xml:space="preserve">
+    <value>Scenario edit mode</value>
+  </data>
+  <data name="ScreenMedicals_NoRespawnPossible" xml:space="preserve">
+    <value>No respawn point is available! 
+Try the refresh button for any available Medical rooms.
+If there is no chance of accessing a medical room, the game is over and you can leave the game.</value>
+  </data>
+  <data name="ToolTipWorldSettings_EnablePlanets" xml:space="preserve">
+    <value>Enable/disable spawning of planets in world</value>
+  </data>
+  <data name="WorldSettings_EnablePlanets" xml:space="preserve">
+    <value>Enable planets</value>
+  </data>
+  <data name="MessageBoxTextWorkshopDownloadFailed" xml:space="preserve">
+    <value>Download failed, please try again later.</value>
+  </data>
+  <data name="GuiTriggerCaptionLives" xml:space="preserve">
+    <value>Limited lives</value>
+  </data>
+  <data name="GuiTriggersLives" xml:space="preserve">
+    <value>Lives</value>
+  </data>
+  <data name="MedicalRoom_ownershipAssignmentLabel" xml:space="preserve">
+    <value>Ownership Assignment</value>
+  </data>
+  <data name="MedicalRoom_ownershipAssignmentTooltip" xml:space="preserve">
+    <value>Medical room's owner will be set to anyone who spawns in it as long as former ownership is set to nobody.</value>
+  </data>
+  <data name="TerminalScenarioSettingsLabel" xml:space="preserve">
+    <value>Scenario settings:</value>
+  </data>
+  <data name="BlockPropertyTitle_ProjectionSpawn" xml:space="preserve">
+    <value>Spawn projection</value>
+  </data>
+  <data name="BlockPropertyTitle_Projector_BlocksPerProjection" xml:space="preserve">
+    <value>Number of blocks</value>
+  </data>
+  <data name="BlockPropertyTitle_Projector_BlocksPerProjection_Tooltip" xml:space="preserve">
+    <value>The maximum number of blocks a projection can have when building instantly</value>
+  </data>
+  <data name="BlockPropertyTitle_Projector_InstantBuilding" xml:space="preserve">
+    <value>Instant building</value>
+  </data>
+  <data name="BlockPropertyTitle_Projector_InstantBuilding_Tooltip" xml:space="preserve">
+    <value>Enable the projector to build the blueprint instantly, even in survival</value>
+  </data>
+  <data name="BlockPropertyTitle_Projector_NumberOfProjections" xml:space="preserve">
+    <value>Number of projections</value>
+  </data>
+  <data name="BlockPropertyTitle_Projector_NumberOfProjections_Tooltip" xml:space="preserve">
+    <value>The maximum number of projections this projector can build instantly</value>
+  </data>
+  <data name="HudScenarioInfoLivesLeft" xml:space="preserve">
+    <value>Lives:</value>
+  </data>
+  <data name="TerminalTab_Info_DestructibleBlocks" xml:space="preserve">
+    <value>Destructible blocks</value>
+  </data>
+  <data name="TerminalTab_Info_DestructibleBlocks_Tooltip" xml:space="preserve">
+    <value>Toogles destructible blocks only for this grid. If destructible blocks are disabled in world settings, this is ignored. Only available in scenarios.</value>
+  </data>
+  <data name="GuiScenarioCannotJoin" xml:space="preserve">
+    <value>Scenario is already running, cannot join game.</value>
+  </data>
+  <data name="GuiScenarioCannotJoinCaption" xml:space="preserve">
+    <value>CANNOT JOIN</value>
+  </data>
+  <data name="ScenarioSettings_CanJoinRunning" xml:space="preserve">
+    <value>Players can join when game is already running</value>
+  </data>
+  <data name="WorldSettings_EnableSunRotation" xml:space="preserve">
+    <value>Enable sun rotation</value>
+  </data>
+  <data name="SunRotationPeriod" xml:space="preserve">
+    <value>Day duration</value>
+  </data>
+  <data name="GuiTriggerCaptionAllOthersLost" xml:space="preserve">
+    <value>All others lost</value>
+  </data>
+  <data name="ScenarioSettings_CanJoinRunningShort" xml:space="preserve">
+    <value>Players can join running game</value>
+  </data>
+  <data name="GuiTriggerCaptionTimeLimit" xml:space="preserve">
+    <value>Time limit</value>
+  </data>
+  <data name="GuiTriggerTimeLimit" xml:space="preserve">
+    <value>Limit (in minutes)</value>
+  </data>
+  <data name="HudScenarioInfoTimeLeft" xml:space="preserve">
+    <value>Time left:</value>
+  </data>
+  <data name="MyGuiScreenTriggerTimeLimit" xml:space="preserve">
+    <value>Time limit</value>
+  </data>
+  <data name="WorldSettings_FloraDensity_Extreme" xml:space="preserve">
+    <value>Extreme</value>
+  </data>
+  <data name="WorldSettings_FloraDensity_None" xml:space="preserve">
+    <value>None</value>
+  </data>
+  <data name="ToolTipWorldSettings_EnableJetpack" xml:space="preserve">
+    <value>If this is turned off, characters won't be able to use jetpacks at all.</value>
+  </data>
+  <data name="ToolTipWorldSettings_SpawnWithTools" xml:space="preserve">
+    <value>If this is turned off, characters won't spawn with any tools in their inventory.</value>
+  </data>
+  <data name="WorldSettings_EnableJetpack" xml:space="preserve">
+    <value>Enable jetpack</value>
+  </data>
+  <data name="WorldSettings_SpawnWithTools" xml:space="preserve">
+    <value>Spawn with tools</value>
+  </data>
+  <data name="BlockPropertiesTooltip_Projector_GetOwnership" xml:space="preserve">
+    <value>All blocks from the spawned ship will have the same ownership settings as this projector.</value>
+  </data>
+  <data name="BlockPropertyTitle_Projector_GetOwnership" xml:space="preserve">
+    <value>Ownership from projector</value>
+  </data>
+  <data name="GuiTriggerBlockDestroyed_ColumnName" xml:space="preserve">
+    <value>Block name</value>
+  </data>
+  <data name="GuiTriggerCaptionBlockDestroyed" xml:space="preserve">
+    <value>Block destroyed</value>
+  </data>
+  <data name="GuiTriggerPasteBlocks" xml:space="preserve">
+    <value>Add blocks</value>
+  </data>
+  <data name="MyGuiScreenTriggerBlockDestroyed" xml:space="preserve">
+    <value>Block destroyed</value>
+  </data>
+  <data name="GuiTriggerBlockDestroyedSingleMessage" xml:space="preserve">
+    <value>Message after each block is destroyed</value>
+  </data>
+  <data name="GuiTriggerDeleteBlocks" xml:space="preserve">
+    <value>Delete</value>
+  </data>
+  <data name="GuiTriggerPasteBlocksTooltip" xml:space="preserve">
+    <value>Adds blocks copied through button at the end of block terminal screen.</value>
+  </data>
+  <data name="GuiScenarioEdit_CopyIds" xml:space="preserve">
+    <value>Copy block IDs</value>
+  </data>
+  <data name="GuiScenarioEdit_CopyIdsTooltip" xml:space="preserve">
+    <value>You can then paste them into "Block destroyed" trigger</value>
+  </data>
+  <data name="Description_Scenario_2Planets" xml:space="preserve">
+    <value>2 habitable planets near each other</value>
+  </data>
+  <data name="Description_Scenario_Planet" xml:space="preserve">
+    <value>World with one habitable planet </value>
+  </data>
+  <data name="DisplayName_Scenario_2Planets" xml:space="preserve">
+    <value>2 planets</value>
+  </data>
+  <data name="DisplayName_Scenario_Planet" xml:space="preserve">
+    <value>Habitable planet</value>
   </data>
 </root>

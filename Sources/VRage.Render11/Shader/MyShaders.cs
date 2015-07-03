@@ -802,7 +802,7 @@ namespace VRageRender
 
         #region Low level compilation
 
-        static Dictionary<MyStringId, byte[]> CompilationCache = new Dictionary<MyStringId,byte[]>();
+        static Dictionary<MyStringId, byte[]> CompilationCache = new Dictionary<MyStringId, byte[]>(MyStringId.Comparer);
 
         static string CalculateCacheKey(string source, string function, string profile)
         {
@@ -989,8 +989,8 @@ namespace VRageRender
 
             Shaders[bytecode] = new MyShaderCompilationInfo
             {
-                File = MyStringId.GetOrCompute(file),
-                Function = MyStringId.GetOrCompute(func),
+                File = X.TEXT(file),
+                Function = X.TEXT(func),
                 Profile = MyShaderProfileEnum.VS_5_0,
                 Header = header,
                 Name = String.Format("vs_[{0}][{1}]{2}", file, func, header != null ? header.Replace(Environment.NewLine, "_") : "")
@@ -1019,8 +1019,8 @@ namespace VRageRender
 
             Shaders[bytecode] = new MyShaderCompilationInfo
             {
-                File = MyStringId.GetOrCompute(file),
-                Function = MyStringId.GetOrCompute(func),
+                File = X.TEXT(file),
+                Function = X.TEXT(func),
                 Profile = MyShaderProfileEnum.PS_5_0,
                 Header = header,
                 Name = String.Format("ps_[{0}][{1}]{2}", file, func, header != null ? header.Replace(Environment.NewLine, "_") : "")
@@ -1049,8 +1049,8 @@ namespace VRageRender
 
             Shaders[bytecode] = new MyShaderCompilationInfo
             {
-                File = MyStringId.GetOrCompute(file),
-                Function = MyStringId.GetOrCompute(func),
+                File = X.TEXT(file),
+                Function = X.TEXT(func),
                 Profile = MyShaderProfileEnum.CS_5_0,
                 Header = header,
                 Name = String.Format("cs_[{0}][{1}]{2}", file, func, header != null ? header.Replace(Environment.NewLine, "_") : "")
@@ -1079,8 +1079,8 @@ namespace VRageRender
 
             Shaders[bytecode] = new MyShaderCompilationInfo
             {
-                File = MyStringId.GetOrCompute(file),
-                Function = MyStringId.GetOrCompute(func),
+                File = X.TEXT(file),
+                Function = X.TEXT(func),
                 Profile = MyShaderProfileEnum.GS_5_0,
                 Header = header,
                 Name = String.Format("gs_[{0}][{1}]{2}", file, func, header != null ? header.Replace(Environment.NewLine, "_") : "")

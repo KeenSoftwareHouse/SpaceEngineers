@@ -95,6 +95,7 @@
     <Compile Include="Audio\MyAudioEffect.cs" />
     <Compile Include="Audio\MyAudioInitParams.cs" />
     <Compile Include="Audio\MyAudioWave.cs" />
+    <Compile Include="Audio\MyCueId.cs" />
     <Compile Include="Audio\MyCurveType.cs" />
     <Compile Include="Audio\MyMusicTrack.cs" />
     <Compile Include="Audio\MyNullAudio.cs" />
@@ -342,6 +343,7 @@
     <Compile Include="Serialization\SerializableVector3I.cs" />
     <Compile Include="Serialization\SerializableVector3UByte.cs" />
     <Compile Include="SpriteEnums.cs" />
+    <Compile Include="Utils\MyStringHash.cs" />
     <Compile Include="Utils\MyPolygonBoolOps-Operations.cs" />
     <Compile Include="Utils\MyCopyDataStructures.cs" />
     <Compile Include="Utils\MyGuiDrawAlignEnum.cs" />

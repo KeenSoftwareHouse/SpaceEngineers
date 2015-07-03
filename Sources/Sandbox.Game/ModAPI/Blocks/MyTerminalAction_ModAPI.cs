@@ -8,7 +8,7 @@ using VRage.Collections;
 
 namespace Sandbox.Game.Gui
 {
-    partial class MyTerminalAction<TBlock>
+    public partial class MyTerminalAction<TBlock>
     {
         void ModAPI.Interfaces.ITerminalAction.Apply(ModAPI.Ingame.IMyCubeBlock block)
         {

@@ -10,7 +10,7 @@ using Sandbox.Game.World;
 
 namespace Sandbox.Game.Gui
 {
-    interface ITerminalControl
+    public interface ITerminalControl
     {
         string Id { get; }
 

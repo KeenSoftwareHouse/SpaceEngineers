@@ -1,11 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 
 namespace Sandbox.Game
 {
-    public partial struct MyInventoryItem : Sandbox.ModAPI.Interfaces.IMyInventoryItem
+    public partial struct MyPhysicalInventoryItem : Sandbox.ModAPI.Interfaces.IMyInventoryItem
     {
         VRage.MyFixedPoint ModAPI.Interfaces.IMyInventoryItem.Amount
         {
@@ -19,7 +20,7 @@ namespace Sandbox.Game
             }
         }
 
-        Common.ObjectBuilders.MyObjectBuilder_PhysicalObject ModAPI.Interfaces.IMyInventoryItem.Content
+        VRage.ObjectBuilders.MyObjectBuilder_Base ModAPI.Interfaces.IMyInventoryItem.Content
         {
             get
             {
@@ -27,7 +28,8 @@ namespace Sandbox.Game
             }
             set
             {
-                Content = value;
+                Debug.Assert(value is Sandbox.Common.ObjectBuilders.MyObjectBuilder_PhysicalObject, "Content is not physical object!");
+                Content = value as Sandbox.Common.ObjectBuilders.MyObjectBuilder_PhysicalObject;
             }
         }
 

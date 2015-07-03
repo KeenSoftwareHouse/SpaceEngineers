@@ -107,7 +107,9 @@ namespace Sandbox.Game.Entities
         {
             get
             {
-                return MySector.MainCamera.Position;
+				var cameraController = MySession.GetCameraControllerEnum();
+				return (cameraController == MyCameraControllerEnum.Entity
+						|| cameraController == MyCameraControllerEnum.ThirdPersonSpectator) ? MySession.ControlledEntity.GetHeadMatrix(false).Translation : MySector.MainCamera.Position;
             }
         }
 
@@ -152,9 +154,6 @@ namespace Sandbox.Game.Entities
 
             m_invGridWorldMatrix = CurrentGrid != null ? MatrixD.Invert(CurrentGrid.WorldMatrix) : MatrixD.Identity;
         }
-
-        public abstract bool CanStartConstruction(MyCharacter character);
-        public abstract bool AddConstruction(MyCharacter character);
 
         protected static void AddFastBuildModelWithSubparts(ref MatrixD matrix, List<MatrixD> matrices, List<string> models, MyCubeBlockDefinition blockDefinition)
         {

@@ -441,6 +441,10 @@ namespace Sandbox.Game.Entities
                 }
             }
 
+            if (MyPerGameSettings.ComponentSaving && builder.ComponentContainer != null)
+            {
+                Components.Deserialize(builder.ComponentContainer);
+            }
 
             base.Init(null);
             base.Render.PersistentFlags |= MyPersistentEntityFlags2.CastShadows;
@@ -482,6 +486,11 @@ namespace Sandbox.Game.Entities
                         ++counter;
                     }
                 }
+            }
+
+            if (MyPerGameSettings.ComponentSaving)
+            {
+                builder.ComponentContainer = Components.Serialize();
             }
 
             return builder;
@@ -606,7 +615,6 @@ namespace Sandbox.Game.Entities
             InitSubBlocks();
         }
 
-
         /// <summary>
         /// Method called when a block has been built (after adding to the grid).
         /// This is called right after placing the block and it doesn't matter whether
@@ -652,7 +660,7 @@ namespace Sandbox.Game.Entities
         /// <summary>
         /// Return true when contact is valid
         /// </summary>
-        internal virtual void ContactPointCallback(ref MyGridContactInfo value) { }
+        public virtual void ContactPointCallback(ref MyGridContactInfo value) { }
 
         /// <summary>
         /// Called when block is destroyed before being removed from grid
@@ -775,7 +783,7 @@ namespace Sandbox.Game.Entities
         }
 
 
-        internal void ChangeOwner(long owner, MyOwnershipShareModeEnum shareMode)
+        public void ChangeOwner(long owner, MyOwnershipShareModeEnum shareMode)
         {
             if (m_IDModule == null)
             {
@@ -919,7 +927,7 @@ namespace Sandbox.Game.Entities
                             Matrix subGridWorldMatrix = subBlockMatrix * PositionComp.LocalMatrix * CubeGrid.WorldMatrix;
 
                             //TODO: Try to find better way how to sync entity ID of subblocks..
-                            subgrid = MyCubeBuilder.SpawnDynamicGrid(subBlockDefinition, subGridWorldMatrix, EntityId + (SubBlocks.Count * 16) + 1);
+                            subgrid = MyCubeBuilder.SpawnDynamicGrid(subBlockDefinition, null, subGridWorldMatrix, EntityId + (SubBlocks.Count * 16) + 1);
                             if (subgrid != null)
                                 subblock = subgrid.GetCubeBlock(Vector3I.Zero);
                         }
@@ -1081,8 +1089,9 @@ namespace Sandbox.Game.Entities
 
         virtual internal float GetMass()
         {
+            Matrix m;
             if (MyDestructionData.Static != null)
-                return MyDestructionData.Static.GetBlockMass(BlockDefinition);
+                return MyDestructionData.Static.GetBlockMass(SlimBlock.CalculateCurrentModel(out m), BlockDefinition);
             return BlockDefinition.Mass;
         }
 
@@ -1122,6 +1131,22 @@ namespace Sandbox.Game.Entities
                 return m_upgradeValues;
             }
         }
+        public void AddUpgradeValue(string name, float defaultValue)
+        {
+            float previousDefault;
+            if (UpgradeValues.TryGetValue(name, out previousDefault))
+            {
+                if (previousDefault != defaultValue)
+                {
+                    VRage.Utils.MyLog.Default.WriteLine("ERROR while adding upgraded block " + DisplayNameText.ToString() + ". Duplicate with different default value found!");
+                }
+            }
+            else
+            {
+                UpgradeValues.Add(name, defaultValue);
+            }
+        }
+
         public event Action OnUpgradeValuesChanged;
         public void CommitUpgradeValues()
         {

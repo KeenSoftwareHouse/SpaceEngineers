@@ -174,6 +174,11 @@ namespace Sandbox.Game.Entities.Cube
             return false; 
         }
 
+        bool IMyUseObject.PlayIndicatorSound
+        {
+            get { return true; }
+        }
+
         public void RemoveButtonMarker()
         {
             if (m_buttonDesc != null)

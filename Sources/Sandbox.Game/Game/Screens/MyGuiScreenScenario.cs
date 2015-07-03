@@ -1,4 +1,5 @@
-﻿using Sandbox.Common;
+﻿using ParallelTasks;
+using Sandbox.Common;
 using Sandbox.Common.ObjectBuilders;
 using Sandbox.Definitions;
 using Sandbox.Engine.Networking;
@@ -9,6 +10,7 @@ using Sandbox.Game.Screens;
 using Sandbox.Game.Screens.Helpers;
 using Sandbox.Game.World;
 using Sandbox.Graphics.GUI;
+using SteamSDK;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -16,6 +18,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using VRage;
+using VRage.FileSystem;
 using VRage.Library.Utils;
 using VRage.Utils;
 using VRageMath;
@@ -31,12 +34,20 @@ namespace Sandbox.Game.Gui
             ListLoaded
         }
         private StateEnum m_state;
+        private int m_listLoadedParts;
+
         private List<Tuple<string, MyWorldInfo>> m_availableSaves = new List<Tuple<string, MyWorldInfo>>();
+        private List<Tuple<string, MyWorldInfo>> m_availableSavesLocal = new List<Tuple<string, MyWorldInfo>>();
+        private List<Tuple<string, MyWorldInfo>> m_availableSavesKeens = new List<Tuple<string, MyWorldInfo>>();
+        private List<Tuple<string, MyWorldInfo>> m_availableSavesWorkshop = new List<Tuple<string, MyWorldInfo>>();
 
         public static MyGuiScreenScenario Static;
         bool m_nameRewritten;
         string m_sessionPath;
         private int m_selectedRow;
+
+        private List<MySteamWorkshop.SubscribedItem> m_subscribedScenarios;
+        const string WORKSHOP_PATH_TAG = "workshop";
 
         protected MyObjectBuilder_SessionSettings m_settings;
         public MyObjectBuilder_SessionSettings Settings
@@ -71,7 +82,7 @@ namespace Sandbox.Game.Gui
         MyGuiControlMultilineText m_descriptionBox;
 
         //BUTTONS:
-        MyGuiControlButton m_removeButton, m_publishButton, m_createButton, m_browseWorkshopButton;
+        MyGuiControlButton m_removeButton, m_publishButton, m_editButton, m_browseWorkshopButton;
         MyGuiControlButton m_refreshButton, m_openInWorkshopButton, m_okButton, m_cancelButton;
 
         
@@ -135,7 +146,9 @@ namespace Sandbox.Game.Gui
             float width = 0.284375f + 0.025f;
 
             m_nameTextbox = new MyGuiControlTextbox(maxLength: MySession.MAX_NAME_LENGTH);
+            m_nameTextbox.Enabled=false;
             m_descriptionTextbox = new MyGuiControlTextbox(maxLength: MySession.MAX_DESCRIPTION_LENGTH);
+            m_descriptionTextbox.Enabled = false;
             m_difficultyCombo = new MyGuiControlCombobox(size: new Vector2(width, 0.04f));
             m_difficultyCombo.AddItem((int)0, MySpaceTexts.DifficultyEasy);
             m_difficultyCombo.AddItem((int)1, MySpaceTexts.DifficultyNormal);
@@ -152,7 +165,7 @@ namespace Sandbox.Game.Gui
                 labelSpaceWidth: 0.05f,
                 intValue: true
                 );
-
+            m_onlineMode.Enabled = false;
             m_scenarioTypesList = new MyGuiControlList();
 
 
@@ -160,11 +173,11 @@ namespace Sandbox.Game.Gui
             m_removeButton = new MyGuiControlButton(position: buttonsOrigin, size: buttonSize, text: MyTexts.Get(MySpaceTexts.buttonRemove), 
                 onButtonClick: OnOkButtonClick, originAlign: MyGuiDrawAlignEnum.HORISONTAL_RIGHT_AND_VERTICAL_BOTTOM);
             m_publishButton = new MyGuiControlButton(position: buttonsOrigin + new Vector2(0.01f + m_removeButton.Size.X, 0f), size: buttonSize, text: MyTexts.Get(MySpaceTexts.buttonPublish), 
-                onButtonClick: OnOkButtonClick, originAlign: MyGuiDrawAlignEnum.HORISONTAL_RIGHT_AND_VERTICAL_BOTTOM);
-            m_createButton = new MyGuiControlButton(position: buttonsOrigin + new Vector2(2*(0.01f + m_removeButton.Size.X), 0f), size: buttonSize, text: MyTexts.Get(MySpaceTexts.buttonCreateNew), 
-                onButtonClick: OnOkButtonClick, originAlign: MyGuiDrawAlignEnum.HORISONTAL_RIGHT_AND_VERTICAL_BOTTOM);
-            m_browseWorkshopButton = new MyGuiControlButton(position: buttonsOrigin + new Vector2(3*(0.01f + m_removeButton.Size.X), 0f), size: buttonSize, text: MyTexts.Get(MySpaceTexts.buttonBrowseWorkshop), 
-                onButtonClick: OnOkButtonClick, originAlign: MyGuiDrawAlignEnum.HORISONTAL_RIGHT_AND_VERTICAL_BOTTOM);
+                onButtonClick: OnPublishButtonClick, originAlign: MyGuiDrawAlignEnum.HORISONTAL_RIGHT_AND_VERTICAL_BOTTOM);
+            m_editButton = new MyGuiControlButton(position: buttonsOrigin + new Vector2(2*(0.01f + m_removeButton.Size.X), 0f), size: buttonSize, text: MyTexts.Get(MySpaceTexts.buttonEdit), 
+                onButtonClick: OnEditButtonClick, originAlign: MyGuiDrawAlignEnum.HORISONTAL_RIGHT_AND_VERTICAL_BOTTOM);
+            m_browseWorkshopButton = new MyGuiControlButton(position: buttonsOrigin + new Vector2(3*(0.01f + m_removeButton.Size.X), 0f), size: buttonSize, text: MyTexts.Get(MySpaceTexts.buttonBrowseWorkshop),
+                onButtonClick: OnBrowseWorkshopClick, originAlign: MyGuiDrawAlignEnum.HORISONTAL_RIGHT_AND_VERTICAL_BOTTOM);
 
             m_refreshButton = new MyGuiControlButton(position: buttonsOrigin + new Vector2(0.0f, m_removeButton.Size.Y+0.01f), size: buttonSize, text: MyTexts.Get(MySpaceTexts.buttonRefresh), 
                 onButtonClick: OnRefreshButtonClick, originAlign: MyGuiDrawAlignEnum.HORISONTAL_RIGHT_AND_VERTICAL_BOTTOM);
@@ -262,10 +275,9 @@ namespace Sandbox.Game.Gui
             m_removeButton.Enabled = false;
             Controls.Add(m_publishButton);
             m_publishButton.Enabled = false;
-            Controls.Add(m_createButton);
-            m_createButton.Enabled = false;
+            Controls.Add(m_editButton);
+            m_editButton.Enabled = false;
             Controls.Add(m_browseWorkshopButton);
-            m_browseWorkshopButton.Enabled = false;
             Controls.Add(m_refreshButton);
             Controls.Add(m_openInWorkshopButton);
             m_openInWorkshopButton.Enabled = false;
@@ -317,6 +329,24 @@ namespace Sandbox.Game.Gui
             m_maxPlayersSlider.Enabled = m_onlineMode.GetSelectedKey() != (int)MyOnlineModeEnum.OFFLINE;
             m_maxPlayersLabel.Enabled = m_onlineMode.GetSelectedKey() != (int)MyOnlineModeEnum.OFFLINE;
         }
+        private void OnEditButtonClick(object sender)
+        {
+            //run as normal save
+            var row = m_scenarioTable.SelectedRow;
+            if (row != null)
+            {
+                var save = FindSave(row);
+                if (save != null)
+                {
+                    CloseScreen();
+                    MyGuiScreenLoadSandbox.LoadSingleplayerSession(save.Item1);
+                }
+                else
+                    Debug.Fail("save not found");
+            }
+            else
+                Debug.Fail("row not found");
+        }
         private void OnOkButtonClick(object sender)
         {
             // Validate
@@ -355,13 +385,47 @@ namespace Sandbox.Game.Gui
             {
                 var save = FindSave(row);
                 if (save != null)
-                    //if (MP)
-                    //    LoadMultiplayerMission();
-                    //else
+                {
+                    if (save.Item1 == WORKSHOP_PATH_TAG)
+                    {
+                        var scenario = FindWorkshopScenario(save.Item2.WorkshopId.Value);
+                        MySteamWorkshop.CreateWorldInstanceAsync(scenario, MySteamWorkshop.MyWorkshopPathInfo.CreateScenarioInfo(), true, delegate(bool success, string sessionPath)
+                        {
+                            if (success)
+                            {
+                                //add briefing from workshop description
+                                ulong dummy;
+                                var checkpoint = MyLocalCache.LoadCheckpoint(sessionPath, out dummy);
+                                checkpoint.Briefing = save.Item2.Briefing;
+                                MyLocalCache.SaveCheckpoint(checkpoint, sessionPath);
+
+                                LoadMission(sessionPath, m_nameTextbox.Text, m_descriptionTextbox.Text, MP);
+                            }
+                            else
+                                MyGuiSandbox.AddScreen(MyGuiSandbox.CreateMessageBox(
+                                            messageText: MyTexts.Get(MySpaceTexts.MessageBoxTextWorkshopDownloadFailed),
+                                            messageCaption: MyTexts.Get(MySpaceTexts.ScreenCaptionWorkshop)));
+                        });
+                    }
+                    else
                         LoadMission(save.Item1, m_nameTextbox.Text, m_descriptionTextbox.Text, MP);
+                }
             }
 
             MyLog.Default.WriteLine("LoadSandbox() - End");
+        }
+
+        private MySteamWorkshop.SubscribedItem FindWorkshopScenario(ulong workshopId)
+        {
+            foreach (var scenario in m_subscribedScenarios)
+            {
+                if (scenario.PublishedFileId == workshopId)
+                {
+                    return scenario;
+                }
+            }
+
+            return null;
         }
 
         private void OnCancelButtonClick(object sender)
@@ -416,6 +480,27 @@ namespace Sandbox.Game.Gui
         {
             m_selectedRow = eventArgs.RowIndex;
             FillRight();
+            if (eventArgs.RowIndex<2)
+            {
+                m_publishButton.Enabled = false;
+                m_onlineMode.Enabled = false;
+                m_onlineMode.SelectItemByIndex(0);
+                m_editButton.Enabled = false;
+            }
+            else
+            {
+                m_publishButton.Enabled = false;
+                m_onlineMode.Enabled = true;
+
+                m_editButton.Enabled = false;
+                if (m_scenarioTable.SelectedRow != null)
+                {
+                    m_publishButton.Enabled = true;
+                    Tuple<string, MyWorldInfo> t = FindSave(m_scenarioTable.SelectedRow);
+                    if (t.Item1 != WORKSHOP_PATH_TAG)
+                        m_editButton.Enabled = true;
+                }
+            }
         }
 
         /*void OnTableItemConfirmedOrDoubleClick(MyGuiControlTable sender, MyGuiControlTable.EventArgs eventArgs)
@@ -442,9 +527,7 @@ namespace Sandbox.Game.Gui
 
         private Tuple<string, MyWorldInfo> FindSave(MyGuiControlTable.Row row)
         {
-            string savePath = (string)row.UserData;
-            var entry = m_availableSaves.Find((x) => x.Item1 == savePath);
-            return entry;
+            return (Tuple<string, MyWorldInfo>)(row.UserData);
         }
 
         public void LoadMission(string sessionPath, string name, string description, bool multiplayer)
@@ -455,11 +538,11 @@ namespace Sandbox.Game.Gui
             ulong checkpointSizeInBytes;
             var checkpoint = MyLocalCache.LoadCheckpoint(sessionPath, out checkpointSizeInBytes);
 
-            //online?
             checkpoint.Settings.OnlineMode=(MyOnlineModeEnum)m_onlineMode.GetSelectedKey();
             checkpoint.Settings.MaxPlayers = (short)m_maxPlayersSlider.Value;
             checkpoint.Settings.Scenario = true;
             checkpoint.Settings.GameMode = MyGameModeEnum.Survival;
+            checkpoint.Settings.ScenarioEditMode = false;
 
             if (!MySession.IsCompatibleVersion(checkpoint))
             {
@@ -567,15 +650,10 @@ namespace Sandbox.Game.Gui
         void FillList()
         {
             m_state = StateEnum.ListLoading;
-            MyGuiSandbox.AddScreen(new MyGuiScreenProgressAsync(MySpaceTexts.LoadingPleaseWait, null, beginAction, endAction));
-            /*    var row = new MyGuiControlTable.Row(0);
-                row.AddCell(new MyGuiControlTable.Cell(text: new StringBuilder("ASDF"),
-                                                         userData: 0));//!!icon
-                row.AddCell(new MyGuiControlTable.Cell(text: "Space Engineers Mission 01",
-                                                         userData: "Space Engineers Mission 01 map"));
-                m_scenarioTable.Add(row);
-
-            m_state = StateEnum.ListLoaded;*/
+            m_listLoadedParts = 0;
+            MyGuiSandbox.AddScreen(new MyGuiScreenProgressAsync(MySpaceTexts.LoadingPleaseWait, null, beginKeens, endKeens));//from missions
+            MyGuiSandbox.AddScreen(new MyGuiScreenProgressAsync(MySpaceTexts.LoadingPleaseWait, null, beginWorkshop, endWorkshop));//workshop items
+            MyGuiSandbox.AddScreen(new MyGuiScreenProgressAsync(MySpaceTexts.LoadingPleaseWait, null, beginLocal, endLocal));//user's from saves
         }
 
         private void AddHeaders()
@@ -585,13 +663,7 @@ namespace Sandbox.Game.Gui
 
         private void RefreshGameList()
         {
-            string selectedWorldId = null;
-            {
-                var selectedRow = m_scenarioTable.SelectedRow;
-                if (selectedRow != null)
-                    selectedWorldId = (string)selectedRow.UserData;
-            }
-
+            int selectedIndex = m_scenarioTable.SelectedRowIndex??-1;
             m_scenarioTable.Clear();
             AddHeaders();
 
@@ -600,36 +672,62 @@ namespace Sandbox.Game.Gui
                 var checkpoint = m_availableSaves[index].Item2;
                 var name = new StringBuilder(checkpoint.SessionName);
 
-                var row = new MyGuiControlTable.Row(m_availableSaves[index].Item1);
-                row.AddCell(new MyGuiControlTable.Cell(text: String.Empty, icon: MyGuiConstants.TEXTURE_ICON_MODS_LOCAL));
-                row.AddCell(new MyGuiControlTable.Cell(text: name,
-                                                         userData: name));
+                var row = new MyGuiControlTable.Row(m_availableSaves[index]);
+                if (m_availableSaves[index].Item1 == WORKSHOP_PATH_TAG)
+                    row.AddCell(new MyGuiControlTable.Cell(text: String.Empty, icon: MyGuiConstants.TEXTURE_ICON_MODS_WORKSHOP));
+                else if (m_availableSaves[index].Item2.ScenarioEditMode == true)
+                    row.AddCell(new MyGuiControlTable.Cell(text: String.Empty, icon: MyGuiConstants.TEXTURE_ICON_MODS_LOCAL));
+                else
+                    row.AddCell(new MyGuiControlTable.Cell(text: String.Empty, icon: MyGuiConstants.TEXTURE_ICON_BLUEPRINTS_LOCAL));
+
+                row.AddCell(new MyGuiControlTable.Cell(text: name, userData: name));
                 m_scenarioTable.Add(row);
 
                 // Select row with same world ID as we had before refresh.
-                if (index==0)//selectedWorldId != null && checkpoint.WorldID == selectedWorldId)
+                if (index == selectedIndex)
                 {
                     m_selectedRow = index;
                     m_scenarioTable.SelectedRow = row;
                 }
             }
-            m_scenarioTable.SetColumnComparison(1, (a, b) => ((StringBuilder)a.UserData).CompareToIgnoreCase((StringBuilder)b.UserData));
-            m_scenarioTable.SortByColumn(1);
 
             m_scenarioTable.SelectedRowIndex = m_selectedRow;
             m_scenarioTable.ScrollToSelection();
             FillRight();
         }
+        private void AfterPartLoaded()
+        {
+            if (++m_listLoadedParts == 3)
+            {
+                m_state = StateEnum.ListLoaded;
+                //KSH
+                m_availableSaves = m_availableSavesKeens;
+                m_availableSavesKeens=null;
+                //workshop
+                m_availableSaves.AddList(m_availableSavesWorkshop);
+                m_availableSavesWorkshop.Clear();
+                //Local
+                foreach (var save in m_availableSavesLocal)
+                {
+                    var checkpoint = save.Item2;
+                    if (!checkpoint.ScenarioEditMode)
+                        continue;
+                    m_availableSaves.Add(save);
+                }
+                m_availableSavesLocal.Clear();
 
-        private IMyAsyncResult beginAction()
+                RefreshGameList();
+            }
+        }
+        private IMyAsyncResult beginKeens()
         {
             return new MyLoadListResult(true);
         }
-
-        private void endAction(IMyAsyncResult result, MyGuiScreenProgressAsync screen)
+        private void endKeens(IMyAsyncResult result, MyGuiScreenProgressAsync screen)
         {
             var loadListRes = (MyLoadListResult)result;
-            m_availableSaves = loadListRes.AvailableSaves;
+            m_availableSavesKeens = loadListRes.AvailableSaves;
+            m_availableSavesKeens.Sort((x, y) => x.Item2.SessionName.CompareTo(y.Item2.SessionName));
 
             if (loadListRes.ContainsCorruptedWorlds)
             {
@@ -638,15 +736,190 @@ namespace Sandbox.Game.Gui
                     messageCaption: MyTexts.Get(MySpaceTexts.MessageBoxCaptionError));
                 MyGuiSandbox.AddScreen(messageBox);
             }
-
-            if (m_availableSaves.Count != 0)
-            {
-                RefreshGameList();
-            }
+            AfterPartLoaded();
             screen.CloseScreen();
-            m_state = StateEnum.ListLoaded;
+        }
+
+        
+        private IMyAsyncResult beginLocal()
+        {
+            return new MyLoadListResult(false);
+        }
+        private void endLocal(IMyAsyncResult result, MyGuiScreenProgressAsync screen)
+        {
+            var loadListRes = (MyLoadListResult)result;
+            loadListRes.AvailableSaves.Sort((x, y) => x.Item2.SessionName.CompareTo(y.Item2.SessionName));
+            m_availableSavesLocal = loadListRes.AvailableSaves;
+            AfterPartLoaded();
+            screen.CloseScreen();
+        }
+
+
+        private IMyAsyncResult beginWorkshop()
+        {
+            return new LoadWorkshopResult();
+        }
+        private void endWorkshop(IMyAsyncResult result, MyGuiScreenProgressAsync screen)
+        {
+            var loadResult = (LoadWorkshopResult)result;
+            m_subscribedScenarios = loadResult.SubscribedScenarios;
+            foreach(var item in loadResult.SubscribedScenarios)
+            {
+                MyWorldInfo wi = new MyWorldInfo();
+                wi.SessionName = item.Title;
+                wi.Briefing = item.Description;
+                wi.WorkshopId = item.PublishedFileId;
+                m_availableSavesWorkshop.Add(new Tuple<string, MyWorldInfo>(WORKSHOP_PATH_TAG, wi));
+            }
+            m_availableSavesWorkshop.Sort((x, y) => x.Item2.SessionName.CompareTo(y.Item2.SessionName));
+            AfterPartLoaded();
+            screen.CloseScreen();
+        }
+        class LoadWorkshopResult : IMyAsyncResult
+        {
+            public bool IsCompleted { get { return this.Task.IsComplete; } }
+            public Task Task
+            {
+                get;
+                private set;
+            }
+
+            /// <summary>
+            /// List of scenarios user is subscribed to, or null if there was an error
+            /// during operation.
+            /// </summary>
+            public List<MySteamWorkshop.SubscribedItem> SubscribedScenarios;
+
+            public LoadWorkshopResult()
+            {
+                Task = Parallel.Start(() =>
+                {
+                    SubscribedScenarios = new List<MySteamWorkshop.SubscribedItem>();
+                    if (!MySteam.IsOnline)
+                        return;
+                    if (!MySteamWorkshop.GetSubscribedScenariosBlocking(SubscribedScenarios))
+                        return;
+                });
+            }
         }
         #endregion
+
+        #region steam publish
+        private MySteamWorkshop.SubscribedItem GetSubscribedItem(ulong? publishedFileId)
+        {
+            foreach (var subcribedItem in m_subscribedScenarios)
+                if (subcribedItem.PublishedFileId == publishedFileId)
+                    return subcribedItem;
+            return null;
+        }
+
+        void OnPublishButtonClick(MyGuiControlButton sender)
+        {
+            var row = m_scenarioTable.SelectedRow;
+            if (row == null)
+                return;
+
+            if (row.UserData == null)
+                return;
+
+            string fullPath = (string)(((Tuple<string, MyWorldInfo>)row.UserData).Item1);
+            MyWorldInfo worldInfo = FindSave(m_scenarioTable.SelectedRow).Item2;
+            //var mod = (MyObjectBuilder_Checkpoint.ModItem)row.UserData;
+            //var nameSB = m_selectedRow.GetCell(1).Text;
+            //var name = nameSB.ToString();
+            
+            MyStringId textQuestion, captionQuestion;
+            if (worldInfo.WorkshopId != null)
+            {
+                textQuestion = MySpaceTexts.MessageBoxTextDoYouWishToUpdateScenario;
+                captionQuestion = MySpaceTexts.MessageBoxCaptionDoYouWishToUpdateScenario;
+            }
+            else
+            {
+                textQuestion = MySpaceTexts.MessageBoxTextDoYouWishToPublishScenario;
+                captionQuestion = MySpaceTexts.MessageBoxCaptionDoYouWishToPublishScenario;
+            }
+
+            MyGuiSandbox.AddScreen(MyGuiSandbox.CreateMessageBox(
+                styleEnum: MyMessageBoxStyleEnum.Info,
+                buttonType: MyMessageBoxButtonsType.YES_NO,
+                messageText: MyTexts.Get(textQuestion),
+                messageCaption: MyTexts.Get(captionQuestion),
+                callback: delegate(MyGuiScreenMessageBox.ResultEnum val)
+                {
+                    if (val == MyGuiScreenMessageBox.ResultEnum.YES)
+                    {
+                        string[] inTags = null;
+                        var subscribedItem = GetSubscribedItem(worldInfo.WorkshopId);
+                        if (subscribedItem != null)
+                        {
+                            inTags = subscribedItem.Tags;
+
+                            if (subscribedItem.SteamIDOwner != MySteam.UserId)
+                            {
+                                MyGuiSandbox.AddScreen(MyGuiSandbox.CreateMessageBox(
+                                    messageText: MyTexts.Get(MySpaceTexts.MessageBoxTextPublishFailed_OwnerMismatchMod),//TODO rename
+                                    messageCaption: MyTexts.Get(MySpaceTexts.MessageBoxCaptionModPublishFailed)));
+                                return;
+                            }
+                        }
+
+                        /*MyGuiSandbox.AddScreen(new MyGuiScreenWorkshopTags(MySteamWorkshop.WORKSHOP_SCENARIO_TAG, MySteamWorkshop.ScenarioCategories, inTags, delegate(MyGuiScreenMessageBox.ResultEnum tagsResult, string[] outTags)
+                        {
+                            if (tagsResult == MyGuiScreenMessageBox.ResultEnum.YES)
+                            {*/
+                                MySteamWorkshop.PublishScenarioAsync(fullPath, worldInfo.SessionName, worldInfo.Description, worldInfo.WorkshopId, /*outTags,*/ SteamSDK.PublishedFileVisibility.Public, callbackOnFinished: delegate(bool success, Result result, ulong publishedFileId)//TODO public visibility!!
+                                {
+                                    if (success)
+                                    {
+                                        ulong dummy;
+                                        var checkpoint = MyLocalCache.LoadCheckpoint(fullPath, out dummy);
+                                        worldInfo.WorkshopId = publishedFileId;
+                                        checkpoint.WorkshopId = publishedFileId;
+                                        MyLocalCache.SaveCheckpoint(checkpoint, fullPath);
+
+                                        MyGuiSandbox.AddScreen(MyGuiSandbox.CreateMessageBox(
+                                            styleEnum: MyMessageBoxStyleEnum.Info,
+                                            messageText: MyTexts.Get(MySpaceTexts.MessageBoxTextScenarioPublished),
+                                            messageCaption: MyTexts.Get(MySpaceTexts.MessageBoxCaptionScenarioPublished),
+                                            callback: (a) =>
+                                            {
+                                                MySteam.API.OpenOverlayUrl(string.Format("http://steamcommunity.com/sharedfiles/filedetails/?id={0}", publishedFileId));
+                                                FillList();
+                                            }));
+                                    }
+                                    else
+                                    {
+                                        MyStringId error;
+                                        switch (result)
+                                        {
+                                            case Result.AccessDenied:
+                                                error = MySpaceTexts.MessageBoxTextPublishFailed_AccessDenied;
+                                                break;
+                                            default:
+                                                error = MySpaceTexts.MessageBoxTextScenarioPublishFailed;
+                                                break;
+                                        }
+
+                                        MyGuiSandbox.AddScreen(MyGuiSandbox.CreateMessageBox(
+                                            messageText: MyTexts.Get(error),
+                                            messageCaption: MyTexts.Get(MySpaceTexts.MessageBoxCaptionModPublishFailed)));
+                                    }
+                                });/*
+                            }
+                        }));*/
+                    }
+                }));
+        }
+
+
+        #endregion
+        private void OnBrowseWorkshopClick(MyGuiControlButton obj)
+        {
+            MyGuiSandbox.OpenUrlWithFallback(MySteamConstants.URL_BROWSE_WORKSHOP_SCENARIOS, "Steam Workshop");
+        }
+
+
 
     }
 }

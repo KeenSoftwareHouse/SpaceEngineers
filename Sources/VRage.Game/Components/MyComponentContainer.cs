@@ -1,71 +1,90 @@
-﻿using System;
+﻿using Sandbox.Common.ObjectBuilders.ComponentSystem;
+using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using VRage.ModAPI;
-using VRage.Utils;
 
 namespace VRage.Components
 {
-
-    public interface IMyComponentContainer
+    public class MyComponentContainer
     {
-    }
+        private Dictionary<Type, MyComponentBase> m_components = new Dictionary<Type, MyComponentBase>();
 
-    public class MyComponentContainer<B> : IMyComponentContainer where B : IMyComponentBase 
-    {
-        public event Action<Type, B> ComponentAdded;
-        public event Action<Type, B> ComponentRemoved;
-
-        private Dictionary<Type, B> m_components = new Dictionary<Type, B>();
-
-        public void Add<T>(B component) where T : B
+        public void Add<T>(T component) where T : MyComponentBase
         {
             {
                 Type t = typeof(T);
-                Remove<T>();
-                if (component != null)
+                Add(t, component);            
+            }
+        }
+
+        private void Add(Type type, MyComponentBase component)
+        {
+            MyComponentBase containedComponent;
+            if (m_components.TryGetValue(type, out containedComponent))
+            {
+                if (containedComponent is IMyComponentAggregate)
                 {
-                    m_components[t] = component;
+                    (containedComponent as IMyComponentAggregate).AddComponent(component);
+                    return;
+                }
+                else if (component is IMyComponentAggregate)
+                {
+                    Remove(type);
+                    (component as IMyComponentAggregate).AddComponent(containedComponent);
+                    m_components[type] = component;
                     component.SetContainer(this);
-                    component.OnAddedToContainer();
-                    var handle = ComponentAdded;
-                    if (handle != null) handle(t, component);
+                    OnComponentAdded(type, component);
+                    return;
                 }
             }
+
+            Remove(type);
+            if (component != null)
+            {
+                m_components[type] = component;
+                component.SetContainer(this);
+                OnComponentAdded(type, component);
+            }       
         }
 
-        public void Remove<T>() where T : B
+        public void Remove<T>() where T : MyComponentBase
         {
             {
                 Type t = typeof(T);
-                B c;
-                if (m_components.TryGetValue(t, out c))
-                {
-                    c.OnRemovedFromContainer();
-                    c.SetContainer(null);
-                    m_components.Remove(t);
-                    var handle = ComponentRemoved;
-                    if (handle != null) handle(t, c);
-                }
+                Remove(t);
             }
         }
 
-        public T Get<T>() where T : B
+        private void Remove(Type t)
+        {
+            MyComponentBase c;
+            if (m_components.TryGetValue(t, out c))
+            {
+                c.SetContainer(null);
+                m_components.Remove(t);
+                OnComponentRemoved(t, c);
+            }
+        }
+
+        public T Get<T>() where T : MyComponentBase
         {
             {
-                B c;
+                MyComponentBase c;
                 m_components.TryGetValue(typeof(T), out c);
                 return (T)c;
             }
         }
 
-        public bool TryGet<T>(out T component) where T : B
+        public bool TryGet<T>(out T component) where T : MyComponentBase
         {
-            B c;
+            MyComponentBase c;
             var retVal = m_components.TryGetValue(typeof(T), out c);
             component = (T)c;
             return retVal;
+        }
+
+        public bool Has<T>() where T : MyComponentBase
+        {
+            return m_components.ContainsKey(typeof(T));
         }
 
         /// <summary>
@@ -87,21 +106,20 @@ namespace VRage.Components
 		{
             if (m_components.Count > 0)
             {
-                var tmpComponentList = new List<B>();
+                var tmpComponentList = new List<MyComponentBase>();
 
                 try
                 {
                     foreach (var component in m_components)
                     {
                         tmpComponentList.Add(component.Value);
+                        component.Value.SetContainer(null);
                     }
                     m_components.Clear();
 
                     foreach (var component in tmpComponentList)
                     {
-                        component.OnRemovedFromContainer();
-                        var handle = ComponentRemoved;
-                        if (handle != null) handle(component.GetType(), component);
+                        OnComponentRemoved(component.GetType(), component);
                     }
 
                 }
@@ -126,6 +144,52 @@ namespace VRage.Components
             {
                 component.Value.OnRemovedFromScene();
             }
+        }
+
+        protected virtual void OnComponentAdded(Type t, MyComponentBase component) {}
+
+        protected virtual void OnComponentRemoved(Type t, MyComponentBase component) { }
+
+        public MyObjectBuilder_ComponentContainer Serialize()
+        {
+            var builder = new MyObjectBuilder_ComponentContainer();
+            var componentsData = new List<MyObjectBuilder_ComponentContainer.ComponentData>(m_components.Count);
+            int i = 0;
+            foreach (var component in m_components)
+            {
+                var componentBuilder = component.Value.Serialize();
+                if (componentBuilder != null)
+                {
+                    var data = new MyObjectBuilder_ComponentContainer.ComponentData();
+                    data.TypeId = component.Key.Name;
+                    data.Component = componentBuilder;
+                    componentsData.Add(data);
+                    i++;
+                }
+            }
+            if (componentsData.Count > 0)
+                builder.Components = componentsData.ToArray();
+            return builder;
+        }
+
+        public void Deserialize(MyObjectBuilder_ComponentContainer builder)
+        {
+            var componentsData = builder.Components;
+            if (componentsData != null)
+            {
+                foreach (var data in componentsData)
+                {
+                    var instance = MyComponentFactory.CreateInstance(data.Component.GetType());
+                    instance.Deserialize(data.Component);
+                    var dictType = MyComponentTypeFactory.GetType(data.TypeId);
+                    Add(dictType, instance);
+                }
+            }
+        }
+
+        public Dictionary<Type, MyComponentBase>.ValueCollection.Enumerator GetEnumerator()
+        {
+            return m_components.Values.GetEnumerator();
         }
 	}
 }

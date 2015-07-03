@@ -120,7 +120,7 @@ namespace Sandbox.Game.Entities
                         m_blocks.Add(id, cubeBlock);
                     }
                 }
-            }
+             }
 
             RefreshTemplates();
         }
@@ -196,12 +196,19 @@ namespace Sandbox.Game.Entities
 
         private void UpdateBlocksWorldMatrix(ref MatrixD parentWorldMatrix, object source = null)
         {
+            MatrixD localMatrix = MatrixD.Identity;
             foreach (var pair in m_blocks)
             {
                 if (pair.Value.FatBlock != null)
-                    pair.Value.FatBlock.PositionComp.UpdateWorldMatrix(ref parentWorldMatrix, source);
+                {
+                    GetBlockLocalMatrixFromGridPositionAndOrientation(pair.Value, ref localMatrix);
+                    MatrixD worldMatrix = localMatrix * parentWorldMatrix;
+                    pair.Value.FatBlock.PositionComp.SetWorldMatrix(worldMatrix);
+                }
                 else
+                {
                     Debug.Assert(false);
+                }
             }
         }
 
@@ -321,7 +328,10 @@ namespace Sandbox.Game.Entities
             m_blocks.Add(id, block);
 
             MatrixD parentWorldMatrix = this.Parent.WorldMatrix;
-            block.FatBlock.PositionComp.UpdateWorldMatrix(ref parentWorldMatrix, this);
+            MatrixD blockLocalMatrix = MatrixD.Identity;
+            GetBlockLocalMatrixFromGridPositionAndOrientation(block, ref blockLocalMatrix);
+            MatrixD worldMatrix = blockLocalMatrix * parentWorldMatrix;
+            block.FatBlock.PositionComp.SetWorldMatrix(worldMatrix);
 
             block.FatBlock.OnAddedToScene(this);
 
@@ -799,6 +809,15 @@ namespace Sandbox.Game.Entities
             }
 
             return foundIntersection;
+        }
+
+        private static void GetBlockLocalMatrixFromGridPositionAndOrientation(MySlimBlock block, ref MatrixD localMatrix)
+        {
+            Matrix orientation;
+            block.Orientation.GetMatrix(out orientation);
+
+            localMatrix = orientation;
+            localMatrix.Translation = block.CubeGrid.GridSize * block.Position;
         }
     }
 }

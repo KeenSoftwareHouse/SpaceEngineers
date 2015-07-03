@@ -8,6 +8,9 @@ namespace Sandbox.Common.ObjectBuilders
     [MyObjectBuilderDefinition]
     public class MyObjectBuilder_ToolbarItemWeapon : MyObjectBuilder_ToolbarItemDefinition
     {
+		[ProtoMember]
+		public bool IsDeconstructor = false;
+
         public SerializableDefinitionId defId
         {
             get { return base.DefinitionId; }

@@ -43,7 +43,7 @@ namespace Sandbox.Game.Entities.Cube
         {
             public Vector3 Normal;
             public Color Color;
-            public MyStringId EdgeModel;
+            public MyStringHash EdgeModel;
         }
 
         public readonly MyRenderComponentCubeGrid m_gridRenderComponent;
@@ -167,7 +167,7 @@ namespace Sandbox.Game.Entities.Cube
 
                 //Find opposite normals and remove them
                 Color color;
-                MyStringId edgeModel;
+                MyStringHash edgeModel;
                 Base27Directions.Direction normal0, normal1;
                 for (int i = 0; i < MyFourEdgeInfo.MaxInfoCount; i++)
                 {
@@ -180,7 +180,7 @@ namespace Sandbox.Game.Entities.Cube
 
                 int c = 0;
                 bool wasFour = m_edgesToCompare.Count == 4;
-                MyStringId baseEdgeModel = m_edgesToCompare[0].EdgeModel;
+                var baseEdgeModel = m_edgesToCompare[0].EdgeModel;
 
                 while (c < m_edgesToCompare.Count)
                 {

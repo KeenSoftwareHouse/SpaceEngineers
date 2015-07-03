@@ -84,13 +84,13 @@ namespace Sandbox.Common
             NormalInObjectSpace = MyUtils.GetNormalVectorFromTriangle(ref Triangle.InputTriangle);
             IntersectionPointInObjectSpace = line.From + line.Direction * Triangle.Distance;
 
-            if (Entity is IMyVoxelMap)
+            if (Entity is IMyVoxelBase)
             {
                 IntersectionPointInWorldSpace = (Vector3D)IntersectionPointInObjectSpace;
                 NormalInWorldSpace = NormalInObjectSpace;
 
                 //  This will move intersection point from world space into voxel map's object space
-                IntersectionPointInObjectSpace = IntersectionPointInObjectSpace - ((IMyVoxelMap)Entity).PositionLeftBottomCorner;
+                IntersectionPointInObjectSpace = IntersectionPointInObjectSpace - ((IMyVoxelBase)Entity).PositionLeftBottomCorner;
             }
             else
             {

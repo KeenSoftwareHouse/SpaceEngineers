@@ -1,4 +1,5 @@
 ﻿using Sandbox.Common.ObjectBuilders;
+using Sandbox.Definitions;
 using Sandbox.Engine.Utils;
 using Sandbox.Game.AI;
 using Sandbox.Game.AI.BehaviorTree;
@@ -12,6 +13,7 @@ using System.Collections.Generic;
 using VRage.Input;
 using VRage.Library.Utils;
 using VRage.ObjectBuilders;
+using VRage.Utils;
 using VRageMath;
 
 namespace Sandbox.Game.Gui
@@ -38,6 +40,9 @@ namespace Sandbox.Game.Gui
                 Axes.Add(val);
             }
 
+            AddShortcut(MyKeys.NumPad7, true, false, false, false, () => "Enable LMB spawning: " + ENABLE_FLORA_SPAWNING, () => { ENABLE_FLORA_SPAWNING = !ENABLE_FLORA_SPAWNING; return true; });
+            AddShortcut(MyKeys.NumPad8, true, false, false, false, () => "Select flora to spawn. Selected: " + SELECTED_FLORA, SelectNextFloraToSpawn);
+
             AddShortcut(MyKeys.NumPad0, true, false, false, false, () => "Debug draw", DebugDrawFunc);
 
             AddShortcut(MyKeys.NumPad9, true, false, false, false, OnRecording, ToggleVoiceChat);
@@ -54,8 +59,16 @@ namespace Sandbox.Game.Gui
                 AddShortcut(MyKeys.NumPad5, true, false, false, false, () => "Previous head matrix", PreviousHeadMatrix);
                 AddShortcut(MyKeys.NumPad3, true, false, false, false, OnSelectBotForDebugMsg, () => { OnSelectDebugBot = !OnSelectDebugBot; return true; });
                 AddShortcut(MyKeys.NumPad4, true, false, false, false, () => "Remove bot", () => { MyAIComponent.Static.DebugRemoveFirstBot(); return true; });
-                AddShortcut(MyKeys.NumPad7, true, false, false, false, () => { return "DEBUG ANIMALS " + (MyDebugDrawSettings.DEBUG_DRAW_ANIMALS ? "TRUE" : "FALSE"); }, () => { MyDebugDrawSettings.DEBUG_DRAW_ANIMALS = !MyDebugDrawSettings.DEBUG_DRAW_ANIMALS; return true; });
+           //     AddShortcut(MyKeys.NumPad7, true, false, false, false, () => { return "DEBUG ANIMALS " + (MyDebugDrawSettings.DEBUG_DRAW_ANIMALS ? "TRUE" : "FALSE"); }, () => { MyDebugDrawSettings.DEBUG_DRAW_ANIMALS = !MyDebugDrawSettings.DEBUG_DRAW_ANIMALS; return true; });
             }
+        }
+
+        private bool SelectNextFloraToSpawn()
+        {
+            var defs = MyDefinitionManager.Static.GetDefinitionsOfType<MyFloraElementDefinition>();
+            SELECTED_FLORA_IDX = (SELECTED_FLORA_IDX + 1) % defs.Count;
+            SELECTED_FLORA = defs.ItemAt(SELECTED_FLORA_IDX);
+            return true;
         }
 
         public override string GetName()
@@ -82,7 +95,12 @@ namespace Sandbox.Game.Gui
         private const int HeadMatrixFlag = 1 << 0 | 1 << 1 | 1 << 2 | 1 << 3;
         private int CurrentHeadMatrixFlag = 0;
 
+        public bool SPAWN_FLORA_ENTITY = false;
         public bool OnSelectDebugBot = false;
+
+        public bool ENABLE_FLORA_SPAWNING = false;
+        public MyFloraElementDefinition SELECTED_FLORA = null;
+        private int SELECTED_FLORA_IDX = 0;
 
         public override bool HandleInput()
         {
@@ -350,13 +368,13 @@ namespace Sandbox.Game.Gui
             var view = MySession.Static.CameraController.GetViewMatrix();
             var inv = Matrix.Invert(view);
 
-            //MyInventoryItem item = new MyInventoryItem(100, 
+            //MyPhysicalInventoryItem item = new MyPhysicalInventoryItem(100, 
             var oreBuilder = MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_Ore>("Stone");
 			var scrapBuilder = MyFloatingObject.ScrapBuilder;
 
             for (int i = 1; i <= 25; i++)
             {
-                var item = new MyInventoryItem((MyRandom.Instance.Next() % 200) + 1, oreBuilder);
+                var item = new MyPhysicalInventoryItem((MyRandom.Instance.Next() % 200) + 1, oreBuilder);
                 var obj = MyFloatingObjects.Spawn(item, inv.Translation + inv.Forward * i * 1.0f, inv.Forward, inv.Up);
                 obj.Physics.LinearVelocity = inv.Forward * 50;
             }
@@ -365,7 +383,7 @@ namespace Sandbox.Game.Gui
             scrapPos.X += 10;
             for (int i = 1; i <= 25; i++)
             {
-                var item = new MyInventoryItem((MyRandom.Instance.Next() % 200) + 1, scrapBuilder);
+                var item = new MyPhysicalInventoryItem((MyRandom.Instance.Next() % 200) + 1, scrapBuilder);
                 var obj = MyFloatingObjects.Spawn(item, scrapPos + inv.Forward * i * 1.0f, inv.Forward, inv.Up);
                 obj.Physics.LinearVelocity = inv.Forward * 50;
             }

@@ -95,8 +95,8 @@ namespace Sandbox.Game.Entities
 
         //Space query structure
         public int GamePruningProxyId = MyConstants.PRUNING_PROXY_ID_UNITIALIZED;
+        public int TopMostPruningProxyId = MyConstants.PRUNING_PROXY_ID_UNITIALIZED;
         public int TargetPruningProxyId = MyConstants.PRUNING_PROXY_ID_UNITIALIZED;
-        public int SensablePruningProxyId = MyConstants.PRUNING_PROXY_ID_UNITIALIZED;
 
         #endregion
 
@@ -847,7 +847,10 @@ namespace Sandbox.Game.Entities
 
             if (MyFakes.ENABLE_ASTEROID_FIELDS)
             {
-                Sandbox.Game.World.Generator.MyAsteroidCellGenerator.Static.TrackEntity(this);
+                if (Sandbox.Game.World.Generator.MyProceduralWorldGenerator.Static != null)
+                {
+                    Sandbox.Game.World.Generator.MyProceduralWorldGenerator.Static.TrackEntity(this);
+                }
             }
 
             VRageRender.MyRenderProxy.GetRenderProfiler().EndProfilingBlock();
@@ -935,6 +938,9 @@ namespace Sandbox.Game.Entities
                     this.EntityId = objectBuilder.EntityId;
                 this.Name = objectBuilder.Name;
                 this.Render.PersistentFlags = objectBuilder.PersistentFlags;
+
+                if (MyPerGameSettings.ComponentSaving && objectBuilder.ComponentContainer != null)
+                    this.Components.Deserialize(objectBuilder.ComponentContainer);
             }
 
             AllocateEntityID();
@@ -1225,6 +1231,9 @@ namespace Sandbox.Game.Entities
 
                 objBuilder.Name = this.Name;
                 objBuilder.PersistentFlags = Render.PersistentFlags;
+
+                if (MyPerGameSettings.ComponentSaving)
+                    objBuilder.ComponentContainer = Components.Serialize();
             }
             return objBuilder;
         }

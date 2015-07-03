@@ -9,7 +9,7 @@ namespace VRage.Utils
 {
     public class MyEventArgs : EventArgs
     {
-        private Dictionary<MyStringId, object> m_args = new Dictionary<MyStringId, object>();
+        private Dictionary<MyStringId, object> m_args = new Dictionary<MyStringId, object>(MyStringId.Comparer);
         public Dictionary<MyStringId, object>.KeyCollection ArgNames { get { return m_args.Keys; } }
 
         public MyEventArgs()

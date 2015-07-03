@@ -5,6 +5,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using VRage.Audio;
 using VRage.Collections;
 using VRage.Library.Utils;
 using VRage.Utils;
@@ -58,7 +59,7 @@ namespace Sandbox.Game.World
         static void emitter_StoppedPlaying(MyEntity3DSoundEmitter emitter)
         {
             emitter.Entity = null;
-            emitter.SoundId = MyStringId.NullOrEmpty;
+            emitter.SoundId = new MyCueId(MyStringHash.NullOrEmpty);
             m_singleUseEmitterPool.Enqueue(emitter);
         }
 

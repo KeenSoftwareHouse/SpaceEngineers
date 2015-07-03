@@ -2,6 +2,7 @@
 using Sandbox.Common.ObjectBuilders.Definitions;
 using VRage.Utils;
 using VRage.ObjectBuilders;
+using Sandbox.Definitions;
 
 namespace Sandbox.Common.ObjectBuilders
 {
@@ -14,12 +15,17 @@ namespace Sandbox.Common.ObjectBuilders
 
         public override bool CanStack(MyObjectBuilder_PhysicalObject a)
         {
-            return false;
+            MyObjectBuilder_BlockItem other = a as MyObjectBuilder_BlockItem;
+            if (other == null) return false;
+
+            return other.BlockDefId.TypeId == BlockDefId.TypeId && other.BlockDefId.SubtypeId == this.BlockDefId.SubtypeId && a.Flags == this.Flags;
         }
 
-        public override bool CanStack(MyObjectBuilderType typeId, MyStringId subtypeId, MyItemFlags flags)
+        public override bool CanStack(MyObjectBuilderType typeId, MyStringHash subtypeId, MyItemFlags flags)
         {
-            return false;
+            MyDefinitionId defId = new MyDefinitionId(typeId, subtypeId);
+            MyDefinitionId myId = new MyDefinitionId(BlockDefId.TypeId, BlockDefId.SubtypeId);
+            return myId == BlockDefId && flags == this.Flags;
         }
 
         public override Sandbox.Definitions.MyDefinitionId GetObjectId()

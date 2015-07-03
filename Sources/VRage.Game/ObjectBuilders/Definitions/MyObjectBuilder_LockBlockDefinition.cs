@@ -19,5 +19,11 @@ namespace Medieval.ObjectBuilders.Definitions
     {
         [ProtoMember]
         public float LockAngle;
+
+        [ProtoMember, DefaultValue(null)]
+        public string SoundLock = null;
+
+        [ProtoMember, DefaultValue(null)]
+        public string SoundUnlock = null;
     }
 }

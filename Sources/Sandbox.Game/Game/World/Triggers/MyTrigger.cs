@@ -1,4 +1,5 @@
 ﻿using Sandbox.Common.ObjectBuilders.Definitions;
+using Sandbox.Game.Entities;
 using Sandbox.Game.Entities.Character;
 using Sandbox.Game.Localization;
 using Sandbox.ModAPI;
@@ -29,7 +30,7 @@ namespace Sandbox.Game.World.Triggers
             return new MyTrigger(this);
         }
 
-        public virtual bool Update(MyCharacter me)
+        public virtual bool Update(MyEntity me)
         {
             return IsTrue;
         }
@@ -37,6 +38,7 @@ namespace Sandbox.Game.World.Triggers
         {
             return IsTrue;
         }
+        public virtual void DisplayHints(){}//call this only for triggers belonging to local computer!
 
         //save/load
         public virtual void Init(MyObjectBuilder_Trigger ob)

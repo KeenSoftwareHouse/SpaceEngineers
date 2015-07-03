@@ -7,6 +7,8 @@ using Sandbox.Engine.Physics;
 using VRageMath;
 using VRageRender;
 using Sandbox.Game.Entities;
+using Sandbox.Game.Entities.Cube;
+using Sandbox.Engine.Utils;
 
 namespace Sandbox.Game.Weapons.Guns
 {
@@ -34,6 +36,50 @@ namespace Sandbox.Game.Weapons.Guns
             Center = (m_origin + FrontPoint) * 0.5f;
         }
 
+		public static bool GetShapeCenter(HkShape shape, int shapeKey, MyCubeGrid grid, ref Vector3D shapeCenter)
+		{
+			bool shapeSet = true;
+
+			switch (shape.ShapeType)
+			{
+				case HkShapeType.List:
+					var listShape = (HkListShape)shape;
+					shape = listShape.GetChildByIndex(shapeKey);
+					break;
+				case HkShapeType.Mopp:
+					var moppShape = (HkMoppBvTreeShape)shape;
+					shape = moppShape.ShapeCollection.GetShape((uint)shapeKey, null);
+					break;
+				case HkShapeType.Box:
+					var boxShape = (HkBoxShape)shape;
+					shape = boxShape;
+					break;
+				case HkShapeType.ConvexTranslate:
+					var convexTranslateShape = (HkConvexShape)shape;
+					shape = convexTranslateShape;
+					break;
+				case HkShapeType.ConvexTransform:
+					var convexTransformShape = (HkConvexTransformShape)shape;
+					shape = convexTransformShape;
+					break;
+				default:
+					shapeSet = false;
+					break;
+			}
+
+			if (shapeSet)
+			{
+				Vector4 min4, max4;
+				shape.GetLocalAABB(0.05f, out min4, out max4);
+				Vector3 worldMin = Vector3.Transform(new Vector3(min4), grid.PositionComp.WorldMatrix);
+				Vector3 worldMax = Vector3.Transform(new Vector3(max4), grid.PositionComp.WorldMatrix);
+				var worldAABB = new BoundingBoxD(worldMin, worldMax);
+
+				shapeCenter = worldAABB.Center;
+			}
+			return shapeSet;
+		}
+
         protected override void ReadEntitiesInRange()
         {
             m_entitiesInRange.Clear();
@@ -56,21 +102,7 @@ namespace Sandbox.Game.Weapons.Guns
 					MyCubeGrid grid = rootEntity as MyCubeGrid;
                     if (grid != null)
                     {
-						var rootShape = hitInfo.Body.GetShape();
-
-						if (rootShape.ShapeType == HkShapeType.List)	// Medieval
-						{
-							var listShape = (HkListShape)hitInfo.Body.GetShape();
-							var shape = listShape.GetChildByIndex(hitInfo.GetShapeKey(0));
-							Vector4 min4, max4;
-							shape.GetLocalAABB(0.05f, out min4, out max4);
-							Vector3 worldMin = Vector3.Transform(new Vector3(min4), grid.PositionComp.WorldMatrix);
-							Vector3 worldMax = Vector3.Transform(new Vector3(max4), grid.PositionComp.WorldMatrix);
-							var worldAABB = new BoundingBox(worldMin, worldMax);
-
-							detectionPoint = worldAABB.Center;
-						}
-						else
+						if (!GetShapeCenter(hitInfo.Body.GetShape(), hitInfo.GetShapeKey(0), grid, ref detectionPoint))
 						{
 							if (grid.GridSizeEnum == Common.ObjectBuilders.MyCubeSize.Large)
 								detectionPoint += hit.HkHitInfo.Normal * -0.08f;

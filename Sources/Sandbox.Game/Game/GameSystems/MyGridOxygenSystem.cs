@@ -32,10 +32,11 @@ namespace Sandbox.Game.GameSystems
         public int Index;
 
         public bool IsPressurized;
+        public float EnvironmentOxygen;
         public double OxygenAmount;
         public int blockCount;
         public int DepressurizationTime;
-
+        public MyOxygenRoomLink Link;
         //NOTE(AF) for debugging only
         public Color Color;
         
@@ -43,6 +44,7 @@ namespace Sandbox.Game.GameSystems
         {
             IsPressurized = true;
 
+            EnvironmentOxygen = 0f;
             Index = index;
             Color = new Color(MyRandom.Instance.NextFloat(), MyRandom.Instance.NextFloat(), MyRandom.Instance.NextFloat());
         }
@@ -63,16 +65,37 @@ namespace Sandbox.Game.GameSystems
         }
     }
 
-    public struct MyOxygenBlock
+    /// <summary>
+    /// Used as a pointer so that we can change rooms fast without iterating through all of the blocks
+    /// </summary>
+    public class MyOxygenRoomLink
     {
         public MyOxygenRoom Room;
+        public MyOxygenRoomLink(MyOxygenRoom room)
+        {
+            Room = room;
+            Room.Link = this;
+        }
+    }
+
+    public struct MyOxygenBlock
+    {
+        public MyOxygenRoomLink RoomLink;
+        public MyOxygenRoom Room
+        {
+            get
+            {
+                if (RoomLink == null) return null;
+                return RoomLink.Room;
+            }
+        }
         public float PreviousOxygenAmount;
         public int OxygenChangeTime;
         
 
-        public MyOxygenBlock(MyOxygenRoom room)
+        public MyOxygenBlock(MyOxygenRoomLink roomPointer)
         {
-            Room = room;
+            RoomLink = roomPointer;
             PreviousOxygenAmount = 0;
             OxygenChangeTime = 0;
         }
@@ -84,7 +107,7 @@ namespace Sandbox.Game.GameSystems
                 return 0f;
             }
 
-            float targetOxygenAmount = (float)(Room.OxygenAmount / Room.blockCount);
+            float targetOxygenAmount = (float)(Room.IsPressurized ? (Room.OxygenAmount / Room.blockCount) : Room.EnvironmentOxygen);
 
             float deltaTime = MySandboxGame.TotalGamePlayTimeInMilliseconds - OxygenChangeTime;
             
@@ -146,6 +169,7 @@ namespace Sandbox.Game.GameSystems
         private bool m_pressurizationPending = false;
         private List<MyEntity> m_entitiesInDepressurizationRange = new List<MyEntity>();
         private Dictionary<MyEntity, MyDepressurizationForceInfo> m_forcesToApply = new Dictionary<MyEntity, MyDepressurizationForceInfo>();
+        private List<Vector3I> m_deletedBlocks = new List<Vector3I>();
 
         //Cannot use Base6Direction because it's not optimal to process neighbours in that order
         private List<Vector3I> m_neighbours = new List<Vector3I>()
@@ -182,24 +206,24 @@ namespace Sandbox.Game.GameSystems
             m_oxygenBlocks.Remove(block);
         }
 
-        void cubeGrid_OnBlockAdded(MySlimBlock obj)
+        void cubeGrid_OnBlockAdded(MySlimBlock addedBlock)
         {
-            if (obj.FatBlock is IMyDoor)
+            if (addedBlock.FatBlock is IMyDoor)
             {
-                ((IMyDoor)obj.FatBlock).DoorStateChanged += OnDoorStateChanged;
+                ((IMyDoor)addedBlock.FatBlock).DoorStateChanged += OnDoorStateChanged;
             }
 
             m_pressurizationPending = true;
         }
 
-        void cubeGrid_OnBlockRemoved(MySlimBlock obj)
+        void cubeGrid_OnBlockRemoved(MySlimBlock deletedBlock)
         {
-            if (obj.FatBlock is IMyDoor)
+            if (deletedBlock.FatBlock is IMyDoor)
             {
-                ((IMyDoor)obj.FatBlock).DoorStateChanged -= OnDoorStateChanged;
+                ((IMyDoor)deletedBlock.FatBlock).DoorStateChanged -= OnDoorStateChanged;
             }
 
-            m_pressurizationPending = true;
+            m_deletedBlocks.Add(deletedBlock.Position);
         }
 
         void OnDoorStateChanged(bool status)
@@ -389,6 +413,16 @@ namespace Sandbox.Game.GameSystems
                         PressurizePostProcess();
                     }
                 }
+                ProfilerShort.End();
+            }
+            else if (m_deletedBlocks.Count > 0)
+            {
+                ProfilerShort.Begin("Removing blocks");
+                foreach (var deletedBlock in m_deletedBlocks)
+                {
+                    RemoveBlock(deletedBlock);
+                }
+                m_deletedBlocks.Clear();
                 ProfilerShort.End();
             }
         }
@@ -726,8 +760,10 @@ namespace Sandbox.Game.GameSystems
             m_queue.Clear();
             m_queue.Add(new RoomSquare(GridMin(), 0));
             m_tempRooms = new List<MyOxygenRoom>();
-            m_cubeRoom[0, 0, 0] = new MyOxygenBlock(new MyOxygenRoom(0));
+            m_cubeRoom[0, 0, 0] = new MyOxygenBlock(new MyOxygenRoomLink(new MyOxygenRoom(0)));
             m_tempRooms.Add(m_cubeRoom[0, 0, 0].Room);
+
+            m_deletedBlocks.Clear();
 
             m_queueIndex = 0;
             isPressurizing = true;
@@ -773,7 +809,7 @@ namespace Sandbox.Game.GameSystems
                             }
 
                             prevRoomIndex = m_tempRooms.Count;
-                            m_cubeRoom[x, y, z] = new MyOxygenBlock(new MyOxygenRoom(prevRoomIndex));
+                            m_cubeRoom[x, y, z] = new MyOxygenBlock(new MyOxygenRoomLink(new MyOxygenRoom(prevRoomIndex)));
                             m_tempRooms.Add(m_cubeRoom[x, y, z].Room);
                             if (current == GridMin())
                             {
@@ -782,11 +818,11 @@ namespace Sandbox.Game.GameSystems
                             m_queue.Add(new RoomSquare(current, prevRoomIndex, !currentRoom.WasWall));
                             if (m_cubeRoom[x, y, z].Room == null)
                             {
-                                m_cubeRoom[x, y, z].Room = new MyOxygenRoom(prevRoomIndex);
+                                m_cubeRoom[x, y, z].RoomLink = new MyOxygenRoomLink(new MyOxygenRoom(prevRoomIndex));
                             }
                             else
                             {
-                                m_cubeRoom[x, y, z].Room = m_tempRooms[prevRoomIndex];
+                                m_cubeRoom[x, y, z].RoomLink = m_tempRooms[prevRoomIndex].Link;
                             }
                         }
                     }
@@ -795,19 +831,20 @@ namespace Sandbox.Game.GameSystems
                         m_queue.Add(new RoomSquare(current, prevRoomIndex, currentRoom.WasWall));
                         if (m_cubeRoom[x, y, z].Room == null)
                         {
-                            m_cubeRoom[x, y, z].Room = new MyOxygenRoom(prevRoomIndex);
+                            m_cubeRoom[x, y, z].RoomLink = new MyOxygenRoomLink(new MyOxygenRoom(prevRoomIndex));
                         }
                         else
                         {
                             if (prevRoomIndex < m_tempRooms.Count)
                             {
-                                m_cubeRoom[x, y, z].Room = m_tempRooms[prevRoomIndex];
+                                m_cubeRoom[x, y, z].RoomLink = m_tempRooms[prevRoomIndex].Link;
                             }
                         }
 
                         if (IsOnBounds(current))
                         {
                             m_cubeRoom[x, y, z].Room.IsPressurized = false;
+                            m_cubeRoom[x, y, z].Room.EnvironmentOxygen = Math.Max(m_cubeRoom[x, y, z].Room.EnvironmentOxygen, MyOxygenProviderSystem.GetOxygenInPoint(m_cubeGrid.GridIntegerToWorld(posInGrid)));
                             m_cubeRoom[x, y, z].Room.DepressurizationTime = MySandboxGame.TotalGamePlayTimeInMilliseconds;
                         }
                     }
@@ -836,11 +873,12 @@ namespace Sandbox.Game.GameSystems
                         var oldRoom = m_cubeRoom[i, j, k];
                         var newRoom = m_tempRooms[m_cubeRoom[i, j, k].Room.Index];
 
-                        m_cubeRoom[i, j, k].Room = newRoom;
+                        m_cubeRoom[i, j, k].RoomLink = newRoom.Link;
 
                         if (!oldRoom.Room.IsPressurized)
                         {
                             newRoom.IsPressurized = false;
+                            newRoom.EnvironmentOxygen = Math.Max(newRoom.EnvironmentOxygen, oldRoom.Room.EnvironmentOxygen);
                             newRoom.DepressurizationTime = MySandboxGame.TotalGamePlayTimeInMilliseconds;
                         }
 
@@ -856,7 +894,7 @@ namespace Sandbox.Game.GameSystems
                         var room = m_cubeRoom[i, j, k].Room;
                         if (room != null && room.blockCount < 2)
                         {
-                            m_cubeRoom[i, j, k].Room = null;
+                            m_cubeRoom[i, j, k].RoomLink = null;
                         }
                     }
 
@@ -898,7 +936,7 @@ namespace Sandbox.Game.GameSystems
                                 if (prevRoom.Room == null || prevRoom.Room.blockCount < 2)
                                     continue;
 
-                                double cubeOxygen = prevRoom.OxygenAmount();// prevRoom.Room.OxygenAmount / prevRoom.Room.blockCount;
+                                double cubeOxygen = prevRoom.Room.IsPressurized ? prevRoom.OxygenAmount() : prevRoom.Room.EnvironmentOxygen * GridCubeVolume();// prevRoom.Room.OxygenAmount / prevRoom.Room.blockCount;
 
                                 Vector3I pos = new Vector3I(i, j, k) + m_prevMin - GridMin();
 
@@ -913,146 +951,98 @@ namespace Sandbox.Game.GameSystems
                                 m_cubeRoom[pos.X, pos.Y, pos.Z].PreviousOxygenAmount = (float)cubeOxygen;
                                 m_cubeRoom[pos.X, pos.Y, pos.Z].OxygenChangeTime = MySandboxGame.TotalGamePlayTimeInMilliseconds;
 
-                                if (currentRoom != null && currentRoom.IsPressurized && currentRoom.blockCount > 1)
+                                if (currentRoom != null && currentRoom.blockCount > 1)
                                 {
                                     currentRoom.OxygenAmount += cubeOxygen;
                                 }
 
                                 if (currentRoom != null && currentRoom.blockCount < 2)
                                 {
-                                    m_cubeRoom[pos.X, pos.Y, pos.Z].Room = null;
+                                    m_cubeRoom[pos.X, pos.Y, pos.Z].RoomLink = null;
+                                }
+                            }
+
+                    //Do breach detection in a separate pass to ensure that oxygen levels are correct
+                    for (int i = 0; i < m_prevCubeRoom.GetLength(0); i++)
+                        for (int j = 0; j < m_prevCubeRoom.GetLength(1); j++)
+                            for (int k = 0; k < m_prevCubeRoom.GetLength(2); k++)
+                            {
+                                Vector3I pos = new Vector3I(i, j, k) + m_prevMin - GridMin();
+                                if (!IsInGridBounds(pos, m_cubeRoom))
+                                    continue;
+
+                                var prevRoom = m_prevCubeRoom[i, j, k].Room;
+                                var currentRoom = m_cubeRoom[pos.X, pos.Y, pos.Z].Room;
+                                bool breachDetected = false;
+
+                                //Do a preliminary scan to check if there is any new breach
+                                for (int l = 0; l < 6; l++)
+                                {
+                                    Vector3I currNeighbourPos = pos + m_neighbours[l];
+                                    if (!IsInGridBounds(currNeighbourPos, m_cubeRoom))
+                                        continue;
+
+                                    Vector3I prevNeighbourPos = new Vector3I(i, j, k) + m_neighbours[l];
+                                    if (!IsInGridBounds(prevNeighbourPos, m_prevCubeRoom))
+                                        continue;
+
+                                    var currNeighbourRoom = m_cubeRoom[currNeighbourPos.X, currNeighbourPos.Y, currNeighbourPos.Z].Room;
+                                    var prevNeighbourRoom = m_prevCubeRoom[prevNeighbourPos.X, prevNeighbourPos.Y, prevNeighbourPos.Z].Room;
+
+                                    if (currNeighbourRoom == currentRoom && prevNeighbourRoom != prevRoom)
+                                    {
+                                        breachDetected = true;
+                                    }
                                 }
 
-                                if ((currentRoom != null && !currentRoom.IsPressurized) && (prevRoom.Room != null && prevRoom.Room.IsPressurized))
+                                float minOxygenLevel = float.MaxValue;
+                                float maxOxygenLevel = float.MinValue;
+                                Vector3I minPos = Vector3I.Zero;
+                                if (breachDetected)
                                 {
+                                    //Scan to determine if there is actually a difference in pressure levels
                                     for (int l = 0; l < 6; l++)
                                     {
-                                        Vector3I currNeighbourPos = new Vector3I(i, j, k) + m_prevMin - GridMin() + m_neighbours[l];
-
-                                        if (currNeighbourPos.X < 0 || currNeighbourPos.X >= m_cubeRoom.GetLength(0))
-                                            continue;
-                                        if (currNeighbourPos.Y < 0 || currNeighbourPos.Y >= m_cubeRoom.GetLength(1))
-                                            continue;
-                                        if (currNeighbourPos.Z < 0 || currNeighbourPos.Z >= m_cubeRoom.GetLength(2))
+                                        Vector3I currNeighbourPos = pos + m_neighbours[l];
+                                        if (!IsInGridBounds(currNeighbourPos, m_cubeRoom))
                                             continue;
 
                                         Vector3I prevNeighbourPos = new Vector3I(i, j, k) + m_neighbours[l];
-
-                                        if (prevNeighbourPos.X < 0 || prevNeighbourPos.X >= m_prevCubeRoom.GetLength(0))
-                                            continue;
-                                        if (prevNeighbourPos.Y < 0 || prevNeighbourPos.Y >= m_prevCubeRoom.GetLength(1))
-                                            continue;
-                                        if (prevNeighbourPos.Z < 0 || prevNeighbourPos.Z >= m_prevCubeRoom.GetLength(2))
+                                        if (!IsInGridBounds(prevNeighbourPos, m_prevCubeRoom))
                                             continue;
 
-                                        var prevNeighbourRoom = m_prevCubeRoom[prevNeighbourPos.X, prevNeighbourPos.Y, prevNeighbourPos.Z];
-                                        var currNeighbourRoom = m_cubeRoom[currNeighbourPos.X, currNeighbourPos.Y, currNeighbourPos.Z];
+                                        var prevNeighbourRoom = m_prevCubeRoom[prevNeighbourPos.X, prevNeighbourPos.Y, prevNeighbourPos.Z].Room;
+                                        if (prevNeighbourRoom == null)
+                                            continue;
 
-                                        if (prevNeighbourRoom.Room != prevRoom.Room && currentRoom == currNeighbourRoom.Room)
+                                        if (IsPressurized(pos + GridMin(), currNeighbourPos + GridMin()))
+                                            continue;
+
+                                        float level = prevNeighbourRoom.IsPressurized ? prevNeighbourRoom.OxygenLevel(m_cubeGrid.GridSize) : prevNeighbourRoom.EnvironmentOxygen;
+
+                                        if (level > maxOxygenLevel)
                                         {
-                                            float oxygenLevel = prevRoom.OxygenLevel(m_cubeGrid.GridSize);
-                                            if(oxygenLevel > 0.2f && !IsPressurized(new Vector3I(i, j, k) + GridMin(), prevNeighbourPos + GridMin()))
-                                            {
-                                                Vector3D from = m_cubeGrid.GridIntegerToWorld(new Vector3I(i, j, k) + GridMin());
-                                                Vector3D to = m_cubeGrid.GridIntegerToWorld(prevNeighbourPos + GridMin());
-                                                
-                                                //Force
-                                                float MAX_DISTANCE = 5f;
-
-                                                var boundingSphere = new BoundingSphereD(to, MAX_DISTANCE);
-                                                var decompressionDirection = Vector3D.Normalize(to - from);
-                                                MyGamePruningStructure.GetAllEntitiesInSphere<MyEntity>(ref boundingSphere, m_entitiesInDepressurizationRange);
-
-                                                foreach (var entity in m_entitiesInDepressurizationRange)
-                                                {
-                                                    if (!(entity is MyCubeBlock) && !(entity is MyEntitySubpart) && entity.Physics != null)
-                                                    {
-                                                        var entityPos = entity.PositionComp.WorldMatrix.Translation;
-                                                        
-                                                        var forceDirection = (to - from) / 2f;
-                                                        var distance = (to - entityPos).Length();
-                                                        if (distance < MAX_DISTANCE)
-                                                        {
-                                                            forceDirection /= distance;
-
-                                                            if (Vector3D.Dot(decompressionDirection, forceDirection) < 0f)
-                                                            {
-                                                                forceDirection = -forceDirection;
-                                                            }
-
-                                                            float forceStrength = 500f * prevRoom.Room.OxygenLevel(m_cubeGrid.GridSize) * (1f - (float)distance / MAX_DISTANCE);
-
-                                                            MyDepressurizationForceInfo forceInfo;
-                                                            if (!m_forcesToApply.TryGetValue(entity, out forceInfo))
-                                                            {
-                                                                forceInfo = new MyDepressurizationForceInfo();
-
-                                                                forceInfo.Direction = forceDirection;
-                                                                forceInfo.Strength = forceStrength;
-                                                                forceInfo.ForceCount = 1;
-                                                            }
-                                                            else
-                                                            {
-                                                                forceInfo.Direction = (forceInfo.Direction * forceInfo.ForceCount + forceDirection) / (forceInfo.ForceCount + 1);
-                                                                forceInfo.Strength = (forceInfo.Strength * forceInfo.ForceCount + forceStrength) / (forceInfo.ForceCount + 1);
-                                                                forceInfo.ForceCount++;
-                                                            }
-
-                                                            m_forcesToApply[entity] = forceInfo;
-                                                        }
-                                                    }
-                                                }
-
-                                                m_entitiesInDepressurizationRange.Clear();
-
-                                                //Effect
-                                                MyParticleEffect m_effect;
-                                                if (MyParticlesManager.TryCreateParticleEffect(49, out m_effect))
-                                                {
-                                                    var orientation = Matrix.CreateFromDir(to - from);
-                                                    orientation.Translation = from;
-                                                    m_effect.UserScale = 3f;
-                                                    
-                                                    m_effect.WorldMatrix = orientation;
-                                                    m_effect.AutoDelete = true;
-
-                                                    m_depressurizationEffects.Add(m_effect);
-                                                }
-                                            }
+                                            maxOxygenLevel = level;
+                                        }
+                                        if (level < minOxygenLevel)
+                                        {
+                                            minOxygenLevel = level;
+                                            minPos = currNeighbourPos;
                                         }
                                     }
+                                }
+
+                                if (maxOxygenLevel - minOxygenLevel > 0.2f)
+                                {
+                                    Vector3D from = m_cubeGrid.GridIntegerToWorld(pos + GridMin());
+                                    Vector3D to = m_cubeGrid.GridIntegerToWorld(minPos + GridMin());
+
+                                    AddDepressurizationEffects(from, to);
                                 }
                             }
                 }
 
-                foreach (var force in m_forcesToApply)
-                {
-                    var entity = force.Key;
-                    var forceInfo = force.Value;
-
-                    var character = entity as Sandbox.Game.Entities.Character.MyCharacter;
-                    if (character != null)
-                    {
-                        if (character.Parent != null)
-                        {
-                            continue;
-                        }
-                        forceInfo.Strength *= 5f;
-                    }
-
-                    if (forceInfo.Strength > 1f)
-                    {
-                        if (character != null && character.IsDead == false)
-                        {
-                            character.EnableJetpack(true);
-                        }
-
-                        forceInfo.Direction.Normalize();
-                        entity.Physics.AddForce(MyPhysicsForceType.APPLY_WORLD_IMPULSE_AND_WORLD_ANGULAR_IMPULSE, forceInfo.Direction * forceInfo.Strength, entity.PositionComp.WorldMatrix.Translation, null);
-                    }
-                }
-
-                m_forcesToApply.Clear();
+                ApplyDepressurizationForces();
 
                 foreach (var room in m_rooms)
                 {
@@ -1067,6 +1057,105 @@ namespace Sandbox.Game.GameSystems
             m_prevMin = GridMin();
             isPressurizing = false;
             m_queueIndex = 0;
+        }
+
+        private void AddDepressurizationEffects(Vector3D from, Vector3D to)
+        {
+            //Force
+            float MAX_DISTANCE = 5f;
+
+            var boundingSphere = new BoundingSphereD(to, MAX_DISTANCE);
+            var decompressionDirection = Vector3D.Normalize(to - from);
+            MyGamePruningStructure.GetAllEntitiesInSphere<MyEntity>(ref boundingSphere, m_entitiesInDepressurizationRange);
+
+            foreach (var entity in m_entitiesInDepressurizationRange)
+            {
+                if (!(entity is MyCubeBlock) && !(entity is MyEntitySubpart) && entity.Physics != null)
+                {
+                    var entityPos = entity.PositionComp.WorldMatrix.Translation;
+
+                    var forceDirection = (to - from) / 2f;
+                    var distance = (to - entityPos).Length();
+                    if (distance < MAX_DISTANCE)
+                    {
+                        forceDirection /= distance;
+
+                        if (Vector3D.Dot(decompressionDirection, forceDirection) < 0f)
+                        {
+                            forceDirection = -forceDirection;
+                        }
+
+                        //float forceStrength = 500f * prevRoom.Room.OxygenLevel(m_cubeGrid.GridSize) * (1f - (float)distance / MAX_DISTANCE);
+                        float forceStrength = 500f * (1f - (float)distance / MAX_DISTANCE);
+
+                        MyDepressurizationForceInfo forceInfo;
+                        if (!m_forcesToApply.TryGetValue(entity, out forceInfo))
+                        {
+                            forceInfo = new MyDepressurizationForceInfo();
+
+                            forceInfo.Direction = forceDirection;
+                            forceInfo.Strength = forceStrength;
+                            forceInfo.ForceCount = 1;
+                        }
+                        else
+                        {
+                            forceInfo.Direction = (forceInfo.Direction * forceInfo.ForceCount + forceDirection) / (forceInfo.ForceCount + 1);
+                            forceInfo.Strength = (forceInfo.Strength * forceInfo.ForceCount + forceStrength) / (forceInfo.ForceCount + 1);
+                            forceInfo.ForceCount++;
+                        }
+
+                        m_forcesToApply[entity] = forceInfo;
+                    }
+                }
+            }
+
+            m_entitiesInDepressurizationRange.Clear();
+
+            //Effect
+            MyParticleEffect m_effect;
+            if (MyParticlesManager.TryCreateParticleEffect(49, out m_effect))
+            {
+                var orientation = Matrix.CreateFromDir(to - from);
+                orientation.Translation = from;
+                m_effect.UserScale = 3f;
+
+                m_effect.WorldMatrix = orientation;
+                m_effect.AutoDelete = true;
+
+                m_depressurizationEffects.Add(m_effect);
+            }
+        }
+
+        private void ApplyDepressurizationForces()
+        {
+            foreach (var force in m_forcesToApply)
+            {
+                var entity = force.Key;
+                var forceInfo = force.Value;
+
+                var character = entity as Sandbox.Game.Entities.Character.MyCharacter;
+                if (character != null)
+                {
+                    if (character.Parent != null)
+                    {
+                        continue;
+                    }
+                    forceInfo.Strength *= 5f;
+                }
+
+                if (forceInfo.Strength > 1f)
+                {
+                    if (character != null && character.IsDead == false)
+                    {
+                        character.EnableJetpack(true);
+                    }
+
+                    forceInfo.Direction.Normalize();
+                    entity.Physics.AddForce(MyPhysicsForceType.APPLY_WORLD_IMPULSE_AND_WORLD_ANGULAR_IMPULSE, forceInfo.Direction * forceInfo.Strength, entity.PositionComp.WorldMatrix.Translation, null);
+                }
+            }
+
+            m_forcesToApply.Clear();
         }
 
         private double GridCubeVolume()
@@ -1095,6 +1184,18 @@ namespace Sandbox.Game.GameSystems
                 return true;
 
             return false;
+        }
+
+        private bool IsInGridBounds(Vector3I pos, MyOxygenBlock[, ,] grid)
+        {
+            if (pos.X < 0 || pos.X >= grid.GetLength(0))
+                return false;
+            if (pos.Y < 0 || pos.Y >= grid.GetLength(1))
+                return false;
+            if (pos.Z < 0 || pos.Z >= grid.GetLength(2))
+                return false;
+
+            return true;
         }
 
         private Vector3I GridMin()
@@ -1223,6 +1324,117 @@ namespace Sandbox.Game.GameSystems
             return false;
         }
 
+        private void RemoveBlock(Vector3I deletedBlockPosition)
+        {
+            Vector3I current = deletedBlockPosition;
+            MyOxygenRoom maxRoom = GetOxygenRoomForCubeGridPosition(current);
+            for (int i = 0; i < 6; i++)
+            {
+                Vector3I neighbour = current + m_neighbours[i];
+
+                if (!IsInBounds(current))
+                {
+                    Debug.Fail("Should always be in bounds");
+                    continue;
+                }
+
+                if (IsPressurized(current, neighbour))
+                {
+                    continue;
+                }
+
+                var neighbourRoom = GetOxygenRoomForCubeGridPosition(neighbour);
+                if (neighbourRoom != null)
+                {
+                    if (maxRoom == null)
+                    {
+                        maxRoom = neighbourRoom;
+                    }
+                    else if (maxRoom.blockCount < neighbourRoom.blockCount)
+                    {
+                        maxRoom = neighbourRoom;
+                    }
+                }
+            }
+
+            if (maxRoom == null)
+            {
+                return;
+            }
+
+            for (int i = 0; i < 6; i++)
+            {
+                Vector3I neighbour = current + m_neighbours[i];
+
+                if (!IsInBounds(current))
+                {
+                    Debug.Fail("Should always be in bounds");
+                    continue;
+                }
+
+                var neighbourRoom = GetOxygenRoomForCubeGridPosition(neighbour);
+                if (neighbourRoom != null && neighbourRoom != maxRoom)
+                {
+                    maxRoom.blockCount += neighbourRoom.blockCount;
+                    maxRoom.OxygenAmount += neighbourRoom.OxygenAmount;
+
+
+                    if (maxRoom.IsPressurized && !neighbourRoom.IsPressurized)
+                    {
+                        if (maxRoom.OxygenLevel(m_cubeGrid.GridSize) - neighbourRoom.EnvironmentOxygen > 0.2f)
+                        {
+                            Vector3D from = m_cubeGrid.GridIntegerToWorld(current);
+                            Vector3D to = m_cubeGrid.GridIntegerToWorld(neighbour);
+
+                            AddDepressurizationEffects(from, to);
+                        }
+
+                        maxRoom.IsPressurized = false;
+                        maxRoom.OxygenAmount = 0f;
+                        maxRoom.EnvironmentOxygen = Math.Max(maxRoom.EnvironmentOxygen, neighbourRoom.EnvironmentOxygen);
+                        maxRoom.DepressurizationTime = MySandboxGame.TotalGamePlayTimeInMilliseconds;
+                    }
+                    else if (!maxRoom.IsPressurized && neighbourRoom.IsPressurized)
+                    {
+                        maxRoom.EnvironmentOxygen = Math.Max(maxRoom.EnvironmentOxygen, neighbourRoom.EnvironmentOxygen);
+                        if (neighbourRoom.OxygenLevel(m_cubeGrid.GridSize) - maxRoom.EnvironmentOxygen > 0.2f)
+                        {
+                            Vector3D from = m_cubeGrid.GridIntegerToWorld(neighbour);
+                            Vector3D to = m_cubeGrid.GridIntegerToWorld(current);
+
+                            AddDepressurizationEffects(from, to);
+                        }
+                    }
+
+                    neighbourRoom.Link.Room = maxRoom;
+                }
+            }
+
+            Vector3I blockPosition = current - GridMin();
+            m_cubeRoom[blockPosition.X, blockPosition.Y, blockPosition.Z].RoomLink = maxRoom.Link;
+            maxRoom.blockCount++;
+        }
+
+        private MyOxygenRoom GetOxygenRoomForCubeGridPosition(Vector3I gridPosition)
+        {
+            var grid = m_cubeRoom;
+            if (grid == null)
+            {
+                grid = m_prevCubeRoom;
+            }
+            if (grid == null)
+            {
+                return null;
+            }
+
+            Vector3I blockPosition = gridPosition - GridMin();
+            if (m_cubeRoom == null)
+            {
+                return null;
+            }
+            var oxygenBlock = grid[blockPosition.X, blockPosition.Y, blockPosition.Z];
+            return oxygenBlock.Room;
+        }
         #endregion
 
         public MyOxygenBlock GetOxygenBlock(Vector3D worldPosition)

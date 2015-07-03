@@ -13,25 +13,27 @@ namespace Sandbox.Common.ObjectBuilders.Definitions
     [MyObjectBuilderDefinition]
     public class MyObjectBuilder_ConsumableItemDefinition : MyObjectBuilder_PhysicalItemDefinition
     {
-        [ProtoMember, DefaultValue(0)]
-        public float Food = 0;
+        [ProtoContract]
+        public class StatValue
+        {
+            [ProtoMember]
+            [XmlAttribute]
+            public string Name;
 
-        [ProtoMember, DefaultValue(0)]
-        public float Stamina = 0;
+            [ProtoMember]
+            [XmlAttribute]
+            public float Value;
 
-        [ProtoMember, DefaultValue(0)]
-        public float Health = 0;
+            [ProtoMember]
+            [XmlAttribute]
+            public float Time; // s
+        }
 
-        [ProtoMember, DefaultValue(0)]
-        public float StaminaRegen = 0;
+        [XmlArrayItem("Stat")]
+        [ProtoMember]
+        public StatValue[] Stats;
 
-        [ProtoMember, DefaultValue(0)]
-        public float StaminaRegenTime = 0;
-
-        [ProtoMember, DefaultValue(0)]
-        public float HealthRegen = 0;
-
-        [ProtoMember, DefaultValue(0)]
-        public float HealthRegenTime = 0;
+        [ProtoMember]
+        public string EatingSound;
     }
 }

@@ -212,6 +212,7 @@ namespace VRageRender
         internal static bool FxaaEnabled { get { return RenderSettings.AntialiasingMode == MyAntialiasingMode.FXAA; } }
 
         internal static bool CommandsListsSupported { get; set; }
+        internal static bool IsIntelBrokenCubemapsWorkaround { get; set; }
 
         internal static bool DeferredContextsEnabled { get { return !MyRender11.Settings.ForceImmediateContext && CommandsListsSupported; } }
         internal static bool MultithreadedRenderingEnabled { get { return DeferredContextsEnabled && MyRender11.Settings.EnableParallelRendering && MyRender11.RenderSettings.MultithreadingEnabled; } }
@@ -252,6 +253,7 @@ namespace VRageRender
                 {
                     if (m_screenshot.Value.SizeMult == VRageMath.Vector2.One)
                     {
+                        MyCopyToRT.ClearAlpha(Backbuffer);
                         SaveScreenshotFromResource(Backbuffer.m_resource);
                     }
                     else
@@ -344,6 +346,27 @@ namespace VRageRender
             return !m_settings.Equals(ref settings);
         }
 
+        internal static void FixModeDescriptionForFullscreen(ref ModeDescription md)
+        {
+            var list = m_adapterModes.Get(m_settings.AdapterOrdinal);
+            if (list != null)
+            {
+                for (int i = 0; i < list.Length; i++)
+                {
+                    if (
+                        list[i].Height == m_settings.BackBufferHeight &&
+                        list[i].Width == m_settings.BackBufferWidth &&
+                        list[i].RefreshRate.Numerator == m_settings.RefreshRate)
+                    {
+                        md.Scaling = list[i].Scaling;
+                        md.ScanlineOrdering = list[i].ScanlineOrdering;
+                        md.RefreshRate = list[i].RefreshRate;
+                        break;
+                    }
+                }
+            }
+        }
+
         internal static void RestoreFullscreenMode()
         {
             if (!m_changeToFullscreen.HasValue)
@@ -359,23 +382,7 @@ namespace VRageRender
                     md.RefreshRate.Numerator = m_settings.RefreshRate;
                     md.RefreshRate.Denominator = 1000;
 
-                    var list = m_adapterModes[m_settings.AdapterOrdinal];
-                    if (list != null)
-                    {
-                        for (int i = 0; i < list.Length; i++)
-                        {
-                            if (
-                                list[i].Height == m_settings.BackBufferHeight &&
-                                list[i].Width == m_settings.BackBufferWidth &&
-                                list[i].RefreshRate.Numerator == m_settings.RefreshRate)
-                            {
-                                md.Scaling = list[i].Scaling;
-                                md.ScanlineOrdering = list[i].ScanlineOrdering;
-                                md.RefreshRate = list[i].RefreshRate;
-                                break;
-                            }
-                        }
-                    }
+                    FixModeDescriptionForFullscreen(ref md);
 
                     m_changeToFullscreen = md;
                 }
@@ -396,7 +403,7 @@ namespace VRageRender
                     var outputId = m_adapterInfoList[m_settings.AdapterOrdinal].OutputId;
 
                     m_swapchain.ResizeTarget(ref md);
-                    m_swapchain.SetFullscreenState(true, GetFactory().Adapters[adapterDevId].Outputs[outputId]);
+                    m_swapchain.SetFullscreenState(true, GetFactory().Adapters[adapterDevId].Outputs.Length > outputId ? GetFactory().Adapters[adapterDevId].Outputs[outputId] : null);
 
                     md.RefreshRate.Numerator = 0;
                     md.RefreshRate.Denominator = 0;
@@ -408,7 +415,10 @@ namespace VRageRender
                 }
                 catch(SharpDX.SharpDXException e)
                 {
-                    // there might be some fatal exception, or minor exception saying that windows is overlapped/has no mouse focus and going to fullscreen should be done later
+                    if(e.ResultCode == SharpDX.DXGI.ResultCode.Unsupported) 
+                        m_changeToFullscreen = null;
+
+                    MyRender11.Log.WriteLine("TryChangeToFullscreen failed with " + e.ResultCode);
                 }
             }
         }
@@ -464,6 +474,7 @@ namespace VRageRender
             LogSettings(ref settings);
 
             CommandsListsSupported = m_adapterInfoList[m_settings.AdapterOrdinal].MultithreadedRenderingSupported;
+            IsIntelBrokenCubemapsWorkaround = m_adapterInfoList[m_settings.AdapterOrdinal].Priority == 1; // 1 is intel
 
             bool deviceRemoved = false;
 
@@ -490,26 +501,10 @@ namespace VRageRender
                 md.Width = settings.BackBufferWidth;
                 md.Scaling = DisplayModeScaling.Unspecified;
                 md.ScanlineOrdering = DisplayModeScanlineOrder.Progressive;
-                md.RefreshRate.Numerator = settings.RefreshRate;
+                md.RefreshRate.Numerator = 60000;
                 md.RefreshRate.Denominator = 1000;
 
-                var list = m_adapterModes.Get(m_settings.AdapterOrdinal);
-                if (list != null)
-                {
-                    for (int i = 0; i < list.Length; i++)
-                    {
-                        if (
-                            list[i].Height == settings.BackBufferHeight &&
-                            list[i].Width == settings.BackBufferWidth &&
-                            list[i].RefreshRate.Numerator == settings.RefreshRate)
-                        {
-                            md.Scaling = list[i].Scaling;
-                            md.ScanlineOrdering = list[i].ScanlineOrdering;
-                            md.RefreshRate = list[i].RefreshRate;
-                            break;
-                        }
-                    }
-                }
+                FixModeDescriptionForFullscreen(ref md);
 
                 // to fullscreen
                 if (settings.WindowMode == MyWindowModeEnum.Fullscreen)

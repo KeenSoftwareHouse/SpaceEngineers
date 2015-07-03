@@ -52,6 +52,7 @@ namespace Sandbox.Game.Weapons
         public float MuzzleFlashLength { get { return  m_muzzleFlashLength;}}
         float m_muzzleFlashRadius;
         public float MuzzleFlashRadius{ get { return m_muzzleFlashRadius; } }
+		public bool IsDeconstructor { get { return false; } }
 
         //  When gun fires too much, we start generating smokes at the muzzle
         int m_smokeLastTime;
@@ -164,7 +165,7 @@ namespace Sandbox.Game.Weapons
             UpdateIsWorking();
         }
 
-        void AmmoInventory_ContentsChanged(MyInventory obj)
+        void AmmoInventory_ContentsChanged(MyInventoryBase obj)
         {
             m_gunBase.RefreshAmmunitionAmount();
         }
@@ -481,7 +482,7 @@ namespace Sandbox.Game.Weapons
             if (status == MyGunStatusEnum.OK || status == MyGunStatusEnum.Cooldown)
             {
                 var from = PositionComp.GetPosition() + PositionComp.WorldMatrix.Forward;
-                var to = PositionComp.GetPosition() + 1000 * PositionComp.WorldMatrix.Forward;
+                var to = PositionComp.GetPosition() + 50 * PositionComp.WorldMatrix.Forward;
 
                 Vector3D target = Vector3D.Zero;
                 if (MyHudCrosshair.GetTarget(from, to, ref target))

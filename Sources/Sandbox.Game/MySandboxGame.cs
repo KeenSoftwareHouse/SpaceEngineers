@@ -2,8 +2,8 @@
 
 using Havok;
 using ParallelTasks;
-using Sandbox.Common.Components;
 using Sandbox.Common;
+using Sandbox.Common.Components;
 using Sandbox.Common.ObjectBuilders;
 using Sandbox.Definitions;
 using Sandbox.Engine.Multiplayer;
@@ -40,7 +40,6 @@ using VRage;
 using VRage.Audio;
 using VRage.Collections;
 using VRage.Compiler;
-using VRage.Components;
 using VRage.FileSystem;
 using VRage.Input;
 using VRage.ModAPI;
@@ -150,6 +149,7 @@ namespace Sandbox
         }
 
         public event EventHandler OnGameLoaded;
+        public event EventHandler OnScreenshotTaken;
 
         #endregion
 
@@ -393,7 +393,7 @@ namespace Sandbox
                 MyGuiGameControlsHelpers.Add(MyControlsSpace.MISSION_SETTINGS, new MyGuiDescriptor(MySpaceTexts.ControlName_MissionSettings));
             MyGuiGameControlsHelpers.Add(MyControlsSpace.STATION_ROTATION, new MyGuiDescriptor(MySpaceTexts.StationRotation_Static, MySpaceTexts.StationRotation_Static_Desc));
 
-            Dictionary<MyStringId, MyControl> defaultGameControls = new Dictionary<MyStringId, MyControl>();
+            Dictionary<MyStringId, MyControl> defaultGameControls = new Dictionary<MyStringId, MyControl>(MyStringId.Comparer);
             AddDefaultGameControl(defaultGameControls, MyGuiControlTypeEnum.Navigation, MyControlsSpace.FORWARD, null, MyKeys.W);
             AddDefaultGameControl(defaultGameControls, MyGuiControlTypeEnum.Navigation, MyControlsSpace.BACKWARD, null, MyKeys.S);
             AddDefaultGameControl(defaultGameControls, MyGuiControlTypeEnum.Navigation, MyControlsSpace.STRAFE_LEFT, null, MyKeys.A);
@@ -497,6 +497,9 @@ namespace Sandbox
                 blueprintCategories: new MySteamWorkshop.Category[]
                 {
                     new MySteamWorkshop.Category { Id = "exploration", LocalizableName = MySpaceTexts.WorkshopTag_Exploration, },
+                },
+                scenarioCategories: new MySteamWorkshop.Category[]
+                {
                 });
         }
 
@@ -516,6 +519,7 @@ namespace Sandbox
         {
             MyPlugins.RegisterGameAssemblyFile(MyPerGameSettings.GameModAssembly);
             MyPlugins.RegisterSandboxAssemblyFile(MyPerGameSettings.SandboxAssembly);
+            MyPlugins.RegisterSandboxGameAssemblyFile(MyPerGameSettings.SandboxGameAssembly);
             MyPlugins.RegisterFromArgs(args);
             MyPlugins.Load();
 
@@ -778,7 +782,7 @@ namespace Sandbox
             {
                 form.Icon = new System.Drawing.Icon(Path.Combine(MyFileSystem.ExePath, MyPerGameSettings.GameIcon));
             }
-            catch (System.IO.FileNotFoundException e)
+            catch (System.IO.FileNotFoundException)
             {
                 form.Icon = null;
             }
@@ -1104,10 +1108,13 @@ namespace Sandbox
             IlChecker.AllowNamespaceOfTypeModAPI(typeof(VRage.Components.IMyComponentBase));
             IlChecker.AllowNamespaceOfTypeModAPI(typeof(Sandbox.Common.MySessionComponentBase));
 
-            
             IlChecker.AllowNamespaceOfTypeCommon(typeof(MyObjectBuilder_Base));
             IlChecker.AllowNamespaceOfTypeCommon(typeof(Sandbox.Common.ObjectBuilders.MyObjectBuilder_AirVent));
             IlChecker.AllowNamespaceOfTypeModAPI(typeof(Sandbox.Common.ObjectBuilders.Voxels.MyObjectBuilder_VoxelMap));
+            IlChecker.AllowNamespaceOfTypeModAPI(typeof(MyStatLogic));
+            IlChecker.AllowNamespaceOfTypeModAPI(typeof(VRage.Game.ObjectBuilders.MyObjectBuilder_EntityStatRegenEffect));
+            IlChecker.AllowNamespaceOfTypeModAPI(typeof(Sandbox.Game.Entities.MyEntityStat));
+
             IlChecker.AllowNamespaceOfTypeModAPI(typeof(SerializableDefinitionId));
             IlChecker.AllowNamespaceOfTypeModAPI(typeof(SerializableVector3));
 
@@ -1153,10 +1160,11 @@ namespace Sandbox
         void Matchmaking_LobbyJoinRequest(Lobby lobby, ulong invitedBy)
         {
             // Test whether player is not already in that lobby
-            if (MySession.Static != null && MyMultiplayer.Static != null && MyMultiplayer.Static.LobbyId == lobby.LobbyId)
+            if (!lobby.IsValid || (MySession.Static != null && MyMultiplayer.Static != null && MyMultiplayer.Static.LobbyId == lobby.LobbyId))
                 return;
 
             MyGuiScreenMainMenu.UnloadAndExitToMenu();
+
             MyJoinGameHelper.JoinGame(lobby);
         }
 
@@ -1619,6 +1627,11 @@ namespace Sandbox
                                 if (rMessage.Success)
                                     screenshotNotification.SetTextFormatArguments(System.IO.Path.GetFileName(rMessage.Filename));
                                 MyHud.Notifications.Add(screenshotNotification);
+                            }
+
+                            if (MySandboxGame.Static != null && MySandboxGame.Static.OnScreenshotTaken != null)
+                            {
+                                MySandboxGame.Static.OnScreenshotTaken(MySandboxGame.Static, null);
                             }
                             break;
                         }

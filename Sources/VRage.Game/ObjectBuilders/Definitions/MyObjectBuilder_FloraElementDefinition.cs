@@ -9,6 +9,12 @@ using VRage.ObjectBuilders;
 
 namespace Sandbox.Common.ObjectBuilders.Definitions
 {
+    public enum MyAreaTransformType
+    {
+        ENRICHING,
+        EXPANDING,
+    }
+
     [ProtoContract]
     [MyObjectBuilderDefinition]
     public class MyObjectBuilder_FloraElementDefinition : MyObjectBuilder_DefinitionBase
@@ -51,11 +57,17 @@ namespace Sandbox.Common.ObjectBuilders.Definitions
         [XmlArrayItem("Item")]
         public EnvItem[] EnvironmentItems = null;
 
+        [ProtoMember]
+        public float SpawnProbability = 1;
+
+        [ProtoMember]
+        public MyAreaTransformType AreaTransformType = MyAreaTransformType.ENRICHING;
+
         [ProtoMember, DefaultValue(false)]
         public bool Regrowable = false;
 
-        [ProtoMember, DefaultValue(-1)]
-        public float RegrowTime = -1;
+        [ProtoMember, DefaultValue(0)]
+        public float GrowTime = 0;
 
         [ProtoMember, DefaultValue(null)]
         [XmlArrayItem("Step")]
@@ -65,7 +77,7 @@ namespace Sandbox.Common.ObjectBuilders.Definitions
         public int PostGatherStep = 0;
 
         [ProtoMember]
-        public int GatherableStep = 0;
+        public int GatherableStep = -1;
 
         [ProtoMember, DefaultValue(null)]
         public GatheredItemDef GatheredItem = null;
