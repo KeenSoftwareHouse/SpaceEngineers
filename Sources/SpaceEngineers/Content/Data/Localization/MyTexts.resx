@@ -2796,13 +2796,13 @@ Extreme: 16 large asteroids, 80 small asteroids, 64-bit only</value>
     <value>x3</value>
   </data>
   <data name="ToolTipWorldSettings_Assembler_x1" xml:space="preserve">
-    <value>Default assembler speed and efficiency</value>
+    <value>Default assembler speed</value>
   </data>
   <data name="ToolTipWorldSettings_Assembler_x10" xml:space="preserve">
-    <value>Assembler requires 10x less materials and is 10x faster</value>
+    <value>Assembler is 10x faster</value>
   </data>
   <data name="ToolTipWorldSettings_Assembler_x3" xml:space="preserve">
-    <value>Assembler requires 3x less materials and is 3x faster</value>
+    <value>Assembler is 3x faster</value>
   </data>
   <data name="ToolTipWorldSettings_Inventory_x1" xml:space="preserve">
     <value>Default inventory capacity</value>
@@ -6763,5 +6763,17 @@ If there is no chance of accessing a medical room, the game is over and you can 
   </data>
   <data name="DisplayName_Scenario_Planet" xml:space="preserve">
     <value>Habitable planet</value>
+  </data>
+  <data name="ToolTipWorldSettings_AssemblerEfficiency_x1" xml:space="preserve">
+    <value>Default assembler efficiency</value>
+  </data>
+  <data name="ToolTipWorldSettings_AssemblerEfficiency_x10" xml:space="preserve">
+    <value>Assembler requires 10x less materials</value>
+  </data>
+  <data name="ToolTipWorldSettings_AssemblerEfficiency_x3" xml:space="preserve">
+    <value>Assembler requires 3x less materials</value>
+  </data>
+  <data name="WorldSettings_AssemblerSpeed" xml:space="preserve">
+    <value>Assembler speed</value>
   </data>
 </root>

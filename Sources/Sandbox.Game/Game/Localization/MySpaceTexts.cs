@@ -4380,17 +4380,17 @@ namespace Sandbox.Game.Localization
         public static readonly MyStringId WorldSettings_Realistic_x3 = MyStringId.GetOrCompute("WorldSettings_Realistic_x3");
 
         ///<summary>
-        ///Default assembler speed and efficiency
+        ///Default assembler speed
         ///</summary>
         public static readonly MyStringId ToolTipWorldSettings_Assembler_x1 = MyStringId.GetOrCompute("ToolTipWorldSettings_Assembler_x1");
 
         ///<summary>
-        ///Assembler requires 10x less materials and is 10x faster
+        ///Assembler is 10x faster
         ///</summary>
         public static readonly MyStringId ToolTipWorldSettings_Assembler_x10 = MyStringId.GetOrCompute("ToolTipWorldSettings_Assembler_x10");
 
         ///<summary>
-        ///Assembler requires 3x less materials and is 3x faster
+        ///Assembler is 3x faster
         ///</summary>
         public static readonly MyStringId ToolTipWorldSettings_Assembler_x3 = MyStringId.GetOrCompute("ToolTipWorldSettings_Assembler_x3");
 
@@ -10933,5 +10933,25 @@ namespace Sandbox.Game.Localization
         ///Habitable planet
         ///</summary>
         public static readonly MyStringId DisplayName_Scenario_Planet = MyStringId.GetOrCompute("DisplayName_Scenario_Planet");
+
+        ///<summary>
+        ///Default assembler efficiency
+        ///</summary>
+        public static readonly MyStringId ToolTipWorldSettings_AssemblerEfficiency_x1 = MyStringId.GetOrCompute("ToolTipWorldSettings_AssemblerEfficiency_x1");
+
+        ///<summary>
+        ///Assembler requires 10x less materials
+        ///</summary>
+        public static readonly MyStringId ToolTipWorldSettings_AssemblerEfficiency_x10 = MyStringId.GetOrCompute("ToolTipWorldSettings_AssemblerEfficiency_x10");
+
+        ///<summary>
+        ///Assembler requires 3x less materials
+        ///</summary>
+        public static readonly MyStringId ToolTipWorldSettings_AssemblerEfficiency_x3 = MyStringId.GetOrCompute("ToolTipWorldSettings_AssemblerEfficiency_x3");
+
+        ///<summary>
+        ///Assembler speed
+        ///</summary>
+        public static readonly MyStringId WorldSettings_AssemblerSpeed = MyStringId.GetOrCompute("WorldSettings_AssemblerSpeed");
     }
 }
