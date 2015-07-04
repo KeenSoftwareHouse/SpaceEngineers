@@ -140,7 +140,7 @@ namespace Sandbox.Game.Entities.Cube
         {
             if (InConstraint && Connected)
                 sb.AppendStringBuilder(MyTexts.Get(MySpaceTexts.BlockPropertyValue_Locked));
-            else if (InConstraint)
+            else if (InConstraint && IsWorking)
                 sb.AppendStringBuilder(MyTexts.Get(MySpaceTexts.BlockPropertyValue_ReadyToLock));
             else
                 sb.AppendStringBuilder(MyTexts.Get(MySpaceTexts.BlockPropertyValue_Unlocked));
@@ -159,7 +159,7 @@ namespace Sandbox.Game.Entities.Cube
 
         public void TryConnect()
         {
-            if (InConstraint && !Connected)
+            if (InConstraint && !Connected && IsWorking)
             {
                 if (Sync.IsServer)
                     Connect();
