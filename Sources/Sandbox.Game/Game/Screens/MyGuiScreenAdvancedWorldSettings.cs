@@ -62,6 +62,7 @@ namespace Sandbox.Game.Gui
 
         MyGuiControlButton m_okButton, m_cancelButton, m_survivalModeButton, m_creativeModeButton, m_inventory_x1, m_inventory_x3, m_inventory_x10;
         MyGuiControlButton m_assembler_x1, m_assembler_x3, m_assembler_x10,
+                           m_assemblerEfficiency_x1, m_assemblerEfficiency_x3, m_assemblerEfficiency_x10,
                            m_refinery_x1, m_refinery_x3, m_refinery_x10,
                            m_welder_half, m_welder_x1, m_welder_x2, m_welder_x5,
                            m_grinder_half, m_grinder_x1, m_grinder_x2, m_grinder_x5;
@@ -170,6 +171,7 @@ namespace Sandbox.Game.Gui
             var showPlayerNamesOnHudLabel = MakeLabel(MySpaceTexts.WorldSettings_ShowPlayerNamesOnHud);
             var inventorySizeLabel = MakeLabel(MySpaceTexts.WorldSettings_InventorySize);
             var refineryEfficiencyLabel = MakeLabel(MySpaceTexts.WorldSettings_RefinerySpeed);
+            var assemblerSpeedLabel = MakeLabel(MySpaceTexts.WorldSettings_AssemblerSpeed);
             var assemblerEfficiencyLabel = MakeLabel(MySpaceTexts.WorldSettings_AssemblerEfficiency);
             var trashRemovalLabel = MakeLabel(MySpaceTexts.WorldSettings_RemoveTrash);
             var oxygenLabel = MakeLabel(MySpaceTexts.World_Settings_EnableOxygen);
@@ -289,15 +291,25 @@ namespace Sandbox.Game.Gui
             m_inventory_x3.SetToolTip(MySpaceTexts.ToolTipWorldSettings_Inventory_x3);
             m_inventory_x10.SetToolTip(MySpaceTexts.ToolTipWorldSettings_Inventory_x10);
 
-            m_assembler_x1 = new MyGuiControlButton(visualStyle: MyGuiControlButtonStyleEnum.Small, highlightType: MyGuiControlHighlightType.WHEN_ACTIVE, text: MyTexts.Get(MySpaceTexts.WorldSettings_Realistic), onButtonClick: OnAssemblerClick, originAlign: MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_CENTER);
-            m_assembler_x3 = new MyGuiControlButton(visualStyle: MyGuiControlButtonStyleEnum.Tiny, highlightType: MyGuiControlHighlightType.WHEN_ACTIVE, text: MyTexts.Get(MySpaceTexts.WorldSettings_Realistic_x3), onButtonClick: OnAssemblerClick, originAlign: MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_CENTER);
-            m_assembler_x10 = new MyGuiControlButton(visualStyle: MyGuiControlButtonStyleEnum.Tiny, highlightType: MyGuiControlHighlightType.WHEN_ACTIVE, text: MyTexts.Get(MySpaceTexts.WorldSettings_Realistic_x10), onButtonClick: OnAssemblerClick, originAlign: MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_CENTER);
+            m_assembler_x1 = new MyGuiControlButton(visualStyle: MyGuiControlButtonStyleEnum.Small, highlightType: MyGuiControlHighlightType.WHEN_ACTIVE, text: MyTexts.Get(MySpaceTexts.WorldSettings_Realistic), onButtonClick: OnAssemblerSpeedClick, originAlign: MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_CENTER);
+            m_assembler_x3 = new MyGuiControlButton(visualStyle: MyGuiControlButtonStyleEnum.Tiny, highlightType: MyGuiControlHighlightType.WHEN_ACTIVE, text: MyTexts.Get(MySpaceTexts.WorldSettings_Realistic_x3), onButtonClick: OnAssemblerSpeedClick, originAlign: MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_CENTER);
+            m_assembler_x10 = new MyGuiControlButton(visualStyle: MyGuiControlButtonStyleEnum.Tiny, highlightType: MyGuiControlHighlightType.WHEN_ACTIVE, text: MyTexts.Get(MySpaceTexts.WorldSettings_Realistic_x10), onButtonClick: OnAssemblerSpeedClick, originAlign: MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_CENTER);
             m_assembler_x1.UserData = 1.0f;
             m_assembler_x3.UserData = 3.0f;
             m_assembler_x10.UserData = 10.0f;
             m_assembler_x1.SetToolTip(MySpaceTexts.ToolTipWorldSettings_Assembler_x1);
             m_assembler_x3.SetToolTip(MySpaceTexts.ToolTipWorldSettings_Assembler_x3);
             m_assembler_x10.SetToolTip(MySpaceTexts.ToolTipWorldSettings_Assembler_x10);
+
+            m_assemblerEfficiency_x1 = new MyGuiControlButton(visualStyle: MyGuiControlButtonStyleEnum.Small, highlightType: MyGuiControlHighlightType.WHEN_ACTIVE, text: MyTexts.Get(MySpaceTexts.WorldSettings_Realistic), onButtonClick: OnAssemblerEfficiencyClick, originAlign: MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_CENTER);
+            m_assemblerEfficiency_x3 = new MyGuiControlButton(visualStyle: MyGuiControlButtonStyleEnum.Tiny, highlightType: MyGuiControlHighlightType.WHEN_ACTIVE, text: MyTexts.Get(MySpaceTexts.WorldSettings_Realistic_x3), onButtonClick: OnAssemblerEfficiencyClick, originAlign: MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_CENTER);
+            m_assemblerEfficiency_x10 = new MyGuiControlButton(visualStyle: MyGuiControlButtonStyleEnum.Tiny, highlightType: MyGuiControlHighlightType.WHEN_ACTIVE, text: MyTexts.Get(MySpaceTexts.WorldSettings_Realistic_x10), onButtonClick: OnAssemblerEfficiencyClick, originAlign: MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_CENTER);
+            m_assemblerEfficiency_x1.UserData = 1.0f;
+            m_assemblerEfficiency_x3.UserData = 3.0f;
+            m_assemblerEfficiency_x10.UserData = 10.0f;
+            m_assemblerEfficiency_x1.SetToolTip(MySpaceTexts.ToolTipWorldSettings_AssemblerEfficiency_x1);
+            m_assemblerEfficiency_x3.SetToolTip(MySpaceTexts.ToolTipWorldSettings_AssemblerEfficiency_x3);
+            m_assemblerEfficiency_x10.SetToolTip(MySpaceTexts.ToolTipWorldSettings_AssemblerEfficiency_x10);
 
             m_refinery_x1 = new MyGuiControlButton(visualStyle: MyGuiControlButtonStyleEnum.Small, highlightType: MyGuiControlHighlightType.WHEN_ACTIVE, text: MyTexts.Get(MySpaceTexts.WorldSettings_Realistic), onButtonClick: OnRefineryClick, originAlign: MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_CENTER);
             m_refinery_x3 = new MyGuiControlButton(visualStyle: MyGuiControlButtonStyleEnum.Tiny, highlightType: MyGuiControlHighlightType.WHEN_ACTIVE, text: MyTexts.Get(MySpaceTexts.WorldSettings_Realistic_x3), onButtonClick: OnRefineryClick, originAlign: MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_CENTER);
@@ -416,8 +428,11 @@ namespace Sandbox.Game.Gui
             parent.Controls.Add(inventorySizeLabel);
             parent.Controls.Add(m_inventory_x1);
 
-            parent.Controls.Add(assemblerEfficiencyLabel);
+            parent.Controls.Add(assemblerSpeedLabel);
             parent.Controls.Add(m_assembler_x1);
+
+            parent.Controls.Add(assemblerEfficiencyLabel);
+            parent.Controls.Add(m_assemblerEfficiency_x1);
 
             parent.Controls.Add(refineryEfficiencyLabel);
             parent.Controls.Add(m_refinery_x1);
@@ -683,6 +698,11 @@ namespace Sandbox.Game.Gui
             m_assembler_x3.Position = m_assembler_x1.Position + new Vector2(m_assembler_x1.Size.X + 0.017f, 0);
             m_assembler_x10.Position = m_assembler_x3.Position + new Vector2(m_assembler_x3.Size.X + 0.017f, 0);
 
+            parent.Controls.Add(m_assemblerEfficiency_x3);
+            parent.Controls.Add(m_assemblerEfficiency_x10);
+            m_assemblerEfficiency_x3.Position = m_assemblerEfficiency_x1.Position + new Vector2(m_assemblerEfficiency_x1.Size.X + 0.017f, 0);
+            m_assemblerEfficiency_x10.Position = m_assemblerEfficiency_x3.Position + new Vector2(m_assemblerEfficiency_x3.Size.X + 0.017f, 0);
+
             parent.Controls.Add(m_welder_half);
             parent.Controls.Add(m_welder_x2);
             parent.Controls.Add(m_welder_x5);
@@ -761,6 +781,7 @@ namespace Sandbox.Game.Gui
 
             m_inventory_x1.Enabled = m_inventory_x3.Enabled = m_inventory_x10.Enabled = survivalEnabled;
             m_assembler_x1.Enabled = m_assembler_x3.Enabled = m_assembler_x10.Enabled = survivalEnabled;
+            m_assemblerEfficiency_x1.Enabled = m_assemblerEfficiency_x3.Enabled = m_assemblerEfficiency_x10.Enabled = survivalEnabled;
             m_refinery_x1.Enabled = m_refinery_x3.Enabled = m_refinery_x10.Enabled = survivalEnabled;
 
             if (survivalEnabled)
@@ -799,9 +820,14 @@ namespace Sandbox.Game.Gui
             return GetMultiplier(m_refinery_x1, m_refinery_x3, m_refinery_x10);
         }
 
-        private float GetAssemblerMultiplier()
+        private float GetAssemblerSpeedMultiplier()
         {
             return GetMultiplier(m_assembler_x1, m_assembler_x3, m_assembler_x10);
+        }
+
+        private float GetAssemblerEfficiencyMultiplier()
+        {
+            return GetMultiplier(m_assemblerEfficiency_x1, m_assemblerEfficiency_x3, m_assemblerEfficiency_x10);
         }
 
         private float GetWelderMultiplier()
@@ -938,8 +964,8 @@ namespace Sandbox.Game.Gui
             output.MaxFloatingObjects = (short)m_maxFloatingObjectsSlider.Value;
             output.SunRotationIntervalMinutes = MathHelper.Clamp(MathHelper.InterpLog(m_sunRotationIntervalSlider.Value, MIN_DAY_TIME_MINUTES, MAX_DAY_TIME_MINUTES), MIN_DAY_TIME_MINUTES, MAX_DAY_TIME_MINUTES);
 
-            output.AssemblerEfficiencyMultiplier = GetAssemblerMultiplier();
-            output.AssemblerSpeedMultiplier = GetAssemblerMultiplier();
+            output.AssemblerSpeedMultiplier = GetAssemblerSpeedMultiplier();
+            output.AssemblerEfficiencyMultiplier = GetAssemblerEfficiencyMultiplier();
             output.InventorySizeMultiplier = GetInventoryMultiplier();
             output.RefinerySpeedMultiplier = GetRefineryMultiplier();
             output.WelderSpeedMultiplier = GetWelderMultiplier();
@@ -1006,6 +1032,7 @@ namespace Sandbox.Game.Gui
             m_maxFloatingObjectsSlider.Value = settings.MaxFloatingObjects;
 
             CheckButton(settings.AssemblerSpeedMultiplier, m_assembler_x1, m_assembler_x3, m_assembler_x10);
+            CheckButton(settings.AssemblerEfficiencyMultiplier, m_assemblerEfficiency_x1, m_assemblerEfficiency_x3, m_assemblerEfficiency_x10);
             CheckButton(settings.InventorySizeMultiplier, m_inventory_x1, m_inventory_x3, m_inventory_x10);
             CheckButton(settings.RefinerySpeedMultiplier, m_refinery_x1, m_refinery_x3, m_refinery_x10);
             CheckButton(settings.WelderSpeedMultiplier, m_welder_x1, m_welder_half, m_welder_x2, m_welder_x5);
@@ -1052,9 +1079,15 @@ namespace Sandbox.Game.Gui
             UpdateSurvivalState(m_survivalModeButton.Checked);
         }
 
-        private void OnAssemblerClick(object sender)
+        private void OnAssemblerSpeedClick(object sender)
         {
             CheckButton((MyGuiControlButton)sender, m_assembler_x1, m_assembler_x3, m_assembler_x10);
+            UpdateSurvivalState(m_survivalModeButton.Checked);
+        }
+
+        private void OnAssemblerEfficiencyClick(object sender)
+        {
+            CheckButton((MyGuiControlButton)sender, m_assemblerEfficiency_x1, m_assemblerEfficiency_x3, m_assemblerEfficiency_x10);
             UpdateSurvivalState(m_survivalModeButton.Checked);
         }
 
