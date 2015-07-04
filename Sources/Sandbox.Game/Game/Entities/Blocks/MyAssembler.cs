@@ -495,6 +495,8 @@ namespace Sandbox.Game.Entities.Cube
 
         private void GetItemFromOtherAssemblers(float remainingTime)
         {
+            var factor = MySession.Static.AssemblerSpeedMultiplier * (((MyAssemblerDefinition)BlockDefinition).AssemblySpeed + UpgradeValues["Productivity"]);
+
             var masterAssembler = GetMasterAssembler();
             if (masterAssembler != null)
             {
@@ -502,9 +504,13 @@ namespace Sandbox.Game.Entities.Cube
                 {
                     if (m_queue.Count == 0)
                     {
-                        foreach (var qItem in masterAssembler.m_queue)
+                        while (remainingTime > 0)
                         {
-                            InsertQueueItemRequest(m_queue.Count, qItem.Blueprint, qItem.Amount);
+                            foreach (var qItem in masterAssembler.m_queue)
+                            {
+                                remainingTime -= (float)((qItem.Blueprint.BaseProductionTimeInSeconds / factor) * qItem.Amount);
+                                InsertQueueItemRequest(m_queue.Count, qItem.Blueprint, qItem.Amount);
+                            }
                         }
                     }
                 }
@@ -513,7 +519,6 @@ namespace Sandbox.Game.Entities.Cube
                     var item = masterAssembler.TryGetQueueItem(0);
                     if (item != null && item.Value.Amount > 1)
                     {
-                        var factor = MySession.Static.AssemblerSpeedMultiplier * (((MyAssemblerDefinition)BlockDefinition).AssemblySpeed + UpgradeValues["Productivity"]);
                         var itemAmount = Math.Min((int)item.Value.Amount - 1, Convert.ToInt32(Math.Ceiling(remainingTime / (item.Value.Blueprint.BaseProductionTimeInSeconds / factor))));
                         if (itemAmount > 0)
                         {
@@ -558,10 +563,10 @@ namespace Sandbox.Game.Entities.Cube
                 }
                 else // Assembling
                 {
-                    if (IsSlave && m_queue.Count < 1 && MyFakes.ENABLE_ASSEMBLER_COOPERATION && !RepeatEnabled) 
-                    {
-                        GetItemFromOtherAssemblers(TIME_IN_ADVANCE);
-                    }
+                    //if (IsSlave && m_queue.Count < 1 && MyFakes.ENABLE_ASSEMBLER_COOPERATION && !RepeatEnabled) 
+                    //{
+                    //    GetItemFromOtherAssemblers(TIME_IN_ADVANCE);
+                    //}
                     if (InputInventory.VolumeFillFactor < 0.99f)
                     {
                         m_requiredComponents.Clear();
