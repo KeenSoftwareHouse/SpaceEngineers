@@ -2049,7 +2049,7 @@ namespace Sandbox.Game.Weapons
 
         public void RemoveAmmoPerShot()
         {
-            if (!MySession.Static.CreativeMode)
+            if (Sync.IsServer && !MySession.Static.CreativeMode)
             {
                 m_gunBase.ConsumeAmmo();
                 //if (RemainingAmmo < AmmoPerShot)
