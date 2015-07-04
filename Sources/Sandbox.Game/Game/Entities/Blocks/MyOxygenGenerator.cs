@@ -607,6 +607,11 @@ namespace Sandbox.Game.Entities.Blocks
                 }
             }
         }
+
+        IMyOxygenSharedSpace IMyOxygenProducer.GetSharedSpace()
+        {
+            return null;
+        }
         #endregion
 
         private float m_productionCapacityMultiplier = 1f;

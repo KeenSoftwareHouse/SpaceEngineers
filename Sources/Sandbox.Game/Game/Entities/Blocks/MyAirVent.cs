@@ -486,6 +486,11 @@ namespace Sandbox.Game.Entities.Blocks
             }
         }
 
+        IMyOxygenSharedSpace IMyOxygenConsumer.GetSharedSpace()
+        {
+            return GetOxygenBlock().Room;
+        }
+
         int IMyOxygenProducer.GetPriority()
         {
             return 0;
@@ -556,6 +561,10 @@ namespace Sandbox.Game.Entities.Blocks
                 Debug.Assert(MyOxygenProviderSystem.GetOxygenInPoint(WorldMatrix.Translation) > 0f);
                 m_producedSinceLastUpdate = true;
             }
+        }
+        IMyOxygenSharedSpace IMyOxygenProducer.GetSharedSpace()
+        {
+            return GetOxygenBlock().Room;
         }
         #endregion
 

@@ -204,6 +204,11 @@ namespace Sandbox.Game.Entities.Blocks
             return 1;
         }
 
+        IMyOxygenSharedSpace IMyOxygenProducer.GetSharedSpace()
+        {
+            return null;
+        }
+
         bool IMyOxygenBlock.IsWorking()
         {
             return MySession.Static.Settings.EnableOxygen && PowerReceiver.IsPowered && IsWorking && IsFunctional;

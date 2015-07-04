@@ -27,7 +27,7 @@ using VRageRender;
 
 namespace Sandbox.Game.GameSystems
 {
-    public class MyOxygenRoom
+    public class MyOxygenRoom : IMyOxygenSharedSpace
     {
         public int Index;
 
@@ -37,16 +37,19 @@ namespace Sandbox.Game.GameSystems
         public int blockCount;
         public int DepressurizationTime;
         public MyOxygenRoomLink Link;
+        public float GridSize;
+
         //NOTE(AF) for debugging only
         public Color Color;
         
-        public MyOxygenRoom(int index)
+        public MyOxygenRoom(int index, float gridSize)
         {
             IsPressurized = true;
 
             EnvironmentOxygen = 0f;
             Index = index;
             Color = new Color(MyRandom.Instance.NextFloat(), MyRandom.Instance.NextFloat(), MyRandom.Instance.NextFloat());
+            GridSize = gridSize;
         }
 
         public float OxygenLevel(float gridSize)
@@ -62,6 +65,16 @@ namespace Sandbox.Game.GameSystems
         public double MaxOxygen(float gridSize)
         {
             return blockCount * gridSize * gridSize * gridSize;
+        }
+
+        public double MaxCapacity
+        {
+            get { return MaxOxygen(GridSize); }
+        }
+
+        public double CurrentFill
+        {
+            get { return OxygenAmount; }
         }
     }
 
@@ -233,8 +246,22 @@ namespace Sandbox.Game.GameSystems
 
         private struct OxygenProductionGroup
         {
-            public SortedDictionary<int, List<IMyOxygenConsumer>> Consumers;
-            public SortedDictionary<int, List<IMyOxygenProducer>> Producers;
+            private class InfiniteSharedSpace : IMyOxygenSharedSpace
+            {
+                public double MaxCapacity
+                {
+                    get { return float.MaxValue; /* Infinite for our purposes */ }
+                }
+
+                public double CurrentFill
+                {
+                    get { return 0.5f * float.MaxValue; /* So that it is both "infinitely" half-full and half-empty */ }
+                }
+            }
+            public static readonly IMyOxygenSharedSpace NO_SHARED_SPACE_KEY = new InfiniteSharedSpace();
+
+            public SortedDictionary<int, Dictionary<IMyOxygenSharedSpace, List<IMyOxygenConsumer>>> Consumers;
+            public SortedDictionary<int, Dictionary<IMyOxygenSharedSpace, List<IMyOxygenProducer>>> Producers;
             public List<MyOxygenTank> Tanks;
             public List<MyOxygenTank> NonStockpilingTanks;
 
@@ -246,39 +273,24 @@ namespace Sandbox.Game.GameSystems
                 var producer = block as IMyOxygenProducer;
                 var tank = block as MyOxygenTank;
 
-                Producers = null;
-                Consumers = null;
-                FirstEndpoint = null;
-
-                Consumers = new SortedDictionary<int, List<IMyOxygenConsumer>>();
-                if (consumer != null)
-                {
-                    var newConsumerList = new List<IMyOxygenConsumer>();
-                    newConsumerList.Add(consumer);
-                    Consumers.Add(consumer.GetPriority(), newConsumerList);
-                    FirstEndpoint = consumer.ConveyorEndpoint;
-                }
-
-                Producers = new SortedDictionary<int, List<IMyOxygenProducer>>();
-                if (producer != null)
-                {
-                    var newProducerList = new List<IMyOxygenProducer>();
-                    newProducerList.Add(producer);
-                    Producers.Add(producer.GetPriority(), newProducerList);
-                    FirstEndpoint = producer.ConveyorEndpoint;
-                }
-
+                Consumers = new SortedDictionary<int, Dictionary<IMyOxygenSharedSpace, List<IMyOxygenConsumer>>>();
+                Producers = new SortedDictionary<int, Dictionary<IMyOxygenSharedSpace, List<IMyOxygenProducer>>>();
                 Tanks = new List<MyOxygenTank>();
                 NonStockpilingTanks = new List<MyOxygenTank>();
+                FirstEndpoint = null;
+
+                if (consumer != null)
+                    FirstEndpoint = consumer.ConveyorEndpoint;
+
+                if (producer != null)
+                    FirstEndpoint = producer.ConveyorEndpoint;
+
                 if (tank != null)
                 {
-                    Tanks.Add(tank);
-                    if (!tank.IsStockpiling)
-                    {
-                        NonStockpilingTanks.Add(tank);
-                    }
                     FirstEndpoint = tank.ConveyorEndpoint;
                 }
+
+                Add(block);
             }
 
             public void Add(IMyOxygenBlock block)
@@ -287,36 +299,44 @@ namespace Sandbox.Game.GameSystems
 
                 if (consumer != null && consumer.ConsumptionNeed(MyEngineConstants.UPDATE_STEP_SIZE_IN_SECONDS) > 0f)
                 {
-                    List<IMyOxygenConsumer> oxygenConsumerList;
                     int consumerPriority = consumer.GetPriority();
-                    if (Consumers.TryGetValue(consumerPriority, out oxygenConsumerList))
+                    Dictionary<IMyOxygenSharedSpace, List<IMyOxygenConsumer>> oxyConsPrioLvl;
+                    if (!Consumers.TryGetValue(consumerPriority, out oxyConsPrioLvl))
                     {
-                        oxygenConsumerList.Add(consumer);
+                        oxyConsPrioLvl = new Dictionary<IMyOxygenSharedSpace, List<IMyOxygenConsumer>>();
+                        Consumers.Add(consumerPriority, oxyConsPrioLvl);
                     }
-                    else
+
+                    IMyOxygenSharedSpace shared = consumer.GetSharedSpace() ?? NO_SHARED_SPACE_KEY;
+                    List<IMyOxygenConsumer> consSharedList;
+                    if(!oxyConsPrioLvl.TryGetValue(shared, out consSharedList))
                     {
-                        var newConsumerList = new List<IMyOxygenConsumer>();
-                        newConsumerList.Add(consumer);
-                        Consumers.Add(consumer.GetPriority(), newConsumerList);
+                        consSharedList = new List<IMyOxygenConsumer>();
+                        oxyConsPrioLvl.Add(shared, consSharedList);
                     }
+                    consSharedList.Add(consumer);
                 }
                 else
                 {
                     var producer = block as IMyOxygenProducer;
                     if (producer != null && producer.ProductionCapacity(MyEngineConstants.UPDATE_STEP_SIZE_IN_SECONDS) > 0f)
                     {
-                        List<IMyOxygenProducer> oxygenProducerList;
                         int producerPriority = producer.GetPriority();
-                        if (Producers.TryGetValue(producerPriority, out oxygenProducerList))
+                        Dictionary<IMyOxygenSharedSpace, List<IMyOxygenProducer>> oxyProdPrioLvl;
+                        if (!Producers.TryGetValue(producerPriority, out oxyProdPrioLvl))
                         {
-                            oxygenProducerList.Add(producer);
+                            oxyProdPrioLvl = new Dictionary<IMyOxygenSharedSpace, List<IMyOxygenProducer>>();
+                            Producers.Add(producerPriority, oxyProdPrioLvl);
                         }
-                        else
+
+                        IMyOxygenSharedSpace shared = producer.GetSharedSpace() ?? NO_SHARED_SPACE_KEY;
+                        List<IMyOxygenProducer> prodSharedList;
+                        if (!oxyProdPrioLvl.TryGetValue(shared, out prodSharedList))
                         {
-                            var newProducerList = new List<IMyOxygenProducer>();
-                            newProducerList.Add(producer);
-                            Producers.Add(producer.GetPriority(), newProducerList);
+                            prodSharedList = new List<IMyOxygenProducer>();
+                            oxyProdPrioLvl.Add(shared, prodSharedList);
                         }
+                        prodSharedList.Add(producer);
                     }
                     else
                     {
@@ -539,38 +559,110 @@ namespace Sandbox.Game.GameSystems
                 }
             }
 
+            Dictionary<IMyOxygenSharedSpace, MyTuple<float, float>> sharedConsumptions = new Dictionary<IMyOxygenSharedSpace, MyTuple<float, float>>();
+            Dictionary<IMyOxygenSharedSpace, float> sharedProductions = new Dictionary<IMyOxygenSharedSpace, float>();
+            Dictionary<IMyOxygenConsumer, float> finalConsumption = new Dictionary<IMyOxygenConsumer, float>();
             foreach (var group in groups)
             {
                 if ((group.Consumers.Count == 0 || group.Producers.Count == 0) && group.Tanks.Count == 0)
                 {
                     continue;
                 }
-                float consumption = 0f;
+
+                //Find out how much production we have
                 float production = 0f;
-
-                //TODO(AF) better way to get max priority?
-                float[] consumptionPerPriorityLevels = group.Consumers.Count == 0 ? null : new float[group.Consumers.Last().Key + 1];
-
-                foreach (var consumerList in group.Consumers.Values)
+                sharedProductions.Clear();
+                foreach(var producerPrioLvl in group.Producers)
                 {
-                    foreach (var consumer in consumerList)
+                    foreach (var sharedLists in producerPrioLvl.Value)
                     {
-                        float c = consumer.ConsumptionNeed(deltaTime);
-                        consumption += c;
-                        consumptionPerPriorityLevels[consumer.GetPriority()] += c;
+                        var shared = sharedLists.Key;
+
+                        float sharedProd = sharedProductions.GetValueOrDefault(shared, 0f);
+
+                        float p = 0;
+                        foreach (var producer in sharedLists.Value)
+                        {
+                            p += producer.ProductionCapacity(deltaTime);
+                        }
+
+                        //Don't exceed what shared space can provide
+                        p = (float)Math.Min(p, shared.CurrentFill - sharedProd);
+
+                        production += p;
+                        sharedProductions[shared] = sharedProd + p;
                     }
                 }
 
-                foreach (var producerList in group.Producers.Values)
+                //And how much we could get from tanks
+                float tankAvail = 0f;
+                foreach(var tank in group.NonStockpilingTanks)
                 {
-                    foreach (var producer in producerList)
-                    {
-                        production += producer.ProductionCapacity(deltaTime);
-                    }
+                    tankAvail += tank.Capacity * tank.FilledRatio;
                 }
 
-                if (production > consumption)
+                //And now utilize that to statisfy consumers
+                float consumption = 0f;
+                foreach (var consumerPrioLvl in group.Consumers)
                 {
+                    if (consumption >= production + tankAvail)
+                    {   //Can't do any more
+                        break;
+                    }
+
+                    //First we need to find out how much everyone wants to use for this priority level
+                    float needForPrioLvl = 0f;
+                    sharedConsumptions.Clear();
+                    foreach (var sharedLists in consumerPrioLvl.Value)
+                    {
+                        var shared = sharedLists.Key;
+
+                        float desired = 0;
+                        foreach (var consumer in sharedLists.Value)
+                        {
+                            desired += consumer.ConsumptionNeed(deltaTime);
+                        }
+
+                        //Don't exceed what shared space can take
+                        float possible = (float)Math.Min(desired, shared.MaxCapacity - shared.CurrentFill);
+
+                        needForPrioLvl += possible;
+                        sharedConsumptions[shared] = new MyTuple<float, float>(possible, desired);
+                    }
+
+                    //Now apply based on how much we have
+                    float haveForPrioLvl = Math.Min(needForPrioLvl, production + tankAvail - consumption);
+                    foreach (var sharedLists in consumerPrioLvl.Value)
+                    {
+                        float possibleForShared, desiredForShared;
+                        {
+                            var possibleDesired = sharedConsumptions[sharedLists.Key];
+                            possibleForShared = possibleDesired.Item1;
+                            desiredForShared = possibleDesired.Item2;
+                        }
+
+                        //Spread what we have fairly across all the shared spaces
+                        float haveForShared = possibleForShared * haveForPrioLvl / needForPrioLvl;
+                        //Need two passes because ConsumptionNeed() will change after we start to call Consume()
+                        finalConsumption.Clear();
+                        foreach (var consumer in sharedLists.Value)
+                        {
+                            float haveForCons = consumer.ConsumptionNeed(deltaTime) * haveForShared / desiredForShared;
+                            finalConsumption[consumer] = haveForCons;
+                        }
+                        foreach (var consumer in sharedLists.Value)
+                        {
+                            float haveForCons = finalConsumption[consumer];
+                            consumer.Consume(haveForCons);
+                            consumption += haveForCons;
+                        }
+                    }
+                }
+                Debug.Assert(consumption - 0.01f <= production + tankAvail, "Somehow more oxygen was consumed that what was available");
+
+                //Next, what to do w.r.t. tanks
+                if(production > consumption)
+                {   //See if we have any tanks that need filling
                     float productionLeft = production - consumption;
 
                     int remainingTanks = group.Tanks.Count;
@@ -582,92 +674,55 @@ namespace Sandbox.Game.GameSystems
                         float portionForTank = Math.Min(portion, capacityLeft);
 
                         tank.Fill(portionForTank);
+                        consumption += portionForTank;
 
                         remainingTanks--;
                         productionLeft -= portionForTank;
                     }
-
-                    foreach (var consumerList in group.Consumers)
-                    {
-                        foreach (var consumer in consumerList.Value)
-                        {
-                            consumer.Consume(consumer.ConsumptionNeed(deltaTime));
-                        }
-                    }
-
-                    float toGenerate = production - productionLeft;
-                    foreach (var producerList in group.Producers)
-                    {
-                        foreach (var producer in producerList.Value)
-                        {
-                            float maxProduction = producer.ProductionCapacity(deltaTime);
-                            if (maxProduction > 0f)
-                            {
-                                if (toGenerate < maxProduction)
-                                {
-                                    producer.Produce(toGenerate);
-                                    toGenerate = 0f;
-                                    break;
-                                }
-                                else
-                                {
-                                    producer.Produce(maxProduction);
-                                    toGenerate -= maxProduction;
-                                }
-                            }
-                        }
-
-
-                        if (toGenerate <= 0f)
-                        {
-                            break;
-                        }
-                    }
                 }
-                else
-                {
-                    float originalConsumption = consumption;
-                    
-                    consumption -= production;
+                else if(production < consumption)
+                {   //Need to pull from tanks
                     int remainingTanks = group.NonStockpilingTanks.Count;
 
                     foreach (var tank in group.NonStockpilingTanks)
                     {
-                        float portion = consumption / remainingTanks;
+                        float portion = (consumption - production) / remainingTanks;
                         float oxygenLeft = tank.Capacity * tank.FilledRatio;
 
                         float portionForTank = Math.Min(portion, oxygenLeft);
                         tank.Drain(portionForTank);
                         remainingTanks--;
-                        production += portionForTank;
+                        consumption -= portionForTank;
                     }
+                }
 
-                    foreach (var producerList in group.Producers)
+                //Now that we know how much was actually used, produce it
+                foreach (var producerPrioLvl in group.Producers)
+                {
+                    foreach (var sharedLists in producerPrioLvl.Value)
                     {
-                        foreach (var producer in producerList.Value)
+                        foreach (var producer in sharedLists.Value)
                         {
-                            producer.Produce(producer.ProductionCapacity(deltaTime));
+                            float p = Math.Min(producer.ProductionCapacity(deltaTime),consumption);
+                            producer.Produce(p);
+                            consumption -= p;
+
+                            if(consumption <= 0f)
+                            {
+                                break;
+                            }
                         }
-                    }
-
-                    float originalProduction = production;
-
-                    foreach (var consumerList in group.Consumers)
-                    {
-                        if (production <= 0f)
+                        if(consumption <= 0f)
                         {
                             break;
                         }
-
-                        float priorityConsumption = Math.Min(production, consumptionPerPriorityLevels[consumerList.Key]);
-                        production -= priorityConsumption;
-                        foreach (var consumer in consumerList.Value)
-                        {
-                            float c = priorityConsumption / consumerList.Value.Count;
-                            consumer.Consume(c);
-                        }
+                    }
+                    if (consumption <= 0f)
+                    {
+                        break;
                     }
                 }
+                Debug.Assert(consumption <= 0.01f, "Somehow we didn't manage to produce as much oxygen as we thought we could");
 
                 //Balance tanks
                 float averageFill = 0f;
@@ -760,7 +815,7 @@ namespace Sandbox.Game.GameSystems
             m_queue.Clear();
             m_queue.Add(new RoomSquare(GridMin(), 0));
             m_tempRooms = new List<MyOxygenRoom>();
-            m_cubeRoom[0, 0, 0] = new MyOxygenBlock(new MyOxygenRoomLink(new MyOxygenRoom(0)));
+            m_cubeRoom[0, 0, 0] = new MyOxygenBlock(new MyOxygenRoomLink(new MyOxygenRoom(0,m_cubeGrid.GridSize)));
             m_tempRooms.Add(m_cubeRoom[0, 0, 0].Room);
 
             m_deletedBlocks.Clear();
@@ -809,7 +864,7 @@ namespace Sandbox.Game.GameSystems
                             }
 
                             prevRoomIndex = m_tempRooms.Count;
-                            m_cubeRoom[x, y, z] = new MyOxygenBlock(new MyOxygenRoomLink(new MyOxygenRoom(prevRoomIndex)));
+                            m_cubeRoom[x, y, z] = new MyOxygenBlock(new MyOxygenRoomLink(new MyOxygenRoom(prevRoomIndex, m_cubeGrid.GridSize)));
                             m_tempRooms.Add(m_cubeRoom[x, y, z].Room);
                             if (current == GridMin())
                             {
@@ -818,7 +873,7 @@ namespace Sandbox.Game.GameSystems
                             m_queue.Add(new RoomSquare(current, prevRoomIndex, !currentRoom.WasWall));
                             if (m_cubeRoom[x, y, z].Room == null)
                             {
-                                m_cubeRoom[x, y, z].RoomLink = new MyOxygenRoomLink(new MyOxygenRoom(prevRoomIndex));
+                                m_cubeRoom[x, y, z].RoomLink = new MyOxygenRoomLink(new MyOxygenRoom(prevRoomIndex, m_cubeGrid.GridSize));
                             }
                             else
                             {
@@ -831,7 +886,7 @@ namespace Sandbox.Game.GameSystems
                         m_queue.Add(new RoomSquare(current, prevRoomIndex, currentRoom.WasWall));
                         if (m_cubeRoom[x, y, z].Room == null)
                         {
-                            m_cubeRoom[x, y, z].RoomLink = new MyOxygenRoomLink(new MyOxygenRoom(prevRoomIndex));
+                            m_cubeRoom[x, y, z].RoomLink = new MyOxygenRoomLink(new MyOxygenRoom(prevRoomIndex, m_cubeGrid.GridSize));
                         }
                         else
                         {

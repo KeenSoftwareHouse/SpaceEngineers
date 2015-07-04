@@ -464,6 +464,11 @@ namespace SpaceEngineers.Game.Entities.Blocks
             m_user.SuitOxygenAmount += amount;
         }
 
+        IMyOxygenSharedSpace IMyOxygenConsumer.GetSharedSpace()
+        {
+            return null;
+        }
+
         public void TryTakeSpawneeOwnership(MyPlayer player)
         {
             if (MySession.Static.IsScenario && m_takeSpawneeOwnership && Sync.IsServer && OwnerId == 0)

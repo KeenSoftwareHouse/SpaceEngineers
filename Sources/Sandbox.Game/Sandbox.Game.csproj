@@ -536,6 +536,7 @@
     <Compile Include="Game\GameSystems\IMyOxygenBlock.cs" />
     <Compile Include="Game\GameSystems\IMyOxygenConsumer.cs" />
     <Compile Include="Game\GameSystems\IMyOxygenProducer.cs" />
+    <Compile Include="Game\GameSystems\IMyOxygenSharedSpace.cs" />
     <Compile Include="Game\GameSystems\MyAntennaSystem.cs" />
     <Compile Include="Engine\Utils\MyBattleHelper.cs" />
     <Compile Include="Game\GameSystems\MyChatSystem.cs" />

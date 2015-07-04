@@ -1312,5 +1312,10 @@ namespace Sandbox.Game.Entities
                 m_oxygenLevel = 1f;
             }
         }
+
+        IMyOxygenSharedSpace IMyOxygenConsumer.GetSharedSpace()
+        {
+            return null;
+        }
     }
 }
