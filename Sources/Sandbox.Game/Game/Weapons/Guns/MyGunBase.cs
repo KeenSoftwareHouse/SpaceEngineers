@@ -18,6 +18,7 @@ using VRage.Utils;
 using VRage.Serialization;
 using VRageMath;
 using VRage.ObjectBuilders;
+using Sandbox.Game.Multiplayer;
 
 namespace Sandbox.Game.Weapons
 {
@@ -356,14 +357,17 @@ namespace Sandbox.Game.Weapons
 
         public void ConsumeAmmo()
         {
-            CurrentAmmo -= AMMO_PER_SHOOT;
-            if (CurrentAmmo == -1)
+            if (Sync.IsServer && !MySession.Static.CreativeMode)
             {
-                m_user.AmmoInventory.RemoveItemsOfType(1, CurrentAmmoMagazineId);
-                CurrentAmmo = WeaponProperties.AmmoMagazineDefinition.Capacity - 1;
-            }
+                CurrentAmmo -= AMMO_PER_SHOOT;
+                if (CurrentAmmo == -1)
+                {
+                    m_user.AmmoInventory.RemoveItemsOfType(1, CurrentAmmoMagazineId);
+                    CurrentAmmo = WeaponProperties.AmmoMagazineDefinition.Capacity - 1;
+                }
 
-            RefreshAmmunitionAmount();
+                RefreshAmmunitionAmount();
+            }
         }
 
         public int GetTotalAmmunitionAmount()

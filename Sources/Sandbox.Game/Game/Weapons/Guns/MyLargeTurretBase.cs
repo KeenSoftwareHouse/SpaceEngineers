@@ -2049,20 +2049,17 @@ namespace Sandbox.Game.Weapons
 
         public void RemoveAmmoPerShot()
         {
-            if (!MySession.Static.CreativeMode)
-            {
-                m_gunBase.ConsumeAmmo();
-                //if (RemainingAmmo < AmmoPerShot)
-                //{
-                //    m_ammoInventory.RemoveItemsOfType(1, m_currentAmmoMagazineId);
-                //    RemainingAmmo += AmmoInMagazine;
-                //}
+            m_gunBase.ConsumeAmmo();
+            //if (RemainingAmmo < AmmoPerShot)
+            //{
+            //    m_ammoInventory.RemoveItemsOfType(1, m_currentAmmoMagazineId);
+            //    RemainingAmmo += AmmoInMagazine;
+            //}
 
-                //if (RemainingAmmo >= AmmoPerShot)
-                //{
-                //    RemainingAmmo -= AmmoPerShot;
-                //}
-            }
+            //if (RemainingAmmo >= AmmoPerShot)
+            //{
+            //    RemainingAmmo -= AmmoPerShot;
+            //}
         }
 
         #endregion

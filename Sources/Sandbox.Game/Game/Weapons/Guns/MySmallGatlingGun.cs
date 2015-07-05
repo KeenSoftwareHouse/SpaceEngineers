@@ -405,11 +405,7 @@ namespace Sandbox.Game.Weapons
             VRageRender.MyRenderProxy.GetRenderProfiler().StartProfilingBlock("MyAutocannonGun.Shot add projectile");
 
             m_gunBase.Shoot(Parent.Physics.LinearVelocity);
-
-            if (!MySession.Static.CreativeMode)
-            {
-                m_gunBase.ConsumeAmmo();        
-            }
+            m_gunBase.ConsumeAmmo();        
             //VRageRender.MyRenderProxy.DebugDrawSphere(GetPosition(), 0.1f, Vector3.One, 1, false);
 
             VRageRender.MyRenderProxy.GetRenderProfiler().EndProfilingBlock();
