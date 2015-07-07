@@ -38,7 +38,6 @@ using VRage.Game.Entity;
 
 namespace Sandbox.Game.Entities
 {
-
     [MyCubeBlockType(typeof(MyObjectBuilder_Thrust))]
     public class MyThrust : MyFunctionalBlock, IMyThrust, IMyConveyorEndpointBlock
     {
