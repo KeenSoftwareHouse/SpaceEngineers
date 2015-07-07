@@ -84,7 +84,7 @@ namespace Sandbox.Game.GameSystems
         public float   MaxGyroForce   { get; private set; }
         public Vector3 SlowdownTorque { get; private set; }
 
-        public bool    RemoteControlOperational  { get; set; }
+        public bool    FlyByWireEnabled          { get; set; }
         public bool    CourseEstablished         { get; set; }
         public Vector3 AutopilotAngularDeviation { get; set; }
 
@@ -153,7 +153,7 @@ namespace Sandbox.Game.GameSystems
                     else
                     {
                         slowdownAngularAcceleration = P_COEFF * localAngularVelocity;
-                        if (RemoteControlOperational)
+                        if (FlyByWireEnabled)
                         {
                             if (!AutopilotEnabled)
                             {
@@ -180,7 +180,7 @@ namespace Sandbox.Game.GameSystems
 
                             slowdownAngularAcceleration += m_gyroControlIntegral + D_COEFF * angularAcceleration;
                         }
-                        RemoteControlOperational = false;    // Needs to be done here and not in the remote control code, as there may be more than 1 RC block.
+                        FlyByWireEnabled = false;    // Needs to be done here and not in the remote control code, as there may be more than 1 RC block.
                     }
 
                     var invTensor = m_grid.Physics.RigidBody.InverseInertiaTensor;

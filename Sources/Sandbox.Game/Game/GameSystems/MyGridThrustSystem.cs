@@ -162,7 +162,7 @@ namespace Sandbox.Game.GameSystems
 
         public Vector3 LocalAngularVelocity { get; private set; }
 
-        public bool    RemoteControlOperational  { get; set; }
+        public bool    FlyByWireEnabled          { get; set; }
         public bool    CourseEstablished         { get; set; }
         public Vector3 AutopilotAngularDeviation { get; set; }
 
@@ -287,23 +287,24 @@ namespace Sandbox.Game.GameSystems
             Vector3 localVelocity   = Vector3.Transform(m_grid.Physics.LinearVelocity, ref invWorldRot);
             Vector3 positiveControl = Vector3.Clamp(direction,  Vector3.Zero, Vector3.One );
             Vector3 negativeControl = Vector3.Clamp(direction, -Vector3.One , Vector3.Zero);
-            Vector3 slowdownControl = Vector3.Zero;
-
-            if (DampenersEnabled)
-                slowdownControl = Vector3.IsZeroVector(direction, 0.001f) * Vector3.IsZeroVector(m_totalThrustOverride);
 
             Vector3 thrust = negativeControl * m_maxNegativeLinearThrust + positiveControl * m_maxPositiveLinearThrust;
             thrust = Vector3.Clamp(thrust, -m_maxNegativeLinearThrust, m_maxPositiveLinearThrust);
 
-            const float STOPPING_TIME = 0.5f;
-            var slowdownAcceleration = -localVelocity / STOPPING_TIME;
-            var slowdownThrust = slowdownAcceleration * m_grid.Physics.Mass * slowdownControl;
-            thrust = Vector3.Clamp(thrust + slowdownThrust, -m_maxNegativeLinearThrust * MyFakes.SLOWDOWN_FACTOR_THRUST_MULTIPLIER, m_maxPositiveLinearThrust * MyFakes.SLOWDOWN_FACTOR_THRUST_MULTIPLIER);
+            if (DampenersEnabled)
+            {
+                const float STOPPING_TIME = 0.5f;
+
+                var slowdownControl      = Vector3.IsZeroVector(direction, 0.001f) * Vector3.IsZeroVector(m_totalThrustOverride);
+                var slowdownAcceleration = -localVelocity / STOPPING_TIME;
+                var localGravityForce    = Vector3.Transform(m_grid.Physics.Gravity, ref invWorldRot) * m_grid.Physics.Mass;
+                var slowdownThrust       = (slowdownAcceleration * m_grid.Physics.Mass - localGravityForce) * slowdownControl;
+                thrust = Vector3.Clamp(thrust + slowdownThrust, -m_maxNegativeLinearThrust * MyFakes.SLOWDOWN_FACTOR_THRUST_MULTIPLIER, m_maxPositiveLinearThrust * MyFakes.SLOWDOWN_FACTOR_THRUST_MULTIPLIER);
+            }
 
             return thrust;
         }
 
-        // The only difference between ComputeBaseThrust() and ComputeAiThrust() is that the latter takes gravity into account.
         private Vector3 ComputeAiThrust(Vector3 direction, bool includeSlowdown, bool subtractGravity)
         {
             Matrix  invWorldRot     = m_grid.PositionComp.GetWorldMatrixNormalizedInv().GetOrientation();
@@ -382,7 +383,7 @@ namespace Sandbox.Game.GameSystems
             LocalAngularVelocity = Vector3.Transform(m_grid.Physics.AngularVelocity, ref invWorldRot);
             var linearVelocity   = m_grid.Physics.LinearVelocity;
             // A quick'n'dirty way of making torque optional. Activating gyroscope override or losing all remote control blocks also disables RCS.
-            if (   MySession.Static.ThrusterDamage && !gyros.IsGyroOverrideActive && RemoteControlOperational
+            if (   MySession.Static.ThrusterDamage && !gyros.IsGyroOverrideActive && FlyByWireEnabled
                 && (LocalAngularVelocity != Vector3.Zero || linearVelocity != Vector3.Zero || ControlTorque != Vector3.Zero || AutopilotEnabled))
             {
                 if (MyFakes.SLOWDOWN_FACTOR_THRUST_MULTIPLIER > 1.0f)
@@ -475,7 +476,7 @@ namespace Sandbox.Game.GameSystems
                 thrustPositive = Vector3.Clamp(thrustPositive, Vector3.Zero, Vector3.One * MyConstants.MAX_THRUST);
                 thrustNegative = Vector3.Clamp(thrustNegative, Vector3.Zero, Vector3.One * MyConstants.MAX_THRUST);
             }
-            RemoteControlOperational = false;  // Needs to be done here and not in the remote control code, as there may be more than 1 RC block.
+            FlyByWireEnabled = false;  // Needs to be done here and not in the remote control code, as there may be more than 1 RC block.
 
             // When using joystick, there may be fractional values, not just 0 and 1.
             float requiredPower = 0;

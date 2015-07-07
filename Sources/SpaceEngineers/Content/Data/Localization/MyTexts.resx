@@ -6353,6 +6353,9 @@ To connect to lasers not listed here you can connect to coordinates.</value>
   <data name="BlockActionTitle_RemoveWaypoint" xml:space="preserve">
     <value>Remove</value>
   </data>
+  <data name="BlockPropertyTitle_FlyByWire" xml:space="preserve">
+    <value>Fly-by-wire</value>
+  </data>
   <data name="BlockPropertyTitle_AutoPilot" xml:space="preserve">
     <value>Autopilot</value>
   </data>

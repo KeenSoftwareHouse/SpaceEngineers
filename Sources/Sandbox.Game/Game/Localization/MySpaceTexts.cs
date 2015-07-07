@@ -10255,6 +10255,11 @@ namespace Sandbox.Game.Localization
         public static readonly MyStringId BlockActionTitle_RemoveWaypoint = MyStringId.GetOrCompute("BlockActionTitle_RemoveWaypoint");
 
         ///<summary>
+        ///Fly-by-wire
+        ///</summary>
+        public static readonly MyStringId BlockPropertyTitle_FlyByWire = MyStringId.GetOrCompute("BlockPropertyTitle_FlyByWire");
+
+        ///<summary>
         ///Autopilot
         ///</summary>
         public static readonly MyStringId BlockPropertyTitle_AutoPilot = MyStringId.GetOrCompute("BlockPropertyTitle_AutoPilot");

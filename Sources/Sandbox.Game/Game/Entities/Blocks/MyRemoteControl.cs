@@ -253,6 +253,7 @@ namespace Sandbox.Game.Entities
 
         private List<MyAutopilotWaypoint> m_waypoints;
         private MyAutopilotWaypoint m_currentWaypoint;
+        private bool m_flyByWireEnabled;
         private bool m_autoPilotEnabled;
         private bool m_dockingModeEnabled;
         private FlightMode m_currentFlightMode;
@@ -313,6 +314,14 @@ namespace Sandbox.Game.Entities
             
             var autoPilotSeparator = new MyTerminalControlSeparator<MyRemoteControl>();
             MyTerminalControlFactory.AddControl(autoPilotSeparator);
+
+            var flyByWire = new MyTerminalControlOnOffSwitch<MyRemoteControl>("FlyByWire", MySpaceTexts.BlockPropertyTitle_FlyByWire, MySpaceTexts.Blank);
+            flyByWire.Getter = (x) => x.m_flyByWireEnabled;
+            flyByWire.Setter = (x, v) => x.SetFlyByWireEnabled(v);
+            flyByWire.Visible = (x) => MySession.Static.ThrusterDamage;
+            flyByWire.EnableToggleAction();
+            //flyByWire.EnableOnOffActions();
+            MyTerminalControlFactory.AddControl(flyByWire);
 
             var autoPilot = new MyTerminalControlOnOffSwitch<MyRemoteControl>("AutoPilot", MySpaceTexts.BlockPropertyTitle_AutoPilot, MySpaceTexts.Blank);
             autoPilot.Getter = (x) => x.m_autoPilotEnabled;
@@ -480,6 +489,7 @@ namespace Sandbox.Game.Entities
             PowerReceiver.RequiredInputChanged += Receiver_RequiredInputChanged;
             PowerReceiver.Update();
 
+            m_flyByWireEnabled = remoteOb.FlyByWireEnabled;
             m_autoPilotEnabled = remoteOb.AutoPilotEnabled;
             m_dockingModeEnabled = remoteOb.DockingModeEnabled;
             m_currentFlightMode = (FlightMode)remoteOb.FlightMode;
@@ -595,12 +605,22 @@ namespace Sandbox.Game.Entities
             }
         }
 
+        private void SetFlyByWireEnabled(bool enabled)
+        {
+            SyncObject.SetFlyByWire(enabled);
+        }
+
         private void SetAutoPilotEnabled(bool enabled)
         {
             if (CanEnableAutoPilot())
             {
                 SyncObject.SetAutoPilot(enabled);
             }
+        }
+
+        private void OnSetFlyByWireEnabled(bool enabled)
+        {
+            m_flyByWireEnabled = enabled;
         }
 
         private void OnSetAutoPilotEnabled(bool enabled)
@@ -1165,7 +1185,8 @@ namespace Sandbox.Game.Entities
             var gyros     = CubeGrid.GridSystems.GyroSystem;
             var thrusters = CubeGrid.GridSystems.ThrustSystem;
 
-            gyros.RemoteControlOperational = thrusters.RemoteControlOperational = IsWorking;
+            gyros.FlyByWireEnabled     |= IsWorking && m_flyByWireEnabled;
+            thrusters.FlyByWireEnabled |= IsWorking && m_flyByWireEnabled;
             if (IsWorking && m_autoPilotEnabled && CubeGrid.GridSystems.ControlSystem.GetShipController() == this)
             {
                 gyros.AutopilotAngularDeviation = thrusters.AutopilotAngularDeviation = Vector3.Zero;
@@ -1543,7 +1564,7 @@ namespace Sandbox.Game.Entities
                 else if (timeToReachTarget > timeToStop * ACCELERATION_THRESHOLD)
                     m_autoPilotAccelerate = true;
 
-                if (m_autoPilotAccelerate && (double.IsInfinity(timeToReachCourse) || timeToReachTarget >= timeToReachCourse || lateralControl.LengthSquared() < 1.0))
+                if (m_autoPilotAccelerate && (double.IsInfinity(timeToReachCourse) || timeToReachTarget >= ACCELERATION_THRESHOLD * timeToReachCourse || lateralControl.LengthSquared() < 1.0))
                     thrustSystem.AutoPilotThrust = localSpaceTargetDirection + lateralControl - velocityToCancel;
                 else if (m_autoPilotCoast)
                 {
@@ -1635,6 +1656,7 @@ namespace Sandbox.Game.Entities
                 objectBuilder.PreviousControlledEntityId = m_previousControlledEntity.Entity.EntityId;
             }
 
+            objectBuilder.FlyByWireEnabled = m_flyByWireEnabled;
             objectBuilder.AutoPilotEnabled = m_autoPilotEnabled;
             objectBuilder.DockingModeEnabled = m_dockingModeEnabled;
             objectBuilder.FlightMode = (int)m_currentFlightMode;
@@ -2135,6 +2157,15 @@ namespace Sandbox.Game.Entities
         [PreloadRequired]
         public class MySyncRemoteControl : MySyncShipController
         {
+            [MessageIdAttribute(7423, P2PMessageEnum.Reliable)]
+            protected struct SetFlyByWireMsg : IEntityMessage
+            {
+                public long EntityId;
+                public long GetEntityId() { return EntityId; }
+
+                public BoolBlit Enabled;
+            }
+
             [MessageIdAttribute(2500, P2PMessageEnum.Reliable)]
             protected struct SetAutoPilotMsg : IEntityMessage
             {
@@ -2271,6 +2302,7 @@ namespace Sandbox.Game.Entities
 
             static MySyncRemoteControl()
             {
+                MySyncLayer.RegisterEntityMessage<MySyncRemoteControl, SetFlyByWireMsg>(OnSetFlyByWire, MyMessagePermissions.Any);
                 MySyncLayer.RegisterEntityMessage<MySyncRemoteControl, SetAutoPilotMsg>(OnSetAutoPilot, MyMessagePermissions.Any);
                 MySyncLayer.RegisterEntityMessage<MySyncRemoteControl, SetDockingModeMsg>(OnSetDockingMode, MyMessagePermissions.Any);
                 MySyncLayer.RegisterEntityMessage<MySyncRemoteControl, ChangeFlightModeMsg>(OnChangeFlightMode, MyMessagePermissions.Any);
@@ -2293,6 +2325,16 @@ namespace Sandbox.Game.Entities
                 base(remoteControl)
             {
                 m_remoteControl = remoteControl;
+            }
+
+            public void SetFlyByWire(bool enabled)
+            {
+                var msg = new SetFlyByWireMsg();
+                msg.EntityId = m_remoteControl.EntityId;
+
+                msg.Enabled = enabled;
+
+                Sync.Layer.SendMessageToAllAndSelf(ref msg);
             }
 
             public void SetAutoPilot(bool enabled)
@@ -2439,6 +2481,11 @@ namespace Sandbox.Game.Entities
                 msg.Clipboard = clipboard;
 
                 Sync.Layer.SendMessageToAllAndSelf(ref msg);
+            }
+
+            private static void OnSetFlyByWire(MySyncRemoteControl sync, ref SetFlyByWireMsg msg, MyNetworkClient sender)
+            {
+                sync.m_remoteControl.OnSetFlyByWireEnabled(msg.Enabled);
             }
 
             private static void OnSetAutoPilot(MySyncRemoteControl sync, ref SetAutoPilotMsg msg, MyNetworkClient sender)
