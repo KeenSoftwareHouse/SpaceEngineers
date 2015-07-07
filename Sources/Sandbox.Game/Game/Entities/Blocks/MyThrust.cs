@@ -149,7 +149,11 @@ namespace Sandbox.Game.Entities
 
         public void UpdateThrustColor()
         {
-            m_thrustColor = Color.Lerp(m_thrustColor, m_thrustColor, CurrentStrength / MyConstants.MAX_THRUST);
+            if(m_thrustDefinition.EnableFlameColoring)
+                m_thrustColor = Color.Lerp(m_thrustColor, m_thrustColor, CurrentStrength / MyConstants.MAX_THRUST);
+            else
+                m_thrustColor = Color.Lerp(m_thrustDefinition.FlameIdleColor, m_thrustDefinition.FlameFullColor, CurrentStrength / MyConstants.MAX_THRUST);
+
             Light.Color = m_thrustColor;
         }
         
@@ -260,11 +264,15 @@ namespace Sandbox.Game.Entities
             var builder = (MyObjectBuilder_Thrust)base.GetObjectBuilderCubeBlock(copy);
             builder.ThrustOverride = ThrustOverride;
 
-            var col = ThrustColor.ToVector4();
-            builder.FlameColorR = col.X;
-            builder.FlameColorG = col.Y;
-            builder.FlameColorB = col.Z;
-            builder.FlameColorA = col.W;
+            //only save Color for Thrusters with Flame Coloring enabled
+            if (m_thrustDefinition.EnableFlameColoring)
+            {
+                var col = ThrustColor.ToVector4();
+                builder.FlameColorR = col.X;
+                builder.FlameColorG = col.Y;
+                builder.FlameColorB = col.Z;
+                builder.FlameColorA = col.W;
+            }
 
             return builder;
         }
@@ -304,7 +312,7 @@ namespace Sandbox.Game.Entities
 
             var builder = (MyObjectBuilder_Thrust)objectBuilder;
 
-            Vector4 color = builder.FlameColorA == 0f ? m_thrustDefinition.FlameIdleColor : new Vector4(builder.FlameColorR, builder.FlameColorG, builder.FlameColorB, builder.FlameColorA);
+            Vector4 color = (m_thrustDefinition.EnableFlameColoring && builder.FlameColorA != 0f) ? new Vector4(builder.FlameColorR, builder.FlameColorG, builder.FlameColorB, builder.FlameColorA) : m_thrustDefinition.FlameIdleColor;
             m_thrustColor = Color.FromNonPremultiplied(color);
 
             m_thrustOverride.Value = (builder.ThrustOverride * 100f) / BlockDefinition.ForceMagnitude;
