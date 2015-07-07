@@ -298,8 +298,10 @@ namespace Sandbox.Game.GameSystems
                 var slowdownControl      = Vector3.IsZeroVector(direction, 0.001f) * Vector3.IsZeroVector(m_totalThrustOverride);
                 var slowdownAcceleration = -localVelocity / STOPPING_TIME;
                 var localGravityForce    = Vector3.Transform(m_grid.Physics.Gravity, ref invWorldRot) * m_grid.Physics.Mass;
-                var slowdownThrust       = (slowdownAcceleration * m_grid.Physics.Mass - localGravityForce) * slowdownControl;
-                thrust = Vector3.Clamp(thrust + slowdownThrust, -m_maxNegativeLinearThrust * MyFakes.SLOWDOWN_FACTOR_THRUST_MULTIPLIER, m_maxPositiveLinearThrust * MyFakes.SLOWDOWN_FACTOR_THRUST_MULTIPLIER);
+                var slowdownThrust       = slowdownAcceleration * m_grid.Physics.Mass;
+                if (FlyByWireEnabled)
+                    slowdownThrust -= localGravityForce;
+                thrust = Vector3.Clamp(thrust + slowdownThrust * slowdownControl, -m_maxNegativeLinearThrust * MyFakes.SLOWDOWN_FACTOR_THRUST_MULTIPLIER, m_maxPositiveLinearThrust * MyFakes.SLOWDOWN_FACTOR_THRUST_MULTIPLIER);
             }
 
             return thrust;

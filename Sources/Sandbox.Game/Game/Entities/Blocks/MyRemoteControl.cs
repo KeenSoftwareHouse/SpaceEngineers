@@ -259,6 +259,7 @@ namespace Sandbox.Game.Entities
         private FlightMode m_currentFlightMode;
         private bool m_patrolDirectionForward = true;
         private Vector3D? m_startPosition;
+        private Vector3D m_prevPosition;
 
         private static List<MyToolbar> m_openedToolbars;
         private static bool m_shouldSetOtherToolbars;
@@ -1232,6 +1233,7 @@ namespace Sandbox.Game.Entities
             {
                 SyncObject.SetAutoPilot(false);
             }
+            m_prevPosition = WorldMatrix.Translation;
         }
 
         private bool IsInStoppingDistance()
@@ -1458,7 +1460,9 @@ namespace Sandbox.Game.Entities
             Vector3D targetDirection = delta;
             targetDirection.Normalize();
 
-            Vector3D velocity          = CubeGrid.Physics.LinearVelocity;
+            //Vector3D velocity          = CubeGrid.Physics.LinearVelocity;
+            // CubeGrid.Physics.LinearVelocity tends to be inaccurate under thrust.
+            Vector3D velocity          = (current - m_prevPosition) / MyEngineConstants.UPDATE_STEP_SIZE_IN_SECONDS;
             double   velocityMagnitude = velocity.Length();
 
             Vector3D localSpaceDelta           = Vector3D.Transform(          delta, invWorldRot);
