@@ -360,7 +360,7 @@ namespace Sandbox.Game.Weapons
             if (Sync.IsServer && !MySession.Static.CreativeMode)
             {
                 CurrentAmmo -= AMMO_PER_SHOOT;
-                if (CurrentAmmo == -1)
+                if (CurrentAmmo == -1 && HasEnoughAmmunition())
                 {
                     m_user.AmmoInventory.RemoveItemsOfType(1, CurrentAmmoMagazineId);
                     CurrentAmmo = WeaponProperties.AmmoMagazineDefinition.Capacity - 1;
