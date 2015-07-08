@@ -83,6 +83,8 @@ namespace Sandbox.Game.Entities
 
         bool m_forcedFPS;
 
+        Vector3 m_localTranslation, m_localRotation;
+
         //        MyGunTypeEnum? m_selectedGunType;
         MyDefinitionId? m_selectedGunId;
 
@@ -302,6 +304,25 @@ namespace Sandbox.Game.Entities
                 return;
             }
 
+            if (GridPowerDistributor == null || GridPowerDistributor.PowerState == MyPowerStateEnum.NoPower)
+                return;
+
+            // mouse pixels will do maximal rotation
+            const float pixelsForMaxRotation = 20;
+            rotationIndicator /= pixelsForMaxRotation;
+            Vector2.ClampToSphere(ref rotationIndicator, 1.0f);
+            rollIndicator *= RollControlMultiplier;
+
+            Matrix orientMatrix;
+            Orientation.GetMatrix(out orientMatrix);
+
+            m_localRotation = new Vector3(-rotationIndicator.X, -rotationIndicator.Y, -rollIndicator);
+            Vector3.ClampToSphere(m_localRotation, 1.0f);
+
+            m_localTranslation = Vector3.Transform(moveIndicator, orientMatrix);
+            m_localRotation = Vector3.Transform(m_localRotation, orientMatrix);
+            Vector3.ClampToSphere(m_localRotation, 1.0f);
+
             if (IsMainCockpit == false && CubeGrid.HasMainCockpit())
             {
                 return;
@@ -317,9 +338,6 @@ namespace Sandbox.Game.Entities
             //System.Diagnostics.Debug.Assert(GridGyroSystem != null);
             //System.Diagnostics.Debug.Assert(GridThrustSystem != null);
 
-            if (GridPowerDistributor == null)
-                return;
-
             if (!Sync.Players.HasExtendedControl(this, this.CubeGrid))
                 return;
 
@@ -331,21 +349,10 @@ namespace Sandbox.Game.Entities
                 // Engine off, no control forces, early return
                 if (CubeGrid.GridSystems.PowerDistributor.PowerState != MyPowerStateEnum.NoPower)
                 {
-                    // mouse pixels will do maximal rotation
-                    const float pixelsForMaxRotation = 20;
-                    rotationIndicator /= pixelsForMaxRotation;
-                    Vector2.ClampToSphere(ref rotationIndicator, 1.0f);
-                    rollIndicator *= RollControlMultiplier;
+                    GridThrustSystem.ControlThrust = m_localTranslation;
+                    GridGyroSystem.ControlTorque = m_localRotation;
 
-                    Matrix orientMatrix;
-                    Orientation.GetMatrix(out orientMatrix);
-
-                    var controlThrust = Vector3.Transform(moveIndicator, orientMatrix);
-                    var controlTorque = Vector3.Transform(new Vector3(-rotationIndicator.X, -rotationIndicator.Y, -rollIndicator), orientMatrix);
-                    Vector3.ClampToSphere(controlTorque, 1.0f);
-
-                    GridThrustSystem.ControlThrust = controlThrust;
-                    GridGyroSystem.ControlTorque = controlTorque;
+                    
 
                     if (MyFakes.ENABLE_WHEEL_CONTROLS_IN_COCKPIT)
                     {
@@ -1984,6 +1991,8 @@ namespace Sandbox.Game.Entities
                 }
             }
         }
+        Vector3 IMyShipController.Translation { get { return m_localTranslation; } }
+        Vector3 IMyShipController.Rotation { get { return m_localRotation; } }
 
         void CubeGrid_OnGridSplit(MyCubeGrid grid1, MyCubeGrid grid2)
         {
