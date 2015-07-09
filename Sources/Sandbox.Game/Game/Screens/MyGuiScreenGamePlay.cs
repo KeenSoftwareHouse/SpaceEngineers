@@ -351,10 +351,13 @@ namespace Sandbox.Game.Gui
 
             if (MyInput.Static.IsNewGameControlPressed(MyControlsSpace.MISSION_SETTINGS) && MyGuiScreenGamePlay.ActiveGameplayScreen == null 
                 && MyPerGameSettings.Game == Sandbox.Game.GameEnum.SE_GAME
-                && MyFakes.ENABLE_MISSION_TRIGGERS
-                && MySession.Static.Settings.ScenarioEditMode)
-                {
-                MyGuiSandbox.AddScreen(new Sandbox.Game.Screens.MyGuiScreenMissionTriggers());
+                && MyFakes.ENABLE_MISSION_TRIGGERS)
+            {
+                if (MySession.Static.Settings.ScenarioEditMode)
+                    MyGuiSandbox.AddScreen(new Sandbox.Game.Screens.MyGuiScreenMissionTriggers());
+                else
+                    if (MySession.Static.IsScenario)
+                        MyGuiSandbox.AddScreen(new Sandbox.Game.Screens.MyGuiScreenBriefing());
             }
 
             MyStringId context = controlledObject != null ? controlledObject.ControlContext : MySpaceBindingCreator.CX_BASE;
@@ -514,32 +517,30 @@ namespace Sandbox.Game.Gui
                     MyGuiAudio.PlaySound(MyGuiSounds.HudClick);
                     m_controlMenu.OpenControlMenu(controlledObject);
                 }
-
-                if (!MyCompilationSymbols.RenderProfiling && MyControllerHelper.IsControl(context, MyControlsSpace.CHAT_SCREEN, MyControlStateType.NEW_PRESSED))
+            }
+            if (!MyCompilationSymbols.RenderProfiling && MyControllerHelper.IsControl(context, MyControlsSpace.CHAT_SCREEN, MyControlStateType.NEW_PRESSED))
+            {
+                if (MyGuiScreenChat.Static == null)
                 {
-                    if (MyGuiScreenChat.Static == null)
-                    {
-                        Vector2 chatPos = new Vector2(0.01f, 0.84f);
-                        chatPos = MyGuiScreenHudBase.ConvertHudToNormalizedGuiPosition(ref chatPos);
-                        MyGuiScreenChat chatScreen = new MyGuiScreenChat(chatPos);
-                        MyGuiSandbox.AddScreen(chatScreen);
-                    }
-                }
-
-                if (MyPerGameSettings.VoiceChatEnabled)
-                {
-                    if (MyControllerHelper.IsControl(context, MyControlsSpace.VOICE_CHAT, MyControlStateType.NEW_PRESSED))
-                    {
-                        MyVoiceChatSessionComponent.Static.StartRecording();
-                    }
-                    //else if (MyControllerHelper.IsControl(context, MyControlsSpace.VOICE_CHAT, MyControlStateType.NEW_RELEASED))
-                    // TODO: If other key was pressed during VOIP, NEW_RELEASED will return false even if this key was pressed, is this correct? We don't store key states?
-                    else if (MyVoiceChatSessionComponent.Static.IsRecording && !MyControllerHelper.IsControl(context, MyControlsSpace.VOICE_CHAT, MyControlStateType.PRESSED))
-                    {
-                        MyVoiceChatSessionComponent.Static.StopRecording();
-                    }
+                    Vector2 chatPos = new Vector2(0.01f, 0.84f);
+                    chatPos = MyGuiScreenHudBase.ConvertHudToNormalizedGuiPosition(ref chatPos);
+                    MyGuiScreenChat chatScreen = new MyGuiScreenChat(chatPos);
+                    MyGuiSandbox.AddScreen(chatScreen);
                 }
             }
+
+            if (MyPerGameSettings.VoiceChatEnabled && MyVoiceChatSessionComponent.Static != null)
+            {
+                if (MyControllerHelper.IsControl(context, MyControlsSpace.VOICE_CHAT, MyControlStateType.NEW_PRESSED))
+                {
+                    MyVoiceChatSessionComponent.Static.StartRecording();
+                }                                
+                else if (MyVoiceChatSessionComponent.Static.IsRecording && !MyControllerHelper.IsControl(context, MyControlsSpace.VOICE_CHAT, MyControlStateType.PRESSED))
+                {
+                    MyVoiceChatSessionComponent.Static.StopRecording();
+                }
+            }
+            
 
             MoveAndRotatePlayerOrCamera();
 

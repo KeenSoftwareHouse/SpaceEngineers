@@ -119,6 +119,11 @@ void cascades_shadow(PostprocessVertex vertex, out float4 output : SV_Target0)
 
 
 Texture2D<float4> DebugTexture : register( t0 );
+Texture3D<float4> DebugTexture3D : register( t0 );
+
+cbuffer DebugConstants : register(b5) {
+	float SliceTexcoord;
+};
 
 struct ScreenVertex {
 	float2 position : POSITION;
@@ -136,4 +141,8 @@ void screenVertex(ScreenVertex vertex, out float4 position : SV_Position, out fl
 
 void blitTexture(float4 position : SV_Position, float2 texcoord : TEXCOORD0, out float4 color : SV_Target0) {
 	color = DebugTexture.Sample(LinearSampler, texcoord);
+}
+
+void blitTexture3D(float4 position : SV_Position, float2 texcoord : TEXCOORD0, out float4 color : SV_Target0) {
+	color = DebugTexture3D.Sample(LinearSampler, float3(texcoord, SliceTexcoord) );
 }

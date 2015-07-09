@@ -296,6 +296,7 @@ namespace VRageRender
             int materialIndex, int indexCount, int startIndex, int baseVertex)
         {
             MyObjectData objectData = proxy.ObjectData;
+            objectData.LocalMatrix = proxy.WorldMatrix;
 
             MyMapping mapping;
             mapping = MyMapping.MapDiscard(RC.Context, proxy.objectBuffer);
@@ -419,7 +420,7 @@ namespace VRageRender
             m_instance.PerFrame();
             m_instance.Begin();
 
-            var viewFrustum = new BoundingFrustum(MyEnvironment.ViewProjection);
+            var viewFrustum = new BoundingFrustumD(MyEnvironment.ViewProjectionD);
             foreach(var f in MyComponentFactory<MyFoliageComponent>.GetAll())
             {
                 if (f.m_owner.CalculateCameraDistance() < MyRender11.RenderSettings.FoliageDetails.GrassDrawDistance()

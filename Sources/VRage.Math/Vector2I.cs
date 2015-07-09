@@ -69,6 +69,16 @@ namespace VRageMath
                                 value1.Y / divider);
         }
 
+        public static Vector2I Floor(Vector2 value)
+        {
+            return new Vector2I((int)Math.Floor(value.X), (int)Math.Floor(value.Y));
+        }
+
+        public static Vector2I Round(Vector2 value)
+        {
+            return new Vector2I((int)Math.Round(value.X), (int)Math.Round(value.Y));
+        }
+
         #region Comparer
 
         public class ComparerClass : IEqualityComparer<Vector2I>

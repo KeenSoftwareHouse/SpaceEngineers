@@ -1,8 +1,5 @@
 ﻿using Sandbox.Common.ObjectBuilders;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+using Sandbox.ModAPI.Interfaces;
 
 namespace Sandbox.ModAPI
 {
@@ -11,7 +8,11 @@ namespace Sandbox.ModAPI
 	public interface IMyCharacter
     {
         float EnvironmentOxygenLevel { get; }
+		float BaseMass { get; }
+		float CurrentMass { get; }
 
 		event CharacterMovementStateDelegate OnMovementStateChanged;
+
+		void Kill();
     }
 }

@@ -35,8 +35,6 @@ namespace Sandbox.Game.Entities
         bool EnabledInWorldRules { get; }
         T GunBase { get; }
 
-		bool IsDeconstructor { get; }
-
         Vector3 DirectionToTarget(Vector3D target);
 
         /// <summary>

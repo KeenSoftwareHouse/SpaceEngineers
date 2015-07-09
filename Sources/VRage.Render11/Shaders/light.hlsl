@@ -57,7 +57,7 @@ Texture2D<float> SpotlightShadowmap : register( t14 );
 
 Texture2D<float> ShadowsMainView : register( MERGE(t,SHADOW_SLOT) );
 
-void spotlightVs(float4 vertexPos : POSITION, out float4 svPos : SV_Position)
+void proxyVs(float4 vertexPos : POSITION, out float4 svPos : SV_Position)
 {
 	svPos = mul(unpack_position_and_scale(vertexPos), Spotlight.worldViewProj);
 }
@@ -191,13 +191,24 @@ void pointlights_tiled(PostprocessVertex vertex, uint instance_id : SV_InstanceI
 	//output = lerp(float3(0,1,0), float3(1,0,0), (float)numLights);
 }
 
+
+static const float S_0 = 2 * M_PI * (1 - cos(2 * 0.00935));
+float3 GetSunColor(float3 L, float3 V, float3 color, float sizeMult) {
+	float cosTheta = 1 - sizeMult * S_0 * 0.5 / M_PI;
+	float cosTheta1 = cos(acos(cosTheta) * 1.1f);
+
+    //float intensity = saturate(lerp(0, 1, (dot(-V, L) - CosTheta1) / (CosTheta - CosTheta1) ) );
+    float intensity = saturate(lerp(0, 1, (dot(-V, L) - cosTheta1) / (cosTheta - cosTheta1) ) );
+
+    return color * intensity;
+}
+
 void directional_environment(PostprocessVertex vertex, out float3 output : SV_Target0
 #ifdef SAMPLE_FREQ_PASS
 	, uint sample_index : SV_SampleIndex
 #endif
 	)
 {
-
 #if !defined(MS_SAMPLE_COUNT) || defined(PIXEL_FREQ_PASS)
 	SurfaceInterface input = read_gbuffer(vertex.position.xy);
 	float shadow = ShadowsMainView[vertex.position.xy].x;
@@ -220,5 +231,25 @@ void directional_environment(PostprocessVertex vertex, out float3 output : SV_Ta
 	}
 	else {
 		output = add_fog(SkyboxColor(-input.V), input.depth, -input.V, get_camera_position());
+
+		output += GetSunColor(-frame_.directionalLightVec, input.V, frame_.directionalLightColor, 2);
 	}
+
+	// Sphere inner;
+	// inner.position = float3(150, 0, 0) - frame_.world_offset.xyz;
+	// inner.radius = 40;
+
+	// Ray r;
+	// r.origin = 0;
+	// r.dir = -input.V;
+	// float t0, t1;
+	// intersectionRaySphere(r, inner, t0, t1);
+	// float3 L = -frame_.directionalLightVec;
+
+	// if(t0 >= 0) {
+	// 	float3 N = normalize( r.dir * t0 - inner.position );
+	// 	output = dot(N, L) * 0.5;
+	// }
+
+	//output = volume(input.depth, input.V, -frame_.directionalLightVec, output);
 }

@@ -89,6 +89,7 @@ namespace VRageRender
             MyEnvironment.LargeDistanceFarClipping = message.FarPlane*500.0f;
             MyEnvironment.FovY = message.FOV;
             MyEnvironment.ViewFrustum = new BoundingFrustum(MyEnvironment.ViewProjection);
+            MyEnvironment.ViewFrustumD = new BoundingFrustumD(MyEnvironment.ViewProjectionD);
         }
 
         private static void TransferPerformanceStats()
@@ -229,6 +230,8 @@ namespace VRageRender
             MyBlendTargets.Run(MyGBuffer.Main.Get(MyGbufferSlot.LBuffer), MyScreenDependants.m_particlesRT);
             MyGpuProfiler.IC_EndBlock();
             MyRender11.GetRenderProfiler().EndProfilingBlock();
+
+            MyAtmosphereRenderer.Render();
 
             MyGpuProfiler.IC_BeginBlock("Luminance reduction");
             MyBindableResource avgLum = null;

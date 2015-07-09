@@ -29,6 +29,8 @@ namespace Sandbox.ModAPI
 
         bool IsNeutral(long playerId);
 
+        bool IsEveryoneNpc();
+
         VRage.Collections.DictionaryReader<long, MyFactionMember> Members { get; }
         VRage.Collections.DictionaryReader<long, MyFactionMember> JoinRequests { get; }
 

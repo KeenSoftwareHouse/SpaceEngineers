@@ -87,6 +87,7 @@ namespace Sandbox.Game.Gui
             items[(int)LineEnum.TimeLeft].Name.Clear().AppendStringBuilder(MyTexts.Get(MySpaceTexts.HudScenarioInfoTimeLeft));
             m_livesLeft = -1;
             m_timeLeftMin = -1;
+            m_timeLeftSec = -1;
             m_needsRefresh = true;
         }
 
