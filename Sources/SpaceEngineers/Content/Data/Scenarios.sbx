@@ -354,19 +354,19 @@
       <PossibleStartingStates>
       <StartingState xsi:type="Transform" JetpackEnabled="true" DampenersEnabled="true">
         <Transform>
-          <Position x="16645.311872003316" y="32388.794622388748" z="14136.587825442359" />
-          <Forward x="-0.449505031" y="-0.797060549" z="0.4032862" />
-          <Up x="-0.653642654" y="-0.0142257074" z="-0.756669641" />
+          <Position x="16753.240629495678" y="36680.468613601675" z="14070.47408505316" />
+          <Forward x="-0.5595269" y="0.5727671" z="0.5990555" />
+          <Up x="-0.6424482" y="0.156920686" z="-0.750090837" />
         </Transform>
       </StartingState>
         </PossibleStartingStates>
       <WorldGeneratorOperations>
-        <Operation xsi:type="AddPlanetPrefab" PrefabFile="Planet1" Name="RedShipCrashed"/> 
-        <Operation xsi:type="AddShipPrefab" PrefabFile="Fighter2">
+        <Operation xsi:type="AddPlanetPrefab" PrefabFile="Planet1"/> 
+        <Operation xsi:type="AddShipPrefab" PrefabFile="Buggy">
           <Transform>
-              <Position x="16613.223512170553" y="32333.253986326126" z="14161.549301768348" />
-              <Forward x="-0.489987135" y="-0.8015769" z="0.342617959" />
-              <Up x="-0.622662246" y="0.0467580669" z="-0.781092465" />
+            <Position x="16728.8420220554" y="36702.521585343013" z="14091.028068970223" />
+            <Forward x="0" y="0" z="-1" />
+            <Up x="0" y="1" z="0" />
           </Transform>
         </Operation>
       </WorldGeneratorOperations>
@@ -394,23 +394,15 @@
       <PossibleStartingStates>
       <StartingState xsi:type="Transform" JetpackEnabled="false" DampenersEnabled="true">
         <Transform>
-          <Position x="11081.2114269507" y="32198.393937796835" z="20446.86816305446" />
-          <Forward x="-0.45068568" y="-0.379716516" z="0.807897151" />
-          <Up x="-0.868705153" y="-0.0217921566" z="-0.4948499" />
+          <Position x="10253.385062222616" y="41873.8292762573" z="39108.052099417589" />
+          <Forward x="-0.195741445" y="-0.8381381" z="0.509126544" />
+          <Up x="-0.897167265" y="0.362671971" z="0.252110958" />
         </Transform>
       </StartingState>
     </PossibleStartingStates>
     <WorldGeneratorOperations>
-      <Operation xsi:type="AddPlanetPrefab" PrefabFile="Planet1" Name="RedShipCrashed"/>
-      <Operation xsi:type="AddPlanetPrefab" PrefabFile="Planet2" Name="RedShipCrashed"/>
-      <Operation xsi:type="AddShipPrefab" PrefabFile="Fighter2">
-        <Transform>
-         <Position x="11075.5708019507" y="32198.676469535116" z="20451.20654196071" />
-        <Forward x="-0.3965575" y="-0.597108364" z="0.6972831" />
-        <Up x="-0.903461039" y="0.119156681" z="-0.411776483" />
-        </Transform>
-      </Operation>
-
+      <Operation xsi:type="AddPlanetPrefab" PrefabFile="Planet1"/>
+      <Operation xsi:type="AddPlanetPrefab" PrefabFile="Planet2"/>
     </WorldGeneratorOperations>
   </ScenarioDefinition>
 </Scenarios>

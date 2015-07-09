@@ -108,6 +108,7 @@ namespace Sandbox.Game.Entities.Character
                 // TODO: Uncomment to enforce that character must face object by front to activate it
                 //if (TestInteractionDirection(head.Forward, h.Position - GetPosition()))
                 //return;
+                DetectedEntity = entity;
 
                 if (entity != null)
                 {

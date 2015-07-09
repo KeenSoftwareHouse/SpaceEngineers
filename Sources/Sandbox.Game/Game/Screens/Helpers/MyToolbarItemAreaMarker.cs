@@ -21,6 +21,17 @@ namespace Sandbox.Game.Screens.Helpers
 			return true;
 		}
 
+		public override MyObjectBuilder_ToolbarItem GetObjectBuilder()
+		{
+			var baseBuilder = base.GetObjectBuilder();
+			var builder = baseBuilder as MyObjectBuilder_ToolbarItemAreaMarker;
+
+			if (builder == null)
+				return baseBuilder;
+
+			return builder;
+		}
+
 		public override bool Activate()
 		{
 			if (!MyFakes.ENABLE_BARBARIANS || !MyPerGameSettings.EnableAi)

@@ -800,6 +800,24 @@ namespace VRageRender
 
         }
 
+        private static void DrawAtmosphere()
+        {
+            SetupAtmosphereShader();
+            DrawNearPlanetSurfaceFromSpace();
+            DrawNearPlanetSurfaceFromAtmosphere();
+
+            GetRenderProfiler().StartProfilingBlock("PrepareRenderObjectsForFarDraw");
+            // Prepare entities for draw
+            PrepareRenderObjectsForDraw(true);
+            GetRenderProfiler().EndProfilingBlock();
+
+            GetRenderProfiler().StartProfilingBlock("Draw far objects");
+            DrawScene_BackgroundObjects(MyLodTypeEnum.LOD_BACKGROUND);
+            GetRenderProfiler().EndProfilingBlock();
+
+            DrawAtmosphere(false);
+            DrawAtmosphere(true);
+        }
 
         public static MyRenderObject GetAnyIntersectionWithLine(MyDynamicAABBTreeD tree, ref VRageMath.LineD line, MyRenderObject ignoreObject0, MyRenderObject ignoreObject, List<MyLineSegmentOverlapResult<MyElement>> elementList)
         {

@@ -270,7 +270,7 @@ namespace Sandbox.Game.Entities.Cube
 
             MyRelationsBetweenPlayerAndBlock relation = GetUserRelationToOwner(playerId);
 
-            bool accessAllowed = relation == MyRelationsBetweenPlayerAndBlock.Owner || relation == MyRelationsBetweenPlayerAndBlock.FactionShare;
+            bool accessAllowed = relation.IsFriendly();
             return accessAllowed;
         }
 

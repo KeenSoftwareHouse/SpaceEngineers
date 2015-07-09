@@ -118,6 +118,7 @@ namespace Sandbox.Definitions
                 m_battleDefinition = new MyBattleDefinition();
 
                 m_planetGeneratorDefinitions = new DefinitionDictionary<MyPlanetGeneratorDefinition>(5);
+                m_moonGeneratorDefinitions = new DefinitionDictionary<MyPlanetGeneratorDefinition>(5);
 
                 m_componentGroups = new DefinitionDictionary<MyComponentGroupDefinition>(4);
                 m_componentGroupMembers = new Dictionary<MyDefinitionId, MyTuple<int, MyComponentGroupDefinition>>();
@@ -313,6 +314,14 @@ namespace Sandbox.Definitions
                         m_planetGeneratorDefinitions.Remove(entry.Key);
                 }
 
+                foreach (var entry in definitionSet.m_moonGeneratorDefinitions)
+                {
+                    if (entry.Value.Enabled)
+                        m_moonGeneratorDefinitions[entry.Key] = entry.Value;
+                    else
+                        m_moonGeneratorDefinitions.Remove(entry.Key);
+                }
+
                 foreach (var entry in definitionSet.m_planetPrefabDefinitions)
                 {
                     if (entry.Value.Enabled)
@@ -412,6 +421,7 @@ namespace Sandbox.Definitions
             internal MyBattleDefinition m_battleDefinition;
 
             internal DefinitionDictionary<MyPlanetGeneratorDefinition> m_planetGeneratorDefinitions;
+            internal DefinitionDictionary<MyPlanetGeneratorDefinition> m_moonGeneratorDefinitions;
 
             internal DefinitionDictionary<MyComponentGroupDefinition> m_componentGroups;
             internal Dictionary<MyDefinitionId, MyTuple<int, MyComponentGroupDefinition>> m_componentGroupMembers;

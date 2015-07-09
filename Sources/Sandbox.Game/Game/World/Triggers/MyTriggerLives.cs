@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using VRage;
 using VRage.Utils;
 
 namespace Sandbox.Game.World.Triggers
@@ -16,7 +17,16 @@ namespace Sandbox.Game.World.Triggers
     {
         //int m_livesLeft;
         public int LivesLeft=1;
-
+        public override bool IsTrue
+        {
+            get { return m_IsTrue; }
+            set
+            {
+                m_IsTrue = value; 
+                if (value) 
+                    LivesLeft = 0; //because you can die and get the info that you lost from server before RaiseSignal could lower lives to zero on client
+            }
+        }
         public MyTriggerLives(){ }
 
         public MyTriggerLives(MyTriggerLives trg)
@@ -41,12 +51,18 @@ namespace Sandbox.Game.World.Triggers
             return IsTrue;
         }
 
-        public override void DisplayHints()
+        public override void DisplayHints(MyPlayer player, Entities.MyEntity me)
         {
             if (MySession.Static.IsScenario)
                 MyHud.ScenarioInfo.LivesLeft = LivesLeft;
         }
 
+        private StringBuilder m_progress = new StringBuilder();
+        public override StringBuilder GetProgress()
+        {
+            m_progress.Clear().AppendFormat(MySpaceTexts.ScenarioProgressLimitedLives,LivesLeft).Append(Environment.NewLine);
+            return m_progress;
+        }
         //OB:
         public override void Init(MyObjectBuilder_Trigger ob)
         {

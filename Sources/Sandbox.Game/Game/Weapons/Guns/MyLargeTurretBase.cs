@@ -58,7 +58,6 @@ namespace Sandbox.Game.Weapons
 
             Vector3D GetPredictedTargetPosition(IMyEntity entity);
         }
-		public bool IsDeconstructor { get { return false; } }
 
         class MyTargetPredictionType : IMyPredicionType
         {
@@ -1237,7 +1236,7 @@ namespace Sandbox.Game.Weapons
             m_laserLength = m_searchingRange;
             Havok.HkRigidBody entity=null;
             if (!MySandboxGame.IsDedicated)
-            //    entity = MyPhysics.CastRay(from, to, out m_hitPosition, out normal);
+               entity = MyPhysics.CastRay(from, to, out m_hitPosition, out normal);
             if (entity == null)
                 m_hitPosition = to;
             else

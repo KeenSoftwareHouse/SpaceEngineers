@@ -31,7 +31,7 @@ namespace Sandbox.Game.Screens.Triggers
 
             var layout = new MyLayoutTable(this);
             layout.SetColumnWidthsNormalized(10, 30, 3, 30, 10);
-            layout.SetRowHeightsNormalized(20, 35, 6, 4, 4, 5, 13);
+            layout.SetRowHeightsNormalized(20, 35, 6, 4, 4, 5, 33);
 
             m_selectedBlocks = new MyGuiControlTable();
             m_selectedBlocks.VisibleRowsCount = 8;

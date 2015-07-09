@@ -3,9 +3,11 @@ using Sandbox.Common.ModAPI;
 using Sandbox.Common.ObjectBuilders.Definitions;
 using Sandbox.Engine.Multiplayer;
 using Sandbox.Game.Entities;
+using Sandbox.Game.Entities.Character;
 using Sandbox.Game.Entities.Cube;
 using Sandbox.Game.Weapons;
 using Sandbox.Game.World;
+using Sandbox.ModAPI;
 using Sandbox.ModAPI.Interfaces;
 using SteamSDK;
 using System;
@@ -51,10 +53,19 @@ namespace Sandbox.Game.Multiplayer
             public MyHitInfo? HitInfo;
         }
 
+		[MessageIdAttribute(13270, P2PMessageEnum.Reliable)]
+		[ProtoContract]
+		struct KillCharacterMsg
+		{
+			[ProtoMember]
+			public long entityId;
+		}
+
         static MySyncHelper()
         {
             MySyncLayer.RegisterMessage<DoDamageMsg>(DoDamage, MyMessagePermissions.Any);
             MySyncLayer.RegisterMessage<DoDamageSlimBlockMsg>(DoDamageSlimBlock, MyMessagePermissions.Any);
+			MySyncLayer.RegisterMessage<KillCharacterMsg>(OnKillCharacter, MyMessagePermissions.FromServer);
         }
 
         public static void DoDamageSynced(MyEntity destroyable, float damage, MyDamageType type)
@@ -84,6 +95,28 @@ namespace Sandbox.Game.Multiplayer
             }
             (ent as IMyDestroyableObject).DoDamage(msg.Damage, msg.Type, false);
         }
+
+		public static void KillCharacter(MyCharacter character)
+		{
+			Debug.Assert(Sync.IsServer, "KillCharacter called from client");
+			KillCharacterMsg msg = new KillCharacterMsg()
+			{
+				entityId = character.EntityId,
+			};
+
+			character.Kill(false);
+			Sync.Layer.SendMessageToAll<KillCharacterMsg>(ref msg);
+		}
+
+		static void OnKillCharacter(ref KillCharacterMsg msg, MyNetworkClient sender)
+		{
+			MyEntity entity = null;
+			MyCharacter character = null;
+			if (!MyEntities.TryGetEntityById(msg.entityId, out entity) || (character = entity as MyCharacter) == null)
+				return;
+
+			character.Kill(false);
+		}
 
         internal static void DoDamageSynced(MySlimBlock block, float damage, MyDamageType damageType, MyHitInfo? hitInfo)
         {

@@ -27,9 +27,55 @@ namespace Sandbox.Common.ObjectBuilders.Definitions
             public float RemovedRadius = 0f;
         }
 
+        [ProtoContract]
+        public class MyToolActionHitCondition
+        {
+            [ProtoMember, DefaultValue(null)]
+            public string EntityType = null;
+
+            [ProtoMember]
+            public string Animation;
+
+            [ProtoMember]
+            public string StatsAction;
+
+            [ProtoMember]
+            public string Script;
+        }
+
+        [ProtoContract]
+        public class MyToolActionDefinition
+        {
+            [ProtoMember]
+            public string Name;
+
+            [ProtoMember, DefaultValue(0)]
+            public float StartTime = 0;
+
+            [ProtoMember, DefaultValue(1)]
+            public float EndTime = 1;
+            
+            [ProtoMember, DefaultValue(1f)]
+            public float Efficiency = 1f;
+
+            [XmlArrayItem("HitCondition")]
+            [ProtoMember, DefaultValue(null)]
+            public MyToolActionHitCondition[] HitConditions;
+
+        }
+
         [XmlArrayItem("Mining")]
         [ProtoMember, DefaultValue(null)]
         public MyVoxelMiningDefinition[] VoxelMinings = null;
+
+        [XmlArrayItem("Action")]
+        [ProtoMember, DefaultValue(null)]
+        public MyToolActionDefinition[] PrimaryActions = null;
+
+        [XmlArrayItem("Action")]
+        [ProtoMember, DefaultValue(null)]
+        public MyToolActionDefinition[] SecondaryActions = null;
+
 
         [ProtoMember, DefaultValue(0)]
         public int AttackStartFrame = 0;
@@ -51,6 +97,9 @@ namespace Sandbox.Common.ObjectBuilders.Definitions
 
 		[ProtoMember, DefaultValue(0)]
 		public float BuildingEfficiency = 0;
+
+		[ProtoMember, DefaultValue(false)]
+		public bool HasDeconstructor = false;
 
         [ProtoMember, DefaultValue(30)]
         public float ToolDamage = 30;

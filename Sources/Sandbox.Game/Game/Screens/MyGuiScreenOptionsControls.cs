@@ -559,7 +559,8 @@ namespace Sandbox.Game.Gui
                 callback: null,
                 timeoutInMiliseconds: 0,
                 focusedResult: ResultEnum.YES,
-                canHideOthers: true)
+                canHideOthers: true,
+                size: null)
             {
                 DrawMouseCursor     = false;
                 m_isTopMostScreen   = false;
