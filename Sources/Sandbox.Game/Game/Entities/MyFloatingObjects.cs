@@ -283,7 +283,10 @@ namespace Sandbox.Game.Entities
             foreach (var item in m_itemsToSpawnNextUpdate)
             {
                 var entity = item.Item1.Spawn(item.Item1.Amount, item.Item2);
-                entity.Physics.ApplyImpulse(MyUtils.GetRandomVector3Normalized() * entity.Physics.Mass / 5.0f, entity.PositionComp.GetPosition());
+                if (entity != null)
+                {
+                    entity.Physics.ApplyImpulse(MyUtils.GetRandomVector3Normalized() * entity.Physics.Mass / 5.0f, entity.PositionComp.GetPosition());
+                }
             }
 
             m_itemsToSpawnNextUpdate.Clear();

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Net;
 using System.Text;
@@ -244,6 +245,7 @@ namespace Sandbox.Engine.Multiplayer
             HostName = "Dedicated server";
 
             SyncLayer.RegisterMessageImmediate<ConnectedClientDataMsg>(this.OnConnectedClient, MyMessagePermissions.Any);
+            SyncLayer.RegisterMessageImmediate<AllMembersDataMsg>(OnAllMembersData, MyMessagePermissions.Any);
 
             m_membersCollection = new MemberCollection(m_members);
             SetMemberLimit(MaxPlayers);
@@ -514,7 +516,7 @@ namespace Sandbox.Engine.Multiplayer
             }
         }
 
-        private void UserAccepted(ulong steamID)
+        protected virtual void UserAccepted(ulong steamID)
         {
             System.Diagnostics.Debug.Assert(!m_members.Contains(steamID));
             m_members.Add(steamID);
@@ -807,6 +809,11 @@ namespace Sandbox.Engine.Multiplayer
         protected override void OnPing(ref MyControlPingMsg data, ulong sender)
         {
             SendControlMessage(sender, ref data);
+        }
+
+        public void OnAllMembersData(ref AllMembersDataMsg msg, MyNetworkClient sender)
+        {
+            Debug.Fail("Members data cannot be sent to server");
         }
     }
 }

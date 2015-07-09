@@ -551,6 +551,7 @@ namespace Sandbox.Game.Entities
                 MyHud.ShipInfo.FuelRemainingTime = GridPowerDistributor.RemainingFuelTime;
                 MyHud.ShipInfo.Reactors = GridPowerDistributor.MaxAvailablePower;
                 MyHud.ShipInfo.PowerState = GridPowerDistributor.PowerState;
+				MyHud.ShipInfo.AllEnabledRecently = GridPowerDistributor.AllEnabledRecently;
             }
             if (GridGyroSystem != null)
                 MyHud.ShipInfo.GyroCount = GridGyroSystem.GyroCount;

@@ -59,6 +59,8 @@ namespace Sandbox.Game.Entities
 
         private Dictionary<MyStringHash, MyEnvironmentItems.MyEnvironmentItemsSpawnData> m_spawners;
 
+        int m_numPlacedItems = 0;
+
         public MyPlanetEnvironmentSector()
         { 
         }
@@ -133,6 +135,7 @@ namespace Sandbox.Game.Entities
 
                                 var spawner = m_spawners[cl.Id.SubtypeId];
                                 MyEnvironmentItems.SpawnItem(spawner, itemDef, m_spawnPositions[i], direction);
+                                m_numPlacedItems++;
                             }
                         }
 
@@ -153,7 +156,7 @@ namespace Sandbox.Game.Entities
         public void UpdateSectorGraphics()
         {
             HasGraphics = true;
-            if (m_spawners == null)
+            if (m_spawners == null || m_numPlacedItems == 0)
             {
                 return;
             }

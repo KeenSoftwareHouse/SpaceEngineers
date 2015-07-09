@@ -1362,10 +1362,14 @@ namespace Sandbox.Game.Multiplayer
 
         public static void ChangeOwnersRequest(MyOwnershipShareModeEnum shareMode, List<MySingleOwnershipRequest> requests)
         {
+            ChangeOwnersRequest(shareMode, requests, MySession.LocalPlayerId);
+        }
+        public static void ChangeOwnersRequest(MyOwnershipShareModeEnum shareMode, List<MySingleOwnershipRequest> requests, long requestingPlayer)
+        {
             System.Diagnostics.Debug.Assert((int)shareMode >= 0);
 
             var msg = new ChangeOwnershipsMsg();
-            msg.RequestingPlayer = MySession.LocalPlayerId; // CH: This is (probably) set only via GUI. If you intend to change this, you'll need playerId
+            msg.RequestingPlayer = requestingPlayer;
             msg.ShareMode = shareMode;
 
             msg.Requests = requests;

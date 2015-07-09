@@ -10,6 +10,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
+using VRage;
 using VRage.Utils;
 
 namespace Sandbox.Game.World.Triggers
@@ -27,8 +28,6 @@ namespace Sandbox.Game.World.Triggers
         public Dictionary<MyTerminalBlock, BlockState> Blocks { get { return m_blocks; } private set { m_blocks = value; } }
 
         public string SingleMessage;
-        protected bool m_needsSingleMessage;
-        IMyHudNotification m_singleNotification;
 
         public MyTriggerBlockDestroyed(){ }
 
@@ -36,7 +35,6 @@ namespace Sandbox.Game.World.Triggers
             : base(trg) 
         {
             SingleMessage = trg.SingleMessage;
-            m_needsSingleMessage = trg.m_needsSingleMessage;
             //needs to be deep copy because we are using this to copy from default template to each user
             m_blocks.Clear();
             foreach(var entry in trg.m_blocks)
@@ -48,28 +46,28 @@ namespace Sandbox.Game.World.Triggers
             return trigger;
         }
 
-        public override void DisplayHints()
+        public override void DisplayHints(MyPlayer player, Entities.MyEntity me)
         {
-            if (m_needsSingleMessage)
+            foreach (var item in m_blocks)
             {
-                m_needsSingleMessage = false;
-                foreach (var item in m_blocks)
-                    if (item.Value == BlockState.Destroyed)
-                        m_blocksHelper.Add(item.Key);
-
-                foreach (var block in m_blocksHelper)
-                {
-                    if (SingleMessage != null)
-                        MyAPIGateway.Utilities.ShowNotification(string.Format(SingleMessage, block.CustomName), 20000, Sandbox.Common.MyFontEnum.Blue);
-                    m_blocks[block] = BlockState.MessageShown;
-                }
-                m_blocksHelper.Clear();
+                if (item.Value == BlockState.MessageShown)
+                    continue;
+                if (item.Key.SlimBlock.IsDestroyed)// already processed into BlockState.Destroyed on server as update runs before hints
+                    m_blocksHelper.Add(item.Key);
             }
-            base.DisplayHints();
+            foreach (var block in m_blocksHelper)
+            {
+                if (SingleMessage != null)
+                    MyAPIGateway.Utilities.ShowNotification(string.Format(SingleMessage, block.CustomName), 20000, Sandbox.Common.MyFontEnum.Blue);
+                m_blocks[block] = BlockState.MessageShown;
+            }
+            m_blocksHelper.Clear();
+            
+            base.DisplayHints(player,me);
         }
 
         private static List<MyTerminalBlock> m_blocksHelper = new List<MyTerminalBlock>();
-        public override bool Update(MyEntity me)
+        public override bool Update(MyPlayer player, MyEntity me)
         {
             bool isSomethingAlive=false;
             foreach(var item in m_blocks)
@@ -90,10 +88,20 @@ namespace Sandbox.Game.World.Triggers
                 foreach(var block in m_blocksHelper)
                     m_blocks[block] = BlockState.Destroyed;
                 m_blocksHelper.Clear();
-                m_needsSingleMessage = true;
             }
-            return base.Update(me);
+            return m_IsTrue;
         }
+
+        private StringBuilder m_progress = new StringBuilder();
+        public override StringBuilder GetProgress()
+        {
+            m_progress.Clear().Append(MyTexts.Get(MySpaceTexts.ScenarioProgressDestroyBlocks));
+            foreach (var block in m_blocks)
+                if (block.Value == BlockState.Ok)
+                    m_progress.Append(Environment.NewLine).Append("   ").Append(block.Key.CustomName);
+            return m_progress;
+        }
+
 
         //OB:
         public override void Init(MyObjectBuilder_Trigger builder)
@@ -115,7 +123,7 @@ namespace Sandbox.Game.World.Triggers
             MyObjectBuilder_TriggerBlockDestroyed ob = (MyObjectBuilder_TriggerBlockDestroyed)base.GetObjectBuilder();
             ob.BlockIds = new List<long>();
             foreach (var block in m_blocks)
-                if (block.Value == BlockState.Ok)
+                if (!block.Key.SlimBlock.IsDestroyed)
                     ob.BlockIds.Add(block.Key.EntityId);
             ob.SingleMessage = SingleMessage;
             return ob;

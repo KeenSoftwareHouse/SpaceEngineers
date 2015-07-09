@@ -41,6 +41,7 @@ namespace VRageRender
 
         static VertexShaderId m_screenVertexShader;
         static PixelShaderId m_blitTextureShader;
+        static PixelShaderId m_blitTexture3DShader;
         static InputLayoutId m_inputLayout;
 
         static VertexBufferId m_quadBuffer;
@@ -64,15 +65,17 @@ namespace VRageRender
 
             m_screenVertexShader = MyShaders.CreateVs("debug.hlsl", "screenVertex");
             m_blitTextureShader = MyShaders.CreatePs("debug.hlsl", "blitTexture");
+            m_blitTexture3DShader = MyShaders.CreatePs("debug.hlsl", "blitTexture3D");
             m_inputLayout = MyShaders.CreateIL(m_screenVertexShader.BytecodeId, MyVertexLayouts.GetLayout(MyVertexInputComponentType.POSITION2, MyVertexInputComponentType.TEXCOORD0));
 
             m_quadBuffer = MyHwBuffers.CreateVertexBuffer(6, MyVertexFormatPosition2Texcoord.STRIDE, BindFlags.VertexBuffer, ResourceUsage.Dynamic);
         }
 
-        internal static void DrawQuad(float x, float y, float w, float h, int i)
+        internal static void DrawQuad(float x, float y, float w, float h)
         {
+            //RC.Context.PixelShader.Set(m_blitTextureShader);
+
             RC.Context.VertexShader.Set(m_screenVertexShader);
-            RC.Context.PixelShader.Set(m_blitTextureShader);
             RC.Context.InputAssembler.InputLayout = m_inputLayout;
 
             var mapping = MyMapping.MapDiscard(m_quadBuffer.Buffer);
@@ -87,24 +90,72 @@ namespace VRageRender
 
             mapping.Unmap();
 
-
             RC.Context.InputAssembler.PrimitiveTopology = PrimitiveTopology.TriangleList;
-            RC.Context.PixelShader.SetShaderResource(0, MyGeometryRenderer.m_envProbe.cubemapPrefiltered.SubresourceSrv(i, 1));
 
             RC.Context.InputAssembler.SetVertexBuffers(0, new VertexBufferBinding(m_quadBuffer.Buffer, m_quadBuffer.Stride, 0));
             RC.Context.Draw(6, 0);
+        }
+
+        internal unsafe static void DrawAtmosphereTransmittance(uint ID)
+        {
+            var tex = MyAtmosphereRenderer.AtmosphereLUT[ID].TransmittanceLut;
+
+            RC.Context.PixelShader.Set(m_blitTextureShader);
+            RC.Context.PixelShader.SetShaderResource(0, tex.ShaderView);
+
+            DrawQuad(256, 0, 256, 64);
+
+            RC.Context.PixelShader.SetShaderResource(0, null);
+        }
+
+        internal static void DrawAtmosphereInscatter(uint ID)
+        {
+            var texR = MyAtmosphereRenderer.AtmosphereLUT[ID].InscatterLut;
+
+
+            RC.Context.PixelShader.Set(m_blitTexture3DShader);
+            RC.Context.PixelShader.SetShaderResource(0, texR.ShaderView);
+
+            var cb = MyCommon.GetMaterialCB(sizeof(uint));
+            RC.Context.PixelShader.SetConstantBuffer(5, cb);
+
+            for (int i = 0; i < 16; ++i)
+            {
+                var mapping = MyMapping.MapDiscard(cb);
+                mapping.stream.Write(((float)2 * i + 0.5f / 32.0f) / (float)32);
+                mapping.Unmap();
+
+                DrawQuad(0, 32 * i, 128, 32);
+
+                mapping = MyMapping.MapDiscard(cb);
+                mapping.stream.Write(((float)2 * i + 1 + 0.5f / 32.0f) / (float)32);
+                mapping.Unmap();
+
+                DrawQuad(128, 32 * i, 128, 32);
+            }
+
+            RC.Context.PixelShader.SetShaderResource(0, null);
+        }
+
+        internal static void DrawEnvProbeQuad(float x, float y, float w, float h, int i)
+        {
+            RC.Context.PixelShader.Set(m_blitTextureShader);
+            
+            RC.Context.PixelShader.SetShaderResource(0, MyGeometryRenderer.m_envProbe.cubemapPrefiltered.SubresourceSrv(i, 1));
+
+            DrawQuad(x, y, w, h);
         }
 
         internal static void DrawEnvProbe()
         {
             //MyGeometryRenderer.m_envProbe.cubemap
 
-            DrawQuad(256 * 2, 256 * 1, 256, 256, 0);
-            DrawQuad(256 * 0, 256 * 1, 256, 256, 1);
-            DrawQuad(256 * 1, 256 * 0, 256, 256, 2);
-            DrawQuad(256 * 1, 256 * 2, 256, 256, 3);
-            DrawQuad(256 * 1, 256 * 1, 256, 256, 4);
-            DrawQuad(256 * 3, 256 * 1, 256, 256, 5);
+            DrawEnvProbeQuad(256 * 2, 256 * 1, 256, 256, 0);
+            DrawEnvProbeQuad(256 * 0, 256 * 1, 256, 256, 1);
+            DrawEnvProbeQuad(256 * 1, 256 * 0, 256, 256, 2);
+            DrawEnvProbeQuad(256 * 1, 256 * 2, 256, 256, 3);
+            DrawEnvProbeQuad(256 * 1, 256 * 1, 256, 256, 4);
+            DrawEnvProbeQuad(256 * 3, 256 * 1, 256, 256, 5);
         }
 
         internal static void Draw()
@@ -191,6 +242,8 @@ namespace VRageRender
             }
 
             //DrawEnvProbe();
+            //DrawAtmosphereTransmittance(MyAtmosphereRenderer.AtmosphereLUT.Keys.ToArray()[0]);
+            //DrawAtmosphereInscatter(MyAtmosphereRenderer.AtmosphereLUT.Keys.ToArray()[0]);
 
             if (MyRender11.Settings.DisplayIDs || MyRender11.Settings.DisplayAabbs)
             {
@@ -375,7 +428,7 @@ namespace VRageRender
 
                     if(h != null)
                     {
-                        BoundingBox bb = BoundingBox.CreateInvalid();
+                        var bb = BoundingBoxD.CreateInvalid();
 
                         foreach (var child in h.m_children)
                         {
@@ -385,12 +438,12 @@ namespace VRageRender
                             }
                         }
 
-                        batch.AddBoundingBox(bb, Color.Red);
-                        MyPrimitivesRenderer.Draw6FacedConvex(bb.GetCorners(), Color.Red, 0.1f);
+                        batch.AddBoundingBox((BoundingBox)bb, Color.Red);
+                        MyPrimitivesRenderer.Draw6FacedConvex(bb.GetCorners().Select(x=>(Vector3)x).ToArray(), Color.Red, 0.1f);
                     }
                     else if(r!=null && actor.GetGroupLeaf() == null)
                     {
-                        batch.AddBoundingBox(r.m_owner.Aabb, Color.Green);
+                        batch.AddBoundingBox((BoundingBox)r.m_owner.Aabb, Color.Green);
                     }
                 }
             }
@@ -508,7 +561,7 @@ namespace VRageRender
                 {
                     if(r.m_owner.GetComponent(MyActorComponentEnum.Instancing) != null)
                     {
-                        batch.AddBoundingBox(r.m_owner.Aabb, Color.Blue);
+                        batch.AddBoundingBox((BoundingBox)r.m_owner.Aabb, Color.Blue);
                     }
                 }
 

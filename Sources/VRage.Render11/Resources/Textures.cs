@@ -11,6 +11,7 @@ using SharpDX;
 using SharpDX.Toolkit.Graphics;
 using Texture2D = SharpDX.Direct3D11.Texture2D;
 using Texture1D = SharpDX.Direct3D11.Texture1D;
+using Texture3D = SharpDX.Direct3D11.Texture3D;
 using Vector2 = VRageMath.Vector2;
 using Resource = SharpDX.Direct3D11.Resource;
 using SharpDX.DXGI;
@@ -673,8 +674,9 @@ namespace VRageRender.Resources
     struct MyRwTextureInfo
     {
         // immutable data
-        internal Texture1DDescription ? Description1D;
-        internal Texture2DDescription ? Description2D;
+        internal Texture1DDescription? Description1D;
+        internal Texture2DDescription? Description2D;
+        internal Texture3DDescription? Description3D;
         internal Resource Resource;
     }
 
@@ -1002,6 +1004,31 @@ namespace VRageRender.Resources
             var handle = new RwTexId { Index = Textures.Allocate() };
             Textures.Data[handle.Index] = new MyRwTextureInfo { Description2D = desc };
             Textures.Data[handle.Index].Resource = new Texture2D(MyRender11.Device, desc);
+
+            Srvs[handle] = new MySrvInfo { Description = null, View = new ShaderResourceView(MyRender11.Device, Textures.Data[handle.Index].Resource) };
+            Uavs[handle] = new MyUavInfo { Description = null, View = new UnorderedAccessView(MyRender11.Device, Textures.Data[handle.Index].Resource) };
+            Index.Add(handle);
+
+            return handle;
+        }
+
+        internal static RwTexId CreateUav3D(int width, int height, int depth, Format resourceFormat, string debugName = null)
+        {
+            var desc = new Texture3DDescription
+            {
+                BindFlags = BindFlags.ShaderResource | BindFlags.UnorderedAccess,
+                CpuAccessFlags = CpuAccessFlags.None,
+                Format = resourceFormat,
+                MipLevels = 1,
+                Usage = ResourceUsage.Default,
+                Width = width,
+                Height = height,
+                Depth = depth
+            };
+
+            var handle = new RwTexId { Index = Textures.Allocate() };
+            Textures.Data[handle.Index] = new MyRwTextureInfo { Description3D = desc };
+            Textures.Data[handle.Index].Resource = new Texture3D(MyRender11.Device, desc);
 
             Srvs[handle] = new MySrvInfo { Description = null, View = new ShaderResourceView(MyRender11.Device, Textures.Data[handle.Index].Resource) };
             Uavs[handle] = new MyUavInfo { Description = null, View = new UnorderedAccessView(MyRender11.Device, Textures.Data[handle.Index].Resource) };
@@ -1350,6 +1377,10 @@ namespace VRageRender.Resources
                 if (Textures.Data[id.Index].Description1D.HasValue)
                 {
                     Textures.Data[id.Index].Resource = new Texture1D(MyRender11.Device, Textures.Data[id.Index].Description1D.Value);
+                }
+                if (Textures.Data[id.Index].Description3D.HasValue)
+                {
+                    Textures.Data[id.Index].Resource = new Texture3D(MyRender11.Device, Textures.Data[id.Index].Description3D.Value);
                 }
             }
 

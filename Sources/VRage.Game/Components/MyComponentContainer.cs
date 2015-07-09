@@ -157,7 +157,9 @@ namespace VRage.Components
             int i = 0;
             foreach (var component in m_components)
             {
-                var componentBuilder = component.Value.Serialize();
+				MyObjectBuilder_ComponentBase componentBuilder = null;
+				if (component.Value.IsSerialized())
+					componentBuilder = component.Value.Serialize();
                 if (componentBuilder != null)
                 {
                     var data = new MyObjectBuilder_ComponentContainer.ComponentData();
@@ -172,20 +174,20 @@ namespace VRage.Components
             return builder;
         }
 
-        public void Deserialize(MyObjectBuilder_ComponentContainer builder)
-        {
-            var componentsData = builder.Components;
-            if (componentsData != null)
-            {
-                foreach (var data in componentsData)
-                {
-                    var instance = MyComponentFactory.CreateInstance(data.Component.GetType());
-                    instance.Deserialize(data.Component);
-                    var dictType = MyComponentTypeFactory.GetType(data.TypeId);
-                    Add(dictType, instance);
-                }
-            }
-        }
+		public void Deserialize(MyObjectBuilder_ComponentContainer builder)
+		{
+			if (builder == null || builder.Components == null)
+				return;
+
+			var componentsData = builder.Components;
+			foreach (var data in componentsData)
+			{
+				var instance = MyComponentFactory.CreateInstance(data.Component.GetType());
+				instance.Deserialize(data.Component);
+				var dictType = MyComponentTypeFactory.GetType(data.TypeId);
+				Add(dictType, instance);
+			}
+		}
 
         public Dictionary<Type, MyComponentBase>.ValueCollection.Enumerator GetEnumerator()
         {

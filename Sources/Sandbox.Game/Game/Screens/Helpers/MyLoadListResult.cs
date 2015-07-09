@@ -64,8 +64,11 @@ namespace Sandbox.Game.Gui
             if (ContainsCorruptedWorlds)
             {
                 AvailableSaves.RemoveAll(x => x == null || x.Item2 == null);
-                MyLog.Default.WriteLine("Corrupted worlds: ");
-                MyLog.Default.WriteLine(corruptedWorlds.ToString());
+                if (MyLog.Default != null)
+                {
+                    MyLog.Default.WriteLine("Corrupted worlds: ");
+                    MyLog.Default.WriteLine(corruptedWorlds.ToString());
+                }
             }
 
             if (AvailableSaves.Count != 0)

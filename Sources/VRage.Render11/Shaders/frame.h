@@ -8,6 +8,8 @@ struct FrameConstants {
 	matrix	view_matrix;
 	matrix	projection_matrix;	
 	matrix 	inv_view_matrix;
+	matrix  inv_proj_matrix;
+	matrix 	inv_view_proj_matrix;
 	
 	matrix 	view_projection_matrix_world;
 	float4	world_offset;

@@ -95,7 +95,7 @@ namespace VRageRender
                     Stats.ObjectConstantsChanges++;
 
                     MyObjectData objectData = proxy.ObjectData;
-                    objectData.Translate(-MyEnvironment.CameraPosition);
+                    //objectData.Translate(-MyEnvironment.CameraPosition);
 
                     MyMapping mapping;
                     mapping = MyMapping.MapDiscard(RC.Context, proxy.objectBuffer);

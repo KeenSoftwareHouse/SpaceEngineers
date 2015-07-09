@@ -9,13 +9,12 @@ namespace Sandbox.Definitions
     [MyDefinitionType(typeof(MyObjectBuilder_PlanetGeneratorDefinition))]
     public class MyPlanetGeneratorDefinition : MyDefinitionBase
     {
-        public MyRangedValue Diameter;
+        public bool IsMoonDefinition;
 
         public MyRangedValue Deviation;
 
         public MyRangedValue StructureRatio;
 
-        public MyRangedValue NormalNoiseValue;
 
         public bool HasAtmosphere;
 
@@ -33,9 +32,9 @@ namespace Sandbox.Definitions
 
         public MyRangedValue FloraMaterialSpawnProbability;
 
-        public MyRangedValue MaterialsMaxDeph;
+        public MyRangedValue MaterialsMaxDepth;
 
-        public MyRangedValue MaterialsMinDeph;
+        public MyRangedValue MaterialsMinDepth;
 
         public MyRangedValue OrganicHeightEnd;
 
@@ -49,11 +48,9 @@ namespace Sandbox.Definitions
         {
             base.Init(builder);
             var ob = builder as MyObjectBuilder_PlanetGeneratorDefinition;
-
-            Diameter = ob.Diameter;
+            IsMoonDefinition = ob.IsMoonDefinition;
             Deviation = ob.Deviation;
             StructureRatio = ob.StructureRatio;
-            NormalNoiseValue = ob.NormalNoiseValue;
             HasAtmosphere = ob.HasAtmosphere;
 
             HillParams = ob.HillParams;
@@ -75,8 +72,8 @@ namespace Sandbox.Definitions
 
             HostileAtmosphereColorShift = ob.HostileAtmosphereColorShift;
 
-            MaterialsMaxDeph = ob.MaterialsMaxDeph;
-            MaterialsMinDeph = ob.MaterialsMinDeph;
+            MaterialsMaxDepth = ob.MaterialsMaxDepth;
+            MaterialsMinDepth = ob.MaterialsMinDepth;
         }
     }
 }
