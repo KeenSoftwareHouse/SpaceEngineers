@@ -61,6 +61,8 @@ namespace Sandbox.Game.Utils
                     if (!MaterialCues[type].ContainsKey(thisMaterial))
                         MaterialCues[type][thisMaterial] = new Dictionary<MyStringHash, MySoundPair>(MyStringHash.Comparer);
                     MySoundPair selfCue =  null;
+                    if (!MaterialCues[type].ContainsKey(material.InheritSoundsFrom))
+                        continue;
                     foreach (var pair in MaterialCues[type][material.InheritSoundsFrom])
                     {
                         if(pair.Key == material.InheritSoundsFrom)

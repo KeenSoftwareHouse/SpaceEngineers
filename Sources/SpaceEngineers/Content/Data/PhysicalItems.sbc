@@ -420,7 +420,7 @@
         <Z>0.3</Z>
       </Size>
       <Mass>22</Mass>
-      <Volume>120</Volume>
+      <Volume>25</Volume>
       <Model>Models\Weapons\HandDrill.mwm</Model>
     </PhysicalItem>
     <PhysicalItem>
@@ -674,7 +674,7 @@
       </Size>
       <Mass>1500</Mass>
       <Volume>8000</Volume>
-      <Model>Models\Environment\Trees\PineTree25m.mwm</Model>
+      <Model>Models\Environment\Trees\BigTree.mwm</Model>
        <CanSpawnFromScreen>false</CanSpawnFromScreen>
     </PhysicalItem>
 

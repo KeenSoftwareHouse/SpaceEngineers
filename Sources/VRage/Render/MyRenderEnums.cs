@@ -158,6 +158,7 @@ namespace VRageRender
         PhysicsPrunningStructure,
         NuclearExplosion,
         AttackingBots,
+        Atmosphere,
     }
 
     namespace Textures

@@ -16,5 +16,11 @@ namespace Sandbox.Game.World
         MyIdentity CreateNewIdentity(string identityName, MyPlayer.PlayerId playerId, string modelName);
         void AfterRemovePlayer(MyPlayer player);
         void SetupCharacterDefault(MyPlayer player, MyWorldGenerator.Args args);
+
+        int CountAvailableSpawns(MyPlayer player);
+        bool IsInRespawnScreen();
+        void CloseRespawnScreen();
+        void SetNoRespawnText(StringBuilder text, int timeSec);
+
     }
 }

@@ -410,10 +410,10 @@ namespace Sandbox.Game.Entities
             for (int group = 0; group < topGroup; ++group)
             {
                 MyCubeBlockDefinition.Component component = blockDef.Components[group];
-                addToList.AddMaterial(component.Definition.Id, component.Count, addToDisplayList: false);
+                addToList.AddMaterial(component.Definition.Id, component.Count, component.Count, addToDisplayList: false);
             }
             componentId = blockDef.Components[topGroup].Definition.Id;
-            addToList.AddMaterial(componentId, mountCount, addToDisplayList: false);
+            addToList.AddMaterial(componentId, mountCount, mountCount, addToDisplayList: false);
         }
 
         public void IncreaseMountLevel(float mountAmount, MyConstructionStockpile stockpile = null)

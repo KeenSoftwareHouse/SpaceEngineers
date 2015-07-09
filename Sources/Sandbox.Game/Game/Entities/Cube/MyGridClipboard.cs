@@ -130,6 +130,7 @@ namespace Sandbox.Game.Entities.Cube
 
         // Copy position
         protected float m_dragDistance;
+		protected const float m_maxDragDistance = 2E4f;
         protected Vector3 m_dragPointToPositionLocal;
 
         // Placement flags
@@ -1007,7 +1008,7 @@ namespace Sandbox.Game.Entities.Cube
                 else
                 {
                     var settings = m_settings.GetGridPlacementSettings(grid, forceDynamicGrid ? false : grid.IsStatic);
-                    retval &= MyCubeGrid.TestPlacementAreaWithEntities(grid, forceDynamicGrid ? false : grid.IsStatic, ref settings, (BoundingBoxD)grid.PositionComp.LocalAABB, false);
+                    retval &= MyCubeGrid.TestPlacementArea(grid, forceDynamicGrid ? false : grid.IsStatic, ref settings, (BoundingBoxD)grid.PositionComp.LocalAABB, false);
                 }
 
                 if (grid.IsStatic && forceDynamicGrid)
@@ -1541,7 +1542,8 @@ namespace Sandbox.Game.Entities.Cube
 
         public virtual void MoveEntityFurther()
         {
-            m_dragDistance *= 1.1f;
+			var newDragDistance = m_dragDistance * 1.1f;
+            m_dragDistance = MathHelper.Clamp(newDragDistance, m_dragDistance, m_maxDragDistance);
         }
 
         public virtual void MoveEntityCloser()

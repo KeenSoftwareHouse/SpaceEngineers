@@ -91,6 +91,9 @@ namespace Sandbox
                 UserUniverse = SteamSDK.Universe.Invalid;
                 BranchName = null;
             }
+
+            if (SteamServerAPI != null)
+                SteamServerAPI.Dispose();
         }
     }
 }

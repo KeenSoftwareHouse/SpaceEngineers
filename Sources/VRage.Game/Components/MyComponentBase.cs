@@ -78,5 +78,14 @@ namespace VRage.Components
         public virtual void Deserialize(MyObjectBuilder_ComponentBase builder)
         {
         }
+
+		/// <summary>
+		/// Tells the component container serializer whether this component should be saved
+		/// </summary>
+		/// <returns></returns>
+		public virtual bool IsSerialized()
+		{
+			return false;
+		}
     }
 }

@@ -442,6 +442,7 @@ namespace Sandbox.Game.GameSystems
                 {
                     RemoveBlock(deletedBlock);
                 }
+                ApplyDepressurizationForces();
                 m_deletedBlocks.Clear();
                 ProfilerShort.End();
             }

@@ -13,12 +13,12 @@ namespace VRage.Game.ObjectBuilders
 	public class MyObjectBuilder_EntityStat : MyObjectBuilder_Base
 	{
 		[ProtoMember]
-		public float Value = 100;
+		public float Value = 1.0f;
 
 		[ProtoMember]
-		public float MinValue = 0;
+		public float MaxValue = 1.0f;
 
 		[ProtoMember]
-		public float MaxValue = 100;
+		public MyObjectBuilder_EntityStatRegenEffect[] Effects = null;
 	}
 }

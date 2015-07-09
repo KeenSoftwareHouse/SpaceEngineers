@@ -30,7 +30,7 @@ namespace Sandbox.Game.Components
 
             if (MyFakes.MANUAL_CULL_OBJECTS)
             {
-                var cell = m_cubeBlock.CubeGrid.RenderData.GetCell(m_cubeBlock.PositionComp.GetPosition() * m_cubeBlock.CubeGrid.GridSize);
+                var cell = m_cubeBlock.CubeGrid.RenderData.GetCell(m_cubeBlock.Position * m_cubeBlock.CubeGrid.GridSize);
                 if (cell.ParentCullObject == MyRenderProxy.RENDER_ID_UNASSIGNED)
                 {
                     cell.RebuildInstanceParts(GetRenderFlags());

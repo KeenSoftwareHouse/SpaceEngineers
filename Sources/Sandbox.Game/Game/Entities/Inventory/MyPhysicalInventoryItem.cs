@@ -1,4 +1,5 @@
 ﻿using Sandbox.Common.ObjectBuilders;
+using Sandbox.Definitions;
 using Sandbox.Game.Entities;
 using System.Diagnostics;
 using VRage;
@@ -97,7 +98,15 @@ namespace Sandbox.Game
                 return firstGrid;
             }
             else
-                return MyFloatingObjects.Spawn(new MyPhysicalInventoryItem(amount, Content),worldMatrix, owner != null ? owner.Physics : null);
+            {
+                MyPhysicalItemDefinition itemDefinition = null;
+                MyDefinitionManager.Static.TryGetPhysicalItemDefinition(Content.GetObjectId(), out itemDefinition);
+                if (itemDefinition != null)
+                {
+                    return MyFloatingObjects.Spawn(new MyPhysicalInventoryItem(amount, Content), worldMatrix, owner != null ? owner.Physics : null);
+                }
+                return null;
+            }
         }
     }
 }

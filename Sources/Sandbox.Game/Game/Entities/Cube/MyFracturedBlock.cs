@@ -94,7 +94,10 @@ namespace Sandbox.Game.Entities.Cube
             if (ob.Shapes.Count == 0)
             {
                 ProfilerShort.End();
-                return;
+                if(ob.CreatingFracturedBlock)
+                    return;
+                Debug.Fail("No relevant shape was found for fractured block. It was probably reexported and names changed.");
+                throw new Exception("No relevant shape was found for fractured block. It was probably reexported and names changed.");
             }
             
             OriginalBlocks = new List<MyDefinitionId>();
