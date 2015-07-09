@@ -244,10 +244,7 @@ namespace Sandbox.Game.Weapons
                 StartLoopSound(m_gunBase.ShootSound);
             }
 
-            if (!MySession.Static.CreativeMode)
-            {
-                m_gunBase.ConsumeAmmo();
-            }
+            m_gunBase.ConsumeAmmo();
         }
 
         private void CreateSmokeEffect()
