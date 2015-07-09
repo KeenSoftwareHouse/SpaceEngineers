@@ -204,7 +204,7 @@ namespace Sandbox.Game.GameSystems
             }
         }
 
-        public void RequestJump(string destinationName, Vector3D destination, long userId)
+        public void RequestJump(string destinationName, Vector3D destination, long userId, bool skipDialog = false)
         {
             if (!IsJumpValid(userId))
             {
@@ -225,11 +225,14 @@ namespace Sandbox.Game.GameSystems
 
             if (actualDistance < MIN_JUMP_DISTANCE)
             {
-                MyGuiSandbox.AddScreen(MyGuiSandbox.CreateMessageBox(
-                    buttonType: MyMessageBoxButtonsType.OK,
-                    messageText: GetWarningText(actualDistance),
-                    messageCaption: MyTexts.Get(MySpaceTexts.MessageBoxCaptionWarning)
-                    ));
+                if (!skipDialog)
+                {
+                    MyGuiSandbox.AddScreen(MyGuiSandbox.CreateMessageBox(
+                        buttonType: MyMessageBoxButtonsType.OK,
+                        messageText: GetWarningText(actualDistance),
+                        messageCaption: MyTexts.Get(MySpaceTexts.MessageBoxCaptionWarning)
+                        ));
+                }
             }
             else
             {
@@ -246,7 +249,6 @@ namespace Sandbox.Game.GameSystems
                     }
                     ));
             }
-
         }
 
         private StringBuilder GetConfimationText(string name, double distance, double actualDistance, long userId)

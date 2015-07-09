@@ -26,7 +26,7 @@ using VRageMath;
 namespace Sandbox.Game.Entities
 {
     [MyCubeBlockType(typeof(MyObjectBuilder_JumpDrive))]
-    public class MyJumpDrive : MyFunctionalBlock, IMyPowerConsumer, IMyJumpDrive
+    public partial class MyJumpDrive : MyFunctionalBlock, IMyPowerConsumer
     {
         private float m_storedPower = 0;
         private IMyGps m_selectedGps = null;
