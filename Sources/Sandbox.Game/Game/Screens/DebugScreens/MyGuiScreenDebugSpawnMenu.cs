@@ -578,7 +578,7 @@ namespace Sandbox.Game.Gui
                 pos = MySession.LocalHumanPlayer.GetPosition();
             }
 
-            MyWorldGenerator.AddPlanet(storageNameBase, MySession.LocalHumanPlayer.GetPosition(), seed, size, MyRandom.Instance.NextLong());
+            MyWorldGenerator.AddPlanet(storageNameBase, MySession.LocalHumanPlayer.GetPosition(), seed, size, MyRandom.Instance.NextLong(),false);
         }
 
         private static String MakeStorageName(String storageNameBase)
@@ -661,7 +661,7 @@ namespace Sandbox.Game.Gui
 
         private void CreatePlanetControls(MyGuiControlList list, float usableWidth)
         {   
-            var asteroidSizeLabel = CreateSliderWithDescription(list, usableWidth, 8000f, 50000f, MyTexts.GetString(MySpaceTexts.ScreenDebugSpawnMenu_ProceduralSize), ref m_procAsteroidSize);
+            var asteroidSizeLabel = CreateSliderWithDescription(list, usableWidth, 8000f, 120000f, MyTexts.GetString(MySpaceTexts.ScreenDebugSpawnMenu_ProceduralSize), ref m_procAsteroidSize);
 
             m_procAsteroidSize.ValueChanged += (MyGuiControlSlider s) => { asteroidSizeLabel.Text = MyValueFormatter.GetFormatedFloat(s.Value, 0) + "m"; m_procAsteroidSizeValue = s.Value; };
             m_procAsteroidSize.Value = 8000.1f;

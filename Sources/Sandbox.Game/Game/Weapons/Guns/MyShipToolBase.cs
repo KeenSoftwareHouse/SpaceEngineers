@@ -50,8 +50,7 @@ namespace Sandbox.Game.Weapons
         {
             return Inventory;
         }
-		public bool IsDeconstructor { get { return false; } }
-
+		
         private MyMultilineConveyorEndpoint m_endpoint;
         private MyDefinitionId m_defId;
 

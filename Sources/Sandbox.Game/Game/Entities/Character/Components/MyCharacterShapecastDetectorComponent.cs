@@ -116,6 +116,7 @@ namespace Sandbox.Game.Entities.Character
             bool hasInteractive = false;
 
             var interactive = hitEntity as IMyUseObject;
+            DetectedEntity = hitEntity;
 
             if (hitEntity != null)
             {

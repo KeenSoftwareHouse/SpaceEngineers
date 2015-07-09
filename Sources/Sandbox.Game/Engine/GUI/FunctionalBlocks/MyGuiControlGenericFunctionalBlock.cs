@@ -456,7 +456,12 @@ namespace Sandbox.Graphics.GUI
                                 }
 
                                 if (m_requests.Count > 0)
-                                    MySyncGrid.ChangeOwnersRequest(MyOwnershipShareModeEnum.None, m_requests);
+                                {
+                                    if (MySession.Static.Settings.ScenarioEditMode && Sync.Players.IdentityIsNpc(ownerKey))
+                                        MySyncGrid.ChangeOwnersRequest(MyOwnershipShareModeEnum.Faction, m_requests);
+                                    else
+                                        MySyncGrid.ChangeOwnersRequest(MyOwnershipShareModeEnum.None, m_requests);
+                                }
                             }
 
                             RecreateOwnershipControls();

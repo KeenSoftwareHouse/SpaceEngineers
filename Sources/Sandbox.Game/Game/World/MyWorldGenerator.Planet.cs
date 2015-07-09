@@ -19,6 +19,7 @@ namespace Sandbox.Game.World
 {
     public partial class MyWorldGenerator
     {
+
         public static void AddPlanetPrefab(string prefabName, string name)
         {
             if (MyFakes.ENABLE_PLANETS == false)
@@ -58,9 +59,15 @@ namespace Sandbox.Game.World
 
         }
 
-        public static MyPlanet AddPlanet(string storageName, Vector3D positionMinCorner, int seed, float size, long entityId = 0)
+        public static MyPlanet AddPlanet(string storageName, Vector3D positionMinCorner, int seed, float size, long entityId = 0,bool isMoon = false)
+        {        
+            DictionaryValuesReader<MyDefinitionId, MyPlanetGeneratorDefinition> planetDefinitions = isMoon ? MyDefinitionManager.Static.GetMoonsGeneratorsDefinitions() :MyDefinitionManager.Static.GetPlanetsGeneratorsDefinitions();
+            return CreatePlanet(storageName, ref positionMinCorner, seed, size, entityId, ref planetDefinitions);
+        }
+
+        private static MyPlanet CreatePlanet(string storageName, ref Vector3D positionMinCorner, int seed, float size, long entityId, ref DictionaryValuesReader<MyDefinitionId, MyPlanetGeneratorDefinition> planetDefinitions)
         {
-            if(MyFakes.ENABLE_PLANETS == false)
+            if (MyFakes.ENABLE_PLANETS == false)
             {
                 return null;
             }
@@ -70,105 +77,99 @@ namespace Sandbox.Game.World
             m_spawningMaterials.Clear();
             m_organicMaterials.Clear();
 
-            DictionaryValuesReader<MyDefinitionId, MyPlanetGeneratorDefinition> planetDefinitions = MyDefinitionManager.Static.GetPlanetsGeneratorsDefinitions();
-
             foreach (var planetGeneratorDefinition in planetDefinitions)
             {
-                if (planetGeneratorDefinition.Diameter.Min <= size && size <= planetGeneratorDefinition.Diameter.Max)
+                var random = MyRandom.Instance;
+                using (var stateToken = random.PushSeed(seed))
                 {
-                    var random = MyRandom.Instance;
-                    using (var stateToken = random.PushSeed(seed))
+                    BuildOreProbabilities(planetGeneratorDefinition);
+                    FillMaterialCollections();
+
+                    MyCsgShapePlanetShapeAttributes shapeAttributes = new MyCsgShapePlanetShapeAttributes();
+
+                    shapeAttributes.Seed = seed;
+                    shapeAttributes.Diameter = size;
+                    shapeAttributes.Radius = size / 2.0f;
+                    shapeAttributes.LayerDeviationSeed = random.Next();
+                    shapeAttributes.LayerDeviationNoiseFrequency = random.NextFloat(10.0f, 500.0f);
+                    shapeAttributes.NoiseFrequency = random.NextFloat(planetGeneratorDefinition.StructureRatio.Min, planetGeneratorDefinition.StructureRatio.Max);
+                    shapeAttributes.DeviationScale = random.NextFloat(planetGeneratorDefinition.Deviation.Min, planetGeneratorDefinition.Deviation.Max);
+
+                    MyCsgShapePlanetHillAttributes hillAttributes = FillValues(planetGeneratorDefinition.HillParams, random);
+                    MyCsgShapePlanetHillAttributes canyonAttributes = FillValues(planetGeneratorDefinition.CanyonParams, random);
+
+                    float planetHalfDeviation = (shapeAttributes.Diameter * shapeAttributes.DeviationScale) / 2.0f;
+                    float averagePlanetRadius = shapeAttributes.Diameter * (1 - shapeAttributes.DeviationScale * hillAttributes.SizeRatio) / 2.0f;
+
+                    float hillHalfDeviation = planetHalfDeviation * hillAttributes.SizeRatio;
+                    float canyonHalfDeviation = planetHalfDeviation * canyonAttributes.SizeRatio;
+
+                    float outerRadius = averagePlanetRadius + hillHalfDeviation * 1.5f;
+                    float innerRadius = averagePlanetRadius - canyonHalfDeviation * 2.5f;
+
+                    float atmosphereRadius = MathHelper.Max(outerRadius, averagePlanetRadius * 1.06f);
+                    float minPlanetRadius = MathHelper.Min(innerRadius, averagePlanetRadius - planetHalfDeviation * 2 * 2.5f);
+
+                    MyCsgShapePlanetMaterialAttributes materialAttributes = new MyCsgShapePlanetMaterialAttributes();
+                    materialAttributes.OreStartDepth = innerRadius - random.NextFloat(planetGeneratorDefinition.MaterialsMinDepth.Min, planetGeneratorDefinition.MaterialsMinDepth.Max);
+                    materialAttributes.OreEndDepth = innerRadius - random.NextFloat(planetGeneratorDefinition.MaterialsMaxDepth.Min, planetGeneratorDefinition.MaterialsMaxDepth.Max);
+                    materialAttributes.OreEndDepth = MathHelper.Max(materialAttributes.OreEndDepth, 0);
+                    materialAttributes.OreStartDepth = MathHelper.Max(materialAttributes.OreStartDepth, 0);
+
+                    bool isHostile = random.NextFloat(0, 1) < planetGeneratorDefinition.HostilityProbability;
+                    MyMaterialLayer[] materialLayers = CreateMaterialLayers(planetGeneratorDefinition, isHostile, random, averagePlanetRadius, hillHalfDeviation, canyonHalfDeviation, ref outerRadius, ref innerRadius);
+
+
+                    materialAttributes.Layers = materialLayers;
+                    materialAttributes.OreProbabilities = new MyOreProbability[m_oreProbalities.Count];
+
+                    for (int i = 0; i < m_oreProbalities.Count; ++i)
                     {
-                        BuildOreProbabilities(planetGeneratorDefinition);
-                        FillMaterialCollections();
-
-                        MyCsgShapePlanetShapeAttributes shapeAttributes = new MyCsgShapePlanetShapeAttributes();
-
-                        shapeAttributes.Seed = seed;
-                        shapeAttributes.Diameter = size;
-                        shapeAttributes.Radius = size / 2.0f;
-                        shapeAttributes.LayerDeviationSeed = random.Next();
-                        shapeAttributes.LayerDeviationNoiseFrequency = random.NextFloat(10.0f, 500.0f);
-                        shapeAttributes.NoiseFrequency = random.NextFloat(planetGeneratorDefinition.StructureRatio.Min, planetGeneratorDefinition.StructureRatio.Max);
-                        shapeAttributes.NormalNoiseFrequency = random.NextFloat(planetGeneratorDefinition.NormalNoiseValue.Min, planetGeneratorDefinition.NormalNoiseValue.Max);
-                        shapeAttributes.DeviationScale = random.NextFloat(planetGeneratorDefinition.Deviation.Min, planetGeneratorDefinition.Deviation.Max);
-
-                        MyCsgShapePlanetHillAttributes hillAttributes = FillValues(planetGeneratorDefinition.HillParams, random);
-                        MyCsgShapePlanetHillAttributes canyonAttributes = FillValues(planetGeneratorDefinition.CanyonParams, random);
-
-                        float planetHalfDeviation = (shapeAttributes.Diameter * shapeAttributes.DeviationScale) / 2.0f;
-                        float averagePlanetRadius = shapeAttributes.Diameter * (1 - shapeAttributes.DeviationScale * hillAttributes.SizeRatio) / 2.0f;
-
-                        float hillHalfDeviation = planetHalfDeviation * hillAttributes.SizeRatio;
-                        float canyonHalfDeviation = planetHalfDeviation * canyonAttributes.SizeRatio;
-
-                        float outerRadius = averagePlanetRadius + hillHalfDeviation * 1.5f;
-                        float innerRadius = averagePlanetRadius - canyonHalfDeviation * 2.5f;
-
-                        float atmosphereRadius = MathHelper.Max(outerRadius, averagePlanetRadius * 1.06f);
-                        float minPlanetRadius = MathHelper.Min(innerRadius, averagePlanetRadius - planetHalfDeviation * 2 * 2.5f);
-
-                        MyCsgShapePlanetMaterialAttributes materialAttributes = new MyCsgShapePlanetMaterialAttributes();
-                        materialAttributes.OreStartDepth = innerRadius - random.NextFloat(planetGeneratorDefinition.MaterialsMinDeph.Min, planetGeneratorDefinition.MaterialsMinDeph.Max);
-                        materialAttributes.OreEndDepth = innerRadius - random.NextFloat(planetGeneratorDefinition.MaterialsMaxDeph.Min, planetGeneratorDefinition.MaterialsMaxDeph.Max);
-                        materialAttributes.OreEndDepth = MathHelper.Max(materialAttributes.OreEndDepth, 0);
-                        materialAttributes.OreStartDepth = MathHelper.Max(materialAttributes.OreStartDepth, 0);
-
-                        bool isHostile = random.NextFloat(0, 1) < planetGeneratorDefinition.HostilityProbability;
-                        MyMaterialLayer[] materialLayers = CreateMaterialLayers(planetGeneratorDefinition, isHostile, random, averagePlanetRadius, hillHalfDeviation, canyonHalfDeviation, ref outerRadius, ref innerRadius);
-
-                        
-                        materialAttributes.Layers = materialLayers;
-                        materialAttributes.OreProbabilities = new MyOreProbability[m_oreProbalities.Count];
-
-                        for(int i =0; i <m_oreProbalities.Count;++i)
-                        {
-                            materialAttributes.OreProbabilities[i] = m_oreProbalities[i];
-                            materialAttributes.OreProbabilities[i].CummulativeProbability /= m_oreCummulativeProbability;
-                        }
-
-                        IMyStorage storage = new MyOctreeStorage(MyCompositeShapeProvider.CreatePlanetShape(0, ref shapeAttributes, ref hillAttributes, ref canyonAttributes, ref materialAttributes), FindBestOctreeSize(size));
-
-                        float redAtmosphereShift = isHostile ? random.NextFloat(planetGeneratorDefinition.HostileAtmosphereColorShift.R.Min, planetGeneratorDefinition.HostileAtmosphereColorShift.R.Max) : 0;
-                        float greenAtmosphereShift = isHostile ? random.NextFloat(planetGeneratorDefinition.HostileAtmosphereColorShift.G.Min, planetGeneratorDefinition.HostileAtmosphereColorShift.G.Max) : 0;
-                        float blueAtmosphereShift = isHostile ? random.NextFloat(planetGeneratorDefinition.HostileAtmosphereColorShift.B.Min, planetGeneratorDefinition.HostileAtmosphereColorShift.B.Max) : 0;
-
-                        Vector3 atmosphereWavelengths = new Vector3(0.650f + redAtmosphereShift, 0.570f + greenAtmosphereShift, 0.475f + blueAtmosphereShift);
-
-                        atmosphereWavelengths.X = MathHelper.Clamp(atmosphereWavelengths.X, 0.1f, 1.0f);
-                        atmosphereWavelengths.Y = MathHelper.Clamp(atmosphereWavelengths.Y, 0.1f, 1.0f);
-                        atmosphereWavelengths.Z = MathHelper.Clamp(atmosphereWavelengths.Z, 0.1f, 1.0f);
-
-                        float gravityFalloff = random.NextFloat(planetGeneratorDefinition.GravityFalloffPower.Min, planetGeneratorDefinition.GravityFalloffPower.Max);
-
-                        var voxelMap = new MyPlanet();
-                        voxelMap.EntityId = entityId;
-
-                        MyPlanetInitArguments planetInitArguments;
-                        planetInitArguments.StorageName = storageName;
-                        planetInitArguments.Storage = storage;
-                        planetInitArguments.PositionMinCorner = positionMinCorner;
-                        planetInitArguments.AveragePlanetRadius = averagePlanetRadius;
-                        planetInitArguments.AtmosphereRadius = atmosphereRadius;
-                        planetInitArguments.MaximumHillRadius = averagePlanetRadius + hillHalfDeviation;
-                        planetInitArguments.MinimumSurfaceRadius = minPlanetRadius;
-                        planetInitArguments.HasAtmosphere = planetGeneratorDefinition.HasAtmosphere;
-                        planetInitArguments.AtmosphereWavelengths = atmosphereWavelengths;
-                        planetInitArguments.MaxOxygen = isHostile ? 0.0f : 1.0f;
-                        planetInitArguments.GravityFalloff = gravityFalloff;
-                        planetInitArguments.MarkAreaEmpty = false;
-
-                        voxelMap.Init(planetInitArguments);
-
-                        MyEntities.Add(voxelMap);
-
-                        m_materialsByOreType.Clear();
-                        m_oreProbalities.Clear();
-                        m_spawningMaterials.Clear();
-                        m_organicMaterials.Clear();
-
-                        return voxelMap;
+                        materialAttributes.OreProbabilities[i] = m_oreProbalities[i];
+                        materialAttributes.OreProbabilities[i].CummulativeProbability /= m_oreCummulativeProbability;
                     }
+
+                    IMyStorage storage = new MyOctreeStorage(MyCompositeShapeProvider.CreatePlanetShape(0, ref shapeAttributes, ref hillAttributes, ref canyonAttributes, ref materialAttributes), FindBestOctreeSize(size));
+
+                    float redAtmosphereShift = isHostile ? random.NextFloat(planetGeneratorDefinition.HostileAtmosphereColorShift.R.Min, planetGeneratorDefinition.HostileAtmosphereColorShift.R.Max) : 0;
+                    float greenAtmosphereShift = isHostile ? random.NextFloat(planetGeneratorDefinition.HostileAtmosphereColorShift.G.Min, planetGeneratorDefinition.HostileAtmosphereColorShift.G.Max) : 0;
+                    float blueAtmosphereShift = isHostile ? random.NextFloat(planetGeneratorDefinition.HostileAtmosphereColorShift.B.Min, planetGeneratorDefinition.HostileAtmosphereColorShift.B.Max) : 0;
+
+                    Vector3 atmosphereWavelengths = new Vector3(0.650f + redAtmosphereShift, 0.570f + greenAtmosphereShift, 0.475f + blueAtmosphereShift);
+
+                    atmosphereWavelengths.X = MathHelper.Clamp(atmosphereWavelengths.X, 0.1f, 1.0f);
+                    atmosphereWavelengths.Y = MathHelper.Clamp(atmosphereWavelengths.Y, 0.1f, 1.0f);
+                    atmosphereWavelengths.Z = MathHelper.Clamp(atmosphereWavelengths.Z, 0.1f, 1.0f);
+
+                    float gravityFalloff = random.NextFloat(planetGeneratorDefinition.GravityFalloffPower.Min, planetGeneratorDefinition.GravityFalloffPower.Max);
+
+                    var voxelMap = new MyPlanet();
+                    voxelMap.EntityId = entityId;
+
+                    MyPlanetInitArguments planetInitArguments;
+                    planetInitArguments.StorageName = storageName;
+                    planetInitArguments.Storage = storage;
+                    planetInitArguments.PositionMinCorner = positionMinCorner;
+                    planetInitArguments.AveragePlanetRadius = averagePlanetRadius;
+                    planetInitArguments.AtmosphereRadius = atmosphereRadius;
+                    planetInitArguments.MaximumHillRadius = averagePlanetRadius + hillHalfDeviation;
+                    planetInitArguments.MinimumSurfaceRadius = minPlanetRadius;
+                    planetInitArguments.HasAtmosphere = planetGeneratorDefinition.HasAtmosphere;
+                    planetInitArguments.AtmosphereWavelengths = atmosphereWavelengths;
+                    planetInitArguments.MaxOxygen = isHostile ? 0.0f : 1.0f;
+                    planetInitArguments.GravityFalloff = gravityFalloff;
+                    planetInitArguments.MarkAreaEmpty = false;
+
+                    voxelMap.Init(planetInitArguments);
+
+                    MyEntities.Add(voxelMap);
+
+                    m_materialsByOreType.Clear();
+                    m_oreProbalities.Clear();
+                    m_spawningMaterials.Clear();
+                    m_organicMaterials.Clear();
+
+                    return voxelMap;
                 }
             }
             return null;

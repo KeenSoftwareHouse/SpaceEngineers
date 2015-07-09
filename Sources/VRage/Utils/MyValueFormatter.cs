@@ -250,6 +250,14 @@ namespace VRage.Utils
             AppendFormattedValueInBestUnit(weightInKG, m_weightUnitNames, m_weightUnitMultipliers, m_weightUnitDigits, output);
         }
 
+        private static readonly string[] m_volumeUnitNames = new string[] { "mL", "cL", "dL", "L", "hL", "m³" };
+        private static readonly float[] m_volumeUnitMultipliers = new float[] { 0.000001f, 0.00001f, 0.0001f, 0.001f, 0.1f, 1f };
+        private static readonly int[] m_volumeUnitDigits = new int[] { 0, 0, 0, 0, 2, 1 };
+        public static void AppendVolumeInBestUnit(float volumeInCubicMeters, StringBuilder output)
+        {
+            AppendFormattedValueInBestUnit(volumeInCubicMeters, m_volumeUnitNames, m_volumeUnitMultipliers, m_volumeUnitDigits, output);
+        }
+
         public static void AppendTimeExact(int timeInSeconds, StringBuilder output)
         {
             if (timeInSeconds >= 60 * 60 * 24)

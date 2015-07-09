@@ -41,8 +41,7 @@ namespace Sandbox.Game.Weapons
 
         MyGunBase m_gunBase;
 
-		public bool IsDeconstructor { get { return false; } }
-        bool m_shoot = false;
+		bool m_shoot = false;
         Vector3 m_shootDirection;
 
         private MyInventory m_ammoInventory;

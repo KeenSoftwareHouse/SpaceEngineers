@@ -631,7 +631,7 @@ namespace Sandbox.Definitions
             {
                 MySandboxGame.Log.WriteLine("Loading battle definition");
                 Check(failOnDebug, "Battle", failOnDebug, WARNING_ON_REDEFINITION_MESSAGE);
-                InitPlanetGeneratorDefinitions(context, ref definitionSet.m_planetGeneratorDefinitions, objBuilder.PlanetGeneratorDefinitions, failOnDebug);
+                InitPlanetGeneratorDefinitions(context, ref definitionSet.m_moonGeneratorDefinitions,ref definitionSet.m_planetGeneratorDefinitions, objBuilder.PlanetGeneratorDefinitions, failOnDebug);
             }
 
             if (objBuilder.FloraElements != null)
@@ -1859,7 +1859,7 @@ namespace Sandbox.Definitions
             }
         }
 
-        private void InitPlanetGeneratorDefinitions(MyModContext context, ref DefinitionDictionary<MyPlanetGeneratorDefinition> m_planetDefinitions, MyObjectBuilder_PlanetGeneratorDefinition[] planets, bool failOnDebug)
+        private void InitPlanetGeneratorDefinitions(MyModContext context,ref DefinitionDictionary<MyPlanetGeneratorDefinition> m_moonDefinitions,  ref DefinitionDictionary<MyPlanetGeneratorDefinition> m_planetDefinitions, MyObjectBuilder_PlanetGeneratorDefinition[] planets, bool failOnDebug)
         {
             foreach (var planet in planets)
             {
@@ -1867,11 +1867,25 @@ namespace Sandbox.Definitions
                 var id = planetDefinition.Id;
                 if (planetDefinition.Enabled)
                 {
-                    m_planetDefinitions[id] = planetDefinition;
+                    if (planetDefinition.IsMoonDefinition)
+                    {
+                        m_moonDefinitions[id] = planetDefinition;
+                    }
+                    else
+                    {
+                        m_planetDefinitions[id] = planetDefinition;
+                    }
                 }
                 else
                 {
-                    m_planetDefinitions.Remove(id);
+                    if (planetDefinition.IsMoonDefinition)
+                    {
+                        m_moonDefinitions.Remove(id);
+                    }
+                    else
+                    {
+                        m_planetDefinitions.Remove(id);
+                    }
                 }
      
             }
@@ -2667,6 +2681,11 @@ namespace Sandbox.Definitions
         public DictionaryValuesReader<MyDefinitionId, MyPlanetGeneratorDefinition> GetPlanetsGeneratorsDefinitions()
         {
             return new DictionaryValuesReader<MyDefinitionId, MyPlanetGeneratorDefinition>(m_definitions.m_planetGeneratorDefinitions);
+        }
+
+        public DictionaryValuesReader<MyDefinitionId, MyPlanetGeneratorDefinition> GetMoonsGeneratorsDefinitions()
+        {
+            return new DictionaryValuesReader<MyDefinitionId, MyPlanetGeneratorDefinition>(m_definitions.m_moonGeneratorDefinitions);
         }
 
         public DictionaryValuesReader<MyDefinitionId, MyPlanetPrefabDefinition> GetPlanetsPrefabsDefinitions()

@@ -31,13 +31,15 @@ namespace Sandbox.Game.Gui
         private MyGuiControlListbox m_listbox;
 
         bool m_enableMultiSelect = false;
+        int m_visibleRowsCount = 8;
 
-        public MyTerminalControlListbox(string id, MyStringId title, MyStringId tooltip,bool multiSelect =false)
+        public MyTerminalControlListbox(string id, MyStringId title, MyStringId tooltip, bool multiSelect = false, int visibleRowsCount = 8)
             : base(id)
         {
             Title = title;
             Tooltip = tooltip;
             m_enableMultiSelect = multiSelect;
+            m_visibleRowsCount = visibleRowsCount;
         }
 
         protected override MyGuiControlBase CreateGui()
@@ -46,7 +48,7 @@ namespace Sandbox.Game.Gui
             {
                 VisualStyle = MyGuiControlListboxStyleEnum.Terminal,
                 OriginAlign = MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_CENTER,
-                VisibleRowsCount = 8,
+                VisibleRowsCount = m_visibleRowsCount,
                 MultiSelect = m_enableMultiSelect,
             };
             m_listbox.ItemsSelected += OnItemsSelected;
