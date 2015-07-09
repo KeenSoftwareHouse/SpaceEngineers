@@ -61,20 +61,27 @@ namespace Sandbox.Game.Entities
             base.Init(objectBuilder, cubeGrid);
 
             m_cargoDefinition = (MyCargoContainerDefinition)MyDefinitionManager.Static.GetCubeBlockDefinition(objectBuilder.GetId());
-
-            m_inventory = new MyInventory(m_cargoDefinition.InventorySize.Volume, m_cargoDefinition.InventorySize, MyInventoryFlags.CanSend | MyInventoryFlags.CanReceive, this);
-
             var cargoBuilder = (MyObjectBuilder_CargoContainer)objectBuilder;
             m_containerType = cargoBuilder.ContainerType;
 
-            if (m_containerType != null && MyFakes.RANDOM_CARGO_PLACEMENT && (cargoBuilder.Inventory == null || cargoBuilder.Inventory.Items.Count == 0))
+            if (!Components.Has<MyInventoryBase>())
             {
-                SpawnRandomCargo();
+                m_inventory = new MyInventory(m_cargoDefinition.InventorySize.Volume, m_cargoDefinition.InventorySize, MyInventoryFlags.CanSend | MyInventoryFlags.CanReceive, this);
+				if(MyFakes.ENABLE_MEDIEVAL_INVENTORY)
+					Components.Add<MyInventoryBase>(m_inventory);
+
+                if (m_containerType != null && MyFakes.RANDOM_CARGO_PLACEMENT && (cargoBuilder.Inventory == null || cargoBuilder.Inventory.Items.Count == 0))
+                    SpawnRandomCargo();
+                else
+                    m_inventory.Init(cargoBuilder.Inventory);
             }
             else
             {
-                m_inventory.Init(cargoBuilder.Inventory);
+                m_inventory = Components.Get<MyInventoryBase>() as MyInventory;
+				Debug.Assert(m_inventory != null);
+                m_inventory.Owner = this;
             }
+
             if(MyPerGameSettings.InventoryMass)
                 m_inventory.ContentsChanged += Inventory_ContentsChanged;
 
@@ -83,7 +90,7 @@ namespace Sandbox.Game.Entities
             UpdateIsWorking();
         }
 
-        void Inventory_ContentsChanged(MyInventory obj)
+        void Inventory_ContentsChanged(MyInventoryBase obj)
         {
             CubeGrid.SetInventoryMassDirty();
         }
@@ -92,7 +99,11 @@ namespace Sandbox.Game.Entities
         {
             MyObjectBuilder_CargoContainer cargoBuilder = (MyObjectBuilder_CargoContainer)base.GetObjectBuilderCubeBlock(copy);
 
-            cargoBuilder.Inventory = m_inventory.GetObjectBuilder();
+			if (!MyFakes.ENABLE_MEDIEVAL_INVENTORY)
+				cargoBuilder.Inventory = m_inventory.GetObjectBuilder();
+			else
+				cargoBuilder.Inventory = null;
+
             if (m_containerType != null)
             {
                 cargoBuilder.ContainerType = m_containerType;

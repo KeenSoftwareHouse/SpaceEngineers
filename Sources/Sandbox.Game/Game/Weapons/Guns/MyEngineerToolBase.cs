@@ -85,7 +85,7 @@ namespace Sandbox.Game.Weapons
         protected MyFloatingObject m_targetFloatingObject;
         protected MyCharacter m_targetCharacter;
         protected Vector3I m_targetCube;
-        public Vector3I TargetCube { get {  return m_targetCube; } }
+        public Vector3I TargetCube { get { return m_targetCube; } }
         protected float m_targetDistanceSq;
         protected Vector3D m_targetPosition;
 

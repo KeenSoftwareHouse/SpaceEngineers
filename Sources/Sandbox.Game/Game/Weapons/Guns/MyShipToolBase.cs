@@ -50,8 +50,7 @@ namespace Sandbox.Game.Weapons
         {
             return Inventory;
         }
-		public bool IsDeconstructor { get { return false; } }
-
+		
         private MyMultilineConveyorEndpoint m_endpoint;
         private MyDefinitionId m_defId;
 
@@ -145,7 +144,7 @@ namespace Sandbox.Game.Weapons
             UpdateActivationState();
             PowerReceiver.Update();
 
-            NeedsUpdate |= MyEntityUpdateEnum.EACH_100TH_FRAME | MyEntityUpdateEnum.EACH_FRAME;
+            NeedsUpdate |= MyEntityUpdateEnum.EACH_100TH_FRAME | MyEntityUpdateEnum.EACH_10TH_FRAME | MyEntityUpdateEnum.EACH_FRAME;
         }
 
         public override MyObjectBuilder_CubeBlock GetObjectBuilderCubeBlock(bool copy = false)
@@ -303,13 +302,18 @@ namespace Sandbox.Game.Weapons
 
             base.UpdateAfterSimulation();
 
-            if (m_isActivated && MySandboxGame.TotalGamePlayTimeInMilliseconds - m_lastTimeActivate >= MyShipGrinderConstants.GRINDER_COOLDOWN_IN_MILISECONDS)
+            if (IsFunctional)
+                UpdateAnimationCommon();
+        }
+
+        public override void UpdateAfterSimulation10()
+        {
+            base.UpdateAfterSimulation10();
+
+            if (m_isActivated)
             {
                 ActivateCommon();
             }
-
-            if (IsFunctional)
-                UpdateAnimationCommon();
         }
 
         protected abstract bool Activate(HashSet<MySlimBlock> targets);

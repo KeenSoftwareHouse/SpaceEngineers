@@ -71,22 +71,28 @@ namespace Sandbox.Game.Entities
         }
 
 
-        public MyRelationsBetweenPlayerAndBlock GetUserRelationToOwner(long playerId)
+        public MyRelationsBetweenPlayerAndBlock GetUserRelationToOwner(long identityId)
         {
             if (!MyFakes.SHOW_FACTIONS_GUI)
-                return MyRelationsBetweenPlayerAndBlock.FactionShare;
+                return MyRelationsBetweenPlayerAndBlock.NoOwnership;
 
             if (IDModule == null)
-                return MyRelationsBetweenPlayerAndBlock.FactionShare;
+                return MyRelationsBetweenPlayerAndBlock.NoOwnership;
 
-            return IDModule.GetUserRelationToOwner(playerId);
+            return IDModule.GetUserRelationToOwner(identityId);
         }
 
         public MyRelationsBetweenPlayerAndBlock GetPlayerRelationToOwner()
         {
+            if (!MyFakes.SHOW_FACTIONS_GUI)
+                return MyRelationsBetweenPlayerAndBlock.NoOwnership;
+
+            if (IDModule == null)
+                return MyRelationsBetweenPlayerAndBlock.NoOwnership;
+
             System.Diagnostics.Debug.Assert(MySession.LocalHumanPlayer != null);
             if (MySession.LocalHumanPlayer != null)
-                return GetUserRelationToOwner(MySession.LocalHumanPlayer.Identity.IdentityId);
+                return IDModule.GetUserRelationToOwner(MySession.LocalHumanPlayer.Identity.IdentityId);
 
             return MyRelationsBetweenPlayerAndBlock.Neutral;
         }
@@ -441,6 +447,7 @@ namespace Sandbox.Game.Entities
                 }
             }
 
+            Components.Deserialize(builder.ComponentContainer);
 
             base.Init(null);
             base.Render.PersistentFlags |= MyPersistentEntityFlags2.CastShadows;
@@ -483,6 +490,8 @@ namespace Sandbox.Game.Entities
                     }
                 }
             }
+
+            builder.ComponentContainer = Components.Serialize();
 
             return builder;
         }

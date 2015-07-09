@@ -501,6 +501,8 @@ namespace Sandbox.Graphics.GUI
         public MyGuiHighlightTexture? Icon;
 
         public MyGuiDrawAlignEnum IconOriginAlign = MyGuiDrawAlignEnum.HORISONTAL_CENTER_AND_VERTICAL_CENTER;
+        private bool m_useCustomStyle;
+        private StyleDefinition m_customStyle;
 
         #endregion
 
@@ -562,7 +564,14 @@ namespace Sandbox.Graphics.GUI
 
         private void RefreshVisualStyle()
         {
-            m_styleDef = GetVisualStyle(VisualStyle);
+            if (m_useCustomStyle)
+            {
+                m_styleDef = m_customStyle;
+            }
+            else
+            {
+                m_styleDef = GetVisualStyle(VisualStyle);
+            }
             RefreshInternals();
         }
 
@@ -606,9 +615,11 @@ namespace Sandbox.Graphics.GUI
             Size = size;
         }
 
-        public void SetStyle(StyleDefinition buttonStyle)
+        public void SetCustomStyle(StyleDefinition buttonStyle)
         {
-            m_styleDef = buttonStyle;
+            m_useCustomStyle = true;
+            m_customStyle = buttonStyle;
+            RefreshVisualStyle();
         }
     }
 }

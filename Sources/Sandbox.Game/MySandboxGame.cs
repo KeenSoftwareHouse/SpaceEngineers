@@ -2,8 +2,8 @@
 
 using Havok;
 using ParallelTasks;
-using Sandbox.Common.Components;
 using Sandbox.Common;
+using Sandbox.Common.Components;
 using Sandbox.Common.ObjectBuilders;
 using Sandbox.Definitions;
 using Sandbox.Engine.Multiplayer;
@@ -40,7 +40,6 @@ using VRage;
 using VRage.Audio;
 using VRage.Collections;
 using VRage.Compiler;
-using VRage.Components;
 using VRage.FileSystem;
 using VRage.Input;
 using VRage.ModAPI;
@@ -87,6 +86,7 @@ namespace Sandbox
         public static bool IsUpdateReady = true;
 
         public static bool IsConsoleVisible = false;
+        public static bool IsReloading = false;
 
         public static bool FatalErrorDuringInit = false;
         public static VRageGameServices Services { get; private set; }
@@ -212,7 +212,12 @@ namespace Sandbox
 
                 MyLog.Default.WriteLineAndConsole("Bind IP : " + ep.ToString());
 
-                MyDedicatedServer dedicatedServer = new MyDedicatedServer(ep);
+                MyDedicatedServerBase dedicatedServer = null;
+                if (MyFakes.ENABLE_BATTLE_SYSTEM && MySandboxGame.ConfigDedicated.SessionSettings.Battle)
+                    dedicatedServer = new MyDedicatedServerBattle(ep);
+                else 
+                    dedicatedServer = new MyDedicatedServer(ep);
+
                 MyMultiplayer.Static = dedicatedServer;
 
                 FatalErrorDuringInit = !dedicatedServer.ServerStarted;
@@ -228,7 +233,7 @@ namespace Sandbox
             // Game tags contain game data hash, so they need to be sent after preallocation
             if (IsDedicated && !FatalErrorDuringInit)
             {
-                (MyMultiplayer.Static as MyDedicatedServer).SendGameTagsToSteam();
+                (MyMultiplayer.Static as MyDedicatedServerBase).SendGameTagsToSteam();
             }
 
             ProfilerShort.BeginNextBlock("InitMultithreading");
@@ -520,6 +525,7 @@ namespace Sandbox
         {
             MyPlugins.RegisterGameAssemblyFile(MyPerGameSettings.GameModAssembly);
             MyPlugins.RegisterSandboxAssemblyFile(MyPerGameSettings.SandboxAssembly);
+            MyPlugins.RegisterSandboxGameAssemblyFile(MyPerGameSettings.SandboxGameAssembly);
             MyPlugins.RegisterFromArgs(args);
             MyPlugins.Load();
 
@@ -645,7 +651,11 @@ namespace Sandbox
                             {
                                 if (MySteamWorkshop.DownloadWorldModsBlocking(checkpoint.Mods))
                                 {
-                                    MySession.Load(sessionPath, checkpoint, checkpointSizeInBytes);
+                                    if (MyFakes.ENABLE_BATTLE_SYSTEM && ConfigDedicated.SessionSettings.Battle)
+                                        MySession.LoadBattle(sessionPath, checkpoint, checkpointSizeInBytes, ConfigDedicated.SessionSettings);
+                                    else
+                                        MySession.Load(sessionPath, checkpoint, checkpointSizeInBytes);
+
                                     MySession.Static.StartServer(MyMultiplayer.Static);
                                     MyModAPIHelper.OnSessionLoaded();
                                 }
@@ -782,7 +792,7 @@ namespace Sandbox
             {
                 form.Icon = new System.Drawing.Icon(Path.Combine(MyFileSystem.ExePath, MyPerGameSettings.GameIcon));
             }
-            catch (System.IO.FileNotFoundException e)
+            catch (System.IO.FileNotFoundException)
             {
                 form.Icon = null;
             }
@@ -1107,14 +1117,14 @@ namespace Sandbox
             IlChecker.AllowNamespaceOfTypeModAPI(typeof(MyGameLogicComponent));
             IlChecker.AllowNamespaceOfTypeModAPI(typeof(VRage.Components.IMyComponentBase));
             IlChecker.AllowNamespaceOfTypeModAPI(typeof(Sandbox.Common.MySessionComponentBase));
-            
+
             IlChecker.AllowNamespaceOfTypeCommon(typeof(MyObjectBuilder_Base));
             IlChecker.AllowNamespaceOfTypeCommon(typeof(Sandbox.Common.ObjectBuilders.MyObjectBuilder_AirVent));
             IlChecker.AllowNamespaceOfTypeModAPI(typeof(Sandbox.Common.ObjectBuilders.Voxels.MyObjectBuilder_VoxelMap));
-			IlChecker.AllowNamespaceOfTypeModAPI(typeof(MyStatLogic));
-			IlChecker.AllowNamespaceOfTypeModAPI(typeof(VRage.Game.ObjectBuilders.MyObjectBuilder_EntityStatRegenEffect));
-			IlChecker.AllowNamespaceOfTypeModAPI(typeof(Sandbox.Game.Entities.MyEntityStat));
-			
+            IlChecker.AllowNamespaceOfTypeModAPI(typeof(MyStatLogic));
+            IlChecker.AllowNamespaceOfTypeModAPI(typeof(VRage.Game.ObjectBuilders.MyObjectBuilder_EntityStatRegenEffect));
+            IlChecker.AllowNamespaceOfTypeModAPI(typeof(Sandbox.Game.Entities.MyEntityStat));
+
             IlChecker.AllowNamespaceOfTypeModAPI(typeof(SerializableDefinitionId));
             IlChecker.AllowNamespaceOfTypeModAPI(typeof(SerializableVector3));
 
@@ -1165,26 +1175,7 @@ namespace Sandbox
 
             MyGuiScreenMainMenu.UnloadAndExitToMenu();
 
-            // Lobby sometimes gives default values.
-            var appVersion = MyMultiplayerLobby.GetLobbyAppVersion(lobby);
-            if (appVersion == 0)
-                return;
-
-            bool isBattle = MyMultiplayerLobby.GetLobbyBattle(lobby);
-            if (MyFakes.ENABLE_BATTLE_SYSTEM && isBattle)
-            {
-                bool canBeJoined = MyMultiplayerLobby.GetLobbyBattleCanBeJoined(lobby);
-                // Check also valid faction ids in battle lobby.
-                long faction1Id = MyMultiplayerLobby.GetLobbyBattleFaction1Id(lobby);
-                long faction2Id = MyMultiplayerLobby.GetLobbyBattleFaction2Id(lobby);
-
-                if (canBeJoined && faction1Id != 0 && faction2Id != 0)
-                    MyJoinGameHelper.JoinBattleGame(lobby);
-            }
-            else
-            {
-                MyJoinGameHelper.JoinGame(lobby);
-            }
+            MyJoinGameHelper.JoinGame(lobby);
         }
 
         void Matchmaking_ServerChangeRequest(string server, string password)
@@ -1212,7 +1203,7 @@ namespace Sandbox
 
             UnloadInput();
 
-            MyAudio.Static.UnloadData();
+            MyAudio.UnloadData();
 
             MySandboxGame.Log.DecreaseIndent();
             MySandboxGame.Log.WriteLine("MySandboxGame.UnloadData() - END");
@@ -1232,8 +1223,9 @@ namespace Sandbox
         void UnloadInput()
         {
             // Input
-            if (MyInput.Static != null)
-                MyInput.Static.UnloadData();
+            MyInput.UnloadData();
+
+            MyGuiGameControlsHelpers.Reset();
         }
 
         #endregion
@@ -1762,6 +1754,11 @@ namespace Sandbox
 
             Parallel.Scheduler.WaitForTasksToFinish(TimeSpan.FromSeconds(10));
             m_windowCreatedEvent.Dispose();
+
+
+            IlChecker.Clear();
+
+            Services = null;
         }
 
         internal static void SignalClipmapsReady()
@@ -1799,6 +1796,17 @@ namespace Sandbox
         {
             IntPtr gameState = new IntPtr(MySession.Static == null ? 0 : 1);
             WinApi.PostMessage(msg.WParam, MyWMCodes.GAME_IS_RUNNING_RESULT, gameState, IntPtr.Zero);
+        }
+
+        public static void ReloadDedicatedServerSession()
+        {
+            if (!IsDedicated)
+                return;
+
+            MyLog.Default.WriteLineAndConsole("Reloading dedicated server");
+
+            IsReloading = true;
+            MySandboxGame.Static.Exit();
         }
     }
 }

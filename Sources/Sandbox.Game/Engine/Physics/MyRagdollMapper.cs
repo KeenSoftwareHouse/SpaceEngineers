@@ -124,9 +124,14 @@ namespace Sandbox.Engine.Physics
         /// </summary>
         private Dictionary<string, string[]> m_ragdollBonesMappings;
 
-        private Matrix m_lastSyncedWorldMatrix = Matrix.Identity;
+        private MatrixD m_lastSyncedWorldMatrix = MatrixD.Identity;
 
         public float DeactivationCounter = RAGDOLL_DEACTIVATION_TIME;
+
+        /// <summary>
+        /// Last ragdoll's position in the world
+        /// </summary>
+        private Vector3 m_lastPosition = Vector3.Zero;
 
         /// <summary>
         /// True if at least some of the bones are simulated and ragdoll was added to world. Partly = some bodies set to dynamic, some keyframed
@@ -573,7 +578,10 @@ namespace Sandbox.Engine.Physics
             if (!IsPartiallySimulated) return;
             if (Ragdoll == null) return;
 
-            Ragdoll.Deactivate();
+            if (Ragdoll.IsAddedToWorld)
+            {
+                Ragdoll.Deactivate();
+            }
 
             m_keyframedBodies.Clear();
             m_dynamicBodies.Clear();
@@ -584,7 +592,7 @@ namespace Sandbox.Engine.Physics
             m_character.Physics.OnRagdollActivated -= Physics_OnRagdollActivated;
         }
 
-        public void DebugDraw(Matrix worldMatrix)
+        public void DebugDraw(MatrixD worldMatrix)
         {
             //TODO: Create some debug draw for ragdoll
             if (!MyDebugDrawSettings.ENABLE_DEBUG_DRAW) return;
@@ -630,7 +638,7 @@ namespace Sandbox.Engine.Physics
                 foreach (var bodyIndex in m_rigidBodiesToBonesIndices.Keys)
                 {
                     Color color = new Color(((bodyIndex & 1) * 255), ((bodyIndex & 2) * 255), ((bodyIndex & 4) * 255));
-                    DrawShape(Ragdoll.RigidBodies[bodyIndex].GetShape(), Ragdoll.GetRigidBodyLocalTransform(bodyIndex) * worldMatrix, color, 0.6f);
+                    DrawShape(Ragdoll.RigidBodies[bodyIndex].GetShape(), (MatrixD)Ragdoll.GetRigidBodyLocalTransform(bodyIndex) * worldMatrix, color, 0.6f);
                 }
 
             }
@@ -649,7 +657,7 @@ namespace Sandbox.Engine.Physics
 
 
             // Note: Character's world matrix can be changed by server and desync, this can cause artifacts, therefore it can be better to use physics pos
-            Matrix havokWorldMatrix;
+            MatrixD havokWorldMatrix;
             if (m_character.IsDead)
             {
                 havokWorldMatrix = m_character.WorldMatrix;
@@ -666,13 +674,14 @@ namespace Sandbox.Engine.Physics
             }
 
             Debug.Assert(havokWorldMatrix.IsValid(), "Ragdoll world matrix in Havok is invalid");
-            Debug.Assert(havokWorldMatrix != Matrix.Zero, "Ragdoll world matrix in Havok is invalid");
+            Debug.Assert(havokWorldMatrix != MatrixD.Zero, "Ragdoll world matrix in Havok is invalid");
             // If ragdoll is repositioned to a far distance instantly, havok doesn't hadle it properly. Simulation is broken etc.
             // Therefore in that case we need to reposition the ragdoll without breaking the simulation - setting all bodies to new position
-            if (havokWorldMatrix.IsValid() && havokWorldMatrix != Matrix.Zero)
+            if (havokWorldMatrix.IsValid() && havokWorldMatrix != MatrixD.Zero)
             {
-                Vector3 distance = havokWorldMatrix.Translation - Ragdoll.WorldMatrix.Translation;
-                if (distance.LengthSquared() > 100)
+                Vector3D distance = havokWorldMatrix.Translation - (Vector3D)m_lastPosition;
+                m_lastPosition = Ragdoll.WorldMatrix.Translation;
+                if (distance.LengthSquared() > 50)
                 {
                     Ragdoll.SetWorldMatrix(havokWorldMatrix);
                     Ragdoll.SetTransforms(havokWorldMatrix, false);
@@ -689,12 +698,12 @@ namespace Sandbox.Engine.Physics
             }
         }
 
-        public void ResetRagdoll(Matrix worldTransform)
+        public void ResetRagdoll(MatrixD worldTransform)
         {
             if (Ragdoll == null) return;
             Ragdoll.DisableConstraints();
             Ragdoll.ResetToRigPose();
-            Matrix havokWorld = worldTransform;
+            MatrixD havokWorld = worldTransform;
             havokWorld.Translation = m_character.Physics.WorldToCluster(worldTransform.Translation);
             Ragdoll.SetWorldMatrix(havokWorld);
             Ragdoll.SetTransforms(havokWorld, false);
@@ -706,7 +715,7 @@ namespace Sandbox.Engine.Physics
             Ragdoll.EnableConstraints();
         }
 
-        public static void DrawShape(HkShape shape, Matrix worldMatrix, Color color, float alpha, bool shaded = true)
+        public static void DrawShape(HkShape shape, MatrixD worldMatrix, Color color, float alpha, bool shaded = true)
         {
             color.A = (byte)(alpha * 255);
 
@@ -832,7 +841,7 @@ namespace Sandbox.Engine.Physics
                 }
             }
 
-            Matrix havokWorld = worldMatrix;
+            MatrixD havokWorld = worldMatrix;
             havokWorld.Translation = m_character.Physics.WorldToCluster(worldMatrix.Translation);
             Ragdoll.SetWorldMatrix(havokWorld);
             Ragdoll.SetTransforms(havokWorld, false);
@@ -844,7 +853,7 @@ namespace Sandbox.Engine.Physics
             }            
         }
 
-        public void SyncRigidBodiesTransforms(Matrix worldTransform)
+        public void SyncRigidBodiesTransforms(MatrixD worldTransform)
         {
             bool changed = m_lastSyncedWorldMatrix != worldTransform;
             foreach (var rigidBodyIndex in m_rigidBodiesToBonesIndices.Keys)

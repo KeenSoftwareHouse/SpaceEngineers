@@ -43,7 +43,7 @@ namespace Sandbox.Engine.Multiplayer
 
     public class MyDedicatedServerBattle : MyDedicatedServerBase
     {
-        private MyMultiplayerBattleData m_battleData = new MyMultiplayerBattleData();
+        private MyMultiplayerBattleData m_battleData;
 
         public override float InventoryMultiplier
         {
@@ -188,12 +188,14 @@ namespace Sandbox.Engine.Multiplayer
             : base(new MySyncLayer(new MyTransportLayer(MyMultiplayer.GameEventChannel)))
         {
             RegisterControlMessage<ChatMsg>(MyControlMessageEnum.Chat, OnChatMessage);
-            RegisterControlMessage<ServerDataMsg>(MyControlMessageEnum.ServerData, OnServerData);
+            RegisterControlMessage<ServerBattleDataMsg>(MyControlMessageEnum.BattleData, OnServerBattleData);
             RegisterControlMessage<JoinResultMsg>(MyControlMessageEnum.JoinResult, OnJoinResult);
 
             Initialize(serverEndpoint);
 
             GameMode = MyGameModeEnum.Survival;
+
+            m_battleData = new MyMultiplayerBattleData(this);
         }
 
         internal override void SendGameTagsToSteam()
@@ -232,6 +234,17 @@ namespace Sandbox.Engine.Multiplayer
             SendControlMessageToAll(ref msg);
         }
 
+        protected override void UserAccepted(ulong steamID)
+        {
+            // Battles - send all clients (note members without the accepted user), identities, players, factions as first message to client
+            if (Battle || Scenario)
+            {
+                SendAllMembersDataToClient(steamID);
+            }
+
+            base.UserAccepted(steamID);
+        }
+
         void OnChatMessage(ref ChatMsg msg, ulong sender)
         {
             if (m_memberData.ContainsKey(sender))
@@ -250,13 +263,17 @@ namespace Sandbox.Engine.Multiplayer
                             }
                         }
                     }
+                    else if (msg.Text.ToLower() == "+reload")
+                    {
+                        MySandboxGame.ReloadDedicatedServerSession();
+                    }
                 }
             }
 
             RaiseChatMessageReceived(sender, msg.Text, ChatEntryTypeEnum.ChatMsg);
         }
 
-        void OnServerData(ref ServerDataMsg msg, ulong sender)
+        void OnServerBattleData(ref ServerBattleDataMsg msg, ulong sender)
         {
             System.Diagnostics.Debug.Fail("None can send server data to server");
         }

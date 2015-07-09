@@ -32,9 +32,6 @@ namespace Sandbox.Game.Weapons
         static readonly float GRINDER_ACCELERATION_RPMPS = 700f;
         static readonly float GRINDER_DECELERATION_RPMPS = 500f;
 
-        List<MyPhysicalInventoryItem> m_tmpItemList = new List<MyPhysicalInventoryItem>();
-        Dictionary<int, int> m_tmpComponents = new Dictionary<int, int>();
-
         MyHudNotification m_grindingNotification;
 
         int m_lastUpdateTime;

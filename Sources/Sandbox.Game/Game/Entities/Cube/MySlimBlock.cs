@@ -36,6 +36,7 @@ namespace Sandbox.Game.Entities.Cube
         static Dictionary<string, int> m_tmpComponents = new Dictionary<string, int>();
         static List<MyStockpileItem> m_tmpItemList = new List<MyStockpileItem>();
         static List<Vector3I> m_tmpCubeNeighbours = new List<Vector3I>();
+        private static readonly List<MySlimBlock> m_tmpBlocks = new List<MySlimBlock>();
 
         private float m_accumulatedDamage;
         public float AccumulatedDamage
@@ -98,6 +99,7 @@ namespace Sandbox.Game.Entities.Cube
         private MyObjectBuilder_CubeBlock m_objectBuilder;
 
         private MyConstructionStockpile m_stockpile = null;
+        private float m_cachedMaxDeformation;
 
         /// <summary>
         /// Neighbours which are connected by mount points
@@ -198,7 +200,7 @@ namespace Sandbox.Game.Entities.Cube
         {
             get
             {
-                return CubeGrid.Skeleton.MaxDeformation(Position, CubeGrid);
+                return m_cachedMaxDeformation;
             }
         }
 
@@ -308,6 +310,8 @@ namespace Sandbox.Game.Entities.Cube
                 }
                 
             }
+
+            UpdateMaxDeformation();
 
             ProfilerShort.End();
         }
@@ -454,7 +458,9 @@ namespace Sandbox.Game.Entities.Cube
 
             if (blockB != null && blockB != this)
             {
-                if (MyCubeGrid.CheckMountPointsForSide(this.BlockDefinition, ref this.Orientation, ref this.Position, ref dir, blockB.BlockDefinition, ref blockB.Orientation, ref blockB.Position))
+				var thisMountPoints = this.BlockDefinition.GetBuildProgressModelMountPoints(BuildLevelRatio);
+				var bMountPoints = blockB.BlockDefinition.GetBuildProgressModelMountPoints(blockB.BuildLevelRatio);
+                if (MyCubeGrid.CheckMountPointsForSide(this.BlockDefinition, thisMountPoints, ref this.Orientation, ref this.Position, ref dir, blockB.BlockDefinition, bMountPoints, ref blockB.Orientation, ref blockB.Position))
                 {
                     if (this.ConnectionAllowed(ref pos, ref dir, blockB) && !Neighbours.Contains(blockB))
                     {
@@ -511,7 +517,13 @@ namespace Sandbox.Game.Entities.Cube
             ShowParts = true;
         }
 
-        private int CalculateCurrentModelID()
+
+        public void UpdateMaxDeformation()
+        {
+            m_cachedMaxDeformation = CubeGrid.Skeleton.MaxDeformation(Position, CubeGrid);
+        }
+
+        public int CalculateCurrentModelID()        
         {
             var buildPercent = BuildLevelRatio;
             if ((buildPercent < 1.0f) && (BlockDefinition.BuildProgressModels != null) && (BlockDefinition.BuildProgressModels.Length > 0))
@@ -574,28 +586,6 @@ namespace Sandbox.Game.Entities.Cube
             //return Position;
         }
 
-        public void MoveFirstItemToConstructionStockpile(IMyComponentInventory fromInventory)
-        {
-            if (MySession.Static.CreativeMode)
-            {
-                return;
-            }
-
-            EnsureConstructionStockpileExists();
-
-            MyComponentStack.GroupInfo info = ComponentStack.GetGroupInfo(0);
-            m_stockpile.ClearSyncList();
-            if ((int)fromInventory.GetItemAmount(info.Component.Id) >= 1)
-            {
-                //Other player cant move your inventory and you also when trying to cosntruct so its safe already after check above ^^
-                fromInventory.RemoveItemsOfType(1, info.Component.Id, MyItemFlags.None);
-                //Debug.Assert(removed, "Item not found, but reported available few lines above");
-                m_stockpile.AddItems(1, info.Component.Id);
-            }
-            CubeGrid.SyncObject.SendStockpileChanged(this, m_stockpile.GetSyncList());
-            m_stockpile.ClearSyncList();
-        }
-
         public void SpawnFirstItemInConstructionStockpile()
         {
             Debug.Assert(!MySession.Static.CreativeMode, "SpawnFirstItemInConstructionStockpile should only be called in survival mode");
@@ -635,7 +625,7 @@ namespace Sandbox.Game.Entities.Cube
 			}
 		}
 
-        public void MoveItemsToConstructionStockpile(IMyComponentInventory fromInventory)
+        public void MoveItemsToConstructionStockpile(MyInventoryBase fromInventory)
         {
             if (MySession.Static.CreativeMode || MySession.Static.SimpleSurvival)
                 return;
@@ -668,7 +658,7 @@ namespace Sandbox.Game.Entities.Cube
         /// Moves items with the given flags from the construction inventory to the character.
         /// If the flags are None, all items are moved.
         /// </summary>
-        public void MoveItemsFromConstructionStockpile(IMyComponentInventory toInventory, MyItemFlags flags = MyItemFlags.None)
+        public void MoveItemsFromConstructionStockpile(MyInventoryBase toInventory, MyItemFlags flags = MyItemFlags.None)
         {
             if (m_stockpile == null) return;
 
@@ -693,7 +683,7 @@ namespace Sandbox.Game.Entities.Cube
             m_stockpile.ClearSyncList();
         }
 
-        public void MoveUnneededItemsFromConstructionStockpile(IMyComponentInventory toInventory)
+        public void MoveUnneededItemsFromConstructionStockpile(MyInventoryBase toInventory)
         {
             if (m_stockpile == null) return;
 
@@ -715,11 +705,14 @@ namespace Sandbox.Game.Entities.Cube
             m_stockpile.ClearSyncList();
         }
 
-        public void ClearConstructionStockpile(IMyComponentInventory outputInventory)
+        public void ClearConstructionStockpile(MyInventoryBase outputInventory)
         {
             if (!StockpileEmpty)
             {
-                if (outputInventory != null && outputInventory.Owner.InventoryOwnerType == MyInventoryOwnerTypeEnum.Character)
+                IMyInventoryOwner inventoryOwner = null;
+                if (outputInventory != null && outputInventory.Container != null)
+                    inventoryOwner = outputInventory.Container.Entity as IMyInventoryOwner;
+                if (inventoryOwner != null && inventoryOwner.InventoryOwnerType == MyInventoryOwnerTypeEnum.Character)
                 {
                     MoveItemsFromConstructionStockpile(outputInventory);
                 }
@@ -1063,8 +1056,9 @@ namespace Sandbox.Game.Entities.Cube
             }
         }
 
-        public void IncreaseMountLevel(float welderMountAmount, long welderOwnerPlayerId, IMyComponentInventory outputInventory = null, float maxAllowedBoneMovement = 0.0f, bool isHelping = false, MyOwnershipShareModeEnum sharing = MyOwnershipShareModeEnum.Faction)
+        public void IncreaseMountLevel(float welderMountAmount, long welderOwnerPlayerId, MyInventoryBase outputInventory = null, float maxAllowedBoneMovement = 0.0f, bool isHelping = false, MyOwnershipShareModeEnum sharing = MyOwnershipShareModeEnum.Faction)
         {
+			ProfilerShort.Begin("MySlimBlock.IncreaseMountLevel");
             welderMountAmount *= BlockDefinition.IntegrityPointsPerSec;
             MySession.Static.PositiveIntegrityTotal += welderMountAmount;
 
@@ -1074,7 +1068,10 @@ namespace Sandbox.Game.Entities.Cube
             }
             else
             {
-                if (outputInventory != null && outputInventory.Owner.InventoryOwnerType == MyInventoryOwnerTypeEnum.Character)
+                IMyInventoryOwner inventoryOwner = null;
+                if (outputInventory != null && outputInventory.Container != null)
+                    inventoryOwner = outputInventory.Container.Entity as IMyInventoryOwner;
+                if (inventoryOwner != null && inventoryOwner.InventoryOwnerType == MyInventoryOwnerTypeEnum.Character)
                 {
                     MoveItemsFromConstructionStockpile(outputInventory, MyItemFlags.Damaged);
                 }
@@ -1116,6 +1113,7 @@ namespace Sandbox.Game.Entities.Cube
 				removeDecals = true;
             }
 
+			ProfilerShort.Begin("ModelChange");
             MyCubeGrid.MyIntegrityChangeEnum integrityChangeType = MyCubeGrid.MyIntegrityChangeEnum.Damage;
             if (BlockDefinition.ModelChangeIsNeeded(oldPercentage, m_componentStack.BuildRatio) || BlockDefinition.ModelChangeIsNeeded(m_componentStack.BuildRatio, oldPercentage))
             {
@@ -1151,6 +1149,7 @@ namespace Sandbox.Game.Entities.Cube
                     CubeGrid.GridSystems.OxygenSystem.Pressurize();
                 }
             }
+			ProfilerShort.End();
 
             if (HasDeformation)
                 CubeGrid.SetBlockDirty(this);
@@ -1162,9 +1161,15 @@ namespace Sandbox.Game.Entities.Cube
 
             if (maxAllowedBoneMovement != 0.0f)
                 FixBones(oldDamage, maxAllowedBoneMovement);
+
+            if (MyFakes.ENABLE_GENERATED_BLOCKS && !BlockDefinition.IsGeneratedBlock && BlockDefinition.GeneratedBlockDefinitions != null && BlockDefinition.GeneratedBlockDefinitions.Length > 0)
+            {
+                UpdateProgressGeneratedBlocks(oldPercentage);
+            }
+			ProfilerShort.End();
         }
 
-        public void DecreaseMountLevel(float grinderAmount, IMyComponentInventory outputInventory)
+        public void DecreaseMountLevel(float grinderAmount, MyInventoryBase outputInventory)
         {
             if (FatBlock != null)
                 grinderAmount /= FatBlock.DisassembleRatio;
@@ -1193,14 +1198,19 @@ namespace Sandbox.Game.Entities.Cube
             }
 
             long toolOwner = 0;
-            if (outputInventory != null && outputInventory.Owner != null)
+            if (outputInventory != null && outputInventory.Entity != null)
             {
-                var moduleOwner = outputInventory.Owner as IMyComponentOwner<MyIDModule>;
-                if (moduleOwner == null && outputInventory.Owner is MyCharacter)
+                var inventoryOwner = outputInventory.Entity;
+                var moduleOwner = inventoryOwner as IMyComponentOwner<MyIDModule>;
+                var character = inventoryOwner as MyCharacter;
+                if (moduleOwner == null)
                 {
-                    Debug.Assert((outputInventory.Owner as MyCharacter).ControllerInfo.Controller != null, "Controller was null on the character in DecreaseMountLevel!");
-                    if ((outputInventory.Owner as MyCharacter).ControllerInfo.Controller == null)
-                        toolOwner = (outputInventory.Owner as MyCharacter).ControllerInfo.ControllingIdentityId;
+                    if (character != null)
+                    {
+                    Debug.Assert(character.ControllerInfo.Controller != null, "Controller was null on the character in DecreaseMountLevel!");
+                    if (character.ControllerInfo.Controller == null)
+                        toolOwner = character.ControllerInfo.ControllingIdentityId;
+                }
                 }
                 else
                 {
@@ -1255,6 +1265,11 @@ namespace Sandbox.Game.Entities.Cube
             if (CubeGrid.GridSystems.OxygenSystem != null)
             {
                 CubeGrid.GridSystems.OxygenSystem.Pressurize();
+            }
+
+            if (MyFakes.ENABLE_GENERATED_BLOCKS && !BlockDefinition.IsGeneratedBlock && BlockDefinition.GeneratedBlockDefinitions != null && BlockDefinition.GeneratedBlockDefinitions.Length > 0)
+            {
+                UpdateProgressGeneratedBlocks(oldBuildRatio);
             }
 
             CubeGrid.SyncObject.SendIntegrityChanged(this, integrityChangeType, toolOwner);
@@ -1412,6 +1427,11 @@ namespace Sandbox.Game.Entities.Cube
 			
 			if(removeDecals)
 				CubeGrid.RenderData.RemoveDecals(Position);
+
+            if (MyFakes.ENABLE_GENERATED_BLOCKS && !BlockDefinition.IsGeneratedBlock && BlockDefinition.GeneratedBlockDefinitions != null && BlockDefinition.GeneratedBlockDefinitions.Length > 0)
+            {
+                UpdateProgressGeneratedBlocks(oldRatio);
+            }
         }
 
         void UpdateHackingIndicator(float newRatio, float oldRatio, long grinderOwner)
@@ -1620,7 +1640,7 @@ namespace Sandbox.Game.Entities.Cube
             }
         }
 
-		public static void SetBlockComponents(MyHudBlockInfo hudInfo, MySlimBlock block, IMyComponentInventory availableInventory = null)
+		public static void SetBlockComponents(MyHudBlockInfo hudInfo, MySlimBlock block, MyInventoryBase availableInventory = null)
 		{
 			hudInfo.Components.Clear();
 			for (int i = 0; i < block.ComponentStack.GroupCount; i++)
@@ -1666,5 +1686,41 @@ namespace Sandbox.Game.Entities.Cube
 				}
 			}
 		}
+
+        private void UpdateProgressGeneratedBlocks(float oldBuildRatio)
+        {
+            float currentBuildRatio = ComponentStack.BuildRatio;
+            if (oldBuildRatio == currentBuildRatio)
+                return;
+
+			ProfilerShort.Begin("MySlimBlock.UpdateProgressGeneratedBlocks");
+            if (oldBuildRatio < currentBuildRatio)
+            {
+				ProfilerShort.Begin("Adding generated blocks");
+                // Check adding of generated blocks
+                if (oldBuildRatio < BlockDefinition.BuildProgressToPlaceGeneratedBlocks && currentBuildRatio >= BlockDefinition.BuildProgressToPlaceGeneratedBlocks)
+                {
+                    CubeGrid.AdditionalModelGenerators.ForEach(g => g.GenerateBlocks(this));
+                }
+				ProfilerShort.End();
+            }
+            else
+            {
+				ProfilerShort.Begin("Removing generated blocks");
+                // Check removing of generated blocks
+                if (oldBuildRatio >= BlockDefinition.BuildProgressToPlaceGeneratedBlocks && currentBuildRatio < BlockDefinition.BuildProgressToPlaceGeneratedBlocks)
+                {
+                    m_tmpBlocks.Clear();
+
+                    CubeGrid.GetGeneratedBlocks(this, m_tmpBlocks);
+                    CubeGrid.RazeGeneratedBlocks(m_tmpBlocks);
+
+                    m_tmpBlocks.Clear();
+                }
+				ProfilerShort.End();
+            }
+			ProfilerShort.End();
+        }
+
     }
 }

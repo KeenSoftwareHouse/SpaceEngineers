@@ -27,6 +27,8 @@ namespace Sandbox.Common.ObjectBuilders
         public int MaxNumberOfBlocks = 200;
         [ProtoMember]
         public int ProjectionsRemaining = 0;
+        [ProtoMember]
+        public bool GetOwnershipFromProjector = false;
 
         public override void Remap(IMyRemapHelper remapHelper)
         {

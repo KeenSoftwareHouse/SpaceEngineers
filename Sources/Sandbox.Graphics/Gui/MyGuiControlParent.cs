@@ -153,7 +153,7 @@ namespace Sandbox.Graphics.GUI
 
         public override void ShowToolTip()
         {
-            foreach (var control in Controls)
+            foreach (var control in Controls.GetVisibleControls())
             {
                 control.ShowToolTip();
             }

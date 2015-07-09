@@ -46,9 +46,11 @@ namespace Sandbox.Engine.Voxels
         private readonly Vector3I m_cellsOffset = new Vector3I(0, 0, 0);
 
         float m_phantomExtend = 0.0f;
+        float m_predictionSize = 3.0f;
 
-        internal MyVoxelPhysicsBody(MyVoxelBase voxelMap,float phantomExtend): base(voxelMap, RigidBodyFlag.RBF_STATIC)
+        internal MyVoxelPhysicsBody(MyVoxelBase voxelMap,float phantomExtend, float predictionSize = 3.0f): base(voxelMap, RigidBodyFlag.RBF_STATIC)
         {
+            m_predictionSize = predictionSize;
             m_phantomExtend = phantomExtend;
             m_voxelMap = voxelMap;
             Vector3I storageSize = m_voxelMap.Size;
@@ -65,7 +67,7 @@ namespace Sandbox.Engine.Voxels
                 });
             shape.SetShapeRequestHandler(RequestShapeBlocking);
 
-            CreateFromCollisionObject(shape, -m_voxelMap.SizeInMetresHalf, m_voxelMap.WorldMatrix, collisionFilter: MyPhysics.StaticCollisionLayer);
+            CreateFromCollisionObject(shape, -m_voxelMap.SizeInMetresHalf, m_voxelMap.WorldMatrix, collisionFilter: MyPhysics.VoxelCollisionLayer);
             shape.Base.RemoveReference();
 
             if (ENABLE_AABB_PHANTOM)
@@ -266,7 +268,7 @@ namespace Sandbox.Engine.Voxels
 
         private Vector3 ComputePredictionOffset(IMyEntity entity)
         {
-            return entity.Physics.LinearVelocity  * 3.0f;
+            return entity.Physics.LinearVelocity * m_predictionSize;
         }
 
         public override void DebugDraw()

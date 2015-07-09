@@ -7,7 +7,5 @@ namespace Sandbox.Common.ObjectBuilders
     [MyObjectBuilderDefinition]
     public class MyObjectBuilder_HandTool : MyObjectBuilder_EntityBase
     {
-		[ProtoMember]
-		public bool IsDeconstructor;
     }
 }

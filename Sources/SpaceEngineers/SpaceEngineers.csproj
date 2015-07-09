@@ -234,15 +234,19 @@
     <None Include="Content\Data\Prefabs\Trade2.sbc" />
     <None Include="Content\Data\Prefabs\Trade3.sbc" />
     <None Include="Content\Data\RespawnShips.sbc" />
-    <None Include="Content\Data\Scenarios.sbx" />
+    <None Include="Content\Data\Scenarios.sbx">
+      <SubType>Designer</SubType>
+    </None>
     <None Include="Content\Data\Screens\CubeBuilder.gsc" />
     <None Include="Content\Data\Screens\CubeBuilderBar.gsc" />
     <None Include="Content\Data\Screens\DialogAmount.gsc" />
     <None Include="Content\Data\Screens\JoinScreen.gsc" />
     <None Include="Content\Data\Screens\MedicalsScreen.gsc" />
+    <None Include="Content\Data\SoundBlock.sbc" />
     <None Include="Content\Data\SpawnGroups.sbc">
       <SubType>Designer</SubType>
     </None>
+    <None Include="Content\Data\Stats.sbc" />
     <None Include="Content\Data\TransparentMaterials.sbc" />
     <None Include="Content\Data\VoxelMaterials.sbc">
       <SubType>Designer</SubType>

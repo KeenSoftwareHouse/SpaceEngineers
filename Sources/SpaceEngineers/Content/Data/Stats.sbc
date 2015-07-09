@@ -27,6 +27,7 @@
         <TypeId>MyObjectBuilder_EntityStat</TypeId>
         <SubtypeId>Health</SubtypeId>
       </Id>
+      <Name>Health</Name>
       <MinValue>0</MinValue>
       <MaxValue>100</MaxValue>
     </Stat>

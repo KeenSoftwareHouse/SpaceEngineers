@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using VRage.ModAPI;
@@ -18,10 +19,38 @@ namespace VRage.Components
             EntityBuilderSubTypeNames = entityBuilderSubTypeNames;
         }
     }
-   
-    public abstract class MyEntityComponentBase : MyComponentBase<MyEntityComponentContainer>
+
+    // This is needed only for ModAPI compatibility
+    public interface IMyComponentBase
     {
-        public IMyEntity Entity { get { return Container != null ? Container.Entity : null; } }  
+        void SetContainer(IMyComponentContainer container);
+
+        void OnAddedToContainer();
+        void OnRemovedFromContainer();
+
+        void OnAddedToScene();
+        void OnRemovedFromScene();
+    }
+   
+    public abstract class MyEntityComponentBase : MyComponentBase
+    {
+        public MyEntityComponentContainer Container
+        {
+            get
+            {
+                return ContainerBase as MyEntityComponentContainer;
+            }
+        }
+
+        public IMyEntity Entity
+        {
+            get
+            {
+                var container = ContainerBase as MyEntityComponentContainer;
+                Debug.Assert(ContainerBase == null || container != null, "MyEntityComponentBase was inserted into a container that was not of type MyEntityComponentContainer!");
+                return container == null ? null : container.Entity;
+            }
+        }
     }
 
 }

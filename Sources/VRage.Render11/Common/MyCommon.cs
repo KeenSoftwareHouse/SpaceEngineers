@@ -102,6 +102,8 @@ namespace VRageRender
              internal Matrix View;
              internal Matrix Projection;
              internal Matrix InvView;
+             internal Matrix InvProjection;
+             internal Matrix InvViewProjection;
              internal Matrix ViewProjectionWorld;
              internal Vector4 WorldOffset;
              internal Vector2 Resolution;
@@ -147,8 +149,15 @@ namespace VRageRender
              internal Vector4 VoxelLodRange1;
              internal Vector4 VoxelLodRange2;
              internal Vector4 VoxelLodRange3;
-        
-        
+
+             internal Vector4 VoxelMassiveLodRange0;
+             internal Vector4 VoxelMassiveLodRange1;
+             internal Vector4 VoxelMassiveLodRange2;
+             internal Vector4 VoxelMassiveLodRange3;
+             internal Vector4 VoxelMassiveLodRange4;
+             internal Vector4 VoxelMassiveLodRange5;
+             internal Vector4 VoxelMassiveLodRange6;
+             internal Vector4 VoxelMassiveLodRange7;
          }
 
         internal static void MoveToNextFrame()
@@ -163,6 +172,8 @@ namespace VRageRender
             constants.Projection = Matrix.Transpose(MyEnvironment.Projection);
             constants.ViewProjection = Matrix.Transpose(MyEnvironment.ViewProjectionAt0);
             constants.InvView = Matrix.Transpose(MyEnvironment.InvViewAt0);
+            constants.InvProjection = Matrix.Transpose(MyEnvironment.InvProjection);
+            constants.InvViewProjection = Matrix.Transpose(MyEnvironment.InvViewProjectionAt0);
             constants.ViewProjectionWorld = Matrix.Transpose(MyEnvironment.ViewProjection);
             constants.WorldOffset = new Vector4(MyEnvironment.CameraPosition, 0);
             
@@ -249,6 +260,28 @@ namespace VRageRender
             MyClipmap.ComputeLodViewBounds(MyClipmapScaleEnum.Normal, 5, out constants.VoxelLodRange2.Z, out constants.VoxelLodRange2.W);
             MyClipmap.ComputeLodViewBounds(MyClipmapScaleEnum.Normal, 6, out constants.VoxelLodRange3.X, out constants.VoxelLodRange3.Y);
             MyClipmap.ComputeLodViewBounds(MyClipmapScaleEnum.Normal, 7, out constants.VoxelLodRange3.Z, out constants.VoxelLodRange3.W);
+
+            //
+            MyClipmap.ComputeLodViewBounds(MyClipmapScaleEnum.Massive, 0, out constants.VoxelMassiveLodRange0.X, out constants.VoxelMassiveLodRange0.Y);
+            MyClipmap.ComputeLodViewBounds(MyClipmapScaleEnum.Massive, 1, out constants.VoxelMassiveLodRange0.Z, out constants.VoxelMassiveLodRange0.W);
+            MyClipmap.ComputeLodViewBounds(MyClipmapScaleEnum.Massive, 2, out constants.VoxelMassiveLodRange1.X, out constants.VoxelMassiveLodRange1.Y);
+            MyClipmap.ComputeLodViewBounds(MyClipmapScaleEnum.Massive, 3, out constants.VoxelMassiveLodRange1.Z, out constants.VoxelMassiveLodRange1.W);
+
+            MyClipmap.ComputeLodViewBounds(MyClipmapScaleEnum.Massive, 4, out constants.VoxelMassiveLodRange2.X, out constants.VoxelMassiveLodRange2.Y);
+            MyClipmap.ComputeLodViewBounds(MyClipmapScaleEnum.Massive, 5, out constants.VoxelMassiveLodRange2.Z, out constants.VoxelMassiveLodRange2.W);
+            MyClipmap.ComputeLodViewBounds(MyClipmapScaleEnum.Massive, 6, out constants.VoxelMassiveLodRange3.X, out constants.VoxelMassiveLodRange3.Y);
+            MyClipmap.ComputeLodViewBounds(MyClipmapScaleEnum.Massive, 7, out constants.VoxelMassiveLodRange3.Z, out constants.VoxelMassiveLodRange3.W);
+
+            MyClipmap.ComputeLodViewBounds(MyClipmapScaleEnum.Massive, 8, out constants.VoxelMassiveLodRange4.X, out constants.VoxelMassiveLodRange4.Y);
+            MyClipmap.ComputeLodViewBounds(MyClipmapScaleEnum.Massive, 9, out constants.VoxelMassiveLodRange4.Z, out constants.VoxelMassiveLodRange4.W);
+            MyClipmap.ComputeLodViewBounds(MyClipmapScaleEnum.Massive, 10, out constants.VoxelMassiveLodRange5.X, out constants.VoxelMassiveLodRange5.Y);
+            MyClipmap.ComputeLodViewBounds(MyClipmapScaleEnum.Massive, 11, out constants.VoxelMassiveLodRange5.Z, out constants.VoxelMassiveLodRange5.W);
+
+            MyClipmap.ComputeLodViewBounds(MyClipmapScaleEnum.Massive, 12, out constants.VoxelMassiveLodRange6.X, out constants.VoxelMassiveLodRange6.Y);
+            MyClipmap.ComputeLodViewBounds(MyClipmapScaleEnum.Massive, 13, out constants.VoxelMassiveLodRange6.Z, out constants.VoxelMassiveLodRange6.W);
+            MyClipmap.ComputeLodViewBounds(MyClipmapScaleEnum.Massive, 14, out constants.VoxelMassiveLodRange7.X, out constants.VoxelMassiveLodRange7.Y);
+            MyClipmap.ComputeLodViewBounds(MyClipmapScaleEnum.Massive, 15, out constants.VoxelMassiveLodRange7.Z, out constants.VoxelMassiveLodRange7.W);
+            
 
             var mapping = MyMapping.MapDiscard(MyCommon.FrameConstants);
             mapping.stream.Write(constants);

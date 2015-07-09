@@ -32,7 +32,7 @@ namespace SpaceEngineers.Game.Entities
             MyCubeBuilder.BuildComponent = null;
         }
 
-        public override IMyComponentInventory GetBuilderInventory(long entityId)
+        public override MyInventoryBase GetBuilderInventory(long entityId)
         {
             if (MySession.Static.CreativeMode || MySession.Static.SimpleSurvival)
                 return null;
@@ -46,7 +46,7 @@ namespace SpaceEngineers.Game.Entities
             return GetBuilderInventory(entity);
         }
 
-        public override IMyComponentInventory GetBuilderInventory(MyEntity entity)
+        public override MyInventoryBase GetBuilderInventory(MyEntity entity)
         {
             if (MySession.Static.CreativeMode || MySession.Static.SimpleSurvival)
                 return null;
@@ -122,7 +122,7 @@ namespace SpaceEngineers.Game.Entities
                     foreach (var item in block.ConstructionStockpile.Items)
                     {
                         var itemId = item.PhysicalContent.GetId();
-                        m_materialList.AddMaterial(itemId, item.Amount, addToDisplayList: false);
+                        m_materialList.AddMaterial(itemId, item.Amount, item.Amount, addToDisplayList: false);
                     }
                 }
             }
