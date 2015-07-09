@@ -58,6 +58,7 @@ namespace Sandbox.Game.Entities.Cube
         /// Can be null if Oxygen option is disabled
         /// </summary>
         public MyGridOxygenSystem OxygenSystem { get; private set; }
+        public MyGridJumpDriveSystem JumpSystem { get; private set; }
 
         private readonly MyCubeGrid m_cubeGrid;
         protected MyCubeGrid CubeGrid { get { return m_cubeGrid; } }
@@ -91,6 +92,7 @@ namespace Sandbox.Game.Entities.Cube
             {
                 OxygenSystem = new MyGridOxygenSystem(m_cubeGrid);
             }
+            JumpSystem = new MyGridJumpDriveSystem(m_cubeGrid);
 
             m_cubeGrid.SyncObject.PowerProducerStateChanged += SyncObject_PowerProducerStateChanged;
 
@@ -153,6 +155,10 @@ namespace Sandbox.Game.Entities.Cube
                 OxygenSystem.UpdateBeforeSimulation();
                 ProfilerShort.End();
             }
+
+            ProfilerShort.Begin("Jump");
+            JumpSystem.UpdateBeforeSimulation();
+            ProfilerShort.End();
         }
 
         public virtual void PrepareForDraw()

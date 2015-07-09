@@ -1132,33 +1132,47 @@ namespace Sandbox.Game.Entities
         #region Autopilot Logic
         private void UpdateAutopilot()
         {
-            if (IsWorking && m_autoPilotEnabled && CubeGrid.GridSystems.ControlSystem.GetShipController() == this)
+            if (IsWorking && m_autoPilotEnabled)
             {
-                Debug.Assert(CubeGrid.GridSystems.ThrustSystem.AutopilotEnabled == true);
-                Debug.Assert(CubeGrid.GridSystems.GyroSystem.AutopilotEnabled == true);
-
-                if (CurrentWaypoint == null && m_waypoints.Count > 0)
+                var shipController = CubeGrid.GridSystems.ControlSystem.GetShipController();
+                if (shipController == null)
                 {
-                    CurrentWaypoint = m_waypoints[0];
-                    UpdateText();
+                    var group = ControlGroup.GetGroup(CubeGrid);
+                    if (group != null)
+                    {
+                        group.GroupData.ControlSystem.AddControllerBlock(this);
+                    }
+                    shipController = CubeGrid.GridSystems.ControlSystem.GetShipController();
                 }
 
-                if (CurrentWaypoint != null)
+                if (shipController == this)
                 {
-                    if (IsInStoppingDistance())
+                    Debug.Assert(CubeGrid.GridSystems.ThrustSystem.AutopilotEnabled == true);
+                    Debug.Assert(CubeGrid.GridSystems.GyroSystem.AutopilotEnabled == true);
+
+                    if (CurrentWaypoint == null && m_waypoints.Count > 0)
                     {
-                        AdvanceWaypoint();
+                        CurrentWaypoint = m_waypoints[0];
+                        UpdateText();
                     }
 
-                    if (Sync.IsServer && CurrentWaypoint != null && !IsInStoppingDistance())
+                    if (CurrentWaypoint != null)
                     {
-                        if (!UpdateGyro())
+                        if (IsInStoppingDistance())
                         {
-                            UpdateThrust();
+                            AdvanceWaypoint();
                         }
-                        else
+
+                        if (Sync.IsServer && CurrentWaypoint != null && !IsInStoppingDistance())
                         {
-                            CubeGrid.GridSystems.ThrustSystem.AutoPilotThrust = Vector3.Zero;
+                            if (!UpdateGyro())
+                            {
+                                UpdateThrust();
+                            }
+                            else
+                            {
+                                CubeGrid.GridSystems.ThrustSystem.AutoPilotThrust = Vector3.Zero;
+                            }
                         }
                     }
                 }

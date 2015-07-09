@@ -596,28 +596,6 @@ namespace Sandbox.Game.Entities.Cube
             //return Position;
         }
 
-        public void MoveFirstItemToConstructionStockpile(MyInventoryBase fromInventory)
-        {
-            if (MySession.Static.CreativeMode)
-            {
-                return;
-            }
-
-            EnsureConstructionStockpileExists();
-
-            MyComponentStack.GroupInfo info = ComponentStack.GetGroupInfo(0);
-            m_stockpile.ClearSyncList();
-            if ((int)fromInventory.GetItemAmount(info.Component.Id) >= 1)
-            {
-                //Other player cant move your inventory and you also when trying to cosntruct so its safe already after check above ^^
-                fromInventory.RemoveItemsOfType(1, info.Component.Id, MyItemFlags.None);
-                //Debug.Assert(removed, "Item not found, but reported available few lines above");
-                m_stockpile.AddItems(1, info.Component.Id);
-            }
-            CubeGrid.SyncObject.SendStockpileChanged(this, m_stockpile.GetSyncList());
-            m_stockpile.ClearSyncList();
-        }
-
         public void SpawnFirstItemInConstructionStockpile()
         {
             Debug.Assert(!MySession.Static.CreativeMode, "SpawnFirstItemInConstructionStockpile should only be called in survival mode");
@@ -1104,6 +1082,7 @@ namespace Sandbox.Game.Entities.Cube
 
         public void IncreaseMountLevel(float welderMountAmount, long welderOwnerPlayerId, MyInventoryBase outputInventory = null, float maxAllowedBoneMovement = 0.0f, bool isHelping = false, MyOwnershipShareModeEnum sharing = MyOwnershipShareModeEnum.Faction)
         {
+			ProfilerShort.Begin("MySlimBlock.IncreaseMountLevel");
             welderMountAmount *= BlockDefinition.IntegrityPointsPerSec;
             MySession.Static.PositiveIntegrityTotal += welderMountAmount;
 
@@ -1158,6 +1137,7 @@ namespace Sandbox.Game.Entities.Cube
 				removeDecals = true;
             }
 
+			ProfilerShort.Begin("ModelChange");
             MyCubeGrid.MyIntegrityChangeEnum integrityChangeType = MyCubeGrid.MyIntegrityChangeEnum.Damage;
             if (BlockDefinition.ModelChangeIsNeeded(oldPercentage, m_componentStack.BuildRatio) || BlockDefinition.ModelChangeIsNeeded(m_componentStack.BuildRatio, oldPercentage))
             {
@@ -1193,6 +1173,7 @@ namespace Sandbox.Game.Entities.Cube
                     CubeGrid.GridSystems.OxygenSystem.Pressurize();
                 }
             }
+			ProfilerShort.End();
 
             if (HasDeformation)
                 CubeGrid.SetBlockDirty(this);
@@ -1209,6 +1190,7 @@ namespace Sandbox.Game.Entities.Cube
             {
                 UpdateProgressGeneratedBlocks(oldPercentage);
             }
+			ProfilerShort.End();
         }
 
         public void DecreaseMountLevel(float grinderAmount, MyInventoryBase outputInventory)
@@ -1736,16 +1718,20 @@ namespace Sandbox.Game.Entities.Cube
             if (oldBuildRatio == currentBuildRatio)
                 return;
 
+			ProfilerShort.Begin("MySlimBlock.UpdateProgressGeneratedBlocks");
             if (oldBuildRatio < currentBuildRatio)
             {
+				ProfilerShort.Begin("Adding generated blocks");
                 // Check adding of generated blocks
                 if (oldBuildRatio < BlockDefinition.BuildProgressToPlaceGeneratedBlocks && currentBuildRatio >= BlockDefinition.BuildProgressToPlaceGeneratedBlocks)
                 {
                     CubeGrid.AdditionalModelGenerators.ForEach(g => g.GenerateBlocks(this));
                 }
+				ProfilerShort.End();
             }
             else
             {
+				ProfilerShort.Begin("Removing generated blocks");
                 // Check removing of generated blocks
                 if (oldBuildRatio >= BlockDefinition.BuildProgressToPlaceGeneratedBlocks && currentBuildRatio < BlockDefinition.BuildProgressToPlaceGeneratedBlocks)
                 {
@@ -1756,7 +1742,9 @@ namespace Sandbox.Game.Entities.Cube
 
                     m_tmpBlocks.Clear();
                 }
+				ProfilerShort.End();
             }
+			ProfilerShort.End();
         }
 
     }

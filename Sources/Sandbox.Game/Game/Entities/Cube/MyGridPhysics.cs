@@ -184,7 +184,11 @@ namespace Sandbox.Game.Entities.Cube
                 if (!MyPerGameSettings.Destruction)
                     RigidBody.ContactPointCallback += RigidBody_ContactPointCallback;
                 else
+                {
                     RigidBody.ContactPointCallback += RigidBody_ContactPointCallback_Destruction;
+                    BreakableBody.BeforeControllerOperation += BreakableBody_BeforeControllerOperation;
+                    BreakableBody.AfterControllerOperation += BreakableBody_AfterControllerOperation;
+                }
 
                 RigidBody.LinearDamping = MyPerGameSettings.DefaultLinearDamping;
                 RigidBody.AngularDamping = MyPerGameSettings.DefaultAngularDamping;
@@ -234,6 +238,22 @@ namespace Sandbox.Game.Entities.Cube
             ProfilerShort.End();
             ProfilerShort.Begin("Enable");
             Enabled = true;
+            ProfilerShort.End();
+        }
+
+        void BreakableBody_AfterControllerOperation(HkdBreakableBody b)
+        {
+            ProfilerShort.Begin("BreakableBody_AfterControllerOperation");
+            if (m_recreateBody)
+                b.BreakableShape.SetStrenghtRecursively(MyDestructionConstants.STRENGTH,0.7f);
+            ProfilerShort.End();
+        }
+
+        void BreakableBody_BeforeControllerOperation(HkdBreakableBody b)
+        {
+            ProfilerShort.Begin("BreakableBody_AfterControllerOperation");
+            if (m_recreateBody)
+                b.BreakableShape.SetStrenghtRecursively(float.MaxValue, 0.7f);
             ProfilerShort.End();
         }
 
@@ -1674,6 +1694,8 @@ namespace Sandbox.Game.Entities.Cube
                     RigidBody.ContactPointCallbackEnabled = true;
                     RigidBody.ContactSoundCallbackEnabled = true;
                     RigidBody.ContactPointCallback += RigidBody_ContactPointCallback_Destruction;
+                    BreakableBody.BeforeControllerOperation += BreakableBody_BeforeControllerOperation;
+                    BreakableBody.AfterControllerOperation += BreakableBody_AfterControllerOperation;
                     Matrix m = Entity.PositionComp.WorldMatrix;
                     m.Translation = WorldToCluster(Entity.PositionComp.GetPosition());
                     RigidBody.SetWorldMatrix(m);

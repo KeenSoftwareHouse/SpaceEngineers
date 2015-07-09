@@ -88,6 +88,9 @@ namespace Sandbox.Game.Gui
             m_confirmButton.ButtonClicked += confirmButton_OnButtonClick;
             m_cancelButton.ButtonClicked += cancelButton_OnButtonClick;
 
+            m_confirmButton.TextAlignment = MyGuiDrawAlignEnum.HORISONTAL_CENTER_AND_VERTICAL_CENTER;
+            m_cancelButton.TextAlignment = MyGuiDrawAlignEnum.HORISONTAL_CENTER_AND_VERTICAL_CENTER;
+
             RefreshAmountTextbox();
         }
 

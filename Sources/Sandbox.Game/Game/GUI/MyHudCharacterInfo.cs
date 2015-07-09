@@ -1,10 +1,10 @@
 ﻿#region Using
 
 using Sandbox.Common;
-
 using Sandbox.Game.Localization;
 using Sandbox.Game.World;
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Text;
 using VRage;
@@ -114,18 +114,39 @@ namespace Sandbox.Game.Gui
             }
         }
 
-        private float m_speed;
+        private int m_highestSpeedIndex = 0;
+		private int m_currentSpeedIndex = 0;
+		private const int m_speedHistoryLength = 8;
+		private float[] m_speedHistory = new float[m_speedHistoryLength];
         public float Speed
         {
-            get { return m_speed; }
-            set
-            {
-                if (m_speed != value)
-                {
-                    m_speed = value;
-                    m_needsRefresh = true;
-                }
-            }
+            get { return m_speedHistory[m_highestSpeedIndex]; }
+			set
+			{
+				if (m_highestSpeedIndex == (m_currentSpeedIndex + 1) % m_speedHistoryLength)
+				{
+					var oldHighestValue = Speed;
+					float highestValue = float.MinValue;
+					int newHighestIndex = m_currentSpeedIndex;
+					for (int index = (m_highestSpeedIndex + 1) % m_speedHistoryLength; index != m_highestSpeedIndex; index = (++index) % m_speedHistoryLength)
+					{
+						if (m_speedHistory[index] > highestValue)
+						{
+							newHighestIndex = index;
+							highestValue = m_speedHistory[newHighestIndex];
+						}
+					}
+					m_highestSpeedIndex = newHighestIndex;
+					if(Speed != oldHighestValue)
+						m_needsRefresh = true;
+				}
+				m_speedHistory[m_currentSpeedIndex = ((m_currentSpeedIndex+1) % m_speedHistoryLength)] = value;
+				if (Speed <= value)
+				{
+					m_highestSpeedIndex = m_currentSpeedIndex;
+					m_needsRefresh = true;
+				}
+			}
         }
 
         /// <summary>

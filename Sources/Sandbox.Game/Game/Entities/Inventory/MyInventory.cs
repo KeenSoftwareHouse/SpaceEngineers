@@ -21,6 +21,9 @@ using VRage.ObjectBuilders;
 using VRage.Components;
 using Sandbox.ModAPI.Interfaces;
 using Sandbox.Common.ObjectBuilders.ComponentSystem;
+using Sandbox.Game.Entities.Inventory;
+using Sandbox.Game.Gui;
+using VRage.ModAPI;
 
 #endregion
 
@@ -45,9 +48,7 @@ namespace Sandbox.Game
         MyInventoryFlags m_flags;
 
         // CH: TODO: Remove this!
-        IMyInventoryOwner m_owner;
-
-        static MySyncInventory SyncObject;
+        IMyInventoryOwner m_owner;       
 
         public object UserData;
 
@@ -80,7 +81,7 @@ namespace Sandbox.Game
 
         public MyInventory(MyFixedPoint maxVolume, MyFixedPoint maxMass, Vector3 size, MyInventoryFlags flags, IMyInventoryOwner owner)
         {
-            m_maxVolume = MyPerGameSettings.ConstrainInventory() ? maxVolume * MySession.Static.InventoryMultiplier : MyFixedPoint.MaxValue;
+            m_maxVolume = maxVolume;
             m_maxMass = maxMass;
             m_size = size;
             m_flags = flags;
@@ -107,7 +108,7 @@ namespace Sandbox.Game
 
         public override MyFixedPoint MaxVolume // in m3
         {
-            get { return m_maxVolume; }
+            get { return MyPerGameSettings.ConstrainInventory() ? m_maxVolume*MySession.Static.InventoryMultiplier : MyFixedPoint.MaxValue; }
         }
 
         public override MyFixedPoint CurrentVolume // in m3
@@ -180,7 +181,7 @@ namespace Sandbox.Game
 
         public bool IsFull
         {
-            get { return m_currentVolume >= m_maxVolume || m_currentMass >= m_maxMass ; }
+            get { return m_currentVolume >= MaxVolume || m_currentMass >= m_maxMass ; }
         }
 
         #endregion
@@ -189,13 +190,10 @@ namespace Sandbox.Game
 
         public bool CanItemsBeAdded(MyFixedPoint amount, MyDefinitionId contentId)
         {
-            float volume, mass;
-            if (!GetVolumeAndMass(ref contentId, out volume, out mass))
-            {
-                return false;
-            }
+            var adapter = MyInventoryItemAdapter.Static;
+            adapter.Adapt(contentId);
 
-            if (MyPerGameSettings.ConstrainInventory() && amount * volume + m_currentVolume > m_maxVolume)
+            if (MyPerGameSettings.ConstrainInventory() && (amount * adapter.Volume + m_currentVolume > MaxVolume) || (amount * adapter.Mass + m_currentMass > m_maxMass))
             {
                 return false;
             }
@@ -203,42 +201,16 @@ namespace Sandbox.Game
             return CheckConstraint(contentId);
         }
 
-        private static bool GetVolumeAndMass(ref MyDefinitionId contentId, out float volume, out float mass)
-        {
-            volume = mass = 0;
-            MyPhysicalItemDefinition definition;
-            MyCubeBlockDefinition blockDef;
-            if (MyDefinitionManager.Static.TryGetPhysicalItemDefinition(contentId, out definition))
-            {
-                volume = definition.Volume;
-                mass = definition.Mass;
-                return true;
-            }
-            else if (MyDefinitionManager.Static.TryGetCubeBlockDefinition(contentId, out blockDef))
-            {
-                volume = (blockDef.Size * MyDefinitionManager.Static.GetCubeSize(blockDef.CubeSize)).Volume;
-                if (MyDestructionData.Static != null && Sync.IsServer)
-                {
-                    mass = MyDestructionData.Static.GetBlockMass(blockDef.Model, blockDef);
-                }
-                else
-                {
-                    mass = blockDef.Mass;
-                }
-                return true;
-            }
-            return false;
-        }
-
         public override MyFixedPoint ComputeAmountThatFits(MyDefinitionId contentId)
         {
             if (!MyPerGameSettings.ConstrainInventory())
                 return MyFixedPoint.MaxValue;
-            float volume, mass;
-            if (!GetVolumeAndMass(ref contentId, out volume, out mass))
-                return 0;
-            var amountThatFitsVolume = MyFixedPoint.Max((MyFixedPoint)((float)m_maxVolume - (float)m_currentVolume) * (1.0f / (float)volume), 0);
-            var amountThatFitsMass = MyFixedPoint.Max((MyFixedPoint)(((float)m_maxMass - (float)m_currentMass) * (1.0f / (float)mass)), 0);
+
+            var adapter = MyInventoryItemAdapter.Static;
+            adapter.Adapt(contentId);
+
+            var amountThatFitsVolume = MyFixedPoint.Max((MyFixedPoint)((float)MaxVolume - (float)m_currentVolume) * (1.0f / (float)adapter.Volume), 0);
+            var amountThatFitsMass = MyFixedPoint.Max((MyFixedPoint)(((float)m_maxMass - (float)m_currentMass) * (1.0f / (float)adapter.Mass)), 0);
             var amountThatFits = MyFixedPoint.Min(amountThatFitsVolume, amountThatFitsMass); 
 
             MyPhysicalItemDefinition physicalItemDefinition = null;
@@ -256,7 +228,7 @@ namespace Sandbox.Game
             if (!MyPerGameSettings.ConstrainInventory())
                 return MyFixedPoint.MaxValue;
 
-            var amountThatFits = (m_maxVolume - m_currentVolume) * (1.0f / blueprint.OutputVolume);
+            var amountThatFits = (MaxVolume - m_currentVolume) * (1.0f / blueprint.OutputVolume);
             amountThatFits = MyFixedPoint.Max(amountThatFits, 0); // In case we added more than we can carry using debug keys.
 
             if (blueprint.Atomic)
@@ -368,30 +340,45 @@ namespace Sandbox.Game
         }
 
         public bool AddGrid(MyCubeGrid grid)
-        {
-            HashSet<Sandbox.Game.Entities.Cube.MySlimBlock> lst = new HashSet<Sandbox.Game.Entities.Cube.MySlimBlock>();
-            foreach(var b in grid.GetBlocks())
+        {  
+            HashSet<Sandbox.Game.Entities.Cube.MySlimBlock> lst = new HashSet<Sandbox.Game.Entities.Cube.MySlimBlock>();            
+
+            foreach (var block in grid.GetBlocks())
             {
-                if(b.FatBlock is MyCompoundCubeBlock)
+                if (block.FatBlock is MyCompoundCubeBlock)
                 {
-                    foreach(var subb in (b.FatBlock as MyCompoundCubeBlock).GetBlocks())
+                    bool added = false;
+                    foreach (var subb in (block.FatBlock as MyCompoundCubeBlock).GetBlocks())
                     {
                         if (AddBlock(subb))
-                            lst.Add(b);
+                        {
+                            added = true;
+                        }
+                    }
+                    if (added)
+                    {
+                        lst.Add(block);
                     }
                 }
                 else
                 {
-                    if (AddBlock(b))
-                        lst.Add(b);
+                    if (AddBlock(block))
+                    {
+                        lst.Add(block);
+                    }
                 }
             }
+
+			
             foreach(var b in lst)
             {
-                grid.RemoveBlock(b, true);
+				Vector3I pos = b.Position;
+				Vector3UByte size = new Vector3UByte(1,1,1);
+				grid.RazeBlocks(ref pos, ref size);
+             //   grid.RemoveBlock(b, true); not synced
             }
-            return lst.Count > 0;
-            //grid.Close();
+
+            return lst.Count > 0;            
         }
 
         private bool AddBlock(Entities.Cube.MySlimBlock block)
@@ -408,6 +395,7 @@ namespace Sandbox.Game
             }
             return false;
         }
+
         public override bool AddItems(MyFixedPoint amount, MyObjectBuilder_Base objectBuilder, int index = -1)
         {
             Debug.Assert(objectBuilder is MyObjectBuilder_PhysicalObject, "This type of inventory can't add other types than PhysicalObjects!");
@@ -515,14 +503,14 @@ namespace Sandbox.Game
             OnContentsChanged();
         }
 
-        public void RemoveItemsOfType(MyFixedPoint amount, MyObjectBuilder_PhysicalObject objectBuilder, bool spawn = false)
+        public bool RemoveItemsOfType(MyFixedPoint amount, MyObjectBuilder_PhysicalObject objectBuilder, bool spawn = false)
         {
-            TransferOrRemove(this, amount, objectBuilder.GetObjectId(), objectBuilder.Flags, null, spawn);
+            return TransferOrRemove(this, amount, objectBuilder.GetObjectId(), objectBuilder.Flags, null, spawn);
         }
 
-        public override void RemoveItemsOfType(MyFixedPoint amount, MyDefinitionId contentId, MyItemFlags flags = MyItemFlags.None, bool spawn = false)
+        public override bool RemoveItemsOfType(MyFixedPoint amount, MyDefinitionId contentId, MyItemFlags flags = MyItemFlags.None, bool spawn = false)
         {
-            TransferOrRemove(this, amount, contentId, flags, null, spawn);
+            return TransferOrRemove(this, amount, contentId, flags, null, spawn);
         }
 
         public MyEntity RemoveItemsAt(int itemIndex, MyFixedPoint? amount = null, bool sendEvent = true, bool spawn = false, MatrixD? spawnPos = null)
@@ -611,7 +599,7 @@ namespace Sandbox.Game
             TransferOrRemove(src, amount, contentId, flags, dst);
         }
 
-        private static void TransferOrRemove(MyInventory src, MyFixedPoint? amount, MyDefinitionId contentId, MyItemFlags flags = MyItemFlags.None, MyInventory dst = null, bool spawn = false)
+        private static bool TransferOrRemove(MyInventory src, MyFixedPoint? amount, MyDefinitionId contentId, MyItemFlags flags = MyItemFlags.None, MyInventory dst = null, bool spawn = false)
         {
             //Debug.Assert(!amount.HasValue || amount.Value > 0, "Transfering 0 amount of item.");
             if (src.ContainItems(amount, contentId, flags))
@@ -685,7 +673,9 @@ namespace Sandbox.Game
                         remainingAmount = 0;
                     }
                 }
+                return remainingAmount == 0;
             }
+            return false;            
         }
 
         public void Clear(bool sync = true)
@@ -768,6 +758,7 @@ namespace Sandbox.Game
             objBuilder.Items.Clear();
 
             objBuilder.Mass = m_maxMass;
+
             objBuilder.Volume = m_maxVolume;
             objBuilder.Size = m_size;
             objBuilder.InventoryFlags = m_flags;
@@ -790,7 +781,13 @@ namespace Sandbox.Game
             if (objectBuilder.Mass.HasValue)
                 m_maxMass = objectBuilder.Mass.Value;
             if (objectBuilder.Volume.HasValue)
-                m_maxVolume = objectBuilder.Volume.Value;
+            {
+                MyFixedPoint savedValue = objectBuilder.Volume.Value;
+                if(savedValue != MyFixedPoint.MaxValue || MyPerGameSettings.ConstrainInventory() == false)
+                {
+                    m_maxVolume = savedValue;
+                }
+            }
             if (objectBuilder.Size.HasValue)
                 m_size = objectBuilder.Size.Value;
             if (objectBuilder.InventoryFlags.HasValue)
@@ -809,6 +806,12 @@ namespace Sandbox.Game
                     // Remove all items with 0 amount when loading inventory.
                     // Should only solve backward problems with saves. 0 amount items should not be created.
                     Debug.Fail(string.Format("Removing item with invalid amount: {0}x '{1}'. This is safe to ignore.", item.Amount, item.PhysicalContent.GetObjectId()));
+                    continue;
+                }
+
+                if (!MyInventoryItemAdapter.Static.TryAdapt(item.PhysicalContent.GetObjectId()))
+                {
+                    Debug.Assert(false, "Invalid inventory item: " + item.PhysicalContent.GetObjectId().ToString() + " Not adding it!");
                     continue;
                 }
 
@@ -861,16 +864,10 @@ namespace Sandbox.Game
             foreach (var item in m_items)
             {
                 Debug.Assert(item.Amount > 0);
-                float volume, mass;
-                var id = item.Content.GetObjectId();
-                if (!GetVolumeAndMass(ref id, out volume, out mass))
-                {
-                    Debug.Assert(item.Content.SubtypeName == "Potassium" || item.Content.SubtypeName == "Ice_01", string.Format("Missing definition for '{0}/{1}'", item.Content.TypeId, item.Content.SubtypeName));
-                    continue;
-                }
-
-                m_currentVolume += volume * item.Amount;
-                m_currentMass += mass * item.Amount;
+                var adapter = MyInventoryItemAdapter.Static;
+                adapter.Adapt(item as IMyInventoryItem);
+                m_currentVolume += adapter.Volume * item.Amount;
+                m_currentMass += adapter.Mass * item.Amount;
             }
 
             Debug.Assert(m_currentVolume >= 0);
@@ -904,5 +901,86 @@ namespace Sandbox.Game
         }
         #endregion
 
+
+        public override void CollectItems(Dictionary<MyDefinitionId, int> itemCounts)
+        {
+            throw new NotImplementedException();
+        }
+
+
+        public void AddEntity(IMyEntity ientity, bool blockManipulatedEntity = true)
+        {
+            MyEntity entity = ientity as MyEntity;
+            if (entity == null)
+            {
+                return;
+            }
+            MyCubeBlock block;
+
+            // this code checks if this entity can be used as component for building, we want add only those cubegrids to inventories
+            MyCubeGrid grid = MyItemsCollector.TryGetAsComponent(entity, out block, blockManipulatedEntity);
+
+            if (grid != null)
+            {
+                if (!AddGrid(grid))
+                {
+                    MyHud.Notifications.Add(MyNotificationSingletons.InventoryFull);
+                }
+            }
+            else if (entity is MyFloatingObject)
+            {
+                var floating = entity as MyFloatingObject;
+                var amount = floating.Item.Amount;
+                amount = MyFixedPoint.Min(amount, ComputeAmountThatFits(floating.Item.Content.GetObjectId()));
+                if (amount == 0)
+                {
+                    MyHud.Notifications.Add(MyNotificationSingletons.InventoryFull);
+                }
+                else
+                {
+                    TakeFloatingObject(floating);
+                }
+            }
+        }
+
+        public override bool ItemsCanBeAdded(MyFixedPoint amount, IMyInventoryItem item)
+        {
+            if (amount == 0) return true;
+            if (item == null) return false;
+            return CanItemsBeAdded(amount, item.GetDefinitionId());
+        }
+
+        public override bool ItemsCanBeRemoved(MyFixedPoint amount, IMyInventoryItem item)
+        {
+            if (amount == 0) return true;
+            if (item == null) return false;
+            var physItemObject = GetItemByID(item.ItemId);
+            if (physItemObject.HasValue)
+            {
+                MyPhysicalInventoryItem physicalItem = physItemObject.Value;
+                if (physicalItem.Amount >= amount)
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        public override bool Add(IMyInventoryItem item, MyFixedPoint amount)
+        {
+            return AddItems(amount, item.Content);
+        }
+
+        public override bool Remove(IMyInventoryItem item, MyFixedPoint amount)
+        {
+            if (item.Content is MyObjectBuilder_PhysicalObject)
+            {
+                return RemoveItemsOfType(amount, item.Content as MyObjectBuilder_PhysicalObject);
+            }
+            else
+            {
+                return false;
+            }
+        }
     }
 }

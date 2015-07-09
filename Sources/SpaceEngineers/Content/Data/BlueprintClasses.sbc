@@ -269,6 +269,7 @@
     <Entry Class="LargeBlocks" BlueprintSubtypeId="UpgradeModule/LargeProductivityModule" />
     <Entry Class="LargeBlocks" BlueprintSubtypeId="UpgradeModule/LargeEffectivenessModule" />
     <Entry Class="LargeBlocks" BlueprintSubtypeId="UpgradeModule/LargeEnergyModule" />
+    <Entry Class="LargeBlocks" BlueprintSubtypeId="JumpDrive/LargeJumpDrive" />
     <Entry Class="LargeBlocks" BlueprintSubtypeId="AirVent/(null)" />
     <Entry Class="LargeBlocks" BlueprintSubtypeId="Passage/(null)" />
     <Entry Class="LargeBlocks" BlueprintSubtypeId="AirtightHangarDoor/(null)" />

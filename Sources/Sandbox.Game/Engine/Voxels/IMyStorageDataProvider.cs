@@ -36,5 +36,9 @@ namespace Sandbox.Engine.Voxels
         bool IsMaterialAtPositionSpawningFlora(ref Vector3D localPos);
 
         bool HasMaterialSpawningFlora();
+
+        void GenerateNoiseHelpTexture(int storageSize);
+
+        void ReleaseNoiseHelpTexture();
     }
 }

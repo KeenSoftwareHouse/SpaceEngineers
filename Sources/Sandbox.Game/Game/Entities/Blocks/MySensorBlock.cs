@@ -788,6 +788,7 @@ namespace Sandbox.Game.Entities.Blocks
                 case MyRelationsBetweenPlayerAndBlock.Owner:
                     return DetectOwner;
                     break;
+                case MyRelationsBetweenPlayerAndBlock.NoOwnership:
                 case MyRelationsBetweenPlayerAndBlock.FactionShare:
                     return DetectFriendly;
                     break;

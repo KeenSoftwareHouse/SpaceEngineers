@@ -279,62 +279,62 @@ namespace Sandbox.Game.Multiplayer
 
         public event Action<MyFactionStateChange, long, long, long, long> FactionStateChanged;
 
-        public void RemoveFaction(long factionId)
+        public static void RemoveFaction(long factionId)
         {
             SendFactionChange(MyFactionStateChange.RemoveFaction, factionId, factionId, 0);
         }
 
-        public void SendPeaceRequest(long fromFactionId, long toFactionId)
+        public static void SendPeaceRequest(long fromFactionId, long toFactionId)
         {
             SendFactionChange(MyFactionStateChange.SendPeaceRequest, fromFactionId, toFactionId, 0);
         }
 
-        public void CancelPeaceRequest(long fromFactionId, long toFactionId)
+        public static void CancelPeaceRequest(long fromFactionId, long toFactionId)
         {
             SendFactionChange(MyFactionStateChange.CancelPeaceRequest, fromFactionId, toFactionId, 0);
         }
 
-        public void AcceptPeace(long fromFactionId, long toFactionId)
+        public static void AcceptPeace(long fromFactionId, long toFactionId)
         {
             SendFactionChange(MyFactionStateChange.AcceptPeace, fromFactionId, toFactionId, 0);
         }
 
-        public void DeclareWar(long fromFactionId, long toFactionId)
+        public static void DeclareWar(long fromFactionId, long toFactionId)
         {
             SendFactionChange(MyFactionStateChange.DeclareWar, fromFactionId, toFactionId, 0);
         }
 
-        public void SendJoinRequest(long factionId, long playerId)
+        public static void SendJoinRequest(long factionId, long playerId)
         {
             SendFactionChange(MyFactionStateChange.FactionMemberSendJoin, factionId, factionId, playerId);
         }
 
-        public void CancelJoinRequest(long factionId, long playerId)
+        public static void CancelJoinRequest(long factionId, long playerId)
         {
             SendFactionChange(MyFactionStateChange.FactionMemberCancelJoin, factionId, factionId, playerId);
         }
 
-        public void AcceptJoin(long factionId, long playerId)
+        public static void AcceptJoin(long factionId, long playerId)
         {
             SendFactionChange(MyFactionStateChange.FactionMemberAcceptJoin, factionId, factionId, playerId);
         }
 
-        public void KickMember(long factionId, long playerId)
+        public static void KickMember(long factionId, long playerId)
         {
             SendFactionChange(MyFactionStateChange.FactionMemberKick, factionId, factionId, playerId);
         }
 
-        public void PromoteMember(long factionId, long playerId)
+        public static void PromoteMember(long factionId, long playerId)
         {
             SendFactionChange(MyFactionStateChange.FactionMemberPromote, factionId, factionId, playerId);
         }
 
-        public void DemoteMember(long factionId, long playerId)
+        public static void DemoteMember(long factionId, long playerId)
         {
             SendFactionChange(MyFactionStateChange.FactionMemberDemote, factionId, factionId, playerId);
         }
 
-        public void MemberLeaves(long factionId, long playerId)
+        public static void MemberLeaves(long factionId, long playerId)
         {
             SendFactionChange(MyFactionStateChange.FactionMemberLeave, factionId, factionId, playerId);
         }
@@ -365,7 +365,17 @@ namespace Sandbox.Game.Multiplayer
                 case MyFactionStateChange.FactionMemberSendJoin:   return !m_factions[fromFactionId].IsMember(playerId)  && !m_factions[fromFactionId].JoinRequests.ContainsKey(playerId);
                 case MyFactionStateChange.FactionMemberCancelJoin: return !m_factions[fromFactionId].IsMember(playerId)  &&  m_factions[fromFactionId].JoinRequests.ContainsKey(playerId);
                 case MyFactionStateChange.FactionMemberAcceptJoin: return  m_factions[fromFactionId].JoinRequests.ContainsKey(playerId);
-                case MyFactionStateChange.FactionMemberKick:       return  m_factions[fromFactionId].IsMember(playerId);
+                case MyFactionStateChange.FactionMemberKick:
+                    if (m_factions[fromFactionId].IsMember(playerId))
+                    {
+                        if (MySession.Static.Settings.ScenarioEditMode && Sync.Players.IdentityIsNpc(playerId))
+                        {
+                            MyIdentity id = Sync.Players.TryGetIdentity(playerId);
+                            id.TransferAllBlocksTo(senderId);
+                        }
+                        return true;
+                    }
+                    return  false;
                 case MyFactionStateChange.FactionMemberPromote:    return  m_factions[fromFactionId].IsMember(playerId);
                 case MyFactionStateChange.FactionMemberDemote:     return  m_factions[fromFactionId].IsLeader(playerId);
                 case MyFactionStateChange.FactionMemberLeave:      return  m_factions[fromFactionId].IsMember(playerId);
@@ -421,7 +431,15 @@ namespace Sandbox.Game.Multiplayer
 
                 case MyFactionStateChange.FactionMemberSendJoin:   m_factions[fromFactionId].AddJoinRequest(playerId); break;
                 case MyFactionStateChange.FactionMemberCancelJoin: m_factions[fromFactionId].CancelJoinRequest(playerId); break;
-                case MyFactionStateChange.FactionMemberAcceptJoin: m_factions[fromFactionId].AcceptJoin(playerId); break;
+                case MyFactionStateChange.FactionMemberAcceptJoin:
+                    if (MySession.Static.Settings.ScenarioEditMode && m_factions[fromFactionId].IsEveryoneNpc())
+                    {
+                        m_factions[fromFactionId].AcceptJoin(playerId);
+                        m_factions[fromFactionId].PromoteMember(playerId);
+                    }
+                    else
+                        m_factions[fromFactionId].AcceptJoin(playerId);
+                    break;
                 case MyFactionStateChange.FactionMemberLeave:
                 case MyFactionStateChange.FactionMemberKick:    m_factions[fromFactionId].KickMember(playerId); break;
                 case MyFactionStateChange.FactionMemberPromote: m_factions[fromFactionId].PromoteMember(playerId); break;
@@ -448,7 +466,7 @@ namespace Sandbox.Game.Multiplayer
             m_relationsBetweenFactions.Remove(new MyFactionPair(fromFactionId, toFactionId));
         }
 
-        void SendFactionChange(MyFactionStateChange action, long fromFactionId, long toFactionId, long playerId)
+        static void SendFactionChange(MyFactionStateChange action, long fromFactionId, long toFactionId, long playerId)
         {
             var msg = new FactionStateChangeMsg();
             msg.Action = action;
@@ -472,7 +490,7 @@ namespace Sandbox.Game.Multiplayer
                 {
                     msg.Action = MyFactionStateChange.RemoveFaction;
                 }
-                else if (msg.Action == MyFactionStateChange.FactionMemberSendJoin && toFaction.AutoAcceptMember)
+                else if (msg.Action == MyFactionStateChange.FactionMemberSendJoin && (toFaction.AutoAcceptMember || MySession.Static.Settings.ScenarioEditMode))
                 { 
                     msg.Action = MyFactionStateChange.FactionMemberAcceptJoin;
                     msg.SenderId = 0; // no need to check who accepted this

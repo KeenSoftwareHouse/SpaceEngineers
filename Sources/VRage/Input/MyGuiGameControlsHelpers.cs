@@ -26,5 +26,10 @@ namespace VRage.Input
         {
             m_gameControlHelpers.Add(control, descriptor);
         }
+
+        public static void Reset()
+        {
+            m_gameControlHelpers.Clear();
+        }
     }
 }

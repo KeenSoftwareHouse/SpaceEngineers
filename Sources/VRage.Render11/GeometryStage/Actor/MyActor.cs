@@ -27,7 +27,7 @@ namespace VRageRender
 {
     class MyActor
     {
-        internal Matrix WorldMatrix;
+        internal MatrixD WorldMatrix;
 
         internal Matrix LocalMatrix 
         { 
@@ -35,11 +35,11 @@ namespace VRageRender
             {
                 var result = WorldMatrix;
                 result.Translation = result.Translation - MyEnvironment.CameraPosition;
-                return result;
+                return (Matrix)result;
             } 
         }
 
-        internal BoundingBox Aabb;
+        internal BoundingBoxD Aabb;
         internal Matrix? m_relativeTransform;
         internal BoundingBox? m_localAabb;
 
@@ -61,7 +61,7 @@ namespace VRageRender
             m_localAabb = null;
             m_relativeTransform = null;
 
-            Aabb = BoundingBox.CreateInvalid();
+            Aabb = BoundingBoxD.CreateInvalid();
         }
 
         internal void Destruct()
@@ -121,12 +121,12 @@ namespace VRageRender
             }
         }
 
-        internal void SetMatrix(ref Matrix matrix) 
+        internal void SetMatrix(ref MatrixD matrix) 
         {
             WorldMatrix = matrix;
             if (m_localAabb.HasValue)
             {
-                Aabb = m_localAabb.Value.Transform(WorldMatrix);
+                Aabb = (BoundingBoxD)m_localAabb.Value.Transform(WorldMatrix);
             }
             // figure out final matrix
 
@@ -140,7 +140,7 @@ namespace VRageRender
             }
         }
 
-        internal void SetAabb(BoundingBox aabb) 
+        internal void SetAabb(BoundingBoxD aabb) 
         {
             Aabb = aabb;
 
@@ -150,7 +150,7 @@ namespace VRageRender
 
         internal float CalculateCameraDistance()
         {
-            return Aabb.Distance(MyEnvironment.CameraPosition);
+            return (float)Aabb.Distance(MyEnvironment.CameraPosition);
         }
 
         List<MyActorComponent> m_components = new List<MyActorComponent>();

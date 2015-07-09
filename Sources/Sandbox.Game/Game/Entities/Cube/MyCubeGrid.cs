@@ -2531,6 +2531,7 @@ namespace Sandbox.Game.Entities
 
         public void RazeGeneratedBlocks(List<MySlimBlock> generatedBlocks)
         {
+			ProfilerShort.Begin("MyCubeGrid.RazeGeneratedBlocks");
             m_tmpRazeList.Clear();
             m_tmpLocations.Clear();
 
@@ -2564,6 +2565,7 @@ namespace Sandbox.Game.Entities
 
             m_tmpRazeList.Clear();
             m_tmpLocations.Clear();
+			ProfilerShort.End();
         }
 
         public void ColorBlocks(Vector3I min, Vector3I max, Vector3 newHSV, bool playSound)
@@ -5430,6 +5432,7 @@ namespace Sandbox.Game.Entities
             MyCube oldBlock;
             if (m_cubes.TryGetValue(bPos, out oldBlock))
                 RemoveBlockInternal(oldBlock.CubeBlock, close: true);
+            fracturedBlockBuilder.CreatingFracturedBlock = true;
 
             var sb = AddBlock(fracturedBlockBuilder, false); //BuildBlock(def, Vector3.Zero, bPos, Quaternion.Identity, 0, 0, null);
             System.Diagnostics.Debug.Assert(sb != null, "Error created fractured block!");
@@ -5460,6 +5463,7 @@ namespace Sandbox.Game.Entities
 
             var blockObjectBuilder = MyCubeGrid.CreateBlockObjectBuilder(def, bPos, new MyBlockOrientation(ref  Quaternion.Identity), 0, 0, true);
             blockObjectBuilder.ColorMaskHSV = Vector3.Zero;
+            (blockObjectBuilder as MyObjectBuilder_FracturedBlock).CreatingFracturedBlock = true;
 
             var sb = AddBlock(blockObjectBuilder, false); //BuildBlock(def, Vector3.Zero, bPos, Quaternion.Identity, 0, 0, null);
             if (sb == null)
@@ -5564,6 +5568,7 @@ namespace Sandbox.Game.Entities
         /// </summary>
         public void GetGeneratedBlocks(MySlimBlock generatingBlock, List<MySlimBlock> outGeneratedBlocks)
         {
+			ProfilerShort.Begin("MyCubeGrid.GetGeneratedBlocks");
             Debug.Assert(!(generatingBlock.FatBlock is MyCompoundCubeBlock));
 
             outGeneratedBlocks.Clear();
@@ -5617,7 +5622,7 @@ namespace Sandbox.Game.Entities
                     }
                 }
             }
-
+			ProfilerShort.End();
         }
     }
 }

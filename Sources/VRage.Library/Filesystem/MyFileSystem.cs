@@ -11,7 +11,7 @@ namespace VRage.FileSystem
     {
         public static readonly Assembly MainAssembly = Assembly.GetEntryAssembly() ?? Assembly.GetCallingAssembly();
         public static readonly string MainAssemblyName = MainAssembly.GetName().Name;
-        public static readonly string ExePath = new FileInfo(MainAssembly.Location).DirectoryName;
+        public static string ExePath = new FileInfo(MainAssembly.Location).DirectoryName; // OM: Need to be able to alter this due to starting game from tools
 
         private static string m_contentPath;
         private static string m_modsPath;

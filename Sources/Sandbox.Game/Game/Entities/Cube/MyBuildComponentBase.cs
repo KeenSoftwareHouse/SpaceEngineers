@@ -1,6 +1,7 @@
 ﻿using Sandbox.Common;
 using Sandbox.Common.ObjectBuilders;
 using Sandbox.Definitions;
+using Sandbox.Engine.Utils;
 using Sandbox.Game.Entities;
 using Sandbox.Game.Entities.Character;
 using Sandbox.Game.Entities.Cube;
@@ -11,6 +12,7 @@ using System.Linq;
 using System.Text;
 using VRage;
 using VRage.Collections;
+using VRage.Components;
 using VRageMath;
 
 namespace Sandbox.Game.World
@@ -27,7 +29,13 @@ namespace Sandbox.Game.World
         public abstract bool HasBuildingMaterials(MyEntity builder);
 
         // CH: TODO: This is here just temporarily. We should move it to a better place later
-        public virtual void AfterCharacterCreate(MyCharacter character) { }
+        public virtual void AfterCharacterCreate(MyCharacter character) {
+			if (MyFakes.ENABLE_MEDIEVAL_INVENTORY)
+			{
+				character.InventoryAggregate = new Sandbox.Game.Entities.Inventory.MyInventoryAggregate();
+				character.InventoryAggregate.AddComponent(new Sandbox.Game.Entities.Inventory.MyInventoryAggregate());
+			}
+		}
 
         // Convention: All these functions will erase the RequiredMaterials first thing when they're called
         public abstract void GetGridSpawnMaterials(MyCubeBlockDefinition definition, MatrixD worldMatrix, bool isStatic);

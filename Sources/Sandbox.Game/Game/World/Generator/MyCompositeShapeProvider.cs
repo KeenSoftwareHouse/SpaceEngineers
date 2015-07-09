@@ -249,9 +249,12 @@ namespace Sandbox.Game.World.Generator
                             distFill = 1f;
                             foreach (var shape in overlappedFilledShapes)
                             {
+                                ProfilerShort.Begin("shape distance");
                                 distFill = Math.Min(distFill, shape.SignedDistance(ref localPos, lodVoxelSize, m_data.MacroModule, m_data.DetailModule));
+                                ProfilerShort.End();
                                 if (distFill <= -1)
                                     break;
+                                
                             }
                         }
 
@@ -474,6 +477,22 @@ namespace Sandbox.Game.World.Generator
                 }
             }
             return false;
+        }
+
+        public void  GenerateNoiseHelpTexture(int storageSize)
+        { 
+            foreach (var shape in m_data.FilledShapes)
+            {
+              shape.GenerateNoiseHelpTexture(storageSize, m_data.MacroModule);              
+            }
+        }
+
+        public void ReleaseNoiseHelpTexture()
+        {
+            foreach (var shape in m_data.FilledShapes)
+            {
+                shape.ReleaseNoiseTexture();
+            }
         }
     }
 }

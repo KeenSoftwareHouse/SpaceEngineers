@@ -120,6 +120,7 @@ namespace Sandbox.Game.World
         public ulong? WorkshopId { get; private set; }
         public string CurrentPath { get; private set; }
         public string Briefing { get; set; }
+        public string BriefingVideo { get; set; }//WWW link for overlay
 
         public MyObjectBuilder_SessionSettings Settings;
         public uint AutoSaveInMinutes
@@ -504,7 +505,7 @@ namespace Sandbox.Game.World
             multiplayer.Scenario = IsScenario;
 
             if (MySandboxGame.IsDedicated)
-                (multiplayer as MyDedicatedServer).SendGameTagsToSteam();
+                (multiplayer as MyDedicatedServerBase).SendGameTagsToSteam();
 
             MyHud.Chat.RegisterChat(multiplayer);
             MySession.Static.Gpss.RegisterChat(multiplayer);
@@ -552,13 +553,20 @@ namespace Sandbox.Game.World
             {
                 if (Attribute.IsDefined(type, typeof(MySessionComponentDescriptor)))
                 {
-                    var component = (MySessionComponentBase)Activator.CreateInstance(type);
-
-                    System.Diagnostics.Debug.Assert(component != null, "Session component is cannot be created by activator");
-
-                    if (component.IsRequiredByGame)
+                    try
                     {
-                        RegisterComponent(component, component.UpdateOrder, component.Priority);
+                        var component = (MySessionComponentBase)Activator.CreateInstance(type);
+
+                        System.Diagnostics.Debug.Assert(component != null, "Session component is cannot be created by activator");
+
+                        if (component.IsRequiredByGame)
+                        {
+                            RegisterComponent(component, component.UpdateOrder, component.Priority);
+                        }
+                    }
+                    catch(Exception)
+                    {
+                        MySandboxGame.Log.WriteLine("Exception during loading of type : " + type.Name);
                     }
                 }
             }
@@ -1116,6 +1124,10 @@ namespace Sandbox.Game.World
             Static.BeforeStartComponents();
         }
 
+        public static void LoadMission(string sessionPath, MyObjectBuilder_Checkpoint checkpoint, ulong checkpointSizeInBytes)
+        {
+            LoadMission(sessionPath, checkpoint, checkpointSizeInBytes, checkpoint.SessionName, checkpoint.Description);
+        }
         public static void LoadMission(string sessionPath, MyObjectBuilder_Checkpoint checkpoint, ulong checkpointSizeInBytes, string name, string description)
         {
             Load(sessionPath, checkpoint, checkpointSizeInBytes);
@@ -1129,6 +1141,13 @@ namespace Sandbox.Game.World
             };
         }
 
+
+        public static void LoadBattle(string sessionPath, MyObjectBuilder_Checkpoint checkpoint, ulong checkpointSizeInBytes, MyObjectBuilder_SessionSettings settings)
+        {
+            Load(sessionPath, checkpoint, checkpointSizeInBytes);
+            MySession.Static.Settings = settings;
+            Debug.Assert(MySession.Static.Settings.Battle = true);
+        }
 
         public static void Load(string sessionPath, MyObjectBuilder_Checkpoint checkpoint, ulong checkpointSizeInBytes)
         {
@@ -1234,14 +1253,14 @@ namespace Sandbox.Game.World
 
             MySession.Static.IsCameraAwaitingEntity = true;
 
-            MySession.Static.LoadDataComponents();
+            multiplayerSession.StartProcessingClientMessagesWithEmptyWorld();
 
-            multiplayerSession.StartProcessingClientMessages();
+            MySession.Static.LoadDataComponents();
 
             MyLocalCache.ClearLastSessionInfo();
 
-            // Sync clients, players and factions from server
-            MySession.Static.Players.RequestAll_Identities_Players_Factions();
+            //RKTODO: obsolete - will be removed - do not uncomment! 
+            //MySession.Static.Players.RequestAll_Identities_Players_Factions();
 
             // Player must be created for selection in factions.
             if (!MySandboxGame.IsDedicated && LocalHumanPlayer == null)
@@ -1271,8 +1290,6 @@ namespace Sandbox.Game.World
                 MySession.Static.Scenario = MyDefinitionManager.Static.GetScenarioDefinitions().FirstOrDefault();
             MySession.Static.WorldBoundaries = world.Checkpoint.WorldBoundaries;
             MySession.Static.InGameTime = MyObjectBuilder_Checkpoint.DEFAULT_DATE;
-
-            MySession.Static.LoadMembersFromWorld(world, multiplayerSession);
 
             MySession.Static.LoadDataComponents(false);
             MySession.Static.LoadObjectBuildersComponents(world.Checkpoint.SessionComponents);
@@ -1405,6 +1422,7 @@ namespace Sandbox.Game.World
             Name = checkpoint.SessionName;
             Description = checkpoint.Description;
             Briefing = checkpoint.Briefing;
+            BriefingVideo = checkpoint.BriefingVideo;
             WorkshopId = checkpoint.WorkshopId;
             Password = checkpoint.Password;
             PreviousEnvironmentHostility = checkpoint.PreviousEnvironmentHostility;
@@ -2088,6 +2106,7 @@ namespace Sandbox.Game.World
             checkpoint.SessionName = saveName;
             checkpoint.Description = Description;
             checkpoint.Briefing = Briefing;
+            checkpoint.BriefingVideo = BriefingVideo;
             checkpoint.Password = Password;
             checkpoint.LastSaveTime = DateTime.Now;
             checkpoint.WorkshopId = WorkshopId;
@@ -2194,10 +2213,10 @@ namespace Sandbox.Game.World
             return VoxelMaps.GetVoxelMapsArray();
         }
 
-        private List<MyObjectBuilder_Client> SaveMembers()
+        internal List<MyObjectBuilder_Client> SaveMembers(bool forceSave = false)
         {
             if (MyMultiplayer.Static == null) return null;
-            if (MyMultiplayer.Static.Members.Count() == 1)
+            if (!forceSave && MyMultiplayer.Static.Members.Count() == 1)
             {
                 using (var en = MyMultiplayer.Static.Members.GetEnumerator())
                 {
