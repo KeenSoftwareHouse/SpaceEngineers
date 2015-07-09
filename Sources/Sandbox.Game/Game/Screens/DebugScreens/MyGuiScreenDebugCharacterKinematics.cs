@@ -90,7 +90,7 @@ namespace Sandbox.Game.Screens.DebugScreens
             StringBuilder captionRagdollDynamic = new StringBuilder("Switch to Dynamic / Keyframed");
             AddButton(captionRagdollDynamic, switchRagdoll);
 
-            characterMovementStateCombo = AddCombo<Sandbox.Common.ObjectBuilders.MyCharacterMovementEnum>(null,  MemberHelper.GetMember(() => MyDebugDrawSettings.DEBUG_DRAW_CHARACTER_IK_MOVEMENT_STATE));
+            //characterMovementStateCombo = AddCombo<Sandbox.Common.ObjectBuilders.MyCharacterMovementEnum>(null,  MemberHelper.GetMember(() => MyDebugDrawSettings.DEBUG_DRAW_CHARACTER_IK_MOVEMENT_STATE));
             enabledIKState = AddCheckBox("Enable IK for this state", null, MemberHelper.GetMember(() => MyGuiScreenDebugCharacterKinematics.ikSettingsEnabled));
             belowReachableDistance = AddSlider("Reachable distance below character", 0f, 0f, 2f, null);           
             aboveReachableDistance = AddSlider("Reachable distance above character", 0f, 0f, 2f, null);
@@ -168,7 +168,7 @@ namespace Sandbox.Game.Screens.DebugScreens
 
         void RegisterEvents()
         {
-            characterMovementStateCombo.ItemSelected += characterMovementStateCombo_ItemSelected;
+            //characterMovementStateCombo.ItemSelected += characterMovementStateCombo_ItemSelected;
             belowReachableDistance.ValueChanged += ItemChanged;
             aboveReachableDistance.ValueChanged += ItemChanged;
             verticalChangeUpGain.ValueChanged += ItemChanged;

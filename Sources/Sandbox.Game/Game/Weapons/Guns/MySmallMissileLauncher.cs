@@ -41,8 +41,7 @@ namespace Sandbox.Game.Weapons
 
         MyGunBase m_gunBase;
 
-		public bool IsDeconstructor { get { return false; } }
-        bool m_shoot = false;
+		bool m_shoot = false;
         Vector3 m_shootDirection;
 
         private MyInventory m_ammoInventory;
@@ -462,9 +461,7 @@ namespace Sandbox.Game.Weapons
             m_shoot = true;
             m_shootDirection = direction;
             m_lastTimeShoot = MySandboxGame.TotalGamePlayTimeInMilliseconds;
-
-            if (Sync.IsServer && !MySession.Static.CreativeMode)
-                m_gunBase.ConsumeAmmo();
+            m_gunBase.ConsumeAmmo();
 
             NeedsUpdate |= MyEntityUpdateEnum.EACH_FRAME;
         }

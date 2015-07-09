@@ -14,8 +14,6 @@ using Sandbox.Game.Gui;
 using Sandbox.Game.Multiplayer;
 using Sandbox.Game.World;
 using Sandbox.Graphics.GUI;
-using SpaceEngineers.Game.Entities.Blocks;
-using SpaceEngineers.Game.GUI;
 using SteamSDK;
 using System;
 using System.Collections.Generic;
@@ -29,6 +27,7 @@ using VRage.Utils;
 using VRageMath;
 using VRageRender;
 using Sandbox.Game.SessionComponents;
+using VRage.Components;
 
 namespace SpaceEngineers.Game.Players
 {
@@ -262,35 +261,12 @@ namespace SpaceEngineers.Game.Players
                 }
             }
 
-            #warning Fix the debug draw
-            /*if (MyFakes.DEBUG_DRAW_RESPAWN_SHIP_COUNTERS)
+            // Debug draw
+            /*if (MyDebugDrawSettings.ENABLE_DEBUG_DRAW)
             {
-                StringBuilder sb = new StringBuilder();
-
-                float y = 0.0f;
-                foreach (var player in Sync.Controllers.AllPlayers)
-                {
-                    if (player.Value.IsDead) continue;
-                    if (!Sync.IsServer && player.Value.SteamId != MySession.Player.SteamUserId) continue;
-
-                    sb.Append(player.Value.DisplayName);
-                    MyRenderProxy.DebugDrawText2D(new VRageMath.Vector2(0.0f, y), sb.ToString(), VRageMath.Color.White, 0.5f);
-                    y += 10.0f;
-                    sb.Clear();
-
-                    foreach (var pair in MyDefinitionManager.Static.GetRespawnShipDefinitions())
-                    {
-                        int seconds = GetRespawnCooldownSeconds(player.Value.SteamId, pair.Key);
-                        MyValueFormatter.AppendTimeExact(seconds, sb);
-                        sb.Append("   ");
-                        sb.Append(pair.Key);
-
-                        MyRenderProxy.DebugDrawText2D(new VRageMath.Vector2(0.0f, y), sb.ToString(), VRageMath.Color.White, 0.5f);
-                        y += 10.0f;
-                        sb.Clear();
-                    }
-                    y += 5.0f;
-                }
+                List<MyCubeBlock> respawns = null;
+                GetNearestRespawn(MySession.LocalCharacter == null ? Vector3.Zero : (Vector3)MySession.LocalCharacter.PositionComp.GetPosition(), out respawns, MySession.LocalHumanPlayer.Identity.IdentityId);
+                MyRenderProxy.DebugDrawText2D(new Vector2(0.0f, 0.0f), "No. of respawn points: " + respawns.Count, Color.Red, 1.0f);
             }*/
         }
 
@@ -411,16 +387,21 @@ namespace SpaceEngineers.Game.Players
                 return true;
             }
 
+            medicalRoomId = 0;
+
             if (!spawnAsNewPlayer)
             {
                 // Find medical room to spawn at
                 MyMedicalRoom medicalRoom = null;
                 if (medicalRoomId == 0 || !MyFakes.SHOW_FACTIONS_GUI)
                 {
-                    List<MyMedicalRoom> medRooms = new List<MyMedicalRoom>();
-                    medicalRoom = GetNearestMedRoom(currentPosition, out medRooms, MySession.Static.CreativeMode ? (long?)null : player.Identity.IdentityId);
-                    if (joinGame && medRooms.Count > 0)
-                        medicalRoom = medRooms[MyRandom.Instance.Next(0, medRooms.Count)];
+                    List<MyCubeBlock> respawns = null;
+                    var nearestRespawn = GetNearestRespawn(currentPosition, out respawns, MySession.Static.CreativeMode ? (long?)null : player.Identity.IdentityId);
+                    if (joinGame && respawns.Count > 0)
+                    {
+                        // CH: TODO: Remove the cast and make the respawning generic to all blocks
+                        medicalRoom = respawns[MyRandom.Instance.Next(0, respawns.Count)] as MyMedicalRoom;
+                    }
                 }
                 else
                 {
@@ -506,44 +487,38 @@ namespace SpaceEngineers.Game.Players
             return medicalRoom;
         }
 
-        private MyMedicalRoom GetNearestMedRoom(Vector3 position, out List<MyMedicalRoom> medicalRooms, long? identityId = null)
+        private MyCubeBlock GetNearestRespawn(Vector3 position, out List<MyCubeBlock> respawnBlocks, long? identityId = null)
         {
-            List<MyCubeGrid> cubeGrids = MyEntities.GetEntities().OfType<MyCubeGrid>().ToList();
-
-            medicalRooms = new List<MyMedicalRoom>();
-
-            MyMedicalRoom closestMedicalRoom = null;
+            respawnBlocks = new List<MyCubeBlock>();
+            MyCubeBlock closestRespawnBlock = null;
             float closestDistance = float.MaxValue;
-            foreach (var grid in cubeGrids)
+            foreach (var respawn in MyRespawnComponent.GetAllRespawns())
             {
-                foreach (var slimBlock in grid.GetBlocks())
+                var block = respawn.Entity as MyCubeBlock;
+                if (block == null) continue; // No non-block respawns so far
+
+                if (!block.IsWorking) continue;
+                if (identityId.HasValue && !block.GetUserRelationToOwner(identityId.Value).IsFriendly()) continue;
+
+                float distanceFromCenter = (float)block.PositionComp.GetPosition().Length();
+
+                //Limit spawn position to be inside the world (with some safe margin)
+                if ((!MyEntities.IsWorldLimited() && distanceFromCenter > MAX_DISTANCE_TO_RESPAWN) ||
+                    (MyEntities.IsWorldLimited() && distanceFromCenter > MyEntities.WorldSafeHalfExtent()))
+                    continue;
+
+                float distance = Vector3.Distance(position, block.PositionComp.GetPosition());
+
+                respawnBlocks.Add(block);
+
+                if (distance < closestDistance)
                 {
-                    MyMedicalRoom medicalRoom = slimBlock.FatBlock as MyMedicalRoom;
-                    if (medicalRoom != null && medicalRoom.IsWorking)
-                    {
-                        if (!identityId.HasValue || medicalRoom.HasPlayerAccess(identityId.Value))
-                        {
-                            float distanceFromCenter = (float)medicalRoom.PositionComp.GetPosition().Length();
-
-                            //Limit spawn position to be inside the world (with some safe margin)
-                            if ((!MyEntities.IsWorldLimited() && distanceFromCenter > MAX_DISTANCE_TO_RESPAWN) ||
-                                (MyEntities.IsWorldLimited() && distanceFromCenter > MyEntities.WorldSafeHalfExtent()))
-                                continue;
-
-                            float distance = Vector3.Distance(position, medicalRoom.PositionComp.GetPosition());
-
-                            medicalRooms.Add(medicalRoom);
-
-                            if (distance < closestDistance)
-                            {
-                                closestMedicalRoom = medicalRoom;
-                                closestDistance = distance;
-                            }
-                        }
-                    }
+                    closestRespawnBlock = block;
+                    closestDistance = distance;
                 }
             }
-            return closestMedicalRoom;
+
+            return closestRespawnBlock;
         }
 
         public void SpawnAsNewPlayer(MyPlayer player, Vector3 currentPosition, string respawnShipId, bool resetIdentity)
@@ -561,7 +536,7 @@ namespace SpaceEngineers.Game.Players
                 {
                     var faction = MySession.Static.Factions.TryGetPlayerFaction(player.Identity.IdentityId);
                     if (faction != null)
-                        MySession.Static.Factions.KickMember(faction.FactionId, player.Identity.IdentityId);
+                        MyFactionCollection.KickMember(faction.FactionId, player.Identity.IdentityId);
 
                     //Clear chat history
                     if (MySession.Static.ChatSystem != null)
@@ -713,7 +688,6 @@ namespace SpaceEngineers.Game.Players
             //Create character
             Matrix matrix = Matrix.CreateWorld(position, direction, Vector3.Up);
             MyCharacter character = MyCharacter.CreateCharacter(matrix, Vector3.Zero, player.Identity.DisplayName, player.Identity.Model, null);
-            System.Diagnostics.Debug.Assert(character.Health > 0);
 
             Sync.Players.SetPlayerCharacter(player, character);
             Sync.Players.RevivePlayer(player);
@@ -756,6 +730,23 @@ namespace SpaceEngineers.Game.Players
         {
             string respawnShipId = MyDefinitionManager.Static.GetFirstRespawnShip();
             SpawnAtShip(player, respawnShipId);
+        }
+
+        public int CountAvailableSpawns(MyPlayer player)
+        {
+            return MyMedicalRoom.AvailableMedicalRoomsCount(player.Identity.IdentityId);
+        }
+        public bool IsInRespawnScreen() 
+        { 
+            return MyGuiScreenMedicals.Static != null && MyGuiScreenMedicals.Static.State == MyGuiScreenState.OPENED;
+        }
+        public void CloseRespawnScreen()
+        {
+            MyGuiScreenMedicals.Close();
+        }
+        public void SetNoRespawnText(StringBuilder text, int timeSec)
+        {
+            MyGuiScreenMedicals.SetNoRespawnText(text, timeSec);
         }
     }
 }

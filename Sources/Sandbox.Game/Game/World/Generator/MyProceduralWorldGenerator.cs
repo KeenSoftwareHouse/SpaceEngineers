@@ -203,7 +203,7 @@ namespace Sandbox.Game.World.Generator
             return new DictionaryReader<MyEntity, MyEntityTracker>(m_trackedEntities);
         }
 
-        public void GetAllCells(List<MyProceduralCell> list)
+        public void GetAllExistingCells(List<MyProceduralCell> list)
         {
             list.Clear();
             foreach (var module in m_modules)
@@ -214,10 +214,10 @@ namespace Sandbox.Game.World.Generator
 
         private List<MyProceduralCell> m_tempProceduralCellsList = new List<MyProceduralCell>();
 
-        public void GetAll(List<MyObjectSeed> list)
+        public void GetAllExisting(List<MyObjectSeed> list)
         {
             list.Clear();
-            GetAllCells(m_tempProceduralCellsList);
+            GetAllExistingCells(m_tempProceduralCellsList);
             foreach (var cell in m_tempProceduralCellsList)
             {
                 cell.GetAll(list, false);
@@ -225,7 +225,40 @@ namespace Sandbox.Game.World.Generator
             m_tempProceduralCellsList.Clear();
         }
 
+        public void GetAllInSphere(BoundingSphereD area, List<MyObjectSeed> list)
+        {
+            foreach (var module in m_modules)
+            {
+                module.GetObjectSeeds(area, list, false);
+                module.MarkCellsDirty(area, null, false);
+            }
+        }
+
+        public void OverlapAllPlanetSeedsInSphere(BoundingSphereD area, List<MyObjectSeed> list)
+        {
+            if (m_planetsModule == null)
+            {
+                return;
+            }
+
+            m_planetsModule.GetObjectSeeds(area, list, false);
+            m_planetsModule.MarkCellsDirty(area, null, false);
+        }
+
+        public void OverlapAllAsteroidSeedsInSphere(BoundingSphereD area, List<MyObjectSeed> list)
+        {
+            if (m_asteroidsModule == null)
+            {
+                return;
+            }
+
+            m_asteroidsModule.GetObjectSeeds(area, list, false);
+            m_asteroidsModule.MarkCellsDirty(area, null, false);
+        }
+
         private List<MyObjectSeed> m_tempObjectSeedList = new List<MyObjectSeed>();
+        private MyProceduralPlanetCellGenerator m_planetsModule;
+        private MyProceduralAsteroidCellGenerator m_asteroidsModule;
 
         public override void LoadData()
         {
@@ -245,16 +278,22 @@ namespace Sandbox.Game.World.Generator
 
             m_seed = settings.ProceduralSeed;
             m_objectDensity = MathHelper.Clamp(settings.ProceduralDensity * 2 - 1, -1, 1); // must be -1..1
+
+            var planetSizeMax = settings.PlanetMaxSize;
+            var planetSizeMin = settings.PlanetMinSize;
+            var moonSizeMax = settings.MoonMaxSize;
+            var moonSizeMin = settings.MoonMinSize;
+
             MySandboxGame.Log.WriteLine(string.Format("Loading Procedural World Generator: Seed = '{0}' = {1}, Density = {2}", settings.ProceduralSeed, m_seed, settings.ProceduralDensity));
 
             using (MyRandom.Instance.PushSeed(m_seed))
             {
                 if (MySession.Static.Settings.EnablePlanets)
                 {
-                    var planets = new MyProceduralPlanetCellGenerator(m_seed, m_objectDensity);
-                    m_modules.Add(planets);
-                    var asteroids = new MyProceduralAsteroidCellGenerator(m_seed, m_objectDensity, planets);
-                    m_modules.Add(asteroids);
+                    m_planetsModule = new MyProceduralPlanetCellGenerator(m_seed, m_objectDensity, planetSizeMax, planetSizeMin, moonSizeMax, moonSizeMin);
+                    m_modules.Add(m_planetsModule);
+                    m_asteroidsModule = new MyProceduralAsteroidCellGenerator(m_seed, m_objectDensity, m_planetsModule);
+                    m_modules.Add(m_asteroidsModule);
                 }
                 else
                 {
@@ -395,8 +434,8 @@ namespace Sandbox.Game.World.Generator
 
         public void MarkEmptyArea(Vector3D pos)
         {
-            MySphereDensityFunction func = new MySphereDensityFunction(pos, MyProceduralPlanetCellGenerator.OBJECT_SEED_RADIUS, MyProceduralPlanetCellGenerator.OBJECT_SEED_RADIUS);
-            foreach(var module in m_modules)
+            MySphereDensityFunction func = new MySphereDensityFunction(pos, m_planetsModule.PLANET_SIZE_MAX / 2.0 * MyProceduralPlanetCellGenerator.GRAVITY_SIZE_MULTIPLIER + MyProceduralPlanetCellGenerator.FALLOFF, MyProceduralPlanetCellGenerator.FALLOFF);
+            foreach (var module in m_modules)
             {
                 module.AddDensityFunctionRemoved(func);
             }

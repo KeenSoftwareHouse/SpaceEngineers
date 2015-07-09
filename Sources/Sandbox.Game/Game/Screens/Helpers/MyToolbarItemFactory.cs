@@ -98,12 +98,12 @@ namespace Sandbox.Game.Screens.Helpers
                 ob.DefinitionId = defBase.Id;
                 return ob;
             }
-            else if (defBase.Id.TypeId == typeof(MyObjectBuilder_AreaMarkerDefinition))
-            {
-                var ob = MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_ToolbarItemAreaMarker>();
-                ob.DefinitionId = defBase.Id;
-                return ob;
-            }
+			else if (defBase is MyAreaMarkerDefinition)
+			{
+				var acData = MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_ToolbarItemAreaMarker>();
+				acData.DefinitionId = defBase.Id;
+				return acData;
+			}
             return new MyObjectBuilder_ToolbarItemEmpty();
         }
 

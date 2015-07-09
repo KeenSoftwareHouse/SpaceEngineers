@@ -252,7 +252,7 @@ namespace Sandbox.Game.Gui
         private bool ReadSettingsFromControls(ref MyRenderDeviceSettings deviceSettings)
         {
             bool changed;
-            MyRenderDeviceSettings read;
+            MyRenderDeviceSettings read = new MyRenderDeviceSettings();
 
             var selectedResolution = (int)m_comboResolution.GetSelectedKey();
             if ((uint)selectedResolution < (uint)m_resolutions.Count)

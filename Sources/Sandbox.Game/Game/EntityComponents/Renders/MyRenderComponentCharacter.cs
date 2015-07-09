@@ -284,11 +284,15 @@ namespace Sandbox.Game.Components
                     DrawBlood(alpha);
                 }
 
-                if (m_character.HealthRatio <= MyCharacter.LOW_HEALTH_RATIO && !m_character.IsDead)
-                {
-                    float alpha = MathHelper.Clamp(MyCharacter.LOW_HEALTH_RATIO - m_character.HealthRatio, 0, 1) / MyCharacter.LOW_HEALTH_RATIO + 0.3f;
-                    DrawBlood(alpha);
-                }
+				if (m_character.StatComp != null)
+				{
+					var healthRatio = m_character.StatComp.HealthRatio;
+					if (healthRatio <= MyCharacterStatComponent.LOW_HEALTH_RATIO && !m_character.IsDead)
+					{
+						float alpha = MathHelper.Clamp(MyCharacterStatComponent.LOW_HEALTH_RATIO - healthRatio, 0, 1) / MyCharacterStatComponent.LOW_HEALTH_RATIO + 0.3f;
+						DrawBlood(alpha);
+					}
+				}
             }
 
             //DebugDraw();

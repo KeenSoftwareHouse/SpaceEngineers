@@ -25,6 +25,7 @@ namespace Sandbox.ModAPI
         bool SendMessageToOthers(ushort id, byte[] message, bool reliable = true);
         bool SendMessageTo(ushort id, byte[] message, ulong recipient, bool reliable = true);
 
+        void JoinServer(string address);
 
         void RegisterMessageHandler(ushort id, Action<byte[]> messageHandler);
         void UnregisterMessageHandler(ushort id, Action<byte[]> messageHandler);

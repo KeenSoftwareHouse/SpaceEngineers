@@ -3159,7 +3159,7 @@ Refinery speed {2}x</value>
     <value>Health is low.</value>
   </data>
   <data name="NotificationMeteorInbound" xml:space="preserve">
-    <value>Meteor shower inbound.</value>
+    <value>Meteor storm inbound.</value>
   </data>
   <data name="DisplayName_Block_ConveyorTubeMedium" xml:space="preserve">
     <value>Conveyor Tube</value>
@@ -6542,13 +6542,14 @@ To connect to lasers not listed here you can connect to coordinates.</value>
     <value>Target outside movement range</value>
   </data>
   <data name="ToolTipWorldSettings_EnableFlora" xml:space="preserve">
-    <value />
+    <value>
+Enables flora for planets</value>
   </data>
   <data name="ToolTipWorldSettings_EnableStationVoxel" xml:space="preserve">
     <value />
   </data>
   <data name="ToolTipWorldSettings_FloraDensity" xml:space="preserve">
-    <value />
+    <value>Density of flora elements on planets</value>
   </data>
   <data name="WorldSettings_EnableFlora" xml:space="preserve">
     <value>Enable Flora</value>
@@ -6693,7 +6694,7 @@ If there is no chance of accessing a medical room, the game is over and you can 
     <value>Players can join running game</value>
   </data>
   <data name="GuiTriggerCaptionTimeLimit" xml:space="preserve">
-    <value>Time limit</value>
+    <value>Scenario time limit</value>
   </data>
   <data name="GuiTriggerTimeLimit" xml:space="preserve">
     <value>Limit (in minutes)</value>
@@ -6755,6 +6756,15 @@ If there is no chance of accessing a medical room, the game is over and you can 
   <data name="GuiScenarioEdit_CopyIdsTooltip" xml:space="preserve">
     <value>You can then paste them into "Block destroyed" trigger</value>
   </data>
+  <data name="GuiTriggerNoSpawnTimeLimit" xml:space="preserve">
+    <value>Time limit (sec):</value>
+  </data>
+  <data name="GuiTriggerCaptionNoSpawn" xml:space="preserve">
+    <value>Spawn screen time limit</value>
+  </data>
+  <data name="MyGuiScreenTriggerNoSpawn" xml:space="preserve">
+    <value>No spawn place</value>
+  </data>
   <data name="Description_Scenario_2Planets" xml:space="preserve">
     <value>2 habitable planets near each other</value>
   </data>
@@ -6766,5 +6776,98 @@ If there is no chance of accessing a medical room, the game is over and you can 
   </data>
   <data name="DisplayName_Scenario_Planet" xml:space="preserve">
     <value>Habitable planet</value>
+  </data>
+  <data name="ScreenMedicals_NoRespawnPlace" xml:space="preserve">
+    <value>No respawn point is available! 
+Try the refresh button for any available Medical rooms.
+If there is no chance of accessing a medical room, the game will be over in {0:00}:{1:00}.</value>
+  </data>
+  <data name="ScreenCaptionWorldGeneratorSettings" xml:space="preserve">
+    <value>World generator settings</value>
+  </data>
+  <data name="WorldSettings_MoonSizeMax" xml:space="preserve">
+    <value>Maximum size of moons</value>
+  </data>
+  <data name="WorldSettings_MoonSizeMin" xml:space="preserve">
+    <value>Minimum size of moons</value>
+  </data>
+  <data name="WorldSettings_PlanetSizeMax" xml:space="preserve">
+    <value>Maximum size of planets</value>
+  </data>
+  <data name="WorldSettings_PlanetSizeMin" xml:space="preserve">
+    <value>Minimum size of planets</value>
+  </data>
+  <data name="WorldSettings_WorldGenerator" xml:space="preserve">
+    <value>World generator</value>
+  </data>
+  <data name="GuiScenarioDescription" xml:space="preserve">
+    <value>Scenario description</value>
+  </data>
+  <data name="ScreenMedicals_NoRespawnPlaceHeader" xml:space="preserve">
+    <value>You must spawn in:  {0:00}:{1:00}</value>
+  </data>
+  <data name="ScenarioProgressLoseConditions" xml:space="preserve">
+    <value>Lose conditions</value>
+  </data>
+  <data name="ScenarioProgressOthersLost" xml:space="preserve">
+    <value>All others lost. Players pending:</value>
+  </data>
+  <data name="ScenarioProgressWinConditions" xml:space="preserve">
+    <value>Win conditions</value>
+  </data>
+  <data name="GuiTriggerNextMission" xml:space="preserve">
+    <value>Next mission</value>
+  </data>
+  <data name="GuiTriggerWwwLink" xml:space="preserve">
+    <value>WWW link (opens in steam overlay)</value>
+  </data>
+  <data name="ScenarioProgressDestroyBlocks" xml:space="preserve">
+    <value>Destroy blocks:</value>
+  </data>
+  <data name="ScenarioProgressLimitedLives" xml:space="preserve">
+    <value>Limited lives: {0} left</value>
+  </data>
+  <data name="ScenarioProgressNoSpawn" xml:space="preserve">
+    <value>Spend more than {0} seconds in respawn screen.</value>
+  </data>
+  <data name="ScenarioProgressPositionLeft" xml:space="preserve">
+    <value>Leave sphere [{0:0},{1:0},{2:0}], radius {3:0} meters</value>
+  </data>
+  <data name="ScenarioProgressPositionReached" xml:space="preserve">
+    <value>Get closer than {3:0} meters to [{0:0},{1:0},{2:0}]</value>
+  </data>
+  <data name="ScenarioProgressSomeoneWon" xml:space="preserve">
+    <value>Somebody else wins the scenario. Possible winners:</value>
+  </data>
+  <data name="ScenarioProgressTimeLimit" xml:space="preserve">
+    <value>Scenario time limit {0} minutes</value>
+  </data>
+  <data name="AddNpcToFaction" xml:space="preserve">
+    <value>Add NPC</value>
+  </data>
+  <data name="AddNpcToFactionHelp" xml:space="preserve">
+    <value>Adds new NPC identity to this faction - faction will not cease to exist when last player leaves.
+Available in scenario edit mode only.</value>
+  </data>
+  <data name="GuiLabelVideoOnStart" xml:space="preserve">
+    <value>Video on start:</value>
+  </data>
+  <data name="BlockActionTitle_Jump" xml:space="preserve">
+    <value>Jump</value>
+  </data>
+  <data name="BlockPropertyTitle_DestinationGPS" xml:space="preserve">
+    <value>Destination GPS coordinates:</value>
+  </data>
+  <data name="BlockPropertyTitle_JumpDistance" xml:space="preserve">
+    <value>Distance</value>
+  </data>
+  <data name="DisplayName_Block_JumpDrive" xml:space="preserve">
+    <value>Jump Drive</value>
+  </data>
+  <data name="BlockActionTooltip_SelectedJumpTarget" xml:space="preserve">
+    <value>To execute the jump, assign the "Jump" command to the toolbar of a cockpit</value>
+  </data>
+  <data name="NotificationJumpWarmupTime" xml:space="preserve">
+    <value>Ship will jump in {0} seconds.</value>
   </data>
 </root>

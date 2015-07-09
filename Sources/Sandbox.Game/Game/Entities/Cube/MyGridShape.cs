@@ -762,6 +762,11 @@ namespace Sandbox.Game.Entities.Cube
                 {
                     ProfilerShort.Begin("CloneFracture");
                     breakableShape = (b.FatBlock as MyFracturedBlock).Shape;
+                    if(!breakableShape.IsValid())
+                    {
+                        Debug.Fail("Fractured block Breakable shape invalid!");
+                        throw new Exception("Fractured block Breakable shape invalid!");
+                    }
                     breakableShape.AddReference();
                     ProfilerShort.End();
                 }

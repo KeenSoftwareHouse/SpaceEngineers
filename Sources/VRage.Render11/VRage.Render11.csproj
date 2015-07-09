@@ -15,7 +15,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
     <DebugSymbols>true</DebugSymbols>
     <OutputPath>bin\x64\Debug\</OutputPath>
-    <DefineConstants>TRACE;DEBUG</DefineConstants>
+    <DefineConstants>TRACE;DEBUG;WINDOWS</DefineConstants>
     <DebugType>full</DebugType>
     <PlatformTarget>x64</PlatformTarget>
     <ErrorReport>prompt</ErrorReport>
@@ -93,6 +93,7 @@
     <Compile Include="GeometryStage\Materials\MeshMaterial.cs" />
     <Compile Include="GeometryStage\MyRenderingDispatcher.cs" />
     <Compile Include="GeometryStage\RenderingPasses\MyForwardPass.cs" />
+    <Compile Include="LightingStage\MyAtmospehere.cs" />
     <Compile Include="LightingStage\MyEnvProbeProcessing.cs" />
     <Compile Include="PostprocessStage\MyFXAA.cs" />
     <Compile Include="PostprocessStage\MyLuminanceDebugTools.cs" />

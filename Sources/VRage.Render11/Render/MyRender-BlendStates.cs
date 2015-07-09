@@ -12,6 +12,7 @@ namespace VRageRender
         internal static BlendId BlendAdditive;
         internal static BlendId BlendAlphaPremult;
         internal static BlendId BlendTransparent;
+        internal static BlendId BlendOutscatter;
 
         internal static BlendId BlendDecal;
 
@@ -57,6 +58,16 @@ namespace VRageRender
             desc.RenderTarget[0].SourceBlend = BlendOption.One;
             desc.RenderTarget[0].SourceAlphaBlend = BlendOption.One;
             BlendAlphaPremult = MyPipelineStates.CreateBlendState(desc);
+
+            desc.RenderTarget[0].IsBlendEnabled = true;
+            desc.RenderTarget[0].RenderTargetWriteMask = ColorWriteMaskFlags.All;
+            desc.RenderTarget[0].BlendOperation = BlendOperation.Add;
+            desc.RenderTarget[0].AlphaBlendOperation = BlendOperation.Add;
+            desc.RenderTarget[0].DestinationBlend = BlendOption.SourceColor;
+            desc.RenderTarget[0].DestinationAlphaBlend = BlendOption.InverseSourceAlpha;
+            desc.RenderTarget[0].SourceBlend = BlendOption.Zero;
+            desc.RenderTarget[0].SourceAlphaBlend = BlendOption.One;
+            BlendOutscatter = MyPipelineStates.CreateBlendState(desc);
 
 
             desc.IndependentBlendEnable = true;

@@ -58,7 +58,6 @@ namespace Sandbox.Game.Weapons
 
             Vector3D GetPredictedTargetPosition(IMyEntity entity);
         }
-		public bool IsDeconstructor { get { return false; } }
 
         class MyTargetPredictionType : IMyPredicionType
         {
@@ -1254,7 +1253,7 @@ namespace Sandbox.Game.Weapons
             m_laserLength = m_searchingRange;
             Havok.HkRigidBody entity=null;
             if (!MySandboxGame.IsDedicated)
-            //    entity = MyPhysics.CastRay(from, to, out m_hitPosition, out normal);
+               entity = MyPhysics.CastRay(from, to, out m_hitPosition, out normal);
             if (entity == null)
                 m_hitPosition = to;
             else
@@ -2066,20 +2065,17 @@ namespace Sandbox.Game.Weapons
 
         public void RemoveAmmoPerShot()
         {
-            if (!MySession.Static.CreativeMode)
-            {
-                m_gunBase.ConsumeAmmo();
-                //if (RemainingAmmo < AmmoPerShot)
-                //{
-                //    m_ammoInventory.RemoveItemsOfType(1, m_currentAmmoMagazineId);
-                //    RemainingAmmo += AmmoInMagazine;
-                //}
+            m_gunBase.ConsumeAmmo();
+            //if (RemainingAmmo < AmmoPerShot)
+            //{
+            //    m_ammoInventory.RemoveItemsOfType(1, m_currentAmmoMagazineId);
+            //    RemainingAmmo += AmmoInMagazine;
+            //}
 
-                //if (RemainingAmmo >= AmmoPerShot)
-                //{
-                //    RemainingAmmo -= AmmoPerShot;
-                //}
-            }
+            //if (RemainingAmmo >= AmmoPerShot)
+            //{
+            //    RemainingAmmo -= AmmoPerShot;
+            //}
         }
 
         #endregion

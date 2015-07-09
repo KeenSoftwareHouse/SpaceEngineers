@@ -39,8 +39,10 @@ namespace VRageRender
         internal Vector4 Row1;
         internal Vector4 Row2;
 
-        internal static MyPerInstanceData FromWorldMatrix(ref Matrix mat)
+        internal static MyPerInstanceData FromWorldMatrix(ref MatrixD matrix)
         {
+            var mat = (Matrix)matrix;
+
             return new MyPerInstanceData
             {
                 Row0 = new Vector4(mat.M11, mat.M21, mat.M31, mat.M41),
@@ -112,12 +114,12 @@ namespace VRageRender
                 m_entities[ID].PageHandles.Add(pageHandle);
             }
 
-            m_perInstance.Data[instanceIndex] = MyPerInstanceData.FromWorldMatrix(ref Matrix.Zero);
+            m_perInstance.Data[instanceIndex] = MyPerInstanceData.FromWorldMatrix(ref MatrixD.Zero);
 
             m_tablesDirty = true;
         }
 
-        internal void UpdateEntity(uint ID, ref Matrix matrix)
+        internal void UpdateEntity(uint ID, ref MatrixD matrix)
         {
             m_perInstance.Data[m_entities[ID].InstanceIndex] = MyPerInstanceData.FromWorldMatrix(ref matrix);
 
