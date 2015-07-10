@@ -127,11 +127,13 @@ namespace Sandbox.Game.Gui
         {
             var settings = MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_SessionSettings>();
             settings.GameMode = MyGameModeEnum.Creative;
-            settings.EnableStationVoxelSupport = true;
+            settings.EnableStationVoxelSupport = MyPerGameSettings.Game == GameEnum.SE_GAME;
             settings.EnableToolShake = true;
-            settings.EnablePlanets = MyFakes.ENABLE_PLANETS;
-            settings.EnableSunRotation = true;
+            settings.EnablePlanets = (MyPerGameSettings.Game == GameEnum.SE_GAME) && MyFakes.ENABLE_PLANETS;
+            settings.EnableFlora = (MyPerGameSettings.Game == GameEnum.SE_GAME) && MyFakes.ENABLE_PLANETS;
+            settings.EnableSunRotation = MyPerGameSettings.Game == GameEnum.SE_GAME;
             settings.VoxelGeneratorVersion = MyVoxelConstants.VOXEL_GENERATOR_VERSION;
+            settings.CargoShipsEnabled = !settings.EnablePlanets;
             settings.EnableOxygen = true;
             MyWorldGenerator.SetProceduralSettings(-1, settings);
             return settings;

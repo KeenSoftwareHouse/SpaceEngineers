@@ -241,7 +241,8 @@ namespace Sandbox.Graphics.GUI
             Action<MyGuiScreenMessageBox.ResultEnum> callback = null,
             int timeoutInMiliseconds = 0,
             MyGuiScreenMessageBox.ResultEnum focusedResult = MyGuiScreenMessageBox.ResultEnum.YES,
-            bool canHideOthers = true
+            bool canHideOthers = true,
+            Vector2? size = null
             )
         {
             return new MyGuiScreenMessageBox(
@@ -250,7 +251,7 @@ namespace Sandbox.Graphics.GUI
                 cancelButtonText ?? MySpaceTexts.Cancel,
                 yesButtonText ?? MySpaceTexts.Yes,
                 noButtonText ?? MySpaceTexts.No,
-                callback, timeoutInMiliseconds, focusedResult, canHideOthers);
+                callback, timeoutInMiliseconds, focusedResult, canHideOthers, size);
         }
 
         public static void Show(StringBuilder text, MyStringId caption = default(MyStringId), MyMessageBoxStyleEnum type = MyMessageBoxStyleEnum.Error)

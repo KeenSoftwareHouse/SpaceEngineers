@@ -351,10 +351,13 @@ namespace Sandbox.Game.Gui
 
             if (MyInput.Static.IsNewGameControlPressed(MyControlsSpace.MISSION_SETTINGS) && MyGuiScreenGamePlay.ActiveGameplayScreen == null 
                 && MyPerGameSettings.Game == Sandbox.Game.GameEnum.SE_GAME
-                && MyFakes.ENABLE_MISSION_TRIGGERS
-                && MySession.Static.Settings.ScenarioEditMode)
-                {
-                MyGuiSandbox.AddScreen(new Sandbox.Game.Screens.MyGuiScreenMissionTriggers());
+                && MyFakes.ENABLE_MISSION_TRIGGERS)
+            {
+                if (MySession.Static.Settings.ScenarioEditMode)
+                    MyGuiSandbox.AddScreen(new Sandbox.Game.Screens.MyGuiScreenMissionTriggers());
+                else
+                    if (MySession.Static.IsScenario)
+                        MyGuiSandbox.AddScreen(new Sandbox.Game.Screens.MyGuiScreenBriefing());
             }
 
             MyStringId context = controlledObject != null ? controlledObject.ControlContext : MySpaceBindingCreator.CX_BASE;
@@ -514,30 +517,30 @@ namespace Sandbox.Game.Gui
                     MyGuiAudio.PlaySound(MyGuiSounds.HudClick);
                     m_controlMenu.OpenControlMenu(controlledObject);
                 }
-
-                if (!MyCompilationSymbols.RenderProfiling && MyControllerHelper.IsControl(context, MyControlsSpace.CHAT_SCREEN, MyControlStateType.NEW_PRESSED))
+            }
+            if (!MyCompilationSymbols.RenderProfiling && MyControllerHelper.IsControl(context, MyControlsSpace.CHAT_SCREEN, MyControlStateType.NEW_PRESSED))
+            {
+                if (MyGuiScreenChat.Static == null)
                 {
-                    if (MyGuiScreenChat.Static == null)
-                    {
-                        Vector2 chatPos = new Vector2(0.01f, 0.84f);
-                        chatPos = MyGuiScreenHudBase.ConvertHudToNormalizedGuiPosition(ref chatPos);
-                        MyGuiScreenChat chatScreen = new MyGuiScreenChat(chatPos);
-                        MyGuiSandbox.AddScreen(chatScreen);
-                    }
-                }
-
-                if (MyPerGameSettings.VoiceChatEnabled)
-                {
-                    if (MyControllerHelper.IsControl(context, MyControlsSpace.VOICE_CHAT, MyControlStateType.NEW_PRESSED))
-                    {
-                        MyVoiceChatSessionComponent.Static.StartRecording();
-                    }
-                    else if (MyControllerHelper.IsControl(context, MyControlsSpace.VOICE_CHAT, MyControlStateType.NEW_RELEASED))
-                    {
-                        MyVoiceChatSessionComponent.Static.StopRecording();
-                    }
+                    Vector2 chatPos = new Vector2(0.01f, 0.84f);
+                    chatPos = MyGuiScreenHudBase.ConvertHudToNormalizedGuiPosition(ref chatPos);
+                    MyGuiScreenChat chatScreen = new MyGuiScreenChat(chatPos);
+                    MyGuiSandbox.AddScreen(chatScreen);
                 }
             }
+
+            if (MyPerGameSettings.VoiceChatEnabled && MyVoiceChatSessionComponent.Static != null)
+            {
+                if (MyControllerHelper.IsControl(context, MyControlsSpace.VOICE_CHAT, MyControlStateType.NEW_PRESSED))
+                {
+                    MyVoiceChatSessionComponent.Static.StartRecording();
+                }                                
+                else if (MyVoiceChatSessionComponent.Static.IsRecording && !MyControllerHelper.IsControl(context, MyControlsSpace.VOICE_CHAT, MyControlStateType.PRESSED))
+                {
+                    MyVoiceChatSessionComponent.Static.StopRecording();
+                }
+            }
+            
 
             MoveAndRotatePlayerOrCamera();
 
@@ -942,12 +945,25 @@ namespace Sandbox.Game.Gui
                 MyPostProcessVolumetricSSAO2.Contrast
             );
 
-            Vector3 sunDirection = -MySector.DirectionToSunNormalized;
+            Vector3 sunDirection = -MySector.SunProperties.SunDirectionNormalized;
             if (MySession.Static.Settings.EnableSunRotation)
             {
-                double angle = 2.0*MathHelper.Pi * MySession.Static.ElapsedGameTime.TotalMinutes / MySession.Static.Settings.SunRotationIntervalMinutes;
-                sunDirection += new Vector3(Math.Cos(angle),0, Math.Sin(angle));
+                float angle = 2.0f * MathHelper.Pi * (float)(MySession.Static.ElapsedGameTime.TotalMinutes / MySession.Static.Settings.SunRotationIntervalMinutes);
+                float originalSunCosAngle = Math.Abs(Vector3.Dot(sunDirection, Vector3.Up));
+                Vector3 sunRotationAxis;
+                if (originalSunCosAngle > 0.95f)
+                {
+                    // original sun is too close to the poles
+                    sunRotationAxis = Vector3.Cross(Vector3.Cross(sunDirection, Vector3.Left), sunDirection);
+                }
+                else
+                {
+                    sunRotationAxis = Vector3.Cross(Vector3.Cross(sunDirection, Vector3.Up), sunDirection);
+                }
+                sunDirection = Vector3.Transform(sunDirection, Matrix.CreateFromAxisAngle(sunRotationAxis, angle));
                 sunDirection.Normalize();
+
+                MySector.DirectionToSunNormalized = -sunDirection;
             }
 
             VRageRender.MyRenderProxy.UpdateRenderEnvironment(

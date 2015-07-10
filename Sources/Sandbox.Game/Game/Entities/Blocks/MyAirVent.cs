@@ -454,7 +454,7 @@ namespace Sandbox.Game.Entities.Blocks
                 neededOxygen = 0f;
             }
 
-            return Math.Min(neededOxygen, BlockDefinition.VentilationCapacityPerSecond) * deltaTime;
+            return Math.Min(neededOxygen, BlockDefinition.VentilationCapacityPerSecond * deltaTime);
         }
 
         void IMyOxygenConsumer.Consume(float amount)
@@ -513,7 +513,7 @@ namespace Sandbox.Game.Entities.Blocks
                     oxygenLeft = 0f;
                 }
 
-                return Math.Min(oxygenLeft, BlockDefinition.VentilationCapacityPerSecond) * deltaTime;
+                return Math.Min(oxygenLeft, BlockDefinition.VentilationCapacityPerSecond * deltaTime);
             }
             else
             {

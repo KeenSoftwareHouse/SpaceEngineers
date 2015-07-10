@@ -43,10 +43,10 @@ namespace Sandbox.Game.Entities
 			MyPlaceAreas.Static.AddPlaceArea(this);
         }
 
-        public override void OnRemovedFromContainer()
+        public override void OnBeforeRemovedFromContainer()
         {
             MyPlaceAreas.Static.RemovePlaceArea(this);
-            base.OnRemovedFromContainer();
+            base.OnBeforeRemovedFromContainer();
         }
 
 		public abstract double DistanceSqToPoint(Vector3D point);

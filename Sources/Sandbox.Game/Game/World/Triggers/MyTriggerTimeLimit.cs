@@ -9,6 +9,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using VRage;
 using VRage.Utils;
 
 namespace Sandbox.Game.World.Triggers
@@ -16,8 +17,8 @@ namespace Sandbox.Game.World.Triggers
     [TriggerType(typeof(MyObjectBuilder_TriggerTimeLimit))]
     class MyTriggerTimeLimit : MyTrigger, ICloneable
     {
-        private int m_limitInMinutes=-1;
-        private TimeSpan m_limit;
+        private int m_limitInMinutes=30;
+        private TimeSpan m_limit = new TimeSpan(0, 30, 0);
         public int LimitInMinutes
         {
             get
@@ -44,9 +45,9 @@ namespace Sandbox.Game.World.Triggers
         }
 
         private int m_lastSeconds;
-        public override void DisplayHints()
+        public override void DisplayHints(MyPlayer player, Entities.MyEntity me)
         {
-            if (!MySession.Static.IsScenario)
+            if (!MySession.Static.IsScenario || MyScenarioSystem.Static.ServerStartGameTime==DateTime.MaxValue)
                 return;
             TimeSpan difference = m_limit - (DateTime.UtcNow - MyScenarioSystem.Static.ServerStartGameTime);
             var seconds = difference.Seconds;
@@ -58,10 +59,18 @@ namespace Sandbox.Game.World.Triggers
             }
         }
 
-        public override bool Update(MyEntity me)
+        private StringBuilder m_progress = new StringBuilder();
+        public override StringBuilder GetProgress()
         {
-            if (m_limit <= DateTime.UtcNow - MyScenarioSystem.Static.ServerStartGameTime)
-                m_IsTrue = true;
+            m_progress.Clear().AppendFormat(MyTexts.GetString(MySpaceTexts.ScenarioProgressTimeLimit), LimitInMinutes);
+            return m_progress;
+        }
+
+        public override bool Update(MyPlayer player, MyEntity me)
+        {
+            if (MySession.Static.IsScenario)
+                if (m_limit <= DateTime.UtcNow - MyScenarioSystem.Static.ServerStartGameTime)
+                    m_IsTrue = true;
             return IsTrue;
         }
         //OB:

@@ -95,8 +95,8 @@ namespace Sandbox.Game.Screens
             layout.AddWithSize(briefingScrollableArea, MyAlignH.Left, MyAlignV.Top, 1, 1, rowSpan: 4, colSpan: 3);
             //inside scrollable area:
             m_descriptionBox = new MyGuiControlMultilineText(
-                position: new Vector2(0.0f, 0.0f),
-                size: new Vector2(1f, 1f),
+                position: new Vector2(-0.227f, 5f), 
+                size: new Vector2(briefingScrollableArea.Size.X - 0.02f, 11f), 
                 textBoxAlign: MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_TOP,
                 selectable: false);
             briefing.Controls.Add(m_descriptionBox);

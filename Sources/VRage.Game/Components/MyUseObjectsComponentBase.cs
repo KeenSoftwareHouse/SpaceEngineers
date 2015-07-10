@@ -64,9 +64,9 @@ namespace VRage.Components
             }
         }
 
-        public override void OnRemovedFromContainer()
+        public override void OnBeforeRemovedFromContainer()
         {
-            base.OnRemovedFromContainer();
+            base.OnBeforeRemovedFromContainer();
 
             ClearPhysics();
         }

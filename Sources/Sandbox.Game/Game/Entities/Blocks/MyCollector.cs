@@ -199,7 +199,7 @@ namespace Sandbox.Game.Entities.Blocks
             }
         }
 
-        private void Inventory_ContentChangedCallback(MyInventory inventory)
+        private void Inventory_ContentChangedCallback(MyInventoryBase inventory)
         {
             if (!Sync.IsServer)
                 return;

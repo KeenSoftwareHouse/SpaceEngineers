@@ -356,6 +356,20 @@ namespace Sandbox.Game.Multiplayer
             return true;
         }
 
+        public MyGps GetGps(int hash)
+        {
+            foreach (var gpss in MySession.Static.Gpss.m_playerGpss.Values)
+            {
+                MyGps gps;
+                if (gpss.TryGetValue(hash, out gps))
+                {
+                    return gps;
+                }
+            }
+
+            return null;
+        }
+
         private StringBuilder m_NamingSearch = new StringBuilder();
         public void GetNameForNewCurrent(StringBuilder name)
         {//makes next entry name of coordinate from my current position - playername #xx

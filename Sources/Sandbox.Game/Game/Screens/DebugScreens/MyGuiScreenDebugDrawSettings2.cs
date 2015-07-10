@@ -63,6 +63,7 @@ namespace Sandbox.Game.Screens.DebugScreens
             AddCheckBox("Block groups - small to large", null, MemberHelper.GetMember(() => MyDebugDrawSettings.DEBUG_DRAW_SMALL_TO_LARGE_BLOCK_GROUPS));
             AddCheckBox("Ropes", null, MemberHelper.GetMember(() => MyDebugDrawSettings.DEBUG_DRAW_ROPES));
             AddCheckBox("Oxygen", null, MemberHelper.GetMember(() => MyDebugDrawSettings.DEBUG_DRAW_OXYGEN));
+            AddCheckBox("Voxel physics prediction", null, MemberHelper.GetMember(() => MyDebugDrawSettings.DEBUG_DRAW_VOXEL_PHYSICS_PREDICTION));
         }
     }
 }

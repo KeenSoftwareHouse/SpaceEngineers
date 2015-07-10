@@ -29,7 +29,7 @@ namespace Sandbox.Game.World.Generator
         protected List<IMyAsteroidFieldDensityFunction> m_densityFunctionsRemoved = new List<IMyAsteroidFieldDensityFunction>();
 
         public readonly double CELL_SIZE;
-        public readonly int RADIUS_MULTIPLIER;
+        public readonly int SCALE;
 
         protected const int BIG_PRIME1 = 16785407;
         protected const int BIG_PRIME2 = 39916801;
@@ -45,8 +45,8 @@ namespace Sandbox.Game.World.Generator
             Debug.Assert(parent == null || cellSize < parent.CELL_SIZE);
             CELL_SIZE = cellSize;
             Debug.Assert(radiusMultiplier > 0);
-            Debug.Assert(parent == null || radiusMultiplier < parent.RADIUS_MULTIPLIER);
-            RADIUS_MULTIPLIER = radiusMultiplier;
+            Debug.Assert(parent == null || radiusMultiplier < parent.SCALE);
+            SCALE = radiusMultiplier;
             m_seed = seed;
             m_objectDensity = density;
             m_parent = parent;
@@ -102,7 +102,7 @@ namespace Sandbox.Game.World.Generator
             m_densityFunctionsFilled.Remove(func);
         }
 
-        protected void AddDensityFunctionRemoved(IMyAsteroidFieldDensityFunction func)
+        public void AddDensityFunctionRemoved(IMyAsteroidFieldDensityFunction func)
         {
             m_densityFunctionsRemoved.Add(func);
         }
@@ -112,11 +112,14 @@ namespace Sandbox.Game.World.Generator
             m_densityFunctionsRemoved.Remove(func);
         }
 
-        public void GetObjectSeeds(BoundingSphereD sphere, List<MyObjectSeed> list)
+        public void GetObjectSeeds(BoundingSphereD sphere, List<MyObjectSeed> list, bool scale = true)
         {
             ProfilerShort.Begin("GetObjectSeedsInSphere");
             var scaledSphere = sphere;
-            scaledSphere.Radius *= RADIUS_MULTIPLIER;
+            if (scale)
+            {
+                scaledSphere.Radius *= SCALE;
+            }
             GenerateObjectSeeds(ref scaledSphere);
 
             OverlapAllBoundingSphere(ref scaledSphere, list);
@@ -237,18 +240,21 @@ namespace Sandbox.Game.World.Generator
             return ret;
         }
 
-        public void MarkCellsDirty(BoundingSphereD toMark, BoundingSphereD? toExclude = null)
+        public void MarkCellsDirty(BoundingSphereD toMark, BoundingSphereD? toExclude = null, bool scale = true)
         {
-            BoundingSphereD toMarkScaled = new BoundingSphereD(toMark.Center, toMark.Radius * RADIUS_MULTIPLIER);
+            BoundingSphereD toMarkScaled = new BoundingSphereD(toMark.Center, toMark.Radius * (scale ? SCALE : 1));
             BoundingSphereD toExcludeScaled = new BoundingSphereD();
             if (toExclude.HasValue)
             {
                 toExcludeScaled = toExclude.Value;
-                toExcludeScaled.Radius *= RADIUS_MULTIPLIER;
+                if (scale)
+                {
+                    toExcludeScaled.Radius *= SCALE;
+                }
             }
             ProfilerShort.Begin("Mark dirty cells");
-            Vector3I cellId = Vector3I.Floor((toMark.Center - toMark.Radius) / CELL_SIZE);
-            for (var iter = GetCellsIterator(toMark); iter.IsValid(); iter.GetNext(out cellId))
+            Vector3I cellId = Vector3I.Floor((toMarkScaled.Center - toMarkScaled.Radius) / CELL_SIZE);
+            for (var iter = GetCellsIterator(toMarkScaled); iter.IsValid(); iter.GetNext(out cellId))
             {
                 MyProceduralCell cell;
                 if (m_cells.TryGetValue(cellId, out cell))
@@ -275,7 +281,9 @@ namespace Sandbox.Game.World.Generator
             {
                 foreach (var tracker in trackedEntities.Values)
                 {
-                    if (tracker.BoundingVolume.Contains(cell.BoundingVolume) != ContainmentType.Disjoint)
+                    var scaledBoundingVolume = tracker.BoundingVolume;
+                    scaledBoundingVolume.Radius *= SCALE;
+                    if (scaledBoundingVolume.Contains(cell.BoundingVolume) != ContainmentType.Disjoint)
                     {
                         m_dirtyCells.Remove(cell);
                         break;
@@ -291,7 +299,10 @@ namespace Sandbox.Game.World.Generator
 
                 foreach (var objectSeed in m_tempObjectSeedList)
                 {
-                    CloseObjectSeed(objectSeed);
+                    if (objectSeed.Generated)
+                    {
+                        CloseObjectSeed(objectSeed);
+                    }
                 }
                 m_tempObjectSeedList.Clear();
             }
@@ -339,15 +350,6 @@ namespace Sandbox.Game.World.Generator
                 cell.OverlapAllBoundingBox(ref box, list);
             }
             m_tempProceduralCellsList.Clear();
-        }
-
-        protected Vector3D GetRandomDirection(MyRandom random)
-        {
-            double phi = random.NextDouble() * 2.0 * Math.PI;
-            double z = random.NextDouble() * 2.0 - 1.0;
-            double root = Math.Sqrt(1.0 - z * z);
-
-            return new Vector3D(root * Math.Cos(phi), root * Math.Sin(phi), z);
         }
 
         internal void GetAllCells(List<MyProceduralCell> list)

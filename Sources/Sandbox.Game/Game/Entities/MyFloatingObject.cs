@@ -86,6 +86,8 @@ namespace Sandbox.Game.Entities
             InitInternal();
 
             NeedsUpdate |= MyEntityUpdateEnum.EACH_FRAME;
+
+            UseDamageSystem = true;
         }
 
         public override void UpdateAfterSimulation()
@@ -283,15 +285,8 @@ namespace Sandbox.Game.Entities
                 if (MySession.ControlledEntity == user)
                     MyAudio.Static.PlaySound(TAKE_ITEM_SOUND.SoundId);
                 //user.StartSecondarySound(TAKE_ITEM_SOUND);
-                // MW:TODO HACK - remove after floating object is component OR when we have accessible inventories in ME
-                if (Item.Content.TypeId == typeof(MyObjectBuilder_ConsumableItem))
-                {
-                    var consumableDefinition = MyDefinitionManager.Static.GetDefinition(Item.Content.GetId()) as MyConsumableItemDefinition;
-                    user.StatComp.Consume(Item.Amount, consumableDefinition);
-                    MyFloatingObjects.RemoveFloatingObject(this);
-                }
-                else
-                    user.GetInventory().TakeFloatingObject(this);
+
+                user.GetInventory().TakeFloatingObject(this);
                 MyHud.Notifications.ReloadTexts();
             }
         }
@@ -334,7 +329,7 @@ namespace Sandbox.Game.Entities
             get { return false; }
         }
 
-        public void DoDamage(float damage, MyDamageType damageType, bool sync)
+        public void DoDamage(float damage, MyDamageType damageType, bool sync, long attackerId)
         {
             if (MarkedForClose)
                 return;
@@ -345,11 +340,14 @@ namespace Sandbox.Game.Entities
                     return;
                 else
                 {
-                    MySyncHelper.DoDamageSynced(this, damage, damageType);
+                    MySyncHelper.DoDamageSynced(this, damage, damageType, attackerId);
                     return;
                 }
             }
 
+            MyDamageInformation damageinfo = new MyDamageInformation(false, damage, damageType, attackerId);
+            if(UseDamageSystem)
+                MyDamageSystem.Static.RaiseBeforeDamageApplied(this, ref damageinfo);
 
             var typeId = Item.Content.TypeId;
             if (typeId == typeof(MyObjectBuilder_Ore) ||
@@ -369,12 +367,15 @@ namespace Sandbox.Game.Entities
                 else
                 {
                     if (Sync.IsServer)
-                        MyFloatingObjects.RemoveFloatingObject(this, (MyFixedPoint)damage);
+                        MyFloatingObjects.RemoveFloatingObject(this, (MyFixedPoint)damageinfo.Amount);
                 }
             }
             else
             {
-                m_health -= (10 + 90 * DamageMultiplier) * damage;
+                m_health -= (10 + 90 * DamageMultiplier) * damageinfo.Amount;
+
+                if(UseDamageSystem)
+                    MyDamageSystem.Static.RaiseAfterDamageApplied(this, damageinfo);
 
                 if (m_health < 0)
                 {
@@ -426,6 +427,9 @@ namespace Sandbox.Game.Entities
                                 MyFloatingObjects.Spawn(new MyPhysicalInventoryItem(Item.Amount * 0.8f, ScrapBuilder), PositionComp.GetPosition(), WorldMatrix.Forward, WorldMatrix.Up);
                         }
                     }
+
+                    if(UseDamageSystem)
+                        MyDamageSystem.Static.RaiseDestroyed(this, damageinfo);
                 }
             }
 
@@ -451,26 +455,34 @@ namespace Sandbox.Game.Entities
         }
 
         public void OnDestroy()
-        { }
+        {
+        }
 
         public float Integrity
         {
             get { return m_health; }
         }
 
+        public bool UseDamageSystem { get; private set; }
+
         void IMyDestroyableObject.OnDestroy()
         {
             OnDestroy();
         }
 
-        void IMyDestroyableObject.DoDamage(float damage, MyDamageType damageType, bool sync, MyHitInfo? hitInfo)
+        void IMyDestroyableObject.DoDamage(float damage, MyDamageType damageType, bool sync, MyHitInfo? hitInfo, long attackerId)
         {
-            DoDamage(damage, damageType, sync);
+            DoDamage(damage, damageType, sync, attackerId);
         }
 
         float IMyDestroyableObject.Integrity
         {
             get { return Integrity; }
+        }
+
+        bool IMyDestroyableObject.UseDamageSystem
+        {
+            get { return UseDamageSystem; }
         }
 
         bool IMyUseObject.HandleInput() { return false; }

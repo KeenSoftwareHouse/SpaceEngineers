@@ -9,7 +9,7 @@ using VRage.Input;
 using VRage.ModAPI;
 using VRageMath;
 using Sandbox.Game;
-using SpaceEngineers.Game.Entities.Blocks;
+using Sandbox.Game.Entities.Cube;
 
 namespace SpaceEngineers.Game.Entities.UseObjects
 {

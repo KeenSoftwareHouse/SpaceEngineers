@@ -4,8 +4,10 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using VRage.Library.Utils;
 using VRage.Noise;
 using VRageMath;
+using VRage;
 
 namespace Sandbox.Game.World.Generator
 {
@@ -13,6 +15,12 @@ namespace Sandbox.Game.World.Generator
     {
         public readonly MyCsgShapeBase Shape;
         readonly MyVoxelMaterialDefinition m_material;
+
+        virtual public void DebugDraw(ref Vector3D translation, ref Color materialColor)
+        {
+            Shape.DebugDraw(ref translation, materialColor);
+            VRageRender.MyRenderProxy.DebugDrawText3D(Shape.Center() + translation, m_material.Id.SubtypeName, Color.White, 1f, false);
+        }
 
         public MyCompositeShapeOreDeposit(MyCsgShapeBase shape, MyVoxelMaterialDefinition material)
         {
@@ -35,18 +43,39 @@ namespace Sandbox.Game.World.Generator
     {
         IMyModule m_noise = null;
         MyMaterialLayer[] m_materialLayers = null;
+        MyCompositeOrePlanetDeposit m_oreDeposits = null;
 
-        public MyCompositeLayeredOreDeposit(MyCsgShapeBase shape, MyMaterialLayer[] materialLayers,IMyModule noise) :
+        public override void DebugDraw(ref Vector3D translation, ref Color materialColor)
+        {
+            Shape.DebugDraw(ref translation, materialColor);
+            VRageRender.MyRenderProxy.DebugDrawText3D(Shape.Center() + translation, "layered", Color.White, 1f, false);
+
+            m_oreDeposits.DebugDraw(ref translation, ref materialColor);
+        }
+
+        public MyCompositeLayeredOreDeposit(MyCsgShapeBase shape, MyMaterialLayer[] materialLayers,IMyModule noise, MyCompositeOrePlanetDeposit oresDeposits) :
             base(shape, null)
         {
             m_materialLayers = materialLayers;
             m_noise = noise;
+            m_oreDeposits = oresDeposits;
         }
 
         public override MyVoxelMaterialDefinition GetMaterialForPosition(ref Vector3 pos, float lodSize)
         {
-           Vector3 localPosition = pos - Shape.Center();
+            Vector3 localPosition = pos - Shape.Center();
             float lenghtToCenter = localPosition.Length();
+           
+           
+            if (lenghtToCenter <= m_oreDeposits.MinDepth)
+            {
+                 MyVoxelMaterialDefinition definiton = m_oreDeposits.GetMaterialForPosition(ref pos, lodSize);
+                 if (definiton != null)
+                 {
+                     return definiton;
+                 }
+            }
+
             float angleToPole = Vector3.Dot(localPosition / lenghtToCenter,Vector3.Up);
 
             int nearestMaterial = -1;
@@ -74,6 +103,7 @@ namespace Sandbox.Game.World.Generator
                     
                 }
             }
+           
             return nearestMaterial == -1 ? null : m_materialLayers[nearestMaterial].MaterialDefinition;
         }
 

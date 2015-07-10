@@ -73,7 +73,6 @@ namespace Sandbox.Game.AI
         public static IMyBotFactory BotFactory;
 
         private Dictionary<int, AgentSpawnData> m_agentsToSpawn;
-        private int m_lastSpawnedBot;
 
         private MyHudNotification m_maxBotNotification;
 
@@ -109,7 +108,6 @@ namespace Sandbox.Game.AI
                 m_loadedBotObjectBuildersByHandle = new Dictionary<int, MyObjectBuilder_Bot>();
                 m_agentsToSpawn = new Dictionary<int, AgentSpawnData>();
                 m_removeQueue = new Queue<int>();
-                m_lastSpawnedBot = 0;
                 m_maxBotNotification = new MyHudNotification(MySpaceTexts.NotificationMaximumNumberBots, 2000, MyFontEnum.Red);
 
                 if (MyFakes.ENABLE_BEHAVIOR_TREE_TOOL_COMMUNICATION)
@@ -272,11 +270,17 @@ namespace Sandbox.Game.AI
 
         private int SpawnNewBotInternal(MyAgentDefinition agentDefinition, Vector3D? spawnPosition = null, bool createdByPlayer = false)
         {
-            var currentHighestBotID = MyAIComponent.GenerateBotId(m_lastSpawnedBot);
-            var newBotId = currentHighestBotID;
-            EnsureIdentityUniqueness(newBotId);
+            int newBotId = 0;
+            foreach (var player in Sync.Players.GetOnlinePlayers())
+            {
+                if (player.Id.SteamId == Sync.MyId && player.Id.SerialId > newBotId)
+                {
+                    newBotId = player.Id.SerialId;
+                }
+            }
+            newBotId++;
+
             m_agentsToSpawn[newBotId] = new AgentSpawnData(agentDefinition, spawnPosition, createdByPlayer);
-            m_lastSpawnedBot = newBotId;
 
             Sync.Players.RequestNewPlayer(newBotId, MyDefinitionManager.Static.GetRandomCharacterName(), agentDefinition.BotModel);
             return newBotId;
@@ -285,17 +289,6 @@ namespace Sandbox.Game.AI
         public int SpawnNewBot(MyAgentDefinition agentDefinition, Vector3D? spawnPosition)
         {
             return SpawnNewBotInternal(agentDefinition, spawnPosition, true);
-        }
-
-        private void EnsureIdentityUniqueness(int newBotId)
-        {
-            var pid = new MyPlayer.PlayerId(MySteam.UserId, newBotId);
-            var identity = Sync.Players.TryGetPlayerIdentity(pid);
-            var player = Sync.Players.TryGetPlayerById(pid);
-            if (identity != null && identity.IdentityId != 0 && player == null)
-            {
-                Sync.Players.RemoveIdentity(pid); // removing old identity
-            }
         }
 
         public bool CanSpawnMoreBots(MyPlayer.PlayerId pid)
@@ -328,13 +321,13 @@ namespace Sandbox.Game.AI
             {
                 int botCount = 0;
                 var lookedPlayer = pid.SteamId;
-                var players = Sync.Players.GetAllPlayers();
+                var players = Sync.Players.GetOnlinePlayers();
 
 				if (MySession.Static.CreativeMode)
 				{
 					foreach (var player in players)
 					{
-						if (player.SerialId != 0)
+						if (player.Id.SerialId != 0)
 							++botCount;
 					}
 				}
@@ -342,7 +335,7 @@ namespace Sandbox.Game.AI
 				{
 					foreach (var player in players)
 					{
-						if (player.SteamId == lookedPlayer && player.SerialId != 0)
+						if (player.Id.SteamId == lookedPlayer && player.Id.SerialId != 0)
 							botCount++;
 					}
 				}

@@ -101,7 +101,7 @@ namespace Sandbox.Definitions
                 m_environmentItemsEntries = new HashSet<EnvironmentItemsEntry>();
                 m_componentBlockEntries = new HashSet<MyComponentBlockEntry>();
 
-                m_componentBlocks = new HashSet<MyDefinitionId>();
+                m_componentBlocks = new Dictionary<MyDefinitionId, bool>();
 
                 m_categoryClasses = new List<MyGuiBlockCategoryDefinition>(25);
                 m_categories = new Dictionary<string, MyGuiBlockCategoryDefinition>(25);
@@ -117,10 +117,13 @@ namespace Sandbox.Definitions
 
                 m_battleDefinition = new MyBattleDefinition();
 
-                m_planetDefinitions = new DefinitionDictionary<MyPlanetDefinition>(5);
+                m_planetGeneratorDefinitions = new DefinitionDictionary<MyPlanetGeneratorDefinition>(5);
+                m_moonGeneratorDefinitions = new DefinitionDictionary<MyPlanetGeneratorDefinition>(5);
 
                 m_componentGroups = new DefinitionDictionary<MyComponentGroupDefinition>(4);
                 m_componentGroupMembers = new Dictionary<MyDefinitionId, MyTuple<int, MyComponentGroupDefinition>>();
+
+                m_planetPrefabDefinitions = new DefinitionDictionary<MyPlanetPrefabDefinition>(5);
             }
 
             public void OverrideBy(DefinitionSet definitionSet)
@@ -303,13 +306,30 @@ namespace Sandbox.Definitions
                 }
 
                 m_componentGroups.Merge(definitionSet.m_componentGroups);
-                foreach (var entry in definitionSet.m_planetDefinitions)
+                foreach (var entry in definitionSet.m_planetGeneratorDefinitions)
                 {
                     if (entry.Value.Enabled)
-                        m_planetDefinitions[entry.Key] = entry.Value;
+                        m_planetGeneratorDefinitions[entry.Key] = entry.Value;
                     else
-                        m_planetDefinitions.Remove(entry.Key);
+                        m_planetGeneratorDefinitions.Remove(entry.Key);
                 }
+
+                foreach (var entry in definitionSet.m_moonGeneratorDefinitions)
+                {
+                    if (entry.Value.Enabled)
+                        m_moonGeneratorDefinitions[entry.Key] = entry.Value;
+                    else
+                        m_moonGeneratorDefinitions.Remove(entry.Key);
+                }
+
+                foreach (var entry in definitionSet.m_planetPrefabDefinitions)
+                {
+                    if (entry.Value.Enabled)
+                        m_planetPrefabDefinitions[entry.Key] = entry.Value;
+                    else
+                        m_planetPrefabDefinitions.Remove(entry.Key);
+                }
+
             }
 
             static void MergeDefinitionLists<T>(List<T> output, List<T> input) where T : MyDefinitionBase
@@ -373,7 +393,7 @@ namespace Sandbox.Definitions
             internal HashSet<EnvironmentItemsEntry> m_environmentItemsEntries;
             internal HashSet<MyComponentBlockEntry> m_componentBlockEntries;
 
-            public HashSet<MyDefinitionId> m_componentBlocks;
+            public Dictionary<MyDefinitionId, bool> m_componentBlocks;
 
             internal DefinitionDictionary<MyBlueprintDefinitionBase> m_blueprintsByResultId;
 
@@ -400,10 +420,13 @@ namespace Sandbox.Definitions
 
             internal MyBattleDefinition m_battleDefinition;
 
-            internal DefinitionDictionary<MyPlanetDefinition> m_planetDefinitions;
+            internal DefinitionDictionary<MyPlanetGeneratorDefinition> m_planetGeneratorDefinitions;
+            internal DefinitionDictionary<MyPlanetGeneratorDefinition> m_moonGeneratorDefinitions;
 
             internal DefinitionDictionary<MyComponentGroupDefinition> m_componentGroups;
             internal Dictionary<MyDefinitionId, MyTuple<int, MyComponentGroupDefinition>> m_componentGroupMembers;
+
+            internal DefinitionDictionary<MyPlanetPrefabDefinition> m_planetPrefabDefinitions;
         }
     }
 }

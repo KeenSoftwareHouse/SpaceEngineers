@@ -445,15 +445,11 @@ namespace Sandbox.Engine.Utils
         
         public static bool CHARACTER_TOOLS = true;
 
-        public static bool ENABLE_RAGDOLL_ANIMATION = false;
-
         public static bool ENABLE_CHARACTER_VIRTUAL_PHYSICS = false;
 
         public static bool ENABLE_RAKNET = false;
 
         public static bool ENABLE_MEDIEVAL_CHARACTER_DAMAGE = false;
-
-        public static bool ENABLE_RAGDOLL_COLLISION_WITH_CHARACTER_BODY = true;
 
         public static bool ENABLE_FOOT_IK_USE_HAVOK_RAYCAST = true;
 
@@ -466,7 +462,6 @@ namespace Sandbox.Engine.Utils
         public static bool ME_MULTIPLAYER = true;
         public static bool ME_PLAYERS_SPAWN_NEAR_PLAYER = true;
         public static bool CHARACTER_SERVER_SYNC = false;
-        
 
         public static bool ALWAYS_NOON = false;
 
@@ -487,13 +482,18 @@ namespace Sandbox.Engine.Utils
 
         public static bool ENABLE_MISSION_TRIGGERS = true;
 
-        public static bool ENABLE_RAGDOLL_DEFAULT_PROPERTIES = false;
-
         public static bool XBOX_PREVIEW = false;
-                
+
+        // Ragdoll
+        public static bool ENABLE_RAGDOLL_ANIMATION = false;
+        public static bool ENABLE_RAGDOLL_COLLISION_WITH_CHARACTER_BODY = true;
         public static bool ENABLE_RAGDOLL_BONES_TRANSLATION = true;
-        
         public static bool ENABLE_COLLISONS_ON_RAGDOLL = true;
+        public static bool ENABLE_RAGDOLL_DEFAULT_PROPERTIES = false;
+        public static bool ENABLE_RAGDOLL_CLIENT_SYNC = false;
+        public static bool ENABLE_RAGDOLL_DEACTIVATION = false;
+        public static bool ENABLE_RAGDOLL_DEBUG = false;
+        public static bool ENABLE_JETPACK_RAGDOLL_COLLISIONS = false;
 
         public static bool ENABLE_STATION_ROTATION = true;
 
@@ -507,22 +507,14 @@ namespace Sandbox.Engine.Utils
         public static bool ENABLE_DEFAULT_BLUEPRINTS = false;
 
         public static bool ENABLE_VOICE_CHAT_DEBUGGING = false;
-        
-        public static bool ENABLE_RAGDOLL_CLIENT_SYNC = false;
 
         public static bool ENABLE_GENERATED_INTEGRITY_FIX = true; //forces generated blocks to have same stack and integrity as owner
 
         public static bool ENABLE_VOXEL_MAP_AABB_CORNER_TEST = false;
-        
-        public static bool ENABLE_RAGDOLL_DEACTIVATION = false;
 
         public static bool ENABLE_PERMANENT_SIMULATIONS_COMPUTATION = true;
         
         public static bool ENABLE_SYNCED_CHARACTER_MOVE_AND_ROTATE = false;
-        
-        public static bool ENABLE_RAGDOLL_DEBUG = false;
-        
-        public static bool ENABLE_JETPACK_RAGDOLL_COLLISIONS = false;
 
         public static bool NEW_CHARACTER_DAMAGE = false;
 
@@ -539,5 +531,15 @@ namespace Sandbox.Engine.Utils
         public static bool ENABLE_MEDIEVAL_INVENTORY = false;
 
         public static bool ENABLE_PLANETS = false;
+
+        public static bool ENABLE_NEW_TRIGGERS = true;
+
+        public static bool ENABLE_USE_OBJECT_CORNERS = true;
+        
+        public static bool ENABLE_PLANETS_JETPACK_LIMIT = false;
+        
+        public static bool ENABLE_WEAPON_USE = false;
+
+        public static bool ENABLE_STATS_GUI = true;
     }
 }

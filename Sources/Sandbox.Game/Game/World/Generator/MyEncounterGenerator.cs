@@ -50,6 +50,14 @@ namespace Sandbox.Game.World.Generator
 
         public static bool RemoveEncounter(BoundingBoxD boundingVolume, int seed)
         {
+            boundingVolume.Max.X = Math.Round(boundingVolume.Max.X, 2);
+            boundingVolume.Max.Y = Math.Round(boundingVolume.Max.Y, 2);
+            boundingVolume.Max.Z = Math.Round(boundingVolume.Max.Z, 2);
+
+            boundingVolume.Min.X = Math.Round(boundingVolume.Min.X, 2);
+            boundingVolume.Min.Y = Math.Round(boundingVolume.Min.Y, 2);
+            boundingVolume.Min.Z = Math.Round(boundingVolume.Min.Z, 2);
+
             bool wasFound = false;
             for (int i = 0; i < 2; ++i)
             {
@@ -86,6 +94,14 @@ namespace Sandbox.Game.World.Generator
             {
                 return false;
             }
+
+            boundingVolume.Max.X = Math.Round(boundingVolume.Max.X, 2);
+            boundingVolume.Max.Y = Math.Round(boundingVolume.Max.Y, 2);
+            boundingVolume.Max.Z = Math.Round(boundingVolume.Max.Z, 2);
+
+            boundingVolume.Min.X = Math.Round(boundingVolume.Min.X, 2);
+            boundingVolume.Min.Y = Math.Round(boundingVolume.Min.Y, 2);
+            boundingVolume.Min.Z = Math.Round(boundingVolume.Min.Z, 2);
 
             Vector3D placePosition = boundingVolume.Center;
             m_random.SetSeed(seed);
@@ -324,7 +340,24 @@ namespace Sandbox.Game.World.Generator
         {
             if (encountersObjectBuilder != null)
             {
-                m_savedEncounters = encountersObjectBuilder.SavedEcounters ?? m_savedEncounters;
+                if (encountersObjectBuilder.SavedEcounters != null)
+                {
+                    foreach (var savedEncounter in encountersObjectBuilder.SavedEcounters)
+                    {
+                        MyEncounterId id = savedEncounter;
+
+                        id.BoundingBox.Max.X = Math.Round(savedEncounter.BoundingBox.Max.X, 2);
+                        id.BoundingBox.Max.Y = Math.Round(savedEncounter.BoundingBox.Max.Y, 2);
+                        id.BoundingBox.Max.Z = Math.Round(savedEncounter.BoundingBox.Max.Z, 2);
+
+                        id.BoundingBox.Min.X = Math.Round(savedEncounter.BoundingBox.Min.X, 2);
+                        id.BoundingBox.Min.Y = Math.Round(savedEncounter.BoundingBox.Min.Y, 2);
+                        id.BoundingBox.Min.Z = Math.Round(savedEncounter.BoundingBox.Min.Z, 2);
+
+                        m_savedEncounters.Add(id);
+                    }
+                }
+
                 m_movedOnlyEncounters = encountersObjectBuilder.MovedOnlyEncounters ?? m_movedOnlyEncounters;
             }
         }

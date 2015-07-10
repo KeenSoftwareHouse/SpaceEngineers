@@ -414,8 +414,11 @@ namespace VRageRender
 
                             foreach (var effect in m_effects)
                             {
-                                effect.SetNearPlane(MyRenderCamera.NEAR_PLANE_DISTANCE);
-                                effect.SetFarPlane(MyRenderCamera.FAR_PLANE_DISTANCE);
+                                if (effect != null)
+                                {
+                                    effect.SetNearPlane(MyRenderCamera.NEAR_PLANE_DISTANCE);
+                                    effect.SetFarPlane(MyRenderCamera.FAR_PLANE_DISTANCE);
+                                }
                             }
                         }
 

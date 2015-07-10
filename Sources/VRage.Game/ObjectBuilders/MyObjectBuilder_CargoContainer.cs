@@ -8,8 +8,8 @@ namespace Sandbox.Common.ObjectBuilders
     [MyObjectBuilderDefinition]
     public class MyObjectBuilder_CargoContainer : MyObjectBuilder_TerminalBlock
     {
-        [ProtoMember]
-        public MyObjectBuilder_Inventory Inventory;
+        [ProtoMember, DefaultValue(null)]
+        public MyObjectBuilder_Inventory Inventory = null;
 
         [ProtoMember, DefaultValue(null)]
         public string ContainerType = null;

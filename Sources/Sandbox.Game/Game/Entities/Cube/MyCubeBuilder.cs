@@ -1005,12 +1005,31 @@ namespace Sandbox.Game.Entities
             }
         }
 
+		public void DisableStationRotation()
+		{
+			m_shipCreationClipboard.EnableStationRotation = false;
+			m_clipboard.EnableStationRotation = false;
+			m_floatingObjectClipboard.EnableStationRotation = false;
+			HideStationRotationNotification();
+		}
+
         public void EnableStationRotation()
         {
             m_shipCreationClipboard.EnableStationRotation = !m_shipCreationClipboard.EnableStationRotation;
             m_clipboard.EnableStationRotation = !m_clipboard.EnableStationRotation;
             m_floatingObjectClipboard.EnableStationRotation = !m_floatingObjectClipboard.EnableStationRotation;
-            ShowStationRotationNotification();     
+			bool isStatic = true;
+			if(m_shipCreationClipboard.IsActive)
+				foreach(var grid in m_shipCreationClipboard.CopiedGrids)
+					isStatic &= grid.IsStatic;
+			if(m_clipboard.IsActive)
+				foreach(var grid in m_clipboard.CopiedGrids)
+					isStatic &= grid.IsStatic;
+			if (m_floatingObjectClipboard.IsActive)
+				isStatic = false;
+
+			if(isStatic)
+				ShowStationRotationNotification();
         }
 
         public bool HandleGameInput()
@@ -1185,7 +1204,7 @@ namespace Sandbox.Game.Entities
                 {
                     if (m_clipboard.IsActive)
                     {
-                        HideStationRotationNotification();
+						DisableStationRotation();
                         m_clipboard.Deactivate();
                         UpdatePasteNotification(MySpaceTexts.CubeBuilderPasteNotification);
                         return true;
@@ -1193,6 +1212,7 @@ namespace Sandbox.Game.Entities
 
                     if (m_floatingObjectClipboard.IsActive)
                     {
+						DisableStationRotation();
                         m_floatingObjectClipboard.Deactivate();
                         UpdatePasteNotification(MySpaceTexts.CubeBuilderPasteNotification);
                         return true;
@@ -1207,7 +1227,7 @@ namespace Sandbox.Game.Entities
 
                     if (m_shipCreationClipboard.IsActive)
                     {
-                        HideStationRotationNotification();
+						DisableStationRotation();
                         m_shipCreationClipboard.Deactivate();
                         UpdatePasteNotification(MySpaceTexts.CubeBuilderPasteNotification);
                         return true;
@@ -1245,7 +1265,7 @@ namespace Sandbox.Game.Entities
                     {
                         if (m_clipboard.PasteGrid())
                         {
-                            HideStationRotationNotification();
+                            DisableStationRotation();
                             UpdatePasteNotification(MySpaceTexts.CubeBuilderPasteNotification);
                             return true;
                         }
@@ -1255,6 +1275,7 @@ namespace Sandbox.Game.Entities
                     {
                         if (m_floatingObjectClipboard.PasteFloatingObject())
                         {
+							DisableStationRotation();
                             UpdatePasteNotification(MySpaceTexts.CubeBuilderPasteNotification);
                             return true;
                         }
@@ -1273,7 +1294,7 @@ namespace Sandbox.Game.Entities
                     {
                         if (m_shipCreationClipboard.PasteGrid())
                         {
-                            HideStationRotationNotification();
+							DisableStationRotation();
                             MyGuiAudio.PlaySound(MyGuiSounds.HudPlaceBlock);
                             return true;
                         }
@@ -1739,18 +1760,17 @@ namespace Sandbox.Game.Entities
                     int currDefinitionIndex = CurrentBlockDefinitionStages.IndexOf(CurrentBlockDefinition);
                     int nextIndex;
 
-                    if (switchForward.Value)
-                    {
-                        nextIndex = 0;
-                        if (currDefinitionIndex != -1 && currDefinitionIndex < CurrentBlockDefinitionStages.Count - 1)
-                            nextIndex = currDefinitionIndex + 1;
-                    }
-                    else
-                    {
-                        nextIndex = CurrentBlockDefinitionStages.Count - 1;
-                        if (currDefinitionIndex != -1 && currDefinitionIndex > 0)
-                            nextIndex = currDefinitionIndex - 1;
-                    }
+					int increment = switchForward.Value ? 1 : -1;
+					nextIndex = currDefinitionIndex;
+					while ((nextIndex = nextIndex + increment) != currDefinitionIndex)
+					{
+						if (nextIndex >= CurrentBlockDefinitionStages.Count)
+							nextIndex = 0;
+						else if(nextIndex < 0)
+							nextIndex = CurrentBlockDefinitionStages.Count-1;
+						if(CurrentBlockDefinitionStages[nextIndex].AvailableInSurvival || !MySession.Static.SurvivalMode)
+							break;
+					}
 
                     UpdateCubeBlockStageDefinition(CurrentBlockDefinitionStages[nextIndex]);
                 }
@@ -2314,8 +2334,11 @@ namespace Sandbox.Game.Entities
                     {
                         Quaternion.CreateFromRotationMatrix(ref gizmoSpace.m_localMatrixAdd, out gizmoSpace.m_rotation);
 
-                        if (gizmoSpace.SymmetryPlane == MySymmetrySettingModeEnum.Disabled && !PlacingSmallGridOnLargeStatic)
-                            gizmoSpace.m_buildAllowed = MyCubeGrid.CheckConnectivity(CurrentGrid, CurrentBlockDefinition, ref gizmoSpace.m_rotation, ref gizmoSpace.m_centerPos);
+						if (gizmoSpace.SymmetryPlane == MySymmetrySettingModeEnum.Disabled && !PlacingSmallGridOnLargeStatic)
+						{
+							var mountPoints = CurrentBlockDefinition.GetBuildProgressModelMountPoints(MyComponentStack.NewBlockIntegrity);
+							gizmoSpace.m_buildAllowed = MyCubeGrid.CheckConnectivity(CurrentGrid, CurrentBlockDefinition, mountPoints, ref gizmoSpace.m_rotation, ref gizmoSpace.m_centerPos);
+						}
                     }
 
                     Color color = green;
@@ -3054,28 +3077,30 @@ namespace Sandbox.Game.Entities
 
         Vector3I? GetSingleMountPointNormal()
         {
-            if (CurrentBlockDefinition == null || CurrentBlockDefinition.MountPoints.Length == 0)
-            {
+			if (CurrentBlockDefinition == null)
                 return null;
-            }
 
-            var normal = CurrentBlockDefinition.MountPoints[0].Normal;
+			var currentBlockMountPoints = CurrentBlockDefinition.GetBuildProgressModelMountPoints(1.0f);
+			if (currentBlockMountPoints == null || currentBlockMountPoints.Length == 0)
+				return null;
+
+			var normal = currentBlockMountPoints[0].Normal;
             var oppositeNormal = -normal;
             switch (CurrentBlockDefinition.AutorotateMode)
             {
                 case MyAutorotateMode.OneDirection:
-                    for (int i = 1; i < CurrentBlockDefinition.MountPoints.Length; i++)
+					for (int i = 1; i < currentBlockMountPoints.Length; i++)
                     {
-                        var currentNormal = CurrentBlockDefinition.MountPoints[i].Normal;
+						var currentNormal = currentBlockMountPoints[i].Normal;
                         if (currentNormal != normal)
                             return null;
                     }
                     break;
 
                 case MyAutorotateMode.OppositeDirections:
-                    for (int i = 1; i < CurrentBlockDefinition.MountPoints.Length; i++)
+					for (int i = 1; i < currentBlockMountPoints.Length; i++)
                     {
-                        var currentNormal = CurrentBlockDefinition.MountPoints[i].Normal;
+						var currentNormal = currentBlockMountPoints[i].Normal;
                         if (currentNormal != normal && currentNormal != oppositeNormal)
                             return null;
                     }
