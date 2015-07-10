@@ -1081,7 +1081,6 @@ namespace Sandbox.Game.Entities.Cube
             }
             m_tmpElements.Add(new HkMassElement() { Properties = m_massProperties, Tranform = Matrix.Identity });
             var mp = HkInertiaTensorComputer.CombineMassProperties(m_tmpElements);
-            m_blockCollector.CollectMassElements(m_grid, m_massElements);
             UpdateMass(rb.RigidBody);
             m_tmpElements.Clear();
             rb.RigidBody.SetMassProperties(ref mp);
