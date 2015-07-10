@@ -89,7 +89,7 @@ namespace Sandbox.Game.Entities
             var maxDistanceSlider = new MyTerminalControlSlider<MyJumpDrive>("JumpDistance", MySpaceTexts.BlockPropertyTitle_JumpDistance, MySpaceTexts.Blank);
             maxDistanceSlider.SetLimits(0f, 100f);
             maxDistanceSlider.DefaultValue = 100f;
-            maxDistanceSlider.Enabled = (x) => x.CanJump;
+            maxDistanceSlider.Enabled = (x) => x.m_jumpTarget == null;
             maxDistanceSlider.Getter = (x) => x.m_jumpDistanceRatio;
             maxDistanceSlider.Setter = (x, v) =>
                 {
@@ -344,8 +344,7 @@ namespace Sandbox.Game.Entities
 
             if (IsFunctional)
             {
-                if ((Sync.IsServer && !CubeGrid.GridSystems.ControlSystem.IsControlled) ||
-                    CubeGrid.GridSystems.ControlSystem.IsLocallyControlled)
+                if (Sync.IsServer)
                 {
                     if (!IsFull && m_isRecharging)
                     {
@@ -473,26 +472,37 @@ namespace Sandbox.Game.Entities
         #endregion
 
         #region Emissivity
+        public override void OnModelChange()
+        {
+            base.OnModelChange();
+            m_prevFillCount = -1;
+            UpdateEmissivity();
+        }
+
         private void UpdateEmissivity()
         {
             if (IsFunctional && IsWorking)
             {
                 if (IsFull)
                 {
-                    SetEmissive(Color.Cyan, 1.0f);
+                    SetEmissive(Color.Cyan, 1.0f, 1.0f);
                 }
                 else if (!m_isRecharging)
                 {
-                    SetEmissive(Color.Yellow, m_storedPower / BlockDefinition.PowerNeededForJump);
+                    SetEmissive(Color.Yellow, m_storedPower / BlockDefinition.PowerNeededForJump, 1.0f);
+                }
+                else if (PowerReceiver.CurrentInput > 0f)
+                {
+                    SetEmissive(Color.Green, m_storedPower / BlockDefinition.PowerNeededForJump, 1.0f);
                 }
                 else
                 {
-                    SetEmissive(Color.Green, m_storedPower / BlockDefinition.PowerNeededForJump);
+                    SetEmissive(Color.Red, m_storedPower / BlockDefinition.PowerNeededForJump, 0.0f);
                 }
             }
             else
             {
-                SetEmissive(Color.Red, 1.0f);
+                SetEmissive(Color.Red, 1.0f, 0.0f);
             }
         }
 
@@ -501,7 +511,7 @@ namespace Sandbox.Game.Entities
         private Color m_prevColor = Color.White;
         private int m_prevFillCount = -1;
 
-        private void SetEmissive(Color color, float fill)
+        private void SetEmissive(Color color, float fill, float emissivity)
         {
             int fillCount = (int)(fill * m_emissiveNames.Length);
 
@@ -511,7 +521,7 @@ namespace Sandbox.Game.Entities
                 {
                     if (i <= fillCount)
                     {
-                        VRageRender.MyRenderProxy.UpdateModelProperties(Render.RenderObjectIDs[0], 0, null, -1, m_emissiveNames[i], null, color, null, null, 1);
+                        VRageRender.MyRenderProxy.UpdateModelProperties(Render.RenderObjectIDs[0], 0, null, -1, m_emissiveNames[i], null, color, null, null, emissivity);
                     }
                     else
                     {
@@ -519,7 +529,7 @@ namespace Sandbox.Game.Entities
                     }
                 }
 
-                VRageRender.MyRenderProxy.UpdateModelProperties(Render.RenderObjectIDs[0], 0, null, -1, "Emissive4", null, color, null, null, 1);
+                VRageRender.MyRenderProxy.UpdateModelProperties(Render.RenderObjectIDs[0], 0, null, -1, "Emissive4", null, color, null, null, emissivity);
 
                 m_prevColor = color;
                 m_prevFillCount = fillCount;

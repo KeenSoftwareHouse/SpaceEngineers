@@ -2688,7 +2688,7 @@
       </Id>
       <Category>SHIP_JET</Category>
       <MaxDistance>30.2429447</MaxDistance>
-      <Volume>0.05</Volume>
+      <Volume>0.25</Volume>
       <Loopable>true</Loopable>
       <Waves>
         <Wave Type="D2">
@@ -2715,7 +2715,7 @@
       </Id>
       <Category>SHIP_JET</Category>
       <MaxDistance>30.2429447</MaxDistance>
-      <Volume>0.135518372</Volume>
+      <Volume>0.25</Volume>
       <Loopable>true</Loopable>
       <Waves>
         <Wave Type="D2">
@@ -2767,7 +2767,7 @@
       </Id>
       <Category>SHIP_JET</Category>
       <MaxDistance>30.2429447</MaxDistance>
-      <Volume>0.135518372</Volume>
+      <Volume>0.30</Volume>
       <Loopable>true</Loopable>
       <Waves>
         <Wave Type="D3">
@@ -2783,7 +2783,7 @@
       </Id>
       <Category>SHIP_JET</Category>
       <MaxDistance>30.2429447</MaxDistance>
-      <Volume>0.135518372</Volume>
+      <Volume>0.30</Volume>
       <Loopable>true</Loopable>
       <Waves>
         <Wave Type="D3">

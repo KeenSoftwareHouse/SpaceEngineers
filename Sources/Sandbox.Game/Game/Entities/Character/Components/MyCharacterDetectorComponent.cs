@@ -112,6 +112,13 @@ namespace Sandbox.Game.Entities.Character
             get { return m_detectedEntity; }
         }
 
+        public Vector3D HitPosition { protected set; get; }
+
+        public Vector3 HitNormal { protected set; get; }
+
+        public uint ShapeKey { protected set; get; }
+
+
         void UseClose()
         {
             if (UseObject != null && UseObject.IsActionSupported(UseActionEnum.Close))

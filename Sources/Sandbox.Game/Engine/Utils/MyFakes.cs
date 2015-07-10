@@ -445,8 +445,6 @@ namespace Sandbox.Engine.Utils
         
         public static bool CHARACTER_TOOLS = true;
 
-        public static bool ENABLE_CHARACTER_VIRTUAL_PHYSICS = false;
-
         public static bool ENABLE_RAKNET = false;
 
         public static bool ENABLE_MEDIEVAL_CHARACTER_DAMAGE = false;
@@ -541,5 +539,9 @@ namespace Sandbox.Engine.Utils
         public static bool ENABLE_WEAPON_USE = false;
 
         public static bool ENABLE_STATS_GUI = true;
+
+        public static bool NEW_HANDTOOLS = false;
+
+        public static bool NEW_POS_UPDATE_TIMING = false;
     }
 }

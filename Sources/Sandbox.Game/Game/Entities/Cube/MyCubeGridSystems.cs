@@ -110,6 +110,8 @@ namespace Sandbox.Game.Entities.Cube
             {
                 OxygenSystem.Init(builder.OxygenAmount);
             }
+
+            JumpSystem.Init(builder.JumpDriveDirection, builder.JumpElapsedTicks);
         }
 
         public virtual void BeforeBlockDeserialization(MyObjectBuilder_CubeGrid builder)
@@ -209,6 +211,9 @@ namespace Sandbox.Game.Entities.Cube
             {
                 ob.OxygenAmount = OxygenSystem.GetOxygenAmount();
             }
+
+            ob.JumpDriveDirection = JumpSystem.GetJumpDriveDirection();
+            ob.JumpElapsedTicks = JumpSystem.GetJumpElapsedTicks();
         }
 
         public virtual void AddGroup(MyBlockGroup group)

@@ -103,6 +103,12 @@ namespace Sandbox.Common.ObjectBuilders
             }
         }
 
+        [ProtoMember]
+        public Vector3D? JumpDriveDirection;
+
+        [ProtoMember]
+        public long? JumpElapsedTicks;
+
         [NonSerialized]
         public bool CreatePhysics = true;
 

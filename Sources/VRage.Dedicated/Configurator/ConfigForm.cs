@@ -64,6 +64,9 @@ namespace VRage.Dedicated
 
         private void startButton_Click(object sender, EventArgs e)
         {
+            if (MyFakes.ENABLE_BATTLE_SYSTEM && battleButton.Checked && m_selectedSessionSettings != null)
+                MyBattleHelper.FillDefaultBattleServerSettings(m_selectedSessionSettings);
+
             saveConfigButton_Click(sender, e);
 
             if (m_isService) // Service

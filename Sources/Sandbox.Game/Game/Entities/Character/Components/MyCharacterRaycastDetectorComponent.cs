@@ -93,7 +93,7 @@ namespace Sandbox.Game.Entities.Character
 
             int index = 0;
             while (index < m_hits.Count && (m_hits[index].HkHitInfo.Body == null || m_hits[index].HkHitInfo.Body.UserObject == Character.Physics
-                || (Character.VirtualPhysics != null && m_hits[index].HkHitInfo.Body.UserObject == Character.VirtualPhysics) || m_hits[index].HkHitInfo.Body.HasProperty(HkCharacterRigidBody.MANIPULATED_OBJECT))) // Skip invalid hits and self character
+                || m_hits[index].HkHitInfo.Body.HasProperty(HkCharacterRigidBody.MANIPULATED_OBJECT))) // Skip invalid hits and self character
             {
                 index++;
             }
@@ -112,12 +112,18 @@ namespace Sandbox.Game.Entities.Character
 
                 if (entity != null)
                 {
+                    ShapeKey = h.HkHitInfo.GetShapeKey(0);
+
                     MyUseObjectsComponentBase useObject = null;
+                    
                     entity.Components.TryGet<MyUseObjectsComponentBase>(out useObject);
                     if (useObject != null)
                     {
-                        interactive = useObject.GetInteractiveObject(h.HkHitInfo.GetShapeKey(0));
+                        interactive = useObject.GetInteractiveObject(ShapeKey);
                     }
+
+                    HitPosition = h.Position;
+                    HitNormal = h.HkHitInfo.Normal;
                 }
 
                 if (UseObject != null && interactive != null && UseObject != interactive)

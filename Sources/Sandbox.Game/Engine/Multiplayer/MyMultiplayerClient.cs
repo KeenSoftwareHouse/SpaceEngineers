@@ -806,7 +806,7 @@ namespace Sandbox.Engine.Multiplayer
                         m_members.Add(client.SteamId);
 
                     if (!Sync.Clients.HasClient(client.SteamId))
-                        RaiseClientJoined(client.SteamId);
+                        Sync.Clients.AddClient(client.SteamId);
                 }
             }
 

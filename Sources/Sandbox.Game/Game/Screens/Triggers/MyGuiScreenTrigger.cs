@@ -73,10 +73,11 @@ namespace Sandbox.Game.Screens.Triggers
             m_itemPos.Y += m_wwwLabel.Size.Y + VERTICAL_OFFSET;
             m_nextMisTextbox = new MyGuiControlTextbox(
                 position: m_itemPos,
-                //defaultText: trg.WwwLink,
+                defaultText: m_trigger.NextMission,
                 maxLength: 300);
             m_itemPos.Y += m_wwwTextbox.Size.Y + VERTICAL_OFFSET;
             m_nextMisLabel.Position = m_nextMisLabel.Position - new Vector2(m_nextMisTextbox.Size.X / 2, 0);//line to the left of textbox
+            m_nextMisTextbox.SetToolTip(MySpaceTexts.GuiTriggerNextMissionTooltip);
             Controls.Add(m_nextMisLabel);
             Controls.Add(m_nextMisTextbox);
 
@@ -109,6 +110,7 @@ namespace Sandbox.Game.Screens.Triggers
         {
             m_trigger.Message = m_textboxMessage.Text;
             m_trigger.WwwLink = m_wwwTextbox.Text;
+            m_trigger.NextMission = m_nextMisTextbox.Text;
             CloseScreen();
         }
 

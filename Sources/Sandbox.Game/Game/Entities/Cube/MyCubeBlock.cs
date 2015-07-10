@@ -231,7 +231,7 @@ namespace Sandbox.Game.Entities
         }
 
 
-        public IMyUseObject GetInteractiveObject(int shapeKey)
+        public IMyUseObject GetInteractiveObject(uint shapeKey)
         {
             if (!IsFunctional)
             {
@@ -257,7 +257,7 @@ namespace Sandbox.Game.Entities
                             continue;
                     }
 
-                    MyFloatingObjects.EnqueueInventoryItemSpawn(spawnItem, this.PositionComp.WorldAABB);
+                    MyFloatingObjects.EnqueueInventoryItemSpawn(spawnItem, this.PositionComp.WorldAABB, (CubeGrid.Physics != null ? CubeGrid.Physics.GetVelocityAtPoint(PositionComp.GetPosition()) : Vector3.Zero));
                 }
                 inventory.Clear();
             }

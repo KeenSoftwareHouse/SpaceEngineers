@@ -28,7 +28,7 @@ namespace Sandbox.Game.SessionComponents
         {
             if (!MySession.Static.IsScenario
                 || MyScenarioSystem.Static == null
-                || MyScenarioSystem.Static.GameState != Sandbox.Game.GameSystems.MyScenarioSystem.MyState.Running)
+                || MyScenarioSystem.Static.GameState < Sandbox.Game.GameSystems.MyScenarioSystem.MyState.Running)
                 return;
 
             m_updateCount++;

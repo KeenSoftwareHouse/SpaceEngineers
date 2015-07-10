@@ -1144,6 +1144,8 @@ namespace Sandbox.Game.World
 
         public static void LoadBattle(string sessionPath, MyObjectBuilder_Checkpoint checkpoint, ulong checkpointSizeInBytes, MyObjectBuilder_SessionSettings settings)
         {
+			MyLog.Default.WriteLine("Loading battle session: " + sessionPath);
+
             Load(sessionPath, checkpoint, checkpointSizeInBytes);
             MySession.Static.Settings = settings;
             Debug.Assert(MySession.Static.Settings.Battle = true);

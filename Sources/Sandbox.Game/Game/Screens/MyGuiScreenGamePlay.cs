@@ -708,7 +708,10 @@ namespace Sandbox.Game.Gui
                     }
                     else
                     {
-                        MySession.ControlledEntity.MoveAndRotate(moveIndicator, Vector2.Zero, rollIndicator);
+						if (MySession.ControlledEntity is MyRemoteControl) // Stop the remotely controlled entity from rolling when the character tries to in freelook mode
+							rollIndicator = 0f;
+
+						MySession.ControlledEntity.MoveAndRotate(moveIndicator, Vector2.Zero, rollIndicator);
                         if (!MySession.Static.CameraController.IsInFirstPersonView)
                             MyThirdPersonSpectator.Static.SaveSettings();
                     }

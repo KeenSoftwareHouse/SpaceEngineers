@@ -342,7 +342,10 @@ namespace VRage.Audio
                     // restarts music cue
                     m_musicCue = PlaySound(m_musicCue.CueEnum);
                     if (m_musicCue != null)
+                    {
                         m_musicCue.SetOutputVoices(m_musicAudioVoiceDesc);
+                        m_musicAudioVoice.SetVolume(m_volumeMusic);
+                    }
 
                     UpdateMusic(0);
                 }

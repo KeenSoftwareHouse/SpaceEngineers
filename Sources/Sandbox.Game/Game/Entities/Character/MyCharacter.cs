@@ -704,19 +704,6 @@ namespace Sandbox.Game.Entities.Character
 
             Physics.Enabled = true;
 
-            if (MyFakes.ENABLE_CHARACTER_VIRTUAL_PHYSICS)
-            {
-                VirtualPhysics = new MyControlledPhysicsBody(this, RigidBodyFlag.RBF_KINEMATIC);
-                var massProperties = HkInertiaTensorComputer.ComputeSphereVolumeMassProperties(0.1f, Definition.Mass);
-                HkShape sh = new HkSphereShape(0.1f);
-                VirtualPhysics.InitialSolverDeactivation = HkSolverDeactivation.Off;
-                VirtualPhysics.CreateFromCollisionObject(sh, Vector3.Zero, WorldMatrix, massProperties, Sandbox.Engine.Physics.MyPhysics.NoCollisionLayer);
-                VirtualPhysics.RigidBody.EnableDeactivation = false;
-                sh.RemoveReference();
-
-                VirtualPhysics.Enabled = true;
-            }
-
             SetHeadLocalXAngle(characterOb.HeadAngle.X);
             SetHeadLocalYAngle(characterOb.HeadAngle.Y);
 
@@ -1198,15 +1185,6 @@ namespace Sandbox.Game.Entities.Character
                 MyEntity collidingEntity = collidingBody.GetEntity() as MyEntity;                
                 if (collidingEntity == null || collidingEntity is MyCharacter) return;
 
-                // Disable damage from hold objects
-                if (VirtualPhysics != null && VirtualPhysics.Constraints != null)
-                {
-                    foreach (var constraint in VirtualPhysics.Constraints)
-                    {
-                        if (constraint.RigidBodyA == collidingBody || constraint.RigidBodyB == collidingBody) return;
-                    }
-                }
-
                 if (MyDebugDrawSettings.ENABLE_DEBUG_DRAW && MyDebugDrawSettings.DEBUG_DRAW_SHOW_DAMAGE)
                 {
                     MatrixD worldMatrix = collidingEntity.Physics.GetWorldMatrix();
@@ -1450,12 +1428,6 @@ namespace Sandbox.Game.Entities.Character
             m_radioBroadcaster.Enabled = false;
 
             m_soundEmitter.StopSound(true);
-
-            if (MyFakes.ENABLE_CHARACTER_VIRTUAL_PHYSICS && VirtualPhysics != null)
-            {
-                VirtualPhysics.Close();
-                VirtualPhysics = null;
-            }
         }
 
         protected override void BeforeDelete()
@@ -1516,21 +1488,6 @@ namespace Sandbox.Game.Entities.Character
             {
                 if (MySession.Static.SurvivalMode)
                     DoDamage(1000, MyDamageType.Suicide, true);
-            }
-
-            if (MyFakes.ENABLE_CHARACTER_VIRTUAL_PHYSICS && VirtualPhysics != null)
-            {
-                if (!VirtualPhysics.IsInWorld && Physics.IsInWorld)
-                {
-                    VirtualPhysics.Enabled = true;
-                    VirtualPhysics.Activate();
-                }
-
-                if (VirtualPhysics.IsInWorld)
-                {
-                    MatrixD headWorldMatrix = GetHeadMatrix(false);
-                    VirtualPhysics.SetRigidBodyTransform(headWorldMatrix);
-                }
             }
 
             // TODO: This should be changed so the ragdoll gets registered in the generators, now for SE, apply gravity explictly
@@ -6521,12 +6478,6 @@ namespace Sandbox.Game.Entities.Character
                 RagdollMapper.SetRagdollToDynamic();
                 RagdollMapper.Activate();
                 //Physics.IsPhantom = true;
-                if (VirtualPhysics != null)
-                {
-                    VirtualPhysics.Enabled = false;
-                    VirtualPhysics.Close();
-                    VirtualPhysics = null;
-                }
             }
 
 
@@ -6605,9 +6556,6 @@ namespace Sandbox.Game.Entities.Character
         }
 
         public new MyPhysicsBody Physics { get { return base.Physics as MyPhysicsBody; } set { base.Physics = value; } }
-
-        private MyControlledPhysicsBody m_virtualPhysics;
-        public MyControlledPhysicsBody VirtualPhysics { get { return m_virtualPhysics; } set { m_virtualPhysics = value; } }
 
         #endregion
 
@@ -6876,12 +6824,6 @@ namespace Sandbox.Game.Entities.Character
                 {
                     InitRagdollMapper();
                 }
-            }
-
-            if (MyFakes.ENABLE_CHARACTER_VIRTUAL_PHYSICS && VirtualPhysics != null && !VirtualPhysics.Enabled)
-            {
-                VirtualPhysics.Enabled = true;
-                VirtualPhysics.Activate();
             }
         }
 

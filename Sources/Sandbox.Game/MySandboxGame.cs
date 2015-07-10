@@ -620,7 +620,11 @@ namespace Sandbox
                         {
                             if (MySteamWorkshop.DownloadWorldModsBlocking(checkpoint.Mods))
                             {
-                                MySession.Load(lastSessionPath, checkpoint, checkpointSizeInBytes);
+                                if (MyFakes.ENABLE_BATTLE_SYSTEM && ConfigDedicated.SessionSettings.Battle)
+                                    MySession.LoadBattle(lastSessionPath, checkpoint, checkpointSizeInBytes, ConfigDedicated.SessionSettings);
+                                else
+                                    MySession.Load(lastSessionPath, checkpoint, checkpointSizeInBytes);
+
                                 MySession.Static.StartServer(MyMultiplayer.Static);
                             }
                             else

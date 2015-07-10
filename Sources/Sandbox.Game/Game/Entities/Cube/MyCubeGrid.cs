@@ -2251,7 +2251,7 @@ namespace Sandbox.Game.Entities
                         {
                             var resultLocation = location;
                             resultBlocks.Add(resultLocation);
-                            block.PlayConstructionSound(MyIntegrityChangeEnum.ConstructionBegin);
+							MyGuiAudio.PlaySound(MyGuiSounds.HudPlaceBlock);
                         }
                         cubeProcessed = true;
                         locations.Remove(location);

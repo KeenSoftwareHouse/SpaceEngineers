@@ -31,7 +31,7 @@ namespace Sandbox.Common.ObjectBuilders.Definitions
         public class MyToolActionHitCondition
         {
             [ProtoMember, DefaultValue(null)]
-            public string EntityType = null;
+            public string[] EntityType = null;
 
             [ProtoMember]
             public string Animation;
@@ -40,7 +40,7 @@ namespace Sandbox.Common.ObjectBuilders.Definitions
             public string StatsAction;
 
             [ProtoMember]
-            public string Script;
+            public string Component;
         }
 
         [ProtoContract]

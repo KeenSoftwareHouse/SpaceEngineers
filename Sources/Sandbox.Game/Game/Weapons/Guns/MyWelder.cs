@@ -171,14 +171,15 @@ namespace Sandbox.Game.Weapons
 
         public override bool CanShoot(MyShootActionEnum action, long shooter, out MyGunStatusEnum status)
         {
+            if (action == MyShootActionEnum.SecondaryAction)
+            {
+				status = MyGunStatusEnum.OK;
+                return true;
+            }
+
             if (!base.CanShoot(action, shooter, out status))
             {
                 return false;
-            }
-
-            if (action == MyShootActionEnum.SecondaryAction)
-            {
-                return true;
             }
 
 
@@ -279,6 +280,10 @@ namespace Sandbox.Game.Weapons
                     }
                 }
             }
+			else if(action == MyShootActionEnum.SecondaryAction && Sync.IsServer)
+			{
+				FillStockpile();
+			}
             return;
         }
 

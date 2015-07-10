@@ -11098,5 +11098,20 @@ namespace Sandbox.Game.Localization
         ///Ship will jump in {0} seconds.
         ///</summary>
         public static readonly MyStringId NotificationJumpWarmupTime = MyStringId.GetOrCompute("NotificationJumpWarmupTime");
+
+        ///<summary>
+        ///You can put a scenario name here (must already exist on local computer to be loaded)  or workshop ID number (user does *not* have to have it subscribed in that case). Workshop ID can be seen in the URL link of scenario in question on steam workshop web.
+        ///</summary>
+        public static readonly MyStringId GuiTriggerNextMissionTooltip = MyStringId.GetOrCompute("GuiTriggerNextMissionTooltip");
+
+        ///<summary>
+        ///Next scenario was not found and cannot be loaded. Both {0} and {1} does not exist or contain invalid data. Please contact scenario author to fix it.
+        ///</summary>
+        public static readonly MyStringId MessageBoxTextScenarioNotFound = MyStringId.GetOrCompute("MessageBoxTextScenarioNotFound");
+
+        ///<summary>
+        ///Prepare for next scenario ...
+        ///</summary>
+        public static readonly MyStringId NotificationNextScenarioWillLoad = MyStringId.GetOrCompute("NotificationNextScenarioWillLoad");
     }
 }

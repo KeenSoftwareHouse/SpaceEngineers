@@ -14,12 +14,12 @@ namespace VRage.Components
 
         public abstract MyPhysicsComponentBase DetectorPhysics { get; protected set; }
 
-        public abstract int AddDetector(string name, Matrix matrix);
-        public abstract void RemoveDetector(int id);
+        public abstract uint AddDetector(string name, Matrix matrix);
+        public abstract void RemoveDetector(uint id);
         public abstract void RecreatePhysics();
         public abstract void LoadDetectorsFromModel();
 
-        public abstract IMyUseObject GetInteractiveObject(int shapeKey);
+        public abstract IMyUseObject GetInteractiveObject(uint shapeKey);
         public abstract void GetInteractiveObjects<T>(List<T> objects)
             where T : class, IMyUseObject;
 

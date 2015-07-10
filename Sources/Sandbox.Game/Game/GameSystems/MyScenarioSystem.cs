@@ -60,10 +60,21 @@ namespace Sandbox.Game.GameSystems
             JoinScreen,
             WaitingForClients,
             Running,
+            Ending
         }
 
         private MyState m_gameState = MyState.Loaded;
-        public MyState GameState { get { return m_gameState; } }
+        public MyState GameState
+        {
+            get { return m_gameState; }
+            set { if (m_gameState!=value)
+            {
+                m_gameState = value;
+                m_stateChangePlayTime = MySession.Static.ElapsedPlayTime;
+            }
+            }
+        }
+        private TimeSpan m_stateChangePlayTime;
 
         // Time when battle was started (server or client local time).
         private TimeSpan m_startBattleTime = TimeSpan.FromSeconds(0);
@@ -110,7 +121,7 @@ namespace Sandbox.Game.GameSystems
         {
             Debug.Assert(Sync.IsServer);
 
-            if (m_gameState == MyState.WaitingForClients)
+            if (GameState == MyState.WaitingForClients)
             {
                 m_playersReadyForBattle.Add(steamId);
 
@@ -125,7 +136,7 @@ namespace Sandbox.Game.GameSystems
                     }
                 }
             }
-            else if (m_gameState == MyState.Running)
+            else if (GameState == MyState.Running)
             {
                 MySyncScenario.StartScenarioRequest(steamId, ServerStartGameTime.Ticks);
             }
@@ -151,17 +162,17 @@ namespace Sandbox.Game.GameSystems
             if (!Sync.IsServer)
                 return;
 
-            if (MySession.Static.OnlineMode == MyOnlineModeEnum.OFFLINE)//!Sync.MultiplayerActive)
+            if (MySession.Static.OnlineMode == MyOnlineModeEnum.OFFLINE && GameState < MyState.Running)
             {
-                if (m_gameState == MyState.Loaded)
+                if (GameState == MyState.Loaded)
                 {
-                    m_gameState = MyState.Running;
+                    GameState = MyState.Running;
                     ServerStartGameTime = DateTime.UtcNow;
                 }
                 return;
             }
 
-            switch (m_gameState)
+            switch (GameState)
             {
                 case MyState.Loaded:
                     if (MySession.Static.OnlineMode != MyOnlineModeEnum.OFFLINE && MyMultiplayer.Static == null)
@@ -171,7 +182,7 @@ namespace Sandbox.Game.GameSystems
                         {
                             //network start failure - trying to save what we can :-)
                             MyPlayerCollection.RequestLocalRespawn();
-                            m_gameState = MyState.Running;
+                            GameState = MyState.Running;
                             return;
                         }
                     }
@@ -179,7 +190,7 @@ namespace Sandbox.Game.GameSystems
                     {
                         ServerPreparationStartTime = DateTime.UtcNow;
                         MyMultiplayer.Static.ScenarioStartTime = ServerPreparationStartTime;
-                        m_gameState = MyState.Running;
+                        GameState = MyState.Running;
                         return;
                     }
                     if (MySession.Static.OnlineMode == MyOnlineModeEnum.OFFLINE || MyMultiplayer.Static != null)
@@ -193,7 +204,7 @@ namespace Sandbox.Game.GameSystems
                         guiscreen.Briefing = MySession.Static.GetWorld().Checkpoint.Briefing;
                         MyGuiSandbox.AddScreen(guiscreen);
                         m_playersReadyForBattle.Add(MySteam.UserId);
-                        m_gameState = MyState.JoinScreen;
+                        GameState = MyState.JoinScreen;
                     }
                     break;
                 case MyState.JoinScreen:
@@ -212,6 +223,10 @@ namespace Sandbox.Game.GameSystems
                     }
                     break;
                 case MyState.Running:
+                    break;
+                case MyState.Ending:
+                    if (EndAction != null && MySession.Static.ElapsedPlayTime - m_stateChangePlayTime > TimeSpan.FromSeconds(10))
+                        EndAction();
                     break;
             }
         }
@@ -253,7 +268,7 @@ namespace Sandbox.Game.GameSystems
         {
             Debug.Assert(Sync.IsServer);
 
-            m_gameState = MyState.WaitingForClients;
+            GameState = MyState.WaitingForClients;
             m_startBattlePreparationOnClients = MySession.Static.ElapsedPlayTime;
 
             var onlineMode = GetOnlineModeFromCurrentLobbyType();
@@ -283,7 +298,7 @@ namespace Sandbox.Game.GameSystems
                 MyGuiSandbox.RemoveScreen(m_waitingScreen);
                 m_waitingScreen = null;
             }
-            m_gameState = MyState.Running;
+            GameState = MyState.Running;
             m_startBattleTime = MySession.Static.ElapsedPlayTime;
             MyPlayerCollection.RequestLocalRespawn();
         }
@@ -336,30 +351,100 @@ namespace Sandbox.Game.GameSystems
 
         //loads next mission, SP only
         //id can be workshop ID or save name (in that case official scenarios are searched first, if not found, then user's saves)
-        public void LoadNextScenario(string id)
+        public static void LoadNextScenario(string id)
         {
+            if (MySession.Static.OnlineMode != MyOnlineModeEnum.OFFLINE)
+                return;
+            MyAPIGateway.Utilities.ShowNotification(MyTexts.GetString(MySpaceTexts.NotificationNextScenarioWillLoad), 10000);
             ulong workshopID;
-            if(ulong.TryParse(id,out workshopID))
+            if (ulong.TryParse(id, out workshopID))
             {
-                MySteamWorkshop.SubscribedItem item = new MySteamWorkshop.SubscribedItem();
-                item.PublishedFileId = workshopID;
-
-                MySteamWorkshop.CreateWorldInstanceAsync(item, MySteamWorkshop.MyWorkshopPathInfo.CreateScenarioInfo(), true, delegate(bool success, string sessionPath)
+                //scenario from steam, without the user needing to subscribe it first:
+                if (!MySteam.IsOnline)
                 {
-                    if (success)
-                        LoadMission(sessionPath, false, MyOnlineModeEnum.OFFLINE, 1);
-                    else
-                        MyGuiSandbox.AddScreen(MyGuiSandbox.CreateMessageBox(
+                    MyGuiSandbox.AddScreen(MyGuiSandbox.CreateMessageBox(
+                                messageText: MyTexts.Get(MySpaceTexts.MessageBoxTextWorkshopDownloadFailed),
+                                messageCaption: MyTexts.Get(MySpaceTexts.ScreenCaptionWorkshop)));
+                }
+                else
+                {
+                    MySandboxGame.Log.WriteLine(string.Format("Querying details of file " + workshopID));
+
+                    Action<bool, RemoteStorageGetPublishedFileDetailsResult> onGetDetailsCallResult = delegate(bool ioFailure, RemoteStorageGetPublishedFileDetailsResult data)
+                    {
+                        MySandboxGame.Log.WriteLine(string.Format("Obtained details: Id={4}; Result={0}; ugcHandle={1}; title='{2}'; tags='{3}'", data.Result, data.FileHandle, data.Title, data.Tags, data.PublishedFileId));
+                        if (!ioFailure && data.Result == Result.OK && data.Tags.Length != 0)
+                        {
+                            m_newWorkshopMap.Title = data.Title;
+                            m_newWorkshopMap.Description = data.Description;
+                            m_newWorkshopMap.UGCHandle = data.FileHandle;
+                            m_newWorkshopMap.SteamIDOwner = data.SteamIDOwner;
+                            m_newWorkshopMap.TimeUpdated = data.TimeUpdated;
+                            m_newWorkshopMap.Tags = data.Tags.Split(',');
+                            Static.EndAction += EndActionLoadWorkshop;
+                        }
+                        else
+                        {
+                            MyGuiSandbox.AddScreen(MyGuiSandbox.CreateMessageBox(
                                     messageText: MyTexts.Get(MySpaceTexts.MessageBoxTextWorkshopDownloadFailed),
                                     messageCaption: MyTexts.Get(MySpaceTexts.ScreenCaptionWorkshop)));
-                });
+                        }
+                    };
+                    MySteam.API.RemoteStorage.GetPublishedFileDetails(workshopID, 0, onGetDetailsCallResult);
+                }
+
             }
-            //else
-            //    LoadMission(save.Item1, false, MyOnlineModeEnum.OFFLINE, 1);
-
-
-
+            else
+            {
+                var contentDir = Path.Combine(MyFileSystem.ContentPath, "Missions", id);
+                if (Directory.Exists(contentDir))
+                {
+                    m_newPath = contentDir;
+                    Static.EndAction += EndActionLoadLocal;
+                    return;
+                }
+                var saveDir = Path.Combine(MyFileSystem.SavesPath, id);
+                if (File.Exists(saveDir))
+                {
+                    m_newPath = saveDir;
+                    Static.EndAction += EndActionLoadLocal;
+                    return;
+                }
+                //fail msg:
+                StringBuilder error = new StringBuilder();
+                error.AppendFormat(MyTexts.GetString(MySpaceTexts.MessageBoxTextScenarioNotFound), contentDir, saveDir);
+                MyGuiScreenMessageBox mb = MyGuiSandbox.CreateMessageBox(messageText: error, messageCaption: MyTexts.Get(MySpaceTexts.MessageBoxCaptionError));
+                MyGuiSandbox.AddScreen(mb);
+            }
         }
+
+        private event Action EndAction;//scenario ended and we are loading next mission
+        private static string m_newPath;
+        private static void EndActionLoadLocal()
+        {
+            Static.EndAction -= EndActionLoadLocal;
+            Debug.Assert(m_newPath != null);
+            LoadMission(m_newPath, false, MyOnlineModeEnum.OFFLINE, 1);
+        }
+
+        private static MySteamWorkshop.SubscribedItem m_newWorkshopMap = new MySteamWorkshop.SubscribedItem();
+        private static void EndActionLoadWorkshop()
+        {
+            Static.EndAction -= EndActionLoadWorkshop;
+            MySteamWorkshop.CreateWorldInstanceAsync(m_newWorkshopMap, MySteamWorkshop.MyWorkshopPathInfo.CreateScenarioInfo(), true, delegate(bool success, string sessionPath)
+            {
+                if (success)
+                {
+                    m_newPath = sessionPath;
+                    LoadMission(sessionPath, false, MyOnlineModeEnum.OFFLINE, 1);
+                }
+                else
+                    MyGuiSandbox.AddScreen(MyGuiSandbox.CreateMessageBox(
+                                messageText: MyTexts.Get(MySpaceTexts.MessageBoxTextWorkshopDownloadFailed),
+                                messageCaption: MyTexts.Get(MySpaceTexts.ScreenCaptionWorkshop)));
+            });
+        }
+
 
         public static void LoadMission(string sessionPath, bool multiplayer, MyOnlineModeEnum onlineMode, short maxPlayers)
         {

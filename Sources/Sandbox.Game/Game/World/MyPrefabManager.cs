@@ -178,12 +178,7 @@ namespace Sandbox.Game.World
             CreateGridsFromPrefab(m_tmpSpawnedGridList, prefabName, worldMatrix ?? Matrix.Identity);
 
             foreach (var entity in m_tmpSpawnedGridList)
-            {
-				if (MySession.Static.CreativeMode)
-					TurnShipReactorsOnOff(entity, true);
-				else	// Survival
-					TurnShipReactorsOnOff(entity, false);
-
+            {			
                 MyEntities.Add(entity);
             }
 
@@ -218,11 +213,6 @@ namespace Sandbox.Game.World
 
             foreach (var grid in m_tmpSpawnedGridList)
             {
-				if (MySession.Static.CreativeMode)
-					TurnShipReactorsOnOff(grid, true);
-				else
-					TurnShipReactorsOnOff(grid, false);
-
                 MyEntities.Add(grid);
             }
 
@@ -327,19 +317,6 @@ namespace Sandbox.Game.World
             MyEntities.IgnoreMemoryLimits = ignoreMemoryLimitsPrevious;
         }
 
-
-        private static void TurnShipReactorsOnOff(MyEntity entity, bool newState)
-        {
-            MyCubeGrid grid = entity as MyCubeGrid;
-            Debug.Assert(grid != null, "Ship prefab was not a ship");
-            if (grid != null)
-            {
-                foreach (var reactor in grid.GetFatBlocks<MyReactor>())
-                {
-                    reactor.Enabled = newState;
-                }
-            }
-        }
 
         public void SpawnPrefab(
             String prefabName,

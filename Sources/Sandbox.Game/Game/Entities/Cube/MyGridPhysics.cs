@@ -433,22 +433,6 @@ namespace Sandbox.Game.Entities.Cube
             if (info.CollidingEntity is Sandbox.Game.Entities.Character.MyCharacter || info.CollidingEntity == null || info.CollidingEntity.MarkedForClose)
                 return;
 
-            if (MyFakes.ENABLE_CHARACTER_VIRTUAL_PHYSICS)
-            {
-                MyCharacter character = MySession.ControlledEntity as MyCharacter;
-                if (character != null && character.VirtualPhysics != null)
-                {
-                    foreach (var constraint in character.VirtualPhysics.Constraints)
-                    {
-                        IMyEntity cstrEntityA = constraint.RigidBodyA.GetEntity();
-                        IMyEntity cstrEntityB = constraint.RigidBodyB.GetEntity();
-
-                        if (info.CurrentEntity == cstrEntityA || info.CurrentEntity == cstrEntityB || info.CollidingEntity == cstrEntityA || info.CollidingEntity == cstrEntityB)
-                            return;
-                    }
-                }
-            }
-
             var grid1 = entity1 as MyCubeGrid;
             var grid2 = entity2 as MyCubeGrid;
 

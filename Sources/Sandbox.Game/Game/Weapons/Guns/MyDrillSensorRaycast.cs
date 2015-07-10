@@ -36,7 +36,7 @@ namespace Sandbox.Game.Weapons.Guns
             Center = (m_origin + FrontPoint) * 0.5f;
         }
 
-		public static bool GetShapeCenter(HkShape shape, int shapeKey, MyCubeGrid grid, ref Vector3D shapeCenter)
+		public static bool GetShapeCenter(HkShape shape, uint shapeKey, MyCubeGrid grid, ref Vector3D shapeCenter)
 		{
 			bool shapeSet = true;
 
@@ -44,11 +44,11 @@ namespace Sandbox.Game.Weapons.Guns
 			{
 				case HkShapeType.List:
 					var listShape = (HkListShape)shape;
-					shape = listShape.GetChildByIndex(shapeKey);
+					shape = listShape.GetChildByIndex((int)shapeKey);
 					break;
 				case HkShapeType.Mopp:
 					var moppShape = (HkMoppBvTreeShape)shape;
-					shape = moppShape.ShapeCollection.GetShape((uint)shapeKey, null);
+					shape = moppShape.ShapeCollection.GetShape(shapeKey, null);
 					break;
 				case HkShapeType.Box:
 					var boxShape = (HkBoxShape)shape;

@@ -18,8 +18,6 @@ using VRage.Game.Entity.UseObject;
 using VRage.Input;
 using Sandbox.Game.Entities.Inventory;
 using VRage.Utils;
-using Sandbox.Game.Gui;
-using VRage;
 
 namespace Sandbox.Game.Entities
 {
@@ -166,6 +164,51 @@ namespace Sandbox.Game.Entities
 
         private MySyncManipulationTool SyncTool { get; set; }
 
+        public class MyCharacterVirtualPhysicsBody : MyPhysicsBody
+        {
+            public MyCharacterVirtualPhysicsBody(IMyEntity entity, RigidBodyFlag flags)
+                : base(entity, flags)
+            {
+            }
+
+            public override void OnWorldPositionChanged(object source)
+            {
+                // Do nothing
+            }
+
+            public void UpdatePositionAndOrientation()
+            {
+                MyCharacter character = Entity as MyCharacter;
+                if (character == null || character.Physics == null || !character.Physics.IsInWorld)
+                    return;
+
+                if (!IsInWorld && character.Physics.IsInWorld)
+                {
+                    Enabled = true;
+                    Activate();
+                }
+
+                if (IsInWorld)
+                {
+                    MatrixD headWorldMatrix = character.GetHeadMatrix(false);
+                    Matrix rigidBodyMatrix = GetRigidBodyMatrix(headWorldMatrix);
+
+                    if (RigidBody != null)
+                    {
+                        RigidBody.SetWorldMatrix(rigidBodyMatrix);
+                    }
+
+                    if (RigidBody2 != null)
+                    {
+                        RigidBody2.SetWorldMatrix(rigidBodyMatrix);
+                    }
+                }
+            }
+
+        }
+
+        private MyCharacterVirtualPhysicsBody OwnerVirtualPhysics;
+
         #endregion
 
         public override void Init(MyObjectBuilder_EntityBase objectBuilder)
@@ -304,6 +347,14 @@ namespace Sandbox.Game.Entities
             SyncTool.StopManipulation();
         }
 
+        public override void UpdateBeforeSimulation()
+        {
+            base.UpdateBeforeSimulation();
+
+            if (OwnerVirtualPhysics != null)
+                OwnerVirtualPhysics.UpdatePositionAndOrientation();
+        }
+
         public override void UpdateAfterSimulation()
         {
             base.UpdateAfterSimulation();
@@ -338,13 +389,11 @@ namespace Sandbox.Game.Entities
             //if (otherEntity is MyCharacter)
             //    return;
 
-            if (Owner == null || Owner.VirtualPhysics == null || !Owner.VirtualPhysics.RigidBody.InWorld)
+            if (Owner == null)
             {
                 Debug.Assert(!fromServer, "Desync!");
                 return;
             }
-
-            var ownerRigidBody = Owner.VirtualPhysics.RigidBody;
 
             if (otherEntity.Physics == null) return;
 
@@ -375,7 +424,6 @@ namespace Sandbox.Game.Entities
                 return;
             }
 
-            Owner.VirtualPhysics.RigidBody.Activate();
             m_otherRigidBody.Activate();
 
             Vector3D hitUp = Vector3D.Up;
@@ -469,6 +517,11 @@ namespace Sandbox.Game.Entities
                 }
             }
 
+            if (!CreateOwnerVirtualPhysics())
+            {
+                data.Dispose();
+                return;
+            }
 
             m_otherEntity = otherEntity;
             m_otherEntity.OnClosing += OtherEntity_OnClosing;
@@ -505,9 +558,9 @@ namespace Sandbox.Game.Entities
                 SetTransparent(otherEntity, holdingTransparency);
             }
 
-            m_constraint = new HkConstraint(m_otherRigidBody, Owner.VirtualPhysics.RigidBody, data);
+            m_constraint = new HkConstraint(m_otherRigidBody, OwnerVirtualPhysics.RigidBody, data);
 
-            Owner.VirtualPhysics.AddConstraint(m_constraint);
+            OwnerVirtualPhysics.AddConstraint(m_constraint);
 
 			m_constraintCreationTime = MySandboxGame.Static.UpdateTime;
 
@@ -691,8 +744,8 @@ namespace Sandbox.Game.Entities
 
             if (m_constraint != null)
             {
-                if (Owner != null && Owner.VirtualPhysics != null)
-                    Owner.VirtualPhysics.RemoveConstraint(m_constraint);
+                if (OwnerVirtualPhysics != null)
+                    OwnerVirtualPhysics.RemoveConstraint(m_constraint);
 
                 m_constraint.Dispose();
                 m_constraint = null;
@@ -746,7 +799,9 @@ namespace Sandbox.Game.Entities
             }
 
             m_constraintInitialized = false;
-            
+
+            RemoveOwnerVirtualPhysics();
+
             if (Owner != null) Owner.ManipulatedEntity = null;
             m_state = MyState.NONE;
         }
@@ -1023,6 +1078,37 @@ namespace Sandbox.Game.Entities
         bool IMyUseObject.PlayIndicatorSound
         {
             get { return false; }
+        }
+
+        private bool CreateOwnerVirtualPhysics()
+        {
+            if (Owner == null)
+                return false;
+
+            OwnerVirtualPhysics = new MyCharacterVirtualPhysicsBody(Owner, RigidBodyFlag.RBF_KINEMATIC);
+            var massProperties = HkInertiaTensorComputer.ComputeSphereVolumeMassProperties(0.1f, Owner.Definition.Mass);
+            HkShape sh = new HkSphereShape(0.1f);
+            OwnerVirtualPhysics.InitialSolverDeactivation = HkSolverDeactivation.Off;
+            MatrixD headWorldMatrix = Owner.GetHeadMatrix(false);
+            OwnerVirtualPhysics.CreateFromCollisionObject(sh, Vector3.Zero, headWorldMatrix, massProperties, Sandbox.Engine.Physics.MyPhysics.NoCollisionLayer);
+            OwnerVirtualPhysics.RigidBody.EnableDeactivation = false;
+            // Character ray casts includes also NoCollision layer shapes so setup property for ignoring the body
+            OwnerVirtualPhysics.RigidBody.SetProperty(HkCharacterRigidBody.MANIPULATED_OBJECT, 0);
+            sh.RemoveReference();
+
+            OwnerVirtualPhysics.Enabled = true;
+
+            return true;
+        }
+
+        private void RemoveOwnerVirtualPhysics()
+        {
+            if (OwnerVirtualPhysics == null)
+                return;
+
+            OwnerVirtualPhysics.RigidBody.RemoveProperty(HkCharacterRigidBody.MANIPULATED_OBJECT);
+            OwnerVirtualPhysics.Close();
+            OwnerVirtualPhysics = null;
         }
     }
 }

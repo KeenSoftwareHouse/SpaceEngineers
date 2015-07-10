@@ -245,7 +245,6 @@
     <Compile Include="Engine\Networking\MySteamWebAPI.cs" />
     <Compile Include="Engine\Physics\MyBreakableShapeCloneJob.cs" />
     <Compile Include="Engine\Physics\MyBreakableShapeManager.cs" />
-    <Compile Include="Engine\Physics\MyControlledPhysicsBody.cs" />
     <Compile Include="Engine\Physics\MyDestructionConstants.cs" />
     <Compile Include="Engine\Physics\MyDestructionHelper.cs" />
     <Compile Include="Engine\Physics\MyCharacterProxy.cs" />

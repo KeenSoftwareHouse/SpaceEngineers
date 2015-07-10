@@ -86,8 +86,9 @@ namespace Sandbox.Game.Entities.Character
             MatrixD matrix = MatrixD.CreateTranslation(from);
             HkShape shape = new HkSphereShape(SHAPE_RADIUS);
             IMyEntity hitEntity = null;
-            int shapeKey = -1;
-            Vector3D hitPosition = Vector3D.Zero;
+            ShapeKey = uint.MaxValue;
+            HitPosition = Vector3D.Zero;
+            HitNormal = Vector3.Zero;
             m_hits.Clear();
 
             try
@@ -96,7 +97,7 @@ namespace Sandbox.Game.Entities.Character
 
                 int index = 0;
                 while (index < m_hits.Count && (m_hits[index].Body == null || m_hits[index].Body.UserObject == Character.Physics
-                    || (Character.VirtualPhysics != null && m_hits[index].Body.UserObject == Character.VirtualPhysics) || m_hits[index].Body.HasProperty(HkCharacterRigidBody.MANIPULATED_OBJECT))) // Skip invalid hits and self character
+                    || m_hits[index].Body.HasProperty(HkCharacterRigidBody.MANIPULATED_OBJECT))) // Skip invalid hits and self character
                 {
                     index++;
                 }
@@ -104,8 +105,9 @@ namespace Sandbox.Game.Entities.Character
                 if (index < m_hits.Count)
                 {
                     hitEntity = m_hits[index].Body.GetEntity();
-                    shapeKey = m_hits[index].ShapeKey;
-                    hitPosition = m_hits[index].HitPosition;
+                    ShapeKey = m_hits[index].ShapeKey;
+                    HitPosition = m_hits[index].HitPosition;
+                    HitNormal = m_hits[index].Normal;
                 }
             }
             finally
@@ -124,7 +126,7 @@ namespace Sandbox.Game.Entities.Character
                 hitEntity.Components.TryGet<MyUseObjectsComponentBase>(out useObject);
                 if (useObject != null)
                 {
-                    interactive = useObject.GetInteractiveObject(shapeKey);
+                    interactive = useObject.GetInteractiveObject(ShapeKey);
                 }
             }
 
@@ -133,7 +135,7 @@ namespace Sandbox.Game.Entities.Character
                 UseObject.OnSelectionLost();
             }
 
-            if (interactive != null && interactive.SupportedActions != UseActionEnum.None && (Vector3D.Distance(from, hitPosition)) < interactive.InteractiveDistance && Character == MySession.ControlledEntity)
+            if (interactive != null && interactive.SupportedActions != UseActionEnum.None && (Vector3D.Distance(from, HitPosition)) < interactive.InteractiveDistance && Character == MySession.ControlledEntity)
             {
                 MyHud.SelectedObjectHighlight.Visible = true;
                 MyHud.SelectedObjectHighlight.InteractiveObject = interactive;
