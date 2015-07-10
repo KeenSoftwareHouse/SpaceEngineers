@@ -6252,6 +6252,9 @@ namespace Sandbox.Game.Entities.Character
                 return;
 
 			StatComp.DoDamage(damage, updateSync, damageInfo);
+
+            if (UseDamageSystem)
+                MyDamageSystem.Static.RaiseAfterDamageApplied(this, damageInfo);
 		}
 
 		void Sandbox.ModAPI.IMyCharacter.Kill(object statChangeData)
