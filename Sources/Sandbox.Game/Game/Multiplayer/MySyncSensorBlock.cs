@@ -98,12 +98,27 @@ namespace Sandbox.Game.Multiplayer
             }
         }
 
+        [MessageIdAttribute(3146, P2PMessageEnum.Reliable)]
+        protected struct ChangeMySensorPlaySoundMsg : IEntityMessage
+        {
+            public long EntityId;
+            public long GetEntityId() { return EntityId; }
+
+            public BoolBlit PlaySound;
+            public override string ToString()
+            {
+                return String.Format("{0}, {1}", this.GetType().Name, this.GetEntityText());
+            }
+        }
+
         static MySyncSensorBlock()
         {
             MySyncLayer.RegisterMessage<ChangeMySensorMinMsg>(ChangeSensorMinSuccess, MyMessagePermissions.Any, MyTransportMessageEnum.Success);
             MySyncLayer.RegisterMessage<ChangeMySensorMaxMsg>(ChangeSensorMaxSuccess, MyMessagePermissions.Any, MyTransportMessageEnum.Success);
             MySyncLayer.RegisterMessage<ChangeMySensorFiltersMsg>(ChangeSensorFiltersSuccess, MyMessagePermissions.Any, MyTransportMessageEnum.Success);
             MySyncLayer.RegisterMessage<ChangeMySensorActivityMsg>(ChangeSensorIsActiveSuccess, MyMessagePermissions.FromServer, MyTransportMessageEnum.Success);
+            MySyncLayer.RegisterMessage<ChangeMySensorPlaySoundMsg>(ChangeSensorPlaySoundSuccess, MyMessagePermissions.Any, MyTransportMessageEnum.Success);
+
 
             MySyncLayer.RegisterEntityMessage<MySyncSensorBlock, ChangeMySensorToolbarItemMsg>(OnToolbarItemChanged, MyMessagePermissions.Any);
         }
@@ -112,7 +127,7 @@ namespace Sandbox.Game.Multiplayer
             : base(block)
         {
             m_block = block;
-        }
+        }              
 
         public void SendChangeSensorMinRequest(ref Vector3 fieldMin)
         {
@@ -183,6 +198,15 @@ namespace Sandbox.Game.Multiplayer
             Sync.Layer.SendMessageToAll(ref msg, MyTransportMessageEnum.Success);
         }
 
+        public void SendChangeSensorPlaySoundRequest(bool PlaySound)
+        {
+            var msg = new ChangeMySensorPlaySoundMsg();
+            msg.EntityId = m_block.EntityId;
+            msg.PlaySound = PlaySound;
+
+            Sync.Layer.SendMessageToAll(ref msg, MyTransportMessageEnum.Success);
+        }
+
         static void ChangeSensorIsActiveSuccess(ref ChangeMySensorActivityMsg msg, MyNetworkClient sender)
         {
             MyEntity entity;
@@ -214,6 +238,17 @@ namespace Sandbox.Game.Multiplayer
                 item = ToolbarItem.ToItem(msg.Item);
             sync.m_block.Toolbar.SetItemAtIndex(msg.Index, item);
             sync.m_syncing = false;
+        }
+
+        static void ChangeSensorPlaySoundSuccess(ref ChangeMySensorPlaySoundMsg msg, MyNetworkClient sender)
+        {
+            MyEntity entity;
+            MyEntities.TryGetEntityById(msg.EntityId, out entity);
+            var block = entity as MySensorBlock;
+            if (block != null)
+            {
+                block.PlayProximitySound = msg.PlaySound;
+            }
         }
     }
 }

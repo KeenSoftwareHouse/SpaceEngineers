@@ -32,5 +32,7 @@ namespace Sandbox.Common.ObjectBuilders
 
         [ProtoMember]
         public List<SerializableBlockOrientation> BlockOrientations = new List<SerializableBlockOrientation>();
+
+        public bool CreatingFracturedBlock = false;
     }
 }

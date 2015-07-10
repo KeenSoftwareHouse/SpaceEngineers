@@ -28,12 +28,17 @@ namespace Sandbox.Game.Screens
 {
     public abstract class MyGuiScreenScenarioMpBase : MyGuiScreenBase
     {
+        public static MyGuiScreenScenarioMpBase Static;
+
         MyGuiControlMultilineText m_descriptionBox;
         protected MyGuiControlButton m_kickPlayerButton;
         protected MyGuiControlTable m_connectedPlayers;
         MyGuiControlLabel m_timeoutLabel;
-        MyGuiControlCombobox m_timeoutCombo;
-        
+        public MyGuiControlCombobox TimeoutCombo {get;  protected set;}
+
+        MyGuiControlLabel m_canJoinRunningLabel;
+        protected MyGuiControlCheckbox m_canJoinRunning;
+
         protected MyHudControlChat m_chatControl;
         protected MyGuiControlTextbox m_chatTextbox;
         protected MyGuiControlButton m_sendChatButton;
@@ -50,7 +55,7 @@ namespace Sandbox.Game.Screens
         public string Briefing
         {
             set { m_descriptionBox.Text = new StringBuilder(value);
-            m_descriptionBox.Update();
+            //m_descriptionBox.RefreshText();
             }
         }
 
@@ -64,6 +69,9 @@ namespace Sandbox.Game.Screens
             CanHideOthers = false;
             MySyncScenario.PlayerReadyToStartScenario += MySyncScenario_PlayerReady;
             MySyncScenario.TimeoutReceived += MySyncScenario_SetTimeout;
+            MySyncScenario.CanJoinRunningReceived += MySyncScenario_SetCanJoinRunning;
+            m_canJoinRunning.IsCheckedChanged += OnJoinRunningChecked;
+            Static = this;
         }
 
         public override void RecreateControls(bool constructor)
@@ -87,14 +95,10 @@ namespace Sandbox.Game.Screens
             layout.AddWithSize(briefingScrollableArea, MyAlignH.Left, MyAlignV.Top, 1, 1, rowSpan: 4, colSpan: 3);
             //inside scrollable area:
             m_descriptionBox = new MyGuiControlMultilineText(
-                position: new Vector2(0.0f, 0.0f),
-                size: new Vector2(1f, 1f),
-                backgroundColor: Color.Black,
-                //textScale: this.m_scale * textScale,
-                textAlign: MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_TOP,
+                position: new Vector2(-0.227f, 5f), 
+                size: new Vector2(briefingScrollableArea.Size.X - 0.02f, 11f), 
                 textBoxAlign: MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_TOP,
-                selectable: false,
-                font: MyFontEnum.Blue);
+                selectable: false);
             briefing.Controls.Add(m_descriptionBox);
 
             m_connectedPlayers = new MyGuiControlTable();
@@ -111,14 +115,20 @@ namespace Sandbox.Game.Screens
 
             m_timeoutLabel = new MyGuiControlLabel(text: MyTexts.GetString(MySpaceTexts.GuiScenarioTimeout), originAlign: MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_CENTER);
 
-            m_timeoutCombo = new MyGuiControlCombobox();
-            m_timeoutCombo.ItemSelected += OnTimeoutSelected;
-            m_timeoutCombo.AddItem(3, MyTexts.Get(MySpaceTexts.GuiScenarioTimeout3min));
-            m_timeoutCombo.AddItem(5, MyTexts.Get(MySpaceTexts.GuiScenarioTimeout5min));
-            m_timeoutCombo.AddItem(10, MyTexts.Get(MySpaceTexts.GuiScenarioTimeout10min));
-            m_timeoutCombo.AddItem(-1, MyTexts.Get(MySpaceTexts.GuiScenarioTimeoutUnlimited));
-            m_timeoutCombo.SelectItemByIndex(0);
-            m_timeoutCombo.Enabled = Sync.IsServer;
+            TimeoutCombo = new MyGuiControlCombobox();
+            TimeoutCombo.ItemSelected += OnTimeoutSelected;
+            TimeoutCombo.AddItem(3, MyTexts.Get(MySpaceTexts.GuiScenarioTimeout3min));
+            TimeoutCombo.AddItem(5, MyTexts.Get(MySpaceTexts.GuiScenarioTimeout5min));
+            TimeoutCombo.AddItem(10, MyTexts.Get(MySpaceTexts.GuiScenarioTimeout10min));
+            TimeoutCombo.AddItem(-1, MyTexts.Get(MySpaceTexts.GuiScenarioTimeoutUnlimited));
+            TimeoutCombo.SelectItemByIndex(0);
+            TimeoutCombo.Enabled = Sync.IsServer;
+
+            m_canJoinRunningLabel = new MyGuiControlLabel(text: MyTexts.GetString(MySpaceTexts.ScenarioSettings_CanJoinRunningShort), originAlign: MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_CENTER);
+            m_canJoinRunning = new MyGuiControlCheckbox();
+
+            m_canJoinRunningLabel.Enabled = false;
+            m_canJoinRunning.Enabled = false;
 
             m_startButton = new MyGuiControlButton(text: MyTexts.Get(MySpaceTexts.GuiScenarioStart), visualStyle: MyGuiControlButtonStyleEnum.Rectangular, highlightType: MyGuiControlHighlightType.WHEN_ACTIVE,
                 size: new Vector2(200, 48f) / MyGuiConstants.GUI_OPTIMAL_SIZE, onButtonClick: OnStartClicked);
@@ -151,7 +161,10 @@ namespace Sandbox.Game.Screens
 
             layout.AddWithSize(m_kickPlayerButton, MyAlignH.Left, MyAlignV.Center, 2, 5);
             layout.AddWithSize(m_timeoutLabel, MyAlignH.Left, MyAlignV.Center, 3, 4);
-            layout.AddWithSize(m_timeoutCombo, MyAlignH.Left, MyAlignV.Center, 3, 5);
+            layout.AddWithSize(TimeoutCombo, MyAlignH.Left, MyAlignV.Center, 3, 5);
+
+            layout.AddWithSize(m_canJoinRunningLabel, MyAlignH.Left, MyAlignV.Center, 4, 4);
+            layout.AddWithSize(m_canJoinRunning, MyAlignH.Right, MyAlignV.Center, 4, 5);
             
             layout.AddWithSize(m_chatControl, MyAlignH.Left, MyAlignV.Top, 5, 1, rowSpan: 1, colSpan: 5);
 
@@ -200,6 +213,8 @@ namespace Sandbox.Game.Screens
         {
             MySyncScenario.PlayerReadyToStartScenario -= MySyncScenario_PlayerReady;
             MySyncScenario.TimeoutReceived -= MySyncScenario_SetTimeout;
+            MySyncScenario.CanJoinRunningReceived -= MySyncScenario_SetCanJoinRunning;
+            m_canJoinRunning.IsCheckedChanged -= OnJoinRunningChecked;
 
             m_readyPlayers.Clear();
             base.OnClosed();
@@ -258,13 +273,25 @@ namespace Sandbox.Game.Screens
 
         private void OnTimeoutSelected()
         {
-            MyScenarioSystem.LoadTimeout = 60*(int)m_timeoutCombo.GetSelectedKey();
+            MyScenarioSystem.LoadTimeout = 60*(int)TimeoutCombo.GetSelectedKey();
             if (Sync.IsServer)
-                MySyncScenario.SetTimeout((int)m_timeoutCombo.GetSelectedIndex());//for GUI display only, no logic on clients
+                MySyncScenario.SetTimeout((int)TimeoutCombo.GetSelectedIndex());//for GUI display only, no logic on clients
         }
         public void MySyncScenario_SetTimeout(int index)
         {
-            m_timeoutCombo.SelectItemByIndex(index);
+            TimeoutCombo.SelectItemByIndex(index);
+        }
+
+
+        private void OnJoinRunningChecked(MyGuiControlCheckbox source)
+        {
+            Debug.Assert(Sync.IsServer);
+            MySession.Static.Settings.CanJoinRunning = source.IsChecked;
+            MySyncScenario.SetJoinRunning(source.IsChecked);//for GUI display only, no logic on clients
+        }
+        public void MySyncScenario_SetCanJoinRunning(bool canJoin)
+        {
+            m_canJoinRunning.IsChecked = canJoin;
         }
 
 
@@ -273,6 +300,7 @@ namespace Sandbox.Game.Screens
             if (MyMultiplayer.Static == null || MySession.Static == null)
                 return;
 
+            m_kickPlayerButton.Enabled = CanKick();
             //IMyFaction playerFaction = MySession.Static.Factions.TryGetPlayerFaction(MySession.LocalPlayerId);
             UpdatePlayerList(m_connectedPlayers);
             //if (m_hostnameLabel.Text == null || m_hostnameLabel.Text.Length == 0)

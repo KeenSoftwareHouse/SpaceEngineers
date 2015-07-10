@@ -7,14 +7,15 @@ using Sandbox.Definitions;
 using Sandbox.Engine.Networking;
 using Sandbox.Engine.Utils;
 using Sandbox.Game.Entities;
+using Sandbox.Game.Entities.Blocks;
 using Sandbox.Game.Entities.Cube;
 using Sandbox.Game.Gui;
 using Sandbox.Game.GUI;
 using Sandbox.Game.Localization;
 using Sandbox.Game.Multiplayer;
+using Sandbox.Game.SessionComponents;
 using Sandbox.Game.World;
 using Sandbox.Graphics.GUI;
-using SpaceEngineers.Game.Entities.Blocks;
 using SpaceEngineers.Game.Players;
 using System;
 using System.Collections.Generic;
@@ -32,19 +33,38 @@ using VRageMath;
 
 #endregion
 
-namespace SpaceEngineers.Game.GUI
+namespace Sandbox.Game.Gui
 {
-    class MyGuiScreenMedicals : MyGuiScreenBase
+    public class MyGuiScreenMedicals : MyGuiScreenBase
     {
 
         #region Fields
 
+        MyGuiControlLabel m_labelNoRespawn;
+        StringBuilder m_noRespawnHeader=new StringBuilder();
         MyGuiControlTable m_respawnsTable;
         MyGuiControlButton m_respawnButton;
         MyGuiControlButton m_refreshButton;
+        MyGuiControlMultilineText m_noRespawnText;
 
         MyGuiControlMultilineText m_multilineRespawnWhenShipReady;
         MyRespawnShipDefinition m_selectedRespawnShip;
+
+        public static StringBuilder NoRespawnText { //get { return Static.m_noRespawnText.Text; } 
+            set { if (Static!=null) 
+                Static.m_noRespawnText.Text = value; 
+            } 
+        }
+        public static int ItemsInTable { 
+            get 
+            {
+                if (Static == null || Static.m_respawnsTable==null)
+                    return 0;
+                return Static.m_respawnsTable.RowsCount;
+            } 
+        }
+
+        public static MyGuiScreenMedicals Static { get; private set; }
 
         #endregion
 
@@ -53,6 +73,7 @@ namespace SpaceEngineers.Game.GUI
         public MyGuiScreenMedicals()
             : base(new Vector2(0.85f, 0.5f), MyGuiConstants.SCREEN_BACKGROUND_COLOR, new Vector2(0.95f, 0.8f))
         {
+            Static = this;
             EnabledBackgroundFade = true;
             CloseButtonEnabled = false;
             m_closeOnEsc = false;
@@ -131,6 +152,14 @@ namespace SpaceEngineers.Game.GUI
             m_respawnsTable.SetColumnName(0, MyTexts.Get(MySpaceTexts.Name));
             m_respawnsTable.SetColumnName(1, MyTexts.Get(MySpaceTexts.ScreenMedicals_OwnerTimeoutColumn));
 
+            m_labelNoRespawn = new MyGuiControlLabel()
+            {
+                Position = new Vector2(0, -0.35f),
+                ColorMask = Color.Red,
+                OriginAlign = MyGuiDrawAlignEnum.HORISONTAL_CENTER_AND_VERTICAL_TOP
+            };
+            Controls.Add(m_labelNoRespawn);
+
             m_respawnButton = new MyGuiControlButton(
                             position: new Vector2(-0.1f, 0.35f),
                             text: MyTexts.Get(MySpaceTexts.Respawn),
@@ -145,6 +174,15 @@ namespace SpaceEngineers.Game.GUI
                           );
             Controls.Add(m_refreshButton);
 
+            m_noRespawnText = new MyGuiControlMultilineText(
+                            position: new Vector2(-0.02f, -0.19f),
+                            size: new Vector2(0.32f, 0.5f),
+                            contents: MyTexts.Get(MySpaceTexts.ScreenMedicals_NoRespawnPossible),
+                            textAlign: MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_TOP,
+                            font: MyFontEnum.Red
+                            );
+            Controls.Add(m_noRespawnText);
+
             RefreshRespawnPoints();
         }
 
@@ -153,14 +191,22 @@ namespace SpaceEngineers.Game.GUI
             m_respawnsTable.Clear();
 
             RefreshMedicalRooms();
-            RefreshSpawnShips();
-
-            AddRespawnInSuit();
+            if (!MySession.Static.Settings.DisableRespawnShips)
+            {
+                RefreshSpawnShips();
+                AddRespawnInSuit();
+            }
 
             if (m_respawnsTable.RowsCount > 0)
             {
                 m_respawnsTable.SelectedRowIndex = 0;
                 OnTableItemSelected(null, new MyGuiControlTable.EventArgs());
+
+                m_noRespawnText.Visible = false;
+            }
+            else
+            {
+                m_noRespawnText.Visible = true;
             }
         }
 
@@ -300,12 +346,11 @@ namespace SpaceEngineers.Game.GUI
 
         public override bool Update(bool hasFocus)
         {
-            if (m_respawnsTable.RowsCount == 0 && State != MyGuiScreenState.CLOSING && MySession.LocalHumanPlayer != null)
+            /*if (m_respawnsTable.RowsCount == 0 && State != MyGuiScreenState.CLOSING && MySession.LocalHumanPlayer != null)
             {
                 MyPlayerCollection.RespawnRequest(joinGame: true, newPlayer: true, medicalId: 0, shipPrefabId: null);
                 CloseScreen();
-            }
-
+            }*/
             UpdateSpawnShipTimes();
             bool retval = base.Update(hasFocus);
 
@@ -317,9 +362,41 @@ namespace SpaceEngineers.Game.GUI
                     RespawnShipImmediately(m_selectedRespawnShip.Id.SubtypeName);
             }
 
+            if (m_respawnsTable.RowsCount == 0)
+            {
+                RefreshRespawnPoints();//because medical rooms are not powered when the map starts
+            }
+            if (m_labelNoRespawn.Text==null)
+                m_labelNoRespawn.Visible = false;
+            else
+                m_labelNoRespawn.Visible = true;
+
             return retval;
         }
 
+        public static void Close()
+        {
+            if (Static != null)
+                Static.CloseScreen();
+        }
+
+        private int m_lastTimeSec=-1;
+        public static void SetNoRespawnText(StringBuilder text, int timeSec)
+        {
+            if (Static!=null)
+                Static.SetNoRespawnTexts(text, timeSec);
+        }
+        public void SetNoRespawnTexts(StringBuilder text, int timeSec)
+        {
+            NoRespawnText = text;
+            if (timeSec!=m_lastTimeSec)
+            {
+                m_lastTimeSec = timeSec;
+                int minutes=timeSec/60;
+                m_noRespawnHeader.Clear().AppendFormat(MyTexts.GetString(MySpaceTexts.ScreenMedicals_NoRespawnPlaceHeader), minutes, timeSec-minutes*60);
+                m_labelNoRespawn.Text = m_noRespawnHeader.ToString();
+            }
+        }
         #endregion
      
         #region Event handling
@@ -476,5 +553,6 @@ namespace SpaceEngineers.Game.GUI
 
         #endregion        
 
+   
     }
 }

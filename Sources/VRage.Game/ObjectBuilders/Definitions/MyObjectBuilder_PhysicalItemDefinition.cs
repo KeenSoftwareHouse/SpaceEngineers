@@ -30,5 +30,8 @@ namespace Sandbox.Common.ObjectBuilders.Definitions
 
         [ProtoMember]
         public string PhysicalMaterial;
+
+        [ProtoMember, DefaultValue(true)]
+        public bool CanSpawnFromScreen = true;
     }
 }

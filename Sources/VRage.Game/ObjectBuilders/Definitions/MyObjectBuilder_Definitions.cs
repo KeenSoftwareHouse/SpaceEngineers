@@ -9,6 +9,7 @@ using System.Linq;
 using System.Text;
 using System.Xml.Serialization;
 using VRage.ObjectBuilders;
+using VRage.Game.ObjectBuilders;
 
 namespace Sandbox.Common.ObjectBuilders.Definitions
 {
@@ -221,5 +222,33 @@ namespace Sandbox.Common.ObjectBuilders.Definitions
         [XmlArrayItem("Decal")]
         [ProtoMember]
         public MyObjectBuilder_DecalDefinition[] Decals;
+
+        [XmlArrayItem("PlanetGeneratorDefinition")]
+        [ProtoMember]
+        public MyObjectBuilder_PlanetGeneratorDefinition[] PlanetGeneratorDefinitions;
+
+        [XmlArrayItem("Definition")]
+        [ProtoMember]
+        public MyObjectBuilder_FloraElementDefinition[] FloraElements;
+
+		[XmlArrayItem("StatGroup")]
+		[ProtoMember]
+		public MyObjectBuilder_StatsDefinition[] StatGroupDefinitions;
+
+		[XmlArrayItem("Stat")]
+		[ProtoMember]
+		public MyObjectBuilder_EntityStatDefinition[] StatDefinitions;
+
+        [XmlArrayItem("Group")]
+        [ProtoMember]
+        public MyObjectBuilder_ComponentGroupDefinition[] ComponentGroups;
+
+        [XmlArrayItem("Block")]
+        [ProtoMember]
+        public MyComponentBlockEntry[] ComponentBlocks;
+
+        [XmlArrayItem("PlanetPrefab")]
+        [ProtoMember]
+        public MyObjectBuilder_PlanetPrefabDefinition[] PlanetPrefabs;
     }
 }

@@ -186,6 +186,8 @@ namespace Sandbox.Common.ObjectBuilders.Definitions
             [XmlAttribute, ProtoMember, DefaultValue(0)]
             public byte PropertiesMask = 0;
 
+			[XmlAttribute, ProtoMember, DefaultValue(true)]
+			public bool Enabled = true;
         }
 
         [ProtoContract]
@@ -284,6 +286,15 @@ namespace Sandbox.Common.ObjectBuilders.Definitions
             [XmlAttribute]
             [ProtoMember, DefaultValue(false)]
             public bool RandomOrientation;
+
+			[ProtoMember]
+			[XmlArray("MountPointOverrides")]
+			[XmlArrayItem("MountPoint"), DefaultValue(null)]
+			public MountPoint[] MountPoints;
+
+            [XmlAttribute]
+            [ProtoMember, DefaultValue(true)]
+            public bool Visible = true;
         }
 
         [ProtoContract]
@@ -324,7 +335,6 @@ namespace Sandbox.Common.ObjectBuilders.Definitions
             [ProtoMember]
             public SerializableDefinitionId Id;
         }
-
 
         [ProtoMember]
         public MyCubeSize CubeSize;
@@ -467,10 +477,12 @@ namespace Sandbox.Common.ObjectBuilders.Definitions
         public bool IsAirTight = false;
 
         [ProtoMember, DefaultValue(1)]
-        public int BattlePoints = 1;
+        public int Points = 1;
 
         [ProtoMember, DefaultValue(0)]
         public int MaxIntegrity = 0;
 
+        [ProtoMember, DefaultValue(1)]
+        public float BuildProgressToPlaceGeneratedBlocks = 1;
     }
 }

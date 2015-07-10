@@ -43,7 +43,7 @@ namespace VRage.Audio
             m_engine = engine;
             m_effect = effect;
             var inputSound = input as MySourceVoice;
-            if (inputSound != null)
+            if (inputSound != null && inputSound.Voice != null)
             {
                 Debug.Assert(!inputSound.Voice.IsDisposed);
                 var sd = new SoundData()
@@ -60,8 +60,8 @@ namespace VRage.Audio
 
             foreach(var sound in cues)
             {
-                sound.Start(false); //jn:todo effect command to start sound
                 Debug.Assert(!sound.Voice.IsDisposed);
+                sound.Start(false); //jn:todo effect command to start sound
                 m_sounds.Add(new SoundData()
                 {
                     Sound = sound,
@@ -199,6 +199,7 @@ namespace VRage.Audio
             m_ended = true;
             for (int i = 0; i < m_sounds.Count; i++)
             {
+                if (m_sounds[i].Sound == null || m_sounds[i].Sound.Voice == null) continue;
                 m_sounds[i].Sound.Voice.SetFilterParameters(m_defaultFilter, FINISHED_OP_SET);
                 if (i == m_effect.ResultEmitterIdx)
                     continue;

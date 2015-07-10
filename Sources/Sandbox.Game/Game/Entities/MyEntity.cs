@@ -85,13 +85,18 @@ namespace Sandbox.Game.Entities
             m_debugRenderers.Add(render);
         }
 
+        public void ClearDebugRenderComponents()
+        {
+            m_debugRenderers.Clear();
+        }
+
         //Rendering
         protected MyModel m_modelCollision;                       //  Collision model, used only for collisions
 
         //Space query structure
         public int GamePruningProxyId = MyConstants.PRUNING_PROXY_ID_UNITIALIZED;
+        public int TopMostPruningProxyId = MyConstants.PRUNING_PROXY_ID_UNITIALIZED;
         public int TargetPruningProxyId = MyConstants.PRUNING_PROXY_ID_UNITIALIZED;
-        public int SensablePruningProxyId = MyConstants.PRUNING_PROXY_ID_UNITIALIZED;
 
         #endregion
 
@@ -399,6 +404,11 @@ namespace Sandbox.Game.Entities
         #region Methods
 
         //public StackTrace CreationStack = new StackTrace(true);
+
+        public MyEntity()
+            : this(true)
+        {
+        }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="MyEntity"/> class.
@@ -828,6 +838,7 @@ namespace Sandbox.Game.Entities
             AddToGamePruningStructure();
             VRageRender.MyRenderProxy.GetRenderProfiler().EndProfilingBlock();
 
+            Components.OnAddedToScene();
 
             foreach (var child in Hierarchy.Children)
             {
@@ -836,7 +847,10 @@ namespace Sandbox.Game.Entities
 
             if (MyFakes.ENABLE_ASTEROID_FIELDS)
             {
-                Sandbox.Game.World.Generator.MyAsteroidCellGenerator.Static.TrackEntity(this);
+                if (Sandbox.Game.World.Generator.MyProceduralWorldGenerator.Static != null)
+                {
+                    Sandbox.Game.World.Generator.MyProceduralWorldGenerator.Static.TrackEntity(this);
+                }
             }
 
             VRageRender.MyRenderProxy.GetRenderProfiler().EndProfilingBlock();
@@ -854,6 +868,8 @@ namespace Sandbox.Game.Entities
                     child.Container.Entity.OnRemovedFromScene(source);
                 }
             }
+
+            Components.OnRemovedFromScene();
 
             MyEntities.UnregisterForUpdate(this);
             MyEntities.UnregisterForDraw(this);
@@ -899,6 +915,8 @@ namespace Sandbox.Game.Entities
         public virtual void Init(MyObjectBuilder_EntityBase objectBuilder)
         {
             ProfilerShort.Begin("MyEntity.Init(objectBuilder)");
+            MarkedForClose = false;
+            Closed = false;
             this.Render.PersistentFlags = MyPersistentEntityFlags2.CastShadows;
             if (objectBuilder != null)
             {
@@ -920,6 +938,8 @@ namespace Sandbox.Game.Entities
                     this.EntityId = objectBuilder.EntityId;
                 this.Name = objectBuilder.Name;
                 this.Render.PersistentFlags = objectBuilder.PersistentFlags;
+
+                this.Components.Deserialize(objectBuilder.ComponentContainer);
             }
 
             AllocateEntityID();
@@ -971,6 +991,8 @@ namespace Sandbox.Game.Entities
                          string modelCollision = null)
         {
             ProfilerShort.Begin("MyEntity.Init(...models...)");
+            MarkedForClose = false;
+            Closed = false;
             this.Render.PersistentFlags = MyPersistentEntityFlags2.CastShadows;
             this.DisplayName = displayName != null ? displayName.ToString() : null;
 
@@ -1135,6 +1157,8 @@ namespace Sandbox.Game.Entities
 
 			Components.Clear();
 
+            ClearDebugRenderComponents();
+
             Closed = true;
         }
 
@@ -1206,6 +1230,8 @@ namespace Sandbox.Game.Entities
 
                 objBuilder.Name = this.Name;
                 objBuilder.PersistentFlags = Render.PersistentFlags;
+
+                objBuilder.ComponentContainer = Components.Serialize();
             }
             return objBuilder;
         }

@@ -39,6 +39,7 @@ namespace Sandbox.Game.Weapons
     {
         public static float GLARE_SIZE = 0.068f;
 
+		public bool IsDeconstructor { get { return false; } }
         public int ToolCooldownMs { get; private set; }
         public int EffectStopMs
         {
@@ -84,7 +85,7 @@ namespace Sandbox.Game.Weapons
         protected MyFloatingObject m_targetFloatingObject;
         protected MyCharacter m_targetCharacter;
         protected Vector3I m_targetCube;
-        public Vector3I TargetCube { get {  return m_targetCube; } }
+        public Vector3I TargetCube { get { return m_targetCube; } }
         protected float m_targetDistanceSq;
         protected Vector3D m_targetPosition;
 

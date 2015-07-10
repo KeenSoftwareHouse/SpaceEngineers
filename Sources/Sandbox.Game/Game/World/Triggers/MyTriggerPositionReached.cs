@@ -1,4 +1,5 @@
 ﻿using Sandbox.Common.ObjectBuilders.Definitions;
+using Sandbox.Game.Entities;
 using Sandbox.Game.Entities.Character;
 using Sandbox.Game.Localization;
 using Sandbox.Game.Screens.Triggers;
@@ -7,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using VRage;
 using VRage.Utils;
 using VRageMath;
 
@@ -31,10 +33,11 @@ namespace Sandbox.Game.World.Triggers
             return new MyTriggerPositionReached(this);
         }
 
-        public override bool Update(MyCharacter me)
+        public override bool Update(MyPlayer player, MyEntity me)
         {
-            if (Vector3D.DistanceSquared(me.PositionComp.GetPosition(), TargetPos) < m_maxDistance2)
-                m_IsTrue = true;
+            if (me!=null)
+                if (Vector3D.DistanceSquared(me.PositionComp.GetPosition(), TargetPos) < m_maxDistance2)
+                    m_IsTrue = true;
             return IsTrue;
         }
 
@@ -52,6 +55,12 @@ namespace Sandbox.Game.World.Triggers
             return ob;
         }
 
+        private StringBuilder m_progress = new StringBuilder();
+        public override StringBuilder GetProgress()
+        {
+            m_progress.Clear().AppendFormat(MyTexts.GetString(MySpaceTexts.ScenarioProgressPositionReached), TargetPos.X, TargetPos.Y, TargetPos.Z, Math.Sqrt(m_maxDistance2));
+            return m_progress;
+        }
         //GUI
         public override void DisplayGUI()
         {

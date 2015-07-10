@@ -187,6 +187,8 @@ namespace Sandbox.Game.Gui
         protected const string SHIP_GROUPS_NAME = "Groups";
         protected const string CHARACTER_ANIMATIONS_GROUP_NAME = "CharacterAnimations";
 
+		protected MyStringHash manipulationToolId = MyStringHash.GetOrCompute("ManipulationTool");
+
         protected string[] m_forcedCategoryOrder = new string[] { "ShipWeaponsTools", "WeaponsTools", "CharacterTools", CHARACTER_ANIMATIONS_GROUP_NAME, SHIP_GROUPS_NAME };
 
         protected MySearchByStringCondition m_nameSearchCondition = new MySearchByStringCondition();
@@ -223,7 +225,7 @@ namespace Sandbox.Game.Gui
         #region constructros + overrides
 
         public MyGuiScreenToolbarConfigBase(int scrollOffset = 0, MyCubeBlock owner = null)
-            : base(new Vector2(0.5f, 0.5f), MyGuiConstants.SCREEN_BACKGROUND_COLOR)
+            : base(new Vector2(0.5f, 0.5f), MyGuiConstants.SCREEN_BACKGROUND_COLOR, backgroundTransition: MySandboxGame.Config.UIBkTransparency, guiTransition: MySandboxGame.Config.UITransparency)
         {
             MySandboxGame.Log.WriteLine("MyGuiScreenCubeBuilder.ctor START");
 
@@ -686,15 +688,15 @@ namespace Sandbox.Game.Gui
 
         protected virtual void AddToolsAndAnimations(IMySearchCondition searchCondition)
         {
-            if (null != m_character)
+            if (m_character != null)
             {
                 var character = m_character;
                 ListReader<MyPhysicalItemDefinition> definitions = MyDefinitionManager.Static.GetWeaponDefinitions();
                 foreach (MyDefinitionBase definition in definitions)
                 {
-                    if (character.GetInventory().ContainItems(1, definition.Id) || MyPerGameSettings.EnableWeaponWithoutInventory)
+                    if (definition.Id.SubtypeId == manipulationToolId || (character.GetInventory().ContainItems(1, definition.Id) || MySession.Static.CreativeMode))
                     {
-                        if (null != searchCondition && false == searchCondition.MatchesCondition(definition))
+                        if (searchCondition != null && !searchCondition.MatchesCondition(definition))
                         {
                             continue;
                         }
@@ -754,6 +756,8 @@ namespace Sandbox.Game.Gui
         {
             if (!definition.Public && !MyFakes.ENABLE_NON_PUBLIC_BLOCKS)
                 return;
+			if (!definition.AvailableInSurvival && MySession.Static.SurvivalMode)
+				return;
 
             var gridItem = new MyGuiControlGrid.Item(
                 icon: definition.Icon,
@@ -767,6 +771,8 @@ namespace Sandbox.Game.Gui
         {
             if (!definition.Public && !MyFakes.ENABLE_NON_PUBLIC_BLOCKS)
                 return;
+			if (!definition.AvailableInSurvival && MySession.Static.SurvivalMode)
+				return;
 
             var gridItem = new MyGuiControlGrid.Item(
                 icon: definition.Icon,
@@ -873,6 +879,7 @@ namespace Sandbox.Game.Gui
         void AddCubeDefinition(MyGuiControlGrid grid, MyCubeBlockDefinitionGroup group, Vector2I position)
         {
             var anyDef = MyFakes.ENABLE_NON_PUBLIC_BLOCKS ? group.Any : group.AnyPublic;
+
             string subicon = null;
             if (anyDef.BlockStages != null && anyDef.BlockStages.Length > 0)
                 subicon = MyToolbarItemCubeBlock.VariantsAvailableSubicon;
@@ -966,7 +973,7 @@ namespace Sandbox.Game.Gui
             ListReader<MyAiCommandDefinition> definitions = MyDefinitionManager.Static.GetDefinitionsOfType<MyAiCommandDefinition>();
             foreach (MyAiCommandDefinition definition in definitions)
             {
-                if (definition.Public || MyFakes.ENABLE_NON_PUBLIC_BLOCKS)
+				if ((definition.Public || MyFakes.ENABLE_NON_PUBLIC_BLOCKS) && (definition.AvailableInSurvival || MySession.Static.CreativeMode))
                 {
                     if (searchCondition != null && !searchCondition.MatchesCondition(definition))
                         continue;
@@ -981,7 +988,7 @@ namespace Sandbox.Game.Gui
             ListReader<MyAreaMarkerDefinition> definitions = MyDefinitionManager.Static.GetDefinitionsOfType<MyAreaMarkerDefinition>();
             foreach (MyAreaMarkerDefinition definition in definitions)
 			{
-				if(definition.Public || MyFakes.ENABLE_NON_PUBLIC_BLOCKS)
+				if ((definition.Public || MyFakes.ENABLE_NON_PUBLIC_BLOCKS) && (definition.AvailableInSurvival || MySession.Static.CreativeMode))
 				{
 					if (searchCondition != null && !searchCondition.MatchesCondition(definition))
 						continue;
@@ -992,11 +999,22 @@ namespace Sandbox.Game.Gui
 		}
 
         void AddWeaponDefinition(MyGuiControlGrid grid, MyDefinitionBase definition)
-        {
-            MyObjectBuilder_ToolbarItemWeapon weaponData = MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_ToolbarItemWeapon>();
-            weaponData.DefinitionId = definition.Id;
-            AddDefinition(grid, weaponData, definition);
-        }
+		{
+			if ((!definition.Public && !MyFakes.ENABLE_NON_PUBLIC_BLOCKS) || (!definition.AvailableInSurvival && MySession.Static.SurvivalMode))
+				return;
+			
+			{
+				MyObjectBuilder_ToolbarItemWeapon weaponData = MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_ToolbarItemWeapon>();
+				weaponData.DefinitionId = definition.Id;
+
+				var gridItem = new MyGuiControlGrid.Item(
+					icon: definition.Icon,
+					toolTip: definition.DisplayNameText,
+					userData: new GridItemUserData() { ItemData = weaponData });
+
+				grid.Add(gridItem);
+			}
+		}
 
         void AddAnimationDefinition(MyGuiControlGrid grid, MyDefinitionBase definition)
         {
@@ -1120,7 +1138,7 @@ namespace Sandbox.Game.Gui
                 {
                     continue;
                 }
-                if (block.ShowInToolbarConfig == false)
+				if (block.ShowInToolbarConfig == false || (!block.BlockDefinition.AvailableInSurvival && MySession.Static.SurvivalMode))
                 {
                     continue;
                 }
@@ -1487,7 +1505,7 @@ namespace Sandbox.Game.Gui
             m_savedVPosition = 0.0f;
         }
 
-        private bool CanDropItem(MyInventoryItem item, MyGuiControlGrid dropFrom, MyGuiControlGrid dropTo)
+        private bool CanDropItem(MyPhysicalInventoryItem item, MyGuiControlGrid dropFrom, MyGuiControlGrid dropTo)
         {
             return (dropTo != dropFrom);
         }

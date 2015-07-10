@@ -18,6 +18,8 @@ using VRage.Plugins;
 using Sandbox.Game;
 using System.ComponentModel.DataAnnotations;
 using Sandbox.Game;
+using Sandbox.Game.Screens.Helpers;
+using System.IO;
 
 namespace VRage.Dedicated
 {
@@ -28,6 +30,8 @@ namespace VRage.Dedicated
         public static System.Drawing.Image LogoImage;
 
         IMyAsyncResult m_loadWorldsAsync;
+        IMyAsyncResult m_loadBattlesAsync;
+
         MyObjectBuilder_SessionSettings m_selectedSessionSettings;
         bool m_canChangeStartType = false;
 
@@ -68,7 +72,8 @@ namespace VRage.Dedicated
             }
             else // Local / Console
             {
-                Process.Start(MyPerServerSettings.GameDSName + ".exe", "-console -ignorelastsession");
+                string[] cmdLine = Environment.GetCommandLineArgs();
+                Process.Start(cmdLine[0], ((cmdLine.Length > 1) ? cmdLine[1] : "" ) + " -console -ignorelastsession");
                 Close();
             }
         }
@@ -108,10 +113,24 @@ namespace VRage.Dedicated
                 updateServiceStatus();
             }
 
-            MyLoadListResult worldList = new MyLoadListResult();
-
             m_loadWorldsAsync = new MyLoadListResult();
             worldListTimer.Enabled = true;
+
+            if (MyFakes.ENABLE_BATTLE_SYSTEM && MyPerGameSettings.Game == GameEnum.ME_GAME)
+            {
+                battleButton.Show();
+                battleButton.Enabled = false;
+
+                string officialBattleMaps = Path.Combine(MyFileSystem.ContentPath, "CastleSiege");
+                m_loadBattlesAsync = new MyBattleLoadListResult(officialBattleMaps, null);
+                battleListTimer.Enabled = true;
+            }
+            else
+            {
+                battleButton.Hide();
+                battleListTimer.Enabled = false;
+            }
+
             MySandboxGame.ConfigDedicated.Load();
 
             UpdateLoadedData();
@@ -196,6 +215,34 @@ namespace VRage.Dedicated
             gamesListBox.Sorted = true;
         }
 
+        void FillBattlesList()
+        {
+            var battlesListRes = (MyBattleLoadListResult)m_loadBattlesAsync;
+            var availableBattles = battlesListRes.AvailableBattleMaps;
+
+            availableBattles.Sort((a, b) => a.WorldInfo.SessionName.CompareTo(b.WorldInfo.SessionName));
+
+            gamesListBox.Items.Clear();
+            if (availableBattles.Count != 0)
+            {
+                foreach (var save in availableBattles)
+                {
+                    WorldItem worldItem = new WorldItem()
+                    {
+                        SessionName = save.WorldInfo.SessionName,
+                        SessionPath = save.SessionPath,
+                        SessionDir = System.IO.Path.GetFileName(save.SessionPath)
+                    };
+                    gamesListBox.Items.Add(worldItem);
+
+                    if (MySandboxGame.ConfigDedicated.LoadWorld == worldItem.SessionPath)
+                        gamesListBox.SelectedIndex = gamesListBox.Items.Count - 1;
+                }
+            }
+
+            gamesListBox.Sorted = true;
+        }
+
         private void worldListTimer_Tick(object sender, EventArgs e)
         {
             if (m_loadWorldsAsync.IsCompleted)
@@ -212,6 +259,16 @@ namespace VRage.Dedicated
             }
         }
 
+        private void battleListTimer_Tick(object sender, EventArgs e)
+        {
+            if (m_loadBattlesAsync != null && m_loadBattlesAsync.IsCompleted)
+            {
+                battleListTimer.Enabled = false;
+
+                battleButton.Enabled = ((MyBattleLoadListResult)m_loadBattlesAsync).AvailableBattleMaps.Count > 0;
+            }
+        }
+
         private void gamesListBox_SelectedIndexChanged(object sender, EventArgs e)
         {
             if (gamesListBox.SelectedIndex != -1)
@@ -225,6 +282,9 @@ namespace VRage.Dedicated
                 MyObjectBuilder_Checkpoint checkpoint = MyLocalCache.LoadCheckpoint(loadPath, out sizeInBytes);
 
                 m_selectedSessionSettings = checkpoint.Settings;
+
+                if (m_selectedSessionSettings != null && battleButton.Checked)
+                    MyBattleHelper.FillDefaultBattleServerSettings(m_selectedSessionSettings);
 
                 MySandboxGame.ConfigDedicated.Mods.Clear();
                 foreach (var mod in checkpoint.Mods)
@@ -246,8 +306,18 @@ namespace VRage.Dedicated
             if (!m_canChangeStartType)
                 return;
 
+            startGameButton.Enabled = true;
+
+            tableLayoutPanel1.Show();
+            newGameSettingsPanel.Show();
+
             if (loadGameButton.Checked)
             {
+                if (MyFakes.ENABLE_BATTLE_SYSTEM)
+                {
+                    FillWorldsList();
+                }
+
                 if (gamesListBox.Items.Count > 0)
                 {
                     gamesListBox.Enabled = true;
@@ -266,19 +336,59 @@ namespace VRage.Dedicated
                     MySandboxGame.ConfigDedicated.Load();
                     m_selectedSessionSettings = MySandboxGame.ConfigDedicated.SessionSettings;
                 }
+
+                if (m_selectedSessionSettings != null)
+                    m_selectedSessionSettings.Battle = false;
             }
             else
             {
-                gamesListBox.SelectedIndex = -1;
-                gamesListBox.Enabled = false;
-                //tableLayoutPanel1.Enabled = true;
-                newGameSettingsPanel.Enabled = true;
+                if (MyFakes.ENABLE_BATTLE_SYSTEM && battleButton.Checked)
+                {
+                    FillBattlesList();
 
-                MySandboxGame.ConfigDedicated.Load();
-                m_selectedSessionSettings = MySandboxGame.ConfigDedicated.SessionSettings;
-                
-                //enable tool shake needs to be true for new world, but false for old saved worlds.                                
-                m_selectedSessionSettings.EnableToolShake = true;
+                    tableLayoutPanel1.Hide();
+                    newGameSettingsPanel.Hide();
+
+                    if (gamesListBox.Items.Count > 0)
+                    {
+                        gamesListBox.Enabled = true;
+                        if (gamesListBox.SelectedIndex == -1)
+                            gamesListBox.SelectedIndex = 0;
+                    }
+                    else
+                    {
+                        startGameButton.Enabled = false;
+                        gamesListBox.Enabled = false;
+                        newGameSettingsPanel.Enabled = true;
+
+                        MySandboxGame.ConfigDedicated.Load();
+                        m_selectedSessionSettings = MySandboxGame.ConfigDedicated.SessionSettings;
+                    }
+
+                    if (m_selectedSessionSettings != null)
+                        MyBattleHelper.FillDefaultBattleServerSettings(m_selectedSessionSettings);
+                }
+                else
+                {
+                    gamesListBox.SelectedIndex = -1;
+                    gamesListBox.Enabled = false;
+                    //tableLayoutPanel1.Enabled = true;
+                    newGameSettingsPanel.Enabled = true;
+
+                    MySandboxGame.ConfigDedicated.Load();
+                    m_selectedSessionSettings = MySandboxGame.ConfigDedicated.SessionSettings;
+
+                    //enable tool shake needs to be true for new world, but false for old saved worlds.                                
+                    m_selectedSessionSettings.EnableToolShake = true;
+
+                    m_selectedSessionSettings.EnablePlanets = (MyPerGameSettings.Game == GameEnum.SE_GAME) && MyFakes.ENABLE_PLANETS;
+                    m_selectedSessionSettings.EnableFlora = (MyPerGameSettings.Game == GameEnum.SE_GAME) && MyFakes.ENABLE_PLANETS;
+                    m_selectedSessionSettings.EnableSunRotation = MyPerGameSettings.Game == GameEnum.SE_GAME;
+                    m_selectedSessionSettings.EnableStationVoxelSupport = MyPerGameSettings.Game == GameEnum.SE_GAME;
+                    m_selectedSessionSettings.CargoShipsEnabled = !m_selectedSessionSettings.EnablePlanets;
+
+                    m_selectedSessionSettings.Battle = false;
+                }
             }
 
             FillSessionSettingsItems();
@@ -697,7 +807,7 @@ namespace VRage.Dedicated
         {
             SaveConfiguration();
 
-            if (!string.IsNullOrEmpty(MySandboxGame.ConfigDedicated.LoadWorld))
+            if (!string.IsNullOrEmpty(MySandboxGame.ConfigDedicated.LoadWorld) && !MySandboxGame.ConfigDedicated.SessionSettings.Battle)
             {
                 ulong sizeInBytes;
                 var path = MySandboxGame.ConfigDedicated.LoadWorld;

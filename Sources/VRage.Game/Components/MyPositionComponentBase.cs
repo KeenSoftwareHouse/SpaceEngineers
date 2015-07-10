@@ -4,7 +4,6 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using VRage.Components;
-using VRage.ModAPI;
 using VRage.Utils;
 using VRageMath;
 
@@ -33,12 +32,6 @@ namespace VRage.Components
         private BoundingBoxD m_worldAABBHr;   //world AABB of this entity including children
         private BoundingSphereD m_worldVolumeHr;   //sphere volume including children
         protected bool m_localMatrixChanged = false;
-
-        public override MyStringId Name
-        {
-            get { return DefaultNames.Position; }
-        }
-
         #region Properties
         /// <summary>
         /// World matrix of this physic object. Use it whenever you want to do world-matrix transformations with this physic objects.

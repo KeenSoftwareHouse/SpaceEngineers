@@ -12015,7 +12015,7 @@
       <CubeSize>Small</CubeSize>
       <BlockTopology>Cube</BlockTopology>
       <Size x="1" y="1" z="1" />
-      <ModelOffset x="0" y="0" z="0" />
+      <ModelOffset x="0.2" y="0" z="0" />
       <CubeDefinition>
         <CubeTopology>Corner2Tip</CubeTopology>
         <ShowEdges>true</ShowEdges>
@@ -12024,7 +12024,7 @@
           <Side Model="Models\Cubes\Small\Armor\CornerTriangleRightPlateCorner2TipRight.mwm" PatternWidth="1" PatternHeight="1" />
           <Side Model="Models\Cubes\Small\Armor\FaceTrianglePlateCorner2Tip.mwm" PatternWidth="1" PatternHeight="1" />
           <Side Model="Models\Cubes\Small\Armor\CornerTriangleLeftPlateCorner2TipBottom.mwm" PatternWidth="1" PatternHeight="1" />
-        </Sides>i
+        </Sides>
       </CubeDefinition>
       <Components>
         <Component Subtype="SteelPlate" Count="1" />
@@ -12867,7 +12867,7 @@
       <CubeSize>Small</CubeSize>
       <BlockTopology>Cube</BlockTopology>
       <Size x="1" y="1" z="1" />
-      <ModelOffset x="0" y="0" z="0" />
+      <ModelOffset x="0.2" y="0" z="0" />
       <CubeDefinition>
         <CubeTopology>Corner2Tip</CubeTopology>
         <ShowEdges>true</ShowEdges>
@@ -14202,7 +14202,8 @@
       <BlockPairName>Warhead</BlockPairName>
       <EdgeType>Light</EdgeType>
       <BuildTimeSeconds>30</BuildTimeSeconds>
-      <ExplosionRadius>22.4415</ExplosionRadius> 
+      <ExplosionRadius>22.4415</ExplosionRadius>
+      <WarheadExplosionDamage>15000</WarheadExplosionDamage>
     </Definition>
     <Definition xsi:type="MyObjectBuilder_WarheadDefinition">
       <Id>
@@ -14232,6 +14233,7 @@
       <EdgeType>Light</EdgeType>
       <BuildTimeSeconds>10</BuildTimeSeconds>
       <ExplosionRadius> 4.4883 </ExplosionRadius>
+      <WarheadExplosionDamage>15000</WarheadExplosionDamage>
     </Definition>
     <Definition>
       <Id>
@@ -15292,6 +15294,53 @@
       <ConsumptionPower>3</ConsumptionPower>
       <DamageEffectId>214</DamageEffectId>
     </Definition>
+    <Definition xsi:type="MyObjectBuilder_JumpDriveDefinition">
+      <Id>
+        <TypeId>JumpDrive</TypeId>
+        <SubtypeId>LargeJumpDrive</SubtypeId>
+      </Id>
+      <DisplayName>DisplayName_Block_JumpDrive</DisplayName>
+      <Icon>Textures\GUI\Icons\Cubes\JumpDrive.dds</Icon>
+      <CubeSize>Large</CubeSize>
+      <BlockTopology>TriangleMesh</BlockTopology>
+      <Size x="3" y="3" z="2" />
+      <ModelOffset x="0" y="0" z="0" />
+      <Model>Models\Cubes\Large\JumpDrive.mwm</Model>
+      <Components>
+        <Component Subtype="SteelPlate" Count="60" />
+        <Component Subtype="LargeTube" Count="40" />
+        <Component Subtype="GravityGenerator" Count="20" />
+        <Component Subtype="Detector" Count="20" />
+        <Component Subtype="SmallTube" Count="60" />
+        <Component Subtype="Computer" Count="8" />
+        <Component Subtype="Construction" Count="40" />
+        <Component Subtype="SteelPlate" Count="20" />
+      </Components>
+      <CriticalComponent Subtype="Computer" Index="0" />
+      <MountPoints>
+        <MountPoint Side="Top" StartX="0.1" StartY="0.1" EndX="2.9" EndY="1.9" />
+        <MountPoint Side="Back" StartX="0.1" StartY="0.1" EndX="2.9" EndY="2.9" />
+        <MountPoint Side="Left" StartX="0.1" StartY="0.1" EndX="1.9" EndY="2.9" />
+        <MountPoint Side="Front" StartX="0.1" StartY="0.1" EndX="2.9" EndY="2.9" />
+        <MountPoint Side="Right" StartX="0.1" StartY="0.1" EndX="1.9" EndY="2.9" />
+        <MountPoint Side="Bottom" StartX="0.1" StartY="0.1" EndX="2.9" EndY="1.9" />
+      </MountPoints>
+      <BuildProgressModels>
+        <Model BuildPercentUpperBound="0.33" File="Models\Cubes\Large\JumpDriveConstruction_1.mwm" />
+        <Model BuildPercentUpperBound="0.66" File="Models\Cubes\Large\JumpDriveConstruction_2.mwm" />
+        <Model BuildPercentUpperBound="1.00" File="Models\Cubes\Large\JumpDriveConstruction_3.mwm" />
+      </BuildProgressModels>
+      <BlockPairName>JumpDrive</BlockPairName>
+      <MirroringY>Z</MirroringY>
+      <MirroringZ>Y</MirroringZ>
+      <EdgeType>Light</EdgeType>
+      <BuildTimeSeconds>45</BuildTimeSeconds>
+      <DamageEffectId>213</DamageEffectId>
+      <RequiredPowerInput>32</RequiredPowerInput>
+      <PowerNeededForJump>3</PowerNeededForJump>
+      <MaxJumpDistance>2000000</MaxJumpDistance>
+      <MaxJumpMass>1250000</MaxJumpMass>
+  </Definition>
     <!-- Region Cockpits -->
     <Definition xsi:type="MyObjectBuilder_CockpitDefinition">
       <Id>
@@ -22856,6 +22905,13 @@
       <Name>EnergyModule</Name>
       <Position>
         <X>7</X>
+        <Y>17</Y>
+      </Position>
+    </BlockPosition>
+    <BlockPosition>
+      <Name>JumpDrive</Name>
+      <Position>
+        <X>8</X>
         <Y>17</Y>
       </Position>
     </BlockPosition>

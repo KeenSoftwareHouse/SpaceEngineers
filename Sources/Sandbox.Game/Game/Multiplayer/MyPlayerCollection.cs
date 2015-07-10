@@ -26,6 +26,7 @@ using VRageMath;
 using VRageRender;
 using PlayerId = Sandbox.Game.World.MyPlayer.PlayerId;
 using Sandbox.Game.SessionComponents;
+using Sandbox.Common.ObjectBuilders.Definitions;
 
 namespace Sandbox.Game.Multiplayer
 {
@@ -179,17 +180,9 @@ namespace Sandbox.Game.Multiplayer
             public int PlayerSerialId;
         }
 
-        [MessageId(32, P2PMessageEnum.Reliable)]
-        struct IdentityRemoveMsg
-        {
-            public ulong ClientSteamId;
-            public int PlayerSerialId;
-            public long IdentityId;
-        }
-
         [MessageId(7351, P2PMessageEnum.Reliable)]
         [ProtoContract]
-        struct AllIdentitiesRequestMsg
+        struct All_Identities_Players_Factions_RequestMsg
         {
             [ProtoMember]
             public ulong ClientSteamId;
@@ -199,24 +192,18 @@ namespace Sandbox.Game.Multiplayer
 
         [MessageId(7352, P2PMessageEnum.Reliable)]
         [ProtoContract]
-        struct AllIdentitiesSuccessMsg
+        struct All_Identities_Players_Factions_SuccessMsg
         {
             [ProtoMember]
             public List<MyObjectBuilder_Identity> Identities;
-        }
-
-        [MessageId(7353, P2PMessageEnum.Reliable)]
-        [ProtoContract]
-        struct AllPlayersRequestMsg
-        {
             [ProtoMember]
-            public ulong ClientSteamId;
+            public List<AllPlayerData> Players;
             [ProtoMember]
-            public int PlayerSerialId;
+            public List<MyObjectBuilder_Faction> Factions;
         }
 
         [ProtoContract]
-        struct AllPlayerData 
+        public struct AllPlayerData 
         {
             [ProtoMember]
             public ulong SteamId;
@@ -224,18 +211,9 @@ namespace Sandbox.Game.Multiplayer
             public int SerialId;
             [ProtoMember]
             public MyObjectBuilder_Player Player;
-
         }
 
-        [MessageId(7354, P2PMessageEnum.Reliable)]
-        [ProtoContract]
-        struct AllPlayersSuccessMsg
-        {
-            [ProtoMember]
-            public List<AllPlayerData> Players;
-        }
 
-        
         
         public delegate void RespawnRequestedDelegate(ref RespawnMsg respawnMsg, MyNetworkClient client);
 
@@ -300,13 +278,9 @@ namespace Sandbox.Game.Multiplayer
             MySyncLayer.RegisterMessage<PlayerCreatedMsg>(OnPlayerCreated, MyMessagePermissions.FromServer, MyTransportMessageEnum.Success);
             MySyncLayer.RegisterMessage<PlayerRemoveMsg>(OnPlayerRemoveRequest, MyMessagePermissions.ToServer, MyTransportMessageEnum.Request);
             MySyncLayer.RegisterMessage<PlayerRemoveMsg>(OnPlayerRemoved, MyMessagePermissions.FromServer, MyTransportMessageEnum.Success);
-            MySyncLayer.RegisterMessage<IdentityRemoveMsg>(OnIdentityRemoveRequest, MyMessagePermissions.ToServer, MyTransportMessageEnum.Request);
-            MySyncLayer.RegisterMessage<IdentityRemoveMsg>(OnIdentityRemoveSuccess, MyMessagePermissions.FromServer, MyTransportMessageEnum.Success);
 
-            MySyncLayer.RegisterMessage<AllIdentitiesRequestMsg>(OnAllIdentitiesRequest, MyMessagePermissions.ToServer, MyTransportMessageEnum.Request);
-            MySyncLayer.RegisterMessage<AllIdentitiesSuccessMsg>(OnAllIdentitiesSuccess, MyMessagePermissions.FromServer, MyTransportMessageEnum.Success);
-            MySyncLayer.RegisterMessage<AllPlayersRequestMsg>(OnAllPlayersRequest, MyMessagePermissions.ToServer, MyTransportMessageEnum.Request);
-            MySyncLayer.RegisterMessage<AllPlayersSuccessMsg>(OnAllPlayersSuccess, MyMessagePermissions.FromServer, MyTransportMessageEnum.Success);
+            MySyncLayer.RegisterMessage<All_Identities_Players_Factions_RequestMsg>(OnAll_Identities_Players_Factions_Request, MyMessagePermissions.ToServer, MyTransportMessageEnum.Request);
+            MySyncLayer.RegisterMessage<All_Identities_Players_Factions_SuccessMsg>(OnAll_Identities_Players_Factions_Success, MyMessagePermissions.FromServer, MyTransportMessageEnum.Success);
         }
 
         public MyPlayerCollection()
@@ -422,8 +396,11 @@ namespace Sandbox.Game.Multiplayer
             }
         }
 
-        private void LoadPlayers(List<AllPlayerData> allPlayersData)
+        public void LoadPlayers(List<AllPlayerData> allPlayersData)
         {
+            if (allPlayersData == null)
+                return;
+
             foreach (var playerItem in allPlayersData)
             {
                 var playerId = new MyPlayer.PlayerId(playerItem.SteamId, playerItem.SerialId);
@@ -628,7 +605,7 @@ namespace Sandbox.Game.Multiplayer
 
             foreach (var entry in m_playerIdentityIds)
             {
-                if (m_players.ContainsKey(entry.Key) || entry.Key.SerialId != 0) continue;
+                if (m_players.ContainsKey(entry.Key)) continue;
 
                 var id = new MyObjectBuilder_Checkpoint.PlayerId() { ClientId = entry.Key.SteamId, SerialId = entry.Key.SerialId };
                 MyObjectBuilder_Player playerOb = new MyObjectBuilder_Player();
@@ -651,7 +628,7 @@ namespace Sandbox.Game.Multiplayer
             //}
         }
 
-        private List<AllPlayerData> SavePlayers()
+        public List<AllPlayerData> SavePlayers()
         {
             var allPlayersData = new List<AllPlayerData>();
 
@@ -706,6 +683,13 @@ namespace Sandbox.Game.Multiplayer
             {
                 handler(added, steamId);
             }
+        }
+
+        public void ClearPlayers()
+        {
+            m_players.Clear();
+            m_controlledEntities.Clear();
+            m_playerIdentityIds.Clear();
         }
 
         #endregion
@@ -837,7 +821,7 @@ namespace Sandbox.Game.Multiplayer
                 identity = Sync.Players.RespawnComponent.CreateNewIdentity(msg.DisplayName, playerId, msg.CharacterModel);
             }
 
-            Sync.Players.CreateNewPlayer(identity, playerId, msg.DisplayName);
+            Sync.Players.CreateNewPlayer(identity, playerId, identity.DisplayName);
 
             var response = new NewPlayerSuccessMsg();
             response.ClientSteamId = msg.ClientSteamId;
@@ -852,7 +836,8 @@ namespace Sandbox.Game.Multiplayer
             var playerId = new MyPlayer.PlayerId(msg.ClientSteamId, msg.PlayerSerialId);
             if (playerId == localHumanPlayerId && (!MyFakes.ENABLE_BATTLE_SYSTEM || !MySession.Static.Battle))
             {
-                MyPlayerCollection.RequestLocalRespawn();
+                if (!MySession.Static.IsScenario || MySession.Static.OnlineMode == MyOnlineModeEnum.OFFLINE)
+                    MyPlayerCollection.RequestLocalRespawn();
             }
 
             var handler = Sync.Players.NewPlayerRequestSucceeded;
@@ -884,36 +869,47 @@ namespace Sandbox.Game.Multiplayer
             MyNetworkClient client = null;
             Sync.Clients.TryGetClient(msg.ClientSteamId, out client);
             Debug.Assert(client != null, "Could not find client of the new player!");
+			if (client == null) return;
 
             var playerId = new MyPlayer.PlayerId(msg.ClientSteamId, msg.PlayerSerialId);
 
             Sync.Players.CreateNewPlayerInternal(identity, client, msg.DisplayName, ref playerId);
         }
 
-        static void OnAllIdentitiesRequest(ref AllIdentitiesRequestMsg msg, MyNetworkClient sender)
+        static void OnAll_Identities_Players_Factions_Request(ref All_Identities_Players_Factions_RequestMsg msg, MyNetworkClient sender)
         {
-            var response = new AllIdentitiesSuccessMsg();
+            Debug.Assert(Sync.IsServer);
+
+            var response = new All_Identities_Players_Factions_SuccessMsg();
             response.Identities = Sync.Players.SaveIdentities();
-
-            Sync.Layer.SendMessage(ref response, sender.SteamUserId, messageType: MyTransportMessageEnum.Success);
-        }
-
-        static void OnAllIdentitiesSuccess(ref AllIdentitiesSuccessMsg msg, MyNetworkClient sender)
-        {
-            Sync.Players.LoadIdentities(msg.Identities);
-        }
-
-        static void OnAllPlayersRequest(ref AllPlayersRequestMsg msg, MyNetworkClient sender)
-        {
-            var response = new AllPlayersSuccessMsg();
             response.Players = Sync.Players.SavePlayers();
+            response.Factions = MySession.Static.Factions.SaveFactions();
 
             Sync.Layer.SendMessage(ref response, sender.SteamUserId, messageType: MyTransportMessageEnum.Success);
         }
 
-        static void OnAllPlayersSuccess(ref AllPlayersSuccessMsg msg, MyNetworkClient sender)
+        static void OnAll_Identities_Players_Factions_Success(ref All_Identities_Players_Factions_SuccessMsg msg, MyNetworkClient sender)
         {
+            Debug.Assert(!Sync.IsServer);
+           // Multiplayer client must setup clients
+            if ((MyMultiplayer.Static is MyMultiplayerClient) && msg.Players != null)
+            {
+                foreach (var player in msg.Players)
+                {
+                    if (!Sync.Clients.HasClient(player.SteamId))
+                        Sync.Clients.AddClient(player.SteamId);
+                }
+            }
+            Sync.Players.m_allIdentities.Clear();
+            Sync.Players.m_npcIdentities.Clear();
+            Sync.Players.LoadIdentities(msg.Identities);
+
+            Sync.Players.m_players.Clear();
+            Sync.Players.m_controlledEntities.Clear();
+            Sync.Players.m_playerIdentityIds.Clear();
             Sync.Players.LoadPlayers(msg.Players);
+
+            MySession.Static.Factions.LoadFactions(msg.Factions, true);
         }
 
         static void OnPlayerRemoveRequest(ref PlayerRemoveMsg msg, MyNetworkClient sender)
@@ -1068,24 +1064,14 @@ namespace Sandbox.Game.Multiplayer
             return player;
         }
 
-        public void RequestAllIdentities()
+        public void RequestAll_Identities_Players_Factions()
         {
-            var msg = new AllIdentitiesRequestMsg();
+            var msg = new All_Identities_Players_Factions_RequestMsg();
             msg.ClientSteamId = MySteam.UserId;
             msg.PlayerSerialId = 0;
 
             Sync.Layer.SendMessageToServer(ref msg);
         }
-
-        public void RequestAllPlayers()
-        {
-            var msg = new AllPlayersRequestMsg();
-            msg.ClientSteamId = MySteam.UserId;
-            msg.PlayerSerialId = 0;
-
-            Sync.Layer.SendMessageToServer(ref msg);
-        }
-
 
         public bool TrySetControlledEntity(PlayerId id, MyEntity entity)
         {
@@ -1397,6 +1383,12 @@ namespace Sandbox.Game.Multiplayer
             return m_npcIdentities.Contains(identityId);
         }
 
+        public void ClearIdentities()
+        {
+            m_allIdentities.Clear();
+            m_npcIdentities.Clear();
+        }
+
         #endregion
 
         #region Respawn
@@ -1543,8 +1535,8 @@ namespace Sandbox.Game.Multiplayer
 
             AddPlayer(playerId, newPlayer);
 
-            if (MyFakes.ENABLE_MISSION_TRIGGERS && MySessionComponentMission.Static!=null)
-                MySessionComponentMission.Static.TryCreateFromDefault(playerId);
+            if (MyFakes.ENABLE_MISSION_TRIGGERS && MySessionComponentMissionTriggers.Static!=null)
+                MySessionComponentMissionTriggers.Static.TryCreateFromDefault(playerId);
 
             return newPlayer;
         }
@@ -1658,45 +1650,6 @@ namespace Sandbox.Game.Multiplayer
                 handler(serialId);
         }
 
-        public void RemoveIdentity(MyPlayer.PlayerId pid, long identityId)
-        {
-            var msg = new IdentityRemoveMsg();
-            msg.IdentityId = identityId;
-            msg.ClientSteamId = pid.SteamId;
-            msg.PlayerSerialId = pid.SerialId;
-
-            if (Sync.IsServer)
-            {
-                RemoveIdentityInternal(pid, identityId);
-                Sync.Layer.SendMessageToAll(ref msg, MyTransportMessageEnum.Success);
-            }
-            else
-            {
-                Sync.Layer.SendMessageToServer(ref msg, MyTransportMessageEnum.Request);
-            }
-        }
-
-        // remember about ownership when removing identity
-        public void RemoveIdentity(MyPlayer.PlayerId id)
-        { 
-            var identity = TryGetPlayerIdentity(id);
-            Debug.Assert(identity != null, "Identity not found.");
-            if (identity == null)
-                return;
-
-            RemoveIdentity(id, identity.IdentityId);
-        }
-
-        private static void OnIdentityRemoveRequest(ref IdentityRemoveMsg msg, MyNetworkClient sender)
-        {
-            Sync.Players.RemoveIdentityInternal(new PlayerId(msg.ClientSteamId, msg.PlayerSerialId), msg.IdentityId);
-        }
-
-        private static void OnIdentityRemoveSuccess(ref IdentityRemoveMsg msg, MyNetworkClient sender)
-        {
-            Sync.Players.RemoveIdentityInternal(new PlayerId(msg.ClientSteamId, msg.PlayerSerialId), msg.IdentityId);
-        }
-
         private bool RemoveIdentityInternal(PlayerId id, long identityId)
         {
             Debug.Assert(m_allIdentities.ContainsKey(identityId), "Identity could not be found");
@@ -1740,9 +1693,10 @@ namespace Sandbox.Game.Multiplayer
             }
         }
 
-        private void LoadIdentities(List<MyObjectBuilder_Identity> list)
+        public void LoadIdentities(List<MyObjectBuilder_Identity> list)
         {
-            foreach (var objectBuilder in list)
+			if (list == null)
+                return;            foreach (var objectBuilder in list)
             {
                 var identity = CreateNewIdentity(objectBuilder);
             }

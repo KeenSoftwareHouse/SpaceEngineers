@@ -23,6 +23,8 @@ using Sandbox.Game.Screens.Helpers;
 using VRage.Library.Utils;
 using VRage.FileSystem;
 using VRage.ObjectBuilders;
+using VRage.Collections;
+using Sandbox.Common.ObjectBuilders.Definitions;
 
 namespace Sandbox.Game.World
 {
@@ -190,7 +192,7 @@ namespace Sandbox.Game.World
             else
                 inventory.Items.Clear();
 
-            if (scenario != null)
+            if (scenario != null && MySession.Static.Settings.SpawnWithTools)
             {
                 MyStringId[] guns;
                 if (MySession.Static.CreativeMode)
@@ -239,6 +241,16 @@ namespace Sandbox.Game.World
             voxelMap.Init(storageName, storage, positionMinCorner);
             MyEntities.Add(voxelMap);
             return voxelMap;
+        }
+
+      
+        private static Vector3I FindBestOctreeSize(float radius)
+        {
+            int nodeRadius = MyVoxelConstants.RENDER_CELL_SIZE_IN_VOXELS;
+            while (nodeRadius < radius)
+                nodeRadius *= 2;
+            //nodeRadius *= 2;
+            return new Vector3I(nodeRadius, nodeRadius, nodeRadius);
         }
 
         public static void AddEntity(MyObjectBuilder_EntityBase entityBuilder)
@@ -330,15 +342,15 @@ namespace Sandbox.Game.World
         public static void SetProceduralSettings(int? asteroidAmount, MyObjectBuilder_SessionSettings sessionSettings)
         {
             sessionSettings.ProceduralSeed = MyRandom.Instance.Next();
-            switch ((MyGuiScreenWorldSettings.AsteroidAmountEnum)asteroidAmount)
+            switch ((MyGuiScreenWorldGeneratorSettings.AsteroidAmountEnum)asteroidAmount)
             {
-                case MyGuiScreenWorldSettings.AsteroidAmountEnum.ProceduralLow:
+                case MyGuiScreenWorldGeneratorSettings.AsteroidAmountEnum.ProceduralLow:
                     sessionSettings.ProceduralDensity = 0.25f;
                     break;
-                case MyGuiScreenWorldSettings.AsteroidAmountEnum.ProceduralNormal:
+                case MyGuiScreenWorldGeneratorSettings.AsteroidAmountEnum.ProceduralNormal:
                     sessionSettings.ProceduralDensity = 0.35f;
                     break;
-                case MyGuiScreenWorldSettings.AsteroidAmountEnum.ProceduralHigh:
+                case MyGuiScreenWorldGeneratorSettings.AsteroidAmountEnum.ProceduralHigh:
                     sessionSettings.ProceduralDensity = 0.50f;
                     break;
                 default:

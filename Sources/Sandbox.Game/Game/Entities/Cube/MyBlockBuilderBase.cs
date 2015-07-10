@@ -37,8 +37,8 @@ namespace Sandbox.Game.Entities
             MyControlsSpace.CUBE_ROTATE_ROLL_NEGATIVE,
         };
 
-        public static float DEFAULT_BLOCK_BUILDING_DISTANCE = MyFakes.ENABLE_CUBE_BUILDER_DYNAMIC_MODE ? 20f : 50f;
-        public static float MAX_BLOCK_BUILDING_DISTANCE = MyFakes.ENABLE_CUBE_BUILDER_DYNAMIC_MODE ? 20f : 50f;
+        public static float DEFAULT_BLOCK_BUILDING_DISTANCE = MyFakes.ENABLE_CUBE_BUILDER_DYNAMIC_MODE ? 20f : 100f;
+        public static float MAX_BLOCK_BUILDING_DISTANCE = MyFakes.ENABLE_CUBE_BUILDER_DYNAMIC_MODE ? 20f : 100f;
         public static float MIN_BLOCK_BUILDING_DISTANCE = 1f;
 
         protected static readonly int[] m_rotationDirections = new int[6] { -1, 1, 1, -1, 1, -1 };
@@ -71,7 +71,7 @@ namespace Sandbox.Game.Entities
             get
             {
                 return MyFakes.ENABLE_ADMIN_SPECTATOR_BUILDING && MySession.GetCameraControllerEnum() == MyCameraControllerEnum.Spectator
-                    && MyMultiplayer.Static != null && MyMultiplayer.Static.IsAdmin(MySession.LocalHumanPlayer.Id.SteamId);
+                    && MyMultiplayer.Static != null && MyMultiplayer.Static.IsAdmin(MySession.LocalHumanPlayer.Id.SteamId) && MySession.Static != null && !MySession.Static.Battle;
             }
         }
 
@@ -107,7 +107,9 @@ namespace Sandbox.Game.Entities
         {
             get
             {
-                return MySector.MainCamera.Position;
+				var cameraController = MySession.GetCameraControllerEnum();
+				return (cameraController == MyCameraControllerEnum.Entity
+						|| cameraController == MyCameraControllerEnum.ThirdPersonSpectator) ? MySession.ControlledEntity.GetHeadMatrix(false).Translation : MySector.MainCamera.Position;
             }
         }
 
@@ -152,9 +154,6 @@ namespace Sandbox.Game.Entities
 
             m_invGridWorldMatrix = CurrentGrid != null ? MatrixD.Invert(CurrentGrid.WorldMatrix) : MatrixD.Identity;
         }
-
-        public abstract bool CanStartConstruction(MyCharacter character);
-        public abstract bool AddConstruction(MyCharacter character);
 
         protected static void AddFastBuildModelWithSubparts(ref MatrixD matrix, List<MatrixD> matrices, List<string> models, MyCubeBlockDefinition blockDefinition)
         {

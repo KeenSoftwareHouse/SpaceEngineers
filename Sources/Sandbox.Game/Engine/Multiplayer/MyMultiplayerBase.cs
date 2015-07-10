@@ -21,6 +21,8 @@ using VRage.Compiler;
 using VRage.ObjectBuilders;
 using VRage.Serialization;
 using VRage.Trace;
+using ProtoBuf;
+using Sandbox.Common.ObjectBuilders.Definitions;
 
 
 #endregion
@@ -40,6 +42,9 @@ namespace Sandbox.Engine.Multiplayer
         JoinResult,
         Ack,
         Ping,
+
+        BattleData,
+        BattleKeyValue,
     }
 
 
@@ -71,6 +76,20 @@ namespace Sandbox.Engine.Multiplayer
     {
         public ulong BannedClient;
         public BoolBlit Banned;
+    }
+
+    [MessageId(13885, P2PMessageEnum.Reliable)]
+    [ProtoContract]
+    public struct AllMembersDataMsg
+    {
+        [ProtoMember]
+        public List<MyObjectBuilder_Identity> Identities;
+        [ProtoMember]
+        public List<MyPlayerCollection.AllPlayerData> Players;
+        [ProtoMember]
+        public List<MyObjectBuilder_Faction> Factions;
+        [ProtoMember]
+        public List<MyObjectBuilder_Client> Clients;
     }
 
     #endregion
@@ -314,6 +333,12 @@ namespace Sandbox.Engine.Multiplayer
             set;
         }
 
+        public abstract ulong BattleWorldWorkshopId
+        {
+            get;
+            set;
+        }
+
         public abstract int BattleFaction1MaxBlueprintPoints
         {
             get;
@@ -455,7 +480,7 @@ namespace Sandbox.Engine.Multiplayer
         }
         
 
-        protected void RegisterControlMessage<T>(MyControlMessageEnum msg, ControlMessageHandler<T> handler) where T: struct
+        internal void RegisterControlMessage<T>(MyControlMessageEnum msg, ControlMessageHandler<T> handler) where T: struct
         {
             MyControlMessageCallback<T> callback = new MyControlMessageCallback<T>(handler, MySyncLayer.GetSerializer<T>());
             m_controlMessageHandlers.Add((int)msg, callback);
@@ -513,7 +538,7 @@ namespace Sandbox.Engine.Multiplayer
            // Peer2Peer.SendPacket(user, (byte*)&msg, sizeof(ControlMessageStruct), P2PMessageEnum.Reliable, MyMultiplayer.ControlChannel);
         }
 
-        protected void SendControlMessageToAllAndSelf<T>(ref T message) where T : struct
+        internal void SendControlMessageToAllAndSelf<T>(ref T message) where T : struct
         {
             for (int i = 0; i < MemberCount; i++)
             {
@@ -522,7 +547,7 @@ namespace Sandbox.Engine.Multiplayer
             }
         }
 
-        protected void SendControlMessageToAll<T>(ref T message) where T : struct
+        internal void SendControlMessageToAll<T>(ref T message) where T : struct
         {
             for (int i = 0; i < MemberCount; i++)
             {
@@ -658,6 +683,14 @@ namespace Sandbox.Engine.Multiplayer
             MyTrace.Send(TraceWindow.Multiplayer, "Processing client messages");
             SyncLayer.TransportLayer.IsBuffering = false;
             MyTrace.Send(TraceWindow.Multiplayer, "Processing client messages - done");
+        }
+
+        /// <summary>
+        /// Call when empty world is created (battle lobby)
+        /// </summary>
+        public virtual void StartProcessingClientMessagesWithEmptyWorld()
+        {
+            StartProcessingClientMessages();
         }
 
         bool TransportLayer_TypemapAccept(ulong userId)
@@ -808,5 +841,40 @@ namespace Sandbox.Engine.Multiplayer
                     Peer2Peer.CloseSession(member);
             }
         }
+
+        public void SendAllMembersDataToClient(ulong clientId)
+        {
+            Debug.Assert(Sync.IsServer);
+
+            var response = new AllMembersDataMsg();
+            if (Sync.Players != null)
+            {
+                response.Identities = Sync.Players.SaveIdentities();
+                response.Players = Sync.Players.SavePlayers();
+            }
+
+            if (MySession.Static.Factions != null)
+                response.Factions = MySession.Static.Factions.SaveFactions();
+
+            response.Clients = MySession.Static.SaveMembers(true);
+
+            SyncLayer.SendMessage(ref response, clientId);
+        }
+
+        protected void ProcessAllMembersData(ref AllMembersDataMsg msg)
+        {
+            Debug.Assert(!Sync.IsServer);
+
+            Sync.Players.ClearIdentities();
+            if (msg.Identities != null)
+                Sync.Players.LoadIdentities(msg.Identities);
+
+            Sync.Players.ClearPlayers();
+            if (msg.Players != null)
+                Sync.Players.LoadPlayers(msg.Players);
+
+            MySession.Static.Factions.LoadFactions(msg.Factions, true);
+        }
+
     }
 }

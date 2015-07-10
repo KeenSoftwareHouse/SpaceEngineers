@@ -143,15 +143,19 @@ namespace Sandbox.Engine.Voxels
 
             if (m_dataProvider != null)
             {
-                var leafId = new MyCellCoord(m_treeHeight, ref Vector3I.Zero).PackId64();
+                var cellCoord = new MyCellCoord(m_treeHeight, ref Vector3I.Zero);
+                var leafId = cellCoord.PackId64();
+                cellCoord.Lod += LeafLodCount;
                 var end = Size - 1;
                 if (resetContent)
                 {
-                    m_contentLeaves.Add(leafId, new MyProviderLeaf(m_dataProvider, MyStorageDataTypeEnum.Content, ref Vector3I.Zero, ref end));
+                    m_contentLeaves.Add(leafId,
+                        new MyProviderLeaf(m_dataProvider, MyStorageDataTypeEnum.Content, ref cellCoord));
                 }
                 if (resetMaterials)
                 {
-                    m_materialLeaves.Add(leafId, new MyProviderLeaf(m_dataProvider, MyStorageDataTypeEnum.Material, ref Vector3I.Zero, ref end));
+                    m_materialLeaves.Add(leafId,
+                        new MyProviderLeaf(m_dataProvider, MyStorageDataTypeEnum.Material, ref cellCoord));
                 }
             }
             else
@@ -239,24 +243,19 @@ namespace Sandbox.Engine.Voxels
             }
 
             { // At this point data provider should be loaded too, so have him create leaves
-                Vector3I min, max;
                 MyCellCoord cell = new MyCellCoord();
                 foreach (var key in contentLeaves)
                 {
                     cell.SetUnpack(key);
-                    var leafSize = LeafSizeInVoxels << cell.Lod;
-                    min = cell.CoordInLod * leafSize;
-                    max = min + leafSize - 1;
-                    m_contentLeaves.Add(key, new MyProviderLeaf(m_dataProvider, MyStorageDataTypeEnum.Content, ref min, ref max));
+                    cell.Lod += LeafLodCount;
+                    m_contentLeaves.Add(key, new MyProviderLeaf(m_dataProvider, MyStorageDataTypeEnum.Content, ref cell));
                 }
 
                 foreach (var key in materialLeaves)
                 {
                     cell.SetUnpack(key);
-                    var leafSize = LeafSizeInVoxels << cell.Lod;
-                    min = cell.CoordInLod * leafSize;
-                    max = min + leafSize - 1;
-                    m_materialLeaves.Add(key, new MyProviderLeaf(m_dataProvider, MyStorageDataTypeEnum.Material, ref min, ref max));
+                    cell.Lod += LeafLodCount;
+                    m_materialLeaves.Add(key, new MyProviderLeaf(m_dataProvider, MyStorageDataTypeEnum.Material, ref cell));
                 }
             }
 
@@ -478,7 +477,7 @@ namespace Sandbox.Engine.Voxels
             Vector3I lodCoord)
         {
             var currentCell = new MyCellCoord(lodIdx, lodCoord);
-            var leafKey = currentCell.PackId32();
+            var leafKey = currentCell.PackId64();
 
             IMyOctreeLeafNode leaf;
             if (leaves.TryGetValue(leafKey, out leaf))
@@ -517,7 +516,7 @@ namespace Sandbox.Engine.Voxels
             {
                 currentCell.Lod -= 1;
 
-                var nodeKey = currentCell.PackId32();
+                var nodeKey = currentCell.PackId64();
                 var node = nodes[nodeKey];
 
                 var childBase = lodCoord << 1;
@@ -552,6 +551,7 @@ namespace Sandbox.Engine.Voxels
 
         /// <summary>
         /// Resets aabbb outside area of the given voxel map to default. Area inside aabb (inclusive) stays the same.
+        /// mk:TODO Remove MyVoxelBase and bounding box reference and just pass in integer range. Move computation of range to entities.
         /// </summary>
         public override void ResetOutsideBorders(MyVoxelBase voxelMap, BoundingBoxD worldAabb) 
         {
@@ -592,7 +592,7 @@ namespace Sandbox.Engine.Voxels
             var currentCell = new MyCellCoord(lodIdx, lodCoord);
             var key = currentCell.PackId64();
             var leafCell = currentCell;
-            var leafKey = leafCell.PackId32();
+            var leafKey = leafCell.PackId64();
 
             IMyOctreeLeafNode leaf;
             if (leaves.TryGetValue(leafKey, out leaf))
@@ -614,11 +614,9 @@ namespace Sandbox.Engine.Voxels
                         canCollapse = true;
 
                         leaves.Remove(leafKey);
-
-                        var leafSize = LeafSizeInVoxels << leafCell.Lod;
-                        var minLeafVoxel = leafCell.CoordInLod * leafSize;
-                        var maxLeafVoxel = minLeafVoxel + (leafSize - 1);
-                        var leafNew = new MyProviderLeaf(provider, dataType, ref minLeafVoxel, ref maxLeafVoxel);
+                        var leafCellCopy = leafCell;
+                        leafCellCopy.Lod += LeafLodCount;
+                        var leafNew = new MyProviderLeaf(provider, dataType, ref leafCellCopy);
                         leaves.Add(leafKey, leafNew);
 
                         changed = true;
@@ -634,7 +632,7 @@ namespace Sandbox.Engine.Voxels
                 key = currentCell.PackId64();
                 var nodeCell = currentCell;
 
-                var nodeKey = currentCell.PackId32();
+                var nodeKey = currentCell.PackId64();
                 var node = nodes[nodeKey];
 
                 var childBase = lodCoord << 1;
@@ -642,7 +640,6 @@ namespace Sandbox.Engine.Voxels
                 var minInChild = (minVoxel >> (LeafLodCount + currentCell.Lod)) - childBase;
                 var maxInChild = (maxVoxel >> (LeafLodCount + currentCell.Lod)) - childBase;
                 var leafSize = LeafSizeInVoxels << currentCell.Lod;
-                Vector3I childMin, childMax;
 
                 unsafe
                 {
@@ -669,10 +666,10 @@ namespace Sandbox.Engine.Voxels
                         }
                         else
                         {
-                            childMin = currentCell.CoordInLod * leafSize;
-                            childMax = childMin + (leafSize - 1);
-                            IMyOctreeLeafNode octreeLeaf = new MyProviderLeaf(provider, dataType, ref childMin, ref childMax);
-                            leaves.Add(currentCell.PackId32(), octreeLeaf);
+                            var currentCellCopy = currentCell;
+                            currentCellCopy.Lod += LeafLodCount;
+                            IMyOctreeLeafNode octreeLeaf = new MyProviderLeaf(provider, dataType, ref currentCellCopy);
+                            leaves.Add(currentCell.PackId64(), octreeLeaf);
                             node.SetChild(i, true);
                             node.SetData(i, octreeLeaf.GetFilteredValue());
 
@@ -701,10 +698,9 @@ namespace Sandbox.Engine.Voxels
                         nodes.Remove(nodeKey);
 
                         // Add leaf
-                        var newLeafSize = LeafSizeInVoxels << leafCell.Lod;
-                        var minLeafVoxel = leafCell.CoordInLod * newLeafSize;
-                        var maxLeafVoxel = minLeafVoxel + (newLeafSize - 1);
-                        var leafNew = new MyProviderLeaf(provider, dataType, ref minLeafVoxel, ref maxLeafVoxel);
+                        var leafCellCopy = leafCell;
+                        leafCellCopy.Lod += LeafLodCount;
+                        var leafNew = new MyProviderLeaf(provider, dataType, ref leafCellCopy);
                         leaves.Add(leafKey, leafNew);
                 }
             }
@@ -833,14 +829,13 @@ namespace Sandbox.Engine.Voxels
                     MyCellCoord child = new MyCellCoord();
                     child.Lod = leaf.Lod - 1;
                     var leafSize = LeafSizeInVoxels << child.Lod;
-                    Vector3I childMin, childMax;
                     for (int i = 0; i < MyOctreeNode.CHILD_COUNT; ++i)
                     {
                         ComputeChildCoord(i, out childOffset);
                         child.CoordInLod = childBase + childOffset;
-                        childMin = child.CoordInLod * leafSize;
-                        childMax = childMin + (leafSize - 1);
-                        IMyOctreeLeafNode octreeLeaf =  new MyProviderLeaf(args.Provider, args.DataType, ref childMin, ref childMax);
+                        var childCopy = child;
+                        childCopy.Lod += LeafLodCount;
+                        IMyOctreeLeafNode octreeLeaf = new MyProviderLeaf(args.Provider, args.DataType, ref childCopy);
                         args.Leaves.Add(child.PackId64(), octreeLeaf);
                         node.SetChild(i, true);
                         node.SetData(i, octreeLeaf.GetFilteredValue());

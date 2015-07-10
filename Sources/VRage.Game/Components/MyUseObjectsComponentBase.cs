@@ -4,7 +4,6 @@ using System.Linq;
 using System.Text;
 using VRage.Components;
 using VRage.Game.Entity.UseObject;
-using VRage.Utils;
 using VRageMath;
 
 namespace VRage.Components
@@ -13,18 +12,12 @@ namespace VRage.Components
     {
         protected Dictionary<string, List<Matrix>> m_detectors = new Dictionary<string, List<Matrix>>();
 
-        public static MyStringId ComponentName = MyStringId.GetOrCompute("UseObjects");
+        public abstract MyPhysicsComponentBase DetectorPhysics { get; protected set; }
 
-        public abstract MyPhysicsComponentBase DetectorPhysics { get; }
-
-        public abstract void AddDetector(string name, Matrix matrix);
+        public abstract int AddDetector(string name, Matrix matrix);
+        public abstract void RemoveDetector(int id);
         public abstract void RecreatePhysics();
         public abstract void LoadDetectorsFromModel();
-
-        public override MyStringId Name
-        {
-            get { return ComponentName; }
-        }
 
         public abstract IMyUseObject GetInteractiveObject(int shapeKey);
         public abstract void GetInteractiveObjects<T>(List<T> objects)
@@ -71,11 +64,31 @@ namespace VRage.Components
             }
         }
 
-        public override void OnRemovedFromContainer()
+        public override void OnBeforeRemovedFromContainer()
         {
-            base.OnRemovedFromContainer();
+            base.OnBeforeRemovedFromContainer();
 
             ClearPhysics();
+        }
+
+        public override void OnAddedToScene()
+        {
+            base.OnAddedToScene();
+
+            if (DetectorPhysics != null)
+            {
+                DetectorPhysics.Activate();
+            }
+        }
+
+        public override void OnRemovedFromScene()
+        {
+            base.OnRemovedFromScene();
+
+            if (DetectorPhysics != null)
+            {
+                DetectorPhysics.Deactivate();
+            }
         }
     }
 }

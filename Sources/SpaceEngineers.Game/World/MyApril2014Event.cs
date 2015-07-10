@@ -20,7 +20,6 @@ using VRage.Utils;
 using VRage.Audio;
 using VRage.Library.Utils;
 using Sandbox.Game.Entities;
-using SpaceEngineers.Game.Entities.Blocks;
 
 namespace SpaceEngineers.Game.World
 {

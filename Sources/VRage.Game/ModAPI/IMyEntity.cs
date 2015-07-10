@@ -106,16 +106,6 @@ namespace VRage.ModAPI
     }
     #endregion
 
-    public static class DefaultNames
-    {
-        public static MyStringId Physics = MyStringId.GetOrCompute("Physics");
-        public static MyStringId Position = MyStringId.GetOrCompute("Position");
-        public static MyStringId Render = MyStringId.GetOrCompute("Render");
-        public static MyStringId Logic = MyStringId.GetOrCompute("Logic");
-        public static MyStringId Hierarchy = MyStringId.GetOrCompute("Hierarchy");
-        public static MyStringId Sync = MyStringId.GetOrCompute("Sync");
-    }
-    
     public interface IMyEntity
     {
         //Components

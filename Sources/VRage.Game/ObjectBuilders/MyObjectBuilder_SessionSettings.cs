@@ -199,6 +199,11 @@ namespace Sandbox.Common.ObjectBuilders
         public int ViewDistance = 20000;
 
         [ProtoMember]
+        [Display(Name = "Flora density")]
+        [GameRelationAttribute(Game.SpaceEngineers)]
+        public int FloraDensity = 20;
+
+        [ProtoMember]
         [DefaultValue(false)]// must leave default value here because it fails to deserialize world if it finds old save where this was nullable (bleh)
         [Display(Name = "Enable tool shake")]
         [GameRelationAttribute(Game.SpaceEngineers)]
@@ -226,13 +231,89 @@ namespace Sandbox.Common.ObjectBuilders
         public bool EnableEncounters = true;
 
         [ProtoMember]
+        [Display(Name = "Enable flora")]
+        [GameRelationAttribute(Game.SpaceEngineers)]
+        public bool EnableFlora = false;
+
+        [ProtoMember]
+        [Display(Name = "Enable Station Voxel Support")]
+        [GameRelationAttribute(Game.SpaceEngineers)]
+        public bool EnableStationVoxelSupport = false;
+
+        [ProtoMember]
+        [Display(Name = "Enable Planets")]
+        [GameRelationAttribute(Game.SpaceEngineers)]
+        public bool EnablePlanets = false;
+
+        [ProtoMember]
+        [Display(Name = "Enable Sun Rotation")]
+        [GameRelationAttribute(Game.SpaceEngineers)]
+        public bool EnableSunRotation = false;
+
+        // Should have been named "EnableRespawnShips" to avoid a negative
+        // but it's alread public now
+        [ProtoMember]
+        [Display(Name = "Disable respawn ships")]
+        [GameRelationAttribute(Game.SpaceEngineers)]
+        public bool DisableRespawnShips = false;
+
+        [ProtoMember]
+        [Display(Name = "")]
+        [GameRelationAttribute(Game.SpaceEngineers)]
+        public bool ScenarioEditMode = false;
+
+        [ProtoMember]
         [GameRelationAttribute(Game.MedievalEngineers)]
         [Display(Name = "")]
         public bool Battle = false;
 
         [ProtoMember]
+        [Display(Name = "")]
+        [GameRelationAttribute(Game.SpaceEngineers)]
+        public bool Scenario = false;
+
+        [ProtoMember]
+        [Display(Name = "")]
+        [GameRelationAttribute(Game.SpaceEngineers)]
+        public bool CanJoinRunning = false;
+
+        [ProtoMember]
         public int PhysicsIterations = 4;
 
+        [ProtoMember]
+        [Display(Name = "Sun rotation interval")]
+        [GameRelationAttribute(Game.SpaceEngineers)]
+        public double SunRotationIntervalMinutes = 4 * 60; // 4 hours
+
+        [ProtoMember]
+        [Display(Name = "Enable jetpack")]
+        [GameRelationAttribute(Game.SpaceEngineers)]
+        public bool EnableJetpack = true;
+
+        [ProtoMember]
+        [Display(Name = "Spawn with tools")]
+        [GameRelationAttribute(Game.SpaceEngineers)]
+        public bool SpawnWithTools = true;
+
+        [ProtoMember]
+        [Display(Name = "Planet min size")]
+        [GameRelationAttribute(Game.SpaceEngineers)]
+        public float PlanetMinSize = 30 * 1000;
+
+        [ProtoMember]
+        [Display(Name = "Planet max size")]
+        [GameRelationAttribute(Game.SpaceEngineers)]
+        public float PlanetMaxSize = 50 * 1000;
+
+        [ProtoMember]
+        [Display(Name = "Moon min size")]
+        [GameRelationAttribute(Game.SpaceEngineers)]
+        public float MoonMinSize = 8 * 1000;
+
+        [ProtoMember]
+        [Display(Name = "Moon max size")]
+        [GameRelationAttribute(Game.SpaceEngineers)]
+        public float MoonMaxSize = 10 * 1000;
 
         public void LogMembers(MyLog log, LoggingOptions options)
         {
@@ -280,7 +361,7 @@ namespace Sandbox.Common.ObjectBuilders
         Normal = 8,
         Precise = 32,
     }
-    
+
     public enum MyOnlineModeEnum
     {
         OFFLINE,

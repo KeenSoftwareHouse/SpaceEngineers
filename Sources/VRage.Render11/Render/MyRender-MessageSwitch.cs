@@ -118,10 +118,9 @@ namespace VRageRender
                     var rMessage = (MyRenderMessageCreateRenderCharacter)message;
 
                     var actor = MyActorFactory.CreateCharacter();
-                    Matrix worldMatrixF = rMessage.WorldMatrix;
                     //actor.GetRenderable().SetModel(MyAssetsLoader.GetModel(rMessage.Model));
                     actor.GetRenderable().SetModel(MyMeshes.GetMeshId(X.TEXT(rMessage.Model)));
-                    actor.SetMatrix(ref worldMatrixF);
+                    actor.SetMatrix(ref rMessage.WorldMatrix);
 
                     if (rMessage.ColorMaskHSV.HasValue)
                     {
@@ -258,7 +257,7 @@ namespace VRageRender
                     }
 
                     actor.SetID(rMessage.ID);
-                    actor.SetMatrix(ref m);
+                    actor.SetMatrix(ref rMessage.WorldMatrix);
 
                     break;
                 }
@@ -296,7 +295,7 @@ namespace VRageRender
                     }
 
                     actor.SetID(rMessage.ID);
-                    actor.SetMatrix(ref m);
+                    actor.SetMatrix(ref rMessage.WorldMatrix);
 
                     MyRenderableComponent.DebrisEntityVoxelMaterial[rMessage.ID] = rMessage.VoxelMaterialIndex;
 
@@ -308,6 +307,29 @@ namespace VRageRender
                     var rMessage = (MyRenderMessageCreateScreenDecal)message;
 
                     MyScreenDecals.AddDecal(rMessage.ID, rMessage.ParentID, rMessage.LocalOBB, rMessage.DecalMaterial);
+
+                    break;
+                }
+
+                case MyRenderMessageEnum.CreateRenderEntityAtmosphere:
+                {
+                    var rMessage = (MyRenderMessageCreateRenderEntityAtmosphere)message;
+
+                    if (rMessage.Technique == VRage.Import.MyMeshDrawTechnique.ATMOSPHERE) {
+
+                        //rMessage = (rMessage.AtmosphereRadius - rMessage.PlanetRadius) * 5 + rMessage.PlanetRadius;
+
+                        //rMessage.AtmosphereRadius *= 1.5f;
+                        //rMessage.WorldMatrix = MatrixD.CreateScale(1.5, 1.5, 1.5) * rMessage.WorldMatrix;
+
+                        float rescaleFactor = (rMessage.AtmosphereRadius - rMessage.PlanetRadius) / (6420 - 6360); // ratio of planet to earth radius
+                        Vector3 rayleighScattering = new Vector3(1.8e-3f, 1.35e-2f, 3.31e-2f) / rescaleFactor;
+                        Vector3 mieScattering = new Vector3(4e-3f, 4e-3f, 4e-3f) / rescaleFactor;
+                        float rayleighHeightScale = 8 * rescaleFactor;
+                        float mieHeightScale = 1.2f * rescaleFactor;
+                        
+                        MyAtmosphereRenderer.CreateAtmosphere(rMessage.ID, rMessage.WorldMatrix, rMessage.PlanetRadius, rMessage.AtmosphereRadius, rayleighScattering, rayleighHeightScale, mieScattering, mieHeightScale);
+                    }
 
                     break;
                 }
@@ -338,11 +360,10 @@ namespace VRageRender
                     var actor = MyIDTracker<MyActor>.FindByID(rMessage.ID);
                     if (actor != null)
                     {
-                        Matrix m = (Matrix)rMessage.WorldMatrix;
-                        actor.SetMatrix(ref m);
+                        actor.SetMatrix(ref rMessage.WorldMatrix);
                         if(rMessage.AABB.HasValue)
                         { 
-                            actor.SetAabb((BoundingBox)rMessage.AABB.Value);
+                            actor.SetAabb(rMessage.AABB.Value);
                         }
                         
                     }
@@ -382,25 +403,33 @@ namespace VRageRender
 
                         actor.Destruct();
                         MyScreenDecals.RemoveEntityDecals(rMessage.ID);
+
+                        break;
                     }
 
                     var instancing = MyInstancing.Get(rMessage.ID);
                     if(instancing != InstancingId.NULL)
                     {
                         MyInstancing.Remove(rMessage.ID, instancing);
+                        break;
                     }
 
                     var light = MyLights.Get(rMessage.ID);
                     if(light != LightId.NULL)
                     {
                         MyLights.Remove(rMessage.ID, light);
+                        break;
                     }
 
                     var clipmap = MyClipmapFactory.ClipmapByID.Get(rMessage.ID);
                     if(clipmap != null)
                     {
                         clipmap.RemoveFromUpdate();
+                        break;
                     }
+
+                    MyAtmosphereRenderer.RemoveAtmosphere(rMessage.ID);
+
 
                     break;
                 }
@@ -454,7 +483,16 @@ namespace VRageRender
                     //    instancing.UpdateGeneric(rMessage.InstanceData, rMessage.Capacity);
                     //}
 
-                    MyInstancing.UpdateGeneric(MyInstancing.Get(rMessage.ID), rMessage.InstanceData, rMessage.Capacity);
+                    var handle = MyInstancing.Get(rMessage.ID);
+
+                    if (handle != InstancingId.NULL)
+                    {
+                        MyInstancing.UpdateGeneric(handle, rMessage.InstanceData, rMessage.Capacity);
+                    }
+                    else
+                    {
+                        Debug.Assert(handle != InstancingId.NULL, "No instance buffer with ID " + rMessage.ID);
+                    }
 
                     rMessage.InstanceData.Clear();
 
@@ -470,7 +508,17 @@ namespace VRageRender
                     //{
                     //    instancing.UpdateCube(rMessage.InstanceData, rMessage.Capacity);
                     //}
-                    MyInstancing.UpdateCube(MyInstancing.Get(rMessage.ID), rMessage.InstanceData, rMessage.Capacity);
+
+                    var handle = MyInstancing.Get(rMessage.ID);
+
+                    if (handle != InstancingId.NULL)
+                    {
+                        MyInstancing.UpdateCube(MyInstancing.Get(rMessage.ID), rMessage.InstanceData, rMessage.Capacity);
+                    }
+                    else
+                    {
+                        Debug.Assert(handle != InstancingId.NULL, "No instance buffer with ID " + rMessage.ID);
+                    }
 
                     rMessage.InstanceData.Clear();
 
@@ -508,7 +556,7 @@ namespace VRageRender
                     var actor = MyActorFactory.CreateGroup();
                     actor.SetID(rMessage.ID);
                     Matrix m = (Matrix)rMessage.WorldMatrix;
-                    actor.SetMatrix(ref m);
+                    actor.SetMatrix(ref rMessage.WorldMatrix);
 
                     break;
                 }
@@ -536,7 +584,7 @@ namespace VRageRender
                     //actor.GetRenderable().SetModel(new MyDynamicMesh());
 
                     actor.SetID(rMessage.ID);
-                    actor.SetMatrix(ref Matrix.Identity);
+                    actor.SetMatrix(ref MatrixD.Identity);
 
                     MyMeshMaterials1.GetMaterialId("__ROPE_MATERIAL", null, rMessage.ColorMetalTexture, rMessage.NormalGlossTexture, rMessage.ExtensionTexture, MyMesh.DEFAULT_MESH_TECHNIQUE);
                     actor.GetRenderable().SetModel(MyMeshes.CreateRuntimeMesh(X.TEXT("LINE" + rMessage.ID), 1, true));
@@ -575,7 +623,7 @@ namespace VRageRender
                         //actor.SetAabb((BoundingBox)MyLineHelpers.GetBoundingBox(ref rMessage.WorldPointA, ref rMessage.WorldPointB));
                         actor.MarkRenderDirty();
 
-                        var matrix = Matrix.CreateTranslation((Vector3)(rMessage.WorldPointA + rMessage.WorldPointB) * 0.5f);
+                        var matrix = MatrixD.CreateTranslation((Vector3)(rMessage.WorldPointA + rMessage.WorldPointB) * 0.5f);
                         actor.SetMatrix(ref matrix);
                     }
 
@@ -647,6 +695,7 @@ namespace VRageRender
                     var actor = MyIDTracker<MyActor>.FindByID(rMessage.ID);
                     if (actor != null)
                     {
+                        // careful, lod is ignored after all (properties apply to all lods)
                         var key = new MyEntityMaterialKey { LOD = rMessage.LOD, Material = X.TEXT(rMessage.MaterialName) };
 
                         if(rMessage.Enabled.HasValue)
@@ -1181,6 +1230,8 @@ namespace VRageRender
 
                     MyShaders.Recompile();
                     MyMaterialShaders.Recompile();
+
+                    MyAtmosphereRenderer.RecomputeAtmospheres();
 
                     MyRenderableComponent.MarkAllDirty();
 

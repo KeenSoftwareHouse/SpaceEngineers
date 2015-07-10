@@ -88,13 +88,13 @@ namespace Sandbox.Game.Screens.Helpers
             base.Update();
         }
 
-        public override void Draw(float transitionAlpha)
+        public override void Draw(float transitionAlpha, float backgroundTransitionAlpha)
         {
             Color c = Color.White;
             if (MyToolbar.ColorMaskHSV != null)
                 c = (new Vector3(MyToolbar.ColorMaskHSV.X, MathHelper.Clamp(MyToolbar.ColorMaskHSV.Y + 0.8f, 0f, 1f), MathHelper.Clamp(MyToolbar.ColorMaskHSV.Z + 0.55f, 0f, 1f))).HSVtoColor();
             m_colorVariantPanel.ColorMask = c.ToVector4();//MyCubeBuilder.VariantColor;
-            base.Draw(transitionAlpha);
+            base.Draw(transitionAlpha, backgroundTransitionAlpha);
         }
 
         protected override void OnSizeChanged()

@@ -27,6 +27,8 @@ namespace Sandbox.Game.Entities.Blocks
     [MyCubeBlockType(typeof(MyObjectBuilder_AirVent))]
     class MyAirVent : MyFunctionalBlock, IMyPowerConsumer, IMyOxygenConsumer, IMyOxygenProducer, IMyAirVent, IMyConveyorEndpointBlock
     {
+        private static string[] m_emissiveNames = { "Emissive1", "Emissive2", "Emissive3", "Emissive4" };
+
         MyModelDummy VentDummy
         {
             get
@@ -36,6 +38,9 @@ namespace Sandbox.Game.Entities.Blocks
                 return dummy;
             }
         }
+
+        private Color m_prevColor = Color.White;
+        private int m_prevFillCount = -1;
 
         private bool m_isProducing;
         private bool m_producedSinceLastUpdate;
@@ -324,7 +329,9 @@ namespace Sandbox.Game.Entities.Blocks
                 {
                     if (oxygenBlock.Room != null)
                     {
-                        SetEmissive(Color.Yellow, oxygenBlock.OxygenLevel(CubeGrid.GridSize));
+                        float oxygenLevel = oxygenBlock.OxygenLevel(CubeGrid.GridSize);
+                        oxygenLevel = Math.Max(oxygenLevel, oxygenBlock.Room.EnvironmentOxygen);
+                        SetEmissive(Color.Yellow, oxygenLevel);
                     }
                 }
             }
@@ -364,36 +371,31 @@ namespace Sandbox.Game.Entities.Blocks
 
         private void SetEmissive(Color color, float fill)
         {
-            if (Render.RenderObjectIDs[0] != VRageRender.MyRenderProxy.RENDER_ID_UNASSIGNED)
+            int fillCount = (int)(fill * m_emissiveNames.Length);
+
+            if (Render.RenderObjectIDs[0] != VRageRender.MyRenderProxy.RENDER_ID_UNASSIGNED && (color != m_prevColor || fillCount != m_prevFillCount))
             {
-                VRageRender.MyRenderProxy.UpdateModelProperties(Render.RenderObjectIDs[0], 0, null, -1, "Emissive1", null, color, null, null, 0);
-                if (fill > 0.25f)
+                for (int i = 0; i < m_emissiveNames.Length; i++)
                 {
-                    VRageRender.MyRenderProxy.UpdateModelProperties(Render.RenderObjectIDs[0], 0, null, -1, "Emissive2", null, color, null, null, 0);
+                    if (i <= fillCount)
+                    {
+                        VRageRender.MyRenderProxy.UpdateModelProperties(Render.RenderObjectIDs[0], 0, null, -1, m_emissiveNames[i], null, color, null, null, 0);
+                    }
+                    else
+                    {
+                        VRageRender.MyRenderProxy.UpdateModelProperties(Render.RenderObjectIDs[0], 0, null, -1, m_emissiveNames[i], null, Color.Black, null, null, 0);
+                    }
                 }
-                else
-                {
-                    VRageRender.MyRenderProxy.UpdateModelProperties(Render.RenderObjectIDs[0], 0, null, -1, "Emissive2", null, Color.Black, null, null, 0);
-                }
-
-                if (fill > 0.5f)
-                {
-                    VRageRender.MyRenderProxy.UpdateModelProperties(Render.RenderObjectIDs[0], 0, null, -1, "Emissive3", null, color, null, null, 0);
-                }
-                else
-                {
-                    VRageRender.MyRenderProxy.UpdateModelProperties(Render.RenderObjectIDs[0], 0, null, -1, "Emissive3", null, Color.Black, null, null, 0);
-                }
-
-                if (fill > 0.75f)
-                {
-                    VRageRender.MyRenderProxy.UpdateModelProperties(Render.RenderObjectIDs[0], 0, null, -1, "Emissive4", null, color, null, null, 0);
-                }
-                else
-                {
-                    VRageRender.MyRenderProxy.UpdateModelProperties(Render.RenderObjectIDs[0], 0, null, -1, "Emissive4", null, Color.Black, null, null, 0);
-                }
+                m_prevColor = color;
+                m_prevFillCount = fillCount;
             }
+        }
+
+        public override void OnModelChange()
+        {
+            base.OnModelChange();
+
+            m_prevFillCount = -1;
         }
 
         protected override void Closing()
@@ -452,7 +454,7 @@ namespace Sandbox.Game.Entities.Blocks
                 neededOxygen = 0f;
             }
 
-            return Math.Min(neededOxygen, BlockDefinition.VentilationCapacityPerSecond) * deltaTime;
+            return Math.Min(neededOxygen, BlockDefinition.VentilationCapacityPerSecond * deltaTime);
         }
 
         void IMyOxygenConsumer.Consume(float amount)
@@ -497,19 +499,26 @@ namespace Sandbox.Game.Entities.Blocks
             }
 
             var oxygenBlock = GetOxygenBlock();
-            if (oxygenBlock.Room == null || !oxygenBlock.Room.IsPressurized)
+            if (oxygenBlock.Room == null)
             {
                 return 0f;
             }
 
-            float oxygenLeft = (float)oxygenBlock.Room.OxygenAmount;
-
-            if (oxygenLeft <= 0f)
+            if (oxygenBlock.Room.IsPressurized)
             {
-                oxygenLeft = 0f;
-            }
+                float oxygenLeft = (float)oxygenBlock.Room.OxygenAmount;
 
-            return Math.Min(oxygenLeft, BlockDefinition.VentilationCapacityPerSecond) * deltaTime;
+                if (oxygenLeft <= 0f)
+                {
+                    oxygenLeft = 0f;
+                }
+
+                return Math.Min(oxygenLeft, BlockDefinition.VentilationCapacityPerSecond * deltaTime);
+            }
+            else
+            {
+                return BlockDefinition.VentilationCapacityPerSecond * MyOxygenProviderSystem.GetOxygenInPoint(WorldMatrix.Translation) * deltaTime;
+            }
         }
 
         void IMyOxygenProducer.Produce(float amount)
@@ -523,19 +532,28 @@ namespace Sandbox.Game.Entities.Blocks
             Debug.Assert(amount >= 0f);
 
             var oxygenBlock = GetOxygenBlock();
-            if (oxygenBlock.Room == null || !oxygenBlock.Room.IsPressurized)
+            if (oxygenBlock.Room == null)
             {
                 return;
             }
 
-            oxygenBlock.Room.OxygenAmount -= amount;
-            if (oxygenBlock.Room.OxygenAmount < 0f)
+            if (oxygenBlock.Room.IsPressurized)
             {
-                oxygenBlock.Room.OxygenAmount = 0f;
-            }
+                oxygenBlock.Room.OxygenAmount -= amount;
+                if (oxygenBlock.Room.OxygenAmount < 0f)
+                {
+                    oxygenBlock.Room.OxygenAmount = 0f;
+                }
 
-            if (amount > 0)
+                if (amount > 0)
+                {
+                    m_producedSinceLastUpdate = true;
+                }
+            }
+            else
             {
+                //Take from environment, nothing to do
+                Debug.Assert(MyOxygenProviderSystem.GetOxygenInPoint(WorldMatrix.Translation) > 0f);
                 m_producedSinceLastUpdate = true;
             }
         }

@@ -7,16 +7,16 @@ namespace VRage.Generics
 {
     public class MyObjectsPool<T> where T : class, new()
     {
-        Stack<T> m_unused;
+        Queue<T> m_unused;
         HashSet<T> m_active;
         HashSet<T> m_marked;
 
         //  Count of items allowed to store in this pool.
         int m_baseCapacity;
 
-        public StackReader<T> Unused
+        public QueueReader<T> Unused
         {
-            get { return new StackReader<T>(m_unused); }
+            get { return new QueueReader<T>(m_unused); }
         }
 
         public HashSetReader<T> Active
@@ -49,13 +49,13 @@ namespace VRage.Generics
             Debug.Assert(baseCapacity > 0);
 
             m_baseCapacity = baseCapacity;
-            m_unused = new Stack<T>(m_baseCapacity);
+            m_unused = new Queue<T>(m_baseCapacity);
             m_active = new HashSet<T>();
             m_marked = new HashSet<T>();
 
             for (int i = 0; i < m_baseCapacity; i++)
             {
-                m_unused.Push(new T());
+                m_unused.Enqueue(new T());
             }
         }
 
@@ -68,7 +68,7 @@ namespace VRage.Generics
             if (create)
                 item = new T();
             else
-                item = m_unused.Pop();
+                item = m_unused.Dequeue();
             m_active.Add(item);
             return create;
         }
@@ -80,7 +80,7 @@ namespace VRage.Generics
             T item = default(T);
             if (m_unused.Count > 0)
             {
-                item = m_unused.Pop();
+                item = m_unused.Dequeue();
                 m_active.Add(item);
             }
             Debug.Assert(nullAllowed ? true : item != null, "MyObjectsPool is full and cannot allocate any other item!");
@@ -93,7 +93,7 @@ namespace VRage.Generics
         {
             Debug.Assert(m_active.Contains(item), "Deallocating item which is not in active set of the pool.");
             m_active.Remove(item);
-            m_unused.Push(item);
+            m_unused.Enqueue(item);
         }
 
         //  Marks object for deallocation, but doesn't remove it immediately. Call it during iterating the pool.
@@ -121,7 +121,7 @@ namespace VRage.Generics
         {
             foreach (var active in m_active)
             {
-                m_unused.Push(active);
+                m_unused.Enqueue(active);
             }
             m_active.Clear();
             m_marked.Clear();
@@ -131,7 +131,7 @@ namespace VRage.Generics
         {
             while (Capacity > BaseCapacity && m_unused.Count > 0)
             {
-                m_unused.Pop();
+                m_unused.Dequeue();
             }
             m_unused.TrimExcess();
             m_active.TrimExcess();

@@ -147,7 +147,6 @@ namespace Sandbox.Game
             get { return CurrentVolume; }
         }
 
-
         ModAPI.Interfaces.IMyInventoryOwner Sandbox.ModAPI.Interfaces.IMyInventory.Owner
         {
             get { return Owner; }
@@ -160,7 +159,7 @@ namespace Sandbox.Game
 
         Sandbox.ModAPI.Interfaces.IMyInventoryItem Sandbox.ModAPI.Interfaces.IMyInventory.GetItemByID(uint id)
         {
-            MyInventoryItem? item = GetItemByID(id);
+            MyPhysicalInventoryItem? item = GetItemByID(id);
             if (item != null)
             {
                 return item.Value;
@@ -170,7 +169,7 @@ namespace Sandbox.Game
 
         Sandbox.ModAPI.Interfaces.IMyInventoryItem Sandbox.ModAPI.Interfaces.IMyInventory.FindItem(SerializableDefinitionId contentId)
         {
-            MyInventoryItem? item = FindItem(contentId);
+            MyPhysicalInventoryItem? item = FindItem(contentId);
 
             if (item != null)
             {

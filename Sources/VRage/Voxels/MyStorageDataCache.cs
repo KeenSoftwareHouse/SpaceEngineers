@@ -193,10 +193,17 @@ namespace VRage.Voxels
         {
             Vector3I p;
             for (p.Z = min.Z; p.Z <= max.Z; ++p.Z)
-            for (p.Y = min.Y; p.Y <= max.Y; ++p.Y)
-            for (p.X = min.X; p.X <= max.X; ++p.X)
             {
-                Content(ref p, content);
+                int z = p.Z * m_sZ + (int)MyStorageDataTypeEnum.Content;
+                for (p.Y = min.Y; p.Y <= max.Y; ++p.Y)
+                {
+                    int y = p.Y * m_sY;
+                    for (p.X = min.X; p.X <= max.X; ++p.X)
+                    {
+                        AssertPosition(ref p);
+                        m_data[p.X * m_sX + y + z] = content;
+                    }
+                }
             }
         }
 
