@@ -510,7 +510,7 @@ namespace Sandbox.Game.Entities.Cube
                             if (grid1 != null)
                             {
                                 var blockPos = GetGridPosition(value, grid1, 0);
-                                grid1.DoDamage(impact1, hitInfo, blockPos);
+                                grid1.DoDamage(impact1, hitInfo, blockPos, grid2 != null ? grid2.EntityId : 0);
                             }
                             else
                                 MyDestructionHelper.TriggerDestruction(impact1, (MyPhysicsBody)entity1.Physics, info.ContactPosition, value.ContactPoint.Normal, maxDestructionRadius);
@@ -518,7 +518,7 @@ namespace Sandbox.Game.Entities.Cube
                             if (grid2 != null)
                             {
                                 var blockPos = GetGridPosition(value, grid2, 1);
-                                grid2.DoDamage(impact1, hitInfo, blockPos);
+                                grid2.DoDamage(impact1, hitInfo, blockPos, grid1 != null ? grid1.EntityId : 0);
                             }
                             else
                                 MyDestructionHelper.TriggerDestruction(impact1, (MyPhysicsBody)entity2.Physics, info.ContactPosition, value.ContactPoint.Normal, maxDestructionRadius);
@@ -546,7 +546,7 @@ namespace Sandbox.Game.Entities.Cube
                             if (grid1 != null)
                             {
                                 var blockPos = GetGridPosition(value, grid1, 0);
-                                grid1.DoDamage(impact2, hitInfo, blockPos);
+                                grid1.DoDamage(impact2, hitInfo, blockPos, grid2 != null ? grid2.EntityId : 0);
                             }
                             else
                                 MyDestructionHelper.TriggerDestruction(impact2, (MyPhysicsBody)entity1.Physics, info.ContactPosition, value.ContactPoint.Normal, maxDestructionRadius);
@@ -554,7 +554,7 @@ namespace Sandbox.Game.Entities.Cube
                             if (grid2 != null)
                             {
                                 var blockPos = GetGridPosition(value, grid2, 1);
-                                grid2.DoDamage(impact2, hitInfo, blockPos);
+                                grid2.DoDamage(impact2, hitInfo, blockPos, grid1 != null ? grid1.EntityId : 0);
                             }
                             else
                                 MyDestructionHelper.TriggerDestruction(impact2, (MyPhysicsBody)entity2.Physics, info.ContactPosition, value.ContactPoint.Normal, maxDestructionRadius);
@@ -751,7 +751,7 @@ namespace Sandbox.Game.Entities.Cube
             var pos = Vector3D.Transform(pt.ContactPosition, invWorld);
             var normal = Vector3D.TransformNormal(pt.ContactPoint.Normal, invWorld) * pt.ContactPointDirection;
 
-            bool destroyed = ApplyDeformation(deformationOffset, softAreaPlanar, softAreaVertical, pos, normal, MyDamageType.Deformation);
+            bool destroyed = ApplyDeformation(deformationOffset, softAreaPlanar, softAreaVertical, pos, normal, MyDamageType.Deformation, attackerId: otherEntity != null ? otherEntity.EntityId : 0);
 
             if (explosionRadius > 0 && deformationOffset > m_grid.GridSize / 2 && destroyed)
             {
@@ -782,7 +782,7 @@ namespace Sandbox.Game.Entities.Cube
         /// </summary>
         /// <param name="deformationOffset">Amount of deformation in the localPos</param>
         /// <param name="offsetThreshold">When deformation offset for bone is lower then threshold, it won't move the bone at all or do damage</param>
-        public bool ApplyDeformation(float deformationOffset, float softAreaPlanar, float softAreaVertical, Vector3 localPos, Vector3 localNormal, MyDamageType damageType, float offsetThreshold = 0, float lowerRatioLimit = 0)
+        public bool ApplyDeformation(float deformationOffset, float softAreaPlanar, float softAreaVertical, Vector3 localPos, Vector3 localNormal, MyDamageType damageType, float offsetThreshold = 0, float lowerRatioLimit = 0, long attackerId = 0)
         {
             offsetThreshold /= m_grid.GridSizeEnum == MyCubeSize.Large ? 1 : 5;
             float roundSize = m_grid.GridSize / m_grid.Skeleton.BoneDensity;
@@ -842,6 +842,14 @@ namespace Sandbox.Game.Entities.Cube
                                 var block = m_grid.GetCubeBlock(offset);
                                 if (block != null)
                                 {
+                                    bool allowDeformation = true;
+                                    MyDamageInformation damageInfo = new MyDamageInformation(true, 1f, MyDamageType.Deformation, attackerId);
+                                    if (block.UseDamageSystem)
+                                        MyDamageSystem.Static.RaiseBeforeDamageApplied(block, ref damageInfo);
+
+                                    if (damageInfo.Amount == 0f)
+                                        continue;
+
                                     minDeformationRatio = Math.Min(minDeformationRatio, block.DeformationRatio);
 
                                     if (Math.Max(lowerRatioLimit, block.DeformationRatio) * deformation > breakOffsetDestruction)
@@ -891,8 +899,19 @@ namespace Sandbox.Game.Entities.Cube
                 ProfilerShort.Begin("Deform bones");
                 Vector3 bone;
                 Vector3I offset;
-                foreach (var b in m_tmpBoneList)
+                foreach (var b in m_tmpBoneList)                
                 {
+                    // Check to see if this block can be deformed.  For mods
+                    if (b.Value != null)
+                    {
+                        MyDamageInformation damageInfo = new MyDamageInformation(true, 1f, MyDamageType.Deformation, attackerId);
+                        if (b.Value.UseDamageSystem)
+                            MyDamageSystem.Static.RaiseBeforeDamageApplied(b.Value, ref damageInfo);
+
+                        if(damageInfo.Amount == 0f)
+                            continue;
+                    }
+
                     var boneIndex = b.Key;
                     offset = boneIndex - gridPos * m_grid.Skeleton.BoneDensity;
 

@@ -503,6 +503,7 @@
     <Compile Include="Game\Entities\IMyGravityProvider.cs" />
     <Compile Include="Game\Entities\IMyOxygenProvider.cs" />
     <Compile Include="Game\Entities\MyAreaMarker.cs" />
+    <Compile Include="Game\GameSystems\MyDamageSystem.cs" />
     <Compile Include="Game\Entities\MyDataBroadcaster.cs" />
     <Compile Include="Game\Entities\IMyGizmoDrawableObject.cs" />
     <Compile Include="Game\Entities\Interfaces\IMyGunBaseUser.cs" />
