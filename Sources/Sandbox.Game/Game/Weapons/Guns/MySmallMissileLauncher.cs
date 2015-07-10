@@ -444,9 +444,7 @@ namespace Sandbox.Game.Weapons
             m_shoot = true;
             m_shootDirection = direction;
             m_lastTimeShoot = MySandboxGame.TotalGamePlayTimeInMilliseconds;
-
-            if (Sync.IsServer && !MySession.Static.CreativeMode)
-                m_gunBase.ConsumeAmmo();
+            m_gunBase.ConsumeAmmo();
 
             NeedsUpdate |= MyEntityUpdateEnum.EACH_FRAME;
         }
