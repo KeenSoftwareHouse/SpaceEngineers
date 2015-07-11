@@ -16,7 +16,9 @@ using Sandbox.Game.Multiplayer;
 using Sandbox.Game.Weapons;
 using Sandbox.Game.Weapons.Guns;
 using Sandbox.Game.World;
+using Sandbox.Game.GameSystems;
 using Sandbox.Graphics.TransparentGeometry.Particles;
+using Sandbox.ModAPI;
 using Sandbox.ModAPI.Interfaces;
 using System;
 using System.Collections.Generic;
@@ -371,6 +373,7 @@ namespace Sandbox.Game
             VRageRender.MyRenderProxy.GetRenderProfiler().EndProfilingBlock();
         }
 
+        // Doesn't get called anymore?
         private bool ApplyExplosion(ref MyExplosionInfo m_explosionInfo, ref BoundingSphereD influenceExplosionSphere, List<MyEntity> entities)
         {
             bool gridWasHit = false;
@@ -426,7 +429,7 @@ namespace Sandbox.Game
                                 var character = entity as Sandbox.Game.Entities.Character.MyCharacter;
                                 if (character != null && !(character.IsUsing is MyCockpit))
                                 {
-                                    character.DoDamage(m_explosionInfo.Damage * m_explosionForceSlices[s].Y, MyDamageType.Explosion, true);
+                                    character.DoDamage(m_explosionInfo.Damage * m_explosionForceSlices[s].Y, MyDamageType.Explosion, true, m_explosionInfo.OwnerEntity != null ? m_explosionInfo.OwnerEntity.EntityId : 0);
                                 }
 
                                 var ammoBase = entity as MyAmmoBase;
@@ -462,7 +465,7 @@ namespace Sandbox.Game
             {
                 damageInfo.ExplosionDamage.ComputeDamagedBlocks();
                 gridWasHit = damageInfo.GridWasHit;
-                ApplyVolumetriDamageToGrid(damageInfo);
+                ApplyVolumetriDamageToGrid(damageInfo, m_explosionInfo.OwnerEntity != null ? m_explosionInfo.OwnerEntity.EntityId : 0);
             }
 
             if (m_explosionInfo.HitEntity is MyWarhead)
@@ -484,6 +487,7 @@ namespace Sandbox.Game
             return gridWasHit;
         }
 
+        // Doesn't get called anymore?
         private void ApplyExplosionOnEntities(ref MyExplosionInfo m_explosionInfo,List<MyEntity> entities)
         {
             Debug.Assert(Sync.IsServer);
@@ -499,7 +503,7 @@ namespace Sandbox.Game
                 if (damage == 0)
                     continue;
                 var destroyableObj = entity as IMyDestroyableObject;
-                destroyableObj.DoDamage(damage, MyDamageType.Explosion, true);
+                destroyableObj.DoDamage(damage, MyDamageType.Explosion, true, attackerId: m_explosionInfo.OwnerEntity != null ? m_explosionInfo.OwnerEntity.EntityId : 0);
             }
         }
 
@@ -518,7 +522,7 @@ namespace Sandbox.Game
                         if (explosionDamageInfo.ExplosionDamage.DamagedBlocks.ContainsKey(cockpit.SlimBlock))
                         {
                             float damageRemaining = explosionDamageInfo.ExplosionDamage.DamageRemaining[cockpit.SlimBlock].DamageRemaining;
-                            character.DoDamage(damageRemaining, MyDamageType.Explosion, true);
+                            character.DoDamage(damageRemaining, MyDamageType.Explosion, true, attackerId: m_explosionInfo.OwnerEntity != null ? m_explosionInfo.OwnerEntity.EntityId : 0);
                         }
                         continue;
                     }
@@ -573,8 +577,7 @@ namespace Sandbox.Game
                     continue;
                 
                 var destroyableObj = entity as IMyDestroyableObject;
-
-                destroyableObj.DoDamage(damage, MyDamageType.Explosion, true);
+                destroyableObj.DoDamage(damage, MyDamageType.Explosion, true, attackerId: m_explosionInfo.OwnerEntity != null ? m_explosionInfo.OwnerEntity.EntityId : 0);
             }
         }
 
@@ -659,6 +662,7 @@ namespace Sandbox.Game
             }
         }
 
+        // Doesn't get called anymore?
         bool ApplyExplosionOnGrid(ref MyExplosionInfo explosionInfo, ref BoundingSphereD sphere, List<MyEntity> entities)
         {
             Debug.Assert(Sandbox.Game.Multiplayer.Sync.IsServer, "This is supposed to be only server method");
@@ -849,7 +853,7 @@ namespace Sandbox.Game
             return damageInfo;
         }
 
-        private void ApplyVolumetriDamageToGrid(MyDamageInfo damageInfo)
+        private void ApplyVolumetriDamageToGrid(MyDamageInfo damageInfo, long attackerId)
         {
             var damagedBlocks = damageInfo.ExplosionDamage.DamagedBlocks;
             var explodedBlocks = damageInfo.AffectedCubeBlocks;
@@ -880,7 +884,12 @@ namespace Sandbox.Game
                     if (!cubeBlock.CubeGrid.BlocksDestructionEnabled)
                         continue;
 
-                    if (cubeBlock.FatBlock == null && cubeBlock.Integrity / cubeBlock.DeformationRatio < damagedBlock.Value)
+                    // Allow mods to modify damage.  This will cause a double call.  Once here and once in the DoDamage, but only real way to do a check here
+                    MyDamageInformation checkInfo = new MyDamageInformation(false, damagedBlock.Value, MyDamageType.Explosion, attackerId);
+                    if (cubeBlock.UseDamageSystem)
+                        MyDamageSystem.Static.RaiseBeforeDamageApplied(cubeBlock, ref checkInfo);
+
+                    if (cubeBlock.FatBlock == null && cubeBlock.Integrity / cubeBlock.DeformationRatio < checkInfo.Amount)
                     {
                         VRageRender.MyRenderProxy.GetRenderProfiler().StartProfilingBlock("RemoveBlock");
                         cubeBlock.CubeGrid.RemoveDestroyedBlock(cubeBlock);

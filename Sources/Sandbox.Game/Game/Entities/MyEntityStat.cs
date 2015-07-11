@@ -16,7 +16,7 @@ namespace Sandbox.Game.Entities
 	{
 		protected float m_currentValue;
 		private float m_lastSyncValue;
-		public float Value { get { return m_currentValue; } set { SetValue(value); } }
+		public float Value { get { return m_currentValue; } set { SetValue(value, null); } }
 		public float CurrentRatio { get { return Value / (MaxValue - MinValue); } }
 
 		protected float m_minValue;
@@ -35,7 +35,7 @@ namespace Sandbox.Game.Entities
 		private MyStringHash m_statId;
 		public MyStringHash StatId { get { return m_statId; } }
 
-		public delegate void StatChangedDelegate(float newValue, float oldValue);
+		public delegate void StatChangedDelegate(float newValue, float oldValue, object statChangeData);
 		public event StatChangedDelegate OnStatChanged;
 
 		public MyEntityStatDefinition StatDefinition = null;
@@ -179,12 +179,12 @@ namespace Sandbox.Game.Entities
 			}
 		}
 
-		private void SetValue(float newValue)
+		private void SetValue(float newValue, object statChangeData)
 		{
 			float oldValue = m_currentValue;
 			m_currentValue = MathHelper.Clamp(newValue, MinValue, MaxValue);
 			if (OnStatChanged != null && newValue != oldValue)
-				OnStatChanged(newValue, oldValue);
+				OnStatChanged(newValue, oldValue, statChangeData);
 		}
 
 		public bool RemoveEffect(int id)
@@ -224,7 +224,7 @@ namespace Sandbox.Game.Entities
 		}
 
 
-		public void Increase(float amount) { Value = Value + amount; }
-		public void Decrease(float amount) { Value = Value - amount; }
+        public void Increase(float amount, object statChangeData) { SetValue(Value + amount, statChangeData); }
+		public void Decrease(float amount, object statChangeData) { SetValue(Value - amount, statChangeData); }
 	};
 }

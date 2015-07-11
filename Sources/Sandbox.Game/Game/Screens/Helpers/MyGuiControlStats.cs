@@ -77,7 +77,7 @@ namespace Sandbox.Game.Screens.Helpers
 				}
 			}
 
-			private void UpdateStatText(float newValue, float oldValue)
+			private void UpdateStatText(float newValue, float oldValue, object statChangeData)
 			{
 				m_progressBar.Value = m_stat.CurrentRatio;
 				if (m_statValueLabel != null)

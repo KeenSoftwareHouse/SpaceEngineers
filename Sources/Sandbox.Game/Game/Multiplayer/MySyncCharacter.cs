@@ -37,7 +37,7 @@ namespace Sandbox.Game.Multiplayer
     delegate void ChangeFlagsDelegate(bool enableJetpack, bool enableDampeners, bool enableLights, bool enableIronsight, bool enableBroadcast);
     delegate void ChangeHeadOrSpineDelegate(float headLocalXAngle, float headLocalYAngle, Quaternion spineRotation,
     Quaternion headRotation, Quaternion handRotation, Quaternion upperHandRotation);
-    delegate void DoDamageDelegate(float damage, MyDamageType damageType);
+    delegate void DoDamageDelegate(float damage, MyDamageType damageType, long attackerId);
 
     [PreloadRequired]
     class MySyncCharacter : MySyncControllableEntity
