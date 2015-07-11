@@ -10,6 +10,7 @@ using Sandbox.Game.Gui;
 using Sandbox.Game.Multiplayer;
 using Sandbox.Game.World;
 using Sandbox.Graphics.TransparentGeometry.Particles;
+using Sandbox.ModAPI;
 using Sandbox.ModAPI.Interfaces;
 using System;
 using System.Collections.Generic;
@@ -140,6 +141,8 @@ namespace Sandbox.Game.Entities.Cube
             }
         }
 
+        public bool UseDamageSystem { get; private set; }
+
         public float Integrity
         {
             get
@@ -214,6 +217,12 @@ namespace Sandbox.Game.Entities.Cube
 
         public event Action<MySlimBlock, MyCubeGrid> CubeGridChanged;
 
+        public float m_lastDamage = 0f;
+
+        public long m_lastAttackerId = 0;
+
+        public MyDamageType m_lastDamageType = MyDamageType.Unknown;
+
         // Unique identifier
         public int UniqueId 
         {
@@ -226,6 +235,7 @@ namespace Sandbox.Game.Entities.Cube
         {
             m_soundEmitter = new MyEntity3DSoundEmitter(null);
             UniqueId = MyRandom.Instance.Next();
+            UseDamageSystem = true;
         }
 
         public void Init(MyObjectBuilder_CubeBlock objectBuilder, MyCubeGrid cubeGrid, MyCubeBlock fatBlock)
@@ -895,27 +905,27 @@ namespace Sandbox.Game.Entities.Cube
             }
         }
 
-        void IMyDestroyableObject.DoDamage(float damage, MyDamageType damageType, bool sync, MyHitInfo? hitInfo)
+        void IMyDestroyableObject.DoDamage(float damage, MyDamageType damageType, bool sync, MyHitInfo? hitInfo, long attackerId)
         {
             if (sync)
             {
                 Debug.Assert(Sync.IsServer);
                 if (Sync.IsServer)
-                    MySyncHelper.DoDamageSynced(this, damage, damageType, hitInfo);
+                    MySyncHelper.DoDamageSynced(this, damage, damageType, hitInfo, attackerId);
             }
             else
-                this.DoDamage(damage, damageType, hitInfo: hitInfo);
+                this.DoDamage(damage, damageType, hitInfo: hitInfo, attackerId: attackerId);
             return;
         }
 
-        public void DoDamage(float damage, MyDamageType damageType, bool addDirtyParts = true, MyHitInfo? hitInfo = null, bool createDecal = true)
+        public void DoDamage(float damage, MyDamageType damageType, bool addDirtyParts = true, MyHitInfo? hitInfo = null, bool createDecal = true, long attackerId = 0)
         {
             if (!CubeGrid.BlocksDestructionEnabled)
                 return;
 
             if(FatBlock is MyCompoundCubeBlock) //jn: TODO think of something better
             {
-                (FatBlock as MyCompoundCubeBlock).DoDamage(damage, damageType, hitInfo);
+                (FatBlock as MyCompoundCubeBlock).DoDamage(damage, damageType, hitInfo, attackerId);
                 return;
             }
 
@@ -932,14 +942,18 @@ namespace Sandbox.Game.Entities.Cube
                 {
                     var destroyable = FatBlock as IMyDestroyableObject;
                     if (destroyable != null)
-                        destroyable.DoDamage(damage, damageType, false);
+                        destroyable.DoDamage(damage, damageType, false, attackerId: attackerId);
                 }
             }
             finally { ProfilerShort.End(); }
 
-            MySession.Static.NegativeIntegrityTotal += damage;
+            MyDamageInformation damageInfo = new MyDamageInformation(false, damage, damageType, attackerId);
+            if (UseDamageSystem)
+                MyDamageSystem.Static.RaiseBeforeDamageApplied(this, ref damageInfo);
 
-            AccumulatedDamage += damage;
+            MySession.Static.NegativeIntegrityTotal += damageInfo.Amount;
+            AccumulatedDamage += damageInfo.Amount;
+
             if (m_componentStack.Integrity - AccumulatedDamage <= MyComponentStack.MOUNT_THRESHOLD)
             {
                 if (MyPerGameSettings.Destruction && hitInfo.HasValue)
@@ -948,7 +962,7 @@ namespace Sandbox.Game.Entities.Cube
                     var gridPhysics = CubeGrid.Physics;
                     float maxDestructionRadius = CubeGrid.GridSizeEnum == MyCubeSize.Small ? 0.5f : 3;
                     if(Sync.IsServer)
-                       Sandbox.Engine.Physics.MyDestructionHelper.TriggerDestruction(damage - m_componentStack.Integrity, gridPhysics, hitInfo.Value.Position, hitInfo.Value.Normal, maxDestructionRadius);
+                        Sandbox.Engine.Physics.MyDestructionHelper.TriggerDestruction(damageInfo.Amount - m_componentStack.Integrity, gridPhysics, hitInfo.Value.Position, hitInfo.Value.Normal, maxDestructionRadius);
                 }
                 else
                 {
@@ -965,6 +979,13 @@ namespace Sandbox.Game.Entities.Cube
                     CubeGrid.RenderData.AddDecal(Position, Vector3D.Transform(hitInfo.Value.Position, CubeGrid.PositionComp.WorldMatrixInvScaled),
                         Vector3D.TransformNormal(hitInfo.Value.Normal, CubeGrid.PositionComp.WorldMatrixInvScaled), BlockDefinition.PhysicalMaterial.DamageDecal);
             }
+
+            if (UseDamageSystem)
+                MyDamageSystem.Static.RaiseAfterDamageApplied(this, damageInfo);
+
+            m_lastDamage = damage;
+            m_lastAttackerId = attackerId;
+            m_lastDamageType = damageType;
 
             return;
         }
@@ -1016,6 +1037,9 @@ namespace Sandbox.Game.Entities.Cube
                 {
                     CubeGrid.Physics.AddDirtyBlock(this);
                 }
+
+                if (UseDamageSystem)
+                    MyDamageSystem.Static.RaiseDestroyed(this, new MyDamageInformation(false, m_lastDamage, m_lastDamageType, m_lastAttackerId));
             }
 
             ProfilerShort.End();
@@ -1596,6 +1620,7 @@ namespace Sandbox.Game.Entities.Cube
             }
             CubeGrid.RemoveFromDamageApplication(this);
             AccumulatedDamage = 0;
+
         }
 
         float IMyDestroyableObject.Integrity
@@ -1640,7 +1665,7 @@ namespace Sandbox.Game.Entities.Cube
             }
         }
 
-		public static void SetBlockComponents(MyHudBlockInfo hudInfo, MySlimBlock block, MyInventoryBase availableInventory = null)
+        public static void SetBlockComponents(MyHudBlockInfo hudInfo, MySlimBlock block, MyInventoryBase availableInventory = null)
 		{
 			hudInfo.Components.Clear();
 			for (int i = 0; i < block.ComponentStack.GroupCount; i++)

@@ -11,6 +11,8 @@ using Sandbox.Game.Gui;
 using Sandbox.Game.Localization;
 using Sandbox.Game.Multiplayer;
 using Sandbox.Game.World;
+using Sandbox.Game.GameSystems;
+using Sandbox.ModAPI;
 using System.Collections.Generic;
 using VRage.Input;
 using VRage.ObjectBuilders;
@@ -166,11 +168,23 @@ namespace Sandbox.Game.Weapons
                         hackMultiplier = MySession.Static.HackSpeedMultiplier;
                 }
 
-                block.DecreaseMountLevel(GrinderAmount * hackMultiplier, CharacterInventory);
+                float damage = GrinderAmount;
+                MyDamageInformation damageInfo = new MyDamageInformation(false, damage * hackMultiplier, MyDamageType.Grind, EntityId);
+
+                if (block.UseDamageSystem)
+                    MyDamageSystem.Static.RaiseBeforeDamageApplied(block, ref damageInfo);
+
+                block.DecreaseMountLevel(damageInfo.Amount, CharacterInventory);
                 block.MoveItemsFromConstructionStockpile(CharacterInventory);
 
+                if (block.UseDamageSystem)
+                    MyDamageSystem.Static.RaiseAfterDamageApplied(block, damageInfo);
+                    
                 if (block.IsFullyDismounted)
                 {
+                    if (block.UseDamageSystem)
+                        MyDamageSystem.Static.RaiseDestroyed(block, damageInfo);
+
                     block.SpawnConstructionStockpile();
                     block.CubeGrid.RazeBlock(block.Min);
                 }
@@ -178,7 +192,7 @@ namespace Sandbox.Game.Weapons
 
             var targetDestroyable = GetTargetDestroyable();
             if (targetDestroyable != null && Sync.IsServer)
-                targetDestroyable.DoDamage(20, MyDamageType.Drill, true);
+                targetDestroyable.DoDamage(20, MyDamageType.Grind, true, attackerId: Owner != null ? Owner.EntityId : 0);
         }
 
         protected override void StartLoopSound(bool effect)
