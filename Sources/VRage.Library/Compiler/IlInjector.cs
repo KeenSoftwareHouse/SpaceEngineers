@@ -90,7 +90,7 @@ namespace VRage.Compiler
             {
                 var currentType = queue.Dequeue();
 
-                // Search through the list and make sure this type is added before any type deriving from it.
+                // Search through the list and make sure this type is added before any type deriving from it, or any nested types within it.
                 var node = sortedList.First;
                 while (true)
                 {
@@ -99,7 +99,7 @@ namespace VRage.Compiler
                         sortedList.AddLast(currentType);
                         break;
                     }
-                    if (currentType.IsAssignableFrom(node.Value))
+                    if (currentType.IsAssignableFrom(node.Value) || node.Value.IsNested && node.Value.DeclaringType == currentType)
                     {
                         sortedList.AddBefore(node, currentType);
                         break;
@@ -152,24 +152,13 @@ namespace VRage.Compiler
         private static TypeBuilder CreateType(ModuleBuilder newModule, Dictionary<TypeBuilder, Type> createdTypes, Dictionary<string, TypeBuilder> typeLookup, Type sourceType)
         {
             var attributes = sourceType.Attributes;
-            if ((attributes & TypeAttributes.NestedPublic) == TypeAttributes.NestedPublic)
-            {
-                attributes &= ~TypeAttributes.NestedPublic;
-                attributes |= TypeAttributes.Public;
-            }
-
-            if ((attributes & TypeAttributes.NestedPrivate) == TypeAttributes.NestedPrivate)
-            {
-                attributes &= ~TypeAttributes.NestedPrivate;
-                attributes |= TypeAttributes.NotPublic;
-            }
 
             // If this type derives from a type created in-game, it must be replaced with the new type.
             var baseType = sourceType.BaseType;
-            if (baseType != null && typeLookup.ContainsKey(baseType.Name))
+            if (baseType != null && typeLookup.ContainsKey(baseType.FullName))
             {
                 TypeBuilder newBaseType;
-                if (typeLookup.TryGetValue(baseType.Name, out newBaseType))
+                if (typeLookup.TryGetValue(baseType.FullName, out newBaseType))
                 {
                     baseType = newBaseType;
                 }
@@ -180,13 +169,24 @@ namespace VRage.Compiler
             for (var index = 0; index < interfaceTypes.Length; index++)
             {
                 TypeBuilder newInterfaceType;
-                if (typeLookup.TryGetValue(interfaceTypes[index].Name, out newInterfaceType))
+                if (typeLookup.TryGetValue(interfaceTypes[index].FullName, out newInterfaceType))
                 {
                     interfaceTypes[index] = newInterfaceType;
                 }
             }
 
-            TypeBuilder newType = newModule.DefineType(sourceType.Name, attributes, baseType, interfaceTypes);
+            TypeBuilder newType;
+            TypeBuilder declaringType;
+            // To avoid duplicate type names, we must make sure we duplicate type nesting as well.
+            if (sourceType.IsNested && typeLookup.TryGetValue(sourceType.DeclaringType.FullName, out declaringType))
+            {
+                newType = declaringType.DefineNestedType(sourceType.Name, attributes, baseType, interfaceTypes);
+            }
+            else
+            {
+                newType = newModule.DefineType(sourceType.Name, attributes, baseType, interfaceTypes);
+            }
+
             createdTypes.Add(newType, sourceType);
             typeLookup.Add(newType.FullName, newType);
             return newType;
@@ -309,7 +309,7 @@ namespace VRage.Compiler
                             var type = instruction.Operand as Type;
                             TypeBuilder typeBuilder;
                             // Make sure the type is replaced with the regenerated type if required.
-                            if (typeLookup.TryGetValue(type.Name, out typeBuilder))
+                            if (!type.IsGenericParameter && typeLookup.TryGetValue(type.FullName, out typeBuilder))
                             {
                                 methodGenerator.Emit(code, typeBuilder);
                             }
