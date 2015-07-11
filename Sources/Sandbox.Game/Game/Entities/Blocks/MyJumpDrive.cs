@@ -70,12 +70,10 @@ namespace Sandbox.Game.Entities
             var jumpButton = new MyTerminalControlButton<MyJumpDrive>("Jump", MySpaceTexts.BlockActionTitle_Jump, MySpaceTexts.Blank, (x) => x.RequestJump());
             jumpButton.Enabled = (x) => x.CanJump;
             jumpButton.SupportsMultipleBlocks = false;
-            // Can only be called from toolbar of cockpit
-            jumpButton.Visible = (x) => false;
             var action = jumpButton.EnableAction(MyTerminalActionIcons.TOGGLE);
             if (action != null)
             {
-                action.InvalidToolbarTypes = new List<MyToolbarType> { MyToolbarType.ButtonPanel, MyToolbarType.Character, MyToolbarType.Seat };
+                action.InvalidToolbarTypes = new List<MyToolbarType> { MyToolbarType.Character, MyToolbarType.Seat };
                 action.ValidForGroups = false;
             }
             MyTerminalControlFactory.AddControl(jumpButton);
