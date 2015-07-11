@@ -209,22 +209,25 @@ namespace Sandbox.Game.Entities
 
                 if (CurrentGrid != null && (UseSymmetry || IsInSymmetrySettingMode))
                 {
-                    if (CurrentGrid.XSymmetryPlane != null)
+                    if (MySession.Static.Settings.EnableShowSymmetry)
                     {
-                        Vector3 center = CurrentGrid.XSymmetryPlane.Value * CurrentGrid.GridSize;
-                        DrawSymmetryPlane(CurrentGrid.XSymmetryOdd ? MySymmetrySettingModeEnum.XPlaneOdd : MySymmetrySettingModeEnum.XPlane, CurrentGrid, center);
-                    }
+                        if (CurrentGrid.XSymmetryPlane != null)
+                        {
+                            Vector3 center = CurrentGrid.XSymmetryPlane.Value * CurrentGrid.GridSize;
+                            DrawSymmetryPlane(CurrentGrid.XSymmetryOdd ? MySymmetrySettingModeEnum.XPlaneOdd : MySymmetrySettingModeEnum.XPlane, CurrentGrid, center);
+                        }
 
-                    if (CurrentGrid.YSymmetryPlane != null)
-                    {
-                        Vector3 center = CurrentGrid.YSymmetryPlane.Value * CurrentGrid.GridSize;
-                        DrawSymmetryPlane(CurrentGrid.YSymmetryOdd ? MySymmetrySettingModeEnum.YPlaneOdd : MySymmetrySettingModeEnum.YPlane, CurrentGrid, center);
-                    }
+                        if (CurrentGrid.YSymmetryPlane != null)
+                        {
+                            Vector3 center = CurrentGrid.YSymmetryPlane.Value * CurrentGrid.GridSize;
+                            DrawSymmetryPlane(CurrentGrid.YSymmetryOdd ? MySymmetrySettingModeEnum.YPlaneOdd : MySymmetrySettingModeEnum.YPlane, CurrentGrid, center);
+                        }
 
-                    if (CurrentGrid.ZSymmetryPlane != null)
-                    {
-                        Vector3 center = CurrentGrid.ZSymmetryPlane.Value * CurrentGrid.GridSize;
-                        DrawSymmetryPlane(CurrentGrid.ZSymmetryOdd ? MySymmetrySettingModeEnum.ZPlaneOdd : MySymmetrySettingModeEnum.ZPlane, CurrentGrid, center);
+                        if (CurrentGrid.ZSymmetryPlane != null)
+                        {
+                            Vector3 center = CurrentGrid.ZSymmetryPlane.Value * CurrentGrid.GridSize;
+                            DrawSymmetryPlane(CurrentGrid.ZSymmetryOdd ? MySymmetrySettingModeEnum.ZPlaneOdd : MySymmetrySettingModeEnum.ZPlane, CurrentGrid, center);
+                        }
                     }
                 }
             }
@@ -384,7 +387,7 @@ namespace Sandbox.Game.Entities
             Vector3 l2 = Vector3.Zero;
             Vector3 l3 = Vector3.Zero;
 
-            float alpha = 0.3f;
+            float alpha = MySession.Static.Settings.SymmetryAlpha;
             Color color = Color.Gray;
 
             switch (plane)

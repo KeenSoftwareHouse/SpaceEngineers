@@ -281,6 +281,16 @@ namespace Sandbox.Common.ObjectBuilders
         public int PhysicsIterations = 4;
 
         [ProtoMember]
+        [Display(Name = "Show Symmetry")]
+        [GameRelationAttribute(Game.SpaceEngineers)]
+        public bool EnableShowSymmetry = true;
+
+        [ProtoMember]
+        [Display(Name = "Symmetry Alpha")]
+        [GameRelationAttribute(Game.SpaceEngineers)]
+        public float SymmetryAlpha = 0.3f;
+
+        [ProtoMember]
         [Display(Name = "Sun rotation interval")]
         [GameRelationAttribute(Game.SpaceEngineers)]
         public double SunRotationIntervalMinutes = 4 * 60; // 4 hours
