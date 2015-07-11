@@ -433,7 +433,7 @@ namespace Sandbox.Game.Entities
                             m_damagedEntities.Add(entity);
 
                         if (entity is IMyDestroyableObject)
-                            (entity as IMyDestroyableObject).DoDamage(flameInfo.Radius * m_thrustDefinition.FlameDamage * 10, MyDamageType.Environment, true);
+                            (entity as IMyDestroyableObject).DoDamage(flameInfo.Radius * m_thrustDefinition.FlameDamage * 10, MyDamageType.Environment, true, attackerId: EntityId);
                         else if (entity is MyCubeGrid)
                         {
                             var grid = entity as MyCubeGrid;
@@ -476,10 +476,13 @@ namespace Sandbox.Game.Entities
                     var gridDir = Vector3D.TransformNormal(l.Direction, invWorld);
                     if (block != null)
                         if (block.FatBlock != this && (CubeGrid.GridSizeEnum == MyCubeSize.Large || block.BlockDefinition.DeformationRatio > 0.25))
-                            block.DoDamage(30 * m_thrustDefinition.FlameDamage, MyDamageType.Environment);
+                        {
+                            block.DoDamage(30 * m_thrustDefinition.FlameDamage, MyDamageType.Environment, attackerId: EntityId);
+                        }
                     var areaPlanar = 0.5f * flameInfo.Radius * CubeGrid.GridSize;
                     var areaVertical = 0.5f * CubeGrid.GridSize;
-                    grid.Physics.ApplyDeformation(m_thrustDefinition.FlameDamage, areaPlanar, areaVertical, gridPos, gridDir, MyDamageType.Environment, CubeGrid.GridSizeEnum == MyCubeSize.Small ? 0.1f : 0);
+
+                    grid.Physics.ApplyDeformation(m_thrustDefinition.FlameDamage, areaPlanar, areaVertical, gridPos, gridDir, MyDamageType.Environment, CubeGrid.GridSizeEnum == MyCubeSize.Small ? 0.1f : 0, attackerId: EntityId);
                 }
             }
         }

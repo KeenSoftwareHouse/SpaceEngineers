@@ -85,16 +85,13 @@ namespace Sandbox.Common.ObjectBuilders.Definitions
     public class MyObjectBuilder_PlanetGeneratorDefinition : MyObjectBuilder_DefinitionBase
     {
         [ProtoMember]
-        public MyRangedValue Diameter = new MyRangedValue();
+        public bool IsMoonDefinition = false;
 
         [ProtoMember]
         public MyRangedValue Deviation = new MyRangedValue();
 
         [ProtoMember]
         public MyRangedValue StructureRatio = new MyRangedValue();
-
-        [ProtoMember]
-        public MyRangedValue NormalNoiseValue = new MyRangedValue();
 
         [ProtoMember]
         public bool HasAtmosphere = false;
@@ -133,10 +130,10 @@ namespace Sandbox.Common.ObjectBuilders.Definitions
         public MyRangedValue GravityFalloffPower = new MyRangedValue();
 
         [ProtoMember]
-        public MyRangedValue MaterialsMaxDeph = new MyRangedValue();
+        public MyRangedValue MaterialsMaxDepth = new MyRangedValue();
 
         [ProtoMember]
-        public MyRangedValue MaterialsMinDeph = new MyRangedValue();
+        public MyRangedValue MaterialsMinDepth = new MyRangedValue();
 
         [ProtoMember]
         [XmlArrayItem("OreProbability")]

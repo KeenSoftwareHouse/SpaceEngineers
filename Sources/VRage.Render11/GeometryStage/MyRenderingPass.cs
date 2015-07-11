@@ -265,7 +265,7 @@ namespace VRageRender
                 Locals.objectBuffer = proxy.objectBuffer;
 
                 MyObjectData objectData = proxy.ObjectData;
-                objectData.Translate(-MyEnvironment.CameraPosition);
+                //objectData.Translate(-MyEnvironment.CameraPosition);
 
                 mapping = MyMapping.MapDiscard(RC.Context, proxy.objectBuffer);
                 void* ptr = &objectData;

@@ -1188,49 +1188,65 @@ namespace Sandbox.Game.Entities
 
             gyros.FlyByWireEnabled     |= IsWorking && m_flyByWireEnabled;
             thrusters.FlyByWireEnabled |= IsWorking && m_flyByWireEnabled;
-            if (IsWorking && m_autoPilotEnabled && CubeGrid.GridSystems.ControlSystem.GetShipController() == this)
+            if (IsWorking && m_autoPilotEnabled)
             {
-                gyros.AutopilotAngularDeviation = thrusters.AutopilotAngularDeviation = Vector3.Zero;
-                Debug.Assert(CubeGrid.GridSystems.ThrustSystem.AutopilotEnabled == true);
-                Debug.Assert(CubeGrid.GridSystems.GyroSystem.AutopilotEnabled == true);
-
-                if (CurrentWaypoint == null && m_waypoints.Count > 0)
+                var shipController = CubeGrid.GridSystems.ControlSystem.GetShipController();
+                if (shipController == null)
                 {
-                    gyros.CourseEstablished = thrusters.CourseEstablished = m_performLateralAlign = false;
-                    m_withinApproachCone    = true;
-                    m_maxAngle              = INIT_ANGLE_NON_PRECISION;
-                    m_overshootCounter      = 0;
-                    CurrentWaypoint         = m_waypoints[0];
-                    m_startPosition         = WorldMatrix.Translation;
-                    UpdateText();
+                    var group = ControlGroup.GetGroup(CubeGrid);
+                    if (group != null)
+                    {
+                        group.GroupData.ControlSystem.AddControllerBlock(this);
+                    }
+                    shipController = CubeGrid.GridSystems.ControlSystem.GetShipController();
                 }
 
-                if (CurrentWaypoint != null)
+                if (shipController == this)
                 {
-                    if (IsInStoppingDistance())
+                    gyros.AutopilotAngularDeviation = thrusters.AutopilotAngularDeviation = Vector3.Zero;
+                    Debug.Assert(CubeGrid.GridSystems.ThrustSystem.AutopilotEnabled == true);
+                    Debug.Assert(CubeGrid.GridSystems.GyroSystem.AutopilotEnabled == true);
+
+                    if (CurrentWaypoint == null && m_waypoints.Count > 0)
                     {
                         gyros.CourseEstablished = thrusters.CourseEstablished = m_performLateralAlign = false;
                         m_withinApproachCone    = true;
-                        m_maxAngle = INIT_ANGLE_NON_PRECISION;
-                        m_overshootCounter   = 0;
-                        AdvanceWaypoint();
+                        m_maxAngle              = INIT_ANGLE_NON_PRECISION;
+                        m_overshootCounter      = 0;
+                        CurrentWaypoint         = m_waypoints[0];
+                        m_startPosition         = WorldMatrix.Translation;
+                        UpdateText();
                     }
 
-                    // Set the maximum angle here since precision mode setting can change at any time.
-                    if (m_maxAngle < 0.01 || !m_dockingModeEnabled && m_maxAngle == INIT_ANGLE_PRECISION)
-                        m_maxAngle = INIT_ANGLE_NON_PRECISION;
-                    if (m_dockingModeEnabled && m_maxAngle > INIT_ANGLE_PRECISION)
-                        m_maxAngle = INIT_ANGLE_PRECISION;
-
-                    if (Sync.IsServer && CurrentWaypoint != null && !IsInStoppingDistance())
+                    if (CurrentWaypoint != null)
                     {
-                        /*if (!UpdateGyro())
-                            UpdateThrust();
-                        else
-                            thrusters.AutoPilotThrust = Vector3.Zero;*/
-                        if (m_startPosition == null)
-                            m_startPosition = WorldMatrix.Translation;
-                        UpdateThrust(!UpdateGyro());
+                        if (IsInStoppingDistance())
+                        {
+                            gyros.CourseEstablished = thrusters.CourseEstablished = m_performLateralAlign = false;
+                            m_withinApproachCone    = true;
+                            m_maxAngle              = INIT_ANGLE_NON_PRECISION;
+                            m_overshootCounter      = 0;
+                            AdvanceWaypoint();
+                        }
+
+                        // Set the maximum angle here since precision mode setting can change at any time.
+                        if (m_maxAngle < 0.01 || !m_dockingModeEnabled && m_maxAngle == INIT_ANGLE_PRECISION)
+                            m_maxAngle = INIT_ANGLE_NON_PRECISION;
+                        if (m_dockingModeEnabled && m_maxAngle > INIT_ANGLE_PRECISION)
+                            m_maxAngle = INIT_ANGLE_PRECISION;
+
+                        if (Sync.IsServer && CurrentWaypoint != null && !IsInStoppingDistance())
+                        {
+                            /*
+                            if (!UpdateGyro())
+                                UpdateThrust();
+                            else
+                                thrusters.AutoPilotThrust = Vector3.Zero;
+                            */
+                            if (m_startPosition == null)
+                                m_startPosition = WorldMatrix.Translation;
+                            UpdateThrust(!UpdateGyro());
+                        }
                     }
                 }
             }
@@ -1240,7 +1256,7 @@ namespace Sandbox.Game.Entities
             }
             else if (!m_autoPilotEnabled)
             {
-                m_startPosition = null;
+                m_startPosition       = null;
                 m_performLateralAlign = false;
                 m_withinApproachCone  = true;
             }

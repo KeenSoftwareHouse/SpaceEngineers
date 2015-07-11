@@ -20,13 +20,13 @@ namespace VRage.Noise
             m_numNoises = numNoises;
             m_noises = new IMyModule[m_numNoises];
             m_amplitudeScales = new float[m_numNoises];
-            m_normalizationFactor = 2.0f - 1.0f / (float)Math.Pow(2, numNoises - 1);
+            m_normalizationFactor = 2.0f - 1.0f / (float)Math.Pow(2, m_numNoises - 1);
 
             float frequency = startFrequency;
             for (int i = 0; i < m_numNoises; ++i)
             {
                 m_amplitudeScales[i] = 1.0f / (float)Math.Pow(2.0f, i);
-                m_noises[i] = new MySimplexFast(seed: MyRandom.Instance.Next(), frequency: frequency);
+                m_noises[i] = new MyRidgedMultifractalFast(MyNoiseQuality.Low, 1, seed: MyRandom.Instance.Next(), frequency: frequency); //MySimplexFast(seed: MyRandom.Instance.Next(), frequency: frequency);
                 frequency *= 2.01f;
             }
 
@@ -65,6 +65,16 @@ namespace VRage.Noise
                 value += m_amplitudeScales[i] * m_noises[i].GetValue(x, y,z);
             }
             return NormalizeValue(value);
+        }
+
+        public float GetValue(double x, double y, double z,int numNoises)
+        {
+            double value = 0.0;
+            for (int i = 0; i < numNoises; ++i)
+            {
+                value += m_amplitudeScales[i] * m_noises[i].GetValue(x, y, z);
+            }
+            return (float)(0.5 * value + 0.5);
         }
     }
 }

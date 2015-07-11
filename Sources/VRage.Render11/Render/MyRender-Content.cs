@@ -51,6 +51,7 @@ namespace VRageRender
             MyScreenDecals.Init();
             MyEnvProbeProcessing.Init();
             MyShadowsResolve.Init();
+            MyAtmosphereRenderer.Init();
             MyAAEdgeMarking.Init(); 
             MyScreenPass.Init();
             MyCopyToRT.Init();

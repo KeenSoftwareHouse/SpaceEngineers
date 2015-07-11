@@ -189,14 +189,17 @@ namespace Sandbox.Game.World.Generator
                                 MyStorageBase storage = new MyOctreeStorage(provider, GetAsteroidVoxelSize(objectSeed.Size));
                                 var voxelMap = MyWorldGenerator.AddVoxelMap(storageName, storage, objectSeed.BoundingVolume.Center - VRageMath.MathHelper.GetNearestBiggerPowerOfTwo(objectSeed.Size) / 2, GetAsteroidEntityId(objectSeed));
 
-                                voxelMap.Save = false;
-                                RangeChangedDelegate OnStorageRangeChanged = null;
-                                OnStorageRangeChanged = delegate(Vector3I minVoxelChanged, Vector3I maxVoxelChanged, MyStorageDataTypeFlags changedData)
+                                if (voxelMap != null)
                                 {
-                                    voxelMap.Save = true;
-                                    storage.RangeChanged -= OnStorageRangeChanged;
-                                };
-                                storage.RangeChanged += OnStorageRangeChanged;
+                                    voxelMap.Save = false;
+                                    RangeChangedDelegate OnStorageRangeChanged = null;
+                                    OnStorageRangeChanged = delegate(Vector3I minVoxelChanged, Vector3I maxVoxelChanged, MyStorageDataTypeFlags changedData)
+                                    {
+                                        voxelMap.Save = true;
+                                        storage.RangeChanged -= OnStorageRangeChanged;
+                                    };
+                                    storage.RangeChanged += OnStorageRangeChanged;
+                                }
                             }
                             m_tmpVoxelMapsList.Clear();
                             ProfilerShort.End();

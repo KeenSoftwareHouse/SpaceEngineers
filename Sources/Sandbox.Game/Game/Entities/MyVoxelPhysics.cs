@@ -45,7 +45,7 @@ namespace Sandbox.Game.Entities
         protected override void InitVoxelMap(Vector3D positionMinCorner, Vector3I size, bool useOffset = true)
         {
             base.InitVoxelMap(positionMinCorner, size, useOffset);
-            Physics = new MyVoxelPhysicsBody(this,1.1f);
+            Physics = new MyVoxelPhysicsBody(this,1.5f,7.0f);
             Physics.Enabled = true;
         }
 

@@ -878,7 +878,7 @@ namespace Sandbox.Game.Entities.Cube
         {
             bool retval = true;
 
-            Vector3I gridOffset = hitGrid.WorldToGridInteger(m_pastePosition);
+            Vector3I gridOffset = hitGrid.WorldToGridInteger(previewGrid.PositionComp.WorldMatrix.Translation);
             MatrixI transform = hitGrid.CalculateMergeTransform(previewGrid, gridOffset);
 
             if (MyDebugDrawSettings.DEBUG_DRAW_COPY_PASTE)

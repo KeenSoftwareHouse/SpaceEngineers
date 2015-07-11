@@ -11,6 +11,8 @@ namespace SpaceStatEffect
 	{
 		public static float HealthTick = 100f/240f;
 		public static float HealthInterval = 1;
+
+		public static float MedRoomHeal = -0.075f;
 	}
 
 	[MyStatLogicDescriptor("SpaceStatEffect")]
@@ -22,15 +24,45 @@ namespace SpaceStatEffect
 
 		private int m_healthEffectId;
 
-		public override void Init(IMyCharacter character, Dictionary<MyStringHash, MyEntityStat> stats)
+		public override void Init(IMyCharacter character, Dictionary<MyStringHash, MyEntityStat> stats, string scriptName)
 		{
-			base.Init(character, stats);
+			base.Init(character, stats, scriptName);
 
 			InitPermanentEffects();
+			InitActions();
+
+			var health = Health;
+			if (health != null)
+				health.OnStatChanged += OnHealthChanged;
+		}
+
+		public override void Close()
+		{
+			var health = Health;
+			if (health != null)
+				health.OnStatChanged -= OnHealthChanged;
+
+			ClearPermanentEffects();
+
+			base.Close();
+		}
+
+		private void OnHealthChanged(float newValue, float oldValue, object statChangeData)
+		{
+			var health = Health;
+			if (health != null
+				&& health.Value - health.MinValue < 0.001f
+				&& Character != null)
+			{
+				Character.Kill(statChangeData);
+			}
 		}
 
 		private void InitPermanentEffects()
 		{
+			if (!EnableAutoHealing)
+				return;
+
 			var effectBuilder = new MyObjectBuilder_EntityStatRegenEffect();
 
 			var health = Health;
@@ -42,6 +74,26 @@ namespace SpaceStatEffect
 				effectBuilder.MinRegenRatio = 0;
 				m_healthEffectId = health.AddEffect(effectBuilder);
 			}
+		}
+
+		private void ClearPermanentEffects()
+		{
+			if (!EnableAutoHealing)
+				return;
+
+			var health = Health;
+			if (health != null)
+				health.RemoveEffect(m_healthEffectId);
+		}
+
+		private void InitActions()
+		{
+			MyStatAction action = new MyStatAction();
+
+			string actionId = "MedRoomHeal";
+			action.StatId = HealthId;
+			action.Amount = MyEffectConstants.MedRoomHeal;
+			AddAction(actionId, action);
 		}
 	}
 }

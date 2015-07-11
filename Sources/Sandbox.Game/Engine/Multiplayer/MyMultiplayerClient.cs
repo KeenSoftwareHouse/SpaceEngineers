@@ -50,7 +50,7 @@ namespace Sandbox.Engine.Multiplayer
         int m_membersLimit;
         string m_dataHash;
 
-        MyMultiplayerBattleData m_battleData = new MyMultiplayerBattleData();
+        MyMultiplayerBattleData m_battleData;
 
         List<ulong> m_members = new List<ulong>();
         MemberCollection m_membersCollection;
@@ -187,86 +187,86 @@ namespace Sandbox.Engine.Multiplayer
 
         public override bool BattleCanBeJoined
         {
-            get;
-            set;
+            get { return m_battleData.BattleCanBeJoined; }
+            set { m_battleData.BattleCanBeJoined = value; }
         }
 
         public override ulong BattleWorldWorkshopId
         {
-            get;
-            set;
+            get { return m_battleData.BattleWorldWorkshopId; }
+            set { m_battleData.BattleWorldWorkshopId = value; }
         }
 
         public override int BattleFaction1MaxBlueprintPoints
         {
-            get;
-            set;
+            get { return m_battleData.BattleFaction1MaxBlueprintPoints; }
+            set { m_battleData.BattleFaction1MaxBlueprintPoints = value; }
         }
 
         public override int BattleFaction2MaxBlueprintPoints
         {
-            get;
-            set;
+            get { return m_battleData.BattleFaction2MaxBlueprintPoints; }
+            set { m_battleData.BattleFaction2MaxBlueprintPoints = value; }
         }
 
         public override int BattleFaction1BlueprintPoints
         {
-            get;
-            set;
+            get { return m_battleData.BattleFaction1BlueprintPoints; }
+            set { m_battleData.BattleFaction1BlueprintPoints = value; }
         }
 
         public override int BattleFaction2BlueprintPoints
         {
-            get;
-            set;
+            get { return m_battleData.BattleFaction2BlueprintPoints; }
+            set { m_battleData.BattleFaction2BlueprintPoints = value; }
         }
 
         public override int BattleMapAttackerSlotsCount
         {
-            get;
-            set;
+            get { return m_battleData.BattleMapAttackerSlotsCount; }
+            set { m_battleData.BattleMapAttackerSlotsCount = value; }
         }
 
         public override long BattleFaction1Id
         {
-            get;
-            set;
+            get { return m_battleData.BattleFaction1Id; }
+            set { m_battleData.BattleFaction1Id = value; }
         }
 
         public override long BattleFaction2Id
         {
-            get;
-            set;
+            get { return m_battleData.BattleFaction2Id; }
+            set { m_battleData.BattleFaction2Id = value; }
         }
 
         public override int BattleFaction1Slot
         {
-            get;
-            set;
+            get { return m_battleData.BattleFaction1Slot; }
+            set { m_battleData.BattleFaction1Slot = value; }
         }
 
         public override int BattleFaction2Slot
         {
-            get;
-            set;
+            get { return m_battleData.BattleFaction2Slot; }
+            set { m_battleData.BattleFaction2Slot = value; }
         }
 
         public override bool BattleFaction1Ready
         {
-            get;
-            set;
+            get { return m_battleData.BattleFaction1Ready; }
+            set { m_battleData.BattleFaction1Ready = value; }
         }
 
         public override bool BattleFaction2Ready
         {
-            get;
-            set;
+            get { return m_battleData.BattleFaction2Ready; }
+            set { m_battleData.BattleFaction2Ready = value; }
         }
 
         public override int BattleTimeLimit
         {
-            get;
-            set;
+            get { return m_battleData.BattleTimeLimit; }
+            set { m_battleData.BattleTimeLimit = value; }
         }
 
 
@@ -293,8 +293,10 @@ namespace Sandbox.Engine.Multiplayer
             RegisterControlMessage<ChatMsg>(MyControlMessageEnum.Chat, OnChatMessage);
             RegisterControlMessage<ServerDataMsg>(MyControlMessageEnum.ServerData, OnServerData);
             RegisterControlMessage<JoinResultMsg>(MyControlMessageEnum.JoinResult, OnUserJoined);
+            RegisterControlMessage<ServerBattleDataMsg>(MyControlMessageEnum.BattleData, OnServerBattleData);
 
             SyncLayer.RegisterMessageImmediate<ConnectedClientDataMsg>(this.OnConnectedClient, MyMessagePermissions.Any);
+            SyncLayer.RegisterMessageImmediate<AllMembersDataMsg>(OnAllMembersData, MyMessagePermissions.Any);
 
             ClientJoined += MyMultiplayerClient_ClientJoined;
             ClientLeft += MyMultiplayerClient_ClientLeft;
@@ -302,6 +304,8 @@ namespace Sandbox.Engine.Multiplayer
 
             Peer2Peer.ConnectionFailed += Peer2Peer_ConnectionFailed;
             Peer2Peer.SessionRequest += Peer2Peer_SessionRequest;
+
+            m_battleData = new MyMultiplayerBattleData(this);
         }
 
         void MyMultiplayerClient_HostLeft()
@@ -522,6 +526,21 @@ namespace Sandbox.Engine.Multiplayer
             m_appVersion = msg.AppVersion;
             m_membersLimit = msg.MembersLimit;
             m_dataHash = msg.DataHash;
+        }
+
+        void OnServerBattleData(ref ServerBattleDataMsg msg, ulong sender)
+        {
+            Battle = true;
+
+            m_worldName = msg.WorldName;
+            m_gameMode = msg.GameMode;
+            m_hostName = msg.HostName;
+            m_worldSize = msg.WorldSize;
+            m_appVersion = msg.AppVersion;
+            m_membersLimit = msg.MembersLimit;
+            m_dataHash = msg.DataHash;
+
+            m_battleData.LoadData(msg.BattleData);
         }
 
         void OnUserJoined(ref JoinResultMsg msg, ulong sender)
@@ -758,6 +777,41 @@ namespace Sandbox.Engine.Multiplayer
         protected override void OnPing(ref MyControlPingMsg data, ulong sender)
         {
             MyNetworkStats.Static.OnPingSuccess();
+        }
+
+        public override void StartProcessingClientMessagesWithEmptyWorld()
+        {
+            // Add server client - needed for processing messages, before StartProcessingClientMessages
+            if (!Sync.Clients.HasClient(ServerId))
+                Sync.Clients.AddClient(ServerId);
+
+            base.StartProcessingClientMessagesWithEmptyWorld();
+
+            // Set local client before LoadDataComponents.
+            if (Sync.Clients.LocalClient == null)
+                Sync.Clients.SetLocalSteamId(MySteam.UserId, createLocalClient: !Sync.Clients.HasClient(MySteam.UserId));
+        }
+
+        public void OnAllMembersData(ref AllMembersDataMsg msg, MyNetworkClient sender)
+        {
+            // Setup members and clients
+            if (msg.Clients != null)
+            {
+                foreach (var client in msg.Clients)
+                {
+                    if (!m_memberData.ContainsKey(client.SteamId))
+                        m_memberData.Add(client.SteamId, new MyConnectedClientData() { Name = client.Name, IsAdmin = client.IsAdmin });
+
+                    if (!m_members.Contains(client.SteamId))
+                        m_members.Add(client.SteamId);
+
+                    if (!Sync.Clients.HasClient(client.SteamId))
+                        RaiseClientJoined(client.SteamId);
+                }
+            }
+
+            // Setup identities, players, factions
+            ProcessAllMembersData(ref msg);
         }
     }
 }

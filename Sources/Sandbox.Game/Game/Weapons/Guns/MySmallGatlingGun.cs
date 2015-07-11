@@ -52,8 +52,7 @@ namespace Sandbox.Game.Weapons
         public float MuzzleFlashLength { get { return  m_muzzleFlashLength;}}
         float m_muzzleFlashRadius;
         public float MuzzleFlashRadius{ get { return m_muzzleFlashRadius; } }
-		public bool IsDeconstructor { get { return false; } }
-
+		
         //  When gun fires too much, we start generating smokes at the muzzle
         int m_smokeLastTime;
         int m_smokesToGenerate;
@@ -405,11 +404,7 @@ namespace Sandbox.Game.Weapons
             VRageRender.MyRenderProxy.GetRenderProfiler().StartProfilingBlock("MyAutocannonGun.Shot add projectile");
 
             m_gunBase.Shoot(Parent.Physics.LinearVelocity);
-
-            if (!MySession.Static.CreativeMode)
-            {
-                m_gunBase.ConsumeAmmo();        
-            }
+            m_gunBase.ConsumeAmmo();        
             //VRageRender.MyRenderProxy.DebugDrawSphere(GetPosition(), 0.1f, Vector3.One, 1, false);
 
             VRageRender.MyRenderProxy.GetRenderProfiler().EndProfilingBlock();

@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Sandbox.ModAPI.Interfaces;
+using Sandbox.Game.GameSystems;
 using VRage.Utils;
 using VRage.Library.Utils;
 
@@ -405,6 +406,11 @@ namespace Sandbox.Game.World
         public IMyConfig Config
         {
             get { return MySandboxGame.Config; }
+        }
+
+        IMyDamageSystem IMySession.DamageSystem
+        {
+            get { return MyDamageSystem.Static; }
         }
 
         IMyGpsCollection IMySession.GPS

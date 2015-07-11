@@ -342,15 +342,15 @@ namespace Sandbox.Game.World
         public static void SetProceduralSettings(int? asteroidAmount, MyObjectBuilder_SessionSettings sessionSettings)
         {
             sessionSettings.ProceduralSeed = MyRandom.Instance.Next();
-            switch ((MyGuiScreenWorldSettings.AsteroidAmountEnum)asteroidAmount)
+            switch ((MyGuiScreenWorldGeneratorSettings.AsteroidAmountEnum)asteroidAmount)
             {
-                case MyGuiScreenWorldSettings.AsteroidAmountEnum.ProceduralLow:
+                case MyGuiScreenWorldGeneratorSettings.AsteroidAmountEnum.ProceduralLow:
                     sessionSettings.ProceduralDensity = 0.25f;
                     break;
-                case MyGuiScreenWorldSettings.AsteroidAmountEnum.ProceduralNormal:
+                case MyGuiScreenWorldGeneratorSettings.AsteroidAmountEnum.ProceduralNormal:
                     sessionSettings.ProceduralDensity = 0.35f;
                     break;
-                case MyGuiScreenWorldSettings.AsteroidAmountEnum.ProceduralHigh:
+                case MyGuiScreenWorldGeneratorSettings.AsteroidAmountEnum.ProceduralHigh:
                     sessionSettings.ProceduralDensity = 0.50f;
                     break;
                 default:

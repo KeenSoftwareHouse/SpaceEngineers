@@ -96,27 +96,27 @@ namespace Sandbox.Game.World.Generator
                 data.RemovedShapes = new MyCsgShapeBase[0];
 
 
-                data.MacroModule = new MyBillowFast(quality: MyNoiseQuality.Low,seed: shapeAttributes.Seed, frequency: shapeAttributes.NoiseFrequency / shapeAttributes.Diameter, layerCount: 3);
+                data.MacroModule = new MyBillowFast(quality: MyNoiseQuality.Low,seed: shapeAttributes.Seed, frequency: shapeAttributes.NoiseFrequency / shapeAttributes.Diameter, layerCount: 1);
 
                 data.DetailModule = new MyBillowFast(
                        seed: shapeAttributes.Seed,
                        quality: MyNoiseQuality.Low,
                        frequency: random.NextFloat() * 0.09f + 0.11f,
-                       layerCount: 2);
+                       layerCount: 1);
 
                 float halfSize = shapeAttributes.Radius;
                 float storageSize = VRageMath.MathHelper.GetNearestBiggerPowerOfTwo(shapeAttributes.Diameter);
                 float halfStorageSize = storageSize * 0.5f;
                 float storageOffset = halfStorageSize - halfSize;
+                 
 
-                data.FilledShapes[0] = new MyCsgShapePlanet(
+                data.FilledShapes[0] =  new MyCsgShapePlanet(
                                         new Vector3(halfStorageSize),
                                         ref shapeAttributes,
                                         ref hillAttributes,
                                         ref canyonAttributes,
                                         detailFrequency: 0.5f,
                                         deviationFrequency: 10.0f);
-
 
                 FillMaterials(2);
 

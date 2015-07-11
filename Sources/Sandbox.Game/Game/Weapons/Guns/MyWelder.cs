@@ -369,7 +369,7 @@ namespace Sandbox.Game.Weapons
             
             var targetDestroyable = GetTargetDestroyable();
             if(targetDestroyable is MyCharacter && Sync.IsServer)
-                targetDestroyable.DoDamage(20, MyDamageType.Drill, true);
+                targetDestroyable.DoDamage(20, MyDamageType.Weld, true, attackerId: EntityId);
         }
 
         public override void UpdateAfterSimulation()

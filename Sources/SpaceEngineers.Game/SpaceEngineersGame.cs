@@ -55,7 +55,7 @@ namespace SpaceEngineers.Game
                     {
                         Unit = MyGridPlacementSettings.PenetrationUnitEnum.Ratio,
                         MinAllowed = 0f,
-                        MaxAllowed = 0.2f,
+                        MaxAllowed = 0.1f,
                     },
                     EnablePreciseRotationWhenSnapped = false,
                 },
