@@ -30,7 +30,7 @@ namespace Sandbox.Game.GameSystems
         
         private HashSet<MyJumpDrive> m_jumpDrives = new HashSet<MyJumpDrive>();
         private HashSet<MyCubeGrid> m_connectedGrids = new HashSet<MyCubeGrid>();
-        private Dictionary<MyCubeGrid, Vector3D> m_shipInfo = new Dictionary<MyCubeGrid, Vector3D>();
+        private Dictionary<MyEntity, Vector3D> m_shipInfo = new Dictionary<MyEntity, Vector3D>();
 
         private List<MyEntity> m_entitiesInRange = new List<MyEntity>();
         private List<MyObjectSeed> m_objectsInRange = new List<MyObjectSeed>();
@@ -460,6 +460,19 @@ namespace Sandbox.Game.GameSystems
             foreach (var grid in m_connectedGrids)
             {
                 m_shipInfo.Add(grid, grid.WorldMatrix.Translation + jumpDirection);
+                var boundingBox = grid.PositionComp.WorldAABB;
+
+                MyGamePruningStructure.GetAllTopMostEntitiesInBox<MyEntity>(ref boundingBox, m_entitiesInRange);
+                foreach (var entity in m_entitiesInRange)
+                {
+                    var floating = entity;
+                    if (floating != null && (floating is MyFloatingObject || floating is MyCharacter))
+                    {
+                        if (!m_shipInfo.ContainsKey(floating))
+                            m_shipInfo.Add(floating, floating.WorldMatrix.Translation + jumpDirection);
+                    }
+                }
+                m_entitiesInRange.Clear();
             }
 
             if (IsLocalCharacterAffectedByJump())
