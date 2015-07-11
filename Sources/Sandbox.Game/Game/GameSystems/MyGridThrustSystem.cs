@@ -309,12 +309,46 @@ namespace Sandbox.Game.GameSystems
 
         private Vector3 ComputeAiThrust(Vector3 direction, bool includeSlowdown, bool subtractGravity)
         {
-            Matrix  invWorldRot     = m_grid.PositionComp.GetWorldMatrixNormalizedInv().GetOrientation();
-            Vector3 positiveControl = Vector3.Clamp(direction,  Vector3.Zero, Vector3.One );
-            Vector3 negativeControl = Vector3.Clamp(direction, -Vector3.One , Vector3.Zero);
+            float thrustX = (direction.X >= 0.0f) ? m_maxPositiveLinearThrust.X : m_maxNegativeLinearThrust.X;
+            float thrustY = (direction.Y >= 0.0f) ? m_maxPositiveLinearThrust.Y : m_maxNegativeLinearThrust.Y;
+            float thrustZ = (direction.Z >= 0.0f) ? m_maxPositiveLinearThrust.Z : m_maxNegativeLinearThrust.Z;
+            float minThrust = (thrustX < thrustY) ? thrustX : thrustY;
+            if (minThrust > thrustZ)
+                minThrust = thrustZ;
+            
+            Vector3 adjustedDirection;
+            if (minThrust == 0.0f || direction.LengthSquared() < 0.0001f)
+                adjustedDirection = direction;
+            else
+            {
+                adjustedDirection  = new Vector3(direction.X * minThrust / thrustX, direction.Y * minThrust / thrustY, direction.Z * minThrust / thrustZ);
 
-            Vector3 localGravityForce = Vector3.Transform(m_grid.Physics.Gravity, ref invWorldRot) * m_grid.Physics.Mass;
-            Vector3 thrust = negativeControl * m_maxNegativeLinearThrust + positiveControl * m_maxPositiveLinearThrust - localGravityForce;
+                adjustedDirection *= direction.Length() / adjustedDirection.Length();
+                if (adjustedDirection.X < -1.0f || adjustedDirection.X > 1.0f)
+                    adjustedDirection *= 1.0f / Math.Abs(adjustedDirection.X);
+                if (adjustedDirection.Y < -1.0f || adjustedDirection.Y > 1.0f)
+                    adjustedDirection *= 1.0f / Math.Abs(adjustedDirection.Y);
+                if (adjustedDirection.Z < -1.0f || adjustedDirection.Z > 1.0f)
+                    adjustedDirection *= 1.0f / Math.Abs(adjustedDirection.Z);
+            }
+            
+            Matrix invWorldRot = m_grid.PositionComp.GetWorldMatrixNormalizedInv().GetOrientation();
+            Vector3 positiveControl = Vector3.Clamp(adjustedDirection,  Vector3.Zero, Vector3.One );
+            Vector3 negativeControl = Vector3.Clamp(adjustedDirection, -Vector3.One , Vector3.Zero);
+
+            Vector3 localGravity = Vector3.Transform(m_grid.Physics.Gravity, ref invWorldRot);
+            Vector3 localGravityForce = localGravity * m_grid.Physics.Mass;
+            Vector3 thrust = negativeControl * m_maxNegativeLinearThrust + positiveControl * m_maxPositiveLinearThrust;
+
+            if (adjustedDirection.LengthSquared() > 0.01f && localGravity.LengthSquared() >= 1.0f && Vector3.Dot(thrust, localGravity) > 0.0)
+            {
+                // Use gravity instead of thrusters to propel the ship downwards.
+                var gravityDirection = localGravity;
+                gravityDirection.Normalize();
+                thrust -= gravityDirection * gravityDirection.Dot(thrust);
+            }
+            else
+                thrust -= localGravityForce;
             thrust = Vector3.Clamp(thrust, -m_maxNegativeLinearThrust, m_maxPositiveLinearThrust);
 
             if (includeSlowdown)
@@ -322,7 +356,8 @@ namespace Sandbox.Game.GameSystems
                 const float STOPPING_TIME = 0.5f;
 
                 var localVelocity        = Vector3.Transform(m_grid.Physics.LinearVelocity, ref invWorldRot);
-                var slowdownControl      = Vector3.IsZeroVector(direction, 0.001f) * Vector3.IsZeroVector(m_totalThrustOverride);
+                var localSpeed           = localVelocity.Length();
+                var slowdownControl      = Vector3.IsZeroVector(adjustedDirection, 0.001f) * Vector3.IsZeroVector(m_totalThrustOverride);
                 var slowdownAcceleration = -localVelocity / STOPPING_TIME;
                 var slowdownThrust       = slowdownAcceleration * m_grid.Physics.Mass * slowdownControl;
                 thrust = Vector3.Clamp(thrust + slowdownThrust, -m_maxNegativeLinearThrust * MyFakes.SLOWDOWN_FACTOR_THRUST_MULTIPLIER, m_maxPositiveLinearThrust * MyFakes.SLOWDOWN_FACTOR_THRUST_MULTIPLIER);
