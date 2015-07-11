@@ -59,6 +59,7 @@ namespace Sandbox.Game.Gui
                              m_trashRemoval, m_respawnShipDelete, m_resetOwnership, m_permanentDeath, m_destructibleBlocks, m_enableIngameScripts, m_enableToolShake, m_enableOxygen,
                              m_enable3rdPersonCamera, m_enableEncounters, m_disableRespawnShips, m_scenarioEditMode, m_stationVoxelSupport, m_enableSunRotation, m_enableJetpack, 
                              m_spawnWithTools;
+        MyGuiControlCheckbox m_enableShowSymmetry;
 
         MyGuiControlButton m_okButton, m_cancelButton, m_survivalModeButton, m_creativeModeButton, m_inventory_x1, m_inventory_x3, m_inventory_x10;
         MyGuiControlButton m_assembler_x1, m_assembler_x3, m_assembler_x10,
@@ -67,7 +68,9 @@ namespace Sandbox.Game.Gui
                            m_grinder_half, m_grinder_x1, m_grinder_x2, m_grinder_x5;
         MyGuiControlSlider m_maxPlayersSlider,m_sunRotationIntervalSlider;
         MyGuiControlLabel m_enableCopyPasteLabel, m_maxPlayersLabel, m_maxFloatingObjectsLabel, m_sunRotationPeriod, m_sunRotationPeriodValue;
+        MyGuiControlLabel m_SymmetryAlphaLabel;
         MyGuiControlSlider m_maxFloatingObjectsSlider;
+        MyGuiControlSlider m_SymmetryAlphaSlider;
         StringBuilder m_tempBuilder = new StringBuilder();
         int m_customWorldSize = 0;
         int m_customViewDistance = 20000;
@@ -145,6 +148,7 @@ namespace Sandbox.Game.Gui
             var onlineModeLabel = MakeLabel(MySpaceTexts.WorldSettings_OnlineMode);
             m_maxPlayersLabel = MakeLabel(MySpaceTexts.MaxPlayers);
             m_maxFloatingObjectsLabel = MakeLabel(MySpaceTexts.MaxFloatingObjects);
+            m_SymmetryAlphaLabel = MakeLabel(MySpaceTexts.WorldSettings_SymmetryAlpha);
             m_sunRotationPeriod = MakeLabel(MySpaceTexts.SunRotationPeriod);
             m_sunRotationPeriodValue = MakeLabel(MySpaceTexts.SunRotationPeriod); 
             var gameTypeLabel = MakeLabel(MySpaceTexts.WorldSettings_GameMode);
@@ -182,6 +186,7 @@ namespace Sandbox.Game.Gui
             var spawnShipTimeLabel = MakeLabel(MySpaceTexts.WorldSettings_RespawnShipCooldown);
             var viewDistanceLabel = MakeLabel(MySpaceTexts.WorldSettings_ViewDistance);
             var physicsOptionLabel = MakeLabel(MySpaceTexts.WorldSettings_Physics);
+            var enableShowSymmetryLabel = MakeLabel(MySpaceTexts.WorldSettings_ShowSymmetry);
 			
 			var enableStationVoxelLabel = MakeLabel(MySpaceTexts.WorldSettings_EnableStationVoxel);
             var enableSunRotationLabel = MakeLabel(MySpaceTexts.WorldSettings_EnableSunRotation);
@@ -240,6 +245,7 @@ namespace Sandbox.Game.Gui
             m_spawnWithTools = new MyGuiControlCheckbox();
 
 			m_stationVoxelSupport = new MyGuiControlCheckbox();
+            m_enableShowSymmetry = new MyGuiControlCheckbox();
             m_maxPlayersSlider = new MyGuiControlSlider(
                 position: Vector2.Zero,
                 width: m_onlineMode.Size.X,
@@ -261,6 +267,16 @@ namespace Sandbox.Game.Gui
                 intValue: true
                 );
 
+            m_SymmetryAlphaSlider = new MyGuiControlSlider(
+                position: Vector2.Zero,
+                width: m_onlineMode.Size.X,
+                minValue: 0.0f,
+                maxValue: 1.0f,
+                labelText: new StringBuilder("{0}").ToString(),
+                labelDecimalPlaces: 1,
+                labelSpaceWidth: 0.05f,
+                intValue: false
+                );
             m_trashRemoval = new MyGuiControlCheckbox();
             m_respawnShipDelete = new MyGuiControlCheckbox();
             m_worldSizeCombo = new MyGuiControlCombobox(size: new Vector2(width, 0.04f));
@@ -431,6 +447,9 @@ namespace Sandbox.Game.Gui
             parent.Controls.Add(m_maxFloatingObjectsLabel);
             parent.Controls.Add(m_maxFloatingObjectsSlider);
 
+            parent.Controls.Add(m_SymmetryAlphaLabel);
+            parent.Controls.Add(m_SymmetryAlphaSlider);
+
             if (!MyFakes.OCTOBER_RELEASE_HIDE_WORLD_PARAMS)
             {
                 parent.Controls.Add(passwordLabel);
@@ -484,7 +503,7 @@ namespace Sandbox.Game.Gui
 
             parent.Controls.Add(oxygenLabel);
             parent.Controls.Add(m_enableOxygen);
-            
+
             parent.Controls.Add(disableRespawnShipsLabel);
             parent.Controls.Add(m_disableRespawnShips);
 
@@ -560,7 +579,6 @@ namespace Sandbox.Game.Gui
             oxygenLabel.Position = new Vector2(oxygenLabel.Position.X - labelSize / 2, oxygenLabel.Position.Y + buttonsOffset);
             m_enableOxygen.Position = new Vector2(m_enableOxygen.Position.X - labelSize / 2, m_enableOxygen.Position.Y + buttonsOffset);
 
-
             respawnShipDeleteLabel.Position = new Vector2(rightColumnOffset - labelSize / 2, m_autoHealing.Position.Y);
             m_respawnShipDelete.Position = new Vector2(rightColumnOffset + labelSize / 2, m_autoHealing.Position.Y);
             m_respawnShipDelete.OriginAlign = MyGuiDrawAlignEnum.HORISONTAL_CENTER_AND_VERTICAL_CENTER;
@@ -620,6 +638,9 @@ namespace Sandbox.Game.Gui
             enableStationVoxelLabel.Position = new Vector2(rightColumnOffset + 0.75f * labelSize, enableSunRotationLabel.Position.Y);
             m_stationVoxelSupport.Position = new Vector2(rightColumnOffset + labelSize + 0.75f * labelSize, m_enableSunRotation.Position.Y);
 
+            enableShowSymmetryLabel.Position = new Vector2(rightColumnOffset + 0.75f * labelSize, spawnWithToolsLabel.Position.Y);
+            m_enableShowSymmetry.Position = new Vector2(rightColumnOffset + labelSize + 0.75f * labelSize, m_spawnWithTools.Position.Y);
+
             parent.Controls.Add(showPlayerNamesOnHudLabel);
             parent.Controls.Add(m_showPlayerNamesOnHud);
 
@@ -662,6 +683,9 @@ namespace Sandbox.Game.Gui
 
             parent.Controls.Add(spawnWithToolsLabel);
             parent.Controls.Add(m_spawnWithTools);
+
+            parent.Controls.Add(enableShowSymmetryLabel);
+            parent.Controls.Add(m_enableShowSymmetry);
 
             m_survivalModeButton.OriginAlign = MyGuiDrawAlignEnum.HORISONTAL_RIGHT_AND_VERTICAL_CENTER;
             m_survivalModeButton.Position = m_creativeModeButton.Position + new Vector2(m_onlineMode.Size.X, 0);
@@ -916,6 +940,7 @@ namespace Sandbox.Game.Gui
             output.EnableIngameScripts = m_enableIngameScripts.IsChecked;
             output.Enable3rdPersonView = m_enable3rdPersonCamera.IsChecked;
             output.EnableEncounters = m_enableEncounters.IsChecked;
+            output.EnableShowSymmetry = m_enableShowSymmetry.IsChecked;
             output.EnableToolShake = m_enableToolShake.IsChecked;
             output.ShowPlayerNamesOnHud = m_showPlayerNamesOnHud.IsChecked;
             output.ThrusterDamage = m_thrusterDamage.IsChecked;
@@ -936,6 +961,8 @@ namespace Sandbox.Game.Gui
 
             output.MaxPlayers = (short)m_maxPlayersSlider.Value;
             output.MaxFloatingObjects = (short)m_maxFloatingObjectsSlider.Value;
+            output.SymmetryAlpha = (float)m_SymmetryAlphaSlider.Value;
+
             output.SunRotationIntervalMinutes = MathHelper.Clamp(MathHelper.InterpLog(m_sunRotationIntervalSlider.Value, MIN_DAY_TIME_MINUTES, MAX_DAY_TIME_MINUTES), MIN_DAY_TIME_MINUTES, MAX_DAY_TIME_MINUTES);
 
             output.AssemblerEfficiencyMultiplier = GetAssemblerMultiplier();
@@ -979,6 +1006,7 @@ namespace Sandbox.Game.Gui
             m_destructibleBlocks.IsChecked = settings.DestructibleBlocks;
             m_enableEncounters.IsChecked = settings.EnableEncounters;
             m_enable3rdPersonCamera.IsChecked = settings.Enable3rdPersonView;
+            m_enableShowSymmetry.IsChecked = settings.EnableShowSymmetry;
             m_enableIngameScripts.IsChecked = settings.EnableIngameScripts;
             m_enableToolShake.IsChecked = settings.EnableToolShake;
             m_showPlayerNamesOnHud.IsChecked = settings.ShowPlayerNamesOnHud;
@@ -1004,6 +1032,7 @@ namespace Sandbox.Game.Gui
             m_sunRotationIntervalSlider.Value = MathHelper.Clamp(MathHelper.InterpLogInv((float)settings.SunRotationIntervalMinutes, MIN_DAY_TIME_MINUTES, MAX_DAY_TIME_MINUTES), 0, 1);
             m_maxPlayersSlider.Value = settings.MaxPlayers;
             m_maxFloatingObjectsSlider.Value = settings.MaxFloatingObjects;
+            m_SymmetryAlphaSlider.Value = settings.SymmetryAlpha;
 
             CheckButton(settings.AssemblerSpeedMultiplier, m_assembler_x1, m_assembler_x3, m_assembler_x10);
             CheckButton(settings.InventorySizeMultiplier, m_inventory_x1, m_inventory_x3, m_inventory_x10);

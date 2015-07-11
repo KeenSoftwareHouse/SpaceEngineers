@@ -9810,6 +9810,16 @@ namespace Sandbox.Game.Localization
         public static readonly MyStringId WorldSettings_Enable3rdPersonCamera = MyStringId.GetOrCompute("WorldSettings_Enable3rdPersonCamera");
 
         ///<summary>
+        ///Show Symmetry Planes
+        ///</summary>
+        public static readonly MyStringId WorldSettings_ShowSymmetry = MyStringId.GetOrCompute("WorldSettings_ShowSymmetry");
+
+        ///<summary>
+        ///Symmetry Alpha
+        ///</summary>
+        public static readonly MyStringId WorldSettings_SymmetryAlpha = MyStringId.GetOrCompute("WorldSettings_SymmetryAlpha");
+
+        ///<summary>
         ///Next toolbar item
         ///</summary>
         public static readonly MyStringId ControlName_ToolbarNextItem = MyStringId.GetOrCompute("ControlName_ToolbarNextItem");

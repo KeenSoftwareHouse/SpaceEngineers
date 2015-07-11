@@ -6085,6 +6085,12 @@ To connect to lasers not listed here you can connect to coordinates.</value>
   <data name="WorldSettings_Enable3rdPersonCamera" xml:space="preserve">
     <value>Enable 3rd person view</value>
   </data>
+  <data name="WorldSettings_ShowSymmetry" xml:space="preserve">
+    <value>Show Symmetry Planes</value>
+  </data>
+  <data name="WorldSettings_SymmetryAlpha" xml:space="preserve">
+    <value>Symmetry Alpha</value>
+  </data>
   <data name="ControlName_ToolbarNextItem" xml:space="preserve">
     <value>Next toolbar item</value>
   </data>
