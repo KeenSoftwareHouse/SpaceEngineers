@@ -6430,17 +6430,17 @@ namespace Sandbox.Game.Localization
         public static readonly MyStringId BlockPropertyDescription_ThrustLinearMode = MyStringId.GetOrCompute("BlockPropertyDescription_ThrustLinearMode");
 
         ///<summary>
-        ///Linear
+        ///Linear movement
         ///</summary>
         public static readonly MyStringId BlockPropertyTitle_ThrustLinearMode = MyStringId.GetOrCompute("BlockPropertyTitle_ThrustLinearMode");
 
         ///<summary>
-        ///Allows this thruster to rotate the ship as long as an operational remote control bock is present
+        ///Allows this thruster to rotate the ship. Requires a remote control block with fly-by-wire switch turned on.
         ///</summary>
         public static readonly MyStringId BlockPropertyDescription_ThrustRotationalMode = MyStringId.GetOrCompute("BlockPropertyDescription_ThrustRotationalMode");
 
         ///<summary>
-        ///Rotational
+        ///Rotational assist
         ///</summary>
         public static readonly MyStringId BlockPropertyTitle_ThrustRotationalMode = MyStringId.GetOrCompute("BlockPropertyTitle_ThrustRotationalMode");
 
