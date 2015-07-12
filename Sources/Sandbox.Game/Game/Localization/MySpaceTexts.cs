@@ -11098,5 +11098,20 @@ namespace Sandbox.Game.Localization
         ///Ship will jump in {0} seconds.
         ///</summary>
         public static readonly MyStringId NotificationJumpWarmupTime = MyStringId.GetOrCompute("NotificationJumpWarmupTime");
+
+        ///<summary>
+        ///ClearTarget
+        ///</summary>
+        public static readonly MyStringId MyDoorClearInterlockTarget = MyStringId.GetOrCompute("MyDoorClearInterlockTarget");
+
+        ///<summary>
+        ///Delayed Open
+        ///</summary>
+        public static readonly MyStringId MyDoorDelayedOpen = MyStringId.GetOrCompute("MyDoorDelayedOpen");
+
+        ///<summary>
+        ///Interlock Door
+        ///</summary>
+        public static readonly MyStringId MyDoorSelectedCoords = MyStringId.GetOrCompute("MyDoorSelectedCoords");
     }
 }

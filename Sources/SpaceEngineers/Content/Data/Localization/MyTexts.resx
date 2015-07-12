@@ -6867,4 +6867,13 @@ Available in scenario edit mode only.</value>
   <data name="NotificationJumpWarmupTime" xml:space="preserve">
     <value>Ship will jump in {0} seconds.</value>
   </data>
+  <data name="MyDoorClearInterlockTarget" xml:space="preserve">
+    <value>ClearTarget</value>
+  </data>
+  <data name="MyDoorDelayedOpen" xml:space="preserve">
+    <value>Delayed Open</value>
+  </data>
+  <data name="MyDoorSelectedCoords" xml:space="preserve">
+    <value>Interlock Door</value>
+  </data>
 </root>

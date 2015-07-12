@@ -22,5 +22,11 @@ namespace Sandbox.Common.ObjectBuilders
 
         [ProtoMember]
         public string CloseSound;
+
+        [ProtoMember] 
+        public long InterlockTargetId;
+
+         [ProtoMember] 
+        public bool IsDelayedOpen;
     }
 }
