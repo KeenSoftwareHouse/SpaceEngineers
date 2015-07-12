@@ -818,6 +818,8 @@ namespace Sandbox.Game.Entities.Character
             InitSounds();
 
             if (InventoryAggregate != null) InventoryAggregate.Init();
+
+            UseDamageSystem = true;
         }
 
         private void InitInventory(MyObjectBuilder_Character characterOb)
@@ -1175,7 +1177,11 @@ namespace Sandbox.Game.Entities.Character
                     {
                         if (this.ControllerInfo.IsLocallyControlled() || Sync.IsServer)
                         {
-                            DoDamage(damageImpact, MyDamageType.Environment, true);
+                            IMyEntity other = value.Base.BodyA.GetEntity();
+                            if (other == this)
+                                other = value.Base.BodyB.GetEntity();
+
+                            DoDamage(damageImpact, MyDamageType.Environment, true, other != null ? other.EntityId : 0);
                         }
                     }
                 }
@@ -1515,7 +1521,7 @@ namespace Sandbox.Game.Entities.Character
             if (Sync.IsServer && !IsDead && m_currentMovementState != MyCharacterMovementEnum.Sitting && !MyEntities.IsInsideWorld((Vector3D)this.PositionComp.GetPosition()))
             {
                 if (MySession.Static.SurvivalMode)
-                    DoDamage(1000, MyDamageType.Suicide, true);
+                    DoDamage(1000, MyDamageType.Suicide, true, EntityId);
             }
 
             if (MyFakes.ENABLE_CHARACTER_VIRTUAL_PHYSICS && VirtualPhysics != null)
@@ -2001,11 +2007,11 @@ namespace Sandbox.Game.Entities.Character
 
             if (noOxygenDamage)
             {
-                DoDamage(Definition.DamageAmountAtZeroPressure, MyDamageType.Environment, true);
+                DoDamage(Definition.DamageAmountAtZeroPressure, MyDamageType.LowPressure, true);
             }
             else if (lowOxygenDamage)
             {
-                DoDamage(1f, MyDamageType.Environment, true);
+                DoDamage(1f, MyDamageType.Asphyxia, true);
             }
 
             SyncObject.UpdateOxygen(SuitOxygenAmount);
@@ -6233,34 +6239,47 @@ namespace Sandbox.Game.Entities.Character
 				m_breath.ForceUpdate();
 		}
 
-		void IMyDestroyableObject.DoDamage(float damage, MyDamageType damageType, bool sync, MyHitInfo? hitInfo)
-		{
-			DoDamage(damage, damageType, sync);
-		}
-
-		public void DoDamage(float damage, MyDamageType damageType, bool updateSync)
+		public void DoDamage(float damage, MyDamageType damageType, bool updateSync, long attackerId = 0)
 		{
 			if ((!CharacterCanDie && !(damageType == MyDamageType.Suicide && MyPerGameSettings.CharacterSuicideEnabled)) || StatComp == null)
 				return;
 
-			StatComp.DoDamage(damage, updateSync);
+            MyDamageInformation damageInfo = new MyDamageInformation(false, damage, damageType, attackerId);
+            if (UseDamageSystem && !(m_dieAfterSimulation || IsDead))
+                MyDamageSystem.Static.RaiseBeforeDamageApplied(this, ref damageInfo);
+
+            if (damageInfo.Amount <= 0f)
+                return;
+
+			StatComp.DoDamage(damage, updateSync, damageInfo);
+
+            if (UseDamageSystem)
+                MyDamageSystem.Static.RaiseAfterDamageApplied(this, damageInfo);
 		}
 
-		void Sandbox.ModAPI.IMyCharacter.Kill()
+		void Sandbox.ModAPI.IMyCharacter.Kill(object statChangeData)
 		{
-			Kill(true);
+            MyDamageInformation damageInfo = new MyDamageInformation();
+            if (statChangeData != null)
+                damageInfo = (MyDamageInformation)statChangeData;
+
+            Kill(true, damageInfo);
 		}
 
-		public void Kill(bool sync)
+		public void Kill(bool sync, MyDamageInformation damageInfo)
 		{
 			if (m_dieAfterSimulation || IsDead)
 				return;
 
 			if(sync)
 			{
-				MySyncHelper.KillCharacter(this);
+				MySyncHelper.KillCharacter(this, damageInfo);
 				return;
 			}
+
+            if (UseDamageSystem)
+                MyDamageSystem.Static.RaiseDestroyed(this, damageInfo);
+
 			m_dieAfterSimulation = true;
 		}
 
@@ -6276,7 +6295,7 @@ namespace Sandbox.Game.Entities.Character
                 callback: delegate(MyGuiScreenMessageBox.ResultEnum retval)
                 {
                     if (retval == MyGuiScreenMessageBox.ResultEnum.YES)
-                        DoDamage(1000, MyDamageType.Suicide, true);
+                        DoDamage(1000, MyDamageType.Suicide, true, this.EntityId);
                 }));
             }
         }
@@ -6987,9 +7006,9 @@ namespace Sandbox.Game.Entities.Character
             }            
         }
 
-        void DoDamageSuccess(float damage, MyDamageType damageType)
+        void DoDamageSuccess(float damage, MyDamageType damageType, long attackerId)
         {
-            DoDamage(damage, damageType, false);
+            DoDamage(damage, damageType, false, attackerId);
         }
         #endregion
 
@@ -7523,6 +7542,8 @@ namespace Sandbox.Game.Entities.Character
             Die();
         }
 
+        public bool UseDamageSystem { get; private set; }
+
         public float Integrity
         {
 			get
@@ -7784,6 +7805,11 @@ namespace Sandbox.Game.Entities.Character
             OnDestroy();
         }
 
+        void IMyDestroyableObject.DoDamage(float damage, MyDamageType damageType, bool sync, MyHitInfo? hitInfo, long attackerId)
+        {
+            DoDamage(damage, damageType, sync, attackerId);
+        }
+
         float IMyDestroyableObject.Integrity
         {
             get { return Integrity; }
@@ -7978,6 +8004,7 @@ namespace Sandbox.Game.Entities.Character
         {
             get { return EnvironmentOxygenLevel; }
         }
+
         #endregion
 
         public bool SwitchToJetpackRagdoll { get; set; }
