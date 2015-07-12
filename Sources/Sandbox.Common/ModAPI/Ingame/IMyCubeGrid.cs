@@ -54,5 +54,14 @@ namespace Sandbox.ModAPI.Ingame
         /// Converts world coordinates to grid space cell coordinates
         /// </summary>
         VRageMath.Vector3I WorldToGridInteger(VRageMath.Vector3D coords);
+
+        /// <summary>
+        /// Get the center of mass position in world coordinates
+        /// </summary>
+        VRageMath.Vector3D? CenterOfMassWorld { get; }
+        /// <summary>
+        /// Get the mass in kg
+        /// </summary>
+        float? Mass { get; }
     }
 }

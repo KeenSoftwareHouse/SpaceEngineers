@@ -5607,5 +5607,26 @@ namespace Sandbox.Game.Entities
             }
 			ProfilerShort.End();
         }
+
+        VRageMath.Vector3D? Sandbox.ModAPI.Ingame.IMyCubeGrid.CenterOfMassWorld
+        {
+            get
+            {
+                if (this.Physics == null)
+                    return null;
+                else
+                    return this.Physics.CenterOfMassWorld;
+            }
+        }
+        float? Sandbox.ModAPI.Ingame.IMyCubeGrid.Mass
+        {
+            get
+            {
+                if (this.Physics == null)
+                    return null;
+                else
+                    return this.Physics.Mass;
+            }
+        }
     }
 }
