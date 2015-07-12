@@ -401,22 +401,42 @@ namespace Sandbox.Game.GameSystems
             return p;
         }
 
-        private bool IsLocalCharacterAffectedByJump()
+        private bool IsLocalCharacterAffectedByJump(bool strict = false)
         {
             if (MySession.LocalCharacter == null)
             {
                 return false;
             }
 
-            GetCharactersInBoundingBox(GetAggregateBBox(), m_characters);
-            foreach (var character in m_characters)
+            if (strict)
             {
-                if (character == MySession.LocalCharacter)
+                // Strict mode only checks the actual entities that are part of the jump
+                // This avoids a case where characters that are nearby, but not jumping
+                // would get a warp effect. The countdown itself is safe for everyone to see.
+                UpdateNearbyEntityList();
+                foreach( var entity in m_shipInfo )
                 {
-                    if (character.Parent != null)
+                    if (entity is MyCharacter)
                     {
-                        m_characters.Clear();
-                        return true;
+                        if (entity == MySession.LocalCharacter)
+                        {
+                            return true;
+                        }
+                    }
+                }
+            }
+            else
+            {
+                GetCharactersInBoundingBox(GetAggregateBBox(), m_characters);
+                foreach (var character in m_characters)
+                {
+                    if (character == MySession.LocalCharacter)
+                    {
+                        if (character.Parent != null)
+                        {
+                            m_characters.Clear();
+                            return true;
+                        }
                     }
                 }
             }
@@ -432,7 +452,7 @@ namespace Sandbox.Game.GameSystems
             m_jumped = false;
             m_jumpStartTime = TimeUtil.LocalTime;
 
-            if (IsLocalCharacterAffectedByJump())
+            if (IsLocalCharacterAffectedByJump(true))
             {
                 m_playEffect = true;
                 m_playerFov = MySandboxGame.Config.FieldOfView;
@@ -463,12 +483,23 @@ namespace Sandbox.Game.GameSystems
                     int timeInt = (int)(jumpTime / 1000);
                     if (prevTimeInt != timeInt)
                     {
-                        if (IsLocalCharacterAffectedByJump())
+                        if (IsLocalCharacterAffectedByJump(true))
                         {
                             var notification = new MyHudNotification(MySpaceTexts.NotificationJumpWarmupTime, 500);
                             int secondsRemaining = (int)(Math.Round((warmupTime - jumpTime) / 1000));
                             notification.SetTextFormatArguments(secondsRemaining);
                             MyHud.Notifications.Add(notification);
+
+                            if (!m_playEffect)
+                            {
+                                // If players wander into range, make sure they see the effect too.
+                                m_playEffect = true;
+                                m_playerFov = MySandboxGame.Config.FieldOfView;
+                            }
+                        }
+                        else
+                        {
+                            m_playEffect = false;
                         }
                     }
                 } 
