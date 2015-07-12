@@ -30,7 +30,7 @@ namespace Sandbox.Game.GameSystems
         
         private HashSet<MyJumpDrive> m_jumpDrives = new HashSet<MyJumpDrive>();
         private HashSet<MyCubeGrid> m_connectedGrids = new HashSet<MyCubeGrid>();
-        private Dictionary<MyCubeGrid, Vector3D> m_shipInfo = new Dictionary<MyCubeGrid, Vector3D>();
+        private HashSet<MyEntity> m_shipInfo = new HashSet<MyEntity>();
 
         private List<MyEntity> m_entitiesInRange = new List<MyEntity>();
         private List<MyObjectSeed> m_objectsInRange = new List<MyObjectSeed>();
@@ -42,7 +42,6 @@ namespace Sandbox.Game.GameSystems
         private float m_prevJumpTime = 0f;
         private bool m_jumped = false;
 
-        
         private DateTime m_jumpStartTime;
         private bool m_playEffect = false;
         private float m_playerFov;
@@ -153,16 +152,8 @@ namespace Sandbox.Game.GameSystems
             }
 
             m_selectedDestination = destination;
-            double maxJumpDistance = GetMaxJumpDistance();
-            Vector3D jumpDirection = destination - m_grid.WorldMatrix.Translation;
-            double jumpDistance = jumpDirection.Length();
-            double actualDistance = jumpDistance;
-            if (jumpDistance > maxJumpDistance)
-            {
-                double ratio = maxJumpDistance / jumpDistance;
-                actualDistance = maxJumpDistance;
-                jumpDirection *= ratio;
-            }
+            double actualDistance = 0;
+            var jumpDirection = GetJumpDirection(m_selectedDestination, ref actualDistance);
 
             if (actualDistance < MIN_JUMP_DISTANCE)
             {
@@ -176,7 +167,7 @@ namespace Sandbox.Game.GameSystems
             {
                 MyGuiSandbox.AddScreen(MyGuiSandbox.CreateMessageBox(
                     buttonType: MyMessageBoxButtonsType.YES_NO,
-                    messageText: GetConfimationText(destinationName, jumpDistance, actualDistance),
+                    messageText: GetConfimationText(destinationName, jumpDirection.Length(), actualDistance),
                     messageCaption: MyTexts.Get(MySpaceTexts.MessageBoxCaptionPleaseConfirm),
                     size: new Vector2(0.839375f, 0.3675f), callback: SendJumpRequestToServer
                     ));
@@ -410,22 +401,42 @@ namespace Sandbox.Game.GameSystems
             return p;
         }
 
-        private bool IsLocalCharacterAffectedByJump()
+        private bool IsLocalCharacterAffectedByJump(bool strict = false)
         {
             if (MySession.LocalCharacter == null)
             {
                 return false;
             }
 
-            GetCharactersInBoundingBox(GetAggregateBBox(), m_characters);
-            foreach (var character in m_characters)
+            if (strict)
             {
-                if (character == MySession.LocalCharacter)
+                // Strict mode only checks the actual entities that are part of the jump
+                // This avoids a case where characters that are nearby, but not jumping
+                // would get a warp effect. The countdown itself is safe for everyone to see.
+                UpdateNearbyEntityList();
+                foreach( var entity in m_shipInfo )
                 {
-                    if (character.Parent != null)
+                    if (entity is MyCharacter)
                     {
-                        m_characters.Clear();
-                        return true;
+                        if (entity == MySession.LocalCharacter)
+                        {
+                            return true;
+                        }
+                    }
+                }
+            }
+            else
+            {
+                GetCharactersInBoundingBox(GetAggregateBBox(), m_characters);
+                foreach (var character in m_characters)
+                {
+                    if (character == MySession.LocalCharacter)
+                    {
+                        if (character.Parent != null)
+                        {
+                            m_characters.Clear();
+                            return true;
+                        }
                     }
                 }
             }
@@ -436,33 +447,12 @@ namespace Sandbox.Game.GameSystems
 
         private void Jump(Vector3D jumpTarget)
         {
-            UpdateConnectedGrids();
-
-            double maxJumpDistance = GetMaxJumpDistance();
-            Vector3D jumpDirection = jumpTarget - m_grid.WorldMatrix.Translation;
-            double jumpDistance = jumpDirection.Length();
-            double actualDistance = jumpDistance;
-            if (jumpDistance > maxJumpDistance)
-            {
-                double ratio = maxJumpDistance / jumpDistance;
-                actualDistance = maxJumpDistance;
-                jumpDirection *= ratio;
-            }
-
-            DepleteJumpDrives(actualDistance);
-
+            m_selectedDestination = jumpTarget;
             m_isJumping = true;
             m_jumped = false;
             m_jumpStartTime = TimeUtil.LocalTime;
 
-            m_shipInfo.Clear();
-            
-            foreach (var grid in m_connectedGrids)
-            {
-                m_shipInfo.Add(grid, grid.WorldMatrix.Translation + jumpDirection);
-            }
-
-            if (IsLocalCharacterAffectedByJump())
+            if (IsLocalCharacterAffectedByJump(true))
             {
                 m_playEffect = true;
                 m_playerFov = MySandboxGame.Config.FieldOfView;
@@ -493,12 +483,23 @@ namespace Sandbox.Game.GameSystems
                     int timeInt = (int)(jumpTime / 1000);
                     if (prevTimeInt != timeInt)
                     {
-                        if (IsLocalCharacterAffectedByJump())
+                        if (IsLocalCharacterAffectedByJump(true))
                         {
                             var notification = new MyHudNotification(MySpaceTexts.NotificationJumpWarmupTime, 500);
                             int secondsRemaining = (int)(Math.Round((warmupTime - jumpTime) / 1000));
                             notification.SetTextFormatArguments(secondsRemaining);
                             MyHud.Notifications.Add(notification);
+
+                            if (!m_playEffect)
+                            {
+                                // If players wander into range, make sure they see the effect too.
+                                m_playEffect = true;
+                                m_playerFov = MySandboxGame.Config.FieldOfView;
+                            }
+                        }
+                        else
+                        {
+                            m_playEffect = false;
                         }
                     }
                 } 
@@ -512,6 +513,15 @@ namespace Sandbox.Game.GameSystems
                 }
                 else if (!m_jumped)
                 {
+                    UpdateConnectedGrids();
+
+                    double actualDistance = 0;
+                    var jumpDirection = GetJumpDirection(m_selectedDestination, ref actualDistance);
+
+                    DepleteJumpDrives(actualDistance);
+
+                    UpdateNearbyEntityList();
+
                     MyParticleEffect effect;
                     if (MyParticlesManager.TryCreateParticleEffect(53, out effect))
                     {
@@ -525,13 +535,12 @@ namespace Sandbox.Game.GameSystems
                     MyThirdPersonSpectator.Static.RecalibrateCameraPosition();
 
                     m_jumped = true;
-                    
-                    var keys = m_shipInfo.Keys.ToList();
-                    foreach (var key in keys)
+
+                    foreach (var entity in m_shipInfo)
                     {
-                        MatrixD gridMatrix = key.WorldMatrix;
-                        gridMatrix.Translation = m_shipInfo[key];
-                        key.WorldMatrix = gridMatrix;
+                        MatrixD gridMatrix = entity.WorldMatrix;
+                        gridMatrix.Translation = gridMatrix.Translation + jumpDirection;
+                        entity.WorldMatrix = gridMatrix;
                     }
 
                     UpdateJumpEffect(0f);
@@ -568,6 +577,45 @@ namespace Sandbox.Game.GameSystems
             }
         }
 
+        private Vector3D GetJumpDirection(Vector3D jumpTarget, ref double actualDistance)
+        {
+            Vector3D jumpDirection = jumpTarget - m_grid.WorldMatrix.Translation;
+            double maxJumpDistance = GetMaxJumpDistance();
+            double jumpDistance = jumpDirection.Length();
+            actualDistance = jumpDistance;
+            if (jumpDistance > maxJumpDistance)
+            {
+                double ratio = maxJumpDistance / jumpDistance;
+                actualDistance = maxJumpDistance;
+                jumpDirection *= ratio;
+            }
+            return jumpDirection;
+        }
+
+        private void UpdateNearbyEntityList()
+        {
+            m_shipInfo.Clear();
+
+            foreach (var grid in m_connectedGrids)
+            {
+                m_shipInfo.Add(grid);
+                var boundingBox = grid.PositionComp.WorldAABB;
+
+                MyGamePruningStructure.GetAllTopMostEntitiesInBox<MyEntity>(ref boundingBox, m_entitiesInRange);
+                foreach (var entity in m_entitiesInRange)
+                {
+                    var floating = entity;
+                    if (floating != null && 
+                        (floating is MyFloatingObject || 
+                            (floating is MyCharacter && !((floating as MyCharacter).IsUsing is MyCockpit))))    // Only handle player if not in cockpit
+                    {
+                        m_shipInfo.Add(floating);
+                    }
+                }
+                m_entitiesInRange.Clear();
+            }
+        }
+
         #region Sync
         private void SendJumpRequestToServer(MyGuiScreenMessageBox.ResultEnum result)
         {
@@ -587,16 +635,8 @@ namespace Sandbox.Game.GameSystems
                 return;
             }
 
-            double maxJumpDistance = GetMaxJumpDistance();
-            Vector3D jumpDirection = jumpTarget - m_grid.WorldMatrix.Translation;
-            double jumpDistance = jumpDirection.Length();
-            double actualDistance = jumpDistance;
-            if (jumpDistance > maxJumpDistance)
-            {
-                double ratio = maxJumpDistance / jumpDistance;
-                actualDistance = maxJumpDistance;
-                jumpDirection *= ratio;
-            }
+            double actualDistance = 0;
+            var jumpDirection = GetJumpDirection(jumpTarget, ref actualDistance);
 
             if (actualDistance < MIN_JUMP_DISTANCE)
             {

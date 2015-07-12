@@ -70,12 +70,10 @@ namespace Sandbox.Game.Entities
             var jumpButton = new MyTerminalControlButton<MyJumpDrive>("Jump", MySpaceTexts.BlockActionTitle_Jump, MySpaceTexts.Blank, (x) => x.RequestJump());
             jumpButton.Enabled = (x) => x.CanJump;
             jumpButton.SupportsMultipleBlocks = false;
-            // Can only be called from toolbar of cockpit
-            jumpButton.Visible = (x) => false;
             var action = jumpButton.EnableAction(MyTerminalActionIcons.TOGGLE);
             if (action != null)
             {
-                action.InvalidToolbarTypes = new List<MyToolbarType> { MyToolbarType.ButtonPanel, MyToolbarType.Character, MyToolbarType.Seat };
+                action.InvalidToolbarTypes = new List<MyToolbarType> { MyToolbarType.Character, MyToolbarType.Seat };
                 action.ValidForGroups = false;
             }
             MyTerminalControlFactory.AddControl(jumpButton);
@@ -193,6 +191,10 @@ namespace Sandbox.Game.Entities
                     if (MySession.LocalCharacter != null)
                     {
                         var cockpit = MySession.LocalCharacter.Parent as MyCockpit;
+
+                        if( cockpit == null )
+                            cockpit = GetMainCockpit();
+
                         if (cockpit != null)
                         {
                             Vector3 localForward = Base6Directions.GetVector(cockpit.Orientation.Forward);
@@ -206,6 +208,35 @@ namespace Sandbox.Game.Entities
                     }
                 }
             }
+        }
+
+        /// <summary>
+        /// Enumerates all cockpits on the grid, looking for either the main cockpit
+        /// or a single cockpit with control thrusters set.
+        /// If there is no main cockpit, and multiple cockpits, returns null.
+        /// </summary>
+        /// <returns>Cockpit if Main or there's only one that has control thrusters set, otherwise null</returns>
+        private MyCockpit GetMainCockpit()
+        {
+            HashSet<MySlimBlock> blocks = CubeGrid.GetBlocks();
+            HashSet<MyCockpit> cockpits = new HashSet<MyCockpit>();
+
+            foreach(var block in blocks)
+            {
+                if( block.FatBlock != null && block.FatBlock is MyCockpit)
+                {
+                    if ((block.FatBlock as MyCockpit).IsMainCockpit)
+                        return block.FatBlock as MyCockpit;             // Finding the main cockpit shortcuts the search
+
+                    if ((block.FatBlock as MyCockpit).ControlThrusters)
+                        cockpits.Add(block.FatBlock as MyCockpit);
+                }
+            }
+
+            if (cockpits.Count == 1)
+                return cockpits.FirstElement();
+            
+            return null;
         }
 
         private double ComputeMaxDistance()
