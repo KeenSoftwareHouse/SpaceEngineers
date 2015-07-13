@@ -1079,10 +1079,9 @@ namespace Sandbox.Game.Entities.Cube
                 massProperties = HkInertiaTensorComputer.ComputeBoxVolumeMassProperties(size / 2, mass);
                 m_tmpElements.Add(new HkMassElement() { Properties = massProperties, Tranform = Matrix.CreateTranslation(center) });
             }
-            HkMassProperties originalMp = new HkMassProperties();
-            BreakableShape.BuildMassProperties(ref originalMp);
-            m_tmpElements.Add(new HkMassElement() { Properties = originalMp, Tranform = Matrix.Identity });
+            m_tmpElements.Add(new HkMassElement() { Properties = m_massProperties, Tranform = Matrix.Identity });
             var mp = HkInertiaTensorComputer.CombineMassProperties(m_tmpElements);
+            UpdateMass(rb.RigidBody);
             m_tmpElements.Clear();
             rb.RigidBody.SetMassProperties(ref mp);
             if (!rb.RigidBody.IsActive)

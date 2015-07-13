@@ -484,7 +484,7 @@ namespace Sandbox.Game.Entities
                     Physics.AngularVelocity = builder.AngularVelocity;
                     if (!IsStatic)
                         Physics.Shape.BlocksConnectedToWorld.Clear();
-                    if(MyPerGameSettings.InventoryMass)
+                    if (MySession.Static.Settings.EnableInventoryMass)
                         m_inventoryMassDirty = true;
                 }
 
@@ -1080,7 +1080,6 @@ namespace Sandbox.Game.Entities
             {
                 if (m_inventoryMassDirty)
                 {
-                    m_inventoryMassDirty = false;
                     Physics.Shape.UpdateMassFromInventories(m_cubeBlocks, Physics);
                 }
 
