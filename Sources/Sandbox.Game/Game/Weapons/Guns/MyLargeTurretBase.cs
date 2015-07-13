@@ -65,85 +65,12 @@ namespace Sandbox.Game.Weapons
 
             public MyLargeTurretBase Turret { get; set; }
 
-            //http://danikgames.com/blog/?p=809
             public Vector3D GetPredictedTargetPosition(IMyEntity target)
             {
-                Vector3D predictedPosition = target.PositionComp.WorldAABB.Center;
-
-                Vector3D dirToTarget = Vector3D.Normalize(predictedPosition - Turret.GunBase.GetMuzzleWorldPosition());
-
-                float shotSpeed = 0;
-
-                if (Turret.GunBase.CurrentAmmoMagazineDefinition != null)
-                {
-                    var ammoDefinition = MyDefinitionManager.Static.GetAmmoDefinition(Turret.GunBase.CurrentAmmoMagazineDefinition.AmmoDefinitionId);
-
-                    shotSpeed = ammoDefinition.DesiredSpeed;
-
-                    if (ammoDefinition.AmmoType == MyAmmoType.Missile)
-                    {
-                        //missiles are accelerating, shotSpeed is reached later
-                        var mDef = (Sandbox.Definitions.MyMissileAmmoDefinition)ammoDefinition;
-                        if (mDef.MissileInitialSpeed == 100f && mDef.MissileAcceleration == 600f && ammoDefinition.DesiredSpeed == 700f)//our missile
-                        {//This is very good&fast correction for our missile, but not for some modded exotics with different performance
-                            //still does not take parallel component of velocity into account, I know, but its accurate enough
-                            shotSpeed = 800f - 238431f / (397.42f + (float)(predictedPosition - Turret.GunBase.GetMuzzleWorldPosition()).Length());
-                        }
-                        //else {unknown missile, keep shotSpeed without correction}
-                    }
-                }
-
-                Vector3 targetVelocity = target.Physics != null ? target.Physics.LinearVelocity : target.GetTopMostParent().Physics.LinearVelocity;
-
-                //Include turret velocity into calculations
-                targetVelocity -= Turret.Parent.Physics.LinearVelocity;
-
-                // Decompose the target's velocity into the part parallel to the
-                // direction to the cannon and the part tangential to it.
-                // The part towards the cannon is found by projecting the target's
-                // velocity on dirToTarget using a dot product.
-                Vector3 targetVelOrth = Vector3.Dot(targetVelocity, dirToTarget) * dirToTarget;
-
-                // The tangential part is then found by subtracting the
-                // result from the target velocity.
-                Vector3 targetVelTang = targetVelocity - targetVelOrth;
-
-
-                // The tangential component of the velocities should be the same
-                // (or there is no chance to hit)
-                // THIS IS THE MAIN INSIGHT!
-                Vector3 shotVelTang = targetVelTang;
-
-                // Now all we have to find is the orthogonal velocity of the shot
-
-                float shotVelSpeed = shotVelTang.Length();
-                if (shotVelSpeed > shotSpeed)
-                {
-                    // Shot is too slow to intercept target, it will never catch up.
-                    // Do our best by aiming in the direction of the targets velocity.
-                    //return Vector3.Normalize(target.Physics.LinearVelocity) * shotSpeed;
-                    return predictedPosition;
-                }
-                else
-                {
-                    // We know the shot speed, and the tangential velocity.
-                    // Using pythagoras we can find the orthogonal velocity.
-                    float shotSpeedOrth = (float)Math.Sqrt(shotSpeed * shotSpeed - shotVelSpeed * shotVelSpeed);
-                    Vector3 shotVelOrth = dirToTarget * shotSpeedOrth;
-
-                    // Finally, add the tangential and orthogonal velocities.
-                    //return shotVelOrth + shotVelTang;
-
-                    // Find the time of collision (distance / relative velocity)
-                    float timeDiff = shotVelOrth.Length() - targetVelOrth.Length();
-                    var timeToCollision = timeDiff != 0 ? ((Turret.PositionComp.GetPosition() - target.WorldMatrix.Translation).Length()) / timeDiff : 0;
-
-                    // Calculate where the shot will be at the time of collision
-                    Vector3 shotVel = shotVelOrth + shotVelTang;
-                    predictedPosition = timeToCollision > 0.01f ? Turret.GunBase.GetMuzzleWorldPosition() + (Vector3D)shotVel * timeToCollision : predictedPosition;
-
-                    return predictedPosition;
-                }
+                var targetVelocity = target.Physics != null
+                    ? target.Physics.LinearVelocity
+                    : target.GetTopMostParent().Physics.LinearVelocity;
+                return Turret.PredictPosition(target.PositionComp.WorldAABB.Center, targetVelocity);
             }
 
             public MyTargetPredictionType(MyLargeTurretBase turret)
@@ -186,82 +113,7 @@ namespace Sandbox.Game.Weapons
 
             public Vector3D GetPredictedTargetPosition(IMyEntity target)
             {
-                Vector3D predictedPosition = TrackedPosition;
-
-                Vector3D dirToTarget = Vector3D.Normalize(predictedPosition - Turret.GunBase.GetMuzzleWorldPosition());
-
-                float shotSpeed = 0;
-
-                if (Turret.GunBase.CurrentAmmoMagazineDefinition != null)
-                {
-                    var ammoDefinition = MyDefinitionManager.Static.GetAmmoDefinition(Turret.GunBase.CurrentAmmoMagazineDefinition.AmmoDefinitionId);
-
-                    shotSpeed = ammoDefinition.DesiredSpeed;
-
-                    if (ammoDefinition.AmmoType == MyAmmoType.Missile)
-                    {
-                        //missiles are accelerating, shotSpeed is reached later
-                        var mDef = (Sandbox.Definitions.MyMissileAmmoDefinition)ammoDefinition;
-                        if (mDef.MissileInitialSpeed == 100f && mDef.MissileAcceleration == 600f && ammoDefinition.DesiredSpeed == 700f)//our missile
-                        {//This is very good&fast correction for our missile, but not for some modded exotics with different performance
-                            //still does not take parallel component of velocity into account, I know, but its accurate enough
-                            shotSpeed = 800f - 238431f / (397.42f + (float)(predictedPosition - Turret.GunBase.GetMuzzleWorldPosition()).Length());
-                        }
-                        //else {unknown missile, keep shotSpeed without correction}
-                    }
-                }
-
-                Vector3 targetVelocity = TrackedVelocity;
-
-                //Include turret velocity into calculations
-                targetVelocity -= Turret.Parent.Physics.LinearVelocity;
-
-                // Decompose the target's velocity into the part parallel to the
-                // direction to the cannon and the part tangential to it.
-                // The part towards the cannon is found by projecting the target's
-                // velocity on dirToTarget using a dot product.
-                Vector3 targetVelOrth = Vector3.Dot(targetVelocity, dirToTarget) * dirToTarget;
-
-                // The tangential part is then found by subtracting the
-                // result from the target velocity.
-                Vector3 targetVelTang = targetVelocity - targetVelOrth;
-
-
-                // The tangential component of the velocities should be the same
-                // (or there is no chance to hit)
-                // THIS IS THE MAIN INSIGHT!
-                Vector3 shotVelTang = targetVelTang;
-
-                // Now all we have to find is the orthogonal velocity of the shot
-
-                float shotVelSpeed = shotVelTang.Length();
-                if (shotVelSpeed > shotSpeed)
-                {
-                    // Shot is too slow to intercept target, it will never catch up.
-                    // Do our best by aiming in the direction of the targets velocity.
-                    //return Vector3.Normalize(target.Physics.LinearVelocity) * shotSpeed;
-                    return predictedPosition;
-                }
-                else
-                {
-                    // We know the shot speed, and the tangential velocity.
-                    // Using pythagoras we can find the orthogonal velocity.
-                    float shotSpeedOrth = (float)Math.Sqrt(shotSpeed * shotSpeed - shotVelSpeed * shotVelSpeed);
-                    Vector3 shotVelOrth = dirToTarget * shotSpeedOrth;
-
-                    // Finally, add the tangential and orthogonal velocities.
-                    //return shotVelOrth + shotVelTang;
-
-                    // Find the time of collision (distance / relative velocity)
-                    float timeDiff = shotVelOrth.Length() - targetVelOrth.Length();
-                    var timeToCollision = timeDiff != 0 ? ((Turret.PositionComp.GetPosition() - target.WorldMatrix.Translation).Length()) / timeDiff : 0;
-
-                    // Calculate where the shot will be at the time of collision
-                    Vector3 shotVel = shotVelOrth + shotVelTang;
-                    predictedPosition = timeToCollision > 0.01f ? Turret.GunBase.GetMuzzleWorldPosition() + (Vector3D)shotVel * timeToCollision : predictedPosition;
-
-                    return predictedPosition;
-                }
+                return Turret.PredictPosition(TrackedPosition, TrackedVelocity);
             }
 
             public MyPositionPredictionType(MyLargeTurretBase turret)
@@ -283,6 +135,8 @@ namespace Sandbox.Game.Weapons
         public const float MAX_DISTANCE_FOR_RANDOM_ROTATING_LARGESHIP_GUNS = 600;
         const float DEFAULT_MIN_RANGE = 4.0f;
         const float DEFAULT_MAX_RANGE = 800.0f;
+
+        private const float TARGETING_PREDICTION_TIME = 2.0f;
 
         protected MyLargeBarrelBase m_barrel;
         protected MyEntity m_base1;
@@ -1773,7 +1627,20 @@ namespace Sandbox.Game.Weapons
 
             foreach (var target in m_targetList)
             {
-                var dist = Vector3D.DistanceSquared(target.PositionComp.GetPosition(), PositionComp.GetPosition());
+                var predictedPosition = target.PositionComp.GetPosition();
+
+                if (target.Physics != null || target.GetTopMostParent().Physics != null)
+                {
+                    // Base the distance for targetting purposes on where the target will be soon, not where it is now.
+                    // This prioritizes things that are moving towards us.
+                    var targetVelocity = target.Physics != null
+                        ? target.Physics.LinearVelocity
+                        : target.GetTopMostParent().Physics.LinearVelocity;
+                    var targetRelativeVelocity = targetVelocity - Parent.Physics.LinearVelocity;
+                    predictedPosition += targetRelativeVelocity * TARGETING_PREDICTION_TIME;
+                }
+
+                var dist = Vector3D.DistanceSquared(predictedPosition, PositionComp.GetPosition());
 
                 if (IsDecoy(target) && IsTarget(target) && IsTargetEnemy(target) && IsTargetInView(target) && IsTargetVisible(target))
                 {
@@ -3252,6 +3119,125 @@ namespace Sandbox.Game.Weapons
         protected override void RestoreIdle() 
         {
             EnableIdleRotation = m_previousIdleRotationState;
+        }
+
+        private Vector3D PredictPosition(Vector3D targetPosition, Vector3D targetVelocity)
+        {
+            Vector3D targetRelativePosition = targetPosition - GunBase.GetMuzzleWorldPosition();
+
+            float shotSpeed = 0;
+            float shotInitialSpeed = 0;
+            float shotMaxSpeed = 0;
+            float shotAcceleration = 0;
+
+            if (GunBase.CurrentAmmoMagazineDefinition != null)
+            {
+                var ammoDefinition =
+                    MyDefinitionManager.Static.GetAmmoDefinition(GunBase.CurrentAmmoMagazineDefinition.AmmoDefinitionId);
+
+                shotSpeed = shotInitialSpeed = shotMaxSpeed = ammoDefinition.DesiredSpeed;
+
+                if (ammoDefinition.AmmoType == MyAmmoType.Missile)
+                {
+                    //missiles are accelerating, shotSpeed is reached later
+                    var mDef = (Sandbox.Definitions.MyMissileAmmoDefinition) ammoDefinition;
+                    shotInitialSpeed = mDef.MissileInitialSpeed;
+                    shotSpeed = (shotInitialSpeed + shotMaxSpeed) / 2;
+                    shotAcceleration = mDef.MissileAcceleration;
+                    if (mDef.MissileInitialSpeed == 100f && mDef.MissileAcceleration == 600f &&
+                        ammoDefinition.DesiredSpeed == 700f) //our missile
+                    {
+                        //This is very good&fast correction for our missile, but not for some modded exotics with different performance
+                        //still does not take parallel component of velocity into account, I know, but its accurate enough
+                        shotSpeed = 800f -
+                                    238431f /
+                                    (397.42f + (float)(targetPosition - GunBase.GetMuzzleWorldPosition()).Length());
+                    }
+                    //else {unknown missile, keep shotSpeed without correction}
+                }
+            }
+
+            //Include turret velocity into calculations
+            Vector3D targetRelativeVelocity = targetVelocity - Parent.Physics.LinearVelocity;
+
+            // We solve for the shot hitting the target:
+            // targetRelativePosition + targetRelativeVelocity * timeToTarget = shotVelocity * timeToTarget
+            // ||shotVelocity|| = shotSpeed
+            //
+            // A bit of rearranging gives
+            // shotVelocity = targetRelativeVelocity + targetRelativePosition * (1 / timeToTarget)
+            // ||shotVelocity|| = shotSpeed
+            //
+            // This is just the intersection of a sphere with a line, and can be solved for (1 / timeToTarget) with the quadratic formula.
+            // http://en.wikipedia.org/wiki/Line%E2%80%93sphere_intersection
+
+            double a = targetRelativePosition.LengthSquared();
+            double half_b = Vector3D.Dot(targetRelativePosition, targetRelativeVelocity);
+            double c = targetRelativeVelocity.LengthSquared() - shotSpeed * shotSpeed;
+
+            double determinant = half_b * half_b - a * c;
+
+            if (a == 0)
+                return targetPosition;
+
+            if (determinant < 0)
+            {
+                // Shot is too slow to intercept target, it will never catch up.
+                // Try to get as close as possible.
+                determinant = 0;
+            }
+
+            double sqrtDeterminant = Math.Sqrt(determinant);
+            if (sqrtDeterminant <= half_b)
+            {
+                // The target is moving away from us too fast to hit; the
+                // only solutions have negative timeToTarget.
+                return targetPosition;
+            }
+
+            // We want the smallest nonnegative timeToTarget. 
+            // This is always given by the solution with positive square root.
+            double timeToTarget = a / (sqrtDeterminant - half_b);
+            Vector3D predictedPosition = targetPosition + targetRelativeVelocity * timeToTarget;
+
+            if (shotAcceleration > 0)
+            {
+                // For missiles, use Newton's method to correct our aim.
+
+                // This is accurate as long as the turrent isn't moving too fast. The maximum speed of missiles is
+                // based on absolute velocity, not relative velocity.
+                double shotAccelerationTime = (shotMaxSpeed - shotInitialSpeed) / shotAcceleration;
+
+                for (int i = 0; i < 10; i++)
+                {
+                    Vector3D targetFinalRelativePosition = (targetRelativePosition + targetRelativeVelocity * timeToTarget);
+                 
+                    // We will hit if the target and the shot are both the same distance from the gun at the impact time.
+                    // The error in distance is much easier to minimize than the error in time or the error in position.
+                    double targetDistance = targetFinalRelativePosition.Length();
+                    double shotDistance = timeToTarget > shotAccelerationTime
+                        ? (shotInitialSpeed - shotMaxSpeed) * shotAccelerationTime / 2 +
+                          shotMaxSpeed * timeToTarget
+                        : (shotInitialSpeed + 0.5 * shotAcceleration * timeToTarget) * timeToTarget;
+                    shotDistance += 2;
+                    if (Math.Abs(shotDistance - targetDistance) < 0.01)
+                        break;
+
+                    // Correct to minimize the error in distance.
+                    double dTargetDistance = Vector3D.Dot(targetFinalRelativePosition, targetRelativeVelocity) /
+                                             targetDistance;
+                    double dShotDistance = timeToTarget > shotAccelerationTime
+                        ? shotMaxSpeed
+                        : shotInitialSpeed + 0.5 * shotAcceleration * timeToTarget;
+
+                    double correction = (targetDistance - shotDistance) / (dShotDistance - dTargetDistance);
+                    timeToTarget += correction;
+                }
+
+                predictedPosition = targetPosition + targetRelativeVelocity * timeToTarget;
+            }
+
+            return predictedPosition;
         }
     }
 
