@@ -256,5 +256,12 @@ namespace VRage.Compiler
         {
             return classType.IsSubclassOf(method.DeclaringType);
         }
+
+        public static void Clear()
+        {
+            AllowedOperands.Clear();
+            AllowedNamespacesCommon.Clear();
+            AllowedNamespacesModAPI.Clear();
+        }
     }
 }

@@ -2,6 +2,7 @@
 using Sandbox.Engine.Utils;
 using Sandbox.Engine.Voxels;
 using Sandbox.Game.Entities.Cube;
+using Sandbox.Game.Entities.Interfaces;
 using System;
 using System.Diagnostics;
 using VRage.Components;
@@ -87,7 +88,6 @@ namespace Sandbox.Game
         public static string GameIcon;
         public static bool EnableGlobalGravity;
         public static bool ZoomRequiresLookAroundPressed = false;
-        public static bool EnableWeaponWithoutInventory = false;
 
         public static bool EnablePregeneratedAsteroidHack = false;
         public static bool SendLogToKeen = true;
@@ -269,7 +269,6 @@ namespace Sandbox.Game
         public static bool EnableRagdollInJetpack = false;
 
         public static bool InventoryMass = false;
-        public static bool ComponentSaving = false;
 
         public static bool EnableCharacterCollisionDamage = false;
         public static MyStringId DefaultGraphicsRenderer;

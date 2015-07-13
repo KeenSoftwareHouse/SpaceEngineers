@@ -837,6 +837,7 @@ namespace Sandbox.Game.Entities.Blocks
 						else
 							OnEnemyUse(actionEnum, user);
                         break;
+                    case Common.MyRelationsBetweenPlayerAndBlock.NoOwnership:
                     case Common.MyRelationsBetweenPlayerAndBlock.FactionShare:
                         if (OwnerId == 0 && IsAccessibleForOnlyOwner)
                             OnOwnerUse(actionEnum, user);

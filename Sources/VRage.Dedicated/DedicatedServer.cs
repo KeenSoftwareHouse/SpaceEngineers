@@ -95,8 +95,10 @@ namespace VRage.Dedicated
                 MyPerServerSettings.GameDSName,
                 userDataPath, DedicatedServer.AddDateToLog);
 
-
-            RunInternal();
+            do
+            {
+                RunInternal();
+            } while (MySandboxGame.IsReloading);
 
             MyInitializer.InvokeAfterRun();
         }
@@ -119,7 +121,10 @@ namespace VRage.Dedicated
 
         static void RunInternal()
         {
-            MyFileSystem.InitUserSpecific(null);
+            if (!MySandboxGame.IsReloading)
+                MyFileSystem.InitUserSpecific(null);
+
+            MySandboxGame.IsReloading = false;
 
             VRageRender.MyRenderProxy.Initialize(MySandboxGame.IsDedicated ? (IMyRender)new MyNullRender() : new MyDX9Render());
             VRageRender.MyRenderProxy.IS_OFFICIAL = MyFinalBuildConstants.IS_OFFICIAL;
@@ -142,7 +147,7 @@ namespace VRage.Dedicated
                     game.Run();
                 }
 
-                if (MySandboxGame.IsConsoleVisible)
+                if (MySandboxGame.IsConsoleVisible && !MySandboxGame.IsReloading)
                 {
                     Console.WriteLine("Server stopped, press any key to close this window");
                     Console.ReadKey(false);

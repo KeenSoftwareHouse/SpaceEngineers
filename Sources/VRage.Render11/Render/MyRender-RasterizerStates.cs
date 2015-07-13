@@ -11,6 +11,7 @@ namespace VRageRender
     partial class MyRender11
     {
         internal static RasterizerId m_nocullRasterizerState;
+        internal static RasterizerId m_invTriRasterizerState;
         internal static RasterizerId m_wireframeRasterizerState;
         internal static RasterizerId m_linesRasterizerState;
         internal static RasterizerId m_cascadesRasterizerState;
@@ -32,6 +33,10 @@ namespace VRageRender
             m_wireframeRasterizerState = MyPipelineStates.CreateRasterizerState(desc);
 
             desc.FillMode = FillMode.Solid;
+            desc.CullMode = CullMode.Front;
+            m_invTriRasterizerState = MyPipelineStates.CreateRasterizerState(desc);
+
+            desc.FillMode = FillMode.Solid;
             desc.CullMode = CullMode.None;
             m_nocullRasterizerState = MyPipelineStates.CreateRasterizerState(desc);
 
@@ -42,7 +47,6 @@ namespace VRageRender
             desc = new RasterizerStateDescription();
             desc.FillMode = FillMode.Solid;
             desc.CullMode = CullMode.Back;
-            desc.IsAntialiasedLineEnabled = true;
             m_linesRasterizerState = MyPipelineStates.CreateRasterizerState(desc);
 
             desc = new RasterizerStateDescription();

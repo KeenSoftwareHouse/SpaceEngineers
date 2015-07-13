@@ -111,7 +111,7 @@ namespace Sandbox.Game.Components
                 worldMatrix = MatrixD.CreateScale(Scale.Value) * worldMatrix;
             }
             ProfilerShort.End();
-            MatrixD localMatrix;
+            MatrixD localMatrix = MatrixD.Identity;
 
             if (this.Container.Entity.Parent == null)
             {
@@ -177,7 +177,9 @@ namespace Sandbox.Game.Components
         public override void UpdateWorldMatrix(ref MatrixD parentWorldMatrix, object source = null)
         {
             if (!m_previousParentWorldMatrix.EqualsFast(ref parentWorldMatrix) || m_localMatrixChanged)
-            {
+			{
+		//		if (this.Entity is MyCubeBlock && !(this.Entity is MyCompoundCubeBlock)) Debugger.Break();
+
                 m_localMatrixChanged = false;
                 MatrixD.Multiply(ref this.m_localMatrix, ref parentWorldMatrix, out this.m_worldMatrix);
                 m_previousParentWorldMatrix = parentWorldMatrix;

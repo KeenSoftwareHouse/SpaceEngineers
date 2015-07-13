@@ -242,9 +242,11 @@
     <None Include="Content\Data\Screens\DialogAmount.gsc" />
     <None Include="Content\Data\Screens\JoinScreen.gsc" />
     <None Include="Content\Data\Screens\MedicalsScreen.gsc" />
+    <None Include="Content\Data\SoundBlock.sbc" />
     <None Include="Content\Data\SpawnGroups.sbc">
       <SubType>Designer</SubType>
     </None>
+    <None Include="Content\Data\Stats.sbc" />
     <None Include="Content\Data\TransparentMaterials.sbc" />
     <None Include="Content\Data\VoxelMaterials.sbc">
       <SubType>Designer</SubType>

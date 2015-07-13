@@ -63,7 +63,13 @@ namespace VRage.Components
 
         public static Type GetType(string typeId)
         {
-            return m_idToType[MyStringId.Get(typeId)];
+            MyStringId typeIdInt;
+            if (MyStringId.TryGet(typeId, out typeIdInt))
+            {
+                return m_idToType[typeIdInt];
+            }
+
+            throw new Exception("Unregistered component typeId! : " + typeId);
         }
     }
 }

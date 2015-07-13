@@ -1,6 +1,7 @@
 ﻿using Sandbox;
 using Sandbox.Common;
 using Sandbox.Engine.Utils;
+using Sandbox.Game.Components;
 using Sandbox.Game.Entities;
 using Sandbox.Game.Entities.Character;
 using Sandbox.Game.Gui;
@@ -284,11 +285,11 @@ namespace Sandbox.Game.Gui
             var list = new List<MyHudWarning>();
             //Health warnings
             var warning = new MyHudWarning((out MyGuiSounds cue, out MyStringId text) => 
-                { cue = MyGuiSounds.HudVocHealthLow;  text = MySpaceTexts.NotificationHealthLow; return HealthWarningMethod(0.4f);},
+                { cue = MyGuiSounds.HudVocHealthLow;  text = MySpaceTexts.NotificationHealthLow; return HealthWarningMethod(MyCharacterStatComponent.LOW_HEALTH_RATIO*2);},
                 1, 60000, 0, 2500);
             list.Add(warning);
             warning = new MyHudWarning((out MyGuiSounds cue, out MyStringId text) =>
-                { cue = MyGuiSounds.HudVocHealthCritical;  text = MySpaceTexts.NotificationHealthCritical; return HealthWarningMethod(0.2f); },
+                { cue = MyGuiSounds.HudVocHealthCritical;  text = MySpaceTexts.NotificationHealthCritical; return HealthWarningMethod(MyCharacterStatComponent.LOW_HEALTH_RATIO); },
                  0, 30000, 0, 5000);
             list.Add(warning);
             var group = new MyHudWarningGroup(list, false);
@@ -322,9 +323,9 @@ namespace Sandbox.Game.Gui
 
         private static bool HealthWarningMethod(float treshold)
         {
-            if (MySession.LocalCharacter != null)
+            if (MySession.LocalCharacter != null && MySession.LocalCharacter.StatComp != null)
             {
-                return MySession.LocalCharacter.HealthRatio < treshold && !MySession.LocalCharacter.IsDead;
+                return MySession.LocalCharacter.StatComp.HealthRatio < treshold && !MySession.LocalCharacter.IsDead;
             }
             else
                 return false;
@@ -343,7 +344,7 @@ namespace Sandbox.Game.Gui
                     return false;
                 return (character.SuitBattery.RemainingCapacity / MyEnergyConstants.BATTERY_MAX_CAPACITY) * 100 < treshold && !character.IsDead;
             }
-            else if (MySession.ControlledEntity.Entity is MyCockpit)
+            else if (MySession.ControlledEntity.Entity is MyCockpit && !MyHud.ShipInfo.AllEnabledRecently)
             {
                 var grid = (MySession.ControlledEntity.Entity as MyCockpit).CubeGrid;
                 return MyHud.ShipInfo.FuelRemainingTime * 60 < treshold && grid.GridSystems.PowerDistributor.ProducersEnabled != MyMultipleEnabledEnum.AllDisabled && grid.GridSystems.PowerDistributor.ProducersEnabled != MyMultipleEnabledEnum.NoObjects;

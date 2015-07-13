@@ -16,6 +16,7 @@ namespace Sandbox.Game.Components
 {
     class MyRenderComponentPlanet : MyRenderComponentVoxelMap
     {
+        static bool m_renderEnabled = false;
         MyPlanet m_planet = null;
 
         public override void OnAddedToContainer()
@@ -74,6 +75,12 @@ namespace Sandbox.Game.Components
                      m_planet.AtmosphereRadius,
                      m_planet.MinimumSurfaceRadius,
                      atmosphereWavelengths));
+            }
+
+            if (m_renderEnabled == false)
+            {
+                VRageRender.MyRenderProxy.EnableRenderModule((uint)VRageRender.MyRenderModuleEnum.Atmosphere, true);
+                m_renderEnabled = true;
             }
         }
 

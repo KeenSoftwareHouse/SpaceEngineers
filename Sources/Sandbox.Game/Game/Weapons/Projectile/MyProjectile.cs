@@ -232,6 +232,7 @@ namespace Sandbox.Game.Weapons
         {
             if (!Sync.IsServer)
                 return;
+
             if (damagedEntity is MyCubeGrid)
             {
                 var grid = damagedEntity as MyCubeGrid;
@@ -243,16 +244,17 @@ namespace Sandbox.Game.Weapons
                     var block = grid.GetCubeBlock(blockPos);
                     if (block != null)
                     {
-                        (block as IMyDestroyableObject).DoDamage(m_projectileAmmoDefinition.ProjectileMassDamage, MyDamageType.Bullet, true);
+                        (block as IMyDestroyableObject).DoDamage(m_projectileAmmoDefinition.ProjectileMassDamage, MyDamageType.Bullet, true, attackerId: m_weapon != null ? GetSubpartOwner(m_weapon).EntityId : 0);
                         if (block.FatBlock == null)
                             causeDeformation = true;
                     }
+
                     if (causeDeformation)
                         ApllyDeformationCubeGrid(hitPosition, grid);
                 }
             }
             else if (damagedEntity is IMyDestroyableObject)
-                (damagedEntity as IMyDestroyableObject).DoDamage(m_projectileAmmoDefinition.ProjectileMassDamage, MyDamageType.Bullet, true);
+                (damagedEntity as IMyDestroyableObject).DoDamage(m_projectileAmmoDefinition.ProjectileMassDamage, MyDamageType.Bullet, true, attackerId: m_weapon != null ? GetSubpartOwner(m_weapon).EntityId : 0);
 
             //Handle damage ?? some WIP code by Ondrej
             //MyEntity damagedObject = entity;
@@ -260,6 +262,24 @@ namespace Sandbox.Game.Weapons
             //if (MyMultiplayerGameplay.IsRunning)
             //    MyMultiplayerGameplay.Static.ProjectileHit(damagedObject, intersectionValue.IntersectionPointInWorldSpace, this.m_directionNormalized, MyAmmoConstants.FindAmmo(m_ammoProperties), this.OwnerEntity);
 
+        }
+
+        private MyEntity GetSubpartOwner(MyEntity entity)
+        {
+            if (entity == null)
+                return null;
+
+            if (!(entity is MyEntitySubpart))
+                return entity;
+
+            MyEntity result = entity;
+            while (result is MyEntitySubpart && result != null)
+                result = result.Parent;
+
+            if (result == null)
+                return entity;
+            else
+                return result;
         }
 
         private static void GetSurfaceAndMaterial(IMyEntity entity, out MySurfaceImpactEnum surfaceImpact, out MyStringHash materialType)

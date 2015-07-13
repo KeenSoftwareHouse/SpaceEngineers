@@ -101,8 +101,12 @@ namespace Sandbox.Game.Gui
         void OnHistoryServerListResponded(int server)
         {
             GameServerItem serverItem = SteamAPI.Instance.GetHistoryServerDetails(server);
-            AddServerItem(serverItem, false);
-            m_historyPage.Text = new StringBuilder().Append(MyTexts.Get(MySpaceTexts.JoinGame_TabTitle_History).ToString()).Append(" (").Append(m_gamesTable.RowsCount).Append(")");
+            AddServerItem(serverItem, 
+                delegate() 
+                {
+                    m_historyPage.Text = new StringBuilder().Append(MyTexts.Get(MySpaceTexts.JoinGame_TabTitle_History).ToString()).Append(" (").Append(m_gamesTable.RowsCount).Append(")");
+                },
+                isFiltered: false);
         }
 
         void OnHistoryServersCompleteResponse(MatchMakingServerResponseEnum response)

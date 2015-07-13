@@ -23,6 +23,8 @@ namespace Sandbox.Engine.Multiplayer
             public string Value;
         }
 
+        private readonly MyMultiplayerBase m_multiplayer;
+
         private readonly Dictionary<MyStringHash, string> m_mapKeyToValue = new Dictionary<MyStringHash, string>(MyStringHash.Comparer);
 
         private static readonly MyStringHash BattleCanBeJoinedTagHash = MyStringHash.GetOrCompute(MyMultiplayer.BattleCanBeJoinedTag);
@@ -124,24 +126,24 @@ namespace Sandbox.Engine.Multiplayer
             set { KeyValueChangedRequest(BattleTimeLimitTagHash, value.ToString()); }
         }
 
-        public MyMultiplayerBattleData()
+        public MyMultiplayerBattleData(MyMultiplayerBase multiplayer)
         {
-            //RKTODO - commented out, use MyMultiplayerBase.RegisterControlMessage instead
-            //MySyncLayer.RegisterMessage<KeyValueDataMsg>(OnKeyValueChanged, MyMessagePermissions.Any, MyTransportMessageEnum.Request);
+            m_multiplayer = multiplayer;
+            m_multiplayer.RegisterControlMessage<KeyValueDataMsg>(MyControlMessageEnum.BattleKeyValue, OnKeyValueChanged);
         }
 
-        private static void KeyValueChangedRequest(MyStringHash key, string value)
+        private void KeyValueChangedRequest(MyStringHash key, string value)
         {
-            //var msg = new KeyValueDataMsg();
-            //msg.Key = key;
-            //msg.Value = value;
+            var msg = new KeyValueDataMsg();
+            msg.Key = key;
+            msg.Value = value;
 
-            //Sync.Layer.SendMessageToAllAndSelf(ref msg);
+            m_multiplayer.SendControlMessageToAllAndSelf(ref msg);
         }
 
-        private void OnKeyValueChanged(ref KeyValueDataMsg msg, MyNetworkClient sender)
+        private void OnKeyValueChanged(ref KeyValueDataMsg msg, ulong sender)
         {
-            //m_mapKeyToValue[msg.Key] = msg.Value;
+            m_mapKeyToValue[msg.Key] = msg.Value;
         }
 
         private float GetFloatValue(MyStringHash key, float defValue)
@@ -224,6 +226,9 @@ namespace Sandbox.Engine.Multiplayer
 
         public void LoadData(List<KeyValueDataMsg> keyValueList)
         {
+            if (keyValueList == null)
+                return;
+
             foreach (var keyValue in keyValueList)
             {
                 m_mapKeyToValue[keyValue.Key] = keyValue.Value;

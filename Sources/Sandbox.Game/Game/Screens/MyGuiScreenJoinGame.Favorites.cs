@@ -112,8 +112,12 @@ namespace Sandbox.Game.Gui
         void OnFavoritesServerListResponded(int server)
         {
             GameServerItem serverItem = SteamAPI.Instance.GetFavoritesServerDetails(server);
-            AddServerItem(serverItem, false);
-            m_favoritesPage.Text = new StringBuilder().Append(MyTexts.Get(MySpaceTexts.JoinGame_TabTitle_Favorites).ToString()).Append(" (").Append(m_gamesTable.RowsCount).Append(")");
+            AddServerItem(serverItem, 
+                delegate() 
+                {
+                    m_favoritesPage.Text = new StringBuilder().Append(MyTexts.Get(MySpaceTexts.JoinGame_TabTitle_Favorites).ToString()).Append(" (").Append(m_gamesTable.RowsCount).Append(")");
+                },
+                isFiltered: false);
         }
 
         void OnFavoritesServersCompleteResponse(MatchMakingServerResponseEnum response)

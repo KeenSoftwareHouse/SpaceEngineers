@@ -110,6 +110,7 @@ namespace VRageRender
             //Task.Factory.StartNew(PrepareEntitiesForDrawBackground, TaskCreationOptions.PreferFairness);
 
             MyRender.RegisterRenderModule(MyRenderModuleEnum.PrunningStructure, "Prunning structure", DebugDrawPrunning, MyRenderStage.DebugDraw, 250, false);
+            MyRender.RegisterRenderModule(MyRenderModuleEnum.Atmosphere, "Draw atmosphere", DrawAtmosphere, MyRenderStage.AlphaBlendPreHDR, 1, false);
             //MyRender.RegisterRenderModule(MyRenderModuleEnum.PhysicsPrunningStructure, "Physics prunning structure", MyPhysics.DebugDrawPhysicsPrunning, MyRenderStage.DebugDraw, 250, false);
 
             MyRenderConstants.OnRenderQualityChange += new EventHandler(MyRenderConstants_OnRenderQualityChange);

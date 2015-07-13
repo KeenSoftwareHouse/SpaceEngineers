@@ -465,5 +465,10 @@ namespace Sandbox.Common.ObjectBuilders
         [ProtoMember]
         public string Briefing;
 
+        [ProtoMember]
+        public string BriefingVideo;
+
+
+
     }
 }

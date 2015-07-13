@@ -19,6 +19,7 @@ using Sandbox.Game.Localization;
 using Sandbox.Game.Multiplayer;
 using Sandbox.Game.Weapons;
 using Sandbox.Game.World;
+using Sandbox.ModAPI;
 using Sandbox.ModAPI.Interfaces;
 using System;
 using System.Collections.Generic;
@@ -2530,6 +2531,7 @@ namespace Sandbox.Game.Entities
 
         public void RazeGeneratedBlocks(List<MySlimBlock> generatedBlocks)
         {
+			ProfilerShort.Begin("MyCubeGrid.RazeGeneratedBlocks");
             m_tmpRazeList.Clear();
             m_tmpLocations.Clear();
 
@@ -2563,6 +2565,7 @@ namespace Sandbox.Game.Entities
 
             m_tmpRazeList.Clear();
             m_tmpLocations.Clear();
+			ProfilerShort.End();
         }
 
         public void ColorBlocks(Vector3I min, Vector3I max, Vector3 newHSV, bool playSound)
@@ -3001,7 +3004,7 @@ namespace Sandbox.Game.Entities
             RaisePhysicsChanged();
         }
 
-        public void DoDamage(float damage, MyHitInfo hitInfo, Vector3? localPos = null)
+        public void DoDamage(float damage, MyHitInfo hitInfo, Vector3? localPos = null, long attackerId = 0)
         {
             Debug.Assert(Sync.IsServer);
             Vector3I cubePos;
@@ -3014,30 +3017,39 @@ namespace Sandbox.Game.Entities
             //Debug.Assert(cube != null, "Cannot find block for damage!");
             if (cube != null)
             {
-                ApplyDestructionDeformation(cube, damage, hitInfo);
+                ApplyDestructionDeformation(cube, damage, hitInfo, attackerId);
             }
         }
 
-        public void ApplyDestructionDeformation(MySlimBlock block, float damage = 1f, MyHitInfo? hitInfo = null)
+        public void ApplyDestructionDeformation(MySlimBlock block, float damage = 1f, MyHitInfo? hitInfo = null, long attackerId = 0)
         {
             if (MyPerGameSettings.Destruction)
             {
                 Debug.Assert(hitInfo.HasValue, "Destruction needs additional info");
-                (block as IMyDestroyableObject).DoDamage(damage, MyDamageType.Unknown, true, hitInfo);
+                (block as IMyDestroyableObject).DoDamage(damage, MyDamageType.Unknown, true, hitInfo, attackerId);
             }
             else
             {
                 Debug.Assert(Sandbox.Game.Multiplayer.Sync.IsServer, "ApplyDestructionDeformation is supposed to be only server method");
                 SyncObject.EnqueueDestructionDeformationBlock(block.Position);
-                ApplyDestructionDeformationInternal(block, true, damage);
+                ApplyDestructionDeformationInternal(block, true, damage, attackerId);
             }
         }
 
-        private float ApplyDestructionDeformationInternal(MySlimBlock block, bool sync, float damage = 1f)
+        private float ApplyDestructionDeformationInternal(MySlimBlock block, bool sync, float damage = 1f, long attackerId = 0)
         {
             if (!BlocksDestructionEnabled)
                 return 0;
 
+            // Allow mods to stop deformation
+            if (block.UseDamageSystem)
+            {
+                MyDamageInformation damageInfo = new MyDamageInformation(true, 1f, MyDamageType.Deformation, attackerId);
+                MyDamageSystem.Static.RaiseBeforeDamageApplied(block, ref damageInfo);
+
+                if (damageInfo.Amount == 0f)
+                    return 0;
+            }
             m_totalBoneDisplacement = 0.0f;
 
             // TODO: Optimization. Cache bone changes (moves) and apply them only at the end
@@ -3093,7 +3105,14 @@ namespace Sandbox.Game.Entities
 
             if (sync)
             {
-                (block as IMyDestroyableObject).DoDamage(m_totalBoneDisplacement * GridSize * 10.0f * damage, MyDamageType.Deformation, true);
+                float damageAmount = m_totalBoneDisplacement * GridSize * 10.0f * damage;
+
+                MyDamageInformation damageInfo = new MyDamageInformation(false, damageAmount, MyDamageType.Deformation, attackerId);
+                if (block.UseDamageSystem)
+                    MyDamageSystem.Static.RaiseBeforeDamageApplied(block, ref damageInfo);
+
+                if (damageAmount > 0f)
+                    (block as IMyDestroyableObject).DoDamage(damageInfo.Amount, MyDamageType.Deformation, true, attackerId: attackerId);
             }
             return m_totalBoneDisplacement;
         }
@@ -5413,6 +5432,7 @@ namespace Sandbox.Game.Entities
             MyCube oldBlock;
             if (m_cubes.TryGetValue(bPos, out oldBlock))
                 RemoveBlockInternal(oldBlock.CubeBlock, close: true);
+            fracturedBlockBuilder.CreatingFracturedBlock = true;
 
             var sb = AddBlock(fracturedBlockBuilder, false); //BuildBlock(def, Vector3.Zero, bPos, Quaternion.Identity, 0, 0, null);
             System.Diagnostics.Debug.Assert(sb != null, "Error created fractured block!");
@@ -5443,6 +5463,7 @@ namespace Sandbox.Game.Entities
 
             var blockObjectBuilder = MyCubeGrid.CreateBlockObjectBuilder(def, bPos, new MyBlockOrientation(ref  Quaternion.Identity), 0, 0, true);
             blockObjectBuilder.ColorMaskHSV = Vector3.Zero;
+            (blockObjectBuilder as MyObjectBuilder_FracturedBlock).CreatingFracturedBlock = true;
 
             var sb = AddBlock(blockObjectBuilder, false); //BuildBlock(def, Vector3.Zero, bPos, Quaternion.Identity, 0, 0, null);
             if (sb == null)
@@ -5547,6 +5568,7 @@ namespace Sandbox.Game.Entities
         /// </summary>
         public void GetGeneratedBlocks(MySlimBlock generatingBlock, List<MySlimBlock> outGeneratedBlocks)
         {
+			ProfilerShort.Begin("MyCubeGrid.GetGeneratedBlocks");
             Debug.Assert(!(generatingBlock.FatBlock is MyCompoundCubeBlock));
 
             outGeneratedBlocks.Clear();
@@ -5600,7 +5622,7 @@ namespace Sandbox.Game.Entities
                     }
                 }
             }
-
+			ProfilerShort.End();
         }
     }
 }

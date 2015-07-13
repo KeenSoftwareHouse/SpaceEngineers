@@ -122,7 +122,7 @@ namespace SpaceEngineers.Game.Entities
                     foreach (var item in block.ConstructionStockpile.Items)
                     {
                         var itemId = item.PhysicalContent.GetId();
-                        m_materialList.AddMaterial(itemId, item.Amount, addToDisplayList: false);
+                        m_materialList.AddMaterial(itemId, item.Amount, item.Amount, addToDisplayList: false);
                     }
                 }
             }

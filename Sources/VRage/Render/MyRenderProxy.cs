@@ -75,7 +75,14 @@ namespace VRageRender
 
         #endregion
 
+        #region Properties
 
+        public static bool IsInstantiated
+        {
+            get { return m_render != null;  }
+        }
+
+        #endregion
 
         #region Device
 
