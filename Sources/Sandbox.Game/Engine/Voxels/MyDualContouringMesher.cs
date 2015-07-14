@@ -99,15 +99,13 @@ namespace Sandbox.Engine.Voxels
                 var vertexCells = m_buffer.Cells.GetInternalArray();
                 for (int i = 0; i < m_buffer.VerticesCount; i++)
                 {
-                    var min = -Vector3.One;
-                    var max = Vector3.One;
-                 //   Debug.Assert(positions[i].IsInsideInclusive(ref min, ref max));
+                    Debug.Assert(positions[i].IsInsideInclusive(ref Vector3.MinusOne, ref Vector3.One));
                     vertexCells[i] += vertexCellOffset;
                 }
 
-                float numCellsHalf = 0.5f * (m_cache.Size3D.X - 3);
-                m_buffer.PositionOffset = (vertexCellOffset + numCellsHalf) * voxelSize;
-                m_buffer.PositionScale = new Vector3(numCellsHalf * voxelSize);
+                double numCellsHalf = 0.5 * (m_cache.Size3D.X - 3);
+                m_buffer.PositionOffset = ((Vector3D)vertexCellOffset + numCellsHalf) * (double)voxelSize;
+                m_buffer.PositionScale = new Vector3((float)(numCellsHalf * voxelSize));
             }
             ProfilerShort.End();
 

@@ -98,8 +98,7 @@ namespace VRageRender
             }
             set
             {
-                // mk:TODO Reenable this assert.
-                // Debug.Assert(value.IsInsideInclusive(ref Vector3.MinusOne, ref Vector3.One));
+                Debug.Assert(value.IsInsideInclusive(ref Vector3.MinusOne, ref Vector3.One));
                 PackedPositionAndMaterialMorph.X = (short)(value.X * short.MaxValue);
                 PackedPositionAndMaterialMorph.Y = (short)(value.Y * short.MaxValue);
                 PackedPositionAndMaterialMorph.Z = (short)(value.Z * short.MaxValue);

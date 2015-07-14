@@ -2,8 +2,8 @@
 
 using Havok;
 using ParallelTasks;
-using Sandbox.Common.Components;
 using Sandbox.Common;
+using Sandbox.Common.Components;
 using Sandbox.Common.ObjectBuilders;
 using Sandbox.Definitions;
 using Sandbox.Engine.Multiplayer;
@@ -40,7 +40,6 @@ using VRage;
 using VRage.Audio;
 using VRage.Collections;
 using VRage.Compiler;
-using VRage.Components;
 using VRage.FileSystem;
 using VRage.Input;
 using VRage.ModAPI;
@@ -87,6 +86,7 @@ namespace Sandbox
         public static bool IsUpdateReady = true;
 
         public static bool IsConsoleVisible = false;
+        public static bool IsReloading = false;
 
         public static bool FatalErrorDuringInit = false;
         public static VRageGameServices Services { get; private set; }
@@ -150,6 +150,7 @@ namespace Sandbox
         }
 
         public event EventHandler OnGameLoaded;
+        public event EventHandler OnScreenshotTaken;
 
         #endregion
 
@@ -211,7 +212,12 @@ namespace Sandbox
 
                 MyLog.Default.WriteLineAndConsole("Bind IP : " + ep.ToString());
 
-                MyDedicatedServer dedicatedServer = new MyDedicatedServer(ep);
+                MyDedicatedServerBase dedicatedServer = null;
+                if (MyFakes.ENABLE_BATTLE_SYSTEM && MySandboxGame.ConfigDedicated.SessionSettings.Battle)
+                    dedicatedServer = new MyDedicatedServerBattle(ep);
+                else 
+                    dedicatedServer = new MyDedicatedServer(ep);
+
                 MyMultiplayer.Static = dedicatedServer;
 
                 FatalErrorDuringInit = !dedicatedServer.ServerStarted;
@@ -227,7 +233,7 @@ namespace Sandbox
             // Game tags contain game data hash, so they need to be sent after preallocation
             if (IsDedicated && !FatalErrorDuringInit)
             {
-                (MyMultiplayer.Static as MyDedicatedServer).SendGameTagsToSteam();
+                (MyMultiplayer.Static as MyDedicatedServerBase).SendGameTagsToSteam();
             }
 
             ProfilerShort.BeginNextBlock("InitMultithreading");
@@ -393,7 +399,7 @@ namespace Sandbox
                 MyGuiGameControlsHelpers.Add(MyControlsSpace.MISSION_SETTINGS, new MyGuiDescriptor(MySpaceTexts.ControlName_MissionSettings));
             MyGuiGameControlsHelpers.Add(MyControlsSpace.STATION_ROTATION, new MyGuiDescriptor(MySpaceTexts.StationRotation_Static, MySpaceTexts.StationRotation_Static_Desc));
 
-            Dictionary<MyStringId, MyControl> defaultGameControls = new Dictionary<MyStringId, MyControl>();
+            Dictionary<MyStringId, MyControl> defaultGameControls = new Dictionary<MyStringId, MyControl>(MyStringId.Comparer);
             AddDefaultGameControl(defaultGameControls, MyGuiControlTypeEnum.Navigation, MyControlsSpace.FORWARD, null, MyKeys.W);
             AddDefaultGameControl(defaultGameControls, MyGuiControlTypeEnum.Navigation, MyControlsSpace.BACKWARD, null, MyKeys.S);
             AddDefaultGameControl(defaultGameControls, MyGuiControlTypeEnum.Navigation, MyControlsSpace.STRAFE_LEFT, null, MyKeys.A);
@@ -497,6 +503,9 @@ namespace Sandbox
                 blueprintCategories: new MySteamWorkshop.Category[]
                 {
                     new MySteamWorkshop.Category { Id = "exploration", LocalizableName = MySpaceTexts.WorkshopTag_Exploration, },
+                },
+                scenarioCategories: new MySteamWorkshop.Category[]
+                {
                 });
         }
 
@@ -516,6 +525,7 @@ namespace Sandbox
         {
             MyPlugins.RegisterGameAssemblyFile(MyPerGameSettings.GameModAssembly);
             MyPlugins.RegisterSandboxAssemblyFile(MyPerGameSettings.SandboxAssembly);
+            MyPlugins.RegisterSandboxGameAssemblyFile(MyPerGameSettings.SandboxGameAssembly);
             MyPlugins.RegisterFromArgs(args);
             MyPlugins.Load();
 
@@ -641,7 +651,11 @@ namespace Sandbox
                             {
                                 if (MySteamWorkshop.DownloadWorldModsBlocking(checkpoint.Mods))
                                 {
-                                    MySession.Load(sessionPath, checkpoint, checkpointSizeInBytes);
+                                    if (MyFakes.ENABLE_BATTLE_SYSTEM && ConfigDedicated.SessionSettings.Battle)
+                                        MySession.LoadBattle(sessionPath, checkpoint, checkpointSizeInBytes, ConfigDedicated.SessionSettings);
+                                    else
+                                        MySession.Load(sessionPath, checkpoint, checkpointSizeInBytes);
+
                                     MySession.Static.StartServer(MyMultiplayer.Static);
                                     MyModAPIHelper.OnSessionLoaded();
                                 }
@@ -778,7 +792,7 @@ namespace Sandbox
             {
                 form.Icon = new System.Drawing.Icon(Path.Combine(MyFileSystem.ExePath, MyPerGameSettings.GameIcon));
             }
-            catch (System.IO.FileNotFoundException e)
+            catch (System.IO.FileNotFoundException)
             {
                 form.Icon = null;
             }
@@ -1104,10 +1118,13 @@ namespace Sandbox
             IlChecker.AllowNamespaceOfTypeModAPI(typeof(VRage.Components.IMyComponentBase));
             IlChecker.AllowNamespaceOfTypeModAPI(typeof(Sandbox.Common.MySessionComponentBase));
 
-            
             IlChecker.AllowNamespaceOfTypeCommon(typeof(MyObjectBuilder_Base));
             IlChecker.AllowNamespaceOfTypeCommon(typeof(Sandbox.Common.ObjectBuilders.MyObjectBuilder_AirVent));
             IlChecker.AllowNamespaceOfTypeModAPI(typeof(Sandbox.Common.ObjectBuilders.Voxels.MyObjectBuilder_VoxelMap));
+            IlChecker.AllowNamespaceOfTypeModAPI(typeof(MyStatLogic));
+            IlChecker.AllowNamespaceOfTypeModAPI(typeof(VRage.Game.ObjectBuilders.MyObjectBuilder_EntityStatRegenEffect));
+            IlChecker.AllowNamespaceOfTypeModAPI(typeof(Sandbox.Game.Entities.MyEntityStat));
+
             IlChecker.AllowNamespaceOfTypeModAPI(typeof(SerializableDefinitionId));
             IlChecker.AllowNamespaceOfTypeModAPI(typeof(SerializableVector3));
 
@@ -1153,10 +1170,11 @@ namespace Sandbox
         void Matchmaking_LobbyJoinRequest(Lobby lobby, ulong invitedBy)
         {
             // Test whether player is not already in that lobby
-            if (MySession.Static != null && MyMultiplayer.Static != null && MyMultiplayer.Static.LobbyId == lobby.LobbyId)
+            if (!lobby.IsValid || (MySession.Static != null && MyMultiplayer.Static != null && MyMultiplayer.Static.LobbyId == lobby.LobbyId))
                 return;
 
             MyGuiScreenMainMenu.UnloadAndExitToMenu();
+
             MyJoinGameHelper.JoinGame(lobby);
         }
 
@@ -1185,7 +1203,7 @@ namespace Sandbox
 
             UnloadInput();
 
-            MyAudio.Static.UnloadData();
+            MyAudio.UnloadData();
 
             MySandboxGame.Log.DecreaseIndent();
             MySandboxGame.Log.WriteLine("MySandboxGame.UnloadData() - END");
@@ -1205,8 +1223,9 @@ namespace Sandbox
         void UnloadInput()
         {
             // Input
-            if (MyInput.Static != null)
-                MyInput.Static.UnloadData();
+            MyInput.UnloadData();
+
+            MyGuiGameControlsHelpers.Reset();
         }
 
         #endregion
@@ -1620,6 +1639,11 @@ namespace Sandbox
                                     screenshotNotification.SetTextFormatArguments(System.IO.Path.GetFileName(rMessage.Filename));
                                 MyHud.Notifications.Add(screenshotNotification);
                             }
+
+                            if (MySandboxGame.Static != null && MySandboxGame.Static.OnScreenshotTaken != null)
+                            {
+                                MySandboxGame.Static.OnScreenshotTaken(MySandboxGame.Static, null);
+                            }
                             break;
                         }
                     case VRageRender.MyRenderMessageEnum.TextNotDrawnToTexture:
@@ -1730,6 +1754,11 @@ namespace Sandbox
 
             Parallel.Scheduler.WaitForTasksToFinish(TimeSpan.FromSeconds(10));
             m_windowCreatedEvent.Dispose();
+
+
+            IlChecker.Clear();
+
+            Services = null;
         }
 
         internal static void SignalClipmapsReady()
@@ -1767,6 +1796,17 @@ namespace Sandbox
         {
             IntPtr gameState = new IntPtr(MySession.Static == null ? 0 : 1);
             WinApi.PostMessage(msg.WParam, MyWMCodes.GAME_IS_RUNNING_RESULT, gameState, IntPtr.Zero);
+        }
+
+        public static void ReloadDedicatedServerSession()
+        {
+            if (!IsDedicated)
+                return;
+
+            MyLog.Default.WriteLineAndConsole("Reloading dedicated server");
+
+            IsReloading = true;
+            MySandboxGame.Static.Exit();
         }
     }
 }

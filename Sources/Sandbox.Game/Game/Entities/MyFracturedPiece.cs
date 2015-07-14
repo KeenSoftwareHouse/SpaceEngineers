@@ -11,7 +11,9 @@ using Sandbox.Game.Components;
 using Sandbox.Game.Entities.Cube;
 using Sandbox.Game.GameSystems;
 using Sandbox.Game.Multiplayer;
+using Sandbox.ModAPI;
 using Sandbox.ModAPI.Interfaces;
+using Sandbox.Common.ObjectBuilders.Definitions;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -54,6 +56,7 @@ namespace Sandbox.Game.Entities
             base.Render.NeedsDraw = true;
             base.Render.PersistentFlags = MyPersistentEntityFlags2.Enabled;
             AddDebugRenderComponent(new MyFracturedPieceDebugDraw(this));
+            UseDamageSystem = false;
         }
 
         public List<MyDefinitionId> OriginalBlocks = new List<MyDefinitionId>();
@@ -129,20 +132,37 @@ namespace Sandbox.Game.Entities
                 MyPhysicalModelDefinition mdef;
                 if (MyDefinitionManager.Static.TryGetDefinition<MyPhysicalModelDefinition>(def, out mdef))
                     model = mdef.Model;
+                MyCubeBlockDefinition blockDef = null;
+                MyDefinitionManager.Static.TryGetDefinition<MyCubeBlockDefinition>(def, out blockDef);
 
                 if (model == null)
                 {
                     Debug.Fail("Fracture piece Definition not found");
                     continue;
                 }
+
+                model = mdef.Model;
                 if (MyModels.GetModelOnlyData(model).HavokBreakableShapes == null)
-                {
-                    MyDestructionData.Static.LoadModelDestruction(mdef, false, Vector3.One);
-                }
+                    MyDestructionData.Static.LoadModelDestruction(model, mdef, false, Vector3.One);
                 var shape = MyModels.GetModelOnlyData(model).HavokBreakableShapes[0];
                 var si = new HkdShapeInstanceInfo(shape, null, null);
                 m_children.Add(si);
                 shape.GetChildren(m_children);
+
+                if (blockDef != null && blockDef.BuildProgressModels != null)
+                {
+                    foreach (var progress in blockDef.BuildProgressModels)
+                    {
+                        model = progress.File;
+                        if (MyModels.GetModelOnlyData(model).HavokBreakableShapes == null)
+                            MyDestructionData.Static.LoadModelDestruction(model, blockDef, false, Vector3.One);
+                        shape = MyModels.GetModelOnlyData(model).HavokBreakableShapes[0];
+                        si = new HkdShapeInstanceInfo(shape, null, null);
+                        m_children.Add(si);
+                        shape.GetChildren(m_children);
+                    }
+                }
+
                 OriginalBlocks.Add(def);
             }
             m_shapes.AddRange(ob.Shapes);
@@ -422,14 +442,25 @@ namespace Sandbox.Game.Entities
             }
         }
 
-        public void DoDamage(float damage, Common.ObjectBuilders.Definitions.MyDamageType damageType, bool sync, MyHitInfo? hitInfo)
+        public void DoDamage(float damage, Common.ObjectBuilders.Definitions.MyDamageType damageType, bool sync, MyHitInfo? hitInfo, long attackerId)
         {
             if (Sync.IsServer)
             {
-                m_hitPoints -= damage;
+                MyDamageInformation info = new MyDamageInformation(false, damage, damageType, attackerId);
+                if (UseDamageSystem)
+                    MyDamageSystem.Static.RaiseBeforeDamageApplied(this, ref info);
+
+                m_hitPoints -= info.Amount;
+
+                if (UseDamageSystem)
+                    MyDamageSystem.Static.RaiseAfterDamageApplied(this, info);
+
                 if (m_hitPoints <= 0)
                 {
                     MyFracturedPiecesManager.Static.RemoveFracturePiece(this, 2);
+
+                    if (UseDamageSystem)
+                        MyDamageSystem.Static.RaiseDestroyed(this, info);
                 }
             }
         }
@@ -439,5 +470,6 @@ namespace Sandbox.Game.Entities
             get { return m_hitPoints; }
         }
 
+        public bool UseDamageSystem { get; private set; }
     }
 }

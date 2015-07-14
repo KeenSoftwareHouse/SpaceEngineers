@@ -46,6 +46,12 @@ namespace VRageRender.Effects
         readonly EffectHandle m_normalFarTechnique;
         readonly EffectHandle m_normalMultimaterialFarTechnique;
 
+        readonly EffectHandle m_highFarTechnique;
+        readonly EffectHandle m_highMultimaterialFarTechnique;
+
+        readonly EffectHandle m_extremeFarTechnique;
+        readonly EffectHandle m_extremeMultimaterialFarTechnique;
+
         readonly EffectHandle m_lowInstancedTechnique;
         readonly EffectHandle m_normalInstancedTechnique;
         readonly EffectHandle m_highInstancedTechnique;
@@ -98,7 +104,14 @@ namespace VRageRender.Effects
             m_extremeMultimaterialTechnique = m_D3DEffect.GetTechnique("Technique_RenderQualityExtreme_Multimaterial");
 
             m_normalFarTechnique = m_D3DEffect.GetTechnique("Technique_RenderQualityNormal_Far");
-            m_normalMultimaterialFarTechnique = D3DEffect.GetTechnique("Technique_RenderQualityNormal_Mulitmaterial_Far"); 
+            m_normalMultimaterialFarTechnique = D3DEffect.GetTechnique("Technique_RenderQualityNormal_Mulitmaterial_Far");
+
+            m_highFarTechnique = m_D3DEffect.GetTechnique("Technique_RenderQualityHigh_Far");
+            m_highMultimaterialFarTechnique = D3DEffect.GetTechnique("Technique_RenderQualityHigh_Mulitmaterial_Far");
+
+            m_extremeFarTechnique = m_D3DEffect.GetTechnique("Technique_RenderQualityExtreme_Far");
+            m_extremeMultimaterialFarTechnique = D3DEffect.GetTechnique("Technique_RenderQualityExtreme_Mulitmaterial_Far"); 
+
 
             m_lowInstancedTechnique = m_D3DEffect.GetTechnique("Technique_RenderQualityLow_Instanced");
             m_normalInstancedTechnique = m_D3DEffect.GetTechnique("Technique_RenderQualityNormal_Instanced");
@@ -134,6 +147,7 @@ namespace VRageRender.Effects
             m_D3DEffect.SetTexture(m_textureNormalMapForAxisXZ, (Texture)voxelTexture.TextureNormalMapForAxisXZ);
             m_D3DEffect.SetTexture(m_textureNormalMapForAxisY, (Texture)voxelTexture.TextureNormalMapForAxisY);
 
+
             m_D3DEffect.SetValue(m_specularIntensity, voxelMaterial.SpecularIntensity);
             m_D3DEffect.SetValue(m_specularPower, voxelMaterial.SpecularPower); 
         }
@@ -165,6 +179,7 @@ namespace VRageRender.Effects
                 m_D3DEffect.SetTexture(m_textureNormalMapForAxisXZ2, (Texture)voxelTexture2.TextureNormalMapForAxisXZ);
                 m_D3DEffect.SetTexture(m_textureDiffuseForAxisY2, (Texture)voxelTexture2.TextureDiffuseForAxisY);
                 m_D3DEffect.SetTexture(m_textureNormalMapForAxisY2, (Texture)voxelTexture2.TextureNormalMapForAxisY);
+
 
                 m_D3DEffect.SetValue(m_specularIntensity2, voxelMaterial2.SpecularIntensity);
                 m_D3DEffect.SetValue(m_specularPower2, voxelMaterial2.SpecularPower);
@@ -257,14 +272,41 @@ namespace VRageRender.Effects
             }
         }
 
-        public void ApplyFar()
+        public void ApplyFar(MyEffectVoxelsTechniqueEnum technique)
         {
-            m_D3DEffect.Technique = m_normalFarTechnique;
+            switch (technique)
+            {
+                case MyEffectVoxelsTechniqueEnum.Low:
+                case MyEffectVoxelsTechniqueEnum.Normal:
+                    m_D3DEffect.Technique = m_normalFarTechnique;
+                    break;
+                case MyEffectVoxelsTechniqueEnum.High:
+                    m_D3DEffect.Technique = m_highFarTechnique;
+                    break;
+                case MyEffectVoxelsTechniqueEnum.Extreme:
+                    m_D3DEffect.Technique = m_extremeFarTechnique;
+                    break;
+                default:
+                    throw new InvalidBranchException();
+
+            }
         }
 
-        public void ApplyMultimaterialFar()
+        public void ApplyMultimaterialFar(MyEffectVoxelsTechniqueEnum technique)
         {
-            m_D3DEffect.Technique = m_normalMultimaterialFarTechnique;
+            switch (MyRenderConstants.RenderQualityProfile.VoxelsRenderTechnique)
+            {
+                case MyEffectVoxelsTechniqueEnum.Low:
+                case MyEffectVoxelsTechniqueEnum.Normal:
+                    m_D3DEffect.Technique = m_normalMultimaterialFarTechnique;
+                    break;
+                case MyEffectVoxelsTechniqueEnum.High:
+                    m_D3DEffect.Technique = m_highMultimaterialFarTechnique;
+                    break;
+                case MyEffectVoxelsTechniqueEnum.Extreme:
+                    m_D3DEffect.Technique = m_extremeMultimaterialFarTechnique;
+                    break;
+            }
         }
 
         public void Apply()

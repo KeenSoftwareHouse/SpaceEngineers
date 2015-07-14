@@ -22,7 +22,7 @@ using VRage.ObjectBuilders;
 
 namespace Sandbox.Game.GameSystems
 {
-    class MyGridConveyorSystem : IMyPowerConsumer
+    public class MyGridConveyorSystem : IMyPowerConsumer
     {
         private static readonly float CONVEYOR_SYSTEM_CONSUMPTION = 0.005f;
 
@@ -37,9 +37,9 @@ namespace Sandbox.Game.GameSystems
         private MyCubeGrid m_grid;
 
         private static List<ConveyorLinePosition> m_tmpConveyorPositionList = new List<ConveyorLinePosition>(6);
-        private static List<MyInventoryItem> m_tmpInventoryItems = new List<MyInventoryItem>();
+        private static List<MyPhysicalInventoryItem> m_tmpInventoryItems = new List<MyPhysicalInventoryItem>();
 
-        private static List<MyTuple<IMyConveyorEndpointBlock, MyInventoryItem>> m_tmpPullRequests = new List<MyTuple<IMyConveyorEndpointBlock, MyInventoryItem>>();
+        private static List<MyTuple<IMyConveyorEndpointBlock, MyPhysicalInventoryItem>> m_tmpPullRequests = new List<MyTuple<IMyConveyorEndpointBlock, MyPhysicalInventoryItem>>();
         private static PullRequestItemSet m_tmpRequestedItemSet = new PullRequestItemSet();
 
         private static MyPathFindingSystem<IMyConveyorEndpoint> m_pathfinding = new MyPathFindingSystem<IMyConveyorEndpoint>();
@@ -557,7 +557,7 @@ namespace Sandbox.Game.GameSystems
             return itemDef.Size.AbsMax() > 0.25f;
         }
 
-        public static void AppendReachableEndpoints(IMyConveyorEndpoint source, long playerId, List<IMyConveyorEndpoint> reachable, MyInventoryItem item, Predicate<IMyConveyorEndpoint> endpointFilter = null)
+        public static void AppendReachableEndpoints(IMyConveyorEndpoint source, long playerId, List<IMyConveyorEndpoint> reachable, MyPhysicalInventoryItem item, Predicate<IMyConveyorEndpoint> endpointFilter = null)
         {
             IMyConveyorEndpointBlock block = source.CubeBlock as IMyConveyorEndpointBlock;
             Debug.Assert(block != null);
@@ -732,7 +732,7 @@ namespace Sandbox.Game.GameSystems
                                 continue;
 
                             // SK: this is mental
-                            m_tmpPullRequests.Add(new MyTuple<IMyConveyorEndpointBlock, MyInventoryItem>(m_startingEndpoint.CubeBlock as IMyConveyorEndpointBlock, item));
+                            m_tmpPullRequests.Add(new MyTuple<IMyConveyorEndpointBlock, MyPhysicalInventoryItem>(m_startingEndpoint.CubeBlock as IMyConveyorEndpointBlock, item));
                             //MyInventory.Transfer(inventory, destinationInventory, item.Content.GetId(), MyItemFlags.None, transferedAmount);
                         }
                     }
@@ -833,7 +833,7 @@ namespace Sandbox.Game.GameSystems
             }
         }
 
-        public static bool ItemPushRequest(IMyConveyorEndpointBlock start, MyInventory srcInventory, long playerId, MyInventoryItem toSend, MyFixedPoint? amount = null)
+        public static bool ItemPushRequest(IMyConveyorEndpointBlock start, MyInventory srcInventory, long playerId, MyPhysicalInventoryItem toSend, MyFixedPoint? amount = null)
         {
             var itemBuilder = toSend.Content;
             if (amount.HasValue)

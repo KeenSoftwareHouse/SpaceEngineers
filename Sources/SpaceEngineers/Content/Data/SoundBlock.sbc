@@ -9,7 +9,7 @@
       <Sounds>
         <SoundDesc Id="SoundBlockLightsOn" SoundName="SoundBlock_SoundName_LightsOn" />
         <SoundDesc Id="SoundBlockLightsOff" SoundName="SoundBlock_SoundName_LightsOff" />
-        <SoundDesc Id="SoundBlockEnemyDetected" SoundName="SoundBlock_SoundName_EnemyDetected " />
+        <SoundDesc Id="SoundBlockEnemyDetected" SoundName="SoundBlock_SoundName_EnemyDetected" />
         <SoundDesc Id="SoundBlockObjectiveComplete" SoundName="SoundBlock_SoundName_ObjectiveComplete" />
         <SoundDesc Id="SoundBlockAlert1" SoundName="SoundBlock_SoundName_Alert1" />
         <SoundDesc Id="SoundBlockAlert2" SoundName="SoundBlock_SoundName_Alert2" />

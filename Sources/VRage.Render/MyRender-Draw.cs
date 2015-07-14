@@ -117,23 +117,6 @@ namespace VRageRender
 
             RenderPostProcesses(PostProcessStage.PostLighting, null, null, GetRenderTarget(MyRenderTargets.EnvironmentMap), false);
 
-            SetupAtmosphereShader();
-            DrawNearPlanetSurfaceFromSpace();
-            DrawNearPlanetSurfaceFromAtmosphere();
-
-            GetRenderProfiler().StartProfilingBlock("PrepareRenderObjectsForFarDraw");
-            // Prepare entities for draw
-            PrepareRenderObjectsForDraw(true);
-            GetRenderProfiler().EndProfilingBlock();
-
-            GetRenderProfiler().StartProfilingBlock("Draw far objects");
-            DrawScene_BackgroundObjects(MyLodTypeEnum.LOD_BACKGROUND);
-            GetRenderProfiler().EndProfilingBlock();
-
-            DrawAtmosphere(false);
-            DrawAtmosphere(true);
-          
-
             GetRenderProfiler().StartProfilingBlock("AlphaBlendPreHDR");
             DrawRenderModules(MyRenderStage.AlphaBlendPreHDR);
             GetRenderProfiler().EndProfilingBlock();
@@ -757,20 +740,24 @@ namespace VRageRender
             GetRenderProfiler().StartProfilingBlock("Render Post process: " + postProcessStage.ToString());
 
             {
-                (MyRender.GetEffect(MyEffects.BlendLights) as MyEffectBlendLights).DefaultTechnique = MyEffectBlendLights.Technique.LightsEnabled;
-                (MyRender.GetEffect(MyEffects.BlendLights) as MyEffectBlendLights).CopyEmissivityTechnique = MyEffectBlendLights.Technique.CopyEmissivity;
+                if (Settings.EnableLightsRuntime)
+                {
+                    (MyRender.GetEffect(MyEffects.BlendLights) as MyEffectBlendLights).DefaultTechnique = MyEffectBlendLights.Technique.LightsEnabled;
+                    (MyRender.GetEffect(MyEffects.BlendLights) as MyEffectBlendLights).CopyEmissivityTechnique = MyEffectBlendLights.Technique.CopyEmissivity;
 
-                MyEffectDirectionalLight directionalLight = MyRender.GetEffect(MyEffects.DirectionalLight) as MyEffectDirectionalLight;
-                directionalLight.DefaultTechnique = MyEffectDirectionalLight.Technique.Default;
-                directionalLight.DefaultWithoutShadowsTechnique = MyEffectDirectionalLight.Technique.WithoutShadows;
-                directionalLight.DefaultNoLightingTechnique = MyEffectDirectionalLight.Technique.NoLighting;
 
-                MyEffectPointLight pointLight = MyRender.GetEffect(MyEffects.PointLight) as MyEffectPointLight;
-                pointLight.PointTechnique = MyEffectPointLight.MyEffectPointLightTechnique.Point;
-                pointLight.PointWithShadowsTechnique = MyEffectPointLight.MyEffectPointLightTechnique.PointShadows;
-                pointLight.HemisphereTechnique = MyEffectPointLight.MyEffectPointLightTechnique.Point;
-                pointLight.SpotTechnique = MyEffectPointLight.MyEffectPointLightTechnique.Spot;
-                pointLight.SpotShadowTechnique = MyEffectPointLight.MyEffectPointLightTechnique.SpotShadows;
+                    MyEffectDirectionalLight directionalLight = MyRender.GetEffect(MyEffects.DirectionalLight) as MyEffectDirectionalLight;
+                    directionalLight.DefaultTechnique = MyEffectDirectionalLight.Technique.Default;
+                    directionalLight.DefaultWithoutShadowsTechnique = MyEffectDirectionalLight.Technique.WithoutShadows;
+                    directionalLight.DefaultNoLightingTechnique = MyEffectDirectionalLight.Technique.NoLighting;
+
+                    MyEffectPointLight pointLight = MyRender.GetEffect(MyEffects.PointLight) as MyEffectPointLight;
+                    pointLight.PointTechnique = MyEffectPointLight.MyEffectPointLightTechnique.Point;
+                    pointLight.PointWithShadowsTechnique = MyEffectPointLight.MyEffectPointLightTechnique.PointShadows;
+                    pointLight.HemisphereTechnique = MyEffectPointLight.MyEffectPointLightTechnique.Point;
+                    pointLight.SpotTechnique = MyEffectPointLight.MyEffectPointLightTechnique.Spot;
+                    pointLight.SpotShadowTechnique = MyEffectPointLight.MyEffectPointLightTechnique.SpotShadows;
+                }
             }
 
 
@@ -932,7 +919,6 @@ namespace VRageRender
         internal static void DrawScene_BackgroundObjects(MyLodTypeEnum currentLodDrawPass)
         {
             GetRenderProfiler().StartProfilingBlock(MyEnum<MyLodTypeEnum>.GetName(currentLodDrawPass));
-            GraphicsDevice.Clear(ClearFlags.ZBuffer, new ColorBGRA(1.0f, 0, 0, 1), 1, 0);
             m_currentLodDrawPass = currentLodDrawPass;
             SetDeviceViewport(MyRenderCamera.Viewport);
             BlendState.Opaque.Apply();

@@ -445,6 +445,5 @@ namespace Sandbox.Engine.Voxels
 
             Debug.Assert(IsEmpty(ref cell) == value);
         }
-
     }
 }

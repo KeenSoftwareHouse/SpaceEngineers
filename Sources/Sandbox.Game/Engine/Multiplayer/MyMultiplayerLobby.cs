@@ -153,7 +153,7 @@ namespace Sandbox.Engine.Multiplayer
         public override string ScenarioBriefing
         {
             get { return Lobby.GetLobbyData(MyMultiplayer.ScenarioBriefingTag); }
-            set { Lobby.SetLobbyData(MyMultiplayer.ScenarioBriefingTag, value??" "); }
+            set { Lobby.SetLobbyData(MyMultiplayer.ScenarioBriefingTag, (value==null || value.Length<1?" ":value)); }
         }
 
         public override DateTime ScenarioStartTime
@@ -271,6 +271,9 @@ namespace Sandbox.Engine.Multiplayer
             {
                 SyncLayer.TransportLayer.IsBuffering = true;
             }
+
+            SyncLayer.RegisterMessageImmediate<AllMembersDataMsg>(OnAllMembersData, MyMessagePermissions.Any);
+
             MySteam.API.Matchmaking.LobbyChatUpdate += Matchmaking_LobbyChatUpdate;
             MySteam.API.Matchmaking.LobbyChatMsg += Matchmaking_LobbyChatMsg;
             ClientLeft += MyMultiplayerLobby_ClientLeft;
@@ -302,13 +305,22 @@ namespace Sandbox.Engine.Multiplayer
                     MyTrace.Send(TraceWindow.Multiplayer, "Player entered");
                     Peer2Peer.AcceptSession(changedUser);
 
-                    RaiseClientJoined(changedUser);
+                    // When some clients connect at the same time then some of them can have already added clients 
+                    // (see function MySyncLayer.RegisterClientEvents which registers all Members in Lobby).
+                    if (Sync.Clients == null || !Sync.Clients.HasClient(changedUser))
+                    {
+                        RaiseClientJoined(changedUser);
+
+                        // Battles - send all clients, identities, players, factions as first message to client
+                        if (Sync.IsServer && (Battle||Scenario) && changedUser != MySteam.UserId)
+                            SendAllMembersDataToClient(changedUser);
+                    }
 
                     if (MySandboxGame.IsGameReady && changedUser != ServerId)
                     {
                         // Player is able to connect to the battle which already started - player is then kicked and we do not want to show connected message in HUD.
                         bool showMsg = true;
-                        if (MyFakes.ENABLE_BATTLE_SYSTEM && MySession.Static.Battle && !BattleCanBeJoined)
+                        if (MyFakes.ENABLE_BATTLE_SYSTEM && MySession.Static != null && MySession.Static.Battle && !BattleCanBeJoined)
                             showMsg = false;
 
                         if (showMsg)
@@ -690,6 +702,16 @@ namespace Sandbox.Engine.Multiplayer
             return GetLobbyBool(MyMultiplayer.BattleCanBeJoinedTag, lobby, false);
         }
 
+        public static long GetLobbyBattleFaction1Id(Lobby lobby)
+        {
+            return GetLobbyLong(MyMultiplayer.BattleFaction1IdTag, lobby, 0);
+        }
+
+        public static long GetLobbyBattleFaction2Id(Lobby lobby)
+        {
+            return GetLobbyLong(MyMultiplayer.BattleFaction2IdTag, lobby, 0);
+        }
+
         public override string GetMemberName(ulong steamUserID)
         {
             return MySteam.API.Friends.GetPersonaName(steamUserID);
@@ -721,6 +743,17 @@ namespace Sandbox.Engine.Multiplayer
         protected override void OnPing(ref MyControlPingMsg data, ulong sender)
         {
             SendControlMessage(sender, ref data);
+        }
+
+        public void OnAllMembersData(ref AllMembersDataMsg msg, MyNetworkClient sender)
+        {
+            if (Sync.IsServer)
+            {
+                Debug.Fail("Members data cannot be sent to server");
+                return;
+            }
+
+            ProcessAllMembersData(ref msg);
         }
     }
 }

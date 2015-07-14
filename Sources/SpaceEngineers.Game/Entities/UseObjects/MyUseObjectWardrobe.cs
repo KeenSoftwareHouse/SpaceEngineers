@@ -5,6 +5,7 @@ using Sandbox.Game.Gui;
 using Sandbox.Game.Localization;
 using Sandbox.Game.Screens;
 using Sandbox.Graphics.GUI;
+using Sandbox.Common;
 using VRage.Game.Entity.UseObject;
 using VRage.Import;
 using VRage.Input;
@@ -62,7 +63,7 @@ namespace Sandbox.Game.Entities.Cube
         {
             var user = entity as MyCharacter;
             var relation = Block.GetUserRelationToOwner(user.ControllerInfo.ControllingIdentityId);
-            if (relation != Common.MyRelationsBetweenPlayerAndBlock.Owner && relation != Common.MyRelationsBetweenPlayerAndBlock.FactionShare)
+            if (!relation.IsFriendly())
             {
                 if (user.ControllerInfo.IsLocallyHumanControlled())
                 {
@@ -98,5 +99,10 @@ namespace Sandbox.Game.Entities.Cube
         bool IMyUseObject.HandleInput() { return false; }
 
         void IMyUseObject.OnSelectionLost() { }
+
+        bool IMyUseObject.PlayIndicatorSound
+        {
+            get { return true; }
+        }
     }
 }

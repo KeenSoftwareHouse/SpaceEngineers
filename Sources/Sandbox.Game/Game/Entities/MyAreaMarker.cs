@@ -202,5 +202,10 @@ namespace Sandbox.Game.Entities
         public void OnSelectionLost()
         {
         }
+
+        bool IMyUseObject.PlayIndicatorSound
+        {
+            get { return true; }
+        }
     }
 }

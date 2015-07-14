@@ -9,7 +9,7 @@ using VRage.Input;
 using VRage.ModAPI;
 using VRageMath;
 using Sandbox.Game;
-using SpaceEngineers.Game.Entities.Blocks;
+using Sandbox.Game.Entities.Cube;
 
 namespace SpaceEngineers.Game.Entities.UseObjects
 {
@@ -108,5 +108,10 @@ namespace SpaceEngineers.Game.Entities.UseObjects
         bool IMyUseObject.HandleInput() { return false; }
 
         void IMyUseObject.OnSelectionLost() { }
+
+        bool IMyUseObject.PlayIndicatorSound
+        {
+            get { return true; }
+        }
     }
 }

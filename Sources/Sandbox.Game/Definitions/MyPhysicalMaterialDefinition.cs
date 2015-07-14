@@ -23,9 +23,9 @@ namespace Sandbox.Definitions
         public float HorisontalFragility;
         public float SupportMultiplier;
         public float CollisionMultiplier;
-        public Dictionary<MyStringId, Dictionary<MyStringId, MySoundPair>> CollisionSounds = new Dictionary<MyStringId, Dictionary<MyStringId, MySoundPair>>();
-        public Dictionary<MyStringId, MySoundPair> GeneralSounds = new Dictionary<MyStringId, MySoundPair>();
-        public MyStringId InheritSoundsFrom = MyStringId.NullOrEmpty;
+        public Dictionary<MyStringId, Dictionary<MyStringHash, MySoundPair>> CollisionSounds = new Dictionary<MyStringId, Dictionary<MyStringHash, MySoundPair>>(MyStringId.Comparer);
+        public Dictionary<MyStringId, MySoundPair> GeneralSounds = new Dictionary<MyStringId, MySoundPair>(MyStringId.Comparer);
+        public MyStringHash InheritSoundsFrom = MyStringHash.NullOrEmpty;
         public string DamageDecal;
 
         protected override void Init(MyObjectBuilder_DefinitionBase builder)
@@ -46,15 +46,15 @@ namespace Sandbox.Definitions
             var soundBuilder = builder as MyObjectBuilder_MaterialSoundsDefinition;
             if(soundBuilder != null)
             {
-                InheritSoundsFrom = MyStringId.GetOrCompute(soundBuilder.InheritFrom);
+                InheritSoundsFrom = MyStringHash.GetOrCompute(soundBuilder.InheritFrom);
                 
 
                 foreach(var sound in soundBuilder.ContactSounds)
                 {
                     var type = MyStringId.GetOrCompute(sound.Type);
                     if (!CollisionSounds.ContainsKey(type))
-                        CollisionSounds[type] = new Dictionary<MyStringId, MySoundPair>();
-                    var material = MyStringId.GetOrCompute(sound.Material);
+                        CollisionSounds[type] = new Dictionary<MyStringHash, MySoundPair>(MyStringHash.Comparer);
+                    var material = MyStringHash.GetOrCompute(sound.Material);
 
                     Debug.Assert(!CollisionSounds[type].ContainsKey(material), "Overwriting material sound!");
 

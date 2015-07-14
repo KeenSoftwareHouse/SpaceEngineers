@@ -261,6 +261,9 @@ namespace Sandbox.Game.Gui
             if (!MyHud.MinimalHud && MyHud.VoiceChat.Visible)
                 DrawVoiceChat(MyHud.VoiceChat);
 
+            if (MyHud.ScenarioInfo.Visible && !MyHud.MinimalHud)
+                DrawScenarioInfo(MyHud.ScenarioInfo);
+
             return true;
         }
 
@@ -537,6 +540,28 @@ namespace Sandbox.Game.Gui
                 new Vector2(hudSizeX, hudSizeY),
                 color,
                 scale);
+        }
+
+        private void DrawScenarioInfo(MyHudScenarioInfo scenarioInfo)
+        {
+            MyGuiDrawAlignEnum align = MyGuiDrawAlignEnum.HORISONTAL_RIGHT_AND_VERTICAL_TOP;
+            Color color = Color.White;
+            var basePos = new Vector2(0.99f, 0.01f);
+            var bgPos = ConvertHudToNormalizedGuiPosition(ref basePos);
+            Vector2 namePos, valuePos, bgScale;
+            MyGuiPaddedTexture bg;
+
+            bg = MyGuiConstants.TEXTURE_HUD_BG_MEDIUM_DEFAULT;
+            bgScale = new Vector2(1.1f, 1f);
+            MyGuiManager.DrawSpriteBatch(bg.Texture, bgPos, new Vector2(bg.SizeGui.X * bgScale.X, scenarioInfo.Data.GetGuiHeight()), Color.White, align);
+
+            namePos.X = bgPos.X - (bg.SizeGui.X-bg.PaddingSizeGui.X) * bgScale.X;
+            namePos.Y = bgPos.Y + bg.PaddingSizeGui.Y * bgScale.Y;
+
+            valuePos.X = bgPos.X - bgScale.X * bg.PaddingSizeGui.X;
+            valuePos.Y = bgPos.Y + bgScale.Y * bg.PaddingSizeGui.Y;
+
+            scenarioInfo.Data.DrawTopDown(namePos, valuePos, m_textScale);
         }
 
         private void DrawGpsMarkers(MyHudGpsMarkers gpsMarkers)

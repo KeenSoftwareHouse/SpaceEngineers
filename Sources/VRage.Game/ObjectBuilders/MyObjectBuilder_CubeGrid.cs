@@ -90,6 +90,9 @@ namespace Sandbox.Common.ObjectBuilders
         [ProtoMember]
         public float[] OxygenAmount;
 
+        [ProtoMember]
+        public bool DestructibleBlocks = true;
+
         public override void Remap(IMyRemapHelper remapHelper)
         {
             base.Remap(remapHelper);

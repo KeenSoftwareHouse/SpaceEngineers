@@ -25,14 +25,14 @@ namespace VRage.ObjectBuilders
         #region Fields
 
         [DefaultValue(0)]
-        public MyStringId SubtypeId
+        public MyStringHash SubtypeId
         {
             get
             {
                 return m_subtypeId;
             }
         }
-        private MyStringId m_subtypeId;
+        private MyStringHash m_subtypeId;
         public bool ShouldSerializeSubtypeId() { return false; } // prevent serialization to XML
 
         [ProtoMember, DefaultValue(null)]
@@ -42,7 +42,7 @@ namespace VRage.ObjectBuilders
             set
             {
                 m_subtypeName = value;
-                m_subtypeId = MyStringId.GetOrCompute(value);
+                m_subtypeId = MyStringHash.GetOrCompute(value);
             }
         }
         private string m_subtypeName = null;

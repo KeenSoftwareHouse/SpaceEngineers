@@ -123,6 +123,7 @@
     <Compile Include="Components\MySessionComponentMapping.cs" />
     <Compile Include="ModAPI\IMyCamera.cs" />
     <Compile Include="ModAPI\IMyConfig.cs" />
+    <Compile Include="ModAPI\IMyDamageSystem.cs" />
     <Compile Include="ModAPI\IMyGps.cs" />
     <Compile Include="ModAPI\IMyGpsCollection.cs" />
     <Compile Include="ModAPI\IMyGridProgram.cs" />
@@ -160,6 +161,7 @@
     <Compile Include="ModAPI\IMyReactor.cs" />
     <Compile Include="ModAPI\IMySensorBlock.cs" />
     <Compile Include="ModAPI\IMyShipDrill.cs" />
+    <Compile Include="ModAPI\IMyShipWelder.cs" />
     <Compile Include="ModAPI\IMySpaceBall.cs" />
     <Compile Include="ModAPI\IMyTerminalBlock.cs" />
     <Compile Include="ModAPI\IMyThrust.cs" />
@@ -234,10 +236,12 @@
     <Compile Include="ModAPI\Ingame\IMyWarhead.cs" />
     <Compile Include="ModAPI\IMyButtonPanel.cs" />
     <Compile Include="ModAPI\IMyShipMergeBlock.cs" />
+    <Compile Include="ModAPI\Ingame\IMyJumpDrive.cs" />
     <Compile Include="ModAPI\Ingame\PistonStatus.cs" />
     <Compile Include="ModAPI\Ingame\MyGridProgram.cs" />
     <Compile Include="ModAPI\Ingame\TerminalActionParameter.cs" />
     <Compile Include="ModAPI\IMyHudNotification.cs" />
+    <Compile Include="ModAPI\IMyMotorSuspension.cs" />
     <Compile Include="ModAPI\Interfaces\IMyDestroyableObject.cs" />
     <Compile Include="ModAPI\IMyIdentity.cs" />
     <Compile Include="ModAPI\Interfaces\IMyInventoryOwner.cs" />
@@ -271,6 +275,7 @@
     <Compile Include="ModAPI\Interfaces\ITerminalProperty.cs" />
     <Compile Include="ModAPI\Interfaces\ITerminalAction.cs" />
     <Compile Include="ModAPI\MyAPIGateway.cs" />
+    <Compile Include="ModAPI\MyDamageInformation.cs" />
     <Compile Include="ModAPI\MyHitInfo.cs" />
     <Compile Include="Models\IMyTriangePruningStructure.cs" />
     <Compile Include="Models\MyIntersectionResultLineTriangle.cs" />

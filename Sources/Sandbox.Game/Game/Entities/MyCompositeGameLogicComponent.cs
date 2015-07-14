@@ -21,7 +21,7 @@ namespace Sandbox.Game.Entities
         public static MyGameLogicComponent Create(ICollection<MyGameLogicComponent> logicComponents, MyEntity entity)
         {
             foreach (MyGameLogicComponent item in logicComponents)
-                item.Container = entity.Components;
+                item.SetContainer(entity.Components);
 
             switch (logicComponents.Count)
             {

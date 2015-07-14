@@ -92,8 +92,12 @@ namespace Sandbox.Game.Gui
         void OnLANServerListResponded(int server)
         {
             GameServerItem serverItem = SteamAPI.Instance.GetLANServerDetails(server);
-            AddServerItem(serverItem, false);
-            m_LANPage.Text = new StringBuilder().Append(MyTexts.Get(MySpaceTexts.JoinGame_TabTitle_LAN).ToString()).Append(" (").Append(m_gamesTable.RowsCount).Append(")");
+            AddServerItem(serverItem, 
+                delegate() 
+                {
+                    m_LANPage.Text = new StringBuilder().Append(MyTexts.Get(MySpaceTexts.JoinGame_TabTitle_LAN).ToString()).Append(" (").Append(m_gamesTable.RowsCount).Append(")");
+                },
+                isFiltered: false);
         }
 
         void OnLANServersCompleteResponse(MatchMakingServerResponseEnum response)

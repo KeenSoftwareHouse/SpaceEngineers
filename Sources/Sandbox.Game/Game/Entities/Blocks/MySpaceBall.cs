@@ -300,7 +300,7 @@ namespace Sandbox.Game.Entities
             UpdateRadios(IsWorking);
         }
 
-        internal override void ContactPointCallback(ref MyGridContactInfo value)
+        public override void ContactPointCallback(ref MyGridContactInfo value)
         {
             var prop = value.Event.ContactProperties;
 

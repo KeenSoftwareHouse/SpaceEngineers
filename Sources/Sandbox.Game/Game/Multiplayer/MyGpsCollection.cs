@@ -126,13 +126,7 @@ namespace Sandbox.Game.Multiplayer
 
         static void AddRequest(ref AddMsg msg, MyNetworkClient sender)
         {
-            Dictionary<int, MyGps> insList;
-            var result = MySession.Static.Gpss.m_playerGpss.TryGetValue(msg.IdentityId, out insList);
-
-            if (result != null)
-            {
-                Sync.Layer.SendMessageToAllAndSelf(ref msg, MyTransportMessageEnum.Success);
-            }
+            Sync.Layer.SendMessageToAllAndSelf(ref msg, MyTransportMessageEnum.Success);
         }
 
         static void AddSuccess(ref AddMsg msg, MyNetworkClient sender)
@@ -360,6 +354,20 @@ namespace Sandbox.Game.Multiplayer
             result.Add(gps.Hash,gps);
             
             return true;
+        }
+
+        public MyGps GetGps(int hash)
+        {
+            foreach (var gpss in MySession.Static.Gpss.m_playerGpss.Values)
+            {
+                MyGps gps;
+                if (gpss.TryGetValue(hash, out gps))
+                {
+                    return gps;
+                }
+            }
+
+            return null;
         }
 
         private StringBuilder m_NamingSearch = new StringBuilder();

@@ -10,7 +10,7 @@ using VRageMath;
 namespace Sandbox.Graphics.GUI
 {
     [MyGuiControlType(typeof(MyObjectBuilder_GuiControlProgressBar))]
-    class MyGuiControlProgressBar : MyGuiControlBase
+    public class MyGuiControlProgressBar : MyGuiControlBase
     {
         /// <summary>
         /// Color of the progress bar.
@@ -20,49 +20,46 @@ namespace Sandbox.Graphics.GUI
         /// <summary>
         /// Value in specifying progress percentage in range from 0 to 1.
         /// </summary>
-        public float Value = 1;
+		private float m_value = 1.0f;
+        public float Value { get { return m_value; } set { m_value = MathHelper.Clamp(value, 0.0f, 1.0f); }}
+
+		public bool IsHorizontal = true;
+
+		private MyGuiControlPanel m_progressForeground;
 
         #region Static default values
         private static readonly Color DEFAULT_PROGRESS_COLOR = Color.White;
         #endregion
 
-        public MyGuiControlProgressBar(Vector2? position = null)
+		public MyGuiControlProgressBar(	Vector2? position = null, Vector2? size = null, Color? progressBarColor = null,
+										MyGuiDrawAlignEnum originAlign = MyGuiDrawAlignEnum.HORISONTAL_CENTER_AND_VERTICAL_CENTER, MyGuiCompositeTexture backgroundTexture = null, bool isHorizontal = true)
             : base( position: position,
-                    size: null,
+                    size: size,
+					backgroundTexture: backgroundTexture,
+					originAlign: originAlign,
                     colorMask: null,
                     toolTip: null)
         {
-            ProgressColor = DEFAULT_PROGRESS_COLOR;
+            ProgressColor = (progressBarColor.HasValue ? progressBarColor.Value : DEFAULT_PROGRESS_COLOR);
+			IsHorizontal = isHorizontal;
+			var pixelHorizontal = 1.1f/MyGuiManager.GetFullscreenRectangle().Width;
+			var pixelVertical = 1.1f / MyGuiManager.GetFullscreenRectangle().Height;
+			m_progressForeground = new MyGuiControlPanel(	position: new Vector2(-Size.X/2.0f + pixelHorizontal, 0.0f),
+															originAlign: MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_CENTER,
+															backgroundColor: ProgressColor);
+			m_progressForeground.BackgroundTexture = MyGuiConstants.TEXTURE_GUI_BLANK;
+			Elements.Add(m_progressForeground);
         }
 
-        public override void Init(MyObjectBuilder_GuiControlBase objectBuilder)
+        public override void Draw(float transitionAlpha, float backgroundTransitionAlpha)
         {
-            base.Init(objectBuilder);
+			var pixelHorizontal = 1.1f/MyGuiManager.GetFullscreenRectangle().Width;
+			var pixelVertical = 1.1f / MyGuiManager.GetFullscreenRectangle().Height;
+			var paddedSize = Size + new Vector2(-2.1f * pixelHorizontal, -2.0f * pixelVertical);
+			var progressFillSize = paddedSize * new Vector2((IsHorizontal ? Value : 1.0f), (IsHorizontal ? 1.0f : Value));
+			m_progressForeground.Size = progressFillSize;
 
-            var ob = objectBuilder as MyObjectBuilder_GuiControlProgressBar;
-            Debug.Assert(ob != null);
-
-            MyGuiControlBase.ReadIfHasValue(ref ProgressColor, ob.ProgressColor);
-        }
-
-        public override MyObjectBuilder_GuiControlBase GetObjectBuilder()
-        {
-            var ob = base.GetObjectBuilder() as MyObjectBuilder_GuiControlProgressBar;
-            Debug.Assert(ob != null);
-
-            ob.ProgressColor = ProgressColor.ToVector4();
-
-            return ob;
-        }
-
-        public override void Draw(float transitionAlpha)
-        {
-            base.Draw(transitionAlpha);
-
-            // draw progress bar
-            var progressFillSize = Size * (new Vector2(Value, 1.0f));
-            var color = ApplyColorMaskModifiers(ColorMask * ProgressColor.ToVector4(), Enabled, transitionAlpha);
-            MyGuiManager.DrawSpriteBatch(MyGuiConstants.PROGRESS_BAR, GetPositionAbsoluteTopLeft(), progressFillSize, color, MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_TOP);
+            base.Draw(transitionAlpha, backgroundTransitionAlpha);
         }
     }
 }

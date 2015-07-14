@@ -136,6 +136,15 @@ namespace VRage.Animations
                 animatedTargetProp.AddKey(key);
             }
         }
+
+        object IMyAnimatedProperty.EditorAddKey(float time)
+        {
+            var valueHolder = new ValueHolder();
+            valueHolder.Time = time;
+            valueHolder.Value = new T();            
+            AddKey(valueHolder);
+            return valueHolder;
+        }
     }
 
     #endregion

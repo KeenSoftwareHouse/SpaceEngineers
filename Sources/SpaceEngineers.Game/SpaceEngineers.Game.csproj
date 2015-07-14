@@ -45,9 +45,8 @@
     <StartupObject />
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="SteamSDK, Version=0.0.0.0, Culture=neutral, processorArchitecture=AMD64">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\3rd\SteamSDK\Debug\x64\SteamSDK.dll</HintPath>
+    <Reference Include="SteamSDK">
+      <HintPath>..\..\3rd\SteamSDK\release\x86\SteamSDK.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -58,16 +57,17 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Entities\Blocks\MyMedicalRoom.cs" />
+    <Compile Include="Entities\Blocks\MyShipWelder.cs" />
+    <Compile Include="Entities\MySpaceBuildComponent.cs" />
     <Compile Include="Entities\UseObjects\MyUseObjectInventory.cs" />
     <Compile Include="Entities\UseObjects\MyUseObjectMedicalRoom.cs" />
     <Compile Include="Entities\UseObjects\MyUseObjectWardrobe.cs" />
-	<Compile Include="Entities\Weapons\MyCubePlacer.cs" />
-    <Compile Include="Entities\Blocks\MyMedicalRoom.cs" />
+    <Compile Include="Entities\Weapons\MyCubePlacer.cs" />
     <Compile Include="GUI\MyGuiScreenMedicals.cs" />
     <Compile Include="GUI\MyGuiScreenOptionsGraphics.cs" />
     <Compile Include="GUI\MyGuiScreenOptionsSpace.cs" />
     <Compile Include="GUI\MyGuiScreenOptionsVideoSpace.cs" />
-    <Compile Include="Players\MySpaceRespawnComponent.cs" />
     <Compile Include="SpaceEngineersGame.Secrets.cs" />
     <Compile Include="SpaceEngineersGame.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -76,6 +76,7 @@
     <Compile Include="World\Generator\MyShipStartingState.cs" />
     <Compile Include="World\Generator\MySpaceWorldGenerator.cs" />
     <Compile Include="World\MyApril2014Event.cs" />
+    <Compile Include="World\MySpaceRespawnComponent.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Sandbox.Common\Sandbox.Common.csproj">
@@ -115,7 +116,9 @@
       <Name>VRage</Name>
     </ProjectReference>
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Folder Include="Players\" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
