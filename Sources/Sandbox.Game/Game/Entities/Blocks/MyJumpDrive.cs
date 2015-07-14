@@ -412,13 +412,13 @@ namespace Sandbox.Game.Entities
         {
             if (IsFunctional && IsWorking)
             {
-                if (IsFull)
+                if (!IsFull && m_isRecharging)
                 {
-                    return 0f;
+                    return BlockDefinition.RequiredPowerInput;
                 }
                 else
                 {
-                    return BlockDefinition.RequiredPowerInput;
+                    return 0f;
                 }
             }
             else
