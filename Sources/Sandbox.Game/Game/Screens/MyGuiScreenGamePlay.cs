@@ -402,7 +402,10 @@ namespace Sandbox.Game.Gui
 
                     if (context == MySpaceBindingCreator.CX_CHARACTER || context == MySpaceBindingCreator.CX_SPACESHIP)
                     {
-                        if (MyControllerHelper.IsControl(context, MyControlsSpace.USE, MyControlStateType.NEW_PRESSED))
+                        if (MyControllerHelper.IsControl(context, MyControlsSpace.USE, MyControlStateType.NEW_PRESSED) || 
+							(MyControllerHelper.IsControl(context, MyControlsSpace.PRIMARY_TOOL_ACTION, MyControlStateType.NEW_PRESSED) && 
+							!MyToolbarComponent.CurrentToolbar.SelectedSlot.HasValue &&
+							context == MySpaceBindingCreator.CX_CHARACTER))
                         {
                             // Key press
                             if (currentCameraController != null)
@@ -500,7 +503,10 @@ namespace Sandbox.Game.Gui
                         }
                     }
                 }
-                if (MyControllerHelper.IsControl(context, MyControlsSpace.TERMINAL, MyControlStateType.NEW_PRESSED) && MyGuiScreenGamePlay.ActiveGameplayScreen == null)
+                if ((MyControllerHelper.IsControl(context, MyControlsSpace.TERMINAL, MyControlStateType.NEW_PRESSED) && MyGuiScreenGamePlay.ActiveGameplayScreen == null) ||
+					(MyControllerHelper.IsControl(context, MyControlsSpace.SECONDARY_TOOL_ACTION, MyControlStateType.NEW_PRESSED) && 
+							!MyToolbarComponent.CurrentToolbar.SelectedSlot.HasValue &&
+							context == MySpaceBindingCreator.CX_CHARACTER))
                 {
                     MyGuiAudio.PlaySound(MyGuiSounds.HudClick);
                     controlledObject.ShowTerminal();
