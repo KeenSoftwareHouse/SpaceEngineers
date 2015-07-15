@@ -119,14 +119,21 @@ namespace VRage.Compiler
             Dictionary<ConstructorBuilder, ConstructorInfo> createdConstructors = new Dictionary<ConstructorBuilder, ConstructorInfo>();
             List<FieldBuilder> createdFields = new List<FieldBuilder>();
 
+            // Generate the type lookup table
             foreach (var sourceType in GetTypesOrderedByGeneration(sourceTypes))
             {
-                TypeBuilder newType = CreateType(newModule, createdTypes, typeLookup, sourceType);
+                CreateType(newModule, createdTypes, typeLookup, sourceType);
+            }
 
+            // Copy methods
+            foreach (var pair in createdTypes)
+            {
+                var newType = pair.Key;
+                var sourceType = pair.Value;
                 CopyFields(createdFields, sourceType, newType);
                 CopyProperties(sourceType, newType);
                 CopyConstructors(createdConstructors, sourceType, newType);
-                CopyMethods(createdMethods, sourceType, newType);
+                CopyMethods(createdMethods, sourceType, newType, typeLookup);
             }
 
             foreach (var type in createdTypes)
@@ -193,7 +200,7 @@ namespace VRage.Compiler
         }
         private static void CopyFields(List<FieldBuilder> createdFields, Type sourceType, TypeBuilder newType)
         {
-            var fields = sourceType.GetFields(BindingFlags.Static |BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.SetField | BindingFlags.GetField | BindingFlags.Instance);
+            var fields = sourceType.GetFields(BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.SetField | BindingFlags.GetField | BindingFlags.Instance);
             foreach (var field in fields)
             {
                 createdFields.Add(newType.DefineField(field.Name, field.FieldType, field.Attributes));
@@ -207,9 +214,9 @@ namespace VRage.Compiler
                 newType.DefineProperty(property.Name, PropertyAttributes.HasDefault, property.PropertyType, Type.EmptyTypes);
             }
         }
-        private static void CopyMethods(Dictionary<MethodBuilder, MethodInfo> createdMethods, Type type, TypeBuilder newType)
+        private static void CopyMethods(Dictionary<MethodBuilder, MethodInfo> createdMethods, Type type, TypeBuilder newType, Dictionary<string, TypeBuilder> typeLookup)
         {
-            var methods = type.GetMethods(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic|BindingFlags.Static);
+            var methods = type.GetMethods(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static);
 
             foreach (var method in methods)
             {
@@ -217,17 +224,50 @@ namespace VRage.Compiler
                 {
                     continue;
                 }
-                
+
                 var parameters = method.GetParameters();
                 Type[] parameterTypes = new Type[parameters.Length];
-                int i = 0;
-                foreach (var parameter in parameters)
+                for (var i = 0; i < parameters.Length; i++)
                 {
-                    parameterTypes[i++] = parameter.ParameterType;
+                    parameterTypes[i] = parameters[i].ParameterType;
+                }
+
+                var definedMethod = newType.DefineMethod(method.Name, method.Attributes, method.CallingConvention, method.ReturnType, parameterTypes);
+                if (method.IsGenericMethodDefinition)
+                {
+                    var typeParameters = method.GetGenericArguments();
+                    var definedTypeParameters = definedMethod.DefineGenericParameters(typeParameters.Select(t => t.Name).ToArray());
+                    for (var i = 0; i < definedTypeParameters.Length; i++)
+                    {
+                        var definedTypeParameter = definedTypeParameters[i];
+                        var typeParameter = typeParameters[i];
+
+                        definedTypeParameter.SetGenericParameterAttributes(typeParameter.GenericParameterAttributes);
+                        var parameterConstraints = typeParameter.GetGenericParameterConstraints();
+                        var baseConstraint = parameterConstraints.SingleOrDefault(c => c.IsClass);
+                        var interfaceConstraints = parameterConstraints.Where(c => c.IsInterface).ToArray();
+                        
+                        // Replace constraints to local types
+                        if (baseConstraint != null)
+                        {
+                            TypeBuilder replacedType;
+                            if (typeLookup.TryGetValue(baseConstraint.FullName, out replacedType))
+                                baseConstraint = replacedType;
+                            definedTypeParameter.SetBaseTypeConstraint(baseConstraint);
+                        }
+                        if (interfaceConstraints.Length > 0)
+                        {
+                            for (int j = 0; j < interfaceConstraints.Length; j++)
+                            {
+                                TypeBuilder replacedType;
+                                if (typeLookup.TryGetValue(interfaceConstraints[j].FullName, out replacedType))
+                                    interfaceConstraints[j] = replacedType;
+                            }
+                            definedTypeParameter.SetInterfaceConstraints(interfaceConstraints);
+                        }
+                    }
                 }
                 
-                var definedMethod = newType.DefineMethod(method.Name, method.Attributes, method.CallingConvention, method.ReturnType, parameterTypes);
-
                 createdMethods.Add(definedMethod, method);
             }
         }
@@ -276,10 +316,10 @@ namespace VRage.Compiler
 
                 if (code == OpCodes.Switch)
                 {
-                    methodGenerator.Emit(OpCodes.Call, methodToInject); 
-                    var op = (instruction.Operand as int[]).Select(off => labels[off]).ToArray(); 
-                    methodGenerator.Emit(OpCodes.Switch, op); 
-                } 
+                    methodGenerator.Emit(OpCodes.Call, methodToInject);
+                    var op = (instruction.Operand as int[]).Select(off => labels[off]).ToArray();
+                    methodGenerator.Emit(OpCodes.Switch, op);
+                }
                 else if (code.FlowControl == FlowControl.Branch || code.FlowControl == FlowControl.Cond_Branch)
                 {
                     code = SwitchShortOpCodes(code);
@@ -295,7 +335,7 @@ namespace VRage.Compiler
                     case OperandType.InlineMethod:
                         try
                         {
-                            ResolveMethod(methodGenerator, createdMethods, createdConstructors, instruction, code);
+                            ResolveMethod(methodGenerator, createdMethods, createdConstructors, instruction, code, typeLookup);
                         }
                         catch
                         {
@@ -384,7 +424,7 @@ namespace VRage.Compiler
             }
         }
 
-        private static System.Reflection.Emit.OpCode SwitchShortOpCodes(System.Reflection.Emit.OpCode code)       
+        private static System.Reflection.Emit.OpCode SwitchShortOpCodes(System.Reflection.Emit.OpCode code)
         {
             if (code == OpCodes.Bge_Un_S)
             {
@@ -437,20 +477,44 @@ namespace VRage.Compiler
             return code;
         }
 
-        private static void ResolveMethod(ILGenerator generator, Dictionary<MethodBuilder, MethodInfo> methods, Dictionary<ConstructorBuilder, ConstructorInfo> constructors, VRage.Compiler.IlReader.IlInstruction instruction, System.Reflection.Emit.OpCode code)
+        private static void ResolveMethod(ILGenerator generator, Dictionary<MethodBuilder, MethodInfo> methods, Dictionary<ConstructorBuilder, ConstructorInfo> constructors, VRage.Compiler.IlReader.IlInstruction instruction, System.Reflection.Emit.OpCode code, Dictionary<string, TypeBuilder> typeLookup)
         {
             bool found = false;
             var method = instruction.Operand as MethodBase;
             if (instruction.Operand is MethodInfo)
             {
                 var methodInfo = instruction.Operand as MethodInfo;
-                foreach (var met in methods)
+                // Handle generic calls
+                if (methodInfo.IsGenericMethod)
                 {
-                    if (met.Value == methodInfo)
+                    var methodDefinitionInfo = methodInfo.GetGenericMethodDefinition();
+                    var genericArguments = methodInfo.GetGenericArguments();
+                    for (var i = 0; i < genericArguments.Length; i++)
                     {
-                        generator.Emit(code, met.Key);
-                        found = true;
-                        break;
+                        TypeBuilder genericArgumentTypeBuilder;
+                        if (typeLookup.TryGetValue(genericArguments[i].FullName, out genericArgumentTypeBuilder))
+                            genericArguments[i] = genericArgumentTypeBuilder;
+                    }
+                    foreach (var met in methods)
+                    {
+                        if (met.Value == methodDefinitionInfo)
+                        {
+                            generator.Emit(code, met.Key.MakeGenericMethod(genericArguments));
+                            found = true;
+                            break;
+                        }
+                    }
+                }
+                else
+                {
+                    foreach (var met in methods)
+                    {
+                        if (met.Value == methodInfo)
+                        {
+                            generator.Emit(code, met.Key);
+                            found = true;
+                            break;
+                        }
                     }
                 }
             }
@@ -509,6 +573,6 @@ namespace VRage.Compiler
                     break;
                 }
             }
-        }    
+        }
     }
 }
