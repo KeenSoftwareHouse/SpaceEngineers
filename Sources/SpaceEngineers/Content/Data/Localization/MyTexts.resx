@@ -1634,7 +1634,7 @@ See log for details.</value>
     <value>Newton's law of universal gravitation</value>
   </data>
   <data name="Quote69Text" xml:space="preserve">
-    <value>Every point mass in the universe attracts every other point mass with a force that is directly proportional to the product of their masses and inversely proportional to the square of the distance between them.</value>
+    <value>Every point of mass in the universe attracts every other point of mass with a force that is directly proportional to the product of their masses and inversely proportional to the square of the distance between them.</value>
   </data>
   <data name="HudInfoGravity" xml:space="preserve">
     <value>Gravity:</value>
