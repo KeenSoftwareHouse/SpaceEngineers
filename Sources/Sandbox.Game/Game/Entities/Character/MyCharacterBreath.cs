@@ -54,10 +54,10 @@ namespace Sandbox.Game.Entities.Character
 
 		public void ForceUpdate()
 		{
-			if (m_character == null)
+			if (m_character == null || m_character.StatComp == null || m_character.StatComp.Health == null)
 				return;
 
-			SetHealth(m_character.Health);
+			SetHealth(m_character.StatComp.Health.Value);
 		}
 
         private void SetHealth(float health)

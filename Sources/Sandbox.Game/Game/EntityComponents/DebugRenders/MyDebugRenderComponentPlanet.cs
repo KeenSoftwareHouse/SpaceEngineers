@@ -25,21 +25,22 @@ namespace Sandbox.Game.Components
 {
     class MyDebugRenderComponentPlanet: MyDebugRenderComponent
     {
-        MyPlanet m_voxelMap = null;
+        MyPlanet m_planet = null;
 
         public MyDebugRenderComponentPlanet(MyPlanet voxelMap)
             : base(voxelMap)
         {
-            m_voxelMap = voxelMap;
+            m_planet = voxelMap;
         }
 
         public override bool DebugDraw()
         {
-            var minCorner = m_voxelMap.PositionLeftBottomCorner;
+            var minCorner = m_planet.PositionLeftBottomCorner;
             if (MyDebugDrawSettings.DEBUG_DRAW_VOXEL_MAP_AABB)
             {
-                m_voxelMap.DebugDrawEnviromentSectors();
-            }    
+                m_planet.DebugDrawEnviromentSectors();
+            }
+            m_planet.DebugDrawPhysics();
             return true;
         }
     }

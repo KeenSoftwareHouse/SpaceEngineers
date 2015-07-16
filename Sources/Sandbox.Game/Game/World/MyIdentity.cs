@@ -1,14 +1,17 @@
 ﻿using Sandbox.Common.ObjectBuilders;
 using Sandbox.Definitions;
 using Sandbox.Game.Entities;
+using Sandbox.Game.Entities.Cube;
 using Sandbox.Game.Entities.Character;
 using Sandbox.Game.Multiplayer;
+using Sandbox.ModAPI;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using VRage;
+using VRage.ModAPI;
 using VRageMath;
 
 namespace Sandbox.Game.World
@@ -175,5 +178,30 @@ namespace Sandbox.Game.World
                Model = MyDefinitionManager.Static.Characters.First().Model;
             }
         }
+
+        private static List<MySyncGrid.MySingleOwnershipRequest> m_requests = new List<MySyncGrid.MySingleOwnershipRequest>();
+        private static HashSet<IMyEntity> m_entitiesCache = new HashSet<IMyEntity>();
+        public void TransferAllBlocksTo(long newOwnerIdentityId)
+        {
+            MyAPIGateway.Entities.GetEntities(m_entitiesCache, (x) => x is IMyCubeGrid);
+            foreach (var ent in m_entitiesCache)
+            {
+                var grid = ent as MyCubeGrid;
+                foreach (var block in grid.GetFatBlocks<MyTerminalBlock>())
+                    if (block.IDModule != null && block.OwnerId == IdentityId)
+                        m_requests.Add(new MySyncGrid.MySingleOwnershipRequest()
+                        {
+                            BlockId = block.EntityId,
+                            Owner = newOwnerIdentityId
+                        });
+            }
+            m_entitiesCache.Clear();
+
+            if (m_requests.Count > 0)
+                MySyncGrid.ChangeOwnersRequest(MyOwnershipShareModeEnum.None, m_requests,IdentityId);
+            m_requests.Clear();
+
+        }
+        
     }
 }

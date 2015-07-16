@@ -304,8 +304,7 @@ namespace Sandbox.Game.Entities.Cube
         Sandbox.ModAPI.IMyCubeGrid ModAPI.IMySlimBlock.CubeGrid
         {
             get { return CubeGrid; }
-        }
-
+        }        
         VRageMath.Vector3 IMySlimBlock.GetColorMask()
         {
             return ColorMaskHSV;

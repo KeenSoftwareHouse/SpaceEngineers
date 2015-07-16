@@ -37,8 +37,8 @@ namespace Sandbox.Game.Entities
             MyControlsSpace.CUBE_ROTATE_ROLL_NEGATIVE,
         };
 
-        public static float DEFAULT_BLOCK_BUILDING_DISTANCE = MyFakes.ENABLE_CUBE_BUILDER_DYNAMIC_MODE ? 20f : 50f;
-        public static float MAX_BLOCK_BUILDING_DISTANCE = MyFakes.ENABLE_CUBE_BUILDER_DYNAMIC_MODE ? 20f : 50f;
+        public static float DEFAULT_BLOCK_BUILDING_DISTANCE = MyFakes.ENABLE_CUBE_BUILDER_DYNAMIC_MODE ? 20f : 100f;
+        public static float MAX_BLOCK_BUILDING_DISTANCE = MyFakes.ENABLE_CUBE_BUILDER_DYNAMIC_MODE ? 20f : 100f;
         public static float MIN_BLOCK_BUILDING_DISTANCE = 1f;
 
         protected static readonly int[] m_rotationDirections = new int[6] { -1, 1, 1, -1, 1, -1 };

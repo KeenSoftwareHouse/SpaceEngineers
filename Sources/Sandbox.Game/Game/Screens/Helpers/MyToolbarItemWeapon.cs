@@ -21,9 +21,6 @@ namespace Sandbox.Game.Screens.Helpers
         private int m_lastAmmoCount = -1;
         private bool m_needsWeaponSwitching = true;
 
-		private bool m_isDeconstructor = false;
-		public bool IsDeconstructor { get { return m_isDeconstructor; } }
-
         public MyToolbarItemWeapon() : base()
         {
         }
@@ -34,17 +31,7 @@ namespace Sandbox.Game.Screens.Helpers
             ActivateOnClick = false;
 
 			var objectBuilder = data as MyObjectBuilder_ToolbarItemWeapon;
-			if (objectBuilder != null)
-			{
-				m_isDeconstructor = objectBuilder.IsDeconstructor;
-				if (m_isDeconstructor)
-				{
-					SetDisplayName(DisplayName.Append(" Deconstructor").ToString());
-					var split = Icon.Split(new char[] { '_' });	// MK: TODO: Change icon properly.
-					SetIcon(split[0] + "_Deconstruction.dds");
-				}
-			}
-
+			
             return init;
         }
 
@@ -55,7 +42,7 @@ namespace Sandbox.Game.Screens.Helpers
 			if(returnValue)
 			{
 				var otherObj = obj as MyToolbarItemWeapon;
-				if (otherObj != null && otherObj.m_isDeconstructor != m_isDeconstructor)
+				if (otherObj != null)
 					returnValue = false;
 			}
 			return returnValue;
@@ -64,7 +51,6 @@ namespace Sandbox.Game.Screens.Helpers
 		public override MyObjectBuilder_ToolbarItem GetObjectBuilder()
 		{
 			var builder = (MyObjectBuilder_ToolbarItemWeapon)base.GetObjectBuilder();
-			builder.IsDeconstructor = m_isDeconstructor;
 
 			return builder;
 		}
@@ -115,7 +101,7 @@ namespace Sandbox.Game.Screens.Helpers
             {
                 var currentWeapon = character.CurrentWeapon;
                 if (currentWeapon != null)
-                    thisWeaponIsCurrent = (MyDefinitionManager.Static.GetPhysicalItemForHandItem(currentWeapon.DefinitionId).Id == Definition.Id) && (currentWeapon.IsDeconstructor == m_isDeconstructor);
+                    thisWeaponIsCurrent = (MyDefinitionManager.Static.GetPhysicalItemForHandItem(currentWeapon.DefinitionId).Id == Definition.Id);
                 if (thisWeaponIsCurrent && currentWeapon is MyAutomaticRifleGun)
                 {
                     int amount = character.CurrentWeapon.GetAmmunitionAmount();

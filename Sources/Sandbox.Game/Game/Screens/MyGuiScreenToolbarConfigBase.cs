@@ -495,42 +495,8 @@ namespace Sandbox.Game.Gui
                 SelectCategories();
             }
 
-			// Temporary until ME finishes survival construction models
-			if(MyPerGameSettings.Game == GameEnum.ME_GAME && MySession.Static.SurvivalMode)
-				SortItems();
-
             ProfilerShort.End();
         }
-
-		private int NextEmptySlot(int start)
-		{
-			for(; start < m_gridBlocks.MaxSize.X*m_gridBlocks.MaxSize.Y; ++start)
-			{
-				if (m_gridBlocks.GetItemAt(start) == null)
-					return start;
-			}
-			return -1;
-		}
-
-		private void SortItems()
-		{
-			int firstEmptyIndex = NextEmptySlot(0);
-			for (int index = 0; index < m_gridBlocks.MaxSize.X * m_gridBlocks.MaxSize.Y; ++index)
-			{
-				if (!m_gridBlocks.IsValidIndex(index))
-					break;
-				var item = m_gridBlocks.GetItemAt(index);
-				if(item == null)
-					continue;
-
-				if (index > firstEmptyIndex)
-				{
-					m_gridBlocks.SetItemAt(firstEmptyIndex, item);
-					m_gridBlocks.SetItemAt(index, null);
-					firstEmptyIndex = NextEmptySlot(firstEmptyIndex);
-				}
-			}
-		}
 
         protected void SelectCategories()
         {
@@ -701,14 +667,14 @@ namespace Sandbox.Game.Gui
 
         protected virtual void AddToolsAndAnimations(IMySearchCondition searchCondition)
         {
-            if (null != m_character)
+            if (m_character != null)
             {
                 var character = m_character;
                 foreach (MyDefinitionBase definition in MyDefinitionManager.Static.GetWeaponDefinitions())
                 {
-                    if (definition.Id.SubtypeId == manipulationToolId || (character.GetInventory().ContainItems(1, definition.Id) || MyPerGameSettings.EnableWeaponWithoutInventory))
+                    if (definition.Id.SubtypeId == manipulationToolId || (character.GetInventory().ContainItems(1, definition.Id) || MySession.Static.CreativeMode))
                     {
-                        if (null != searchCondition && false == searchCondition.MatchesCondition(definition))
+                        if (searchCondition != null && !searchCondition.MatchesCondition(definition))
                         {
                             continue;
                         }
@@ -1009,27 +975,11 @@ namespace Sandbox.Game.Gui
 			{
 				MyObjectBuilder_ToolbarItemWeapon weaponData = MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_ToolbarItemWeapon>();
 				weaponData.DefinitionId = definition.Id;
-				weaponData.IsDeconstructor = false;
 
 				var gridItem = new MyGuiControlGrid.Item(
 					icon: definition.Icon,
 					toolTip: definition.DisplayNameText,
 					userData: new GridItemUserData() { ItemData = weaponData });
-
-				grid.Add(gridItem);
-			}
-
-			var toolItemDef = definition as MyPhysicalItemDefinition;
-			if (toolItemDef != null && toolItemDef.HasDeconstructor)
-			{
-				var weaponData = MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_ToolbarItemWeapon>();
-				weaponData.DefinitionId = definition.Id;
-				weaponData.IsDeconstructor = true;
-				var split = definition.Icon.Split(new char[] { '_' });	// MK: TODO: Change icon properly.
-				var gridItem = new MyGuiControlGrid.Item(
-				icon: split[0] + "_Deconstruction.dds",
-				toolTip: definition.DisplayNameText + " Deconstructor",
-				userData: new GridItemUserData() { ItemData = weaponData });
 
 				grid.Add(gridItem);
 			}
@@ -1215,9 +1165,6 @@ namespace Sandbox.Game.Gui
 
             m_categorySearchCondition.SelectedCategories = m_searchInBlockCategories;
             UpdateGridBlocksBySearchCondition(isAllSelected ? null : m_categorySearchCondition);
-
-			if (MyPerGameSettings.Game == GameEnum.ME_GAME && MySession.Static.SurvivalMode)
-				SortItems();
         }
      
         void grid_ItemClicked(MyGuiControlGrid sender, MyGuiControlGrid.EventArgs eventArgs)

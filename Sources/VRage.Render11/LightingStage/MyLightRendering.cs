@@ -115,7 +115,7 @@ namespace VRageRender
 
             m_preparePointLights = MyShaders.CreateCs("prepare_lights.hlsl", "prepare_lights", MyShaderHelpers.FormatMacros("NUMTHREADS " + TILE_SIZE));
 
-            SpotlightProxyVs = MyShaders.CreateVs("light.hlsl", "spotlightVs");
+            SpotlightProxyVs = MyShaders.CreateVs("light.hlsl", "proxyVs");
             SpotlightPs_Pixel = MyShaders.CreatePs("light.hlsl", "spotlightFromProxy");
             SpotlightPs_Sample = MyShaders.CreatePs("light.hlsl", "spotlightFromProxy", MyShaderHelpers.FormatMacros(MyRender11.ShaderSampleFrequencyDefine()));
             SpotlightProxyIL = MyShaders.CreateIL(SpotlightProxyVs.BytecodeId, MyVertexLayouts.GetLayout(MyVertexInputComponentType.POSITION_PACKED));
@@ -196,8 +196,8 @@ namespace VRageRender
 
             color = color * 5;
 
-            if (MyEnvironment.SunBillboardEnabled)
-                MyBillboardsHelper.AddPointBillboard(MyEnvironment.SunMaterial, color, sunPosition, radius, 0);
+            //if (MyEnvironment.SunBillboardEnabled)
+            //    MyBillboardsHelper.AddPointBillboard(MyEnvironment.SunMaterial, color, sunPosition, radius, 0);
         }
 
         internal static void DrawGlare(LightId light)
@@ -317,7 +317,7 @@ namespace VRageRender
             var activePointlights = 0;
 
             MyLights.Update();
-            MyLights.PointlightsBvh.OverlapAllFrustum(ref MyEnvironment.ViewFrustum, VisiblePointlights);
+            MyLights.PointlightsBvh.OverlapAllFrustum(ref MyEnvironment.ViewFrustumD, VisiblePointlights);
 
             if (VisiblePointlights.Count > MyRender11Constants.MAX_POINT_LIGHTS)
             {
