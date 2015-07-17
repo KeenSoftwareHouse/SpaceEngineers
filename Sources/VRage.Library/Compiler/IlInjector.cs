@@ -487,8 +487,6 @@ namespace VRage.Compiler
 
         private static void ResolveMethod(ILGenerator generator, Dictionary<MethodBuilder, MethodInfo> methods, Dictionary<ConstructorBuilder, ConstructorInfo> constructors, VRage.Compiler.IlReader.IlInstruction instruction, System.Reflection.Emit.OpCode code, Dictionary<string, Type> typeLookup)
         {
-            bool found = false;
-            var method = instruction.Operand as MethodBase;
             if (instruction.Operand is MethodInfo)
             {
                 var methodInfo = instruction.Operand as MethodInfo;
@@ -506,27 +504,8 @@ namespace VRage.Compiler
                         else
                             flags |= BindingFlags.Instance;
 
-                        var parameterTypes = methodInfo.GetParameters().Select(p => p.ParameterType).ToArray();
-                        for (var i = 0; i < parameterTypes.Length; i++)
-                        {
-                            Type replacementType;
-                            if (typeLookup.TryGetValue(parameterTypes[i].FullName, out replacementType))
-                            {
-                                parameterTypes[i] = replacementType;
-                            }
-                        }
-
                         var genericMethod = genericTypeDefinition.GetMethods(flags).Single(m => m.MetadataToken == methodInfo.MetadataToken);
-                        method = methodInfo = TypeBuilder.GetMethod(declaringType, genericMethod);
-                    }
-                }
-                foreach (var met in constructors)
-                {
-                    if (met.Value == methodInfo)
-                    {
-                        generator.Emit(code, met.Key);
-                        found = true;
-                        break;
+                        methodInfo = TypeBuilder.GetMethod(declaringType, genericMethod);
                     }
                 }
                 
@@ -535,20 +514,21 @@ namespace VRage.Compiler
                 {
                     var methodDefinitionInfo = methodInfo.GetGenericMethodDefinition();
                     var genericArguments = methodInfo.GetGenericArguments();
+                    var mustRegenerateMethod = false;
                     for (var i = 0; i < genericArguments.Length; i++)
                     {
                         Type genericArgumentTypeBuilder;
                         if (typeLookup.TryGetValue(genericArguments[i].FullName, out genericArgumentTypeBuilder))
-                            genericArguments[i] = genericArgumentTypeBuilder;
-                    }
-                    foreach (var met in methods)
-                    {
-                        if (met.Value == methodDefinitionInfo)
                         {
-                            generator.Emit(code, met.Key.MakeGenericMethod(genericArguments));
-                            found = true;
-                            break;
+                            mustRegenerateMethod = true;
+                            genericArguments[i] = genericArgumentTypeBuilder;
                         }
+                    }
+                    if (mustRegenerateMethod)
+                    {
+                        methodDefinitionInfo = methods.Where(m => m.Value == methodDefinitionInfo).Select(m => m.Key).SingleOrDefault() ?? methodDefinitionInfo;
+                        generator.Emit(code, methodDefinitionInfo.MakeGenericMethod(genericArguments));
+                        return;
                     }
                 }
                 else
@@ -558,63 +538,47 @@ namespace VRage.Compiler
                         if (met.Value == methodInfo)
                         {
                             generator.Emit(code, met.Key);
-                            found = true;
-                            break;
+                            return;
                         }
                     }
                 }
+            
+                generator.Emit(code, methodInfo);
+                return;
             }
+            
             if (instruction.Operand is ConstructorInfo)
             {
-                var methodInfo = instruction.Operand as ConstructorInfo;
-                if (methodInfo.DeclaringType.IsGenericType)
+                var constructorInfo = instruction.Operand as ConstructorInfo;
+                if (constructorInfo.DeclaringType.IsGenericType)
                 {
                     Type genericTypeDefinition;
-                    var declaringType = ResolveGenericType(typeLookup, methodInfo, out genericTypeDefinition);
+                    var declaringType = ResolveGenericType(typeLookup, constructorInfo, out genericTypeDefinition);
 
                     if (declaringType != null)
                     {
                         var flags = BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic;
 
-                        if (methodInfo.IsStatic)
+                        if (constructorInfo.IsStatic)
                             flags |= BindingFlags.Static;
                         else
                             flags |= BindingFlags.Instance;
 
-                        var parameterTypes = methodInfo.GetParameters().Select(p => p.ParameterType).ToArray();
-                        for (var i = 0; i < parameterTypes.Length; i++)
-                        {
-                            Type replacementType;
-                            if (typeLookup.TryGetValue(parameterTypes[i].FullName, out replacementType))
-                            {
-                                parameterTypes[i] = replacementType;
-                            }
-                        }
-
-                        var genericMethod = genericTypeDefinition.GetConstructors(flags).Single(m => m.MetadataToken == methodInfo.MetadataToken);
-                        method = methodInfo = TypeBuilder.GetConstructor(declaringType, genericMethod);
+                        var genericMethod = genericTypeDefinition.GetConstructors(flags).Single(m => m.MetadataToken == constructorInfo.MetadataToken);
+                        constructorInfo = TypeBuilder.GetConstructor(declaringType, genericMethod);
                     }
                 }
                 foreach (var met in constructors)
                 {
-                    if (met.Value == methodInfo)
+                    if (met.Value == constructorInfo)
                     {
                         generator.Emit(code, met.Key);
-                        found = true;
-                        break;
+                        return;
                     }
                 }
-            }
-            if (false == found)
-            {
-                if (method is MethodInfo)
-                {
-                    generator.Emit(code, method as MethodInfo);
-                }
-                else if (method is ConstructorInfo)
-                {
-                    generator.Emit(code, method as ConstructorInfo);
-                }
+            
+                generator.Emit(code, constructorInfo);
+                return;
             }
         }
 
