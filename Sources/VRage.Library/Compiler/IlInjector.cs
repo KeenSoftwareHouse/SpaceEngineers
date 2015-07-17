@@ -590,12 +590,9 @@ namespace VRage.Compiler
                                 parameterTypes[i] = replacementType;
                             }
                         }
-                        
-                        var genericConstructor = genericTypeDefinition.GetConstructor(
-                            flags,
-                            null, parameterTypes, null);
 
-                        method = methodInfo = TypeBuilder.GetConstructor(declaringType, genericConstructor);
+                        var genericMethod = genericTypeDefinition.GetConstructors(flags).Single(m => m.MetadataToken == methodInfo.MetadataToken);
+                        method = methodInfo = TypeBuilder.GetConstructor(declaringType, genericMethod);
                     }
                 }
                 foreach (var met in constructors)
