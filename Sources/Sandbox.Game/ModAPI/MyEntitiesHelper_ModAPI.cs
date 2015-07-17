@@ -141,11 +141,6 @@ namespace Sandbox.ModAPI
             return MyEntities.IsRaycastBlocked(pos, target);
         }
 
-        VRageMath.Vector3D? IMyEntities.ClosestRayIntersection(VRageMath.Vector3D pos, VRageMath.Vector3D target)
-        {
-            return MyEntities.ClosestRayIntersection(pos, target);
-        }
-
         List<IMyEntity> IMyEntities.GetEntitiesInAABB(ref VRageMath.BoundingBoxD boundingBox)
         {
             var lst = MyEntities.GetEntitiesInAABB(ref boundingBox);
