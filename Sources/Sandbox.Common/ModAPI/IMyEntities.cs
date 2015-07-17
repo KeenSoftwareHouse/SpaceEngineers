@@ -35,6 +35,7 @@ namespace Sandbox.ModAPI
         float WorldSafeHalfExtent();
         bool IsInsideWorld(Vector3D pos);
         bool IsRaycastBlocked(Vector3D pos, Vector3D target);
+        Vector3D? ClosestRayIntersection(Vector3D pos, Vector3D target);
         void SetEntityName(IMyEntity IMyEntity, bool possibleRename = true);
         bool IsNameExists(IMyEntity entity, string name);
         void RemoveFromClosedEntities(IMyEntity entity);

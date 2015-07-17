@@ -297,6 +297,15 @@ namespace Sandbox.Game.Entities
         }
 
         /// <summary>
+        /// Check if ray is blocked and return the "blocking" position
+        /// </summary>
+        /// <returns>null if not blocked otherwise the intersection between the ray and the closest blocker</returns>
+        public static Vector3D? ClosestRayIntersection(Vector3D pos, Vector3D target)
+        {
+            return MyPhysics.CastRay(pos, target);
+        }
+
+        /// <summary>
         /// Get all rigid body elements touching a bounding box.
         /// Clear() the result list after you're done with it!
         /// </summary>
