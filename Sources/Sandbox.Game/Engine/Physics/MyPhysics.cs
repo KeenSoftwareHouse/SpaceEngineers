@@ -779,8 +779,42 @@ namespace Sandbox.Engine.Physics
                     );
                 }
             }
+            m_resultWorlds.Clear();
+        }
+
+        public static Vector3D? CastRay(Vector3D from, Vector3D to, int raycastFilterLayer = 0)
+        {
+            Vector3D? MinPos = null;
+            double MinDist = double.PositiveInfinity;
 
             m_resultWorlds.Clear();
+            Clusters.CastRay(from, to, m_resultWorlds);
+
+            foreach (var world in m_resultWorlds)
+            {
+                Vector3D Position;
+                Vector3 fromF = from - world.AABB.Center;
+                Vector3 toF = to - world.AABB.Center;
+
+                m_resultHits.Clear();
+                ((HkWorld)world.UserData).CastRay(fromF, toF, m_resultHits, raycastFilterLayer);
+
+                foreach (var hit in m_resultHits)
+                {
+                    Position = hit.Position + world.AABB.Center;
+                    double dist = (Position-from).Length();
+                    if (dist < MinDist)
+                    {
+                        MinDist = dist;
+                        MinPos = Position;
+                    }
+                }
+                m_resultHits.Clear();
+            }
+
+            m_resultWorlds.Clear();
+
+            return MinPos;
         }
 
         public static HkRigidBody CastRay(Vector3D from, Vector3D to, out Vector3D position, out Vector3 normal, int raycastFilterLayer = 0)
