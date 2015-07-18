@@ -193,7 +193,7 @@ namespace Sandbox.Game
             var adapter = MyInventoryItemAdapter.Static;
             adapter.Adapt(contentId);
 
-            if (MyPerGameSettings.ConstrainInventory() && (amount * adapter.Volume + m_currentVolume > MaxVolume) || (amount * adapter.Mass + m_currentMass > m_maxMass))
+            if (MyPerGameSettings.ConstrainInventory() && (amount * adapter.Volume + m_currentVolume >= MaxVolume) || (amount * adapter.Mass + m_currentMass > m_maxMass))
             {
                 return false;
             }
