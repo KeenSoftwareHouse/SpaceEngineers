@@ -61,7 +61,7 @@ namespace VRage.Compiler
             return sources;
         }
 
-        public static bool CompileFileModAPI(string assemblyName, string[] files, out Assembly assembly, List<string> errors)
+        public static bool CompileFileModAPI(string assemblyName, string[] files, out Assembly assembly, List<IlCompilerErrorMessage> errors)
         {
             assembly = null;
             Options.OutputAssembly = assemblyName;
@@ -71,7 +71,7 @@ namespace VRage.Compiler
             return CheckResultInternal(ref assembly, errors, result,false);
         }
 
-        public static bool CompileStringIngame(string assemblyName, string[] source, out Assembly assembly, List<string> errors)
+        public static bool CompileStringIngame(string assemblyName, string[] source, out Assembly assembly, List<IlCompilerErrorMessage> errors)
         {
             assembly = null;
             Options.OutputAssembly = assemblyName;
@@ -80,48 +80,68 @@ namespace VRage.Compiler
             return CheckResultInternal(ref assembly, errors, result,true);
         }
 
-        private static bool CheckResultInternal(ref Assembly assembly, List<string> errors, CompilerResults result,bool isIngameScript)
+        private static bool CheckResultInternal(ref Assembly assembly, List<IlCompilerErrorMessage> errors, CompilerResults result, bool isIngameScript)
         {
             if (result.Errors.HasErrors)
             {
-                var en = result.Errors.GetEnumerator();
-                while (en.MoveNext())
+                foreach (object error in result.Errors)
                 {
-                    if (!(en.Current as CompilerError).IsWarning)
-                        errors.Add((en.Current as CompilerError).ToString());
+                    var compilerError = error as CompilerError;
+                    if (compilerError == null || compilerError.IsWarning)
+                        continue;
+                    errors.Add(new IlCompilerErrorMessage(compilerError.ErrorText, compilerError.Line));
                 }
                 return false;
             }
             assembly = result.CompiledAssembly;
-            Type failedType;
             var dic = new Dictionary<Type, List<MemberInfo>>();
-            foreach (var t in assembly.GetTypes()) //allows calls inside assembly
+            var typeMethods = new List<MethodBase>();
+            const BindingFlags bfAllMembers = BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Static | BindingFlags.Instance;
+
+            Type[] assemblyTypes;
+            try
+            {
+                // If the user has an extern method without an implementation,
+                // all we can do is catch the TypeLoadException.
+                assemblyTypes = assembly.GetTypes();
+            }
+            catch (ReflectionTypeLoadException e)
+            {
+                errors.Add(new IlCompilerErrorMessage(e.LoaderExceptions[0].Message));
+                return false;
+            }
+
+            // Enables the usage of types declared inside the assembly
+            foreach (Type t in assemblyTypes)
                 dic.Add(t, null);
 
-            List<MethodBase> typeMethods = new List<MethodBase>();
-            BindingFlags bfAllMembers = BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Static | BindingFlags.Instance;
-
-            foreach (var t in assembly.GetTypes())
+            foreach (Type t in assemblyTypes)
             {
                 typeMethods.Clear();
                 typeMethods.AddArray(t.GetMethods(bfAllMembers));
                 typeMethods.AddArray(t.GetConstructors(bfAllMembers));
 
-                foreach (var m in typeMethods)
+                foreach (MethodBase m in typeMethods)
                 {
-                    if (IlChecker.IsMethodFromParent(t,m))
+                    if (IlChecker.IsMethodFromParent(t, m))
                     {
-                        if (IlChecker.CheckTypeAndMember(m.DeclaringType, isIngameScript) == false)
+                        if (!IlChecker.CheckTypeAndMember(m.DeclaringType, isIngameScript))
                         {
-                            errors.Add(string.Format("Class {0} derives from class {1} that is not allowed in script", t.Name, m.DeclaringType.Name));
+                            errors.Add(new IlCompilerErrorMessage(String.Format("Class {0} derives from class {1} that is not allowed in script",
+                                t.Name,
+                                m.DeclaringType.Name)));
                             return false;
                         }
                         continue;
                     }
-                    if ((!IlChecker.CheckIl(m_reader.ReadInstructions(m), out failedType,isIngameScript, dic)) || IlChecker.HasMethodInvalidAtrributes(m.Attributes))
+                    Type failedType;
+                    if ((!IlChecker.CheckIl(m_reader.ReadInstructions(m), out failedType, isIngameScript, dic)) ||
+                          IlChecker.HasMethodInvalidAtrributes(m.Attributes))
                     {
                         // CH: TODO: This message does not make much sense when we test not only allowed types, but also method attributes
-                        errors.Add(string.Format("Type {0} used in {1} not allowed in script", failedType == null ? "FIXME" : failedType.ToString(), m.Name));
+                        errors.Add(new IlCompilerErrorMessage(String.Format("Type {0} used in {1} not allowed in script",
+                            failedType == null ? "FIXME" : failedType.ToString(),
+                            m.Name)));
                         assembly = null;
                         return false;
                     }
@@ -130,12 +150,12 @@ namespace VRage.Compiler
             return true;
         }
 
-        public static bool Compile(string assemblyName, string[] fileContents, out Assembly assembly, List<string> errors, bool isIngameScript)
+        public static bool Compile(string assemblyName, string[] fileContents, out Assembly assembly, List<IlCompilerErrorMessage> errors, bool isIngameScript)
         {
             assembly = null;
             Options.OutputAssembly = assemblyName;
             var result = m_cp.CompileAssemblyFromSource(Options, fileContents);
-            return CheckResultInternal(ref assembly, errors, result,isIngameScript);
+            return CheckResultInternal(ref assembly, errors, result, isIngameScript);
         }
 
         public static bool Compile(string[] instructions, out Assembly assembly,bool isIngameScript, bool wrap = true)

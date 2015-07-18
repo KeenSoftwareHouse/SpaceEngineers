@@ -55,7 +55,7 @@ namespace Sandbox.Game.Entities.Blocks
         public bool ConsoleOpen = false;
         MyGuiScreenEditor m_editorScreen;
         Assembly m_assembly = null;
-        List<string> m_compilerErrors = new List<string>();
+        List<IlCompilerErrorMessage> m_compilerErrors = new List<IlCompilerErrorMessage>();
         private bool m_wasTerminated = false;
         private bool m_isRunning = false;
         private bool m_mainMethodSupportsArgument;
