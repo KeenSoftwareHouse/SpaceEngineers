@@ -19,6 +19,7 @@ namespace Sandbox.Definitions
         public float FlameLengthScale;
         public Vector4 FlameFullColor;
         public Vector4 FlameIdleColor;
+        public Vector4 FlameBoostColor;
         public string FlamePointMaterial;
         public string FlameLengthMaterial;
         public string FlameGlareMaterial;
@@ -41,6 +42,9 @@ namespace Sandbox.Definitions
             FlameLengthScale = thrustBuilder.FlameLengthScale;
             FlameFullColor = thrustBuilder.FlameFullColor;
             FlameIdleColor = thrustBuilder.FlameIdleColor;
+            FlameBoostColor = thrustBuilder.FlameBoostColor;
+            if (FlameBoostColor == Vector4.Zero)
+                FlameBoostColor = FlameFullColor;
             FlamePointMaterial = thrustBuilder.FlamePointMaterial;
             FlameLengthMaterial = thrustBuilder.FlameLengthMaterial;
             FlameGlareMaterial = thrustBuilder.FlameGlareMaterial;

@@ -17204,6 +17204,12 @@
         <Z>0.6505882</Z>
         <W>0.75</W>
       </FlameFullColor>
+      <FlameBoostColor>
+        <X>0.9</X>
+        <Y>0.7</Y>
+        <Z>0.2</Z>
+        <W>0.95</W>
+      </FlameBoostColor>
       <FlamePointMaterial>EngineThrustMiddle</FlamePointMaterial>
       <FlameLengthMaterial>EngineThrustMiddle</FlameLengthMaterial>
       <FlameGlareMaterial>GlareSsThrustSmall</FlameGlareMaterial>
@@ -17269,6 +17275,12 @@
         <Z>0.6505882</Z>
         <W>0.75</W>
       </FlameFullColor>
+      <FlameBoostColor>
+        <X>0.9</X>
+        <Y>0.7</Y>
+        <Z>0.2</Z>
+        <W>0.95</W>
+      </FlameBoostColor>
       <FlamePointMaterial>EngineThrustMiddle</FlamePointMaterial>
       <FlameLengthMaterial>EngineThrustMiddle</FlameLengthMaterial>
       <FlameGlareMaterial>GlareSsThrustLarge</FlameGlareMaterial>
@@ -17333,6 +17345,12 @@
         <Z>0.6505882</Z>
         <W>0.75</W>
       </FlameFullColor>
+      <FlameBoostColor>
+        <X>0.9</X>
+        <Y>0.7</Y>
+        <Z>0.2</Z>
+        <W>0.95</W>
+      </FlameBoostColor>
       <FlamePointMaterial>EngineThrustMiddle</FlamePointMaterial>
       <FlameLengthMaterial>EngineThrustMiddle</FlameLengthMaterial>
       <FlameGlareMaterial>GlareLsThrustSmall</FlameGlareMaterial>
@@ -17398,6 +17416,12 @@
         <Z>0.6505882</Z>
         <W>0.75</W>
       </FlameFullColor>
+      <FlameBoostColor>
+        <X>0.9</X>
+        <Y>0.7</Y>
+        <Z>0.2</Z>
+        <W>0.95</W>
+      </FlameBoostColor>
       <FlamePointMaterial>EngineThrustMiddle</FlamePointMaterial>
       <FlameLengthMaterial>EngineThrustMiddle</FlameLengthMaterial>
       <FlameGlareMaterial>GlareLsThrustLarge</FlameGlareMaterial>

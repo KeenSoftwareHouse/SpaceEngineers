@@ -140,14 +140,25 @@ namespace Sandbox.Game.Entities
 
         public void UpdateThrustFlame()
         {
+            var thrustStrength = CurrentStrength;
+            if (thrustStrength > MyConstants.MAX_THRUST)
+                thrustStrength = MyConstants.MAX_THRUST;
+
             ThrustRadiusRand = MyUtils.GetRandomFloat(0.9f, 1.1f);
-            ThrustLengthRand = CurrentStrength * 10 * MyUtils.GetRandomFloat(0.6f, 1.0f) * m_thrustDefinition.FlameLengthScale;
+            ThrustLengthRand = thrustStrength * 10 * MyUtils.GetRandomFloat(0.6f, 1.0f) * m_thrustDefinition.FlameLengthScale;
             ThrustThicknessRand = MyUtils.GetRandomFloat(ThrustRadiusRand * 0.90f, ThrustRadiusRand);
         }
 
         public void UpdateThrustColor()
         {
-            m_thrustColor = Vector4.Lerp(m_thrustDefinition.FlameIdleColor, m_thrustDefinition.FlameFullColor, CurrentStrength / MyConstants.MAX_THRUST);
+            var thrustStrength = CurrentStrength;
+            if (thrustStrength > MyConstants.MAX_THRUST)
+                thrustStrength = MyConstants.MAX_THRUST;
+
+            if (thrustStrength <= 1.0f)
+                m_thrustColor = Vector4.Lerp(m_thrustDefinition.FlameIdleColor, m_thrustDefinition.FlameFullColor, thrustStrength / MyConstants.MAX_THRUST);
+            else
+                m_thrustColor = Vector4.Lerp(m_thrustDefinition.FlameFullColor, m_thrustDefinition.FlameBoostColor, (thrustStrength - 1.0f) / (MyConstants.MAX_THRUST - 1.0f));
             Light.Color = m_thrustColor;
         }
         public Vector4 ThrustColor { get { return m_thrustColor; } }
@@ -220,7 +231,7 @@ namespace Sandbox.Game.Entities
                 x.SyncObject.SendChangeThrustOverrideRequest(x.ThrustOverride); 
             };
             thrustOverride.DefaultValue = 0;
-            thrustOverride.SetLogLimits((x) => x.m_thrustDefinition.ForceMagnitude * 0.01f, (x) => x.m_thrustDefinition.ForceMagnitude);
+            thrustOverride.SetLogLimits((x) => x.m_thrustDefinition.ForceMagnitude * 0.0099f, (x) => x.m_thrustDefinition.ForceMagnitude * MyFakes.SLOWDOWN_FACTOR_THRUST_MULTIPLIER);
             thrustOverride.EnableActions();
             thrustOverride.Writer = (x, result) =>
                 {

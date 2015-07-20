@@ -32,6 +32,9 @@ namespace Sandbox.Common.ObjectBuilders.Definitions
         public Vector4 FlameIdleColor = DefaultThrustColor;
 
         [ProtoMember]
+        public Vector4 FlameBoostColor = Vector4.Zero;
+
+        [ProtoMember]
         public string FlamePointMaterial = "EngineThrustMiddle";
 
         [ProtoMember]
