@@ -183,7 +183,19 @@ namespace Sandbox.Game.Entities.Cube
                 RaisePropertiesChanged();
             }
         }
+
+        #region IMyOreDetector Members
+
         bool IMyOreDetector.BroadcastUsingAntennas { get { return m_oreDetectorComponent.BroadcastUsingAntennas; } }
         float IMyOreDetector.Range { get { return Range; } }
+
+        /// <summary>
+        /// Gets the world position and name of all the ores detected by this Ore Detector.
+        /// </summary>
+        /// <returns>A Dictionary with all the world positions and names of detected ores.</returns>
+        System.Collections.Generic.Dictionary<Vector3D, string> IMyOreDetector.GetOreLocations()
+        { return m_oreDetectorComponent.GetOreLocations(PositionComp.GetPosition()); }
+
+        #endregion
     }
 }

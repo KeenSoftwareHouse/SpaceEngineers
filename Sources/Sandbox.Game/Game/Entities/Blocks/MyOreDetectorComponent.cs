@@ -268,6 +268,32 @@ namespace Sandbox.Game.Entities.Cube
             }
         }
 
+        /// <summary>
+        /// Gets the world position and name of all the ores detected by this Ore Detector.
+        /// </summary>
+        /// <param name="oreDetectorPosition">The position of the ore detector, this.Update will be called with oreDetectorPosition as a parameter.</param>
+        /// <returns>A Dictionary with all the world positions and names of detected ores.</returns>
+        /// <remarks>
+        /// Invokes this.Update first so that information is up-to-date.
+        /// </remarks>
+        public Dictionary<Vector3D, string> GetOreLocations(Vector3D oreDetectorPosition)
+        {
+            Update(oreDetectorPosition, false);
+
+            Dictionary<Vector3D, string> OreLocations = new Dictionary<Vector3D, string>();
+            foreach (MyOreDepositGroup group in m_depositGroupsByEntity.Values)
+                foreach (MyEntityOreDeposit deposit in group.Deposits)
+                    if (deposit != null)
+                        foreach (MyEntityOreDeposit.Data material in deposit.Materials)
+                            if (material.Material.CanBeHarvested) // always true but maybe it will not be in the future
+                            {
+                                Vector3D oreWorldPosition;
+                                material.ComputeWorldPosition(deposit.VoxelMap, out oreWorldPosition);
+                                OreLocations[oreWorldPosition] = material.Material.MinedOre;
+                            }
+            return OreLocations;
+        }
+
     }
 
     /// <summary>
