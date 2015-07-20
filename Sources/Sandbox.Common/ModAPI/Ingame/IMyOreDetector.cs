@@ -9,5 +9,11 @@ namespace Sandbox.ModAPI.Ingame
     {
         float Range {get;}
         bool BroadcastUsingAntennas {get;}
+
+        /// <summary>
+        /// Gets the world position and name of all the ores detected by this Ore Detector.
+        /// </summary>
+        /// <returns>A Dictionary with all the world positions and names of detected ores.</returns>
+        Dictionary<VRageMath.Vector3D, string> GetOreLocations();
     }
 }
