@@ -513,10 +513,25 @@ namespace VRage.Compiler
                 if (methodInfo.IsGenericMethod)
                 {
                     var methodDefinitionInfo = methodInfo.GetGenericMethodDefinition();
-                    var genericArguments = methodInfo.GetGenericArguments();
                     var mustRegenerateMethod = false;
+
+                    // See if we already have the method definition
+                    foreach (var met in methods)
+                    {
+                        if (met.Value == methodDefinitionInfo)
+                        {
+                            methodDefinitionInfo = met.Key;
+                            mustRegenerateMethod = true;
+                            break;
+                        }
+                    }
+                    
+                    // Analyze all the generics arguments and replace as needed
+                    var genericArguments = methodInfo.GetGenericArguments();
                     for (var i = 0; i < genericArguments.Length; i++)
                     {
+                        if (genericArguments[i].IsGenericParameter)
+                            continue;
                         Type genericArgumentTypeBuilder;
                         if (typeLookup.TryGetValue(genericArguments[i].FullName, out genericArgumentTypeBuilder))
                         {
@@ -524,6 +539,7 @@ namespace VRage.Compiler
                             genericArguments[i] = genericArgumentTypeBuilder;
                         }
                     }
+
                     if (mustRegenerateMethod)
                     {
                         methodDefinitionInfo = methods.Where(m => m.Value == methodDefinitionInfo).Select(m => m.Key).SingleOrDefault() ?? methodDefinitionInfo;
