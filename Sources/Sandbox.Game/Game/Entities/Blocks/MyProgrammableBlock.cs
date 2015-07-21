@@ -49,8 +49,8 @@ namespace Sandbox.Game.Entities.Blocks
         private string m_terminalRunArgument = string.Empty;
         private StringBuilder m_echoOutput = new StringBuilder();
         private long m_previousRunTimestamp = 0;
-        
-        private readonly object[] m_argumentArray = new object[1]; 
+
+        private readonly object[] m_argumentArray = new object[1];
 
         public bool ConsoleOpen = false;
         MyGuiScreenEditor m_editorScreen;
@@ -62,6 +62,9 @@ namespace Sandbox.Game.Entities.Blocks
         public bool ConsoleOpenRequest = false;
         private ulong m_userId;
         private new MySyncProgrammableBlock SyncObject;
+
+        private Queue<TerminalActionParameter> m_enqueuedRuns = new Queue<TerminalActionParameter>();
+        private readonly List<TerminalActionParameter> _argumentContainer = new List<TerminalActionParameter>(new[] { TerminalActionParameter.Get("") });
 
         public string TerminalRunArgument
         {
@@ -89,12 +92,12 @@ namespace Sandbox.Game.Entities.Blocks
             arg.Getter = (e) => new StringBuilder(e.TerminalRunArgument);
             arg.Setter = (e, v) => e.TerminalRunArgument = v.ToString();
             MyTerminalControlFactory.AddControl(arg);
-            
+
             var terminalRun = new MyTerminalControlButton<MyProgrammableBlock>("TerminalRun", MySpaceTexts.TerminalControlPanel_RunCode, MySpaceTexts.TerminalControlPanel_RunCode_Tooltip, (b) => b.Run());
             terminalRun.Visible = (b) => MyFakes.ENABLE_PROGRAMMABLE_BLOCK && MySession.Static.EnableIngameScripts;
             terminalRun.Enabled = (b) => b.IsWorking == true && b.IsFunctional == true;
             MyTerminalControlFactory.AddControl(terminalRun);
-            
+
             var runAction = new MyTerminalAction<MyProgrammableBlock>("Run", MyTexts.Get(MySpaceTexts.TerminalControlPanel_RunCode), OnRunApplied, null, MyTerminalActionIcons.START);
             runAction.Enabled = (b) => b.IsWorking == true && b.IsFunctional == true;
             runAction.DoUserParameterRequest = RequestRunArgument;
@@ -285,6 +288,7 @@ namespace Sandbox.Game.Entities.Blocks
             m_instance = null;
             m_assembly = null;
             m_echoOutput.Clear();
+            m_enqueuedRuns.Clear();
             m_previousRunTimestamp = 0;
         }
 
@@ -364,6 +368,27 @@ namespace Sandbox.Game.Entities.Blocks
             }
             UpdateEmissivity();
         }
+
+        public override void UpdateBeforeSimulation()
+        {
+            // I tried using UpdateOnceBeforeFrame, but it collided with the code for updating
+            // the program. I considered adding a specific flag for when the program should update,
+            // but I don't know where else the BEFORE_NEXT_FRAME flag is set. Any better idea is
+            // appreciated - but this _is_ just a simple conditional test.
+            if (m_enqueuedRuns.Count > 0)
+            {
+                var nextArgument = m_enqueuedRuns.Dequeue();
+                _argumentContainer[0] = nextArgument;
+                this.ApplyAction("Run", _argumentContainer);
+                if (m_enqueuedRuns.Count > 0)
+                    NeedsUpdate |= MyEntityUpdateEnum.EACH_FRAME;
+                else
+                    NeedsUpdate &= ~MyEntityUpdateEnum.EACH_FRAME;
+            }
+            
+            base.UpdateBeforeSimulation();
+        }
+
         public override MyObjectBuilder_CubeBlock GetObjectBuilderCubeBlock(bool copy = false)
         {
             MyObjectBuilder_MyProgrammableBlock objectBuilder = (MyObjectBuilder_MyProgrammableBlock)base.GetObjectBuilderCubeBlock(copy);
@@ -383,6 +408,7 @@ namespace Sandbox.Game.Entities.Blocks
             {
                 return;
             }
+            m_enqueuedRuns.Clear();
             m_wasTerminated = false;
             Assembly temp = null;
             MyGuiScreenEditor.CompileProgram(program, m_compilerErrors, ref temp);
@@ -568,6 +594,18 @@ namespace Sandbox.Game.Entities.Blocks
             PowerReceiver.Update();
             UpdateEmissivity();
             base.OnEnabledChanged();
+        }
+    
+        void IMyProgrammableBlock.Run(string argument)
+        {
+            _argumentContainer[0] = TerminalActionParameter.Get(argument ?? "");
+            this.ApplyAction("Run", _argumentContainer);
+        }
+
+        void IMyProgrammableBlock.EnqueueRun(string argument)
+        {
+            m_enqueuedRuns.Enqueue(TerminalActionParameter.Get(argument ?? ""));
+            NeedsUpdate |= MyEntityUpdateEnum.EACH_FRAME;
         }
     }
 }
