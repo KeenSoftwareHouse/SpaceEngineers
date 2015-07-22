@@ -41,6 +41,7 @@ namespace Sandbox.Game.Entities.Blocks
     {
         private const int MAX_NUM_EXECUTED_INSTRUCTIONS = 50000;
         private const int MAX_ECHO_LENGTH = 8000; // 100 lines á 80 characters
+        private const int MAX_RUN_QUEUE_SIZE = 100;
         private static readonly double STOPWATCH_FREQUENCY = 1.0 / Stopwatch.Frequency;
         private IMyGridProgram m_instance = null;
         private string m_programData = null;
@@ -602,10 +603,23 @@ namespace Sandbox.Game.Entities.Blocks
             this.ApplyAction("Run", _argumentContainer);
         }
 
-        void IMyProgrammableBlock.EnqueueRun(string argument)
+        bool IMyProgrammableBlock.EnqueueRun(string argument)
         {
+            if (m_enqueuedRuns.Count >= MAX_RUN_QUEUE_SIZE)
+                return false;
             m_enqueuedRuns.Enqueue(TerminalActionParameter.Get(argument ?? ""));
             NeedsUpdate |= MyEntityUpdateEnum.EACH_FRAME;
+            return true;
+        }
+
+        int IMyProgrammableBlock.CurrentRunQueueCount
+        {
+            get { return m_enqueuedRuns.Count; }
+        }
+
+        int IMyProgrammableBlock.MaxRunQueueCount
+        {
+            get { return MAX_RUN_QUEUE_SIZE; }
         }
     }
 }
