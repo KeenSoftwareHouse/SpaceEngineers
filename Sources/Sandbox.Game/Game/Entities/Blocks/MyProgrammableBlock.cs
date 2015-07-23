@@ -39,6 +39,7 @@ namespace Sandbox.Game.Entities.Blocks
     class MyProgrammableBlock : MyFunctionalBlock, IMyProgrammableBlock, IMyPowerConsumer
     {
         private MyGridProgramRuntime m_gridProgramRuntime = null;
+        private const int MAX_RUN_QUEUE_SIZE = 100;
         private string m_programData = null;
         private string m_editorData = null;
         private string m_terminalRunArgument = string.Empty;
@@ -50,6 +51,9 @@ namespace Sandbox.Game.Entities.Blocks
         public bool ConsoleOpenRequest = false;
         private ulong m_userId;
         private new MySyncProgrammableBlock SyncObject;
+
+        private Queue<TerminalActionParameter> m_enqueuedRuns = new Queue<TerminalActionParameter>();
+        private readonly List<TerminalActionParameter> _argumentContainer = new List<TerminalActionParameter>(new[] { TerminalActionParameter.Get("") });
 
         public string TerminalRunArgument
         {
@@ -231,6 +235,7 @@ namespace Sandbox.Game.Entities.Blocks
         private void OnProgramTermination()
         {
             m_assembly = null;
+            m_enqueuedRuns.Clear();
         }
 
         public void Run()
@@ -309,6 +314,27 @@ namespace Sandbox.Game.Entities.Blocks
             }
             UpdateEmissivity();
         }
+
+        public override void UpdateBeforeSimulation()
+        {
+            // I tried using UpdateOnceBeforeFrame, but it collided with the code for updating
+            // the program. I considered adding a specific flag for when the program should update,
+            // but I don't know where else the BEFORE_NEXT_FRAME flag is set. Any better idea is
+            // appreciated - but this _is_ just a simple conditional test.
+            if (m_enqueuedRuns.Count > 0)
+            {
+                var nextArgument = m_enqueuedRuns.Dequeue();
+                _argumentContainer[0] = nextArgument;
+                this.ApplyAction("Run", _argumentContainer);
+                if (m_enqueuedRuns.Count > 0)
+                    NeedsUpdate |= MyEntityUpdateEnum.EACH_FRAME;
+                else
+                    NeedsUpdate &= ~MyEntityUpdateEnum.EACH_FRAME;
+            }
+            
+            base.UpdateBeforeSimulation();
+        }
+
         public override MyObjectBuilder_CubeBlock GetObjectBuilderCubeBlock(bool copy = false)
         {
             MyObjectBuilder_MyProgrammableBlock objectBuilder = (MyObjectBuilder_MyProgrammableBlock)base.GetObjectBuilderCubeBlock(copy);
@@ -324,6 +350,7 @@ namespace Sandbox.Game.Entities.Blocks
             {
                 return;
             }
+            m_enqueuedRuns.Clear();
             Assembly temp = null;
             MyGuiScreenEditor.CompileProgram(program, m_compilerErrors, ref temp);
             if (temp != null)
@@ -463,6 +490,31 @@ namespace Sandbox.Game.Entities.Blocks
             PowerReceiver.Update();
             UpdateEmissivity();
             base.OnEnabledChanged();
+        }
+    
+        void IMyProgrammableBlock.Run(string argument)
+        {
+            _argumentContainer[0] = TerminalActionParameter.Get(argument ?? "");
+            this.ApplyAction("Run", _argumentContainer);
+        }
+
+        bool IMyProgrammableBlock.EnqueueRun(string argument)
+        {
+            if (m_enqueuedRuns.Count >= MAX_RUN_QUEUE_SIZE)
+                return false;
+            m_enqueuedRuns.Enqueue(TerminalActionParameter.Get(argument ?? ""));
+            NeedsUpdate |= MyEntityUpdateEnum.EACH_FRAME;
+            return true;
+        }
+
+        int IMyProgrammableBlock.CurrentRunQueueCount
+        {
+            get { return m_enqueuedRuns.Count; }
+        }
+
+        int IMyProgrammableBlock.MaxRunQueueCount
+        {
+            get { return MAX_RUN_QUEUE_SIZE; }
         }
     }
 }
