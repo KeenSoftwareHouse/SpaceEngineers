@@ -70,6 +70,11 @@ namespace Sandbox.Game.Gui
 
         public override Color GetMininum(TBlock block)
         {
+            return GetMinimum(block);
+        }
+
+        public override Color GetMinimum(TBlock block)
+        {
             return new Color(Vector4.Zero);
         }
 

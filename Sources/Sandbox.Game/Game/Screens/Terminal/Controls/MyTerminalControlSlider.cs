@@ -317,6 +317,11 @@ namespace Sandbox.Game.Gui
 
         public override float GetMininum(TBlock block)
         {
+            return GetMinimum(block);
+        }
+
+        public override float GetMinimum(TBlock block)
+        {
             return Denormalizer(block, 0);
         }
 
