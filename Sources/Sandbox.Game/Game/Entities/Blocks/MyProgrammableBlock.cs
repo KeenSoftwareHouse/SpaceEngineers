@@ -53,6 +53,7 @@ namespace Sandbox.Game.Entities.Blocks
 
         private Queue<TerminalActionParameter> m_enqueuedRuns = new Queue<TerminalActionParameter>();
         private readonly List<TerminalActionParameter> m_argumentContainer = new List<TerminalActionParameter>(new[] { TerminalActionParameter.Get("") });
+        private bool m_requireImmediateConstruction = true;
 
         public string TerminalRunArgument
         {
@@ -225,14 +226,22 @@ namespace Sandbox.Game.Entities.Blocks
             var terminalSystem = gridGroup.GroupData.TerminalSystem;
             terminalSystem.UpdateGridBlocksOwnership(this.OwnerId);
 
+            var runFlags = MyGridProgramRuntime.RunFlags.None;
+            if (m_requireImmediateConstruction)
+            {
+                runFlags |= MyGridProgramRuntime.RunFlags.ConstructionOnly;
+                m_requireImmediateConstruction = false;
+            }
+
             string retVal;
-            if (!m_gridProgramRuntime.TryRun(terminalSystem, argument, out retVal))
+            if (!m_gridProgramRuntime.TryRun(terminalSystem, argument, out retVal, runFlags))
                 OnProgramTermination();
             return retVal;
         }
 
         private void OnProgramTermination()
         {
+            m_requireImmediateConstruction = false;
             m_assembly = null;
             m_enqueuedRuns.Clear();
         }
@@ -285,9 +294,14 @@ namespace Sandbox.Game.Entities.Blocks
             SlimBlock.ComponentStack.IsFunctionalChanged += ComponentStack_IsFunctionalChanged;
             IsWorkingChanged += MyProgrammableBlock_IsWorkingChanged;
 
-            if (Sync.IsServer && Sync.Clients != null)
+            if (Sync.IsServer)
             {
-                Sync.Clients.ClientRemoved += ProgrammableBlock_ClientRemoved;
+                if (Sync.Clients != null)
+                {
+                    Sync.Clients.ClientRemoved += ProgrammableBlock_ClientRemoved;
+                }
+
+                m_requireImmediateConstruction = true;
             }
         }
         public override void UpdateOnceBeforeFrame()
@@ -364,9 +378,15 @@ namespace Sandbox.Game.Entities.Blocks
                     {
                         if (DetailedInfo.ToString() != response)
                         {
+                            m_requireImmediateConstruction = false;
                             SyncObject.SendProgramResponseMessage(response);
                             WriteProgramResponse(response);
                         }
+                    }
+                    if (m_requireImmediateConstruction)
+                    {
+                        m_enqueuedRuns.Enqueue(TerminalActionParameter.Empty);
+                        NeedsUpdate |= MyEntityUpdateEnum.EACH_FRAME;
                     }
                 }
                 catch (Exception ex)
@@ -374,6 +394,7 @@ namespace Sandbox.Game.Entities.Blocks
                     string response = MyTexts.GetString(MySpaceTexts.ProgrammableBlock_Exception_ExceptionCaught) + ex.Message;
                     if (DetailedInfo.ToString() != response)
                     {
+                        m_requireImmediateConstruction = false;
                         SyncObject.SendProgramResponseMessage(response);
                         WriteProgramResponse(response);
                     }

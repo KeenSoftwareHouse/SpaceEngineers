@@ -20,6 +20,14 @@ namespace Sandbox.Game.Entities.Blocks
     /// </summary>
     class MyGridProgramRuntime
     {
+        [Flags]
+        public enum RunFlags
+        {
+            None,
+
+            ConstructionOnly = 0x1
+        }
+
         private const int MAX_NUM_EXECUTED_INSTRUCTIONS = 50000;
         private static readonly double STOPWATCH_FREQUENCY = 1.0 / Stopwatch.Frequency;
         private const int MAX_ECHO_LENGTH = 8000; // 100 lines á 80 characters
@@ -43,6 +51,14 @@ namespace Sandbox.Game.Entities.Blocks
 
             // The default state of a program runtime is Faulted because no program has been loaded yet.
             m_faultMessage = MyTexts.GetString(MySpaceTexts.ProgrammableBlock_Exception_NoMain);
+        }
+
+        /// <summary>
+        /// Returns <c>true</c> if the currently loaded program needs to be constructed
+        /// </summary>
+        public bool NeedsConstruction
+        {
+            get { return m_constructor != null; }
         }
 
         /// <summary>
@@ -181,8 +197,9 @@ namespace Sandbox.Game.Entities.Blocks
         /// <param name="terminalSystem">The grid terminal system to pass into the program</param>
         /// <param name="argument">An optional argument to pass into the script's Main function</param>
         /// <param name="output">The output text, which is a combination of Echo calls and error messages.</param>
+        /// <param name="runFlags">Behavior modification flags</param>
         /// <returns><c>true</c> if the script was run successfully, <c>false</c> otherwise</returns>
-        public bool TryRun(MyGridTerminalSystem terminalSystem, string argument, out string output)
+        public bool TryRun(MyGridTerminalSystem terminalSystem, string argument, out string output, RunFlags runFlags)
         {
             output = "";
             if (!PrepareToRun(terminalSystem, ref output))
@@ -194,13 +211,16 @@ namespace Sandbox.Game.Entities.Blocks
             {
                 EnsureConstructedState();
 
-                if (!m_instance.HasMainMethod)
+                if (!runFlags.HasFlag(RunFlags.ConstructionOnly))
                 {
-                    m_faultMessage = output = MyTexts.GetString(MySpaceTexts.ProgrammableBlock_Exception_NoMain);
-                    OnProgramTermination();
-                    return false;
+                    if (!m_instance.HasMainMethod)
+                    {
+                        m_faultMessage = output = MyTexts.GetString(MySpaceTexts.ProgrammableBlock_Exception_NoMain);
+                        OnProgramTermination();
+                        return false;
+                    }
+                    m_instance.Main(argument);
                 }
-                m_instance.Main(argument);
 
                 if (m_echoOutput.Length > 0)
                     output = m_echoOutput.ToString();
