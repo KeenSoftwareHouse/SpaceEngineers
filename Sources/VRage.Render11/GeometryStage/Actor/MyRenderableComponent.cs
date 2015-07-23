@@ -147,8 +147,8 @@ namespace VRageRender
 
     static class MyScene
     {
-        internal static MyDynamicAABBTree RenderablesDBVH = new MyDynamicAABBTree(MyRender11Constants.PRUNNING_EXTENSION);
-        internal static MyDynamicAABBTree GroupsDBVH = new MyDynamicAABBTree(MyRender11Constants.PRUNNING_EXTENSION);
+        internal static MyDynamicAABBTreeD RenderablesDBVH = new MyDynamicAABBTreeD(MyRender11Constants.PRUNNING_EXTENSION);
+        internal static MyDynamicAABBTreeD GroupsDBVH = new MyDynamicAABBTreeD(MyRender11Constants.PRUNNING_EXTENSION);
 
         internal static Dictionary<uint, HashSet<MyEntityMaterialKey>> EntityDisabledMaterials = new Dictionary<uint, HashSet<MyEntityMaterialKey>>();
 
@@ -672,7 +672,8 @@ namespace VRageRender
                 {
                     for (int j = 0; j < m_lods[i].RenderableProxies.Length; j++)
                     {
-                        m_lods[i].RenderableProxies[j].ObjectData.LocalMatrix = m_owner.WorldMatrix;
+                        m_lods[i].RenderableProxies[j].WorldMatrix = m_owner.WorldMatrix;
+                        //m_lods[i].RenderableProxies[j].ObjectData.LocalMatrix = m_owner.WorldMatrix;
                         m_lods[i].RenderableProxies[j].ObjectData.KeyColor = m_keyColor;
                     }
                 }
@@ -899,7 +900,9 @@ namespace VRageRender
                 //    shadowmapId = c;
                 //}
 
-                lod.RenderableProxies[p].ObjectData.LocalMatrix = m_owner.WorldMatrix;
+                lod.RenderableProxies[p].WorldMatrix = m_owner.WorldMatrix;
+                //lod.RenderableProxies[p].ObjectData.LocalMatrix = m_owner.WorldMatrix;
+                //lod.RenderableProxies[p].ObjectData.LocalMatrix = m_owner.WorldMatrix;
                 lod.RenderableProxies[p].ObjectData.Emissive = MyModelProperties.DefaultEmissivity;
                 lod.RenderableProxies[p].ObjectData.ColorMul = MyModelProperties.DefaultColorMul;
                 lod.RenderableProxies[p].ObjectData.VoxelScale = Vector3.One;
@@ -1052,7 +1055,8 @@ namespace VRageRender
                 var partId = MyMeshes.GetVoxelPart(Mesh, p);
                 var technique = partId.Info.MaterialTriple.IsMultimaterial() ? MyVoxelMesh.MULTI_MATERIAL_TAG : MyVoxelMesh.SINGLE_MATERIAL_TAG;
 
-                lod.RenderableProxies[p].ObjectData.LocalMatrix = m_owner.WorldMatrix;
+                lod.RenderableProxies[p].WorldMatrix = m_owner.WorldMatrix;
+                //lod.RenderableProxies[p].ObjectData.LocalMatrix = m_owner.WorldMatrix;
                 lod.RenderableProxies[p].ObjectData.VoxelOffset = m_voxelOffset;
                 lod.RenderableProxies[p].ObjectData.VoxelScale = m_voxelScale;
 
@@ -1459,7 +1463,7 @@ namespace VRageRender
 
         internal float CalculateViewerDistance()
         {
-            return m_owner.Aabb.Distance(MyEnvironment.CameraPosition);
+            return (float)m_owner.Aabb.Distance(MyEnvironment.CameraPosition);
         }
 
         internal static readonly string DEFAULT_MATERIAL_TAG = "standard";

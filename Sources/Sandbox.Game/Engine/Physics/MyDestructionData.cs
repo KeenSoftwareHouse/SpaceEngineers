@@ -493,6 +493,16 @@ namespace Sandbox
                 //Debug.Assert(CheckVolumeMassRec(bShape, 0.00001f, 0.01f), "Low volume or mass." + bShape.Name);
                 DisableRefCountRec(bShape);
 
+                if (MyFakes.CHANGE_BLOCK_CONVEX_RADIUS)
+                {
+                    if (model != null && model.HavokBreakableShapes != null)
+                    {
+                        var shape = model.HavokBreakableShapes[0].GetShape();
+                        if (shape.ShapeType != HkShapeType.Sphere && shape.ShapeType != HkShapeType.Capsule)
+                            SetConvexRadius(model.HavokBreakableShapes[0], MyDestructionConstants.LARGE_GRID_CONVEX_RADIUS);
+                    }
+                }
+
                 if (MyFakes.LAZY_LOAD_DESTRUCTION)
                     BlockShapePool.AllocateForDefinition(shapeName, modelDef, MyBlockShapePool.PREALLOCATE_COUNT);
             }
@@ -676,7 +686,7 @@ namespace Sandbox
             var sh = BlockShapePool.GetBreakableShape(model, def);
             var mass = sh.GetMass();
             BlockShapePool.EnqueShape(model, def.Id, sh);
-            return mass;
+            return mass;    // (OM) NOTE: this currently returns havok mass, we use MyDestructionHelper.MassFromHavok to recompute, if you change to use it here, check this method usage, whether this is not already converted somewhere
         }
     }
 }

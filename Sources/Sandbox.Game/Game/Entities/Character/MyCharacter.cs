@@ -22,6 +22,7 @@ using Sandbox.Game.Localization;
 using Sandbox.Game.Multiplayer;
 using Sandbox.Game.Screens.Helpers;
 using Sandbox.Game.SessionComponents;
+using Sandbox.Game.Utils;
 using Sandbox.Game.Weapons;
 using Sandbox.Game.World;
 using Sandbox.Graphics.GUI;
@@ -71,26 +72,10 @@ namespace Sandbox.Game.Entities.Character
         IronSight,
     }
 
-    enum MyWalkingSurfaceType
-    {
-        None,
-        Rock,
-        Metal,
-        Unknown
-    }
-
     enum CharacterSoundsEnum
     {
         NONE_SOUND,
         JUMP_SOUND,
-
-        WALK_ROCK_SOUND,
-        WALK_METAL_SOUND,
-        SPRINT_ROCK_SOUND,
-        SPRINT_METAL_SOUND,
-
-        FALL_ROCK_SOUND,
-        FALL_METAL_SOUND,
 
         JETPACK_IDLE_SOUND,
         JETPACK_RUN_SOUND,
@@ -105,16 +90,6 @@ namespace Sandbox.Game.Entities.Character
 
         IRONSIGHT_ACT_SOUND,
         IRONSIGHT_DEACT_SOUND,
-        RUN_ROCK_SOUND,
-        RUN_METAL_SOUND,
-        WALK_GRASS_SOUND,
-        WALK_WOOD_SOUND,
-        RUN_WOOD_SOUND,
-        RUN_GRASS_SOUND,
-        SPRINT_GRASS_SOUND,
-        SPRINT_WOOD_SOUND,
-        FALL_WOOD_SOUND,
-        FALL_GRASS_SOUND,
     }
 
     enum DamageImpactEnum
@@ -245,18 +220,13 @@ namespace Sandbox.Game.Entities.Character
         Vector3 m_currentScatterPos;
         Vector3 m_lastScatterPos;
 
-        //ulong m_actualUpdateFrame = 0;
-        //ulong m_actualDrawFrame = 0;
-        //ulong m_transformedBonesFrame = 0;
-        //bool m_characterBonesReady = false;
-
         //0 head
         //1 body
         //2-3 left arm
         //4-5 right arm
         //6-7 left leg
         //8-9 right leg
-        CapsuleD[] m_bodyCapsules = new CapsuleD[1];//new CapsuleD[10];
+        CapsuleD[] m_bodyCapsules = new CapsuleD[1];
         MatrixD m_headMatrix = MatrixD.CreateTranslation(0, 1.65, 0);
 
         MyHudNotification m_pickupObjectNotification;        
@@ -272,10 +242,6 @@ namespace Sandbox.Game.Entities.Character
 
         MyCharacterMovementFlags m_movementFlags;
         bool m_isFlying;
-
-        public static float InventoryVolume = 0.4f;
-        public static float InventoryMass = 1000000f;
-        static Vector3 InventorySize = new Vector3(1.2f, 0.7f, 0.4f);
 
         string m_characterModel;
         MyInventory m_inventory;
@@ -357,7 +323,7 @@ namespace Sandbox.Game.Entities.Character
         private int m_lastScreamTime;
         const int SCREAM_DELAY_MS = 800;
 
-        private MyWalkingSurfaceType m_walkingSurfaceType = MyWalkingSurfaceType.None;
+        private MyStringHash m_walkingSurfaceMaterial = MyStringHash.NullOrEmpty;
 
         Queue<Vector3> m_bobQueue = new Queue<Vector3>();
 
@@ -422,36 +388,24 @@ namespace Sandbox.Game.Entities.Character
         MyHudNotification m_oxygenBottleRefillNotification;
         MyHudNotification m_helmetToggleNotification;
 
-		MyCharacterStatComponent m_stats;
-		public MyCharacterStatComponent StatComp { get { return m_stats; } set { Components.Add<MyCharacterStatComponent>(value); m_stats = value; } }
-
-		public static float LOW_HEALTH_RATIO { get { return MyCharacterStatComponent.LOW_HEALTH_RATIO; } }
-
-		int m_healthPassiveEffectId;
-
-		int m_staminaPassiveEffectId;
-
-		int m_foodPassiveEffectId;
-
-		public float Health
-		{
-			get { var health = StatComp.Health; return health != null ? health.Value : Definition.MaxHealth; }
+		public MyCharacterStatComponent StatComp {
+			get { return Components.Get<MyEntityStatComponent>() as MyCharacterStatComponent; }
+			set { Debug.Assert(value is MyCharacterStatComponent); if (Components.Has<MyEntityStatComponent>()) Components.Remove<MyEntityStatComponent>(); Components.Add<MyEntityStatComponent>(value); }
 		}
 
-		public float MaxHealth
-		{
-			get { var health = StatComp.Health; return health != null ? health.MaxValue : Definition.MaxHealth; }
+		float BaseMass { get { return Physics.Mass; } }
+		float IMyCharacter.BaseMass { get { return this.BaseMass; } }
+		float CurrentMass
+		{ 
+			get
+			{
+				float carriedMass = 0.0f;
+				if (ManipulatedEntity != null && ManipulatedEntity.Physics != null)
+					carriedMass = ManipulatedEntity.Physics.Mass;
+				return BaseMass + (float)m_inventory.CurrentMass + carriedMass;
+			}
 		}
-
-		public float MinHealth
-		{
-			get { var health = StatComp.Health; return health != null ? health.MinValue : 0; }
-		}
-
-		public float HealthRatio
-		{
-			get { return Health / MaxHealth; }
-		}
+		float IMyCharacter.CurrentMass { get { return this.CurrentMass; } }
 
         bool m_useAnimationForWeapon = false;
         Matrix m_relativeWeaponMatrix = Matrix.Identity;
@@ -582,23 +536,6 @@ namespace Sandbox.Game.Entities.Character
         {
             { (int)CharacterSoundsEnum.NONE_SOUND, new MySoundPair() },
             { (int)CharacterSoundsEnum.JUMP_SOUND, new MySoundPair("PlayJump") },
-            { (int)CharacterSoundsEnum.WALK_ROCK_SOUND, new MySoundPair("PlayWalkRock") },
-            { (int)CharacterSoundsEnum.WALK_METAL_SOUND, new MySoundPair("PlayWalkMetal") },
-            //{ (int)CharacterSoundsEnum.WALK_GRASS_SOUND, new MySoundPair("PlayWalkGrass") },
-            //{ (int)CharacterSoundsEnum.WALK_WOOD_SOUND, new MySoundPair("PlayWalkWood") },
-            { (int)CharacterSoundsEnum.RUN_ROCK_SOUND, new MySoundPair("PlayRunRock") },
-            { (int)CharacterSoundsEnum.RUN_METAL_SOUND, new MySoundPair("PlayRunMetal") },
-            //{ (int)CharacterSoundsEnum.RUN_GRASS_SOUND, new MySoundPair("PlayRunGrass") },
-            //{ (int)CharacterSoundsEnum.RUN_WOOD_SOUND, new MySoundPair("PlayRunWood") },
-            { (int)CharacterSoundsEnum.SPRINT_ROCK_SOUND, new MySoundPair("PlaySprintRock") },
-            { (int)CharacterSoundsEnum.SPRINT_METAL_SOUND, new MySoundPair("PlaySprintMetal") },
-            //{ (int)CharacterSoundsEnum.SPRINT_GRASS_SOUND, new MySoundPair("PlaySprintGrass") },
-            //{ (int)CharacterSoundsEnum.SPRINT_WOOD_SOUND, new MySoundPair("PlaySprintWood") },
-
-            { (int)CharacterSoundsEnum.FALL_ROCK_SOUND, new MySoundPair("PlayFallRock") },
-            { (int)CharacterSoundsEnum.FALL_METAL_SOUND, new MySoundPair("PlayFallMetal") },
-            //{ (int)CharacterSoundsEnum.FALL_GRASS_SOUND, new MySoundPair("PlayFallGrass") },
-            //{ (int)CharacterSoundsEnum.FALL_WOOD_SOUND, new MySoundPair("PlayFallWood") },
 
             { (int)CharacterSoundsEnum.JETPACK_IDLE_SOUND, new MySoundPair("PlayJet") },
             { (int)CharacterSoundsEnum.JETPACK_RUN_SOUND, new MySoundPair("PlayJetRun") },
@@ -613,6 +550,15 @@ namespace Sandbox.Game.Entities.Character
             { (int)CharacterSoundsEnum.IRONSIGHT_ACT_SOUND, new MySoundPair("PlayIronSightActivate") },
             { (int)CharacterSoundsEnum.IRONSIGHT_DEACT_SOUND, new MySoundPair("PlayIronSightDeactivate") },
         };
+
+        struct MovementSoundType
+        {
+            public static readonly MyStringId Walk = MyStringId.GetOrCompute("Walk");
+            public static readonly MyStringId CrouchWalk = MyStringId.GetOrCompute("CrouchWalk");
+            public static readonly MyStringId Run = MyStringId.GetOrCompute("Run");
+            public static readonly MyStringId Sprint = MyStringId.GetOrCompute("Sprint");
+            public static readonly MyStringId Fall = MyStringId.GetOrCompute("Fall");
+        }
 
         private static readonly Vector3[] m_defaultColors = new Vector3[]
         {
@@ -649,7 +595,6 @@ namespace Sandbox.Game.Entities.Character
             PositionComp = new MyCharacterPosition();
             (PositionComp as MyPositionComponent).WorldPositionChanged = WorldPositionChanged;
             this.Render = new MyRenderComponentCharacter();
-			StatComp = new MyCharacterStatComponent();
 
             AddDebugRenderComponent(new MyDebugRenderComponentCharacter(this));
 
@@ -813,19 +758,22 @@ namespace Sandbox.Game.Entities.Character
 
 			m_breath = new MyCharacterBreath(this);
 
-			if (m_stats != null)
-			{
-				MyStatsDefinition statsDefinition = null;
-				if(MyDefinitionManager.Static.TryGetDefinition(new MyDefinitionId(typeof(MyObjectBuilder_StatsDefinition), Definition.Stats), out statsDefinition))
-					m_stats.InitStats(statsDefinition);
-			}
+			InitStatComponent(characterOb);
+
+			MyStatsDefinition statsDefinition = null;
+			if (MyDefinitionManager.Static.TryGetDefinition(new MyDefinitionId(typeof(MyObjectBuilder_StatsDefinition), Definition.Stats), out statsDefinition))
+				StatComp.InitStats(statsDefinition);
 
 			var health = StatComp.Health;
-			if (health != null && characterOb.Health.HasValue)
-				health.Value = characterOb.Health.Value;
+			if (health != null)
+			{
+				if(characterOb.Health.HasValue)
+					health.Value = characterOb.Health.Value;
+				health.OnStatChanged += StatComp.OnHealthChanged;
+			}
 			m_breath.ForceUpdate();
 
-            System.Diagnostics.Debug.Assert(Health > 0 && m_currentLootingCounter <= 0 || m_currentLootingCounter > 0);
+            Debug.Assert(m_currentLootingCounter <= 0 || m_currentLootingCounter > 0);
 
             // Ragdoll
             if (Physics != null && MyPerGameSettings.EnableRagdollModels)
@@ -870,13 +818,15 @@ namespace Sandbox.Game.Entities.Character
             InitSounds();
 
             if (InventoryAggregate != null) InventoryAggregate.Init();
+
+            UseDamageSystem = true;
         }
 
         private void InitInventory(MyObjectBuilder_Character characterOb)
         {
             bool inventoryAlreadyExists = false;
 
-            if (MyPerGameSettings.ComponentSaving && MyFakes.ENABLE_MEDIEVAL_INVENTORY && InventoryAggregate != null)
+            if (MyFakes.ENABLE_MEDIEVAL_INVENTORY && InventoryAggregate != null)
             {
                 foreach (var comp in InventoryAggregate.ChildList.Reader)
                 {
@@ -892,9 +842,9 @@ namespace Sandbox.Game.Entities.Character
 
             if (!inventoryAlreadyExists)
             {
-                InventoryVolume = m_characterDefinition.InventoryVolume;
-                InventoryMass = m_characterDefinition.InventoryMass;
-                InventorySize = new Vector3(m_characterDefinition.InventorySizeX, m_characterDefinition.InventorySizeY, m_characterDefinition.InventorySizeZ);
+                var InventoryVolume = m_characterDefinition.InventoryVolume;
+                var InventoryMass = m_characterDefinition.InventoryMass;
+                var InventorySize = new Vector3(m_characterDefinition.InventorySizeX, m_characterDefinition.InventorySizeY, m_characterDefinition.InventorySizeZ);
                 m_inventory = new MyInventory(InventoryVolume, InventoryMass, InventorySize, 0, this);
                 m_inventory.Init(characterOb.Inventory);
                 m_inventory.ContentsChanged += inventory_OnContentsChanged;
@@ -906,6 +856,14 @@ namespace Sandbox.Game.Entities.Character
                 }
             }
         }
+
+		private void InitStatComponent(MyObjectBuilder_Character characterOb)
+		{
+			if(characterOb.Health.HasValue || StatComp == null)	// Old save
+			{
+				StatComp = new MyCharacterStatComponent();
+			}
+		}
 
         private void InitSounds()
         {
@@ -997,7 +955,20 @@ namespace Sandbox.Game.Entities.Character
                 Physics.Ragdoll.Dispose();
                 Physics.Ragdoll = null;
             }
-           
+
+            if (Physics.Ragdoll != null && MyPerGameSettings.Destruction) //scaling weights and IT
+            {
+                Physics.Ragdoll.SetToDynamic();
+                var mp = new HkMassProperties();
+                foreach (var body in Physics.Ragdoll.RigidBodies)
+                {
+                    mp.Mass = MyDestructionHelper.MassToHavok(body.Mass);
+                    mp.InertiaTensor = Matrix.CreateScale(1.0f / 25.0f) * body.InertiaTensor;
+                    body.SetMassProperties(ref mp);
+                }
+                Physics.Ragdoll.SetToKeyframed();
+            }
+
             if (Physics.Ragdoll != null && MyFakes.ENABLE_RAGDOLL_DEFAULT_PROPERTIES)
             {
                 Physics.SetRagdollDefaults();
@@ -1107,10 +1078,18 @@ namespace Sandbox.Game.Entities.Character
                     }
 
                     var otherChar = (other as MyCharacter);
-                    if (otherChar != null && !(other as MyCharacter).IsDead)
+                    if (otherChar != null)
                     {
-                        if (Physics.CharacterProxy.Supported && otherChar.Physics.CharacterProxy.Supported)
-                            return;
+                        if ((other as MyCharacter).IsDead)
+                        {
+                            if (otherChar.Physics.Ragdoll.GetRootRigidBody().HasProperty(HkCharacterRigidBody.MANIPULATED_OBJECT))
+                                return;
+                        }
+                        else
+                        {
+                            if (Physics.CharacterProxy.Supported && otherChar.Physics.CharacterProxy.Supported)
+                                return;
+                        }
                     }
 
                     var vel = Math.Abs(value.SeparatingVelocity);
@@ -1133,31 +1112,29 @@ namespace Sandbox.Game.Entities.Character
                     speed2 *= dot2withNormal;
 
                     vel = speed1 + speed2;
+                    if (vel < 0)
+                        return;
 
                     float mass1 = MyDestructionHelper.MassFromHavok(Physics.Mass);
-                    float mass2 = MyDestructionHelper.MassFromHavok(other.Physics.Mass);
+                    float mass2 = MyDestructionHelper.MassFromHavok(otherRb.Mass);
 
                     float impact1 = (speed1 * speed1 * mass1) * 0.5f;
                     float impact2 = (speed2 * speed2 * mass2) * 0.5f;
 
 
                     float mass;
-                    if (Physics.Mass > other.Physics.Mass && !other.Physics.IsStatic)
+                    if (Physics.Mass > otherRb.Mass && !other.Physics.IsStatic)
                     {
-                        mass = other.Physics.Mass;
+                        mass = otherRb.Mass;
                         //impact = impact2;
                     }
                     else
                     {
-                        mass = 70 / 25;// Physics.Mass;
+                        mass = 70 / 25.0f;// Physics.Mass;
                         if (Physics.CharacterProxy.Supported && !other.Physics.IsStatic)
-                            mass += Math.Abs(Vector3.Dot(Vector3.Normalize(velocity2), Physics.CharacterProxy.SupportNormal)) * other.Physics.Mass / 10;
+                            mass += Math.Abs(Vector3.Dot(Vector3.Normalize(velocity2), Physics.CharacterProxy.SupportNormal)) * otherRb.Mass / 10;
                     }
                     mass = MyDestructionHelper.MassFromHavok(mass);
-                    if (vel < 0)
-                    {
-                        return;
-                    }
 
                     impact = (mass * vel * vel) / 2;
                     if (speed2 > 2) //dont reduce pure fall damage
@@ -1200,7 +1177,11 @@ namespace Sandbox.Game.Entities.Character
                     {
                         if (this.ControllerInfo.IsLocallyControlled() || Sync.IsServer)
                         {
-                            DoDamage(damageImpact, MyDamageType.Environment, true);
+                            IMyEntity other = value.Base.BodyA.GetEntity();
+                            if (other == this)
+                                other = value.Base.BodyB.GetEntity();
+
+                            DoDamage(damageImpact, MyDamageType.Environment, true, other != null ? other.EntityId : 0);
                         }
                     }
                 }
@@ -1414,8 +1395,10 @@ namespace Sandbox.Game.Entities.Character
             objectBuilder.CharacterModel = m_characterModel;
             objectBuilder.ColorMaskHSV = ColorMask;
 
-            if (!MyPerGameSettings.ComponentSaving)
-                objectBuilder.Inventory = m_inventory.GetObjectBuilder();
+			if (!MyFakes.ENABLE_MEDIEVAL_INVENTORY)
+				objectBuilder.Inventory = m_inventory.GetObjectBuilder();
+			else
+				objectBuilder.Inventory = null;
 
             if (m_currentWeapon != null)
                 objectBuilder.HandWeapon = ((MyEntity)m_currentWeapon).GetObjectBuilder();
@@ -1430,7 +1413,7 @@ namespace Sandbox.Game.Entities.Character
 
             objectBuilder.AutoenableJetpackDelay = m_currentAutoenableJetpackDelay;
 
-            objectBuilder.Health = StatComp.Health != null ? StatComp.Health.Value : Definition.MaxHealth;
+			objectBuilder.Health = null;
 
             objectBuilder.LootingCounter = m_currentLootingCounter;
             objectBuilder.DisplayName = DisplayName;
@@ -1525,8 +1508,11 @@ namespace Sandbox.Game.Entities.Character
 
             if (!IsDead && m_currentMovementState != MyCharacterMovementEnum.Sitting && (!ControllerInfo.IsRemotelyControlled() || (MyFakes.CHARACTER_SERVER_SYNC)))
             {
-                if (Physics.CharacterProxy != null)
-                    Physics.CharacterProxy.StepSimulation(MyEngineConstants.UPDATE_STEP_SIZE_IN_SECONDS);
+                if (!MySandboxGame.IsPaused)//this update is called even in pause (jetpack, model update)
+                {
+                    if (Physics.CharacterProxy != null)
+                        Physics.CharacterProxy.StepSimulation(MyEngineConstants.UPDATE_STEP_SIZE_IN_SECONDS);
+                }
             }
 
             m_currentAnimationChangeDelay += MyEngineConstants.UPDATE_STEP_SIZE_IN_SECONDS;
@@ -1535,7 +1521,7 @@ namespace Sandbox.Game.Entities.Character
             if (Sync.IsServer && !IsDead && m_currentMovementState != MyCharacterMovementEnum.Sitting && !MyEntities.IsInsideWorld((Vector3D)this.PositionComp.GetPosition()))
             {
                 if (MySession.Static.SurvivalMode)
-                    DoDamage(1000, MyDamageType.Suicide, true);
+                    DoDamage(1000, MyDamageType.Suicide, true, EntityId);
             }
 
             if (MyFakes.ENABLE_CHARACTER_VIRTUAL_PHYSICS && VirtualPhysics != null)
@@ -1588,8 +1574,7 @@ namespace Sandbox.Game.Entities.Character
                     {
                         m_breath.CurrentState = MyCharacterBreath.State.Calm;
                         RayCastGround();
-                        if (m_walkingSurfaceType != MyWalkingSurfaceType.None)
-                            return (m_walkingSurfaceType == MyWalkingSurfaceType.Rock) ? CharacterSounds[(int)CharacterSoundsEnum.WALK_ROCK_SOUND] : CharacterSounds[(int)CharacterSoundsEnum.WALK_METAL_SOUND];
+                        return MyMaterialSoundsHelper.Static.GetCollisionCue(MovementSoundType.Walk, MyMaterialType.CHARACTER, m_walkingSurfaceMaterial);
                     }
                     break;
                 case MyCharacterMovementEnum.Running:
@@ -1603,8 +1588,7 @@ namespace Sandbox.Game.Entities.Character
                     {
                         m_breath.CurrentState = MyCharacterBreath.State.Heated;
                         RayCastGround();
-                        if (m_walkingSurfaceType != MyWalkingSurfaceType.None)
-                            return (m_walkingSurfaceType == MyWalkingSurfaceType.Rock) ? CharacterSounds[(int)CharacterSoundsEnum.RUN_ROCK_SOUND] : CharacterSounds[(int)CharacterSoundsEnum.RUN_METAL_SOUND];
+                        return MyMaterialSoundsHelper.Static.GetCollisionCue(MovementSoundType.Run, MyMaterialType.CHARACTER, m_walkingSurfaceMaterial);
                     }
                     break;
                 case MyCharacterMovementEnum.CrouchWalking:
@@ -1618,8 +1602,7 @@ namespace Sandbox.Game.Entities.Character
                     {
                         m_breath.CurrentState = MyCharacterBreath.State.Calm;
                         RayCastGround();
-                        if (m_walkingSurfaceType != MyWalkingSurfaceType.None)
-                            return (m_walkingSurfaceType == MyWalkingSurfaceType.Rock) ? CharacterSounds[(int)CharacterSoundsEnum.CROUCH_RUN_ROCK_SOUND] : CharacterSounds[(int)CharacterSoundsEnum.CROUCH_RUN_METAL_SOUND];
+                        return MyMaterialSoundsHelper.Static.GetCollisionCue(MovementSoundType.CrouchWalk, MyMaterialType.CHARACTER, m_walkingSurfaceMaterial);
                     }
                     break;
                 case MyCharacterMovementEnum.Crouching:
@@ -1636,8 +1619,7 @@ namespace Sandbox.Game.Entities.Character
                     {
                         m_breath.CurrentState = MyCharacterBreath.State.Heated;
                         RayCastGround();
-                        if (m_walkingSurfaceType != MyWalkingSurfaceType.None)
-                            return (m_walkingSurfaceType == MyWalkingSurfaceType.Rock) ? CharacterSounds[(int)CharacterSoundsEnum.SPRINT_ROCK_SOUND] : CharacterSounds[(int)CharacterSoundsEnum.SPRINT_METAL_SOUND];
+                        return MyMaterialSoundsHelper.Static.GetCollisionCue(MovementSoundType.Sprint, MyMaterialType.CHARACTER, m_walkingSurfaceMaterial);
                     }
                     break;
                 case MyCharacterMovementEnum.Jump:
@@ -2025,11 +2007,11 @@ namespace Sandbox.Game.Entities.Character
 
             if (noOxygenDamage)
             {
-                DoDamage(Definition.DamageAmountAtZeroPressure, MyDamageType.Environment, true);
+                DoDamage(Definition.DamageAmountAtZeroPressure, MyDamageType.LowPressure, true);
             }
             else if (lowOxygenDamage)
             {
-                DoDamage(1f, MyDamageType.Environment, true);
+                DoDamage(1f, MyDamageType.Asphyxia, true);
             }
 
             SyncObject.UpdateOxygen(SuitOxygenAmount);
@@ -2083,9 +2065,9 @@ namespace Sandbox.Game.Entities.Character
                 if (sqDist < MyConstants.DEFAULT_GROUND_SEARCH_DISTANCE * MyConstants.DEFAULT_GROUND_SEARCH_DISTANCE)
                 {
                     if (entity is MyCubeGrid)
-                        m_walkingSurfaceType = MyWalkingSurfaceType.Metal;
+                        m_walkingSurfaceMaterial = (entity as MyCubeGrid).Physics.GetMaterialAt(h.Position);// MyMaterialType.METAL;// MyWalkingSurfaceType.Metal;
                     else if (entity is MyVoxelMap)
-                        m_walkingSurfaceType = MyWalkingSurfaceType.Rock;
+                        m_walkingSurfaceMaterial = MyMaterialType.ROCK;
 
                     return h.Position;
                 }
@@ -2176,7 +2158,7 @@ namespace Sandbox.Game.Entities.Character
 
 		private void UpdateStats()
 		{
-			m_stats.Update();
+			StatComp.Update();
 		}
 
         private void CheckRagdollSwitch()
@@ -3104,6 +3086,7 @@ namespace Sandbox.Game.Entities.Character
                 if ((jump && m_currentMovementState != MyCharacterMovementEnum.Jump) && (!CanFly()))
                 {
                     PlayCharacterAnimation("Jump", false, MyPlayAnimationMode.Immediate, 0.0f, 1.3f);
+					StatComp.DoAction("Jump");
                     m_currentJump = 0.55f;
                     SetCurrentMovementState(MyCharacterMovementEnum.Jump);
                     m_canJump = true;
@@ -3440,49 +3423,49 @@ namespace Sandbox.Game.Entities.Character
             return m_currentMovementState;
         }
 
-        internal void SetCurrentMovementState(MyCharacterMovementEnum state, bool updateSync = true)
-        {
-            System.Diagnostics.Debug.Assert(m_currentMovementState != MyCharacterMovementEnum.Died);
-            //System.Diagnostics.Debug.Assert(!updateSync || (updateSync && ControllerInfo.IsLocalPlayer()));
+		internal void SetCurrentMovementState(MyCharacterMovementEnum state, bool updateSync = true)
+		{
+			System.Diagnostics.Debug.Assert(m_currentMovementState != MyCharacterMovementEnum.Died);
+			//System.Diagnostics.Debug.Assert(!updateSync || (updateSync && ControllerInfo.IsLocalPlayer()));
 
-            if (m_currentMovementState != state)
-            {
-                if (Physics.CharacterProxy != null)
-                {
-                    switch (state)
-                    {
-                        case MyCharacterMovementEnum.Crouching:
-                            Physics.CharacterProxy.SetShapeForCrouch(Physics.HavokWorld, true);
-                            break;
+			if (m_currentMovementState == state)
+				return;
 
-                        case MyCharacterMovementEnum.CrouchRotatingLeft:
-                        case MyCharacterMovementEnum.CrouchRotatingRight:
-                        case MyCharacterMovementEnum.CrouchWalking:
-                        case MyCharacterMovementEnum.CrouchBackWalking:
-                        case MyCharacterMovementEnum.CrouchWalkingLeftBack:
-                        case MyCharacterMovementEnum.CrouchWalkingRightBack:
-                        case MyCharacterMovementEnum.CrouchWalkingLeftFront:
-                        case MyCharacterMovementEnum.CrouchWalkingRightFront:
-                        case MyCharacterMovementEnum.CrouchStrafingLeft:
-                        case MyCharacterMovementEnum.CrouchStrafingRight:
-                            Physics.CharacterProxy.SetShapeForCrouch(Physics.HavokWorld, true);
-                            break;
+			if (Physics.CharacterProxy != null)
+			{
+				switch (state)
+				{
+					case MyCharacterMovementEnum.Crouching:
+						Physics.CharacterProxy.SetShapeForCrouch(Physics.HavokWorld, true);
+						break;
 
-                        default:
-                            Physics.CharacterProxy.SetShapeForCrouch(Physics.HavokWorld, false);
-                            break;
-                    }
-                }
+					case MyCharacterMovementEnum.CrouchRotatingLeft:
+					case MyCharacterMovementEnum.CrouchRotatingRight:
+					case MyCharacterMovementEnum.CrouchWalking:
+					case MyCharacterMovementEnum.CrouchBackWalking:
+					case MyCharacterMovementEnum.CrouchWalkingLeftBack:
+					case MyCharacterMovementEnum.CrouchWalkingRightBack:
+					case MyCharacterMovementEnum.CrouchWalkingLeftFront:
+					case MyCharacterMovementEnum.CrouchWalkingRightFront:
+					case MyCharacterMovementEnum.CrouchStrafingLeft:
+					case MyCharacterMovementEnum.CrouchStrafingRight:
+						Physics.CharacterProxy.SetShapeForCrouch(Physics.HavokWorld, true);
+						break;
 
-                m_previousMovementState = m_currentMovementState;
-                m_currentMovementState = state;
-				if(OnMovementStateChanged != null)
-					OnMovementStateChanged(m_previousMovementState, m_currentMovementState);
+					default:
+						Physics.CharacterProxy.SetShapeForCrouch(Physics.HavokWorld, false);
+						break;
+				}
+			}
 
-                if (updateSync && SyncObject != null)
-                    SyncObject.ChangeMovementState(state);
-            }
-        }
+			m_previousMovementState = m_currentMovementState;
+			m_currentMovementState = state;
+			if (OnMovementStateChanged != null)
+				OnMovementStateChanged(m_previousMovementState, m_currentMovementState);
+
+			if (updateSync && SyncObject != null)
+				SyncObject.ChangeMovementState(state);
+		}
 
 
         float GetMovementAcceleration(MyCharacterMovementEnum movement)
@@ -3764,25 +3747,41 @@ namespace Sandbox.Game.Entities.Character
             if (CanFly())
                 return MyCharacterMovementEnum.Flying;
 
-            bool moving = ((moveIndicator.X != 0 || moveIndicator.Z != 0) && canMove);
+			bool canWalk = true;
+			bool canRun = true;
+			bool canSprint = true;
+			bool canMoveInternal = true;
+			if (StatComp != null)
+			{
+				canWalk = StatComp.CanDoAction("Walk");
+				canRun = StatComp.CanDoAction("Run");
+				canSprint = StatComp.CanDoAction("Sprint");
+				canMoveInternal = canWalk || canRun || canSprint;
+			}
+
+			bool moving = ((moveIndicator.X != 0 || moveIndicator.Z != 0) && canMove && canMoveInternal);
             if (moving || movementFlagsChanged)
             {
-                if (sprint)
-                {
-                    newMovementState = GetSprintState(ref moveIndicator);
-                }
-                else
-                    if (moving)
-                    {
-                        if (walk)
-                            newMovementState = GetWalkingState(ref moveIndicator);
-                        else
-                            newMovementState = GetRunningState(ref moveIndicator);
-                    }
-                    else
-                    {
-                        newMovementState = GetIdleState();
-                    }
+				if (sprint && canSprint)
+				{
+					newMovementState = GetSprintState(ref moveIndicator);
+				}
+				else
+				{
+					if (moving)
+					{
+						if (walk && canWalk)
+							newMovementState = GetWalkingState(ref moveIndicator);
+						else if(canRun)
+							newMovementState = GetRunningState(ref moveIndicator);
+						else
+							newMovementState = GetWalkingState(ref moveIndicator);
+					}
+					else
+					{
+						newMovementState = GetIdleState();
+					}
+				}
 
                 acceleration = GetMovementAcceleration(newMovementState);
                 m_currentDecceleration = 0;
@@ -4745,7 +4744,7 @@ namespace Sandbox.Game.Entities.Character
             if (weaponDefinition.Value.TypeId == typeof(MyObjectBuilder_CubePlacer) ||
 				(weaponDefinition.Value.TypeId == typeof(MyObjectBuilder_PhysicalGunObject) && weaponDefinition.Value.SubtypeId == manipulationToolId))
                 return false;
-            return !MyPerGameSettings.EnableWeaponWithoutInventory;
+            return !MySession.Static.CreativeMode;
         }
 
         public void SwitchToWeapon(MyDefinitionId weaponDefinition)
@@ -4885,14 +4884,8 @@ namespace Sandbox.Game.Entities.Character
 				{
 					gunEntity.EntityId = 0;
 				}
-				var handToolGun = gunEntity as MyObjectBuilder_HandTool;
-				if(handToolGun != null)
-				{
-					handToolGun.IsDeconstructor = weapon.IsDeconstructor;
-					SwitchToWeaponInternal(weaponDefinition, sync, true, handToolGun, 0);
-				}
-				else
-					SwitchToWeaponInternal(weaponDefinition, sync, true, gunEntity, 0);
+
+                SwitchToWeaponInternal(weaponDefinition, sync, true, gunEntity, 0);
 			}
 			else
 			{
@@ -5024,6 +5017,31 @@ namespace Sandbox.Game.Entities.Character
 
                     detectorComponent.UseObject.Use(UseActionEnum.Manipulate, this);
                 }
+                else
+                {
+                    IMyUseObject useObject = CurrentWeapon as IMyUseObject;
+
+                    if (MyFakes.ENABLE_GATHERING && useObject == null && detectorComponent != null && detectorComponent.DetectedEntity != null) 
+                    {
+                        var inventoryAggregate = Components.Get<MyInventoryBase>() as MyInventoryAggregate;
+
+                        if (inventoryAggregate == null)
+                        {
+                            return;
+                        }
+                        var inventory = inventoryAggregate.GetInventory(MyStringId.Get("Inventory")) as MyInventory;
+
+                        if (inventory != null)
+                        {
+                            inventory.AddEntity(detectorComponent.DetectedEntity);
+                        }
+                    }
+                    // TODO: When this is tested, remove the MyFake and enable this behaviour by default
+                    else if (MyFakes.ENABLE_WEAPON_USE && useObject != null)
+                    {
+                        useObject.Use(UseActionEnum.Manipulate, this);
+                    }
+                }
             }
         }
 
@@ -5104,7 +5122,7 @@ namespace Sandbox.Game.Entities.Character
 
         public void Jump()
         {
-            if (m_currentMovementState != MyCharacterMovementEnum.Died)
+			if (m_currentMovementState != MyCharacterMovementEnum.Died && StatComp.CanDoAction("Jump"))
             {
                 WantsJump = true;
             }
@@ -5390,7 +5408,7 @@ namespace Sandbox.Game.Entities.Character
                 UpdateHudMarker();
             }
 
-            if (Health <= MinHealth)
+            if (StatComp != null && StatComp.Health != null && StatComp.Health.Value <= 0.0f)
             {
                 m_dieAfterSimulation = true;
                 return;
@@ -5500,6 +5518,8 @@ namespace Sandbox.Game.Entities.Character
                 MyHud.LargeTurretTargets.Visible = false;
                 MyHud.OreMarkers.Visible = false;
                 m_radioReceiver.Clear();
+				if (MyGuiScreenGamePlay.ActiveGameplayScreen != null)
+					MyGuiScreenGamePlay.ActiveGameplayScreen.CloseScreen();
             }
             else
             {
@@ -5678,13 +5698,13 @@ namespace Sandbox.Game.Entities.Character
         private void PlayFallSound()
         {
             RayCastGround();
-            if (m_walkingSurfaceType != MyWalkingSurfaceType.None)
+            if (m_walkingSurfaceMaterial != MyStringHash.NullOrEmpty)
             {
                 var emitter = MyAudioComponent.TryGetSoundEmitter(); //we need to use other emmiter otherwise the sound would be cut by silence next frame
                 if (emitter != null)
                 {
                     emitter.Entity = this;
-                    var cue = (m_walkingSurfaceType == MyWalkingSurfaceType.Rock) ? CharacterSounds[(int)CharacterSoundsEnum.FALL_ROCK_SOUND] : CharacterSounds[(int)CharacterSoundsEnum.FALL_METAL_SOUND];
+                    var cue = MyMaterialSoundsHelper.Static.GetCollisionCue(MovementSoundType.Fall, MyMaterialType.CHARACTER, m_walkingSurfaceMaterial);
                     emitter.PlaySingleSound(cue);
                 }
             }
@@ -6203,49 +6223,6 @@ namespace Sandbox.Game.Entities.Character
             //NeedsUpdate = MyEntityUpdateEnum.EACH_FRAME | MyEntityUpdateEnum.EACH_10TH_FRAME | MyEntityUpdateEnum.EACH_100TH_FRAME;
         }
 
-        public void DoDamage(float damage, MyDamageType damageType, bool updateSync)
-        {
-            if (!CharacterCanDie && !(damageType == MyDamageType.Suicide && MyPerGameSettings.CharacterSuicideEnabled))
-                return;
-
-            CharacterAccumulatedDamage += damage;
-
-            if (updateSync)
-            {
-                MySyncHelper.DoDamageSynced(this, damage, damageType);
-                return;
-            }
-
-			var health = m_stats.Health;
-
-			if (health == null)
-				return;
-
-            float oldHealth = Health;
-			health.Decrease(damage);
-
-            if (!IsDead)
-            {
-                PlayDamageSound(oldHealth);
-				m_breath.ForceUpdate();
-            }
-
-            if (IsDead)
-            {
-                return;
-            }
-
-            Render.Damage();
-
-			if (health.Value <= health.MinValue)
-            {
-                m_dieAfterSimulation = true;
-                return;
-            }
-
-            return;
-        }
-
         void explosionEffect_OnUpdate(object sender, EventArgs e)
         {
             MyParticleEffect effect = sender as MyParticleEffect;
@@ -6255,6 +6232,56 @@ namespace Sandbox.Game.Entities.Character
                 effect.Stop();
             }
         }
+
+		public void ForceUpdateBreath()
+		{
+			if (m_breath != null)
+				m_breath.ForceUpdate();
+		}
+
+		public void DoDamage(float damage, MyDamageType damageType, bool updateSync, long attackerId = 0)
+		{
+			if ((!CharacterCanDie && !(damageType == MyDamageType.Suicide && MyPerGameSettings.CharacterSuicideEnabled)) || StatComp == null)
+				return;
+
+            MyDamageInformation damageInfo = new MyDamageInformation(false, damage, damageType, attackerId);
+            if (UseDamageSystem && !(m_dieAfterSimulation || IsDead))
+                MyDamageSystem.Static.RaiseBeforeDamageApplied(this, ref damageInfo);
+
+            if (damageInfo.Amount <= 0f)
+                return;
+
+			StatComp.DoDamage(damage, updateSync, damageInfo);
+
+            if (UseDamageSystem)
+                MyDamageSystem.Static.RaiseAfterDamageApplied(this, damageInfo);
+		}
+
+		void Sandbox.ModAPI.IMyCharacter.Kill(object statChangeData)
+		{
+            MyDamageInformation damageInfo = new MyDamageInformation();
+            if (statChangeData != null)
+                damageInfo = (MyDamageInformation)statChangeData;
+
+            Kill(true, damageInfo);
+		}
+
+		public void Kill(bool sync, MyDamageInformation damageInfo)
+		{
+			if (m_dieAfterSimulation || IsDead)
+				return;
+
+			if(sync)
+			{
+				MySyncHelper.KillCharacter(this, damageInfo);
+				return;
+			}
+
+            if (UseDamageSystem)
+                MyDamageSystem.Static.RaiseDestroyed(this, damageInfo);
+
+			m_dieAfterSimulation = true;
+		}
 
         public void Die()
         {
@@ -6268,7 +6295,7 @@ namespace Sandbox.Game.Entities.Character
                 callback: delegate(MyGuiScreenMessageBox.ResultEnum retval)
                 {
                     if (retval == MyGuiScreenMessageBox.ResultEnum.YES)
-                        DoDamage(1000, MyDamageType.Suicide, true);
+                        DoDamage(1000, MyDamageType.Suicide, true, this.EntityId);
                 }));
             }
         }
@@ -6277,6 +6304,9 @@ namespace Sandbox.Game.Entities.Character
         {
             if (!CharacterCanDie && !MyPerGameSettings.CharacterSuicideEnabled)
                 return;
+
+			if (StatComp != null && StatComp.Health != null)
+				StatComp.Health.OnStatChanged -= StatComp.OnHealthChanged;
 
             if (m_breath != null)
                 m_breath.CurrentState = MyCharacterBreath.State.Dead;
@@ -6423,7 +6453,7 @@ namespace Sandbox.Game.Entities.Character
         {
             if (ControllerInfo.Controller != null && ControllerInfo.Controller.Player != null)
             {
-                MySessionComponentMissionTriggers.PlayerDied(this.ControllerInfo.Controller.Player.Id);
+                MySessionComponentMissionTriggers.PlayerDied(this.ControllerInfo.Controller.Player);
                 if (!MySessionComponentMissionTriggers.CanRespawn(this.ControllerInfo.Controller.Player.Id))
                 {
                     m_currentRespawnCounter = -1;
@@ -6752,22 +6782,6 @@ namespace Sandbox.Game.Entities.Character
             get { return m_currentMovementState == MyCharacterMovementEnum.Sitting; }
         }
 
-        public void AddHealth(float health)
-        {
-			m_stats.AddHealth(health);
-			m_breath.ForceUpdate();
-        }
-
-		public void AddStamina(float stamina)
-		{
-			m_stats.AddStamina(stamina);
-		}
-
-		public void AddFood(float food)
-		{
-			m_stats.AddFood(food);
-		}
-
         public void ShowOutOfAmmoNotification()
         {
             if (OutOfAmmoNotification == null)
@@ -6801,8 +6815,14 @@ namespace Sandbox.Game.Entities.Character
                 else
                     MyHud.CharacterInfo.State = MyHudCharacterStateEnum.Standing;
 
-            MyHud.CharacterInfo.HealthRatio = HealthRatio;
-            MyHud.CharacterInfo.IsHealthLow = HealthRatio < LOW_HEALTH_RATIO;
+			var healthRatio = 1.0f;
+			if(StatComp != null)
+			{
+				healthRatio = StatComp.HealthRatio;
+			}
+
+            MyHud.CharacterInfo.HealthRatio = healthRatio;
+			MyHud.CharacterInfo.IsHealthLow = healthRatio < MyCharacterStatComponent.LOW_HEALTH_RATIO;
             MyHud.CharacterInfo.InventoryVolume = GetInventory().CurrentVolume;
             MyHud.CharacterInfo.IsInventoryFull = ((float)GetInventory().CurrentVolume / (float)GetInventory().MaxVolume) > 0.95f;
             MyHud.CharacterInfo.BroadcastRange = RadioBroadcaster.BroadcastRadius;
@@ -6986,9 +7006,9 @@ namespace Sandbox.Game.Entities.Character
             }            
         }
 
-        void DoDamageSuccess(float damage, MyDamageType damageType)
+        void DoDamageSuccess(float damage, MyDamageType damageType, long attackerId)
         {
-            DoDamage(damage, damageType, false);
+            DoDamage(damage, damageType, false, attackerId);
         }
         #endregion
 
@@ -7325,6 +7345,8 @@ namespace Sandbox.Game.Entities.Character
             if (model != m_characterModel && MyDefinitionManager.Static.Characters.TryGetValue(model, out def) && !string.IsNullOrEmpty(def.Model))
             {
                 var oldInvetory = this.m_inventory;
+                Components.Remove<MyInventoryBase>();
+
                 MyObjectBuilder_Character characterOb = (MyObjectBuilder_Character)GetObjectBuilder();
 
                 var pos = PositionComp.GetPosition();
@@ -7520,9 +7542,17 @@ namespace Sandbox.Game.Entities.Character
             Die();
         }
 
+        public bool UseDamageSystem { get; private set; }
+
         public float Integrity
         {
-            get { return Health; }
+			get
+			{
+				float integrity = m_characterDefinition.MaxHealth;
+				if (StatComp != null && StatComp.Health != null)
+					integrity = StatComp.Health.Value;
+				return integrity;
+			}
         }
 
         MatrixD IMyCameraController.GetViewMatrix()
@@ -7775,9 +7805,9 @@ namespace Sandbox.Game.Entities.Character
             OnDestroy();
         }
 
-        void IMyDestroyableObject.DoDamage(float damage, MyDamageType damageType, bool sync, MyHitInfo? hitInfo)
+        void IMyDestroyableObject.DoDamage(float damage, MyDamageType damageType, bool sync, MyHitInfo? hitInfo, long attackerId)
         {
-            DoDamage(damage, damageType, sync);
+            DoDamage(damage, damageType, sync, attackerId);
         }
 
         float IMyDestroyableObject.Integrity
@@ -7974,6 +8004,7 @@ namespace Sandbox.Game.Entities.Character
         {
             get { return EnvironmentOxygenLevel; }
         }
+
         #endregion
 
         public bool SwitchToJetpackRagdoll { get; set; }

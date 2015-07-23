@@ -54,6 +54,7 @@ namespace Sandbox.Game.Entities.Character
 {
     public abstract class MyCharacterDetectorComponent : MyCharacterComponent
     {
+        IMyEntity m_detectedEntity;
         IMyUseObject m_interactiveObject;
 
         protected MyHudNotification m_useObjectNotification;
@@ -69,7 +70,7 @@ namespace Sandbox.Game.Entities.Character
 
             m_usingContinuously = false;
 
-            if (MySession.ControlledEntity == Character && !Character.IsSitting && !Character.IsDead)
+            if (!Character.IsSitting && !Character.IsDead)
             {
                 DoDetection(MySession.GetCameraControllerEnum() != MyCameraControllerEnum.ThirdPersonSpectator);
             }
@@ -103,6 +104,12 @@ namespace Sandbox.Game.Entities.Character
                     InteractiveObjectChanged();
                 }
             }
+        }
+
+        public IMyEntity DetectedEntity
+        {
+            protected set { m_detectedEntity = value; }
+            get { return m_detectedEntity; }
         }
 
         void UseClose()

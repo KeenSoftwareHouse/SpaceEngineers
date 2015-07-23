@@ -50,8 +50,7 @@ namespace Sandbox.Game.Weapons
         {
             return Inventory;
         }
-		public bool IsDeconstructor { get { return false; } }
-
+		
         private MyMultilineConveyorEndpoint m_endpoint;
         private MyDefinitionId m_defId;
 
@@ -369,7 +368,13 @@ namespace Sandbox.Game.Weapons
                 }
                 if (character != null && Sync.IsServer)
                 {
-                    character.DoDamage(20, MyDamageType.Drill, true);
+                    MyDamageType damageType = MyDamageType.Drill;
+                    if (this is IMyShipGrinder)
+                        damageType = MyDamageType.Grind;
+                    else if (this is IMyShipWelder)
+                        damageType = MyDamageType.Weld;
+
+                    character.DoDamage(20, damageType, true, attackerId: EntityId);
                 }
             }
 

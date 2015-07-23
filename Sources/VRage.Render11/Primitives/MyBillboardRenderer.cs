@@ -438,7 +438,7 @@ namespace VRageRender
                 {
                     if (MyIDTracker<MyActor>.FindByID((uint)billboard.ParentID) != null)
                     {
-                        var matrix = (MatrixD)MyIDTracker<MyActor>.FindByID((uint)billboard.ParentID).WorldMatrix;
+                        var matrix = MyIDTracker<MyActor>.FindByID((uint)billboard.ParentID).WorldMatrix;
                         Vector3D.Transform(ref pos0, ref matrix, out pos0);
                         Vector3D.Transform(ref pos1, ref matrix, out pos1);
                         Vector3D.Transform(ref pos2, ref matrix, out pos2);

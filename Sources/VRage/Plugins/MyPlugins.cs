@@ -157,6 +157,11 @@ namespace VRage.Plugins
             m_plugins.Clear();
             m_instance.Dispose();
             m_instance = null;
+
+            m_gamePluginAssembly = null;
+            m_userPluginAssembly = null;
+            m_sandboxAssembly = null;
+            m_sandboxGameAssembly = null;
         }
 
         #region Leak detection using Dispose

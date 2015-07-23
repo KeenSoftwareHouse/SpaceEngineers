@@ -11,6 +11,7 @@ using Sandbox.Game.Screens.Terminal;
 using Sandbox.Game.World;
 using Sandbox.Graphics.GUI;
 using System;
+using System.Diagnostics;
 using System.Text;
 using VRage;
 using VRage.Input;
@@ -889,6 +890,7 @@ namespace Sandbox.Game.Gui
             var acceptJoin = new MyGuiControlButton(visualStyle: MyGuiControlButtonStyleEnum.Rectangular, size: smallerBtn, originAlign: MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_TOP, position: new Vector2(left + membersTable.Size.X + spacingV, membersTable.Position.Y + 2f * btnSpacing)) { Name = "buttonAcceptJoin" };
             var demote = new MyGuiControlButton(visualStyle: MyGuiControlButtonStyleEnum.Rectangular, size: smallerBtn, originAlign: MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_TOP, position: new Vector2(left + membersTable.Size.X + spacingV, membersTable.Position.Y + 3f * btnSpacing)) { Name = "buttonDemote" };
             //var acceptPeace = new MyGuiControlButton(visualStyle: MyGuiControlButtonStyleEnum.Rectangular, size: smallerBtn, originAlign: MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_TOP,    position: new Vector2(left + membersTable.Size.X + spacingV, membersTable.Position.Y + 2f * btnSpacing)) { Name = "buttonAcceptPeace" };
+            var addNpcToFaction = new MyGuiControlButton(visualStyle: MyGuiControlButtonStyleEnum.Rectangular, size: smallerBtn, originAlign: MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_TOP, position: new Vector2(left + membersTable.Size.X + spacingV, membersTable.Position.Y + 4f * btnSpacing)) { Name = "buttonAddNpc" };
 
             page.Controls.Add(factionComposite);
             page.Controls.Add(factionNamePanel);
@@ -909,6 +911,7 @@ namespace Sandbox.Game.Gui
             page.Controls.Add(kickBtn);
             page.Controls.Add(demote);
             page.Controls.Add(acceptJoin);
+            page.Controls.Add(addNpcToFaction);
         }
 
         private void CreateChatPageControls(MyGuiControlTabPage chatPage)
@@ -1818,7 +1821,7 @@ namespace Sandbox.Game.Gui
                 }
                 else
                 {
-                    m_terminalTabs.SelectedPage = (int)MyTerminalPageEnum.Inventory;
+					SwitchToInventory();
                 }
             }
             if (!textboxHasFocus && MyInput.Static.IsNewGameControlPressed(MyControlsSpace.PAUSE_GAME))
@@ -1876,7 +1879,7 @@ namespace Sandbox.Game.Gui
                 return;
 
             bool showProperties = MyInput.Static.IsAnyShiftKeyPressed();
-            System.Diagnostics.Debug.Assert(m_instance == null);
+            Debug.Assert(m_instance == null);
 
             m_instance = new MyGuiScreenTerminal();
             m_instance.m_user = user;

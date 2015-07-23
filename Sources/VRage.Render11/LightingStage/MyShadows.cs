@@ -145,7 +145,7 @@ namespace VRageRender
 
         static void PrepareSpotlights()
         {
-            MyLights.SpotlightsBvh.OverlapAllFrustum(ref MyEnvironment.ViewFrustum, MyLightRendering.VisibleSpotlights);
+            MyLights.SpotlightsBvh.OverlapAllFrustum(ref MyEnvironment.ViewFrustumD, MyLightRendering.VisibleSpotlights);
 
             MyLightRendering.VisibleSpotlights.Sort(m_spotlightCastersComparer);
             while (MyLightRendering.VisibleSpotlights.Count > MAX_SPOTLIGHT_SHADOWCASTERS)

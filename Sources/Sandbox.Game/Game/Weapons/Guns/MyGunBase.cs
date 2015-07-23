@@ -18,6 +18,7 @@ using VRage.Utils;
 using VRage.Serialization;
 using VRageMath;
 using VRage.ObjectBuilders;
+using Sandbox.Game.Multiplayer;
 
 namespace Sandbox.Game.Weapons
 {
@@ -200,7 +201,7 @@ namespace Sandbox.Game.Weapons
             if (m_user.Launcher != null)
                 MyMissiles.Add(weaponProperties, initialPosition, initialVelocity, missileDeviatedVector, m_user.OwnerId);
             else
-                MyMissiles.AddUnsynced(weaponProperties, initialPosition + 2*missileDeviatedVector, initialVelocity, missileDeviatedVector, m_user.OwnerId);//start missile 2 beters in front of launcher - prevents hit of own turret
+                MyMissiles.AddUnsynced(weaponProperties, initialPosition + 2*missileDeviatedVector, initialVelocity, missileDeviatedVector, ((VRage.ModAPI.IMyEntity)m_user).EntityId);//start missile 2 beters in front of launcher - prevents hit of own turret
         }
 
         public void Shoot(Vector3 initialVelocity)
@@ -356,14 +357,17 @@ namespace Sandbox.Game.Weapons
 
         public void ConsumeAmmo()
         {
-            CurrentAmmo -= AMMO_PER_SHOOT;
-            if (CurrentAmmo == -1)
+            if (Sync.IsServer && !MySession.Static.CreativeMode)
             {
-                m_user.AmmoInventory.RemoveItemsOfType(1, CurrentAmmoMagazineId);
-                CurrentAmmo = WeaponProperties.AmmoMagazineDefinition.Capacity - 1;
-            }
+                CurrentAmmo -= AMMO_PER_SHOOT;
+                if (CurrentAmmo == -1 && HasEnoughAmmunition())
+                {
+                    m_user.AmmoInventory.RemoveItemsOfType(1, CurrentAmmoMagazineId);
+                    CurrentAmmo = WeaponProperties.AmmoMagazineDefinition.Capacity - 1;
+                }
 
-            RefreshAmmunitionAmount();
+                RefreshAmmunitionAmount();
+            }
         }
 
         public int GetTotalAmmunitionAmount()

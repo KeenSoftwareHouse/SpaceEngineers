@@ -1,6 +1,7 @@
 ﻿using Sandbox.Common.ObjectBuilders;
 using Sandbox.Common.ObjectBuilders.ComponentSystem;
 using Sandbox.Definitions;
+using Sandbox.ModAPI.Interfaces;
 using System;
 using System.Collections.Generic;
 using VRage;
@@ -11,14 +12,14 @@ using VRage.Utils;
 namespace Sandbox.Game.Entities.Inventory
 {
     /// <summary>
-    /// This class implements basic functionality for the interface IMyInventoryAggregate. Use it as base class only if the basic functionallity is enough.
+    /// This class implements basic functionality for the interface IMyInventoryAggregate. Use it as base class only if the basic functionality is enough.
     /// </summary>
     [MyComponentBuilder(typeof(MyObjectBuilder_InventoryAggregate))]
     public class MyInventoryAggregate : MyInventoryBase, IMyComponentAggregate
     {
         private MyAggregateComponentList m_children = new MyAggregateComponentList();
-        public event Action<MyInventoryAggregate, MyInventoryBase> OnAfterComponentAdd;
-        public event Action<MyInventoryAggregate, MyInventoryBase> OnBeforeComponentRemove;
+        public virtual event Action<MyInventoryAggregate, MyInventoryBase> OnAfterComponentAdd;
+        public virtual event Action<MyInventoryAggregate, MyInventoryBase> OnBeforeComponentRemove;
 
         #region Properties
 
@@ -143,16 +144,19 @@ namespace Sandbox.Game.Entities.Inventory
                     {
                         availableSpace = restAmount;
                     }
-                    if (inventory.AddItems(availableSpace, objectBuilder))
+                    if (availableSpace > 0)
                     {
-                        restAmount -= availableSpace;
+                        if (inventory.AddItems(availableSpace, objectBuilder))
+                        {
+                            restAmount -= availableSpace;
+                        }
                     }
                 }
             }
             return restAmount == 0;
         }
 
-        public override void RemoveItemsOfType(MyFixedPoint amount, MyDefinitionId contentId, MyItemFlags flags = MyItemFlags.None, bool spawn = false)
+        public override bool RemoveItemsOfType(MyFixedPoint amount, MyDefinitionId contentId, MyItemFlags flags = MyItemFlags.None, bool spawn = false)
         {
             var restAmount = amount;
             foreach (MyInventoryBase inventory in m_children.Reader)
@@ -165,6 +169,7 @@ namespace Sandbox.Game.Entities.Inventory
                 if (contains > 0) inventory.RemoveItemsOfType(contains, contentId, flags, spawn);
                 restAmount -= contains;
             }
+            return restAmount == 0;
         }
 
         // CH: TODO: Do with a supplied preallocated list as output
@@ -250,5 +255,52 @@ namespace Sandbox.Game.Entities.Inventory
                 }
             }
         }
+
+        public override void CollectItems(Dictionary<MyDefinitionId, int> itemCounts)
+        {
+            throw new NotImplementedException();
+        }
+
+		// MK: TODO: ItemsCanBeAdded, ItemsCanBeRemoved, Add and Remove should probably support getting stuff from several inventories at once
+        public override bool ItemsCanBeAdded(MyFixedPoint amount, IMyInventoryItem item)
+        {
+            foreach(MyInventoryBase inventory in m_children.Reader)
+			{
+				if (inventory.ItemsCanBeAdded(amount, item))
+					return true;
+			}
+			return false;
+        }
+
+        public override bool ItemsCanBeRemoved(MyFixedPoint amount, IMyInventoryItem item)
+        {
+            foreach(MyInventoryBase inventory in m_children.Reader)
+			{
+				if (inventory.ItemsCanBeRemoved(amount, item))
+					return true;
+			}
+			return false;
+        }
+
+        public override bool Add(IMyInventoryItem item, MyFixedPoint amount)
+        {
+            foreach(MyInventoryBase inventory in m_children.Reader)
+			{
+				if (inventory.ItemsCanBeAdded(amount, item) && inventory.Add(item, amount))
+					return true;
+			}
+			return false;
+        }
+
+        public override bool Remove(IMyInventoryItem item, MyFixedPoint amount)
+        {
+            foreach(MyInventoryBase inventory in m_children.Reader)
+			{
+				if (inventory.ItemsCanBeRemoved(amount, item) && inventory.Remove(item, amount))
+					return true;
+			}
+			return false;
+        }
+
     }
 }
