@@ -334,7 +334,7 @@ namespace Sandbox.Game.Entities.Blocks
             // the program. I considered adding a specific flag for when the program should update,
             // but I don't know where else the BEFORE_NEXT_FRAME flag is set. Any better idea is
             // appreciated - but this _is_ just a simple conditional test.
-            if (m_enqueuedRuns.Count > 0)
+            if (m_enqueuedRuns.Count > 0 && IsWorking == true && IsFunctional == true)
             {
                 var nextArgument = m_enqueuedRuns.Dequeue();
                 m_argumentContainer[0] = nextArgument;
