@@ -51,8 +51,6 @@ namespace Sandbox.Game.Entities.Blocks
         private StringBuilder m_echoOutput = new StringBuilder();
         private long m_previousRunTimestamp = 0;
 
-        private readonly object[] m_argumentArray = new object[1];
-
         public bool ConsoleOpen = false;
         MyGuiScreenEditor m_editorScreen;
         Assembly m_assembly = null;
@@ -65,7 +63,7 @@ namespace Sandbox.Game.Entities.Blocks
         private new MySyncProgrammableBlock SyncObject;
 
         private Queue<TerminalActionParameter> m_enqueuedRuns = new Queue<TerminalActionParameter>();
-        private readonly List<TerminalActionParameter> _argumentContainer = new List<TerminalActionParameter>(new[] { TerminalActionParameter.Get("") });
+        private readonly List<TerminalActionParameter> m_argumentContainer = new List<TerminalActionParameter>(new[] { TerminalActionParameter.Get("") });
 
         public string TerminalRunArgument
         {
@@ -379,8 +377,8 @@ namespace Sandbox.Game.Entities.Blocks
             if (m_enqueuedRuns.Count > 0)
             {
                 var nextArgument = m_enqueuedRuns.Dequeue();
-                _argumentContainer[0] = nextArgument;
-                this.ApplyAction("Run", _argumentContainer);
+                m_argumentContainer[0] = nextArgument;
+                this.ApplyAction("Run", m_argumentContainer);
                 if (m_enqueuedRuns.Count > 0)
                     NeedsUpdate |= MyEntityUpdateEnum.EACH_FRAME;
                 else
@@ -599,8 +597,8 @@ namespace Sandbox.Game.Entities.Blocks
     
         void IMyProgrammableBlock.Run(string argument)
         {
-            _argumentContainer[0] = TerminalActionParameter.Get(argument ?? "");
-            this.ApplyAction("Run", _argumentContainer);
+            m_argumentContainer[0] = TerminalActionParameter.Get(argument ?? "");
+            this.ApplyAction("Run", m_argumentContainer);
         }
 
         bool IMyProgrammableBlock.EnqueueRun(string argument)
