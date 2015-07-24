@@ -53,7 +53,7 @@ namespace Sandbox.ModAPI.Interfaces
         /// </summary>
         /// <param name="block">block reference</param>
         /// <returns>value of type <see cref="ITerminalProperty.TypeName"/></returns>
-        [Obsolete]
+        [Obsolete("Use GetMinimum instead")]
         TValue GetMininum(Sandbox.ModAPI.Ingame.IMyCubeBlock block);
         /// <summary>
         /// Minimum value of property (value from block definition)
@@ -227,7 +227,7 @@ namespace Sandbox.ModAPI.Interfaces
         /// <param name="block">block reference</param>
         /// <param name="propertyId">property id (name)</param>
         /// <returns>property value as <see cref="ITerminalProperty.TypeName"/></returns>
-        [Obsolete]
+        [Obsolete("Use GetMinimum instead")]
         public static T GetMininum<T>(this Ingame.IMyTerminalBlock block, string propertyId)
         {
             return block.GetProperty(propertyId).Cast<T>().GetMinimum(block);

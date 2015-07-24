@@ -77,7 +77,11 @@ namespace Sandbox.Game.Screens.Terminal.Controls
         }
 
         public abstract TValue GetDefaultValue(TBlock block);
-        public abstract TValue GetMininum(TBlock block);
+        [Obsolete("Use GetMinimum instead")]
+        public TValue GetMininum(TBlock block)
+        {
+            return GetMinimum(block);
+        }
         public abstract TValue GetMinimum(TBlock block);
         public abstract TValue GetMaximum(TBlock block);
 

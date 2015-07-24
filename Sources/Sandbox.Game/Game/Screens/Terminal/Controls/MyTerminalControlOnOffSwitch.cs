@@ -133,11 +133,6 @@ namespace Sandbox.Game.Gui
             return false;
         }
 
-        public override bool GetMininum(TBlock block)
-        {
-            return GetMinimum(block);
-        }
-
         public override bool GetMinimum(TBlock block)
         {
             return false;
