@@ -1,25 +1,16 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using VRageMath;
-using VRageRender;
+using Sandbox.Game.Entities;
 using Sandbox.Game.World;
 using Sandbox.Graphics.TransparentGeometry;
-using Sandbox.Game.Entities;
-using Sandbox.Common.Components;
-using Sandbox.Common.ObjectBuilders;
+using VRage;
 using VRage.Utils;
-using Sandbox.Engine.Utils;
-using VRage;
-using VRage;
-using VRage.Components;
+using VRageMath;
 
 namespace Sandbox.Game.Components
 {
     class MyRenderComponentThrust : MyRenderComponentCubeBlock
     {
-        MyThrust m_thrust = null;
+        MyThrust m_thrust;
 
         #region overrides
         public override void OnAddedToContainer()
@@ -37,7 +28,7 @@ namespace Sandbox.Game.Components
             if (m_thrust.CanDraw())
             {
                 m_thrust.UpdateThrustFlame();
-                m_thrust.UpdateThrustColor();
+                m_thrust.UpdateThrustColor(m_thrust.ThrustColor);
 
                 foreach (var f in m_thrust.Flames)
                 {

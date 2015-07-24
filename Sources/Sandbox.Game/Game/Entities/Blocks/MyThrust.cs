@@ -1,48 +1,40 @@
 ﻿#region Using
 
 using System;
-using System.Diagnostics;
+using System.Collections.Generic;
+using System.Linq;
 using System.Text;
-
+using Havok;
 using Sandbox.Common.ObjectBuilders;
+using Sandbox.Common.ObjectBuilders.Definitions;
 using Sandbox.Definitions;
-using Sandbox.Graphics.GUI;
-using Sandbox.Graphics.TransparentGeometry;
+using Sandbox.Engine.Physics;
+using Sandbox.Engine.Utils;
+using Sandbox.Game.Components;
+using Sandbox.Game.Entities.Character;
 using Sandbox.Game.Entities.Cube;
 using Sandbox.Game.GameSystems;
-using Sandbox.Game.GameSystems.Electricity;
+using Sandbox.Game.Gui;
 using Sandbox.Game.Lights;
+using Sandbox.Game.Localization;
+using Sandbox.Game.Multiplayer;
 using Sandbox.Game.World;
-
+using Sandbox.ModAPI.Ingame;
+using Sandbox.ModAPI.Interfaces;
+using VRage;
+using VRage.Audio;
+using VRage.ModAPI;
 using VRage.Utils;
 using VRageMath;
-using Sandbox.Engine.Utils;
-using System.Collections.Generic;
-using Sandbox.Game.Gui;
-using VRageRender;
-using Sandbox.Game.Entities.Character;
-using Sandbox.Engine.Physics;
-using Havok;
-using Sandbox.Game.Multiplayer;
-using Sandbox.Graphics;
-using System.Linq;
-using Sandbox.Game.Components;
+using VRageRender.Lights;
+using IMyThrust = Sandbox.ModAPI.IMyThrust;
+
 #endregion
 
 namespace Sandbox.Game.Entities
 {
-    using Sandbox.Game.Weapons;
-    using Sandbox.Common;
-    using VRage;
-    using Sandbox.Common.ObjectBuilders.Definitions;
-    using Sandbox.ModAPI.Interfaces;
-    using Sandbox.Game.Localization;
-    using Sandbox.ModAPI;
-    using VRage.Audio;
-    using VRage.ModAPI;
-
     [MyCubeBlockType(typeof(MyObjectBuilder_Thrust))]
-    public class MyThrust : MyFunctionalBlock, IMyThrust
+    public class MyThrust : MyFunctionalBlock, IMyThrust, IMyLightingBlock
     {
         public struct FlameInfo
         {
@@ -57,8 +49,6 @@ namespace Sandbox.Game.Entities
         private MyGridThrustSystem m_thrustSystem;
 
         MyLight m_light;
-
-        Vector4 m_thrustColor;
 
         private new MySyncThruster SyncObject;
 
@@ -145,12 +135,16 @@ namespace Sandbox.Game.Entities
             ThrustThicknessRand = MyUtils.GetRandomFloat(ThrustRadiusRand * 0.90f, ThrustRadiusRand);
         }
 
-        public void UpdateThrustColor()
+        public void UpdateThrustColor(Vector4 colorVector4)
         {
-            m_thrustColor = Vector4.Lerp(m_thrustDefinition.FlameIdleColor, m_thrustDefinition.FlameFullColor, CurrentStrength / MyConstants.MAX_THRUST);
-            Light.Color = m_thrustColor;
+            m_thrustDefinition.FlameIdleColor = colorVector4;
+            m_thrustDefinition.FlameFullColor = colorVector4;
+
+            ThrustColor = Vector4.Lerp(m_thrustDefinition.FlameIdleColor, m_thrustDefinition.FlameFullColor, CurrentStrength / MyConstants.MAX_THRUST);
+            Light.Color = ThrustColor;
         }
-        public Vector4 ThrustColor { get { return m_thrustColor; } }
+        public Vector4 ThrustColor { get; private set; }
+
         public bool CanDraw()
         {
             return IsWorking && Vector3.DistanceSquared(MySector.MainCamera.Position, PositionComp.GetPosition()) < m_maxBillboardDistanceSquared;
@@ -183,7 +177,7 @@ namespace Sandbox.Game.Entities
                 else
                     Light.GlareIntensity = 0.5f + length * 2;
 
-                Light.GlareType = VRageRender.Lights.MyGlareTypeEnum.Normal;
+                Light.GlareType = MyGlareTypeEnum.Normal;
                 Light.GlareSize = (radius * 0.8f + length * 0.05f) * m_glareSize;
 
                 Light.UpdateLight();
@@ -209,17 +203,20 @@ namespace Sandbox.Game.Entities
         static MyThrust()
         {          
             float threshold = 0.01f;
-            var thrustOverride = new MyTerminalControlSlider<MyThrust>("Override", MySpaceTexts.BlockPropertyTitle_ThrustOverride, MySpaceTexts.BlockPropertyDescription_ThrustOverride);
-            thrustOverride.Getter = (x) => x.ThrustOverride;
-            thrustOverride.Setter = (x, v) => 
+            MyTerminalControlSlider<MyThrust> thrustOverride = new MyTerminalControlSlider<MyThrust>("Override",
+                MySpaceTexts.BlockPropertyTitle_ThrustOverride, MySpaceTexts.BlockPropertyDescription_ThrustOverride)
             {
-                float val = v;
-                float limit = x.m_thrustDefinition.ForceMagnitude * threshold;
+                Getter = (x) => x.ThrustOverride,
+                Setter = (x, v) =>
+                {
+                    float val = v;
+                    float limit = x.m_thrustDefinition.ForceMagnitude*threshold;
 
-                x.SetThrustOverride(val <= limit ? 0 : v); 
-                x.SyncObject.SendChangeThrustOverrideRequest(x.ThrustOverride); 
+                    x.SetThrustOverride(val <= limit ? 0 : v);
+                    x.SyncObject.SendChangeThrustOverrideRequest(x.ThrustOverride);
+                },
+                DefaultValue = 0
             };
-            thrustOverride.DefaultValue = 0;
             thrustOverride.SetLogLimits((x) => x.m_thrustDefinition.ForceMagnitude * 0.01f, (x) => x.m_thrustDefinition.ForceMagnitude);
             thrustOverride.EnableActions();
             thrustOverride.Writer = (x, result) =>
@@ -230,6 +227,19 @@ namespace Sandbox.Game.Entities
                         MyValueFormatter.AppendForceInBestUnit(x.ThrustOverride, result);
                 };
             MyTerminalControlFactory.AddControl(thrustOverride);
+
+            MyTerminalControlColor<MyThrust> thrustColor = new MyTerminalControlColor<MyThrust>("Color",
+               MySpaceTexts.BlockPropertyTitle_LightColor)
+            {
+                Getter = (x) => x.ThrustColor,
+                Setter = (x, v) =>
+                {
+                    x.SetFlameColor(v);
+                    x.SyncObject.SendChangeThrustColorRequest(x.ThrustColor);
+                }
+            };
+            
+            MyTerminalControlFactory.AddControl(thrustColor);
         }
 
         public MyThrust()
@@ -250,10 +260,19 @@ namespace Sandbox.Game.Entities
                 m_thrustSystem.MarkDirty();
         }
 
+        public void SetFlameColor(Color color)
+        {
+            ThrustColor = new Vector4(color.ToVector3(), 0.75f);
+            UpdateThrustColor(ThrustColor);
+        }
+
         public override MyObjectBuilder_CubeBlock GetObjectBuilderCubeBlock(bool copy = false)
         {
             var builder = (MyObjectBuilder_Thrust)base.GetObjectBuilderCubeBlock(copy);
             builder.ThrustOverride = ThrustOverride;
+            builder.ColorRed = ThrustColor.X;
+            builder.ColorGreen = ThrustColor.Y;
+            builder.ColorBlue = ThrustColor.Z;
             return builder;
         }
 
@@ -265,7 +284,7 @@ namespace Sandbox.Game.Entities
 
             var builder = (MyObjectBuilder_Thrust)objectBuilder;
 
-            m_thrustColor = m_thrustDefinition.FlameIdleColor;
+            ThrustColor = new Vector4(new Vector3(builder.ColorRed, builder.ColorGreen, builder.ColorBlue), builder.ColorAlpha);
 
             ThrustOverride = builder.ThrustOverride;
 
@@ -275,7 +294,7 @@ namespace Sandbox.Game.Entities
             m_light.ReflectorDirection = WorldMatrix.Forward;
             m_light.ReflectorUp = WorldMatrix.Up;
             m_light.ReflectorRange = 1;
-            m_light.Color = m_thrustColor;
+            m_light.Color = ThrustColor;
             m_light.GlareMaterial = m_thrustDefinition.FlameGlareMaterial;
             m_light.GlareQuerySize = m_thrustDefinition.FlameGlareQuerySize;
 
@@ -521,10 +540,10 @@ namespace Sandbox.Game.Entities
             }
             return null;
         }
-        float Sandbox.ModAPI.Ingame.IMyThrust.ThrustOverride { get { return ThrustOverride; } }
+        float ModAPI.Ingame.IMyThrust.ThrustOverride { get { return ThrustOverride; } }
 
         private float m_thrustMultiplier = 1f;
-        float Sandbox.ModAPI.IMyThrust.ThrustMultiplier 
+        float IMyThrust.ThrustMultiplier 
         {
             get
             {
@@ -547,7 +566,7 @@ namespace Sandbox.Game.Entities
         }
 
         private float m_powerConsumptionMultiplier = 1f;
-        float Sandbox.ModAPI.IMyThrust.PowerConsumptionMultiplier
+        float IMyThrust.PowerConsumptionMultiplier
         {
             get
             {
@@ -569,6 +588,12 @@ namespace Sandbox.Game.Entities
                 UpdateDetailedInfo();
             }
         }
+
+        public float Radius { get; private set; }
+        public float Intensity { get; private set; }
+        public float BlinkIntervalSeconds { get; private set; }
+        public float BlinkLenght { get; private set; }
+        public float BlinkOffset { get; private set; }
     }
 }
 
