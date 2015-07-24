@@ -28,6 +28,7 @@ namespace VRageMath
         public static Vector3D Backward = new Vector3D(0.0, 0.0, 1);
         public static Vector3D MaxValue = new Vector3D(double.MaxValue, double.MaxValue, double.MaxValue);
         public static Vector3D MinValue = new Vector3D(double.MinValue, double.MinValue, double.MinValue);
+        public static Vector3D NaN = new Vector3D(double.NaN, double.NaN, double.NaN);
         /// <summary>
         /// Gets or sets the x-component of the vector.
         /// </summary>
