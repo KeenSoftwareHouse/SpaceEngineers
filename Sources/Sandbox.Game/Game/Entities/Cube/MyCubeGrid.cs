@@ -5624,5 +5624,78 @@ namespace Sandbox.Game.Entities
             }
 			ProfilerShort.End();
         }
+
+        VRageMath.Vector3D Sandbox.ModAPI.Ingame.IMyCubeGrid.CenterOfMassWorld
+        {
+            get
+            {
+                if (this.Physics == null)
+                    return Vector3D.NaN;
+                return this.Physics.CenterOfMassWorld;
+            }
+        }
+        float Sandbox.ModAPI.Ingame.IMyCubeGrid.Mass
+        {
+            get
+            {
+                if (this.Physics == null)
+                    return float.NaN;
+                return this.Physics.Mass;
+            }
+        }
+        VRageMath.Vector3 Sandbox.ModAPI.Ingame.IMyCubeGrid.LinearVelocity
+        {
+            get
+            {
+                if (this.Physics == null)
+                    return VRageMath.Vector3.NaN;
+                return this.Physics.LinearVelocity;
+            }
+        }
+        VRageMath.Vector3 Sandbox.ModAPI.Ingame.IMyCubeGrid.AngularVelocity
+        {
+            get
+            {
+                if (this.Physics == null)
+                    return VRageMath.Vector3.NaN;
+                return this.Physics.AngularVelocity;
+            }
+        }
+        VRageMath.Vector3 Sandbox.ModAPI.Ingame.IMyCubeGrid.LinearAcceleration
+        {
+            get
+            {
+                if (this.Physics == null)
+                    return VRageMath.Vector3.NaN;
+                return this.Physics.LinearAcceleration;
+            }
+        }
+        VRageMath.Vector3 Sandbox.ModAPI.Ingame.IMyCubeGrid.AngularAcceleration
+        {
+            get
+            {
+                if (this.Physics == null)
+                    return VRageMath.Vector3.NaN;
+                return this.Physics.AngularAcceleration;
+            }
+        }
+        VRageMath.Matrix Sandbox.ModAPI.Ingame.IMyCubeGrid.InertiaTensor
+        {
+            get
+            {
+                if (this.Physics == null || !this.Physics.HasRigidBody)
+                    return VRageMath.Matrix.Zero;
+                return this.Physics.RigidBody.InertiaTensor;
+            }
+        }
+        VRageMath.Matrix Sandbox.ModAPI.Ingame.IMyCubeGrid.InverseInertiaTensor
+        {
+            get
+            {
+                if (this.Physics == null || !this.Physics.HasRigidBody)
+                    return VRageMath.Matrix.Zero;
+                return this.Physics.RigidBody.InverseInertiaTensor;
+            }
+        }
     }
 }

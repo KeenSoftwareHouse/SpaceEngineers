@@ -54,5 +54,38 @@ namespace Sandbox.ModAPI.Ingame
         /// Converts world coordinates to grid space cell coordinates
         /// </summary>
         VRageMath.Vector3I WorldToGridInteger(VRageMath.Vector3D coords);
+
+        /// <summary>
+        /// Get the center of mass position in world coordinates
+        /// </summary>
+        VRageMath.Vector3D CenterOfMassWorld { get; }
+        /// <summary>
+        /// Get the mass in kg
+        /// </summary>
+        float Mass { get; }
+        /// <summary>
+        /// The grids linear movement velocity.
+        /// </summary>
+        VRageMath.Vector3 LinearVelocity { get; }
+        /// <summary>
+        /// The grids angular movement velocity.
+        /// </summary>
+        VRageMath.Vector3 AngularVelocity { get; }
+        /// <summary>
+        /// The grids linear movement acceleration.
+        /// </summary>
+        VRageMath.Vector3 LinearAcceleration { get; }
+        /// <summary>
+        /// The grids angular movement acceleration.
+        /// </summary>
+        VRageMath.Vector3 AngularAcceleration { get; }
+        /// <summary>
+        /// The grids Moment of Inertia tensor.
+        /// </summary>
+        VRageMath.Matrix InertiaTensor { get; }
+        /// <summary>
+        /// The grids inverted Moment of Inertia tensor.
+        /// </summary>
+        VRageMath.Matrix InverseInertiaTensor { get; }
     }
 }
