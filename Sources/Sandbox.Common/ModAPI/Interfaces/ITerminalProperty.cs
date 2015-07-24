@@ -49,7 +49,7 @@ namespace Sandbox.ModAPI.Interfaces
         /// <returns>value of type <see cref="ITerminalProperty.TypeName"/></returns>
         TValue GetDefaultValue(Sandbox.ModAPI.Ingame.IMyCubeBlock block);
         /// <summary>
-        /// Minimum value of property (value from block definition) - this function is obsolete, because it contains typo in name
+        /// Minimum value of property (value from block definition) - this function is obsolete, because it contains typo in name, use <see cref="GetMinimum(Sandbox.ModAPI.Ingame.IMyCubeBlock)"/>
         /// </summary>
         /// <param name="block">block reference</param>
         /// <returns>value of type <see cref="ITerminalProperty.TypeName"/></returns>
@@ -221,7 +221,7 @@ namespace Sandbox.ModAPI.Interfaces
             return block.GetProperty(propertyId).Cast<T>().GetDefaultValue(block);
         }
         /// <summary>
-        /// Returns minimum value of specified property as <see cref="ITerminalProperty.TypeName"/> - this call is obsolete due typo in name
+        /// Returns minimum value of specified property as <see cref="ITerminalProperty.TypeName"/> - this call is obsolete due typo in name, use <see cref="GetMinimum{T}(Ingame.IMyTerminalBlock, string)"/>
         /// </summary>
         /// <typeparam name="T">required value type of <see cref="ITerminalProperty.TypeName"/></typeparam>
         /// <param name="block">block reference</param>

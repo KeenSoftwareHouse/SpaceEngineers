@@ -100,6 +100,7 @@ namespace Sandbox.Game.Screens.Terminal.Controls
             return GetDefaultValue(((TBlock)block));
         }
 
+        [Obsolete("Use GetMinimum instead")]
         public TValue GetMininum(ModAPI.Ingame.IMyCubeBlock block)
         {
             return GetMinimum(((TBlock)block));
