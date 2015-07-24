@@ -4,14 +4,11 @@ using ParallelTasks;
 using Sandbox.Definitions;
 using Sandbox.Engine.Voxels;
 using Sandbox.Game.Gui;
-using Sandbox.Game.World;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
 using VRage;
 using VRage.Collections;
-using VRage;
 using VRage.Generics;
 using VRage.Utils;
 using VRage.Voxels;
@@ -94,7 +91,12 @@ namespace Sandbox.Game.Entities.Cube
             get { return m_depositsByCellCoord; }
         }
 
-        public void UpdateDeposits(ref BoundingSphereD worldDetectionSphere)
+        /// <summary>
+        /// Starts queries to update Deposits unless worldDetectionSphere has not changed since last invokation.
+        /// </summary>
+        /// <param name="worldDetectionSphere">Sphere within which the Ore Detector can detect ores.</param>
+        /// <param name="force">Start queries even if worldDetectionSphere has not changed.</param>
+        public void UpdateDeposits(ref BoundingSphereD worldDetectionSphere, bool force)
         {
             Vector3I min, max;
             {
@@ -112,7 +114,7 @@ namespace Sandbox.Game.Entities.Cube
                 max >>= (MyOreDetectorComponent.CELL_SIZE_IN_VOXELS_BITS + MyOreDetectorComponent.QUERY_LOD);
             }
 
-            if (min == m_lastDetectionMin && max == m_lastDetectionMax)
+            if (min == m_lastDetectionMin && max == m_lastDetectionMax && !force)
             {
                 IssueQueries();
                 return;
@@ -186,10 +188,15 @@ namespace Sandbox.Game.Entities.Cube
 
         public float DetectionRadius { get; set; }
         public CheckControlDelegate OnCheckControl;
+        /// <summary>Provides access to all the ores detected by an Ore Detector for mod API.</summary>
+        public event Action<ReadOnlyDictionary<Vector3D, byte>> OnOreUpdated;
 
         public bool BroadcastUsingAntennas { get; set; }
 
         private readonly Dictionary<MyVoxelBase, MyOreDepositGroup> m_depositGroupsByEntity = new Dictionary<MyVoxelBase, MyOreDepositGroup>();
+
+        /// <summary>All the detected ores in a form that can be passed to mod A.P.I. Should never be cleared or manipulated, only replaced.</summary>
+        private Dictionary<Vector3D, byte> m_lastOreLocation;
 
         public MyOreDetectorComponent()
         {
@@ -200,11 +207,23 @@ namespace Sandbox.Game.Entities.Cube
 
         public bool SetRelayedRequest { get; set; }
 
-        public void Update(Vector3D position, bool checkControl = true)
+        /// <summary>
+        /// Updates ore deposit H.U.D. markers and triggers OnOreUpdated.
+        /// </summary>
+        /// <param name="position">The world location of the Ore Detector.</param>
+        /// <param name="checkControl">If true, OnCheckControl determines if H.U.D. markers shall be updated.</param>
+        /// <param name="hasLocalPlayerAccess">True iff this session's player has permission to access this Ore Detector.</param>
+        public void Update(Func<Vector3D> position, bool checkControl = true, bool hasLocalPlayerAccess = true)
         {
             Clear();
 
-            if (!SetRelayedRequest && checkControl && !OnCheckControl())
+            bool registerHudMarker = hasLocalPlayerAccess && (SetRelayedRequest || !checkControl || OnCheckControl());
+            bool registeredListener = OnOreUpdated != null;
+
+            if (!registeredListener)
+                m_lastOreLocation = null;
+
+            if (!registerHudMarker && !registeredListener)
             {
                 m_depositGroupsByEntity.Clear();
                 return;
@@ -212,7 +231,7 @@ namespace Sandbox.Game.Entities.Cube
 
             SetRelayedRequest = false;
 
-            var sphere = new BoundingSphereD(position, DetectionRadius);
+            var sphere = new BoundingSphereD(position.Invoke(), DetectionRadius);
             MyGamePruningStructure.GetAllVoxelMapsInSphere(ref sphere, m_inRangeCache);
 
             { // Find voxel maps which went out of range and then remove them.
@@ -237,20 +256,48 @@ namespace Sandbox.Game.Entities.Cube
                 m_inRangeCache.Clear();
             }
 
-            // Update deposit queries using current detection sphere.
-            foreach (var entry in m_depositGroupsByEntity)
-            {
-                var voxelMap = entry.Key;
-                var group = entry.Value;
-                group.UpdateDeposits(ref sphere);
+            Dictionary<Vector3D, byte> oreLocation = registeredListener
+                                                        ? new Dictionary<Vector3D, byte>(m_lastOreLocation == null ? 0 : m_lastOreLocation.Count) 
+                                                        : null;
+            bool force = oreLocation != null && m_lastOreLocation == null;
 
-                foreach (var deposit in group.Deposits)
+            // Update deposit queries using current detection sphere.
+            foreach (MyOreDepositGroup group in m_depositGroupsByEntity.Values)
+            {
+                group.UpdateDeposits(ref sphere, force);
+
+                foreach (MyEntityOreDeposit deposit in group.Deposits)
                 {
                     if (deposit != null)
                     {
-                        MyHud.OreMarkers.RegisterMarker(deposit);
+                        if (registerHudMarker)
+                            MyHud.OreMarkers.RegisterMarker(deposit);
+
+                        if (oreLocation != null)
+                        {
+                            foreach (MyEntityOreDeposit.Data ore in deposit.Materials)
+                            {
+                                Vector3D oreWorldPosition;
+                                ore.ComputeWorldPosition(deposit.VoxelMap, out oreWorldPosition);
+                                oreLocation.Add(oreWorldPosition, ore.Material.Index);
+                            }
+                        }
                     }
                 }
+            }
+
+            if (oreLocation != null)
+            {
+                if (oreLocation.Count == 0)
+                {
+                    if (m_lastOreLocation != null)
+                        oreLocation = m_lastOreLocation;
+                }
+                else
+                    m_lastOreLocation = oreLocation;
+
+                if (oreLocation.Count > 0 && OnOreUpdated != null)
+                        OnOreUpdated(new ReadOnlyDictionary<Vector3D, byte>(oreLocation));
             }
 
             m_inRangeCache.Clear();
@@ -258,6 +305,7 @@ namespace Sandbox.Game.Entities.Cube
 
         public void Clear()
         {
+            m_lastOreLocation = null;
             foreach (var group in m_depositGroupsByEntity.Values)
             {
                 foreach (var deposit in group.Deposits)

@@ -19,7 +19,7 @@ using VRage.ModAPI;
 namespace Sandbox.Game.Entities.Cube
 {
     [MyCubeBlockType(typeof(MyObjectBuilder_OreDetector))]
-    class MyOreDetector : MyFunctionalBlock, IMyPowerConsumer, IMyComponentOwner<MyOreDetectorComponent>, IMyOreDetector
+    class MyOreDetector : MyFunctionalBlock, IMyPowerConsumer, IMyComponentOwner<MyOreDetectorComponent>, IMyOreDetector, Sandbox.ModAPI.IMyOreDetector
     {
         private MyOreDetectorDefinition m_definition;
 
@@ -135,14 +135,7 @@ namespace Sandbox.Game.Entities.Cube
         public override void UpdateBeforeSimulation100()
         {
             base.UpdateBeforeSimulation100();
-            if (HasLocalPlayerAccess())
-            {
-                m_oreDetectorComponent.Update(PositionComp.GetPosition());
-            }
-            else
-            {
-                m_oreDetectorComponent.Clear();
-            }
+            m_oreDetectorComponent.Update(PositionComp.GetPosition, true, HasLocalPlayerAccess());
         }
 
         bool OnCheckControl()
@@ -185,5 +178,13 @@ namespace Sandbox.Game.Entities.Cube
         }
         bool IMyOreDetector.BroadcastUsingAntennas { get { return m_oreDetectorComponent.BroadcastUsingAntennas; } }
         float IMyOreDetector.Range { get { return Range; } }
+        /// <summary>Provides access to all the ores detected by an Ore Detector for mod API.</summary>
+        public event System.Action<VRage.Collections.ReadOnlyDictionary<Vector3D, byte>> OnOresUpdated
+        {
+            add
+            { m_oreDetectorComponent.OnOreUpdated += value; }
+            remove
+            { m_oreDetectorComponent.OnOreUpdated -= value; }
+        }
     }
 }

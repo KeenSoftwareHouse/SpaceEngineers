@@ -320,7 +320,7 @@ namespace Sandbox.Game.Weapons
         {
             base.UpdateBeforeSimulation100();
             m_drillBase.UpdateAfterSimulation100();
-            m_oreDetectorBase.Update(PositionComp.GetPosition());
+            m_oreDetectorBase.Update(PositionComp.GetPosition);
         }
 
         bool OnCheckControl()
