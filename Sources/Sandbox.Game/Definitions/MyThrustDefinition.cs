@@ -1,9 +1,6 @@
-﻿using Sandbox.Common.ObjectBuilders;
-using Sandbox.Common.ObjectBuilders.Definitions;
-
-using VRageMath;
-using Sandbox.Engine.Utils;
+﻿using Sandbox.Common.ObjectBuilders.Definitions;
 using VRage.Utils;
+using VRageMath;
 
 namespace Sandbox.Definitions
 {

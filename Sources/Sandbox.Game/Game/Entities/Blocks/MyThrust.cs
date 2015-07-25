@@ -23,6 +23,7 @@ using Sandbox.ModAPI.Ingame;
 using Sandbox.ModAPI.Interfaces;
 using VRage;
 using VRage.Audio;
+using VRage.Import;
 using VRage.ModAPI;
 using VRage.Utils;
 using VRageMath;
@@ -47,8 +48,6 @@ namespace Sandbox.Game.Entities
 
         private MyThrustDefinition m_thrustDefinition;
         private MyGridThrustSystem m_thrustSystem;
-
-        MyLight m_light;
 
         private new MySyncThruster SyncObject;
 
@@ -126,7 +125,7 @@ namespace Sandbox.Game.Entities
         {
             return IsPowered && base.CheckIsWorking();
         }
-        public MyLight Light { get { return m_light; } }
+        public MyLight Light { get; private set; }
 
         public void UpdateThrustFlame()
         {
@@ -268,11 +267,11 @@ namespace Sandbox.Game.Entities
 
         public override MyObjectBuilder_CubeBlock GetObjectBuilderCubeBlock(bool copy = false)
         {
-            var builder = (MyObjectBuilder_Thrust)base.GetObjectBuilderCubeBlock(copy);
+            MyObjectBuilder_Thrust builder = (MyObjectBuilder_Thrust)base.GetObjectBuilderCubeBlock(copy);
             builder.ThrustOverride = ThrustOverride;
-            builder.ColorRed = ThrustColor.X;
-            builder.ColorGreen = ThrustColor.Y;
-            builder.ColorBlue = ThrustColor.Z;
+            builder.FlameColorRed = ThrustColor.X;
+            builder.FlameColorGreen = ThrustColor.Y;
+            builder.FlameColorBlue = ThrustColor.Z;
             return builder;
         }
 
@@ -282,27 +281,27 @@ namespace Sandbox.Game.Entities
 
             m_thrustDefinition = (MyThrustDefinition)BlockDefinition;
 
-            var builder = (MyObjectBuilder_Thrust)objectBuilder;
+            MyObjectBuilder_Thrust builder = (MyObjectBuilder_Thrust)objectBuilder;
 
-            ThrustColor = new Vector4(new Vector3(builder.ColorRed, builder.ColorGreen, builder.ColorBlue), builder.ColorAlpha);
+            ThrustColor = new Vector4(new Vector3(builder.FlameColorRed, builder.FlameColorGreen, builder.FlameColorBlue), builder.FlameColorAlpha);
 
             ThrustOverride = builder.ThrustOverride;
 
             LoadDummies();
 
-            m_light = MyLights.AddLight();
-            m_light.ReflectorDirection = WorldMatrix.Forward;
-            m_light.ReflectorUp = WorldMatrix.Up;
-            m_light.ReflectorRange = 1;
-            m_light.Color = ThrustColor;
-            m_light.GlareMaterial = m_thrustDefinition.FlameGlareMaterial;
-            m_light.GlareQuerySize = m_thrustDefinition.FlameGlareQuerySize;
+            Light = MyLights.AddLight();
+            Light.ReflectorDirection = WorldMatrix.Forward;
+            Light.ReflectorUp = WorldMatrix.Up;
+            Light.ReflectorRange = 1;
+            Light.Color = ThrustColor;
+            Light.GlareMaterial = m_thrustDefinition.FlameGlareMaterial;
+            Light.GlareQuerySize = m_thrustDefinition.FlameGlareQuerySize;
 
             m_glareSize = m_thrustDefinition.FlameGlareSize;
             m_maxBillboardDistanceSquared = m_thrustDefinition.FlameVisibilityDistance * m_thrustDefinition.FlameVisibilityDistance;
             m_maxLightDistanceSquared = m_maxBillboardDistanceSquared / 100;
 
-            m_light.Start(MyLight.LightTypeEnum.PointLight, 1);
+            Light.Start(MyLight.LightTypeEnum.PointLight, 1);
             SyncObject = new MySyncThruster(this);
 
             UpdateDetailedInfo();
@@ -324,22 +323,20 @@ namespace Sandbox.Game.Entities
         private void LoadDummies()
         {
             m_flames.Clear();
-            foreach (var d in this.Model.Dummies.OrderBy(s => s.Key))
+            foreach (FlameInfo f in from d in Model.Dummies.OrderBy(s => s.Key) where d.Key.StartsWith("thruster_flame", StringComparison.InvariantCultureIgnoreCase) select new FlameInfo
             {
-                if (d.Key.StartsWith("thruster_flame", StringComparison.InvariantCultureIgnoreCase))
-                {
-                    var f = new FlameInfo();
-                    f.Direction = Vector3.Normalize(d.Value.Matrix.Forward);
-                    f.Position = d.Value.Matrix.Translation;
-                    f.Radius = Math.Max(d.Value.Matrix.Scale.X, d.Value.Matrix.Scale.Y) * 0.5f;
-                    m_flames.Add(f);
-                }
+                Direction = Vector3.Normalize(d.Value.Matrix.Forward),
+                Position = d.Value.Matrix.Translation,
+                Radius = Math.Max(d.Value.Matrix.Scale.X, d.Value.Matrix.Scale.Y)*0.5f
+            })
+            {
+                m_flames.Add(f);
             }
         }
 
         protected override void Closing()
         {
-            MyLights.RemoveLight(m_light);
+            MyLights.RemoveLight(Light);
             base.Closing();
         }
 
@@ -387,9 +384,9 @@ namespace Sandbox.Game.Entities
                     MyPhysics.GetPenetrationsShape(shape, ref l.From, ref Quaternion.Identity, m_flameCollisionsList, 0);
                     shape.RemoveReference();
 
-                    foreach (var obj in m_flameCollisionsList)
+                    foreach (HkRigidBody obj in m_flameCollisionsList)
                     {
-                        var entity = obj.GetEntity();
+                        IMyEntity entity = obj.GetEntity();
                         if (entity == null)
                             continue;
                         if (entity.Equals(this))
@@ -398,8 +395,7 @@ namespace Sandbox.Game.Entities
                             entity = entity.GetTopMostParent();
                         if (m_damagedEntities.Contains(entity))
                             continue;
-                        else
-                            m_damagedEntities.Add(entity);
+                        m_damagedEntities.Add(entity);
 
                         if (entity is IMyDestroyableObject)
                             (entity as IMyDestroyableObject).DoDamage(flameInfo.Radius * m_thrustDefinition.FlameDamage * 10, MyDamageType.Environment, true, attackerId: EntityId);
@@ -421,8 +417,8 @@ namespace Sandbox.Game.Entities
         private void DamageGrid(FlameInfo flameInfo, LineD l, MyCubeGrid grid)
         {
             HkSphereShape sph = new HkSphereShape(flameInfo.Radius * m_thrustDefinition.FlameDamageLengthScale);
-            var transform = MatrixD.CreateWorld(l.From, Vector3.Forward, Vector3.Up);
-            var hit = MyPhysics.CastShapeReturnPoint(l.To, sph, ref transform, (int)MyPhysics.DefaultCollisionLayer, 0.05f);
+            MatrixD transform = MatrixD.CreateWorld(l.From, Vector3.Forward, Vector3.Up);
+            Vector3D? hit = MyPhysics.CastShapeReturnPoint(l.To, sph, ref transform, MyPhysics.DefaultCollisionLayer, 0.05f);
 
             sph.Base.RemoveReference();
 
@@ -436,20 +432,20 @@ namespace Sandbox.Game.Entities
                     return;
                 }
                 m_gridRayCastLst.Clear();
-                var block = grid.GetCubeBlock(grid.WorldToGridInteger(hit.Value));
+                MySlimBlock block = grid.GetCubeBlock(grid.WorldToGridInteger(hit.Value));
                 //if (block != this.SlimBlock)
                 {
                     //MyRenderProxy.DebugDrawSphere(hit.Value, 0.1f, Color.Green.ToVector3(), 1, true);
-                    var invWorld = grid.PositionComp.GetWorldMatrixNormalizedInv();
-                    var gridPos = Vector3D.Transform(hit.Value,invWorld);
-                    var gridDir = Vector3D.TransformNormal(l.Direction, invWorld);
+                    MatrixD invWorld = grid.PositionComp.GetWorldMatrixNormalizedInv();
+                    Vector3D gridPos = Vector3D.Transform(hit.Value,invWorld);
+                    Vector3D gridDir = Vector3D.TransformNormal(l.Direction, invWorld);
                     if (block != null)
                         if (block.FatBlock != this && (CubeGrid.GridSizeEnum == MyCubeSize.Large || block.BlockDefinition.DeformationRatio > 0.25))
                         {
                             block.DoDamage(30 * m_thrustDefinition.FlameDamage, MyDamageType.Environment, attackerId: EntityId);
                         }
-                    var areaPlanar = 0.5f * flameInfo.Radius * CubeGrid.GridSize;
-                    var areaVertical = 0.5f * CubeGrid.GridSize;
+                    float areaPlanar = 0.5f * flameInfo.Radius * CubeGrid.GridSize;
+                    float areaVertical = 0.5f * CubeGrid.GridSize;
 
                     grid.Physics.ApplyDeformation(m_thrustDefinition.FlameDamage, areaPlanar, areaVertical, gridPos, gridDir, MyDamageType.Environment, CubeGrid.GridSizeEnum == MyCubeSize.Small ? 0.1f : 0, attackerId: EntityId);
                 }
@@ -458,20 +454,20 @@ namespace Sandbox.Game.Entities
 
         public LineD GetDamageCapsuleLine(FlameInfo info)
         {
-            var world = Matrix.CreateFromDir(Vector3.TransformNormal(info.Direction, WorldMatrix));
+            Matrix world = Matrix.CreateFromDir(Vector3.TransformNormal(info.Direction, WorldMatrix));
 
-            var halfLenght = ThrustLengthRand * info.Radius / 2;
+            float halfLenght = ThrustLengthRand * info.Radius / 2;
             halfLenght *= m_thrustDefinition.FlameDamageLengthScale;
-            var position = Vector3D.Transform(info.Position, WorldMatrix);
+            Vector3D position = Vector3D.Transform(info.Position, WorldMatrix);
 
             if (halfLenght > info.Radius)
                 return new LineD(position - world.Forward * (info.Radius), position + world.Forward * (2 * halfLenght - info.Radius));
-            else
+            
+            LineD l = new LineD(position + world.Forward*halfLenght, position + world.Forward*halfLenght)
             {
-                var l = new LineD(position + world.Forward * halfLenght, position + world.Forward * halfLenght);
-                l.Direction = world.Forward;
-                return l;
-            }
+                Direction = world.Forward
+            };
+            return l;
         }
 
         public override void UpdateAfterSimulation10()
@@ -525,18 +521,27 @@ namespace Sandbox.Game.Entities
                 Quaternion cockpitOrientation;
                 cockpit.Orientation.GetQuaternion(out cockpitOrientation);
                 var thrustDir = Vector3I.Transform(ThrustForwardVector, Quaternion.Inverse(cockpitOrientation));
-                if (thrustDir.X == 1)
-                    return MyTexts.GetString(MySpaceTexts.Thrust_Left);
-                else if (thrustDir.X == -1)
-                    return MyTexts.GetString(MySpaceTexts.Thrust_Right);
-                else if (thrustDir.Y == 1)
-                    return MyTexts.GetString(MySpaceTexts.Thrust_Down);
-                else if (thrustDir.Y == -1)
-                    return MyTexts.GetString(MySpaceTexts.Thrust_Up);
-                else if (thrustDir.Z == 1)
-                    return MyTexts.GetString(MySpaceTexts.Thrust_Forward);
-                else if (thrustDir.Z == -1)
-                    return MyTexts.GetString(MySpaceTexts.Thrust_Back);
+                switch (thrustDir.X)
+                {
+                    case 1:
+                        return MyTexts.GetString(MySpaceTexts.Thrust_Left);
+                    case -1:
+                        return MyTexts.GetString(MySpaceTexts.Thrust_Right);
+                }
+                switch (thrustDir.Y)
+                {
+                    case 1:
+                        return MyTexts.GetString(MySpaceTexts.Thrust_Down);
+                    case -1:
+                        return MyTexts.GetString(MySpaceTexts.Thrust_Up);
+                }
+                switch (thrustDir.Z)
+                {
+                    case 1:
+                        return MyTexts.GetString(MySpaceTexts.Thrust_Forward);
+                    case -1:
+                        return MyTexts.GetString(MySpaceTexts.Thrust_Back);
+                }
             }
             return null;
         }

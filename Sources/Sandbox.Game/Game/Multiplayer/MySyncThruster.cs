@@ -46,9 +46,11 @@ namespace Sandbox.Game.Multiplayer
 
         public void SendChangeThrustOverrideRequest(float thrustOverride)
         {
-            var msg = new ChangeThrustOverrideMsg();
-            msg.EntityId = m_block.EntityId;
-            msg.ThrustOverride = thrustOverride;
+            ChangeThrustOverrideMsg msg = new ChangeThrustOverrideMsg
+            {
+                EntityId = m_block.EntityId,
+                ThrustOverride = thrustOverride
+            };
 
             Sync.Layer.SendMessageToAll(ref msg, MyTransportMessageEnum.Success);
         }
@@ -57,7 +59,7 @@ namespace Sandbox.Game.Multiplayer
         {
             MyEntity entity;
             MyEntities.TryGetEntityById(msg.EntityId, out entity);
-            var block = entity as MyThrust;
+            MyThrust block = entity as MyThrust;
             if (block != null)
                 block.SetThrustOverride(msg.ThrustOverride);
         }
