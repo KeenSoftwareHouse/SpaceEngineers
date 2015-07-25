@@ -1,11 +1,9 @@
-﻿using Sandbox.Engine.Multiplayer;
+﻿using System;
+using Sandbox.Engine.Multiplayer;
 using Sandbox.Game.Entities;
 using Sandbox.Game.World;
 using SteamSDK;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+using VRageMath;
 
 namespace Sandbox.Game.Multiplayer
 {
@@ -23,9 +21,22 @@ namespace Sandbox.Game.Multiplayer
             public float ThrustOverride;
         }
 
+        [MessageId(7517, P2PMessageEnum.Reliable)]
+        protected struct ChangeThrustColorMsg : IEntityMessage
+        {
+            public long EntityId;
+            public long GetEntityId()
+            {
+                return EntityId;
+            }
+
+            public Color ThrustColor;
+        }
+
         static MySyncThruster()
         {
             MySyncLayer.RegisterMessage<ChangeThrustOverrideMsg>(ChangeThrustOverrideSuccess, MyMessagePermissions.Any, MyTransportMessageEnum.Success);
+            MySyncLayer.RegisterMessage<ChangeThrustColorMsg>(ChangeThrustColorSuccess, MyMessagePermissions.Any, MyTransportMessageEnum.Success);
         }
 
         public MySyncThruster(MyThrust block)
@@ -35,9 +46,11 @@ namespace Sandbox.Game.Multiplayer
 
         public void SendChangeThrustOverrideRequest(float thrustOverride)
         {
-            var msg = new ChangeThrustOverrideMsg();
-            msg.EntityId = m_block.EntityId;
-            msg.ThrustOverride = thrustOverride;
+            ChangeThrustOverrideMsg msg = new ChangeThrustOverrideMsg
+            {
+                EntityId = m_block.EntityId,
+                ThrustOverride = thrustOverride
+            };
 
             Sync.Layer.SendMessageToAll(ref msg, MyTransportMessageEnum.Success);
         }
@@ -46,9 +59,33 @@ namespace Sandbox.Game.Multiplayer
         {
             MyEntity entity;
             MyEntities.TryGetEntityById(msg.EntityId, out entity);
-            var block = entity as MyThrust;
+            MyThrust block = entity as MyThrust;
             if (block != null)
                 block.SetThrustOverride(msg.ThrustOverride);
+        }
+
+        public void SendChangeThrustColorRequest(Color color)
+        {
+            var msg = new ChangeThrustColorMsg
+            {
+                EntityId = m_block.EntityId,
+                ThrustColor = color
+            };
+
+
+            Sync.Layer.SendMessageToServer(ref msg, MyTransportMessageEnum.Success);
+        }
+
+        static void ChangeThrustColorSuccess(ref ChangeThrustColorMsg msg, MyNetworkClient sender)
+        {
+            MyEntity entity;
+            MyEntities.TryGetEntityById(msg.EntityId, out entity);
+            var block = entity as MyThrust;
+            if (block != null)
+            {
+                block.SetFlameColor(msg.ThrustColor);
+            }
+
         }
 
     }
