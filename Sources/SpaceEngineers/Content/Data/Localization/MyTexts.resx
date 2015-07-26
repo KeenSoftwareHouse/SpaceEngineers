@@ -3215,6 +3215,9 @@ Refinery speed {2}x</value>
   <data name="TerminalTab_Info_Reflectors" xml:space="preserve">
     <value>Spotlights: </value>
   </data>
+  <data name="TerminalTab_Info_ShipName" xml:space="preserve">
+    <value>Ship Name: </value>
+  </data>
   <data name="TerminalTab_Info_Thrusters" xml:space="preserve">
     <value>Thrusters: </value>
   </data>

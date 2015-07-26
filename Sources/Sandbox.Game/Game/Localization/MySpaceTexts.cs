@@ -5075,6 +5075,11 @@ namespace Sandbox.Game.Localization
         public static readonly MyStringId TerminalTab_Info_Reflectors = MyStringId.GetOrCompute("TerminalTab_Info_Reflectors");
 
         ///<summary>
+        ///Ship Name: 
+        ///</summary>
+        public static readonly MyStringId TerminalTab_Info_ShipName = MyStringId.GetOrCompute("TerminalTab_Info_ShipName");
+
+        ///<summary>
         ///Thrusters: 
         ///</summary>
         public static readonly MyStringId TerminalTab_Info_Thrusters = MyStringId.GetOrCompute("TerminalTab_Info_Thrusters");
