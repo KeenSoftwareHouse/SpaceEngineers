@@ -135,7 +135,10 @@ namespace Sandbox.Game.Entities.Cube
         public override void UpdateBeforeSimulation100()
         {
             base.UpdateBeforeSimulation100();
-            m_oreDetectorComponent.Update(PositionComp.GetPosition, true, HasLocalPlayerAccess());
+            if (IsWorking)
+                m_oreDetectorComponent.Update(PositionComp.GetPosition, true, HasLocalPlayerAccess());
+            else
+                m_oreDetectorComponent.Clear();
         }
 
         bool OnCheckControl()
