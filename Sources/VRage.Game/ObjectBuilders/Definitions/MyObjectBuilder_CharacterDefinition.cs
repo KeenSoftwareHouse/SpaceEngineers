@@ -304,7 +304,15 @@ namespace Sandbox.Common.ObjectBuilders.Definitions
         public float CharacterLength = 1.0f;
 
         [ProtoMember, DefaultValue(null)]
-        public MyObjectBuilder_InventoryDefinition Inventory; 
+        public MyObjectBuilder_InventoryDefinition Inventory;
 
+        [ProtoMember]
+        public string EnabledComponents;
+
+        [ProtoMember]
+        public bool EnableSpawnInventoryAsContainer = false;
+        
+        [ProtoMember, DefaultValue(null)]
+        public SerializableDefinitionId? InventorySpawnContainerId;
     }
 }

@@ -48,6 +48,7 @@ namespace Sandbox.Game
         public Type OptionsScreen;
         public Type CustomWorldScreen;
         public Type ScenarioScreen;
+        public Type TutorialScreen;
         public Type EditWorldSettingsScreen;
         public Type HelpScreen;
         public Type VoxelMapEditingScreen;
@@ -202,6 +203,7 @@ namespace Sandbox.Game
             ToolbarConfigScreen = typeof(Sandbox.Game.Gui.MyGuiScreenCubeBuilder),
             CustomWorldScreen = typeof(Sandbox.Game.Gui.MyGuiScreenWorldSettings),
             ScenarioScreen = typeof(Sandbox.Game.Gui.MyGuiScreenScenario),
+            TutorialScreen = typeof(Sandbox.Game.Gui.MyGuiScreenTutorial),
             EditWorldSettingsScreen = typeof(Sandbox.Game.Gui.MyGuiScreenWorldSettings),
             HelpScreen = typeof(Sandbox.Game.Gui.MyGuiScreenHelpSpace),
             VoxelMapEditingScreen = typeof(Sandbox.Game.Gui.MyGuiScreenDebugSpawnMenu),
@@ -211,6 +213,7 @@ namespace Sandbox.Game
         public static bool EnableAi = false;
 
         public static Type ControlMenuInitializerType = null;
+        public static Type CompatHelperType = typeof(Sandbox.Game.World.MySessionCompatHelper);
 
         public static MyCredits Credits = new MyCredits();
 
@@ -218,7 +221,7 @@ namespace Sandbox.Game
 
         public static bool EnableObjectExport = true;
 
-        public static RigidBodyFlag LargeGridRBFlag = RigidBodyFlag.RBF_DOUBLED_KINEMATIC;
+        public static RigidBodyFlag LargeGridRBFlag =  MyFakes.ENABLE_DOUBLED_KINEMATIC ? RigidBodyFlag.RBF_DOUBLED_KINEMATIC : RigidBodyFlag.RBF_DEFAULT;
         public static RigidBodyFlag GridRBFlagOnClients = RigidBodyFlag.RBF_DEFAULT;
         public static RigidBodyFlag NetworkCharacterType = RigidBodyFlag.RBF_KINEMATIC;
         public static float NetworkCharacterScale = 1.0f;
@@ -243,9 +246,7 @@ namespace Sandbox.Game
         public static float CharacterSqueezeMinMass = 200f; // minimal mass to cause squeeze on character
         public static float CharacterSqueezeMediumDamageMass = 1000;
         public static float CharacterSqueezeCriticalDamageMass = 3000;
-        public static float CharacterSqueezeDeadlyDamageMass = 5000;        
-        
-        public static bool AlwaysSpawnPlayerOnVoxel = false;
+        public static float CharacterSqueezeDeadlyDamageMass = 5000;
         
         public static bool CharacterSuicideEnabled = false;
 
@@ -258,6 +259,7 @@ namespace Sandbox.Game
         public static string BugReportUrl = "https://steamcommunity.com/openid/login?openid.ns=http%3A%2F%2Fspecs.openid.net%2Fauth%2F2.0&openid.mode=checkid_setup&openid.return_to=http%3A%2F%2Fforums.keenswh.com%2Fregister%2Fsteam%3Fredirect%3Dhttp%253A%252F%252Fforums.keenswh.com%252Fforums%252Fbug-reports.326950%252F&openid.realm=http%3A%2F%2Fforums.keenswh.com&openid.identity=http%3A%2F%2Fspecs.openid.net%2Fauth%2F2.0%2Fidentifier_select&openid.claimed_id=http%3A%2F%2Fspecs.openid.net%2Fauth%2F2.0%2Fidentifier_select";
 
         public static bool EnableScenarios = false;
+        public static bool EnableTutorials = false;
 
         public static bool EnableRagdollModels = true;
 
@@ -277,5 +279,7 @@ namespace Sandbox.Game
 
         public static Type VoiceChatLogic = null;
         public static bool VoiceChatEnabled = false;
+
+        public static bool EnableJumpDrive = false;
     }
 }

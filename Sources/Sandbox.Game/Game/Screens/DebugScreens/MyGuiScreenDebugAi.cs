@@ -105,6 +105,9 @@ namespace Sandbox.Game.Screens.DebugScreens
                 (Func<bool>)(() => (MyDebugDrawSettings.DEBUG_DRAW_NAVMESHES & MyWEMDebugDrawMode.NORMALS) != 0),
                 (Action<bool>)((bool b) => MyDebugDrawSettings.DEBUG_DRAW_NAVMESHES = b ? MyDebugDrawSettings.DEBUG_DRAW_NAVMESHES | MyWEMDebugDrawMode.NORMALS : MyDebugDrawSettings.DEBUG_DRAW_NAVMESHES & ~MyWEMDebugDrawMode.NORMALS),
                 checkBoxOffset: new Vector2(-0.15f, 0.0f));
+
+            m_currentPosition.Y += 0.01f;
+            AddCheckBox("Animals", null, MemberHelper.GetMember(() => MyDebugDrawSettings.DEBUG_DRAW_ANIMALS));
         }
     }
 }

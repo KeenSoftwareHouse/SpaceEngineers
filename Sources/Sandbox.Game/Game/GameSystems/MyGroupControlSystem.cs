@@ -155,7 +155,7 @@ namespace Sandbox.Game.GameSystems
                     return false;
                 }
 
-                return controller.Player.IsLocalPlayer();
+                return controller.Player.IsLocalPlayer;
             }
         }
 

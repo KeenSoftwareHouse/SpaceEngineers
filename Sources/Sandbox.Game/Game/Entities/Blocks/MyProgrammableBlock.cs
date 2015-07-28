@@ -40,6 +40,7 @@ namespace Sandbox.Game.Entities.Blocks
     class MyProgrammableBlock : MyFunctionalBlock, IMyProgrammableBlock, IMyPowerConsumer
     {
         private const int MAX_NUM_EXECUTED_INSTRUCTIONS = 50000;
+		private const int MAX_NUM_METHOD_CALLS = 10000;
         private const int MAX_ECHO_LENGTH = 8000; // 100 lines á 80 characters
         private static readonly double STOPWATCH_FREQUENCY = 1.0 / Stopwatch.Frequency;
         private IMyGridProgram m_instance = null;
@@ -252,6 +253,7 @@ namespace Sandbox.Game.Entities.Blocks
             m_isRunning = true;
             string retVal = "";
             IlInjector.RestartCountingInstructions(MAX_NUM_EXECUTED_INSTRUCTIONS);
+			IlInjector.RestartCountingMethods(MAX_NUM_METHOD_CALLS);
             try
             {
                 m_instance.Main(argument);
@@ -390,12 +392,13 @@ namespace Sandbox.Game.Entities.Blocks
             {
                 try
                 {
-                    m_assembly = IlInjector.InjectCodeToAssembly("IngameScript_safe", temp, typeof(IlInjector).GetMethod("CountInstructions", BindingFlags.Public | BindingFlags.Static));
+					m_assembly = IlInjector.InjectCodeToAssembly("IngameScript_safe", temp, typeof(IlInjector).GetMethod("CountInstructions", BindingFlags.Public | BindingFlags.Static), typeof(IlInjector).GetMethod("CountMethodCalls", BindingFlags.Public | BindingFlags.Static));
 
                     var type = m_assembly.GetType("Program");
                     if (type != null)
                     {
                         IlInjector.RestartCountingInstructions(MAX_NUM_EXECUTED_INSTRUCTIONS);
+						IlInjector.RestartCountingMethods(MAX_NUM_METHOD_CALLS);
                         try
                         {
                             m_instance = Activator.CreateInstance(type) as IMyGridProgram;

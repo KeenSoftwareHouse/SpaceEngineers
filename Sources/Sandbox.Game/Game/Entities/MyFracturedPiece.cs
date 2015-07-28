@@ -11,7 +11,9 @@ using Sandbox.Game.Components;
 using Sandbox.Game.Entities.Cube;
 using Sandbox.Game.GameSystems;
 using Sandbox.Game.Multiplayer;
+using Sandbox.ModAPI;
 using Sandbox.ModAPI.Interfaces;
+using Sandbox.Common.ObjectBuilders.Definitions;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -21,6 +23,7 @@ using VRage.Components;
 using VRage.Library.Utils;
 using VRage.ObjectBuilders;
 using VRageMath;
+using VRage.Utils;
 
 namespace Sandbox.Game.Entities
 {
@@ -54,6 +57,7 @@ namespace Sandbox.Game.Entities
             base.Render.NeedsDraw = true;
             base.Render.PersistentFlags = MyPersistentEntityFlags2.Enabled;
             AddDebugRenderComponent(new MyFracturedPieceDebugDraw(this));
+            UseDamageSystem = false;
         }
 
         public List<MyDefinitionId> OriginalBlocks = new List<MyDefinitionId>();
@@ -230,10 +234,20 @@ namespace Sandbox.Game.Entities
                 Shape.BuildMassProperties(ref mp);
                 Shape.SetChildrenParent(Shape);
                 Physics = new MyPhysicsBody(this, RigidBodyFlag.RBF_DEBRIS);
+                Physics.CanUpdateAccelerations = true;
                 Physics.InitialSolverDeactivation = HkSolverDeactivation.Medium;
                 Physics.CreateFromCollisionObject(Shape.GetShape(), Vector3.Zero, PositionComp.WorldMatrix, mp);
                 Physics.BreakableBody = new HkdBreakableBody(Shape, Physics.RigidBody, MyPhysics.SingleWorld.DestructionWorld, (Matrix)PositionComp.WorldMatrix);
                 Physics.BreakableBody.AfterReplaceBody += Physics.FracturedBody_AfterReplaceBody;
+
+
+                if (OriginalBlocks.Count > 0)
+                {
+                    MyPhysicalModelDefinition def;
+                    if (MyDefinitionManager.Static.TryGetDefinition<MyPhysicalModelDefinition>(OriginalBlocks[0], out def))
+                        Physics.MaterialType = def.PhysicalMaterial.Id.SubtypeId;
+                }
+
 
                 var rigidBody = Physics.RigidBody;
                 bool isFixed = MyDestructionHelper.IsFixed(Physics.BreakableBody.BreakableShape);
@@ -439,14 +453,25 @@ namespace Sandbox.Game.Entities
             }
         }
 
-        public void DoDamage(float damage, Common.ObjectBuilders.Definitions.MyDamageType damageType, bool sync, MyHitInfo? hitInfo)
+        public void DoDamage(float damage, MyStringHash damageType, bool sync, MyHitInfo? hitInfo, long attackerId)
         {
             if (Sync.IsServer)
             {
-                m_hitPoints -= damage;
+                MyDamageInformation info = new MyDamageInformation(false, damage, damageType, attackerId);
+                if (UseDamageSystem)
+                    MyDamageSystem.Static.RaiseBeforeDamageApplied(this, ref info);
+
+                m_hitPoints -= info.Amount;
+
+                if (UseDamageSystem)
+                    MyDamageSystem.Static.RaiseAfterDamageApplied(this, info);
+
                 if (m_hitPoints <= 0)
                 {
                     MyFracturedPiecesManager.Static.RemoveFracturePiece(this, 2);
+
+                    if (UseDamageSystem)
+                        MyDamageSystem.Static.RaiseDestroyed(this, info);
                 }
             }
         }
@@ -456,5 +481,6 @@ namespace Sandbox.Game.Entities
             get { return m_hitPoints; }
         }
 
+        public bool UseDamageSystem { get; private set; }
     }
 }

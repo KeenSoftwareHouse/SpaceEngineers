@@ -18,7 +18,7 @@ namespace Sandbox.ModAPI
         float CurrentDamage { get; }
         float DamageRatio { get; }
         //void DecreaseMountLevel(float grinderAmount, Sandbox.Game.MyInventory outputInventory);
-        //void DoDamage(float damage, Sandbox.Game.Weapons.MyDamageType damageType, bool addDirtyParts = true);
+        //void DoDamage(float damage, Sandbox.Game.Weapons.MyStringHash damageType, bool addDirtyParts = true);
         IMyCubeBlock FatBlock { get; }
         void FixBones(float oldDamage, float maxAllowedBoneMovement);
         void FullyDismount(IMyInventory outputInventory);

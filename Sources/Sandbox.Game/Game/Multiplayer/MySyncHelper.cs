@@ -15,6 +15,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
+using VRage.Utils;
 using VRageMath;
 
 namespace Sandbox.Game.Multiplayer
@@ -29,7 +30,9 @@ namespace Sandbox.Game.Multiplayer
 
             public float Damage;
 
-            public MyDamageType Type;
+            public MyStringHash Type;
+
+            public long AttackerEntityId;
         }
 
         
@@ -47,10 +50,13 @@ namespace Sandbox.Game.Multiplayer
             public float Damage;
 
             [ProtoMember]
-            public MyDamageType Type;
+            public MyStringHash Type;
 
             [ProtoMember]
             public MyHitInfo? HitInfo;
+
+            [ProtoMember]
+            public long AttackerEntityId;
         }
 
 		[MessageIdAttribute(13270, P2PMessageEnum.Reliable)]
@@ -59,6 +65,9 @@ namespace Sandbox.Game.Multiplayer
 		{
 			[ProtoMember]
 			public long entityId;
+
+            [ProtoMember]
+            public MyDamageInformation DamageInfo;
 		}
 
         static MySyncHelper()
@@ -68,7 +77,7 @@ namespace Sandbox.Game.Multiplayer
 			MySyncLayer.RegisterMessage<KillCharacterMsg>(OnKillCharacter, MyMessagePermissions.FromServer);
         }
 
-        public static void DoDamageSynced(MyEntity destroyable, float damage, MyDamageType type)
+        public static void DoDamageSynced(MyEntity destroyable, float damage, MyStringHash type, long attackerId)
         {
             Debug.Assert(Sync.IsServer || destroyable.SyncObject is MySyncEntity || (destroyable.SyncObject as MySyncEntity).ResponsibleForUpdate(Sync.Clients.LocalClient));
             if (!(destroyable is IMyDestroyableObject))
@@ -78,8 +87,9 @@ namespace Sandbox.Game.Multiplayer
             msg.DestroyableEntityId = destroyable.EntityId;
             msg.Damage = damage;
             msg.Type = type;
+            msg.AttackerEntityId = attackerId;
 
-            (destroyable as IMyDestroyableObject).DoDamage(damage, type, false);
+            (destroyable as IMyDestroyableObject).DoDamage(damage, type, false, attackerId: attackerId);
             Sync.Layer.SendMessageToAll<DoDamageMsg>(ref msg);
         }
 
@@ -93,18 +103,19 @@ namespace Sandbox.Game.Multiplayer
                 Debug.Fail("Damage can be done to destroyable only");
                 return;
             }
-            (ent as IMyDestroyableObject).DoDamage(msg.Damage, msg.Type, false);
+            (ent as IMyDestroyableObject).DoDamage(msg.Damage, msg.Type, false, null, msg.AttackerEntityId);
         }
 
-		public static void KillCharacter(MyCharacter character)
+		public static void KillCharacter(MyCharacter character, MyDamageInformation damageInfo)
 		{
 			Debug.Assert(Sync.IsServer, "KillCharacter called from client");
 			KillCharacterMsg msg = new KillCharacterMsg()
 			{
 				entityId = character.EntityId,
+                DamageInfo = damageInfo
 			};
 
-			character.Kill(false);
+			character.Kill(false, damageInfo);
 			Sync.Layer.SendMessageToAll<KillCharacterMsg>(ref msg);
 		}
 
@@ -115,10 +126,10 @@ namespace Sandbox.Game.Multiplayer
 			if (!MyEntities.TryGetEntityById(msg.entityId, out entity) || (character = entity as MyCharacter) == null)
 				return;
 
-			character.Kill(false);
+			character.Kill(false, msg.DamageInfo);
 		}
 
-        internal static void DoDamageSynced(MySlimBlock block, float damage, MyDamageType damageType, MyHitInfo? hitInfo)
+        internal static void DoDamageSynced(MySlimBlock block, float damage, MyStringHash damageType, MyHitInfo? hitInfo, long attackerId)
         {
             Debug.Assert(Sync.IsServer);
             var msg = new DoDamageSlimBlockMsg();
@@ -126,8 +137,9 @@ namespace Sandbox.Game.Multiplayer
             msg.Position = block.Position;
             msg.Damage = damage;
             msg.HitInfo = hitInfo;
+            msg.AttackerEntityId = attackerId;
 
-            block.DoDamage(damage, damageType, hitInfo: hitInfo);
+            block.DoDamage(damage, damageType, hitInfo: hitInfo, attackerId: attackerId);
             Sync.Layer.SendMessageToAll<DoDamageSlimBlockMsg>(ref msg);
         }
 
@@ -140,7 +152,7 @@ namespace Sandbox.Game.Multiplayer
             var block = grid.GetCubeBlock(msg.Position);
             if (block == null)
                 return;
-            block.DoDamage(msg.Damage, msg.Type, hitInfo: msg.HitInfo);
+            block.DoDamage(msg.Damage, msg.Type, hitInfo: msg.HitInfo, attackerId:msg.AttackerEntityId);
         }
 
     }

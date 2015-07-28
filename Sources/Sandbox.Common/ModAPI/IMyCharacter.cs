@@ -13,6 +13,6 @@ namespace Sandbox.ModAPI
 
 		event CharacterMovementStateDelegate OnMovementStateChanged;
 
-		void Kill();
+		void Kill(object killData = null);
     }
 }

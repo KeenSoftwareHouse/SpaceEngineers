@@ -16,7 +16,7 @@ namespace Sandbox.Game.Entities
 	{
 		protected float m_currentValue;
 		private float m_lastSyncValue;
-		public float Value { get { return m_currentValue; } set { SetValue(value); } }
+		public float Value { get { return m_currentValue; } set { SetValue(value, null); } }
 		public float CurrentRatio { get { return Value / (MaxValue - MinValue); } }
 
 		protected float m_minValue;
@@ -32,10 +32,13 @@ namespace Sandbox.Game.Entities
 		private static List<int> m_tmpRemoveEffects = new List<int>();
 		private int m_updateCounter = 0;
 
+		private float m_statRegenLeft = 0;
+		public float StatRegenLeft { get { return m_statRegenLeft; } set { m_statRegenLeft = value; } }
+
 		private MyStringHash m_statId;
 		public MyStringHash StatId { get { return m_statId; } }
 
-		public delegate void StatChangedDelegate(float newValue, float oldValue);
+		public delegate void StatChangedDelegate(float newValue, float oldValue, object statChangeData);
 		public event StatChangedDelegate OnStatChanged;
 
 		public MyEntityStatDefinition StatDefinition = null;
@@ -161,8 +164,6 @@ namespace Sandbox.Game.Entities
 				if (effect.Duration >= 0 && effect.AliveTime >= effect.Duration*1000.0f)
 				{
 					m_tmpRemoveEffects.Add(effectPair.Key);
-					if(effect.Duration != 0) // Update 0-duration effects even when removing them
-						continue;
 				}
 				if(Sync.IsServer)
 					effect.Update();
@@ -179,12 +180,12 @@ namespace Sandbox.Game.Entities
 			}
 		}
 
-		private void SetValue(float newValue)
+		private void SetValue(float newValue, object statChangeData)
 		{
 			float oldValue = m_currentValue;
 			m_currentValue = MathHelper.Clamp(newValue, MinValue, MaxValue);
 			if (OnStatChanged != null && newValue != oldValue)
-				OnStatChanged(newValue, oldValue);
+				OnStatChanged(newValue, oldValue, statChangeData);
 		}
 
 		public bool RemoveEffect(int id)
@@ -223,8 +224,42 @@ namespace Sandbox.Game.Entities
 			return (m_effects.TryGetValue(id, out retVal) ? retVal : null);
 		}
 
+		public override string ToString()
+		{
+			return m_statId.ToString();
+		}
 
-		public void Increase(float amount) { Value = Value + amount; }
-		public void Decrease(float amount) { Value = Value - amount; }
+
+        public void Increase(float amount, object statChangeData) { SetValue(Value + amount, statChangeData); }
+		public void Decrease(float amount, object statChangeData) { SetValue(Value - amount, statChangeData); }
+
+		public float CalculateRegenLeftForLongestEffect()
+		{
+			MyEntityStatRegenEffect longestTimeLeftEffect = null;
+			m_statRegenLeft = 0f;
+
+			foreach (var effect in m_effects)	// Calculate the effect from non-permanent effects
+			{
+				if (effect.Value.Duration > 0)
+				{
+					m_statRegenLeft += effect.Value.AmountLeftOverDuration;
+					if (longestTimeLeftEffect == null || effect.Value.DeathTime > longestTimeLeftEffect.DeathTime)
+						longestTimeLeftEffect = effect.Value;
+				}
+			}
+
+			if (longestTimeLeftEffect == null)
+				return m_statRegenLeft;
+
+			foreach (var effect in m_effects)
+			{
+				if (effect.Value.Duration < 0)	// Calculate the effect from the permanent effects
+				{
+					m_statRegenLeft += effect.Value.Amount * (float)effect.Value.CalculateTicksBetweenTimes(longestTimeLeftEffect.LastRegenTime, longestTimeLeftEffect.DeathTime);
+				}
+			}
+
+			return m_statRegenLeft;
+		}
 	};
 }

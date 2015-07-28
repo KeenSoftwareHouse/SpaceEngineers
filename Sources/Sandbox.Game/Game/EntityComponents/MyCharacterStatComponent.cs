@@ -1,22 +1,12 @@
-﻿using ProtoBuf;
-using Sandbox.Common.ObjectBuilders.ComponentSystem;
+﻿using Sandbox.Common.ObjectBuilders.ComponentSystem;
 using Sandbox.Definitions;
-using Sandbox.Engine.Multiplayer;
 using Sandbox.Game.Entities;
 using Sandbox.Game.Entities.Character;
 using Sandbox.Game.Multiplayer;
-using Sandbox.Game.World;
-using SteamSDK;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
 using VRage;
-using VRage.Collections;
 using VRage.Components;
 using VRage.Game.ObjectBuilders;
 using VRage.Utils;
-using VRageMath;
-using VRageRender;
 
 namespace Sandbox.Game.Components
 {
@@ -71,7 +61,7 @@ namespace Sandbox.Game.Components
 			base.OnBeforeRemovedFromContainer();
 		}
 
-		public void OnHealthChanged(float newHealth, float oldHealth)
+		public void OnHealthChanged(float newHealth, float oldHealth, object statChangeData)
 		{
 			if (m_character == null || !m_character.CharacterCanDie) return;
 
@@ -93,7 +83,7 @@ namespace Sandbox.Game.Components
 			m_character.Render.Damage();
 		}
 
-		public void DoDamage(float damage, bool updateSync)
+		public void DoDamage(float damage, bool updateSync, object statChangeData = null)
 		{
 			var health = Health;
 			if (health == null)
@@ -101,7 +91,8 @@ namespace Sandbox.Game.Components
 
 			if(m_character != null)
 				m_character.CharacterAccumulatedDamage += damage;
-			health.Decrease(damage);
+
+			health.Decrease(damage, statChangeData);
 
 			if (updateSync && !Sync.IsServer)
 			{

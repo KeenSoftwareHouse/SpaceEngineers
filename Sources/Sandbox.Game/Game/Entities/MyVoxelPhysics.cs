@@ -72,7 +72,6 @@ namespace Sandbox.Game.Entities
         {
             base.BeforeDelete();
             m_storage = null;
-            MySession.Static.VoxelMaps.RemoveVoxelMap(this);
         }
 
         override public MySyncVoxel GetSyncObject

@@ -632,28 +632,6 @@ using VRage;
             if (BoneMapping.Length == 0)
                 BoneMapping = null;
 
-            if (DataVersion < 01050001)
-            { //old version of animations. Scaled and rotated
-                if (Animations.Clips.Count > 0)
-                {
-                    var rotationMatrix = Matrix.CreateRotationY(MathHelper.Pi);
-                    Matrix invert = Matrix.Invert(rotationMatrix);
-
-                    foreach (var bone in Animations.Clips[0].Bones)
-                    {
-                        foreach (var kf in bone.Keyframes)
-                        {
-                            Matrix keyMatrix = Matrix.CreateFromQuaternion(kf.Rotation);
-                            keyMatrix.Translation = kf.Translation * 100;
-
-                            keyMatrix = invert * keyMatrix * rotationMatrix;
-                            kf.Transform = keyMatrix;
-                        }
-                    }
-                }
-            }
-
-
             VRageRender.MyRenderProxy.GetRenderProfiler().EndProfilingBlock();
 
             ModelInfo = new MyModelInfo(GetTrianglesCount(), GetVerticesCount(), BoundingBoxSize);

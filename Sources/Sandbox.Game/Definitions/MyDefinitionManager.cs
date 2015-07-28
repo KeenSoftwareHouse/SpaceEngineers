@@ -925,7 +925,18 @@ namespace Sandbox.Definitions
 
                 var type = MyObjectBuilderType.Parse(entry.Type);
                 MyDefinitionId blockDefinitionId = new MyDefinitionId(type, entry.Subtype);
-                m_definitions.m_componentBlocks.Add(blockDefinitionId, entry.Main);
+                m_definitions.m_componentBlocks.Add(blockDefinitionId);
+
+                if (entry.Main)
+                {
+                    MyCubeBlockDefinition blockDef = null;
+                    TryGetCubeBlockDefinition(blockDefinitionId, out blockDef);
+                    
+                    if (blockDef.Components.Length == 1 && blockDef.Components[0].Count == 1)
+                    {
+                        m_definitions.m_componentIdToBlock[blockDef.Components[0].Definition.Id] = blockDef;
+                    }
+                }
             }
 
             m_definitions.m_componentBlockEntries.Clear();
@@ -1932,13 +1943,42 @@ namespace Sandbox.Definitions
 
         public bool IsComponentBlock(MyDefinitionId blockDefinitionId)
         {
-            return m_definitions.m_componentBlocks.ContainsKey(blockDefinitionId);
+            return m_definitions.m_componentBlocks.Contains(blockDefinitionId);
         }
 
-        public bool IsMainComponentBlock(MyDefinitionId blockDefinitionId)
+        public MyDefinitionId GetComponentId(MyCubeBlockDefinition blockDefinition)
         {
-            bool retval = false;
-            m_definitions.m_componentBlocks.TryGetValue(blockDefinitionId, out retval);
+            var components = blockDefinition.Components;
+
+            if (components == null || components.Length == 0)
+                return new MyDefinitionId();
+
+            return components[0].Definition.Id;
+        }
+
+        public MyDefinitionId GetComponentId(MyDefinitionId blockId)
+        {
+            MyCubeBlockDefinition blockDefinition = null;
+            if (!TryGetCubeBlockDefinition(blockId, out blockDefinition))
+                return new MyDefinitionId();
+
+            return GetComponentId(blockDefinition);
+        }
+
+        public MyCubeBlockDefinition TryGetComponentBlockDefinition(MyDefinitionId componentDefId)
+        {
+            MyCubeBlockDefinition retval = null;
+            m_definitions.m_componentIdToBlock.TryGetValue(componentDefId, out retval);
+            return retval;
+        }
+
+        public MyCubeBlockDefinition GetComponentBlockDefinition(MyDefinitionId componentDefId)
+        {
+            MyCubeBlockDefinition retval = null;
+            m_definitions.m_componentIdToBlock.TryGetValue(componentDefId, out retval);
+
+            Debug.Assert(retval != null, "Could not find a block that contains component " + componentDefId + "!");
+
             return retval;
         }
 
@@ -2408,6 +2448,13 @@ namespace Sandbox.Definitions
         {
             MyRespawnShipDefinition def;
             m_definitions.m_respawnShips.TryGetValue(id, out def);
+
+            if (def == null) return null;
+
+            var prefabDef = def.Prefab;
+            Debug.Assert(prefabDef != null, "Prefab definition in respawn ship definition is null!");
+            if (prefabDef == null) return null;
+
             return def;
         }
 
@@ -2428,7 +2475,7 @@ namespace Sandbox.Definitions
                     MyPrefabDefinition definition = GetPrefabDefinition(prefab.Id.SubtypeId);
                     if (definition != null)
                     {
-                        definition.Init(prefab,definition.Context);
+                        definition.InitLazy(prefab);
                     }
                 }
             }

@@ -412,6 +412,9 @@ namespace Sandbox.Game.Entities
 
             NeedsUpdate |= MyEntityUpdateEnum.EACH_100TH_FRAME | MyEntityUpdateEnum.EACH_10TH_FRAME;
 
+			if (MyPerGameSettings.InventoryMass)
+				m_inventory.ContentsChanged += Inventory_ContentsChanged;
+
             PowerReceiver = new MyPowerReceiver(
                 MyConsumerGroupEnum.Conveyors,
                 false,
@@ -476,6 +479,11 @@ namespace Sandbox.Game.Entities
             Debug.Assert(index == 0);
             return m_inventory;
         }
+
+		void Inventory_ContentsChanged(MyInventoryBase obj)
+		{
+			CubeGrid.SetInventoryMassDirty();
+		}
 
         String IMyInventoryOwner.DisplayNameText
         {

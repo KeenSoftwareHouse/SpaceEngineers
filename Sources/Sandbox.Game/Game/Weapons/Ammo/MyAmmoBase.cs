@@ -194,14 +194,6 @@ namespace Sandbox.Game.Weapons
             TimeToActivate = null;
         }
 
-        protected IMyEntity GetOtherEntity(ref MyPhysics.MyContactPointEvent value)
-        {
-            if (value.ContactPointEvent.Base.BodyA.GetEntity() == this)
-                return value.ContactPointEvent.Base.BodyB.GetEntity();
-            else
-                return value.ContactPointEvent.Base.BodyA.GetEntity();
-        }
-
         void listener_ContactPointCallback(ref MyPhysics.MyContactPointEvent value)
         {
             if (value.ContactPointEvent.EventType != HkContactPointEvent.Type.ManifoldAtEndOfStep)

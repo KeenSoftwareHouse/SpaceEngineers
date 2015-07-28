@@ -30,7 +30,7 @@ namespace Sandbox.Game.Components
         static readonly Vector3[] m_detectorVertices = new Vector3[BoundingBox.CornerCount];
         static readonly List<HkShape> m_shapes = new List<HkShape>();
         
-        private Dictionary<int, DetectorData> m_detectorInteractiveObjects = new Dictionary<int, DetectorData>();
+        private Dictionary<uint, DetectorData> m_detectorInteractiveObjects = new Dictionary<uint, DetectorData>();
 
         private MyPhysicsBody m_detectorPhysics;
         public override MyPhysicsComponentBase DetectorPhysics
@@ -80,7 +80,7 @@ namespace Sandbox.Game.Components
             }*/
         }
 
-        private IMyUseObject CreateInteractiveObject(string detectorName, string dummyName, MyModelDummy dummyData, int shapeKey)
+        private IMyUseObject CreateInteractiveObject(string detectorName, string dummyName, MyModelDummy dummyData, uint shapeKey)
         {
             // temporary hack until dummy for door terminal is renamed
             if (Container.Entity is MyDoor && detectorName == "terminal")
@@ -89,7 +89,7 @@ namespace Sandbox.Game.Components
             return MyUseObjectFactory.CreateUseObject(detectorName, Container.Entity, dummyName, dummyData, shapeKey);
         }
 
-        private int AddDetector(string detectorName, string dummyName, MyModelDummy dummyData)
+        private uint AddDetector(string detectorName, string dummyName, MyModelDummy dummyData)
         {
             List<Matrix> matrices;
             if (!m_detectors.TryGetValue(detectorName, out matrices))
@@ -99,7 +99,7 @@ namespace Sandbox.Game.Components
             }
             matrices.Add(Matrix.Invert(dummyData.Matrix));
 
-            var shapeKey = m_detectorInteractiveObjects.Count;
+            var shapeKey = (uint)m_detectorInteractiveObjects.Count;
             var interactiveObject = CreateInteractiveObject(detectorName, dummyName, dummyData, shapeKey);
             if (interactiveObject != null)
             {
@@ -109,7 +109,7 @@ namespace Sandbox.Game.Components
             return shapeKey;
         }
 
-        public override void RemoveDetector(int id)
+        public override void RemoveDetector(uint id)
         {
             if (!m_detectorInteractiveObjects.ContainsKey(id))
             {
@@ -121,7 +121,7 @@ namespace Sandbox.Game.Components
             }
         }
 
-        public override int AddDetector(string name, Matrix dummyMatrix)
+        public override uint AddDetector(string name, Matrix dummyMatrix)
         {
             var detectorName = name.ToLower();
             var dummyName = "detector_" + detectorName;
@@ -131,6 +131,12 @@ namespace Sandbox.Game.Components
 
         public override void RecreatePhysics()
         {
+            if (m_detectorPhysics != null)
+            {
+                m_detectorPhysics.Close();
+                m_detectorPhysics = null;
+            }
+
             m_shapes.Clear();
 
             BoundingBox aabb = new BoundingBox(-Vector3.One / 2, Vector3.One / 2);
@@ -158,10 +164,18 @@ namespace Sandbox.Game.Components
                 m_detectorPhysics.CreateFromCollisionObject((HkShape)listShape, Vector3.Zero, positionComponent.WorldMatrix);
                 m_detectorPhysics.Enabled = true;
                 listShape.Base.RemoveReference();
+
+                positionComponent.OnPositionChanged += positionComponent_OnPositionChanged;
             }
+
         }
 
-        public override IMyUseObject GetInteractiveObject(int shapeKey)
+        void positionComponent_OnPositionChanged(MyPositionComponentBase obj)
+        {
+            m_detectorPhysics.OnWorldPositionChanged(obj);
+        }
+
+        public override IMyUseObject GetInteractiveObject(uint shapeKey)
         {
             DetectorData result;
             if (!m_detectorInteractiveObjects.TryGetValue(shapeKey, out result))
@@ -178,6 +192,17 @@ namespace Sandbox.Game.Components
                 T typeObj = obj.Value.UseObject as T;
                 if (typeObj != null)
                     objects.Add(typeObj);
+            }
+        }
+
+        public override void OnBeforeRemovedFromContainer()
+        {
+            base.OnBeforeRemovedFromContainer();
+            
+            var positionComponent = Container.Get<MyPositionComponentBase>();
+            if (positionComponent != null)
+            {
+                positionComponent.OnPositionChanged -= positionComponent_OnPositionChanged;
             }
         }
     }

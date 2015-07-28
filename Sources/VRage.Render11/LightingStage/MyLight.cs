@@ -134,7 +134,7 @@ namespace VRageRender
 
 
         internal Vector3D Position { get { return MyLights.Lights.Data[Index].Position; } }
-        internal Vector3 LocalPosition { get { return MyLights.Lights.Data[Index].LocalPosition; } }
+        internal Vector3D LocalPosition { get { return MyLights.Lights.Data[Index].LocalPosition; } }
         internal Vector3D PositionWithOffset { get { return MyLights.Lights.Data[Index].PositionWithOffset; } }
         internal bool CastsShadows { get { return MyLights.Lights.Data[Index].CastsShadows; } }
         internal float ShadowDistance { get { return MyLights.Lights.Data[Index].ShadowsDistance; } }
@@ -356,7 +356,7 @@ namespace VRageRender
             // touch all lights again, because they don't get updated always when parent is
             foreach (var light in IdIndex.Values)
             {   
-                var position = (Vector3D)light.LocalPosition;
+                var position = light.LocalPosition;
                 var gid = light.ParentGID;
                 if (gid != -1 && MyIDTracker<MyActor>.FindByID((uint)gid) != null)
                 {

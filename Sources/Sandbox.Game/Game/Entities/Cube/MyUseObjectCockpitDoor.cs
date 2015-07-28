@@ -17,7 +17,7 @@ namespace Sandbox.Game.Entities.Cube
         public readonly IMyEntity Cockpit;
         public readonly Matrix LocalMatrix;
 
-        public MyUseObjectCockpitDoor(IMyEntity owner, string dummyName, MyModelDummy dummyData, int key)
+        public MyUseObjectCockpitDoor(IMyEntity owner, string dummyName, MyModelDummy dummyData, uint key)
         {
             Cockpit = owner;
             LocalMatrix = dummyData.Matrix;

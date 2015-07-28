@@ -47,14 +47,14 @@ namespace SpaceStatEffect
 			base.Close();
 		}
 
-		private void OnHealthChanged(float newValue, float oldValue)
+		private void OnHealthChanged(float newValue, float oldValue, object statChangeData)
 		{
 			var health = Health;
 			if (health != null
 				&& health.Value - health.MinValue < 0.001f
 				&& Character != null)
 			{
-				Character.Kill();
+				Character.Kill(statChangeData);
 			}
 		}
 

@@ -365,17 +365,7 @@ namespace Sandbox.Game.Multiplayer
                 case MyFactionStateChange.FactionMemberSendJoin:   return !m_factions[fromFactionId].IsMember(playerId)  && !m_factions[fromFactionId].JoinRequests.ContainsKey(playerId);
                 case MyFactionStateChange.FactionMemberCancelJoin: return !m_factions[fromFactionId].IsMember(playerId)  &&  m_factions[fromFactionId].JoinRequests.ContainsKey(playerId);
                 case MyFactionStateChange.FactionMemberAcceptJoin: return  m_factions[fromFactionId].JoinRequests.ContainsKey(playerId);
-                case MyFactionStateChange.FactionMemberKick:
-                    if (m_factions[fromFactionId].IsMember(playerId))
-                    {
-                        if (MySession.Static.Settings.ScenarioEditMode && Sync.Players.IdentityIsNpc(playerId))
-                        {
-                            MyIdentity id = Sync.Players.TryGetIdentity(playerId);
-                            id.TransferAllBlocksTo(senderId);
-                        }
-                        return true;
-                    }
-                    return  false;
+                case MyFactionStateChange.FactionMemberKick:       return  m_factions[fromFactionId].IsMember(playerId);
                 case MyFactionStateChange.FactionMemberPromote:    return  m_factions[fromFactionId].IsMember(playerId);
                 case MyFactionStateChange.FactionMemberDemote:     return  m_factions[fromFactionId].IsLeader(playerId);
                 case MyFactionStateChange.FactionMemberLeave:      return  m_factions[fromFactionId].IsMember(playerId);
@@ -441,7 +431,14 @@ namespace Sandbox.Game.Multiplayer
                         m_factions[fromFactionId].AcceptJoin(playerId);
                     break;
                 case MyFactionStateChange.FactionMemberLeave:
-                case MyFactionStateChange.FactionMemberKick:    m_factions[fromFactionId].KickMember(playerId); break;
+                case MyFactionStateChange.FactionMemberKick:    
+                    m_factions[fromFactionId].KickMember(playerId);
+                    if (Sync.IsServer && MySession.Static.Settings.ScenarioEditMode && Sync.Players.IdentityIsNpc(playerId))
+                    {
+                        MyIdentity id = Sync.Players.TryGetIdentity(playerId);
+                        id.TransferAllBlocksTo(senderId);
+                    }
+                    break;
                 case MyFactionStateChange.FactionMemberPromote: m_factions[fromFactionId].PromoteMember(playerId); break;
                 case MyFactionStateChange.FactionMemberDemote:  m_factions[fromFactionId].DemoteMember(playerId); break;
             }
@@ -501,7 +498,8 @@ namespace Sandbox.Game.Multiplayer
                     msg.SenderId = 0; // no need to check who accepted this
                 }
 
-                Sync.Layer.SendMessageToAllAndSelf(ref msg, MyTransportMessageEnum.Success);
+                FactionStateChangeSuccess(ref msg, sender);
+                Sync.Layer.SendMessageToAll(ref msg, MyTransportMessageEnum.Success);
             }
             /*else
             {

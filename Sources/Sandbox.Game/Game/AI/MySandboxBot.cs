@@ -194,7 +194,7 @@ namespace Sandbox.Game.AI
         internal MyBehaviorTreeState Action_Idle()
         {
             m_navigation.StopImmediate();
-            m_player.Character.PlayCharacterAnimation("Idle", true, MyPlayAnimationMode.WaitForPreviousEnd, 0.5f);
+            m_player.Character.PlayCharacterAnimation("Idle", MyBlendOption.WaitForPreviousEnd, MyFrameOption.Loop, 0.5f);
             return MyBehaviorTreeState.RUNNING;
         }
 
@@ -211,12 +211,10 @@ namespace Sandbox.Game.AI
             set { throw new NotImplementedException(); }
         }
 
-
         public void InitLogic(MyBotLogic logic)
         {
             throw new NotImplementedException();
         }
-
 
         public MyBotLogic BotLogic
         {

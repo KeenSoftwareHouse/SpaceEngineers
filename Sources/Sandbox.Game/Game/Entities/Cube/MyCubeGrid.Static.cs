@@ -120,7 +120,7 @@ namespace Sandbox.Game.Entities
 
         public static HashSet<MyCubeGrid> StaticGrids                                   = new HashSet<MyCubeGrid>();
         private static List<MyLineSegmentOverlapResult<MyEntity>> m_lineOverlapList = new List<MyLineSegmentOverlapResult<MyEntity>>();
-        private static List<HkRigidBody> m_physicsBoxQueryList                      = new List<HkRigidBody>();
+        private static List<HkBodyCollision> m_physicsBoxQueryList                  = new List<HkBodyCollision>();
         private static Dictionary<Vector3I, MySlimBlock> m_tmpBoneSet               = new Dictionary<Vector3I, MySlimBlock>(Vector3I.Comparer);
         private static MyDisconnectHelper m_disconnectHelper                        = new MyDisconnectHelper();
         private static List<NeighborOffsetIndex> m_neighborOffsetIndices            = new List<NeighborOffsetIndex>(26);
@@ -144,6 +144,8 @@ namespace Sandbox.Game.Entities
 
         private static List<Tuple<Vector3I, ushort>> m_tmpRazeList = new List<Tuple<Vector3I, ushort>>();
         private static readonly List<Vector3I> m_tmpLocations = new List<Vector3I>();
+        private static HkBoxShape m_lastQueryBox = new HkBoxShape(Vector3.Zero);
+        private static MatrixD m_lastQueryTransform;
 
 
         public static void GetCubeParts(
@@ -1317,13 +1319,13 @@ namespace Sandbox.Game.Entities
             // Remove character hits.
             m_tmpHitList.RemoveAll(delegate(MyPhysics.HitInfo hit)
             {
-                return (hit.HkHitInfo.Body.GetEntity() == MySession.ControlledEntity.Entity);
+                return (hit.HkHitInfo.GetHitEntity() == MySession.ControlledEntity.Entity);
             });
 
             if (m_tmpHitList.Count == 0)
                 return null;
 
-            return m_tmpHitList[0].HkHitInfo.Body.GetEntity() as MyEntity;
+            return m_tmpHitList[0].HkHitInfo.GetHitEntity() as MyEntity;
         }
 
         public static bool TryRayCastGrid(ref LineD worldRay, out MyCubeGrid hitGrid, out Vector3D worldHitPos)
@@ -1333,7 +1335,7 @@ namespace Sandbox.Game.Entities
                 MyPhysics.CastRay(worldRay.From, worldRay.To, m_tmpHitList);
                 foreach (var hit in m_tmpHitList)
                 {
-                    var cubeGrid = hit.HkHitInfo.Body.GetEntity() as MyCubeGrid;
+                    var cubeGrid = hit.HkHitInfo.GetHitEntity() as MyCubeGrid;
                     if (cubeGrid == null)
                         continue;
 
@@ -1416,6 +1418,9 @@ namespace Sandbox.Game.Entities
                 Debug.Assert(m_physicsBoxQueryList.Count == 0, "List not cleared");
                 MyPhysics.GetPenetrationsBox(ref halfExtents, ref translation, ref rotation, m_physicsBoxQueryList, MyPhysics.CharacterCollisionLayer);
             }
+            m_lastQueryBox.HalfExtents = halfExtents;
+            m_lastQueryTransform = MatrixD.CreateFromQuaternion(rotation);
+            m_lastQueryTransform.Translation = translation;
 
             var worldMatrix = targetGrid != null ? targetGrid.WorldMatrix : MatrixD.Identity;
             return TestPlacementAreaInternal(targetGrid, ref settings, blockDefinition, blockOrientation, ref localAabb, ignoredEntity, ref worldMatrix, out touchingGrid);
@@ -1898,16 +1903,16 @@ namespace Sandbox.Game.Entities
             bool entityOverlap = false;
             MyVoxelBase overlappedVoxelMap = null;
             bool touchingStaticGrid = false;
-            foreach (var rigidBody in m_physicsBoxQueryList)
+            foreach (var collison in m_physicsBoxQueryList)
             {
-                var entity = rigidBody.GetEntity();
+                var entity = collison.Body.GetEntity(0) as MyEntity;
                 if (entity == null)
                     continue;
 
-                if (ignoredEntity != null && (entity == ignoredEntity || entity.GetTopMostParent() == ignoredEntity))
+                if (entity.Physics.WeldInfo.Children.Count == 0 && ignoredEntity != null && (entity == ignoredEntity || entity.GetTopMostParent() == ignoredEntity))
                     continue;
 
-                var body = rigidBody.GetBody();
+                var body = entity.Physics;
                 if (body != null && body.IsPhantom)
                     continue;
 
@@ -1919,6 +1924,45 @@ namespace Sandbox.Game.Entities
                 }
 
                 var grid = entity as MyCubeGrid;
+				if (grid == null)
+				{
+					var subPart = entity as MyEntitySubpart;
+					if (subPart != null)
+					{
+						grid = subPart.GetTopMostParent() as MyCubeGrid;
+					}
+				}
+
+                if(entity.Physics.WeldInfo.Children.Count > 0)
+                {
+                    if(entity != ignoredEntity)
+                    {
+                        if(TestQueryIntersection(entity.Physics.GetShape(), entity.WorldMatrix))
+                        {
+                            entityOverlap = true;
+                            if(touchingGrid == null)
+                                touchingGrid = entity as MyCubeGrid;
+                            break;
+                        }
+                    }
+
+                    foreach(var child in entity.Physics.WeldInfo.Children)
+                    {
+                        if(child.Entity == ignoredEntity)
+                            continue;
+                        if(TestQueryIntersection(child.WeldedRigidBody.GetShape(), child.Entity.WorldMatrix))
+                        {
+                            if (touchingGrid == null)
+                                touchingGrid = child.Entity as MyCubeGrid;
+                            entityOverlap = true;
+                            break;
+                        }
+                    }
+                    if (entityOverlap)
+                        break;
+                    continue;
+                }
+
                 if (grid != null && ((isStatic && grid.IsStatic)
                     || (MyFakes.ENABLE_DYNAMIC_SMALL_GRID_MERGING && !isStatic && !grid.IsStatic && blockDefinition != null && blockDefinition.CubeSize == grid.GridSizeEnum)
                     || (MyFakes.ENABLE_BLOCK_PLACEMENT_ON_VOXEL && isStatic && grid.IsStatic && blockDefinition != null && blockDefinition.CubeSize == grid.GridSizeEnum)))
@@ -1947,6 +1991,17 @@ namespace Sandbox.Game.Entities
                 return false;
 
             return TestVoxelOverlap(ref settings, ref localAabb, ref worldMatrix, ref worldAabb, ref overlappedVoxelMap, touchingStaticGrid);
+        }
+
+        private static bool TestQueryIntersection(HkShape shape, MatrixD transform)
+        {
+            MatrixD transform1D = m_lastQueryTransform;
+            MatrixD transform2D = transform;
+            transform2D.Translation = transform2D.Translation - transform1D.Translation;
+            transform1D.Translation = Vector3D.Zero;
+            Matrix t1 = transform1D;
+            Matrix t2 = transform2D;
+            return MyPhysics.IsPenetratingShapeShape(m_lastQueryBox, ref t1, shape, ref t2);
         }
 
         private static bool TestVoxelOverlap(ref MyGridPlacementSettings settings, ref BoundingBoxD localAabb, ref MatrixD worldMatrix, ref BoundingBoxD worldAabb, ref MyVoxelBase overlappedVoxelMap, bool touchingStaticGrid)

@@ -61,9 +61,9 @@ namespace Sandbox.Game.Screens
         }
         private void FillData()
         {
-            //Briefing=MySession.Static.GetWorld().Checkpoint.Briefing;
             m_descriptionBox.Text.Clear().Append(MySession.Static.GetWorld().Checkpoint.Briefing).Append(Environment.NewLine).Append(Environment.NewLine);
-            m_descriptionBox.Text = MySessionComponentMissionTriggers.GetProgress(MySession.LocalHumanPlayer);
+            m_descriptionBox.Text.Append(Environment.NewLine).Append(MySessionComponentMissionTriggers.GetProgress(MySession.LocalHumanPlayer));
+            m_descriptionBox.RefreshText(false);
         }
 
         public override string GetFriendlyName()

@@ -99,7 +99,7 @@ namespace Sandbox.Game.GameSystems.StructuralIntegrity
         private static bool m_blurEnabled = false;
         private static bool m_blurStaticShareSupport = true;
 
-        public bool ForceRecalc;
+        bool m_needsRecalc;
 
         public static bool DrawText = true;
         public static bool BlurEnabled { get { return m_blurEnabled; } set { m_blurEnabled = value; } }
@@ -159,10 +159,10 @@ namespace Sandbox.Game.GameSystems.StructuralIntegrity
             m_frameCounter++;
 
             // Change detected by changing block count
-            if (m_grid.GetBlocks().Count == BlockCount && !ForceRecalc)
+            if (m_grid.GetBlocks().Count == BlockCount && !m_needsRecalc)
                 return false;
 
-            ForceRecalc = false;
+            m_needsRecalc = false;
 
             m_selectedGrid = m_grid;
 
@@ -400,7 +400,7 @@ namespace Sandbox.Game.GameSystems.StructuralIntegrity
 
             DynamicWeights[blockPos] = impact;
 
-            ForceRecalc = true;
+            m_needsRecalc = true;
 
             m_lastFrameCollision = m_frameCounter;
 
@@ -426,7 +426,7 @@ namespace Sandbox.Game.GameSystems.StructuralIntegrity
                     obj.OnPositionChanged -= PositionComp_OnPositionChanged;
                     DynamicWeights.Remove(m_collidingEntities[(MyEntity)obj.Container.Entity].Position);
                     m_collidingEntities.Remove((MyEntity)obj.Container.Entity);
-                    ForceRecalc = true;
+                    m_needsRecalc = true;
                 }
             }
         }

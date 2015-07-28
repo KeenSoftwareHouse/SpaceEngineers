@@ -63,6 +63,7 @@ namespace Sandbox.Game.AI.BehaviorTree
             }
 
             nodeMemory.NodeState = FinalValue;
+            nodeMemory.InitialIndex = 0;
             return FinalValue;
         }
 

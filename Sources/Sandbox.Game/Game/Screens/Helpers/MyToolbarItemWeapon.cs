@@ -42,7 +42,7 @@ namespace Sandbox.Game.Screens.Helpers
 			if(returnValue)
 			{
 				var otherObj = obj as MyToolbarItemWeapon;
-				if (otherObj != null)
+				if (otherObj == null)
 					returnValue = false;
 			}
 			return returnValue;
@@ -94,7 +94,7 @@ namespace Sandbox.Game.Screens.Helpers
             bool thisWeaponIsCurrent = false;
             bool shipHasThisWeapon = false;
             var character = MySession.LocalCharacter;
-            bool characterHasThisWeapon = character != null && (character.GetInventory().ContainItems(1, Definition.Id) || !character.WeaponTakesBuilderFromInventory(Definition.Id));
+            bool characterHasThisWeapon = character != null && character.GetInventory() != null && (character.GetInventory().ContainItems(1, Definition.Id) || !character.WeaponTakesBuilderFromInventory(Definition.Id));
             ChangeInfo changed = ChangeInfo.None;
 
             if (characterHasThisWeapon)
@@ -102,14 +102,18 @@ namespace Sandbox.Game.Screens.Helpers
                 var currentWeapon = character.CurrentWeapon;
                 if (currentWeapon != null)
                     thisWeaponIsCurrent = (MyDefinitionManager.Static.GetPhysicalItemForHandItem(currentWeapon.DefinitionId).Id == Definition.Id);
-                if (thisWeaponIsCurrent && currentWeapon is MyAutomaticRifleGun)
+                if (thisWeaponIsCurrent)
                 {
-                    int amount = character.CurrentWeapon.GetAmmunitionAmount();
-                    if (m_lastAmmoCount != amount)
+                    var weaponItemDefinition = MyDefinitionManager.Static.GetPhysicalItemForHandItem(currentWeapon.DefinitionId) as MyWeaponItemDefinition;
+                    if (weaponItemDefinition != null && weaponItemDefinition.ShowAmmoCount)
                     {
-                        m_lastAmmoCount = amount;
-                        IconText.Clear().AppendInt32(amount);
-                        changed |= ChangeInfo.IconText;
+                        int amount = character.CurrentWeapon.GetAmmunitionAmount();
+                        if (m_lastAmmoCount != amount)
+                        {
+                            m_lastAmmoCount = amount;
+                            IconText.Clear().AppendInt32(amount);
+                            changed |= ChangeInfo.IconText;
+                        }
                     }
                 }
             }
