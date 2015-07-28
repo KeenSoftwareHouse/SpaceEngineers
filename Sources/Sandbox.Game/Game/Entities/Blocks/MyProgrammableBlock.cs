@@ -38,12 +38,13 @@ namespace Sandbox.Game.Entities.Blocks
     [MyCubeBlockType(typeof(MyObjectBuilder_MyProgrammableBlock))]
     class MyProgrammableBlock : MyFunctionalBlock, IMyProgrammableBlock, IMyPowerConsumer
     {
+        private const int MAX_RUN_QUEUE_SIZE = 100;
         private IMyGridProgram m_instance = null;
         private MyGridProgramRuntime m_gridProgramRuntime = null;
-        private const int MAX_RUN_QUEUE_SIZE = 100;
         private string m_programData = null;
         private string m_editorData = null;
         private string m_terminalRunArgument = string.Empty;
+        
         public bool ConsoleOpen = false;
         MyGuiScreenEditor m_editorScreen;
         Assembly m_assembly = null;
@@ -244,6 +245,7 @@ namespace Sandbox.Game.Entities.Blocks
         {
             m_requireImmediateConstruction = false;
             m_assembly = null;
+            m_enqueuedRuns.Clear();
             m_enqueuedRuns.Clear();
         }
 
