@@ -35,6 +35,7 @@ namespace Sandbox.Game.Screens.DebugScreens
             AddCaption("Debug draw settings 2", Color.Yellow.ToVector4());
             AddShareFocusHint();
 
+            AddCheckBox("Entity components", null, MemberHelper.GetMember(() => MyDebugDrawSettings.DEBUG_DRAW_ENTITY_COMPONENTS));
             AddCheckBox("Grid names", null, MemberHelper.GetMember(() => MyDebugDrawSettings.DEBUG_DRAW_GRID_NAMES));
             AddCheckBox("Grid control", null, MemberHelper.GetMember(() => MyDebugDrawSettings.DEBUG_DRAW_GRID_CONTROL));
             AddCheckBox("Controlled entities", null, MemberHelper.GetMember(() => MyDebugDrawSettings.DEBUG_DRAW_CONTROLLED_ENTITIES));

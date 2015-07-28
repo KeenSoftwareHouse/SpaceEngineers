@@ -169,6 +169,8 @@ namespace VRageRender
 
         static MyRenderConstants()
         {
+            var massiveClipmapLodRanges = new float[] { 66f, 200f, 550f, 900f, };
+
             m_renderQualityProfiles[(int)MyRenderQualityEnum.NORMAL] = new MyRenderQualityProfile()
             {
                 RenderQuality = MyRenderQualityEnum.NORMAL,
@@ -180,8 +182,8 @@ namespace VRageRender
                 LodTransitionDistanceBackgroundEnd = 1100,
                 LodClipmapRanges = new float[][]
                 { // base was 32f * 4f
-                    new float[] { 100f, 300f, 800f, 2000f, 6000f, 18000f, 35000f, 100000f, },
-                    new float[] { 66f, },
+                    new float[] { 100f, 300f, 800f, 2000f, 4500f, 13500f, 30000f, 100000f, },
+                    massiveClipmapLodRanges,
                 },
 
                 // No need to set, env maps enabled only on high and extreme
@@ -259,7 +261,7 @@ namespace VRageRender
                 LodClipmapRanges = new float[][]
                 { // base was 32f * 2f
                     new float[] { 80f, 240f, 600f, 1600f, 4800f, 14000f, 35000f, 100000f, },
-                    new float[] { 66f, },
+                    massiveClipmapLodRanges,
                 },
 
                 // No need to set, env maps enabled only on high and extreme
@@ -334,8 +336,8 @@ namespace VRageRender
                 LodTransitionDistanceBackgroundEnd = 2000,
                 LodClipmapRanges = new float[][]
                 { // base was 32f * 6f
-                    new float[] { 120f, 360f, 900f, 2000f, 6000f, 18000f, 35000f, 100000f, },
-                    new float[] { 66f, },
+                    new float[] { 120f, 360f, 900f, 2000f, 4500f, 13500f, 30000f, 100000f, },
+                    massiveClipmapLodRanges,
                 },
 
                 EnvironmentLodTransitionDistance = 40,
@@ -409,8 +411,8 @@ namespace VRageRender
                 LodTransitionDistanceBackgroundEnd = 5000,
                 LodClipmapRanges = new float[][]
                 { // base was 32f * 8f
-                    new float[] { 140f, 400f, 1000f, 2000f, 6000f, 18000f, 35000f, 100000f, },
-                    new float[] { 66f, },
+                    new float[] { 140f, 400f, 1000f, 2000f, 4500f, 13500f, 30000f, 100000f, },
+                    massiveClipmapLodRanges,
                 },
 
                 EnvironmentLodTransitionDistance = 50,

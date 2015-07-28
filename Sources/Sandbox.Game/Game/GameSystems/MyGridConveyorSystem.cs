@@ -1,5 +1,6 @@
 ﻿using Sandbox.Common;
 using Sandbox.Common.ObjectBuilders;
+using Sandbox.Common.ObjectBuilders.Definitions;
 using Sandbox.Definitions;
 using Sandbox.Game.Entities;
 using Sandbox.Game.Entities.Cube;
@@ -9,16 +10,12 @@ using Sandbox.Game.World;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
-using System.Text;
 using VRage;
 using VRage.Algorithms;
 using VRage.Collections;
-using VRage;
-using VRage.Utils;
+using VRage.ObjectBuilders;
 using VRageMath;
 using VRageRender;
-using VRage.ObjectBuilders;
 
 namespace Sandbox.Game.GameSystems
 {
@@ -61,6 +58,32 @@ namespace Sandbox.Game.GameSystems
         {
             get;
             private set;
+        }
+
+        public bool IsInteractionPossible
+        {
+            get
+            {
+                bool inConstraint = false;
+                foreach (var connector in m_connectors)
+                {
+                    inConstraint |= connector.InConstraint;
+                }
+                return inConstraint;
+            }
+        }
+
+        public bool Connected
+        {
+            get
+            {
+                bool connected = false;
+                foreach (var connector in m_connectors)
+                {
+                    connected |= connector.Connected;
+                }
+                return connected;
+            }
         }
 
         public MyGridConveyorSystem(MyCubeGrid grid)
@@ -554,6 +577,11 @@ namespace Sandbox.Game.GameSystems
         private static bool NeedsLargeTube(MyDefinitionId itemDefinitionId)
         {
             MyPhysicalItemDefinition itemDef = MyDefinitionManager.Static.GetPhysicalItemDefinition(itemDefinitionId);
+
+			// A bit hacky but in this case better than adding something to the definitions
+			if (itemDefinitionId.TypeId == typeof(MyObjectBuilder_PhysicalGunObject))
+				return false;
+
             return itemDef.Size.AbsMax() > 0.25f;
         }
 

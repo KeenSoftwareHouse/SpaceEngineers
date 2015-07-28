@@ -39,6 +39,9 @@ namespace Sandbox.Common.ObjectBuilders.Definitions
         public string NoAmmoSoundName = null;
 
         [ProtoMember]
+        public string ReloadSoundName = null;
+
+        [ProtoMember]
         public float DeviateShotAngle = 0;
 
         [ProtoMember]

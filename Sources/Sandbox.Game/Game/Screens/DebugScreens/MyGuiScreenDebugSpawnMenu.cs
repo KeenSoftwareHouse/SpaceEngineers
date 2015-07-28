@@ -504,7 +504,7 @@ namespace Sandbox.Game.Gui
 
         public static MyStorageBase CreateProceduralAsteroidStorage(int seed, float radius, float deviationScale)
         {
-            return new MyOctreeStorage(MyCompositeShapeProvider.CreateAsteroidShape(seed, radius, 0), FindBestOctreeSize(radius));
+            return new MyOctreeStorage(MyCompositeShapeProvider.CreateAsteroidShape(seed, radius, 0), MyVoxelCoordSystems.FindBestOctreeSize(radius));
         }
 
         public static MyObjectBuilder_VoxelMap CreateAsteroidObjectBuilder(string storageName)
@@ -544,7 +544,7 @@ namespace Sandbox.Game.Gui
 
         public static MyStorageBase CreateProceduralAsteroidStorage(int seed, float radius)
         {
-            return new MyOctreeStorage(MyCompositeShapeProvider.CreateAsteroidShape(seed, radius, 0), FindBestOctreeSize(radius));
+            return new MyOctreeStorage(MyCompositeShapeProvider.CreateAsteroidShape(seed, radius, 0), MyVoxelCoordSystems.FindBestOctreeSize(radius));
         }
 
         private void SpawnProceduralAsteroid(int seed, float radius)
@@ -608,15 +608,6 @@ namespace Sandbox.Game.Gui
             while (collision);
 
             return storageName;
-        }
-
-        private static Vector3I FindBestOctreeSize(float radius)
-        {
-            int nodeRadius = MyVoxelConstants.RENDER_CELL_SIZE_IN_VOXELS;
-            while (nodeRadius < radius)
-                nodeRadius *= 2;
-            //nodeRadius *= 2;
-            return new Vector3I(nodeRadius, nodeRadius, nodeRadius);
         }
 
         private void CreatePlanetMenu()

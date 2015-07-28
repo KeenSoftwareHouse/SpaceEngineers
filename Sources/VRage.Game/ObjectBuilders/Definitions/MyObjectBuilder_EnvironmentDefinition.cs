@@ -7,6 +7,8 @@ using System.ComponentModel;
 using VRage.Data;
 using VRage.ObjectBuilders;
 using VRage;
+using VRageMath;
+using System.Xml.Serialization;
 
 namespace Sandbox.Common.ObjectBuilders.Definitions
 {
@@ -88,5 +90,31 @@ namespace Sandbox.Common.ObjectBuilders.Definitions
 
         [ProtoMember]
         public float LargeShipMaxAngularSpeed = 18000;
+
+		[ProtoContract]
+		public struct EnvironmentalParticleSettings
+		{
+			[ProtoMember]
+			public SerializableDefinitionId Id;
+
+			[ProtoMember]
+			public string Material;
+
+			[ProtoMember]
+			public Vector4 Color;
+
+			[ProtoMember]
+			public float MaxSpawnDistance;
+
+			[ProtoMember]
+			public float DespawnDistance;
+
+			[ProtoMember]
+			public float Density;
+		}
+
+		[ProtoMember, XmlArrayItem("ParticleType")]
+		public List<EnvironmentalParticleSettings> EnvironmentalParticles = new List<EnvironmentalParticleSettings>();
+
     }
 }

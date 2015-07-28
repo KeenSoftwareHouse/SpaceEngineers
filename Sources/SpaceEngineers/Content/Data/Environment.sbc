@@ -29,5 +29,23 @@
   <LargeShipMaxSpeed>100</LargeShipMaxSpeed>
   <SmallShipMaxAngularSpeed>360</SmallShipMaxAngularSpeed>
   <LargeShipMaxAngularSpeed>180</LargeShipMaxAngularSpeed>
+  <EnvironmentalParticles>
+    <ParticleType>
+      <Id>
+        <TypeId>MyObjectBuilder_EnvironmentalParticleLogicSpace</TypeId>
+        <SubtypeId>SpaceParticles</SubtypeId>
+      </Id>
+      <Material>Stardust</Material>
+      <Color>
+        <X>0.4</X>
+        <Y>0.4</Y>
+        <Z>0.4</Z>
+        <W>0.4</W>
+      </Color>
+      <MaxSpawnDistance>10</MaxSpawnDistance>
+      <DespawnDistance>15</DespawnDistance>
+      <Density>0.00001</Density>
+    </ParticleType>
+  </EnvironmentalParticles>
   </Environment>
 </Definitions>

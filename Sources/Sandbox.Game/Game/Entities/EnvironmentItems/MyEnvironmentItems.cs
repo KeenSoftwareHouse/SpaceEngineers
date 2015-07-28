@@ -103,7 +103,7 @@ namespace Sandbox.Game.Entities.EnvironmentItems
         protected List<HkdShapeInstanceInfo> m_childrenTmp = new List<HkdShapeInstanceInfo>();
         HashSet<Vector3I> m_updatedSectorsTmp = new HashSet<Vector3I>();
         List<HkdBreakableBodyInfo> m_tmpBodyInfos = new List<HkdBreakableBodyInfo>();
-        protected static List<HkRigidBody> m_tmpResults = new List<HkRigidBody>();
+        protected static List<HkBodyCollision> m_tmpResults = new List<HkBodyCollision>();
         protected static List<MyEnvironmentSector> m_tmpSectors = new List<MyEnvironmentSector>();
 
         private MyEnvironmentItemsDefinition m_definition;
@@ -905,7 +905,7 @@ namespace Sandbox.Game.Entities.EnvironmentItems
         }
 
         /// Default implementation does nothing. If you want env. items to react to damage, subclass this
-        public virtual void DoDamage(float damage, int instanceId, Vector3D position, Vector3 normal, MyDamageType type = MyDamageType.Unknown) { }
+        public virtual void DoDamage(float damage, int instanceId, Vector3D position, Vector3 normal, MyStringHash type) { }
 
         void Physics_ContactPointCallback(ref MyPhysics.MyContactPointEvent e)
         {
@@ -924,7 +924,7 @@ namespace Sandbox.Game.Entities.EnvironmentItems
             // If environment item is hit by a gun, nothing happens here. If you want a weapon damage to env. items, call DoDamage there
             if (impactEnergy > 200000 && !(other is IMyHandheldGunObject<MyDeviceBase>))
             {
-                int bodyId = e.ContactPointEvent.Base.BodyA.GetEntity() == this ? 0 : 1;
+                int bodyId = e.ContactPointEvent.Base.BodyA.GetEntity(0) == this ? 0 : 1;
                 var shapeKey = e.ContactPointEvent.GetShapeKey(bodyId);
                 var position = Physics.ClusterToWorld(e.ContactPointEvent.ContactPoint.Position);
                 var sectorId = MyEnvironmentSector.GetSectorId(position, m_definition.SectorSize);
@@ -940,7 +940,7 @@ namespace Sandbox.Game.Entities.EnvironmentItems
                 int itemInstanceId;
                 if (m_physicsShapeInstanceIdToLocalId.TryGetValue(physicsInstanceId, out itemInstanceId))
                 {
-                    DoDamage(1.0f, itemInstanceId, e.Position, -e.ContactPointEvent.ContactPoint.Normal);               
+                    DoDamage(100.0f, itemInstanceId, e.Position, -e.ContactPointEvent.ContactPoint.Normal, MyStringHash.NullOrEmpty);               
                 }
             }
         }
@@ -956,7 +956,7 @@ namespace Sandbox.Game.Entities.EnvironmentItems
                 Physics.HavokWorld.GetPenetrationsShape(b.Body.BreakableShape.GetShape(), ref t, ref o, m_tmpResults, MyPhysics.DefaultCollisionLayer);
                 foreach (var res in m_tmpResults)
                 {
-                    if (res.GetEntity() is MyVoxelMap)
+                    if (res.GetCollisionEntity() is MyVoxelMap)
                     {
                         b.Body.GetRigidBody().Quality = HkCollidableQualityType.Fixed;
                         break;

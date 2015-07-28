@@ -1455,12 +1455,12 @@ namespace Sandbox.Game.GameSystems
             }
             else
             {
-                if (m_prevCubeRoom != null && 
-                    blockPosition.X >= 0 && blockPosition.X < m_prevCubeRoom.GetLength(0) &&
-                    blockPosition.Y >= 0 && blockPosition.Y < m_prevCubeRoom.GetLength(1) &&
-                    blockPosition.Z >= 0 && blockPosition.Z < m_prevCubeRoom.GetLength(2))
+                if (m_tempPrevCubeRoom != null &&
+                    blockPosition.X >= 0 && blockPosition.X < m_tempPrevCubeRoom.GetLength(0) &&
+                    blockPosition.Y >= 0 && blockPosition.Y < m_tempPrevCubeRoom.GetLength(1) &&
+                    blockPosition.Z >= 0 && blockPosition.Z < m_tempPrevCubeRoom.GetLength(2))
                 {
-                    return m_prevCubeRoom[blockPosition.X, blockPosition.Y, blockPosition.Z];
+                    return m_tempPrevCubeRoom[blockPosition.X, blockPosition.Y, blockPosition.Z];
                 }
             }
             return new MyOxygenBlock();

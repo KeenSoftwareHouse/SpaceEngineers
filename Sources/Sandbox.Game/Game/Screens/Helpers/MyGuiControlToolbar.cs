@@ -2,13 +2,13 @@
 using Sandbox.Engine.Utils;
 using Sandbox.Game.Entities;
 using Sandbox.Game.Localization;
+using Sandbox.Game.World;
 using Sandbox.Graphics.GUI;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
-using VRage;
 using VRage;
 using VRage.Input;
 using VRage.Utils;
@@ -90,10 +90,8 @@ namespace Sandbox.Game.Screens.Helpers
 
         public override void Draw(float transitionAlpha, float backgroundTransitionAlpha)
         {
-            Color c = Color.White;
-            if (MyToolbar.ColorMaskHSV != null)
-                c = (new Vector3(MyToolbar.ColorMaskHSV.X, MathHelper.Clamp(MyToolbar.ColorMaskHSV.Y + 0.8f, 0f, 1f), MathHelper.Clamp(MyToolbar.ColorMaskHSV.Z + 0.55f, 0f, 1f))).HSVtoColor();
-            m_colorVariantPanel.ColorMask = c.ToVector4();//MyCubeBuilder.VariantColor;
+			Color c = (new Vector3(MyPlayer.SelectedColor.X, MathHelper.Clamp(MyPlayer.SelectedColor.Y + 0.8f, 0f, 1f), MathHelper.Clamp(MyPlayer.SelectedColor.Z + 0.55f, 0f, 1f))).HSVtoColor();
+            m_colorVariantPanel.ColorMask = c.ToVector4();
             base.Draw(transitionAlpha, backgroundTransitionAlpha);
         }
 

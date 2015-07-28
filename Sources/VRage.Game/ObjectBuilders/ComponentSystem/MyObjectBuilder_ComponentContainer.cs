@@ -22,6 +22,6 @@ namespace Sandbox.Common.ObjectBuilders.ComponentSystem
         }
 
         [ProtoMember]
-        public ComponentData[] Components;
+        public List<ComponentData> Components = new List<ComponentData>();
     }
 }

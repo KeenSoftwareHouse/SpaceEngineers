@@ -333,7 +333,7 @@ namespace Sandbox.Game.Gui
                         
                         if (medicalRoom.IsWorking)
                         {
-                            if (medicalRoom.HasPlayerAccess(playerId))
+                            if (medicalRoom.HasPlayerAccess(playerId) || medicalRoom.SetFactionToSpawnee)
                             {
                                 medicalRooms.Add(medicalRoom);
                             }

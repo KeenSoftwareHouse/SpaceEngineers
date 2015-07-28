@@ -108,8 +108,6 @@ namespace Sandbox.Game.Entities
 
         bool m_hasSpawningMaterial = false;
 
-        bool m_hasGeneratedTexture = false;
-
         public MyPlanet()
         {
             (PositionComp as MyPositionComponent).WorldPositionChanged = WorldPositionChanged;
@@ -123,6 +121,14 @@ namespace Sandbox.Game.Entities
             get 
             {
                 return m_planetInitValues.MinimumSurfaceRadius;
+            }
+        }
+
+        public float AveragePlanetRadius
+        {
+            get
+            {
+                return m_planetInitValues.AveragePlanetRadius;
             }
         }
 
@@ -146,7 +152,7 @@ namespace Sandbox.Game.Entities
         {
             get 
             {
-                return m_planetInitValues.HasAtmosphere && MySession.Static.Settings.EnableFlora && m_hasSpawningMaterial;
+                return m_planetInitValues.HasAtmosphere /*&& MySession.Static.Settings.EnableFlora*/ && m_hasSpawningMaterial;
             }
         }
 
@@ -154,7 +160,7 @@ namespace Sandbox.Game.Entities
         {   
             if(MyFakes.ENABLE_PLANETS == false)
             {
-                throw new PlanetsNotEnabledException();
+                //throw new PlanetsNotEnabledException();
             }
 
             ProfilerShort.Begin("base init");
@@ -205,7 +211,7 @@ namespace Sandbox.Game.Entities
         {
             if (MyFakes.ENABLE_PLANETS == false)
             {
-                throw new PlanetsNotEnabledException();
+                //throw new PlanetsNotEnabledException();
             }
 
             m_planetInitValues = arguments;
@@ -236,9 +242,9 @@ namespace Sandbox.Game.Entities
            MyOxygenProviderSystem.AddOxygenGenerator(this);
 
            if (m_planetInitValues.MarkAreaEmpty)
-            {
-                MyProceduralWorldGenerator.Static.MarkEmptyArea(PositionComp.GetPosition());
-            }
+           {
+               MyProceduralWorldGenerator.Static.MarkEmptyArea(PositionComp.GetPosition(), m_planetInitValues.MaximumHillRadius);
+           }
 
         }
 
@@ -358,20 +364,20 @@ namespace Sandbox.Game.Entities
             base.Closing();
             MyGravityProviderSystem.RemovePlanet(this);
             MyOxygenProviderSystem.RemoveOxygenGenerator(this);
+
+			if (m_physicsShapes != null)
+			{
+				foreach (var voxelMap in m_physicsShapes)
+				{
+					voxelMap.Value.Close();
+				}
+			}
         }
 
         protected override void BeforeDelete()
         {
             base.BeforeDelete();
-
-            if (m_physicsShapes != null)
-            {
-                foreach (var voxelMap in m_physicsShapes)
-                {
-                    voxelMap.Value.Close();
-                }
-            }
-
+           
             if (Render is MyRenderComponentPlanet)
             {
                 (Render as MyRenderComponentPlanet).CancelAllRequests();
@@ -385,9 +391,19 @@ namespace Sandbox.Game.Entities
                     m_planetSectorsPool.Deallocate(sector.Value);
                 }
             }
-
-            m_storage = null;
+			if (m_physicsShapes != null)
+			{
+				foreach (var voxelMap in m_physicsShapes)
+				{
+					MySession.Static.VoxelMaps.RemoveVoxelMap(voxelMap.Value);
+					voxelMap.Value.RemoveFromGamePruningStructure();
+				}
+			}
+			
             MySession.Static.VoxelMaps.RemoveVoxelMap(this);
+			Storage.DataProvider.ReleaseHeightMaps();
+
+			m_storage = null;
         }
 
         private void storage_RangeChangedPlanet(Vector3I minChanged, Vector3I maxChanged, MyStorageDataTypeFlags dataChanged)
@@ -423,12 +439,6 @@ namespace Sandbox.Game.Entities
             MyVoxelPhysics voxelMap = null;
             if (m_physicsShapes.TryGetValue(it.Current, out voxelMap) == false)
             {
-                if (m_hasGeneratedTexture == false)
-                {
-                    m_storage.DataProvider.GenerateNoiseHelpTexture(m_storage.Size.X);
-                    m_hasGeneratedTexture = true;
-                }
-
                 voxelMap = new MyVoxelPhysics();
 
                 Vector3I storageMin = it.Current * increment;
@@ -577,12 +587,6 @@ namespace Sandbox.Game.Entities
                 shapeBox.Inflate(MyVoxelConstants.GEOMETRY_CELL_SIZE_IN_METRES);
                 shapeBox.Translate(predictionOffset);
                 GeneratePhysicalShapeForBox(ref increment, ref shapeBox);
-            }
-
-            if (m_entities.Count < 1  && m_hasGeneratedTexture == true)
-            {
-                m_storage.DataProvider.ReleaseNoiseHelpTexture();
-                m_hasGeneratedTexture = false;
             }
 
             ProfilerShort.End();

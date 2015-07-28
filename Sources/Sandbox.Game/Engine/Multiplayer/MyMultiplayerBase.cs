@@ -596,6 +596,7 @@ namespace Sandbox.Engine.Multiplayer
                 var checkpoint = worldData.Checkpoint;
                 checkpoint.WorkshopId = null;
                 checkpoint.CharacterToolbar = null;
+                checkpoint.Settings.ScenarioEditMode = checkpoint.Settings.ScenarioEditMode && !MySession.Static.LoadedAsMission;
                 ProfilerShort.Begin("SerializeXML");
                 MyObjectBuilderSerializer.SerializeXML(m_worldSendStream, worldData, MyObjectBuilderSerializer.XmlCompression.Gzip);
                 ProfilerShort.BeginNextBlock("SendFlush");

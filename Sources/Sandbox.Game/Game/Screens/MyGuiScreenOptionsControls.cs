@@ -336,6 +336,7 @@ namespace Sandbox.Game.Gui
                 m_joystickCombobox = new MyGuiControlCombobox(m_controlsOriginRight + multiplierJoystick * MyGuiConstants.CONTROLS_DELTA + new Vector2(MyGuiConstants.COMBOBOX_MEDIUM_SIZE.X / 2.0f, 0));
                 m_joystickCombobox.ItemSelected += OnSelectJoystick;
                 AddJoysticksToComboBox();
+                m_joystickCombobox.Enabled = !MyFakes.ENFORCE_CONTROLLER || !MyInput.Static.IsJoystickConnected();
                 m_allControls[MyGuiControlTypeEnum.General].Add(m_joystickCombobox);
 
                 m_joystickSensitivitySlider = new MyGuiControlSlider(
@@ -383,7 +384,9 @@ namespace Sandbox.Game.Gui
             int counter = 0;
             bool selectedJoystick = false;
             m_joystickCombobox.AddItem(counter++, MyTexts.Get(MySpaceTexts.Disabled));
-            foreach (string joystickName in MyInput.Static.EnumerateJoystickNames())
+
+            var joysticks = MyInput.Static.EnumerateJoystickNames();
+            foreach (string joystickName in joysticks)
             {
                 m_joystickCombobox.AddItem(counter, new StringBuilder(joystickName));
                 if (MyInput.Static.JoystickInstanceName == joystickName)

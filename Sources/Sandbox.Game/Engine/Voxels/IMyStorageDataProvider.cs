@@ -37,8 +37,6 @@ namespace Sandbox.Engine.Voxels
 
         bool HasMaterialSpawningFlora();
 
-        void GenerateNoiseHelpTexture(int storageSize);
-
-        void ReleaseNoiseHelpTexture();
+        void ReleaseHeightMaps();
     }
 }

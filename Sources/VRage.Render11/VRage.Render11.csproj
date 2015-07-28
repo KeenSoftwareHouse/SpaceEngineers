@@ -93,9 +93,11 @@
     <Compile Include="GeometryStage\Materials\MeshMaterial.cs" />
     <Compile Include="GeometryStage\MyRenderingDispatcher.cs" />
     <Compile Include="GeometryStage\RenderingPasses\MyForwardPass.cs" />
+    <Compile Include="GeometryStage\RenderingPasses\MyOutlinePass.cs" />
     <Compile Include="LightingStage\MyAtmospehere.cs" />
     <Compile Include="LightingStage\MyEnvProbeProcessing.cs" />
     <Compile Include="PostprocessStage\MyFXAA.cs" />
+    <Compile Include="PostprocessStage\MyOutline.cs" />
     <Compile Include="PostprocessStage\MyLuminanceDebugTools.cs" />
     <Compile Include="LightingStage\MyShadowsResolve.cs" />
     <Compile Include="Profiler\MyGpuProfiler.cs" />

@@ -9,6 +9,7 @@ using System.Linq;
 using System.Text;
 using VRage.Utils;
 using Sandbox.Graphics.GUI;
+using Sandbox.Game.GameSystems;
 
 namespace Sandbox.Game.World.Triggers
 {
@@ -19,8 +20,10 @@ namespace Sandbox.Game.World.Triggers
         public void SetTrue()
         {
             IsTrue = true;
-            if (WwwLink!=null && WwwLink.Length>0)
-                MyGuiSandbox.OpenUrlWithFallback(WwwLink,"Scenario info");
+            if (WwwLink != null && WwwLink.Length > 0)
+                MyGuiSandbox.OpenUrlWithFallback(WwwLink, "Scenario info", true);
+            if (NextMission != null && NextMission.Length > 0 && MySession.Static.IsScenario)
+                MyScenarioSystem.LoadNextScenario(NextMission);
         }
 
         public string Message;
@@ -35,6 +38,9 @@ namespace Sandbox.Game.World.Triggers
                 Message = string.Copy(trg.Message);
             if (trg.WwwLink != null)
                 WwwLink = string.Copy(trg.WwwLink);
+            if (trg.NextMission!= null)
+                NextMission = string.Copy(trg.NextMission);
+
         }
         public virtual object Clone()
         {
@@ -64,6 +70,7 @@ namespace Sandbox.Game.World.Triggers
             m_IsTrue=ob.IsTrue;
             Message = ob.Message;
             WwwLink = ob.WwwLink;
+            NextMission = ob.NextMission;
         }
         public virtual MyObjectBuilder_Trigger GetObjectBuilder()
         {
@@ -71,6 +78,7 @@ namespace Sandbox.Game.World.Triggers
             ob.IsTrue = m_IsTrue;
             ob.Message = Message;
             ob.WwwLink = WwwLink;
+            ob.NextMission = NextMission;
             return ob;
         }
         //GUI

@@ -54,8 +54,16 @@ namespace Sandbox.Game.Entities.Character
 {
     public class MyCharacterShapecastDetectorComponent : MyCharacterDetectorComponent
     {
-        const float SHAPE_RADIUS = 0.1f;
-        List<HkContactBodyData> m_hits = new List<HkContactBodyData>();
+        public const float DEFAULT_SHAPE_RADIUS = 0.1f;
+        List<MyPhysics.HitInfo> m_hits = new List<MyPhysics.HitInfo>();
+
+        public float ShapeRadius { get; set; }
+
+        public MyCharacterShapecastDetectorComponent()
+        {
+            ShapeRadius = DEFAULT_SHAPE_RADIUS;
+        }
+
         protected override void DoDetection(bool useHead)
         {
             if (Character == MySession.ControlledEntity)
@@ -70,7 +78,8 @@ namespace Sandbox.Game.Entities.Character
             if (!useHead)
             {
                 //Ondrej version
-                var cameraMatrix = MySector.MainCamera.WorldMatrix;
+                //var cameraMatrix = MySector.MainCamera.WorldMatrix;
+                var cameraMatrix = Character.Get3rdBoneMatrix(true, true);
                 dir = cameraMatrix.Forward;
                 from = MyUtils.LinePlaneIntersection(headPos, (Vector3)dir, cameraMatrix.Translation, (Vector3)dir);
             }
@@ -81,13 +90,16 @@ namespace Sandbox.Game.Entities.Character
                 from = headPos;
             }
 
-            Vector3D to = from + dir * MyConstants.DEFAULT_INTERACTIVE_DISTANCE;
+            Vector3D to = from + dir * 2.5f;
+
+            StartPosition = from;
 
             MatrixD matrix = MatrixD.CreateTranslation(from);
-            HkShape shape = new HkSphereShape(SHAPE_RADIUS);
+            HkShape shape = new HkSphereShape(ShapeRadius);
             IMyEntity hitEntity = null;
-            int shapeKey = -1;
-            Vector3D hitPosition = Vector3D.Zero;
+            ShapeKey = uint.MaxValue;
+            HitPosition = Vector3D.Zero;
+            HitNormal = Vector3.Zero;
             m_hits.Clear();
 
             try
@@ -95,17 +107,20 @@ namespace Sandbox.Game.Entities.Character
                 MyPhysics.CastShapeReturnContactBodyDatas(to, shape, ref matrix, 0, 0f, m_hits);
 
                 int index = 0;
-                while (index < m_hits.Count && (m_hits[index].Body == null || m_hits[index].Body.UserObject == Character.Physics
-                    || (Character.VirtualPhysics != null && m_hits[index].Body.UserObject == Character.VirtualPhysics) || m_hits[index].Body.HasProperty(HkCharacterRigidBody.MANIPULATED_OBJECT))) // Skip invalid hits and self character
+                while (index < m_hits.Count && (m_hits[index].HkHitInfo.Body == null || m_hits[index].HkHitInfo.GetHitEntity() == Character
+                    || m_hits[index].HkHitInfo.Body.HasProperty(HkCharacterRigidBody.MANIPULATED_OBJECT))) // Skip invalid hits and self character
                 {
                     index++;
                 }
 
                 if (index < m_hits.Count)
                 {
-                    hitEntity = m_hits[index].Body.GetEntity();
-                    shapeKey = m_hits[index].ShapeKey;
-                    hitPosition = m_hits[index].HitPosition;
+                    hitEntity = m_hits[index].HkHitInfo.GetHitEntity();
+                    ShapeKey = m_hits[index].HkHitInfo.GetShapeKey(0);
+                    HitPosition = m_hits[index].Position;
+                    HitNormal = m_hits[index].HkHitInfo.Normal;
+                    HitMaterial = m_hits[index].HkHitInfo.Body.GetBody().GetMaterialAt(HitPosition + HitNormal * 0.1f);
+                    HitBody = m_hits[index].HkHitInfo.Body;
                 }
             }
             finally
@@ -124,7 +139,7 @@ namespace Sandbox.Game.Entities.Character
                 hitEntity.Components.TryGet<MyUseObjectsComponentBase>(out useObject);
                 if (useObject != null)
                 {
-                    interactive = useObject.GetInteractiveObject(shapeKey);
+                    interactive = useObject.GetInteractiveObject(ShapeKey);
                 }
             }
 
@@ -133,7 +148,7 @@ namespace Sandbox.Game.Entities.Character
                 UseObject.OnSelectionLost();
             }
 
-            if (interactive != null && interactive.SupportedActions != UseActionEnum.None && (Vector3D.Distance(from, hitPosition)) < interactive.InteractiveDistance && Character == MySession.ControlledEntity)
+            if (interactive != null && interactive.SupportedActions != UseActionEnum.None && (Vector3D.Distance(from, HitPosition)) < interactive.InteractiveDistance && Character == MySession.ControlledEntity)
             {
                 MyHud.SelectedObjectHighlight.Visible = true;
                 MyHud.SelectedObjectHighlight.InteractiveObject = interactive;

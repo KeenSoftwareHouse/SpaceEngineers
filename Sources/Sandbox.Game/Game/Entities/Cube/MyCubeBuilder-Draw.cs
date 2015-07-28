@@ -466,7 +466,7 @@ namespace Sandbox.Game.Entities
 
                     foreach (var shape in model.HavokCollisionShapes)
                     {
-                        MyPhysicsBody.DrawCollisionShape(shape, drawMatrix, 0.2f, ref index);
+                        MyPhysicsDebugDraw.DrawCollisionShape(shape, drawMatrix, 0.2f, ref index);
                     }
 
                     var newMountPoints = AutogenerateMountpoints(model, cubeSize);

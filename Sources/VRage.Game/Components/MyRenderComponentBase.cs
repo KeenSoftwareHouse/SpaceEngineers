@@ -432,5 +432,10 @@ namespace VRage.Components
                 }
             }
         }
+
+        public override string ComponentTypeDebugString
+        {
+            get { return "Render"; }
+        }
     }
 }

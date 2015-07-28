@@ -289,10 +289,10 @@ namespace Sandbox.Graphics.GUI
             }
             set
             {
-                Debug.Assert(m_visibleRowIndexOffset >= 0, "Index should be positive!");
-                Debug.Assert(m_visibleRowIndexOffset < Items.Count, "Index should be in range!");
+                Debug.Assert(value >= 0, "Index should be positive!");
+                Debug.Assert(value < Items.Count, "Index should be in range!");
 
-                m_scrollBar.ChangeValue(value);
+                m_scrollBar.Value = value;
             }
         }
 

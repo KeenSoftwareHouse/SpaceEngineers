@@ -240,7 +240,7 @@ namespace VRageRender
                         }
                     }
 
-                    if(MyEnvironment.ViewFrustumD.Contains(bb) != VRageMath.ContainmentType.Disjoint)
+                    if(MyEnvironment.ViewFrustumClippedD.Contains(bb) != VRageMath.ContainmentType.Disjoint)
                     {
                         MyRenderProxy.VisibleObjectsWrite.Add(h.m_owner.ID);
                     }
@@ -299,7 +299,7 @@ namespace VRageRender
             MySceneMaterials.PreFrame();
         }
 
-        internal static void AddCamera(ref Matrix viewMatrix, ref Matrix projectionMatrix, MyViewport viewport, MyGBuffer gbuffer)
+        internal static void AddCamera(ref MatrixD viewMatrix, ref MatrixD projectionMatrix, MyViewport viewport, MyGBuffer gbuffer)
         {
             var frustumMask = m_cullQuery.AddFrustum(new BoundingFrustumD(MyEnvironment.ViewProjectionD));
 
@@ -813,7 +813,7 @@ namespace VRageRender
             m_wavefront.Clear();
 
             // add main camera
-            AddCamera(ref MyEnvironment.View, ref MyEnvironment.Projection, 
+            AddCamera(ref MyEnvironment.ViewD, ref MyEnvironment.OriginalProjectionD, 
                 new MyViewport(MyRender11.ViewportResolution.X, MyRender11.ViewportResolution.Y), 
                 MyGBuffer.Main);
             m_cullQuery.FrustumQuery[m_wavefront.Count-1].Type = MyFrustumEnum.MainFrustum;

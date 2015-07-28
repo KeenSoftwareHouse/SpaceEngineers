@@ -26,6 +26,8 @@ namespace Sandbox.Game.Gui
         bool loaded = false;
 
         bool m_hasCheckpoint = false;
+
+        int m_additionalButtons = 0;
         
         public MyGuiScreenStartSandbox()
             : base(new Vector2(0.5f, 0.5f), MyGuiConstants.SCREEN_BACKGROUND_COLOR, new Vector2(0.36f, 0.3f), false, null)
@@ -33,9 +35,13 @@ namespace Sandbox.Game.Gui
             EnabledBackgroundFade = true;
 
             if (MyFakes.ENABLE_BATTLE_SYSTEM)
-            {
-                Size = new Vector2(0.36f, 0.34f);
-            }
+                m_additionalButtons++;
+            if (MyPerGameSettings.EnableScenarios)
+                m_additionalButtons++;
+            if (MyPerGameSettings.EnableTutorials)
+                m_additionalButtons++;
+            
+            Size = new Vector2(0.36f, 0.3f + m_additionalButtons * 0.04f);
 
             MyDefinitionManager.Static.LoadScenarios();
 
@@ -48,12 +54,7 @@ namespace Sandbox.Game.Gui
 
             AddCaption(MySpaceTexts.ScreenCaptionNewWorld);
 
-            Vector2 menuPositionOrigin = new Vector2(0.0f, -m_size.Value.Y / 2.0f + 0.147f);
-            if (MyPerGameSettings.EnableScenarios)
-            {
-                menuPositionOrigin = new Vector2(0.0f, -m_size.Value.Y / 2.0f + 0.11f);
-            }
-
+            Vector2 menuPositionOrigin = new Vector2(0.0f, -m_size.Value.Y / 2.0f + (0.147f - m_additionalButtons * 0.013f));
             Vector2 buttonDelta = new Vector2(0.15f, 0);
 
             //MyStringId? otherButtonsForbidden = null;
@@ -86,6 +87,18 @@ namespace Sandbox.Game.Gui
                     onButtonClick: OnScenarioGameClick);
 
                 Controls.Add(scenarioButton);
+            }
+
+            if (MyPerGameSettings.EnableTutorials)
+            {
+                // tutorials
+                var tutorialButton = new MyGuiControlButton(
+                    position: menuPositionOrigin + buttonPositionCounter++ * MyGuiConstants.MENU_BUTTONS_POSITION_DELTA,
+                    text: MyTexts.Get(MySpaceTexts.ScreenCaptionTutorials),
+                    //toolTip: MyTexts.GetString(MySpaceTexts.ToolTipNewWorldCustomWorld),
+                    onButtonClick: OnTutorialClick);
+
+                Controls.Add(tutorialButton);
             }
 
             if (MyFakes.ENABLE_BATTLE_SYSTEM)
@@ -174,6 +187,11 @@ namespace Sandbox.Game.Gui
         public void OnScenarioGameClick(MyGuiControlButton sender)
         {
             MyGuiSandbox.AddScreen(MyGuiSandbox.CreateScreen(MyPerGameSettings.GUI.ScenarioScreen));
+        }
+
+        public void OnTutorialClick(MyGuiControlButton sender)
+        {
+            MyGuiSandbox.AddScreen(MyGuiSandbox.CreateScreen(MyPerGameSettings.GUI.TutorialScreen));
         }
 
         public void OnBattleClick(MyGuiControlButton sender)

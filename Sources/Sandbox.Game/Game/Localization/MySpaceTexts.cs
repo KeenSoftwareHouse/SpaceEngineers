@@ -2510,7 +2510,7 @@ namespace Sandbox.Game.Localization
         public static readonly MyStringId Quote69Text = MyStringId.GetOrCompute("Quote69Text");
 
         ///<summary>
-        ///Gravity:
+        ///Actual Gravity:
         ///</summary>
         public static readonly MyStringId HudInfoGravity = MyStringId.GetOrCompute("HudInfoGravity");
 
@@ -2705,7 +2705,7 @@ namespace Sandbox.Game.Localization
         public static readonly MyStringId DisplayName_Scenario_EasyStart2 = MyStringId.GetOrCompute("DisplayName_Scenario_EasyStart2");
 
         ///<summary>
-        ///Do you want to start by watching the video tutorial? Remember: you can always come back by clicking "Tutorials" in the "Help" screen (press F1).
+        ///Do you want to start by playing tutorial maps?
         ///</summary>
         public static readonly MyStringId MessageBoxTextTutorialQuestion = MyStringId.GetOrCompute("MessageBoxTextTutorialQuestion");
 
@@ -3165,7 +3165,7 @@ namespace Sandbox.Game.Localization
         public static readonly MyStringId NotificationUsingWeaponType = MyStringId.GetOrCompute("NotificationUsingWeaponType");
 
         ///<summary>
-        ///Controlling station
+        ///Controlling Station
         ///</summary>
         public static readonly MyStringId HudInfoControllingStation = MyStringId.GetOrCompute("HudInfoControllingStation");
 
@@ -10005,7 +10005,7 @@ namespace Sandbox.Game.Localization
         public static readonly MyStringId ControlMenuItemLabel_Jetpack = MyStringId.GetOrCompute("ControlMenuItemLabel_Jetpack");
 
         ///<summary>
-        ///Landing gear / connector
+        ///Landing gears
         ///</summary>
         public static readonly MyStringId ControlMenuItemLabel_LandingGear = MyStringId.GetOrCompute("ControlMenuItemLabel_LandingGear");
 
@@ -11098,5 +11098,150 @@ namespace Sandbox.Game.Localization
         ///Ship will jump in {0} seconds.
         ///</summary>
         public static readonly MyStringId NotificationJumpWarmupTime = MyStringId.GetOrCompute("NotificationJumpWarmupTime");
+
+        ///<summary>
+        ///You can put a scenario name here (must already exist on local computer to be loaded)  or workshop ID number (user does *not* have to have it subscribed in that case). Workshop ID can be seen in the URL link of scenario in question on steam workshop web.
+        ///</summary>
+        public static readonly MyStringId GuiTriggerNextMissionTooltip = MyStringId.GetOrCompute("GuiTriggerNextMissionTooltip");
+
+        ///<summary>
+        ///Next scenario was not found and cannot be loaded. Both {0} and {1} does not exist or contain invalid data. Please contact scenario author to fix it.
+        ///</summary>
+        public static readonly MyStringId MessageBoxTextScenarioNotFound = MyStringId.GetOrCompute("MessageBoxTextScenarioNotFound");
+
+        ///<summary>
+        ///Prepare for next scenario ...
+        ///</summary>
+        public static readonly MyStringId NotificationNextScenarioWillLoad = MyStringId.GetOrCompute("NotificationNextScenarioWillLoad");
+
+        ///<summary>
+        ///Assign player to faction
+        ///</summary>
+        public static readonly MyStringId MedicalRoom_factionAssignmentLabel = MyStringId.GetOrCompute("MedicalRoom_factionAssignmentLabel");
+
+        ///<summary>
+        ///Respawned player will be assigned to this medical room's faction.
+        ///</summary>
+        public static readonly MyStringId MedicalRoom_factionAssignmentTooltip = MyStringId.GetOrCompute("MedicalRoom_factionAssignmentTooltip");
+
+        ///<summary>
+        ///Jump was aborted!
+        ///</summary>
+        public static readonly MyStringId NotificationJumpAborted = MyStringId.GetOrCompute("NotificationJumpAborted");
+
+        ///<summary>
+        ///Jump drive is only {0} charged!
+        ///</summary>
+        public static readonly MyStringId NotificationJumpDriveNotFullyCharged = MyStringId.GetOrCompute("NotificationJumpDriveNotFullyCharged");
+
+        ///<summary>
+        ///When played as scenario: player will start in respawn screen with new identity, all ownership will be lost.
+        ///</summary>
+        public static readonly MyStringId ToolTipWorldSettings_StartInRespawnScreen = MyStringId.GetOrCompute("ToolTipWorldSettings_StartInRespawnScreen");
+
+        ///<summary>
+        ///Start in respawn screen
+        ///</summary>
+        public static readonly MyStringId WorldSettings_StartInRespawnScreen = MyStringId.GetOrCompute("WorldSettings_StartInRespawnScreen");
+
+        ///<summary>
+        ///This link is not allowed and will not open. Allowed sites: steamcommunity, youtube, KSH forum.
+        ///</summary>
+        public static readonly MyStringId WwwLinkNotAllowed = MyStringId.GetOrCompute("WwwLinkNotAllowed");
+
+        ///<summary>
+        ///Show scenario briefing
+        ///</summary>
+        public static readonly MyStringId ControlMenuItemLabel_ScenarioBriefing = MyStringId.GetOrCompute("ControlMenuItemLabel_ScenarioBriefing");
+
+        ///<summary>
+        ///Connectors
+        ///</summary>
+        public static readonly MyStringId ControlMenuItemLabel_Connectors = MyStringId.GetOrCompute("ControlMenuItemLabel_Connectors");
+
+        ///<summary>
+        ///Show build screen
+        ///</summary>
+        public static readonly MyStringId ControlMenuItemLabel_ShowBuildScreen = MyStringId.GetOrCompute("ControlMenuItemLabel_ShowBuildScreen");
+
+        ///<summary>
+        ///Press {0} to apply color, access control menu to change color
+        ///</summary>
+        public static readonly MyStringId NotificationJoystickColorFormat = MyStringId.GetOrCompute("NotificationJoystickColorFormat");
+
+        ///<summary>
+        ///Enables voxel destrucion in world.
+        ///</summary>
+        public static readonly MyStringId ToolTipWorldSettings_EnableVoxelDestruction = MyStringId.GetOrCompute("ToolTipWorldSettings_EnableVoxelDestruction");
+
+        ///<summary>
+        ///Enable voxel destruction
+        ///</summary>
+        public static readonly MyStringId WorldSettings_EnableVoxelDestruction = MyStringId.GetOrCompute("WorldSettings_EnableVoxelDestruction");
+
+        ///<summary>
+        ///Tutorials
+        ///</summary>
+        public static readonly MyStringId ScreenCaptionTutorials = MyStringId.GetOrCompute("ScreenCaptionTutorials");
+
+        ///<summary>
+        ///Training Level
+        ///</summary>
+        public static readonly MyStringId TrainingLevel = MyStringId.GetOrCompute("TrainingLevel");
+
+        ///<summary>
+        ///Advanced
+        ///</summary>
+        public static readonly MyStringId TrainingLevel_Advanced = MyStringId.GetOrCompute("TrainingLevel_Advanced");
+
+        ///<summary>
+        ///Basic
+        ///</summary>
+        public static readonly MyStringId TrainingLevel_Basic = MyStringId.GetOrCompute("TrainingLevel_Basic");
+
+        ///<summary>
+        ///Intermediate
+        ///</summary>
+        public static readonly MyStringId TrainingLevel_Intermediate = MyStringId.GetOrCompute("TrainingLevel_Intermediate");
+
+        ///<summary>
+        ///Tutorial
+        ///</summary>
+        public static readonly MyStringId MessageBoxCaptionTutorial = MyStringId.GetOrCompute("MessageBoxCaptionTutorial");
+
+        ///<summary>
+        ///
+        ///</summary>
+        public static readonly MyStringId MessageBoxCaptionVideoTutori = MyStringId.GetOrCompute("MessageBoxCaptionVideoTutori");
+
+        ///<summary>
+        ///State
+        ///</summary>
+        public static readonly MyStringId HudInfoState = MyStringId.GetOrCompute("HudInfoState");
+
+        ///<summary>
+        ///Video
+        ///</summary>
+        public static readonly MyStringId MessageBoxCaptionVideo = MyStringId.GetOrCompute("MessageBoxCaptionVideo");
+
+        ///<summary>
+        ///Would you like to watch video before tutorial starts?
+        ///</summary>
+        public static readonly MyStringId MessageBoxTextWatchVideo = MyStringId.GetOrCompute("MessageBoxTextWatchVideo");
+
+        ///<summary>
+        ///Artif. Gravity:
+        ///</summary>
+        public static readonly MyStringId HudInfoGravityArtificial = MyStringId.GetOrCompute("HudInfoGravityArtificial");
+
+        ///<summary>
+        ///Planet Gravity:
+        ///</summary>
+        public static readonly MyStringId HudInfoGravityNatural = MyStringId.GetOrCompute("HudInfoGravityNatural");
+
+        ///<summary>
+        ///Oxygen: 
+        ///</summary>
+        public static readonly MyStringId HudInfoOxygen = MyStringId.GetOrCompute("HudInfoOxygen");
     }
 }

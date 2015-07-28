@@ -50,9 +50,9 @@ namespace Sandbox.Game.Weapons
 
             HasCubeHighlight = true;
             HighlightColor = Color.Red * 0.3f;
+			HighlightMaterial = "GizmoDrawLineRed";
 
             m_grindingNotification = new MyHudNotification(MySpaceTexts.AngleGrinderPrimaryAction, MyHudNotification.INFINITE, level: MyNotificationLevel.Control);
-            m_grindingNotification.SetTextFormatArguments(MyInput.Static.GetGameControl(MyControlsSpace.PRIMARY_TOOL_ACTION));
 
             m_rotationSpeed = 0.0f;
 
@@ -108,9 +108,9 @@ namespace Sandbox.Game.Weapons
             }
         }
 
-        public override void Shoot(MyShootActionEnum action, Vector3 direction)
+        public override void Shoot(MyShootActionEnum action, Vector3 direction, string gunAction)
         {
-            base.Shoot(action, direction);
+            base.Shoot(action, direction, gunAction);
 
             if (action == MyShootActionEnum.PrimaryAction && IsPreheated && Sync.IsServer && m_activated)
             {
@@ -121,6 +121,10 @@ namespace Sandbox.Game.Weapons
 
         protected override void AddHudInfo()
         {
+            if (!MyInput.Static.IsJoystickConnected())
+                m_grindingNotification.SetTextFormatArguments(MyInput.Static.GetGameControl(MyControlsSpace.PRIMARY_TOOL_ACTION));
+            else
+                m_grindingNotification.SetTextFormatArguments(MyControllerHelper.GetCodeForControl(MySpaceBindingCreator.CX_CHARACTER, MyControlsSpace.PRIMARY_TOOL_ACTION));
             MyHud.Notifications.Add(m_grindingNotification);
         }
 

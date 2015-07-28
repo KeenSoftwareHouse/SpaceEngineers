@@ -1,27 +1,38 @@
 ﻿#region Using
 
 using Havok;
+using Sandbox.Common.ObjectBuilders;
+using Sandbox.Common.ObjectBuilders.Definitions;
+using Sandbox.Definitions;
 using Sandbox.Engine.Physics;
 using Sandbox.Game.Entities;
 using Sandbox.Game.World;
+using System;
 using System.Collections.Generic;
 using VRage.Audio;
 using VRage.Input;
+using VRage.ModAPI;
 using VRageMath;
 
 #endregion
 
 namespace Sandbox.Game.Gui
 {
-    class MyHonzaInputComponent : MyDebugComponent
+    public class MyHonzaInputComponent : MyDebugComponent
     {
+        private static IMyEntity m_selectedEntity = null;
+        public static IMyEntity SelectedEntity 
+        {
+            get { return m_selectedEntity; }
+            set
+            {
+                m_selectedEntity = value;
+                m_counter = dbgPosCounter = 0;
+            }
+        }
+        public static Func<Vector3D, BoundingBox, MyDefinitionId, float, MyEntity> SpawnFlora;
         public static float MassMultiplier = 100;
 
-        private static float m_steer = 0f;
-        private static float m_damping = 0.01f;
-        private static float m_strength = 0.002f;
-        private static float m_max = 0.2f;
-        private static float m_min;
         private static long m_lastMemory;
         private static HkMemorySnapshot? m_snapA;
 
@@ -40,6 +51,12 @@ namespace Sandbox.Game.Gui
         private int m_memoryA;
         private static bool HammerForce;
         private float RADIUS = 0.005f;
+
+        private bool m_drawBodyInfo = true;
+        private bool m_drawUpdateInfo = false;
+
+        private static long m_counter = 0;
+        public static long dbgPosCounter = 0;
 
         public override string GetName()
         {
@@ -91,6 +108,9 @@ namespace Sandbox.Game.Gui
             AddShortcut(MyKeys.NumPad8, true, false, false, false,
                 () => "MemA: " + m_memoryA + " MemB: " + m_memoryB + " Diff:" + (m_memoryB - m_memoryA),
                Diff);
+            AddShortcut(MyKeys.NumPad9, true, false, false, false,
+                () => "",
+                () => { m_drawBodyInfo = !m_drawBodyInfo; m_drawUpdateInfo = !m_drawUpdateInfo; return true; });
         }
 
         private bool Diff()
@@ -114,6 +134,7 @@ namespace Sandbox.Game.Gui
 
         public override bool HandleInput()
         {
+            m_counter++;
             if (base.HandleInput())
                 return true;
 
@@ -151,25 +172,95 @@ namespace Sandbox.Game.Gui
                 handled = true;
             }
 
-            if (MySector.MainCamera != null)
+            if(MyInput.Static.IsAnyCtrlKeyPressed() && MyInput.Static.IsNewLeftMousePressed() && SpawnFlora != null)
+            {
+                MyDefinitionId id = new MyDefinitionId(typeof(MyObjectBuilder_ConsumableItem), "Mushrooms");
+                SpawnFlora(MySector.MainCamera.Position + MySector.MainCamera.ForwardVector, new BoundingBox(Vector3.Zero, Vector3.One), id, 1);
+                SpawnFlora(MySector.MainCamera.Position + MySector.MainCamera.ForwardVector, new BoundingBox(Vector3.Zero, Vector3.One), id, 1);
+                SpawnFlora(MySector.MainCamera.Position + MySector.MainCamera.ForwardVector, new BoundingBox(Vector3.Zero, Vector3.One), id, 1);
+                SpawnFlora(MySector.MainCamera.Position + MySector.MainCamera.ForwardVector, new BoundingBox(Vector3.Zero, Vector3.One), id, 1);
+                SpawnFlora(MySector.MainCamera.Position + MySector.MainCamera.ForwardVector, new BoundingBox(Vector3.Zero, Vector3.One), id, 1);
+                SpawnFlora(MySector.MainCamera.Position + MySector.MainCamera.ForwardVector, new BoundingBox(Vector3.Zero, Vector3.One), id, 1);
+                SpawnFlora(MySector.MainCamera.Position + MySector.MainCamera.ForwardVector, new BoundingBox(Vector3.Zero, Vector3.One), id, 1);
+                SpawnFlora(MySector.MainCamera.Position + MySector.MainCamera.ForwardVector, new BoundingBox(Vector3.Zero, Vector3.One), id, 1);
+
+            }
+
+            Vector2 pos = new Vector2(400, 10);
+
+            if (MyInput.Static.IsAnyShiftKeyPressed() && MyInput.Static.IsNewLeftMousePressed() && SelectedEntity != null)
+                SelectedEntity = null;
+
+            HkRigidBody body = null;
+            if(SelectedEntity != null && SelectedEntity.Physics != null)
+                body = ((MyEntity)SelectedEntity).Physics.RigidBody;
+
+            if (MySector.MainCamera != null && body == null)
             {
                 List<MyPhysics.HitInfo> lst = new List<MyPhysics.HitInfo>();
                 MyPhysics.CastRay(MySector.MainCamera.Position, MySector.MainCamera.Position + MySector.MainCamera.ForwardVector * 100, lst);
                 foreach (var hit in lst)
                 {
-                    VRageRender.MyRenderProxy.DebugDrawText2D(new Vector2(600, 10), hit.HkHitInfo.Body.GetEntity().ToString() + " " 
-                        + MyDestructionHelper.MassFromHavok(hit.HkHitInfo.Body.Mass), Color.White, 0.8f);
-                    VRageRender.MyRenderProxy.DebugDrawText2D(new Vector2(600, 30), "Layer: " + hit.HkHitInfo.Body.Layer, Color.White, 0.8f);
-
-                    if (hit.HkHitInfo.Body.GetEntity() is MyCubeGrid)
+                    body = hit.HkHitInfo.Body;
+                    if (body == null || body.Layer == MyPhysics.NoCollisionLayer) continue;
+                    if (MyInput.Static.IsAnyShiftKeyPressed() && MyInput.Static.IsNewLeftMousePressed())
+                        SelectedEntity = hit.HkHitInfo.GetHitEntity();
+                    var sb = new System.Text.StringBuilder("ShapeKeys: ");
+                    for (int i = 0; i < HkWorld.HitInfo.ShapeKeyCount; i++ )
                     {
-                        var grid= hit.HkHitInfo.Body.GetEntity() as MyCubeGrid;
-                        var det = grid.GetBlocks().FirstElement().FatBlock.UseObjectsComponent.DetectorPhysics;
-                        //var layer = det.RigidBody.Layer;
+                        var key = hit.HkHitInfo.GetShapeKey(i);
+                        if (key == uint.MaxValue) break;
+                        sb.Append(string.Format("{0} ", key));
                     }
-
-                    break; 
+                    VRageRender.MyRenderProxy.DebugDrawText2D(pos, sb.ToString(), Color.White, 0.7f);
+                    pos.Y += 20;
+                    if(body.GetBody() != null)
+                        VRageRender.MyRenderProxy.DebugDrawText2D(pos, string.Format("Weld: {0}",body.GetBody().WeldInfo.Children.Count), Color.White, 0.7f);
+                    pos.Y += 20;
+                    break;
                 }
+            }
+            if (MySector.MainCamera != null)
+            {
+                LineD line = new LineD(MySector.MainCamera.Position, MySector.MainCamera.Position + MySector.MainCamera.ForwardVector * 100);
+                var intersect = MyEntities.GetIntersectionWithLine(ref line, MySession.ControlledEntity.Entity, null);
+                if (intersect.HasValue)
+                {
+                    VRageRender.MyRenderProxy.DebugDrawText2D(pos, intersect.Value.Entity.ToString() + " "
+                          , Color.White, 0.8f);
+                }
+            }
+
+            if(body != null && m_drawBodyInfo)
+            {
+                //VRageRender.MyRenderProxy.DebugDrawText2D(pos, body.GetEntity(0).ToString() + " "
+                //       + MyDestructionHelper.MassFromHavok(body.Mass), Color.White, 0.8f);
+                pos.Y += 20;
+                VRageRender.MyRenderProxy.DebugDrawText2D(pos, "Layer: " + body.Layer, Color.White, 0.7f);
+                pos.Y += 20;
+                VRageRender.MyRenderProxy.DebugDrawText2D(pos, string.Format("Friction: {0}  Restitution: {1}", body.Friction, body.Restitution), Color.White, 0.7f);
+                pos.Y += 20;
+                VRageRender.MyRenderProxy.DebugDrawText2D(pos, "Lin: " + body.LinearVelocity.Length(), Color.White, 0.7f);
+                pos.Y += 20;
+                VRageRender.MyRenderProxy.DebugDrawText2D(pos, "Ang: " + body.AngularVelocity.Length(), Color.White, 0.7f);
+                pos.Y += 20;
+                VRageRender.MyRenderProxy.DebugDrawText2D(pos, "Act: " + (body.IsActive ? "true" : "false"), Color.White, 0.7f);
+                pos.Y += 20;
+                VRageRender.MyRenderProxy.DebugDrawText2D(pos, "Stat: " + (body.IsFixedOrKeyframed ? "true" : "false"), Color.White, 0.7f);
+                pos.Y += 20;
+                VRageRender.MyRenderProxy.DebugDrawText2D(pos, "Solver: " + (body.Motion.GetDeactivationClass()), Color.White, 0.7f);
+                pos.Y += 20;
+                //VRageRender.MyRenderProxy.DebugDrawText2D(pos, "CharLin: " + MySession.ControlledEntity.Entity.Physics.LinearVelocity.Length(), Color.White, 0.7f);
+            }
+
+            if(SelectedEntity != null && m_drawUpdateInfo)
+            {
+                VRageRender.MyRenderProxy.DebugDrawText2D(pos, "Updates: " + m_counter, Color.White, 0.7f);
+                pos.Y += 20;
+                VRageRender.MyRenderProxy.DebugDrawText2D(pos, "PositionUpd: " + dbgPosCounter, Color.White, 0.7f);
+                pos.Y += 20;
+                VRageRender.MyRenderProxy.DebugDrawText2D(pos, "Frames per update: " + m_counter / (float)dbgPosCounter, Color.White, 0.7f);
+                pos.Y += 20;
             }
 
             if (MyInput.Static.IsNewKeyPressed(MyKeys.NumPad9))
@@ -197,7 +288,7 @@ namespace Sandbox.Game.Gui
             // Remove character hits.
             m_tmpHitList.RemoveAll(delegate(MyPhysics.HitInfo hit)
             {
-                return (hit.HkHitInfo.Body.GetEntity() == MySession.ControlledEntity.Entity);
+                return (hit.HkHitInfo.GetHitEntity() == MySession.ControlledEntity.Entity);
             });
 
             if (m_tmpHitList.Count == 0)
@@ -210,7 +301,7 @@ namespace Sandbox.Game.Gui
             {
                 if (hit.HkHitInfo.Body != null)
                 {
-                    closestEntity = hit.HkHitInfo.Body.GetEntity() as MyEntity;
+                    closestEntity = hit.HkHitInfo.GetHitEntity() as MyEntity;
                     closestHit = hit;
                     break;
                 }

@@ -89,10 +89,10 @@ namespace Sandbox.Game.World
 
             bool shouldHaveCargoShips = MyFakes.ENABLE_CARGO_SHIPS && MySession.Static.CargoShipsEnabled;
 
-            var cargoShipEvent = MyGlobalEvents.GetEventById(new MyDefinitionId(typeof(MyObjectBuilder_GlobalEventDefinition), "SpawnCargoShip"));
+            var cargoShipEvent = MyGlobalEvents.GetEventById(new MyDefinitionId(typeof(MyObjectBuilder_GlobalEventBase), "SpawnCargoShip"));
             if (cargoShipEvent == null && shouldHaveCargoShips)
             {
-                var globalEvent = MyGlobalEventFactory.CreateEvent<MyGlobalEventBase>(new MyDefinitionId(typeof(MyObjectBuilder_GlobalEventDefinition), "SpawnCargoShip"));
+                var globalEvent = MyGlobalEventFactory.CreateEvent(new MyDefinitionId(typeof(MyObjectBuilder_GlobalEventBase), "SpawnCargoShip"));
                 MyGlobalEvents.AddGlobalEvent(globalEvent);
             }
             else if (cargoShipEvent != null)
@@ -203,7 +203,7 @@ namespace Sandbox.Game.World
             entities.Clear();
         }
 
-        [MyGlobalEventHandler(typeof(MyObjectBuilder_GlobalEventDefinition), "SpawnCargoShip")]
+        [MyGlobalEventHandler(typeof(MyObjectBuilder_GlobalEventBase), "SpawnCargoShip")]
         public static void OnGlobalSpawnEvent(object senderEvent)
         {
             // Select a spawn group to spawn

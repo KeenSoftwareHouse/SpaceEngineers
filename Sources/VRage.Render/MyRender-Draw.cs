@@ -1274,7 +1274,9 @@ namespace VRageRender
                 return;
 
             m_sortedElements.Clear();
-            m_renderObjectsToDebugDraw.Clear();
+
+            if (!backgroundObjects)
+                m_renderObjectsToDebugDraw.Clear();
 
             Matrix optProjection = Matrix.CreatePerspectiveFieldOfView(MyRenderCamera.FieldOfView, MyRenderCamera.AspectRatio, backgroundObjects ? MyRenderCamera.NEAR_PLANE_FOR_BACKGROUND : MyRenderCamera.NEAR_PLANE_DISTANCE, backgroundObjects ? MyRenderCamera.FAR_PLANE_FOR_BACKGROUND : MyRenderCamera.FAR_PLANE_DISTANCE);
             m_cameraFrustum.Matrix = MyRenderCamera.ViewMatrix * optProjection;
