@@ -35,6 +35,7 @@ namespace Sandbox.Definitions
         private static readonly string ErrorMessageTemplate = "No weapon ammo data specified for {0} ammo (<{1}AmmoData> tag is missing in weapon definition)";
 
         public MySoundPair NoAmmoSound;
+        public MySoundPair ReloadSound;
         public float DeviateShotAngle;
         public float ReleaseTimeAfterFire;
         public int MuzzleFlashLifeSpan;
@@ -69,6 +70,7 @@ namespace Sandbox.Definitions
 
             this.WeaponAmmoDatas = new MyWeaponAmmoData[Enum.GetValues(typeof(MyAmmoType)).Length];
             this.NoAmmoSound = new MySoundPair(ob.NoAmmoSoundName);
+            this.ReloadSound = new MySoundPair(ob.ReloadSoundName);
             this.DeviateShotAngle = MathHelper.ToRadians(ob.DeviateShotAngle);
             this.ReleaseTimeAfterFire = ob.ReleaseTimeAfterFire;
             this.MuzzleFlashLifeSpan = ob.MuzzleFlashLifeSpan;

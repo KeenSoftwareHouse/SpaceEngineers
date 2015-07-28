@@ -38,6 +38,7 @@ namespace Sandbox.Game.Entities.Blocks
     [MyCubeBlockType(typeof(MyObjectBuilder_MyProgrammableBlock))]
     class MyProgrammableBlock : MyFunctionalBlock, IMyProgrammableBlock, IMyPowerConsumer
     {
+        private IMyGridProgram m_instance = null;
         private MyGridProgramRuntime m_gridProgramRuntime = null;
         private string m_programData = null;
         private string m_editorData = null;
@@ -330,9 +331,9 @@ namespace Sandbox.Game.Entities.Blocks
             {
                 try
                 {
+                    m_assembly = IlInjector.InjectCodeToAssembly("IngameScript_safe", temp, typeof(IlInjector).GetMethod("CountInstructions", BindingFlags.Public | BindingFlags.Static), typeof(IlInjector).GetMethod("CountMethodCalls", BindingFlags.Public | BindingFlags.Static));
                     string response;
 
-                    m_assembly = IlInjector.InjectCodeToAssembly("IngameScript_safe", temp, typeof(IlInjector).GetMethod("CountInstructions", BindingFlags.Public | BindingFlags.Static));
                     var type = m_assembly.GetType("Program");
                     if (!m_gridProgramRuntime.TryLoad(type, out response))
                     {

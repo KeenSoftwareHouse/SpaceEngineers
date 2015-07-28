@@ -55,7 +55,6 @@ namespace VRage.Components
 
     public abstract class MyPhysicsComponentBase : MyEntityComponentBase
     {
-        public static bool DebugDrawFlattenHierarchy = false;
 
         #region Fields
 
@@ -109,7 +108,7 @@ namespace VRage.Components
         /// <value>
         ///   <c>true</c> if kinematic; otherwise, <c>false</c>.
         /// </value>
-        public bool IsKinematic
+        public virtual bool IsKinematic
         {
             get
             {
@@ -193,6 +192,8 @@ namespace VRage.Components
             get;
             protected set;
         }
+
+        public abstract Vector3 GetVelocityAtPoint(Vector3D worldPos);
 
         ///// <summary>
         ///// Gets or sets max linear velocity.
@@ -386,5 +387,10 @@ namespace VRage.Components
         }
 
         #endregion
+
+        public override string ComponentTypeDebugString
+        {
+            get { return "Physics"; }
+        }
     }
 }

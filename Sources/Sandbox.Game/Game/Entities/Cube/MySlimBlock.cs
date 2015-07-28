@@ -221,7 +221,7 @@ namespace Sandbox.Game.Entities.Cube
 
         public long m_lastAttackerId = 0;
 
-        public MyDamageType m_lastDamageType = MyDamageType.Unknown;
+        public MyStringHash m_lastDamageType = MyDamageType.Unknown;
 
         // Unique identifier
         public int UniqueId 
@@ -312,7 +312,7 @@ namespace Sandbox.Game.Entities.Cube
             if (FatBlock == null || FatBlock.GetType() == typeof(MyCubeBlock))
                 m_objectBuilder = new MyObjectBuilder_CubeBlock();
 
-            if (MyFakes.SHOW_DAMAGE_EFFECTS && FatBlock != null && BlockDefinition.RationEnoughForDamageEffect(Integrity / MaxIntegrity))
+            if (MyFakes.SHOW_DAMAGE_EFFECTS && FatBlock != null && BlockDefinition.RatioEnoughForDamageEffect(Integrity / MaxIntegrity))
             {//start effect
                 if (CurrentDamage>0)//fix for weird simple blocks having FatBlock - old save?
                 {
@@ -328,7 +328,7 @@ namespace Sandbox.Game.Entities.Cube
         public void ResumeDamageEffect()
         {
 
-            if (MyFakes.SHOW_DAMAGE_EFFECTS && FatBlock != null && BlockDefinition.RationEnoughForDamageEffect(Integrity / MaxIntegrity))
+            if (MyFakes.SHOW_DAMAGE_EFFECTS && FatBlock != null && BlockDefinition.RatioEnoughForDamageEffect(Integrity / MaxIntegrity))
             {//start effect
                 if (CurrentDamage > 0)//fix for weird simple blocks having FatBlock - old save?
                 {
@@ -391,29 +391,14 @@ namespace Sandbox.Game.Entities.Cube
 
         private MyObjectBuilder_CubeBlock GetObjectBuilderInternal(bool copy)
         {
-            MyObjectBuilder_CubeBlock builder;
-            if (FatBlock != null && FatBlock.GetType() != typeof(MyCubeBlock))
+            MyObjectBuilder_CubeBlock builder = null;
+            if (FatBlock != null)
             {
                 builder = FatBlock.GetObjectBuilderCubeBlock(copy);
             }
             else
             {
                 builder = (MyObjectBuilder_CubeBlock)MyObjectBuilderSerializer.CreateNewObject(BlockDefinition.Id);
-                if (FatBlock != null)
-                {
-                    builder.EntityId = FatBlock.EntityId;
-
-                    // Set ownership in battles - actually don't know why "FatBlock.GetObjectBuilderCubeBlock(copy)" is not processed for default MyCubeBlock 
-                    // - see first if "if (FatBlock != null && FatBlock.GetType() != typeof(MyCubeBlock))"
-                    if (MyFakes.ENABLE_BATTLE_SYSTEM && MySession.Static.Battle)
-                    {
-                        if (FatBlock.IDModule != null)
-                        {
-                            builder.Owner = FatBlock.IDModule.Owner;
-                            builder.ShareMode = FatBlock.IDModule.ShareMode;
-                        }
-                    }
-                }
             }
 
             Debug.Assert(Orientation.IsValid);
@@ -651,12 +636,12 @@ namespace Sandbox.Game.Entities.Cube
                 foreach (var kv in m_tmpComponents)
                 {
                     var id = new MyDefinitionId(typeof(MyObjectBuilder_Component), kv.Key);
-                    int amountAvailable = (int)fromInventory.GetItemAmount(id);
+                    int amountAvailable = (int)MyCubeBuilder.BuildComponent.GetItemAmountCombined(fromInventory, id);
                     int moveAmount = Math.Min(kv.Value, amountAvailable);
                     if (moveAmount > 0)
                     {
-                        fromInventory.RemoveItemsOfType(moveAmount, id);
-                        m_stockpile.AddItems(moveAmount, new MyDefinitionId(typeof(MyObjectBuilder_Component), kv.Key));
+                        MyCubeBuilder.BuildComponent.RemoveItemsCombined(fromInventory, moveAmount, id);
+                        m_stockpile.AddItems((int)moveAmount, new MyDefinitionId(typeof(MyObjectBuilder_Component), kv.Key));
                     }
                 }
                 CubeGrid.SyncObject.SendStockpileChanged(this, m_stockpile.GetSyncList());
@@ -889,9 +874,9 @@ namespace Sandbox.Game.Entities.Cube
 
             // Limit bone movement factor so that the bones don't move too quickly
             float maxBoneMovement = (1.0f - boneMoveFactor) * MaxDeformation;
-            if (maxBoneMovement > maxAllowedBoneMovement)
+            if (MaxDeformation != 0 && maxBoneMovement > maxAllowedBoneMovement)
             {
-                boneMoveFactor = 1.0f - maxAllowedBoneMovement / MaxDeformation;
+				boneMoveFactor = 1.0f - maxAllowedBoneMovement / MaxDeformation;	
             }
 
             if (boneMoveFactor == 0.0f)
@@ -905,7 +890,7 @@ namespace Sandbox.Game.Entities.Cube
             }
         }
 
-        void IMyDestroyableObject.DoDamage(float damage, MyDamageType damageType, bool sync, MyHitInfo? hitInfo, long attackerId)
+        void IMyDestroyableObject.DoDamage(float damage, MyStringHash damageType, bool sync, MyHitInfo? hitInfo, long attackerId)
         {
             if (sync)
             {
@@ -918,7 +903,7 @@ namespace Sandbox.Game.Entities.Cube
             return;
         }
 
-        public void DoDamage(float damage, MyDamageType damageType, bool addDirtyParts = true, MyHitInfo? hitInfo = null, bool createDecal = true, long attackerId = 0)
+        public void DoDamage(float damage, MyStringHash damageType, bool addDirtyParts = true, MyHitInfo? hitInfo = null, bool createDecal = true, long attackerId = 0)
         {
             if (!CubeGrid.BlocksDestructionEnabled)
                 return;
@@ -972,7 +957,7 @@ namespace Sandbox.Game.Entities.Cube
             }
             else
             {
-                if (MyFakes.SHOW_DAMAGE_EFFECTS && FatBlock != null && BlockDefinition.RationEnoughForDamageEffect((Integrity - damage) / MaxIntegrity))
+                if (MyFakes.SHOW_DAMAGE_EFFECTS && FatBlock != null && BlockDefinition.RatioEnoughForDamageEffect((Integrity - damage) / MaxIntegrity))
                     FatBlock.SetDamageEffect(true);
 
                 if (hitInfo.HasValue && createDecal)
@@ -1112,7 +1097,7 @@ namespace Sandbox.Game.Entities.Cube
                 }
             }
 
-            if (MyFakes.SHOW_DAMAGE_EFFECTS && FatBlock != null && !BlockDefinition.RationEnoughForDamageEffect((Integrity+welderMountAmount) / MaxIntegrity))
+            if (MyFakes.SHOW_DAMAGE_EFFECTS && FatBlock != null && !BlockDefinition.RatioEnoughForDamageEffect((Integrity+welderMountAmount) / MaxIntegrity))
             {//stop effect
                 FatBlock.SetDamageEffect(false);
             }
@@ -1182,6 +1167,7 @@ namespace Sandbox.Game.Entities.Cube
 				CubeGrid.RenderData.RemoveDecals(Position);
 
             CubeGrid.SyncObject.SendIntegrityChanged(this, integrityChangeType, 0);
+            CubeGrid.OnIntegrityChanged(this);
 
             if (maxAllowedBoneMovement != 0.0f)
                 FixBones(oldDamage, maxAllowedBoneMovement);
@@ -1190,6 +1176,7 @@ namespace Sandbox.Game.Entities.Cube
             {
                 UpdateProgressGeneratedBlocks(oldPercentage);
             }
+
 			ProfilerShort.End();
         }
 
@@ -1231,10 +1218,10 @@ namespace Sandbox.Game.Entities.Cube
                 {
                     if (character != null)
                     {
-                    Debug.Assert(character.ControllerInfo.Controller != null, "Controller was null on the character in DecreaseMountLevel!");
-                    if (character.ControllerInfo.Controller == null)
-                        toolOwner = character.ControllerInfo.ControllingIdentityId;
-                }
+                        Debug.Assert(character.ControllerInfo.Controller != null, "Controller was null on the character in DecreaseMountLevel!");
+                        if (character.ControllerInfo.Controller == null)
+                            toolOwner = character.ControllerInfo.ControllingIdentityId;
+                    }
                 }
                 else
                 {
@@ -1297,6 +1284,7 @@ namespace Sandbox.Game.Entities.Cube
             }
 
             CubeGrid.SyncObject.SendIntegrityChanged(this, integrityChangeType, toolOwner);
+            CubeGrid.OnIntegrityChanged(this);
         }
 
         /// <summary>
@@ -1427,7 +1415,7 @@ namespace Sandbox.Game.Entities.Cube
 
             if (MyFakes.SHOW_DAMAGE_EFFECTS && FatBlock != null)
             {
-                if (!BlockDefinition.RationEnoughForDamageEffect(Integrity / MaxIntegrity))
+                if (!BlockDefinition.RatioEnoughForDamageEffect(Integrity / MaxIntegrity))
                     FatBlock.SetDamageEffect(false);
             }
 
@@ -1677,8 +1665,8 @@ namespace Sandbox.Game.Entities.Cube
 				componentInfo.Icon = groupInfo.Component.Icon;
 				componentInfo.TotalCount = groupInfo.TotalCount;
 				componentInfo.MountedCount = groupInfo.MountedCount;
-				if (availableInventory != null)
-					componentInfo.AvailableAmount = (int)availableInventory.GetItemAmount(groupInfo.Component.Id);
+                if (availableInventory != null)
+                    componentInfo.AvailableAmount = (int)MyCubeBuilder.BuildComponent.GetItemAmountCombined(availableInventory, groupInfo.Component.Id);
 
 				hudInfo.Components.Add(componentInfo);
 			}

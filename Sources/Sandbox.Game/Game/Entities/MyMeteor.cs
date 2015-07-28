@@ -121,7 +121,7 @@ namespace Sandbox.Game.Entities
             
         }
 
-        public void DoDamage(float damage, MyDamageType damageType, bool sync, MyHitInfo? hitInfo, long attackerId)
+        public void DoDamage(float damage, MyStringHash damageType, bool sync, MyHitInfo? hitInfo, long attackerId)
         {
             GameLogic.DoDamage(damage, damageType, sync, hitInfo, attackerId);
         }
@@ -369,7 +369,7 @@ namespace Sandbox.Game.Entities
             {
                 if (this.MarkedForClose || !Entity.Physics.Enabled || m_closeAfterSimulation)
                     return;
-                IMyEntity other = GetOtherEntity(ref value.ContactPointEvent);
+                var other = value.ContactPointEvent.GetOtherEntity(Entity);
                 if (Sync.IsServer)
                 {
                     if (other is MyCubeGrid)
@@ -502,7 +502,7 @@ namespace Sandbox.Game.Entities
             }
 
 
-            public void DoDamage(float damage, MyDamageType damageType, bool sync, MyHitInfo? hitInfo, long attackerId)
+            public void DoDamage(float damage, MyStringHash damageType, bool sync, MyHitInfo? hitInfo, long attackerId)
             {
                 if (sync)
                 {
@@ -541,14 +541,6 @@ namespace Sandbox.Game.Entities
             public float Integrity
             {
                 get { return m_integrity; }
-            }
-
-            protected IMyEntity GetOtherEntity(ref HkContactPointEvent value)
-            {
-                if (value.Base.BodyA.GetEntity() == Entity)
-                    return value.Base.BodyB.GetEntity();
-                else
-                    return value.Base.BodyA.GetEntity();
             }
 
             // Don't call remove reference on this, this shape is pooled

@@ -396,6 +396,9 @@ namespace Sandbox.Game.Gui
 
             MyLog.Default.WriteLine("LoadMultiplayerScenarioWorld() - Start");
 
+            if (world.Checkpoint.BriefingVideo != null && world.Checkpoint.BriefingVideo.Length > 0)
+                MyGuiSandbox.OpenUrlWithFallback(world.Checkpoint.BriefingVideo, "Scenario briefing video", true);
+
             if (!MySteamWorkshop.CheckLocalModsAllowed(world.Checkpoint.Mods, false))
             {
                 MyGuiSandbox.AddScreen(MyGuiSandbox.CreateMessageBox(
@@ -649,7 +652,7 @@ namespace Sandbox.Game.Gui
 
         private IMyAsyncResult beginAction()
         {
-            return new MyLoadListResult();
+            return new MyLoadWorldInfoListResult();
         }
 
         private void endAction(IMyAsyncResult result, MyGuiScreenProgressAsync screen)

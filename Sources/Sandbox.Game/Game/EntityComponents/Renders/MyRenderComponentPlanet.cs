@@ -30,8 +30,8 @@ namespace Sandbox.Game.Components
             var minCorner = m_planet.PositionLeftBottomCorner;
 
             m_renderObjectIDs = new uint[] { MyRenderProxy.RENDER_ID_UNASSIGNED, MyRenderProxy.RENDER_ID_UNASSIGNED, MyRenderProxy.RENDER_ID_UNASSIGNED };
-            Debug.Assert((m_planet.Size % MyVoxelConstants.RENDER_CELL_SIZE_IN_VOXELS) == Vector3I.Zero);
-            var clipmapSizeLod0 = m_planet.Size / MyVoxelConstants.RENDER_CELL_SIZE_IN_VOXELS;
+            Debug.Assert((m_planet.Size % MyVoxelCoordSystems.RenderCellSizeInLodVoxels(0)) == Vector3I.Zero);
+            var clipmapSizeLod0 = m_planet.Size / MyVoxelCoordSystems.RenderCellSizeInLodVoxels(0);
 
             Vector3 atmosphereWavelengths = new Vector3();
 
@@ -41,12 +41,12 @@ namespace Sandbox.Game.Components
 
             SetRenderObjectID(0,
                 MyRenderProxy.CreateClipmap(
-                    MatrixD.CreateTranslation(minCorner),                    
+                    MatrixD.CreateTranslation(minCorner),
                     clipmapSizeLod0,
                     m_planet.ScaleGroup,
                     m_planet.PositionComp.GetPosition(),
                     m_planet.AtmosphereRadius,
-                    m_planet.MinimumSurfaceRadius,
+                    m_planet.AveragePlanetRadius,
                     m_planet.HasAtmosphere,
                     atmosphereWavelengths));
 
@@ -63,7 +63,7 @@ namespace Sandbox.Game.Components
                      RenderFlags.Visible,
                      GetRenderCullingOptions(),
                      m_planet.AtmosphereRadius,
-                     m_planet.MinimumSurfaceRadius,
+                     m_planet.AveragePlanetRadius,
                      atmosphereWavelengths));
 
                   SetRenderObjectID(2, VRageRender.MyRenderProxy.CreateRenderEntityAtmosphere(this.Entity.GetFriendlyName() + " " + this.Entity.EntityId.ToString(),
@@ -73,7 +73,7 @@ namespace Sandbox.Game.Components
                      RenderFlags.Visible,
                      GetRenderCullingOptions(),
                      m_planet.AtmosphereRadius,
-                     m_planet.MinimumSurfaceRadius,
+                     m_planet.AveragePlanetRadius,
                      atmosphereWavelengths));
             }
 

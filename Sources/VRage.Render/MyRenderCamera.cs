@@ -57,7 +57,7 @@ namespace VRageRender
         {
             get
             {
-                return Math.Max(NEAR_PLANE_DISTANCE, FAR_PLANE_DISTANCE - 9.0f*(FAR_PLANE_DISTANCE / FAR_OBJECTS_RATIO) * MyVoxelConstants.RENDER_CELL_SIZE_IN_METRES);
+                return Math.Max(NEAR_PLANE_DISTANCE, FAR_PLANE_DISTANCE - 9.0f*(FAR_PLANE_DISTANCE / FAR_OBJECTS_RATIO) * MyVoxelCoordSystems.RenderCellSizeInMeters(0));
             }
         }
 

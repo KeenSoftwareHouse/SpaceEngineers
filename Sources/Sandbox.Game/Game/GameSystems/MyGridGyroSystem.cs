@@ -116,7 +116,7 @@ namespace Sandbox.Game.GameSystems
             {
                 // Not checking whether engines are running, since ControlTorque should be 0 when
                 // engines are stopped (set by cockpit).
-                if (PowerReceiver.SuppliedRatio > 0f && m_grid.Physics != null && m_grid.Physics.Enabled && !m_grid.Physics.RigidBody.IsFixed)
+                if (PowerReceiver.SuppliedRatio > 0f && m_grid.Physics != null && (m_grid.Physics.Enabled || m_grid.Physics.IsWelded) && !m_grid.Physics.RigidBody.IsFixed)
                 {
                     Matrix invWorldRot = m_grid.PositionComp.GetWorldMatrixNormalizedInv().GetOrientation();
                     Matrix worldRot = m_grid.WorldMatrix.GetOrientation();

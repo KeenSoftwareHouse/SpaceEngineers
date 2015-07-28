@@ -27,11 +27,11 @@ namespace VRageRender
 
     struct MyProjectionInfo
     {
-        internal Matrix WorldToProjection;
+        internal MatrixD WorldToProjection;
         internal Matrix LocalToProjection;
         internal Vector3D WorldCameraOffsetPosition;
 
-        internal Matrix CurrentLocalToProjection { get { return Matrix.CreateTranslation(MyEnvironment.CameraPosition - WorldCameraOffsetPosition) * LocalToProjection; } }
+        internal Matrix CurrentLocalToProjection { get { return MatrixD.CreateTranslation(MyEnvironment.CameraPosition - WorldCameraOffsetPosition) * (MatrixD)LocalToProjection; } }
     }
 
     class MyLightsCameraDistanceComparer : IComparer<LightId> {
@@ -145,7 +145,7 @@ namespace VRageRender
 
         static void PrepareSpotlights()
         {
-            MyLights.SpotlightsBvh.OverlapAllFrustum(ref MyEnvironment.ViewFrustumD, MyLightRendering.VisibleSpotlights);
+            MyLights.SpotlightsBvh.OverlapAllFrustum(ref MyEnvironment.ViewFrustumClippedD, MyLightRendering.VisibleSpotlights);
 
             MyLightRendering.VisibleSpotlights.Sort(m_spotlightCastersComparer);
             while (MyLightRendering.VisibleSpotlights.Count > MAX_SPOTLIGHT_SHADOWCASTERS)
@@ -170,8 +170,8 @@ namespace VRageRender
                         query.IgnoredEntities = MyLights.IgnoredEntitites[id];
                     }
 
-                    var shadowMatrix = Matrix.CreateLookAt(id.Position, id.Position + MyLights.Spotlights[id.Index].Direction, MyLights.Spotlights[id.Index].Up) *
-                        Matrix.CreatePerspectiveFieldOfView((float)(Math.Acos(MyLights.Spotlights[id.Index].ApertureCos) * 2), 1.0f, 0.5f, id.ShadowDistance);
+                    var shadowMatrix = MatrixD.CreateLookAt(id.Position, id.Position + MyLights.Spotlights[id.Index].Direction, MyLights.Spotlights[id.Index].Up) *
+                        MatrixD.CreatePerspectiveFieldOfView((float)(Math.Acos(MyLights.Spotlights[id.Index].ApertureCos) * 2), 1.0f, 0.5f, id.ShadowDistance);
 
                     if(ShadowmapsPool.Count <= casterIndex)
                     {
@@ -185,7 +185,7 @@ namespace VRageRender
                     {
                         WorldCameraOffsetPosition = MyEnvironment.CameraPosition,
                         WorldToProjection = shadowMatrix,
-                        LocalToProjection = Matrix.CreateTranslation(MyEnvironment.CameraPosition) * shadowMatrix
+                        LocalToProjection = MatrixD.CreateTranslation(MyEnvironment.CameraPosition) * shadowMatrix
                     };
 
                     MyLightRendering.Spotlights[index].ShadowMatrix = Matrix.Transpose(query.ProjectionInfo.CurrentLocalToProjection * MyMatrixHelpers.ClipspaceToTexture);
@@ -531,7 +531,7 @@ namespace VRageRender
 
             for(int i=0; i<m_cascadesNum; i++)
             {
-                RC.SetDS(MyDepthStencilState.MarkIfInside[i], 1 << i);
+                RC.SetDS(MyDepthStencilState.MarkIfInsideCascade[i], 1 << i);
                 // mark ith bit on depth near
                 RC.Context.DrawIndexed(36, 0, 8 * i);
             }

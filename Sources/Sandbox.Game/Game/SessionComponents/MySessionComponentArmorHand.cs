@@ -30,14 +30,11 @@ namespace Sandbox.Game.SessionComponents
             Vector3D origin = MySector.MainCamera.Position;
             Vector3D end = origin + forward * 100f;
 
-            Vector3D hitPosition;
-            Vector3 hitNormal;
-
             m_lastCubeGrid = null;
             m_lastBone = null;
 
-            var physTarget = MyPhysics.CastRay(origin, end, out hitPosition, out hitNormal, MyPhysics.ExplosionRaycastLayer);
-            var hitEntity = physTarget != null ? ((MyPhysicsBody)physTarget.UserObject).Entity : null;
+            var hitInfo = MyPhysics.CastRay(origin, end, MyPhysics.ExplosionRaycastLayer);
+            var hitEntity = hitInfo.HasValue ? ((MyPhysicsBody)hitInfo.Value.HkHitInfo.Body.UserObject).Entity : null;
 
             var grid = (hitEntity as MyCubeGrid);
             if (grid != null)

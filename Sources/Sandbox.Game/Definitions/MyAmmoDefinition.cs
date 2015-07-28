@@ -30,7 +30,7 @@ namespace Sandbox.Definitions
               
         ////       public float DecalEmissivity;    // Decals shines in dark, not used
 
-        ////       public MyDamageType DamageType; //Type of damage caused by this ammo
+        ////       public MyStringHash DamageType; //Type of damage caused by this ammo
         //public MyAmmoType AmmoType; //Type of ammo
 
 
@@ -135,11 +135,15 @@ namespace Sandbox.Definitions
         public float ProjectileHitImpulse;
         public float ProjectileTrailScale;
         public Vector3 ProjectileTrailColor;
+        public string ProjectileTrailMaterial;
         public float ProjectileTrailProbability;
         public MyCustomHitMaterialMethod ProjectileOnHitMaterialParticles;
         public MyCustomHitParticlesMethod ProjectileOnHitParticles;
         public float ProjectileMassDamage;
         public float ProjectileHealthDamage;
+        public bool HeadShot;
+        public float ProjectileHeadShotDamage;
+        public MyProjectileType ProjectileType;
 
         protected override void Init(MyObjectBuilder_DefinitionBase builder)
         {
@@ -159,8 +163,12 @@ namespace Sandbox.Definitions
             this.ProjectileOnHitMaterialParticles = MyParticleEffects.GetCustomHitMaterialMethodById((int)projectileProperties.ProjectileOnHitMaterialParticlesType);
             this.ProjectileOnHitParticles = MyParticleEffects.GetCustomHitParticlesMethodById((int)projectileProperties.ProjectileOnHitParticlesType);
             this.ProjectileTrailColor = projectileProperties.ProjectileTrailColor;
+            this.ProjectileTrailMaterial = projectileProperties.ProjectileTrailMaterial;
             this.ProjectileTrailProbability = projectileProperties.ProjectileTrailProbability;
             this.ProjectileTrailScale = projectileProperties.ProjectileTrailScale;
+            this.HeadShot = projectileProperties.HeadShot;
+            this.ProjectileHeadShotDamage = projectileProperties.ProjectileHeadShotDamage;
+            this.ProjectileType = projectileProperties.ProjectileType;
         }
 
         public override float GetDamageForMechanicalObjects()

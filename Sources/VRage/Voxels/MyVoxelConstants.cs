@@ -47,14 +47,6 @@ namespace VRage.Voxels
         public static readonly Vector3 GEOMETRY_CELL_SIZE_VECTOR_IN_METRES = new Vector3(GEOMETRY_CELL_SIZE_IN_METRES);
         public static readonly int GEOMETRY_CELL_CACHE_SIZE = (Environment.Is64BitProcess) ? (65536 * 4) : (int)(65536 * 1.2);
 
-        public const int RENDER_CELL_SIZE_IN_GEOMETRY_CELLS_BITS = 2;
-        public const int RENDER_CELL_SIZE_IN_GEOMETRY_CELLS = 1 << RENDER_CELL_SIZE_IN_GEOMETRY_CELLS_BITS;
-        public const int RENDER_CELL_SIZE_IN_GEOMETRY_CELLS_TOTAL = RENDER_CELL_SIZE_IN_GEOMETRY_CELLS * RENDER_CELL_SIZE_IN_GEOMETRY_CELLS * RENDER_CELL_SIZE_IN_GEOMETRY_CELLS;
-        public const int RENDER_CELL_SIZE_IN_VOXELS = GEOMETRY_CELL_SIZE_IN_VOXELS * RENDER_CELL_SIZE_IN_GEOMETRY_CELLS;
-        public const float RENDER_CELL_SIZE_IN_METRES = RENDER_CELL_SIZE_IN_VOXELS * VOXEL_SIZE_IN_METRES;
-        public const float RENDER_CELL_SIZE_IN_METRES_HALF = RENDER_CELL_SIZE_IN_METRES / 2.0f;
-        public static readonly Vector3 RENDER_CELL_SIZE_VECTOR_IN_METRES = new Vector3(RENDER_CELL_SIZE_IN_METRES);
-
         // When wrinkling voxels using voxel hand, this is default wrinkle weight amount
         public const float DEFAULT_WRINKLE_WEIGHT_ADD = 0.5f;
         public const float DEFAULT_WRINKLE_WEIGHT_REMOVE = 0.45f;

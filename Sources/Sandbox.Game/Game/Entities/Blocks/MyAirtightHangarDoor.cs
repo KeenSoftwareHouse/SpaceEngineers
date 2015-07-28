@@ -113,8 +113,11 @@ namespace Sandbox.Game.Entities.Blocks
                         var info = HkGroupFilter.CalcFilterInfo(MyPhysics.KinematicDoubledCollisionLayer, HavokCollisionSystemID, 1, 1);
                         subpart.Physics.RigidBody.SetCollisionFilterInfo(info);
 
-                        info = HkGroupFilter.CalcFilterInfo(MyPhysics.DynamicDoubledCollisionLayer, HavokCollisionSystemID, 1, 1);
-                        subpart.Physics.RigidBody2.SetCollisionFilterInfo(info);
+                        if (subpart.Physics.RigidBody2 != null)
+                        {
+                            info = HkGroupFilter.CalcFilterInfo(MyPhysics.DynamicDoubledCollisionLayer, HavokCollisionSystemID, 1, 1);
+                            subpart.Physics.RigidBody2.SetCollisionFilterInfo(info);
+                        }
 
                         /*if (this.CubeGrid.Physics != null && this.CubeGrid.Physics.HavokWorld != null)
                         {

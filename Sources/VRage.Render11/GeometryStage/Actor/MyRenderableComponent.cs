@@ -158,6 +158,7 @@ namespace VRageRender
     {
         internal MyRenderableProxy[] RenderableProxies;
         internal UInt64[] SortingKeys;
+        internal MyMaterialShadersBundleId[] HighlightShaders;
 
         //internal MyVertexDataProxy VertexDataProxy;
         internal VertexLayoutId VertexLayout1;
@@ -483,7 +484,7 @@ namespace VRageRender
         internal MyRenderLod[] m_lods;
         internal MyCullProxy[] m_renderableProxiesForLodTransition;
         
-        MyCullProxy m_cullProxy;
+        internal MyCullProxy m_cullProxy;
         int m_btreeProxy;
 
         //internal MyShaderUnifiedFlags m_vsFlags;
@@ -491,7 +492,7 @@ namespace VRageRender
         int m_instanceCount;
         int m_startInstance;
 
-        int m_lod;
+        internal int m_lod;
         float m_lodTransitionState; // [-1,0] or [0,1]
         float m_lodTransitionVector; // distance at which transition must end
         float m_lodTransitionStartDistance;
@@ -876,6 +877,7 @@ namespace VRageRender
             {
                 lod.RenderableProxies = new MyRenderableProxy[Num];
                 lod.SortingKeys = new UInt64[Num];
+                lod.HighlightShaders = new MyMaterialShadersBundleId[Num];
 
                 for (int i = 0; i < Num; i++)
                 {
@@ -924,6 +926,8 @@ namespace VRageRender
                     X.TEXT(MyGeometryRenderer.DEFAULT_FORWARD_PASS),
                     lod.VertexLayout1,
                     lod.VertexShaderFlags | MapTechniqueToShaderMaterialFlags(technique) | GetCurrentStateMaterialFlags(lodNum));
+
+                lod.HighlightShaders[p] = MyMaterialShaders.Get(X.TEXT(MapTechniqueToShaderMaterial(technique)), X.TEXT("highlight"), lod.VertexLayout1, lod.VertexShaderFlags | MapTechniqueToShaderMaterialFlags(technique));
 
                 var partInfo = partId.Info;
 
@@ -1135,7 +1139,7 @@ namespace VRageRender
             }
             
 
-            if (m_btreeProxy == -1)
+            if (m_btreeProxy == -1 && m_isRenderedStandalone)
             {
                 m_btreeProxy = MyScene.RenderablesDBVH.AddProxy(ref m_owner.Aabb, m_cullProxy, 0);
             }

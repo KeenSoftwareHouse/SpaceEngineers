@@ -557,6 +557,18 @@ namespace Sandbox.Game.Gui
                 if (srcEndpoint == null || dstEndpoint == null)
                     return false;
 
+				try
+				{
+					MyGridConveyorSystem.AppendReachableEndpoints(srcEndpoint.ConveyorEndpoint, MySession.LocalPlayerId, m_reachableInventoryOwners, item, m_endpointPredicate);
+
+					if (!m_reachableInventoryOwners.Contains(dstEndpoint.ConveyorEndpoint))
+						return false;
+				}
+				finally
+				{
+					m_reachableInventoryOwners.Clear();
+				}
+
                 if (!MyGridConveyorSystem.Pathfinding.Reachable(srcEndpoint.ConveyorEndpoint, dstEndpoint.ConveyorEndpoint))
                     return false;
             }

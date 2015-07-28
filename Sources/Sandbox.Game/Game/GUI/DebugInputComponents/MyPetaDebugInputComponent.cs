@@ -14,6 +14,7 @@ using Sandbox.Graphics;
 using System.Collections.Generic;
 using System.Linq;
 using VRage.Input;
+using VRage.Library.Utils;
 using VRage.ObjectBuilders;
 using VRage.Utils;
 using VRageMath;
@@ -60,13 +61,17 @@ namespace Sandbox.Game.Gui
                 () => "Advance all moving entities",
                 delegate
                 {
+
                     foreach (var entity in MyEntities.GetEntities().ToList())
                     {
                         if (entity.Physics != null)
                         {
+                            Vector3D posDelta = entity.Physics.LinearVelocity * SI_DYNAMICS_MULTIPLIER;
+                            MyPhysics.Clusters.EnsureClusterSpace(entity.PositionComp.WorldAABB + posDelta);
+
                             if (entity.Physics.LinearVelocity.Length() > 0.1f)
                             {
-                                entity.PositionComp.SetPosition(entity.PositionComp.GetPosition() + entity.Physics.LinearVelocity * 10);
+                                entity.PositionComp.SetPosition(entity.PositionComp.GetPosition() + posDelta);
                             }
                         }
                     }
@@ -103,7 +108,6 @@ namespace Sandbox.Game.Gui
                 MySession.LocalCharacter.AddCommand(new MyAnimationCommand()
                 {
                     AnimationSubtypeName = "Wave",
-                    Mode = MyPlayAnimationMode.Play,
                     BlendTime = 0.3f,
                     TimeScale = 1,
                 }, true);
@@ -262,22 +266,25 @@ namespace Sandbox.Game.Gui
                        });
 
               AddShortcut(MyKeys.NumPad2, true, false, false, false,
-                        () => "Debug draw fractures",
+                        () => "Spawn simple skinned object",
                         delegate
                         {
-                            MyDebugDrawSettings.ENABLE_DEBUG_DRAW = true;
-                            MyDebugDrawSettings.DEBUG_DRAW_FRACTURED_PIECES = !MyDebugDrawSettings.DEBUG_DRAW_FRACTURED_PIECES;
+                            //MyDebugDrawSettings.ENABLE_DEBUG_DRAW = true;
+                            //MyDebugDrawSettings.DEBUG_DRAW_FRACTURED_PIECES = !MyDebugDrawSettings.DEBUG_DRAW_FRACTURED_PIECES;
 
-                            foreach (var entity in MyEntities.GetEntities())
-                            {
-                                if (entity is MyFracturedPiece)
-                                {
-                                    foreach (var id in entity.Render.RenderObjectIDs)
-                                    {
-                                        VRageRender.MyRenderProxy.UpdateRenderObjectVisibility(id, !MyDebugDrawSettings.DEBUG_DRAW_FRACTURED_PIECES, false);
-                                    }
-                                }
-                            }
+                            //foreach (var entity in MyEntities.GetEntities())
+                            //{
+                            //    if (entity is MyFracturedPiece)
+                            //    {
+                            //        foreach (var id in entity.Render.RenderObjectIDs)
+                            //        {
+                            //            VRageRender.MyRenderProxy.UpdateRenderObjectVisibility(id, !MyDebugDrawSettings.DEBUG_DRAW_FRACTURED_PIECES, false);
+                            //        }
+                            //    }
+                            //}
+
+                            SpawnSimpleSkinnedObject();
+
                             return true;
                         });
 
@@ -303,6 +310,32 @@ namespace Sandbox.Game.Gui
             //    }
             //}
 
+            //var measureStart = new VRage.Library.Utils.MyTimeSpan(System.Diagnostics.Stopwatch.GetTimestamp());
+
+            var list = MyDefinitionManager.Static.GetAnimationDefinitions();
+
+            foreach (var skin in m_skins)
+            {                
+                skin.UpdateAnimation();
+
+                if (MyRandom.Instance.NextFloat() > 0.95f)
+                {
+                    var randomAnim = list.ItemAt(MyRandom.Instance.Next(0, list.Count));
+                    var command = new MyAnimationCommand()
+                    {
+                        AnimationSubtypeName = randomAnim.Id.SubtypeName,
+                        FrameOption = MyFrameOption.Loop,
+                        TimeScale = 1,
+                        BlendTime = 0.3f
+                    };
+                    skin.AddCommand(command);
+                }
+            }
+
+
+            //var measureEnd = new VRage.Library.Utils.MyTimeSpan(System.Diagnostics.Stopwatch.GetTimestamp());
+            //var total = measureEnd - measureStart;
+            //m_skins.Clear();
 
             return handled;
         }
@@ -326,7 +359,7 @@ namespace Sandbox.Game.Gui
                     var piece = entity as MyFracturedPiece;
                     if (piece != null)
                     {
-                        piece.Physics.DebugDrawBreakable();
+                        MyPhysicsDebugDraw.DebugDrawBreakable(piece.Physics.BreakableBody, piece.Physics.ClusterToWorld(Vector3D.Zero));
                     }
                 }
             }
@@ -381,6 +414,30 @@ namespace Sandbox.Game.Gui
                 var piece = Sandbox.Engine.Physics.MyDestructionHelper.CreateFracturePiece(breakableShape, MyPhysics.SingleWorld.DestructionWorld, ref worldMatrix, false, itemDefinition.Id, true);
             }
 
+        }
+
+        List<MySkinnedEntity> m_skins = new List<MySkinnedEntity>();
+        void SpawnSimpleSkinnedObject()
+        {
+
+            var skin = new MySkinnedEntity();
+
+            MyObjectBuilder_Character ob = new MyObjectBuilder_Character();
+            ob.PositionAndOrientation = new VRage.MyPositionAndOrientation(MySector.MainCamera.Position + 2 * MySector.MainCamera.ForwardVector, MySector.MainCamera.ForwardVector, MySector.MainCamera.UpVector);
+            skin.Init(null, @"Models\Characters\Basic\ME_barbar.mwm", null, null);
+            skin.Init(ob);
+
+            MyEntities.Add(skin);
+
+            var command = new MyAnimationCommand()
+            {
+                AnimationSubtypeName = "IdleBarbar",
+                FrameOption = MyFrameOption.Loop,
+                TimeScale = 1
+            };
+            skin.AddCommand(command);
+
+            m_skins.Add(skin);
         }
     }
 }

@@ -66,6 +66,11 @@ namespace Sandbox.Common.ObjectBuilders
         {
             return (ushort)((ushort)value & MovementDirectionMask);
         }
+
+		public static ushort GetSpeed(this MyCharacterMovementEnum value)
+		{
+			return (ushort)((ushort)value & MovementSpeedMask); 
+		}
     }
 
     // This enum references constants in MyCharacterMovement to enable bitwise operations and at the same time prevent duplicate values in the enum
@@ -137,7 +142,7 @@ namespace Sandbox.Common.ObjectBuilders
         [ProtoMember]
         public string CharacterModel;
 
-        [ProtoMember]
+        [ProtoMember,DefaultValue(null)]
         public MyObjectBuilder_Inventory Inventory;
 
         [ProtoMember]
@@ -170,6 +175,7 @@ namespace Sandbox.Common.ObjectBuilders
 
         [ProtoMember]
         public float? Health;
+		public bool ShouldSerializeHealth() { return false; } // Has been moved to MyEntityStatComponent
 
         [ProtoMember, DefaultValue(false)]
         public bool AIMode = false;
@@ -195,5 +201,8 @@ namespace Sandbox.Common.ObjectBuilders
         [ProtoMember]
         public MyCharacterMovementEnum MovementState = MyCharacterMovementEnum.Standing;
         public bool ShouldSerializeMovementState() { return MovementState != MyCharacterMovementEnum.Standing; }
+
+        [ProtoMember]
+        public List<string> EnabledComponents = null;
     }
 }

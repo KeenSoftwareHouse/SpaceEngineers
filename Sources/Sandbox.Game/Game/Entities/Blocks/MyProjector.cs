@@ -1421,7 +1421,7 @@ namespace Sandbox.Game.Entities.Blocks
             //Find original grid builder
             foreach (var blockBuilder in m_originalGridBuilder.CubeBlocks)
             {
-                if (blockBuilder.Min == cubeMin && blockBuilder.GetId() == cubeBlock.BlockDefinition.Id)
+                if ((Vector3I)blockBuilder.Min == cubeMin && blockBuilder.GetId() == cubeBlock.BlockDefinition.Id)
                 {
                     objectBuilder = (MyObjectBuilder_CubeBlock)blockBuilder.Clone();
                     objectBuilder.SetupForProjector();

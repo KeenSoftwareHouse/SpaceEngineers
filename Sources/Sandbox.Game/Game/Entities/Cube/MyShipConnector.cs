@@ -261,8 +261,16 @@ namespace Sandbox.Game.Entities.Cube
 
             IsWorkingChanged += MyShipConnector_IsWorkingChanged;
 
+			if (MyPerGameSettings.InventoryMass)
+				m_inventory.ContentsChanged += Inventory_ContentsChanged;
+
             AddDebugRenderComponent(new Components.MyDebugRenderCompoonentShipConnector(this));
         }
+
+		void Inventory_ContentsChanged(MyInventoryBase obj)
+		{
+			CubeGrid.SetInventoryMassDirty();
+		}
 
         public override void UpdateOnceBeforeFrame()
         {
@@ -425,49 +433,61 @@ namespace Sandbox.Game.Entities.Cube
         private void phantom_LeaveEjector(HkPhantomCallbackShape shape, HkRigidBody body)
         {
             var updateEmissivity = (m_detectedFloaters.Count == 2);
-            m_detectedFloaters.Remove(body.GetEntity());
+            var entities = body.GetAllEntities();
+            foreach(var entity in entities)
+                m_detectedFloaters.Remove( entity);
+            entities.Clear();
             if (updateEmissivity)
                 UpdateEmissivity();
         }
 
         private void phantom_LeaveConnector(HkPhantomCallbackShape shape, HkRigidBody body)
         {
-            var other = body.GetEntity() as MyCubeGrid;
-            if (other == null || other == this.CubeGrid)
-                return;
+            var entities = body.GetAllEntities();
+            foreach (var entity in entities)
+            {
+                var other = entity as MyCubeGrid;
+                if (other == null || other == this.CubeGrid)
+                    continue;
 
-            m_detectedGrids.Remove(other);
+                m_detectedGrids.Remove(other);
+            }
+            entities.Clear();
         }
 
         private void phantom_EnterEjector(HkPhantomCallbackShape shape, HkRigidBody body)
         {
-            var entity = body.GetEntity();
-
-            Debug.Assert(entity is MyFloatingObject);
-            if (entity is MyFloatingObject)
+            bool updateEmissivity = false;
+            var entities = body.GetAllEntities();
+            foreach(var entity in entities)
             {
-                var updateEmissivity = (m_detectedFloaters.Count == 1);
-                m_detectedFloaters.Add(entity);
-                if (updateEmissivity)
-                    UpdateEmissivity();
+                Debug.Assert(entity is MyFloatingObject);
+                if (entity is MyFloatingObject)
+                {
+                    updateEmissivity |= (m_detectedFloaters.Count == 1);
+                    m_detectedFloaters.Add(entity);
+                }
             }
+            entities.Clear();
+
+            if (updateEmissivity)
+                UpdateEmissivity();
         }
 
         private void phantom_EnterConnector(HkPhantomCallbackShape shape, HkRigidBody body)
         {
-            var other = body.GetEntity() as MyCubeGrid;
-            if (other == null || other == this.CubeGrid)
-                return;
+            var entities = body.GetAllEntities();
+            using (entities.GetClearToken())
+            {
+                foreach (var entity in entities)
+                {
+                    var other = entity as MyCubeGrid;
+                    if (other == null || other == this.CubeGrid)
+                        continue;
 
-            m_detectedGrids.Add(other);
-        }
-
-        protected IMyEntity GetOtherEntity(ref HkContactPointEvent value)
-        {
-            if (value.Base.BodyA.GetEntity() == this)
-                return value.Base.BodyB.GetEntity();
-            else
-                return value.Base.BodyA.GetEntity();
+                    m_detectedGrids.Add(other);
+                }
+            }
         }
 
         private void GetBoxFromMatrix(Matrix m, out Vector3 halfExtents, out Vector3 position, out Quaternion orientation)

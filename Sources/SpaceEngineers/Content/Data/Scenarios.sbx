@@ -361,49 +361,8 @@
       </StartingState>
         </PossibleStartingStates>
       <WorldGeneratorOperations>
-        <Operation xsi:type="AddPlanetPrefab" PrefabFile="Planet1"/> 
-        <Operation xsi:type="AddShipPrefab" PrefabFile="Buggy">
-          <Transform>
-            <Position x="16728.8420220554" y="36702.521585343013" z="14091.028068970223" />
-            <Forward x="0" y="0" z="-1" />
-            <Up x="0" y="1" z="0" />
-          </Transform>
-        </Operation>
+        <Operation xsi:type="AddPlanetPrefab" PrefabFile="Planet1"/>     
       </WorldGeneratorOperations>
     </ScenarioDefinition>
-    <ScenarioDefinition>
-      <Id>
-        <TypeId>ScenarioDefinition</TypeId>
-        <SubtypeId>2Planets</SubtypeId>
-      </Id>
-      <DisplayName>DisplayName_Scenario_2Planets</DisplayName>
-      <Description>Description_Scenario_2Planets</Description>
-      <Icon>Textures\GUI\Icons\scenarios\2Planets.dds</Icon>
-      <AsteroidClusters Enabled="true" />
-      <CreativeModeWeapons>
-        <Weapon>AngleGrinderItem</Weapon>
-        <Weapon>AutomaticRifleItem</Weapon>
-        <Weapon>HandDrillItem</Weapon>
-        <Weapon>WelderItem</Weapon>
-      </CreativeModeWeapons>
-      <SurvivalModeWeapons>
-        <Weapon>AngleGrinderItem</Weapon>
-        <Weapon>HandDrillItem</Weapon>
-        <Weapon>WelderItem</Weapon>
-      </SurvivalModeWeapons>
-      <PossibleStartingStates>
-      <StartingState xsi:type="Transform" JetpackEnabled="false" DampenersEnabled="true">
-        <Transform>
-          <Position x="10253.385062222616" y="41873.8292762573" z="39108.052099417589" />
-          <Forward x="-0.195741445" y="-0.8381381" z="0.509126544" />
-          <Up x="-0.897167265" y="0.362671971" z="0.252110958" />
-        </Transform>
-      </StartingState>
-    </PossibleStartingStates>
-    <WorldGeneratorOperations>
-      <Operation xsi:type="AddPlanetPrefab" PrefabFile="Planet1"/>
-      <Operation xsi:type="AddPlanetPrefab" PrefabFile="Planet2"/>
-    </WorldGeneratorOperations>
-  </ScenarioDefinition>
 </Scenarios>
 </ScenarioDefinitions>

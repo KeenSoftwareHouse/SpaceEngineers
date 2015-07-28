@@ -133,7 +133,7 @@ namespace SpaceEngineers.Game.Entities.Blocks
                     block.MoveItemsToConstructionStockpile(Inventory);
 
                     // Allow welding only for blocks with deformations or unfinished/damaged blocks
-                    if (block.MaxDeformation > 0.0001f || !block.IsFullIntegrity)
+                    if ((block.HasDeformation || block.MaxDeformation > 0.0001f) || !block.IsFullIntegrity)
                     {
                         float maxAllowedBoneMovement = WELDER_MAX_REPAIR_BONE_MOVEMENT_SPEED * MyShipGrinderConstants.GRINDER_COOLDOWN_IN_MILISECONDS * 0.001f;
                         block.IncreaseMountLevel(MySession.Static.WelderSpeedMultiplier * WELDER_AMOUNT_PER_SECOND * coefficient, OwnerId, Inventory, maxAllowedBoneMovement, m_helpOthers, IDModule.ShareMode);

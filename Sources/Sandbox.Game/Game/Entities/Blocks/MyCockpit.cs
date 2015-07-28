@@ -543,7 +543,7 @@ namespace Sandbox.Game.Entities
         {
             base.OnControlReleased(controller);
 
-            if (controller.Player.IsLocalPlayer())
+            if (controller.Player.IsLocalPlayer)
             {
                 if (m_pilot != null)
                     m_pilot.RadioReceiver.Clear();

@@ -22,7 +22,7 @@ namespace VRage.Components
     {
         public static void AddComponent(this IMyComponentAggregate aggregate, MyComponentBase component)
         {
-            aggregate.ChildList.AddComponent(aggregate.ContainerBase, component);
+            aggregate.ChildList.AddComponent(component);
             component.SetContainer(aggregate.ContainerBase);
             aggregate.AfterComponentAdd(component);
         }
@@ -32,7 +32,7 @@ namespace VRage.Components
         /// </summary>
         public static void AttachComponent(this IMyComponentAggregate aggregate, MyComponentBase component)
         {
-            aggregate.ChildList.AddComponent(aggregate.ContainerBase, component);         
+            aggregate.ChildList.AddComponent(component);         
         }
 
         public static void RemoveComponent(this IMyComponentAggregate aggregate, MyComponentBase component)
@@ -81,7 +81,7 @@ namespace VRage.Components
         private List<MyComponentBase> m_components = new List<MyComponentBase>();
         public ListReader<MyComponentBase> Reader { get { return new ListReader<MyComponentBase>(m_components); } }
 
-        public void AddComponent(MyComponentContainer container, MyComponentBase component)
+        public void AddComponent(MyComponentBase component)
         {
             m_components.Add(component);
         }
@@ -95,5 +95,24 @@ namespace VRage.Components
         {
             return m_components.IndexOf(component);
         }
+
+        public bool RemoveComponent(MyComponentBase component)
+        {
+            if (m_components.Remove(component))
+            {              
+                return true;
+            }
+            foreach (var childComponent in m_components)
+            {
+                if (childComponent is IMyComponentAggregate)
+                {
+                    if ((childComponent as IMyComponentAggregate).ChildList.RemoveComponent(component))
+                    {
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }        
     }
 }

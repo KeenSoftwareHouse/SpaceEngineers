@@ -196,6 +196,7 @@ namespace Sandbox.Game.Entities.Blocks
                     m_light.SpecularColor = value;
                     m_light.Color = value;
                     m_light.ReflectorColor = value;
+					Render.BulbColor = ComputeBulbColor();
                     UpdateEmissivity(true);
                     RaisePropertiesChanged();
                 }

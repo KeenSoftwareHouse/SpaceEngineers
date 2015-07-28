@@ -24,6 +24,8 @@ namespace Sandbox.Game.GameSystems.StructuralIntegrity
         float GetSupportedWeight(Vector3I pos);
 
         float GetTension(Vector3I pos);
+
+        void ForceRecalc();
     }
 
 }

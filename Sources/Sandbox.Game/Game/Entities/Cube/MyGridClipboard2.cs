@@ -418,22 +418,6 @@ namespace Sandbox.Game.Entities.Cube
             return dot;
         }
 
-        private static double? GetCurrentRayIntersection()
-        {
-            Vector3D position;
-            Vector3 normal;
-            HkRigidBody intersectedBody = MyPhysics.CastRay(MyCubeBuilder.IntersectionStart, MyCubeBuilder.IntersectionStart + 2000 * MyCubeBuilder.IntersectionDirection,
-                out position, out normal, MyPhysics.CollisionLayerWithoutCharacter);
-            if (intersectedBody != null)
-            {
-                Vector3D p = position - MyCubeBuilder.IntersectionStart;
-                double dist = p.Length();
-                return dist;
-            }
-
-            return null;
-        }
-
         protected Vector3D? GetFreeSpacePlacementPosition(bool copyPaste, out bool buildAllowed)
         {
             Vector3D? freePlacementIntersectionPoint = null;
@@ -442,7 +426,7 @@ namespace Sandbox.Game.Entities.Cube
             float gridSize = PreviewGrids[0].GridSize;
 
             double shortestDistance = double.MaxValue;
-            double? currentRayInts = GetCurrentRayIntersection();
+            double? currentRayInts = MyCubeBuilder.GetCurrentRayIntersection();
             if (currentRayInts.HasValue)
                 shortestDistance = currentRayInts.Value;
 
@@ -540,7 +524,7 @@ namespace Sandbox.Game.Entities.Cube
             float gridSize = PreviewGrids[0].GridSize;
 
             double shortestDistance = double.MaxValue;
-            double? currentRayInts = GetCurrentRayIntersection();
+            double? currentRayInts = MyCubeBuilder.GetCurrentRayIntersection();
             if (currentRayInts.HasValue)
                 shortestDistance = currentRayInts.Value;
 
@@ -1052,7 +1036,7 @@ namespace Sandbox.Game.Entities.Cube
 
             if (PreviewGrids.Count > 0)
             {
-                double? currentRayInts = GetCurrentRayIntersection();
+                double? currentRayInts = MyCubeBuilder.GetCurrentRayIntersection();
                 if (currentRayInts.HasValue && m_dragDistance > currentRayInts.Value)
                     m_dragDistance = (float)currentRayInts.Value;
 

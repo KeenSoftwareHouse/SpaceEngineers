@@ -21,7 +21,7 @@ namespace SpaceEngineers.Game.Entities.UseObjects
         public readonly MyCubeBlock Block;
         public readonly Matrix LocalMatrix;
 
-        public MyUseObjectInventory(IMyEntity owner, string dummyName, MyModelDummy dummyData, int key)
+        public MyUseObjectInventory(IMyEntity owner, string dummyName, MyModelDummy dummyData, uint key)
         {
             Block = owner as MyCubeBlock;
             LocalMatrix = dummyData.Matrix;

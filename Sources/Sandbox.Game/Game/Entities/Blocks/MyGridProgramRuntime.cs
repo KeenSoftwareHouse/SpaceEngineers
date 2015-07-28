@@ -21,8 +21,9 @@ namespace Sandbox.Game.Entities.Blocks
     class MyGridProgramRuntime
     {
         private const int MAX_NUM_EXECUTED_INSTRUCTIONS = 50000;
-        private static readonly double STOPWATCH_FREQUENCY = 1.0 / Stopwatch.Frequency;
+		private const int MAX_NUM_METHOD_CALLS = 10000;
         private const int MAX_ECHO_LENGTH = 8000; // 100 lines á 80 characters
+        private static readonly double STOPWATCH_FREQUENCY = 1.0 / Stopwatch.Frequency;
 
         private readonly MyProgrammableBlock m_programmableBlock;
         private IMyGridProgram m_instance;
@@ -97,8 +98,9 @@ namespace Sandbox.Game.Entities.Blocks
             output = "";
             try
             {
-                // TODO: Is this needed now that the constructor is not called during instantiation?
+                // TODO: Are these needed now that the constructor is not called during instantiation?
                 IlInjector.RestartCountingInstructions(MAX_NUM_EXECUTED_INSTRUCTIONS);
+                IlInjector.RestartCountingMethods(MAX_NUM_METHOD_CALLS);
 
                 // Save the current storage now, to make sure any preexisting program has a chance to store
                 // its state.
@@ -157,6 +159,7 @@ namespace Sandbox.Game.Entities.Blocks
             }
 
             IlInjector.RestartCountingInstructions(MAX_NUM_EXECUTED_INSTRUCTIONS);
+			IlInjector.RestartCountingMethods(MAX_NUM_METHOD_CALLS);
             m_echoOutput.Clear();
 
             if (m_previousRunTimestamp == 0)
