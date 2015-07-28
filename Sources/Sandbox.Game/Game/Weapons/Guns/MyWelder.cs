@@ -62,6 +62,7 @@ namespace Sandbox.Game.Weapons
         {
             HasCubeHighlight = true;
             HighlightColor = Color.Green * 0.45f;
+			HighlightMaterial = "GizmoDrawLine";
 
             SecondaryLightIntensityLower = 0.4f;
             SecondaryLightIntensityUpper = 0.4f;
@@ -171,14 +172,15 @@ namespace Sandbox.Game.Weapons
 
         public override bool CanShoot(MyShootActionEnum action, long shooter, out MyGunStatusEnum status)
         {
+            if (action == MyShootActionEnum.SecondaryAction)
+            {
+				status = MyGunStatusEnum.OK;
+                return true;
+            }
+
             if (!base.CanShoot(action, shooter, out status))
             {
                 return false;
-            }
-
-            if (action == MyShootActionEnum.SecondaryAction)
-            {
-                return true;
             }
 
 
@@ -252,9 +254,9 @@ namespace Sandbox.Game.Weapons
             return null;
         }
 
-        public override void Shoot(MyShootActionEnum action, Vector3 direction)
+        public override void Shoot(MyShootActionEnum action, Vector3 direction, string gunAction)
         {
-            base.Shoot(action, direction);
+            base.Shoot(action, direction, gunAction);
             
             if (action == MyShootActionEnum.PrimaryAction/* && IsPreheated*/ && Sync.IsServer)
             {
@@ -279,6 +281,10 @@ namespace Sandbox.Game.Weapons
                     }
                 }
             }
+			else if(action == MyShootActionEnum.SecondaryAction && Sync.IsServer)
+			{
+				FillStockpile();
+			}
             return;
         }
 
@@ -322,7 +328,7 @@ namespace Sandbox.Game.Weapons
 
         protected override void AddHudInfo()
         {
-            if (MyInput.Static.IsJoystickConnected())
+            if (!MyInput.Static.IsJoystickConnected())
                 m_weldingHintNotification.SetTextFormatArguments(MyInput.Static.GetGameControl(MyControlsSpace.PRIMARY_TOOL_ACTION));
             else
                 m_weldingHintNotification.SetTextFormatArguments(MyControllerHelper.GetCodeForControl(MySpaceBindingCreator.CX_CHARACTER, MyControlsSpace.PRIMARY_TOOL_ACTION));
@@ -360,7 +366,7 @@ namespace Sandbox.Game.Weapons
                 block.MoveUnneededItemsFromConstructionStockpile(CharacterInventory);
 
                 // Allow welding only for blocks with deformations or unfinished/damaged blocks
-                if (block.MaxDeformation > 0.0f || !block.IsFullIntegrity)
+                if ((block.HasDeformation || block.MaxDeformation > 0.0f) || !block.IsFullIntegrity)
                 {
                     float maxAllowedBoneMovement = WELDER_MAX_REPAIR_BONE_MOVEMENT_SPEED * ToolCooldownMs * 0.001f;
                     block.IncreaseMountLevel(WeldAmount, Owner.ControllerInfo.ControllingIdentityId, CharacterInventory, maxAllowedBoneMovement);

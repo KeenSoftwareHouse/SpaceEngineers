@@ -182,9 +182,13 @@
     </None>
     <None Include="Content\Data\DebrisModels.sbc" />
     <None Include="Content\Data\Edges.sbc" />
-    <None Include="Content\Data\Environment.sbc" />
+    <None Include="Content\Data\Environment.sbc">
+      <SubType>Designer</SubType>
+    </None>
     <None Include="Content\Data\GlobalEvents.sbc" />
-    <None Include="Content\Data\HandItems.sbc" />
+    <None Include="Content\Data\HandItems.sbc">
+      <SubType>Designer</SubType>
+    </None>
     <None Include="Content\Data\Localization\MyTexts.resx">
       <SubType>Designer</SubType>
     </None>
@@ -233,7 +237,9 @@
     <None Include="Content\Data\Prefabs\Trade1.sbc" />
     <None Include="Content\Data\Prefabs\Trade2.sbc" />
     <None Include="Content\Data\Prefabs\Trade3.sbc" />
-    <None Include="Content\Data\RespawnShips.sbc" />
+    <None Include="..\MedievalEngineers\Content\Data\RespawnShips.sbc">
+      <Link>Content\Data\RespawnShips.sbc</Link>
+    </None>
     <None Include="Content\Data\Scenarios.sbx">
       <SubType>Designer</SubType>
     </None>
@@ -247,7 +253,9 @@
       <SubType>Designer</SubType>
     </None>
     <None Include="Content\Data\Stats.sbc" />
-    <None Include="Content\Data\TransparentMaterials.sbc" />
+    <None Include="Content\Data\TransparentMaterials.sbc">
+      <SubType>Designer</SubType>
+    </None>
     <None Include="Content\Data\VoxelMaterials.sbc">
       <SubType>Designer</SubType>
     </None>

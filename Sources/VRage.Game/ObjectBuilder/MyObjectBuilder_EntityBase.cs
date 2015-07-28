@@ -19,7 +19,7 @@ namespace VRage.ObjectBuilders
 
     [ProtoContract]
     [MyObjectBuilderDefinition]
-    public abstract class MyObjectBuilder_EntityBase : MyObjectBuilder_Base
+    public class MyObjectBuilder_EntityBase : MyObjectBuilder_Base
     {
         [ProtoMember]
         public long EntityId;
@@ -44,7 +44,7 @@ namespace VRage.ObjectBuilders
 
         public bool ShouldSerializeComponentContainer()
         {
-            return ComponentContainer != null && ComponentContainer.Components != null && ComponentContainer.Components.Length > 0;
+            return ComponentContainer != null && ComponentContainer.Components != null && ComponentContainer.Components.Count > 0;
         }
 
         /// <summary>

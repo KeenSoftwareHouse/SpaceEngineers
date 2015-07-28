@@ -92,7 +92,10 @@ namespace Sandbox.Game.Entities.Cube
             {
                 OxygenSystem = new MyGridOxygenSystem(m_cubeGrid);
             }
-            JumpSystem = new MyGridJumpDriveSystem(m_cubeGrid);
+            if (MyPerGameSettings.EnableJumpDrive)
+            {
+                JumpSystem = new MyGridJumpDriveSystem(m_cubeGrid);
+            }
 
             m_cubeGrid.SyncObject.PowerProducerStateChanged += SyncObject_PowerProducerStateChanged;
 
@@ -109,6 +112,11 @@ namespace Sandbox.Game.Entities.Cube
             if (MySession.Static.Settings.EnableOxygen)
             {
                 OxygenSystem.Init(builder.OxygenAmount);
+            }
+
+            if (MyPerGameSettings.EnableJumpDrive)
+            {
+                JumpSystem.Init(builder.JumpDriveDirection, builder.JumpElapsedTicks);
             }
         }
 
@@ -156,9 +164,12 @@ namespace Sandbox.Game.Entities.Cube
                 ProfilerShort.End();
             }
 
-            ProfilerShort.Begin("Jump");
-            JumpSystem.UpdateBeforeSimulation();
-            ProfilerShort.End();
+            if (MyPerGameSettings.EnableJumpDrive)
+            {
+                ProfilerShort.Begin("Jump");
+                JumpSystem.UpdateBeforeSimulation();
+                ProfilerShort.End();
+            }
         }
 
         public virtual void PrepareForDraw()
@@ -208,6 +219,12 @@ namespace Sandbox.Game.Entities.Cube
             if (MySession.Static.Settings.EnableOxygen)
             {
                 ob.OxygenAmount = OxygenSystem.GetOxygenAmount();
+            }
+
+            if (MyPerGameSettings.EnableJumpDrive)
+            {
+                ob.JumpDriveDirection = JumpSystem.GetJumpDriveDirection();
+                ob.JumpElapsedTicks = JumpSystem.GetJumpElapsedTicks();
             }
         }
 
@@ -375,6 +392,10 @@ namespace Sandbox.Game.Entities.Cube
         public virtual void AfterGridClose()
         {
             ConveyorSystem.AfterGridClose();
+            if (MyPerGameSettings.EnableJumpDrive)
+            {
+                JumpSystem.AfterGridClose();
+            }
             m_blocksRegistered = false;
         }
 

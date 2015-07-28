@@ -19,7 +19,7 @@ namespace SpaceEngineers.Game.Entities.UseObjects
         private MyMedicalRoom m_medicalRoom;
         private Matrix m_localMatrix;
 
-        public MyUseObjectMedicalRoom(IMyEntity owner, string dummyName, MyModelDummy dummyData, int key)
+        public MyUseObjectMedicalRoom(IMyEntity owner, string dummyName, MyModelDummy dummyData, uint key)
         {
             m_medicalRoom = (MyMedicalRoom)owner;
             m_localMatrix = dummyData.Matrix;

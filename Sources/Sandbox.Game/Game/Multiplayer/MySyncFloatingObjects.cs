@@ -27,7 +27,7 @@ namespace Sandbox.Game.Multiplayer
     class MySyncFloatingObjects
     {
         MyFloatingObjects m_floatingObjects;
-        static System.Collections.Generic.List<Havok.HkRigidBody> m_rigidBodyList = new System.Collections.Generic.List<Havok.HkRigidBody>();
+        static System.Collections.Generic.List<Havok.HkBodyCollision> m_rigidBodyList = new System.Collections.Generic.List<Havok.HkBodyCollision>();
 
         struct FloatingObjectsData
         {
@@ -293,7 +293,7 @@ namespace Sandbox.Game.Multiplayer
                     }
                     if (floatingObject.Physics != null)
                     {
-                        if (m_rigidBodyList.Count == 1 && m_rigidBodyList[0] == floatingObject.Physics.RigidBody)
+                        if (m_rigidBodyList.Count == 1 && m_rigidBodyList[0].Body == floatingObject.Physics.RigidBody)
                         {
                             floatingObject.PositionComp.SetWorldMatrix(matrix, sender);
                         }

@@ -1,6 +1,7 @@
 struct MaterialConstants
 {
-	float3 scales;
+	float4 scales;
+    float2 far_scales;
 };
 
 struct MaterialVertexPayload

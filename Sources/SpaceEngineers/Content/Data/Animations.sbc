@@ -550,6 +550,7 @@
       <Icon>Textures\GUI\Icons\Fake.dds</Icon>
       <AnimationModel>Models\Characters\Animations\holding_tool.mwm</AnimationModel>
       <ClipIndex>0</ClipIndex>
+	  <Loop>true</Loop>
       <InfluenceArea>LeftFingers RightFingers</InfluenceArea>
       <Public>false</Public>
     </Animation>
@@ -564,7 +565,8 @@
       <Icon>Textures\GUI\Icons\Fake.dds</Icon>
       <AnimationModel>Models\Characters\Animations\holding_weapon.mwm</AnimationModel>
       <ClipIndex>0</ClipIndex>
-      <InfluenceArea>LeftFingers RightFingers</InfluenceArea>
+	  <Loop>true</Loop>
+      <InfluenceArea>LeftHand RightHand LeftFingers RightFingers Head Spine</InfluenceArea>
       <Public>false</Public>
     </Animation>
 	

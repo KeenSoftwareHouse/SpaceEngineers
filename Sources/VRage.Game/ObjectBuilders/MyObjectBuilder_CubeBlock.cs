@@ -13,7 +13,6 @@ using Sandbox.Common.ObjectBuilders.ComponentSystem;
 
 namespace Sandbox.Common.ObjectBuilders
 {
-
     [ProtoContract]
     [MyObjectBuilderDefinition]
     public class MyObjectBuilder_CubeBlock : MyObjectBuilder_Base
@@ -23,7 +22,8 @@ namespace Sandbox.Common.ObjectBuilders
         public bool ShouldSerializeEntityId() { return EntityId != 0; }
 
         [ProtoMember]
-        public SerializableVector3I Min;
+        public SerializableVector3I Min = new SerializableVector3I(0, 0, 0);
+        public bool ShouldSerializeMin() { return Min != new SerializableVector3I(0, 0, 0); }
         //[ProtoMember]
         //public SerializableVector3I Max;
 
@@ -53,7 +53,8 @@ namespace Sandbox.Common.ObjectBuilders
         public float BuildPercent = 1.0f;
 
         [ProtoMember]
-        public SerializableBlockOrientation BlockOrientation;
+        public SerializableBlockOrientation BlockOrientation = SerializableBlockOrientation.Identity;
+        public bool ShouldSerializeBlockOrientation() { return BlockOrientation != SerializableBlockOrientation.Identity; }
 
         [ProtoMember, DefaultValue(null)]
         public MyObjectBuilder_Inventory ConstructionInventory = null;
@@ -61,6 +62,7 @@ namespace Sandbox.Common.ObjectBuilders
 
         [ProtoMember]
         public SerializableVector3 ColorMaskHSV = new SerializableVector3(0f, -1f, 0f);
+        public bool ShouldSerializeColorMaskHSV() { return ColorMaskHSV != new SerializableVector3(0f, -1f, 0f); }
 
         public static MyObjectBuilder_CubeBlock Upgrade(MyObjectBuilder_CubeBlock cubeBlock, MyObjectBuilderType newType, string newSubType)
         {
@@ -96,11 +98,11 @@ namespace Sandbox.Common.ObjectBuilders
         //[ProtoMember, DefaultValue(false)]
         //public bool ShareWithAll = false;
 
-        [ProtoMember]
-        public MyOwnershipShareModeEnum ShareMode;
+        [ProtoMember, DefaultValue(MyOwnershipShareModeEnum.None)]
+        public MyOwnershipShareModeEnum ShareMode = MyOwnershipShareModeEnum.None;
 
-        [ProtoMember]
-        public float DeformationRatio;
+        [ProtoMember, DefaultValue(0)]
+        public float DeformationRatio = 0;
 
         [ProtoContract]
         public struct MySubBlockId
@@ -123,9 +125,8 @@ namespace Sandbox.Common.ObjectBuilders
         public MyObjectBuilder_ComponentContainer ComponentContainer = null;
         public bool ShouldSerializeComponentContainer()
         {
-            return ComponentContainer != null && ComponentContainer.Components != null && ComponentContainer.Components.Length > 0;
+            return ComponentContainer != null && ComponentContainer.Components != null && ComponentContainer.Components.Count > 0;
         }
-
 
         public virtual void Remap(IMyRemapHelper remapHelper)
         {

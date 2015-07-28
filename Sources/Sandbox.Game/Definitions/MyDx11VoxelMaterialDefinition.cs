@@ -34,6 +34,8 @@ namespace Medieval.Definitions
         private float Scale;
         private float ScaleFar1;
         private float ScaleFar2;
+        private float ScaleFar3;
+        private float ScaleFar4;
 
         public string   FoliageTextureArray1;
         public string   FoliageTextureArray2;
@@ -72,6 +74,8 @@ namespace Medieval.Definitions
             this.Scale       = myOb.Scale;
             this.ScaleFar1 = myOb.ScaleFar1;
             this.ScaleFar2 = myOb.ScaleFar2;
+            this.ScaleFar3 = myOb.ScaleFar3;
+            this.ScaleFar4 = myOb.ScaleFar4;
 
             this.FoliageTextureArray1 = myOb.FoliageTextureArray1;
             this.FoliageTextureArray2 = myOb.FoliageTextureArray2;
@@ -111,6 +115,8 @@ namespace Medieval.Definitions
             ob.Scale                     = this.Scale;
             ob.ScaleFar1                 = this.ScaleFar1;
             ob.ScaleFar2 = this.ScaleFar2;
+            ob.ScaleFar3 = this.ScaleFar3;
+            ob.ScaleFar4 = this.ScaleFar4;
 
             ob.FoliageTextureArray1      = this.FoliageTextureArray1;
             ob.FoliageTextureArray2      = this.FoliageTextureArray2;
@@ -124,34 +130,49 @@ namespace Medieval.Definitions
             return ob;
         }
 
+        public void FillString(ref string stringToFill, ref string defaultValue, ref string alternative)
+        {
+            if (string.IsNullOrEmpty(defaultValue))
+            {
+                stringToFill = alternative;
+            }
+            else
+            {
+                stringToFill = defaultValue;
+            }
+        }
+
         public override void CreateRenderData(out MyRenderVoxelMaterialData renderData)
         {
             base.CreateRenderData(out renderData);
 
             renderData.ColorMetalXZnY               = this.ColorMetalXZnY;
-            renderData.ColorMetalY                  = this.ColorMetalY;
+            FillString(ref renderData.ColorMetalY, ref this.ColorMetalY, ref ColorMetalXZnY);
             renderData.NormalGlossXZnY              = this.NormalGlossXZnY;
-            renderData.NormalGlossY                 = this.NormalGlossY;
+            FillString(ref renderData.NormalGlossY, ref this.NormalGlossY, ref NormalGlossXZnY);
             renderData.ExtXZnY = this.ExtXZnY;
-            renderData.ExtY = this.ExtY;
+            FillString(ref renderData.ExtY, ref this.ExtY, ref ExtXZnY);
 
-            renderData.ColorMetalXZnYFar1   = this.ColorMetalXZnYFar1;
-            renderData.ColorMetalYFar1      = this.ColorMetalYFar1;
-            renderData.NormalGlossXZnYFar1  = this.NormalGlossXZnYFar1;
-            renderData.NormalGlossYFar1     = this.NormalGlossYFar1;
-            renderData.ExtXZnYFar1 = this.ExtXZnYFar1;
-            renderData.ExtYFar1 = this.ExtYFar1;
+            FillString(ref renderData.ColorMetalXZnYFar1, ref ColorMetalXZnYFar1, ref ColorMetalXZnY);
+            FillString(ref renderData.ColorMetalYFar1, ref ColorMetalYFar1, ref renderData.ColorMetalXZnYFar1);
+            FillString(ref renderData.NormalGlossXZnYFar1, ref this.NormalGlossXZnYFar1, ref NormalGlossXZnY);
+            FillString(ref renderData.NormalGlossYFar1, ref NormalGlossYFar1, ref renderData.NormalGlossXZnYFar1);
+            FillString(ref renderData.ExtXZnYFar1, ref this.ExtXZnYFar1, ref ExtXZnY);
+            FillString(ref renderData.ExtYFar1, ref ExtYFar1, ref renderData.ExtXZnYFar1);
 
-            renderData.ColorMetalXZnYFar2 = this.ColorMetalXZnYFar2;
-            renderData.ColorMetalYFar2 = this.ColorMetalYFar2;
-            renderData.NormalGlossXZnYFar2 = this.NormalGlossXZnYFar2;
-            renderData.NormalGlossYFar2 = this.NormalGlossYFar2;
-            renderData.ExtXZnYFar2 = this.ExtXZnYFar2;
-            renderData.ExtYFar2 = this.ExtYFar2;
+            FillString(ref renderData.ColorMetalXZnYFar2, ref ColorMetalXZnYFar2, ref renderData.ColorMetalXZnYFar1);
+            FillString(ref renderData.ColorMetalYFar2, ref ColorMetalYFar2, ref renderData.ColorMetalXZnYFar2);
+            FillString(ref renderData.NormalGlossXZnYFar2, ref this.NormalGlossXZnYFar2, ref renderData.NormalGlossXZnYFar1);
+            FillString(ref renderData.NormalGlossYFar2, ref NormalGlossYFar2, ref renderData.NormalGlossXZnYFar2);
+            FillString(ref renderData.ExtXZnYFar2, ref this.ExtXZnYFar2, ref renderData.ExtXZnYFar1);
+            FillString(ref renderData.ExtYFar2, ref ExtYFar2, ref renderData.ExtXZnYFar2); 
 
             renderData.Scale           = this.Scale;
             renderData.ScaleFar1            = this.ScaleFar1;
             renderData.ScaleFar2 = this.ScaleFar2;
+            renderData.ScaleFar3 = this.ScaleFar3;
+            renderData.ScaleFar4 = this.ScaleFar4;
+
 
             renderData.ExtensionTextureArray1        = this.FoliageTextureArray1;
             renderData.ExtensionTextureArray2      = this.FoliageTextureArray2;

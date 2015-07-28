@@ -50,6 +50,10 @@ namespace Sandbox.Game.Weapons
         {
             get { return 200; }
         }
+        public bool IsBlocking
+        {
+            get { return false; }
+        }
 
         private MyEntity3DSoundEmitter m_soundEmitter;
 
@@ -202,7 +206,7 @@ namespace Sandbox.Game.Weapons
             return false;
         }
 
-        public void Shoot(MyShootActionEnum action, Vector3 direction)
+        public void Shoot(MyShootActionEnum action, Vector3 direction, string gunAction)
         {
             if (action == MyShootActionEnum.PrimaryAction)
             {

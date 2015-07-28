@@ -78,18 +78,22 @@ namespace VRageRender
             message.CameraPosition.AssertIsValid();
             MyEnvironment.CameraPosition = message.CameraPosition;
             MyEnvironment.View = message.ViewMatrix;
+            MyEnvironment.ViewD = message.ViewMatrix;
+            MyEnvironment.OriginalProjectionD = originalProjection;
             MyEnvironment.InvView = invView;
             MyEnvironment.ViewProjection = message.ViewMatrix * renderProjection;
             MyEnvironment.InvViewProjection = invProj * invView;
             MyEnvironment.Projection = renderProjection;
             MyEnvironment.InvProjection = invProj;
+
+            MyEnvironment.ViewProjectionD = MyEnvironment.ViewD * (MatrixD)renderProjection;
             
             MyEnvironment.NearClipping = message.NearPlane;
             MyEnvironment.FarClipping = message.FarPlane;
             MyEnvironment.LargeDistanceFarClipping = message.FarPlane*500.0f;
             MyEnvironment.FovY = message.FOV;
-            MyEnvironment.ViewFrustum = new BoundingFrustum(MyEnvironment.ViewProjection);
             MyEnvironment.ViewFrustumD = new BoundingFrustumD(MyEnvironment.ViewProjectionD);
+            MyEnvironment.ViewFrustumClippedD = new BoundingFrustumD(MyEnvironment.ViewD * MyEnvironment.OriginalProjectionD);
         }
 
         private static void TransferPerformanceStats()
@@ -227,7 +231,7 @@ namespace VRageRender
                 MyBillboardRenderer.Render(MyScreenDependants.m_particlesRT, MyGBuffer.Main.DepthStencil, MyGBuffer.Main.DepthStencil.Depth);
             }
 
-            MyBlendTargets.Run(MyGBuffer.Main.Get(MyGbufferSlot.LBuffer), MyScreenDependants.m_particlesRT);
+            MyBlendTargets.Run(MyGBuffer.Main.Get(MyGbufferSlot.LBuffer), MyScreenDependants.m_particlesRT, MyRender11.BlendAlphaPremult);
             MyGpuProfiler.IC_EndBlock();
             MyRender11.GetRenderProfiler().EndProfilingBlock();
 
@@ -290,6 +294,27 @@ namespace VRageRender
             {
                 //renderedImage = (tonemapped as MyCustomTexture).GetView(new MyViewKey { Fmt = SharpDX.DXGI.Format.R8G8B8A8_UNorm_SRgb, View = MyViewEnum.SrvView });
                 renderedImage = tonemapped;
+            }
+
+            if (MyOutline.AnyOutline())
+            {
+                MyOutline.Run();
+
+                if (MyRender11.FxaaEnabled)
+                {
+                    MyBlendTargets.RunWithStencil(m_rgba8_0.GetView(new MyViewKey { Fmt = SharpDX.DXGI.Format.R8G8B8A8_UNorm_SRgb, View = MyViewEnum.RtvView }), MyRender11.m_rgba8_1, MyRender11.BlendAdditive);
+                }
+                else
+                {
+                    if (MyRender11.MultisamplingEnabled)
+                    {
+                        MyBlendTargets.RunWithPixelStencilTest(tonemapped, MyRender11.m_rgba8_1, MyRender11.BlendAdditive);
+                    }
+                    else
+                    {
+                        MyBlendTargets.RunWithStencil(tonemapped, MyRender11.m_rgba8_1, MyRender11.BlendAdditive);
+                    }
+                }
             }
 
             m_finalImage = renderedImage;
@@ -435,7 +460,7 @@ namespace VRageRender
             {
                 Resource.ToFile(MyRender11.Context, res, fmt, path);
 
-                MyRenderProxy.ScreenshotTaken(true, path, false);
+                MyRenderProxy.ScreenshotTaken(true, path, m_screenshot.Value.ShowNotification);
             }
             catch (SharpDX.SharpDXException e)
             {
@@ -444,7 +469,7 @@ namespace VRageRender
                     MyRender11.Log.WriteLine(String.Format("Failed to save screenshot {0}: {1}", path, e));
                 MyRender11.Log.DecreaseIndent();
 
-                MyRenderProxy.ScreenshotTaken(false, path, false);
+				MyRenderProxy.ScreenshotTaken(false, path, m_screenshot.Value.ShowNotification);
             }
         }
 

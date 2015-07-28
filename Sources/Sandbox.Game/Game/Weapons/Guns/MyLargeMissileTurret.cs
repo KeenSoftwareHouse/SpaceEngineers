@@ -67,7 +67,7 @@ namespace Sandbox.Game.Weapons
             ResetRotation();
         }
 
-        public override void Shoot(MyShootActionEnum action, Vector3 direction)
+        public override void Shoot(MyShootActionEnum action, Vector3 direction, string gunAction)
         {
             if (action != MyShootActionEnum.PrimaryAction)
                 return;
