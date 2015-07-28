@@ -11,6 +11,9 @@ using Sandbox.Game.Multiplayer;
 using Sandbox.ModAPI;
 using VRage.ObjectBuilders;
 using Sandbox.Game.Entities;
+using Sandbox.Game.Localization;
+using VRage;
+using Sandbox.Game.GameSystems;
 
 namespace Sandbox.Game.World.Triggers
 {
@@ -20,7 +23,6 @@ namespace Sandbox.Game.World.Triggers
         OTHER_WON,
         ALL_OTHERS_LOST,
         PLAYER_DIED,
-        //BLOCK_DESTROYED
     };
 
     public class MyMissionTriggers
@@ -34,24 +36,33 @@ namespace Sandbox.Game.World.Triggers
         public void SetWon(int triggerIndex)
         {
             Won = true;
-            m_winTriggers[triggerIndex].IsTrue = true;
+            m_winTriggers[triggerIndex].SetTrue();
             if (Message == null)
             {
                 Message = m_winTriggers[triggerIndex].Message;
                 IsMsgWinning = true;
             }
+            DoEnd();
         }
         public bool Lost { get; protected set; }
         public void SetLost(int triggerIndex)
         {
             Lost = true;
-            m_loseTriggers[triggerIndex].IsTrue = true;
+            m_loseTriggers[triggerIndex].SetTrue();
             if (Message == null)
             {
                 Message = m_loseTriggers[triggerIndex].Message;
                 IsMsgWinning = false;
             }
+            DoEnd();
         }
+        protected void DoEnd()
+        {
+            if (!MySession.Static.Settings.ScenarioEditMode)
+                Sync.Players.RespawnComponent.CloseRespawnScreen();
+            MyScenarioSystem.Static.GameState = MyScenarioSystem.MyState.Ending;
+        }
+
         public string Message {get; protected set;}
         public bool IsMsgWinning { get; protected set; }
         public bool DisplayMsg()
@@ -69,31 +80,31 @@ namespace Sandbox.Game.World.Triggers
         public List<MyTrigger> WinTriggers { get { return m_winTriggers; } /*set { m_winTriggers = value; }*/ }
         public List<MyTrigger> LoseTriggers { get { return m_loseTriggers; } /*set { m_winTriggers = value; }*/ }
 
-        public bool UpdateWin(MyPlayer.PlayerId Id, MyEntity me)
+        public bool UpdateWin(MyPlayer player, MyEntity me)
         {
             if (Won || Lost)
                 return true;
             for (int i=0;i<m_winTriggers.Count;i++)
             {
                 var trigger=m_winTriggers[i];
-                if (trigger.IsTrue || trigger.Update(me))
+                if (trigger.IsTrue || trigger.Update(player, me))
                 { //Won!
-                    MySyncMissionTriggers.PlayerWon(Id, i);
+                    MySyncMissionTriggers.PlayerWon(player.Id, i);
                     return true;
                 }
             }
             return false;
         }
-        public bool UpdateLose(MyPlayer.PlayerId Id, MyEntity me)
+        public bool UpdateLose(MyPlayer player, MyEntity me)
         {
             if (Won || Lost)
                 return true;
             for (int i = 0; i < m_loseTriggers.Count; i++)
             {
                 var trigger = m_loseTriggers[i];
-                if (trigger.IsTrue || trigger.Update(me))
+                if (trigger.IsTrue || trigger.Update(player, me))
                 { //Loser!
-                    MySyncMissionTriggers.PlayerLost(Id, i);
+                    MySyncMissionTriggers.PlayerLost(player.Id, i);
                     return true;
                 }
             }
@@ -137,13 +148,36 @@ namespace Sandbox.Game.World.Triggers
             return false;
         }
 
-        public void DisplayHints()
+        public void DisplayHints(MyPlayer player, Entities.MyEntity me)
         {
             for (int i = 0; i < m_winTriggers.Count; i++)
-                m_winTriggers[i].DisplayHints();
+                m_winTriggers[i].DisplayHints(player, me);
             for (int i = 0; i < m_loseTriggers.Count; i++)
-                m_loseTriggers[i].DisplayHints();
+                m_loseTriggers[i].DisplayHints(player, me);
         }
+
+        private StringBuilder m_progress=new StringBuilder();
+        public StringBuilder GetProgress()
+        {
+            StringBuilder tempSB;
+            m_progress.Clear().Append(MyTexts.Get(MySpaceTexts.ScenarioProgressWinConditions)).Append(Environment.NewLine);
+            for (int i = 0; i < m_winTriggers.Count; i++)
+            {
+                tempSB = m_winTriggers[i].GetProgress();
+                if (tempSB!=null)
+                    m_progress.Append(tempSB).Append(Environment.NewLine);
+            }
+
+            m_progress.Append(Environment.NewLine).Append(MyTexts.Get(MySpaceTexts.ScenarioProgressLoseConditions)).Append(Environment.NewLine);
+            for (int i = 0; i < m_loseTriggers.Count; i++)
+            {
+                tempSB = m_loseTriggers[i].GetProgress();
+                if (tempSB!=null)
+                    m_progress.Append(tempSB).Append(Environment.NewLine);
+            }
+            return m_progress;
+        }
+
 
         public MyMissionTriggers(MyObjectBuilder_MissionTriggers builder)
         {

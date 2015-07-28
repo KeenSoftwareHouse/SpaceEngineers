@@ -79,6 +79,7 @@ namespace Sandbox.Engine.Utils
         private static void CreateForSpaceship()
         {
             MyControllerHelper.AddContext(CX_SPACESHIP, CX_CHARACTER);
+            MyControllerHelper.AddControl(CX_SPACESHIP, MyControlsSpace.LANDING_GEAR, MyJoystickButtonsEnum.J02);
             MyControllerHelper.AddControl(CX_SPACESHIP, MyControlsSpace.TOGGLE_REACTORS, MyJoystickButtonsEnum.J04);
             MyControllerHelper.NullControl(CX_SPACESHIP, MyControlsSpace.PRIMARY_BUILD_ACTION);
             MyControllerHelper.NullControl(CX_SPACESHIP, MyControlsSpace.SECONDARY_BUILD_ACTION);
@@ -87,7 +88,7 @@ namespace Sandbox.Engine.Utils
         private static void CreateForBuildMode()
         {
             MyControllerHelper.AddContext(CX_BUILD_MODE, CX_CHARACTER);
-            MyControllerHelper.AddControl(CX_BUILD_MODE, MyControlsSpace.NEXT_BLOCK_STAGE, MyJoystickButtonsEnum.J01);
+            MyControllerHelper.AddControl(CX_BUILD_MODE, MyControlsSpace.CUBE_COLOR_CHANGE, MyJoystickButtonsEnum.J01);
             MyControllerHelper.AddControl(CX_BUILD_MODE, MyControlsSpace.USE_SYMMETRY, MyJoystickButtonsEnum.J03);
             MyControllerHelper.AddControl(CX_BUILD_MODE, MyControlsSpace.SYMMETRY_SWITCH, MyJoystickButtonsEnum.J04);
             MyControllerHelper.AddControl(CX_BUILD_MODE, MyControlsSpace.CUBE_ROTATE_ROLL_POSITIVE, MyJoystickButtonsEnum.J05);

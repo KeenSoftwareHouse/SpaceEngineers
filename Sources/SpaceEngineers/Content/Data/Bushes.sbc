@@ -60,14 +60,6 @@
       </Id>
       <Model>Models\Environment\Bushes\Mushrooms_LOD0.mwm</Model>
     </EnvironmentItem>
-
-    <EnvironmentItem xsi:type="MyObjectBuilder_EnvironmentItemDefinition">
-      <Id>
-        <TypeId>MyObjectBuilder_DestroyableItem</TypeId>
-        <SubtypeId>Backup</SubtypeId>
-      </Id>
-    </EnvironmentItem>
-    
-    
+  
   </EnvironmentItems>
 </Definitions>

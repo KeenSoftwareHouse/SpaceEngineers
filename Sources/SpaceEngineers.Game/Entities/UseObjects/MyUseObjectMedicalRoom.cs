@@ -9,7 +9,7 @@ using VRage.Input;
 using VRage.ModAPI;
 using VRageMath;
 using Sandbox.Game;
-using SpaceEngineers.Game.Entities.Blocks;
+using Sandbox.Game.Entities.Cube;
 
 namespace SpaceEngineers.Game.Entities.UseObjects
 {
@@ -19,7 +19,7 @@ namespace SpaceEngineers.Game.Entities.UseObjects
         private MyMedicalRoom m_medicalRoom;
         private Matrix m_localMatrix;
 
-        public MyUseObjectMedicalRoom(IMyEntity owner, string dummyName, MyModelDummy dummyData, int key)
+        public MyUseObjectMedicalRoom(IMyEntity owner, string dummyName, MyModelDummy dummyData, uint key)
         {
             m_medicalRoom = (MyMedicalRoom)owner;
             m_localMatrix = dummyData.Matrix;
@@ -108,5 +108,10 @@ namespace SpaceEngineers.Game.Entities.UseObjects
         bool IMyUseObject.HandleInput() { return false; }
 
         void IMyUseObject.OnSelectionLost() { }
+
+        bool IMyUseObject.PlayIndicatorSound
+        {
+            get { return true; }
+        }
     }
 }

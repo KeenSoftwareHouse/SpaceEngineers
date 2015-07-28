@@ -73,14 +73,14 @@ namespace Sandbox.Game.Weapons
             return retval;
         }
 
-        public override void Shoot(MyShootActionEnum action, Vector3 direction)
+        public override void Shoot(MyShootActionEnum action, Vector3 direction, string gunAction)
         {
             if (MySession.Static.CreativeMode)
                 return;
 
             m_closeAfterBuild = false;
 
-            base.Shoot(action, direction);
+            base.Shoot(action, direction, gunAction);
             ShakeAmount = 0.0f;
 
             if (action == MyShootActionEnum.PrimaryAction && m_firstShot)
@@ -139,7 +139,7 @@ namespace Sandbox.Game.Weapons
             else
             {
                 if (MyPerGameSettings.UseAnimationInsteadOfIK)
-                    character.PlayCharacterAnimation("Building_pose", true, MyPlayAnimationMode.Immediate | MyPlayAnimationMode.Play, 0.2f);
+                    character.PlayCharacterAnimation("Building_pose", MyBlendOption.Immediate, MyFrameOption.Loop, 0.2f);
             }
         }
 
@@ -164,7 +164,7 @@ namespace Sandbox.Game.Weapons
             if (Owner != null)
             {
                 if (MyPerGameSettings.UseAnimationInsteadOfIK)
-                    Owner.PlayCharacterAnimation("Building_pose", true, MyPlayAnimationMode.Play, 0.2f); 
+                    Owner.PlayCharacterAnimation("Building_pose", MyBlendOption.Immediate, MyFrameOption.Loop, 0.2f); 
                 if (Owner.ControllerInfo.IsLocallyHumanControlled())
                 {
                     BlockBuilder.Activate();

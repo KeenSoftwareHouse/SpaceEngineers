@@ -15,6 +15,7 @@ using Sandbox.Engine.Physics;
 using Sandbox.Engine.Utils;
 using Sandbox.Game.Debugging;
 using Sandbox.Game.GameSystems.Electricity;
+using Sandbox.Game.GameSystems;
 
 using VRage.Utils;
 using VRage.Trace;
@@ -27,6 +28,7 @@ using Sandbox.Game.Gui;
 using Sandbox.Engine.Multiplayer;
 using Sandbox.Common.ObjectBuilders.Definitions;
 using SteamSDK;
+using Sandbox.ModAPI;
 using Sandbox.ModAPI.Ingame;
 using Sandbox.ModAPI.Interfaces;
 using Sandbox.Game.Localization;
@@ -42,7 +44,7 @@ namespace Sandbox.Game.Entities.Cube
         const float m_maxExplosionRadius = 30.0f;
         public static float ExplosionImpulse = 30000;
         bool m_isExploded = false;
-        MyDamageType m_damageType = MyDamageType.Deformation;
+        MyStringHash m_damageType = MyDamageType.Deformation;
         public int RemainingMS = 0;
         BoundingSphereD m_explosionShrinkenSphere;
         BoundingSphereD m_explosionFullSphere;
@@ -149,6 +151,8 @@ namespace Sandbox.Game.Entities.Cube
                 StartCountdown();
 
             this.IsWorkingChanged += MyWarhead_IsWorkingChanged;
+
+            UseDamageSystem = true;
         }
 
         public override MyObjectBuilder_CubeBlock GetObjectBuilderCubeBlock(bool copy = false)
@@ -215,7 +219,7 @@ namespace Sandbox.Game.Entities.Cube
             }
         }
 
-        //public void DoDamage(float damage, MyDamageType damageType, bool sync)
+        //public void DoDamage(float damage, MyStringHash damageType, bool sync)
         //{
         //    if (MarkedToExplode)
         //        return;
@@ -290,7 +294,7 @@ namespace Sandbox.Game.Entities.Cube
 
         public void Explode()
         {
-            if (m_isExploded || !MySession.Static.WeaponsEnabled)
+            if (m_isExploded || !MySession.Static.WeaponsEnabled || CubeGrid.Physics == null)
                 return;
 
             m_isExploded = true;
@@ -445,6 +449,8 @@ namespace Sandbox.Game.Entities.Cube
             m_countdownMs = 0;
             MyWarheads.AddWarhead(this);
         }
+
+        public bool UseDamageSystem { get; private set; }
 
         //public float Integrity
         //{
@@ -651,7 +657,7 @@ namespace Sandbox.Game.Entities.Cube
             OnDestroy();
         }
 
-        void IMyDestroyableObject.DoDamage(float damage, MyDamageType damageType, bool sync, MyHitInfo? hitInfo)
+        void IMyDestroyableObject.DoDamage(float damage, MyStringHash damageType, bool sync, MyHitInfo? hitInfo, long attackerId)
         {
             if (MarkedToExplode || (!MySession.Static.DestructibleBlocks))
                 return;
@@ -661,13 +667,26 @@ namespace Sandbox.Game.Entities.Cube
             if (sync)
             {
                 if (Sync.IsServer)
-                    MySyncHelper.DoDamageSynced(this, damage, damageType);
+                    MySyncHelper.DoDamageSynced(this, damage, damageType, attackerId);
             }
             else
             {
+                MyDamageInformation damageInfo = new MyDamageInformation(false, damage, damageType, attackerId);
+                if (UseDamageSystem)
+                    MyDamageSystem.Static.RaiseBeforeDamageApplied(this, ref damageInfo);
+
                 m_damageType = damageType;
-                if (damage > 0)
+
+                if (damageInfo.Amount > 0)
+                {
+                    if (UseDamageSystem)
+                        MyDamageSystem.Static.RaiseAfterDamageApplied(this, damageInfo);
+
                     OnDestroy();
+
+                    if (UseDamageSystem)
+                        MyDamageSystem.Static.RaiseDestroyed(this, damageInfo);
+                }
             }
             return;
         }
@@ -676,7 +695,12 @@ namespace Sandbox.Game.Entities.Cube
         {
             get { return 1; }
         }
-      
+
+        bool IMyDestroyableObject.UseDamageSystem
+        {
+            get { return UseDamageSystem; }
+        }
+
         public float DetonationTime { get { return Math.Max(m_countdownMs, 1000) / 1000; } }
         bool IMyWarhead.IsCountingDown { get { return IsCountingDown; } }
         float IMyWarhead.DetonationTime { get { return DetonationTime; } }

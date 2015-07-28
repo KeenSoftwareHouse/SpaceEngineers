@@ -143,12 +143,6 @@ namespace Sandbox.Definitions
                     return;
                 }
 
-                if (prefabDef.CubeGrids == null)
-                {
-                    MyDefinitionManager.Static.ReloadPrefabsFromFile(prefabDef.PrefabPath);
-                    prefabDef = MyDefinitionManager.Static.GetPrefabDefinition(prefab.SubtypeId);
-                }
-
                 BoundingSphere prefabSphere = prefabDef.BoundingSphere;
                 prefabSphere.Center += prefab.Position;
 

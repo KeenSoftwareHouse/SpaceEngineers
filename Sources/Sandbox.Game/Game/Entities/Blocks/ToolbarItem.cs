@@ -7,7 +7,7 @@ using Sandbox.Game.Screens.Helpers;
 namespace Sandbox.Game.Entities.Blocks
 {
     [ProtoContract]
-    internal struct ToolbarItem
+    public struct ToolbarItem
     {
         [ProtoMember]
         public long EntityID;

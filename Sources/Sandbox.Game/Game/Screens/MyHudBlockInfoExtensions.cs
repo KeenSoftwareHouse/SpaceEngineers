@@ -1,4 +1,5 @@
-﻿using Sandbox.Definitions;
+﻿using Sandbox.Common.ObjectBuilders.Definitions;
+using Sandbox.Definitions;
 using Sandbox.Game.Gui;
 using System;
 using System.Collections.Generic;
@@ -14,15 +15,26 @@ namespace Sandbox.Game.Gui
         {
             InitBlockInfo(blockInfo, definition);
 
-            for (int i = 0; i < definition.Components.Length; ++i)
+            if (definition.MultiBlock != null)
             {
-                var comp = definition.Components[i];
-                var info = new MyHudBlockInfo.ComponentInfo();
-                info.DefinitionId = comp.Definition.Id;
-                info.ComponentName = comp.Definition.DisplayNameText;
-                info.Icon = comp.Definition.Icon;
-                info.TotalCount = comp.Count;
-                blockInfo.Components.Add(info);
+                MyDefinitionId defId = new MyDefinitionId(typeof(MyObjectBuilder_MultiBlockDefinition), definition.MultiBlock);
+                MyMultiBlockDefinition multiBlockDef = MyDefinitionManager.Static.GetMultiBlockDefinition(defId);
+                if (multiBlockDef != null)
+                {
+                    foreach (var blockPart in multiBlockDef.BlockDefinitions)
+                    {
+                        MyCubeBlockDefinition cubeBlockDef = null;
+                        MyDefinitionManager.Static.TryGetDefinition(blockPart.Id, out cubeBlockDef);
+                        if (cubeBlockDef != null)
+                        {
+                            AddComponentsForBlock(blockInfo, cubeBlockDef);
+                        }
+                    }
+                }
+            }
+            else
+            {
+                AddComponentsForBlock(blockInfo, definition);
             }
 
             if (merge) MergeSameComponents(blockInfo, definition);
@@ -36,14 +48,41 @@ namespace Sandbox.Game.Gui
             {
                 var componentDefinition = MyDefinitionManager.Static.GetComponentDefinition(material.Key);
                 var info = new MyHudBlockInfo.ComponentInfo();
-                info.DefinitionId = componentDefinition.Id;
-                info.ComponentName = componentDefinition.DisplayNameText;
-                info.Icon = componentDefinition.Icon;
-                info.TotalCount = material.Value;
+                if (componentDefinition == null)
+                {
+                    MyPhysicalItemDefinition physicalDefinition = null;
+                    if (!MyDefinitionManager.Static.TryGetPhysicalItemDefinition(material.Key, out physicalDefinition))
+                        continue;
+                    info.ComponentName = physicalDefinition.DisplayNameText;
+                    info.Icon = physicalDefinition.Icon;
+                    info.DefinitionId = physicalDefinition.Id;
+                    info.TotalCount = 1;
+                }
+                else
+                {
+                    info.DefinitionId = componentDefinition.Id;
+                    info.ComponentName = componentDefinition.DisplayNameText;
+                    info.Icon = componentDefinition.Icon;
+                    info.TotalCount = material.Value;
+                }
                 blockInfo.Components.Add(info);
             }
 
             if (merge) MergeSameComponents(blockInfo, definition);
+        }
+
+        private static void AddComponentsForBlock(MyHudBlockInfo blockInfo, MyCubeBlockDefinition definition)
+        {
+            for (int i = 0; i < definition.Components.Length; ++i)
+            {
+                var comp = definition.Components[i];
+                var info = new MyHudBlockInfo.ComponentInfo();
+                info.DefinitionId = comp.Definition.Id;
+                info.ComponentName = comp.Definition.DisplayNameText;
+                info.Icon = comp.Definition.Icon;
+                info.TotalCount = comp.Count;
+                blockInfo.Components.Add(info);
+            }
         }
 
         private static void InitBlockInfo(MyHudBlockInfo blockInfo, MyCubeBlockDefinition definition)

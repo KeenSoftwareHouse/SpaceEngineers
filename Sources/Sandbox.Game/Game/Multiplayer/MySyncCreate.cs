@@ -1,9 +1,11 @@
-﻿using ProtoBuf;
+﻿using Havok;
+using ProtoBuf;
 using Sandbox.Common.ObjectBuilders;
 using Sandbox.Common.ObjectBuilders.VRageData;
 using Sandbox.Definitions;
 using Sandbox.Engine.Multiplayer;
 using Sandbox.Engine.Networking;
+using Sandbox.Game.Components;
 using Sandbox.Game.Entities;
 using Sandbox.Game.GUI;
 using Sandbox.Game.World;
@@ -15,6 +17,8 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using VRage;
+using VRage.Components;
+using VRage.ModAPI;
 using VRage.ObjectBuilders;
 using VRageMath;
 
@@ -101,6 +105,20 @@ namespace Sandbox.Game.Multiplayer
             public long GridEntityId;
         }
 
+        [ProtoContract]
+        [MessageId(11879, P2PMessageEnum.Reliable)]
+        struct CreateAndInitMsg
+        {
+            [ProtoMember]
+            public byte[] ObjectBuilder;
+
+            [ProtoMember]
+            public int BuilderLength;
+
+            [ProtoMember]
+            public SerializableDefinitionId DefinitionId;
+        }
+
         static MySyncCreate()
         {
             MySyncLayer.RegisterMessage<CreateMsg>(OnMessage, MyMessagePermissions.Any, MyTransportMessageEnum.Request);
@@ -111,6 +129,7 @@ namespace Sandbox.Game.Multiplayer
             MySyncLayer.RegisterMessage<SpawnGridReplyMsg>(OnMessageSpawnGridSuccess, MyMessagePermissions.FromServer, MyTransportMessageEnum.Success);
             MySyncLayer.RegisterMessage<SpawnGridReplyMsg>(OnMessageSpawnGridFailure, MyMessagePermissions.FromServer, MyTransportMessageEnum.Failure);
             MySyncLayer.RegisterMessage<AfterGridCreatedMsg>(OnMessageAfterGridCreated, MyMessagePermissions.FromServer, MyTransportMessageEnum.Request);
+            MySyncLayer.RegisterMessage<CreateAndInitMsg>(OnMessageCreateAndInit, MyMessagePermissions.FromServer);
         }
 
 		public static void RequestEntityCreate(MyObjectBuilder_EntityBase entityBuilder)
@@ -458,5 +477,56 @@ namespace Sandbox.Game.Multiplayer
             MyCubeBuilder.AfterGridBuild(builder, grid);
         }
 
+
+        public static void SendEntityCreated(MyObjectBuilder_EntityBase entityBuilder, MyDefinitionId myDefinitionId)
+        {
+            var msg = new CreateAndInitMsg();
+
+            MemoryStream stream = new MemoryStream();
+            MyObjectBuilderSerializer.SerializeXML(stream, (MyObjectBuilder_Base)entityBuilder, MyObjectBuilderSerializer.XmlCompression.Gzip, typeof(MyObjectBuilder_EntityBase));
+
+            Debug.Assert(stream.Length <= int.MaxValue);
+            if (stream.Length > int.MaxValue)
+            {
+                MySandboxGame.Log.WriteLine("Cannot synchronize created entity: number of bytes when serialized is larger than int.MaxValue!");
+                return;
+            }
+
+            msg.ObjectBuilder = stream.ToArray();
+            msg.BuilderLength = (int)stream.Length;
+            msg.DefinitionId = myDefinitionId;
+            
+            MySession.Static.SyncLayer.SendMessageToAll(ref msg);            
+        }
+               
+
+        static void OnMessageCreateAndInit(ref CreateAndInitMsg msg, MyNetworkClient sender)
+        {
+            MemoryStream stream = new MemoryStream(msg.ObjectBuilder, 0, msg.BuilderLength);
+
+            MyObjectBuilder_EntityBase entityBuilder;
+            if (MyObjectBuilderSerializer.DeserializeGZippedXML(stream, out entityBuilder))
+            {               
+                if (entityBuilder == null)
+                {
+                    Debug.Fail("Object builder was not deserialized");
+                    return;
+                }
+            }              
+            else
+            {
+                Debug.Fail("Deserialization failed");
+                return;
+            }
+
+            MyPhysicalItemDefinition entityDefinition;
+            if (!MyDefinitionManager.Static.TryGetDefinition(msg.DefinitionId, out entityDefinition))
+            {
+                Debug.Fail("Can not find definition with id:" + msg.DefinitionId.ToString());
+                return;
+            }
+
+            MyEntities.CreateAndAddFromDefinition(entityBuilder, entityDefinition);
+        }
     }
 }

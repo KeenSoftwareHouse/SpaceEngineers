@@ -290,12 +290,14 @@ namespace Sandbox.Graphics.GUI
             int openAreaItemsCount   = 10,
             Vector2? iconSize        = null,
             bool useScrollBarOffset  = false,
-            String toolTip    = null)
+            String toolTip           = null,
+            MyGuiDrawAlignEnum originAlign = MyGuiDrawAlignEnum.HORISONTAL_CENTER_AND_VERTICAL_CENTER)
             : base( position: position,
                     size: size ?? (new Vector2(455f, 48f) / MyGuiConstants.GUI_OPTIMAL_SIZE),
                     colorMask: backgroundColor,
                     toolTip: toolTip,
-                    canHaveFocus: true)
+                    canHaveFocus: true,
+                    originAlign: originAlign)
         {
             Name = "Combobox";
 
@@ -492,6 +494,10 @@ namespace Sandbox.Graphics.GUI
         //  Return value of selected item
         public StringBuilder GetSelectedValue()
         {
+            if (m_selected == null)
+            {
+                return null;
+            }
             return m_selected.Value;
         }
 

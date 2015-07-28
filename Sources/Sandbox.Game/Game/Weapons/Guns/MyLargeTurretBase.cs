@@ -22,6 +22,7 @@ using Sandbox.Game.World;
 using Sandbox.Graphics;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Text;
 using VRage.Components;
 using VRage.Game.Entity.UseObject;
@@ -58,7 +59,6 @@ namespace Sandbox.Game.Weapons
 
             Vector3D GetPredictedTargetPosition(IMyEntity entity);
         }
-		public bool IsDeconstructor { get { return false; } }
 
         class MyTargetPredictionType : IMyPredicionType
         {
@@ -69,6 +69,10 @@ namespace Sandbox.Game.Weapons
             //http://danikgames.com/blog/?p=809
             public Vector3D GetPredictedTargetPosition(IMyEntity target)
             {
+				Debug.Assert(target != null);
+				if (target == null)
+					return new Vector3D();
+
                 Vector3D predictedPosition = target.PositionComp.WorldAABB.Center;
 
                 Vector3D dirToTarget = Vector3D.Normalize(predictedPosition - Turret.GunBase.GetMuzzleWorldPosition());
@@ -1233,15 +1237,19 @@ namespace Sandbox.Game.Weapons
             var head = m_gunBase.GetMuzzleWorldMatrix();
             var from = head.Translation;
             var to = from + head.Forward * m_searchingRange;
-            Vector3 normal;
             m_laserLength = m_searchingRange;
-            Havok.HkRigidBody entity=null;
+            MyPhysics.HitInfo? hitInfo = null;
             if (!MySandboxGame.IsDedicated)
-            //    entity = MyPhysics.CastRay(from, to, out m_hitPosition, out normal);
-            if (entity == null)
+            {
+                hitInfo = MyPhysics.CastRay(from, to);
+            }
+            if (!hitInfo.HasValue)
                 m_hitPosition = to;
             else
+            {
+                m_hitPosition = hitInfo.Value.Position;
                 m_laserLength = (m_hitPosition - from).Length();
+            }
         }
 
 
@@ -1578,7 +1586,7 @@ namespace Sandbox.Game.Weapons
             }
         }
 
-        public virtual void Shoot(MyShootActionEnum action, Vector3 direction)
+        public virtual void Shoot(MyShootActionEnum action, Vector3 direction, string gunAction)
         {
             throw new NotImplementedException();
         }
@@ -1726,23 +1734,26 @@ namespace Sandbox.Game.Weapons
 
         private bool IsTargetVisible(MyEntity target)
         {
+			if (target == null)
+				return false;
+
             var head = WorldMatrix;
             var from = head.Translation - 0.4f * head.Up; //decrease by offset to muzzle
-            var to = m_currentPrediction.GetPredictedTargetPosition(target);
+			var to = target.PositionComp.GetPosition();
 
             Vector3D pos;
             Vector3 normal;
-            var physTarget = MyPhysics.CastRay(from, to, out pos, out normal);
+            var physTarget = MyPhysics.CastRay(from, to);
 
             IMyEntity hitEntity = null;
 
-            if (physTarget != null)
+            if (physTarget.HasValue)
             {
-                System.Diagnostics.Debug.Assert(physTarget.UserObject != null);
+                System.Diagnostics.Debug.Assert(physTarget.Value.HkHitInfo.Body.UserObject != null);
 
-                if (physTarget.UserObject != null)
+                if (physTarget.Value.HkHitInfo.Body.UserObject != null)
                 {
-                    hitEntity = ((MyPhysicsBody)physTarget.UserObject).Entity;
+                    hitEntity = ((MyPhysicsBody)physTarget.Value.HkHitInfo.Body.UserObject).Entity;
                 }
             }
 
@@ -1934,7 +1945,7 @@ namespace Sandbox.Game.Weapons
 
         public double GetTargetDistance()
         {
-            if (Target != null)
+            if (Target != null && m_barrel != null && m_barrel.Entity != null)
             {
                 return (Target.PositionComp.GetPosition() - m_barrel.Entity.PositionComp.GetPosition()).Length();
             }
@@ -2049,20 +2060,17 @@ namespace Sandbox.Game.Weapons
 
         public void RemoveAmmoPerShot()
         {
-            if (!MySession.Static.CreativeMode)
-            {
-                m_gunBase.ConsumeAmmo();
-                //if (RemainingAmmo < AmmoPerShot)
-                //{
-                //    m_ammoInventory.RemoveItemsOfType(1, m_currentAmmoMagazineId);
-                //    RemainingAmmo += AmmoInMagazine;
-                //}
+            m_gunBase.ConsumeAmmo();
+            //if (RemainingAmmo < AmmoPerShot)
+            //{
+            //    m_ammoInventory.RemoveItemsOfType(1, m_currentAmmoMagazineId);
+            //    RemainingAmmo += AmmoInMagazine;
+            //}
 
-                //if (RemainingAmmo >= AmmoPerShot)
-                //{
-                //    RemainingAmmo -= AmmoPerShot;
-                //}
-            }
+            //if (RemainingAmmo >= AmmoPerShot)
+            //{
+            //    RemainingAmmo -= AmmoPerShot;
+            //}
         }
 
         #endregion
@@ -3025,10 +3033,11 @@ namespace Sandbox.Game.Weapons
                         var head = m_gunBase.GetMuzzleWorldMatrix();
                         var from = head.Translation;
                         var to = from + head.Forward * m_searchingRange;
-                        Vector3 normal;
-                        var entity = MyPhysics.CastRay(from, to, out m_hitPosition, out normal);
-                        if (entity == null)
+                        var hitInfo = MyPhysics.CastRay(from, to);
+                        if (!hitInfo.HasValue)
                             m_hitPosition = to;
+                        else
+                            m_hitPosition = hitInfo.Value.Position;
                         lineEnd = m_hitPosition;
                     }
                     else
@@ -3107,7 +3116,7 @@ namespace Sandbox.Game.Weapons
 
         MyEntity IMyGunBaseUser.Weapon
         {
-            get { return m_barrel.Entity; }
+            get { return m_barrel != null ? m_barrel.Entity : null; }
         }
 
         MyEntity IMyGunBaseUser.Owner

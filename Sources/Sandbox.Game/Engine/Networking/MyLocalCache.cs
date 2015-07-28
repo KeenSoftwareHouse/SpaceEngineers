@@ -202,6 +202,25 @@ namespace Sandbox.Engine.Networking
             return result;
         }
 
+        public static List<Tuple<string, MyWorldInfo>> GetAvailableTutorialInfos()
+        {
+            MySandboxGame.Log.WriteLine("Loading available tutorials - START");
+            var result = new List<Tuple<string, MyWorldInfo>>();
+            using (MySandboxGame.Log.IndentUsing(LoggingOptions.ALL))
+            {
+                var tutorialsPath = Path.Combine(MissionSessionsPath, "Tutorials");
+                var basicTutorialsPath = Path.Combine(tutorialsPath, "Basic");
+                var intTutorialsPath = Path.Combine(tutorialsPath, "Intermediate");
+                var advTutorialsPath = Path.Combine(tutorialsPath, "Advanced");
+
+                GetWorldInfoFromDirectory(Path.Combine(MyFileSystem.ContentPath, basicTutorialsPath), result);
+                GetWorldInfoFromDirectory(Path.Combine(MyFileSystem.ContentPath, intTutorialsPath), result);
+                GetWorldInfoFromDirectory(Path.Combine(MyFileSystem.ContentPath, advTutorialsPath), result);
+            }
+            MySandboxGame.Log.WriteLine("Loading available tutorials - END");
+            return result;
+        }
+
         public static void GetWorldInfoFromDirectory(string path, List<Tuple<string, MyWorldInfo>> result)
         {
             bool dirExists = Directory.Exists(path);

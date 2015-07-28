@@ -666,13 +666,14 @@ namespace Sandbox.Game.Multiplayer
         //    }
         //}
 
-        public void BuildBlock(Vector3 colorMaskHsv, MyCubeGrid.MyBlockLocation location, MyObjectBuilder_CubeBlock blockObjectBuilder)
+        public void BuildBlock(Vector3 colorMaskHsv, MyCubeGrid.MyBlockLocation location, MyObjectBuilder_CubeBlock blockObjectBuilder, long builderEntityId)
         {
             var msg = new BuildBlockMsg();
             msg.GridEntityId = Entity.EntityId;
             msg.Location = location;
             msg.ColorMaskHsv = colorMaskHsv.PackHSVToUint();
             msg.BlockObjectBuilder = blockObjectBuilder;
+            msg.BuilderEntityId = builderEntityId;
             Sync.Layer.SendMessageToServer(ref msg);
         }
 
@@ -1361,10 +1362,14 @@ namespace Sandbox.Game.Multiplayer
 
         public static void ChangeOwnersRequest(MyOwnershipShareModeEnum shareMode, List<MySingleOwnershipRequest> requests)
         {
+            ChangeOwnersRequest(shareMode, requests, MySession.LocalPlayerId);
+        }
+        public static void ChangeOwnersRequest(MyOwnershipShareModeEnum shareMode, List<MySingleOwnershipRequest> requests, long requestingPlayer)
+        {
             System.Diagnostics.Debug.Assert((int)shareMode >= 0);
 
             var msg = new ChangeOwnershipsMsg();
-            msg.RequestingPlayer = MySession.LocalPlayerId; // CH: This is (probably) set only via GUI. If you intend to change this, you'll need playerId
+            msg.RequestingPlayer = requestingPlayer;
             msg.ShareMode = shareMode;
 
             msg.Requests = requests;

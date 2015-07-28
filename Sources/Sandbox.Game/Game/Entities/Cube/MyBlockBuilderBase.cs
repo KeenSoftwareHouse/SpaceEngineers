@@ -20,6 +20,7 @@ using VRage.Library.Utils;
 using VRage.Utils;
 using VRageMath;
 using Sandbox.Engine.Multiplayer;
+using Havok;
 
 #endregion
 
@@ -37,8 +38,8 @@ namespace Sandbox.Game.Entities
             MyControlsSpace.CUBE_ROTATE_ROLL_NEGATIVE,
         };
 
-        public static float DEFAULT_BLOCK_BUILDING_DISTANCE = MyFakes.ENABLE_CUBE_BUILDER_DYNAMIC_MODE ? 20f : 50f;
-        public static float MAX_BLOCK_BUILDING_DISTANCE = MyFakes.ENABLE_CUBE_BUILDER_DYNAMIC_MODE ? 20f : 50f;
+        public static float DEFAULT_BLOCK_BUILDING_DISTANCE = MyFakes.ENABLE_CUBE_BUILDER_DYNAMIC_MODE ? 20f : 100f;
+        public static float MAX_BLOCK_BUILDING_DISTANCE = MyFakes.ENABLE_CUBE_BUILDER_DYNAMIC_MODE ? 20f : 100f;
         public static float MIN_BLOCK_BUILDING_DISTANCE = 1f;
 
         protected static readonly int[] m_rotationDirections = new int[6] { -1, 1, 1, -1, 1, -1 };
@@ -56,7 +57,7 @@ namespace Sandbox.Game.Entities
 
         // Current hit info from havok's cast ray.
         protected MyPhysics.HitInfo? m_hitInfo;
-        internal MyPhysics.HitInfo? HitInfo
+        public MyPhysics.HitInfo? HitInfo
         {
             get
             {
@@ -107,7 +108,9 @@ namespace Sandbox.Game.Entities
         {
             get
             {
-                return MySector.MainCamera.Position;
+				var cameraController = MySession.GetCameraControllerEnum();
+				return (cameraController == MyCameraControllerEnum.Entity
+						|| cameraController == MyCameraControllerEnum.ThirdPersonSpectator) ? MySession.ControlledEntity.GetHeadMatrix(false).Translation : MySector.MainCamera.Position;
             }
         }
 
@@ -127,7 +130,7 @@ namespace Sandbox.Game.Entities
             }
         }
 
-        protected internal float IntersectionDistance = DEFAULT_BLOCK_BUILDING_DISTANCE;
+        public float IntersectionDistance = DEFAULT_BLOCK_BUILDING_DISTANCE;
 
         public abstract bool IsActivated { get; }
         public abstract void Activate();
@@ -209,13 +212,13 @@ namespace Sandbox.Game.Entities
             // Remove character hits.
             m_tmpHitList.RemoveAll(delegate(MyPhysics.HitInfo hit)
             {
-                return (hit.HkHitInfo.Body.GetEntity() == MySession.ControlledEntity.Entity);
+                return (hit.HkHitInfo.GetHitEntity() == MySession.ControlledEntity.Entity);
             });
 
             if (m_tmpHitList.Count == 0)
                 return null;
 
-            MyCubeGrid closestGrid = m_tmpHitList[0].HkHitInfo.Body.GetEntity() as MyCubeGrid;
+            MyCubeGrid closestGrid = m_tmpHitList[0].HkHitInfo.GetHitEntity() as MyCubeGrid;
             return closestGrid;
         }
 
@@ -235,23 +238,27 @@ namespace Sandbox.Game.Entities
 
             MyPhysics.CastRay(line.From, line.To, m_tmpHitList, MyPhysics.ObjectDetectionCollisionLayer);
             // Remove character hits.
-            m_tmpHitList.RemoveAll(delegate(MyPhysics.HitInfo hit)
+
+            m_tmpHitList.RemoveAll(delegate(MyPhysics.HitInfo hitInfo)
             {
-                return (hit.HkHitInfo.Body.GetEntity() == MySession.ControlledEntity.Entity);
+                return (hitInfo.HkHitInfo.GetHitEntity() == MySession.ControlledEntity.Entity);
             });
 
             if (m_tmpHitList.Count == 0)
                 return false;
 
-            closestGrid = m_tmpHitList[0].HkHitInfo.Body.GetEntity() as MyCubeGrid;
+            var hit = m_tmpHitList[0];
+            closestGrid = hit.HkHitInfo.GetHitEntity() as MyCubeGrid;
             if (closestGrid != null)
-                m_hitInfo = m_tmpHitList[0];
+            {
+                m_hitInfo = hit;
+            }
 
             if (MyFakes.ENABLE_BLOCK_PLACEMENT_ON_VOXEL)
             {
-                closestVoxelMap = m_tmpHitList[0].HkHitInfo.Body.GetEntity() as MyVoxelMap;
+                closestVoxelMap = hit.HkHitInfo.GetHitEntity() as MyVoxelMap;
                 if (closestVoxelMap != null)
-                    m_hitInfo = m_tmpHitList[0];
+                    m_hitInfo = hit;
             }
 
             return closestGrid != null || closestVoxelMap != null;
@@ -302,7 +309,7 @@ namespace Sandbox.Game.Entities
         protected Vector3D? GetIntersectedBlockData(ref MatrixD inverseGridWorldMatrix, out Vector3D intersection, out MySlimBlock intersectedBlock, out ushort? compoundBlockId)
         {
             Debug.Assert(m_hitInfo != null);
-            Debug.Assert(m_hitInfo.Value.HkHitInfo.Body.GetEntity() == CurrentGrid);
+            //Debug.Assert(m_hitInfo.Value.HkHitInfo.GetEntity() == CurrentGrid);
 
             intersection = Vector3D.Zero;
             intersectedBlock = null;

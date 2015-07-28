@@ -60,7 +60,7 @@ namespace Sandbox.Game.Gui
             foreach (var definition in MyDefinitionManager.Static.GetAllDefinitions())
             {
                 var physicalItemDef = definition as MyPhysicalItemDefinition;
-                if (physicalItemDef == null)
+                if (physicalItemDef == null || physicalItemDef.CanSpawnFromScreen == false)
                     continue;
 
                 int key = m_physicalItemDefinitions.Count;
@@ -255,7 +255,7 @@ namespace Sandbox.Game.Gui
 
             var hit = hits.FirstOrDefault();
             if (hit.HkHitInfo.Body == null) return false;
-            IMyEntity entity = hit.HkHitInfo.Body.GetEntity();
+            IMyEntity entity = hit.HkHitInfo.GetHitEntity();
 
             if (!(entity is MyCargoContainer)) return false;
 

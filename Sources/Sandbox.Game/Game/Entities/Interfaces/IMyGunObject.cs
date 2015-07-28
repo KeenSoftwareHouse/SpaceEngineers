@@ -35,8 +35,6 @@ namespace Sandbox.Game.Entities
         bool EnabledInWorldRules { get; }
         T GunBase { get; }
 
-		bool IsDeconstructor { get; }
-
         Vector3 DirectionToTarget(Vector3D target);
 
         /// <summary>
@@ -54,7 +52,7 @@ namespace Sandbox.Game.Entities
         /// </summary>
         /// <param name="action">The shooting action to perform</param>
         /// <param name="direction">The prefered direction of shooting</param>
-        void Shoot(MyShootActionEnum action, Vector3 direction);
+        void Shoot(MyShootActionEnum action, Vector3 direction, string gunAction = null);
         void EndShoot(MyShootActionEnum action);
 
         /// <summary>

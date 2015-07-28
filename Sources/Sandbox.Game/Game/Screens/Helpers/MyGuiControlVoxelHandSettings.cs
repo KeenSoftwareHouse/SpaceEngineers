@@ -30,7 +30,6 @@ namespace Sandbox.Game.Screens.Helpers
             };
 
             OKButton = new MyGuiControlButton() { Position = new Vector2(0f, 0.19f), TextEnum = MySpaceTexts.Ok, OriginAlign = MyGuiDrawAlignEnum.HORISONTAL_CENTER_AND_VERTICAL_BOTTOM };
-            OKButton.ButtonClicked += OKButton_Clicked;
         }
 
         public void UpdateControls()
@@ -52,37 +51,6 @@ namespace Sandbox.Game.Screens.Helpers
                     Elements.Add(control);
 
                 Elements.Add(OKButton);
-            }
-        }
-
-        private void OKButton_Clicked(MyGuiControlButton sender)
-        {
-            bool itemSet = false;
-            for (int i = 0; i < MyToolbarComponent.CurrentToolbar.SlotCount; ++i)
-            {
-                var item = MyToolbarComponent.CurrentToolbar.GetSlotItem(i);
-                if (item != null && item.Equals(Item))
-                {
-                    MyToolbarComponent.CurrentToolbar.SetItemAtIndex(i, Item);
-                    if (item.WantsToBeActivated)
-                        MyToolbarComponent.CurrentToolbar.ActivateItemAtSlot(i);
-                    itemSet = true;
-                    break;
-                }
-            }
-
-            if (itemSet)
-                return;
-
-            for (int i = 0; i < MyToolbarComponent.CurrentToolbar.SlotCount; ++i)
-            {
-                if (MyToolbarComponent.CurrentToolbar.GetSlotItem(i) == null)
-                { 
-                    MyToolbarComponent.CurrentToolbar.SetItemAtIndex(i, Item);
-                    if (Item.WantsToBeActivated)
-                        MyToolbarComponent.CurrentToolbar.ActivateItemAtSlot(i);
-                    break;
-                }
             }
         }
 

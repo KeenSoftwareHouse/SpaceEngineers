@@ -86,6 +86,8 @@ namespace Sandbox.Game.Entities
             InitInternal();
 
             NeedsUpdate |= MyEntityUpdateEnum.EACH_FRAME;
+
+            UseDamageSystem = true;
         }
 
         public override void UpdateAfterSimulation()
@@ -152,16 +154,29 @@ namespace Sandbox.Game.Entities
             var massProperties = new HkMassProperties();
             HkShape shape = GetPhysicsShape(physicalItem.Mass * (float)Item.Amount, scale, out massProperties);
             var scaleMatrix = Matrix.CreateScale(scale);
-            HkConvexTransformShape transform = new HkConvexTransformShape((HkConvexShape)shape, ref scaleMatrix, HkReferencePolicy.None);
+
             if (Physics != null)
                 Physics.Close();
             Physics = new MyPhysicsBody(this, RigidBodyFlag.RBF_DEBRIS);
-            Physics.CreateFromCollisionObject(transform, Vector3.Zero, MatrixD.Identity, massProperties, MyPhysics.FloatingObjectCollisionLayer);
-            Physics.MaterialType = VoxelMaterial != null ? MyMaterialType.ROCK : MyMaterialType.METAL;
 
-            Physics.Enabled = true;
-            transform.Base.RemoveReference();
+            if (VoxelMaterial != null)
+            {
+                HkConvexTransformShape transform = new HkConvexTransformShape((HkConvexShape)shape, ref scaleMatrix, HkReferencePolicy.None);
+        
+                Physics.CreateFromCollisionObject(transform, Vector3.Zero, MatrixD.Identity, massProperties, MyPhysics.FloatingObjectCollisionLayer);
+               
+                Physics.Enabled = true;
+                transform.Base.RemoveReference();
+            }
+            else
+            {
+                Physics.CreateFromCollisionObject(shape, Vector3.Zero, MatrixD.Identity, massProperties, MyPhysics.FloatingObjectCollisionLayer);
+                Physics.Enabled = true;
+            }
+
+            Physics.MaterialType = VoxelMaterial != null ? MyMaterialType.ROCK : MyMaterialType.METAL;
             Physics.PlayCollisionCueEnabled = true;
+
             NeedsUpdate = MyEntityUpdateEnum.EACH_FRAME;
         }
 
@@ -205,6 +220,7 @@ namespace Sandbox.Game.Entities
             {
                 shapeType = HkShapeType.Box;
                 massProperties = HkInertiaTensorComputer.ComputeBoxVolumeMassProperties(halfExtents, mass);
+                massProperties.CenterOfMass = Model.BoundingBox.Center;
             }
 
             return MyDebris.Static.GetDebrisShape(Model, SimpleShape ? shapeType : HkShapeType.ConvexVertices);
@@ -269,6 +285,7 @@ namespace Sandbox.Game.Entities
                 if (MySession.ControlledEntity == user)
                     MyAudio.Static.PlaySound(TAKE_ITEM_SOUND.SoundId);
                 //user.StartSecondarySound(TAKE_ITEM_SOUND);
+
                 user.GetInventory().TakeFloatingObject(this);
                 MyHud.Notifications.ReloadTexts();
             }
@@ -307,7 +324,12 @@ namespace Sandbox.Game.Entities
             return MarkedForClose ? UseActionResult.Closed : UseActionResult.OK; // When object is not collected, it's usable
         }
 
-        public void DoDamage(float damage, MyDamageType damageType, bool sync)
+        bool IMyUseObject.PlayIndicatorSound
+        {
+            get { return false; }
+        }
+
+        public void DoDamage(float damage, MyStringHash damageType, bool sync, long attackerId)
         {
             if (MarkedForClose)
                 return;
@@ -318,11 +340,14 @@ namespace Sandbox.Game.Entities
                     return;
                 else
                 {
-                    MySyncHelper.DoDamageSynced(this, damage, damageType);
+                    MySyncHelper.DoDamageSynced(this, damage, damageType, attackerId);
                     return;
                 }
             }
 
+            MyDamageInformation damageinfo = new MyDamageInformation(false, damage, damageType, attackerId);
+            if(UseDamageSystem)
+                MyDamageSystem.Static.RaiseBeforeDamageApplied(this, ref damageinfo);
 
             var typeId = Item.Content.TypeId;
             if (typeId == typeof(MyObjectBuilder_Ore) ||
@@ -342,12 +367,15 @@ namespace Sandbox.Game.Entities
                 else
                 {
                     if (Sync.IsServer)
-                        MyFloatingObjects.RemoveFloatingObject(this, (MyFixedPoint)damage);
+                        MyFloatingObjects.RemoveFloatingObject(this, (MyFixedPoint)damageinfo.Amount);
                 }
             }
             else
             {
-                m_health -= (10 + 90 * DamageMultiplier) * damage;
+                m_health -= (10 + 90 * DamageMultiplier) * damageinfo.Amount;
+
+                if(UseDamageSystem)
+                    MyDamageSystem.Static.RaiseAfterDamageApplied(this, damageinfo);
 
                 if (m_health < 0)
                 {
@@ -399,6 +427,9 @@ namespace Sandbox.Game.Entities
                                 MyFloatingObjects.Spawn(new MyPhysicalInventoryItem(Item.Amount * 0.8f, ScrapBuilder), PositionComp.GetPosition(), WorldMatrix.Forward, WorldMatrix.Up);
                         }
                     }
+
+                    if(UseDamageSystem)
+                        MyDamageSystem.Static.RaiseDestroyed(this, damageinfo);
                 }
             }
 
@@ -424,26 +455,34 @@ namespace Sandbox.Game.Entities
         }
 
         public void OnDestroy()
-        { }
+        {
+        }
 
         public float Integrity
         {
             get { return m_health; }
         }
 
+        public bool UseDamageSystem { get; private set; }
+
         void IMyDestroyableObject.OnDestroy()
         {
             OnDestroy();
         }
 
-        void IMyDestroyableObject.DoDamage(float damage, MyDamageType damageType, bool sync, MyHitInfo? hitInfo)
+        void IMyDestroyableObject.DoDamage(float damage, MyStringHash damageType, bool sync, MyHitInfo? hitInfo, long attackerId)
         {
-            DoDamage(damage, damageType, sync);
+            DoDamage(damage, damageType, sync, attackerId);
         }
 
         float IMyDestroyableObject.Integrity
         {
             get { return Integrity; }
+        }
+
+        bool IMyDestroyableObject.UseDamageSystem
+        {
+            get { return UseDamageSystem; }
         }
 
         bool IMyUseObject.HandleInput() { return false; }

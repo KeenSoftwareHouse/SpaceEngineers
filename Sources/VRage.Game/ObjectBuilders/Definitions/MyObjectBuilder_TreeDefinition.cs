@@ -14,5 +14,11 @@ namespace VRage.ObjectBuilders.Definitions
         // Distance [m] from tree origin to first log with branches
         [ProtoMember]
         public float BranchesStartHeight = 0.0f;
+
+        [ProtoMember]
+        public float HitPoints = 100.0f;
+
+        [ProtoMember]
+        public string CutEffect;
     }
 }

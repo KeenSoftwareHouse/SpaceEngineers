@@ -1,42 +1,24 @@
-﻿using System.Collections.Generic;
-using System.Reflection;
-using System.Text;
-using Havok;
-using Sandbox.Common;
-
+﻿using Havok;
 using Sandbox.Common.ObjectBuilders;
-using Sandbox.Definitions;
-using Sandbox.Graphics.GUI;
 using Sandbox.Engine.Physics;
 using Sandbox.Engine.Utils;
 using Sandbox.Game.Entities.Character;
 using Sandbox.Game.Entities.Cube;
+using Sandbox.Game.GameSystems;
 using Sandbox.Game.GameSystems.Electricity;
-using Sandbox.Game.Multiplayer;
-
+using Sandbox.ModAPI.Ingame;
+using System.Collections.Generic;
+using System.Diagnostics;
+using VRage.Components;
+using VRage.ModAPI;
 using VRage.Trace;
 using VRageMath;
-using Sandbox.Game.World;
-using Sandbox.Game.Gui;
-using Sandbox.Game.Screens;
-using System.Diagnostics;
-using System;
 using VRageRender;
-using Sandbox.Game.Screens.Terminal.Controls;
-using Sandbox.ModAPI;
-using Sandbox.Game.Entities.Interfaces;
-using Sandbox.ModAPI.Ingame;
-using Sandbox.Game.GameSystems;
-using VRage.ModAPI;
-using VRage.Components;
+
 namespace Sandbox.Game.Entities
 {
     abstract class MyGravityGeneratorBase : MyFunctionalBlock, IMyPowerConsumer, IMyGizmoDrawableObject, IMyGravityGeneratorBase, IMyGravityProvider
     {
-        /// <summary>
-        /// Gravitational acceleration on Earth.
-        /// </summary>
-
         protected Color m_gizmoColor = new Vector4(0, 0.1f, 0, 0.1f);
         protected const float m_maxGizmoDrawDistance = 1000.0f;
 
@@ -164,7 +146,10 @@ namespace Sandbox.Game.Entities
                         if (mass.IsWorking && entity.Physics.RigidBody.IsActive)
                             ((IMyEntity)mass.CubeGrid).Physics.AddForce(MyPhysicsForceType.APPLY_WORLD_FORCE, gravity * mass.VirtualMass, entity.WorldMatrix.Translation, null);
                     }
-                    else if (!entity.Physics.IsKinematic && !entity.Physics.IsStatic && entity.Physics.RigidBody2 == null && (character == null || character.IsDead))
+                    else if (!entity.Physics.IsKinematic && 
+                        !entity.Physics.IsStatic &&
+                        entity.Physics.RigidBody2 == null && //jn: TODO this is actualy check for large grid
+                        (character == null || character.IsDead)) 
                     {
                         if (entity.Physics.RigidBody != null && entity.Physics.RigidBody.IsActive)
                             entity.Physics.AddForce(MyPhysicsForceType.APPLY_WORLD_FORCE, gravity * entity.Physics.RigidBody.Mass, null, null);
@@ -223,7 +208,7 @@ namespace Sandbox.Game.Entities
 
         void phantom_Enter(HkPhantomCallbackShape sender, HkRigidBody body)
         {
-            var entity = body.GetEntity();
+            var entity = body.GetEntity(0);// jn: TODO we should collect bodies not entities
             // HACK: disabled gravity for ships (there may be more changes so I won't add Entity.RespectsGravity now)
             lock (m_locker)
             {
@@ -240,7 +225,7 @@ namespace Sandbox.Game.Entities
 
         void phantom_Leave(HkPhantomCallbackShape sender, HkRigidBody body)
         {
-            var entity = body.GetEntity();
+            var entity = body.GetEntity(0);// jn: TODO we should collect bodies not entities
 
             lock (m_locker)
             {

@@ -1,37 +1,26 @@
 ﻿#region Using
 
-using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Threading;
-using ParallelTasks;
 using Sandbox.Common;
-
-using Sandbox.Common.ObjectBuilders.Gui;
-using Sandbox.Graphics.GUI;
+using Sandbox.Engine.Multiplayer;
 using Sandbox.Engine.Networking;
 using Sandbox.Engine.Utils;
-using SteamSDK;
-
-using VRageMath;
-using Sandbox.Common.ObjectBuilders;
-using Sandbox.Game.World;
-using Sandbox.Engine.Multiplayer;
-using VRage;
-using VRage.Utils;
-using System.Diagnostics;
-using Sandbox.Game.Screens.Helpers;
-using VRage.Utils;
-using Sandbox.Game.Multiplayer;
 using Sandbox.Game.Localization;
+using Sandbox.Game.Multiplayer;
+using Sandbox.Game.Screens.Helpers;
+using Sandbox.Game.World;
+using Sandbox.Graphics.GUI;
+using SteamSDK;
+using System;
+using System.Diagnostics;
+using System.Text;
 using VRage;
-using System.IO;
+using VRage.Utils;
 
 #endregion
 
 namespace Sandbox.Game.Gui
 {
-    public static class MyJoinGameHelper 
+    public static class MyJoinGameHelper
     {
         #region Join
 
@@ -61,7 +50,7 @@ namespace Sandbox.Game.Gui
             }
             return true;
         }
-    
+
         public static void JoinGame(Lobby lobby, bool requestData = true)
         {
             // Data not received
@@ -76,43 +65,25 @@ namespace Sandbox.Game.Gui
             if (!JoinGameTest(lobby))
                 return;
 
-            JoinGame(lobby.LobbyId);
-        }
-
-        public static void JoinScenarioGame(Lobby lobby, bool requestData = true)
-        {
-            // Data not received
-            if (requestData && String.IsNullOrEmpty(lobby.GetLobbyData(MyMultiplayer.AppVersionTag)))
+            if (MyMultiplayerLobby.GetLobbyScenario(lobby))
             {
-                var helper = new MyLobbyHelper(lobby);
-                helper.OnSuccess += (l) => JoinScenarioGame(l, false);
-                if (helper.RequestData())
-                    return;
+                MyJoinGameHelper.JoinScenarioGame(lobby.LobbyId);
             }
-
-            if (!JoinGameTest(lobby))
-                return;
-
-            JoinScenarioGame(lobby.LobbyId);
-        }
-
-        public static void JoinBattleGame(Lobby lobby, bool requestData = true)
-        {
-            // Data not received
-            if (requestData && String.IsNullOrEmpty(lobby.GetLobbyData(MyMultiplayer.AppVersionTag)))
+            else if (MyFakes.ENABLE_BATTLE_SYSTEM && MyMultiplayerLobby.GetLobbyBattle(lobby))
             {
-                var helper = new MyLobbyHelper(lobby);
-                helper.OnSuccess += (l) => JoinBattleGame(l, false);
-                if (helper.RequestData())
-                    return;
+                bool canBeJoined = MyMultiplayerLobby.GetLobbyBattleCanBeJoined(lobby);
+                // Check also valid faction ids in battle lobby.
+                long faction1Id = MyMultiplayerLobby.GetLobbyBattleFaction1Id(lobby);
+                long faction2Id = MyMultiplayerLobby.GetLobbyBattleFaction2Id(lobby);
+
+                if (canBeJoined && faction1Id != 0 && faction2Id != 0)
+                    MyJoinGameHelper.JoinBattleGame(lobby.LobbyId);
             }
-
-            if (!JoinGameTest(lobby))
-                return;
-
-            JoinBattleGame(lobby.LobbyId);
+            else
+            {
+                JoinGame(lobby.LobbyId);
+            }
         }
-
 
         public static void JoinGame(GameServerItem server)
         {
@@ -144,20 +115,41 @@ namespace Sandbox.Game.Gui
 
             multiplayer.SendPlayerData(MySteam.UserName);
 
-            StringBuilder text = MyTexts.Get(MySpaceTexts.DialogTextJoiningWorld);
+            string gamemode = server.GetGameTagByPrefix("gamemode");
+            if (MyFakes.ENABLE_BATTLE_SYSTEM && gamemode == "B")
+            {
+                StringBuilder text = MyTexts.Get(MySpaceTexts.DialogTextJoiningBattleLobby);
 
-            MyGuiScreenProgress progress = new MyGuiScreenProgress(text, MySpaceTexts.Cancel);
-            MyGuiSandbox.AddScreen(progress);
-            progress.ProgressCancelled += () =>
+                MyGuiScreenProgress progress = new MyGuiScreenProgress(text, MySpaceTexts.Cancel);
+                MyGuiSandbox.AddScreen(progress);
+                progress.ProgressCancelled += () =>
                 {
                     multiplayer.Dispose();
                     MyGuiScreenMainMenu.ReturnToMainMenu();
                 };
 
-            multiplayer.OnJoin += delegate
+                multiplayer.OnJoin += delegate
+                {
+                    MyJoinGameHelper.OnJoinBattle(progress, SteamSDK.Result.OK, new LobbyEnterInfo() { EnterState = LobbyEnterResponseEnum.Success }, multiplayer);
+                };
+            }
+            else
             {
-                MyJoinGameHelper.OnJoin(progress, SteamSDK.Result.OK, new LobbyEnterInfo() { EnterState = LobbyEnterResponseEnum.Success }, multiplayer);
-            };
+                StringBuilder text = MyTexts.Get(MySpaceTexts.DialogTextJoiningWorld);
+
+                MyGuiScreenProgress progress = new MyGuiScreenProgress(text, MySpaceTexts.Cancel);
+                MyGuiSandbox.AddScreen(progress);
+                progress.ProgressCancelled += () =>
+                {
+                    multiplayer.Dispose();
+                    MyGuiScreenMainMenu.ReturnToMainMenu();
+                };
+
+                multiplayer.OnJoin += delegate
+                {
+                    MyJoinGameHelper.OnJoin(progress, SteamSDK.Result.OK, new LobbyEnterInfo() { EnterState = LobbyEnterResponseEnum.Success }, multiplayer);
+                };
+            }
         }
 
         public static void JoinGame(ulong lobbyId)

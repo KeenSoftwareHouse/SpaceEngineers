@@ -2510,7 +2510,7 @@ namespace Sandbox.Game.Localization
         public static readonly MyStringId Quote69Text = MyStringId.GetOrCompute("Quote69Text");
 
         ///<summary>
-        ///Gravity:
+        ///Actual Gravity:
         ///</summary>
         public static readonly MyStringId HudInfoGravity = MyStringId.GetOrCompute("HudInfoGravity");
 
@@ -2705,7 +2705,7 @@ namespace Sandbox.Game.Localization
         public static readonly MyStringId DisplayName_Scenario_EasyStart2 = MyStringId.GetOrCompute("DisplayName_Scenario_EasyStart2");
 
         ///<summary>
-        ///Do you want to start by watching the video tutorial? Remember: you can always come back by clicking "Tutorials" in the "Help" screen (press F1).
+        ///Do you want to start by playing tutorial maps?
         ///</summary>
         public static readonly MyStringId MessageBoxTextTutorialQuestion = MyStringId.GetOrCompute("MessageBoxTextTutorialQuestion");
 
@@ -3165,7 +3165,7 @@ namespace Sandbox.Game.Localization
         public static readonly MyStringId NotificationUsingWeaponType = MyStringId.GetOrCompute("NotificationUsingWeaponType");
 
         ///<summary>
-        ///Controlling station
+        ///Controlling Station
         ///</summary>
         public static readonly MyStringId HudInfoControllingStation = MyStringId.GetOrCompute("HudInfoControllingStation");
 
@@ -4980,7 +4980,7 @@ namespace Sandbox.Game.Localization
         public static readonly MyStringId NotificationHealthLow = MyStringId.GetOrCompute("NotificationHealthLow");
 
         ///<summary>
-        ///Meteor shower inbound.
+        ///Meteor storm inbound.
         ///</summary>
         public static readonly MyStringId NotificationMeteorInbound = MyStringId.GetOrCompute("NotificationMeteorInbound");
 
@@ -10005,7 +10005,7 @@ namespace Sandbox.Game.Localization
         public static readonly MyStringId ControlMenuItemLabel_Jetpack = MyStringId.GetOrCompute("ControlMenuItemLabel_Jetpack");
 
         ///<summary>
-        ///Landing gear / connector
+        ///Landing gears
         ///</summary>
         public static readonly MyStringId ControlMenuItemLabel_LandingGear = MyStringId.GetOrCompute("ControlMenuItemLabel_LandingGear");
 
@@ -10565,7 +10565,7 @@ namespace Sandbox.Game.Localization
         public static readonly MyStringId LaserAntennaOutsideLimits = MyStringId.GetOrCompute("LaserAntennaOutsideLimits");
 
         ///<summary>
-        ///
+        /// Enables flora for planets
         ///</summary>
         public static readonly MyStringId ToolTipWorldSettings_EnableFlora = MyStringId.GetOrCompute("ToolTipWorldSettings_EnableFlora");
 
@@ -10575,7 +10575,7 @@ namespace Sandbox.Game.Localization
         public static readonly MyStringId ToolTipWorldSettings_EnableStationVoxel = MyStringId.GetOrCompute("ToolTipWorldSettings_EnableStationVoxel");
 
         ///<summary>
-        ///
+        ///Density of flora elements on planets
         ///</summary>
         public static readonly MyStringId ToolTipWorldSettings_FloraDensity = MyStringId.GetOrCompute("ToolTipWorldSettings_FloraDensity");
 
@@ -10629,6 +10629,7 @@ namespace Sandbox.Game.Localization
         ///</summary>
         public static readonly MyStringId BlockPropertyTitle_SensorPlaySound = MyStringId.GetOrCompute("BlockPropertyTitle_SensorPlaySound");
 
+        ///<summary>
         ///PUBLISH SCENARIO
         ///</summary>
         public static readonly MyStringId MessageBoxCaptionDoYouWishToPublishScenario = MyStringId.GetOrCompute("MessageBoxCaptionDoYouWishToPublishScenario");
@@ -10807,5 +10808,440 @@ namespace Sandbox.Game.Localization
         ///Players can join running game
         ///</summary>
         public static readonly MyStringId ScenarioSettings_CanJoinRunningShort = MyStringId.GetOrCompute("ScenarioSettings_CanJoinRunningShort");
+
+        ///<summary>
+        ///Scenario time limit
+        ///</summary>
+        public static readonly MyStringId GuiTriggerCaptionTimeLimit = MyStringId.GetOrCompute("GuiTriggerCaptionTimeLimit");
+
+        ///<summary>
+        ///Limit (in minutes)
+        ///</summary>
+        public static readonly MyStringId GuiTriggerTimeLimit = MyStringId.GetOrCompute("GuiTriggerTimeLimit");
+
+        ///<summary>
+        ///Time left:
+        ///</summary>
+        public static readonly MyStringId HudScenarioInfoTimeLeft = MyStringId.GetOrCompute("HudScenarioInfoTimeLeft");
+
+        ///<summary>
+        ///Time limit
+        ///</summary>
+        public static readonly MyStringId MyGuiScreenTriggerTimeLimit = MyStringId.GetOrCompute("MyGuiScreenTriggerTimeLimit");
+
+        ///<summary>
+        ///Extreme
+        ///</summary>
+        public static readonly MyStringId WorldSettings_FloraDensity_Extreme = MyStringId.GetOrCompute("WorldSettings_FloraDensity_Extreme");
+
+        ///<summary>
+        ///None
+        ///</summary>
+        public static readonly MyStringId WorldSettings_FloraDensity_None = MyStringId.GetOrCompute("WorldSettings_FloraDensity_None");
+
+        ///<summary>
+        ///If this is turned off, characters won't be able to use jetpacks at all.
+        ///</summary>
+        public static readonly MyStringId ToolTipWorldSettings_EnableJetpack = MyStringId.GetOrCompute("ToolTipWorldSettings_EnableJetpack");
+
+        ///<summary>
+        ///If this is turned off, characters won't spawn with any tools in their inventory.
+        ///</summary>
+        public static readonly MyStringId ToolTipWorldSettings_SpawnWithTools = MyStringId.GetOrCompute("ToolTipWorldSettings_SpawnWithTools");
+
+        ///<summary>
+        ///Enable jetpack
+        ///</summary>
+        public static readonly MyStringId WorldSettings_EnableJetpack = MyStringId.GetOrCompute("WorldSettings_EnableJetpack");
+
+        ///<summary>
+        ///Spawn with tools
+        ///</summary>
+        public static readonly MyStringId WorldSettings_SpawnWithTools = MyStringId.GetOrCompute("WorldSettings_SpawnWithTools");
+
+        ///<summary>
+        ///All blocks from the spawned ship will have the same ownership settings as this projector.
+        ///</summary>
+        public static readonly MyStringId BlockPropertiesTooltip_Projector_GetOwnership = MyStringId.GetOrCompute("BlockPropertiesTooltip_Projector_GetOwnership");
+
+        ///<summary>
+        ///Ownership from projector
+        ///</summary>
+        public static readonly MyStringId BlockPropertyTitle_Projector_GetOwnership = MyStringId.GetOrCompute("BlockPropertyTitle_Projector_GetOwnership");
+
+        ///<summary>
+        ///Block name
+        ///</summary>
+        public static readonly MyStringId GuiTriggerBlockDestroyed_ColumnName = MyStringId.GetOrCompute("GuiTriggerBlockDestroyed_ColumnName");
+
+        ///<summary>
+        ///Block destroyed
+        ///</summary>
+        public static readonly MyStringId GuiTriggerCaptionBlockDestroyed = MyStringId.GetOrCompute("GuiTriggerCaptionBlockDestroyed");
+
+        ///<summary>
+        ///Add blocks
+        ///</summary>
+        public static readonly MyStringId GuiTriggerPasteBlocks = MyStringId.GetOrCompute("GuiTriggerPasteBlocks");
+
+        ///<summary>
+        ///Block destroyed
+        ///</summary>
+        public static readonly MyStringId MyGuiScreenTriggerBlockDestroyed = MyStringId.GetOrCompute("MyGuiScreenTriggerBlockDestroyed");
+
+        ///<summary>
+        ///Message after each block is destroyed
+        ///</summary>
+        public static readonly MyStringId GuiTriggerBlockDestroyedSingleMessage = MyStringId.GetOrCompute("GuiTriggerBlockDestroyedSingleMessage");
+
+        ///<summary>
+        ///Delete
+        ///</summary>
+        public static readonly MyStringId GuiTriggerDeleteBlocks = MyStringId.GetOrCompute("GuiTriggerDeleteBlocks");
+
+        ///<summary>
+        ///Adds blocks copied through button at the end of block terminal screen.
+        ///</summary>
+        public static readonly MyStringId GuiTriggerPasteBlocksTooltip = MyStringId.GetOrCompute("GuiTriggerPasteBlocksTooltip");
+
+        ///<summary>
+        ///Copy block IDs
+        ///</summary>
+        public static readonly MyStringId GuiScenarioEdit_CopyIds = MyStringId.GetOrCompute("GuiScenarioEdit_CopyIds");
+
+        ///<summary>
+        ///You can then paste them into "Block destroyed" trigger
+        ///</summary>
+        public static readonly MyStringId GuiScenarioEdit_CopyIdsTooltip = MyStringId.GetOrCompute("GuiScenarioEdit_CopyIdsTooltip");
+
+        ///<summary>
+        ///Time limit (sec):
+        ///</summary>
+        public static readonly MyStringId GuiTriggerNoSpawnTimeLimit = MyStringId.GetOrCompute("GuiTriggerNoSpawnTimeLimit");
+
+        ///<summary>
+        ///Spawn screen time limit
+        ///</summary>
+        public static readonly MyStringId GuiTriggerCaptionNoSpawn = MyStringId.GetOrCompute("GuiTriggerCaptionNoSpawn");
+
+        ///<summary>
+        ///No spawn place
+        ///</summary>
+        public static readonly MyStringId MyGuiScreenTriggerNoSpawn = MyStringId.GetOrCompute("MyGuiScreenTriggerNoSpawn");
+
+        ///<summary>
+        ///2 habitable planets near each other
+        ///</summary>
+        public static readonly MyStringId Description_Scenario_2Planets = MyStringId.GetOrCompute("Description_Scenario_2Planets");
+
+        ///<summary>
+        ///World with one habitable planet 
+        ///</summary>
+        public static readonly MyStringId Description_Scenario_Planet = MyStringId.GetOrCompute("Description_Scenario_Planet");
+
+        ///<summary>
+        ///2 planets
+        ///</summary>
+        public static readonly MyStringId DisplayName_Scenario_2Planets = MyStringId.GetOrCompute("DisplayName_Scenario_2Planets");
+
+        ///<summary>
+        ///Habitable planet
+        ///</summary>
+        public static readonly MyStringId DisplayName_Scenario_Planet = MyStringId.GetOrCompute("DisplayName_Scenario_Planet");
+
+        ///<summary>
+        ///No respawn point is available!  Try the refresh button for any available Medical rooms. If there is no chance of accessing a medical room, the game will be over in {0:00}:{1:00}.
+        ///</summary>
+        public static readonly MyStringId ScreenMedicals_NoRespawnPlace = MyStringId.GetOrCompute("ScreenMedicals_NoRespawnPlace");
+
+        ///<summary>
+        ///World generator settings
+        ///</summary>
+        public static readonly MyStringId ScreenCaptionWorldGeneratorSettings = MyStringId.GetOrCompute("ScreenCaptionWorldGeneratorSettings");
+
+        ///<summary>
+        ///Maximum size of moons
+        ///</summary>
+        public static readonly MyStringId WorldSettings_MoonSizeMax = MyStringId.GetOrCompute("WorldSettings_MoonSizeMax");
+
+        ///<summary>
+        ///Minimum size of moons
+        ///</summary>
+        public static readonly MyStringId WorldSettings_MoonSizeMin = MyStringId.GetOrCompute("WorldSettings_MoonSizeMin");
+
+        ///<summary>
+        ///Maximum size of planets
+        ///</summary>
+        public static readonly MyStringId WorldSettings_PlanetSizeMax = MyStringId.GetOrCompute("WorldSettings_PlanetSizeMax");
+
+        ///<summary>
+        ///Minimum size of planets
+        ///</summary>
+        public static readonly MyStringId WorldSettings_PlanetSizeMin = MyStringId.GetOrCompute("WorldSettings_PlanetSizeMin");
+
+        ///<summary>
+        ///World generator
+        ///</summary>
+        public static readonly MyStringId WorldSettings_WorldGenerator = MyStringId.GetOrCompute("WorldSettings_WorldGenerator");
+
+        ///<summary>
+        ///Scenario description
+        ///</summary>
+        public static readonly MyStringId GuiScenarioDescription = MyStringId.GetOrCompute("GuiScenarioDescription");
+
+        ///<summary>
+        ///You must spawn in:  {0:00}:{1:00}
+        ///</summary>
+        public static readonly MyStringId ScreenMedicals_NoRespawnPlaceHeader = MyStringId.GetOrCompute("ScreenMedicals_NoRespawnPlaceHeader");
+
+        ///<summary>
+        ///Lose conditions
+        ///</summary>
+        public static readonly MyStringId ScenarioProgressLoseConditions = MyStringId.GetOrCompute("ScenarioProgressLoseConditions");
+
+        ///<summary>
+        ///All others lost. Players pending:
+        ///</summary>
+        public static readonly MyStringId ScenarioProgressOthersLost = MyStringId.GetOrCompute("ScenarioProgressOthersLost");
+
+        ///<summary>
+        ///Win conditions
+        ///</summary>
+        public static readonly MyStringId ScenarioProgressWinConditions = MyStringId.GetOrCompute("ScenarioProgressWinConditions");
+
+        ///<summary>
+        ///Next mission
+        ///</summary>
+        public static readonly MyStringId GuiTriggerNextMission = MyStringId.GetOrCompute("GuiTriggerNextMission");
+
+        ///<summary>
+        ///WWW link (opens in steam overlay)
+        ///</summary>
+        public static readonly MyStringId GuiTriggerWwwLink = MyStringId.GetOrCompute("GuiTriggerWwwLink");
+
+        ///<summary>
+        ///Destroy blocks:
+        ///</summary>
+        public static readonly MyStringId ScenarioProgressDestroyBlocks = MyStringId.GetOrCompute("ScenarioProgressDestroyBlocks");
+
+        ///<summary>
+        ///Limited lives: {0} left
+        ///</summary>
+        public static readonly MyStringId ScenarioProgressLimitedLives = MyStringId.GetOrCompute("ScenarioProgressLimitedLives");
+
+        ///<summary>
+        ///Spend more than {0} seconds in respawn screen.
+        ///</summary>
+        public static readonly MyStringId ScenarioProgressNoSpawn = MyStringId.GetOrCompute("ScenarioProgressNoSpawn");
+
+        ///<summary>
+        ///Leave sphere [{0:0},{1:0},{2:0}], radius {3:0} meters
+        ///</summary>
+        public static readonly MyStringId ScenarioProgressPositionLeft = MyStringId.GetOrCompute("ScenarioProgressPositionLeft");
+
+        ///<summary>
+        ///Get closer than {3:0} meters to [{0:0},{1:0},{2:0}]
+        ///</summary>
+        public static readonly MyStringId ScenarioProgressPositionReached = MyStringId.GetOrCompute("ScenarioProgressPositionReached");
+
+        ///<summary>
+        ///Somebody else wins the scenario. Possible winners:
+        ///</summary>
+        public static readonly MyStringId ScenarioProgressSomeoneWon = MyStringId.GetOrCompute("ScenarioProgressSomeoneWon");
+
+        ///<summary>
+        ///Scenario time limit {0} minutes
+        ///</summary>
+        public static readonly MyStringId ScenarioProgressTimeLimit = MyStringId.GetOrCompute("ScenarioProgressTimeLimit");
+
+        ///<summary>
+        ///Add NPC
+        ///</summary>
+        public static readonly MyStringId AddNpcToFaction = MyStringId.GetOrCompute("AddNpcToFaction");
+
+        ///<summary>
+        ///Adds new NPC identity to this faction - faction will not cease to exist when last player leaves. Available in scenario edit mode only.
+        ///</summary>
+        public static readonly MyStringId AddNpcToFactionHelp = MyStringId.GetOrCompute("AddNpcToFactionHelp");
+
+        ///<summary>
+        ///Video on start:
+        ///</summary>
+        public static readonly MyStringId GuiLabelVideoOnStart = MyStringId.GetOrCompute("GuiLabelVideoOnStart");
+
+        ///<summary>
+        ///Jump
+        ///</summary>
+        public static readonly MyStringId BlockActionTitle_Jump = MyStringId.GetOrCompute("BlockActionTitle_Jump");
+
+        ///<summary>
+        ///Destination GPS coordinates:
+        ///</summary>
+        public static readonly MyStringId BlockPropertyTitle_DestinationGPS = MyStringId.GetOrCompute("BlockPropertyTitle_DestinationGPS");
+
+        ///<summary>
+        ///Distance
+        ///</summary>
+        public static readonly MyStringId BlockPropertyTitle_JumpDistance = MyStringId.GetOrCompute("BlockPropertyTitle_JumpDistance");
+
+        ///<summary>
+        ///Jump Drive
+        ///</summary>
+        public static readonly MyStringId DisplayName_Block_JumpDrive = MyStringId.GetOrCompute("DisplayName_Block_JumpDrive");
+
+        ///<summary>
+        ///To execute the jump, assign the "Jump" command to the toolbar of a cockpit
+        ///</summary>
+        public static readonly MyStringId BlockActionTooltip_SelectedJumpTarget = MyStringId.GetOrCompute("BlockActionTooltip_SelectedJumpTarget");
+
+        ///<summary>
+        ///Ship will jump in {0} seconds.
+        ///</summary>
+        public static readonly MyStringId NotificationJumpWarmupTime = MyStringId.GetOrCompute("NotificationJumpWarmupTime");
+
+        ///<summary>
+        ///You can put a scenario name here (must already exist on local computer to be loaded)  or workshop ID number (user does *not* have to have it subscribed in that case). Workshop ID can be seen in the URL link of scenario in question on steam workshop web.
+        ///</summary>
+        public static readonly MyStringId GuiTriggerNextMissionTooltip = MyStringId.GetOrCompute("GuiTriggerNextMissionTooltip");
+
+        ///<summary>
+        ///Next scenario was not found and cannot be loaded. Both {0} and {1} does not exist or contain invalid data. Please contact scenario author to fix it.
+        ///</summary>
+        public static readonly MyStringId MessageBoxTextScenarioNotFound = MyStringId.GetOrCompute("MessageBoxTextScenarioNotFound");
+
+        ///<summary>
+        ///Prepare for next scenario ...
+        ///</summary>
+        public static readonly MyStringId NotificationNextScenarioWillLoad = MyStringId.GetOrCompute("NotificationNextScenarioWillLoad");
+
+        ///<summary>
+        ///Assign player to faction
+        ///</summary>
+        public static readonly MyStringId MedicalRoom_factionAssignmentLabel = MyStringId.GetOrCompute("MedicalRoom_factionAssignmentLabel");
+
+        ///<summary>
+        ///Respawned player will be assigned to this medical room's faction.
+        ///</summary>
+        public static readonly MyStringId MedicalRoom_factionAssignmentTooltip = MyStringId.GetOrCompute("MedicalRoom_factionAssignmentTooltip");
+
+        ///<summary>
+        ///Jump was aborted!
+        ///</summary>
+        public static readonly MyStringId NotificationJumpAborted = MyStringId.GetOrCompute("NotificationJumpAborted");
+
+        ///<summary>
+        ///Jump drive is only {0} charged!
+        ///</summary>
+        public static readonly MyStringId NotificationJumpDriveNotFullyCharged = MyStringId.GetOrCompute("NotificationJumpDriveNotFullyCharged");
+
+        ///<summary>
+        ///When played as scenario: player will start in respawn screen with new identity, all ownership will be lost.
+        ///</summary>
+        public static readonly MyStringId ToolTipWorldSettings_StartInRespawnScreen = MyStringId.GetOrCompute("ToolTipWorldSettings_StartInRespawnScreen");
+
+        ///<summary>
+        ///Start in respawn screen
+        ///</summary>
+        public static readonly MyStringId WorldSettings_StartInRespawnScreen = MyStringId.GetOrCompute("WorldSettings_StartInRespawnScreen");
+
+        ///<summary>
+        ///This link is not allowed and will not open. Allowed sites: steamcommunity, youtube, KSH forum.
+        ///</summary>
+        public static readonly MyStringId WwwLinkNotAllowed = MyStringId.GetOrCompute("WwwLinkNotAllowed");
+
+        ///<summary>
+        ///Show scenario briefing
+        ///</summary>
+        public static readonly MyStringId ControlMenuItemLabel_ScenarioBriefing = MyStringId.GetOrCompute("ControlMenuItemLabel_ScenarioBriefing");
+
+        ///<summary>
+        ///Connectors
+        ///</summary>
+        public static readonly MyStringId ControlMenuItemLabel_Connectors = MyStringId.GetOrCompute("ControlMenuItemLabel_Connectors");
+
+        ///<summary>
+        ///Show build screen
+        ///</summary>
+        public static readonly MyStringId ControlMenuItemLabel_ShowBuildScreen = MyStringId.GetOrCompute("ControlMenuItemLabel_ShowBuildScreen");
+
+        ///<summary>
+        ///Press {0} to apply color, access control menu to change color
+        ///</summary>
+        public static readonly MyStringId NotificationJoystickColorFormat = MyStringId.GetOrCompute("NotificationJoystickColorFormat");
+
+        ///<summary>
+        ///Enables voxel destrucion in world.
+        ///</summary>
+        public static readonly MyStringId ToolTipWorldSettings_EnableVoxelDestruction = MyStringId.GetOrCompute("ToolTipWorldSettings_EnableVoxelDestruction");
+
+        ///<summary>
+        ///Enable voxel destruction
+        ///</summary>
+        public static readonly MyStringId WorldSettings_EnableVoxelDestruction = MyStringId.GetOrCompute("WorldSettings_EnableVoxelDestruction");
+
+        ///<summary>
+        ///Tutorials
+        ///</summary>
+        public static readonly MyStringId ScreenCaptionTutorials = MyStringId.GetOrCompute("ScreenCaptionTutorials");
+
+        ///<summary>
+        ///Training Level
+        ///</summary>
+        public static readonly MyStringId TrainingLevel = MyStringId.GetOrCompute("TrainingLevel");
+
+        ///<summary>
+        ///Advanced
+        ///</summary>
+        public static readonly MyStringId TrainingLevel_Advanced = MyStringId.GetOrCompute("TrainingLevel_Advanced");
+
+        ///<summary>
+        ///Basic
+        ///</summary>
+        public static readonly MyStringId TrainingLevel_Basic = MyStringId.GetOrCompute("TrainingLevel_Basic");
+
+        ///<summary>
+        ///Intermediate
+        ///</summary>
+        public static readonly MyStringId TrainingLevel_Intermediate = MyStringId.GetOrCompute("TrainingLevel_Intermediate");
+
+        ///<summary>
+        ///Tutorial
+        ///</summary>
+        public static readonly MyStringId MessageBoxCaptionTutorial = MyStringId.GetOrCompute("MessageBoxCaptionTutorial");
+
+        ///<summary>
+        ///
+        ///</summary>
+        public static readonly MyStringId MessageBoxCaptionVideoTutori = MyStringId.GetOrCompute("MessageBoxCaptionVideoTutori");
+
+        ///<summary>
+        ///State
+        ///</summary>
+        public static readonly MyStringId HudInfoState = MyStringId.GetOrCompute("HudInfoState");
+
+        ///<summary>
+        ///Video
+        ///</summary>
+        public static readonly MyStringId MessageBoxCaptionVideo = MyStringId.GetOrCompute("MessageBoxCaptionVideo");
+
+        ///<summary>
+        ///Would you like to watch video before tutorial starts?
+        ///</summary>
+        public static readonly MyStringId MessageBoxTextWatchVideo = MyStringId.GetOrCompute("MessageBoxTextWatchVideo");
+
+        ///<summary>
+        ///Artif. Gravity:
+        ///</summary>
+        public static readonly MyStringId HudInfoGravityArtificial = MyStringId.GetOrCompute("HudInfoGravityArtificial");
+
+        ///<summary>
+        ///Planet Gravity:
+        ///</summary>
+        public static readonly MyStringId HudInfoGravityNatural = MyStringId.GetOrCompute("HudInfoGravityNatural");
+
+        ///<summary>
+        ///Oxygen: 
+        ///</summary>
+        public static readonly MyStringId HudInfoOxygen = MyStringId.GetOrCompute("HudInfoOxygen");
     }
 }

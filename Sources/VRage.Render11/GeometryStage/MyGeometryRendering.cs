@@ -71,7 +71,7 @@ namespace VRageRender
     class MyFrustumCullQuery
     {
         internal int Bitmask { get; set; }
-        internal BoundingFrustum Frustum { get; set; }
+        internal BoundingFrustumD Frustum { get; set; }
         internal List<MyCullProxy> List = new List<MyCullProxy>();
         internal List<bool> IsInsideList = new List<bool>();
         internal List<MyCullProxy_2> List2 = new List<MyCullProxy_2>();
@@ -111,7 +111,7 @@ namespace VRageRender
             }
         }
 
-        internal int AddFrustum(BoundingFrustum frustum)
+        internal int AddFrustum(BoundingFrustumD frustum)
         {
             Debug.Assert(m_reservedFrusta < 32);
             FrustumQuery[m_reservedFrusta].Clear();
@@ -230,7 +230,7 @@ namespace VRageRender
             {
                 if(true)
                 {
-                    BoundingBox bb = BoundingBox.CreateInvalid();
+                    BoundingBoxD bb = BoundingBoxD.CreateInvalid();
 
                     foreach (var child in h.m_children)
                     {
@@ -240,7 +240,7 @@ namespace VRageRender
                         }
                     }
 
-                    if(MyEnvironment.ViewFrustum.Contains(bb) != VRageMath.ContainmentType.Disjoint)
+                    if(MyEnvironment.ViewFrustumClippedD.Contains(bb) != VRageMath.ContainmentType.Disjoint)
                     {
                         MyRenderProxy.VisibleObjectsWrite.Add(h.m_owner.ID);
                     }
@@ -299,9 +299,9 @@ namespace VRageRender
             MySceneMaterials.PreFrame();
         }
 
-        internal static void AddCamera(ref Matrix viewMatrix, ref Matrix projectionMatrix, MyViewport viewport, MyGBuffer gbuffer)
+        internal static void AddCamera(ref MatrixD viewMatrix, ref MatrixD projectionMatrix, MyViewport viewport, MyGBuffer gbuffer)
         {
-            var frustumMask = m_cullQuery.AddFrustum(new BoundingFrustum(MyEnvironment.ViewProjection));
+            var frustumMask = m_cullQuery.AddFrustum(new BoundingFrustumD(MyEnvironment.ViewProjectionD));
 
             MyGBufferPass pass = new MyGBufferPass();
             pass.Cleanup();
@@ -315,9 +315,9 @@ namespace VRageRender
             m_wavefront.Add(pass);
         }
 
-        internal static void AddForwardCamera(ref Matrix offsetedViewProjection, ref Matrix viewProjection, MyViewport viewport, DepthStencilView dsv, RenderTargetView rtv)
+        internal static void AddForwardCamera(ref Matrix offsetedViewProjection, ref MatrixD viewProjection, MyViewport viewport, DepthStencilView dsv, RenderTargetView rtv)
         {
-            var frustumMask = m_cullQuery.AddFrustum(new BoundingFrustum(viewProjection));
+            var frustumMask = m_cullQuery.AddFrustum(new BoundingFrustumD(viewProjection));
 
             MyForwardPass pass = new MyForwardPass();
             pass.Cleanup();
@@ -332,7 +332,7 @@ namespace VRageRender
             m_wavefront.Add(pass);
         }
 
-        internal static void AddShadowCaster(BoundingFrustum frustum, Matrix viewProjectionLocal, MyViewport viewport, DepthStencilView depthTarget, bool isCascade, string debugName)
+        internal static void AddShadowCaster(BoundingFrustumD frustum, Matrix viewProjectionLocal, MyViewport viewport, DepthStencilView depthTarget, bool isCascade, string debugName)
         {
             var frustumMask = m_cullQuery.AddFrustum(frustum);
 
@@ -414,6 +414,9 @@ namespace VRageRender
                     {
                         foreach(var proxy in m_cullQuery.FrustumQuery[i].List[j].Proxies)
                         {
+                            var worldMat = proxy.WorldMatrix;
+                            worldMat.Translation -= MyEnvironment.CameraPosition;
+                            proxy.ObjectData.LocalMatrix = worldMat;
                             proxy.ObjectData.MaterialIndex = MySceneMaterials.GetDrawMaterialIndex(proxy.PerMaterialIndex);
                         }
                     }
@@ -649,7 +652,7 @@ namespace VRageRender
                     MyImmediateRC.RC.Context.ClearRenderTargetView(workCubemap.SubresourceRtv(faceId), new Color4(0, 0, 0, 0));
 
                     var localViewProj = Matrix.CreateTranslation(MyEnvironment.CameraPosition - position) * PrepareLocalEnvironmentMatrix(Vector3.Zero, new Vector2I(256, 256), faceId, 40.0f);
-                    var viewProj = Matrix.CreateTranslation(-position) * localViewProj;
+                    var viewProj = MatrixD.CreateTranslation(-position) * localViewProj;
 
                     AddForwardCamera(ref localViewProj, ref viewProj, new MyViewport(0, 0, 256, 256), m_cubemapDepth.SubresourceDsv(faceId), workCubemap.SubresourceRtv(faceId));
 
@@ -810,7 +813,7 @@ namespace VRageRender
             m_wavefront.Clear();
 
             // add main camera
-            AddCamera(ref MyEnvironment.View, ref MyEnvironment.Projection, 
+            AddCamera(ref MyEnvironment.ViewD, ref MyEnvironment.OriginalProjectionD, 
                 new MyViewport(MyRender11.ViewportResolution.X, MyRender11.ViewportResolution.Y), 
                 MyGBuffer.Main);
             m_cullQuery.FrustumQuery[m_wavefront.Count-1].Type = MyFrustumEnum.MainFrustum;
@@ -819,7 +822,7 @@ namespace VRageRender
             foreach (var query in MyShadows.ShadowmapList)
             {
                 bool isCascade = query.QueryType == MyFrustumEnum.Cascade0 || query.QueryType == MyFrustumEnum.Cascade1 || query.QueryType == MyFrustumEnum.Cascade2 || query.QueryType == MyFrustumEnum.Cascade3;
-                AddShadowCaster(new BoundingFrustum(query.ProjectionInfo.WorldToProjection), query.ProjectionInfo.CurrentLocalToProjection, query.Viewport, query.DepthBuffer, isCascade, query.QueryType.ToString());
+                AddShadowCaster(new BoundingFrustumD(query.ProjectionInfo.WorldToProjection), query.ProjectionInfo.CurrentLocalToProjection, query.Viewport, query.DepthBuffer, isCascade, query.QueryType.ToString());
 
                 if(query.QueryType == MyFrustumEnum.Cascade0)
                 {

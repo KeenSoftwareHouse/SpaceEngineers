@@ -1,4 +1,5 @@
 ﻿using Sandbox.Common.ObjectBuilders;
+using Sandbox.Definitions;
 using Sandbox.Engine.Utils;
 using Sandbox.Game.AI;
 using Sandbox.Game.AI.BehaviorTree;
@@ -12,6 +13,7 @@ using System.Collections.Generic;
 using VRage.Input;
 using VRage.Library.Utils;
 using VRage.ObjectBuilders;
+using VRage.Utils;
 using VRageMath;
 
 namespace Sandbox.Game.Gui
@@ -38,7 +40,8 @@ namespace Sandbox.Game.Gui
                 Axes.Add(val);
             }
 
-            AddShortcut(MyKeys.NumPad7, true, false, false, false, () => "Spawn flora LMB: " + SPAWN_FLORA_ENTITY, () => { SPAWN_FLORA_ENTITY = !SPAWN_FLORA_ENTITY; return true; });
+            AddShortcut(MyKeys.NumPad7, true, false, false, false, () => "Enable LMB spawning: " + ENABLE_FLORA_SPAWNING, () => { ENABLE_FLORA_SPAWNING = !ENABLE_FLORA_SPAWNING; return true; });
+            AddShortcut(MyKeys.NumPad8, true, false, false, false, () => "Select flora to spawn. Selected: " + SELECTED_FLORA, SelectNextFloraToSpawn);
 
             AddShortcut(MyKeys.NumPad0, true, false, false, false, () => "Debug draw", DebugDrawFunc);
 
@@ -58,6 +61,14 @@ namespace Sandbox.Game.Gui
                 AddShortcut(MyKeys.NumPad4, true, false, false, false, () => "Remove bot", () => { MyAIComponent.Static.DebugRemoveFirstBot(); return true; });
            //     AddShortcut(MyKeys.NumPad7, true, false, false, false, () => { return "DEBUG ANIMALS " + (MyDebugDrawSettings.DEBUG_DRAW_ANIMALS ? "TRUE" : "FALSE"); }, () => { MyDebugDrawSettings.DEBUG_DRAW_ANIMALS = !MyDebugDrawSettings.DEBUG_DRAW_ANIMALS; return true; });
             }
+        }
+
+        private bool SelectNextFloraToSpawn()
+        {
+            var defs = MyDefinitionManager.Static.GetDefinitionsOfType<MyFloraElementDefinition>();
+            SELECTED_FLORA_IDX = (SELECTED_FLORA_IDX + 1) % defs.Count;
+            SELECTED_FLORA = defs.ItemAt(SELECTED_FLORA_IDX);
+            return true;
         }
 
         public override string GetName()
@@ -86,6 +97,10 @@ namespace Sandbox.Game.Gui
 
         public bool SPAWN_FLORA_ENTITY = false;
         public bool OnSelectDebugBot = false;
+
+        public bool ENABLE_FLORA_SPAWNING = false;
+        public MyFloraElementDefinition SELECTED_FLORA = null;
+        private int SELECTED_FLORA_IDX = 0;
 
         public override bool HandleInput()
         {
@@ -156,7 +171,7 @@ namespace Sandbox.Game.Gui
 
             //        foreach (var sb in q)
             //        {
-            //            //VRageRender.MyRenderProxy.DebugDrawText2D(new Vector2(0.0f, i * 10 + 80.0f), body.HkHitInfo.Body.GetEntity().ToString(), Color.Red, 0.5f);
+            //            //VRageRender.MyRenderProxy.DebugDrawText2D(new Vector2(0.0f, i * 10 + 80.0f), body.HkHitInfo.GetEntity().ToString(), Color.Red, 0.5f);
             //            VRageRender.MyRenderProxy.DebugDrawAxis(sb.PositionComp.WorldMatrix, 0.5f, true);
             //        }
 
@@ -202,7 +217,7 @@ namespace Sandbox.Game.Gui
             //            for (int i = 0; i < toList.Count; i++)
             //            {
             //                var body = toList[i];
-            //                VRageRender.MyRenderProxy.DebugDrawText2D(new Vector2(0.0f, i * 10 + 80.0f), body.HkHitInfo.Body.GetEntity().ToString(), Color.Red, 0.5f);
+            //                VRageRender.MyRenderProxy.DebugDrawText2D(new Vector2(0.0f, i * 10 + 80.0f), body.HkHitInfo.GetEntity().ToString(), Color.Red, 0.5f);
 
             //                VRageRender.MyRenderProxy.DebugDrawSphere(body.Position, 1, Color.Red, 1.0f, false);
             //            }

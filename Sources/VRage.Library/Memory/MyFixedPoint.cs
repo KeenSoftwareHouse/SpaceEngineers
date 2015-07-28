@@ -141,6 +141,10 @@ namespace VRage
             return (int)(fp.RawValue / Divider);
         }
 
+        public static bool IsIntegral(MyFixedPoint fp)
+        {
+            return fp.RawValue % Divider == 0;
+        }
 
         public static MyFixedPoint Ceiling(MyFixedPoint a)
         {

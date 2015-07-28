@@ -83,7 +83,7 @@ namespace Sandbox.Game.Entities
         static bool m_needReupdateNewObjects = false;
         static int m_checkObjectInsideVoxel = 0;
 
-        static List<Tuple<MyPhysicalInventoryItem, BoundingBoxD>> m_itemsToSpawnNextUpdate = new List<Tuple<MyPhysicalInventoryItem, BoundingBoxD>>();
+		static List<Tuple<MyPhysicalInventoryItem, BoundingBoxD, Vector3D>> m_itemsToSpawnNextUpdate = new List<Tuple<MyPhysicalInventoryItem, BoundingBoxD, Vector3D>>();
 
         #endregion
 
@@ -283,7 +283,11 @@ namespace Sandbox.Game.Entities
             foreach (var item in m_itemsToSpawnNextUpdate)
             {
                 var entity = item.Item1.Spawn(item.Item1.Amount, item.Item2);
-                entity.Physics.ApplyImpulse(MyUtils.GetRandomVector3Normalized() * entity.Physics.Mass / 5.0f, entity.PositionComp.GetPosition());
+                if (entity != null)
+                {
+					entity.Physics.LinearVelocity = item.Item3;
+                    entity.Physics.ApplyImpulse(MyUtils.GetRandomVector3Normalized() * entity.Physics.Mass / 5.0f, entity.PositionComp.GetPosition());
+                }
             }
 
             m_itemsToSpawnNextUpdate.Clear();
@@ -349,9 +353,9 @@ namespace Sandbox.Game.Entities
             return thrownEntity;
         }
 
-        public static void EnqueueInventoryItemSpawn(MyPhysicalInventoryItem inventoryItem, BoundingBoxD boundingBox)
+        public static void EnqueueInventoryItemSpawn(MyPhysicalInventoryItem inventoryItem, BoundingBoxD boundingBox, Vector3D inheritedVelocity)
         {
-            m_itemsToSpawnNextUpdate.Add(Tuple.Create(inventoryItem, boundingBox));
+			m_itemsToSpawnNextUpdate.Add(Tuple.Create(inventoryItem, boundingBox, inheritedVelocity));
         }
 
         private static MyObjectBuilder_FloatingObject PrepareBuilder(ref MyPhysicalInventoryItem item)

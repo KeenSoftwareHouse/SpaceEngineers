@@ -14,14 +14,6 @@ namespace Sandbox.Engine.Voxels
 {
     class MyDualContouringMesher : IMyIsoMesher
     {
-        const int SIZE_IN_VOXELS = MyVoxelConstants.GEOMETRY_CELL_SIZE_IN_VOXELS;
-        const float POSITION_SCALE = MyVoxelConstants.GEOMETRY_CELL_SIZE_IN_VOXELS + 1f;
-        /// <summary>
-        /// Constant that ensures contoured voxel positions are in range 0 to 1 inclusive.
-        /// Such positions can be encoded as normalized unsigned integer values.
-        /// </summary>
-        const float CONTOURED_VOXEL_SIZE = 1f / POSITION_SCALE;
-
         private MyStorageDataCache m_cache = new MyStorageDataCache();
         private MyIsoMesh m_buffer = new MyIsoMesh();
 
@@ -99,9 +91,7 @@ namespace Sandbox.Engine.Voxels
                 var vertexCells = m_buffer.Cells.GetInternalArray();
                 for (int i = 0; i < m_buffer.VerticesCount; i++)
                 {
-                    var min = -Vector3.One;
-                    var max = Vector3.One;
-                 //   Debug.Assert(positions[i].IsInsideInclusive(ref min, ref max));
+                    Debug.Assert(positions[i].IsInsideInclusive(ref Vector3.MinusOne, ref Vector3.One));
                     vertexCells[i] += vertexCellOffset;
                 }
 

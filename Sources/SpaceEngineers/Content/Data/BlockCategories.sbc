@@ -180,6 +180,7 @@
         <string>UpgradeModule/LargeProductivityModule</string>
         <string>UpgradeModule/LargeEffectivenessModule</string>
         <string>UpgradeModule/LargeEnergyModule</string>
+        <string>JumpDrive/LargeJumpDrive</string>
       </ItemIds>
     </Category>
     <Category xsi:type="MyObjectBuilder_GuiBlockCategoryDefinition">
@@ -556,7 +557,7 @@
         <SubtypeId/>
       </Id>
       <DisplayName>DisplayName_Category_Cockpit</DisplayName>
-      <Name>Cocpits</Name>
+      <Name>Cockpits</Name>
       <ItemIds>
         <string>Cockpit/CockpitOpen</string>
         <string>Cockpit/LargeBlockCockpit</string>

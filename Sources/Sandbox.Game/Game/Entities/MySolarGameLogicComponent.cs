@@ -104,7 +104,7 @@ namespace Sandbox.Game.Entities
             m_pivotInSun[m_currentPivot] = true;
             foreach (var hit in m_hitList)
             {
-                var ent = hit.HkHitInfo.Body.GetEntity();
+                var ent = hit.HkHitInfo.GetHitEntity();
                 if (ent != m_solarBlock.CubeGrid)
                 {
                     m_pivotInSun[m_currentPivot] = false;

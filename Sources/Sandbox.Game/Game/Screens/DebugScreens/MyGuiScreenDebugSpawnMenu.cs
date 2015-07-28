@@ -292,7 +292,7 @@ namespace Sandbox.Game.Gui
                     if (!definition.Public)
                         continue;
                     var physicalItemDef = definition as MyPhysicalItemDefinition;
-                    if (physicalItemDef == null)
+                    if (physicalItemDef == null || physicalItemDef.CanSpawnFromScreen == false)
                         continue;
 
                     int key = m_physicalItemDefinitions.Count;
@@ -504,7 +504,7 @@ namespace Sandbox.Game.Gui
 
         public static MyStorageBase CreateProceduralAsteroidStorage(int seed, float radius, float deviationScale)
         {
-            return new MyOctreeStorage(MyCompositeShapeProvider.CreateAsteroidShape(seed, radius, 0), FindBestOctreeSize(radius));
+            return new MyOctreeStorage(MyCompositeShapeProvider.CreateAsteroidShape(seed, radius, 0), MyVoxelCoordSystems.FindBestOctreeSize(radius));
         }
 
         public static MyObjectBuilder_VoxelMap CreateAsteroidObjectBuilder(string storageName)
@@ -544,7 +544,7 @@ namespace Sandbox.Game.Gui
 
         public static MyStorageBase CreateProceduralAsteroidStorage(int seed, float radius)
         {
-            return new MyOctreeStorage(MyCompositeShapeProvider.CreateAsteroidShape(seed, radius, 0), FindBestOctreeSize(radius));
+            return new MyOctreeStorage(MyCompositeShapeProvider.CreateAsteroidShape(seed, radius, 0), MyVoxelCoordSystems.FindBestOctreeSize(radius));
         }
 
         private void SpawnProceduralAsteroid(int seed, float radius)
@@ -578,7 +578,7 @@ namespace Sandbox.Game.Gui
                 pos = MySession.LocalHumanPlayer.GetPosition();
             }
 
-            var previewVoxelMap = MyWorldGenerator.AddPlanet(storageNameBase, MySession.LocalHumanPlayer.GetPosition(), seed, size, MyRandom.Instance.NextLong());
+            MyWorldGenerator.AddPlanet(storageNameBase, MySession.LocalHumanPlayer.GetPosition(), seed, size, MyRandom.Instance.NextLong(),false);
         }
 
         private static String MakeStorageName(String storageNameBase)
@@ -608,15 +608,6 @@ namespace Sandbox.Game.Gui
             while (collision);
 
             return storageName;
-        }
-
-        private static Vector3I FindBestOctreeSize(float radius)
-        {
-            int nodeRadius = MyVoxelConstants.RENDER_CELL_SIZE_IN_VOXELS;
-            while (nodeRadius < radius)
-                nodeRadius *= 2;
-            //nodeRadius *= 2;
-            return new Vector3I(nodeRadius, nodeRadius, nodeRadius);
         }
 
         private void CreatePlanetMenu()
@@ -661,7 +652,7 @@ namespace Sandbox.Game.Gui
 
         private void CreatePlanetControls(MyGuiControlList list, float usableWidth)
         {   
-            var asteroidSizeLabel = CreateSliderWithDescription(list, usableWidth, 8000f, 50000f, MyTexts.GetString(MySpaceTexts.ScreenDebugSpawnMenu_ProceduralSize), ref m_procAsteroidSize);
+            var asteroidSizeLabel = CreateSliderWithDescription(list, usableWidth, 8000f, 120000f, MyTexts.GetString(MySpaceTexts.ScreenDebugSpawnMenu_ProceduralSize), ref m_procAsteroidSize);
 
             m_procAsteroidSize.ValueChanged += (MyGuiControlSlider s) => { asteroidSizeLabel.Text = MyValueFormatter.GetFormatedFloat(s.Value, 0) + "m"; m_procAsteroidSizeValue = s.Value; };
             m_procAsteroidSize.Value = 8000.1f;

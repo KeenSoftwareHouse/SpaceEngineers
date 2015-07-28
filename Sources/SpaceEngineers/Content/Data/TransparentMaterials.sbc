@@ -223,6 +223,28 @@
       </UVSize>
     </TransparentMaterial>
     <TransparentMaterial>
+      <Id>
+        <TypeId>TransparentMaterialDefinition</TypeId>
+        <SubtypeId>WarpBubble</SubtypeId>
+      </Id>
+      <AlphaMistingEnable>true</AlphaMistingEnable>
+      <AlphaSaturation>0.55</AlphaSaturation>
+      <CanBeAffectedByOtherLights>true</CanBeAffectedByOtherLights>
+      <Emissivity>0</Emissivity>
+      <IgnoreDepth>false</IgnoreDepth>
+      <SoftParticleDistanceScale>0.5</SoftParticleDistanceScale>
+      <Texture>Textures\Particles\Warp.dds</Texture>
+      <UseAtlas>false</UseAtlas>
+      <UVOffset>
+        <X>0</X>
+        <Y>0</Y>
+      </UVOffset>
+      <UVSize>
+        <X>1</X>
+        <Y>1</Y>
+      </UVSize>
+    </TransparentMaterial>
+    <TransparentMaterial>
 	  <Id>
         <TypeId>TransparentMaterialDefinition</TypeId>
         <SubtypeId>GlareHeadlight</SubtypeId>
@@ -1247,12 +1269,12 @@
         <SubtypeId>Stardust</SubtypeId>
       </Id>
       <AlphaMistingEnable>true</AlphaMistingEnable>
-      <AlphaSaturation>1</AlphaSaturation>
-      <CanBeAffectedByOtherLights>true</CanBeAffectedByOtherLights>
+      <AlphaSaturation>1.0</AlphaSaturation>
+      <CanBeAffectedByOtherLights>false</CanBeAffectedByOtherLights>
       <Emissivity>0</Emissivity>
       <IgnoreDepth>false</IgnoreDepth>
       <NeedSort>false</NeedSort>
-      <SoftParticleDistanceScale>0.5</SoftParticleDistanceScale>
+      <SoftParticleDistanceScale>1.0</SoftParticleDistanceScale>
       <Texture>Textures\Particles\Stardust.dds</Texture>
       <UseAtlas>false</UseAtlas>
       <UVOffset>

@@ -32,9 +32,12 @@ namespace Sandbox.Game.Screens.Helpers
         private MyCameraModeControlHelper m_cameraModeControlHelper;
         private MyShowTerminalControlHelper m_showTerminalControlHelper;
         private MyShowBuildScreenControlHelper m_showBuildScreenControlHelper;
+        private MyColorPickerControlHelper m_colorPickerControlHelper;
         private MySuicideControlHelper m_suicideControlHelper;
         private MyUseTerminalControlHelper m_terminalControlHelper;
         private MyEnableStationRotationControlHelper m_enableStationRotationControlHelper;
+        private MyBriefingMenuControlHelper m_briefingMenuControlHelper;
+        private MyConnectorControlHelper m_connectorControlHelper;
 
         public MySpaceControlMenuInitializer()
         {
@@ -59,6 +62,7 @@ namespace Sandbox.Game.Screens.Helpers
                 x => x.EnabledBroadcasting,
                 MySpaceTexts.ControlMenuItemLabel_Broadcasting);
             m_landingGearsControlHelper = new MyLandingGearControlHelper();
+            m_connectorControlHelper = new MyConnectorControlHelper();
             m_reactorsControlHelper = new MyControllableEntityControlHelper(
                 MyControlsSpace.TOGGLE_REACTORS,
                 x => x.SwitchReactors(),
@@ -75,10 +79,12 @@ namespace Sandbox.Game.Screens.Helpers
             m_cameraModeControlHelper = new MyCameraModeControlHelper();
             m_showTerminalControlHelper = new MyShowTerminalControlHelper();
             m_showBuildScreenControlHelper = new MyShowBuildScreenControlHelper();
+            m_colorPickerControlHelper = new MyColorPickerControlHelper();
             m_suicideControlHelper = new MySuicideControlHelper();
             m_terminalControlHelper = new MyUseTerminalControlHelper();
 
             m_enableStationRotationControlHelper = new MyEnableStationRotationControlHelper();
+            m_briefingMenuControlHelper = new MyBriefingMenuControlHelper();
         }
 
         public void OpenControlMenu(IMyControllableEntity controlledEntity)
@@ -123,6 +129,11 @@ namespace Sandbox.Game.Screens.Helpers
                 m_controlMenu.AddItem(m_enableStationRotationControlHelper);
             }
 
+            m_controlMenu.AddItem(m_colorPickerControlHelper);
+
+            if (MySession.Static.IsScenario)
+                m_controlMenu.AddItem(m_briefingMenuControlHelper);
+
             m_controlMenu.AddItem(m_quickLoadControlHelper);
             m_controlMenu.AddItem(m_hudToggleControlHelper);
 
@@ -145,6 +156,7 @@ namespace Sandbox.Game.Screens.Helpers
             m_lightsControlHelper.SetEntity(ship);
             m_dampingControlHelper.SetEntity(ship);
             m_landingGearsControlHelper.SetEntity(ship);
+            m_connectorControlHelper.SetEntity(ship);
             m_reactorsControlHelper.SetEntity(ship);
             m_showBuildScreenControlHelper.SetEntity(ship);
             m_showTerminalControlHelper.SetEntity(ship);
@@ -160,6 +172,7 @@ namespace Sandbox.Game.Screens.Helpers
             m_controlMenu.AddItem(m_lightsControlHelper);
             m_controlMenu.AddItem(m_dampingControlHelper);
             m_controlMenu.AddItem(m_landingGearsControlHelper);
+            m_controlMenu.AddItem(m_connectorControlHelper);
             m_controlMenu.AddItem(m_reactorsControlHelper);
 
             m_controlMenu.AddItem(m_cameraModeControlHelper);
@@ -167,28 +180,32 @@ namespace Sandbox.Game.Screens.Helpers
 
         private void AddUseObjectControl(MyCharacter character)
         {
-            if (character.IsUseObjectOfType<MyUseObjectDoorTerminal>()
-                || character.IsUseObjectOfType<MyUseObjectTerminal>()
-                || character.IsUseObjectOfType<MyUseObjectTextPanel>())
+            MyCharacterDetectorComponent detectorComponent = character.Components.Get<MyCharacterDetectorComponent>();
+            if (detectorComponent != null)
             {
-                m_terminalControlHelper.SetLabel(MySpaceTexts.ControlMenuItemLabel_ShowControlPanel);
-                m_controlMenu.AddItem(m_terminalControlHelper);
+                if (detectorComponent.UseObject is MyUseObjectDoorTerminal
+                    || detectorComponent.UseObject is MyUseObjectTerminal
+                    || detectorComponent.UseObject is MyUseObjectTextPanel)
+                {
+                    m_terminalControlHelper.SetLabel(MySpaceTexts.ControlMenuItemLabel_ShowControlPanel);
+                    m_controlMenu.AddItem(m_terminalControlHelper);
+                }
+                else if (detectorComponent.UseObject is MyUseObjectInventory)
+                {
+                    m_terminalControlHelper.SetLabel(MySpaceTexts.ControlMenuItemLabel_OpenInventory);
+                    m_controlMenu.AddItem(m_terminalControlHelper);
+                }
+                else if (detectorComponent.UseObject is MyUseObjectPanelButton)
+                {
+                    m_terminalControlHelper.SetLabel(MySpaceTexts.ControlMenuItemLabel_SetupButtons);
+                    m_controlMenu.AddItem(m_terminalControlHelper);
+                }
+                //else if (character.IsUseObjectOfType<MyUseObjectWardrobe>())
+                //{
+                //    m_terminalControlHelper.SetLabel(MySpaceTexts.ControlMenuItemLabel_Wardrobe);
+                //    m_controlMenu.AddItem(m_terminalControlHelper);
+                //}
             }
-            else if (character.IsUseObjectOfType<MyUseObjectInventory>())
-            {
-                m_terminalControlHelper.SetLabel(MySpaceTexts.ControlMenuItemLabel_OpenInventory);
-                m_controlMenu.AddItem(m_terminalControlHelper);
-            }
-            else if (character.IsUseObjectOfType<MyUseObjectPanelButton>())
-            {
-                m_terminalControlHelper.SetLabel(MySpaceTexts.ControlMenuItemLabel_SetupButtons);
-                m_controlMenu.AddItem(m_terminalControlHelper);
-            }
-            //else if (character.IsUseObjectOfType<MyUseObjectWardrobe>())
-            //{
-            //    m_terminalControlHelper.SetLabel(MySpaceTexts.ControlMenuItemLabel_Wardrobe);
-            //    m_controlMenu.AddItem(m_terminalControlHelper);
-            //}
         }
     }
 }

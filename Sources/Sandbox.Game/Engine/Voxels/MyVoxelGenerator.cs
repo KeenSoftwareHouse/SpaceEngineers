@@ -2,6 +2,7 @@
 using Sandbox.Engine.Utils;
 using Sandbox.Game.Entities;
 using Sandbox.Game.Multiplayer;
+using Sandbox.Game.World;
 using Sandbox.ModAPI;
 using System;
 using System.Collections.Generic;
@@ -534,6 +535,13 @@ namespace Sandbox.Engine.Voxels
             bool updateSync = false,
             bool onlyCheck = false)
         {
+            if (MySession.Static.EnableVoxelDestruction == false)
+            {
+                voxelsCountInPercent = 0;
+                voxelMaterial = null;
+                return;
+            }
+
             ProfilerShort.Begin("MyVoxelGenerator::CutOutShapeWithProperties()");
 
             int originalSum = 0;
@@ -717,6 +725,11 @@ namespace Sandbox.Engine.Voxels
 
         public static ulong CutOutShape(MyVoxelBase voxelMap, MyShape shape)
         {
+            if(MySession.Static.EnableVoxelDestruction == false)
+            { 
+                return 0;
+            }
+
             Vector3I minCorner, maxCorner, numCells;
             GetVoxelShapeDimensions(voxelMap, shape, out minCorner, out maxCorner, out numCells);
             ulong changedVolumeAmount = 0;

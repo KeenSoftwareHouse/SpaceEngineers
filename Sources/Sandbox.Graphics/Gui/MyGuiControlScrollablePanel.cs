@@ -7,8 +7,9 @@ using VRageMath;
 
 namespace Sandbox.Graphics.GUI
 {
-    public class MyGuiControlScrollablePanel : MyGuiControlBase
+    public class MyGuiControlScrollablePanel : MyGuiControlBase, IMyGuiControlsParent
     {
+        private MyGuiControls m_controls;
         private MyVScrollbar m_scrollbarV;
         private MyHScrollbar m_scrollbarH;
         private MyGuiControlBase m_scrolledControl;
@@ -125,6 +126,8 @@ namespace Sandbox.Graphics.GUI
         {
             Name = "ScrollablePanel";
             ScrolledControl = scrolledControl;
+            m_controls = new MyGuiControls(this);
+            m_controls.Add(ScrolledControl);
         }
 
         public override MyGuiControlBase HandleInput()
@@ -304,7 +307,7 @@ namespace Sandbox.Graphics.GUI
             RefreshInternals();
         }
 
-        private void RefreshInternals()
+        public void RefreshInternals()
         {
             RefreshScrolledArea();
             RefreshScrollbar();
@@ -320,5 +323,10 @@ namespace Sandbox.Graphics.GUI
                 PanelScrolled(this);
         }
 
+
+        public MyGuiControls Controls
+        {
+            get { return m_controls; }
+        }
     }
 }

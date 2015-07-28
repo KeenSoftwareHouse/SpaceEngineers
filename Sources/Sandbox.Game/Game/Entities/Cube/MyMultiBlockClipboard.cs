@@ -96,7 +96,7 @@ namespace Sandbox.Game.Entities.Cube
             }
         }
 
-        public override bool PasteGrid(IMyComponentInventory buildInventory = null, bool deactivate = true) 
+        public override bool PasteGrid(MyInventoryBase buildInventory = null, bool deactivate = true) 
         {
             if ((CopiedGrids.Count > 0) && !IsActive)
             {
@@ -174,7 +174,7 @@ namespace Sandbox.Game.Entities.Cube
             return gridBuilder;
         }
 
-        private bool PasteGridsInDynamicMode(IMyComponentInventory buildInventory, bool deactivate)
+        private bool PasteGridsInDynamicMode(MyInventoryBase buildInventory, bool deactivate)
         {
             bool result;
             // Remember static grid flag and set it to dynamic
@@ -194,7 +194,7 @@ namespace Sandbox.Game.Entities.Cube
             return result;
         }
 
-        private bool PasteGridsInStaticMode(IMyComponentInventory buildInventory, bool deactivate)
+        private bool PasteGridsInStaticMode(MyInventoryBase buildInventory, bool deactivate)
         {
             // Paste generates grid from builder and use matrix from preview
             List<MyObjectBuilder_CubeGrid> copiedGridsOrig = new List<MyObjectBuilder_CubeGrid>();
@@ -381,7 +381,7 @@ namespace Sandbox.Game.Entities.Cube
             if (MyCubeBuilder.Static.HitInfo.HasValue) 
             {
                 float gridSize = MyDefinitionManager.Static.GetCubeSize(CopiedGrids[0].GridSizeEnum);
-                MyCubeGrid hitGrid = MyCubeBuilder.Static.HitInfo.Value.HkHitInfo.Body.GetEntity() as MyCubeGrid;
+                MyCubeGrid hitGrid = MyCubeBuilder.Static.HitInfo.Value.HkHitInfo.GetHitEntity() as MyCubeGrid;
                 bool placingSmallGridOnLargeStatic = hitGrid != null && hitGrid.IsStatic && hitGrid.GridSizeEnum == MyCubeSize.Large && CopiedGrids[0].GridSizeEnum == MyCubeSize.Small && MyFakes.ENABLE_STATIC_SMALL_GRID_ON_LARGE;
 
                 bool add = MyCubeBuilder.Static.GetAddAndRemovePositions(gridSize, placingSmallGridOnLargeStatic, out m_addPos, out addPosSmallOnLarge, out addDir, out removePos, out RemoveBlock, out BlockIdInCompound);
@@ -401,12 +401,12 @@ namespace Sandbox.Game.Entities.Cube
 
                         m_visible = RemoveBlock != null;
                     }
-                    else if (MyFakes.ENABLE_BLOCK_PLACEMENT_ON_VOXEL && MyCubeBuilder.Static.HitInfo.Value.HkHitInfo.Body.GetEntity() is MyVoxelMap)
+                    else if (MyFakes.ENABLE_BLOCK_PLACEMENT_ON_VOXEL && MyCubeBuilder.Static.HitInfo.Value.HkHitInfo.GetHitEntity() is MyVoxelMap)
                     {
                         m_hitPos = MyCubeBuilder.Static.HitInfo.Value.Position;
                         m_closestHitDistSq = (float)(m_hitPos - pasteMatrix.Translation).LengthSquared();
                         m_hitNormal = addDir;
-                        m_hitEntity = MyCubeBuilder.Static.HitInfo.Value.HkHitInfo.Body.GetEntity() as MyVoxelMap;
+                        m_hitEntity = MyCubeBuilder.Static.HitInfo.Value.HkHitInfo.GetHitEntity() as MyVoxelMap;
 
                         m_visible = true;
                     }

@@ -69,7 +69,6 @@ namespace Sandbox.Game.Weapons
         }
 
         public MyCharacter Owner { get { return m_owner; } }
-		public bool IsDeconstructor { get { return false; } }
 
         public bool EnabledInWorldRules
         {
@@ -82,7 +81,10 @@ namespace Sandbox.Game.Weapons
         {
             get { return m_drillBase.IsDrilling; }
         }
-
+        public bool IsBlocking
+        {
+            get { return false; }
+        }
         public int ShootDirectionUpdateTime
         {
             get { return 0; }
@@ -169,7 +171,7 @@ namespace Sandbox.Game.Weapons
             return true;
         }
 
-        public void Shoot(MyShootActionEnum action, Vector3 direction)
+        public void Shoot(MyShootActionEnum action, Vector3 direction, string gunAction)
         {
             DoDrillAction(collectOre: action == MyShootActionEnum.PrimaryAction);
         }

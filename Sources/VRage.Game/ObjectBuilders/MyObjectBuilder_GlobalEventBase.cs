@@ -1,5 +1,6 @@
 ﻿using ProtoBuf;
 using Sandbox.Common.ObjectBuilders.Definitions;
+using System.ComponentModel;
 using VRage.ObjectBuilders;
 
 namespace Sandbox.Common.ObjectBuilders
@@ -8,8 +9,10 @@ namespace Sandbox.Common.ObjectBuilders
     [MyObjectBuilderDefinition]
     public class MyObjectBuilder_GlobalEventBase : MyObjectBuilder_Base
     {
+        // Obsolete!
         [ProtoMember]
-        public SerializableDefinitionId DefinitionId;
+        public SerializableDefinitionId? DefinitionId = null;
+        public bool ShouldSerializeDefinitionId() { return false; }
 
         //[ProtoMember]
         //public bool WriteToLog;

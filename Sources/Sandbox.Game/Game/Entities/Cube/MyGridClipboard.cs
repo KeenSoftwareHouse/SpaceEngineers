@@ -130,6 +130,7 @@ namespace Sandbox.Game.Entities.Cube
 
         // Copy position
         protected float m_dragDistance;
+		protected const float m_maxDragDistance = 2E4f;
         protected Vector3 m_dragPointToPositionLocal;
 
         // Placement flags
@@ -265,6 +266,10 @@ namespace Sandbox.Game.Entities.Cube
             set
             {
                 m_enableStationRotation = value;
+                if (IsActive && m_enableStationRotation)
+                {
+                    AlignClipboardToGravity();
+                }
             }
         }
 
@@ -295,6 +300,11 @@ namespace Sandbox.Game.Entities.Cube
         {
             ChangeClipboardPreview(true);
             IsActive = true;
+
+            if (EnableStationRotation)
+            {
+                AlignClipboardToGravity();
+            }
         }
 
         public virtual void Deactivate()
@@ -470,12 +480,12 @@ namespace Sandbox.Game.Entities.Cube
             m_copiedGridOffsets.Add(toCopy.WorldMatrix.Translation - m_copiedGrids[0].PositionAndOrientation.Value.Position);
         }
 
-        public virtual bool PasteGrid(IMyComponentInventory buildInventory = null, bool deactivate = true)
+        public virtual bool PasteGrid(MyInventoryBase buildInventory = null, bool deactivate = true)
         {
             return PasteGridInternal(buildInventory, deactivate);
         }
 
-        protected bool PasteGridInternal(IMyComponentInventory buildInventory, bool deactivate, List<MyObjectBuilder_CubeGrid> pastedBuilders = null, List<MyCubeGrid> touchingGrids = null,
+        protected bool PasteGridInternal(MyInventoryBase buildInventory, bool deactivate, List<MyObjectBuilder_CubeGrid> pastedBuilders = null, List<MyCubeGrid> touchingGrids = null,
             UpdateAfterPasteCallback updateAfterPasteCallback = null)
         {
             if (m_copiedGrids.Count == 0)
@@ -528,7 +538,7 @@ namespace Sandbox.Game.Entities.Cube
 
         }
 
-        private bool PasteInternal(IMyComponentInventory buildInventory, bool missingDefinitions, bool deactivate, List<MyObjectBuilder_CubeGrid> pastedBuilders = null, List<MyCubeGrid> touchingGrids = null,
+        private bool PasteInternal(MyInventoryBase buildInventory, bool missingDefinitions, bool deactivate, List<MyObjectBuilder_CubeGrid> pastedBuilders = null, List<MyCubeGrid> touchingGrids = null,
             UpdateAfterPasteCallback updateAfterPasteCallback = null)
         {
             MyGuiAudio.PlaySound(MyGuiSounds.HudPlaceBlock);
@@ -820,14 +830,30 @@ namespace Sandbox.Game.Entities.Cube
             {
                 foreach (var block in grid.CubeBlocks)
                 {
-                    MyComponentStack.GetMountedComponents(m_buildComponents, block);
-                    if (block.ConstructionStockpile != null)
-                    foreach (var item in block.ConstructionStockpile.Items)
+                    var compound = block as MyObjectBuilder_CompoundCubeBlock;
+                    if (compound != null)
                     {
-                        m_buildComponents.AddMaterial(item.PhysicalContent.GetId(), item.Amount, addToDisplayList: false);
+                        foreach (var subblock in compound.Blocks)
+                        {
+                            AddSingleBlockRequirements(subblock);
+                        }
+                    }
+                    else
+                    {
+                        AddSingleBlockRequirements(block);
                     }
                 }
             }
+        }
+
+        private void AddSingleBlockRequirements(MyObjectBuilder_CubeBlock block)
+        {
+            MyComponentStack.GetMountedComponents(m_buildComponents, block);
+            if (block.ConstructionStockpile != null)
+                foreach (var item in block.ConstructionStockpile.Items)
+                {
+                    m_buildComponents.AddMaterial(item.PhysicalContent.GetId(), item.Amount, addToDisplayList: false);
+                }
         }
 
         protected virtual float Transparency
@@ -982,7 +1008,7 @@ namespace Sandbox.Game.Entities.Cube
                 else
                 {
                     var settings = m_settings.GetGridPlacementSettings(grid, forceDynamicGrid ? false : grid.IsStatic);
-                    retval &= MyCubeGrid.TestPlacementAreaWithEntities(grid, forceDynamicGrid ? false : grid.IsStatic, ref settings, (BoundingBoxD)grid.PositionComp.LocalAABB, false);
+                    retval &= MyCubeGrid.TestPlacementArea(grid, forceDynamicGrid ? false : grid.IsStatic, ref settings, (BoundingBoxD)grid.PositionComp.LocalAABB, false);
                 }
 
                 if (grid.IsStatic && forceDynamicGrid)
@@ -1081,6 +1107,25 @@ namespace Sandbox.Game.Entities.Cube
         public virtual Matrix GetFirstGridOrientationMatrix()
         {
             return Matrix.CreateWorld(Vector3.Zero, m_pasteDirForward, m_pasteDirUp) * Matrix.CreateFromAxisAngle(m_pasteDirUp, m_pasteOrientationAngle);
+        }
+
+        public void AlignClipboardToGravity()
+        {
+            if (PreviewGrids.Count > 0)
+            {
+                Vector3 gravity = Sandbox.Game.GameSystems.MyGravityProviderSystem.CalculateGravityInPointForGrid(PreviewGrids[0].WorldMatrix.Translation);
+                if (gravity.LengthSquared() > 0.0001f)
+                {
+                    gravity.Normalize();
+
+                    Vector3 gridLeft = PreviewGrids[0].WorldMatrix.Left;
+                    Vector3 forward = Vector3.Cross(gravity, gridLeft);
+
+                    m_pasteDirForward = forward;
+                    m_pasteDirUp = -gravity;
+                    m_pasteOrientationAngle = 0f;
+                }
+            }
         }
 
         protected bool TrySnapToSurface(MyGridPlacementSettings.SnapMode snapMode)
@@ -1497,7 +1542,8 @@ namespace Sandbox.Game.Entities.Cube
 
         public virtual void MoveEntityFurther()
         {
-            m_dragDistance *= 1.1f;
+			var newDragDistance = m_dragDistance * 1.1f;
+            m_dragDistance = MathHelper.Clamp(newDragDistance, m_dragDistance, m_maxDragDistance);
         }
 
         public virtual void MoveEntityCloser()

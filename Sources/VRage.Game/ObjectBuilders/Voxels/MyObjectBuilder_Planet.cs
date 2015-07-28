@@ -33,5 +33,14 @@ namespace Sandbox.Common.ObjectBuilders.Voxels
         [ProtoMember]
         public float MaximumOxygen;
 
+        [ProtoMember]
+        public List<Vector3I> SavedEnviromentSectors;
+
+        [ProtoMember]
+        public float GravityFalloff;
+
+        [ProtoMember]
+        public bool MarkAreaEmpty;
+
     }
 }

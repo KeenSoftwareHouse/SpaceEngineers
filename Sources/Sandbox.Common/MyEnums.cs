@@ -28,15 +28,34 @@ namespace Sandbox.Common
         public static MyStringHash RIFLEBULLET = MyStringHash.GetOrCompute("RifleBullet");
         public static MyStringHash GUNBULLET   = MyStringHash.GetOrCompute("GunBullet");
         public static MyStringHash EXPBULLET   = MyStringHash.GetOrCompute("ExpBullet");
+        public static MyStringHash BOLT        = MyStringHash.GetOrCompute("Bolt");
     }
 
     
 
     public enum MyRelationsBetweenPlayerAndBlock
     {
+        // Nobody owns the block
+        NoOwnership,
+
+        // The player owns the block
         Owner,
+
+        // Someone from the player's faction owns the block and wants to share it with the player
         FactionShare,
+
+        // Someone from a neutral faction owns the block
         Neutral,
+
+        // Someone from an enemy faction owns the block
         Enemies
+    }
+
+    public static class MyRelationsBetweenPlayerAndBlockExtensions
+    {
+        public static bool IsFriendly(this MyRelationsBetweenPlayerAndBlock relations)
+        {
+            return relations == MyRelationsBetweenPlayerAndBlock.NoOwnership || relations == MyRelationsBetweenPlayerAndBlock.Owner || relations == MyRelationsBetweenPlayerAndBlock.FactionShare;
+        }
     }
 }

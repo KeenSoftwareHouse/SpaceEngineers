@@ -120,7 +120,7 @@ namespace Sandbox.Game.Entities
 
         public static HashSet<MyCubeGrid> StaticGrids                                   = new HashSet<MyCubeGrid>();
         private static List<MyLineSegmentOverlapResult<MyEntity>> m_lineOverlapList = new List<MyLineSegmentOverlapResult<MyEntity>>();
-        private static List<HkRigidBody> m_physicsBoxQueryList                      = new List<HkRigidBody>();
+        private static List<HkBodyCollision> m_physicsBoxQueryList                  = new List<HkBodyCollision>();
         private static Dictionary<Vector3I, MySlimBlock> m_tmpBoneSet               = new Dictionary<Vector3I, MySlimBlock>(Vector3I.Comparer);
         private static MyDisconnectHelper m_disconnectHelper                        = new MyDisconnectHelper();
         private static List<NeighborOffsetIndex> m_neighborOffsetIndices            = new List<NeighborOffsetIndex>(26);
@@ -141,6 +141,11 @@ namespace Sandbox.Game.Entities
         private static readonly List<Vector3I> m_tmpCubeNeighbours = new List<Vector3I>();
 
         private static readonly Type m_gridSystemsType = ChooseGridSystemsType();
+
+        private static List<Tuple<Vector3I, ushort>> m_tmpRazeList = new List<Tuple<Vector3I, ushort>>();
+        private static readonly List<Vector3I> m_tmpLocations = new List<Vector3I>();
+        private static HkBoxShape m_lastQueryBox = new HkBoxShape(Vector3.Zero);
+        private static MatrixD m_lastQueryTransform;
 
 
         public static void GetCubeParts(
@@ -358,12 +363,12 @@ namespace Sandbox.Game.Entities
                 Quaternion orientation = Base6Directions.GetOrientation(area.OrientationForward, area.OrientationUp);
                 Vector3I stepDir = area.StepDelta;
 
+				var mountPoints = definition.GetBuildProgressModelMountPoints(MyComponentStack.NewBlockIntegrity);
                 // Step 1: Add blocks which are connected directly to existing grid
                 for (int i = validOffsets.Count - 1; i >= 0; i--)
                 {
                     Vector3I center = area.PosInGrid + validOffsets[i] * stepDir;
-
-                    if (MyCubeGrid.CheckConnectivity(grid, definition, ref orientation, ref center))
+					if (MyCubeGrid.CheckConnectivity(grid, definition, mountPoints, ref orientation, ref center))
                     {
                         m_tmpAreaMountpointPass.Add(validOffsets[i]);
                         validOffsets.RemoveAtFast(i);
@@ -383,7 +388,7 @@ namespace Sandbox.Game.Entities
                     {
                         Vector3I center = area.PosInGrid + validOffsets[i] * stepDir;
 
-                        if (MyCubeGrid.CheckConnectivity(m_areaOverlapTest, definition, ref orientation, ref center))
+						if (MyCubeGrid.CheckConnectivity(m_areaOverlapTest, definition, mountPoints, ref orientation, ref center))
                         {
                             m_tmpAreaMountpointPass.Add(validOffsets[i]);
                             m_areaOverlapTest.AddBlock(validOffsets[i]);
@@ -425,7 +430,8 @@ namespace Sandbox.Game.Entities
                 //Quaternion quatFromMatrix = Quaternion.CreateFromRotationMatrix(result);
                 // Seems that quaternion multiplication is reversed to matrix multiplication!
                 ori = mergeOri * ori;
-                if (MyCubeGrid.CheckConnectivity(hitGrid, block.BlockDefinition, ref ori, ref pos))
+				var mountPoints = block.BlockDefinition.GetBuildProgressModelMountPoints(block.BuildLevelRatio);
+                if (MyCubeGrid.CheckConnectivity(hitGrid, block.BlockDefinition, mountPoints, ref ori, ref pos))
                     return true;
             }
 
@@ -437,16 +443,14 @@ namespace Sandbox.Game.Entities
         /// block in a given grid.
         /// </summary>
         /// <param name="grid">Grid in which the check is performed.</param>
-        /// <param name="def">Definition of cube block for checking.</param>
         /// <param name="rotation">Rotation of the cube block within grid.</param>
         /// <param name="position">Position of the cube block within grid.</param>
         /// <returns>True when there is a connectable neighbor connected by a mount point, otherwise false.</returns>
-        internal static bool CheckConnectivity(IMyGridConnectivityTest grid, MyCubeBlockDefinition def, ref Quaternion rotation, ref Vector3I position)
+        internal static bool CheckConnectivity(IMyGridConnectivityTest grid, MyCubeBlockDefinition def, MyCubeBlockDefinition.MountPoint[] mountPoints, ref Quaternion rotation, ref Vector3I position)
         {
             ProfilerShort.Begin("MyCubeBuilder.CheckMountPoints");
             try
             {
-                var mountPoints = def.MountPoints;
                 if (mountPoints == null)
                     return false;
 
@@ -541,8 +545,9 @@ namespace Sandbox.Game.Entities
                                     MyCompoundCubeBlock compoundBlock = neighbor.FatBlock as MyCompoundCubeBlock;
                                     foreach (var blockInCompound in compoundBlock.GetBlocks())
                                     {
-                                        if (CheckNeighborMountPointsForCompound(currentMin, currentMax, thisMountPoint, ref transformedNormal, def, neighbor.Position, blockInCompound.BlockDefinition, blockInCompound.Orientation,
-                                            m_cacheMountPointsA))
+										var blockInCompoundMountPoints = blockInCompound.BlockDefinition.GetBuildProgressModelMountPoints(blockInCompound.BuildLevelRatio);
+										if (CheckNeighborMountPointsForCompound(currentMin, currentMax, thisMountPoint, ref transformedNormal, def,
+																				neighbor.Position, blockInCompound.BlockDefinition, blockInCompoundMountPoints, blockInCompound.Orientation, m_cacheMountPointsA))
                                             return true;
                                     }
                                 }
@@ -568,14 +573,20 @@ namespace Sandbox.Game.Entities
                                 MyCompoundCubeBlock compoundBlock = neighbor.FatBlock as MyCompoundCubeBlock;
                                 foreach (var blockInCompound in compoundBlock.GetBlocks())
                                 {
-                                    if (CheckNeighborMountPoints(currentMin, currentMax, thisMountPoint, ref transformedNormal, def, neighbor.Position, blockInCompound.BlockDefinition, blockInCompound.Orientation,
-                                        m_cacheMountPointsA))
+									var blockInCompoundMountPoints = blockInCompound.BlockDefinition.GetBuildProgressModelMountPoints(blockInCompound.BuildLevelRatio);
+                                    if (CheckNeighborMountPoints(currentMin, currentMax, thisMountPoint, ref transformedNormal, def,
+																 neighbor.Position, blockInCompound.BlockDefinition, blockInCompoundMountPoints, blockInCompound.Orientation, m_cacheMountPointsA))
                                         return true;
                                 }
                             }
                             else
                             {
-                                if (CheckNeighborMountPoints(currentMin, currentMax, thisMountPoint, ref transformedNormal, def, neighbor.Position, neighbor.Definition, neighbor.Orientation, m_cacheMountPointsA))
+								var buildLevelRatio = 1.0f;
+								if(neighbor.FatBlock != null && neighbor.FatBlock.SlimBlock != null)
+									buildLevelRatio = neighbor.FatBlock.SlimBlock.BuildLevelRatio;
+								var neighborMountPoints = neighbor.Definition.GetBuildProgressModelMountPoints(buildLevelRatio);
+                                if (CheckNeighborMountPoints(currentMin, currentMax, thisMountPoint, ref transformedNormal, def,
+															 neighbor.Position, neighbor.Definition, neighborMountPoints, neighbor.Orientation, m_cacheMountPointsA))
                                     return true;
                             }
                         }
@@ -633,20 +644,24 @@ namespace Sandbox.Game.Entities
             }
         }
 
-        public static bool CheckNeighborMountPoints(Vector3 currentMin, Vector3 currentMax, MyCubeBlockDefinition.MountPoint thisMountPoint, ref Vector3I thisMountPointTransformedNormal,
-            MyCubeBlockDefinition myDefinition, Vector3I neighborPosition, MyCubeBlockDefinition neighborDefinition, MyBlockOrientation neighborOrientation, 
+        public static bool CheckNeighborMountPoints(
+			Vector3 currentMin, Vector3 currentMax, MyCubeBlockDefinition.MountPoint thisMountPoint, ref Vector3I thisMountPointTransformedNormal, MyCubeBlockDefinition thisDefinition,
+			Vector3I neighborPosition, MyCubeBlockDefinition neighborDefinition, MyCubeBlockDefinition.MountPoint[] neighborMountPoints, MyBlockOrientation neighborOrientation, 
             List<MyCubeBlockDefinition.MountPoint> otherMountPoints)
         {
+			if (!thisMountPoint.Enabled || thisDefinition.IsGeneratedBlock)
+				return false;
+
             var currentBox = new BoundingBox(currentMin - neighborPosition, currentMax - neighborPosition);
 
-            TransformMountPoints(otherMountPoints, neighborDefinition, ref neighborOrientation);
+            TransformMountPoints(otherMountPoints, neighborDefinition, neighborMountPoints, ref neighborOrientation);
 
             foreach (var otherMountPoint in otherMountPoints)
             {
                 // Skip mount points which exclude themselves (are not allowed to touch).
-                if (((thisMountPoint.ExclusionMask & otherMountPoint.PropertiesMask) != 0 ||
+                if ((((thisMountPoint.ExclusionMask & otherMountPoint.PropertiesMask) != 0 ||
                       (thisMountPoint.PropertiesMask & otherMountPoint.ExclusionMask) != 0) &&
-                    myDefinition.Id != neighborDefinition.Id)
+                    thisDefinition.Id != neighborDefinition.Id) || !otherMountPoint.Enabled || neighborDefinition.IsGeneratedBlock)
                     continue;
 
                 if (MyFakes.ENABLE_TEST_BLOCK_CONNECTIVITY_CHECK && (thisMountPointTransformedNormal + otherMountPoint.Normal != Vector3I.Zero))
@@ -660,20 +675,24 @@ namespace Sandbox.Game.Entities
             return false;
         }
 
-        public static bool CheckNeighborMountPointsForCompound(Vector3 currentMin, Vector3 currentMax, MyCubeBlockDefinition.MountPoint thisMountPoint, ref Vector3I thisMountPointTransformedNormal,
-            MyCubeBlockDefinition myDefinition, Vector3I neighborPosition, MyCubeBlockDefinition neighborDefinition, MyBlockOrientation neighborOrientation,
-            List<MyCubeBlockDefinition.MountPoint> otherMountPoints)
+		public static bool CheckNeighborMountPointsForCompound(
+			Vector3 currentMin, Vector3 currentMax, MyCubeBlockDefinition.MountPoint thisMountPoint, ref Vector3I thisMountPointTransformedNormal, MyCubeBlockDefinition thisDefinition,
+			Vector3I neighborPosition, MyCubeBlockDefinition neighborDefinition, MyCubeBlockDefinition.MountPoint[] neighborMountPoints, MyBlockOrientation neighborOrientation,
+			List<MyCubeBlockDefinition.MountPoint> otherMountPoints)
         {
+			if (!thisMountPoint.Enabled || thisDefinition.IsGeneratedBlock)
+				return false;
+
             var currentBox = new BoundingBox(currentMin - neighborPosition, currentMax - neighborPosition);
 
-            TransformMountPoints(otherMountPoints, neighborDefinition, ref neighborOrientation);
+			TransformMountPoints(otherMountPoints, neighborDefinition, neighborMountPoints, ref neighborOrientation);
 
             foreach (var otherMountPoint in otherMountPoints)
             {
                 // Skip mount points which exclude themselves (are not allowed to touch).
-                if (((thisMountPoint.ExclusionMask & otherMountPoint.PropertiesMask) != 0 ||
+                if ((((thisMountPoint.ExclusionMask & otherMountPoint.PropertiesMask) != 0 ||
                       (thisMountPoint.PropertiesMask & otherMountPoint.ExclusionMask) != 0) &&
-                    myDefinition.Id != neighborDefinition.Id)
+					thisDefinition.Id != neighborDefinition.Id) || !otherMountPoint.Enabled || neighborDefinition.IsGeneratedBlock)
                     continue;
 
                 // Check normals on compound side with the same direction (we are in the same block)
@@ -694,11 +713,14 @@ namespace Sandbox.Game.Entities
         /// definition, rotation and position in grid. Position has to be relative to same center. Also, normal relative to block A specifies
         /// wall which is used for checking.
         /// </summary>
-        public static bool CheckMountPointsForSide(MyCubeBlockDefinition defA, ref MyBlockOrientation orientationA, ref Vector3I positionA, ref Vector3I normalA,
-                                                   MyCubeBlockDefinition defB, ref MyBlockOrientation orientationB, ref Vector3I positionB)
+        public static bool CheckMountPointsForSide(MyCubeBlockDefinition defA, MyCubeBlockDefinition.MountPoint[] mountPointsA, ref MyBlockOrientation orientationA, ref Vector3I positionA, ref Vector3I normalA,
+                                                   MyCubeBlockDefinition defB, MyCubeBlockDefinition.MountPoint[] mountPointsB, ref MyBlockOrientation orientationB, ref Vector3I positionB)
         {
-            TransformMountPoints(m_cacheMountPointsA, defA, ref orientationA);
-            TransformMountPoints(m_cacheMountPointsB, defB, ref orientationB);
+			if (defA.IsGeneratedBlock || defB.IsGeneratedBlock)
+				return false;
+
+            TransformMountPoints(m_cacheMountPointsA, defA, mountPointsA, ref orientationA);
+            TransformMountPoints(m_cacheMountPointsB, defB, mountPointsB, ref orientationB);
             return CheckMountPointsForSide(m_cacheMountPointsA, ref orientationA, ref positionA, defA.Id, ref normalA, m_cacheMountPointsB, ref orientationB, ref positionB, defB.Id);
         }
 
@@ -715,6 +737,9 @@ namespace Sandbox.Game.Entities
             var normalB = -normalA;
             for (int i = 0; i < transormedA.Count; ++i)
             {
+				if(!transormedA[i].Enabled)
+					continue;
+
                 var mountPointA = transormedA[i];
                 if (mountPointA.Normal != normalA)
                     continue;
@@ -728,6 +753,8 @@ namespace Sandbox.Game.Entities
 
                 for (int j = 0; j < transormedB.Count; ++j)
                 {
+					if(!transormedB[j].Enabled)
+						continue;
                     var mountPointB = transormedB[j];
                     if (mountPointB.Normal != normalB)
                         continue;
@@ -1292,13 +1319,13 @@ namespace Sandbox.Game.Entities
             // Remove character hits.
             m_tmpHitList.RemoveAll(delegate(MyPhysics.HitInfo hit)
             {
-                return (hit.HkHitInfo.Body.GetEntity() == MySession.ControlledEntity.Entity);
+                return (hit.HkHitInfo.GetHitEntity() == MySession.ControlledEntity.Entity);
             });
 
             if (m_tmpHitList.Count == 0)
                 return null;
 
-            return m_tmpHitList[0].HkHitInfo.Body.GetEntity() as MyEntity;
+            return m_tmpHitList[0].HkHitInfo.GetHitEntity() as MyEntity;
         }
 
         public static bool TryRayCastGrid(ref LineD worldRay, out MyCubeGrid hitGrid, out Vector3D worldHitPos)
@@ -1308,7 +1335,7 @@ namespace Sandbox.Game.Entities
                 MyPhysics.CastRay(worldRay.From, worldRay.To, m_tmpHitList);
                 foreach (var hit in m_tmpHitList)
                 {
-                    var cubeGrid = hit.HkHitInfo.Body.GetEntity() as MyCubeGrid;
+                    var cubeGrid = hit.HkHitInfo.GetHitEntity() as MyCubeGrid;
                     if (cubeGrid == null)
                         continue;
 
@@ -1391,6 +1418,9 @@ namespace Sandbox.Game.Entities
                 Debug.Assert(m_physicsBoxQueryList.Count == 0, "List not cleared");
                 MyPhysics.GetPenetrationsBox(ref halfExtents, ref translation, ref rotation, m_physicsBoxQueryList, MyPhysics.CharacterCollisionLayer);
             }
+            m_lastQueryBox.HalfExtents = halfExtents;
+            m_lastQueryTransform = MatrixD.CreateFromQuaternion(rotation);
+            m_lastQueryTransform.Translation = translation;
 
             var worldMatrix = targetGrid != null ? targetGrid.WorldMatrix : MatrixD.Identity;
             return TestPlacementAreaInternal(targetGrid, ref settings, blockDefinition, blockOrientation, ref localAabb, ignoredEntity, ref worldMatrix, out touchingGrid);
@@ -1807,12 +1837,7 @@ namespace Sandbox.Game.Entities
                 return true;
             }
 
-            foreach (var block in targetGrid.GetBlocks())
-            {
-                if (IsInVoxels(block,false))
-                    return false;
-            }
-            return true;
+            return TestVoxelOverlap(ref settings, ref localAabb, ref worldMatrix, ref worldAabb, ref overlappedVoxelMap, touchingStaticGrid);
         }
 
         private static void TestGridPlacement(ref MyGridPlacementSettings settings, ref MatrixD worldMatrix, ref MyCubeGrid touchingGrid, float gridSize, bool isStatic, ref BoundingBoxD worldAabb, MyCubeBlockDefinition blockDefinition,
@@ -1878,16 +1903,16 @@ namespace Sandbox.Game.Entities
             bool entityOverlap = false;
             MyVoxelBase overlappedVoxelMap = null;
             bool touchingStaticGrid = false;
-            foreach (var rigidBody in m_physicsBoxQueryList)
+            foreach (var collison in m_physicsBoxQueryList)
             {
-                var entity = rigidBody.GetEntity();
+                var entity = collison.Body.GetEntity(0) as MyEntity;
                 if (entity == null)
                     continue;
 
-                if (ignoredEntity != null && (entity == ignoredEntity || entity.GetTopMostParent() == ignoredEntity))
+                if (entity.Physics.WeldInfo.Children.Count == 0 && ignoredEntity != null && (entity == ignoredEntity || entity.GetTopMostParent() == ignoredEntity))
                     continue;
 
-                var body = rigidBody.GetBody();
+                var body = entity.Physics;
                 if (body != null && body.IsPhantom)
                     continue;
 
@@ -1899,6 +1924,45 @@ namespace Sandbox.Game.Entities
                 }
 
                 var grid = entity as MyCubeGrid;
+				if (grid == null)
+				{
+					var subPart = entity as MyEntitySubpart;
+					if (subPart != null)
+					{
+						grid = subPart.GetTopMostParent() as MyCubeGrid;
+					}
+				}
+
+                if(entity.Physics.WeldInfo.Children.Count > 0)
+                {
+                    if(entity != ignoredEntity)
+                    {
+                        if(TestQueryIntersection(entity.Physics.GetShape(), entity.WorldMatrix))
+                        {
+                            entityOverlap = true;
+                            if(touchingGrid == null)
+                                touchingGrid = entity as MyCubeGrid;
+                            break;
+                        }
+                    }
+
+                    foreach(var child in entity.Physics.WeldInfo.Children)
+                    {
+                        if(child.Entity == ignoredEntity)
+                            continue;
+                        if(TestQueryIntersection(child.WeldedRigidBody.GetShape(), child.Entity.WorldMatrix))
+                        {
+                            if (touchingGrid == null)
+                                touchingGrid = child.Entity as MyCubeGrid;
+                            entityOverlap = true;
+                            break;
+                        }
+                    }
+                    if (entityOverlap)
+                        break;
+                    continue;
+                }
+
                 if (grid != null && ((isStatic && grid.IsStatic)
                     || (MyFakes.ENABLE_DYNAMIC_SMALL_GRID_MERGING && !isStatic && !grid.IsStatic && blockDefinition != null && blockDefinition.CubeSize == grid.GridSizeEnum)
                     || (MyFakes.ENABLE_BLOCK_PLACEMENT_ON_VOXEL && isStatic && grid.IsStatic && blockDefinition != null && blockDefinition.CubeSize == grid.GridSizeEnum)))
@@ -1927,6 +1991,17 @@ namespace Sandbox.Game.Entities
                 return false;
 
             return TestVoxelOverlap(ref settings, ref localAabb, ref worldMatrix, ref worldAabb, ref overlappedVoxelMap, touchingStaticGrid);
+        }
+
+        private static bool TestQueryIntersection(HkShape shape, MatrixD transform)
+        {
+            MatrixD transform1D = m_lastQueryTransform;
+            MatrixD transform2D = transform;
+            transform2D.Translation = transform2D.Translation - transform1D.Translation;
+            transform1D.Translation = Vector3D.Zero;
+            Matrix t1 = transform1D;
+            Matrix t2 = transform2D;
+            return MyPhysics.IsPenetratingShapeShape(m_lastQueryBox, ref t1, shape, ref t2);
         }
 
         private static bool TestVoxelOverlap(ref MyGridPlacementSettings settings, ref BoundingBoxD localAabb, ref MatrixD worldMatrix, ref BoundingBoxD worldAabb, ref MyVoxelBase overlappedVoxelMap, bool touchingStaticGrid)
@@ -2054,35 +2129,36 @@ namespace Sandbox.Game.Entities
         /// of the block.
         /// </summary>
         /// <param name="outMountPoints">Output buffer.</param>
-        /// <param name="performCorrection">True when you want to have correction performed for when rotation of fractional values would have different result than integers.</param>
-        public static void TransformMountPoints(List<MyCubeBlockDefinition.MountPoint> outMountPoints, MyCubeBlockDefinition def, ref MyBlockOrientation orientation)
+		/// <param name="performCorrection">True when you want to have correction performed for when rotation of fractional values would have different result than integers.</param>
+        public static void TransformMountPoints(List<MyCubeBlockDefinition.MountPoint> outMountPoints, MyCubeBlockDefinition def, MyCubeBlockDefinition.MountPoint[] mountPoints, ref MyBlockOrientation orientation)
         {
             Debug.Assert(outMountPoints != null);
 
             outMountPoints.Clear();
 
-            var defMountPoints = def.MountPoints;
-            if (defMountPoints == null)
+			if (mountPoints == null)
                 return;
 
             Matrix rotation;
             orientation.GetMatrix(out rotation);
 
-            var center = def.Center;
-            for (int i = 0; i < defMountPoints.Length; ++i)
+			var center = def.Center;
+			for (int i = 0; i < mountPoints.Length; ++i)
             {
+				var mountPoint = mountPoints[i];
                 var mp = new MyCubeBlockDefinition.MountPoint();
-                var centeredStart = defMountPoints[i].Start - center;
-                var centeredEnd = defMountPoints[i].End - center;
-                Vector3I.Transform(ref defMountPoints[i].Normal, ref rotation, out mp.Normal);
+				var centeredStart = mountPoint.Start - center;
+				var centeredEnd = mountPoint.End - center;
+				Vector3I.Transform(ref mountPoint.Normal, ref rotation, out mp.Normal);
                 Vector3.Transform(ref centeredStart, ref rotation, out mp.Start);
                 Vector3.Transform(ref centeredEnd, ref rotation, out mp.End);
-                mp.ExclusionMask = defMountPoints[i].ExclusionMask;
-                mp.PropertiesMask = defMountPoints[i].PropertiesMask;
+				mp.ExclusionMask = mountPoint.ExclusionMask;
+				mp.PropertiesMask = mountPoint.PropertiesMask;
+				mp.Enabled = mountPoint.Enabled;
 
                 // Correction of situations when 0.5 would get transformed to -0.5, resulting in different floor() (integer 0 is transformed to 0).
-                var startICorrect = Vector3I.Floor(defMountPoints[i].Start) - center;
-                var endICorrect = Vector3I.Floor(defMountPoints[i].End) - center;
+				var startICorrect = Vector3I.Floor(mountPoint.Start) - center;
+				var endICorrect = Vector3I.Floor(mountPoint.End) - center;
                 Vector3I.Transform(ref startICorrect, ref rotation, out startICorrect);
                 Vector3I.Transform(ref endICorrect, ref rotation, out endICorrect);
 

@@ -186,6 +186,8 @@ namespace Sandbox.Common.ObjectBuilders.Definitions
             [XmlAttribute, ProtoMember, DefaultValue(0)]
             public byte PropertiesMask = 0;
 
+			[XmlAttribute, ProtoMember, DefaultValue(true)]
+			public bool Enabled = true;
         }
 
         [ProtoContract]
@@ -284,6 +286,15 @@ namespace Sandbox.Common.ObjectBuilders.Definitions
             [XmlAttribute]
             [ProtoMember, DefaultValue(false)]
             public bool RandomOrientation;
+
+			[ProtoMember]
+			[XmlArray("MountPointOverrides")]
+			[XmlArrayItem("MountPoint"), DefaultValue(null)]
+			public MountPoint[] MountPoints;
+
+            [XmlAttribute]
+            [ProtoMember, DefaultValue(true)]
+            public bool Visible = true;
         }
 
         [ProtoContract]
@@ -325,6 +336,17 @@ namespace Sandbox.Common.ObjectBuilders.Definitions
             public SerializableDefinitionId Id;
         }
 
+        [ProtoContract]
+        public class EntityComponentDefinition
+        {
+            [XmlAttribute]
+            [ProtoMember]
+            public string ComponentType;
+
+            [XmlAttribute]
+            [ProtoMember]
+            public string BuilderType;
+        }
 
         [ProtoMember]
         public MyCubeSize CubeSize;
@@ -357,6 +379,10 @@ namespace Sandbox.Common.ObjectBuilders.Definitions
 
         [ProtoMember]
         public Variant[] Variants;
+
+        [XmlArrayItem("Component")]
+        [ProtoMember]
+        public EntityComponentDefinition[] EntityComponents;
 
         [ProtoMember, DefaultValue(MyPhysicsOption.Box)]
         public MyPhysicsOption PhysicsOption = MyPhysicsOption.Box;
@@ -471,6 +497,12 @@ namespace Sandbox.Common.ObjectBuilders.Definitions
 
         [ProtoMember, DefaultValue(0)]
         public int MaxIntegrity = 0;
+
+        [ProtoMember, DefaultValue(1)]
+        public float BuildProgressToPlaceGeneratedBlocks = 1;
+
+        [ProtoMember, DefaultValue(null)]
+        public string DamagedSound;
 
     }
 }

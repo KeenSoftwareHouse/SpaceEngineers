@@ -135,7 +135,7 @@ namespace Sandbox.Game.Gui
 
             BoundingBoxD renderCellAABB, geometryCellAABB, voxelAABB;
             MyCellCoord tmp = new MyCellCoord();
-            MyVoxelCoordSystems.WorldPositionToRenderCellCoord(targetVoxelMap.PositionLeftBottomCorner, ref targetPosition, out tmp.CoordInLod);
+            MyVoxelCoordSystems.WorldPositionToRenderCellCoord(0, targetVoxelMap.PositionLeftBottomCorner, ref targetPosition, out tmp.CoordInLod);
             MyVoxelCoordSystems.RenderCellCoordToWorldAABB(targetVoxelMap.PositionLeftBottomCorner, ref tmp, out renderCellAABB);
 
             MyVoxelCoordSystems.WorldPositionToGeometryCellCoord(targetVoxelMap.PositionLeftBottomCorner, ref targetPosition, out tmp.CoordInLod);

@@ -627,11 +627,11 @@ namespace Sandbox.Definitions
                 InitDecals(context, objBuilder.Decals, failOnDebug);
             }
 
-            if (objBuilder.PlanetDefinitions != null)
+            if (objBuilder.PlanetGeneratorDefinitions != null)
             {
                 MySandboxGame.Log.WriteLine("Loading battle definition");
                 Check(failOnDebug, "Battle", failOnDebug, WARNING_ON_REDEFINITION_MESSAGE);
-                InitPlanetDefinitions(context, ref definitionSet.m_planetDefinitions, objBuilder.PlanetDefinitions, failOnDebug);
+                InitPlanetGeneratorDefinitions(context, ref definitionSet.m_moonGeneratorDefinitions,ref definitionSet.m_planetGeneratorDefinitions, objBuilder.PlanetGeneratorDefinitions, failOnDebug);
             }
 
             if (objBuilder.FloraElements != null)
@@ -641,9 +641,16 @@ namespace Sandbox.Definitions
                 InitGenericObjects(context, definitionSet.m_definitionsById, objBuilder.FloraElements, failOnDebug);
             }
 
+			if (objBuilder.StatGroupDefinitions != null)
+			{
+				MySandboxGame.Log.WriteLine("Loading stat group definitions");
+				Check(failOnDebug, "StatGroupDefinition", failOnDebug, WARNING_ON_REDEFINITION_MESSAGE);
+				InitGenericObjects(context, definitionSet.m_definitionsById, objBuilder.StatGroupDefinitions, failOnDebug);
+			}
+
 			if (objBuilder.StatDefinitions != null)
 			{
-				MySandboxGame.Log.WriteLine("Loading stats definitions");
+				MySandboxGame.Log.WriteLine("Loading stat definitions");
 				Check(failOnDebug, "Stat", failOnDebug, WARNING_ON_REDEFINITION_MESSAGE);
 				InitGenericObjects(context, definitionSet.m_definitionsById, objBuilder.StatDefinitions, failOnDebug);
 			}
@@ -659,6 +666,13 @@ namespace Sandbox.Definitions
             {
                 MySandboxGame.Log.WriteLine("Loading component block definitions");
                 InitComponentBlocks(context, definitionSet.m_componentBlockEntries, objBuilder.ComponentBlocks, failOnDebug);
+            }
+
+            if (objBuilder.PlanetPrefabs != null)
+            {
+                MySandboxGame.Log.WriteLine("Loading flora elements definitions");
+                Check(failOnDebug, "Flora", failOnDebug, WARNING_ON_REDEFINITION_MESSAGE);
+                InitPlanetPrefabDefinitions(context,ref definitionSet.m_planetPrefabDefinitions, objBuilder.PlanetPrefabs, failOnDebug);
             }
         }
 
@@ -912,6 +926,17 @@ namespace Sandbox.Definitions
                 var type = MyObjectBuilderType.Parse(entry.Type);
                 MyDefinitionId blockDefinitionId = new MyDefinitionId(type, entry.Subtype);
                 m_definitions.m_componentBlocks.Add(blockDefinitionId);
+
+                if (entry.Main)
+                {
+                    MyCubeBlockDefinition blockDef = null;
+                    TryGetCubeBlockDefinition(blockDefinitionId, out blockDef);
+                    
+                    if (blockDef.Components.Length == 1 && blockDef.Components[0].Count == 1)
+                    {
+                        m_definitions.m_componentIdToBlock[blockDef.Components[0].Definition.Id] = blockDef;
+                    }
+                }
             }
 
             m_definitions.m_componentBlockEntries.Clear();
@@ -1845,19 +1870,33 @@ namespace Sandbox.Definitions
             }
         }
 
-        private void InitPlanetDefinitions(MyModContext context, ref DefinitionDictionary<MyPlanetDefinition> m_planetDefinitions, MyObjectBuilder_PlanetDefinition[] planets, bool failOnDebug)
+        private void InitPlanetGeneratorDefinitions(MyModContext context,ref DefinitionDictionary<MyPlanetGeneratorDefinition> m_moonDefinitions,  ref DefinitionDictionary<MyPlanetGeneratorDefinition> m_planetDefinitions, MyObjectBuilder_PlanetGeneratorDefinition[] planets, bool failOnDebug)
         {
             foreach (var planet in planets)
             {
-                var planetDefinition = InitDefinition<MyPlanetDefinition>(context, planet);
+                var planetDefinition = InitDefinition<MyPlanetGeneratorDefinition>(context, planet);
                 var id = planetDefinition.Id;
                 if (planetDefinition.Enabled)
                 {
-                    m_planetDefinitions[id] = planetDefinition;
+                    if (planetDefinition.IsMoonDefinition)
+                    {
+                        m_moonDefinitions[id] = planetDefinition;
+                    }
+                    else
+                    {
+                        m_planetDefinitions[id] = planetDefinition;
+                    }
                 }
                 else
                 {
-                    m_planetDefinitions.Remove(id);
+                    if (planetDefinition.IsMoonDefinition)
+                    {
+                        m_moonDefinitions.Remove(id);
+                    }
+                    else
+                    {
+                        m_planetDefinitions.Remove(id);
+                    }
                 }
      
             }
@@ -1884,9 +1923,63 @@ namespace Sandbox.Definitions
             }
         }
 
+        private void InitPlanetPrefabDefinitions(MyModContext context, ref DefinitionDictionary<MyPlanetPrefabDefinition> m_planetDefinitions, MyObjectBuilder_PlanetPrefabDefinition[] planets, bool failOnDebug)
+        {
+            foreach (var planet in planets)
+            {
+                var planetDefinition = InitDefinition<MyPlanetPrefabDefinition>(context, planet);
+                var id = planetDefinition.Id;
+                if (planetDefinition.Enabled)
+                {
+                    m_planetDefinitions[id] = planetDefinition;
+                }
+                else
+                {
+                    m_planetDefinitions.Remove(id);
+                }
+
+            }
+        }
+
         public bool IsComponentBlock(MyDefinitionId blockDefinitionId)
         {
             return m_definitions.m_componentBlocks.Contains(blockDefinitionId);
+        }
+
+        public MyDefinitionId GetComponentId(MyCubeBlockDefinition blockDefinition)
+        {
+            var components = blockDefinition.Components;
+
+            if (components == null || components.Length == 0)
+                return new MyDefinitionId();
+
+            return components[0].Definition.Id;
+        }
+
+        public MyDefinitionId GetComponentId(MyDefinitionId blockId)
+        {
+            MyCubeBlockDefinition blockDefinition = null;
+            if (!TryGetCubeBlockDefinition(blockId, out blockDefinition))
+                return new MyDefinitionId();
+
+            return GetComponentId(blockDefinition);
+        }
+
+        public MyCubeBlockDefinition TryGetComponentBlockDefinition(MyDefinitionId componentDefId)
+        {
+            MyCubeBlockDefinition retval = null;
+            m_definitions.m_componentIdToBlock.TryGetValue(componentDefId, out retval);
+            return retval;
+        }
+
+        public MyCubeBlockDefinition GetComponentBlockDefinition(MyDefinitionId componentDefId)
+        {
+            MyCubeBlockDefinition retval = null;
+            m_definitions.m_componentIdToBlock.TryGetValue(componentDefId, out retval);
+
+            Debug.Assert(retval != null, "Could not find a block that contains component " + componentDefId + "!");
+
+            return retval;
         }
 
         public DictionaryValuesReader<string, MyCharacterDefinition> Characters
@@ -2355,6 +2448,13 @@ namespace Sandbox.Definitions
         {
             MyRespawnShipDefinition def;
             m_definitions.m_respawnShips.TryGetValue(id, out def);
+
+            if (def == null) return null;
+
+            var prefabDef = def.Prefab;
+            Debug.Assert(prefabDef != null, "Prefab definition in respawn ship definition is null!");
+            if (prefabDef == null) return null;
+
             return def;
         }
 
@@ -2375,7 +2475,7 @@ namespace Sandbox.Definitions
                     MyPrefabDefinition definition = GetPrefabDefinition(prefab.Id.SubtypeId);
                     if (definition != null)
                     {
-                        definition.Init(prefab,definition.Context);
+                        definition.InitLazy(prefab);
                     }
                 }
             }
@@ -2625,10 +2725,21 @@ namespace Sandbox.Definitions
             }
         }
 
-        public DictionaryValuesReader<MyDefinitionId, MyPlanetDefinition> GetPlanetsDefinitions()
+        public DictionaryValuesReader<MyDefinitionId, MyPlanetGeneratorDefinition> GetPlanetsGeneratorsDefinitions()
         {
-            return new DictionaryValuesReader<MyDefinitionId, MyPlanetDefinition>(m_definitions.m_planetDefinitions);
+            return new DictionaryValuesReader<MyDefinitionId, MyPlanetGeneratorDefinition>(m_definitions.m_planetGeneratorDefinitions);
         }
+
+        public DictionaryValuesReader<MyDefinitionId, MyPlanetGeneratorDefinition> GetMoonsGeneratorsDefinitions()
+        {
+            return new DictionaryValuesReader<MyDefinitionId, MyPlanetGeneratorDefinition>(m_definitions.m_moonGeneratorDefinitions);
+        }
+
+        public DictionaryValuesReader<MyDefinitionId, MyPlanetPrefabDefinition> GetPlanetsPrefabsDefinitions()
+        {
+            return new DictionaryValuesReader<MyDefinitionId, MyPlanetPrefabDefinition>(m_definitions.m_planetPrefabDefinitions);
+        }
+
         public MyComponentGroupDefinition GetComponentGroup(MyDefinitionId groupDefId)
         {
             MyComponentGroupDefinition group = null;

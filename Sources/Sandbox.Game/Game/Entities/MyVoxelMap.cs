@@ -212,8 +212,6 @@ namespace Sandbox.Game.Entities
         protected override void BeforeDelete()
         {
             base.BeforeDelete();
-            // mk:TODO Get rid of this check. Should be separate type for subparts of planets.
-
             (Render as MyRenderComponentVoxelMap).CancelAllRequests();
             m_storage = null;
             MySession.Static.VoxelMaps.RemoveVoxelMap(this);

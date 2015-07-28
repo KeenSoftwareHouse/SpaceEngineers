@@ -62,14 +62,14 @@ namespace Sandbox.Game.Multiplayer
             MyEntities.TryGetEntityById(msg.EntityId, out entity);
             if (entity is MyDoor)
             {
-                MyRelationsBetweenPlayerAndBlock relation = MyRelationsBetweenPlayerAndBlock.FactionShare;
+                MyRelationsBetweenPlayerAndBlock relation = MyRelationsBetweenPlayerAndBlock.NoOwnership;
                 var cubeBlock = entity as MyCubeBlock;
                 if (cubeBlock != null)
                 {
                     relation = cubeBlock.GetUserRelationToOwner(msg.PlayerId);
                 }
 
-                if (relation == MyRelationsBetweenPlayerAndBlock.FactionShare || relation == MyRelationsBetweenPlayerAndBlock.Owner)
+                if (relation.IsFriendly())
                 {
                     Sync.Layer.SendMessageToAllAndSelf(ref msg, MyTransportMessageEnum.Success);
                 }

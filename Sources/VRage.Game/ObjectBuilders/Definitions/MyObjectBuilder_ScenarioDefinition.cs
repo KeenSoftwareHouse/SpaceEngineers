@@ -165,7 +165,7 @@ namespace Sandbox.Common.ObjectBuilders.Definitions
 
         [ProtoMember]
         public SerializableVector3 Offset;
-        public bool ShouldSerializeOffset() { return Offset != Vector3.Zero; }
+        public bool ShouldSerializeOffset() { return Offset != new SerializableVector3(0f, 0f, 0f); }
 
         [ProtoMember, XmlAttribute]
         public string AsteroidName;
@@ -174,6 +174,17 @@ namespace Sandbox.Common.ObjectBuilders.Definitions
         public string BeaconName;
         public bool ShouldSerializeBeaconName() { return !string.IsNullOrEmpty(BeaconName); }
 
+    }
+
+    [MyObjectBuilderDefinition]
+    [XmlType("AddPlanetPrefab")]
+    public class MyObjectBuilder_WorldGeneratorOperation_AddPlanetPrefab : MyObjectBuilder_WorldGeneratorOperation
+    {
+        [ProtoMember, XmlAttribute]
+        public string PrefabFile;
+
+        [ProtoMember, XmlAttribute]
+        public string Name;
     }
 
 

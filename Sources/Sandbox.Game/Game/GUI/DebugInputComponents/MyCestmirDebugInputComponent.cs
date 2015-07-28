@@ -233,6 +233,21 @@ namespace Sandbox.Game.Gui
         }
         private static List<DebugDrawPoint> DebugDrawPoints = new List<DebugDrawPoint>();
 
+        private struct DebugDrawSphere
+        {
+            public Vector3D Position;
+            public float Radius;
+            public Color Color;
+        }
+        private static List<DebugDrawSphere> DebugDrawSpheres = new List<DebugDrawSphere>();
+
+        private struct DebugDrawBox
+        {
+            public BoundingBoxD Box;
+            public Color Color;
+        }
+        private static List<DebugDrawBox> DebugDrawBoxes = new List<DebugDrawBox>();
+
         private static MyWingedEdgeMesh DebugDrawMesh = null;
         private static List<MyPolygon> DebugDrawPolys = new List<MyPolygon>();
 
@@ -316,7 +331,7 @@ namespace Sandbox.Game.Gui
 
             for (int i = 0; i < hitList.Count; ++i)
             {
-                var hitGrid = hitList[i].HkHitInfo.Body.GetEntity() as MyCubeGrid;
+                var hitGrid = hitList[i].HkHitInfo.GetHitEntity() as MyCubeGrid;
                 if (hitGrid != null)
                 {
                     var builder = hitGrid.GetObjectBuilder() as MyObjectBuilder_CubeGrid;
@@ -1202,7 +1217,7 @@ namespace Sandbox.Game.Gui
             if (hitList.Count > 0)
             {
                 firstHit = hitList[0].Position;
-                entity = hitList[0].HkHitInfo.Body.GetEntity();
+                entity = hitList[0].HkHitInfo.GetHitEntity();
             }
             else
             {
@@ -1219,6 +1234,26 @@ namespace Sandbox.Game.Gui
         public static void ClearDebugPoints()
         {
             DebugDrawPoints.Clear();
+        }
+
+        public static void AddDebugSphere(Vector3D position, float radius, Color color)
+        {
+            DebugDrawSpheres.Add(new DebugDrawSphere() { Position = position, Radius = radius, Color = color });
+        }
+
+        public static void ClearDebugSpheres()
+        {
+            DebugDrawSpheres.Clear();
+        }
+
+        public static void AddDebugBox(BoundingBoxD box, Color color)
+        {
+            DebugDrawBoxes.Add(new DebugDrawBox() { Box = box, Color = color });
+        }
+
+        public static void ClearDebugBoxes()
+        {
+            DebugDrawBoxes.Clear();
         }
 
         public override void Draw()
@@ -1277,6 +1312,16 @@ namespace Sandbox.Game.Gui
             {
                 //VRageRender.MyRenderProxy.DebugDrawSphere(point.Position, 0.05f, point.Color.ToVector3(), 1.0f, false);
                 VRageRender.MyRenderProxy.DebugDrawSphere(point.Position, 0.03f, point.Color, 1.0f, false);
+            }
+
+            foreach (var sphere in DebugDrawSpheres)
+            {
+                VRageRender.MyRenderProxy.DebugDrawSphere(sphere.Position, sphere.Radius, sphere.Color, 1.0f, false);
+            }
+
+            foreach (var box in DebugDrawBoxes)
+            {
+                VRageRender.MyRenderProxy.DebugDrawAABB(box.Box, box.Color, 1.0f, 1.0f, false);
             }
 
             VRageRender.MyRenderProxy.DebugDrawText2D(new Vector2(300.0f, 0.0f), "Test index: " + m_prevTestIndex.ToString() + "/" + (m_testList == null ? "-" : m_testList.Count.ToString()) + ", Test operation: " + m_prevTestOperation.ToString(), Color.Red, 1.0f);

@@ -112,6 +112,11 @@ namespace Sandbox.Game.Entities
             }
         }
 
+		public static float NewBlockIntegrity
+		{
+			get { return (MySession.Static.SurvivalMode ? MOUNT_THRESHOLD : 1.0f); }
+		}
+
         /// <summary>
         /// Component stack is functional when critical part is not destroyed (integrity > 0).
         /// IMPORTANT: When you change the logic beyond this property, don't forget to call CheckFunctionalState every time the
@@ -405,10 +410,10 @@ namespace Sandbox.Game.Entities
             for (int group = 0; group < topGroup; ++group)
             {
                 MyCubeBlockDefinition.Component component = blockDef.Components[group];
-                addToList.AddMaterial(component.Definition.Id, component.Count, addToDisplayList: false);
+                addToList.AddMaterial(component.Definition.Id, component.Count, component.Count, addToDisplayList: false);
             }
             componentId = blockDef.Components[topGroup].Definition.Id;
-            addToList.AddMaterial(componentId, mountCount, addToDisplayList: false);
+            addToList.AddMaterial(componentId, mountCount, mountCount, addToDisplayList: false);
         }
 
         public void IncreaseMountLevel(float mountAmount, MyConstructionStockpile stockpile = null)
@@ -504,6 +509,11 @@ namespace Sandbox.Game.Entities
             UnmountInternal(damage, outputStockpile, true);
         }
 
+		private float GetDeconstructionEfficiency(int groupIndex, bool damageItems)
+		{
+			return (damageItems ? 1 : m_blockDefinition.Components[groupIndex].Definition.DeconstructionEfficiency);
+		}
+
         private void UnmountInternal(float unmountAmount, MyConstructionStockpile outputStockpile = null, bool damageItems = false)
         {
             // We don't have to update functional state in this function, because it is done in the caller functions.
@@ -516,7 +526,7 @@ namespace Sandbox.Game.Entities
             // Continue removing components, until the to be removed component's health is larger than unmountAmount
             MyObjectBuilder_Component componentBuilder = null;
             var scrapBuilder = MyFloatingObject.ScrapBuilder;
-			while (unmountAmount * m_blockDefinition.Components[groupIndex].Definition.DeconstructionEfficiency >= topIntegrity)
+			while (unmountAmount * GetDeconstructionEfficiency(groupIndex, damageItems) >= topIntegrity)
             {
                 Integrity -= topIntegrity;
                 unmountAmount -= topIntegrity;
@@ -569,8 +579,8 @@ namespace Sandbox.Game.Entities
             }
 
             // Damage the remaining component
-            Integrity -= unmountAmount * m_blockDefinition.Components[groupIndex].Definition.DeconstructionEfficiency;
-			topIntegrity -= unmountAmount * m_blockDefinition.Components[groupIndex].Definition.DeconstructionEfficiency;
+			Integrity -= unmountAmount * GetDeconstructionEfficiency(groupIndex, damageItems);
+			topIntegrity -= unmountAmount * GetDeconstructionEfficiency(groupIndex, damageItems);
 
             if (topIntegrity < MOUNT_THRESHOLD)
             {

@@ -40,7 +40,7 @@ namespace Sandbox.Game.Gui
         MyGuiControlSlider m_UIBkTransparencySlider;
         private MyGuiControlButton m_localizationWebButton;
         private MyGuiControlLabel m_localizationWarningLabel;
-        private OptionsGameSettings m_settings = new OptionsGameSettings();
+        private OptionsGameSettings m_settings = new OptionsGameSettings() { UITransparency = 1.0f, UIBkTransparency = 1.0f };
 
         public MyGuiScreenOptionsGame()
             : base(new Vector2(0.5f, 0.5f), MyGuiConstants.SCREEN_BACKGROUND_COLOR, size: new Vector2(0.51f, 0.9f), backgroundTransition: MySandboxGame.Config.UIBkTransparency, guiTransition: MySandboxGame.Config.UITransparency)
@@ -213,7 +213,7 @@ namespace Sandbox.Game.Gui
                 Position = controlsOriginRight + rowIndex * controlsDelta,
                 OriginAlign = rightAlign,
             };
-            m_UITransparencySlider.ValueChanged += sliderChanged;
+            
 
             rowIndex++;
             var UIBkTransparencyLabel = new MyGuiControlLabel(text: MyTexts.GetString(MySpaceTexts.ScreenOptionsGame_UIBkTransparency))
@@ -227,7 +227,7 @@ namespace Sandbox.Game.Gui
                 Position = controlsOriginRight + rowIndex * controlsDelta,
                 OriginAlign = rightAlign,
             };
-            m_UIBkTransparencySlider.ValueChanged += sliderChanged;
+            
 
             //  Buttons OK and CANCEL
             var buttonOk = new MyGuiControlButton(text: MyTexts.Get(MySpaceTexts.Ok), onButtonClick: OnOkClick);
@@ -266,6 +266,9 @@ namespace Sandbox.Game.Gui
 
             //  Update controls with values from config file
             UpdateControls(constructor);
+
+            m_UITransparencySlider.ValueChanged += sliderChanged;
+            m_UIBkTransparencySlider.ValueChanged += sliderChanged;
 
             CloseButtonEnabled = true;
         }

@@ -35,8 +35,12 @@ using Sandbox.Game;
 using Sandbox;
 using Sandbox.Game.Localization;
 using Sandbox.Game.Screens.Terminal.Controls;
+using System.Collections.Generic;
+using System.Linq;
+using VRage.Components;
+using Sandbox.ModAPI;
 
-namespace SpaceEngineers.Game.Entities.Blocks
+namespace Sandbox.Game.Entities.Cube
 {
     [MyCubeBlockType(typeof(MyObjectBuilder_MedicalRoom))]
     public class MyMedicalRoom : MyFunctionalBlock, IMyRechargeSocketOwner, IMyPowerConsumer, IMyMedicalRoom, IMyOxygenConsumer
@@ -124,6 +128,8 @@ namespace SpaceEngineers.Game.Entities.Blocks
         private new SyncClass SyncObject;
 
         protected bool m_takeSpawneeOwnership = false;
+        protected bool m_setFactionToSpawnee = false;
+        public bool SetFactionToSpawnee { get { return m_setFactionToSpawnee; } }
 
         //obsolete, use IDModule
         private ulong SteamUserId { get; set; }
@@ -160,6 +166,14 @@ namespace SpaceEngineers.Game.Entities.Blocks
             MyTerminalControlFactory.AddControl(label);
             MyTerminalControlFactory.AddControl(ownershipCheckbox);
 
+            var factionCheckbox = new MyTerminalControlCheckbox<MyMedicalRoom>("SetFaction", MySpaceTexts.MedicalRoom_factionAssignmentLabel, MySpaceTexts.MedicalRoom_factionAssignmentTooltip);
+            factionCheckbox.Getter = (x) => x.m_setFactionToSpawnee;
+            factionCheckbox.Setter = (x, val) =>
+            {
+                x.m_setFactionToSpawnee = val;
+            };
+            factionCheckbox.Enabled = (x) => MySession.Static.Settings.ScenarioEditMode;
+            MyTerminalControlFactory.AddControl(factionCheckbox);
         }
 
         public MyMedicalRoom()
@@ -210,6 +224,7 @@ namespace SpaceEngineers.Game.Entities.Blocks
             SteamUserId = 0;
 
             m_takeSpawneeOwnership = (objectBuilder as MyObjectBuilder_MedicalRoom).TakeOwnership;
+            m_setFactionToSpawnee = (objectBuilder as MyObjectBuilder_MedicalRoom).SetFaction;
 
             SyncObject = new SyncClass(this);
 
@@ -225,6 +240,9 @@ namespace SpaceEngineers.Game.Entities.Blocks
             PowerReceiver.IsPoweredChanged += Receiver_IsPoweredChanged;
             PowerReceiver.Update();
             AddDebugRenderComponent(new MyDebugRenderComponentDrawPowerReciever(PowerReceiver, this));
+
+            if (this.CubeGrid.CreatePhysics)
+                Components.Add<MyRespawnComponent>(new MyRespawnComponent());
         }
 
         private void Receiver_IsPoweredChanged()
@@ -254,6 +272,8 @@ namespace SpaceEngineers.Game.Entities.Blocks
             builder.IdleSound = m_idleSound.ToString();
             builder.ProgressSound = m_progressSound.ToString();
             builder.TakeOwnership = m_takeSpawneeOwnership;
+            builder.SetFaction = m_setFactionToSpawnee;
+
             return builder;
         }
 
@@ -305,7 +325,7 @@ namespace SpaceEngineers.Game.Entities.Blocks
         public void Use(UseActionEnum actionEnum, MyCharacter user)
         {
             var relation = GetUserRelationToOwner(user.ControllerInfo.Controller.Player.Identity.IdentityId);
-            if (relation != MyRelationsBetweenPlayerAndBlock.Owner && relation != MyRelationsBetweenPlayerAndBlock.FactionShare)
+            if (!relation.IsFriendly())
             {
                 if (user.ControllerInfo.Controller.Player == MySession.LocalHumanPlayer)
                 {
@@ -375,7 +395,8 @@ namespace SpaceEngineers.Game.Entities.Blocks
 
             if (IsWorking)
             {
-                m_user.AddHealth(0.075f);
+				if (m_user.StatComp != null)
+					m_user.StatComp.DoAction("MedRoomHeal");
             }
         }
 
@@ -464,10 +485,49 @@ namespace SpaceEngineers.Game.Entities.Blocks
             m_user.SuitOxygenAmount += amount;
         }
 
+        public void TrySetFaction(MyPlayer player)
+        {
+            if (MySession.Static.IsScenario && m_setFactionToSpawnee && Sync.IsServer && OwnerId != 0)
+            {
+                //if (null != MySession.Static.Factions.TryGetPlayerFaction(player.Identity.IdentityId))
+                //    return;
+                IMyFaction faction = MySession.Static.Factions.TryGetPlayerFaction(this.OwnerId);
+                if (faction == null)
+                    return;
+                MyFactionCollection.SendJoinRequest(faction.FactionId, player.Identity.IdentityId);
+                if (!faction.AutoAcceptMember)
+                    MyFactionCollection.AcceptJoin(faction.FactionId, player.Identity.IdentityId);
+            }
+        }
+
         public void TryTakeSpawneeOwnership(MyPlayer player)
         {
             if (MySession.Static.IsScenario && m_takeSpawneeOwnership && Sync.IsServer && OwnerId == 0)
                 ChangeBlockOwnerRequest(player.Identity.IdentityId, MyOwnershipShareModeEnum.None);
         }
+
+        public static int AvailableMedicalRoomsCount(long playerId)
+        {
+            int ret = 0;
+            List<MyCubeGrid> cubeGrids = MyEntities.GetEntities().OfType<MyCubeGrid>().ToList();
+
+            foreach (var grid in cubeGrids)
+            {
+                grid.GridSystems.UpdatePower();
+                foreach (var slimBlock in grid.GetBlocks())
+                {
+                    MyMedicalRoom medicalRoom = slimBlock.FatBlock as MyMedicalRoom;
+                    if (medicalRoom != null)
+                    {
+                        medicalRoom.UpdateIsWorking();
+                        if (medicalRoom.IsWorking && medicalRoom.HasPlayerAccess(playerId))
+                            ret++;
+                    }
+
+                }
+            }
+            return ret;
+        }
+
     }
 }

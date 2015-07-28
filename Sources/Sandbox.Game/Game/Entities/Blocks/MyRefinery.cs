@@ -94,8 +94,8 @@ namespace Sandbox.Game.Entities.Cube
         {
             UpdateDetailedInfo();
         }
-        
-        private void inventory_OnContentsChanged(MyInventory inv)
+
+        private void inventory_OnContentsChanged(MyInventoryBase inv)
         {
             if (m_processingLock)
                 return;

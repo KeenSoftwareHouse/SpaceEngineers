@@ -343,6 +343,7 @@
     <Compile Include="Serialization\SerializableVector3I.cs" />
     <Compile Include="Serialization\SerializableVector3UByte.cs" />
     <Compile Include="SpriteEnums.cs" />
+    <Compile Include="Utils\MyDiscreteSampler.cs" />
     <Compile Include="Utils\MyStringHash.cs" />
     <Compile Include="Utils\MyPolygonBoolOps-Operations.cs" />
     <Compile Include="Utils\MyCopyDataStructures.cs" />

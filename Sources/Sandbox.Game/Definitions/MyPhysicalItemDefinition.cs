@@ -15,7 +15,7 @@ namespace Sandbox.Definitions
         public MyStringId? IconSymbol;
         public float Volume; // in m3
         public MyStringHash PhysicalMaterial;
-		public bool HasDeconstructor;
+        public bool CanSpawnFromScreen;
 
         public bool HasIntegralAmounts
         {
@@ -41,7 +41,7 @@ namespace Sandbox.Definitions
             else
                 this.IconSymbol = MyStringId.GetOrCompute(ob.IconSymbol);
             PhysicalMaterial = MyStringHash.GetOrCompute(ob.PhysicalMaterial);
-			HasDeconstructor = ob.HasDeconstructor;
+            CanSpawnFromScreen = ob.CanSpawnFromScreen;
         }
     }
 }

@@ -97,6 +97,7 @@ namespace Sandbox.Game.Entities.EnvironmentItems
                 if (m_invalidateAABB)
                 {
                     Debug.Assert(IsValid);
+                    m_invalidateAABB = false;
                     m_AABB = GetSectorBoundingBox();
                 }
                 return m_AABB; 
@@ -230,15 +231,12 @@ namespace Sandbox.Game.Entities.EnvironmentItems
             m_instanceInfo.Clear();
             foreach (var part in m_instanceParts)
             {
-                if (part.Value.FreeInstances.Count != part.Value.InstanceData.Count)
-                {
-                    m_instanceInfo.Add(part.Key, new MyRenderInstanceInfo(m_instanceBufferId, m_tmpInstanceData.Count, part.Value.InstanceData.Count, part.Value.MaxViewDistance, part.Value.Flags));
-                    var instanceData = part.Value.InstanceData;
-                    if (m_tmpInstanceData.Count + instanceData.Count > m_tmpInstanceData.Capacity)
-                        m_tmpInstanceData.Capacity = m_tmpInstanceData.Count + instanceData.Count;
-                    foreach (var instance in instanceData)
-                        m_tmpInstanceData.Add(instance.InstanceData);
-                }
+                m_instanceInfo.Add(part.Key, new MyRenderInstanceInfo(m_instanceBufferId, m_tmpInstanceData.Count, part.Value.InstanceData.Count, part.Value.MaxViewDistance, part.Value.Flags));
+                var instanceData = part.Value.InstanceData;
+                if (m_tmpInstanceData.Count + instanceData.Count > m_tmpInstanceData.Capacity)
+                    m_tmpInstanceData.Capacity = m_tmpInstanceData.Count + instanceData.Count;
+                foreach (var instance in instanceData)
+                    m_tmpInstanceData.Add(instance.InstanceData);
             }
 
             if (m_tmpInstanceData.Count > 0)

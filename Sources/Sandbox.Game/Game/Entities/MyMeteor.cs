@@ -16,6 +16,7 @@ using Sandbox.Game.Multiplayer;
 using Sandbox.Game.Weapons;
 using Sandbox.Game.World;
 using Sandbox.Graphics.TransparentGeometry.Particles;
+using Sandbox.Game.GameSystems;
 using Sandbox.ModAPI;
 using Sandbox.ModAPI.Interfaces;
 using System;
@@ -47,7 +48,7 @@ namespace Sandbox.Game.Entities
             Render = new MyRenderComponentDebrisVoxel();
         }
 
-        void Components_ComponentAdded(Type arg1, MyEntityComponentBase arg2)
+        void Components_ComponentAdded(Type arg1, MyComponentBase arg2)
         {
             if (arg1 == typeof(MyGameLogicComponent))
                 m_logic = arg2 as MyMeteorGameLogic;
@@ -117,11 +118,12 @@ namespace Sandbox.Game.Entities
         public void OnDestroy()
         {
             GameLogic.OnDestroy();
+            
         }
 
-        public void DoDamage(float damage, MyDamageType damageType, bool sync, MyHitInfo? hitInfo)
+        public void DoDamage(float damage, MyStringHash damageType, bool sync, MyHitInfo? hitInfo, long attackerId)
         {
-            GameLogic.DoDamage(damage, damageType, sync, hitInfo);
+            GameLogic.DoDamage(damage, damageType, sync, hitInfo, attackerId);
         }
 
         public float Integrity
@@ -129,16 +131,17 @@ namespace Sandbox.Game.Entities
             get { return GameLogic.Integrity; }
         }
 
-
+        private bool m_hasModifiableDamage;
+        public bool UseDamageSystem
+        {
+            get { return m_hasModifiableDamage; }
+        }
         public override MyObjectBuilder_EntityBase GetObjectBuilder(bool copy = false)
         {
             return GameLogic.GetObjectBuilder(false);
         }
 
-
-
-
-
+        // So much room for activities
 
 
 
@@ -183,7 +186,7 @@ namespace Sandbox.Game.Entities
 
                 Entity.Physics.LinearVelocity = builder.LinearVelocity;
                 Entity.Physics.AngularVelocity = builder.AngularVelocity;
-
+                
                 m_integrity = builder.Integrity;
             }
 
@@ -366,8 +369,9 @@ namespace Sandbox.Game.Entities
             {
                 if (this.MarkedForClose || !Entity.Physics.Enabled || m_closeAfterSimulation)
                     return;
-                IMyEntity other = GetOtherEntity(ref value.ContactPointEvent);
+                var other = value.ContactPointEvent.GetOtherEntity(Entity);
                 if (Sync.IsServer)
+                {
                     if (other is MyCubeGrid)
                     {
                         var grid = other as MyCubeGrid;
@@ -377,22 +381,23 @@ namespace Sandbox.Game.Entities
                         }
                     }
                     else if (other is MyCharacter)
-                    {
-                        (other as MyCharacter).DoDamage(50 * Entity.PositionComp.Scale.Value,  MyDamageType.Environment, true);
+                    {                        
+                        (other as MyCharacter).DoDamage(50 * Entity.PositionComp.Scale.Value, MyDamageType.Environment, true, Entity.EntityId);
                     }
                     else if (other is MyFloatingObject)
                     {
-                        (other as MyFloatingObject).DoDamage(100 * Entity.PositionComp.Scale.Value, MyDamageType.Deformation, true);
+                        (other as MyFloatingObject).DoDamage(100 * Entity.PositionComp.Scale.Value, MyDamageType.Deformation, true, Entity.EntityId);
                     }
                     else if (other is MyMeteor)
                     {
                         m_closeAfterSimulation = true;
                         (other.GameLogic as MyMeteorGameLogic).m_closeAfterSimulation = true;
                     }
+                }
 
-                if (other is MyVoxelMap)
+                if (other is MyVoxelBase)
                 {
-                    CreateCrater(value, other as MyVoxelMap);
+                    CreateCrater(value, other as MyVoxelBase);
                 }
 
             }
@@ -422,7 +427,7 @@ namespace Sandbox.Game.Entities
                 PlayExplosionSound();
             }
 
-            private void CreateCrater(MyPhysics.MyContactPointEvent value, MyVoxelMap voxel)
+            private void CreateCrater(MyPhysics.MyContactPointEvent value, MyVoxelBase voxel)
             {
                 if (Math.Abs(Vector3.Normalize(-Entity.WorldMatrix.Forward).Dot(value.ContactPointEvent.ContactPoint.Normal)) < 0.1)
                 {
@@ -497,20 +502,32 @@ namespace Sandbox.Game.Entities
             }
 
 
-            public void DoDamage(float damage, MyDamageType damageType, bool sync, MyHitInfo? hitInfo)
+            public void DoDamage(float damage, MyStringHash damageType, bool sync, MyHitInfo? hitInfo, long attackerId)
             {
                 if (sync)
                 {
                     if (Sync.IsServer)
-                        MySyncHelper.DoDamageSynced(Entity, damage, damageType);
+                        MySyncHelper.DoDamageSynced(Entity, damage, damageType, attackerId);
                 }
                 else
                 {
-                    m_integrity -= damage;
+                    MyDamageInformation info = new MyDamageInformation(false, damage, damageType, attackerId);
+
+                    if (Entity.UseDamageSystem)
+                        MyDamageSystem.Static.RaiseBeforeDamageApplied(Entity, ref info);
+
+                    m_integrity -= info.Amount;
+
+                    if (Entity.UseDamageSystem)
+                        MyDamageSystem.Static.RaiseAfterDamageApplied(Entity, info);
 
                     if (m_integrity <= 0)
                     {
                         m_closeAfterSimulation = true;
+
+                        if (Entity.UseDamageSystem)
+                            MyDamageSystem.Static.RaiseDestroyed(Entity, info);
+
                         return;
                     }
                 }
@@ -524,14 +541,6 @@ namespace Sandbox.Game.Entities
             public float Integrity
             {
                 get { return m_integrity; }
-            }
-
-            protected IMyEntity GetOtherEntity(ref HkContactPointEvent value)
-            {
-                if (value.Base.BodyA.GetEntity() == Entity)
-                    return value.Base.BodyB.GetEntity();
-                else
-                    return value.Base.BodyA.GetEntity();
             }
 
             // Don't call remove reference on this, this shape is pooled

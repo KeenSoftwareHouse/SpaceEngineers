@@ -114,7 +114,6 @@ namespace Sandbox.Game.GameSystems.StructuralIntegrity
 
         private static float m_closestDistanceThreshold = 3;
 
-        public bool ForceRecalc;
         bool m_needsRecalc = false;
 
         public static bool DrawText = true;
@@ -203,12 +202,10 @@ namespace Sandbox.Game.GameSystems.StructuralIntegrity
             }
 
             // Change detected by changing block count
-            if (m_grid.GetBlocks().Count == m_finishedData.BlockCount && !ForceRecalc && m_simulationDataPrepared && !m_needsRecalc)
+            if (m_grid.GetBlocks().Count == m_finishedData.BlockCount && m_simulationDataPrepared && !m_needsRecalc)
                return false;
 
             m_needsRecalc = true;
-            ForceRecalc = false;
-           // m_selectedGrid = m_grid;
 
             if (m_simulationInProgress)
                 return false;
@@ -304,20 +301,55 @@ namespace Sandbox.Game.GameSystems.StructuralIntegrity
 
                             physicalMaterial = compBlock.GetBlocks().First().BlockDefinition.PhysicalMaterial;
 
+                            //Simulate blocks where or pieces are generated
+                            bool allAreGenerated = true;
+                            foreach (var b in compBlock.GetBlocks())
+                            {
+                                if (!b.BlockDefinition.IsGeneratedBlock)
+                                {
+                                    allAreGenerated = false;
+                                    break;
+                                }
+                            }
+
                             bool isGenerated = true;
                             foreach (var b in compBlock.GetBlocks())
                             {
                                 if (!b.BlockDefinition.IsGeneratedBlock)
+                                {
                                     isGenerated = false;
+                                    break;
+                                }
                                 else
                                     if (b.BlockDefinition.IsGeneratedBlock && b.BlockDefinition.PhysicalMaterial.Id.SubtypeName == "Stone")
+                                    {
                                         isGenerated = false;
+                                        break;
+                                    }
                                     else
-                                        if (b.BlockDefinition.IsGeneratedBlock && b.BlockDefinition.PhysicalMaterial.Id.SubtypeName == "RoofTile" && compBlock.GetBlocks().Count == 1)
+                                        if (b.BlockDefinition.IsGeneratedBlock && b.BlockDefinition.PhysicalMaterial.Id.SubtypeName == "RoofTile" && allAreGenerated)
                                         {
                                             isGenerated = false;
                                             cubeMass *= 6f;
+                                            break;
                                         }
+                                        else
+                                            if (b.BlockDefinition.IsGeneratedBlock && b.BlockDefinition.PhysicalMaterial.Id.SubtypeName == "RoofWood" && allAreGenerated)
+                                            {
+                                                isGenerated = false;
+                                                cubeMass *= 3f;
+                                                break;
+                                            }
+                                            else
+                                                if (b.BlockDefinition.IsGeneratedBlock && b.BlockDefinition.PhysicalMaterial.Id.SubtypeName == "RoofHay" && allAreGenerated)
+                                                {
+                                                    isGenerated = false;
+                                                    cubeMass *= 1.2f;
+                                                    break;
+                                                }
+                                                else
+                                                {
+                                                }
                             }
 
                             //we dont want to simulate these pieces..
@@ -1121,6 +1153,7 @@ namespace Sandbox.Game.GameSystems.StructuralIntegrity
         public void Add(MySlimBlock block)
         {
             m_selectedGrid = block.CubeGrid;
+            m_selectedCube = block.Position;
         }
 
         public void Remove(MySlimBlock block)
@@ -1169,5 +1202,9 @@ namespace Sandbox.Game.GameSystems.StructuralIntegrity
                 m_grid.Physics.ContactPointCallback -= Physics_ContactPointCallback;
         }
 
+        public void ForceRecalc()
+        {
+            m_needsRecalc = true;
+        }
     }
 }

@@ -45,11 +45,14 @@ namespace Sandbox.Game.Weapons
         private bool m_canZoom = true;
 
         public bool IsShooting { get; private set; }
-		public bool IsDeconstructor { get { return false; } }
 
         public int ShootDirectionUpdateTime
         {
             get { return 200; }
+        }
+        public bool IsBlocking
+        {
+            get { return false; }
         }
 
         private MyEntity3DSoundEmitter m_soundEmitter;
@@ -203,7 +206,7 @@ namespace Sandbox.Game.Weapons
             return false;
         }
 
-        public void Shoot(MyShootActionEnum action, Vector3 direction)
+        public void Shoot(MyShootActionEnum action, Vector3 direction, string gunAction)
         {
             if (action == MyShootActionEnum.PrimaryAction)
             {
@@ -245,10 +248,7 @@ namespace Sandbox.Game.Weapons
                 StartLoopSound(m_gunBase.ShootSound);
             }
 
-            if (!MySession.Static.CreativeMode)
-            {
-                m_gunBase.ConsumeAmmo();
-            }
+            m_gunBase.ConsumeAmmo();
         }
 
         private void CreateSmokeEffect()
@@ -346,7 +346,7 @@ namespace Sandbox.Game.Weapons
             m_gunBase.RefreshAmmunitionAmount();
         }
 
-        void MyAutomaticRifleGun_ContentsChanged(MyInventory obj)
+        void MyAutomaticRifleGun_ContentsChanged(MyInventoryBase obj)
         {
             m_gunBase.RefreshAmmunitionAmount();
         }

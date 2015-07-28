@@ -12,9 +12,20 @@ namespace Sandbox.Graphics.GUI
     {
         private IMyGuiControlsParent m_parent;
         private Vector2 m_parentTopLeft;
+        private Vector2 m_size;
         private float[] m_prefixScanX;
         private float[] m_prefixScanY;
         private const float BORDER = 0.005f;
+
+        public Vector2 GetCellSize(int row, int col, int colSpan = 1, int rowSpan = 1)
+        {
+            var min = new Vector2(m_prefixScanX[col], m_prefixScanY[row]);
+            var max = new Vector2(m_prefixScanX[col + colSpan], m_prefixScanY[row + rowSpan]);
+            var size = max - min;
+            size.X -= BORDER + BORDER;
+            size.Y -= BORDER + BORDER;
+            return size;
+        }
 
         public int LastRow
         {
@@ -29,7 +40,17 @@ namespace Sandbox.Graphics.GUI
         public MyLayoutTable(IMyGuiControlsParent parent)
         {
             m_parent = parent;
-            m_parentTopLeft = -0.5f * (m_parent.GetSize() ?? Vector2.One);
+            m_size = m_parent.GetSize() ?? Vector2.One;
+            m_parentTopLeft = -0.5f * m_size;
+            m_prefixScanX = null;
+            m_prefixScanY = null;
+        }
+
+        public MyLayoutTable(IMyGuiControlsParent parent, Vector2 topLeft, Vector2 size)
+        {
+            m_parent = parent;
+            m_parentTopLeft = topLeft;
+            m_size = size;
             m_prefixScanX = null;
             m_prefixScanY = null;
         }
@@ -37,8 +58,7 @@ namespace Sandbox.Graphics.GUI
         public void SetColumnWidths(params float[] widthsPx)
         {
             m_prefixScanX = new float[widthsPx.Length + 1];
-            var size = m_parent.GetSize();
-            m_prefixScanX[0] = -0.5f * (size.HasValue ? size.Value.X : 1f);
+            m_prefixScanX[0] = m_parentTopLeft.X;
 
             float optimalGuiWidth = MyGuiConstants.GUI_OPTIMAL_SIZE.X;
             for (int i = 0; i < widthsPx.Length; i++)
@@ -49,8 +69,7 @@ namespace Sandbox.Graphics.GUI
         }
         public void SetColumnWidthsNormalized(params float[] widthsPx)
         {
-            var size = m_parent.GetSize();
-            var sizeX = (size.HasValue ? size.Value.X : 1f);
+            var sizeX = m_size.X;
             float sum=0;
             for (int i = 0; i < widthsPx.Length; i++)
                 sum+=widthsPx[i];
@@ -62,8 +81,7 @@ namespace Sandbox.Graphics.GUI
         public void SetRowHeights(params float[] heightsPx)
         {
             m_prefixScanY = new float[heightsPx.Length + 1];
-            var size = m_parent.GetSize();
-            m_prefixScanY[0] = -0.5f * (size.HasValue ? size.Value.Y : 1f);
+            m_prefixScanY[0] = m_parentTopLeft.Y;
 
             float optimalGuiHeight = MyGuiConstants.GUI_OPTIMAL_SIZE.Y;
             for (int i = 0; i < heightsPx.Length; i++)
@@ -74,8 +92,7 @@ namespace Sandbox.Graphics.GUI
         }
         public void SetRowHeightsNormalized(params float[] heightsPx)
         {
-            var size = m_parent.GetSize();
-            var sizeY = (size.HasValue ? size.Value.Y : 1f);
+            var sizeY = m_size.Y;
             float sum = 0;
             for (int i = 0; i < heightsPx.Length; i++)
                 sum += heightsPx[i];

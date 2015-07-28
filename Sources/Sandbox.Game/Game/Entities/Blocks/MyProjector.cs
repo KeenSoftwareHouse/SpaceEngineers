@@ -107,6 +107,7 @@ namespace Sandbox.Game.Entities.Blocks
         private int m_maxNumberOfProjections = 0;
         private int m_maxNumberOfBlocksPerProjection = 0;
         private int m_projectionsRemaining = 0;
+        private bool m_getOwnershipFromProjector;
 
         static MyProjector()
         {
@@ -253,6 +254,13 @@ namespace Sandbox.Game.Entities.Blocks
             instantBuildingCheckbox.Getter = (p) => p.m_instantBuildingEnabled;
             instantBuildingCheckbox.Setter = (p, v) => p.TrySetInstantBuilding(v);
             MyTerminalControlFactory.AddControl(instantBuildingCheckbox);
+
+            var getOwnershipCheckbox = new MyTerminalControlCheckbox<MyProjector>("GetOwnership", MySpaceTexts.BlockPropertyTitle_Projector_GetOwnership, MySpaceTexts.BlockPropertiesTooltip_Projector_GetOwnership);
+            getOwnershipCheckbox.Visible = (p) => p.ScenarioSettingsEnabled();
+            getOwnershipCheckbox.Enabled = (p) => p.CanEditInstantBuildingSettings();
+            getOwnershipCheckbox.Getter = (p) => p.m_getOwnershipFromProjector;
+            getOwnershipCheckbox.Setter = (p, v) => p.TrySetGetOwnership(v);
+            MyTerminalControlFactory.AddControl(getOwnershipCheckbox);
 
             var numberOfProjections = new MyTerminalControlSlider<MyProjector>("NumberOfProjections", MySpaceTexts.BlockPropertyTitle_Projector_NumberOfProjections, MySpaceTexts.BlockPropertyTitle_Projector_NumberOfProjections_Tooltip);
             numberOfProjections.Visible = (p) => p.ScenarioSettingsEnabled();
@@ -473,6 +481,14 @@ namespace Sandbox.Game.Entities.Blocks
             }
         }
 
+        private void TrySetGetOwnership(bool v)
+        {
+            if (CanEnableInstantBuilding())
+            {
+                SyncObject.SendNewGetOwnership(v);
+            }
+        }
+
         private void TrySpawnProjection()
         {
             if (CanSpawnProjection())
@@ -627,6 +643,8 @@ namespace Sandbox.Game.Entities.Blocks
             m_instantBuildingEnabled = projectorBuilder.InstantBuildingEnabled;
             m_maxNumberOfProjections = projectorBuilder.MaxNumberOfProjections;
             m_maxNumberOfBlocksPerProjection = projectorBuilder.MaxNumberOfBlocks;
+            m_getOwnershipFromProjector = projectorBuilder.GetOwnershipFromProjector;
+
             m_projectionsRemaining = MathHelper.Clamp(projectorBuilder.ProjectionsRemaining, 0, m_maxNumberOfProjections);
 
             PowerReceiver = new MyPowerReceiver(
@@ -714,6 +732,7 @@ namespace Sandbox.Game.Entities.Blocks
             objectBuilder.MaxNumberOfProjections = m_maxNumberOfProjections;
             objectBuilder.MaxNumberOfBlocks = m_maxNumberOfBlocksPerProjection;
             objectBuilder.ProjectionsRemaining = m_projectionsRemaining;
+            objectBuilder.GetOwnershipFromProjector = m_getOwnershipFromProjector;
 
             return objectBuilder;
         }
@@ -1200,6 +1219,16 @@ namespace Sandbox.Game.Entities.Blocks
             {
                 var clone = (MyObjectBuilder_CubeGrid)m_originalGridBuilder.Clone();
                 MyEntities.RemapObjectBuilder(clone);
+
+                if (m_getOwnershipFromProjector)
+                {
+                    foreach (var block in clone.CubeBlocks)
+                    {
+                        block.Owner = OwnerId;
+                        block.ShareMode = IDModule.ShareMode;
+                    }
+                }
+
                 m_spawnClipboard.SetGridFromBuilder(clone, Vector3.Zero, 0f);
 
                 m_spawnClipboard.ResetGridOrientation();
@@ -1262,6 +1291,12 @@ namespace Sandbox.Game.Entities.Blocks
             }
             RaisePropertiesChanged();
         }
+
+        internal void OnSetGetOwnership(bool enabled)
+        {
+            m_getOwnershipFromProjector = enabled;
+            RaisePropertiesChanged();
+        }
         #endregion
 
         #region Building
@@ -1311,34 +1346,38 @@ namespace Sandbox.Game.Entities.Blocks
             MyGridPlacementSettings settings = new MyGridPlacementSettings();
             settings.Mode = MyGridPlacementSettings.SnapMode.OneFreeAxis;
 
-            bool canBuild = true;
-            if (checkHavokIntersections)
+			var mountPoints = projectedBlock.BlockDefinition.GetBuildProgressModelMountPoints(1.0f);
+			bool isConnected = MyCubeGrid.CheckConnectivity(this.CubeGrid, projectedBlock.BlockDefinition, mountPoints,
+															ref blockOrientationQuat, ref blockPos);
+            if (isConnected)
             {
-                canBuild = MyCubeGrid.TestPlacementAreaCube(CubeGrid, ref settings, projectedMin, projectedMax, blockOrientation, projectedBlock.BlockDefinition, CubeGrid);
-            }
-
-            bool isConnected = MyCubeGrid.CheckConnectivity(this.CubeGrid, projectedBlock.BlockDefinition, ref blockOrientationQuat, ref blockPos);
-
-            if (!canBuild)
-            {
-                return BuildCheckResult.IntersectedWithSomethingElse;
-            }
-            else
-            {
-                if (isConnected)
+                if (CubeGrid.GetCubeBlock(blockPos) == null)
                 {
-                    if (CubeGrid.GetCubeBlock(blockPos) == null)
+                    if (checkHavokIntersections)
                     {
-                        return BuildCheckResult.OK;
+                        if (MyCubeGrid.TestPlacementAreaCube(CubeGrid, ref settings, projectedMin, projectedMax, blockOrientation, projectedBlock.BlockDefinition, CubeGrid))
+                        {
+                            return BuildCheckResult.OK;
+                        }
+                        else
+                        {
+                            return BuildCheckResult.IntersectedWithSomethingElse;
+                        }
                     }
                     else
                     {
-                        return BuildCheckResult.AlreadyBuilt;
+                        return BuildCheckResult.OK;
                     }
                 }
+                else
+                {
+                    return BuildCheckResult.AlreadyBuilt;
+                }
             }
-
-            return BuildCheckResult.NotConnected;
+            else
+            {
+                return BuildCheckResult.NotConnected;
+            }
         }
 
         public void Build(MySlimBlock cubeBlock, long owner, long builder)
@@ -1382,7 +1421,7 @@ namespace Sandbox.Game.Entities.Blocks
             //Find original grid builder
             foreach (var blockBuilder in m_originalGridBuilder.CubeBlocks)
             {
-                if (blockBuilder.Min == cubeMin && blockBuilder.GetId() == cubeBlock.BlockDefinition.Id)
+                if ((Vector3I)blockBuilder.Min == cubeMin && blockBuilder.GetId() == cubeBlock.BlockDefinition.Id)
                 {
                     objectBuilder = (MyObjectBuilder_CubeBlock)blockBuilder.Clone();
                     objectBuilder.SetupForProjector();
@@ -1397,7 +1436,7 @@ namespace Sandbox.Game.Entities.Blocks
             }
 
             objectBuilder.ConstructionInventory = null;
-            projectorGrid.BuildBlock(cubeBlock.ColorMaskHSV, location, objectBuilder);
+            projectorGrid.BuildBlock(cubeBlock.ColorMaskHSV, location, objectBuilder, builder);
             HideCube(cubeBlock);
         }
         #endregion
@@ -1408,7 +1447,6 @@ namespace Sandbox.Game.Entities.Blocks
             m_originalGridBuilder = gridBuilder;
             
             var clone = (MyObjectBuilder_CubeGrid)gridBuilder.Clone();
-            m_clipboard.ProcessCubeGrid(clone);
 
             MyEntities.RemapObjectBuilder(clone);
             m_clipboard.ProcessCubeGrid(clone);
@@ -1547,6 +1585,14 @@ namespace Sandbox.Game.Entities.Blocks
                 public long GetEntityId() { return EntityId; }
             }
 
+            [MessageIdAttribute(7612, SteamSDK.P2PMessageEnum.Reliable)]
+            protected struct SetGetOwnershipMsg : IEntityMessage
+            {
+                public long EntityId;
+                public long GetEntityId() { return EntityId; }
+
+                public BoolBlit GetOwnership;
+            }
 
             static MySyncProjector()
             {
@@ -1567,6 +1613,7 @@ namespace Sandbox.Game.Entities.Blocks
                 MySyncLayer.RegisterMessage<SetMaxNumberOfBlocksMsg>(OnSetMaxNumberOfBlocks, MyMessagePermissions.Any);
                 MySyncLayer.RegisterMessage<SpawnProjectionMsg>(OnSpawnProjection, MyMessagePermissions.ToServer);
                 MySyncLayer.RegisterMessage<ConfirmSpawnProjectionMsg>(OnConfirmSpawnProjection, MyMessagePermissions.FromServer);
+                MySyncLayer.RegisterMessage<SetGetOwnershipMsg>(OnSetGetOwnership, MyMessagePermissions.Any);
             }
 
             public MySyncProjector(MyProjector projector)
@@ -1851,6 +1898,25 @@ namespace Sandbox.Game.Entities.Blocks
                 if (projector != null)
                 {
                     projector.OnConfirmSpawnProjection();
+                }
+            }
+
+            public void SendNewGetOwnership(bool getOwnership)
+            {
+                var msg = new SetGetOwnershipMsg();
+                msg.EntityId = m_projector.EntityId;
+                msg.GetOwnership = getOwnership;
+                Sync.Layer.SendMessageToAllAndSelf(ref msg);
+            }
+
+            private static void OnSetGetOwnership(ref SetGetOwnershipMsg msg, MyNetworkClient sender)
+            {
+                MyEntity projectorEntity;
+                MyEntities.TryGetEntityById(msg.EntityId, out projectorEntity);
+                var projector = projectorEntity as MyProjector;
+                if (projector != null)
+                {
+                    projector.OnSetGetOwnership(msg.GetOwnership);
                 }
             }
         }

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Sandbox.Engine.Utils;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -31,5 +32,7 @@ namespace Sandbox.Engine.Voxels
 
         /// <param name="percentage">Percentage given as value in range 0 to 1.</param>
         internal abstract void ShrinkTo(float percentage);
+
+        internal virtual void ReleaseMaps() { }
     }
 }

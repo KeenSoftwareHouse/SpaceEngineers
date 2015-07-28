@@ -1,32 +1,15 @@
 ﻿#region Using
 
-using System;
+using Sandbox.Common;
+using Sandbox.Game.World;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using System.Text;
-using Sandbox.Common;
-
-using Sandbox.Common.ObjectBuilders;
-using Sandbox.Common.ObjectBuilders.Definitions;
-using Sandbox.Definitions;
-using Sandbox.Engine.Models;
-using Sandbox.Engine.Utils;
-using Sandbox.Game.Entities.Character;
-using Sandbox.Game.Entities.Cube;
-using Sandbox.Game.Gui;
-using Sandbox.Game.Screens.Helpers;
-using Sandbox.Game.World;
-using Sandbox.Graphics;
-using Sandbox.Graphics.GUI;
-using Sandbox.Graphics.TransparentGeometry;
-using VRage;
 using VRage.Import;
-using VRage.Utils;
 using VRageMath;
 using VRageRender;
 using ModelId = System.Int32;
-using Sandbox.Game.GUI;
+
 
 #endregion
 
@@ -189,7 +172,7 @@ namespace Sandbox.Game.Entities.Cube
                         flags,
                         CullingOptions.Default,
                         Vector3.One,
-                        MyToolbar.ColorMaskHSV,
+						MyPlayer.SelectedColor,
                         useTransparency ? m_transparency : 0,
                         item.Value.MaxViewDistance
                     );
@@ -207,7 +190,7 @@ namespace Sandbox.Game.Entities.Cube
 
                 if (hasAnyInstances)
                 {
-                    MyRenderProxy.UpdateRenderEntity(renderObjectId, Color.White, MyToolbar.ColorMaskHSV, useTransparency ? m_transparency : 0);
+					MyRenderProxy.UpdateRenderEntity(renderObjectId, Color.White, MyPlayer.SelectedColor, useTransparency ? m_transparency : 0);
                     MyRenderProxy.UpdateRenderObject(renderObjectId, ref worldMatrix, false);
                     MyRenderProxy.SetInstanceBuffer(renderObjectId, item.Value.InstanceBufferId, item.Value.InstanceStart, item.Value.InstanceCount, m_AABB);
                 }
