@@ -240,7 +240,7 @@ namespace Sandbox.Game.Gui
         {
             var textForm = (MyGuiControlTextbox)m_infoPage.Controls.GetControlByName("RenameShipText");
             m_grid.SyncObject.ChangeDisplayNameRequest(m_grid, textForm.Text);
-            
+
         }
 
         private void grid_OnBlockRemoved(MySlimBlock obj)

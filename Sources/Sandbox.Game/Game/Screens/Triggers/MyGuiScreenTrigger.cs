@@ -27,14 +27,14 @@ namespace Sandbox.Game.Screens.Triggers
         protected MyTrigger m_trigger;
         protected const float VERTICAL_OFFSET = 0.005f;
         protected static readonly Vector2 RESERVED_SIZE = new Vector2(0,0.196f);
-        protected static readonly Vector2 MIDDLE_PART_ORIGIN = -RESERVED_SIZE/2+new Vector2(0, 0.17f);//you can use this to put items into right place in the middle
+        protected static readonly Vector2 MIDDLE_PART_ORIGIN = -RESERVED_SIZE*0.5f+new Vector2(0, 0.17f);//you can use this to put items into right place in the middle
 
         public MyGuiScreenTrigger(MyTrigger trg, Vector2 size)
             : base(null, MyGuiConstants.SCREEN_BACKGROUND_COLOR, size + RESERVED_SIZE)
         {
             size += RESERVED_SIZE;
             Vector2 m_itemPos=new Vector2();
-            m_itemPos.Y = - size.Y / 2 + 0.1f;
+            m_itemPos.Y = - size.Y * 0.5f + 0.1f;
             m_textboxName=new MyGuiControlLabel(
                 position: m_itemPos,
                 text: MyTexts.Get(MySpaceTexts.GuiTriggerMessage).ToString()
@@ -46,7 +46,7 @@ namespace Sandbox.Game.Screens.Triggers
                 position: m_itemPos,
                 defaultText: trg.Message,
                 maxLength: 85);
-            m_textboxName.Position = m_textboxName.Position - new Vector2(m_textboxMessage.Size.X / 2, 0);//line to the left of textbox
+            m_textboxName.Position = m_textboxName.Position - new Vector2(m_textboxMessage.Size.X * 0.5f, 0);//line to the left of textbox
             Controls.Add(m_textboxName);
             Controls.Add(m_textboxMessage);
 
@@ -62,7 +62,7 @@ namespace Sandbox.Game.Screens.Triggers
                 defaultText: trg.WwwLink,
                 maxLength: 300);
             m_itemPos.Y += m_wwwTextbox.Size.Y + VERTICAL_OFFSET;
-            m_wwwLabel.Position = m_wwwLabel.Position - new Vector2(m_wwwTextbox.Size.X / 2, 0);//line to the left of textbox
+            m_wwwLabel.Position = m_wwwLabel.Position - new Vector2(m_wwwTextbox.Size.X * 0.5f, 0);//line to the left of textbox
             Controls.Add(m_wwwLabel);
             Controls.Add(m_wwwTextbox);
 
@@ -76,7 +76,7 @@ namespace Sandbox.Game.Screens.Triggers
                 //defaultText: trg.WwwLink,
                 maxLength: 300);
             m_itemPos.Y += m_wwwTextbox.Size.Y + VERTICAL_OFFSET;
-            m_nextMisLabel.Position = m_nextMisLabel.Position - new Vector2(m_nextMisTextbox.Size.X / 2, 0);//line to the left of textbox
+            m_nextMisLabel.Position = m_nextMisLabel.Position - new Vector2(m_nextMisTextbox.Size.X * 0.5f, 0);//line to the left of textbox
             Controls.Add(m_nextMisLabel);
             Controls.Add(m_nextMisTextbox);
 

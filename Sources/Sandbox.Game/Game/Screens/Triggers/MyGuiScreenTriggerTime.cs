@@ -21,8 +21,8 @@ namespace Sandbox.Game.Screens.Triggers
         public MyGuiScreenTriggerTime(MyTrigger trg, MyStringId labelText)
             : base(trg, new Vector2(WINSIZEX + 0.1f, WINSIZEY))
         {
-            float left = m_textboxMessage.Position.X-m_textboxMessage.Size.X/2;
-            float top = -WINSIZEY / 2f + MIDDLE_PART_ORIGIN.Y;
+            float left = m_textboxMessage.Position.X-m_textboxMessage.Size.X*0.5f;
+            float top = -WINSIZEY * 0.5f + MIDDLE_PART_ORIGIN.Y;
             m_labelTime = new MyGuiControlLabel(
                 originAlign: MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_TOP,
                 position: new Vector2(left, top),

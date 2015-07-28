@@ -15,7 +15,6 @@ using System.Diagnostics;
 using System.Text;
 using VRage;
 using VRage.Input;
-using VRage.Library.Utils;
 using VRage.Utils;
 using VRageMath;
 
@@ -1054,11 +1053,9 @@ namespace Sandbox.Game.Gui
                 nameTextBox.Size = new Vector2(0.2f, 0.005f);
                 nameTextBox.Position = new Vector2(-0.462f + (nameTextBox.Size.X * 0.5f ), nameLabel.PositionY + (nameTextBox.Size.Y * 0.5f) + nameLabel.Size.Y);
 
-                var renameButton = new MyGuiControlButton( );
-                renameButton.VisualStyle = MyGuiControlButtonStyleEnum.Tiny;
-                renameButton.Position = new Vector2(-0.462f + nameTextBox.Size.X + nameTextBox.Size.Y, nameTextBox.PositionY );
+                var renameButton = new MyGuiControlButton(new Vector2(-0.462f + nameTextBox.Size.X + nameTextBox.Size.Y, nameTextBox.PositionY ),
+                                                          MyGuiControlButtonStyleEnum.Tiny, text: new StringBuilder("Ok"));
                 renameButton.Name = "RenameShipButton";
-                renameButton.Text = "Ok";
 
                 infoPage.Controls.Add(nameLabel);
                 infoPage.Controls.Add(nameTextBox);
@@ -1081,7 +1078,7 @@ namespace Sandbox.Game.Gui
             sep.AddVertical(new Vector2(list.PositionX + list.Size.X + 0.05f, -0.34f), 0.7f, 0.002f);
             infoPage.Controls.Add(sep);
 
-            float posXControl = sep.PositionX + 0.0005f;
+            var posXControl = sep.PositionX + 0.0005f;
             if (MyFakes.ENABLE_CENTER_OF_MASS)
             {
                 var centerBtnLabel = new MyGuiControlLabel(new Vector2(posXControl, -0.32f), text: MyTexts.GetString(MySpaceTexts.TerminalTab_Info_ShowMassCenter));
