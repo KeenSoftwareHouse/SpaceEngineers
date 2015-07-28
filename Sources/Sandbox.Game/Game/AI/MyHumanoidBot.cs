@@ -2,6 +2,7 @@
 using Sandbox.Common.ObjectBuilders;
 using Sandbox.Common.ObjectBuilders.Definitions;
 using Sandbox.Definitions;
+using Sandbox.Engine.Utils;
 using Sandbox.Game.AI.Logic;
 using Sandbox.Game.Entities;
 using Sandbox.Game.Entities.Character;
@@ -78,12 +79,31 @@ namespace Sandbox.Game.AI
             character.GetInventory(0).Clear();
 
             var ob = MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_PhysicalGunObject>(StartingWeaponId.SubtypeName);
-            character.GetInventory(0).AddItems(1, ob);
-
-            foreach (var weaponDef in HumanoidDefinition.InventoryItems)
+            if (character.WeaponTakesBuilderFromInventory(StartingWeaponId))            
             {
-                ob = MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_PhysicalGunObject>(weaponDef.SubtypeName);
                 character.GetInventory(0).AddItems(1, ob);
+            }
+
+            if (HumanoidDefinition.InventoryContentGenerated && MyFakes.ENABLE_RANDOM_INVENTORY)
+            {
+
+                MyContainerTypeDefinition cargoContainerDefinition = MyDefinitionManager.Static.GetContainerTypeDefinition(HumanoidDefinition.InventoryContainerTypeId.SubtypeName);
+                    if (cargoContainerDefinition != null)
+                    {
+                        character.GetInventory(0).GenerateContent(cargoContainerDefinition);
+                    }
+                    else
+                    {
+                        Debug.Fail("CargoContainer type definition " + HumanoidDefinition.InventoryContainerTypeId + " wasn't found.");
+                    }
+            }
+            else
+            {
+                foreach (var weaponDef in HumanoidDefinition.InventoryItems)
+                {
+                    ob = MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_PhysicalGunObject>(weaponDef.SubtypeName);
+                    character.GetInventory(0).AddItems(1, ob);
+                }
             }
 
             character.SwitchToWeapon(StartingWeaponId);

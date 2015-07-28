@@ -35,8 +35,8 @@ namespace Sandbox.Game.Components
             var minCorner = (Vector3D)(Container.Entity as IMyVoxelDrawable).PositionLeftBottomCorner;
             m_renderObjectIDs = new uint[] { MyRenderProxy.RENDER_ID_UNASSIGNED };
 
-            Debug.Assert((m_voxelMap.Size % MyVoxelConstants.RENDER_CELL_SIZE_IN_VOXELS) == Vector3I.Zero);
-            var clipmapSizeLod0 = m_voxelMap.Size / MyVoxelConstants.RENDER_CELL_SIZE_IN_VOXELS;
+            Debug.Assert((m_voxelMap.Size % MyVoxelCoordSystems.RenderCellSizeInLodVoxels(0)) == Vector3I.Zero);
+            var clipmapSizeLod0 = m_voxelMap.Size / MyVoxelCoordSystems.RenderCellSizeInLodVoxels(0);
 
             SetRenderObjectID(0,
                 MyRenderProxy.CreateClipmap(
@@ -72,13 +72,13 @@ namespace Sandbox.Game.Components
             minVoxelChanged -= m_voxelMap.StorageMin;
             maxVoxelChanged -= m_voxelMap.StorageMin;
 
-            MyVoxelCoordSystems.VoxelCoordToRenderCellCoord(ref minVoxelChanged, out minCellLod0);
-            MyVoxelCoordSystems.VoxelCoordToRenderCellCoord(ref maxVoxelChanged, out maxCellLod0);
+            MyVoxelCoordSystems.VoxelCoordToRenderCellCoord(0, ref minVoxelChanged, out minCellLod0);
+            MyVoxelCoordSystems.VoxelCoordToRenderCellCoord(0, ref maxVoxelChanged, out maxCellLod0);
 
             MyRenderProxy.InvalidateClipmapRange(m_renderObjectIDs[0], minCellLod0, maxCellLod0);
 
             if (minCellLod0 == Vector3I.Zero &&
-                maxCellLod0 == ((m_voxelMap.Storage.Geometry.CellsCount - 1) >> MyVoxelConstants.RENDER_CELL_SIZE_IN_GEOMETRY_CELLS_BITS))
+                maxCellLod0 == ((m_voxelMap.Storage.Size - 1) >> MyVoxelCoordSystems.RenderCellSizeInLodVoxelsShift(0)))
             {
                 m_renderWorkTracker.InvalidateAll();
             }
@@ -96,6 +96,14 @@ namespace Sandbox.Game.Components
                     }
                 }
             }
+        }
+
+        internal void InvalidateAll()
+        {
+            MyRenderProxy.InvalidateClipmapRange(m_renderObjectIDs[0],
+                Vector3I.Zero,
+                (m_voxelMap.Storage.Size -1) >> MyVoxelCoordSystems.RenderCellSizeInLodVoxelsShift(0));
+            m_renderWorkTracker.InvalidateAll();
         }
 
         internal void OnCellRequest(MyCellCoord cell, bool highPriority)

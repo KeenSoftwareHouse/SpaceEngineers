@@ -27,6 +27,7 @@ using VRage;
 using Sandbox.Game.Localization;
 using VRage.Library.Utils;
 using VRage.Audio;
+using Sandbox.Game.Entities.Character.Components;
 
 #endregion
 
@@ -34,10 +35,10 @@ namespace Sandbox.Game.Multiplayer
 {
     delegate void ChangeMovementStateDelegate(MyCharacterMovementEnum state);
     delegate void SwitchCharacterModelDelegate(string model, Vector3 colorMaskHSV);
-    delegate void ChangeFlagsDelegate(bool enableJetpack, bool enableDampeners, bool enableLights, bool enableIronsight, bool enableBroadcast);
+    delegate void ChangeFlagsDelegate(bool enableJetpack, bool enableDampeners, bool enableLights, bool enableIronsight, bool enableBroadcast, bool targetFromCamera);
     delegate void ChangeHeadOrSpineDelegate(float headLocalXAngle, float headLocalYAngle, Quaternion spineRotation,
     Quaternion headRotation, Quaternion handRotation, Quaternion upperHandRotation);
-    delegate void DoDamageDelegate(float damage, MyDamageType damageType, long attackerId);
+    delegate void DoDamageDelegate(float damage, MyStringHash damageType, long attackerId);
 
     [PreloadRequired]
     class MySyncCharacter : MySyncControllableEntity
@@ -50,6 +51,7 @@ namespace Sandbox.Game.Multiplayer
             Lights = 0x4,
             Ironsight = 0x8,
             Broadcast = 0x10,
+            TargetFromCamera = 0x20,
         }
 
         [MessageId(2, P2PMessageEnum.Reliable)]
@@ -74,6 +76,7 @@ namespace Sandbox.Game.Multiplayer
             public bool EnableLights { get { return (Flags & CharacterFlags.Lights) != 0; } }
             public bool EnableIronsight { get { return (Flags & CharacterFlags.Ironsight) != 0; } }
             public bool EnableBroadcast { get { return (Flags & CharacterFlags.Broadcast) != 0; } }
+            public bool TargetFromCamera { get { return (Flags & CharacterFlags.TargetFromCamera) != 0; } }
         }
 
         [MessageId(4, SteamSDK.P2PMessageEnum.Unreliable)]
@@ -133,11 +136,13 @@ namespace Sandbox.Game.Multiplayer
             [ProtoMember]
             public string AnimationSubtypeName;
             [ProtoMember]
-            public bool Loop;
+            public MyPlaybackCommand PlaybackCommand;
             [ProtoMember]
-            public MyPlayAnimationMode Mode;
+            public MyBlendOption BlendOption;
             [ProtoMember]
-            public MyBonesArea Area;
+            public MyFrameOption FrameOption;
+            [ProtoMember]
+            public string Area;
             [ProtoMember]
             public float BlendTime;
             [ProtoMember]
@@ -242,11 +247,13 @@ namespace Sandbox.Game.Multiplayer
 
         private static void OnRagdollTransformsUpdate(MySyncCharacter syncObject, ref RagdollTransformsMsg message, MyNetworkClient sender)
         {
+            var ragdollComponent = syncObject.Entity.Components.Get<MyCharacterRagdollComponent>();
+            if (ragdollComponent == null) return;
             if (syncObject.Entity.Physics == null) return;
             if (syncObject.Entity.Physics.Ragdoll == null) return;
-            if (syncObject.Entity.RagdollMapper == null) return;
+            if (ragdollComponent.RagdollMapper == null) return;
             if (!syncObject.Entity.Physics.Ragdoll.IsAddedToWorld) return;
-            if (!syncObject.Entity.RagdollMapper.IsActive) return;
+            if (!ragdollComponent.RagdollMapper.IsActive) return;
             Debug.Assert(message.worldOrientation != null && message.worldOrientation != Quaternion.Zero, "Received invalid ragdoll orientation from server!");
             Debug.Assert(message.worldPosition != null && message.worldPosition != Vector3.Zero, "Received invalid ragdoll orientation from server!");
             Debug.Assert(message.transformsOrientations != null && message.transformsPositions != null, "Received empty ragdoll transformations from server!");
@@ -261,7 +268,7 @@ namespace Sandbox.Game.Multiplayer
                 transforms[i].Translation = message.transformsPositions[i];
             }
 
-            syncObject.Entity.RagdollMapper.UpdateRigidBodiesTransformsSynced(message.TransformsCount, worldMatrix, transforms);
+            ragdollComponent.RagdollMapper.UpdateRigidBodiesTransformsSynced(message.TransformsCount, worldMatrix, transforms);
         }
 
         public void SendRagdollTransforms(Matrix world, Matrix[] localBodiesTransforms)
@@ -336,8 +343,9 @@ namespace Sandbox.Game.Multiplayer
             msg.CharacterEntityId = Entity.EntityId;
 
             msg.AnimationSubtypeName = command.AnimationSubtypeName;
-            msg.Loop = command.Loop;
-            msg.Mode = command.Mode;
+            msg.PlaybackCommand = command.PlaybackCommand;
+            msg.BlendOption = command.BlendOption;
+            msg.FrameOption = command.FrameOption;
             msg.BlendTime = command.BlendTime;
             msg.TimeScale = command.TimeScale;
 
@@ -349,11 +357,12 @@ namespace Sandbox.Game.Multiplayer
             sync.Entity.AddCommand(new MyAnimationCommand()
             {
                 AnimationSubtypeName = msg.AnimationSubtypeName,
-                Mode = msg.Mode,
+                PlaybackCommand = msg.PlaybackCommand,
+                BlendOption = msg.BlendOption,
+                FrameOption = msg.FrameOption,
                 Area = msg.Area,
                 BlendTime = msg.BlendTime,
                 TimeScale = msg.TimeScale,
-                Loop = msg.Loop
             });
 
         }
@@ -381,7 +390,7 @@ namespace Sandbox.Game.Multiplayer
             }
         }
 
-        public void ChangeFlags(bool enableJetpack, bool enableDampeners, bool enableLights, bool enableIronsight, bool enableBroadcast)
+        public void ChangeFlags(bool enableJetpack, bool enableDampeners, bool enableLights, bool enableIronsight, bool enableBroadcast, bool targetFromCamera)
         {
             if (ResponsibleForUpdate(this))
             {
@@ -393,6 +402,7 @@ namespace Sandbox.Game.Multiplayer
                 msg.Flags |= enableLights ? CharacterFlags.Lights : 0;
                 msg.Flags |= enableIronsight ? CharacterFlags.Ironsight : 0;
                 msg.Flags |= enableBroadcast ? CharacterFlags.Broadcast : 0;
+                msg.Flags |= targetFromCamera ? CharacterFlags.TargetFromCamera : 0;
 
                 Sync.Layer.SendMessageToAll(ref msg);
             }
@@ -407,6 +417,7 @@ namespace Sandbox.Game.Multiplayer
                     msg.Flags |= enableLights ? CharacterFlags.Lights : 0;
                     msg.Flags |= enableIronsight ? CharacterFlags.Ironsight : 0;
                     msg.Flags |= enableBroadcast ? CharacterFlags.Broadcast : 0;
+                    msg.Flags |= targetFromCamera ? CharacterFlags.TargetFromCamera : 0;
 
                     Sync.Layer.SendMessageToServer(ref msg);
                 }
@@ -418,7 +429,7 @@ namespace Sandbox.Game.Multiplayer
             {
                 var handler = sync.FlagsChanged;
                 if (handler != null)
-                    handler(msg.EnableJetpack, msg.EnableDampeners, msg.EnableLights, msg.EnableIronsight, msg.EnableBroadcast);
+                    handler(msg.EnableJetpack, msg.EnableDampeners, msg.EnableLights, msg.EnableIronsight, msg.EnableBroadcast, msg.TargetFromCamera);
 
                 if (Sync.IsServer)
                     Sync.Layer.SendMessageToAll(ref msg);
@@ -428,7 +439,7 @@ namespace Sandbox.Game.Multiplayer
             {
                 var handler = sync.FlagsChanged;
                 if (handler != null)
-                    handler(msg.EnableJetpack, msg.EnableDampeners, msg.EnableLights, msg.EnableIronsight, msg.EnableBroadcast);
+                    handler(msg.EnableJetpack, msg.EnableDampeners, msg.EnableLights, msg.EnableIronsight, msg.EnableBroadcast, msg.TargetFromCamera);
             }
         }
 
@@ -507,6 +518,12 @@ namespace Sandbox.Game.Multiplayer
                 CachedMovementState.MoveIndicator != moveIndicator ||
                 CachedMovementState.RotationIndicator != rotationIndicator ||
                 CachedMovementState.MovementFlags != movementFlags;
+
+            if (MyMultiplayer.Static != null && MyMultiplayer.Static.FrameCounter - m_lastUpdateFrame > 60)
+            {  //Send input even if nothing changed, because clients can be moved by other forces and we need to sync them somehow at low framerate
+                ResetUpdateTimer();
+                changed = true;
+            }
 
             if (changed)
             {

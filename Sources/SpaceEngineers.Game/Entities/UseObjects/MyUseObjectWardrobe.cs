@@ -20,7 +20,7 @@ namespace Sandbox.Game.Entities.Cube
         public readonly MyCubeBlock Block;
         public readonly Matrix LocalMatrix;
 
-        public MyUseObjectWardrobe(IMyEntity owner, string dummyName, MyModelDummy dummyData, int key)
+        public MyUseObjectWardrobe(IMyEntity owner, string dummyName, MyModelDummy dummyData, uint key)
         {
             Block = owner as MyCubeBlock;
             LocalMatrix = dummyData.Matrix;

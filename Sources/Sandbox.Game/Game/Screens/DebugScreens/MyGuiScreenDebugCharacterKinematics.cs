@@ -14,6 +14,7 @@ using Sandbox.Game.World;
 using Sandbox.Common.ObjectBuilders.Definitions;
 using Sandbox.Common.ObjectBuilders;
 using Sandbox.Engine.Physics;
+using Sandbox.Game.Entities.Character.Components;
 
 namespace Sandbox.Game.Screens.DebugScreens
 {
@@ -33,6 +34,17 @@ namespace Sandbox.Game.Screens.DebugScreens
         public static bool ikSettingsEnabled;
         MyFeetIKSettings ikSettings;
         public bool updating = false;
+
+        public MyRagdollMapper PlayerRagdollMapper
+        {
+            get
+            {
+                MyCharacter playerCharacter = MySession.LocalCharacter;
+                var ragdollComponent = playerCharacter.Components.Get<MyCharacterRagdollComponent>();
+                if (ragdollComponent == null) return null;
+                return ragdollComponent.RagdollMapper;
+            }
+        }
         
 
         public override string GetFriendlyName()
@@ -105,17 +117,17 @@ namespace Sandbox.Game.Screens.DebugScreens
         private void switchRagdoll(MyGuiControlButton obj)
         {
             MyCharacter playerCharacter = MySession.LocalCharacter;
-            if (playerCharacter.RagdollMapper.IsActive)
+            if (PlayerRagdollMapper.IsActive)
             {
                 if (playerCharacter.Physics.Ragdoll.IsKeyframed)
                 {
                     playerCharacter.Physics.Ragdoll.EnableConstraints();
-                    playerCharacter.RagdollMapper.SetRagdollToDynamic();                    
+                    PlayerRagdollMapper.SetRagdollToDynamic();                    
                 }
                 else
                 {
                     playerCharacter.Physics.Ragdoll.DisableConstraints();
-                    playerCharacter.RagdollMapper.SetRagdollToKeyframed();
+                    PlayerRagdollMapper.SetRagdollToKeyframed();
                 }
                 
             }
@@ -124,14 +136,19 @@ namespace Sandbox.Game.Screens.DebugScreens
         private void activateRagdollAction(MyGuiControlButton obj)
         {
             MyCharacter playerCharacter = MySession.LocalCharacter;
-            if (playerCharacter.RagdollMapper == null) playerCharacter.InitRagdoll();
-            if (playerCharacter.RagdollMapper.IsActive) playerCharacter.RagdollMapper.Deactivate();
+            if (PlayerRagdollMapper == null)
+            {
+                var component = new MyCharacterRagdollComponent();
+                playerCharacter.Components.Add<MyCharacterRagdollComponent>(component);
+                component.InitRagdoll();
+            }
+            if (PlayerRagdollMapper.IsActive) PlayerRagdollMapper.Deactivate();
             //playerCharacter.RagdollMapper.Activate(playerCharacter.Physics.HavokWorld, MyPhysics.CollisionLayerWithoutCharacter, playerCharacter.Physics.CharacterSystemGroupCollisionFilterID);
             //m_playerCharacter.Physics.CharacterProxy.SwitchToRagdollMode(m_playerCharacter.Physics.HavokWorld, m_playerCharacter.WorldMatrix);
             //m_playerCharacter.Physics.CharacterProxy.SwitchToRagdollMode(m_playerCharacter.Physics.HavokWorld);
             playerCharacter.Physics.SwitchToRagdollMode(false);
-            playerCharacter.RagdollMapper.Activate();
-            playerCharacter.RagdollMapper.SetRagdollToKeyframed();
+            PlayerRagdollMapper.Activate();
+            PlayerRagdollMapper.SetRagdollToKeyframed();
             playerCharacter.Physics.Ragdoll.DisableConstraints();
 
         }

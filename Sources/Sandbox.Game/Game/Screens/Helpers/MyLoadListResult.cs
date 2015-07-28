@@ -23,7 +23,7 @@ using VRage.Utils;
 
 namespace Sandbox.Game.Gui
 {
-    public class MyLoadListResult : IMyAsyncResult
+    public abstract class MyLoadListResult : IMyAsyncResult
     {
         public bool IsCompleted { get { return this.Task.IsComplete; } }
         public Task Task
@@ -35,17 +35,14 @@ namespace Sandbox.Game.Gui
         public List<Tuple<string, MyWorldInfo>> AvailableSaves = new List<Tuple<string, MyWorldInfo>>();
         public bool ContainsCorruptedWorlds;
 
-        public MyLoadListResult(bool missions = false)
+        public MyLoadListResult()
         {
-            Task = Parallel.Start(() => LoadListAsync(missions));
+            Task = Parallel.Start(() => LoadListAsync());
         }
 
-        private void LoadListAsync(bool missions)
+        private void LoadListAsync()
         {
-            if (missions)
-                AvailableSaves = MyLocalCache.GetAvailableMissionInfos();
-            else
-                AvailableSaves = MyLocalCache.GetAvailableWorldInfos();
+            AvailableSaves = GetAvailableSaves();
 
             ContainsCorruptedWorlds = false;
 
@@ -77,6 +74,8 @@ namespace Sandbox.Game.Gui
             VerifyUniqueWorldID(AvailableSaves);
         }
 
+        protected abstract List<Tuple<string, MyWorldInfo>> GetAvailableSaves();
+
         [Conditional("DEBUG")]
         private void VerifyUniqueWorldID(List<Tuple<string, MyWorldInfo>> availableWorlds)
         {
@@ -94,6 +93,30 @@ namespace Sandbox.Game.Gui
                 }
                 worldIDs.Add(item.Item1);
             }
+        }
+    }
+
+    public class MyLoadMissionListResult : MyLoadListResult
+    {
+        protected override List<Tuple<string, MyWorldInfo>> GetAvailableSaves()
+        {
+            return MyLocalCache.GetAvailableMissionInfos();
+        }
+    }
+
+    public class MyLoadWorldInfoListResult : MyLoadListResult
+    {
+        protected override List<Tuple<string, MyWorldInfo>> GetAvailableSaves()
+        {
+            return MyLocalCache.GetAvailableWorldInfos();
+        }
+    }
+
+    public class MyLoadTutorialListResult : MyLoadListResult
+    {
+        protected override List<Tuple<string, MyWorldInfo>> GetAvailableSaves()
+        {
+            return MyLocalCache.GetAvailableTutorialInfos(); 
         }
     }
 }

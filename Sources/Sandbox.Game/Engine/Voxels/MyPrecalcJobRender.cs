@@ -84,9 +84,9 @@ namespace Sandbox.Engine.Voxels
             {
                 if (m_isCancelled)
                     return;
-
-                var min = m_args.Cell.CoordInLod * MyVoxelConstants.RENDER_CELL_SIZE_IN_VOXELS;
-                var max = min + MyVoxelConstants.RENDER_CELL_SIZE_IN_VOXELS - 1
+                var cellSize = MyVoxelCoordSystems.RenderCellSizeInLodVoxels(m_args.Cell.Lod);
+                var min = m_args.Cell.CoordInLod * cellSize;
+                var max = min + cellSize - 1
                     + 1 // overlap to neighbor so geometry is stitched together within same LOD
                     + 1 // extra overlap so there are more vertices for mapping to parent LOD
                     + 1; // for eg. 9 vertices in row we need 9 + 1 samples (voxels)
@@ -253,15 +253,13 @@ namespace Sandbox.Engine.Voxels
                     }
                 }
 
-                if (false)
-                {
-                    ProcessMorphTargetCollisions(args, vertexCellSizeInParentLod);
-                }
+#if false
+                ProcessMorphTargetCollisions(args, vertexCellSizeInParentLod);
+#endif
 
-                if (false)
-                {
-                    EnsureMorphTargetExists(args, highResMesh);
-                }
+#if false
+                EnsureMorphTargetExists(args, highResMesh);
+#endif
             }
 
             localBoundingBox = BoundingBox.CreateInvalid();
@@ -393,6 +391,7 @@ namespace Sandbox.Engine.Voxels
             m_morphMap.Clear();
         }
 
+#if false
         private void EnsureMorphTargetExists(MyPrecalcJobRender.Args args, MyIsoMesh highResMesh)
         {
             // Ensure as many (ideally all) vertices have some mapping prepared.
@@ -445,7 +444,9 @@ namespace Sandbox.Engine.Voxels
                 }
             }
         }
+#endif
 
+#if false
         private void ProcessMorphTargetCollisions(MyPrecalcJobRender.Args args, float vertexCellSizeInParentLod)
         {
             // Process collisions.
@@ -488,6 +489,7 @@ namespace Sandbox.Engine.Voxels
             }
             m_collisionList.Clear();
         }
+#endif
 
         private void ProcessVertex(MyIsoMesh mesh, int vertexIndex, ref BoundingBox localAabb, ref Vector3 positionScale, ref Vector3D positionOffset, out MyVoxelVertex vertex)
         {

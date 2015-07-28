@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using Sandbox.Common.ObjectBuilders.Definitions;
 using ProtoBuf;
+using VRage.Utils;
 
 namespace Sandbox.ModAPI
 {
@@ -14,7 +15,7 @@ namespace Sandbox.ModAPI
     [ProtoContract]
     public struct MyDamageInformation
     {
-        public MyDamageInformation(bool isDeformation, float amount, MyDamageType type, long attackerId)
+        public MyDamageInformation(bool isDeformation, float amount, MyStringHash type, long attackerId)
         {
             IsDeformation = isDeformation;
             Amount = amount;
@@ -29,7 +30,7 @@ namespace Sandbox.ModAPI
         public float Amount;
 
         [ProtoMember]
-        public MyDamageType Type;
+        public MyStringHash Type;
 
         [ProtoMember]
         public long AttackerId;

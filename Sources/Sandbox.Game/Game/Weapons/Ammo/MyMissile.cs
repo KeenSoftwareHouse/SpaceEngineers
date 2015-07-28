@@ -128,8 +128,11 @@ namespace Sandbox.Game.Weapons
                         BoundingSphereD explosionSphere = new BoundingSphereD(m_collisionPoint.HasValue ? m_collisionPoint.Value : PositionComp.GetPosition(), radius);
 
                         MyEntity ownerEntity = null;
+                        var ownerId = Sync.Players.TryGetIdentity(m_owner);
+                        if (ownerId != null)
+                            ownerEntity = ownerId.Character;
                         //MyEntities.TryGetEntityById(m_owner, out ownerEntity);
-                        MyEntities.TryGetEntity(m_owner, out ownerEntity);
+                        
 
                         //  Call main explosion starter
                         MyExplosionInfo info = new MyExplosionInfo()
@@ -271,7 +274,7 @@ namespace Sandbox.Game.Weapons
 
         public override void OnContactStart(ref MyPhysics.MyContactPointEvent value)
         {
-             MyEntity collidedEntity = GetOtherEntity(ref value) as MyEntity;
+            MyEntity collidedEntity = value.ContactPointEvent.GetOtherEntity(this) as MyEntity;
 
             if (collidedEntity == null)
                 return;
@@ -308,7 +311,7 @@ namespace Sandbox.Game.Weapons
         {
         }
 
-        public void DoDamage(float damage, MyDamageType damageType, bool sync, long attackerId)
+        public void DoDamage(float damage, MyStringHash damageType, bool sync, long attackerId)
         {
             if (sync)
             {
@@ -338,7 +341,7 @@ namespace Sandbox.Game.Weapons
             OnDestroy();
         }
 
-        void IMyDestroyableObject.DoDamage(float damage, MyDamageType damageType, bool sync, MyHitInfo? hitInfo, long attackerId)
+        void IMyDestroyableObject.DoDamage(float damage, MyStringHash damageType, bool sync, MyHitInfo? hitInfo, long attackerId)
         {
             DoDamage(damage, damageType, sync, attackerId);
         }

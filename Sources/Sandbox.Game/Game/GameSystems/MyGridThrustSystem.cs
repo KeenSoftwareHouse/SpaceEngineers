@@ -1,4 +1,4 @@
-﻿// NOTE: To adjust aggressiveness of thruster rotational damping, change DAMPING_CONSTANT in AdjustThrustForRotation() method.
+// NOTE: To adjust aggressiveness of thruster rotational damping, change DAMPING_CONSTANT in AdjustThrustForRotation() method.
 
 using System;
 using System.Collections.Generic;
@@ -8,20 +8,23 @@ using System.Text;
 using System.Threading.Tasks;
 using Sandbox.Common.ObjectBuilders;
 using Sandbox.Engine.Physics;
+using Sandbox.Common;
 using Sandbox.Engine.Utils;
 using Sandbox.Game.Entities;
+using Sandbox.Game.Entities.Cube;
 using Sandbox.Game.GameSystems.Electricity;
-
-using VRage.Utils;
-using VRage.Trace;
-using VRageMath;
 using Sandbox.Game.Multiplayer;
 using Sandbox.Game.Entities.Cube;
 using Sandbox.Game.World;
 using Sandbox.Graphics;
 using Sandbox.Common;
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
 using VRage;
 using VRage.Components;
+using VRage.Utils;
+using VRageMath;
 
 using Sandbox.Game.Gui;
 
@@ -291,16 +294,18 @@ namespace Sandbox.Game.GameSystems
             Vector3 thrust = negativeControl * m_maxNegativeLinearThrust + positiveControl * m_maxPositiveLinearThrust;
             thrust = Vector3.Clamp(thrust, -m_maxNegativeLinearThrust, m_maxPositiveLinearThrust);
 
-            if (DampenersEnabled)
+            if (DampenersEnabled && m_grid.Physics.IsMoving)
             {
                 const float STOPPING_TIME = 0.5f;
 
                 var slowdownControl      = Vector3.IsZeroVector(direction, 0.001f) * Vector3.IsZeroVector(m_totalThrustOverride);
                 var slowdownAcceleration = -localVelocity / STOPPING_TIME;
-                var localGravityForce    = Vector3.Transform(m_grid.Physics.Gravity, ref invWorldRot) * m_grid.Physics.Mass;
                 var slowdownThrust       = slowdownAcceleration * m_grid.Physics.Mass;
-                if (FlyByWireEnabled)
-                    slowdownThrust -= localGravityForce;
+                if (!MySession.Static.ThrusterDamage || FlyByWireEnabled)
+                {
+                    var localGravityForce = Vector3.Transform(m_grid.Physics.Gravity, ref invWorldRot) * m_grid.Physics.Mass;
+                    slowdownThrust       -= localGravityForce;
+                }
                 thrust = Vector3.Clamp(thrust + slowdownThrust * slowdownControl, -m_maxNegativeLinearThrust * MyFakes.SLOWDOWN_FACTOR_THRUST_MULTIPLIER, m_maxPositiveLinearThrust * MyFakes.SLOWDOWN_FACTOR_THRUST_MULTIPLIER);
             }
 
@@ -580,11 +585,11 @@ namespace Sandbox.Game.GameSystems
 
             Thrust = thrust;
 
-            if (m_grid.GridSystems.ControlSystem.IsLocallyControlled || (!m_grid.GridSystems.ControlSystem.IsControlled && Sync.IsServer) || (false && Sync.IsServer))
+            if (m_grid.GridSystems.ControlSystem.IsLocallyControlled || (!m_grid.GridSystems.ControlSystem.IsControlled))
             {
                 if (Thrust.LengthSquared() > 0.001f || m_currentTorque.LengthSquared() > 0.001f)
                 {
-                    if (m_grid.Physics.Enabled)
+                    if (m_grid.Physics.Enabled || m_grid.Physics.WeldInfo.Parent != null)
                         m_grid.Physics.AddForce(MyPhysicsForceType.ADD_BODY_FORCE_AND_BODY_TORQUE, Thrust, null, m_currentTorque);
                 }
 

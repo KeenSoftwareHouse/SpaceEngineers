@@ -42,7 +42,7 @@ namespace Sandbox.Game.Weapons
         protected override float ForwardCameraOffset { get { return 0.5f; } }
         protected override float UpCameraOffset { get { return 0.75f; } }
 
-        public override void Shoot(MyShootActionEnum action, Vector3 direction)
+        public override void Shoot(MyShootActionEnum action, Vector3 direction, string gunAction)
         {
             if (action != MyShootActionEnum.PrimaryAction)
                 return;

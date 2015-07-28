@@ -733,6 +733,16 @@ namespace VRageRender
                         }
 
                         actor.MarkRenderDirty();
+
+                        if (rMessage.OutlineColor.HasValue) {
+                            MyOutline.Add(rMessage.ID, rMessage.MaterialName, rMessage.OutlineColor.Value, rMessage.OutlineVolume);
+                        }
+                        else
+                        {
+                            MyOutline.Remove(rMessage.ID, rMessage.MaterialName);
+                        }
+
+                        //MyOutline.Add(rMessage.ID, rMessage.MaterialName, Color.Pink, null);
                     }
 
                     break;
@@ -1215,7 +1225,7 @@ namespace VRageRender
                 {
                     var rMessage = (MyRenderMessageTakeScreenshot)message;
 
-                    m_screenshot = new MyScreenshot(rMessage.PathToSave, rMessage.SizeMultiplier, rMessage.IgnoreSprites);
+                    m_screenshot = new MyScreenshot(rMessage.PathToSave, rMessage.SizeMultiplier, rMessage.IgnoreSprites, rMessage.ShowNotification);
 
                     break;
                 }

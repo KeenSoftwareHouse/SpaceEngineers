@@ -171,7 +171,7 @@ namespace Sandbox.Game.Gui
 
             //        foreach (var sb in q)
             //        {
-            //            //VRageRender.MyRenderProxy.DebugDrawText2D(new Vector2(0.0f, i * 10 + 80.0f), body.HkHitInfo.Body.GetEntity().ToString(), Color.Red, 0.5f);
+            //            //VRageRender.MyRenderProxy.DebugDrawText2D(new Vector2(0.0f, i * 10 + 80.0f), body.HkHitInfo.GetEntity().ToString(), Color.Red, 0.5f);
             //            VRageRender.MyRenderProxy.DebugDrawAxis(sb.PositionComp.WorldMatrix, 0.5f, true);
             //        }
 
@@ -217,7 +217,7 @@ namespace Sandbox.Game.Gui
             //            for (int i = 0; i < toList.Count; i++)
             //            {
             //                var body = toList[i];
-            //                VRageRender.MyRenderProxy.DebugDrawText2D(new Vector2(0.0f, i * 10 + 80.0f), body.HkHitInfo.Body.GetEntity().ToString(), Color.Red, 0.5f);
+            //                VRageRender.MyRenderProxy.DebugDrawText2D(new Vector2(0.0f, i * 10 + 80.0f), body.HkHitInfo.GetEntity().ToString(), Color.Red, 0.5f);
 
             //                VRageRender.MyRenderProxy.DebugDrawSphere(body.Position, 1, Color.Red, 1.0f, false);
             //            }

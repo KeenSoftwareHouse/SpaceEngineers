@@ -225,6 +225,7 @@ namespace Sandbox.Game.Screens.Helpers
 
             WantsToBeActivated = false;
             WantsToBeSelected = false;
+            ActivateOnClick = true;
 
             var builder = (MyObjectBuilder_ToolbarItemTerminalGroup)objBuilder;
             SetDisplayName(builder.GroupName);

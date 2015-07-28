@@ -62,7 +62,7 @@ namespace Sandbox.Game.AI.Commands
                 return;
             foreach (var hitInfo in m_tmpHitInfos)
             {
-                var ent = hitInfo.HkHitInfo.Body.GetEntity() as MyCharacter;
+                var ent = hitInfo.HkHitInfo.GetHitEntity() as MyCharacter;
                 if (ent != null)
                 {
                     MyAgentBot bot;

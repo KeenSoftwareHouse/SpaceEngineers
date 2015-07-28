@@ -1,6 +1,7 @@
 struct VertexStageOutput
 {
     float3 position : POSITION;
+    float3 position_world : POSITION1;
     float3 normal 	: NORMAL;
     float3 weights  : TEXCOORD0;
 };
@@ -86,7 +87,7 @@ void gs( triangle VertexStageOutput input[3], uint primitiveID : SV_PrimitiveID,
 
     //uint seed = primitiveID;
     //float3 min_position = min(input[0].position, min(input[1].position, input[2].position));
-    uint seed = position_seed(input[0].position + input[1].position * 7 + input[2].position * 53);
+    uint seed = position_seed(input[0].position_world + input[1].position_world * 7 + input[2].position_world * 53);
 
     float area = triangle_area(input[0].position, input[1].position, input[2].position);
 
