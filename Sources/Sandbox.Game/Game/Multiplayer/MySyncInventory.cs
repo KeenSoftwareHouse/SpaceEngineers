@@ -526,12 +526,29 @@ namespace Sandbox.Game.Multiplayer
 
             FixTransferAmount(src, dst, srcItem, spawn, ref remove, ref amount);
 
-            if (amount != 0)
+            if (src != dst)
             {
-                if (dst.AddItems(amount, srcItem.Value.Content, destItemIndex))
+                // If it's not the same source and destination inventory then add the items to the new inventory first and then remove them from the old one
+                if (amount != 0)
+                {
+                    if (dst.AddItems(amount, srcItem.Value.Content, destItemIndex))
+                    {
+                        if (remove != 0)
+                            src.RemoveItems(itemId, remove);
+                    }
+                }
+            }
+            else
+            {
+                // If it's the same inventory then remove the items first and then add them to the new position.
+                if (amount != 0)
                 {
                     if (remove != 0)
+                    {
                         src.RemoveItems(itemId, remove);
+                    }
+
+                    dst.AddItems(amount, srcItem.Value.Content, destItemIndex);
                 }
             }
         }
