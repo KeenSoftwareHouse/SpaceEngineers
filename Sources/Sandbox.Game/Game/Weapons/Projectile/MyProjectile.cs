@@ -169,8 +169,9 @@ namespace Sandbox.Game.Weapons
             IMyEntity entity;
             Vector3D hitPosition;
             Vector3 hitNormal;
+            bool headShot;
 
-            GetHitEntityAndPosition(line, out entity, out hitPosition, out hitNormal);
+            GetHitEntityAndPosition(line, out entity, out hitPosition, out hitNormal, out headShot);
             if (entity == null || entity == m_ignoreEntity || entity.Physics == null)
                 return true;
             ProfilerShort.Begin("Projectile.Update");
@@ -185,7 +186,7 @@ namespace Sandbox.Game.Weapons
                 GetSurfaceAndMaterial(entity, out surfaceImpact, out materialType);
 
                 PlayHitSound(materialType, entity, hitPosition);
-                DoDamage(hitPosition, entity);
+                DoDamage(headShot ? m_projectileAmmoDefinition.ProjectileHeadShotDamage : m_projectileAmmoDefinition.ProjectileMassDamage, hitPosition, entity);
                 //  Create smoke and debris particle at the place of voxel/model hit
 
                 if (surfaceImpact != MySurfaceImpactEnum.CHARACTER)
@@ -204,13 +205,16 @@ namespace Sandbox.Game.Weapons
             return true;
         }
 
-        private void GetHitEntityAndPosition(LineD line, out IMyEntity entity, out Vector3D hitPosition, out Vector3 hitNormal)
+        private void GetHitEntityAndPosition(LineD line, out IMyEntity entity, out Vector3D hitPosition, out Vector3 hitNormal, out bool hitHead)
         {
             entity = null;
             hitPosition = hitNormal = Vector3.Zero;
+            hitHead = false;
+
             VRageRender.MyRenderProxy.GetRenderProfiler().StartProfilingBlock("MyEntities.GetIntersectionWithLine()");
             m_intersection = MyEntities.GetIntersectionWithLine(ref line, m_ignoreEntity, m_weapon, false, false, true, IntersectionFlags.ALL_TRIANGLES, MyEngineConstants.UPDATE_STEP_SIZE_IN_SECONDS * CHECK_INTERSECTION_INTERVAL);
             VRageRender.MyRenderProxy.GetRenderProfiler().EndProfilingBlock();
+
             if(m_intersection != null)
             { 
                 entity = m_intersection.Value.Entity;
@@ -219,42 +223,63 @@ namespace Sandbox.Game.Weapons
             }
             if (entity == null)
             {
-                var hitRigidBody = MyPhysics.CastRay(line.From, line.To, out hitPosition, out hitNormal);
-                entity = hitRigidBody.GetEntity() as MyEntity;
+                var hitInfo = MyPhysics.CastRay(line.From, line.To);
+                if (hitInfo.HasValue)
+                {
+                    entity = hitInfo.Value.HkHitInfo.GetHitEntity() as MyEntity;
+                    hitPosition = hitInfo.Value.Position;
+                    hitNormal = hitInfo.Value.HkHitInfo.Normal;
+                }
             }
             if (entity == null)
                 return;
+
+            if (m_projectileAmmoDefinition.HeadShot && entity is MyCharacter)
+            {
+                MyCharacter hitCharacter = entity as MyCharacter;
+                MyIntersectionResultLineTriangleEx? t;
+                hitCharacter.GetIntersectionWithLine(ref line, out t, out hitHead);
+            }
+
             if (!(entity is MyCharacter))
                 entity = entity.GetTopMostParent();
         }
 
-        private void DoDamage(Vector3D hitPosition, IMyEntity damagedEntity)
+        private void DoDamage(float damage, Vector3D hitPosition, IMyEntity damagedEntity)
         {
             if (!Sync.IsServer)
                 return;
 
-            if (damagedEntity is MyCubeGrid)
+            if (m_projectileAmmoDefinition.ProjectileType == MyProjectileType.Bolt)
             {
-                var grid = damagedEntity as MyCubeGrid;
-                if (grid.Physics != null && grid.Physics.Enabled && grid.BlocksDestructionEnabled)
-                {
-                    bool causeDeformation = false;
-                    Vector3I blockPos;
-                    grid.FixTargetCube(out blockPos, Vector3D.Transform(hitPosition, grid.PositionComp.WorldMatrixNormalizedInv) / grid.GridSize);
-                    var block = grid.GetCubeBlock(blockPos);
-                    if (block != null)
-                    {
-                        (block as IMyDestroyableObject).DoDamage(m_projectileAmmoDefinition.ProjectileMassDamage, MyDamageType.Bullet, true, attackerId: m_weapon != null ? GetSubpartOwner(m_weapon).EntityId : 0);
-                        if (block.FatBlock == null)
-                            causeDeformation = true;
-                    }
-
-                    if (causeDeformation)
-                        ApllyDeformationCubeGrid(hitPosition, grid);
-                }
+                if (damagedEntity is IMyDestroyableObject && damagedEntity is MyCharacter)
+                    (damagedEntity as IMyDestroyableObject).DoDamage(damage, MyDamageType.Bolt, true, attackerId: m_weapon != null ? GetSubpartOwner(m_weapon).EntityId : 0);
             }
-            else if (damagedEntity is IMyDestroyableObject)
-                (damagedEntity as IMyDestroyableObject).DoDamage(m_projectileAmmoDefinition.ProjectileMassDamage, MyDamageType.Bullet, true, attackerId: m_weapon != null ? GetSubpartOwner(m_weapon).EntityId : 0);
+            else
+            {
+                if (damagedEntity is MyCubeGrid)
+                {
+                    var grid = damagedEntity as MyCubeGrid;
+                    if (grid.Physics != null && grid.Physics.Enabled && grid.BlocksDestructionEnabled)
+                    {
+                        bool causeDeformation = false;
+                        Vector3I blockPos;
+                        grid.FixTargetCube(out blockPos, Vector3D.Transform(hitPosition, grid.PositionComp.WorldMatrixNormalizedInv) / grid.GridSize);
+                        var block = grid.GetCubeBlock(blockPos);
+                        if (block != null)
+                        {
+                            (block as IMyDestroyableObject).DoDamage(damage, MyDamageType.Bullet, true, attackerId: m_weapon != null ? GetSubpartOwner(m_weapon).EntityId : 0);
+                            if (block.FatBlock == null)
+                                causeDeformation = true;
+                        }
+
+                        if (causeDeformation)
+                            ApllyDeformationCubeGrid(hitPosition, grid);
+                    }
+                }
+                else if (damagedEntity is IMyDestroyableObject)
+                    (damagedEntity as IMyDestroyableObject).DoDamage(damage, MyDamageType.Bullet, true, attackerId: m_weapon != null ? GetSubpartOwner(m_weapon).EntityId : 0);
+            }
 
             //Handle damage ?? some WIP code by Ondrej
             //MyEntity damagedObject = entity;
@@ -359,8 +384,10 @@ namespace Sandbox.Game.Weapons
                 MyStringHash thisType;
                 if (m_projectileAmmoDefinition.IsExplosive)
                     thisType = MyMaterialType.EXPBULLET;
-                else if (rifleGun != null && rifleGun.GunBase.IsAmmoProjectile)
+                else if (rifleGun != null && rifleGun.GunBase.IsAmmoProjectile && m_projectileAmmoDefinition.ProjectileType == MyProjectileType.Bullet)
                     thisType = MyMaterialType.RIFLEBULLET;
+                else if (m_projectileAmmoDefinition.ProjectileType == MyProjectileType.Bolt)
+                    thisType = MyMaterialType.BOLT;
                 else
                     thisType = MyMaterialType.GUNBULLET;
 
@@ -462,8 +489,16 @@ namespace Sandbox.Game.Weapons
                 
                 if (projectileTrailLength > 0)
                 {
-                    MyTransparentGeometry.AddLineBillboard("ProjectileTrailLine", new Vector4(m_projectileAmmoDefinition.ProjectileTrailColor * color, 1) * alphaCone,
-                        previousPosition, direction, (float)projectileTrailLength, thickness);
+                    if (m_projectileAmmoDefinition.ProjectileTrailMaterial != null)
+                    {
+                        MyTransparentGeometry.AddLineBillboard(m_projectileAmmoDefinition.ProjectileTrailMaterial, new Vector4(m_projectileAmmoDefinition.ProjectileTrailColor, 1),
+                            previousPosition, direction, (float)projectileTrailLength, thickness);
+                    }
+                    else
+                    {
+                        MyTransparentGeometry.AddLineBillboard("ProjectileTrailLine", new Vector4(m_projectileAmmoDefinition.ProjectileTrailColor * color, 1) * alphaCone,
+                            previousPosition, direction, (float)projectileTrailLength, thickness);
+                    }
                 }                
             }
         }

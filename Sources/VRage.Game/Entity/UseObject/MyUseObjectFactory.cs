@@ -72,7 +72,7 @@ namespace VRage.Game.Entity.UseObject
                 if (args[0].ParameterType == typeof(IMyEntity) &&
                     args[1].ParameterType == typeof(string) &&
                     args[2].ParameterType == typeof(MyModelDummy) &&
-                    args[3].ParameterType == typeof(int))
+                    args[3].ParameterType == typeof(uint))
                 {
                     return; // found correct constructor so no need to assert
                 }
@@ -81,7 +81,7 @@ namespace VRage.Game.Entity.UseObject
             Debug.Fail(string.Format("No appropriate constructor defined for type {0}.", type.FullName));
         }
 
-        public static IMyUseObject CreateUseObject(string detectorName, IMyEntity owner, string dummyName, MyModelDummy dummyData, int shapeKey)
+        public static IMyUseObject CreateUseObject(string detectorName, IMyEntity owner, string dummyName, MyModelDummy dummyData, uint shapeKey)
         {
             Type type;
             if (!m_useObjectTypesByDummyName.TryGetValue(detectorName, out type) || type == null)

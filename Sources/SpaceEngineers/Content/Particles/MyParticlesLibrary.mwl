@@ -78381,7 +78381,7 @@
         </ParticleGeneration>
       </Generations>
     </ParticleEffect>
-	<ParticleEffect name="Warp" version="0">
+    <ParticleEffect name="Warp" version="0">
       <ID>53</ID>
       <Length>3</Length>
       <Preload>0</Preload>
@@ -78780,6 +78780,550 @@
           </Emitter>
         </ParticleGeneration>
       </Generations>
-    </ParticleEffect>  
+    </ParticleEffect>
+    <ParticleEffect name="PlanetCrashDust" version="0">
+      <ID>51</ID>
+      <Length>90</Length>
+      <Preload>0</Preload>
+      <LowRes>false</LowRes>
+      <Generations>
+        <ParticleGeneration name="Smoke" version="0">
+          <MyAnimatedPropertyFloat name="Birth">
+            <Keys>
+              <Key>
+                <Time>0.5313653</Time>
+                <Value>1</Value>
+              </Key>
+              <Key>
+                <Time>3.321033</Time>
+                <Value>0</Value>
+              </Key>
+            </Keys>
+          </MyAnimatedPropertyFloat>
+          <MyConstPropertyFloat name="Birth var">0</MyConstPropertyFloat>
+          <MyAnimatedPropertyFloat name="Life">
+            <Keys>
+              <Key>
+                <Time>0</Time>
+                <Value>3</Value>
+              </Key>
+            </Keys>
+          </MyAnimatedPropertyFloat>
+          <MyConstPropertyFloat name="Life var">0</MyConstPropertyFloat>
+          <MyAnimatedPropertyVector3 name="Velocity">
+            <Keys>
+              <Key>
+                <Time>0</Time>
+                <Value>0 1 0</Value>
+              </Key>
+            </Keys>
+          </MyAnimatedPropertyVector3>
+          <MyConstPropertyEnum name="Velocity dir">0</MyConstPropertyEnum>
+          <MyAnimatedPropertyFloat name="Angle">
+            <Keys />
+          </MyAnimatedPropertyFloat>
+          <MyConstPropertyFloat name="Angle var">0</MyConstPropertyFloat>
+          <MyAnimatedPropertyFloat name="Rotation speed">
+            <Keys>
+              <Key>
+                <Time>0.2372167</Time>
+                <Value>2</Value>
+              </Key>
+            </Keys>
+          </MyAnimatedPropertyFloat>
+          <MyConstPropertyFloat name="Rotation speed var">0</MyConstPropertyFloat>
+          <MyAnimatedProperty2DFloat name="Radius">
+            <Keys>
+              <Key>
+                <Time>0</Time>
+                <Value>
+                  <MyAnimatedPropertyFloat name="Radius">
+                    <Keys>
+                      <Key>
+                        <Time>0</Time>
+                        <Value>1</Value>
+                      </Key>
+                      <Key>
+                        <Time>0.9968471</Time>
+                        <Value>40</Value>
+                      </Key>
+                    </Keys>
+                  </MyAnimatedPropertyFloat>
+                </Value>
+              </Key>
+            </Keys>
+          </MyAnimatedProperty2DFloat>
+          <MyAnimatedPropertyFloat name="Radius var">
+            <Keys />
+          </MyAnimatedPropertyFloat>
+          <MyAnimatedProperty2DVector4 name="Color">
+            <Keys>
+              <Key>
+                <Time>0</Time>
+                <Value>
+                  <MyAnimatedPropertyVector4 name="Color">
+                    <Keys>
+                      <Key>
+                        <Time>0</Time>
+                        <Value>0.945098 0.6352941 0.3647059 1</Value>
+                      </Key>
+                      <Key>
+                        <Time>0.3331582</Time>
+                        <Value>0 0 0 0</Value>
+                      </Key>
+                    </Keys>
+                  </MyAnimatedPropertyVector4>
+                </Value>
+              </Key>
+            </Keys>
+          </MyAnimatedProperty2DVector4>
+          <MyAnimatedPropertyFloat name="Color var">
+            <Keys />
+          </MyAnimatedPropertyFloat>
+          <MyAnimatedProperty2DTransparentMaterial name="Material">
+            <Keys>
+              <Key>
+                <Time>0</Time>
+                <Value>
+                  <MyAnimatedPropertyTransparentMaterial name="Material">
+                    <Keys>
+                      <Key>
+                        <Time>0</Time>
+                        <Value>Smoke</Value>
+                      </Key>
+                    </Keys>
+                  </MyAnimatedPropertyTransparentMaterial>
+                </Value>
+              </Key>
+            </Keys>
+          </MyAnimatedProperty2DTransparentMaterial>
+          <MyConstPropertyEnum name="Particle type">0</MyConstPropertyEnum>
+          <MyAnimatedPropertyFloat name="Thickness">
+            <Keys>
+              <Key>
+                <Time>0</Time>
+                <Value>0.5</Value>
+              </Key>
+            </Keys>
+          </MyAnimatedPropertyFloat>
+          <MyConstPropertyBool name="Enabled">true</MyConstPropertyBool>
+          <MyConstPropertyBool name="Blend textures">false</MyConstPropertyBool>
+          <MyConstPropertyBool name="Enable custom radius">false</MyConstPropertyBool>
+          <MyConstPropertyBool name="Enable custom velocity">false</MyConstPropertyBool>
+          <MyConstPropertyBool name="Enable custom birth">false</MyConstPropertyBool>
+          <MyConstPropertyGenerationIndex name="OnDie">-1</MyConstPropertyGenerationIndex>
+          <MyConstPropertyGenerationIndex name="OnLife">-1</MyConstPropertyGenerationIndex>
+          <MyAnimatedPropertyFloat name="LODBirth">
+            <Keys>
+              <Key>
+                <Time>0</Time>
+                <Value>1</Value>
+              </Key>
+            </Keys>
+          </MyAnimatedPropertyFloat>
+          <MyAnimatedPropertyFloat name="LODRadius">
+            <Keys>
+              <Key>
+                <Time>0</Time>
+                <Value>1</Value>
+              </Key>
+            </Keys>
+          </MyAnimatedPropertyFloat>
+          <MyAnimatedPropertyFloat name="Motion inheritance">
+            <Keys />
+          </MyAnimatedPropertyFloat>
+          <MyConstPropertyBool name="Use layer sorting">true</MyConstPropertyBool>
+          <MyConstPropertyInt name="Sort layer">-1</MyConstPropertyInt>
+          <MyConstPropertyBool name="Alpha anisotropic">true</MyConstPropertyBool>
+          <MyConstPropertyFloat name="Gravity">0</MyConstPropertyFloat>
+          <Emitter>
+            <ParticleEmitter version="0">
+              <MyConstPropertyEnum name="Type">0</MyConstPropertyEnum>
+              <MyAnimatedPropertyVector3 name="Offset">
+                <Keys>
+                  <Key>
+                    <Time>0</Time>
+                    <Value>0 0 0</Value>
+                  </Key>
+                </Keys>
+              </MyAnimatedPropertyVector3>
+              <MyAnimatedPropertyFloat name="Size">
+                <Keys>
+                  <Key>
+                    <Time>0</Time>
+                    <Value>1</Value>
+                  </Key>
+                </Keys>
+              </MyAnimatedPropertyFloat>
+              <MyConstPropertyFloat name="RadiusMin">1</MyConstPropertyFloat>
+              <MyConstPropertyFloat name="RadiusMax">1</MyConstPropertyFloat>
+              <MyConstPropertyBool name="DirToCamera">false</MyConstPropertyBool>
+            </ParticleEmitter>
+          </Emitter>
+        </ParticleGeneration>
+        <ParticleGeneration name="Dust_2" version="0">
+          <MyAnimatedPropertyFloat name="Birth">
+            <Keys>
+              <Key>
+                <Time>0</Time>
+                <Value>1</Value>
+              </Key>
+              <Key>
+                <Time>4.118081</Time>
+                <Value>0</Value>
+              </Key>
+            </Keys>
+          </MyAnimatedPropertyFloat>
+          <MyConstPropertyFloat name="Birth var">3</MyConstPropertyFloat>
+          <MyAnimatedPropertyFloat name="Life">
+            <Keys>
+              <Key>
+                <Time>0</Time>
+                <Value>2</Value>
+              </Key>
+            </Keys>
+          </MyAnimatedPropertyFloat>
+          <MyConstPropertyFloat name="Life var">0</MyConstPropertyFloat>
+          <MyAnimatedPropertyVector3 name="Velocity">
+            <Keys>
+              <Key>
+                <Time>0</Time>
+                <Value>0 1 0</Value>
+              </Key>
+            </Keys>
+          </MyAnimatedPropertyVector3>
+          <MyConstPropertyEnum name="Velocity dir">1</MyConstPropertyEnum>
+          <MyAnimatedPropertyFloat name="Angle">
+            <Keys />
+          </MyAnimatedPropertyFloat>
+          <MyConstPropertyFloat name="Angle var">20</MyConstPropertyFloat>
+          <MyAnimatedPropertyFloat name="Rotation speed">
+            <Keys>
+              <Key>
+                <Time>0.14233</Time>
+                <Value>5</Value>
+              </Key>
+            </Keys>
+          </MyAnimatedPropertyFloat>
+          <MyConstPropertyFloat name="Rotation speed var">0</MyConstPropertyFloat>
+          <MyAnimatedProperty2DFloat name="Radius">
+            <Keys>
+              <Key>
+                <Time>0</Time>
+                <Value>
+                  <MyAnimatedPropertyFloat name="Radius">
+                    <Keys>
+                      <Key>
+                        <Time>0</Time>
+                        <Value>1</Value>
+                      </Key>
+                      <Key>
+                        <Time>0.9994745</Time>
+                        <Value>5</Value>
+                      </Key>
+                    </Keys>
+                  </MyAnimatedPropertyFloat>
+                </Value>
+              </Key>
+            </Keys>
+          </MyAnimatedProperty2DFloat>
+          <MyAnimatedPropertyFloat name="Radius var">
+            <Keys />
+          </MyAnimatedPropertyFloat>
+          <MyAnimatedProperty2DVector4 name="Color">
+            <Keys>
+              <Key>
+                <Time>0</Time>
+                <Value>
+                  <MyAnimatedPropertyVector4 name="Color">
+                    <Keys>
+                      <Key>
+                        <Time>0</Time>
+                        <Value>0.2705882 0.2313726 0.1607843 0.5254902</Value>
+                      </Key>
+                      <Key>
+                        <Time>1</Time>
+                        <Value>0 0 0 0</Value>
+                      </Key>
+                    </Keys>
+                  </MyAnimatedPropertyVector4>
+                </Value>
+              </Key>
+            </Keys>
+          </MyAnimatedProperty2DVector4>
+          <MyAnimatedPropertyFloat name="Color var">
+            <Keys />
+          </MyAnimatedPropertyFloat>
+          <MyAnimatedProperty2DTransparentMaterial name="Material">
+            <Keys>
+              <Key>
+                <Time>0</Time>
+                <Value>
+                  <MyAnimatedPropertyTransparentMaterial name="Material">
+                    <Keys>
+                      <Key>
+                        <Time>0</Time>
+                        <Value>Smoke</Value>
+                      </Key>
+                    </Keys>
+                  </MyAnimatedPropertyTransparentMaterial>
+                </Value>
+              </Key>
+            </Keys>
+          </MyAnimatedProperty2DTransparentMaterial>
+          <MyConstPropertyEnum name="Particle type">0</MyConstPropertyEnum>
+          <MyAnimatedPropertyFloat name="Thickness">
+            <Keys>
+              <Key>
+                <Time>0</Time>
+                <Value>1</Value>
+              </Key>
+            </Keys>
+          </MyAnimatedPropertyFloat>
+          <MyConstPropertyBool name="Enabled">true</MyConstPropertyBool>
+          <MyConstPropertyBool name="Blend textures">false</MyConstPropertyBool>
+          <MyConstPropertyBool name="Enable custom radius">false</MyConstPropertyBool>
+          <MyConstPropertyBool name="Enable custom velocity">false</MyConstPropertyBool>
+          <MyConstPropertyBool name="Enable custom birth">false</MyConstPropertyBool>
+          <MyConstPropertyGenerationIndex name="OnDie">-1</MyConstPropertyGenerationIndex>
+          <MyConstPropertyGenerationIndex name="OnLife">-1</MyConstPropertyGenerationIndex>
+          <MyAnimatedPropertyFloat name="LODBirth">
+            <Keys>
+              <Key>
+                <Time>0</Time>
+                <Value>1</Value>
+              </Key>
+            </Keys>
+          </MyAnimatedPropertyFloat>
+          <MyAnimatedPropertyFloat name="LODRadius">
+            <Keys>
+              <Key>
+                <Time>0</Time>
+                <Value>1</Value>
+              </Key>
+            </Keys>
+          </MyAnimatedPropertyFloat>
+          <MyAnimatedPropertyFloat name="Motion inheritance">
+            <Keys />
+          </MyAnimatedPropertyFloat>
+          <MyConstPropertyBool name="Use layer sorting">false</MyConstPropertyBool>
+          <MyConstPropertyInt name="Sort layer">-1</MyConstPropertyInt>
+          <MyConstPropertyBool name="Alpha anisotropic">false</MyConstPropertyBool>
+          <MyConstPropertyFloat name="Gravity">0</MyConstPropertyFloat>
+          <Emitter>
+            <ParticleEmitter version="0">
+              <MyConstPropertyEnum name="Type">0</MyConstPropertyEnum>
+              <MyAnimatedPropertyVector3 name="Offset">
+                <Keys>
+                  <Key>
+                    <Time>0</Time>
+                    <Value>0 0 0</Value>
+                  </Key>
+                </Keys>
+              </MyAnimatedPropertyVector3>
+              <MyAnimatedPropertyFloat name="Size">
+                <Keys>
+                  <Key>
+                    <Time>0</Time>
+                    <Value>1</Value>
+                  </Key>
+                </Keys>
+              </MyAnimatedPropertyFloat>
+              <MyConstPropertyFloat name="RadiusMin">1</MyConstPropertyFloat>
+              <MyConstPropertyFloat name="RadiusMax">1</MyConstPropertyFloat>
+              <MyConstPropertyBool name="DirToCamera">false</MyConstPropertyBool>
+            </ParticleEmitter>
+          </Emitter>
+        </ParticleGeneration>
+      </Generations>
+    </ParticleEffect>
+    <ParticleEffect name="AtmosphereEntrry" version="0">
+      <ID>52</ID>
+      <Length>90</Length>
+      <Preload>0</Preload>
+      <LowRes>false</LowRes>
+      <Generations>
+        <ParticleGeneration name="FlameCap" version="0">
+          <MyAnimatedPropertyFloat name="Birth">
+            <Keys>
+              <Key>
+                <Time>0</Time>
+                <Value>350</Value>
+              </Key>
+            </Keys>
+          </MyAnimatedPropertyFloat>
+          <MyConstPropertyFloat name="Birth var">0</MyConstPropertyFloat>
+          <MyAnimatedPropertyFloat name="Life">
+            <Keys>
+              <Key>
+                <Time>0</Time>
+                <Value>3</Value>
+              </Key>
+            </Keys>
+          </MyAnimatedPropertyFloat>
+          <MyConstPropertyFloat name="Life var">2</MyConstPropertyFloat>
+          <MyAnimatedPropertyVector3 name="Velocity">
+            <Keys>
+              <Key>
+                <Time>0</Time>
+                <Value>0 0 0</Value>
+              </Key>
+            </Keys>
+          </MyAnimatedPropertyVector3>
+          <MyConstPropertyEnum name="Velocity dir">0</MyConstPropertyEnum>
+          <MyAnimatedPropertyFloat name="Angle">
+            <Keys />
+          </MyAnimatedPropertyFloat>
+          <MyConstPropertyFloat name="Angle var">0</MyConstPropertyFloat>
+          <MyAnimatedPropertyFloat name="Rotation speed">
+            <Keys>
+              <Key>
+                <Time>24.21907</Time>
+                <Value>60</Value>
+              </Key>
+            </Keys>
+          </MyAnimatedPropertyFloat>
+          <MyConstPropertyFloat name="Rotation speed var">10</MyConstPropertyFloat>
+          <MyAnimatedProperty2DFloat name="Radius">
+            <Keys>
+              <Key>
+                <Time>0</Time>
+                <Value>
+                  <MyAnimatedPropertyFloat name="Radius">
+                    <Keys>
+                      <Key>
+                        <Time>0</Time>
+                        <Value>7</Value>
+                      </Key>
+                    </Keys>
+                  </MyAnimatedPropertyFloat>
+                </Value>
+              </Key>
+            </Keys>
+          </MyAnimatedProperty2DFloat>
+          <MyAnimatedPropertyFloat name="Radius var">
+            <Keys>
+              <Key>
+                <Time>11.0543</Time>
+                <Value>2</Value>
+              </Key>
+            </Keys>
+          </MyAnimatedPropertyFloat>
+          <MyAnimatedProperty2DVector4 name="Color">
+            <Keys>
+              <Key>
+                <Time>0</Time>
+                <Value>
+                  <MyAnimatedPropertyVector4 name="Color">
+                    <Keys>
+                      <Key>
+                        <Time>0</Time>
+                        <Value>0.9926803 0.5403707 0.1463942 0.5124417</Value>
+                      </Key>
+                      <Key>
+                        <Time>0.4666316</Time>
+                        <Value>0.9882353 0.1490196 0.1490196 0.509804</Value>
+                      </Key>
+                      <Key>
+                        <Time>1</Time>
+                        <Value>0.9843137 0.8666667 0.3137255 0.1568628</Value>
+                      </Key>
+                    </Keys>
+                  </MyAnimatedPropertyVector4>
+                </Value>
+              </Key>
+            </Keys>
+          </MyAnimatedProperty2DVector4>
+          <MyAnimatedPropertyFloat name="Color var">
+            <Keys />
+          </MyAnimatedPropertyFloat>
+          <MyAnimatedProperty2DTransparentMaterial name="Material">
+            <Keys>
+              <Key>
+                <Time>0</Time>
+                <Value>
+                  <MyAnimatedPropertyTransparentMaterial name="Material">
+                    <Keys>
+                      <Key>
+                        <Time>0</Time>
+                        <Value>particle_flash_a</Value>
+                      </Key>
+                    </Keys>
+                  </MyAnimatedPropertyTransparentMaterial>
+                </Value>
+              </Key>
+            </Keys>
+          </MyAnimatedProperty2DTransparentMaterial>
+          <MyConstPropertyEnum name="Particle type">0</MyConstPropertyEnum>
+          <MyAnimatedPropertyFloat name="Thickness">
+            <Keys>
+              <Key>
+                <Time>0</Time>
+                <Value>1</Value>
+              </Key>
+            </Keys>
+          </MyAnimatedPropertyFloat>
+          <MyConstPropertyBool name="Enabled">true</MyConstPropertyBool>
+          <MyConstPropertyBool name="Blend textures">false</MyConstPropertyBool>
+          <MyConstPropertyBool name="Enable custom radius">true</MyConstPropertyBool>
+          <MyConstPropertyBool name="Enable custom velocity">false</MyConstPropertyBool>
+          <MyConstPropertyBool name="Enable custom birth">false</MyConstPropertyBool>
+          <MyConstPropertyGenerationIndex name="OnDie">-1</MyConstPropertyGenerationIndex>
+          <MyConstPropertyGenerationIndex name="OnLife">-1</MyConstPropertyGenerationIndex>
+          <MyAnimatedPropertyFloat name="LODBirth">
+            <Keys>
+              <Key>
+                <Time>0</Time>
+                <Value>1</Value>
+              </Key>
+            </Keys>
+          </MyAnimatedPropertyFloat>
+          <MyAnimatedPropertyFloat name="LODRadius">
+            <Keys>
+              <Key>
+                <Time>0</Time>
+                <Value>1</Value>
+              </Key>
+            </Keys>
+          </MyAnimatedPropertyFloat>
+          <MyAnimatedPropertyFloat name="Motion inheritance">
+            <Keys>
+              <Key>
+                <Time>0.1329394</Time>
+                <Value>0</Value>
+              </Key>
+            </Keys>
+          </MyAnimatedPropertyFloat>
+          <MyConstPropertyBool name="Use layer sorting">false</MyConstPropertyBool>
+          <MyConstPropertyInt name="Sort layer">-1</MyConstPropertyInt>
+          <MyConstPropertyBool name="Alpha anisotropic">false</MyConstPropertyBool>
+          <MyConstPropertyFloat name="Gravity">0</MyConstPropertyFloat>
+          <Emitter>
+            <ParticleEmitter version="0">
+              <MyConstPropertyEnum name="Type">4</MyConstPropertyEnum>
+              <MyAnimatedPropertyVector3 name="Offset">
+                <Keys>
+                  <Key>
+                    <Time>0</Time>
+                    <Value>0 0 0</Value>
+                  </Key>
+                </Keys>
+              </MyAnimatedPropertyVector3>
+              <MyAnimatedPropertyFloat name="Size">
+                <Keys>
+                  <Key>
+                    <Time>0</Time>
+                    <Value>1</Value>
+                  </Key>
+                </Keys>
+              </MyAnimatedPropertyFloat>
+              <MyConstPropertyFloat name="RadiusMin">45</MyConstPropertyFloat>
+              <MyConstPropertyFloat name="RadiusMax">50</MyConstPropertyFloat>
+              <MyConstPropertyBool name="DirToCamera">false</MyConstPropertyBool>
+            </ParticleEmitter>
+          </Emitter>
+        </ParticleGeneration>
+      </Generations>
+    </ParticleEffect>
   </ParticleEffects>
 </VRageParticleLibrary>

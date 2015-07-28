@@ -4,6 +4,7 @@ using Sandbox.Common.ObjectBuilders.Voxels;
 using Sandbox.Definitions;
 using Sandbox.Engine.Utils;
 using Sandbox.Engine.Voxels;
+using Sandbox.Game.Components;
 using Sandbox.Game.Entities;
 using Sandbox.Game.Gui;
 using Sandbox.Game.World;
@@ -128,7 +129,11 @@ namespace Sandbox.Game.Screens.DebugScreens
         {
             foreach (var voxelMap in MySession.Static.VoxelMaps.Instances)
             {
-                voxelMap.Render.InvalidateRenderObjects();
+                var clipmapComponent = voxelMap.Render as MyRenderComponentVoxelMap;
+                if (clipmapComponent != null)
+                {
+                    clipmapComponent.InvalidateAll();
+                }
             }
         }
 

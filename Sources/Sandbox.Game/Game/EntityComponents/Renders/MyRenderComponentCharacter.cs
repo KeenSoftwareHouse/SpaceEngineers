@@ -34,7 +34,7 @@ using VRage.ModAPI;
 
 namespace Sandbox.Game.Components
 {
-    class MyRenderComponentCharacter : MyRenderComponent
+    class MyRenderComponentCharacter : MyRenderComponentSkinnedEntity
     {
         #region Jetpack thrust
 
@@ -82,88 +82,20 @@ namespace Sandbox.Game.Components
 
         private const float HIT_INDICATOR_LENGTH = 0.8f;
         float m_currentHitIndicatorCounter = 0;
-        
-        bool m_sentSkeletonMessage = false;
-        MyCharacter m_character = null;
+
 
         #endregion
 
         #region overrides
 
-        public override void OnAddedToContainer()
-        {
-            base.OnAddedToContainer();
-            m_character = Container.Entity as MyCharacter;
-        }
-
-        public override void AddRenderObjects()
-        {
-            if (m_model == null)
-                return;
-
-            if (IsRenderObjectAssigned(0))
-                return;
-
-            System.Diagnostics.Debug.Assert(m_model == null || !string.IsNullOrEmpty(m_model.AssetName));
-
-            SetRenderObjectID(0, VRageRender.MyRenderProxy.CreateRenderCharacter
-                (
-                 Container.Entity.GetFriendlyName() + " " + Container.Entity.EntityId.ToString(),
-                 m_model.AssetName,
-                 Container.Entity.PositionComp.WorldMatrix,
-                 m_diffuseColor,
-                 ColorMaskHsv,
-                 GetRenderFlags()
-                ));
-            m_sentSkeletonMessage = false;
-
-            UpdateCharacterSkeleton();
-        }
-
-
-        private void UpdateCharacterSkeleton()
-        {
-            if (!m_sentSkeletonMessage)
-            {
-                m_sentSkeletonMessage = true;
-                var skeletonDescription = new MySkeletonBoneDescription[m_character.Bones.Count];
-
-                for (int i = 0; i < m_character.Bones.Count; i++)
-                {
-                    skeletonDescription[i].Parent = -1;
-                    if (m_character.Bones[i].Parent != null)
-                    {
-                        for (int j = 0; j < m_character.Bones.Count; j++)
-                        {
-                            if (m_character.Bones[j].Name == m_character.Bones[i].Parent.Name)
-                            {
-                                skeletonDescription[i].Parent = j;
-                                break;
-                            }
-                        }
-                    }
-
-                    if (m_character.Bones[i].Parent != null)
-                    {
-                        Debug.Assert(skeletonDescription[i].Parent > -1, "Can't find bone with parent name!");
-                    }
-
-                    skeletonDescription[i].SkinTransform = m_character.Bones[i].SkinTransform;
-                }
-
-                VRageRender.MyRenderProxy.SetCharacterSkeleton(RenderObjectIDs[0], skeletonDescription, Model.Animations.Skeleton.ToArray());
-            }
-        }
 
         public override void Draw()
         {
             base.Draw();
 
-            UpdateCharacterSkeleton();
+            MyCharacter character = m_skinnedEntity as MyCharacter;
 
-            VRageRender.MyRenderProxy.SetCharacterTransforms(RenderObjectIDs[0], m_character.BoneRelativeTransforms);
-
-            Matrix headMatrix = m_character.GetHeadMatrix(false);
+            Matrix headMatrix = character.GetHeadMatrix(false);
 
             
             Vector3 position = m_light.Position;
@@ -187,16 +119,16 @@ namespace Sandbox.Game.Components
             float reflectorRadiusForAlphaBlended = MathHelper.Lerp(0.1f, 0.5f, alphaGlareAlphaBlended); //3.5f;
 
             //  Multiply alpha by reflector level (and not the color), because if we multiply the color and let alpha unchanged, reflector cune will be drawn as very dark cone, but still visible
-            var reflectorLevel = m_character.CurrentLightPower;
+            var reflectorLevel = character.CurrentLightPower;
             m_light.ReflectorIntensity = reflectorLevel;
 
             alphaCone *= reflectorLevel * 0.2f;
             alphaGlareAlphaBlended *= reflectorLevel * 0.1f;
             alphaGlareAdditive *= reflectorLevel * 0.8f;
 
-            float distance = Vector3.Distance(m_character.PositionComp.GetPosition(), MySector.MainCamera.Position);
+            float distance = Vector3.Distance(character.PositionComp.GetPosition(), MySector.MainCamera.Position);
 
-            if (!m_character.IsInFirstPersonView && distance < MyCharacter.LIGHT_GLARE_MAX_DISTANCE && reflectorLevel > 0)
+            if (!character.IsInFirstPersonView && distance < MyCharacter.LIGHT_GLARE_MAX_DISTANCE && reflectorLevel > 0)
             {
                 float alpha = MathHelper.Clamp((MyCharacter.LIGHT_GLARE_MAX_DISTANCE - 10.0f) / distance, 0, 1);
 
@@ -230,9 +162,9 @@ namespace Sandbox.Game.Components
                 }
             }
 
-            DrawJetpackThrusts(m_character.UpdateCalled());
+            DrawJetpackThrusts(character.UpdateCalled());
 
-            if (m_character.Hierarchy.Parent != null)
+            if (character.Hierarchy.Parent != null)
             {
                 if (m_leftGlare != null && m_leftGlare.LightOn == true)
                 {
@@ -265,14 +197,14 @@ namespace Sandbox.Game.Components
                 }
             }
 
-            if (MySession.ControlledEntity == m_character)
+            if (MySession.ControlledEntity == character)
             {
-                if (m_character.IsDead && m_character.CurrentRespawnCounter > 0)
+                if (character.IsDead && character.CurrentRespawnCounter > 0)
                 {
                     DrawBlood(1);
                 }
 
-                if (!m_character.IsDead && m_currentHitIndicatorCounter > 0)
+                if (!character.IsDead && m_currentHitIndicatorCounter > 0)
                 {
                     m_currentHitIndicatorCounter -= MyEngineConstants.UPDATE_STEP_SIZE_IN_SECONDS;
 
@@ -284,10 +216,10 @@ namespace Sandbox.Game.Components
                     DrawBlood(alpha);
                 }
 
-				if (m_character.StatComp != null)
+                if (character.StatComp != null)
 				{
-					var healthRatio = m_character.StatComp.HealthRatio;
-					if (healthRatio <= MyCharacterStatComponent.LOW_HEALTH_RATIO && !m_character.IsDead)
+                    var healthRatio = character.StatComp.HealthRatio;
+                    if (healthRatio <= MyCharacterStatComponent.LOW_HEALTH_RATIO && !character.IsDead)
 					{
 						float alpha = MathHelper.Clamp(MyCharacterStatComponent.LOW_HEALTH_RATIO - healthRatio, 0, 1) / MyCharacterStatComponent.LOW_HEALTH_RATIO + 0.3f;
 						DrawBlood(alpha);
@@ -313,7 +245,9 @@ namespace Sandbox.Game.Components
 
         private void DrawJetpackThrusts(bool updateCalled)
         {
-            if (m_character.CanDrawThrusts() == false)
+            MyCharacter character = m_skinnedEntity as MyCharacter;
+
+            if (character.CanDrawThrusts() == false)
             {
                 return;
             }
@@ -326,7 +260,7 @@ namespace Sandbox.Game.Components
                 Vector3D position = Vector3D.Zero;
                 var worldToLocal = MatrixD.Invert(Container.Entity.PositionComp.WorldMatrix);
 
-                if (m_character.JetpackEnabled && m_character.IsJetpackPowered() && !m_character.IsInFirstPersonView)
+                if (character.JetpackEnabled && character.IsJetpackPowered() && !character.IsInFirstPersonView)
                 {
                     var thrustMatrix = (MatrixD)thrust.ThrustMatrix * Container.Entity.PositionComp.WorldMatrix;
                     Vector3D forward = Vector3D.TransformNormal(thrust.Forward, thrustMatrix);
@@ -360,7 +294,7 @@ namespace Sandbox.Game.Components
                 }
                 else
                 {
-                    if (updateCalled || (m_character.IsUsing != null))
+                    if (updateCalled || (character.IsUsing != null))
                         thrust.ThrustRadius = 0;
                 }
 
@@ -405,7 +339,7 @@ namespace Sandbox.Game.Components
             foreach (var thrustDefinition in definition.Thrusts)
             {
                 int index;
-                var thrustBone = m_character.FindBone(thrustDefinition.ThrustBone, out index);
+                var thrustBone = m_skinnedEntity.FindBone(thrustDefinition.ThrustBone, out index);
                 if (thrustBone != null)
                 {
                     InitJetpackThrust(index, Vector3.Forward, thrustDefinition.SideFlameOffset, thrustDefinition); // UP is now in -Z
@@ -453,7 +387,7 @@ namespace Sandbox.Game.Components
             m_light.Range = 1;
 
             MyCharacterBone leftGlareBone = null;
-            if (definition.LeftLightBone != String.Empty) leftGlareBone = m_character.FindBone(definition.LeftLightBone, out m_leftLightIndex);
+            if (definition.LeftLightBone != String.Empty) leftGlareBone = m_skinnedEntity.FindBone(definition.LeftLightBone, out m_leftLightIndex);
             if (leftGlareBone != null)
             {
                 m_leftGlare = MyLights.AddLight();
@@ -468,7 +402,7 @@ namespace Sandbox.Game.Components
             }
 
             MyCharacterBone rightGlareBone = null;
-            if (definition.RightLightBone != String.Empty) rightGlareBone = m_character.FindBone(definition.RightLightBone, out m_rightLightIndex);
+            if (definition.RightLightBone != String.Empty) rightGlareBone = m_skinnedEntity.FindBone(definition.RightLightBone, out m_rightLightIndex);
             if (rightGlareBone != null)
             {
                 m_rightGlare = MyLights.AddLight();
@@ -518,10 +452,12 @@ namespace Sandbox.Game.Components
         {
             if (m_light != null)
             {
+                MyCharacter character = m_skinnedEntity as MyCharacter;
+
                 m_lightLocalPosition = new Vector3(0, 0, 0.3f);
 
-                MatrixD headMatrix = m_character.GetHeadMatrix(false, true, false);
-                MatrixD headMatrixAnim = m_character.GetHeadMatrix(false, true, true);
+                MatrixD headMatrix = character.GetHeadMatrix(false, true, false);
+                MatrixD headMatrixAnim = character.GetHeadMatrix(false, true, true);
 
                 if (m_oldReflectorAngle != MyCharacter.REFLECTOR_DIRECTION)
                 {
@@ -537,11 +473,11 @@ namespace Sandbox.Game.Components
                 m_light.Position = Vector3D.Transform(m_lightLocalPosition, headMatrixAnim);
                 m_light.UpdateLight();
 
-                Matrix[] boneMatrices = m_character.BoneTransforms;
+                Matrix[] boneMatrices = character.BoneAbsoluteTransforms;
 
                 if (m_leftGlare != null)
                 {
-                    MatrixD leftGlareMatrix = m_reflectorAngleMatrix * MatrixD.Normalize(boneMatrices[m_leftLightIndex]) * m_character.PositionComp.WorldMatrix;
+                    MatrixD leftGlareMatrix = m_reflectorAngleMatrix * MatrixD.Normalize(boneMatrices[m_leftLightIndex]) * m_skinnedEntity.PositionComp.WorldMatrix;
 
                     m_leftGlare.Position = leftGlareMatrix.Translation;
                     m_leftGlare.Range = 1;
@@ -556,7 +492,7 @@ namespace Sandbox.Game.Components
 
                 if (m_rightGlare != null)
                 {
-                    MatrixD rightGlareMatrix = m_reflectorAngleMatrix * MatrixD.Normalize(boneMatrices[m_rightLightIndex]) * m_character.PositionComp.WorldMatrix;
+                    MatrixD rightGlareMatrix = m_reflectorAngleMatrix * MatrixD.Normalize(boneMatrices[m_rightLightIndex]) * m_skinnedEntity.PositionComp.WorldMatrix;
                     m_rightGlare.Position = rightGlareMatrix.Translation;
                     m_rightGlare.Range = 1;
                     m_rightGlare.ReflectorDirection = -rightGlareMatrix.Up;

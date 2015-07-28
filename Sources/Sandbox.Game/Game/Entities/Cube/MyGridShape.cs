@@ -28,6 +28,8 @@ namespace Sandbox.Game.Entities.Cube
 
         private MyCubeBlockCollector m_blockCollector = new MyCubeBlockCollector();
         private HkMassProperties m_massProperties = new HkMassProperties();
+		private HkMassProperties m_originalMassProperties = new HkMassProperties();
+		private bool m_originalMassPropertiesSet = false;
 
         private List<HkMassElement> m_tmpElements = new List<HkMassElement>();
         private List<HkShape> m_tmpShapes = new List<HkShape>();
@@ -111,6 +113,7 @@ namespace Sandbox.Game.Entities.Cube
             {
                 m_tmpElements.Add(kv.Value);
             }
+
             Debug.Assert(m_massElements.Count > 0, "Mass can't be zero, in that case, grid should not be created");
 
             // HACK: this prevents crash, but it's generally on wrong place, but we don't know how to handle it higher on call stack
@@ -120,6 +123,11 @@ namespace Sandbox.Game.Entities.Cube
                 {
                     ProfilerShort.Begin("TensorComputer");
                     m_massProperties = HkInertiaTensorComputer.CombineMassProperties(m_tmpElements);
+					if (!m_originalMassPropertiesSet)
+					{
+						m_originalMassProperties = m_massProperties;
+						m_originalMassPropertiesSet = true;
+					}
                     ProfilerShort.End();
                 }
                 catch
@@ -166,6 +174,7 @@ namespace Sandbox.Game.Entities.Cube
             if (m_grid.Physics.HavokWorld != null)
                 UnmarkBreakable(m_grid.Physics.HavokWorld, rigidBody);
 
+			m_originalMassPropertiesSet = false;
             UpdateDirtyBlocks(dirtyCubesInfo.DirtyBlocks);
             UpdateMass(rigidBody);
             UpdateShape(rigidBody, rigidBody2, destructionBody);
@@ -444,7 +453,7 @@ namespace Sandbox.Game.Entities.Cube
             ProfilerShort.End();
         }
 
-        List<Havok.HkRigidBody> m_penetrations = new List<Havok.HkRigidBody>();
+        List<Havok.HkBodyCollision> m_penetrations = new List<Havok.HkBodyCollision>();
         private void FindConnectionsToWorld(HashSet<MySlimBlock> blocks)
         {
             if (m_grid.Physics != null && m_grid.Physics.LinearVelocity.LengthSquared() > 0) //jn: TODO nicer
@@ -471,10 +480,8 @@ namespace Sandbox.Game.Entities.Cube
                 bool isStatic = false;
                 foreach (var p in m_penetrations)
                 {
-                    if (p == null)
-                        continue;
-                    var e = p.UserObject as Sandbox.Engine.Physics.MyPhysicsBody;
-                    if (e != null && e.Entity != null && e.Entity is MyVoxelMap)
+                    var e = p.GetCollisionEntity();
+                    if (e != null && e is MyVoxelMap)
                     {
                         isStatic = true;
                         break;
@@ -506,10 +513,8 @@ namespace Sandbox.Game.Entities.Cube
                         counter++;
                         foreach (var p in m_penetrations)
                         {
-                            if (p == null)
-                                continue;
-                            var e = p.UserObject as Sandbox.Engine.Physics.MyPhysicsBody;
-                            if (e != null && e.Entity != null && e.Entity is MyVoxelMap)
+                            var e = p.GetCollisionEntity();
+                            if (e != null && e is MyVoxelMap)
                             {
                                 isStatic = true;
                                 child.Shape.SetFlagRecursively(HkdBreakableShape.Flags.IS_FIXED);
@@ -1063,7 +1068,6 @@ namespace Sandbox.Game.Entities.Cube
             if (rb.RigidBody.IsFixedOrKeyframed)
                 return;
             ProfilerShort.Begin("GridShape.UpdateMassFromInv");
-            Debug.Assert(BreakableShape.IsValid(), "This routine works with breakable shape mass properties.");
             foreach (var block in blocks)
             {
                 var owner = block.FatBlock as IMyInventoryOwner;
@@ -1076,12 +1080,20 @@ namespace Sandbox.Game.Entities.Cube
                 var size = (block.Max - block.Min + Vector3I.One) * block.CubeGrid.GridSize;
                 var center = (block.Min + block.Max) * 0.5f * block.CubeGrid.GridSize;
                 HkMassProperties massProperties = new HkMassProperties();
-                massProperties = HkInertiaTensorComputer.ComputeBoxVolumeMassProperties(size / 2, mass);
+                massProperties = HkInertiaTensorComputer.ComputeBoxVolumeMassProperties(size / 2, MyPerGameSettings.Destruction ?  MyDestructionHelper.MassToHavok(mass) : mass);
                 m_tmpElements.Add(new HkMassElement() { Properties = massProperties, Tranform = Matrix.CreateTranslation(center) });
             }
             HkMassProperties originalMp = new HkMassProperties();
-            BreakableShape.BuildMassProperties(ref originalMp);
-            m_tmpElements.Add(new HkMassElement() { Properties = originalMp, Tranform = Matrix.Identity });
+			if (MyPerGameSettings.Destruction)
+			{
+				Debug.Assert(BreakableShape.IsValid(), "This routine works with breakable shape mass properties.");
+				BreakableShape.BuildMassProperties(ref originalMp);
+				m_tmpElements.Add(new HkMassElement() { Properties = originalMp, Tranform = Matrix.Identity });
+			}
+			else
+			{
+				m_tmpElements.Add(new HkMassElement() { Properties = m_originalMassProperties, Tranform = Matrix.Identity });
+			}
             var mp = HkInertiaTensorComputer.CombineMassProperties(m_tmpElements);
             m_tmpElements.Clear();
             rb.RigidBody.SetMassProperties(ref mp);

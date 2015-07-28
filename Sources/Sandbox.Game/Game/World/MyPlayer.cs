@@ -1,20 +1,13 @@
-﻿using ProtoBuf;
-using Sandbox.Common;
+﻿using Sandbox.Common;
 using Sandbox.Common.ObjectBuilders;
-using Sandbox.Definitions;
-using Sandbox.Engine.Utils;
 using Sandbox.Game.Entities;
 using Sandbox.Game.Entities.Character;
-using Sandbox.Game.Gui;
 using Sandbox.Game.Multiplayer;
-using Sandbox.Graphics.GUI;
-using Sandbox.ModAPI;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using VRage.Utils;
+using VRage.Collections;
+using VRage.Components;
 using VRageMath;
 
 namespace Sandbox.Game.World
@@ -84,7 +77,22 @@ namespace Sandbox.Game.World
         private MyNetworkClient m_client;
         public MyNetworkClient Client { get { return m_client; } }
 
-        public MyIdentity Identity { get; private set; }
+		private MyIdentity m_identity;
+        public MyIdentity Identity {
+			get
+			{
+				return m_identity;
+			} 
+
+			set
+			{
+				Debug.Assert(value != null, "Changing an identity of a controller to nobody, which does not make sense");
+				m_identity = value;
+
+				if (IdentityChanged != null)
+					IdentityChanged(this, value);
+			}
+		}
         public event Action<MyPlayer, MyIdentity> IdentityChanged;
 
         /// <summary>
@@ -93,6 +101,28 @@ namespace Sandbox.Game.World
         public MyEntityController Controller { get; private set; }
 
         public string DisplayName { get; private set; }
+
+		// Colors that are applied to blocks when the player builds or paints them
+		private const int m_buildColorSlotCount = 14;
+		public static int BuildColorSlotCount { get { return m_buildColorSlotCount; } }
+		
+		private int m_selectedBuildColorSlot = 0;
+		public int SelectedBuildColorSlot { get { return m_selectedBuildColorSlot; } set { m_selectedBuildColorSlot = MathHelper.Clamp(value, 0, m_buildColorHSVSlots.Count-1); } }
+
+		public Vector3 SelectedBuildColor { get { return m_buildColorHSVSlots[m_selectedBuildColorSlot]; } set { m_buildColorHSVSlots[m_selectedBuildColorSlot] = value; } }
+
+		// MK: TODO: Remove these static properties for bot colours
+		public static int SelectedColorSlot { get { return MySession.LocalHumanPlayer != null ? MySession.LocalHumanPlayer.SelectedBuildColorSlot : 0; } }
+		public static Vector3 SelectedColor { get { return MySession.LocalHumanPlayer != null ? MySession.LocalHumanPlayer.SelectedBuildColor : m_buildColorDefaults[0]; } }
+		public static ListReader<Vector3> ColorSlots { get { return MySession.LocalHumanPlayer != null ? MySession.LocalHumanPlayer.BuildColorSlots : new ListReader<Vector3>(m_buildColorDefaults); } }
+
+		private static readonly List<Vector3> m_buildColorDefaults = new List<Vector3>(m_buildColorSlotCount);
+
+		private List<Vector3> m_buildColorHSVSlots = new List<Vector3>(m_buildColorSlotCount);
+		public List<Vector3> BuildColorSlots { get { return m_buildColorHSVSlots; } }
+
+		public bool IsLocalPlayer { get { return m_client == Sync.Clients.LocalClient; } }
+		public bool IsRemotePlayer { get { return m_client != Sync.Clients.LocalClient; } }
 
         public MyCharacter Character
         {
@@ -107,38 +137,151 @@ namespace Sandbox.Game.World
 
         public List<long> RespawnShip = new List<long>();
 
-        #warning: This should probably be on the identity. Check whether it's correct
+        /// #warning: This should probably be on the identity. Check whether it's correct
         /// <summary>
         /// Grids in which this player has at least one block
         /// </summary>
         public HashSet<long> Grids = new HashSet<long>();
 
-        public MyPlayer(MyNetworkClient client, string displayName, PlayerId id)
+		static MyPlayer()
+		{
+			InitDefaultColors();
+		}
+
+        public MyPlayer(MyNetworkClient client, PlayerId id)
         {
             m_client = client;
             Id = id;
-            DisplayName = displayName;
             Controller = new MyEntityController(this);
         }
 
-        public void ChangeIdentity(MyIdentity newIdentity)
-        {
-            Debug.Assert(newIdentity != null, "Changing an identity of a controller to nobody, which does not make sense");
-            Identity = newIdentity;
+		public void Init(MyObjectBuilder_Player objectBuilder)
+		{
+			DisplayName = objectBuilder.DisplayName;
+			Identity = Sync.Players.TryGetIdentity(objectBuilder.IdentityId);
 
-            if (IdentityChanged != null)
-                IdentityChanged(this, newIdentity);
-        }
+			if (m_buildColorHSVSlots.Count < m_buildColorSlotCount)
+			{
+				var defaultCount = m_buildColorHSVSlots.Count;
+				for (int index = 0; index < m_buildColorSlotCount - defaultCount; ++index)
+					m_buildColorHSVSlots.Add(MyRenderComponentBase.OldBlackToHSV);
+			}
 
-        public bool IsLocalPlayer()
-        {
-            return m_client == Sync.Clients.LocalClient;
-        }
+			if ((objectBuilder.BuildColorSlots == null) || (objectBuilder.BuildColorSlots.Count == 0))
+			{
+				SetDefaultColors();
+			}
+			else if (objectBuilder.BuildColorSlots.Count == m_buildColorSlotCount)
+			{
+				m_buildColorHSVSlots = objectBuilder.BuildColorSlots;
+			}
+			else if (objectBuilder.BuildColorSlots.Count > m_buildColorSlotCount)
+			{
+				m_buildColorHSVSlots = new List<Vector3>(m_buildColorSlotCount);
+				for (int i = 0; i < m_buildColorSlotCount; i++)
+					m_buildColorHSVSlots.Add(objectBuilder.BuildColorSlots[i]);
+			}
+			else
+			{
+				m_buildColorHSVSlots = objectBuilder.BuildColorSlots;
+				for (int i = m_buildColorHSVSlots.Count - 1; i < m_buildColorSlotCount; i++)
+					m_buildColorHSVSlots.Add(MyRenderComponentBase.OldBlackToHSV);
+			}
 
-        public bool IsRemotePlayer()
-        {
-            return m_client != Sync.Clients.LocalClient;
-        }
+			if (!Sync.IsServer)
+				return;
+
+			// Don't care about bot build colours for now
+			if (Id.SerialId != 0)
+				return;
+
+			if (MyCubeBuilder.AllPlayersColors == null)
+				MyCubeBuilder.AllPlayersColors = new Dictionary<PlayerId, List<Vector3>>();
+
+			if (!MyCubeBuilder.AllPlayersColors.ContainsKey(Id))
+				MyCubeBuilder.AllPlayersColors.Add(Id, m_buildColorHSVSlots);
+			else
+				MyCubeBuilder.AllPlayersColors.TryGetValue(Id, out m_buildColorHSVSlots);
+		}
+
+		public MyObjectBuilder_Player GetObjectBuilder()
+		{
+			MyObjectBuilder_Player objectBuilder = new MyObjectBuilder_Player();
+
+			objectBuilder.DisplayName = DisplayName;
+			objectBuilder.IdentityId = Identity.IdentityId;
+			objectBuilder.Connected = true;
+
+			if (!IsColorsSetToDefaults(m_buildColorHSVSlots))
+			{
+				objectBuilder.BuildColorSlots = new List<Vector3>();
+
+				foreach (var color in m_buildColorHSVSlots)
+				{
+					objectBuilder.BuildColorSlots.Add(color);
+				}
+			}
+
+			return objectBuilder;
+		}
+
+		public static bool IsColorsSetToDefaults(List<Vector3> colors)
+		{
+			for (int index = 0; index < m_buildColorSlotCount; ++index)
+			{
+				if (colors[index] != m_buildColorDefaults[index])
+					return false;
+			}
+
+			return true;
+		}
+
+		public void SetDefaultColors()
+		{
+			for (int index = 0; index < m_buildColorSlotCount; ++index)
+			{
+				m_buildColorHSVSlots[index] = m_buildColorDefaults[index];
+			}
+		}
+
+		private static void InitDefaultColors()
+		{
+			if (m_buildColorDefaults.Count < m_buildColorSlotCount)
+			{
+				var defaultCount = m_buildColorDefaults.Count;
+				for (int index = 0; index < m_buildColorSlotCount - defaultCount; ++index)
+					m_buildColorDefaults.Add(MyRenderComponentBase.OldBlackToHSV);
+			}
+			m_buildColorDefaults[0] = (MyRenderComponentBase.OldGrayToHSV);
+			m_buildColorDefaults[1] = (MyRenderComponentBase.OldRedToHSV);
+			m_buildColorDefaults[2] = (MyRenderComponentBase.OldGreenToHSV);
+			m_buildColorDefaults[3] = (MyRenderComponentBase.OldBlueToHSV);
+			m_buildColorDefaults[4] = (MyRenderComponentBase.OldYellowToHSV);
+			m_buildColorDefaults[5] = (MyRenderComponentBase.OldWhiteToHSV);
+			m_buildColorDefaults[6] = (MyRenderComponentBase.OldBlackToHSV);
+			for (int index = 7; index < m_buildColorSlotCount; ++index)
+				m_buildColorDefaults[index] = (m_buildColorDefaults[index - 7] + new Vector3(0, 0.15f, 0.2f));
+		}
+
+		public void ChangeOrSwitchToColor(Vector3 color)
+		{
+			for (int i = 0; i < m_buildColorSlotCount; i++)
+			{
+				if (m_buildColorHSVSlots[i] == color)
+				{
+					m_selectedBuildColorSlot = i;
+					return;
+				}
+			}
+			SelectedBuildColor = color;
+		}
+
+		public void SetBuildColorSlots(List<Vector3> newColors)
+		{
+			m_buildColorHSVSlots = newColors;
+			if (MyCubeBuilder.AllPlayersColors != null && MyCubeBuilder.AllPlayersColors.Remove(Id))
+				MyCubeBuilder.AllPlayersColors.Add(Id, m_buildColorHSVSlots);
+		}
 
         public Vector3D GetPosition()
         {

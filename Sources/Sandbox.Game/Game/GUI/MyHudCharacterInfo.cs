@@ -30,7 +30,8 @@ namespace Sandbox.Game.Gui
     {
         private enum LineEnum
         {
-            CharacterState,
+			CharacterState,
+            HelmetState,
             Health,
             Jetpack,
             Dampeners,
@@ -331,10 +332,19 @@ namespace Sandbox.Game.Gui
 
             if (MySession.Static.Settings.EnableOxygen)
             {
-                items[(int)LineEnum.CharacterState].Value.Clear().AppendStringBuilder(MyTexts.Get(MySpaceTexts.HudInfoHelmet)).Append(" ").AppendStringBuilder(GetOnOffText(IsHelmetOn));
+				items[(int)LineEnum.HelmetState].Name.Clear().AppendStringBuilder(MyTexts.Get(MySpaceTexts.HudInfoHelmet));
+				items[(int)LineEnum.HelmetState].Value.Clear().AppendStringBuilder(GetOnOffText(IsHelmetOn));
             }
 
-            items[(int)LineEnum.CharacterState].Name.Clear().AppendStringBuilder(stateText);
+			items[(int)LineEnum.CharacterState].Name.Clear();
+			items[(int)LineEnum.CharacterState].Value.Clear();
+			if (!FitsInSmallBackground())
+			{
+				items[(int)LineEnum.CharacterState].Name.AppendStringBuilder(MyTexts.Get(MySpaceTexts.HudInfoState));
+				items[(int)LineEnum.CharacterState].Value.AppendStringBuilder(stateText);
+			}
+			else
+				items[(int)LineEnum.CharacterState].Name.AppendStringBuilder(stateText);
             items[(int)LineEnum.Lights].Value.Clear().AppendStringBuilder(GetOnOffText(LightEnabled));
             items[(int)LineEnum.Mass].Value.Clear().AppendInt32(Mass).Append(" kg");
             items[(int)LineEnum.Speed].Value.Clear().AppendDecimal(Speed, 1).Append(" m/s");

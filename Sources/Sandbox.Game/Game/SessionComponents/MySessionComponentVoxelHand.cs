@@ -332,7 +332,7 @@ namespace Sandbox.Game.SessionComponents
                 bool found = false;
                 foreach (var hit in hitList)
                 {
-                    var entity = hit.HkHitInfo.Body.GetEntity();
+                    var entity = hit.HkHitInfo.GetHitEntity();
                     if (entity == this.m_currentVoxelMap)
                     {
                         Vector3D pos = hit.Position;

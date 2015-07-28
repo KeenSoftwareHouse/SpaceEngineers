@@ -103,6 +103,7 @@
     <Compile Include="ObjectBuilders\AI\Bot\MyObjectBuilder_BarbarianBot.cs" />
     <Compile Include="ObjectBuilders\AI\Bot\MyObjectBuilder_Bot.cs" />
     <Compile Include="ObjectBuilders\AI\Bot\MyObjectBuilder_HumanoidBot.cs" />
+    <Compile Include="ObjectBuilders\AI\Events\MyObjectBuilder_BarbarianWaveEvent.cs" />
     <Compile Include="ObjectBuilders\AI\MyObjectBuilder_AiTarget.cs" />
     <Compile Include="ObjectBuilders\Audio\MyAudioDefinition.cs" />
     <Compile Include="ObjectBuilders\Audio\MyCurveDefinition.cs" />
@@ -128,6 +129,7 @@
     <Compile Include="ObjectBuilders\ComponentSystem\MyObjectBuilder_EntityStatComponent.cs" />
     <Compile Include="ObjectBuilders\ComponentSystem\MyObjectBuilder_InventoryAggregate.cs" />
     <Compile Include="ObjectBuilders\ComponentSystem\MyObjectBuilder_InventoryBase.cs" />
+    <Compile Include="ObjectBuilders\ComponentSystem\MyObjectBuilder_RespawnComponent.cs" />
     <Compile Include="ObjectBuilders\Components\MyObjectBuilder_AIComponent.cs" />
     <Compile Include="ObjectBuilders\Components\MyObjectBuilder_BattleSystemComponent.cs" />
     <Compile Include="ObjectBuilders\Components\MyObjectBuilder_FloraComponent.cs" />
@@ -179,6 +181,7 @@
     <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_ContainerTypeDefinition.cs" />
     <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_ControllerSchemaDefinition.cs" />
     <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_ConveyorSorterDefinition.cs" />
+    <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_CrossbowItemDefinition.cs" />
     <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_CryoChamberDefinition.cs" />
     <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_CubeBlockDefinition.cs" />
     <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_CuttingDefinition.cs" />
@@ -350,6 +353,7 @@
     <Compile Include="ObjectBuilders\MyObjectBuilder_ConveyorPacket.cs" />
     <Compile Include="ObjectBuilders\MyObjectBuilder_ConveyorSorter.cs" />
     <Compile Include="ObjectBuilders\MyObjectBuilder_ConveyorTurretBase.cs" />
+    <Compile Include="ObjectBuilders\MyObjectBuilder_Crossbow.cs" />
     <Compile Include="ObjectBuilders\MyObjectBuilder_CryoChamber.cs" />
     <Compile Include="ObjectBuilders\MyObjectBuilder_CubeBlock.cs" />
     <Compile Include="ObjectBuilders\MyObjectBuilder_CubeGrid.cs" />
@@ -411,6 +415,8 @@
     <Compile Include="ObjectBuilders\MyObjectBuilder_MotorStator.cs" />
     <Compile Include="ObjectBuilders\MyObjectBuilder_MotorSuspension.cs" />
     <Compile Include="ObjectBuilders\MyObjectBuilder_EntityStatRegenEffect.cs" />
+    <Compile Include="ObjectBuilders\MyObjectBuilder_EnvironmentalParticleLogic.cs" />
+    <Compile Include="ObjectBuilders\MyObjectBuilder_EnvironmentalParticleLogicSpace.cs" />
     <Compile Include="ObjectBuilders\MyObjectBuilder_MyProgrammableBlock.cs" />
     <Compile Include="ObjectBuilders\MyObjectbuilder_Ore.cs" />
     <Compile Include="ObjectBuilders\MyObjectBuilder_OreDetector.cs" />

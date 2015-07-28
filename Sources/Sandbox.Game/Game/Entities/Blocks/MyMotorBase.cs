@@ -26,7 +26,7 @@ namespace Sandbox.Game.Entities.Cube
 {
     public abstract class MyMotorBase : MyFunctionalBlock, IMyPowerConsumer
     {
-        private static List<HkRigidBody> m_penetrations = new List<HkRigidBody>();
+        private static List<HkBodyCollision> m_penetrations = new List<HkBodyCollision>();
         private const string ROTOR_DUMMY_KEY = "electric_motor";
 
         public HkConstraint DebugConstraint { get { return m_constraint; } }
@@ -400,14 +400,8 @@ namespace Sandbox.Game.Entities.Cube
                 MyPhysics.GetPenetrationsBox(ref halfExtents, ref pos, ref orientation, m_penetrations, MyPhysics.DefaultCollisionLayer);
                 foreach (var obj in m_penetrations)
                 {
-                    if (obj == null)
-                        continue;
-
-                    if (obj == CubeGrid.Physics.RigidBody || obj == CubeGrid.Physics.RigidBody2)
-                        continue;
-
-                    var entity = obj.GetEntity();
-                    if (entity == null)
+                    var entity = obj.GetCollisionEntity();
+                    if (entity == null || entity == CubeGrid)
                         continue;
 
                     var grid = entity as MyCubeGrid;

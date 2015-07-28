@@ -149,7 +149,7 @@ namespace Sandbox.Game.Components
                     MyPhysics.CastRay(cam, center, m_tmpHitList, MyPhysics.DynamicDoubledCollisionLayer);
                     foreach (var hit in m_tmpHitList)
                     {
-                        if (hit.HkHitInfo.Body.GetEntity() != this)
+                        if (hit.HkHitInfo.GetHitEntity() != this)
                         {
                             draw = false;
                             break;
@@ -184,7 +184,7 @@ namespace Sandbox.Game.Components
                     MyPhysics.CastRay(cam, pos, m_tmpHitList, MyPhysics.DynamicDoubledCollisionLayer);
                     foreach (var hit in m_tmpHitList)
                     {
-                        if (hit.HkHitInfo.Body.GetEntity() != this)
+                        if (hit.HkHitInfo.GetHitEntity() != this)
                         {
                             draw = false;
                             break;

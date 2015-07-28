@@ -2,9 +2,11 @@
 using Sandbox.Engine.Voxels;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using VRage;
+using VRage.FileSystem;
 using VRage.Library.Utils;
 using VRage.Noise;
 using VRage.Utils;
@@ -12,36 +14,8 @@ using VRageMath;
 
 namespace Sandbox.Game.World.Generator
 {
-    public class MyMaterialLayer
-    {
-        public float StartAngle = -1.0f;
-        public float EndAngle  = 1;
-        public float StartHeight;
-        public float EndHeight;
-        public float HeightStartDeviation = 0.0f;
-        public float AngleStartDeviation = 0.0f;
-        public float HeightEndDeviation = 0.0f;
-        public float AngleEndDeviation = 0.0f;
-
-        public MyVoxelMaterialDefinition MaterialDefinition;
-
-        public MyMaterialLayer()
-        {
-            StartHeight = 0;
-            EndHeight = 0;
-            MaterialDefinition = null;
-        }
-
-        public MyMaterialLayer(float start, float end, string name)
-        {
-            StartHeight = start;
-            EndHeight = end;
-            MaterialDefinition = null;
-        }
-    }
-
     internal delegate void MyCompositeShapeGeneratorDelegate(int seed, float size, out MyCompositeShapeGeneratedData data);
-    internal delegate void MyCompositeShapeGeneratorPlanetDelegate(ref MyCsgShapePlanetShapeAttributes shapeAttributes, ref MyCsgShapePlanetHillAttributes hillAttributes, ref MyCsgShapePlanetHillAttributes canyonAttributes, ref MyCsgShapePlanetMaterialAttributes materialAttributes, out MyCompositeShapeGeneratedData data);
+    internal delegate void MyCompositeShapeGeneratorPlanetDelegate(ref MyCsgShapePlanetShapeAttributes shapeAttributes, float maxHillHeight, ref MyCsgShapePlanetMaterialAttributes materialAttributes, out MyCompositeShapeGeneratedData data);
 
     internal static class MyCompositeShapes
     {
@@ -80,13 +54,13 @@ namespace Sandbox.Game.World.Generator
         {
             Generator(2, seed, size, out data);
         }
-        private static void PlanetGenerator0(ref MyCsgShapePlanetShapeAttributes shapeAttributes, ref MyCsgShapePlanetHillAttributes hillAttributes, ref MyCsgShapePlanetHillAttributes canyonAttributes, ref MyCsgShapePlanetMaterialAttributes materialAttributes, out MyCompositeShapeGeneratedData data)
+        private static void PlanetGenerator0(ref MyCsgShapePlanetShapeAttributes shapeAttributes, float maxHillHeight, ref MyCsgShapePlanetMaterialAttributes materialAttributes, out MyCompositeShapeGeneratedData data)
         {
-            PlanetGenerator(ref shapeAttributes, ref hillAttributes, ref canyonAttributes, ref materialAttributes, out data);
+            PlanetGenerator(ref shapeAttributes, maxHillHeight, ref materialAttributes, out data);
         }
 
 
-        private static void PlanetGenerator(ref MyCsgShapePlanetShapeAttributes shapeAttributes, ref MyCsgShapePlanetHillAttributes hillAttributes, ref MyCsgShapePlanetHillAttributes canyonAttributes, ref MyCsgShapePlanetMaterialAttributes materialAttributes, out MyCompositeShapeGeneratedData data)
+        private static void PlanetGenerator(ref MyCsgShapePlanetShapeAttributes shapeAttributes, float maxHillHeight, ref MyCsgShapePlanetMaterialAttributes materialAttributes, out MyCompositeShapeGeneratedData data)
         {
             var random = MyRandom.Instance;
             using (var stateToken = random.PushSeed(shapeAttributes.Seed))
@@ -96,27 +70,24 @@ namespace Sandbox.Game.World.Generator
                 data.RemovedShapes = new MyCsgShapeBase[0];
 
 
-                data.MacroModule = new MyBillowFast(quality: MyNoiseQuality.Low,seed: shapeAttributes.Seed, frequency: shapeAttributes.NoiseFrequency / shapeAttributes.Diameter, layerCount: 1);
+                data.MacroModule = null;
 
-                data.DetailModule = new MyBillowFast(
-                       seed: shapeAttributes.Seed,
-                       quality: MyNoiseQuality.Low,
-                       frequency: random.NextFloat() * 0.09f + 0.11f,
-                       layerCount: 1);
+                data.DetailModule = null;
 
                 float halfSize = shapeAttributes.Radius;
                 float storageSize = VRageMath.MathHelper.GetNearestBiggerPowerOfTwo(shapeAttributes.Diameter);
                 float halfStorageSize = storageSize * 0.5f;
                 float storageOffset = halfStorageSize - halfSize;
-                 
 
-                data.FilledShapes[0] =  new MyCsgShapePlanet(
+                string planetPath = Path.Combine(MyFileSystem.ContentPath,"Data","PlanetDataFiles","Test");
+                data.FilledShapes[0] = new MyCsgShapePrecomputed(new Vector3(halfStorageSize), shapeAttributes.AveragePlanetRadius, planetPath, maxHillHeight);
+                    /*MyCsgShapePlanet(
                                         new Vector3(halfStorageSize),
                                         ref shapeAttributes,
                                         ref hillAttributes,
                                         ref canyonAttributes,
                                         detailFrequency: 0.5f,
-                                        deviationFrequency: 10.0f);
+                                        deviationFrequency: 10.0f);*/
 
                 FillMaterials(2);
 
@@ -126,11 +97,11 @@ namespace Sandbox.Game.World.Generator
                 data.Deposits = new MyCompositeShapeOreDeposit[depositCount];
 
 
-                data.Deposits[0] = new MyCompositeLayeredOreDeposit(new MyCsgSimpleSphere(
-                                                                    new Vector3(halfStorageSize), halfSize), materialAttributes.Layers,
-                                                                    new MyBillowFast(layerCount: 3,
-                                                                    seed: shapeAttributes.LayerDeviationSeed, frequency: shapeAttributes.LayerDeviationNoiseFrequency / shapeAttributes.Diameter),
-                                                                    new MyCompositeOrePlanetDeposit(new MyCsgSimpleSphere(new Vector3(halfStorageSize), materialAttributes.OreStartDepth), shapeAttributes.Seed, materialAttributes.OreStartDepth, materialAttributes.OreEndDepth, materialAttributes.OreProbabilities));       
+                data.Deposits[0] = new MyCompositePrecomputedOreDeposit(new MyCsgSimpleSphere(
+                                                                    new Vector3(halfStorageSize), halfSize),
+                                                                    planetPath,
+                                                                    new MyCompositeOrePlanetDeposit(new MyCsgSimpleSphere(new Vector3(halfStorageSize), materialAttributes.OreStartDepth), shapeAttributes.Seed, materialAttributes.OreStartDepth, materialAttributes.OreEndDepth, materialAttributes.OreProbabilities),
+                                                                    data.FilledShapes[0] as MyCsgShapePrecomputed );       
 
                 m_depositMaterials.Clear();
                 m_surfaceMaterials.Clear();

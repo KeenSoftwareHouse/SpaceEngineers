@@ -89,6 +89,7 @@
 				<TypeId>PhysicalMaterialDefinition</TypeId>
 				<SubtypeId>Ship</SubtypeId>
 			</Id>
+      <InheritFrom>Metal</InheritFrom>
 			<ContactSounds>
         <ContactSound>
           <Type>Start</Type>

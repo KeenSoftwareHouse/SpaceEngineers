@@ -231,7 +231,7 @@ namespace Sandbox.Game.Entities
         }
 
 
-        public IMyUseObject GetInteractiveObject(int shapeKey)
+        public IMyUseObject GetInteractiveObject(uint shapeKey)
         {
             if (!IsFunctional)
             {
@@ -257,7 +257,7 @@ namespace Sandbox.Game.Entities
                             continue;
                     }
 
-                    MyFloatingObjects.EnqueueInventoryItemSpawn(spawnItem, this.PositionComp.WorldAABB);
+                    MyFloatingObjects.EnqueueInventoryItemSpawn(spawnItem, this.PositionComp.WorldAABB, (CubeGrid.Physics != null ? CubeGrid.Physics.GetVelocityAtPoint(PositionComp.GetPosition()) : Vector3.Zero));
                 }
                 inventory.Clear();
             }
@@ -395,36 +395,6 @@ namespace Sandbox.Game.Entities
             NumberInGrid = cubeGrid.BlockCounter.GetNextNumber(builder.GetId());
             Render.ColorMaskHsv = builder.ColorMaskHSV;
 
-            if (BlockDefinition.ContainsComputer() || (MyFakes.ENABLE_BATTLE_SYSTEM && MySession.Static.Battle))
-            {
-                m_IDModule = new MyIDModule();
-
-                bool resetOwnership = MySession.Static.Settings.ResetOwnership && Sync.IsServer && (!MyFakes.ENABLE_BATTLE_SYSTEM || !MySession.Static.Battle);
-
-                if (resetOwnership)
-                {
-                    m_IDModule.Owner = 0;
-                    m_IDModule.ShareMode = MyOwnershipShareModeEnum.None;
-                }
-                else
-                {
-                    if ((int)builder.ShareMode == -1)
-                        builder.ShareMode = MyOwnershipShareModeEnum.None;
-
-                    var ownerType = MyEntityIdentifier.GetIdObjectType(builder.Owner);
-                    if (builder.Owner != 0 && ownerType != MyEntityIdentifier.ID_OBJECT_TYPE.NPC && ownerType != MyEntityIdentifier.ID_OBJECT_TYPE.SPAWN_GROUP)
-                    {
-                        System.Diagnostics.Debug.Assert(ownerType == MyEntityIdentifier.ID_OBJECT_TYPE.IDENTITY, "Old save detected, reseting owner to Nobody, please resave.");
-
-                        if (!Sync.Players.HasIdentity(builder.Owner))
-                            builder.Owner = 0; //reset, it was old version
-                    }
-
-                    m_IDModule.Owner = builder.Owner;
-                    m_IDModule.ShareMode = builder.ShareMode;
-                }
-            }
-
             if (MyFakes.ENABLE_SUBBLOCKS)
             {
                 if (builder.SubBlocks != null)
@@ -453,6 +423,47 @@ namespace Sandbox.Game.Entities
             base.Render.PersistentFlags |= MyPersistentEntityFlags2.CastShadows;
             Init();
             AddDebugRenderComponent(new MyDebugRenderComponentCubeBlock(this));
+
+            InitOwnership(builder);
+        }
+
+        private void InitOwnership(MyObjectBuilder_CubeBlock builder)
+        {
+            bool canHaveOwnership = BlockDefinition.ContainsComputer() || (MyFakes.ENABLE_BATTLE_SYSTEM && MySession.Static.Battle);
+            if (UseObjectsComponent != null)
+            {
+                canHaveOwnership = canHaveOwnership || UseObjectsComponent.GetDetectors("ownership").Count > 0;
+            }
+
+            if (canHaveOwnership)
+            {
+                m_IDModule = new MyIDModule();
+
+                bool resetOwnership = MySession.Static.Settings.ResetOwnership && Sync.IsServer;
+
+                if (resetOwnership)
+                {
+                    m_IDModule.Owner = 0;
+                    m_IDModule.ShareMode = MyOwnershipShareModeEnum.None;
+                }
+                else
+                {
+                    if ((int)builder.ShareMode == -1)
+                        builder.ShareMode = MyOwnershipShareModeEnum.None;
+
+                    var ownerType = MyEntityIdentifier.GetIdObjectType(builder.Owner);
+                    if (builder.Owner != 0 && ownerType != MyEntityIdentifier.ID_OBJECT_TYPE.NPC && ownerType != MyEntityIdentifier.ID_OBJECT_TYPE.SPAWN_GROUP)
+                    {
+                        System.Diagnostics.Debug.Assert(ownerType == MyEntityIdentifier.ID_OBJECT_TYPE.IDENTITY, "Old save detected, reseting owner to Nobody, please resave.");
+
+                        if (!Sync.Players.HasIdentity(builder.Owner))
+                            builder.Owner = 0; //reset, it was old version
+                    }
+
+                    m_IDModule.Owner = builder.Owner;
+                    m_IDModule.ShareMode = builder.ShareMode;
+                }
+            }
         }
 
         public sealed override MyObjectBuilder_EntityBase GetObjectBuilder(bool copy = false)
@@ -537,10 +548,11 @@ namespace Sandbox.Game.Entities
 
         protected virtual void WorldPositionChanged(object source)
         {
-            if (this.UseObjectsComponent.DetectorPhysics != null && this.UseObjectsComponent.DetectorPhysics.Enabled && this.UseObjectsComponent.DetectorPhysics != source)
-            {
-                UseObjectsComponent.DetectorPhysics.OnWorldPositionChanged(source);
-            }
+            // NOTE: This is now handled by the UseObjectsComponent itself
+			//if (this.UseObjectsComponent.DetectorPhysics != null && this.UseObjectsComponent.DetectorPhysics.Enabled && this.UseObjectsComponent.DetectorPhysics != source)
+            //{
+            //    UseObjectsComponent.DetectorPhysics.OnWorldPositionChanged(source);
+            //}
         }
 
         protected override void Closing()
@@ -721,7 +733,7 @@ namespace Sandbox.Game.Entities
 
         private MyParticleEffect m_damageEffect;// = new MyParticleEffect();
         private bool m_wasUpdatedEachFrame=false;
-        internal void SetDamageEffect(bool show)
+        internal virtual void SetDamageEffect(bool show)
         {
             if (MyFakes.SHOW_DAMAGE_EFFECTS && BlockDefinition.DamageEffectID != null&& MySandboxGame.Static.EnableDamageEffects)
             {
@@ -747,7 +759,7 @@ namespace Sandbox.Game.Entities
                 }
             }
         }
-        internal void StopDamageEffect()
+        internal virtual void StopDamageEffect()
         {
             if (MyFakes.SHOW_DAMAGE_EFFECTS && BlockDefinition.DamageEffectID != null)
             {

@@ -15,7 +15,7 @@ float VoxelVertex_ComputeMorphParameter(float3 cellRelativePosition)
     float boundsMax = VoxelVertex_Bounds.y;
     float3 diff = abs(cellRelativePosition - VoxelVertex_CellRelativeCamera);
     float dist = max(diff.x, max(diff.y, diff.z));
-    return saturate(((dist - boundsMin) / (boundsMax - boundsMin) - 0.4f) / 0.3f);
+    return saturate(((dist - boundsMin) / (boundsMax - boundsMin) - 0.4f) / 0.2f);
 #endif
 }
 

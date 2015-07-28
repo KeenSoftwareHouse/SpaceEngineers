@@ -20,7 +20,7 @@ namespace Sandbox.Game.Entities.Cube
         public readonly MyAdvancedDoor Door;
         public readonly Matrix LocalMatrix;
 
-        public MyUseObjectAdvancedDoorTerminal(IMyEntity owner, string dummyName, MyModelDummy dummyData, int key)
+        public MyUseObjectAdvancedDoorTerminal(IMyEntity owner, string dummyName, MyModelDummy dummyData, uint key)
         {
             Door = (MyAdvancedDoor)owner;
             LocalMatrix = dummyData.Matrix;

@@ -63,6 +63,7 @@ namespace Sandbox.Game.Screens.Triggers
                 maxLength: 300);
             m_itemPos.Y += m_wwwTextbox.Size.Y + VERTICAL_OFFSET;
             m_wwwLabel.Position = m_wwwLabel.Position - new Vector2(m_wwwTextbox.Size.X / 2, 0);//line to the left of textbox
+            m_wwwTextbox.TextChanged += OnWwwTextChanged;
             Controls.Add(m_wwwLabel);
             Controls.Add(m_wwwTextbox);
 
@@ -73,10 +74,11 @@ namespace Sandbox.Game.Screens.Triggers
             m_itemPos.Y += m_wwwLabel.Size.Y + VERTICAL_OFFSET;
             m_nextMisTextbox = new MyGuiControlTextbox(
                 position: m_itemPos,
-                //defaultText: trg.WwwLink,
+                defaultText: m_trigger.NextMission,
                 maxLength: 300);
             m_itemPos.Y += m_wwwTextbox.Size.Y + VERTICAL_OFFSET;
             m_nextMisLabel.Position = m_nextMisLabel.Position - new Vector2(m_nextMisTextbox.Size.X / 2, 0);//line to the left of textbox
+            m_nextMisTextbox.SetToolTip(MySpaceTexts.GuiTriggerNextMissionTooltip);
             Controls.Add(m_nextMisLabel);
             Controls.Add(m_nextMisTextbox);
 
@@ -98,8 +100,25 @@ namespace Sandbox.Game.Screens.Triggers
 
             Controls.Add(m_okButton);
             Controls.Add(m_cancelButton);
+
+            OnWwwTextChanged(m_wwwTextbox);
         }
 
+        void OnWwwTextChanged(MyGuiControlTextbox source)
+        {
+            if (source.Text.Length == 0 || MyGuiSandbox.IsUrlWhitelisted(source.Text))
+            {
+                source.ColorMask = Vector4.One;
+                source.SetToolTip((MyToolTips)null);
+                m_okButton.Enabled = true;
+            }
+            else
+            {
+                m_wwwTextbox.SetToolTip(MySpaceTexts.WwwLinkNotAllowed);
+                source.ColorMask = Color.Red.ToVector4();
+                m_okButton.Enabled = false;
+            }
+        }
         void OnCancelButtonClick(MyGuiControlButton sender)
         {
             CloseScreen();
@@ -109,7 +128,14 @@ namespace Sandbox.Game.Screens.Triggers
         {
             m_trigger.Message = m_textboxMessage.Text;
             m_trigger.WwwLink = m_wwwTextbox.Text;
+            m_trigger.NextMission = m_nextMisTextbox.Text;
             CloseScreen();
+        }
+
+        public override bool CloseScreen()
+        {
+            m_wwwTextbox.TextChanged -= OnWwwTextChanged;
+            return base.CloseScreen();
         }
 
         public override string GetFriendlyName()

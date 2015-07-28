@@ -96,7 +96,7 @@ namespace Sandbox.Game.Entities
         }
 
         private List<MyPhysics.HitInfo> m_gridRayCastLst;
-        private List<HkRigidBody> m_flameCollisionsList;
+        private List<HkBodyCollision> m_flameCollisionsList;
         private List<IMyEntity> m_damagedEntities;
 
         public bool IsPowered
@@ -236,7 +236,7 @@ namespace Sandbox.Game.Entities
         {
             Render.NeedsDrawFromParent = true;
             NeedsUpdate = MyEntityUpdateEnum.EACH_10TH_FRAME | MyEntityUpdateEnum.EACH_100TH_FRAME;
-            m_flameCollisionsList = new List<HkRigidBody>();
+            m_flameCollisionsList = new List<HkBodyCollision>();
             m_damagedEntities = new List<IMyEntity>();
             m_gridRayCastLst = new List<MyPhysics.HitInfo>();
             Render = new MyRenderComponentThrust();
@@ -370,23 +370,22 @@ namespace Sandbox.Game.Entities
 
                     foreach (var obj in m_flameCollisionsList)
                     {
-                        var entity = obj.GetEntity();
-                        if (entity == null)
+                        var ent = obj.GetCollisionEntity();
+                        if (ent == null || ent.Equals(this))
                             continue;
-                        if (entity.Equals(this))
-                            continue;
-                        if(!(entity is MyCharacter))
-                            entity = entity.GetTopMostParent();
-                        if (m_damagedEntities.Contains(entity))
+
+                        if (!(ent is MyCharacter))
+                            ent = ent.GetTopMostParent();
+                        if (m_damagedEntities.Contains(ent))
                             continue;
                         else
-                            m_damagedEntities.Add(entity);
+                            m_damagedEntities.Add(ent);
 
-                        if (entity is IMyDestroyableObject)
-                            (entity as IMyDestroyableObject).DoDamage(flameInfo.Radius * m_thrustDefinition.FlameDamage * 10, MyDamageType.Environment, true, attackerId: EntityId);
-                        else if (entity is MyCubeGrid)
+                        if (ent is IMyDestroyableObject)
+                            (ent as IMyDestroyableObject).DoDamage(flameInfo.Radius * m_thrustDefinition.FlameDamage * 10, MyDamageType.Environment, true, attackerId: EntityId);
+                        else if (ent is MyCubeGrid)
                         {
-                            var grid = entity as MyCubeGrid;
+                            var grid = ent as MyCubeGrid;
                             if (grid.BlocksDestructionEnabled)
                             {
                                 DamageGrid(flameInfo, l, grid);
@@ -411,7 +410,7 @@ namespace Sandbox.Game.Entities
             {
                 //MyRenderProxy.DebugDrawSphere(hit.Value, 0.1f, Color.Green.ToVector3(), 1, true);
                 MyPhysics.CastRay(hit.Value - l.Direction * 0.1f, hit.Value + l.Direction * 0.1f, m_gridRayCastLst, MyPhysics.ObjectDetectionCollisionLayer);
-                if ((m_gridRayCastLst.Count == 0 || m_gridRayCastLst[0].HkHitInfo.Body.GetEntity() != grid) && grid == CubeGrid)
+                if ((m_gridRayCastLst.Count == 0 || m_gridRayCastLst[0].HkHitInfo.GetHitEntity() != grid) && grid == CubeGrid)
                 {
                     m_gridRayCastLst.Clear();
                     return;

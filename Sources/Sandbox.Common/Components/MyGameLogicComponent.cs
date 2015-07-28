@@ -94,5 +94,10 @@ namespace Sandbox.Common.Components
         //Cleanup here
         public virtual void Close()
         {}
+
+        public override string ComponentTypeDebugString
+        {
+            get { return "Game Logic"; }
+        }
     }
 }

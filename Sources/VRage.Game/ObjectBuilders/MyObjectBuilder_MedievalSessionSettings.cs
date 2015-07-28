@@ -49,7 +49,7 @@ namespace Medieval.ObjectBuilders
         [Range(0, 20)]
         public short MaximumBots = 10;
 
-        [ProtoMember(8)]
+        [ProtoMember]
         [Display(Name = "Servants per player")]
         [GameRelation(Game.MedievalEngineers)]
         [Range(0, 5)]

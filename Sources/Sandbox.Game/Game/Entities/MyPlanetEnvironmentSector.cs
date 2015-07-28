@@ -27,16 +27,16 @@ namespace Sandbox.Game.Entities
                switch (MySession.Static.Settings.FloraDensity)
                {
                    case 10:
-                       return 500;
+                       return 250;
                        break;
                    case 20:
-                       return 750;
+                       return 500;
                        break;
                    case 30:
-                       return 1000;
+                       return 750;
                        break;
                    case 40:
-                       return 1500;
+                       return 1000;
                        break;
                }
                return 0;
