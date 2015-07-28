@@ -451,7 +451,7 @@ namespace Sandbox.Game.GameSystems
                     {
                         m_totalThrustOverride += thrust.ThrustOverride * -thrust.ThrustForwardVector;
                         minRequiredPower += thrust.MinPowerConsumption;
-                        m_totalThrustOverridePower += thrust.ThrustOverride / thrust.ThrustForce.Length() * thrust.MaxPowerConsumption;
+                        m_totalThrustOverridePower += MathHelper.Clamp(thrust.ThrustOverride / thrust.ThrustForce.Length() * thrust.MaxPowerConsumption, 0.0f, thrust.MaxPowerConsumption * MyConstants.MAX_THRUST);
                         continue;
                     }
 
