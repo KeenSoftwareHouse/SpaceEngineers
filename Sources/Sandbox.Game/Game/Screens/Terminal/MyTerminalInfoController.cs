@@ -23,6 +23,9 @@ namespace Sandbox.Game.Gui
 {
     class MyTerminalInfoController
     {
+        // for acces others controls
+        private MyGuiScreenTerminal m_guiScreenTerminal;
+
         private MyGuiControlTabPage m_infoPage;
         private MyCubeGrid m_grid;
 
@@ -44,8 +47,9 @@ namespace Sandbox.Game.Gui
             m_infoPage = null;
         }
 
-        internal void Init(Graphics.GUI.MyGuiControlTabPage infoPage, MyCubeGrid grid)
+        internal void Init(MyGuiScreenTerminal guiScreenTerminal, Graphics.GUI.MyGuiControlTabPage infoPage, MyCubeGrid grid)
         {
+            m_guiScreenTerminal = guiScreenTerminal;
             m_grid = grid;
             m_infoPage = infoPage;
             Debug.Assert(m_infoPage != null);
@@ -114,6 +118,8 @@ namespace Sandbox.Game.Gui
             ownedAntennaRange.Value = MyHudMarkerRender.OwnerAntennaRange;
             ownedAntennaRange.ValueChanged += (MyGuiControlSlider s) => { MyHudMarkerRender.OwnerAntennaRange = s.Value; };
 
+            var list = (MyGuiControlList)m_infoPage.Controls.GetControlByName("InfoList");
+
             if (MyFakes.ENABLE_TERMINAL_PROPERTIES)
             {
                 var renameShipLabel = (MyGuiControlLabel)m_infoPage.Controls.GetControlByName("RenameShipLabel");
@@ -125,13 +131,16 @@ namespace Sandbox.Game.Gui
                     renameShipText.Text = m_grid.DisplayName;
 
                 var showRenameShip = IsPlayerOwner(m_grid);
+                if (!showRenameShip) {
+                    // Up the position of the list
+                    list.PositionY = -0.34f;
+                }
                 renameShipLabel.Visible = showRenameShip;
                 renameShipBtn.Visible = showRenameShip;
                 renameShipText.Visible = showRenameShip;
             }
 
             var convertBtn = (MyGuiControlButton)m_infoPage.Controls.GetControlByName("ConvertBtn");
-            MyGuiControlList list = (MyGuiControlList)m_infoPage.Controls.GetControlByName("InfoList");
             list.Controls.Clear();
 
             if (m_grid == null || m_grid.Physics == null)
@@ -238,9 +247,12 @@ namespace Sandbox.Game.Gui
 
         void renameBtn_ButtonClicked(MyGuiControlButton obj)
         {
-            var textForm = (MyGuiControlTextbox)m_infoPage.Controls.GetControlByName("RenameShipText");
+            var textForm = (MyGuiControlTextbox)m_infoPage.Controls.GetControlByName("RenameShipText");            
             m_grid.SyncObject.ChangeDisplayNameRequest(m_grid, textForm.Text);
-
+            var propertiesTopMenuParent = (MyGuiControlParent)m_guiScreenTerminal.Controls.GetControlByName("PropertiesTopMenu");
+            var shipsInRange = (MyGuiControlCombobox)propertiesTopMenuParent.Controls.GetControlByName("ShipsInRange");
+            // Change the Item value for update the ship name
+            shipsInRange.UpdateSelectedItemValue(textForm.Text);
         }
 
         private void grid_OnBlockRemoved(MySlimBlock obj)

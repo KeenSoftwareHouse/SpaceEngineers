@@ -161,7 +161,7 @@ namespace Sandbox.Game.Gui
                 //populate them
                 CreatePropertiesPageControls(m_propertiesTopMenuParent, m_propertiesTableParent);
 
-                //pass them onto the properties class
+                //pass them on to the properties class
                 if (m_controllerProperties == null)
                     m_controllerProperties = new MyTerminalPropertiesController();
                 else
@@ -169,7 +169,7 @@ namespace Sandbox.Game.Gui
 
                 //adds event handlers
                 m_controllerProperties.ButtonClicked += PropertiesButtonClicked;
-                
+
                 //Add to screen
                 Controls.Add(m_propertiesTableParent);
                 Controls.Add(m_propertiesTopMenuParent);
@@ -271,7 +271,7 @@ namespace Sandbox.Game.Gui
             m_controllerInventory.Init(inventoryPage, m_user, InteractedEntity, m_colorHelper);
             m_controllerControlPanel.Init(controlPanelPage, MySession.LocalHumanPlayer, grid, InteractedEntity as MyTerminalBlock, m_colorHelper);
             m_controllerProduction.Init(productionPage, grid);
-            m_controllerInfo.Init(infoPage, InteractedEntity != null ? InteractedEntity.Parent as MyCubeGrid : null);
+            m_controllerInfo.Init(this, infoPage, InteractedEntity != null ? InteractedEntity.Parent as MyCubeGrid : null);
             m_controllerFactions.Init(factionsPage);
 
             if (MyFakes.ENABLE_GPS)
@@ -1036,7 +1036,7 @@ namespace Sandbox.Game.Gui
         {
             infoPage.Name = "PageInfo";
             infoPage.TextEnum = MySpaceTexts.TerminalTab_Info;
-            
+
             var list = new MyGuiControlList();
             list.Name = "InfoList";
             list.OriginAlign = MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_TOP;
@@ -1700,7 +1700,7 @@ namespace Sandbox.Game.Gui
 
         #region populate properties
         private void CreatePropertiesPageControls(MyGuiControlParent menuParent, MyGuiControlParent panelParent)
-        {
+        {                           
             m_propertiesTableParent.Name = "PropertiesTable";
             m_propertiesTopMenuParent.Name = "PropertiesTopMenu";
             //Combobox on top of Terminal

@@ -141,6 +141,22 @@ namespace Sandbox.Graphics.GUI
                     ToolTip = new MyToolTips(toolTip);
             }
 
+            public Item(long key, String value, int sortOrder, MyToolTips toolTip = null)
+            {
+                Debug.Assert(value != null);
+
+                Key = key;
+                SortOrder = sortOrder;
+
+                if (value != null)
+                    Value = new StringBuilder(value.Length).Append(value);
+                else
+                    Value = new StringBuilder();
+
+                if (toolTip != null)
+                    ToolTip = toolTip;
+            }
+
             public Item(long key, String value, int sortOrder, String toolTip = null)
             {
                 Debug.Assert(value != null);
@@ -363,6 +379,18 @@ namespace Sandbox.Graphics.GUI
             //  scroll bar parameters need to be recalculated when new item is added
             AdjustScrollBarParameters();
 
+            RefreshInternals();
+        }
+
+        public void UpdateSelectedItemValue( String newValue ) {
+            System.Diagnostics.Debug.Assert(newValue != null);
+            // copie selected and replace value
+            Item newItem = new Item(m_selected.Key, newValue, m_selected.SortOrder, m_selected.ToolTip);
+            RemoveItem(m_selected);
+            m_items.Add(newItem);
+            m_items.Sort();
+            m_selected = newItem;
+            AdjustScrollBarParameters();
             RefreshInternals();
         }
 
