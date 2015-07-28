@@ -6,6 +6,7 @@ using Sandbox.Game.Gui;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using VRage.ModAPI;
 using VRageMath;
 
 namespace Sandbox.Game
@@ -217,12 +218,15 @@ namespace Sandbox.Game
         /// <returns>Returns starting damage for current stack</returns>
         private MyRaycastDamageInfo CastPhysicsRay(Vector3D fromWorldPos)
         {
-            Vector3D pos;
-            Vector3 normal;
+            Vector3D pos = Vector3D.Zero;
+            IMyEntity hitEntity = null;
 
-            var physTarget = MyPhysics.CastRay(fromWorldPos, m_explosion.Center, out pos, out normal, MyPhysics.ExplosionRaycastLayer);
-            var hitEntity = (physTarget != null && physTarget.UserObject != null) ? ((MyPhysicsBody)physTarget.UserObject).Entity : null;
-
+            var hitInfo = MyPhysics.CastRay(fromWorldPos, m_explosion.Center, MyPhysics.ExplosionRaycastLayer);
+            if (hitInfo.HasValue)
+            {
+                hitEntity = (hitInfo.Value.HkHitInfo.Body.UserObject != null) ? ((MyPhysicsBody)hitInfo.Value.HkHitInfo.Body.UserObject).Entity : null;
+                pos = hitInfo.Value.Position;
+            }
             Vector3D direction = (m_explosion.Center - fromWorldPos);
             float lengthToCenter = (float)direction.Length();
             direction.Normalize();
@@ -294,7 +298,7 @@ namespace Sandbox.Game
                     return CastPhysicsRay(pos);
                 }
             }
-            else if (physTarget != null)
+            else if (hitInfo.HasValue)
             {
                 //Something was hit, but it wasn't a grid. This needs to be handled somehow
                 if (MyDebugDrawSettings.DEBUG_DRAW_EXPLOSION_HAVOK_RAYCASTS)

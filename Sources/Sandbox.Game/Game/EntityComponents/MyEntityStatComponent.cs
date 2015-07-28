@@ -25,13 +25,16 @@ namespace Sandbox.Game.Components
 		#region Sync messages
 
 		[ProtoContract]
-		struct StatPair
+		struct StatInfo
 		{
 			[ProtoMember]
 			public MyStringHash StatId;
 
 			[ProtoMember]
 			public float Amount;
+
+			[ProtoMember]
+			public float RegenLeft;
 		}
 
 		[ProtoContract]
@@ -42,7 +45,7 @@ namespace Sandbox.Game.Components
 			public long EntityId;
 
 			[ProtoMember]
-			public List<StatPair> ChangedStats;
+			public List<StatInfo> ChangedStats;
 		}
 
 		[ProtoContract]
@@ -81,9 +84,9 @@ namespace Sandbox.Game.Components
 		{
 			EntityStatChangedMsg msg = new EntityStatChangedMsg();
 			msg.EntityId = Entity.EntityId;
-			msg.ChangedStats = new List<StatPair>();
+			msg.ChangedStats = new List<StatInfo>();
 
-			msg.ChangedStats.Add(new StatPair() { StatId = stat.StatId, Amount = stat.Value });
+			msg.ChangedStats.Add(new StatInfo() { StatId = stat.StatId, Amount = stat.Value });	// Regen left not used
 
 			MySession.Static.SyncLayer.SendMessageToServer(ref msg, MyTransportMessageEnum.Request);
 		}
@@ -115,10 +118,13 @@ namespace Sandbox.Game.Components
 
 			EntityStatChangedMsg msg = new EntityStatChangedMsg();
 			msg.EntityId = Entity.EntityId;
-			msg.ChangedStats = new List<StatPair>();
+			msg.ChangedStats = new List<StatInfo>();
 
 			foreach (var stat in stats)
-				msg.ChangedStats.Add(new StatPair() { StatId = stat.StatId, Amount = stat.Value });
+			{
+				stat.CalculateRegenLeftForLongestEffect();
+				msg.ChangedStats.Add(new StatInfo() { StatId = stat.StatId, Amount = stat.Value, RegenLeft = stat.StatRegenLeft, });
+			}
 
 			MySession.Static.SyncLayer.SendMessageToAll(ref msg, MyTransportMessageEnum.Success);
 		}
@@ -139,6 +145,7 @@ namespace Sandbox.Game.Components
 				if (!statComp.TryGetStat(statChange.StatId, out localStat))
 					continue;
 				localStat.Value = statChange.Amount;
+				localStat.StatRegenLeft = statChange.RegenLeft;
 			}
 		}
 
@@ -459,5 +466,10 @@ namespace Sandbox.Game.Components
 		}
 
 		#endregion
-	}
+
+        public override string ComponentTypeDebugString
+        {
+            get { return "Stats"; }
+        }
+    }
 }

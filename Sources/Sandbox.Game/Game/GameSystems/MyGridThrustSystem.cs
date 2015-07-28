@@ -1,24 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Sandbox.Common.ObjectBuilders;
-using Sandbox.Engine.Physics;
+﻿using Sandbox.Common;
 using Sandbox.Engine.Utils;
 using Sandbox.Game.Entities;
-using Sandbox.Game.GameSystems.Electricity;
-
-using VRage.Utils;
-using VRage.Trace;
-using VRageMath;
-using Sandbox.Game.Multiplayer;
 using Sandbox.Game.Entities.Cube;
-using Sandbox.Graphics;
-using Sandbox.Common;
+using Sandbox.Game.GameSystems.Electricity;
+using Sandbox.Game.Multiplayer;
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
 using VRage;
 using VRage.Components;
+using VRage.Utils;
+using VRageMath;
 
 namespace Sandbox.Game.GameSystems
 {
@@ -246,19 +238,21 @@ namespace Sandbox.Game.GameSystems
         {
             Matrix invWorldRot = m_grid.PositionComp.GetWorldMatrixNormalizedInv().GetOrientation();
 
-            Vector3 localVelocity = Vector3.Transform(m_grid.Physics.LinearVelocity, ref invWorldRot);
+            Vector3 gravityVector = m_grid.Physics.IsMoving ? m_grid.Physics.Gravity / 2.0f : Vector3.Zero;
+			Vector3 localVelocity = Vector3.Transform(m_grid.Physics.LinearVelocity + gravityVector, ref invWorldRot);
             Vector3 positiveControl = Vector3.Clamp(direction, Vector3.Zero, Vector3.One);
             Vector3 negativeControl = Vector3.Clamp(direction, -Vector3.One, Vector3.Zero);
             Vector3 slowdownControl = Vector3.Zero;
-            if (DampenersEnabled)
-                slowdownControl = Vector3.IsZeroVector(direction, 0.001f) * Vector3.IsZeroVector(m_totalThrustOverride);
+			if (DampenersEnabled)
+				slowdownControl = Vector3.IsZeroVector(direction, 0.001f) * Vector3.IsZeroVector(m_totalThrustOverride);
 
             Vector3 thrust = negativeControl * m_maxNegativeThrust + positiveControl * m_maxPositiveThrust;
             thrust = Vector3.Clamp(thrust, -m_maxNegativeThrust, m_maxPositiveThrust);
 
             const float STOPPING_TIME = 0.5f;
             var slowdownAcceleration = -localVelocity / STOPPING_TIME;
-            var slowdownThrust = slowdownAcceleration * m_grid.Physics.Mass * slowdownControl;
+			var naturalGravityAcceleration = m_grid.Physics.Gravity / 2.0f;
+			var slowdownThrust = slowdownAcceleration * m_grid.Physics.Mass * slowdownControl;
             thrust = Vector3.Clamp(thrust + slowdownThrust, -m_maxNegativeThrust * MyFakes.SLOWDOWN_FACTOR_THRUST_MULTIPLIER, m_maxPositiveThrust * MyFakes.SLOWDOWN_FACTOR_THRUST_MULTIPLIER);
 
             return thrust;
@@ -406,11 +400,11 @@ namespace Sandbox.Game.GameSystems
 
             Thrust = thrust;
 
-            if (m_grid.GridSystems.ControlSystem.IsLocallyControlled || (!m_grid.GridSystems.ControlSystem.IsControlled && Sync.IsServer) || (false && Sync.IsServer))
+            if (m_grid.GridSystems.ControlSystem.IsLocallyControlled || (!m_grid.GridSystems.ControlSystem.IsControlled))
             {
                 if (Thrust.LengthSquared() > 0.001f)
                 {
-                    if (m_grid.Physics.Enabled)
+                    if (m_grid.Physics.Enabled || m_grid.Physics.WeldInfo.Parent != null)
                         m_grid.Physics.AddForce(MyPhysicsForceType.ADD_BODY_FORCE_AND_BODY_TORQUE, Thrust, null, null);
                 }
 

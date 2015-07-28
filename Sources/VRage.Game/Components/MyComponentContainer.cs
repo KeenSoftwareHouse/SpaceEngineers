@@ -8,6 +8,9 @@ namespace VRage.Components
     {
         private Dictionary<Type, MyComponentBase> m_components = new Dictionary<Type, MyComponentBase>();
 
+        [ThreadStatic]
+        private static List<KeyValuePair<Type, MyComponentBase>> m_tmpSerializedComponents;
+
         public void Add<T>(T component) where T : MyComponentBase
         {
             {
@@ -16,8 +19,13 @@ namespace VRage.Components
             }
         }
 
-        private void Add(Type type, MyComponentBase component)
+        public void Add(Type type, MyComponentBase component)
         {
+            System.Diagnostics.Debug.Assert(typeof(MyComponentBase).IsAssignableFrom(type), "Unsupported type of component!");
+            if (!typeof(MyComponentBase).IsAssignableFrom(type))
+            {
+                return;
+            }
             MyComponentBase containedComponent;
             if (m_components.TryGetValue(type, out containedComponent))
             {
@@ -152,25 +160,34 @@ namespace VRage.Components
 
         public MyObjectBuilder_ComponentContainer Serialize()
         {
-            var builder = new MyObjectBuilder_ComponentContainer();
-            var componentsData = new List<MyObjectBuilder_ComponentContainer.ComponentData>(m_components.Count);
-            int i = 0;
+            if (m_tmpSerializedComponents == null)
+                m_tmpSerializedComponents = new List<KeyValuePair<Type, MyComponentBase>>(8);
+
+            m_tmpSerializedComponents.Clear();
             foreach (var component in m_components)
             {
-				MyObjectBuilder_ComponentBase componentBuilder = null;
-				if (component.Value.IsSerialized())
-					componentBuilder = component.Value.Serialize();
+                if (component.Value.IsSerialized())
+                {
+                    m_tmpSerializedComponents.Add(component);
+                }
+            }
+
+            if (m_tmpSerializedComponents.Count == 0) return null;
+
+            var builder = new MyObjectBuilder_ComponentContainer();
+            foreach (var component in m_tmpSerializedComponents)
+            {
+                MyObjectBuilder_ComponentBase componentBuilder = component.Value.Serialize();
                 if (componentBuilder != null)
                 {
                     var data = new MyObjectBuilder_ComponentContainer.ComponentData();
                     data.TypeId = component.Key.Name;
                     data.Component = componentBuilder;
-                    componentsData.Add(data);
-                    i++;
+                    builder.Components.Add(data);
                 }
             }
-            if (componentsData.Count > 0)
-                builder.Components = componentsData.ToArray();
+
+            m_tmpSerializedComponents.Clear();
             return builder;
         }
 
@@ -179,8 +196,7 @@ namespace VRage.Components
 			if (builder == null || builder.Components == null)
 				return;
 
-			var componentsData = builder.Components;
-			foreach (var data in componentsData)
+            foreach (var data in builder.Components)
 			{
 				var instance = MyComponentFactory.CreateInstance(data.Component.GetType());
 				instance.Deserialize(data.Component);

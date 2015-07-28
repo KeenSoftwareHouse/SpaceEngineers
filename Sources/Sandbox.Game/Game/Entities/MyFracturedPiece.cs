@@ -23,6 +23,7 @@ using VRage.Components;
 using VRage.Library.Utils;
 using VRage.ObjectBuilders;
 using VRageMath;
+using VRage.Utils;
 
 namespace Sandbox.Game.Entities
 {
@@ -233,10 +234,20 @@ namespace Sandbox.Game.Entities
                 Shape.BuildMassProperties(ref mp);
                 Shape.SetChildrenParent(Shape);
                 Physics = new MyPhysicsBody(this, RigidBodyFlag.RBF_DEBRIS);
+                Physics.CanUpdateAccelerations = true;
                 Physics.InitialSolverDeactivation = HkSolverDeactivation.Medium;
                 Physics.CreateFromCollisionObject(Shape.GetShape(), Vector3.Zero, PositionComp.WorldMatrix, mp);
                 Physics.BreakableBody = new HkdBreakableBody(Shape, Physics.RigidBody, MyPhysics.SingleWorld.DestructionWorld, (Matrix)PositionComp.WorldMatrix);
                 Physics.BreakableBody.AfterReplaceBody += Physics.FracturedBody_AfterReplaceBody;
+
+
+                if (OriginalBlocks.Count > 0)
+                {
+                    MyPhysicalModelDefinition def;
+                    if (MyDefinitionManager.Static.TryGetDefinition<MyPhysicalModelDefinition>(OriginalBlocks[0], out def))
+                        Physics.MaterialType = def.PhysicalMaterial.Id.SubtypeId;
+                }
+
 
                 var rigidBody = Physics.RigidBody;
                 bool isFixed = MyDestructionHelper.IsFixed(Physics.BreakableBody.BreakableShape);
@@ -442,7 +453,7 @@ namespace Sandbox.Game.Entities
             }
         }
 
-        public void DoDamage(float damage, Common.ObjectBuilders.Definitions.MyDamageType damageType, bool sync, MyHitInfo? hitInfo, long attackerId)
+        public void DoDamage(float damage, MyStringHash damageType, bool sync, MyHitInfo? hitInfo, long attackerId)
         {
             if (Sync.IsServer)
             {

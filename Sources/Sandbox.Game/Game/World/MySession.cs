@@ -161,10 +161,14 @@ namespace Sandbox.Game.World
         public float HackSpeedMultiplier { get { return Settings.HackSpeedMultiplier; } }
         public MyOnlineModeEnum OnlineMode { get { return Settings.OnlineMode; } }
         public MyEnvironmentHostilityEnum EnvironmentHostility { get { return Settings.EnvironmentHostility; } }
+        public bool StartInRespawnScreen { get { return Settings.StartInRespawnScreen; } }
+        public bool EnableVoxelDestruction { get { return Settings.EnableVoxelDestruction; } }
 
         public bool Battle { get { return Settings.Battle; } }
 
         public bool IsScenario { get { return Settings.Scenario; } }
+        public bool LoadedAsMission { get; private set; }
+        public bool PersistentEditMode { get; private set; }
         // Attacker leader blueprints.
         public List<Tuple<string, MyBlueprintItemInfo>> BattleBlueprints;
 
@@ -1124,10 +1128,13 @@ namespace Sandbox.Game.World
             Static.BeforeStartComponents();
         }
 
-        public static void LoadMission(string sessionPath, MyObjectBuilder_Checkpoint checkpoint, ulong checkpointSizeInBytes)
+        public static void LoadMission(string sessionPath, MyObjectBuilder_Checkpoint checkpoint, ulong checkpointSizeInBytes, bool persistentEditMode)
         {
             LoadMission(sessionPath, checkpoint, checkpointSizeInBytes, checkpoint.SessionName, checkpoint.Description);
+            Static.PersistentEditMode = persistentEditMode;
+            Static.LoadedAsMission = true;
         }
+
         public static void LoadMission(string sessionPath, MyObjectBuilder_Checkpoint checkpoint, ulong checkpointSizeInBytes, string name, string description)
         {
             Load(sessionPath, checkpoint, checkpointSizeInBytes);
@@ -1144,6 +1151,8 @@ namespace Sandbox.Game.World
 
         public static void LoadBattle(string sessionPath, MyObjectBuilder_Checkpoint checkpoint, ulong checkpointSizeInBytes, MyObjectBuilder_SessionSettings settings)
         {
+			MyLog.Default.WriteLine("Loading battle session: " + sessionPath);
+
             Load(sessionPath, checkpoint, checkpointSizeInBytes);
             MySession.Static.Settings = settings;
             Debug.Assert(MySession.Static.Settings.Battle = true);
@@ -1414,6 +1423,9 @@ namespace Sandbox.Game.World
 
         private void LoadWorld(MyObjectBuilder_Checkpoint checkpoint, MyObjectBuilder_Sector sector)
         {
+            // Backward compatibility:
+            MySandboxGame.Static.SessionCompatHelper.FixSessionObjectBuilders(checkpoint, sector);
+
             //MyAudio.Static.Mute = true
             MyEntities.MemoryLimitAddFailureReset();
 
@@ -1439,10 +1451,6 @@ namespace Sandbox.Game.World
 
             MySector.InitEnvironmentSettings(sector.Environment);
 
-            // ===================== This is a hack to ensure backwards compatibility! Do this properly! =======================
-            FixObsoleteStuff(sector);
-            // =================================================================================================================
-
             Sync.Players.RespawnComponent.InitFromCheckpoint(checkpoint);
 
             MyPlayer.PlayerId savingPlayer = new MyPlayer.PlayerId();
@@ -1461,6 +1469,7 @@ namespace Sandbox.Game.World
             {
                 ShowLoadingError();
             }
+            MySandboxGame.Static.SessionCompatHelper.AfterEntitiesLoad(sector.AppVersion);
 
             if (checkpoint.Factions != null && (Sync.IsServer || (!Battle && MyPerGameSettings.Game == GameEnum.ME_GAME) || (!IsScenario && MyPerGameSettings.Game == GameEnum.SE_GAME)))
             {
@@ -1475,8 +1484,11 @@ namespace Sandbox.Game.World
 
             if ((!Battle && MyPerGameSettings.Game == GameEnum.ME_GAME) || ((!IsScenario || Static.OnlineMode == MyOnlineModeEnum.OFFLINE) && MyPerGameSettings.Game == GameEnum.SE_GAME))
             {
-                Sync.Players.LoadConnectedPlayers(checkpoint, savingPlayerNullable);
-                Sync.Players.LoadControlledEntities(checkpoint.ControlledEntities, checkpoint.ControlledObject, savingPlayerNullable);
+                if (!(MySession.Static.IsScenario && MySession.Static.Settings.StartInRespawnScreen))
+                {
+                    Sync.Players.LoadConnectedPlayers(checkpoint, savingPlayerNullable);
+                    Sync.Players.LoadControlledEntities(checkpoint.ControlledEntities, checkpoint.ControlledObject, savingPlayerNullable);
+                }
             }
             LoadCamera(checkpoint);
 
@@ -1661,49 +1673,6 @@ namespace Sandbox.Game.World
             }
         }
 
-        private static void FixObsoleteStuff(MyObjectBuilder_Sector sector)
-        {
-            if (sector.AppVersion == 0)
-            {
-                HashSet<String> previouslyColored = new HashSet<String>();
-                previouslyColored.Add("LargeBlockArmorBlock");
-                previouslyColored.Add("LargeBlockArmorSlope");
-                previouslyColored.Add("LargeBlockArmorCorner");
-                previouslyColored.Add("LargeBlockArmorCornerInv");
-                previouslyColored.Add("LargeRoundArmor_Slope");
-                previouslyColored.Add("LargeRoundArmor_Corner");
-                previouslyColored.Add("LargeRoundArmor_CornerInv");
-                previouslyColored.Add("LargeHeavyBlockArmorBlock");
-                previouslyColored.Add("LargeHeavyBlockArmorSlope");
-                previouslyColored.Add("LargeHeavyBlockArmorCorner");
-                previouslyColored.Add("LargeHeavyBlockArmorCornerInv");
-                previouslyColored.Add("SmallBlockArmorBlock");
-                previouslyColored.Add("SmallBlockArmorSlope");
-                previouslyColored.Add("SmallBlockArmorCorner");
-                previouslyColored.Add("SmallBlockArmorCornerInv");
-                previouslyColored.Add("SmallHeavyBlockArmorBlock");
-                previouslyColored.Add("SmallHeavyBlockArmorSlope");
-                previouslyColored.Add("SmallHeavyBlockArmorCorner");
-                previouslyColored.Add("SmallHeavyBlockArmorCornerInv");
-                previouslyColored.Add("LargeBlockInteriorWall");
-
-                foreach (var obj in sector.SectorObjects)
-                {
-                    var grid = obj as MyObjectBuilder_CubeGrid;
-                    if (grid == null)
-                        continue;
-
-                    foreach (var block in grid.CubeBlocks)
-                    {
-                        if (block.TypeId != typeof(MyObjectBuilder_CubeBlock) || !previouslyColored.Contains(block.SubtypeName))
-                        {
-                            block.ColorMaskHSV = MyRenderComponentBase.OldGrayToHSV;
-                        }
-                    }
-                }
-            }
-        }
-
         private void LoadCameraControllerSettings(MyObjectBuilder_Checkpoint checkpoint)
         {
             //m_cameraControllerSettings.Clear();
@@ -1741,7 +1710,11 @@ namespace Sandbox.Game.World
             if (!settings.PermanentDeath.HasValue) settings.PermanentDeath = true;
             settings.ViewDistance = MathHelper.Clamp(settings.ViewDistance, 1000, 50000);
             VRageRender.MyRenderProxy.Settings.NightMode = false;
-            if (MySandboxGame.IsDedicated) settings.Scenario = false;
+            if (MySandboxGame.IsDedicated)
+            {
+                settings.Scenario = false;
+                settings.ScenarioEditMode = false;
+            }
         }
 
         private static void ShowLoadingError()
@@ -1846,6 +1819,7 @@ namespace Sandbox.Game.World
                     System.Diagnostics.Debug.Assert(cameraEntity != null);
                     MySandboxGame.Log.WriteLine("CameraAttachedTo: Entity");
                     MySession.Static.CameraController = (IMyCameraController)cameraEntity;
+                    MySession.Static.CameraController.IsInFirstPersonView = true;
                     break;
                 case MyCameraControllerEnum.Spectator:
                     MySandboxGame.Log.WriteLine("CameraAttachedTo: Spectator");
@@ -1875,14 +1849,9 @@ namespace Sandbox.Game.World
                     MySandboxGame.Log.WriteLine("CameraAttachedTo: ThirdPersonSpectator");
 
                     if (cameraEntity != null)
-                    {
                         MySession.Static.CameraController = (IMyCameraController)cameraEntity;
-                        MySession.Static.CameraController.IsInFirstPersonView = false;
-                    }
-                    else
-                    {
-                        MySession.Static.CameraController.IsInFirstPersonView = false;
-                    }
+
+                    MySession.Static.CameraController.IsInFirstPersonView = false;
                     break;
 
                 default:
@@ -2102,6 +2071,9 @@ namespace Sandbox.Game.World
             MyCameraControllerEnum cameraControllerEnum = GetCameraControllerEnum();
 
             var checkpoint = MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_Checkpoint>();
+            var settings = MyObjectBuilderSerializer.Clone(Settings) as MyObjectBuilder_SessionSettings;
+
+            settings.ScenarioEditMode = settings.ScenarioEditMode || PersistentEditMode;
 
             checkpoint.SessionName = saveName;
             checkpoint.Description = Description;
@@ -2112,7 +2084,7 @@ namespace Sandbox.Game.World
             checkpoint.WorkshopId = WorkshopId;
             checkpoint.ElapsedGameTime = ElapsedGameTime.Ticks;
             checkpoint.InGameTime = InGameTime;
-            checkpoint.Settings = Settings;
+            checkpoint.Settings = settings;
             checkpoint.Mods = Mods;
             checkpoint.CharacterToolbar = MyToolbarComponent.CharacterToolbar.GetObjectBuilder();
             checkpoint.Scenario = Scenario.Id;

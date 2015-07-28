@@ -329,7 +329,7 @@ namespace Sandbox.Game.Entities
             get { return false; }
         }
 
-        public void DoDamage(float damage, MyDamageType damageType, bool sync, long attackerId)
+        public void DoDamage(float damage, MyStringHash damageType, bool sync, long attackerId)
         {
             if (MarkedForClose)
                 return;
@@ -470,7 +470,7 @@ namespace Sandbox.Game.Entities
             OnDestroy();
         }
 
-        void IMyDestroyableObject.DoDamage(float damage, MyDamageType damageType, bool sync, MyHitInfo? hitInfo, long attackerId)
+        void IMyDestroyableObject.DoDamage(float damage, MyStringHash damageType, bool sync, MyHitInfo? hitInfo, long attackerId)
         {
             DoDamage(damage, damageType, sync, attackerId);
         }

@@ -38,6 +38,7 @@ using Sandbox.Game.Screens.Terminal.Controls;
 using System.Collections.Generic;
 using System.Linq;
 using VRage.Components;
+using Sandbox.ModAPI;
 
 namespace Sandbox.Game.Entities.Cube
 {
@@ -127,6 +128,8 @@ namespace Sandbox.Game.Entities.Cube
         private new SyncClass SyncObject;
 
         protected bool m_takeSpawneeOwnership = false;
+        protected bool m_setFactionToSpawnee = false;
+        public bool SetFactionToSpawnee { get { return m_setFactionToSpawnee; } }
 
         //obsolete, use IDModule
         private ulong SteamUserId { get; set; }
@@ -163,6 +166,14 @@ namespace Sandbox.Game.Entities.Cube
             MyTerminalControlFactory.AddControl(label);
             MyTerminalControlFactory.AddControl(ownershipCheckbox);
 
+            var factionCheckbox = new MyTerminalControlCheckbox<MyMedicalRoom>("SetFaction", MySpaceTexts.MedicalRoom_factionAssignmentLabel, MySpaceTexts.MedicalRoom_factionAssignmentTooltip);
+            factionCheckbox.Getter = (x) => x.m_setFactionToSpawnee;
+            factionCheckbox.Setter = (x, val) =>
+            {
+                x.m_setFactionToSpawnee = val;
+            };
+            factionCheckbox.Enabled = (x) => MySession.Static.Settings.ScenarioEditMode;
+            MyTerminalControlFactory.AddControl(factionCheckbox);
         }
 
         public MyMedicalRoom()
@@ -213,6 +224,7 @@ namespace Sandbox.Game.Entities.Cube
             SteamUserId = 0;
 
             m_takeSpawneeOwnership = (objectBuilder as MyObjectBuilder_MedicalRoom).TakeOwnership;
+            m_setFactionToSpawnee = (objectBuilder as MyObjectBuilder_MedicalRoom).SetFaction;
 
             SyncObject = new SyncClass(this);
 
@@ -260,6 +272,8 @@ namespace Sandbox.Game.Entities.Cube
             builder.IdleSound = m_idleSound.ToString();
             builder.ProgressSound = m_progressSound.ToString();
             builder.TakeOwnership = m_takeSpawneeOwnership;
+            builder.SetFaction = m_setFactionToSpawnee;
+
             return builder;
         }
 
@@ -469,6 +483,21 @@ namespace Sandbox.Game.Entities.Cube
             }
 
             m_user.SuitOxygenAmount += amount;
+        }
+
+        public void TrySetFaction(MyPlayer player)
+        {
+            if (MySession.Static.IsScenario && m_setFactionToSpawnee && Sync.IsServer && OwnerId != 0)
+            {
+                //if (null != MySession.Static.Factions.TryGetPlayerFaction(player.Identity.IdentityId))
+                //    return;
+                IMyFaction faction = MySession.Static.Factions.TryGetPlayerFaction(this.OwnerId);
+                if (faction == null)
+                    return;
+                MyFactionCollection.SendJoinRequest(faction.FactionId, player.Identity.IdentityId);
+                if (!faction.AutoAcceptMember)
+                    MyFactionCollection.AcceptJoin(faction.FactionId, player.Identity.IdentityId);
+            }
         }
 
         public void TryTakeSpawneeOwnership(MyPlayer player)

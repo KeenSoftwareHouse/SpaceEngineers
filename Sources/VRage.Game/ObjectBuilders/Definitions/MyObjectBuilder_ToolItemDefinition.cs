@@ -31,7 +31,7 @@ namespace Sandbox.Common.ObjectBuilders.Definitions
         public class MyToolActionHitCondition
         {
             [ProtoMember, DefaultValue(null)]
-            public string EntityType = null;
+            public string[] EntityType = null;
 
             [ProtoMember]
             public string Animation;
@@ -40,7 +40,10 @@ namespace Sandbox.Common.ObjectBuilders.Definitions
             public string StatsAction;
 
             [ProtoMember]
-            public string Script;
+            public string StatsActionIfHit;
+
+            [ProtoMember]
+            public string Component;
         }
 
         [ProtoContract]
@@ -58,6 +61,24 @@ namespace Sandbox.Common.ObjectBuilders.Definitions
             [ProtoMember, DefaultValue(1f)]
             public float Efficiency = 1f;
 
+            [ProtoMember, DefaultValue(null)]
+            public string SwingSound = null;
+
+            [ProtoMember, DefaultValue(0f)]
+            public float SwingSoundStart = 0f;
+
+            [ProtoMember, DefaultValue(0f)]
+            public float HitStart = 0f;
+
+            [ProtoMember, DefaultValue(1f)]
+            public float HitDuration = 1f;
+
+            [ProtoMember, DefaultValue(null)]
+            public string HitSound = null;
+            
+            [ProtoMember, DefaultValue(0f)]
+            public float CustomShapeRadius;
+             
             [XmlArrayItem("HitCondition")]
             [ProtoMember, DefaultValue(null)]
             public MyToolActionHitCondition[] HitConditions;
@@ -76,32 +97,7 @@ namespace Sandbox.Common.ObjectBuilders.Definitions
         [ProtoMember, DefaultValue(null)]
         public MyToolActionDefinition[] SecondaryActions = null;
 
-
-        [ProtoMember, DefaultValue(0)]
-        public int AttackStartFrame = 0;
-        [ProtoMember, DefaultValue(0)]
-        public int AttackEndFrame = 0;
-
-        [ProtoMember, DefaultValue(0)]
-        public int MiningStartFrame = 0;
-        [ProtoMember, DefaultValue(0)]
-        public int MiningEndFrame = 0;
-
-        [ProtoMember, DefaultValue(0)]
-        public int CuttingStartFrame = 0;
-        [ProtoMember, DefaultValue(0)]
-        public int CuttingEndFrame = 0;
-
-        [ProtoMember, DefaultValue(0)]
-        public float CuttingEfficiency = 0;
-
-		[ProtoMember, DefaultValue(0)]
-		public float BuildingEfficiency = 0;
-
-		[ProtoMember, DefaultValue(false)]
-		public bool HasDeconstructor = false;
-
-        [ProtoMember, DefaultValue(30)]
-        public float ToolDamage = 30;
+        [ProtoMember, DefaultValue(1)]
+        public float HitDistance = 1;
     }
 }

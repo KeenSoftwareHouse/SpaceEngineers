@@ -1,6 +1,8 @@
-﻿using Sandbox.Common.ObjectBuilders;
+﻿using ProtoBuf;
+using Sandbox.Common.ObjectBuilders;
 using Sandbox.Definitions;
 using Sandbox.Engine.Multiplayer;
+using Sandbox.Engine.Utils;
 using Sandbox.Game.Entities.Cube;
 using Sandbox.Game.GameSystems;
 using Sandbox.Game.GameSystems.Conveyors;
@@ -8,19 +10,20 @@ using Sandbox.Game.GameSystems.Electricity;
 using Sandbox.Game.Gui;
 using Sandbox.Game.Localization;
 using Sandbox.Game.Multiplayer;
+using Sandbox.Game.Screens.Helpers;
 using Sandbox.Game.World;
+using Sandbox.Graphics.GUI;
+using Sandbox.Graphics.TransparentGeometry.Particles;
+using Sandbox.ModAPI.Ingame;
 using SteamSDK;
 using System;
 using System.Diagnostics;
-using VRage.Import;
-using VRageMath;
 using System.Text;
 using VRage;
-using VRage.Utils;
-using Sandbox.Graphics.TransparentGeometry.Particles;
-using Sandbox.ModAPI.Ingame;
-using Sandbox.Engine.Utils;
+using VRage.Import;
 using VRage.ModAPI;
+using VRage.Utils;
+using VRageMath;
 
 namespace Sandbox.Game.Entities.Blocks
 {
@@ -45,6 +48,13 @@ namespace Sandbox.Game.Entities.Blocks
         private bool m_isProducing;
         private bool m_producedSinceLastUpdate;
         private MyParticleEffect m_effect;
+
+        private MyToolbarItem m_onFullAction;
+        private MyToolbarItem m_onEmptyAction;
+        private MyToolbar m_actionToolbar;
+
+        private bool? m_wasRoomFull;
+        private bool? m_wasRoomEmpty;
 
         public bool CanVent
         {
@@ -96,6 +106,38 @@ namespace Sandbox.Game.Entities.Blocks
             isDepressurizing.EnableToggleAction();
             isDepressurizing.EnableOnOffActions();
             MyTerminalControlFactory.AddControl(isDepressurizing);
+
+            var toolbarButton = new MyTerminalControlButton<MyAirVent>("Open Toolbar", MySpaceTexts.BlockPropertyTitle_SensorToolbarOpen, MySpaceTexts.BlockPropertyDescription_SensorToolbarOpen,
+                delegate(MyAirVent self)
+                {
+                    if (self.m_onFullAction != null)
+                    {
+                        self.m_actionToolbar.SetItemAtIndex(0, self.m_onFullAction);
+                    }
+                    if (self.m_onEmptyAction != null)
+                    {
+                        self.m_actionToolbar.SetItemAtIndex(1, self.m_onEmptyAction);
+                    }
+
+                    self.m_actionToolbar.ItemChanged += self.Toolbar_ItemChanged;
+                    if (MyGuiScreenCubeBuilder.Static == null)
+                    {
+                        MyToolbarComponent.CurrentToolbar = self.m_actionToolbar;
+                        MyGuiScreenBase screen = MyGuiSandbox.CreateScreen(MyPerGameSettings.GUI.ToolbarConfigScreen, 0, self);
+                        MyToolbarComponent.AutoUpdate = false;
+
+                        screen.Closed += (source) =>
+                            {
+                                MyToolbarComponent.AutoUpdate = true;
+                                self.m_actionToolbar.ItemChanged -= self.Toolbar_ItemChanged;
+                                self.m_actionToolbar.Clear();
+                            };
+                        MyGuiSandbox.AddScreen(screen);
+                    }
+                });
+            toolbarButton.SupportsMultipleBlocks = false;
+            MyTerminalControlFactory.AddControl(toolbarButton);
+
         }
 
         public override void Init(MyObjectBuilder_CubeBlock objectBuilder, MyCubeGrid cubeGrid)
@@ -119,6 +161,19 @@ namespace Sandbox.Game.Entities.Blocks
             PowerReceiver.IsPoweredChanged += PowerReceiver_IsPoweredChanged;
             PowerReceiver.Update();
 
+            m_actionToolbar = new MyToolbar(MyToolbarType.ButtonPanel, 2, 1);
+            m_actionToolbar.DrawNumbers = false;
+            m_actionToolbar.Init(null, this);
+
+            if (builder.OnFullAction != null)
+            {
+                m_onFullAction = MyToolbarItemFactory.CreateToolbarItem(builder.OnFullAction);
+            }
+            if (builder.OnEmptyAction != null)
+            {
+                m_onEmptyAction = MyToolbarItemFactory.CreateToolbarItem(builder.OnEmptyAction);
+            }
+
             UpdateEmissivity();
             UdpateTexts();
 
@@ -132,6 +187,14 @@ namespace Sandbox.Game.Entities.Blocks
             var builder = (MyObjectBuilder_AirVent)base.GetObjectBuilderCubeBlock(copy);
 
             builder.IsDepressurizing = m_isDepressurizing;
+            if (m_onFullAction != null)
+            {
+                builder.OnFullAction = m_onFullAction.GetObjectBuilder();
+            }
+            if (m_onEmptyAction != null)
+            {
+                builder.OnEmptyAction = m_onEmptyAction.GetObjectBuilder();
+            }
 
             return builder;
         }
@@ -241,7 +304,67 @@ namespace Sandbox.Game.Entities.Blocks
         {
             base.UpdateAfterSimulation10();
 
+            if (Sync.IsServer && IsWorking && Enabled && IsFunctional)
+            {
+                UpdateActions();
+            }
             UpdateEmissivity();
+        }
+
+        private void UpdateActions()
+        {   
+            float oxygenLevel = GetRoomOxygen();
+
+            if (!m_wasRoomEmpty.HasValue || !m_wasRoomFull.HasValue)
+            {
+                m_wasRoomEmpty = false;
+                m_wasRoomFull = false;
+
+                if (oxygenLevel > 0.99f)
+                {
+                    m_wasRoomFull = true;
+                }
+                else if (oxygenLevel < 0.01f)
+                {
+                    m_wasRoomEmpty = true;
+                }
+                return;
+            }
+
+            if (oxygenLevel > 0.99f)
+            {
+                if (!m_wasRoomFull.Value)
+                {
+                    ExecuteAction(m_onFullAction);
+                    m_wasRoomFull = true;
+                }
+            }
+            else if (oxygenLevel < 0.01f)
+            {
+                if (!m_wasRoomEmpty.Value)
+                {
+                    ExecuteAction(m_onEmptyAction);
+                    m_wasRoomEmpty = true;
+                }
+            }
+            else
+            {
+                m_wasRoomFull = false;
+                m_wasRoomEmpty = false;
+            }
+        }
+
+        private void ExecuteAction(MyToolbarItem action)
+        {
+            m_actionToolbar.SetItemAtIndex(0, action);
+            m_actionToolbar.UpdateItem(0);
+            m_actionToolbar.ActivateItemAtSlot(0);
+            m_actionToolbar.Clear();
+        }
+
+        private void Toolbar_ItemChanged(MyToolbar self, MyToolbar.IndexArgs index)
+        {
+            SyncObject.SendToolbarItemChanged(ToolbarItem.FromItem(self.GetItemAtIndex(index.ItemIndex)), index.ItemIndex);
         }
 
         private float ComputeRequiredPower()
@@ -307,6 +430,24 @@ namespace Sandbox.Game.Entities.Blocks
             {
                 CubeGrid.GridSystems.OxygenSystem.UnregisterOxygenBlock(this);
             }
+        }
+
+        private float GetRoomOxygen()
+        {
+            var oxygenBlock = GetOxygenBlock();
+            if (oxygenBlock.Room != null)
+            {
+                float roomLevel = oxygenBlock.OxygenLevel(CubeGrid.GridSize);
+                if (oxygenBlock.Room.IsPressurized)
+                {
+                    return roomLevel;
+                }
+                else
+                {
+                    return Math.Max(roomLevel, oxygenBlock.Room.EnvironmentOxygen);
+                }
+            }
+            return 0f;
         }
 
         private void UpdateEmissivity()
@@ -618,11 +759,32 @@ namespace Sandbox.Game.Entities.Blocks
                 public BoolBlit IsDepressurizing;
             }
 
+            [ProtoContract]
+            [MessageIdAttribute(8001, P2PMessageEnum.Reliable)]
+            protected struct ChangeToolbarItemMsg : IEntityMessage
+            {
+                [ProtoMember]
+                public long EntityId;
+                public long GetEntityId() { return EntityId; }
+
+                [ProtoMember]
+                public ToolbarItem Item;
+
+                [ProtoMember]
+                public int Index;
+
+                public override string ToString()
+                {
+                    return String.Format("{0}, {1}", this.GetType().Name, this.GetEntityText());
+                }
+            }
+
             private MyAirVent m_airVent;
 
             static MySyncAirVent()
             {
                 MySyncLayer.RegisterEntityMessage<MySyncAirVent, ChangeDepressurizationModeMsg>(OnStockipleModeChanged, MyMessagePermissions.Any);
+                MySyncLayer.RegisterEntityMessage<MySyncAirVent, ChangeToolbarItemMsg>(OnToolbarItemChanged, MyMessagePermissions.Any);
             }
 
             public MySyncAirVent(MyAirVent airVent)
@@ -644,6 +806,65 @@ namespace Sandbox.Game.Entities.Blocks
             {
                 syncObject.m_airVent.IsDepressurizing = message.IsDepressurizing;
             }
+
+            public void SendToolbarItemChanged(ToolbarItem item, int index)
+            {
+                var msg = new ChangeToolbarItemMsg();
+                msg.EntityId = m_airVent.EntityId;
+
+                msg.Item = item;
+                msg.Index = index;
+
+                Sync.Layer.SendMessageToAllAndSelf(ref msg);
+            }
+
+            private static void OnToolbarItemChanged(MySyncAirVent sync, ref ChangeToolbarItemMsg msg, MyNetworkClient sender)
+            {
+                MyToolbarItem item = null;
+                if (msg.Item.EntityID != 0)
+                {
+                    if (string.IsNullOrEmpty(msg.Item.GroupName))
+                    {
+                        MyTerminalBlock block;
+                        if (MyEntities.TryGetEntityById<MyTerminalBlock>(msg.Item.EntityID, out block))
+                        {
+                            var builder = MyToolbarItemFactory.TerminalBlockObjectBuilderFromBlock(block);
+                            builder.Action = msg.Item.Action;
+                            builder.Parameters = msg.Item.Parameters;
+                            item = MyToolbarItemFactory.CreateToolbarItem(builder);
+                        }
+                    }
+                    else
+                    {
+                        MyAirVent parent;
+                        if (MyEntities.TryGetEntityById<MyAirVent>(msg.Item.EntityID, out parent))
+                        {
+                            var grid = parent.CubeGrid;
+                            var groupName = msg.Item.GroupName;
+                            var group = grid.GridSystems.TerminalSystem.BlockGroups.Find((x) => x.Name.ToString() == groupName);
+                            if (group != null)
+                            {
+                                var builder = MyToolbarItemFactory.TerminalGroupObjectBuilderFromGroup(group);
+                                builder.Action = msg.Item.Action;
+                                builder.BlockEntityId = msg.Item.EntityID;
+                                builder.Parameters = msg.Item.Parameters;
+                                item = MyToolbarItemFactory.CreateToolbarItem(builder);
+                            }
+                        }
+                    }
+                }
+
+                if (msg.Index == 0)
+                {
+                    sync.m_airVent.m_onFullAction = item;
+                }
+                else
+                {
+                    sync.m_airVent.m_onEmptyAction = item;
+                }
+                sync.m_airVent.RaisePropertiesChanged();
+            }
+
         }
         #endregion
     }

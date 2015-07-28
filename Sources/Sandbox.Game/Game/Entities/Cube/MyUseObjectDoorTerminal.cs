@@ -18,7 +18,7 @@ namespace Sandbox.Game.Entities.Cube
         public readonly MyDoor Door;
         public readonly Matrix LocalMatrix;
 
-        public MyUseObjectDoorTerminal(IMyEntity owner, string dummyName, MyModelDummy dummyData, int key)
+        public MyUseObjectDoorTerminal(IMyEntity owner, string dummyName, MyModelDummy dummyData, uint key)
         {
             Door = (MyDoor)owner;
             LocalMatrix = dummyData.Matrix;

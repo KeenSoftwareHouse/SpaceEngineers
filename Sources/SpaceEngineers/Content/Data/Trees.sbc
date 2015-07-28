@@ -9,13 +9,11 @@
         <TypeId>MyObjectBuilder_Tree</TypeId>
         <SubtypeId>Tree02</SubtypeId>
       </Id>
-      <Model>Models\Environment\Trees\BigTree.mwm</Model>
-      <Kind>Pine</Kind>
-      <Height>9.495</Height>
-      <Diameter>0.247</Diameter>
+      <Model>Models\Environment\Trees\PineTree10m.mwm</Model>
       <BranchesStartHeight>2.342</BranchesStartHeight>
-      <StumpEndHeight>0.262</StumpEndHeight>
       <PhysicalMaterial>Wood</PhysicalMaterial>
+	  <HitPoints>50</HitPoints>
+	  <CutEffect>ChipOff_Wood</CutEffect>
     </EnvironmentItem>
 
     <EnvironmentItem xsi:type="MyObjectBuilder_TreeDefinition">
@@ -23,13 +21,11 @@
         <TypeId>MyObjectBuilder_Tree</TypeId>
         <SubtypeId>Tree03</SubtypeId>
       </Id>
-      <Model>Models\Environment\Trees\BigTree.mwm</Model>
-      <Kind>Pine</Kind>
-      <Height>14.242</Height>
-      <Diameter>0.371</Diameter>
+      <Model>Models\Environment\Trees\PineTree15m.mwm</Model>
       <BranchesStartHeight>5.302</BranchesStartHeight>
-      <StumpEndHeight>0.358</StumpEndHeight>
       <PhysicalMaterial>Wood</PhysicalMaterial>
+	  <HitPoints>70</HitPoints>
+	  <CutEffect>ChipOff_Wood</CutEffect>
     </EnvironmentItem>
 
     <EnvironmentItem xsi:type="MyObjectBuilder_TreeDefinition">
@@ -38,12 +34,10 @@
         <SubtypeId>Tree04</SubtypeId>
       </Id>
       <Model>Models\Environment\Trees\PineTree175m.mwm</Model>
-      <Kind>Pine</Kind>
-      <Height>17.422</Height>
-      <Diameter>0.453</Diameter>
       <BranchesStartHeight>10.689</BranchesStartHeight>
-      <StumpEndHeight>0.242</StumpEndHeight>
       <PhysicalMaterial>Wood</PhysicalMaterial>
+	  <HitPoints>100</HitPoints>
+	  <CutEffect>ChipOff_Wood</CutEffect>
     </EnvironmentItem>
 
     <EnvironmentItem xsi:type="MyObjectBuilder_TreeDefinition">
@@ -51,13 +45,11 @@
         <TypeId>MyObjectBuilder_Tree</TypeId>
         <SubtypeId>Tree05</SubtypeId>
       </Id>
-      <Model>Models\Environment\Trees\BigTree.mwm</Model>
-      <Kind>Pine</Kind>
-      <Height>21.952</Height>
-      <Diameter>0.571</Diameter>
+      <Model>Models\Environment\Trees\PineTree225m.mwm</Model>
       <BranchesStartHeight>5.351</BranchesStartHeight>
-      <StumpEndHeight>0.605</StumpEndHeight>
       <PhysicalMaterial>Wood</PhysicalMaterial>
+	  <HitPoints>100</HitPoints>
+	  <CutEffect>ChipOff_Wood</CutEffect>
     </EnvironmentItem>
 
     <EnvironmentItem xsi:type="MyObjectBuilder_TreeDefinition">
@@ -66,12 +58,10 @@
         <SubtypeId>Tree06</SubtypeId>
       </Id>
       <Model>Models\Environment\Trees\BigTree.mwm</Model>
-      <Kind>Pine</Kind>
-      <Height>23.736</Height>
-      <Diameter>0.618</Diameter>
       <BranchesStartHeight>7.588</BranchesStartHeight>
-      <StumpEndHeight>0.976</StumpEndHeight>
       <PhysicalMaterial>Wood</PhysicalMaterial>
+	  <HitPoints>100</HitPoints>
+	  <CutEffect>ChipOff_Wood</CutEffect>
     </EnvironmentItem>
 
     <!--Version 02-->
@@ -81,13 +71,11 @@
         <TypeId>MyObjectBuilder_Tree</TypeId>
         <SubtypeId>Tree02_v2</SubtypeId>
       </Id>
-      <Model>Models\Environment\Trees\BigTree.mwm</Model>
-      <Kind>Pine</Kind>
-      <Height>9.495</Height>
-      <Diameter>0.247</Diameter>
+      <Model>Models\Environment\Trees\PineTree10m_v2.mwm</Model>
       <BranchesStartHeight>2.342</BranchesStartHeight>
-      <StumpEndHeight>0.262</StumpEndHeight>
       <PhysicalMaterial>Wood</PhysicalMaterial>
+	  <HitPoints>50</HitPoints>
+	  <CutEffect>ChipOff_Wood</CutEffect>
     </EnvironmentItem>
 
     <EnvironmentItem xsi:type="MyObjectBuilder_TreeDefinition">
@@ -95,13 +83,11 @@
         <TypeId>MyObjectBuilder_Tree</TypeId>
         <SubtypeId>Tree03_v2</SubtypeId>
       </Id>
-      <Model>Models\Environment\Trees\BigTree.mwm</Model>
-      <Kind>Pine</Kind>
-      <Height>14.242</Height>
-      <Diameter>0.371</Diameter>
+      <Model>Models\Environment\Trees\PineTree15m_v2.mwm</Model>
       <BranchesStartHeight>5.302</BranchesStartHeight>
-      <StumpEndHeight>0.358</StumpEndHeight>
       <PhysicalMaterial>Wood</PhysicalMaterial>
+	  <HitPoints>70</HitPoints>
+	  <CutEffect>ChipOff_Wood</CutEffect>
     </EnvironmentItem>
 
     <EnvironmentItem xsi:type="MyObjectBuilder_TreeDefinition">
@@ -109,13 +95,11 @@
         <TypeId>MyObjectBuilder_Tree</TypeId>
         <SubtypeId>Tree04_v2</SubtypeId>
       </Id>
-      <Model>Models\Environment\Trees\BigTree.mwm</Model>
-      <Kind>Pine</Kind>
-      <Height>17.422</Height>
-      <Diameter>0.453</Diameter>
+      <Model>Models\Environment\Trees\PineTree175m_v2.mwm</Model>
       <BranchesStartHeight>10.689</BranchesStartHeight>
-      <StumpEndHeight>0.242</StumpEndHeight>
       <PhysicalMaterial>Wood</PhysicalMaterial>
+	  <HitPoints>100</HitPoints>
+	  <CutEffect>ChipOff_Wood</CutEffect>
     </EnvironmentItem>
 
     <EnvironmentItem xsi:type="MyObjectBuilder_TreeDefinition">
@@ -123,13 +107,11 @@
         <TypeId>MyObjectBuilder_Tree</TypeId>
         <SubtypeId>Tree05_v2</SubtypeId>
       </Id>
-      <Model>Models\Environment\Trees\BigTree.mwm</Model>
-      <Kind>Pine</Kind>
-      <Height>21.952</Height>
-      <Diameter>0.571</Diameter>
+      <Model>Models\Environment\Trees\PineTree225m_v2.mwm</Model>
       <BranchesStartHeight>5.351</BranchesStartHeight>
-      <StumpEndHeight>0.605</StumpEndHeight>
       <PhysicalMaterial>Wood</PhysicalMaterial>
+	  <HitPoints>100</HitPoints>
+	  <CutEffect>ChipOff_Wood</CutEffect>
     </EnvironmentItem>
 
     <EnvironmentItem xsi:type="MyObjectBuilder_TreeDefinition">
@@ -137,13 +119,11 @@
         <TypeId>MyObjectBuilder_Tree</TypeId>
         <SubtypeId>Tree06_v2</SubtypeId>
       </Id>
-      <Model>Models\Environment\Trees\BigTree.mwm</Model>
-      <Kind>Pine</Kind>
-      <Height>23.736</Height>
-      <Diameter>0.618</Diameter>
+      <Model>Models\Environment\Trees\PineTree25m_v2.mwm</Model>
       <BranchesStartHeight>7.588</BranchesStartHeight>
-      <StumpEndHeight>0.976</StumpEndHeight>
       <PhysicalMaterial>Wood</PhysicalMaterial>
+	  <HitPoints>100</HitPoints>
+	  <CutEffect>ChipOff_Wood</CutEffect>
     </EnvironmentItem>
 
   </EnvironmentItems>

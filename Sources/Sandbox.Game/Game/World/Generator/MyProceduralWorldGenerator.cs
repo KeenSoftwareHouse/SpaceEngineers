@@ -297,7 +297,8 @@ namespace Sandbox.Game.World.Generator
                 }
                 else
                 {
-                    m_modules.Add(new MyProceduralAsteroidCellGenerator(m_seed, m_objectDensity));
+                    m_asteroidsModule = new MyProceduralAsteroidCellGenerator(m_seed, m_objectDensity);
+                    m_modules.Add(m_asteroidsModule);
                 }
             }
 
@@ -432,9 +433,9 @@ namespace Sandbox.Game.World.Generator
             return new Vector3D(root * Math.Cos(phi), root * Math.Sin(phi), z);
         }
 
-        public void MarkEmptyArea(Vector3D pos)
+        public void MarkEmptyArea(Vector3D pos, float radius)
         {
-            MySphereDensityFunction func = new MySphereDensityFunction(pos, m_planetsModule.PLANET_SIZE_MAX / 2.0 * MyProceduralPlanetCellGenerator.GRAVITY_SIZE_MULTIPLIER + MyProceduralPlanetCellGenerator.FALLOFF, MyProceduralPlanetCellGenerator.FALLOFF);
+            MySphereDensityFunction func = new MySphereDensityFunction(pos, radius * MyProceduralPlanetCellGenerator.GRAVITY_SIZE_MULTIPLIER + MyProceduralPlanetCellGenerator.FALLOFF, MyProceduralPlanetCellGenerator.FALLOFF);
             foreach (var module in m_modules)
             {
                 module.AddDensityFunctionRemoved(func);

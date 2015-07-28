@@ -317,7 +317,7 @@ namespace VRageRender
             var activePointlights = 0;
 
             MyLights.Update();
-            MyLights.PointlightsBvh.OverlapAllFrustum(ref MyEnvironment.ViewFrustumD, VisiblePointlights);
+            MyLights.PointlightsBvh.OverlapAllFrustum(ref MyEnvironment.ViewFrustumClippedD, VisiblePointlights);
 
             if (VisiblePointlights.Count > MyRender11Constants.MAX_POINT_LIGHTS)
             {
@@ -405,14 +405,14 @@ namespace VRageRender
                 RC.SetPS(SpotlightPs_Pixel);
                 if (MyRender11.MultisamplingEnabled)
                 {
-                    RC.SetDS(MyDepthStencilState.TestAAEdge, 0);
+                    RC.SetDS(MyDepthStencilState.TestEdgeStencil, 0);
                 }
                 RC.Context.DrawIndexed(MyMeshes.GetLodMesh(coneMesh, 0).Info.IndicesNum, 0, 0);
 
                 if (MyRender11.MultisamplingEnabled)
                 {
                     RC.SetPS(SpotlightPs_Sample);
-                    RC.SetDS(MyDepthStencilState.TestAAEdge, 0x80);
+                    RC.SetDS(MyDepthStencilState.TestEdgeStencil, 0x80);
                     RC.Context.DrawIndexed(MyMeshes.GetLodMesh(coneMesh, 0).Info.IndicesNum, 0, 0);
                 }
                 

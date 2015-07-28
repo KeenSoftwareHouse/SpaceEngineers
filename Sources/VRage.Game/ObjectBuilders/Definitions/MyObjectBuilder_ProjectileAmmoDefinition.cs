@@ -5,6 +5,12 @@ using VRage.ObjectBuilders;
 
 namespace Sandbox.Common.ObjectBuilders.Definitions
 {
+    public enum MyProjectileType
+    {
+        Bullet,
+        Bolt
+    }
+
     [ProtoContract]
     [MyObjectBuilderDefinition]
     public class MyObjectBuilder_ProjectileAmmoDefinition : MyObjectBuilder_AmmoDefinition
@@ -21,6 +27,9 @@ namespace Sandbox.Common.ObjectBuilders.Definitions
             [ProtoMember]
             public SerializableVector3 ProjectileTrailColor = new SerializableVector3(1.0f, 1.0f, 1.0f);
 
+            [ProtoMember, DefaultValue(null)]
+            public string ProjectileTrailMaterial = null;
+
             [ProtoMember, DefaultValue(0.5f)]
             public float ProjectileTrailProbability = 0.5f;
 
@@ -35,6 +44,15 @@ namespace Sandbox.Common.ObjectBuilders.Definitions
 
             [ProtoMember]
             public float ProjectileHealthDamage;
+
+            [ProtoMember]
+            public bool HeadShot;
+
+            [ProtoMember, DefaultValue(120)]
+            public float ProjectileHeadShotDamage = 120;
+
+            [ProtoMember, DefaultValue(MyProjectileType.Bullet)]
+            public MyProjectileType ProjectileType = MyProjectileType.Bullet;
         }
 
         [ProtoMember, DefaultValue(null)]

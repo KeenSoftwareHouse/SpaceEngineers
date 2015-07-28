@@ -389,7 +389,7 @@ namespace Sandbox.Game.Weapons
             return true;
         }
 
-        public void Shoot(MyShootActionEnum action, Vector3 direction)
+        public void Shoot(MyShootActionEnum action, Vector3 direction, string gunAction)
         {            
             //  Angle of muzzle flash particle
             m_muzzleFlashLength = MyUtils.GetRandomFloat(3, 4);// *m_barrel.GetMuzzleSize();
@@ -661,7 +661,7 @@ namespace Sandbox.Game.Weapons
 
         public override void ShootFromTerminal(Vector3 direction)
         {
-            Shoot(MyShootActionEnum.PrimaryAction, direction);
+            Shoot(MyShootActionEnum.PrimaryAction, direction, null);
         }
     }
 }

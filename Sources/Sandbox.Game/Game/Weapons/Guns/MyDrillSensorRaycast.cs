@@ -1,14 +1,10 @@
-﻿using System;
+﻿using Havok;
+using Sandbox.Engine.Physics;
+using Sandbox.Game.Entities;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using Havok;
-using Sandbox.Engine.Physics;
 using VRageMath;
 using VRageRender;
-using Sandbox.Game.Entities;
-using Sandbox.Game.Entities.Cube;
-using Sandbox.Engine.Utils;
 
 namespace Sandbox.Game.Weapons.Guns
 {
@@ -36,7 +32,7 @@ namespace Sandbox.Game.Weapons.Guns
             Center = (m_origin + FrontPoint) * 0.5f;
         }
 
-		public static bool GetShapeCenter(HkShape shape, int shapeKey, MyCubeGrid grid, ref Vector3D shapeCenter)
+		public static bool GetShapeCenter(HkShape shape, uint shapeKey, MyCubeGrid grid, ref Vector3D shapeCenter)
 		{
 			bool shapeSet = true;
 
@@ -44,11 +40,11 @@ namespace Sandbox.Game.Weapons.Guns
 			{
 				case HkShapeType.List:
 					var listShape = (HkListShape)shape;
-					shape = listShape.GetChildByIndex(shapeKey);
+					shape = listShape.GetChildByIndex((int)shapeKey);
 					break;
 				case HkShapeType.Mopp:
 					var moppShape = (HkMoppBvTreeShape)shape;
-					shape = moppShape.ShapeCollection.GetShape((uint)shapeKey, null);
+					shape = moppShape.ShapeCollection.GetShape(shapeKey, null);
 					break;
 				case HkShapeType.Box:
 					var boxShape = (HkBoxShape)shape;
@@ -62,6 +58,17 @@ namespace Sandbox.Game.Weapons.Guns
 					var convexTransformShape = (HkConvexTransformShape)shape;
 					shape = convexTransformShape;
 					break;
+			/*	case HkShapeType.BvTree:
+					var bvTreeShape = (HkBvTreeShape)shape;
+					var iterator = bvTreeShape.Base.GetContainer();
+					while (iterator.CurrentValue.IsContainer() && iterator.CurrentValue.ShapeType != HkShapeType.ConvexTranslate && iterator.CurrentValue.ShapeType != HkShapeType.ConvexTransform)
+						iterator.Next();
+					if (iterator.IsValid)
+						shape = iterator.CurrentValue;
+					else
+						shapeSet = false;
+					break;*/
+
 				default:
 					shapeSet = false;
 					break;
@@ -91,7 +98,7 @@ namespace Sandbox.Game.Weapons.Guns
             {
 				var hitInfo = hit.HkHitInfo;
 				if (hitInfo.Body == null) continue;
-				var entity = hitInfo.Body.GetEntity();
+				var entity = hitInfo.GetHitEntity();
 
                 if (entity == null) continue;
                 var rootEntity = entity.GetTopMostParent();

@@ -15,7 +15,7 @@ namespace Sandbox.Common
         //  This is version of application
         //  FINAL BUILD VALUE: Increase before every major build.
 
-        public static MyVersion APP_VERSION = 01091001;        
+        public static MyVersion APP_VERSION = 01094001;        
 
         // For OnLive, CiiNOW and other cloud gaming services (disabled HW cursor, editor, multiplayer)
         public const bool   IS_CLOUD_GAMING = false;

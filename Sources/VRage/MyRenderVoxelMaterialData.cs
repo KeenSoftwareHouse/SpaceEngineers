@@ -41,6 +41,8 @@ namespace VRage
         public float Scale;
         public float ScaleFar1;
         public float ScaleFar2;
+        public float ScaleFar3;
+        public float ScaleFar4;
 
         public string ExtensionTextureArray1;
         public string ExtensionTextureArray2;

@@ -9,17 +9,19 @@ using VRage.ObjectBuilders;
 
 namespace Sandbox.Common.ObjectBuilders.Definitions
 {
-    [Flags]
-    public enum MyBonesArea
-    {
-        Body            = 1 << 0,
-        LeftHand        = 1 << 1,
-        RightHand       = 1 << 2,
-        LeftFingers     = 1 << 3,
-        RightFingers    = 1 << 4,
-        Head            = 1 << 5,
-        Spine           = 1 << 6,
-    }
+    //[Flags]
+    //public enum MyBonesArea
+    //{
+    //    Body            = 1 << 0,
+    //    LeftHand        = 1 << 1,
+    //    RightHand       = 1 << 2,
+    //    LeftFingers     = 1 << 3,
+    //    RightFingers    = 1 << 4,
+    //    Head            = 1 << 5,
+    //    Spine           = 1 << 6,
+
+    //    TopBody = LeftHand | RightHand | LeftFingers | RightFingers | Head | Spine   
+    //}
 
 
     [ProtoContract]
@@ -31,10 +33,14 @@ namespace Sandbox.Common.ObjectBuilders.Definitions
         public string AnimationModel;
 
         [ProtoMember]
+        [ModdableContentFile("mwm")]
+        public string AnimationModelFPS;
+
+        [ProtoMember]
         public int ClipIndex;
 
         [ProtoMember]
-        public MyBonesArea InfluenceArea;
+        public string InfluenceArea;
 
         [ProtoMember]
         public bool AllowInCockpit = true;

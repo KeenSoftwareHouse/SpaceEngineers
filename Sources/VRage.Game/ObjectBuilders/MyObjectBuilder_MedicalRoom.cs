@@ -18,5 +18,8 @@ namespace Sandbox.Common.ObjectBuilders
 
         [ProtoMember]
         public bool TakeOwnership;
+
+        [ProtoMember]
+        public bool SetFaction;
     }
 }

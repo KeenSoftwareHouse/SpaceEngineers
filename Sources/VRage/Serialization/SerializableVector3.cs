@@ -46,5 +46,29 @@ namespace VRage
         {
             return new SerializableVector3(v.X, v.Y, v.Z);
         }
+
+        public static bool operator ==(SerializableVector3 a, SerializableVector3 b)
+        {
+            return a.X == b.X && a.Y == b.Y && a.Z == b.Z;
+        }
+
+        public static bool operator !=(SerializableVector3 a, SerializableVector3 b)
+        {
+            return a.X != b.X || a.Y != b.Y || a.Z != b.Z;
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (obj is SerializableVector3)
+            {
+                return (SerializableVector3)obj == this;
+            }
+            return false;
+        }
+
+        public override int GetHashCode()
+        {
+            return X.GetHashCode() * 1610612741 ^ Y.GetHashCode() * 24593 ^ Z.GetHashCode();
+        }
     }
 }

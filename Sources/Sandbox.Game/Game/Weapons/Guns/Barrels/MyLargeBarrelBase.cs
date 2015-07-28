@@ -128,7 +128,7 @@ namespace Sandbox.Game.Weapons
             m_gunBase.Shoot(velocity);
         }
 
-        //protected override void DoDamageInternal(float playerDamage, float damage, float empDamage, MyDamageType damageType, MyAmmoType ammoType, MyEntity damageSource, bool justDeactivate)
+        //protected override void DoDamageInternal(float playerDamage, float damage, float empDamage, MyStringHash damageType, MyAmmoType ammoType, MyEntity damageSource, bool justDeactivate)
         //{
         //    //Parent.DoDamage(playerDamage, damage, empDamage, damageType, ammoType, damageSource, justDeactivate);
         //}

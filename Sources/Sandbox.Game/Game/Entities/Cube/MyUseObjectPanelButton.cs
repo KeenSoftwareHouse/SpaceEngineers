@@ -24,7 +24,7 @@ namespace Sandbox.Game.Entities.Cube
         private int m_index;
         MyGps m_buttonDesc = null;
 
-        public MyUseObjectPanelButton(IMyEntity owner, string dummyName, MyModelDummy dummyData, int key)
+        public MyUseObjectPanelButton(IMyEntity owner, string dummyName, MyModelDummy dummyData, uint key)
         {
             m_buttonPanel = owner as MyButtonPanel;
             m_localMatrix = dummyData.Matrix;
@@ -194,7 +194,7 @@ namespace Sandbox.Game.Entities.Cube
 
         void SetButtonName(string name)
         {
-            if (m_buttonPanel.IsFunctional && m_buttonPanel.IsWorking&&m_buttonPanel.HasLocalPlayerAccess())
+            if (m_buttonPanel.IsFunctional && m_buttonPanel.IsWorking && (m_buttonPanel.HasLocalPlayerAccess() || m_buttonPanel.AnyoneCanUse))
             {
                 m_buttonDesc.Name = name;
             }
