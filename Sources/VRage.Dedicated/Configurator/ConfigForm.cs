@@ -116,17 +116,14 @@ namespace VRage.Dedicated
                 updateServiceStatus();
             }
 
-            m_loadWorldsAsync = new MyLoadListResult();
+            m_loadWorldsAsync = new MyLoadWorldInfoListResult();
             worldListTimer.Enabled = true;
 
             if (MyFakes.ENABLE_BATTLE_SYSTEM && MyPerGameSettings.Game == GameEnum.ME_GAME)
             {
                 battleButton.Show();
                 battleButton.Enabled = false;
-
-                string officialBattleMaps = Path.Combine(MyFileSystem.ContentPath, "CastleSiege");
-                m_loadBattlesAsync = new MyBattleLoadListResult(officialBattleMaps, null);
-                battleListTimer.Enabled = true;
+                battleListTimer.Enabled = false;
             }
             else
             {
@@ -259,6 +256,13 @@ namespace VRage.Dedicated
 
                 m_canChangeStartType = true;
                 startTypeRadio_CheckedChanged(null, null);
+
+                if (MyFakes.ENABLE_BATTLE_SYSTEM && MyPerGameSettings.Game == GameEnum.ME_GAME)
+                {
+                    string officialBattleMaps = Path.Combine(MyFileSystem.ContentPath, "CastleSiege");
+                    m_loadBattlesAsync = new MyBattleLoadListResult(officialBattleMaps, null);
+                    battleListTimer.Enabled = true;
+                }
             }
         }
 
@@ -397,7 +401,7 @@ namespace VRage.Dedicated
             FillSessionSettingsItems();
         }
 
-        void FillSessionSettingsItems()
+        void FillSessionSettingsItems(bool loadFromConfig = false)
         {
             tableLayoutPanel1.RowCount = 0;
             tableLayoutPanel1.RowStyles.Clear();
@@ -582,7 +586,7 @@ namespace VRage.Dedicated
 
             }
             EnableCopyPaste(null);
-            EnableOxygen();
+            EnableOxygen(loadFromConfig);
         }
 
         void EnableCopyPaste(ComboBox sender)
@@ -615,7 +619,7 @@ namespace VRage.Dedicated
             }
         }
 
-        void EnableOxygen()
+        void EnableOxygen(bool loadFromConfig = false)
         {
             var foundControls = tableLayoutPanel1.Controls.Find("VoxelGeneratorVersion", true);
             if (foundControls.Length > 0)
@@ -627,7 +631,7 @@ namespace VRage.Dedicated
                 var oxygenControl = tableLayoutPanel1.Controls.Find("EnableOxygen", true)[0] as CheckBox;
                 oxygenControl.CheckedChanged += oxygenCheckBox_CheckedChanged;
 
-                if (newGameSettingsPanel.Enabled)
+                if (newGameSettingsPanel.Enabled && !loadFromConfig)
                 {
                     oxygenControl.Checked = true;
                     voxelGeneratorControl.Value = VRage.Voxels.MyVoxelConstants.VOXEL_GENERATOR_VERSION;
@@ -858,7 +862,7 @@ namespace VRage.Dedicated
 
                 UpdateLoadedData();
 
-                FillSessionSettingsItems();
+                FillSessionSettingsItems(true);
             }
         }
 
@@ -882,7 +886,7 @@ namespace VRage.Dedicated
 
             UpdateLoadedData();
 
-            FillSessionSettingsItems();
+            FillSessionSettingsItems(true);
         }
 
 

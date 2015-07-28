@@ -15,6 +15,7 @@ using VRage.Components;
 using VRage.ObjectBuilders;
 using VRage;
 using Sandbox.Common;
+using VRage.Utils;
 
 namespace Sandbox.Game.Entities
 {
@@ -753,7 +754,7 @@ namespace Sandbox.Game.Entities
             return id;
         }
 
-        internal void DoDamage(float damage, MyDamageType damageType, MyHitInfo? hitInfo, long attackerId)
+        internal void DoDamage(float damage, MyStringHash damageType, MyHitInfo? hitInfo, long attackerId)
         {
             float integrity = 0;
             foreach(var block in m_blocks)

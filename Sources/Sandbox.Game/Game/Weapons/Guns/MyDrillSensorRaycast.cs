@@ -1,14 +1,10 @@
-﻿using System;
+﻿using Havok;
+using Sandbox.Engine.Physics;
+using Sandbox.Game.Entities;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using Havok;
-using Sandbox.Engine.Physics;
 using VRageMath;
 using VRageRender;
-using Sandbox.Game.Entities;
-using Sandbox.Game.Entities.Cube;
-using Sandbox.Engine.Utils;
 
 namespace Sandbox.Game.Weapons.Guns
 {
@@ -62,6 +58,17 @@ namespace Sandbox.Game.Weapons.Guns
 					var convexTransformShape = (HkConvexTransformShape)shape;
 					shape = convexTransformShape;
 					break;
+			/*	case HkShapeType.BvTree:
+					var bvTreeShape = (HkBvTreeShape)shape;
+					var iterator = bvTreeShape.Base.GetContainer();
+					while (iterator.CurrentValue.IsContainer() && iterator.CurrentValue.ShapeType != HkShapeType.ConvexTranslate && iterator.CurrentValue.ShapeType != HkShapeType.ConvexTransform)
+						iterator.Next();
+					if (iterator.IsValid)
+						shape = iterator.CurrentValue;
+					else
+						shapeSet = false;
+					break;*/
+
 				default:
 					shapeSet = false;
 					break;
@@ -91,7 +98,7 @@ namespace Sandbox.Game.Weapons.Guns
             {
 				var hitInfo = hit.HkHitInfo;
 				if (hitInfo.Body == null) continue;
-				var entity = hitInfo.Body.GetEntity();
+				var entity = hitInfo.GetHitEntity();
 
                 if (entity == null) continue;
                 var rootEntity = entity.GetTopMostParent();

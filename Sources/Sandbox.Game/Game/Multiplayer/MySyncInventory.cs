@@ -19,6 +19,8 @@ using Sandbox.ModAPI.Interfaces;
 using VRage.Utils;
 using Sandbox.Game.Components;
 using VRage.ObjectBuilders;
+using Sandbox.Game.Entities.Inventory;
+using VRage.Components;
 
 namespace Sandbox.Game.Multiplayer
 {
@@ -140,6 +142,23 @@ namespace Sandbox.Game.Multiplayer
             public long GetEntityId() { return SourceContainerId; }
         }
 
+        [ProtoContract]
+        [MessageId(2475, P2PMessageEnum.Reliable)]
+        struct TransferInventoryMsg
+        {
+            [ProtoMember]
+            public long SourceEntityID;
+
+            [ProtoMember]
+            public long DestinationEntityID;
+
+            [ProtoMember]
+            public MyStringHash InventoryId;
+
+            [ProtoMember]
+            public bool RemoveEntityOnEmpty; 
+        }
+        
         static MySyncInventory()
         {
             MySyncLayer.RegisterMessage<TransferItemsMsg>(OnTransferItemsRequest, MyMessagePermissions.ToServer, MyTransportMessageEnum.Request);
@@ -149,9 +168,93 @@ namespace Sandbox.Game.Multiplayer
             MySyncLayer.RegisterMessage<AddItemsMsg>(OnAddItemsSuccess, MyMessagePermissions.FromServer, MyTransportMessageEnum.Success);
             MySyncLayer.RegisterMessage<TakeFloatingObjectMsg>(OnTakeFloatingObjectRequest, MyMessagePermissions.ToServer, MyTransportMessageEnum.Request);
             MySyncLayer.RegisterMessage<OperationFailedMsg>(OnInventoryOperationFail, MyMessagePermissions.FromServer, MyTransportMessageEnum.Failure);
+
             MySyncLayer.RegisterMessage<UpdateOxygenLevelMsg>(OnUpdateOxygenLevel, MyMessagePermissions.FromServer);
 			MySyncLayer.RegisterMessage<ConsumeItemMsg>(OnConsumeItem, MyMessagePermissions.Any, MyTransportMessageEnum.Request);
             MySyncLayer.RegisterMessage<TransferItemsBaseMsg>(OnTransferItemsBaseMsg, MyMessagePermissions.ToServer, MyTransportMessageEnum.Request);
+            MySyncLayer.RegisterMessage<TransferInventoryMsg>(OnTransferInventoryMsg, MyMessagePermissions.FromServer);
+        }
+
+        public static void SendTransferInventoryMsg(long sourceEntityID, long destinationEntityID, MyInventory inventory)
+        {
+            var msg = new TransferInventoryMsg();
+            msg.SourceEntityID = sourceEntityID;
+            msg.DestinationEntityID = destinationEntityID;
+            msg.InventoryId = MyStringHash.GetOrCompute(inventory.InventoryId.ToString());
+            msg.RemoveEntityOnEmpty = inventory.RemoveEntityOnEmpty;
+            Sync.Layer.SendMessageToAllAndSelf(ref msg);
+        }       
+
+        static void OnTransferInventoryMsg(ref TransferInventoryMsg msg, MyNetworkClient sender)
+        {
+            MyEntity source = MyEntities.GetEntityById(msg.SourceEntityID);
+            MyEntity destination = MyEntities.GetEntityById(msg.DestinationEntityID);
+            Debug.Assert(source != null && destination != null, "Entities weren't found!");
+            if (source != null && destination != null)
+            {
+                var inventory = source.Components.Get<MyInventoryBase>();
+                var inventoryAggregate = inventory as MyInventoryAggregate;
+
+                var destinationAggregate = destination.Components.Get<MyInventoryBase>() as MyInventoryAggregate;
+
+                if (inventoryAggregate != null)
+                {
+                    inventory = inventoryAggregate.GetInventory(msg.InventoryId);
+                    inventoryAggregate.ChildList.RemoveComponent(inventory);
+                }
+                else
+                {
+                    inventory.Container.Remove<MyInventoryBase>();
+                }
+
+                Debug.Assert(inventoryAggregate == null || (inventoryAggregate != null && inventoryAggregate.GetInventory(inventory.InventoryId) == null), "Source's entity inventory aggregate still contains inventory!");
+                Debug.Assert(inventoryAggregate != null || (inventoryAggregate == null && !source.Components.Has<MyInventoryBase>()), "Inventory wasn't removed from it's source entity");
+
+                if (source is MyCharacter)
+                {
+                    (source as MyCharacter).Inventory = null;
+                }
+
+                Debug.Assert(inventory.InventoryId.ToString() == msg.InventoryId.ToString(), "Inventory wasn't found!");
+
+                if (destinationAggregate != null)
+                {
+                    destinationAggregate.ChildList.AddComponent(inventory);
+                }
+                else
+                {
+                    destination.Components.Add<MyInventoryBase>(inventory);
+                }
+               
+                inventory.RemoveEntityOnEmpty = msg.RemoveEntityOnEmpty;    
+           
+                // TODO (OM): Since we still have IMyInventoryOwner we need to keep the below, but remove it, when IMyInventoryOwner is no longer needed
+                if (inventory is MyInventory)
+                {
+                    (inventory as MyInventory).RemoveOwner();
+                }
+
+                Debug.Assert(destinationAggregate == null || (destinationAggregate.GetInventory(inventory.InventoryId) != null), "The destination aggregate doesn't contain inserted inventory!");
+
+                // Check whether the destination entity has the detector component
+                MyUseObjectsComponent useObjectComponent = null;
+                if (!destination.Components.Has<MyUseObjectsComponentBase>())
+                {
+                    useObjectComponent = new MyUseObjectsComponent();
+                    destination.Components.Add<MyUseObjectsComponentBase>(useObjectComponent);
+                }
+                else
+                {
+                    useObjectComponent = destination.Components.Get<MyUseObjectsComponentBase>() as MyUseObjectsComponent;                   
+                }
+                Debug.Assert(useObjectComponent != null, "Detector is missing on the entity!");
+                if (useObjectComponent != null && useObjectComponent.GetDetectors("inventory").Count == 0)
+                {
+                    var useObjectMat = Matrix.CreateScale(destination.PositionComp.LocalAABB.Size) * Matrix.CreateTranslation(destination.PositionComp.LocalAABB.Center);
+                    useObjectComponent.AddDetector("inventory", useObjectMat);
+                    useObjectComponent.RecreatePhysics();
+                }
+            }
         }
         
         static void OnInventoryOperationFail(ref OperationFailedMsg msg, MyNetworkClient sender)
@@ -241,7 +344,21 @@ namespace Sandbox.Game.Multiplayer
             if (!MyEntities.EntityExists(msg.OwnerEntityId)) return;
 
             IMyInventoryOwner owner = MyEntities.GetEntityById(msg.OwnerEntityId) as IMyInventoryOwner;
-            MyInventory inv = owner.GetInventory(msg.InventoryIndex);
+            MyInventory inv = null;
+            if (owner != null)
+            {
+                inv = owner.GetInventory(msg.InventoryIndex);
+            }
+            else
+            {
+                // NOTE: this should be the default code after we get rid of the inventory owner and should be searched by it's id
+                MyEntity entity = MyEntities.GetEntityById(msg.OwnerEntityId);
+                MyInventoryBase baseInventory;
+                if (entity.Components.TryGet<MyInventoryBase>(out baseInventory))
+                {
+                    inv = baseInventory as MyInventory;
+                }
+            }
             var item = inv.GetItemByID(msg.itemId);
             if (!item.HasValue) return;
             inv.RemoveItems(msg.itemId, msg.Amount, spawn: msg.Spawn);
@@ -251,8 +368,30 @@ namespace Sandbox.Game.Multiplayer
         {
             if (!MyEntities.EntityExists(msg.OwnerEntityId)) return;
             IMyInventoryOwner owner = MyEntities.GetEntityById(msg.OwnerEntityId) as IMyInventoryOwner;
-            MyInventory inv = owner.GetInventory(msg.InventoryIndex);
-            inv.RemoveItemsInternal(msg.itemId, msg.Amount);
+            MyInventory inv = null;
+            if (owner != null)
+            {
+               inv = owner.GetInventory(msg.InventoryIndex);
+            }
+            else
+            {
+                // NOTE: this should be the default code after we get rid of the inventory owner and should be searched by it's id
+                MyEntity entity = MyEntities.GetEntityById(msg.OwnerEntityId);
+                MyInventoryBase baseInventory;
+                if (entity.Components.TryGet<MyInventoryBase>(out baseInventory))
+                {
+                    inv = baseInventory as MyInventory;
+                }
+            }
+
+            if (inv != null)
+            {
+                inv.RemoveItemsInternal(msg.itemId, msg.Amount);
+            }
+            else
+            {
+                Debug.Fail("Inventory was not found!");
+            }
         }
 
         #endregion
@@ -432,7 +571,22 @@ namespace Sandbox.Game.Multiplayer
             if (!MyEntities.EntityExists(msg.OwnerEntityId)) return;
 
             IMyInventoryOwner owner = MyEntities.GetEntityById(msg.OwnerEntityId) as IMyInventoryOwner;
-            MyInventory inv = owner.GetInventory(msg.InventoryIndex);
+            MyInventory inv = null;
+            if (owner != null)
+            {
+                inv = owner.GetInventory(msg.InventoryIndex);
+            }
+            else
+            {
+                // NOTE: this should be the default code after we get rid of the inventory owner and should be searched by it's id
+                MyEntity entity = MyEntities.GetEntityById(msg.OwnerEntityId);
+                MyInventoryBase baseInventory;
+                if (entity.Components.TryGet<MyInventoryBase>(out baseInventory))
+                {
+                    inv = baseInventory as MyInventory;
+                }
+            }
+            
             var item = inv.GetItemByID(msg.ItemId);
             if (!item.HasValue) return;
 
@@ -558,7 +712,8 @@ namespace Sandbox.Game.Multiplayer
                 return;
             }
 
-            MyInventoryBase sourceInventory = sourceContainer.GetInventory(msg.SourceInventoryId);
+            // CH: TODO: This breaks the object design, but so far we wouldn't be able to move items between other inventories than MyInventory anyway
+            MyInventory sourceInventory = sourceContainer.GetInventory(msg.SourceInventoryId) as MyInventory;
             MyInventoryBase destinationInventory = destinationContainer.GetInventory(msg.DestinationInventoryId);
             if (sourceInventory == null || destinationInventory == null)
             {

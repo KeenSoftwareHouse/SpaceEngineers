@@ -58,7 +58,8 @@ namespace Sandbox.Game.World.Triggers
         }
         protected void DoEnd()
         {
-            Sync.Players.RespawnComponent.CloseRespawnScreen();
+            if (!MySession.Static.Settings.ScenarioEditMode)
+                Sync.Players.RespawnComponent.CloseRespawnScreen();
             MyScenarioSystem.Static.GameState = MyScenarioSystem.MyState.Ending;
         }
 

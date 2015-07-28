@@ -25,5 +25,11 @@ namespace Sandbox.Common.ObjectBuilders.Definitions
         [XmlArrayItem("Item")]
         [ProtoMember]
         public Item[] InventoryItems = null;
+
+        [ProtoMember]
+        public bool InventoryContentGenerated = false;
+
+        [ProtoMember]
+        public SerializableDefinitionId? InventoryContainerTypeId;
     }
 }

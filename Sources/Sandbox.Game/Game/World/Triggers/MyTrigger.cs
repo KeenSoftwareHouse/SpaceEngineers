@@ -21,7 +21,7 @@ namespace Sandbox.Game.World.Triggers
         {
             IsTrue = true;
             if (WwwLink != null && WwwLink.Length > 0)
-                MyGuiSandbox.OpenUrlWithFallback(WwwLink, "Scenario info");
+                MyGuiSandbox.OpenUrlWithFallback(WwwLink, "Scenario info", true);
             if (NextMission != null && NextMission.Length > 0 && MySession.Static.IsScenario)
                 MyScenarioSystem.LoadNextScenario(NextMission);
         }

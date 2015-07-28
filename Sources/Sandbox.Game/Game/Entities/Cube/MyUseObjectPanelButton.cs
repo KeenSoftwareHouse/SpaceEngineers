@@ -194,7 +194,7 @@ namespace Sandbox.Game.Entities.Cube
 
         void SetButtonName(string name)
         {
-            if (m_buttonPanel.IsFunctional && m_buttonPanel.IsWorking&&m_buttonPanel.HasLocalPlayerAccess())
+            if (m_buttonPanel.IsFunctional && m_buttonPanel.IsWorking && (m_buttonPanel.HasLocalPlayerAccess() || m_buttonPanel.AnyoneCanUse))
             {
                 m_buttonDesc.Name = name;
             }

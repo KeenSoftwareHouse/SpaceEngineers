@@ -55,6 +55,8 @@ namespace VRageRender
     struct MyVoxelMaterialConstants
     {
         internal Vector3 Scales;
+        float padding_0;
+        internal Vector2 FarScales;
     }
 
     struct MyVoxelMultiMaterialConstants
@@ -65,6 +67,12 @@ namespace VRageRender
         float padding_1;
         internal Vector3 Scales2;
         float padding_2;
+        internal Vector2 FarScales0;
+        Vector2 padding_3;
+        internal Vector2 FarScales1;
+        Vector2 padding_4;
+        internal Vector2 FarScales2;
+        Vector2 padding_5;
     }
 
     class MyVoxelMaterials1
@@ -114,6 +122,9 @@ namespace VRageRender
                 Table[i].Far2.ExtXZnY_Texture = X.TEXT(list[i].ExtXZnYFar2);
                 Table[i].Far2.ExtpY_Texture = X.TEXT(list[i].ExtYFar2);
                 Table[i].Far2.TextureScale = list[i].ScaleFar2;
+
+                Table[i].FarScale3 = list[i].ScaleFar3;
+                Table[i].FarScale4 = list[i].ScaleFar4;
 
                 Table[i].FoliageArray_Texture = list[i].ExtensionTextureArray1;
                 Table[i].FoliageDensity = list[i].ExtensionDensity;
@@ -169,6 +180,9 @@ namespace VRageRender
         {
             byte[] buffer;
             int size;
+
+            if (triple.I2 >= Table.Length) triple.I2 = -1;
+
             bool singleMaterial = triple.I1 == -1 && triple.I2 == -1;
 
             if(singleMaterial)
@@ -176,6 +190,7 @@ namespace VRageRender
                 size = sizeof(MyVoxelMaterialConstants);
                 MyVoxelMaterialConstants constantsData = new MyVoxelMaterialConstants();
                 constantsData.Scales = Table[triple.I0].ScaleFactors;
+                constantsData.FarScales = new Vector2(Table[triple.I0].FarScale3, Table[triple.I0].FarScale4);
                 buffer = new byte[size];
                 fixed(byte* dstPtr = buffer)
                 {
@@ -190,6 +205,9 @@ namespace VRageRender
                 constantsData.Scales0 = Table[triple.I0].ScaleFactors;
                 constantsData.Scales1 = Table[triple.I1].ScaleFactors;
                 constantsData.Scales2 = triple.I2 >= 0 ? Table[triple.I2].ScaleFactors : Vector3.One;
+                constantsData.FarScales0 = new Vector2(Table[triple.I0].FarScale3, Table[triple.I0].FarScale4);
+                constantsData.FarScales1 = new Vector2(Table[triple.I1].FarScale3, Table[triple.I1].FarScale4);
+                constantsData.FarScales2 = triple.I2 >= 0 ? new Vector2(Table[triple.I2].FarScale3, Table[triple.I2].FarScale4) : Vector2.Zero;
                 buffer = new byte[size];
                 fixed (byte* dstPtr = buffer)
                 {

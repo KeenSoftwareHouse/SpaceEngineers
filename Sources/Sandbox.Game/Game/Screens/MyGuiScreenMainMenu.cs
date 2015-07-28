@@ -408,11 +408,11 @@ namespace Sandbox.Game.Gui
             {
                 MyGuiSandbox.AddScreen(MyGuiSandbox.CreateMessageBox(buttonType: MyMessageBoxButtonsType.YES_NO,
                     messageText: MyTexts.Get(MySpaceTexts.MessageBoxTextTutorialQuestion),
-                    messageCaption: MyTexts.Get(MySpaceTexts.MessageBoxCaptionVideoTutorial),
+                    messageCaption: MyTexts.Get(MySpaceTexts.MessageBoxCaptionTutorial),
                     callback: delegate(MyGuiScreenMessageBox.ResultEnum val)
                     {
                         if (val == MyGuiScreenMessageBox.ResultEnum.YES)
-                            MyGuiSandbox.OpenUrlWithFallback(MySteamConstants.URL_GUIDE_DEFAULT, "Steam Guide");
+                            MyGuiSandbox.AddScreen(MyGuiSandbox.CreateScreen<MyGuiScreenTutorial>());
                         else
                             MyGuiSandbox.AddScreen(MyGuiSandbox.CreateScreen<MyGuiScreenStartSandbox>());
                     }));

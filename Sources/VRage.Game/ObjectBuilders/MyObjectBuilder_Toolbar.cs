@@ -1,13 +1,9 @@
-﻿using System;
+﻿using ProtoBuf;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Xml.Serialization;
-using ProtoBuf;
 using System.ComponentModel;
-using VRageMath;
-using VRage.ObjectBuilders;
 using VRage.ModAPI;
+using VRage.ObjectBuilders;
+using VRageMath;
 
 namespace Sandbox.Common.ObjectBuilders
 {
@@ -52,10 +48,16 @@ namespace Sandbox.Common.ObjectBuilders
         [ProtoMember]
         public List<Slot> Slots;
 
-        [ProtoMember]
-        public List<Vector3> ColorMaskHSVList;
+		#region Obsolete
 
-        public void Remap(IMyRemapHelper remapHelper)
+		[ProtoMember, DefaultValue(null)]
+		// Obsolete
+        public List<Vector3> ColorMaskHSVList = null;
+		public bool ShouldSerializeColorMaskHSVList() { return false; }	// Moved to MyPlayer
+
+		#endregion
+
+		public void Remap(IMyRemapHelper remapHelper)
         {
             if (Slots != null)
             {

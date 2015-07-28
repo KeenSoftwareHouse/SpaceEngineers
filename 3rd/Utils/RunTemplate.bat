@@ -16,6 +16,10 @@ IF NOT EXIST "%TextTransformPath%" (
 )
 
 IF NOT EXIST "%TextTransformPath%" (
+    SET "TextTransformPath=%BasePath%\Microsoft Shared\TextTemplating\14.0\TextTransform.exe"
+)
+
+IF NOT EXIST "%TextTransformPath%" (
     SET "TextTransformPath=%BasePath%\Microsoft Shared\TextTemplating\10.0\TextTransform.exe"
 )
 

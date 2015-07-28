@@ -54,8 +54,16 @@ namespace Sandbox.Game.Entities.Character
 {
     public class MyCharacterShapecastDetectorComponent : MyCharacterDetectorComponent
     {
-        const float SHAPE_RADIUS = 0.1f;
-        List<HkContactBodyData> m_hits = new List<HkContactBodyData>();
+        public const float DEFAULT_SHAPE_RADIUS = 0.1f;
+        List<MyPhysics.HitInfo> m_hits = new List<MyPhysics.HitInfo>();
+
+        public float ShapeRadius { get; set; }
+
+        public MyCharacterShapecastDetectorComponent()
+        {
+            ShapeRadius = DEFAULT_SHAPE_RADIUS;
+        }
+
         protected override void DoDetection(bool useHead)
         {
             if (Character == MySession.ControlledEntity)
@@ -70,7 +78,8 @@ namespace Sandbox.Game.Entities.Character
             if (!useHead)
             {
                 //Ondrej version
-                var cameraMatrix = MySector.MainCamera.WorldMatrix;
+                //var cameraMatrix = MySector.MainCamera.WorldMatrix;
+                var cameraMatrix = Character.Get3rdBoneMatrix(true, true);
                 dir = cameraMatrix.Forward;
                 from = MyUtils.LinePlaneIntersection(headPos, (Vector3)dir, cameraMatrix.Translation, (Vector3)dir);
             }
@@ -81,10 +90,12 @@ namespace Sandbox.Game.Entities.Character
                 from = headPos;
             }
 
-            Vector3D to = from + dir * MyConstants.DEFAULT_INTERACTIVE_DISTANCE;
+            Vector3D to = from + dir * 2.5f;
+
+            StartPosition = from;
 
             MatrixD matrix = MatrixD.CreateTranslation(from);
-            HkShape shape = new HkSphereShape(SHAPE_RADIUS);
+            HkShape shape = new HkSphereShape(ShapeRadius);
             IMyEntity hitEntity = null;
             ShapeKey = uint.MaxValue;
             HitPosition = Vector3D.Zero;
@@ -96,18 +107,20 @@ namespace Sandbox.Game.Entities.Character
                 MyPhysics.CastShapeReturnContactBodyDatas(to, shape, ref matrix, 0, 0f, m_hits);
 
                 int index = 0;
-                while (index < m_hits.Count && (m_hits[index].Body == null || m_hits[index].Body.UserObject == Character.Physics
-                    || m_hits[index].Body.HasProperty(HkCharacterRigidBody.MANIPULATED_OBJECT))) // Skip invalid hits and self character
+                while (index < m_hits.Count && (m_hits[index].HkHitInfo.Body == null || m_hits[index].HkHitInfo.GetHitEntity() == Character
+                    || m_hits[index].HkHitInfo.Body.HasProperty(HkCharacterRigidBody.MANIPULATED_OBJECT))) // Skip invalid hits and self character
                 {
                     index++;
                 }
 
                 if (index < m_hits.Count)
                 {
-                    hitEntity = m_hits[index].Body.GetEntity();
-                    ShapeKey = m_hits[index].ShapeKey;
-                    HitPosition = m_hits[index].HitPosition;
-                    HitNormal = m_hits[index].Normal;
+                    hitEntity = m_hits[index].HkHitInfo.GetHitEntity();
+                    ShapeKey = m_hits[index].HkHitInfo.GetShapeKey(0);
+                    HitPosition = m_hits[index].Position;
+                    HitNormal = m_hits[index].HkHitInfo.Normal;
+                    HitMaterial = m_hits[index].HkHitInfo.Body.GetBody().GetMaterialAt(HitPosition + HitNormal * 0.1f);
+                    HitBody = m_hits[index].HkHitInfo.Body;
                 }
             }
             finally

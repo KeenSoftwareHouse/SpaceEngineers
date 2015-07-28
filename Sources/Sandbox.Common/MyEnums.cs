@@ -28,6 +28,7 @@ namespace Sandbox.Common
         public static MyStringHash RIFLEBULLET = MyStringHash.GetOrCompute("RifleBullet");
         public static MyStringHash GUNBULLET   = MyStringHash.GetOrCompute("GunBullet");
         public static MyStringHash EXPBULLET   = MyStringHash.GetOrCompute("ExpBullet");
+        public static MyStringHash BOLT        = MyStringHash.GetOrCompute("Bolt");
     }
 
     

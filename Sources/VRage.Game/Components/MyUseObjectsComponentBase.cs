@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using VRage.Collections;
 using VRage.Components;
 using VRage.Game.Entity.UseObject;
 using VRageMath;
@@ -56,6 +57,19 @@ namespace VRage.Components
             return result;
         }
 
+        public ListReader<Matrix> GetDetectors(string detectorName)
+        {
+            List<Matrix> detectorList = null;
+            m_detectors.TryGetValue(detectorName, out detectorList);
+
+            if (detectorList == null || detectorList.Count == 0)
+            {
+                return ListReader<Matrix>.Empty;
+            }
+
+            return new ListReader<Matrix>(detectorList);
+        }
+
         public virtual void ClearPhysics()
         {
             if (DetectorPhysics != null)
@@ -89,6 +103,11 @@ namespace VRage.Components
             {
                 DetectorPhysics.Deactivate();
             }
+        }
+
+        public override string ComponentTypeDebugString
+        {
+            get { return "Use Objects"; }
         }
     }
 }

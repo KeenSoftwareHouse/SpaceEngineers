@@ -92,7 +92,10 @@ namespace Sandbox.Game.Entities.Cube
             {
                 OxygenSystem = new MyGridOxygenSystem(m_cubeGrid);
             }
-            JumpSystem = new MyGridJumpDriveSystem(m_cubeGrid);
+            if (MyPerGameSettings.EnableJumpDrive)
+            {
+                JumpSystem = new MyGridJumpDriveSystem(m_cubeGrid);
+            }
 
             m_cubeGrid.SyncObject.PowerProducerStateChanged += SyncObject_PowerProducerStateChanged;
 
@@ -111,7 +114,10 @@ namespace Sandbox.Game.Entities.Cube
                 OxygenSystem.Init(builder.OxygenAmount);
             }
 
-            JumpSystem.Init(builder.JumpDriveDirection, builder.JumpElapsedTicks);
+            if (MyPerGameSettings.EnableJumpDrive)
+            {
+                JumpSystem.Init(builder.JumpDriveDirection, builder.JumpElapsedTicks);
+            }
         }
 
         public virtual void BeforeBlockDeserialization(MyObjectBuilder_CubeGrid builder)
@@ -158,9 +164,12 @@ namespace Sandbox.Game.Entities.Cube
                 ProfilerShort.End();
             }
 
-            ProfilerShort.Begin("Jump");
-            JumpSystem.UpdateBeforeSimulation();
-            ProfilerShort.End();
+            if (MyPerGameSettings.EnableJumpDrive)
+            {
+                ProfilerShort.Begin("Jump");
+                JumpSystem.UpdateBeforeSimulation();
+                ProfilerShort.End();
+            }
         }
 
         public virtual void PrepareForDraw()
@@ -212,8 +221,11 @@ namespace Sandbox.Game.Entities.Cube
                 ob.OxygenAmount = OxygenSystem.GetOxygenAmount();
             }
 
-            ob.JumpDriveDirection = JumpSystem.GetJumpDriveDirection();
-            ob.JumpElapsedTicks = JumpSystem.GetJumpElapsedTicks();
+            if (MyPerGameSettings.EnableJumpDrive)
+            {
+                ob.JumpDriveDirection = JumpSystem.GetJumpDriveDirection();
+                ob.JumpElapsedTicks = JumpSystem.GetJumpElapsedTicks();
+            }
         }
 
         public virtual void AddGroup(MyBlockGroup group)
@@ -380,6 +392,10 @@ namespace Sandbox.Game.Entities.Cube
         public virtual void AfterGridClose()
         {
             ConveyorSystem.AfterGridClose();
+            if (MyPerGameSettings.EnableJumpDrive)
+            {
+                JumpSystem.AfterGridClose();
+            }
             m_blocksRegistered = false;
         }
 

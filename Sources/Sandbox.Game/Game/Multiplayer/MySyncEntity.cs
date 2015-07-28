@@ -21,6 +21,7 @@ using VRage;
 using VRage.Components;
 using VRage.Library.Utils;
 using Sandbox.Common;
+using VRage.ModAPI;
 
 namespace Sandbox.Game.Multiplayer
 {
@@ -252,7 +253,7 @@ namespace Sandbox.Game.Multiplayer
             }
         }
 
-        public static void SendPositionUpdates(List<MyEntity> entities)
+        public static void SendPositionUpdates(List<IMyEntity> entities)
         {
             PositionUpdateBatchMsg msg = new PositionUpdateBatchMsg();
             msg.Positions = new List<PositionUpdateMsg>(entities.Count);
@@ -267,7 +268,7 @@ namespace Sandbox.Game.Multiplayer
             MySession.Static.SyncLayer.SendMessageToAll(ref msg);
         }
 
-        private static PositionUpdateMsg CreatePositionMsg(MyEntity entity)
+        private static PositionUpdateMsg CreatePositionMsg(IMyEntity entity)
         {
             var m = entity.WorldMatrix;
             PositionUpdateMsg msg = new PositionUpdateMsg();

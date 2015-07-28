@@ -134,7 +134,7 @@ namespace Sandbox.Game.Entities
 			MyPhysics.HitInfo? closestValidHit = null;
 			foreach (var hitInfo in hitInfos)
 			{
-				var ent = hitInfo.HkHitInfo.Body.GetEntity();
+				var ent = hitInfo.HkHitInfo.GetHitEntity();
 				if (ent is MyCubeGrid)
 				{
 					closestValidHit = hitInfo;

@@ -40,7 +40,7 @@ namespace Sandbox.Game.GameSystems
         HashSet<long> m_dbgCreated = new HashSet<long>();
         HashSet<long> m_dbgRemoved = new HashSet<long>();
 
-		List<HkRigidBody> m_rigidList = new List<HkRigidBody>();
+        List<HkBodyCollision> m_rigidList = new List<HkBodyCollision>();
 
         public override bool IsRequiredByGame
         {
@@ -71,6 +71,7 @@ namespace Sandbox.Game.GameSystems
 
             var fp = new MyFracturedPiece();
             fp.Physics = new MyPhysicsBody(fp, RigidBodyFlag.RBF_DEBRIS);
+            fp.Physics.CanUpdateAccelerations = true;
             ProfilerShort.End();
             return fp;
         }
@@ -111,8 +112,8 @@ namespace Sandbox.Game.GameSystems
 
         void RigidBody_Deactivated(HkEntity entity)
         {
-            Debug.Assert(entity.GetEntity() is MyFracturedPiece);
-            var fp = entity.GetEntity() as MyFracturedPiece;
+            Debug.Assert(entity.GetEntity(0) is MyFracturedPiece);
+            var fp = entity.GetEntity(0) as MyFracturedPiece;
             if (fp == null || m_blendingPieces.Contains(fp))
                 return;
             m_inactivePieces.Add(fp);
@@ -120,8 +121,8 @@ namespace Sandbox.Game.GameSystems
 
         void RigidBody_Activated(HkEntity entity)
         {
-            Debug.Assert(entity.GetEntity() is MyFracturedPiece);
-            var fp = entity.GetEntity() as MyFracturedPiece;
+            Debug.Assert(entity.GetEntity(0) is MyFracturedPiece);
+            var fp = entity.GetEntity(0) as MyFracturedPiece;
             if (fp == null || m_blendingPieces.Contains(fp))
                 return;
             m_inactivePieces.Remove(fp);
@@ -353,13 +354,9 @@ namespace Sandbox.Game.GameSystems
 			
 				foreach(var rigidBody in m_rigidList)
 				{
-					var physicsBody = rigidBody.UserObject as MyPhysicsBody;
-					if (physicsBody != null)
-					{
-						var fracture = physicsBody.Entity as MyFracturedPiece;
-						if (fracture != null)
-							output.Add(fracture);
-					}
+					var fracture = rigidBody.GetCollisionEntity() as MyFracturedPiece;
+					if (fracture != null)
+						output.Add(fracture);
 				}
 			}
 			finally

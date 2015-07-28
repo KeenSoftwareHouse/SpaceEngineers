@@ -52,5 +52,10 @@ namespace Sandbox.Game.Entities
 		public abstract double DistanceSqToPoint(Vector3D point);
 
         public abstract bool TestPoint(Vector3D point);
+
+        public override string ComponentTypeDebugString
+        {
+            get { return "Place Area"; }
+        }
     }
 }

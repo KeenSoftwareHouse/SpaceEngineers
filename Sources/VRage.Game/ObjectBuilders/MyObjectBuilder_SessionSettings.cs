@@ -253,8 +253,8 @@ namespace Sandbox.Common.ObjectBuilders
         // Should have been named "EnableRespawnShips" to avoid a negative
         // but it's alread public now
         [ProtoMember]
-        [Display(Name = "Disable respawn ships")]
-        [GameRelationAttribute(Game.SpaceEngineers)]
+        [Display(Name = "Disable respawn ships / carts")]
+        [GameRelationAttribute(Game.Shared)]
         public bool DisableRespawnShips = false;
 
         [ProtoMember]
@@ -283,7 +283,7 @@ namespace Sandbox.Common.ObjectBuilders
         [ProtoMember]
         [Display(Name = "Sun rotation interval")]
         [GameRelationAttribute(Game.SpaceEngineers)]
-        public double SunRotationIntervalMinutes = 4 * 60; // 4 hours
+        public float SunRotationIntervalMinutes = 4 * 60; // 4 hours
 
         [ProtoMember]
         [Display(Name = "Enable jetpack")]
@@ -314,6 +314,17 @@ namespace Sandbox.Common.ObjectBuilders
         [Display(Name = "Moon max size")]
         [GameRelationAttribute(Game.SpaceEngineers)]
         public float MoonMaxSize = 10 * 1000;
+
+        [ProtoMember]
+        [Display(Name = "")]
+        [GameRelationAttribute(Game.SpaceEngineers)]
+        public bool StartInRespawnScreen = false;
+
+        [ProtoMember]
+        [Display(Name = "Enable voxel destruction")]
+        [GameRelationAttribute(Game.SpaceEngineers)]
+        public bool EnableVoxelDestruction = true;
+
 
         public void LogMembers(MyLog log, LoggingOptions options)
         {
@@ -351,6 +362,7 @@ namespace Sandbox.Common.ObjectBuilders
                 log.WriteLine("EnableIngameScripts = " + EnableIngameScripts);
                 log.WriteLine("ViewDistance = " + ViewDistance);
                 log.WriteLine("Battle = " + Battle);
+                log.WriteLine("Voxel destruction = " + EnableVoxelDestruction);
             }
         }
     }

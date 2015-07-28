@@ -18,6 +18,7 @@ using VRage.Game.Entity.UseObject;
 using VRage.Input;
 using Sandbox.Game.Entities.Inventory;
 using VRage.Utils;
+using Sandbox.Game.Entities.Character.Components;
 
 namespace Sandbox.Game.Entities
 {
@@ -98,6 +99,11 @@ namespace Sandbox.Game.Entities
             {
                 return !m_enabled;
             }
+        }
+
+        public bool IsBlocking
+        {
+            get { return false; }
         }
 
         public int ShootDirectionUpdateTime
@@ -258,7 +264,7 @@ namespace Sandbox.Game.Entities
             return status == MyGunStatusEnum.OK;
         }
 
-        public void Shoot(MyShootActionEnum action, VRageMath.Vector3 direction)
+        public void Shoot(MyShootActionEnum action, VRageMath.Vector3 direction, string gunAction)
         {
             m_enabled = false;
 
@@ -344,7 +350,8 @@ namespace Sandbox.Game.Entities
 
         public void OnControlReleased()
         {
-            SyncTool.StopManipulation();
+            if (Sync.IsServer)
+                SyncTool.StopManipulation();
         }
 
         public override void UpdateBeforeSimulation()
@@ -369,6 +376,7 @@ namespace Sandbox.Game.Entities
         private void ThrowEntity()
         {
             Debug.Assert(m_constraint != null);
+            Debug.Assert(Sync.IsServer);
 
             MyEntity otherEntity = m_otherEntity;
 
@@ -401,7 +409,7 @@ namespace Sandbox.Game.Entities
 
             if (otherEntity is MyCharacter)
             {
-                if (!(otherEntity as MyCharacter).IsDead || !(otherEntity as MyCharacter).IsRagdollActivated)
+                if (!(otherEntity as MyCharacter).IsDead || !((otherEntity as MyCharacter).Components.Has<MyCharacterRagdollComponent>() && (otherEntity as MyCharacter).Components.Get<MyCharacterRagdollComponent>().IsRagdollActivated))
                 {
                     Debug.Assert(!fromServer, "Desync!");
                     return;
@@ -569,9 +577,9 @@ namespace Sandbox.Game.Entities
             m_previousCharacterMovementState  = Owner.GetCurrentMovementState();
 
             if (m_state == MyState.HOLD)
-                Owner.PlayCharacterAnimation("PickLumber", false, MyPlayAnimationMode.Immediate | MyPlayAnimationMode.Play, 0.2f, 1f);
+                Owner.PlayCharacterAnimation("PickLumber", MyBlendOption.Immediate, MyFrameOption.None, 0.2f, 1f);
             else
-                Owner.PlayCharacterAnimation("PullLumber", false, MyPlayAnimationMode.Immediate | MyPlayAnimationMode.Play, 0.2f, 1f);
+                Owner.PlayCharacterAnimation("PullLumber", MyBlendOption.Immediate, MyFrameOption.None, 0.2f, 1f);
 
             m_manipulatedEntitites.Add(m_otherEntity);
 
@@ -581,7 +589,7 @@ namespace Sandbox.Game.Entities
         private void SetMotionOnClient(MyEntity otherEntity, HkMotionType motion)
         {
             // PetrM:TODO: Make all client grids dynamic.
-            if (!Sync.IsServer && !(otherEntity is MyCharacter && (otherEntity as MyCharacter).IsRagdollActivated))  // In case of picking up a ragdoll don't turn off and on the physics
+            if (!Sync.IsServer && !(otherEntity is MyCharacter && (otherEntity as MyCharacter).Components.Has<MyCharacterRagdollComponent>() && (otherEntity as MyCharacter).Components.Get<MyCharacterRagdollComponent>().IsRagdollActivated))  // In case of picking up a ragdoll don't turn off and on the physics
             {
                 otherEntity.Physics.Enabled = false;
                 otherEntity.SyncFlag = false;
@@ -730,13 +738,13 @@ namespace Sandbox.Game.Entities
                     case MyCharacterMovementEnum.RunningRightBack:
                     case MyCharacterMovementEnum.RunningLeftFront:
                     case MyCharacterMovementEnum.RunningLeftBack:
-                        Owner.PlayCharacterAnimation("WalkBack", true, MyPlayAnimationMode.Immediate | MyPlayAnimationMode.Play, 0.2f, 1f);
+                        Owner.PlayCharacterAnimation("WalkBack", MyBlendOption.Immediate, MyFrameOption.Loop, 0.2f, 1f);
                         break;
                     case MyCharacterMovementEnum.Standing:
                     case MyCharacterMovementEnum.RotatingLeft:
                     case MyCharacterMovementEnum.RotatingRight:
                     case MyCharacterMovementEnum.Flying:
-                        Owner.PlayCharacterAnimation("Idle", true, MyPlayAnimationMode.Immediate | MyPlayAnimationMode.Play, 0.2f, 1f);
+                        Owner.PlayCharacterAnimation("Idle", MyBlendOption.Immediate, MyFrameOption.Loop, 0.2f, 1f);
                         break;
                 }
             }
@@ -833,9 +841,9 @@ namespace Sandbox.Game.Entities
                     if ((!m_constraintInitialized && currentCanUseIdle) || (currentCanUseIdle && !previousCanUseIdle))
                     {
                         if (m_state == MyState.HOLD)
-                            Owner.PlayCharacterAnimation("PickLumberIdle", true, MyPlayAnimationMode.Immediate | MyPlayAnimationMode.Play, 0.2f, 1f);
+                            Owner.PlayCharacterAnimation("PickLumberIdle", MyBlendOption.Immediate, MyFrameOption.Loop, 0.2f, 1f);
                         else
-                            Owner.PlayCharacterAnimation("PullLumberIdle", true, MyPlayAnimationMode.Immediate | MyPlayAnimationMode.Play, 0.2f, 1f);
+                            Owner.PlayCharacterAnimation("PullLumberIdle", MyBlendOption.Immediate, MyFrameOption.Loop, 0.2f, 1f);
                     }
 
                     m_previousCharacterMovementState = characterMovementState;
@@ -848,6 +856,30 @@ namespace Sandbox.Game.Entities
                         m_otherRigidBody.MaxAngularVelocity = m_otherMaxAngularVelocity;
                     }
 
+                    if(m_fixedConstraintData != null)
+                    {
+                        float rotationSpeed = MyInput.Static.IsAnyShiftKeyPressed() ? - 0.01f : 0.01f;
+                        var tran = m_otherLocalPivotMatrix.Translation;
+                        if(MyInput.Static.IsKeyPress(MyKeys.E))
+                        {
+                            m_otherLocalPivotMatrix = m_otherLocalPivotMatrix * Matrix.CreateFromAxisAngle(Vector3.Up, rotationSpeed);
+                            m_otherLocalPivotMatrix.Translation = tran;
+                            m_fixedConstraintData.SetInBodySpace(ref m_otherLocalPivotMatrix, ref m_headLocalPivotMatrix);
+                        }
+                        if (MyInput.Static.IsKeyPress(MyKeys.Q))
+                        {
+                            m_otherLocalPivotMatrix = m_otherLocalPivotMatrix * Matrix.CreateFromAxisAngle(Vector3.Forward, rotationSpeed);
+                            m_otherLocalPivotMatrix.Translation = tran;
+                            m_fixedConstraintData.SetInBodySpace(ref m_otherLocalPivotMatrix, ref m_headLocalPivotMatrix);
+                        }
+                        if (MyInput.Static.IsKeyPress(MyKeys.R))
+                        {
+                            m_otherLocalPivotMatrix = m_otherLocalPivotMatrix * Matrix.CreateFromAxisAngle(Vector3.Right, rotationSpeed);
+                            m_otherLocalPivotMatrix.Translation = tran;
+                            m_fixedConstraintData.SetInBodySpace(ref m_otherLocalPivotMatrix, ref m_headLocalPivotMatrix);
+                        }
+                    }
+
                     if (m_fixedConstraintData != null && !MyFakes.MANIPULATION_TOOL_VELOCITY_LIMIT)
                     {
                         m_fixedConstraintData.MaximumAngularImpulse = fixedConstraintMaxValue;
@@ -858,7 +890,10 @@ namespace Sandbox.Game.Entities
                         float rightDot = Math.Abs(Vector3.Dot(worldHeadPivotMatrix.Right, worldOtherPivotMatrix.Right));
                         if (upDot < 0.5f || rightDot < 0.5f)
                         {
-                            if (!(m_otherEntity is MyCharacter)) SyncTool.StopManipulation(); 
+                            // Synced from local player because lagged server can drop manipulated items with fast moves
+                            if (!(m_otherEntity is MyCharacter) && Owner.ControllerInfo.Controller.Player.IsLocalPlayer)
+                                SyncTool.StopManipulation();
+
                             return;
                         }
                     }
@@ -866,7 +901,10 @@ namespace Sandbox.Game.Entities
                     // Check length between pivots
                     if (length > checkDst)
                     {
-                        if (!(m_otherEntity is MyCharacter))  SyncTool.StopManipulation();
+                        // Synced from local player because lagged server can drop manipulated items with fast moves
+                        if (!(m_otherEntity is MyCharacter) && Owner.ControllerInfo.Controller.Player.IsLocalPlayer)  
+                            SyncTool.StopManipulation();
+
                         return;
                     }
                 }
@@ -886,7 +924,10 @@ namespace Sandbox.Game.Entities
                             var characterMovementState = Owner.GetCurrentMovementState();
                             if (!CanManipulate(characterMovementState))
                             {
-                                if (!(m_otherEntity is MyCharacter)) SyncTool.StopManipulation();
+                                // Synced from local player because lagged server can drop manipulated items with fast moves
+                                if (!(m_otherEntity is MyCharacter) && Owner.ControllerInfo.Controller.Player.IsLocalPlayer)
+                                    SyncTool.StopManipulation();
+
                                 return;
                             }
                         }
@@ -925,14 +966,14 @@ namespace Sandbox.Game.Entities
 
             foreach (var hitInfo in m_tmpHits)
             {
-                if (hitInfo.HkHitInfo.Body.GetEntity() == Owner)
+                if (hitInfo.HkHitInfo.GetHitEntity() == Owner)
                 {
                     continue;
                 }
                 else
                 {
                     hitPosition = hitInfo.Position;
-                    return hitInfo.HkHitInfo.Body.GetEntity() as MyEntity;
+                    return hitInfo.HkHitInfo.GetHitEntity() as MyEntity;
                 }
             }
            
@@ -951,25 +992,6 @@ namespace Sandbox.Game.Entities
             return true;
         }
 
-        private bool TargetEntityPenetratesCharacterInHeadPivotPosition(MyEntity entity, ref MatrixD shapeTransform)
-        {
-            HkShape shape = entity.Physics.RigidBody.GetShape();
-
-            Vector3D translation = shapeTransform.Translation;
-            Quaternion rotation = Quaternion.CreateFromRotationMatrix(shapeTransform);
-
-            m_tmpBodies.Clear();
-            MyPhysics.GetPenetrationsShape(shape, ref translation, ref rotation, m_tmpBodies, MyPhysics.ObjectDetectionCollisionLayer);
-
-            foreach (var rigidBody in m_tmpBodies)
-            {
-                if (rigidBody.GetEntity() == Owner)
-                    return false;
-            }
-
-            return true;
-        }
-
         public static bool IsEntityManipulated(MyEntity entity)
         {
             return m_manipulatedEntitites.Contains(entity);
@@ -982,11 +1004,13 @@ namespace Sandbox.Game.Entities
 
         public void StartManipulationSynced(MyState myState, MyEntity spawned, Vector3D position, ref MatrixD ownerWorldHeadMatrix)
         {
+            Debug.Assert(Sync.IsServer);
             SyncTool.StartManipulation(myState, spawned, position, ref ownerWorldHeadMatrix);
         }
 
         public void StopManipulationSynced()
         {
+            Debug.Assert(Sync.IsServer);
             SyncTool.StopManipulation();
         }
 

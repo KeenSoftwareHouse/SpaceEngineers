@@ -20,7 +20,7 @@ namespace VRageRender
 
         internal static void Run()
         {
-            RC.SetDS(MyDepthStencilState.MarkAAEdge, 0xFF);
+            RC.SetDS(MyDepthStencilState.MarkEdgeInStencil, 0xFF);
             RC.SetPS(m_ps);
             RC.BindDepthRT(MyGBuffer.Main.Get(MyGbufferSlot.DepthStencil), DepthStencilAccess.DepthReadOnly, null);
             RC.BindGBufferForReadSkipStencil(0, MyGBuffer.Main);

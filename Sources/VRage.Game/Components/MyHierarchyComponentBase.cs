@@ -127,5 +127,10 @@ namespace VRage.Components
                 entity.GetChildrenRecursive(result);
             }
         }
+
+        public override string ComponentTypeDebugString
+        {
+            get { return "Hierarchy"; }
+        }
     }
 }

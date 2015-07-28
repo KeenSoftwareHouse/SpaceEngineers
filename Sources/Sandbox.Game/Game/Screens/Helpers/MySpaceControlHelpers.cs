@@ -1,6 +1,8 @@
-﻿using Sandbox.Game.Entities;
+﻿using Sandbox.Engine.Utils;
+using Sandbox.Game.Entities;
 using Sandbox.Game.Entities.Character;
 using Sandbox.Game.Gui;
+using Sandbox.Game.GUI;
 using Sandbox.Game.Localization;
 using Sandbox.Game.Multiplayer;
 using Sandbox.Game.World;
@@ -130,7 +132,7 @@ namespace Sandbox.Game.Screens.Helpers
 
         public override string Label
         {
-            get { return "Show build screen"; }
+            get { return MyTexts.GetString(MySpaceTexts.ControlMenuItemLabel_ShowBuildScreen); }
         }
 
         public void SetEntity(IMyControllableEntity entity)
@@ -358,6 +360,34 @@ namespace Sandbox.Game.Screens.Helpers
         }
     }
 
+    public class MyConnectorControlHelper : MyControllableEntityControlHelper
+    {
+        private MyShipController ShipController { get { return m_entity as MyShipController; } }
+
+        public override bool Enabled
+        {
+            get
+            {
+                return ShipController.CubeGrid.GridSystems.ConveyorSystem.IsInteractionPossible;
+            }
+        }
+
+        public MyConnectorControlHelper()
+            : base(MyControlsSpace.LANDING_GEAR, x => x.SwitchLeadingGears(), x => { return GetConnectorStatus(x); }, MySpaceTexts.ControlMenuItemLabel_Connectors)
+        {
+        }
+
+        public new void SetEntity(IMyControllableEntity entity)
+        {
+            m_entity = entity as MyShipController;
+        }
+
+        private static bool GetConnectorStatus(IMyControllableEntity shipController)
+        {
+            return (shipController as MyShipController).CubeGrid.GridSystems.ConveyorSystem.Connected;
+        }
+    }
+
     public class MyUseTerminalControlHelper : MyAbstractControlMenuItem
     {
         private MyCharacter m_character;
@@ -409,6 +439,35 @@ namespace Sandbox.Game.Screens.Helpers
         public override string Label
         {
             get { return MyTexts.GetString(MySpaceTexts.StationRotation_Static); }
+        }
+    }
+
+    public class MyBriefingMenuControlHelper : MyAbstractControlMenuItem
+    {
+        private IMyControllableEntity m_entity;
+
+        public override bool Enabled
+        {
+            get
+            {
+                return base.Enabled && MyFakes.ENABLE_MISSION_TRIGGERS;
+            }
+        }
+
+        public MyBriefingMenuControlHelper()
+            : base(MyControlsSpace.MISSION_SETTINGS)
+        {
+        }
+
+        public override void Activate()
+        {
+            MyScreenManager.CloseScreen(typeof(MyGuiScreenControlMenu));
+            MyGuiSandbox.AddScreen(new Sandbox.Game.Screens.MyGuiScreenBriefing());
+        }
+
+        public override string Label
+        {
+            get { return MyTexts.GetString(MySpaceTexts.ControlMenuItemLabel_ScenarioBriefing); }
         }
     }
 }

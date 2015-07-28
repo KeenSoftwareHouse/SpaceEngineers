@@ -1,23 +1,12 @@
-﻿using ProtoBuf;
-using Sandbox.Common.ObjectBuilders.ComponentSystem;
+﻿using Sandbox.Common.ObjectBuilders.ComponentSystem;
 using Sandbox.Definitions;
-using Sandbox.Engine.Multiplayer;
 using Sandbox.Game.Entities;
 using Sandbox.Game.Entities.Character;
 using Sandbox.Game.Multiplayer;
-using Sandbox.Game.World;
-using Sandbox.Common.ObjectBuilders.Definitions;
-using SteamSDK;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
 using VRage;
-using VRage.Collections;
 using VRage.Components;
 using VRage.Game.ObjectBuilders;
 using VRage.Utils;
-using VRageMath;
-using VRageRender;
 
 namespace Sandbox.Game.Components
 {

@@ -156,12 +156,6 @@ namespace Sandbox.Game.World
         {
             var prefabDefinition = MyDefinitionManager.Static.GetPrefabDefinition(prefabName);
 
-            if (prefabDefinition.CubeGrids == null)
-            {
-                MyDefinitionManager.Static.ReloadPrefabsFromFile(prefabDefinition.PrefabPath);
-                prefabDefinition = MyDefinitionManager.Static.GetPrefabDefinition(prefabName);
-            }
-
             Debug.Assert(prefabDefinition != null, "Could not spawn prefab named " + prefabName);
             if (prefabDefinition == null) return null;
 
@@ -227,11 +221,6 @@ namespace Sandbox.Game.World
             Debug.Assert(prefabDefinition != null, "Could not spawn prefab named " + prefabName);
             if (prefabDefinition == null) return;
 
-            if (prefabDefinition.CubeGrids == null)
-            {
-                MyDefinitionManager.Static.ReloadPrefabsFromFile(prefabDefinition.PrefabPath);
-                prefabDefinition = MyDefinitionManager.Static.GetPrefabDefinition(prefabName);
-            }
             MyObjectBuilder_CubeGrid[] gridObs = prefabDefinition.CubeGrids;
 
             Debug.Assert(gridObs.Count() != 0);

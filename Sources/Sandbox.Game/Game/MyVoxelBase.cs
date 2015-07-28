@@ -135,15 +135,13 @@ namespace Sandbox.Game.Entities
             PositionLeftBottomCorner = positionMinCorner;
             PositionComp.SetWorldMatrix(MatrixD.CreateTranslation(PositionLeftBottomCorner + SizeInMetresHalf));
 
-            //  Voxel map size must be multiple of a voxel data cell size.
-            MyDebug.AssertRelease((Size.X & MyVoxelConstants.DATA_CELL_SIZE_IN_VOXELS_MASK) == 0);
-            MyDebug.AssertRelease((Size.Y & MyVoxelConstants.DATA_CELL_SIZE_IN_VOXELS_MASK) == 0);
-            MyDebug.AssertRelease((Size.Z & MyVoxelConstants.DATA_CELL_SIZE_IN_VOXELS_MASK) == 0);
+            Debug.Assert((Size.X & MyVoxelConstants.DATA_CELL_SIZE_IN_VOXELS_MASK) == 0);
+            Debug.Assert((Size.Y & MyVoxelConstants.DATA_CELL_SIZE_IN_VOXELS_MASK) == 0);
+            Debug.Assert((Size.Z & MyVoxelConstants.DATA_CELL_SIZE_IN_VOXELS_MASK) == 0);
 
-            //  Voxel map size must be multiple of a voxel data cell size.
-            MyDebug.AssertRelease((Size.X % MyVoxelConstants.RENDER_CELL_SIZE_IN_VOXELS) == 0);
-            MyDebug.AssertRelease((Size.Y % MyVoxelConstants.RENDER_CELL_SIZE_IN_VOXELS) == 0);
-            MyDebug.AssertRelease((Size.Z % MyVoxelConstants.RENDER_CELL_SIZE_IN_VOXELS) == 0);         
+            Debug.Assert((Size.X % MyVoxelCoordSystems.RenderCellSizeInLodVoxels(0)) == 0);
+            Debug.Assert((Size.Y % MyVoxelCoordSystems.RenderCellSizeInLodVoxels(0)) == 0);
+            Debug.Assert((Size.Z % MyVoxelCoordSystems.RenderCellSizeInLodVoxels(0)) == 0);
         }
 
         virtual public MySyncVoxel GetSyncObject

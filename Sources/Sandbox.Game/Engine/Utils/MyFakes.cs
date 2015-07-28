@@ -130,7 +130,6 @@ namespace Sandbox.Engine.Utils
 
         public static bool ENABLE_DX11_RENDERER = true;
 
-        public static bool APRIL2014_ENABLED = false;
         public static bool SHOW_INVENTORY_ITEM_IDS = false;
 
         // Reduces CPU usage by using timer and wait instead of spin
@@ -318,8 +317,6 @@ namespace Sandbox.Engine.Utils
         public static bool SHOW_PATH_EXPANSION_ASSERTS = false;
 
         public static bool ENABLE_AFTER_REPLACE_BODY = true;
-
-        public static float CHARACTER_FACE_FORWARD = 0.0f;
 
         public static bool ENABLE_BLOCK_PLACING_ON_INTERSECTED_POSITION = false;
 
@@ -540,8 +537,22 @@ namespace Sandbox.Engine.Utils
 
         public static bool ENABLE_STATS_GUI = true;
 
-        public static bool NEW_HANDTOOLS = false;
-
         public static bool NEW_POS_UPDATE_TIMING = false;
+
+        public static bool ENABLE_CUBE_BUILDER_MULTIBLOCK = false;
+
+        public static bool ENABLE_BRAIN_SIMULATOR = false;
+
+        public static bool ENABLE_DOUBLED_KINEMATIC = true;
+
+        public static bool WELD_LANDING_GEARS = false;
+
+        public static bool ENABLE_RANDOM_INVENTORY = false;
+        public static bool ENABLE_INVENTORY_SPAWN = false;
+
+        public static bool ENABLE_PLANET_FROZEN_SEA = false;
+
+
+        public static bool ENFORCE_CONTROLLER = false;
     }
 }

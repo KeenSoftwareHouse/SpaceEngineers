@@ -1,4 +1,5 @@
 ﻿using Sandbox.Engine.Multiplayer;
+using Sandbox.Engine.Physics;
 using Sandbox.Engine.Utils;
 using Sandbox.Game.Entities;
 using Sandbox.Game.Entities.Blocks;
@@ -123,7 +124,7 @@ namespace Sandbox.Game.GameSystems
             UpdateJumpDriveSystem();
         }
 
-        public double GetMaxJumpDistance()
+        public double GetMaxJumpDistance(long userId)
         {
             UpdateConnectedGrids();
             double absoluteMaxDistance = 0f;
@@ -131,7 +132,7 @@ namespace Sandbox.Game.GameSystems
             double mass = GetMass();
             foreach (var jumpDrive in m_jumpDrives)
             {
-                if (jumpDrive.CanJump)
+                if (jumpDrive.CanJumpAndHasAccess(userId))
                 {
                     absoluteMaxDistance += jumpDrive.BlockDefinition.MaxJumpDistance;
                     maxDistance += jumpDrive.BlockDefinition.MaxJumpDistance * (jumpDrive.BlockDefinition.MaxJumpMass / mass);
@@ -140,13 +141,15 @@ namespace Sandbox.Game.GameSystems
             return Math.Min(absoluteMaxDistance, maxDistance);
         }
 
-        private void DepleteJumpDrives(double distance)
+        private void DepleteJumpDrives(double distance, long userId)
         {
             double mass = GetMass();
             foreach (var jumpDrive in m_jumpDrives)
             {
-                if (jumpDrive.CanJump)
-                {   
+                if (jumpDrive.CanJumpAndHasAccess(userId))
+                {
+                    jumpDrive.IsJumping = true;
+
                     double massRatio = (jumpDrive.BlockDefinition.MaxJumpMass) / (mass);
                     if (massRatio > 1.0)
                     {
@@ -168,7 +171,7 @@ namespace Sandbox.Game.GameSystems
             }
         }
 
-        private bool IsJumpValid()
+        private bool IsJumpValid(long userId)
         {
             UpdateConnectedGrids();
             foreach (var grid in m_connectedGrids)
@@ -183,7 +186,7 @@ namespace Sandbox.Game.GameSystems
                 }
             }
 
-            double maxJumpDistance = GetMaxJumpDistance();
+            double maxJumpDistance = GetMaxJumpDistance(userId);
             if (maxJumpDistance < MIN_JUMP_DISTANCE)
             {
                 return false;
@@ -192,15 +195,24 @@ namespace Sandbox.Game.GameSystems
             return true;
         }
 
-        public void RequestJump(string destinationName, Vector3D destination)
+        public void RequestAbort()
         {
-            if (!IsJumpValid())
+            if (m_isJumping && !m_jumped)
+            {
+                SyncObject.SendAbortJump();
+                AbortJump();
+            }
+        }
+
+        public void RequestJump(string destinationName, Vector3D destination, long userId)
+        {
+            if (!IsJumpValid(userId))
             {
                 return;
             }
 
             m_selectedDestination = destination;
-            double maxJumpDistance = GetMaxJumpDistance();
+            double maxJumpDistance = GetMaxJumpDistance(userId);
             m_jumpDirection = destination - m_grid.WorldMatrix.Translation;
             double jumpDistance = m_jumpDirection.Length();
             double actualDistance = jumpDistance;
@@ -223,18 +235,24 @@ namespace Sandbox.Game.GameSystems
             {
                 MyGuiSandbox.AddScreen(MyGuiSandbox.CreateMessageBox(
                     buttonType: MyMessageBoxButtonsType.YES_NO,
-                    messageText: GetConfimationText(destinationName, jumpDistance, actualDistance),
+                    messageText: GetConfimationText(destinationName, jumpDistance, actualDistance, userId),
                     messageCaption: MyTexts.Get(MySpaceTexts.MessageBoxCaptionPleaseConfirm),
-                    size: new Vector2(0.839375f, 0.3675f), callback: SendJumpRequestToServer
+                    size: new Vector2(0.839375f, 0.3675f), callback: delegate(MyGuiScreenMessageBox.ResultEnum result)
+                    {
+                        if (result == MyGuiScreenMessageBox.ResultEnum.YES && IsJumpValid(userId))
+                        {
+                            SyncObject.RequestJump(m_selectedDestination, userId);
+                        }
+                    }
                     ));
             }
 
         }
 
-        private StringBuilder GetConfimationText(string name, double distance, double actualDistance)
+        private StringBuilder GetConfimationText(string name, double distance, double actualDistance, long userId)
         {
             int totalJumpDrives = m_jumpDrives.Count;
-            int operationalJumpDrives = m_jumpDrives.Count((x) => x.CanJump);
+            int operationalJumpDrives = m_jumpDrives.Count((x) => x.CanJumpAndHasAccess(userId));
 
             distance /= 1000.0;
             actualDistance /= 1000.0;
@@ -482,11 +500,11 @@ namespace Sandbox.Game.GameSystems
             return false;
         }
 
-        private void Jump(Vector3D jumpTarget)
+        private void Jump(Vector3D jumpTarget, long userId)
         {
             UpdateConnectedGrids();
 
-            double maxJumpDistance = GetMaxJumpDistance();
+            double maxJumpDistance = GetMaxJumpDistance(userId);
             Vector3D m_jumpDirection = jumpTarget - m_grid.WorldMatrix.Translation;
             double jumpDistance = m_jumpDirection.Length();
             double actualDistance = jumpDistance;
@@ -497,7 +515,7 @@ namespace Sandbox.Game.GameSystems
                 m_jumpDirection *= ratio;
             }
 
-            DepleteJumpDrives(actualDistance);
+            DepleteJumpDrives(actualDistance, userId);
 
             m_isJumping = true;
             m_jumped = false;
@@ -585,9 +603,7 @@ namespace Sandbox.Game.GameSystems
                 }
                 else
                 {
-                    UpdateJumpEffect(1f);
-                    m_jumped = false;
-                    m_isJumping = false;
+                    CleanupAfterJump();
                 }
             }
             m_prevJumpTime = jumpTime;
@@ -604,6 +620,13 @@ namespace Sandbox.Game.GameSystems
                 effect.UserScale = (float)m_grid.PositionComp.WorldAABB.HalfExtents.AbsMax() / 25f;
                 effect.AutoDelete = true;
             }
+
+            BoundingBoxD aggregateBox = m_grid.PositionComp.WorldAABB;
+            foreach (var grid in m_shipInfo.Keys)
+            {
+                aggregateBox.Include(grid.PositionComp.WorldAABB);
+            }
+            MyPhysics.Clusters.EnsureClusterSpace(aggregateBox + m_jumpDirection);
 
             bool updateSpectator = false;
             if (IsLocalCharacterAffectedByJump())
@@ -637,9 +660,35 @@ namespace Sandbox.Game.GameSystems
 
         private void AbortJump()
         {
+            m_soundEmitter.StopSound(true, true);
+            if (IsLocalCharacterAffectedByJump())
+            {
+                var notification = new MyHudNotification(MySpaceTexts.NotificationJumpAborted, 1500, Common.MyFontEnum.Red, level: MyNotificationLevel.Important);
+                MyHud.Notifications.Add(notification);
+            }
+
+            CleanupAfterJump();
+        }
+
+        private void CleanupAfterJump()
+        {
+            foreach (var jumpDrive in m_jumpDrives)
+            {
+                jumpDrive.IsJumping = false;
+            }
+
             UpdateJumpEffect(1f);
             m_jumped = false;
             m_isJumping = false;
+        }
+
+        public void AfterGridClose()
+        {
+            if (m_isJumping)
+            {
+                m_soundEmitter.StopSound(true, true);
+                CleanupAfterJump();
+            }
         }
 
         private void UpdateJumpEffect(float t)
@@ -653,25 +702,17 @@ namespace Sandbox.Game.GameSystems
         }
 
         #region Sync
-        private void SendJumpRequestToServer(MyGuiScreenMessageBox.ResultEnum result)
-        {
-            if (result == MyGuiScreenMessageBox.ResultEnum.YES && IsJumpValid())
-            {
-                SyncObject.RequestJump(m_selectedDestination);
-            }
-        }
-
-        private void OnRequestJumpFromClient(Vector3D jumpTarget)
+        private void OnRequestJumpFromClient(Vector3D jumpTarget, long userId)
         {
             Debug.Assert(Sync.IsServer);
 
-            if (!IsJumpValid())
+            if (!IsJumpValid(userId))
             {
                 SyncObject.SendJumpFailure();
                 return;
             }
 
-            double maxJumpDistance = GetMaxJumpDistance();
+            double maxJumpDistance = GetMaxJumpDistance(userId);
             Vector3D m_jumpDirection = jumpTarget - m_grid.WorldMatrix.Translation;
             double jumpDistance = m_jumpDirection.Length();
             double actualDistance = jumpDistance;
@@ -695,7 +736,7 @@ namespace Sandbox.Game.GameSystems
                 return;
             }
 
-            SyncObject.SendJumpSuccess(suitableJumpLocation.Value);
+            SyncObject.SendJumpSuccess(suitableJumpLocation.Value, userId);
         }
 
         [PreloadRequired]
@@ -705,6 +746,7 @@ namespace Sandbox.Game.GameSystems
             protected struct RequestJumpMsg
             {
                 public long EntityId;
+                public long UserId;
                 public Vector3D JumpTarget;
             }
 
@@ -712,6 +754,7 @@ namespace Sandbox.Game.GameSystems
             protected struct JumpSuccessMsg
             {
                 public long EntityId;
+                public long UserId;
                 public Vector3D JumpTarget;
             }
 
@@ -749,11 +792,12 @@ namespace Sandbox.Game.GameSystems
                 m_grid = cubeGrid;
             }
 
-            public void RequestJump(Vector3D jumpTarget)
+            public void RequestJump(Vector3D jumpTarget, long userId)
             {
                 var msg = new RequestJumpMsg();
                 msg.EntityId = m_grid.EntityId;
                 msg.JumpTarget = jumpTarget;
+                msg.UserId = userId;
 
                 Sync.Layer.SendMessageToServer(ref msg);
             }
@@ -764,15 +808,16 @@ namespace Sandbox.Game.GameSystems
                 MyEntities.TryGetEntityById(msg.EntityId, out cubeGrid);
                 if (cubeGrid != null)
                 {
-                    cubeGrid.GridSystems.JumpSystem.OnRequestJumpFromClient(msg.JumpTarget);
+                    cubeGrid.GridSystems.JumpSystem.OnRequestJumpFromClient(msg.JumpTarget, msg.UserId);
                 }
             }
 
-            public void SendJumpSuccess(Vector3D jumpTarget)
+            public void SendJumpSuccess(Vector3D jumpTarget, long userId)
             {
                 var msg = new JumpSuccessMsg();
                 msg.EntityId = m_grid.EntityId;
                 msg.JumpTarget = jumpTarget;
+                msg.UserId = userId;
 
                 Sync.Layer.SendMessageToAllAndSelf(ref msg);
             }
@@ -783,7 +828,7 @@ namespace Sandbox.Game.GameSystems
                 MyEntities.TryGetEntityById(msg.EntityId, out cubeGrid);
                 if (cubeGrid != null)
                 {
-                    cubeGrid.GridSystems.JumpSystem.Jump(msg.JumpTarget);
+                    cubeGrid.GridSystems.JumpSystem.Jump(msg.JumpTarget, msg.UserId);
                 }
             }
 
@@ -826,7 +871,10 @@ namespace Sandbox.Game.GameSystems
 
             public void SendAbortJump()
             {
+                var msg = new AbortJumpMsg();
+                msg.EntityId = m_grid.EntityId;
 
+                Sync.Layer.SendMessageToAll(ref msg);
             }
 
             private static void OnAbortJump(ref AbortJumpMsg msg, MyNetworkClient sender)

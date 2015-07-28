@@ -131,6 +131,12 @@ namespace Sandbox.Game.Components
 
         public override void RecreatePhysics()
         {
+            if (m_detectorPhysics != null)
+            {
+                m_detectorPhysics.Close();
+                m_detectorPhysics = null;
+            }
+
             m_shapes.Clear();
 
             BoundingBox aabb = new BoundingBox(-Vector3.One / 2, Vector3.One / 2);
@@ -158,7 +164,15 @@ namespace Sandbox.Game.Components
                 m_detectorPhysics.CreateFromCollisionObject((HkShape)listShape, Vector3.Zero, positionComponent.WorldMatrix);
                 m_detectorPhysics.Enabled = true;
                 listShape.Base.RemoveReference();
+
+                positionComponent.OnPositionChanged += positionComponent_OnPositionChanged;
             }
+
+        }
+
+        void positionComponent_OnPositionChanged(MyPositionComponentBase obj)
+        {
+            m_detectorPhysics.OnWorldPositionChanged(obj);
         }
 
         public override IMyUseObject GetInteractiveObject(uint shapeKey)
@@ -178,6 +192,17 @@ namespace Sandbox.Game.Components
                 T typeObj = obj.Value.UseObject as T;
                 if (typeObj != null)
                     objects.Add(typeObj);
+            }
+        }
+
+        public override void OnBeforeRemovedFromContainer()
+        {
+            base.OnBeforeRemovedFromContainer();
+            
+            var positionComponent = Container.Get<MyPositionComponentBase>();
+            if (positionComponent != null)
+            {
+                positionComponent.OnPositionChanged -= positionComponent_OnPositionChanged;
             }
         }
     }

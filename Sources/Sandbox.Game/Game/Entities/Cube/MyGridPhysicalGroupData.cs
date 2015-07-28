@@ -12,10 +12,6 @@ namespace Sandbox.Game.Entities
     {
         internal readonly MyGroupControlSystem ControlSystem = new MyGroupControlSystem();
 
-        public void OnCreate()
-        {
-        }
-
         public void OnRelease()
         {
         }
@@ -53,6 +49,10 @@ namespace Sandbox.Game.Entities
 
             // Default implementation so far
             //return MyGroups<MyCubeGrid, MyGridPhysicalGroupData>.IsMajorGroup(a, b);
+        }
+
+        public void OnCreate<TGroupData>(MyGroups<MyCubeGrid, TGroupData>.Group group) where TGroupData : IGroupData<MyCubeGrid>, new()
+        {
         }
     }
 }

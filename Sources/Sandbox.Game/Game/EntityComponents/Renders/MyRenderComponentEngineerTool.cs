@@ -61,7 +61,8 @@ namespace Sandbox.Game.Components
             Vector3 inflate = new Vector3(0.05f);
             BoundingBoxD bb = new BoundingBoxD(-block.BlockDefinition.Center - centerOffset - inflate, block.BlockDefinition.Size - block.BlockDefinition.Center - centerOffset + inflate);
             Color color = m_tool.HighlightColor;
-            MySimpleObjectDraw.DrawTransparentBox(ref blockWorldMatrix, ref bb, ref color, MySimpleObjectRasterizer.Wireframe, 1, highlightThickness, null, null, false);
+			var lineMaterial = m_tool.HighlightMaterial;
+            MySimpleObjectDraw.DrawTransparentBox(ref blockWorldMatrix, ref bb, ref color, MySimpleObjectRasterizer.Wireframe, 1, highlightThickness, null, lineMaterial, false);
         }
     }
 }

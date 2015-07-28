@@ -439,7 +439,7 @@ namespace Sandbox.Game.Weapons
             return true;
         }
 
-        public virtual void Shoot(MyShootActionEnum action, Vector3 direction)
+        public virtual void Shoot(MyShootActionEnum action, Vector3 direction, string gunAction)
         {         
             m_shoot = true;
             m_shootDirection = direction;
@@ -576,7 +576,7 @@ namespace Sandbox.Game.Weapons
 
         public override void ShootFromTerminal(Vector3 direction)
         {
-            Shoot(MyShootActionEnum.PrimaryAction, direction);
+            Shoot(MyShootActionEnum.PrimaryAction, direction, null);
         }
     }
 }

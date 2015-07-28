@@ -156,7 +156,7 @@ namespace Sandbox.Game.GameSystems
         {
             base.UpdateBeforeSimulation();
 
-            if (!MySession.Static.IsScenario)
+            if (!(MySession.Static.IsScenario || MySession.Static.Settings.ScenarioEditMode))
                 return;
 
             if (!Sync.IsServer)
@@ -177,16 +177,23 @@ namespace Sandbox.Game.GameSystems
                 case MyState.Loaded:
                     if (MySession.Static.OnlineMode != MyOnlineModeEnum.OFFLINE && MyMultiplayer.Static == null)
                     {
-                        m_bootUpCount++;
-                        if (m_bootUpCount > 100)//because MyMultiplayer.Static is initialized later than this part of game
+                        if (MyFakes.XBOX_PREVIEW)
                         {
-                            //network start failure - trying to save what we can :-)
-                            MyPlayerCollection.RequestLocalRespawn();
                             GameState = MyState.Running;
-                            return;
                         }
+                        else
+                        {
+                            m_bootUpCount++;
+                            if (m_bootUpCount > 100)//because MyMultiplayer.Static is initialized later than this part of game
+                            {
+                                //network start failure - trying to save what we can :-)
+                                MyPlayerCollection.RequestLocalRespawn();
+                                GameState = MyState.Running;
+                            }
+                        }
+                        return;
                     }
-                    if (MySandboxGame.IsDedicated)
+                    if (MySandboxGame.IsDedicated || MySession.Static.Settings.ScenarioEditMode)
                     {
                         ServerPreparationStartTime = DateTime.UtcNow;
                         MyMultiplayer.Static.ScenarioStartTime = ServerPreparationStartTime;
@@ -376,6 +383,7 @@ namespace Sandbox.Game.GameSystems
                         if (!ioFailure && data.Result == Result.OK && data.Tags.Length != 0)
                         {
                             m_newWorkshopMap.Title = data.Title;
+                            m_newWorkshopMap.PublishedFileId = data.PublishedFileId;
                             m_newWorkshopMap.Description = data.Description;
                             m_newWorkshopMap.UGCHandle = data.FileHandle;
                             m_newWorkshopMap.SteamIDOwner = data.SteamIDOwner;
@@ -404,7 +412,7 @@ namespace Sandbox.Game.GameSystems
                     return;
                 }
                 var saveDir = Path.Combine(MyFileSystem.SavesPath, id);
-                if (File.Exists(saveDir))
+                if (Directory.Exists(saveDir))
                 {
                     m_newPath = saveDir;
                     Static.EndAction += EndActionLoadLocal;
@@ -445,6 +453,15 @@ namespace Sandbox.Game.GameSystems
             });
         }
 
+        private struct CheckpointData
+        {
+            public MyObjectBuilder_Checkpoint Checkpoint;
+            public string SessionPath;
+            public ulong CheckpointSize;
+            public bool PersistentEditMode;
+        }
+
+        private static CheckpointData? m_checkpointData;
 
         public static void LoadMission(string sessionPath, bool multiplayer, MyOnlineModeEnum onlineMode, short maxPlayers)
         {
@@ -453,6 +470,8 @@ namespace Sandbox.Game.GameSystems
 
             ulong checkpointSizeInBytes;
             var checkpoint = MyLocalCache.LoadCheckpoint(sessionPath, out checkpointSizeInBytes);
+
+            var persistentEditMode = checkpoint.Settings.ScenarioEditMode;
 
             checkpoint.Settings.OnlineMode = onlineMode;
             checkpoint.Settings.MaxPlayers = maxPlayers;
@@ -471,9 +490,6 @@ namespace Sandbox.Game.GameSystems
                 return;
             }
 
-            if (checkpoint.BriefingVideo!=null && checkpoint.BriefingVideo.Length > 0)
-                MyGuiSandbox.OpenUrlWithFallback(checkpoint.BriefingVideo, "Scenario briefing video");
-
             if (!MySteamWorkshop.CheckLocalModsAllowed(checkpoint.Mods, checkpoint.Settings.OnlineMode == MyOnlineModeEnum.OFFLINE))
             {
                 MyLog.Default.WriteLine(MyTexts.Get(MySpaceTexts.DialogTextLocalModsDisabledInMultiplayer).ToString());
@@ -485,7 +501,43 @@ namespace Sandbox.Game.GameSystems
                 return;
             }
 
+            m_checkpointData = new CheckpointData()
+            {
+                Checkpoint = checkpoint,
+                CheckpointSize = checkpointSizeInBytes,
+                PersistentEditMode = persistentEditMode,
+                SessionPath = sessionPath,
+            };
 
+            if (checkpoint.BriefingVideo != null && checkpoint.BriefingVideo.Length > 0 && !MyFakes.XBOX_PREVIEW)
+            {
+                MyGuiSandbox.AddScreen(MyGuiSandbox.CreateMessageBox(
+                    messageCaption: MyTexts.Get(MySpaceTexts.MessageBoxCaptionVideo),
+                    messageText: MyTexts.Get(MySpaceTexts.MessageBoxTextWatchVideo),
+                    buttonType: MyMessageBoxButtonsType.YES_NO,
+                    callback: OnVideoMessageBox));
+            }
+            else
+            {
+                var checkpointData = m_checkpointData.Value;
+                m_checkpointData = null;
+                LoadMission(checkpointData);
+            }
+        }
+
+        private static void OnVideoMessageBox(MyGuiScreenMessageBox.ResultEnum result)
+        {
+            if (result == MyGuiScreenMessageBox.ResultEnum.YES)
+                MyGuiSandbox.OpenUrlWithFallback(m_checkpointData.Value.Checkpoint.BriefingVideo, "Scenario briefing video", true);
+
+            var checkpointData = m_checkpointData.Value;
+            m_checkpointData = null;
+            LoadMission(checkpointData);
+        }
+
+        private static void LoadMission(CheckpointData data)
+        {
+            var checkpoint = data.Checkpoint;
             MySteamWorkshop.DownloadModsAsync(checkpoint.Mods, delegate(bool success)
             {
                 if (success || (checkpoint.Settings.OnlineMode == MyOnlineModeEnum.OFFLINE) && MySteamWorkshop.CanRunOffline(checkpoint.Mods))
@@ -510,7 +562,7 @@ namespace Sandbox.Game.GameSystems
                     MyGuiScreenGamePlay.StartLoading(delegate
                     {
                         checkpoint.Settings.Scenario = true;
-                        MySession.LoadMission(sessionPath, checkpoint, checkpointSizeInBytes);
+                        MySession.LoadMission(data.SessionPath, checkpoint, data.CheckpointSize, data.PersistentEditMode);
                     });
                 }
                 else
@@ -527,9 +579,7 @@ namespace Sandbox.Game.GameSystems
                 }
                 MyLog.Default.WriteLine("LoadSession() - End");
             });
-
         }
-
 
     }
 }

@@ -374,7 +374,7 @@ namespace Sandbox.Game.Gui
                             onAddedServerItem();
                     }
                 },
-                null);
+                delegate() { });
 
                 return false;
             }

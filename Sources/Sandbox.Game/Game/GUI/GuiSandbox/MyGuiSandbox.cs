@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Text;
+using System.Text.RegularExpressions;
 using VRage;
 using VRage.Input;
 using VRage.Library.Utils;
@@ -51,13 +52,34 @@ namespace Sandbox.Graphics.GUI
             Gui.LoadContent(fonts);
         }
 
+
+        //when changing sites, change WwwLinkNotAllowed accordingly. Also, when using whitelists, consider using WwwLinkNotAllowed to inform user that link is not available
+        private static Regex[] WWW_WHITELIST = {   new Regex(@"^(http[s]{0,1}://){0,1}[^/]*youtube.com/.*", RegexOptions.IgnoreCase),
+                                              new Regex(@"^(http[s]{0,1}://){0,1}[^/]*youtu.be/.*", RegexOptions.IgnoreCase),
+                                              new Regex(@"^(http[s]{0,1}://){0,1}[^/]*steamcommunity.com/.*", RegexOptions.IgnoreCase),
+                                              new Regex(@"^(http[s]{0,1}://){0,1}[^/]*forum[s]{0,1}.keenswh.com/.*", RegexOptions.IgnoreCase),
+                                          };
+
+        public static bool IsUrlWhitelisted(string wwwLink)
+        {
+            foreach (var r in WWW_WHITELIST)
+                if (r.IsMatch(wwwLink))
+                    return true;
+            return false;
+        }
+
         /// <summary>
         /// Opens URL in Steam overlay or external browser.
         /// </summary>
         /// <param name="url">Url to open.</param>
         /// <param name="urlFriendlyName">Friendly name of URL to show in confirmation screen, e.g. Steam Workshop</param>
-        public static void OpenUrlWithFallback(string url, string urlFriendlyName)
+        public static void OpenUrlWithFallback(string url, string urlFriendlyName, bool useWhitelist=false)
         {
+            if (useWhitelist && !IsUrlWhitelisted(url))
+            {
+                MySandboxGame.Log.WriteLine("URL NOT ALLOWED: " + url);//gameplay may not be running yet, so no message box :-(
+                return;
+            }
             var confirmMessage = MyTexts.AppendFormat(new StringBuilder(), MySpaceTexts.MessageBoxTextOpenUrlOverlayNotEnabled, urlFriendlyName);
             OpenUrl(url, UrlOpenMode.SteamOrExternalWithConfirm, confirmMessage);
         }

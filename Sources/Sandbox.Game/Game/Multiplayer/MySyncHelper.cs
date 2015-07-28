@@ -15,6 +15,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
+using VRage.Utils;
 using VRageMath;
 
 namespace Sandbox.Game.Multiplayer
@@ -29,7 +30,7 @@ namespace Sandbox.Game.Multiplayer
 
             public float Damage;
 
-            public MyDamageType Type;
+            public MyStringHash Type;
 
             public long AttackerEntityId;
         }
@@ -49,7 +50,7 @@ namespace Sandbox.Game.Multiplayer
             public float Damage;
 
             [ProtoMember]
-            public MyDamageType Type;
+            public MyStringHash Type;
 
             [ProtoMember]
             public MyHitInfo? HitInfo;
@@ -76,7 +77,7 @@ namespace Sandbox.Game.Multiplayer
 			MySyncLayer.RegisterMessage<KillCharacterMsg>(OnKillCharacter, MyMessagePermissions.FromServer);
         }
 
-        public static void DoDamageSynced(MyEntity destroyable, float damage, MyDamageType type, long attackerId)
+        public static void DoDamageSynced(MyEntity destroyable, float damage, MyStringHash type, long attackerId)
         {
             Debug.Assert(Sync.IsServer || destroyable.SyncObject is MySyncEntity || (destroyable.SyncObject as MySyncEntity).ResponsibleForUpdate(Sync.Clients.LocalClient));
             if (!(destroyable is IMyDestroyableObject))
@@ -128,7 +129,7 @@ namespace Sandbox.Game.Multiplayer
 			character.Kill(false, msg.DamageInfo);
 		}
 
-        internal static void DoDamageSynced(MySlimBlock block, float damage, MyDamageType damageType, MyHitInfo? hitInfo, long attackerId)
+        internal static void DoDamageSynced(MySlimBlock block, float damage, MyStringHash damageType, MyHitInfo? hitInfo, long attackerId)
         {
             Debug.Assert(Sync.IsServer);
             var msg = new DoDamageSlimBlockMsg();

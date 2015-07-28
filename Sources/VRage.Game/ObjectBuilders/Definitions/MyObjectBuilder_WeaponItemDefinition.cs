@@ -21,5 +21,8 @@ namespace Sandbox.Common.ObjectBuilders.Definitions
 
         [ProtoMember]
         public PhysicalItemWeaponDefinitionId WeaponDefinitionId;
+
+        [ProtoMember]
+        public bool ShowAmmoCount;
     }
 }
