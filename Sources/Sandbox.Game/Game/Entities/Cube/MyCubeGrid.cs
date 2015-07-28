@@ -5690,6 +5690,7 @@ namespace Sandbox.Game.Entities
                     return VRageMath.Matrix.Zero;
                 return this.Physics.RigidBody.InverseInertiaTensor;
             }
+        }
 
         public void OnIntegrityChanged(MySlimBlock block)
         {
