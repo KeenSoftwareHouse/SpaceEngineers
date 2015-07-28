@@ -8,10 +8,6 @@ namespace Sandbox.Game.Entities.Cube
 {
     public class MyBlockGroupData : IGroupData<MySlimBlock>
     {
-        public void OnCreate()
-        {
-        }
-
         public void OnRelease()
         {
         }
@@ -21,6 +17,10 @@ namespace Sandbox.Game.Entities.Cube
         }
 
         public void OnNodeRemoved(MySlimBlock entity)
+        {
+        }
+
+        public void OnCreate<TGroupData>(MyGroups<MySlimBlock, TGroupData>.Group group) where TGroupData : IGroupData<MySlimBlock>, new()
         {
         }
     }

@@ -226,7 +226,8 @@ namespace Sandbox.Game.Gui
                 Position = searchPosition + new Vector2(0.077f, 0f),
                 Size = new Vector2(0.045f, 0.05666667f),
                 OriginAlign = MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_CENTER,
-                VisualStyle = MyGuiControlButtonStyleEnum.Close
+                VisualStyle = MyGuiControlButtonStyleEnum.Close,
+				ActivateOnMouseRelease = true,
             };
             m_searchClear.ButtonClicked += OnSearchClear;
 

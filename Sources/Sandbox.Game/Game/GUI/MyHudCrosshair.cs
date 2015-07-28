@@ -60,16 +60,17 @@ namespace Sandbox.Game.Gui
         {
             ProfilerShort.Begin("GetTarget");
             ProfilerShort.Begin("CastRay");
-            Vector3 normal;
-            var body = MyPhysics.CastRay(from, to, out target, out normal);
+            var info = MyPhysics.CastRay(from, to);
+            if(info.HasValue)
+                target = info.Value.Position;
             ProfilerShort.End();
 
             //Profiler.Begin("Iterate");
             //int index = 0;
             //while (index < hits.Count && 
             //    (hits[index].Body == null
-            //    || hits[index].Body.GetEntity() is Sandbox.Game.Weapons.MyAmmoBase
-            //    || hits[index].Body.GetEntity() is Sandbox.Game.Entities.Debris.MyDebrisBase))
+            //    || hits[index].GetEntity() is Sandbox.Game.Weapons.MyAmmoBase
+            //    || hits[index].GetEntity() is Sandbox.Game.Entities.Debris.MyDebrisBase))
             //{
             //    index++;
             //}
@@ -79,7 +80,7 @@ namespace Sandbox.Game.Gui
 
             ProfilerShort.End();
 
-            return body != null;
+            return info.HasValue;
         }
 
         public static bool GetProjectedTarget(Vector3D from, Vector3D to, ref Vector2 target)

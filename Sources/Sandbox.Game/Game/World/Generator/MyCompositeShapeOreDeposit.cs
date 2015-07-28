@@ -8,6 +8,9 @@ using VRage.Library.Utils;
 using VRage.Noise;
 using VRageMath;
 using VRage;
+using System.IO.MemoryMappedFiles;
+using System.IO;
+using Sandbox.Engine.Utils;
 
 namespace Sandbox.Game.World.Generator
 {
@@ -37,13 +40,20 @@ namespace Sandbox.Game.World.Generator
         {
             return m_material.SpawnsFlora;
         }
+
+        public virtual void ReleaseMaps()
+        { 
+        }
     }
 
-    class MyCompositeLayeredOreDeposit : MyCompositeShapeOreDeposit
+    class MyCompositePrecomputedOreDeposit : MyCompositeShapeOreDeposit
     {
-        IMyModule m_noise = null;
-        MyMaterialLayer[] m_materialLayers = null;
+        int m_resolution;
+        MyCsgShapePrecomputed m_planetShape;
         MyCompositeOrePlanetDeposit m_oreDeposits = null;
+
+        MemoryMappedFile[] m_file;
+        MemoryMappedViewAccessor[] m_reader;
 
         public override void DebugDraw(ref Vector3D translation, ref Color materialColor)
         {
@@ -53,70 +63,89 @@ namespace Sandbox.Game.World.Generator
             m_oreDeposits.DebugDraw(ref translation, ref materialColor);
         }
 
-        public MyCompositeLayeredOreDeposit(MyCsgShapeBase shape, MyMaterialLayer[] materialLayers,IMyModule noise, MyCompositeOrePlanetDeposit oresDeposits) :
+        public MyCompositePrecomputedOreDeposit(MyCsgShapeBase shape, string path, MyCompositeOrePlanetDeposit oresDeposits,MyCsgShapePrecomputed planetShape) :
             base(shape, null)
         {
-            m_materialLayers = materialLayers;
-            m_noise = noise;
+            m_planetShape = planetShape;
             m_oreDeposits = oresDeposits;
+            m_file = new MemoryMappedFile[MyCsgPrecomputedHelpres.NUM_MAPS];
+            m_reader = new MemoryMappedViewAccessor[MyCsgPrecomputedHelpres.NUM_MAPS];
+
+            for (int i = 0; i < MyCsgPrecomputedHelpres.NUM_MAPS; ++i)
+            {
+                string name = null;
+                MyCsgPrecomputedHelpres.GetNameForFace(i, ref name);
+
+                name = Path.Combine(path, name + "_material.bin");
+                FileInfo fi = new FileInfo(name);
+                int length = (int)fi.Length;
+                m_file[i] = MemoryMappedFile.CreateFromFile(name, FileMode.Open);
+                m_reader[i] = m_file[i].CreateViewAccessor(0, length);
+                m_reader[i].Read(0,out m_resolution);
+            }
         }
 
         public override MyVoxelMaterialDefinition GetMaterialForPosition(ref Vector3 pos, float lodSize)
         {
             Vector3 localPosition = pos - Shape.Center();
             float lenghtToCenter = localPosition.Length();
-           
-           
+            if (lenghtToCenter < 0.01)
+            {
+                return null;
+            }
+
+            float distance = m_planetShape.SampleField(ref pos);
+            if (distance <= MyCsgPrecomputedHelpres.FROZEN_OCEAN_LEVEL && MyFakes.ENABLE_PLANET_FROZEN_SEA)
+            {
+                return MyDefinitionManager.Static.GetVoxelMaterialDefinition("Ice_01");
+            }
+
+            float originalDistance = m_planetShape.SignedDistanceUnchecked(ref pos,lodSize,null,null);
+        
+
             if (lenghtToCenter <= m_oreDeposits.MinDepth)
             {
-                 MyVoxelMaterialDefinition definiton = m_oreDeposits.GetMaterialForPosition(ref pos, lodSize);
-                 if (definiton != null)
-                 {
-                     return definiton;
-                 }
-            }
-
-            float angleToPole = Vector3.Dot(localPosition / lenghtToCenter,Vector3.Up);
-
-            int nearestMaterial = -1;
-            float minDistance = float.MaxValue;
-            float noiseValue = (float)(0.5*m_noise.GetValue(pos.X, pos.Y, pos.Z)+0.5);
-  
-
-            for (int i = 0; i < m_materialLayers.Length; ++i)
-            {
-                float heightStartDistance = m_materialLayers[i].HeightStartDeviation * noiseValue;
-                float angleStartDistance = m_materialLayers[i].AngleStartDeviation *noiseValue;
-
-                float heightEndDistance = m_materialLayers[i].HeightEndDeviation * noiseValue;
-                float angleEndDistance = m_materialLayers[i].AngleEndDeviation * noiseValue;
-
-                if (lenghtToCenter >= (m_materialLayers[i].StartHeight - lodSize - heightStartDistance) && (m_materialLayers[i].EndHeight +heightEndDistance) >= lenghtToCenter &&
-                    angleToPole > m_materialLayers[i].StartAngle - angleStartDistance && m_materialLayers[i].EndAngle + angleEndDistance > angleToPole)
+                MyVoxelMaterialDefinition definiton = m_oreDeposits.GetMaterialForPosition(ref pos, lodSize);
+                if (definiton != null)
                 {
-                    float distanceTolayer = Math.Abs(lenghtToCenter - m_materialLayers[i].StartHeight + heightStartDistance);
-                    if (minDistance > distanceTolayer)
-                    {
-                        minDistance = distanceTolayer;
-                        nearestMaterial = i;
-                    }
-                    
+                    return definiton;
                 }
             }
-           
-            return nearestMaterial == -1 ? null : m_materialLayers[nearestMaterial].MaterialDefinition;
+
+            if (originalDistance < -2.0f)
+            {
+                return MyDefinitionManager.Static.GetVoxelMaterialDefinition("Stone_01");
+            } 
+
+            Vector3I samplePos;
+            Vector2 positon = Vector2.Zero;
+            MyCsgPrecomputedHelpres.CalculateSamplePosition(ref localPosition, out samplePos, ref positon, m_resolution);
+
+            byte materialData;
+            m_reader[samplePos.X].Read(sizeof(int) + samplePos.Z * m_resolution + samplePos.Y, out materialData);
+
+            byte material = (byte)(materialData & 127);
+            byte spawns = (byte)(materialData & 128);     
+            var voxelMaterial = MyDefinitionManager.Static.GetVoxelMaterialDefinition(material);
+            if(voxelMaterial != null)
+            {
+                voxelMaterial.SpawnsFlora = spawns == 0 ? false : true;  
+            }
+            return voxelMaterial;
         }
 
         public override bool SpawnsFlora()
+        {          
+            return true;
+        }
+
+        public override void ReleaseMaps()
         {
-            for (int i = 0; i < m_materialLayers.Length; ++i)
+            for (int i = 0; i < MyCsgPrecomputedHelpres.NUM_MAPS; ++i)
             {
-                if (m_materialLayers[i].MaterialDefinition != null && m_materialLayers[i].MaterialDefinition.SpawnsFlora)
-                {
-                    return true;
-                }
+                m_reader[i].Dispose();
+                m_file[i].Dispose();
             }
-            return false;
         }
     }
 }

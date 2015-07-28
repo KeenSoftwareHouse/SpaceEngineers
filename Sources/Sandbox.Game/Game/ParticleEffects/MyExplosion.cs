@@ -581,8 +581,13 @@ namespace Sandbox.Game
             }
         }
 
-        void ApplyExplosionOnVoxel(ref MyExplosionInfo explosionInfo)
+        void ApplyExplosionOnVoxel(ref MyExplosionInfo explosionInfo)   
         {
+            if (MySession.Static.EnableVoxelDestruction == false)
+            {
+                return;
+            }
+
             VRageRender.MyRenderProxy.GetRenderProfiler().StartProfilingBlock("ApplyExplosionOnVoxel");
 
             if (explosionInfo.Damage > 0)

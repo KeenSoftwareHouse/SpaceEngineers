@@ -70,6 +70,7 @@ namespace Sandbox.Game.Screens
                 onButtonClick: OnCancelButtonClick, originAlign: MyGuiDrawAlignEnum.HORISONTAL_RIGHT_AND_VERTICAL_BOTTOM);
             Controls.Add(m_okButton);
             Controls.Add(m_cancelButton);
+
             //m_advancedButton = new MyGuiControlButton(position: new Vector2(0.38f, -0.15f), size: buttonSize, text: MyTexts.Get(MySpaceTexts.WorldSettings_Advanced),
             //    onButtonClick: OnAdvancedButtonClick, originAlign: MyGuiDrawAlignEnum.HORISONTAL_RIGHT_AND_VERTICAL_BOTTOM);
             //Controls.Add(m_advancedButton); disabled for now - joining into running game is not finished
@@ -85,6 +86,8 @@ namespace Sandbox.Game.Screens
             Controls.Add(m_videoLabel);
             Controls.Add(m_videoTextbox);
             m_videoTextbox.PositionX = m_videoLabel.Position.X + m_videoLabel.Size.X + m_videoTextbox.Size.X / 2 + 0.03f;
+            m_videoTextbox.TextChanged += OnVideoTextboxChanged;
+            OnVideoTextboxChanged(m_videoTextbox);
 
             buttonSize = new Vector2(0.05f,0.05f);
             Vector2 pos = new Vector2(0.15f, -0.05f);
@@ -279,6 +282,12 @@ namespace Sandbox.Game.Screens
             MyGuiSandbox.AddScreen(m_advanced);
         }
 
+        public override bool CloseScreen()
+        {
+            m_videoTextbox.TextChanged -= OnVideoTextboxChanged;
+            return base.CloseScreen();
+        }
+
         private void SaveData()
         {
             MySession.Static.BriefingVideo = m_videoTextbox.Text;
@@ -306,7 +315,21 @@ namespace Sandbox.Game.Screens
             }
 
         }
-
+        void OnVideoTextboxChanged(MyGuiControlTextbox source)
+        {
+            if (source.Text.Length==0 || MyGuiSandbox.IsUrlWhitelisted(source.Text))
+            {
+                source.SetToolTip((MyToolTips)null);
+                source.ColorMask = Vector4.One;
+                m_okButton.Enabled = true;
+            }
+            else
+            {
+                source.SetToolTip(MySpaceTexts.WwwLinkNotAllowed);
+                source.ColorMask = Color.Red.ToVector4();
+                m_okButton.Enabled = false;
+            }
+        }
         public override string GetFriendlyName()
         {
             return "MyGuiScreenMissionTriggers";

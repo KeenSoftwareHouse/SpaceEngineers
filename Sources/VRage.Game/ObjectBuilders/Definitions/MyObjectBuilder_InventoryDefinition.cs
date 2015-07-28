@@ -24,6 +24,6 @@ namespace Sandbox.Common.ObjectBuilders.Definitions
         public float InventorySizeY = 0.7f;
 
         [ProtoMember]
-        public float InventorySizeZ = 0.4f;
+        public float InventorySizeZ = 0.4f;       
     }
 }

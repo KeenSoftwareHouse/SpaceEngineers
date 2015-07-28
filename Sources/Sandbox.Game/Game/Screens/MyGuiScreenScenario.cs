@@ -26,29 +26,17 @@ using VRageMath;
 
 namespace Sandbox.Game.Gui
 {
-    class MyGuiScreenScenario : MyGuiScreenBase
+    class MyGuiScreenScenario : MyGuiScreenScenarioBase
     {
-        enum StateEnum
-        {
-            ListNeedsReload,
-            ListLoading,
-            ListLoaded
-        }
-        private StateEnum m_state;
         private int m_listLoadedParts;
 
-        private List<Tuple<string, MyWorldInfo>> m_availableSaves = new List<Tuple<string, MyWorldInfo>>();
         private List<Tuple<string, MyWorldInfo>> m_availableSavesLocal = new List<Tuple<string, MyWorldInfo>>();
         private List<Tuple<string, MyWorldInfo>> m_availableSavesKeens = new List<Tuple<string, MyWorldInfo>>();
         private List<Tuple<string, MyWorldInfo>> m_availableSavesWorkshop = new List<Tuple<string, MyWorldInfo>>();
 
-        public static MyGuiScreenScenario Static;
-        bool m_nameRewritten;
         string m_sessionPath;
-        private int m_selectedRow;
 
         private List<MySteamWorkshop.SubscribedItem> m_subscribedScenarios;
-        const string WORKSHOP_PATH_TAG = "workshop";
 
         protected MyObjectBuilder_SessionSettings m_settings;
         public MyObjectBuilder_SessionSettings Settings
@@ -65,11 +53,6 @@ namespace Sandbox.Game.Gui
         {
             get { return m_checkpoint; }
         }
-        //LEFT:
-        MyGuiControlTable m_scenarioTable;
-
-        //RIGHT:
-        MyGuiControlTextbox m_nameTextbox, m_descriptionTextbox;
 
         MyGuiControlLabel m_difficultyLabel;
         MyGuiControlCombobox m_difficultyCombo;
@@ -80,34 +63,17 @@ namespace Sandbox.Game.Gui
         MyGuiControlLabel m_maxPlayersLabel;
         MyGuiControlSlider m_maxPlayersSlider;
 
-        MyGuiControlMultilineText m_descriptionBox;
-
         //BUTTONS:
         MyGuiControlButton m_removeButton, m_publishButton, m_editButton, m_browseWorkshopButton;
-        MyGuiControlButton m_refreshButton, m_openInWorkshopButton, m_okButton, m_cancelButton;
-
-        
+        MyGuiControlButton m_refreshButton, m_openInWorkshopButton;  
 
         MyGuiControlList m_scenarioTypesList;
         MyGuiControlRadioButtonGroup m_scenarioTypesGroup;
 
         public MyGuiScreenScenario()
-            : base(new Vector2(0.5f, 0.5f), MyGuiConstants.SCREEN_BACKGROUND_COLOR, CalcSize(null/*checkpoint*/))
+            : base()
         {
-            Static = this;
             RecreateControls(true);
-        }
-
-        public static Vector2 CalcSize(MyObjectBuilder_Checkpoint checkpoint)//TODO optimize
-        {
-            float width = checkpoint == null ? 0.9f : 0.65f;
-            float height = checkpoint == null ? 1.24f : 0.97f;
-            if (checkpoint != null)
-                height -= 0.05f;
-            if (MyFakes.OCTOBER_RELEASE_HIDE_WORLD_PARAMS)
-                height -= 0.27f;
-
-            return new Vector2(width, height);
         }
 
         public override bool CloseScreen()
@@ -115,47 +81,39 @@ namespace Sandbox.Game.Gui
             //TODO
             return base.CloseScreen();
         }
+
         public override string GetFriendlyName()
         {
             return "MyGuiScreenScenario";
         }
 
-        public override void RecreateControls(bool constructor)
+        protected override void BuildControls()
         {
-            base.RecreateControls(constructor);
+            base.BuildControls();
 
-            BuildControls();
-            SetDefaultValues();
-        }
-
-        protected virtual void BuildControls()
-        {
             Vector2 buttonSize = MyGuiConstants.BACK_BUTTON_SIZE;
             Vector2 buttonsOrigin = m_size.Value / 2 - new Vector2(0.65f, 0.1f);
 
-            AddCaption(MySpaceTexts.ScreenCaptionScenario);
-
-            //RIGHT:
-            int numControls = 0;
-
-            var nameLabel = MakeLabel(MySpaceTexts.Name);
-            var descriptionLabel = MakeLabel(MySpaceTexts.Description);
             var difficultyLabel = MakeLabel(MySpaceTexts.Difficulty);
             var onlineModeLabel = MakeLabel(MySpaceTexts.WorldSettings_OnlineMode);
             m_maxPlayersLabel = MakeLabel(MySpaceTexts.MaxPlayers);
 
             float width = 0.284375f + 0.025f;
 
-            m_nameTextbox = new MyGuiControlTextbox(maxLength: MySession.MAX_NAME_LENGTH);
-            m_nameTextbox.Enabled=false;
-            m_descriptionTextbox = new MyGuiControlTextbox(maxLength: MySession.MAX_DESCRIPTION_LENGTH);
-            m_descriptionTextbox.Enabled = false;
             m_difficultyCombo = new MyGuiControlCombobox(size: new Vector2(width, 0.04f));
+            m_difficultyCombo.Enabled = false;
             m_difficultyCombo.AddItem((int)0, MySpaceTexts.DifficultyEasy);
             m_difficultyCombo.AddItem((int)1, MySpaceTexts.DifficultyNormal);
             m_difficultyCombo.AddItem((int)2, MySpaceTexts.DifficultyHard);
 
             m_onlineMode = new MyGuiControlCombobox(size: new Vector2(width, 0.04f));
+            m_onlineMode.Enabled = false;
+            m_onlineMode.ItemSelected += OnOnlineModeSelect;
+            m_onlineMode.AddItem((int)MyOnlineModeEnum.OFFLINE, MySpaceTexts.WorldSettings_OnlineModeOffline);
+            m_onlineMode.AddItem((int)MyOnlineModeEnum.PRIVATE, MySpaceTexts.WorldSettings_OnlineModePrivate);
+            m_onlineMode.AddItem((int)MyOnlineModeEnum.FRIENDS, MySpaceTexts.WorldSettings_OnlineModeFriends);
+            m_onlineMode.AddItem((int)MyOnlineModeEnum.PUBLIC, MySpaceTexts.WorldSettings_OnlineModePublic);
+
             m_maxPlayersSlider = new MyGuiControlSlider(
                 position: Vector2.Zero,
                 width: m_onlineMode.Size.X,
@@ -166,170 +124,47 @@ namespace Sandbox.Game.Gui
                 labelSpaceWidth: 0.05f,
                 intValue: true
                 );
-            m_onlineMode.Enabled = false;
+
             m_scenarioTypesList = new MyGuiControlList();
 
-
             //BUTTONS
-            m_removeButton = new MyGuiControlButton(position: buttonsOrigin, size: buttonSize, text: MyTexts.Get(MySpaceTexts.buttonRemove), 
-                onButtonClick: OnOkButtonClick, originAlign: MyGuiDrawAlignEnum.HORISONTAL_RIGHT_AND_VERTICAL_BOTTOM);
-            m_publishButton = new MyGuiControlButton(position: buttonsOrigin + new Vector2(0.01f + m_removeButton.Size.X, 0f), size: buttonSize, text: MyTexts.Get(MySpaceTexts.buttonPublish), 
-                onButtonClick: OnPublishButtonClick, originAlign: MyGuiDrawAlignEnum.HORISONTAL_RIGHT_AND_VERTICAL_BOTTOM);
-            m_editButton = new MyGuiControlButton(position: buttonsOrigin + new Vector2(2*(0.01f + m_removeButton.Size.X), 0f), size: buttonSize, text: MyTexts.Get(MySpaceTexts.buttonEdit), 
-                onButtonClick: OnEditButtonClick, originAlign: MyGuiDrawAlignEnum.HORISONTAL_RIGHT_AND_VERTICAL_BOTTOM);
-            m_browseWorkshopButton = new MyGuiControlButton(position: buttonsOrigin + new Vector2(3*(0.01f + m_removeButton.Size.X), 0f), size: buttonSize, text: MyTexts.Get(MySpaceTexts.buttonBrowseWorkshop),
-                onButtonClick: OnBrowseWorkshopClick, originAlign: MyGuiDrawAlignEnum.HORISONTAL_RIGHT_AND_VERTICAL_BOTTOM);
+            m_removeButton = new MyGuiControlButton(text: MyTexts.Get(MySpaceTexts.buttonRemove), onButtonClick: OnOkButtonClick);
+            m_publishButton = new MyGuiControlButton(text: MyTexts.Get(MySpaceTexts.buttonPublish), onButtonClick: OnPublishButtonClick);
+            m_editButton = new MyGuiControlButton(text: MyTexts.Get(MySpaceTexts.buttonEdit), onButtonClick: OnEditButtonClick);
+            m_browseWorkshopButton = new MyGuiControlButton(text: MyTexts.Get(MySpaceTexts.buttonBrowseWorkshop), onButtonClick: OnBrowseWorkshopClick);
 
-            m_refreshButton = new MyGuiControlButton(position: buttonsOrigin + new Vector2(0.0f, m_removeButton.Size.Y+0.01f), size: buttonSize, text: MyTexts.Get(MySpaceTexts.buttonRefresh), 
-                onButtonClick: OnRefreshButtonClick, originAlign: MyGuiDrawAlignEnum.HORISONTAL_RIGHT_AND_VERTICAL_BOTTOM);
-            m_openInWorkshopButton = new MyGuiControlButton(position: buttonsOrigin + new Vector2((0.01f + m_removeButton.Size.X), m_removeButton.Size.Y + 0.01f), size: buttonSize, text: MyTexts.Get(MySpaceTexts.buttonOpenInWorkshop), 
-                onButtonClick: OnOkButtonClick, originAlign: MyGuiDrawAlignEnum.HORISONTAL_RIGHT_AND_VERTICAL_BOTTOM);
-            m_okButton = new MyGuiControlButton(position: buttonsOrigin + new Vector2(2 * (0.01f + m_removeButton.Size.X), m_removeButton.Size.Y + 0.01f), size: buttonSize, text: MyTexts.Get(MySpaceTexts.Ok), 
-                onButtonClick: OnOkButtonClick, originAlign: MyGuiDrawAlignEnum.HORISONTAL_RIGHT_AND_VERTICAL_BOTTOM);
-            m_cancelButton = new MyGuiControlButton(position: buttonsOrigin + new Vector2(3 * (0.01f + m_removeButton.Size.X), m_removeButton.Size.Y + 0.01f), size: buttonSize, text: MyTexts.Get(MySpaceTexts.Cancel), 
-                onButtonClick: OnCancelButtonClick, originAlign: MyGuiDrawAlignEnum.HORISONTAL_RIGHT_AND_VERTICAL_BOTTOM);
+            m_refreshButton = new MyGuiControlButton(text: MyTexts.Get(MySpaceTexts.buttonRefresh), onButtonClick: OnRefreshButtonClick);
+            m_openInWorkshopButton = new MyGuiControlButton(text: MyTexts.Get(MySpaceTexts.buttonOpenInWorkshop), onButtonClick: OnOkButtonClick);
 
-            m_onlineMode.ItemSelected += OnOnlineModeSelect;
-            m_onlineMode.AddItem((int)MyOnlineModeEnum.OFFLINE, MySpaceTexts.WorldSettings_OnlineModeOffline);
-            m_onlineMode.AddItem((int)MyOnlineModeEnum.PRIVATE, MySpaceTexts.WorldSettings_OnlineModePrivate);
-            m_onlineMode.AddItem((int)MyOnlineModeEnum.FRIENDS, MySpaceTexts.WorldSettings_OnlineModeFriends);
-            m_onlineMode.AddItem((int)MyOnlineModeEnum.PUBLIC, MySpaceTexts.WorldSettings_OnlineModePublic);
-
-
-            m_nameTextbox.TextChanged += m_nameTextbox_TextChanged;
-
-            // Add controls in pairs; label first, control second. They will be laid out automatically this way.
-            Controls.Add(nameLabel);
-            Controls.Add(m_nameTextbox);
-            //m_nameTextbox.Enabled = false;
-            Controls.Add(descriptionLabel);
-            Controls.Add(m_descriptionTextbox);
-            //m_descriptionTextbox.Enabled = false;
-            Controls.Add(difficultyLabel);
-            Controls.Add(m_difficultyCombo);
-            m_difficultyCombo.Enabled = false;
-
-            Controls.Add(onlineModeLabel);
-            Controls.Add(m_onlineMode);
-            //m_onlineMode.Enabled = false;
-            Controls.Add(m_maxPlayersLabel);
-            Controls.Add(m_maxPlayersSlider);
-
-
-            float labelSize = 0.12f;
-
-            float MARGIN_TOP = 0.1f;
-            float MARGIN_LEFT = 0.42f;// m_isNewGame ? 0.315f : 0.08f;
-
-            // Automatic layout.
-            Vector2 originL, originC;
-            Vector2 controlsDelta = new Vector2(0f, 0.052f);
-            float rightColumnOffset;
-            originL = -m_size.Value / 2 + new Vector2(MARGIN_LEFT, MARGIN_TOP);
-            originC = originL + new Vector2(labelSize, 0f);
-            rightColumnOffset = originC.X + m_onlineMode.Size.X - labelSize - 0.017f;
-
-            foreach (var control in Controls)
-            {
-                control.OriginAlign = MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_CENTER;
-                if (control is MyGuiControlLabel)
-                    control.Position = originL + controlsDelta * numControls;
-                else
-                    control.Position = originC + controlsDelta * numControls++;
-            }
-            //BRIEFING:
-            //var textBackgroundPanel = AddCompositePanel(MyGuiConstants.TEXTURE_RECTANGLE_DARK, new Vector2(0f,0f), new Vector2(0.43f, 0.422f), MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_TOP);
-            //textBackgroundPanel.InnerHeight = 6;
-            MyGuiControlParent briefing = new MyGuiControlParent();//new Vector2(0f, 0f), new Vector2(0.43f, 0.422f));
-
-            var briefingScrollableArea = new MyGuiControlScrollablePanel(
-                scrolledControl: briefing)
-            {
-                Name = "BriefingScrollableArea",
-                ScrollbarVEnabled = true,
-                Position = new Vector2(-0.02f, -0.12f),
-                Size = new Vector2(0.43f, 0.422f),
-                OriginAlign = MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_TOP,
-                BackgroundTexture = MyGuiConstants.TEXTURE_SCROLLABLE_LIST,
-                ScrolledAreaPadding = new MyGuiBorderThickness(0.005f),
-            };
-            Controls.Add(briefingScrollableArea);
-            //inside scrollable area:
-            m_descriptionBox = AddMultilineText(offset: new Vector2(-0.287f, 5f), size: new Vector2(briefingScrollableArea.Size.X-0.02f, 11f), selectable: false);
-            briefing.Controls.Add(m_descriptionBox);
-
-            //LEFT:
-            m_scenarioTable = new MyGuiControlTable();
-            m_scenarioTable.Position = new Vector2(-0.42f, -0.5f+MARGIN_TOP);
-            m_scenarioTable.Size = new Vector2(0.38f, 1.8f);
-            m_scenarioTable.OriginAlign = MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_TOP;
-            m_scenarioTable.VisibleRowsCount = 20;
-            m_scenarioTable.ColumnsCount = 2;
-            m_scenarioTable.SetCustomColumnWidths(new float[] { 0.085f, 0.905f });
-            m_scenarioTable.SetColumnName(1, MyTexts.Get(MySpaceTexts.Name));
-            m_scenarioTable.ItemSelected += OnTableItemSelected;
-            //m_scenarioTable.ItemDoubleClicked += OnTableItemConfirmedOrDoubleClick;
-            //m_scenarioTable.ItemConfirmed += OnTableItemConfirmedOrDoubleClick;
-            Controls.Add(m_scenarioTable);
-            //BUTTONS:
-            Controls.Add(m_removeButton);
             m_removeButton.Enabled = false;
-            Controls.Add(m_publishButton);
             m_publishButton.Enabled = false;
-            Controls.Add(m_editButton);
             m_editButton.Enabled = false;
-            Controls.Add(m_browseWorkshopButton);
-            Controls.Add(m_refreshButton);
-            Controls.Add(m_openInWorkshopButton);
             m_openInWorkshopButton.Enabled = false;
-            Controls.Add(m_okButton);
-            Controls.Add(m_cancelButton);
-
             CloseButtonEnabled = true;
 
-            SetDefaultValues();
-        }
-        protected MyGuiControlMultilineText AddMultilineText(Vector2? size = null, Vector2? offset = null, float textScale = 1.0f, bool selectable = false)
-        {
-            Vector2 textboxSize = size ?? this.Size ?? new Vector2(0.5f, 0.5f);
+            //m_nameTextbox.TextChanged += m_nameTextbox_TextChanged;
 
-            MyGuiControlMultilineText textbox = new MyGuiControlMultilineText(
-                position: offset ?? Vector2.Zero,
-                size: textboxSize,
-                //backgroundColor: m_defaultColor,
-                //textScale: this.m_scale * textScale,
-                textAlign: MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_TOP,
-                textBoxAlign: MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_TOP,
-                selectable: selectable,
-                font: MyFontEnum.Blue);
+            m_sideMenuLayout.Add(difficultyLabel, MyAlignH.Left, MyAlignV.Top, 2, 0);
+            m_sideMenuLayout.Add(m_difficultyCombo, MyAlignH.Left, MyAlignV.Top, 2, 1);
+            m_sideMenuLayout.Add(onlineModeLabel, MyAlignH.Left, MyAlignV.Top, 3, 0);
+            m_sideMenuLayout.Add(m_onlineMode, MyAlignH.Left, MyAlignV.Top, 3, 1);
+            m_sideMenuLayout.Add(m_maxPlayersLabel, MyAlignH.Left, MyAlignV.Top, 4, 0);
+            m_sideMenuLayout.Add(m_maxPlayersSlider, MyAlignH.Left, MyAlignV.Top, 4, 1);
 
-            //textbox.BackgroundTexture = MyGuiConstants.TEXTURE_NEWS_BACKGROUND;
-            //textbox.TextSize = new Vector2(0.2f, 0.2f);
-            return textbox;
+            m_buttonsLayout.Add(m_removeButton, MyAlignH.Left, MyAlignV.Top, 0, 0);
+            m_buttonsLayout.Add(m_publishButton, MyAlignH.Left, MyAlignV.Top, 0, 1);
+            m_buttonsLayout.Add(m_editButton, MyAlignH.Left, MyAlignV.Top, 0, 2);
+            m_buttonsLayout.Add(m_browseWorkshopButton, MyAlignH.Left, MyAlignV.Top, 0, 3);
+            m_buttonsLayout.Add(m_refreshButton, MyAlignH.Left, MyAlignV.Top, 1, 0);
+            m_buttonsLayout.Add(m_openInWorkshopButton, MyAlignH.Left, MyAlignV.Top, 1, 1);
         }
 
-        private MyGuiControlLabel MakeLabel(MyStringId textEnum)
-        {
-            return new MyGuiControlLabel(text: MyTexts.GetString(textEnum), originAlign: MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_CENTER);
-        }
-        void m_nameTextbox_TextChanged(MyGuiControlTextbox obj)
-        {
-            m_nameRewritten = true;
-        }
-        private void scenario_SelectedChanged(MyGuiControlRadioButtonGroup group)
-        {
-            if (!m_nameRewritten)
-            {
-                var title = ((MyGuiControlScenarioButton)(m_scenarioTypesGroup.SelectedButton)).Title;
-                m_nameTextbox.Text = title.ToString() + " " + DateTime.Now.ToString("yyyy-MM-dd HH:mm");
-                m_nameRewritten = false;
-            }
-        }
         private void OnOnlineModeSelect()
         {
             m_maxPlayersSlider.Enabled = m_onlineMode.GetSelectedKey() != (int)MyOnlineModeEnum.OFFLINE;
             m_maxPlayersLabel.Enabled = m_onlineMode.GetSelectedKey() != (int)MyOnlineModeEnum.OFFLINE;
         }
+
         private void OnEditButtonClick(object sender)
         {
             //run as normal save
@@ -348,71 +183,33 @@ namespace Sandbox.Game.Gui
             else
                 Debug.Fail("row not found");
         }
-        private void OnOkButtonClick(object sender)
-        {
-            // Validate
-            if (m_nameTextbox.Text.Length < MySession.MIN_NAME_LENGTH || m_nameTextbox.Text.Length > MySession.MAX_NAME_LENGTH)
-            {
-                MyStringId errorType;
-                if (m_nameTextbox.Text.Length < MySession.MIN_NAME_LENGTH) errorType = MySpaceTexts.ErrorNameTooShort;
-                else errorType = MySpaceTexts.ErrorNameTooLong;
-                var messageBox = MyGuiSandbox.CreateMessageBox(
-                    messageText: MyTexts.Get(errorType),
-                    messageCaption: MyTexts.Get(MySpaceTexts.MessageBoxCaptionError));
-                messageBox.SkipTransition = true;
-                messageBox.InstantClose = false;
-                MyGuiSandbox.AddScreen(messageBox);
-                return;
-            }
 
-            if (m_descriptionTextbox.Text.Length > MySession.MAX_DESCRIPTION_LENGTH)
-            {
-                var messageBox = MyGuiSandbox.CreateMessageBox(
-                    messageText: MyTexts.Get(MySpaceTexts.ErrorDescriptionTooLong),
-                    messageCaption: MyTexts.Get(MySpaceTexts.MessageBoxCaptionError));
-                messageBox.SkipTransition = true;
-                messageBox.InstantClose = false;
-                MyGuiSandbox.AddScreen(messageBox);
-                return;
-            }
-            CloseScreen();
-            LoadSandbox(m_onlineMode.GetSelectedKey() != (int)MyOnlineModeEnum.OFFLINE);
-        }
-        private void LoadSandbox(bool MP)
+        protected override void LoadSandboxInternal(Tuple<string, MyWorldInfo> save, bool MP)
         {
-            MyLog.Default.WriteLine("LoadSandbox() - Start");
-            var row = m_scenarioTable.SelectedRow;
-            if (row != null)
+            base.LoadSandboxInternal(save, MP);
+
+            if (save.Item1 == WORKSHOP_PATH_TAG)
             {
-                var save = FindSave(row);
-                if (save != null)
+                var scenario = FindWorkshopScenario(save.Item2.WorkshopId.Value);
+                MySteamWorkshop.CreateWorldInstanceAsync(scenario, MySteamWorkshop.MyWorkshopPathInfo.CreateScenarioInfo(), true, delegate(bool success, string sessionPath)
                 {
-                    if (save.Item1 == WORKSHOP_PATH_TAG)
+                    if (success)
                     {
-                        var scenario = FindWorkshopScenario(save.Item2.WorkshopId.Value);
-                        MySteamWorkshop.CreateWorldInstanceAsync(scenario, MySteamWorkshop.MyWorkshopPathInfo.CreateScenarioInfo(), true, delegate(bool success, string sessionPath)
-                        {
-                            if (success)
-                            {
-                                //add briefing from workshop description
-                                ulong dummy;
-                                var checkpoint = MyLocalCache.LoadCheckpoint(sessionPath, out dummy);
-                                checkpoint.Briefing = save.Item2.Briefing;
-                                MyLocalCache.SaveCheckpoint(checkpoint, sessionPath);
-                                MyScenarioSystem.LoadMission(sessionPath, /*m_nameTextbox.Text, m_descriptionTextbox.Text,*/ MP, (MyOnlineModeEnum)m_onlineMode.GetSelectedKey(), (short)m_maxPlayersSlider.Value);
-                            }
-                            else
-                                MyGuiSandbox.AddScreen(MyGuiSandbox.CreateMessageBox(
-                                            messageText: MyTexts.Get(MySpaceTexts.MessageBoxTextWorkshopDownloadFailed),
-                                            messageCaption: MyTexts.Get(MySpaceTexts.ScreenCaptionWorkshop)));
-                        });
+                        //add briefing from workshop description
+                        ulong dummy;
+                        var checkpoint = MyLocalCache.LoadCheckpoint(sessionPath, out dummy);
+                        checkpoint.Briefing = save.Item2.Briefing;
+                        MyLocalCache.SaveCheckpoint(checkpoint, sessionPath);
+                        MyScenarioSystem.LoadMission(sessionPath, /*m_nameTextbox.Text, m_descriptionTextbox.Text,*/ MP, (MyOnlineModeEnum)m_onlineMode.GetSelectedKey(), (short)m_maxPlayersSlider.Value);
                     }
                     else
-                        MyScenarioSystem.LoadMission(save.Item1, /*m_nameTextbox.Text, m_descriptionTextbox.Text,*/ MP, (MyOnlineModeEnum)m_onlineMode.GetSelectedKey(), (short)m_maxPlayersSlider.Value);
-                }
+                        MyGuiSandbox.AddScreen(MyGuiSandbox.CreateMessageBox(
+                                    messageText: MyTexts.Get(MySpaceTexts.MessageBoxTextWorkshopDownloadFailed),
+                                    messageCaption: MyTexts.Get(MySpaceTexts.ScreenCaptionWorkshop)));
+                });
             }
-
-            MyLog.Default.WriteLine("LoadSandbox() - End");
+            else
+                MyScenarioSystem.LoadMission(save.Item1, /*m_nameTextbox.Text, m_descriptionTextbox.Text,*/ MP, (MyOnlineModeEnum)m_onlineMode.GetSelectedKey(), (short)m_maxPlayersSlider.Value);
         }
 
         private MySteamWorkshop.SubscribedItem FindWorkshopScenario(ulong workshopId)
@@ -428,58 +225,36 @@ namespace Sandbox.Game.Gui
             return null;
         }
 
-        private void OnCancelButtonClick(object sender)
+        protected override MyGuiHighlightTexture GetIcon(Tuple<string, MyWorldInfo> save)
         {
-            CloseScreen();
+            if (save.Item1 == WORKSHOP_PATH_TAG)
+                return MyGuiConstants.TEXTURE_ICON_MODS_WORKSHOP;
+            else if (save.Item2.ScenarioEditMode == true)
+                return MyGuiConstants.TEXTURE_ICON_MODS_LOCAL;
+            else
+                return MyGuiConstants.TEXTURE_ICON_BLUEPRINTS_LOCAL;
+
         }
 
         private void OnRefreshButtonClick(object sender)
         {
             m_state = StateEnum.ListNeedsReload;
         }
-        private void LoadValues()
-        {
-            /*m_nameTextbox.Text = m_checkpoint.SessionName ?? "";
-            m_descriptionTextbox.Text = m_checkpoint.Description ?? "";
-            m_settings = CopySettings(m_checkpoint.Settings);
-            m_mods = m_checkpoint.Mods;
-            m_asteroidAmountCombo.SelectItemByKey((int)AsteroidAmountEnum.Normal);
-            SetSettingsToControls();
-             */
-        }
 
-        private void SetDefaultValues()
+        protected override void SetDefaultValues()
         {
+            base.SetDefaultValues();
+
             m_difficultyCombo.SelectItemByIndex(1);
             m_onlineMode.SelectItemByIndex(0);
-            FillRight();
-        }
-        private void StartNewSandbox()
-        {
-            MyLog.Default.WriteLine("StartNewSandbox - Start");
-/*            MyGuiScreenGamePlay.StartLoading(delegate
-            {
-                MySession.Start(
-                    m_nameTextbox.Text,
-                    GetDescription(),
-                    GetPassword(),
-                    m_settings,
-                    m_mods,
-                    new MyWorldGenerator.Args()
-                    {
-                        Scenario = (m_scenarioTypesGroup.SelectedButton as MyGuiControlScenarioButton).Scenario
-                    }
-                );
-            });
-        */
         }
 
         #region Event handlers
 
-        void OnTableItemSelected(MyGuiControlTable sender, MyGuiControlTable.EventArgs eventArgs)
+        protected override void OnTableItemSelected(MyGuiControlTable sender, MyGuiControlTable.EventArgs eventArgs)
         {
-            m_selectedRow = eventArgs.RowIndex;
-            FillRight();
+            base.OnTableItemSelected(sender, eventArgs);
+
             if (eventArgs.RowIndex<2)
             {
                 m_publishButton.Enabled = false;
@@ -503,127 +278,30 @@ namespace Sandbox.Game.Gui
             }
         }
 
-        /*void OnTableItemConfirmedOrDoubleClick(MyGuiControlTable sender, MyGuiControlTable.EventArgs eventArgs)
-        {
-            LoadSandbox();
-        }*/
-        void FillRight()
-        {
-            if (m_scenarioTable == null || m_scenarioTable.SelectedRow == null)
-            {
-                m_nameTextbox.SetText(new StringBuilder(""));
-                m_descriptionTextbox.SetText(new StringBuilder(""));
-            }
-            else
-            {
-                Tuple<string, MyWorldInfo> t = FindSave(m_scenarioTable.SelectedRow);
-                m_nameTextbox.SetText(new StringBuilder(t.Item2.SessionName));
-                m_descriptionTextbox.SetText(new StringBuilder(t.Item2.Description));
-                m_descriptionBox.Text = new StringBuilder(t.Item2.Briefing);
-            }
-
-        }
         #endregion
-
-        private Tuple<string, MyWorldInfo> FindSave(MyGuiControlTable.Row row)
-        {
-            return (Tuple<string, MyWorldInfo>)(row.UserData);
-        }
-
-        public override bool Update(bool hasFocus)
-        {
-            if (m_state == StateEnum.ListNeedsReload)
-                FillList();
-
-            if (m_scenarioTable.SelectedRow != null)
-            {
-                m_okButton.Enabled = true;
-            }
-            else
-            {
-                m_okButton.Enabled = false;
-            }
-
-            return base.Update(hasFocus);
-        }
-
-        public override bool Draw()
-        {
-            // Dont draw screen when the list is about to be reloaded,
-            // otherwise it will flick just before opening the loading screen
-            if (m_state != StateEnum.ListLoaded)
-                return false;
-            return base.Draw();
-        }
-
-        protected override void OnShow()
-        {
-            base.OnShow();
-
-            if (m_state == StateEnum.ListNeedsReload)
-                FillList();
-        }
 
         #region Async Loading
 
-        void FillList()
+        protected override void FillList()
         {
-            m_state = StateEnum.ListLoading;
+            base.FillList();
             m_listLoadedParts = 0;
             MyGuiSandbox.AddScreen(new MyGuiScreenProgressAsync(MySpaceTexts.LoadingPleaseWait, null, beginKeens, endKeens));//from missions
             MyGuiSandbox.AddScreen(new MyGuiScreenProgressAsync(MySpaceTexts.LoadingPleaseWait, null, beginWorkshop, endWorkshop));//workshop items
             MyGuiSandbox.AddScreen(new MyGuiScreenProgressAsync(MySpaceTexts.LoadingPleaseWait, null, beginLocal, endLocal));//user's from saves
         }
 
-        private void AddHeaders()
-        {
-            m_scenarioTable.SetColumnName(1, MyTexts.Get(MySpaceTexts.Name));
-        }
-
-        private void RefreshGameList()
-        {
-            int selectedIndex = m_scenarioTable.SelectedRowIndex??-1;
-            m_scenarioTable.Clear();
-            AddHeaders();
-
-            for (int index = 0; index < m_availableSaves.Count; index++)
-            {
-                var checkpoint = m_availableSaves[index].Item2;
-                var name = new StringBuilder(checkpoint.SessionName);
-
-                var row = new MyGuiControlTable.Row(m_availableSaves[index]);
-                if (m_availableSaves[index].Item1 == WORKSHOP_PATH_TAG)
-                    row.AddCell(new MyGuiControlTable.Cell(text: String.Empty, icon: MyGuiConstants.TEXTURE_ICON_MODS_WORKSHOP));
-                else if (m_availableSaves[index].Item2.ScenarioEditMode == true)
-                    row.AddCell(new MyGuiControlTable.Cell(text: String.Empty, icon: MyGuiConstants.TEXTURE_ICON_MODS_LOCAL));
-                else
-                    row.AddCell(new MyGuiControlTable.Cell(text: String.Empty, icon: MyGuiConstants.TEXTURE_ICON_BLUEPRINTS_LOCAL));
-
-                row.AddCell(new MyGuiControlTable.Cell(text: name, userData: name));
-                m_scenarioTable.Add(row);
-
-                // Select row with same world ID as we had before refresh.
-                if (index == selectedIndex)
-                {
-                    m_selectedRow = index;
-                    m_scenarioTable.SelectedRow = row;
-                }
-            }
-
-            m_scenarioTable.SelectedRowIndex = m_selectedRow;
-            m_scenarioTable.ScrollToSelection();
-            FillRight();
-        }
         private void AfterPartLoaded()
         {
             if (++m_listLoadedParts == 3)
             {
+                ClearSaves();
                 m_state = StateEnum.ListLoaded;
                 //KSH
-                m_availableSaves = m_availableSavesKeens;
+                AddSaves(m_availableSavesKeens);
                 m_availableSavesKeens=null;
                 //workshop
-                m_availableSaves.AddList(m_availableSavesWorkshop);
+                AddSaves(m_availableSavesWorkshop);
                 m_availableSavesWorkshop.Clear();
                 //Local
                 foreach (var save in m_availableSavesLocal)
@@ -631,17 +309,19 @@ namespace Sandbox.Game.Gui
                     var checkpoint = save.Item2;
                     if (!checkpoint.ScenarioEditMode)
                         continue;
-                    m_availableSaves.Add(save);
+                    AddSave(save);
                 }
                 m_availableSavesLocal.Clear();
 
                 RefreshGameList();
             }
         }
+
         private IMyAsyncResult beginKeens()
         {
-            return new MyLoadListResult(true);
+            return new MyLoadMissionListResult();
         }
+
         private void endKeens(IMyAsyncResult result, MyGuiScreenProgressAsync screen)
         {
             var loadListRes = (MyLoadListResult)result;
@@ -662,8 +342,9 @@ namespace Sandbox.Game.Gui
         
         private IMyAsyncResult beginLocal()
         {
-            return new MyLoadListResult(false);
+            return new MyLoadWorldInfoListResult();
         }
+
         private void endLocal(IMyAsyncResult result, MyGuiScreenProgressAsync screen)
         {
             var loadListRes = (MyLoadListResult)result;
@@ -678,6 +359,7 @@ namespace Sandbox.Game.Gui
         {
             return new LoadWorkshopResult();
         }
+
         private void endWorkshop(IMyAsyncResult result, MyGuiScreenProgressAsync screen)
         {
             var loadResult = (LoadWorkshopResult)result;
@@ -694,6 +376,7 @@ namespace Sandbox.Game.Gui
             AfterPartLoaded();
             screen.CloseScreen();
         }
+
         class LoadWorkshopResult : IMyAsyncResult
         {
             public bool IsCompleted { get { return this.Task.IsComplete; } }
@@ -721,6 +404,7 @@ namespace Sandbox.Game.Gui
                 });
             }
         }
+
         #endregion
 
         #region steam publish
@@ -831,14 +515,21 @@ namespace Sandbox.Game.Gui
                 }));
         }
 
-
         #endregion
+
         private void OnBrowseWorkshopClick(MyGuiControlButton obj)
         {
             MyGuiSandbox.OpenUrlWithFallback(MySteamConstants.URL_BROWSE_WORKSHOP_SCENARIOS, "Steam Workshop");
         }
 
+        protected override MyStringId ScreenCaption
+        {
+            get { return MySpaceTexts.ScreenCaptionScenario; }
+        }
 
-
+        protected override bool IsOnlineMode
+        {
+            get { return m_onlineMode.GetSelectedKey() != (int)MyOnlineModeEnum.OFFLINE; }
+        }
     }
 }

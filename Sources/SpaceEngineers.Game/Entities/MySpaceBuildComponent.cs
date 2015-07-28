@@ -130,6 +130,8 @@ namespace SpaceEngineers.Game.Entities
 
         public override void BeforeCreateBlock(MyCubeBlockDefinition definition, MyEntity builder, MyObjectBuilder_CubeBlock ob)
         {
+            base.BeforeCreateBlock(definition, builder, ob);
+
             Debug.Assert(MySession.Static.SimpleSurvival == false, "In SE, there should not be simple survival!");
 
             if (builder != null && MySession.Static.SurvivalMode)

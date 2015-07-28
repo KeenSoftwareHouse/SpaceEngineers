@@ -2,6 +2,7 @@
 using Sandbox.Game.Components;
 using Sandbox.Game.Entities;
 using Sandbox.Game.Gui;
+using Sandbox.Game.Multiplayer;
 using Sandbox.Game.World;
 using Sandbox.Graphics;
 using Sandbox.Graphics.GUI;
@@ -9,7 +10,6 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Text;
-using VRage.Input;
 using VRage.Utils;
 using VRageMath;
 
@@ -22,12 +22,17 @@ namespace Sandbox.Game.Screens.Helpers
 			MyEntityStat m_stat;
 			MyGuiControlLabel m_statNameLabel;
 			MyGuiControlProgressBar m_progressBar;
-			MyGuiControlPanel m_progressBarLine;
 			MyGuiControlPanel m_effectArrow;
 			MyGuiControlLabel m_statValueLabel;
 
 			private static MyGuiCompositeTexture m_arrowUp = new MyGuiCompositeTexture(MyGuiConstants.TEXTURE_HUD_STAT_EFFECT_ARROW_UP.Texture);
 			private static MyGuiCompositeTexture m_arrowDown = new MyGuiCompositeTexture(MyGuiConstants.TEXTURE_HUD_STAT_EFFECT_ARROW_DOWN.Texture);
+
+			private float m_statRegenLeft = 0.0f;
+			private float m_lastTotalValue = 0.0f;
+
+			private bool m_recalculatePotential = false;
+			public float StatRegenLeft { get { return m_statRegenLeft; } set { m_statRegenLeft = value; } }
 
             public MyGuiControlStat(MyEntityStat stat, Vector2 position, Vector2 size, MyGuiDrawAlignEnum originAlign = MyGuiDrawAlignEnum.HORISONTAL_CENTER_AND_VERTICAL_CENTER)
 				: base(position: position, size: size, originAlign: originAlign)
@@ -36,7 +41,7 @@ namespace Sandbox.Game.Screens.Helpers
 				m_stat = stat;
 				if(m_stat != null)
 				{
-					m_stat.OnStatChanged += UpdateStatText;
+					m_stat.OnStatChanged += UpdateStatControl;
 				}
             }
 
@@ -44,7 +49,7 @@ namespace Sandbox.Game.Screens.Helpers
 			{
 				if(m_stat != null)
 				{
-					m_stat.OnStatChanged -= UpdateStatText;
+					m_stat.OnStatChanged -= UpdateStatControl;
 				}
 				base.OnRemoving();
 			}
@@ -63,24 +68,47 @@ namespace Sandbox.Game.Screens.Helpers
 							totalValue += effect.Value.Amount;
 					}
 
-					m_effectArrow.Visible = true;
-					m_effectArrow.Enabled = true;
 					if (totalValue < 0)
+					{
+						m_effectArrow.Visible = true;
 						m_effectArrow.BackgroundTexture = m_arrowDown;
+						m_progressBar.PotentialBar.Visible = false;
+					}
 					else if (totalValue > 0)
+					{
+						m_effectArrow.Visible = true;
 						m_effectArrow.BackgroundTexture = m_arrowUp;
+
+						if (m_stat.MaxValue != 0)
+						{
+							if (!m_progressBar.PotentialBar.Visible || m_lastTotalValue != totalValue)
+							{
+								m_progressBar.PotentialBar.Visible = true;
+								m_recalculatePotential = true;
+							}
+						}
+					}
 					else
 					{
 						m_effectArrow.Visible = false;
-						m_effectArrow.Enabled = false;
+						m_progressBar.PotentialBar.Visible = false;
 					}
+					m_lastTotalValue = totalValue;
 				}
+
 			}
 
-			private void UpdateStatText(float newValue, float oldValue, object statChangeData)
+			public override void Draw(float transitionAlpha, float backgroundTransitionAlpha)
+			{
+				if (m_recalculatePotential)
+					RecalculatePotentialBar();
+				base.Draw(transitionAlpha, backgroundTransitionAlpha);
+			}
+
+			private void UpdateStatControl(float newValue, float oldValue, object statChangeData)
 			{
 				m_progressBar.Value = m_stat.CurrentRatio;
-				if (m_statValueLabel != null)
+				if (m_statValueLabel != null)	// Update the text
 				{
 					StringBuilder statText = new StringBuilder();
 					statText.AppendDecimal((int)m_stat.Value, 0);
@@ -88,11 +116,25 @@ namespace Sandbox.Game.Screens.Helpers
 					statText.AppendDecimal(m_stat.MaxValue, 0);
 					m_statValueLabel.Text = statText.ToString();
 				}
+				m_recalculatePotential = true;
 			}
 
-			public override void Draw(float transitionAlpha, float backgroundTransitionAlpha)
+			private void RecalculateStatRegenLeft()
 			{
-				base.Draw(transitionAlpha, backgroundTransitionAlpha);
+				if (!Sync.IsServer)
+					return;
+
+				m_stat.CalculateRegenLeftForLongestEffect();
+			}
+
+			private void RecalculatePotentialBar()
+			{
+				if (!m_progressBar.PotentialBar.Visible)
+					return;
+				RecalculateStatRegenLeft();
+				var pixelHorizontal = 1.01f / MyGuiManager.GetFullscreenRectangle().Height;
+				var pixelVertical = 1.01f / MyGuiManager.GetFullscreenRectangle().Height;
+				m_progressBar.PotentialBar.Size = new Vector2(m_progressBar.Size.X * (MathHelper.Clamp((m_stat.StatRegenLeft + m_stat.Value) / m_stat.MaxValue, 0f, 1f)) - pixelHorizontal, m_progressBar.Size.Y - 2.0f * pixelVertical);
 			}
 
 			public void RecreateControls()
@@ -129,6 +171,12 @@ namespace Sandbox.Game.Screens.Helpers
 															progressBarColor: barColor);
 				if (m_stat != null)
 					m_progressBar.Value = m_stat.CurrentRatio;
+
+				m_progressBar.ForegroundBar.BorderColor = Color.Black;
+				m_progressBar.ForegroundBar.BorderEnabled = true;
+				m_progressBar.ForegroundBar.BorderSize = 1;
+				m_progressBar.PotentialBar.Position = m_progressBar.ForegroundBar.Position;
+				m_recalculatePotential = true;
 				Elements.Add(m_progressBar);
 
 				m_effectArrow = new MyGuiControlPanel(	position: Size * new Vector2(arrowIconOffset, 0.0f),

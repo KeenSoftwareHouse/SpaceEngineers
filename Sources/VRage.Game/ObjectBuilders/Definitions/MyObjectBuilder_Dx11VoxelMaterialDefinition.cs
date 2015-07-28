@@ -118,5 +118,11 @@ namespace Medieval.ObjectBuilders.Definitions
 
         [ProtoMember]
         public float ScaleFar2 = 8f;
+
+        [ProtoMember]
+        public float ScaleFar3 = 0f;
+
+        [ProtoMember]
+        public float ScaleFar4 = 0f;
     }
 }

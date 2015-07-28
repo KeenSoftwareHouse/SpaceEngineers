@@ -8,10 +8,6 @@ namespace Sandbox.Game.Entities.Cube
 {
     public class MyGridNoDamageGroupData : IGroupData<MyCubeGrid>
     {
-        public void OnCreate()
-        {
-        }
-
         public void OnRelease()
         {
         }
@@ -21,6 +17,10 @@ namespace Sandbox.Game.Entities.Cube
         }
 
         public void OnNodeRemoved(MyCubeGrid entity)
+        {
+        }
+
+        public void OnCreate<TGroupData>(MyGroups<MyCubeGrid, TGroupData>.Group group) where TGroupData : IGroupData<MyCubeGrid>, new()
         {
         }
     }

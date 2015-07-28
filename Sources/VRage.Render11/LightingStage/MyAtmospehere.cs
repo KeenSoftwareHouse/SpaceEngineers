@@ -248,7 +248,7 @@ namespace VRageRender
 
                     if (MyRender11.MultisamplingEnabled)
                     {
-                        RC.SetDS(MyDepthStencilState.TestAAEdge, 0);
+                        RC.SetDS(MyDepthStencilState.TestEdgeStencil, 0);
                     }
                     else
                     {
@@ -261,7 +261,7 @@ namespace VRageRender
 
                     if (MyRender11.MultisamplingEnabled)
                     {
-                        RC.SetDS(MyDepthStencilState.TestDepthAndAAEdge, 0);
+                        RC.SetDS(MyDepthStencilState.TestDepthAndEdgeStencil, 0);
                     }
                     else
                     {
@@ -286,11 +286,11 @@ namespace VRageRender
                 {
                     if (inside)
                     {
-                        RC.SetDS(MyDepthStencilState.TestAAEdge, 0x80);
+                        RC.SetDS(MyDepthStencilState.TestEdgeStencil, 0x80);
                     }
                     else
                     {
-                        RC.SetDS(MyDepthStencilState.TestDepthAndAAEdge, 0x80);
+                        RC.SetDS(MyDepthStencilState.TestDepthAndEdgeStencil, 0x80);
                     }
 
                     if (i == 1)

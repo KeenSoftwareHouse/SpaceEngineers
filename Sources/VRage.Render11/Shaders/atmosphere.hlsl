@@ -82,7 +82,7 @@ void psAtmosphereInscatter(float4 svPos : SV_Position, out float4 output : SV_Ta
                                         f3ViewDir,
                                         f3EarthCentre,
                                         L,
-                                        32,
+                                        8,
                                         f3Inscattering,
                                         f3Extinction);
         
@@ -104,7 +104,7 @@ void psAtmosphereInscatter(float4 svPos : SV_Position, out float4 output : SV_Ta
         #endif
     }
 
-    output = float4(f3Inscattering * 10, 0);
+    output = float4(f3Inscattering * 80, 0);
 }
 
 // blend 

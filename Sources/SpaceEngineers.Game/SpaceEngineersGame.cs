@@ -79,7 +79,6 @@ namespace SpaceEngineers.Game
             MyPerGameSettings.Destruction = false;
             MyPerGameSettings.ConstantVoxelAmbient = -0.35f;
             MyFakes.ENABLE_SUN_BILLBOARD = true;
-            MyFakes.ENABLE_PLANETS = true;
 
             MyPerGameSettings.BallFriendlyPhysics = true;
 
@@ -90,7 +89,9 @@ namespace SpaceEngineers.Game
             MyPerGameSettings.ControlMenuInitializerType = typeof(MySpaceControlMenuInitializer);
 
             MyPerGameSettings.EnableScenarios = true;
+            MyPerGameSettings.EnableTutorials = true;
 
+            MyPerGameSettings.EnableJumpDrive = true;
 
             MyFakes.ENABLE_PATHFINDING = false;
             MyDebugDrawSettings.DEBUG_DRAW_MOUNT_POINTS_AXIS_HELPERS = true;
@@ -109,6 +110,7 @@ namespace SpaceEngineers.Game
             MyPerGameSettings.DefaultGraphicsRenderer = DirectX9RendererKey;
 
             MyPerGameSettings.EnableWelderAutoswitch = true;
+			MyPerGameSettings.InventoryMass = true;
 
             FillCredits();
 

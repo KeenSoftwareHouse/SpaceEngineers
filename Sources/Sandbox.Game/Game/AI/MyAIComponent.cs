@@ -299,6 +299,11 @@ namespace Sandbox.Game.AI
                 return false;
             }
 
+            if (MyFakes.ENABLE_BRAIN_SIMULATOR) return true;
+
+            if (MyFakes.DEVELOPMENT_PRESET) return true;
+
+
 			int perPlayerBotMultiplier = (MySession.Static.CreativeMode ? MySession.Static.MaxPlayers : 1);
 
             if (MySteam.UserId == pid.SteamId)
@@ -351,7 +356,7 @@ namespace Sandbox.Game.AI
 
         void PlayerCreated(int playerNumber)
         {
-            if (playerNumber == 0)
+            if (playerNumber == 0 || MyFakes.ENABLE_BRAIN_SIMULATOR)
                 return;
             CreateBot(playerNumber);
         }
@@ -549,7 +554,7 @@ namespace Sandbox.Game.AI
             MyPhysics.HitInfo? closestValidHit = null;
             foreach (var hitInfo in hitInfos)
             {
-                var ent = hitInfo.HkHitInfo.Body.GetEntity();
+                var ent = hitInfo.HkHitInfo.GetHitEntity();
                 if (ent is MyCubeGrid)
                 {
                     closestValidHit = hitInfo;

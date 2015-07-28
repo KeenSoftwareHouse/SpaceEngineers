@@ -68,7 +68,7 @@ namespace Sandbox.Game.Components
         }
 
 
-        List<Havok.HkRigidBody> m_penetrations = new List<Havok.HkRigidBody>();
+        List<Havok.HkBodyCollision> m_penetrations = new List<Havok.HkBodyCollision>();
 
         public override bool DebugDraw()
         {
@@ -93,10 +93,8 @@ namespace Sandbox.Game.Components
                     bool isStatic = false;
                     foreach (var p in m_penetrations)
                     {
-                        if (p == null)
-                            continue;
-                        var e = p.UserObject as Sandbox.Engine.Physics.MyPhysicsBody;
-                        if (e != null && e.Entity != null && e.Entity is MyVoxelMap)
+                        var e = p.GetCollisionEntity();
+                        if (e != null && e is MyVoxelMap)
                         {
                             isStatic = true;
                             break;

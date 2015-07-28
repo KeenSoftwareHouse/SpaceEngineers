@@ -18,7 +18,7 @@ namespace Sandbox.Game.Entities.Cube
         public readonly MyCryoChamber CryoChamber;
         public readonly Matrix LocalMatrix;
 
-        public MyUseObjectCryoChamberDoor(IMyEntity owner, string dummyName, MyModelDummy dummyData, int key)
+        public MyUseObjectCryoChamberDoor(IMyEntity owner, string dummyName, MyModelDummy dummyData, uint key)
         {
             CryoChamber = owner as MyCryoChamber;
             Debug.Assert(CryoChamber != null, "MyUseObjectCryoChamberDoor should only be used with MyCryoChamber blocks!");

@@ -1,63 +1,34 @@
 <?xml version="1.0"?>
 <Definitions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
-  <PlanetPrefabs>
-    <PlanetPrefab>
-      <Id>
-        <TypeId>MyObjectBuilder_PlanetPrefabDefinition</TypeId>
-        <SubtypeId>Planet2</SubtypeId>
-      </Id>
-      <PlanetBuilder xsi:type="MyObjectBuilder_Planet">
-      <EntityId>-7386745090752273311</EntityId>
-      <PersistentFlags>CastShadows InScene</PersistentFlags>
-      <PositionAndOrientation>
-        <Position x="-109068.01809321255" z="91485.981516946369" y="-91391.013265252041" />
-        <Forward x="0" y="0" z="-1" />
-        <Up x="0" y="1" z="0" />
-      </PositionAndOrientation>
-      <StorageName>Planet-12345d50064.77</StorageName>
-      <Radius>24682.3477</Radius>
-      <HasAtmosphere>true</HasAtmosphere>
-      <AtmosphereRadius>26163.2871</AtmosphereRadius>
-      <MinimumSurfaceRadius>24306.8613</MinimumSurfaceRadius>
-      <MaximumHillRadius>25032.3848</MaximumHillRadius>
-      <AtmosphereWavelengths>
-        <X>0.65</X>
-        <Y>0.57</Y>
-        <Z>0.475</Z>
-      </AtmosphereWavelengths>
-      <MaximumOxygen>1</MaximumOxygen>
-      <GravityFalloff>7</GravityFalloff>
-      <MarkAreaEmpty>false</MarkAreaEmpty>
-    </PlanetBuilder> 
-  </PlanetPrefab>
-    
+  <PlanetPrefabs>    
     <PlanetPrefab>
       <Id>
         <TypeId>MyObjectBuilder_PlanetPrefabDefinition</TypeId>
         <SubtypeId>Planet1</SubtypeId>
       </Id>
       <PlanetBuilder xsi:type="MyObjectBuilder_Planet">
-      <EntityId>8406314358335920067</EntityId>
-      <PersistentFlags>CastShadows InScene</PersistentFlags>
-      <PositionAndOrientation>
-        <Position x="0.022642560303211212" y="0.032333791255950928" z="0.25121679902076721" />
-        <Forward x="0" y="0" z="-1" />
-        <Up x="0" y="1" z="0" />
-      </PositionAndOrientation>
-      <StorageName>Planet-1238513256d50388.86</StorageName>
-      <Radius>24983.6</Radius>
-      <HasAtmosphere>true</HasAtmosphere>
-      <AtmosphereRadius>26482.6133</AtmosphereRadius>
-      <MinimumSurfaceRadius>24605.6836</MinimumSurfaceRadius>
-      <MaximumHillRadius>25194.4258</MaximumHillRadius>
-      <AtmosphereWavelengths>
-        <X>0.65</X>
-        <Y>0.57</Y>
-        <Z>0.475</Z>
-      </AtmosphereWavelengths>
-      <MaximumOxygen>1</MaximumOxygen>
-      <GravityFalloff>7</GravityFalloff>
-      <MarkAreaEmpty>false</MarkAreaEmpty>
+        <EntityId>1338970537984277867</EntityId>
+        <PersistentFlags>CastShadows InScene</PersistentFlags>
+        <PositionAndOrientation>
+          <Position x="0.022642560303211212" y="0.032333791255950928" z="0.25121679902076721" />
+          <Forward x="0" y="0" z="-1" />
+          <Up x="0" y="1" z="0" />
+        </PositionAndOrientation>
+        <StorageName>Planet-12345d50388.86</StorageName>
+        <Radius>24338.6563</Radius>
+        <HasAtmosphere>true</HasAtmosphere>
+        <AtmosphereRadius>26285.75</AtmosphereRadius>
+        <MinimumSurfaceRadius>23960.74</MinimumSurfaceRadius>
+        <MaximumHillRadius>25194.4277</MaximumHillRadius>
+        <AtmosphereWavelengths>
+          <X>0.65</X>
+          <Y>0.57</Y>
+          <Z>0.475</Z>
+        </AtmosphereWavelengths>
+        <MaximumOxygen>1</MaximumOxygen>
+        <SavedEnviromentSectors />
+        <GravityFalloff>7</GravityFalloff>
+        <MarkAreaEmpty>false</MarkAreaEmpty>
     </PlanetBuilder>
     </PlanetPrefab>   
   </PlanetPrefabs>

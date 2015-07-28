@@ -41,7 +41,7 @@ namespace Sandbox.Game.Entities.Cube
 
         // This value is taken somewhere from Havok
         const float MaxSolverImpulse = 1e8f;
-        static List<HkRigidBody> m_penetrations = new List<HkRigidBody>();
+        static List<HkBodyCollision> m_penetrations = new List<HkBodyCollision>();
 
         Matrix[] m_lockPositions;
 
@@ -310,8 +310,11 @@ namespace Sandbox.Game.Entities.Cube
             position = world.Translation;
         }
 
-        private HkRigidBody FindBody(out Vector3D pivot)
+        private MyEntity FindBody(out Vector3D pivot)
         {
+            pivot = Vector3D.Zero;
+            if (CubeGrid.Physics == null)
+                return null;
             Quaternion orientation;
             Vector3 halfExtents;
             foreach (var m in m_lockPositions)
@@ -322,23 +325,50 @@ namespace Sandbox.Game.Entities.Cube
                     halfExtents *= new Vector3(2.0f, 1.0f, 2.0f);
                     orientation.Normalize();
                     MyPhysics.GetPenetrationsBox(ref halfExtents, ref pivot, ref orientation, m_penetrations, MyPhysics.ObjectDetectionCollisionLayer);
+                    var boxShape = new HkBoxShape(halfExtents);
+                    Matrix tranform = Matrix.CreateFromQuaternion(orientation);
+                    //tranform.Translation = pivot;
+                    //MyOrientedBoundingBoxD obb = new MyOrientedBoundingBoxD(new BoundingBoxD(-halfExtents, halfExtents),tranform);
+                    //tranform.Translation = Vector3D.Zero;
+                    //MyRenderProxy.DebugDrawOBB(obb, Color.Red, 1, false, false);
+
                     foreach (var obj in m_penetrations)
                     {
-                        var entity = obj.GetEntity();
+                        var entity = obj.GetCollisionEntity() as MyEntity;
+
                         if (entity == null)
                             continue;
-                        var grid = entity as MyCubeGrid;
-                        if (grid == null)
+
+                        if(entity.Physics.WeldInfo.Children.Count > 0)
                         {
-                            grid = entity.Parent as MyCubeGrid;
+                            Matrix t2;
+                            foreach(var child in entity.Physics.WeldInfo.Children)
+                            {
+                                var childEnt = child.Entity as MyEntity;
+                                t2 = childEnt.Physics.WeldInfo.Transform * entity.Physics.RigidBody.GetRigidBodyMatrix();
+                                t2.Translation = entity.Physics.ClusterToWorld(t2.Translation);
+                                //obb = new MyOrientedBoundingBoxD((BoundingBoxD)childEnt.PositionComp.LocalAABB, t2);
+                                //MyRenderProxy.DebugDrawOBB(obb, Color.Green, 1, false, false);
+                                t2.Translation = t2.Translation -pivot;
+                                if(MyPhysics.IsPenetratingShapeShape(boxShape, ref tranform, child.WeldedRigidBody.GetShape(), ref t2) )
+                                    if(
+                                    CanAttachTo(obj, child.Entity as MyEntity))
+                                {
+                                    return child.Entity as MyEntity;
+                                }
+                            }
+                            t2 = entity.Physics.RigidBody.GetRigidBodyMatrix();
+                            t2.Translation = entity.Physics.ClusterToWorld(t2.Translation) - pivot;
+
+                            if (MyPhysics.IsPenetratingShapeShape(boxShape, ref tranform, entity.Physics.GetShape(), ref t2)
+                                && CanAttachTo(obj, entity))
+                            {
+                                return entity;
+                            }
+
                         }
-
-                        // Dont want to lock to fixed/keyframed object
-                        if (entity == null || entity is Sandbox.Game.Entities.Character.MyCharacter || (grid != null && !grid.IsStatic && obj.IsFixedOrKeyframed))
-                            continue;
-
-                        if (CubeGrid.Physics != null && obj != CubeGrid.Physics.RigidBody && obj != CubeGrid.Physics.RigidBody2)
-                            return obj;
+                        else if(CanAttachTo(obj, entity))
+                            return entity;
                     }
                 }
                 finally
@@ -346,8 +376,30 @@ namespace Sandbox.Game.Entities.Cube
                     m_penetrations.Clear();
                 }
             }
-            pivot = Vector3D.Zero;
             return null;
+        }
+
+        private bool CanAttachTo(HkBodyCollision obj, MyEntity entity)
+        {
+            if (entity == CubeGrid)
+            {
+                return false;
+            }
+
+            var grid = entity as MyCubeGrid;
+            if (grid == null)
+            {
+                grid = entity.Parent as MyCubeGrid;
+                if ((grid != null && !grid.IsStatic && obj.Body.IsFixedOrKeyframed))
+                    return false;
+            }
+
+            // Dont want to lock to fixed/keyframed object
+            if (entity is Sandbox.Game.Entities.Character.MyCharacter)
+            {
+                return false;
+            }
+            return true;
         }
 
         public override void UpdateVisual()
@@ -471,8 +523,8 @@ namespace Sandbox.Game.Entities.Cube
                 if (IsWorking)
                 {
                     Vector3D pivot;
-                    HkRigidBody body = FindBody(out pivot);
-                    if (body != null)
+                    var entity = FindBody(out pivot);
+                    if (entity != null)
                     {
                         if (CanAutoLock && Sync.IsServer)
                             SyncObject.InvokeAttachRequest(true);
@@ -509,11 +561,23 @@ namespace Sandbox.Game.Entities.Cube
             StartSound(m_failedAttachSound);
         }
 
-        private void Attach(HkRigidBody body, Vector3 gearSpacePivot, Matrix otherBodySpacePivot)
+        private void Attach(MyEntity entity, Vector3 gearSpacePivot, Matrix otherBodySpacePivot)
         {
+            var body = entity.Physics.RigidBody;
+            if (MyFakes.WELD_LANDING_GEARS)
+            {
+                MyWeldingGroups.Static.CreateLink(EntityId, entity, CubeGrid);
+                //OnConstraintAdded(GridLinkTypeEnum.LandingGear, entity);
+                LockMode = LandingGearMode.Locked;
+                m_attachedTo = entity;
+                m_attachedTo.OnPhysicsChanged += m_physicsChangedHandler;
+                this.OnPhysicsChanged += m_physicsChangedHandler;
+                return;
+            }
+
             if (CubeGrid.Physics.Enabled)
             {
-                var entity = body.GetEntity();
+                //var entity = body.GetBody().Entity;
                 Debug.Assert(m_attachedTo == null, "Already attached");
                 Debug.Assert(entity != null, "Landing gear is attached to body which has no entity");
                 Debug.Assert(m_constraint == null);
@@ -526,10 +590,7 @@ namespace Sandbox.Game.Entities.Cube
 
                 m_attachedTo = entity;
 
-                if (entity != null)
-                {
-                    entity.OnPhysicsChanged += m_physicsChangedHandler;
-                }
+                m_attachedTo.OnPhysicsChanged += m_physicsChangedHandler;
 
                 this.OnPhysicsChanged += m_physicsChangedHandler;
 
@@ -584,6 +645,20 @@ namespace Sandbox.Game.Entities.Cube
 
         private void Detach()
         {
+            if (MyFakes.WELD_LANDING_GEARS)
+            {
+                if (CubeGrid.Physics == null || CubeGrid.Physics.WeldInfo.Parent == null)
+                    return;
+                MyWeldingGroups.Static.BreakLink(EntityId, CubeGrid.Physics.WeldInfo.Parent.Entity as MyEntity, CubeGrid);
+                //OnConstraintRemoved(GridLinkTypeEnum.LandingGear, m_attachedTo);
+                if(m_attachedTo != null)
+                    m_attachedTo.OnPhysicsChanged -= m_physicsChangedHandler;
+                this.OnPhysicsChanged -= m_physicsChangedHandler;
+                LockMode = LandingGearMode.Unlocked;
+                m_attachedTo = null;
+                return;
+            }
+
             if (m_constraint == null)
                 return;
 
@@ -647,11 +722,11 @@ namespace Sandbox.Game.Entities.Cube
             if (locked)
             {
                 Vector3D pivot;
-                var otherBody = FindBody(out pivot);
-                if (otherBody != null)
+                var entity = FindBody(out pivot);
+                if (entity != null)
                 {
                     var gearClusterMatrix = this.CubeGrid.Physics.RigidBody.GetRigidBodyMatrix();
-                    var otherClusterMatrix = otherBody.GetRigidBodyMatrix();
+                    var otherClusterMatrix = entity.Physics.RigidBody.GetRigidBodyMatrix();
 
                     // Calculate world (cluser) matrix of pivot
                     Matrix pivotCluster = gearClusterMatrix;
@@ -661,7 +736,7 @@ namespace Sandbox.Game.Entities.Cube
                     Vector3 gearSpacePivot = (pivotCluster * Matrix.Invert(gearClusterMatrix)).Translation;
                     Matrix otherBodySpacePivot = pivotCluster * Matrix.Invert(otherClusterMatrix);
 
-                    Attach(otherBody, gearSpacePivot, otherBodySpacePivot);
+                    Attach(entity, gearSpacePivot, otherBodySpacePivot);
                 }
             }
             else
@@ -844,13 +919,11 @@ namespace Sandbox.Game.Entities.Cube
                     if (msg.Enable)
                     {
                         Vector3D pivot;
-                        var otherBody = landingGear.FindBody(out pivot);
-                        if (otherBody != null)
+                        var otherEntity = landingGear.FindBody(out pivot);
+                        if (otherEntity != null)
                         {
-                            var otherEntity = ((MyPhysicsBody)otherBody.UserObject).Entity;
-
                             var gearClusterMatrix = landingGear.CubeGrid.Physics.RigidBody.GetRigidBodyMatrix();
-                            var otherClusterMatrix = otherBody.GetRigidBodyMatrix();
+                            var otherClusterMatrix = otherEntity.Physics.RigidBody.GetRigidBodyMatrix();
 
                             // Calculate world (cluser) matrix of pivot
                             Matrix pivotCluster = gearClusterMatrix;
@@ -889,7 +962,7 @@ namespace Sandbox.Game.Entities.Cube
                         MyEntity otherEntity;
                         if (MyEntities.TryGetEntityById(msg.OtherEntity, out otherEntity))
                         {
-                            landingGear.Attach(otherEntity.Physics.RigidBody, msg.GearPivotPosition, msg.OtherPivot.Matrix);
+                            landingGear.Attach(otherEntity, msg.GearPivotPosition, msg.OtherPivot.Matrix);
                         }
                     }
                     else

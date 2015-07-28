@@ -10,14 +10,12 @@ using Sandbox.Definitions;
 using Sandbox.Engine.Physics;
 using Sandbox.Engine.Utils;
 using Sandbox.Game.Components;
-using Sandbox.Game.Entities.Character;
 using Sandbox.Game.Entities.Cube;
 using Sandbox.Game.GameSystems;
 using Sandbox.Game.GameSystems.StructuralIntegrity;
 using Sandbox.Game.GUI;
 using Sandbox.Game.Localization;
 using Sandbox.Game.Multiplayer;
-using Sandbox.Game.Weapons;
 using Sandbox.Game.World;
 using Sandbox.ModAPI;
 using Sandbox.ModAPI.Interfaces;
@@ -241,6 +239,8 @@ namespace Sandbox.Game.Entities
 
         public event Action<MySlimBlock> OnBlockAdded;
         public event Action<MySlimBlock> OnBlockRemoved;
+        public event Action<MySlimBlock> OnBlockIntegrityChanged;
+
         //Called when ownership recalculation is actually done
         public event Action<MyCubeGrid> OnBlockOwnershipChanged;
         public event Action<MyCubeGrid, MyCubeGrid> OnGridSplit;
@@ -2252,7 +2252,6 @@ namespace Sandbox.Game.Entities
                         {
                             var resultLocation = location;
                             resultBlocks.Add(resultLocation);
-                            block.PlayConstructionSound(MyIntegrityChangeEnum.ConstructionBegin);
                         }
                         cubeProcessed = true;
                         locations.Remove(location);
@@ -3342,11 +3341,6 @@ namespace Sandbox.Game.Entities
                 if (block.FatBlock.Render.NeedsDrawFromParent)
                     m_blocksForDraw.Remove(block.FatBlock);
                 ProfilerShort.End();
-            }
-
-            if (MyStructuralIntegrity.Enabled && StructuralIntegrity != null)
-            {
-                StructuralIntegrity.RemoveBlock(block);
             }
 
             ProfilerShort.Begin("Remove Neighbours");
@@ -4603,10 +4597,10 @@ namespace Sandbox.Game.Entities
                     {
                         int j = 0;
                         if (MySession.ControlledEntity != null)
-                            while (j < m_tmpHitList.Count - 1 && m_tmpHitList[j].HkHitInfo.Body.GetEntity() == MySession.ControlledEntity.Entity)
+                            while (j < m_tmpHitList.Count - 1 && m_tmpHitList[j].HkHitInfo.GetHitEntity() == MySession.ControlledEntity.Entity)
                                 j++;
 
-                        if (m_tmpHitList[j].HkHitInfo.Body.GetEntity() != this)
+                        if (j > 1 && m_tmpHitList[j].HkHitInfo.GetHitEntity() != this)
                             continue;
                         var bias = new Vector3(GridSize, GridSize, GridSize) / 2;
                         var locPos = Vector3D.Transform(m_tmpHitList[j].Position, MatrixD.Invert(WorldMatrix));
@@ -5623,6 +5617,12 @@ namespace Sandbox.Game.Entities
                 }
             }
 			ProfilerShort.End();
+        }
+
+        public void OnIntegrityChanged(MySlimBlock block)
+        {
+            if (OnBlockIntegrityChanged != null)
+                OnBlockIntegrityChanged(block);
         }
     }
 }

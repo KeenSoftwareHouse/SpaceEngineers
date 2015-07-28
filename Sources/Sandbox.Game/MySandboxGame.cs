@@ -132,6 +132,8 @@ namespace Sandbox
 
         public MyGameRenderComponent GameRenderComponent;
 
+        public MySessionCompatHelper SessionCompatHelper = null;
+
         public static MyConfig Config;
         public static IMyConfigDedicated ConfigDedicated;
 
@@ -235,6 +237,8 @@ namespace Sandbox
             {
                 (MyMultiplayer.Static as MyDedicatedServerBase).SendGameTagsToSteam();
             }
+
+            SessionCompatHelper = Activator.CreateInstance(MyPerGameSettings.CompatHelperType) as MySessionCompatHelper;
 
             ProfilerShort.BeginNextBlock("InitMultithreading");
 
@@ -480,6 +484,15 @@ namespace Sandbox
             MySpaceBindingCreator.CreateBinding();
         }
 
+        private void InitJoystick()
+        {
+            var joysticks = MyInput.Static.EnumerateJoystickNames();
+            if (MyFakes.ENFORCE_CONTROLLER && joysticks.Count > 0)
+            {
+                MyInput.Static.JoystickInstanceName = joysticks[0];
+            }
+        }
+
         protected virtual void InitSteamWorkshop()
         {
             MySteamWorkshop.Init(
@@ -620,7 +633,11 @@ namespace Sandbox
                         {
                             if (MySteamWorkshop.DownloadWorldModsBlocking(checkpoint.Mods))
                             {
-                                MySession.Load(lastSessionPath, checkpoint, checkpointSizeInBytes);
+                                if (MyFakes.ENABLE_BATTLE_SYSTEM && ConfigDedicated.SessionSettings.Battle)
+                                    MySession.LoadBattle(lastSessionPath, checkpoint, checkpointSizeInBytes, ConfigDedicated.SessionSettings);
+                                else
+                                    MySession.Load(lastSessionPath, checkpoint, checkpointSizeInBytes);
+
                                 MySession.Static.StartServer(MyMultiplayer.Static);
                             }
                             else
@@ -991,7 +1008,7 @@ namespace Sandbox
             WriteHavokCodeToLog();
             Parallel.StartOnEachWorker(() => HkBaseSystem.InitThread(Thread.CurrentThread.Name));
 
-            Sandbox.Engine.Physics.MyPhysicsBody.DebugGeometry = new HkGeometry();
+            Sandbox.Engine.Physics.MyPhysicsDebugDraw.DebugGeometry = new HkGeometry();
 
             Engine.Models.MyModels.LoadData();
 
@@ -1034,8 +1051,9 @@ namespace Sandbox
                 MySteam.API.Matchmaking.ServerChangeRequest += Matchmaking_ServerChangeRequest;
             }
 
-            ProfilerShort.BeginNextBlock("MyInput.LoadData");
+            ProfilerShort.BeginNextBlock("MyInput.LoadData");        
             MyInput.Static.LoadData(Config.ControlsGeneral, Config.ControlsButtons);
+            InitJoystick();
             ProfilerShort.End();
 
             MySandboxGame.Log.DecreaseIndent();
@@ -1392,7 +1410,7 @@ namespace Sandbox
                         if (MySession.ControlledEntity != player.Character)
                         {
                             //Values are set inside method from sync object
-                            if (player.Character != null && player.IsRemotePlayer())
+                            if (player.Character != null && player.IsRemotePlayer && !player.Character.IsDead)
                                 player.Character.MoveAndRotate(Vector3.Zero, Vector2.Zero, 0);
                         }
                     }
@@ -1463,20 +1481,12 @@ namespace Sandbox
         void GetListenerLocation(ref VRageMath.Vector3 position, ref VRageMath.Vector3 up, ref VRageMath.Vector3 forward)
         {
             // NOTICE: up vector is reverted, don't know why, I still have to investigate it
-            if (MySession.LocalHumanPlayer != null && MySession.LocalHumanPlayer.Character != null)
+            if (MySector.MainCamera != null)
             {
-                position = MySession.LocalHumanPlayer.Character.WorldMatrix.Translation;
-                up = -MySession.LocalHumanPlayer.Character.WorldMatrix.Up;
-                forward = MySession.LocalHumanPlayer.Character.WorldMatrix.Forward;
+                position = MySector.MainCamera.Position;
+                up = -MySector.MainCamera.UpVector;
+                forward = MySector.MainCamera.ForwardVector;
             }
-            else
-                if (MySector.MainCamera != null)
-                {
-                    position = MySector.MainCamera.Position;
-                    up = -MySector.MainCamera.UpVector;
-                    forward = MySector.MainCamera.ForwardVector;
-                }
-
             const float epsilon = 0.00001f;
             Debug.Assert(up.Dot(forward) < epsilon && Math.Abs(up.LengthSquared() - 1) < epsilon && Math.Abs(forward.LengthSquared() - 1) < epsilon, "Invalid direction vectors for audio");
         }
@@ -1506,7 +1516,7 @@ namespace Sandbox
                 GameRenderComponent.Dispose();
             }
 
-            Sandbox.Engine.Physics.MyPhysicsBody.DebugGeometry.Dispose();
+            Sandbox.Engine.Physics.MyPhysicsDebugDraw.DebugGeometry.Dispose();
             Parallel.StartOnEachWorker(HkBaseSystem.QuitThread);
             HkBaseSystem.Quit();
         }
