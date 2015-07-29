@@ -1757,6 +1757,7 @@ namespace VRageMath
         public static void GetAzimuthAndElevation(Vector3D v, out double azimuth, out double elevation)
         {
             double elevationSin, azimuthCos;
+            v.Normalize();
             Vector3D.Dot(ref v, ref Vector3D.Up, out elevationSin);
             v.Y = 0f;
             v.Normalize();
