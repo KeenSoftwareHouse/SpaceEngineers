@@ -39,7 +39,7 @@ using System.Linq;
 namespace Sandbox.Game.Entities
 {
     [MyCubeBlockType(typeof(MyObjectBuilder_RemoteControl))]
-    class MyRemoteControl : MyShipController, IMyPowerConsumer, IMyUsableEntity, IMyRemoteControl
+    public class MyRemoteControl : MyShipController, IMyPowerConsumer, IMyUsableEntity, IMyRemoteControl
     {
         public enum FlightMode : int
         {
@@ -2081,7 +2081,7 @@ namespace Sandbox.Game.Entities
 
             [ProtoContract]
             [MessageIdAttribute(2508, P2PMessageEnum.Reliable)]
-            protected struct ChangeToolbarItemMsg : IEntityMessage
+            public struct ChangeToolbarItemMsg : IEntityMessage
             {
                 [ProtoMember]
                 public long EntityId;

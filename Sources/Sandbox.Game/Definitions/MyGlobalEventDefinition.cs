@@ -17,6 +17,12 @@ namespace Sandbox.Definitions
 
         protected override void Init(MyObjectBuilder_DefinitionBase builder)
         {
+            // Backward compatibility with definitions of events that have MyObjectBuilder_GlobalEventDefinition as the TypeId 
+            if (builder.Id.TypeId == typeof(MyObjectBuilder_GlobalEventDefinition))
+            {
+                builder.Id = new VRage.ObjectBuilders.SerializableDefinitionId(typeof(MyObjectBuilder_GlobalEventBase), builder.Id.SubtypeName);
+            }
+
             base.Init(builder);
 
             var eventBuilder = builder as MyObjectBuilder_GlobalEventDefinition;
@@ -31,7 +37,7 @@ namespace Sandbox.Definitions
                 eventBuilder.MinActivationTimeMs = eventBuilder.MaxActivationTimeMs;
             }
 
-            Debug.Assert(FirstActivationTime.HasValue || eventBuilder.MinActivationTimeMs.HasValue, "Global event definition has to have either the FirstActivationTime or [Min/Max]ActivationTime specified");
+            Debug.Assert(eventBuilder.FirstActivationTimeMs.HasValue || eventBuilder.MinActivationTimeMs.HasValue, "Global event definition has to have either the FirstActivationTime or [Min/Max]ActivationTime specified");
 
             if (eventBuilder.MinActivationTimeMs.HasValue)
                 MinActivationTime = TimeSpan.FromTicks(eventBuilder.MinActivationTimeMs.Value * TimeSpan.TicksPerMillisecond);

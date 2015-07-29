@@ -200,38 +200,47 @@ namespace Sandbox.Game.Weapons
 
         private void phantom_Leave(HkPhantomCallbackShape shape, HkRigidBody body)
         {
-            MyEntity entity = bodyToOtherEntity(body);
-            if (entity == null) return;
+            var entities = body.GetAllEntities();
+            foreach (var ientity in entities)
+            {
+                if (CanInteractWith(ientity))
+                    continue;
 
-            if (!(entity is MyCubeGrid) && !(entity is MyCharacter)) return;
+                var entity = ientity as MyEntity;
 
-            int entityCounter;
-            bool registered = m_entitiesInContact.TryGetValue(entity, out entityCounter);
-            Debug.Assert(registered, "Unregistering not registered entity from ship tool");
-            if (!registered)
-                return;
+                int entityCounter;
+                bool registered = m_entitiesInContact.TryGetValue(entity, out entityCounter);
+                Debug.Assert(registered, "Unregistering not registered entity from ship tool");
+                if (!registered)
+                    continue;
 
-            m_entitiesInContact.Remove(entity);
-            if (entityCounter > 1)
-                m_entitiesInContact.Add(entity, entityCounter - 1);
+                m_entitiesInContact.Remove(entity);
+                if (entityCounter > 1)
+                    m_entitiesInContact.Add(entity, entityCounter - 1);
+            }
+            entities.Clear();
         }
 
         private void phantom_Enter(HkPhantomCallbackShape shape, HkRigidBody body)
         {
-            MyEntity entity = bodyToOtherEntity(body);
-            if (entity == null) return;
-
-            if (!(entity is MyCubeGrid) && !(entity is MyCharacter)) return;
-
-            int entityCounter;
-            if (m_entitiesInContact.TryGetValue(entity, out entityCounter))
+            var entities = body.GetAllEntities();
+            foreach (var ientity in entities)
             {
-                m_entitiesInContact.Remove(entity);
-                m_entitiesInContact.Add(entity, entityCounter + 1);
-            }
-            else
-            {
-                m_entitiesInContact.Add(entity, 1);
+                if (CanInteractWith(ientity))
+                    continue;
+
+                var entity = ientity as MyEntity;
+
+                int entityCounter;
+                if (m_entitiesInContact.TryGetValue(entity, out entityCounter))
+                {
+                    m_entitiesInContact.Remove(entity);
+                    m_entitiesInContact.Add(entity, entityCounter + 1);
+                }
+                else
+                {
+                    m_entitiesInContact.Add(entity, 1);
+                }
             }
         }
 
@@ -243,13 +252,15 @@ namespace Sandbox.Game.Weapons
             }
         }
 
-        private MyEntity bodyToOtherEntity(HkRigidBody body)
+        private bool CanInteractWith(IMyEntity entity)
         {
-            var entity = body.GetEntity();
-            if (entity == null) return null;
-            if (entity == this.CubeGrid && !CanInteractWithSelf) return null;
-
-            return entity as MyEntity;
+            if (entity == null)
+                return false;
+            if ((entity == this.CubeGrid && !CanInteractWithSelf))
+                return false;
+            if (!(entity is MyCubeGrid) && !(entity is MyCharacter))
+                return false;
+            return true;
         }
 
         void MyShipToolBase_EnabledChanged(MyTerminalBlock obj)
@@ -368,7 +379,7 @@ namespace Sandbox.Game.Weapons
                 }
                 if (character != null && Sync.IsServer)
                 {
-                    MyDamageType damageType = MyDamageType.Drill;
+                    MyStringHash damageType = MyDamageType.Drill;
                     if (this is IMyShipGrinder)
                         damageType = MyDamageType.Grind;
                     else if (this is IMyShipWelder)
@@ -545,7 +556,7 @@ namespace Sandbox.Game.Weapons
             return true;
         }
 
-        public void Shoot(MyShootActionEnum action, Vector3 direction)
+        public void Shoot(MyShootActionEnum action, Vector3 direction, string gunAction)
         {
             if (action != MyShootActionEnum.PrimaryAction) return;
 

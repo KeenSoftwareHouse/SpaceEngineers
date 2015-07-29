@@ -48,10 +48,23 @@ namespace Sandbox.Game.Gui
             {
                 var componentDefinition = MyDefinitionManager.Static.GetComponentDefinition(material.Key);
                 var info = new MyHudBlockInfo.ComponentInfo();
-                info.DefinitionId = componentDefinition.Id;
-                info.ComponentName = componentDefinition.DisplayNameText;
-                info.Icon = componentDefinition.Icon;
-                info.TotalCount = material.Value;
+                if (componentDefinition == null)
+                {
+                    MyPhysicalItemDefinition physicalDefinition = null;
+                    if (!MyDefinitionManager.Static.TryGetPhysicalItemDefinition(material.Key, out physicalDefinition))
+                        continue;
+                    info.ComponentName = physicalDefinition.DisplayNameText;
+                    info.Icon = physicalDefinition.Icon;
+                    info.DefinitionId = physicalDefinition.Id;
+                    info.TotalCount = 1;
+                }
+                else
+                {
+                    info.DefinitionId = componentDefinition.Id;
+                    info.ComponentName = componentDefinition.DisplayNameText;
+                    info.Icon = componentDefinition.Icon;
+                    info.TotalCount = material.Value;
+                }
                 blockInfo.Components.Add(info);
             }
 

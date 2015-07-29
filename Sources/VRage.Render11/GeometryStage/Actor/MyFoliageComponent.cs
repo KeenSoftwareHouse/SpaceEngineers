@@ -218,6 +218,13 @@ namespace VRageRender
             //var bundle = MyShaderBundleFactory.Get(renderable.GetMesh().LODs[0].m_meshInfo.VertexLayout, MyVoxelMesh.MULTI_MATERIAL_TAG,
             //    "foliage_streaming", renderable.m_vsFlags | MyShaderUnifiedFlags.NONE);
 
+            //var scaleMat = Matrix.CreateScale(renderable.m_voxelScale);
+            //proxy.ObjectData.LocalMatrix = scaleMat;
+
+            //var worldMat = proxy.WorldMatrix;
+            //worldMat.Translation -= MyEnvironment.CameraPosition;
+            //proxy.ObjectData.LocalMatrix = worldMat;
+
             implementation.RecordCommands(proxy, m_streams[materialId], materialId,
                 bundle.VS, bundle.IL,
                 vertexMaterialIndex, indexCount, startIndex, baseVertex);
@@ -229,6 +236,14 @@ namespace VRageRender
                 return;
             var renderable = m_owner.GetRenderable();
             var proxy = renderable.m_lods[0].RenderableProxies[0];
+
+            var invScaleMat = MatrixD.CreateScale(1.0f / renderable.m_voxelScale);
+            var invTranslationMat = MatrixD.CreateTranslation(-renderable.m_voxelOffset);
+            //proxy.ObjectData.LocalMatrix = scaleMat;
+
+            var worldMat = proxy.WorldMatrix;
+            worldMat.Translation -= MyEnvironment.CameraPosition;
+            proxy.ObjectData.LocalMatrix = invTranslationMat * invScaleMat * worldMat;
 
             foreach(var kv in m_streams)
             {
@@ -295,8 +310,16 @@ namespace VRageRender
             VertexShader vertexShader, InputLayout inputLayout,            
             int materialIndex, int indexCount, int startIndex, int baseVertex)
         {
+            //var worldMatrix = proxy.WorldMatrix;
+            //worldMatrix.Translation = Vector3D.Zero;
+            //MyObjectData objectData = proxy.ObjectData;
+            //objectData.LocalMatrix = Matrix.Identity;
+
+            var worldMat = proxy.WorldMatrix;
+            //worldMat.Translation -= MyEnvironment.CameraPosition;
+
             MyObjectData objectData = proxy.ObjectData;
-            objectData.LocalMatrix = proxy.WorldMatrix;
+            objectData.LocalMatrix = worldMat;
 
             MyMapping mapping;
             mapping = MyMapping.MapDiscard(RC.Context, proxy.objectBuffer);
@@ -389,9 +412,13 @@ namespace VRageRender
 
         internal unsafe void RecordCommands(MyRenderableProxy proxy, VertexBufferId stream, int voxelMatId)
         {
-            var worldMatrix = Matrix.CreateTranslation(-MyEnvironment.CameraPosition);
+            //var worldMat = proxy.WorldMatrix;
+            //worldMat.Translation -= MyEnvironment.CameraPosition;
+            //proxy.ObjectData.LocalMatrix = worldMat;
+
+            //var worldMatrix = Matrix.CreateTranslation(-MyEnvironment.CameraPosition);
             MyObjectData objectData = proxy.ObjectData;
-            objectData.LocalMatrix = worldMatrix;
+            //objectData.LocalMatrix = worldMat;
 
             MyMapping mapping;
             mapping = MyMapping.MapDiscard(RC.Context, proxy.objectBuffer);

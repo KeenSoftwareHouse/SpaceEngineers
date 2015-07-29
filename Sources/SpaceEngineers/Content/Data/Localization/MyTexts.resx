@@ -1637,7 +1637,7 @@ See log for details.</value>
     <value>Every point mass in the universe attracts every other point mass with a force that is directly proportional to the product of their masses and inversely proportional to the square of the distance between them.</value>
   </data>
   <data name="HudInfoGravity" xml:space="preserve">
-    <value>Gravity:</value>
+    <value>Actual Gravity:</value>
   </data>
   <data name="HudInfoNoGravity" xml:space="preserve">
     <value>No gravity</value>
@@ -1760,7 +1760,7 @@ If the game doesn't run smoothly, decrease your screen resolution.</value>
     <value>Easy Start 2</value>
   </data>
   <data name="MessageBoxTextTutorialQuestion" xml:space="preserve">
-    <value>Do you want to start by watching the video tutorial? Remember: you can always come back by clicking "Tutorials" in the "Help" screen (press F1).</value>
+    <value>Do you want to start by playing tutorial maps?</value>
   </data>
   <data name="Loaded" xml:space="preserve">
     <value>Loaded</value>
@@ -2042,7 +2042,7 @@ Note that by submitting this item, you agree to the workshop terms of service (s
     <value>Using {0}</value>
   </data>
   <data name="HudInfoControllingStation" xml:space="preserve">
-    <value>Controlling station</value>
+    <value>Controlling Station</value>
   </data>
   <data name="HudInfoNameDampeners" xml:space="preserve">
     <value>Dampeners:</value>
@@ -6203,7 +6203,7 @@ To connect to lasers not listed here you can connect to coordinates.</value>
     <value>Jetpack</value>
   </data>
   <data name="ControlMenuItemLabel_LandingGear" xml:space="preserve">
-    <value>Landing gear / connector</value>
+    <value>Landing gears</value>
   </data>
   <data name="ControlMenuItemLabel_Reactors" xml:space="preserve">
     <value>Reactors</value>
@@ -6866,5 +6866,97 @@ Available in scenario edit mode only.</value>
   </data>
   <data name="NotificationJumpWarmupTime" xml:space="preserve">
     <value>Ship will jump in {0} seconds.</value>
+  </data>
+  <data name="GuiTriggerNextMissionTooltip" xml:space="preserve">
+    <value>You can put a scenario name here (must already exist on local computer to be loaded) 
+or workshop ID number (user does *not* have to have it subscribed in that case).
+Workshop ID can be seen in the URL link of scenario in question on steam workshop web.</value>
+  </data>
+  <data name="MessageBoxTextScenarioNotFound" xml:space="preserve">
+    <value>Next scenario was not found and cannot be loaded.
+Both {0} and {1} does not exist or contain invalid data.
+Please contact scenario author to fix it.</value>
+  </data>
+  <data name="NotificationNextScenarioWillLoad" xml:space="preserve">
+    <value>Prepare for next scenario ...</value>
+  </data>
+  <data name="MedicalRoom_factionAssignmentLabel" xml:space="preserve">
+    <value>Assign player to faction</value>
+  </data>
+  <data name="MedicalRoom_factionAssignmentTooltip" xml:space="preserve">
+    <value>Respawned player will be assigned to this medical room's faction.</value>
+  </data>
+  <data name="NotificationJumpAborted" xml:space="preserve">
+    <value>Jump was aborted!</value>
+  </data>
+  <data name="NotificationJumpDriveNotFullyCharged" xml:space="preserve">
+    <value>Jump drive is only {0} charged!</value>
+  </data>
+  <data name="ToolTipWorldSettings_StartInRespawnScreen" xml:space="preserve">
+    <value>When played as scenario: player will start in respawn screen with new identity, all ownership will be lost.</value>
+  </data>
+  <data name="WorldSettings_StartInRespawnScreen" xml:space="preserve">
+    <value>Start in respawn screen</value>
+  </data>
+  <data name="WwwLinkNotAllowed" xml:space="preserve">
+    <value>This link is not allowed and will not open.
+Allowed sites: steamcommunity, youtube, KSH forum.</value>
+  </data>
+  <data name="ControlMenuItemLabel_ScenarioBriefing" xml:space="preserve">
+    <value>Show scenario briefing</value>
+  </data>
+  <data name="ControlMenuItemLabel_Connectors" xml:space="preserve">
+    <value>Connectors</value>
+  </data>
+  <data name="ControlMenuItemLabel_ShowBuildScreen" xml:space="preserve">
+    <value>Show build screen</value>
+  </data>
+  <data name="NotificationJoystickColorFormat" xml:space="preserve">
+    <value>Press {0} to apply color, access control menu to change color</value>
+  </data>
+  <data name="ToolTipWorldSettings_EnableVoxelDestruction" xml:space="preserve">
+    <value>Enables voxel destrucion in world.</value>
+  </data>
+  <data name="WorldSettings_EnableVoxelDestruction" xml:space="preserve">
+    <value>Enable voxel destruction</value>
+  </data>
+  <data name="ScreenCaptionTutorials" xml:space="preserve">
+    <value>Tutorials</value>
+  </data>
+  <data name="TrainingLevel" xml:space="preserve">
+    <value>Training Level</value>
+  </data>
+  <data name="TrainingLevel_Advanced" xml:space="preserve">
+    <value>Advanced</value>
+  </data>
+  <data name="TrainingLevel_Basic" xml:space="preserve">
+    <value>Basic</value>
+  </data>
+  <data name="TrainingLevel_Intermediate" xml:space="preserve">
+    <value>Intermediate</value>
+  </data>
+  <data name="MessageBoxCaptionTutorial" xml:space="preserve">
+    <value>Tutorial</value>
+  </data>
+  <data name="MessageBoxCaptionVideoTutori" xml:space="preserve">
+    <value />
+  </data>
+  <data name="HudInfoState" xml:space="preserve">
+    <value>State</value>
+  </data>
+  <data name="MessageBoxCaptionVideo" xml:space="preserve">
+    <value>Video</value>
+  </data>
+  <data name="MessageBoxTextWatchVideo" xml:space="preserve">
+    <value>Would you like to watch video before tutorial starts?</value>
+  </data>
+  <data name="HudInfoGravityArtificial" xml:space="preserve">
+    <value>Artif. Gravity:</value>
+  </data>
+  <data name="HudInfoGravityNatural" xml:space="preserve">
+    <value>Planet Gravity:</value>
+  </data>
+  <data name="HudInfoOxygen" xml:space="preserve">
+    <value>Oxygen: </value>
   </data>
 </root>

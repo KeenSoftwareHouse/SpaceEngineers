@@ -53,10 +53,11 @@ namespace VRage.Voxels
             m_worldMatrix = worldMatrix;
             MatrixD.Invert(ref m_worldMatrix, out m_invWorldMatrix);
             m_sizeLod0 = sizeLod0;
-            m_localAABB = new BoundingBoxD(Vector3D.Zero, new Vector3D(sizeLod0 * MyVoxelConstants.RENDER_CELL_SIZE_IN_METRES));
+            m_localAABB = new BoundingBoxD(Vector3D.Zero, new Vector3D(sizeLod0 * MyVoxelCoordSystems.RenderCellSizeInMeters(0)));
             for (int lod = 0; lod < m_lodLevels.Length; ++lod)
             {
-                m_lodLevels[lod] = new LodLevel(this, lod, ((m_sizeLod0 - 1) >> lod) + 1);
+                var sizeShift = lod + MyVoxelCoordSystems.RenderCellSizeInLodVoxelsShiftDelta(lod);
+                m_lodLevels[lod] = new LodLevel(this, lod, ((m_sizeLod0 - 1) >> sizeShift) + 1);
             }
             m_updateQueueItem = new UpdateQueueItem(this);
             m_requestCollector = new RequestCollector(id);
@@ -107,9 +108,10 @@ namespace VRage.Voxels
             {
                 for (int lod = 0; lod < m_lodLevels.Length; ++lod)
                 {
+                    var shift = lod + MyVoxelCoordSystems.RenderCellSizeInLodVoxelsShiftDelta(lod);
                     m_lodLevels[lod].InvalidateRange(
-                        minCellLod0 >> lod,
-                        maxCellLod0 >> lod);
+                        minCellLod0 >> shift,
+                        maxCellLod0 >> shift);
                 }
             }
             m_updateClipping = true;
@@ -138,8 +140,9 @@ namespace VRage.Voxels
             Vector3D localPosition;
             Vector3D.Transform(ref cameraPos, ref m_invWorldMatrix, out localPosition);
 
-            const double THRESHOLD = MyVoxelConstants.RENDER_CELL_SIZE_IN_METRES_HALF * MyVoxelConstants.RENDER_CELL_SIZE_IN_METRES_HALF;
-            if (!m_updateClipping && Vector3D.DistanceSquared(localPosition, m_lastClippingPosition) > THRESHOLD)
+            double cellSizeHalf = MyVoxelCoordSystems.RenderCellSizeInMetersHalf(0);
+            double threshold = cellSizeHalf * cellSizeHalf;
+            if (!m_updateClipping && Vector3D.DistanceSquared(localPosition, m_lastClippingPosition) > threshold)
             {
                 m_updateClipping = true;
             }
@@ -338,15 +341,10 @@ namespace VRage.Voxels
                 {
                     var minD = localPosition - m_farDistance;
                     var maxD = localPosition + m_farDistance;
-                    MyVoxelCoordSystems.LocalPositionToRenderCellCoord(ref minD, out min);
-                    MyVoxelCoordSystems.LocalPositionToRenderCellCoord(ref maxD, out max);
-                    Vector3I.Max(ref min, ref Vector3I.Zero, out min);
-                    Vector3I.Max(ref max, ref Vector3I.Zero, out max);
-                    min >>= m_lodIndex;
-                    max >>= m_lodIndex;
-
-                    Vector3I.Min(ref min, ref m_lodSizeMinusOne, out min);
-                    Vector3I.Min(ref max, ref m_lodSizeMinusOne, out max);
+                    MyVoxelCoordSystems.LocalPositionToRenderCellCoord(m_lodIndex, ref minD, out min);
+                    MyVoxelCoordSystems.LocalPositionToRenderCellCoord(m_lodIndex, ref maxD, out max);
+                    Vector3I.Clamp(ref min, ref Vector3I.Zero, ref m_lodSizeMinusOne, out min);
+                    Vector3I.Clamp(ref max, ref Vector3I.Zero, ref m_lodSizeMinusOne, out max);
                 }
 
                 if (m_lastMin == min && m_lastMax == max && !m_parent.m_updateClipping)
@@ -445,14 +443,14 @@ namespace VRage.Voxels
                     Debug.Assert(data.Cell != null);
                     thisLodCell.SetUnpack(entry.Key);
 
-                    if (ChildrenWereLoaded(childLod, ref thisLodCell) || !AllSiblingsWereLoaded(ref thisLodCell))
+                    if (ChildrenWereLoaded(childLod, ref thisLodCell) ||
+                        (MyVoxelCoordSystems.RenderCellSizeShiftToLessDetailed(thisLodCell.Lod) == 1 && !AllSiblingsWereLoaded(ref thisLodCell)))
                     {
                         RemoveFromScene(entry.Key, data);
                     }
                     else
                     {
                         AddToScene(entry.Key, data);
-                        //data.Cell.PixelDiscardEnabled = false;
                     }
                 }
             }
@@ -486,10 +484,10 @@ namespace VRage.Voxels
             }
              
             /// <summary>
-            /// Checks ancestor nodes recursively. Typically, this checks at most 9 nodes or so (depending on settings).
+            /// Checks ancestor nodes recursively.
             /// </summary>
             private static bool WasAncestorCellLoaded(LodLevel parentLod, ref MyCellCoord thisLodCell)
-            {            
+            {
                 if (parentLod == null || !parentLod.m_fitsInFrustum || !parentLod.Visible)
                 {
                     return true;
@@ -497,7 +495,8 @@ namespace VRage.Voxels
 
                 Debug.Assert(thisLodCell.Lod == parentLod.m_lodIndex - 1);
 
-                var parentCell = new MyCellCoord(thisLodCell.Lod + 1, thisLodCell.CoordInLod >> 1);
+                var shiftToParent = MyVoxelCoordSystems.RenderCellSizeShiftToLessDetailed(thisLodCell.Lod);
+                var parentCell = new MyCellCoord(thisLodCell.Lod + 1, thisLodCell.CoordInLod >> shiftToParent);
                 CellData data;
                 if (parentLod.m_storedCellData.TryGetValue(parentCell.PackId64(), out data))
                 {
@@ -505,7 +504,7 @@ namespace VRage.Voxels
                 }
 
                 LodLevel ancestor;
-                if (parentLod.m_parent.m_lodLevels.TryGetValue(parentLod.m_lodIndex+1, out ancestor))
+                if (parentLod.m_parent.m_lodLevels.TryGetValue(parentLod.m_lodIndex + 1, out ancestor))
                     return WasAncestorCellLoaded(ancestor, ref parentCell);
                 else
                     return false;
@@ -523,13 +522,14 @@ namespace VRage.Voxels
 
                 var childLodCell = new MyCellCoord();
                 childLodCell.Lod = childLod.m_lodIndex;
-                var start = thisLodCell.CoordInLod << 1;
-                var end = start + 1;
+                var shiftToChild = MyVoxelCoordSystems.RenderCellSizeShiftToMoreDetailed(thisLodCell.Lod);
+                var start = thisLodCell.CoordInLod << shiftToChild;
+                var end = start + ((1 << shiftToChild) >> 1);
 
                 Vector3I.Min(ref end, ref childLod.m_lodSizeMinusOne, out end);
-                for (childLodCell.CoordInLod.Z = start.Z; childLodCell.CoordInLod.Z <= end.Z; ++childLodCell.CoordInLod.Z)
-                for (childLodCell.CoordInLod.Y = start.Y; childLodCell.CoordInLod.Y <= end.Y; ++childLodCell.CoordInLod.Y)
-                for (childLodCell.CoordInLod.X = start.X; childLodCell.CoordInLod.X <= end.X; ++childLodCell.CoordInLod.X)
+                childLodCell.CoordInLod = start;
+                for (var it = new Vector3I.RangeIterator(ref start, ref end);
+                    it.IsValid(); it.GetNext(out childLodCell.CoordInLod))
                 {
                     var key = childLodCell.PackId64();
                     CellData data;
@@ -547,7 +547,6 @@ namespace VRage.Voxels
                 return true;
             }
 
-            
             private bool AllSiblingsWereLoaded(ref MyCellCoord thisLodCell)
             {
                 MyCellCoord sibling;

@@ -13,6 +13,7 @@ using VRage.ObjectBuilders;
 using Sandbox.Game.Entities;
 using Sandbox.Game.Localization;
 using VRage;
+using Sandbox.Game.GameSystems;
 
 namespace Sandbox.Game.World.Triggers
 {
@@ -41,7 +42,7 @@ namespace Sandbox.Game.World.Triggers
                 Message = m_winTriggers[triggerIndex].Message;
                 IsMsgWinning = true;
             }
-            Sync.Players.RespawnComponent.CloseRespawnScreen();
+            DoEnd();
         }
         public bool Lost { get; protected set; }
         public void SetLost(int triggerIndex)
@@ -53,8 +54,15 @@ namespace Sandbox.Game.World.Triggers
                 Message = m_loseTriggers[triggerIndex].Message;
                 IsMsgWinning = false;
             }
-            Sync.Players.RespawnComponent.CloseRespawnScreen();
+            DoEnd();
         }
+        protected void DoEnd()
+        {
+            if (!MySession.Static.Settings.ScenarioEditMode)
+                Sync.Players.RespawnComponent.CloseRespawnScreen();
+            MyScenarioSystem.Static.GameState = MyScenarioSystem.MyState.Ending;
+        }
+
         public string Message {get; protected set;}
         public bool IsMsgWinning { get; protected set; }
         public bool DisplayMsg()

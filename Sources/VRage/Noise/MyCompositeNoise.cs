@@ -26,7 +26,7 @@ namespace VRage.Noise
             for (int i = 0; i < m_numNoises; ++i)
             {
                 m_amplitudeScales[i] = 1.0f / (float)Math.Pow(2.0f, i);
-                m_noises[i] = new MyRidgedMultifractalFast(MyNoiseQuality.Low, 1, seed: MyRandom.Instance.Next(), frequency: frequency); //MySimplexFast(seed: MyRandom.Instance.Next(), frequency: frequency);
+                m_noises[i] = new MySimplexFast(seed: MyRandom.Instance.Next(), frequency: frequency);
                 frequency *= 2.01f;
             }
 

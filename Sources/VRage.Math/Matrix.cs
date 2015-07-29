@@ -1964,6 +1964,11 @@ namespace VRageMath
             result.M44 = 1f;
         }
 
+        public static Matrix CreateWorld(Vector3 position)
+        {
+            return Matrix.CreateWorld(position, Vector3.Forward, Vector3.Up);
+        }
+
         /// <summary>
         /// Creates a world matrix with the specified parameters.
         /// </summary>

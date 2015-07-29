@@ -5,6 +5,206 @@
     <VoxelMaterial xsi:type="MyObjectBuilder_Dx11VoxelMaterialDefinition">
       <Id>
         <TypeId>VoxelMaterialDefinition</TypeId>
+        <SubtypeId>Desert</SubtypeId>
+      </Id>
+      <SpawnsInAsteroids>false</SpawnsInAsteroids>
+      <SpawnsFromMeteorites>false</SpawnsFromMeteorites>
+      <MinedOre>Organic</MinedOre>
+      <MinedOreRatio>1</MinedOreRatio>
+      <CanBeHarvested>true</CanBeHarvested>
+      <IsRare>false</IsRare>
+      <IsIndestructible>false</IsIndestructible>
+      <DamageRatio>1</DamageRatio>
+      <DiffuseXZ>Textures\Voxels\Desert_01_ForAxisXZ_de.dds</DiffuseXZ>
+      <NormalXZ>Textures\Voxels\Desert_01_ForAxisXZ_ns.dds</NormalXZ>
+      <DiffuseY>Textures\Voxels\Desert_01_ForAxisXZ_de.dds</DiffuseY>
+      <NormalY>Textures\Voxels\Desert_01_ForAxisXZ_ns.dds</NormalY>
+      <ColorMetalXZnY>Textures\Voxels\Desert_01_ForAxisXZ_cm.dds</ColorMetalXZnY>
+      <NormalGlossXZnY>Textures\Voxels\Desert_01_ForAxisXZ_ng.dds</NormalGlossXZnY>
+      
+      <SpecularPower>24</SpecularPower>
+      <SpecularShininess>0.364</SpecularShininess>
+      <Scale>10</Scale>
+      <ScaleFar1>50</ScaleFar1>
+      <ScaleFar2>200</ScaleFar2>
+      <ScaleFar3>2500</ScaleFar3>
+      <ScaleFar4>7500</ScaleFar4>
+      
+      <BiomeValueMin>255</BiomeValueMin>
+      <BiomeValueMax>255</BiomeValueMax>
+    </VoxelMaterial>
+    <VoxelMaterial xsi:type="MyObjectBuilder_Dx11VoxelMaterialDefinition">
+      <Id>
+        <TypeId>VoxelMaterialDefinition</TypeId>
+        <SubtypeId>MarsRocks</SubtypeId>
+      </Id>
+      <SpawnsInAsteroids>false</SpawnsInAsteroids>
+      <SpawnsFromMeteorites>false</SpawnsFromMeteorites>
+      <MinedOre>Organic</MinedOre>
+      <MinedOreRatio>1</MinedOreRatio>
+      <CanBeHarvested>true</CanBeHarvested>
+      <IsRare>false</IsRare>
+      <IsIndestructible>false</IsIndestructible>
+      <DamageRatio>1</DamageRatio>
+      <DiffuseXZ>Textures\Voxels\MarsRocks_01_ForAxisXZ_de.dds</DiffuseXZ>
+      <NormalXZ>Textures\Voxels\MarsRocks_01_ForAxisXZ_ns.dds</NormalXZ>
+      <DiffuseY>Textures\Voxels\MarsRocks__01_ForAxisY_de.dds</DiffuseY>
+      <NormalY>Textures\Voxels\MarsRocks_01_ForAxisY_ns.dds</NormalY>
+      <ColorMetalXZnY>Textures\Voxels\MarsRocks_01_ForAxisXZ_cm.dds</ColorMetalXZnY>
+      <NormalGlossXZnY>Textures\Voxels\MarsRocks_01_ForAxisXZ_ng.dds</NormalGlossXZnY>
+      
+      <SpecularPower>24</SpecularPower>
+      <SpecularShininess>0.364</SpecularShininess>
+      <Scale>10</Scale>
+      <ScaleFar1>50</ScaleFar1>
+      <ScaleFar2>200</ScaleFar2>
+      <ScaleFar3>2500</ScaleFar3>
+      <ScaleFar4>7500</ScaleFar4>
+    </VoxelMaterial>
+    <VoxelMaterial xsi:type="MyObjectBuilder_Dx11VoxelMaterialDefinition">
+      <Id>
+        <TypeId>VoxelMaterialDefinition</TypeId>
+        <SubtypeId>MarsSoil</SubtypeId>
+      </Id>
+      <SpawnsInAsteroids>false</SpawnsInAsteroids>
+      <SpawnsFromMeteorites>false</SpawnsFromMeteorites>
+      <MinedOre>Organic</MinedOre>
+      <MinedOreRatio>1</MinedOreRatio>
+      <CanBeHarvested>true</CanBeHarvested>
+      <IsRare>false</IsRare>
+      <IsIndestructible>false</IsIndestructible>
+      <DamageRatio>1</DamageRatio>
+      <DiffuseXZ>Textures\Voxels\MarsSoil_01_ForAxisXZ_de.dds</DiffuseXZ>
+      <NormalXZ>Textures\Voxels\MarsSoil_01_ForAxisXZ_ns.dds</NormalXZ>
+      <DiffuseY>Textures\Voxels\MarsSoil__01_ForAxisY_de.dds</DiffuseY>
+      <NormalY>Textures\Voxels\MarsSoil_01_ForAxisY_ns.dds</NormalY>
+      <ColorMetalXZnY>Textures\Voxels\MarsSoil_01_ForAxisXZ_cm.dds</ColorMetalXZnY>
+      <NormalGlossXZnY>Textures\Voxels\MarsSoil_ForAxisXZ_01_ng.dds</NormalGlossXZnY>
+      
+      <SpecularPower>24</SpecularPower>
+      <SpecularShininess>0.364</SpecularShininess>
+      <Scale>10</Scale>
+      <ScaleFar1>50</ScaleFar1>
+      <ScaleFar2>200</ScaleFar2>
+      <ScaleFar3>2500</ScaleFar3>
+      <ScaleFar4>7500</ScaleFar4>
+    </VoxelMaterial>
+    <VoxelMaterial xsi:type="MyObjectBuilder_Dx11VoxelMaterialDefinition">
+      <Id>
+        <TypeId>VoxelMaterialDefinition</TypeId>
+        <SubtypeId>MoonSoil</SubtypeId>
+      </Id>
+      <SpawnsInAsteroids>false</SpawnsInAsteroids>
+      <SpawnsFromMeteorites>false</SpawnsFromMeteorites>
+      <MinedOre>Organic</MinedOre>
+      <MinedOreRatio>1</MinedOreRatio>
+      <CanBeHarvested>true</CanBeHarvested>
+      <IsRare>false</IsRare>
+      <IsIndestructible>false</IsIndestructible>
+      <DamageRatio>1</DamageRatio>
+      <DiffuseXZ>Textures\Voxels\MoonSoil_01_ForAxisXZ_de.dds</DiffuseXZ>
+      <NormalXZ>Textures\Voxels\MoonSoil_01_ForAxisXZ_ns.dds</NormalXZ>
+      <DiffuseY>Textures\Voxels\MMoonSoil__01_ForAxisY_de.dds</DiffuseY>
+      <NormalY>Textures\Voxels\MoonSoil_01_ForAxisY_ns.dds</NormalY>
+      <ColorMetalXZnY>Textures\Voxels\MoonSoil_01_ForAxisXZ_cm.dds</ColorMetalXZnY>
+      <NormalGlossXZnY>Textures\Voxels\MoonSoil_01_ForAxisXZ_ng.dds</NormalGlossXZnY>
+      
+      <SpecularPower>24</SpecularPower>
+      <SpecularShininess>0.364</SpecularShininess>
+      <Scale>10</Scale>
+      <ScaleFar1>50</ScaleFar1>
+      <ScaleFar2>200</ScaleFar2>
+      <ScaleFar3>2500</ScaleFar3>
+      <ScaleFar4>7500</ScaleFar4>
+    </VoxelMaterial>
+    <VoxelMaterial xsi:type="MyObjectBuilder_Dx11VoxelMaterialDefinition">
+      <Id>
+        <TypeId>VoxelMaterialDefinition</TypeId>
+        <SubtypeId>MoonRocks</SubtypeId>
+      </Id>
+      <SpawnsInAsteroids>false</SpawnsInAsteroids>
+      <SpawnsFromMeteorites>false</SpawnsFromMeteorites>
+      <MinedOre>Organic</MinedOre>
+      <MinedOreRatio>1</MinedOreRatio>
+      <CanBeHarvested>true</CanBeHarvested>
+      <IsRare>false</IsRare>
+      <IsIndestructible>false</IsIndestructible>
+      <DamageRatio>1</DamageRatio>
+      <DiffuseXZ>Textures\Voxels\MoonRocks_01_ForAxisXZ_de.dds</DiffuseXZ>
+      <NormalXZ>Textures\Voxels\MoonRocks_01_ForAxisXZ_ns.dds</NormalXZ>
+      <DiffuseY>Textures\Voxels\MoonRocks_01_ForAxisY_de.dds</DiffuseY>
+      <NormalY>Textures\Voxels\MoonRocks_01_ForAxisY_ns.dds</NormalY>
+      <ColorMetalXZnY>Textures\Voxels\MoonRocks_01_ForAxisXZ_cm.dds</ColorMetalXZnY>
+      <NormalGlossXZnY>Textures\Voxels\MoonRocks_01_ForAxisXZ_ng.dds</NormalGlossXZnY>
+    
+      <SpecularPower>24</SpecularPower>
+      <SpecularShininess>0.364</SpecularShininess>
+      <Scale>10</Scale>
+      <ScaleFar1>50</ScaleFar1>
+      <ScaleFar2>200</ScaleFar2>
+      <ScaleFar3>2500</ScaleFar3>
+      <ScaleFar4>7500</ScaleFar4>
+    </VoxelMaterial>
+    <VoxelMaterial xsi:type="MyObjectBuilder_Dx11VoxelMaterialDefinition">
+      <Id>
+        <TypeId>VoxelMaterialDefinition</TypeId>
+        <SubtypeId>RockyDessert</SubtypeId>
+      </Id>
+      <SpawnsInAsteroids>false</SpawnsInAsteroids>
+      <SpawnsFromMeteorites>false</SpawnsFromMeteorites>
+      <MinedOre>Organic</MinedOre>
+      <MinedOreRatio>1</MinedOreRatio>
+      <CanBeHarvested>true</CanBeHarvested>
+      <IsRare>false</IsRare>
+      <IsIndestructible>false</IsIndestructible>
+      <DamageRatio>1</DamageRatio>
+      <DiffuseXZ>Textures\Voxels\RockyDesert_01_ForAxisXZ_de.dds</DiffuseXZ>
+      <NormalXZ>Textures\Voxels\RockyDesert_01_ForAxisXZ_ns.dds</NormalXZ>
+      <DiffuseY>Textures\Voxels\RockyDesert_01_ForAxisY_de.dds</DiffuseY>
+      <NormalY>Textures\Voxels\RockyDesert_01_ForAxisY_ns.dds</NormalY>
+      <ColorMetalXZnY>Textures\Voxels\RockyDesert_01_ForAxisXZ_cm.dds</ColorMetalXZnY>
+      <NormalGlossXZnY>Textures\Voxels\RockyDesert_01_ForAxisXZ_ng.dds</NormalGlossXZnY>
+     
+      <SpecularPower>24</SpecularPower>
+      <SpecularShininess>0.364</SpecularShininess>
+      <Scale>10</Scale>
+      <ScaleFar1>50</ScaleFar1>
+      <ScaleFar2>200</ScaleFar2>
+      <ScaleFar3>2500</ScaleFar3>
+      <ScaleFar4>7500</ScaleFar4>
+    </VoxelMaterial>   
+    <VoxelMaterial xsi:type="MyObjectBuilder_Dx11VoxelMaterialDefinition">
+      <Id>
+        <TypeId>VoxelMaterialDefinition</TypeId>
+        <SubtypeId>Snow</SubtypeId>
+      </Id>
+      <SpawnsInAsteroids>false</SpawnsInAsteroids>
+      <SpawnsFromMeteorites>false</SpawnsFromMeteorites>
+      <MinedOre>Organic</MinedOre>
+      <MinedOreRatio>1</MinedOreRatio>
+      <CanBeHarvested>true</CanBeHarvested>
+      <IsRare>false</IsRare>
+      <IsIndestructible>false</IsIndestructible>
+      <DamageRatio>1</DamageRatio>
+      <DiffuseXZ>Textures\Voxels\Snow_01_ForAxisXZ_de.dds</DiffuseXZ>
+      <NormalXZ>Textures\Voxels\Snow_01_ForAxisXZ_ns.dds</NormalXZ>
+      <DiffuseY>Textures\Voxels\Snow_01_ForAxisY_de.dds</DiffuseY>
+      <NormalY>Textures\Voxels\Snow_01_ForAxisY_ns.dds</NormalY>
+      <ColorMetalXZnY>Textures\Voxels\Snow_01_ForAxisXZ_cm.dds</ColorMetalXZnY>
+      <NormalGlossXZnY>Textures\Voxels\Snow_01_ForAxisXZ_ng.dds</NormalGlossXZnY>
+      
+      <SpecularPower>24</SpecularPower>
+      <SpecularShininess>0.364</SpecularShininess>
+      <Scale>10</Scale>
+      <ScaleFar1>50</ScaleFar1>
+      <ScaleFar2>200</ScaleFar2>
+      <ScaleFar3>2500</ScaleFar3>
+      <ScaleFar4>7500</ScaleFar4>
+    </VoxelMaterial>
+    
+    <VoxelMaterial xsi:type="MyObjectBuilder_Dx11VoxelMaterialDefinition">
+      <Id>
+        <TypeId>VoxelMaterialDefinition</TypeId>
         <SubtypeId>Grass</SubtypeId>
       </Id>
       <SpawnsInAsteroids>false</SpawnsInAsteroids>
@@ -20,22 +220,14 @@
       <DiffuseY>Textures\Voxels\Grass_ForAxisY_de.dds</DiffuseY>
       <NormalY>Textures\Voxels\Grass_ForAxisY_ns.dds</NormalY>
       <ColorMetalXZnY>Textures\Voxels\Grass_cm.dds</ColorMetalXZnY>
-      <ColorMetalY>Textures\Voxels\Grass_cm.dds</ColorMetalY>
       <NormalGlossXZnY>Textures\Voxels\Grass_ng.dds</NormalGlossXZnY>
-      <NormalGlossY>Textures\Voxels\Grass_ng.dds</NormalGlossY>
       <SpecularPower>24</SpecularPower>
       <SpecularShininess>0.364</SpecularShininess>
-      <ColorMetalXZnYFar1>Textures\Voxels\Grass_distance_cm.dds</ColorMetalXZnYFar1>
-      <ColorMetalYFar1>Textures\Voxels\Grass_distance_cm.dds</ColorMetalYFar1>
-      <NormalGlossXZnYFar1>Textures\Voxels\Grass_distance_ng.dds</NormalGlossXZnYFar1>
-      <NormalGlossYFar1>Textures\Voxels\Grass_distance_ng.dds</NormalGlossYFar1>
-      <ColorMetalXZnYFar2>Textures\Voxels\Grass_distance_cm.dds</ColorMetalXZnYFar2>
-      <ColorMetalYFar2>Textures\Voxels\Grass_distance_cm.dds</ColorMetalYFar2>
-      <NormalGlossXZnYFar2>Textures\Voxels\Grass_distance_ng.dds</NormalGlossXZnYFar2>
-      <NormalGlossYFar2>Textures\Voxels\Grass_distance_ng.dds</NormalGlossYFar2>
       <Scale>10</Scale>
       <ScaleFar1>50</ScaleFar1>
-      <ScaleFar2>1250</ScaleFar2>
+      <ScaleFar2>200</ScaleFar2>
+      <ScaleFar3>2500</ScaleFar3>
+      <ScaleFar4>7500</ScaleFar4>
 
       <FoliageTextureArray1>Textures\Models\Environment\Grass\Grass_array.dds</FoliageTextureArray1>
       <FoliageDensity>8</FoliageDensity>
@@ -46,8 +238,7 @@
       <FoliageRandomRescaleMult>0.20</FoliageRandomRescaleMult>
       <BiomeValueMin>255</BiomeValueMin>
       <BiomeValueMax>255</BiomeValueMax>
-    </VoxelMaterial>
-    
+    </VoxelMaterial> 
     <VoxelMaterial xsi:type="MyObjectBuilder_Dx11VoxelMaterialDefinition">
       <Id>
         <TypeId>VoxelMaterialDefinition</TypeId>
@@ -66,22 +257,15 @@
       <DiffuseY>Textures\Voxels\Soil_ForAxisY_de.dds</DiffuseY>
       <NormalY>Textures\Voxels\Soil_ForAxisY_ns.dds</NormalY>
       <ColorMetalXZnY>Textures\Voxels\Rocks_Grass_cm.dds</ColorMetalXZnY>
-      <ColorMetalY>Textures\Voxels\Rocks_Grass_cm.dds</ColorMetalY>
       <NormalGlossXZnY>Textures\Voxels\Rocks_Grass_ng.dds</NormalGlossXZnY>
-      <NormalGlossY>Textures\Voxels\Rocks_Grass_ng.dds</NormalGlossY>
       <SpecularPower>24</SpecularPower>
       <SpecularShininess>0.364</SpecularShininess>
-      <ColorMetalXZnYFar1>Textures\Voxels\Rocks_Grass_distance_cm.dds</ColorMetalXZnYFar1>
-      <ColorMetalYFar1>Textures\Voxels\Rocks_Grass_distance_cm.dds</ColorMetalYFar1>
-      <NormalGlossXZnYFar1>Textures\Voxels\Rocks_Grass_distance_ng.dds</NormalGlossXZnYFar1>
-      <NormalGlossYFar1>Textures\Voxels\Rocks_Grass_distance_ng.dds</NormalGlossYFar1>
-      <ColorMetalXZnYFar2>Textures\Voxels\Rocks_Grass_distance_cm.dds</ColorMetalXZnYFar2>
-      <ColorMetalYFar2>Textures\Voxels\Rocks_Grass_distance_cm.dds</ColorMetalYFar2>
-      <NormalGlossXZnYFar2>Textures\Voxels\Rocks_Grass_distance_ng.dds</NormalGlossXZnYFar2>
-      <NormalGlossYFar2>Textures\Voxels\Rocks_Grass_distance_ng.dds</NormalGlossYFar2>
+
       <Scale>10</Scale>
       <ScaleFar1>50</ScaleFar1>
-      <ScaleFar2>1250</ScaleFar2>
+      <ScaleFar2>200</ScaleFar2>
+      <ScaleFar3>2500</ScaleFar3>
+      <ScaleFar4>7500</ScaleFar4>
       <FoliageTextureArray1>Textures\Models\Environment\Grass\WoodsGrass_array.dds</FoliageTextureArray1>
       <FoliageDensity>3</FoliageDensity>
       <FoliageScale>
@@ -110,22 +294,15 @@
       <DiffuseY>Textures\Voxels\Grass_old_ForAxisY_de.dds</DiffuseY>
       <NormalY>Textures\Voxels\Grass_old_ForAxisY_ns.dds</NormalY>
       <ColorMetalXZnY>Textures\Voxels\Grass_old_cm.dds</ColorMetalXZnY>
-      <ColorMetalY>Textures\Voxels\Grass_old_cm.dds</ColorMetalY>
       <NormalGlossXZnY>Textures\Voxels\Grass_old_ng.dds</NormalGlossXZnY>
-      <NormalGlossY>Textures\Voxels\Grass_old_ng.dds</NormalGlossY>
       <SpecularPower>24</SpecularPower>
       <SpecularShininess>0.364</SpecularShininess>
-      <ColorMetalXZnYFar1>Textures\Voxels\Grass_old_cm.dds</ColorMetalXZnYFar1>
-      <ColorMetalYFar1>Textures\Voxels\Grass_old_cm.dds</ColorMetalYFar1>
-      <NormalGlossXZnYFar1>Textures\Voxels\Grass_old_ng.dds</NormalGlossXZnYFar1>
-      <NormalGlossYFar1>Textures\Voxels\Grass_old_ng.dds</NormalGlossYFar1>
-      <ColorMetalXZnYFar2>Textures\Voxels\Grass_old_cm.dds</ColorMetalXZnYFar2>
-      <ColorMetalYFar2>Textures\Voxels\Grass_old_cm.dds</ColorMetalYFar2>
-      <NormalGlossXZnYFar2>Textures\Voxels\Grass_old_ng.dds</NormalGlossXZnYFar2>
-      <NormalGlossYFar2>Textures\Voxels\Grass_old_ng.dds</NormalGlossYFar2>
+
       <Scale>10</Scale>
       <ScaleFar1>50</ScaleFar1>
-      <ScaleFar2>1250</ScaleFar2>
+      <ScaleFar3>2500</ScaleFar3>
+      <ScaleFar4>7500</ScaleFar4>
+      <ScaleFar2>200</ScaleFar2>
       <BiomeValueMin>20</BiomeValueMin>
       <BiomeValueMax>30</BiomeValueMax>
     </VoxelMaterial>
@@ -147,23 +324,15 @@
       <DiffuseY>Textures\Voxels\Soil_ForAxisY_de.dds</DiffuseY>
       <NormalY>Textures\Voxels\Soil_ForAxisY_ns.dds</NormalY>
       <ColorMetalXZnY>Textures\Voxels\Soil_cm.dds</ColorMetalXZnY>
-      <ColorMetalY>Textures\Voxels\Soil_cm.dds</ColorMetalY>
       <NormalGlossXZnY>Textures\Voxels\Soil_ng.dds</NormalGlossXZnY>
-      <NormalGlossY>Textures\Voxels\Soil_ng.dds</NormalGlossY>
       <SpecularPower>24</SpecularPower>
       <SpecularShininess>0.364</SpecularShininess>
-      <ColorMetalXZnYFar1>Textures\Voxels\Soil_distance_cm.dds</ColorMetalXZnYFar1>
-      <ColorMetalYFar1>Textures\Voxels\Soil_distance_cm.dds</ColorMetalYFar1>
-      <NormalGlossXZnYFar1>Textures\Voxels\Soil_distance_ng.dds</NormalGlossXZnYFar1>
-      <NormalGlossYFar1>Textures\Voxels\Soil_distance_ng.dds</NormalGlossYFar1>
 
-      <ColorMetalXZnYFar2>Textures\Voxels\Soil_distance_cm.dds</ColorMetalXZnYFar2>
-      <ColorMetalYFar2>Textures\Voxels\Soil_distance_cm.dds</ColorMetalYFar2>
-      <NormalGlossXZnYFar2>Textures\Voxels\Soil_distance_ng.dds</NormalGlossXZnYFar2>
-      <NormalGlossYFar2>Textures\Voxels\Soil_distance_ng.dds</NormalGlossYFar2>
       <Scale>10</Scale>
       <ScaleFar1>50</ScaleFar1>
-      <ScaleFar2>1250</ScaleFar2>
+      <ScaleFar2>200</ScaleFar2>
+      <ScaleFar3>2500</ScaleFar3>
+      <ScaleFar4>7500</ScaleFar4>
       <BiomeValueMin>50</BiomeValueMin>
       <BiomeValueMax>60</BiomeValueMax>
     </VoxelMaterial>
@@ -185,30 +354,17 @@
       <DiffuseY>Textures\Voxels\Stone_ForAxisY_de.dds</DiffuseY>
       <NormalY>Textures\Voxels\Stone_ForAxisY_ns.dds</NormalY>
       <ColorMetalXZnY>Textures\Voxels\Rocks_cm.dds</ColorMetalXZnY>
-      <ColorMetalY>Textures\Voxels\Rocks_cm.dds</ColorMetalY>
       <NormalGlossXZnY>Textures\Voxels\Rocks_ng.dds</NormalGlossXZnY>
-      <NormalGlossY>Textures\Voxels\Rocks_ng.dds</NormalGlossY>
       <ExtXZnY>Textures\Voxels\Rocks_add.dds</ExtXZnY>
-      <ExtY>Textures\Voxels\Rocks_add.dds</ExtY>
+
       <SpecularPower>24</SpecularPower>
       <SpecularShininess>0.364</SpecularShininess>
-      <ColorMetalXZnYFar1>Textures\Voxels\Rocks_distance_cm.dds</ColorMetalXZnYFar1>
-      <ColorMetalYFar1>Textures\Voxels\Rocks_distance_cm.dds</ColorMetalYFar1>
-      <NormalGlossXZnYFar1>Textures\Voxels\Rocks_distance_ng.dds</NormalGlossXZnYFar1>
-      <NormalGlossYFar1>Textures\Voxels\Rocks_distance_ng.dds</NormalGlossYFar1>
-      <ExtXZnYFar1>Textures\Voxels\Rocks_distance_add.dds</ExtXZnYFar1>
-      <ExtYFar1>Textures\Voxels\Rocks_distance_add.dds</ExtYFar1>
-
-      <ColorMetalXZnYFar2>Textures\Voxels\Rocks_distance_cm.dds</ColorMetalXZnYFar2>
-      <ColorMetalYFar2>Textures\Voxels\Rocks_distance_cm.dds</ColorMetalYFar2>
-      <NormalGlossXZnYFar2>Textures\Voxels\Rocks_distance_ng.dds</NormalGlossXZnYFar2>
-      <NormalGlossYFar2>Textures\Voxels\Rocks_distance_ng.dds</NormalGlossYFar2>
-      <ExtXZnYFar2>Textures\Voxels\Rocks_distance_add.dds</ExtXZnYFar2>
-      <ExtYFar2>Textures\Voxels\Rocks_distance_add.dds</ExtYFar2>
-
+      
       <Scale>10</Scale>
       <ScaleFar1>50</ScaleFar1>
-      <ScaleFar2>1250</ScaleFar2>
+      <ScaleFar2>200</ScaleFar2>
+      <ScaleFar3>2500</ScaleFar3>
+      <ScaleFar4>7500</ScaleFar4>
 
       <BiomeValueMin>0</BiomeValueMin>
       <BiomeValueMax>10</BiomeValueMax>
@@ -227,28 +383,23 @@
       <IsRare>false</IsRare>
       <IsIndestructible>false</IsIndestructible>
       <DamageRatio>1</DamageRatio>
+      
       <DiffuseXZ>Textures\Voxels\Woods_ForAxisXZ_de.dds</DiffuseXZ>
       <NormalXZ>Textures\Voxels\Woods_ForAxisXZ_ns.dds</NormalXZ>
       <DiffuseY>Textures\Voxels\Woods_ForAxisY_de.dds</DiffuseY>
       <NormalY>Textures\Voxels\Woods_ForAxisY_ns.dds</NormalY>
+      
       <ColorMetalXZnY>Textures\Voxels\Woods_cm.dds</ColorMetalXZnY>
-      <ColorMetalY>Textures\Voxels\Woods_cm.dds</ColorMetalY>
       <NormalGlossXZnY>Textures\Voxels\Woods_ng.dds</NormalGlossXZnY>
-      <NormalGlossY>Textures\Voxels\Woods_ng.dds</NormalGlossY>
+ 
       <SpecularPower>24</SpecularPower>
       <SpecularShininess>0.364</SpecularShininess>
-      <ColorMetalXZnYFar1>Textures\Voxels\Woods_distance_cm.dds</ColorMetalXZnYFar1>
-      <ColorMetalYFar1>Textures\Voxels\Woods_distance_cm.dds</ColorMetalYFar1>
-      <NormalGlossXZnYFar1>Textures\Voxels\Woods_distance_ng.dds</NormalGlossXZnYFar1>
-      <NormalGlossYFar1>Textures\Voxels\Woods_distance_ng.dds</NormalGlossYFar1>
-
-      <ColorMetalXZnYFar2>Textures\Voxels\Woods_distance_cm.dds</ColorMetalXZnYFar2>
-      <ColorMetalYFar2>Textures\Voxels\Woods_distance_cm.dds</ColorMetalYFar2>
-      <NormalGlossXZnYFar2>Textures\Voxels\Woods_distance_ng.dds</NormalGlossXZnYFar2>
-      <NormalGlossYFar2>Textures\Voxels\Woods_distance_ng.dds</NormalGlossYFar2>
+      
       <Scale>10</Scale>
       <ScaleFar1>50</ScaleFar1>
-      <ScaleFar2>1250</ScaleFar2>
+      <ScaleFar2>200</ScaleFar2>
+      <ScaleFar3>2500</ScaleFar3>
+      <ScaleFar4>7500</ScaleFar4>
       <FoliageTextureArray1>Textures\Models\Environment\Grass\WoodsGrass_array.dds</FoliageTextureArray1>
       <FoliageDensity>3</FoliageDensity>
       <FoliageScale>
@@ -277,25 +428,18 @@
       <NormalXZ>Textures\Voxels\Woods_grass_ForAxisXZ_ns.dds</NormalXZ>
       <DiffuseY>Textures\Voxels\Woods_grass_ForAxisY_de.dds</DiffuseY>
       <NormalY>Textures\Voxels\Woods_grass_ForAxisY_ns.dds</NormalY>
+      
       <ColorMetalXZnY>Textures\Voxels\Woods_grass_cm.dds</ColorMetalXZnY>
-      <ColorMetalY>Textures\Voxels\Woods_grass_cm.dds</ColorMetalY>
       <NormalGlossXZnY>Textures\Voxels\Woods_grass_ng.dds</NormalGlossXZnY>
-      <NormalGlossY>Textures\Voxels\Woods_grass_ng.dds</NormalGlossY>
+      
       <SpecularPower>24</SpecularPower>
       <SpecularShininess>0.364</SpecularShininess>
-      <ColorMetalXZnYFar1>Textures\Voxels\Woods_grass_distance_cm.dds</ColorMetalXZnYFar1>
-      <ColorMetalYFar1>Textures\Voxels\Woods_grass_distance_cm.dds</ColorMetalYFar1>
-      <NormalGlossXZnYFar1>Textures\Voxels\Woods_grass_distance_ng.dds</NormalGlossXZnYFar1>
-      <NormalGlossYFar1>Textures\Voxels\Woods_grass_distance_ng.dds</NormalGlossYFar1>
-
-      <ColorMetalXZnYFar2>Textures\Voxels\Woods_grass_distance_cm.dds</ColorMetalXZnYFar2>
-      <ColorMetalYFar2>Textures\Voxels\Woods_grass_distance_cm.dds</ColorMetalYFar2>
-      <NormalGlossXZnYFar2>Textures\Voxels\Woods_grass_distance_ng.dds</NormalGlossXZnYFar2>
-      <NormalGlossYFar2>Textures\Voxels\Woods_grass_distance_ng.dds</NormalGlossYFar2>
-
+      
       <Scale>10</Scale>
       <ScaleFar1>50</ScaleFar1>
-      <ScaleFar2>1250</ScaleFar2>
+      <ScaleFar2>200</ScaleFar2>
+      <ScaleFar3>2500</ScaleFar3>
+      <ScaleFar4>7500</ScaleFar4>
       <FoliageTextureArray1>Textures\Models\Environment\Grass\WoodsGrass_array.dds</FoliageTextureArray1>
       <FoliageDensity>5</FoliageDensity>
       <FoliageScale>
@@ -324,24 +468,18 @@
       <NormalXZ>Textures\Voxels\Woods_needles_ForAxisXZ_ns.dds</NormalXZ>
       <DiffuseY>Textures\Voxels\Woods_needles_ForAxisY_de.dds</DiffuseY>
       <NormalY>Textures\Voxels\Woods_needles_ForAxisY_ns.dds</NormalY>
+      
       <ColorMetalXZnY>Textures\Voxels\Woods_needles_cm.dds</ColorMetalXZnY>
-      <ColorMetalY>Textures\Voxels\Woods_needles_cm.dds</ColorMetalY>
       <NormalGlossXZnY>Textures\Voxels\Woods_needles_ng.dds</NormalGlossXZnY>
-      <NormalGlossY>Textures\Voxels\Woods_needles_ng.dds</NormalGlossY>
+    
       <SpecularPower>24</SpecularPower>
       <SpecularShininess>0.364</SpecularShininess>
-      <ColorMetalXZnYFar1>Textures\Voxels\Woods_needles_distance_cm.dds</ColorMetalXZnYFar1>
-      <ColorMetalYFar1>Textures\Voxels\Woods_needles_distance_cm.dds</ColorMetalYFar1>
-      <NormalGlossXZnYFar1>Textures\Voxels\Woods_needles_distance_ng.dds</NormalGlossXZnYFar1>
-      <NormalGlossYFar1>Textures\Voxels\Woods_needles_distance_ng.dds</NormalGlossYFar1>
-
-      <ColorMetalXZnYFar2>Textures\Voxels\Woods_needles_distance_cm.dds</ColorMetalXZnYFar2>
-      <ColorMetalYFar2>Textures\Voxels\Woods_needles_distance_cm.dds</ColorMetalYFar2>
-      <NormalGlossXZnYFar2>Textures\Voxels\Woods_needles_distance_ng.dds</NormalGlossXZnYFar2>
-      <NormalGlossYFar2>Textures\Voxels\Woods_needles_distance_ng.dds</NormalGlossYFar2>
+      
       <Scale>10</Scale>
       <ScaleFar1>50</ScaleFar1>
-      <ScaleFar2>1250</ScaleFar2>
+      <ScaleFar2>200</ScaleFar2>
+      <ScaleFar3>2500</ScaleFar3>
+      <ScaleFar4>7500</ScaleFar4>
       <FoliageTextureArray1>Textures\Models\Environment\Grass\WoodsGrass_array.dds</FoliageTextureArray1>
       <FoliageDensity>4</FoliageDensity>
       <FoliageScale>
@@ -369,24 +507,18 @@
       <NormalXZ>Textures\Voxels\Grass_ForAxisXZ_ns.dds</NormalXZ>
       <DiffuseY>Textures\Voxels\Grass_ForAxisY_de.dds</DiffuseY>
       <NormalY>Textures\Voxels\Grass_ForAxisY_ns.dds</NormalY>
+      
       <ColorMetalXZnY>Textures\Voxels\Grass_02_cm.dds</ColorMetalXZnY>
-      <ColorMetalY>Textures\Voxels\Grass_02_cm.dds</ColorMetalY>
       <NormalGlossXZnY>Textures\Voxels\Grass_02_ng.dds</NormalGlossXZnY>
-      <NormalGlossY>Textures\Voxels\Grass_02_ng.dds</NormalGlossY>
+
       <SpecularPower>24</SpecularPower>
       <SpecularShininess>0.364</SpecularShininess>
-      <ColorMetalXZnYFar1>Textures\Voxels\Grass_02_distance_cm.dds</ColorMetalXZnYFar1>
-      <ColorMetalYFar1>Textures\Voxels\Grass_02_distance_cm.dds</ColorMetalYFar1>
-      <NormalGlossXZnYFar1>Textures\Voxels\Grass_02_distance_ng.dds</NormalGlossXZnYFar1>
-      <NormalGlossYFar1>Textures\Voxels\Grass_02_distance_ng.dds</NormalGlossYFar1>
-
-      <ColorMetalXZnYFar2>Textures\Voxels\Grass_02_distance_cm.dds</ColorMetalXZnYFar2>
-      <ColorMetalYFar2>Textures\Voxels\Grass_02_distance_cm.dds</ColorMetalYFar2>
-      <NormalGlossXZnYFar2>Textures\Voxels\Grass_02_distance_ng.dds</NormalGlossXZnYFar2>
-      <NormalGlossYFar2>Textures\Voxels\Grass_02_distance_ng.dds</NormalGlossYFar2>
+      
       <Scale>10</Scale>
       <ScaleFar1>50</ScaleFar1>
-      <ScaleFar2>1250</ScaleFar2>
+      <ScaleFar2>200</ScaleFar2>
+      <ScaleFar3>2500</ScaleFar3>
+      <ScaleFar4>7500</ScaleFar4>
       <FoliageTextureArray1>Textures\Models\Environment\Grass\Grass_array.dds</FoliageTextureArray1>
       <FoliageDensity>8</FoliageDensity>
       <FoliageScale>
@@ -422,27 +554,18 @@
       <NormalY>Textures\Voxels\Stone_01_ForAxisY_ns.dds</NormalY>
       <SpecularPower>24</SpecularPower>
       <SpecularShininess>0.364</SpecularShininess>
+      
       <ColorMetalXZnY>Textures\Voxels\Stone_01_ForAxisXZ_cm.dds</ColorMetalXZnY>
-      <ColorMetalXZnYFar1>Textures\Voxels\Stone_01_ForAxisXZ_cm.dds</ColorMetalXZnYFar1>
-      <ColorMetalXZnYFar2>Textures\Voxels\Stone_01_ForAxisXZ_cm.dds</ColorMetalXZnYFar2>
       <ColorMetalY>Textures\Voxels\Stone_01_ForAxisY_cm.dds</ColorMetalY>
-      <ColorMetalYFar1>Textures\Voxels\Stone_01_ForAxisY_cm.dds</ColorMetalYFar1>
-      <ColorMetalYFar2>Textures\Voxels\Stone_01_ForAxisY_cm.dds</ColorMetalYFar2>
-      <NormalGlossXZnY>Textures\Voxels\Stone_01_ForAxisXZ_ng.dds</NormalGlossXZnY>
-      <NormalGlossXZnYFar1>Textures\Voxels\Stone_01_ForAxisXZ_ng.dds</NormalGlossXZnYFar1>
-      <NormalGlossXZnYFar2>Textures\Voxels\Stone_01_ForAxisXZ_ng.dds</NormalGlossXZnYFar2>
+      
+      <NormalGlossXZnY>Textures\Voxels\Stone_01_ForAxisXZ_ng.dds</NormalGlossXZnY>   
       <NormalGlossY>Textures\Voxels\Stone_01_ForAxisY_ng.dds</NormalGlossY>
-      <NormalGlossYFar1>Textures\Voxels\Stone_01_ForAxisY_ng.dds</NormalGlossYFar1>
-      <NormalGlossYFar2>Textures\Voxels\Stone_01_ForAxisY_ng.dds</NormalGlossYFar2>
-
-      <ColorMetalXZnYFar1>Textures\Voxels\Stone_01_ForAxisXZ_distance_cm.dds</ColorMetalXZnYFar1>
-      <ColorMetalYFar1>Textures\Voxels\Stone_01_ForAxisY_distance_cm.dds</ColorMetalYFar1>
-      <NormalGlossXZnYFar1>Textures\Voxels\Stone_01_ForAxisXZ_distance_ng.dds</NormalGlossXZnYFar1>
-      <NormalGlossYFar1>Textures\Voxels\Stone_01_ForAxisY_distance_ng.dds</NormalGlossYFar1>
 
       <Scale>10</Scale>
       <ScaleFar1>50</ScaleFar1>
-      <ScaleFar2>1250</ScaleFar2>
+      <ScaleFar2>200</ScaleFar2>
+      <ScaleFar3>2500</ScaleFar3>
+      <ScaleFar4>7500</ScaleFar4>
     </VoxelMaterial>
     <VoxelMaterial xsi:type="MyObjectBuilder_Dx11VoxelMaterialDefinition">
       <Id>
@@ -461,27 +584,18 @@
       <NormalY>Textures\Voxels\Stone_02_ForAxisY_ns.dds</NormalY>
       <SpecularPower>24</SpecularPower>
       <SpecularShininess>0.364</SpecularShininess>
+      
       <ColorMetalXZnY>Textures\Voxels\Stone_02_ForAxisXZ_cm.dds</ColorMetalXZnY>
-      <ColorMetalXZnYFar1>Textures\Voxels\Stone_02_ForAxisXZ_cm.dds</ColorMetalXZnYFar1>
-      <ColorMetalXZnYFar2>Textures\Voxels\Stone_02_ForAxisXZ_cm.dds</ColorMetalXZnYFar2>
       <ColorMetalY>Textures\Voxels\Stone_02_ForAxisY_cm.dds</ColorMetalY>
-      <ColorMetalYFar1>Textures\Voxels\Stone_02_ForAxisY_cm.dds</ColorMetalYFar1>
-      <ColorMetalYFar2>Textures\Voxels\Stone_02_ForAxisY_cm.dds</ColorMetalYFar2>
-      <NormalGlossXZnY>Textures\Voxels\Stone_02_ForAxisXZ_ng.dds</NormalGlossXZnY>
-      <NormalGlossXZnYFar1>Textures\Voxels\Stone_02_ForAxisXZ_ng.dds</NormalGlossXZnYFar1>
-      <NormalGlossXZnYFar2>Textures\Voxels\Stone_02_ForAxisXZ_ng.dds</NormalGlossXZnYFar2>
-      <NormalGlossY>Textures\Voxels\Stone_02_ForAxisY_ng.dds</NormalGlossY>
-      <NormalGlossYFar1>Textures\Voxels\Stone_02_ForAxisY_ng.dds</NormalGlossYFar1>
-      <NormalGlossYFar2>Textures\Voxels\Stone_02_ForAxisY_ng.dds</NormalGlossYFar2>
 
-      <ColorMetalXZnYFar1>Textures\Voxels\Stone_02_ForAxisXZ_distance_cm.dds</ColorMetalXZnYFar1>
-      <ColorMetalYFar1>Textures\Voxels\Stone_02_ForAxisY_distance_cm.dds</ColorMetalYFar1>
-      <NormalGlossXZnYFar1>Textures\Voxels\Stone_02_ForAxisXZ_distance_ng.dds</NormalGlossXZnYFar1>
-      <NormalGlossYFar1>Textures\Voxels\Stone_02_ForAxisY_distance_ng.dds</NormalGlossYFar1>
+      <NormalGlossXZnY>Textures\Voxels\Stone_02_ForAxisXZ_ng.dds</NormalGlossXZnY>
+      <NormalGlossY>Textures\Voxels\Stone_02_ForAxisY_ng.dds</NormalGlossY>
 
       <Scale>10</Scale>
       <ScaleFar1>50</ScaleFar1>
-      <ScaleFar2>1250</ScaleFar2>
+      <ScaleFar2>200</ScaleFar2>
+      <ScaleFar3>2500</ScaleFar3>
+      <ScaleFar4>7500</ScaleFar4>
     </VoxelMaterial>
     <VoxelMaterial xsi:type="MyObjectBuilder_Dx11VoxelMaterialDefinition">
       <Id>
@@ -501,26 +615,16 @@
       <SpecularPower>24</SpecularPower>
       <SpecularShininess>0.364</SpecularShininess>
       <ColorMetalXZnY>Textures\Voxels\Stone_03_ForAxisXZ_cm.dds</ColorMetalXZnY>
-      <ColorMetalXZnYFar1>Textures\Voxels\Stone_03_ForAxisXZ_cm.dds</ColorMetalXZnYFar1>
-      <ColorMetalXZnYFar2>Textures\Voxels\Stone_03_ForAxisXZ_cm.dds</ColorMetalXZnYFar2>
       <ColorMetalY>Textures\Voxels\Stone_03_ForAxisY_cm.dds</ColorMetalY>
-      <ColorMetalYFar1>Textures\Voxels\Stone_03_ForAxisY_cm.dds</ColorMetalYFar1>
-      <ColorMetalYFar2>Textures\Voxels\Stone_03_ForAxisY_cm.dds</ColorMetalYFar2>
+
       <NormalGlossXZnY>Textures\Voxels\Stone_03_ForAxisXZ_ng.dds</NormalGlossXZnY>
-      <NormalGlossXZnYFar1>Textures\Voxels\Stone_03_ForAxisXZ_ng.dds</NormalGlossXZnYFar1>
-      <NormalGlossXZnYFar2>Textures\Voxels\Stone_03_ForAxisXZ_ng.dds</NormalGlossXZnYFar2>
       <NormalGlossY>Textures\Voxels\Stone_03_ForAxisY_ng.dds</NormalGlossY>
-      <NormalGlossYFar1>Textures\Voxels\Stone_03_ForAxisY_ng.dds</NormalGlossYFar1>
-      <NormalGlossYFar2>Textures\Voxels\Stone_03_ForAxisY_ng.dds</NormalGlossYFar2>
-
-      <ColorMetalXZnYFar1>Textures\Voxels\Stone_03_ForAxisXZ_distance_cm.dds</ColorMetalXZnYFar1>
-      <ColorMetalYFar1>Textures\Voxels\Stone_03_ForAxisY_distance_cm.dds</ColorMetalYFar1>
-      <NormalGlossXZnYFar1>Textures\Voxels\Stone_03_ForAxisXZ_distance_ng.dds</NormalGlossXZnYFar1>
-      <NormalGlossYFar1>Textures\Voxels\Stone_03_ForAxisY_distance_ng.dds</NormalGlossYFar1>
-
+   
       <Scale>10</Scale>
       <ScaleFar1>50</ScaleFar1>
-      <ScaleFar2>1250</ScaleFar2>
+      <ScaleFar2>200</ScaleFar2>
+      <ScaleFar3>2500</ScaleFar3>
+      <ScaleFar4>7500</ScaleFar4>
     </VoxelMaterial>
     <VoxelMaterial xsi:type="MyObjectBuilder_Dx11VoxelMaterialDefinition">
       <Id>
@@ -539,27 +643,17 @@
       <NormalY>Textures\Voxels\Stone_04_ForAxisY_ns.dds</NormalY>
       <SpecularPower>24</SpecularPower>
       <SpecularShininess>0.364</SpecularShininess>
-      <ColorMetalXZnY>Textures\Voxels\Stone_04_ForAxisXZ_cm.dds</ColorMetalXZnY>
-      <ColorMetalXZnYFar1>Textures\Voxels\Stone_04_ForAxisXZ_cm.dds</ColorMetalXZnYFar1>
-      <ColorMetalXZnYFar2>Textures\Voxels\Stone_04_ForAxisXZ_cm.dds</ColorMetalXZnYFar2>
-      <ColorMetalY>Textures\Voxels\Stone_04_ForAxisY_cm.dds</ColorMetalY>
-      <ColorMetalYFar1>Textures\Voxels\Stone_04_ForAxisY_cm.dds</ColorMetalYFar1>
-      <ColorMetalYFar2>Textures\Voxels\Stone_04_ForAxisY_cm.dds</ColorMetalYFar2>
-      <NormalGlossXZnY>Textures\Voxels\Stone_04_ForAxisXZ_ng.dds</NormalGlossXZnY>
-      <NormalGlossXZnYFar1>Textures\Voxels\Stone_04_ForAxisXZ_ng.dds</NormalGlossXZnYFar1>
-      <NormalGlossXZnYFar2>Textures\Voxels\Stone_04_ForAxisXZ_ng.dds</NormalGlossXZnYFar2>
-      <NormalGlossY>Textures\Voxels\Stone_04_ForAxisY_ng.dds</NormalGlossY>
-      <NormalGlossYFar1>Textures\Voxels\Stone_04_ForAxisY_ng.dds</NormalGlossYFar1>
-      <NormalGlossYFar2>Textures\Voxels\Stone_04_ForAxisY_ng.dds</NormalGlossYFar2>
       
-      <ColorMetalXZnYFar1>Textures\Voxels\Stone_04_ForAxisXZ_distance_cm.dds</ColorMetalXZnYFar1>
-      <ColorMetalYFar1>Textures\Voxels\Stone_04_ForAxisY_distance_cm.dds</ColorMetalYFar1>
-      <NormalGlossXZnYFar1>Textures\Voxels\Stone_04_ForAxisXZ_distance_ng.dds</NormalGlossXZnYFar1>
-      <NormalGlossYFar1>Textures\Voxels\Stone_04_ForAxisY_distance_ng.dds</NormalGlossYFar1>
+      <ColorMetalXZnY>Textures\Voxels\Stone_04_ForAxisXZ_cm.dds</ColorMetalXZnY>
+      <ColorMetalY>Textures\Voxels\Stone_04_ForAxisY_cm.dds</ColorMetalY>
+      <NormalGlossXZnY>Textures\Voxels\Stone_04_ForAxisXZ_ng.dds</NormalGlossXZnY>
+      <NormalGlossY>Textures\Voxels\Stone_04_ForAxisY_ng.dds</NormalGlossY>
 
       <Scale>10</Scale>
       <ScaleFar1>50</ScaleFar1>
-      <ScaleFar2>1250</ScaleFar2>
+      <ScaleFar2>200</ScaleFar2>
+      <ScaleFar3>2500</ScaleFar3>
+      <ScaleFar4>7500</ScaleFar4>
     </VoxelMaterial>
     <VoxelMaterial xsi:type="MyObjectBuilder_Dx11VoxelMaterialDefinition">
       <Id>
@@ -576,24 +670,15 @@
       <NormalXZ>Textures\Voxels\Stone_05_ForAxisXZ_ns.dds</NormalXZ>
       <SpecularPower>24</SpecularPower>
       <SpecularShininess>0.364</SpecularShininess>
-      <ColorMetalXZnY>Textures\Voxels\Stone_05_ForAxisXZ_cm.dds</ColorMetalXZnY>
-      <ColorMetalXZnYFar1>Textures\Voxels\Stone_05_ForAxisXZ_cm.dds</ColorMetalXZnYFar1>
-      <ColorMetalXZnYFar2>Textures\Voxels\Stone_05_ForAxisXZ_cm.dds</ColorMetalXZnYFar2>
-      <ColorMetalY>Textures\Voxels\Stone_05_ForAxisXZ_cm.dds</ColorMetalY>
-      <ColorMetalYFar1>Textures\Voxels\Stone_05_ForAxisXZ_cm.dds</ColorMetalYFar1>
-      <ColorMetalYFar2>Textures\Voxels\Stone_05_ForAxisXZ_cm.dds</ColorMetalYFar2>
-      <NormalGlossXZnY>Textures\Voxels\Stone_05_ForAxisXZ_ng.dds</NormalGlossXZnY>
-      <NormalGlossXZnYFar1>Textures\Voxels\Stone_05_ForAxisXZ_ng.dds</NormalGlossXZnYFar1>
-      <NormalGlossXZnYFar2>Textures\Voxels\Stone_05_ForAxisXZ_ng.dds</NormalGlossXZnYFar2>
-      <NormalGlossY>Textures\Voxels\Stone_05_ForAxisXZ_ng.dds</NormalGlossY>
-      <NormalGlossYFar1>Textures\Voxels\Stone_05_ForAxisXZ_ng.dds</NormalGlossYFar1>
-      <NormalGlossYFar2>Textures\Voxels\Stone_05_ForAxisXZ_ng.dds</NormalGlossYFar2>
       
-      <ColorMetalXZnYFar1>Textures\Voxels\Stone_05_ForAxisXZ_distance_cm.dds</ColorMetalXZnYFar1>
-      <NormalGlossXZnYFar1>Textures\Voxels\Stone_05_ForAxisXZ_distance_ng.dds</NormalGlossXZnYFar1>
+      <ColorMetalXZnY>Textures\Voxels\Stone_05_ForAxisXZ_cm.dds</ColorMetalXZnY>    
+      <NormalGlossXZnY>Textures\Voxels\Stone_05_ForAxisXZ_ng.dds</NormalGlossXZnY>
+      
       <Scale>10</Scale>
       <ScaleFar1>50</ScaleFar1>
-      <ScaleFar2>1250</ScaleFar2>
+      <ScaleFar2>200</ScaleFar2>
+      <ScaleFar3>2500</ScaleFar3>
+      <ScaleFar4>7500</ScaleFar4>
     </VoxelMaterial>
     <VoxelMaterial xsi:type="MyObjectBuilder_Dx11VoxelMaterialDefinition">
       <Id>
@@ -610,25 +695,15 @@
       <NormalXZ>Textures\Voxels\Iron_01_ForAxisXZ_ns.dds</NormalXZ>
       <SpecularPower>24</SpecularPower>
       <SpecularShininess>0.498</SpecularShininess>
-      <ColorMetalXZnY>Textures\Voxels\Iron_01_ForAxisXZ_cm.dds</ColorMetalXZnY>
-      <ColorMetalXZnYFar1>Textures\Voxels\Iron_01_ForAxisXZ_cm.dds</ColorMetalXZnYFar1>
-      <ColorMetalXZnYFar2>Textures\Voxels\Iron_01_ForAxisXZ_cm.dds</ColorMetalXZnYFar2>
-      <ColorMetalY>Textures\Voxels\Iron_01_ForAxisXZ_cm.dds</ColorMetalY>
-      <ColorMetalYFar1>Textures\Voxels\Iron_01_ForAxisXZ_cm.dds</ColorMetalYFar1>
-      <ColorMetalYFar2>Textures\Voxels\Iron_01_ForAxisXZ_cm.dds</ColorMetalYFar2>
-      <NormalGlossXZnY>Textures\Voxels\Iron_01_ForAxisXZ_ng.dds</NormalGlossXZnY>
-      <NormalGlossXZnYFar1>Textures\Voxels\Iron_01_ForAxisXZ_ng.dds</NormalGlossXZnYFar1>
-      <NormalGlossXZnYFar2>Textures\Voxels\Iron_01_ForAxisXZ_ng.dds</NormalGlossXZnYFar2>
-      <NormalGlossY>Textures\Voxels\Iron_01_ForAxisXZ_ng.dds</NormalGlossY>
-      <NormalGlossYFar1>Textures\Voxels\Iron_01_ForAxisXZ_ng.dds</NormalGlossYFar1>
-      <NormalGlossYFar2>Textures\Voxels\Iron_01_ForAxisXZ_ng.dds</NormalGlossYFar2>
       
-      <ColorMetalXZnYFar1>Textures\Voxels\Iron_01_ForAxisXZ_distance_cm.dds</ColorMetalXZnYFar1>
-      <NormalGlossXZnYFar1>Textures\Voxels\Iron_01_ForAxisXZ_distance_ng.dds</NormalGlossXZnYFar1>
-
+      <ColorMetalXZnY>Textures\Voxels\Iron_01_ForAxisXZ_cm.dds</ColorMetalXZnY>
+      <NormalGlossXZnY>Textures\Voxels\Iron_01_ForAxisXZ_ng.dds</NormalGlossXZnY>
+      
       <Scale>10</Scale>
       <ScaleFar1>50</ScaleFar1>
-      <ScaleFar2>1250</ScaleFar2>>
+      <ScaleFar2>200</ScaleFar2>
+      <ScaleFar3>2500</ScaleFar3>
+      <ScaleFar4>7500</ScaleFar4>
     </VoxelMaterial>
     <VoxelMaterial xsi:type="MyObjectBuilder_Dx11VoxelMaterialDefinition">
       <Id>
@@ -645,25 +720,15 @@
       <NormalXZ>Textures\Voxels\Iron_02_ForAxisXZ_ns.dds</NormalXZ>
       <SpecularPower>8</SpecularPower>
       <SpecularShininess>0.23</SpecularShininess>
-      <ColorMetalXZnY>Textures\Voxels\Iron_02_ForAxisXZ_cm.dds</ColorMetalXZnY>
-      <ColorMetalXZnYFar1>Textures\Voxels\Iron_02_ForAxisXZ_cm.dds</ColorMetalXZnYFar1>
-      <ColorMetalXZnYFar2>Textures\Voxels\Iron_02_ForAxisXZ_cm.dds</ColorMetalXZnYFar2>
-      <ColorMetalY>Textures\Voxels\Iron_02_ForAxisXZ_cm.dds</ColorMetalY>
-      <ColorMetalYFar1>Textures\Voxels\Iron_02_ForAxisXZ_cm.dds</ColorMetalYFar1>
-      <ColorMetalYFar2>Textures\Voxels\Iron_02_ForAxisXZ_cm.dds</ColorMetalYFar2>
-      <NormalGlossXZnY>Textures\Voxels\Iron_02_ForAxisXZ_ng.dds</NormalGlossXZnY>
-      <NormalGlossXZnYFar1>Textures\Voxels\Iron_02_ForAxisXZ_ng.dds</NormalGlossXZnYFar1>
-      <NormalGlossXZnYFar2>Textures\Voxels\Iron_02_ForAxisXZ_ng.dds</NormalGlossXZnYFar2>
-      <NormalGlossY>Textures\Voxels\Iron_02_ForAxisXZ_ng.dds</NormalGlossY>
-      <NormalGlossYFar1>Textures\Voxels\Iron_02_ForAxisXZ_ng.dds</NormalGlossYFar1>
-      <NormalGlossYFar2>Textures\Voxels\Iron_02_ForAxisXZ_ng.dds</NormalGlossYFar2>
       
-      <ColorMetalXZnYFar1>Textures\Voxels\Iron_02_ForAxisXZ_distance_cm.dds</ColorMetalXZnYFar1>
-      <NormalGlossXZnYFar1>Textures\Voxels\Iron_02_ForAxisXZ_distance_ng.dds</NormalGlossXZnYFar1>
-
+      <ColorMetalXZnY>Textures\Voxels\Iron_02_ForAxisXZ_cm.dds</ColorMetalXZnY>   
+      <NormalGlossXZnY>Textures\Voxels\Iron_02_ForAxisXZ_ng.dds</NormalGlossXZnY>
+  
       <Scale>10</Scale>
       <ScaleFar1>50</ScaleFar1>
-      <ScaleFar2>1250</ScaleFar2>
+      <ScaleFar2>200</ScaleFar2>
+      <ScaleFar3>2500</ScaleFar3>
+      <ScaleFar4>7500</ScaleFar4>
     </VoxelMaterial>
     <VoxelMaterial xsi:type="MyObjectBuilder_Dx11VoxelMaterialDefinition">
       <Id>
@@ -680,25 +745,15 @@
       <NormalXZ>Textures\Voxels\Nickel_01_ForAxisXZ_ns.dds</NormalXZ>
       <SpecularPower>8</SpecularPower>
       <SpecularShininess>0.096</SpecularShininess>
-      <ColorMetalXZnY>Textures\Voxels\Nickel_01_ForAxisXZ_cm.dds</ColorMetalXZnY>
-      <ColorMetalXZnYFar1>Textures\Voxels\Nickel_01_ForAxisXZ_cm.dds</ColorMetalXZnYFar1>
-      <ColorMetalXZnYFar2>Textures\Voxels\Nickel_01_ForAxisXZ_cm.dds</ColorMetalXZnYFar2>
-      <ColorMetalY>Textures\Voxels\Nickel_01_ForAxisXZ_cm.dds</ColorMetalY>
-      <ColorMetalYFar1>Textures\Voxels\Nickel_01_ForAxisXZ_cm.dds</ColorMetalYFar1>
-      <ColorMetalYFar2>Textures\Voxels\Nickel_01_ForAxisXZ_cm.dds</ColorMetalYFar2>
-      <NormalGlossXZnY>Textures\Voxels\Nickel_01_ForAxisXZ_ng.dds</NormalGlossXZnY>
-      <NormalGlossXZnYFar1>Textures\Voxels\Nickel_01_ForAxisXZ_ng.dds</NormalGlossXZnYFar1>
-      <NormalGlossXZnYFar2>Textures\Voxels\Nickel_01_ForAxisXZ_ng.dds</NormalGlossXZnYFar2>
-      <NormalGlossY>Textures\Voxels\Nickel_01_ForAxisXZ_ng.dds</NormalGlossY>
-      <NormalGlossYFar1>Textures\Voxels\Nickel_01_ForAxisXZ_ng.dds</NormalGlossYFar1>
-      <NormalGlossYFar2>Textures\Voxels\Nickel_01_ForAxisXZ_ng.dds</NormalGlossYFar2>
       
-      <ColorMetalXZnYFar1>Textures\Voxels\Nickel_01_ForAxisXZ_distance_cm.dds</ColorMetalXZnYFar1>
-      <NormalGlossXZnYFar1>Textures\Voxels\Nickel_01_ForAxisXZ_distance_ng.dds</NormalGlossXZnYFar1>
+      <ColorMetalXZnY>Textures\Voxels\Nickel_01_ForAxisXZ_cm.dds</ColorMetalXZnY>  
+      <NormalGlossXZnY>Textures\Voxels\Nickel_01_ForAxisXZ_ng.dds</NormalGlossXZnY>
 
       <Scale>10</Scale>
       <ScaleFar1>50</ScaleFar1>
-      <ScaleFar2>1250</ScaleFar2>
+      <ScaleFar2>200</ScaleFar2>
+      <ScaleFar3>2500</ScaleFar3>
+      <ScaleFar4>7500</ScaleFar4>
     </VoxelMaterial>
     <VoxelMaterial xsi:type="MyObjectBuilder_Dx11VoxelMaterialDefinition">
       <Id>
@@ -715,25 +770,15 @@
       <NormalXZ>Textures\Voxels\Cobalt_01_ForAxisXZ_ns.dds</NormalXZ>
       <SpecularPower>24</SpecularPower>
       <SpecularShininess>0.498</SpecularShininess>
+      
       <ColorMetalXZnY>Textures\Voxels\Cobalt_01_ForAxisXZ_cm.dds</ColorMetalXZnY>
-      <ColorMetalXZnYFar1>Textures\Voxels\Cobalt_01_ForAxisXZ_cm.dds</ColorMetalXZnYFar1>
-      <ColorMetalXZnYFar2>Textures\Voxels\Cobalt_01_ForAxisXZ_cm.dds</ColorMetalXZnYFar2>
-      <ColorMetalY>Textures\Voxels\Cobalt_01_ForAxisXZ_cm.dds</ColorMetalY>
-      <ColorMetalYFar1>Textures\Voxels\Cobalt_01_ForAxisXZ_cm.dds</ColorMetalYFar1>
-      <ColorMetalYFar2>Textures\Voxels\Cobalt_01_ForAxisXZ_cm.dds</ColorMetalYFar2>
       <NormalGlossXZnY>Textures\Voxels\Cobalt_01_ForAxisXZ_ng.dds</NormalGlossXZnY>
-      <NormalGlossXZnYFar1>Textures\Voxels\Cobalt_01_ForAxisXZ_ng.dds</NormalGlossXZnYFar1>
-      <NormalGlossXZnYFar2>Textures\Voxels\Cobalt_01_ForAxisXZ_ng.dds</NormalGlossXZnYFar2>
-      <NormalGlossY>Textures\Voxels\Cobalt_01_ForAxisXZ_ng.dds</NormalGlossY>
-      <NormalGlossYFar1>Textures\Voxels\Cobalt_01_ForAxisXZ_ng.dds</NormalGlossYFar1>
-      <NormalGlossYFar2>Textures\Voxels\Cobalt_01_ForAxisXZ_ng.dds</NormalGlossYFar2>
-
-      <ColorMetalXZnYFar1>Textures\Voxels\Cobalt_01_ForAxisXZ_distance_cm.dds</ColorMetalXZnYFar1>
-      <NormalGlossXZnYFar1>Textures\Voxels\Cobalt_01ForAxisXZ_distance_ng.dds</NormalGlossXZnYFar1>
 
       <Scale>10</Scale>
       <ScaleFar1>50</ScaleFar1>
-      <ScaleFar2>1250</ScaleFar2>
+      <ScaleFar2>200</ScaleFar2>
+      <ScaleFar3>2500</ScaleFar3>
+      <ScaleFar4>7500</ScaleFar4>
     </VoxelMaterial>
     <VoxelMaterial xsi:type="MyObjectBuilder_Dx11VoxelMaterialDefinition">
       <Id>
@@ -752,27 +797,17 @@
       <NormalY>Textures\Voxels\Magnesium_01_ForAxisY_ns.dds</NormalY>
       <SpecularPower>24</SpecularPower>
       <SpecularShininess>0.364</SpecularShininess>
-      <ColorMetalXZnY>Textures\Voxels\Magnesium_01_ForAxisXZ_cm.dds</ColorMetalXZnY>
-      <ColorMetalXZnYFar1>Textures\Voxels\Magnesium_01_ForAxisXZ_cm.dds</ColorMetalXZnYFar1>
-      <ColorMetalXZnYFar2>Textures\Voxels\Magnesium_01_ForAxisXZ_cm.dds</ColorMetalXZnYFar2>
-      <ColorMetalY>Textures\Voxels\Magnesium_01_ForAxisY_cm.dds</ColorMetalY>
-      <ColorMetalYFar1>Textures\Voxels\Magnesium_01_ForAxisY_cm.dds</ColorMetalYFar1>
-      <ColorMetalYFar2>Textures\Voxels\Magnesium_01_ForAxisY_cm.dds</ColorMetalYFar2>
+      
+      <ColorMetalXZnY>Textures\Voxels\Magnesium_01_ForAxisXZ_cm.dds</ColorMetalXZnY>    
+      <ColorMetalY>Textures\Voxels\Magnesium_01_ForAxisY_cm.dds</ColorMetalY>   
       <NormalGlossXZnY>Textures\Voxels\Magnesium_01_ForAxisXZ_ng.dds</NormalGlossXZnY>
-      <NormalGlossXZnYFar1>Textures\Voxels\Magnesium_01_ForAxisXZ_ng.dds</NormalGlossXZnYFar1>
-      <NormalGlossXZnYFar2>Textures\Voxels\Magnesium_01_ForAxisXZ_ng.dds</NormalGlossXZnYFar2>
       <NormalGlossY>Textures\Voxels\Magnesium_01_ForAxisY_ng.dds</NormalGlossY>
-      <NormalGlossYFar1>Textures\Voxels\Magnesium_01_ForAxisY_ng.dds</NormalGlossYFar1>
-      <NormalGlossYFar2>Textures\Voxels\Magnesium_01_ForAxisY_ng.dds</NormalGlossYFar2>
-
-      <ColorMetalXZnYFar1>Textures\Voxels\Magnesium_01_ForAxisXZ_distance_cm.dds</ColorMetalXZnYFar1>
-      <ColorMetalYFar1>Textures\Voxels\Magnesium_01_ForAxisY_distance_cm.dds</ColorMetalYFar1>
-      <NormalGlossXZnYFar1>Textures\Voxels\Magnesium_01ForAxisXZ_distance_ng.dds</NormalGlossXZnYFar1>
-      <NormalGlossYFar1>Textures\Voxels\Magnesium_01_ForAxisY_distance_ng.dds</NormalGlossYFar1>
 
       <Scale>10</Scale>
       <ScaleFar1>50</ScaleFar1>
-      <ScaleFar2>1250</ScaleFar2>
+      <ScaleFar2>200</ScaleFar2>
+      <ScaleFar3>2500</ScaleFar3>
+      <ScaleFar4>7500</ScaleFar4>
     </VoxelMaterial>
     <VoxelMaterial xsi:type="MyObjectBuilder_Dx11VoxelMaterialDefinition">
       <Id>
@@ -791,21 +826,17 @@
       <NormalY>Textures\Voxels\Silicon_01_ForAxisY_ns.dds</NormalY>
       <SpecularPower>9.489</SpecularPower>
       <SpecularShininess>4.514</SpecularShininess>
+      
       <ColorMetalXZnY>Textures\Voxels\Silicon_01_ForAxisXZ_cm.dds</ColorMetalXZnY>
-      <ColorMetalXZnYFar1>Textures\Voxels\Silicon_01_ForAxisXZ_cm.dds</ColorMetalXZnYFar1>
-      <ColorMetalXZnYFar2>Textures\Voxels\Silicon_01_ForAxisXZ_cm.dds</ColorMetalXZnYFar2>
       <ColorMetalY>Textures\Voxels\Silicon_01_ForAxisY_cm.dds</ColorMetalY>
-      <ColorMetalYFar1>Textures\Voxels\Silicon_01_ForAxisY_cm.dds</ColorMetalYFar1>
-      <ColorMetalYFar2>Textures\Voxels\Silicon_01_ForAxisY_cm.dds</ColorMetalYFar2>
       <NormalGlossXZnY>Textures\Voxels\Silicon_01_ForAxisXZ_ng.dds</NormalGlossXZnY>
-      <NormalGlossXZnYFar1>Textures\Voxels\Silicon_01_ForAxisXZ_ng.dds</NormalGlossXZnYFar1>
-      <NormalGlossXZnYFar2>Textures\Voxels\Silicon_01_ForAxisXZ_ng.dds</NormalGlossXZnYFar2>
       <NormalGlossY>Textures\Voxels\Silicon_01_ForAxisY_ng.dds</NormalGlossY>
-      <NormalGlossYFar1>Textures\Voxels\Silicon_01_ForAxisY_ng.dds</NormalGlossYFar1>
-      <NormalGlossYFar2>Textures\Voxels\Silicon_01_ForAxisY_ng.dds</NormalGlossYFar2>
+
       <Scale>10</Scale>
       <ScaleFar1>50</ScaleFar1>
-      <ScaleFar2>1250</ScaleFar2>
+      <ScaleFar2>200</ScaleFar2>
+      <ScaleFar3>2500</ScaleFar3>
+      <ScaleFar4>7500</ScaleFar4>
     </VoxelMaterial>
     <VoxelMaterial xsi:type="MyObjectBuilder_Dx11VoxelMaterialDefinition">
       <Id>
@@ -822,21 +853,15 @@
       <NormalXZ>Textures\Voxels\Silver_01_ForAxisXZ_ns.dds</NormalXZ>
       <SpecularPower>9</SpecularPower>
       <SpecularShininess>1.435</SpecularShininess>
-      <ColorMetalXZnY>Textures\Voxels\Silver_01_ForAxisXZ_cm.dds</ColorMetalXZnY>
-      <ColorMetalXZnYFar1>Textures\Voxels\Silver_01_ForAxisXZ_cm.dds</ColorMetalXZnYFar1>
-      <ColorMetalXZnYFar2>Textures\Voxels\Silver_01_ForAxisXZ_cm.dds</ColorMetalXZnYFar2>
-      <ColorMetalY>Textures\Voxels\Silver_01_ForAxisXZ_cm.dds</ColorMetalY>
-      <ColorMetalYFar1>Textures\Voxels\Silver_01_ForAxisXZ_cm.dds</ColorMetalYFar1>
-      <ColorMetalYFar2>Textures\Voxels\Silver_01_ForAxisXZ_cm.dds</ColorMetalYFar2>
+      
+      <ColorMetalXZnY>Textures\Voxels\Silver_01_ForAxisXZ_cm.dds</ColorMetalXZnY>  
       <NormalGlossXZnY>Textures\Voxels\Silver_01_ForAxisXZ_ng.dds</NormalGlossXZnY>
-      <NormalGlossXZnYFar1>Textures\Voxels\Silver_01_ForAxisXZ_ng.dds</NormalGlossXZnYFar1>
-      <NormalGlossXZnYFar2>Textures\Voxels\Silver_01_ForAxisXZ_ng.dds</NormalGlossXZnYFar2>
-      <NormalGlossY>Textures\Voxels\Silver_01_ForAxisXZ_ng.dds</NormalGlossY>
-      <NormalGlossYFar1>Textures\Voxels\Silver_01_ForAxisXZ_ng.dds</NormalGlossYFar1>
-      <NormalGlossYFar2>Textures\Voxels\Silver_01_ForAxisXZ_ng.dds</NormalGlossYFar2>
+     
       <Scale>10</Scale>
       <ScaleFar1>50</ScaleFar1>
       <ScaleFar2>100</ScaleFar2>
+      <ScaleFar3>2500</ScaleFar3>
+      <ScaleFar4>7500</ScaleFar4>
     </VoxelMaterial>
     <VoxelMaterial xsi:type="MyObjectBuilder_Dx11VoxelMaterialDefinition">
       <Id>
@@ -853,25 +878,15 @@
       <NormalXZ>Textures\Voxels\Gold_01_ForAxisXZ_ns.dds</NormalXZ>
       <SpecularPower>9</SpecularPower>
       <SpecularShininess>1.435</SpecularShininess>
-      <ColorMetalXZnY>Textures\Voxels\Gold_01_ForAxisXZ_cm.dds</ColorMetalXZnY>
-      <ColorMetalXZnYFar1>Textures\Voxels\Gold_01_ForAxisXZ_cm.dds</ColorMetalXZnYFar1>
-      <ColorMetalXZnYFar2>Textures\Voxels\Gold_01_ForAxisXZ_cm.dds</ColorMetalXZnYFar2>
-      <ColorMetalY>Textures\Voxels\Gold_01_ForAxisXZ_cm.dds</ColorMetalY>
-      <ColorMetalYFar1>Textures\Voxels\Gold_01_ForAxisXZ_cm.dds</ColorMetalYFar1>
-      <ColorMetalYFar2>Textures\Voxels\Gold_01_ForAxisXZ_cm.dds</ColorMetalYFar2>
-      <NormalGlossXZnY>Textures\Voxels\Gold_01_ForAxisXZ_ng.dds</NormalGlossXZnY>
-      <NormalGlossXZnYFar1>Textures\Voxels\Gold_01_ForAxisXZ_ng.dds</NormalGlossXZnYFar1>
-      <NormalGlossXZnYFar2>Textures\Voxels\Gold_01_ForAxisXZ_ng.dds</NormalGlossXZnYFar2>
-      <NormalGlossY>Textures\Voxels\Gold_01_ForAxisXZ_ng.dds</NormalGlossY>
-      <NormalGlossYFar1>Textures\Voxels\Gold_01_ForAxisXZ_ng.dds</NormalGlossYFar1>
-      <NormalGlossYFar2>Textures\Voxels\Gold_01_ForAxisXZ_ng.dds</NormalGlossYFar2>
       
-      <ColorMetalXZnYFar1>Textures\Voxels\Gold_01_ForAxisXZ_distance_cm.dds</ColorMetalXZnYFar1>
-      <NormalGlossXZnYFar1>Textures\Voxels\Gold_01_ForAxisXZ_distance_ng.dds</NormalGlossXZnYFar1>
-
+      <ColorMetalXZnY>Textures\Voxels\Gold_01_ForAxisXZ_cm.dds</ColorMetalXZnY> 
+      <NormalGlossXZnY>Textures\Voxels\Gold_01_ForAxisXZ_ng.dds</NormalGlossXZnY>
+      
       <Scale>10</Scale>
       <ScaleFar1>100</ScaleFar1>
       <ScaleFar2>500</ScaleFar2>
+      <ScaleFar3>2500</ScaleFar3>
+      <ScaleFar4>7500</ScaleFar4>
     </VoxelMaterial>
     <VoxelMaterial xsi:type="MyObjectBuilder_Dx11VoxelMaterialDefinition">
       <Id>
@@ -888,21 +903,15 @@
       <NormalXZ>Textures\Voxels\Platinum_01_ForAxisXZ_ns.dds</NormalXZ>
       <SpecularPower>9</SpecularPower>
       <SpecularShininess>1.435</SpecularShininess>
-      <ColorMetalXZnY>Textures\Voxels\Platinum_01_ForAxisXZ_cm.dds</ColorMetalXZnY>
-      <ColorMetalXZnYFar1>Textures\Voxels\Platinum_01_ForAxisXZ_cm.dds</ColorMetalXZnYFar1>
-      <ColorMetalXZnYFar2>Textures\Voxels\Platinum_01_ForAxisXZ_cm.dds</ColorMetalXZnYFar2>
-      <ColorMetalY>Textures\Voxels\Platinum_01_ForAxisXZ_cm.dds</ColorMetalY>
-      <ColorMetalYFar1>Textures\Voxels\Platinum_01_ForAxisXZ_cm.dds</ColorMetalYFar1>
-      <ColorMetalYFar2>Textures\Voxels\Platinum_01_ForAxisXZ_cm.dds</ColorMetalYFar2>
+      
+      <ColorMetalXZnY>Textures\Voxels\Platinum_01_ForAxisXZ_cm.dds</ColorMetalXZnY> 
       <NormalGlossXZnY>Textures\Voxels\Platinum_01_ForAxisXZ_ng.dds</NormalGlossXZnY>
-      <NormalGlossXZnYFar1>Textures\Voxels\Platinum_01_ForAxisXZ_ng.dds</NormalGlossXZnYFar1>
-      <NormalGlossXZnYFar2>Textures\Voxels\Platinum_01_ForAxisXZ_ng.dds</NormalGlossXZnYFar2>
-      <NormalGlossY>Textures\Voxels\Platinum_01_ForAxisXZ_ng.dds</NormalGlossY>
-      <NormalGlossYFar1>Textures\Voxels\Platinum_01_ForAxisXZ_ng.dds</NormalGlossYFar1>
-      <NormalGlossYFar2>Textures\Voxels\Platinum_01_ForAxisXZ_ng.dds</NormalGlossYFar2>
+     
       <Scale>10</Scale>
       <ScaleFar1>50</ScaleFar1>
       <ScaleFar2>100</ScaleFar2>
+      <ScaleFar3>2500</ScaleFar3>
+      <ScaleFar4>7500</ScaleFar4>
     </VoxelMaterial>
     <VoxelMaterial xsi:type="MyObjectBuilder_Dx11VoxelMaterialDefinition">
       <Id>
@@ -919,21 +928,15 @@
       <NormalXZ>Textures\Voxels\Uraninite_01_ForAxisXZ_ns.dds</NormalXZ>
       <SpecularPower>21</SpecularPower>
       <SpecularShininess>0.632</SpecularShininess>
-      <ColorMetalXZnY>Textures\Voxels\Uraninite_01_ForAxisXZ_cm.dds</ColorMetalXZnY>
-      <ColorMetalXZnYFar1>Textures\Voxels\Uraninite_01_ForAxisXZ_cm.dds</ColorMetalXZnYFar1>
-      <ColorMetalXZnYFar2>Textures\Voxels\Uraninite_01_ForAxisXZ_cm.dds</ColorMetalXZnYFar2>
-      <ColorMetalY>Textures\Voxels\Uraninite_01_ForAxisXZ_cm.dds</ColorMetalY>
-      <ColorMetalYFar1>Textures\Voxels\Uraninite_01_ForAxisXZ_cm.dds</ColorMetalYFar1>
-      <ColorMetalYFar2>Textures\Voxels\Uraninite_01_ForAxisXZ_cm.dds</ColorMetalYFar2>
+      
+      <ColorMetalXZnY>Textures\Voxels\Uraninite_01_ForAxisXZ_cm.dds</ColorMetalXZnY>    
       <NormalGlossXZnY>Textures\Voxels\Uraninite_01_ForAxisXZ_ng.dds</NormalGlossXZnY>
-      <NormalGlossXZnYFar1>Textures\Voxels\Uraninite_01_ForAxisXZ_ng.dds</NormalGlossXZnYFar1>
-      <NormalGlossXZnYFar2>Textures\Voxels\Uraninite_01_ForAxisXZ_ng.dds</NormalGlossXZnYFar2>
-      <NormalGlossY>Textures\Voxels\Uraninite_01_ForAxisXZ_ng.dds</NormalGlossY>
-      <NormalGlossYFar1>Textures\Voxels\Uraninite_01_ForAxisXZ_ng.dds</NormalGlossYFar1>
-      <NormalGlossYFar2>Textures\Voxels\Uraninite_01_ForAxisXZ_ng.dds</NormalGlossYFar2>
+     
       <Scale>10</Scale>
       <ScaleFar1>50</ScaleFar1>
       <ScaleFar2>100</ScaleFar2>
+      <ScaleFar3>2500</ScaleFar3>
+      <ScaleFar4>7500</ScaleFar4>
     </VoxelMaterial>
     <VoxelMaterial xsi:type="MyObjectBuilder_Dx11VoxelMaterialDefinition">
       <Id>
@@ -951,21 +954,15 @@
       <SpecularPower>21</SpecularPower>
       <SpecularShininess>0.632</SpecularShininess>
       <MinVersion>1</MinVersion>
-      <ColorMetalXZnY>Textures\Voxels\Ice_01_ForAxisXZ_cm.dds</ColorMetalXZnY>
-      <ColorMetalXZnYFar1>Textures\Voxels\Ice_01_ForAxisXZ_cm.dds</ColorMetalXZnYFar1>
-      <ColorMetalXZnYFar2>Textures\Voxels\Ice_01_ForAxisXZ_cm.dds</ColorMetalXZnYFar2>
-      <ColorMetalY>Textures\Voxels\Ice_01_ForAxisXZ_cm.dds</ColorMetalY>
-      <ColorMetalYFar1>Textures\Voxels\Ice_01_ForAxisXZ_cm.dds</ColorMetalYFar1>
-      <ColorMetalYFar2>Textures\Voxels\Ice_01_ForAxisXZ_cm.dds</ColorMetalYFar2>
+      
+      <ColorMetalXZnY>Textures\Voxels\Ice_01_ForAxisXZ_cm.dds</ColorMetalXZnY>   
       <NormalGlossXZnY>Textures\Voxels\Ice_01_ForAxisXZ_ng.dds</NormalGlossXZnY>
-      <NormalGlossXZnYFar1>Textures\Voxels\Ice_01_ForAxisXZ_ng.dds</NormalGlossXZnYFar1>
-      <NormalGlossXZnYFar2>Textures\Voxels\Ice_01_ForAxisXZ_ng.dds</NormalGlossXZnYFar2>
-      <NormalGlossY>Textures\Voxels\Ice_01_ForAxisXZ_ng.dds</NormalGlossY>
-      <NormalGlossYFar1>Textures\Voxels\Ice_01_ForAxisXZ_ng.dds</NormalGlossYFar1>
-      <NormalGlossYFar2>Textures\Voxels\Ice_01_ForAxisXZ_ng.dds</NormalGlossYFar2>
+
       <Scale>10</Scale>
       <ScaleFar1>50</ScaleFar1>
-      <ScaleFar2>1250</ScaleFar2>
+      <ScaleFar2>200</ScaleFar2>
+      <ScaleFar3>2500</ScaleFar3>
+      <ScaleFar4>7500</ScaleFar4>
     </VoxelMaterial>
     <VoxelMaterial xsi:type="MyObjectBuilder_Dx11VoxelMaterialDefinition">
       <Id>
@@ -984,24 +981,17 @@
       <SpecularShininess>0.632</SpecularShininess>
       <MinVersion>1</MinVersion>
       <ColorMetalXZnY>Textures\Voxels\Ice_02_ForAxisXZ_cm.dds</ColorMetalXZnY>
-      <ColorMetalXZnYFar1>Textures\Voxels\Ice_02_ForAxisXZ_cm.dds</ColorMetalXZnYFar1>
-      <ColorMetalXZnYFar2>Textures\Voxels\Ice_02_ForAxisXZ_cm.dds</ColorMetalXZnYFar2>
-      <ColorMetalY>Textures\Voxels\Ice_02_ForAxisXZ_cm.dds</ColorMetalY>
-      <ColorMetalYFar1>Textures\Voxels\Ice_02_ForAxisXZ_cm.dds</ColorMetalYFar1>
-      <ColorMetalYFar2>Textures\Voxels\Ice_02_ForAxisXZ_cm.dds</ColorMetalYFar2>
       <NormalGlossXZnY>Textures\Voxels\Ice_02_ForAxisXZ_ng.dds</NormalGlossXZnY>
-      <NormalGlossXZnYFar1>Textures\Voxels\Ice_02_ForAxisXZ_ng.dds</NormalGlossXZnYFar1>
-      <NormalGlossXZnYFar2>Textures\Voxels\Ice_02_ForAxisXZ_ng.dds</NormalGlossXZnYFar2>
-      <NormalGlossY>Textures\Voxels\Ice_02_ForAxisXZ_ng.dds</NormalGlossY>
-      <NormalGlossYFar1>Textures\Voxels\Ice_02_ForAxisXZ_ng.dds</NormalGlossYFar1>
-      <NormalGlossYFar2>Textures\Voxels\Ice_02_ForAxisXZ_ng.dds</NormalGlossYFar2>
+      
       
       <ColorMetalXZnYFar1>Textures\Voxels\Ice_02_ForAxisXZ_distance_cm.dds</ColorMetalXZnYFar1>
       <NormalGlossXZnYFar1>Textures\Voxels\Ice_02_ForAxisXZ_distance_ng.dds</NormalGlossXZnYFar1>
 
       <Scale>10</Scale>
       <ScaleFar1>50</ScaleFar1>
-      <ScaleFar2>1250</ScaleFar2>
+      <ScaleFar2>200</ScaleFar2>
+      <ScaleFar3>2500</ScaleFar3>
+      <ScaleFar4>7500</ScaleFar4>
     </VoxelMaterial>
   </VoxelMaterials>
 </Definitions>

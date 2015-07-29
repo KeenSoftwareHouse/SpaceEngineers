@@ -90,9 +90,9 @@
       <HillParams>
         <Treshold Min ="0.5" Max ="0.6"/>
         <BlendSize Min ="0.4" Max ="0.8"/>
-        <SizeRatio Min = "3" Max ="6"/>
-        <Frequency Min = "1" Max ="3"/>
-        <NumNoises Min = "2" Max ="2"/>
+        <SizeRatio Min = "6" Max ="12"/>
+        <Frequency Min = "3" Max ="5"/>
+        <NumNoises Min = "6" Max ="8"/>
       </HillParams>
 
       <CanyonParams>

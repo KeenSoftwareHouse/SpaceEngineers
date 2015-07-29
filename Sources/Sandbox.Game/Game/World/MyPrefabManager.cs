@@ -156,12 +156,6 @@ namespace Sandbox.Game.World
         {
             var prefabDefinition = MyDefinitionManager.Static.GetPrefabDefinition(prefabName);
 
-            if (prefabDefinition.CubeGrids == null)
-            {
-                MyDefinitionManager.Static.ReloadPrefabsFromFile(prefabDefinition.PrefabPath);
-                prefabDefinition = MyDefinitionManager.Static.GetPrefabDefinition(prefabName);
-            }
-
             Debug.Assert(prefabDefinition != null, "Could not spawn prefab named " + prefabName);
             if (prefabDefinition == null) return null;
 
@@ -178,12 +172,7 @@ namespace Sandbox.Game.World
             CreateGridsFromPrefab(m_tmpSpawnedGridList, prefabName, worldMatrix ?? Matrix.Identity);
 
             foreach (var entity in m_tmpSpawnedGridList)
-            {
-				if (MySession.Static.CreativeMode)
-					TurnShipReactorsOnOff(entity, true);
-				else	// Survival
-					TurnShipReactorsOnOff(entity, false);
-
+            {			
                 MyEntities.Add(entity);
             }
 
@@ -218,11 +207,6 @@ namespace Sandbox.Game.World
 
             foreach (var grid in m_tmpSpawnedGridList)
             {
-				if (MySession.Static.CreativeMode)
-					TurnShipReactorsOnOff(grid, true);
-				else
-					TurnShipReactorsOnOff(grid, false);
-
                 MyEntities.Add(grid);
             }
 
@@ -237,11 +221,6 @@ namespace Sandbox.Game.World
             Debug.Assert(prefabDefinition != null, "Could not spawn prefab named " + prefabName);
             if (prefabDefinition == null) return;
 
-            if (prefabDefinition.CubeGrids == null)
-            {
-                MyDefinitionManager.Static.ReloadPrefabsFromFile(prefabDefinition.PrefabPath);
-                prefabDefinition = MyDefinitionManager.Static.GetPrefabDefinition(prefabName);
-            }
             MyObjectBuilder_CubeGrid[] gridObs = prefabDefinition.CubeGrids;
 
             Debug.Assert(gridObs.Count() != 0);
@@ -327,19 +306,6 @@ namespace Sandbox.Game.World
             MyEntities.IgnoreMemoryLimits = ignoreMemoryLimitsPrevious;
         }
 
-
-        private static void TurnShipReactorsOnOff(MyEntity entity, bool newState)
-        {
-            MyCubeGrid grid = entity as MyCubeGrid;
-            Debug.Assert(grid != null, "Ship prefab was not a ship");
-            if (grid != null)
-            {
-                foreach (var reactor in grid.GetFatBlocks<MyReactor>())
-                {
-                    reactor.Enabled = newState;
-                }
-            }
-        }
 
         public void SpawnPrefab(
             String prefabName,

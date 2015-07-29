@@ -357,6 +357,7 @@
       <Volume>14</Volume>
       <Model>Models\Weapons\AutomaticRifle.mwm</Model>
       <WeaponDefinitionId Subtype="AutomaticRifleGun" />
+      <ShowAmmoCount>true</ShowAmmoCount>
     </PhysicalItem>
     <PhysicalItem xsi:type="MyObjectBuilder_OxygenContainerDefinition">
       <Id>

@@ -44,7 +44,7 @@ namespace Sandbox.Game.Entities.Cube
         const float m_maxExplosionRadius = 30.0f;
         public static float ExplosionImpulse = 30000;
         bool m_isExploded = false;
-        MyDamageType m_damageType = MyDamageType.Deformation;
+        MyStringHash m_damageType = MyDamageType.Deformation;
         public int RemainingMS = 0;
         BoundingSphereD m_explosionShrinkenSphere;
         BoundingSphereD m_explosionFullSphere;
@@ -219,7 +219,7 @@ namespace Sandbox.Game.Entities.Cube
             }
         }
 
-        //public void DoDamage(float damage, MyDamageType damageType, bool sync)
+        //public void DoDamage(float damage, MyStringHash damageType, bool sync)
         //{
         //    if (MarkedToExplode)
         //        return;
@@ -657,7 +657,7 @@ namespace Sandbox.Game.Entities.Cube
             OnDestroy();
         }
 
-        void IMyDestroyableObject.DoDamage(float damage, MyDamageType damageType, bool sync, MyHitInfo? hitInfo, long attackerId)
+        void IMyDestroyableObject.DoDamage(float damage, MyStringHash damageType, bool sync, MyHitInfo? hitInfo, long attackerId)
         {
             if (MarkedToExplode || (!MySession.Static.DestructibleBlocks))
                 return;

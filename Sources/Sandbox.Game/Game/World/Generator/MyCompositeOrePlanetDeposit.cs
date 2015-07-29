@@ -48,7 +48,7 @@ namespace Sandbox.Game.World.Generator
 
             m_numDeposits = (int)Math.Floor((volume * 0.4f) / depositVolume);
 
-            int numSectors = (int)(minDepth / DEPOSIT_MAX_SIZE);
+           int numSectors = (int)(minDepth / DEPOSIT_MAX_SIZE);
 
             MyRandom random = MyRandom.Instance;
             FillMaterialCollections();

@@ -13,5 +13,10 @@ namespace VRage.Components
         public abstract void Tick();
         public abstract void UpdatePosition();
         public abstract bool UpdatesOnlyOnServer { get; set; }
+
+        public override string ComponentTypeDebugString
+        {
+            get { return "Sync"; }
+        }
     }
 }
