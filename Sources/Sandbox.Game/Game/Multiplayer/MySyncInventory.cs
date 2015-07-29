@@ -525,13 +525,26 @@ namespace Sandbox.Game.Multiplayer
             if (!srcItem.HasValue) return;
 
             FixTransferAmount(src, dst, srcItem, spawn, ref remove, ref amount);
-
             if (amount != 0)
             {
-                if (dst.AddItems(amount, srcItem.Value.Content, destItemIndex))
-                {
+                if (src != dst)
+                {                                    
+                    if (dst.AddItems(amount, srcItem.Value.Content, destItemIndex))
+                    {
+                        if (remove != 0)
+                        {
+                            src.RemoveItems(itemId, remove);
+                        }
+                    }
+                }
+                else
+                { 
                     if (remove != 0)
+                    {
                         src.RemoveItems(itemId, remove);
+                    }
+
+                    dst.AddItems(amount, srcItem.Value.Content, destItemIndex);
                 }
             }
         }
