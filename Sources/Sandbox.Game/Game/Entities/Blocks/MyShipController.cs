@@ -1502,6 +1502,8 @@ namespace Sandbox.Game.Entities
         {
             if (Render.NearFlag)
             {
+				Render.ColorMaskHsv = SlimBlock.ColorMaskHSV;
+
                 //TODO: Find out how to correctly change Near model
                 return;
             }

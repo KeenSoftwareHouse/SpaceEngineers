@@ -87,13 +87,15 @@ namespace Sandbox.Game.Entities.Character
             //VRageRender.MyRenderProxy.DebugDrawLine3D(from, to, Color.Red, Color.Green, true);
             //VRageRender.MyRenderProxy.DebugDrawSphere(headPos, 0.05f, Color.Red.ToVector3(), 1.0f, false);
 
+            StartPosition = from;
+
             MyPhysics.CastRay(from, to, m_hits);
 
             bool hasInteractive = false;
 
             int index = 0;
-            while (index < m_hits.Count && (m_hits[index].HkHitInfo.Body == null || m_hits[index].HkHitInfo.Body.UserObject == Character.Physics
-                || (Character.VirtualPhysics != null && m_hits[index].HkHitInfo.Body.UserObject == Character.VirtualPhysics) || m_hits[index].HkHitInfo.Body.HasProperty(HkCharacterRigidBody.MANIPULATED_OBJECT))) // Skip invalid hits and self character
+            while (index < m_hits.Count && (m_hits[index].HkHitInfo.Body == null || m_hits[index].HkHitInfo.GetHitEntity() == Character
+                || m_hits[index].HkHitInfo.Body.HasProperty(HkCharacterRigidBody.MANIPULATED_OBJECT))) // Skip invalid hits and self character
             {
                 index++;
             }
@@ -102,7 +104,7 @@ namespace Sandbox.Game.Entities.Character
             {
                 //We must take only closest hit (others are hidden behind)
                 var h = m_hits[index];
-                var entity = h.HkHitInfo.Body.GetEntity();
+                var entity = h.HkHitInfo.GetHitEntity();
                 var interactive = entity as IMyUseObject;
 
                 // TODO: Uncomment to enforce that character must face object by front to activate it
@@ -112,12 +114,20 @@ namespace Sandbox.Game.Entities.Character
 
                 if (entity != null)
                 {
+                    ShapeKey = h.HkHitInfo.GetShapeKey(0);
+
                     MyUseObjectsComponentBase useObject = null;
+                    
                     entity.Components.TryGet<MyUseObjectsComponentBase>(out useObject);
                     if (useObject != null)
                     {
-                        interactive = useObject.GetInteractiveObject(h.HkHitInfo.GetShapeKey(0));
+                        interactive = useObject.GetInteractiveObject(ShapeKey);
                     }
+
+                    HitPosition = h.Position;
+                    HitNormal = h.HkHitInfo.Normal;
+                    HitMaterial = h.HkHitInfo.Body.GetBody().GetMaterialAt(HitPosition + HitNormal * 0.1f);
+                    HitBody = h.HkHitInfo.Body;
                 }
 
                 if (UseObject != null && interactive != null && UseObject != interactive)

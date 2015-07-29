@@ -101,7 +101,8 @@ namespace Sandbox.Definitions
                 m_environmentItemsEntries = new HashSet<EnvironmentItemsEntry>();
                 m_componentBlockEntries = new HashSet<MyComponentBlockEntry>();
 
-                m_componentBlocks = new Dictionary<MyDefinitionId, bool>();
+                m_componentBlocks = new HashSet<MyDefinitionId>(MyDefinitionId.Comparer);
+                m_componentIdToBlock = new Dictionary<MyDefinitionId, MyCubeBlockDefinition>(MyDefinitionId.Comparer);
 
                 m_categoryClasses = new List<MyGuiBlockCategoryDefinition>(25);
                 m_categories = new Dictionary<string, MyGuiBlockCategoryDefinition>(25);
@@ -393,7 +394,8 @@ namespace Sandbox.Definitions
             internal HashSet<EnvironmentItemsEntry> m_environmentItemsEntries;
             internal HashSet<MyComponentBlockEntry> m_componentBlockEntries;
 
-            public Dictionary<MyDefinitionId, bool> m_componentBlocks;
+            public HashSet<MyDefinitionId> m_componentBlocks;
+            public Dictionary<MyDefinitionId, MyCubeBlockDefinition> m_componentIdToBlock;
 
             internal DefinitionDictionary<MyBlueprintDefinitionBase> m_blueprintsByResultId;
 

@@ -36,9 +36,27 @@ namespace VRage.Compiler
             }
         }
 
+		static int m_numMethodCalls = 0;
+		static int m_numMaxMethodCalls= 0;
+
+		public static void RestartCountingMethods(int maxMethodCalls)
+		{
+			m_numMethodCalls = 0;
+			m_numMaxMethodCalls = maxMethodCalls;
+		}
+
+		public static void CountMethodCalls()
+		{
+			m_numMethodCalls++;
+			if (m_numMethodCalls > m_numMaxMethodCalls)
+			{
+				throw new ScriptOutOfRangeException();
+			}
+		}
+
         private static IlReader m_reader = new IlReader();
 
-        public static Assembly InjectCodeToAssembly(string newAssemblyName, Assembly inputAssembly, MethodInfo method, bool save = false)
+        public static Assembly InjectCodeToAssembly(string newAssemblyName, Assembly inputAssembly, MethodInfo method,MethodInfo methodToInjectMethodCheck, bool save = false)
         {
             AssemblyName assemblyName = new AssemblyName(newAssemblyName);
 
@@ -53,7 +71,7 @@ namespace VRage.Compiler
             {
                 newModule = newAssembly.DefineDynamicModule(assemblyName.Name);
             }
-            InjectTypes(inputAssembly.GetTypes(), newModule, method);
+			InjectTypes(inputAssembly.GetTypes(), newModule, method, methodToInjectMethodCheck);
 
             if (save)
             {
@@ -92,7 +110,7 @@ namespace VRage.Compiler
             return sortedList;
         }
 
-        private static void InjectTypes(Type[] sourceTypes, ModuleBuilder newModule, MethodInfo methodToInject)
+        private static void InjectTypes(Type[] sourceTypes, ModuleBuilder newModule, MethodInfo methodToInject,MethodInfo methodToInjectMethodCheck)
         {
 
             Dictionary<TypeBuilder, Type> createdTypes = new Dictionary<TypeBuilder, Type>();
@@ -117,14 +135,14 @@ namespace VRage.Compiler
                 {
                     if (newMethod.Key.DeclaringType == type.Key)
                     {
-                        InjectMethod(newMethod.Value, newMethod.Key.GetILGenerator(), createdFields, createdMethods, createdConstructors, createdTypes, methodToInject, typeLookup);
+                        InjectMethod(newMethod.Value, newMethod.Key.GetILGenerator(), createdFields, createdMethods, createdConstructors, createdTypes, methodToInject,methodToInjectMethodCheck, typeLookup);
                     }
                 }
                 foreach (var newConstructor in createdConstructors)
                 {
                     if (newConstructor.Key.DeclaringType == type.Key)
                     {
-                        InjectMethod(newConstructor.Value, newConstructor.Key.GetILGenerator(), createdFields, createdMethods, createdConstructors, createdTypes, methodToInject, typeLookup);
+                        InjectMethod(newConstructor.Value, newConstructor.Key.GetILGenerator(), createdFields, createdMethods, createdConstructors, createdTypes, methodToInject,methodToInjectMethodCheck, typeLookup);
                     }
                 }
                 type.Key.CreateType();
@@ -233,12 +251,12 @@ namespace VRage.Compiler
             }
         }
 
-        private static void InjectMethod(MethodBase sourceMethod, ILGenerator methodGenerator, List<FieldBuilder> fields, Dictionary<MethodBuilder, MethodInfo> methods, Dictionary<ConstructorBuilder, ConstructorInfo> constructors, Dictionary<TypeBuilder, Type> types, MethodInfo methodToInject, Dictionary<string, TypeBuilder> typeLookup)
+		private static void InjectMethod(MethodBase sourceMethod, ILGenerator methodGenerator, List<FieldBuilder> fields, Dictionary<MethodBuilder, MethodInfo> methods, Dictionary<ConstructorBuilder, ConstructorInfo> constructors, Dictionary<TypeBuilder, Type> types, MethodInfo methodToInject, MethodInfo methodToInjectMethodCheck, Dictionary<string, TypeBuilder> typeLookup)
         {
-            ConstructInstructions(sourceMethod, methodGenerator, fields, methods, constructors, types, methodToInject, typeLookup);
+            ConstructInstructions(sourceMethod, methodGenerator, fields, methods, constructors, types, methodToInject ,methodToInjectMethodCheck, typeLookup);
         }
 
-        private static void ConstructInstructions(MethodBase sourceMethod, ILGenerator methodGenerator, List<FieldBuilder> createdFields, Dictionary<MethodBuilder, MethodInfo> createdMethods, Dictionary<ConstructorBuilder, ConstructorInfo> createdConstructors, Dictionary<TypeBuilder, Type> createdTypes, MethodInfo methodToInject, Dictionary<string, TypeBuilder> typeLookup)
+        private static void ConstructInstructions(MethodBase sourceMethod, ILGenerator methodGenerator, List<FieldBuilder> createdFields, Dictionary<MethodBuilder, MethodInfo> createdMethods, Dictionary<ConstructorBuilder, ConstructorInfo> createdConstructors, Dictionary<TypeBuilder, Type> createdTypes, MethodInfo methodToInject, MethodInfo methodToInjectMethodCheck, Dictionary<string, TypeBuilder> typeLookup)
         {
             List<VRage.Compiler.IlReader.IlInstruction> instructions = m_reader.ReadInstructions(sourceMethod);
             ResolveTypes(methodGenerator, createdTypes);
@@ -248,6 +266,7 @@ namespace VRage.Compiler
             {
                 labels[instr.Offset] = methodGenerator.DefineLabel();
             }
+			methodGenerator.Emit(OpCodes.Call, methodToInjectMethodCheck);
             methodGenerator.Emit(OpCodes.Call, methodToInject);
             // get the operation code of the current instruction
             foreach (var instruction in instructions)

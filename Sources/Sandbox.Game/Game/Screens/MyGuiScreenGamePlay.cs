@@ -245,7 +245,7 @@ namespace Sandbox.Game.Gui
                 //Set camera to following third person
                 if (MyInput.Static.IsNewGameControlPressed(MyControlsSpace.SPECTATOR_DELTA))
                 {
-                    if (MySession.ControlledEntity != null)
+                    if (MySession.ControlledEntity != null && (!MyFakes.ENABLE_BATTLE_SYSTEM || !MySession.Static.Battle || Sync.IsServer))
                     {
                         MySession.SetCameraController(MyCameraControllerEnum.SpectatorDelta);
                     }
@@ -708,7 +708,10 @@ namespace Sandbox.Game.Gui
                     }
                     else
                     {
-                        MySession.ControlledEntity.MoveAndRotate(moveIndicator, Vector2.Zero, rollIndicator);
+						if (MySession.ControlledEntity is MyRemoteControl) // Stop the remotely controlled entity from rolling when the character tries to in freelook mode
+							rollIndicator = 0f;
+
+						MySession.ControlledEntity.MoveAndRotate(moveIndicator, Vector2.Zero, rollIndicator);
                         if (!MySession.Static.CameraController.IsInFirstPersonView)
                             MyThirdPersonSpectator.Static.SaveSettings();
                     }
@@ -948,6 +951,7 @@ namespace Sandbox.Game.Gui
             Vector3 sunDirection = -MySector.SunProperties.SunDirectionNormalized;
             if (MySession.Static.Settings.EnableSunRotation)
             {
+                sunDirection = -MyDefinitionManager.Static.EnvironmentDefinition.SunProperties.SunDirectionNormalized;
                 float angle = 2.0f * MathHelper.Pi * (float)(MySession.Static.ElapsedGameTime.TotalMinutes / MySession.Static.Settings.SunRotationIntervalMinutes);
                 float originalSunCosAngle = Math.Abs(Vector3.Dot(sunDirection, Vector3.Up));
                 Vector3 sunRotationAxis;
@@ -963,7 +967,7 @@ namespace Sandbox.Game.Gui
                 sunDirection = Vector3.Transform(sunDirection, Matrix.CreateFromAxisAngle(sunRotationAxis, angle));
                 sunDirection.Normalize();
 
-                MySector.DirectionToSunNormalized = -sunDirection;
+                MySector.SunProperties.SunDirectionNormalized = -sunDirection;
             }
 
             VRageRender.MyRenderProxy.UpdateRenderEnvironment(

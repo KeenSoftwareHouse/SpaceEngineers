@@ -51,6 +51,11 @@ namespace VRage.Components
                 return container == null ? null : container.Entity;
             }
         }
+
+        /// <summary>
+        /// Name of the base component type for debug purposes (e.g.: "Position")
+        /// </summary>
+        public abstract string ComponentTypeDebugString { get; }
     }
 
 }

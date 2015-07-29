@@ -74,19 +74,16 @@ namespace Sandbox.Game.Multiplayer
 
         public void StopManipulation()
         {
-            if (Sync.IsServer)
+            MyManipulationTool manipulationTool;
+            if (MyEntities.TryGetEntityById(m_entityId, out manipulationTool))
             {
-                MyManipulationTool manipulationTool;
-                if (MyEntities.TryGetEntityById(m_entityId, out manipulationTool))
-                {
-                    manipulationTool.StopManipulation();
-                }
-         
-                StopManipulationMsg msg = new StopManipulationMsg();
-                msg.EntityId = m_entityId;
-
-                MySession.Static.SyncLayer.SendMessageToAll(ref msg);
+                manipulationTool.StopManipulation();
             }
+         
+            StopManipulationMsg msg = new StopManipulationMsg();
+            msg.EntityId = m_entityId;
+
+            MySession.Static.SyncLayer.SendMessageToAll(ref msg);
         }
 
         static void StopManipulationCallback(ref StopManipulationMsg msg, MyNetworkClient sender)

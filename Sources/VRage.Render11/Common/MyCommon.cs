@@ -49,6 +49,7 @@ namespace VRageRender
         internal static ConstantsBufferId ObjectConstants { get; set; }
         internal static ConstantsBufferId FoliageConstants { get; set; }
         internal static ConstantsBufferId MaterialFoliageTableConstants { get; set; }
+        internal static ConstantsBufferId OutlineConstants { get; set; }
 
         internal static UInt64 FrameCounter = 0;
 
@@ -61,6 +62,7 @@ namespace VRageRender
             ObjectConstants = MyHwBuffers.CreateConstantsBuffer(sizeof(Matrix));
             FoliageConstants = MyHwBuffers.CreateConstantsBuffer(sizeof(Matrix));
             MaterialFoliageTableConstants = MyHwBuffers.CreateConstantsBuffer(sizeof(Vector4) * 256);
+            OutlineConstants = MyHwBuffers.CreateConstantsBuffer(sizeof(OutlineConstantsLayout));
         }
 
         internal static ShaderResourceView GetAmbientBrdfLut()

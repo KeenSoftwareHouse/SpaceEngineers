@@ -54,16 +54,68 @@ namespace Sandbox.Game.Entities.Character
 {
     public abstract class MyCharacterComponent : MyEntityComponentBase
     {
-        public MyCharacter Character { get { return (MyCharacter)Entity; } }
 
-        public override void OnAddedToContainer()
+        private bool m_needsUpdateAfterSimulation;
+
+        public bool NeedsUpdateAfterSimulation
         {
-            base.OnAddedToContainer();
-
-            Entity.NeedsUpdate |= MyEntityUpdateEnum.EACH_10TH_FRAME;
+            get { return m_needsUpdateAfterSimulation; }
+            set { m_needsUpdateAfterSimulation = value; Entity.NeedsUpdate |= MyEntityUpdateEnum.EACH_FRAME; }
         }
 
+        private bool m_needsUpdateAfterSimulation10;
+
+        public bool NeedsUpdateAfterSimulation10
+        {
+            get { return m_needsUpdateAfterSimulation10; }
+            set { m_needsUpdateAfterSimulation10 = value; Entity.NeedsUpdate |= MyEntityUpdateEnum.EACH_10TH_FRAME; }
+        }
+
+        private bool m_needsUpdateBeforeSimulation100;
+
+        public bool NeedsUpdateBeforeSimulation100
+        {
+            get { return m_needsUpdateBeforeSimulation100; }
+            set { m_needsUpdateBeforeSimulation100 = value; Entity.NeedsUpdate |= MyEntityUpdateEnum.EACH_100TH_FRAME; }
+        }        
+
+        private bool m_needsUpdateBeforeSimulation;
+
+        public bool NeedsUpdateBeforeSimulation
+        {
+            get { return m_needsUpdateBeforeSimulation; }
+            set { m_needsUpdateBeforeSimulation = value; Entity.NeedsUpdate |= MyEntityUpdateEnum.BEFORE_NEXT_FRAME; }
+        }               
+
+        public MyCharacter Character { get { return (MyCharacter)Entity; } }
+               
+
         public virtual void UpdateAfterSimulation10()
+        {
+
+        }
+
+        public virtual void UpdateBeforeSimulation()
+        {
+
+        }
+
+        public virtual void UpdateAfterSimulation()
+        {
+
+        }
+
+        public virtual void UpdateBeforeSimulation100()
+        {
+
+        }
+
+        public override string ComponentTypeDebugString
+        {
+            get { return "Character Component"; }
+        }
+
+        public virtual void OnCharacterDead()
         {
 
         }

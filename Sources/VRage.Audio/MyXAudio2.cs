@@ -166,6 +166,14 @@ namespace VRage.Audio
 
             m_masterVoice = new MasteringVoice(m_audioEngine, deviceIndex: m_deviceNumber);
 
+            //var limiter = new SharpDX.XAPO.Fx.MasteringLimiter();
+            //var param = limiter.Parameter;
+            //param.Loudness = 10;
+            //limiter.Parameter = param;
+            //m_masterVoice.SetEffectChain(new EffectDescriptor[] { new EffectDescriptor(limiter) });
+            //m_masterVoice.EnableEffect(0);
+            ////limiter.Dispose();
+
             m_calculateFlags = CalculateFlags.Matrix | CalculateFlags.Doppler;
             if ((m_deviceDetails.OutputFormat.ChannelMask & Speakers.LowFrequency) != 0)
             {
@@ -342,7 +350,10 @@ namespace VRage.Audio
                     // restarts music cue
                     m_musicCue = PlaySound(m_musicCue.CueEnum);
                     if (m_musicCue != null)
+                    {
                         m_musicCue.SetOutputVoices(m_musicAudioVoiceDesc);
+                        m_musicAudioVoice.SetVolume(m_volumeMusic);
+                    }
 
                     UpdateMusic(0);
                 }

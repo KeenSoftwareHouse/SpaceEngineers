@@ -1269,12 +1269,12 @@
         <SubtypeId>Stardust</SubtypeId>
       </Id>
       <AlphaMistingEnable>true</AlphaMistingEnable>
-      <AlphaSaturation>1</AlphaSaturation>
-      <CanBeAffectedByOtherLights>true</CanBeAffectedByOtherLights>
+      <AlphaSaturation>1.0</AlphaSaturation>
+      <CanBeAffectedByOtherLights>false</CanBeAffectedByOtherLights>
       <Emissivity>0</Emissivity>
       <IgnoreDepth>false</IgnoreDepth>
       <NeedSort>false</NeedSort>
-      <SoftParticleDistanceScale>0.5</SoftParticleDistanceScale>
+      <SoftParticleDistanceScale>1.0</SoftParticleDistanceScale>
       <Texture>Textures\Particles\Stardust.dds</Texture>
       <UseAtlas>false</UseAtlas>
       <UVOffset>

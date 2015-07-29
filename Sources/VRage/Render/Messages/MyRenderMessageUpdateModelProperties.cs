@@ -14,6 +14,8 @@ namespace VRageRender
         public float? SpecularPower;
         public float? SpecularIntensity;
         public float? Emissivity;
+        public Color? OutlineColor;
+        public Matrix? OutlineVolume;
 
         MyRenderMessageType IMyRenderMessage.MessageClass { get { return MyRenderMessageType.StateChangeOnce; } }
         MyRenderMessageEnum IMyRenderMessage.MessageType { get { return MyRenderMessageEnum.UpdateModelProperties; } }

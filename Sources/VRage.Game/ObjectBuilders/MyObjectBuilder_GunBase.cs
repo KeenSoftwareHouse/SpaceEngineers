@@ -53,5 +53,8 @@ namespace Sandbox.Common.ObjectBuilders
 
         [ProtoMember]
         public List<RemainingAmmoIns> RemainingAmmosList = new List<RemainingAmmoIns>();
+
+        [ProtoMember]
+        public long LastShootTime;
     }
 }

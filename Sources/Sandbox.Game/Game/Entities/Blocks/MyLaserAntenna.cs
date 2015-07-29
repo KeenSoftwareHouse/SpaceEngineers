@@ -1229,7 +1229,7 @@ namespace Sandbox.Game.Entities.Cube
             MyPhysics.CastRay(l.From, l.To, m_hits);
             foreach (var hit in m_hits)
             {
-                var ent = hit.HkHitInfo.Body.GetEntity();
+                var ent = hit.HkHitInfo.GetHitEntity();
                 if (ent != CubeGrid)
                 {
                     m_wasVisible = false;

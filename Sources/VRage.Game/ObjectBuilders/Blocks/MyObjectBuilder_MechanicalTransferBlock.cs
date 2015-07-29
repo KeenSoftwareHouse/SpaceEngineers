@@ -11,25 +11,5 @@ namespace Medieval.ObjectBuilders.Blocks
     [MyObjectBuilderDefinition]
     public class MyObjectBuilder_MechanicalTransferBlock : MyObjectBuilder_CubeBlock
     {
-        [ProtoContract]
-        public struct MyMechanicalSubBlockData
-        {
-            [ProtoMember]
-            public string SubBlockName;
-
-            [ProtoMember]
-            public MyMechanicalData MechanicalData;
-        }
-
-        [ProtoContract]
-        public struct MyMechanicalData
-        {
-            [ProtoMember]
-            public float MaxFrictionTorque;
-        }
-
-        [XmlArrayItem("MechanicalData")]
-        [ProtoMember]
-        public MyMechanicalSubBlockData[] MechanicalSubBlockData;
     }
 }

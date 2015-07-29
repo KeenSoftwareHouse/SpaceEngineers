@@ -4,6 +4,7 @@ using Sandbox.Definitions;
 using Sandbox.ModAPI.Interfaces;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using VRage;
 using VRage.Components;
 using VRage.ObjectBuilders;
@@ -20,6 +21,7 @@ namespace Sandbox.Game.Entities.Inventory
         private MyAggregateComponentList m_children = new MyAggregateComponentList();
         public virtual event Action<MyInventoryAggregate, MyInventoryBase> OnAfterComponentAdd;
         public virtual event Action<MyInventoryAggregate, MyInventoryBase> OnBeforeComponentRemove;
+        private List<MyComponentBase> tmp_list = new List<MyComponentBase>();
 
         #region Properties
 
@@ -75,16 +77,13 @@ namespace Sandbox.Game.Entities.Inventory
             }
         }
 
-        public override MyStringId InventoryId
-        {
-            get { return MyStringId.GetOrCompute("InventoryAggregate"); }
-        }
-
         #endregion
 
         #region De/Constructor & Init
 
-        public MyInventoryAggregate() { }
+        public MyInventoryAggregate(): base("Inventory") { }
+
+        public MyInventoryAggregate(string inventoryId) : base(inventoryId) {}
 
         // Register callbacks
         public void Init()
@@ -156,38 +155,42 @@ namespace Sandbox.Game.Entities.Inventory
             return restAmount == 0;
         }
 
-        public override bool RemoveItemsOfType(MyFixedPoint amount, MyDefinitionId contentId, MyItemFlags flags = MyItemFlags.None, bool spawn = false)
+        public override MyFixedPoint RemoveItemsOfType(MyFixedPoint amount, MyDefinitionId contentId, MyItemFlags flags = MyItemFlags.None, bool spawn = false)
         {
             var restAmount = amount;
             foreach (MyInventoryBase inventory in m_children.Reader)
             {
-                var contains = inventory.GetItemAmount(contentId, flags);
-                if (contains > restAmount)
+                restAmount -= inventory.RemoveItemsOfType(restAmount, contentId, flags, spawn);
+            }
+            return amount - restAmount;
+        }
+
+        public MyInventoryBase GetInventory(MyStringId id)        
+        {
+            tmp_list.Clear();
+            this.GetComponentsFlattened(tmp_list);
+            foreach (var item in tmp_list)
+            {
+                MyInventoryBase inventory = item as MyInventoryBase;
+                if (inventory.InventoryId == id)
                 {
-                    contains = restAmount;
+                    return inventory;
                 }
-                if (contains > 0) inventory.RemoveItemsOfType(contains, contentId, flags, spawn);
-                restAmount -= contains;
             }
-            return restAmount == 0;
+            return null;
         }
 
-        // CH: TODO: Do with a supplied preallocated list as output
-        public override List<MyPhysicalInventoryItem> GetItems()
+        public MyInventoryBase GetInventory(MyStringHash id)
         {
-            List<MyPhysicalInventoryItem> items = new List<MyPhysicalInventoryItem>();
-            foreach (MyInventoryBase inventory in m_children.Reader)
+            tmp_list.Clear();
+            this.GetComponentsFlattened(tmp_list);
+            foreach (var item in tmp_list)
             {
-                items.AddList(inventory.GetItems());
-            }
-            return items;
-        }
-
-        public MyInventoryBase GetInventory(MyStringId id)
-        {
-            foreach (MyInventoryBase inventory in m_children.Reader)
-            {
-                if (inventory.InventoryId == id) return inventory;
+                MyInventoryBase inventory = item as MyInventoryBase;
+                if (MyStringHash.GetOrCompute(inventory.InventoryId.ToString()) == id)
+                {
+                    return inventory;
+                }
             }
             return null;
         }
@@ -256,9 +259,20 @@ namespace Sandbox.Game.Entities.Inventory
             }
         }
 
-        public override void CollectItems(Dictionary<MyDefinitionId, int> itemCounts)
+        public override void CountItems(Dictionary<MyDefinitionId, MyFixedPoint> itemCounts)
         {
-            throw new NotImplementedException();
+            foreach (MyInventoryBase inventory in m_children.Reader)
+            {
+                inventory.CountItems(itemCounts);
+            }
+        }
+
+        public override void ApplyChanges(List<MyComponentChange> changes)
+        {
+            foreach (MyInventoryBase inventory in m_children.Reader)
+            {
+                inventory.ApplyChanges(changes);
+            }
         }
 
 		// MK: TODO: ItemsCanBeAdded, ItemsCanBeRemoved, Add and Remove should probably support getting stuff from several inventories at once
@@ -300,7 +314,6 @@ namespace Sandbox.Game.Entities.Inventory
 					return true;
 			}
 			return false;
-        }
-
+        }       
     }
 }

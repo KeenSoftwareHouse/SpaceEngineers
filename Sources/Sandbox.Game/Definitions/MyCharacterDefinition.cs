@@ -104,11 +104,11 @@ namespace Sandbox.Definitions
         public float CharacterHeight;
         public float CharacterLength;
 
-        public float InventoryVolume;
-        public float InventoryMass;
-        public float InventorySizeX;
-        public float InventorySizeY;
-        public float InventorySizeZ;
+        public MyObjectBuilder_InventoryDefinition InventoryDefinition;        
+        public bool EnableSpawnInventoryAsContainer = false;
+        public MyDefinitionId? InventorySpawnContainerId;
+
+        public List<String> EnabledComponents = new List<String>();
 
         protected override void Init(MyObjectBuilder_DefinitionBase objectBuilder)
         {
@@ -244,12 +244,26 @@ namespace Sandbox.Definitions
             CharacterHeight = builder.CharacterHeight;
             CharacterLength = builder.CharacterLength;
 
-            if (builder.Inventory == null) builder.Inventory = new MyObjectBuilder_InventoryDefinition();
-            InventoryVolume = builder.Inventory.InventoryVolume;
-            InventoryMass = builder.Inventory.InventoryMass;
-            InventorySizeX = builder.Inventory.InventorySizeX;
-            InventorySizeY = builder.Inventory.InventorySizeY;
-            InventorySizeZ = builder.Inventory.InventorySizeZ;
+            if (builder.Inventory == null)
+            {
+                InventoryDefinition = new MyObjectBuilder_InventoryDefinition();
+            }           
+            else
+            {
+                InventoryDefinition = builder.Inventory;
+            }
+
+            EnabledComponents = builder.EnabledComponents.Split(' ').ToList();
+
+            EnableSpawnInventoryAsContainer = builder.EnableSpawnInventoryAsContainer;        
+            if (EnableSpawnInventoryAsContainer)
+            {
+                Debug.Assert(builder.InventorySpawnContainerId.HasValue, "Enabled spawning inventory as container, but type id is null");
+                if (builder.InventorySpawnContainerId.HasValue)
+                {
+                    InventorySpawnContainerId = builder.InventorySpawnContainerId.Value;
+                }
+            }
         }
 
         public override MyObjectBuilder_DefinitionBase GetObjectBuilder()
@@ -309,12 +323,20 @@ namespace Sandbox.Definitions
             ob.CharacterHeight = CharacterHeight;
             ob.CharacterLength = CharacterLength;
             ob.CharacterWidth = CharacterWidth;
-            
-            ob.Inventory = new MyObjectBuilder_InventoryDefinition();
-            ob.Inventory.InventoryVolume = InventoryVolume;
-            ob.Inventory.InventorySizeX = InventorySizeX;
-            ob.Inventory.InventorySizeY = InventorySizeY;
-            ob.Inventory.InventorySizeZ = InventorySizeZ;
+
+            ob.Inventory = InventoryDefinition;
+
+            ob.EnabledComponents = String.Join(" ",EnabledComponents);
+
+            ob.EnableSpawnInventoryAsContainer = EnableSpawnInventoryAsContainer;
+            if (EnableSpawnInventoryAsContainer)
+            {
+                Debug.Assert(InventorySpawnContainerId.HasValue, "Enabled spawning inventory as container, but type id is null");
+                if (InventorySpawnContainerId.HasValue)
+                {
+                    ob.InventorySpawnContainerId = InventorySpawnContainerId.Value;
+                }
+            }
 
             return ob;
         }

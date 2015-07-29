@@ -39,6 +39,11 @@
   </EnvironmentItemsDefinitions>
   
   <EnvironmentItemsEntries>
+     <Entry Type="MyObjectBuilder_Trees" Subtype="Trees" ItemSubtype="Tree01" />
+     <Entry Type="MyObjectBuilder_Trees" Subtype="Trees" ItemSubtype="Tree02" />
+  <Entry Type="MyObjectBuilder_Trees" Subtype="Trees" ItemSubtype="Tree03" />
+     <Entry Type="MyObjectBuilder_Trees" Subtype="Trees" ItemSubtype="Tree04" />
+ <Entry Type="MyObjectBuilder_Trees" Subtype="Trees" ItemSubtype="Tree05" />
     <Entry Type="MyObjectBuilder_Trees" Subtype="Trees" ItemSubtype="Tree06" />
     
     <Entry Type="MyObjectBuilder_Trees" Subtype="TreesMedium" ItemSubtype="TreeMedium_4m" />

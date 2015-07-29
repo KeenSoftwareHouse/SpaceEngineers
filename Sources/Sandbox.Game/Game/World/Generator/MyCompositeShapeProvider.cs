@@ -81,8 +81,7 @@ namespace Sandbox.Game.World.Generator
 
         private MyCsgShapePlanetMaterialAttributes m_materialAttributes;
         private MyCsgShapePlanetShapeAttributes m_shapeAttributes;
-        private MyCsgShapePlanetHillAttributes m_hillAttributes;
-        private MyCsgShapePlanetHillAttributes m_canyonAttributes;
+        private float m_maxHillHeight;
 
         private State m_state;
 
@@ -114,8 +113,7 @@ namespace Sandbox.Game.World.Generator
         // Do NOT use! Work in progress which is likely to change, breaking all saves that use this.
         public static MyCompositeShapeProvider CreatePlanetShape(int generatorEntry,
             ref MyCsgShapePlanetShapeAttributes shapeAttributes,
-            ref MyCsgShapePlanetHillAttributes hillAttributes,
-            ref MyCsgShapePlanetHillAttributes canyonAttributes,
+            float maxHillHeight,
             ref MyCsgShapePlanetMaterialAttributes materialAttributes)
         {
             var result = new MyCompositeShapeProvider();
@@ -126,10 +124,9 @@ namespace Sandbox.Game.World.Generator
             result.m_state.IsPlanet = 1;
             result.m_materialAttributes = materialAttributes;
             result.m_shapeAttributes = shapeAttributes;
-            result.m_hillAttributes = hillAttributes;
-            result.m_canyonAttributes = canyonAttributes;
+            result.m_maxHillHeight = maxHillHeight;
 
-            MyCompositeShapes.PlanetGenerators[result.m_state.Generator](ref shapeAttributes, ref hillAttributes, ref canyonAttributes,ref materialAttributes, out result.m_data);
+            MyCompositeShapes.PlanetGenerators[result.m_state.Generator](ref shapeAttributes, maxHillHeight, ref materialAttributes, out result.m_data);
 
             return result;
         }
@@ -268,12 +265,13 @@ namespace Sandbox.Game.World.Generator
                                     break;
                             }
                         }
-
+                        ProfilerShort.Begin("content");
                         float signedDist = MathHelper.Max(distFill, -distRemoved);
 
                         var fillRatio = MathHelper.Clamp(-signedDist, -1f, 1f) * 0.5f + 0.5f;
                         var write = v - minInLod + writeOffset;
                         target.Content(ref write, (byte)(fillRatio * MyVoxelConstants.VOXEL_CONTENT_FULL));
+                        ProfilerShort.End();
                     }
                 }
             }
@@ -363,8 +361,7 @@ namespace Sandbox.Game.World.Generator
 
                 m_materialAttributes.WriteTo(stream);
                 m_shapeAttributes.WriteTo(stream);
-                m_hillAttributes.WriteTo(stream);
-                m_canyonAttributes.WriteTo(stream);          
+                stream.WriteNoAlloc(m_maxHillHeight);
             }
         }
 
@@ -394,10 +391,9 @@ namespace Sandbox.Game.World.Generator
             {
                 m_materialAttributes.ReadFrom(stream);
                 m_shapeAttributes.ReadFrom(stream);
-                m_hillAttributes.ReadFrom(stream);
-                m_canyonAttributes.ReadFrom(stream);
+                m_maxHillHeight = stream.ReadFloat();
 
-                MyCompositeShapes.PlanetGenerators[m_state.Generator](ref m_shapeAttributes, ref m_hillAttributes, ref m_canyonAttributes, ref m_materialAttributes, out m_data);
+                MyCompositeShapes.PlanetGenerators[m_state.Generator](ref m_shapeAttributes, m_maxHillHeight, ref m_materialAttributes, out m_data);
             }
             else
             {
@@ -479,19 +475,16 @@ namespace Sandbox.Game.World.Generator
             return false;
         }
 
-        public void  GenerateNoiseHelpTexture(int storageSize)
-        { 
-            foreach (var shape in m_data.FilledShapes)
-            {
-              shape.GenerateNoiseHelpTexture(storageSize, m_data.MacroModule);              
-            }
-        }
-
-        public void ReleaseNoiseHelpTexture()
+        public void ReleaseHeightMaps()
         {
+            foreach (var deposit in m_data.Deposits)
+            {
+                deposit.ReleaseMaps();
+            }
+
             foreach (var shape in m_data.FilledShapes)
             {
-                shape.ReleaseNoiseTexture();
+                shape.ReleaseMaps();
             }
         }
     }

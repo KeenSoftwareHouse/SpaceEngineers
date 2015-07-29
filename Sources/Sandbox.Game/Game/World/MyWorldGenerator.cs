@@ -244,15 +244,6 @@ namespace Sandbox.Game.World
         }
 
       
-        private static Vector3I FindBestOctreeSize(float radius)
-        {
-            int nodeRadius = MyVoxelConstants.RENDER_CELL_SIZE_IN_VOXELS;
-            while (nodeRadius < radius)
-                nodeRadius *= 2;
-            //nodeRadius *= 2;
-            return new Vector3I(nodeRadius, nodeRadius, nodeRadius);
-        }
-
         public static void AddEntity(MyObjectBuilder_EntityBase entityBuilder)
         {
             MyEntities.CreateFromObjectBuilderAndAdd(entityBuilder);

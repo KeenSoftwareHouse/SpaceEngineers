@@ -165,7 +165,7 @@ namespace Sandbox.Common.ObjectBuilders.Definitions
 
         [ProtoMember]
         public SerializableVector3 Offset;
-        public bool ShouldSerializeOffset() { return Offset != Vector3.Zero; }
+        public bool ShouldSerializeOffset() { return Offset != new SerializableVector3(0f, 0f, 0f); }
 
         [ProtoMember, XmlAttribute]
         public string AsteroidName;

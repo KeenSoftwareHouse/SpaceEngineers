@@ -32,6 +32,9 @@ using VRage.Utils;
 using VRage.ModAPI;
 using VRage.ObjectBuilders;
 using VRage.Components;
+using VRage.Game.Components;
+using System.Text;
+using Sandbox.Game.Components;
 
 #endregion
 
@@ -117,7 +120,7 @@ namespace Sandbox.Game.Entities
         static List<MyEntity> m_overlapRBElementList;
         static List<List<MyEntity>> m_overlapRBElementListCollection = new List<List<MyEntity>>();
 
-        static List<HkRigidBody> m_rigidBodyList = new List<HkRigidBody>();
+        static List<HkBodyCollision> m_rigidBodyList = new List<HkBodyCollision>();
 
         static List<MyEntity> OverlapRBElementList
         {
@@ -242,7 +245,7 @@ namespace Sandbox.Game.Entities
 
             foreach (var hit in m_hits)
             {
-                var voxel = hit.HkHitInfo.Body.GetEntity() as MyVoxelMap;
+                var voxel = hit.HkHitInfo.GetHitEntity() as MyVoxelMap;
                 if (voxel != null)
                 {
                     voxelHits++;
@@ -422,6 +425,7 @@ namespace Sandbox.Game.Entities
         private static void AddComponents()
         {
             m_sceneComponents.Add(new MyCubeGridGroups());
+            m_sceneComponents.Add(new MyWeldingGroups());
         }
 
         public static void LoadData()
@@ -785,7 +789,6 @@ namespace Sandbox.Game.Entities
         static float m_update100Count = 0;
 
 
-
         public static void UpdateBeforeSimulation()
         {
             if (MySandboxGame.IsGameReady == false)
@@ -977,7 +980,7 @@ namespace Sandbox.Game.Entities
             {
                 entity.PrepareForDraw();
 
-                if (IsAnyRenderObjectVisible(entity))
+                if (IsAnyRenderObjectVisible(entity) && entity.Render.NeedsDrawFromParent == false)
                 {
                     ProfilerShort.Begin(entity.GetType().Name);
                     entity.Render.Draw();
@@ -1138,7 +1141,7 @@ namespace Sandbox.Game.Entities
         //      line - line we want to test for intersection
         //      ignoreModelInstance0 and 1 - we may specify two phys objects we don't want to test for intersections. Usually this is model instance of who is shoting, or missile, etc.
         //      outIntersection - intersection data calculated by this method
-        internal static MyIntersectionResultLineTriangleEx? GetIntersectionWithLine(ref LineD line, MyEntity ignoreEntity0, MyEntity ignoreEntity1, bool ignoreChildren = false, bool ignoreFloatingObjects = true, bool ignoreHandWeapons = true, IntersectionFlags flags = IntersectionFlags.ALL_TRIANGLES, float timeFrame = 0)
+        public static MyIntersectionResultLineTriangleEx? GetIntersectionWithLine(ref LineD line, MyEntity ignoreEntity0, MyEntity ignoreEntity1, bool ignoreChildren = false, bool ignoreFloatingObjects = true, bool ignoreHandWeapons = true, IntersectionFlags flags = IntersectionFlags.ALL_TRIANGLES, float timeFrame = 0)
         {
             VRageRender.MyRenderProxy.GetRenderProfiler().StartProfilingBlock("GetIntersectionWithLine.GetChildren");
             EntityResultSet.Clear();
@@ -1464,6 +1467,8 @@ namespace Sandbox.Game.Entities
 
         public static void DebugDraw()
         {
+            MyEntityComponentsDebugDraw.DebugDraw();
+
             if (MyDebugDrawSettings.DEBUG_DRAW_GRID_GROUPS_PHYSICAL && MyCubeGridGroups.Static != null)
             {
                 DebugDrawGroups(MyCubeGridGroups.Static.Physical);
@@ -1857,9 +1862,48 @@ namespace Sandbox.Game.Entities
             m_entitiesForBBoxDraw.Remove(entity);
         }
 
-        internal static bool TryGetEntity(long entityId, out MyEntity entity)
+
+
+        public static MyEntity CreateAndAddFromDefinition(MyObjectBuilder_EntityBase entityBuilder, Definitions.MyPhysicalItemDefinition entityDefinition)
         {
-            return MyEntityIdentifier.TryGetEntity(entityId, out entity);
+            MyEntity entity = new MyEntity(true);
+
+            {
+                entity.Flags = EntityFlags.Visible | EntityFlags.NeedsDraw | EntityFlags.Sync | EntityFlags.InvalidateOnMove;
+                StringBuilder name = new StringBuilder(entityDefinition.DisplayNameText);
+                entity.Init(name, entityDefinition.Model, null, null, null);
+                if (entityBuilder.PositionAndOrientation.HasValue)
+                {
+                    MatrixD worldMatrix = MatrixD.CreateWorld(
+                                                            (Vector3D)entityBuilder.PositionAndOrientation.Value.Position,
+                                                            (Vector3)entityBuilder.PositionAndOrientation.Value.Forward,
+                                                            (Vector3)entityBuilder.PositionAndOrientation.Value.Up);
+                    entity.PositionComp.SetWorldMatrix(worldMatrix);
+                }
+
+
+                entity.Render.UpdateRenderObject(true);
+                entity.Physics = new Engine.Physics.MyPhysicsBody(entity, RigidBodyFlag.RBF_DEFAULT);
+                if (entity.ModelCollision != null && entity.ModelCollision.HavokCollisionShapes.Length >= 1)
+                {
+                    HkMassProperties massProperties = new HkMassProperties();
+                    massProperties.Mass = entityDefinition.Mass;
+                    massProperties.Volume = entityDefinition.Volume;
+                    massProperties.InertiaTensor = Matrix.Identity;
+                    entity.Physics.CreateFromCollisionObject(entity.ModelCollision.HavokCollisionShapes[0], Vector3.Zero, entity.WorldMatrix, massProperties);
+                    entity.Physics.RigidBody.AngularDamping = 2;
+                    entity.Physics.RigidBody.LinearDamping = 1;
+                }
+                entity.Physics.Enabled = true;
+            }
+
+            entity.EntityId = entityBuilder.EntityId;
+            MyEntities.Add(entity);
+
+            entity.Physics.ForceActivate();
+            entity.Physics.ApplyImpulse(entity.WorldMatrix.Forward * 0.1f, Vector3.Zero);  // applying impulse so it triggers activation etc.
+
+            return entity;
         }
     }
 }

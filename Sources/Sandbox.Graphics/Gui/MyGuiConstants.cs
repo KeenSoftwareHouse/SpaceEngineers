@@ -641,6 +641,20 @@ namespace Sandbox.Graphics.GUI
 
         public const string BLANK_TEXTURE = "Textures\\GUI\\Blank.dds";
 
+		public static MyGuiPaddedTexture TEXTURE_HUD_GRAVITY_GLOBE = new MyGuiPaddedTexture()
+		{
+			Texture = @"Textures\GUI\GravityHudGlobe.dds",
+			SizePx = new Vector2(228, 98),
+			PaddingSizePx = new Vector2(0f, 0f),
+		};
+
+		public static MyGuiPaddedTexture TEXTURE_HUD_GRAVITY_LINE = new MyGuiPaddedTexture()
+		{
+			Texture = @"Textures\GUI\GravityHudLine.dds",
+			SizePx = new Vector2(228, 2),
+			PaddingSizePx = new Vector2(0f, 0f),
+		};
+
         public static readonly MyGuiCompositeTexture TEXTURE_GUI_BLANK = new MyGuiCompositeTexture()
         {
             Center = new MyGuiSizedTexture() { Texture = @"Textures\GUI\Blank.dds" }

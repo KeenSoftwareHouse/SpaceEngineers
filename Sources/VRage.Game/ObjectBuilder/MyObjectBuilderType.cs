@@ -119,10 +119,10 @@ namespace VRage.ObjectBuilders
 
         static MyObjectBuilderType()
         {
-            m_typeByName = new Dictionary<string,MyObjectBuilderType>(200);
-            m_typeByLegacyName = new Dictionary<string, MyObjectBuilderType>(200);
-            m_typeById = new Dictionary<MyRuntimeObjectBuilderId,MyObjectBuilderType>(200, MyRuntimeObjectBuilderId.Comparer);
-            m_idByType = new Dictionary<MyObjectBuilderType,MyRuntimeObjectBuilderId>(200, MyObjectBuilderType.Comparer);
+            m_typeByName = new Dictionary<string,MyObjectBuilderType>(400);
+            m_typeByLegacyName = new Dictionary<string, MyObjectBuilderType>(400);
+            m_typeById = new Dictionary<MyRuntimeObjectBuilderId,MyObjectBuilderType>(400, MyRuntimeObjectBuilderId.Comparer);
+            m_idByType = new Dictionary<MyObjectBuilderType,MyRuntimeObjectBuilderId>(400, MyObjectBuilderType.Comparer);
 
             MyObjectBuilderType.RegisterFromAssembly(Assembly.GetExecutingAssembly(), registerLegacyNames: true);
             
