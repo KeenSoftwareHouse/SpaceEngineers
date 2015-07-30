@@ -33,6 +33,7 @@ namespace Sandbox.Engine.Voxels
         private bool m_needsShapeUpdate;
         private HkpAabbPhantom m_aabbPhantom;
         private readonly HashSet<IMyEntity> m_nearbyEntities = new HashSet<IMyEntity>();
+        private readonly HashSet<IMyEntity> m_nearbyFloatingEntities = new HashSet<IMyEntity>();
 
         /// <summary>
         /// Only locked in callbacks, since they can happen during multithreaded havok step.
@@ -260,7 +261,7 @@ namespace Sandbox.Engine.Voxels
                     });
                 }
             }
-            if (m_nearbyEntities.Count == 0 && RigidBody != null && MyFakes.ENABLE_VOXEL_PHYSICS_SHAPE_DISCARDING)
+            if (m_nearbyEntities.Count == 0 && m_nearbyFloatingEntities.Count == 0 && RigidBody != null && MyFakes.ENABLE_VOXEL_PHYSICS_SHAPE_DISCARDING)
             {
                 var shape = (HkUniformGridShape)GetShape();// RigidBody.GetShape();
                 Debug.Assert(shape.Base.IsValid);
@@ -446,7 +447,9 @@ namespace Sandbox.Engine.Voxels
                 HavokWorld.RemovePhantom(m_aabbPhantom);
                 MyTrace.Send(TraceWindow.Analytics, "RemovePhantom-after");
                 Debug.Assert(m_nearbyEntities.Count == 0, "Inconsistent entities management");
+                Debug.Assert(m_nearbyFloatingEntities.Count == 0, "Inconsistent entities management");
                 m_nearbyEntities.Clear();
+                m_nearbyFloatingEntities.Clear();
             }
         }
 
@@ -469,6 +472,15 @@ namespace Sandbox.Engine.Voxels
                     m_nearbyEntities.Add(entity);
                 }
             }
+            else if(IsFloatingObject(rb, character))
+            {
+                using (m_nearbyEntitiesLock.AcquireExclusiveUsing())
+                {
+                    IMyEntity entity = character.Entity;
+                    Debug.Assert(!m_nearbyFloatingEntities.Contains(entity), "Entity added twice");
+                    m_nearbyFloatingEntities.Add(entity);
+                }
+            }
         }
 
         private static bool IsCharacter(HkRigidBody rb, MyPhysicsBody character)
@@ -481,6 +493,17 @@ namespace Sandbox.Engine.Voxels
             if (c.Physics == null) return false;    // Physics may have been already released / Entity removed from the world?
             if (c.Physics.CharacterProxy != null)
                 return c.Physics.CharacterProxy.GetHitRigidBody() == rb;
+            return (c.Physics.RigidBody == rb);     // Otherwise we do proper check
+        }
+
+        private static bool IsFloatingObject(HkRigidBody rb, MyPhysicsBody obj)
+        {
+            if (obj == null)
+                return false;
+
+            var c = obj.Entity as MyFloatingObject;
+            if (c == null) return false;
+            if (c.Physics == null) return false;    // Physics may have been already released / Entity removed from the world?
             return (c.Physics.RigidBody == rb);     // Otherwise we do proper check
         }
 
@@ -509,6 +532,16 @@ namespace Sandbox.Engine.Voxels
                     IMyEntity entity = grid == null ? character.Entity : grid.Entity;
                     Debug.Assert(m_nearbyEntities.Contains(entity), "Removing entity which was not added");
                     m_nearbyEntities.Remove(entity);
+                }
+            }
+            else if(IsFloatingObject(rb, character))
+            {
+                using (m_nearbyEntitiesLock.AcquireExclusiveUsing())
+                {
+                    MyTrace.Send(TraceWindow.Analytics, string.Format("{0} Removed floating object", character.Entity.EntityId));
+                    IMyEntity entity = character.Entity;
+                    Debug.Assert(m_nearbyFloatingEntities.Contains(entity), "Removing entity which was not added");
+                    m_nearbyFloatingEntities.Remove(entity);
                 }
             }
         }
