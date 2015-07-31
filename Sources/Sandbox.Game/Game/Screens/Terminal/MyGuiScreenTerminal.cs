@@ -93,6 +93,7 @@ namespace Sandbox.Game.Gui
 
         private static bool m_screenOpen;
         private bool m_connected = true;
+        private bool m_visible = true;
 
         internal static bool IsOpen { get { return m_screenOpen; } }
 
@@ -119,6 +120,16 @@ namespace Sandbox.Game.Gui
         public override string GetFriendlyName()
         {
             return "MyGuiScreenTerminal";
+        }
+
+        public override bool Draw()
+        {
+            if (!m_visible)
+            {
+                return true;
+            }
+
+            return base.Draw();
         }
 
         #region recreate controls on load
@@ -1769,7 +1780,7 @@ namespace Sandbox.Game.Gui
             Controls.Clear();
             m_terminalTabs = null;
             m_controllerInventory = null;
-            
+
             if (MyFakes.SHOW_FACTIONS_GUI)
             {
                 m_controllerFactions.Close();
@@ -1800,6 +1811,16 @@ namespace Sandbox.Game.Gui
 
         public override void HandleUnhandledInput(bool receivedFocusInThisUpdate)
         {
+            if (!m_visible)
+            {
+                if (MyInput.Static.IsNewGameControlReleased(MyControlsSpace.TOGGLE_TERMINAL))
+                {
+                    HideTerminalGui();
+                    return;
+                }
+                return;
+            }
+
             // Hack to ensure that player can type keys which are bound to TERMINAL and INVENTORY controls.
             // Unbuffered input can report key press before it arrives through buffered text input, which would
             // interfere with player typing.
@@ -1837,6 +1858,12 @@ namespace Sandbox.Game.Gui
                 }
             }
 
+            if (!textboxHasFocus && MyInput.Static.IsNewGameControlPressed(MyControlsSpace.TOGGLE_TERMINAL))
+            {
+                HideTerminalGui();
+            }
+
+
             base.HandleUnhandledInput(receivedFocusInThisUpdate);
         }
 
@@ -1859,14 +1886,36 @@ namespace Sandbox.Game.Gui
 
         public override void HandleInput(bool receivedFocusInThisUpdate)
         {
+            if (!m_visible)
+            {
+                if (MyInput.Static.IsNewGameControlReleased(MyControlsSpace.TOGGLE_TERMINAL))
+                {
+                    ShowTerminalGui();
+                }
+
+                return;
+            }
+
             if (MyInput.Static.IsNewKeyPressed(MyKeys.Delete))
             {
                 if (m_terminalTabs.SelectedPage == (int) MyTerminalPageEnum.Gps)
                     m_controllerGps.OnDelKeyPressed();
             }
+
             base.HandleInput(receivedFocusInThisUpdate);
         }
+        
+        private void ShowTerminalGui()
+        {
+            m_visible = true;
+            DrawMouseCursor = true;
+        }
 
+        private void HideTerminalGui()
+        {
+            m_visible = false;
+            DrawMouseCursor = false;
+        }
 
         #endregion
 
@@ -1896,6 +1945,7 @@ namespace Sandbox.Game.Gui
 
             MyGuiSandbox.AddScreen(MyGuiScreenGamePlay.ActiveGameplayScreen = m_instance);
             m_screenOpen = true;
+            m_instance.ShowTerminalGui();
         }
 
         internal static void Hide()
@@ -1980,7 +2030,7 @@ namespace Sandbox.Game.Gui
                 if (m_controllerInventory != null)
                 {
                     m_controllerInventory.Close();
-                    
+
                     var inventoryPage = (MyGuiControlTabPage)m_terminalTabs.Controls.GetControlByName("PageInventory");
                     m_controllerInventory.Init(inventoryPage, m_user, InteractedEntity, m_colorHelper);
                 }

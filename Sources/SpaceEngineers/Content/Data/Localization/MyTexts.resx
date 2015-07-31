@@ -596,6 +596,9 @@ Remove the original control?</value>
   <data name="ControlName_TerminalOrInventory" xml:space="preserve">
     <value>Terminal / Inventory</value>
   </data>
+  <data name="ControlName_ToggleTerminal" xml:space="preserve">
+    <value>Hold to hide terminal</value>
+  </data>
   <data name="DisplayName_Item_Welder" xml:space="preserve">
     <value>Welder</value>
   </data>

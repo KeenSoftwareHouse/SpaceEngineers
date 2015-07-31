@@ -6466,4 +6466,7 @@
   <data name="WorldSettings_GameScenario" xml:space="preserve">
     <value>Scenario</value>
   </data>
+  <data name="ControlName_ToggleTerminal" xml:space="preserve">
+    <value>Удерживайте, чтобы скрыть терминал</value>
+  </data>
 </root>

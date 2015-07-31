@@ -805,6 +805,11 @@ namespace Sandbox.Game.Localization
         public static readonly MyStringId ControlName_TerminalOrInventory = MyStringId.GetOrCompute("ControlName_TerminalOrInventory");
 
         ///<summary>
+        ///Hold to hide terminal
+        ///</summary>
+        public static readonly MyStringId ControlName_ToggleTerminal = MyStringId.GetOrCompute("ControlName_ToggleTerminal");
+
+        ///<summary>
         ///Welder
         ///</summary>
         public static readonly MyStringId DisplayName_Item_Welder = MyStringId.GetOrCompute("DisplayName_Item_Welder");

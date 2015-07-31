@@ -351,6 +351,7 @@ namespace Sandbox
             MyGuiGameControlsHelpers.Add(MyControlsSpace.USE, new MyGuiDescriptor(MySpaceTexts.ControlName_UseOrInteract));
             MyGuiGameControlsHelpers.Add(MyControlsSpace.TOGGLE_REACTORS, new MyGuiDescriptor(MySpaceTexts.ControlName_ReactorsOnOff));
             MyGuiGameControlsHelpers.Add(MyControlsSpace.TERMINAL, new MyGuiDescriptor(MySpaceTexts.ControlName_TerminalOrInventory));
+            MyGuiGameControlsHelpers.Add(MyControlsSpace.TOGGLE_TERMINAL, new MyGuiDescriptor(MySpaceTexts.ControlName_ToggleTerminal));
             MyGuiGameControlsHelpers.Add(MyControlsSpace.INVENTORY, new MyGuiDescriptor(MySpaceTexts.Inventory));
             MyGuiGameControlsHelpers.Add(MyControlsSpace.HELP_SCREEN, new MyGuiDescriptor(MySpaceTexts.ControlName_Help));
             MyGuiGameControlsHelpers.Add(MyControlsSpace.SUICIDE, new MyGuiDescriptor(MySpaceTexts.ControlName_Suicide));
@@ -422,6 +423,7 @@ namespace Sandbox
             AddDefaultGameControl(defaultGameControls, MyGuiControlTypeEnum.Systems2, MyControlsSpace.HELMET, null, MyKeys.J);
             AddDefaultGameControl(defaultGameControls, MyGuiControlTypeEnum.Systems1, MyControlsSpace.USE, null, MyKeys.T);
             AddDefaultGameControl(defaultGameControls, MyGuiControlTypeEnum.Systems1, MyControlsSpace.TERMINAL, null, MyKeys.K);
+            AddDefaultGameControl(defaultGameControls, MyGuiControlTypeEnum.Systems1, MyControlsSpace.TOGGLE_TERMINAL, null, MyKeys.B);
             AddDefaultGameControl(defaultGameControls, MyGuiControlTypeEnum.Systems1, MyControlsSpace.INVENTORY, null, MyKeys.I);
             AddDefaultGameControl(defaultGameControls, MyGuiControlTypeEnum.Systems2, MyControlsSpace.TOGGLE_HUD, null, MyKeys.Tab);
             AddDefaultGameControl(defaultGameControls, MyGuiControlTypeEnum.Systems1, MyControlsSpace.SUICIDE, null, MyKeys.Back);
