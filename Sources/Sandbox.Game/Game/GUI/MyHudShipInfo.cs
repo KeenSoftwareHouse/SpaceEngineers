@@ -31,6 +31,7 @@ namespace Sandbox.Game.Gui
             FuelTime,
             NumberOfBatteries,
             PowerState,
+            Inventory,
             LandingGearState,
             LandingGearStateSecondLine,
         }
@@ -60,6 +61,35 @@ namespace Sandbox.Game.Gui
                 if (m_mass != value)
                 {
                     m_mass = value;
+                    m_needsRefresh = true;
+                }
+            }
+        }
+
+        private MyFixedPoint m_inventoryVolume;
+        public MyFixedPoint InventoryVolume
+        {
+            get { return m_inventoryVolume; }
+            set
+            {
+                if (m_inventoryVolume != value)
+                {
+                    m_inventoryVolume = value;
+                    m_needsRefresh = true;
+                }
+            }
+        }
+
+        private bool m_isInventoryFull;
+
+        public bool IsInventoryFull
+        {
+            get { return m_isInventoryFull; }
+            set
+            {
+                if (m_isInventoryFull != value)
+                {
+                    m_isInventoryFull = value;
                     m_needsRefresh = true;
                 }
             }
@@ -271,6 +301,7 @@ namespace Sandbox.Game.Gui
             data[(int)LineEnum.NumberOfBatteries].Name.Clear().AppendStringBuilder(MyTexts.Get(MySpaceTexts.HudInfoNameNumberOfBatteries));
             data[(int)LineEnum.GyroCount].Name.Clear().AppendStringBuilder(MyTexts.Get(MySpaceTexts.HudInfoNameGyroscopes));
             data[(int)LineEnum.ThrustCount].Name.Clear().AppendStringBuilder(MyTexts.Get(MySpaceTexts.HudInfoNameThrusts));
+            data[(int)LineEnum.Inventory].Name.Clear().AppendStringBuilder(MyTexts.Get(MySpaceTexts.HudInfoInventoryVolume));
             data[(int)LineEnum.DampenersState].Name.Clear().AppendStringBuilder(MyTexts.Get(MySpaceTexts.HudInfoNameDampeners));
             data[(int)LineEnum.LandingGearState].Name.Clear().AppendStringBuilder(MyTexts.Get(MySpaceTexts.HudInfoNameLandingGear));
             m_needsRefresh = true;
@@ -305,6 +336,16 @@ namespace Sandbox.Game.Gui
             else
                 items[(int)LineEnum.Mass].Value.Clear().AppendInt32(Mass).Append(" kg");
             items[(int)LineEnum.Speed].Value.Clear().AppendDecimal(Speed, 1).Append(" m/s");
+
+            var inventory = items[(int)LineEnum.Inventory];
+            var volume = (double) InventoryVolume;
+            if (volume < 1e4)
+                inventory.Value.Clear().AppendDecimal(volume * 1000, 0).Append(" l");
+            else if (volume < 1e7)
+                inventory.Value.Clear().AppendFormat("{0:f1} m\x00B3", volume);
+            else
+                inventory.Value.Clear().AppendFormat("{0:e4} m\x00B3", volume);
+            inventory.NameFont = inventory.ValueFont = IsInventoryFull ? (MyFontEnum?)MyFontEnum.Red : null;
 
             var powerState = items[(int)LineEnum.PowerState];
             if (PowerState == MyPowerStateEnum.NoPower)

@@ -612,22 +612,34 @@ namespace Sandbox.Game.Entities
             if (ControllerInfo.IsLocallyHumanControlled())
             {
                 MyHud.ShipInfo.Mass = (int)Parent.Physics.Mass;
+
+                MyFixedPoint totalVolume = 0;
+                MyFixedPoint totalCargoVolume = 0;
+                MyFixedPoint maximumCargoVolume = 0;
+                foreach (var fatBlock in CubeGrid.GetFatBlocks<MyTerminalBlock>())
+                {
+                    var inventoryOwner = fatBlock as IMyInventoryOwner;
+                    if (inventoryOwner == null)
+                        continue;
+                    for (int i = 0; i < inventoryOwner.InventoryCount; i++)
+                    {
+                        var inventory = inventoryOwner.GetInventory(i);
+                        var volume = inventory.CurrentVolume;
+                        totalVolume += volume;
+                        if (inventory.Constraint == null)
+                        {
+                            totalCargoVolume += volume;
+                            maximumCargoVolume += inventory.MaxVolume;
+                        }
+                    }
+                }
+                MyHud.ShipInfo.InventoryVolume = totalVolume;
+                MyHud.ShipInfo.IsInventoryFull = MyPerGameSettings.ConstrainInventory() && ((float)totalCargoVolume > 0.95f * (float)maximumCargoVolume);
             }
         }
 
         public override void UpdateBeforeSimulation100()
         {
-            //System.Diagnostics.Debug.Assert(GridPowerDistributor != null);
-            //System.Diagnostics.Debug.Assert(GridGyroSystem != null);
-            //System.Diagnostics.Debug.Assert(GridThrustSystem != null);
-
-            if (GridPowerDistributor == null)
-                return;
-            if (GridGyroSystem == null)
-                return;
-            if (GridThrustSystem == null)
-                return;
-
             // This is here probably to give control to the second player when the first one leaves his cockpit. TODO: Do it properly
             //TryExtendControlToGroup();
 

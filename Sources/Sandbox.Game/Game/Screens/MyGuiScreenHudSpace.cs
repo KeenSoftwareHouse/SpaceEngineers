@@ -502,12 +502,12 @@ namespace Sandbox.Game.Gui
         {
             MyGuiDrawAlignEnum align = MyGuiDrawAlignEnum.HORISONTAL_RIGHT_AND_VERTICAL_BOTTOM;
             Color color = Color.White;
-            Vector2 bgScale = new Vector2(1.2f, 1.05f);
+            Vector2 bgScale = new Vector2(1.2f, 1f);
 
             var bgPos = new Vector2(0.99f, 0.99f);
             bgPos = ConvertHudToNormalizedGuiPosition(ref bgPos);
             var bg = MyGuiConstants.TEXTURE_HUD_BG_LARGE_DEFAULT;
-            MyGuiManager.DrawSpriteBatch(bg.Texture, bgPos, bg.SizeGui * bgScale, color, align);
+            MyGuiManager.DrawSpriteBatch(bg.Texture, bgPos, new Vector2(bg.SizeGui.X * bgScale.X, info.Data.GetGuiHeight()), color, align);
 
             //float scale = MyGuiConstants.HUD_TEXT_SCALE;
             var valuePos = bgPos - bg.PaddingSizeGui * bgScale;
