@@ -142,7 +142,7 @@ namespace Sandbox.Game.Gui
                 return;
             }
 
-            if (!m_grid.IsStatic || m_grid.MarkedForClose)
+            if (!m_grid.IsStatic || m_grid.MarkedForClose || !IsPlayerOwner(m_grid))
                 convertBtn.Enabled = false;
 
             var setDestructibleBlocks = (MyGuiControlCheckbox)m_infoPage.Controls.GetControlByName("SetDestructibleBlocks");
