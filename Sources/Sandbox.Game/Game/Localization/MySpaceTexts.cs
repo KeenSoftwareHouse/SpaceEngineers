@@ -4525,12 +4525,12 @@ namespace Sandbox.Game.Localization
         public static readonly MyStringId NotificationClientDisconnected = MyStringId.GetOrCompute("NotificationClientDisconnected");
 
         ///<summary>
-        ///Thruster damage
+        ///Thruster dmg. & torque
         ///</summary>
         public static readonly MyStringId WorldSettings_ThrusterDamage = MyStringId.GetOrCompute("WorldSettings_ThrusterDamage");
 
         ///<summary>
-        ///Thruster flame deals damage to blocks, players and small objects
+        ///Thruster flame deals damage to blocks, players and small objects.                         Off-center thrusters generate torque.
         ///</summary>
         public static readonly MyStringId ToolTipWorldSettingsThrusterDamage = MyStringId.GetOrCompute("ToolTipWorldSettingsThrusterDamage");
 
@@ -6423,6 +6423,26 @@ namespace Sandbox.Game.Localization
         ///Thrust override
         ///</summary>
         public static readonly MyStringId BlockPropertyTitle_ThrustOverride = MyStringId.GetOrCompute("BlockPropertyTitle_ThrustOverride");
+
+        ///<summary>
+        ///Allows this thruster to accelerate or slow down the ship
+        ///</summary>
+        public static readonly MyStringId BlockPropertyDescription_ThrustLinearMode = MyStringId.GetOrCompute("BlockPropertyDescription_ThrustLinearMode");
+
+        ///<summary>
+        ///Linear movement
+        ///</summary>
+        public static readonly MyStringId BlockPropertyTitle_ThrustLinearMode = MyStringId.GetOrCompute("BlockPropertyTitle_ThrustLinearMode");
+
+        ///<summary>
+        ///Allows this thruster to rotate the ship. Requires a remote control block with fly-by-wire switch turned on.
+        ///</summary>
+        public static readonly MyStringId BlockPropertyDescription_ThrustRotationalMode = MyStringId.GetOrCompute("BlockPropertyDescription_ThrustRotationalMode");
+
+        ///<summary>
+        ///Rotational assist
+        ///</summary>
+        public static readonly MyStringId BlockPropertyTitle_ThrustRotationalMode = MyStringId.GetOrCompute("BlockPropertyTitle_ThrustRotationalMode");
 
         ///<summary>
         ///You have been kicked from the faction.
@@ -10233,6 +10253,11 @@ namespace Sandbox.Game.Localization
         ///Remove
         ///</summary>
         public static readonly MyStringId BlockActionTitle_RemoveWaypoint = MyStringId.GetOrCompute("BlockActionTitle_RemoveWaypoint");
+
+        ///<summary>
+        ///Fly-by-wire
+        ///</summary>
+        public static readonly MyStringId BlockPropertyTitle_FlyByWire = MyStringId.GetOrCompute("BlockPropertyTitle_FlyByWire");
 
         ///<summary>
         ///Autopilot

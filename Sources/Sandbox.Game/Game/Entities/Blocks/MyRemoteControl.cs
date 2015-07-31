@@ -163,6 +163,12 @@ namespace Sandbox.Game.Entities
         private long? m_savedPreviousControlledEntityId;
         private IMyControllableEntity m_previousControlledEntity;
 
+        private Vector3D m_prevAngularVelocity;
+        private double   m_AngularAccelerationAverage;
+        private double   m_maxAngle;
+        private uint     m_overshootCounter;
+        private bool     m_increaseOvershootCounter;
+
         public IMyControllableEntity PreviousControlledEntity
         {
             get
@@ -234,20 +240,38 @@ namespace Sandbox.Game.Entities
             set
             {
                 m_currentWaypoint = value;
+                
+                // In this implementation m_startPosition is set separately in AdvanceWaypoint().
+                /*
                 if (m_currentWaypoint != null)
                 {
                     m_startPosition = WorldMatrix.Translation;
                 }
+                */ 
             }
         }
 
         private List<MyAutopilotWaypoint> m_waypoints;
         private MyAutopilotWaypoint m_currentWaypoint;
+        private bool m_flyByWireEnabled;
         private bool m_autoPilotEnabled;
         private bool m_dockingModeEnabled;
         private FlightMode m_currentFlightMode;
         private bool m_patrolDirectionForward = true;
-        private Vector3D m_startPosition;
+        private Vector3D? m_startPosition;
+        private Vector3D m_prevPosition;
+
+        private static List<MyToolbar> m_openedToolbars;
+        private static bool m_shouldSetOtherToolbars;
+
+        private List<ToolbarItem> m_items;
+        public MyToolbar AutoPilotToolbar { get; set; }
+
+        private bool m_autoPilotCoast;
+        private bool m_autoPilotAccelerate;
+        private bool m_withinApproachCone;
+        private bool m_performLateralAlign;
+
         private MyToolbar m_actionToolbar;
         private Base6Directions.Direction m_currentDirection = Base6Directions.Direction.Forward;
 
@@ -291,6 +315,14 @@ namespace Sandbox.Game.Entities
             
             var autoPilotSeparator = new MyTerminalControlSeparator<MyRemoteControl>();
             MyTerminalControlFactory.AddControl(autoPilotSeparator);
+
+            var flyByWire = new MyTerminalControlOnOffSwitch<MyRemoteControl>("FlyByWire", MySpaceTexts.BlockPropertyTitle_FlyByWire, MySpaceTexts.Blank);
+            flyByWire.Getter = (x) => x.m_flyByWireEnabled;
+            flyByWire.Setter = (x, v) => x.SetFlyByWireEnabled(v);
+            flyByWire.Visible = (x) => MySession.Static.ThrusterDamage;
+            flyByWire.EnableToggleAction();
+            //flyByWire.EnableOnOffActions();
+            MyTerminalControlFactory.AddControl(flyByWire);
 
             var autoPilot = new MyTerminalControlOnOffSwitch<MyRemoteControl>("AutoPilot", MySpaceTexts.BlockPropertyTitle_AutoPilot, MySpaceTexts.Blank);
             autoPilot.Getter = (x) => x.m_autoPilotEnabled;
@@ -458,10 +490,16 @@ namespace Sandbox.Game.Entities
             PowerReceiver.RequiredInputChanged += Receiver_RequiredInputChanged;
             PowerReceiver.Update();
 
+            m_flyByWireEnabled = remoteOb.FlyByWireEnabled;
             m_autoPilotEnabled = remoteOb.AutoPilotEnabled;
             m_dockingModeEnabled = remoteOb.DockingModeEnabled;
             m_currentFlightMode = (FlightMode)remoteOb.FlightMode;
             m_currentDirection = (Base6Directions.Direction)remoteOb.Direction;
+
+            if (m_autoPilotEnabled)
+            {
+                m_startPosition = null;
+            }
 
             if (remoteOb.Coords == null || remoteOb.Coords.Count == 0)
             {
@@ -568,12 +606,22 @@ namespace Sandbox.Game.Entities
             }
         }
 
+        private void SetFlyByWireEnabled(bool enabled)
+        {
+            SyncObject.SetFlyByWire(enabled);
+        }
+
         private void SetAutoPilotEnabled(bool enabled)
         {
             if (CanEnableAutoPilot())
             {
                 SyncObject.SetAutoPilot(enabled);
             }
+        }
+
+        private void OnSetFlyByWireEnabled(bool enabled)
+        {
+            m_flyByWireEnabled = enabled;
         }
 
         private void OnSetAutoPilotEnabled(bool enabled)
@@ -583,7 +631,7 @@ namespace Sandbox.Game.Entities
                 if (!enabled)
                 {
                     CubeGrid.GridSystems.ThrustSystem.AutoPilotThrust = Vector3.Zero;
-                    CubeGrid.GridSystems.GyroSystem.ControlTorque = Vector3.Zero;
+                    CubeGrid.GridSystems.GyroSystem.ControlTorque = CubeGrid.GridSystems.ThrustSystem.ControlTorque = Vector3.Zero;
 
                     m_autoPilotEnabled = enabled;
 
@@ -1132,6 +1180,14 @@ namespace Sandbox.Game.Entities
         #region Autopilot Logic
         private void UpdateAutopilot()
         {
+            const double INIT_ANGLE_NON_PRECISION = 3.2;    // > 180 degrees
+            const double INIT_ANGLE_PRECISION     = 0.05;   //     3 degrees
+            
+            var gyros     = CubeGrid.GridSystems.GyroSystem;
+            var thrusters = CubeGrid.GridSystems.ThrustSystem;
+
+            gyros.FlyByWireEnabled     |= IsWorking && m_flyByWireEnabled;
+            thrusters.FlyByWireEnabled |= IsWorking && m_flyByWireEnabled;
             if (IsWorking && m_autoPilotEnabled)
             {
                 var shipController = CubeGrid.GridSystems.ControlSystem.GetShipController();
@@ -1147,12 +1203,18 @@ namespace Sandbox.Game.Entities
 
                 if (shipController == this)
                 {
+                    gyros.AutopilotAngularDeviation = thrusters.AutopilotAngularDeviation = Vector3.Zero;
                     Debug.Assert(CubeGrid.GridSystems.ThrustSystem.AutopilotEnabled == true);
                     Debug.Assert(CubeGrid.GridSystems.GyroSystem.AutopilotEnabled == true);
 
                     if (CurrentWaypoint == null && m_waypoints.Count > 0)
                     {
-                        CurrentWaypoint = m_waypoints[0];
+                        gyros.CourseEstablished = thrusters.CourseEstablished = m_performLateralAlign = false;
+                        m_withinApproachCone    = true;
+                        m_maxAngle              = INIT_ANGLE_NON_PRECISION;
+                        m_overshootCounter      = 0;
+                        CurrentWaypoint         = m_waypoints[0];
+                        m_startPosition         = WorldMatrix.Translation;
                         UpdateText();
                     }
 
@@ -1160,19 +1222,30 @@ namespace Sandbox.Game.Entities
                     {
                         if (IsInStoppingDistance())
                         {
+                            gyros.CourseEstablished = thrusters.CourseEstablished = m_performLateralAlign = false;
+                            m_withinApproachCone    = true;
+                            m_maxAngle              = INIT_ANGLE_NON_PRECISION;
+                            m_overshootCounter      = 0;
                             AdvanceWaypoint();
                         }
 
+                        // Set the maximum angle here since precision mode setting can change at any time.
+                        if (m_maxAngle < 0.01 || !m_dockingModeEnabled && m_maxAngle == INIT_ANGLE_PRECISION)
+                            m_maxAngle = INIT_ANGLE_NON_PRECISION;
+                        if (m_dockingModeEnabled && m_maxAngle > INIT_ANGLE_PRECISION)
+                            m_maxAngle = INIT_ANGLE_PRECISION;
+
                         if (Sync.IsServer && CurrentWaypoint != null && !IsInStoppingDistance())
                         {
+                            /*
                             if (!UpdateGyro())
-                            {
                                 UpdateThrust();
-                            }
                             else
-                            {
-                                CubeGrid.GridSystems.ThrustSystem.AutoPilotThrust = Vector3.Zero;
-                            }
+                                thrusters.AutoPilotThrust = Vector3.Zero;
+                            */
+                            if (m_startPosition == null)
+                                m_startPosition = WorldMatrix.Translation;
+                            UpdateThrust(!UpdateGyro());
                         }
                     }
                 }
@@ -1181,6 +1254,13 @@ namespace Sandbox.Game.Entities
             {
                 SyncObject.SetAutoPilot(false);
             }
+            else if (!m_autoPilotEnabled)
+            {
+                m_startPosition       = null;
+                m_performLateralAlign = false;
+                m_withinApproachCone  = true;
+            }
+            m_prevPosition = WorldMatrix.Translation;
         }
 
         private bool IsInStoppingDistance()
@@ -1235,7 +1315,7 @@ namespace Sandbox.Game.Entities
                     {
                         currentIndex = 0;
 
-                        CubeGrid.GridSystems.GyroSystem.ControlTorque = Vector3.Zero;
+                        CubeGrid.GridSystems.GyroSystem.ControlTorque = CubeGrid.GridSystems.ThrustSystem.ControlTorque = Vector3.Zero;
                         CubeGrid.GridSystems.ThrustSystem.AutoPilotThrust = Vector3.Zero;
 
                         SetAutoPilotEnabled(false);
@@ -1250,8 +1330,9 @@ namespace Sandbox.Game.Entities
                 UpdateText();
             }
             else
-            {
+            {   
                 CurrentWaypoint = m_waypoints[currentIndex];
+                m_startPosition = (m_oldWaypoint == null) ? null : ((Vector3D?) m_oldWaypoint.Coords);
 
                 if (CurrentWaypoint != m_oldWaypoint)
                 {
@@ -1299,118 +1380,240 @@ namespace Sandbox.Game.Entities
 
         private bool UpdateGyro()
         {
-            var gyros = CubeGrid.GridSystems.GyroSystem;
-            gyros.ControlTorque = Vector3.Zero;
-            Vector3D angularVelocity = CubeGrid.Physics.AngularVelocity;
+            var gyros     = CubeGrid.GridSystems.GyroSystem;
+            var thrusters = CubeGrid.GridSystems.ThrustSystem;
+            gyros.ControlTorque = thrusters.ControlTorque = Vector3.Zero;
+            Vector3D angularVelocity          = CubeGrid.Physics.AngularVelocity;
+            double   angularVelocityMagnitude = angularVelocity.Length();
             var orientation = GetOrientation();
             Matrix invWorldRot = CubeGrid.PositionComp.WorldMatrixNormalizedInv.GetOrientation();
 
-            Vector3D targetPos = CurrentWaypoint.Coords;
-            Vector3D currentPos = m_startPosition;
-            Vector3D deltaPos = targetPos - currentPos;
+            Vector3D targetPos  = CurrentWaypoint.Coords;
+            Vector3D currentPos = (Vector3D) m_startPosition;
+            Vector3D deltaPos   = targetPos - currentPos;
 
             Vector3D targetDirection = Vector3D.Normalize(deltaPos);
 
             QuaternionD current = QuaternionD.CreateFromRotationMatrix(orientation);
-            QuaternionD target = QuaternionD.CreateFromForwardUp(targetDirection, orientation.Up);
+            QuaternionD target  = QuaternionD.CreateFromForwardUp(targetDirection, orientation.Up);
 
-            Vector3D velocity = GetAngleVelocity(current, target);
-            Vector3D velocityToTarget = velocity * angularVelocity.Dot(ref velocity);
+            Vector3D angularOffsetVector = GetAngleVelocity(current, target);
+            Vector3D velocityToTarget    = angularOffsetVector * angularVelocity.Dot(ref angularOffsetVector);
 
-            velocity = Vector3D.Transform(velocity, invWorldRot);
+            angularOffsetVector = Vector3D.Transform(angularOffsetVector, invWorldRot);
+            angularVelocity     = Vector3D.Transform(angularVelocity, invWorldRot);
 
             double angle = System.Math.Acos(Vector3D.Dot(targetDirection, orientation.Forward));
-            if (angle < 0.01)
+
+            // Prevent the ship from going sideways in precision mode if the remote control block 
+            // is not co-located with ship's centre of mass.
+            if (m_startPosition == null && (!m_dockingModeEnabled || angle <= m_maxAngle))
+                m_startPosition = WorldMatrix.Translation;
+
+            // In case of a grossly unbalanced ship it is possible that minimum angle will never be reached. 
+            // To combat this, the autopilot will attempt a precise line-up no more than 5 times, 
+            // and should all these attempts fail, then normal stabilisers will immediately take over.
+            if (angle < 0.01 || m_overshootCounter >= 5)
             {
-                return false;
+                if (!MySession.Static.ThrusterDamage)
+                    return false;
+                gyros.CourseEstablished = thrusters.CourseEstablished = true;
+            }
+            else if (angle > m_maxAngle && m_increaseOvershootCounter)
+            {
+                ++m_overshootCounter;
+                m_increaseOvershootCounter = false;
             }
 
-            if (velocity.LengthSquared() > 1.0)
+            if (!gyros.CourseEstablished && !thrusters.CourseEstablished)
             {
-                Vector3D.Normalize(velocity);
-            }
+                // Prevent an unbalanced craft from bouncing back and forth excessively before stabilisers engage.
+                if (1.5 * angle < m_maxAngle && m_maxAngle > 0.01 * 1.5)
+                    m_maxAngle /= 1.5;
+                if (angle <= m_maxAngle)
+                    m_increaseOvershootCounter = true;
 
-            Vector3D deceleration = angularVelocity - gyros.GetAngularVelocity(-velocity);
-            double timeToStop = (angularVelocity / deceleration).Max();
-            double timeToReachTarget = (angle / velocityToTarget.Length()) * angle;
+                // Now normalised immediately before assinging to gyros.ControlTorque and thrusters.ControlTorque.
+                /*
+                if (velocity.LengthSquared() > 1.0)
+                {
+                    Vector3D.Normalize(velocity);
+                }
+                */
 
-            if (double.IsNaN(timeToStop) || double.IsInfinity(timeToReachTarget) || timeToReachTarget > timeToStop)
-            {
+                double angularAcceleration = (angularVelocity - m_prevAngularVelocity).Length() / MyEngineConstants.UPDATE_STEP_SIZE_IN_SECONDS;
+                // Smooth out fluctuations in torque (which routinely occur if rotating solely on thrusters).
+                angularAcceleration          = 0.1 * angularAcceleration + 0.9 * m_AngularAccelerationAverage;
+                m_AngularAccelerationAverage = angularAcceleration;
+                m_prevAngularVelocity        = angularVelocity;
+
+                double timeToStop        = angularVelocityMagnitude / angularAcceleration;
+                double timeToReachTarget =                    angle / velocityToTarget.Length();
+                //double timeToReachTarget = (angularOffsetVector / angularVelocity).Max();
+
+                Vector3 control = Vector3.Zero;
+                if (double.IsNaN(timeToStop) || double.IsInfinity(timeToReachTarget) || timeToReachTarget > 2.0 * timeToStop)
+                    control = angularOffsetVector;
                 if (m_dockingModeEnabled)
-                {
-                    velocity /= 4.0;
-                }
-                gyros.ControlTorque = velocity;
+                    control /= 2.0f;
+                control -= 2.0 * angularVelocity;   // Overshoot protection.
+                if (control.LengthSquared() > 1.0)
+                    control.Normalize();
+                gyros.ControlTorque = thrusters.ControlTorque = control;
             }
+            if (angularOffsetVector != Vector3D.Zero)
+                angularOffsetVector.Normalize();
+            gyros.AutopilotAngularDeviation = thrusters.AutopilotAngularDeviation = angularOffsetVector * angle;
 
-            if (m_dockingModeEnabled)
-            {
-                if (angle > 0.05)
-                {
-                    return true;
-                }
-            }
-            else
-            {
-                if (angle > 0.25)
-                {
-                    return true;
-                }
-            }
-
-            return false;
+            // When precision mode is disabled, start moving immediately (using reverse and lateral thrusters if necessary).
+            return m_dockingModeEnabled && !gyros.CourseEstablished && !thrusters.CourseEstablished && angle > m_maxAngle;
         }
 
-        private void UpdateThrust()
+        private void UpdateThrust(bool movementEnabled)
         {
+            const double ACCELERATION_THRESHOLD = 5.0;
+            const double COAST_THRESHOLD        = 3.0;
+            const double BRAKE_THRESHOLD        = 1.5;
+            
             var thrustSystem = CubeGrid.GridSystems.ThrustSystem;
             thrustSystem.AutoPilotThrust = Vector3.Zero;
             Matrix invWorldRot = CubeGrid.PositionComp.WorldMatrixNormalizedInv.GetOrientation();
 
-            Vector3D target = CurrentWaypoint.Coords;
-            Vector3D current = WorldMatrix.Translation;
-            Vector3D delta = target - current;
+            Vector3D target      = movementEnabled ? CurrentWaypoint.Coords : ((Vector3D) m_startPosition);
+            Vector3D current     = WorldMatrix.Translation;
+            Vector3D delta       = target - current;
+            double   deltaLength = delta.Length();
+            if (deltaLength == 0.0)
+                return;
+            
+            // If angular misalignment occurs mid-way, hand it over to regular stabilisers.
+            if (!movementEnabled && deltaLength > 10.0)
+            {
+                CubeGrid.GridSystems.GyroSystem.CourseEstablished = CubeGrid.GridSystems.ThrustSystem.CourseEstablished = true;
+                return;
+            }
 
             Vector3D targetDirection = delta;
             targetDirection.Normalize();
 
-            Vector3D velocity = CubeGrid.Physics.LinearVelocity;
+            //Vector3D velocity          = CubeGrid.Physics.LinearVelocity;
+            // CubeGrid.Physics.LinearVelocity tends to be inaccurate under thrust.
+            Vector3D velocity          = (current - m_prevPosition) / MyEngineConstants.UPDATE_STEP_SIZE_IN_SECONDS;
+            double   velocityMagnitude = velocity.Length();
 
-            Vector3 localSpaceTargetDirection = Vector3.Transform(targetDirection, invWorldRot);
-            Vector3 localSpaceVelocity = Vector3.Transform(velocity, invWorldRot);
+            Vector3D localSpaceDelta           = Vector3D.Transform(          delta, invWorldRot);
+            Vector3D localSpaceTargetDirection = Vector3D.Transform(targetDirection, invWorldRot);
+            Vector3D localSpaceVelocity        = Vector3D.Transform(       velocity, invWorldRot);
 
-            thrustSystem.AutoPilotThrust = Vector3.Zero;
+            Vector3 brakeThrust = thrustSystem.GetAutoPilotThrustForDirection(Vector3.Zero, includeSlowdown: true);
 
-            Vector3 brakeThrust = thrustSystem.GetAutoPilotThrustForDirection(Vector3.Zero);
-
+            // This check is now handled by approach cone code.
+            /* 
             if (velocity.Length() > 3.0f && velocity.Dot(ref targetDirection) < 0)
             {
                 //Going the wrong way
                 return;
             }
+            */
+
+            Vector3D course = target - ((Vector3D) m_startPosition);
+            Vector3D perpendicularToCourse1 = Vector3D.Zero;
+            if (course.LengthSquared() > 0.0001)
+            {
+                course.Normalize();
+                perpendicularToCourse1 = Vector3D.CalculatePerpendicularVector(course);
+            }
+            Vector3D perpendicularToCourse2 = Vector3D.Cross(course, perpendicularToCourse1);
+            Vector3D delta1 = perpendicularToCourse1 * delta.Dot(ref perpendicularToCourse1);
+            Vector3D delta2 = perpendicularToCourse2 * delta.Dot(ref perpendicularToCourse2);
+            Vector3D lateralOffset = Vector3D.Transform(delta1 + delta2, invWorldRot);
+            double lateralOffsetLength = lateralOffset.Length();
+
+            Vector3D velocityToTarget = targetDirection * velocity.Dot(ref targetDirection);
 
             Vector3D perpendicularToTarget1 = Vector3D.CalculatePerpendicularVector(targetDirection);
             Vector3D perpendicularToTarget2 = Vector3D.Cross(targetDirection, perpendicularToTarget1);
-
-            Vector3D velocityToTarget = targetDirection * velocity.Dot(ref targetDirection);
             Vector3D velocity1 = perpendicularToTarget1 * velocity.Dot(ref perpendicularToTarget1);
             Vector3D velocity2 = perpendicularToTarget2 * velocity.Dot(ref perpendicularToTarget2);
+            Vector3D velocityToCancel = Vector3D.Transform(velocity1 + velocity2, invWorldRot);
 
-            Vector3D velocityToCancel = velocity1 + velocity2;
-
-            double timeToReachTarget = (delta.Length() / velocityToTarget.Length());
-            double timeToStop = velocity.Length() * CubeGrid.Physics.Mass / brakeThrust.Length();
-
-            if (m_dockingModeEnabled)
+            double approachAngleSine = lateralOffsetLength / deltaLength;
+            if (!m_dockingModeEnabled)
             {
-                timeToStop *= 2.5f;
+                if (lateralOffsetLength < 2.5 || approachAngleSine < 0.866)    // 120 degree cone
+                {
+                    m_performLateralAlign = false;
+                    m_withinApproachCone  = true;
+                }
+                else if (approachAngleSine > 0.866)        // 120 degree cone
+                    m_withinApproachCone = false;
+            }
+            else
+            {
+                if (lateralOffsetLength < 0.25 || approachAngleSine < 0.087)   // 10 degree cone
+                {
+                    m_withinApproachCone  = true;
+                    if (velocityMagnitude < 0.1)        // Resume movement only after complete stop.
+                        m_performLateralAlign = false;
+                }
+                else if (approachAngleSine > 0.174)        // 20 degree cone
+                    m_withinApproachCone = false;
             }
 
-            if (double.IsInfinity(timeToReachTarget) || double.IsNaN(timeToStop) || timeToReachTarget > timeToStop)
+            double? timeToReachTarget = (velocityToTarget.Dot(delta) > 0.0) ? ((double?) (deltaLength / velocityToTarget.Length())) : null;
+            double timeToStop = velocityMagnitude * CubeGrid.Physics.Mass / brakeThrust.Length();
+
+            Vector3 lateralDirection = lateralOffset;
+            if (lateralDirection.LengthSquared() > 0.0001f)
+                lateralDirection.Normalize();
+            double lateralDeceleration       = thrustSystem.GetAutoPilotThrustForDirection(-lateralDirection, includeSlowdown: false).Length() / CubeGrid.Physics.Mass;
+            double lateralVelocityProjection = Vector3D.Dot(velocityToCancel, lateralDirection);
+            Vector3 lateralControl           = 0.5 * lateralOffset * lateralDeceleration;
+            if (lateralControl.LengthSquared() > 1.0)
+                lateralControl.Normalize();
+
+            if (!m_withinApproachCone || m_performLateralAlign)
             {
-                thrustSystem.AutoPilotThrust = Vector3D.Transform(delta, invWorldRot) - Vector3D.Transform(velocityToCancel, invWorldRot);
+                // The second check safeguards against sinking in planetary gravity when all thrusters have rotational mode enabled.
+                if (velocityMagnitude < 0.1 || velocityMagnitude < 1.0 && lateralVelocityProjection < -0.1)
+                    m_performLateralAlign = true;
+                if (m_performLateralAlign)
+                {
+                    var localVelocityToTarget = Vector3D.Transform(velocityToTarget, invWorldRot);
+                    thrustSystem.AutoPilotThrust = lateralControl * (float) (1.0 - lateralVelocityProjection) - localVelocityToTarget;
+                }
+            }
+            else if (timeToReachTarget == null)
+                thrustSystem.AutoPilotThrust = localSpaceTargetDirection + lateralControl - velocityToCancel;
+            else 
+            {
+                if (m_dockingModeEnabled)
+                    timeToStop *= 2.5f;
+
+                if (timeToReachTarget < timeToStop * BRAKE_THRESHOLD)
+                    m_autoPilotCoast = false;
+                else if (timeToReachTarget > timeToStop * COAST_THRESHOLD)
+                    m_autoPilotCoast = true;
+                if (   timeToReachTarget < timeToStop * COAST_THRESHOLD || lateralVelocityProjection < -1.0 
+                    || lateralOffsetLength > 5.0 && (approachAngleSine > 0.174 && lateralVelocityProjection <= 0.0 
+                        || velocityMagnitude > 0.0 && approachAngleSine > lateralVelocityProjection / velocityMagnitude))
+                {
+                    m_autoPilotAccelerate = false;
+                }
+                else if (timeToReachTarget > timeToStop * ACCELERATION_THRESHOLD)
+                    m_autoPilotAccelerate = true;
+
+                lateralControl -= velocityToCancel;
+                if (m_autoPilotAccelerate)
+                    thrustSystem.AutoPilotThrust = localSpaceTargetDirection + lateralControl;
+                else if (m_autoPilotCoast)
+                {
+                    thrustSystem.AutoPilotThrust  = localSpaceTargetDirection * (-0.1f);     // Minimal reverse thrust for coasting.
+                    thrustSystem.AutoPilotThrust += lateralControl;
+                }
+            }
+            if (thrustSystem.AutoPilotThrust.LengthSquared() > 1.0f)
                 thrustSystem.AutoPilotThrust.Normalize();
-            }
         }
 
         private void ResetShipControls()
@@ -1493,6 +1696,7 @@ namespace Sandbox.Game.Entities
                 objectBuilder.PreviousControlledEntityId = m_previousControlledEntity.Entity.EntityId;
             }
 
+            objectBuilder.FlyByWireEnabled = m_flyByWireEnabled;
             objectBuilder.AutoPilotEnabled = m_autoPilotEnabled;
             objectBuilder.DockingModeEnabled = m_dockingModeEnabled;
             objectBuilder.FlightMode = (int)m_currentFlightMode;
@@ -1993,6 +2197,15 @@ namespace Sandbox.Game.Entities
         [PreloadRequired]
         public class MySyncRemoteControl : MySyncShipController
         {
+            [MessageIdAttribute(7423, P2PMessageEnum.Reliable)]
+            protected struct SetFlyByWireMsg : IEntityMessage
+            {
+                public long EntityId;
+                public long GetEntityId() { return EntityId; }
+
+                public BoolBlit Enabled;
+            }
+
             [MessageIdAttribute(2500, P2PMessageEnum.Reliable)]
             protected struct SetAutoPilotMsg : IEntityMessage
             {
@@ -2129,6 +2342,7 @@ namespace Sandbox.Game.Entities
 
             static MySyncRemoteControl()
             {
+                MySyncLayer.RegisterEntityMessage<MySyncRemoteControl, SetFlyByWireMsg>(OnSetFlyByWire, MyMessagePermissions.Any);
                 MySyncLayer.RegisterEntityMessage<MySyncRemoteControl, SetAutoPilotMsg>(OnSetAutoPilot, MyMessagePermissions.Any);
                 MySyncLayer.RegisterEntityMessage<MySyncRemoteControl, SetDockingModeMsg>(OnSetDockingMode, MyMessagePermissions.Any);
                 MySyncLayer.RegisterEntityMessage<MySyncRemoteControl, ChangeFlightModeMsg>(OnChangeFlightMode, MyMessagePermissions.Any);
@@ -2151,6 +2365,16 @@ namespace Sandbox.Game.Entities
                 base(remoteControl)
             {
                 m_remoteControl = remoteControl;
+            }
+
+            public void SetFlyByWire(bool enabled)
+            {
+                var msg = new SetFlyByWireMsg();
+                msg.EntityId = m_remoteControl.EntityId;
+
+                msg.Enabled = enabled;
+
+                Sync.Layer.SendMessageToAllAndSelf(ref msg);
             }
 
             public void SetAutoPilot(bool enabled)
@@ -2297,6 +2521,11 @@ namespace Sandbox.Game.Entities
                 msg.Clipboard = clipboard;
 
                 Sync.Layer.SendMessageToAllAndSelf(ref msg);
+            }
+
+            private static void OnSetFlyByWire(MySyncRemoteControl sync, ref SetFlyByWireMsg msg, MyNetworkClient sender)
+            {
+                sync.m_remoteControl.OnSetFlyByWireEnabled(msg.Enabled);
             }
 
             private static void OnSetAutoPilot(MySyncRemoteControl sync, ref SetAutoPilotMsg msg, MyNetworkClient sender)

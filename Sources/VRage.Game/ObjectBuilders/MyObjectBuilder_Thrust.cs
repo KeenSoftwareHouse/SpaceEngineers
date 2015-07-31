@@ -11,5 +11,11 @@ namespace Sandbox.Common.ObjectBuilders
     {
         [ProtoMember, DefaultValue(0.0f)]
         public float ThrustOverride = 0.0f;
+
+        [ProtoMember]
+        public bool LinearModeOn = true;
+
+        [ProtoMember]
+        public bool RotationalModeOn = false;
     }
 }

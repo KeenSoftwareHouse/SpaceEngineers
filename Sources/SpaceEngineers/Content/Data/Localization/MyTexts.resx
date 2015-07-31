@@ -2885,10 +2885,11 @@ Refinery speed {2}x</value>
     <value>Player disconnected: {0}</value>
   </data>
   <data name="WorldSettings_ThrusterDamage" xml:space="preserve">
-    <value>Thruster damage</value>
+    <value>Thruster dmg. &amp; torque</value>
   </data>
   <data name="ToolTipWorldSettingsThrusterDamage" xml:space="preserve">
-    <value>Thruster flame deals damage to blocks, players and small objects</value>
+    <value>Thruster flame deals damage to blocks, players and small objects.
+                        Off-center thrusters generate torque.</value>
   </data>
   <data name="ToolTipWorldSettingsEnableCargoShips" xml:space="preserve">
     <value>Whether random cargo ships should be enabled</value>
@@ -4034,6 +4035,18 @@ Setting to 0% will effectively lock the suspension.</value>
   </data>
   <data name="BlockPropertyTitle_ThrustOverride" xml:space="preserve">
     <value>Thrust override</value>
+  </data>
+  <data name="BlockPropertyDescription_ThrustLinearMode" xml:space="preserve">
+    <value>Allows this thruster to accelerate or slow down the ship</value>
+  </data>
+  <data name="BlockPropertyTitle_ThrustLinearMode" xml:space="preserve">
+    <value>Linear movement</value>
+  </data>
+  <data name="BlockPropertyDescription_ThrustRotationalMode" xml:space="preserve">
+    <value>Allows this thruster to rotate the ship. Requires a remote control block with fly-by-wire switch turned on.</value>
+  </data>
+  <data name="BlockPropertyTitle_ThrustRotationalMode" xml:space="preserve">
+    <value>Rotational assist</value>
   </data>
   <data name="MessageBoxTextYouHaveBeenKickedFromFaction" xml:space="preserve">
     <value>You have been kicked from the faction.</value>
@@ -6339,6 +6352,9 @@ To connect to lasers not listed here you can connect to coordinates.</value>
   </data>
   <data name="BlockActionTitle_RemoveWaypoint" xml:space="preserve">
     <value>Remove</value>
+  </data>
+  <data name="BlockPropertyTitle_FlyByWire" xml:space="preserve">
+    <value>Fly-by-wire</value>
   </data>
   <data name="BlockPropertyTitle_AutoPilot" xml:space="preserve">
     <value>Autopilot</value>

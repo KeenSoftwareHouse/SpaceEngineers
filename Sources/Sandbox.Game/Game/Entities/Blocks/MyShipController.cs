@@ -345,7 +345,7 @@ namespace Sandbox.Game.Entities
                     Vector3.ClampToSphere(controlTorque, 1.0f);
 
                     GridThrustSystem.ControlThrust = controlThrust;
-                    GridGyroSystem.ControlTorque = controlTorque;
+                    GridGyroSystem.ControlTorque   = GridThrustSystem.ControlTorque = controlTorque;
 
                     if (MyFakes.ENABLE_WHEEL_CONTROLS_IN_COCKPIT)
                     {
@@ -377,10 +377,10 @@ namespace Sandbox.Game.Entities
             if (GridThrustSystem != null)
             {
                 if (GridThrustSystem.ControlThrust != Vector3.Zero ||
-                    GridGyroSystem.ControlTorque != Vector3.Zero)
+                    GridGyroSystem.ControlTorque != Vector3.Zero || GridThrustSystem.ControlTorque != Vector3.Zero)
                 {
                     GridThrustSystem.ControlThrust = Vector3.Zero;
-                    GridGyroSystem.ControlTorque = Vector3.Zero;
+                    GridGyroSystem.ControlTorque   = GridThrustSystem.ControlTorque = Vector3.Zero;
                 }
 
                 // Need it every frame because of MP interpolation

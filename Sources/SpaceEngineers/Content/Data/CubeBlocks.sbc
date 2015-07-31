@@ -16687,9 +16687,9 @@
       <Model>Models\Cubes\Large\RemoteControl.mwm</Model>
       <Components>
         <Component Subtype="InteriorPlate" Count="5" />
-        <Component Subtype="Construction" Count="10" />
-        <Component Subtype="Motor" Count="1" />
-        <Component Subtype="Computer" Count="15" />
+        <Component Subtype="Construction" Count="20" />
+        <Component Subtype="Motor" Count="6" />
+        <Component Subtype="Computer" Count="500" />
         <Component Subtype="InteriorPlate" Count="5" />
       </Components>
       <CriticalComponent Subtype="Computer" Index="0" />
@@ -16732,9 +16732,9 @@
       <Model>Models\Cubes\Small\RemoteControl.mwm</Model>
       <Components>
         <Component Subtype="InteriorPlate" Count="1" />
-        <Component Subtype="Construction" Count="1" />
-        <Component Subtype="Motor" Count="1" />
-        <Component Subtype="Computer" Count="1" />
+        <Component Subtype="Construction" Count="5" />
+        <Component Subtype="Motor" Count="3" />
+        <Component Subtype="Computer" Count="200" />
         <Component Subtype="InteriorPlate" Count="1" />
       </Components>
       <CriticalComponent Subtype="Computer" Index="0" />

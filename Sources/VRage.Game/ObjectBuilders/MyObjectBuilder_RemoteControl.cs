@@ -15,6 +15,9 @@ namespace Sandbox.Common.ObjectBuilders
         public long? PreviousControlledEntityId = null;
 
         [ProtoMember]
+        public bool FlyByWireEnabled = false;
+
+        [ProtoMember]
         public bool AutoPilotEnabled;
 
         [ProtoMember]

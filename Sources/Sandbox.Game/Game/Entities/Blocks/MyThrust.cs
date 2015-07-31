@@ -116,6 +116,16 @@ namespace Sandbox.Game.Entities
 
         public float CurrentStrength { get; set; }
 
+        public Vector3 GridCenterPos   { get; set; }
+        public Vector3 COMOffsetVector { get; set; }
+        public Vector3 COTOffsetVector { get; set; }
+        public Vector3 StaticMoment    { get; set; }
+        public float   PrevStrength    { get; set; }
+        public Vector3 ThrustTorque    { get; set; }
+
+        public bool LinearModeOn     { get; private set; }
+        public bool RotationalModeOn { get; private set; }
+
         /// <summary>
         /// Overridden thrust in Newtons
         /// </summary>
@@ -230,6 +240,26 @@ namespace Sandbox.Game.Entities
                         MyValueFormatter.AppendForceInBestUnit(x.ThrustOverride, result);
                 };
             MyTerminalControlFactory.AddControl(thrustOverride);
+
+            //if (MySession.Static.ThrusterDamage)
+            {
+                var linearCB = new MyTerminalControlOnOffSwitch<MyThrust>("LinearMode", MySpaceTexts.BlockPropertyTitle_ThrustLinearMode, MySpaceTexts.BlockPropertyDescription_ThrustLinearMode);
+                linearCB.Getter  = (x) => x.LinearModeOn;
+                linearCB.Setter  = (x, v) => x.SyncObject.SendLinearModeChangeRequest(v);
+                linearCB.Visible = (x) => MySession.Static.ThrusterDamage;
+                linearCB.EnableOnOffActions();
+                linearCB.EnableToggleAction();
+
+                var rotationalCB = new MyTerminalControlOnOffSwitch<MyThrust>("RotationalMode", MySpaceTexts.BlockPropertyTitle_ThrustRotationalMode, MySpaceTexts.BlockPropertyDescription_ThrustRotationalMode);
+                rotationalCB.Getter  = (x) => x.RotationalModeOn;
+                rotationalCB.Setter  = (x, v) => x.SyncObject.SendRotationalModeChangeRequest(v);
+                rotationalCB.Visible = (x) => MySession.Static.ThrusterDamage;
+                rotationalCB.EnableOnOffActions();
+                rotationalCB.EnableToggleAction();
+
+                MyTerminalControlFactory.AddControl(    linearCB);
+                MyTerminalControlFactory.AddControl(rotationalCB);
+            }
         }
 
         public MyThrust()
@@ -250,10 +280,26 @@ namespace Sandbox.Game.Entities
                 m_thrustSystem.MarkDirty();
         }
 
+        public void SetLinearMode(bool setLinearMode)
+        {
+            LinearModeOn = setLinearMode;
+            if (m_thrustSystem != null)
+                m_thrustSystem.MarkDirty();
+        }
+
+        public void SetRotationalMode(bool setRotationalMode)
+        {
+            RotationalModeOn = setRotationalMode;
+            if (m_thrustSystem != null)
+                m_thrustSystem.MarkDirty();
+        }
+
         public override MyObjectBuilder_CubeBlock GetObjectBuilderCubeBlock(bool copy = false)
         {
             var builder = (MyObjectBuilder_Thrust)base.GetObjectBuilderCubeBlock(copy);
-            builder.ThrustOverride = ThrustOverride;
+            builder.ThrustOverride   = ThrustOverride;
+            builder.LinearModeOn     = LinearModeOn;
+            builder.RotationalModeOn = RotationalModeOn;
             return builder;
         }
 
@@ -267,7 +313,9 @@ namespace Sandbox.Game.Entities
 
             m_thrustColor = m_thrustDefinition.FlameIdleColor;
 
-            ThrustOverride = builder.ThrustOverride;
+            ThrustOverride   = builder.ThrustOverride;
+            LinearModeOn     = builder.LinearModeOn;
+            RotationalModeOn = builder.RotationalModeOn;
 
             LoadDummies();
 
@@ -337,6 +385,8 @@ namespace Sandbox.Game.Entities
 
         public override void UpdateBeforeSimulation10()
         {
+            //MyHud.Notifications.Add(new MyHudNotificationDebug(LinearModeOn.ToString() + " " + RotationalModeOn.ToString()));
+
             if (!IsWorking)
             {
                 ThrustRadiusRand = 0.0f;

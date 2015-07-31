@@ -4,6 +4,7 @@ using Sandbox.Engine.Utils;
 using Sandbox.Game.Entities;
 using Sandbox.Game.GameSystems.Electricity;
 using Sandbox.Game.Multiplayer;
+using Sandbox.Game.World;
 using System;
 using System.Collections.Generic;
 
@@ -14,6 +15,8 @@ using VRageRender;
 using VRage.Utils;
 using VRage.Components;
 
+using Sandbox.Game.Gui;
+
 namespace Sandbox.Game.GameSystems
 {
     public class MyGridGyroSystem : IMyPowerConsumer
@@ -23,6 +26,11 @@ namespace Sandbox.Game.GameSystems
         static readonly float MAX_SLOWDOWN = 0.93f;
         static readonly float MAX_ROLL = MathHelper.PiOver2;
 
+        // Gyroscope PID controller values.
+        const float P_COEFF = -0.05f / MyEngineConstants.UPDATE_STEP_SIZE_IN_SECONDS;
+        const float I_COEFF = 0.1f * P_COEFF;
+        const float D_COEFF = 0.05f * P_COEFF;
+
         #region Fields
         public Vector3 ControlTorque;
         public bool AutopilotEnabled;
@@ -31,14 +39,18 @@ namespace Sandbox.Game.GameSystems
         private HashSet<MyGyro> m_gyros;
         private bool m_gyrosChanged;
 
-        // Combined torque of all controlled gyros
-        private float m_maxGyroForce;
         // Combined torque of all overridden gyros
         private float m_maxOverrideForce;
 
         private float m_maxRequiredPowerInput;
 
         private Vector3 m_overrideTargetVelocity;
+
+        private Vector3 m_gyroControlIntegral;
+        private Vector3 m_prevAngularVelocity;
+        private Vector3 m_AngularVelocityAtRelease;
+        private bool    m_enableIntegral;
+        private bool    m_resetIntegral;
 
         #endregion
 
@@ -66,6 +78,15 @@ namespace Sandbox.Game.GameSystems
         /// Final torque (clamped by available power, added anti-gravity, slowdown).
         /// </summary>
         public Vector3 Torque { get; private set; }
+
+        public bool IsGyroOverrideActive { get; private set; }
+        // Combined torque of all controlled gyros
+        public float   MaxGyroForce   { get; private set; }
+        public Vector3 SlowdownTorque { get; private set; }
+
+        public bool    FlyByWireEnabled          { get; set; }
+        public bool    CourseEstablished         { get; set; }
+        public Vector3 AutopilotAngularDeviation { get; set; }
 
         #endregion
 
@@ -118,37 +139,100 @@ namespace Sandbox.Game.GameSystems
                 // engines are stopped (set by cockpit).
                 if (PowerReceiver.SuppliedRatio > 0f && m_grid.Physics != null && (m_grid.Physics.Enabled || m_grid.Physics.IsWelded) && !m_grid.Physics.RigidBody.IsFixed)
                 {
-                    Matrix invWorldRot = m_grid.PositionComp.GetWorldMatrixNormalizedInv().GetOrientation();
-                    Matrix worldRot = m_grid.WorldMatrix.GetOrientation();
-                    Vector3 localAngularVelocity = Vector3.Transform(m_grid.Physics.AngularVelocity, ref invWorldRot);
+                    Matrix  invWorldRot = m_grid.PositionComp.GetWorldMatrixNormalizedInv().GetOrientation();
+                    Matrix  worldRot    = m_grid.WorldMatrix.GetOrientation();
+                    // For some reason, calculating angular velocity inside MyGridGyroSystem.cs yields an incorrect value, causing gyroscopes to overcompensate.
+                    // (Maybe because MyGridThrustSystem.UpdateBeforeSimulation() is called first?)
+                    Vector3 localAngularVelocity = m_grid.GridSystems.ThrustSystem.LocalAngularVelocity; 
 
                     float slowdown = (1 - MAX_SLOWDOWN) * (1 - PowerReceiver.SuppliedRatio) + MAX_SLOWDOWN;
-                    var slowdownAngularAcceleration = -localAngularVelocity / MyEngineConstants.UPDATE_STEP_SIZE_IN_SECONDS;
+                    Vector3 slowdownAngularAcceleration;
+
+                    if (!MySession.Static.ThrusterDamage)
+                        slowdownAngularAcceleration = -localAngularVelocity / MyEngineConstants.UPDATE_STEP_SIZE_IN_SECONDS;    // Original damping torque code.
+                    else
+                    {
+                        slowdownAngularAcceleration = P_COEFF * localAngularVelocity;
+                        if (FlyByWireEnabled)
+                        {
+                            if (!AutopilotEnabled)
+                            {
+                                m_gyroControlIntegral = m_enableIntegral ? (m_gyroControlIntegral + localAngularVelocity * I_COEFF) : Vector3.Zero;
+                                CourseEstablished     = false;  // Just in case.
+                            }
+                            else if (CourseEstablished)
+                            {
+                                m_gyroControlIntegral = (-AutopilotAngularDeviation) * (I_COEFF * MyEngineConstants.UPDATE_STEPS_PER_SECOND);
+                                m_enableIntegral      = true;
+                                m_resetIntegral       = false;
+                            }
+                            else
+                                m_gyroControlIntegral = Vector3.Zero;
+
+                            // To prevent integral part from fighting the player input, force reset of integral portion 
+                            // when ship starts to spring back after releasing the controls.
+                            if (m_resetIntegral && Vector3.Dot(localAngularVelocity, m_AngularVelocityAtRelease) <= 0.0f)
+                            {
+                                m_resetIntegral       = false;
+                                m_gyroControlIntegral = Vector3.Zero;
+                            }
+                            var angularAcceleration = (localAngularVelocity - m_prevAngularVelocity) / MyEngineConstants.UPDATE_STEP_SIZE_IN_SECONDS;
+
+                            slowdownAngularAcceleration += m_gyroControlIntegral + D_COEFF * angularAcceleration;
+                        }
+                        FlyByWireEnabled = false;    // Needs to be done here and not in the remote control code, as there may be more than 1 RC block.
+                    }
+
                     var invTensor = m_grid.Physics.RigidBody.InverseInertiaTensor;
                     invTensor.M44 = 1;
                     var minInvTensor = Math.Min(Math.Min(invTensor.M11, invTensor.M22), invTensor.M33);
-                    var slowdownTorque = slowdownAngularAcceleration / new Vector3(invTensor.M11, invTensor.M22, invTensor.M33);
+                    SlowdownTorque = slowdownAngularAcceleration / new Vector3(invTensor.M11, invTensor.M22, invTensor.M33);
+
+                    m_prevAngularVelocity = localAngularVelocity;
 
                     float torqueSlowdownMultiplier = m_grid.GridSizeEnum == MyCubeSize.Large ? MyFakes.SLOWDOWN_FACTOR_TORQUE_MULTIPLIER_LARGE_SHIP : MyFakes.SLOWDOWN_FACTOR_TORQUE_MULTIPLIER;
-                    Vector3 slowdownClamp = new Vector3(m_maxGyroForce * torqueSlowdownMultiplier);
-                    slowdownTorque = Vector3.Clamp(slowdownTorque, -slowdownClamp, slowdownClamp) * Vector3.IsZeroVector(ControlTorque);
+                    Vector3 slowdownClamp = new Vector3(MaxGyroForce * torqueSlowdownMultiplier);
+                    SlowdownTorque = Vector3.Clamp(SlowdownTorque, -slowdownClamp, slowdownClamp) * Vector3.IsZeroVector(ControlTorque);
 
-                    if (slowdownTorque.LengthSquared() > 0.0001f)
+                    if (SlowdownTorque.LengthSquared() > 0.0001f)
                     {
-                        m_grid.Physics.AddForce(MyPhysicsForceType.ADD_BODY_FORCE_AND_BODY_TORQUE, null, null, slowdownTorque);
-                        var newVelocity = Vector3.Transform(m_grid.Physics.AngularVelocity, ref invWorldRot);
-                        var maxDelta = Vector3.Abs(localAngularVelocity) * (1 - slowdown);
-                        m_grid.Physics.AngularVelocity = Vector3.Transform(Vector3.Clamp(newVelocity, localAngularVelocity - maxDelta, localAngularVelocity + maxDelta), ref worldRot);
+                        m_grid.Physics.AddForce(MyPhysicsForceType.ADD_BODY_FORCE_AND_BODY_TORQUE, null, null, SlowdownTorque);
+
+                        if (!MySession.Static.ThrusterDamage)
+                        {
+                            // Original damping torque code.
+                            var newVelocity = Vector3.Transform(m_grid.Physics.AngularVelocity, ref invWorldRot);
+                            var maxDelta = Vector3.Abs(localAngularVelocity) * (1 - slowdown);
+                            m_grid.Physics.AngularVelocity = Vector3.Transform(Vector3.Clamp(newVelocity, localAngularVelocity - maxDelta, localAngularVelocity + maxDelta), ref worldRot);
+                        }
                     }
 
                     // Max rotation limiter
                     float divider = Math.Max(1, minInvTensor * INV_TENSOR_MAX_LIMIT);
 
-                    Torque = Vector3.Clamp(ControlTorque, -Vector3.One, Vector3.One) * m_maxGyroForce / divider;
+                    Torque = Vector3.Clamp(ControlTorque, -Vector3.One, Vector3.One) * MaxGyroForce / divider;
                     Torque *= PowerReceiver.SuppliedRatio;
-                    if (Torque.LengthSquared() > 0.0001f)
+                    if (MySession.Static.ThrusterDamage)
                     {
-                        // Manually apply torque and use minimal component of inverted inertia tensor to make rotate same in all axes
+                        if (Torque.LengthSquared() <= 0.0001f)
+                        {
+                            if (!m_enableIntegral && !m_resetIntegral)
+                            {
+                                m_AngularVelocityAtRelease = localAngularVelocity;
+                                m_resetIntegral            = true;
+                            }
+                            m_enableIntegral = true;
+                        }
+                        else
+                        {
+                            m_grid.Physics.AddForce(MyPhysicsForceType.ADD_BODY_FORCE_AND_BODY_TORQUE, null, null, Torque);
+                            // Disable integral part when player activates the rotation controls.
+                            m_enableIntegral = false;
+                        }
+                    }
+                    else if (Torque.LengthSquared() > 0.0001f)
+                    {
+                        // Manually apply torque and use minimal component of inverted inertia tensor to make rotate same in all axes.
                         var delta = Torque * new Vector3(minInvTensor) * MyEngineConstants.UPDATE_STEP_SIZE_IN_SECONDS;
                         var newAngularVelocity = localAngularVelocity + delta;
                         m_grid.Physics.AngularVelocity = Vector3.Transform(newAngularVelocity, ref worldRot);
@@ -190,7 +274,7 @@ namespace Sandbox.Game.GameSystems
 
                 // The correction is done by overridden gyros and by the remaining power of the controlled gyros
                 // This is not entirely physically correct, but it feels good
-                float correctionForce = m_maxOverrideForce + m_maxGyroForce * (1.0f - control.Length());
+                float correctionForce = m_maxOverrideForce + MaxGyroForce * (1.0f - control.Length());
 
                 // This is to ensure that the correction is done uniformly in all axes
                 desiredAcceleration = desiredAcceleration * Vector3.Normalize(invTensorVector);
@@ -216,7 +300,7 @@ namespace Sandbox.Game.GameSystems
                         correctionTorque *= 2.0f;
                 }
 
-                Torque = (control * m_maxGyroForce + correctionTorque) / divider;
+                Torque = (control * MaxGyroForce + correctionTorque) / divider;
 
                 Torque *= PowerReceiver.SuppliedRatio;
                 if (Torque.LengthSquared() > 0.0001f)
@@ -252,6 +336,7 @@ namespace Sandbox.Game.GameSystems
 
             if (m_maxOverrideForce == 0.0f)
             {
+                IsGyroOverrideActive = false;
                 if (MyDebugDrawSettings.DEBUG_DRAW_GYROS)
                     MyRenderProxy.DebugDrawText2D(new Vector2(0.0f, 0.0f), "Old gyros", Color.White, 1.0f);
                 UpdateBeforeSimulationOld();
@@ -261,6 +346,9 @@ namespace Sandbox.Game.GameSystems
             if (MyDebugDrawSettings.DEBUG_DRAW_GYROS)
                 MyRenderProxy.DebugDrawText2D(new Vector2(0.0f, 0.0f), "New gyros", Color.White, 1.0f);
 
+            m_gyroControlIntegral = Vector3.Zero;
+            m_enableIntegral      = m_resetIntegral = false;
+            IsGyroOverrideActive  = true;
             if (m_grid.Physics != null)
             {
                 m_grid.Physics.AngularVelocity = GetAngularVelocity(ControlTorque);
@@ -272,7 +360,7 @@ namespace Sandbox.Game.GameSystems
             m_gyrosChanged = false;
 
             float oldRequirement = m_maxRequiredPowerInput;
-            m_maxGyroForce = 0.0f;
+            MaxGyroForce = 0.0f;
             m_maxOverrideForce = 0.0f;
             m_maxRequiredPowerInput = 0.0f;
             m_overrideTargetVelocity = Vector3.Zero;
@@ -281,7 +369,7 @@ namespace Sandbox.Game.GameSystems
                 if (IsUsed(gyro))
                 {
                     if (!gyro.GyroOverride || AutopilotEnabled)
-                        m_maxGyroForce += gyro.MaxGyroForce;
+                        MaxGyroForce += gyro.MaxGyroForce;
                     else
                     {
                         m_overrideTargetVelocity += gyro.GyroOverrideVelocityGrid * gyro.MaxGyroForce;
@@ -290,8 +378,8 @@ namespace Sandbox.Game.GameSystems
                     m_maxRequiredPowerInput += gyro.RequiredPowerInput;
                 }
             }
-            if ((m_maxOverrideForce + m_maxGyroForce) != 0.0f)
-                m_overrideTargetVelocity /= (m_maxOverrideForce + m_maxGyroForce);
+            if ((m_maxOverrideForce + MaxGyroForce) != 0.0f)
+                m_overrideTargetVelocity /= (m_maxOverrideForce + MaxGyroForce);
 
             PowerReceiver.MaxRequiredInput = m_maxRequiredPowerInput;
             PowerReceiver.Update();
