@@ -98,6 +98,7 @@ namespace Sandbox.Game.GameSystems
                                                     // per tick results in buggy power usage.
         private bool?   m_lastRCSMode;  // Type is nullable to ensure that CoT is properly initialised at the session start.
         private Vector3 m_prevSpeed;
+        private float   m_prevMass;
 
         #endregion
 
@@ -277,6 +278,10 @@ namespace Sandbox.Game.GameSystems
                 {
                     UpdateLevitation();
                 }
+
+                if (m_grid.Physics.Mass != m_prevMass)
+                    ScheduleCOMOffsetUpdate();
+                m_prevMass = m_grid.Physics.Mass;
 
                 UpdateThrusts();
             }
@@ -670,7 +675,7 @@ namespace Sandbox.Game.GameSystems
             }
         }
 
-        private void ScheduleCOMOffsetUpdate(MySlimBlock dummy)
+        private void ScheduleCOMOffsetUpdate()
         {
             // Do not reset the counter if the update has already been scheduled.
             if (m_COMUpdateCounter > COM_UPDATE_TICKS)
@@ -801,16 +806,7 @@ namespace Sandbox.Game.GameSystems
         {
             Vector3 positiveThrust, negativeThrust, thrustForce;
             
-            //MyHud.Notifications.Add(new MyHudNotificationDebug("ZzzZzz"));
-
-            m_grid.OnBlockAdded   -= ScheduleCOMOffsetUpdate;
-            m_grid.OnBlockRemoved -= ScheduleCOMOffsetUpdate;
-            if (ThrustCount > 0)
-            {
-                m_grid.OnBlockAdded   += ScheduleCOMOffsetUpdate;
-                m_grid.OnBlockRemoved += ScheduleCOMOffsetUpdate;
-            }
-            ScheduleCOMOffsetUpdate(null);
+            ScheduleCOMOffsetUpdate();
             
             m_totalThrustOverride = Vector3.Zero;
             m_totalThrustOverridePower = 0;
