@@ -1054,7 +1054,8 @@ namespace Sandbox.Game.Gui
                 nameTextBox.Position = new Vector2(-0.462f + (nameTextBox.Size.X * 0.5f ), nameLabel.PositionY + (nameTextBox.Size.Y * 0.5f) + nameLabel.Size.Y);
 
                 var renameButton = new MyGuiControlButton(new Vector2(-0.462f + nameTextBox.Size.X + nameTextBox.Size.Y, nameTextBox.PositionY ),
-                                                          MyGuiControlButtonStyleEnum.Tiny, text: new StringBuilder("Ok"));
+                                                          MyGuiControlButtonStyleEnum.Tiny );
+                renameButton.Text = MyTexts.GetString(MySpaceTexts.Ok);
                 renameButton.Name = "RenameShipButton";
 
                 infoPage.Controls.Add(nameLabel);
