@@ -46,27 +46,9 @@ namespace Sandbox.ModAPI
         void SetHealth(float health, bool sync = true);
 
         /// <summary>
-        /// Damages the character and kills them if the damage exceeds the current health.
-        /// </summary>
-        /// <param name="damage">amount of damage applied.</param>
-        /// <param name="damageType">type of damage applied.</param>
-        /// <param name="forceKill">ignores character's CanDie field.</param>
-        /// <param name="sync">send changes over the network to the server and other players.</param>
-        void DoDamage(float damage, MyDamageType damageType, bool forceKill = true, bool sync = true);
-
-        /// <summary>
         /// The total damage that this character received throughout their life.
         /// </summary>
         float AccumulatedDamage { get; }
-
-        /// <summary>
-        /// Kills the character by applying high damage.
-        /// </summary>
-        /// <param name="ask">asks the player to suicide.</param>
-        /// <param name="damageType">type of damage to apply.</param>
-        /// <param name="forceKill">ignores character's CanDie field.</param>
-        /// <param name="sync">send changes over the network to the server and other players.</param>
-        void Kill(bool ask = false, MyDamageType damageType = MyDamageType.Suicide, bool forceKill = true, bool sync = true);
 
         /// <summary>
         /// If the character is dead.
@@ -236,7 +218,5 @@ namespace Sandbox.ModAPI
         /// The entity this character remotely controls right now, null otherwise.
         /// </summary>
         IMyControllableEntity RemoteControlledEntity { get; }
-
-        event CharacterMovementStateDelegate OnMovementStateChanged;
     }
 }

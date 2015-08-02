@@ -21,7 +21,7 @@ namespace Sandbox.Game.Entities.Character
     {
         public void SetHealth(float health, bool sync)
         {
-            health = MathHelper.Clamp(health, 0, MaxHealth);
+            health = MathHelper.Clamp(health, 0, StatComp.Health.MaxValue);
 
             if (sync && StatComp.Health.Value != health)
                 SyncObject.UpdateStat(MySyncCharacter.UpdateStatEnum.HEALTH, health);
@@ -29,34 +29,9 @@ namespace Sandbox.Game.Entities.Character
             StatComp.Health.Value = health;
         }
 
-        void IMyCharacter.DoDamage(float damage, Sandbox.Common.ObjectBuilders.Definitions.MyDamageType damageType, bool forceKill, bool sync)
-        {
-            DoDamage(damage, damageType, sync, forceKill);
-        }
-
         float IMyCharacter.AccumulatedDamage
         {
             get { return CharacterAccumulatedDamage; }
-        }
-
-        public void Kill(bool ask, MyDamageType damageType, bool forceKill, bool sync)
-        {
-            if (ask)
-            {
-                MyGuiSandbox.AddScreen(MyGuiSandbox.CreateMessageBox(
-                buttonType: MyMessageBoxButtonsType.YES_NO,
-                messageCaption: MyTexts.Get(MySpaceTexts.MessageBoxCaptionPleaseConfirm),
-                messageText: MyTexts.Get(MySpaceTexts.MessageBoxTextSuicide),
-                focusedResult: MyGuiScreenMessageBox.ResultEnum.NO,
-                callback: delegate(MyGuiScreenMessageBox.ResultEnum retval)
-                {
-                    Kill(false, damageType, forceKill, sync);
-                }));
-            }
-            else
-            {
-                DoDamage(MaxHealth + 1000, damageType, sync, forceKill);
-            }
         }
 
         float IMyCharacter.SuitOxygenLevel

@@ -5740,7 +5740,7 @@ namespace Sandbox.Game.Entities.Character
                 callback: delegate(MyGuiScreenMessageBox.ResultEnum retval)
                 {
                     if (retval == MyGuiScreenMessageBox.ResultEnum.YES)
-                        DoDamage(MaxHealth + 1000, MyDamageType.Suicide, true, this.EntityId);
+                        DoDamage(1000, MyDamageType.Suicide, true, this.EntityId);
                 }));
             }
         }
