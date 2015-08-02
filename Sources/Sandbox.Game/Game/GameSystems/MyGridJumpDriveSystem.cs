@@ -236,18 +236,25 @@ namespace Sandbox.Game.GameSystems
             }
             else
             {
-                MyGuiSandbox.AddScreen(MyGuiSandbox.CreateMessageBox(
-                    buttonType: MyMessageBoxButtonsType.YES_NO,
-                    messageText: GetConfimationText(destinationName, jumpDistance, actualDistance, userId),
-                    messageCaption: MyTexts.Get(MySpaceTexts.MessageBoxCaptionPleaseConfirm),
-                    size: new Vector2(0.839375f, 0.3675f), callback: delegate(MyGuiScreenMessageBox.ResultEnum result)
-                    {
-                        if (result == MyGuiScreenMessageBox.ResultEnum.YES && IsJumpValid(userId))
+                if (!skipDialog)
+                {
+                    MyGuiSandbox.AddScreen(MyGuiSandbox.CreateMessageBox(
+                        buttonType: MyMessageBoxButtonsType.YES_NO,
+                        messageText: GetConfimationText(destinationName, jumpDistance, actualDistance, userId),
+                        messageCaption: MyTexts.Get(MySpaceTexts.MessageBoxCaptionPleaseConfirm),
+                        size: new Vector2(0.839375f, 0.3675f), callback: delegate(MyGuiScreenMessageBox.ResultEnum result)
                         {
-                            SyncObject.RequestJump(m_selectedDestination, userId);
+                            if (result == MyGuiScreenMessageBox.ResultEnum.YES && IsJumpValid(userId))
+                            {
+                                SyncObject.RequestJump(m_selectedDestination, userId);
+                            }
                         }
-                    }
-                    ));
+                        ));
+                }
+                else if (IsJumpValid(userId))
+                {
+                    SyncObject.RequestJump(m_selectedDestination, userId);
+                }
             }
         }
 
@@ -301,7 +308,7 @@ namespace Sandbox.Game.GameSystems
             return result;
         }
 
-        private double GetMass()
+        public double GetMass()
         {
             double mass = 0f;
 

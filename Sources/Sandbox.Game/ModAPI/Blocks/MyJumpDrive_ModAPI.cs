@@ -26,12 +26,12 @@ namespace Sandbox.Game.Entities
 {
     public partial class MyJumpDrive : Sandbox.ModAPI.IMyJumpDrive
     {
-        bool IMyJumpDrive.IsCharging
+        bool IMyJumpDrive.Recharge
         {
             get { return m_isRecharging; }
         }
 
-        void IMyJumpDrive.SetCharging(bool set)
+        void IMyJumpDrive.SetRecharge(bool set)
         {
             SetRecharging(set);
         }
@@ -44,6 +44,26 @@ namespace Sandbox.Game.Entities
         bool IMyJumpDrive.CanJump
         {
             get { return CanJump; }
+        }
+
+        bool IMyJumpDrive.IsJumping
+        {
+            get { return IsJumping; }
+        }
+
+        float IMyJumpDrive.JumpCountdown
+        {
+            get
+            {
+                long? ticks = CubeGrid.GridSystems.JumpSystem.GetJumpElapsedTicks();
+
+                return (ticks.HasValue ? 0 : (float)TimeSpan.FromTicks(ticks.Value).TotalSeconds);
+            }
+        }
+
+        public bool CanUserJump(long userId)
+        {
+            return CanJumpAndHasAccess(userId);
         }
 
         float IMyJumpDrive.TimeUntilCharged
@@ -73,10 +93,23 @@ namespace Sandbox.Game.Entities
 
         void IMyJumpDrive.JumpTo(Vector3D coords)
         {
+            JumpTo(coords, 0);
+        }
+
+        public void JumpTo(Vector3D coords, long userId)
+        {
             if (CanJump)
             {
-                CubeGrid.GridSystems.JumpSystem.RequestJump(String.Empty, coords, skipDialog: true);
+                if (userId == 0)
+                    userId = OwnerId;
+
+                CubeGrid.GridSystems.JumpSystem.RequestJump(String.Empty, coords, userId, skipDialog: true);
             }
+        }
+
+        void IMyJumpDrive.AbortJump()
+        {
+            CubeGrid.GridSystems.JumpSystem.RequestAbort();
         }
 
         string IMyJumpDrive.TargetName
@@ -101,6 +134,11 @@ namespace Sandbox.Game.Entities
             }
         }
 
+        double IMyJumpDrive.GetTotalMass()
+        {
+            return CubeGrid.GridSystems.JumpSystem.GetMass();
+        }
+
         double IMyJumpDrive.GetMinJumpDistance()
         {
             return MyGridJumpDriveSystem.MIN_JUMP_DISTANCE;
@@ -108,7 +146,7 @@ namespace Sandbox.Game.Entities
 
         double IMyJumpDrive.GetMaxJumpDistance()
         {
-            return CubeGrid.GridSystems.JumpSystem.GetMaxJumpDistance();
+            return CubeGrid.GridSystems.JumpSystem.GetMaxJumpDistance(this.OwnerId);
         }
     }
 }
