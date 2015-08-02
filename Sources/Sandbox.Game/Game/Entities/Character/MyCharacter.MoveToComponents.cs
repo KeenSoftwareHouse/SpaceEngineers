@@ -398,7 +398,7 @@ namespace Sandbox.Game.Entities.Character
                 DoDamage(1f, MyDamageType.Asphyxia, true);
             }
 
-            SyncObject.UpdateOxygen(SuitOxygenAmount);
+            SyncObject.UpdateStat(MySyncCharacter.UpdateStatEnum.OXYGEN, SuitOxygenAmount);
         }
 
         public void ShowRefillFromBottleNotification()

@@ -159,6 +159,7 @@ namespace Sandbox.Game.Entities.Character
         bool m_canJump = true;
         float m_currentWalkDelay = 0;
         float m_currentAutoenableJetpackDelay = 0;
+        Vector3 m_artificialGravity;
 
 
         //Weapon

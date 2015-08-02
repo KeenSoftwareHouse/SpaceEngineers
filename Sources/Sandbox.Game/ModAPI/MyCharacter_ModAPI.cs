@@ -19,6 +19,22 @@ namespace Sandbox.Game.Entities.Character
 {
     public partial class MyCharacter : IMyCharacter
     {
+        float IMyCharacter.Health
+        {
+            get
+            {
+                return StatComp.Health.Value;
+            }
+        }
+
+        float IMyCharacter.MaxHealth
+        {
+            get
+            {
+                return StatComp.Health.MaxValue;
+            }
+        }
+
         public void SetHealth(float health, bool sync)
         {
             health = MathHelper.Clamp(health, 0, StatComp.Health.MaxValue);
