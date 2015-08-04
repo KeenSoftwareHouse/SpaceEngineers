@@ -12,10 +12,12 @@ using VRage.Utils;
 using VRage;
 using VRage.Utils;
 using VRage.Library.Utils;
+using Sandbox.Game.Screens.Terminal.Controls;
+
 
 namespace Sandbox.Game.Gui
 {
-    class MyTerminalControlTextbox<TBlock> : MyTerminalControl<TBlock>
+    class MyTerminalControlTextbox<TBlock> : MyTerminalValueControl<TBlock, string>
         where TBlock : MyTerminalBlock
     {
         public delegate StringBuilder GetterDelegate(TBlock block);
@@ -89,6 +91,39 @@ namespace Sandbox.Game.Gui
                     m_textbox.TextChanged += m_textChanged;
                 }
             }
+        }
+
+
+        public override string GetValue(TBlock block)
+        {
+            return Getter(block).ToString();
+        }
+
+        // label is readonly
+        public override void SetValue(TBlock block, string value)
+        {
+            StringBuilder newText = Getter(block);
+            if (value != newText.ToString())
+            {
+                newText.Clear();
+                newText.Append(value);
+                Setter(block, newText);
+            }
+        }
+
+        public override string GetDefaultValue(TBlock block)
+        {
+            return "";
+        }
+
+        public override string GetMininum(TBlock block)
+        {
+            return "";
+        }
+
+        public override string GetMaximum(TBlock block)
+        {
+            return "";
         }
     }
 }
