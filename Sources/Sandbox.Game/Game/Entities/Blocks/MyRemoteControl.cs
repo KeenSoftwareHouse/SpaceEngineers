@@ -41,12 +41,8 @@ namespace Sandbox.Game.Entities
     [MyCubeBlockType(typeof(MyObjectBuilder_RemoteControl))]
     public class MyRemoteControl : MyShipController, IMyPowerConsumer, IMyUsableEntity, IMyRemoteControl
     {
-        public enum FlightMode : int
-        {
-            Patrol = 0,
-            Circle = 1,
-            OneWay = 2,
-        }
+
+        
 
         public class MyAutopilotWaypoint
         {
@@ -699,6 +695,22 @@ namespace Sandbox.Game.Entities
             }
         }
 
+        /// <summary>
+        /// Directly add a waypoint without using GPS locations
+        /// </summary>
+        /// <param name="name"></param>
+        /// <param name="coords"></param>
+        public void AddWaypoint(string name, Vector3 coords)
+        {
+
+            Vector3D[] coordsArray = new Vector3D[1];
+            string[] names = new string[1];
+
+            names[0] = name;
+            coordsArray[0] = coords;
+            SyncObject.AddWaypoints(coordsArray, names);
+        }
+
         private void OnAddWaypoints(Vector3D[] coords, string[] names)
         {
             Debug.Assert(coords.Length == names.Length);
@@ -839,6 +851,20 @@ namespace Sandbox.Game.Entities
                 SyncObject.RemoveWaypoints(indexes);
 
                 m_selectedWaypoints.Clear();
+            }
+        }
+
+        /// <summary>
+        /// Directly remove waypoints based on name
+        /// </summary>
+        /// <param name="name"></param>
+        public void RemoveWaypoint(string name)
+        {
+            var index = m_waypoints.IndexOf(m_waypoints.FirstOrDefault(x => x.Name == name));
+            if (index != -1)
+            {
+                int[] indexes = {index};
+                SyncObject.RemoveWaypoints(indexes);
             }
         }
 
