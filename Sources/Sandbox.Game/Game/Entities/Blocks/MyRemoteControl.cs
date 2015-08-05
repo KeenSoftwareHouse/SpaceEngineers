@@ -634,7 +634,7 @@ namespace Sandbox.Game.Entities
             }
         }
 
-        private void SetDockingMode(bool enabled)
+        public void SetDockingMode(bool enabled)
         {
             if (enabled != m_dockingModeEnabled)
             {
@@ -902,7 +902,7 @@ namespace Sandbox.Game.Entities
             RaisePropertiesChangedRemote();
         }
 
-        private void ChangeDirection(Base6Directions.Direction direction)
+        public void ChangeDirection(Base6Directions.Direction direction)
         {
             if (direction != m_currentDirection)
             {
@@ -986,7 +986,7 @@ namespace Sandbox.Game.Entities
             return m_selectedWaypoints.Count > 0;
         }
 
-        private void ResetWaypoint()
+        public void ResetWaypoint()
         {
             SyncObject.SendResetWaypoint();
         }
