@@ -250,7 +250,7 @@ namespace Sandbox.Game.Entities.Blocks
         public override void UpdateAfterSimulation()
         {
             base.UpdateAfterSimulation();
-            if (CubeGrid.Physics == null)
+            if (CubeGrid.Physics == null || !CubeGrid.Physics.IsMoving)
                 return;
             //Update door position because of inaccuracies in high velocities
             UpdateDoorPosition();
