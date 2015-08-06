@@ -41,12 +41,8 @@ namespace Sandbox.Game.Entities
     [MyCubeBlockType(typeof(MyObjectBuilder_RemoteControl))]
     public class MyRemoteControl : MyShipController, IMyPowerConsumer, IMyUsableEntity, IMyRemoteControl
     {
-        public enum FlightMode : int
-        {
-            Patrol = 0,
-            Circle = 1,
-            OneWay = 2,
-        }
+
+        
 
         public class MyAutopilotWaypoint
         {
@@ -638,7 +634,7 @@ namespace Sandbox.Game.Entities
             }
         }
 
-        private void SetDockingMode(bool enabled)
+        public void SetDockingMode(bool enabled)
         {
             if (enabled != m_dockingModeEnabled)
             {
@@ -697,6 +693,22 @@ namespace Sandbox.Game.Entities
                 SyncObject.AddWaypoints(coords, names);
                 m_selectedGpsLocations.Clear();
             }
+        }
+
+        /// <summary>
+        /// Directly add a waypoint without using GPS locations
+        /// </summary>
+        /// <param name="name"></param>
+        /// <param name="coords"></param>
+        public void AddWaypoint(string name, Vector3 coords)
+        {
+
+            Vector3D[] coordsArray = new Vector3D[1];
+            string[] names = new string[1];
+
+            names[0] = name;
+            coordsArray[0] = coords;
+            SyncObject.AddWaypoints(coordsArray, names);
         }
 
         private void OnAddWaypoints(Vector3D[] coords, string[] names)
@@ -842,6 +854,20 @@ namespace Sandbox.Game.Entities
             }
         }
 
+        /// <summary>
+        /// Directly remove waypoints based on name
+        /// </summary>
+        /// <param name="name"></param>
+        public void RemoveWaypoint(string name)
+        {
+            var index = m_waypoints.IndexOf(m_waypoints.FirstOrDefault(x => x.Name == name));
+            if (index != -1)
+            {
+                int[] indexes = {index};
+                SyncObject.RemoveWaypoints(indexes);
+            }
+        }
+
         private void OnRemoveWaypoints(int[] indexes)
         {
             bool currentWaypointRemoved = false;
@@ -876,7 +902,7 @@ namespace Sandbox.Game.Entities
             RaisePropertiesChangedRemote();
         }
 
-        private void ChangeDirection(Base6Directions.Direction direction)
+        public void ChangeDirection(Base6Directions.Direction direction)
         {
             if (direction != m_currentDirection)
             {
@@ -960,7 +986,7 @@ namespace Sandbox.Game.Entities
             return m_selectedWaypoints.Count > 0;
         }
 
-        private void ResetWaypoint()
+        public void ResetWaypoint()
         {
             SyncObject.SendResetWaypoint();
         }
