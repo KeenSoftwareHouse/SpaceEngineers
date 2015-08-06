@@ -700,15 +700,16 @@ namespace Sandbox.Game.Entities
         /// </summary>
         /// <param name="name"></param>
         /// <param name="coords"></param>
-        public void AddWaypoint(string name, Vector3 coords)
+        public void AddWaypoint(string name, Vector3D coords)
         {
+            if (!string.IsNullOrWhiteSpace("name") && !m_waypoints.Any(x => x.Name == name))
+            {
+                string[] names = { name };
+                Vector3D[] coordsArray = { coords};
+                
+                SyncObject.AddWaypoints(coordsArray, names);
+            }
 
-            Vector3D[] coordsArray = new Vector3D[1];
-            string[] names = new string[1];
-
-            names[0] = name;
-            coordsArray[0] = coords;
-            SyncObject.AddWaypoints(coordsArray, names);
         }
 
         private void OnAddWaypoints(Vector3D[] coords, string[] names)
@@ -860,11 +861,15 @@ namespace Sandbox.Game.Entities
         /// <param name="name"></param>
         public void RemoveWaypoint(string name)
         {
-            var index = m_waypoints.IndexOf(m_waypoints.FirstOrDefault(x => x.Name == name));
-            if (index != -1)
+            if (!string.IsNullOrWhiteSpace(name))
             {
-                int[] indexes = {index};
-                SyncObject.RemoveWaypoints(indexes);
+                var waypoint = m_waypoints.FirstOrDefault(x => x.Name == name);
+                if (waypoint != null)
+                {
+                    var index = m_waypoints.IndexOf(waypoint);
+                    int[] indexes = { index };
+                    SyncObject.RemoveWaypoints(indexes);
+                }
             }
         }
 
@@ -886,6 +891,35 @@ namespace Sandbox.Game.Entities
                 AdvanceWaypoint();
             }
             RaisePropertiesChangedRemote();
+        }
+
+
+        /// <summary>
+        /// Returns the names of all existing waypoints
+        /// </summary>
+        /// <returns></returns>
+        public string[] GetWaypointNames()
+        {
+            return m_waypoints.Select(x => x.Name).ToArray();
+        }
+
+        /// <summary>
+        /// Returns the coordinates for the waypoint with the given name. Returns Vector3D.Zero if name does not exist
+        /// </summary>
+        /// <param name="name"></param>
+        /// <returns></returns>
+        public Vector3D GetCoordinates(string name)
+        {
+            if (!string.IsNullOrWhiteSpace(name))
+            {
+                var waypoint = m_waypoints.FirstOrDefault(x => x.Name == name);
+                if (waypoint != null)
+                {
+                    return waypoint.Coords;
+                }
+            }
+
+            return Vector3D.Zero;
         }
 
         public void ChangeFlightMode(FlightMode flightMode)

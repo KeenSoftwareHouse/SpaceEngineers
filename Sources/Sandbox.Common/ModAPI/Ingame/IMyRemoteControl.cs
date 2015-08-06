@@ -13,7 +13,7 @@ namespace Sandbox.ModAPI.Ingame
         /// </summary>
         /// <param name="name"></param>
         /// <param name="coords"></param>
-        void AddWaypoint(string name, Vector3 coords);
+        void AddWaypoint(string name, Vector3D coords);
         
         /// <summary>
         /// Removes first waypoint with given name
@@ -49,6 +49,19 @@ namespace Sandbox.ModAPI.Ingame
         /// </summary>
         /// <param name="enabled"></param>
         void SetAutoPilotEnabled(bool enabled);
+
+        /// <summary>
+        /// Returns the names of all existing waypoints
+        /// </summary>
+        /// <returns></returns>
+        string[] GetWaypointNames();
+
+        /// <summary>
+        /// Returns the coordinates for the waypoint with the given name. Returns Vector3D.Zero if name does not exist
+        /// </summary>
+        /// <param name="name"></param>
+        /// <returns></returns>
+        Vector3D GetCoordinates(string name);
     }
     
     /// <summary>
