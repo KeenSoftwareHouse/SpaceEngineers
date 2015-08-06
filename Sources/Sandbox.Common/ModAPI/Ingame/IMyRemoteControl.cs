@@ -28,6 +28,12 @@ namespace Sandbox.ModAPI.Ingame
         void ChangeDirection(Base6Directions.Direction direction);
 
         /// <summary>
+        /// Change flight mode
+        /// </summary>
+        /// <param name="flightMode"></param>
+        void ChangeFlightMode(FlightMode flightMode);
+
+        /// <summary>
         /// Same function as "Reset" button in UE
         /// </summary>
         void ResetWaypoint();
@@ -37,6 +43,12 @@ namespace Sandbox.ModAPI.Ingame
         /// </summary>
         /// <param name="enabled"></param>
         void SetDockingMode(bool enabled);
+
+        /// <summary>
+        /// Starts or stops the auto pilot
+        /// </summary>
+        /// <param name="enabled"></param>
+        void SetAutoPilotEnabled(bool enabled);
     }
     
     /// <summary>

@@ -564,7 +564,7 @@ namespace Sandbox.Game.Entities
             }
         }
 
-        private void SetAutoPilotEnabled(bool enabled)
+        public void SetAutoPilotEnabled(bool enabled)
         {
             if (CanEnableAutoPilot())
             {
@@ -888,7 +888,7 @@ namespace Sandbox.Game.Entities
             RaisePropertiesChangedRemote();
         }
 
-        private void ChangeFlightMode(FlightMode flightMode)
+        public void ChangeFlightMode(FlightMode flightMode)
         {
             if (flightMode != m_currentFlightMode)
             {
