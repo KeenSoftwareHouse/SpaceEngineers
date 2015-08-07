@@ -123,7 +123,7 @@ namespace VRage.Dedicated
             restartServiceButton.Hide();
             stopServiceButton.Hide();
 
-            Text = MyPerServerSettings.GameName + " - Dedicated server configurator";
+            Text = MyPerServerSettings.GameName + " (" + Sandbox.Common.MyFinalBuildConstants.APP_VERSION_STRING + ") - Dedicated server configurator";
 
             if (m_isService)
             {
@@ -208,7 +208,7 @@ namespace VRage.Dedicated
 
             public override string ToString()
             {
-                return SessionName;
+                return SessionName + " [" + SessionDir + "]";
             }
         }
 
@@ -342,6 +342,7 @@ namespace VRage.Dedicated
                 }
 
                 modIdsTextBox.Text = string.Join(Environment.NewLine, MySandboxGame.ConfigDedicated.Mods.ToArray());
+                worldNameTextBox.Text = checkpoint.SessionName;
 
                 FillSessionSettingsItems();
             }
