@@ -2725,7 +2725,7 @@
               <Falloff>1</Falloff>
               <Intensity>4</Intensity>
               <BlinkIntervalSeconds>0</BlinkIntervalSeconds>
-              <BlinkLenght>10</BlinkLenght>
+              <BlinkLength>10</BlinkLength>
               <BlinkOffset>0</BlinkOffset>
             </MyObjectBuilder_CubeBlock>
             <MyObjectBuilder_CubeBlock xsi:type="MyObjectBuilder_CubeBlock">

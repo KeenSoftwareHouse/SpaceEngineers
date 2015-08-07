@@ -54,9 +54,9 @@ namespace Sandbox.Game.Entities.Blocks
         {
             get { return BlockDefinition.BlinkIntervalSeconds; }
         }
-        public MyBounds BlinkLenghtBounds
+        public MyBounds BlinkLengthBounds
         {
-            get { return BlockDefinition.BlinkLenght; }
+            get { return BlockDefinition.BlinkLength; }
         }
         public MyBounds BlinkOffsetBounds
         {
@@ -167,14 +167,14 @@ namespace Sandbox.Game.Entities.Blocks
             lightBlinkTime.EnableActions();
             MyTerminalControlFactory.AddControl(lightBlinkTime);
 
-            var lightBlinkLenght = new MyTerminalControlSlider<MyLightingBlock>("Blink Lenght", MySpaceTexts.BlockPropertyTitle_LightBlinkLenght, MySpaceTexts.BlockPropertyDescription_LightBlinkLenght);
-            lightBlinkLenght.SetLimits((x) => x.BlinkLenghtBounds.Min, (x) => x.BlinkLenghtBounds.Max);
-            lightBlinkLenght.DefaultValueGetter = (x) => x.BlinkLenghtBounds.Default;
-            lightBlinkLenght.Getter = (x) => x.BlinkLength;
-            lightBlinkLenght.Setter = (x, v) => x.SyncObject.SendChangeLightBlinkLengthRequest(v);
-            lightBlinkLenght.Writer = (x, result) => result.Append(MyValueFormatter.GetFormatedFloat(x.BlinkLength, NUM_DECIMALS)).Append(" %");
-            lightBlinkLenght.EnableActions();
-            MyTerminalControlFactory.AddControl(lightBlinkLenght);
+            var lightBlinkLength = new MyTerminalControlSlider<MyLightingBlock>("Blink Lenght", MySpaceTexts.BlockPropertyTitle_LightBlinkLength, MySpaceTexts.BlockPropertyDescription_LightBlinkLength);
+            lightBlinkLength.SetLimits((x) => x.BlinkLengthBounds.Min, (x) => x.BlinkLengthBounds.Max);
+            lightBlinkLength.DefaultValueGetter = (x) => x.BlinkLengthBounds.Default;
+            lightBlinkLength.Getter = (x) => x.BlinkLength;
+            lightBlinkLength.Setter = (x, v) => x.SyncObject.SendChangeLightBlinkLengthRequest(v);
+            lightBlinkLength.Writer = (x, result) => result.Append(MyValueFormatter.GetFormatedFloat(x.BlinkLength, NUM_DECIMALS)).Append(" %");
+            lightBlinkLength.EnableActions();
+            MyTerminalControlFactory.AddControl(lightBlinkLength);
 
             var ligthBlinkOffset = new MyTerminalControlSlider<MyLightingBlock>("Blink Offset", MySpaceTexts.BlockPropertyTitle_LightBlinkOffset, MySpaceTexts.BlockPropertyDescription_LightBlinkOffset);
             ligthBlinkOffset.SetLimits((x) => x.BlinkOffsetBounds.Min, (x) => x.BlinkOffsetBounds.Max);
@@ -317,7 +317,7 @@ namespace Sandbox.Game.Entities.Blocks
 
             m_blinkIntervalSeconds = BlinkIntervalSecondsBounds.Clamp((builder.BlinkIntervalSeconds == -1f) ? BlinkIntervalSecondsBounds.Default : builder.BlinkIntervalSeconds);
 
-            m_blinkLength = BlinkLenghtBounds.Clamp((builder.BlinkLenght == -1f) ? BlinkLenghtBounds.Default : builder.BlinkLenght);
+            m_blinkLength = BlinkLengthBounds.Clamp((builder.BlinkLength == -1f) ? BlinkLengthBounds.Default : builder.BlinkLength);
 
             m_blinkOffset = BlinkOffsetBounds.Clamp((builder.BlinkOffset == -1f) ? BlinkOffsetBounds.Default : builder.BlinkOffset);
 
@@ -365,7 +365,7 @@ namespace Sandbox.Game.Entities.Blocks
             builder.Falloff = m_light.Falloff;
             builder.Intensity = m_intesity;
             builder.BlinkIntervalSeconds = m_blinkIntervalSeconds;
-            builder.BlinkLenght = m_blinkLength;
+            builder.BlinkLength = m_blinkLength;
             builder.BlinkOffset = m_blinkOffset;
             return builder;
         }
@@ -432,9 +432,9 @@ namespace Sandbox.Game.Entities.Blocks
                 ulong elapsedTimeMilisecond = (ulong)(MySession.Static.ElapsedGameTime.TotalMilliseconds - blinkOffsetMiliseconds);
 
                 ulong blinkProgressMilisecond = elapsedTimeMilisecond % blinkIntervalMiliseconds;
-                ulong blinkLenghtMilisecond = (ulong)(blinkIntervalMiliseconds * m_blinkLength * FROM_PERCENT);
+                ulong BlinkLengthMilisecond = (ulong)(blinkIntervalMiliseconds * m_blinkLength * FROM_PERCENT);
 
-                if (blinkLenghtMilisecond > blinkProgressMilisecond)
+                if (BlinkLengthMilisecond > blinkProgressMilisecond)
                 {
                     m_light.ReflectorOn = true;
                     m_light.GlareOn = true;
@@ -532,7 +532,7 @@ namespace Sandbox.Game.Entities.Blocks
         float IMyLightingBlock.Radius { get { return Radius;} }
         float IMyLightingBlock.Intensity { get { return Intensity; } }
         float IMyLightingBlock.BlinkIntervalSeconds { get { return BlinkIntervalSeconds; } }
-        float IMyLightingBlock.BlinkLenght { get { return BlinkLength;} }
+        float IMyLightingBlock.BlinkLength { get { return BlinkLength;} }
         float IMyLightingBlock.BlinkOffset { get {return BlinkOffset;} }
     }
 }

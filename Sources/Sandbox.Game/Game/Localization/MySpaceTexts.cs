@@ -6992,7 +6992,7 @@ namespace Sandbox.Game.Localization
         ///<summary>
         ///Length  of blinking as percentage of blink interval
         ///</summary>
-        public static readonly MyStringId BlockPropertyDescription_LightBlinkLenght = MyStringId.GetOrCompute("BlockPropertyDescription_LightBlinkLenght");
+        public static readonly MyStringId BlockPropertyDescription_LightBlinkLength = MyStringId.GetOrCompute("BlockPropertyDescription_LightBlinkLength");
 
         ///<summary>
         ///Offset of blinking as percentage of blink interval
@@ -7007,7 +7007,7 @@ namespace Sandbox.Game.Localization
         ///<summary>
         ///Blink Length
         ///</summary>
-        public static readonly MyStringId BlockPropertyTitle_LightBlinkLenght = MyStringId.GetOrCompute("BlockPropertyTitle_LightBlinkLenght");
+        public static readonly MyStringId BlockPropertyTitle_LightBlinkLength = MyStringId.GetOrCompute("BlockPropertyTitle_LightBlinkLength");
 
         ///<summary>
         ///Blink Offset

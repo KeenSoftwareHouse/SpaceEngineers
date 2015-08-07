@@ -36,7 +36,7 @@ namespace Sandbox.Common.ObjectBuilders
         public float BlinkIntervalSeconds = -1f;
 
         [ProtoMember, DefaultValue(-1f)]
-        public float BlinkLenght = -1f;
+        public float BlinkLength = -1f;
 
         [ProtoMember, DefaultValue(-1f)]
         public float BlinkOffset = -1f;
