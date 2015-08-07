@@ -167,7 +167,7 @@ namespace Sandbox.Game.Entities.Blocks
             lightBlinkTime.EnableActions();
             MyTerminalControlFactory.AddControl(lightBlinkTime);
 
-            var lightBlinkLength = new MyTerminalControlSlider<MyLightingBlock>("Blink Lenght", MySpaceTexts.BlockPropertyTitle_LightBlinkLength, MySpaceTexts.BlockPropertyDescription_LightBlinkLength);
+            var lightBlinkLength = new MyTerminalControlSlider<MyLightingBlock>("Blink Length", MySpaceTexts.BlockPropertyTitle_LightBlinkLength, MySpaceTexts.BlockPropertyDescription_LightBlinkLength);
             lightBlinkLength.SetLimits((x) => x.BlinkLengthBounds.Min, (x) => x.BlinkLengthBounds.Max);
             lightBlinkLength.DefaultValueGetter = (x) => x.BlinkLengthBounds.Default;
             lightBlinkLength.Getter = (x) => x.BlinkLength;
