@@ -432,9 +432,9 @@ namespace Sandbox.Game.Entities.Blocks
                 ulong elapsedTimeMilisecond = (ulong)(MySession.Static.ElapsedGameTime.TotalMilliseconds - blinkOffsetMiliseconds);
 
                 ulong blinkProgressMilisecond = elapsedTimeMilisecond % blinkIntervalMiliseconds;
-                ulong BlinkLengthMilisecond = (ulong)(blinkIntervalMiliseconds * m_blinkLength * FROM_PERCENT);
+                ulong blinkLengthMilisecond = (ulong)(blinkIntervalMiliseconds * m_blinkLength * FROM_PERCENT);
 
-                if (BlinkLengthMilisecond > blinkProgressMilisecond)
+                if (blinkLengthMilisecond > blinkProgressMilisecond)
                 {
                     m_light.ReflectorOn = true;
                     m_light.GlareOn = true;
