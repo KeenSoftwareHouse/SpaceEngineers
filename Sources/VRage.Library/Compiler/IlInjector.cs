@@ -112,44 +112,48 @@ namespace VRage.Compiler
 
         private static void InjectTypes(Type[] sourceTypes, ModuleBuilder newModule, MethodInfo methodToInject,MethodInfo methodToInjectMethodCheck)
         {
-
-            Dictionary<TypeBuilder, Type> createdTypes = new Dictionary<TypeBuilder, Type>();
             Dictionary<MethodBuilder, MethodInfo> createdMethods = new Dictionary<MethodBuilder, MethodInfo>(InstanceComparer<MethodBuilder>.Default);
-            Dictionary<string, TypeBuilder> typeLookup = new Dictionary<string, TypeBuilder>();
+            Dictionary<Type, TypeBuilder> typeLookup = new Dictionary<Type, TypeBuilder>();
             Dictionary<ConstructorBuilder, ConstructorInfo> createdConstructors = new Dictionary<ConstructorBuilder, ConstructorInfo>();
             List<FieldBuilder> createdFields = new List<FieldBuilder>();
 
+            // Create all types first.
             foreach (var sourceType in GetTypesOrderedByGeneration(sourceTypes))
             {
-                TypeBuilder newType = CreateType(newModule, createdTypes, typeLookup, sourceType);
-
-                CopyFields(createdFields, sourceType, newType);
-                CopyProperties(sourceType, newType);
-                CopyConstructors(createdConstructors, sourceType, newType);
-                CopyMethods(createdMethods, sourceType, newType);
+                CreateType(newModule, typeLookup, sourceType);
             }
 
-            foreach (var type in createdTypes)
+            // Once we are able to resolve every source type to its replacement we can copy
+            // the members across, replacing type usages as we go:
+            foreach (var typePair in typeLookup)
+            {
+                CopyFields(createdFields, typePair.Key, typePair.Value, typeLookup);
+                CopyProperties(typePair.Key, typePair.Value, typeLookup);
+                CopyConstructors(createdConstructors, typePair.Key, typePair.Value, typeLookup);
+                CopyMethods(createdMethods, typePair.Key, typePair.Value, typeLookup);
+            }
+
+            foreach (var type in typeLookup)
             {
                 foreach (var newMethod in createdMethods)
                 {
-                    if (newMethod.Key.DeclaringType == type.Key)
+                    if (newMethod.Key.DeclaringType == type.Value)
                     {
-                        InjectMethod(newMethod.Value, newMethod.Key.GetILGenerator(), createdFields, createdMethods, createdConstructors, createdTypes, methodToInject,methodToInjectMethodCheck, typeLookup);
+                        InjectMethod(newMethod.Value, newMethod.Key.GetILGenerator(), createdFields, createdMethods, createdConstructors, methodToInject,methodToInjectMethodCheck, typeLookup);
                     }
                 }
                 foreach (var newConstructor in createdConstructors)
                 {
-                    if (newConstructor.Key.DeclaringType == type.Key)
+                    if (newConstructor.Key.DeclaringType == type.Value)
                     {
-                        InjectMethod(newConstructor.Value, newConstructor.Key.GetILGenerator(), createdFields, createdMethods, createdConstructors, createdTypes, methodToInject,methodToInjectMethodCheck, typeLookup);
+                        InjectMethod(newConstructor.Value, newConstructor.Key.GetILGenerator(), createdFields, createdMethods, createdConstructors, methodToInject,methodToInjectMethodCheck, typeLookup);
                     }
                 }
-                type.Key.CreateType();
+                type.Value.CreateType();
             }
         }
 
-        private static TypeBuilder CreateType(ModuleBuilder newModule, Dictionary<TypeBuilder, Type> createdTypes, Dictionary<string, TypeBuilder> typeLookup, Type sourceType)
+        private static TypeBuilder CreateType(ModuleBuilder newModule, Dictionary<Type, TypeBuilder> typeLookup, Type sourceType)
         {
             var attributes = sourceType.Attributes;
             if ((attributes & TypeAttributes.NestedPublic) == TypeAttributes.NestedPublic)
@@ -165,49 +169,43 @@ namespace VRage.Compiler
             }
 
             // If this type derives from a type created in-game, it must be replaced with the new type.
-            var baseType = sourceType.BaseType;
-            if (baseType != null && typeLookup.ContainsKey(baseType.Name))
-            {
-                TypeBuilder newBaseType;
-                if (typeLookup.TryGetValue(baseType.Name, out newBaseType))
-                {
-                    baseType = newBaseType;
-                }
-            }
+            var baseType = MaybeSubstituteType(typeLookup, sourceType.BaseType);
 
             // If any of the interfaces of this type is from a type created in-game, it must be replaced with the new type.
             var interfaceTypes = sourceType.GetInterfaces().ToArray();
             for (var index = 0; index < interfaceTypes.Length; index++)
             {
-                TypeBuilder newInterfaceType;
-                if (typeLookup.TryGetValue(interfaceTypes[index].Name, out newInterfaceType))
-                {
-                    interfaceTypes[index] = newInterfaceType;
-                }
+                interfaceTypes[index] = MaybeSubstituteType(typeLookup, interfaceTypes[index]);
             }
 
             TypeBuilder newType = newModule.DefineType(sourceType.Name, attributes, baseType, interfaceTypes);
-            createdTypes.Add(newType, sourceType);
-            typeLookup.Add(newType.FullName, newType);
+            typeLookup.Add(sourceType, newType);
             return newType;
         }
-        private static void CopyFields(List<FieldBuilder> createdFields, Type sourceType, TypeBuilder newType)
+        private static Type MaybeSubstituteType(Dictionary<Type, TypeBuilder> typeLookup, Type type)
+        {
+            if(type == null) return null;
+            TypeBuilder replacementType;
+            if(typeLookup.TryGetValue(type, out replacementType)) return replacementType;
+            return type;
+        }
+        private static void CopyFields(List<FieldBuilder> createdFields, Type sourceType, TypeBuilder newType, Dictionary<Type, TypeBuilder> typeLookup)
         {
             var fields = sourceType.GetFields(BindingFlags.Static |BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.SetField | BindingFlags.GetField | BindingFlags.Instance);
             foreach (var field in fields)
             {
-                createdFields.Add(newType.DefineField(field.Name, field.FieldType, field.Attributes));
+                createdFields.Add(newType.DefineField(field.Name, MaybeSubstituteType(typeLookup, field.FieldType), field.Attributes));
             }
         }
-        private static void CopyProperties(Type sourceType, TypeBuilder newType)
+        private static void CopyProperties(Type sourceType, TypeBuilder newType, Dictionary<Type, TypeBuilder> typeLookup)
         {
             var properties = sourceType.GetProperties(BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.SetProperty | BindingFlags.GetProperty | BindingFlags.Instance);
             foreach (var property in properties)
             {
-                newType.DefineProperty(property.Name, PropertyAttributes.HasDefault, property.PropertyType, Type.EmptyTypes);
+                newType.DefineProperty(property.Name, PropertyAttributes.HasDefault, MaybeSubstituteType(typeLookup, property.PropertyType), Type.EmptyTypes);
             }
         }
-        private static void CopyMethods(Dictionary<MethodBuilder, MethodInfo> createdMethods, Type type, TypeBuilder newType)
+        private static void CopyMethods(Dictionary<MethodBuilder, MethodInfo> createdMethods, Type type, TypeBuilder newType, Dictionary<Type, TypeBuilder> typeLookup)
         {
             var methods = type.GetMethods(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic|BindingFlags.Static);
 
@@ -223,15 +221,15 @@ namespace VRage.Compiler
                 int i = 0;
                 foreach (var parameter in parameters)
                 {
-                    parameterTypes[i++] = parameter.ParameterType;
+                    parameterTypes[i++] = MaybeSubstituteType(typeLookup, parameter.ParameterType);
                 }
                 
-                var definedMethod = newType.DefineMethod(method.Name, method.Attributes, method.CallingConvention, method.ReturnType, parameterTypes);
+                var definedMethod = newType.DefineMethod(method.Name, method.Attributes, method.CallingConvention, MaybeSubstituteType(typeLookup, method.ReturnType), parameterTypes);
 
                 createdMethods.Add(definedMethod, method);
             }
         }
-        private static void CopyConstructors(Dictionary<ConstructorBuilder, ConstructorInfo> createdConstructors, Type type, TypeBuilder newType)
+        private static void CopyConstructors(Dictionary<ConstructorBuilder, ConstructorInfo> createdConstructors, Type type, TypeBuilder newType, Dictionary<Type, TypeBuilder> typeLookup)
         {
             var constructors = type.GetConstructors(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static);
             foreach (var method in constructors)
@@ -245,21 +243,21 @@ namespace VRage.Compiler
                 int i = 0;
                 foreach (var parameter in parameters)
                 {
-                    paramaterTypes[i++] = parameter.ParameterType;
+                    paramaterTypes[i++] = MaybeSubstituteType(typeLookup, parameter.ParameterType);
                 }
                 createdConstructors.Add(newType.DefineConstructor(method.Attributes, method.CallingConvention, paramaterTypes), method);
             }
         }
 
-		private static void InjectMethod(MethodBase sourceMethod, ILGenerator methodGenerator, List<FieldBuilder> fields, Dictionary<MethodBuilder, MethodInfo> methods, Dictionary<ConstructorBuilder, ConstructorInfo> constructors, Dictionary<TypeBuilder, Type> types, MethodInfo methodToInject, MethodInfo methodToInjectMethodCheck, Dictionary<string, TypeBuilder> typeLookup)
+		private static void InjectMethod(MethodBase sourceMethod, ILGenerator methodGenerator, List<FieldBuilder> fields, Dictionary<MethodBuilder, MethodInfo> methods, Dictionary<ConstructorBuilder, ConstructorInfo> constructors, MethodInfo methodToInject, MethodInfo methodToInjectMethodCheck, Dictionary<Type, TypeBuilder> typeLookup)
         {
-            ConstructInstructions(sourceMethod, methodGenerator, fields, methods, constructors, types, methodToInject ,methodToInjectMethodCheck, typeLookup);
+            ConstructInstructions(sourceMethod, methodGenerator, fields, methods, constructors, methodToInject ,methodToInjectMethodCheck, typeLookup);
         }
 
-        private static void ConstructInstructions(MethodBase sourceMethod, ILGenerator methodGenerator, List<FieldBuilder> createdFields, Dictionary<MethodBuilder, MethodInfo> createdMethods, Dictionary<ConstructorBuilder, ConstructorInfo> createdConstructors, Dictionary<TypeBuilder, Type> createdTypes, MethodInfo methodToInject, MethodInfo methodToInjectMethodCheck, Dictionary<string, TypeBuilder> typeLookup)
+        private static void ConstructInstructions(MethodBase sourceMethod, ILGenerator methodGenerator, List<FieldBuilder> createdFields, Dictionary<MethodBuilder, MethodInfo> createdMethods, Dictionary<ConstructorBuilder, ConstructorInfo> createdConstructors, MethodInfo methodToInject, MethodInfo methodToInjectMethodCheck, Dictionary<Type, TypeBuilder> typeLookup)
         {
             List<VRage.Compiler.IlReader.IlInstruction> instructions = m_reader.ReadInstructions(sourceMethod);
-            ResolveTypes(methodGenerator, createdTypes);
+            ResolveTypes(methodGenerator, typeLookup);
 
             Dictionary<long, Label> labels = new Dictionary<long, Label>();
             foreach (VRage.Compiler.IlReader.IlInstruction instr in instructions)
@@ -307,16 +305,7 @@ namespace VRage.Compiler
                         try
                         {
                             var type = instruction.Operand as Type;
-                            TypeBuilder typeBuilder;
-                            // Make sure the type is replaced with the regenerated type if required.
-                            if (typeLookup.TryGetValue(type.Name, out typeBuilder))
-                            {
-                                methodGenerator.Emit(code, typeBuilder);
-                            }
-                            else
-                            {
-                                methodGenerator.Emit(code, type);
-                            }
+                            methodGenerator.Emit(code, MaybeSubstituteType(typeLookup, type));
                         }
                         catch
                         {
@@ -479,24 +468,11 @@ namespace VRage.Compiler
                 }
             }
         }
-        private static void ResolveTypes(ILGenerator generator, Dictionary<TypeBuilder, Type> types)
+        private static void ResolveTypes(ILGenerator generator, Dictionary<Type, TypeBuilder> typeLookup)
         {
             foreach (LocalVariableInfo local in m_reader.Locals)
             {
-                bool found = false;
-                foreach (var type in types)
-                {
-                    if (type.Value == local.LocalType)
-                    {
-                        generator.DeclareLocal(type.Key);
-                        found = true;
-                        break;
-                    }
-                }
-                if (found == false)
-                {
-                    generator.DeclareLocal(local.LocalType);
-                }
+                generator.DeclareLocal(MaybeSubstituteType(typeLookup, local.LocalType));
             }
         }
         private static void ResolveField(FieldInfo field, List<FieldBuilder> fields, ILGenerator generator, OpCode code)
