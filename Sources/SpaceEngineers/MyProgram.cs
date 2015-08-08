@@ -75,10 +75,24 @@ namespace SpaceEngineers
                 return;
             }
 
+            // Allow overriding the storage folder, but only for nonofficial builds. This enables
+            // programmers to have separate save and configuration folders for the game and the
+            // code.
+            var appName = "SpaceEngineers";
+            if (!MyFinalBuildConstants.IS_OFFICIAL)
+            {
+                var appNameIndex = Array.IndexOf(args, "-appname");
+                if (appNameIndex >= 0)
+                {
+                    appNameIndex++;
+                    if (args.Length > appNameIndex)
+                        appName = args[appNameIndex];
+                }
+            }
             MyInitializer.InvokeBeforeRun(
                 AppId,
                 "SpaceEngineers",
-                Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "SpaceEngineers"));
+                Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), appName));
 
             MyInitializer.InitCheckSum();
 
