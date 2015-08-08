@@ -228,6 +228,7 @@ namespace VRage.Compiler
             if(typeLookup.TryGetValue(type, out replacementType)) return replacementType;
             return type;
         }
+
         private static void CopyFields(Dictionary<FieldInfo, FieldBuilder> createdFields, Type sourceType, TypeBuilder newType, Dictionary<Type, TypeBuilder> typeLookup)
         {
             var fields = sourceType.GetFields(BindingFlags.Static |BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.SetField | BindingFlags.GetField | BindingFlags.Instance);
@@ -327,16 +328,16 @@ namespace VRage.Compiler
                 switch (instruction.OpCode.OperandType)
                 {
                     case OperandType.InlineField:
-                        ResolveField(instruction.Operand as FieldInfo, createdFields, methodGenerator, code);
+                        ResolveField(instruction.Operand as FieldInfo, typeLookup, createdFields, methodGenerator, code);
                         break;
                     case OperandType.InlineMethod:
                         try
                         {
-                            ResolveMethodOrConstructor(methodGenerator, createdMethods, createdConstructors, instruction, code);
+                            ResolveMethodOrConstructor(methodGenerator, typeLookup, createdMethods, createdConstructors, instruction, code);
                         }
                         catch
                         {
-                            ResolveField(instruction.Operand as FieldInfo, createdFields, methodGenerator, code);
+                            ResolveField(instruction.Operand as FieldInfo, typeLookup, createdFields, methodGenerator, code);
                         }
                         break;
                     case OperandType.InlineTok:
@@ -465,33 +466,98 @@ namespace VRage.Compiler
             return code;
         }
 
-        private static void ResolveMethodOrConstructor(ILGenerator generator, Dictionary<MethodInfo, MethodBuilder> methods, Dictionary<ConstructorInfo, ConstructorBuilder> constructors, VRage.Compiler.IlReader.IlInstruction instruction, System.Reflection.Emit.OpCode code)
+        private static void ResolveMethodOrConstructor(ILGenerator generator, Dictionary<Type, TypeBuilder> typeLookup, Dictionary<MethodInfo, MethodBuilder> methods, Dictionary<ConstructorInfo, ConstructorBuilder> constructors, VRage.Compiler.IlReader.IlInstruction instruction, System.Reflection.Emit.OpCode code)
         {
             if (instruction.Operand is MethodInfo)
             {
-                var actualMethod = ResolveMethodInfo(methods, (MethodInfo)instruction.Operand);
+                var actualMethod = ResolveMethodInfo(typeLookup, methods, (MethodInfo)instruction.Operand);
                 generator.Emit(code, actualMethod);
                 return;
             }
             if (instruction.Operand is ConstructorInfo)
             {
-                var actualConstructor = ResolveConstructorInfo(constructors, (ConstructorInfo)instruction.Operand);
+                var actualConstructor = ResolveConstructorInfo(typeLookup, constructors, (ConstructorInfo)instruction.Operand);
                 generator.Emit(code, actualConstructor);
                 return;
             }
         }
 
-        private static MethodInfo ResolveMethodInfo(Dictionary<MethodInfo, MethodBuilder> methods, MethodInfo method)
+        private static MethodInfo ResolveMethodInfo(Dictionary<Type, TypeBuilder> typeLookup, Dictionary<MethodInfo, MethodBuilder> methods, MethodInfo method)
         {
-            MethodBuilder replacementMethod;
-            if(methods.TryGetValue(method, out replacementMethod)) return replacementMethod;
-            return method;
+            // It's unlikely any of this will work properly with generic types specified in the script.
+            // Should be fine with List<T> and its ilk, though.
+
+            if (!method.IsGenericMethod)
+            {
+                // Fast path. Non-generic method defined inside the script.
+                MethodBuilder replacementMethod;
+                if (methods.TryGetValue(method, out replacementMethod)) return replacementMethod;
+                
+                // If the declaring type does not depend on script-defined types, we're done here.
+                Type replacementDeclaringType;
+                if(!NeedsDeclaringTypeSubstitution(typeLookup, method, out replacementDeclaringType)) return method;
+            
+                // Method on a generic type which depends on script-defined types. Identify the method's declaration
+                // on the type's definition, then resolve it within the context of the replacement type.
+                var declaredMethod = (MethodInfo)method.DeclaringType.Module.ResolveMethod(method.MetadataToken);
+                return TypeBuilder.GetMethod(replacementDeclaringType, declaredMethod);
+            }
+            else
+            {
+                // Generic method. Rewrite type parameters before continuing:
+                var args = method.GetGenericArguments();
+                var types = new Type[args.Length];
+                for (var i = 0; i < args.Length; i++)
+                {
+                    types[i] = MaybeSubstituteType(typeLookup, args[i]);
+                }
+                var methodDefinition = method.GetGenericMethodDefinition();
+                MethodBuilder replacementMethod;
+                MethodInfo rewrittenMethod;
+                if (methods.TryGetValue(methodDefinition, out replacementMethod))
+                {
+                    rewrittenMethod = replacementMethod.MakeGenericMethod(types);
+                }
+                else 
+                {
+                    rewrittenMethod = methodDefinition.MakeGenericMethod(types);
+                }
+
+                // If the declaring type does not depend on script-defined types, we're done here.
+                Type replacementDeclaringType;
+                if(!NeedsDeclaringTypeSubstitution(typeLookup, rewrittenMethod, out replacementDeclaringType)) return rewrittenMethod;
+            
+                // Possibly-generic method on a generic type which depends on script-defined types. We have already
+                // dealt with any generic parameters on the method itself. Now we must identify the method's declaration
+                // on the type's definition, then resolve it within the context of the replacement type.
+
+                Debug.Assert(replacementDeclaringType.IsGenericType);
+            
+                var declaredMethod = (MethodInfo)rewrittenMethod.DeclaringType.Module.ResolveMethod(rewrittenMethod.MetadataToken);
+                return TypeBuilder.GetMethod(replacementDeclaringType, declaredMethod);
+            }
         }
-        private static ConstructorInfo ResolveConstructorInfo(Dictionary<ConstructorInfo, ConstructorBuilder> constructors, ConstructorInfo constructor)
+
+        private static ConstructorInfo ResolveConstructorInfo(Dictionary<Type, TypeBuilder> typeLookup, Dictionary<ConstructorInfo, ConstructorBuilder> constructors, ConstructorInfo constructor)
         {
+            // It's unlikely any of this will work properly with generic types defined in the script.
+            // Should be fine with List<T> and its ilk, though.
+
+            // Fast path. Constructor defined inside the script.
             ConstructorBuilder replacementConstructor;
             if(constructors.TryGetValue(constructor, out replacementConstructor)) return replacementConstructor;
-            return constructor;
+
+            // If the declaring type does not depend on script-defined types, we're done here.
+            Type replacementDeclaringType;
+            if(!NeedsDeclaringTypeSubstitution(typeLookup, constructor, out replacementDeclaringType)) return constructor;
+            
+            // Constructor on a generic type which depends on script-defined types. We must identify the constructor's
+            // declaration on the type's definition, then resolve it within the context of the replacement type.
+
+            Debug.Assert(replacementDeclaringType.IsGenericType);
+            
+            var declaredConstructor = (ConstructorInfo)constructor.DeclaringType.Module.ResolveMethod(constructor.MetadataToken);
+            return TypeBuilder.GetConstructor(replacementDeclaringType, declaredConstructor);
         }
 
         private static void ResolveLocalVariable(ILGenerator generator, Dictionary<Type, TypeBuilder> typeLookup)
@@ -501,16 +567,32 @@ namespace VRage.Compiler
                 generator.DeclareLocal(MaybeSubstituteType(typeLookup, local.LocalType));
             }
         }
-        private static void ResolveField(FieldInfo field, Dictionary<FieldInfo, FieldBuilder> fields, ILGenerator generator, OpCode code)
+        private static void ResolveField(FieldInfo field, Dictionary<Type, TypeBuilder> typeLookup, Dictionary<FieldInfo, FieldBuilder> fields, ILGenerator generator, OpCode code)
         {
-            var actualField = ResolveFieldInfo(fields, field);
+            var actualField = ResolveFieldInfo(typeLookup, fields, field);
             generator.Emit(code, actualField);
         }    
-        private static FieldInfo ResolveFieldInfo(Dictionary<FieldInfo, FieldBuilder> fields, FieldInfo field)
+        private static FieldInfo ResolveFieldInfo(Dictionary<Type, TypeBuilder> typeLookup, Dictionary<FieldInfo, FieldBuilder> fields, FieldInfo field)
         {
+            // Fast path. Field defined inside the script.
             FieldBuilder replacementField;
             if(fields.TryGetValue(field, out replacementField)) return replacementField;
-            return field;
+            
+            // If the declaring type does not depend on script-defined types, we're done here.
+            Type replacementDeclaringType;
+            if(!NeedsDeclaringTypeSubstitution(typeLookup, field, out replacementDeclaringType)) return field;
+            
+            Debug.Assert(replacementDeclaringType.IsGenericType);
+            
+            var declaredField = field.DeclaringType.Module.ResolveField(field.MetadataToken);
+            return TypeBuilder.GetField(replacementDeclaringType, declaredField);
         }    
+
+        private static bool NeedsDeclaringTypeSubstitution(Dictionary<Type, TypeBuilder> typeLookup, MemberInfo member, out Type replacementDeclaringType)
+        {
+            replacementDeclaringType = MaybeSubstituteType(typeLookup, member.DeclaringType);
+            if(replacementDeclaringType == member.DeclaringType) return false; // No substitution required.
+            return true;
+        }
     }
 }
