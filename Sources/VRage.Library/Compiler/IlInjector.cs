@@ -185,6 +185,19 @@ namespace VRage.Compiler
         private static Type MaybeSubstituteType(Dictionary<Type, TypeBuilder> typeLookup, Type type)
         {
             if(type == null) return null;
+            if(!type.IsGenericTypeDefinition && type.IsGenericType)
+            {
+                var genericArguments = type.GetGenericArguments();
+                for (var i = 0; i < genericArguments.Length; i++)
+                {
+                    // Argument hierarchy is bounded and acyclic, so this cannot recurse infinitely:
+                    genericArguments[i] = MaybeSubstituteType(typeLookup, genericArguments[i]);
+                }
+                // Generic definition is a single type, so this cannot recurse infinitely:
+                var definition = MaybeSubstituteType(typeLookup, type.GetGenericTypeDefinition());
+                return definition.MakeGenericType(genericArguments);
+            }
+
             TypeBuilder replacementType;
             if(typeLookup.TryGetValue(type, out replacementType)) return replacementType;
             return type;
@@ -257,7 +270,7 @@ namespace VRage.Compiler
         private static void ConstructInstructions(MethodBase sourceMethod, ILGenerator methodGenerator, List<FieldBuilder> createdFields, Dictionary<MethodBuilder, MethodInfo> createdMethods, Dictionary<ConstructorBuilder, ConstructorInfo> createdConstructors, MethodInfo methodToInject, MethodInfo methodToInjectMethodCheck, Dictionary<Type, TypeBuilder> typeLookup)
         {
             List<VRage.Compiler.IlReader.IlInstruction> instructions = m_reader.ReadInstructions(sourceMethod);
-            ResolveTypes(methodGenerator, typeLookup);
+            ResolveLocalVariable(methodGenerator, typeLookup);
 
             Dictionary<long, Label> labels = new Dictionary<long, Label>();
             foreach (VRage.Compiler.IlReader.IlInstruction instr in instructions)
@@ -468,7 +481,7 @@ namespace VRage.Compiler
                 }
             }
         }
-        private static void ResolveTypes(ILGenerator generator, Dictionary<Type, TypeBuilder> typeLookup)
+        private static void ResolveLocalVariable(ILGenerator generator, Dictionary<Type, TypeBuilder> typeLookup)
         {
             foreach (LocalVariableInfo local in m_reader.Locals)
             {
