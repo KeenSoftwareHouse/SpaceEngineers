@@ -306,7 +306,7 @@ namespace VRage.Compiler
                     case OperandType.InlineMethod:
                         try
                         {
-                            ResolveMethod(methodGenerator, createdMethods, createdConstructors, instruction, code);
+                            ResolveMethodOrConstructor(methodGenerator, createdMethods, createdConstructors, instruction, code);
                         }
                         catch
                         {
@@ -439,48 +439,45 @@ namespace VRage.Compiler
             return code;
         }
 
-        private static void ResolveMethod(ILGenerator generator, Dictionary<MethodBuilder, MethodInfo> methods, Dictionary<ConstructorBuilder, ConstructorInfo> constructors, VRage.Compiler.IlReader.IlInstruction instruction, System.Reflection.Emit.OpCode code)
+        private static void ResolveMethodOrConstructor(ILGenerator generator, Dictionary<MethodBuilder, MethodInfo> methods, Dictionary<ConstructorBuilder, ConstructorInfo> constructors, VRage.Compiler.IlReader.IlInstruction instruction, System.Reflection.Emit.OpCode code)
         {
-            bool found = false;
-            var method = instruction.Operand as MethodBase;
             if (instruction.Operand is MethodInfo)
             {
-                var methodInfo = instruction.Operand as MethodInfo;
-                foreach (var met in methods)
-                {
-                    if (met.Value == methodInfo)
-                    {
-                        generator.Emit(code, met.Key);
-                        found = true;
-                        break;
-                    }
-                }
+                var actualMethod = ResolveMethodInfo(methods, (MethodInfo)instruction.Operand);
+                generator.Emit(code, actualMethod);
+                return;
             }
             if (instruction.Operand is ConstructorInfo)
             {
-                var methodInfo = instruction.Operand as ConstructorInfo;
-                foreach (var met in constructors)
-                {
-                    if (met.Value == methodInfo)
-                    {
-                        generator.Emit(code, met.Key);
-                        found = true;
-                        break;
-                    }
-                }
-            }
-            if (false == found)
-            {
-                if (method is MethodInfo)
-                {
-                    generator.Emit(code, method as MethodInfo);
-                }
-                else if (method is ConstructorInfo)
-                {
-                    generator.Emit(code, method as ConstructorInfo);
-                }
+                var actualConstructor = ResolveConstructorInfo(constructors, (ConstructorInfo)instruction.Operand);
+                generator.Emit(code, actualConstructor);
+                return;
             }
         }
+
+        private static MethodInfo ResolveMethodInfo(Dictionary<MethodBuilder, MethodInfo> methods, MethodInfo method)
+        {
+            foreach (var met in methods)
+            {
+                if (met.Value == method)
+                {
+                    return met.Key;
+                }
+            }
+            return method;
+        }
+        private static ConstructorInfo ResolveConstructorInfo(Dictionary<ConstructorBuilder, ConstructorInfo> constructors, ConstructorInfo constructor)
+        {
+            foreach (var met in constructors)
+            {
+                if (met.Value == constructor)
+                {
+                    return met.Key;
+                }
+            }
+            return constructor;
+        }
+
         private static void ResolveLocalVariable(ILGenerator generator, Dictionary<Type, TypeBuilder> typeLookup)
         {
             foreach (LocalVariableInfo local in m_reader.Locals)
