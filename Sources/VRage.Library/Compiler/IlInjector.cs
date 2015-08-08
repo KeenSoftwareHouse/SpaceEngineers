@@ -388,6 +388,8 @@ namespace VRage.Compiler
         {
             if (code == OpCodes.Bge_Un_S) return OpCodes.Bge_Un;
             if (code == OpCodes.Bge_S) return OpCodes.Bge;
+            if (code == OpCodes.Bgt_Un_S) return OpCodes.Bgt_Un;
+            if (code == OpCodes.Bgt_S) return OpCodes.Bgt;
 
             if (code == OpCodes.Ble_Un_S) return OpCodes.Ble_Un;
             if (code == OpCodes.Ble_S) return OpCodes.Ble;
