@@ -185,8 +185,13 @@ namespace VRage.Compiler
                     interfaceTypes[index] = newInterfaceType;
                 }
             }
-
             TypeBuilder newType = newModule.DefineType(sourceType.Name, attributes, baseType, interfaceTypes);
+            if (sourceType.IsEnum)
+            {
+                // If this is an enum, we need to define a special field which defines the base type of this enum.
+                var typeField = sourceType.GetField("value__", BindingFlags.Public | BindingFlags.Instance);
+                newType.DefineField(typeField.Name, typeField.FieldType, typeField.Attributes);
+            }
             createdTypes.Add(newType, sourceType);
             typeLookup.Add(newType.FullName, newType);
             return newType;
@@ -196,6 +201,9 @@ namespace VRage.Compiler
             var fields = sourceType.GetFields(BindingFlags.Static |BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.SetField | BindingFlags.GetField | BindingFlags.Instance);
             foreach (var field in fields)
             {
+                // The type designation field for enums has already been copied
+                if (sourceType.IsEnum && field.Name == "value__")
+                    continue;
                 createdFields.Add(newType.DefineField(field.Name, field.FieldType, field.Attributes));
             }
         }
