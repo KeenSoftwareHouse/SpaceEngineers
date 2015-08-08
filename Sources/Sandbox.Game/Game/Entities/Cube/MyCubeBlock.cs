@@ -114,6 +114,11 @@ namespace Sandbox.Game.Entities
             get { return MySandboxGame.TotalTimeInMilliseconds - HackAttemptTime < MyGridConstants.HACKING_ATTEMPT_TIME_MS; }
         }
 
+        public bool isControllableForProgrammableBlock
+        {
+            get { return CubeGrid.isProgrammaticallyControllable(); }
+        }
+
         public MyCubeBlockDefinition BlockDefinition { get { return SlimBlock.BlockDefinition; } }
         public Vector3I Min { get { return SlimBlock.Min; } }
         public Vector3I Max { get { return SlimBlock.Max; } }

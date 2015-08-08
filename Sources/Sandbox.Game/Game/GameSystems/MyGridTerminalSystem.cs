@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Text;
+using System.Linq;
 using System.Collections.Generic;
 using Sandbox.Game.Entities.Cube;
 using VRage.Collections;
@@ -148,6 +149,23 @@ namespace Sandbox.Game.GameSystems
             {
                 block.IsAccessibleForProgrammableBlock = block.HasPlayerAccess(ownerID);
             }
+        }
+
+        // sets the programming block that is accessing the cubeGrid in order to enforce "read-only" access to detected blocks
+        // that are not part of the programming block's cubeGrid
+        public void updateControllingProgrammingBlock(MySlimBlock programmableBlock)
+        {
+            // currently only sensors and landing gears return "detected" blocks
+            // because landing gears have a physical connection to the attached cubegrid they may be considered able to have "write" access.
+
+            // TODO: make cubeGrids returned by landing gears respect block ownership - possibly through the UpdateGridBlocksOwnership() function
+            // alternatively, add any cubeGrids they return to the detectedCubeGrids function
+            IEnumerable<Sandbox.Game.Entities.MyCubeGrid> detectedCubeGrids = Blocks
+                .Where(terminalBlock => (terminalBlock is Sandbox.ModAPI.Ingame.IMySensorBlock) &&
+                    ((Sandbox.ModAPI.Ingame.IMySensorBlock)terminalBlock).LastDetectedEntity is Sandbox.Game.Entities.MyCubeGrid)
+                .Select(sensorBlock => ((Sandbox.ModAPI.Ingame.IMySensorBlock)sensorBlock).LastDetectedEntity as Sandbox.Game.Entities.MyCubeGrid);
+
+            detectedCubeGrids.ForEach(detectedCubeGrid => detectedCubeGrid.programmaticallyControllingBlock = programmableBlock);
         }
     }
 }

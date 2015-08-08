@@ -17,5 +17,11 @@ namespace Sandbox.Game.Entities.Cube
             add { EnabledChanged += GetDelegate(value); }
             remove { EnabledChanged -= GetDelegate(value); }
         }
+
+        void Sandbox.ModAPI.Ingame.IMyFunctionalBlock.RequestEnable(bool enable)
+        {
+            if (this.isControllableForProgrammableBlock)
+                RequestEnable(enable);
+        }
     }
 }

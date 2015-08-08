@@ -248,6 +248,8 @@ namespace Sandbox.Game.Entities.Blocks
             var gridGroup = MyCubeGridGroups.Static.Logical.GetGroup(CubeGrid);
             var terminalSystem = gridGroup.GroupData.TerminalSystem;
             terminalSystem.UpdateGridBlocksOwnership(this.OwnerId);
+            terminalSystem.updateControllingProgrammingBlock(this.SlimBlock);
+
             m_instance.GridTerminalSystem = terminalSystem;
 
             m_isRunning = true;

@@ -4,7 +4,7 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup>
     <!-- Modify the line below to contain path to SpaceEngineers\Content in Steam directory -->
-    <ContentPath>c:\Program Files (x86)\Steam\SteamApps\common\SpaceEngineers\Content</ContentPath>
+    <ContentPath>C:\Program Files (x86)\Steam\steamapps\common\SpaceEngineers\Content</ContentPath>
     <EffectsFromSources>true</EffectsFromSources>
     <DataFromSources>true</DataFromSources>
   </PropertyGroup>

@@ -97,5 +97,17 @@ namespace Sandbox.Game.Entities.Cube
         {
             (MyTerminalControlFactoryHelper.Static as IMyTerminalActionsHelper).GetProperties(this.GetType(), resultList, collect);
         }
+
+        void ModAPI.Ingame.IMyTerminalBlock.SetCustomName(string text)
+        {
+            if (isControllableForProgrammableBlock)
+                SetCustomName(text);
+        }
+
+        void ModAPI.Ingame.IMyTerminalBlock.SetCustomName(StringBuilder text)
+        {
+            if (isControllableForProgrammableBlock)
+                SetCustomName(text);
+        }
     }
 }
