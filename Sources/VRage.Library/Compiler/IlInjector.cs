@@ -115,7 +115,7 @@ namespace VRage.Compiler
             Dictionary<MethodInfo, MethodBuilder> createdMethods = new Dictionary<MethodInfo, MethodBuilder>(InstanceComparer<MethodInfo>.Default);
             Dictionary<Type, TypeBuilder> typeLookup = new Dictionary<Type, TypeBuilder>();
             Dictionary<ConstructorInfo, ConstructorBuilder> createdConstructors = new Dictionary<ConstructorInfo, ConstructorBuilder>();
-            List<FieldBuilder> createdFields = new List<FieldBuilder>();
+            Dictionary<FieldInfo, FieldBuilder> createdFields = new Dictionary<FieldInfo, FieldBuilder>();
 
             // Create all types first.
             foreach (var sourceType in GetTypesOrderedByGeneration(sourceTypes))
@@ -202,12 +202,12 @@ namespace VRage.Compiler
             if(typeLookup.TryGetValue(type, out replacementType)) return replacementType;
             return type;
         }
-        private static void CopyFields(List<FieldBuilder> createdFields, Type sourceType, TypeBuilder newType, Dictionary<Type, TypeBuilder> typeLookup)
+        private static void CopyFields(Dictionary<FieldInfo, FieldBuilder> createdFields, Type sourceType, TypeBuilder newType, Dictionary<Type, TypeBuilder> typeLookup)
         {
             var fields = sourceType.GetFields(BindingFlags.Static |BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.SetField | BindingFlags.GetField | BindingFlags.Instance);
             foreach (var field in fields)
             {
-                createdFields.Add(newType.DefineField(field.Name, MaybeSubstituteType(typeLookup, field.FieldType), field.Attributes));
+                createdFields.Add(field, newType.DefineField(field.Name, MaybeSubstituteType(typeLookup, field.FieldType), field.Attributes));
             }
         }
         private static void CopyProperties(Type sourceType, TypeBuilder newType, Dictionary<Type, TypeBuilder> typeLookup)
@@ -262,12 +262,12 @@ namespace VRage.Compiler
             }
         }
 
-		private static void InjectMethod(MethodBase sourceMethod, ILGenerator methodGenerator, List<FieldBuilder> fields, Dictionary<MethodInfo, MethodBuilder> methods, Dictionary<ConstructorInfo, ConstructorBuilder> constructors, MethodInfo methodToInject, MethodInfo methodToInjectMethodCheck, Dictionary<Type, TypeBuilder> typeLookup)
+		private static void InjectMethod(MethodBase sourceMethod, ILGenerator methodGenerator, Dictionary<FieldInfo, FieldBuilder> fields, Dictionary<MethodInfo, MethodBuilder> methods, Dictionary<ConstructorInfo, ConstructorBuilder> constructors, MethodInfo methodToInject, MethodInfo methodToInjectMethodCheck, Dictionary<Type, TypeBuilder> typeLookup)
         {
             ConstructInstructions(sourceMethod, methodGenerator, fields, methods, constructors, methodToInject ,methodToInjectMethodCheck, typeLookup);
         }
 
-        private static void ConstructInstructions(MethodBase sourceMethod, ILGenerator methodGenerator, List<FieldBuilder> createdFields, Dictionary<MethodInfo, MethodBuilder> createdMethods, Dictionary<ConstructorInfo, ConstructorBuilder> createdConstructors, MethodInfo methodToInject, MethodInfo methodToInjectMethodCheck, Dictionary<Type, TypeBuilder> typeLookup)
+        private static void ConstructInstructions(MethodBase sourceMethod, ILGenerator methodGenerator, Dictionary<FieldInfo, FieldBuilder> createdFields, Dictionary<MethodInfo, MethodBuilder> createdMethods, Dictionary<ConstructorInfo, ConstructorBuilder> createdConstructors, MethodInfo methodToInject, MethodInfo methodToInjectMethodCheck, Dictionary<Type, TypeBuilder> typeLookup)
         {
             List<VRage.Compiler.IlReader.IlInstruction> instructions = m_reader.ReadInstructions(sourceMethod);
             ResolveLocalVariable(methodGenerator, typeLookup);
@@ -475,16 +475,16 @@ namespace VRage.Compiler
                 generator.DeclareLocal(MaybeSubstituteType(typeLookup, local.LocalType));
             }
         }
-        private static void ResolveField(FieldInfo field, List<FieldBuilder> fields, ILGenerator generator, OpCode code)
+        private static void ResolveField(FieldInfo field, Dictionary<FieldInfo, FieldBuilder> fields, ILGenerator generator, OpCode code)
         {
-            foreach (var newField in fields)
-            {
-                if (newField.DeclaringType.Name == field.DeclaringType.Name && newField.Name == field.Name)
-                {
-                    generator.Emit(code, newField);
-                    break;
-                }
-            }
+            var actualField = ResolveFieldInfo(fields, field);
+            generator.Emit(code, actualField);
+        }    
+        private static FieldInfo ResolveFieldInfo(Dictionary<FieldInfo, FieldBuilder> fields, FieldInfo field)
+        {
+            FieldBuilder replacementField;
+            if(fields.TryGetValue(field, out replacementField)) return replacementField;
+            return field;
         }    
     }
 }
