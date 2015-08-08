@@ -21,8 +21,8 @@ namespace Sandbox.ModAPI.Ingame
         bool WritePrivateTitle(string value, bool append = false);
         string GetPrivateTitle();
 
-        void AddImageToSelection(string id, bool checkExistance = false);
-        void AddImagesToSelection(List<string> ids, bool checkExistance = false);
+        void AddImageToSelection(string id, bool checkExistence = false);
+        void AddImagesToSelection(List<string> ids, bool checkExistence = false);
 
         void RemoveImageFromSelection(string id, bool removeDuplicates = false);
         void RemoveImagesFromSelection(List<string> ids, bool removeDuplicates = false);
