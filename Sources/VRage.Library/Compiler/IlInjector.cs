@@ -258,14 +258,25 @@ namespace VRage.Compiler
                 
                 var parameters = method.GetParameters();
                 Type[] parameterTypes = new Type[parameters.Length];
-                int i = 0;
-                foreach (var parameter in parameters)
+                for(var i = 0; i < parameters.Length; i++)
                 {
-                    parameterTypes[i++] = MaybeSubstituteType(typeLookup, parameter.ParameterType);
+                    parameterTypes[i] = MaybeSubstituteType(typeLookup, parameters[i].ParameterType);
                 }
                 
                 var definedMethod = newType.DefineMethod(method.Name, method.Attributes, method.CallingConvention, MaybeSubstituteType(typeLookup, method.ReturnType), parameterTypes);
-
+                if(method.IsGenericMethodDefinition)
+                {
+                    var genericArgs = method.GetGenericArguments();
+                    var names = genericArgs.Select(a => a.Name).ToArray();
+                    var definedGenericArgs = definedMethod.DefineGenericParameters(names);
+                    for(var i = 0; i < genericArgs.Length; i++)
+                    {
+                        var a = genericArgs[i];
+                        var d = definedGenericArgs[i];
+                        if(a.BaseType != null && a.BaseType != typeof(object)) d.SetBaseTypeConstraint(a.BaseType);
+                    }
+                }
+                
                 createdMethods.Add(method, definedMethod);
             }
         }
