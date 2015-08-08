@@ -133,24 +133,50 @@ namespace VRage.Compiler
                 CopyMethods(createdMethods, typePair.Key, typePair.Value, typeLookup);
             }
 
-            foreach (var type in typeLookup)
+            foreach (var newMethod in createdMethods)
             {
-                foreach (var newMethod in createdMethods)
-                {
-                    if (newMethod.Value.DeclaringType == type.Value)
-                    {
-                        InjectMethod(newMethod.Key, newMethod.Value.GetILGenerator(), createdFields, createdMethods, createdConstructors, methodToInject,methodToInjectMethodCheck, typeLookup);
-                    }
-                }
-                foreach (var newConstructor in createdConstructors)
-                {
-                    if (newConstructor.Value.DeclaringType == type.Value)
-                    {
-                        InjectMethod(newConstructor.Key, newConstructor.Value.GetILGenerator(), createdFields, createdMethods, createdConstructors, methodToInject,methodToInjectMethodCheck, typeLookup);
-                    }
-                }
-                type.Value.CreateType();
+                InjectMethod(newMethod.Key, newMethod.Value.GetILGenerator(), createdFields, createdMethods, createdConstructors, methodToInject,methodToInjectMethodCheck, typeLookup);
             }
+            foreach (var newConstructor in createdConstructors)
+            {
+                InjectMethod(newConstructor.Key, newConstructor.Value.GetILGenerator(), createdFields, createdMethods, createdConstructors, methodToInject,methodToInjectMethodCheck, typeLookup);
+            }
+
+            // Once everything is hooked up, we can create our types.
+            CreateTypesInOrder(typeLookup);
+        }
+
+        private static void CreateTypesInOrder(Dictionary<Type, TypeBuilder> typeLookup)
+        {
+            // Note that if a type A has a field of type B and B is a value type, then B MUST be created before A. This is
+            // presumably so the compiler knows the size of the type in memory. Since value types cannot circularly contain
+            // each other this should always be resolvable.
+            // If a type fails to create due to a dependency it may render the entire assembly unusable, so let any
+            // exceptions bubble up.
+
+            while(typeLookup.Count > 0)
+            {
+                var pair = typeLookup.First();
+                CreateDependencies(typeLookup, pair.Key, pair.Value);
+            }
+        }
+
+        private static void CreateDependencies(Dictionary<Type, TypeBuilder> typeLookup, Type sourceType, TypeBuilder newType)
+        {
+            // Infinite recursion should be impossible since value types cannot contain themselves and for
+            // reference types we do not recurse, but for added safety we remove the type first.
+            typeLookup.Remove(sourceType);
+
+            var fields = sourceType.GetFields(BindingFlags.Static |BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.SetField | BindingFlags.GetField | BindingFlags.Instance);
+            foreach(var field in fields)
+            {
+                if(!field.FieldType.IsValueType) continue; // If it's not a value type we don't need to create it yet.
+                TypeBuilder newFieldType;
+                if(!typeLookup.TryGetValue(field.FieldType, out newFieldType)) continue; // Already created, or not one we're building.
+                
+                CreateDependencies(typeLookup, field.FieldType, newFieldType);
+            }
+            newType.CreateType();
         }
 
         private static TypeBuilder CreateType(ModuleBuilder newModule, Dictionary<Type, TypeBuilder> typeLookup, Type sourceType)
