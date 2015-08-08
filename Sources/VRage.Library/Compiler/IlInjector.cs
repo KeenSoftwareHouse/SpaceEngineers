@@ -198,15 +198,24 @@ namespace VRage.Compiler
         }
         private static void CopyFields(List<FieldBuilder> createdFields, Type sourceType, TypeBuilder newType, Dictionary<TypeBuilder, Type> createdTypes)
         {
-            var fields = sourceType.GetFields(BindingFlags.Static |BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.SetField | BindingFlags.GetField | BindingFlags.Instance);
+            var fields = sourceType.GetFields(BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.SetField | BindingFlags.GetField | BindingFlags.Instance);
             foreach (var field in fields)
             {
                 // The type designation field for enums has already been copied
                 if (sourceType.IsEnum && field.Name == "value__")
                     continue;
+
                 // Resolve the correct types
-                var foundField = createdTypes.Values.FirstOrDefault(t => t == field.FieldType) ?? field.FieldType;
-                createdFields.Add(newType.DefineField(field.Name, field.FieldType, field.Attributes));
+                var resolvedFieldType = createdTypes
+                    .Where(pair => pair.Value == field.FieldType)
+                    .Select(t => (Type)t.Key).FirstOrDefault()
+                    ?? field.FieldType;
+                var newField = newType.DefineField(field.Name, resolvedFieldType, field.Attributes);
+                if (newType.IsEnum && field.IsStatic)
+                {
+                    // Copy the constant value to enable correct output for enum ToString()
+                    newField.SetConstant(field.GetRawConstantValue());
+                }
             }
         }
         private static void CopyProperties(Type sourceType, TypeBuilder newType)
