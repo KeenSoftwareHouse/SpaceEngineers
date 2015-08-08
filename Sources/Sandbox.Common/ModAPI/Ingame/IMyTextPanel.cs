@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
+using Sandbox.Common.ObjectBuilders;
+
 namespace Sandbox.ModAPI.Ingame
 {
     public interface IMyTextPanel : IMyFunctionalBlock
@@ -27,9 +29,34 @@ namespace Sandbox.ModAPI.Ingame
 
         void ClearImagesFromSelection();
 
+        /// <summary>
+        /// Outputs the selected image ids to the specified list.
+        /// 
+        /// NOTE: List is not cleared internally.
+        /// </summary>
+        /// <param name="output"></param>
+        void GetSelectedImages(List<string> output);
+
+        /// <summary>
+        /// The image that is currently shown on the screen.
+        /// 
+        /// Returns NULL if there are no images selected OR the screen is in text mode.
+        /// </summary>
+        string CurrentlyShownImage { get; }
+
         void ShowPublicTextOnScreen();
         void ShowPrivateTextOnScreen();
         void ShowTextureOnScreen();
-        void SetShowOnScreen(Sandbox.Common.ObjectBuilders.ShowTextOnScreenFlag set);
+        void SetShowOnScreen(ShowTextOnScreenFlag set);
+
+        /// <summary>
+        /// Indicates what should be shown on the screen, none being an image.
+        /// </summary>
+        ShowTextOnScreenFlag ShowOnScreen { get; }
+
+        /// <summary>
+        /// Returns true if the ShowOnScreen flag is set to either PUBLIC or PRIVATE
+        /// </summary>
+        bool ShowText { get; }
     }
 }
