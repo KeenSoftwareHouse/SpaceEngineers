@@ -123,7 +123,7 @@ namespace VRage.Compiler
             {
                 TypeBuilder newType = CreateType(newModule, createdTypes, typeLookup, sourceType);
 
-                CopyFields(createdFields, sourceType, newType);
+                CopyFields(createdFields, sourceType, newType, createdTypes);
                 CopyProperties(sourceType, newType);
                 CopyConstructors(createdConstructors, sourceType, newType);
                 CopyMethods(createdMethods, sourceType, newType);
@@ -196,7 +196,7 @@ namespace VRage.Compiler
             typeLookup.Add(newType.FullName, newType);
             return newType;
         }
-        private static void CopyFields(List<FieldBuilder> createdFields, Type sourceType, TypeBuilder newType)
+        private static void CopyFields(List<FieldBuilder> createdFields, Type sourceType, TypeBuilder newType, Dictionary<TypeBuilder, Type> createdTypes)
         {
             var fields = sourceType.GetFields(BindingFlags.Static |BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.SetField | BindingFlags.GetField | BindingFlags.Instance);
             foreach (var field in fields)
@@ -204,6 +204,8 @@ namespace VRage.Compiler
                 // The type designation field for enums has already been copied
                 if (sourceType.IsEnum && field.Name == "value__")
                     continue;
+                // Resolve the correct types
+                var foundField = createdTypes.Values.FirstOrDefault(t => t == field.FieldType) ?? field.FieldType;
                 createdFields.Add(newType.DefineField(field.Name, field.FieldType, field.Attributes));
             }
         }
