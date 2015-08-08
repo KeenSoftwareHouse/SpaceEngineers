@@ -211,6 +211,20 @@ namespace VRage.Compiler
         private static Type MaybeSubstituteType(Dictionary<Type, TypeBuilder> typeLookup, Type type)
         {
             if(type == null) return null;
+            if(type.HasElementType)
+            {
+                var elementType = MaybeSubstituteType(typeLookup, type.GetElementType());
+                if(elementType == type.GetElementType()) return type;
+
+                if(type.IsByRef) return elementType.MakeByRefType();
+                if(type.IsArray) return elementType.MakeArrayType(type.GetArrayRank());
+
+                // We never expect to see this, but completeness...
+                if(type.IsPointer) return elementType.MakePointerType();
+
+                Debug.Fail(String.Format("Type {0} claimed HasElementType but is not a pointer, array, or ByRef.", type));
+            }
+
             if(!type.IsGenericTypeDefinition && type.IsGenericType)
             {
                 var genericArguments = type.GetGenericArguments();
