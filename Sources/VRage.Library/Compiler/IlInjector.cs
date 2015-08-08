@@ -505,10 +505,13 @@ namespace VRage.Compiler
             {
                 if (newField.DeclaringType.Name == field.DeclaringType.Name && newField.Name == field.Name)
                 {
+                    // We found a replacement field reference
                     generator.Emit(code, newField);
-                    break;
+                    return;
                 }
             }
-        }    
+            // Generate the exact field reference
+            generator.Emit(code, field);
+        }
     }
 }
