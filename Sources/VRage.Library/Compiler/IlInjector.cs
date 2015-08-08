@@ -112,9 +112,9 @@ namespace VRage.Compiler
 
         private static void InjectTypes(Type[] sourceTypes, ModuleBuilder newModule, MethodInfo methodToInject,MethodInfo methodToInjectMethodCheck)
         {
-            Dictionary<MethodBuilder, MethodInfo> createdMethods = new Dictionary<MethodBuilder, MethodInfo>(InstanceComparer<MethodBuilder>.Default);
+            Dictionary<MethodInfo, MethodBuilder> createdMethods = new Dictionary<MethodInfo, MethodBuilder>(InstanceComparer<MethodInfo>.Default);
             Dictionary<Type, TypeBuilder> typeLookup = new Dictionary<Type, TypeBuilder>();
-            Dictionary<ConstructorBuilder, ConstructorInfo> createdConstructors = new Dictionary<ConstructorBuilder, ConstructorInfo>();
+            Dictionary<ConstructorInfo, ConstructorBuilder> createdConstructors = new Dictionary<ConstructorInfo, ConstructorBuilder>();
             List<FieldBuilder> createdFields = new List<FieldBuilder>();
 
             // Create all types first.
@@ -137,16 +137,16 @@ namespace VRage.Compiler
             {
                 foreach (var newMethod in createdMethods)
                 {
-                    if (newMethod.Key.DeclaringType == type.Value)
+                    if (newMethod.Value.DeclaringType == type.Value)
                     {
-                        InjectMethod(newMethod.Value, newMethod.Key.GetILGenerator(), createdFields, createdMethods, createdConstructors, methodToInject,methodToInjectMethodCheck, typeLookup);
+                        InjectMethod(newMethod.Key, newMethod.Value.GetILGenerator(), createdFields, createdMethods, createdConstructors, methodToInject,methodToInjectMethodCheck, typeLookup);
                     }
                 }
                 foreach (var newConstructor in createdConstructors)
                 {
-                    if (newConstructor.Key.DeclaringType == type.Value)
+                    if (newConstructor.Value.DeclaringType == type.Value)
                     {
-                        InjectMethod(newConstructor.Value, newConstructor.Key.GetILGenerator(), createdFields, createdMethods, createdConstructors, methodToInject,methodToInjectMethodCheck, typeLookup);
+                        InjectMethod(newConstructor.Key, newConstructor.Value.GetILGenerator(), createdFields, createdMethods, createdConstructors, methodToInject,methodToInjectMethodCheck, typeLookup);
                     }
                 }
                 type.Value.CreateType();
@@ -218,7 +218,7 @@ namespace VRage.Compiler
                 newType.DefineProperty(property.Name, PropertyAttributes.HasDefault, MaybeSubstituteType(typeLookup, property.PropertyType), Type.EmptyTypes);
             }
         }
-        private static void CopyMethods(Dictionary<MethodBuilder, MethodInfo> createdMethods, Type type, TypeBuilder newType, Dictionary<Type, TypeBuilder> typeLookup)
+        private static void CopyMethods(Dictionary<MethodInfo, MethodBuilder> createdMethods, Type type, TypeBuilder newType, Dictionary<Type, TypeBuilder> typeLookup)
         {
             var methods = type.GetMethods(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic|BindingFlags.Static);
 
@@ -239,10 +239,10 @@ namespace VRage.Compiler
                 
                 var definedMethod = newType.DefineMethod(method.Name, method.Attributes, method.CallingConvention, MaybeSubstituteType(typeLookup, method.ReturnType), parameterTypes);
 
-                createdMethods.Add(definedMethod, method);
+                createdMethods.Add(method, definedMethod);
             }
         }
-        private static void CopyConstructors(Dictionary<ConstructorBuilder, ConstructorInfo> createdConstructors, Type type, TypeBuilder newType, Dictionary<Type, TypeBuilder> typeLookup)
+        private static void CopyConstructors(Dictionary<ConstructorInfo, ConstructorBuilder> createdConstructors, Type type, TypeBuilder newType, Dictionary<Type, TypeBuilder> typeLookup)
         {
             var constructors = type.GetConstructors(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static);
             foreach (var method in constructors)
@@ -258,16 +258,16 @@ namespace VRage.Compiler
                 {
                     paramaterTypes[i++] = MaybeSubstituteType(typeLookup, parameter.ParameterType);
                 }
-                createdConstructors.Add(newType.DefineConstructor(method.Attributes, method.CallingConvention, paramaterTypes), method);
+                createdConstructors.Add(method, newType.DefineConstructor(method.Attributes, method.CallingConvention, paramaterTypes));
             }
         }
 
-		private static void InjectMethod(MethodBase sourceMethod, ILGenerator methodGenerator, List<FieldBuilder> fields, Dictionary<MethodBuilder, MethodInfo> methods, Dictionary<ConstructorBuilder, ConstructorInfo> constructors, MethodInfo methodToInject, MethodInfo methodToInjectMethodCheck, Dictionary<Type, TypeBuilder> typeLookup)
+		private static void InjectMethod(MethodBase sourceMethod, ILGenerator methodGenerator, List<FieldBuilder> fields, Dictionary<MethodInfo, MethodBuilder> methods, Dictionary<ConstructorInfo, ConstructorBuilder> constructors, MethodInfo methodToInject, MethodInfo methodToInjectMethodCheck, Dictionary<Type, TypeBuilder> typeLookup)
         {
             ConstructInstructions(sourceMethod, methodGenerator, fields, methods, constructors, methodToInject ,methodToInjectMethodCheck, typeLookup);
         }
 
-        private static void ConstructInstructions(MethodBase sourceMethod, ILGenerator methodGenerator, List<FieldBuilder> createdFields, Dictionary<MethodBuilder, MethodInfo> createdMethods, Dictionary<ConstructorBuilder, ConstructorInfo> createdConstructors, MethodInfo methodToInject, MethodInfo methodToInjectMethodCheck, Dictionary<Type, TypeBuilder> typeLookup)
+        private static void ConstructInstructions(MethodBase sourceMethod, ILGenerator methodGenerator, List<FieldBuilder> createdFields, Dictionary<MethodInfo, MethodBuilder> createdMethods, Dictionary<ConstructorInfo, ConstructorBuilder> createdConstructors, MethodInfo methodToInject, MethodInfo methodToInjectMethodCheck, Dictionary<Type, TypeBuilder> typeLookup)
         {
             List<VRage.Compiler.IlReader.IlInstruction> instructions = m_reader.ReadInstructions(sourceMethod);
             ResolveLocalVariable(methodGenerator, typeLookup);
@@ -439,7 +439,7 @@ namespace VRage.Compiler
             return code;
         }
 
-        private static void ResolveMethodOrConstructor(ILGenerator generator, Dictionary<MethodBuilder, MethodInfo> methods, Dictionary<ConstructorBuilder, ConstructorInfo> constructors, VRage.Compiler.IlReader.IlInstruction instruction, System.Reflection.Emit.OpCode code)
+        private static void ResolveMethodOrConstructor(ILGenerator generator, Dictionary<MethodInfo, MethodBuilder> methods, Dictionary<ConstructorInfo, ConstructorBuilder> constructors, VRage.Compiler.IlReader.IlInstruction instruction, System.Reflection.Emit.OpCode code)
         {
             if (instruction.Operand is MethodInfo)
             {
@@ -455,26 +455,16 @@ namespace VRage.Compiler
             }
         }
 
-        private static MethodInfo ResolveMethodInfo(Dictionary<MethodBuilder, MethodInfo> methods, MethodInfo method)
+        private static MethodInfo ResolveMethodInfo(Dictionary<MethodInfo, MethodBuilder> methods, MethodInfo method)
         {
-            foreach (var met in methods)
-            {
-                if (met.Value == method)
-                {
-                    return met.Key;
-                }
-            }
+            MethodBuilder replacementMethod;
+            if(methods.TryGetValue(method, out replacementMethod)) return replacementMethod;
             return method;
         }
-        private static ConstructorInfo ResolveConstructorInfo(Dictionary<ConstructorBuilder, ConstructorInfo> constructors, ConstructorInfo constructor)
+        private static ConstructorInfo ResolveConstructorInfo(Dictionary<ConstructorInfo, ConstructorBuilder> constructors, ConstructorInfo constructor)
         {
-            foreach (var met in constructors)
-            {
-                if (met.Value == constructor)
-                {
-                    return met.Key;
-                }
-            }
+            ConstructorBuilder replacementConstructor;
+            if(constructors.TryGetValue(constructor, out replacementConstructor)) return replacementConstructor;
             return constructor;
         }
 
