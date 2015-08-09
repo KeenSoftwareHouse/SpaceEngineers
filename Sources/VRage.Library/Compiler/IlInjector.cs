@@ -128,9 +128,9 @@ namespace VRage.Compiler
             foreach (var typePair in typeLookup)
             {
                 CopyFields(createdFields, typePair.Key, typePair.Value, typeLookup);
-                CopyProperties(typePair.Key, typePair.Value, typeLookup);
                 CopyConstructors(createdConstructors, typePair.Key, typePair.Value, typeLookup);
                 CopyMethods(createdMethods, typePair.Key, typePair.Value, typeLookup);
+                CopyProperties(createdMethods, typePair.Key, typePair.Value, typeLookup);
             }
 
             foreach (var newMethod in createdMethods)
@@ -248,15 +248,35 @@ namespace VRage.Compiler
             var fields = sourceType.GetFields(BindingFlags.Static |BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.SetField | BindingFlags.GetField | BindingFlags.Instance);
             foreach (var field in fields)
             {
+                if (field.DeclaringType != sourceType)
+                {
+                    continue;
+                }
+                
                 createdFields.Add(field, newType.DefineField(field.Name, MaybeSubstituteType(typeLookup, field.FieldType), field.Attributes));
             }
         }
-        private static void CopyProperties(Type sourceType, TypeBuilder newType, Dictionary<Type, TypeBuilder> typeLookup)
+        private static void CopyProperties(Dictionary<MethodInfo, MethodBuilder> createdMethods, Type sourceType, TypeBuilder newType, Dictionary<Type, TypeBuilder> typeLookup)
         {
             var properties = sourceType.GetProperties(BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.SetProperty | BindingFlags.GetProperty | BindingFlags.Instance);
             foreach (var property in properties)
             {
-                newType.DefineProperty(property.Name, PropertyAttributes.HasDefault, MaybeSubstituteType(typeLookup, property.PropertyType), Type.EmptyTypes);
+                if (property.DeclaringType != sourceType)
+                {
+                    continue;
+                }
+                
+                var definedProperty = newType.DefineProperty(property.Name, property.Attributes, MaybeSubstituteType(typeLookup, property.PropertyType), Type.EmptyTypes);
+                if(property.GetGetMethod(true) != null)
+                {
+                    MethodBuilder getter;
+                    if(createdMethods.TryGetValue(property.GetGetMethod(true), out getter)) definedProperty.SetGetMethod(getter);
+                }
+                if(property.GetSetMethod(true) != null)
+                {
+                    MethodBuilder setter;
+                    if(createdMethods.TryGetValue(property.GetSetMethod(true), out setter)) definedProperty.SetSetMethod(setter);
+                }
             }
         }
         private static void CopyMethods(Dictionary<MethodInfo, MethodBuilder> createdMethods, Type type, TypeBuilder newType, Dictionary<Type, TypeBuilder> typeLookup)
