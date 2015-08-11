@@ -100,13 +100,13 @@ namespace Sandbox.Game.Entities.Cube
 
         void ModAPI.Ingame.IMyTerminalBlock.SetCustomName(string text)
         {
-            if (isControllableForProgrammableBlock)
+            if (IsAccessibleForProgrammableBlock)
                 SetCustomName(text);
         }
 
         void ModAPI.Ingame.IMyTerminalBlock.SetCustomName(StringBuilder text)
         {
-            if (isControllableForProgrammableBlock)
+            if (IsAccessibleForProgrammableBlock)
                 SetCustomName(text);
         }
     }

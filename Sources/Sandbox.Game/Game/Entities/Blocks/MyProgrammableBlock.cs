@@ -58,7 +58,9 @@ namespace Sandbox.Game.Entities.Blocks
         Assembly m_assembly = null;
         List<string> m_compilerErrors = new List<string>();
         private bool m_wasTerminated = false;
-        private bool m_isRunning = false;
+        private List<MyTerminalBlock> m_programmaticallyAccessibleBlocks = new List<MyTerminalBlock>();
+        private static MyProgrammableBlock m_runningProgramBlock = null;
+        private bool m_isRunning { get { return this.Equals(m_runningProgramBlock); } }
         private bool m_mainMethodSupportsArgument;
         public bool ConsoleOpenRequest = false;
         private ulong m_userId;
@@ -247,12 +249,13 @@ namespace Sandbox.Game.Entities.Blocks
             }
             var gridGroup = MyCubeGridGroups.Static.Logical.GetGroup(CubeGrid);
             var terminalSystem = gridGroup.GroupData.TerminalSystem;
-            terminalSystem.UpdateGridBlocksOwnership(this.OwnerId);
-            terminalSystem.updateControllingProgrammingBlock(this.SlimBlock);
 
             m_instance.GridTerminalSystem = terminalSystem;
 
-            m_isRunning = true;
+            // the running program block must be set before checking which blocks are accessible
+            m_runningProgramBlock = this;
+            m_programmaticallyAccessibleBlocks = terminalSystem.Blocks.Where(x => x.HasPlayerAccess(OwnerId)).ToList();
+            
             string retVal = "";
             IlInjector.RestartCountingInstructions(MAX_NUM_EXECUTED_INSTRUCTIONS);
 			IlInjector.RestartCountingMethods(MAX_NUM_METHOD_CALLS);
@@ -279,7 +282,8 @@ namespace Sandbox.Game.Entities.Blocks
                     retVal += MyTexts.GetString(MySpaceTexts.ProgrammableBlock_Exception_ExceptionCaught) + ex.Message;
                 }
             }
-            m_isRunning = false;
+            m_programmaticallyAccessibleBlocks = new List<MyTerminalBlock>();
+            m_runningProgramBlock = null;
             return retVal;
         }
 
@@ -493,6 +497,13 @@ namespace Sandbox.Game.Entities.Blocks
         }
 
         bool IMyProgrammableBlock.IsRunning { get { return m_isRunning; } }
+
+        public static MyProgrammableBlock RunningBlock { get { return m_runningProgramBlock; }}
+
+        public static bool IsAccessibleByProgram(Sandbox.ModAPI.Ingame.IMyCubeBlock block)
+        {
+            return RunningBlock.m_programmaticallyAccessibleBlocks.Contains(block);
+        }
 
         protected override void OnOwnershipChanged()
         {

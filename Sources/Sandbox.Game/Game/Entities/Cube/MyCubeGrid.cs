@@ -298,14 +298,6 @@ namespace Sandbox.Game.Entities
             MainCockpit = cockpit;
         }
 
-        // The block that is accessing this MyCubeGrid - usually the currently running programming block
-        public MySlimBlock programmaticallyControllingBlock;
-
-        public bool isProgrammaticallyControllable()
-        {
-            return CubeBlocks.Contains(programmaticallyControllingBlock);
-        }
-
         public MyCubeGrid() :
             this(MyCubeSize.Large)
         {

@@ -20,7 +20,7 @@ namespace Sandbox.Game.Entities.Cube
 
         void Sandbox.ModAPI.Ingame.IMyFunctionalBlock.RequestEnable(bool enable)
         {
-            if (this.isControllableForProgrammableBlock)
+            if (this.IsAccessibleForProgrammableBlock)
                 RequestEnable(enable);
         }
     }

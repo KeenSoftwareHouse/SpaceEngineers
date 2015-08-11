@@ -16,31 +16,31 @@ namespace Sandbox.Game.Entities.Blocks
 
         void ModAPI.Ingame.IMyTextPanel.ShowPublicTextOnScreen()
         {
-            if (isControllableForProgrammableBlock)
+            if (IsAccessibleForProgrammableBlock)
                 SyncObject.SendShowOnScreenChangeRequest((byte)ShowTextOnScreenFlag.PUBLIC);
         }
 
         void ModAPI.Ingame.IMyTextPanel.ShowPrivateTextOnScreen()
         {
-            if (isControllableForProgrammableBlock)
+            if (IsAccessibleForProgrammableBlock)
                 SyncObject.SendShowOnScreenChangeRequest((byte)ShowTextOnScreenFlag.PRIVATE);
         }
 
         void ModAPI.Ingame.IMyTextPanel.ShowTextureOnScreen()
         {
-            if (isControllableForProgrammableBlock)
+            if (IsAccessibleForProgrammableBlock)
                 SyncObject.SendShowOnScreenChangeRequest((byte)ShowTextOnScreenFlag.NONE);
         }
 
         void ModAPI.Ingame.IMyTextPanel.SetShowOnScreen(ShowTextOnScreenFlag set)
         {
-            if (isControllableForProgrammableBlock)
+            if (IsAccessibleForProgrammableBlock)
                 SyncObject.SendShowOnScreenChangeRequest((byte)set);
         }
 
         bool ModAPI.Ingame.IMyTextPanel.WritePublicTitle(string value, bool append)
         {
-            if (m_isOpen || !isControllableForProgrammableBlock)
+            if (m_isOpen || !IsAccessibleForProgrammableBlock)
             {
                 return false;
             }
@@ -60,7 +60,7 @@ namespace Sandbox.Game.Entities.Blocks
 
         bool ModAPI.Ingame.IMyTextPanel.WritePublicText(string value, bool append)
         {
-            if (m_isOpen || !isControllableForProgrammableBlock)
+            if (m_isOpen || !IsAccessibleForProgrammableBlock)
             {
                 return false;
             }
@@ -80,7 +80,7 @@ namespace Sandbox.Game.Entities.Blocks
 
         bool ModAPI.Ingame.IMyTextPanel.WritePrivateTitle(string value, bool append)
         {
-            if (m_isOpen || !isControllableForProgrammableBlock)
+            if (m_isOpen || !IsAccessibleForProgrammableBlock)
             {
                 return false;
             }
@@ -100,7 +100,7 @@ namespace Sandbox.Game.Entities.Blocks
 
         bool ModAPI.Ingame.IMyTextPanel.WritePrivateText(string value, bool append)
         {
-            if (m_isOpen || !isControllableForProgrammableBlock)
+            if (m_isOpen || !IsAccessibleForProgrammableBlock)
             {
                 return false;
             }
@@ -120,7 +120,7 @@ namespace Sandbox.Game.Entities.Blocks
 
         void ModAPI.Ingame.IMyTextPanel.AddImageToSelection(string id, bool checkExistence)
         {
-            if (id == null || !isControllableForProgrammableBlock)
+            if (id == null || !IsAccessibleForProgrammableBlock)
             {
                 return;
             }
@@ -144,7 +144,7 @@ namespace Sandbox.Game.Entities.Blocks
 
         void ModAPI.Ingame.IMyTextPanel.AddImagesToSelection(List<string> ids, bool checkExistence)
         {
-            if (ids == null || !isControllableForProgrammableBlock)
+            if (ids == null || !IsAccessibleForProgrammableBlock)
             {
                 return;
             }
@@ -184,7 +184,7 @@ namespace Sandbox.Game.Entities.Blocks
 
         void ModAPI.Ingame.IMyTextPanel.RemoveImageFromSelection(string id, bool removeDuplicates)
         {
-            if (id == null || !isControllableForProgrammableBlock)
+            if (id == null || !IsAccessibleForProgrammableBlock)
             {
                 return;
             }
@@ -218,7 +218,7 @@ namespace Sandbox.Game.Entities.Blocks
 
         void ModAPI.Ingame.IMyTextPanel.RemoveImagesFromSelection(List<string> ids, bool removeDuplicates)
         {
-            if (ids == null || !isControllableForProgrammableBlock)
+            if (ids == null || !IsAccessibleForProgrammableBlock)
             {
                 return;
             }
@@ -255,7 +255,7 @@ namespace Sandbox.Game.Entities.Blocks
 
         void ModAPI.Ingame.IMyTextPanel.ClearImagesFromSelection()
         {
-            if (m_selectedTexturesToDraw.Count == 0 || !isControllableForProgrammableBlock)
+            if (m_selectedTexturesToDraw.Count == 0 || !IsAccessibleForProgrammableBlock)
             {
                 return;
             }
