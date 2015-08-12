@@ -14,8 +14,8 @@ using Sandbox.Game.Gui;
 using Sandbox.Definitions;
 using Sandbox.Game.Localization;
 using Sandbox.Common.ObjectBuilders.Definitions;
-using Sandbox.Game.EntityComponents;
-using VRage.Game.Components;
+using Sandbox.Common.Components;
+using VRage.Components;
 using VRage.ModAPI;
 using VRage.Utils;
 using VRage.Game.Entity;
@@ -263,11 +263,19 @@ namespace Sandbox.Game.Entities
             subpart.Render.ColorMaskHsv = Render.ColorMaskHsv;
             subpart.Init(null, fileName, this, null);
 
+            subpart.Render.NeedsDrawFromParent = false;
+
             // add to dictionary
             Subparts[name] = subpart;
 
             if (InScene)
                 subpart.OnAddedToScene(this);
+
+            if (Render.GetModel().GlassData != null)
+            {
+                Render.NeedsDraw = true;
+                Render.NeedsDrawFromParent = true;
+            }
 
             return subpart;
         }
