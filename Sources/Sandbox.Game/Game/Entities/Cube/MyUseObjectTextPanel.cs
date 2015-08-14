@@ -1,23 +1,23 @@
 ﻿
+using System.Diagnostics;
 using Sandbox.Engine.Utils;
 using Sandbox.Game.Entities.Blocks;
-using Sandbox.Game.Entities.Character;
-using Sandbox.Game.Entities.UseObject;
 using Sandbox.Game.Localization;
-using System.Diagnostics;
+using VRage.Game.Entity.UseObject;
 using VRage.Import;
 using VRage.Input;
+using VRage.ModAPI;
 using VRageMath;
 
 namespace Sandbox.Game.Entities.Cube
 {
     [MyUseObject("textpanel")]
-    class MyUseObjectTextPanel : IMyUseObject
+    public class MyUseObjectTextPanel : IMyUseObject
     {
         private MyTextPanel m_textPanel;
         private Matrix m_localMatrix;
 
-        public MyUseObjectTextPanel(MyCubeBlock owner, string dummyName, MyModelDummy dummyData, int key)
+        public MyUseObjectTextPanel(IMyEntity owner, string dummyName, MyModelDummy dummyData, uint key)
         {
             m_textPanel = (MyTextPanel)owner;
             m_localMatrix = dummyData.Matrix;
@@ -64,7 +64,7 @@ namespace Sandbox.Game.Entities.Cube
             get { return false; }
         }
 
-        void IMyUseObject.Use(UseActionEnum actionEnum, MyCharacter user)
+        void IMyUseObject.Use(UseActionEnum actionEnum, IMyEntity user)
         {
             m_textPanel.Use(actionEnum, user);
         }
@@ -105,5 +105,10 @@ namespace Sandbox.Game.Entities.Cube
         bool IMyUseObject.HandleInput() { return false; }
 
         void IMyUseObject.OnSelectionLost() { }
+
+        bool IMyUseObject.PlayIndicatorSound
+        {
+            get { return true; }
+        }
     }
 }

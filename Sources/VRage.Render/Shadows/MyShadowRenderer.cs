@@ -445,7 +445,8 @@ namespace VRageRender.Shadows
 
             // Position the shadow-caster camera so that it's looking at the centroid,
             // and backed up in the direction of the sunlight
-            MatrixD viewMatrix = MatrixD.CreateLookAt(MyRenderCamera.Position - (MyRender.Sun.Direction * (float)mainCamera.FarClip), MyRenderCamera.Position, Vector3D.Up);
+            Vector3 viewUp = Math.Abs(Vector3.UnitY.Dot(MyRender.Sun.Direction)) < 0.99f ? Vector3.UnitY : Vector3.UnitX;
+            MatrixD viewMatrix = MatrixD.CreateLookAt(MyRenderCamera.Position - (MyRender.Sun.Direction * (float)mainCamera.FarClip), MyRenderCamera.Position, viewUp);
 
             // Determine the position of the frustum corners in light space
             Vector3D.Transform(m_frustumCornersWS, ref viewMatrix, m_frustumCornersLS);

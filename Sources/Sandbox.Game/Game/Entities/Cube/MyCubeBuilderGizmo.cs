@@ -37,7 +37,7 @@ namespace Sandbox.Game.Entities.Cube
     #region Enums
 
     [Flags]
-    internal enum MySymmetrySettingModeEnum
+    public enum MySymmetrySettingModeEnum
     {
         Disabled = 0,
         NoPlane = 1,
@@ -49,7 +49,7 @@ namespace Sandbox.Game.Entities.Cube
         ZPlaneOdd = 64
     }
 
-    internal enum MyGizmoSpaceEnum
+    public enum MyGizmoSpaceEnum
     {
         Default = 0,
         SymmetryX = 1,
@@ -63,9 +63,9 @@ namespace Sandbox.Game.Entities.Cube
 
     #endregion
 
-    class MyCubeBuilderGizmo
+    public class MyCubeBuilderGizmo
     {
-        internal class MyGizmoSpaceProperties
+        public class MyGizmoSpaceProperties
         {
             public bool Enabled = false;
 
@@ -274,7 +274,7 @@ namespace Sandbox.Game.Entities.Cube
                         for (int skeletonIndex = 0; skeletonIndex < definition.Skeleton.Count; skeletonIndex++)
                         {
                             BoneInfo skeletonBone = definition.Skeleton[skeletonIndex];
-                            if (skeletonBone.BonePosition == transformedOffset)
+                            if (skeletonBone.BonePosition == (SerializableVector3I)transformedOffset)
                             {
                                 Vector3 bone = Vector3UByte.Denormalize(skeletonBone.BoneOffset, gridSize);
                                 Vector3 transformedBone = Vector3.Transform(bone, boneMatrix);

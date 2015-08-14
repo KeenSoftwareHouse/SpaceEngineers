@@ -16,14 +16,42 @@ namespace Sandbox.Engine.Networking
     public static class MySteam
     {
         public static SteamAPI API { get { return MySandboxGame.Services.SteamService.SteamAPI; } }
-        public static GameServer Server { get { return MySandboxGame.Services.SteamService.SteamServerAPI != null ?MySandboxGame.Services.SteamService.SteamServerAPI.GameServer : null; } }
+        public static GameServer Server
+        {
+            get
+            {
+                var services = MySandboxGame.Services;
+                if (services != null)
+                {
+                    var steamService = services.SteamService;
+                    if (steamService != null)
+                    {
+                        var serverAPI = steamService.SteamServerAPI;
+                        if (serverAPI != null)
+                        {
+                            return serverAPI.GameServer;
+                        }
+                    }             
+                }
+                return null;
+            }
+        }
 
         public static uint AppId { get { return MySandboxGame.Services.SteamService.AppId; } }
         public static bool IsActive
         {
             get
             {
-                return MySandboxGame.Services.SteamService == null ? false : MySandboxGame.Services.SteamService.IsActive;
+                var services = MySandboxGame.Services;
+                if (services != null)
+                {
+                    var steamService = services.SteamService;
+                    if (steamService != null)
+                    {
+                        return steamService.IsActive;
+                    }
+                }
+                return false;
             }
         }
 

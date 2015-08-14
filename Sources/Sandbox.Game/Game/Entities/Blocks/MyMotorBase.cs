@@ -16,14 +16,17 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
+using VRage;
 using VRage.Audio;
+using VRage.ModAPI;
+using VRage.ObjectBuilders;
 using VRageMath;
 
 namespace Sandbox.Game.Entities.Cube
 {
-    abstract class MyMotorBase : MyFunctionalBlock, IMyPowerConsumer
+    public abstract class MyMotorBase : MyFunctionalBlock, IMyPowerConsumer
     {
-        private static List<HkRigidBody> m_penetrations = new List<HkRigidBody>();
+        private static List<HkBodyCollision> m_penetrations = new List<HkBodyCollision>();
         private const string ROTOR_DUMMY_KEY = "electric_motor";
 
         public HkConstraint DebugConstraint { get { return m_constraint; } }
@@ -186,9 +189,9 @@ namespace Sandbox.Game.Entities.Cube
         {
             Debug.Assert(m_constraint == null);
 
-            CreateRotorGrid(out m_rotorGrid, out m_rotorBlock, builtBy);
             if (Sync.IsServer)
             {
+                CreateRotorGrid(out m_rotorGrid, out m_rotorBlock, builtBy);
                 //var world = WorldMatrix;
                 //var pos = Vector3.Transform(m_dummyPos, CubeGrid.WorldMatrix);
 
@@ -253,7 +256,7 @@ namespace Sandbox.Game.Entities.Cube
 
             var block = MyCubeGrid.CreateBlockObjectBuilder(definition, Vector3I.Zero, MyBlockOrientation.Identity, MyEntityIdentifier.AllocateId(), OwnerId, fullyBuilt: MySession.Static.CreativeMode);
 
-            var gridBuilder = Sandbox.Common.ObjectBuilders.Serializer.MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_CubeGrid>();
+            var gridBuilder = MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_CubeGrid>();
             gridBuilder.GridSizeEnum = gridSize;
             gridBuilder.IsStatic = false;
             gridBuilder.PositionAndOrientation = new MyPositionAndOrientation(matrix);
@@ -397,14 +400,8 @@ namespace Sandbox.Game.Entities.Cube
                 MyPhysics.GetPenetrationsBox(ref halfExtents, ref pos, ref orientation, m_penetrations, MyPhysics.DefaultCollisionLayer);
                 foreach (var obj in m_penetrations)
                 {
-                    if (obj == null)
-                        continue;
-
-                    if (obj == CubeGrid.Physics.RigidBody || obj == CubeGrid.Physics.RigidBody2)
-                        continue;
-
-                    var entity = obj.GetEntity();
-                    if (entity == null)
+                    var entity = obj.GetCollisionEntity();
+                    if (entity == null || entity == CubeGrid)
                         continue;
 
                     var grid = entity as MyCubeGrid;

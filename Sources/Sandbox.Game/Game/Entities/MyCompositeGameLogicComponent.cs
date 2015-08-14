@@ -4,6 +4,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Sandbox.Common.ObjectBuilders;
+using VRage.ObjectBuilders;
+using VRage.Components;
 
 namespace Sandbox.Game.Entities
 {
@@ -19,7 +21,7 @@ namespace Sandbox.Game.Entities
         public static MyGameLogicComponent Create(ICollection<MyGameLogicComponent> logicComponents, MyEntity entity)
         {
             foreach (MyGameLogicComponent item in logicComponents)
-                item.CurrentContainer = entity.Components;
+                item.SetContainer(entity.Components);
 
             switch (logicComponents.Count)
             {
@@ -88,7 +90,7 @@ namespace Sandbox.Game.Entities
             }
         }
 
-        public override void Init(Common.ObjectBuilders.MyObjectBuilder_EntityBase objectBuilder)
+        public override void Init(MyObjectBuilder_EntityBase objectBuilder)
         {
             foreach (var component in m_logicComponents)
             {
@@ -112,16 +114,28 @@ namespace Sandbox.Game.Entities
             }
         }
 
-        public override Common.ObjectBuilders.MyObjectBuilder_EntityBase GetObjectBuilder(bool copy = false)
+        public override MyObjectBuilder_EntityBase GetObjectBuilder(bool copy = false)
         {
             foreach (var component in m_logicComponents)
             {
                 // TODO Can we do better?
-                Common.ObjectBuilders.MyObjectBuilder_EntityBase builder = component.GetObjectBuilder(copy);
+                MyObjectBuilder_EntityBase builder = component.GetObjectBuilder(copy);
                 if (builder != null)
                     return builder;
             }
             return null;
         }
+
+        public override T GetAs<T>()
+        {
+            foreach (var component in m_logicComponents)
+            {
+                if (component is T)
+                {
+                    return component as T;
+                }
+            }
+            return null;
+        } 
     }
 }

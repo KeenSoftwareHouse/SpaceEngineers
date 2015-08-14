@@ -8,6 +8,7 @@ using System.Text;
 using VRage.FileSystem;
 using VRage.Input;
 using VRage.Library.Utils;
+using VRage.ObjectBuilders;
 using VRage.Utils;
 using VRageMath;
 
@@ -66,7 +67,7 @@ namespace Sandbox.Game.Gui
             var fsPath = Path.Combine(MyFileSystem.ContentPath, fileName);
 
             MyObjectBuilder_GuiScreen objectBuilder;
-            Sandbox.Common.ObjectBuilders.Serializer.MyObjectBuilderSerializer.DeserializeXML<MyObjectBuilder_GuiScreen>(fsPath, out objectBuilder);
+            MyObjectBuilderSerializer.DeserializeXML<MyObjectBuilder_GuiScreen>(fsPath, out objectBuilder);
             Init(objectBuilder);
 
             m_amountTextbox = (MyGuiControlTextbox)Controls.GetControlByName("AmountTextbox");
@@ -86,6 +87,9 @@ namespace Sandbox.Game.Gui
             m_decreaseButton.ButtonClicked += decreaseButton_OnButtonClick;
             m_confirmButton.ButtonClicked += confirmButton_OnButtonClick;
             m_cancelButton.ButtonClicked += cancelButton_OnButtonClick;
+
+            m_confirmButton.TextAlignment = MyGuiDrawAlignEnum.HORISONTAL_CENTER_AND_VERTICAL_CENTER;
+            m_cancelButton.TextAlignment = MyGuiDrawAlignEnum.HORISONTAL_CENTER_AND_VERTICAL_CENTER;
 
             RefreshAmountTextbox();
         }

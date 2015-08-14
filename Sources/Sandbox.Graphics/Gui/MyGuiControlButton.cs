@@ -353,9 +353,9 @@ namespace Sandbox.Graphics.GUI
                 ButtonClicked(this);
         }
 
-        public override void Draw(float transitionAlpha)
+        public override void Draw(float transitionAlpha, float backgroundTransitionAlpha)
         {
-            base.Draw(transitionAlpha);
+            base.Draw(transitionAlpha, transitionAlpha);
 
             bool isNotImplementedForbidenOrDisabled = !m_implementedFeature || !Enabled;
             Vector4 backgroundColor, textColor;
@@ -501,6 +501,8 @@ namespace Sandbox.Graphics.GUI
         public MyGuiHighlightTexture? Icon;
 
         public MyGuiDrawAlignEnum IconOriginAlign = MyGuiDrawAlignEnum.HORISONTAL_CENTER_AND_VERTICAL_CENTER;
+        private bool m_useCustomStyle;
+        private StyleDefinition m_customStyle;
 
         #endregion
 
@@ -562,7 +564,14 @@ namespace Sandbox.Graphics.GUI
 
         private void RefreshVisualStyle()
         {
-            m_styleDef = GetVisualStyle(VisualStyle);
+            if (m_useCustomStyle)
+            {
+                m_styleDef = m_customStyle;
+            }
+            else
+            {
+                m_styleDef = GetVisualStyle(VisualStyle);
+            }
             RefreshInternals();
         }
 
@@ -604,6 +613,13 @@ namespace Sandbox.Graphics.GUI
             m_internalArea.Position = padding.TopLeftOffset;
             m_internalArea.Size = Size - padding.SizeChange;
             Size = size;
+        }
+
+        public void SetCustomStyle(StyleDefinition buttonStyle)
+        {
+            m_useCustomStyle = true;
+            m_customStyle = buttonStyle;
+            RefreshVisualStyle();
         }
     }
 }

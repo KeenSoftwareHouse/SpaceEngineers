@@ -25,7 +25,7 @@ using Sandbox.ModAPI.Ingame;
 namespace Sandbox.Game.Entities
 {
     [MyCubeBlockType(typeof(MyObjectBuilder_ReflectorLight))]
-    class MyReflectorLight : MyLightingBlock, IMyReflectorLight
+    public class MyReflectorLight : MyLightingBlock, IMyReflectorLight
     {
         private float GlareQuerySizeDef
         {

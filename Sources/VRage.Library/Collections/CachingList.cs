@@ -49,6 +49,13 @@ namespace VRage.Collections
             }
         }
 
+        public void ClearImmediate()
+        {
+            m_toAdd.Clear();
+            m_toRemove.Clear();
+            m_list.Clear();
+        }
+
         public void ApplyChanges()
         {
             ApplyAdditions();

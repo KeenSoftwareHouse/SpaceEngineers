@@ -10,6 +10,7 @@ using System.Text;
 using VRageMath;
 
 using Havok;
+using VRage.Components;
 
 namespace Sandbox.Game.Entities.Blocks
 {
@@ -86,7 +87,7 @@ namespace Sandbox.Game.Entities.Blocks
                     if ((subpart.ModelCollision.HavokCollisionShapes != null) && (subpart.ModelCollision.HavokCollisionShapes.Length > 0))
                     {
                         var shape = subpart.ModelCollision.HavokCollisionShapes[0];
-                        subpart.Physics = new Engine.Physics.MyPhysicsBody(subpart, Engine.Physics.RigidBodyFlag.RBF_DOUBLED_KINEMATIC | Engine.Physics.RigidBodyFlag.RBF_KINEMATIC);
+                        subpart.Physics = new Engine.Physics.MyPhysicsBody(subpart, RigidBodyFlag.RBF_DOUBLED_KINEMATIC | RigidBodyFlag.RBF_KINEMATIC);
                         subpart.Physics.IsPhantom = false;
                         Vector3 center = subpart.PositionComp.LocalVolume.Center;
                         subpart.Physics.CreateFromCollisionObject(shape, center, WorldMatrix, null, MyPhysics.KinematicDoubledCollisionLayer);
@@ -112,8 +113,11 @@ namespace Sandbox.Game.Entities.Blocks
                         var info = HkGroupFilter.CalcFilterInfo(MyPhysics.KinematicDoubledCollisionLayer, HavokCollisionSystemID, 1, 1);
                         subpart.Physics.RigidBody.SetCollisionFilterInfo(info);
 
-                        info = HkGroupFilter.CalcFilterInfo(MyPhysics.DynamicDoubledCollisionLayer, HavokCollisionSystemID, 1, 1);
-                        subpart.Physics.RigidBody2.SetCollisionFilterInfo(info);
+                        if (subpart.Physics.RigidBody2 != null)
+                        {
+                            info = HkGroupFilter.CalcFilterInfo(MyPhysics.DynamicDoubledCollisionLayer, HavokCollisionSystemID, 1, 1);
+                            subpart.Physics.RigidBody2.SetCollisionFilterInfo(info);
+                        }
 
                         /*if (this.CubeGrid.Physics != null && this.CubeGrid.Physics.HavokWorld != null)
                         {

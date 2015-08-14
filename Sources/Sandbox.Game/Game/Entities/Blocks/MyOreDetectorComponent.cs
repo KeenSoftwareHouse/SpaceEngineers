@@ -102,7 +102,7 @@ namespace Sandbox.Game.Entities.Cube
                 var worldMax = worldDetectionSphere.Center + worldDetectionSphere.Radius;
                 MyVoxelCoordSystems.WorldPositionToVoxelCoord(m_voxelMap.PositionLeftBottomCorner, ref worldMin, out min);
                 MyVoxelCoordSystems.WorldPositionToVoxelCoord(m_voxelMap.PositionLeftBottomCorner, ref worldMax, out max);
-                // mk:TODO Get rid of this computation. Might require a mechanism to figure out whether MyVoxelMap is subpart of MyPlane or not. (Maybe third class for subparts?)
+                // mk:TODO Get rid of this computation. Might require a mechanism to figure out whether MyVoxelMap is subpart of MyPlanet or not. (Maybe third class for subparts?)
                 min += m_voxelMap.StorageMin;
                 max += m_voxelMap.StorageMin;
 

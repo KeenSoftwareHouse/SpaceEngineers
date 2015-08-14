@@ -25,6 +25,7 @@ using Sandbox.Game.Gui;
 using Sandbox.Engine.Utils;
 using VRage;
 using Sandbox.Game.Localization;
+using VRage.ObjectBuilders;
 
 
 namespace Sandbox.Game.Multiplayer
@@ -125,13 +126,7 @@ namespace Sandbox.Game.Multiplayer
 
         static void AddRequest(ref AddMsg msg, MyNetworkClient sender)
         {
-            Dictionary<int, MyGps> insList;
-            var result = MySession.Static.Gpss.m_playerGpss.TryGetValue(msg.IdentityId, out insList);
-
-            if (result != null)
-            {
-                Sync.Layer.SendMessageToAllAndSelf(ref msg, MyTransportMessageEnum.Success);
-            }
+            Sync.Layer.SendMessageToAllAndSelf(ref msg, MyTransportMessageEnum.Success);
         }
 
         static void AddSuccess(ref AddMsg msg, MyNetworkClient sender)
@@ -361,6 +356,20 @@ namespace Sandbox.Game.Multiplayer
             return true;
         }
 
+        public MyGps GetGps(int hash)
+        {
+            foreach (var gpss in MySession.Static.Gpss.m_playerGpss.Values)
+            {
+                MyGps gps;
+                if (gpss.TryGetValue(hash, out gps))
+                {
+                    return gps;
+                }
+            }
+
+            return null;
+        }
+
         private StringBuilder m_NamingSearch = new StringBuilder();
         public void GetNameForNewCurrent(StringBuilder name)
         {//makes next entry name of coordinate from my current position - playername #xx
@@ -444,7 +453,7 @@ namespace Sandbox.Game.Multiplayer
                 {
                     MyObjectBuilder_Gps bGps;
                     if (!checkpoint.Gps.Dictionary.TryGetValue(item.Key, out bGps))
-                        bGps = Sandbox.Common.ObjectBuilders.Serializer.MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_Gps>();
+                        bGps = MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_Gps>();
                     if (bGps.Entries == null)
                         bGps.Entries = new List<MyObjectBuilder_Gps.Entry>();
                     foreach (var gps in item.Value)

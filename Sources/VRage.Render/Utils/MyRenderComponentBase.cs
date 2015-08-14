@@ -4,7 +4,7 @@ using VRage.Utils;
 
 namespace VRageRender
 {
-    abstract class MyComponentBase
+    public abstract class MyComponentBase
     {
         public virtual void LoadContent()
         {
@@ -21,7 +21,7 @@ namespace VRageRender
         }
     }
 
-    abstract class MyRenderComponentBase : MyComponentBase
+    public abstract class MyRenderComponentBase : MyComponentBase
     {
         public abstract int GetID();
 

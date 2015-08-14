@@ -21,6 +21,7 @@ using VRage.Utils;
 using VRage.Utils;
 using VRageMath;
 using VRage.Library.Utils;
+using VRage.ModAPI;
 
 
 namespace Sandbox.Game.Entities.Blocks
@@ -37,7 +38,7 @@ namespace Sandbox.Game.Entities.Blocks
 
         private float m_soundRadius;
         private float m_volume;
-        private MyStringId m_cueId;
+        private MyCueId m_cueId;
         private float m_loopPeriod;
         private MySoundPair m_soundPair;
         private bool m_isLoopable;
@@ -79,7 +80,7 @@ namespace Sandbox.Game.Entities.Blocks
             }
         }
 
-        public MyStringId CueId
+        public MyCueId CueId
         {
             get { return m_cueId; }
             set { m_cueId = value; }
@@ -117,7 +118,7 @@ namespace Sandbox.Game.Entities.Blocks
 
         public bool IsSoundSelected
         {
-            get { return CueId != MyStringId.NullOrEmpty; }
+            get { return !CueId.IsNull; }
         }
 
         public MyPowerReceiver PowerReceiver
@@ -222,11 +223,11 @@ namespace Sandbox.Game.Entities.Blocks
         {
             if (string.IsNullOrEmpty(cueName))
             {
-                CueId = MyStringId.NullOrEmpty;
+                CueId = new MyCueId(MyStringHash.NullOrEmpty);
             }
             else
             {
-                MyStringId stringId = MyStringId.GetOrCompute(cueName);
+                var cueId = new MyCueId(MyStringHash.GetOrCompute(cueName));
                 MySoundCategoryDefinition.SoundDescription soundDesc = null;
                 var soundCategories = MyDefinitionManager.Static.GetSoundCategoryDefinitions();
 
@@ -235,15 +236,15 @@ namespace Sandbox.Game.Entities.Blocks
                 {
                     foreach (var soundDescTmp in category.Sounds)
                     {
-                        if (MySoundPair.GetCueId(soundDescTmp.SoundId) == stringId)
+                        if (MySoundPair.GetCueId(soundDescTmp.SoundId) == cueId)
                             soundDesc = soundDescTmp;
                     }     
                 }
 
                 if (soundDesc != null)
-                    SelectSound(stringId, false);
+                    SelectSound(cueId, false);
                 else
-                    CueId = MyStringId.NullOrEmpty;
+                    CueId = new MyCueId(MyStringHash.NullOrEmpty);
             }
         }
     
@@ -265,7 +266,7 @@ namespace Sandbox.Game.Entities.Blocks
 
         public void PlaySound()
         {
-            if (m_soundPair.SoundId != MyStringId.NullOrEmpty)
+            if (!m_soundPair.SoundId.IsNull)
             {
                 if (IsLoopable)
                 {
@@ -282,7 +283,7 @@ namespace Sandbox.Game.Entities.Blocks
         {  
             if (!IsLoopablePlaying)
             {
-                NeedsUpdate |= Common.MyEntityUpdateEnum.EACH_FRAME;
+                NeedsUpdate |= MyEntityUpdateEnum.EACH_FRAME;
 
                 m_startLoopTimeMs = Stopwatch.GetTimestamp();
                 m_soundEmitters[m_soundEmitterIndex].PlaySingleSound(m_soundPair, true);
@@ -312,11 +313,11 @@ namespace Sandbox.Game.Entities.Blocks
 
         public void SelectSound(List<MyGuiControlListbox.Item> cuesId, bool sync)
         {
-            MyStringId cueId = (MyStringId)cuesId[0].UserData;
+            var cueId = (MyCueId)cuesId[0].UserData;
             SelectSound(cueId, sync);
         }
 
-        public void SelectSound(MyStringId cueId, bool sync)
+        public void SelectSound(MyCueId cueId, bool sync)
         {
             if (sync)
             {
@@ -338,10 +339,10 @@ namespace Sandbox.Game.Entities.Blocks
             }
         }
 
-        public void SelectSound(int cueId, bool sync)
-        {
-            SelectSound(MyStringId.TryGet(cueId), sync);
-        }
+        //public void SelectSound(int cueId, bool sync)
+        //{
+        //    SelectSound(MyStringId.TryGet(cueId), sync);
+        //}
 
         public void StopSound()
         {
@@ -350,7 +351,7 @@ namespace Sandbox.Game.Entities.Blocks
                 m_soundEmitters[i].StopSound(true);
             }
 
-            NeedsUpdate &= ~(Common.MyEntityUpdateEnum.EACH_FRAME);
+            NeedsUpdate &= ~(MyEntityUpdateEnum.EACH_FRAME);
             DetailedInfo.Clear();
 
             RaisePropertiesChanged();
@@ -360,7 +361,7 @@ namespace Sandbox.Game.Entities.Blocks
         {
             m_soundEmitters[m_soundEmitterIndex].StopSound(true);
 
-            NeedsUpdate &= ~(Common.MyEntityUpdateEnum.EACH_FRAME);
+            NeedsUpdate &= ~(MyEntityUpdateEnum.EACH_FRAME);
             DetailedInfo.Clear();
 
             RaisePropertiesChanged();
@@ -524,7 +525,7 @@ namespace Sandbox.Game.Entities.Blocks
             PowerReceiver.Update();
         }
 
-        private bool IsSameLoopCue(MyStringId newCue)
+        private bool IsSameLoopCue(MyCueId newCue)
         {
             return newCue == m_soundEmitters[m_soundEmitterIndex].SoundId;
         }

@@ -19,6 +19,7 @@ namespace Sandbox.Engine.Voxels
         {
             RegisterTypes(Assembly.GetExecutingAssembly());
             RegisterTypes(MyPlugins.GameAssembly);
+            RegisterTypes(MyPlugins.SandboxAssembly);
             RegisterTypes(MyPlugins.UserAssembly);
         }
 

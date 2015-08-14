@@ -289,10 +289,10 @@ namespace Sandbox.Graphics.GUI
             }
             set
             {
-                Debug.Assert(m_visibleRowIndexOffset >= 0, "Index should be positive!");
-                Debug.Assert(m_visibleRowIndexOffset < Items.Count, "Index should be in range!");
+                Debug.Assert(value >= 0, "Index should be positive!");
+                Debug.Assert(value < Items.Count, "Index should be in range!");
 
-                m_scrollBar.ChangeValue(value);
+                m_scrollBar.Value = value;
             }
         }
 
@@ -403,13 +403,13 @@ namespace Sandbox.Graphics.GUI
             return captureInput;
         }
 
-        public override void Draw(float transitionAlpha)
+        public override void Draw(float transitionAlpha, float backgroundTransitionAlpha)
         {
             Debug.Assert(m_visibleRowIndexOffset >= 0);
-            base.Draw(transitionAlpha);
+            base.Draw(transitionAlpha, backgroundTransitionAlpha);
             var positionTopLeft = GetPositionAbsoluteTopLeft();
 
-            m_styleDef.Texture.Draw(positionTopLeft, Size, ApplyColorMaskModifiers(ColorMask, Enabled, transitionAlpha));
+            m_styleDef.Texture.Draw(positionTopLeft, Size, ApplyColorMaskModifiers(ColorMask, Enabled, backgroundTransitionAlpha));
 
             var position = positionTopLeft + new Vector2(m_itemsRectangle.X, m_itemsRectangle.Y);
             int index = m_visibleRowIndexOffset;
@@ -508,6 +508,8 @@ namespace Sandbox.Graphics.GUI
             // if listbox supports icons and mouse is over any item, then show item's value in tooltip
             if (m_mouseOverItem != null && m_mouseOverItem.ToolTip != null && m_mouseOverItem.ToolTip.ToolTips.Count > 0)
                 m_toolTip = m_mouseOverItem.ToolTip;
+            else
+                m_toolTip = null;
 
             base.ShowToolTip();
         }
@@ -780,6 +782,11 @@ namespace Sandbox.Graphics.GUI
             }
             if (ItemsSelected != null)
                 ItemsSelected(this);
+        }
+
+        public void ClearItems()
+        {
+            Items.Clear();
         }
     }
 }

@@ -12,6 +12,8 @@ using Sandbox.Common;
 using VRageRender;
 using VRage;
 using Sandbox.ModAPI;
+using VRage.ModAPI;
+using VRage.Components;
 
 namespace Sandbox.Engine.Models
 {

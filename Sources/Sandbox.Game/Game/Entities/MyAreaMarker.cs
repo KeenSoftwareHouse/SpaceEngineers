@@ -5,24 +5,31 @@ using Sandbox.Common.ObjectBuilders.Definitions;
 using Sandbox.Definitions;
 using Sandbox.Engine.Physics;
 using Sandbox.Game.Gui;
+using Sandbox.ModAPI;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using VRage;
+using VRage.Components;
+using VRage.Game.Entity.UseObject;
 using VRage.Input;
+using VRage.ModAPI;
+using VRage.ObjectBuilders;
 using VRage.Utils;
 using VRageMath;
 using VRageRender;
 
 namespace Sandbox.Game.Entities
 {
-    [MyEntityType(typeof(MyObjectBuilder_AreaMarker))]
-    class MyAreaMarker : MyEntity, IMyUseObject
+	[MyEntityType(typeof(MyObjectBuilder_AreaMarker))]
+    public class MyAreaMarker : MyEntity, IMyUseObject
     {
-        MyAreaMarkerDefinition m_definition;
+        protected MyAreaMarkerDefinition m_definition;
+		public MyAreaMarkerDefinition Definition { get { return m_definition; } }
 
+		private static List<MyPlaceArea> m_tmpPlaceAreas = new List<MyPlaceArea>();
         MatrixD m_localActivationMatrix;
 
         public override Vector3D LocationForHudMarker
@@ -35,6 +42,7 @@ namespace Sandbox.Game.Entities
 
         public MyAreaMarker()
         {
+			
         }
 
 		public MyAreaMarker(MyPositionAndOrientation positionAndOrientation, MyAreaMarkerDefinition definition)
@@ -58,10 +66,34 @@ namespace Sandbox.Game.Entities
         {
             base.Init(objectBuilder);
 
-            MyDefinitionManager.Static.TryGetDefinition(new MyDefinitionId(typeof(MyObjectBuilder_AreaMarkerDefinition), objectBuilder.SubtypeId), out m_definition);
+            MyDefinitionManager.Static.TryGetDefinition(objectBuilder.GetId(), out m_definition);
             Debug.Assert(m_definition != null, "Area marker definition cannot be null!");
             if (m_definition == null) return;
 
+			m_tmpPlaceAreas.Clear();
+			MyPlaceAreas.Static.GetAllAreas(m_tmpPlaceAreas);
+
+			MyPlaceArea firstFound = null;
+			int markerCount = 0;
+			foreach (var area in m_tmpPlaceAreas)
+			{
+				if (area.AreaType == m_definition.Id.SubtypeId)
+				{
+					if (firstFound == null)
+						firstFound = area;
+					++markerCount;
+				}
+			}
+			if (m_definition.MaxNumber >= 0 && markerCount >= m_definition.MaxNumber)
+			{
+				if (SyncFlag)
+					firstFound.Entity.SyncObject.SendCloseRequest();
+				else
+					firstFound.Entity.Close();
+			}
+
+			m_tmpPlaceAreas.Clear();
+			
             InitInternal();
         }
 
@@ -96,14 +128,20 @@ namespace Sandbox.Game.Entities
 
             Components.Add<MyPlaceArea>(new MySpherePlaceArea(10.0f, m_definition.Id.SubtypeId)); // TODO: Add radius to the definition
 
-            MyHud.LocationMarkers.RegisterMarker(this, new MyHudEntityParams() {
-                FlagsEnum = MyHudIndicatorFlagsEnum.SHOW_TEXT,
-                Text = m_definition.DisplayNameEnum.HasValue ? MyTexts.Get(m_definition.DisplayNameEnum.Value) : new StringBuilder(),
-                TargetMode = MyRelationsBetweenPlayerAndBlock.Neutral,
-                MaxDistance = 200.0f,
-                MustBeDirectlyVisible = true
-            } );
+			AddHudMarker();
         }
+
+		public virtual void AddHudMarker()
+		{
+			MyHud.LocationMarkers.RegisterMarker(this, new MyHudEntityParams()
+			{
+				FlagsEnum = MyHudIndicatorFlagsEnum.SHOW_TEXT,
+				Text = m_definition.DisplayNameEnum.HasValue ? MyTexts.Get(m_definition.DisplayNameEnum.Value) : new StringBuilder(),
+				TargetMode = MyRelationsBetweenPlayerAndBlock.Neutral,
+				MaxDistance = 200.0f,
+				MustBeDirectlyVisible = true
+			});
+		}
 
         protected override void Closing()
         {
@@ -142,12 +180,12 @@ namespace Sandbox.Game.Entities
             get { return false; }
         }
 
-        public void Use(UseActionEnum actionEnum, Sandbox.Game.Entities.Character.MyCharacter user)
+        public virtual void Use(UseActionEnum actionEnum, IMyEntity user)
         {
             Close();
         }
 
-        public MyActionDescription GetActionInfo(UseActionEnum actionEnum)
+        public virtual MyActionDescription GetActionInfo(UseActionEnum actionEnum)
         {
             return new MyActionDescription()
             {
@@ -163,6 +201,11 @@ namespace Sandbox.Game.Entities
 
         public void OnSelectionLost()
         {
+        }
+
+        bool IMyUseObject.PlayIndicatorSound
+        {
+            get { return true; }
         }
     }
 }

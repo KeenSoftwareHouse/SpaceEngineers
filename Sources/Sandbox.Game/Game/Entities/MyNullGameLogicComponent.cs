@@ -3,6 +3,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using VRage.Components;
+using VRage.ObjectBuilders;
+using Sandbox.Common;
 
 namespace Sandbox.Game.Entities
 {
@@ -36,7 +39,7 @@ namespace Sandbox.Game.Entities
         {
         }
 
-        public override void Init(Common.ObjectBuilders.MyObjectBuilder_EntityBase objectBuilder)
+        public override void Init(MyObjectBuilder_EntityBase objectBuilder)
         {
         }
 
@@ -48,7 +51,7 @@ namespace Sandbox.Game.Entities
         {
         }
 
-        public override Common.ObjectBuilders.MyObjectBuilder_EntityBase GetObjectBuilder(bool copy = false)
+        public override MyObjectBuilder_EntityBase GetObjectBuilder(bool copy = false)
         {
             return null;
         }

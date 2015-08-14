@@ -10,6 +10,7 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
 using VRage;
+using VRage.Collections;
 using VRage.Noise;
 using VRage.Noise.Combiners;
 using VRage.Voxels;
@@ -78,10 +79,9 @@ namespace Sandbox.Game.World.Generator
             public uint IsPlanet;
         }
 
-        private MyMaterialLayer[] m_materialLayers = null;
+        private MyCsgShapePlanetMaterialAttributes m_materialAttributes;
         private MyCsgShapePlanetShapeAttributes m_shapeAttributes;
-        private MyCsgShapePlanetHillAttributes m_hillAttributes;
-        private MyCsgShapePlanetHillAttributes m_canyonAttributes;
+        private float m_maxHillHeight;
 
         private State m_state;
 
@@ -111,24 +111,22 @@ namespace Sandbox.Game.World.Generator
         }
 
         // Do NOT use! Work in progress which is likely to change, breaking all saves that use this.
-        private static MyCompositeShapeProvider CreatePlanetShape(int generatorEntry,
+        public static MyCompositeShapeProvider CreatePlanetShape(int generatorEntry,
             ref MyCsgShapePlanetShapeAttributes shapeAttributes,
-            ref MyCsgShapePlanetHillAttributes hillAttributes,
-            ref MyCsgShapePlanetHillAttributes canyonAttributes,
-            MyMaterialLayer[] materialLevels)
+            float maxHillHeight,
+            ref MyCsgShapePlanetMaterialAttributes materialAttributes)
         {
             var result = new MyCompositeShapeProvider();
             result.m_state.Version = CURRENT_VERSION;
             result.m_state.Generator = generatorEntry;
             result.m_state.Seed = shapeAttributes.Seed;
-            result.m_state.Size = shapeAttributes.Radius;
+            result.m_state.Size = shapeAttributes.Diameter;
             result.m_state.IsPlanet = 1;
-            result.m_materialLayers = materialLevels;
+            result.m_materialAttributes = materialAttributes;
             result.m_shapeAttributes = shapeAttributes;
-            result.m_hillAttributes = hillAttributes;
-            result.m_canyonAttributes = canyonAttributes;
+            result.m_maxHillHeight = maxHillHeight;
 
-            MyCompositeShapes.PlanetGenerators[result.m_state.Generator](ref shapeAttributes, ref hillAttributes, ref canyonAttributes, materialLevels, out result.m_data);
+            MyCompositeShapes.PlanetGenerators[result.m_state.Generator](ref shapeAttributes, maxHillHeight, ref materialAttributes, out result.m_data);
 
             return result;
         }
@@ -248,9 +246,12 @@ namespace Sandbox.Game.World.Generator
                             distFill = 1f;
                             foreach (var shape in overlappedFilledShapes)
                             {
+                                ProfilerShort.Begin("shape distance");
                                 distFill = Math.Min(distFill, shape.SignedDistance(ref localPos, lodVoxelSize, m_data.MacroModule, m_data.DetailModule));
+                                ProfilerShort.End();
                                 if (distFill <= -1)
                                     break;
+                                
                             }
                         }
 
@@ -264,12 +265,13 @@ namespace Sandbox.Game.World.Generator
                                     break;
                             }
                         }
-
+                        ProfilerShort.Begin("content");
                         float signedDist = MathHelper.Max(distFill, -distRemoved);
 
                         var fillRatio = MathHelper.Clamp(-signedDist, -1f, 1f) * 0.5f + 0.5f;
                         var write = v - minInLod + writeOffset;
                         target.Content(ref write, (byte)(fillRatio * MyVoxelConstants.VOXEL_CONTENT_FULL));
+                        ProfilerShort.End();
                     }
                 }
             }
@@ -356,46 +358,10 @@ namespace Sandbox.Game.World.Generator
 
             if (m_state.IsPlanet == 1)
             { // DA: Try to reduce saved data for planets to just seed, as is done for normal asteroids.
-                if (m_materialLayers != null)
-                {
-                    stream.WriteNoAlloc(m_materialLayers.Length);
-                    for (int i = 0; i < m_materialLayers.Length; ++i)
-                    {
-                        stream.WriteNoAlloc(m_materialLayers[i].StartHeight);
-                        stream.WriteNoAlloc(m_materialLayers[i].EndHeight);
-                        stream.WriteNoAlloc(m_materialLayers[i].MaterialName);
-                        stream.WriteNoAlloc(m_materialLayers[i].StartAngle);
-                        stream.WriteNoAlloc(m_materialLayers[i].EndAngle);
-                        stream.WriteNoAlloc(m_materialLayers[i].HeightStartDeviation);
-                        stream.WriteNoAlloc(m_materialLayers[i].AngleStartDeviation);
-                        stream.WriteNoAlloc(m_materialLayers[i].HeightEndDeviation);
-                        stream.WriteNoAlloc(m_materialLayers[i].AngleEndDeviation);
-                    }
-                }
-                else
-                {
-                    stream.WriteNoAlloc((int)0);
-                }
 
-                stream.WriteNoAlloc(m_shapeAttributes.Seed);
-                stream.WriteNoAlloc(m_shapeAttributes.Radius);
-                stream.WriteNoAlloc(m_shapeAttributes.NoiseFrequency);
-                stream.WriteNoAlloc(m_shapeAttributes.DeviationScale);
-                stream.WriteNoAlloc(m_shapeAttributes.NormalNoiseFrequency);
-                stream.WriteNoAlloc(m_shapeAttributes.LayerDeviationNoiseFreqeuncy);
-                stream.WriteNoAlloc(m_shapeAttributes.LayerDeviationSeed);
-
-                stream.WriteNoAlloc(m_hillAttributes.BlendTreshold);
-                stream.WriteNoAlloc(m_hillAttributes.Treshold);
-                stream.WriteNoAlloc(m_hillAttributes.SizeRatio);
-                stream.WriteNoAlloc(m_hillAttributes.NumNoises);
-                stream.WriteNoAlloc(m_hillAttributes.Frequency);
-
-                stream.WriteNoAlloc(m_canyonAttributes.BlendTreshold);
-                stream.WriteNoAlloc(m_canyonAttributes.Treshold);
-                stream.WriteNoAlloc(m_canyonAttributes.SizeRatio);
-                stream.WriteNoAlloc(m_canyonAttributes.NumNoises);
-                stream.WriteNoAlloc(m_canyonAttributes.Frequency);
+                m_materialAttributes.WriteTo(stream);
+                m_shapeAttributes.WriteTo(stream);
+                stream.WriteNoAlloc(m_maxHillHeight);
             }
         }
 
@@ -423,44 +389,11 @@ namespace Sandbox.Game.World.Generator
 
             if (m_state.IsPlanet != 0)
             {
+                m_materialAttributes.ReadFrom(stream);
+                m_shapeAttributes.ReadFrom(stream);
+                m_maxHillHeight = stream.ReadFloat();
 
-                int numMaterials = stream.ReadInt32();
-                m_materialLayers = new MyMaterialLayer[numMaterials];
-                for (int i = 0; i < numMaterials; ++i)
-                {
-                    m_materialLayers[i] = new MyMaterialLayer();
-                    m_materialLayers[i].StartHeight = stream.ReadFloat();
-                    m_materialLayers[i].EndHeight = stream.ReadFloat();
-                    m_materialLayers[i].MaterialName = stream.ReadString();
-                    m_materialLayers[i].StartAngle = stream.ReadFloat();
-                    m_materialLayers[i].EndAngle = stream.ReadFloat();
-                    m_materialLayers[i].HeightStartDeviation = stream.ReadFloat();
-                    m_materialLayers[i].AngleStartDeviation = stream.ReadFloat();
-                    m_materialLayers[i].HeightEndDeviation = stream.ReadFloat();
-                    m_materialLayers[i].AngleEndDeviation = stream.ReadFloat();
-                }
-
-                m_shapeAttributes.Seed = stream.ReadInt32();
-                m_shapeAttributes.Radius = stream.ReadFloat();
-                m_shapeAttributes.NoiseFrequency = stream.ReadFloat();
-                m_shapeAttributes.DeviationScale = stream.ReadFloat();
-                m_shapeAttributes.NormalNoiseFrequency = stream.ReadFloat();
-                m_shapeAttributes.LayerDeviationNoiseFreqeuncy = stream.ReadFloat();
-                m_shapeAttributes.LayerDeviationSeed = stream.ReadInt32();
-
-                m_hillAttributes.BlendTreshold = stream.ReadFloat();
-                m_hillAttributes.Treshold = stream.ReadFloat();
-                m_hillAttributes.SizeRatio = stream.ReadFloat();
-                m_hillAttributes.NumNoises = stream.ReadInt32();
-                m_hillAttributes.Frequency = stream.ReadFloat();
-
-                m_canyonAttributes.BlendTreshold = stream.ReadFloat();
-                m_canyonAttributes.Treshold = stream.ReadFloat();
-                m_canyonAttributes.SizeRatio = stream.ReadFloat();
-                m_canyonAttributes.NumNoises = stream.ReadInt32();
-                m_canyonAttributes.Frequency = stream.ReadFloat();
-
-                MyCompositeShapes.PlanetGenerators[m_state.Generator](ref m_shapeAttributes,ref m_hillAttributes, ref m_canyonAttributes, m_materialLayers, out m_data);
+                MyCompositeShapes.PlanetGenerators[m_state.Generator](ref m_shapeAttributes, m_maxHillHeight, ref m_materialAttributes, out m_data);
             }
             else
             {
@@ -496,8 +429,7 @@ namespace Sandbox.Game.World.Generator
 
             foreach (var deposit in m_data.Deposits)
             {
-                deposit.Shape.DebugDraw(ref translation, materialColor);
-                VRageRender.MyRenderProxy.DebugDrawText3D(deposit.Shape.Center() + translation, deposit.GetMaterialForPosition(ref Vector3.Zero,0).Id.SubtypeId.ToString(), Color.White, 1f, false);
+                deposit.DebugDraw(ref translation,ref materialColor);
             }
         }
 
@@ -507,6 +439,53 @@ namespace Sandbox.Game.World.Generator
             // as even with the same seed I will get different results.
             // Ignoring for now.
         }
-        
+
+        public float GetDistanceToPoint(ref Vector3D localPosition)
+        {
+            float nearest = float.MaxValue;
+            Vector3 localFloat = (Vector3)localPosition;
+            for (int i = 0; i < m_data.FilledShapes.Length; ++i)
+            {
+                float current = m_data.FilledShapes[i].SignedDistanceUnchecked(ref localFloat, 1, m_data.MacroModule, m_data.DetailModule);
+                if (current < nearest)
+                {
+                    nearest = current;
+                }
+            }
+
+            return nearest;
+        }
+
+        public bool IsMaterialAtPositionSpawningFlora(ref Vector3D localPosition)
+        {
+            Vector3 localFloat = (Vector3)localPosition;
+            var materialDef = m_data.Deposits[0].GetMaterialForPosition(ref localFloat, 1);
+            return materialDef == null ?  m_data.DefaultMaterial.SpawnsFlora : materialDef.SpawnsFlora;
+        }
+
+        public bool HasMaterialSpawningFlora()
+        {
+            foreach (var deposit in m_data.Deposits)
+            {
+                if (deposit.SpawnsFlora())
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        public void ReleaseHeightMaps()
+        {
+            foreach (var deposit in m_data.Deposits)
+            {
+                deposit.ReleaseMaps();
+            }
+
+            foreach (var shape in m_data.FilledShapes)
+            {
+                shape.ReleaseMaps();
+            }
+        }
     }
 }

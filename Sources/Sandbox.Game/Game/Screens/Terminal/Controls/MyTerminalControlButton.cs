@@ -7,14 +7,13 @@ using System.Linq;
 using System.Text;
 using Sandbox.Game.World;
 using Sandbox.Game.Screens.Terminal.Controls;
-using VRage.Utils;
 using VRage;
 using VRage.Utils;
 using VRage.Library.Utils;
 
 namespace Sandbox.Game.Gui
 {
-    class MyTerminalControlButton<TBlock> : MyTerminalControl<TBlock>
+    public class MyTerminalControlButton<TBlock> : MyTerminalControl<TBlock>
         where TBlock : MyTerminalBlock
     {
         Action<TBlock> m_action;

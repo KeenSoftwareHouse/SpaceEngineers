@@ -1,12 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
+using VRage.ModAPI;
+using VRage.ObjectBuilders;
 using VRage.Utils;
+
 namespace Sandbox.ModAPI
 {
+    /// <summary>
+    /// base block interface, block can be affected by upgrade modules, and you can retrieve upgrade list from <see cref="IMyUpgradableBlock"/>
+    /// </summary>
     public interface IMyCubeBlock : Ingame.IMyCubeBlock, IMyEntity
     {
         event Action<IMyCubeBlock> IsWorkingChanged;
-        Sandbox.Common.ObjectBuilders.Definitions.SerializableDefinitionId BlockDefinition { get; }
+        SerializableDefinitionId BlockDefinition { get; }
 
         /// <summary>
         /// 
@@ -213,11 +219,19 @@ namespace Sandbox.ModAPI
 
         /// <summary>
         /// Get all values changed by upgrade modules
+        /// Should only be used as read-only
         /// </summary>
         Dictionary<string, float> UpgradeValues
         {
             get;
         }
+
+        /// <summary>
+        /// Preferred way of registering a block for upgrades
+        /// Adding directly to the dictionary can have unintended consequences
+        /// when multiple mods are involved.
+        /// </summary>
+        void AddUpgradeValue(string upgrade, float defaultValue);
 
         /// <summary>
         /// Event called when upgrade values are changed

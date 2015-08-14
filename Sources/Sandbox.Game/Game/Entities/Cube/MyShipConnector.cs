@@ -1,9 +1,7 @@
 ﻿using Havok;
 using Sandbox.Common;
 using Sandbox.Common.Components;
-
 using Sandbox.Common.ObjectBuilders;
-using Sandbox.Common.ObjectBuilders.Serializer;
 using Sandbox.Definitions;
 using Sandbox.Engine.Multiplayer;
 using Sandbox.Engine.Physics;
@@ -28,6 +26,8 @@ using System.Reflection;
 using System.Text;
 using VRage;
 using VRage;
+using VRage.Components;
+using VRage.ModAPI;
 using VRage.Utils;
 using VRageMath;
 using VRageRender;
@@ -94,7 +94,7 @@ namespace Sandbox.Game.Entities.Cube
             }
         }
 
-        private List<Sandbox.ModAPI.IMyEntity> m_detectedFloaters = new List<Sandbox.ModAPI.IMyEntity>();
+        private List<IMyEntity> m_detectedFloaters = new List<IMyEntity>();
         public MyPowerReceiver PowerReceiver
         {
             get { return m_receiver; }
@@ -119,11 +119,13 @@ namespace Sandbox.Game.Entities.Cube
             var lockBtn = new MyTerminalControlButton<MyShipConnector>("Lock", MySpaceTexts.BlockActionTitle_Lock, MySpaceTexts.Blank, (b) => b.TryConnect());
             lockBtn.Enabled = (b) => b.IsWorking && b.InConstraint;
             lockBtn.Visible = (b) => b.m_connectorMode == Mode.Connector;
+            lockBtn.EnableAction();
             MyTerminalControlFactory.AddControl(lockBtn);
 
             var unlockBtn = new MyTerminalControlButton<MyShipConnector>("Unlock", MySpaceTexts.BlockActionTitle_Unlock, MySpaceTexts.Blank, (b) => b.TryDisconnect());
             unlockBtn.Enabled = (b) => b.IsWorking && b.InConstraint;
             unlockBtn.Visible = (b) => b.m_connectorMode == Mode.Connector;
+            unlockBtn.EnableAction();
             MyTerminalControlFactory.AddControl(unlockBtn);
 
             var title = MyTexts.Get(MySpaceTexts.BlockActionTitle_SwitchLock);
@@ -259,8 +261,16 @@ namespace Sandbox.Game.Entities.Cube
 
             IsWorkingChanged += MyShipConnector_IsWorkingChanged;
 
+			if (MyPerGameSettings.InventoryMass)
+				m_inventory.ContentsChanged += Inventory_ContentsChanged;
+
             AddDebugRenderComponent(new Components.MyDebugRenderCompoonentShipConnector(this));
         }
+
+		void Inventory_ContentsChanged(MyInventoryBase obj)
+		{
+			CubeGrid.SetInventoryMassDirty();
+		}
 
         public override void UpdateOnceBeforeFrame()
         {
@@ -388,13 +398,13 @@ namespace Sandbox.Game.Entities.Cube
                 var detectorShape = CreateDetectorShape(halfExtents, mode);
                 if (mode == Mode.Connector)
                 {
-                    physics = new Engine.Physics.MyPhysicsBody(this, Engine.Physics.RigidBodyFlag.RBF_BULLET);
+                    physics = new Engine.Physics.MyPhysicsBody(this, RigidBodyFlag.RBF_BULLET);
                     physics.IsPhantom = true;
                     physics.CreateFromCollisionObject(detectorShape, center, dummyLocal, null, MyPhysics.ObjectDetectionCollisionLayer);
                 }
                 else
                 {
-                    physics = new Engine.Physics.MyPhysicsBody(this, Engine.Physics.RigidBodyFlag.RBF_STATIC);
+                    physics = new Engine.Physics.MyPhysicsBody(this, RigidBodyFlag.RBF_STATIC);
                     physics.IsPhantom = true;
                     physics.CreateFromCollisionObject(detectorShape, center, dummyLocal, null, MyPhysics.CollectorCollisionLayer);
                 }
@@ -423,49 +433,61 @@ namespace Sandbox.Game.Entities.Cube
         private void phantom_LeaveEjector(HkPhantomCallbackShape shape, HkRigidBody body)
         {
             var updateEmissivity = (m_detectedFloaters.Count == 2);
-            m_detectedFloaters.Remove(body.GetEntity());
+            var entities = body.GetAllEntities();
+            foreach(var entity in entities)
+                m_detectedFloaters.Remove( entity);
+            entities.Clear();
             if (updateEmissivity)
                 UpdateEmissivity();
         }
 
         private void phantom_LeaveConnector(HkPhantomCallbackShape shape, HkRigidBody body)
         {
-            var other = body.GetEntity() as MyCubeGrid;
-            if (other == null || other == this.CubeGrid)
-                return;
+            var entities = body.GetAllEntities();
+            foreach (var entity in entities)
+            {
+                var other = entity as MyCubeGrid;
+                if (other == null || other == this.CubeGrid)
+                    continue;
 
-            m_detectedGrids.Remove(other);
+                m_detectedGrids.Remove(other);
+            }
+            entities.Clear();
         }
 
         private void phantom_EnterEjector(HkPhantomCallbackShape shape, HkRigidBody body)
         {
-            var entity = body.GetEntity();
-
-            Debug.Assert(entity is MyFloatingObject);
-            if (entity is MyFloatingObject)
+            bool updateEmissivity = false;
+            var entities = body.GetAllEntities();
+            foreach(var entity in entities)
             {
-                var updateEmissivity = (m_detectedFloaters.Count == 1);
-                m_detectedFloaters.Add(entity);
-                if (updateEmissivity)
-                    UpdateEmissivity();
+                Debug.Assert(entity is MyFloatingObject);
+                if (entity is MyFloatingObject)
+                {
+                    updateEmissivity |= (m_detectedFloaters.Count == 1);
+                    m_detectedFloaters.Add(entity);
+                }
             }
+            entities.Clear();
+
+            if (updateEmissivity)
+                UpdateEmissivity();
         }
 
         private void phantom_EnterConnector(HkPhantomCallbackShape shape, HkRigidBody body)
         {
-            var other = body.GetEntity() as MyCubeGrid;
-            if (other == null || other == this.CubeGrid)
-                return;
+            var entities = body.GetAllEntities();
+            using (entities.GetClearToken())
+            {
+                foreach (var entity in entities)
+                {
+                    var other = entity as MyCubeGrid;
+                    if (other == null || other == this.CubeGrid)
+                        continue;
 
-            m_detectedGrids.Add(other);
-        }
-
-        protected Sandbox.ModAPI.IMyEntity GetOtherEntity(ref HkContactPointEvent value)
-        {
-            if (value.Base.BodyA.GetEntity() == this)
-                return value.Base.BodyB.GetEntity();
-            else
-                return value.Base.BodyA.GetEntity();
+                    m_detectedGrids.Add(other);
+                }
+            }
         }
 
         private void GetBoxFromMatrix(Matrix m, out Vector3 halfExtents, out Vector3 position, out Quaternion orientation)
@@ -634,7 +656,7 @@ namespace Sandbox.Game.Entities.Cube
                 }
                 else
                 {
-                    var tmpItem = new MyInventoryItem(items[i].GetObjectBuilder());
+                    var tmpItem = new MyPhysicalInventoryItem(items[i].GetObjectBuilder());
                     tmpItem.Amount = itemAmount;
                     entity = MyFloatingObjects.Spawn(tmpItem, rndPos, PositionComp.WorldMatrix.Forward, PositionComp.WorldMatrix.Up, CubeGrid.Physics);
                     m_inventory.RemoveItems(items[i].ItemId, itemAmount);

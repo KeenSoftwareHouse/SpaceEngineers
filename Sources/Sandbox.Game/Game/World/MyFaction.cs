@@ -118,6 +118,13 @@ namespace Sandbox.Game.World
 
             return false;
         }
+        public bool IsEveryoneNpc()
+        {
+            foreach(var member in m_members)
+                if (!Sync.Players.IdentityIsNpc(member.Key))
+                    return false;
+            return true;
+        }
 
 
         public void AddJoinRequest(long playerId)
@@ -139,7 +146,7 @@ namespace Sandbox.Game.World
                 m_members[playerId] = m_joinRequests[playerId];
                 m_joinRequests.Remove(playerId);
             }
-            else if (AutoAcceptMember)
+            else if (AutoAcceptMember || MySession.Static.Settings.ScenarioEditMode)
                 m_members[playerId] = new MyFactionMember(playerId, false);
         }
 

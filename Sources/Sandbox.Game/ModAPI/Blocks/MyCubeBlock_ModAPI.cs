@@ -1,15 +1,18 @@
-﻿using Sandbox.ModAPI;
+﻿using Sandbox.Common.Components;
+using Sandbox.ModAPI;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using VRage.Components;
+using VRage.ObjectBuilders;
 
 namespace Sandbox.Game.Entities
 {
-    public partial class MyCubeBlock : IMyCubeBlock
+    public partial class MyCubeBlock : IMyCubeBlock, IMyUpgradableBlock
     {
-        Sandbox.Common.ObjectBuilders.Definitions.SerializableDefinitionId Sandbox.ModAPI.IMyCubeBlock.BlockDefinition { get { return BlockDefinition.Id; } }
-        Sandbox.Common.ObjectBuilders.Definitions.SerializableDefinitionId Sandbox.ModAPI.Ingame.IMyCubeBlock.BlockDefinition { get { return BlockDefinition.Id; } }
+        SerializableDefinitionId Sandbox.ModAPI.IMyCubeBlock.BlockDefinition { get { return BlockDefinition.Id; } }
+        SerializableDefinitionId Sandbox.ModAPI.Ingame.IMyCubeBlock.BlockDefinition { get { return BlockDefinition.Id; } }
 
         public void Init(Common.ObjectBuilders.MyObjectBuilder_CubeBlock builder, IMyCubeGrid cubeGrid)
         {
@@ -197,12 +200,12 @@ namespace Sandbox.Game.Entities
 
         string IMyCubeBlock.RaycastDetectors(VRageMath.Vector3 worldFrom, VRageMath.Vector3 worldTo)
         {
-            return RaycastDetectors(worldFrom, worldTo);
+            return Components.Get<MyUseObjectsComponentBase>().RaycastDetectors(worldFrom, worldTo);
         }
 
         void IMyCubeBlock.ReloadDetectors(bool refreshNetworks)
         {
-            ReloadDetectors(refreshNetworks);
+            Components.Get<MyUseObjectsComponentBase>().LoadDetectorsFromModel();
         }
 
         void IMyCubeBlock.UpdateIsWorking()
@@ -218,6 +221,21 @@ namespace Sandbox.Game.Entities
         void IMyCubeBlock.SetDamageEffect(bool start)
         {
             SetDamageEffect(start);
+        }
+
+        uint ModAPI.Ingame.IMyUpgradableBlock.UpgradeCount
+        {
+            get
+            {
+                return (uint)UpgradeValues.Count();
+            }
+        }
+
+        void ModAPI.Ingame.IMyUpgradableBlock.GetUpgrades(out Dictionary<string, float> upgrades)
+        {
+            upgrades = new Dictionary<string, float>();
+            foreach (var value in UpgradeValues)
+                upgrades.Add(value.Key, value.Value);
         }
     }
 }

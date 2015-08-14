@@ -6,12 +6,16 @@ using System.Text;
 using ProtoBuf;
 using Sandbox.Common.ObjectBuilders;
 using Sandbox.Common.ObjectBuilders.Definitions;
-using Sandbox.Common.ObjectBuilders.Serializer;
 using Sandbox.Definitions;
 using Sandbox.Game.Entities.Cube;
 using VRage.Collections;
 using VRageMath;
 using Sandbox.Common.ModAPI;
+using VRage.Components;
+using VRage.ObjectBuilders;
+using VRage;
+using Sandbox.Common;
+using VRage.Utils;
 
 namespace Sandbox.Game.Entities
 {
@@ -27,10 +31,10 @@ namespace Sandbox.Game.Entities
         {
             private MyCompoundCubeBlock m_block;
 
-            public override void OnAddedToContainer(Common.Components.MyComponentContainer container)
+            public override void OnAddedToContainer()
             {
-                base.OnAddedToContainer(container);
-                m_block = container.Entity as MyCompoundCubeBlock;
+                base.OnAddedToContainer();
+                m_block = Container.Entity as MyCompoundCubeBlock;
                 Debug.Assert(m_block != null);
             }
 
@@ -117,7 +121,7 @@ namespace Sandbox.Game.Entities
                         m_blocks.Add(id, cubeBlock);
                     }
                 }
-            }
+             }
 
             RefreshTemplates();
         }
@@ -193,12 +197,19 @@ namespace Sandbox.Game.Entities
 
         private void UpdateBlocksWorldMatrix(ref MatrixD parentWorldMatrix, object source = null)
         {
+            MatrixD localMatrix = MatrixD.Identity;
             foreach (var pair in m_blocks)
             {
                 if (pair.Value.FatBlock != null)
-                    pair.Value.FatBlock.PositionComp.UpdateWorldMatrix(ref parentWorldMatrix, source);
+                {
+                    GetBlockLocalMatrixFromGridPositionAndOrientation(pair.Value, ref localMatrix);
+                    MatrixD worldMatrix = localMatrix * parentWorldMatrix;
+                    pair.Value.FatBlock.PositionComp.SetWorldMatrix(worldMatrix);
+                }
                 else
+                {
                     Debug.Assert(false);
+                }
             }
         }
 
@@ -318,7 +329,10 @@ namespace Sandbox.Game.Entities
             m_blocks.Add(id, block);
 
             MatrixD parentWorldMatrix = this.Parent.WorldMatrix;
-            block.FatBlock.PositionComp.UpdateWorldMatrix(ref parentWorldMatrix, this);
+            MatrixD blockLocalMatrix = MatrixD.Identity;
+            GetBlockLocalMatrixFromGridPositionAndOrientation(block, ref blockLocalMatrix);
+            MatrixD worldMatrix = blockLocalMatrix * parentWorldMatrix;
+            block.FatBlock.PositionComp.SetWorldMatrix(worldMatrix);
 
             block.FatBlock.OnAddedToScene(this);
 
@@ -740,7 +754,7 @@ namespace Sandbox.Game.Entities
             return id;
         }
 
-        internal void DoDamage(float damage, MyDamageType damageType, MyHitInfo? hitInfo)
+        internal void DoDamage(float damage, MyStringHash damageType, MyHitInfo? hitInfo, long attackerId)
         {
             float integrity = 0;
             foreach(var block in m_blocks)
@@ -757,8 +771,54 @@ namespace Sandbox.Game.Entities
 
             foreach (var block in m_blocks)
             {
-                block.Value.DoDamage(damage * (block.Value.MaxIntegrity / integrity), damageType, true, hitInfo, false);
+                block.Value.DoDamage(damage * (block.Value.MaxIntegrity / integrity), damageType, true, hitInfo, false, attackerId);
             }
+        }
+
+        public bool GetIntersectionWithLine(ref LineD line, out MyIntersectionResultLineTriangleEx? t, out ushort blockId, IntersectionFlags flags = IntersectionFlags.ALL_TRIANGLES, bool checkZFight = false, bool ignoreGenerated = false)
+        {
+            t = null;
+            blockId = 0;
+
+            double distanceSquaredInCompound = double.MaxValue;
+
+            bool foundIntersection = false;
+
+            foreach (var blockPair in m_blocks)
+            {
+                MySlimBlock cmpSlimBlock = blockPair.Value;
+
+				if (ignoreGenerated && cmpSlimBlock.BlockDefinition.IsGeneratedBlock)
+					continue;
+
+                MyIntersectionResultLineTriangleEx? intersectionTriResult;
+                if (cmpSlimBlock.FatBlock.GetIntersectionWithLine(ref line, out intersectionTriResult) && intersectionTriResult != null)
+                {
+                    Vector3D startToIntersection = intersectionTriResult.Value.IntersectionPointInWorldSpace - line.From;
+                    double instrDistanceSq = startToIntersection.LengthSquared();
+                    if (instrDistanceSq < distanceSquaredInCompound)
+                    {
+						if (checkZFight && distanceSquaredInCompound < instrDistanceSq + 0.001f)
+							continue;
+
+                        distanceSquaredInCompound = instrDistanceSq;
+                        t = intersectionTriResult;
+                        blockId = blockPair.Key;
+                        foundIntersection = true;
+                    }
+                }
+            }
+
+            return foundIntersection;
+        }
+
+        private static void GetBlockLocalMatrixFromGridPositionAndOrientation(MySlimBlock block, ref MatrixD localMatrix)
+        {
+            Matrix orientation;
+            block.Orientation.GetMatrix(out orientation);
+
+            localMatrix = orientation;
+            localMatrix.Translation = block.CubeGrid.GridSize * block.Position;
         }
     }
 }

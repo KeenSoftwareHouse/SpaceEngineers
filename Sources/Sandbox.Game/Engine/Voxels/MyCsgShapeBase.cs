@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Sandbox.Engine.Utils;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -21,6 +22,7 @@ namespace Sandbox.Engine.Voxels
         internal abstract ContainmentType Contains(ref BoundingBox queryAabb, ref BoundingSphere querySphere, float lodVoxelSize);
 
         internal abstract float SignedDistance(ref Vector3 position, float lodVoxelSize, IMyModule macroModulator, IMyModule detailModulator);
+        internal abstract float SignedDistanceUnchecked(ref Vector3 position, float lodVoxelSize, IMyModule macroModulator, IMyModule detailModulator);
 
         internal abstract Vector3 Center();
 
@@ -30,5 +32,7 @@ namespace Sandbox.Engine.Voxels
 
         /// <param name="percentage">Percentage given as value in range 0 to 1.</param>
         internal abstract void ShrinkTo(float percentage);
+
+        internal virtual void ReleaseMaps() { }
     }
 }

@@ -10,6 +10,9 @@ using VRageMath;
 using VRage.Plugins;
 using Sandbox.Engine.Utils;
 using System.Diagnostics;
+using VRage.ObjectBuilders;
+using VRage;
+using System.Reflection;
 
 namespace Sandbox.Game.World
 {
@@ -28,8 +31,7 @@ namespace Sandbox.Game.World
         }
     }
 
-
-    static partial class MyWorldGenerator
+    public partial class MyWorldGenerator
     {
         #region Operation base and factory
 
@@ -39,7 +41,6 @@ namespace Sandbox.Game.World
                 : base(objectBuilderType)
             {
             }
-
         }
 
         public static class OperationFactory
@@ -51,6 +52,7 @@ namespace Sandbox.Game.World
                 m_objectFactory = new MyObjectFactory<OperationTypeAttribute, MyWorldGeneratorOperationBase>();
                 m_objectFactory.RegisterFromCreatedObjectAssembly();
                 m_objectFactory.RegisterFromAssembly(MyPlugins.GameAssembly);
+                m_objectFactory.RegisterFromAssembly(MyPlugins.SandboxAssembly); //TODO: Will be removed 
                 m_objectFactory.RegisterFromAssembly(MyPlugins.UserAssembly);
             }
 
@@ -199,6 +201,36 @@ namespace Sandbox.Game.World
                 ob.AsteroidName = AsteroidName;
                 ob.BeaconName   = BeaconName;
 
+                return ob;
+            }
+        }
+
+        [MyWorldGenerator.OperationType(typeof(MyObjectBuilder_WorldGeneratorOperation_AddPlanetPrefab))]
+        public class OperationAddPlanetPrefab : MyWorldGeneratorOperationBase
+        {
+            public string Name;
+            public string PrefabName;
+
+            public override void Apply()
+            {
+               MyWorldGenerator.AddPlanetPrefab(PrefabName, Name);
+            }
+
+            public override void Init(MyObjectBuilder_WorldGeneratorOperation builder)
+            {
+                base.Init(builder);
+                var ob = builder as MyObjectBuilder_WorldGeneratorOperation_AddPlanetPrefab;
+
+                Name = ob.Name;
+                PrefabName = ob.PrefabFile;
+            }
+
+            public override MyObjectBuilder_WorldGeneratorOperation GetObjectBuilder()
+            {
+                var ob = base.GetObjectBuilder() as MyObjectBuilder_WorldGeneratorOperation_AddPlanetPrefab;
+
+                ob.Name = Name;
+                ob.PrefabFile = PrefabName;
                 return ob;
             }
         }

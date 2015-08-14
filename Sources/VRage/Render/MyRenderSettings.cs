@@ -19,6 +19,7 @@ namespace VRageRender
         public int BackBufferHeight;
         public int RefreshRate; // Used only in Fullscreen
         public bool VSync;
+        public bool DebugDrawOnly;
 
         public MyRenderDeviceSettings(int adapter, MyWindowModeEnum windowMode, int width, int height, int refreshRate, bool vsync)
         {
@@ -28,6 +29,8 @@ namespace VRageRender
             this.BackBufferHeight = height;
             this.RefreshRate = refreshRate;
             this.VSync = vsync;
+
+            DebugDrawOnly = false;
         }
 
         bool IEquatable<MyRenderDeviceSettings>.Equals(MyRenderDeviceSettings other)
@@ -166,7 +169,7 @@ namespace VRageRender
         public bool EnableSpotShadows = true;
 
         public bool VisualizeOverdraw = false;
-        
+       
         // Render interpolation time, lower time equals less smooth but more responsive
         // This value should be from interval (0, 2x update interval), good value is "update interval" + "upper usual update time"
         public float InterpolationLagMs = 22;
@@ -480,6 +483,7 @@ namespace VRageRender
         public MyAntialiasingMode AntialiasingMode;
         public MyShadowsQuality ShadowQuality;
         public bool MultithreadingEnabled;
+        public bool TonemappingEnabled;
         public MyTextureQuality TextureQuality;
         public MyTextureAnisoFiltering AnisotropicFiltering;
         public MyFoliageDetails FoliageDetails;
@@ -497,6 +501,7 @@ namespace VRageRender
                 AntialiasingMode == other.AntialiasingMode &&
                 ShadowQuality == other.ShadowQuality &&
                 MultithreadingEnabled == other.MultithreadingEnabled &&
+                TonemappingEnabled == other.TonemappingEnabled &&
                 TextureQuality == other.TextureQuality &&
                 AnisotropicFiltering == other.AnisotropicFiltering &&
                 FoliageDetails == other.FoliageDetails;

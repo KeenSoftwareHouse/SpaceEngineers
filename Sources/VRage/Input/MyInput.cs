@@ -18,5 +18,14 @@ namespace VRage.Input
             //Static = isNull ? new MyNullInput() as IMyInput
             //                : new MyDirectXInput(textInputBuffer, nameLookup, defaultGameControls, enableDevKeys) as IMyInput;
         }
+
+        public static void UnloadData()
+        {
+            if (Static != null)
+            {
+                Static.UnloadData();
+                Static = null;
+            }
+        }
     }
 }

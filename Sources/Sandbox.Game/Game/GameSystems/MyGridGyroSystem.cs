@@ -12,10 +12,11 @@ using Sandbox.Game.Entities.Cube;
 using Sandbox.Common;
 using VRageRender;
 using VRage.Utils;
+using VRage.Components;
 
 namespace Sandbox.Game.GameSystems
 {
-    class MyGridGyroSystem : IMyPowerConsumer
+    public class MyGridGyroSystem : IMyPowerConsumer
     {
         // Rotation limiter, larger number, more limited max rotation
         static readonly float INV_TENSOR_MAX_LIMIT = 125000;
@@ -24,6 +25,7 @@ namespace Sandbox.Game.GameSystems
 
         #region Fields
         public Vector3 ControlTorque;
+        public bool AutopilotEnabled;
 
         private MyCubeGrid m_grid;
         private HashSet<MyGyro> m_gyros;
@@ -114,7 +116,7 @@ namespace Sandbox.Game.GameSystems
             {
                 // Not checking whether engines are running, since ControlTorque should be 0 when
                 // engines are stopped (set by cockpit).
-                if (PowerReceiver.SuppliedRatio > 0f && m_grid.Physics != null && m_grid.Physics.Enabled && !m_grid.Physics.RigidBody.IsFixed)
+                if (PowerReceiver.SuppliedRatio > 0f && m_grid.Physics != null && (m_grid.Physics.Enabled || m_grid.Physics.IsWelded) && !m_grid.Physics.RigidBody.IsFixed)
                 {
                     Matrix invWorldRot = m_grid.PositionComp.GetWorldMatrixNormalizedInv().GetOrientation();
                     Matrix worldRot = m_grid.WorldMatrix.GetOrientation();
@@ -278,7 +280,7 @@ namespace Sandbox.Game.GameSystems
             {
                 if (IsUsed(gyro))
                 {
-                    if (!gyro.GyroOverride)
+                    if (!gyro.GyroOverride || AutopilotEnabled)
                         m_maxGyroForce += gyro.MaxGyroForce;
                     else
                     {

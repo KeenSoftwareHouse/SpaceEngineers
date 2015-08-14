@@ -17,6 +17,7 @@ using Sandbox.Common.ObjectBuilders;
 using VRage;
 using Sandbox.Common.ObjectBuilders.Definitions;
 using Sandbox.Definitions;
+using VRage.ObjectBuilders;
 
 #endregion
 
@@ -26,7 +27,7 @@ namespace Sandbox.Game.Multiplayer
     class MySyncFloatingObjects
     {
         MyFloatingObjects m_floatingObjects;
-        static System.Collections.Generic.List<Havok.HkRigidBody> m_rigidBodyList = new System.Collections.Generic.List<Havok.HkRigidBody>();
+        static System.Collections.Generic.List<Havok.HkBodyCollision> m_rigidBodyList = new System.Collections.Generic.List<Havok.HkBodyCollision>();
 
         struct FloatingObjectsData
         {
@@ -292,7 +293,7 @@ namespace Sandbox.Game.Multiplayer
                     }
                     if (floatingObject.Physics != null)
                     {
-                        if (m_rigidBodyList.Count == 1 && m_rigidBodyList[0] == floatingObject.Physics.RigidBody)
+                        if (m_rigidBodyList.Count == 1 && m_rigidBodyList[0].Body == floatingObject.Physics.RigidBody)
                         {
                             floatingObject.PositionComp.SetWorldMatrix(matrix, sender);
                         }
@@ -420,7 +421,7 @@ namespace Sandbox.Game.Multiplayer
                     var objectBuilder = new MyObjectBuilder_FloatingObject();
                     objectBuilder.Item = new MyObjectBuilder_InventoryItem();
                     objectBuilder.Item.Amount = instance.Amount;
-                    objectBuilder.Item.Content = Sandbox.Common.ObjectBuilders.Serializer.MyObjectBuilderSerializer.CreateNewObject(((MyDefinitionId)floatingObject.TypeId).TypeId, ((MyDefinitionId)floatingObject.TypeId).SubtypeName);
+                    objectBuilder.Item.Content = MyObjectBuilderSerializer.CreateNewObject(((MyDefinitionId)floatingObject.TypeId).TypeId, ((MyDefinitionId)floatingObject.TypeId).SubtypeName);
                     objectBuilder.EntityId = instance.Location.EntityId;
                     objectBuilder.PositionAndOrientation = new MyPositionAndOrientation(instance.Location.Position, instance.Location.Forward, instance.Location.Up);
                     objectBuilder.PersistentFlags = MyPersistentEntityFlags2.InScene | MyPersistentEntityFlags2.Enabled | MyPersistentEntityFlags2.CastShadows;

@@ -10,31 +10,24 @@ namespace Sandbox.Game.GameSystems
 {
     partial class MyGridTerminalSystem : IMyGridTerminalSystem
     {
-        List<IMyTerminalBlock> IMyGridTerminalSystem.Blocks
+        void IMyGridTerminalSystem.GetBlocks(List<IMyTerminalBlock> blocks)
         {
-            get 
+            blocks.Clear();
+            foreach (var block in m_blocks)
             {
-                List<IMyTerminalBlock> ret = new List<IMyTerminalBlock>();
-                foreach (var block in m_blocks)
+                if (block.IsAccessibleForProgrammableBlock)
                 {
-                    if (block.IsAccessibleForProgrammableBlock)
-                    {
-                        ret.Add(block);
-                    }
+                    blocks.Add(block);
                 }
-                return ret; 
             }
         }
-        List<IMyBlockGroup> IMyGridTerminalSystem.BlockGroups
+
+        void IMyGridTerminalSystem.GetBlockGroups(List<IMyBlockGroup> blockGroups)
         {
-            get 
+            blockGroups.Clear();
+            foreach (var group in BlockGroups)
             {
-                var result = new List<IMyBlockGroup>(BlockGroups.Count);
-                foreach (var group in BlockGroups)
-                {
-                    result.Add(group);
-                }
-                return result;
+                blockGroups.Add(group);
             }
         }
 

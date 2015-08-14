@@ -88,6 +88,11 @@ namespace VRageMath
             return false;
         }
 
+        public override string ToString()
+        {
+            return string.Format("[Forward:{0}, Up:{1}]", Forward, Up);
+        }
+
         /// <summary>
         /// Returns the direction baseDirection will point to after transformation
         /// </summary>

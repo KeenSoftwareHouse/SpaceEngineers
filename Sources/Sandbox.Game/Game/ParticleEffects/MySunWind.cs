@@ -33,6 +33,7 @@ namespace Sandbox.AppCode.Game.TransparentGeometry
     using Sandbox.Graphics.TransparentGeometry.Particles;
     using Sandbox.Common.ObjectBuilders.Definitions;
     using VRage;
+    using VRage.ModAPI;
 
 //  This class render "sun wind" coming from the sun. It works for sun in any direction (don't have to be parallel with one of the axis) - though I haven't tested it.
 //  There are large and small billboards. Large are because I don't want draw a lot of small billboards on edge, where player won't see anything. 
@@ -116,9 +117,9 @@ namespace Sandbox.AppCode.Game.TransparentGeometry
 
         //static MySoundCuesEnum? m_burningCue;
 
-        static List<Sandbox.ModAPI.IMyEntity> m_sunwindEntities = new List<Sandbox.ModAPI.IMyEntity>();
+        static List<IMyEntity> m_sunwindEntities = new List<IMyEntity>();
 
-        static List<Havok.HkRigidBody> intersectionLst;
+        static List<Havok.HkBodyCollision> m_intersectionLst;
 
         static List<MyEntityRayCastPair> m_rayCastQueue = new List<MyEntityRayCastPair>();
         // MaxDistance values for SmallBillboards are computed in more updates
@@ -135,7 +136,7 @@ namespace Sandbox.AppCode.Game.TransparentGeometry
             MyLog.Default.WriteLine("MySunWind.LoadData() - START");
             MyLog.Default.IncreaseIndent();
             //MyRender.GetRenderProfiler().StartProfilingBlock("MySunwind::LoadContent");
-            intersectionLst = new List<Havok.HkRigidBody>();
+            m_intersectionLst = new List<Havok.HkBodyCollision>();
 
             //  Large billboards
             m_largeBillboards = new MySunWindBillboard[MySunWindConstants.LARGE_BILLBOARDS_SIZE.X][];
@@ -281,14 +282,16 @@ namespace Sandbox.AppCode.Game.TransparentGeometry
                         var grid = entity as MyCubeGrid;
                         var invMat = grid.PositionComp.GetWorldMatrixNormalizedInv();
 
-                        if (MySession.Static.DestructibleBlocks)
+                        if (grid.BlocksDestructionEnabled)
+                        {
                             grid.Physics.ApplyDeformation(6f, 3f, 3f, Vector3.Transform(p, invMat), Vector3.Normalize(Vector3.Transform(m_directionFromSunNormalized, invMat)), MyDamageType.Environment);
+                        }
 
                         //MyPhysics.HavokWorld.CastRay(l.From, l.To, m_hitLst);
                         //rayCount++;
                         //MyEntity ent = null;
                         //if (m_hitLst.Count != 0)
-                        //    ent = m_hitLst[0].Body.GetEntity();
+                        //    ent = m_hitLst[0].GetEntity();
                         //if (ent == grid)
                         //{
                         //    grid.Physics.ApplyDeformation(6f, 3f, 3f, Vector3.Transform(m_hitLst[0].Position, invMat), Vector3.Normalize(Vector3.Transform(m_directionFromSunNormalized, invMat)), Sandbox.Game.Weapons.MyDamageType.Environment);
@@ -405,17 +408,17 @@ namespace Sandbox.AppCode.Game.TransparentGeometry
             if (m_rayCastCounter == 120)
             {
                 var pos = positionFront + m_directionFromSunNormalized * 2500;
-                MyPhysics.GetPenetrationsBox(ref v, ref pos, ref q, intersectionLst, MyPhysics.DefaultCollisionLayer);
+                MyPhysics.GetPenetrationsBox(ref v, ref pos, ref q, m_intersectionLst, MyPhysics.DefaultCollisionLayer);
                 
-                foreach (var hit in intersectionLst)
+                foreach (var hit in m_intersectionLst)
                 {
-                    var entity = hit.GetEntity();
+                    var entity = hit.GetCollisionEntity();
                     if (entity is MyVoxelMap)
                         continue;
                     if (!m_sunwindEntities.Contains(entity))
                         m_sunwindEntities.Add(entity);
                 }
-                intersectionLst.Clear();
+                m_intersectionLst.Clear();
                 for (int i = 0; i < m_sunwindEntities.Count; i++)
                 {
                     var entity = m_sunwindEntities[i];
@@ -450,7 +453,7 @@ namespace Sandbox.AppCode.Game.TransparentGeometry
 
                                     MyPhysics.CastRay(l.From, l.To, m_hitLst);
                                     m_rayCastCounter++;
-                                    if (m_hitLst.Count == 0 || m_hitLst[0].HkHitInfo.Body.GetEntity() != grid.Components)
+                                    if (m_hitLst.Count == 0 || m_hitLst[0].HkHitInfo.GetHitEntity() != grid.Components)
                                     {
                                         m_hitLst.Clear();
                                         continue;

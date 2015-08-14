@@ -42,6 +42,7 @@
       </InventorySize>
       <Public>true</Public>
       <DamageEffectId>214</DamageEffectId>
+      <DamagedSound>ParticleElectrical</DamagedSound>
     </Definition>
     <Definition xsi:type="MyObjectBuilder_BatteryBlockDefinition">
       <Id>
@@ -82,6 +83,7 @@
       </InventorySize>
       <Public>true</Public>
       <DamageEffectId>214</DamageEffectId>
+      <DamagedSound>ParticleElectrical</DamagedSound>
     </Definition>
     <!-- End Region BatteryBlock-->
     <!-- Region ARMOR -->
@@ -12015,7 +12017,7 @@
       <CubeSize>Small</CubeSize>
       <BlockTopology>Cube</BlockTopology>
       <Size x="1" y="1" z="1" />
-      <ModelOffset x="0" y="0" z="0" />
+      <ModelOffset x="0.2" y="0" z="0" />
       <CubeDefinition>
         <CubeTopology>Corner2Tip</CubeTopology>
         <ShowEdges>true</ShowEdges>
@@ -12024,7 +12026,7 @@
           <Side Model="Models\Cubes\Small\Armor\CornerTriangleRightPlateCorner2TipRight.mwm" PatternWidth="1" PatternHeight="1" />
           <Side Model="Models\Cubes\Small\Armor\FaceTrianglePlateCorner2Tip.mwm" PatternWidth="1" PatternHeight="1" />
           <Side Model="Models\Cubes\Small\Armor\CornerTriangleLeftPlateCorner2TipBottom.mwm" PatternWidth="1" PatternHeight="1" />
-        </Sides>i
+        </Sides>
       </CubeDefinition>
       <Components>
         <Component Subtype="SteelPlate" Count="1" />
@@ -12867,7 +12869,7 @@
       <CubeSize>Small</CubeSize>
       <BlockTopology>Cube</BlockTopology>
       <Size x="1" y="1" z="1" />
-      <ModelOffset x="0" y="0" z="0" />
+      <ModelOffset x="0.2" y="0" z="0" />
       <CubeDefinition>
         <CubeTopology>Corner2Tip</CubeTopology>
         <ShowEdges>true</ShowEdges>
@@ -13338,6 +13340,7 @@
         <MountPoint Side="Front" ExclusionMask="3" PropertiesMask="3" StartX="0" StartY="0" EndX="1" EndY="1" />
       </MountPoints>
       <DamageEffectId>214</DamageEffectId>
+      <DamagedSound>ParticleElectrical</DamagedSound>
     </Definition>
     <Definition>
       <Id>
@@ -13409,6 +13412,7 @@
       <WeaponDefinitionId Subtype="LargeGatlingTurret" />
       <InventoryMaxVolume>0.384</InventoryMaxVolume>
       <DamageEffectId>213</DamageEffectId>
+      <DamagedSound>ParticleWeapExpl</DamagedSound>
       <MinElevationDegrees>-180</MinElevationDegrees> 
       <MaxElevationDegrees>180</MaxElevationDegrees>
       <MinAzimuthDegrees>-180</MinAzimuthDegrees>
@@ -13458,6 +13462,7 @@
       <WeaponDefinitionId Subtype="LargeMissileTurret" />
       <InventoryMaxVolume>0.384</InventoryMaxVolume>
       <DamageEffectId>213</DamageEffectId>
+      <DamagedSound>ParticleWeapExpl</DamagedSound>
       <MinElevationDegrees>-180</MinElevationDegrees>
       <MaxElevationDegrees>180</MaxElevationDegrees>
       <MinAzimuthDegrees>-180</MinAzimuthDegrees>
@@ -13508,6 +13513,7 @@
       <WeaponDefinitionId Subtype="LargeInteriorTurret" />
       <InventoryMaxVolume>0.384</InventoryMaxVolume>
       <DamageEffectId>213</DamageEffectId>
+      <DamagedSound>ParticleWeapExpl</DamagedSound>
       <MinElevationDegrees>-180</MinElevationDegrees>
       <MaxElevationDegrees>180</MaxElevationDegrees>
       <MinAzimuthDegrees>-180</MinAzimuthDegrees>
@@ -13608,6 +13614,7 @@
       <DisassembleRatio>1.5</DisassembleRatio>
       <MaxOpen>1.2</MaxOpen>
       <DamageEffectId>212</DamageEffectId>
+      <DamagedSound>ParticleHeavyMech</DamagedSound>
     </Definition>
     <Definition>
       <Id>
@@ -13645,6 +13652,7 @@
       <BuildTimeSeconds>50</BuildTimeSeconds>
       <MirroringY>Z</MirroringY>
       <DamageEffectId>214</DamageEffectId>
+      <DamagedSound>ParticleElectrical</DamagedSound>
     </Definition>
     <Definition>
       <Id>
@@ -13686,6 +13694,7 @@
       <EdgeType>Light</EdgeType>
       <BuildTimeSeconds>50</BuildTimeSeconds>
       <DamageEffectId>214</DamageEffectId>
+      <DamagedSound>ParticleElectrical</DamagedSound>
     </Definition>
     <Definition>
       <Id>
@@ -13716,6 +13725,7 @@
       <EdgeType>Light</EdgeType>
       <BuildTimeSeconds>15</BuildTimeSeconds>
       <DamageEffectId>214</DamageEffectId>
+      <DamagedSound>ParticleElectrical</DamagedSound>
     </Definition>
     <Definition xsi:type="MyObjectBuilder_ReflectorBlockDefinition">
       <Id>
@@ -13761,6 +13771,7 @@
       <LightGlare>GlareLsLight</LightGlare>
       <ReflectorTexture>Textures\Lights\reflector_large.dds</ReflectorTexture>
       <DamageEffectId>214</DamageEffectId>
+      <DamagedSound>ParticleElectrical</DamagedSound>
     </Definition>
     <Definition xsi:type="MyObjectBuilder_LightingBlockDefinition">
       <Id>
@@ -13794,6 +13805,7 @@
       <RequiredPowerInput>0.00006</RequiredPowerInput>
       <LightGlare>GlareLsInteriorLight</LightGlare>
       <DamageEffectId>214</DamageEffectId>
+      <DamagedSound>ParticleElectrical</DamagedSound>
     </Definition>
     <Definition>
       <Id>
@@ -14202,7 +14214,8 @@
       <BlockPairName>Warhead</BlockPairName>
       <EdgeType>Light</EdgeType>
       <BuildTimeSeconds>30</BuildTimeSeconds>
-      <ExplosionRadius>22.4415</ExplosionRadius> 
+      <ExplosionRadius>22.4415</ExplosionRadius>
+      <WarheadExplosionDamage>15000</WarheadExplosionDamage>
     </Definition>
     <Definition xsi:type="MyObjectBuilder_WarheadDefinition">
       <Id>
@@ -14232,6 +14245,7 @@
       <EdgeType>Light</EdgeType>
       <BuildTimeSeconds>10</BuildTimeSeconds>
       <ExplosionRadius> 4.4883 </ExplosionRadius>
+      <WarheadExplosionDamage>15000</WarheadExplosionDamage>
     </Definition>
     <Definition>
       <Id>
@@ -14416,6 +14430,7 @@
       <EdgeType>Light</EdgeType>
       <BuildTimeSeconds>40</BuildTimeSeconds>
       <DamageEffectId>212</DamageEffectId>
+      <DamagedSound>ParticleHeavyMech</DamagedSound>
     </Definition>
     <Definition xsi:type="MyObjectBuilder_ProjectorDefinition">
       <Id>
@@ -14457,6 +14472,7 @@
       <RequiredPowerInput>0.0002</RequiredPowerInput>
       <Public>true</Public>
       <DamageEffectId>214</DamageEffectId>
+      <DamagedSound>ParticleElectrical</DamagedSound>
     </Definition>
     <Definition xsi:type="MyObjectBuilder_ProjectorDefinition">
       <Id>
@@ -14497,6 +14513,7 @@
       <RequiredPowerInput>0.0001</RequiredPowerInput>
       <Public>true</Public>
       <DamageEffectId>212</DamageEffectId>
+      <DamagedSound>ParticleHeavyMech</DamagedSound>
     </Definition>
     <Definition xsi:type="MyObjectBuilder_RefineryDefinition">
       <Id>
@@ -14550,6 +14567,7 @@
       <RefineSpeed>1.3</RefineSpeed>
       <MaterialEfficiency>0.8</MaterialEfficiency>
       <DamageEffectId>212</DamageEffectId>
+      <DamagedSound>ParticleHeavyMech</DamagedSound>
     </Definition>
     <Definition xsi:type="MyObjectBuilder_RefineryDefinition">
       <Id>
@@ -14596,6 +14614,7 @@
       <RefineSpeed>1.6</RefineSpeed>
       <MaterialEfficiency>0.9</MaterialEfficiency>
       <DamageEffectId>212</DamageEffectId>
+      <DamagedSound>ParticleHeavyMech</DamagedSound>
     </Definition>
     <Definition xsi:type="MyObjectBuilder_RefineryDefinition">
       <Id>
@@ -14651,6 +14670,7 @@
       <RefineSpeed>16.8</RefineSpeed>
       <MaterialEfficiency>0.9</MaterialEfficiency>
       <DamageEffectId>212</DamageEffectId>
+      <DamagedSound>ParticleHeavyMech</DamagedSound>
     </Definition>
     <Definition xsi:type="MyObjectBuilder_OxygenGeneratorDefinition">
       <Id>
@@ -14706,6 +14726,7 @@
         <Class>OxygenBottles</Class>
       </BlueprintClasses>
       <DamageEffectId>213</DamageEffectId>
+      <DamagedSound>ParticleWeapExpl</DamagedSound>
       <GenerateSound>ArcBlockOxyGenProcess</GenerateSound>
       <IdleSound>ArcBlockOxyGenIdle</IdleSound>
     </Definition>
@@ -14765,6 +14786,7 @@
       <RefineSpeed>16.1</RefineSpeed>
       <MaterialEfficiency>0.9</MaterialEfficiency>
       <DamageEffectId>212</DamageEffectId>
+      <DamagedSound>ParticleHeavyMech</DamagedSound>
     </Definition>
     <Definition xsi:type="MyObjectBuilder_RefineryDefinition">
       <Id>
@@ -14822,6 +14844,7 @@
       <RefineSpeed>16.2</RefineSpeed>
       <MaterialEfficiency>0.8</MaterialEfficiency>
       <DamageEffectId>212</DamageEffectId>
+      <DamagedSound>ParticleHeavyMech</DamagedSound>
     </Definition>
     <Definition xsi:type="MyObjectBuilder_RefineryDefinition">
       <Id>
@@ -14881,6 +14904,7 @@
       <RefineSpeed>16</RefineSpeed>
       <MaterialEfficiency>0.95</MaterialEfficiency>
       <DamageEffectId>212</DamageEffectId>
+      <DamagedSound>ParticleHeavyMech</DamagedSound>
     </Definition>
     <Definition xsi:type="MyObjectBuilder_AssemblerDefinition">
       <Id>
@@ -14929,6 +14953,7 @@
         <Class>Tools</Class>
       </BlueprintClasses>
       <DamageEffectId>212</DamageEffectId>
+      <DamagedSound>ParticleHeavyMech</DamagedSound>
     </Definition>
     <Definition xsi:type="MyObjectBuilder_AssemblerDefinition">
       <Id>
@@ -14979,6 +15004,7 @@
         <Class>Ammo</Class>
       </BlueprintClasses>
       <DamageEffectId>212</DamageEffectId>
+      <DamagedSound>ParticleHeavyMech</DamagedSound>
     </Definition>
     <Definition xsi:type="MyObjectBuilder_AssemblerDefinition">
       <Id>
@@ -15028,6 +15054,7 @@
         <Class>BaseComponents</Class>
       </BlueprintClasses>
       <DamageEffectId>212</DamageEffectId>
+      <DamagedSound>ParticleHeavyMech</DamagedSound>
     </Definition>
     <Definition xsi:type="MyObjectBuilder_AssemblerDefinition">
       <Id>
@@ -15078,6 +15105,7 @@
         <Class>Electronics</Class>
       </BlueprintClasses>
       <DamageEffectId>212</DamageEffectId>
+      <DamagedSound>ParticleHeavyMech</DamagedSound>
     </Definition>
     <Definition xsi:type="MyObjectBuilder_AssemblerDefinition">
       <Id>
@@ -15127,6 +15155,7 @@
         <Class>ConstructionComponents</Class>
       </BlueprintClasses>
       <DamageEffectId>212</DamageEffectId>
+      <DamagedSound>ParticleHeavyMech</DamagedSound>
     </Definition>
     <Definition xsi:type="MyObjectBuilder_OreDetectorDefinition">
       <Id>
@@ -15170,6 +15199,7 @@
       <BuildTimeSeconds>40</BuildTimeSeconds>
       <MaximumRange>150</MaximumRange>
       <DamageEffectId>214</DamageEffectId>
+      <DamagedSound>ParticleElectrical</DamagedSound>
     </Definition>
     <Definition xsi:type="MyObjectBuilder_MedicalRoomDefinition">
       <Id>
@@ -15210,6 +15240,7 @@
       <EdgeType>Light</EdgeType>
       <BuildTimeSeconds>50</BuildTimeSeconds>
       <DamageEffectId>214</DamageEffectId>
+      <DamagedSound>ParticleElectrical</DamagedSound>
     </Definition>
     <Definition xsi:type="MyObjectBuilder_GravityGeneratorDefinition">
       <Id>
@@ -15249,6 +15280,7 @@
       <BuildTimeSeconds>50</BuildTimeSeconds>
       <RequiredPowerInput>0.56713</RequiredPowerInput>
       <DamageEffectId>214</DamageEffectId>
+      <DamagedSound>ParticleElectrical</DamagedSound>
     </Definition>
     <Definition xsi:type="MyObjectBuilder_GravityGeneratorSphereDefinition">
       <Id>
@@ -15291,7 +15323,56 @@
       <BasePowerInput>0.7</BasePowerInput>
       <ConsumptionPower>3</ConsumptionPower>
       <DamageEffectId>214</DamageEffectId>
+      <DamagedSound>ParticleElectrical</DamagedSound>
     </Definition>
+    <Definition xsi:type="MyObjectBuilder_JumpDriveDefinition">
+      <Id>
+        <TypeId>JumpDrive</TypeId>
+        <SubtypeId>LargeJumpDrive</SubtypeId>
+      </Id>
+      <DisplayName>DisplayName_Block_JumpDrive</DisplayName>
+      <Icon>Textures\GUI\Icons\Cubes\JumpDrive.dds</Icon>
+      <CubeSize>Large</CubeSize>
+      <BlockTopology>TriangleMesh</BlockTopology>
+      <Size x="3" y="3" z="2" />
+      <ModelOffset x="0" y="0" z="0" />
+      <Model>Models\Cubes\Large\JumpDrive.mwm</Model>
+      <Components>
+        <Component Subtype="SteelPlate" Count="60" />
+        <Component Subtype="LargeTube" Count="40" />
+        <Component Subtype="GravityGenerator" Count="20" />
+        <Component Subtype="Detector" Count="20" />
+        <Component Subtype="SmallTube" Count="60" />
+        <Component Subtype="Computer" Count="8" />
+        <Component Subtype="Construction" Count="40" />
+        <Component Subtype="SteelPlate" Count="20" />
+      </Components>
+      <CriticalComponent Subtype="Computer" Index="0" />
+      <MountPoints>
+        <MountPoint Side="Top" StartX="0" StartY="0" EndX="3" EndY="2" />
+        <MountPoint Side="Back" StartX="0" StartY="0" EndX="3" EndY="3" />
+        <MountPoint Side="Left" StartX="0" StartY="0" EndX="2" EndY="3" />
+        <MountPoint Side="Front" StartX="0" StartY="0" EndX="3" EndY="3" />
+        <MountPoint Side="Right" StartX="0" StartY="0" EndX="2" EndY="3" />
+        <MountPoint Side="Bottom" StartX="0" StartY="0" EndX="3" EndY="2" />
+      </MountPoints>
+      <BuildProgressModels>
+        <Model BuildPercentUpperBound="0.33" File="Models\Cubes\Large\JumpDriveConstruction_1.mwm" />
+        <Model BuildPercentUpperBound="0.66" File="Models\Cubes\Large\JumpDriveConstruction_2.mwm" />
+        <Model BuildPercentUpperBound="1.00" File="Models\Cubes\Large\JumpDriveConstruction_3.mwm" />
+      </BuildProgressModels>
+      <BlockPairName>JumpDrive</BlockPairName>
+      <MirroringY>Z</MirroringY>
+      <MirroringZ>Y</MirroringZ>
+      <EdgeType>Light</EdgeType>
+      <BuildTimeSeconds>45</BuildTimeSeconds>
+      <DamageEffectId>213</DamageEffectId>
+      <DamagedSound>ParticleWeapExpl</DamagedSound>
+      <RequiredPowerInput>32</RequiredPowerInput>
+      <PowerNeededForJump>3</PowerNeededForJump>
+      <MaxJumpDistance>2000000</MaxJumpDistance>
+      <MaxJumpMass>1250000</MaxJumpMass>
+  </Definition>
     <!-- Region Cockpits -->
     <Definition xsi:type="MyObjectBuilder_CockpitDefinition">
       <Id>
@@ -15333,6 +15414,7 @@
       <EnableFirstPerson>false</EnableFirstPerson>
       <EnableShipControl>true</EnableShipControl>
       <DamageEffectId>214</DamageEffectId>
+      <DamagedSound>ParticleElectrical</DamagedSound>
     </Definition>
     <Definition xsi:type="MyObjectBuilder_CockpitDefinition">
       <Id>
@@ -15376,6 +15458,7 @@
       <EnableFirstPerson>true</EnableFirstPerson>
       <EnableShipControl>true</EnableShipControl>
       <DamageEffectId>214</DamageEffectId>
+      <DamagedSound>ParticleElectrical</DamagedSound>
       <OxygenCapacity>60</OxygenCapacity>
       <IsPressurized>true</IsPressurized>
     </Definition>
@@ -15424,6 +15507,7 @@
       <EnableFirstPerson>true</EnableFirstPerson>
       <EnableShipControl>true</EnableShipControl>
       <DamageEffectId>214</DamageEffectId>
+      <DamagedSound>ParticleElectrical</DamagedSound>
       <OxygenCapacity>60</OxygenCapacity>
       <IsPressurized>true</IsPressurized>
     </Definition>
@@ -15479,6 +15563,7 @@
       <EnableFirstPerson>true</EnableFirstPerson>
       <EnableShipControl>true</EnableShipControl>
       <DamageEffectId>214</DamageEffectId>
+      <DamagedSound>ParticleElectrical</DamagedSound>
       <OxygenCapacity>60</OxygenCapacity>
       <IsPressurized>true</IsPressurized>
     </Definition>
@@ -15523,6 +15608,7 @@
       <EnableFirstPerson>true</EnableFirstPerson>
       <EnableShipControl>true</EnableShipControl>
       <DamageEffectId>214</DamageEffectId>
+      <DamagedSound>ParticleElectrical</DamagedSound>
     </Definition>
     <!-- End region Cockpits -->
     <Definition xsi:type="MyObjectBuilder_CockpitDefinition">
@@ -15562,6 +15648,7 @@
       <EnableFirstPerson>true</EnableFirstPerson>
       <EnableShipControl>false</EnableShipControl>
       <DamageEffectId>214</DamageEffectId>
+      <DamagedSound>ParticleElectrical</DamagedSound>
     </Definition>
     <Definition xsi:type="MyObjectBuilder_CockpitDefinition">
       <Id>
@@ -15599,6 +15686,7 @@
       <EnableFirstPerson>true</EnableFirstPerson>
       <EnableShipControl>false</EnableShipControl>
       <DamageEffectId>214</DamageEffectId>
+      <DamagedSound>ParticleElectrical</DamagedSound>
     </Definition>
     <Definition xsi:type="MyObjectBuilder_CryoChamberDefinition">
       <Id>
@@ -15646,8 +15734,11 @@
       <IsPressurized>true</IsPressurized>
       <OxygenCapacity>1</OxygenCapacity>
       <IdlePowerConsumption>0.00003</IdlePowerConsumption>
+      <OutsideSound>ArcBlockCryoOut</OutsideSound>
+      <InsideSound>ArcBlockCryoIn</InsideSound>
       <EdgeType>Light</EdgeType>
       <DamageEffectId>214</DamageEffectId>
+      <DamagedSound>ParticleElectrical</DamagedSound>
     </Definition>
     <Definition xsi:type="MyObjectBuilder_LandingGearDefinition">
       <Id>
@@ -15684,6 +15775,7 @@
       <BuildTimeSeconds>15</BuildTimeSeconds>
       <EdgeType>Light</EdgeType>
       <DamageEffectId>212</DamageEffectId>
+      <DamagedSound>ParticleHeavyMech</DamagedSound>
     </Definition>
     <Definition xsi:type="MyObjectBuilder_ReflectorBlockDefinition">
       <Id>
@@ -15725,6 +15817,7 @@
       <LightGlare>GlareSsLight</LightGlare>
       <ReflectorTexture>Textures\Lights\reflector_small.dds</ReflectorTexture>
       <DamageEffectId>214</DamageEffectId>
+      <DamagedSound>ParticleElectrical</DamagedSound>
     </Definition>
     <Definition xsi:type="MyObjectBuilder_WeaponBlockDefinition">
       <Id>
@@ -15765,6 +15858,7 @@
       <WeaponDefinitionId Subtype="SmallMissileLauncher" />
       <InventoryMaxVolume>0.24</InventoryMaxVolume>
       <DamageEffectId>213</DamageEffectId>
+      <DamagedSound>ParticleWeapExpl</DamagedSound>
     </Definition>
     <Definition xsi:type="MyObjectBuilder_WeaponBlockDefinition">
       <Id>
@@ -15807,6 +15901,7 @@
       <WeaponDefinitionId Subtype="SmallMissileLauncher" />
       <InventoryMaxVolume>1.14</InventoryMaxVolume>
       <DamageEffectId>213</DamageEffectId>
+      <DamagedSound>ParticleWeapExpl</DamagedSound>
     </Definition>
     <!--
     <Definition xsi:type="MyObjectBuilder_WeaponBlockDefinition">
@@ -15849,6 +15944,7 @@
       <WeaponDefinitionId Subtype="SmallMissileLauncher" />
       <InventoryMaxVolume>0.064</InventoryMaxVolume>
       <DamageEffectId>213</DamageEffectId>
+      <DamagedSound>ParticleWeapExpl</DamagedSound>
     </Definition>
     -->
     <Definition xsi:type="MyObjectBuilder_WeaponBlockDefinition">
@@ -15893,6 +15989,7 @@
       <InventoryMaxVolume>0.24</InventoryMaxVolume>
       <WeaponDefinitionId Subtype="SmallMissileLauncher" />
       <DamageEffectId>213</DamageEffectId>
+      <DamagedSound>ParticleWeapExpl</DamagedSound>
     </Definition>
     <Definition xsi:type="MyObjectBuilder_WeaponBlockDefinition">
       <Id>
@@ -15935,6 +16032,7 @@
       <WeaponDefinitionId Subtype="GatlingGun" />
       <InventoryMaxVolume>0.064</InventoryMaxVolume>
       <DamageEffectId>213</DamageEffectId>
+      <DamagedSound>ParticleWeapExpl</DamagedSound>
     </Definition>
     <Definition xsi:type="MyObjectBuilder_ShipDrillDefinition">
       <Id>
@@ -15977,6 +16075,7 @@
       <SensorOffset>0.8</SensorOffset>
       <DeformationRatio>0.7</DeformationRatio>
       <DamageEffectId>212</DamageEffectId>
+      <DamagedSound>ParticleHeavyMech</DamagedSound>
     </Definition>
     <Definition xsi:type="MyObjectBuilder_ShipDrillDefinition">
       <Id>
@@ -16024,6 +16123,7 @@
       <SensorOffset>2.8</SensorOffset>
       <DeformationRatio>0.7</DeformationRatio>
       <DamageEffectId>212</DamageEffectId>
+      <DamagedSound>ParticleHeavyMech</DamagedSound>
     </Definition>
     <Definition xsi:type="MyObjectBuilder_OreDetectorDefinition">
       <Id>
@@ -16063,6 +16163,7 @@
       <BuildTimeSeconds>20</BuildTimeSeconds>
       <MaximumRange>50</MaximumRange>
       <DamageEffectId>214</DamageEffectId>
+      <DamagedSound>ParticleElectrical</DamagedSound>
     </Definition>
     <Definition xsi:type="MyObjectBuilder_SensorBlockDefinition">
       <Id>
@@ -16098,6 +16199,7 @@
       <EdgeType>Light</EdgeType>
       <BuildTimeSeconds>20</BuildTimeSeconds>
       <DamageEffectId>214</DamageEffectId>
+      <DamagedSound>ParticleElectrical</DamagedSound>
       <MaxRange>50</MaxRange>
     </Definition>
     <Definition xsi:type="MyObjectBuilder_SensorBlockDefinition">
@@ -16134,6 +16236,7 @@
       <EdgeType>Light</EdgeType>
       <BuildTimeSeconds>20</BuildTimeSeconds>
       <DamageEffectId>214</DamageEffectId>
+      <DamagedSound>ParticleElectrical</DamagedSound>
       <MaxRange>50</MaxRange>
     </Definition>
     <Definition>
@@ -16167,6 +16270,7 @@
       <MirroringY>Z</MirroringY>
       <MirroringZ>Y</MirroringZ>
       <DamageEffectId>214</DamageEffectId>
+      <DamagedSound>ParticleElectrical</DamagedSound>
     </Definition>
     <Definition>
       <Id>
@@ -16200,6 +16304,7 @@
       <MirroringY>Z</MirroringY>
       <MirroringZ>Y</MirroringZ>
       <DamageEffectId>214</DamageEffectId>
+      <DamagedSound>ParticleElectrical</DamagedSound>
     </Definition>
     <Definition xsi:type="MyObjectBuilder_TextPanelDefinition">
       <Id>
@@ -16234,6 +16339,7 @@
       <EdgeType>Light</EdgeType>
       <BuildTimeSeconds>3</BuildTimeSeconds>
       <DamageEffectId>214</DamageEffectId>
+      <DamagedSound>ParticleElectrical</DamagedSound>
       <RequiredPowerInput>0.00002</RequiredPowerInput>
     </Definition>
     <Definition xsi:type="MyObjectBuilder_TextPanelDefinition">
@@ -16362,6 +16468,7 @@
         <Class>OxygenBottles</Class>
       </BlueprintClasses>
       <DamageEffectId>213</DamageEffectId>
+      <DamagedSound>ParticleWeapExpl</DamagedSound>
     </Definition>
     <Definition xsi:type="MyObjectBuilder_OxygenGeneratorDefinition">
       <Id>
@@ -16416,6 +16523,7 @@
         <Class>OxygenBottles</Class>
       </BlueprintClasses>
       <DamageEffectId>213</DamageEffectId>
+      <DamagedSound>ParticleWeapExpl</DamagedSound>
       <BlockPairName>OxygenGenerator</BlockPairName>
       <GenerateSound>ArcBlockOxyGenProcess</GenerateSound>
       <IdleSound>ArcBlockOxyGenIdle</IdleSound>
@@ -16452,6 +16560,7 @@
       <EdgeType>Light</EdgeType>
       <BuildTimeSeconds>3</BuildTimeSeconds>
       <DamageEffectId>214</DamageEffectId>
+      <DamagedSound>ParticleElectrical</DamagedSound>
       <RequiredPowerInput>0.00006</RequiredPowerInput>
     </Definition>
     <Definition xsi:type="MyObjectBuilder_TextPanelDefinition">
@@ -16562,6 +16671,7 @@
       <EdgeType>Light</EdgeType>
       <BuildTimeSeconds>20</BuildTimeSeconds>
       <DamageEffectId>214</DamageEffectId>
+      <DamagedSound>ParticleElectrical</DamagedSound>
     </Definition>
     <Definition xsi:type="MyObjectBuilder_RemoteControlDefinition">
       <Id>
@@ -16606,6 +16716,7 @@
       <EnableShipControl>true</EnableShipControl>
       <Public>true</Public>
       <DamageEffectId>214</DamageEffectId>
+      <DamagedSound>ParticleElectrical</DamagedSound>
     </Definition>
     <Definition xsi:type="MyObjectBuilder_RemoteControlDefinition">
       <Id>
@@ -16649,6 +16760,7 @@
       <EnableShipControl>true</EnableShipControl>
       <Public>true</Public>
       <DamageEffectId>214</DamageEffectId>
+      <DamagedSound>ParticleElectrical</DamagedSound>
     </Definition>
     <Definition xsi:type="MyObjectBuilder_AirVentDefinition">
       <Id>
@@ -16691,6 +16803,7 @@
       <StandbyPowerConsumption>0.001</StandbyPowerConsumption>
       <OperationalPowerConsumption>0.33</OperationalPowerConsumption>
       <DamageEffectId>213</DamageEffectId>
+      <DamagedSound>ParticleWeapExpl</DamagedSound>
       <PressurizeSound>ArcBlockAirVentExhale</PressurizeSound>
       <DepressurizeSound>ArcBlockAirVentDepressurize</DepressurizeSound>
       <IdleSound>ArcBlockAirVentIdle</IdleSound>
@@ -16754,6 +16867,7 @@
       </BlueprintClasses>
       <BuildTimeSeconds>45</BuildTimeSeconds>
       <DamageEffectId>213</DamageEffectId>
+      <DamagedSound>ParticleWeapExpl</DamagedSound>
     </Definition>
     <Definition xsi:type="MyObjectBuilder_UpgradeModuleDefinition">
       <Id>
@@ -16801,6 +16915,7 @@
         </MyUpgradeModuleInfo>
       </Upgrades>
       <DamageEffectId>214</DamageEffectId>
+      <DamagedSound>ParticleElectrical</DamagedSound>
     </Definition>
     <Definition xsi:type="MyObjectBuilder_UpgradeModuleDefinition">
       <Id>
@@ -16848,6 +16963,7 @@
         </MyUpgradeModuleInfo>
       </Upgrades>
       <DamageEffectId>214</DamageEffectId>
+      <DamagedSound>ParticleElectrical</DamagedSound>
     </Definition>
     <Definition xsi:type="MyObjectBuilder_UpgradeModuleDefinition">
       <Id>
@@ -16895,6 +17011,7 @@
         </MyUpgradeModuleInfo>
       </Upgrades>
       <DamageEffectId>214</DamageEffectId>
+      <DamagedSound>ParticleElectrical</DamagedSound>
     </Definition>
     <!-- Region Cargo Container-->
     <Definition xsi:type="MyObjectBuilder_CargoContainerDefinition">
@@ -17161,6 +17278,7 @@
       <FlameGlareQuerySize>1</FlameGlareQuerySize>
       <PrimarySound>SmShipSmJet</PrimarySound>
       <DamageEffectId>213</DamageEffectId>
+      <DamagedSound>ParticleWeapExpl</DamagedSound>
     </Definition>
     <Definition xsi:type="MyObjectBuilder_ThrustDefinition">
       <Id>
@@ -17226,6 +17344,7 @@
       <FlameGlareQuerySize>1</FlameGlareQuerySize>
       <PrimarySound>SmShipLrgJet</PrimarySound>
       <DamageEffectId>213</DamageEffectId>
+      <DamagedSound>ParticleWeapExpl</DamagedSound>
     </Definition>
     <Definition xsi:type="MyObjectBuilder_ThrustDefinition">
       <Id>
@@ -17290,6 +17409,7 @@
       <FlameGlareQuerySize>2</FlameGlareQuerySize>
       <PrimarySound>LrgShipSmJet</PrimarySound>
       <DamageEffectId>213</DamageEffectId>
+      <DamagedSound>ParticleWeapExpl</DamagedSound>
     </Definition>
     <Definition xsi:type="MyObjectBuilder_ThrustDefinition">
       <Id>
@@ -17355,6 +17475,7 @@
       <FlameGlareQuerySize>3</FlameGlareQuerySize>
       <PrimarySound>LrgShipLrgJet</PrimarySound>
       <DamageEffectId>213</DamageEffectId>
+      <DamagedSound>ParticleWeapExpl</DamagedSound>
     </Definition>
     <!-- End Region Thrust-->
     <Definition xsi:type="MyObjectBuilder_CameraBlockDefinition">
@@ -17393,6 +17514,7 @@
       <MaxFov>1.04719755</MaxFov>
       <Public>true</Public>
       <DamageEffectId>214</DamageEffectId>
+      <DamagedSound>ParticleElectrical</DamagedSound>
     </Definition>
     <Definition xsi:type="MyObjectBuilder_CameraBlockDefinition">
       <Id>
@@ -17430,6 +17552,7 @@
       <MaxFov>1.04719755</MaxFov>
       <Public>true</Public>
       <DamageEffectId>214</DamageEffectId>
+      <DamagedSound>ParticleElectrical</DamagedSound>
     </Definition>
     <Definition xsi:type="MyObjectBuilder_GyroDefinition">
       <Id>
@@ -17468,6 +17591,7 @@
       <ForceMagnitude>3.36E+07</ForceMagnitude>
       <RequiredPowerInput>0.00003</RequiredPowerInput>
       <DamageEffectId>212</DamageEffectId>
+      <DamagedSound>ParticleHeavyMech</DamagedSound>
     </Definition>
     <Definition xsi:type="MyObjectBuilder_GyroDefinition">
       <Id>
@@ -17505,6 +17629,7 @@
       <ForceMagnitude>448000</ForceMagnitude>
       <RequiredPowerInput>0.0000006</RequiredPowerInput>
       <DamageEffectId>212</DamageEffectId>
+      <DamagedSound>ParticleHeavyMech</DamagedSound>
     </Definition>
     <!-- Region -->
     <Definition xsi:type="MyObjectBuilder_ReactorDefinition">
@@ -17558,6 +17683,7 @@
       </FuelId>
       <PrimarySound>ShipSmNuclearSm</PrimarySound>
       <DamageEffectId>210</DamageEffectId>
+      <DamagedSound>ParticleReactor</DamagedSound>
     </Definition>
     <Definition xsi:type="MyObjectBuilder_ReactorDefinition">
       <Id>
@@ -17615,6 +17741,7 @@
       </FuelId>
       <PrimarySound>ShipSmNuclearLrg</PrimarySound>
       <DamageEffectId>210</DamageEffectId>
+      <DamagedSound>ParticleReactor</DamagedSound>
     </Definition>
     <Definition xsi:type="MyObjectBuilder_ReactorDefinition">
       <Id>
@@ -17669,6 +17796,7 @@
       </FuelId>
       <PrimarySound>ShipLrgNuclearSm</PrimarySound>
       <DamageEffectId>210</DamageEffectId>
+      <DamagedSound>ParticleReactor</DamagedSound>
     </Definition>
     <Definition xsi:type="MyObjectBuilder_ReactorDefinition">
       <Id>
@@ -17725,6 +17853,7 @@
       </FuelId>
       <PrimarySound>ShipLrgNuclearLrg</PrimarySound>
       <DamageEffectId>210</DamageEffectId>
+      <DamagedSound>ParticleReactor</DamagedSound>
     </Definition>
     <!-- End Region Reactor-->
     <!-- Region Piston-->
@@ -17771,6 +17900,7 @@
       <TopPart>PistonTop</TopPart>
       <Public>false</Public>
       <DamageEffectId>212</DamageEffectId>
+      <DamagedSound>ParticleHeavyMech</DamagedSound>
     </Definition>
     <Definition xsi:type="MyObjectBuilder_ExtendedPistonBaseDefinition">
       <Id>
@@ -17815,6 +17945,7 @@
       <RequiredPowerInput>0.002</RequiredPowerInput>
       <TopPart>PistonTop</TopPart>
       <DamageEffectId>212</DamageEffectId>
+      <DamagedSound>ParticleHeavyMech</DamagedSound>
     </Definition>
     <Definition>
       <Id>
@@ -17896,6 +18027,7 @@
       <Maximum>2</Maximum>
       <Public>false</Public>
       <DamageEffectId>212</DamageEffectId>
+      <DamagedSound>ParticleHeavyMech</DamagedSound>
     </Definition>
     <Definition xsi:type="MyObjectBuilder_ExtendedPistonBaseDefinition">
       <Id>
@@ -17940,6 +18072,7 @@
       <TopPart>PistonTop</TopPart>
       <Maximum>2</Maximum>
       <DamageEffectId>212</DamageEffectId>
+      <DamagedSound>ParticleHeavyMech</DamagedSound>
     </Definition>
     <Definition>
       <Id>
@@ -18021,6 +18154,7 @@
       <RotorDisplacementMax>0.2</RotorDisplacementMax>
       <RotorDisplacementInModel>0.0</RotorDisplacementInModel>
       <DamageEffectId>212</DamageEffectId>
+      <DamagedSound>ParticleHeavyMech</DamagedSound>
     </Definition>
     <Definition xsi:type="MyObjectBuilder_MotorSuspensionDefinition">
       <Id>
@@ -18065,10 +18199,15 @@
       <RequiredPowerInput>0.002</RequiredPowerInput>
       <MaxForceMagnitude>3.36E+07</MaxForceMagnitude>
       <RotorPart>RealWheel</RotorPart>
-      <SuspensionLimit>0.7</SuspensionLimit>
+      <!-- The max angle (radians) that steer angle slider can go to. -->
+      <MaxSteer>0.8</MaxSteer>
+      <!-- The max value that steering speed and steer return speed sliders can go. -->
+      <SteeringSpeed>0.1</SteeringSpeed>
+      <!-- Min/Max height sets the physical boundaries of the suspension as well as the height slider limits. -->
       <MinHeight>-1.5</MinHeight>
       <MaxHeight>1.3</MaxHeight>
       <DamageEffectId>212</DamageEffectId>
+      <DamagedSound>ParticleHeavyMech</DamagedSound>
     </Definition>
     <Definition xsi:type="MyObjectBuilder_MotorSuspensionDefinition">
       <Id>
@@ -18111,10 +18250,10 @@
       <RequiredPowerInput>0.002</RequiredPowerInput>
       <MaxForceMagnitude>3.36E+07</MaxForceMagnitude>
       <RotorPart>RealWheel5x5</RotorPart>
-      <SuspensionLimit>2.5</SuspensionLimit>
       <MinHeight>-1.5</MinHeight>
       <MaxHeight>1.3</MaxHeight>
       <DamageEffectId>212</DamageEffectId>
+      <DamagedSound>ParticleHeavyMech</DamagedSound>
     </Definition>
     <Definition xsi:type="MyObjectBuilder_MotorSuspensionDefinition">
       <Id>
@@ -18159,11 +18298,11 @@
       <RequiredPowerInput>0.002</RequiredPowerInput>
       <MaxForceMagnitude>3.36E+07</MaxForceMagnitude>
       <RotorPart>RealWheel1x1</RotorPart>
-      <SuspensionLimit>0.6</SuspensionLimit>
       <MinHeight>-1.5</MinHeight>
       <MaxHeight>1.3</MaxHeight>
       <PropulsionForce>700</PropulsionForce>
       <DamageEffectId>212</DamageEffectId>
+      <DamagedSound>ParticleHeavyMech</DamagedSound>
     </Definition>
     <Definition xsi:type="MyObjectBuilder_MotorSuspensionDefinition">
       <Id>
@@ -18207,10 +18346,10 @@
       <MaxForceMagnitude>3.36E+07</MaxForceMagnitude>
       <RotorPart>RealWheel</RotorPart>
       <PropulsionForce>200</PropulsionForce>
-      <SuspensionLimit>0.25</SuspensionLimit>
       <MinHeight>-0.32</MinHeight>
       <MaxHeight>0.26</MaxHeight>
       <DamageEffectId>212</DamageEffectId>
+      <DamagedSound>ParticleHeavyMech</DamagedSound>
     </Definition>
     <Definition xsi:type="MyObjectBuilder_MotorSuspensionDefinition">
       <Id>
@@ -18252,10 +18391,10 @@
       <MaxForceMagnitude>3.36E+07</MaxForceMagnitude>
       <RotorPart>RealWheel5x5</RotorPart>
       <PropulsionForce>200</PropulsionForce>
-      <SuspensionLimit>0.5</SuspensionLimit>
       <MinHeight>-0.50</MinHeight>
       <MaxHeight>0.35</MaxHeight>
       <DamageEffectId>212</DamageEffectId>
+      <DamagedSound>ParticleHeavyMech</DamagedSound>
     </Definition>
     <Definition xsi:type="MyObjectBuilder_MotorSuspensionDefinition">
       <Id>
@@ -18302,6 +18441,7 @@
       <MinHeight>-0.32</MinHeight>
       <MaxHeight>0.26</MaxHeight>
       <DamageEffectId>212</DamageEffectId>
+      <DamagedSound>ParticleHeavyMech</DamagedSound>
     </Definition>
     <Definition>
       <Id>
@@ -18381,6 +18521,7 @@
       <RotorDisplacementMax>0.11</RotorDisplacementMax>
       <RotorDisplacementInModel>0.045</RotorDisplacementInModel>
       <DamageEffectId>212</DamageEffectId>
+      <DamagedSound>ParticleHeavyMech</DamagedSound>
     </Definition>
     <Definition>
       <Id>
@@ -18460,6 +18601,7 @@
       <RotorDisplacementMax>0.2</RotorDisplacementMax>
       <RotorDisplacementInModel>0.0</RotorDisplacementInModel>
       <DamageEffectId>212</DamageEffectId>
+      <DamagedSound>ParticleHeavyMech</DamagedSound>
     </Definition>
     <Definition>
       <Id>
@@ -18536,6 +18678,7 @@
       <RotorDisplacementMax>0.11</RotorDisplacementMax>
       <RotorDisplacementInModel>0.11</RotorDisplacementInModel>
       <DamageEffectId>212</DamageEffectId>
+      <DamagedSound>ParticleHeavyMech</DamagedSound>
     </Definition>
     <Definition>
       <Id>
@@ -18647,6 +18790,7 @@
         </Vector4>
       </ButtonColors>
       <DamageEffectId>214</DamageEffectId>
+      <DamagedSound>ParticleElectrical</DamagedSound>
     </Definition>
     <Definition xsi:type="MyObjectBuilder_ButtonPanelDefinition">
       <Id>
@@ -18700,6 +18844,7 @@
         <string>Textures\GUI\Icons\buttons\IconSquareHighlight.dds</string>
       </ButtonSymbols>
       <DamageEffectId>214</DamageEffectId>
+      <DamagedSound>ParticleElectrical</DamagedSound>
     </Definition>
     <!--End Region Buttons-->
     <Definition>
@@ -18738,6 +18883,7 @@
       <EdgeType>Light</EdgeType>
       <BuildTimeSeconds>10</BuildTimeSeconds>
       <DamageEffectId>214</DamageEffectId>
+      <DamagedSound>ParticleElectrical</DamagedSound>
     </Definition>
     <Definition>
       <Id>
@@ -18849,6 +18995,7 @@
       <TwoSidedPanel>true</TwoSidedPanel>
       <PanelOffset>1.0</PanelOffset>
       <DamageEffectId>214</DamageEffectId>
+      <DamagedSound>ParticleElectrical</DamagedSound>
     </Definition>
     <Definition xsi:type="MyObjectBuilder_SolarPanelDefinition">
       <Id>
@@ -18900,6 +19047,7 @@
       <MirroringX>Z</MirroringX>
       <MirroringZ>X</MirroringZ>
       <DamageEffectId>214</DamageEffectId>
+      <DamagedSound>ParticleElectrical</DamagedSound>
     </Definition>
     <Definition xsi:type="MyObjectBuilder_OxygenFarmDefinition">
       <Id>
@@ -18950,6 +19098,7 @@
       <MaxOxygenOutput>0.03</MaxOxygenOutput>
       <OperationalPowerConsumption>0.001</OperationalPowerConsumption>
       <DamageEffectId>213</DamageEffectId>
+      <DamagedSound>ParticleWeapExpl</DamagedSound>
     </Definition>
     <!-- Region Window-->
     <Definition>
@@ -19642,6 +19791,7 @@
       <EdgeType>Light</EdgeType>
       <BuildTimeSeconds>10</BuildTimeSeconds>
       <DamageEffectId>212</DamageEffectId>
+      <DamagedSound>ParticleHeavyMech</DamagedSound>
     </Definition>
     <Definition>
       <Id>
@@ -19675,6 +19825,7 @@
       <EdgeType>Light</EdgeType>
       <BuildTimeSeconds>24</BuildTimeSeconds>
       <DamageEffectId>212</DamageEffectId>
+      <DamagedSound>ParticleHeavyMech</DamagedSound>
     </Definition>
     <Definition xsi:type="MyObjectBuilder_CargoContainerDefinition">
       <Id>
@@ -19721,6 +19872,7 @@
       <MirroringY>Z</MirroringY>
       <MirroringZ>Y</MirroringZ>
       <DamageEffectId>212</DamageEffectId>
+      <DamagedSound>ParticleHeavyMech</DamagedSound>
     </Definition>
     <Definition xsi:type="MyObjectBuilder_CargoContainerDefinition">
       <Id>
@@ -19766,6 +19918,7 @@
       <MirroringY>Z</MirroringY>
       <MirroringZ>Y</MirroringZ>
       <DamageEffectId>212</DamageEffectId>
+      <DamagedSound>ParticleHeavyMech</DamagedSound>
     </Definition>
     <Definition>
       <Id>
@@ -19806,6 +19959,7 @@
       <MirroringY>Z</MirroringY>
       <MirroringZ>Y</MirroringZ>
       <DamageEffectId>212</DamageEffectId>
+      <DamagedSound>ParticleHeavyMech</DamagedSound>
     </Definition>
     <Definition>
       <Id>
@@ -19845,6 +19999,7 @@
       <MirroringY>Z</MirroringY>
       <MirroringZ>Y</MirroringZ>
       <DamageEffectId>212</DamageEffectId>
+      <DamagedSound>ParticleHeavyMech</DamagedSound>
     </Definition>
     <Definition>
       <Id>
@@ -19886,6 +20041,7 @@
       </MountPoints>
       <MirroringZ>X</MirroringZ>
       <DamageEffectId>212</DamageEffectId>
+      <DamagedSound>ParticleHeavyMech</DamagedSound>
     </Definition>
     <Definition>
       <Id>
@@ -20187,6 +20343,7 @@
       <Public>true</Public>
       <BuildTimeSeconds>25</BuildTimeSeconds>
       <DamageEffectId>212</DamageEffectId>
+      <DamagedSound>ParticleHeavyMech</DamagedSound>
     </Definition>
     <Definition xsi:type="MyObjectBuilder_ConveyorSorterDefinition">
       <Id>
@@ -20229,6 +20386,7 @@
       <EdgeType>Light</EdgeType>
       <BuildTimeSeconds>24</BuildTimeSeconds>
       <DamageEffectId>212</DamageEffectId>
+      <DamagedSound>ParticleHeavyMech</DamagedSound>
       <PowerInput>0.00025</PowerInput>
       <InventorySize>
         <X>1</X>
@@ -20268,6 +20426,7 @@
       <EdgeType>Light</EdgeType>
       <BuildTimeSeconds>24</BuildTimeSeconds>
       <DamageEffectId>212</DamageEffectId>
+      <DamagedSound>ParticleHeavyMech</DamagedSound>
       <PowerInput>0.0001</PowerInput>
       <InventorySize>
         <X>0.5</X>
@@ -20307,6 +20466,7 @@
       <EdgeType>Light</EdgeType>
       <BuildTimeSeconds>24</BuildTimeSeconds>
       <DamageEffectId>212</DamageEffectId>
+      <DamagedSound>ParticleHeavyMech</DamagedSound>
       <PowerInput>0.0001</PowerInput>
       <InventorySize>
         <X>0.4</X>
@@ -20355,6 +20515,7 @@
       <VirtualMass>50000</VirtualMass>
       <RequiredPowerInput>0.6</RequiredPowerInput>
       <DamageEffectId>212</DamageEffectId>
+      <DamagedSound>ParticleHeavyMech</DamagedSound>
     </Definition>
     <Definition xsi:type="MyObjectBuilder_VirtualMassDefinition">
       <Id>
@@ -20387,6 +20548,7 @@
       <VirtualMass>2000</VirtualMass>
       <RequiredPowerInput>0.025</RequiredPowerInput>
       <DamageEffectId>212</DamageEffectId>
+      <DamagedSound>ParticleHeavyMech</DamagedSound>
     </Definition>
     <Definition xsi:type="MyObjectBuilder_SpaceBallDefinition">
       <Id>
@@ -20487,6 +20649,7 @@
         <Z>2.5</Z>
       </InventorySize>
       <DamageEffectId>212</DamageEffectId>
+      <DamagedSound>ParticleHeavyMech</DamagedSound>
     </Definition>
     <Definition>
       <Id>
@@ -20530,6 +20693,7 @@
         <Z>2.5</Z>
       </InventorySize>
       <DamageEffectId>212</DamageEffectId>
+      <DamagedSound>ParticleHeavyMech</DamagedSound>
     </Definition>
     <Definition>
       <Id>
@@ -20573,6 +20737,7 @@
         <Z>2.5</Z>
       </InventorySize>
       <DamageEffectId>212</DamageEffectId>
+      <DamagedSound>ParticleHeavyMech</DamagedSound>
     </Definition>
     <Definition>
       <Id>
@@ -20617,6 +20782,7 @@
         <Z>2.5</Z>
       </InventorySize>
       <DamageEffectId>212</DamageEffectId>
+      <DamagedSound>ParticleHeavyMech</DamagedSound>
     </Definition>
     <Definition>
       <Id>
@@ -20661,6 +20827,7 @@
         <Z>2.5</Z>
       </InventorySize>
       <DamageEffectId>212</DamageEffectId>
+      <DamagedSound>ParticleHeavyMech</DamagedSound>
     </Definition>
     <Definition>
       <Id>
@@ -20705,6 +20872,7 @@
         <Z>2.5</Z>
       </InventorySize>
       <DamageEffectId>212</DamageEffectId>
+      <DamagedSound>ParticleHeavyMech</DamagedSound>
     </Definition>
     <Definition>
       <Id>
@@ -20749,6 +20917,7 @@
         <Z>2.5</Z>
       </InventorySize>
       <DamageEffectId>212</DamageEffectId>
+      <DamagedSound>ParticleHeavyMech</DamagedSound>
     </Definition>
     <Definition>
       <Id>
@@ -20792,6 +20961,7 @@
         <Z>2.5</Z>
       </InventorySize>
       <DamageEffectId>212</DamageEffectId>
+      <DamagedSound>ParticleHeavyMech</DamagedSound>
     </Definition>
     <Definition>
       <Id>
@@ -20836,6 +21006,7 @@
         <Z>2.5</Z>
       </InventorySize>
       <DamageEffectId>212</DamageEffectId>
+      <DamagedSound>ParticleHeavyMech</DamagedSound>
     </Definition>
     <Definition>
       <Id>
@@ -20879,6 +21050,7 @@
         <Z>2.5</Z>
       </InventorySize>
       <DamageEffectId>212</DamageEffectId>
+      <DamagedSound>ParticleHeavyMech</DamagedSound>
     </Definition>
     <Definition>
       <Id>
@@ -20923,6 +21095,7 @@
         <Z>2.5</Z>
       </InventorySize>
       <DamageEffectId>212</DamageEffectId>
+      <DamagedSound>ParticleHeavyMech</DamagedSound>
     </Definition>
     <Definition>
       <Id>
@@ -20966,6 +21139,7 @@
         <Z>2.5</Z>
       </InventorySize>
       <DamageEffectId>212</DamageEffectId>
+      <DamagedSound>ParticleHeavyMech</DamagedSound>
     </Definition>
     <Definition>
       <Id>
@@ -21010,6 +21184,7 @@
       <Public>true</Public>
       <BuildTimeSeconds>25</BuildTimeSeconds>
       <DamageEffectId>212</DamageEffectId>
+      <DamagedSound>ParticleHeavyMech</DamagedSound>
     </Definition>
     <Definition>
       <Id>
@@ -21056,6 +21231,7 @@
       <Public>true</Public>
       <BuildTimeSeconds>20</BuildTimeSeconds>
       <DamageEffectId>212</DamageEffectId>
+      <DamagedSound>ParticleHeavyMech</DamagedSound>
     </Definition>
     <Definition>
       <Id>
@@ -21100,6 +21276,7 @@
       <Public>true</Public>
       <BuildTimeSeconds>25</BuildTimeSeconds>
       <DamageEffectId>214</DamageEffectId>
+      <DamagedSound>ParticleElectrical</DamagedSound>
     </Definition>
     <Definition>
       <Id>
@@ -21146,6 +21323,7 @@
       <Public>true</Public>
       <BuildTimeSeconds>20</BuildTimeSeconds>
       <DamageEffectId>212</DamageEffectId>
+      <DamagedSound>ParticleHeavyMech</DamagedSound>
     </Definition>
     <Definition xsi:type="MyObjectBuilder_MergeBlockDefinition">
       <Id>
@@ -21190,6 +21368,7 @@
       <Public>true</Public>
       <BuildTimeSeconds>20</BuildTimeSeconds>
       <DamageEffectId>212</DamageEffectId>
+      <DamagedSound>ParticleHeavyMech</DamagedSound>
     </Definition>
     <Definition xsi:type="MyObjectBuilder_MergeBlockDefinition">
       <Id>
@@ -21231,6 +21410,7 @@
       <Public>true</Public>
       <BuildTimeSeconds>12</BuildTimeSeconds>
       <DamageEffectId>212</DamageEffectId>
+      <DamagedSound>ParticleHeavyMech</DamagedSound>
     </Definition>
     <Definition>
       <Id>
@@ -21332,6 +21512,7 @@
         <MountPoint Side="Bottom" StartX="0.0" StartY="0" EndX="1.0" EndY="1.0" />
       </MountPoints>
       <DamageEffectId>214</DamageEffectId>
+      <DamagedSound>ParticleElectrical</DamagedSound>
     </Definition>
     <Definition>
       <Id>
@@ -21644,9 +21825,14 @@
       <BuildTimeSeconds>50</BuildTimeSeconds>
       <MirroringY>Z</MirroringY>
       <DamageEffectId>214</DamageEffectId>
+      <DamagedSound>ParticleElectrical</DamagedSound>
       <PowerInputIdle>0.186</PowerInputIdle>
       <PowerInputTurning>0.001</PowerInputTurning>
       <PowerInputLasing>0.576</PowerInputLasing>
+      <MinElevationDegrees>-180</MinElevationDegrees> 
+      <MaxElevationDegrees>180</MaxElevationDegrees>
+      <MinAzimuthDegrees>-180</MinAzimuthDegrees>
+      <MaxAzimuthDegrees>180</MaxAzimuthDegrees>
       <RotationRate>0.01</RotationRate>
       <MaxRange>40000</MaxRange>
       <RequireLineOfSight>true</RequireLineOfSight>
@@ -21691,9 +21877,14 @@
       <EdgeType>Light</EdgeType>
       <BuildTimeSeconds>20</BuildTimeSeconds>
       <DamageEffectId>214</DamageEffectId>
+      <DamagedSound>ParticleElectrical</DamagedSound>
       <PowerInputIdle>0.060</PowerInputIdle>
       <PowerInputTurning>0.001</PowerInputTurning>
       <PowerInputLasing>0.18</PowerInputLasing>
+      <MinElevationDegrees>-180</MinElevationDegrees> 
+      <MaxElevationDegrees>180</MaxElevationDegrees>
+      <MinAzimuthDegrees>-180</MinAzimuthDegrees>
+      <MaxAzimuthDegrees>180</MaxAzimuthDegrees>
       <RotationRate>0.01</RotationRate>
       <MaxRange>20000</MaxRange>
       <RequireLineOfSight>true</RequireLineOfSight>
@@ -21741,6 +21932,7 @@
       <EdgeType>Light</EdgeType>
       <BuildTimeSeconds>24</BuildTimeSeconds>
       <DamageEffectId>212</DamageEffectId>
+      <DamagedSound>ParticleHeavyMech</DamagedSound>
       <PowerConsumptionIdle>0.00001</PowerConsumptionIdle>
       <PowerConsumptionMoving>0.001</PowerConsumptionMoving>
       <OpeningSpeed>0.1</OpeningSpeed>
@@ -22846,6 +23038,13 @@
       <Name>EnergyModule</Name>
       <Position>
         <X>7</X>
+        <Y>17</Y>
+      </Position>
+    </BlockPosition>
+    <BlockPosition>
+      <Name>JumpDrive</Name>
+      <Position>
+        <X>8</X>
         <Y>17</Y>
       </Position>
     </BlockPosition>

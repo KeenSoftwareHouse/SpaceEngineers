@@ -4,7 +4,6 @@ using ParallelTasks;
 using Sandbox.Common.ObjectBuilders;
 using Sandbox.Common.ObjectBuilders.Definitions;
 using Sandbox.Common.ObjectBuilders.Gui;
-using Sandbox.Common.ObjectBuilders.Serializer;
 using Sandbox.Definitions;
 using Sandbox.Engine.Networking;
 using Sandbox.Game.Entities;
@@ -30,6 +29,7 @@ using VRageMath;
 using VRage.Library.Utils;
 using VRage.FileSystem;
 using Sandbox.Engine.Utils;
+using VRage.ObjectBuilders;
 #endregion
 
 
@@ -226,7 +226,8 @@ namespace Sandbox.Game.Gui
                 Position = searchPosition + new Vector2(0.077f, 0f),
                 Size = new Vector2(0.045f, 0.05666667f),
                 OriginAlign = MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_CENTER,
-                VisualStyle = MyGuiControlButtonStyleEnum.Close
+                VisualStyle = MyGuiControlButtonStyleEnum.Close,
+				ActivateOnMouseRelease = true,
             };
             m_searchClear.ButtonClicked += OnSearchClear;
 
@@ -1070,7 +1071,7 @@ namespace Sandbox.Game.Gui
             prefab.DisplayName = MySteam.UserName;
             prefab.OwnerSteamId = MySteam.UserId;
             if (MyFakes.ENABLE_BATTLE_SYSTEM)
-                prefab.BattlePoints = MyBattleHelper.GetBattlePoints(prefab.CubeGrids);
+                prefab.Points = MyBattleHelper.GetBattlePoints(prefab.CubeGrids);
             prefab.CubeGrids[0].DisplayName = name;
 
             var definitions = MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_Definitions>();
@@ -1141,7 +1142,7 @@ namespace Sandbox.Game.Gui
                             oldBlueprint.ShipBlueprints[0].CubeGrids = MyCubeBuilder.Static.Clipboard.CopiedGrids.ToArray();
 
                             if (MyFakes.ENABLE_BATTLE_SYSTEM)
-                                oldBlueprint.ShipBlueprints[0].BattlePoints = MyBattleHelper.GetBattlePoints(oldBlueprint.ShipBlueprints[0].CubeGrids);
+                                oldBlueprint.ShipBlueprints[0].Points = MyBattleHelper.GetBattlePoints(oldBlueprint.ShipBlueprints[0].CubeGrids);
 
                             SavePrefabToFile(oldBlueprint, replace: true);
                             RefreshBlueprintList();

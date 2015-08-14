@@ -35,6 +35,7 @@ namespace Sandbox.Game.Screens.DebugScreens
             AddCaption("Debug draw settings 2", Color.Yellow.ToVector4());
             AddShareFocusHint();
 
+            AddCheckBox("Entity components", null, MemberHelper.GetMember(() => MyDebugDrawSettings.DEBUG_DRAW_ENTITY_COMPONENTS));
             AddCheckBox("Grid names", null, MemberHelper.GetMember(() => MyDebugDrawSettings.DEBUG_DRAW_GRID_NAMES));
             AddCheckBox("Grid control", null, MemberHelper.GetMember(() => MyDebugDrawSettings.DEBUG_DRAW_GRID_CONTROL));
             AddCheckBox("Controlled entities", null, MemberHelper.GetMember(() => MyDebugDrawSettings.DEBUG_DRAW_CONTROLLED_ENTITIES));
@@ -63,6 +64,7 @@ namespace Sandbox.Game.Screens.DebugScreens
             AddCheckBox("Block groups - small to large", null, MemberHelper.GetMember(() => MyDebugDrawSettings.DEBUG_DRAW_SMALL_TO_LARGE_BLOCK_GROUPS));
             AddCheckBox("Ropes", null, MemberHelper.GetMember(() => MyDebugDrawSettings.DEBUG_DRAW_ROPES));
             AddCheckBox("Oxygen", null, MemberHelper.GetMember(() => MyDebugDrawSettings.DEBUG_DRAW_OXYGEN));
+            AddCheckBox("Voxel physics prediction", null, MemberHelper.GetMember(() => MyDebugDrawSettings.DEBUG_DRAW_VOXEL_PHYSICS_PREDICTION));
         }
     }
 }

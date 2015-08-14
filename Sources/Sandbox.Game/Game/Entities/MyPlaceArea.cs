@@ -4,6 +4,7 @@ using Sandbox.Common.Components;
 using Sandbox.Engine.Utils;
 using System;
 using System.Collections.Generic;
+using VRage.Components;
 using VRage.Utils;
 using VRageMath;
 
@@ -11,12 +12,12 @@ using VRageMath;
 
 namespace Sandbox.Game.Entities
 {
-    public abstract class MyPlaceArea : MyComponentBase
+    public abstract class MyPlaceArea : MyEntityComponentBase
     {
         public int PlaceAreaProxyId = MyConstants.PRUNING_PROXY_ID_UNITIALIZED;
 
         public abstract BoundingBoxD WorldAABB { get; }
-        public MyStringId AreaType { get; private set; }
+        public MyStringHash AreaType { get; private set; }
 
         public static MyPlaceArea FromEntity(long entityId)
         {
@@ -31,25 +32,30 @@ namespace Sandbox.Game.Entities
                 return null;
         }
 
-        public MyPlaceArea(MyStringId areaType)
+        public MyPlaceArea(MyStringHash areaType)
         {
             AreaType = areaType;
         }
 
-        public override void OnAddedToContainer(MyComponentContainer container)
+        public override void OnAddedToContainer()
         {
-            base.OnAddedToContainer(container);
-            MyPlaceAreas.AddPlaceArea(this);
+            base.OnAddedToContainer();
+			MyPlaceAreas.Static.AddPlaceArea(this);
         }
 
-        public override void OnRemovedFromContainer(MyComponentContainer container)
+        public override void OnBeforeRemovedFromContainer()
         {
-            MyPlaceAreas.RemovePlaceArea(this);
-            base.OnRemovedFromContainer(container);
+            MyPlaceAreas.Static.RemovePlaceArea(this);
+            base.OnBeforeRemovedFromContainer();
         }
 
 		public abstract double DistanceSqToPoint(Vector3D point);
 
         public abstract bool TestPoint(Vector3D point);
+
+        public override string ComponentTypeDebugString
+        {
+            get { return "Place Area"; }
+        }
     }
 }

@@ -69,22 +69,15 @@ namespace Sandbox.Game.AI
         private List<int> m_loadedLocalPlayers;
         private Queue<int> m_removeQueue;
 
-        private static List<MyPlaceArea> m_tmpAreas = new List<MyPlaceArea>();
-
         public static MyAIComponent Static;
         public static IMyBotFactory BotFactory;
 
         private Dictionary<int, AgentSpawnData> m_agentsToSpawn;
-        private int m_lastSpawnedBot;
 
         private MyHudNotification m_maxBotNotification;
 
         public MyAgentDefinition BotToSpawn = null;
         public MyAiCommandDefinition CommandDefinition = null;
-		public MyAreaMarkerDefinition AreaMarkerDefinition = null;
-
-
-		
 
         public MyAIComponent()
         {
@@ -115,7 +108,6 @@ namespace Sandbox.Game.AI
                 m_loadedBotObjectBuildersByHandle = new Dictionary<int, MyObjectBuilder_Bot>();
                 m_agentsToSpawn = new Dictionary<int, AgentSpawnData>();
                 m_removeQueue = new Queue<int>();
-                m_lastSpawnedBot = 0;
                 m_maxBotNotification = new MyHudNotification(MySpaceTexts.NotificationMaximumNumberBots, 2000, MyFontEnum.Red);
 
                 if (MyFakes.ENABLE_BEHAVIOR_TREE_TOOL_COMMUNICATION)
@@ -278,11 +270,17 @@ namespace Sandbox.Game.AI
 
         private int SpawnNewBotInternal(MyAgentDefinition agentDefinition, Vector3D? spawnPosition = null, bool createdByPlayer = false)
         {
-            var currentHighestBotID = MyAIComponent.GenerateBotId(m_lastSpawnedBot);
-            var newBotId = currentHighestBotID;
-            EnsureIdentityUniqueness(newBotId);
+            int newBotId = 0;
+            foreach (var player in Sync.Players.GetOnlinePlayers())
+            {
+                if (player.Id.SteamId == Sync.MyId && player.Id.SerialId > newBotId)
+                {
+                    newBotId = player.Id.SerialId;
+                }
+            }
+            newBotId++;
+
             m_agentsToSpawn[newBotId] = new AgentSpawnData(agentDefinition, spawnPosition, createdByPlayer);
-            m_lastSpawnedBot = newBotId;
 
             Sync.Players.RequestNewPlayer(newBotId, MyDefinitionManager.Static.GetRandomCharacterName(), agentDefinition.BotModel);
             return newBotId;
@@ -293,17 +291,6 @@ namespace Sandbox.Game.AI
             return SpawnNewBotInternal(agentDefinition, spawnPosition, true);
         }
 
-        private void EnsureIdentityUniqueness(int newBotId)
-        {
-            var pid = new MyPlayer.PlayerId(MySteam.UserId, newBotId);
-            var identity = Sync.Players.TryGetPlayerIdentity(pid);
-            var player = Sync.Players.TryGetPlayerById(pid);
-            if (identity != null && identity.IdentityId != 0 && player == null)
-            {
-                Sync.Players.RemoveIdentity(pid); // removing old identity
-            }
-        }
-
         public bool CanSpawnMoreBots(MyPlayer.PlayerId pid)
         {
             if (!Sync.IsServer)
@@ -311,6 +298,11 @@ namespace Sandbox.Game.AI
                 Debug.Assert(false, "Server only");
                 return false;
             }
+
+            if (MyFakes.ENABLE_BRAIN_SIMULATOR) return true;
+
+            if (MyFakes.DEVELOPMENT_PRESET) return true;
+
 
 			int perPlayerBotMultiplier = (MySession.Static.CreativeMode ? MySession.Static.MaxPlayers : 1);
 
@@ -332,18 +324,15 @@ namespace Sandbox.Game.AI
             }
             else
             {
-				if (MySession.Static.CreativeMode)
-					return Bots.GetCreatedBotCount() < BotFactory.MaximumBotPerPlayer * perPlayerBotMultiplier;
-
                 int botCount = 0;
                 var lookedPlayer = pid.SteamId;
-                var players = Sync.Players.GetAllPlayers();
+                var players = Sync.Players.GetOnlinePlayers();
 
 				if (MySession.Static.CreativeMode)
 				{
 					foreach (var player in players)
 					{
-						if (player.SerialId != 0)
+						if (player.Id.SerialId != 0)
 							++botCount;
 					}
 				}
@@ -351,7 +340,7 @@ namespace Sandbox.Game.AI
 				{
 					foreach (var player in players)
 					{
-						if (player.SteamId == lookedPlayer && player.SerialId != 0)
+						if (player.Id.SteamId == lookedPlayer && player.Id.SerialId != 0)
 							botCount++;
 					}
 				}
@@ -367,7 +356,7 @@ namespace Sandbox.Game.AI
 
         void PlayerCreated(int playerNumber)
         {
-            if (playerNumber == 0)
+            if (playerNumber == 0 || MyFakes.ENABLE_BRAIN_SIMULATOR)
                 return;
             CreateBot(playerNumber);
         }
@@ -515,8 +504,6 @@ namespace Sandbox.Game.AI
                     TrySpawnBot();
                 if (MySession.ControlledEntity != null && CommandDefinition != null)
                     UseCommand();
-				if (MySession.ControlledEntity != null && AreaMarkerDefinition != null)
-					PlaceAreaMarker();
             }
         }
 
@@ -526,8 +513,6 @@ namespace Sandbox.Game.AI
                 BotToSpawn = null;
             if (!(toolbar.SelectedItem is MyToolbarItemAiCommand))
                 CommandDefinition = null;
-			if (!(toolbar.SelectedItem is MyToolbarItemAreaMarker))
-				AreaMarkerDefinition = null;
         }
 
         private void CurrentToolbar_SlotActivated(MyToolbar toolbar, MyToolbar.SlotArgs args)
@@ -536,15 +521,12 @@ namespace Sandbox.Game.AI
                 BotToSpawn = null;
             if (!(toolbar.GetItemAtIndex(toolbar.SlotToIndex(args.SlotNumber.Value)) is MyToolbarItemAiCommand))
                 CommandDefinition = null;
-			if (!(toolbar.GetItemAtIndex(toolbar.SlotToIndex(args.SlotNumber.Value)) is MyToolbarItemAreaMarker))
-				AreaMarkerDefinition = null;
         }
 
         private void CurrentToolbar_Unselected(MyToolbar toolbar)
         {
             BotToSpawn = null;
             CommandDefinition = null;
-			AreaMarkerDefinition = null;
         }
 
         private void TrySpawnBot()
@@ -572,7 +554,7 @@ namespace Sandbox.Game.AI
             MyPhysics.HitInfo? closestValidHit = null;
             foreach (var hitInfo in hitInfos)
             {
-                var ent = hitInfo.HkHitInfo.Body.GetEntity();
+                var ent = hitInfo.HkHitInfo.GetHitEntity();
                 if (ent is MyCubeGrid)
                 {
                     closestValidHit = hitInfo;
@@ -599,76 +581,6 @@ namespace Sandbox.Game.AI
             tmpCommand.InitCommand(CommandDefinition);
             tmpCommand.ActivateCommand();
         }
-
-		private void PlaceAreaMarker()
-		{
-			Vector3D cameraPos, cameraDir;
-
-			if (MySession.GetCameraControllerEnum() == Common.ObjectBuilders.MyCameraControllerEnum.ThirdPersonSpectator || MySession.GetCameraControllerEnum() == Common.ObjectBuilders.MyCameraControllerEnum.Entity)
-			{
-				var headMatrix = MySession.ControlledEntity.GetHeadMatrix(true, true);
-				cameraPos = headMatrix.Translation;
-				cameraDir = headMatrix.Forward;
-			}
-			else
-			{
-				cameraPos = MySector.MainCamera.Position;
-				cameraDir = MySector.MainCamera.WorldMatrix.Forward;
-			}
-
-			List<MyPhysics.HitInfo> hitInfos = new List<MyPhysics.HitInfo>();
-
-			MyPhysics.CastRay(cameraPos, cameraPos + cameraDir * 100, hitInfos, MyPhysics.ObjectDetectionCollisionLayer);
-			if (hitInfos.Count == 0)
-				return;
-
-			MyPhysics.HitInfo? closestValidHit = null;
-			foreach (var hitInfo in hitInfos)
-			{
-				var ent = hitInfo.HkHitInfo.Body.GetEntity();
-				if (ent is MyCubeGrid)
-				{
-					closestValidHit = hitInfo;
-					break;
-				}
-				else if (ent is MyVoxelMap)
-				{
-					closestValidHit = hitInfo;
-					break;
-				}
-			}
-
-			if (closestValidHit.HasValue)
-			{
-				Vector3D position = closestValidHit.Value.Position;
-				MyAreaMarkerDefinition definition = AreaMarkerDefinition;
-				//MyDefinitionManager.Static.TryGetDefinition(new MyDefinitionId(typeof(MyObjectBuilder_AreaMarkerDefinition), "ForestingArea"), out definition);
-
-                m_tmpAreas.Clear();
-                MyPlaceAreas.GetAllAreas(m_tmpAreas);
-
-                foreach (var area in m_tmpAreas)
-                {
-                    if (area.AreaType == AreaMarkerDefinition.Id.SubtypeId)
-                    {
-                        area.Entity.Close();
-                    }
-                }
-                m_tmpAreas.Clear();
-
-				Debug.Assert(definition != null, "Area marker definition cannot be null!");
-				if (definition == null) return;
-
-				var forward = Vector3D.Reject(cameraDir, Vector3D.Up);
-
-				if (Vector3D.IsZero(forward))
-					forward = Vector3D.Forward;
-
-				var flag = new MyAreaMarker(new MyPositionAndOrientation(position, Vector3D.Normalize(forward), Vector3D.Up), definition);
-
-				MyEntities.Add(flag);
-			}
-		}
 
         public static int GenerateBotId(int lastSpawnedBot)
         {

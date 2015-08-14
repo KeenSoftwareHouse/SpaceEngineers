@@ -18,9 +18,10 @@ using Sandbox.Game.Gui;
 using Sandbox.Graphics.GUI;
 using System.Diagnostics;
 using Sandbox.Game.GUI;
-using Sandbox.Common.ObjectBuilders.Serializer;
 using Sandbox.ModAPI.Interfaces;
 using Sandbox.Game.Components;
+using VRage.ObjectBuilders;
+using VRage.ModAPI;
 #endregion
 
 namespace Sandbox.Game.Weapons
@@ -48,6 +49,10 @@ namespace Sandbox.Game.Weapons
         public int ShootDirectionUpdateTime
         {
             get { return 200; }
+        }
+        public bool IsBlocking
+        {
+            get { return false; }
         }
 
         private MyEntity3DSoundEmitter m_soundEmitter;
@@ -103,7 +108,7 @@ namespace Sandbox.Game.Weapons
                 m_gunBase.AddMuzzleMatrix(MyAmmoType.HighSpeed, muzzleMatrix);
             }
 
-            PhysicalObject = (MyObjectBuilder_PhysicalGunObject)Sandbox.Common.ObjectBuilders.Serializer.MyObjectBuilderSerializer.CreateNewObject(m_physicalItemDef.Id.TypeId, m_physicalItemDef.Id.SubtypeName);
+            PhysicalObject = (MyObjectBuilder_PhysicalGunObject)MyObjectBuilderSerializer.CreateNewObject(m_physicalItemDef.Id.TypeId, m_physicalItemDef.Id.SubtypeName);
             PhysicalObject.GunEntity = (MyObjectBuilder_EntityBase)rifleBuilder.Clone();
             PhysicalObject.GunEntity.EntityId = this.EntityId;
         }
@@ -201,7 +206,7 @@ namespace Sandbox.Game.Weapons
             return false;
         }
 
-        public void Shoot(MyShootActionEnum action, Vector3 direction)
+        public void Shoot(MyShootActionEnum action, Vector3 direction, string gunAction)
         {
             if (action == MyShootActionEnum.PrimaryAction)
             {
@@ -243,10 +248,7 @@ namespace Sandbox.Game.Weapons
                 StartLoopSound(m_gunBase.ShootSound);
             }
 
-            if (!MySession.Static.CreativeMode)
-            {
-                m_gunBase.ConsumeAmmo();
-            }
+            m_gunBase.ConsumeAmmo();
         }
 
         private void CreateSmokeEffect()
@@ -344,7 +346,7 @@ namespace Sandbox.Game.Weapons
             m_gunBase.RefreshAmmunitionAmount();
         }
 
-        void MyAutomaticRifleGun_ContentsChanged(MyInventory obj)
+        void MyAutomaticRifleGun_ContentsChanged(MyInventoryBase obj)
         {
             m_gunBase.RefreshAmmunitionAmount();
         }

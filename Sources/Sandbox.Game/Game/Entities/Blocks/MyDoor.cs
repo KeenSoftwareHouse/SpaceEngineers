@@ -23,11 +23,13 @@ using Sandbox.Game.Screens.Terminal.Controls;
 using VRage.Utils;
 using Sandbox.Definitions;
 using Sandbox.Game.Localization;
+using VRage.Components;
+using VRage.ModAPI;
 
 namespace Sandbox.Game.Entities
 {
     [MyCubeBlockType(typeof(MyObjectBuilder_Door))]
-    class MyDoor : MyFunctionalBlock, IMyPowerConsumer, ModAPI.IMyDoor
+    public class MyDoor : MyFunctionalBlock, IMyPowerConsumer, ModAPI.IMyDoor
     {
         private const float CLOSED_DISSASEMBLE_RATIO = 3.3f;
 
@@ -109,7 +111,7 @@ namespace Sandbox.Game.Entities
 
         public float OpenRatio
         {
-            get { return m_currOpening; }
+            get { return m_currOpening/MaxOpen; }
         }
 
         static MyDoor()
@@ -206,7 +208,7 @@ namespace Sandbox.Game.Entities
                 if ((m_leftSubpart.ModelCollision.HavokCollisionShapes != null) && (m_leftSubpart.ModelCollision.HavokCollisionShapes.Length > 0))
                 {
                     var shape = m_leftSubpart.ModelCollision.HavokCollisionShapes[0];
-                    m_leftSubpart.Physics = new Engine.Physics.MyPhysicsBody(m_leftSubpart, Engine.Physics.RigidBodyFlag.RBF_KINEMATIC);
+                    m_leftSubpart.Physics = new Engine.Physics.MyPhysicsBody(m_leftSubpart, RigidBodyFlag.RBF_KINEMATIC);
                     m_leftSubpart.Physics.IsPhantom = false;
                     Vector3 center = new Vector3(0.35f, 0f, 0f) + m_leftSubpart.PositionComp.LocalVolume.Center;
                     m_leftSubpart.Physics.CreateFromCollisionObject(shape, center, WorldMatrix, null, MyPhysics.KinematicDoubledCollisionLayer);
@@ -219,7 +221,7 @@ namespace Sandbox.Game.Entities
                 if ((m_rightSubpart.ModelCollision.HavokCollisionShapes != null) && (m_rightSubpart.ModelCollision.HavokCollisionShapes.Length > 0))
                 {
                     var shape = m_rightSubpart.ModelCollision.HavokCollisionShapes[0];
-                    m_rightSubpart.Physics = new Engine.Physics.MyPhysicsBody(m_rightSubpart, Engine.Physics.RigidBodyFlag.RBF_KINEMATIC);
+                    m_rightSubpart.Physics = new Engine.Physics.MyPhysicsBody(m_rightSubpart, RigidBodyFlag.RBF_KINEMATIC);
                     m_rightSubpart.Physics.IsPhantom = false;
                     Vector3 center = new Vector3(-0.35f, 0f, 0f) + m_rightSubpart.PositionComp.LocalVolume.Center;
                     m_rightSubpart.Physics.CreateFromCollisionObject(shape, center, WorldMatrix, null, MyPhysics.KinematicDoubledCollisionLayer);

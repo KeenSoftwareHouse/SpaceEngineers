@@ -34,6 +34,8 @@ using Sandbox.ModAPI;
 using Sandbox.Game.World;
 using Sandbox.Game.Localization;
 using VRage;
+using VRage.ModAPI;
+using VRage.Components;
 
 namespace Sandbox.Game.Weapons
 {
@@ -62,6 +64,7 @@ namespace Sandbox.Game.Weapons
 
         private MyCharacter m_owner;
         private bool m_useConveyorSystem;
+		public bool IsDeconstructor { get { return false; } }
         private IMyConveyorEndpoint m_multilineConveyorEndpoint;
 
         static MyShipDrill()
@@ -354,7 +357,7 @@ namespace Sandbox.Game.Weapons
             return true;
         }
 
-        public void Shoot(MyShootActionEnum action, Vector3 direction)
+        public void Shoot(MyShootActionEnum action, Vector3 direction, string gunAction)
         {
             if (action != MyShootActionEnum.PrimaryAction && action != MyShootActionEnum.SecondaryAction) return;
 

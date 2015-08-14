@@ -9,6 +9,9 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
+using VRage.Components;
+using VRage.ModAPI;
+using VRage.ObjectBuilders;
 using VRageMath;
 
 namespace Sandbox.Game.Entities
@@ -101,7 +104,7 @@ namespace Sandbox.Game.Entities
             m_pivotInSun[m_currentPivot] = true;
             foreach (var hit in m_hitList)
             {
-                var ent = hit.HkHitInfo.Body.GetEntity();
+                var ent = hit.HkHitInfo.GetHitEntity();
                 if (ent != m_solarBlock.CubeGrid)
                 {
                     m_pivotInSun[m_currentPivot] = false;

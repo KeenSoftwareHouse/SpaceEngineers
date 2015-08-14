@@ -16,10 +16,12 @@ using System.Text;
 using VRage;
 using VRage.Utils;
 using VRage.Compiler;
-using VRage.Utils;
 using VRage.Library.Utils;
 using VRage.Serialization;
 using VRage.FileSystem;
+using VRage.Components;
+using VRage.ObjectBuilders;
+using Sandbox.Game.Components;
 
 namespace Sandbox.Game.World
 {
@@ -29,11 +31,12 @@ namespace Sandbox.Game.World
         public static MyScriptManager Static;
         string[] Separators = new string[] { " " };
        
-        public Dictionary<MyStringId, Assembly> Scripts = new Dictionary<MyStringId, Assembly>();
+        public Dictionary<MyStringId, Assembly> Scripts = new Dictionary<MyStringId, Assembly>(MyStringId.Comparer);
         public Dictionary<Type, HashSet<Type>> EntityScripts = new Dictionary<Type, HashSet<Type>>(); //Binds object builder type with Game Logic component type
         public Dictionary<Tuple<Type, string>, HashSet<Type>> SubEntityScripts = new Dictionary<Tuple<Type, string>, HashSet<Type>>();
-        public Dictionary<MyStringId, Type> InGameScripts = new Dictionary<MyStringId, Type>(); //Ingame script is just game logic component
-        public Dictionary<MyStringId, StringBuilder> InGameScriptsCode = new Dictionary<MyStringId, StringBuilder>();
+		public Dictionary<string, Type> StatScripts = new Dictionary<string, Type>();
+        public Dictionary<MyStringId, Type> InGameScripts = new Dictionary<MyStringId, Type>(MyStringId.Comparer); //Ingame script is just game logic component
+        public Dictionary<MyStringId, StringBuilder> InGameScriptsCode = new Dictionary<MyStringId, StringBuilder>(MyStringId.Comparer);
         private List<string> m_errors = new List<string>();
         private List<string> m_cachedFiles = new List<string>();
         static Dictionary<string, bool> testFiles = new Dictionary<string, bool>();
@@ -138,11 +141,11 @@ namespace Sandbox.Game.World
                         MyDefinitionErrors.Add(c, e.Message, ErrorSeverity.Error);
                     }
                 }
-                IlCompiler.CompileFile(assemblyName, m_cachedFiles.ToArray(), out assembly, m_errors);
+                IlCompiler.CompileFileModAPI(assemblyName, m_cachedFiles.ToArray(), out assembly, m_errors);
             }
             else
             {
-                IlCompiler.CompileFile(assemblyName, scriptFiles.ToArray(), out assembly, m_errors);
+                IlCompiler.CompileFileModAPI(assemblyName, scriptFiles.ToArray(), out assembly, m_errors);
             }
             if(assembly != null)
                 AddAssembly(MyStringId.GetOrCompute(assemblyName), assembly);
@@ -150,8 +153,11 @@ namespace Sandbox.Game.World
             {
                 MyDefinitionErrors.Add(c, string.Format("Compilation of {0} failed:", assemblyName), ErrorSeverity.Error);
                 MySandboxGame.Log.IncreaseIndent();
-                foreach (var error in m_errors)
-                    MyDefinitionErrors.Add(c, error.ToString(), ErrorSeverity.Error);
+				foreach (var error in m_errors)
+				{
+					MyDefinitionErrors.Add(c, error.ToString(), ErrorSeverity.Error);
+					Debug.Assert(false, error.ToString());
+				}
                 MySandboxGame.Log.DecreaseIndent();
                 m_errors.Clear();
             }
@@ -172,6 +178,7 @@ namespace Sandbox.Game.World
                 MyConsole.AddCommand(new MyCommandScript(type));
             }
             TryAddEntityScripts(assembly);
+			AddStatScripts(assembly);
         }
 
         private void TryAddEntityScripts(Assembly assembly)
@@ -184,17 +191,38 @@ namespace Sandbox.Game.World
                 if (descriptorArray != null && descriptorArray.Length > 0)
                 {
                     var descriptor = (MyEntityComponentDescriptor)descriptorArray[0];
-                    var component = (MyGameLogicComponent)Activator.CreateInstance(type);
-
-                    if (descriptor.EntityBuilderSubTypeNames != null && descriptor.EntityBuilderSubTypeNames.Length > 0)
+                    try
                     {
-                        foreach (string subTypeName in descriptor.EntityBuilderSubTypeNames)
+                        var component = (MyGameLogicComponent)Activator.CreateInstance(type);
+
+                        if (descriptor.EntityBuilderSubTypeNames != null && descriptor.EntityBuilderSubTypeNames.Length > 0)
+                        {
+                            foreach (string subTypeName in descriptor.EntityBuilderSubTypeNames)
+                            {
+                                if (gameLogicType.IsAssignableFrom(type) && builderType.IsAssignableFrom(descriptor.EntityBuilderType))
+                                {
+                                    if (!SubEntityScripts.ContainsKey(new Tuple<Type, string>(descriptor.EntityBuilderType, subTypeName)))
+                                    {
+                                        SubEntityScripts.Add(new Tuple<Type, string>(descriptor.EntityBuilderType, subTypeName), new HashSet<Type>());
+                                    }
+                                    else
+                                    {
+                                        var c = new MyModContext();
+                                        c.Init(assembly.FullName, assembly.FullName);
+                                        MyDefinitionErrors.Add(c, "Possible entity type script logic collision", ErrorSeverity.Warning);
+                                    }
+
+                                    SubEntityScripts[new Tuple<Type, string>(descriptor.EntityBuilderType, subTypeName)].Add(type);
+                                }
+                            }
+                        }
+                        else
                         {
                             if (gameLogicType.IsAssignableFrom(type) && builderType.IsAssignableFrom(descriptor.EntityBuilderType))
                             {
-                                if (!SubEntityScripts.ContainsKey(new Tuple<Type, string>(descriptor.EntityBuilderType, subTypeName)))
+                                if (!EntityScripts.ContainsKey(descriptor.EntityBuilderType))
                                 {
-                                    SubEntityScripts.Add(new Tuple<Type, string>(descriptor.EntityBuilderType, subTypeName), new HashSet<Type>());
+                                    EntityScripts.Add(descriptor.EntityBuilderType, new HashSet<Type>());
                                 }
                                 else
                                 {
@@ -203,31 +231,36 @@ namespace Sandbox.Game.World
                                     MyDefinitionErrors.Add(c, "Possible entity type script logic collision", ErrorSeverity.Warning);
                                 }
 
-                                SubEntityScripts[new Tuple<Type, string>(descriptor.EntityBuilderType, subTypeName)].Add(type);
+                                EntityScripts[descriptor.EntityBuilderType].Add(type);
                             }
                         }
                     }
-                    else
+                    catch (Exception)
                     {
-                        if (gameLogicType.IsAssignableFrom(type) && builderType.IsAssignableFrom(descriptor.EntityBuilderType))
-                        {
-                            if (!EntityScripts.ContainsKey(descriptor.EntityBuilderType))
-                            {
-                                EntityScripts.Add(descriptor.EntityBuilderType, new HashSet<Type>());
-                            }
-                            else
-                            {
-                                var c = new MyModContext();
-                                c.Init(assembly.FullName, assembly.FullName);
-                                MyDefinitionErrors.Add(c, "Possible entity type script logic collision", ErrorSeverity.Warning);
-                            }
-
-                            EntityScripts[descriptor.EntityBuilderType].Add(type);
-                        }
+                        MySandboxGame.Log.WriteLine("Exception during loading of type : " + type.Name);
                     }
                 }
             }
         }
+
+		private void AddStatScripts(Assembly assembly)
+        {
+			var logicType = typeof(MyStatLogic);
+            foreach (var type in assembly.GetTypes())
+            {
+                var descriptorArray = type.GetCustomAttributes(typeof(MyStatLogicDescriptor), false);
+                if (descriptorArray != null && descriptorArray.Length > 0)
+                {
+                    var descriptor = (MyStatLogicDescriptor)descriptorArray[0];
+					var scriptName = descriptor.ComponentName;
+
+					if (logicType.IsAssignableFrom(type) && !StatScripts.ContainsKey(scriptName))
+					{
+						StatScripts.Add(scriptName, type);
+					}
+				}
+			}
+		}
 
         public bool CompileIngameScript(MyStringId id, StringBuilder errors)
         {

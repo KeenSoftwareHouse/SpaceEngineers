@@ -11,24 +11,41 @@ namespace Sandbox.Engine.Voxels
 {
     class MyProviderLeaf : IMyOctreeLeafNode
     {
+        [ThreadStatic]
+        private static MyStorageDataCache m_filteredValueBuffer;
+        private static MyStorageDataCache FilteredValueBuffer
+        {
+            get
+            {
+                if (m_filteredValueBuffer == null)
+                {
+                    m_filteredValueBuffer = new MyStorageDataCache();
+                    m_filteredValueBuffer.Resize(Vector3I.One);
+                }
+
+                return m_filteredValueBuffer;
+            }
+        }
+
         private IMyStorageDataProvider m_provider;
         private MyStorageDataTypeEnum m_dataType;
-        private Vector3I m_leafMin;
-        private Vector3I m_leafMax;
+        private MyCellCoord m_cell;
 
-        public MyProviderLeaf(IMyStorageDataProvider provider, MyStorageDataTypeEnum dataType, ref Vector3I leafMin, ref Vector3I leafMax)
+        public MyProviderLeaf(IMyStorageDataProvider provider, MyStorageDataTypeEnum dataType, ref MyCellCoord cell)
         {
             m_provider = provider;
             m_dataType = dataType;
-            m_leafMin = leafMin;
-            m_leafMax = leafMax;
+            m_cell = cell;
         }
 
         [Conditional("DEBUG")]
         private void AssertRangeIsInside(int lodIndex, ref Vector3I globalMin, ref Vector3I globalMax)
         {
-            var leafMinInLod = m_leafMin >> lodIndex;
-            var leafMaxInLod = m_leafMax >> lodIndex;
+            Debug.Assert(m_cell.Lod >= lodIndex);
+            var lodShift = m_cell.Lod - lodIndex;
+            var lodSize = 1 << lodShift;
+            var leafMinInLod = m_cell.CoordInLod << lodShift;
+            var leafMaxInLod = leafMinInLod + (lodSize - 1);
             Debug.Assert(globalMin.IsInsideInclusive(ref leafMinInLod, ref leafMaxInLod));
             Debug.Assert(globalMax.IsInsideInclusive(ref leafMinInLod, ref leafMaxInLod));
         }
@@ -50,7 +67,7 @@ namespace Sandbox.Engine.Voxels
 
         Vector3I IMyOctreeLeafNode.VoxelRangeMin
         {
-            get { return m_leafMin; }
+            get { return m_cell.CoordInLod << m_cell.Lod; }
         }
 
         bool IMyOctreeLeafNode.ReadOnly
@@ -60,13 +77,16 @@ namespace Sandbox.Engine.Voxels
 
         byte IMyOctreeLeafNode.GetFilteredValue()
         {
-            // mk:TODO getting single value from provider for this LoD.
-            return 0;
+            var filteredValueBuffer = FilteredValueBuffer;
+            Debug.Assert(filteredValueBuffer.Size3D == Vector3I.One);
+            m_provider.ReadRange(filteredValueBuffer, m_dataType, ref Vector3I.Zero, m_cell.Lod, ref m_cell.CoordInLod, ref m_cell.CoordInLod);
+            return filteredValueBuffer.Content(0);
         }
 
         void IMyOctreeLeafNode.ReadRange(MyStorageDataCache target, ref Vector3I writeOffset, int lodIndex, ref Vector3I minInLod, ref Vector3I maxInLod)
         {
-            var leafMinInLod = m_leafMin >> lodIndex;
+            var lodShift = m_cell.Lod - lodIndex;
+            var leafMinInLod = m_cell.CoordInLod << lodShift;
             var min = minInLod + leafMinInLod;
             var max = maxInLod + leafMinInLod;
             AssertRangeIsInside(lodIndex, ref min, ref max);

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using VRage.ObjectBuilders;
 
 namespace Sandbox.ModAPI.Interfaces
 {
@@ -32,21 +33,20 @@ namespace Sandbox.ModAPI.Interfaces
             get;
         }
 
-
         bool IsItemAt(int position);
 
-        bool CanItemsBeAdded(VRage.MyFixedPoint amount, Sandbox.Common.ObjectBuilders.Definitions.SerializableDefinitionId contentId);
+        bool CanItemsBeAdded(VRage.MyFixedPoint amount, SerializableDefinitionId contentId);
 
         bool ContainItems(VRage.MyFixedPoint amount, Sandbox.Common.ObjectBuilders.MyObjectBuilder_PhysicalObject ob);
  
-        VRage.MyFixedPoint GetItemAmount(Sandbox.Common.ObjectBuilders.Definitions.SerializableDefinitionId contentId, Sandbox.Common.ObjectBuilders.MyItemFlags flags = Sandbox.Common.ObjectBuilders.MyItemFlags.None);      
+        VRage.MyFixedPoint GetItemAmount(SerializableDefinitionId contentId, Sandbox.Common.ObjectBuilders.MyItemFlags flags = Sandbox.Common.ObjectBuilders.MyItemFlags.None);      
 
         bool TransferItemTo(IMyInventory dst, int sourceItemIndex, int? targetItemIndex = null, bool? stackIfPossible = null, VRage.MyFixedPoint? amount = null);
         bool TransferItemFrom(IMyInventory sourceInventory, int sourceItemIndex, int? targetItemIndex = null, bool? stackIfPossible = null, VRage.MyFixedPoint? amount = null);
 
         List<IMyInventoryItem> GetItems();
         IMyInventoryItem GetItemByID(uint id);
-        IMyInventoryItem FindItem(Sandbox.Common.ObjectBuilders.Definitions.SerializableDefinitionId contentId);
+        IMyInventoryItem FindItem(SerializableDefinitionId contentId);
 
         Sandbox.ModAPI.Interfaces.IMyInventoryOwner Owner
         {

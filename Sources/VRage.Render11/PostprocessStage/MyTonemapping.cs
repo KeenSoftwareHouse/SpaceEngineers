@@ -51,6 +51,7 @@ namespace VRageRender
 
             var size = dst.GetSize();
             RC.Context.Dispatch((size.X + m_numthreads - 1) / m_numthreads, (size.Y + m_numthreads - 1) / m_numthreads, 1);
+            RC.Context.ComputeShader.SetUnorderedAccessViews(0, null as UnorderedAccessView);
             RC.SetCS(null);
         }
     }

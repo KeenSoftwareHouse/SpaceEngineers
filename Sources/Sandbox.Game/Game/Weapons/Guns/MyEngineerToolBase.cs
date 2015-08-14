@@ -30,6 +30,8 @@ using Sandbox.Common;
 using Sandbox.Game.Components;
 using Sandbox.ModAPI.Interfaces;
 using VRage.Utils;
+using VRage.ObjectBuilders;
+using VRage.ModAPI;
 
 namespace Sandbox.Game.Weapons
 {
@@ -37,6 +39,7 @@ namespace Sandbox.Game.Weapons
     {
         public static float GLARE_SIZE = 0.068f;
 
+		public bool IsDeconstructor { get { return false; } }
         public int ToolCooldownMs { get; private set; }
         public int EffectStopMs
         {
@@ -82,7 +85,7 @@ namespace Sandbox.Game.Weapons
         protected MyFloatingObject m_targetFloatingObject;
         protected MyCharacter m_targetCharacter;
         protected Vector3I m_targetCube;
-        public Vector3I TargetCube { get {  return m_targetCube; } }
+        public Vector3I TargetCube { get { return m_targetCube; } }
         protected float m_targetDistanceSq;
         protected Vector3D m_targetPosition;
 
@@ -103,6 +106,11 @@ namespace Sandbox.Game.Weapons
         public bool IsShooting
         {
             get { return m_activated; }
+        }
+
+        public bool IsBlocking
+        {
+            get { return false; }
         }
 
         private int m_shootFrameCounter = 0;
@@ -129,6 +137,7 @@ namespace Sandbox.Game.Weapons
         }
         protected bool HasCubeHighlight { get; set; }
         public Color HighlightColor { get; set; }
+		public string HighlightMaterial { get; set; }
 
         public bool EnabledInWorldRules { get { return true; } }
 
@@ -248,52 +257,6 @@ namespace Sandbox.Game.Weapons
             StopEffect();
         }
 
-        protected void SetBlockComponents(MyHudBlockInfo hudInfo, MySlimBlock block)
-        {
-            hudInfo.Components.Clear();
-
-            for (int i = 0; i < block.ComponentStack.GroupCount; i++)
-            {
-                var info = block.ComponentStack.GetGroupInfo(i);
-                var component = new MyHudBlockInfo.ComponentInfo();
-                component.ComponentName = info.Component.DisplayNameText;
-                component.Icon = info.Component.Icon;
-                component.TotalCount = info.TotalCount;
-                component.MountedCount = info.MountedCount;
-
-                hudInfo.Components.Add(component);
-            }
-
-            if (!block.StockpileEmpty)
-            {
-                // For each component
-                foreach (var comp in block.BlockDefinition.Components)
-                {
-                    // Get amount in stockpile
-                    int amount = block.GetConstructionStockpileItemAmount(comp.Definition.Id);
-
-                    for (int i = 0; amount > 0 && i < hudInfo.Components.Count; i++)
-                    {
-                        if (block.ComponentStack.GetGroupInfo(i).Component == comp.Definition)
-                        {
-                            if (block.ComponentStack.IsFullyDismounted)
-                            {
-                                return;
-                            }
-                            // Distribute amount in stockpile from bottom to top
-                            var info = hudInfo.Components[i];
-                            int space = info.TotalCount - info.MountedCount;
-                            int movedItems = Math.Min(space, amount);
-                            info.StockpileCount = movedItems;
-                            amount -= movedItems;
-                            hudInfo.Components[i] = info;
-                        }
-                    }
-                    Debug.Assert(!Sync.IsServer || amount == 0, "There's more items in stockpile than necessary");
-                }
-            }
-        }
-
         public override void UpdateAfterSimulation()
         {
             base.UpdateAfterSimulation();
@@ -364,6 +327,19 @@ namespace Sandbox.Game.Weapons
             UpdateEffect();
             CheckEffectType();
 
+			if (Owner != null && Owner.ControllerInfo.IsLocallyHumanControlled())
+			{
+				if (MySession.Static.SurvivalMode && (MySession.GetCameraControllerEnum() != MyCameraControllerEnum.Spectator || MyFinalBuildConstants.IS_OFFICIAL))
+				{
+					var character = ((MyCharacter)this.CharacterInventory.Owner);
+					MyCubeBuilder.Static.MaxGridDistanceFrom = character.PositionComp.GetPosition() + character.WorldMatrix.Up * 1.8f;
+				}
+				else
+				{
+					MyCubeBuilder.Static.MaxGridDistanceFrom = null;
+				}
+			}
+
             //MyTrace.Watch("MyEngineerToolBase.RequiredPowerInput", RequiredPowerInput); 
         }
 
@@ -401,7 +377,7 @@ namespace Sandbox.Game.Weapons
             return false;
         }
 
-        public virtual void Shoot(MyShootActionEnum action, Vector3 direction)
+        public virtual void Shoot(MyShootActionEnum action, Vector3 direction, string gunAction)
         {
             if (action != MyShootActionEnum.PrimaryAction)
             {
@@ -702,13 +678,7 @@ namespace Sandbox.Game.Weapons
             MyHud.BlockInfo.CriticalComponentIndex = block.BlockDefinition.CriticalGroup;
             MyHud.BlockInfo.OwnershipIntegrity = block.BlockDefinition.OwnershipIntegrityRatio;
 
-            SetBlockComponents(MyHud.BlockInfo, block);
-
-            if (m_targetDistanceSq > m_toolActionDistance * m_toolActionDistance)
-            {
-                // TODO: Show some error?
-                //MyHud.BlockInfo.Error.Append("Out of reach");
-            }
+            MySlimBlock.SetBlockComponents(MyHud.BlockInfo, block);
         }
 
         protected void UnmarkMissingComponent()

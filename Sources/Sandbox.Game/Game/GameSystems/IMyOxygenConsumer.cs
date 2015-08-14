@@ -5,7 +5,7 @@ using System.Text;
 
 namespace Sandbox.Game.GameSystems
 {
-    interface IMyOxygenConsumer : IMyOxygenBlock
+    public interface IMyOxygenConsumer : IMyOxygenBlock
     {
         float ConsumptionNeed(float deltaTime);
         void Consume(float amount);

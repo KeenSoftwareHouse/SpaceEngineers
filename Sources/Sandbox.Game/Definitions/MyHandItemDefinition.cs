@@ -3,6 +3,7 @@
 
 using Sandbox.Common.ObjectBuilders;
 using Sandbox.Common.ObjectBuilders.Definitions;
+using VRage.ObjectBuilders;
 using VRage.Utils;
 using VRageMath;
 
@@ -128,7 +129,7 @@ namespace Sandbox.Definitions
 
         public override MyObjectBuilder_DefinitionBase GetObjectBuilder()
         {
-            var ob = Sandbox.Common.ObjectBuilders.Serializer.MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_HandItemDefinition>();
+            var ob = MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_HandItemDefinition>();
             
             ob.Id = Id;
 

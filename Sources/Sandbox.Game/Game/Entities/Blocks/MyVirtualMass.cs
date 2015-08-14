@@ -16,6 +16,8 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using VRage;
+using VRage.Components;
+using VRage.ModAPI;
 using VRage.Utils;
 using VRageMath;
 
@@ -69,7 +71,7 @@ namespace Sandbox.Game.Entities
 
             var detectorShape = new HkBoxShape(new Vector3(cubeGrid.GridSize / 3.0f));
             var massProperties = HkInertiaTensorComputer.ComputeBoxVolumeMassProperties(detectorShape.HalfExtents, BlockDefinition.VirtualMass);
-            Physics = new Engine.Physics.MyPhysicsBody(this, Engine.Physics.RigidBodyFlag.RBF_DEFAULT);
+            Physics = new Engine.Physics.MyPhysicsBody(this, RigidBodyFlag.RBF_DEFAULT);
             Physics.IsPhantom = false;
             Physics.CreateFromCollisionObject(detectorShape, Vector3.Zero, WorldMatrix, massProperties, MyPhysics.VirtualMassLayer);
             Physics.Enabled = IsWorking && cubeGrid.Physics != null && cubeGrid.Physics.Enabled;

@@ -29,6 +29,7 @@ using Sandbox.ModAPI.Ingame;
 using Sandbox.Game.Localization;
 using VRage;
 using Sandbox.Game.Entities.Interfaces;
+using VRage.ObjectBuilders;
 
 #endregion
 
@@ -494,6 +495,8 @@ namespace Sandbox.Game.Entities.Cube
 
         private void GetItemFromOtherAssemblers(float remainingTime)
         {
+            var factor = MySession.Static.AssemblerSpeedMultiplier * (((MyAssemblerDefinition)BlockDefinition).AssemblySpeed + UpgradeValues["Productivity"]);
+
             var masterAssembler = GetMasterAssembler();
             if (masterAssembler != null)
             {
@@ -501,9 +504,13 @@ namespace Sandbox.Game.Entities.Cube
                 {
                     if (m_queue.Count == 0)
                     {
-                        foreach (var qItem in masterAssembler.m_queue)
+                        while (remainingTime > 0)
                         {
-                            InsertQueueItemRequest(m_queue.Count, qItem.Blueprint, qItem.Amount);
+                            foreach (var qItem in masterAssembler.m_queue)
+                            {
+                                remainingTime -= (float)((qItem.Blueprint.BaseProductionTimeInSeconds / factor) * qItem.Amount);
+                                InsertQueueItemRequest(m_queue.Count, qItem.Blueprint, qItem.Amount);
+                            }
                         }
                     }
                 }
@@ -512,7 +519,6 @@ namespace Sandbox.Game.Entities.Cube
                     var item = masterAssembler.TryGetQueueItem(0);
                     if (item != null && item.Value.Amount > 1)
                     {
-                        var factor = MySession.Static.AssemblerSpeedMultiplier * (((MyAssemblerDefinition)BlockDefinition).AssemblySpeed + UpgradeValues["Productivity"]);
                         var itemAmount = Math.Min((int)item.Value.Amount - 1, Convert.ToInt32(Math.Ceiling(remainingTime / (item.Value.Blueprint.BaseProductionTimeInSeconds / factor))));
                         if (itemAmount > 0)
                         {
@@ -557,10 +563,10 @@ namespace Sandbox.Game.Entities.Cube
                 }
                 else // Assembling
                 {
-                    if (IsSlave && m_queue.Count < 1 && MyFakes.ENABLE_ASSEMBLER_COOPERATION && !RepeatEnabled) 
-                    {
-                        GetItemFromOtherAssemblers(TIME_IN_ADVANCE);
-                    }
+                    //if (IsSlave && m_queue.Count < 1 && MyFakes.ENABLE_ASSEMBLER_COOPERATION && !RepeatEnabled) 
+                    //{
+                    //    GetItemFromOtherAssemblers(TIME_IN_ADVANCE);
+                    //}
                     if (InputInventory.VolumeFillFactor < 0.99f)
                     {
                         m_requiredComponents.Clear();
@@ -700,9 +706,9 @@ namespace Sandbox.Game.Entities.Cube
                     IsProducing = false;
                     return;
                 }
+                var remainingTime = calculateBlueprintProductionTime(currentBlueprint) - CurrentProgress * calculateBlueprintProductionTime(currentBlueprint);
 
-                CurrentProgress += timeDelta / calculateBlueprintProductionTime(currentBlueprint);
-                if (CurrentProgress > 1.0f)
+                if (timeDelta >= remainingTime)
                 {
                     if (Sync.IsServer || !MyFakes.ENABLE_PRODUCTION_SYNC)
                     {
@@ -717,12 +723,13 @@ namespace Sandbox.Game.Entities.Cube
 
                         RemoveFirstQueueItemAnnounce(1);
                     }
-                    timeDelta = (int)((m_currentProgress - 1.0f) * calculateBlueprintProductionTime(currentBlueprint));
+                    timeDelta -= (int)Math.Ceiling(remainingTime);
                     CurrentProgress = 0;
                     firstQueueItem = null;
                 }
                 else
                 {
+                    CurrentProgress += timeDelta / calculateBlueprintProductionTime(currentBlueprint);
                     timeDelta = 0;
                 }
             }
@@ -745,7 +752,7 @@ namespace Sandbox.Game.Entities.Cube
 
             foreach (var res in blueprint.Results)
             {
-                MyObjectBuilder_PhysicalObject resOb = (MyObjectBuilder_PhysicalObject)Sandbox.Common.ObjectBuilders.Serializer.MyObjectBuilderSerializer.CreateNewObject(res.Id.TypeId, res.Id.SubtypeName);
+                MyObjectBuilder_PhysicalObject resOb = (MyObjectBuilder_PhysicalObject)MyObjectBuilderSerializer.CreateNewObject(res.Id.TypeId, res.Id.SubtypeName);
                 OutputInventory.AddItems(res.Amount, resOb);
             }
         }
@@ -763,7 +770,7 @@ namespace Sandbox.Game.Entities.Cube
             for (int i = 0; i < blueprint.Prerequisites.Length; ++i)
             {
                 var item = blueprint.Prerequisites[i];
-                var itemOb = (MyObjectBuilder_PhysicalObject)Sandbox.Common.ObjectBuilders.Serializer.MyObjectBuilderSerializer.CreateNewObject(item.Id.TypeId, item.Id.SubtypeName);
+                var itemOb = (MyObjectBuilder_PhysicalObject)MyObjectBuilderSerializer.CreateNewObject(item.Id.TypeId, item.Id.SubtypeName);
                 InputInventory.AddItems(item.Amount * amountMult, itemOb);
             }
         }
@@ -933,7 +940,7 @@ namespace Sandbox.Game.Entities.Cube
             }
         }
 
-        private void OutputInventory_ContentsChanged(MyInventory inventory)
+        private void OutputInventory_ContentsChanged(MyInventoryBase inventory)
         {
             if (DisassembleEnabled && RepeatEnabled && Sync.IsServer)
                 RebuildQueueInRepeatDisassembling();
