@@ -31,8 +31,6 @@ namespace Sandbox.Common
         public static MyStringHash BOLT        = MyStringHash.GetOrCompute("Bolt");
     }
 
-    
-
     public enum MyRelationsBetweenPlayerAndBlock
     {
         // Nobody owns the block

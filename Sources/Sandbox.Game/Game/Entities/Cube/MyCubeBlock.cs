@@ -114,7 +114,10 @@ namespace Sandbox.Game.Entities
             get { return MySandboxGame.TotalTimeInMilliseconds - HackAttemptTime < MyGridConstants.HACKING_ATTEMPT_TIME_MS; }
         }
 
-        public bool IsAccessibleForProgrammableBlock { get { return Blocks.MyProgrammableBlock.IsAccessibleByProgram(this); } }
+        public Sandbox.ModAPI.Ingame.IngameScriptAccessibility GetProgrammableBlockAccessibility 
+        { 
+            get { return Blocks.MyProgrammableBlock.RunningBlock == null ? Sandbox.ModAPI.Ingame.IngameScriptAccessibility.readWriteAccess : Blocks.MyProgrammableBlock.getIngameScriptAccessibility(this); } 
+        }
 
         public MyCubeBlockDefinition BlockDefinition { get { return SlimBlock.BlockDefinition; } }
         public Vector3I Min { get { return SlimBlock.Min; } }

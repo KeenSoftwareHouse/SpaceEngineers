@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Sandbox.Common;
 
 namespace Sandbox.Game.Entities.Cube
 {
@@ -20,7 +21,7 @@ namespace Sandbox.Game.Entities.Cube
 
         void Sandbox.ModAPI.Ingame.IMyFunctionalBlock.RequestEnable(bool enable)
         {
-            if (this.IsAccessibleForProgrammableBlock)
+            if (this.GetProgrammableBlockAccessibility == Sandbox.ModAPI.Ingame.IngameScriptAccessibility.readWriteAccess)
                 RequestEnable(enable);
         }
     }

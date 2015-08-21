@@ -5,7 +5,7 @@ using System.Text;
 
 namespace Sandbox.ModAPI
 {
-    public interface IMySensorBlock : ModAPI.Ingame.IMySensorBlock
+    public interface IMySensorBlock : ModAPI.Ingame.IMySensorBlock, IMyBlockDetector
     {
         event Action<bool> StateChanged;
     }

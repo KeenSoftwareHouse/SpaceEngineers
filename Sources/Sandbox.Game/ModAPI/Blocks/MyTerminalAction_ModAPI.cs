@@ -13,19 +13,19 @@ namespace Sandbox.Game.Gui
 
         void ModAPI.Interfaces.ITerminalAction.Apply(ModAPI.Ingame.IMyCubeBlock block)
         {
-            if (block is TBlock && block.IsAccessibleForProgrammableBlock)
+            if (block is TBlock && block.GetProgrammableBlockAccessibility == IngameScriptAccessibility.readWriteAccess)
                 Apply(block as MyTerminalBlock);
         }
 
         void ModAPI.Interfaces.ITerminalAction.Apply(ModAPI.Ingame.IMyCubeBlock block, ListReader<TerminalActionParameter> parameters)
         {
-            if (block is TBlock && block.IsAccessibleForProgrammableBlock)
+            if (block is TBlock && block.GetProgrammableBlockAccessibility == IngameScriptAccessibility.readWriteAccess)
                 Apply(block as MyTerminalBlock, parameters);
         }
 
         void ModAPI.Interfaces.ITerminalAction.WriteValue(ModAPI.Ingame.IMyCubeBlock block, StringBuilder appendTo)
         {
-            if (block is TBlock && block.IsAccessibleForProgrammableBlock)
+            if (block is TBlock && block.GetProgrammableBlockAccessibility == IngameScriptAccessibility.readWriteAccess)
                 WriteValue(block as MyTerminalBlock, appendTo);
         }
 

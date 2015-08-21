@@ -1,4 +1,5 @@
 ﻿using Sandbox.ModAPI;
+using Sandbox.ModAPI.Ingame;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -100,13 +101,13 @@ namespace Sandbox.Game.Entities.Cube
 
         void ModAPI.Ingame.IMyTerminalBlock.SetCustomName(string text)
         {
-            if (IsAccessibleForProgrammableBlock)
+            if (GetProgrammableBlockAccessibility == IngameScriptAccessibility.readWriteAccess)
                 SetCustomName(text);
         }
 
         void ModAPI.Ingame.IMyTerminalBlock.SetCustomName(StringBuilder text)
         {
-            if (IsAccessibleForProgrammableBlock)
+            if (GetProgrammableBlockAccessibility == IngameScriptAccessibility.readWriteAccess)
                 SetCustomName(text);
         }
     }

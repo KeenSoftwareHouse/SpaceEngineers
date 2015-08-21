@@ -15,7 +15,7 @@ namespace Sandbox.Game.GameSystems
             blocks.Clear();
             foreach (var block in m_blocks)
             {
-                if (block.IsAccessibleForProgrammableBlock)
+                if (block.GetProgrammableBlockAccessibility == IngameScriptAccessibility.readWriteAccess)
                 {
                     blocks.Add(block);
                 }
@@ -38,7 +38,7 @@ namespace Sandbox.Game.GameSystems
             {
                 if (block is T)
                 {
-                    if (block.IsAccessibleForProgrammableBlock == false || (collect != null && collect(block) == false))
+                    if (block.GetProgrammableBlockAccessibility < IngameScriptAccessibility.readWriteAccess || (collect != null && collect(block) == false))
                     {
                         continue;
                     }
@@ -54,7 +54,7 @@ namespace Sandbox.Game.GameSystems
             {
                 if (block.CustomName.ToString().Contains(name,StringComparison.OrdinalIgnoreCase))
                 {
-                    if (block.IsAccessibleForProgrammableBlock == false || (collect != null && collect(block) == false))
+                    if (block.GetProgrammableBlockAccessibility < IngameScriptAccessibility.readWriteAccess || (collect != null && collect(block) == false))
                     {
                         continue;
                     }
@@ -67,7 +67,7 @@ namespace Sandbox.Game.GameSystems
         {
             foreach (var block in m_blocks)
             {
-                if (block.CustomName.ToString() == name&& block.IsAccessibleForProgrammableBlock )
+                if (block.CustomName.ToString() == name && block.GetProgrammableBlockAccessibility == IngameScriptAccessibility.readWriteAccess)
                 {
                     return block;
                 }

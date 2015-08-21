@@ -1374,5 +1374,18 @@ namespace Sandbox.Game.Entities.Cube
         {
             get { return m_other; }
         }
+
+        public List<Sandbox.ModAPI.Ingame.IMyCubeBlock> DetectedBlocks
+        {
+            get
+            {
+                List<Sandbox.ModAPI.Ingame.IMyCubeBlock> blocksInGrid = new List<Sandbox.ModAPI.Ingame.IMyCubeBlock>();
+                if (m_other != null)
+                {
+                    blocksInGrid.Add(m_other);
+                }
+                return blocksInGrid;
+            }
+        }
     }
 }

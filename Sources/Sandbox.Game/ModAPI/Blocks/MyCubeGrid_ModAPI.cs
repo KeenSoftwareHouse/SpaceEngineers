@@ -253,7 +253,7 @@ namespace Sandbox.Game.Entities
             Sandbox.ModAPI.Ingame.IMySlimBlock block = GetCubeBlock(position);
             if (block != null && block.FatBlock != null)
             {
-                if ((block.FatBlock is MyTerminalBlock) && (block.FatBlock as MyTerminalBlock).IsAccessibleForProgrammableBlock)
+                if ((block.FatBlock is MyTerminalBlock) && (block.FatBlock as MyTerminalBlock).GetProgrammableBlockAccessibility == Sandbox.ModAPI.Ingame.IngameScriptAccessibility.readWriteAccess)
                 {
                     return block;
                 }
