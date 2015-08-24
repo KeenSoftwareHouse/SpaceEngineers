@@ -113,10 +113,10 @@ namespace Sandbox.Game.Entities
             MyTerminalControlFactory.AddControl(fieldDepth);
 
             var gravityAcceleration = new MyTerminalControlSlider<MyGravityGenerator>("Gravity", MySpaceTexts.BlockPropertyTitle_GravityAcceleration, MySpaceTexts.BlockPropertyDescription_GravityAcceleration);
-            gravityAcceleration.SetLimits(-1, 1);
-            gravityAcceleration.DefaultValue = 1;
-            gravityAcceleration.Getter = (x) => x.GravityAcceleration / MyGravityProviderSystem.G;
-            gravityAcceleration.Setter = (x, v) => x.SyncObject.SendChangeGravityGeneratorRequest(ref x.m_fieldSize, v * MyGravityProviderSystem.G);
+            gravityAcceleration.SetLimits(-MyGravityProviderSystem.G, MyGravityProviderSystem.G);
+			gravityAcceleration.DefaultValue = MyGravityProviderSystem.G;
+            gravityAcceleration.Getter = (x) => x.GravityAcceleration;
+            gravityAcceleration.Setter = (x, v) => x.SyncObject.SendChangeGravityGeneratorRequest(ref x.m_fieldSize, v);
             gravityAcceleration.Writer = (x, result) => result.AppendDecimal(x.m_gravityAcceleration / MyGravityProviderSystem.G, 2).Append(" G");
             gravityAcceleration.EnableActions();
             MyTerminalControlFactory.AddControl(gravityAcceleration);

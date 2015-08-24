@@ -8,6 +8,8 @@ struct FrameConstants {
 	matrix	view_matrix;
 	matrix	projection_matrix;	
 	matrix 	inv_view_matrix;
+	matrix  inv_proj_matrix;
+	matrix 	inv_view_proj_matrix;
 	
 	matrix 	view_projection_matrix_world;
 	float4	world_offset;
@@ -66,8 +68,8 @@ struct FrameConstants {
 	float 	logLumThreshold;
 	float 	padding2_;
 
-	// up to 8 lods
-	float4 voxel_lod_range[4]; 
+	// up to 8 lod levels + 16 massive levels
+	float4 voxel_lod_range[12]; 
 };
 
 cbuffer Frame : register( MERGE(b,FRAME_SLOT) )
@@ -99,7 +101,7 @@ float3 reconstruct_position(float hwDepth, float2 uv) {
 }
 
 float2 get_voxel_lod_range(uint lod) {
-	lod = min(lod, 7);
+	lod = min(lod, 8 + 16 - 1);
 	return (lod % 2) ? frame_.voxel_lod_range[lod/2].zw : frame_.voxel_lod_range[lod/2].xy;
 }
 

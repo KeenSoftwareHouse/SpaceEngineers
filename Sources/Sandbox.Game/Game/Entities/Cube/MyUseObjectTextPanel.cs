@@ -17,7 +17,7 @@ namespace Sandbox.Game.Entities.Cube
         private MyTextPanel m_textPanel;
         private Matrix m_localMatrix;
 
-        public MyUseObjectTextPanel(IMyEntity owner, string dummyName, MyModelDummy dummyData, int key)
+        public MyUseObjectTextPanel(IMyEntity owner, string dummyName, MyModelDummy dummyData, uint key)
         {
             m_textPanel = (MyTextPanel)owner;
             m_localMatrix = dummyData.Matrix;
@@ -105,5 +105,10 @@ namespace Sandbox.Game.Entities.Cube
         bool IMyUseObject.HandleInput() { return false; }
 
         void IMyUseObject.OnSelectionLost() { }
+
+        bool IMyUseObject.PlayIndicatorSound
+        {
+            get { return true; }
+        }
     }
 }

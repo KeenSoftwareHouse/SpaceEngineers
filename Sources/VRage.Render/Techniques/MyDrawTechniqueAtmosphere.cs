@@ -30,7 +30,7 @@ namespace VRageRender.Techniques
 
             var atmosphere = renderElement.RenderObject as MyRenderAtmosphere;
 
-            float depthScale = 0.15f;
+            float depthScale = 0.2f;
 
             effectAtmosphere.SetInnerRadius(atmosphere.PlanetRadius);
             effectAtmosphere.SetOutherRadius(atmosphere.AtmosphereRadius);
@@ -48,6 +48,8 @@ namespace VRageRender.Techniques
             effectAtmosphere.SetIsInside(atmosphere.IsInside(MyRenderCamera.Position));
 
             effectAtmosphere.SetScaleDepth(depthScale);
+
+            effectAtmosphere.SetWavelength(atmosphere.AtmosphereWavelengths);
         }
 
         public sealed override void SetupVoxelMaterial(MyEffectVoxels shader, MyRenderVoxelBatch batch)

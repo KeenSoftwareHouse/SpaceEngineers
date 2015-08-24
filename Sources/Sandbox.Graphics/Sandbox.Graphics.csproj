@@ -139,7 +139,6 @@
     <Compile Include="MyTextureAtlas.cs" />
     <Compile Include="MyTransparentGeometryConstants.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Render\MyRenderConstants.cs" />
     <Compile Include="Render\PostProcesses\MyPostProcessAntiAlias.cs" />
     <Compile Include="Render\PostProcesses\MyPostProcessChromaticAberration.cs" />
     <Compile Include="Render\PostProcesses\MyPostProcessColorMapping.cs" />

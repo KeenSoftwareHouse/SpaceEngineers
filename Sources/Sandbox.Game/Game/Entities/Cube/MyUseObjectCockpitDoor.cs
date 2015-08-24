@@ -17,7 +17,7 @@ namespace Sandbox.Game.Entities.Cube
         public readonly IMyEntity Cockpit;
         public readonly Matrix LocalMatrix;
 
-        public MyUseObjectCockpitDoor(IMyEntity owner, string dummyName, MyModelDummy dummyData, int key)
+        public MyUseObjectCockpitDoor(IMyEntity owner, string dummyName, MyModelDummy dummyData, uint key)
         {
             Cockpit = owner;
             LocalMatrix = dummyData.Matrix;
@@ -93,5 +93,10 @@ namespace Sandbox.Game.Entities.Cube
         bool IMyUseObject.HandleInput() { return false; }
 
         void IMyUseObject.OnSelectionLost() { }
+
+        bool IMyUseObject.PlayIndicatorSound
+        {
+            get { return true; }
+        }
     }
 }

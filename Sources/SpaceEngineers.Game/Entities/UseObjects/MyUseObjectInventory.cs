@@ -5,6 +5,7 @@ using Sandbox.Game.Entities;
 using Sandbox.Game.Entities.Character;
 using Sandbox.Game.Gui;
 using Sandbox.Game.Localization;
+using Sandbox.Common;
 using VRage.Game.Entity.UseObject;
 using VRage.Import;
 using VRage.Input;
@@ -20,7 +21,7 @@ namespace SpaceEngineers.Game.Entities.UseObjects
         public readonly MyCubeBlock Block;
         public readonly Matrix LocalMatrix;
 
-        public MyUseObjectInventory(IMyEntity owner, string dummyName, MyModelDummy dummyData, int key)
+        public MyUseObjectInventory(IMyEntity owner, string dummyName, MyModelDummy dummyData, uint key)
         {
             Block = owner as MyCubeBlock;
             LocalMatrix = dummyData.Matrix;
@@ -63,7 +64,7 @@ namespace SpaceEngineers.Game.Entities.UseObjects
         {
             var user = entity as MyCharacter;
             var relation = Block.GetUserRelationToOwner(user.ControllerInfo.ControllingIdentityId);
-            if (relation != Sandbox.Common.MyRelationsBetweenPlayerAndBlock.Owner && relation != Sandbox.Common.MyRelationsBetweenPlayerAndBlock.FactionShare)
+            if (!relation.IsFriendly())
             {
                 if (user.ControllerInfo.IsLocallyHumanControlled())
                 {
@@ -104,5 +105,10 @@ namespace SpaceEngineers.Game.Entities.UseObjects
         bool IMyUseObject.HandleInput() { return false; }
 
         void IMyUseObject.OnSelectionLost() { }
+
+        bool IMyUseObject.PlayIndicatorSound
+        {
+            get { return true; }
+        }
     }
 }

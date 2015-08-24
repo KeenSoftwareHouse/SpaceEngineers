@@ -1,4 +1,5 @@
-﻿using Sandbox.Definitions;
+﻿using Sandbox.Common.ObjectBuilders;
+using Sandbox.Definitions;
 using Sandbox.Game.Entities.Cube;
 using Sandbox.Game.Entities.EnvironmentItems;
 using Sandbox.Game.GameSystems;
@@ -30,7 +31,8 @@ namespace Sandbox.Game.Entities
         {
             public long GridEntityId;
             public Vector3I BlockPosition;
-            public MyDefinitionId ComponentDefinition;
+            public MyDefinitionId ComponentDefinitionId;
+            public int ComponentCount;
         }
 
         private static List<MyFracturedPiece> m_tmpFracturePieceList = new List<MyFracturedPiece>();
@@ -53,7 +55,7 @@ namespace Sandbox.Game.Entities
                 MyTrees trees = entity as MyTrees;
                 if (trees == null) continue;
 
-                trees.GetItemsInRadius(fromPosition, radius, m_tmpEnvItemList);
+                trees.GetPhysicalItemsInRadius(fromPosition, radius, m_tmpEnvItemList);
 
                 foreach (var tree in m_tmpEnvItemList)
                 {
@@ -91,7 +93,7 @@ namespace Sandbox.Game.Entities
                 if (trees == null) continue;
 
 				m_tmpEnvItemList.Clear();
-                trees.GetItemsInRadius(areaBoundingBox.Center, (float)areaBoundingBox.HalfExtents.Length(), m_tmpEnvItemList);
+                trees.GetPhysicalItemsInRadius(areaBoundingBox.Center, (float)areaBoundingBox.HalfExtents.Length(), m_tmpEnvItemList);
 
                 foreach (var tree in m_tmpEnvItemList)
                 {
@@ -240,7 +242,7 @@ namespace Sandbox.Game.Entities
                                 closestCubeDistanceSq = cubeDistanceFromCharacterSq;
                                 result.GridEntityId = cubeGrid.EntityId;
                                 result.BlockPosition = first.Position;
-                                result.ComponentDefinition = GetComponentId(first);
+                                result.ComponentDefinitionId = GetComponentId(first);
                             }
                         }
                     }
@@ -305,7 +307,7 @@ namespace Sandbox.Game.Entities
 
                 result.GridEntityId = closestGrid.EntityId;
                 result.BlockPosition = first.Position;
-                result.ComponentDefinition = GetComponentId(first);
+                result.ComponentDefinitionId = GetComponentId(first);
 
                 return true;
             }
@@ -327,29 +329,59 @@ namespace Sandbox.Game.Entities
             var entities = MyEntities.GetEntitiesInSphere(ref sphere);
             foreach (var entity in entities)
             {
-                if (MyManipulationTool.IsEntityManipulated(entity))
-                    continue;
+                MyCubeBlock block = null;
+                MyCubeGrid grid = TryGetAsComponent(entity, out block);
+                if (grid == null) continue;
 
-                if (entity is MyCubeGrid)
+                BlockInfo info = new BlockInfo();
+                info.GridEntityId = grid.EntityId;
+                info.BlockPosition = block.Position;
+                info.ComponentDefinitionId = GetComponentId(block.SlimBlock);
+
+                if (block.BlockDefinition.Components != null)
+                    info.ComponentCount = block.BlockDefinition.Components[0].Count;
+                else
                 {
-                    var cubeGrid = entity as MyCubeGrid;
-                    if (cubeGrid.BlocksCount == 1)
-                    {
-                        var first = cubeGrid.CubeBlocks.First();
-
-                        BlockInfo info = new BlockInfo();
-                        info.GridEntityId = cubeGrid.EntityId;
-                        info.BlockPosition = first.Position;
-                        info.ComponentDefinition = GetComponentId(first);
-
-                        m_retvalBlockInfos.Add(info);
-                    }
+                    Debug.Assert(false, "Block definition does not have any components!");
+                    info.ComponentCount = 0;
                 }
+
+                m_retvalBlockInfos.Add(info);
             }
 
 			entities.Clear();
 
             return m_retvalBlockInfos;
+        }
+
+        public static MyCubeGrid TryGetAsComponent(MyEntity entity, out MyCubeBlock block, bool blockManipulatedEntity = true )
+        {
+            block = null;
+
+            if (MyManipulationTool.IsEntityManipulated(entity) && blockManipulatedEntity)
+                return null;
+
+            if (entity.MarkedForClose)
+                return null;
+
+            var grid = entity as MyCubeGrid;
+            if (grid == null) return null;
+            if (grid.GridSizeEnum != MyCubeSize.Small) return null;
+            if (grid.CubeBlocks.Count != 1) return null;
+            if (grid.IsStatic) return null;
+
+            var enumerator = grid.CubeBlocks.GetEnumerator();
+            enumerator.MoveNext();
+            block = enumerator.Current.FatBlock;
+            enumerator.Dispose();
+            if (block == null) return null;
+
+            if (!MyDefinitionManager.Static.IsComponentBlock(block.BlockDefinition.Id)) return null;
+            if (block.IsSubBlock) return null;
+            if (block.GetSubBlocks().Count() > 0) return null;
+
+            if (MyCubeGridSmallToLargeConnection.Static.TestGridSmallToLargeConnection(grid)) return null;
+            return grid;
         }
 
         private static void FindFracturedTreesInternal(Vector3D fromPosition, MyPlaceArea area, BoundingSphereD sphere)
@@ -439,7 +471,7 @@ namespace Sandbox.Game.Entities
 
                 result.GridEntityId = selectedCube.EntityId;
                 result.BlockPosition = first.Position;
-                result.ComponentDefinition = GetComponentId(first);
+                result.ComponentDefinitionId = GetComponentId(first);
 
                 return true;
             }
@@ -470,7 +502,7 @@ namespace Sandbox.Game.Entities
                         continue;
 
                     m_tmpEnvItemList.Clear();
-                    trees.GetItemsInRadius(areaBoundingBox.Center, (float)areaBoundingBox.HalfExtents.Length(), m_tmpEnvItemList);
+                    trees.GetPhysicalItemsInRadius(areaBoundingBox.Center, (float)areaBoundingBox.HalfExtents.Length(), m_tmpEnvItemList);
                     foreach (var tree in m_tmpEnvItemList)
                     {
                         if (area.TestPoint(tree.Transform.Position))

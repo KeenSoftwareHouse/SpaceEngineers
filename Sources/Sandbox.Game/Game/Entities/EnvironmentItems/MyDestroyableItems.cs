@@ -26,7 +26,7 @@ namespace Sandbox.Game.Entities.EnvironmentItems
     {
         public MyDestroyableItems() { }
 
-        public override void DoDamage(float damage, int instanceId, Vector3D position, Vector3 normal, MyDamageType type)
+        public override void DoDamage(float damage, int instanceId, Vector3D position, Vector3 normal, MyStringHash type)
         {
             if (!Sync.IsServer) return;
 

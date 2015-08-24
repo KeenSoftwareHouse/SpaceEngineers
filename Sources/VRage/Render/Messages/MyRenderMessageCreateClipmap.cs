@@ -13,6 +13,7 @@ namespace VRageRender
         public bool HasAtmosphere;
         public Vector3D Position;
         public MyClipmapScaleEnum ScaleGroup;
+        public Vector3? AtmosphereWaveLenghts;
 
         MyRenderMessageType IMyRenderMessage.MessageClass { get { return MyRenderMessageType.StateChangeOnce; } }
         MyRenderMessageEnum IMyRenderMessage.MessageType { get { return MyRenderMessageEnum.CreateClipmap; } }

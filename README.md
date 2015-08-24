@@ -5,8 +5,7 @@ Welcome to the Space Engineers source code!
 
 From this repository you can build Space Engineers. To play Space Engineers you need to own the game on Steam. Assets (audio, models, textures) are not included in this repository.
 
-Before downloading the source code please read the EULA carefully
-[End User License Agreement](https://github.com/KeenSoftwareHouse/SpaceEngineers/blob/master/EULA.txt)
+Before downloading the source code please read the EULA carefully - [End User License Agreement](https://github.com/KeenSoftwareHouse/SpaceEngineers/blob/master/EULA.txt).
 
 See the [Change log](https://github.com/KeenSoftwareHouse/SpaceEngineers/wiki/Change-log) for latest changes.   
 Have you found a problem related to the source code? Report an [Issue](https://github.com/KeenSoftwareHouse/SpaceEngineers/issues).   
@@ -65,4 +64,4 @@ This happens because repository is slightly ahead of content in Steam folder. De
 Where is the 64-bit version?
 ------------------------
 
-We're unable to provide 64-bit version of all 3rd party libraries because of licensing. We're working on this and trying to negotiate better license which will allows us to do that.
+We're unable to provide a 64-bit version of all 3rd party libraries because of licensing. We're working on this and trying to negotiate a better license which will allow us to do that.

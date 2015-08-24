@@ -331,5 +331,38 @@
         <StartingState xsi:type="Transform" JetpackEnabled="true" DampenersEnabled="true" />
       </PossibleStartingStates>
     </ScenarioDefinition>
-  </Scenarios>
+    <ScenarioDefinition>
+      <Id>
+        <TypeId>ScenarioDefinition</TypeId>
+        <SubtypeId>Planet</SubtypeId>
+      </Id>
+      <DisplayName>DisplayName_Scenario_Planet</DisplayName>
+      <Description>Description_Scenario_Planet</Description>
+      <Icon>Textures\GUI\Icons\scenarios\PreviewEmptyWorld.dds</Icon>
+      <AsteroidClusters Enabled="true" />
+      <CreativeModeWeapons>
+        <Weapon>AngleGrinderItem</Weapon>
+        <Weapon>AutomaticRifleItem</Weapon>
+        <Weapon>HandDrillItem</Weapon>
+        <Weapon>WelderItem</Weapon>
+      </CreativeModeWeapons>
+      <SurvivalModeWeapons>
+        <Weapon>AngleGrinderItem</Weapon>
+        <Weapon>HandDrillItem</Weapon>
+        <Weapon>WelderItem</Weapon>
+      </SurvivalModeWeapons>
+      <PossibleStartingStates>
+      <StartingState xsi:type="Transform" JetpackEnabled="true" DampenersEnabled="true">
+        <Transform>
+          <Position x="16753.240629495678" y="36680.468613601675" z="14070.47408505316" />
+          <Forward x="-0.5595269" y="0.5727671" z="0.5990555" />
+          <Up x="-0.6424482" y="0.156920686" z="-0.750090837" />
+        </Transform>
+      </StartingState>
+        </PossibleStartingStates>
+      <WorldGeneratorOperations>
+        <Operation xsi:type="AddPlanetPrefab" PrefabFile="Planet1"/>     
+      </WorldGeneratorOperations>
+    </ScenarioDefinition>
+</Scenarios>
 </ScenarioDefinitions>

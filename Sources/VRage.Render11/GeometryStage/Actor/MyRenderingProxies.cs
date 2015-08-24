@@ -155,6 +155,7 @@ namespace VRageRender
     {
         internal const float NO_DITHER_FADE = Single.PositiveInfinity;
 
+        internal MatrixD WorldMatrix;
         internal MyObjectData ObjectData;
 
         internal LodMeshId Mesh;

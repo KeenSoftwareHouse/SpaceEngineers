@@ -97,6 +97,9 @@ namespace VRageRender
         internal MyVoxelMaterialDetailSet Far1;
         internal MyVoxelMaterialDetailSet Far2;
 
+        internal float FarScale3;
+        internal float FarScale4;
+
         internal float TransitionDistance0;
         internal float TransitionDistance1;
 

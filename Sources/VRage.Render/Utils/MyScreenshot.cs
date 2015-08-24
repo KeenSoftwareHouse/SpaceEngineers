@@ -107,64 +107,40 @@ namespace VRageRender
                     bool multipleTiles = tiles.Count > 1;
 
                     int sc = 0;
+                    byte[] data = new byte[tileWidth * tileHeight * 4];
+
+                    int sysTexWidth = systemTex.GetLevelDescription(0).Width;
+                    int sysTexHeight = systemTex.GetLevelDescription(0).Height;
                     while (tiles.Count > 0)
                     {
                         SharpDX.Rectangle rect = tiles.Pop();
-
-                        byte[] data = new byte[rect.Width * rect.Height * 4];
-                        SharpDX.Rectangle rect2 = new SharpDX.Rectangle(rect.X, rect.Y, rect.X + rect.Width, rect.Y + rect.Height);
                         //texture2D.GetData<byte>(0, rect2, data, 0, data.Length);
                         DataStream ds;
                         //DataRectangle dr = texture2D.LockRectangle(0, rect2, LockFlags.ReadOnly, out ds);
                         DataRectangle dr = systemTex.LockRectangle(0, LockFlags.ReadOnly, out ds);
 
                         //we have to go line by line..
-                        ds.Seek(rect2.Y * systemTex.GetLevelDescription(0).Width * 4, SeekOrigin.Begin);
-                        byte[] emptyLine = new byte[rect2.Width * 4];
-                        byte[] line = new byte[rect2.Width * 4];
+                        ds.Seek(rect.Y * sysTexWidth * 4, SeekOrigin.Begin);
                         int targetOffset = 0;
 
-                        int linesCount = rect2.Height;
+                        int linesCount = tileHeight;
 
-                        int pixelsBefore = rect2.X;
-                        int pixelsAfter = systemTex.GetLevelDescription(0).Width - rect2.Width - rect2.X;
+                        int pixelsBefore = rect.X;
+                        int pixelsAfter = sysTexWidth - tileWidth - rect.X;
 
                         while (linesCount-- > 0)
                         {
                             if (pixelsBefore > 0)
-                                ds.Read(emptyLine, 0, pixelsBefore * 4);
-
-                            ds.Read(line, 0, rect2.Width * 4);
-
-                            if (pixelsAfter > 0)
-                                ds.Read(emptyLine, 0, pixelsAfter * 4);
-
-                            Array.Copy(line, 0, data, targetOffset, rect2.Width * 4);
-
-                            targetOffset += rect2.Width * 4;
+                                ds.Seek(pixelsBefore * 4, SeekOrigin.Current);
+                            
+                            ds.Read(data, targetOffset, tileWidth * 4);
+                            targetOffset += tileWidth * 4;
+                            
+                            if (pixelsAfter > 0 && linesCount > 0)
+                                ds.Seek(pixelsAfter * 4, SeekOrigin.Current);
                         }
 
-
-                        //ds.Read(data, 0, data.Length);
-                        /*
-                for (int i = 0; i < data.Length; i += 4)
-                {
-                    //Swap ARGB <-> RGBA
-                    byte b = data[i + 0];
-                    byte g = data[i + 1];
-                    byte r = data[i + 2];
-                    byte a = data[i + 3];
-                    data[i + 0] = r;  //Blue
-                    data[i + 1] = g; //Green
-                    data[i + 2] = b; //Red
-                    data[i + 3] = a; //Alpha
-                }         */
-
-                        //ds.Seek(0, SeekOrigin.Begin);
-                        //ds.WriteRange(data);
-
                         systemTex.UnlockRectangle(0);
-
                         filename = file;
 
                         if (multipleTiles)
@@ -174,9 +150,9 @@ namespace VRageRender
 
                         using (var stream = MyFileSystem.OpenWrite(MyFileSystem.UserDataPath, filename))
                         {
-                            using (System.Drawing.Bitmap image = new System.Drawing.Bitmap(rect.Width, rect.Height))
+                            using (System.Drawing.Bitmap image = new System.Drawing.Bitmap(tileWidth, tileHeight))
                             {
-                                System.Drawing.Imaging.BitmapData imageData = image.LockBits(new System.Drawing.Rectangle(0, 0, rect.Width, rect.Height), System.Drawing.Imaging.ImageLockMode.WriteOnly, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
+                                System.Drawing.Imaging.BitmapData imageData = image.LockBits(new System.Drawing.Rectangle(0, 0, tileWidth, tileHeight), System.Drawing.Imaging.ImageLockMode.WriteOnly, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
 
                                 System.Runtime.InteropServices.Marshal.Copy(data, 0, imageData.Scan0, data.Length);
 

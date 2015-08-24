@@ -163,7 +163,8 @@ namespace VRageRender
                             rMessage.Technique,
                             rMessage.Flags,
                             rMessage.AtmosphereRadius,
-                            rMessage.PlanetRadius
+                            rMessage.PlanetRadius,
+                            rMessage.AtmosphereWavelengths
                         );
                         ProfilerShort.End();
 
@@ -370,14 +371,17 @@ namespace VRageRender
                         //m_renderObjects.Remove(rMessage.ID);
 
                         MyManualCullableRenderObject manualCullObject = GetRenderObject(rMessage.CullObjectID) as MyManualCullableRenderObject;
-                        RemoveRenderObject(manualCullObject);
+                        if (manualCullObject != null)
+                        {
+                            RemoveRenderObject(manualCullObject);
 
-                        manualCullObject.AddRenderObject(renderObject, (MatrixD?)rMessage.ChildToParent);
+                            manualCullObject.AddRenderObject(renderObject, (MatrixD?)rMessage.ChildToParent);
 
-                        AddRenderObject(manualCullObject);
-
-
-
+                            AddRenderObject(manualCullObject);
+                        }
+                        else
+                        { 
+                        }
                         break;
                     }
 
@@ -410,8 +414,11 @@ namespace VRageRender
 
                             foreach (var effect in m_effects)
                             {
-                                effect.SetNearPlane(MyRenderCamera.NEAR_PLANE_DISTANCE);
-                                effect.SetFarPlane(MyRenderCamera.FAR_PLANE_DISTANCE);
+                                if (effect != null)
+                                {
+                                    effect.SetNearPlane(MyRenderCamera.NEAR_PLANE_DISTANCE);
+                                    effect.SetFarPlane(MyRenderCamera.FAR_PLANE_DISTANCE);
+                                }
                             }
                         }
 

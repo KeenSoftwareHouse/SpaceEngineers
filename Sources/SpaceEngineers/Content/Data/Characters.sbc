@@ -11,8 +11,11 @@
       <RightGlare>GlareHeadlight</RightGlare>
       <LightGlareSize>0.02</LightGlareSize>
       <Skeleton>Humanoid</Skeleton>
+      <Stats>SpaceCharacterStats</Stats>
 	  
-	  
+  	  <!-- ENABLED COMPONENTS -->
+	  <EnabledComponents>RagdollComponent</EnabledComponents>
+
 		<!-- CHARACTER CONTROL -->
 		<UseOnlyWalking>false</UseOnlyWalking>
 
@@ -291,6 +294,12 @@
       <RightLightBone></RightLightBone>
       <LightGlareSize>0.02</LightGlareSize>
       <Skeleton>Humanoid</Skeleton>
+
+	  <!-- ENABLED COMPONENTS -->
+	  <EnabledComponents>RagdollComponent</EnabledComponents>
+
+	  
+      <Stats>SpaceCharacterStats</Stats>
 				
 		<!-- CHARACTER CONTROL -->
 		<UseOnlyWalking>false</UseOnlyWalking>

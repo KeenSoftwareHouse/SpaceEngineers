@@ -35,7 +35,7 @@ namespace Sandbox.Game.Entities.Cube
         private float m_friction;
         private float m_height;
         private float m_suspensionTravel;
-        private static List<HkRigidBody> m_tmpList = new List<HkRigidBody>();
+        private static List<HkBodyCollision> m_tmpList = new List<HkBodyCollision>();
         private static HashSet<MySlimBlock> m_tmpSet = new HashSet<MySlimBlock>();
         private bool m_wasAccelerating;
 
@@ -512,7 +512,7 @@ namespace Sandbox.Game.Entities.Cube
             base.UpdateBeforeSimulation();
             var lastSteer = m_steerAngle;
             var player = Sync.Players.GetControllingPlayer(CubeGrid);
-            if ((player != null && player.IsLocalPlayer()) || (player == null && Sync.IsServer))
+            if ((player != null && player.IsLocalPlayer) || (player == null && Sync.IsServer))
                 if (!m_wasSteering)
                 {
                     if (Math.Abs(m_steerAngle) < 0.00001)

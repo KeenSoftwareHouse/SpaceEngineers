@@ -15,12 +15,6 @@ namespace Sandbox.Game.Entities
         internal readonly MyPowerDistributor PowerDistributor = new MyPowerDistributor();
         internal readonly MyGridWeaponSystem WeaponSystem = new MyGridWeaponSystem();
 
-        public void OnCreate()
-        {
-            Debug.Assert(TerminalSystem.Blocks.Count == 0, "Terminal system is not empty!");
-            Debug.Assert(TerminalSystem.BlockGroups.Count == 0, "Terminal system is not empty, block groups are there");
-        }
-
         public void OnRelease()
         {
             Debug.Assert(TerminalSystem.Blocks.Count == 0, "Terminal system is not empty!");
@@ -35,6 +29,12 @@ namespace Sandbox.Game.Entities
         public void OnNodeRemoved(MyCubeGrid entity)
         {
             entity.OnRemovedFromGroup(this);
+        }
+
+        public void OnCreate<TGroupData>(MyGroups<MyCubeGrid, TGroupData>.Group group) where TGroupData : IGroupData<MyCubeGrid>, new()
+        {
+            Debug.Assert(TerminalSystem.Blocks.Count == 0, "Terminal system is not empty!");
+            Debug.Assert(TerminalSystem.BlockGroups.Count == 0, "Terminal system is not empty, block groups are there");
         }
     }
 }

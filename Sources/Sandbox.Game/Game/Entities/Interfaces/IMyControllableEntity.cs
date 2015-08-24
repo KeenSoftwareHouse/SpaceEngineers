@@ -1,6 +1,7 @@
 ﻿using Sandbox.Common.ObjectBuilders;
 using Sandbox.Definitions;
 using Sandbox.Game.Multiplayer;
+using Sandbox.Game.Screens.Helpers;
 using Sandbox.Game.World;
 using System;
 using System.Diagnostics;
@@ -37,7 +38,8 @@ namespace Sandbox.Game.Entities
         void UseFinished();
         void Sprint();
 
-        void SwitchToWeapon(MyDefinitionId? weaponDefinition);
+        void SwitchToWeapon(MyDefinitionId weaponDefinition);
+		void SwitchToWeapon(MyToolbarItemWeapon weapon);
         bool CanSwitchToWeapon(MyDefinitionId? weaponDefinition);
         void SwitchAmmoMagazine();
         bool CanSwitchAmmoMagazine();

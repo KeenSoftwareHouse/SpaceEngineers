@@ -166,7 +166,7 @@ namespace Sandbox.Game.Entities.Cube
             }
         }
 
-        public override bool PasteGrid(MyInventory buildInventory = null, bool deactivate = true) 
+        public override bool PasteGrid(MyInventoryBase buildInventory = null, bool deactivate = true) 
         {
             if ((CopiedGrids.Count > 0) && !IsActive)
             {
@@ -205,7 +205,7 @@ namespace Sandbox.Game.Entities.Cube
             return result;
         }
 
-        private bool PasteGridsInDynamicMode(MyInventory buildInventory, bool deactivate)
+        private bool PasteGridsInDynamicMode(MyInventoryBase buildInventory, bool deactivate)
         {
             bool result;
             // Remember static grid flag and set it to dynamic
@@ -225,7 +225,7 @@ namespace Sandbox.Game.Entities.Cube
             return result;
         }
 
-        private bool PasteGridsInStaticMode(MyInventory buildInventory, bool deactivate)
+        private bool PasteGridsInStaticMode(MyInventoryBase buildInventory, bool deactivate)
         {
             MatrixD firstGridMatrix = GetFirstGridOrientationMatrix();
             MatrixD inverseFirstGridMatrix = Matrix.Invert(firstGridMatrix);
@@ -418,22 +418,6 @@ namespace Sandbox.Game.Entities.Cube
             return dot;
         }
 
-        private static double? GetCurrentRayIntersection()
-        {
-            Vector3D position;
-            Vector3 normal;
-            HkRigidBody intersectedBody = MyPhysics.CastRay(MyCubeBuilder.IntersectionStart, MyCubeBuilder.IntersectionStart + 2000 * MyCubeBuilder.IntersectionDirection,
-                out position, out normal, MyPhysics.CollisionLayerWithoutCharacter);
-            if (intersectedBody != null)
-            {
-                Vector3D p = position - MyCubeBuilder.IntersectionStart;
-                double dist = p.Length();
-                return dist;
-            }
-
-            return null;
-        }
-
         protected Vector3D? GetFreeSpacePlacementPosition(bool copyPaste, out bool buildAllowed)
         {
             Vector3D? freePlacementIntersectionPoint = null;
@@ -442,7 +426,7 @@ namespace Sandbox.Game.Entities.Cube
             float gridSize = PreviewGrids[0].GridSize;
 
             double shortestDistance = double.MaxValue;
-            double? currentRayInts = GetCurrentRayIntersection();
+            double? currentRayInts = MyCubeBuilder.GetCurrentRayIntersection();
             if (currentRayInts.HasValue)
                 shortestDistance = currentRayInts.Value;
 
@@ -540,7 +524,7 @@ namespace Sandbox.Game.Entities.Cube
             float gridSize = PreviewGrids[0].GridSize;
 
             double shortestDistance = double.MaxValue;
-            double? currentRayInts = GetCurrentRayIntersection();
+            double? currentRayInts = MyCubeBuilder.GetCurrentRayIntersection();
             if (currentRayInts.HasValue)
                 shortestDistance = currentRayInts.Value;
 
@@ -878,7 +862,7 @@ namespace Sandbox.Game.Entities.Cube
         {
             bool retval = true;
 
-            Vector3I gridOffset = hitGrid.WorldToGridInteger(m_pastePosition);
+            Vector3I gridOffset = hitGrid.WorldToGridInteger(previewGrid.PositionComp.WorldMatrix.Translation);
             MatrixI transform = hitGrid.CalculateMergeTransform(previewGrid, gridOffset);
 
             if (MyDebugDrawSettings.DEBUG_DRAW_COPY_PASTE)
@@ -952,8 +936,8 @@ namespace Sandbox.Game.Entities.Cube
             MyBlockOrientation blockOrientation = new MyBlockOrientation(Base6Directions.GetDirection(forward), Base6Directions.GetDirection(up));
             Quaternion rotation;
             blockOrientation.GetQuaternion(out rotation);
-
-            return MyCubeGrid.CheckConnectivity(hitGrid, block.BlockDefinition, ref rotation, ref position);
+			var blockDefinition = block.BlockDefinition;
+            return MyCubeGrid.CheckConnectivity(hitGrid, blockDefinition, blockDefinition.GetBuildProgressModelMountPoints(block.BuildLevelRatio), ref rotation, ref position);
         }
 
         protected static bool TestBlockPlacementOnGrid(MySlimBlock block, ref MatrixI transform, ref MyGridPlacementSettings settings, MyCubeGrid hitGrid)
@@ -1052,7 +1036,7 @@ namespace Sandbox.Game.Entities.Cube
 
             if (PreviewGrids.Count > 0)
             {
-                double? currentRayInts = GetCurrentRayIntersection();
+                double? currentRayInts = MyCubeBuilder.GetCurrentRayIntersection();
                 if (currentRayInts.HasValue && m_dragDistance > currentRayInts.Value)
                     m_dragDistance = (float)currentRayInts.Value;
 

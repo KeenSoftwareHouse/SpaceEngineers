@@ -11,7 +11,8 @@ namespace VRage.Groups
         /// <summary>
         /// Group is taken from pool
         /// </summary>
-        void OnCreate();
+        void OnCreate<TGroupData>(MyGroups<TNode, TGroupData>.Group group)
+            where TGroupData : IGroupData<TNode>, new();
 
         /// <summary>
         /// Group is returned to pool

@@ -15,6 +15,7 @@ namespace Sandbox.Engine.Physics
         {
             public MyWorkTracker<MyDefinitionId, MyBreakableShapeCloneJob> Tracker;
 
+            public string Model;
             public MyDefinitionId DefId;
             public HkdBreakableShape ShapeToClone;
             public int Count;
@@ -58,7 +59,7 @@ namespace Sandbox.Engine.Physics
             System.Diagnostics.Debug.Assert(m_clonedShapes.Count > 0);
             if (MyDestructionData.Static != null && MyDestructionData.Static.BlockShapePool != null)
             {
-                MyDestructionData.Static.BlockShapePool.EnqueShapes(m_args.DefId, m_clonedShapes);
+                MyDestructionData.Static.BlockShapePool.EnqueShapes(m_args.Model, m_args.DefId, m_clonedShapes);
             }
 
             m_clonedShapes.Clear();

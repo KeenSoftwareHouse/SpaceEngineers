@@ -4,6 +4,7 @@ using Sandbox.Common;
 using Sandbox.Common.ObjectBuilders.Definitions;
 using Sandbox.Definitions;
 using Sandbox.Engine.Networking;
+using Sandbox.Engine.Utils;
 using Sandbox.Graphics.GUI;
 using System;
 using VRage.Input;
@@ -82,7 +83,7 @@ namespace Sandbox.Game.Gui
                     {
                         MyGuiScreenStartSandbox.QuickstartSandbox(new MyObjectBuilder_MedievalSessionSettings() { EnableBarbarians = true, MaximumBots = 10000 }, new World.MyWorldGenerator.Args()
                             {
-                                Scenario = (MyScenarioDefinition)MyDefinitionManager.Static.GetScenarioDefinition(new MyDefinitionId(typeof(MyObjectBuilder_ScenarioDefinition), "Quickstart"))
+                                Scenario = (MyScenarioDefinition)MyDefinitionManager.Static.GetScenarioDefinition(new MyDefinitionId(typeof(MyObjectBuilder_ScenarioDefinition), MyFakes.QUICK_LAUNCH_SCENARIO != String.Empty ? MyFakes.QUICK_LAUNCH_SCENARIO : "Quickstart"))
                             });
                         m_childScreenLaunched = true;
                     }

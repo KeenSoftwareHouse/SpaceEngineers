@@ -45,6 +45,8 @@ namespace Sandbox.Engine.Voxels
         void ResetOutsideBorders(MyVoxelBase voxelMap, BoundingBoxD worldAabb);
 
         void DebugDraw(MyVoxelBase voxelMap, MyVoxelDebugDrawMode mode);
+
+        IMyStorageDataProvider DataProvider { get; }
     }
 
     public static class IMyStorageExtensions

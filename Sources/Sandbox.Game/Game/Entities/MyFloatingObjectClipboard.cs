@@ -390,12 +390,12 @@ namespace Sandbox.Game.Entities
 
                 var rotation = Quaternion.CreateFromRotationMatrix(floatingObject.WorldMatrix);
                 var position = floatingObject.PositionComp.GetPosition() + Vector3D.Transform(floatingObject.PositionComp.LocalVolume.Center, rotation);
-                var bodies = new List<HkRigidBody>();
+                var bodies = new List<HkBodyCollision>();
 
                 MyPhysics.GetPenetrationsShape(floatingObject.Physics.RigidBody.GetShape(), ref position, ref rotation, bodies, MyPhysics.FloatingObjectCollisionLayer);
                 foreach (var body in bodies)
                 {
-                    var ent = body.GetEntity();
+                    var ent = body.GetCollisionEntity();
                     if (ent != null && !ent.Closed)
                     {
                         return false;

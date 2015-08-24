@@ -3,6 +3,8 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2013
 VisualStudioVersion = 12.0.31101.0
 MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SpaceEngineers.Dedicated", "SpaceEngineers.Dedicated.csproj", "{0E3C8169-55FC-4AFA-88AB-F0C0488AFEBA}"
+EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "VRage", "VRage", "{776E066A-DE02-4627-B6BE-25F0287682E2}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sandbox.Game", "..\Sandbox.Game\Sandbox.Game.csproj", "{F77D0A49-F0A1-4E8A-80C8-CBE1842BF2D4}"
@@ -18,8 +20,6 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VRage.Library", "..\VRage.Library\VRage.Library.csproj", "{26FE022E-42AB-40BE-BA9D-97CBE34E7D99}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sandbox.Graphics", "..\Sandbox.Graphics\Sandbox.Graphics.csproj", "{F77D0A49-F0A1-4E8A-80C8-CBE1842BA2D4}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SpaceEngineers.Dedicated", "SpaceEngineers.Dedicated.csproj", "{0E3C8169-55FC-4AFA-88AB-F0C0488AFEBA}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VRage", "..\VRage\VRage.csproj", "{1C814936-C9A7-4FAF-B543-28F021D98B6C}"
 EndProject

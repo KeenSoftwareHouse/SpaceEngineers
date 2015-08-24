@@ -10,5 +10,7 @@ namespace Sandbox.Game.Entities
     {
         MyObjectBuilder_PhysicalGunObject PhysicalObject { get; }
         MyPhysicalItemDefinition PhysicalItemDefinition { get; }
+
+        bool IsBlocking { get; }
     }
 }

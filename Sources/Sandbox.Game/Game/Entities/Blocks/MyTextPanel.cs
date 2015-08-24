@@ -362,8 +362,11 @@ namespace Sandbox.Game.Entities.Blocks
             {
                 if (ShowTextOnScreen && IsInRange() == false)
                 {
-                    m_isOutofRange = true;
-                    ReleaseRenderTexture();
+                    if (!m_isOutofRange)
+                    {
+                        m_isOutofRange = true;
+                        ReleaseRenderTexture();
+                    }
                     return;
                 }
 
@@ -834,6 +837,7 @@ namespace Sandbox.Game.Entities.Blocks
 						else
 							OnEnemyUse(actionEnum, user);
                         break;
+                    case Common.MyRelationsBetweenPlayerAndBlock.NoOwnership:
                     case Common.MyRelationsBetweenPlayerAndBlock.FactionShare:
                         if (OwnerId == 0 && IsAccessibleForOnlyOwner)
                             OnOwnerUse(actionEnum, user);

@@ -20,10 +20,13 @@ namespace VRage.Animations
         void Deserialize(XmlReader reader);
         void SerializeValue(XmlWriter writer, object value);
         void DeserializeValue(XmlReader reader, out object value);
-
         void SetValue(object val);
-        //object GetValue();
-        IMyConstProperty Duplicate();
+        IMyConstProperty Duplicate();       
+        Type GetValueType();
+        /// <summary>
+        /// Warning, this does allocation, use only in editor!
+        /// </summary>
+        object EditorGetValue();
     }
 
     #endregion
@@ -54,11 +57,11 @@ namespace VRage.Animations
         protected virtual void Init()
         {
         }
-                      /*
-        public object GetValue()
+
+        object IMyConstProperty.EditorGetValue()
         {
             return m_value;
-        }               */
+        }             
 
         public U GetValue<U>() where U : T
         {
@@ -84,6 +87,11 @@ namespace VRage.Animations
         protected virtual void Duplicate(IMyConstProperty targetProp)
         {
             targetProp.SetValue(GetValue<T>());
+        }
+
+        Type IMyConstProperty.GetValueType()
+        {
+            return typeof(T);
         }
 
         #region Serialization

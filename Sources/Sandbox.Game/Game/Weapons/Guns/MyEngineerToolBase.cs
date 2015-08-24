@@ -39,6 +39,7 @@ namespace Sandbox.Game.Weapons
     {
         public static float GLARE_SIZE = 0.068f;
 
+		public bool IsDeconstructor { get { return false; } }
         public int ToolCooldownMs { get; private set; }
         public int EffectStopMs
         {
@@ -84,7 +85,7 @@ namespace Sandbox.Game.Weapons
         protected MyFloatingObject m_targetFloatingObject;
         protected MyCharacter m_targetCharacter;
         protected Vector3I m_targetCube;
-        public Vector3I TargetCube { get {  return m_targetCube; } }
+        public Vector3I TargetCube { get { return m_targetCube; } }
         protected float m_targetDistanceSq;
         protected Vector3D m_targetPosition;
 
@@ -105,6 +106,11 @@ namespace Sandbox.Game.Weapons
         public bool IsShooting
         {
             get { return m_activated; }
+        }
+
+        public bool IsBlocking
+        {
+            get { return false; }
         }
 
         private int m_shootFrameCounter = 0;
@@ -131,6 +137,7 @@ namespace Sandbox.Game.Weapons
         }
         protected bool HasCubeHighlight { get; set; }
         public Color HighlightColor { get; set; }
+		public string HighlightMaterial { get; set; }
 
         public bool EnabledInWorldRules { get { return true; } }
 
@@ -370,7 +377,7 @@ namespace Sandbox.Game.Weapons
             return false;
         }
 
-        public virtual void Shoot(MyShootActionEnum action, Vector3 direction)
+        public virtual void Shoot(MyShootActionEnum action, Vector3 direction, string gunAction)
         {
             if (action != MyShootActionEnum.PrimaryAction)
             {
@@ -672,12 +679,6 @@ namespace Sandbox.Game.Weapons
             MyHud.BlockInfo.OwnershipIntegrity = block.BlockDefinition.OwnershipIntegrityRatio;
 
             MySlimBlock.SetBlockComponents(MyHud.BlockInfo, block);
-
-            if (m_targetDistanceSq > m_toolActionDistance * m_toolActionDistance)
-            {
-                // TODO: Show some error?
-                //MyHud.BlockInfo.Error.Append("Out of reach");
-            }
         }
 
         protected void UnmarkMissingComponent()
