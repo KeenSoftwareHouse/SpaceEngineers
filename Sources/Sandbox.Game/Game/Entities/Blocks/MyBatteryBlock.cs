@@ -38,7 +38,7 @@ namespace Sandbox.Game.Entities
     using VRage.ModAPI;
 
     [MyCubeBlockType(typeof(MyObjectBuilder_BatteryBlock))]
-    class MyBatteryBlock : MyFunctionalBlock, IMyPowerProducer, IMyPowerConsumer, Sandbox.ModAPI.Ingame.IMyBatteryBlock
+    class MyBatteryBlock : MyFunctionalBlock, IMyPowerProducer, IMyPowerConsumer, Sandbox.ModAPI.IMyBatteryBlock
     {
         static string[] m_emissiveNames = new string[] { "Emissive0", "Emissive1", "Emissive2", "Emissive3" };
         private MyBatteryBlockDefinition m_batteryBlockDefinition;
@@ -54,6 +54,19 @@ namespace Sandbox.Game.Entities
         private int m_prevFillCount = -1;
 
         private new MySyncBatteryBlock SyncObject;
+
+        //SetCurrentStoredPower and necessary interface modifications added by Jimmacle
+        public void SetCurrentStoredPower(float power)
+        {
+            if (power > 0)
+            {
+                m_currentStoredPower = power < m_maxStoredPower ? power : m_maxStoredPower;
+            }
+            else
+            {
+                m_currentStoredPower = 0;
+            }
+        }
 
         protected override bool CheckIsWorking()
         {
