@@ -58,17 +58,13 @@ namespace Sandbox.Game.Entities
         //SetCurrentStoredPower and necessary interface modifications added by Jimmacle
         public void SetCurrentStoredPower(float power)
         {
-            if (power < 0)
+            if (power > 0)
             {
-                return;
-            }
-            else if (power <= m_maxStoredPower)
-            {
-                m_currentStoredPower = power;
+                m_currentStoredPower = power < m_maxStoredPower ? power : m_maxStoredPower;
             }
             else
             {
-                m_currentStoredPower = m_maxStoredPower;
+                m_currentStoredPower = 0;
             }
         }
 
