@@ -4,7 +4,7 @@ using Sandbox.Game.GameSystems.Conveyors;
 
 namespace Sandbox.Game.Entities
 {
-    internal class MyUpgradableBlockComponent
+    public class MyUpgradableBlockComponent
     {
         public HashSet<ConveyorLinePosition> ConnectionPositions
         {

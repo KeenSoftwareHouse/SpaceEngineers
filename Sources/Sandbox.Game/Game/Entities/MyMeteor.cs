@@ -33,7 +33,7 @@ using VRage.ModAPI;
 namespace Sandbox.Game.Entities
 {
     [MyEntityType(typeof(MyObjectBuilder_Meteor))]
-    class MyMeteor : MyEntity, IMyDestroyableObject, IMyMeteor
+    public class MyMeteor : MyEntity, IMyDestroyableObject, IMyMeteor
     {
         private static readonly int MAX_TRAJECTORY_LENGTH = 10000;
         private static readonly int MIN_SPEED = 100;

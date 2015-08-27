@@ -16,7 +16,7 @@ using VRageMath;
 namespace Sandbox.Game.Entities
 {
     [MySessionComponentDescriptor(MyUpdateOrder.NoUpdate)]
-    class MyMeteorShower : MySessionComponentBase
+    public class MyMeteorShower : MySessionComponentBase
     {
         private static readonly int WAVES_IN_SHOWER = 4;
 

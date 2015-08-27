@@ -5,7 +5,7 @@ using VRage.ModAPI;
 
 namespace Sandbox.Game.Entities
 {
-    class MyEntityIdRemapHelper : IMyRemapHelper
+    public class MyEntityIdRemapHelper : IMyRemapHelper
     {
         static int DEFAULT_REMAPPER_SIZE = 512;
 

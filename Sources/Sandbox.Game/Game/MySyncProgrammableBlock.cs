@@ -15,7 +15,7 @@ using Sandbox.Graphics.GUI;
 
 namespace Sandbox.Game.Multiplayer
 {
-    internal static class StringCompressor
+    public static class StringCompressor
     {
         public static void CopyTo(Stream src, Stream dest)
         {
@@ -62,7 +62,7 @@ namespace Sandbox.Game.Multiplayer
     }
 
     [PreloadRequired]
-    class MySyncProgrammableBlock
+    public class MySyncProgrammableBlock
     {
         MyProgrammableBlock m_programmableBlock;
 

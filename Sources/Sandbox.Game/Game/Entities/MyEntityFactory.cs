@@ -12,7 +12,7 @@ using VRage.Components;
 
 namespace Sandbox.Game.Entities
 {
-    internal static class MyEntityFactory
+    public static class MyEntityFactory
     {
         static MyObjectFactory<MyEntityTypeAttribute, MyEntity> m_objectFactory = new MyObjectFactory<MyEntityTypeAttribute, MyEntity>();
 

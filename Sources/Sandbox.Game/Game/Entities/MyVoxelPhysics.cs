@@ -14,7 +14,7 @@ using VRageMath;
 
 namespace Sandbox.Game.Entities
 {
-    class MyVoxelPhysics: MyVoxelBase 
+    public class MyVoxelPhysics: MyVoxelBase 
     {
         MyPlanet m_parent;
 
