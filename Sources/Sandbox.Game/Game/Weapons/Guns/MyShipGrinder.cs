@@ -7,8 +7,10 @@ using Sandbox.Game.GameSystems;
 using Sandbox.Game.Lights;
 using Sandbox.Game.Multiplayer;
 using Sandbox.Game.World;
+using Sandbox.Common.ObjectBuilders.Definitions;
 using Sandbox.Graphics.TransparentGeometry.Particles;
 using Sandbox.ModAPI.Ingame;
+using Sandbox.ModAPI;
 using System;
 using System.Collections.Generic;
 using VRage.Utils;
@@ -32,7 +34,7 @@ namespace Sandbox.Game.Weapons
 
         const float RANDOM_IMPULSE_SCALE = 500.0f;
 
-        private static List<MyInventoryItem> m_tmpItemList = new List<MyInventoryItem>();
+        private static List<MyPhysicalInventoryItem> m_tmpItemList = new List<MyPhysicalInventoryItem>();
 
         bool m_wantsToShake = false;
         MyCubeGrid m_otherGrid = null;
@@ -61,13 +63,26 @@ namespace Sandbox.Game.Weapons
                 foreach (var block in targets)
                 {
                     m_otherGrid = block.CubeGrid;
-                    block.DecreaseMountLevel(MySession.Static.GrinderSpeedMultiplier * MyShipGrinderConstants.GRINDER_AMOUNT_PER_SECOND * coefficient, Inventory);
+
+                    float damage = MySession.Static.GrinderSpeedMultiplier * MyShipGrinderConstants.GRINDER_AMOUNT_PER_SECOND * coefficient;
+                    MyDamageInformation damageInfo = new MyDamageInformation(false, damage, MyDamageType.Grind, EntityId);
+
+                    if (block.UseDamageSystem)
+                        MyDamageSystem.Static.RaiseBeforeDamageApplied(block, ref damageInfo);
+
+                    block.DecreaseMountLevel(damageInfo.Amount, Inventory);
                     block.MoveItemsFromConstructionStockpile(Inventory);
-                   
+
+                    if (block.UseDamageSystem)
+                        MyDamageSystem.Static.RaiseAfterDamageApplied(block, damageInfo);
                     
                     if (block.IsFullyDismounted)
                     {
                         if (block.FatBlock is IMyInventoryOwner) EmptyBlockInventories(block.FatBlock as IMyInventoryOwner);
+
+                        if(block.UseDamageSystem)
+                            MyDamageSystem.Static.RaiseDestroyed(block, damageInfo);
+
                         block.SpawnConstructionStockpile();
                         block.CubeGrid.RazeBlock(block.Min);
                     }

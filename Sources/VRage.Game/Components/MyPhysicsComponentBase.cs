@@ -55,7 +55,6 @@ namespace VRage.Components
 
     public abstract class MyPhysicsComponentBase : MyEntityComponentBase
     {
-        public static bool DebugDrawFlattenHierarchy = false;
 
         #region Fields
 
@@ -85,8 +84,8 @@ namespace VRage.Components
         /// <value>
         /// The type of the material.
         /// </value>
-        public MyStringId MaterialType { get; set; }
-        public virtual MyStringId GetMaterialAt(Vector3D worldPos) { return MaterialType; }
+        public MyStringHash MaterialType { get; set; }
+        public virtual MyStringHash GetMaterialAt(Vector3D worldPos) { return MaterialType; }
 
         /// <summary>
         /// Gets or sets a value indicating whether this <see cref="MyGameRigidBody"/> is static.
@@ -109,7 +108,7 @@ namespace VRage.Components
         /// <value>
         ///   <c>true</c> if kinematic; otherwise, <c>false</c>.
         /// </value>
-        public bool IsKinematic
+        public virtual bool IsKinematic
         {
             get
             {
@@ -193,6 +192,8 @@ namespace VRage.Components
             get;
             protected set;
         }
+
+        public abstract Vector3 GetVelocityAtPoint(Vector3D worldPos);
 
         ///// <summary>
         ///// Gets or sets max linear velocity.
@@ -386,5 +387,10 @@ namespace VRage.Components
         }
 
         #endregion
+
+        public override string ComponentTypeDebugString
+        {
+            get { return "Physics"; }
+        }
     }
 }

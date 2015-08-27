@@ -73,14 +73,14 @@ namespace Sandbox.Game.Weapons
             return retval;
         }
 
-        public override void Shoot(MyShootActionEnum action, Vector3 direction)
+        public override void Shoot(MyShootActionEnum action, Vector3 direction, string gunAction)
         {
             if (MySession.Static.CreativeMode)
                 return;
 
             m_closeAfterBuild = false;
 
-            base.Shoot(action, direction);
+            base.Shoot(action, direction, gunAction);
             ShakeAmount = 0.0f;
 
             if (action == MyShootActionEnum.PrimaryAction && m_firstShot)
@@ -95,17 +95,14 @@ namespace Sandbox.Game.Weapons
                     return;
                 }
 
-                MyCharacter character = CharacterInventory.Owner as MyCharacter;
-                Debug.Assert(character != null, "Character inventory was not owned by a character");
-
-                if (character.ControllerInfo.IsRemotelyControlled())
+                if (!Owner.ControllerInfo.IsLocallyControlled())
                     return;
 
                 // Must have first component to start building
-                if (MyCubeBuilder.Static.CanStartConstruction(character))
+                if (MyCubeBuilder.Static.CanStartConstruction(Owner))
                 {
                     bool placingGrid = MyCubeBuilder.Static.ShipCreationClipboard.IsActive;
-                    m_closeAfterBuild = MyCubeBuilder.Static.AddConstruction(character) && placingGrid;
+                    m_closeAfterBuild = MyCubeBuilder.Static.AddConstruction(Owner) && placingGrid;
                     return;
                 }
                 else
@@ -142,7 +139,7 @@ namespace Sandbox.Game.Weapons
             else
             {
                 if (MyPerGameSettings.UseAnimationInsteadOfIK)
-                    character.PlayCharacterAnimation("Building_pose", true, MyPlayAnimationMode.Immediate | MyPlayAnimationMode.Play, 0.2f);
+                    character.PlayCharacterAnimation("Building_pose", MyBlendOption.Immediate, MyFrameOption.Loop, 0.2f);
             }
         }
 
@@ -167,7 +164,7 @@ namespace Sandbox.Game.Weapons
             if (Owner != null)
             {
                 if (MyPerGameSettings.UseAnimationInsteadOfIK)
-                    Owner.PlayCharacterAnimation("Building_pose", true, MyPlayAnimationMode.Play, 0.2f); 
+                    Owner.PlayCharacterAnimation("Building_pose", MyBlendOption.Immediate, MyFrameOption.Loop, 0.2f); 
                 if (Owner.ControllerInfo.IsLocallyHumanControlled())
                 {
                     BlockBuilder.Activate();

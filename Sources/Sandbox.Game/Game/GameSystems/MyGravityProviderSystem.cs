@@ -7,7 +7,7 @@ using VRageMath;
 
 namespace Sandbox.Game.GameSystems
 {
-    static class MyGravityProviderSystem
+    public static class MyGravityProviderSystem
     {
         public const float G = 9.81f;
         static List<IMyGravityProvider> m_gravityGenerators = new List<IMyGravityProvider>();

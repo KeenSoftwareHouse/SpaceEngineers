@@ -291,14 +291,14 @@ namespace Sandbox.Game.Multiplayer
 
                 if (controllableEntity != null)
                 {
-                    MyRelationsBetweenPlayerAndBlock relation = MyRelationsBetweenPlayerAndBlock.FactionShare;
+                    MyRelationsBetweenPlayerAndBlock relation = MyRelationsBetweenPlayerAndBlock.NoOwnership;
                     var cubeBlock = sync.Entity as MyCubeBlock;
                     if (cubeBlock != null && controllableEntity.ControllerInfo.Controller != null)
                     {
                         relation = cubeBlock.GetUserRelationToOwner(controllableEntity.ControllerInfo.Controller.Player.Identity.IdentityId);
                     }
 
-                    if (relation == MyRelationsBetweenPlayerAndBlock.FactionShare || relation == MyRelationsBetweenPlayerAndBlock.Owner)
+                    if (relation.IsFriendly())
                     {
                         sync.RaiseUseSuccess(msg.UseAction, controllableEntity);
                     }

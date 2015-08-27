@@ -274,7 +274,7 @@ namespace Sandbox.Game.Screens.Helpers
             AttachOwner(owner);
         }
 
-        private void inventory_OnContentsChanged(MyInventory obj)
+        private void inventory_OnContentsChanged(MyInventoryBase obj)
         {
             RefreshInventoryContents();
             if (InventoryContentsChanged != null)
@@ -351,7 +351,7 @@ namespace Sandbox.Game.Screens.Helpers
             m_inventoryOwner = null;
         }
 
-        public static void FormatItemAmount(MyInventoryItem item, StringBuilder text)
+        public static void FormatItemAmount(MyPhysicalInventoryItem item, StringBuilder text)
         {
             try
             {
@@ -402,7 +402,7 @@ namespace Sandbox.Game.Screens.Helpers
             }
         }
 
-        public static MyGuiControlGrid.Item CreateInventoryGridItem(MyInventoryItem item)
+        public static MyGuiControlGrid.Item CreateInventoryGridItem(MyPhysicalInventoryItem item)
         {
             var definition = MyDefinitionManager.Static.GetPhysicalItemDefinition(item.Content);
 

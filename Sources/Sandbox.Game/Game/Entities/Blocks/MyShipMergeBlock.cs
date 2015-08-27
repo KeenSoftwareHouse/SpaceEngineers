@@ -179,20 +179,28 @@ namespace Sandbox.Game.Entities.Blocks
 
         private void phantom_Leave(HkPhantomCallbackShape shape, HkRigidBody body)
         {
-            var other = body.GetEntity() as MyCubeGrid;
-            if (other == null || other.GridSizeEnum != CubeGrid.GridSizeEnum || other == this.CubeGrid)
-                return;
+            var entities = body.GetAllEntities();
+            foreach (var entity in entities)
+            {
+                var other = entity as MyCubeGrid;
+                if (other == null || other.GridSizeEnum != CubeGrid.GridSizeEnum || other == this.CubeGrid)
+                    continue;
 
-            m_gridList.Remove(other);
+                m_gridList.Remove(other);
+            }
         }
 
         private void phantom_Enter(HkPhantomCallbackShape shape, HkRigidBody body)
         {
-            var other = body.GetEntity() as MyCubeGrid;
-            if (other == null || other.GridSizeEnum != CubeGrid.GridSizeEnum || other == this.CubeGrid)
-                return;
+            var entities = body.GetAllEntities();
+            foreach (var entity in entities)
+            {
+                var other = entity as MyCubeGrid;
+                if (other == null || other.GridSizeEnum != CubeGrid.GridSizeEnum || other == this.CubeGrid)
+                    continue;
 
-            m_gridList.Add(other);
+                m_gridList.Add(other);
+            }
         }
 
         private void CalculateMergeArea(out Vector3I minI, out Vector3I maxI)
@@ -359,7 +367,7 @@ namespace Sandbox.Game.Entities.Blocks
         {
             base.OnOwnershipChanged();
 
-            UpdateIsWorking();
+            UpdateIsWorkingBeforeNextFrame();
         }
 
         private void CalculateMergeData(ref MergeData data)
@@ -689,14 +697,6 @@ namespace Sandbox.Game.Entities.Blocks
             {
                 m_other.RemoveConstraintInBoth();
             }
-        }
-
-        protected IMyEntity GetOtherEntity(ref HkContactPointEvent value)
-        {
-            if (value.Base.BodyA.GetEntity() == this)
-                return value.Base.BodyB.GetEntity();
-            else
-                return value.Base.BodyA.GetEntity();
         }
 
         protected override void Closing()

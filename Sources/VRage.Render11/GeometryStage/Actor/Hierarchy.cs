@@ -262,7 +262,7 @@ namespace VRageRender
         internal void PropagateMatrixChange(MyActor child)
         {
             var matrix = child.m_relativeTransform.HasValue
-                        ? child.m_relativeTransform.Value * m_owner.WorldMatrix
+                        ? (MatrixD)child.m_relativeTransform.Value * m_owner.WorldMatrix
                         : m_owner.WorldMatrix;
             child.SetMatrix(ref matrix);
         }
@@ -361,7 +361,7 @@ namespace VRageRender
 
             if (child.m_relativeTransform == null)
             {
-                child.m_relativeTransform = child.WorldMatrix * Matrix.Invert(m_owner.WorldMatrix);
+                child.m_relativeTransform = (Matrix)( child.WorldMatrix * MatrixD.Invert(m_owner.WorldMatrix) );
             }
 
             if (!m_owner.m_localAabb.HasValue)
@@ -454,7 +454,7 @@ namespace VRageRender
 
             if (m_dirtyTree)
             {
-                BoundingBox bb = BoundingBox.CreateInvalid();
+                var bb = BoundingBoxD.CreateInvalid();
 
                 foreach (var child in m_children)
                 {

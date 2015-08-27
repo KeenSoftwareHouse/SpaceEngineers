@@ -23,6 +23,7 @@ using WorkPriority = ParallelTasks.WorkPriority;
 
 namespace Sandbox.Engine.Voxels
 {
+    // mk:TODO Think of some better scheme of prioritizing works (new render cell, invalid render cell, physics prefetch, invalid physics batch).
     [MySessionComponentDescriptor(MyUpdateOrder.BeforeSimulation | MyUpdateOrder.AfterSimulation)]
     public class MyPrecalcComponent : MySessionComponentBase
     {
@@ -75,14 +76,6 @@ namespace Sandbox.Engine.Voxels
         public static int InvalidatedRangeInflate
         {
             get { return IsoMesher.InvalidatedRangeInflate; }
-        }
-
-        public static void EnqueueFront(MyPrecalcJob job, bool isHighPriority)
-        {
-            if (isHighPriority)
-                m_highPriorityJobs.EnqueueFront(job);
-            else
-                m_lowPriorityJobs.EnqueueFront(job);
         }
 
         public static void EnqueueBack(MyPrecalcJob job, bool isHighPriority)
@@ -138,6 +131,7 @@ namespace Sandbox.Engine.Voxels
                     work.Queue = m_highPriorityJobs;
                     work.Priority = WorkPriority.Low;
                     work.MaxPrecalcTime = (long)MyFakes.MAX_PRECALC_TIME_IN_MILLIS;
+                    ++m_worksInUse;
                     Parallel.Start(work, work.CompletionCallback);
                 }
             }

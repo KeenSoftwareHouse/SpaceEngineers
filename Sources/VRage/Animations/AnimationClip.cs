@@ -23,22 +23,7 @@ namespace VRage.Animations
             public Quaternion Rotation = Quaternion.Identity;   // The rotation for the bone
             public Vector3 Translation;                         // The translation for the bone
 
-            public Matrix Transform
-            {
-                get
-                {
-                    return Matrix.CreateFromQuaternion(Rotation) * Matrix.CreateTranslation(Translation);
-                }
-                set
-                {
-                    Matrix transform = value;
-                    transform.Right = Vector3.Normalize(transform.Right);
-                    transform.Up = Vector3.Normalize(transform.Up);
-                    transform.Backward = Vector3.Normalize(transform.Backward);
-                    Rotation = Quaternion.CreateFromRotationMatrix(transform);
-                    Translation = transform.Translation;
-                }
-            }
+            public double TimeDiff;
         }
 
         /// <summary>

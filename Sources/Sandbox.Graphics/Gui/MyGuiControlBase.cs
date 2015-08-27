@@ -291,6 +291,33 @@ namespace Sandbox.Graphics.GUI
                 }
             }
         }
+
+        public float PositionY
+        {
+            get { return m_position.Y; }
+            set
+            {
+                if (m_position.Y != value)
+                {
+                    m_position.Y = value;
+                    OnPositionChanged();
+                }
+            }
+        }
+
+        public float PositionX
+        {
+            get { return m_position.X; }
+            set
+            {
+                if (m_position.X != value)
+                {
+                    m_position.X = value;
+                    OnPositionChanged();
+                }
+            }
+        }
+
         private Vector2 m_position;
 
         /// <summary>
@@ -569,10 +596,10 @@ namespace Sandbox.Graphics.GUI
 
         #region Virtuals
 
-        public virtual void Draw(float transitionAlpha)
+        public virtual void Draw(float transitionAlpha, float backgroundTransitionAlpha)
         {
-            DrawBackground(transitionAlpha);
-            DrawElements(transitionAlpha);
+            DrawBackground(backgroundTransitionAlpha);
+            DrawElements(transitionAlpha, backgroundTransitionAlpha);
             DrawBorder(transitionAlpha);
         }
 
@@ -907,14 +934,14 @@ namespace Sandbox.Graphics.GUI
             }
         }
 
-        protected virtual void DrawElements(float transitionAlpha)
+        protected virtual void DrawElements(float transitionAlpha, float backgroundTransitionAlpha)
         {
             foreach (MyGuiControlBase element in Elements.GetVisibleControls())
             {
                 if (element.GetExclusiveInputHandler() == element)
                     continue;
 
-                element.Draw(transitionAlpha);
+                element.Draw(transitionAlpha, backgroundTransitionAlpha);
             }
         }
 

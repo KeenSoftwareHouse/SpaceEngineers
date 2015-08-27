@@ -112,6 +112,7 @@ namespace Sandbox.Game.GUI.HudViewers
             m_markerStylesForBlocks[(int)MyRelationsBetweenPlayerAndBlock.Enemies] = enemyStyle;
             m_markerStylesForBlocks[(int)MyRelationsBetweenPlayerAndBlock.Owner] = ownerStyle;
             m_markerStylesForBlocks[(int)MyRelationsBetweenPlayerAndBlock.FactionShare] = factionStyle;
+            m_markerStylesForBlocks[(int)MyRelationsBetweenPlayerAndBlock.NoOwnership] = factionStyle;
         }
 
         public int AllocateMarkerStyle(MyFontEnum font, MyHudTexturesEnum directionIcon, MyHudTexturesEnum targetIcon, Color color)
@@ -150,11 +151,13 @@ namespace Sandbox.Game.GUI.HudViewers
                     continue;
 
                 float distance = (float)(MySector.MainCamera.Position - entity.PositionComp.WorldVolume.Center).Length();
-                if ((entityMarker.TargetMode == MyRelationsBetweenPlayerAndBlock.FactionShare || entityMarker.TargetMode == MyRelationsBetweenPlayerAndBlock.Neutral) && m_friendAntennaRange < distance)
+                if ((entityMarker.TargetMode == MyRelationsBetweenPlayerAndBlock.NoOwnership ||
+                     entityMarker.TargetMode == MyRelationsBetweenPlayerAndBlock.FactionShare) && m_friendAntennaRange < distance)
                 {
                     continue;
                 }
-                if ((entityMarker.TargetMode == MyRelationsBetweenPlayerAndBlock.Enemies) && m_enemyAntennaRange < distance)
+                if ((entityMarker.TargetMode == MyRelationsBetweenPlayerAndBlock.Neutral ||
+                    entityMarker.TargetMode == MyRelationsBetweenPlayerAndBlock.Enemies) && m_enemyAntennaRange < distance)
                 {
                     continue;
                 }

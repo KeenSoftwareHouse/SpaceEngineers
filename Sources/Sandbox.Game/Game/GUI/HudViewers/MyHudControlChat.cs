@@ -36,10 +36,10 @@ namespace Sandbox.Game.GUI.HudViewers
             base.VisibleChanged += MyHudControlChat_VisibleChanged;
         }
 
-        public override void Draw(float transitionAlpha)
+        public override void Draw(float transitionAlpha, float backgroundTransitionAlpha)
         {
             UpdateText();
-            base.Draw(transitionAlpha);
+            base.Draw(transitionAlpha, backgroundTransitionAlpha);
         }
 
         private void MyHudControlChat_VisibleChanged(object sender, bool isVisible)

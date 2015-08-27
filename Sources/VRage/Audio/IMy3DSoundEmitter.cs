@@ -6,7 +6,7 @@ namespace VRage.Audio
 {
     public interface IMy3DSoundEmitter
     {
-        MyStringId SoundId { get; }
+        MyCueId SoundId { get; }
         IMySourceVoice Sound { get; set; }
         Vector3 SourcePosition { get; }
         Vector3 Velocity { get; }

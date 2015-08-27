@@ -1,11 +1,95 @@
 <?xml version="1.0"?>
 <Definitions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
 	<MaterialSounds>
+    <Sounds>
+      <Id>
+        <TypeId>PhysicalMaterialDefinition</TypeId>
+        <SubtypeId>Character</SubtypeId>
+      </Id>
+      <ContactSounds>
+        <ContactSound>
+          <Type>Start</Type>
+          <Material>Metal</Material>
+          <Cue>ImpPlayerMetal</Cue>
+        </ContactSound>
+        <ContactSound>
+          <Type>Start</Type>
+          <Material>Rock</Material>
+          <Cue>ImpPlayerRock</Cue>
+        </ContactSound>
+        <ContactSound>
+          <Type>Start</Type>
+          <Material>Ammo</Material>
+          <Cue>ImpPlayerMetal</Cue>
+        </ContactSound>
+        <ContactSound>
+          <Type>Start</Type>
+          <Material>Ship</Material>
+          <Cue>ImpPlayerMetal</Cue>
+        </ContactSound>
+        <ContactSound>
+          <Type>Start</Type>
+          <Material>Character</Material>
+          <Cue>ImpPlayerPlayer</Cue>
+        </ContactSound>
+        <ContactSound>
+          <Type>Walk</Type>
+          <Material>Rock</Material>
+          <Cue>PlayWalkRock</Cue>
+        </ContactSound>
+        <ContactSound>
+          <Type>Walk</Type>
+          <Material>Metal</Material>
+          <Cue>PlayWalkMetal</Cue>
+        </ContactSound>
+        <ContactSound>
+          <Type>CrouchWalk</Type>
+          <Material>Rock</Material>
+          <Cue>PlayCrouchkRock</Cue>
+        </ContactSound>
+        <ContactSound>
+          <Type>CrouchWalk</Type>
+          <Material>Metal</Material>
+          <Cue>PlayCrouchMetal</Cue>
+        </ContactSound>
+        <ContactSound>
+          <Type>Run</Type>
+          <Material>Rock</Material>
+          <Cue>PlayRunRock</Cue>
+        </ContactSound>
+        <ContactSound>
+          <Type>Run</Type>
+          <Material>Metal</Material>
+          <Cue>PlayRunMetal</Cue>
+        </ContactSound>
+        <ContactSound>
+          <Type>Sprint</Type>
+          <Material>Rock</Material>
+          <Cue>PlaySprintRock</Cue>
+        </ContactSound>
+        <ContactSound>
+          <Type>Sprint</Type>
+          <Material>Metal</Material>
+          <Cue>PlaySprintMetal</Cue>
+        </ContactSound>
+        <ContactSound>
+          <Type>Fall</Type>
+          <Material>Rock</Material>
+          <Cue>PlayFallRock</Cue>
+        </ContactSound>
+        <ContactSound>
+          <Type>Fall</Type>
+          <Material>Metal</Material>
+          <Cue>PlayFallRock</Cue>
+        </ContactSound>
+      </ContactSounds>
+    </Sounds>
 		<Sounds>
 			<Id>
 				<TypeId>PhysicalMaterialDefinition</TypeId>
 				<SubtypeId>Ship</SubtypeId>
 			</Id>
+      <InheritFrom>Metal</InheritFrom>
 			<ContactSounds>
         <ContactSound>
           <Type>Start</Type>

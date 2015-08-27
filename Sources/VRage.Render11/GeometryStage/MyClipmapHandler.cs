@@ -17,6 +17,8 @@ namespace VRageRender
         Vector3 m_translation;
         int m_lod;
         bool m_discardingOn;
+        internal MyClipmapScaleEnum ScaleGroup;
+
         BoundingBox m_localAabb;
 
         void IMyClipmapCell.UpdateMesh(MyRenderMessageUpdateClipmapCell msg)
@@ -27,14 +29,14 @@ namespace VRageRender
             m_translation = msg.PositionOffset;
             m_localAabb = msg.MeshAabb;
 
-            var matrix = (Matrix)(Matrix.CreateScale(m_scale) * Matrix.CreateTranslation(m_translation) * m_worldMatrix);
+            var matrix = (MatrixD)(MatrixD.CreateScale(m_scale) * MatrixD.CreateTranslation(m_translation) * m_worldMatrix);
 
             m_actor.GetRenderable().m_voxelScale = m_scale;
             m_actor.GetRenderable().m_voxelOffset = m_translation;
 
             m_actor.SetMatrix(ref matrix);
-            m_actor.SetAabb(msg.MeshAabb.Transform((Matrix)m_worldMatrix));
-            m_actor.GetRenderable().SetVoxelLod(m_lod);
+            m_actor.SetAabb((BoundingBoxD)msg.MeshAabb.Transform(m_worldMatrix));
+            m_actor.GetRenderable().SetVoxelLod(m_lod, ScaleGroup);
 
             (m_actor.GetComponent(MyActorComponentEnum.Foliage) as MyFoliageComponent).InvalidateStreams();
             m_actor.MarkRenderDirty();
@@ -50,7 +52,7 @@ namespace VRageRender
             {
                 m_discardingOn = value;
                 //m_actor.MarkRenderDirty();
-                m_actor.GetRenderable().SetVoxelLod(m_lod);
+                m_actor.GetRenderable().SetVoxelLod(m_lod, ScaleGroup);
             }
         }
 
@@ -58,12 +60,12 @@ namespace VRageRender
         {
             m_worldMatrix = worldMatrix;
 
-            Matrix m = Matrix.CreateScale(m_scale) * Matrix.CreateTranslation(m_translation) * m_worldMatrix;
+            MatrixD m = MatrixD.CreateScale(m_scale) * MatrixD.CreateTranslation(m_translation) * m_worldMatrix;
             m_actor.SetMatrix(ref m);
-            m_actor.SetAabb(m_localAabb.Transform((Matrix)m_worldMatrix));
+            m_actor.SetAabb((BoundingBoxD)m_localAabb.Transform(m_worldMatrix));
         }
 
-        internal MyClipmapCellProxy(MyCellCoord cellCoord, ref VRageMath.Matrix worldMatrix)
+        internal MyClipmapCellProxy(MyCellCoord cellCoord, ref VRageMath.MatrixD worldMatrix)
         {
             m_worldMatrix = worldMatrix;
 
@@ -107,9 +109,9 @@ namespace VRageRender
 
         public IMyClipmapCell CreateCell(MyClipmapScaleEnum scaleGroup, MyCellCoord cellCoord, ref VRageMath.MatrixD worldMatrix)
         {
-            Matrix m = (Matrix)worldMatrix;
-            var cell = new MyClipmapCellProxy(cellCoord, ref m);
+            var cell = new MyClipmapCellProxy(cellCoord, ref worldMatrix);
             cell.SetVisibility(false);
+            cell.ScaleGroup = scaleGroup;
             return cell;
         }
 

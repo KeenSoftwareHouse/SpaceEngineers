@@ -42,6 +42,13 @@ namespace Sandbox.ModAPI
             MyHud.Notifications.Add(not);
         }
 
+        IMyHudNotification IMyUtilities.CreateNotification(string message, int disappearTimeMs, Common.MyFontEnum font)
+        {
+            var notification = new MyHudNotification(MySpaceTexts.CustomText, disappearTimeMs, font);
+            notification.SetTextFormatArguments(message);
+            return notification as IMyHudNotification;
+        }
+
         void IMyUtilities.ShowMessage(string sender, string messageText)
         {
             MyHud.Chat.ShowMessage(sender, messageText);

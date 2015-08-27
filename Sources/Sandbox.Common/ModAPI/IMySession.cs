@@ -86,6 +86,7 @@ namespace Sandbox.ModAPI
         IMyControllableEntity ControlledObject { get; }
         Sandbox.Common.ObjectBuilders.MyObjectBuilder_SessionSettings SessionSettings { get;}
         IMyFactionCollection Factions { get;}
+        IMyDamageSystem DamageSystem { get; }
         IMyGpsCollection GPS { get; }
         event Action OnSessionReady;
         event Action OnSessionLoading;

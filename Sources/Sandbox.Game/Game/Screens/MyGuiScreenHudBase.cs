@@ -170,10 +170,13 @@ namespace Sandbox.Game.Gui
                     ref localToWorld, MySimpleObjectRasterizer.Solid, 0, 0.05f, "Square", null, true);
             }
 
-            DrawSelectionCorner(atlasTexture, selection, textureCoord, hudSize, min, -Vector2.UnitY, textureScale);
-            DrawSelectionCorner(atlasTexture, selection, textureCoord, hudSize, new Vector2(min.X, max.Y), Vector2.UnitX, textureScale);
-            DrawSelectionCorner(atlasTexture, selection, textureCoord, hudSize, new Vector2(max.X, min.Y), -Vector2.UnitX, textureScale);
-            DrawSelectionCorner(atlasTexture, selection, textureCoord, hudSize, max, Vector2.UnitY, textureScale);
+            if (MyFakes.ENABLE_USE_OBJECT_CORNERS)
+            {
+                DrawSelectionCorner(atlasTexture, selection, textureCoord, hudSize, min, -Vector2.UnitY, textureScale);
+                DrawSelectionCorner(atlasTexture, selection, textureCoord, hudSize, new Vector2(min.X, max.Y), Vector2.UnitX, textureScale);
+                DrawSelectionCorner(atlasTexture, selection, textureCoord, hudSize, new Vector2(max.X, min.Y), -Vector2.UnitX, textureScale);
+                DrawSelectionCorner(atlasTexture, selection, textureCoord, hudSize, max, Vector2.UnitY, textureScale);
+            }
         }
 
         public static void DrawSelectionCorner(string atlasTexture, MyHudSelectedObject selection, MyAtlasTextureCoordinate textureCoord, Vector2 scale, Vector2 pos, Vector2 rightVector, float textureScale)

@@ -35,7 +35,7 @@ namespace Sandbox.Engine.Voxels
             MyUtils.Swap(ref job.CellBatch, ref cellBatchForSwap);
             Debug.Assert(targetPhysics.RunningBatchTask == null);
             targetPhysics.RunningBatchTask = job;
-            MyPrecalcComponent.EnqueueBack(job, true);
+            MyPrecalcComponent.EnqueueBack(job, false);
         }
 
         public override void DoWork()

@@ -367,6 +367,13 @@ namespace Sandbox.Graphics.GUI
             PaddingSizePx = new Vector2(12f, 9f),
         };
 
+        public static readonly MyGuiPaddedTexture TEXTURE_SCREEN_STATS_BACKGROUND = new MyGuiPaddedTexture()
+        {
+            Texture = @"Textures\GUI\Screens\screen_stats_background.dss",
+            SizePx = new Vector2(256f, 128f),
+            PaddingSizePx = new Vector2(12f, 12f)
+        };
+
         public static readonly MyGuiHighlightTexture TEXTURE_ICON_MODS_LOCAL = new MyGuiHighlightTexture()
         {
             Normal = @"Textures\GUI\Icons\buttons\ModFolderIcon.dds",
@@ -634,10 +641,49 @@ namespace Sandbox.Graphics.GUI
 
         public const string BLANK_TEXTURE = "Textures\\GUI\\Blank.dds";
 
+		public static MyGuiPaddedTexture TEXTURE_HUD_GRAVITY_GLOBE = new MyGuiPaddedTexture()
+		{
+			Texture = @"Textures\GUI\GravityHudGlobe.dds",
+			SizePx = new Vector2(228, 98),
+			PaddingSizePx = new Vector2(0f, 0f),
+		};
+
+		public static MyGuiPaddedTexture TEXTURE_HUD_GRAVITY_LINE = new MyGuiPaddedTexture()
+		{
+			Texture = @"Textures\GUI\GravityHudLine.dds",
+			SizePx = new Vector2(228, 2),
+			PaddingSizePx = new Vector2(0f, 0f),
+		};
+
         public static readonly MyGuiCompositeTexture TEXTURE_GUI_BLANK = new MyGuiCompositeTexture()
         {
             Center = new MyGuiSizedTexture() { Texture = @"Textures\GUI\Blank.dds" }
         };
+
+		public static MyGuiPaddedTexture TEXTURE_HUD_STATS_BG = new MyGuiPaddedTexture()
+		{
+			Texture = @"Textures\GUI\Screens\screen_stats_background.dds",
+			SizePx = new Vector2(256, 128),
+			PaddingSizePx = new Vector2(6f, 6f),
+		};
+
+		public static MyGuiPaddedTexture TEXTURE_HUD_STAT_EFFECT_ARROW_UP = new MyGuiPaddedTexture()
+		{
+			Texture = @"Textures\GUI\Icons\ArrowUpBrown.dds",
+		};
+
+		public static MyGuiPaddedTexture TEXTURE_HUD_STAT_EFFECT_ARROW_DOWN = new MyGuiPaddedTexture()
+		{
+			Texture = @"Textures\GUI\Icons\ArrowDownRed.dds",
+		};
+
+
+		public static MyGuiPaddedTexture TEXTURE_HUD_STAT_BAR_BG = new MyGuiPaddedTexture()
+		{
+			Texture = @"Textures\GUI\Screens\screen_stats_bar_background.dds",
+			SizePx = new Vector2(72, 13),
+			PaddingSizePx = new Vector2(1f, 1f),
+		};
 
         public const string CURSOR_ARROW = "Textures\\GUI\\MouseCursor.dds";
 

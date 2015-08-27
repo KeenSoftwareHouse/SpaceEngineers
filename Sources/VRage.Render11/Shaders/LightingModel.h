@@ -33,6 +33,7 @@ float uniform_fog(float dist, float density) {
 }
 
 float3 add_fog(float3 color, float dist, float3 ray, float3 viewer) {
+	dist = clamp(dist, 0, 1000);
 	float c = frame_.fog_mult;
 	float b = frame_.fog_density;
 

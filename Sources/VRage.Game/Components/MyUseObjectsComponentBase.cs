@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using VRage.Collections;
 using VRage.Components;
 using VRage.Game.Entity.UseObject;
 using VRageMath;
@@ -12,13 +13,14 @@ namespace VRage.Components
     {
         protected Dictionary<string, List<Matrix>> m_detectors = new Dictionary<string, List<Matrix>>();
 
-        public abstract MyPhysicsComponentBase DetectorPhysics { get; }
+        public abstract MyPhysicsComponentBase DetectorPhysics { get; protected set; }
 
-        public abstract void AddDetector(string name, Matrix matrix);
+        public abstract uint AddDetector(string name, Matrix matrix);
+        public abstract void RemoveDetector(uint id);
         public abstract void RecreatePhysics();
         public abstract void LoadDetectorsFromModel();
 
-        public abstract IMyUseObject GetInteractiveObject(int shapeKey);
+        public abstract IMyUseObject GetInteractiveObject(uint shapeKey);
         public abstract void GetInteractiveObjects<T>(List<T> objects)
             where T : class, IMyUseObject;
 
@@ -55,6 +57,19 @@ namespace VRage.Components
             return result;
         }
 
+        public ListReader<Matrix> GetDetectors(string detectorName)
+        {
+            List<Matrix> detectorList = null;
+            m_detectors.TryGetValue(detectorName, out detectorList);
+
+            if (detectorList == null || detectorList.Count == 0)
+            {
+                return ListReader<Matrix>.Empty;
+            }
+
+            return new ListReader<Matrix>(detectorList);
+        }
+
         public virtual void ClearPhysics()
         {
             if (DetectorPhysics != null)
@@ -63,11 +78,36 @@ namespace VRage.Components
             }
         }
 
-        public override void OnRemovedFromContainer()
+        public override void OnBeforeRemovedFromContainer()
         {
-            base.OnRemovedFromContainer();
+            base.OnBeforeRemovedFromContainer();
 
             ClearPhysics();
+        }
+
+        public override void OnAddedToScene()
+        {
+            base.OnAddedToScene();
+
+            if (DetectorPhysics != null)
+            {
+                DetectorPhysics.Activate();
+            }
+        }
+
+        public override void OnRemovedFromScene()
+        {
+            base.OnRemovedFromScene();
+
+            if (DetectorPhysics != null)
+            {
+                DetectorPhysics.Deactivate();
+            }
+        }
+
+        public override string ComponentTypeDebugString
+        {
+            get { return "Use Objects"; }
         }
     }
 }

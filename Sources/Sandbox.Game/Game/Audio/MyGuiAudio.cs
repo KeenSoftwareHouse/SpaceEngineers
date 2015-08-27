@@ -81,7 +81,7 @@ namespace Sandbox.Game.GUI
             }
         }
 
-        internal static MyStringId GetCue(MyGuiSounds sound)
+        internal static MyCueId GetCue(MyGuiSounds sound)
         {
             return m_sounds[sound].SoundId;
         }

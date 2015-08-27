@@ -12,8 +12,8 @@ namespace Sandbox.Game.Entities
     {
         bool IMyCubeBuilder.AddConstruction(IMyEntity buildingEntity)
         {
-            if (buildingEntity is MyCharacter)
-                return AddConstruction(buildingEntity as MyCharacter);
+            /*if (buildingEntity is MyCharacter)
+                return AddConstruction(buildingEntity as MyCharacter);*/
             return false;
         }
 

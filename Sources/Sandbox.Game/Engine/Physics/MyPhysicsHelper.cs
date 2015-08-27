@@ -17,7 +17,7 @@ namespace Sandbox.Engine.Physics
     {
         #region Body Methods
 
-        public static void InitSpherePhysics(this IMyEntity entity, MyStringId materialType, Vector3 sphereCenter, float sphereRadius, float mass, float linearDamping, float angularDamping, ushort collisionLayer, RigidBodyFlag rbFlag)
+        public static void InitSpherePhysics(this IMyEntity entity, MyStringHash materialType, Vector3 sphereCenter, float sphereRadius, float mass, float linearDamping, float angularDamping, ushort collisionLayer, RigidBodyFlag rbFlag)
         {
             mass = (rbFlag & RigidBodyFlag.RBF_STATIC) != 0 ? 0 : mass;
 
@@ -37,13 +37,13 @@ namespace Sandbox.Engine.Physics
             entity.Physics = physics;
         }
 
-        public static void InitSpherePhysics(this IMyEntity entity, MyStringId materialType, MyModel model, float mass, float linearDamping, float angularDamping, ushort collisionLayer, RigidBodyFlag rbFlag)
+        public static void InitSpherePhysics(this IMyEntity entity, MyStringHash materialType, MyModel model, float mass, float linearDamping, float angularDamping, ushort collisionLayer, RigidBodyFlag rbFlag)
         {
             Debug.Assert(model != null);
             entity.InitSpherePhysics(materialType, model.BoundingSphere.Center, model.BoundingSphere.Radius, mass, linearDamping, angularDamping, collisionLayer, rbFlag);
         }
 
-        public static void InitBoxPhysics(this IMyEntity entity, MyStringId materialType, Vector3 center, Vector3 size, float mass, float linearDamping, float angularDamping, ushort collisionLayer, RigidBodyFlag rbFlag)
+        public static void InitBoxPhysics(this IMyEntity entity, MyStringHash materialType, Vector3 center, Vector3 size, float mass, float linearDamping, float angularDamping, ushort collisionLayer, RigidBodyFlag rbFlag)
         {
             System.Diagnostics.Debug.Assert(size.Length() > 0);
 
@@ -65,7 +65,7 @@ namespace Sandbox.Engine.Physics
             entity.Physics = physics;
         }
 
-        internal static void InitBoxPhysics(this IMyEntity entity, Matrix worldMatrix, MyStringId materialType, Vector3 center, Vector3 size, float mass, float linearDamping, float angularDamping, ushort collisionLayer, RigidBodyFlag rbFlag)
+        internal static void InitBoxPhysics(this IMyEntity entity, Matrix worldMatrix, MyStringHash materialType, Vector3 center, Vector3 size, float mass, float linearDamping, float angularDamping, ushort collisionLayer, RigidBodyFlag rbFlag)
         {
             mass = (rbFlag & RigidBodyFlag.RBF_STATIC) != 0 ? 0 : mass;
 
@@ -87,7 +87,7 @@ namespace Sandbox.Engine.Physics
             //return physicsBody;
         }
 
-        public static void InitBoxPhysics(this IMyEntity entity, MyStringId materialType, MyModel model, float mass, float angularDamping, ushort collisionLayer, RigidBodyFlag rbFlag)
+        public static void InitBoxPhysics(this IMyEntity entity, MyStringHash materialType, MyModel model, float mass, float angularDamping, ushort collisionLayer, RigidBodyFlag rbFlag)
         {
             Debug.Assert(model != null);
             var center = model.BoundingBox.Center;
@@ -95,7 +95,7 @@ namespace Sandbox.Engine.Physics
             entity.InitBoxPhysics(materialType, center, size, mass, 0, angularDamping, collisionLayer, rbFlag);
         }
 
-        public static void InitCharacterPhysics(this IMyEntity entity, MyStringId materialType, Vector3 center, float characterWidth, float characterHeight, float crouchHeight, float ladderHeight, float headSize, float headHeight, float linearDamping, float angularDamping, ushort collisionLayer, RigidBodyFlag rbFlag, float mass, bool isOnlyVertical, float maxSlope, bool networkProxy)
+        public static void InitCharacterPhysics(this IMyEntity entity, MyStringHash materialType, Vector3 center, float characterWidth, float characterHeight, float crouchHeight, float ladderHeight, float headSize, float headHeight, float linearDamping, float angularDamping, ushort collisionLayer, RigidBodyFlag rbFlag, float mass, bool isOnlyVertical, float maxSlope, bool networkProxy)
         {
             var physics = new Sandbox.Engine.Physics.MyPhysicsBody(entity, rbFlag)
             {
@@ -111,7 +111,7 @@ namespace Sandbox.Engine.Physics
         }
 
 
-        public static void InitCapsulePhysics(this IMyEntity entity, MyStringId materialType, Vector3 vertexA, Vector3 vertexB, float radius, float mass, float linearDamping, float angularDamping, ushort collisionLayer, RigidBodyFlag rbFlag)
+        public static void InitCapsulePhysics(this IMyEntity entity, MyStringHash materialType, Vector3 vertexA, Vector3 vertexB, float radius, float mass, float linearDamping, float angularDamping, ushort collisionLayer, RigidBodyFlag rbFlag)
         {
             mass = (rbFlag & RigidBodyFlag.RBF_STATIC) != 0 ? 0 : mass;
 

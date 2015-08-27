@@ -483,5 +483,9 @@ namespace VRage.Components
         }
         #endregion
 
+        public override string ComponentTypeDebugString
+        {
+            get { return "Position"; }
+        }
     }
 }

@@ -16,8 +16,10 @@ namespace Sandbox.Definitions
         }
 
         public string AnimationModel;
+        public string AnimationModelFPS;
+
         public int ClipIndex;
-        public MyBonesArea InfluenceArea;
+        public string InfluenceArea;
         public bool AllowInCockpit;
         public bool AllowWithWeapon;
         public bool Loop;
@@ -33,6 +35,8 @@ namespace Sandbox.Definitions
             MyDebug.AssertDebug(ob != null);
 
             this.AnimationModel = ob.AnimationModel;
+            this.AnimationModelFPS = ob.AnimationModelFPS;
+
             this.ClipIndex = ob.ClipIndex;
             this.InfluenceArea = ob.InfluenceArea;
             this.AllowInCockpit = ob.AllowInCockpit;

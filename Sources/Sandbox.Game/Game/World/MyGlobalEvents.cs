@@ -39,7 +39,6 @@ namespace Sandbox.Game.World
         public override void LoadData()
         {
             m_globalEvents.Clear();
-            m_previousTime = MySandboxGame.TotalGamePlayTimeInMilliseconds;
 
             base.LoadData();
         }
@@ -69,6 +68,11 @@ namespace Sandbox.Game.World
             }
 
             return objectBuilder;
+        }
+
+        public override void BeforeStart()
+        {
+            m_previousTime = MySandboxGame.TotalGamePlayTimeInMilliseconds;
         }
 
         public override void UpdateBeforeSimulation()
@@ -175,7 +179,7 @@ namespace Sandbox.Game.World
                 MyGlobalEventBase globalEvent = MyGlobalEventFactory.CreateEvent(globalEventBuilder);
 
                 Debug.Assert(globalEvent == null || globalEvent.IsHandlerValid, "Event handler could not be found on load. Call a programmer please! You can ignore this, if you don't mind the given event not happening.");
-                if (globalEvent != null)
+                if (globalEvent != null && globalEvent.IsHandlerValid)
                     m_globalEvents.Add(globalEvent);
             }
         }

@@ -79,17 +79,11 @@ namespace VRage.Utils
             return sphere.Center + GetRandomVector3Normalized() * (float)sphere.Radius;
         }
 
-        /// <summary>
-        /// Warning: Fast, but non-uniform distribution!
-        /// </summary>
         public static Vector3 GetRandomPosition(ref BoundingBox box)
         {
             return box.Center + GetRandomVector3() * box.HalfExtents;
         }
 
-        /// <summary>
-        /// Warning: Fast, but non-uniform distribution!
-        /// </summary>
         public static Vector3D GetRandomPosition(ref BoundingBoxD box)
         {
             return box.Center + GetRandomVector3() * box.HalfExtents;
@@ -190,6 +184,11 @@ namespace VRage.Utils
         public static float GetRandomSign()
         {
             return Math.Sign((float)m_random.NextDouble() - 0.5f);
+        }
+
+        public static float GetRandomFloat()
+        {
+            return (float)m_random.NextDouble();
         }
 
         //  Return random float in range <minValue...maxValue>

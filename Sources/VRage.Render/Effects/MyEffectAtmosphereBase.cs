@@ -24,6 +24,8 @@ namespace VRageRender.Effects
         protected readonly EffectHandle m_isInside;
         protected readonly EffectHandle m_lightPosition;
 
+        protected readonly EffectHandle m_invWavelength;
+
         public MyEffectAtmosphereBase(string effectPath)
             : base(effectPath)
         {
@@ -45,6 +47,8 @@ namespace VRageRender.Effects
             m_lightPosition = m_D3DEffect.GetParameter(null, "LightPosition");
 
             m_isInside = m_D3DEffect.GetParameter(null, "IsInAtmosphere");
+
+            m_invWavelength = m_D3DEffect.GetParameter(null, "InvWavelength");
 
         }
 
@@ -91,6 +95,11 @@ namespace VRageRender.Effects
         public void SetIsInside(bool isInside)
         {
             m_D3DEffect.SetValue(m_isInside, isInside);
+        }
+
+        public void SetWavelength(Vector3 wavelenght)
+        {
+            m_D3DEffect.SetValue(m_invWavelength, wavelenght);
         }
  
     }

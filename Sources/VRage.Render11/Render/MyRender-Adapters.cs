@@ -90,7 +90,6 @@ namespace VRageRender
             MyRender11.Log.WriteLine("SUPPORTED = " + info.IsDx11Supported);
             MyRender11.Log.WriteLine("VRAM = " + info.VRAM);
             MyRender11.Log.WriteLine("Priority = " + info.Priority);
-            MyRender11.Log.WriteLine("Fallback display modes = " + info.FallbackDisplayModes);
             MyRender11.Log.WriteLine("Multithreaded rendering supported = " + info.MultithreadedRenderingSupported);
         }
 
@@ -231,42 +230,46 @@ namespace VRageRender
 
                 if(supportedDevice)
                 {
-                    for(int j=0; j< adapter.Outputs.Length; j++)
+                    bool outputsAttached = adapter.Outputs.Length > 0;
+
+                    if (outputsAttached)
                     {
-                        var output = adapter.Outputs[j];
-
-                        info.Name = String.Format("{0} + {1}", adapter.Description.Description, output.Description.DeviceName);
-                        info.OutputName = output.Description.DeviceName;
-                        info.OutputId = j;
-
-                        var displayModeList = output.GetDisplayModeList(MyRender11Constants.BACKBUFFER_FORMAT, DisplayModeEnumerationFlags.Interlaced);
-                        var adapterDisplayModes = new MyDisplayMode[displayModeList.Length];
-                        for (int k = 0; k < displayModeList.Length; k++)
+                        for (int j = 0; j < adapter.Outputs.Length; j++)
                         {
-                            var displayMode = displayModeList[k];
+                            var output = adapter.Outputs[j];
 
-                            adapterDisplayModes[k] = new MyDisplayMode 
-                            { 
-                                Height = displayMode.Height, 
-                                Width = displayMode.Width, 
-                                RefreshRate = displayMode.RefreshRate.Numerator, 
-                                RefreshRateDenominator = displayMode.RefreshRate.Denominator 
-                            }; 
+                            info.Name = String.Format("{0} + {1}", adapter.Description.Description, output.Description.DeviceName);
+                            info.OutputName = output.Description.DeviceName;
+                            info.OutputId = j;
+
+                            var displayModeList = output.GetDisplayModeList(MyRender11Constants.BACKBUFFER_FORMAT, DisplayModeEnumerationFlags.Interlaced);
+                            var adapterDisplayModes = new MyDisplayMode[displayModeList.Length];
+                            for (int k = 0; k < displayModeList.Length; k++)
+                            {
+                                var displayMode = displayModeList[k];
+
+                                adapterDisplayModes[k] = new MyDisplayMode
+                                {
+                                    Height = displayMode.Height,
+                                    Width = displayMode.Width,
+                                    RefreshRate = displayMode.RefreshRate.Numerator,
+                                    RefreshRateDenominator = displayMode.RefreshRate.Denominator
+                                };
+                            }
+                            Array.Sort(adapterDisplayModes, m_refreshRatePriorityComparer);
+
+                            info.SupportedDisplayModes = adapterDisplayModes;
+                            info.CurrentDisplayMode = adapterDisplayModes[adapterDisplayModes.Length - 1];
+                            LogOutputDisplayModes(ref info);
+
+                            m_adapterModes[adapterIndex] = displayModeList;
+
+                            // add one entry per every adapter-output pair
+                            adaptersList.Add(info);
+                            adapterIndex++;
                         }
-                        Array.Sort(adapterDisplayModes, m_refreshRatePriorityComparer);
-
-                        info.SupportedDisplayModes = adapterDisplayModes;
-                        info.CurrentDisplayMode = adapterDisplayModes[adapterDisplayModes.Length - 1];
-
-
-                        adaptersList.Add(info);
-                        m_adapterModes[adapterIndex] = displayModeList;
-                        adapterIndex++;
-
-                        LogOutputDisplayModes(ref info);
                     }
-
-                    if(info.SupportedDisplayModes == null)
+                    else
                     {
                         // FALLBACK MODES
 
@@ -293,16 +296,26 @@ namespace VRageRender
                             new MyDisplayMode(1920, 1200, 60000, 1000),
                         };
 
+                        info.OutputName = "FallbackOutput";
+                        info.Name = String.Format("{0}", adapter.Description.Description);
+                        info.OutputId = 0;
+                        info.CurrentDisplayMode = fallbackDisplayModes[fallbackDisplayModes.Length - 1];
+
                         info.SupportedDisplayModes = fallbackDisplayModes;
                         info.FallbackDisplayModes = true;
+
+                        // add one entry for adapter-fallback output pair
+                        adaptersList.Add(info);
+                        adapterIndex++;
                     }
                 }
                 else
                 {
                     info.SupportedDisplayModes = new MyDisplayMode[0];
-                    adaptersList.Add(info);
-                    adapterIndex++;
                 }
+
+                MyRender11.Log.WriteLine("Fallback display modes = " + info.FallbackDisplayModes);
+
                 LogAdapterInfoEnd();
 
                 if(adapterTestDevice != null)

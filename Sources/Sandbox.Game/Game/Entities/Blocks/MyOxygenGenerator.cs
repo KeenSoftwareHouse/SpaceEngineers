@@ -26,6 +26,7 @@ namespace Sandbox.Game.Entities.Blocks
     [MyCubeBlockType(typeof(MyObjectBuilder_OxygenGenerator))]
     class MyOxygenGenerator : MyFunctionalBlock, IMyPowerConsumer, IMyInventoryOwner, IMyOxygenProducer, IMyOxygenGenerator, IMyConveyorEndpointBlock
     {
+        private Color? m_prevEmissiveColor = null;
         private bool m_useConveyorSystem;
         private bool m_autoRefill;
         private MyInventory m_inventory;
@@ -47,6 +48,11 @@ namespace Sandbox.Game.Entities.Blocks
             {
                 return MySession.Static.Settings.EnableOxygen && PowerReceiver.IsPowered && IsWorking && Enabled && IsFunctional;
             }
+        }
+
+        public bool AutoRefill
+        {
+            get { return m_autoRefill; }
         }
 
         public MyPowerReceiver PowerReceiver
@@ -75,8 +81,8 @@ namespace Sandbox.Game.Entities.Blocks
             MyTerminalControlFactory.AddControl(refillButton);
 
             var autoRefill = new MyTerminalControlCheckbox<MyOxygenGenerator>("Auto-Refill", MySpaceTexts.BlockPropertyTitle_AutoRefill, MySpaceTexts.BlockPropertyTitle_AutoRefill);
-            autoRefill.Getter = (x) => x.m_autoRefill;
-            autoRefill.Setter = (x, v) => x.m_autoRefill = v;
+            autoRefill.Getter = (x) => x.AutoRefill;
+            autoRefill.Setter = (x, v) => x.SyncObject.ChangeAutoRefill(v);
             autoRefill.EnableAction();
             MyTerminalControlFactory.AddControl(autoRefill);
         }
@@ -316,7 +322,7 @@ namespace Sandbox.Game.Entities.Blocks
                                              : 0.0f;
         }
 
-        void m_inventory_ContentsChanged(MyInventory obj)
+        void m_inventory_ContentsChanged(MyInventoryBase obj)
         {
             RaisePropertiesChanged();
         }
@@ -424,7 +430,18 @@ namespace Sandbox.Game.Entities.Blocks
 
         private void SetEmissive(Color color)
         {
-            MyCubeBlock.UpdateEmissiveParts(Render.RenderObjectIDs[0], 1.0f, color, Color.White);
+            if (m_prevEmissiveColor != color)
+            {
+                MyCubeBlock.UpdateEmissiveParts(Render.RenderObjectIDs[0], 1.0f, color, Color.White);
+                m_prevEmissiveColor = color;
+            }
+        }
+
+        public override void OnModelChange()
+        {
+            base.OnModelChange();
+
+            m_prevEmissiveColor = null;
         }
         #endregion
 

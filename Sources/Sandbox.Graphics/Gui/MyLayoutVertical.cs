@@ -28,6 +28,16 @@ namespace Sandbox.Graphics.GUI
         private float m_currentPosY;
         private float m_horizontalPadding;
 
+        public float CurrentY
+        {
+            get { return m_currentPosY; }
+        }
+
+        public float HorrizontalPadding
+        {
+            get { return m_horizontalPadding; }
+        }
+
         public MyLayoutVertical(IMyGuiControlsParent parent, float horizontalPaddingPx)
         {
             m_parent = parent;

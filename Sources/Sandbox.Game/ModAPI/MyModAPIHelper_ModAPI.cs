@@ -242,7 +242,20 @@ namespace Sandbox.ModAPI
                 SyncObject.SendMessageTo(id, message, recipient, reliable);
                 return true;
             }
-       
+
+            public void JoinServer(string address)
+            {
+                if (MySandboxGame.IsDedicated && IsServer)
+                    return;
+
+                System.Net.IPEndPoint endpoint;
+                if (System.Net.IPAddressExtensions.TryParseEndpoint(address, out endpoint))
+                {
+                    Sandbox.Game.Gui.MyGuiScreenMainMenu.UnloadAndExitToMenu();
+                    MySandboxGame.Services.SteamService.SteamAPI.PingServer(System.Net.IPAddressExtensions.ToIPv4NetworkOrder(endpoint.Address), (ushort)endpoint.Port);
+                }
+            }
+
             public void RegisterMessageHandler(ushort id, Action<byte[]> messageHandler)
             {
                 SyncObject.RegisterMessageHandler(id, messageHandler);

@@ -15,5 +15,11 @@ namespace Sandbox.Common.ObjectBuilders
 
         [ProtoMember]
         public string ProgressSound;
+
+        [ProtoMember]
+        public bool TakeOwnership;
+
+        [ProtoMember]
+        public bool SetFaction;
     }
 }
