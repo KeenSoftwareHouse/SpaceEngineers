@@ -18,6 +18,9 @@ using VRageMath;
 using Sandbox.Game.GUI;
 using VRageRender;
 using Sandbox.Game.Entities.Cube;
+using VRage.ObjectBuilders;
+using VRage;
+using VRage.ModAPI;
 
 namespace Sandbox.Game.Entities
 {
@@ -317,7 +320,7 @@ namespace Sandbox.Game.Entities
                 floatingObject.NeedsUpdate = MyEntityUpdateEnum.NONE;
 
             foreach (var child in entity.Hierarchy.Children)
-                DisablePhysicsRecursively(child.Entity as MyEntity);
+                DisablePhysicsRecursively(child.Container.Entity as MyEntity);
         }
 
         public void Update()
@@ -361,7 +364,7 @@ namespace Sandbox.Game.Entities
                 MyPhysicsBody body = (MyPhysicsBody)hit.HkHitInfo.Body.UserObject;
                 if (body == null)
                     continue;
-                Sandbox.ModAPI.IMyEntity entity = body.Entity;
+                IMyEntity entity = body.Entity;
                 if (entity is MyVoxelMap || (entity is MyCubeGrid && entity.EntityId != m_previewFloatingObjects[0].EntityId))
                 {
                     float distSq = (float)(hit.Position - pasteMatrix.Translation).LengthSquared();
@@ -387,12 +390,12 @@ namespace Sandbox.Game.Entities
 
                 var rotation = Quaternion.CreateFromRotationMatrix(floatingObject.WorldMatrix);
                 var position = floatingObject.PositionComp.GetPosition() + Vector3D.Transform(floatingObject.PositionComp.LocalVolume.Center, rotation);
-                var bodies = new List<HkRigidBody>();
+                var bodies = new List<HkBodyCollision>();
 
                 MyPhysics.GetPenetrationsShape(floatingObject.Physics.RigidBody.GetShape(), ref position, ref rotation, bodies, MyPhysics.FloatingObjectCollisionLayer);
                 foreach (var body in bodies)
                 {
-                    var ent = body.GetEntity();
+                    var ent = body.GetCollisionEntity();
                     if (ent != null && !ent.Closed)
                     {
                         return false;

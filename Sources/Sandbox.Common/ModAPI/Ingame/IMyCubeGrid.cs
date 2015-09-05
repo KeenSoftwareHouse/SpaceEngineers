@@ -1,11 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using VRage.ModAPI;
 namespace Sandbox.ModAPI.Ingame
 {
     /// <summary>
     /// Grid interface
     /// </summary>
-    public interface IMyCubeGrid
+    public interface IMyCubeGrid : IMyEntity
     {
         /// <summary>
         /// Grid size in meters
@@ -53,7 +54,5 @@ namespace Sandbox.ModAPI.Ingame
         /// Converts world coordinates to grid space cell coordinates
         /// </summary>
         VRageMath.Vector3I WorldToGridInteger(VRageMath.Vector3D coords);
-
-        string DisplayName { get; }
     }
 }

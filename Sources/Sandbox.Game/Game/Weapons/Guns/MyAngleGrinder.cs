@@ -11,8 +11,11 @@ using Sandbox.Game.Gui;
 using Sandbox.Game.Localization;
 using Sandbox.Game.Multiplayer;
 using Sandbox.Game.World;
+using Sandbox.Game.GameSystems;
+using Sandbox.ModAPI;
 using System.Collections.Generic;
 using VRage.Input;
+using VRage.ObjectBuilders;
 using VRage.Utils;
 using VRageMath;
 
@@ -31,9 +34,6 @@ namespace Sandbox.Game.Weapons
         static readonly float GRINDER_ACCELERATION_RPMPS = 700f;
         static readonly float GRINDER_DECELERATION_RPMPS = 500f;
 
-        List<MyInventoryItem> m_tmpItemList = new List<MyInventoryItem>();
-        Dictionary<int, int> m_tmpComponents = new Dictionary<int, int>();
-
         MyHudNotification m_grindingNotification;
 
         int m_lastUpdateTime;
@@ -50,13 +50,13 @@ namespace Sandbox.Game.Weapons
 
             HasCubeHighlight = true;
             HighlightColor = Color.Red * 0.3f;
+			HighlightMaterial = "GizmoDrawLineRed";
 
             m_grindingNotification = new MyHudNotification(MySpaceTexts.AngleGrinderPrimaryAction, MyHudNotification.INFINITE, level: MyNotificationLevel.Control);
-            m_grindingNotification.SetTextFormatArguments(MyInput.Static.GetGameControl(MyControlsSpace.PRIMARY_TOOL_ACTION));
 
             m_rotationSpeed = 0.0f;
 
-            PhysicalObject = (MyObjectBuilder_PhysicalGunObject)Sandbox.Common.ObjectBuilders.Serializer.MyObjectBuilderSerializer.CreateNewObject(m_physicalItemId);
+            PhysicalObject = (MyObjectBuilder_PhysicalGunObject)MyObjectBuilderSerializer.CreateNewObject(m_physicalItemId);
         }
 
         public override void Init(MyObjectBuilder_EntityBase objectBuilder)
@@ -108,9 +108,9 @@ namespace Sandbox.Game.Weapons
             }
         }
 
-        public override void Shoot(MyShootActionEnum action, Vector3 direction)
+        public override void Shoot(MyShootActionEnum action, Vector3 direction, string gunAction)
         {
-            base.Shoot(action, direction);
+            base.Shoot(action, direction, gunAction);
 
             if (action == MyShootActionEnum.PrimaryAction && IsPreheated && Sync.IsServer && m_activated)
             {
@@ -121,6 +121,10 @@ namespace Sandbox.Game.Weapons
 
         protected override void AddHudInfo()
         {
+            if (!MyInput.Static.IsJoystickConnected())
+                m_grindingNotification.SetTextFormatArguments(MyInput.Static.GetGameControl(MyControlsSpace.PRIMARY_TOOL_ACTION));
+            else
+                m_grindingNotification.SetTextFormatArguments(MyControllerHelper.GetCodeForControl(MySpaceBindingCreator.CX_CHARACTER, MyControlsSpace.PRIMARY_TOOL_ACTION));
             MyHud.Notifications.Add(m_grindingNotification);
         }
 
@@ -168,11 +172,23 @@ namespace Sandbox.Game.Weapons
                         hackMultiplier = MySession.Static.HackSpeedMultiplier;
                 }
 
-                block.DecreaseMountLevel(GrinderAmount * hackMultiplier, CharacterInventory);
+                float damage = GrinderAmount;
+                MyDamageInformation damageInfo = new MyDamageInformation(false, damage * hackMultiplier, MyDamageType.Grind, EntityId);
+
+                if (block.UseDamageSystem)
+                    MyDamageSystem.Static.RaiseBeforeDamageApplied(block, ref damageInfo);
+
+                block.DecreaseMountLevel(damageInfo.Amount, CharacterInventory);
                 block.MoveItemsFromConstructionStockpile(CharacterInventory);
 
+                if (block.UseDamageSystem)
+                    MyDamageSystem.Static.RaiseAfterDamageApplied(block, damageInfo);
+                    
                 if (block.IsFullyDismounted)
                 {
+                    if (block.UseDamageSystem)
+                        MyDamageSystem.Static.RaiseDestroyed(block, damageInfo);
+
                     block.SpawnConstructionStockpile();
                     block.CubeGrid.RazeBlock(block.Min);
                 }
@@ -180,7 +196,7 @@ namespace Sandbox.Game.Weapons
 
             var targetDestroyable = GetTargetDestroyable();
             if (targetDestroyable != null && Sync.IsServer)
-                targetDestroyable.DoDamage(20, MyDamageType.Drill, true);
+                targetDestroyable.DoDamage(20, MyDamageType.Grind, true, attackerId: Owner != null ? Owner.EntityId : 0);
         }
 
         protected override void StartLoopSound(bool effect)

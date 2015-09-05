@@ -36,7 +36,7 @@ namespace Sandbox.Game.GameSystems.Electricity
         BatteryBlock,
     }
 
-    enum MyProducerGroupEnum
+    public enum MyProducerGroupEnum
     {
         SolarPanels,
         Battery,
@@ -51,7 +51,7 @@ namespace Sandbox.Game.GameSystems.Electricity
         NoPower
     }
 
-    class MyPowerDistributor
+    public class MyPowerDistributor
     {
         /// <summary>
         /// Some precomputed data for each priority group.
@@ -92,6 +92,8 @@ namespace Sandbox.Game.GameSystems.Electricity
         private float m_remainingFuelTime;
         private bool m_remainingFuelTimeDirty;
         private int m_lastFuelTimeCompute;
+		private int m_allEnabledCounter = 0;
+		public bool AllEnabledRecently { get { return m_allEnabledCounter <= 30; } }
         /// <summary>
         /// Remaining fuel time in hours.
         /// </summary>
@@ -167,6 +169,7 @@ namespace Sandbox.Game.GameSystems.Electricity
                 //RecomputePowerDistribution();
                 m_producersEnabledDirty = false;
                 m_needsRecompute = true;
+				m_allEnabledCounter = 0;
             }
         }
 
@@ -318,6 +321,7 @@ namespace Sandbox.Game.GameSystems.Electricity
             if (ShowTrace)
                 UpdateTrace();
             m_lastFuelTimeCompute += 10;
+			m_allEnabledCounter += 10;
         }
 
         /// <summary>

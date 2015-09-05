@@ -1,11 +1,11 @@
 ﻿using Sandbox.Common.ObjectBuilders;
 using Sandbox.Common.ObjectBuilders.AI;
-using Sandbox.Common.ObjectBuilders.Serializer;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
+using VRage.ObjectBuilders;
 using VRage.Voxels;
 using VRageMath;
 

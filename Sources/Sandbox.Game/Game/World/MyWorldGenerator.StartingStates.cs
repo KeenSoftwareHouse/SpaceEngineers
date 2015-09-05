@@ -13,6 +13,9 @@ using Sandbox.Definitions;
 using Sandbox.Game.Multiplayer;
 using Sandbox.Game.Entities.Character;
 using System.Diagnostics;
+using VRage.ObjectBuilders;
+using VRage;
+using System.Reflection;
 
 namespace Sandbox.Game.World
 {
@@ -50,8 +53,7 @@ namespace Sandbox.Game.World
         }
     }
 
-
-    static partial class MyWorldGenerator
+    public partial class MyWorldGenerator
     {
         #region StartingState base and factory
 
@@ -73,6 +75,7 @@ namespace Sandbox.Game.World
                 m_objectFactory = new MyObjectFactory<StartingStateTypeAttribute, MyWorldGeneratorStartingStateBase>();
                 m_objectFactory.RegisterFromCreatedObjectAssembly();
                 m_objectFactory.RegisterFromAssembly(MyPlugins.GameAssembly);
+                m_objectFactory.RegisterFromAssembly(MyPlugins.SandboxAssembly); //TODO: Will be removed 
                 m_objectFactory.RegisterFromAssembly(MyPlugins.UserAssembly);
             }
 
@@ -119,7 +122,7 @@ namespace Sandbox.Game.World
                 characterOb.DampenersEnabled = DampenersEnabled;
 
                 if (characterOb.Inventory == null)
-                    characterOb.Inventory = Sandbox.Common.ObjectBuilders.Serializer.MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_Inventory>();
+                    characterOb.Inventory = MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_Inventory>();
                 FillInventoryWithDefaults(characterOb.Inventory, generatorArgs.Scenario);
 
                 var character = new MyCharacter();
@@ -158,46 +161,6 @@ namespace Sandbox.Game.World
                     return FixPositionToVoxel(Transform.Value.Position);
                 else
                     return null;
-            }
-        }
-
-        [MyWorldGenerator.StartingStateType(typeof(MyObjectBuilder_WorldGeneratorPlayerStartingState_RespawnShip))]
-        public class MyRespawnShipState : MyWorldGeneratorStartingStateBase
-        {
-            string m_respawnShipId;
-
-            public override void Init(MyObjectBuilder_WorldGeneratorPlayerStartingState builder)
-            {
-                base.Init(builder);
-
-                var ob = builder as MyObjectBuilder_WorldGeneratorPlayerStartingState_RespawnShip;
-                m_respawnShipId = ob.RespawnShip;
-            }
-
-            public override MyObjectBuilder_WorldGeneratorPlayerStartingState GetObjectBuilder()
-            {
-                var ob = base.GetObjectBuilder() as MyObjectBuilder_WorldGeneratorPlayerStartingState_RespawnShip;
-
-                ob.RespawnShip = m_respawnShipId;
-
-                return ob;
-            }
-
-            public override void SetupCharacter(MyWorldGenerator.Args generatorArgs)
-            {
-                string respawnShipId = m_respawnShipId;
-                if (!MyDefinitionManager.Static.HasRespawnShip(m_respawnShipId))
-                    respawnShipId = MyDefinitionManager.Static.GetFirstRespawnShip();
-
-                Debug.Assert(MySession.LocalHumanPlayer != null, "Local controller does not exist!");
-                if (MySession.LocalHumanPlayer == null) return;
-
-                MySession.LocalHumanPlayer.SpawnAtShip(respawnShipId);
-            }
-
-            public override Vector3D? GetStartingLocation()
-            {
-                return null;
             }
         }
     }

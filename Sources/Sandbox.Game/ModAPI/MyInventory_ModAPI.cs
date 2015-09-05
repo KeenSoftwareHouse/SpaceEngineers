@@ -1,9 +1,11 @@
-﻿using Sandbox.Game.GameSystems;
+﻿using Sandbox.Common.ObjectBuilders;
+using Sandbox.Game.GameSystems;
 using Sandbox.Game.GameSystems.Conveyors;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using VRage.ObjectBuilders;
 
 namespace Sandbox.Game
 {
@@ -34,32 +36,32 @@ namespace Sandbox.Game
             return IsItemAt(position);
         }
 
-        bool Sandbox.ModAPI.Interfaces.IMyInventory.CanItemsBeAdded(VRage.MyFixedPoint amount, Common.ObjectBuilders.Definitions.SerializableDefinitionId contentId)
+        bool Sandbox.ModAPI.Interfaces.IMyInventory.CanItemsBeAdded(VRage.MyFixedPoint amount, SerializableDefinitionId contentId)
         {
             return CanItemsBeAdded(amount, contentId);
         }
 
-        bool Sandbox.ModAPI.Interfaces.IMyInventory.ContainItems(VRage.MyFixedPoint amount, Common.ObjectBuilders.MyObjectBuilder_PhysicalObject ob)
+        bool Sandbox.ModAPI.Interfaces.IMyInventory.ContainItems(VRage.MyFixedPoint amount, MyObjectBuilder_PhysicalObject ob)
         {
             return ContainItems(amount, ob);
         }
 
-        void Sandbox.ModAPI.IMyInventory.AddItems(VRage.MyFixedPoint amount, Common.ObjectBuilders.MyObjectBuilder_PhysicalObject objectBuilder, int index)
+        void Sandbox.ModAPI.IMyInventory.AddItems(VRage.MyFixedPoint amount, MyObjectBuilder_PhysicalObject objectBuilder, int index)
         {
             AddItems(amount, objectBuilder, index);
         }
 
-        VRage.MyFixedPoint Sandbox.ModAPI.Interfaces.IMyInventory.GetItemAmount(Common.ObjectBuilders.Definitions.SerializableDefinitionId contentId, Common.ObjectBuilders.MyItemFlags flags)
+        VRage.MyFixedPoint Sandbox.ModAPI.Interfaces.IMyInventory.GetItemAmount(SerializableDefinitionId contentId, MyItemFlags flags)
         {
             return GetItemAmount(contentId,flags);
         }
 
-        void Sandbox.ModAPI.IMyInventory.RemoveItemsOfType(VRage.MyFixedPoint amount, Common.ObjectBuilders.MyObjectBuilder_PhysicalObject objectBuilder, bool spawn)
+        void Sandbox.ModAPI.IMyInventory.RemoveItemsOfType(VRage.MyFixedPoint amount, MyObjectBuilder_PhysicalObject objectBuilder, bool spawn)
         {
             RemoveItemsOfType(amount, objectBuilder, spawn);
         }
 
-        void Sandbox.ModAPI.IMyInventory.RemoveItemsOfType(VRage.MyFixedPoint amount, Common.ObjectBuilders.Definitions.SerializableDefinitionId contentId, Common.ObjectBuilders.MyItemFlags flags, bool spawn)
+        void Sandbox.ModAPI.IMyInventory.RemoveItemsOfType(VRage.MyFixedPoint amount, SerializableDefinitionId contentId, MyItemFlags flags, bool spawn)
         {
             RemoveItemsOfType(amount, contentId, flags, spawn);
         }
@@ -145,7 +147,6 @@ namespace Sandbox.Game
             get { return CurrentVolume; }
         }
 
-
         ModAPI.Interfaces.IMyInventoryOwner Sandbox.ModAPI.Interfaces.IMyInventory.Owner
         {
             get { return Owner; }
@@ -158,7 +159,7 @@ namespace Sandbox.Game
 
         Sandbox.ModAPI.Interfaces.IMyInventoryItem Sandbox.ModAPI.Interfaces.IMyInventory.GetItemByID(uint id)
         {
-            MyInventoryItem? item = GetItemByID(id);
+            MyPhysicalInventoryItem? item = GetItemByID(id);
             if (item != null)
             {
                 return item.Value;
@@ -166,9 +167,9 @@ namespace Sandbox.Game
             return null;
         }
 
-        Sandbox.ModAPI.Interfaces.IMyInventoryItem Sandbox.ModAPI.Interfaces.IMyInventory.FindItem(Common.ObjectBuilders.Definitions.SerializableDefinitionId contentId)
+        Sandbox.ModAPI.Interfaces.IMyInventoryItem Sandbox.ModAPI.Interfaces.IMyInventory.FindItem(SerializableDefinitionId contentId)
         {
-            MyInventoryItem? item = FindItem(contentId);
+            MyPhysicalInventoryItem? item = FindItem(contentId);
 
             if (item != null)
             {

@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using VRage.ObjectBuilders;
 
 namespace Sandbox.ModAPI
 { 
@@ -207,7 +208,7 @@ namespace Sandbox.ModAPI
                 return false;
             }
 
-            public void SendEntitiesCreated(List<Sandbox.Common.ObjectBuilders.MyObjectBuilder_EntityBase> objectBuilders)
+            public void SendEntitiesCreated(List<MyObjectBuilder_EntityBase> objectBuilders)
             {
                 MySyncCreate.SendEntitiesCreated(objectBuilders);
             }
@@ -241,7 +242,20 @@ namespace Sandbox.ModAPI
                 SyncObject.SendMessageTo(id, message, recipient, reliable);
                 return true;
             }
-       
+
+            public void JoinServer(string address)
+            {
+                if (MySandboxGame.IsDedicated && IsServer)
+                    return;
+
+                System.Net.IPEndPoint endpoint;
+                if (System.Net.IPAddressExtensions.TryParseEndpoint(address, out endpoint))
+                {
+                    Sandbox.Game.Gui.MyGuiScreenMainMenu.UnloadAndExitToMenu();
+                    MySandboxGame.Services.SteamService.SteamAPI.PingServer(System.Net.IPAddressExtensions.ToIPv4NetworkOrder(endpoint.Address), (ushort)endpoint.Port);
+                }
+            }
+
             public void RegisterMessageHandler(ushort id, Action<byte[]> messageHandler)
             {
                 SyncObject.RegisterMessageHandler(id, messageHandler);

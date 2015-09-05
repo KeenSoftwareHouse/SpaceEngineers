@@ -1,14 +1,15 @@
-﻿using Sandbox.Common.Components;
-using Sandbox.Common.ObjectBuilders;
-using Sandbox.ModAPI;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using VRage.Components;
+using VRage.ModAPI;
+using VRage.ObjectBuilders;
 
+//this must be in sandbox.common namespace  when assembly is sanbox.common  becaose of script checking.
 namespace Sandbox.Common.Components
 {
-    public abstract class MyGameLogicComponent : MyComponentBase
+    public abstract class MyGameLogicComponent : MyEntityComponentBase
     {
         public MyEntityUpdateEnum NeedsUpdate
         {
@@ -16,16 +17,16 @@ namespace Sandbox.Common.Components
             {
                 MyEntityUpdateEnum needsUpdate = MyEntityUpdateEnum.NONE;
 
-                if ((Entity.Flags & EntityFlags.NeedsUpdate) != 0)
+                if ((Container.Entity.Flags & EntityFlags.NeedsUpdate) != 0)
                     needsUpdate |= MyEntityUpdateEnum.EACH_FRAME;
 
-                if ((Entity.Flags & EntityFlags.NeedsUpdate10) != 0)
+                if ((Container.Entity.Flags & EntityFlags.NeedsUpdate10) != 0)
                     needsUpdate |= MyEntityUpdateEnum.EACH_10TH_FRAME;
 
-                if ((Entity.Flags & EntityFlags.NeedsUpdate100) != 0)
+                if ((Container.Entity.Flags & EntityFlags.NeedsUpdate100) != 0)
                     needsUpdate |= MyEntityUpdateEnum.EACH_100TH_FRAME;
 
-                if ((Entity.Flags & EntityFlags.NeedsUpdateBeforeNextFrame) != 0)
+                if ((Container.Entity.Flags & EntityFlags.NeedsUpdateBeforeNextFrame) != 0)
                     needsUpdate |= MyEntityUpdateEnum.BEFORE_NEXT_FRAME;
 
                 return needsUpdate;
@@ -36,25 +37,25 @@ namespace Sandbox.Common.Components
 
                 if (hasChanged)
                 {
-                    if (Entity.InScene)
-                        Sandbox.ModAPI.MyAPIGateway.Entities.UnregisterForUpdate(Entity);
+                    if (Container.Entity.InScene)
+                        Sandbox.ModAPI.MyAPIGateway.Entities.UnregisterForUpdate(Container.Entity);
 
-                    Entity.Flags &= ~EntityFlags.NeedsUpdateBeforeNextFrame;
-                    Entity.Flags &= ~EntityFlags.NeedsUpdate;
-                    Entity.Flags &= ~EntityFlags.NeedsUpdate10;
-                    Entity.Flags &= ~EntityFlags.NeedsUpdate100;
+                    Container.Entity.Flags &= ~EntityFlags.NeedsUpdateBeforeNextFrame;
+                    Container.Entity.Flags &= ~EntityFlags.NeedsUpdate;
+                    Container.Entity.Flags &= ~EntityFlags.NeedsUpdate10;
+                    Container.Entity.Flags &= ~EntityFlags.NeedsUpdate100;
 
                     if ((value & MyEntityUpdateEnum.BEFORE_NEXT_FRAME) != 0)
-                        Entity.Flags |= EntityFlags.NeedsUpdateBeforeNextFrame;
+                        Container.Entity.Flags |= EntityFlags.NeedsUpdateBeforeNextFrame;
                     if ((value & MyEntityUpdateEnum.EACH_FRAME) != 0)
-                        Entity.Flags |= EntityFlags.NeedsUpdate;
+                        Container.Entity.Flags |= EntityFlags.NeedsUpdate;
                     if ((value & MyEntityUpdateEnum.EACH_10TH_FRAME) != 0)
-                        Entity.Flags |= EntityFlags.NeedsUpdate10;
+                        Container.Entity.Flags |= EntityFlags.NeedsUpdate10;
                     if ((value & MyEntityUpdateEnum.EACH_100TH_FRAME) != 0)
-                        Entity.Flags |= EntityFlags.NeedsUpdate100;
+                        Container.Entity.Flags |= EntityFlags.NeedsUpdate100;
 
-                    if (Entity.InScene)
-                        Sandbox.ModAPI.MyAPIGateway.Entities.RegisterForUpdate(Entity);
+                    if (Container.Entity.InScene)
+                        Sandbox.ModAPI.MyAPIGateway.Entities.RegisterForUpdate(Container.Entity);
                 }
             }
         }
@@ -93,5 +94,10 @@ namespace Sandbox.Common.Components
         //Cleanup here
         public virtual void Close()
         {}
+
+        public override string ComponentTypeDebugString
+        {
+            get { return "Game Logic"; }
+        }
     }
 }

@@ -290,12 +290,14 @@ namespace Sandbox.Graphics.GUI
             int openAreaItemsCount   = 10,
             Vector2? iconSize        = null,
             bool useScrollBarOffset  = false,
-            String toolTip    = null)
+            String toolTip           = null,
+            MyGuiDrawAlignEnum originAlign = MyGuiDrawAlignEnum.HORISONTAL_CENTER_AND_VERTICAL_CENTER)
             : base( position: position,
                     size: size ?? (new Vector2(455f, 48f) / MyGuiConstants.GUI_OPTIMAL_SIZE),
                     colorMask: backgroundColor,
                     toolTip: toolTip,
-                    canHaveFocus: true)
+                    canHaveFocus: true,
+                    originAlign: originAlign)
         {
             Name = "Combobox";
 
@@ -492,6 +494,10 @@ namespace Sandbox.Graphics.GUI
         //  Return value of selected item
         public StringBuilder GetSelectedValue()
         {
+            if (m_selected == null)
+            {
+                return null;
+            }
             return m_selected.Value;
         }
 
@@ -900,10 +906,10 @@ namespace Sandbox.Graphics.GUI
         ///     c. draw the display items
         ///     d. disable stencil
         /// </summary>
-        public override void Draw(float transitionAlpha)
+        public override void Draw(float transitionAlpha, float backgroundTransitionAlpha)
         {
             // In case of listbox mode, before calling parent's draw, reset background color, because it will draw unwanted texture for first item in list(texture, that is used normally for closed combobox)
-            base.Draw(transitionAlpha);
+            base.Draw(transitionAlpha, transitionAlpha);
 
             if (m_selected != null)
                 DrawSelectedItemText(transitionAlpha);

@@ -13,7 +13,6 @@ namespace Sandbox.Definitions
         public float MaxSteer;
         public float SteeringSpeed;
         public float PropulsionForce;
-        public float SuspensionLimit;
         public float MinHeight;
         public float MaxHeight;
 
@@ -25,7 +24,6 @@ namespace Sandbox.Definitions
             MaxSteer = ob.MaxSteer;
             SteeringSpeed = ob.SteeringSpeed;
             PropulsionForce = ob.PropulsionForce;
-            SuspensionLimit = ob.SuspensionLimit;
             MinHeight = ob.MinHeight;
             MaxHeight = ob.MaxHeight;
         }

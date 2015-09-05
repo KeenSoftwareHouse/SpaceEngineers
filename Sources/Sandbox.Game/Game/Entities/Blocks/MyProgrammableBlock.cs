@@ -32,6 +32,7 @@ using Sandbox.Game.Screens.Helpers;
 using VRage;
 using VRage.Collections;
 using VRage.Library.Utils;
+using VRage.ModAPI;
 
 namespace Sandbox.Game.Entities.Blocks
 {
@@ -39,20 +40,15 @@ namespace Sandbox.Game.Entities.Blocks
     class MyProgrammableBlock : MyFunctionalBlock, IMyProgrammableBlock, IMyPowerConsumer
     {
         private const int MAX_NUM_EXECUTED_INSTRUCTIONS = 50000;
+		private const int MAX_NUM_METHOD_CALLS = 10000;
         private const int MAX_ECHO_LENGTH = 8000; // 100 lines á 80 characters
         private static readonly double STOPWATCH_FREQUENCY = 1.0 / Stopwatch.Frequency;
-        private object m_instance = null;
+        private IMyGridProgram m_instance = null;
         private string m_programData = null;
         private string m_storageData = null;
         private string m_editorData = null;
         private string m_terminalRunArgument = string.Empty;
-        private MethodInfo m_mainMethod = null;
-        private FieldInfo m_programGridGroup = null;
-        private FieldInfo m_storageField = null;
-        private FieldInfo m_meField = null;
-        private FieldInfo m_echoField = null;
         private StringBuilder m_echoOutput = new StringBuilder();
-        private FieldInfo m_elapsedTimeField = null;
         private long m_previousRunTimestamp = 0;
         
         private readonly object[] m_argumentArray = new object[1]; 
@@ -233,55 +229,38 @@ namespace Sandbox.Game.Entities.Blocks
             {
                 return MyTexts.GetString(MySpaceTexts.ProgrammableBlock_Exception_NoAssembly);
             }
-            if (m_mainMethod == null)
+            if (!m_instance.HasMainMethod)
             {
                 return MyTexts.GetString(MySpaceTexts.ProgrammableBlock_Exception_NoMain);
             }
-            if (this.m_elapsedTimeField != null)
+            if (m_previousRunTimestamp == 0)
             {
-                if (m_previousRunTimestamp == 0)
-                {
-                    m_previousRunTimestamp = Stopwatch.GetTimestamp();
-                    m_elapsedTimeField.SetValue(m_instance, TimeSpan.Zero);
-                }
-                else
-                {
-                    var currentTimestamp = Stopwatch.GetTimestamp();
-                    var elapsedTime = (currentTimestamp - m_previousRunTimestamp) * Sync.RelativeSimulationRatio;
-                    m_elapsedTimeField.SetValue(m_instance, TimeSpan.FromSeconds(elapsedTime * STOPWATCH_FREQUENCY));
-                    m_previousRunTimestamp = currentTimestamp;
-                }
+                m_previousRunTimestamp = Stopwatch.GetTimestamp();
+                m_instance.ElapsedTime = TimeSpan.Zero;
             }
-            if (m_programGridGroup != null)
+            else
             {
-                var gridGroup = MyCubeGridGroups.Static.Logical.GetGroup(CubeGrid);
-                var terminalSystem = gridGroup.GroupData.TerminalSystem;
-                terminalSystem.UpdateGridBlocksOwnership(this.OwnerId);
-                m_programGridGroup.SetValue(m_instance, terminalSystem);
+                var currentTimestamp = Stopwatch.GetTimestamp();
+                var elapsedTime = (currentTimestamp - m_previousRunTimestamp) * Sync.RelativeSimulationRatio;
+                m_instance.ElapsedTime = TimeSpan.FromSeconds(elapsedTime * STOPWATCH_FREQUENCY);
+                m_previousRunTimestamp = currentTimestamp;
             }
+            var gridGroup = MyCubeGridGroups.Static.Logical.GetGroup(CubeGrid);
+            var terminalSystem = gridGroup.GroupData.TerminalSystem;
+            terminalSystem.UpdateGridBlocksOwnership(this.OwnerId);
+            m_instance.GridTerminalSystem = terminalSystem;
 
             m_isRunning = true;
             string retVal = "";
             IlInjector.RestartCountingInstructions(MAX_NUM_EXECUTED_INSTRUCTIONS);
+			IlInjector.RestartCountingMethods(MAX_NUM_METHOD_CALLS);
             try
             {
-                if (m_mainMethodSupportsArgument)
-                {
-                    // Don't know if it's really necessary to predefine this argument array, I suspect not
-                    // due to the cleverness of the compiler, but I do it this way just in case. 
-                    // Obviously if programmable block execution becomes asynchronous at some point this 
-                    // must be reworked.
-                    m_argumentArray[0] = argument ?? string.Empty;
-                    m_mainMethod.Invoke(m_instance, m_argumentArray);
-                }
-                else
-                {
-                    m_mainMethod.Invoke(m_instance, null);
-                }
+                m_instance.Main(argument);
                 if (m_echoOutput.Length > 0)
                     retVal = m_echoOutput.ToString();
             }
-            catch (TargetInvocationException ex)
+            catch (Exception ex)
             {
                 // Since we just had an exception I'm not fussed about using old 
                 // fashioned string concatenation here. We'll still want the echo
@@ -289,13 +268,13 @@ namespace Sandbox.Game.Entities.Blocks
                 if (m_echoOutput.Length > 0)
                     retVal = m_echoOutput.ToString();
                 OnProgramTermination();
-                if (ex.InnerException is ScriptOutOfRangeException)
+                if (ex is ScriptOutOfRangeException)
                 {
                     retVal += MyTexts.GetString(MySpaceTexts.ProgrammableBlock_Exception_TooComplex);
                 }
-                else if (ex.InnerException != null)
+                else
                 {
-                    retVal += MyTexts.GetString(MySpaceTexts.ProgrammableBlock_Exception_ExceptionCaught) + ex.InnerException.Message;
+                    retVal += MyTexts.GetString(MySpaceTexts.ProgrammableBlock_Exception_ExceptionCaught) + ex.Message;
                 }
             }
             m_isRunning = false;
@@ -305,11 +284,7 @@ namespace Sandbox.Game.Entities.Blocks
         private void OnProgramTermination()
         {
             m_wasTerminated = true;
-            m_mainMethod = null;
-            m_programGridGroup = null;
-            m_storageField = null;
-            m_meField = null;
-            m_echoField = null;
+            m_instance = null;
             m_assembly = null;
             m_echoOutput.Clear();
             m_previousRunTimestamp = 0;
@@ -396,9 +371,9 @@ namespace Sandbox.Game.Entities.Blocks
             MyObjectBuilder_MyProgrammableBlock objectBuilder = (MyObjectBuilder_MyProgrammableBlock)base.GetObjectBuilderCubeBlock(copy);
             objectBuilder.Program = this.m_programData;
             objectBuilder.DefaultRunArgument = this.m_terminalRunArgument;
-            if (m_storageField != null && m_instance != null)
+            if (m_instance != null)
             {
-                objectBuilder.Storage = (string)m_storageField.GetValue(m_instance);
+                objectBuilder.Storage = m_instance.Storage;
             }
 
             return objectBuilder;
@@ -411,48 +386,28 @@ namespace Sandbox.Game.Entities.Blocks
                 return;
             }
             m_wasTerminated = false;
-            m_mainMethod = null;
             Assembly temp = null;
             MyGuiScreenEditor.CompileProgram(program, m_compilerErrors, ref temp);
             if (temp != null)
             {
                 try
                 {
-                    m_assembly = IlInjector.InjectCodeToAssembly("IngameScript_safe", temp, typeof(IlInjector).GetMethod("CountInstructions", BindingFlags.Public | BindingFlags.Static));
+					m_assembly = IlInjector.InjectCodeToAssembly("IngameScript_safe", temp, typeof(IlInjector).GetMethod("CountInstructions", BindingFlags.Public | BindingFlags.Static), typeof(IlInjector).GetMethod("CountMethodCalls", BindingFlags.Public | BindingFlags.Static));
 
                     var type = m_assembly.GetType("Program");
                     if (type != null)
                     {
                         IlInjector.RestartCountingInstructions(MAX_NUM_EXECUTED_INSTRUCTIONS);
+						IlInjector.RestartCountingMethods(MAX_NUM_METHOD_CALLS);
                         try
                         {
-                            m_instance = Activator.CreateInstance(type);
-                            m_programGridGroup = type.GetField("GridTerminalSystem", BindingFlags.NonPublic | BindingFlags.GetField | BindingFlags.Instance);
-                            m_storageField = type.GetField("Storage", BindingFlags.NonPublic | BindingFlags.GetField | BindingFlags.Instance);
-                            m_meField = type.GetField("Me", BindingFlags.NonPublic | BindingFlags.GetField | BindingFlags.Instance);
-                            m_echoField = type.GetField("Echo", BindingFlags.NonPublic | BindingFlags.GetField | BindingFlags.Instance);
-                            m_elapsedTimeField = type.GetField("ElapsedTime", BindingFlags.NonPublic | BindingFlags.GetField | BindingFlags.Instance);
-                            if (m_programGridGroup != null)
+                            m_instance = Activator.CreateInstance(type) as IMyGridProgram;
+                            if (m_instance != null)
                             {
-                                // First try to get the main method with a string argument. If this fails, try to get one without.
-                                m_mainMethod = type.GetMethod("Main", BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance, null, new[] { typeof(string) }, null);
-                                m_mainMethodSupportsArgument = m_mainMethod != null;
-                                if (m_mainMethod == null)
-                                {
-                                    m_mainMethod = type.GetMethod("Main", BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance);
-                                }
-                            }
-                            if (m_storageField != null)
-                            {
-                                m_storageField.SetValue(m_instance, storage);
-                            }
-                            if (m_meField != null)
-                            {
-                                m_meField.SetValue(m_instance, this);
-                            }
-                            if (m_echoField != null)
-                            {
-                                m_echoField.SetValue(m_instance, new Action<string>(EchoTextToDetailInfo));
+                                m_previousRunTimestamp = 0;
+                                m_instance.Storage = storage;
+                                m_instance.Me = this;
+                                m_instance.Echo = EchoTextToDetailInfo;
                             }
                         }
                         catch (TargetInvocationException ex)

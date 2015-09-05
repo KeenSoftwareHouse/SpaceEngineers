@@ -5,7 +5,7 @@ using VRageMath;
 namespace Sandbox.Game.Entities.Cube
 {
     [MyCubeBlockType(typeof(MyObjectBuilder_MotorRotor))]
-    class MyMotorRotor : MyCubeBlock
+    public class MyMotorRotor : MyCubeBlock
     {
         public Vector3 DummyPosLoc { get; private set; }
 

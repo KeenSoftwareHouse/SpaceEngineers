@@ -1526,7 +1526,46 @@ namespace VRageMath
             }
         }
 
-        public static Matrix CreatePerspectiveFovInv(float fieldOfView, float aspectRatio, float nearPlaneDistance, float farPlaneDistance)
+        public static Matrix CreatePerspectiveFovRhInfinite(float fieldOfView, float aspectRatio, float nearPlaneDistance)
+        {
+            //const float EPS = -2.4e-4f;
+
+            float num1 = 1f / (float)Math.Tan((double)fieldOfView * 0.5);
+            float num2 = num1 / aspectRatio;
+            Matrix matrix;
+            matrix.M11 = num2;
+            matrix.M12 = matrix.M13 = matrix.M14 = 0.0f;
+            matrix.M22 = num1;
+            matrix.M21 = matrix.M23 = matrix.M24 = 0.0f;
+            matrix.M31 = matrix.M32 = 0.0f;
+            matrix.M33 = -1f;
+            matrix.M34 = -1f;
+            matrix.M41 = matrix.M42 = matrix.M44 = 0.0f;
+            matrix.M43 = -nearPlaneDistance;
+            return matrix;
+        }
+
+        public static Matrix CreatePerspectiveFovRhInfiniteComplementary(float fieldOfView, float aspectRatio, float nearPlaneDistance)
+        {
+            //const float EPS = -2.4e-4f;
+
+            float num1 = 1f / (float)Math.Tan((double)fieldOfView * 0.5);
+            float num2 = num1 / aspectRatio;
+            Matrix matrix;
+            matrix.M11 = num2;
+            matrix.M12 = matrix.M13 = matrix.M14 = 0.0f;
+            matrix.M22 = num1;
+            matrix.M21 = matrix.M23 = matrix.M24 = 0.0f;
+            matrix.M31 = matrix.M32 = 0.0f;
+            matrix.M33 = 0;
+            matrix.M34 = -1f;
+            matrix.M41 = matrix.M42 = matrix.M44 = 0.0f;
+            matrix.M43 = nearPlaneDistance;
+
+            return matrix;
+        }
+
+        public static Matrix CreatePerspectiveFovRhInverse(float fieldOfView, float aspectRatio, float nearPlaneDistance, float farPlaneDistance)
         {
             float num1 = (float)Math.Tan((double)fieldOfView * 0.5);
             float num2 = aspectRatio * num1;
@@ -1540,6 +1579,42 @@ namespace VRageMath
             matrix.M41 = matrix.M42 = matrix.M44 = 0.0f;
             matrix.M43 = -1;
             matrix.M44 = 1 / nearPlaneDistance;
+            return matrix;
+        }
+
+        public static Matrix CreatePerspectiveFovRhInfiniteInverse(float fieldOfView, float aspectRatio, float nearPlaneDistance)
+        {
+            float num1 = 1f / (float)Math.Tan((double)fieldOfView * 0.5);
+            float num2 = num1 / aspectRatio;
+            Matrix matrix;
+            matrix.M11 = num2;
+            matrix.M12 = matrix.M13 = matrix.M14 = 0.0f;
+            matrix.M22 = num1;
+            matrix.M21 = matrix.M23 = matrix.M24 = 0.0f;
+            matrix.M31 = matrix.M32 = 0.0f;
+            matrix.M33 = 0;
+            matrix.M34 = -1f / nearPlaneDistance;
+            matrix.M41 = matrix.M42 = 0.0f;
+            matrix.M43 = -1f;
+            matrix.M44 = 1f / nearPlaneDistance;
+            return matrix;
+        }
+
+        public static Matrix CreatePerspectiveFovRhInfiniteComplementaryInverse(float fieldOfView, float aspectRatio, float nearPlaneDistance)
+        {
+            float num1 = 1f / (float)Math.Tan((double)fieldOfView * 0.5);
+            float num2 = num1 / aspectRatio;
+            Matrix matrix;
+            matrix.M11 = num2;
+            matrix.M12 = matrix.M13 = matrix.M14 = 0.0f;
+            matrix.M22 = num1;
+            matrix.M21 = matrix.M23 = matrix.M24 = 0.0f;
+            matrix.M31 = matrix.M32 = 0.0f;
+            matrix.M33 = 0;
+            matrix.M34 = 1f / nearPlaneDistance;
+            matrix.M41 = matrix.M42 = 0.0f;
+            matrix.M43 = -1f;
+            matrix.M44 = 0;
             return matrix;
         }
 
@@ -1837,7 +1912,7 @@ namespace VRageMath
             return matrix;
         }
 
-        public static Matrix CreateLookAtInv(Vector3 cameraPosition, Vector3 cameraTarget, Vector3 cameraUpVector)
+        public static Matrix CreateLookAtInverse(Vector3 cameraPosition, Vector3 cameraTarget, Vector3 cameraUpVector)
         {
             Vector3 vector3_1 = Vector3.Normalize(cameraPosition - cameraTarget);
             Vector3 vector3_2 = Vector3.Normalize(Vector3.Cross(cameraUpVector, vector3_1));
@@ -1887,6 +1962,11 @@ namespace VRageMath
             result.M42 = -Vector3.Dot(vector1, cameraPosition);
             result.M43 = -Vector3.Dot(vector3_1, cameraPosition);
             result.M44 = 1f;
+        }
+
+        public static Matrix CreateWorld(Vector3 position)
+        {
+            return Matrix.CreateWorld(position, Vector3.Forward, Vector3.Up);
         }
 
         /// <summary>

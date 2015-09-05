@@ -13,13 +13,11 @@ using Sandbox.Game.Screens.Terminal.Controls;
 using Sandbox.Game.Screens.Helpers;
 using VRage.Utils;
 using Sandbox.Game.Localization;
-using VRage;
-using VRage.Utils;
 using VRage.Library.Utils;
 
 namespace Sandbox.Game.Gui
 {
-    class MyTerminalControlOnOffSwitch<TBlock> : MyTerminalControl<TBlock>
+    public class MyTerminalControlOnOffSwitch<TBlock> : MyTerminalValueControl<TBlock, bool>
         where TBlock : MyTerminalBlock
     {
         public delegate bool GetterDelegate(TBlock block);
@@ -141,6 +139,31 @@ namespace Sandbox.Game.Gui
             AppendAction(action);
 
             return action;
+        }
+
+        public override bool GetValue(TBlock block)
+        {
+            return Getter(block);
+        }
+
+        public override void SetValue(TBlock block, bool value)
+        {
+            Setter(block, value);
+        }
+
+        public override bool GetDefaultValue(TBlock block)
+        {
+            return false;
+        }
+
+        public override bool GetMininum(TBlock block)
+        {
+            return false;
+        }
+
+        public override bool GetMaximum(TBlock block)
+        {
+            return true;
         }
     }
 }

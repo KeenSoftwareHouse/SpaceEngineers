@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using VRageMath;
 
-namespace Sandbox.Game.Entities.Character
+namespace Sandbox.Game.Entities
 {
     /// <summary>
     /// Bones in this model are represented by this class, which
@@ -28,8 +28,6 @@ namespace Sandbox.Game.Entities.Character
     {
         #region Fields
 
-        public bool IsFinger;
-
         /// <summary>
         /// Any parent for this bone
         /// </summary>
@@ -43,6 +41,8 @@ namespace Sandbox.Game.Entities.Character
         /// I do remove any scaling, though.
         /// </summary>
         private Matrix m_bindTransform = Matrix.Identity;
+        private Matrix m_bindTransformInv = Matrix.Identity;
+        private Quaternion m_bindRotationInv = Quaternion.Identity;
 
         /// <summary>
         /// Any translation applied to the bone
@@ -53,11 +53,6 @@ namespace Sandbox.Game.Entities.Character
         /// Any rotation applied to the bone
         /// </summary>
         private Quaternion m_rotation = Quaternion.Identity;
-
-        /// <summary>
-        /// Any scaling applied to the bone
-        /// </summary>
-        private Vector3 m_scale = Vector3.One;
 
         /// <summary>
         /// computed bone transform
@@ -74,8 +69,6 @@ namespace Sandbox.Game.Entities.Character
         /// </summary>
         private bool m_hierarchyUpdate = false;
 
-        public bool CompatibilityMode = false;
-
         #endregion 
 
         #region Properties
@@ -89,6 +82,7 @@ namespace Sandbox.Game.Entities.Character
         /// The bone bind transform
         /// </summary>
         public Matrix BindTransform { get {return m_bindTransform;} }
+        public Matrix BindTransformInv { get { return m_bindTransformInv; } }
 
         /// <summary>
         /// Inverse of absolute bind transform for skinnning
@@ -106,11 +100,6 @@ namespace Sandbox.Game.Entities.Character
         public Vector3 Translation { get { return m_translation; } set { m_translation = value; m_changed = true; } }
 
         /// <summary>
-        /// Any scaling
-        /// </summary>
-        public Vector3 Scale { get { return m_scale; } set { m_scale = value; m_changed = true; } }
-
-        /// <summary>
         /// The parent bone or null for the root bone
         /// </summary>
         public MyCharacterBone Parent { get { return m_parent; } }
@@ -120,11 +109,13 @@ namespace Sandbox.Game.Entities.Character
         /// </summary>
         public Matrix AbsoluteTransform = Matrix.Identity;
 
-        public bool HasChanged
+        bool HasChanged
         {
             get
             {
-                if (m_parent != null) return Parent.HasChanged || m_changed || m_hierarchyUpdate;
+                if (m_parent != null) 
+                    return Parent.HasChanged || m_changed || m_hierarchyUpdate;
+
                 return m_changed || m_hierarchyUpdate;
             }
         }
@@ -144,6 +135,8 @@ namespace Sandbox.Game.Entities.Character
             this.Name = name;
             this.m_parent = parent;
             this.m_bindTransform = bindTransform;
+            this.m_bindTransformInv = Matrix.Invert(bindTransform);
+            this.m_bindRotationInv = Quaternion.CreateFromRotationMatrix(m_bindTransformInv); 
             this.m_children = new List<MyCharacterBone>();
             if (this.m_parent != null) this.m_parent.AddChild(this);
 
@@ -186,11 +179,15 @@ namespace Sandbox.Game.Entities.Character
         {
             if (m_changed)
             {
-                m_transform = Matrix.CreateScale(Scale) *
-                    Matrix.CreateFromQuaternion(Rotation) *
-                    Matrix.CreateTranslation(Translation);
+                Matrix rotationMatrix;
+                Matrix.CreateFromQuaternion(ref m_rotation, out rotationMatrix);
 
-                m_transform *= BindTransform;
+                Matrix translationMatrix;
+                Matrix.CreateTranslation(ref m_translation, out translationMatrix);
+
+                Matrix.Multiply(ref rotationMatrix, ref translationMatrix, out m_transform);
+                Matrix.Multiply(ref m_transform, ref m_bindTransform, out m_transform);
+
                 m_changed = false;
             }
             return m_transform;
@@ -202,24 +199,17 @@ namespace Sandbox.Game.Entities.Character
         /// equals this matrix. This is used to set animation values.
         /// </summary>
         /// <param name="m">A matrix include translation and rotation</param>
-        public void SetCompleteTransform(Matrix m, float weight)
+        public void SetCompleteTransform(ref Vector3 translation, ref Quaternion rotation, float weight)
         {
             m_changed = true;
-            if (CompatibilityMode)
-            {
-                m.Translation = m.Translation * 0.01f;
-                var rotationMatrix = Matrix.CreateRotationY(MathHelper.Pi);
-                var invert = Matrix.Invert(rotationMatrix);
-                m = invert * m * rotationMatrix;
-            }
 
-            Matrix setTo = m * Matrix.Invert(BindTransform);
-
-            //Translation += setTo.Translation * weight;
-            Translation = Vector3.Lerp(Translation, setTo.Translation, weight);
+            Vector3 newTranslation;
+            Vector3.Transform(ref translation, ref m_bindTransformInv, out newTranslation);
+            Translation = Vector3.Lerp(Translation, newTranslation, weight);
             //Translation = Vector3.Zero;
 
-            Quaternion newRotation = Quaternion.CreateFromRotationMatrix(setTo);
+            Quaternion newRotation;
+            Quaternion.Multiply(ref m_bindRotationInv, ref rotation, out newRotation);
             Rotation = Quaternion.Slerp(Rotation, newRotation, weight);
             //Rotation = Quaternion.Identity;
         }
@@ -231,6 +221,8 @@ namespace Sandbox.Game.Entities.Character
         {
             m_changed = true;
             m_bindTransform = bindTransform;
+            m_bindTransformInv = Matrix.Invert(bindTransform);
+            m_bindRotationInv = Quaternion.CreateFromRotationMatrix(m_bindTransformInv);
         }
 
         internal void AddChild(MyCharacterBone child)

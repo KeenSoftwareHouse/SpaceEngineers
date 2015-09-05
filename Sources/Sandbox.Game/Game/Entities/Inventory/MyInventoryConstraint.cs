@@ -10,6 +10,7 @@ using Sandbox.Engine.Utils;
 using VRage;
 using VRage.Utils;
 using VRage.Library.Utils;
+using VRage.ObjectBuilders;
 
 namespace Sandbox.Game
 {

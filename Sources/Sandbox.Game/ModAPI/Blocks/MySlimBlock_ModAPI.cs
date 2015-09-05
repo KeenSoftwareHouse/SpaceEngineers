@@ -78,6 +78,11 @@ namespace Sandbox.Game.Entities.Cube
             FixBones(oldDamage, maxAllowedBoneMovement);
         }
 
+        void IMySlimBlock.FullyDismount(IMyInventory outputInventory)
+        {
+            FullyDismount(outputInventory as MyInventory);
+        }
+
         Common.ObjectBuilders.MyObjectBuilder_CubeBlock IMySlimBlock.GetCopyObjectBuilder()
         {
             return GetCopyObjectBuilder();
@@ -160,6 +165,11 @@ namespace Sandbox.Game.Entities.Cube
         void IMySlimBlock.SpawnConstructionStockpile()
         {
             SpawnConstructionStockpile();
+        }
+
+        void IMySlimBlock.MoveItemsFromConstructionStockpile(IMyInventory toInventory, Sandbox.Common.ObjectBuilders.MyItemFlags flags)
+        {
+            MoveItemsFromConstructionStockpile(toInventory as MyInventory, flags);
         }
 
         void IMySlimBlock.SpawnFirstItemInConstructionStockpile()
@@ -294,8 +304,7 @@ namespace Sandbox.Game.Entities.Cube
         Sandbox.ModAPI.IMyCubeGrid ModAPI.IMySlimBlock.CubeGrid
         {
             get { return CubeGrid; }
-        }
-
+        }        
         VRageMath.Vector3 IMySlimBlock.GetColorMask()
         {
             return ColorMaskHSV;

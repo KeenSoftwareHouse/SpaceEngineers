@@ -1,11 +1,12 @@
-﻿
-using Sandbox.Engine.Utils;
+﻿using Sandbox.Engine.Utils;
 using Sandbox.Game.Entities.Character;
-using Sandbox.Game.Entities.UseObject;
 using Sandbox.Game.Localization;
 using Sandbox.Graphics.GUI;
+using Sandbox.ModAPI;
+using VRage.Game.Entity.UseObject;
 using VRage.Import;
 using VRage.Input;
+using VRage.ModAPI;
 using VRageMath;
 
 namespace Sandbox.Game.Entities.Cube
@@ -13,10 +14,10 @@ namespace Sandbox.Game.Entities.Cube
     [MyUseObject("cockpit")]
     class MyUseObjectCockpitDoor : IMyUseObject
     {
-        public readonly MyCubeBlock Cockpit;
+        public readonly IMyEntity Cockpit;
         public readonly Matrix LocalMatrix;
 
-        public MyUseObjectCockpitDoor(MyCubeBlock owner, string dummyName, MyModelDummy dummyData, int key)
+        public MyUseObjectCockpitDoor(IMyEntity owner, string dummyName, MyModelDummy dummyData, uint key)
         {
             Cockpit = owner;
             LocalMatrix = dummyData.Matrix;
@@ -55,7 +56,7 @@ namespace Sandbox.Game.Entities.Cube
             get { return UseActionEnum.Manipulate; }
         }
 
-        void IMyUseObject.Use(UseActionEnum actionEnum, MyCharacter user)
+        void IMyUseObject.Use(UseActionEnum actionEnum, IMyEntity entity)
         {
             // How to distinct between server sending message?
             // - it's response...always
@@ -68,6 +69,7 @@ namespace Sandbox.Game.Entities.Cube
 
             // Something like:
             // -- extension method IControllableEntity.RequestUse(actionEnum, user, handler)
+            var user = entity as MyCharacter;
             if(Cockpit is MyCockpit)
                 (Cockpit as MyCockpit).RequestUse(actionEnum, user);
         }
@@ -91,5 +93,10 @@ namespace Sandbox.Game.Entities.Cube
         bool IMyUseObject.HandleInput() { return false; }
 
         void IMyUseObject.OnSelectionLost() { }
+
+        bool IMyUseObject.PlayIndicatorSound
+        {
+            get { return true; }
+        }
     }
 }

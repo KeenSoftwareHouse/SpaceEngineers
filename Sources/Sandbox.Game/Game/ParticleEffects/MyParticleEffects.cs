@@ -10,11 +10,13 @@ using Sandbox.Game.World;
 using Sandbox.Game.Weapons;
 
 using Sandbox.ModAPI;
+using VRage.ModAPI;
 
 namespace Sandbox.Game
 {
     public enum MyCustomHitMaterialMethodType
     {
+        None = -2,
         Unknown = -1,
         Small = 0,
         Normal,
@@ -22,6 +24,7 @@ namespace Sandbox.Game
 
     public enum MyCustomHitParticlesMethodType
     {
+        None = -2,
         Basic = 2,
         BasicSmall = 3,
     }
@@ -35,11 +38,15 @@ namespace Sandbox.Game
 
         static MyParticleEffects()
         {
+            m_generalParticleDelegates.Add((int)MyCustomHitParticlesMethodType.None, 
+                delegate(ref Vector3D hitPoint, ref Vector3 normal, ref Vector3D direction, IMyEntity physObject, MyEntity weapon, float scale, MyEntity ownerEntity) { });
             m_generalParticleDelegates.Add((int)MyCustomHitParticlesMethodType.Basic, CreateBasicHitParticles);
             m_generalParticleDelegates.Add((int)MyCustomHitParticlesMethodType.BasicSmall, CreateBasicHitSmallParticles);
 
             m_autocannonParticleDelegates.Add((int)MyCustomHitParticlesMethodType.Basic, CreateBasicHitAutocannonParticles);
 
+            m_hitMaterialParticleDelegates.Add((int)MyCustomHitMaterialMethodType.None, 
+                delegate(ref Vector3D hitPoint, ref Vector3 normal, ref Vector3D direction, IMyEntity physObject, MySurfaceImpactEnum surfaceImpact, MyEntity weapon, float scale) { });
             m_hitMaterialParticleDelegates.Add((int)MyCustomHitMaterialMethodType.Normal, CreateHitMaterialParticles);
             m_hitMaterialParticleDelegates.Add((int)MyCustomHitMaterialMethodType.Small, CreateHitMaterialSmallParticles);
         }

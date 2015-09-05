@@ -172,9 +172,9 @@ namespace Sandbox.Graphics.GUI
             return objectBuilder;
         }
 
-        public override void Draw(float transitionAlpha)
+        public override void Draw(float transitionAlpha, float backgroundTransitionAlpha)
         {
-            base.Draw(transitionAlpha);
+            base.Draw(transitionAlpha, backgroundTransitionAlpha);
 
             // String builder has priority when drawing.
             float maxWidth = AutoEllipsis ? Size.X : float.PositiveInfinity;

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using VRage.ModAPI;
 
 namespace Sandbox.ModAPI.Ingame
 {
@@ -18,6 +19,7 @@ namespace Sandbox.ModAPI.Ingame
         float FrontExtend { get; }
         float BackExtend { get; }
 
+        bool PlayProximitySound { get; }
         bool DetectPlayers { get; }
         bool DetectFloatingObjects { get; }
         bool DetectSmallShips { get; }

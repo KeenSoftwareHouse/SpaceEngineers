@@ -9,7 +9,7 @@ namespace VRageRender
         public uint ClipmapId;
         public MyCellCoord Cell;
         public readonly List<MyClipmapCellBatch> Batches = new List<MyClipmapCellBatch>();
-        public Vector3 PositionOffset;
+        public Vector3D PositionOffset;
         public Vector3 PositionScale;
         public BoundingBox MeshAabb;
 

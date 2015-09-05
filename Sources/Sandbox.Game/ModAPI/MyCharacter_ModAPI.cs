@@ -3,12 +3,13 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using VRage.ModAPI;
 
 namespace Sandbox.Game.Entities.Character
 {
     partial class MyCharacter
     {
-        ModAPI.IMyEntity ModAPI.Interfaces.IMyControllableEntity.Entity
+        IMyEntity ModAPI.Interfaces.IMyControllableEntity.Entity
         {
             get { return Entity; }
         }

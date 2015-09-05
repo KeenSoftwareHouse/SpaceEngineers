@@ -55,7 +55,7 @@ namespace SpaceEngineers.Game
                     {
                         Unit = MyGridPlacementSettings.PenetrationUnitEnum.Ratio,
                         MinAllowed = 0f,
-                        MaxAllowed = 0.2f,
+                        MaxAllowed = 0.1f,
                     },
                     EnablePreciseRotationWhenSnapped = false,
                 },
@@ -68,7 +68,7 @@ namespace SpaceEngineers.Game
                     {
                         Unit = MyGridPlacementSettings.PenetrationUnitEnum.Ratio,
                         MinAllowed = 0f,
-                        MaxAllowed = 0.33f,
+                        MaxAllowed = 0.8f,
                     },
                     EnablePreciseRotationWhenSnapped = true,
                 },
@@ -83,15 +83,15 @@ namespace SpaceEngineers.Game
             MyPerGameSettings.BallFriendlyPhysics = true;
 
             MyPerGameSettings.EnableAi = false;
-            
 
             MyPerGameSettings.BotFactoryType = typeof(Sandbox.Game.AI.MySandboxBotFactory);
-            MyPerGameSettings.RespawnComponentType = typeof(Sandbox.Game.World.MyRespawnComponent);
 
             MyPerGameSettings.ControlMenuInitializerType = typeof(MySpaceControlMenuInitializer);
 
             MyPerGameSettings.EnableScenarios = true;
+            MyPerGameSettings.EnableTutorials = true;
 
+            MyPerGameSettings.EnableJumpDrive = true;
 
             MyFakes.ENABLE_PATHFINDING = false;
             MyDebugDrawSettings.DEBUG_DRAW_MOUNT_POINTS_AXIS_HELPERS = true;
@@ -110,6 +110,7 @@ namespace SpaceEngineers.Game
             MyPerGameSettings.DefaultGraphicsRenderer = DirectX9RendererKey;
 
             MyPerGameSettings.EnableWelderAutoswitch = true;
+			MyPerGameSettings.InventoryMass = true;
 
             FillCredits();
 

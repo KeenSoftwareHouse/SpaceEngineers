@@ -15,6 +15,8 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using VRage;
+using VRage.Components;
+using VRage.ObjectBuilders;
 using VRageMath;
 
 namespace Sandbox.Game.Entities.Cube
@@ -92,7 +94,10 @@ namespace Sandbox.Game.Entities.Cube
             if (ob.Shapes.Count == 0)
             {
                 ProfilerShort.End();
-                return;
+                if(ob.CreatingFracturedBlock)
+                    return;
+                Debug.Fail("No relevant shape was found for fractured block. It was probably reexported and names changed.");
+                throw new Exception("No relevant shape was found for fractured block. It was probably reexported and names changed.");
             }
             
             OriginalBlocks = new List<MyDefinitionId>();
@@ -101,15 +106,31 @@ namespace Sandbox.Game.Entities.Cube
             foreach (var def in ob.BlockDefinitions)
             {
                 var blockDef = MyDefinitionManager.Static.GetCubeBlockDefinition(def);
-                if (MyModels.GetModelOnlyData(blockDef.Model).HavokBreakableShapes == null)
-                {
-                    MyDestructionData.Static.LoadModelDestruction(blockDef, false, Vector3.One);
-                }
-                var shape = MyModels.GetModelOnlyData(blockDef.Model).HavokBreakableShapes[0];
+
+                var model = blockDef.Model;
+                if (MyModels.GetModelOnlyData(model).HavokBreakableShapes == null)
+                    MyDestructionData.Static.LoadModelDestruction(model, blockDef, false, Vector3.One);
+                var shape = MyModels.GetModelOnlyData(model).HavokBreakableShapes[0];
                 var si = new HkdShapeInstanceInfo(shape, null, null);
                 lst.Add(si);
                 m_children.Add(si);
                 shape.GetChildren(m_children);
+                if(blockDef.BuildProgressModels != null)
+                {
+                    foreach(var progress in blockDef.BuildProgressModels)
+                    {
+                        model = progress.File;
+                        if (MyModels.GetModelOnlyData(model).HavokBreakableShapes == null)
+                            MyDestructionData.Static.LoadModelDestruction(model, blockDef, false, Vector3.One);
+                        shape = MyModels.GetModelOnlyData(model).HavokBreakableShapes[0];
+                        si = new HkdShapeInstanceInfo(shape, null, null);
+                        lst.Add(si);
+                        m_children.Add(si);
+                        shape.GetChildren(m_children);
+                    }
+                }
+
+
                 OriginalBlocks.Add(def);
             }
             foreach (var or in ob.BlockOrientations)
@@ -289,6 +310,7 @@ namespace Sandbox.Game.Entities.Cube
                     var mp = new MyCubeBlockDefinition.MountPoint();
                     mp.Start = bb.Min;
                     mp.End = bb.Max;
+					mp.Enabled = true;
                     var start = mp.Start * absDir / (blockBB.HalfExtents * 2) - absDir * 0.04f;
                     var end = mp.End * absDir / (blockBB.HalfExtents * 2) + absDir * 0.04f;
                     bool add = false;
@@ -347,17 +369,21 @@ namespace Sandbox.Game.Entities.Cube
                 m_mpCache.AddRange((other.FatBlock as MyFracturedBlock).MountPoints);
             else
             {
-                if(other != null && other.FatBlock is MyCompoundCubeBlock)
-                {
-                    var lst = new List<MyCubeBlockDefinition.MountPoint>();
-                    foreach(var b in (other.FatBlock as MyCompoundCubeBlock).GetBlocks())
-                    {
-                        MyCubeGrid.TransformMountPoints(lst, b.BlockDefinition, ref b.Orientation);
-                        m_mpCache.AddRange(lst);
-                    }
-                }
-                else
-                    MyCubeGrid.TransformMountPoints(m_mpCache, def, ref or);
+				if (other != null && other.FatBlock is MyCompoundCubeBlock)
+				{
+					var lst = new List<MyCubeBlockDefinition.MountPoint>();
+					foreach (var b in (other.FatBlock as MyCompoundCubeBlock).GetBlocks())
+					{
+						var mountPoints = b.BlockDefinition.GetBuildProgressModelMountPoints(b.BuildLevelRatio);
+						MyCubeGrid.TransformMountPoints(lst, b.BlockDefinition, mountPoints, ref b.Orientation);
+						m_mpCache.AddRange(lst);
+					}
+				}
+				else if(other != null)
+				{
+					var mountPoints = def.GetBuildProgressModelMountPoints(other.BuildLevelRatio);
+					MyCubeGrid.TransformMountPoints(m_mpCache, def, mountPoints, ref or);
+				}
             }
             return MyCubeGrid.CheckMountPointsForSide(MountPoints, ref SlimBlock.Orientation, ref position, BlockDefinition.Id, ref faceNormal, m_mpCache,
                 ref or, ref otherPos, def.Id);

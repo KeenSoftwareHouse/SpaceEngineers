@@ -31,6 +31,8 @@ using Sandbox.ModAPI.Interfaces;
 using Sandbox.Game.Components;
 using Sandbox.ModAPI.Ingame;
 using Sandbox.Game.Localization;
+using VRage.ModAPI;
+using VRage.Components;
 
 namespace Sandbox.Game.Weapons
 {
@@ -50,7 +52,7 @@ namespace Sandbox.Game.Weapons
         public float MuzzleFlashLength { get { return  m_muzzleFlashLength;}}
         float m_muzzleFlashRadius;
         public float MuzzleFlashRadius{ get { return m_muzzleFlashRadius; } }
-
+		
         //  When gun fires too much, we start generating smokes at the muzzle
         int m_smokeLastTime;
         int m_smokesToGenerate;
@@ -162,7 +164,7 @@ namespace Sandbox.Game.Weapons
             UpdateIsWorking();
         }
 
-        void AmmoInventory_ContentsChanged(MyInventory obj)
+        void AmmoInventory_ContentsChanged(MyInventoryBase obj)
         {
             m_gunBase.RefreshAmmunitionAmount();
         }
@@ -387,7 +389,7 @@ namespace Sandbox.Game.Weapons
             return true;
         }
 
-        public void Shoot(MyShootActionEnum action, Vector3 direction)
+        public void Shoot(MyShootActionEnum action, Vector3 direction, string gunAction)
         {            
             //  Angle of muzzle flash particle
             m_muzzleFlashLength = MyUtils.GetRandomFloat(3, 4);// *m_barrel.GetMuzzleSize();
@@ -402,11 +404,7 @@ namespace Sandbox.Game.Weapons
             VRageRender.MyRenderProxy.GetRenderProfiler().StartProfilingBlock("MyAutocannonGun.Shot add projectile");
 
             m_gunBase.Shoot(Parent.Physics.LinearVelocity);
-
-            if (!MySession.Static.CreativeMode)
-            {
-                m_gunBase.ConsumeAmmo();        
-            }
+            m_gunBase.ConsumeAmmo();        
             //VRageRender.MyRenderProxy.DebugDrawSphere(GetPosition(), 0.1f, Vector3.One, 1, false);
 
             VRageRender.MyRenderProxy.GetRenderProfiler().EndProfilingBlock();
@@ -414,7 +412,7 @@ namespace Sandbox.Game.Weapons
             if (BackkickForcePerSecond > 0)
             {
                 CubeGrid.Physics.AddForce(
-                    Engine.Physics.MyPhysicsForceType.APPLY_WORLD_IMPULSE_AND_WORLD_ANGULAR_IMPULSE,
+                    MyPhysicsForceType.APPLY_WORLD_IMPULSE_AND_WORLD_ANGULAR_IMPULSE,
                     -direction * BackkickForcePerSecond,
                     PositionComp.GetPosition(),
                     null);
@@ -479,7 +477,7 @@ namespace Sandbox.Game.Weapons
             if (status == MyGunStatusEnum.OK || status == MyGunStatusEnum.Cooldown)
             {
                 var from = PositionComp.GetPosition() + PositionComp.WorldMatrix.Forward;
-                var to = PositionComp.GetPosition() + 1000 * PositionComp.WorldMatrix.Forward;
+                var to = PositionComp.GetPosition() + 50 * PositionComp.WorldMatrix.Forward;
 
                 Vector3D target = Vector3D.Zero;
                 if (MyHudCrosshair.GetTarget(from, to, ref target))
@@ -663,7 +661,7 @@ namespace Sandbox.Game.Weapons
 
         public override void ShootFromTerminal(Vector3 direction)
         {
-            Shoot(MyShootActionEnum.PrimaryAction, direction);
+            Shoot(MyShootActionEnum.PrimaryAction, direction, null);
         }
     }
 }

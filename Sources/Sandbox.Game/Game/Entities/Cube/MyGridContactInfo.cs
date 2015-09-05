@@ -8,7 +8,7 @@ using VRageMath;
 
 namespace Sandbox.Game.Entities.Cube
 {
-    struct MyGridContactInfo
+    public struct MyGridContactInfo
     {
         [Flags]
         enum ContactFlags
@@ -146,7 +146,6 @@ namespace Sandbox.Game.Entities.Cube
             Vector3D localPos;
             Vector3D.Transform(ref worldPosition, ref invWorld, out localPos);
 
-            // MW:TODO optimize
             var min1 = Vector3I.Round((localPos - graceDistance - localVelocity) / grid.GridSize);
             var max1 = Vector3I.Round((localPos + graceDistance + localVelocity) / grid.GridSize);
             var min2 = Vector3I.Round((localPos + graceDistance - localVelocity) / grid.GridSize);

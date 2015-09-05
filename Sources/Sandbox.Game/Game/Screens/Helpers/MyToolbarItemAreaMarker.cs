@@ -21,6 +21,17 @@ namespace Sandbox.Game.Screens.Helpers
 			return true;
 		}
 
+		public override MyObjectBuilder_ToolbarItem GetObjectBuilder()
+		{
+			var baseBuilder = base.GetObjectBuilder();
+			var builder = baseBuilder as MyObjectBuilder_ToolbarItemAreaMarker;
+
+			if (builder == null)
+				return baseBuilder;
+
+			return builder;
+		}
+
 		public override bool Activate()
 		{
 			if (!MyFakes.ENABLE_BARBARIANS || !MyPerGameSettings.EnableAi)
@@ -29,7 +40,7 @@ namespace Sandbox.Game.Screens.Helpers
 			if (Definition == null)
 				return false;
 
-			MyAIComponent.Static.AreaMarkerDefinition = Definition as MyAreaMarkerDefinition;
+			MyPlaceAreas.Static.AreaMarkerDefinition = Definition as MyAreaMarkerDefinition;
 			var controlledObject = MySession.ControlledEntity as IMyControllableEntity;
 			if (controlledObject != null)
 			{
@@ -46,7 +57,7 @@ namespace Sandbox.Game.Screens.Helpers
 
 		public override MyToolbarItem.ChangeInfo Update(Entities.MyEntity owner, long playerID = 0)
 		{
-			var markerDefinition = MyAIComponent.Static.AreaMarkerDefinition;
+			var markerDefinition = MyPlaceAreas.Static.AreaMarkerDefinition;
 			WantsToBeSelected = markerDefinition != null && markerDefinition.Id.SubtypeId == (this.Definition as MyAreaMarkerDefinition).Id.SubtypeId;
 			return ChangeInfo.None;
 		}

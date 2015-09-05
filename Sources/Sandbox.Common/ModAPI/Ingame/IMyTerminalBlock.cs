@@ -11,6 +11,7 @@ namespace Sandbox.ModAPI.Ingame
         string CustomName { get; }
         string CustomNameWithFaction { get; }
         string DetailedInfo { get; }
+        string CustomInfo { get; }
         bool HasLocalPlayerAccess();
         bool HasPlayerAccess(long playerId);
         void RequestShowOnHUD(bool enable);

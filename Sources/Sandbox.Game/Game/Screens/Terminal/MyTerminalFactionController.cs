@@ -10,7 +10,6 @@ using System.Linq;
 using System.Text;
 using VRageMath;
 
-using VRage.Utils;
 using Sandbox.Game.Localization;
 using VRage;
 using VRage.Utils;
@@ -75,6 +74,8 @@ namespace Sandbox.Game.Gui
         MyGuiControlButton m_buttonPromote;
         MyGuiControlButton m_buttonDemote;
         MyGuiControlButton m_buttonAcceptJoin;
+        MyGuiControlButton m_buttonAddNpc;
+
 
         public void Init(IMyGuiControlsParent controlsParent)
         {
@@ -162,18 +163,22 @@ namespace Sandbox.Game.Gui
             m_buttonKick       = (MyGuiControlButton)controlsParent.Controls.GetControlByName("buttonKick");
             m_buttonAcceptJoin = (MyGuiControlButton)controlsParent.Controls.GetControlByName("buttonAcceptJoin");
             m_buttonDemote     = (MyGuiControlButton)controlsParent.Controls.GetControlByName("buttonDemote");
+            m_buttonAddNpc = (MyGuiControlButton)controlsParent.Controls.GetControlByName("buttonAddNpc");
 
             m_buttonEdit.TextEnum       = MySpaceTexts.Edit;
             m_buttonPromote.TextEnum    = MySpaceTexts.Promote;
             m_buttonKick.TextEnum       = MySpaceTexts.Kick;
             m_buttonAcceptJoin.TextEnum = MySpaceTexts.Accept;
             m_buttonDemote.TextEnum     = MySpaceTexts.Demote;
+            m_buttonAddNpc.TextEnum = MySpaceTexts.AddNpcToFaction;
+            m_buttonAddNpc.SetToolTip(MySpaceTexts.AddNpcToFactionHelp);
 
             m_buttonEdit.ButtonClicked       += OnCreateClicked;
             m_buttonPromote.ButtonClicked    += OnPromotePlayerClicked;
             m_buttonKick.ButtonClicked       += OnKickPlayerClicked;
             m_buttonAcceptJoin.ButtonClicked += OnAcceptJoinClicked;
             m_buttonDemote.ButtonClicked     += OnDemoteClicked;
+            m_buttonAddNpc.ButtonClicked += OnNewNpcClicked;
 
             MySession.Static.Factions.FactionCreated           += OnFactionCreated;
             MySession.Static.Factions.FactionEdited            += OnFactionEdited;
@@ -247,6 +252,7 @@ namespace Sandbox.Game.Gui
             m_buttonKick.ButtonClicked       -= OnKickPlayerClicked;
             m_buttonAcceptJoin.ButtonClicked -= OnAcceptJoinClicked;
             m_buttonDemote.ButtonClicked     -= OnDemoteClicked;
+            m_buttonAddNpc.ButtonClicked += OnNewNpcClicked;
         }
 
         private void OnFactionsTableItemSelected(MyGuiControlTable sender, Sandbox.Graphics.GUI.MyGuiControlTable.EventArgs args)
@@ -282,12 +288,12 @@ namespace Sandbox.Game.Gui
 
         private void OnJoinClicked(MyGuiControlButton sender)
         {
-            MySession.Static.Factions.SendJoinRequest(m_selectedFaction.FactionId, MySession.LocalPlayerId);
+            MyFactionCollection.SendJoinRequest(m_selectedFaction.FactionId, MySession.LocalPlayerId);
         }
 
         private void OnCancelJoinClicked(MyGuiControlButton sender)
         {
-            MySession.Static.Factions.CancelJoinRequest(m_selectedFaction.FactionId, MySession.LocalPlayerId);
+            MyFactionCollection.CancelJoinRequest(m_selectedFaction.FactionId, MySession.LocalPlayerId);
         }
 
         private void OnLeaveClicked(MyGuiControlButton sender)
@@ -304,29 +310,29 @@ namespace Sandbox.Game.Gui
             if (m_userFaction == null) // player can be kicked while confirming leave
                 return;
 
-            MySession.Static.Factions.MemberLeaves(m_userFaction.FactionId, MySession.LocalPlayerId);
+            MyFactionCollection.MemberLeaves(m_userFaction.FactionId, MySession.LocalPlayerId);
             m_userFaction = null;
             Refresh();
         }
 
         private void OnFriendClicked(MyGuiControlButton sender)
         {
-            MySession.Static.Factions.SendPeaceRequest(m_userFaction.FactionId, m_selectedFaction.FactionId);
+            MyFactionCollection.SendPeaceRequest(m_userFaction.FactionId, m_selectedFaction.FactionId);
         }
 
         private void OnAcceptFriendClicked(MyGuiControlButton sender)
         {
-            MySession.Static.Factions.AcceptPeace(m_userFaction.FactionId, m_selectedFaction.FactionId);
+            MyFactionCollection.AcceptPeace(m_userFaction.FactionId, m_selectedFaction.FactionId);
         }
 
         private void OnCancelPeaceRequestClicked(MyGuiControlButton sender)
         {
-            MySession.Static.Factions.CancelPeaceRequest(m_userFaction.FactionId, m_selectedFaction.FactionId);
+            MyFactionCollection.CancelPeaceRequest(m_userFaction.FactionId, m_selectedFaction.FactionId);
         }
 
         private void OnEnemyClicked(MyGuiControlButton sender)
         {
-            MySession.Static.Factions.DeclareWar(m_userFaction.FactionId, m_selectedFaction.FactionId);
+            MyFactionCollection.DeclareWar(m_userFaction.FactionId, m_selectedFaction.FactionId);
         }
 
         #endregion
@@ -352,7 +358,7 @@ namespace Sandbox.Game.Gui
 
         private void PromotePlayer()
         {
-            MySession.Static.Factions.PromoteMember(m_userFaction.FactionId, m_selectedUserId);
+            MyFactionCollection.PromoteMember(m_userFaction.FactionId, m_selectedUserId);
         }
 
         private void OnKickPlayerClicked(MyGuiControlButton sender)
@@ -363,7 +369,7 @@ namespace Sandbox.Game.Gui
 
         private void KickPlayer()
         {
-            MySession.Static.Factions.KickMember(m_userFaction.FactionId, m_selectedUserId);
+            MyFactionCollection.KickMember(m_userFaction.FactionId, m_selectedUserId);
         }
 
         private void OnAcceptJoinClicked(MyGuiControlButton sender)
@@ -374,7 +380,7 @@ namespace Sandbox.Game.Gui
 
         private void AcceptJoin()
         {
-            MySession.Static.Factions.AcceptJoin(m_userFaction.FactionId, m_selectedUserId);
+            MyFactionCollection.AcceptJoin(m_userFaction.FactionId, m_selectedUserId);
         }
 
         private void OnDemoteClicked(MyGuiControlButton sender)
@@ -385,7 +391,16 @@ namespace Sandbox.Game.Gui
 
         private void Demote()
         {
-            MySession.Static.Factions.DemoteMember(m_userFaction.FactionId, m_selectedUserId);
+            MyFactionCollection.DemoteMember(m_userFaction.FactionId, m_selectedUserId);
+        }
+
+        private void OnNewNpcClicked(MyGuiControlButton sender)
+        {
+            string npcName = m_userFaction.Tag + " NPC" + MyRandom.Instance.Next(1000, 9999);
+            var identity = Sync.Players.CreateNewIdentity(npcName);
+            Sync.Players.MarkIdentityAsNPC(identity.IdentityId);
+
+            MyFactionCollection.SendJoinRequest(m_userFaction.FactionId, identity.IdentityId);
         }
 
         #endregion
@@ -565,6 +580,7 @@ namespace Sandbox.Game.Gui
             m_buttonPromote.Visible    = false;
             m_buttonDemote.Visible     = false;
             m_buttonAcceptJoin.Visible = false;
+            m_buttonAddNpc.Visible = false;
 
             if (m_tableFactions.SelectedRow != null)
             {
@@ -599,6 +615,8 @@ namespace Sandbox.Game.Gui
                         m_buttonEdit.Visible       = true;
                         m_buttonPromote.Visible    = true;
                         m_buttonDemote.Visible     = true;
+                        if (MySession.Static.Settings.ScenarioEditMode)
+                            m_buttonAddNpc.Visible = true;
                     }
                 }
             }

@@ -8,6 +8,7 @@ using Sandbox.Common;
 using Sandbox.Common.ObjectBuilders;
 using Sandbox.Common.Components;
 using VRage.Plugins;
+using VRage.ObjectBuilders;
 
 namespace Sandbox.Game.Entities.Cube
 {
@@ -30,6 +31,7 @@ namespace Sandbox.Game.Entities.Cube
             m_objectFactory.RegisterFromAssembly(Assembly.GetAssembly(typeof(MyCubeBlock)));
 
             m_objectFactory.RegisterFromAssembly(MyPlugins.GameAssembly);
+            m_objectFactory.RegisterFromAssembly(MyPlugins.SandboxAssembly); //TODO: Will be removed 
             m_objectFactory.RegisterFromAssembly(MyPlugins.UserAssembly);
         }
 
@@ -42,7 +44,7 @@ namespace Sandbox.Game.Entities.Cube
 
         public static MyObjectBuilder_CubeBlock CreateObjectBuilder(MyCubeBlock cubeBlock)
         {
-            MyObjectBuilder_CubeBlock objectBuilder = (MyObjectBuilder_CubeBlock)Sandbox.Common.ObjectBuilders.Serializer.MyObjectBuilderSerializer.CreateNewObject(cubeBlock.BlockDefinition.Id);
+            MyObjectBuilder_CubeBlock objectBuilder = (MyObjectBuilder_CubeBlock)MyObjectBuilderSerializer.CreateNewObject(cubeBlock.BlockDefinition.Id);
 
             return objectBuilder;
         }

@@ -70,13 +70,13 @@ namespace Sandbox.Game.Entities
 
             if (!Sync.IsServer) return;
 
-            var meteorEvent = MyGlobalEvents.GetEventById(new MyDefinitionId(typeof(MyObjectBuilder_GlobalEventDefinition), "MeteorWave"));
-            if (meteorEvent == null) meteorEvent = MyGlobalEvents.GetEventById(new MyDefinitionId(typeof(MyObjectBuilder_GlobalEventDefinition), "MeteorWaveCataclysm"));
-            if (meteorEvent == null) meteorEvent = MyGlobalEvents.GetEventById(new MyDefinitionId(typeof(MyObjectBuilder_GlobalEventDefinition), "MeteorWaveCataclysmUnreal"));
+            var meteorEvent = MyGlobalEvents.GetEventById(new MyDefinitionId(typeof(MyObjectBuilder_GlobalEventBase), "MeteorWave"));
+            if (meteorEvent == null) meteorEvent = MyGlobalEvents.GetEventById(new MyDefinitionId(typeof(MyObjectBuilder_GlobalEventBase), "MeteorWaveCataclysm"));
+            if (meteorEvent == null) meteorEvent = MyGlobalEvents.GetEventById(new MyDefinitionId(typeof(MyObjectBuilder_GlobalEventBase), "MeteorWaveCataclysmUnreal"));
 
             if (meteorEvent == null && MySession.Static.EnvironmentHostility != MyEnvironmentHostilityEnum.SAFE && MyFakes.ENABLE_METEOR_SHOWERS)
             {
-                var globalEvent = MyGlobalEventFactory.CreateEvent<MyGlobalEventBase>(new MyDefinitionId(typeof(MyObjectBuilder_GlobalEventDefinition), "MeteorWave"));
+                var globalEvent = MyGlobalEventFactory.CreateEvent(new MyDefinitionId(typeof(MyObjectBuilder_GlobalEventBase), "MeteorWave"));
                 globalEvent.SetActivationTime(MyMeteorShower.CalculateShowerTime(MySession.Static.EnvironmentHostility));
                 MyGlobalEvents.AddGlobalEvent(globalEvent);
             }
@@ -198,8 +198,8 @@ namespace Sandbox.Game.Entities
         }
 
         public static double GetActivationTime(MyEnvironmentHostilityEnum hostility, double defaultMinMinutes, double defaultMaxMinutes)
-        {      
-           MyGlobalEventDefinition definition = MyDefinitionManager.Static.GetEventDefinition(new MyDefinitionId(typeof(MyObjectBuilder_GlobalEventDefinition), m_enviromentHostilityName[(int)hostility]));
+        {
+            MyGlobalEventDefinition definition = MyDefinitionManager.Static.GetEventDefinition(new MyDefinitionId(typeof(MyObjectBuilder_GlobalEventBase), m_enviromentHostilityName[(int)hostility]));
            if (definition != null)
            {
                if (definition.MinActivationTime.HasValue)
@@ -258,7 +258,7 @@ namespace Sandbox.Game.Entities
                     Debug.Assert(false, "Invalid branch");
                     break;
             }
-            MyGlobalEventDefinition definition = MyDefinitionManager.Static.GetEventDefinition(new MyDefinitionId(typeof(MyObjectBuilder_GlobalEventDefinition), m_enviromentHostilityName[(int)enviroment]));
+            MyGlobalEventDefinition definition = MyDefinitionManager.Static.GetEventDefinition(new MyDefinitionId(typeof(MyObjectBuilder_GlobalEventBase), m_enviromentHostilityName[(int)enviroment]));
             if (definition != null && definition.MaxActivationTime.HasValue)
             {
               defaultMaxMinutes = definition.MaxActivationTime.Value.TotalMinutes;           
@@ -269,7 +269,11 @@ namespace Sandbox.Game.Entities
         public static TimeSpan CalculateShowerTime(MyEnvironmentHostilityEnum newHostility, MyEnvironmentHostilityEnum oldHostility, TimeSpan oldTime)
         {
             double timeInMinutes = oldTime.TotalMinutes;
-            double normalizedTime = timeInMinutes / GetMaxActivationTime(oldHostility);
+            double normalizedTime = 1.0;
+            if (oldHostility != MyEnvironmentHostilityEnum.SAFE)
+            {
+                normalizedTime = timeInMinutes / GetMaxActivationTime(oldHostility);
+            }
             timeInMinutes = normalizedTime * GetMaxActivationTime(newHostility);         
             return TimeSpan.FromMinutes(timeInMinutes);
         }
@@ -346,7 +350,7 @@ namespace Sandbox.Game.Entities
             }
         }
 
-        [MyGlobalEventHandler(typeof(MyObjectBuilder_GlobalEventDefinition), "MeteorWave")]
+        [MyGlobalEventHandler(typeof(MyObjectBuilder_GlobalEventBase), "MeteorWave")]
         public static void MeteorWave(object senderEvent)
         {
             MeteorWaveInternal(senderEvent);

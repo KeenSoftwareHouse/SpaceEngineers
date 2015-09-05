@@ -26,6 +26,8 @@ using Sandbox.Game.Screens.Terminal.Controls;
 using Sandbox.Common.Components;
 using Sandbox.ModAPI.Ingame;
 using Sandbox.Game.Localization;
+using VRage.ModAPI;
+using VRage.Components;
 
 namespace Sandbox.Game.Entities.Blocks
 {
@@ -184,7 +186,7 @@ namespace Sandbox.Game.Entities.Blocks
                     //else
                     {
                         var detectorShape = CreateFieldShape(halfExtents);
-                        Physics = new Engine.Physics.MyPhysicsBody(this, Engine.Physics.RigidBodyFlag.RBF_STATIC);
+                        Physics = new Engine.Physics.MyPhysicsBody(this, RigidBodyFlag.RBF_STATIC);
                         Physics.IsPhantom = true;
                         Physics.CreateFromCollisionObject(detectorShape, matrix.Translation, WorldMatrix, null, MyPhysics.CollectorCollisionLayer);
                         Physics.Enabled = true;//IsWorking;
@@ -197,7 +199,7 @@ namespace Sandbox.Game.Entities.Blocks
             }
         }
 
-        private void Inventory_ContentChangedCallback(MyInventory inventory)
+        private void Inventory_ContentChangedCallback(MyInventoryBase inventory)
         {
             if (!Sync.IsServer)
                 return;
@@ -216,24 +218,26 @@ namespace Sandbox.Game.Entities.Blocks
         {
             if (!Sync.IsServer)
                 return;
-            var entity = body.GetEntity();
-            if (m_entitiesToTake.Contains(entity))
-            {
+            var entities = body.GetAllEntities();
+            foreach(var entity in entities)
                 m_entitiesToTake.Remove(entity as MyFloatingObject);
-            }
+            entities.Clear();
         }
 
         private void phantom_Enter(HkPhantomCallbackShape shape, HkRigidBody body)
         {
             if (!Sync.IsServer)
                 return;
-            var entity = body.GetEntity();
-            if (entity is MyFloatingObject)
+            var entities = body.GetAllEntities();
+            foreach (var entity in entities)
             {
-                m_entitiesToTake.Add(entity as MyFloatingObject);
-                NeedsUpdate |= MyEntityUpdateEnum.BEFORE_NEXT_FRAME;
+                if (entity is MyFloatingObject)
+                {
+                    m_entitiesToTake.Add(entity as MyFloatingObject);
+                    NeedsUpdate |= MyEntityUpdateEnum.BEFORE_NEXT_FRAME;
+                }
             }
-
+            entities.Clear();
             //if (!Sync.IsServer)
             //    return;
             //var entity = body.GetEntity();
@@ -248,20 +252,12 @@ namespace Sandbox.Game.Entities.Blocks
         {
             if (!Sync.IsServer)
                 return;
-            var entity = GetOtherEntity(ref value);
+            var entity = value.GetOtherEntity(this);
             if (entity is MyFloatingObject)
             {
                 m_entitiesToTake.Add(entity as MyFloatingObject);
                 NeedsUpdate |= MyEntityUpdateEnum.BEFORE_NEXT_FRAME;
             }
-        }
-
-        protected Sandbox.ModAPI.IMyEntity GetOtherEntity(ref HkContactPointEvent value)
-        {
-            if (value.Base.BodyA.GetEntity() == this)
-                return value.Base.BodyB.GetEntity();
-            else
-                return value.Base.BodyA.GetEntity();
         }
 
         private void GetBoxFromMatrix(Matrix m, out Vector3 halfExtents, out Vector3 position, out Quaternion orientation)

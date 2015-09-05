@@ -18,11 +18,15 @@ using VRageMath.PackedVector;
 using VRage.Serialization;
 using Sandbox.Engine.Utils;
 using VRage;
+using VRage.Components;
+using VRage.Library.Utils;
+using Sandbox.Common;
+using VRage.ModAPI;
 
 namespace Sandbox.Game.Multiplayer
 {
     [PreloadRequired]
-    public class MySyncEntity : Sandbox.Common.Components.MySyncComponentBase
+    public class MySyncEntity : MySyncComponentBase
     {
         [MessageId(10, P2PMessageEnum.Reliable)]
         [StructLayout(LayoutKind.Sequential, Pack = 1)]
@@ -122,15 +126,16 @@ namespace Sandbox.Game.Multiplayer
         }
 
         private static readonly uint m_sleepTimeForRequest = 60;
-        private static readonly byte m_defaultUpdateCount = 4;
-        private static readonly byte m_constantMovementUpdateCount = 20;
+        public byte DefaultUpdateCount = 4;
+        public byte ConstantMovementUpdateCount = 20;
 
-        protected byte m_updateFrameCount = m_constantMovementUpdateCount; // Update position once every x frames
+        protected byte m_updateFrameCount; // Update position once every x frames
         protected uint m_lastUpdateFrame = 0;
+        protected MyTimeSpan m_lastUpdateTime;
 
         private bool m_positionDirty = false;
 
-        public readonly MyEntity Entity;
+        public readonly new MyEntity Entity;
 
         public override bool UpdatesOnlyOnServer { get; set; }
 
@@ -141,6 +146,7 @@ namespace Sandbox.Game.Multiplayer
             Entity = entity;
             ResetUpdateTimer();
             UpdatesOnlyOnServer = false;
+            m_updateFrameCount = ConstantMovementUpdateCount;
         }
 
         public override void UpdatePosition()
@@ -162,9 +168,19 @@ namespace Sandbox.Game.Multiplayer
 
         private void RequestPositionUpdate()
         {
+            if (MyMultiplayer.Static == null)
+                return;
+            Debug.Assert(MySandboxGame.Static != null);
             // This mechanic is here when entity starts moving by actions of local player which are not transfered to server
             // Local player is now moving entity, but owner does not update it and sending updates. This requests updates.
-            if (MyMultiplayer.Static != null && MyMultiplayer.Static.FrameCounter - m_lastUpdateFrame > m_sleepTimeForRequest)
+
+            bool timeForUpdate;
+            if (MyFakes.NEW_POS_UPDATE_TIMING)
+                timeForUpdate = (MySandboxGame.Static.UpdateTime - m_lastUpdateTime).Seconds > (m_sleepTimeForRequest / MyEngineConstants.UPDATE_STEPS_PER_SECOND);
+            else
+                timeForUpdate = MyMultiplayer.Static.FrameCounter - m_lastUpdateFrame >= m_sleepTimeForRequest;
+
+            if (timeForUpdate)
             {
                 // Request owner update
                 var reqMsg = new RequestPositionUpdateMsg();
@@ -183,17 +199,26 @@ namespace Sandbox.Game.Multiplayer
 
         private void SendPositionUpdate()
         {
+            if(MyMultiplayer.Static == null)
+                return;
+            Debug.Assert(MySandboxGame.Static != null);
             float epsilonSq = 0.05f * 0.05f;
-            if (m_updateFrameCount == m_constantMovementUpdateCount && (Entity.Physics == null
+            if (m_updateFrameCount == ConstantMovementUpdateCount && (Entity.Physics == null
                 || Entity.Physics.LinearAcceleration.LengthSquared() > epsilonSq
                 || Entity.Physics.AngularAcceleration.LengthSquared() > epsilonSq))
             {
-                m_updateFrameCount = m_defaultUpdateCount;
+                m_updateFrameCount = DefaultUpdateCount;
             }
 
-            if (MyMultiplayer.Static != null && MyMultiplayer.Static.FrameCounter - m_lastUpdateFrame > m_updateFrameCount)
+            bool timeForUpdate;
+            if (MyFakes.NEW_POS_UPDATE_TIMING)
+                timeForUpdate = (MySandboxGame.Static.UpdateTime - m_lastUpdateTime).Seconds > (m_updateFrameCount / MyEngineConstants.UPDATE_STEPS_PER_SECOND);
+            else
+                timeForUpdate = MyMultiplayer.Static.FrameCounter - m_lastUpdateFrame >= m_updateFrameCount;
+
+            if (timeForUpdate)
             {
-                m_updateFrameCount = m_constantMovementUpdateCount;
+                m_updateFrameCount = ConstantMovementUpdateCount;
 
                 // TODO: abstraction would be nice
                 var syncGrid = this as MySyncGrid;
@@ -228,7 +253,7 @@ namespace Sandbox.Game.Multiplayer
             }
         }
 
-        public static void SendPositionUpdates(List<MyEntity> entities)
+        public static void SendPositionUpdates(List<IMyEntity> entities)
         {
             PositionUpdateBatchMsg msg = new PositionUpdateBatchMsg();
             msg.Positions = new List<PositionUpdateMsg>(entities.Count);
@@ -243,7 +268,7 @@ namespace Sandbox.Game.Multiplayer
             MySession.Static.SyncLayer.SendMessageToAll(ref msg);
         }
 
-        private static PositionUpdateMsg CreatePositionMsg(MyEntity entity)
+        private static PositionUpdateMsg CreatePositionMsg(IMyEntity entity)
         {
             var m = entity.WorldMatrix;
             PositionUpdateMsg msg = new PositionUpdateMsg();
@@ -301,6 +326,8 @@ namespace Sandbox.Game.Multiplayer
         {
             if (MyMultiplayer.Static != null)
             {
+                if(MyFakes.NEW_POS_UPDATE_TIMING)
+                    m_lastUpdateTime = MySandboxGame.Static.UpdateTime;
                 m_lastUpdateFrame = MyMultiplayer.Static.FrameCounter;
             }
         }
@@ -389,10 +416,9 @@ namespace Sandbox.Game.Multiplayer
 
             MyMultiplayer.Static.RegisterForTick(this);
 
-            Entity.PositionComp.SetWorldMatrix(m_interpolator.TargetMatrix, this);
-            if (msg.LinearVelocity.ToVector3() == Vector3.Zero
-                && msg.AngularVelocity.ToVector3() == Vector3.Zero)
-                if (Entity.Physics.RigidBody != null && Entity.Physics.RigidBody.IsAddedToWorld) Entity.Physics.RigidBody.Deactivate();
+            Debug.Assert(Entity.PositionComp != null, "Entity doesn't not have position component");
+            if (Entity.PositionComp != null)
+                Entity.PositionComp.SetWorldMatrix(m_interpolator.TargetMatrix, this);
 
             if (Entity.Physics != null)
             {
@@ -408,6 +434,11 @@ namespace Sandbox.Game.Multiplayer
                 }
 
                 Entity.Physics.UpdateAccelerations();
+
+                if(!Entity.Physics.IsMoving && Entity.Physics.RigidBody != null && Entity.Physics.RigidBody.IsAddedToWorld)
+                {
+                    Entity.Physics.RigidBody.Deactivate();
+                }
             }
         }
 

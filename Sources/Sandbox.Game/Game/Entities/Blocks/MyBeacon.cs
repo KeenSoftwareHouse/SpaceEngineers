@@ -21,6 +21,7 @@ using Sandbox.ModAPI.Ingame;
 using Sandbox.Game.Localization;
 using VRage;
 using VRage.Utils;
+using VRage.ModAPI;
 
 namespace Sandbox.Game.Entities.Cube
 {
@@ -52,6 +53,11 @@ namespace Sandbox.Game.Entities.Cube
             show.Getter = (x) => x.ShowInTerminal;
             show.Setter = (x, v) => x.RequestShowInTerminal(v);
             MyTerminalControlFactory.AddControl(show);
+
+            var showConfig = new MyTerminalControlOnOffSwitch<MyBeacon>("ShowInToolbarConfig", MySpaceTexts.Terminal_ShowInToolbarConfig, MySpaceTexts.Terminal_ShowInToolbarConfigToolTip);
+            showConfig.Getter = (x) => x.ShowInToolbarConfig;
+            showConfig.Setter = (x, v) => x.RequestShowInToolbarConfig(v);
+            MyTerminalControlFactory.AddControl(showConfig);
 
             var customName = new MyTerminalControlTextbox<MyBeacon>("CustomName", MySpaceTexts.Name, MySpaceTexts.Blank);
             customName.Getter = (x) => x.CustomName;
@@ -94,6 +100,7 @@ namespace Sandbox.Game.Entities.Cube
         {
             return PowerReceiver.IsPowered && base.CheckIsWorking();
         }
+
         public override void Init(MyObjectBuilder_CubeBlock objectBuilder, MyCubeGrid cubeGrid)
         {
             base.Init(objectBuilder, cubeGrid);

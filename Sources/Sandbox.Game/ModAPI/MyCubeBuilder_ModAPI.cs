@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using VRage.ModAPI;
 
 namespace Sandbox.Game.Entities
 {
@@ -11,8 +12,8 @@ namespace Sandbox.Game.Entities
     {
         bool IMyCubeBuilder.AddConstruction(IMyEntity buildingEntity)
         {
-            if (buildingEntity is MyCharacter)
-                return AddConstruction(buildingEntity as MyCharacter);
+            /*if (buildingEntity is MyCharacter)
+                return AddConstruction(buildingEntity as MyCharacter);*/
             return false;
         }
 

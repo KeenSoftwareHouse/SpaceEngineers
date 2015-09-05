@@ -280,6 +280,12 @@ namespace Sandbox.Graphics.GUI
         #endregion
 
         #region Properties
+
+        public Vector2 ItemStep
+        {
+            get { return m_itemStep; }
+        }
+
         public int ColumnsCount
         {
             get { return m_columnsCount; }
@@ -536,11 +542,11 @@ namespace Sandbox.Graphics.GUI
         }
         #endregion
 
-        public override void Draw(float transitionAlpha)
+        public override void Draw(float transitionAlpha, float backgroundTransitionAlpha)
         {
-            base.Draw(transitionAlpha);
+            base.Draw(transitionAlpha, backgroundTransitionAlpha);
             RefreshItemsRectangle();
-            DrawItemBackgrounds(transitionAlpha);
+            DrawItemBackgrounds(backgroundTransitionAlpha);
             DrawItems(transitionAlpha);
             DrawItemTexts(transitionAlpha);
             //DebugDraw();

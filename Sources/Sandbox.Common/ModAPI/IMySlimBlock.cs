@@ -18,9 +18,10 @@ namespace Sandbox.ModAPI
         float CurrentDamage { get; }
         float DamageRatio { get; }
         //void DecreaseMountLevel(float grinderAmount, Sandbox.Game.MyInventory outputInventory);
-        //void DoDamage(float damage, Sandbox.Game.Weapons.MyDamageType damageType, bool addDirtyParts = true);
+        //void DoDamage(float damage, Sandbox.Game.Weapons.MyStringHash damageType, bool addDirtyParts = true);
         IMyCubeBlock FatBlock { get; }
         void FixBones(float oldDamage, float maxAllowedBoneMovement);
+        void FullyDismount(IMyInventory outputInventory);
         //int GetConstructionStockpileItemAmount(Sandbox.Definitions.MyDefinitionId id);
         Sandbox.Common.ObjectBuilders.MyObjectBuilder_CubeBlock GetCopyObjectBuilder();
         void GetMissingComponents(System.Collections.Generic.Dictionary<string, int> addToDictionary);
@@ -38,7 +39,7 @@ namespace Sandbox.ModAPI
         float MaxIntegrity { get; }
         float Mass { get; }
         //void MoveFirstItemToConstructionStockpile(Sandbox.Game.MyInventory fromInventory);
-        //void MoveItemsFromConstructionStockpile(Sandbox.Game.MyInventory toInventory, Sandbox.Common.ObjectBuilders.MyItemFlags flags = MyItemFlags.None);
+        void MoveItemsFromConstructionStockpile(IMyInventory toInventory, Sandbox.Common.ObjectBuilders.MyItemFlags flags = Sandbox.Common.ObjectBuilders.MyItemFlags.None);
         //void MoveItemsToConstructionStockpile(Sandbox.Game.MyInventory fromInventory);
         //void PlayConstructionSound(Sandbox.Game.Entities.MyCubeGrid.MyIntegrityChangeEnum integrityChangeType, bool deconstruction = false);
         void RemoveNeighbours();

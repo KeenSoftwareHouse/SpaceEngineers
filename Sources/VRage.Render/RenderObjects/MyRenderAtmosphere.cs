@@ -12,10 +12,12 @@ namespace VRageRender
         public const float ATMOSPHERE_SCALE = 0.001f;
         float m_atmosphereRadius;
         float m_planetRadius;
+        Vector3 m_atmosphereWavelengths;
 
-        public MyRenderAtmosphere(uint id, string debugName, string model, MatrixD worldMatrix, MyMeshDrawTechnique drawTechnique, RenderFlags renderFlags,float atmosphereRadius,float planetRadius)
+        public MyRenderAtmosphere(uint id, string debugName, string model, MatrixD worldMatrix, MyMeshDrawTechnique drawTechnique, RenderFlags renderFlags, float atmosphereRadius, float planetRadius, Vector3 atmosphereWavelengths)
             : base(id, debugName,model, worldMatrix,drawTechnique, renderFlags)
         {
+            m_atmosphereWavelengths = atmosphereWavelengths;
             m_atmosphereRadius = atmosphereRadius;
             m_planetRadius = planetRadius;
         }
@@ -70,6 +72,14 @@ namespace VRageRender
             get
             {
                 return m_drawTechnique == MyMeshDrawTechnique.PLANET_SURFACE;
+            }
+        }
+
+        public Vector3 AtmosphereWavelengths
+        {
+            get
+            {
+                return m_atmosphereWavelengths;
             }
         }
     }

@@ -30,10 +30,12 @@ using VRage.Utils;
 using VRageMath;
 using VRageRender;
 using MyGuiConstants = Sandbox.Graphics.GUI.MyGuiConstants;
+using VRage.ModAPI;
+using VRage.Components;
 
 namespace Sandbox.Game.Weapons
 {
-    abstract class MyShipToolBase : MyFunctionalBlock, IMyGunObject<MyToolBase>, IMyPowerConsumer, IMyInventoryOwner, IMyConveyorEndpointBlock, IMyShipToolBase
+    public abstract class MyShipToolBase : MyFunctionalBlock, IMyGunObject<MyToolBase>, IMyPowerConsumer, IMyInventoryOwner, IMyConveyorEndpointBlock, IMyShipToolBase
     {
         private MyInventory m_inventory;
         protected MyInventory Inventory
@@ -48,7 +50,7 @@ namespace Sandbox.Game.Weapons
         {
             return Inventory;
         }
-
+		
         private MyMultilineConveyorEndpoint m_endpoint;
         private MyDefinitionId m_defId;
 
@@ -142,7 +144,7 @@ namespace Sandbox.Game.Weapons
             UpdateActivationState();
             PowerReceiver.Update();
 
-            NeedsUpdate |= MyEntityUpdateEnum.EACH_100TH_FRAME | MyEntityUpdateEnum.EACH_FRAME;
+            NeedsUpdate |= MyEntityUpdateEnum.EACH_100TH_FRAME | MyEntityUpdateEnum.EACH_10TH_FRAME | MyEntityUpdateEnum.EACH_FRAME;
         }
 
         public override MyObjectBuilder_CubeBlock GetObjectBuilderCubeBlock(bool copy = false)
@@ -187,7 +189,7 @@ namespace Sandbox.Game.Weapons
                     var sphereShape = new HkSphereShape(radius);
                     var detectorShape = new HkBvShape(sphereShape, phantom, HkReferencePolicy.TakeOwnership);
 
-                    Physics = new Engine.Physics.MyPhysicsBody(this, Engine.Physics.RigidBodyFlag.RBF_DEFAULT);
+                    Physics = new Engine.Physics.MyPhysicsBody(this, RigidBodyFlag.RBF_DEFAULT);
                     Physics.IsPhantom = true;
                     Physics.CreateFromCollisionObject(detectorShape, matrix.Translation, WorldMatrix, null, MyPhysics.ObjectDetectionCollisionLayer);
                     detectorShape.Base.RemoveReference();
@@ -198,38 +200,47 @@ namespace Sandbox.Game.Weapons
 
         private void phantom_Leave(HkPhantomCallbackShape shape, HkRigidBody body)
         {
-            MyEntity entity = bodyToOtherEntity(body);
-            if (entity == null) return;
+            var entities = body.GetAllEntities();
+            foreach (var ientity in entities)
+            {
+                if (CanInteractWith(ientity))
+                    continue;
 
-            if (!(entity is MyCubeGrid) && !(entity is MyCharacter)) return;
+                var entity = ientity as MyEntity;
 
-            int entityCounter;
-            bool registered = m_entitiesInContact.TryGetValue(entity, out entityCounter);
-            Debug.Assert(registered, "Unregistering not registered entity from ship tool");
-            if (!registered)
-                return;
+                int entityCounter;
+                bool registered = m_entitiesInContact.TryGetValue(entity, out entityCounter);
+                Debug.Assert(registered, "Unregistering not registered entity from ship tool");
+                if (!registered)
+                    continue;
 
-            m_entitiesInContact.Remove(entity);
-            if (entityCounter > 1)
-                m_entitiesInContact.Add(entity, entityCounter - 1);
+                m_entitiesInContact.Remove(entity);
+                if (entityCounter > 1)
+                    m_entitiesInContact.Add(entity, entityCounter - 1);
+            }
+            entities.Clear();
         }
 
         private void phantom_Enter(HkPhantomCallbackShape shape, HkRigidBody body)
         {
-            MyEntity entity = bodyToOtherEntity(body);
-            if (entity == null) return;
-
-            if (!(entity is MyCubeGrid) && !(entity is MyCharacter)) return;
-
-            int entityCounter;
-            if (m_entitiesInContact.TryGetValue(entity, out entityCounter))
+            var entities = body.GetAllEntities();
+            foreach (var ientity in entities)
             {
-                m_entitiesInContact.Remove(entity);
-                m_entitiesInContact.Add(entity, entityCounter + 1);
-            }
-            else
-            {
-                m_entitiesInContact.Add(entity, 1);
+                if (CanInteractWith(ientity))
+                    continue;
+
+                var entity = ientity as MyEntity;
+
+                int entityCounter;
+                if (m_entitiesInContact.TryGetValue(entity, out entityCounter))
+                {
+                    m_entitiesInContact.Remove(entity);
+                    m_entitiesInContact.Add(entity, entityCounter + 1);
+                }
+                else
+                {
+                    m_entitiesInContact.Add(entity, 1);
+                }
             }
         }
 
@@ -241,13 +252,15 @@ namespace Sandbox.Game.Weapons
             }
         }
 
-        private MyEntity bodyToOtherEntity(HkRigidBody body)
+        private bool CanInteractWith(IMyEntity entity)
         {
-            var entity = body.GetEntity();
-            if (entity == null) return null;
-            if (entity == this.CubeGrid && !CanInteractWithSelf) return null;
-
-            return entity as MyEntity;
+            if (entity == null)
+                return false;
+            if ((entity == this.CubeGrid && !CanInteractWithSelf))
+                return false;
+            if (!(entity is MyCubeGrid) && !(entity is MyCharacter))
+                return false;
+            return true;
         }
 
         void MyShipToolBase_EnabledChanged(MyTerminalBlock obj)
@@ -300,13 +313,18 @@ namespace Sandbox.Game.Weapons
 
             base.UpdateAfterSimulation();
 
-            if (m_isActivated && MySandboxGame.TotalGamePlayTimeInMilliseconds - m_lastTimeActivate >= MyShipGrinderConstants.GRINDER_COOLDOWN_IN_MILISECONDS)
+            if (IsFunctional)
+                UpdateAnimationCommon();
+        }
+
+        public override void UpdateAfterSimulation10()
+        {
+            base.UpdateAfterSimulation10();
+
+            if (m_isActivated)
             {
                 ActivateCommon();
             }
-
-            if (IsFunctional)
-                UpdateAnimationCommon();
         }
 
         protected abstract bool Activate(HashSet<MySlimBlock> targets);
@@ -361,7 +379,13 @@ namespace Sandbox.Game.Weapons
                 }
                 if (character != null && Sync.IsServer)
                 {
-                    character.DoDamage(20, MyDamageType.Drill, true);
+                    MyStringHash damageType = MyDamageType.Drill;
+                    if (this is IMyShipGrinder)
+                        damageType = MyDamageType.Grind;
+                    else if (this is IMyShipWelder)
+                        damageType = MyDamageType.Weld;
+
+                    character.DoDamage(20, damageType, true, attackerId: EntityId);
                 }
             }
 
@@ -532,7 +556,7 @@ namespace Sandbox.Game.Weapons
             return true;
         }
 
-        public void Shoot(MyShootActionEnum action, Vector3 direction)
+        public void Shoot(MyShootActionEnum action, Vector3 direction, string gunAction)
         {
             if (action != MyShootActionEnum.PrimaryAction) return;
 

@@ -27,18 +27,18 @@ namespace Sandbox.Game.Screens.Helpers
         {
             var character = MySession.LocalCharacter;
 
+			MyDefinitionId weaponDefinition = new MyDefinitionId(typeof(MyObjectBuilder_CubePlacer));
             if (character != null)
             {
-                if (!(character.CurrentWeapon is MyCubePlacer))
+                if (!(character.CurrentWeapon != null && character.CurrentWeapon.DefinitionId == weaponDefinition))
                 {
-                    MyDefinitionId weaponDefinition = new MyDefinitionId(typeof(MyObjectBuilder_CubePlacer));
                     character.SwitchToWeapon(weaponDefinition);
                 }
                 
                 MyCubeBuilder.Static.ActivateBlockCreation(((MyCubeBlockDefinition)Definition).Id);
             }
 
-            if (MyCubeBuilder.DeveloperSpectatorIsBuilding)
+            if (MyCubeBuilder.SpectatorIsBuilding)
             {
                 MyCubeBuilder.Static.ActivateBlockCreation(((MyCubeBlockDefinition)Definition).Id);
                 if (!MyCubeBuilder.Static.IsActivated)
@@ -68,8 +68,29 @@ namespace Sandbox.Game.Screens.Helpers
 
         public override ChangeInfo Update(MyEntity owner, long playerID = 0)
         {
+            if (MyCubeBuilder.Static==null)
+                return ChangeInfo.None;
             var blockDefinition = MyCubeBuilder.Static.IsActivated ? MyCubeBuilder.Static.ToolbarBlockDefinition : null;
-            WantsToBeSelected = (MyCubeBuilder.Static.BlockCreationIsActivated || MyCubeBuilder.Static.MultiBlockCreationIsActivated) && blockDefinition != null && blockDefinition.BlockPairName == (this.Definition as MyCubeBlockDefinition).BlockPairName;
+            if ((MyCubeBuilder.Static.BlockCreationIsActivated || MyCubeBuilder.Static.MultiBlockCreationIsActivated) && blockDefinition != null && (!MyFakes.ENABLE_BATTLE_SYSTEM || !MySession.Static.Battle))
+            {
+                var blockDef = (this.Definition as Sandbox.Definitions.MyCubeBlockDefinition);
+                if (blockDefinition.BlockPairName == blockDef.BlockPairName)
+                {
+                    WantsToBeSelected = true;
+                }
+                else if (blockDef.BlockStages != null && blockDef.BlockStages.Contains(blockDefinition.Id))
+                {
+                    WantsToBeSelected = true;
+                }
+                else
+                {
+                    WantsToBeSelected = false;
+                }
+            }
+            else
+            {
+                WantsToBeSelected = false;
+            }
             return ChangeInfo.None;
         }
     }

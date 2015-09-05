@@ -85,6 +85,40 @@ namespace VRageRender
 
         static bool m_initialized = false;
 
+        internal static int ValidateAdapterIndex(int adapterIndex)
+        {
+            var adapters = GetAdaptersList();
+
+            bool adapterIndexNotValid =
+                adapterIndex == -1
+                || adapters.Length <= adapterIndex
+                || !adapters[adapterIndex].IsDx11Supported;
+            if (adapterIndexNotValid)
+            {
+                var bestPriority = -1000;
+
+                for (int i = 0; i < adapters.Length; i++)
+                {
+                    if (adapters[i].IsDx11Supported)
+                    {
+                        bestPriority = (int)Math.Max(bestPriority, adapters[i].Priority);
+                    }
+                }
+
+                // taking adapter with top priority
+                for (int i = 0; i < adapters.Length; i++)
+                {
+                    if (adapters[i].IsDx11Supported && adapters[i].Priority == bestPriority)
+                    {
+                        adapterIndex = i;
+                        break;
+                    }
+                }
+            }
+
+            return adapterIndex;
+        }
+
         internal static MyRenderDeviceSettings CreateDevice(IntPtr windowHandle, MyRenderDeviceSettings? settingsToTry)
         {
             if (Device != null)
@@ -106,34 +140,8 @@ namespace VRageRender
             var adapters = GetAdaptersList();
 
             int adapterIndex = settingsToTry.HasValue ? settingsToTry.Value.AdapterOrdinal : - 1;
-
-            bool adapterIndexNotValid = 
-                adapterIndex == -1
-                || adapters.Length <= settingsToTry.Value.AdapterOrdinal
-                || !adapters[settingsToTry.Value.AdapterOrdinal].IsSupported;
-            if(adapterIndexNotValid)
-            {
-                var maxVram = 0ul;
-
-                for(int i=0; i<adapters.Length; i++)
-                {
-                    if(adapters[i].IsSupported)
-                    {
-                        maxVram = (ulong) Math.Max(maxVram, adapters[i].VRAM);
-                    }
-                }
-
-                // taking supporting adapter with most VRAM
-                for (int i = 0; i < adapters.Length; i++)
-                {
-                    if(adapters[i].IsSupported && adapters[i].VRAM == maxVram)
-                    {
-                        adapterIndex = i;
-                        break;
-                    }
-                }
-            }
-
+            adapterIndex = ValidateAdapterIndex(adapterIndex);
+            
             if(adapterIndex == -1)
             {
                 throw new MyRenderException("No supporting device detected!", MyRenderExceptionEnum.GpuNotSupported);
@@ -145,6 +153,7 @@ namespace VRageRender
                 BackBufferHeight = mode.dmPelsHeight,
                 BackBufferWidth = mode.dmPelsWidth,
                 WindowMode = MyWindowModeEnum.Fullscreen,
+                RefreshRate = 60000,
                 VSync = false,
             };
             m_settings = settings;

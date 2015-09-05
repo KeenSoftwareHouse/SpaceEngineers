@@ -20,6 +20,8 @@ using VRage;
 using Sandbox.Game.GameSystems;
 using VRage.Utils;
 using Sandbox.ModAPI.Ingame;
+using VRage.ObjectBuilders;
+using VRage.ModAPI;
 
 namespace Sandbox.Game.Entities
 {
@@ -408,7 +410,10 @@ namespace Sandbox.Game.Entities
 
             SlimBlock.ComponentStack.IsFunctionalChanged += ComponentStack_IsFunctionalChanged;
 
-            NeedsUpdate |= Common.MyEntityUpdateEnum.EACH_100TH_FRAME | Common.MyEntityUpdateEnum.EACH_10TH_FRAME;
+            NeedsUpdate |= MyEntityUpdateEnum.EACH_100TH_FRAME | MyEntityUpdateEnum.EACH_10TH_FRAME;
+
+			if (MyPerGameSettings.InventoryMass)
+				m_inventory.ContentsChanged += Inventory_ContentsChanged;
 
             PowerReceiver = new MyPowerReceiver(
                 MyConsumerGroupEnum.Conveyors,
@@ -474,6 +479,11 @@ namespace Sandbox.Game.Entities
             Debug.Assert(index == 0);
             return m_inventory;
         }
+
+		void Inventory_ContentsChanged(MyInventoryBase obj)
+		{
+			CubeGrid.SetInventoryMassDirty();
+		}
 
         String IMyInventoryOwner.DisplayNameText
         {

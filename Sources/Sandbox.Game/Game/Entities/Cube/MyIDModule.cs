@@ -46,18 +46,18 @@ namespace Sandbox.Game.Entities
         }
         public MyOwnershipShareModeEnum ShareMode = MyOwnershipShareModeEnum.None;
 
-        public MyRelationsBetweenPlayerAndBlock GetUserRelationToOwner(long playerId)
+        public MyRelationsBetweenPlayerAndBlock GetUserRelationToOwner(long identityId)
         {
             if (!MyFakes.SHOW_FACTIONS_GUI)
-                return MyRelationsBetweenPlayerAndBlock.FactionShare;
+                return MyRelationsBetweenPlayerAndBlock.NoOwnership;
 
             if (Owner == 0)
-                return MyRelationsBetweenPlayerAndBlock.FactionShare;
+                return MyRelationsBetweenPlayerAndBlock.NoOwnership;
 
-            if (Owner == playerId)
+            if (Owner == identityId)
                 return MyRelationsBetweenPlayerAndBlock.Owner;
 
-            IMyFaction playerFaction = MySession.Static.Factions.TryGetPlayerFaction(playerId);
+            IMyFaction playerFaction = MySession.Static.Factions.TryGetPlayerFaction(identityId);
             IMyFaction faction = MySession.Static.Factions.TryGetPlayerFaction(Owner);
 
             if ((playerFaction != null && playerFaction == faction && ShareMode == MyOwnershipShareModeEnum.Faction) || ShareMode == MyOwnershipShareModeEnum.All)

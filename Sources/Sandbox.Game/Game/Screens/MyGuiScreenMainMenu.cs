@@ -339,8 +339,7 @@ namespace Sandbox.Game.Gui
 
         public static void ReturnToMainMenu()
         {
-            if (MyScreenManager.GetFirstScreenOfType<MyGuiScreenMainMenu>() == null)
-                UnloadAndExitToMenu();
+            UnloadAndExitToMenu();
         }
 
         public static void UnloadAndExitToMenu()
@@ -409,11 +408,11 @@ namespace Sandbox.Game.Gui
             {
                 MyGuiSandbox.AddScreen(MyGuiSandbox.CreateMessageBox(buttonType: MyMessageBoxButtonsType.YES_NO,
                     messageText: MyTexts.Get(MySpaceTexts.MessageBoxTextTutorialQuestion),
-                    messageCaption: MyTexts.Get(MySpaceTexts.MessageBoxCaptionVideoTutorial),
+                    messageCaption: MyTexts.Get(MySpaceTexts.MessageBoxCaptionTutorial),
                     callback: delegate(MyGuiScreenMessageBox.ResultEnum val)
                     {
                         if (val == MyGuiScreenMessageBox.ResultEnum.YES)
-                            MyGuiSandbox.OpenUrlWithFallback(MySteamConstants.URL_GUIDE_DEFAULT, "Steam Guide");
+                            MyGuiSandbox.AddScreen(MyGuiSandbox.CreateScreen<MyGuiScreenTutorial>());
                         else
                             MyGuiSandbox.AddScreen(MyGuiSandbox.CreateScreen<MyGuiScreenStartSandbox>());
                     }));
@@ -470,7 +469,7 @@ namespace Sandbox.Game.Gui
                 case MyGuiScreenMessageBox.ResultEnum.YES:
                     MyAudio.Static.Mute = true;
                     MyAudio.Static.StopMusic();
-                    MyAsyncSaving.Start(callbackOnFinished: delegate() { UnloadAndExitToMenu(); });
+                    MyAsyncSaving.Start(callbackOnFinished: delegate() { MySandboxGame.Static.OnScreenshotTaken += UnloadAndExitAfterScreeshotWasTaken; });
                     break;
 
                 case MyGuiScreenMessageBox.ResultEnum.NO:
@@ -483,6 +482,12 @@ namespace Sandbox.Game.Gui
                     this.CanBeHidden = true;
                     break;
             }
+        }
+
+        private void UnloadAndExitAfterScreeshotWasTaken(object sender, EventArgs e)
+        {
+            MySandboxGame.Static.OnScreenshotTaken -= UnloadAndExitAfterScreeshotWasTaken;
+            UnloadAndExitToMenu();
         }
 
         private void OnClickCredits(MyGuiControlButton sender)

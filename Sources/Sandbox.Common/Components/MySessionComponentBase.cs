@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using VRage;
+using VRage.ObjectBuilders;
 
 namespace Sandbox.Common
 {

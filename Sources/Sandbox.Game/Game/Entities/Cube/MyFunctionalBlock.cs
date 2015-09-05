@@ -9,6 +9,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using VRage.ModAPI;
 
 namespace Sandbox.Game.Entities.Cube
 {
@@ -125,5 +126,22 @@ namespace Sandbox.Game.Entities.Cube
             if (m_soundEmitter != null) m_soundEmitter.StopSound(true);
             base.Closing();
         }
+        internal override void SetDamageEffect(bool show)
+        {
+            if (BlockDefinition.DamagedSound != null)
+                if (show)
+                    m_soundEmitter.PlaySound(BlockDefinition.DamagedSound, true);
+                else
+                    if (m_soundEmitter.SoundId == BlockDefinition.DamagedSound.SoundId)
+                        m_soundEmitter.StopSound(false);
+            base.SetDamageEffect(show);
+        }
+        internal override void StopDamageEffect()
+        {
+            if (BlockDefinition.DamagedSound != null && m_soundEmitter.SoundId == BlockDefinition.DamagedSound.SoundId)
+                m_soundEmitter.StopSound(true);
+            base.StopDamageEffect();
+        }
+
     }
 }

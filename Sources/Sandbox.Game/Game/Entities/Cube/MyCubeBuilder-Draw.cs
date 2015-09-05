@@ -97,6 +97,7 @@ namespace Sandbox.Game.Entities
             }
             else if (MultiBlockCreationIsActivated)
             {
+                m_multiBlockCreationClipboard.Update();
                 m_multiBlockCreationClipboard.CalculateRotationHints(m_rotationHints, false);
             }
 
@@ -114,6 +115,9 @@ namespace Sandbox.Game.Entities
 
                 if (MyFakes.ENABLE_DEBUG_DRAW_TEXTURE_NAMES)
                     DebugDrawModelTextures();
+
+                if (MyFakes.ENABLE_DEBUG_DRAW_GENERATING_BLOCK)
+                    DebugDrawGeneratingBlock();
 
                 if (MultiBlockCreationIsActivated)
                     UpdateBlockInfoHud();
@@ -180,7 +184,7 @@ namespace Sandbox.Game.Entities
                 }
             }
 
-            bool buildingDisabledByCockpit = MySession.ControlledEntity != null && MySession.ControlledEntity is MyCockpit && !DeveloperSpectatorIsBuilding;
+            bool buildingDisabledByCockpit = MySession.ControlledEntity != null && MySession.ControlledEntity is MyCockpit && !SpectatorIsBuilding;
             //bool buildingDisabledByCockpit = true;
             if (!buildingDisabledByCockpit)
             {
@@ -281,6 +285,40 @@ namespace Sandbox.Game.Entities
 
             if (MyFakes.ENABLE_DEBUG_DRAW_TEXTURE_NAMES)
                 DebugDrawModelTextures();
+
+            if (MyFakes.ENABLE_DEBUG_DRAW_GENERATING_BLOCK)
+                DebugDrawGeneratingBlock();
+        }
+
+        private void DebugDrawGeneratingBlock()
+        {
+            LineD line = new LineD(IntersectionStart, IntersectionStart + IntersectionDirection * 200);
+            MyIntersectionResultLineTriangleEx? intersection = MyEntities.GetIntersectionWithLine(ref line, MySession.LocalCharacter, null);
+
+            if (intersection.HasValue && intersection.Value.Entity is MyCubeGrid)
+            {
+                MyCubeGrid grid = intersection.Value.Entity as MyCubeGrid;
+                MyIntersectionResultLineTriangleEx? t = null;
+                MySlimBlock block = null;
+                if (grid.GetIntersectionWithLine(ref line, out t, out block) && t.HasValue && block != null)
+                {
+                    if (block.BlockDefinition.IsGeneratedBlock)
+                        DebugDrawGeneratingBlock(block);
+                }
+            }
+        }
+
+        private void DebugDrawGeneratingBlock(MySlimBlock generatedBlock)
+        {
+            var generatingBlock = generatedBlock.CubeGrid.GetGeneratingBlock(generatedBlock);
+            if (generatingBlock != null)
+            {
+                VRageRender.MyRenderProxy.DebugDrawText2D(new Vector2(0, 0), "Generated SubTypeId: " + generatedBlock.BlockDefinition.Id.SubtypeName + " " + generatedBlock.Min.ToString() + " " + generatedBlock.Orientation.ToString(), Color.Yellow, 0.5f);
+                VRageRender.MyRenderProxy.DebugDrawText2D(new Vector2(0, 14), "Generating SubTypeId: " + generatingBlock.BlockDefinition.Id.SubtypeName + " " + generatingBlock.Min.ToString() + " " + generatingBlock.Orientation.ToString(), Color.Yellow, 0.5f);
+
+                Vector4 blue = new Vector4(Color.Blue.ToVector3() * 0.8f, 1);
+                MyCubeBuilder.DrawSemiTransparentBox(generatingBlock.CubeGrid, generatingBlock, Color.Blue, lineColor: blue);
+            }
         }
 
         private void DebugDrawModelTextures() 
@@ -413,7 +451,7 @@ namespace Sandbox.Game.Entities
 
         public static void DrawMountPoints(float cubeSize, MyCubeBlockDefinition def, ref MatrixD drawMatrix)
         {
-            var mountPoints = def.MountPoints;
+            var mountPoints = def.GetBuildProgressModelMountPoints(1.0f);
             if (mountPoints == null)
                 return;
 
@@ -428,7 +466,7 @@ namespace Sandbox.Game.Entities
 
                     foreach (var shape in model.HavokCollisionShapes)
                     {
-                        MyPhysicsBody.DrawCollisionShape(shape, drawMatrix, 0.2f, ref index);
+                        MyPhysicsDebugDraw.DrawCollisionShape(shape, drawMatrix, 0.2f, ref index);
                     }
 
                     var newMountPoints = AutogenerateMountpoints(model, cubeSize);
@@ -548,6 +586,7 @@ namespace Sandbox.Game.Entities
                 mountPoint.Normal = new Vector3I(direction);
                 mountPoint.Start = (aabb.Min + new Vector3(centerOffset)) / gridSize;
                 mountPoint.End = (aabb.Max + new Vector3(centerOffset)) / gridSize;
+				mountPoint.Enabled = true;
                 //because it didnt work if shape wasnt realy near the edge
                 var zExt = Vector3.Abs(direction) * mountPoint.Start;
                 bool add = zExt.AbsMax() > 0.5f;

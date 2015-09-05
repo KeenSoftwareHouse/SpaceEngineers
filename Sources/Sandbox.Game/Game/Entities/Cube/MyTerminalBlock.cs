@@ -29,6 +29,11 @@ namespace Sandbox.Game.Entities.Cube
             show.Setter = (x, v) => x.RequestShowInTerminal(v);
             MyTerminalControlFactory.AddControl(show);
 
+            var showConfig = new MyTerminalControlOnOffSwitch<MyTerminalBlock>("ShowInToolbarConfig", MySpaceTexts.Terminal_ShowInToolbarConfig, MySpaceTexts.Terminal_ShowInToolbarConfigToolTip);
+            showConfig.Getter = (x) => x.m_showInToolbarConfig;
+            showConfig.Setter = (x, v) => x.RequestShowInToolbarConfig(v);
+            MyTerminalControlFactory.AddControl(showConfig);
+
             var customName = new MyTerminalControlTextbox<MyTerminalBlock>("Name", MySpaceTexts.Name, MySpaceTexts.Blank);
             customName.Getter = (x) => x.CustomName;
             customName.Setter = (x, v) => MySyncBlockHelpers.SendChangeNameRequest(x, v);
@@ -43,6 +48,7 @@ namespace Sandbox.Game.Entities.Cube
 
         private bool m_showOnHUD;
         private bool m_showInTerminal;
+        private bool m_showInToolbarConfig;
 
         /// <summary>
         /// Name in terminal
@@ -76,6 +82,20 @@ namespace Sandbox.Game.Entities.Cube
                 }
             }
         }
+
+        public bool ShowInToolbarConfig
+        {
+            get { return m_showInToolbarConfig; }
+            set
+            {
+                if (m_showInToolbarConfig != value)
+                {
+                    m_showInToolbarConfig = value;
+                    RaiseShowInToolbarConfigChanged();
+                }
+            }
+        }
+
         public bool IsAccessibleForProgrammableBlock = true;
 
         public void RequestShowOnHUD(bool enable)
@@ -88,10 +108,20 @@ namespace Sandbox.Game.Entities.Cube
             MySyncBlockHelpers.SendShowInTerminalRequest(this, enable);
         }
 
+        public void RequestShowInToolbarConfig(bool enable)
+        {
+            MySyncBlockHelpers.SendShowInToolbarConfigRequest(this, enable);
+        }
+
         /// <summary>
         /// Detailed text in terminal (on right side)
         /// </summary>
         public StringBuilder DetailedInfo { get; private set; }
+
+        /// <summary>
+        /// Moddable part of detailed text in terminal.
+        /// </summary>
+        public StringBuilder CustomInfo { get; private set; }
 
         public event Action<MyTerminalBlock> CustomNameChanged;
         public event Action<MyTerminalBlock> PropertiesChanged;
@@ -99,19 +129,22 @@ namespace Sandbox.Game.Entities.Cube
         public event Action<MyTerminalBlock> VisibilityChanged;
         public event Action<MyTerminalBlock> ShowOnHUDChanged;
         public event Action<MyTerminalBlock> ShowInTerminalChanged;
+        public event Action<MyTerminalBlock> ShowInToolbarConfigChanged;
+        public event Action<MyTerminalBlock, StringBuilder> AppendingCustomInfo;
 
         public MyTerminalBlock()
         {
             CustomName = new StringBuilder();
             DetailedInfo = new StringBuilder();
+            CustomInfo = new StringBuilder();
             CustomNameWithFaction = new StringBuilder();
         }
         public override void Init(MyObjectBuilder_CubeBlock objectBuilder, MyCubeGrid cubeGrid)
         {
             base.Init(objectBuilder, cubeGrid);
-            
+
             var ob = (MyObjectBuilder_TerminalBlock)objectBuilder;
-            
+
             if (ob.CustomName != null)
             {
                 CustomName.Clear().Append(ob.CustomName);
@@ -125,6 +158,7 @@ namespace Sandbox.Game.Entities.Cube
 
             ShowOnHUD = ob.ShowOnHUD;
             ShowInTerminal = ob.ShowInTerminal;
+            ShowInToolbarConfig = ob.ShowInToolbarConfig;
             AddDebugRenderComponent(new MyDebugRenderComponentTerminal(this));
         }
 
@@ -134,12 +168,23 @@ namespace Sandbox.Game.Entities.Cube
             ob.CustomName = (DisplayNameText.CompareTo(BlockDefinition.DisplayNameText) != 0) ? DisplayNameText.ToString() : null;
             ob.ShowOnHUD = ShowOnHUD;
             ob.ShowInTerminal = ShowInTerminal;
+            ob.ShowInToolbarConfig = ShowInToolbarConfig;
             return ob;
+        }
+
+        public void RefreshCustomInfo()
+        {
+            CustomInfo.Clear();
+            var handler = AppendingCustomInfo;
+            if (handler != null)
+            {
+                handler(this, CustomInfo);
+            }
         }
 
         public void SetCustomName(string text)
         {
-           MySyncBlockHelpers.SendChangeNameRequest(this, text);
+            MySyncBlockHelpers.SendChangeNameRequest(this, text);
         }
 
         public void UpdateCustomName(string text)
@@ -153,7 +198,7 @@ namespace Sandbox.Game.Entities.Cube
         }
         public void SetCustomName(StringBuilder text)
         {
-           MySyncBlockHelpers.SendChangeNameRequest(this,text);
+            MySyncBlockHelpers.SendChangeNameRequest(this, text);
         }
 
         public void UpdateCustomName(StringBuilder text)
@@ -175,7 +220,7 @@ namespace Sandbox.Game.Entities.Cube
             if (handler != null) handler(this);
         }
 
-       
+
 
         /// <summary>
         /// Call this when you change detailed info or other terminal properties
@@ -207,6 +252,12 @@ namespace Sandbox.Game.Entities.Cube
             if (handler != null) handler(this);
         }
 
+        protected void RaiseShowInToolbarConfigChanged()
+        {
+            var handler = ShowInToolbarConfigChanged;
+            if (handler != null) handler(this);
+        }
+
         public bool HasLocalPlayerAccess()
         {
             return HasPlayerAccess(MySession.LocalPlayerId);
@@ -219,7 +270,7 @@ namespace Sandbox.Game.Entities.Cube
 
             MyRelationsBetweenPlayerAndBlock relation = GetUserRelationToOwner(playerId);
 
-            bool accessAllowed = relation == MyRelationsBetweenPlayerAndBlock.Owner || relation == MyRelationsBetweenPlayerAndBlock.FactionShare;
+            bool accessAllowed = relation.IsFriendly();
             return accessAllowed;
         }
 

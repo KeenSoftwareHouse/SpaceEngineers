@@ -55,10 +55,13 @@ namespace VRageRender
         // for dx 9
         public bool HDRSupported;
         public int MaxTextureSize;
-        public bool IsSupported;
+		public bool IsDx9Supported;
         public bool Has512MBRam;
 
         // for dx 11
+        public bool IsDx11Supported;
+        public int Priority;
+        public bool FallbackDisplayModes;
         public ulong VRAM;
         public bool MultithreadedRenderingSupported;
         public MyTextureQuality MaxTextureQualitySupported;

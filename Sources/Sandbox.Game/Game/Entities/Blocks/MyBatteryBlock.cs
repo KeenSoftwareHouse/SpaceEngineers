@@ -35,6 +35,7 @@ namespace Sandbox.Game.Entities
     using Sandbox.Game.Localization;
     using VRage;
     using VRage.Utils;
+    using VRage.ModAPI;
 
     [MyCubeBlockType(typeof(MyObjectBuilder_BatteryBlock))]
     class MyBatteryBlock : MyFunctionalBlock, IMyPowerProducer, IMyPowerConsumer, Sandbox.ModAPI.Ingame.IMyBatteryBlock
@@ -49,6 +50,9 @@ namespace Sandbox.Game.Entities
         private float m_timeRemaining = 0;
         private bool m_isFull;
 
+        private Color m_prevEmissiveColor = Color.Black;
+        private int m_prevFillCount = -1;
+
         private new MySyncBatteryBlock SyncObject;
 
         protected override bool CheckIsWorking()
@@ -59,7 +63,7 @@ namespace Sandbox.Game.Entities
         static MyBatteryBlock()
         {
             var recharge = new MyTerminalControlCheckbox<MyBatteryBlock>("Recharge", MySpaceTexts.BlockPropertyTitle_Recharge, MySpaceTexts.ToolTipBatteryBlock);
-            recharge.Getter = (x) => !x.ProducerEnabled;
+            recharge.Getter = (x) => !x.ProductionEnabled;
             recharge.Setter = (x, v) => x.SyncObject.SendProducerEnableChange(!v);
             recharge.Enabled = (x) => !x.SemiautoEnabled;
             recharge.EnableAction();
@@ -89,14 +93,14 @@ namespace Sandbox.Game.Entities
             MyConsumerGroupEnum.BatteryBlock,
             true,
             m_batteryBlockDefinition.RequiredPowerInput,
-            () => (Enabled && IsFunctional && !ProducerEnabled && (CurrentPowerOutput == 0) && !m_isFull) ? PowerReceiver.MaxRequiredInput : 0.0f);
+            () => (Enabled && IsFunctional && !ProductionEnabled && (CurrentPowerOutput == 0) && !m_isFull) ? PowerReceiver.MaxRequiredInput : 0.0f);
             PowerReceiver.Update();
 
             CurrentPowerOutput = 0;
 
             var obGenerator = (MyObjectBuilder_BatteryBlock)objectBuilder;
             CurrentStoredPower = obGenerator.CurrentStoredPower;
-            ProducerEnabled = obGenerator.ProducerEnabled;
+            ProductionEnabled = obGenerator.ProducerEnabled;
             SemiautoEnabled = obGenerator.SemiautoEnabled;
 
             RefreshRemainingCapacity();
@@ -122,7 +126,7 @@ namespace Sandbox.Game.Entities
         {
             var ob = (MyObjectBuilder_BatteryBlock)base.GetObjectBuilderCubeBlock(copy);
             ob.CurrentStoredPower = CurrentStoredPower;
-            ob.ProducerEnabled = ProducerEnabled;
+            ob.ProducerEnabled = ProductionEnabled;
             ob.SemiautoEnabled = SemiautoEnabled;
             return ob;
         }
@@ -176,13 +180,13 @@ namespace Sandbox.Game.Entities
                 {
                     if (CurrentStoredPower == 0)
                     {
-                        ProducerEnabled = false;
+                        ProductionEnabled = false;
                         SyncObject.SendProducerEnableChange(false);
                         SyncObject.SendSemiautoEnableChange(SemiautoEnabled);
                     }
                     if (CurrentStoredPower == MaxStoredPower)
                     {
-                        ProducerEnabled = true;
+                        ProductionEnabled = true;
                         SyncObject.SendProducerEnableChange(true);
                         SyncObject.SendSemiautoEnableChange(SemiautoEnabled);
                     }
@@ -197,7 +201,7 @@ namespace Sandbox.Game.Entities
                     if ((Sync.IsServer && !CubeGrid.GridSystems.ControlSystem.IsControlled) ||
                         CubeGrid.GridSystems.ControlSystem.IsLocallyControlled)
                     {
-                        if (!ProducerEnabled)
+                        if (!ProductionEnabled)
                             StorePower(timeDelta, PowerReceiver.CurrentInput);
                         else
                             ConsumePower(timeDelta);
@@ -208,10 +212,10 @@ namespace Sandbox.Game.Entities
                     if ((Sync.IsServer && IsFunctional && !CubeGrid.GridSystems.ControlSystem.IsControlled) ||
                         CubeGrid.GridSystems.ControlSystem.IsLocallyControlled)
                     {
-                        if (!ProducerEnabled)
+                        if (!ProductionEnabled)
                             StorePower(timeDelta, (3600 * MaxStoredPower) / 8f );
                         else
-                            if (ProducerEnabled)
+                            if (ProductionEnabled)
                             {
                                 RefreshRemainingCapacity();
                                 UpdateIsWorking();
@@ -223,7 +227,7 @@ namespace Sandbox.Game.Entities
                     }
                 }
 
-                if (!ProducerEnabled)
+                if (!ProductionEnabled)
                     CalculateInputTimeRemaining();
                 else
                     CalculateOutputTimeRemaining();
@@ -277,7 +281,7 @@ namespace Sandbox.Game.Entities
             DetailedInfo.AppendStringBuilder(MyTexts.Get(MySpaceTexts.BlockPropertiesText_StoredPower));
             MyValueFormatter.AppendWorkHoursInBestUnit(CurrentStoredPower, DetailedInfo);
             DetailedInfo.Append("\n");
-            if (!ProducerEnabled)
+            if (!ProductionEnabled)
             {
                 DetailedInfo.AppendStringBuilder(MyTexts.Get(MySpaceTexts.BlockPropertiesText_RechargedIn));
                 MyValueFormatter.AppendTimeInBestUnit(m_timeRemaining, DetailedInfo);
@@ -362,74 +366,60 @@ namespace Sandbox.Game.Entities
                 if (IsWorking)
                 {
 
-                    float percentage = (CurrentStoredPower / MaxStoredPower) * 100;
+                    float percentage = (CurrentStoredPower / MaxStoredPower);
 
-                    if (percentage >= 25)
+                    if (ProductionEnabled)
                     {
-                        if (ProducerEnabled)
-                            VRageRender.MyRenderProxy.UpdateModelProperties(Render.RenderObjectIDs[0], 0, null, -1, m_emissiveNames[0], null, Color.Green, null, null, 1);
-                        else
-                            VRageRender.MyRenderProxy.UpdateModelProperties(Render.RenderObjectIDs[0], 0, null, -1, m_emissiveNames[0], null, Color.SteelBlue, null, null, 1);
+                        SetEmissive(Color.Green, percentage);
                     }
                     else
                     {
-                        VRageRender.MyRenderProxy.UpdateModelProperties(Render.RenderObjectIDs[0], 0, null, -1, m_emissiveNames[0], null, Color.Black, null, null, 1);
+                        SetEmissive(Color.SteelBlue, percentage);
                     }
-                    if (percentage >= 50)
-                    {
-                        if (ProducerEnabled)
-                            VRageRender.MyRenderProxy.UpdateModelProperties(Render.RenderObjectIDs[0], 0, null, -1, m_emissiveNames[1], null, Color.Green, null, null, 1);
-                        else
-                            VRageRender.MyRenderProxy.UpdateModelProperties(Render.RenderObjectIDs[0], 0, null, -1, m_emissiveNames[1], null, Color.SteelBlue, null, null, 1);
-                    }
-                    else
-                    {
-                        VRageRender.MyRenderProxy.UpdateModelProperties(Render.RenderObjectIDs[0], 0, null, -1, m_emissiveNames[1], null, Color.Black, null, null, 1);
-                    }
-                    if (percentage >= 75)
-                    {
-                        if (ProducerEnabled)
-                            VRageRender.MyRenderProxy.UpdateModelProperties(Render.RenderObjectIDs[0], 0, null, -1, m_emissiveNames[2], null, Color.Green, null, null, 1);
-                        else
-                            VRageRender.MyRenderProxy.UpdateModelProperties(Render.RenderObjectIDs[0], 0, null, -1, m_emissiveNames[2], null, Color.SteelBlue, null, null, 1);
-                    }
-                    else
-                    {
-                        VRageRender.MyRenderProxy.UpdateModelProperties(Render.RenderObjectIDs[0], 0, null, -1, m_emissiveNames[2], null, Color.Black, null, null, 1);
-                    }
-                    if (percentage >= 100)
-                    {
-                        if (ProducerEnabled)
-                            VRageRender.MyRenderProxy.UpdateModelProperties(Render.RenderObjectIDs[0], 0, null, -1, m_emissiveNames[3], null, Color.Green, null, null, 1);
-                        else
-                            VRageRender.MyRenderProxy.UpdateModelProperties(Render.RenderObjectIDs[0], 0, null, -1, m_emissiveNames[3], null, Color.SteelBlue, null, null, 1);
-                    }
-                    else
-                    {
-                        VRageRender.MyRenderProxy.UpdateModelProperties(Render.RenderObjectIDs[0], 0, null, -1, m_emissiveNames[3], null, Color.Black, null, null, 1);
-                    }
-
                 }
                 else
                 {
-                    VRageRender.MyRenderProxy.UpdateModelProperties(Render.RenderObjectIDs[0], 0, null, -1, m_emissiveNames[0], null, Color.Red, null, null, 0);
-                    VRageRender.MyRenderProxy.UpdateModelProperties(Render.RenderObjectIDs[0], 0, null, -1, m_emissiveNames[1], null, Color.Black, null, null, 1);
-                    VRageRender.MyRenderProxy.UpdateModelProperties(Render.RenderObjectIDs[0], 0, null, -1, m_emissiveNames[2], null, Color.Black, null, null, 1);
-                    VRageRender.MyRenderProxy.UpdateModelProperties(Render.RenderObjectIDs[0], 0, null, -1, m_emissiveNames[3], null, Color.Black, null, null, 1);
+                    SetEmissive(Color.Red, 0.25f);
                 }
             }
             else
             {
-                VRageRender.MyRenderProxy.UpdateModelProperties(Render.RenderObjectIDs[0], 0, null, -1, m_emissiveNames[0], null, Color.Red, null, null, 0);
-                VRageRender.MyRenderProxy.UpdateModelProperties(Render.RenderObjectIDs[0], 0, null, -1, m_emissiveNames[1], null, Color.Red, null, null, 0);
-                VRageRender.MyRenderProxy.UpdateModelProperties(Render.RenderObjectIDs[0], 0, null, -1, m_emissiveNames[2], null, Color.Red, null, null, 0);
-                VRageRender.MyRenderProxy.UpdateModelProperties(Render.RenderObjectIDs[0], 0, null, -1, m_emissiveNames[3], null, Color.Red, null, null, 0);
+                SetEmissive(Color.Red, 1f);
             }
+        }
+
+        private void SetEmissive(Color color, float fill)
+        {
+            int fillCount = (int)(fill * m_emissiveNames.Length);
+
+            if (Render.RenderObjectIDs[0] != VRageRender.MyRenderProxy.RENDER_ID_UNASSIGNED && (color != m_prevEmissiveColor || fillCount != m_prevFillCount))
+            {
+                for (int i = 0; i < m_emissiveNames.Length; i++)
+                {
+                    if (i < fillCount)
+                    {
+                        VRageRender.MyRenderProxy.UpdateModelProperties(Render.RenderObjectIDs[0], 0, null, -1, m_emissiveNames[i], null, color, null, null, 1f);
+                    }
+                    else
+                    {
+                        VRageRender.MyRenderProxy.UpdateModelProperties(Render.RenderObjectIDs[0], 0, null, -1, m_emissiveNames[i], null, Color.Black, null, null, 0f);
+                    }
+                }
+                m_prevEmissiveColor = color;
+                m_prevFillCount = fillCount;
+            }
+        }
+
+        public override void OnModelChange()
+        {
+            base.OnModelChange();
+
+            m_prevFillCount = -1;
         }
 
         private float ComputeMaxPowerOutput()
         {
-            return IsWorking && ProducerEnabled ? m_batteryBlockDefinition.MaxPowerOutput : 0f;
+            return IsWorking && ProductionEnabled ? m_batteryBlockDefinition.MaxPowerOutput : 0f;
         }
 
         public MyPowerReceiver PowerReceiver
@@ -445,8 +435,8 @@ namespace Sandbox.Game.Entities
 
         bool IMyPowerProducer.Enabled
         {
-            get { return ProducerEnabled; }
-            set { ProducerEnabled = value; }
+            get { return ProductionEnabled; }
+            set { ProductionEnabled = value; }
         }
 
         public float TimeRemaining
@@ -533,7 +523,7 @@ namespace Sandbox.Game.Entities
             get { return MyProducerGroupEnum.Battery; }
         }
 
-        public bool ProducerEnabled
+        public bool ProductionEnabled
         {
             get { return m_producerEnabled; }
             set
@@ -611,7 +601,7 @@ namespace Sandbox.Game.Entities
                 MyBatteryBlock batteryBlock;
                 if (MyEntities.TryGetEntityById<MyBatteryBlock>(msg.EntityId, out batteryBlock))
                 {
-                    batteryBlock.ProducerEnabled = msg.ProducerEnabled;
+                    batteryBlock.ProductionEnabled = msg.ProducerEnabled;
                     if (Sync.IsServer)
                         Sync.Layer.SendMessageToAll(ref msg);
                 }
