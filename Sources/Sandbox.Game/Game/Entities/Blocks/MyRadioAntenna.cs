@@ -28,7 +28,7 @@ using VRage.ModAPI;
 namespace Sandbox.Game.Entities.Cube
 {
     [MyCubeBlockType(typeof(MyObjectBuilder_RadioAntenna))]
-    class MyRadioAntenna : MyFunctionalBlock, IMyPowerConsumer, IMyComponentOwner<MyDataBroadcaster>, IMyComponentOwner<MyDataReceiver>, IMyGizmoDrawableObject, IMyRadioAntenna
+    public class MyRadioAntenna : MyFunctionalBlock, IMyPowerConsumer, IMyComponentOwner<MyDataBroadcaster>, IMyComponentOwner<MyDataReceiver>, IMyGizmoDrawableObject, IMyRadioAntenna
     {
         protected Color m_gizmoColor = new Vector4(0.1f, 0.1f, 0.0f, 0.1f);
         protected const float m_maxGizmoDrawDistance = 10000.0f;

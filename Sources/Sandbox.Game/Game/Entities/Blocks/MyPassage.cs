@@ -14,7 +14,7 @@ using VRageRender;
 namespace Sandbox.Game.Entities.Cube
 {
     [MyCubeBlockType(typeof(MyObjectBuilder_Passage))]
-    class MyPassage : MyCubeBlock
+    public class MyPassage : MyCubeBlock
     {
         //  Return true if object intersects specified sphere.
         //  This method doesn't return exact point of intersection or any additional data.

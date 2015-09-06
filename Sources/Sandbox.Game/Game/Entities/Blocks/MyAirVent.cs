@@ -28,7 +28,7 @@ using VRageMath;
 namespace Sandbox.Game.Entities.Blocks
 {
     [MyCubeBlockType(typeof(MyObjectBuilder_AirVent))]
-    class MyAirVent : MyFunctionalBlock, IMyPowerConsumer, IMyOxygenConsumer, IMyOxygenProducer, IMyAirVent, IMyConveyorEndpointBlock
+    public class MyAirVent : MyFunctionalBlock, IMyPowerConsumer, IMyOxygenConsumer, IMyOxygenProducer, IMyAirVent, IMyConveyorEndpointBlock
     {
         private static string[] m_emissiveNames = { "Emissive1", "Emissive2", "Emissive3", "Emissive4" };
 
@@ -748,7 +748,7 @@ namespace Sandbox.Game.Entities.Blocks
         }
 
         [PreloadRequired]
-        internal class MySyncAirVent : MySyncEntity
+        public class MySyncAirVent : MySyncEntity
         {
             [MessageIdAttribute(8000, P2PMessageEnum.Reliable)]
             protected struct ChangeDepressurizationModeMsg : IEntityMessage

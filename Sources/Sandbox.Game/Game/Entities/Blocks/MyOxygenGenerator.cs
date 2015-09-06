@@ -24,7 +24,7 @@ using VRage.ModAPI;
 namespace Sandbox.Game.Entities.Blocks
 {
     [MyCubeBlockType(typeof(MyObjectBuilder_OxygenGenerator))]
-    class MyOxygenGenerator : MyFunctionalBlock, IMyPowerConsumer, IMyInventoryOwner, IMyOxygenProducer, IMyOxygenGenerator, IMyConveyorEndpointBlock
+    public class MyOxygenGenerator : MyFunctionalBlock, IMyPowerConsumer, IMyInventoryOwner, IMyOxygenProducer, IMyOxygenGenerator, IMyConveyorEndpointBlock
     {
         private Color? m_prevEmissiveColor = null;
         private bool m_useConveyorSystem;
@@ -664,7 +664,7 @@ namespace Sandbox.Game.Entities.Blocks
         }
 
 
-        internal class MySyncOxygenGenerator : MySyncEntity
+        public class MySyncOxygenGenerator : MySyncEntity
         {
             [MessageIdAttribute(8100, P2PMessageEnum.Reliable)]
             protected struct ChangeAutoRefillMsg : IEntityMessage

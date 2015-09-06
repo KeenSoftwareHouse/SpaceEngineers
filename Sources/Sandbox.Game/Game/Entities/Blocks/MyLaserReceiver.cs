@@ -6,7 +6,7 @@ using System.Text;
 
 namespace Sandbox.Game.Entities.Blocks
 {
-    class MyLaserReceiver : MyDataReceiver
+    public class MyLaserReceiver : MyDataReceiver
     {
         public MyLaserReceiver(MyEntity parent):base(parent)
         {

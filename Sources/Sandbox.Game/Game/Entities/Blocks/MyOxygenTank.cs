@@ -23,7 +23,7 @@ using VRage.ModAPI;
 namespace Sandbox.Game.Entities.Blocks
 {
     [MyCubeBlockType(typeof(MyObjectBuilder_OxygenTank))]
-    class MyOxygenTank : MyFunctionalBlock, IMyPowerConsumer, IMyInventoryOwner, IMyOxygenBlock, IMyOxygenTank, IMyConveyorEndpointBlock
+    public class MyOxygenTank : MyFunctionalBlock, IMyPowerConsumer, IMyInventoryOwner, IMyOxygenBlock, IMyOxygenTank, IMyConveyorEndpointBlock
     {
         private static string[] m_emissiveNames = { "Emissive1", "Emissive2", "Emissive3", "Emissive4" };
         
@@ -532,7 +532,7 @@ namespace Sandbox.Game.Entities.Blocks
         }
 
         [PreloadRequired]
-        internal class MySyncOxygenTank : MySyncEntity
+        public class MySyncOxygenTank : MySyncEntity
         {
             [MessageIdAttribute(7700, P2PMessageEnum.Reliable)]
             protected struct ChangeStockpileModeMsg : IEntityMessage

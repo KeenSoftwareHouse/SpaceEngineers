@@ -27,7 +27,7 @@ using VRageMath;
 namespace Sandbox.Game.Entities
 {
     [MyCubeBlockType(typeof(MyObjectBuilder_CameraBlock))]
-    class MyCameraBlock : MyFunctionalBlock, IMyPowerConsumer, IMyCameraController, IMyCameraBlock
+    public class MyCameraBlock : MyFunctionalBlock, IMyPowerConsumer, IMyCameraController, IMyCameraBlock
     {
         public new MyCameraBlockDefinition BlockDefinition
         {
@@ -425,7 +425,7 @@ namespace Sandbox.Game.Entities
         }
 
         [PreloadRequired]
-        internal class MySyncCameraBlock : MySyncEntity
+        public class MySyncCameraBlock : MySyncEntity
         {
             [MessageId(7800, P2PMessageEnum.Reliable)]
             struct ChangeFovMsg : IEntityMessage

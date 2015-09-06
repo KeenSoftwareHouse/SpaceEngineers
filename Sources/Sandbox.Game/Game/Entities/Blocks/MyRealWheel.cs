@@ -8,7 +8,7 @@ using System.Text;
 namespace Sandbox.Game.Entities.Blocks
 {
     [MyCubeBlockType(typeof(MyObjectBuilder_RealWheel))]
-    class MyRealWheel : MyMotorRotor
+    public class MyRealWheel : MyMotorRotor
     {
         public override void ContactPointCallback(ref MyGridContactInfo value)
         {

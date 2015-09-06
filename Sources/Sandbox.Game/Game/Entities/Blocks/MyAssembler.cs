@@ -36,7 +36,7 @@ using VRage.ObjectBuilders;
 namespace Sandbox.Game.Entities.Cube
 {
     [MyCubeBlockType(typeof(MyObjectBuilder_Assembler))]
-    class MyAssembler : MyProductionBlock, IMyAssembler
+    public class MyAssembler : MyProductionBlock, IMyAssembler
     {
         #region SyncClass
         

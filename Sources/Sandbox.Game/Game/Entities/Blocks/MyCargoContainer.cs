@@ -19,7 +19,7 @@ using VRage.ObjectBuilders;
 namespace Sandbox.Game.Entities
 {
     [MyCubeBlockType(typeof(MyObjectBuilder_CargoContainer))]
-    class MyCargoContainer : MyTerminalBlock, IMyInventoryOwner, IMyConveyorEndpointBlock, IMyCargoContainer
+    public class MyCargoContainer : MyTerminalBlock, IMyInventoryOwner, IMyConveyorEndpointBlock, IMyCargoContainer
     {
         private MyCargoContainerDefinition m_cargoDefinition;
         MyInventory m_inventory;

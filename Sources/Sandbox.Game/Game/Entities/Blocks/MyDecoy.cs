@@ -8,7 +8,7 @@ using Sandbox.Game.Entities.Cube;
 namespace Sandbox.Game.Entities.Blocks
 {
     [MyCubeBlockType(typeof(MyObjectBuilder_Decoy))]
-    class MyDecoy : MyFunctionalBlock
+    public class MyDecoy : MyFunctionalBlock
     {
     }
 }

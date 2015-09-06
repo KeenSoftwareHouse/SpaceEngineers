@@ -14,7 +14,7 @@ using VRageRender;
 namespace Sandbox.Game.Entities
 {
     [MyCubeBlockType(typeof(MyObjectBuilder_Conveyor))]
-    class MyConveyor : MyCubeBlock, IMyConveyorEndpointBlock
+    public class MyConveyor : MyCubeBlock, IMyConveyorEndpointBlock
     {
         private MyMultilineConveyorEndpoint m_conveyorEndpoint;
         public IMyConveyorEndpoint ConveyorEndpoint

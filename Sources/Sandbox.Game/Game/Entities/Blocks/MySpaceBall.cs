@@ -31,7 +31,7 @@ using VRage.Components;
 namespace Sandbox.Game.Entities
 {
     [MyCubeBlockType(typeof(MyObjectBuilder_SpaceBall))]
-    class MySpaceBall : MyFunctionalBlock, IMySpaceBall, IMyComponentOwner<MyDataBroadcaster>, IMyComponentOwner<MyDataReceiver>
+    public class MySpaceBall : MyFunctionalBlock, IMySpaceBall, IMyComponentOwner<MyDataBroadcaster>, IMyComponentOwner<MyDataReceiver>
     {
         #region Properties
 

@@ -33,7 +33,7 @@ using VRage.ModAPI;
 namespace Sandbox.Game.Entities.Cube
 {
     [MyCubeBlockType(typeof(MyObjectBuilder_LandingGear))]
-    class MyLandingGear : MyFunctionalBlock, IMyLandingGear, Sandbox.ModAPI.IMyLandingGear
+    public class MyLandingGear : MyFunctionalBlock, IMyLandingGear, Sandbox.ModAPI.IMyLandingGear
     {
         private MySoundPair m_lockSound;
         private MySoundPair m_unlockSound;
@@ -771,7 +771,7 @@ namespace Sandbox.Game.Entities.Cube
         #region Sync class
 
         [PreloadRequired]
-        class MySyncLandingGear
+        public class MySyncLandingGear
         {
             MyLandingGear m_landingGear;
 

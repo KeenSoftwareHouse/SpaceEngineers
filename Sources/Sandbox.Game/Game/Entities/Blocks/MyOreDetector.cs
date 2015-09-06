@@ -19,7 +19,7 @@ using VRage.ModAPI;
 namespace Sandbox.Game.Entities.Cube
 {
     [MyCubeBlockType(typeof(MyObjectBuilder_OreDetector))]
-    class MyOreDetector : MyFunctionalBlock, IMyPowerConsumer, IMyComponentOwner<MyOreDetectorComponent>, IMyOreDetector
+    public class MyOreDetector : MyFunctionalBlock, IMyPowerConsumer, IMyComponentOwner<MyOreDetectorComponent>, IMyOreDetector
     {
         private MyOreDetectorDefinition m_definition;
 

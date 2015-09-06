@@ -39,7 +39,7 @@ using Sandbox.Common.ModAPI;
 namespace Sandbox.Game.Entities.Cube
 {
     [MyCubeBlockType(typeof(MyObjectBuilder_Warhead))]
-    class MyWarhead : MyTerminalBlock, IMyDestroyableObject, IMyWarhead
+    public class MyWarhead : MyTerminalBlock, IMyDestroyableObject, IMyWarhead
     {
         const float m_maxExplosionRadius = 30.0f;
         public static float ExplosionImpulse = 30000;
@@ -458,7 +458,7 @@ namespace Sandbox.Game.Entities.Cube
         //}
 
         [PreloadRequired]
-        class MySyncWarhead
+        public class MySyncWarhead
         {
             [MessageIdAttribute(7511, P2PMessageEnum.Reliable)]
             protected struct SetTimerMsg : IEntityMessage

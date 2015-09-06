@@ -26,7 +26,7 @@ using VRage.ModAPI;
 namespace Sandbox.Game.Entities
 {
     [MyCubeBlockType(typeof(MyObjectBuilder_ConveyorSorter))]
-    class MyConveyorSorter : MyFunctionalBlock, IMyConveyorEndpointBlock, IMyPowerConsumer, IMyInventoryOwner, IMyConveyorSorter
+    public class MyConveyorSorter : MyFunctionalBlock, IMyConveyorEndpointBlock, IMyPowerConsumer, IMyInventoryOwner, IMyConveyorSorter
     {
         public bool IsWhitelist
         {

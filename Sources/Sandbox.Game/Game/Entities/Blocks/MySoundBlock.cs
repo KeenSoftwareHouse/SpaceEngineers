@@ -27,7 +27,7 @@ using VRage.ModAPI;
 namespace Sandbox.Game.Entities.Blocks
 {
     [MyCubeBlockType(typeof(MyObjectBuilder_SoundBlock))]
-    class MySoundBlock : MyFunctionalBlock, IMyPowerConsumer, IMySoundBlock
+    public class MySoundBlock : MyFunctionalBlock, IMyPowerConsumer, IMySoundBlock
     {
         private const float MAXIMUM_LOOP_PERIOD = 30 * 60f; // seconds
         private const int EMITTERS_NUMBER = 5;
