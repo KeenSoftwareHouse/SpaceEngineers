@@ -2898,18 +2898,20 @@ namespace Sandbox.Definitions
                 {
                     string ext = Path.GetExtension(contentFile);
 
+                    var modedContentFileKnownToExist = true;
+                    string modedContentFileFullPath = Path.Combine(context.ModPath, contentFile);
                     if (!extensions.Contains(ext))
                     {
                         string exts = extensions.Aggregate((a, b) => a + " or " + b);
                         MyDefinitionErrors.Add(context, "Missing file extension: " + contentFile + ", it should be: " + exts, ErrorSeverity.Warning);
                         contentFile += extensions[0];
+                        modedContentFileFullPath += extensions[0];
+                        modedContentFileKnownToExist = MyFileSystem.GetFiles(Path.GetDirectoryName(modedContentFileFullPath), Path.GetFileName(modedContentFileFullPath), VRage.FileSystem.MySearchOption.TopDirectoryOnly).Count() > 0;
                     }
 
-                    string modedContentFile = Path.Combine(context.ModPath, contentFile);
-
-                    if (MyFileSystem.DirectoryExists(Path.GetDirectoryName(modedContentFile)) && MyFileSystem.GetFiles(Path.GetDirectoryName(modedContentFile), Path.GetFileName(modedContentFile), VRage.FileSystem.MySearchOption.TopDirectoryOnly).Count() > 0)
+                    if (modedContentFileKnownToExist)
                     {
-                        field.SetValue(fieldOwnerInstance, modedContentFile);
+                        field.SetValue(fieldOwnerInstance, modedContentFileFullPath);
                         //MySandboxGame.Log.WriteLine(string.Format("ProcessField() '{0}', '{1}', '{2}'", context.ModPath, contentFile, modedContentFile));
                     }
                     else if (MyFileSystem.FileExists(Path.Combine(MyFileSystem.ContentPath, contentFile)))
