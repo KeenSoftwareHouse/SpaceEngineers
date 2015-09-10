@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Threading;
 using VRage.Compression;
 
 namespace VRage.FileSystem
@@ -162,6 +163,44 @@ namespace VRage.FileSystem
         public static bool IsZipFile(string path)
         {
             return !Directory.Exists(path);
+        }
+
+
+
+
+        private int m_cachingTokens = 0;
+        private bool CanCache()
+        {
+            return m_cachingTokens > 0;
+        }
+
+        public IDisposable EnableCaching()
+        {
+            return new CachingToken(this);
+        }
+
+        private void ClearCaches()
+        {
+        }
+
+        class CachingToken : IDisposable
+        {
+            private bool m_disposed;
+            private MyZipFileProvider m_provider;
+            public CachingToken(MyZipFileProvider provider)
+            {
+                m_provider = provider;
+                Interlocked.Increment(ref m_provider.m_cachingTokens);
+            }
+
+            public void Dispose()
+            {
+                if(!m_disposed)
+                {
+                    if(Interlocked.Decrement(ref m_provider.m_cachingTokens) == 0) m_provider.ClearCaches();
+                    m_disposed = true;
+                }
+            }
         }
     }
 }
