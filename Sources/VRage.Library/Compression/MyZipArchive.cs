@@ -48,37 +48,27 @@ namespace VRage.Compression
         private object m_zip;
         public string ZipPath { get; private set; }
 
-        Dictionary<string, string> m_mixedCaseHelper = new Dictionary<string, string>(StringComparer.InvariantCultureIgnoreCase);
+        MyZipArchiveIndex m_index;
 
         private MyZipArchive(object zipObject, string path = null)
         {
             m_zip = zipObject;
             ZipPath = path;
             
-            foreach (var file in Files)
-            {
-                m_mixedCaseHelper[file.Name.Replace('/','\\')] = file.Name;
-            }
+            var files = new Enumerator(((IEnumerable)MyZipArchiveReflection.GetFiles(m_zip)).GetEnumerator());
+            m_index = new MyZipArchiveIndex(path, files);
+        }
+
+        public MyZipArchiveIndex GetIndex()
+        {
+            return m_index;
         }
 
         public IEnumerable<string> FileNames
         {
-            get { return Files.Select(p => p.Name).OrderBy(p => p); }
+            get { return m_index.FileNames; }
         }
 
-        public Enumerator Files
-        {
-            get
-            {
-                return new Enumerator(((IEnumerable)MyZipArchiveReflection.GetFiles(m_zip)).GetEnumerator());
-            }
-        }
-
-        private static void FixName(ref string name)
-        {
-            name = name.Replace('/', '\\');
-        }
-        
         public static MyZipArchive OpenOnFile(string path, FileMode mode = FileMode.Open, FileAccess access = FileAccess.Read, FileShare share = FileShare.Read, bool streaming = false)
         {
             return new MyZipArchive(MyZipArchiveReflection.OpenOnFile(path, mode, access, share, streaming), path);
@@ -96,31 +86,24 @@ namespace VRage.Compression
 
         public void DeleteFile(string name)
         {
-            FixName(ref name);
-            MyZipArchiveReflection.DeleteFile(m_zip, name);
+            var originalName = m_index.GetOriginalName(name);
+            MyZipArchiveReflection.DeleteFile(m_zip, originalName);
         }
 
         public MyZipFileInfo GetFile(string name)
         {
-            FixName(ref name);
-            return new MyZipFileInfo(MyZipArchiveReflection.GetFile(m_zip, m_mixedCaseHelper[name]));
+            var originalName = m_index.GetOriginalName(name);
+            return new MyZipFileInfo(MyZipArchiveReflection.GetFile(m_zip, originalName));
         }
 
         public bool FileExists(string name)
         {
-            FixName(ref name);
-            return m_mixedCaseHelper.ContainsKey(name);
+            return m_index.FileExists(name);
         }
 
         public bool DirectoryExists(string name)
         {
-            FixName(ref name);
-            foreach (var fileName in m_mixedCaseHelper.Keys)
-            {
-                if (fileName.StartsWith(name, StringComparison.InvariantCultureIgnoreCase))
-                    return true;
-            }
-            return false;
+            return m_index.DirectoryExists(name);
         }
 
         public void Dispose()
