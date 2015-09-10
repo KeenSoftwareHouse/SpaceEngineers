@@ -27,21 +27,35 @@ namespace VRage.FileSystem
 
         T TryDoZipAction<T>(string path, Func<string, string, T> action, T defaultValue)
         {
+            var zipPath = SplitZipFilePath(ref path);
+            if(zipPath == null) return defaultValue;
+            
+            return action(zipPath, path);
+        }
+
+        /// <summary>
+        /// Given a path like: C:\Users\Data\Archive.zip\InnerFolder\file.txt
+        /// this method returns C:\Users\Data\Archive.zip and modifies its filePath parameter to point to InnerFolder\file.txt
+        /// Returns null and leaves filePath unchanged if the zip file cannot be identified.
+        /// </summary>
+        string SplitZipFilePath(ref string filePath)
+        {
             // This may need some optimization (allocations), but file open allocates itself, so probably not needed
-            int currentPosition = path.Length;
+            int currentPosition = filePath.Length;
 
             while (currentPosition >= 0)
             {
-                string zipFile = path.Substring(0, currentPosition);
+                string zipFile = filePath.Substring(0, currentPosition);
                 if (File.Exists(zipFile))
                 {
-                    return action(zipFile, path.Substring(Math.Min(path.Length, currentPosition + 1)));
+                    filePath = filePath.Substring(Math.Min(filePath.Length, currentPosition + 1));
+                    return zipFile;
                 }
 
-                currentPosition = path.LastIndexOfAny(Separators, currentPosition - 1);
+                currentPosition = filePath.LastIndexOfAny(Separators, currentPosition - 1);
             }
 
-            return defaultValue;
+            return null;
         }
 
         private Stream TryOpen(string zipFile, string subpath)
