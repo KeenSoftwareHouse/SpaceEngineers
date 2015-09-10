@@ -2907,7 +2907,7 @@ namespace Sandbox.Definitions
 
                     string modedContentFile = Path.Combine(context.ModPath, contentFile);
 
-                    if (MyFileSystem.DirectoryExists(Path.GetDirectoryName(modedContentFile)) && MyFileSystem.GetFiles(Path.GetDirectoryName(modedContentFile), Path.GetFileName(modedContentFile), VRage.FileSystem.MySearchOption.TopDirectoryOnly).Count() > 0)
+                    if (MyFileSystem.FileExists(modedContentFile))
                     {
                         field.SetValue(fieldOwnerInstance, modedContentFile);
                         //MySandboxGame.Log.WriteLine(string.Format("ProcessField() '{0}', '{1}', '{2}'", context.ModPath, contentFile, modedContentFile));
