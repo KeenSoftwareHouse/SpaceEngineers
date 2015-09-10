@@ -13,6 +13,8 @@ namespace VRage.FileSystem
     {
         public readonly char[] Separators = new char[] { Path.AltDirectorySeparatorChar, Path.DirectorySeparatorChar };
 
+        private static Dictionary<string, MyZipArchiveIndex> m_zipIndexes = new Dictionary<string, MyZipArchiveIndex>(StringComparer.InvariantCultureIgnoreCase);
+
         /// <summary>
         /// FileShare is ignored
         /// Usage: C:\Users\Data\Archive.zip\InnerFolder\file.txt
@@ -55,7 +57,7 @@ namespace VRage.FileSystem
 
         private Stream TryOpen(string zipFile, string subpath)
         {
-            var arc = MyZipArchive.OpenOnFile(zipFile);
+            var arc = GetZipArchive(zipFile);
             try
             {
                 return arc.FileExists(subpath) ? new MyStreamWrapper(arc.GetFile(subpath).GetStream(), arc) : null;
@@ -78,29 +80,23 @@ namespace VRage.FileSystem
 
         bool DirectoryExistsInZip(string zipFile, string subpath)
         {
-            var arc = MyZipArchive.OpenOnFile(zipFile);
-            try
-            {
-                // Root exists when archive can be opened
-                return subpath == String.Empty ? true : arc.DirectoryExists(subpath + "/");
-            }
-            finally
-            {
-                arc.Dispose();
-            }
+            var index = GetZipIndex(zipFile);
+            // Root exists when archive can be opened.
+            // If we have the index, then the archive must've been opened at some stage.
+            if(subpath == String.Empty) return true;
+
+            return index.DirectoryExists(subpath + "/");
         }
 
 
-        private MyZipArchive TryGetZipArchive(string zipFile, string subpath)
+        private MyZipArchiveIndex TryGetZipArchiveIndex(string zipFile)
         {
-            var arc = MyZipArchive.OpenOnFile(zipFile);
             try
             {
-                return arc;
+                return GetZipIndex(zipFile);
             }
             catch
             {
-                arc.Dispose();
                 return null;
             }
         }
@@ -116,14 +112,14 @@ namespace VRage.FileSystem
             var zipPath = SplitZipFilePath(ref path);
             if(zipPath == null) yield break;
 
-            MyZipArchive zipFile = TryGetZipArchive(zipPath, path);
-            if (zipFile == null) yield break;
+            MyZipArchiveIndex zipFileIndex = TryGetZipArchiveIndex(zipPath);
+            if (zipFileIndex == null) yield break;
                 
             string subpath = path;
 
             string pattern = Regex.Escape(filter).Replace(@"\*", ".*").Replace(@"\?", ".");
             pattern += "$";
-            foreach (var fileName in zipFile.FileNames)
+            foreach (var fileName in zipFileIndex.FileNames)
             {
                 if (searchOption == MySearchOption.TopDirectoryOnly)
                 {
@@ -133,10 +129,8 @@ namespace VRage.FileSystem
                     }
                 }
                 if (Regex.IsMatch(fileName, pattern, RegexOptions.IgnoreCase | RegexOptions.CultureInvariant))
-                    yield return Path.Combine(zipFile.ZipPath, fileName);
+                    yield return Path.Combine(zipFileIndex.ZipPath, fileName);
             }
-
-            zipFile.Dispose();
         }
 
         public bool FileExists(string path)
@@ -149,15 +143,8 @@ namespace VRage.FileSystem
 
         bool FileExistsInZip(string zipFile, string subpath)
         {
-            var arc = MyZipArchive.OpenOnFile(zipFile);
-            try
-            {
-                return arc.FileExists(subpath);
-            }
-            finally
-            {
-                arc.Dispose();
-            }
+            var index = GetZipIndex(zipFile);
+            return index.FileExists(subpath);
         }
 
         public static bool IsZipFile(string path)
@@ -165,6 +152,43 @@ namespace VRage.FileSystem
             return !Directory.Exists(path);
         }
 
+
+        private MyZipArchiveIndex GetZipIndex(string zipFile)
+        {
+            if (CanCache())
+            {
+                MyZipArchiveIndex index;
+                lock (m_zipIndexes)
+                {
+                    if (m_zipIndexes.TryGetValue(zipFile, out index)) return index;
+                }
+            }
+            using(var arc = GetZipArchive(zipFile))
+            {
+                return arc.GetIndex();
+            }
+        }
+
+        private MyZipArchive GetZipArchive(string zipFile)
+        {
+            var arc = MyZipArchive.OpenOnFile(zipFile);
+            CacheZipIndex(arc);
+            return arc;
+        }
+
+        private void CacheZipIndex(MyZipArchive archive)
+        {
+            if(!CanCache()) return;
+            try
+            {
+                var index = archive.GetIndex();
+                lock(m_zipIndexes)
+                {
+                    m_zipIndexes[index.ZipPath] = index;
+                }
+            }
+            catch { }
+        }
 
 
 
@@ -181,6 +205,11 @@ namespace VRage.FileSystem
 
         private void ClearCaches()
         {
+            lock(m_zipIndexes)
+            {
+                // Replace the object wholesale, in case the internal structures have grown large:
+                m_zipIndexes = new Dictionary<string,MyZipArchiveIndex>();
+            }
         }
 
         class CachingToken : IDisposable
