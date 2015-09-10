@@ -22,17 +22,11 @@ namespace VRage.FileSystem
             if (mode != FileMode.Open || access != FileAccess.Read)
                 return null;
 
-            return TryDoZipAction(path, TryOpen, null);
-        }
-
-        T TryDoZipAction<T>(string path, Func<string, string, T> action, T defaultValue)
-        {
             var zipPath = SplitZipFilePath(ref path);
-            if(zipPath == null) return defaultValue;
-            
-            return action(zipPath, path);
+            if(zipPath == null) return null;
+            return TryOpen(zipPath, path);
         }
-
+        
         /// <summary>
         /// Given a path like: C:\Users\Data\Archive.zip\InnerFolder\file.txt
         /// this method returns C:\Users\Data\Archive.zip and modifies its filePath parameter to point to InnerFolder\file.txt
@@ -74,7 +68,10 @@ namespace VRage.FileSystem
 
         public bool DirectoryExists(string path)
         {
-            return TryDoZipAction(path, DirectoryExistsInZip, false);
+            var zipPath = SplitZipFilePath(ref path);
+            if(zipPath == null) return false;
+            
+            return DirectoryExistsInZip(zipPath, path);
         }
 
 
@@ -115,39 +112,38 @@ namespace VRage.FileSystem
 
         public IEnumerable<string> GetFiles(string path, string filter, MySearchOption searchOption)
         {
-            MyZipArchive zipFile = TryDoZipAction(path, TryGetZipArchive, null);
+            var zipPath = SplitZipFilePath(ref path);
+            if(zipPath == null) yield break;
 
-            string subpath = "";
+            MyZipArchive zipFile = TryGetZipArchive(zipPath, path);
+            if (zipFile == null) yield break;
+                
+            string subpath = path;
 
-            if (searchOption == MySearchOption.TopDirectoryOnly)
+            string pattern = Regex.Escape(filter).Replace(@"\*", ".*").Replace(@"\?", ".");
+            pattern += "$";
+            foreach (var fileName in zipFile.FileNames)
             {
-                subpath = TryDoZipAction(path, TryGetSubpath, null);
-            }
-
-            if (zipFile != null)
-            {
-                string pattern = Regex.Escape(filter).Replace(@"\*", ".*").Replace(@"\?", ".");
-                pattern += "$";
-                foreach (var fileName in zipFile.FileNames)
+                if (searchOption == MySearchOption.TopDirectoryOnly)
                 {
-                    if (searchOption == MySearchOption.TopDirectoryOnly)
+                    if (fileName.Count((x) => x == '\\') != subpath.Count((x) => x == '\\') + 1)
                     {
-                        if (fileName.Count((x) => x == '\\') != subpath.Count((x) => x == '\\') + 1)
-                        {
-                            continue;
-                        }
+                        continue;
                     }
-                    if (Regex.IsMatch(fileName, pattern, RegexOptions.IgnoreCase | RegexOptions.CultureInvariant))
-                        yield return Path.Combine(zipFile.ZipPath, fileName);
                 }
-
-                zipFile.Dispose();
+                if (Regex.IsMatch(fileName, pattern, RegexOptions.IgnoreCase | RegexOptions.CultureInvariant))
+                    yield return Path.Combine(zipFile.ZipPath, fileName);
             }
+
+            zipFile.Dispose();
         }
 
         public bool FileExists(string path)
         {
-            return TryDoZipAction(path, FileExistsInZip, false);
+            var zipPath = SplitZipFilePath(ref path);
+            if(zipPath == null) return false;
+            
+            return FileExistsInZip(zipPath, path);
         }
 
         bool FileExistsInZip(string zipFile, string subpath)
