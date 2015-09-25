@@ -31,7 +31,7 @@ using VRage.ObjectBuilders;
 namespace Sandbox.Game.Entities.Blocks
 {
     [MyCubeBlockType(typeof(MyObjectBuilder_PistonBase))]
-    class MyPistonBase : MyFunctionalBlock, IMyPowerConsumer, IMyConveyorEndpointBlock, Sandbox.ModAPI.IMyPistonBase
+    public class MyPistonBase : MyFunctionalBlock, IMyPowerConsumer, IMyConveyorEndpointBlock, Sandbox.ModAPI.IMyPistonBase
     {
         private HkConstraint m_subpartsConstraint;
         private HkConstraint m_constraint;

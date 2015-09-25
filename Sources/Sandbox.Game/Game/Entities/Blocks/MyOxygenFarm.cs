@@ -20,7 +20,7 @@ using VRage.ModAPI;
 namespace Sandbox.Game.Entities.Blocks
 {
     [MyCubeBlockType(typeof(MyObjectBuilder_OxygenFarm))]
-    class MyOxygenFarm : MyFunctionalBlock, IMyOxygenProducer, IMyConveyorEndpointBlock, IMyPowerConsumer, IMyOxygenFarm
+    public class MyOxygenFarm : MyFunctionalBlock, IMyOxygenProducer, IMyConveyorEndpointBlock, IMyPowerConsumer, IMyOxygenFarm
     {
         static string[] m_emissiveNames = new string[] { "Emissive0", "Emissive1", "Emissive2", "Emissive3" };
 

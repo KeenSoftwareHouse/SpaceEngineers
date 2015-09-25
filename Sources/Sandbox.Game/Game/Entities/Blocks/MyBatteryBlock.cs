@@ -38,7 +38,7 @@ namespace Sandbox.Game.Entities
     using VRage.ModAPI;
 
     [MyCubeBlockType(typeof(MyObjectBuilder_BatteryBlock))]
-    class MyBatteryBlock : MyFunctionalBlock, IMyPowerProducer, IMyPowerConsumer, Sandbox.ModAPI.Ingame.IMyBatteryBlock
+    public class MyBatteryBlock : MyFunctionalBlock, IMyPowerProducer, IMyPowerConsumer, Sandbox.ModAPI.Ingame.IMyBatteryBlock
     {
         static string[] m_emissiveNames = new string[] { "Emissive0", "Emissive1", "Emissive2", "Emissive3" };
         private MyBatteryBlockDefinition m_batteryBlockDefinition;
@@ -563,7 +563,7 @@ namespace Sandbox.Game.Entities
         #region Sync class
 
         [PreloadRequired]
-        class MySyncBatteryBlock
+        public class MySyncBatteryBlock
         {
             MyBatteryBlock m_batteryBlock;
 

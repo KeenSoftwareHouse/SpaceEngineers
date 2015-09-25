@@ -35,7 +35,7 @@ namespace Sandbox.Game.Entities.Cube
     using VRage.ModAPI;
 
     [MyCubeBlockType(typeof(MyObjectBuilder_MotorStator))]
-    class MyMotorStator : MyMotorBase, IMyConveyorEndpointBlock, Sandbox.ModAPI.IMyMotorStator
+    public class MyMotorStator : MyMotorBase, IMyConveyorEndpointBlock, Sandbox.ModAPI.IMyMotorStator
     {
         const float NormalizedToRadians = (float)(2.0f * Math.PI);
         const float DegreeToRadians = (float)(Math.PI / 180.0f);

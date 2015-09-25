@@ -23,7 +23,7 @@ using Sandbox.ModAPI.Ingame;
 namespace Sandbox.Game.Entities.Cube
 {
     [MyCubeBlockType(typeof(MyObjectBuilder_InteriorLight))]
-    class MyInteriorLight : MyLightingBlock,IMyInteriorLight
+    public class MyInteriorLight : MyLightingBlock,IMyInteriorLight
     {
 
         public override void Init(MyObjectBuilder_CubeBlock objectBuilder, MyCubeGrid cubeGrid)

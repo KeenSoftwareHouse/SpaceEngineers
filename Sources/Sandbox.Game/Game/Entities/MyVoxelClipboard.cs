@@ -20,7 +20,7 @@ using VRageRender;
 
 namespace Sandbox.Game.Entities
 {
-    class MyVoxelClipboard
+    public class MyVoxelClipboard
     {
         private List<MyObjectBuilder_VoxelMap> m_copiedVoxelMaps = new List<MyObjectBuilder_VoxelMap>();
         private List<IMyStorage> m_copiedStorages = new List<IMyStorage>();

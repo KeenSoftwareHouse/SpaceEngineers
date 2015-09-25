@@ -9,7 +9,7 @@ using System.Text;
 namespace Sandbox.Game
 {
     // MW: So far thats everything. It will be used for server stats mostly.
-    class MyGameStats
+    public class MyGameStats
     {
         public static MyGameStats Static { get; private set; }
 

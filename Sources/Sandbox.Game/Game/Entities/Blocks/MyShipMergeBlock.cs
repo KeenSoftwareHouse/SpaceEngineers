@@ -22,7 +22,7 @@ using VRageRender;
 namespace Sandbox.Game.Entities.Blocks
 {
     [MyCubeBlockType(typeof(MyObjectBuilder_MergeBlock))]
-    class MyShipMergeBlock : MyFunctionalBlock, Sandbox.ModAPI.IMyShipMergeBlock
+    public class MyShipMergeBlock : MyFunctionalBlock, Sandbox.ModAPI.IMyShipMergeBlock
     {
         [Flags]
         private enum UpdateBeforeFlags : byte

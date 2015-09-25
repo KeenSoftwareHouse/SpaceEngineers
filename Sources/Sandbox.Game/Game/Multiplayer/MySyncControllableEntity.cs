@@ -44,7 +44,7 @@ namespace Sandbox.Game.Multiplayer
         }
 
         [MessageId(6, P2PMessageEnum.Reliable)]
-        protected struct UseObject_UseMsg : IEntityMessage
+        public struct UseObject_UseMsg : IEntityMessage
         {
             public long EntityId;
             public long GetEntityId() { return EntityId; }

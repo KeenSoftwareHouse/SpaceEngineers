@@ -26,7 +26,7 @@ using VRage.ModAPI;
 namespace Sandbox.Game.Entities.Cube
 {
     [MyCubeBlockType(typeof(MyObjectBuilder_Beacon))]
-    class MyBeacon : MyFunctionalBlock, IMyPowerConsumer, IMyComponentOwner<MyDataBroadcaster>, IMyBeacon
+    public class MyBeacon : MyFunctionalBlock, IMyPowerConsumer, IMyComponentOwner<MyDataBroadcaster>, IMyBeacon
     {
         private static readonly Color COLOR_ON = new Color(255, 255, 128);
         private static readonly Color COLOR_OFF  = new Color(30, 30, 30);

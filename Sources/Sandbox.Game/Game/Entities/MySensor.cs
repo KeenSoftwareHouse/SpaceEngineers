@@ -19,7 +19,7 @@ namespace Sandbox.Game.Entities
     /// Sensor, detects objects in area defined by physics body.
     /// Using triangle mesh is not recommended, because entities inside mesh (without any colliding triangles) will be considered "not in sensor".
     /// </summary>
-    internal class MySensor : MySensorBase
+    public class MySensor : MySensorBase
     {
         public void InitPhysics()
         {

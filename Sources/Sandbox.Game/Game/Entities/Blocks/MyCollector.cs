@@ -32,7 +32,7 @@ using VRage.Components;
 namespace Sandbox.Game.Entities.Blocks
 {
     [MyCubeBlockType(typeof(MyObjectBuilder_Collector))]
-    class MyCollector : MyFunctionalBlock, IMyInventoryOwner, IMyPowerConsumer, IMyConveyorEndpointBlock,IMyCollector
+    public class MyCollector : MyFunctionalBlock, IMyInventoryOwner, IMyPowerConsumer, IMyConveyorEndpointBlock,IMyCollector
     {
         static MyCollector()
         {

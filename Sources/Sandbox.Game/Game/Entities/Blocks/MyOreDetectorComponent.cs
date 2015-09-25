@@ -61,7 +61,7 @@ namespace Sandbox.Game.Entities.Cube
         public static readonly TypeComparer Comparer = new TypeComparer();
     }
 
-    class MyOreDepositGroup
+    public class MyOreDepositGroup
     {
         private static Dictionary<Vector3I, MyEntityOreDeposit> m_swapBuffer = new Dictionary<Vector3I, MyEntityOreDeposit>(Vector3I.Comparer);
 
@@ -171,7 +171,7 @@ namespace Sandbox.Game.Entities.Cube
         }
     }
 
-    class MyOreDetectorComponent
+    public class MyOreDetectorComponent
     {
         public const int QUERY_LOD = 1;
         public const int CELL_SIZE_IN_VOXELS_BITS = 3;
@@ -274,7 +274,7 @@ namespace Sandbox.Game.Entities.Cube
     /// This is not in Sandbox.Engine.Voxels as I consider it gameplay related,
     /// rather than voxel engine functionality.
     /// </summary>
-    class MyDepositQuery : IPrioritizedWork
+    public class MyDepositQuery : IPrioritizedWork
     {
         public struct Args
         {

@@ -15,7 +15,7 @@ using System;
 namespace Sandbox.Game
 {
     [MySessionComponentDescriptor(MyUpdateOrder.BeforeSimulation)]
-    class MyWarheads : MySessionComponentBase
+    public class MyWarheads : MySessionComponentBase
     {
         static HashSet<MyWarhead> m_warheads = new HashSet<MyWarhead>();
         static List<MyWarhead> m_warheadsToExplode = new List<MyWarhead>();

@@ -33,15 +33,15 @@ using Sandbox.Game.Entities.Character.Components;
 
 namespace Sandbox.Game.Multiplayer
 {
-    delegate void ChangeMovementStateDelegate(MyCharacterMovementEnum state);
-    delegate void SwitchCharacterModelDelegate(string model, Vector3 colorMaskHSV);
-    delegate void ChangeFlagsDelegate(bool enableJetpack, bool enableDampeners, bool enableLights, bool enableIronsight, bool enableBroadcast, bool targetFromCamera);
-    delegate void ChangeHeadOrSpineDelegate(float headLocalXAngle, float headLocalYAngle, Quaternion spineRotation,
-    Quaternion headRotation, Quaternion handRotation, Quaternion upperHandRotation);
-    delegate void DoDamageDelegate(float damage, MyStringHash damageType, long attackerId);
+    public delegate void ChangeMovementStateDelegate(MyCharacterMovementEnum state);
+    public delegate void SwitchCharacterModelDelegate(string model, Vector3 colorMaskHSV);
+    public delegate void ChangeFlagsDelegate(bool enableJetpack, bool enableDampeners, bool enableLights, bool enableIronsight, bool enableBroadcast, bool targetFromCamera);
+    public delegate void ChangeHeadOrSpineDelegate(float headLocalXAngle, float headLocalYAngle, Quaternion spineRotation,
+    public Quaternion headRotation, Quaternion handRotation, Quaternion upperHandRotation);
+    public delegate void DoDamageDelegate(float damage, MyStringHash damageType, long attackerId);
 
     [PreloadRequired]
-    class MySyncCharacter : MySyncControllableEntity
+    public class MySyncCharacter : MySyncControllableEntity
     {
         [Flags]
         enum CharacterFlags

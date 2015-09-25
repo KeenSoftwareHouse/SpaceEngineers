@@ -25,7 +25,7 @@ using VRage.Components;
 namespace Sandbox.Game.Entities.Cube
 {
     [Obsolete]
-    class MyLadder : MyCubeBlock/*, IMyUseObject*/
+    public class MyLadder : MyCubeBlock/*, IMyUseObject*/
     {
         #region Fields
 

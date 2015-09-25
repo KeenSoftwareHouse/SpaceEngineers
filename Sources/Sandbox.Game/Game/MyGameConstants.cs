@@ -50,7 +50,7 @@ namespace Sandbox.Game
         public static readonly float AUTOAIMING_PRECISION = 500.0f;
     }
 
-    class MyGuidedMissileConstants
+    public class MyGuidedMissileConstants
     {
         //  We will generate smoke trail particles on missile's way. This number tells us how many particles per 1 meter.
         public const float GENERATE_SMOKE_TRAIL_PARTICLE_DENSITY_PER_METER = 4f;

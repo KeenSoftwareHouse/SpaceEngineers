@@ -15,7 +15,7 @@ using VRage.Components;
 namespace Sandbox.Game.Entities.Blocks
 {
     [MyCubeBlockType(typeof(MyObjectBuilder_AirtightHangarDoor))]
-    class MyAirtightHangarDoor : MyAirtightDoorGeneric
+    public class MyAirtightHangarDoor : MyAirtightDoorGeneric
     {
         List<MyEntitySubpart> m_subparts = new List<MyEntitySubpart>(4);
 

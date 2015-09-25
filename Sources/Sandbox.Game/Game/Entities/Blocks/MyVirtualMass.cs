@@ -24,7 +24,7 @@ using VRageMath;
 namespace Sandbox.Game.Entities
 {
     [MyCubeBlockType(typeof(MyObjectBuilder_VirtualMass))]
-    class MyVirtualMass : MyFunctionalBlock, IMyPowerConsumer, IMyVirtualMass
+    public class MyVirtualMass : MyFunctionalBlock, IMyPowerConsumer, IMyVirtualMass
     {
         #region Properties
 

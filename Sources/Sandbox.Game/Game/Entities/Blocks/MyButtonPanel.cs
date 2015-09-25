@@ -28,10 +28,10 @@ using VRageMath;
 namespace Sandbox.Game.Entities.Blocks
 {
     [MyCubeBlockType(typeof(MyObjectBuilder_ButtonPanel))]
-    internal class MyButtonPanel : MyTerminalBlock, IMyPowerConsumer, Sandbox.ModAPI.IMyButtonPanel
+    public class MyButtonPanel : MyTerminalBlock, IMyPowerConsumer, Sandbox.ModAPI.IMyButtonPanel
     {
         [PreloadRequired]
-        class MySyncButtonPanel : MySyncEntity
+        public class MySyncButtonPanel : MySyncEntity
         {
             [MessageIdAttribute(3316, P2PMessageEnum.Reliable)]
             protected struct CheckAccessMsg : IEntityMessage

@@ -618,7 +618,7 @@ namespace Sandbox.Game.Entities
         }
 
         [PreloadRequired]
-        internal class MySyncJumpDrive : MySyncEntity
+        public class MySyncJumpDrive : MySyncEntity
         {
             [MessageIdAttribute(8400, P2PMessageEnum.Reliable)]
             protected struct SelectTargetMsg : IEntityMessage

@@ -9,7 +9,7 @@ using System.Text;
 namespace Sandbox.Game.Entities
 {
     [MyCubeBlockType(typeof(MyObjectBuilder_ControlPanel))]
-    class MyControlPanel : MyTerminalBlock, IMyControlPanel
+    public class MyControlPanel : MyTerminalBlock, IMyControlPanel
     {
     }
 }

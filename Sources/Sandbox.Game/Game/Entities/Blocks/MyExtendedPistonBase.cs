@@ -26,7 +26,7 @@ using VRageMath;
 namespace Sandbox.Game.Entities.Blocks
 {
     [MyCubeBlockType(typeof(MyObjectBuilder_ExtendedPistonBase))]
-    class MyExtendedPistonBase : MyPistonBase
+    public class MyExtendedPistonBase : MyPistonBase
     {
         new public MyExtendedPistonBaseDefinition BlockDefinition 
         {

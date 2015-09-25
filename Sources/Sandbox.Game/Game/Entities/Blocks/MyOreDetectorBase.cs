@@ -24,7 +24,7 @@ using Sandbox.Game.Entities.VoxelMaps;
 
 namespace Sandbox.Game.Entities.Cube
 {
-    class MyOreDetectorBase
+    public class MyOreDetectorBase
     {
         public delegate bool CheckControlDelegate();
 

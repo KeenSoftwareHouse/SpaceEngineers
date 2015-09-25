@@ -48,7 +48,7 @@ namespace Sandbox.Game.Entities.Blocks
 
 
     [MyCubeBlockType(typeof(MyObjectBuilder_SensorBlock))]
-    class MySensorBlock : MyFunctionalBlock, IMyPowerConsumer, Sandbox.ModAPI.IMySensorBlock, IMyGizmoDrawableObject
+    public class MySensorBlock : MyFunctionalBlock, IMyPowerConsumer, Sandbox.ModAPI.IMySensorBlock, IMyGizmoDrawableObject
     {
         private new MySensorBlockDefinition BlockDefinition
         {

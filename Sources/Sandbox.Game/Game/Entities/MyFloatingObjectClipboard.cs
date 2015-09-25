@@ -24,7 +24,7 @@ using VRage.ModAPI;
 
 namespace Sandbox.Game.Entities
 {
-    class MyFloatingObjectClipboard
+    public class MyFloatingObjectClipboard
     {
         private static List<MyObjectBuilder_EntityBase> m_tmpPastedBuilders = new List<MyObjectBuilder_EntityBase>();
 

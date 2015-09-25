@@ -21,7 +21,7 @@ using VRage.ModAPI;
 namespace Sandbox.Game.Entities
 {
     [MyCubeBlockType(typeof(MyObjectBuilder_ConveyorConnector))]
-    class MyConveyorConnector : MyCubeBlock, IMyConveyorSegmentBlock
+    public class MyConveyorConnector : MyCubeBlock, IMyConveyorSegmentBlock
     {
         private MyConveyorSegment m_segment = new MyConveyorSegment();
         private bool m_working;

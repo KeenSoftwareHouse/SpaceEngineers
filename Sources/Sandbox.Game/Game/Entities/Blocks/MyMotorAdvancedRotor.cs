@@ -6,7 +6,7 @@ using VRageMath;
 namespace Sandbox.Game.Entities.Cube
 {
     [MyCubeBlockType(typeof(MyObjectBuilder_MotorAdvancedRotor))]
-    class MyMotorAdvancedRotor : MyMotorRotor, IMyConveyorEndpointBlock
+    public class MyMotorAdvancedRotor : MyMotorRotor, IMyConveyorEndpointBlock
     {
         private MyAttachableConveyorEndpoint m_conveyorEndpoint;
 

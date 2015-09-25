@@ -29,7 +29,7 @@ namespace Sandbox.Game.Multiplayer
     {
         [ProtoContract]
         [MessageId(37, P2PMessageEnum.Reliable)]
-        struct CreateMsg
+        public struct CreateMsg
         {
             [ProtoMember]
             public MyObjectBuilder_EntityBase ObjectBuilder;
@@ -37,7 +37,7 @@ namespace Sandbox.Game.Multiplayer
 
         [ProtoContract]
         [MessageId(38, P2PMessageEnum.Reliable)]
-        struct CreateCompressedMsg
+        public struct CreateCompressedMsg
         {
             [ProtoMember]
             public int PlayerSerialId;
@@ -51,7 +51,7 @@ namespace Sandbox.Game.Multiplayer
 
         [ProtoContract]
         [MessageId(11873, P2PMessageEnum.Reliable)]
-        struct MergingCopyPasteCompressedMsg
+        public struct MergingCopyPasteCompressedMsg
         {
             [ProtoMember]
             public CreateCompressedMsg CreateMessage;
@@ -71,7 +71,7 @@ namespace Sandbox.Game.Multiplayer
 
         [ProtoContract]
         [MessageId(11874, P2PMessageEnum.Reliable)]
-        struct CreateRelativeCompressedMsg
+        public struct CreateRelativeCompressedMsg
         {
             [ProtoMember]
             public CreateCompressedMsg CreateMessage;
@@ -84,7 +84,7 @@ namespace Sandbox.Game.Multiplayer
         }
 
         [MessageId(11875, P2PMessageEnum.Reliable)]
-        struct SpawnGridMsg
+        public struct SpawnGridMsg
         {
             public long BuilderEntityId;
             public DefinitionIdBlit Definition;

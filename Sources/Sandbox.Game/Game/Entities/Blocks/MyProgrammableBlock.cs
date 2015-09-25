@@ -37,7 +37,7 @@ using VRage.ModAPI;
 namespace Sandbox.Game.Entities.Blocks
 {
     [MyCubeBlockType(typeof(MyObjectBuilder_MyProgrammableBlock))]
-    class MyProgrammableBlock : MyFunctionalBlock, IMyProgrammableBlock, IMyPowerConsumer
+    public class MyProgrammableBlock : MyFunctionalBlock, IMyProgrammableBlock, IMyPowerConsumer
     {
         private const int MAX_NUM_EXECUTED_INSTRUCTIONS = 50000;
 		private const int MAX_NUM_METHOD_CALLS = 10000;

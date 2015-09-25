@@ -34,7 +34,7 @@ namespace Sandbox.Game.Entities
     }
 
 
-    static class MyRadioBroadcasters
+    public static class MyRadioBroadcasters
     {
         #region Fields
 

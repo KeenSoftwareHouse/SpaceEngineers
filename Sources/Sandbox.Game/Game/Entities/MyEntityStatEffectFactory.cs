@@ -31,7 +31,7 @@ namespace Sandbox.Game.Entities
 
 	}
 
-	internal static class MyEntityStatEffectFactory
+	public static class MyEntityStatEffectFactory
 	{
 		private static MyObjectFactory<MyEntityStatEffectTypeAttribute, MyEntityStatRegenEffect> m_objectFactory;
 

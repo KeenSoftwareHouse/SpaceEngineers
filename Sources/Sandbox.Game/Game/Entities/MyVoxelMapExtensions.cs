@@ -11,7 +11,7 @@ using VRageMath;
 
 namespace Sandbox.Game.Entities
 {
-    static class MyVoxelMapExtensions
+    public static class MyVoxelMapExtensions
     {
         public static Vector3D GetPositionOnVoxel(this MyVoxelMap map, Vector3D position, float maxVertDistance)
         {

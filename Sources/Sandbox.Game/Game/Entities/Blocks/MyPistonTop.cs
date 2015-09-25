@@ -12,7 +12,7 @@ using VRage.ModAPI;
 namespace Sandbox.Game.Entities.Blocks
 {
     [MyCubeBlockType(typeof(MyObjectBuilder_PistonTop))]
-    class MyPistonTop : MyCubeBlock, IMyConveyorEndpointBlock
+    public class MyPistonTop : MyCubeBlock, IMyConveyorEndpointBlock
     {
         private MyPistonBase m_pistonBlock;
         private long m_pistonBlockId;

@@ -31,7 +31,7 @@ namespace Sandbox.ModAPI
         {
             [ProtoBuf.ProtoContract]
             [MessageIdAttribute(16295, P2PMessageEnum.Reliable)]
-            struct CustomModMsg
+            public struct CustomModMsg
             {
                 [ProtoBuf.ProtoMember]
                 public ushort ModID;

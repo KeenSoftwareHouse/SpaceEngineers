@@ -8,10 +8,10 @@ using VRageMath;
 
 namespace Sandbox.Game.Entities
 {
-    internal delegate void SensorFilterHandler(MySensorBase sender, MyEntity detectedEntity, ref bool processEntity);
-    internal delegate void EntitySensorHandler(MySensorBase sender, MyEntity entity);
+    public delegate void SensorFilterHandler(MySensorBase sender, MyEntity detectedEntity, ref bool processEntity);
+    public delegate void EntitySensorHandler(MySensorBase sender, MyEntity entity);
 
-    internal class MySensorBase : MyEntity
+    public class MySensorBase : MyEntity
     {
         public enum EventType : byte
         {

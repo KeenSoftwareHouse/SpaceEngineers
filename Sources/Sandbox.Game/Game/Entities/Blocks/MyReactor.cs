@@ -36,7 +36,7 @@ using VRage.ModAPI;
 namespace Sandbox.Game.Entities
 {
     [MyCubeBlockType(typeof(MyObjectBuilder_Reactor))]
-    class MyReactor : MyFunctionalBlock, IMyPowerProducer, IMyInventoryOwner, IMyConveyorEndpointBlock, IMyReactor
+    public class MyReactor : MyFunctionalBlock, IMyPowerProducer, IMyInventoryOwner, IMyConveyorEndpointBlock, IMyReactor
     {
         static MyReactor()
         {

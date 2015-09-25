@@ -16,7 +16,7 @@ using VRageRender;
 
 namespace Sandbox.Game.Entities
 {
-    class MyPlanetEnvironmentSector
+    public class MyPlanetEnvironmentSector
     {
         const int NUM_PLACE_ITERATION = 4;
 

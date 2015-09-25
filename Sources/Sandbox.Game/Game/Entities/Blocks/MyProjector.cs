@@ -1476,7 +1476,7 @@ namespace Sandbox.Game.Entities.Blocks
         }
 
         [PreloadRequired]
-        class MySyncProjector
+        public class MySyncProjector
         {
             MyProjector m_projector;
             //Cached because server doesn't send this back
