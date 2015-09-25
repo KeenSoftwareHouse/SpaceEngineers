@@ -57,7 +57,7 @@ namespace Sandbox.Game.Entities
     public class MyPlanet : MyVoxelBase, IMyGravityProvider, IMyOxygenProvider
     {
         const int PHYSICS_SECTOR_SIZE_METERS = 2048;
-        const float DEFAULT_GRAVITY_RADIUS_KM = 50.0f;
+        const float DEFAULT_GRAVITY_RADIUS_KM = 25.0f;
         const int ENVIROMENT_EXTEND = 1;
         const int ENVIROMENT_EXTEND_KEEP =  2*ENVIROMENT_EXTEND;
 
@@ -469,17 +469,17 @@ namespace Sandbox.Game.Entities
             {
                 distanceToCenter -= m_planetInitValues.MaximumHillRadius;
                 double distanceToRadius = m_planetInitValues.AveragePlanetRadius / (m_planetInitValues.AveragePlanetRadius + distanceToCenter);
-                attenuation = (float)Math.Pow(distanceToRadius, m_planetInitValues.GravityFalloff);
+                attenuation = (float)Math.Pow(distanceToRadius, 2.0f);
             }
             else if (distanceToCenter < m_planetInitValues.MinimumSurfaceRadius)
             {
                 double distanceToRadius = m_planetInitValues.AveragePlanetRadius / (m_planetInitValues.AveragePlanetRadius + distanceToCenter);
-                attenuation = (float)(1.0- distanceToRadius);
+                attenuation = (float)(1.0 - distanceToRadius) * 2.0f;
             }
 
-            float planetScale = m_planetInitValues.AveragePlanetRadius / (DEFAULT_GRAVITY_RADIUS_KM * 1000.0f);
+            float planetScale = (float)Math.Pow(m_planetInitValues.AveragePlanetRadius, 1.5f) * (float)Math.Pow(DEFAULT_GRAVITY_RADIUS_KM * 1000, -1.5);
             float gravityMultiplier = attenuation * planetScale;
-            return direction * MyGravityProviderSystem.G * (gravityMultiplier >= 0.05f ? gravityMultiplier : 0.0f);
+            return direction * MyGravityProviderSystem.G * (gravityMultiplier >= 0.01f ? gravityMultiplier : 0.0f);
         }
 
         public Vector3 GetWorldGravityNormalized(ref Vector3D worldPoint)
@@ -491,7 +491,7 @@ namespace Sandbox.Game.Entities
 
         public bool IsPositionInRange(Vector3D worldPoint)
         {
-            return (WorldMatrix.Translation - worldPoint).Length() < 2.0f * m_planetInitValues.AveragePlanetRadius;
+            return (WorldMatrix.Translation - worldPoint).Length() < 4.0f * m_planetInitValues.AveragePlanetRadius;
         }
 
         public Vector3 GetWorldGravityGrid(Vector3D worldPoint)
