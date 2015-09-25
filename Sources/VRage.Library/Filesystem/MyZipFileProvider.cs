@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Threading;
 using VRage.Compression;
 
 namespace VRage.FileSystem
@@ -11,6 +12,8 @@ namespace VRage.FileSystem
     public class MyZipFileProvider : IFileProvider
     {
         public readonly char[] Separators = new char[] { Path.AltDirectorySeparatorChar, Path.DirectorySeparatorChar };
+
+        private static Dictionary<string, MyZipArchiveIndex> m_zipIndexes = new Dictionary<string, MyZipArchiveIndex>(StringComparer.InvariantCultureIgnoreCase);
 
         /// <summary>
         /// FileShare is ignored
@@ -22,31 +25,39 @@ namespace VRage.FileSystem
             if (mode != FileMode.Open || access != FileAccess.Read)
                 return null;
 
-            return TryDoZipAction(path, TryOpen, null);
+            var zipPath = SplitZipFilePath(ref path);
+            if(zipPath == null) return null;
+            return TryOpen(zipPath, path);
         }
-
-        T TryDoZipAction<T>(string path, Func<string, string, T> action, T defaultValue)
+        
+        /// <summary>
+        /// Given a path like: C:\Users\Data\Archive.zip\InnerFolder\file.txt
+        /// this method returns C:\Users\Data\Archive.zip and modifies its filePath parameter to point to InnerFolder\file.txt
+        /// Returns null and leaves filePath unchanged if the zip file cannot be identified.
+        /// </summary>
+        string SplitZipFilePath(ref string filePath)
         {
             // This may need some optimization (allocations), but file open allocates itself, so probably not needed
-            int currentPosition = path.Length;
+            int currentPosition = filePath.Length;
 
             while (currentPosition >= 0)
             {
-                string zipFile = path.Substring(0, currentPosition);
+                string zipFile = filePath.Substring(0, currentPosition);
                 if (File.Exists(zipFile))
                 {
-                    return action(zipFile, path.Substring(Math.Min(path.Length, currentPosition + 1)));
+                    filePath = filePath.Substring(Math.Min(filePath.Length, currentPosition + 1));
+                    return zipFile;
                 }
 
-                currentPosition = path.LastIndexOfAny(Separators, currentPosition - 1);
+                currentPosition = filePath.LastIndexOfAny(Separators, currentPosition - 1);
             }
 
-            return defaultValue;
+            return null;
         }
 
         private Stream TryOpen(string zipFile, string subpath)
         {
-            var arc = MyZipArchive.OpenOnFile(zipFile);
+            var arc = GetZipArchive(zipFile);
             try
             {
                 return arc.FileExists(subpath) ? new MyStreamWrapper(arc.GetFile(subpath).GetStream(), arc) : null;
@@ -60,35 +71,32 @@ namespace VRage.FileSystem
 
         public bool DirectoryExists(string path)
         {
-            return TryDoZipAction(path, DirectoryExistsInZip, false);
+            var zipPath = SplitZipFilePath(ref path);
+            if(zipPath == null) return false;
+            
+            return DirectoryExistsInZip(zipPath, path);
         }
 
 
         bool DirectoryExistsInZip(string zipFile, string subpath)
         {
-            var arc = MyZipArchive.OpenOnFile(zipFile);
-            try
-            {
-                // Root exists when archive can be opened
-                return subpath == String.Empty ? true : arc.DirectoryExists(subpath + "/");
-            }
-            finally
-            {
-                arc.Dispose();
-            }
+            var index = GetZipIndex(zipFile);
+            // Root exists when archive can be opened.
+            // If we have the index, then the archive must've been opened at some stage.
+            if(subpath == String.Empty) return true;
+
+            return index.DirectoryExists(subpath + "/");
         }
 
 
-        private MyZipArchive TryGetZipArchive(string zipFile, string subpath)
+        private MyZipArchiveIndex TryGetZipArchiveIndex(string zipFile)
         {
-            var arc = MyZipArchive.OpenOnFile(zipFile);
             try
             {
-                return arc;
+                return GetZipIndex(zipFile);
             }
             catch
             {
-                arc.Dispose();
                 return null;
             }
         }
@@ -101,57 +109,127 @@ namespace VRage.FileSystem
 
         public IEnumerable<string> GetFiles(string path, string filter, MySearchOption searchOption)
         {
-            MyZipArchive zipFile = TryDoZipAction(path, TryGetZipArchive, null);
+            var zipPath = SplitZipFilePath(ref path);
+            if(zipPath == null) yield break;
 
-            string subpath = "";
+            MyZipArchiveIndex zipFileIndex = TryGetZipArchiveIndex(zipPath);
+            if (zipFileIndex == null) yield break;
+                
+            string subpath = path;
 
-            if (searchOption == MySearchOption.TopDirectoryOnly)
+            string pattern = Regex.Escape(filter).Replace(@"\*", ".*").Replace(@"\?", ".");
+            pattern += "$";
+            foreach (var fileName in zipFileIndex.FileNames)
             {
-                subpath = TryDoZipAction(path, TryGetSubpath, null);
-            }
-
-            if (zipFile != null)
-            {
-                string pattern = Regex.Escape(filter).Replace(@"\*", ".*").Replace(@"\?", ".");
-                pattern += "$";
-                foreach (var fileName in zipFile.FileNames)
+                if (searchOption == MySearchOption.TopDirectoryOnly)
                 {
-                    if (searchOption == MySearchOption.TopDirectoryOnly)
+                    if (fileName.Count((x) => x == '\\') != subpath.Count((x) => x == '\\') + 1)
                     {
-                        if (fileName.Count((x) => x == '\\') != subpath.Count((x) => x == '\\') + 1)
-                        {
-                            continue;
-                        }
+                        continue;
                     }
-                    if (Regex.IsMatch(fileName, pattern, RegexOptions.IgnoreCase | RegexOptions.CultureInvariant))
-                        yield return Path.Combine(zipFile.ZipPath, fileName);
                 }
-
-                zipFile.Dispose();
+                if (Regex.IsMatch(fileName, pattern, RegexOptions.IgnoreCase | RegexOptions.CultureInvariant))
+                    yield return Path.Combine(zipFileIndex.ZipPath, fileName);
             }
         }
 
         public bool FileExists(string path)
         {
-            return TryDoZipAction(path, FileExistsInZip, false);
+            var zipPath = SplitZipFilePath(ref path);
+            if(zipPath == null) return false;
+            
+            return FileExistsInZip(zipPath, path);
         }
 
         bool FileExistsInZip(string zipFile, string subpath)
         {
-            var arc = MyZipArchive.OpenOnFile(zipFile);
-            try
-            {
-                return arc.FileExists(subpath);
-            }
-            finally
-            {
-                arc.Dispose();
-            }
+            var index = GetZipIndex(zipFile);
+            return index.FileExists(subpath);
         }
 
         public static bool IsZipFile(string path)
         {
             return !Directory.Exists(path);
+        }
+
+
+        private MyZipArchiveIndex GetZipIndex(string zipFile)
+        {
+            if (CanCache())
+            {
+                MyZipArchiveIndex index;
+                lock (m_zipIndexes)
+                {
+                    if (m_zipIndexes.TryGetValue(zipFile, out index)) return index;
+                }
+            }
+            using(var arc = GetZipArchive(zipFile))
+            {
+                return arc.GetIndex();
+            }
+        }
+
+        private MyZipArchive GetZipArchive(string zipFile)
+        {
+            var arc = MyZipArchive.OpenOnFile(zipFile);
+            CacheZipIndex(arc);
+            return arc;
+        }
+
+        private void CacheZipIndex(MyZipArchive archive)
+        {
+            if(!CanCache()) return;
+            try
+            {
+                var index = archive.GetIndex();
+                lock(m_zipIndexes)
+                {
+                    m_zipIndexes[index.ZipPath] = index;
+                }
+            }
+            catch { }
+        }
+
+
+
+        private int m_cachingTokens = 0;
+        private bool CanCache()
+        {
+            return m_cachingTokens > 0;
+        }
+
+        public IDisposable EnableCaching()
+        {
+            return new CachingToken(this);
+        }
+
+        private void ClearCaches()
+        {
+            lock(m_zipIndexes)
+            {
+                // Replace the object wholesale, in case the internal structures have grown large:
+                m_zipIndexes = new Dictionary<string,MyZipArchiveIndex>();
+            }
+        }
+
+        class CachingToken : IDisposable
+        {
+            private bool m_disposed;
+            private MyZipFileProvider m_provider;
+            public CachingToken(MyZipFileProvider provider)
+            {
+                m_provider = provider;
+                Interlocked.Increment(ref m_provider.m_cachingTokens);
+            }
+
+            public void Dispose()
+            {
+                if(!m_disposed)
+                {
+                    if(Interlocked.Decrement(ref m_provider.m_cachingTokens) == 0) m_provider.ClearCaches();
+                    m_disposed = true;
+                }
+            }
         }
     }
 }

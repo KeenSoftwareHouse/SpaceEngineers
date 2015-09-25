@@ -24,10 +24,12 @@ namespace VRage.FileSystem
         public static string SavesPath { get { CheckUserSpecificInitialized(); return m_savesPath; } }
 
         public static IFileVerifier FileVerifier = new MyNullVerifier();
+
+        static MyZipFileProvider m_zipFileProvider = new MyZipFileProvider();
         static MyFileProviderAggregator m_fileProvider = new MyFileProviderAggregator
             (
                 new MyClassicFileProvider(),
-                new MyZipFileProvider()
+                m_zipFileProvider
             );
 
         private static void CheckInitialized()
@@ -141,6 +143,11 @@ namespace VRage.FileSystem
         public static IEnumerable<string> GetFiles(string path, string filter = "*", VRage.FileSystem.MySearchOption searchOption = VRage.FileSystem.MySearchOption.AllDirectories)
         {
             return m_fileProvider.GetFiles(path, filter, searchOption);
+        }
+
+        public static IDisposable EnableZipCaching()
+        {
+            return m_zipFileProvider.EnableCaching();
         }
     }
 }

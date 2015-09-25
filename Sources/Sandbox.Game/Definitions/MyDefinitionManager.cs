@@ -136,61 +136,64 @@ namespace Sandbox.Definitions
         {
             MySandboxGame.Log.WriteLine("MyDefinitionManager.LoadData() - START");
 
-            UnloadData();
-            LoadScenarios();
-
-            using (MySandboxGame.Log.IndentUsing(LoggingOptions.NONE))
+            using(MyFileSystem.EnableZipCaching())
             {
-                //Load base definitions
-                if(!m_modDefinitionSets.ContainsKey(""))
-                    m_modDefinitionSets.Add("", new DefinitionSet());
-                var baseDefinitionSet = m_modDefinitionSets[""];
-                LoadDefinitions(MyModContext.BaseGame, baseDefinitionSet);
-
-                MySandboxGame.Log.WriteLine(string.Format("List of used mods ({0}) - START", mods.Count));
-                MySandboxGame.Log.IncreaseIndent();
-                foreach (var mod in mods)
-                    MySandboxGame.Log.WriteLine(string.Format("Id = {0}, Filename = '{1}', Name = '{2}'", mod.PublishedFileId, mod.Name, mod.FriendlyName));
-                MySandboxGame.Log.DecreaseIndent();
-                MySandboxGame.Log.WriteLine("List of used mods - END");
-
-                foreach (var mod in mods)
+                UnloadData();
+                LoadScenarios();
+            
+                using (MySandboxGame.Log.IndentUsing(LoggingOptions.NONE))
                 {
-                    MyModContext context = new MyModContext();
-                    context.Init(mod);
+                    //Load base definitions
+                    if(!m_modDefinitionSets.ContainsKey(""))
+                        m_modDefinitionSets.Add("", new DefinitionSet());
+                    var baseDefinitionSet = m_modDefinitionSets[""];
+                    LoadDefinitions(MyModContext.BaseGame, baseDefinitionSet);
 
-                    if (!m_modDefinitionSets.ContainsKey(context.ModPath))
+                    MySandboxGame.Log.WriteLine(string.Format("List of used mods ({0}) - START", mods.Count));
+                    MySandboxGame.Log.IncreaseIndent();
+                    foreach (var mod in mods)
+                        MySandboxGame.Log.WriteLine(string.Format("Id = {0}, Filename = '{1}', Name = '{2}'", mod.PublishedFileId, mod.Name, mod.FriendlyName));
+                    MySandboxGame.Log.DecreaseIndent();
+                    MySandboxGame.Log.WriteLine("List of used mods - END");
+
+                    foreach (var mod in mods)
                     {
-                        var definitionSet = new DefinitionSet();
-                        m_modDefinitionSets.Add(context.ModPath, definitionSet);
-                        LoadDefinitions(context, definitionSet);
-                    }
-                }
+                        MyModContext context = new MyModContext();
+                        context.Init(mod);
 
-                if (MySandboxGame.Static != null)
-                {
-                    LoadPostProcess();
-                }
+                        if (!m_modDefinitionSets.ContainsKey(context.ModPath))
+                        {
+                            var definitionSet = new DefinitionSet();
+                            m_modDefinitionSets.Add(context.ModPath, definitionSet);
+                            LoadDefinitions(context, definitionSet);
+                        }
+                    }
+
+                    if (MySandboxGame.Static != null)
+                    {
+                        LoadPostProcess();
+                    }
                 
-                if (MyFakes.TEST_MODELS)
-                {
-                    var s = Stopwatch.GetTimestamp();
-                    TestCubeBlockModels();
-                    var delta = (Stopwatch.GetTimestamp() - s) / (double)Stopwatch.Frequency;
-                    Debug.WriteLine(String.Format("Models tested in: {0} seconds", delta));
-                }
-
-                var classes = MyDefinitionManager.Static.GetEnvironmentItemClassDefinitions();
-                foreach (var cl in classes)
-                {
-                    List<MyDefinitionId> classList = null;
-                    if (!m_definitions.m_channelEnvironmentItemsDefs.TryGetValue(cl.Channel, out classList))
+                    if (MyFakes.TEST_MODELS)
                     {
-                        classList = new List<MyDefinitionId>();
-                        m_definitions.m_channelEnvironmentItemsDefs[cl.Channel] = classList;
+                        var s = Stopwatch.GetTimestamp();
+                        TestCubeBlockModels();
+                        var delta = (Stopwatch.GetTimestamp() - s) / (double)Stopwatch.Frequency;
+                        Debug.WriteLine(String.Format("Models tested in: {0} seconds", delta));
                     }
 
-                    classList.Add(cl.Id);
+                    var classes = MyDefinitionManager.Static.GetEnvironmentItemClassDefinitions();
+                    foreach (var cl in classes)
+                    {
+                        List<MyDefinitionId> classList = null;
+                        if (!m_definitions.m_channelEnvironmentItemsDefs.TryGetValue(cl.Channel, out classList))
+                        {
+                            classList = new List<MyDefinitionId>();
+                            m_definitions.m_channelEnvironmentItemsDefs[cl.Channel] = classList;
+                        }
+
+                        classList.Add(cl.Id);
+                    }
                 }
             }
             MySandboxGame.Log.WriteLine("MyDefinitionManager.LoadData() - END");
@@ -2907,7 +2910,7 @@ namespace Sandbox.Definitions
 
                     string modedContentFile = Path.Combine(context.ModPath, contentFile);
 
-                    if (MyFileSystem.DirectoryExists(Path.GetDirectoryName(modedContentFile)) && MyFileSystem.GetFiles(Path.GetDirectoryName(modedContentFile), Path.GetFileName(modedContentFile), VRage.FileSystem.MySearchOption.TopDirectoryOnly).Count() > 0)
+                    if (MyFileSystem.FileExists(modedContentFile))
                     {
                         field.SetValue(fieldOwnerInstance, modedContentFile);
                         //MySandboxGame.Log.WriteLine(string.Format("ProcessField() '{0}', '{1}', '{2}'", context.ModPath, contentFile, modedContentFile));

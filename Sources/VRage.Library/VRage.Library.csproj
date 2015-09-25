@@ -118,6 +118,7 @@
     <Compile Include="Compiler\IlInjector.cs" />
     <Compile Include="Compiler\TestScriptHelpers.cs" />
     <Compile Include="Compression\MyZipArchive.cs" />
+    <Compile Include="Compression\MyZipArchiveIndex.cs" />
     <Compile Include="Compression\MyZipArchiveReflection.cs" />
     <Compile Include="Compression\MyZipFileInfo.cs" />
     <Compile Include="Cryptography\MySHA256.cs" />
