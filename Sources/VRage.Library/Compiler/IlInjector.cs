@@ -126,11 +126,11 @@ namespace VRage.Compiler
             }
 
             // Copy methods
+                CopyFields(createdFields, sourceType, newType, createdTypes);
             foreach (var pair in createdTypes)
             {
                 var newType = pair.Key;
                 var sourceType = pair.Value;
-                CopyFields(createdFields, sourceType, newType);
                 CopyProperties(sourceType, newType);
                 CopyConstructors(createdConstructors, sourceType, newType);
                 CopyMethods(createdMethods, sourceType, newType, typeLookup);
@@ -181,7 +181,17 @@ namespace VRage.Compiler
                     interfaceTypes[index] = newInterfaceType;
                 }
             }
-
+            TypeBuilder newType = newModule.DefineType(sourceType.Name, attributes, baseType, interfaceTypes);
+            if (sourceType.IsEnum)
+            {
+                // If this is an enum, we need to define a special field which defines the base type of this enum.
+                var typeField = sourceType.GetField("value__", BindingFlags.Public | BindingFlags.Instance);
+                newType.DefineField(typeField.Name, typeField.FieldType, typeField.Attributes);
+            }
+            createdTypes.Add(newType, sourceType);
+            typeLookup.Add(newType.FullName, newType);
+            return newType;
+            
             TypeBuilder newType;
             Type declaringType;
             // To avoid duplicate type names, we must make sure we duplicate type nesting as well.
@@ -197,13 +207,28 @@ namespace VRage.Compiler
             createdTypes.Add(newType, sourceType);
             typeLookup.Add(newType.FullName, newType);
             return newType;
+
         }
-        private static void CopyFields(List<FieldBuilder> createdFields, Type sourceType, TypeBuilder newType)
+        private static void CopyFields(List<FieldBuilder> createdFields, Type sourceType, TypeBuilder newType, Dictionary<TypeBuilder, Type> createdTypes)
         {
             var fields = sourceType.GetFields(BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.SetField | BindingFlags.GetField | BindingFlags.Instance);
             foreach (var field in fields)
             {
-                createdFields.Add(newType.DefineField(field.Name, field.FieldType, field.Attributes));
+                // The type designation field for enums has already been copied
+                if (sourceType.IsEnum && field.Name == "value__")
+                    continue;
+
+                // Resolve the correct types
+                var resolvedFieldType = createdTypes
+                    .Where(pair => pair.Value == field.FieldType)
+                    .Select(t => (Type)t.Key).FirstOrDefault()
+                    ?? field.FieldType;
+                var newField = newType.DefineField(field.Name, resolvedFieldType, field.Attributes);
+                if (newType.IsEnum && field.IsStatic)
+                {
+                    // Copy the constant value to enable correct output for enum ToString()
+                    newField.SetConstant(field.GetRawConstantValue());
+                }
             }
         }
         private static void CopyProperties(Type sourceType, TypeBuilder newType)
@@ -642,10 +667,13 @@ namespace VRage.Compiler
             {
                 if (newField.DeclaringType.Name == field.DeclaringType.Name && newField.Name == field.Name)
                 {
+                    // We found a replacement field reference
                     generator.Emit(code, newField);
-                    break;
+                    return;
                 }
             }
+            // Generate the exact field reference
+            generator.Emit(code, field);
         }
     }
 }
