@@ -2159,9 +2159,10 @@ Notera att när du publicerar världen så går du med på tjänstens villkor ( 
     <value>Volym: {0} L</value>
   </data>
   <data name="ToolTipTerminalInventory_ItemInfo" xml:space="preserve">
-    <value>{0}{3}
-Massa: {1} kg
-Volym: {2} L</value>
+    <value>{0}{4}
+Kvantitet: {1}
+Massa: {2} kg
+Volym: {3} L</value>
   </data>
   <data name="SettingSymmetryX" xml:space="preserve">
     <value>Symmetri på X planet: {0} för att sätta, {1} för att återställa</value>

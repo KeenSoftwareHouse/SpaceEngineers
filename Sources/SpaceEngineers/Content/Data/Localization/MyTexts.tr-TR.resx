@@ -2156,9 +2156,10 @@ Bunu paylaşarak atöyle hizmet şartlarını kabul etmiş sayılırsınız. (g�
     <value>Hacim: {0} L</value>
   </data>
   <data name="ToolTipTerminalInventory_ItemInfo" xml:space="preserve">
-    <value>{0}{3}
-Ağırlık: {1} kg
-Hacim: {2} L</value>
+    <value>{0}{4}
+Nicelik: {1}
+Ağırlık: {2} kg
+Hacim: {3} L</value>
   </data>
   <data name="SettingSymmetryX" xml:space="preserve">
     <value>Simetri X düzlemi: Ayarlamak için {0}, sıfırlamak için {1}</value>

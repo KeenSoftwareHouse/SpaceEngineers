@@ -2159,9 +2159,10 @@ Huomaa, että julkaisemalla tämän kohteen hyväksyt workshopin palveluehdot (k
     <value>Tilavuus: {0} L</value>
   </data>
   <data name="ToolTipTerminalInventory_ItemInfo" xml:space="preserve">
-    <value>{0}{3}
-Massa: {1} kg
-Tilavuus: {2} L</value>
+    <value>{0}{4}
+Määrä: {1}
+Massa: {2} kg
+Tilavuus: {3} L</value>
   </data>
   <data name="SettingSymmetryX" xml:space="preserve">
     <value>Symmetrian X taso: {0} aseta, {1} poista</value>

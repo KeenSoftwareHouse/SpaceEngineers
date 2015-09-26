@@ -2156,9 +2156,10 @@ Note que ao enviar este item, você concorda com os termos de serviço da oficin
     <value>Volume: {0} L</value>
   </data>
   <data name="ToolTipTerminalInventory_ItemInfo" xml:space="preserve">
-    <value>{0}{3} 
-Massa: {1} kg 
-Volume: {2} L</value>
+    <value>{0}{4} 
+Quantidade: {1}
+Massa: {2} kg 
+Volume: {3} L</value>
   </data>
   <data name="SettingSymmetryX" xml:space="preserve">
     <value>Simetria plano X: {0} para definir, {1} para redefinir</value>

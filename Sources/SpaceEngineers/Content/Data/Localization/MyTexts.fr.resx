@@ -2156,9 +2156,10 @@ Notez qu'en soumettant celui-ci, vous acceptez les termes et conditions du Works
     <value>Volume : {0} L</value>
   </data>
   <data name="ToolTipTerminalInventory_ItemInfo" xml:space="preserve">
-    <value>{0}{3}
-Masse : {1} kg
-Volume : {2} L</value>
+    <value>{0}{4}
+Quantité : {1}
+Masse : {2} kg
+Volume : {3} L</value>
   </data>
   <data name="SettingSymmetryX" xml:space="preserve">
     <value>Plan de symétrie X: {0} pour installer, {1} pour retirer</value>

@@ -2157,9 +2157,10 @@ Noter deg at ved å publisere dette, så aksepterer du vilkårene for tjenesten 
     <value>Volum: {0} L</value>
   </data>
   <data name="ToolTipTerminalInventory_ItemInfo" xml:space="preserve">
-    <value>{0}{3} 
-Masse: {1} kg 
-Volum: {2} L</value>
+    <value>{0}{4} 
+Antall: {1}
+Masse: {2} kg 
+Volum: {3} L</value>
   </data>
   <data name="SettingSymmetryX" xml:space="preserve">
     <value>Symmetri X plan: {0} for å angi, {1} for å resette</value>
