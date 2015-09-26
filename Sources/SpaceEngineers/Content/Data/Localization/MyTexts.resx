@@ -2162,9 +2162,10 @@ Note that by submitting this item, you agree to the workshop terms of service (s
     <value>Volume: {0} L</value>
   </data>
   <data name="ToolTipTerminalInventory_ItemInfo" xml:space="preserve">
-    <value>{0}{3}
-Mass: {1} kg
-Volume: {2} L</value>
+    <value>{0}{4}
+Quantity: {1}
+Mass: {2} kg
+Volume: {3} L</value>
   </data>
   <data name="SettingSymmetryX" xml:space="preserve">
     <value>Symmetry X plane: {0} to set, {1} to reset</value>

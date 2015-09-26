@@ -3365,7 +3365,7 @@ namespace Sandbox.Game.Localization
         public static readonly MyStringId ScreenTerminalInventory_Volume = MyStringId.GetOrCompute("ScreenTerminalInventory_Volume");
 
         ///<summary>
-        ///{0}{3} Mass: {1} kg Volume: {2} L
+        ///{0}{4} Quantity: {1} Mass: {2} kg Volume: {3} L
         ///</summary>
         public static readonly MyStringId ToolTipTerminalInventory_ItemInfo = MyStringId.GetOrCompute("ToolTipTerminalInventory_ItemInfo");
 

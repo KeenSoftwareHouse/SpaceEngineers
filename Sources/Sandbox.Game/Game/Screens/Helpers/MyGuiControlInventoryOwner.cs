@@ -406,14 +406,16 @@ namespace Sandbox.Game.Screens.Helpers
         {
             var definition = MyDefinitionManager.Static.GetPhysicalItemDefinition(item.Content);
 
-            var itemMass = definition.Mass * (double)item.Amount;
-            var itemVolume = definition.Volume * 1000 * (double)item.Amount;
+            double amount = (double)item.Amount;
+            var itemMass = definition.Mass * amount;
+            var itemVolume = definition.Volume * 1000 * amount;
 
             var gridItem = new MyGuiControlGrid.Item(
                 icon: definition.Icon,
                 userData: item,
                 toolTip: new StringBuilder().AppendFormat(MyTexts.GetString(MySpaceTexts.ToolTipTerminalInventory_ItemInfo),
                     definition.DisplayNameText,
+                    (amount < 0.01) ? "<0.01" : amount.ToString(MyInventoryConstants.GUI_DISPLAY_FORMAT, CultureInfo.InvariantCulture),
                     (itemMass < 0.01) ? "<0.01" : itemMass.ToString(MyInventoryConstants.GUI_DISPLAY_FORMAT, CultureInfo.InvariantCulture),
                     (itemVolume < 0.01) ? "<0.01" : itemVolume.ToString(MyInventoryConstants.GUI_DISPLAY_FORMAT, CultureInfo.InvariantCulture),
                     (item.Content.Flags == MyItemFlags.Damaged ? MyTexts.Get(MySpaceTexts.ItemDamagedDescription) : MyTexts.Get(MySpaceTexts.Blank))).ToString());
