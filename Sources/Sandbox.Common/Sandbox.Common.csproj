@@ -151,6 +151,7 @@
     <Compile Include="ModAPI\IMyInventory.cs" />
     <Compile Include="ModAPI\IMyLandingGear.cs" />
     <Compile Include="ModAPI\IMyMotorStator.cs" />
+    <Compile Include="ModAPI\IMyOreDetector.cs" />
     <Compile Include="ModAPI\IMyOxygenGenerator.cs" />
     <Compile Include="ModAPI\IMyParallelTask.cs" />
     <Compile Include="ModAPI\IMyPistonBase.cs" />
