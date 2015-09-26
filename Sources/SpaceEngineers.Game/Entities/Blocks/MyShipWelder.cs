@@ -53,7 +53,8 @@ namespace SpaceEngineers.Game.Entities.Blocks
                 var helpOthersCheck = new MyTerminalControlCheckbox<MyShipWelder>("helpOthers", MySpaceTexts.ShipWelder_HelpOthers, MySpaceTexts.ShipWelder_HelpOthers);
                 helpOthersCheck.Getter = (x) => x.HelpOthers;
                 helpOthersCheck.Setter = (x, v) => x.SyncObject.ChangeHelpOthersMode(v);
-                helpOthersCheck.EnableAction();
+                helpOthersCheck.EnableOnOffActions();
+                helpOthersCheck.EnableToggleAction();
                 MyTerminalControlFactory.AddControl(helpOthersCheck);
             }
         }

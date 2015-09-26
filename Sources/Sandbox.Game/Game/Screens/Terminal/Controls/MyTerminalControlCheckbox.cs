@@ -85,10 +85,34 @@ namespace Sandbox.Game.Gui
             result.Append(Getter(block) ? onText : offText);
         }
 
-        public MyTerminalAction<TBlock> EnableAction(string icon, StringBuilder name, StringBuilder onText, StringBuilder offText)
+        void AppendAction(MyTerminalAction<TBlock> action)
+        {
+            var arr = Actions ?? new MyTerminalAction<TBlock>[0];
+            Array.Resize(ref arr, arr.Length + 1);
+            arr[arr.Length - 1] = action;
+            Actions = arr;
+        }
+
+        public MyTerminalAction<TBlock> EnableToggleAction(string icon, StringBuilder name, StringBuilder onText, StringBuilder offText)
         {
             var action = new MyTerminalAction<TBlock>(Id, name, SwitchAction, (x, r) => Writer(x, r, onText, offText), icon);
-            Actions = new MyTerminalAction<TBlock>[] { action };
+            AppendAction(action);
+
+            return action;
+        }
+
+        public MyTerminalAction<TBlock> EnableOnAction(string icon, StringBuilder name, StringBuilder onText, StringBuilder offText)
+        {
+            var action = new MyTerminalAction<TBlock>(Id + "_On", name, CheckAction, (x, r) => Writer(x, r, onText, offText), icon);
+            AppendAction(action);
+
+            return action;
+        }
+
+        public MyTerminalAction<TBlock> EnableOffAction(string icon, StringBuilder name, StringBuilder onText, StringBuilder offText)
+        {
+            var action = new MyTerminalAction<TBlock>(Id + "_Off", name, UncheckAction, (x, r) => Writer(x, r, onText, offText), icon);
+            AppendAction(action);
 
             return action;
         }

@@ -108,7 +108,7 @@ namespace Sandbox.Game.Entities
                 controlThrusters.Setter = (x, v) => x.SyncObject.SetControlThrusters(v);
                 controlThrusters.Visible = (x) => x.m_enableShipControl;
                 controlThrusters.Enabled = (x) => x.IsMainCockpitFree();
-                var action = controlThrusters.EnableAction();
+                var action = controlThrusters.EnableToggleAction();
                 if (action != null)
                     action.Enabled = (x) => x.m_enableShipControl;
                 MyTerminalControlFactory.AddControl(controlThrusters);
@@ -118,7 +118,7 @@ namespace Sandbox.Game.Entities
                 controlWheels.Setter = (x, v) => x.SyncObject.SetControlWheels(v);
                 controlWheels.Visible = (x) => x.m_enableShipControl;
                 controlWheels.Enabled = (x) => x.GridWheels.WheelCount > 0 && x.IsMainCockpitFree();
-                action = controlWheels.EnableAction();
+                action = controlWheels.EnableToggleAction();
                 if (action != null)
                     action.Enabled = (x) => x.m_enableShipControl;
                 MyTerminalControlFactory.AddControl(controlWheels);
@@ -128,7 +128,7 @@ namespace Sandbox.Game.Entities
                 handBrake.Setter = (x, v) => x.CubeGrid.SyncObject.SetHandbrakeRequest(v);
                 handBrake.Visible = (x) => x.m_enableShipControl;
                 handBrake.Enabled = (x) => x.GridWheels.WheelCount > 0 && x.IsMainCockpitFree();
-                action = handBrake.EnableAction();
+                action = handBrake.EnableToggleAction();
                 if (action != null)
                     action.Enabled = (x) => x.m_enableShipControl;
                 MyTerminalControlFactory.AddControl(handBrake);
@@ -152,7 +152,7 @@ namespace Sandbox.Game.Entities
                 dampenersOverride.Setter = (x, v) => x.EnableDampingInternal(v, true);
                 dampenersOverride.Visible = (x) => x.m_enableShipControl;
 
-                var action = dampenersOverride.EnableAction();
+                var action = dampenersOverride.EnableToggleAction();
                 if (action != null)
                 {
                     action.Enabled = (x) => x.m_enableShipControl;// x.EnableShipControl;
@@ -166,7 +166,8 @@ namespace Sandbox.Game.Entities
             mainCockpit.Setter = (x, v) => x.SetMainCockpit(v);
             mainCockpit.Enabled = (x) => x.IsMainCockpitFree();
             mainCockpit.Visible = (x) => x.CanBeMainCockpit();
-            mainCockpit.EnableAction();
+            mainCockpit.EnableToggleAction();
+            mainCockpit.EnableOnOffActions();
 
             MyTerminalControlFactory.AddControl(mainCockpit);
         }

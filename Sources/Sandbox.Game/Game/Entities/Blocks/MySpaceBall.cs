@@ -150,7 +150,8 @@ namespace Sandbox.Game.Entities
             var enableBroadcast = new MyTerminalControlCheckbox<MySpaceBall>("EnableBroadCast", MySpaceTexts.Antenna_EnableBroadcast, MySpaceTexts.Antenna_EnableBroadcast);
             enableBroadcast.Getter = (x) => x.RadioBroadcaster.Enabled;
             enableBroadcast.Setter = (x, v) => x.SyncObject.SendChangeBroadcastRequest(v);
-            enableBroadcast.EnableAction();
+            enableBroadcast.EnableToggleAction();
+            enableBroadcast.EnableOnOffActions();
             MyTerminalControlFactory.AddControl(enableBroadcast);
         }
 

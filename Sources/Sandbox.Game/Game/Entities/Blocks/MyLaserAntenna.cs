@@ -269,7 +269,8 @@ namespace Sandbox.Game.Entities.Cube
                     self.sync.ChangePerm(v);
                 };
             isPerm.Enabled = (self) => self.State==StateEnum.connected;
-            isPerm.EnableAction();
+            isPerm.EnableToggleAction();
+            isPerm.EnableOnOffActions();
             MyTerminalControlFactory.AddControl(isPerm);
 
             //--------------------------------------------------------------------------------------

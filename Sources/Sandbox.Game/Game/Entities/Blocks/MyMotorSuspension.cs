@@ -148,7 +148,7 @@ namespace Sandbox.Game.Entities.Cube
             var steering = new MyTerminalControlCheckbox<MyMotorSuspension>("Steering", MySpaceTexts.BlockPropertyTitle_Motor_Steering, MySpaceTexts.BlockPropertyDescription_Motor_Steering);
             steering.Getter = (x) => x.Steering;
             steering.Setter = (x, v) => x.SyncObject.ChangeSteering(v);
-            steering.EnableAction();
+            steering.EnableToggleAction();
             steering.Enabled = (x) => x.m_constraint != null;
             MyTerminalControlFactory.AddControl(steering);
 
@@ -185,14 +185,14 @@ namespace Sandbox.Game.Entities.Cube
             var invertSteer = new MyTerminalControlCheckbox<MyMotorSuspension>("InvertSteering", MySpaceTexts.BlockPropertyTitle_Motor_InvertSteer, MySpaceTexts.BlockPropertyDescription_Motor_InvertSteer);
             invertSteer.Getter = (x) => x.InvertSteer;
             invertSteer.Setter = (x, v) => x.SyncObject.ChangeSlider(MySyncMotorSuspension.SliderEnum.InvertSteer, (v ? 1 : 0));
-            invertSteer.EnableAction();
+            invertSteer.EnableToggleAction();
             invertSteer.Enabled = (x) => x.m_constraint != null;
             MyTerminalControlFactory.AddControl(invertSteer);
 
             var propulsion = new MyTerminalControlCheckbox<MyMotorSuspension>("Propulsion", MySpaceTexts.BlockPropertyTitle_Motor_Propulsion, MySpaceTexts.BlockPropertyDescription_Motor_Propulsion);
             propulsion.Getter = (x) => x.Propulsion;
             propulsion.Setter = (x, v) => x.SyncObject.ChangePropulsion(v);
-            propulsion.EnableAction();
+            propulsion.EnableToggleAction();
             propulsion.Enabled = (x) => x.m_constraint != null;
             MyTerminalControlFactory.AddControl(propulsion);
 

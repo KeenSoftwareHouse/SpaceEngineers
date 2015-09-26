@@ -125,7 +125,7 @@ namespace Sandbox.Game.Entities.Cube
                 MySpaceTexts.TerminalControlPanel_Warhead_SwitchTextArmed);
             safetyCheckbox.Getter = (x) => !x.IsArmed;
             safetyCheckbox.Setter = (x, v) => MySyncWarhead.SetArm(x, !v);
-            safetyCheckbox.EnableAction();
+            safetyCheckbox.EnableToggleAction();
             MyTerminalControlFactory.AddControl(safetyCheckbox);
 
             var detonateButton = new MyTerminalControlButton<MyWarhead>(

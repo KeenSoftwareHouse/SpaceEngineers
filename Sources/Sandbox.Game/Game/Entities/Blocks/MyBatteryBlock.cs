@@ -66,14 +66,14 @@ namespace Sandbox.Game.Entities
             recharge.Getter = (x) => !x.ProductionEnabled;
             recharge.Setter = (x, v) => x.SyncObject.SendProducerEnableChange(!v);
             recharge.Enabled = (x) => !x.SemiautoEnabled;
-            recharge.EnableAction();
+            recharge.EnableToggleAction();
+            recharge.EnableOnOffActions();
+            MyTerminalControlFactory.AddControl(recharge);
 
             var semiAuto = new MyTerminalControlCheckbox<MyBatteryBlock>("SemiAuto", MySpaceTexts.BlockPropertyTitle_Semiauto, MySpaceTexts.ToolTipBatteryBlock_Semiauto);
             semiAuto.Getter = (x) => x.SemiautoEnabled;
             semiAuto.Setter = (x, v) => x.SyncObject.SendSemiautoEnableChange(v);
-            semiAuto.EnableAction();
-
-            MyTerminalControlFactory.AddControl(recharge);
+            semiAuto.EnableToggleAction();
             MyTerminalControlFactory.AddControl(semiAuto);
         }
 
