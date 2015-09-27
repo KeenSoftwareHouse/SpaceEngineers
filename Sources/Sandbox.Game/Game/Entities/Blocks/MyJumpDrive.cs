@@ -836,11 +836,12 @@ namespace Sandbox.Game.Entities
         public float JumpDistanceRatio
         {
             get { return m_jumpDistanceRatio; }
-            set
-            {
-                var clampedValue = VRageMath.MathHelper.Clamp(value, 0f, 100f);
-                SetJumpDistanceRatio(clampedValue);
-            }
+        }
+
+        public void RequestJumpDistanceRatio(float ratio)
+        {
+            var clampedValue = VRageMath.MathHelper.Clamp(ratio, 0f, 100f);
+            SetJumpDistanceRatio(clampedValue);
         }
 
         public float PowerNeededForJump
@@ -861,7 +862,11 @@ namespace Sandbox.Game.Entities
         public bool Recharging
         {
             get { return m_isRecharging; }
-            set { SetRecharging(value); }
+        }
+
+        public void RequestRecharging(bool enabled)
+        {
+            SetRecharging(enabled);
         }
 
         public void SetTarget(Vector3D cords, string name)
