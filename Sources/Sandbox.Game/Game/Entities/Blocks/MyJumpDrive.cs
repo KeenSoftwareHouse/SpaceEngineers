@@ -833,6 +833,11 @@ namespace Sandbox.Game.Entities
 
         #region Programmatic Control
 
+        bool IMyJumpDrive.IsJumping
+        {
+            get { return IsJumping; }
+        }
+
         public float JumpDistanceRatio
         {
             get { return m_jumpDistanceRatio; }
