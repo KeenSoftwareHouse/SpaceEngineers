@@ -669,13 +669,18 @@ namespace Sandbox.Game.Entities
                 public BoolBlit Recharging;
             }
 
+            [ProtoBuf.ProtoContract]
             [MessageIdAttribute(8406, P2PMessageEnum.Reliable)]
             protected struct SetTargetMsg : IEntityMessage
             {
+                [ProtoBuf.ProtoMember]
                 public long EntityId;
                 public long GetEntityId() { return EntityId; }
 
+                [ProtoBuf.ProtoMember]
                 public Vector3D Coords;
+
+                [ProtoBuf.ProtoMember]
                 public string Name;
             }
 
