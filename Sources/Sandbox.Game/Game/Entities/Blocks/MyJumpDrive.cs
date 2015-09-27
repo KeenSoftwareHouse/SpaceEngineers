@@ -7,6 +7,7 @@ using Sandbox.Game.GameSystems;
 using Sandbox.Game.Gui;
 using Sandbox.Game.Localization;
 using Sandbox.Game.Multiplayer;
+using Sandbox.Game.Screens.Helpers;
 using Sandbox.Game.Screens.Terminal.Controls;
 using Sandbox.Game.World;
 using Sandbox.Graphics.GUI;
@@ -162,7 +163,7 @@ namespace Sandbox.Game.Entities
             return m_jumpTarget != null;
         }
 
-        private void RemoveSelected()
+        public void RemoveSelected()
         {
             if (CanRemove())
             {
@@ -237,7 +238,7 @@ namespace Sandbox.Game.Entities
             }
         }
 
-        private double ComputeMaxDistance()
+        public double ComputeMaxDistance()
         {
             double maxDistance = CubeGrid.GridSystems.JumpSystem.GetMaxJumpDistance(IDModule.Owner);
             if (maxDistance < MyGridJumpDriveSystem.MIN_JUMP_DISTANCE)
@@ -668,11 +669,22 @@ namespace Sandbox.Game.Entities
                 public BoolBlit Recharging;
             }
 
+            [MessageIdAttribute(8406, P2PMessageEnum.Reliable)]
+            protected struct SetTargetMsg : IEntityMessage
+            {
+                public long EntityId;
+                public long GetEntityId() { return EntityId; }
+
+                public Vector3D Coords;
+                public string Name;
+            }
+
             private MyJumpDrive m_jumpDrive;
 
             static MySyncJumpDrive()
             {
                 MySyncLayer.RegisterEntityMessage<MySyncJumpDrive, SelectTargetMsg>(OnTargetSelected, MyMessagePermissions.ToServer|MyMessagePermissions.FromServer|MyMessagePermissions.ToSelf);
+                MySyncLayer.RegisterEntityMessage<MySyncJumpDrive, SetTargetMsg>(OnSetTarget, MyMessagePermissions.ToServer | MyMessagePermissions.FromServer | MyMessagePermissions.ToSelf);
                 MySyncLayer.RegisterEntityMessage<MySyncJumpDrive, RemoveTargetMsg>(OnTargetRemoved, MyMessagePermissions.ToServer | MyMessagePermissions.FromServer | MyMessagePermissions.ToSelf);
                 MySyncLayer.RegisterEntityMessage<MySyncJumpDrive, SetJumpDistanceRatioMsg>(OnJumpDistanceRatioSet, MyMessagePermissions.ToServer | MyMessagePermissions.FromServer | MyMessagePermissions.ToSelf);
                 MySyncLayer.RegisterEntityMessage<MySyncJumpDrive, UpdateStoredPowerMsg>(OnUpdateStoredPower, MyMessagePermissions.FromServer);
@@ -698,6 +710,25 @@ namespace Sandbox.Game.Entities
             private static void OnTargetSelected(MySyncJumpDrive syncObject, ref SelectTargetMsg msg, MyNetworkClient sender)
             {
                 syncObject.m_jumpDrive.OnTargetSelected(msg.GpsHash);
+                if (Sync.IsServer)
+                {
+                    Sync.Layer.SendMessageToAllButOne(ref msg, sender.SteamUserId);
+                }
+            }
+
+            public void SendSetTarget(Vector3D cords, string name)
+            {
+                var msg = new SetTargetMsg();
+                msg.EntityId = m_jumpDrive.EntityId;
+                msg.Coords = cords;
+                msg.Name = name;
+
+                Sync.Layer.SendMessageToServerAndSelf(ref msg);
+            }
+
+            private static void OnSetTarget(MySyncJumpDrive syncObject, ref SetTargetMsg msg, MyNetworkClient sender)
+            {
+                syncObject.m_jumpDrive.OnSetTarget(msg.Coords, msg.Name);
                 if (Sync.IsServer)
                 {
                     Sync.Layer.SendMessageToAllButOne(ref msg, sender.SteamUserId);
@@ -793,6 +824,49 @@ namespace Sandbox.Game.Entities
                 }
             }
         }
+        #endregion
+
+        #region Programmatic Control
+
+        public float JumpDistanceRatio
+        {
+            get { return m_jumpDistanceRatio; }
+            set
+            {
+                var clampedValue = VRageMath.MathHelper.Clamp(value, 0f, 100f);
+                SetJumpDistanceRatio(clampedValue);
+            }
+        }
+
+        public bool Recharging
+        {
+            get { return m_isRecharging; }
+            set { SetRecharging(value); }
+        }
+
+        public void SetTarget(Vector3D cords, string name)
+        {
+            if(name == null)
+                throw new ArgumentNullException("name");
+
+            SyncObject.SendSetTarget(cords, name);
+        }
+
+        private void OnSetTarget(Vector3D coords, string name)
+        {
+            var gpsEntry = new MyObjectBuilder_Gps.Entry
+            {
+                coords = coords,
+                name = name,
+                description = "",
+                isFinal = true,
+                showOnHud = false
+            };
+
+            m_jumpTarget = new MyGps(gpsEntry);
+            RaisePropertiesChangedJumpDrive();
+        }
+
         #endregion
     }
 }
