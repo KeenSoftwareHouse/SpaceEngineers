@@ -16,6 +16,11 @@ namespace Sandbox.ModAPI.Ingame
         bool IsFull { get; }
 
         /// <summary>
+        /// Is the jumpdrive currently performing a jump.
+        /// </summary>
+        bool IsJumping { get; }
+
+        /// <summary>
         /// Gets the jump distance ratio.
         /// </summary>
         float JumpDistanceRatio { get; }
