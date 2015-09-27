@@ -21,12 +21,12 @@ namespace Sandbox.ModAPI.Ingame
         float JumpDistanceRatio { get; set; }
 
         /// <summary>
-        /// The amount of power tht needs to be stored to perform a jump in Megawats.
+        /// The amount of power that needs to be stored to perform a jump in Megawatts.
         /// </summary>
         float PowerNeededForJump { get; }
-         
+
         /// <summary>
-        /// The amount of power stored in the jumpdrive in Megawats.
+        /// The amount of power stored in the jumpdrive in Megawatts.
         /// </summary>
         float StoredPower { get; }
 
@@ -42,7 +42,7 @@ namespace Sandbox.ModAPI.Ingame
 
 
         /// <summary>
-        /// Returns the maximum distance in meeters that the jumpdrive will jump with the current settings.
+        /// Returns the maximum distance in meters that the jumpdrive will jump with the current settings.
         /// </summary>
         double ComputeMaxDistance();
 
@@ -57,7 +57,7 @@ namespace Sandbox.ModAPI.Ingame
         /// <summary>
         /// Manually sets the target jump point.
         /// </summary>
-        /// <param name="cords">The cordinates to jump to.</param>
+        /// <param name="cords">The coordinates to jump to.</param>
         /// <param name="name">The name of the GPS point to display in the GUI.</param>
         /// <exception cref="ArgumentNullException">The parameter <see cref="name"/> was null.</exception>
         void SetTarget(Vector3D cords, string name);
