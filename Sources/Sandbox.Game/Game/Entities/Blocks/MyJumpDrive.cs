@@ -843,6 +843,21 @@ namespace Sandbox.Game.Entities
             }
         }
 
+        public float PowerNeededForJump
+        {
+            get { return BlockDefinition.PowerNeededForJump; }
+        }
+
+        public float StoredPower
+        {
+            get { return m_storedPower; }
+        }
+
+        public float RechargeTimeRemaining
+        {
+            get { return m_timeRemaining; }
+        }
+
         public bool Recharging
         {
             get { return m_isRecharging; }
