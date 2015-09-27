@@ -402,6 +402,15 @@ namespace Sandbox.Game.Gui
 
                     if (context == MySpaceBindingCreator.CX_CHARACTER || context == MySpaceBindingCreator.CX_SPACESHIP)
                     {
+                        if (MyToolbarComponent.CurrentToolbar.SelectedSlot == null && MyInput.Static.IsMiddleMousePressed())
+                        {
+                            if (MyGuiScreenGestureWheel.Static == null)
+                            {
+                                MyGuiScreenGestureWheel gestureWheel = new MyGuiScreenGestureWheel();
+                                MyGuiSandbox.AddScreen(gestureWheel);
+                            }
+                        }
+
                         if (MyControllerHelper.IsControl(context, MyControlsSpace.USE, MyControlStateType.NEW_PRESSED))
                         {
                             // Key press

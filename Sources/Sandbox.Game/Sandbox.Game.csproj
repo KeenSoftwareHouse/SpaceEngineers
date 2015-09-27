@@ -745,6 +745,7 @@
     <Compile Include="Game\Screens\MyJoinGameHelper.cs" />
     <Compile Include="Game\Screens\MyGuiScreenCreateOrEditFaction.cs" />
     <Compile Include="Game\Screens\MyLoadingException.cs" />
+	<Compile Include="Game\Screens\MyGuiScreenGestureWheel.cs" />
     <Compile Include="Game\Screens\Terminal\Controls\ITerminalValueControl.cs" />
     <Compile Include="Game\Screens\Terminal\Controls\MyTerminalControlCombobox.cs" />
     <Compile Include="Game\Screens\Terminal\Controls\MyTerminalControlLabel.cs" />
