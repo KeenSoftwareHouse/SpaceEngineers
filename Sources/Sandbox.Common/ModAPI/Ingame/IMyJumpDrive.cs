@@ -16,9 +16,15 @@ namespace Sandbox.ModAPI.Ingame
         bool IsFull { get; }
 
         /// <summary>
-        /// Sets the jump distance ratio. Values passed in are clamped to a range between 0 and 100.
+        /// Gets the jump distance ratio.
         /// </summary>
-        float JumpDistanceRatio { get; set; }
+        float JumpDistanceRatio { get; }
+
+        /// <summary>
+        /// Attempts to set the <see cref="JumpDistanceRatio"/>. Values passed in are clamped to a range between 0 and 100.
+        /// </summary>
+        /// <param name="ratio">The new value to set.</param>
+        void RequestJumpDistanceRatio(float ratio);
 
         /// <summary>
         /// The amount of power that needs to be stored to perform a jump in Megawatts.
@@ -38,11 +44,16 @@ namespace Sandbox.ModAPI.Ingame
         /// <summary>
         /// Should the jump drive draw power to recharge itself.
         /// </summary>
-        bool Recharging { get; set; }
-
+        bool Recharging { get; }
 
         /// <summary>
-        /// Returns the maximum distance in meters that the jumpdrive will jump with the current settings.
+        /// Tries to change the value of <see cref="Recharging"/>.
+        /// </summary>
+        /// <param name="enabled">The new value to set.</param>
+        void RequestRecharging(bool enabled);
+
+        /// <summary>
+        /// Returns the maximum distance in meters that the jumpdrive will jump with the current <see cref="JumpDistanceRatio"/>.
         /// </summary>
         double ComputeMaxDistance();
 
@@ -52,6 +63,9 @@ namespace Sandbox.ModAPI.Ingame
         /// <param name="userId">The userId to check against.</param>
         bool CanJumpAndHasAccess(long userId);
 
+        /// <summary>
+        /// Deselects the jump waypoint if one was set.
+        /// </summary>
         void RemoveSelected();
 
         /// <summary>
