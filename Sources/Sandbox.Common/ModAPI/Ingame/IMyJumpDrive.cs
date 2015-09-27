@@ -81,5 +81,10 @@ namespace Sandbox.ModAPI.Ingame
         /// <exception cref="ArgumentNullException">The parameter <see cref="name"/> was null.</exception>
         void SetTarget(Vector3D cords, string name);
 
+        /// <summary>
+        /// Performs a jump, can only be done my NPC factions.
+        /// </summary>
+        /// <returns>If the jump request was successful.</returns>
+        bool PerformJump();
     }
 }

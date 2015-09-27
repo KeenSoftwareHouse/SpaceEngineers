@@ -897,6 +897,14 @@ namespace Sandbox.Game.Entities
             RaisePropertiesChangedJumpDrive();
         }
 
+        bool IMyJumpDrive.PerformJump()
+        {
+            if (!MySession.Static.Players.IdentityIsNpc(this.OwnerId))
+                return false;
+
+            throw new NotImplementedException();
+        }
+
         #endregion
     }
 }
