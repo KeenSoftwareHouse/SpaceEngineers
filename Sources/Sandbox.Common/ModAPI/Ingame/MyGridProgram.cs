@@ -21,11 +21,16 @@ namespace Sandbox.ModAPI.Ingame
     /// </example>
     public abstract class MyGridProgram : IMyGridProgram
     {
-        private string m_storage = "";
+        private string m_storage;
         private readonly Action<string> m_main;
 
         protected MyGridProgram()
         {
+            // Make sure the storage variable is not null. We use this strange construction because
+            // scripts are not instantiated in a normal way, so the m_storage variable will have changed
+            // before the constructor is called.
+            m_storage = m_storage ?? "";
+
             // First try to get the main method with a string argument. If this fails, try to get one without.
             var type = this.GetType();
             var mainMethod = type.GetMethod("Main", BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance, null, new[] {typeof(string)}, null);

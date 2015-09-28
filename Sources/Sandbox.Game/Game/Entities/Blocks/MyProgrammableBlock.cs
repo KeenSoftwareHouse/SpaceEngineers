@@ -1,5 +1,4 @@
 ﻿using Sandbox.Common;
-
 using Sandbox.Common.ObjectBuilders;
 using Sandbox.Game.Entities.Cube;
 using Sandbox.Game.Gui;
@@ -39,30 +38,24 @@ namespace Sandbox.Game.Entities.Blocks
     [MyCubeBlockType(typeof(MyObjectBuilder_MyProgrammableBlock))]
     class MyProgrammableBlock : MyFunctionalBlock, IMyProgrammableBlock, IMyPowerConsumer
     {
-        private const int MAX_NUM_EXECUTED_INSTRUCTIONS = 50000;
-		private const int MAX_NUM_METHOD_CALLS = 10000;
-        private const int MAX_ECHO_LENGTH = 8000; // 100 lines á 80 characters
-        private static readonly double STOPWATCH_FREQUENCY = 1.0 / Stopwatch.Frequency;
+        private const int MAX_RUN_QUEUE_SIZE = 100;
         private IMyGridProgram m_instance = null;
+        private MyGridProgramRuntime m_gridProgramRuntime = null;
         private string m_programData = null;
-        private string m_storageData = null;
         private string m_editorData = null;
         private string m_terminalRunArgument = string.Empty;
-        private StringBuilder m_echoOutput = new StringBuilder();
-        private long m_previousRunTimestamp = 0;
         
-        private readonly object[] m_argumentArray = new object[1]; 
-
         public bool ConsoleOpen = false;
         MyGuiScreenEditor m_editorScreen;
         Assembly m_assembly = null;
         List<string> m_compilerErrors = new List<string>();
-        private bool m_wasTerminated = false;
-        private bool m_isRunning = false;
-        private bool m_mainMethodSupportsArgument;
         public bool ConsoleOpenRequest = false;
         private ulong m_userId;
         private new MySyncProgrammableBlock SyncObject;
+
+        private Queue<TerminalActionParameter> m_enqueuedRuns = new Queue<TerminalActionParameter>();
+        private readonly List<TerminalActionParameter> m_argumentContainer = new List<TerminalActionParameter>(new[] { TerminalActionParameter.Get("") });
+        private bool m_requireImmediateConstruction = true;
 
         public string TerminalRunArgument
         {
@@ -90,17 +83,22 @@ namespace Sandbox.Game.Entities.Blocks
             arg.Getter = (e) => new StringBuilder(e.TerminalRunArgument);
             arg.Setter = (e, v) => e.TerminalRunArgument = v.ToString();
             MyTerminalControlFactory.AddControl(arg);
-            
+
             var terminalRun = new MyTerminalControlButton<MyProgrammableBlock>("TerminalRun", MySpaceTexts.TerminalControlPanel_RunCode, MySpaceTexts.TerminalControlPanel_RunCode_Tooltip, (b) => b.Run());
             terminalRun.Visible = (b) => MyFakes.ENABLE_PROGRAMMABLE_BLOCK && MySession.Static.EnableIngameScripts;
             terminalRun.Enabled = (b) => b.IsWorking == true && b.IsFunctional == true;
             MyTerminalControlFactory.AddControl(terminalRun);
-            
+
             var runAction = new MyTerminalAction<MyProgrammableBlock>("Run", MyTexts.Get(MySpaceTexts.TerminalControlPanel_RunCode), OnRunApplied, null, MyTerminalActionIcons.START);
             runAction.Enabled = (b) => b.IsWorking == true && b.IsFunctional == true;
             runAction.DoUserParameterRequest = RequestRunArgument;
             runAction.ParameterDefinitions.Add(TerminalActionParameter.Get(string.Empty));
             MyTerminalControlFactory.AddAction(runAction);
+        }
+
+        public MyProgrammableBlock()
+        {
+            m_gridProgramRuntime = new MyGridProgramRuntime(this);
         }
 
         private static void OnRunApplied(MyProgrammableBlock programmableBlock, ListReader<TerminalActionParameter> parameters)
@@ -161,7 +159,7 @@ namespace Sandbox.Game.Entities.Blocks
             }
             m_editorData = m_programData = m_editorScreen.Description.Text.ToString();
             m_compilerErrors.Clear();
-            SyncObject.SendUpdateProgramRequest(m_programData, m_storageData);
+            SyncObject.SendUpdateProgramRequest(m_programData, m_gridProgramRuntime.Storage);
         }
 
         private void SaveCode(ResultEnum result)
@@ -215,79 +213,40 @@ namespace Sandbox.Game.Entities.Blocks
 
         public string ExecuteCode(string argument)
         {
-            if (m_isRunning)
+            if (m_gridProgramRuntime.IsRunning)
             {
                 return MyTexts.GetString(MySpaceTexts.ProgrammableBlock_Exception_AllreadyRunning);
             }
-            if (m_wasTerminated == true)
-            {
-                return DetailedInfo.ToString();
-            }
+            if (m_gridProgramRuntime.IsFaulted)
+                return m_gridProgramRuntime.FaultMessage;
             DetailedInfo.Clear();
-            m_echoOutput.Clear();
             if (m_assembly == null)
             {
                 return MyTexts.GetString(MySpaceTexts.ProgrammableBlock_Exception_NoAssembly);
             }
-            if (!m_instance.HasMainMethod)
-            {
-                return MyTexts.GetString(MySpaceTexts.ProgrammableBlock_Exception_NoMain);
-            }
-            if (m_previousRunTimestamp == 0)
-            {
-                m_previousRunTimestamp = Stopwatch.GetTimestamp();
-                m_instance.ElapsedTime = TimeSpan.Zero;
-            }
-            else
-            {
-                var currentTimestamp = Stopwatch.GetTimestamp();
-                var elapsedTime = (currentTimestamp - m_previousRunTimestamp) * Sync.RelativeSimulationRatio;
-                m_instance.ElapsedTime = TimeSpan.FromSeconds(elapsedTime * STOPWATCH_FREQUENCY);
-                m_previousRunTimestamp = currentTimestamp;
-            }
             var gridGroup = MyCubeGridGroups.Static.Logical.GetGroup(CubeGrid);
             var terminalSystem = gridGroup.GroupData.TerminalSystem;
             terminalSystem.UpdateGridBlocksOwnership(this.OwnerId);
-            m_instance.GridTerminalSystem = terminalSystem;
 
-            m_isRunning = true;
-            string retVal = "";
-            IlInjector.RestartCountingInstructions(MAX_NUM_EXECUTED_INSTRUCTIONS);
-			IlInjector.RestartCountingMethods(MAX_NUM_METHOD_CALLS);
-            try
+            var runFlags = MyGridProgramRuntime.RunFlags.None;
+            if (m_requireImmediateConstruction)
             {
-                m_instance.Main(argument);
-                if (m_echoOutput.Length > 0)
-                    retVal = m_echoOutput.ToString();
+                runFlags |= MyGridProgramRuntime.RunFlags.ConstructionOnly;
+                m_requireImmediateConstruction = false;
             }
-            catch (Exception ex)
-            {
-                // Since we just had an exception I'm not fussed about using old 
-                // fashioned string concatenation here. We'll still want the echo
-                // output, since its primary purpose is debugging.
-                if (m_echoOutput.Length > 0)
-                    retVal = m_echoOutput.ToString();
+
+            string retVal;
+            if (!m_gridProgramRuntime.TryRun(terminalSystem, argument, out retVal, runFlags))
                 OnProgramTermination();
-                if (ex is ScriptOutOfRangeException)
-                {
-                    retVal += MyTexts.GetString(MySpaceTexts.ProgrammableBlock_Exception_TooComplex);
-                }
-                else
-                {
-                    retVal += MyTexts.GetString(MySpaceTexts.ProgrammableBlock_Exception_ExceptionCaught) + ex.Message;
-                }
-            }
-            m_isRunning = false;
             return retVal;
         }
 
         private void OnProgramTermination()
         {
-            m_wasTerminated = true;
-            m_instance = null;
+            m_requireImmediateConstruction = false;
             m_assembly = null;
-            m_echoOutput.Clear();
-            m_previousRunTimestamp = 0;
+            m_enqueuedRuns.Clear();
+            m_enqueuedRuns.Clear();
         }
 
         public void Run()
@@ -321,7 +280,7 @@ namespace Sandbox.Game.Entities.Blocks
             base.Init(objectBuilder, cubeGrid);
             var programmableBlockBuilder = (MyObjectBuilder_MyProgrammableBlock)objectBuilder;
             m_editorData = m_programData = programmableBlockBuilder.Program;
-            m_storageData = programmableBlockBuilder.Storage;
+            m_gridProgramRuntime.Storage = programmableBlockBuilder.Storage;
             this.m_terminalRunArgument = programmableBlockBuilder.DefaultRunArgument;
 
             this.SyncObject = new MySyncProgrammableBlock(this);
@@ -338,9 +297,14 @@ namespace Sandbox.Game.Entities.Blocks
             SlimBlock.ComponentStack.IsFunctionalChanged += ComponentStack_IsFunctionalChanged;
             IsWorkingChanged += MyProgrammableBlock_IsWorkingChanged;
 
-            if (Sync.IsServer && Sync.Clients != null)
+            if (Sync.IsServer)
             {
-                Sync.Clients.ClientRemoved += ProgrammableBlock_ClientRemoved;
+                if (Sync.Clients != null)
+                {
+                    Sync.Clients.ClientRemoved += ProgrammableBlock_ClientRemoved;
+                }
+
+                m_requireImmediateConstruction = true;
             }
         }
         public override void UpdateOnceBeforeFrame()
@@ -362,66 +326,70 @@ namespace Sandbox.Game.Entities.Blocks
             }
             if (m_programData != null)
             {
-                SyncObject.SendUpdateProgramRequest(m_programData, m_storageData);
+                SyncObject.SendUpdateProgramRequest(m_programData, m_gridProgramRuntime.Storage);
             }
             UpdateEmissivity();
         }
+
+        public override void UpdateBeforeSimulation()
+        {
+            // I tried using UpdateOnceBeforeFrame, but it collided with the code for updating
+            // the program. I considered adding a specific flag for when the program should update,
+            // but I don't know where else the BEFORE_NEXT_FRAME flag is set. Any better idea is
+            // appreciated - but this _is_ just a simple conditional test.
+            if (m_enqueuedRuns.Count > 0 && IsWorking == true && IsFunctional == true)
+            {
+                var nextArgument = m_enqueuedRuns.Dequeue();
+                m_argumentContainer[0] = nextArgument;
+                this.ApplyAction("Run", m_argumentContainer);
+                if (m_enqueuedRuns.Count > 0)
+                    NeedsUpdate |= MyEntityUpdateEnum.EACH_FRAME;
+                else
+                    NeedsUpdate &= ~MyEntityUpdateEnum.EACH_FRAME;
+            }
+            
+            base.UpdateBeforeSimulation();
+        }
+
         public override MyObjectBuilder_CubeBlock GetObjectBuilderCubeBlock(bool copy = false)
         {
             MyObjectBuilder_MyProgrammableBlock objectBuilder = (MyObjectBuilder_MyProgrammableBlock)base.GetObjectBuilderCubeBlock(copy);
             objectBuilder.Program = this.m_programData;
             objectBuilder.DefaultRunArgument = this.m_terminalRunArgument;
-            if (m_instance != null)
-            {
-                objectBuilder.Storage = m_instance.Storage;
-            }
-
+            objectBuilder.Storage = m_gridProgramRuntime.Storage;
             return objectBuilder;
         }
 
-        private void CompileAndCreateInstance(string program,string storage)
+        private void CompileAndCreateInstance(string program)
         {
             if (MySession.Static.EnableIngameScripts == false)
             {
                 return;
             }
-            m_wasTerminated = false;
+            m_enqueuedRuns.Clear();
             Assembly temp = null;
             MyGuiScreenEditor.CompileProgram(program, m_compilerErrors, ref temp);
             if (temp != null)
             {
                 try
                 {
-					m_assembly = IlInjector.InjectCodeToAssembly("IngameScript_safe", temp, typeof(IlInjector).GetMethod("CountInstructions", BindingFlags.Public | BindingFlags.Static), typeof(IlInjector).GetMethod("CountMethodCalls", BindingFlags.Public | BindingFlags.Static));
+                    m_assembly = IlInjector.InjectCodeToAssembly("IngameScript_safe", temp, typeof(IlInjector).GetMethod("CountInstructions", BindingFlags.Public | BindingFlags.Static), typeof(IlInjector).GetMethod("CountMethodCalls", BindingFlags.Public | BindingFlags.Static));
+                    string response;
 
                     var type = m_assembly.GetType("Program");
-                    if (type != null)
+                    if (!m_gridProgramRuntime.TryLoad(type, out response))
                     {
-                        IlInjector.RestartCountingInstructions(MAX_NUM_EXECUTED_INSTRUCTIONS);
-						IlInjector.RestartCountingMethods(MAX_NUM_METHOD_CALLS);
-                        try
+                        if (DetailedInfo.ToString() != response)
                         {
-                            m_instance = Activator.CreateInstance(type) as IMyGridProgram;
-                            if (m_instance != null)
-                            {
-                                m_previousRunTimestamp = 0;
-                                m_instance.Storage = storage;
-                                m_instance.Me = this;
-                                m_instance.Echo = EchoTextToDetailInfo;
-                            }
+                            m_requireImmediateConstruction = false;
+                            SyncObject.SendProgramResponseMessage(response);
+                            WriteProgramResponse(response);
                         }
-                        catch (TargetInvocationException ex)
-                        {
-                            if (ex.InnerException != null)
-                            {
-                                string response = MyTexts.GetString(MySpaceTexts.ProgrammableBlock_Exception_ExceptionCaught) + ex.InnerException.Message;
-                                if (DetailedInfo.ToString() != response)
-                                {
-                                    SyncObject.SendProgramResponseMessage(response);
-                                    WriteProgramResponse(response);
-                                }
-                            }
-                        }
+                    }
+                    if (m_requireImmediateConstruction)
+                    {
+                        m_enqueuedRuns.Enqueue(TerminalActionParameter.Empty);
+                        NeedsUpdate |= MyEntityUpdateEnum.EACH_FRAME;
                     }
                 }
                 catch (Exception ex)
@@ -429,39 +397,13 @@ namespace Sandbox.Game.Entities.Blocks
                     string response = MyTexts.GetString(MySpaceTexts.ProgrammableBlock_Exception_ExceptionCaught) + ex.Message;
                     if (DetailedInfo.ToString() != response)
                     {
+                        m_requireImmediateConstruction = false;
                         SyncObject.SendProgramResponseMessage(response);
                         WriteProgramResponse(response);
                     }
                 }
 
             }
-        }
-
-        private void EchoTextToDetailInfo(string line)
-        {
-            line = line ?? string.Empty;
-            var lineLength = line.Length + 1; // line length + lineshift
-            if (lineLength > MAX_ECHO_LENGTH)
-            {
-                // If the input line is already longer than the maximum allowed length,
-                // we clear the current output and add only allowed portion of the string
-                // to the output. Obviously this is unlikely to happen but it could.
-                m_echoOutput.Clear();
-                line = line.Substring(0, MAX_ECHO_LENGTH);
-            }
-
-            // Now we make sure the addition of this new line does not overshoot the 
-            // maximum size by removing any excess amount of characters from the beginning
-            // of the stream.
-            var newLength = m_echoOutput.Length + lineLength;
-            if (newLength > MAX_ECHO_LENGTH)
-            {
-                m_echoOutput.Remove(0, newLength - MAX_ECHO_LENGTH);
-            }
-
-            // Append the new line.
-            m_echoOutput.Append(line);
-            m_echoOutput.Append('\n');
         }
 
         public void ShowEditorAllReadyOpen()
@@ -472,14 +414,14 @@ namespace Sandbox.Game.Entities.Blocks
                                  messageText: new StringBuilder("Editor is opened by another player.")));
         }
 
-        public void UpdateProgram(string program,string storage)
+        public void UpdateProgram(string program, string storage)
         {
             this.m_editorData = this.m_programData = program;
-            this.m_storageData = storage;
+            m_gridProgramRuntime.Storage = storage;
             m_compilerErrors.Clear();
             if (Sync.IsServer)
             {
-                CompileAndCreateInstance(m_programData,storage);
+                CompileAndCreateInstance(m_programData);
             }
         }
 
@@ -490,7 +432,7 @@ namespace Sandbox.Game.Entities.Blocks
             RaisePropertiesChanged();
         }
 
-        bool IMyProgrammableBlock.IsRunning { get { return m_isRunning; } }
+        bool IMyProgrammableBlock.IsRunning { get { return m_gridProgramRuntime.IsRunning; } }
 
         protected override void OnOwnershipChanged()
         {
@@ -571,6 +513,31 @@ namespace Sandbox.Game.Entities.Blocks
             PowerReceiver.Update();
             UpdateEmissivity();
             base.OnEnabledChanged();
+        }
+    
+        void IMyProgrammableBlock.Run(string argument)
+        {
+            m_argumentContainer[0] = TerminalActionParameter.Get(argument ?? "");
+            this.ApplyAction("Run", m_argumentContainer);
+        }
+
+        bool IMyProgrammableBlock.EnqueueRun(string argument)
+        {
+            if (m_enqueuedRuns.Count >= MAX_RUN_QUEUE_SIZE)
+                return false;
+            m_enqueuedRuns.Enqueue(TerminalActionParameter.Get(argument ?? ""));
+            NeedsUpdate |= MyEntityUpdateEnum.EACH_FRAME;
+            return true;
+        }
+
+        int IMyProgrammableBlock.CurrentRunQueueCount
+        {
+            get { return m_enqueuedRuns.Count; }
+        }
+
+        int IMyProgrammableBlock.MaxRunQueueCount
+        {
+            get { return MAX_RUN_QUEUE_SIZE; }
         }
     }
 }
