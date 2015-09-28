@@ -32,8 +32,8 @@ namespace Sandbox.Game.Screens.Triggers
         public MyGuiScreenTriggerPosition(MyTrigger trg)
             : base(trg, new Vector2(WINSIZEX + 0.1f, WINSIZEY + 0.05f))
         {
-            float left = MIDDLE_PART_ORIGIN.X-WINSIZEX/2;
-            float top = -WINSIZEY / 2f + MIDDLE_PART_ORIGIN.Y;
+            float left = MIDDLE_PART_ORIGIN.X-WINSIZEX * 0.5f;
+            float top = -WINSIZEY * 0.5f + MIDDLE_PART_ORIGIN.Y;
             //X,Y,Z:
             m_labelInsX = new MyGuiControlLabel(
                 originAlign: MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_TOP,
@@ -85,7 +85,7 @@ namespace Sandbox.Game.Screens.Triggers
             };
             m_zCoord.Enabled = false;
 
-            left = MIDDLE_PART_ORIGIN.X - WINSIZEX / 2;
+            left = MIDDLE_PART_ORIGIN.X - WINSIZEX * 0.5f;
             top += m_zCoord.Size.Y + 2*VERTICAL_OFFSET;
             m_labelRadius = new MyGuiControlLabel(
                 originAlign: MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_TOP,

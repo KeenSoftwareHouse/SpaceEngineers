@@ -266,7 +266,7 @@ namespace Sandbox.Game.Screens.Helpers
 			m_statControls = new List<MyGuiControlStat>();
 
 			var statControlWidth = Size.X - 2.0f*statControlPadding.X;
-			var nextStatControlY = -Size.Y/2.0f + verticalPadding;
+			var nextStatControlY = -Size.Y * 0.5f + verticalPadding;
 
 			foreach (var stat in stats)
 			{

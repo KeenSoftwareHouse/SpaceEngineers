@@ -49,7 +49,9 @@ namespace Sandbox.Graphics.GUI
         {
             ProgressColor = (progressBarColor.HasValue ? progressBarColor.Value : DEFAULT_PROGRESS_COLOR);
 			IsHorizontal = isHorizontal;
-			m_progressForeground = new MyGuiControlPanel(	position: new Vector2(-Size.X/2.0f, 0.0f),
+			var pixelHorizontal = 1.1f/MyGuiManager.GetFullscreenRectangle().Width;
+			var pixelVertical = 1.1f / MyGuiManager.GetFullscreenRectangle().Height;
+			m_progressForeground = new MyGuiControlPanel(	position: new Vector2(-Size.X*0.5f + pixelHorizontal, 0.0f),
 															originAlign: MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_CENTER,
 															backgroundColor: ProgressColor);
 			m_progressForeground.BackgroundTexture = MyGuiConstants.TEXTURE_GUI_BLANK;

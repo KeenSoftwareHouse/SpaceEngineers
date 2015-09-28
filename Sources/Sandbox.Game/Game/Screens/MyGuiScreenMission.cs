@@ -156,7 +156,7 @@ namespace Sandbox.Game.Gui
         {
             var titlePos = new Vector2(0f, -0.3f);
             var descSize = m_descSize;
-            var descPosition = new Vector2(-descSize.X/2, titlePos.Y + 0.10f);
+            var descPosition = new Vector2(-descSize.X*0.5f, titlePos.Y + 0.10f);
             var objSize = new Vector2(0.2f, 0.3f);
             var objOffset = new Vector2(0.32f, 0f);
             var padding = new Vector2(0.005f, 0f);

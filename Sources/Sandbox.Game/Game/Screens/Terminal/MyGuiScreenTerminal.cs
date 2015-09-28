@@ -15,7 +15,6 @@ using System.Diagnostics;
 using System.Text;
 using VRage;
 using VRage.Input;
-using VRage.Library.Utils;
 using VRage.Utils;
 using VRageMath;
 
@@ -162,7 +161,7 @@ namespace Sandbox.Game.Gui
                 //populate them
                 CreatePropertiesPageControls(m_propertiesTopMenuParent, m_propertiesTableParent);
 
-                //pass them onto the properties class
+                //pass them on to the properties class
                 if (m_controllerProperties == null)
                     m_controllerProperties = new MyTerminalPropertiesController();
                 else
@@ -170,7 +169,7 @@ namespace Sandbox.Game.Gui
 
                 //adds event handlers
                 m_controllerProperties.ButtonClicked += PropertiesButtonClicked;
-                
+
                 //Add to screen
                 Controls.Add(m_propertiesTableParent);
                 Controls.Add(m_propertiesTopMenuParent);
@@ -272,7 +271,7 @@ namespace Sandbox.Game.Gui
             m_controllerInventory.Init(inventoryPage, m_user, InteractedEntity, m_colorHelper);
             m_controllerControlPanel.Init(controlPanelPage, MySession.LocalHumanPlayer, grid, InteractedEntity as MyTerminalBlock, m_colorHelper);
             m_controllerProduction.Init(productionPage, grid);
-            m_controllerInfo.Init(infoPage, InteractedEntity != null ? InteractedEntity.Parent as MyCubeGrid : null);
+            m_controllerInfo.Init(this, infoPage, InteractedEntity != null ? InteractedEntity.Parent as MyCubeGrid : null);
             m_controllerFactions.Init(factionsPage);
 
             if (MyFakes.ENABLE_GPS)
@@ -1038,24 +1037,52 @@ namespace Sandbox.Game.Gui
             infoPage.Name = "PageInfo";
             infoPage.TextEnum = MySpaceTexts.TerminalTab_Info;
 
-            var list = new MyGuiControlList(new Vector2(-0.462f, -0.34f), new Vector2(0.35f, 0.69f));
-            //var list = new MyGuiControlMultilineText( new Vector2(-0.462f, -0.34f), new Vector2(0.35f,0.69f), null, MyFontEnum.White, 1, MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_TOP, new StringBuilder());
+            var list = new MyGuiControlList();
             list.Name = "InfoList";
             list.OriginAlign = MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_TOP;
-            infoPage.Controls.Add(list);
+            list.Size = new Vector2(0.35f, 0.50f);
+            infoPage.Controls.Add(list);   
+
+            if (MyFakes.ENABLE_TERMINAL_PROPERTIES)
+            {
+                var nameLabel = new MyGuiControlLabel(new Vector2(-0.462f, -0.32f), text: MyTexts.GetString(MySpaceTexts.TerminalTab_Info_ShipName));
+                nameLabel.Name = "RenameShipLabel";
+
+                var nameTextBox = new MyGuiControlTextbox();
+                nameTextBox.Name = "RenameShipText";
+                nameTextBox.Size = new Vector2(0.2f, 0.005f);
+                nameTextBox.Position = new Vector2(-0.462f + (nameTextBox.Size.X * 0.5f ), nameLabel.PositionY + (nameTextBox.Size.Y * 0.5f) + nameLabel.Size.Y);
+
+                var renameButton = new MyGuiControlButton(new Vector2(-0.462f + nameTextBox.Size.X + nameTextBox.Size.Y, nameTextBox.PositionY ),
+                                                          MyGuiControlButtonStyleEnum.Tiny );
+                renameButton.Text = MyTexts.GetString(MySpaceTexts.Ok);
+                renameButton.Name = "RenameShipButton";
+
+                infoPage.Controls.Add(nameLabel);
+                infoPage.Controls.Add(nameTextBox);
+                infoPage.Controls.Add(renameButton);
+
+                list.Position = new Vector2(-0.462f, nameTextBox.PositionY + nameTextBox.Size.Y); 
+            }
+            else {
+                list.Position = new Vector2(-0.462f, -0.34f);          
+            }
 
             var convertBtn = new MyGuiControlButton();
+            convertBtn.PositionX = list.PositionX + ( convertBtn.Size.X * 0.5f ) ;
+            convertBtn.PositionY = list.PositionY + list.Size.Y + convertBtn.Size.Y;
             convertBtn.TextEnum = MySpaceTexts.TerminalTab_Info_ConvertButton;
             convertBtn.Name = "ConvertBtn";
             infoPage.Controls.Add(convertBtn);
 
+            var sep = new MyGuiControlSeparatorList();
+            sep.AddVertical(new Vector2(list.PositionX + list.Size.X + 0.05f, -0.34f), 0.7f, 0.002f);
+            infoPage.Controls.Add(sep);
+
+            var posXControl = sep.PositionX + 0.0005f;
             if (MyFakes.ENABLE_CENTER_OF_MASS)
             {
-                var sep = new MyGuiControlSeparatorList();
-                sep.AddVertical(new Vector2(0.14f, -0.34f), 0.7f, 0.002f);
-                infoPage.Controls.Add(sep);
-
-                var centerBtnLabel = new MyGuiControlLabel(new Vector2(0.15f, -0.32f), text: MyTexts.GetString(MySpaceTexts.TerminalTab_Info_ShowMassCenter));
+                var centerBtnLabel = new MyGuiControlLabel(new Vector2(posXControl, -0.32f), text: MyTexts.GetString(MySpaceTexts.TerminalTab_Info_ShowMassCenter));
                 centerBtnLabel.OriginAlign = MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_CENTER;
                 infoPage.Controls.Add(centerBtnLabel);
 
@@ -1063,10 +1090,9 @@ namespace Sandbox.Game.Gui
                 centerBtn.OriginAlign = MyGuiDrawAlignEnum.HORISONTAL_RIGHT_AND_VERTICAL_CENTER;
                 centerBtn.Name = "CenterBtn";
                 infoPage.Controls.Add(centerBtn);
-
             }
 
-            var showGravityGizmoBtnLabel = new MyGuiControlLabel(new Vector2(0.15f, -0.27f), text: MyTexts.GetString(MySpaceTexts.TerminalTab_Info_ShowGravityGizmo));
+            var showGravityGizmoBtnLabel = new MyGuiControlLabel(new Vector2(posXControl, -0.27f), text: MyTexts.GetString(MySpaceTexts.TerminalTab_Info_ShowGravityGizmo));
             showGravityGizmoBtnLabel.OriginAlign = MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_CENTER;
             infoPage.Controls.Add(showGravityGizmoBtnLabel);
 
@@ -1075,7 +1101,7 @@ namespace Sandbox.Game.Gui
             showGravityGizmoBtn.Name = "ShowGravityGizmo";
             infoPage.Controls.Add(showGravityGizmoBtn);
 
-            var showSenzorGizmoBtnLabel = new MyGuiControlLabel(new Vector2(0.15f, -0.22f), text: MyTexts.GetString(MySpaceTexts.TerminalTab_Info_ShowSenzorGizmo));
+            var showSenzorGizmoBtnLabel = new MyGuiControlLabel(new Vector2(posXControl, -0.22f), text: MyTexts.GetString(MySpaceTexts.TerminalTab_Info_ShowSenzorGizmo));
             showSenzorGizmoBtnLabel.OriginAlign = MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_CENTER;
             infoPage.Controls.Add(showSenzorGizmoBtnLabel);
 
@@ -1084,7 +1110,7 @@ namespace Sandbox.Game.Gui
             showSenzorGizmoBtn.Name = "ShowSenzorGizmo";
             infoPage.Controls.Add(showSenzorGizmoBtn);
 
-            var showAntenaGizmoBtnLabel = new MyGuiControlLabel(new Vector2(0.15f, -0.17f), text: MyTexts.GetString(MySpaceTexts.TerminalTab_Info_ShowAntenaGizmo));
+            var showAntenaGizmoBtnLabel = new MyGuiControlLabel(new Vector2(posXControl, - 0.17f), text: MyTexts.GetString(MySpaceTexts.TerminalTab_Info_ShowAntenaGizmo));
             showAntenaGizmoBtnLabel.OriginAlign = MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_CENTER;
             infoPage.Controls.Add(showAntenaGizmoBtnLabel);
 
@@ -1093,11 +1119,11 @@ namespace Sandbox.Game.Gui
             showAntenaGizmoBtn.Name = "ShowAntenaGizmo";
             infoPage.Controls.Add(showAntenaGizmoBtn);
 
-            CreateAntennaSlider(infoPage, MyTexts.GetString(MySpaceTexts.TerminalTab_Info_FriendlyAntennaRange),"FriendAntennaRange",-0.13f);
-            CreateAntennaSlider(infoPage, MyTexts.GetString(MySpaceTexts.TerminalTab_Info_EnemyAntennaRange), "EnemyAntennaRange", -0.01f);
-            CreateAntennaSlider(infoPage, MyTexts.GetString(MySpaceTexts.TerminalTab_Info_OwnedAntennaRange), "OwnedAntennaRange", 0.11f);
+            CreateAntennaSlider(infoPage, MyTexts.GetString(MySpaceTexts.TerminalTab_Info_FriendlyAntennaRange),"FriendAntennaRange", posXControl,-0.13f);
+            CreateAntennaSlider(infoPage, MyTexts.GetString(MySpaceTexts.TerminalTab_Info_EnemyAntennaRange), "EnemyAntennaRange", posXControl, -0.01f);
+            CreateAntennaSlider(infoPage, MyTexts.GetString(MySpaceTexts.TerminalTab_Info_OwnedAntennaRange), "OwnedAntennaRange", posXControl, 0.11f);
 
-            var pivotBtnLabel = new MyGuiControlLabel(new Vector2(0.15f, 0.23f), text: MyTexts.GetString(MySpaceTexts.TerminalTab_Info_PivotBtn));
+            var pivotBtnLabel = new MyGuiControlLabel(new Vector2(posXControl, 0.23f), text: MyTexts.GetString(MySpaceTexts.TerminalTab_Info_PivotBtn));
             pivotBtnLabel.OriginAlign = MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_CENTER;
             infoPage.Controls.Add(pivotBtnLabel);
 
@@ -1106,34 +1132,7 @@ namespace Sandbox.Game.Gui
             pivotBtn.Name = "PivotBtn";
             infoPage.Controls.Add(pivotBtn);
 
-            if (MyFakes.ENABLE_TERMINAL_PROPERTIES)
-            {
-                var nameLabel = new MyGuiControlLabel()
-                {
-                    Name = "RenameShipLabel",
-                    Text = "Ship Name",
-                    Position = new Vector2(0.15f, 0.26f)
-                };
-                var nameTextBox = new MyGuiControlTextbox()
-                {
-                    Name = "RenameShipText",
-                    Position = new Vector2(0.25f, 0.3f),
-                    Size = new Vector2(0.2f, 0.005f)
-                };
-
-                var renameButton = new MyGuiControlButton()
-                {
-                    Name = "RenameShipButton",
-                    Position = new Vector2(0.38f, 0.3f),
-                    Text = "Ok",
-                    VisualStyle = MyGuiControlButtonStyleEnum.Tiny,
-                };
-                infoPage.Controls.Add(nameLabel);
-                infoPage.Controls.Add(nameTextBox);
-                infoPage.Controls.Add(renameButton);
-            }
-
-            var setDestructibleBlocksLabel = new MyGuiControlLabel(new Vector2(0.15f, 0.28f), text: MyTexts.GetString(MySpaceTexts.TerminalTab_Info_DestructibleBlocks));
+            var setDestructibleBlocksLabel = new MyGuiControlLabel(new Vector2(posXControl, 0.28f), text: MyTexts.GetString(MySpaceTexts.TerminalTab_Info_DestructibleBlocks));
             setDestructibleBlocksLabel.OriginAlign = MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_CENTER;
             setDestructibleBlocksLabel.Visible = MySession.Static.Settings.ScenarioEditMode || MySession.Static.IsScenario;
             infoPage.Controls.Add(setDestructibleBlocksLabel);
@@ -1166,13 +1165,13 @@ namespace Sandbox.Game.Gui
 			return false;
 		}
 
-        private static void CreateAntennaSlider(MyGuiControlTabPage infoPage,string labelText,string name,float startY)
+        private static void CreateAntennaSlider(MyGuiControlTabPage infoPage, string labelText, string name, float startX, float startY)
         {
-            var friendAntennaRangeLabel = new MyGuiControlLabel(new Vector2(0.15f, startY), text: labelText);
+            var friendAntennaRangeLabel = new MyGuiControlLabel(new Vector2(startX, startY), text: labelText);
             friendAntennaRangeLabel.OriginAlign = MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_CENTER;
             infoPage.Controls.Add(friendAntennaRangeLabel);
 
-            var friendAntennaRangeValueLabel = new MyGuiControlLabel(new Vector2(0.15f, startY+0.09f));
+            var friendAntennaRangeValueLabel = new MyGuiControlLabel(new Vector2(startX, startY + 0.05f));
             friendAntennaRangeValueLabel.OriginAlign = MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_CENTER;
             infoPage.Controls.Add(friendAntennaRangeValueLabel);
 
@@ -1702,7 +1701,7 @@ namespace Sandbox.Game.Gui
 
         #region populate properties
         private void CreatePropertiesPageControls(MyGuiControlParent menuParent, MyGuiControlParent panelParent)
-        {
+        {                           
             m_propertiesTableParent.Name = "PropertiesTable";
             m_propertiesTopMenuParent.Name = "PropertiesTopMenu";
             //Combobox on top of Terminal

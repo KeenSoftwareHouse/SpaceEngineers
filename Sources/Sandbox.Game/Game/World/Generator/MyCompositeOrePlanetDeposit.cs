@@ -52,7 +52,7 @@ namespace Sandbox.Game.World.Generator
 
             MyRandom random = MyRandom.Instance;
             FillMaterialCollections();
-            Vector3D offset = -new Vector3D(DEPOSIT_MAX_SIZE/2.0);
+            Vector3D offset = -new Vector3D(DEPOSIT_MAX_SIZE*0.5f);
             using (var stateToken = random.PushSeed(seed))
             {
                 for (int i = 0; i < m_numDeposits; ++i)

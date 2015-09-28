@@ -167,7 +167,7 @@ float4 SSAO(float2 uv,float2 screenPos,const uniform bool highQuality)
 			{
 				vDistance = fSceneDepth - arrSceneDepth2[s];
 				float4 vDistanceScaled = vDistance * fDepthRangeScale;
-				fRangeIsInvalid = (saturate( abs(vDistanceScaled) ) + saturate( vDistanceScaled ))/2;
+				fRangeIsInvalid = (saturate( abs(vDistanceScaled) ) + saturate( vDistanceScaled ))*0.5;
 				vSkyAccess += lerp(saturate((-vDistance)*fDepthTestSoftness), fDefVal, fRangeIsInvalid);
 			}
 		}
