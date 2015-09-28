@@ -23,6 +23,7 @@ using VRage;
 using VRage.Utils;
 using VRage.ModAPI;
 
+using Sandbox.Game.Entities.Blocks;
 #endregion
 
 namespace Sandbox.Game.Entities.Cube
@@ -35,7 +36,6 @@ namespace Sandbox.Game.Entities.Cube
 
         MyRadioBroadcaster m_radioBroadcaster;
         MyRadioReceiver m_radioReceiver;
-
         private bool m_showShipName;
         public bool ShowShipName
         {
@@ -164,6 +164,13 @@ namespace Sandbox.Game.Entities.Cube
             showShipName.EnableAction();
             MyTerminalControlFactory.AddControl(showShipName);
 
+            var enableListen = new MyTerminalControlCheckbox<MyRadioAntenna>("EnableListen", MySpaceTexts.Antenna_EnableListen, MySpaceTexts.Antenna_EnableListen);
+            enableListen.Getter = (x) => x.Listen;
+            enableListen.Setter = (x, v) => x.Listen = v;
+            MyTerminalControlFactory.AddControl(enableListen);
+
+            var showReceivedMessages = new MyTerminalControlButton<MyRadioAntenna>("ShowReceivedMessages", MySpaceTexts.Antenna_DisplayReceivedMessages, MySpaceTexts.Antenna_DisplayReceivedMessagesTooltipp, (b) => b.OpenReceivedMessagesDisplay() );
+            MyTerminalControlFactory.AddControl(showReceivedMessages);
         }
 
         public MyRadioAntenna()
@@ -359,6 +366,7 @@ namespace Sandbox.Game.Entities.Cube
             DetailedInfo.Append("\n");
             DetailedInfo.AppendStringBuilder(MyTexts.Get(MySpaceTexts.BlockPropertyProperties_CurrentInput));
             MyValueFormatter.AppendWorkInBestUnit(PowerReceiver.IsPowered ? PowerReceiver.RequiredInput : 0, DetailedInfo);
+
             RaisePropertiesChanged();
         }
 
@@ -366,6 +374,166 @@ namespace Sandbox.Game.Entities.Cube
         {
             get { return GetRadius(); }
         }
+
+        //mine
+        private int PushMessageToStorage(string shipsender, string shipreceiver, string pbreceiver, string message)
+        {
+            //localisation! Magic 12 has to be adapted also!
+            StringBuilder text = new StringBuilder(shipsender);
+            text.Append(MyTexts.Get(MySpaceTexts.Antenna_MsgPart_to)); // " to "
+            text.Append(pbreceiver);
+            text.Append(MyTexts.Get(MySpaceTexts.Antenna_MsgPart_on)); // " on "
+            text.Append(shipreceiver);
+            text.Append(": "); //I think this is in all languages the same...
+            text.Append(message);
+            text.Append("\n");
+
+            return MyRadioAntennaMessages.Add(text);
+        }
+
+        public void ReceiveMessage(int hash)
+        {
+            if (m_messageHashs == null)
+                m_messageHashs = new List<int>();
+
+            m_messageHashs.Add(hash);
+        }
+
+        public bool SendMessage(string shipreceiver, string pbreceiver, string message)
+        {
+
+            if (shipreceiver.Length + pbreceiver.Length + message.Length + MESSAGE_PART_LENGTH > MyRadioAntennaMessages.MAX_MESSAGE_LENGTH)
+                return false; //Message was to long. The magic 12 comes from the added strings: " to " + " on " + ": " + "\n"
+
+            if (m_sendMessageTimestamp == 0)
+            {
+                //First message sent.
+                m_sendMessageTimestamp = Stopwatch.GetTimestamp();
+            }
+            else
+            {
+                var elapsedTime = (Stopwatch.GetTimestamp() - m_sendMessageTimestamp) * Sync.RelativeSimulationRatio;
+                elapsedTime *= STOPWATCH_FREQUENCY;
+
+                if (elapsedTime >= SEND_MESSAGES_COOLDOWN)
+                {
+                    //We waited long enough, allow the send. And set the timestamp
+                    m_sendMessageTimestamp = Stopwatch.GetTimestamp();
+                }
+                else
+                {
+                    //We haven't yet waited long enough. Don't send the message.
+                    return false;
+                }
+            }
+
+            //Create the message in the storage and keep the reference.
+            int hash = PushMessageToStorage(this.CubeGrid.DisplayName, shipreceiver, pbreceiver, message);
+
+            foreach (var broadcaster in RadioReceiver.RelayedBroadcasters)
+            {
+                if (broadcaster.Parent is MyRadioAntenna)
+                {
+                    MyRadioAntenna antenna = broadcaster.Parent as MyRadioAntenna;
+                    if (!antenna.Listen || antenna == this) //Antenna is not listening to open chatter, thus ignore it.
+                        continue;
+
+                    //Send the reference to the listening antenna
+                    antenna.ReceiveMessage(hash);
+
+                    if (antenna.CubeGrid.DisplayName == shipreceiver)
+                    {
+                        var gridGroup = MyCubeGridGroups.Static.Logical.GetGroup(antenna.CubeGrid);
+                        var terminalSystem = gridGroup.GroupData.TerminalSystem;
+                        terminalSystem.UpdateGridBlocksOwnership(this.OwnerId);
+
+                        IMyGridTerminalSystem grid = (IMyGridTerminalSystem)terminalSystem;
+                        if (grid == null)
+                            continue;
+
+                        MyProgrammableBlock pb = (MyProgrammableBlock)grid.GetBlockWithName(pbreceiver); //Get the programmable block with the specified name.
+                        if (pb == null) //If the block with the name does not exist, or if the player has no permission this will be null.
+                            continue;
+
+                        pb.Run(message);
+                    }
+                }
+            }
+
+            return true;
+        }
+
+        public void OpenReceivedMessagesDisplay() 
+        {
+            if (m_messageHashs == null)
+                m_messageHashs = new List<int>();
+
+            StringBuilder desc = MyRadioAntennaMessages.GetMessages(this);
+            MyGuiScreenTextPanel textBox;
+
+            if (desc != null)
+            {
+                textBox = new MyGuiScreenTextPanel(missionTitle: "Received Messages",
+                           currentObjectivePrefix: "",
+                           currentObjective: "",
+                           description: MyRadioAntennaMessages.GetMessages(this).ToString(),
+                           editable: false,
+                           resultCallback: null);
+            }
+            else
+            {
+                textBox = new MyGuiScreenTextPanel(missionTitle: "Received Messages",
+                           currentObjectivePrefix: "",
+                           currentObjective: "",
+                           description: "",
+                           editable: false,
+                           resultCallback: null);
+            }
+
+            MyScreenManager.AddScreen(textBox);
+        }
+
+        /// <summary>
+        /// This method makes sure that only one antenna per ship has the listen attribute enabled.
+        /// </summary>
+        private void AssertOnlyOneListener()
+        {
+            var gridGroup = MyCubeGridGroups.Static.Logical.GetGroup(this.CubeGrid);
+            var terminalGrid = (IMyGridTerminalSystem)gridGroup.GroupData.TerminalSystem;
+
+            var blocks = terminalGrid.Blocks;
+            foreach (var block in blocks)
+            {
+                if (block is MyRadioAntenna && !block.Equals(this))
+                    ((MyRadioAntenna)block).Listen = false;
+            }
+        }
+
+        private const float SEND_MESSAGES_COOLDOWN = 0.75f;
+        private static readonly float STOPWATCH_FREQUENCY = 1.0f / Stopwatch.Frequency;
+        private static readonly int MESSAGE_PART_LENGTH = MyTexts.Get(MySpaceTexts.Antenna_MsgPart_to).Length + MyTexts.GetString(MySpaceTexts.Antenna_MsgPart_on).Length + 4; // ": " + "\n"
+
+        private long m_sendMessageTimestamp = 0;
+
+        private bool m_Listen = false;
+        public bool Listen
+        {
+            get { return m_Listen; }
+            set 
+            {
+                if (m_Listen != value)
+                {
+                    if (value == true)
+                        AssertOnlyOneListener();
+
+                    m_Listen = value;
+                    RaisePropertiesChanged();
+                }
+            }
+        }
+
+        public List<int> m_messageHashs;
+        //not mine
 
 		bool IsBroadcasting()
 		{

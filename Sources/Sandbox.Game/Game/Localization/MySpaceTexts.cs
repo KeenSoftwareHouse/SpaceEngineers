@@ -10175,6 +10175,11 @@ namespace Sandbox.Game.Localization
         public static readonly MyStringId NotificationHintJoystickPressToOpenButtonPanel = MyStringId.GetOrCompute("NotificationHintJoystickPressToOpenButtonPanel");
 
         ///<summary>
+        ///Listen
+        ///</summary>
+        public static readonly MyStringId Antenna_EnableListen = MyStringId.GetOrCompute("Antenna_EnableListen");
+
+        ///<summary>
         ///Access control menu to open inventory of {0}
         ///</summary>
         public static readonly MyStringId NotificationHintJoystickPressToOpenInventory = MyStringId.GetOrCompute("NotificationHintJoystickPressToOpenInventory");
@@ -10213,6 +10218,26 @@ namespace Sandbox.Game.Localization
         ///Old Scrap Metal
         ///</summary>
         public static readonly MyStringId DisplayName_Item_ScrapIngot = MyStringId.GetOrCompute("DisplayName_Item_ScrapIngot");
+
+        ///<summary>
+        ///Received Messages
+        ///</summary>
+        public static readonly MyStringId Antenna_DisplayReceivedMessages = MyStringId.GetOrCompute("Antenna_DisplayReceivedMessages");
+
+        ///<summary>
+        ///Displays the received messages
+        ///</summary>
+        public static readonly MyStringId Antenna_DisplayReceivedMessagesTooltipp = MyStringId.GetOrCompute("Antenna_DisplayReceivedMessagesTooltipp");
+
+        ///<summary>
+        /// on 
+        ///</summary>
+        public static readonly MyStringId Antenna_MsgPart_on = MyStringId.GetOrCompute("Antenna_MsgPart_on");
+
+        ///<summary>
+        /// to 
+        ///</summary>
+        public static readonly MyStringId Antenna_MsgPart_to = MyStringId.GetOrCompute("Antenna_MsgPart_to");
 
         ///<summary>
         ///Add

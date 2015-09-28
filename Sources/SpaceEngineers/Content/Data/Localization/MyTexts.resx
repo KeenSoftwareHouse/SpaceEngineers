@@ -6304,6 +6304,9 @@ To connect to lasers not listed here you can connect to coordinates.</value>
   <data name="NotificationHintJoystickPressToOpenButtonPanel" xml:space="preserve">
     <value>Access control menu to setup panel's buttons</value>
   </data>
+  <data name="Antenna_EnableListen" xml:space="preserve">
+    <value>Listen</value>
+  </data>
   <data name="NotificationHintJoystickPressToOpenInventory" xml:space="preserve">
     <value>Access control menu to open inventory of {0}</value>
   </data>
@@ -6327,6 +6330,18 @@ To connect to lasers not listed here you can connect to coordinates.</value>
   </data>
   <data name="DisplayName_Item_ScrapIngot" xml:space="preserve">
     <value>Old Scrap Metal</value>
+  </data>
+  <data name="Antenna_DisplayReceivedMessages" xml:space="preserve">
+    <value>Received Messages</value>
+  </data>
+  <data name="Antenna_DisplayReceivedMessagesTooltipp" xml:space="preserve">
+    <value>Displays the received messages</value>
+  </data>
+  <data name="Antenna_MsgPart_on" xml:space="preserve">
+    <value> on </value>
+  </data>
+  <data name="Antenna_MsgPart_to" xml:space="preserve">
+    <value> to </value>
   </data>
   <data name="BlockActionTitle_AddWaypoint" xml:space="preserve">
     <value>Add</value>
