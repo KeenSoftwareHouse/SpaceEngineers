@@ -206,7 +206,7 @@ namespace Sandbox.Game.GameSystems
             }
         }
 
-        public void RequestJump(string destinationName, Vector3D destination, long userId)
+        public bool RequestJumpWithoutPrompt(Vector3D destination, long userId)
         {
             if (!Vector3.IsZero(MyGravityProviderSystem.CalculateNaturalGravityInPoint(m_grid.WorldMatrix.Translation)))
             {
@@ -223,22 +223,35 @@ namespace Sandbox.Game.GameSystems
 
             if (!IsJumpValid(userId))
             {
+                return false;
+            }
+
+            double jumpDistance;
+            double actualDistance;
+            bool canPerformJump = RequestJumpCalculation(destination, userId, out jumpDistance, out actualDistance);
+            if (canPerformJump)
+            {
+                SyncObject.RequestJump(m_selectedDestination, userId);
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        public void RequestJump(string destinationName, Vector3D destination, long userId)
+        {
+            if (!IsJumpValid(userId))
+            {
                 return;
             }
 
-            m_selectedDestination = destination;
-            double maxJumpDistance = GetMaxJumpDistance(userId);
-            m_jumpDirection = destination - m_grid.WorldMatrix.Translation;
-            double jumpDistance = m_jumpDirection.Length();
-            double actualDistance = jumpDistance;
-            if (jumpDistance > maxJumpDistance)
-            {
-                double ratio = maxJumpDistance / jumpDistance;
-                actualDistance = maxJumpDistance;
-                m_jumpDirection *= ratio;
-            }
+            double jumpDistance;
+            double actualDistance;
+            bool canPerformJump = RequestJumpCalculation(destination, userId, out jumpDistance, out actualDistance);
 
-            if (actualDistance < MIN_JUMP_DISTANCE)
+            if (!canPerformJump)
             {
                 MyGuiSandbox.AddScreen(MyGuiSandbox.CreateMessageBox(
                     buttonType: MyMessageBoxButtonsType.OK,
@@ -264,6 +277,30 @@ namespace Sandbox.Game.GameSystems
                     ));
             }
 
+        }
+
+        private bool RequestJumpCalculation(Vector3D destination, long userId, out double jumpDistance, out double actualDistance)
+        {
+            m_selectedDestination = destination;
+            double maxJumpDistance = GetMaxJumpDistance(userId);
+            m_jumpDirection = destination - m_grid.WorldMatrix.Translation;
+            jumpDistance = m_jumpDirection.Length();
+            actualDistance = jumpDistance;
+            if (jumpDistance > maxJumpDistance)
+            {
+                double ratio = maxJumpDistance/jumpDistance;
+                actualDistance = maxJumpDistance;
+                m_jumpDirection *= ratio;
+            }
+
+            if (actualDistance < MIN_JUMP_DISTANCE)
+            {
+                return false;
+            }
+            else
+            {
+                return true;
+            }
         }
 
         private StringBuilder GetConfimationText(string name, double distance, double actualDistance, long userId)

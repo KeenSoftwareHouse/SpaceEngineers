@@ -213,20 +213,18 @@ namespace Sandbox.Game.Entities
 
                     if (shipController != null && (shipController.IsMainCockpit || !CubeGrid.HasMainCockpit()))
                     {
+                        string jumpName;
                         if (m_jumpTarget != null)
                         {
-                            CubeGrid.GridSystems.JumpSystem.RequestJump(m_jumpTarget.Name, m_jumpTarget.Coords, shipController.OwnerId);
+                            jumpName = m_jumpTarget.Name;
                         }
                         else
                         {
-                            Vector3 localForward = Base6Directions.GetVector(shipController.Orientation.Forward);
-                            Vector3D forward = Vector3D.Transform(localForward, shipController.CubeGrid.WorldMatrix.GetOrientation());
-
-                            forward.Normalize();
-
-                            Vector3D jumpCoords = CubeGrid.WorldMatrix.Translation + forward * ComputeMaxDistance();
-                            CubeGrid.GridSystems.JumpSystem.RequestJump("Blind Jump", jumpCoords, shipController.OwnerId);
+                            jumpName = "Blind Jump";
                         }
+
+                        var jumpCoords = GetJumpCoords(shipController);
+                        CubeGrid.GridSystems.JumpSystem.RequestJump(jumpName, jumpCoords, shipController.OwnerId);
                     }
                 }
             }
@@ -882,6 +880,26 @@ namespace Sandbox.Game.Entities
             SyncObject.SendSetTarget(cords, name);
         }
 
+        public Vector3D GetJumpCoords(IMyShipController shipController)
+        {
+            Debug.Assert(shipController != null);
+
+            if (m_jumpTarget != null)
+            {
+                return m_jumpTarget.Coords;
+            }
+            else
+            {
+                Vector3 localForward = Base6Directions.GetVector(shipController.Orientation.Forward);
+                Vector3D forward = Vector3D.Transform(localForward, shipController.CubeGrid.WorldMatrix.GetOrientation());
+
+                forward.Normalize();
+
+                Vector3D jumpCoords = CubeGrid.WorldMatrix.Translation + forward * ComputeMaxDistance();
+                return jumpCoords;
+            }
+        }
+
         private void OnSetTarget(Vector3D coords, string name)
         {
             var gpsEntry = new MyObjectBuilder_Gps.Entry
@@ -895,14 +913,6 @@ namespace Sandbox.Game.Entities
 
             m_jumpTarget = new MyGps(gpsEntry);
             RaisePropertiesChangedJumpDrive();
-        }
-
-        bool IMyJumpDrive.PerformJump()
-        {
-            if (!MySession.Static.Players.IdentityIsNpc(this.OwnerId))
-                return false;
-
-            throw new NotImplementedException();
         }
 
         #endregion

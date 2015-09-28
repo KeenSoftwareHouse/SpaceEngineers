@@ -82,9 +82,10 @@ namespace Sandbox.ModAPI.Ingame
         void SetTarget(Vector3D cords, string name);
 
         /// <summary>
-        /// Performs a jump, can only be done my NPC factions.
+        /// Gets the destination coordinates that the jump drive is set to. If set to a Bind Jump the ship controller is used to determine orientation.
         /// </summary>
-        /// <returns>If the jump request was successful.</returns>
-        bool PerformJump();
+        /// <param name="shipController"></param>
+        /// <returns></returns>
+        Vector3D GetJumpCoords(IMyShipController shipController);
     }
 }
