@@ -66,6 +66,9 @@ namespace Sandbox.Game.Weapons
 
             public MyLargeTurretBase Turret { get; set; }
 
+            private Vector3D averageTargetAcceleration { get; set; }
+            private Vector3D lastTargetVelocity { get; set; }
+
             //http://danikgames.com/blog/?p=809
             public Vector3D GetPredictedTargetPosition(IMyEntity target)
             {
@@ -75,8 +78,9 @@ namespace Sandbox.Game.Weapons
 
                 Vector3D predictedPosition = target.PositionComp.WorldAABB.Center;
 
-                Vector3D dirToTarget = Vector3D.Normalize(predictedPosition - Turret.GunBase.GetMuzzleWorldPosition());
-
+                Vector3D targetRelativePosition = predictedPosition - Turret.GunBase.GetMuzzleWorldPosition();
+                Vector3D dirToTarget = Vector3D.Normalize(targetRelativePosition);
+                
                 float shotSpeed = 0;
 
                 if (Turret.GunBase.CurrentAmmoMagazineDefinition != null)
@@ -103,6 +107,28 @@ namespace Sandbox.Game.Weapons
                 //Include turret velocity into calculations
                 targetVelocity -= Turret.Parent.Physics.LinearVelocity;
 
+                // ZLW 2015-05-16
+                // adding in a running, decaying average of change in velocity
+                if (averageTargetAcceleration == null)
+                {
+                    //initialize.
+                    averageTargetAcceleration = new Vector3D();
+                }
+                else
+                {
+                    double decayRate = 0.75; // 100% = no persistence; 0% never change.
+                    averageTargetAcceleration = (averageTargetAcceleration * (1.0 - decayRate)) + ((targetVelocity - lastTargetVelocity)) / 2;
+                }
+                lastTargetVelocity = targetVelocity;
+
+                //ZLW 2015-05-16
+                // * find approximate time to impact based on current position
+                // * add to velocity based on acceleration calculated above
+                // * do a one-iteration correction of estimated time to impact
+                double timeToImpact = targetRelativePosition.Length() / shotSpeed; // d = vt -> t = d/v
+                targetVelocity += averageTargetAcceleration * timeToImpact; // v = at
+                double tti2 = (targetRelativePosition + (targetVelocity * (float)timeToImpact)).Length() / shotSpeed;
+
                 // Decompose the target's velocity into the part parallel to the
                 // direction to the cannon and the part tangential to it.
                 // The part towards the cannon is found by projecting the target's
@@ -112,7 +138,6 @@ namespace Sandbox.Game.Weapons
                 // The tangential part is then found by subtracting the
                 // result from the target velocity.
                 Vector3 targetVelTang = targetVelocity - targetVelOrth;
-
 
                 // The tangential component of the velocities should be the same
                 // (or there is no chance to hit)
@@ -136,16 +161,9 @@ namespace Sandbox.Game.Weapons
                     float shotSpeedOrth = (float)Math.Sqrt(shotSpeed * shotSpeed - shotVelSpeed * shotVelSpeed);
                     Vector3 shotVelOrth = dirToTarget * shotSpeedOrth;
 
-                    // Finally, add the tangential and orthogonal velocities.
-                    //return shotVelOrth + shotVelTang;
-
-                    // Find the time of collision (distance / relative velocity)
-                    float timeDiff = shotVelOrth.Length() - targetVelOrth.Length();
-                    var timeToCollision = timeDiff != 0 ? ((Turret.PositionComp.GetPosition() - target.WorldMatrix.Translation).Length()) / timeDiff : 0;
-
                     // Calculate where the shot will be at the time of collision
                     Vector3 shotVel = shotVelOrth + shotVelTang;
-                    predictedPosition = timeToCollision > 0.01f ? Turret.GunBase.GetMuzzleWorldPosition() + (Vector3D)shotVel * timeToCollision : predictedPosition;
+                    predictedPosition = tti2 > 0.01f ? Turret.GunBase.GetMuzzleWorldPosition() + (Vector3D)shotVel * tti2 : predictedPosition;
 
                     return predictedPosition;
                 }
@@ -189,11 +207,15 @@ namespace Sandbox.Game.Weapons
 
             public Vector3D TrackedVelocity { get; set; }
 
+            private Vector3D averageTargetAcceleration { get; set; }
+            private Vector3D lastTargetVelocity { get; set; }
+
             public Vector3D GetPredictedTargetPosition(IMyEntity target)
             {
                 Vector3D predictedPosition = TrackedPosition;
 
-                Vector3D dirToTarget = Vector3D.Normalize(predictedPosition - Turret.GunBase.GetMuzzleWorldPosition());
+                Vector3D targetRelativePosition = predictedPosition - Turret.GunBase.GetMuzzleWorldPosition();
+                Vector3D dirToTarget = Vector3D.Normalize(targetRelativePosition);
 
                 float shotSpeed = 0;
 
@@ -220,6 +242,29 @@ namespace Sandbox.Game.Weapons
 
                 //Include turret velocity into calculations
                 targetVelocity -= Turret.Parent.Physics.LinearVelocity;
+
+
+                // ZLW 2015-05-16
+                // adding in a running, decaying average of change in velocity
+                if (averageTargetAcceleration == null)
+                {
+                    //initialize.
+                    averageTargetAcceleration = new Vector3D();
+                }
+                else
+                {
+                    double decayRate = 0.75; // 100% = no persistence; 0% never change.
+                    averageTargetAcceleration = (averageTargetAcceleration * (1.0 - decayRate)) + ((targetVelocity - lastTargetVelocity)) / 2;
+                }
+                lastTargetVelocity = targetVelocity;
+
+                //ZLW 2015-05-16
+                // * find approximate time to impact based on current position
+                // * add to velocity based on acceleration calculated above
+                // * do a one-iteration correction of estimated time to impact
+                double timeToImpact = targetRelativePosition.Length() / shotSpeed; // d = vt -> t = d/v
+                targetVelocity += averageTargetAcceleration * timeToImpact; // v = at
+                double tti2 = (targetRelativePosition + (targetVelocity * (float)timeToImpact)).Length() / shotSpeed;
 
                 // Decompose the target's velocity into the part parallel to the
                 // direction to the cannon and the part tangential to it.
@@ -254,16 +299,9 @@ namespace Sandbox.Game.Weapons
                     float shotSpeedOrth = (float)Math.Sqrt(shotSpeed * shotSpeed - shotVelSpeed * shotVelSpeed);
                     Vector3 shotVelOrth = dirToTarget * shotSpeedOrth;
 
-                    // Finally, add the tangential and orthogonal velocities.
-                    //return shotVelOrth + shotVelTang;
-
-                    // Find the time of collision (distance / relative velocity)
-                    float timeDiff = shotVelOrth.Length() - targetVelOrth.Length();
-                    var timeToCollision = timeDiff != 0 ? ((Turret.PositionComp.GetPosition() - target.WorldMatrix.Translation).Length()) / timeDiff : 0;
-
                     // Calculate where the shot will be at the time of collision
                     Vector3 shotVel = shotVelOrth + shotVelTang;
-                    predictedPosition = timeToCollision > 0.01f ? Turret.GunBase.GetMuzzleWorldPosition() + (Vector3D)shotVel * timeToCollision : predictedPosition;
+                    predictedPosition = tti2 > 0.01f ? Turret.GunBase.GetMuzzleWorldPosition() + (Vector3D)shotVel * tti2 : predictedPosition;
 
                     return predictedPosition;
                 }
@@ -1786,6 +1824,27 @@ namespace Sandbox.Game.Weapons
             foreach (var target in m_targetList)
             {
                 var dist = Vector3D.DistanceSquared(target.PositionComp.GetPosition(), PositionComp.GetPosition());
+
+                //if we have a missile or meteor incoming, we want to scale the priority of targetting
+                //the entity based on how likely the target is to impact us
+                //in particular, if the entity is travelling away from us, we REALLY don't care about it.
+                if (target is MyMissile || target is MyMeteor)
+                {
+                    Vector3D targetVelocity = target.Physics != null ? Vector3D.Normalize(target.Physics.LinearVelocity) : Vector3D.Normalize(target.GetTopMostParent().Physics.LinearVelocity);
+                    Vector3D targetPosition = target.Physics != null ? target.Physics.Center : target.GetTopMostParent().Physics.Center;
+                    Vector3D dirToTarget = Vector3D.Normalize(targetPosition - this.GunBase.GetMuzzleWorldPosition());
+                    Vector3D diff = dirToTarget + targetVelocity;
+                    double length = diff.Length();
+                    if (length < 1.0)
+                    { // target is on a converging course
+                        dist *= length * 3.0;
+                    }
+                    else // target is perfectly tangential to us or travelling away
+                    {
+                        dist *= 1000.0; // to the bottom of the list with you; we have bigger fish to fry.
+                    }
+
+                }
 
                 if (IsDecoy(target) && IsTarget(target) && IsTargetEnemy(target) && IsTargetInView(target) && IsTargetVisible(target))
                 {
