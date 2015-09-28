@@ -10830,9 +10830,19 @@ namespace Sandbox.Game.Localization
         public static readonly MyStringId MyGuiScreenTriggerTimeLimit = MyStringId.GetOrCompute("MyGuiScreenTriggerTimeLimit");
 
         ///<summary>
+        ///The provided type does not implement {0}
+        ///</summary>
+        public static readonly MyStringId ProgrammableBlock_Exception_NotAGridProgram = MyStringId.GetOrCompute("ProgrammableBlock_Exception_NotAGridProgram");
+
+        ///<summary>
         ///Extreme
         ///</summary>
         public static readonly MyStringId WorldSettings_FloraDensity_Extreme = MyStringId.GetOrCompute("WorldSettings_FloraDensity_Extreme");
+
+        ///<summary>
+        ///The constructor of a grid program cannot have any arguments.
+        ///</summary>
+        public static readonly MyStringId ProgrammableBlock_Exception_InvalidConstructor = MyStringId.GetOrCompute("ProgrammableBlock_Exception_InvalidConstructor");
 
         ///<summary>
         ///None

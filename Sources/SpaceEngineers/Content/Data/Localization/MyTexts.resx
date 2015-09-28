@@ -6702,8 +6702,14 @@ If there is no chance of accessing a medical room, the game is over and you can 
   <data name="MyGuiScreenTriggerTimeLimit" xml:space="preserve">
     <value>Time limit</value>
   </data>
+  <data name="ProgrammableBlock_Exception_NotAGridProgram" xml:space="preserve">
+    <value>The provided type does not implement {0}</value>
+  </data>
   <data name="WorldSettings_FloraDensity_Extreme" xml:space="preserve">
     <value>Extreme</value>
+  </data>
+  <data name="ProgrammableBlock_Exception_InvalidConstructor" xml:space="preserve">
+    <value>The constructor of a grid program cannot have any arguments.</value>
   </data>
   <data name="WorldSettings_FloraDensity_None" xml:space="preserve">
     <value>None</value>
